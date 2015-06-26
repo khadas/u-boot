@@ -8,6 +8,9 @@
 #include <android_image.h>
 #include <malloc.h>
 #include <errno.h>
+static const unsigned char lzop_magic[] = {
+	0x89, 0x4c, 0x5a, 0x4f, 0x00, 0x0d, 0x0a, 0x1a, 0x0a
+};
 
 #define ANDROID_IMAGE_DEFAULT_KERNEL_ADDR	0x10008000
 
@@ -97,6 +100,17 @@ int android_image_get_kernel(const struct andr_img_hdr *hdr, int verify,
 	}
 	if (os_len)
 		*os_len = hdr->kernel_size;
+
+#if defined(CONFIG_ANDROID_IMG)
+			images.ft_len = (ulong)(hdr->second_size);
+			end = (ulong)hdr;
+			end += hdr->page_size;
+			end += ALIGN(hdr->kernel_size, hdr->page_size);
+			images.rd_start = end;
+			end += ALIGN(hdr->ramdisk_size, hdr->page_size);
+			images.ft_addr = (char *)end;
+#endif
+
 	return 0;
 }
 
@@ -201,3 +215,44 @@ void android_print_contents(const struct andr_img_hdr *hdr)
 	printf("%scmdline:          %s\n", p, hdr->cmdline);
 }
 #endif
+
+ulong android_image_get_comp(const struct andr_img_hdr *os_hdr)
+{
+	int i;
+	unsigned char *src = (unsigned char *)os_hdr + os_hdr->page_size;
+	/* read magic: 9 first bytes */
+	for (i = 0; i < ARRAY_SIZE(lzop_magic); i++) {
+		if (*src++ != lzop_magic[i])
+				break;
+	}
+	if (i == ARRAY_SIZE(lzop_magic))
+		return IH_COMP_LZO;
+	else
+		return IH_COMP_NONE;
+}
+int android_image_need_move(ulong *img_addr, const struct andr_img_hdr *hdr)
+{
+	ulong kernel_load_addr = android_image_get_kload(hdr);
+	ulong img_start = *img_addr;
+	ulong val = 0;
+	if (kernel_load_addr > img_start)
+		val = kernel_load_addr - img_start;
+	else
+		val = img_start - kernel_load_addr;
+	if (android_image_get_comp(hdr) == IH_COMP_NONE)
+		return 0;
+	if (val < 32*1024*1024) {
+		ulong total_size = android_image_get_end(hdr)-(ulong)hdr;
+		void *reloc_addr = malloc(total_size);
+		if (!reloc_addr) {
+			puts("Error: malloc in  android_image_need_move failed!\n");
+			return -ENOMEM;
+		}
+		printf("reloc_addr =%lx\n", (ulong)reloc_addr);
+		memset(reloc_addr, 0, total_size);
+		memmove(reloc_addr, hdr, total_size);
+		*img_addr = (ulong)reloc_addr;
+		printf("copy done\n");
+	}
+	return 0;
+}

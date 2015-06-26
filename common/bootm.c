@@ -158,11 +158,13 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	case IMAGE_FORMAT_ANDROID:
 		images.os.type = IH_TYPE_KERNEL;
-		images.os.comp = IH_COMP_NONE;
+		images.os.comp =  android_image_get_comp(os_hdr);
 		images.os.os = IH_OS_LINUX;
 
 		images.os.end = android_image_get_end(os_hdr);
 		images.os.load = android_image_get_kload(os_hdr);
+		if (images.os.load == 0x10008000)
+			images.os.load = 0x1080000;
 		images.ep = images.os.load;
 		ep_found = true;
 		break;
@@ -360,7 +362,9 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
 		       uint unc_len, ulong *load_end)
 {
 	int ret = 0;
+	size_t size = 0;
 
+	const char *type_name = genimg_get_type_name(type);
 	*load_end = load;
 	print_decomp_msg(comp, type, load == image_start);
 
@@ -412,8 +416,8 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
 #endif /* CONFIG_LZMA */
 #ifdef CONFIG_LZO
 	case IH_COMP_LZO: {
-		size_t size = unc_len;
-
+		size = unc_len;
+		printf("   Uncompressing %s ... ", type_name);
 		ret = lzop_decompress(image_buf, image_len, load_buf, &size);
 		image_len = size;
 		break;
@@ -421,7 +425,7 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
 #endif /* CONFIG_LZO */
 #ifdef CONFIG_LZ4
 	case IH_COMP_LZ4: {
-		size_t size = unc_len;
+		size = unc_len;
 
 		ret = ulz4fn(image_buf, image_len, load_buf, &size);
 		image_len = size;
@@ -484,7 +488,7 @@ static int bootm_load_os(bootm_headers_t *images, int boot_progress)
 		      blob_start, blob_end);
 		debug("images.os.load = 0x%lx, load_end = 0x%lx\n", load,
 		      load_end);
-
+#ifndef CONFIG_ANDROID_BOOT_IMAGE
 		/* Check what type of image this is. */
 		if (images->legacy_hdr_valid) {
 			if (image_get_type(&images->legacy_hdr_os_copy)
@@ -496,6 +500,7 @@ static int bootm_load_os(bootm_headers_t *images, int boot_progress)
 			bootstage_error(BOOTSTAGE_ID_OVERWRITTEN);
 			return BOOTM_ERR_RESET;
 		}
+#endif
 	}
 
 	lmb_reserve(&images->lmb, images->os.load, (load_end -
@@ -649,6 +654,7 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	if (!ret && (states & BOOTM_STATE_FINDOTHER))
 		ret = bootm_find_other(cmdtp, flag, argc, argv);
 
+
 	/* Load the OS */
 	if (!ret && (states & BOOTM_STATE_LOADOS)) {
 		iflag = bootm_disable_interrupts();
@@ -729,10 +735,10 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	}
 
 	/* Now run the OS! We hope this doesn't return */
-	if (!ret && (states & BOOTM_STATE_OS_GO))
+	if (!ret && (states & BOOTM_STATE_OS_GO)) {
 		ret = boot_selected_os(argc, argv, BOOTM_STATE_OS_GO,
 				images, boot_fn);
-
+		}
 	/* Deal with any fallout */
 err:
 	if (iflag)
@@ -899,6 +905,10 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	case IMAGE_FORMAT_ANDROID:
 		printf("## Booting Android Image at 0x%08lx ...\n", img_addr);
+		if (!android_image_need_move(&img_addr, buf))
+			buf = map_sysmem(img_addr, 0);
+		else
+			return NULL;
 		if (android_image_get_kernel(buf, images->verify,
 					     os_data, os_len))
 			return NULL;
