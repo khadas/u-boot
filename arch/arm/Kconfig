@@ -994,6 +994,7 @@ source "board/zipitz2/Kconfig"
 
 source "board/amlogic/Kconfig"
 source "customer/board/Kconfig"
+source "board/khadas/Kconfig"
 
 source "arch/arm/Kconfig.debug"
 
