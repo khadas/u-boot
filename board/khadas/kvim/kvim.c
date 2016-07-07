@@ -413,7 +413,11 @@ int board_late_init(void){
 
 #ifndef CONFIG_AML_IRDETECT_EARLY
 	/* after  */
+#ifdef CONFIG_AML_CVBS
 	run_command("cvbs init;hdmitx hpd", 0);
+#else
+	run_command("hdmitx hpd", 0);
+#endif
 	run_command("vout output $outputmode", 0);
 #endif
 	/*add board late init function here*/
