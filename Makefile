@@ -246,8 +246,6 @@ ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE ?=
 endif
 
-export CROSS_COMPILE=/opt/gcc-linaro-aarch64-none-elf-4.8-2013.11_linux/bin/aarch64-none-elf-
-
 KCONFIG_CONFIG	?= .config
 export KCONFIG_CONFIG
 
