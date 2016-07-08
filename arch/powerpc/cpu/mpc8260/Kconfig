@@ -12,6 +12,5 @@ config TARGET_KM82XX
 
 endchoice
 
-source "board/keymile/km82xx/Kconfig"
 
 endmenu
