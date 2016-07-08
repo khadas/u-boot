@@ -35,7 +35,6 @@ source "board/atmark-techno/armadillo-800eva/Kconfig"
 source "board/renesas/gose/Kconfig"
 source "board/renesas/koelsch/Kconfig"
 source "board/renesas/lager/Kconfig"
-source "board/kmc/kzm9g/Kconfig"
 source "board/renesas/alt/Kconfig"
 
 endif
