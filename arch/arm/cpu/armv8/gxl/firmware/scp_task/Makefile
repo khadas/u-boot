@@ -68,7 +68,7 @@ OBJS += lib/delay.o
 
 OBJS := $(OBJS:%=$(obj)/%)
 
-all : clean $(obj)/bl301.out $(obj)/bl301.bin
+all : $(obj)/bl301.out $(obj)/bl301.bin
 
 $(obj)/bl301.bin: $(obj)/bl301.out
 	@echo "	OBJCOPY $@"
