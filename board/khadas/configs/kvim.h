@@ -195,6 +195,15 @@
                 "fi;"\
             "fi;"\
             "\0"\
+        "combine_key="\
+            "saradc open 0;"\
+            "if saradc get_in_range 0x0 0x1f; then "\
+                "echo Detect function key;"\
+                "if gpio input GPIOAO_2; then "\
+                    "echo Detect combine keys;"\
+                    "store init 3; fi;"\
+            "fi;"\
+            "\0"\
         "upgrade_key="\
             "if gpio input GPIOAO_2; then "\
                 "echo detect upgrade key; sleep 1;"\
@@ -215,6 +224,7 @@
             "run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
+            "run combine_key;" \
             "run upgrade_key;" \
             "run vim_check;" \
             "run switch_bootmode;"
