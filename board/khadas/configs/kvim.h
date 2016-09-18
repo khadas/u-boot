@@ -201,6 +201,14 @@
                 "if gpio input GPIOAO_2; then run update; fi;"\
             "fi;"\
             "\0"\
+        "vim_check="\
+            "saradc open 1;"\
+            "if saradc get_in_range 0x1d0 0x220; then "\
+                "echo Product checking: pass!;"\
+            "else if saradc get_in_range 0x0 0x1cf; then "\
+                "echo Product checking: fail!; sleep 5; reboot;"\
+            "fi;fi;"\
+        "\0"\
 
 #define CONFIG_PREBOOT  \
             "run factory_reset_poweroff_protect;"\
@@ -208,6 +216,7 @@
             "run init_display;"\
             "run storeargs;"\
             "run upgrade_key;" \
+            "run vim_check;" \
             "run switch_bootmode;"
 #define CONFIG_BOOTCOMMAND "run storeboot"
 
@@ -348,6 +357,7 @@
 #define CONFIG_CMD_JTAG	1
 #define CONFIG_CMD_AUTOSCRIPT 1
 #define CONFIG_CMD_MISC 1
+#define CONFIG_CMD_SARADC 1
 
 /*file system*/
 #define CONFIG_DOS_PARTITION 1
