@@ -75,17 +75,16 @@ ifneq ($(config_file), $(wildcard $(config_file)))
 config_file=$(shell echo "$(srctree)/board/amlogic/configs/$(CONFIG_SYS_BOARD).h")
 ifneq ($(config_file), $(wildcard $(config_file)))
 
-# 3rd. this is amlogic customer config folder
-config_file=$(shell echo "$(srctree)/customer/board/configs/$(CONFIG_SYS_BOARD).h")
-ifneq ($(config_file), $(wildcard $(config_file)))
-$(error $(shell echo "Error: Can not find $(CONFIG_SYS_BOARD).h"))
-
-# 4th. Khadas
+# 3rd. Khadas
 config_file=$(shell echo "$(srctree)/board/khadas/configs/$(CONFIG_SYS_BOARD).h")
 ifneq ($(config_file), $(wildcard $(config_file)))
 
 $(error $(shell echo "Error: Can not find $(CONFIG_SYS_BOARD).h"))
-endif
+# 3th. this is amlogic customer config folder
+config_file=$(shell echo "$(srctree)/customer/board/configs/$(CONFIG_SYS_BOARD).h")
+ifneq ($(config_file), $(wildcard $(config_file)))
+$(error $(shell echo "Error: Can not find $(CONFIG_SYS_BOARD).h"))
+
 endif
 endif
 endif
