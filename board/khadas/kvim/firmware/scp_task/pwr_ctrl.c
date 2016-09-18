@@ -79,14 +79,14 @@ static void hdmi_5v_ctrl(unsigned int ctrl)
 static void vcck_ctrl(unsigned int ctrl)
 {
 	if (ctrl == ON) {
-		aml_update_bits(PREG_PAD_GPIO0_EN_N, 1 << 25, 0);
-		aml_update_bits(PREG_PAD_GPIO0_O, 1 << 25, 1 << 25);
+		aml_update_bits(AO_GPIO_O_EN_N, 1 << 6, 0);
+		aml_update_bits(AO_GPIO_O_EN_N, 1 << 22, 1 << 22);
 		/* after power on vcck, should init vcck*/
 		_udelay(5000);
 		pwm_set_voltage(pwm_d, CONFIG_VCCK_INIT_VOLTAGE);
 	} else {
-		aml_update_bits(PREG_PAD_GPIO0_EN_N, 1 << 25, 0);
-		aml_update_bits(PREG_PAD_GPIO0_O, 1 << 25, 0);
+		aml_update_bits(AO_GPIO_O_EN_N, 1 << 6, 0);
+		aml_update_bits(AO_GPIO_O_EN_N, 1 << 22, 0);
 	}
 }
 
