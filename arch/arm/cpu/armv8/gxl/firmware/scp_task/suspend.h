@@ -33,6 +33,8 @@ struct pwr_op {
 	void (*power_off_at_32k)(void);
 	void (*power_on_at_32k)(void);
 
+	void (*power_off_at_mcu)(unsigned int);
+
 	void (*shut_down)(void);
 
 	unsigned int (*detect_key)(unsigned int);
