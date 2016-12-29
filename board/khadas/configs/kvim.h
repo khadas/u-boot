@@ -76,7 +76,6 @@
         "loadaddr=1080000\0"\
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
-        "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
         "display_bpp=16\0" \
@@ -98,7 +97,6 @@
         "EnableSelinux=enforcing\0"\
         "recovery_part=recovery\0"\
         "recovery_offset=0\0"\
-        "cvbs_drv=0\0"\
         "initargs="\
             "rootfstype=ramfs init=/init console=ttyS0,115200 no_console_suspend earlyprintk=aml-uart,0xc81004c0 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
@@ -109,7 +107,7 @@
             "else fi;"\
             "\0"\
     "storeargs="\
-            "setenv bootargs ${initargs} androidboot.selinux=${EnableSelinux} logo=${display_layer},loaded,${fb_addr},${outputmode} maxcpus=${maxcpus} vout=${outputmode},enable hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${cecconfig} cvbsdrv=${cvbs_drv} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
+            "setenv bootargs ${initargs} androidboot.selinux=${EnableSelinux} logo=${display_layer},loaded,${fb_addr},${outputmode} maxcpus=${maxcpus} vout=${outputmode},enable hdmimode=${hdmimode} hdmitx=${cecconfig} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
 	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
@@ -287,7 +285,7 @@
 #define CONFIG_CMD_BMP 1
 
 #if defined(CONFIG_AML_VOUT)
-#define CONFIG_AML_CVBS 1
+#undef CONFIG_AML_CVBS
 #endif
 
 /* USB
