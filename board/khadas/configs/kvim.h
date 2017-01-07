@@ -104,7 +104,7 @@
 #define CONFIG_PREBOOT \
     "run init_display;" \
     "run upgrade_key;"
-#define CONFIG_BOOTCOMMAND "usb start 0; imgread kernel boot ${loadaddr}; bootm ${loadaddr}"
+#define CONFIG_BOOTCOMMAND "imgread kernel boot ${loadaddr}; bootm ${loadaddr}"
 
 //#define CONFIG_ENV_IS_NOWHERE  1
 #define CONFIG_ENV_SIZE   (64*1024)
