@@ -94,10 +94,16 @@
             "\0"\
 	"bootargs=" \
             "root=LABEL=ROOTFS rootflags=data=writeback rw logo=${display_layer},loaded,${fb_addr},${outputmode} console=ttyS0,115200n8 console=tty0 no_console_suspend consoleblank=0 fsck.repair=yes net.ifnames=0\0" \
+    "upgrade_key=" \
+            "if gpio input GPIOAO_2; then " \
+                "echo Found upgrade button pressed; sleep 1;" \
+                "if gpio input GPIOAO_2; then update; fi;" \
+            "fi;" \
     "\0" \
 
 #define CONFIG_PREBOOT \
-    "run init_display;"
+    "run init_display;" \
+    "run upgrade_key;"
 #define CONFIG_BOOTCOMMAND "usb start 0; imgread kernel boot ${loadaddr}; bootm ${loadaddr}"
 
 //#define CONFIG_ENV_IS_NOWHERE  1
