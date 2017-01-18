@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
+ * Copyright (C) 2017 Khadas.com All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
 #include <vpp.h>
 #ifdef CONFIG_AML_V2_FACTORY_BURN
 #include <amlogic/aml_v2_burning.h>
-#endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
+#endif
 #ifdef CONFIG_AML_HDMITX20
 #include <amlogic/hdmi.h>
 #endif
@@ -67,6 +67,7 @@ int dram_init(void)
 void secondary_boot_func(void)
 {
 }
+
 void internalPhyConfig(struct phy_device *phydev)
 {
 	/*Enable Analog and DSP register Bank access by*/
@@ -122,7 +123,6 @@ static void setup_net_chip(void)
 
 }
 
-
 extern struct eth_board_socket* eth_board_setup(char *name);
 extern int designware_initialize(ulong base_addr, u32 interface);
 int board_eth_init(bd_t *bis)
@@ -144,7 +144,7 @@ static int  sd_emmc_init(unsigned port)
 		case SDIO_PORT_A:
 			break;
 		case SDIO_PORT_B:
-			//todo add card detect
+			//TODO add card detect
 			//setbits_le32(P_PREG_PAD_GPIO5_EN_N,1<<29);//CARD_6
 			break;
 		case SDIO_PORT_C:
@@ -200,9 +200,9 @@ static void sd_emmc_pwr_on(unsigned port)
 		case SDIO_PORT_A:
 			break;
 		case SDIO_PORT_B:
-//            clrbits_le32(P_PREG_PAD_GPIO5_O,(1<<31)); //CARD_8
-//            clrbits_le32(P_PREG_PAD_GPIO5_EN_N,(1<<31));
-			/// @todo NOT FINISH
+			//clrbits_le32(P_PREG_PAD_GPIO5_O,(1<<31)); //CARD_8
+			//clrbits_le32(P_PREG_PAD_GPIO5_EN_N,(1<<31));
+			// TODO NOT FINISH
 			break;
 		case SDIO_PORT_C:
 			break;
@@ -211,16 +211,17 @@ static void sd_emmc_pwr_on(unsigned port)
 	}
 	return;
 }
+
 static void sd_emmc_pwr_off(unsigned port)
 {
-	/// @todo NOT FINISH
+	// TODO NOT FINISH
     switch (port)
 	{
 		case SDIO_PORT_A:
 			break;
 		case SDIO_PORT_B:
-//            setbits_le32(P_PREG_PAD_GPIO5_O,(1<<31)); //CARD_8
-//            clrbits_le32(P_PREG_PAD_GPIO5_EN_N,(1<<31));
+			//setbits_le32(P_PREG_PAD_GPIO5_O,(1<<31)); //CARD_8
+			//clrbits_le32(P_PREG_PAD_GPIO5_EN_N,(1<<31));
 			break;
 		case SDIO_PORT_C:
 			break;
@@ -339,12 +340,12 @@ struct amlogic_usb_config g_usb_config_GXL_skt={
 	CONFIG_GXL_USB_U2_PORT_NUM,
 	CONFIG_GXL_USB_U3_PORT_NUM,
 };
-#endif /*CONFIG_USB_XHCI_AMLOGIC*/
+#endif
 
 #ifdef CONFIG_AML_HDMITX20
 static void hdmi_tx_set_hdmi_5v(void)
 {
-	/*Power on VCC_5V for HDMI_5V*/
+	/* VCC_5V enable: HDMI_5V_EN / GPIOH_3 */
 	clrbits_le32(P_PREG_PAD_GPIO1_EN_N, 1 << 23);
 	clrbits_le32(P_PREG_PAD_GPIO1_O, 1 << 23);
 }
@@ -352,70 +353,80 @@ static void hdmi_tx_set_hdmi_5v(void)
 
 int board_init(void)
 {
-    //Please keep CONFIG_AML_V2_FACTORY_BURN at first place of board_init
 #ifdef CONFIG_AML_V2_FACTORY_BURN
 	aml_try_factory_usb_burning(0, gd->bd);
-#endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
+#endif
 
 	/* LED Pin: GPIOAO_9 */
 	clrbits_le32(AO_GPIO_O_EN_N, 1 << 9);	// output mode
 	setbits_le32(AO_GPIO_O_EN_N, 1 << 25);	// set 1
 
-	/*Power on GPIOAO_2 for VCC_5V*/
-	clrbits_le32(P_AO_GPIO_O_EN_N, ((1<<2)|(1<<18)));
+	/* FIXME: Power on GPIOAO_2 for VCC_5V*/
+	//clrbits_le32(P_AO_GPIO_O_EN_N, ((1<<2)|(1<<18)));
+
 #ifdef CONFIG_USB_XHCI_AMLOGIC_GXL
 	board_usb_init(&g_usb_config_GXL_skt,BOARD_USB_MODE_HOST);
-#endif /*CONFIG_USB_XHCI_AMLOGIC*/
+#endif
+
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
 	vpp_init();
+
 #ifndef CONFIG_AML_IRDETECT_EARLY
 #ifdef CONFIG_AML_HDMITX20
 	hdmi_tx_set_hdmi_5v();
 	hdmi_tx_init();
 #endif
 #endif
+
 #ifdef CONFIG_AML_NAND
 	extern int amlnf_init(unsigned char flag);
 	amlnf_init(0);
 #endif
 	return 0;
 }
+
 #ifdef CONFIG_AML_IRDETECT_EARLY
 #ifdef CONFIG_AML_HDMITX20
 static int do_hdmi_init(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	hdmi_tx_set_hdmi_5v();
 	hdmi_tx_init();
-return 0;
+	return 0;
 }
 
 U_BOOT_CMD(hdmi_init, CONFIG_SYS_MAXARGS, 0, do_hdmi_init,
-	   "HDMI_INIT sub-system",
+	"HDMI_INIT sub-system",
 	"hdmit init\n")
 #endif
 #endif
+
 #ifdef CONFIG_BOARD_LATE_INIT
-int board_late_init(void){
+int board_late_init(void)
+{
 	int ret;
 
-	//update env before anyone using it
-	run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
-			"if test ${reboot_mode} = factory_reset; then "\
-			"defenv_reserv aml_dt;setenv upgrade_step 2;save; fi;", 0);
-	run_command("if itest ${upgrade_step} == 1; then "\
-				"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
+	/* ENV need update in following cases:
+	 * - Bootloader upgrade
+	 * - New ROM upgrade(the built-in bootloader might be changed)
+	 */
+	run_command("get_rebootmode;" \
+			"echo reboot_mode=${reboot_mode};" \
+			"if test ${reboot_mode} = factory_reset; then " \
+				"defenv_reserv aml_dt;" \
+				"setenv upgrade_step 2;" \
+				"save;" \
+			 "fi;", 0);
+	run_command("if itest ${upgrade_step} == 1; then " \
+				"defenv_reserv;" \
+				"setenv upgrade_step 2;" \
+				"saveenv;" \
+			"fi;", 0);
 
-#ifndef CONFIG_AML_IRDETECT_EARLY
-	/* after  */
-#ifdef CONFIG_AML_CVBS
-	run_command("cvbs init;hdmitx hpd", 0);
-#else
+	/* HDMI setup */
 	run_command("hdmitx hpd", 0);
-#endif
 	run_command("vout output $outputmode", 0);
-#endif
 
 	/* Diplay initial and Logo loading */
 	run_command("osd open;" \
@@ -424,7 +435,7 @@ int board_late_init(void){
 				"bmp display ${bootup_offset};" \
 				"bmp scale", 0);
 
-	/*add board late init function here*/
+	/* Load DTB */
 	ret = run_command("store dtb read $dtb_mem_addr", 1);
 	if (ret) {
 		printf("%s(): [store dtb read $dtb_mem_addr] fail\n", __func__);
@@ -467,7 +478,7 @@ int board_late_init(void){
 
 #ifdef CONFIG_AML_V2_FACTORY_BURN
 	aml_try_factory_sdcard_burning(0, gd->bd);
-#endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
+#endif
 
 	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXL) {
 		setenv("maxcpus","4");
@@ -486,43 +497,10 @@ phys_size_t get_effective_memsize(void)
 #endif
 }
 
-#ifdef CONFIG_MULTI_DTB
-int checkhw(char * name)
-{
-	unsigned int ddr_size=0;
-	char loc_name[64] = {0};
-	int i;
-	for (i=0; i<CONFIG_NR_DRAM_BANKS; i++) {
-		ddr_size += gd->bd->bi_dram[i].size;
-	}
-#if defined(CONFIG_SYS_MEM_TOP_HIDE)
-	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
-#endif
-	switch (ddr_size) {
-		case 0x80000000:
-			strcpy(loc_name, "gxl_p212_2g\0");
-			break;
-		case 0x40000000:
-			strcpy(loc_name, "gxl_p212_1g\0");
-			break;
-		case 0x2000000:
-			strcpy(loc_name, "gxl_p212_512m\0");
-			break;
-		default:
-			//printf("DDR size: 0x%x, multi-dt doesn't support\n", ddr_size);
-			strcpy(loc_name, "gxl_p212_unsupport");
-			break;
-	}
-	strcpy(name, loc_name);
-	setenv("aml_dt", loc_name);
-	return 0;
-}
-#endif
-
 const char * const _env_args_reserve_[] =
 {
-		"aml_dt",
-		"firstboot",
+	"aml_dt",
+	"firstboot",
 
-		NULL//Keep NULL be last to tell END
+	NULL//Keep NULL be last to tell END
 };
