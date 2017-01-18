@@ -420,6 +420,14 @@ int board_late_init(void){
 #endif
 	run_command("vout output $outputmode", 0);
 #endif
+
+	/* Diplay initial and Logo loading */
+	run_command("osd open;" \
+				"osd clear;" \
+				"imgread pic logo bootup ${loadaddr};" \
+				"bmp display ${bootup_offset};" \
+				"bmp scale", 0);
+
 	/*add board late init function here*/
 	ret = run_command("store dtb read $dtb_mem_addr", 1);
 	if (ret) {
@@ -434,6 +442,33 @@ int board_late_init(void){
 		}
 		#endif
 	}
+
+	/* Buttons detection
+	 * Short pressed:
+	 * - Power button: Do nothing(Just power on)
+	 * - Function button: Reserved
+	 * Long pressed:
+	 * - Power button: Update
+	 * - Function button: Reserved
+	 * Combines:
+	 * - Power + Function buttons: Erase eMMC then Reset
+	 */
+	run_command("if gpio input GPIOAO_2; then " \
+			"echo Power button detected.;" \
+			"saradc open 0;" \
+			"if saradc get_in_range 0x0 0x1f; then " \
+				"echo Function button detected.;" \
+					"store init 3;" \
+					"reset;" \
+			"else " \
+				"sleep 3;" \
+				"if gpio input GPIOAO_2; then " \
+					"echo Power button long press detected.;" \
+					"update;" \
+				"fi;" \
+			"fi;" \
+		"fi;", 0);
+
 #ifdef CONFIG_AML_V2_FACTORY_BURN
 	aml_try_factory_sdcard_burning(0, gd->bd);
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
