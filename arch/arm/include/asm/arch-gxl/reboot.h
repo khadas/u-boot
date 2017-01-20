@@ -45,6 +45,8 @@ Reboot reason AND corresponding env setting:
 #define	AMLOGIC_CRASH_REBOOT			11
 #define AMLOGIC_KERNEL_PANIC			12
 #define AMLOGIC_WATCHDOG_REBOOT			13
+#define AMLOGIC_UBUNTU_REBOOT           14
+#define AMLOGIC_LIBREELEC_REBOOT          15
 
 /*
 old version env
