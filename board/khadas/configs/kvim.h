@@ -45,7 +45,6 @@
 #define CONFIG_CEC_OSD_NAME		"KVim"
 //#define CONFIG_CEC_WAKEUP
 
-#define CONFIG_CMD_CFGLOAD
 #define CONFIG_INSTABOOT
 
 /* SMP Definitinos */
@@ -219,9 +218,6 @@
                 "echo Product checking: fail!; sleep 5; reboot;"\
             "fi;fi;"\
         "\0"\
-        "openelec_check="\
-             "cfgload;"\
-              "\0"\
 
 #define CONFIG_PREBOOT  \
             "run factory_reset_poweroff_protect;"\
@@ -231,8 +227,7 @@
             "run combine_key;" \
             "run upgrade_key;" \
             "run vim_check;" \
-            "run switch_bootmode;"\
-            "run openelec_check;"
+            "run switch_bootmode;"
 #define CONFIG_BOOTCOMMAND "run storeboot"
 
 //#define CONFIG_ENV_IS_NOWHERE  1
