@@ -476,6 +476,15 @@ int board_late_init(void)
 			"fi;" \
 		"fi;", 0);
 
+	/* Khadas VIM check */
+	run_command("saradc open 1;" \
+			"if saradc get_in_range 0x1d0 0x220; then " \
+				"echo Product checking: Khadas VIM.;" \
+			"else  " \
+				"echo Product checking: Unknown!;" \
+				"sleep 5; reset;" \
+			"fi;", 0);
+
 #ifdef CONFIG_AML_V2_FACTORY_BURN
 	aml_try_factory_sdcard_burning(0, gd->bd);
 #endif
