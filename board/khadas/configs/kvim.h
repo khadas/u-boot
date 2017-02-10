@@ -88,7 +88,7 @@
     "fb_height=1080\0" \
     "bootdisk=ramdisk\0" \
 	"bootargs=" \
-            "root=LABEL=ROOTFS rootflags=data=writeback rw logo=${display_layer},loaded,${fb_addr},${outputmode} vout=1080p60hz,enable console=ttyS0,115200n8 console=tty0 no_console_suspend consoleblank=0 fsck.repair=yes net.ifnames=0\0" \
+            "root=LABEL=ROOTFS rootflags=data=writeback rw logo=osd1,loaded,0x3d800000,1080p60hz vout=1080p60hz,enable console=ttyS0,115200n8 console=tty0 no_console_suspend consoleblank=0 fsck.repair=yes net.ifnames=0\0" \
     "\0" \
 
 /* boot partition name for dual boot
