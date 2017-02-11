@@ -86,8 +86,20 @@
     "fb_addr=0x3d800000\0" \
     "fb_width=1920\0" \
     "fb_height=1080\0" \
+    "start_autoscript=" \
+        "if usb start; then run start_usb_autoscript; if mmcinfo; then run start_mmc_autoscript;fi;fi;" \
+            "\0" \
+        "start_mmc_autoscript=" \
+            "if fatload mmc 0 1020000 s905_autoscript; then autoscr 1020000; fi" \
+            "\0"\
+        "start_usb_autoscript=" \
+            "if fatload usb 0 1020000 s905_autoscript; then autoscr 1020000; fi" \
+            "\0" \
+    "storeboot=" \
+        "imgread kernel boot ${loadaddr}; then bootm ${loadaddr};" \
+        "\0" \
     "bootdisk=ramdisk\0" \
-	"bootargs=" \
+        "bootargs=" \
             "root=LABEL=ROOTFS rootflags=data=writeback rw logo=osd1,loaded,0x3d800000,1080p60hz vout=1080p60hz,enable console=ttyS0,115200n8 console=tty0 no_console_suspend consoleblank=0 fsck.repair=yes net.ifnames=0\0" \
     "\0" \
 
@@ -96,7 +108,7 @@
  * - ramdisk: Ubuntu or Linux distro
  */
 #define CONFIG_PREBOOT
-#define CONFIG_BOOTCOMMAND "imgread kernel ${bootdisk} ${loadaddr}; bootm ${loadaddr}"
+#define CONFIG_BOOTCOMMAND "run start_autoscript; run storeboot"
 
 //#define CONFIG_ENV_IS_NOWHERE  1
 #define CONFIG_ENV_SIZE   (64*1024)
@@ -228,6 +240,7 @@
 #define CONFIG_CMD_I2C 1
 #define CONFIG_CMD_MEMORY 1
 #define CONFIG_CMD_FAT 1
+#define CONFIG_CMD_EXT4 1
 #define CONFIG_CMD_GPIO 1
 #define CONFIG_CMD_RUN
 #define CONFIG_CMD_REBOOT 1
