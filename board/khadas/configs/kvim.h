@@ -96,7 +96,7 @@
             "if fatload usb 0 1020000 s905_autoscript; then autoscr 1020000; fi" \
             "\0" \
     "storeboot=" \
-        "imgread kernel boot ${loadaddr}; then bootm ${loadaddr};" \
+        "imgread kernel ${bootdisk} ${loadaddr}; bootm ${loadaddr};" \
         "\0" \
     "bootdisk=ramdisk\0" \
         "bootargs=" \
