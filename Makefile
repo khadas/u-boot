@@ -891,9 +891,11 @@ endif
 	$(Q)$(FIP_FOLDER)/fip_create --dump $(FIP_FOLDER_SOC)/fip.bin
 
 ifeq ($(CONFIG_NEED_BL301), y)
-.PHONY : bl301.bin
-bl301.bin: tools prepare acs.bin bl21.bin
+$(buildtree)/scp_task/bl301.bin:
 	$(Q)$(MAKE) -C $(srctree)/$(CPUDIR)/${SOC}/firmware/scp_task
+
+.PHONY : bl301.bin
+bl301.bin: tools prepare acs.bin bl21.bin $(buildtree)/scp_task/bl301.bin
 	$(Q)cp $(buildtree)/scp_task/bl301.bin $(FIP_FOLDER_SOC)/bl301.bin -f
 	$(Q)$(FIP_FOLDER)/blx_fix.sh \
 		$(FIP_FOLDER_SOC)/bl30.bin \
