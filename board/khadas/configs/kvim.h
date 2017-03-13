@@ -72,6 +72,15 @@
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS \
         "firstboot=0\0"\
+        "start_autoscript="\
+            "if usb start; then run start_usb_autoscript; if mmcinfo; then run start_mmc_autoscript;fi;fi;"\
+            "\0"\
+        "start_mmc_autoscript="\
+            "if fatload mmc 0 1020000 s905_autoscript; then autoscr 1020000; fi"\
+            "\0"\
+        "start_usb_autoscript="\
+            "if fatload usb 0 1020000 s905_autoscript; then autoscr 1020000; fi"\
+            "\0"\
         "upgrade_step=0\0"\
         "jtag=apao\0"\
         "loadaddr=1080000\0"\
@@ -233,7 +242,7 @@
             "run vim_check;" \
             "run switch_bootmode;"\
             "run openelec_check;"
-#define CONFIG_BOOTCOMMAND "run storeboot"
+#define CONFIG_BOOTCOMMAND "run start_autoscript;run storeboot"
 
 //#define CONFIG_ENV_IS_NOWHERE  1
 #define CONFIG_ENV_SIZE   (64*1024)
