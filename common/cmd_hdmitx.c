@@ -36,7 +36,11 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (st) {
 		setenv("outputmode", getenv("hdmimode"));
 	} else {
+		#ifdef CONFIG_AML_CVBS
 		setenv("outputmode", getenv("cvbsmode"));
+		#else
+		setenv("outputmode", "1080p60hz");
+		#endif
 	}
 	return st;
 }
