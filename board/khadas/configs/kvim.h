@@ -227,6 +227,14 @@
                 "if gpio input GPIOAO_2; then run update; fi;"\
             "fi;"\
             "\0"\
+        "vim_check="\
+            "saradc open 1;"\
+            "if saradc get_in_range 0x1d0 0x220; then "\
+                "echo Product checking: pass!;"\
+            "else if saradc get_in_range 0x0 0x1cf; then "\
+                "echo Product checking: fail!; sleep 5; reboot;"\
+            "fi;fi;"\
+            "\0"\
 
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
@@ -235,6 +243,7 @@
             "run init_display;"\
             "run storeargs;"\
             "run upgrade_key;" \
+            "run vim_check;" \
             "run switch_bootmode;"
 #define CONFIG_BOOTCOMMAND "run storeboot"
 
@@ -357,7 +366,7 @@
 	#define CONFIG_CMD_PING 1
 	#define CONFIG_CMD_DHCP 1
 	#define CONFIG_CMD_RARP 1
-	#define CONFIG_HOSTNAME        arm_gxbb
+	#define CONFIG_HOSTNAME        KVim
 	#define CONFIG_RANDOM_ETHADDR  1				   /* use random eth addr, or default */
 	#define CONFIG_ETHADDR         00:15:18:01:81:31   /* Ethernet address */
 	#define CONFIG_IPADDR          10.18.9.97          /* Our ip address */
@@ -385,6 +394,7 @@
 #define CONFIG_CMD_JTAG	1
 #define CONFIG_CMD_AUTOSCRIPT 1
 #define CONFIG_CMD_MISC 1
+#define CONFIG_CMD_SARADC 1
 
 /*file system*/
 #define CONFIG_DOS_PARTITION 1
