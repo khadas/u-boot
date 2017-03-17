@@ -1,0 +1,7 @@
+config KHADAS_VIM
+	bool "Support Khadas Vim SBC board"
+	default y
+
+if KHADAS_VIM
+source "board/khadas/kvim/Kconfig"
+endif
