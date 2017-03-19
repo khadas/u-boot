@@ -43,7 +43,6 @@
 
 /* configs for CEC */
 #define CONFIG_CEC_OSD_NAME		"KVim"
-#define CONFIG_CEC_WAKEUP
 
 #define CONFIG_INSTABOOT
 /* configs for dtb in boot.img */
