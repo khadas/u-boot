@@ -939,12 +939,12 @@ endif
 
 #ifeq ($(SOC),gxl)
 ifeq ($(strip $(SOC)), $(filter $(SOC), gxl txl))
-	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl30_new.bin --uclcompact enable
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl30_new.bin
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl31.$(BL3X_SUFFIX)
 ifeq ($(FIP_BL32), bl32.$(BL3X_SUFFIX))
-	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl32.$(BL3X_SUFFIX) --uclcompact enable
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl32.$(BL3X_SUFFIX)
 endif
-	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl33.bin --uclcompact enable
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl33.bin
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl2sig  --input $(FIP_FOLDER_SOC)/bl2_new.bin   --output $(FIP_FOLDER_SOC)/bl2.n.bin.sig
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bootmk  --output $(FIP_FOLDER_SOC)/u-boot.bin \
 	--bl2   $(FIP_FOLDER_SOC)/bl2.n.bin.sig  --bl30  $(FIP_FOLDER_SOC)/bl30_new.bin.enc  \
