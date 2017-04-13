@@ -226,7 +226,7 @@
             "\0"\
         "vim_check="\
             "saradc open 1;"\
-            "if saradc get_in_range 0x1d0 0x220; then "\
+            "if saradc get_in_range 0x1a0 0x220; then "\
                 "echo Product checking: pass!;"\
             "else if saradc get_in_range 0x0 0x1cf; then "\
                 "echo Product checking: fail!; sleep 5; reboot;"\
