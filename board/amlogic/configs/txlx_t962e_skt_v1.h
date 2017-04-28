@@ -435,6 +435,19 @@
 #define CONFIG_CPU_CLK_DEBUG		600
 #endif
 
+//2017.04.26
+//data compress for BL30,BL32,BL33
+//compress ratio is about 50%, BL31 will take the decompress
+//profit :
+//          size : u-boot.bin 1.2MB -> 780KB
+//          boot time : 140ms decrease
+//default: enable the data compress feature
+//to disable the data compress please just define followings
+//#define CONFIG_AML_BL30_COMPRESS_DISABLE 1
+//#define CONFIG_AML_BL32_COMPRESS_DISABLE 1
+//#define CONFIG_AML_BL33_COMPRESS_DISABLE 1
+
+
 //support secure boot
 #define CONFIG_AML_SECURE_UBOOT   1
 
