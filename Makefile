@@ -882,6 +882,19 @@ endif
 endif
 FIP_ARGS += --bl33 $(FIP_FOLDER_SOC)/bl33.bin
 
+ifndef CONFIG_AML_BL30_COMPRESS_DISABLE
+BL30_COMPRESS_FLAG =--compress lz4
+endif
+
+ifndef CONFIG_AML_BL32_COMPRESS_DISABLE
+BL32_COMPRESS_FLAG =--compress lz4
+endif
+
+ifndef CONFIG_AML_BL33_COMPRESS_DISABLE
+BL33_COMPRESS_FLAG =--compress lz4
+endif
+
+
 .PHONY: fip.bin
 ifeq ($(CONFIG_NEED_BL301), y)
 fip.bin: tools prepare acs.bin bl301.bin
@@ -939,12 +952,12 @@ endif
 
 #ifeq ($(SOC),gxl)
 ifeq ($(strip $(SOC)), $(filter $(SOC), gxl txl txlx))
-	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl30_new.bin
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl30_new.bin $(BL30_COMPRESS_FLAG)
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl31.$(BL3X_SUFFIX)
 ifeq ($(FIP_BL32), bl32.$(BL3X_SUFFIX))
-	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl32.$(BL3X_SUFFIX)
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl32.$(BL3X_SUFFIX) $(BL32_COMPRESS_FLAG)
 endif
-	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl33.bin
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl33.bin $(BL33_COMPRESS_FLAG)
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl2sig  --input $(FIP_FOLDER_SOC)/bl2_new.bin   --output $(FIP_FOLDER_SOC)/bl2.n.bin.sig
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bootmk  --output $(FIP_FOLDER_SOC)/u-boot.bin \
 	--bl2   $(FIP_FOLDER_SOC)/bl2.n.bin.sig  --bl30  $(FIP_FOLDER_SOC)/bl30_new.bin.enc  \
