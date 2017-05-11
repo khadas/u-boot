@@ -62,9 +62,7 @@
 #define CONFIG_SILENT_CONSOLE_UPDATE_ON_RELOC
 #define CONFIG_SILENT_U_BOOT_ONLY
 
-//2017.04.26 temp disable compress for txlx for BL31 not ready
-#define CONFIG_AML_BL30_COMPRESS_DISABLE 1
-#define CONFIG_AML_BL32_COMPRESS_DISABLE 1
-#define CONFIG_AML_BL33_COMPRESS_DISABLE 1
+//2017.05.11 new compress solution, only support BL33 LZ4 compress
+#define CONFIG_AML_BL33_COMPRESS_ENABLE 1
 
 #endif /* _CPU_H */
