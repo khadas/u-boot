@@ -239,7 +239,6 @@
             "run storeargs;"\
             "run combine_key;" \
             "run upgrade_key;" \
-            "run vim_check;" \
             "run switch_bootmode;"\
             "run openelec_check;"
 #define CONFIG_BOOTCOMMAND "run start_autoscript;run storeboot"
@@ -374,6 +373,7 @@
 #define CONFIG_CMD_I2C 1
 #define CONFIG_CMD_MEMORY 1
 #define CONFIG_CMD_FAT 1
+#define CONFIG_CMD_EXT4 1
 #define CONFIG_CMD_GPIO 1
 #define CONFIG_CMD_RUN
 #define CONFIG_CMD_REBOOT 1
