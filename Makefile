@@ -942,14 +942,24 @@ endif
 		bl2
 	$(Q)cat $(FIP_FOLDER_SOC)/bl2_new.bin  $(FIP_FOLDER_SOC)/fip.bin > $(FIP_FOLDER_SOC)/boot_new.bin
 
-#ifeq ($(SOC),gxl)
 ifeq ($(strip $(SOC)), $(filter $(SOC), gxl txl txlx axg))
+
+ifdef CONFIG_AML_SECURE_BOOT_V3
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3sig  --input $(FIP_FOLDER_SOC)/bl30_new.bin --output $(FIP_FOLDER_SOC)/bl30_new.bin.enc
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3sig  --input $(FIP_FOLDER_SOC)/bl31.$(BL3X_SUFFIX) --output $(FIP_FOLDER_SOC)/bl31.$(BL3X_SUFFIX).enc
+ifeq ($(FIP_BL32), bl32.$(BL3X_SUFFIX))
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3sig  --input $(FIP_FOLDER_SOC)/bl32.$(BL3X_SUFFIX) --output $(FIP_FOLDER_SOC)/bl32.$(BL3X_SUFFIX).enc
+endif
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3sig  --input $(FIP_FOLDER_SOC)/bl33.bin $(BL33_COMPRESS_FLAG) --output $(FIP_FOLDER_SOC)/bl33.bin.enc
+else
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl30_new.bin $(BL30_COMPRESS_FLAG)
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl31.$(BL3X_SUFFIX)
 ifeq ($(FIP_BL32), bl32.$(BL3X_SUFFIX))
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl32.$(BL3X_SUFFIX) $(BL32_COMPRESS_FLAG)
 endif
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl33.bin $(BL33_COMPRESS_FLAG)
+endif
+
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl2sig  --input $(FIP_FOLDER_SOC)/bl2_new.bin   --output $(FIP_FOLDER_SOC)/bl2.n.bin.sig
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bootmk  --output $(FIP_FOLDER_SOC)/u-boot.bin \
 	--bl2   $(FIP_FOLDER_SOC)/bl2.n.bin.sig  --bl30  $(FIP_FOLDER_SOC)/bl30_new.bin.enc  \
