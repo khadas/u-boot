@@ -336,12 +336,12 @@ ddr_timing_t __ddr_timming[] = {
 	/* ddr4 2400 timing */
 	{
 		.identifier				= CONFIG_DDR_TIMMING_DDR4_2400,
-		.cfg_ddr_rtp			= 9,//(4),
-		.cfg_ddr_wtr			= 9,//(6),
+		.cfg_ddr_rtp			= (4),
+		.cfg_ddr_wtr			= (6),
 		.cfg_ddr_rp				= 15*1.2,//(11),
 		.cfg_ddr_rcd			= 15*1.2,//(11),
 		.cfg_ddr_ras			= 35*1.2,//(35),
-		.cfg_ddr_rrd			= (8),
+		.cfg_ddr_rrd			= (4),
 		.cfg_ddr_rc				=50*1.2,// (46),//RAS+RP
 		.cfg_ddr_mrd			= (8),
 		.cfg_ddr_mod			= (24),
@@ -491,9 +491,9 @@ ddr_set_t __ddr_setting = {
 	//.t_pub_zq1pr			= 0x7b,   //PUB ZQ1PR
 	//.t_pub_zq2pr			= 0x7b,   //PUB ZQ2PR
 	//.t_pub_zq3pr			= 0x7b,   //PUB ZQ3PR
-	.t_pub_zq0pr			= 0x5d95d,   //PUB ZQ0PR
-	.t_pub_zq1pr			= 0x5d95d,   //PUB ZQ1PR
-	.t_pub_zq2pr			= 0x5d95d,   //PUB ZQ2PR
+	.t_pub_zq0pr			= 0x5d959,   //PUB ZQ0PR
+	.t_pub_zq1pr			= 0x5d91d,   //PUB ZQ1PR
+	.t_pub_zq2pr			= 0x5d91d,   //PUB ZQ2PR
 	.t_pub_zq3pr			= 0x1dd1d,   //PUB ZQ3PR
 
 	/* pctl0 defines */
@@ -532,6 +532,7 @@ ddr_set_t __ddr_setting = {
 	.t_pctl0_dfilpcfg0		= ( 1 | (3 << 4) | (1 << 8) | (13 << 12) | (7 <<16) | (1 <<24) | ( 3 << 28)),
 	.t_pub_acbdlr0			= 0,  //CK0 delay fine tune
 	.t_pub_aclcdlr			= 0,
+	.t_pub_acbdlr3			= 0,  //CS delay fine tune
 	.ddr_func				= DDR_FUNC, /* ddr func demo 2016.01.26 */
 
 	.wr_adj_per				= {
