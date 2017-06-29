@@ -110,6 +110,14 @@ static void vcck_ctrl(unsigned int ctrl)
 	}
 }
 
+static void power_off_at_mcu(unsigned int shutdown)
+{
+	if(shutdown == 0) {
+		aml_update_bits(PREG_PAD_GPIO0_EN_N, 1 << 2, 0);
+		aml_update_bits(PREG_PAD_GPIO0_O, 1 << 2, 1 << 2);
+	}
+}
+
 static void power_off_at_clk81(void)
 {
 	hdmi_5v_ctrl(OFF);
@@ -277,6 +285,7 @@ static void pwr_op_init(struct pwr_op *pwr_op)
 	pwr_op->power_on_at_24M = power_on_at_24M;
 	pwr_op->power_off_at_32k = power_off_at_32k;
 	pwr_op->power_on_at_32k = power_on_at_32k;
+	pwr_op->power_off_at_mcu = power_off_at_mcu;
 
 	pwr_op->detect_key = detect_key;
 	pwr_op->get_wakeup_source = get_wakeup_source;
