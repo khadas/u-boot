@@ -370,6 +370,23 @@
 #define	CONFIG_PARTITIONS 1
 #define CONFIG_SYS_NO_FLASH  1
 
+/*SPI*/
+//#define CONFIG_SPI_BOOT 1
+#define CONFIG_AMLOGIC_SPI_FLASH 1
+#ifdef      CONFIG_AMLOGIC_SPI_FLASH
+#undef      CONFIG_ENV_IS_NOWHERE
+#define     CONFIG_SPI_FLASH_WINBOND
+#define     CONFIG_SPI_FLASH 1
+#define     CONFIG_CMD_SF 1
+#ifdef CONFIG_SPI_BOOT
+	#define CONFIG_ENV_OVERWRITE
+	#define CONFIG_ENV_IS_IN_SPI_FLASH
+	#define CONFIG_CMD_SAVEENV
+	#define CONFIG_ENV_SECT_SIZE        0x10000
+	#define CONFIG_ENV_OFFSET           0x1f0000
+#endif
+#endif
+
 /* vpu */
 #define CONFIG_AML_VPU 1
 #define CONFIG_VPU_CLK_LEVEL_DFT 7
