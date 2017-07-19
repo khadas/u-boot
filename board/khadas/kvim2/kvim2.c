@@ -389,6 +389,9 @@ int board_init(void)
 #ifdef CONFIG_AML_V2_FACTORY_BURN
 	aml_try_factory_usb_burning(0, gd->bd);
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
+
+	clrbits_le32(PREG_PAD_GPIO0_EN_N, (1 << 2));
+	clrbits_le32(PREG_PAD_GPIO0_O, 1 << 2);
 	/*for LED*/
 	//clear pinmux
 	clrbits_le32(AO_RTI_PIN_MUX_REG, ((1<<3)|(1<<4)));
