@@ -267,6 +267,11 @@ static unsigned int detect_key(unsigned int suspend_from)
 			irq[IRQ_ETH_PHY] = 0xFFFFFFFF;
 				exit_reason = ETH_PHY_WAKEUP;
 		}
+		if (suspend_from) {
+			if (!(readl(PREG_PAD_GPIO3_I) & (0x01 << 15))) {
+				exit_reason = WOL_WAKEUP;
+			}
+		}
 		if (exit_reason)
 			break;
 		else

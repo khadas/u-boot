@@ -12,6 +12,7 @@
 #define CEC_WAKEUP		8
 #define	REMOTE_CUS_WAKEUP		9
 #define ETH_PHY_WAKEUP      10
+#define WOL_WAKEUP          11
 
 /* wake up source*/
 #define UDEFINED_WAKEUP_SRC	(1<<0)
