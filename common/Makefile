@@ -309,7 +309,7 @@ obj-y += cmd_disk.o
 obj-y += cmd_vpp.o
 
 # khadas commands
-obj-y  += cmd_kbi.o
+obj-$(CONFIG_KHADAS_KBI)  += cmd_kbi.o
 
 # amlogic commands
 obj-$(CONFIG_CMD_REBOOT) += cmd_reboot.o

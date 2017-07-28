@@ -47,6 +47,9 @@
 
 #define CONFIG_INSTABOOT
 
+/* config for kbi */
+#define CONFIG_KHADAS_KBI 1
+
 /* support ext4*/
 #define CONFIG_CMD_EXT4 1
 
