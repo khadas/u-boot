@@ -87,8 +87,8 @@ static void vcck_ctrl(unsigned int ctrl)
 {
 	if (ctrl == ON) {
 		/* vddcpu_a*/
-		aml_update_bits(AO_GPIO_O_EN_N, 1 << 4, 0);
-		aml_update_bits(AO_GPIO_O_EN_N, 1 << 20, 1<<20);
+		aml_update_bits(PREG_PAD_GPIO0_EN_N, 1 << 4, 0);
+		aml_update_bits(PREG_PAD_GPIO0_O, 1 << 4, 1 << 4);
 		/* after power on vcck, should init vcck*/
 		_udelay(5000);
 		pwm_set_voltage(pwm_ao_a, CONFIG_VCCKA_INIT_VOLTAGE);
@@ -101,8 +101,8 @@ static void vcck_ctrl(unsigned int ctrl)
 		pwm_set_voltage(pwm_f, CONFIG_VCCKB_INIT_VOLTAGE);
 	} else {
 		/* vddcpu_a*/
-		aml_update_bits(AO_GPIO_O_EN_N, 1 << 4, 0);
-		aml_update_bits(AO_GPIO_O_EN_N, 1 << 20, 0);
+		aml_update_bits(PREG_PAD_GPIO0_EN_N, 1 << 4, 0);
+		aml_update_bits(PREG_PAD_GPIO0_O, 1 << 4, 0);
 
 		/* vddcpu_b*/
 		aml_update_bits(PREG_PAD_GPIO3_EN_N, 1 << 28, 0);
