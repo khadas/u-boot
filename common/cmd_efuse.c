@@ -36,6 +36,26 @@
 
 #define CMD_EFUSE_AMLOGIC_SET      20
 
+void get_mac(char* c)
+{
+	int i;
+	int num[12];
+	char mac_addr[12];
+	for (i=0; i<12; i++) {
+		if (c[i] >= '0' && c[i] <= '9')
+			num[i] = c[i] - '0';
+		else if (c[i] >= 'A' && c[i] <= 'F')
+			num[i] = (c[i] - 'A') + 10;
+		else if (c[i] >= 'a' && c[i] <= 'f')
+			num[i] = (c[i] - 'a') + 10;
+		else
+			num[i] = 0;
+	}
+	sprintf(mac_addr, "%x%x:%x%x:%x%x:%x%x:%x%x:%x%x",num[0],
+			num[1], num[2], num[3], num[4], num[5], num[6], num[7],
+			num[8], num[9], num[10], num[11]);
+	setenv("eth_mac", mac_addr);
+}
 
 int cmd_efuse(int argc, char * const argv[], char *buf)
 {
@@ -47,6 +67,25 @@ int cmd_efuse(int argc, char * const argv[], char *buf)
 	int ret;
 	long lAddr1, lAddr2;
 
+	if (strncmp(argv[1], "mac", 3) == 0) {
+		char mac[12] = {0};
+		int size = 12;
+		uint32_t mac_offset = 0;
+		ret = efuse_read_usr(mac, size, (loff_t *)&mac_offset);
+
+		if (ret == -1) {
+			printf("ERROR: efuse read mac information fail!\n");
+			return -1;
+		}
+
+		if (ret != size)
+			printf("ERROR: read %d byte(s) not %d byte(s) data\n",
+			       ret, size);
+
+		get_mac(mac);
+		printf("\n");
+		return 0;
+	}
 	if (strncmp(argv[1], "read", 4) == 0) {
 		action = CMD_EFUSE_READ;
 	} else if (strncmp(argv[1], "write", 5) == 0) {
