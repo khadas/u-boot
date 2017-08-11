@@ -33,6 +33,7 @@
 #define REG_LED_SYSTEM_ON_MODE  0x28
 #define REG_LED_SYSTEM_OFF_MODE 0x29
 #define REG_ADC                 0x2a
+#define REG_MAC_SWITCH          0x2c
 
 #define REG_PASSWD_CUSTOM       0x40
 
@@ -118,6 +119,16 @@ static void  kbi_i2c_read_block(uint start_reg, int count, int val[])
 
 }
 
+static unsigned char chartonum(char c)
+{
+	if (c >= '0' && c <= '9')
+		return c - '0';
+	if (c >= 'A' && c <= 'F')
+		return (c - 'A') + 10;
+	if (c >= 'a' && c <= 'f')
+		return (c - 'a') + 10;
+	return 0;
+}
 
 static void get_wol(void)
 {
@@ -130,17 +141,33 @@ static void get_wol(void)
 static void set_wol(int enable)
 {
 	char cmd[64];
+	int mode;
 
 	if (enable == 1) {
 
-	int mac_addr[MAC_LENGHT] = {};
+	int mac_addr[MAC_LENGHT] = {0};
 	run_command("phyreg w 0 0", 0);
 	run_command("phyreg w 31 0xd40", 0);
 	run_command("phyreg w 22 0x20", 0);
 	run_command("phyreg w 31 0", 0);
 
-	// mac address
-	kbi_i2c_read_block(REG_MAC, MAC_LENGHT, mac_addr);
+	mode = kbi_i2c_read(REG_MAC_SWITCH);
+	if (mode == 1) {
+		kbi_i2c_read_block(REG_MAC, MAC_LENGHT, mac_addr);
+	} else {
+		run_command("efuse mac", 0);
+		char *s = getenv("eth_mac");
+		if ((s != NULL) && (strcmp(s, "00:00:00:00:00:00") != 0)) {
+			printf("getmac = %s\n", s);
+			int i = 0;
+			for (i = 0; i < 6 && s[0] != '\0' && s[1] != '\0'; i++) {
+			mac_addr[i] = chartonum(s[0]) << 4 | chartonum(s[1]);
+			s +=3;
+			}
+		} else {
+			kbi_i2c_read_block(REG_MAC, MAC_LENGHT, mac_addr);
+		}
+	}
 	run_command("phyreg w 31 0xd8c", 0);
 	sprintf(cmd, "phyreg w 16 0x%x%x", mac_addr[1], mac_addr[0]);
 	run_command(cmd, 0);
@@ -200,19 +227,35 @@ static void get_version(void)
 static void get_mac(void)
 {
 	char mac[64];
-	int mac_addr[MAC_LENGHT] = {};
-	int i;
-	kbi_i2c_read_block(REG_MAC, MAC_LENGHT, mac_addr);
+	int mac_addr[MAC_LENGHT] = {0};
+	int i, mode;
+
+	mode = kbi_i2c_read(REG_MAC_SWITCH);
+
+	if (mode == 1) {
+		kbi_i2c_read_block(REG_MAC, MAC_LENGHT, mac_addr);
+	} else {
+		run_command("efuse mac", 0);
+		char *s = getenv("eth_mac");
+		if ((s != NULL) && (strcmp(s, "00:00:00:00:00:00") != 0)) {
+			for (i = 0; i < 6 && s[0] != '\0' && s[1] != '\0'; i++) {
+			mac_addr[i] = chartonum(s[0]) << 4 | chartonum(s[1]);
+			s +=3;
+			}
+		} else {
+			kbi_i2c_read_block(REG_MAC, MAC_LENGHT, mac_addr);
+		}
+	}
 	printf("mac address: ");
 	for (i=0; i<MAC_LENGHT; i++) {
 		if (i == (MAC_LENGHT-1))
-			printf("%02x",mac_addr[i]);
+			printf("%x",mac_addr[i]);
 		else
-			printf("%02x:",mac_addr[i]);
+			printf("%x:",mac_addr[i]);
 	}
+	printf("\n");
 	sprintf(mac, "%02x:%02x:%02x:%02x:%02x:%02x",mac_addr[0],mac_addr[1],mac_addr[2],mac_addr[3],mac_addr[4],mac_addr[5]);
 	setenv("eth_mac", mac);
-	printf("\n");
 }
 
 static void get_usid(void)
@@ -317,6 +360,23 @@ static void set_ir(int enable)
 	char cmd[64];
 	sprintf(cmd, "i2c mw %x %x %d 1",CHIP_ADDR, REG_BOOT_EN_IR, enable);
 	run_command(cmd, 0);
+}
+
+static void get_switch_mac(void)
+{
+	int mode;
+	mode = kbi_i2c_read(REG_MAC_SWITCH);
+	printf("switch mac from %d\n", mode);
+	setenv("switch_mac", mode==1 ? "1" : "0");
+}
+
+static void set_switch_mac(int mode)
+{
+	char cmd[64];
+	sprintf(cmd, "i2c mw %x %x %d 1",CHIP_ADDR, REG_MAC_SWITCH, mode);
+	printf("set_switch_mac :%d\n", mode);
+	run_command(cmd, 0);
+	setenv("switch_mac", mode==1 ? "1" : "0");
 }
 
 static void get_key(void)
@@ -442,6 +502,28 @@ static int do_kbi_powerstate(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 static int do_kbi_ethmac(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	get_mac();
+	return 0;
+}
+
+static int do_kbi_switchmac(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	if (strcmp(argv[1], "w") == 0) {
+		if (strcmp(argv[2], "0") == 0) {
+			set_switch_mac(0);
+		} else if (strcmp(argv[2], "1") == 0) {
+			set_switch_mac(1);
+		} else {
+			return CMD_RET_USAGE;
+		}
+	} else if (strcmp(argv[1], "r") == 0) {
+		get_switch_mac();
+	} else {
+		return CMD_RET_USAGE;
+	}
 	return 0;
 }
 
@@ -615,6 +697,7 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 	U_BOOT_CMD_MKENT(powerstate, 1, 1, do_kbi_powerstate, "", ""),
 	U_BOOT_CMD_MKENT(ethmac, 1, 1, do_kbi_ethmac, "", ""),
 	U_BOOT_CMD_MKENT(poweroff, 1, 1, do_kbi_poweroff, "", ""),
+	U_BOOT_CMD_MKENT(switchmac, 3, 1, do_kbi_switchmac, "", ""),
 	U_BOOT_CMD_MKENT(led, 4, 1, do_kbi_led, "", ""),
 	U_BOOT_CMD_MKENT(trigger, 4, 1, do_kbi_trigger, "", ""),
 	U_BOOT_CMD_MKENT(bootmode, 3, 1, do_kbi_bootmode, "", ""),

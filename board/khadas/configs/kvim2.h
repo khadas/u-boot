@@ -210,7 +210,7 @@
                     "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
                     "setenv serial ${usid};"\
                 "fi;"\
-                "efuse mac;"\
+                "kbi ethmac;"\
                 "setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
                 "if keyman read deviceid ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
