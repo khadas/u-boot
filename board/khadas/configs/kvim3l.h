@@ -588,6 +588,7 @@
 
 /* net */
 #define CONFIG_CMD_NET   1
+#define CONFIG_PHY_REALTEK 1
 #if defined(CONFIG_CMD_NET)
 	#define CONFIG_DESIGNWARE_ETH 1
 	#define CONFIG_PHYLIB	1
