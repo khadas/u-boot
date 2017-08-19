@@ -59,6 +59,7 @@
 #define CONFIG_BOOTLOADER_CONTROL_BLOCK
 
 #define CONFIG_CMD_SARADC 1
+#define CONFIG_PHY_REALTEK 1
 
 /* SMP Definitinos */
 #define CPU_RELEASE_ADDR		secondary_boot_func
