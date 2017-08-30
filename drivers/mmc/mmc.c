@@ -23,7 +23,9 @@
 #include <partition_table.h>
 #endif
 #include <amlogic/secure_storage.h>
+#ifdef CONFIG_KVIM2
 #include <asm/arch/secure_apb.h>
+#endif
 
 static struct list_head mmc_devices;
 static int cur_dev_num = -1;
@@ -1550,6 +1552,7 @@ static int mmc_complete_init(struct mmc *mmc)
 	return err;
 }
 
+#ifdef CONFIG_KVIM2
 void mmc_bus_init(void)
 {
 	*P_PAD_PULL_UP_EN_REG2 = 0xffffffff;
@@ -1557,6 +1560,7 @@ void mmc_bus_init(void)
 	*P_PERIPHS_PIN_MUX_7 = 0xf0000000;
 	(*((volatile unsigned *)((volatile uint32_t *)0xc1108c88))) =(0x2ab313);
 }
+#endif
 
 int mmc_init(struct mmc *mmc)
 {
@@ -1567,8 +1571,9 @@ int mmc_init(struct mmc *mmc)
 		return 0;
 
 	start = get_timer(0);
-
+#ifdef CONFIG_KVIM2
 	mmc_bus_init();
+#endif
 
 	if (!mmc->init_in_progress)
 		err = mmc_start_init(mmc);
