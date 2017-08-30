@@ -249,9 +249,9 @@ static void get_mac(void)
 	printf("mac address: ");
 	for (i=0; i<MAC_LENGHT; i++) {
 		if (i == (MAC_LENGHT-1))
-			printf("%x",mac_addr[i]);
+			printf("%02x",mac_addr[i]);
 		else
-			printf("%x:",mac_addr[i]);
+			printf("%02x:",mac_addr[i]);
 	}
 	printf("\n");
 	sprintf(mac, "%02x:%02x:%02x:%02x:%02x:%02x",mac_addr[0],mac_addr[1],mac_addr[2],mac_addr[3],mac_addr[4],mac_addr[5]);
