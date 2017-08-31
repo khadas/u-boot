@@ -350,12 +350,12 @@ ddr_timing_t __ddr_timming[] = {
 	/* ddr4 2400 timing */
 	{
 		.identifier				= CONFIG_DDR_TIMMING_DDR4_2400,
-		.cfg_ddr_rtp			= 9,//(4),
-		.cfg_ddr_wtr			= 9,//(6),
+		.cfg_ddr_rtp			= 4,//(4),
+		.cfg_ddr_wtr			= 6,//(6),
 		.cfg_ddr_rp				= 15*1.2,//(11),
 		.cfg_ddr_rcd			= 15*1.2,//(11),
 		.cfg_ddr_ras			= 35*1.2,//(35),
-		.cfg_ddr_rrd			= (8),
+		.cfg_ddr_rrd			= (4),
 		.cfg_ddr_rc				=50*1.2,// (46),//RAS+RP
 		.cfg_ddr_mrd			= (8),
 		.cfg_ddr_mod			= (24),
@@ -562,9 +562,9 @@ ddr_set_t __ddr_setting = {
 	.t_pub_zq3pr			= 0x1dd1d,   //PUB ZQ3PR
 #else // ddr3 and auto
 /* p212 4layer board ddr3 */
-	.t_pub_zq0pr			= 0x5d95d,   //PUB ZQ0PR
-	.t_pub_zq1pr			= 0x5d95d,   //PUB ZQ1PR
-	.t_pub_zq2pr			= 0x5d95d,   //PUB ZQ2PR
+	.t_pub_zq0pr			= 0x5d959,   //PUB ZQ0PR
+	.t_pub_zq1pr			= 0x5d91d,   //PUB ZQ1PR
+	.t_pub_zq2pr			= 0x5d91d,   //PUB ZQ2PR
 	.t_pub_zq3pr			= 0x1dd1d,   //PUB ZQ3PR
 #endif
 
