@@ -887,6 +887,16 @@ ifdef CONFIG_AML_BL33_COMPRESS_ENABLE
 BL33_COMPRESS_FLAG =--compress lz4
 endif
 
+AML_BL2_NAME =bl2.bin
+AML_KEY_BLOB_NANE =aml-user-key.sig
+
+ifdef CONFIG_AML_SECURE_BOOT_V3
+V3_PROCESS_FLAG =--level v3
+ifneq ($(strip $(SOC)), $(filter $(SOC), axg))
+AML_BL2_NAME =bl2.v3.bin
+AML_KEY_BLOB_NANE =aml-user-key-v3.sig
+endif
+endif
 
 .PHONY: fip.bin
 ifeq ($(CONFIG_NEED_BL301), y)
@@ -931,7 +941,7 @@ boot.bin: fip.bin
 ifeq ($(CONFIG_AML_UBOOT_AUTO_TEST), y)
 	$(Q)python $(FIP_FOLDER)/acs_tool.pyc $(FIP_FOLDER_SOC)/bl2_utst.bin $(FIP_FOLDER_SOC)/bl2_acs.bin $(FIP_FOLDER_SOC)/acs.bin 0
 else
-	$(Q)python $(FIP_FOLDER)/acs_tool.pyc $(FIP_FOLDER_SOC)/bl2.bin $(FIP_FOLDER_SOC)/bl2_acs.bin $(FIP_FOLDER_SOC)/acs.bin 0
+	$(Q)python $(FIP_FOLDER)/acs_tool.pyc $(FIP_FOLDER_SOC)/$(AML_BL2_NAME) $(FIP_FOLDER_SOC)/bl2_acs.bin $(FIP_FOLDER_SOC)/acs.bin 0
 endif
 	$(Q)$(FIP_FOLDER)/blx_fix.sh \
 		$(FIP_FOLDER_SOC)/bl2_acs.bin \
@@ -946,12 +956,12 @@ endif
 ifeq ($(strip $(SOC)), $(filter $(SOC), gxl txl txlx axg))
 
 ifdef CONFIG_AML_SECURE_BOOT_V3
-	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3sig  --input $(FIP_FOLDER_SOC)/bl30_new.bin --output $(FIP_FOLDER_SOC)/bl30_new.bin.enc
-	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3sig  --input $(FIP_FOLDER_SOC)/bl31.$(BL3X_SUFFIX) --output $(FIP_FOLDER_SOC)/bl31.$(BL3X_SUFFIX).enc
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3sig  --input $(FIP_FOLDER_SOC)/bl30_new.bin --output $(FIP_FOLDER_SOC)/bl30_new.bin.enc --level v3 --type bl30
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3sig  --input $(FIP_FOLDER_SOC)/bl31.$(BL3X_SUFFIX) --output $(FIP_FOLDER_SOC)/bl31.$(BL3X_SUFFIX).enc --level v3 --type bl31
 ifeq ($(FIP_BL32), bl32.$(BL3X_SUFFIX))
-	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3sig  --input $(FIP_FOLDER_SOC)/bl32.$(BL3X_SUFFIX) --output $(FIP_FOLDER_SOC)/bl32.$(BL3X_SUFFIX).enc
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3sig  --input $(FIP_FOLDER_SOC)/bl32.$(BL3X_SUFFIX) --output $(FIP_FOLDER_SOC)/bl32.$(BL3X_SUFFIX).enc --level v3 --type bl32
 endif
-	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3sig  --input $(FIP_FOLDER_SOC)/bl33.bin $(BL33_COMPRESS_FLAG) --output $(FIP_FOLDER_SOC)/bl33.bin.enc
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3sig  --input $(FIP_FOLDER_SOC)/bl33.bin $(BL33_COMPRESS_FLAG) --output $(FIP_FOLDER_SOC)/bl33.bin.enc --level v3 --type bl33
 else
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl30_new.bin $(BL30_COMPRESS_FLAG)
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl31.$(BL3X_SUFFIX)
@@ -964,7 +974,7 @@ endif
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl2sig  --input $(FIP_FOLDER_SOC)/bl2_new.bin   --output $(FIP_FOLDER_SOC)/bl2.n.bin.sig
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bootmk  --output $(FIP_FOLDER_SOC)/u-boot.bin \
 	--bl2   $(FIP_FOLDER_SOC)/bl2.n.bin.sig  --bl30  $(FIP_FOLDER_SOC)/bl30_new.bin.enc  \
-	--bl31  $(FIP_FOLDER_SOC)/bl31.$(BL3X_SUFFIX).enc  $(FIP_BL32_PROCESS) --bl33  $(FIP_FOLDER_SOC)/bl33.bin.enc
+	--bl31  $(FIP_FOLDER_SOC)/bl31.$(BL3X_SUFFIX).enc  $(FIP_BL32_PROCESS) --bl33  $(FIP_FOLDER_SOC)/bl33.bin.enc $(V3_PROCESS_FLAG)
 	@rm -f $(FIP_FOLDER_SOC)/bl*.enc $(FIP_FOLDER_SOC)/bl2*.sig
 else
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bootsig --input $(FIP_FOLDER_SOC)/boot_new.bin --output $(FIP_FOLDER_SOC)/u-boot.bin
@@ -973,14 +983,14 @@ endif
 ifeq ($(CONFIG_AML_CRYPTO_UBOOT), y)
 #ifeq ($(SOC),gxl)
 ifeq ($(strip $(SOC)), $(filter $(SOC), gxl txl txlx axg))
-	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --efsgen --amluserkey $(srctree)/$(BOARDDIR)/aml-user-key.sig \
-			--output $(FIP_FOLDER_SOC)/u-boot.bin.encrypt.efuse
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --efsgen --amluserkey $(srctree)/$(BOARDDIR)/$(AML_KEY_BLOB_NANE) \
+			--output $(FIP_FOLDER_SOC)/u-boot.bin.encrypt.efuse $(V3_PROCESS_FLAG)
 endif
-	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bootsig --input $(FIP_FOLDER_SOC)/u-boot.bin --amluserkey $(srctree)/$(BOARDDIR)/aml-user-key.sig \
-	 --aeskey enable --output $(FIP_FOLDER_SOC)/u-boot.bin.encrypt
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bootsig --input $(FIP_FOLDER_SOC)/u-boot.bin --amluserkey $(srctree)/$(BOARDDIR)/$(AML_KEY_BLOB_NANE) \
+	 --aeskey enable --output $(FIP_FOLDER_SOC)/u-boot.bin.encrypt $(V3_PROCESS_FLAG)
 endif
 ifeq ($(CONFIG_AML_CRYPTO_IMG), y)
-	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --imgsig --input $(srctree)/$(BOARDDIR)/boot.img --amluserkey $(srctree)/$(BOARDDIR)/aml-user-key.sig --output $(FIP_FOLDER_SOC)/boot.img.encrypt
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --imgsig --input $(srctree)/$(BOARDDIR)/boot.img --amluserkey $(srctree)/$(BOARDDIR)/$(AML_KEY_BLOB_NANE) --output $(FIP_FOLDER_SOC)/boot.img.encrypt
 	@cp -f $(FIP_FOLDER_SOC)/boot.img.encrypt $(FIP_FOLDER)/boot.img.encrypt
 endif
 	@cp -f $(FIP_FOLDER_SOC)/u-boot.* $(FIP_FOLDER)/
