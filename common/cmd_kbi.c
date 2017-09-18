@@ -33,7 +33,7 @@
 #define REG_LED_SYSTEM_ON_MODE  0x28
 #define REG_LED_SYSTEM_OFF_MODE 0x29
 #define REG_ADC                 0x2a
-#define REG_MAC_SWITCH          0x2c
+#define REG_MAC_SWITCH          0x2d
 
 #define REG_PASSWD_CUSTOM       0x40
 
