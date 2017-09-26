@@ -139,6 +139,14 @@ static const struct winbond_spi_flash_params winbond_spi_flash_table[] = {
 		.nr_blocks          = 256,
 		.name               = "W25Q128",
 	},
+	{
+		.id                 = 0x6015,
+		.l2_page_size       = 8,
+		.pages_per_sector   = 16,
+		.sectors_per_block  = 16,
+		.nr_blocks          = 32,
+		.name               = "W25Q16FW",
+	},
 };
 
 #ifdef CONFIG_AMLOGIC_SPI_FLASH
@@ -419,7 +427,7 @@ struct spi_flash *spi_flash_probe_winbond(struct spi_slave *spi, u8 *idcode)
 
 	stm = malloc(sizeof(struct winbond_spi_flash));
 	if (!stm) {
-		debug("SF: Failed to allocate memory\n");
+		printf("SF: Failed to allocate memory\n");
 		return NULL;
 	}
 

@@ -37,8 +37,36 @@ extern int mmc_key_erase(void);
 extern int find_dev_num_by_partition_name (char *name);
 extern int mmc_get_ext_csd(struct mmc *mmc, u8 *ext_csd);
 extern int mmc_set_ext_csd(struct mmc *mmc, u8 index, u8 value);
-#define DTB_BLOCK_CNT       1024
-#define DTB_ADDR_SIZE       (SZ_1M * 40)
+extern void mmc_write_cali_mattern(void *addr);
+
+/* info system. */
+#define dtb_err(fmt, ...) printf( "%s()-%d: " fmt , \
+                  __func__, __LINE__, ##__VA_ARGS__)
+
+#define dtb_wrn(fmt, ...) printf( "%s()-%d: " fmt , \
+                  __func__, __LINE__, ##__VA_ARGS__)
+
+/* for detail debug info */
+#define dtb_info(fmt, ...) printf( "%s()-%d: " fmt , \
+                  __func__, __LINE__, ##__VA_ARGS__)
+
+struct aml_dtb_rsv {
+	u8 data[DTB_BLK_SIZE*DTB_BLK_CNT - 4*sizeof(u32)];
+	u32 magic;
+	u32 version;
+	u32 timestamp;
+	u32 checksum;
+};
+
+struct aml_dtb_info {
+	u32 stamp[2];
+	u8 valid[2];
+};
+
+#define stamp_after(a,b)   ((int)(b) - (int)(a)  < 0)
+/* glb dtb infos */
+static struct aml_dtb_info dtb_infos = {{0, 0}, {0, 0}};
+
 #define CONFIG_SECURITYKEY
 
 #if !defined(CONFIG_SYS_MMC_BOOT_DEV)
@@ -217,7 +245,6 @@ int do_amlmmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
                                 int dev;
                                 u32 n=0;
                                 bool is_part = false;//is argv[2] partition name
-                                bool protect_cache = false;
                                 bool non_loader = false;
                                 int blk_shift;
                                 u64 cnt=0, blk =0,start_blk =0;
@@ -230,7 +257,6 @@ int do_amlmmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
                                         }else if(!strcmp(argv[2], "non_cache")){
                                                 name = "logo";
                                                 dev = find_dev_num_by_partition_name (name);
-                                                protect_cache = true;
                                         }
                                         else if(!strcmp(argv[2], "non_loader")){
                                                 dev = 1;
@@ -318,12 +344,6 @@ int do_amlmmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
                                                 }
                                                 if (n == 0) { // not error
                                                         // (2) erase all the area after reserve-partition
-                                                        if (protect_cache) {
-                                                                part_info = find_mmc_partition_by_name(MMC_CACHE_NAME);
-                                                                if (part_info == NULL) {
-                                                                        return 1;
-                                                                }
-                                                        }
                                                         start_blk = (part_info->offset + part_info->size + PARTITION_RESERVED) >> blk_shift;
                                                         u64 erase_cnt = (mmc->capacity >> blk_shift) - 1 - start_blk;
                                                         n = mmc->block_dev.block_erase(dev, start_blk, erase_cnt);
@@ -415,7 +435,6 @@ int do_amlmmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
                             printf("sd_emmc_reg->gclock = 0x%x\n", sd_emmc_reg->gclock);
                             printf("sd_emmc_reg->gdelay = 0x%x\n", sd_emmc_reg->gdelay);
                             printf("sd_emmc_reg->gadjust = 0x%x\n", sd_emmc_reg->gadjust);
-                            printf("sd_emmc_reg->reserved_0c = 0x%x\n", sd_emmc_reg->reserved_0c);
                             printf("sd_emmc_reg->gcalout = 0x%x\n", sd_emmc_reg->gcalout);
                             if (!mmc->has_init) {
                                 printf("mmc dev %d has not been initialed\n", dev);
@@ -862,26 +881,334 @@ U_BOOT_CMD(
     "amlmmc response <device_num> - read sd/emmc last command response\n"
     "amlmmc controller <device_num> - read sd/emmc controller register\n");
 
+/* dtb read&write operation with backup updates */
+static u32 _calc_dtb_checksum(struct aml_dtb_rsv * dtb)
+{
+    int i = 0;
+    int size = sizeof(struct aml_dtb_rsv) - sizeof(u32);
+    u32 * buffer;
+    u32 checksum = 0;
+
+	if ((u64)dtb % 4 != 0) {
+        BUG();
+    }
+
+    size = size >> 2;
+    buffer = (u32*) dtb;
+	while (i < size)
+        checksum += buffer[i++];
+
+    return checksum;
+}
+
+static int _verify_dtb_checksum(struct aml_dtb_rsv * dtb)
+{
+    u32 checksum;
+
+    checksum = _calc_dtb_checksum(dtb);
+    dtb_info("calc %x, store %x\n", checksum, dtb->checksum);
+
+    return !(checksum == dtb->checksum);
+}
+
+static int _dtb_read(struct mmc *mmc, u64 blk, u64 cnt, void * addr)
+{
+    int dev = EMMC_DTB_DEV;
+    u64 n;
+    n = mmc->block_dev.block_read(dev, blk, cnt, addr);
+	if (n != cnt) {
+        dtb_err("%s: dev # %d, block # %#llx, count # %#llx ERROR!\n",
+                __func__, dev, blk, cnt);
+    }
+
+    return (n != cnt);
+}
+static int _dtb_write(struct mmc *mmc, u64 blk, u64 cnt, void * addr)
+{
+    int dev = EMMC_DTB_DEV;
+    u64 n;
+    n = mmc->block_dev.block_write(dev, blk, cnt, addr);
+	if (n != cnt) {
+        dtb_err("%s: dev # %d, block # %#llx, count # %#llx ERROR!\n",
+                __func__, dev, blk, cnt);
+    }
+
+    return (n != cnt);
+}
+
+static struct mmc *_dtb_init(void)
+{
+    struct mmc *mmc = find_mmc_device(EMMC_DTB_DEV);
+	if (!mmc) {
+        dtb_err("not find mmc\n");
+        return NULL;
+    }
+
+	if (mmc_init(mmc)) {
+        dtb_err("mmc init failed\n");
+        return NULL;
+    }
+
+    return mmc;
+}
+
+static int dtb_read_shortcut(struct mmc * mmc, void *addr)
+{
+    u64 blk, cnt, dtb_glb_offset;
+    int dev = EMMC_DTB_DEV;
+    struct aml_dtb_info *info = &dtb_infos;
+    struct partitions * part = NULL;
+    struct virtual_partition *vpart = NULL;
+    vpart = aml_get_virtual_partition_by_name(MMC_DTB_NAME);
+    part = aml_get_partition_by_name(MMC_RESERVED_NAME);
+    dtb_glb_offset = part->offset + vpart->offset;
+    /* short cut */
+	if (info->valid[0]) {
+        dtb_info("short cut in...\n");
+        blk = dtb_glb_offset / mmc->read_bl_len;
+        cnt = vpart->size / mmc->read_bl_len;
+		if (_dtb_read(mmc, blk, cnt, addr)) {
+            dtb_err("%s: dev # %d, block # %#llx,cnt # %#llx ERROR!\n",
+                    __func__, dev, blk, cnt);
+            /*try dtb2 if it's valid */
+			if (info->valid[1]) {
+				blk = (dtb_glb_offset + vpart->size) / mmc->read_bl_len;
+				cnt = vpart->size / mmc->read_bl_len;
+				if (_dtb_read(mmc, blk, cnt, addr)) {
+					dtb_err("%s: dev # %d, block # %#llx, cnt # %#llx ERROR!\n",
+						__func__, dev, blk, cnt);
+                    return -1;
+                }
+            }
+        }
+        return 0;
+    }
+
+    return -2;
+}
+
+int dtb_read(void *addr)
+{
+    int ret = 0, dev = EMMC_DTB_DEV;
+    u64 blk, cnt, dtb_glb_offset;
+    struct aml_dtb_rsv * dtb = (struct aml_dtb_rsv *) addr;
+    struct aml_dtb_info *info = &dtb_infos;
+    int cpy = 1, valid = 0;
+    struct mmc * mmc;
+    struct partitions * part = NULL;
+    struct virtual_partition *vpart = NULL;
+    vpart = aml_get_virtual_partition_by_name(MMC_DTB_NAME);
+    part = aml_get_partition_by_name(MMC_RESERVED_NAME);
+    dtb_glb_offset = part->offset + vpart->offset;
+
+    mmc = _dtb_init();
+	if (NULL == mmc)
+        return -10;
+
+	if (0 == dtb_read_shortcut(mmc, addr))
+        return ret;
+
+    /* read dtb2 1st, for compatibility without checksum. */
+	while (cpy >= 0) {
+		blk = (dtb_glb_offset + cpy * (vpart->size)) / mmc->read_bl_len;
+		cnt = vpart->size / mmc->read_bl_len;
+		if (_dtb_read(mmc, blk, cnt, addr)) {
+			dtb_err("%s: dev # %d, block # %#llx, cnt # %#llx ERROR!\n",
+				__func__, dev, blk, cnt);
+        } else {
+            ret = _verify_dtb_checksum(dtb);
+            /* check magic avoid whole 0 issue */
+			if (!ret && (dtb->magic != 0)) {
+                info->stamp[cpy] = dtb->timestamp;
+                info->valid[cpy] = 1;
+            }
+            else
+                dtb_wrn("cpy %d is not valid\n", cpy);
+        }
+        valid += info->valid[cpy];
+        cpy --;
+    }
+    dtb_info("total valid %d\n", valid);
+    /* check valid */
+	switch (valid) {
+        /* none is valid, using the 1st one for compatibility*/
+        case 0:
+            ret = -1;
+            goto _out;
+        break;
+        /* only 1 is valid, using the valid one */
+        case 1:
+			if (info->valid[1]) {
+				blk = (dtb_glb_offset + vpart->size) / mmc->read_bl_len;
+				if (_dtb_read(mmc, blk, cnt, addr)) {
+				dtb_err("%s: dev # %d, block # %#llx,cnt # %#llx ERROR!\n",
+						__func__, dev, blk, cnt);
+                    ret = -2;
+                }
+                /* fixme, update the invalid one - dtb1 */
+                blk = (dtb_glb_offset) / mmc->read_bl_len;
+				if (_dtb_write(mmc, blk, cnt, addr)) {
+                    dtb_err("%s: dev # %d, block # %#llx,cnt # %#llx ERROR!\n",
+                        __func__, dev, blk, cnt);
+                    ret = -4;
+                }
+                info->valid[0] = 1;
+                info->stamp[0] = dtb->timestamp;
+                ret = 0;
+            } else {
+                dtb_info("update dtb2");
+                blk = (dtb_glb_offset + vpart->size) / mmc->read_bl_len;
+				if (_dtb_write(mmc, blk, cnt, addr)) {
+                    dtb_err("%s: dev # %d, block # %#llx,cnt # %#llx ERROR!\n",
+                        __func__, dev, blk, cnt);
+                    ret = -2;
+                }
+                info->valid[1] = 1;
+                info->stamp[1] = dtb->timestamp;
+            }
+        break;
+        /* both are valid, pickup new one. */
+        case 2:
+			if (stamp_after(info->stamp[1], info->stamp[0])) {
+				blk = (dtb_glb_offset + vpart->size) / mmc->read_bl_len;
+				if (_dtb_read(mmc, blk, cnt, addr)) {
+					dtb_err("%s: dev # %d, block # %#llx,cnt # %#llx ERROR!\n",
+							__func__, dev, blk, cnt);
+                    ret = -3;
+                }
+                /*update dtb1*/
+                blk = dtb_glb_offset / mmc->read_bl_len;
+				if (_dtb_write(mmc, blk, cnt, addr)) {
+                    dtb_err("%s: dev # %d, block # %#llx,cnt # %#llx ERROR!\n",
+                            __func__, dev, blk, cnt);
+                    ret = -3;
+                }
+                info->stamp[0] = dtb->timestamp;
+                ret = 0;
+            } else if (stamp_after(info->stamp[0], info->stamp[1])) {
+                /*update dtb2*/
+                blk = (dtb_glb_offset + vpart->size) / mmc->read_bl_len;
+				if (_dtb_write(mmc, blk, cnt, addr)) {
+                    dtb_err("%s: dev # %d, block # %#llx,cnt # %#llx ERROR!\n",
+                            __func__, dev, blk, cnt);
+                    ret = -3;
+                }
+                info->stamp[1] = dtb->timestamp;
+            } else {
+                dtb_info("do nothing\n");
+            }
+        break;
+        default:
+            dtb_err("impossble valid values.\n");
+            BUG();
+        break;
+    }
+
+_out:
+    return ret;
+}
+
+
+int dtb_write(void *addr)
+{
+    int ret = 0;
+    struct aml_dtb_rsv * dtb = (struct aml_dtb_rsv *) addr;
+    struct aml_dtb_info *info = &dtb_infos;
+    u64 blk, cnt, dtb_glb_offset;
+    int cpy, valid;
+    struct mmc * mmc;
+    struct partitions * part = NULL;
+    struct virtual_partition *vpart = NULL;
+    vpart = aml_get_virtual_partition_by_name(MMC_DTB_NAME);
+    part = aml_get_partition_by_name(MMC_RESERVED_NAME);
+    dtb_glb_offset = part->offset + vpart->offset;
+
+    mmc = _dtb_init();
+	if (NULL == mmc)
+        return -10;
+
+    /* stamp */
+    valid = info->valid[0] + info->valid[1];
+    dtb_info("valid %d\n", valid);
+	if (0 == valid)
+        dtb->timestamp = 0;
+    else if (1 == valid) {
+        dtb->timestamp = 1 + info->stamp[info->valid[0]?0:1];
+    } else {
+        /* both are valid */
+		if (info->stamp[0] != info->stamp[1]) {
+            dtb_wrn("timestamp are not same %d:%d\n",
+                info->stamp[0], info->stamp[1]);
+            dtb->timestamp = 1 + stamp_after(info->stamp[1], info->stamp[0])?
+                info->stamp[1]:info->stamp[0];
+        } else
+            dtb->timestamp = 1 + info->stamp[0];
+    }
+    /*setting version and magic*/
+    dtb->version = 1; /* base version */
+    dtb->magic = 0x00447e41; /*A~D\0*/
+    dtb->checksum = _calc_dtb_checksum(dtb);
+    dtb_info("new stamp %d, checksum 0x%x, version %d, magic %s\n",
+        dtb->timestamp, dtb->checksum, dtb->version, (char *)&dtb->magic);
+
+	for (cpy = 0; cpy < DTB_COPIES; cpy++) {
+		blk = (dtb_glb_offset + cpy * (vpart->size)) / mmc->read_bl_len;
+		cnt = vpart->size / mmc->read_bl_len;
+		ret |= _dtb_write(mmc, blk, cnt, addr);
+        info->valid[cpy] = 1;
+        info->stamp[cpy] = dtb->timestamp;
+    }
+
+    return ret;
+}
+
+extern int check_valid_dts(unsigned char *buffer);
+int renew_partition_tbl(unsigned char *buffer)
+{
+    int ret = 0;
+    /* todo, check new dts imcoming.... */
+    ret = check_valid_dts(buffer);
+    /* only the dts new is valid */
+    if (!ret) {
+        free_partitions();
+        get_partition_from_dts(buffer);
+        if (0 == mmc_device_init(_dtb_init())) {
+            printf("partition table success\n");
+            ret = 0;
+            goto _out;
+        }
+        printf("partition table error\n");
+        ret = 1;
+    }
+
+_out:
+    return ret;
+}
+
 int do_amlmmc_dtb_key(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-        int dev, ret = 0;
-        void *addr = NULL;
-        u64 cnt =0,n =0, blk =0;
-        //u64 size;
+    int dev, ret = 0;
+    void *addr = NULL;
+    u64 cnt = 0, n = 0, blk = 0;
+    //u64 size;
+    struct partitions *part = NULL;
+    struct virtual_partition *vpart = NULL;
+    vpart = aml_get_virtual_partition_by_name(MMC_DTB_NAME);
+    part = aml_get_partition_by_name(MMC_RESERVED_NAME);
 
     switch (argc) {
         case 3:
             if (strcmp(argv[1], "erase") == 0) {
                 if (strcmp(argv[2], "dtb") == 0) {
                     printf("start erase dtb......\n");
-                    dev = 1;
+                    dev = EMMC_DTB_DEV;
                     struct mmc *mmc = find_mmc_device(dev);
                     if (!mmc) {
                         printf("not find mmc\n");
                         return 1;
                     }
-                    blk = DTB_ADDR_SIZE / mmc->read_bl_len;
-                    cnt = DTB_BLOCK_CNT;
+                    blk = (part->offset + vpart->offset) / mmc->read_bl_len;
+                    cnt = (vpart->size * 2) / mmc->read_bl_len;
                     if (cnt != 0)
                         n = mmc->block_dev.block_erase(dev, blk, cnt);
                     printf("dev # %d, %s, several blocks erased %s\n",
@@ -900,67 +1227,72 @@ int do_amlmmc_dtb_key(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
                             dev, (flag == 0) ? " ":(argv[2]),(n == 0) ? "OK" : "ERROR");
                     return (n == 0) ? 0 : 1;
                 }
+            } else if (strcmp(argv[1], "cali_pattern") == 0) {
+
+				if (strcmp(argv[2], "write") == 0) {
+                    dev = EMMC_DTB_DEV;
+                    struct mmc *mmc = find_mmc_device(dev);
+                    if (!mmc) {
+                        printf("not find mmc\n");
+                        return 1;
+                    }
+                    vpart = aml_get_virtual_partition_by_name(MMC_PATTERN_NAME);
+                    part = aml_get_partition_by_name(MMC_RESERVED_NAME);
+                    addr = (void *)malloc(vpart->size);
+                    mmc_write_cali_mattern(addr);
+                    blk = (part->offset + vpart->offset) / mmc->read_bl_len;
+                    cnt = vpart->size / mmc->read_bl_len;
+                    if (cnt != 0)
+                        n = mmc->block_dev.block_write(dev, blk, cnt, addr);
+                    printf("dev # %d, %s, several calibration pattern blocks write %s\n",
+                            dev, (flag == 0) ? " ":(argv[2]),(n == cnt) ? "OK" : "ERROR");
+                    free(addr);
+                    return (n == cnt) ? 0 : 1;
+                }
             }
         case 4:
+            addr = (void *)simple_strtoul(argv[2], NULL, 16);
             if (strcmp(argv[1], "dtb_read") == 0) {
-                printf("read emmc dtb\n");
-                dev = 1;
-                struct mmc *mmc = find_mmc_device(dev);
-                if (!mmc) {
-                    printf("not find mmc\n");
-                    return 1;
-                }
-                ret = mmc_init(mmc);
-                if (ret) {
-                    printf("mmc init failed\n");
-                    return 1;
-                }
-                addr = (void *)simple_strtoul(argv[2], NULL, 16);
-                //size = simple_strtoull(argv[3], NULL, 16);
-                blk = DTB_ADDR_SIZE / mmc->read_bl_len;
-                cnt = DTB_BLOCK_CNT;
-                n = mmc->block_dev.block_read(dev, blk, cnt, addr);
-                if (n != cnt)
-                    printf("mmc dtb_read: dev # %d, block # %#llx, count # %#llx ERROR!\n",
-                                dev, blk, cnt);
-                return (n == cnt) ? 0 : 1;
+                /* fixme, */
+                ret = dtb_read(addr);
+                return 0;
+
             } else if (strcmp(argv[1], "dtb_write") == 0) {
-                printf("write emmc dtb\n");
-                dev = 1;
-                struct mmc *mmc = find_mmc_device(dev);
-                if (!mmc) {
-                    printf("not find mmc\n");
-                    return 1;
-                }
-                ret = mmc_init(mmc);
-                if (ret) {
-                    printf("mmc init failed\n");
-                    return 1;
-                }
-                addr = (void *)simple_strtoul(argv[2], NULL, 16);
-                //size = simple_strtoull(argv[3], NULL, 16);
-                blk = DTB_ADDR_SIZE / mmc->read_bl_len;
-                cnt = DTB_BLOCK_CNT;
-                n = mmc->block_dev.block_write(dev, blk, cnt, addr);
-                if (n != cnt) {
-                    printf("mmc dtb_write: dev # %d, block # %#llx, count # %#llx ERROR!\n",
-                                dev, blk, cnt);
-                    return 1;
-                }
-                //return (n == cnt) ? 0 : 1;
-                ret = mmc_device_init(mmc);
-                if (ret == 0) {
-                    printf(" partition table success\n");
-                    return 0;
-                }
-                printf(" partition table error\n");
-                return 1;
+                /* fixme, should we check the return value? */
+                ret = dtb_write(addr);
+
+                ret |= renew_partition_tbl(addr);
+                return ret;
             }
             return 0;
         default:
             break;
     }
     return 1;
+}
+
+int emmc_update_mbr(unsigned char *buffer)
+{
+    int ret = 0;
+    cpu_id_t cpu_id = get_cpu_id();
+
+    if (cpu_id.family_id < MESON_CPU_MAJOR_ID_GXL) {
+        ret = -1;
+        printf("MBR not support, try dtb\n");
+        goto _out;
+    }
+#ifndef DTB_BIND_KERNEL
+    dtb_write(buffer);
+#endif
+    ret = get_partition_from_dts(buffer);
+    if (ret) {
+        printf("Fail to get partition talbe from dts\n");
+        goto _out;
+    }
+    ret = mmc_device_init(_dtb_init());
+    printf("%s: update mbr %s\n", __func__, ret?"Fail":"Success");
+_out:
+    return ret;
 }
 
 U_BOOT_CMD(

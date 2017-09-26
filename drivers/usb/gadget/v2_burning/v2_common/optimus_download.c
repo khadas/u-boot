@@ -56,9 +56,13 @@ static unsigned long _dtb_is_loaded = 0;
 #define OPTIMUS_IMG_STA_VERIFY_ING      5
 #define OPTIMUS_IMG_STA_VERIFY_END      6
 
-#define IMG_TYPE_SPARSE (0xfe)
-#define IMG_TYPE_NORMAL 0
-#define IMG_TYPE_BOOTLOADER (0xfd)
+enum {
+    IMG_TYPE_SPARSE     = 0xae  ,
+    IMG_TYPE_NORMAL             ,
+    IMG_TYPE_BOOTLOADER         ,
+    IMG_TYPE_DTB                ,
+    IMG_TYPE_UBIFS		,
+};
 
 //Image info for burnning and verify
 //FIXME: how to assert that image not larger than the partition
@@ -82,6 +86,7 @@ struct ImgBurnInfo{
 };
 
 static struct ImgBurnInfo OptimusImgBurnInfo = {0};
+const char*   _usbDownPartImgType = "";
 
 struct imgBurnInfo_sparse{
 
@@ -98,7 +103,10 @@ struct imgBurnInfo_bootloader{
 
 COMPILE_TIME_ASSERT(IMG_BURN_INFO_SZ == sizeof(struct ImgBurnInfo));
 
-#if 1
+#if defined(CONFIG_STORE_COMPATIBLE)
+#if defined(CONFIG_AML_MTD)
+#define _assert_logic_partition_cap(thePartName, nandPartCap) 0
+#else
 //asset logical partition size >= CFG size in storage.c
 //nand often make mistake this size, emmc should always ok
 static int _assert_logic_partition_cap(const char* thePartName, const uint64_t nandPartCap)
@@ -107,7 +115,8 @@ static int _assert_logic_partition_cap(const char* thePartName, const uint64_t n
 
         int partIndex                   = 0;
         struct partitions * thePart     = NULL;
-
+		if (NULL == part_table)
+            return 0;
         for (thePart = part_table; partIndex < MAX_PART_NAME_LEN; ++thePart, ++partIndex)
         {
                 const uint64_t partSzInBytes = thePart->size;
@@ -127,9 +136,40 @@ static int _assert_logic_partition_cap(const char* thePartName, const uint64_t n
         DWN_ERR("Can't find your download part(%s)\n", thePartName);
         return __LINE__;
 }
-#else
-#define _assert_logic_partition_cap(...)        0
-#endif
+#endif// #if defined(CONFIG_AML_MTD)
+#endif// #if defined(CONFIG_STORE_COMPATIBLE)
+
+//return value is the actual size it write
+static int optimus_download_dtb_image(struct ImgBurnInfo* pDownInfo, u32 dataSzReceived, const u8* data)
+{
+    int ret = 0;
+    DWN_MSG("%s:dataSzReceived=0x%x\n", __func__, dataSzReceived);
+    store_erase_ops((u8*)"dtb", 0, 0, 0);
+    ret = store_dtb_rw((void*)data, dataSzReceived, 1);
+
+    return ret ? 0 : dataSzReceived;
+}
+
+static int optimus_verify_dtb(struct ImgBurnInfo* pDownInfo, u8* genSum)
+{
+    int ret = OPT_DOWN_OK;
+    unsigned char* pBuf = (unsigned char*)OPTIMUS_DOWNLOAD_TRANSFER_BUF_ADDR;
+    uint64_t size = 0;
+
+    size=pDownInfo->imgPktSz;
+    ret = store_dtb_rw(pBuf, size, 2);//'2' means using 'store dtb iread' rather than 'read'
+    if (ret) {
+        DWN_ERR("Fail to read dtb\n");
+        return __LINE__;
+    }
+
+    sha1_csum(pBuf, (u32)pDownInfo->imgPktSz, genSum);
+
+    return ret;
+}
+
+//32k, Now nand not need align any more, but I remember spi nor flash need 32k aligh
+#define BOOTLOADER_ALIGN_BITS   15
 
 //return value is the actual size it write
 static int optimus_download_bootloader_image(struct ImgBurnInfo* pDownInfo, u32 dataSzReceived, const u8* data)
@@ -142,23 +182,16 @@ static int optimus_download_bootloader_image(struct ImgBurnInfo* pDownInfo, u32 
         return 0;
     }
 
-#if 0
-    ret = _check_partition_table_consistency((unsigned)data);
-    if (ret) {
-        DWN_ERR("Fail in _check_partition_table_consistency\n");
-        return 0;
-    }
-#endif
     if (size > (2U<<20)) {
         DWN_ERR("uboot.bin size 0x%llx > 2M unsupported\n", size);
         return 0;
     }
 
-    size += (1U<<20) -1;
-    size >>= 20;
-    size <<= 20;
+    size += (1U<<BOOTLOADER_ALIGN_BITS) -1;
+    size >>= BOOTLOADER_ALIGN_BITS;
+    size <<= BOOTLOADER_ALIGN_BITS;
     ret = store_boot_write((unsigned char*)data, 0, size);
-    DWN_MSG("align bootloader sz from 0x%x to 0x%llx\n", dataSzReceived, size);
+    if (dataSzReceived != size)DWN_MSG("align bootloader sz from 0x%x to 0x%llx\n", dataSzReceived, size) ;
 
     return ret ? 0 : dataSzReceived;
 }
@@ -168,10 +201,16 @@ static int optimus_verify_bootloader(struct ImgBurnInfo* pDownInfo, u8* genSum)
     int ret = OPT_DOWN_OK;
     unsigned char* pBuf = (unsigned char*)OPTIMUS_DOWNLOAD_TRANSFER_BUF_ADDR;
     uint64_t size = 0;
+    uint64_t off  = 0;
+
+#if defined(CONFIG_AML_MTD) && defined(CONFIG_DISCRETE_BOOTLOADER)
+    if ( NAND_BOOT_FLAG == device_boot_flag )
+        off  = (1ULL << 62) - 1; //verify mode for verify discrete bootloader
+#endif//#if defined(CONFIG_AML_MTD)
 
     /*size = 0x60000;////////////TODO:hardcode len!!*/
     size=pDownInfo->imgPktSz;
-    ret = store_boot_read(pBuf, (u64)0, size);
+    ret = store_boot_read(pBuf, off, size);
     if (ret) {
         DWN_ERR("Fail to read bootloader\n");
         return __LINE__;
@@ -255,6 +294,38 @@ static int optimus_storage_open(struct ImgBurnInfo* pDownInfo, const u8* data, c
     {
         DWN_MSG("Burn Start...\n");
         pDownInfo->imgBurnSta = OPTIMUS_IMG_STA_BURN_ING;
+#if defined(CONFIG_AML_MTD)
+        //Need erasing if 'Have not erasing the WHOLE chip' and 'NOT bootloader'
+        if ( (NAND_BOOT_FLAG == device_boot_flag || SPI_NAND_FLAG == device_boot_flag) && MediaType < OPTIMUS_MEDIA_TYPE_MEM )
+        #if  defined(CONFIG_DISCRETE_BOOTLOADER)
+            if ( strcmp(CONFIG_TPL_PART_NAME, partName) )
+        #endif//#if  defined(CONFIG_DISCRETE_BOOTLOADER)
+            if (!(is_optimus_storage_inited()>>16) && strcmp("bootloader", partName)) {
+                char cmd[96];
+                sprintf(cmd, "store erase partition %s", partName);
+                DWN_MSG("cmd[%s]\n", cmd);
+                run_command(cmd, 0);
+            }
+    #if defined(OPTIMUS_BURN_TARGET_SUPPORT_UBIFS)
+        if (IMG_TYPE_UBIFS == pDownInfo->imgType) //get size if not bootloader
+        {
+            char cmd[64];
+            static int _ubiDeviceIndex = 0;
+            sprintf(cmd, "ubi part %s", partName);
+            ret = run_command(cmd, 0);
+            if (ret) {
+                DWN_ERR("Fail in run cmd[%s]\n", cmd); return __LINE__;
+            }
+            sprintf(cmd, "ubi device %d", _ubiDeviceIndex++);
+            ret = run_command(cmd, 0);
+            sprintf(cmd, "ubi create %s", partName);
+            ret = run_command(cmd, 0);
+            if (ret) {
+                DWN_ERR("Fail in run cmd[%s]\n", cmd); return __LINE__;
+            }
+        }
+    #endif// #if defined(OPTIMUS_BURN_TARGET_SUPPORT_UBIFS)
+#endif//#if defined(CONFIG_AML_MTD)
     }
     else if(pDownInfo->imgSzDisposed == pDownInfo->imgPktSz && OPTIMUS_IMG_STA_BURN_COMPLETE == pDownInfo->imgBurnSta)
     {
@@ -354,6 +425,9 @@ static u32 optimus_storage_write(struct ImgBurnInfo* pDownInfo, u64 addrOrOffset
                 switch (imgType)
                 {
                     case IMG_TYPE_NORMAL:
+#if defined(UBIFS_IMG) || defined(CONFIG_CMD_UBIFS)
+                    case IMG_TYPE_UBIFS:
+#endif// #if defined(UBIFS_IMG) || defined(CONFIG_CMD_UBIFS)
                         burnSz = optimus_download_normal_image(pDownInfo, dataSz, data);
                         break;
 
@@ -363,6 +437,10 @@ static u32 optimus_storage_write(struct ImgBurnInfo* pDownInfo, u64 addrOrOffset
 
                     case IMG_TYPE_SPARSE:
                         burnSz = optimus_download_sparse_image(pDownInfo, dataSz, data);
+                        break;
+
+                    case IMG_TYPE_DTB:
+                        burnSz = optimus_download_dtb_image(pDownInfo, dataSz, data);
                         break;
 
                     default:
@@ -429,6 +507,9 @@ static int optimus_storage_read(struct ImgBurnInfo* pDownInfo, u64 addrOrOffsetI
                 if (IMG_TYPE_BOOTLOADER == pDownInfo->imgType)
                 {
                     ret = store_boot_read(buff, addrOrOffsetInBy, (u64)readSzInBy);
+                }
+                else if (IMG_TYPE_DTB == pDownInfo->imgType) {
+                    ret = store_dtb_rw(buff, readSzInBy, 0);
                 }
                 else
                 {
@@ -517,12 +598,13 @@ _err:
 static int _parse_img_download_info(struct ImgBurnInfo* pDownInfo, const char* partName,
                                      const u64 imgSz, const char* imgType, const char* mediaType, const u64 partBaseOffset)
 {
-    u64 partCap = 0;
     int ret = 0;
 
     memset(pDownInfo, 0, sizeof(struct ImgBurnInfo));//clear burnning info
 
     //TODO: check format is normal/bootloader if upload!!
+
+    _usbDownPartImgType = "";
 
     if (!strcmp("sparse", imgType))
     {
@@ -530,11 +612,19 @@ static int _parse_img_download_info(struct ImgBurnInfo* pDownInfo, const char* p
     }
     else if(!strcmp("bootloader", partName))
     {
-        pDownInfo->imgType = IMG_TYPE_BOOTLOADER;
+        pDownInfo->imgType = (u8)IMG_TYPE_BOOTLOADER;
+    }
+    else if ( !strcmp("_aml_dtb", partName) ) {
+        pDownInfo->imgType = (u8)IMG_TYPE_DTB;
     }
     else if(!strcmp("normal", imgType))
     {
-        pDownInfo->imgType = IMG_TYPE_NORMAL;
+        pDownInfo->imgType = (u8)IMG_TYPE_NORMAL;
+    }
+    else if(!strcmp("ubifs", imgType))
+    {
+        pDownInfo->imgType = IMG_TYPE_UBIFS;
+        _usbDownPartImgType = "ubifs";
     }
     else{
         DWN_ERR("err image type %s\n", imgType);
@@ -580,8 +670,9 @@ static int _parse_img_download_info(struct ImgBurnInfo* pDownInfo, const char* p
 
     if (OPTIMUS_MEDIA_TYPE_MEM > pDownInfo->storageMediaType) //if command for burning partition
     {
-        if (strcmp("bootloader", partName)) //get size if not bootloader
+        if (strcmp("bootloader", partName) && strcmp("_aml_dtb", partName)) //get size if not bootloader
         {
+            u64 partCap = 0;
             ret = store_get_partititon_size((u8*)partName, &partCap);
             if (ret) {
                 DWN_ERR("Fail to get size for part %s\n", partName);
@@ -665,11 +756,16 @@ int optimus_storage_init(int toErase)
         DWN_WRN("dtb is not loaded yet\n");
     }
     else{
-        unsigned char* dtb4FlashInit = (unsigned char*)OPTIMUS_DOWNLOAD_TRANSFER_BUF_ADDR;
-        memcpy(dtb4FlashInit, dtbLoadedAddr, _dtb_is_loaded);
-        ret = get_partition_from_dts(dtb4FlashInit);
+#ifdef CONFIG_AML_MTD
+        if ( NAND_BOOT_FLAG == device_boot_flag ) {
+            extern int check_valid_dts(unsigned char *buffer);
+            ret =  check_valid_dts(dtbLoadedAddr);
+        } else
+#endif // #ifdef CONFIG_AML_MTD
+        ret = get_partition_from_dts(dtbLoadedAddr);
+
         if (ret) {
-            DWN_ERR("Failed at get_partition_from_dts\n");
+            DWN_ERR("Failed at check dts\n");
             return __LINE__;
         }
     }
@@ -718,11 +814,13 @@ int optimus_storage_init(int toErase)
         _disk_intialed_ok  = 1;
         _disk_intialed_ok += toErase <<16;
 
+#if 0
         ret = optimus_save_loaded_dtb_to_flash();
         if (ret) {
                 DWN_ERR("FAiled in dtb wr\n");
                 return __LINE__;
         }
+#endif
 
         if (OPTIMUS_WORK_MODE_USB_PRODUCE == optimus_work_mode_get()) //env not relocated in this case
         {
@@ -730,7 +828,7 @@ int optimus_storage_init(int toErase)
             env_relocate();
         }
 
-        if (_dtb_is_loaded)
+        if (_dtb_is_loaded)//for key init, or fail when get /unifykey
         {
                 unsigned long fdtAddr = (unsigned long)dtbLoadedAddr;
 #ifdef CONFIG_MULTI_DTB
@@ -811,6 +909,9 @@ static int optimus_sha1sum_verify_partition(const char* partName, const u64 veri
     {
         return optimus_verify_bootloader(&OptimusImgBurnInfo, genSum);
     }
+    else if (IMG_TYPE_DTB == imgType) {
+        return optimus_verify_dtb(&OptimusImgBurnInfo, genSum);
+    }
     else if(IMG_TYPE_SPARSE == imgType)//sparse image
     {
         ret = optimus_sparse_back_info_probe();
@@ -874,7 +975,14 @@ static int optimus_sha1sum_verify_partition(const char* partName, const u64 veri
     {
         for (; leftLen;)
         {
-            int thisReadLen = (leftLen > buffSz) ? buffSz : ((u32)leftLen);
+            int thisReadLen = 0;
+#if defined(UBIFS_IMG) || defined(CONFIG_CMD_UBIFS)
+            if (!strcmp(_usbDownPartImgType, "ubifs")) {
+                thisReadLen = leftLen;
+            } else
+#endif// #if defined(UBIFS_IMG) || defined(CONFIG_CMD_UBIFS)
+            thisReadLen = (leftLen > buffSz) ? buffSz : ((u32)leftLen);
+
             u64 addrOffset = verifyLen - leftLen;
 
             ret = optimus_storage_read(&OptimusImgBurnInfo, addrOffset, thisReadLen, buff, NULL);
@@ -1087,6 +1195,7 @@ int is_the_flash_first_burned(void)
 int optimus_set_burn_complete_flag(void)
 {
     int rc = 0;
+#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
     const int IsTplLoadedFromBurningPackage = aml_burn_check_uboot_loaded_for_burn(0);
     char upgrade_step[8];
 
@@ -1122,6 +1231,7 @@ int optimus_set_burn_complete_flag(void)
         DWN_ERR("Fail to saveenv to flash\n");
     }
     udelay(200);
+#endif//#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
 
     return rc;
 }

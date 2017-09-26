@@ -19,10 +19,16 @@
 #include <common.h>
 #include <linux/list.h>
 #include <amlogic/aml_lcd_vout.h>
+#ifdef CONFIG_AML_LCD_EXTERN
+#include <amlogic/aml_lcd_extern.h>
+#endif
+#ifdef CONFIG_AML_BL_EXTERN
+#include <amlogic/aml_bl_extern.h>
+#endif
 
 #define Rsv_val 0xffffffff
 struct ext_lcd_config_s {
-	const char *panel_type;
+	const char panel_type[15];
 	int lcd_type; // LCD_TTL /LCD_LVDS/LCD_VBYONE
 	unsigned char lcd_bits;
 

@@ -14,6 +14,7 @@ LD=$(CROSS_COMPILE_BL301)ld
 OBJCOPY=$(CROSS_COMPILE_BL301)objcopy
 OBJDUMP=$(CROSS_COMPILE_BL301)objdump
 
+
 ARM_ARCH=armv7-m
 ARM_CPU=cortex-m3
 CFLAGS_WARN=-Wall -Werror -Wundef -Wstrict-prototypes -Wno-trigraphs      \
@@ -74,11 +75,13 @@ $(obj)/bl301.bin: $(obj)/bl301.out
 	@echo "	OBJCOPY $@"
 	@$(OBJCOPY)  --gap-fill=0xff -O binary $< $@
 
-$(obj)/bl301.out: $(obj)/user_task.lds Makefile $(OBJS)
+$(obj)/bl301.out: Makefile $(OBJS)
 	@echo "	LD $@"
 	@echo "	OBJDUMP $(obj)/bl301.dis"
 	@$(LD) $(OBJS) $(LDFLAGS) -T $(obj)/user_task.lds -Map $(obj)/bl301.map -o $@
 	@$(OBJDUMP) $(DUMP_FLAGS) $@ > $(obj)/bl301.dis
+
+$(OBJS): $(obj)/user_task.lds
 
 $(obj)/%.o : %.c
 	@echo "	CC $(subst $(obj)/,,$@)"
@@ -111,7 +114,7 @@ $(obj)/user_task.lds : user_task.lds
 	@$(CPP) $(CFLAGS) -P $< $@
 
 clean:
-	@-rm -f $(OBJS)
 	@-rm -rf $(obj)/
+	@-rm -rf $(OBJS)
 
 -include $(wildcard $(obj)/*.d)

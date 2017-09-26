@@ -2,7 +2,7 @@
 /*
  * board/khadas/configs/kvim.h
  *
- * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
+ * Copyright (C) 2015 Khadas, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,13 +42,30 @@
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	 850		// voltage for suspend
 
 /* configs for CEC */
-#define CONFIG_CEC_OSD_NAME		"KVim"
+#define CONFIG_CEC_OSD_NAME		"Kvim"
 #define CONFIG_CEC_WAKEUP
 
 //#define CONFIG_INSTABOOT
+/* configs for dtb in boot.img */
+//#define DTB_BIND_KERNEL
 
 /* SMP Definitinos */
 #define CPU_RELEASE_ADDR		secondary_boot_func
+
+/* config saradc*/
+#define CONFIG_CMD_SARADC 1
+
+/*config irblaster*/
+#define CONFIG_CMD_IRBLASTER 1
+
+/* support ext4*/
+#define CONFIG_CMD_EXT4 1
+
+/* Bootloader Control Block function
+   That is used for recovery and the bootloader to talk to each other
+  */
+#define CONFIG_BOOTLOADER_CONTROL_BLOCK
+
 
 /* Serial config */
 #define CONFIG_CONS_INDEX 2
@@ -62,52 +79,75 @@
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_CNT 4
 #define CONFIG_IR_REMOTE_USE_PROTOCOL 0         // 0:nec  1:duokan  2:Toshiba 3:rca 4:rcmm
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL1 0XE51AFB04 //amlogic tv ir --- power
-#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL2 0XBB44FB04 //amlogic tv ir --- ch+
-#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL3 0xF20DFE01 //amlogic tv ir --- ch-
+#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL2 0Xffffffff //amlogic tv ir --- ch+
+#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL3 0xffffffff //amlogic tv ir --- ch-
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL4 0xBA45BD02
 
-#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL5 0x3ac5bd02
+#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL5 0xffffffff
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"boardname=kvim\0" \
-    "loadaddr=1080000\0" \
-    "dtb_mem_addr=0x1000000\0" \
-    "fdt_high=0x20000000\0" \
-    "outputmode=1080p60hz\0" \
-    "hdmimode=1080p60hz\0" \
-    "display_width=1920\0" \
-    "display_height=1080\0" \
-    "display_bpp=16\0" \
-    "display_color_index=16\0" \
-    "display_layer=osd1\0" \
-    "display_color_fg=0xffff\0" \
-    "display_color_bg=0\0" \
-    "fb_addr=0x3d800000\0" \
-    "fb_width=1920\0" \
-    "fb_height=1080\0" \
-    "start_autoscript=" \
-        "if usb start; then run start_usb_autoscript; if mmcinfo; then run start_mmc_autoscript;fi;fi;" \
-            "\0" \
-        "start_mmc_autoscript=" \
-            "if fatload mmc 0 1020000 s905_autoscript; then autoscr 1020000; fi" \
-            "\0"\
-        "start_usb_autoscript=" \
-            "if fatload usb 0 1020000 s905_autoscript; then autoscr 1020000; fi" \
-            "\0" \
-    "storeboot=" \
-        "imgread kernel ${bootdisk} ${loadaddr}; bootm ${loadaddr};" \
-        "\0" \
-    "bootdisk=ramdisk\0" \
-        "bootargs=" \
-            "root=LABEL=ROOTFS rootflags=data=writeback rw logo=osd1,loaded,0x3d800000,1080p60hz vout=1080p60hz,enable console=ttyS0,115200n8 console=tty0 no_console_suspend consoleblank=0 fsck.repair=yes net.ifnames=0\0" \
-    "\0" \
-
+			"boardname=kvim\0" \
+			"loadaddr=1080000\0" \
+			"dtb_mem_addr=0x1000000\0" \
+			"fdt_high=0x20000000\0" \
+			"outputmode=1080p60hz\0" \
+			"hdmimode=1080p60hz\0" \
+			"display_width=1920\0" \
+			"display_height=1080\0" \
+			"display_bpp=16\0" \
+			"display_color_index=16\0" \
+			"display_layer=osd1\0" \
+			"display_color_fg=0xffff\0" \
+			"display_color_bg=0\0" \
+			"fb_addr=0x3d800000\0" \
+			"fb_width=1920\0" \
+			"fb_height=1080\0" \
+			"start_autoscript=" \
+				"if usb start; then run start_usb_autoscript; if mmcinfo; then run start_mmc_autoscript;fi;fi;" \
+					"\0" \
+					"start_mmc_autoscript=" \
+				"if fatload mmc 0 1020000 s905_autoscript; then autoscr 1020000; fi" \
+					"\0"\
+				"start_usb_autoscript=" \
+					"if fatload usb 0 1020000 s905_autoscript; then autoscr 1020000; fi" \
+					"\0" \
+			"storeboot=" \
+				"ext4load mmc 1:5 1080000 uImage;ext4load mmc 1:5 10000000 uInitrd;ext4load mmc 1:5 20000000 kvim.dtb;bootm 1080000 10000000 20000000" \
+				"\0" \
+			"init_display=" \
+				"osd open;" \
+				"osd clear;" \
+				"imgread pic logo bootup ${loadaddr};" \
+				"bmp display ${bootup_offset}; bmp scale" \
+				"\0"\
+			"bootdisk=ramdisk\0" \
+			"bootargs=" \
+				"root=/dev/rootfs rootflags=data=writeback rw logo=osd1,loaded,0x3d800000,1080p60hz vout=1080p60hz,enable hdmimode=1080p60hz console=ttyS0,115200n8 console=tty0 no_console_suspend consoleblank=0 fsck.repair=yes net.ifnames=0 jtag=disable\0" \
+			"combine_key="\
+				"saradc open 0;"\
+				"if saradc get_in_range 0x0 0x1f; then "\
+					"echo Detect function key;"\
+					"if gpio input GPIOAO_2; then "\
+						"echo Detect combine keys;"\
+						"store init 3; fi;"\
+				"fi;"\
+				"\0"\
+			"upgrade_key=" \
+				"if gpio input GPIOAO_2; then " \
+					"echo Found upgrade button pressed; sleep 1;" \
+					"if gpio input GPIOAO_2; then update; fi;" \
+				"fi;" \
+			"\0"
 /* boot partition name for dual boot
  * - boot: for Android OS
  * - ramdisk: Ubuntu or Linux distro
  */
-#define CONFIG_PREBOOT
+#define CONFIG_PREBOOT \
+	"run init_display;" \
+	"run combine_key;" \
+	"run upgrade_key;"
+
 #define CONFIG_BOOTCOMMAND "run start_autoscript; run storeboot"
 
 //#define CONFIG_ENV_IS_NOWHERE  1
@@ -130,7 +170,7 @@
  *    CONFIG_DDR_TYPE_DDR3     : DDR3
  *    CONFIG_DDR_TYPE_DDR4     : DDR4
  *    CONFIG_DDR_TYPE_AUTO     : DDR3/DDR4 auto detect */
-#define CONFIG_DDR_TYPE					CONFIG_DDR_TYPE_DDR3
+#define CONFIG_DDR_TYPE					CONFIG_DDR_TYPE_AUTO
 /* DDR channel setting, please refer hardware design.
  *    CONFIG_DDR0_RANK0        : DDR0 rank0
  *    CONFIG_DDR0_RANK01       : DDR0 rank0+1
@@ -145,25 +185,79 @@
 #define CONFIG_DDR_LOW_POWER			0 //0:disable, 1:enable. ddr clk gate for lp
 #define CONFIG_DDR_ZQ_PD				0 //0:disable, 1:enable. ddr zq power down
 #define CONFIG_DDR_USE_EXT_VREF			0 //0:disable, 1:enable. ddr use external vref
+#define CONFIG_DDR_FUNC_PRINT_WINDOW	0 //0:disable, 1:enable. print ddr training window
 
 /* storage: emmc/nand/sd */
 #define	CONFIG_STORE_COMPATIBLE 1
-#define CONFIG_AML_NAND	1
-/* env */
-#define 	CONFIG_ENV_OVERWRITE
-#define 	CONFIG_CMD_SAVEENV
-/* fixme, need fix*/
+/*
+*				storage
+*		|---------|---------|
+*		|					|
+*		emmc<--Compatible-->nand
+*					|-------|-------|
+*					|				|
+*					MTD<-Exclusive->NFTL
+*/
 
-#if (defined(CONFIG_ENV_IS_IN_AMLNAND) || defined(CONFIG_ENV_IS_IN_MMC)) && defined(CONFIG_STORE_COMPATIBLE)
-#error env in amlnand/mmc already be compatible;
+/* swither for mtd nand which is for slc only. */
+/* support for mtd */
+//#define CONFIG_AML_MTD 1
+/* support for nftl */
+#define CONFIG_AML_NAND	1
+
+#if defined(CONFIG_AML_NAND) && defined(CONFIG_AML_MTD)
+#error CONFIG_AML_NAND/CONFIG_AML_MTD can not support at the sametime;
 #endif
+
+#ifdef CONFIG_AML_MTD
+#define CONFIG_CMD_NAND 1
+#define CONFIG_MTD_DEVICE y
+/* mtd parts of ourown.*/
+#define CONFIFG_AML_MTDPART	1
+/* mtd parts by env default way.*/
+/*
+#define MTDIDS_NAME_STR		"aml_nand.0"
+#define MTDIDS_DEFAULT		"nand1=" MTDIDS_NAME_STR
+#define MTDPARTS_DEFAULT	"mtdparts=" MTDIDS_NAME_STR ":" \
+					"3M@8192K(logo),"	\
+					"10M(recovery),"	\
+					"8M(kernel),"	\
+					"40M(rootfs),"	\
+					"-(data)"
+*/
+#define CONFIG_CMD_UBI
+#define CONFIG_CMD_UBIFS
+#define CONFIG_RBTREE
+#define CONFIG_CMD_NAND_TORTURE 1
+#define CONFIG_CMD_MTDPARTS   1
+#define CONFIG_MTD_PARTITIONS 1
+#define CONFIG_SYS_MAX_NAND_DEVICE  2
+#define CONFIG_SYS_NAND_BASE_LIST   {0}
+#endif
+/* endof CONFIG_AML_MTD */
+
+
 #define CONFIG_AML_SD_EMMC 1
 #ifdef	CONFIG_AML_SD_EMMC
 	#define CONFIG_GENERIC_MMC 1
 	#define CONFIG_CMD_MMC 1
 	#define	CONFIG_SYS_MMC_ENV_DEV 1
-	#define CONFIG_EMMC_DDR52_EN 1
+	#define CONFIG_EMMC_DDR52_EN 0
 	#define CONFIG_EMMC_DDR52_CLK 35000000
+#endif
+/* storage macro checks */
+#if defined(CONFIG_AML_MTD) && defined(CONFIG_AML_NAND)
+#error mtd/nftl are mutually-exclusive, only 1 nand driver can be enabled.
+#endif
+
+/* env */
+#define 	CONFIG_ENV_OVERWRITE
+#define 	CONFIG_CMD_SAVEENV
+
+
+/* env checks */
+#if (defined(CONFIG_ENV_IS_IN_AMLNAND) || defined(CONFIG_ENV_IS_IN_MMC)) && defined(CONFIG_STORE_COMPATIBLE)
+#error env in amlnand/mmc already be compatible;
 #endif
 
 #define	CONFIG_PARTITIONS 1
@@ -171,9 +265,7 @@
 
 /* vpu */
 #define CONFIG_AML_VPU 1
-#ifdef CONFIG_AML_VPU
-#define CONFIG_VPU_PRESET 1
-#endif
+#define CONFIG_VPU_CLK_LEVEL_DFT 7
 
 /* DISPLAY & HDMITX */
 #define CONFIG_AML_HDMITX20 1
@@ -202,6 +294,16 @@
 	#define CONFIG_USB_XHCI_AMLOGIC_GXL 1
 #endif //#if defined(CONFIG_CMD_USB)
 
+//UBOOT fastboot config
+#define CONFIG_CMD_FASTBOOT 1
+#define CONFIG_FASTBOOT_FLASH_MMC_DEV 1
+#define CONFIG_FASTBOOT_FLASH 1
+#define CONFIG_USB_GADGET 1
+#define CONFIG_USBDOWNLOAD_GADGET 1
+#define CONFIG_SYS_CACHELINE_SIZE 64
+#define CONFIG_FASTBOOT_MAX_DOWN_SIZE	0x8000000
+#define CONFIG_DEVICE_PRODUCT	"p212"
+
 //UBOOT Facotry usb/sdcard burning config
 #define CONFIG_AML_V2_FACTORY_BURN              1       //support facotry usb burning
 #define CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE   1       //support factory sdcard burning
@@ -209,7 +311,9 @@
 #define CONFIG_SD_BURNING_SUPPORT_UI            1       //Displaying upgrading progress bar when sdcard/udisk burning
 
 #define CONFIG_AML_SECURITY_KEY                 1
+#ifndef DTB_BIND_KERNEL
 #define CONFIG_UNIFY_KEY_MANAGE                 1
+#endif
 
 /* net */
 #define CONFIG_CMD_NET   1
@@ -220,7 +324,8 @@
 	#define CONFIG_CMD_PING 1
 	#define CONFIG_CMD_DHCP 1
 	#define CONFIG_CMD_RARP 1
-	#define CONFIG_HOSTNAME        KVim
+	#define CONFIG_HOSTNAME        arm_gxbb
+	#define CONFIG_RANDOM_ETHADDR  1				   /* use random eth addr, or default */
 	#define CONFIG_ETHADDR         00:15:18:01:81:31   /* Ethernet address */
 	#define CONFIG_IPADDR          10.18.9.97          /* Our ip address */
 	#define CONFIG_GATEWAYIP       10.18.9.1           /* Our getway ip address */
@@ -240,7 +345,6 @@
 #define CONFIG_CMD_I2C 1
 #define CONFIG_CMD_MEMORY 1
 #define CONFIG_CMD_FAT 1
-#define CONFIG_CMD_EXT4 1
 #define CONFIG_CMD_GPIO 1
 #define CONFIG_CMD_RUN
 #define CONFIG_CMD_REBOOT 1
@@ -252,6 +356,7 @@
 
 /*file system*/
 #define CONFIG_DOS_PARTITION 1
+#define CONFIG_AML_PARTITION 1
 #define CONFIG_MMC 1
 #define CONFIG_FS_FAT 1
 #define CONFIG_FS_EXT4 1
@@ -276,12 +381,16 @@
 #define CONFIG_SYS_MEM_TOP_HIDE 0x08000000 //hide 128MB for kernel reserve
 //#define CONFIG_MULTI_DTB	1
 
+#define CONFIG_CMD_CHIPID 1
 /* debug mode defines */
 //#define CONFIG_DEBUG_MODE           1
 #ifdef CONFIG_DEBUG_MODE
 #define CONFIG_DDR_CLK_DEBUG        636
 #define CONFIG_CPU_CLK_DEBUG        600
 #endif
+
+#define CONFIG_CMDLINE_EDITING 1
+#define CONFIG_AUTO_COMPLETE 1
 
 //support secure boot
 #define CONFIG_AML_SECURE_UBOOT   1
@@ -314,7 +423,7 @@
   #undef CONFIG_AML_CUSTOMER_ID
   #define CONFIG_AML_CUSTOMER_ID  CONFIG_CUSTOMER_ID
 #endif
-#define ETHERNET_INTERNAL_PHY
+#define CONFIG_INTERNAL_PHY
 
 #endif
 

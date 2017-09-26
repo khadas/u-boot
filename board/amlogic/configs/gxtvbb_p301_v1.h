@@ -40,6 +40,7 @@
 /*#define CONFIG_AML_LOCAL_DIMMING*/
 /*#define CONFIG_AML_LOCAL_DIMMING_IW7019*/
 /*#define CONFIG_AML_LOCAL_DIMMING_OB3350*/
+/*#define CONFIG_AML_LOCAL_DIMMING_IW7027*/
 
 /* configs for CEC */
 #define CONFIG_CEC_OSD_NAME		"AML_TV"
@@ -47,8 +48,16 @@
 
 #define CONFIG_INSTABOOT
 
+/* Bootloader Control Block function
+   That is used for recovery and the bootloader to talk to each other
+  */
+#define CONFIG_BOOTLOADER_CONTROL_BLOCK
+
 /* SMP Definitinos */
 #define CPU_RELEASE_ADDR		secondary_boot_func
+
+/* config saradc*/
+#define CONFIG_CMD_SARADC 1
 
 /* Serial config */
 #define CONFIG_CONS_INDEX 2
@@ -69,6 +78,10 @@
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL8 0xf30c0e0e  //skyworth
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL9 0xFFFFFFFF
 
+/*config the default parameters for adc power key*/
+#define CONFIG_ADC_POWER_KEY_CHAN   2  /*channel range: 0-7*/
+#define CONFIG_ADC_POWER_KEY_VAL    0  /*sample value range: 0-1023*/
+
 #define CONFIG_AML_LED
 //#define CONFIG_LED_PWM_INVERT
 #define CONFIG_CMD_LED
@@ -86,7 +99,7 @@
 	"loadaddr=1080000\0"\
 	"panel_type=lvds_2\0" \
 	"outputmode=1080p60hz\0" \
-	"hdmiuart_mode=open\0"\
+	"hdmiuart_mode=close\0"\
 	"panel_reverse=0\0" \
 	"osd_reverse=n\0" \
 	"video_reverse=n\0" \
@@ -111,6 +124,8 @@
 	"wipe_cache=successful\0"\
 	"EnableSelinux=enforcing\0" \
 	"jtag=apao\0"\
+	"active_slot=_a\0"\
+	"boot_part=boot\0"\
 	"ledmode=standby:breath,booting:on,working:on\0"\
 	"upgrade_check="\
 		"echo upgrade_step=${upgrade_step}; "\
@@ -134,6 +149,7 @@
 		"androidboot.firstboot=${firstboot}; "\
 		"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
 		"run cmdline_keys; "\
+		"setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
 		"\0"\
 	"switch_bootmode="\
 		"get_rebootmode; "\
@@ -143,10 +159,12 @@
 			"run update; "\
 		"else if test ${reboot_mode} = cold_boot; then "\
 			"run try_auto_burn; "\
-		"fi; fi; fi; "\
+		"else if test ${reboot_mode} = fastboot; then "\
+			"fastboot;"\
+		"fi;fi;fi;fi;"\
 		"\0" \
 	"storeboot="\
-		"if imgread kernel boot ${loadaddr}; then "\
+		"if imgread kernel ${boot_part} ${loadaddr}; then "\
 			"bootm ${loadaddr}; "\
 		"fi; "\
 		"run update; "\
@@ -234,6 +252,10 @@
 			"if keyman read usid ${loadaddr} str; then "\
 				"setenv bootargs ${bootargs} "\
 				"androidboot.serialno=${usid}; "\
+				"setenv serial ${usid};"\
+                     "else "\
+                            "setenv bootargs ${bootargs} androidboot.serialno=1234567890;"\
+                            "setenv serial 1234567890;"\
 			"fi; "\
 			"if keyman read mac ${loadaddr} str; then "\
 				"setenv bootargs ${bootargs} "\
@@ -245,6 +267,9 @@
 			"fi; "\
 		"fi; "\
 		"\0"\
+	"bcb_cmd="\
+		"get_valid_slot;"\
+		"\0"\
 	"upgrade_key="\
 		"if gpio input GPIOAO_3; then "\
 			"echo detect upgrade key; sleep 5; run update; "\
@@ -252,11 +277,11 @@
 		"\0"\
 
 #define CONFIG_PREBOOT  \
+	"run bcb_cmd; "\
 	"run factory_reset_poweroff_protect; "\
 	"run upgrade_check; "\
 	"run init_display; "\
 	"run storeargs; "\
-	"run upgrade_key; "\
 	"run switch_bootmode;"
 #define CONFIG_BOOTCOMMAND "run storeboot"
 
@@ -282,7 +307,7 @@
  *    CONFIG_DDR01_TWO_CHANNEL_16BIT   : two channels 16bit */
 #define CONFIG_DDR_CHANNEL_SET			CONFIG_DDR01_TWO_CHANNEL
 #define CONFIG_DDR_FULL_TEST			0 //1 for ddr full test
-#define CONFIG_CMD_DDR_TEST
+#define CONFIG_CMD_DDR_TEST				0
 #define CONFIG_DDR_CMD_BDL_TUNE
 #define CONFIG_NR_DRAM_BANKS			1
 /* ddr power saving */
@@ -301,7 +326,7 @@
 #ifdef		CONFIG_AML_SD_EMMC
 	#define 	CONFIG_GENERIC_MMC 1
 	#define 	CONFIG_CMD_MMC 1
-	#define CONFIG_EMMC_DDR52_EN 1
+	#define CONFIG_EMMC_DDR52_EN 0
 	#define CONFIG_EMMC_DDR52_CLK 52000000
 #endif
 //#define 	CONFIG_AML_NAND	1
@@ -342,6 +367,7 @@
 
 /* vpu */
 #define CONFIG_AML_VPU 1
+#define CONFIG_VPU_CLK_LEVEL_DFT 7
 
 /* DISPLAY & HDMITX */
 //#define CONFIG_AML_HDMITX20 1
@@ -358,6 +384,9 @@
 #define CONFIG_AML_LCD    1
 #define CONFIG_AML_LCD_TV 1
 #define CONFIG_AML_LCD_TABLET 1
+#define CONFIG_AML_LCD_EXTERN
+#define CONFIG_AML_LCD_EXTERN_I2C_T5800Q
+#define CONFIG_AML_LCD_EXTERN_I2C_DLPC3439
 
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard
@@ -373,6 +402,16 @@
 	#define CONFIG_USB_XHCI 1
 	#define CONFIG_USB_XHCI_AMLOGIC 1
 #endif //#if defined(CONFIG_CMD_USB)
+
+//UBOOT fastboot config
+#define CONFIG_CMD_FASTBOOT 1
+#define CONFIG_FASTBOOT_FLASH_MMC_DEV 1
+#define CONFIG_FASTBOOT_FLASH 1
+#define CONFIG_USB_GADGET 1
+#define CONFIG_USBDOWNLOAD_GADGET 1
+#define CONFIG_SYS_CACHELINE_SIZE 64
+#define CONFIG_FASTBOOT_MAX_DOWN_SIZE	0x8000000
+#define CONFIG_DEVICE_PRODUCT	"p301"
 
 //UBOOT Facotry usb/sdcard burning config
 #define CONFIG_AML_V2_FACTORY_BURN              1       //support facotry usb burning
@@ -394,6 +433,7 @@
 	#define CONFIG_CMD_DHCP 1
 	#define CONFIG_CMD_RARP 1
 	#define CONFIG_HOSTNAME        arm_gxtvbb
+	#define CONFIG_RANDOM_ETHADDR  1                   /* use random eth addr, or default */
 	#define CONFIG_ETHADDR         00:15:18:01:81:31   /* Ethernet address */
 	#define CONFIG_IPADDR          10.18.9.97          /* Our ip address */
 	#define CONFIG_GATEWAYIP       10.18.9.1           /* Our getway ip address */
@@ -424,6 +464,7 @@
 
 /*file system*/
 #define CONFIG_DOS_PARTITION 1
+#define CONFIG_AML_PARTITION 1
 #define CONFIG_MMC 1
 #define CONFIG_FS_FAT 1
 #define CONFIG_FS_EXT4 1

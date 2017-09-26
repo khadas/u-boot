@@ -47,6 +47,12 @@
 /* SMP Definitinos */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
+/* Bootloader Control Block function
+   That is used for recovery and the bootloader to talk to each other
+  */
+#define CONFIG_BOOTLOADER_CONTROL_BLOCK
+
+
 /* Serial config */
 #define CONFIG_CONS_INDEX 2
 #define CONFIG_BAUDRATE  115200
@@ -65,6 +71,10 @@
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL7 0xf40b1818  //hair toshiba
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL8 0xf30c0e0e  //skyworth
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL9 0xFFFFFFFF
+
+/*config the default parameters for adc power key*/
+#define CONFIG_ADC_POWER_KEY_CHAN   2  /*channel range: 0-7*/
+#define CONFIG_ADC_POWER_KEY_VAL    0  /*sample value range: 0-1023*/
 
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
@@ -95,6 +105,8 @@
 	"wipe_data=successful\0"\
 	"wipe_cache=successful\0"\
 	"jtag=apao\0"\
+	"active_slot=_a\0"\
+	"boot_part=boot\0"\
 	"upgrade_check="\
 		"echo upgrade_step=${upgrade_step}; "\
 		"if itest ${upgrade_step} == 3; then "\
@@ -120,6 +132,7 @@
 		"jtag=${jtag} "\
 		"androidboot.firstboot=${firstboot}; "\
 		"run cmdline_keys; "\
+		"setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
 		"\0"\
 	"switch_bootmode="\
 		"get_rebootmode; "\
@@ -132,7 +145,7 @@
 		"fi; fi; fi; "\
 		"\0" \
 	"storeboot="\
-		"if imgread kernel boot ${loadaddr}; then "\
+		"if imgread kernel ${boot_part} ${loadaddr}; then "\
 			"bootm ${loadaddr}; "\
 		"fi; "\
 		"run update; "\
@@ -207,11 +220,18 @@
 		"imgread pic logo bootup $loadaddr; "\
 		"bmp display $bootup_offset; bmp scale"\
 		"\0"\
+	"bcb_cmd="\
+		"get_valid_slot;"\
+		"\0"\
 	"cmdline_keys="\
 		"if keyman init 0x1234; then "\
 			"if keyman read usid ${loadaddr} str; then "\
 				"setenv bootargs ${bootargs} "\
 				"androidboot.serialno=${usid}; "\
+				"setenv serial ${usid};"\
+			"else "\
+				"setenv bootargs ${bootargs} androidboot.serialno=1234567890;"\
+				"setenv serial 1234567890;"\
 			"fi; "\
 			"if keyman read mac ${loadaddr} str; then "\
 				"setenv bootargs ${bootargs} "\
@@ -225,6 +245,7 @@
 		"\0"\
 
 #define CONFIG_PREBOOT  \
+	"run bcb_cmd; "\
 	"run factory_reset_poweroff_protect; "\
 	"run upgrade_check; "\
 	"run bootmode_check; "\
@@ -313,6 +334,7 @@
 
 /* vpu */
 #define CONFIG_AML_VPU 1
+#define CONFIG_VPU_CLK_LEVEL_DFT 7
 
 /* DISPLAY & HDMITX */
 #define CONFIG_AML_HDMITX20 1
@@ -385,6 +407,7 @@
 
 /*file system*/
 #define CONFIG_DOS_PARTITION 1
+#define CONFIG_AML_PARTITION 1
 #define CONFIG_MMC 1
 #define CONFIG_FS_FAT 1
 #define CONFIG_FS_EXT4 1

@@ -16,13 +16,6 @@
 #ifndef CANVAS_H
 #define CANVAS_H
 
-#define DMC_REG_BASE            0xc8838000
-#define DC_CAV_LUT_DATAL        (0x12 << 2)
-#define DC_CAV_LUT_DATAH        (0x13 << 2)
-#define DC_CAV_LUT_ADDR         (0x14 << 2)
-#define DC_CAV_LUT_RDATAL       (0x15 << 2)
-#define DC_CAV_LUT_RDATAH       (0x16 << 2)
-
 #define CANVAS_ADDR_LMASK       0x1fffffff
 #define CANVAS_WIDTH_LMASK      0x7
 #define CANVAS_WIDTH_LWID       3
@@ -58,6 +51,8 @@ typedef struct {
 
 #define OSD1_CANVAS_INDEX 0x40
 #define OSD2_CANVAS_INDEX 0x43
+
+extern void canvas_init(void);
 
 extern void canvas_config(u32 index, ulong addr, u32 width,
 			  u32 height, u32 wrap, u32 blkmode);

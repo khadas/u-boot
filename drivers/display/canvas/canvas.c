@@ -18,6 +18,8 @@
 /* System Headers */
 #include <common.h>
 #include <asm/arch/io.h>
+#include <asm/arch/secure_apb.h>
+
 
 /* Amlogic Headers */
 #include <amlogic/canvas.h>
@@ -35,11 +37,11 @@
 #define canvas_reg_read(reg) readl(DMC_REG_BASE + reg)
 #define canvas_reg_write(val, reg) writel(val, (DMC_REG_BASE + reg))
 
-#define CANVAS_NUM 192
+#define CANVAS_NUM 256
 static canvas_t canvasPool[CANVAS_NUM];
 static int canvas_inited = 0;
 
-static void canvas_init(void)
+void canvas_init(void)
 {
 	int index = 0;
 

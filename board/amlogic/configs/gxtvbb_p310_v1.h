@@ -43,6 +43,11 @@
 
 #define CONFIG_INSTABOOT
 
+/* Bootloader Control Block function
+   That is used for recovery and the bootloader to talk to each other
+  */
+#define CONFIG_BOOTLOADER_CONTROL_BLOCK
+
 /* SMP Definitinos */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
@@ -64,6 +69,10 @@
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL7 0xf40b1818  //hair toshiba
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL8 0xf30c0e0e  //skyworth
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL9 0xFFFFFFFF
+
+/*config the default parameters for adc power key*/
+#define CONFIG_ADC_POWER_KEY_CHAN   2  /*channel range: 0-7*/
+#define CONFIG_ADC_POWER_KEY_VAL    0  /*sample value range: 0-1023*/
 
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
@@ -95,6 +104,8 @@
 	"wipe_cache=successful\0"\
 	"EnableSelinux=enforcing\0" \
 	"jtag=apao\0"\
+	"active_slot=_a\0"\
+	"boot_part=boot\0"\
 	"upgrade_check="\
 		"echo upgrade_step=${upgrade_step}; "\
 		"if itest ${upgrade_step} == 3; then "\
@@ -112,6 +123,7 @@
 		"jtag=${jtag} "\
 		"androidboot.firstboot=${firstboot}; "\
 		"run cmdline_keys; "\
+		"setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
 		"\0"\
 	"switch_bootmode="\
 		"get_rebootmode; "\
@@ -121,10 +133,12 @@
 			"run update; "\
 		"else if test ${reboot_mode} = cold_boot; then "\
 			"run try_auto_burn; "\
-		"fi; fi; fi; "\
+		"else if test ${reboot_mode} = fastboot; then "\
+			"fastboot;"\
+		"fi;fi;fi;fi;"\
 		"\0" \
 	"storeboot="\
-		"if imgread kernel boot ${loadaddr}; then "\
+		"if imgread kernel ${boot_part} ${loadaddr}; then "\
 			"bootm ${loadaddr}; "\
 		"fi; "\
 		"run update; "\
@@ -202,11 +216,18 @@
 		"imgread pic logo bootup $loadaddr; "\
 		"bmp display $bootup_offset; bmp scale"\
 		"\0"\
+	"bcb_cmd="\
+		"get_valid_slot;"\
+		"\0"\
 	"cmdline_keys="\
 		"if keyman init 0x1234; then "\
 			"if keyman read usid ${loadaddr} str; then "\
 				"setenv bootargs ${bootargs} "\
 				"androidboot.serialno=${usid}; "\
+				"setenv serial ${usid};"\
+			"else "\
+				"setenv bootargs ${bootargs} androidboot.serialno=1234567890;"\
+				"setenv serial 1234567890;"\
 			"fi; "\
 			"if keyman read mac ${loadaddr} str; then "\
 				"setenv bootargs ${bootargs} "\
@@ -220,6 +241,7 @@
 		"\0"\
 
 #define CONFIG_PREBOOT  \
+	"run bcb_cmd; "\
 	"run factory_reset_poweroff_protect; "\
 	"run upgrade_check; "\
 	"run init_display; "\
@@ -266,7 +288,7 @@
 #ifdef		CONFIG_AML_SD_EMMC
 	#define 	CONFIG_GENERIC_MMC 1
 	#define 	CONFIG_CMD_MMC 1
-	#define CONFIG_EMMC_DDR52_EN 1
+	#define CONFIG_EMMC_DDR52_EN 0
 	#define CONFIG_EMMC_DDR52_CLK 52000000
 #endif
 //#define 	CONFIG_AML_NAND	1
@@ -307,6 +329,7 @@
 
 /* vpu */
 #define CONFIG_AML_VPU 1
+#define CONFIG_VPU_CLK_LEVEL_DFT 7
 
 /* DISPLAY & HDMITX */
 #define CONFIG_AML_HDMITX20 1
@@ -338,7 +361,16 @@
 	#define CONFIG_USB_XHCI 1
 	#define CONFIG_USB_XHCI_AMLOGIC 1
 #endif //#if defined(CONFIG_CMD_USB)
-//#define CONFIG_AML_TINY_USBTOOL 1
+
+//UBOOT fastboot config
+#define CONFIG_CMD_FASTBOOT 1
+#define CONFIG_FASTBOOT_FLASH_MMC_DEV 1
+#define CONFIG_FASTBOOT_FLASH 1
+#define CONFIG_USB_GADGET 1
+#define CONFIG_USBDOWNLOAD_GADGET 1
+#define CONFIG_SYS_CACHELINE_SIZE 64
+#define CONFIG_FASTBOOT_MAX_DOWN_SIZE	0x8000000
+#define CONFIG_DEVICE_PRODUCT	"p310"
 
 //UBOOT Facotry usb/sdcard burning config
 #define CONFIG_AML_V2_FACTORY_BURN              1       //support facotry usb burning
@@ -360,6 +392,7 @@
 	#define CONFIG_CMD_DHCP 1
 	#define CONFIG_CMD_RARP 1
 	#define CONFIG_HOSTNAME        arm_gxtvbb
+	#define CONFIG_RANDOM_ETHADDR  1                   /* use random eth addr, or default */
 	#define CONFIG_ETHADDR         00:15:18:01:81:31   /* Ethernet address */
 	#define CONFIG_IPADDR          10.18.9.97          /* Our ip address */
 	#define CONFIG_GATEWAYIP       10.18.9.1           /* Our getway ip address */
@@ -389,6 +422,7 @@
 
 /*file system*/
 #define CONFIG_DOS_PARTITION 1
+#define CONFIG_AML_PARTITION 1
 #define CONFIG_MMC 1
 #define CONFIG_FS_FAT 1
 #define CONFIG_FS_EXT4 1

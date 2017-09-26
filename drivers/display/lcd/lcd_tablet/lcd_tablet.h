@@ -24,9 +24,10 @@
 //**********************************
 #define LCD_DRV_TYPE      "tablet"
 
-#define LCD_DRV_VERSION    "20160630"
+#define LCD_DRV_VERSION    "20170810"
 //**********************************
 
+extern void lcd_tablet_config_update(struct lcd_config_s *pconf);
 extern void lcd_tablet_driver_init_pre(void);
 extern int lcd_tablet_driver_init(void);
 extern void lcd_tablet_driver_disable(void);

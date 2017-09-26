@@ -21,6 +21,7 @@
 #include <stdio_dev.h>
 #include <malloc.h>
 #include <bmp_layout.h>
+#include <asm/cpu_id.h>
 
 /* Local Headers */
 #include <amlogic/fb.h>
@@ -32,6 +33,10 @@
 #include "osd.h"
 #include "osd_log.h"
 #include "osd_hw.h"
+
+#ifdef CONFIG_DDR_AUTO_DTB
+extern int check_ddrsize(void);
+#endif
 
 #define INVALID_BPP_ITEM {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 static const struct color_bit_define_s default_color_format_array[] = {
@@ -231,6 +236,8 @@ unsigned long get_fb_addr(void)
 {
 	char *dt_addr = NULL;
 	unsigned long fb_addr = 0;
+	static int initrd_set = 0;
+	char str_fb_addr[32];
 #ifdef CONFIG_OF_LIBFDT
 	int parent_offset;
 	char *propdata;
@@ -253,8 +260,19 @@ unsigned long get_fb_addr(void)
 			osd_logi("not find /meson-fb node: %s\n",fdt_strerror(parent_offset));
 			osd_logi("use default fb_addr parameters\n");
 		} else {
+#ifdef CONFIG_DDR_AUTO_DTB
+			char *ddr_size = getenv("ddr_size");
+			if (strcmp(ddr_size,"2") == 0) {
+				propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr_2g", NULL);
+			} else if (strcmp(ddr_size,"3") == 0) {
+				propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr_3g", NULL);
+			} else {
+				propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr", NULL);
+			}
+#else
 			/* check fb_addr */
 			propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr", NULL);
+#endif
 			if (propdata == NULL) {
 				osd_logi("failed to get fb addr for logo\n");
 				osd_logi("use default fb_addr parameters\n");
@@ -264,6 +282,13 @@ unsigned long get_fb_addr(void)
 		}
 	}
 #endif
+	if ((!initrd_set) && (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_AXG)) {
+		sprintf(str_fb_addr,"%lx",fb_addr);
+		setenv("initrd_high", str_fb_addr);
+		initrd_set = 1;
+		osd_logi("set initrd_high: 0x%s\n", str_fb_addr);
+	}
+
 	osd_logi("fb_addr for logo: 0x%lx\n", fb_addr);
 	return fb_addr;
 }
@@ -280,6 +305,10 @@ void *video_hw_init(void)
 	u32 fb_width = 0;
 	u32 fb_height = 0;;
 	char *layer_str;
+
+#ifdef CONFIG_DDR_AUTO_DTB
+	check_ddrsize();
+#endif
 
 	vout_init();
 	fb_addr = get_fb_addr();
@@ -316,8 +345,13 @@ void *video_hw_init(void)
 
 	if (strcmp(layer_str, "osd0") == 0)
 		osd_layer_init(fb_gdev, OSD1);
-	else if (strcmp(layer_str, "osd1") == 0)
+	else if (strcmp(layer_str, "osd1") == 0) {
+		if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_AXG) {
+			osd_loge("AXG not support osd2\n");
+			return NULL;
+		}
 		osd_layer_init(fb_gdev, OSD2);
+	}
 	else {
 		osd_loge("display_layer(%s) invalid\n", layer_str);
 		return NULL;
@@ -418,7 +452,7 @@ int rle8_decode(uchar *ptr, bmp_image_t *bmap_rle8, ulong width_bmp, ulong heigh
 
 int video_display_bitmap(ulong bmp_image, int x, int y)
 {
-	vidinfo_t *info = NULL;
+	struct vinfo_s *info = NULL;
 #if defined CONFIG_AML_VOUT
 	info = vout_get_current_vinfo();
 #endif
@@ -434,8 +468,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 	unsigned long pheight = fb_gdev.fb_height;
 	unsigned long pwidth = fb_gdev.fb_width;
 #else
-	unsigned long pheight = info->vl_row;
-	unsigned long pwidth = info->vl_col;
+	unsigned long pheight = info->width;
+	unsigned long pwidth = info->height;
 #endif
 	unsigned colors, bpix, bmp_bpix;
 	int lcd_line_length = (pwidth * NBITS(info->vl_bpix)) / 8;
@@ -577,15 +611,29 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 		}
 		break;
 	case 24:
-		for (i = 0; i < height; ++i) {
-			for (j = 0; j < width; j++) {
+		if (bpix == 32) {
+			for (i = 0; i < height; ++i) {
+				for (j = 0; j < width; j++) {
 
-				*(fb++) = *(bmap++);
-				*(fb++) = *(bmap++);
-				*(fb++) = *(bmap++);
+					*(fb++) = *(bmap++);
+					*(fb++) = *(bmap++);
+					*(fb++) = *(bmap++);
+					*(fb++) = 0xff;
+				}
+				bmap += (padded_line - width);
+				fb   -= (width * 4 + lcd_line_length);
 			}
-			bmap += (padded_line - width);
-			fb   -= (width * 3 + lcd_line_length);
+		} else {
+			for (i = 0; i < height; ++i) {
+				for (j = 0; j < width; j++) {
+
+					*(fb++) = *(bmap++);
+					*(fb++) = *(bmap++);
+					*(fb++) = *(bmap++);
+				}
+				bmap += (padded_line - width);
+				fb   -= (width * 3 + lcd_line_length);
+			}
 		}
 		break;
 	case 32:

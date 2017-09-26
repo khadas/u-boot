@@ -38,18 +38,14 @@
 void panel_power_init(void)
 {
 	serial_puts("init panel power\n");
-	/* GPIOZ_3 */
-	PNL_REG_W(PNL_PREG_PAD_GPIO3_O,
-		(PNL_REG_R(PNL_PREG_PAD_GPIO3_O) & ~(1 << 3)));
-	PNL_REG_W(PNL_PREG_PAD_GPIO3_EN_N,
-		(PNL_REG_R(PNL_PREG_PAD_GPIO3_EN_N) & ~(1 << 3)));
-	/* GPIOH_4/5/6/7 */
-	PNL_REG_W(PNL_PREG_PAD_GPIO1_O,
-		(PNL_REG_R(PNL_PREG_PAD_GPIO1_O) & ~(0xf << 24)));
-	PNL_REG_W(PNL_PREG_PAD_GPIO1_EN_N,
-		(PNL_REG_R(PNL_PREG_PAD_GPIO1_EN_N) & ~(0xf << 24)));
 
-	/* GPIOZ_2/6/7 */
+	/* panel: GPIOH_4/5/6/7/8 */ /* remove GPIOH_6 for 2D/3D special case */
+	PNL_REG_W(PNL_PREG_PAD_GPIO1_O,
+		(PNL_REG_R(PNL_PREG_PAD_GPIO1_O) & ~(0x1b << 24)));
+	PNL_REG_W(PNL_PREG_PAD_GPIO1_EN_N,
+		(PNL_REG_R(PNL_PREG_PAD_GPIO1_EN_N) & ~(0x1b << 24)));
+
+	/* backlight: GPIOZ_2/6/7 */
 	PNL_REG_W(PNL_PREG_PAD_GPIO3_O,
 		(PNL_REG_R(PNL_PREG_PAD_GPIO3_O) & ~((1 << 2) | (0x3 << 6))));
 	PNL_REG_W(PNL_PREG_PAD_GPIO3_EN_N,
@@ -71,15 +67,14 @@ void board_init(void)
 		/* dram 1.5V reset */
 		serial_puts("DRAM reset...\n");
 		/* power off ddr */
-		//aml_update_bits(P_AO_GPIO_O_EN_N, 1 << 3, 0);
-		//aml_update_bits(P_AO_GPIO_O_EN_N, 1 << 19, 0);
-		writel((readl(P_AO_GPIO_O_EN_N) & (~((1 << 3) | (1 << 19)))),P_AO_GPIO_O_EN_N);
-		/* need delay */
-		_udelay(40000);
+		writel((readl(P_AO_GPIO_O_EN_N) & (~((1 << 11) | (1 << 27)))),P_AO_GPIO_O_EN_N);
+		/* need delay, check hw design */
+		_udelay(100000);
 		/* power on ddr */
-		//aml_update_bits(P_AO_GPIO_O_EN_N, 1 << 3, 0);
-		//aml_update_bits(P_AO_GPIO_O_EN_N, 1 << 19, 1 << 19);
-		writel((readl(P_AO_GPIO_O_EN_N) | (1 << 19)),P_AO_GPIO_O_EN_N);
+		writel((readl(P_AO_GPIO_O_EN_N) | (1 << 27)),P_AO_GPIO_O_EN_N);
+
+		/* dram RC charge time, check hw design */
+		_udelay(10000);
 	}
 
 	panel_power_init();

@@ -247,13 +247,12 @@ unsigned sec_reg_read(unsigned *addr);
 #define P_HHI_DPLL_TOP_I (0xc883c000 + (0xc6 << 2))
 #define P_HHI_DPLL_TOP2_I (0xc883c000 + (0xc7 << 2))
 #define P_HHI_HDMI_PLL_CNTL (0xc883c000 + (0xc8 << 2))
-#define P_HHI_HDMI_PLL_CNTL2 (0xc883c000 + (0xc9 << 2))
-#define P_HHI_HDMI_PLL_CNTL3 (0xc883c000 + (0xca << 2))
-#define P_HHI_HDMI_PLL_CNTL4 (0xc883c000 + (0xcb << 2))
-#define P_HHI_HDMI_PLL_CNTL5 (0xc883c000 + (0xcc << 2))
-#define P_HHI_HDMI_PLL_CNTL6 (0xc883c000 + (0xcd << 2))
-#define P_HHI_HDMI_PLL_CNTL_I (0xc883c000 + (0xce << 2))
-#define P_HHI_HDMI_PLL_CNTL7 (0xc883c000 + (0xcf << 2))
+#define P_HHI_HDMI_PLL_CNTL1 (0xc883c000 + (0xc9 << 2))
+#define P_HHI_HDMI_PLL_CNTL2 (0xc883c000 + (0xca << 2))
+#define P_HHI_HDMI_PLL_CNTL3 (0xc883c000 + (0xcb << 2))
+#define P_HHI_HDMI_PLL_CNTL4 (0xc883c000 + (0xcc << 2))
+#define P_HHI_HDMI_PLL_CNTL5 (0xc883c000 + (0xcd << 2))
+#define P_HHI_HDMI_PLL_STS (0xc883c000 + (0xce << 2))
 #define P_HHI_DSI_LVDS_EDP_CNTL0 (0xc883c000 + (0xd1 << 2))
 #define P_HHI_DSI_LVDS_EDP_CNTL1 (0xc883c000 + (0xd2 << 2))
 #define P_HHI_CSI_PHY_CNTL0 (0xc883c000 + (0xd3 << 2))
@@ -772,6 +771,9 @@ unsigned sec_reg_read(unsigned *addr);
 #define P_VPU_HDMI_DATA_OVR VCBUS_REG_ADDR(VPU_HDMI_DATA_OVR)
 #define VPU_HDMI_FMT_CTRL 0x2743
 #define P_VPU_HDMI_FMT_CTRL VCBUS_REG_ADDR(VPU_HDMI_FMT_CTRL)
+/* For GXM and later */
+#define VPU_HDMI_DITH_CNTL 0x27fc
+#define P_VPU_HDMI_DITH_CNTL VCBUS_REG_ADDR(VPU_HDMI_DITH_CNTL)
 
 /* c_always_on_pointer.h:71 */
 #define AO_RTI_PULL_UP_REG ((0x00 << 10) | (0x0B << 2))

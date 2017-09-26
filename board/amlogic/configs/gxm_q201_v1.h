@@ -48,6 +48,14 @@
 
 #define CONFIG_INSTABOOT
 
+/* support ext4*/
+#define CONFIG_CMD_EXT4 1
+
+/* Bootloader Control Block function
+   That is used for recovery and the bootloader to talk to each other
+  */
+#define CONFIG_BOOTLOADER_CONTROL_BLOCK
+
 #define CONFIG_CMD_SARADC 1
 
 /* SMP Definitinos */
@@ -65,11 +73,11 @@
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_CNT 4
 #define CONFIG_IR_REMOTE_USE_PROTOCOL 0         // 0:nec  1:duokan  2:Toshiba 3:rca 4:rcmm
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL1 0XE51AFB04 //amlogic tv ir --- power
-#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL2 0XBB44FB04 //amlogic tv ir --- ch+
-#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL3 0xF20DFE01 //amlogic tv ir --- ch-
+#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL2 0Xffffffff //amlogic tv ir --- ch+
+#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL3 0xffffffff //amlogic tv ir --- ch-
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL4 0xBA45BD02
 
-#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL5 0x3ac5bd02
+#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL5 0xffffffff
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -102,6 +110,8 @@
         "recovery_part=recovery\0"\
         "recovery_offset=0\0"\
         "cvbs_drv=0\0"\
+        "active_slot=_a\0"\
+        "boot_part=boot\0"\
         "initargs="\
             "rootfstype=ramfs init=/init console=ttyS0,115200 no_console_suspend earlyprintk=aml-uart,0xc81004c0 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
@@ -112,9 +122,10 @@
             "else fi;"\
             "\0"\
     "storeargs="\
-            "setenv bootargs ${initargs} androidboot.selinux=${EnableSelinux} logo=${display_layer},loaded,${fb_addr},${outputmode} maxcpus=${maxcpus} vout=${outputmode},enable hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${cecconfig} cvbsdrv=${cvbs_drv} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
+            "setenv bootargs ${initargs} androidboot.selinux=${EnableSelinux} logo=${display_layer},loaded,${fb_addr},${outputmode} maxcpus=${maxcpus} vout=${outputmode},enable hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${cecconfig} cvbsdrv=${cvbs_drv} pq=${pq} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
 	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
+            "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
             "\0"\
         "switch_bootmode="\
             "get_rebootmode;"\
@@ -124,10 +135,12 @@
                     "run update;"\
             "else if test ${reboot_mode} = cold_boot; then "\
                 /*"run try_auto_burn; "*/\
-            "fi;fi;fi;"\
+            "else if test ${reboot_mode} = fastboot; then "\
+                "fastboot;"\
+            "fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
-            "if imgread kernel boot ${loadaddr}; then bootm ${loadaddr}; fi;"\
+            "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
             "run update;"\
             "\0"\
         "factory_reset_poweroff_protect="\
@@ -182,7 +195,11 @@
             "\0"\
         "recovery_from_flash="\
             "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
-            "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi"\
+            "if itest ${upgrade_step} == 3; then "\
+                "if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;"\
+                "if ext4load mmc 1:2 ${loadaddr} /recovery/recovery.img; then echo cache recovery.img loaded; wipeisb; bootm ${loadaddr}; fi;"\
+            "else fi;"\
+            "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
             "\0"\
         "init_display="\
             "osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale"\
@@ -191,6 +208,10 @@
             "if keyman init 0x1234; then "\
                 "if keyman read usid ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+                    "setenv serial ${usid};"\
+                "else "\
+                    "setenv bootargs ${bootargs} androidboot.serialno=1234567890;"\
+                    "setenv serial 1234567890;"\
                 "fi;"\
                 "if keyman read mac ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} mac=${mac} androidboot.mac=${mac};"\
@@ -200,6 +221,9 @@
                 "fi;"\
             "fi;"\
             "\0"\
+        "bcb_cmd="\
+            "get_valid_slot;"\
+            "\0"\
         "upgrade_key="\
             "if gpio input GPIOAO_2; then "\
                 "echo detect upgrade key; sleep 3;"\
@@ -208,6 +232,7 @@
             "\0"\
 
 #define CONFIG_PREBOOT  \
+            "run bcb_cmd; "\
             "run factory_reset_poweroff_protect;"\
             "run upgrade_check;"\
             "run init_display;"\
@@ -272,7 +297,7 @@
 	#define CONFIG_GENERIC_MMC 1
 	#define CONFIG_CMD_MMC 1
 	#define	CONFIG_SYS_MMC_ENV_DEV 1
-	#define CONFIG_EMMC_DDR52_EN 1
+	#define CONFIG_EMMC_DDR52_EN 0
 	#define CONFIG_EMMC_DDR52_CLK 35000000
 #endif
 
@@ -281,9 +306,7 @@
 
 /* vpu */
 #define CONFIG_AML_VPU 1
-#ifdef CONFIG_AML_VPU
-#define CONFIG_VPU_PRESET 1
-#endif
+#define CONFIG_VPU_CLK_LEVEL_DFT 7
 
 /* DISPLAY & HDMITX */
 #define CONFIG_AML_HDMITX20 1
@@ -312,6 +335,16 @@
 	#define CONFIG_USB_XHCI_AMLOGIC_GXL 1
 #endif //#if defined(CONFIG_CMD_USB)
 
+//UBOOT fastboot config
+#define CONFIG_CMD_FASTBOOT 1
+#define CONFIG_FASTBOOT_FLASH_MMC_DEV 1
+#define CONFIG_FASTBOOT_FLASH 1
+#define CONFIG_USB_GADGET 1
+#define CONFIG_USBDOWNLOAD_GADGET 1
+#define CONFIG_SYS_CACHELINE_SIZE 64
+#define CONFIG_FASTBOOT_MAX_DOWN_SIZE	0x8000000
+#define CONFIG_DEVICE_PRODUCT	"q201"
+
 //UBOOT Facotry usb/sdcard burning config
 #define CONFIG_AML_V2_FACTORY_BURN              1       //support facotry usb burning
 #define CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE   1       //support factory sdcard burning
@@ -331,6 +364,7 @@
 	#define CONFIG_CMD_DHCP 1
 	#define CONFIG_CMD_RARP 1
 	#define CONFIG_HOSTNAME        arm_gxbb
+	#define CONFIG_RANDOM_ETHADDR  1				   /* use random eth addr, or default */
 	#define CONFIG_ETHADDR         00:15:18:01:81:31   /* Ethernet address */
 	#define CONFIG_IPADDR          10.18.9.97          /* Our ip address */
 	#define CONFIG_GATEWAYIP       10.18.9.1           /* Our getway ip address */
@@ -360,6 +394,7 @@
 
 /*file system*/
 #define CONFIG_DOS_PARTITION 1
+#define CONFIG_AML_PARTITION 1
 #define CONFIG_MMC 1
 #define CONFIG_FS_FAT 1
 #define CONFIG_FS_EXT4 1
@@ -420,7 +455,7 @@
   #undef CONFIG_AML_CUSTOMER_ID
   #define CONFIG_AML_CUSTOMER_ID  CONFIG_CUSTOMER_ID
 #endif
-#define ETHERNET_INTERNAL_PHY
+#define CONFIG_INTERNAL_PHY
 
 #endif
 

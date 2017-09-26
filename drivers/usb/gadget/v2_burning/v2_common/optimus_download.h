@@ -61,7 +61,13 @@ int v2_key_read(const char* keyName, u8* keyVal, const unsigned keyValLen, char*
  */
 unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyValLen, char* errInfo);
 
+#ifdef CONFIG_AML_MTD   //Assume MTD <==> small memory size
+#define DDR_MEM_ADDR_START  ( 0x010<<20 )
+#define OPTIMUS_DOWNLOAD_TRANSFER_BUF_TOTALSZ   (0X20<<20)//32M
+#else
+#define OPTIMUS_DOWNLOAD_TRANSFER_BUF_TOTALSZ   (0X40<<20)//64M
 #define DDR_MEM_ADDR_START  ( 0x073<<20 )
+#endif// #ifdef CONFIG_AML_MTD
 
 //  |<---Back 2M---->|<------------USB transfer Buf 64 ----------->|<--Backed sparse format info for verify-->|
 //      Back buf                          Transfer buf
@@ -75,7 +81,6 @@ unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyVa
 //[Buffer 2] This 64M buffer is used to cache image data received from USB download,
 //            This Buffer size  should be 64M, other size has pending bugs when sparse image is very large.
 #define OPTIMUS_DOWNLOAD_TRANSFER_BUF_ADDR      (OPTIMUS_SPARSE_IMG_LEFT_DATA_ADDR_LOW + OPTIMUS_SPARSE_IMG_LEFT_DATA_MAX_SZ)
-#define OPTIMUS_DOWNLOAD_TRANSFER_BUF_TOTALSZ   (0X40<<20)//64M
 
 #define OPTIMUS_DOWNLOAD_SLOT_SZ                (64<<10)    //64K
 #define OPTIMUS_DOWNLOAD_SLOT_SZ_SHIFT_BITS     (16)    //64K
@@ -110,7 +115,11 @@ unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyVa
 #define OPTIMUS_KEY_DECRYPT_BUF                 OPTIMUS_SPARSE_IMG_LEFT_DATA_ADDR_LOW//buffer for decrypt the key
 #define OPTIMUS_KEY_DECRYPT_BUF_SZ              OPTIMUS_DOWNLOAD_SLOT_SZ
 
+#ifdef CONFIG_DTB_MEM_ADDR
 #define OPTIMUS_DTB_LOAD_ADDR                   CONFIG_DTB_MEM_ADDR
+#else
+#define OPTIMUS_DTB_LOAD_ADDR                   0x1000000
+#endif// #ifdef CONFIG_DTB_MEM_ADDR
 
 #define COMPILE_TYPE_CHK(expr, t)       typedef char t[(expr) ? 1 : -1]
 #define COMPILE_TIME_ASSERT(expr)       typedef char assert_type[(expr) ? 1 : -1]
@@ -186,6 +195,12 @@ int optimus_work_mode_set(int workmode);
 //ENV for auto jump into producing
 #define _ENV_TIME_OUT_TO_AUTO_BURN "identifyWaitTime"
 #define AML_SYS_RECOVERY_PART      "aml_sysrecovery"
+
+#if defined(CONFIG_AML_MTD) && (defined(UBIFS_IMG) || defined(CONFIG_CMD_UBIFS))
+#define OPTIMUS_BURN_TARGET_SUPPORT_UBIFS       1
+#else
+#define OPTIMUS_BURN_TARGET_SUPPORT_UBIFS       0
+#endif// #if defined(CONFIG_AML_MTD) && (defined(UBIFS_IMG) || defined(CONFIG_CMD_UBIFS))
 
 #endif//ifndef __OPTIMUS_DOWNLOAD_H__
 

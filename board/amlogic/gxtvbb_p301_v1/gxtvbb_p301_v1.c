@@ -31,6 +31,7 @@
 #include <asm/arch/secure_apb.h>
  #include <asm/arch/io.h>
 #endif
+#include <amlogic/canvas.h>
 #ifdef CONFIG_AML_VPU
 #include <vpu.h>
 #endif
@@ -756,13 +757,15 @@ static void init_hdmi_uart_board(void)
 int board_init(void)
 {
 #ifdef CONFIG_AML_V2_FACTORY_BURN
-	aml_try_factory_usb_burning(0, gd->bd);
+	if ((0x1b8ec003 != readl(P_PREG_STICKY_REG1)) && (0x1b8ec004 != readl(P_PREG_STICKY_REG1))) {
+		aml_try_factory_usb_burning(0, gd->bd);
+	}
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 
 #ifdef CONFIG_USB_XHCI_AMLOGIC
 	board_usb_init(&g_usb_config_GXTVBB_skt,BOARD_USB_MODE_HOST);
 #endif /*CONFIG_USB_XHCI_AMLOGIC*/
-
+	canvas_init();
 #ifdef CONFIG_SYS_I2C_AML
 // #ifdef 1
 	board_i2c_init();
@@ -830,6 +833,8 @@ int board_late_init(void)
 	vpp_init();
 
 #ifdef CONFIG_AML_V2_FACTORY_BURN
+	if (0x1b8ec003 == readl(P_PREG_STICKY_REG1))
+		aml_try_factory_usb_burning(1, gd->bd);
 	aml_try_factory_sdcard_burning(0, gd->bd);
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 #ifdef CONFIG_AML_LED

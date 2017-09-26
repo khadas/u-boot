@@ -246,6 +246,8 @@ ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE ?=
 endif
 
+export CROSS_COMPILE_T32=arm-none-eabi-
+
 KCONFIG_CONFIG	?= .config
 export KCONFIG_CONFIG
 
@@ -624,6 +626,7 @@ libs-y += drivers/mmc/
 libs-y += drivers/mtd/
 libs-$(CONFIG_AML_NAND) += drivers/nand/
 libs-$(CONFIG_CMD_NAND) += drivers/mtd/nand/
+libs-$(CONFIG_CMD_NAND) += drivers/mtd/nand/amlogic_mtd/
 libs-y += drivers/mtd/onenand/
 libs-$(CONFIG_CMD_UBI) += drivers/mtd/ubi/
 libs-y += drivers/mtd/spi/
@@ -879,6 +882,11 @@ endif
 endif
 FIP_ARGS += --bl33 $(FIP_FOLDER_SOC)/bl33.bin
 
+ifdef CONFIG_AML_BL33_COMPRESS_ENABLE
+BL33_COMPRESS_FLAG =--compress lz4
+endif
+
+
 .PHONY: fip.bin
 ifeq ($(CONFIG_NEED_BL301), y)
 fip.bin: tools prepare acs.bin bl301.bin
@@ -891,9 +899,11 @@ endif
 	$(Q)$(FIP_FOLDER)/fip_create --dump $(FIP_FOLDER_SOC)/fip.bin
 
 ifeq ($(CONFIG_NEED_BL301), y)
-.PHONY : bl301.bin
-bl301.bin: tools prepare acs.bin bl21.bin
+$(buildtree)/scp_task/bl301.bin:
 	$(Q)$(MAKE) -C $(srctree)/$(CPUDIR)/${SOC}/firmware/scp_task
+
+.PHONY : bl301.bin
+bl301.bin: tools prepare acs.bin bl21.bin $(buildtree)/scp_task/bl301.bin
 	$(Q)cp $(buildtree)/scp_task/bl301.bin $(FIP_FOLDER_SOC)/bl301.bin -f
 	$(Q)$(FIP_FOLDER)/blx_fix.sh \
 		$(FIP_FOLDER_SOC)/bl30.bin \
@@ -932,14 +942,24 @@ endif
 		bl2
 	$(Q)cat $(FIP_FOLDER_SOC)/bl2_new.bin  $(FIP_FOLDER_SOC)/fip.bin > $(FIP_FOLDER_SOC)/boot_new.bin
 
-#ifeq ($(SOC),gxl)
-ifeq ($(strip $(SOC)), $(filter $(SOC), gxl txl))
-	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl30_new.bin
+ifeq ($(strip $(SOC)), $(filter $(SOC), gxl txl txlx axg))
+
+ifdef CONFIG_AML_SECURE_BOOT_V3
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3sig  --input $(FIP_FOLDER_SOC)/bl30_new.bin --output $(FIP_FOLDER_SOC)/bl30_new.bin.enc
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3sig  --input $(FIP_FOLDER_SOC)/bl31.$(BL3X_SUFFIX) --output $(FIP_FOLDER_SOC)/bl31.$(BL3X_SUFFIX).enc
+ifeq ($(FIP_BL32), bl32.$(BL3X_SUFFIX))
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3sig  --input $(FIP_FOLDER_SOC)/bl32.$(BL3X_SUFFIX) --output $(FIP_FOLDER_SOC)/bl32.$(BL3X_SUFFIX).enc
+endif
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3sig  --input $(FIP_FOLDER_SOC)/bl33.bin $(BL33_COMPRESS_FLAG) --output $(FIP_FOLDER_SOC)/bl33.bin.enc
+else
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl30_new.bin $(BL30_COMPRESS_FLAG)
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl31.$(BL3X_SUFFIX)
 ifeq ($(FIP_BL32), bl32.$(BL3X_SUFFIX))
-	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl32.$(BL3X_SUFFIX)
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl32.$(BL3X_SUFFIX) $(BL32_COMPRESS_FLAG)
 endif
-	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl33.bin
+	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3enc  --input $(FIP_FOLDER_SOC)/bl33.bin $(BL33_COMPRESS_FLAG)
+endif
+
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl2sig  --input $(FIP_FOLDER_SOC)/bl2_new.bin   --output $(FIP_FOLDER_SOC)/bl2.n.bin.sig
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bootmk  --output $(FIP_FOLDER_SOC)/u-boot.bin \
 	--bl2   $(FIP_FOLDER_SOC)/bl2.n.bin.sig  --bl30  $(FIP_FOLDER_SOC)/bl30_new.bin.enc  \
@@ -951,7 +971,7 @@ endif
 
 ifeq ($(CONFIG_AML_CRYPTO_UBOOT), y)
 #ifeq ($(SOC),gxl)
-ifeq ($(strip $(SOC)), $(filter $(SOC), gxl txl))
+ifeq ($(strip $(SOC)), $(filter $(SOC), gxl txl txlx axg))
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --efsgen --amluserkey $(srctree)/$(BOARDDIR)/aml-user-key.sig \
 			--output $(FIP_FOLDER_SOC)/u-boot.bin.encrypt.efuse
 endif
@@ -963,7 +983,7 @@ ifeq ($(CONFIG_AML_CRYPTO_IMG), y)
 	@cp -f $(FIP_FOLDER_SOC)/boot.img.encrypt $(FIP_FOLDER)/boot.img.encrypt
 endif
 	@cp -f $(FIP_FOLDER_SOC)/u-boot.* $(FIP_FOLDER)/
-	@rm -f $(FIP_FOLDER_SOC)/bl2_new.bin $(FIP_FOLDER_SOC)/boot_new.bin
+	@rm -f $(FIP_FOLDER_SOC)/boot_new.bin
 	@echo '$(FIP_FOLDER_SOC)/u-boot.bin build done!'
 
 #

@@ -69,12 +69,32 @@ extern unsigned int lcd_debug_print_flag;
 #define GAMMA_CTRL_EN               0
 
 #define LCD_PINMUX_END              0xff
-#define LCD_PINMUX_NUM              10
+#define LCD_PINMUX_NUM              15
 
 /* **********************************
  * VENC to TCON sync delay
  * ********************************** */
 #define TTL_DELAY                   13
+
+
+/* ******** AXG ******** */
+/* bit[15:11] */
+#define BIT_PHY_LANE_AXG        11
+#define PHY_LANE_WIDTH_AXG       5
+
+/* MIPI-DSI */
+#define DSI_LANE_0              (1 << 4)
+#define DSI_LANE_1              (1 << 3)
+#define DSI_LANE_CLK            (1 << 2)
+#define DSI_LANE_2              (1 << 1)
+#define DSI_LANE_3              (1 << 0)
+#define DSI_LANE_COUNT_1        (DSI_LANE_CLK | DSI_LANE_0)
+#define DSI_LANE_COUNT_2        (DSI_LANE_CLK | DSI_LANE_0 | DSI_LANE_1)
+#define DSI_LANE_COUNT_3        (DSI_LANE_CLK | DSI_LANE_0 |\
+					DSI_LANE_1 | DSI_LANE_2)
+#define DSI_LANE_COUNT_4        (DSI_LANE_CLK | DSI_LANE_0 |\
+					DSI_LANE_1 | DSI_LANE_2 | DSI_LANE_3)
+
 
 /* **********************************
  * global control define
@@ -86,15 +106,13 @@ enum lcd_mode_e {
 };
 
 enum lcd_chip_e {
-	LCD_CHIP_M6 = 0,
-	LCD_CHIP_M8,     /* 1 */
-	LCD_CHIP_M8B,    /* 2 */
-	LCD_CHIP_M8M2,   /* 3 */
-	LCD_CHIP_G9TV,   /* 4 */
-	LCD_CHIP_G9BB,   /* 5 */
-	LCD_CHIP_GXTVBB, /* 6 */
-	LCD_CHIP_TXL,    /* 7 */
-	LCD_CHIP_MAX,    /* 8 */
+	LCD_CHIP_GXTVBB = 0,
+	LCD_CHIP_GXL,     	/* 1 */
+	LCD_CHIP_GXM,     	/* 2 */
+	LCD_CHIP_TXL,     	/* 3 */
+	LCD_CHIP_TXLX,    	/* 4 */
+	LCD_CHIP_AXG, 		/* 5 */
+	LCD_CHIP_MAX,
 };
 
 enum lcd_type_e {
@@ -102,7 +120,6 @@ enum lcd_type_e {
 	LCD_LVDS,
 	LCD_VBYONE,
 	LCD_MIPI,
-	LCD_EDP,
 	LCD_TYPE_MAX,
 };
 
@@ -207,6 +224,7 @@ struct lvds_config_s {
 	unsigned int dual_port;
 	unsigned int pn_swap;
 	unsigned int port_swap;
+	unsigned int lane_reverse;
 	unsigned int port_sel;
 	unsigned int phy_vswing;
 	unsigned int phy_preem;
@@ -223,56 +241,46 @@ struct vbyone_config_s {
 	unsigned int color_fmt;
 	unsigned int phy_div;
 	unsigned int bit_rate;
-	unsigned int phy_vswing;
+	unsigned int phy_vswing; /*[4]:ext_pullup, [3:0]vswing*/
 	unsigned int phy_preem;
 };
 
 /* mipi-dsi config */
-/* byte[1] */
-#define DSI_CMD_INDEX             1
+/* Operation mode parameters */
+#define OPERATION_VIDEO_MODE     0
+#define OPERATION_COMMAND_MODE   1
 
-#define DSI_INIT_ON_MAX           100
-#define DSI_INIT_OFF_MAX          30
+#define SYNC_PULSE               0x0
+#define SYNC_EVENT               0x1
+#define BURST_MODE               0x2
 
-#define BIT_OP_MODE_INIT          0
-#define BIT_OP_MODE_DISP          4
-#define BIT_TRANS_CTRL_CLK        0
-/* [5:4] */
-#define BIT_TRANS_CTRL_SWITCH     4
+/* command config */
+#define DSI_CMD_INDEX            1  /* byte[1] */
+
+#define DSI_INIT_ON_MAX          100
+#define DSI_INIT_OFF_MAX         30
+
 struct dsi_config_s {
 	unsigned char lane_num;
 	unsigned int bit_rate_max; /* MHz */
 	unsigned int bit_rate_min; /* MHz*/
 	unsigned int bit_rate; /* Hz */
-	unsigned int factor_denominator;
+	unsigned int clk_factor; /* bit_rate/pclk */
 	unsigned int factor_numerator;
+	unsigned int factor_denominator; /* 100 */
+	unsigned char operation_mode_init; /* 0=video mode, 1=command mode */
+	unsigned char operation_mode_display; /* 0=video mode, 1=command mode */
+	unsigned char video_mode_type; /* 0=sync_pulse, 1=sync_event, 2=burst */
+	unsigned char clk_lp_continuous; /* 0=stop, 1=continue */
+	unsigned char phy_stop_wait; /* 0=auto, 1=standard, 2=slow */
 
 	unsigned int venc_data_width;
 	unsigned int dpi_data_format;
 	unsigned int venc_fmt;
-	/* mipi-dsi operation mode: video, command. [4]display , [0]init */
-	unsigned int operation_mode;
-	/* [0]LP mode auto stop clk lane, [5:4]phy switch between LP and HS */
-	unsigned int transfer_ctrl;
-	/* burst, non-burst(sync pulse, sync event) */
-	unsigned char video_mode_type;
 
 	unsigned char *dsi_init_on;
 	unsigned char *dsi_init_off;
 	unsigned char extern_init;
-};
-
-struct edp_config_s {
-	unsigned char max_lane_count;
-	unsigned char link_user;
-	unsigned char lane_count;
-	unsigned char link_rate;
-	unsigned char link_adaptive;
-	unsigned char vswing;
-	unsigned char preemphasis;
-	unsigned int bit_rate;
-	unsigned int sync_clock_mode;
-	unsigned char edid_timing_used;
 };
 
 struct lcd_ctrl_config_s {
@@ -280,7 +288,6 @@ struct lcd_ctrl_config_s {
 	struct lvds_config_s *lvds_config;
 	struct vbyone_config_s *vbyone_config;
 	struct dsi_config_s *mipi_config;
-	struct edp_config_s *edp_config;
 };
 
 /* **********************************
@@ -337,8 +344,8 @@ struct lcd_config_s {
 	struct lcd_effect_s lcd_effect;
 	struct lcd_ctrl_config_s lcd_control;
 	struct lcd_power_ctrl_s *lcd_power;
-	unsigned int pinmux_set[10][2];
-	unsigned int pinmux_clr[10][2];
+	unsigned int pinmux_set[LCD_PINMUX_NUM][2];
+	unsigned int pinmux_clr[LCD_PINMUX_NUM][2];
 };
 
 extern struct lcd_config_s lcd_config_dft;
@@ -439,12 +446,14 @@ struct bl_config_s {
 	struct bl_pwm_config_s *bl_pwm_combo1;
 	unsigned int pwm_on_delay;
 	unsigned int pwm_off_delay;
+	unsigned int pwm_en_sequence_reverse;
 
 	char gpio_name[BL_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX];
 	//unsigned pinmux_set_num;
 	unsigned int pinmux_set[10][2];
 	//unsigned pinmux_clr_num;
 	unsigned int pinmux_clr[10][2];
+	int bl_extern_index;
 };
 
 extern struct bl_config_s bl_config_dft;
@@ -477,11 +486,13 @@ struct aml_lcd_drv_s {
 	void (*set_bl_level)(int level);
 	int  (*get_bl_level)(void);
 	void (*bl_config_print)(void);
+	int unifykey_test_flag;
 	void (*unifykey_test)(void);
+	void (*unifykey_dump)(void);
 	void (*lcd_extern_info)(void);
 };
 
-extern void lcd_config_gpio_init(void);
+extern void lcd_config_bsp_init(void);
 
 extern struct aml_lcd_drv_s *aml_lcd_get_driver(void);
 

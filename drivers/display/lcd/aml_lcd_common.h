@@ -22,6 +22,7 @@
 #define VPP_OUT_SATURATE            (1 << 0)
 
 extern void mdelay(unsigned long n);
+extern unsigned int lcd_debug_test;
 
 /* lcd common */
 extern int lcd_type_str_to_type(const char *str);
@@ -29,6 +30,14 @@ extern char *lcd_type_type_to_str(int type);
 extern int lcd_mode_str_to_mode(const char *str);
 extern char *lcd_mode_mode_to_str(int mode);
 
+extern unsigned int lcd_lvds_channel_on_value(struct lcd_config_s *pconf);
+extern int lcd_power_load_from_dts(struct lcd_config_s *pconf,
+		char *dt_addr, int child_offset);
+extern int lcd_power_load_from_unifykey(struct lcd_config_s *pconf,
+		unsigned char *buf, int key_len, int len);
+#ifdef CONFIG_OF_LIBFDT
+extern int lcd_pinmux_load_from_dts(char *dt_addr, struct lcd_config_s *pconf);
+#endif
 extern void lcd_tcon_config(struct lcd_config_s *pconf);
 extern int lcd_vmode_change(struct lcd_config_s *pconf);
 

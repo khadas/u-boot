@@ -51,19 +51,22 @@
 		break;\
 	}
 
-#define WAIT_FOR_PLL_LOCKED(reg)                        \
-	do {                                                \
-		unsigned int cnt = 10;                          \
-		unsigned int time_out = 0;                      \
-		while (cnt --) {                                 \
-		time_out = 0;                               \
-		while ((!(hd_read_reg(reg) & (1 << 31)))\
-			& (time_out < 10000))               \
-			time_out ++;                            \
-		}                                               \
-		if (cnt < 9)                                     \
+#define WAIT_FOR_PLL_LOCKED(reg)				\
+	do {							\
+		unsigned int st = 0, cnt = 10;			\
+		while (cnt--) {                                 \
+			msleep(5);				\
+			st = !!(hd_read_reg(reg) & (1 << 31));	\
+			if (st)					\
+				break;				\
+			else { /* reset hpll */ 		\
+				hd_set_reg_bits(reg, 1, 28, 1);	\
+				hd_set_reg_bits(reg, 0, 28, 1);	\
+			}					\
+		}						\
+		if (cnt < 9)					\
 			printk("pll[0x%x] reset %d times\n", reg, 9 - cnt);\
-	} while(0);
+	} while (0)
 
 // viu_channel_sel: 1 or 2
 // viu_type_sel: 0: 0=ENCL, 1=ENCI, 2=ENCP, 3=ENCT.
@@ -215,6 +218,11 @@ static void set_hpll_od3_clk_div(int div_sel)
 	int shift_val = 0;
 	int shift_sel = 0;
 
+	/* When div 6.25, need to reset vid_pll_div */
+	if (div_sel == CLK_UTIL_VID_PLL_DIV_6p25) {
+		msleep(1);
+		hd_set_reg_bits(P_RESET0_REGISTER, 1, 7, 1);
+	}
 	// Disable the output clock
 	hd_set_reg_bits(P_HHI_VID_PLL_CLK_DIV, 0, 19, 1);
 	hd_set_reg_bits(P_HHI_VID_PLL_CLK_DIV, 0, 15, 1);

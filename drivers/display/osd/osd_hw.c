@@ -33,7 +33,6 @@
 
 /* Local Headers */
 #include "osd_canvas.h"
-#include "osd_reg.h"
 #include "osd_log.h"
 #include "osd_io.h"
 #include "osd_hw.h"
@@ -548,6 +547,69 @@ void osd_update_disp_axis_hw(
 	osd_wait_vsync_hw();
 }
 
+
+/* the return stride unit is 128bit(16bytes) */
+static u32 line_stride_calc(
+		u32 fmt_mode,
+		u32 hsize,
+		u32 stride_align_32bytes)
+{
+	u32 line_stride = 0;
+
+	switch (fmt_mode) {
+		/* 2-bit LUT */
+	case COLOR_INDEX_02_PAL4:
+		line_stride = ((hsize<<1)+127)>>7;
+		break;
+	/* 4-bit LUT */
+	case COLOR_INDEX_04_PAL16:
+		line_stride = ((hsize<<2)+127)>>7;
+		break;
+		/* 8-bit LUT */
+	case COLOR_INDEX_08_PAL256:
+		line_stride = ((hsize<<3)+127)>>7;
+		break;
+		/* 4:2:2, 32-bit per 2 pixels */
+	case COLOR_INDEX_YUV_422:
+		line_stride = ((((hsize+1)>>1)<<5)+127)>>7;
+		break;
+		/* 16-bit LUT */
+	case COLOR_INDEX_16_655:
+	case COLOR_INDEX_16_844:
+	case COLOR_INDEX_16_6442:
+	case COLOR_INDEX_16_4444_R:
+	case COLOR_INDEX_16_4642_R:
+	case COLOR_INDEX_16_1555_A:
+	case COLOR_INDEX_16_4444_A:
+	case COLOR_INDEX_16_565:
+		line_stride = ((hsize<<4)+127)>>7;
+		break;
+		/* 32-bit LUT */
+	case COLOR_INDEX_32_BGRA:
+	case COLOR_INDEX_32_ABGR:
+	case COLOR_INDEX_32_RGBA:
+	case COLOR_INDEX_32_ARGB:
+		line_stride = ((hsize<<5)+127)>>7;
+		break;
+	case COLOR_INDEX_24_6666_A:
+	case COLOR_INDEX_24_6666_R:
+	case COLOR_INDEX_24_8565:
+	case COLOR_INDEX_24_5658:
+	case COLOR_INDEX_24_888_B:
+	case COLOR_INDEX_24_RGB:
+		/* 24-bit LUT */
+		line_stride = ((hsize<<4)+(hsize<<3)+127)>>7;
+		break;
+	}
+	/* need wr ddr is 32bytes aligned */
+	if (stride_align_32bytes)
+		line_stride = ((line_stride+1)>>1)<<1;
+	else
+		line_stride = line_stride;
+	return line_stride;
+}
+
+
 void osd_setup_hw(u32 index,
 		  u32 xoffset,
 		  u32 yoffset,
@@ -568,6 +630,12 @@ void osd_setup_hw(u32 index,
 	int update_geometry = 0;
 	u32 w = (color->bpp * xres_virtual + 7) >> 3;
 
+	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_AXG) {
+		if (index == OSD2) {
+			osd_loge("AXG not support osd2\n");
+			return ;
+		}
+	}
 	pan_data.x_start = xoffset;
 	pan_data.y_start = yoffset;
 	disp_data.x_start = disp_start_x;
@@ -596,6 +664,10 @@ void osd_setup_hw(u32 index,
 			disp_data.y_end = disp_end_y;
 		}
 	}
+	if (color != osd_hw.color_info[index]) {
+		update_color_mode = 1;
+		osd_hw.color_info[index] = color;
+	}
 	if (osd_hw.fb_gem[index].addr != fbmem
 	    || osd_hw.fb_gem[index].width != w
 	    ||  osd_hw.fb_gem[index].height != yres_virtual) {
@@ -610,17 +682,30 @@ void osd_setup_hw(u32 index,
 			 index, osd_hw.fb_gem[index].width);
 		osd_logd("osd[%d] canvas.height=%d\n",
 			 index, osd_hw.fb_gem[index].height);
+		if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_AXG) {
+			u32 line_stride, fmt_mode, bpp;
+
+			bpp = color->bpp/8;
+			fmt_mode = color->color_index;
+			line_stride = line_stride_calc(fmt_mode,
+				osd_hw.fb_gem[index].width / bpp, 1);
+			VSYNCOSD_WR_MPEG_REG(
+				VIU_OSD1_BLK1_CFG_W4,
+				osd_hw.fb_gem[index].addr);
+			VSYNCOSD_WR_MPEG_REG_BITS(
+				VIU_OSD1_BLK2_CFG_W4,
+				line_stride,
+				0, 12);
+		}
 #ifdef CONFIG_AML_CANVAS
+		else {
 		canvas_config(osd_hw.fb_gem[index].canvas_idx,
 			      osd_hw.fb_gem[index].addr,
 			      osd_hw.fb_gem[index].width,
 			      osd_hw.fb_gem[index].height,
 			      CANVAS_ADDR_NOWRAP, CANVAS_BLKMODE_LINEAR);
+		}
 #endif
-	}
-	if (color != osd_hw.color_info[index]) {
-		update_color_mode = 1;
-		osd_hw.color_info[index] = color;
 	}
 	/* osd blank only control by /sys/class/graphcis/fbx/blank */
 #if 0
@@ -2261,7 +2346,7 @@ static void osd2_update_disp_3d_mode(void)
 
 void osd_init_hw(void)
 {
-	u32 group, idx, data32;
+	u32 group, idx, data32, data2;
 	char *osd_reverse;
 
 	osd_reverse = getenv("osd_reverse");
@@ -2276,16 +2361,6 @@ void osd_init_hw(void)
 
 	/* here we will init default value ,these value only set once . */
 	if (!logo_loaded) {
-		/* init vpu fifo control register */
-		data32 = osd_reg_read(VPP_OFIFO_SIZE);
-		if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXTVBB)
-			data32 |= 0xfff;
-		else
-			data32 |= 0x77f;
-		osd_reg_write(VPP_OFIFO_SIZE, data32);
-		data32 = 0x08080808;
-		osd_reg_write(VPP_HOLD_LINES, data32);
-
 		/* init osd fifo control register */
 		/* set DDR request priority to be urgent */
 		data32 = 1;
@@ -2297,8 +2372,7 @@ void osd_init_hw(void)
 		}
 		/* burst_len_sel: 3=64 */
 		data32 |= 3  << 10;
-		/* fifo_depth_val: 32*8=256 */
-		data32 |= 32 << 12;
+
 		if (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_GXBB) {
 			/*
 			 * bit 23:22, fifo_ctrl
@@ -2311,8 +2385,16 @@ void osd_init_hw(void)
 			/* bit 28:24, fifo_lim */
 			data32 |= 2 << 24;
 		}
+		data2 = data32;
+		/* fifo_depth_val: 32*8=256 */
+		if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TXL)
+			|| (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TXLX))
+			data32 |= 64 << 12;
+		else
+			data32 |= 32 << 12;
+		data2 |= 32 << 12;
 		osd_reg_write(VIU_OSD1_FIFO_CTRL_STAT, data32);
-		osd_reg_write(VIU_OSD2_FIFO_CTRL_STAT, data32);
+		osd_reg_write(VIU_OSD2_FIFO_CTRL_STAT, data2);
 		osd_reg_set_mask(VPP_MISC, VPP_POSTBLEND_EN);
 		osd_reg_clr_mask(VPP_MISC, VPP_PREBLEND_EN);
 		osd_reg_clr_mask(VPP_MISC,
@@ -2367,7 +2449,8 @@ void osd_init_hw(void)
 		osd_hw.free_scale_data[OSD2].y_end = 0;
 		osd_hw.free_scale_mode[OSD1] = 1;
 		osd_hw.free_scale_mode[OSD2] = 1;
-		if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXM)
+		if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXM)
+			||(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TXLX))
 			osd_reg_write(VPP_OSD_SC_DUMMY_DATA, 0x00202000);
 		else if (get_cpu_id().family_id ==
 			MESON_CPU_MAJOR_ID_GXTVBB)

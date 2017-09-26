@@ -25,10 +25,12 @@
 #include <environment.h>
 #include <fdt_support.h>
 #include <libfdt.h>
+#include <asm/arch/board_id.h>
 #ifdef CONFIG_SYS_I2C_AML
 #include <aml_i2c.h>
 #include <asm/arch/secure_apb.h>
 #endif
+#include <amlogic/canvas.h>
 #ifdef CONFIG_AML_VPU
 #include <vpu.h>
 #endif
@@ -116,7 +118,11 @@ static void setup_net_chip(void)
 	eth_reg0.b.eth_urgent = 0;
 	setbits_le32(P_PREG_ETH_REG0, eth_reg0.d32);// rmii mode
 	*P_PREG_ETH_REG2 = 0x10110181;
+#ifdef CONFIG_PXP_EMULATOR
+	*P_PREG_ETH_REG3 = 0x642000b0;
+#else
 	*P_PREG_ETH_REG3 = 0xe409087f;
+#endif
 	setbits_le32(HHI_GCLK_MPEG1,1<<3);
 	/* power on memory */
 	clrbits_le32(HHI_MEM_PD_REG0, (1 << 3) | (1<<2));
@@ -344,6 +350,9 @@ struct amlogic_usb_config g_usb_config_GXL_skt={
 #ifdef CONFIG_AML_HDMITX20
 static void hdmi_tx_set_hdmi_5v(void)
 {
+	/*Power on VCC_5V for HDMI_5V*/
+	clrbits_le32(P_PREG_PAD_GPIO1_EN_N, 1 << 23);
+	clrbits_le32(P_PREG_PAD_GPIO1_O, 1 << 23);
 }
 #endif
 
@@ -352,17 +361,28 @@ int board_init(void)
 #ifdef CONFIG_AML_V2_FACTORY_BURN
 	aml_try_factory_usb_burning(0, gd->bd);
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
+	/*for LED*/
+	//clear pinmux
+	clrbits_le32(AO_RTI_PIN_MUX_REG, ((1<<3)|(1<<4)));
+	clrbits_le32(AO_RTI_PIN_MUX_REG2, ((1<<1)|(1<<31)));
+	//set output mode
+	clrbits_le32(PREG_PAD_GPIO0_EN_N, (1 << 24));
+	//set output 1
+	setbits_le32(PREG_PAD_GPIO0_O, (1 << 24));
 
 #ifdef CONFIG_USB_XHCI_AMLOGIC_GXL
 	board_usb_init(&g_usb_config_GXL_skt,BOARD_USB_MODE_HOST);
 #endif /*CONFIG_USB_XHCI_AMLOGIC*/
+	canvas_init();
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
 	vpp_init();
+#ifndef CONFIG_AML_IRDETECT_EARLY
 #ifdef CONFIG_AML_HDMITX20
 	hdmi_tx_set_hdmi_5v();
 	hdmi_tx_init();
+#endif
 #endif
 #ifdef CONFIG_AML_NAND
 	extern int amlnf_init(unsigned char flag);
@@ -370,7 +390,20 @@ int board_init(void)
 #endif
 	return 0;
 }
+#ifdef CONFIG_AML_IRDETECT_EARLY
+#ifdef CONFIG_AML_HDMITX20
+static int do_hdmi_init(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	hdmi_tx_set_hdmi_5v();
+	hdmi_tx_init();
+return 0;
+}
 
+U_BOOT_CMD(hdmi_init, CONFIG_SYS_MAXARGS, 0, do_hdmi_init,
+	   "HDMI_INIT sub-system",
+	"hdmit init\n")
+#endif
+#endif
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void){
 	int ret;
@@ -381,6 +414,12 @@ int board_late_init(void){
 			"defenv_reserv aml_dt;setenv upgrade_step 2;save; fi;", 0);
 	run_command("if itest ${upgrade_step} == 1; then "\
 				"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
+
+#ifndef CONFIG_AML_IRDETECT_EARLY
+	/* after  */
+	run_command("cvbs init;hdmitx hpd", 0);
+	run_command("vout output $outputmode", 0);
+#endif
 	/*add board late init function here*/
 	ret = run_command("store dtb read $dtb_mem_addr", 1);
 	if (ret) {
@@ -433,3 +472,37 @@ phys_size_t get_effective_memsize(void)
 	return (((readl(AO_SEC_GP_CFG0)) & 0xFFFF0000) << 4);
 #endif
 }
+
+#ifdef CONFIG_MULTI_DTB
+#define S805X_SKT_BOARD_ID		1
+#define S905X_SKT_BOARD_ID		12
+int checkhw(char * name)
+{
+	unsigned int board_id=0;
+	char loc_name[64] = {0};
+	board_id = get_board_id();
+	switch (board_id) {
+		case S805X_SKT_BOARD_ID:
+			strcpy(loc_name, "gxl_s805x_skt\0");
+			break;
+		case S905X_SKT_BOARD_ID:
+			strcpy(loc_name, "gxl_s905x_skt\0");
+			break;
+		default:
+			//printf("DDR size: 0x%x, multi-dt doesn't support\n", ddr_size);
+			strcpy(loc_name, "gxl_skt_unsupport");
+			break;
+	}
+	strcpy(name, loc_name);
+	setenv("aml_dt", loc_name);
+	return 0;
+}
+#endif
+
+const char * const _env_args_reserve_[] =
+{
+		"aml_dt",
+		"firstboot",
+
+		NULL//Keep NULL be last to tell END
+};

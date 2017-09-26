@@ -1,4 +1,3 @@
-
 /*
  * arch/arm/include/asm/cpu_id.h
  *
@@ -32,12 +31,20 @@
 #define MESON_CPU_MAJOR_ID_GXL		0x21
 #define MESON_CPU_MAJOR_ID_GXM		0x22
 #define MESON_CPU_MAJOR_ID_TXL		0x23
+#define MESON_CPU_MAJOR_ID_TXLX		0x24
+#define MESON_CPU_MAJOR_ID_AXG		0x25
 
 #define MESON_CPU_PACKAGE_ID_905D	0X00
 #define MESON_CPU_PACKAGE_ID_905M	0x20
 #define MESON_CPU_PACKAGE_ID_905X	0X80
 #define MESON_CPU_PACKAGE_ID_905L	0XC0
 #define MESON_CPU_PACKAGE_ID_905M2	0XE0
+
+#define MESON_CPU_PACKAGE_ID_T962X	0x10
+#define MESON_CPU_PACKAGE_ID_T962E	0x20
+
+#define MESON_CPU_PACKAGE_ID_A113X	0x37
+#define MESON_CPU_PACKAGE_ID_A113D	0xD0
 
 #define MESON_CPU_CHIP_REVISION_A	0xA
 #define MESON_CPU_CHIP_REVISION_B	0xB
@@ -50,6 +57,22 @@ typedef struct cpu_id {
 	unsigned int chip_rev:8; //RevA/RevB etc.
 	unsigned int reserve:4;
 	unsigned int layout_ver:4;
-}cpu_id_t;
+} cpu_id_t;
+
+typedef struct chip_id {
+	unsigned int version;
+	unsigned char chipid[16];
+} chip_id_t;
 
 cpu_id_t get_cpu_id(void);
+
+extern chip_id_t aml_chip_id;
+int get_chip_id(unsigned char *buff, unsigned int size);
+
+/**
+ * TODO: Remove this API after move static system information to RO
+ * register or SRAM
+ *
+ * Should *NOT* call this API directly, always use get_chip_id()
+ */
+int __get_chip_id(unsigned char *buff, unsigned int size);

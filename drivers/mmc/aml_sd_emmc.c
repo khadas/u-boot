@@ -45,7 +45,7 @@
 	#define emmc_debug(a...)
 #endif
 
-
+extern bool aml_is_emmc_tsd (struct mmc *mmc);
 /*
  * **********************************************************************************************
  * board relative
@@ -79,7 +79,7 @@ void aml_sd_cfg_swth(struct mmc *mmc)
 	struct aml_card_sd_info *aml_priv = mmc->priv;
 	struct sd_emmc_global_regs *sd_emmc_reg = aml_priv->sd_emmc_reg;
 	struct sd_emmc_config* sd_emmc_cfg = (struct sd_emmc_config*)&vconf;
-
+	cpu_id_t cpu_id = get_cpu_id();
 	emmc_debug("mmc->clock=%d; clk_div=%d\n",mmc->clock ,clk_div);
 
 	/* reset gdelay , gadjust register */
@@ -118,6 +118,14 @@ void aml_sd_cfg_swth(struct mmc *mmc)
 						(2 << Cfg_co_phase) |
 						(clk_src << Cfg_src) |
 						(clk_div << Cfg_div));
+
+	if (cpu_id.family_id >= MESON_CPU_MAJOR_ID_TXLX) {
+		if (aml_is_emmc_tsd(mmc)
+			|| (cpu_id.family_id == MESON_CPU_MAJOR_ID_AXG)) {
+			sd_emmc_clkc &= ~(3 << Cfg_co_phase);
+			sd_emmc_clkc |= (3 << Cfg_co_phase);
+		}
+	}
 
 	sd_emmc_reg->gclock = sd_emmc_clkc;
 	vconf = sd_emmc_reg->gcfg;
@@ -779,7 +787,7 @@ void sd_emmc_register(struct aml_card_sd_info * aml_priv)
 #endif
 	cfg->f_min = 400000;
 	cfg->f_max = 40000000;
-
+	cfg->part_type = PART_TYPE_AML;
 	cfg->b_max = 256;
 	mmc_create(cfg,aml_priv);
 }

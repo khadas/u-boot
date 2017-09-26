@@ -15,6 +15,9 @@
 
 #ifndef _LCD_EXTERN_H_
 #define _LCD_EXTERN_H_
+#ifdef CONFIG_SYS_I2C_AML
+#include <aml_i2c.h>
+#endif
 
 #define EXTPR(fmt, args...)     printf("lcd extern: "fmt"", ## args)
 #define EXTERR(fmt, args...)    printf("lcd extern: error: "fmt"", ## args)
@@ -68,6 +71,9 @@ extern int aml_lcd_extern_mipi_N070ICN_probe(struct aml_lcd_extern_driver_s *ext
 extern int aml_lcd_extern_mipi_KD080D13_get_default_index(void);
 extern int aml_lcd_extern_mipi_KD080D13_probe(struct aml_lcd_extern_driver_s *ext_drv);
 #endif
-
+#ifdef CONFIG_AML_LCD_EXTERN_I2C_DLPC3439
+extern int aml_lcd_extern_i2c_DLPC3439_get_default_index(void);
+extern int aml_lcd_extern_i2c_DLPC3439_probe(struct aml_lcd_extern_driver_s *ext_drv);
+#endif
 #endif
 

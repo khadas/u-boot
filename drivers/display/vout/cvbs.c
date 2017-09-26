@@ -18,6 +18,8 @@
 */
 #include <common.h>
 #include <asm/arch/io.h>
+#include <asm/arch/secure_apb.h>
+#include <asm/arch/cpu.h>
 #include <asm/cpu_id.h>
 #include "cvbs_regs.h"
 #include "cvbs_config.h"
@@ -28,12 +30,14 @@ enum CVBS_MODE_e
 {
 	VMODE_PAL,
 	VMODE_NTSC,
+	VMODE_PAL_M,
+	VMODE_PAL_N,
+	VMODE_NTSC_M,
 	VMODE_MAX
 };
 
 unsigned int cvbs_mode = VMODE_MAX;
 
-static cpu_id_t cpu_id;
 /*----------------------------------------------------------------------------*/
 // interface for registers of soc
 
@@ -76,11 +80,11 @@ static unsigned int cvbs_get_logic_addr(unsigned int bus, unsigned int addr_offs
 	unsigned int ret;
 
 	if (bus == BUS_TYPE_CBUS)
-		ret = (CBUS_BASE + (addr_offset<<2));
+		ret = (REG_BASE_CBUS + (addr_offset<<2));
 	else if (bus == BUS_TYPE_HIU)
-		ret = (HIU_BASE + ((addr_offset&0xff)<<2));
+		ret = (REG_BASE_HIU + ((addr_offset&0xff)<<2));
 	else if (bus == BUS_TYPE_VCBUS)
-		ret = (VCBUS_BASE + (addr_offset<<2));
+		ret = (REG_BASE_VCBUS + (addr_offset<<2));
 
 	return ret;
 }
@@ -95,24 +99,24 @@ static int cvbs_read_cbus(unsigned int addr_offset)
 	return cvbs_read_reg_linear(cvbs_get_logic_addr(BUS_TYPE_CBUS, addr_offset));
 }
 
-static int cvbs_write_hiu(unsigned int addr_offset, unsigned int value)
+static int cvbs_write_hiu(unsigned int addr, unsigned int value)
 {
-	return cvbs_write_reg_linear(cvbs_get_logic_addr(BUS_TYPE_HIU, addr_offset), value);
+	return cvbs_write_reg_linear(addr, value);
 }
 
-static int cvbs_read_hiu(unsigned int addr_offset)
+static int cvbs_read_hiu(unsigned int addr)
 {
-	return cvbs_read_reg_linear(cvbs_get_logic_addr(BUS_TYPE_HIU, addr_offset));
+	return cvbs_read_reg_linear(addr);
 }
 
-static int cvbs_set_hiu_bits(unsigned int addr_offset, unsigned int value, unsigned int start, unsigned int len)
+static int cvbs_set_hiu_bits(unsigned int addr, unsigned int value, unsigned int start, unsigned int len)
 {
-	return cvbs_set_reg_bits(cvbs_get_logic_addr(BUS_TYPE_HIU, addr_offset), value, start, len);
+	return cvbs_set_reg_bits(addr, value, start, len);
 }
 
-static int cvbs_get_hiu_bits(unsigned int addr_offset, unsigned int start, unsigned int len)
+static int cvbs_get_hiu_bits(unsigned int addr, unsigned int start, unsigned int len)
 {
-	return cvbs_get_reg_bits(cvbs_get_logic_addr(BUS_TYPE_HIU, addr_offset), start, len);
+	return cvbs_get_reg_bits(addr, start, len);
 }
 
 static unsigned int cvbs_read_vcbus(unsigned int addr_offset)
@@ -146,38 +150,38 @@ static int check_cpu_type(unsigned int cpu_type)
 
 static bool inline is_equal_after_meson_cpu(unsigned int id)
 {
-	return (cpu_id.family_id >= id)?1:0;
+	return (get_cpu_id().family_id >= id)?1:0;
 }
 
 static bool inline is_meson_gxl_cpu(void)
 {
-	return (cpu_id.family_id == MESON_CPU_MAJOR_ID_GXL)?
+	return (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXL)?
 		1:0;
 }
 
 static bool inline is_meson_txl_cpu(void)
 {
-	return (cpu_id.family_id == MESON_CPU_MAJOR_ID_TXL)?
+	return (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TXL)?
 		1:0;
 }
 
 static bool inline is_meson_gxm_cpu(void)
 {
-	return (cpu_id.family_id == MESON_CPU_MAJOR_ID_GXM)?
+	return (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXM)?
 		1:0;
 
 }
 static bool inline is_meson_gxl_package_905X(void)
 {
-	return ((cpu_id.family_id == MESON_CPU_MAJOR_ID_GXL) &&
-		(cpu_id.package_id == MESON_CPU_PACKAGE_ID_905X))?
+	return ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXL) &&
+		(get_cpu_id().package_id == MESON_CPU_PACKAGE_ID_905X))?
 		1:0;
 }
 
 static bool inline is_meson_gxl_package_905L(void)
 {
-	return ((cpu_id.family_id == MESON_CPU_MAJOR_ID_GXL) &&
-		(cpu_id.package_id == MESON_CPU_PACKAGE_ID_905L))?
+	return ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXL) &&
+		(get_cpu_id().package_id == MESON_CPU_PACKAGE_ID_905L))?
 		1:0;
 }
 
@@ -225,7 +229,7 @@ int cvbs_set_vdac(int status)
 	{
 	case 0:// close vdac
 		cvbs_write_hiu(HHI_VDAC_CNTL0, 0);
-		if (is_meson_txl_cpu())
+		if (is_equal_after_meson_cpu(MESON_CPU_MAJOR_ID_TXL))
 			cvbs_write_hiu(HHI_VDAC_CNTL1, 0);
 		else
 			cvbs_write_hiu(HHI_VDAC_CNTL1, 8);
@@ -233,15 +237,14 @@ int cvbs_set_vdac(int status)
 	case 1:// from enci to vdac
 		cvbs_set_vcbus_bits(VENC_VDAC_DACSEL0, 5, 1, 0);
 		if (is_equal_after_meson_cpu(MESON_CPU_MAJOR_ID_GXL)) {
-			if (is_meson_txl_cpu())
+			if (is_equal_after_meson_cpu(MESON_CPU_MAJOR_ID_TXL))
 				cvbs_write_hiu(HHI_VDAC_CNTL0, 0xb0201);
 			else
 				cvbs_write_hiu(HHI_VDAC_CNTL0, 0xb0001);
-		}
-		else
+		} else
 			cvbs_write_hiu(HHI_VDAC_CNTL0, 1);
 
-		if (is_meson_txl_cpu())
+		if (is_equal_after_meson_cpu(MESON_CPU_MAJOR_ID_TXL))
 			cvbs_write_hiu(HHI_VDAC_CNTL1, 8);
 		else
 			cvbs_write_hiu(HHI_VDAC_CNTL1, 0);
@@ -294,11 +297,18 @@ static void cvbs_dump_cvbs_regs(void)
 
 unsigned int cvbs_clk_regs[] = {
 	HHI_HDMI_PLL_CNTL,
+#if (!defined(CONFIG_CHIP_AML_GXB) && \
+		!defined(CONFIG_AML_MESON_GXTVBB))
+	HHI_HDMI_PLL_CNTL1,
+#endif
 	HHI_HDMI_PLL_CNTL2,
 	HHI_HDMI_PLL_CNTL3,
 	HHI_HDMI_PLL_CNTL4,
 	HHI_HDMI_PLL_CNTL5,
+#if (defined(CONFIG_CHIP_AML_GXB) || \
+		defined(CONFIG_AML_MESON_GXTVBB))
 	HHI_HDMI_PLL_CNTL6,
+#endif
 	HHI_VID_PLL_CLK_DIV,
 	HHI_VIID_CLK_DIV,
 	HHI_VIID_CLK_CNTL,
@@ -334,7 +344,7 @@ int cvbs_reg_debug(int argc, char* const argv[])
 		if (!strcmp(argv[2], "c"))
 			printf("cvbs read cbus[0x%.2x] = 0x%.4x\n", addr, cvbs_read_cbus(addr));
 		else if (!strcmp(argv[2], "h"))
-			printf("cvbs read hiu[0x%.2x] = 0x%.4x\n", addr, cvbs_read_hiu(addr));
+			printf("cvbs read hiu[0x%.2x] = 0x%.4x\n", addr, cvbs_read_hiu(cvbs_get_logic_addr(BUS_TYPE_HIU, addr)));
 		else if (!strcmp(argv[2], "v"))
 			printf("cvbs read vcbus[0x%.2x] = 0x%.4x\n", addr, cvbs_read_vcbus(addr));
 	} else if (!strcmp(argv[1], "w")) {
@@ -345,10 +355,10 @@ int cvbs_reg_debug(int argc, char* const argv[])
 		value = simple_strtoul(argv[2], NULL, 16);
 		if (!strcmp(argv[3], "c")) {
 			cvbs_write_cbus(addr, value);
-			printf("cvbs write cbus[0x%.2x] = 0x%.4x\n", addr, cvbs_read_hiu(addr));
+			printf("cvbs write cbus[0x%.2x] = 0x%.4x\n", addr, cvbs_read_cbus(addr));
 		} else if (!strcmp(argv[3], "h")) {
-			cvbs_write_hiu(addr, value);
-			printf("cvbs write hiu[0x%.2x] = 0x%.4x\n", addr, cvbs_read_hiu(addr));
+			cvbs_write_hiu(cvbs_get_logic_addr(BUS_TYPE_HIU, addr), value);
+			printf("cvbs write hiu[0x%.2x] = 0x%.4x\n", addr, cvbs_read_hiu(cvbs_get_logic_addr(BUS_TYPE_HIU, addr)));
 		} else if (!strcmp(argv[3], "v")) {
 			cvbs_write_vcbus(addr, value);
 			printf("cvbs write hiu[0x%.2x] = 0x%.4x\n", addr, cvbs_read_vcbus(addr));
@@ -378,7 +388,7 @@ int cvbs_reg_debug(int argc, char* const argv[])
 				printf("cvbs read cbus[0x%.2x] = 0x%.4x\n", i, cvbs_read_cbus(i));
 		} if (type == BUS_TYPE_HIU) {
 			for (i=start; i<=end; i++)
-				printf("cvbs read hiu[0x%.2x] = 0x%.4x\n", i, cvbs_read_hiu(i));
+				printf("cvbs read hiu[0x%.2x] = 0x%.4x\n", i, cvbs_read_hiu(cvbs_get_logic_addr(BUS_TYPE_HIU, i)));
 		} else if (type == BUS_TYPE_VCBUS) {
 			for (i=start; i<=end; i++)
 				printf("cvbs read vcbus[0x%.2x] = 0x%.4x\n", i, cvbs_read_vcbus(i));
@@ -420,11 +430,14 @@ fail_cmd:
 static void cvbs_config_hdmipll_gxb(void)
 {
 	cvbs_write_hiu(HHI_HDMI_PLL_CNTL,	0x5800023d);
+#if (defined(CONFIG_CHIP_AML_GXB) || \
+		defined(CONFIG_AML_MESON_GXTVBB))
 	cvbs_write_hiu(HHI_HDMI_PLL_CNTL2,	0x00404e00);
 	cvbs_write_hiu(HHI_HDMI_PLL_CNTL3,	0x0d5c5091);
 	cvbs_write_hiu(HHI_HDMI_PLL_CNTL4,	0x801da72c);
 	cvbs_write_hiu(HHI_HDMI_PLL_CNTL5,	0x71486980);
 	cvbs_write_hiu(HHI_HDMI_PLL_CNTL6,	0x00000e55);
+#endif
 	cvbs_write_hiu(HHI_HDMI_PLL_CNTL,	0x4800023d);
 	WAIT_FOR_PLL_LOCKED(HHI_HDMI_PLL_CNTL);
 
@@ -434,11 +447,14 @@ static void cvbs_config_hdmipll_gxb(void)
 static void cvbs_config_hdmipll_gxl(void)
 {
 	cvbs_write_hiu(HHI_HDMI_PLL_CNTL, 0x4000027b);
-	cvbs_write_hiu(HHI_HDMI_PLL_CNTL2, 0x800cb300);
-	cvbs_write_hiu(HHI_HDMI_PLL_CNTL3, 0xa6212844);
-	cvbs_write_hiu(HHI_HDMI_PLL_CNTL4, 0x0c4d000c);
-	cvbs_write_hiu(HHI_HDMI_PLL_CNTL5, 0x001fa729);
-	cvbs_write_hiu(HHI_HDMI_PLL_CNTL6, 0x01a31500);
+#if (!defined(CONFIG_CHIP_AML_GXB) && \
+		!defined(CONFIG_AML_MESON_GXTVBB))
+	cvbs_write_hiu(HHI_HDMI_PLL_CNTL1, 0x800cb300);
+	cvbs_write_hiu(HHI_HDMI_PLL_CNTL2, 0xa6212844);
+	cvbs_write_hiu(HHI_HDMI_PLL_CNTL3, 0x0c4d000c);
+	cvbs_write_hiu(HHI_HDMI_PLL_CNTL4, 0x001fa729);
+	cvbs_write_hiu(HHI_HDMI_PLL_CNTL5, 0x01a31500);
+#endif
 	cvbs_set_hiu_bits(HHI_HDMI_PLL_CNTL, 0x1, 28, 1);
 	cvbs_set_hiu_bits(HHI_HDMI_PLL_CNTL, 0x0, 28, 1);
 	WAIT_FOR_PLL_LOCKED(HHI_HDMI_PLL_CNTL);
@@ -449,11 +465,14 @@ static void cvbs_config_hdmipll_gxl(void)
 static void cvbs_config_hdmipll_gxtvbb(void)
 {
 	cvbs_write_hiu(HHI_HDMI_PLL_CNTL,	0x5800023d);
+#if (defined(CONFIG_CHIP_AML_GXB) || \
+		defined(CONFIG_AML_MESON_GXTVBB))
 	cvbs_write_hiu(HHI_HDMI_PLL_CNTL2,	0x00404380);
 	cvbs_write_hiu(HHI_HDMI_PLL_CNTL3,	0x0d5c5091);
 	cvbs_write_hiu(HHI_HDMI_PLL_CNTL4,	0x801da72c);
 	cvbs_write_hiu(HHI_HDMI_PLL_CNTL5,	0x71486980);
 	cvbs_write_hiu(HHI_HDMI_PLL_CNTL6,	0x00000e55);
+#endif
 	cvbs_write_hiu(HHI_HDMI_PLL_CNTL,	0x4800023d);
 	WAIT_FOR_PLL_LOCKED(HHI_HDMI_PLL_CNTL);
 
@@ -543,7 +562,7 @@ static void cvbs_performance_enhancement(int mode)
 	unsigned int type = 0;
 	const struct reg_s *s = NULL;
 
-	if (VMODE_PAL != mode)
+	if (VMODE_PAL != mode && VMODE_PAL_M != mode && VMODE_PAL_N != mode)
 		return;
 
 	if (0xff == index)
@@ -579,6 +598,12 @@ static void cvbs_performance_enhancement(int mode)
 		index = (index >= max) ? 0 : index;
 		s = tvregs_576cvbs_performance_gxtvbb[index];
 		type = 5;
+	} else if (is_equal_after_meson_cpu(MESON_CPU_MAJOR_ID_TXL)) {
+		max = sizeof(tvregs_576cvbs_performance_txl)
+			/ sizeof(struct reg_s *);
+		index = (index >= max) ? 0 : index;
+		s = tvregs_576cvbs_performance_txl[index];
+		type = 8;
 	} else if (is_equal_after_meson_cpu(MESON_CPU_MAJOR_ID_GXL)) {
 		if (is_meson_gxl_package_905L()) {
 			max = sizeof(tvregs_576cvbs_performance_905l)
@@ -609,6 +634,12 @@ static int cvbs_config_enci(int vmode)
 		cvbs_write_vcbus_array((struct reg_s*)&tvregs_576cvbs_enc[0]);
 	else if (VMODE_NTSC == vmode)
 		cvbs_write_vcbus_array((struct reg_s*)&tvregs_480cvbs_enc[0]);
+	else if (VMODE_NTSC_M == vmode)
+		cvbs_write_vcbus_array((struct reg_s*)&tvregs_480cvbs_enc[0]);
+	else if (VMODE_PAL_M == vmode)
+		cvbs_write_vcbus_array((struct reg_s*)&tvregs_pal_m_enc[0]);
+	else if (VMODE_PAL_N == vmode)
+		cvbs_write_vcbus_array((struct reg_s*)&tvregs_pal_n_enc[0]);
 
 	cvbs_performance_enhancement(vmode);
 
@@ -632,6 +663,24 @@ int cvbs_set_vmode(char* vmode_name)
 		cvbs_config_clock();
 		cvbs_set_vdac(1);
 		return 0;
+	} else if (!strncmp(vmode_name, "ntsc_m", strlen("ntsc_m"))) {
+		cvbs_mode = VMODE_NTSC_M;
+		cvbs_config_enci(VMODE_NTSC_M);
+		cvbs_config_clock();
+		cvbs_set_vdac(1);
+		return 0;
+	} else if (!strncmp(vmode_name, "pal_m", strlen("pal_m"))) {
+		cvbs_mode = VMODE_PAL_M;
+		cvbs_config_enci(VMODE_PAL_M);
+		cvbs_config_clock();
+		cvbs_set_vdac(1);
+		return 0;
+	} else if (!strncmp(vmode_name, "pal_n", strlen("pal_n"))) {
+		cvbs_mode = VMODE_PAL_N;
+		cvbs_config_enci(VMODE_PAL_N);
+		cvbs_config_clock();
+		cvbs_set_vdac(1);
+		return 0;
 	} else {
 		printf("[%s] is invalid for cvbs.\n", vmode_name);
 		return -1;
@@ -644,14 +693,12 @@ int cvbs_set_vmode(char* vmode_name)
 // list for valid video mode
 void cvbs_show_valid_vmode(void)
 {
-	printf("576cvbs\n""480cvbs\n");
+	printf("576cvbs\n""480cvbs\n""ntsc_m\n""pal_m\n""pal_n\n");
 	return;
 }
 
 void cvbs_init(void)
 {
-	cpu_id = get_cpu_id();
-
 #ifdef CONFIG_CVBS_PERFORMANCE_COMPATIBILITY_SUPPORT
 	cvbs_performance_config();
 #endif

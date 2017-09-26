@@ -1,7 +1,16 @@
-config KHADAS_VIM
-	bool "Support Khadas Vim SBC board"
-	default y
+config KVIM
+	bool "Support Khadas VIM SBC board"
+	default n
 
-if KHADAS_VIM
+config KVIM2
+	bool "Support Khadas VIM2 SBC board"
+	default n
+
+if KVIM
 source "board/khadas/kvim/Kconfig"
 endif
+
+if KVIM2
+source "board/khadas/kvim2/Kconfig"
+endif
+

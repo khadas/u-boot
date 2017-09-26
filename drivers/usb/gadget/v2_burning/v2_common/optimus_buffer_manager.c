@@ -93,13 +93,22 @@ int optimus_buf_manager_tplcmd_init(const char* mediaType,  const char* partName
     u32 writeBackUnitSz = OPTIMUS_VFAT_IMG_WRITE_BACK_SZ;
     const u64 pktSz4BufManager = pktTotalSz - itemSizeNotAligned;
 
+    int cacheAll2Mem = 0;
+#if OPTIMUS_BURN_TARGET_SUPPORT_UBIFS
+    if ( !strcmp(imgType, "ubifs") ) cacheAll2Mem = 1;
+#endif // #if OPTIMUS_BURN_TARGET_SUPPORT_UBIFS
+
     if (!strcmp("sparse", imgType)
             || itemSizeNotAligned/* use max memory if item 'itemOffset % bytespercluster != 0'*/)
     {
         writeBackUnitSz = OPTIMUS_SIMG_WRITE_BACK_SZ;
     }
 
-    if (!strcmp("bootloader", partName))
+    if (!strcmp("bootloader", partName) || !strcmp("_aml_dtb", partName)
+#if defined(CONFIG_AML_MTD) && defined(CONFIG_TPL_PART_NAME)
+        || ( !strcmp(CONFIG_TPL_PART_NAME, partName) )
+#endif//#if defined(CONFIG_AML_MTD)
+       )
     {
         if (pktSz4BufManager > _bufManager.transferBufSz) {
             DWN_ERR("packet size 0x%x too large, max is 0x%x\n", (u32)pktSz4BufManager, _bufManager.transferBufSz);
@@ -111,14 +120,13 @@ int optimus_buf_manager_tplcmd_init(const char* mediaType,  const char* partName
         writeBackUnitSz             <<= OPTIMUS_DOWNLOAD_SLOT_SZ_SHIFT_BITS;
     }
 
-    _bufManager.destMediaType   = OPTIMUS_MEDIA_TYPE_STORE;
-    if (!strcmp("mem", mediaType))
+    _bufManager.destMediaType   = !strcmp("mem", mediaType) ? OPTIMUS_MEDIA_TYPE_MEM : OPTIMUS_MEDIA_TYPE_STORE ;
+    if ( !cacheAll2Mem ) cacheAll2Mem = !strcmp("mem", mediaType) ;
+    if (cacheAll2Mem)
     {
             writeBackUnitSz             = pktSz4BufManager + _bufManager.transferUnitSz - 1;
             writeBackUnitSz             >>= OPTIMUS_DOWNLOAD_SLOT_SZ_SHIFT_BITS;
             writeBackUnitSz             <<= OPTIMUS_DOWNLOAD_SLOT_SZ_SHIFT_BITS;
-
-        _bufManager.destMediaType   = OPTIMUS_MEDIA_TYPE_MEM;
 
         if (partBaseOffset>>32) {
             DWN_ERR("partBaseOffset 0x%llx more than 4G!!\n", partBaseOffset);
@@ -127,7 +135,7 @@ int optimus_buf_manager_tplcmd_init(const char* mediaType,  const char* partName
         _bufManager.partBaseOffset = (u32)partBaseOffset;
     }
 
-    if (_bufManager.transferBufSz < writeBackUnitSz && strcmp("mem", mediaType)) {
+    if (_bufManager.transferBufSz < writeBackUnitSz && !cacheAll2Mem) {
         DWN_ERR("write back size 0x%x > max size 0x%x\n", writeBackUnitSz, _bufManager.transferBufSz);
         return OPT_DOWN_FAIL;
     }

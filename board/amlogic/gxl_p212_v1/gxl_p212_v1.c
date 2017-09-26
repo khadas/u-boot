@@ -28,6 +28,7 @@
 #include <aml_i2c.h>
 #include <asm/arch/secure_apb.h>
 #endif
+#include <amlogic/canvas.h>
 #ifdef CONFIG_AML_VPU
 #include <vpu.h>
 #endif
@@ -41,12 +42,14 @@
 #include <asm/arch/eth_setup.h>
 #include <phy.h>
 #include <asm/cpu_id.h>
+#ifdef DTB_BIND_KERNEL
+#include "storage.h"
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
 //new static eth setup
 struct eth_board_socket*  eth_board_skt;
-
 
 int serial_set_pin_port(unsigned long port_base)
 {
@@ -254,6 +257,7 @@ static void board_mmc_register(unsigned port)
 }
 int board_mmc_init(bd_t	*bis)
 {
+	__maybe_unused struct mmc *mmc;
 #ifdef CONFIG_VLSI_EMULATOR
 	//board_mmc_register(SDIO_PORT_A);
 #else
@@ -262,6 +266,14 @@ int board_mmc_init(bd_t	*bis)
 	board_mmc_register(SDIO_PORT_B);
 	board_mmc_register(SDIO_PORT_C);
 //	board_mmc_register(SDIO_PORT_B1);
+#if defined(CONFIG_ENV_IS_NOWHERE) && defined(CONFIG_AML_SD_EMMC)
+	/* try emmc here. */
+	mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
+	if (!mmc)
+		printf("%s() %d: No MMC found\n", __func__, __LINE__);
+	else if (mmc_init(mmc))
+		printf("%s() %d: MMC init failed\n", __func__, __LINE__);
+#endif
 	return 0;
 }
 
@@ -355,7 +367,9 @@ int board_init(void)
 {
     //Please keep CONFIG_AML_V2_FACTORY_BURN at first place of board_init
 #ifdef CONFIG_AML_V2_FACTORY_BURN
-	aml_try_factory_usb_burning(0, gd->bd);
+	if ((0x1b8ec003 != readl(P_PREG_STICKY_REG2)) && (0x1b8ec004 != readl(P_PREG_STICKY_REG2))) {
+		aml_try_factory_usb_burning(0, gd->bd);
+	}
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 	/*for LED*/
 	//clear pinmux
@@ -371,6 +385,7 @@ int board_init(void)
 #ifdef CONFIG_USB_XHCI_AMLOGIC_GXL
 	board_usb_init(&g_usb_config_GXL_skt,BOARD_USB_MODE_HOST);
 #endif /*CONFIG_USB_XHCI_AMLOGIC*/
+	canvas_init();
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
@@ -403,8 +418,6 @@ U_BOOT_CMD(hdmi_init, CONFIG_SYS_MAXARGS, 0, do_hdmi_init,
 #endif
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void){
-	int ret;
-
 	//update env before anyone using it
 	run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
 			"if test ${reboot_mode} = factory_reset; then "\
@@ -418,6 +431,8 @@ int board_late_init(void){
 	run_command("vout output $outputmode", 0);
 #endif
 	/*add board late init function here*/
+#ifndef DTB_BIND_KERNEL
+	int ret;
 	ret = run_command("store dtb read $dtb_mem_addr", 1);
 	if (ret) {
 		printf("%s(): [store dtb read $dtb_mem_addr] fail\n", __func__);
@@ -431,7 +446,24 @@ int board_late_init(void){
 		}
 		#endif
 	}
+#elif defined(CONFIG_DTB_MEM_ADDR)
+		{
+				char cmd[128];
+				int ret;
+                if (!getenv("dtb_mem_addr")) {
+						sprintf(cmd, "setenv dtb_mem_addr 0x%x", CONFIG_DTB_MEM_ADDR);
+						run_command(cmd, 0);
+				}
+				sprintf(cmd, "imgread dtb boot ${dtb_mem_addr}");
+				ret = run_command(cmd, 0);
+                                if (ret) {
+						printf("%s(): cmd[%s] fail, ret=%d\n", __func__, cmd, ret);
+				}
+		}
+#endif// #ifndef DTB_BIND_KERNEL
 #ifdef CONFIG_AML_V2_FACTORY_BURN
+	if (0x1b8ec003 == readl(P_PREG_STICKY_REG2))
+		aml_try_factory_usb_burning(1, gd->bd);
 	aml_try_factory_sdcard_burning(0, gd->bd);
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 

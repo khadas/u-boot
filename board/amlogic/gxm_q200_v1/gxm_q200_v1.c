@@ -28,6 +28,7 @@
 #include <aml_i2c.h>
 #include <asm/arch/secure_apb.h>
 #endif
+#include <amlogic/canvas.h>
 #ifdef CONFIG_AML_VPU
 #include <vpu.h>
 #endif
@@ -88,7 +89,7 @@ void internalPhyConfig(struct phy_device *phydev)
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x14, 0x5C1C);
 }
 
-
+#ifdef CONFIG_INTERNAL_PHY
 static void setup_net_chip(void)
 {
 	eth_aml_reg0_t eth_reg0;
@@ -121,6 +122,48 @@ static void setup_net_chip(void)
 	clrbits_le32(HHI_MEM_PD_REG0, (1 << 3) | (1<<2));
 
 }
+#else
+static void setup_net_chip(void)
+{
+	eth_aml_reg0_t eth_reg0;
+
+	//setup ethernet clk need calibrate to configre
+	setbits_le32(P_PERIPHS_PIN_MUX_4, 0xfffc00);
+
+	eth_reg0.d32 = 0;
+	eth_reg0.b.phy_intf_sel = 1;
+	eth_reg0.b.data_endian = 0;
+	eth_reg0.b.desc_endian = 0;
+	eth_reg0.b.rx_clk_rmii_invert = 0;
+	eth_reg0.b.rgmii_tx_clk_src = 0;
+	eth_reg0.b.rgmii_tx_clk_phase = 1;
+	eth_reg0.b.rgmii_tx_clk_ratio = 4;
+	eth_reg0.b.phy_ref_clk_enable = 1;
+	eth_reg0.b.clk_rmii_i_invert = 0;
+	eth_reg0.b.clk_en = 1;
+	eth_reg0.b.adj_enable = 0;
+	eth_reg0.b.adj_setup = 0;
+	eth_reg0.b.adj_delay = 0;
+	eth_reg0.b.adj_skew = 0;
+	eth_reg0.b.cali_start = 0;
+	eth_reg0.b.cali_rise = 0;
+	eth_reg0.b.cali_sel = 0;
+	eth_reg0.b.rgmii_rx_reuse = 0;
+	eth_reg0.b.eth_urgent = 0;
+	setbits_le32(P_PREG_ETH_REG0, eth_reg0.d32);// rgmii mode
+
+	setbits_le32(HHI_GCLK_MPEG1,1<<3);
+
+	/* power on memory */
+	clrbits_le32(HHI_MEM_PD_REG0, (1 << 3) | (1<<2));
+
+	/* hardware reset ethernet phy : gpioz14 connect phyreset pin*/
+	clrbits_le32(PREG_PAD_GPIO3_EN_N, 1 << 14);
+	clrbits_le32(PREG_PAD_GPIO3_O, 1 << 14);
+	udelay(10000);
+	setbits_le32(PREG_PAD_GPIO3_O, 1 << 14);
+}
+#endif
 
 
 extern struct eth_board_socket* eth_board_setup(char *name);
@@ -129,8 +172,11 @@ int board_eth_init(bd_t *bis)
 {
 	setup_net_chip();
 	udelay(1000);
+#ifdef CONFIG_INTERNAL_PHY
 	designware_initialize(ETH_BASE, PHY_INTERFACE_MODE_RMII);
-
+#else
+	designware_initialize(ETH_BASE, PHY_INTERFACE_MODE_RGMII);
+#endif
 	return 0;
 }
 
@@ -354,7 +400,9 @@ int board_init(void)
 {
     //Please keep CONFIG_AML_V2_FACTORY_BURN at first place of board_init
 #ifdef CONFIG_AML_V2_FACTORY_BURN
-	aml_try_factory_usb_burning(0, gd->bd);
+	if ((0x1b8ec003 != readl(P_PREG_STICKY_REG2)) && (0x1b8ec004 != readl(P_PREG_STICKY_REG2))) {
+		aml_try_factory_usb_burning(0, gd->bd);
+	}
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 	/*for LED*/
 	//clear pinmux
@@ -370,6 +418,7 @@ int board_init(void)
 #ifdef CONFIG_USB_XHCI_AMLOGIC_GXL
 	board_usb_init(&g_usb_config_GXL_skt,BOARD_USB_MODE_HOST);
 #endif /*CONFIG_USB_XHCI_AMLOGIC*/
+	canvas_init();
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
@@ -431,6 +480,8 @@ int board_late_init(void){
 		#endif
 	}
 #ifdef CONFIG_AML_V2_FACTORY_BURN
+	if (0x1b8ec003 == readl(P_PREG_STICKY_REG2))
+		aml_try_factory_usb_burning(1, gd->bd);
 	aml_try_factory_sdcard_burning(0, gd->bd);
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXL) {
@@ -439,6 +490,10 @@ int board_late_init(void){
 	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXM) {
 		setenv("maxcpus","8");
 	}
+
+	/* load uboot pq value */
+	vpp_pq_load();
+
 	return 0;
 }
 #endif

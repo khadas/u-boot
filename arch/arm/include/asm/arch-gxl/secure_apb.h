@@ -10,6 +10,8 @@
 // DO NOT EDIT!!!!!
 // ----------------------------------------------------------------------
 //
+#include <asm/arch/regs.h>
+
 #ifdef SECURE_APB_H
 #else
 #define SECURE_APB_H
@@ -515,6 +517,24 @@
 #define     HHI_GP0_PLL_CNTL1                                  (0xc883c000 + (0x16 << 2))
 #define SEC_HHI_GP0_PLL_CNTL1                                  (0xda83c000 + (0x16 << 2))
 #define   P_HHI_GP0_PLL_CNTL1                                  (volatile uint32_t *)(0xc883c000 + (0x16 << 2))
+/*copy from gxtvbb, for compile*/
+/*start*/
+#define     HHI_GP1_PLL_CNTL                                   (0xc883c000 + (0x16 << 2))
+#define SEC_HHI_GP1_PLL_CNTL                                   (0xda83c000 + (0x16 << 2))
+#define   P_HHI_GP1_PLL_CNTL                                   (volatile uint32_t *)(0xc883c000 + (0x16 << 2))
+#define     HHI_GP1_PLL_CNTL2                                  (0xc883c000 + (0x17 << 2))
+#define SEC_HHI_GP1_PLL_CNTL2                                  (0xda83c000 + (0x17 << 2))
+#define   P_HHI_GP1_PLL_CNTL2                                  (volatile uint32_t *)(0xc883c000 + (0x17 << 2))
+#define     HHI_GP1_PLL_CNTL3                                  (0xc883c000 + (0x18 << 2))
+#define SEC_HHI_GP1_PLL_CNTL3                                  (0xda83c000 + (0x18 << 2))
+#define   P_HHI_GP1_PLL_CNTL3                                  (volatile uint32_t *)(0xc883c000 + (0x18 << 2))
+#define     HHI_GP1_PLL_CNTL4                                  (0xc883c000 + (0x19 << 2))
+#define SEC_HHI_GP1_PLL_CNTL4                                  (0xda83c000 + (0x19 << 2))
+#define   P_HHI_GP1_PLL_CNTL4                                  (volatile uint32_t *)(0xc883c000 + (0x19 << 2))
+#define     HHI_GP1_PLL_CNTL5                                  (0xc883c000 + (0x1a << 2))
+#define SEC_HHI_GP1_PLL_CNTL5                                  (0xda83c000 + (0x1a << 2))
+#define   P_HHI_GP1_PLL_CNTL5                                  (volatile uint32_t *)(0xc883c000 + (0x1a << 2))
+/*end*/
 #define     HHI_CADC_CNTL                                      (0xc883c000 + (0x20 << 2))
 #define SEC_HHI_CADC_CNTL                                      (0xda83c000 + (0x20 << 2))
 #define   P_HHI_CADC_CNTL                                      (volatile uint32_t *)(0xc883c000 + (0x20 << 2))
@@ -1854,6 +1874,16 @@
 //
 // Closing file:  ./ao_rti_reg.h
 //
+
+#define P_DMA_T0   (volatile uint32_t *)0xc883e000
+#define P_DMA_T1   (volatile uint32_t *)0xc883e004
+#define P_DMA_T2   (volatile uint32_t *)0xc883e008
+#define P_DMA_T3   (volatile uint32_t *)0xc883e00c
+#define P_DMA_STS0 (volatile uint32_t *)0xc883e010
+#define P_DMA_STS1 (volatile uint32_t *)0xc883e014
+#define P_DMA_STS2 (volatile uint32_t *)0xc883e018
+#define P_DMA_STS3 (volatile uint32_t *)0xc883e01c
+#define P_DMA_CFG  (volatile uint32_t *)0xc883e028
 
 #endif // SECURE_APB_H
 

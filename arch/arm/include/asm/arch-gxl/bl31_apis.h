@@ -65,6 +65,7 @@
 	#define RUN_COMD_USB_BOOT		3
 	#define PANIC_DUMP_USB_BOOT	4
 
+#define GET_CHIP_ID			0x82000044
 /* Security Key*/
 #define SECURITY_KEY_QUERY	0x82000060
 #define SECURITY_KEY_READ	0x82000061
@@ -76,6 +77,10 @@
 #define SECURITY_KEY_LIST		0x82000067
 #define SECURITY_KEY_REMOVE	0x82000068
 #define SECURITY_KEY_NOTIFY_EX	0x82000069
+#define SECURITY_KEY_SET_ENCTYPE	0x8200006A
+#define SECURITY_KEY_GET_ENCTYPE	0x8200006B
+#define SECURITY_KEY_VERSION		0x8200006C
+
 
 /* Secure HAL APIs */
 #define TRUSTZONE_HAL_API_SRAM                  0x400
@@ -127,4 +132,6 @@ long get_sharemem_info(unsigned long);
 void set_usb_boot_function(unsigned long command);
 void aml_system_off(void);
 
+void bl31_get_chipid(unsigned int *, unsigned int *,
+	unsigned int *, unsigned int *);
 #endif

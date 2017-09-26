@@ -28,6 +28,7 @@
 #include <aml_i2c.h>
 #include <asm/arch/secure_apb.h>
 #endif
+#include <amlogic/canvas.h>
 #ifdef CONFIG_AML_VPU
 #include <vpu.h>
 #endif
@@ -370,6 +371,7 @@ int board_init(void)
 #ifdef CONFIG_USB_XHCI_AMLOGIC_GXL
 	board_usb_init(&g_usb_config_GXL_skt,BOARD_USB_MODE_HOST);
 #endif /*CONFIG_USB_XHCI_AMLOGIC*/
+	canvas_init();
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
@@ -439,6 +441,10 @@ int board_late_init(void){
 	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXM) {
 		setenv("maxcpus","8");
 	}
+
+	/* load uboot pq value */
+	vpp_pq_load();
+
 	return 0;
 }
 #endif

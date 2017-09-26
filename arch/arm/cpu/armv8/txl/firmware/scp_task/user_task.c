@@ -18,15 +18,19 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
-
 #include "config.h"
 #include "data.h"
 #include "registers.h"
 #include "task_apis.h"
 
-#define TASK_ID_LOW_MB	2
-#define TASK_ID_HIGH_MB	3
-#define TASK_ID_SECURE_MB  4
+#define TASK_ID_LOW_MB	3
+#define TASK_ID_HIGH_MB	4
+#define TASK_ID_SECURE_MB  5
+
+extern unsigned int usr_pwr_key;
+extern unsigned int ir_pwr_key;
+extern unsigned int channel;
+extern unsigned int keycode;
 
 enum scpi_client_id {
 	SCPI_CL_NONE,
@@ -35,6 +39,9 @@ enum scpi_client_id {
 	SCPI_CL_POWER,
 	SCPI_CL_THERMAL,
 	SCPI_CL_REMOTE,
+	SCPI_CL_LED_TIMER,/*the same to mailbox.h,keep the same order*/
+	SCPI_CL_IR_POWER_KEY,
+	SCPI_CL_ADC_POWER_KEY,
 	SCPI_MAX,
 };
 
@@ -141,7 +148,6 @@ void high_task(void)
 	}
 }
 
-extern unsigned int usr_pwr_key;
 void process_low_task(unsigned command)
 {
 	unsigned *pcommand =
@@ -149,6 +155,7 @@ void process_low_task(unsigned command)
 	unsigned *response =
 	    (unsigned *)(&(low_task_share_mem[TASK_RESPONSE_OFFSET]));
 	unsigned para1;
+	unsigned adc_rec;
 
 	if (command == LOW_TASK_GET_DVFS_INFO) {
 		para1 = *(pcommand + 1);
@@ -158,6 +165,17 @@ void process_low_task(unsigned command)
 		if ((command >> 16) == SCPI_CL_REMOTE) {
 			usr_pwr_key = *(pcommand + 2);/*tx_size locates at *(pcommand + 1)*/
 			dbg_print("pwr_key=",usr_pwr_key);
+		}
+		else if ((command >> 16) == SCPI_CL_IR_POWER_KEY) {
+			ir_pwr_key = *(pcommand + 2);
+			dbg_print("ir_power_key  = ",ir_pwr_key);
+		}
+		else if ((command >> 16) == SCPI_CL_ADC_POWER_KEY) {
+			adc_rec = *(pcommand + 2);
+			channel = adc_rec >> 16 & 0xffff;
+			keycode = adc_rec & 0xffff;
+			dbg_print("adc power key:channel  = ", channel);
+			dbg_print("adc power key:keycode  = ", keycode);
 		}
 	}
 }

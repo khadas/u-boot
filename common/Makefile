@@ -55,7 +55,9 @@ obj-$(CONFIG_ENV_IS_IN_MMC) += env_mmc.o
 obj-$(CONFIG_ENV_IS_IN_FAT) += env_fat.o
 obj-$(CONFIG_ENV_IS_IN_NAND) += env_nand.o
 obj-$(CONFIG_ENV_IS_IN_AMLNAND) += env_amlnand.o
+ifneq ($(CONFIG_SPI_BOOT),y)
 obj-$(CONFIG_STORE_COMPATIBLE) += env_storage.o env_amlnand.o env_mmc.o
+endif
 obj-$(CONFIG_ENV_IS_IN_NVRAM) += env_nvram.o
 obj-$(CONFIG_ENV_IS_IN_ONENAND) += env_onenand.o
 obj-$(CONFIG_ENV_IS_IN_SPI_FLASH) += env_sf.o
@@ -86,6 +88,7 @@ obj-$(CONFIG_DATAFLASH_MMC_SELECT) += cmd_dataflash_mmc_mux.o
 obj-$(CONFIG_CMD_DATE) += cmd_date.o
 obj-$(CONFIG_CMD_DEMO) += cmd_demo.o
 obj-$(CONFIG_CMD_SOUND) += cmd_sound.o
+obj-$(CONFIG_CMD_IRBLASTER) += cmd_irblaster.o
 ifdef CONFIG_4xx
 obj-$(CONFIG_CMD_SETGETDCR) += cmd_dcr.o
 endif
@@ -104,7 +107,7 @@ obj-$(CONFIG_CMD_EXT2) += cmd_ext2.o
 obj-$(CONFIG_CMD_FAT) += cmd_fat.o
 obj-$(CONFIG_CMD_FDC) += cmd_fdc.o
 obj-$(CONFIG_OF_LIBFDT) += cmd_fdt.o fdt_support.o
-obj-$(CONFIG_MULTI_DTB) += aml_dt.o
+obj-y += aml_dt.o
 obj-$(CONFIG_CMD_FITUPD) += cmd_fitupd.o
 obj-$(CONFIG_CMD_FLASH) += cmd_flash.o
 ifdef CONFIG_FPGA
@@ -130,6 +133,7 @@ obj-$(CONFIG_CMD_LED) += cmd_led.o
 obj-$(CONFIG_CMD_LICENSE) += cmd_license.o
 ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 obj-y += cmd_bcb.o
+obj-y += cmd_bootctl.o
 endif
 obj-y += cmd_load.o
 obj-$(CONFIG_LOGBUFFER) += cmd_log.o
@@ -171,6 +175,7 @@ obj-$(CONFIG_CMD_REISER) += cmd_reiser.o
 obj-$(CONFIG_SANDBOX) += cmd_sandbox.o
 obj-$(CONFIG_CMD_SATA) += cmd_sata.o
 obj-$(CONFIG_CMD_SF) += cmd_sf.o
+obj-$(CONFIG_CMD_SHA2) += cmd_sha2.o
 obj-$(CONFIG_CMD_SCSI) += cmd_scsi.o
 obj-$(CONFIG_CMD_SHA1SUM) += cmd_sha1sum.o
 obj-$(CONFIG_CMD_SETEXPR) += cmd_setexpr.o
@@ -209,6 +214,7 @@ obj-$(CONFIG_CMD_ZFS) += cmd_zfs.o
 obj-$(CONFIG_AML_VPU) += cmd_vpu.o
 obj-$(CONFIG_CMD_DDR_D2PLL) += cmd_d2pll.o
 obj-$(CONFIG_CMD_DDR_TEST) += cmd_ddr_test.o
+obj-$(CONFIG_CMD_DDR_DQS) += cmd_ddr_dqs.o
 
 # others
 obj-$(CONFIG_BOOTSTAGE) += bootstage.o
@@ -228,6 +234,7 @@ obj-$(CONFIG_CMD_DFU) += cmd_dfu.o
 obj-$(CONFIG_CMD_GPT) += cmd_gpt.o
 obj-$(CONFIG_CMD_EFUSE) += cmd_efuse.o
 obj-$(CONFIG_CMD_CPU_TEMP) += cmd_cpu_temp.o
+obj-y += cmd_clkmsr.o
 endif
 
 ifdef CONFIG_SPL_BUILD
@@ -299,15 +306,23 @@ obj-y += s_record.o
 obj-y += xyzModem.o
 obj-y += cmd_disk.o
 
+# vpp module
+obj-y += cmd_vpp.o
+
+# khadas commands
+obj-$(CONFIG_KHADAS_KBI)  += cmd_kbi.o
+
 # amlogic commands
 obj-$(CONFIG_CMD_REBOOT) += cmd_reboot.o
 obj-y += cmd_scp.o
-obj-$(CONFIG_AML_HDMITX20) += hdmi_parameters.o cmd_hdmitx.o
+obj-$(CONFIG_AML_HDMITX20) += hdmi_parameters.o hdmi_edid_parsing.o cmd_hdmitx.o
 obj-$(CONFIG_CMD_JTAG) += cmd_jtag.o
 obj-$(CONFIG_AML_OSD) += cmd_osd.o
 obj-$(CONFIG_AML_CVBS) += cmd_cvbs.o
 obj-$(CONFIG_AML_VOUT) += cmd_vout.o
 obj-$(CONFIG_AML_LCD) += cmd_lcd.o
 obj-$(CONFIG_CMD_RSVMEM) += cmd_rsvmem.o
+obj-$(CONFIG_CMD_CHIPID) += cmd_chipid.o
+obj-$(CONFIG_CMD_WATCHDOG) += cmd_watchdog.o
 
 CFLAGS_env_embedded.o := -Wa,--no-warn -DENV_CRC=$(shell tools/envcrc 2>/dev/null)

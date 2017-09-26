@@ -249,6 +249,7 @@ struct aml_i2c_ops {
 
 int aml_i2c_init(void);
 int aml_i2c_xfer(struct i2c_msg *msgs, int num);
+void i2c_init(int speed, int slaveaddr);
 /*General i2c master transfer,it can Send to a specific master control*/
 int aml_i2c_transfer(int adap_num , struct i2c_msg *msgs , int num);
 

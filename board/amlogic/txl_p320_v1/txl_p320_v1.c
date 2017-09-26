@@ -25,6 +25,7 @@
 #include <environment.h>
 #include <fdt_support.h>
 #include <libfdt.h>
+#include <asm/cpu_id.h>
 #ifdef CONFIG_SYS_I2C_AML
 #include <aml_i2c.h>
 #include <asm/arch/secure_apb.h>
@@ -44,12 +45,14 @@
 #endif
 #include <asm/arch/eth_setup.h>
 #include <phy.h>
+#include <asm-generic/gpio.h>
+
+#include <asm/arch/mailbox.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 //new static eth setup
 struct eth_board_socket*  eth_board_skt;
-
 
 int serial_set_pin_port(unsigned long port_base)
 {
@@ -350,6 +353,66 @@ static void hdmi_tx_set_hdmi_5v(void)
 }
 #endif
 
+/**send_adc_channel_power_key:send adc channel
+ *adc_ch_power_key = 2,0x100;
+ * get env,(2,0x100)  2----------adc channel
+ *					  0x100------adc keycode
+ * and keycode to bl301.
+ */
+
+static int send_adc_channel_power_key(void)
+{
+	char *env;
+	unsigned int send_val;
+	unsigned int channel;
+	unsigned int keycode;
+	char *endp;
+	char *s;
+
+	env = getenv("adc_ch_power_key");
+	if (!env) {
+		printf("not set adc env,or try env default -a\n");
+		return -1;
+	}
+	printf("adc env =%s\n", env);
+
+	s = strdup(env);
+	channel = ustrtoul(strsep(&s, ","), &endp, 0);
+	keycode = ustrtoul(strsep(&s, ","), &endp, 0);
+	printf("adc parse channel =%d\n",channel);
+	printf("adc parse keycode = %d\n",keycode);
+
+	send_val = channel << 16 | keycode;
+
+	if (send_usr_data(SCPI_CL_ADC_POWER_KEY, (unsigned int *)&send_val,sizeof(send_val))) {
+		printf("send adc_power_key send error!...\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+static int send_ir_power_key(void)
+{
+	char *env;
+	char *endp;
+	unsigned int env_val;
+
+	env = getenv("ir_power_key");
+	if (!env) {
+		printf("not set ir env,or try env default -a\n");
+		return -1;
+	}
+	env_val = ustrtoul(env, &endp, 0);
+	printf("env ir_power_key = %u\n", env_val);
+
+	if (send_usr_data(SCPI_CL_IR_POWER_KEY, (unsigned int *)&env_val,sizeof(env_val))) {
+		printf("send ir_power_key send error!...\n");
+		return -1;
+	}
+	return 0;
+}
+
 int board_init(void)
 {
 #ifdef CONFIG_AML_V2_FACTORY_BURN
@@ -360,23 +423,17 @@ int board_init(void)
 	board_usb_init(&g_usb_config_GXL_skt,BOARD_USB_MODE_HOST);
 #endif /*CONFIG_USB_XHCI_AMLOGIC*/
 
-/*
-AO4 -- AO10 change
-tmp for P320 5V_en
-*/
-	writel(readl(AO_GPIO_O_EN_N) & (~(0x1 << 10)), AO_GPIO_O_EN_N); //set mode: output
-	writel(readl(AO_GPIO_O_EN_N) | (0x1 << 26),AO_GPIO_O_EN_N);   //output 1
-
 #ifdef CONFIG_AML_NAND
 	extern int amlnf_init(unsigned char flag);
 	amlnf_init(0);
 #endif
+
 	return 0;
 }
 
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void){
-	int ret;
+	int ret = 0;
 
 	//update env before anyone using it
 	run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
@@ -417,8 +474,29 @@ int board_late_init(void){
 	/*aml_try_factory_sdcard_burning(0, gd->bd);*/
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 
+	//CLEAR PINMUX
+	clrbits_le32(P_AO_RTI_PIN_MUX_REG,(1<<23)|(1<<5)|(1<<1));//AO_5
+	clrbits_le32(P_PERIPHS_PIN_MUX_2, (1<<13)|(1<<5)|(1<<28));//DV_9
+	//SET GPIOAO_5 OUTPUT 1
+	clrbits_le32(P_AO_GPIO_O_EN_N, 1 << 5);
+	setbits_le32(P_AO_GPIO_O_EN_N, 1 << 21);
+	//SET GPIODV_9 OUTPUT 1
+	clrbits_le32(P_PREG_PAD_GPIO0_EN_N, 1 << 9);
+	setbits_le32(P_PREG_PAD_GPIO0_O, 1 << 9);
 	/* enable 5V for USB, panel, wifi */
+			/* set output mode for GPIOAO_10 */
+			clrbits_le32(P_AO_GPIO_O_EN_N, (1<<10));
+			/* set output level to high for GPIOAO_10 */
+			setbits_le32(P_AO_GPIO_O_EN_N, (1<<26));
 	//run_command("gpio set GPIOAO_4", 0);
+	ret = send_adc_channel_power_key();
+	if (ret != 0) {
+		printf("send adc_power_key failed\n");
+	}
+	ret = send_ir_power_key();
+	if (ret != 0) {
+		printf("send ir_power_key failed\n");
+	}
 	return 0;
 }
 #endif

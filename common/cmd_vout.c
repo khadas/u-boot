@@ -24,7 +24,7 @@
 #include <environment.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
-
+#include <amlogic/vout.h>
 #ifdef CONFIG_AML_HDMITX20
 #include <amlogic/hdmi.h>
 #endif
@@ -89,22 +89,6 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 	sprintf(mode, "hdmitx output %s", argv[1]);
 	run_command(mode, 0);
 	return CMD_RET_SUCCESS;
-#if 0
-	hdmitx_device.vic = hdmi_get_fmt_vic(argv[1]);
-	hdmitx_device.para = hdmi_get_fmt_paras(hdmitx_device.vic);
-	if (hdmitx_device.vic == HDMI_unkown) {
-		/* Not find VIC */
-		printf("Not find '%s' mapped VIC\n", argv[1]);
-	} else {
-		printf("set hdmitx VIC = %d\n", hdmitx_device.vic);
-
-		if (strstr(argv[1], "hz420") != NULL)
-			hdmitx_device.para->cs = HDMI_COLOR_FORMAT_420;
-		hdmi_tx_set(&hdmitx_device);
-
-		return CMD_RET_SUCCESS;
-	}
-#endif
 #endif
 
 #ifdef CONFIG_AML_LCD
@@ -121,10 +105,17 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 	return CMD_RET_SUCCESS;
 }
 
+static int do_vout_info(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	vout_vinfo_dump();
+
+	return CMD_RET_SUCCESS;
+}
 
 static cmd_tbl_t cmd_vout_sub[] = {
 	U_BOOT_CMD_MKENT(list, 1, 1, do_vout_list, "", ""),
 	U_BOOT_CMD_MKENT(output, 3, 1, do_vout_output, "", ""),
+	U_BOOT_CMD_MKENT(info, 1, 1, do_vout_info, "", ""),
 };
 
 static int do_vout(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
@@ -147,7 +138,8 @@ static int do_vout(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 U_BOOT_CMD(vout, CONFIG_SYS_MAXARGS, 1, do_vout,
 	"VOUT sub-system",
-	"vout output [list | format]\n"
+	"vout [list | output format | info]\n"
 	"    list : list for valid video mode names.\n"
 	"    format : perfered output video mode\n"
+	"    info : dump vinfo\n"
 );

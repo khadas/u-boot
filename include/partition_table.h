@@ -52,6 +52,9 @@ extern unsigned  device_boot_flag;
 
 extern int info_disprotect;
 
+extern int has_boot_slot;
+extern int has_system_slot;
+
 #define DISPROTECT_KEY    		1
 #define DISPROTECT_SECURE		1<<1
 #define DISPROTECT_FBBT		1<<2
@@ -60,6 +63,15 @@ extern int info_disprotect;
 extern int get_partition_from_dts(unsigned char * buffer);
 
 extern int get_partitions_table(struct partitions **table);
+
+#define AML_DTB_IMG_MAX_SZ  ((256<<10) - 512)
+extern struct partitions *get_partitions(void);
+
+extern int get_partition_count(void);
+extern void free_partitions(void);
+/* only nand&emmc for gxb and later soc */
+static inline int is_mainstorage_emmc(void) {return(device_boot_flag == EMMC_BOOT_FLAG);}
+static inline int is_mainstorage_nand(void) {return(device_boot_flag == NAND_BOOT_FLAG);}
 
 #endif// #ifndef _PARTITION_TABLE_H
 

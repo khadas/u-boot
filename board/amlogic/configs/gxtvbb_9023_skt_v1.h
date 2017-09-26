@@ -63,6 +63,10 @@
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL8 0xf30c0e0e  //skyworth
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL9 0xFFFFFFFF
 
+/*config the default parameters for adc power key*/
+#define CONFIG_ADC_POWER_KEY_CHAN   2  /*channel range: 0-7*/
+#define CONFIG_ADC_POWER_KEY_VAL    0  /*sample value range: 0-1023*/
+
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -138,7 +142,7 @@
 #ifdef		CONFIG_AML_SD_EMMC
 	#define 	CONFIG_GENERIC_MMC 1
 	#define 	CONFIG_CMD_MMC 1
-	#define CONFIG_EMMC_DDR52_EN 1
+	#define CONFIG_EMMC_DDR52_EN 0
 	#define CONFIG_EMMC_DDR52_CLK 35000000
 #endif
 #define 	CONFIG_AML_NAND	1
@@ -179,6 +183,7 @@
 
 /* vpu */
 #define CONFIG_AML_VPU 1
+#define CONFIG_VPU_CLK_LEVEL_DFT 7
 
 /* DISPLAY & HDMITX */
 #define CONFIG_AML_HDMITX20 1
@@ -250,6 +255,7 @@
 
 /*file system*/
 #define CONFIG_DOS_PARTITION 1
+#define CONFIG_AML_PARTITION 1
 #define CONFIG_MMC 1
 #define CONFIG_FS_FAT 1
 #define CONFIG_FS_EXT4 1

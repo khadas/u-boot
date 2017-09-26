@@ -26,6 +26,7 @@
 #include <malloc.h>
 #include <asm/arch/efuse.h>
 #include <asm/arch/bl31_apis.h>
+#include <asm/cpu_id.h>
 
 #define CMD_EFUSE_WRITE            0
 #define CMD_EFUSE_READ             1
@@ -35,6 +36,26 @@
 
 #define CMD_EFUSE_AMLOGIC_SET      20
 
+void get_mac(char* c)
+{
+	int i;
+	int num[12];
+	char mac_addr[12];
+	for (i=0; i<12; i++) {
+		if (c[i] >= '0' && c[i] <= '9')
+			num[i] = c[i] - '0';
+		else if (c[i] >= 'A' && c[i] <= 'F')
+			num[i] = (c[i] - 'A') + 10;
+		else if (c[i] >= 'a' && c[i] <= 'f')
+			num[i] = (c[i] - 'a') + 10;
+		else
+			num[i] = 0;
+	}
+	sprintf(mac_addr, "%x%x:%x%x:%x%x:%x%x:%x%x:%x%x",num[0],
+			num[1], num[2], num[3], num[4], num[5], num[6], num[7],
+			num[8], num[9], num[10], num[11]);
+	setenv("eth_mac", mac_addr);
+}
 
 int cmd_efuse(int argc, char * const argv[], char *buf)
 {
@@ -46,6 +67,25 @@ int cmd_efuse(int argc, char * const argv[], char *buf)
 	int ret;
 	long lAddr1, lAddr2;
 
+	if (strncmp(argv[1], "mac", 3) == 0) {
+		char mac[12] = {0};
+		int size = 12;
+		uint32_t mac_offset = 0;
+		ret = efuse_read_usr(mac, size, (loff_t *)&mac_offset);
+
+		if (ret == -1) {
+			printf("ERROR: efuse read mac information fail!\n");
+			return -1;
+		}
+
+		if (ret != size)
+			printf("ERROR: read %d byte(s) not %d byte(s) data\n",
+			       ret, size);
+
+		get_mac(mac);
+		printf("\n");
+		return 0;
+	}
 	if (strncmp(argv[1], "read", 4) == 0) {
 		action = CMD_EFUSE_READ;
 	} else if (strncmp(argv[1], "write", 5) == 0) {
@@ -65,6 +105,12 @@ int cmd_efuse(int argc, char * const argv[], char *buf)
 	} else{
 		printf("%s arg error\n", argv[1]);
 		return CMD_RET_USAGE;
+	}
+
+	if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_AXG)
+		&&((action == CMD_EFUSE_READ) || (action == CMD_EFUSE_WRITE))) {
+		printf("error: AXG not support read/write normal efuse\n");
+		return -1;
 	}
 
 	if (argc < 4)
@@ -240,6 +286,7 @@ int do_efuse(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 static char efuse_help_text[] =
+#ifndef CONFIG_AML_MESON_AXG
 	"[read/write offset size [data]]\n"
 	"  [read/wirte]  - read or write 'size' data from\n"
 	"                  'offset' from efuse user data ;\n"
@@ -248,11 +295,64 @@ static char efuse_help_text[] =
 	"  [size]        - data size\n"
 	"  [data]        - the optional argument for 'write',\n"
 	"                  data is treated as characters\n"
-	"  examples: efuse write 0xc 0xd abcdABCD1234\n";
+	"  examples: efuse write 0xc 0xd abcdABCD1234\n"
+#endif
+	"[amlogic_set addr]\n";
+
 
 U_BOOT_CMD(
 	efuse,	5,	1,	do_efuse,
-	"efuse read/write data commands", efuse_help_text
+	"efuse commands", efuse_help_text
+);
+
+#include <asm/arch/secure_apb.h>
+
+static int do_query(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	int nReturn = CMD_RET_USAGE;
+
+	if (argc < 2)
+		goto exit;
+
+	struct{
+		char *szQuery;	unsigned long lAddrConfig;	unsigned int nMask; unsigned int nNegFlag;
+	} ArrQuery[] = {
+		{"SecureBoot",AO_SEC_SD_CFG10,1<<4,0},//SecureBoot : 1:enabled;0:disabled
+		{"Dolby",AO_SEC_SD_CFG10,1<<16,0},    //Dolby : 1:enabled; 0: disabled
+		{"DTS",AO_SEC_SD_CFG10,1<<14,0},      //DTS: 1: enabled; 0:disabled
+											  //add more query support here ...
+		{NULL,0,0,0}
+	};
+
+	int nIndex;
+	for (nIndex = 0;nIndex < sizeof(ArrQuery)/sizeof(ArrQuery[0]);++nIndex)
+	{
+		if (ArrQuery[nIndex].szQuery)
+		{
+			if (!strcmp(ArrQuery[nIndex].szQuery,argv[1]))
+			{
+				nReturn  = (readl(ArrQuery[nIndex].lAddrConfig) & ArrQuery[nIndex].nMask) ? 1 : 0;
+				nReturn ^= (ArrQuery[nIndex].nNegFlag ? 1 : 0);
+				break;
+			}
+		}
+	}
+
+exit:
+
+	return nReturn;
+}
+
+static char query_text[] =
+	"[query SecureBoot/Dolby/DTS]\n"
+	"  [SecureBoot]  - query SoC is secure boot enabled(1) or not(0)\n"
+	"  [Dolby]       - query SoC support Dolby (1) or not(0)\n"
+	"  [DTS]         - query SoC support DTS (1) or not(0)\n"
+	"  examples: query SecureBoot\n";
+
+U_BOOT_CMD(
+	query,	5,	2,	do_query,
+	"SoC query commands", query_text
 );
 
 

@@ -242,8 +242,12 @@ static int dw_eth_init(struct eth_device *dev, bd_t *bis)
 	while (readl(&dma_p->busmode) & DMAMAC_SRST) {
 		if (get_timer(start) >= CONFIG_MACRESET_TIMEOUT)
 			return -1;
-
+#ifdef CONFIG_PXP_EMULATOR
+		udelay(100);
+#else
 		mdelay(100);
+#endif
+
 	};
 
 	/* Soft reset above clears HW address registers.
@@ -266,7 +270,11 @@ static int dw_eth_init(struct eth_device *dev, bd_t *bis)
 		       priv->phydev->dev->name);
 		return -1;
 	}
-
+#ifdef CONFIG_PXP_EMULATOR
+	priv->phydev->link = 1;
+	priv->phydev->speed = 100;
+	priv->phydev->duplex = 1;
+#endif
 	dw_adjust_link(mac_p, priv->phydev);
 
 	if (!priv->phydev->link)
@@ -355,7 +363,6 @@ static int dw_eth_recv(struct eth_device *dev)
 
 	/* Check  if the owner is the CPU */
 	if (!(status & DESC_RXSTS_OWNBYDMA)) {
-
 		length = (status & DESC_RXSTS_FRMLENMSK) >> \
 			 DESC_RXSTS_FRMLENSHFT;
 
@@ -488,11 +495,9 @@ static int do_phyreg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			if (argc != 4) {
 				return cmd_usage(cmdtp);
 			}
-			printf("=== ethernet phy register write:\n");
 			reg = simple_strtoul(argv[2], NULL, 10);
 			value = simple_strtoul(argv[3], NULL, 16);
 			phy_write(priv->phydev, MDIO_DEVAD_NONE, reg, value);
-			printf("[reg_%d] 0x%x\n", reg, phy_read(priv->phydev, MDIO_DEVAD_NONE, reg));
 			break;
 
 		default:
@@ -590,142 +595,6 @@ static int do_cbusreg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-#define MSR_CLK_REG0 0x21d7
-#define MSR_CLK_REG2 0x21d9
-static unsigned int clk_util_clk_msr(unsigned int clk_mux)
-{
-	unsigned int regval = 0;
-
-	WRITE_CBUS_REG(MSR_CLK_REG0, 0);
-	/* Set the measurement gate to 64uS */
-	CLEAR_CBUS_REG_MASK(MSR_CLK_REG0, 0xffff);
-	/* 64uS is enough for measure the frequence? */
-	SET_CBUS_REG_MASK(MSR_CLK_REG0, (64 - 1));
-	/* Disable continuous measurement */
-	/* Disable interrupts */
-	CLEAR_CBUS_REG_MASK(MSR_CLK_REG0, ((1 << 18) | (1 << 17)));
-	CLEAR_CBUS_REG_MASK(MSR_CLK_REG0, (0x7f << 20));
-	SET_CBUS_REG_MASK(MSR_CLK_REG0, (clk_mux << 20) | /* Select MUX */
-			(1 << 19) |       /* enable the clock */
-			(1 << 16));       /* enable measuring */
-	/* Wait for the measurement to be done */
-	regval = READ_CBUS_REG(MSR_CLK_REG0);
-	do {
-		regval = READ_CBUS_REG(MSR_CLK_REG0);
-	} while (regval & (1 << 31));
-
-	/* Disable measuring */
-	CLEAR_CBUS_REG_MASK(MSR_CLK_REG0, (1 << 16));
-	regval = (READ_CBUS_REG(MSR_CLK_REG2) + 31) & 0x000FFFFF;
-
-	return (regval >> 6);
-}
-
-static int do_clkmsr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	const char* clk_table[] = {
-		[82] = "Cts_ge2d_clk ",
-		[81] = "Cts_vapbclk ",
-		[80] = "Rng_ring_osc_clk[3] ",
-		[79] = "Rng_ring_osc_clk[2] ",
-		[78] = "Rng_ring_osc_clk[1] ",
-		[77] = "Rng_ring_osc_clk[0] ",
-		[76] = "cts_aoclk_int ",
-		[75] = "cts_aoclkx2_int ",
-		[74] = "0 ",
-		[73] = "cts_pwm_C_clk ",
-		[72] = "cts_pwm_D_clk ",
-		[71] = "cts_pwm_E_clk ",
-		[70] = "cts_pwm_F_clk ",
-		[69] = "0 ",
-		[68] = "0 ",
-		[67] = "0 ",
-		[66] = "cts_vid_lock_clk ",
-		[65] = "0 ",
-		[64] = "0 ",
-		[63] = "0 ",
-		[62] = "cts_hevc_clk ",
-		[61] = "gpio_clk_msr ",
-		[60] = "alt_32k_clk ",
-		[59] = "cts_hcodec_clk ",
-		[58] = "0 ",
-		[57] = "0 ",
-		[56] = "0 ",
-		[55] = "vid_pll_div_clk_out ",
-		[54] = "0 ",
-		[53] = "Sd_emmc_clk_A ",
-		[52] = "Sd_emmc_clk_B ",
-		[51] = "Cts_nand_core_clk ",
-		[50] = "Mp3_clk_out ",
-		[49] = "mp2_clk_out ",
-		[48] = "mp1_clk_out ",
-		[47] = "ddr_dpll_pt_clk ",
-		[46] = "cts_vpu_clk ",
-		[45] = "cts_pwm_A_clk ",
-		[44] = "cts_pwm_B_clk ",
-		[43] = "fclk_div5 ",
-		[42] = "mp0_clk_out ",
-		[41] = "eth_rx_clk_or_clk_rmii ",
-		[40] = "cts_pcm_mclk ",
-		[39] = "cts_pcm_sclk ",
-		[38] = "0 ",
-		[37] = "cts_clk_i958 ",
-		[36] = "cts_hdmi_tx_pixel_clk ",
-		[35] = "cts_mali_clk ",
-		[34] = "0 ",
-		[33] = "0 ",
-		[32] = "cts_vdec_clk ",
-		[31] = "MPLL_CLK_TEST_OUT ",
-		[30] = "0 ",
-		[29] = "0 ",
-		[28] = "0 ",
-		[27] = "0 ",
-		[26] = "sc_clk_int ",
-		[25] = "0 ",
-		[24] = "0 ",
-		[23] = "HDMI_CLK_TODIG ",
-		[22] = "eth_phy_ref_clk ",
-		[21] = "i2s_clk_in_src0 ",
-		[20] = "rtc_osc_clk_out ",
-		[19] = "cts_hdmitx_sys_clk ",
-		[18] = "A53_clk_div16 ",
-		[17] = "0 ",
-		[16] = "cts_FEC_CLK_2 ",
-		[15] = "cts_FEC_CLK_1 ",
-		[14] = "cts_FEC_CLK_0 ",
-		[13] = "cts_amclk ",
-		[12] = "Cts_pdm_clk ",
-		[11] = "rgmii_tx_clk_to_phy ",
-		[10] = "cts_vdac_clk ",
-		[9] = "cts_encl_clk " ,
-		[8] = "cts_encp_clk " ,
-		[7] = "clk81 " ,
-		[6] = "cts_enci_clk " ,
-		[5] = "0 " ,
-		[4] = "gp0_pll_clk " ,
-		[3] = "A53_ring_osc_clk " ,
-		[2] = "am_ring_osc_clk_out_ee[2] " ,
-		[1] = "am_ring_osc_clk_out_ee[1] " ,
-		[0] = "am_ring_osc_clk_out_ee[0] " ,
-	};
-	int i;
-	int index = 0xff;
-
-	if (argc ==  2) {
-		index = simple_strtoul(argv[1], NULL, 10);
-	}
-
-	if (index == 0xff) {
-		for (i = 0; i < sizeof(clk_table) / sizeof(char *); i++)
-			printf("[%4d MHz] %s[%d]\n", clk_util_clk_msr(i),
-					clk_table[i], i);
-		return 0;
-	}
-	printf("[%4d MHz] %s\n", clk_util_clk_msr(index), clk_table[82-index]);
-
-	return 0;
-}
-
 U_BOOT_CMD(
 		phyreg, 4, 1, do_phyreg,
 		"ethernet phy register read/write/dump",
@@ -747,11 +616,5 @@ U_BOOT_CMD(
 		"cbus register read/write",
 		"r reg        - read cbus register\n"
 		"        w reg val    - write cbus register"
-		);
-
-U_BOOT_CMD(
-		clkmsr, 2, 1, do_clkmsr,
-		"measure PLL clock",
-		"             - measure PLL clock.\n"
 		);
 /* amlogic debug cmd end */

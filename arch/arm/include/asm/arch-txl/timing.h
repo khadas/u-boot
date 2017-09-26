@@ -118,6 +118,11 @@ struct ddr_set{
 
 	/* 2016.07.07 update */
 	unsigned short  t_pub_soc_vref_dram_vref;
+
+	/* 2017.06.07 copy from gxl, support adj rank1 */
+	unsigned char  wr_adj_per_rank1[6];
+	unsigned char  rd_adj_per_rank1[6];
+
 	unsigned short  t_rsv_short_1;
 	unsigned int   t_rsv_int_1;
 	unsigned long  t_rsv_int64_2;
@@ -197,10 +202,9 @@ struct pll_set{
 	unsigned short	ddr_clk_debug;
 	unsigned short	cpu_clk_debug;
 	unsigned short	rsv_s1;
+	/* 2016.12.06, add ddr pll setting interface */
+	unsigned int	ddr_pll_set[6];
 	/* align */
-	unsigned long	rsv_l2;
-	unsigned long	rsv_l3;
-	unsigned long	rsv_l4;
 	unsigned long	rsv_l5;
 }__attribute__ ((packed));
 

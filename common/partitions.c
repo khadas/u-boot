@@ -3,7 +3,12 @@
 #include <linux/err.h>
 #include <partition_table.h>
 #include <libfdt.h>
+#include <asm/arch/bl31_apis.h>
 
+extern int is_dtb_encrypt(unsigned char *buffer);
+#ifdef CONFIG_MULTI_DTB
+	extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
+#endif
 
 struct partitions_data{
 	int nr;
@@ -12,6 +17,9 @@ struct partitions_data{
 
 struct partitions *part_table = NULL;
 static int parts_total_num;
+int has_boot_slot = 0;
+int has_system_slot = 0;
+
 
 int get_partitions_table(struct partitions **table)
 {
@@ -22,24 +30,43 @@ int get_partitions_table(struct partitions **table)
 	}
 	return ret;
 }
-
-int get_partition_from_dts(unsigned char * buffer)
+int get_partition_count(void)
 {
-	char * dt_addr;
-	int nodeoffset,poffset=0;
-	int* parts_num;
-	char propname[8];
-	const uint32_t *phandle;
-	const char* uname;
-	const char* usize;
-	const char* umask;
-	int index;
-	int ret = -1;
+	return parts_total_num;
+}
+struct partitions *get_partitions(void)
+{
+	return part_table;
+}
 
-	if ( buffer == NULL)
-		goto _err;
+
+
+void free_partitions(void)
+{
+	if (part_table)
+		free(part_table);
+	part_table = NULL;
+}
+
+
+/*
+  return 0 if dts is valid
+  other value are falure.
+*/
+int check_valid_dts(unsigned char *buffer)
+{
+	int ret = -__LINE__;
+	char *dt_addr;
+
+	if (is_dtb_encrypt(buffer)) {
+		flush_cache((unsigned long)buffer, AML_DTB_IMG_MAX_SZ);//flush or failed in usb booting
+		ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, (long unsigned)buffer, AML_DTB_IMG_MAX_SZ, 0);
+		if (ret) {
+			printf("\nDecrypt dtb: Sig Check %d\n",ret);
+			return -__LINE__;
+		}
+	}
 #ifdef CONFIG_MULTI_DTB
-	extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
 	dt_addr = (char *)get_multi_dt_entry((unsigned long)buffer);
 #else
 	dt_addr = (char *)buffer;
@@ -47,10 +74,38 @@ int get_partition_from_dts(unsigned char * buffer)
 	printf("start dts,buffer=%p,dt_addr=%p\n", buffer, dt_addr);
 	ret = fdt_check_header(dt_addr);
 	if ( ret < 0 )
-	{
 		printf("%s: %s\n",__func__,fdt_strerror(ret));
+	/* fixme, is it 0 when ok? */
+	return ret;
+}
+
+int get_partition_from_dts(unsigned char *buffer)
+{
+	char *dt_addr;
+	int nodeoffset,poffset=0;
+	int *parts_num;
+	char propname[8];
+	const uint32_t *phandle;
+	const char *uname;
+	const char *usize;
+	const char *umask;
+	int index;
+	int ret = -1;
+
+	if ( buffer == NULL)
+		goto _err;
+
+	ret = check_valid_dts(buffer);
+	if ( ret < 0 )
+	{
+		printf("%s: %d\n",__func__, ret);
 		goto _err;
 	}
+#ifdef CONFIG_MULTI_DTB
+	dt_addr = (char *)get_multi_dt_entry((unsigned long)buffer);
+#else
+	dt_addr = (char *)buffer;
+#endif
 	nodeoffset = fdt_path_offset(dt_addr, "/partitions");
 	if (nodeoffset < 0)
 	{
@@ -101,6 +156,11 @@ int get_partition_from_dts(unsigned char * buffer)
 		part_table[index].size = ((unsigned long)be32_to_cpup((u32*)usize) << 32) | (unsigned long)be32_to_cpup((((u32*)usize)+1));
 		part_table[index].mask_flags = be32_to_cpup((u32*)umask);
 		printf("%02d:%10s\t%016llx %01x\n", index, uname, part_table[index].size, part_table[index].mask_flags);
+
+		if (strcmp(uname, "boot_a") == 0)
+			has_boot_slot = 1;
+		if (strcmp(uname, "system_a") == 0)
+			has_system_slot = 1;
 	}
 	return 0;
 
@@ -111,4 +171,3 @@ _err:
 	}
 	return ret;
 }
-

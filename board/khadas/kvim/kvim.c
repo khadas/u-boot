@@ -1,3 +1,4 @@
+
 /*
  *
  * Copyright (C) 2017 Khadas.com All rights reserved.
@@ -27,25 +28,28 @@
 #include <aml_i2c.h>
 #include <asm/arch/secure_apb.h>
 #endif
+#include <amlogic/canvas.h>
 #ifdef CONFIG_AML_VPU
 #include <vpu.h>
 #endif
 #include <vpp.h>
 #ifdef CONFIG_AML_V2_FACTORY_BURN
 #include <amlogic/aml_v2_burning.h>
-#endif
+#endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 #ifdef CONFIG_AML_HDMITX20
 #include <amlogic/hdmi.h>
 #endif
 #include <asm/arch/eth_setup.h>
 #include <phy.h>
 #include <asm/cpu_id.h>
+#ifdef DTB_BIND_KERNEL
+#include "storage.h"
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
 //new static eth setup
 struct eth_board_socket*  eth_board_skt;
-
 
 int serial_set_pin_port(unsigned long port_base)
 {
@@ -67,7 +71,6 @@ int dram_init(void)
 void secondary_boot_func(void)
 {
 }
-
 void internalPhyConfig(struct phy_device *phydev)
 {
 	/*Enable Analog and DSP register Bank access by*/
@@ -123,6 +126,7 @@ static void setup_net_chip(void)
 
 }
 
+
 extern struct eth_board_socket* eth_board_setup(char *name);
 extern int designware_initialize(ulong base_addr, u32 interface);
 int board_eth_init(bd_t *bis)
@@ -144,7 +148,7 @@ static int  sd_emmc_init(unsigned port)
 		case SDIO_PORT_A:
 			break;
 		case SDIO_PORT_B:
-			//TODO add card detect
+			//todo add card detect
 			//setbits_le32(P_PREG_PAD_GPIO5_EN_N,1<<29);//CARD_6
 			break;
 		case SDIO_PORT_C:
@@ -200,9 +204,9 @@ static void sd_emmc_pwr_on(unsigned port)
 		case SDIO_PORT_A:
 			break;
 		case SDIO_PORT_B:
-			//clrbits_le32(P_PREG_PAD_GPIO5_O,(1<<31)); //CARD_8
-			//clrbits_le32(P_PREG_PAD_GPIO5_EN_N,(1<<31));
-			// TODO NOT FINISH
+//            clrbits_le32(P_PREG_PAD_GPIO5_O,(1<<31)); //CARD_8
+//            clrbits_le32(P_PREG_PAD_GPIO5_EN_N,(1<<31));
+			/// @todo NOT FINISH
 			break;
 		case SDIO_PORT_C:
 			break;
@@ -211,17 +215,16 @@ static void sd_emmc_pwr_on(unsigned port)
 	}
 	return;
 }
-
 static void sd_emmc_pwr_off(unsigned port)
 {
-	// TODO NOT FINISH
+	/// @todo NOT FINISH
     switch (port)
 	{
 		case SDIO_PORT_A:
 			break;
 		case SDIO_PORT_B:
-			//setbits_le32(P_PREG_PAD_GPIO5_O,(1<<31)); //CARD_8
-			//clrbits_le32(P_PREG_PAD_GPIO5_EN_N,(1<<31));
+//            setbits_le32(P_PREG_PAD_GPIO5_O,(1<<31)); //CARD_8
+//            clrbits_le32(P_PREG_PAD_GPIO5_EN_N,(1<<31));
 			break;
 		case SDIO_PORT_C:
 			break;
@@ -254,6 +257,7 @@ static void board_mmc_register(unsigned port)
 }
 int board_mmc_init(bd_t	*bis)
 {
+	__maybe_unused struct mmc *mmc;
 #ifdef CONFIG_VLSI_EMULATOR
 	//board_mmc_register(SDIO_PORT_A);
 #else
@@ -262,6 +266,14 @@ int board_mmc_init(bd_t	*bis)
 	board_mmc_register(SDIO_PORT_B);
 	board_mmc_register(SDIO_PORT_C);
 //	board_mmc_register(SDIO_PORT_B1);
+#if defined(CONFIG_ENV_IS_NOWHERE) && defined(CONFIG_AML_SD_EMMC)
+	/* try emmc here. */
+	mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
+	if (!mmc)
+		printf("%s() %d: No MMC found\n", __func__, __LINE__);
+	else if (mmc_init(mmc))
+		printf("%s() %d: MMC init failed\n", __func__, __LINE__);
+#endif
 	return 0;
 }
 
@@ -340,12 +352,12 @@ struct amlogic_usb_config g_usb_config_GXL_skt={
 	CONFIG_GXL_USB_U2_PORT_NUM,
 	CONFIG_GXL_USB_U3_PORT_NUM,
 };
-#endif
+#endif /*CONFIG_USB_XHCI_AMLOGIC*/
 
 #ifdef CONFIG_AML_HDMITX20
 static void hdmi_tx_set_hdmi_5v(void)
 {
-	/* VCC_5V enable: HDMI_5V_EN / GPIOH_3 */
+	/*Power on VCC_5V for HDMI_5V*/
 	clrbits_le32(P_PREG_PAD_GPIO1_EN_N, 1 << 23);
 	clrbits_le32(P_PREG_PAD_GPIO1_O, 1 << 23);
 }
@@ -353,89 +365,77 @@ static void hdmi_tx_set_hdmi_5v(void)
 
 int board_init(void)
 {
+    //Please keep CONFIG_AML_V2_FACTORY_BURN at first place of board_init
 #ifdef CONFIG_AML_V2_FACTORY_BURN
-	aml_try_factory_usb_burning(0, gd->bd);
-#endif
-
+	if ((0x1b8ec003 != readl(P_PREG_STICKY_REG2)) && (0x1b8ec004 != readl(P_PREG_STICKY_REG2))) {
+		aml_try_factory_usb_burning(0, gd->bd);
+	}
+#endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 	/* LED Pin: GPIOAO_9 */
-	clrbits_le32(AO_GPIO_O_EN_N, 1 << 9);	// output mode
-	setbits_le32(AO_GPIO_O_EN_N, 1 << 25);	// set 1
+	clrbits_le32(AO_GPIO_O_EN_N, 1 << 9);   // output mode
+	setbits_le32(AO_GPIO_O_EN_N, 1 << 25);  // set 1
 
 	/* FIXME: Power on GPIOAO_2 for VCC_5V*/
 	//clrbits_le32(P_AO_GPIO_O_EN_N, ((1<<2)|(1<<18)));
-
 #ifdef CONFIG_USB_XHCI_AMLOGIC_GXL
 	board_usb_init(&g_usb_config_GXL_skt,BOARD_USB_MODE_HOST);
-#endif
-
+#endif /*CONFIG_USB_XHCI_AMLOGIC*/
+	canvas_init();
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
 	vpp_init();
-
 #ifndef CONFIG_AML_IRDETECT_EARLY
 #ifdef CONFIG_AML_HDMITX20
 	hdmi_tx_set_hdmi_5v();
 	hdmi_tx_init();
 #endif
 #endif
-
 #ifdef CONFIG_AML_NAND
 	extern int amlnf_init(unsigned char flag);
 	amlnf_init(0);
 #endif
 	return 0;
 }
-
 #ifdef CONFIG_AML_IRDETECT_EARLY
 #ifdef CONFIG_AML_HDMITX20
 static int do_hdmi_init(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	hdmi_tx_set_hdmi_5v();
 	hdmi_tx_init();
-	return 0;
+return 0;
 }
 
 U_BOOT_CMD(hdmi_init, CONFIG_SYS_MAXARGS, 0, do_hdmi_init,
-	"HDMI_INIT sub-system",
+	   "HDMI_INIT sub-system",
 	"hdmit init\n")
 #endif
 #endif
-
 #ifdef CONFIG_BOARD_LATE_INIT
-int board_late_init(void)
-{
-	int ret;
-
+int board_late_init(void){
 	/* ENV need update in following cases:
 	 * - Bootloader upgrade
 	 * - New ROM upgrade(the built-in bootloader might be changed)
 	 */
 	run_command("get_rebootmode;" \
-			"echo reboot_mode=${reboot_mode};" \
-			"if test ${reboot_mode} = factory_reset; then " \
-				"defenv_reserv aml_dt;" \
-				"setenv upgrade_step 2;" \
-				"save;" \
-			 "fi;", 0);
+				"echo reboot_mode=${reboot_mode};" \
+				"if test ${reboot_mode} = factory_reset; then " \
+					"defenv_reserv aml_dt;" \
+					"setenv upgrade_step 2;" \
+					"save;" \
+				"fi;", 0);
 	run_command("if itest ${upgrade_step} == 1; then " \
-				"defenv_reserv;" \
-				"setenv upgrade_step 2;" \
-				"saveenv;" \
-			"fi;", 0);
+					"defenv_reserv;" \
+					"setenv upgrade_step 2;" \
+					"saveenv;" \
+				"fi;", 0);
 
 	/* HDMI setup */
 	run_command("hdmitx hpd", 0);
 	run_command("vout output $outputmode", 0);
-
-	/* Diplay initial and Logo loading */
-	run_command("osd open;" \
-				"osd clear;" \
-				"imgread pic logo bootup ${loadaddr};" \
-				"bmp display ${bootup_offset};" \
-				"bmp scale", 0);
-
 	/* Load DTB */
+#ifndef DTB_BIND_KERNEL
+	int ret;
 	ret = run_command("store dtb read $dtb_mem_addr", 1);
 	if (ret) {
 		printf("%s(): [store dtb read $dtb_mem_addr] fail\n", __func__);
@@ -449,45 +449,36 @@ int board_late_init(void)
 		}
 		#endif
 	}
-
-	/* Buttons detection
-	 * Short pressed:
-	 * - Power button: Do nothing(Just power on)
-	 * - Function button: Reserved
-	 * Long pressed:
-	 * - Power button: Update
-	 * - Function button: Reserved
-	 * Combines:
-	 * - Power + Function buttons: Erase eMMC then Reset
-	 */
-	run_command("if gpio input GPIOAO_2; then " \
-			"echo Power button detected.;" \
-			"saradc open 0;" \
-			"if saradc get_in_range 0x0 0x1f; then " \
-				"echo Function button detected.;" \
-					"store init 3;" \
-					"reset;" \
-			"else " \
-				"sleep 3;" \
-				"if gpio input GPIOAO_2; then " \
-					"echo Power button long press detected.;" \
-					"update;" \
-				"fi;" \
-			"fi;" \
-		"fi;", 0);
+#elif defined(CONFIG_DTB_MEM_ADDR)
+		{
+				char cmd[128];
+				int ret;
+                if (!getenv("dtb_mem_addr")) {
+						sprintf(cmd, "setenv dtb_mem_addr 0x%x", CONFIG_DTB_MEM_ADDR);
+						run_command(cmd, 0);
+				}
+				sprintf(cmd, "imgread dtb boot ${dtb_mem_addr}");
+				ret = run_command(cmd, 0);
+                                if (ret) {
+						printf("%s(): cmd[%s] fail, ret=%d\n", __func__, cmd, ret);
+				}
+		}
+#endif// #ifndef DTB_BIND_KERNEL
 
 	/* Khadas VIM check */
 	run_command("saradc open 1;" \
-			"if saradc get_in_range 0x1d0 0x220; then " \
-				"echo Product checking: Khadas VIM.;" \
-			"else  " \
-				"echo Product checking: Unknown!;" \
-				"sleep 5; reset;" \
-			"fi;", 0);
+				"if saradc get_in_range 0x1a0 0x220; then " \
+					"echo Product checking: Khadas VIM.;" \
+				"else  " \
+					"echo Product checking: Unknown!;" \
+					"sleep 5; reset;" \
+				"fi;", 0);
 
 #ifdef CONFIG_AML_V2_FACTORY_BURN
+	if (0x1b8ec003 == readl(P_PREG_STICKY_REG2))
+		aml_try_factory_usb_burning(1, gd->bd);
 	aml_try_factory_sdcard_burning(0, gd->bd);
-#endif
+#endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 
 	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXL) {
 		setenv("maxcpus","4");
@@ -508,8 +499,8 @@ phys_size_t get_effective_memsize(void)
 
 const char * const _env_args_reserve_[] =
 {
-	"aml_dt",
-	"firstboot",
+		"aml_dt",
+		"firstboot",
 
-	NULL//Keep NULL be last to tell END
+		NULL//Keep NULL be last to tell END
 };
