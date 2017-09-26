@@ -82,7 +82,7 @@
             "if fatload usb 0 1020000 s905_autoscript; then autoscr 1020000; fi"\
             "\0"\
         "upgrade_step=0\0"\
-        "jtag=apao\0"\
+        "jtag=disable\0"\
         "loadaddr=1080000\0"\
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
@@ -222,13 +222,13 @@
             "\0"\
         "vim_check="\
             "saradc open 1;"\
-            "if saradc get_in_range 0x1d0 0x220; then "\
+            "if saradc get_in_range 0x1a0 0x220; then "\
                 "echo Product checking: pass!;"\
             "else if saradc get_in_range 0x0 0x1cf; then "\
                 "echo Product checking: fail!; sleep 5; reboot;"\
             "fi;fi;"\
         "\0"\
-        "openelec_check="\
+        "boot_ini_check="\
              "cfgload;"\
               "\0"\
 
@@ -240,8 +240,8 @@
             "run combine_key;" \
             "run upgrade_key;" \
             "run switch_bootmode;"\
-            "run openelec_check;"
-#define CONFIG_BOOTCOMMAND "run start_autoscript;run storeboot"
+            "run boot_ini_check;"
+#define CONFIG_BOOTCOMMAND "run start_autoscript; run storeboot"
 
 //#define CONFIG_ENV_IS_NOWHERE  1
 #define CONFIG_ENV_SIZE   (64*1024)
