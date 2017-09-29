@@ -92,6 +92,7 @@
         "loadaddr=1080000\0"\
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
+        "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
         "display_bpp=16\0" \
@@ -113,6 +114,7 @@
         "EnableSelinux=permissive\0"\
         "recovery_part=recovery\0"\
         "recovery_offset=0\0"\
+        "cvbs_drv=0\0"\
         "active_slot=_a\0"\
         "boot_part=boot\0"\
         "initargs="\
@@ -382,9 +384,7 @@
 #define CONFIG_CMD_BMP 1
 
 #if defined(CONFIG_AML_VOUT)
-#ifdef CONFIG_AML_CVBS
-#undef CONFIG_AML_CVBS
-#endif
+#define CONFIG_AML_CVBS 1
 #endif
 
 /* USB
