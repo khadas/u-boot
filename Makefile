@@ -892,7 +892,7 @@ AML_KEY_BLOB_NANE =aml-user-key.sig
 
 ifdef CONFIG_AML_SECURE_BOOT_V3
 V3_PROCESS_FLAG =--level v3
-ifneq ($(strip $(SOC)), $(filter $(SOC), axg))
+ifneq ($(strip $(SOC)), $(filter $(SOC), axg txlx))
 AML_BL2_NAME =bl2.v3.bin
 AML_KEY_BLOB_NANE =aml-user-key-v3.sig
 endif
