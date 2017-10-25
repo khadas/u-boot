@@ -1,1 +1,6 @@
 
+config AML_RPMB_DISABLE
+	bool "support RPMB set in bootargs"
+	default n
+	help
+	  Support RPMB set in bootargs.
