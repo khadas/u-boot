@@ -444,6 +444,8 @@ U_BOOT_CMD(hdmi_init, CONFIG_SYS_MAXARGS, 0, do_hdmi_init,
 int board_late_init(void){
 	int ret;
 
+	run_command("if itest ${firstboot} == 1; then "\
+			"defenv_reserv;setenv firstboot 1; setenv upgrade_step 2; saveenv; fi;", 0);
 	//update env before anyone using it
 	run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
 			"if test ${reboot_mode} = factory_reset; then "\
