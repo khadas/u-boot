@@ -415,6 +415,8 @@ U_BOOT_CMD(hdmi_init, CONFIG_SYS_MAXARGS, 0, do_hdmi_init,
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void){
 
+	run_command("if test ${bls} = linux; then "\
+			"setenv hdmimode 1080p60hz; fi;", 0);
 	run_command("if itest ${firstboot} == 1; then "\
 			"defenv_reserv;setenv firstboot 1; setenv upgrade_step 2; saveenv; fi;", 0);
 	//update env before anyone using it

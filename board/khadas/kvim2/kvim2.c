@@ -453,6 +453,8 @@ int board_late_init(void){
 	run_command("if itest ${upgrade_step} == 1; then "\
 				"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 
+	run_command("if test ${bls} = linux; then "\
+			"setenv hdmimode 1080p60hz; fi;", 0);
 #ifndef CONFIG_AML_IRDETECT_EARLY
 	/* after  */
 	run_command("cvbs init;hdmitx hpd", 0);
