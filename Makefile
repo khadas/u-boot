@@ -953,7 +953,7 @@ endif
 		bl2
 	$(Q)cat $(FIP_FOLDER_SOC)/bl2_new.bin  $(FIP_FOLDER_SOC)/fip.bin > $(FIP_FOLDER_SOC)/boot_new.bin
 
-ifeq ($(strip $(SOC)), $(filter $(SOC), gxl txl txlx axg))
+ifeq ($(strip $(SOC)), $(filter $(SOC), gxl txl txlx axg txhd))
 
 ifdef CONFIG_AML_SECURE_BOOT_V3
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --bl3sig  --input $(FIP_FOLDER_SOC)/bl30_new.bin --output $(FIP_FOLDER_SOC)/bl30_new.bin.enc --level v3 --type bl30
@@ -982,7 +982,7 @@ endif
 
 ifeq ($(CONFIG_AML_CRYPTO_UBOOT), y)
 #ifeq ($(SOC),gxl)
-ifeq ($(strip $(SOC)), $(filter $(SOC), gxl txl txlx axg))
+ifeq ($(strip $(SOC)), $(filter $(SOC), gxl txl txlx axg txhd))
 	$(Q)$(FIP_FOLDER_SOC)/aml_encrypt_$(SOC) --efsgen --amluserkey $(srctree)/$(BOARDDIR)/$(AML_KEY_BLOB_NANE) \
 			--output $(FIP_FOLDER_SOC)/u-boot.bin.encrypt.efuse $(V3_PROCESS_FLAG)
 endif
