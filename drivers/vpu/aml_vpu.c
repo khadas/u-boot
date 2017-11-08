@@ -33,11 +33,10 @@
 /* v05: add axg support */
 #define VPU_VERION	"v05"
 
-#ifndef DTB_BIND_KERNEL
 #ifdef CONFIG_OF_LIBFDT
 static char *dt_addr;
 #endif
-#endif
+
 static int dts_ready = 0;
 
 static struct vpu_conf_s vpu_conf = {
@@ -525,6 +524,11 @@ static void vpu_clk_gate_init_off(void)
 		vpu_vcbus_setb(DOLBY_CORE3_CLKGATE_CTRL, 0, 1, 1);
 		vpu_vcbus_setb(DOLBY_CORE3_CLKGATE_CTRL, 1, 2, 2);
 		break;
+	case VPU_CHIP_GXM:
+		vpu_vcbus_write(DOLBY_CORE1_CLKGATE_CTRL, 0x55555555);
+		vpu_vcbus_write(DOLBY_CORE2A_CLKGATE_CTRL, 0x55555555);
+		vpu_vcbus_write(DOLBY_CORE3_CLKGATE_CTRL, 0x55555555);
+		break;
 	default:
 		break;
 	}
@@ -792,15 +796,12 @@ static void vpu_power_off(void)
 
 static int get_vpu_config(void)
 {
-#ifndef DTB_BIND_KERNEL
 #ifdef CONFIG_OF_LIBFDT
 	int nodeoffset;
 	char * propdata;
 #endif
-#endif
 
 	if (dts_ready == 1) {
-#ifndef DTB_BIND_KERNEL
 #ifdef CONFIG_OF_LIBFDT
 		nodeoffset = fdt_path_offset(dt_addr, "/vpu");
 		if (nodeoffset < 0) {
@@ -821,7 +822,6 @@ static int get_vpu_config(void)
 		}
 		VPUPR("clk_level in dts: %u\n", vpu_conf.clk_level);
 #endif
-#endif
 	} else {
 		vpu_conf.clk_level = vpu_conf.clk_level_dft;
 		VPUPR("clk_level = %u\n", vpu_conf.clk_level);
@@ -835,7 +835,6 @@ int vpu_probe(void)
 	int ret;
 
 	dts_ready = 0;
-#ifndef DTB_BIND_KERNEL
 #ifdef CONFIG_OF_LIBFDT
 #ifdef CONFIG_DTB_MEM_ADDR
 	dt_addr = (char *)CONFIG_DTB_MEM_ADDR;
@@ -849,7 +848,6 @@ int vpu_probe(void)
 	} else {
 		dts_ready = 1;
 	}
-#endif
 #endif
 
 	vpu_chip_detect();
