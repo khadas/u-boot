@@ -7,7 +7,9 @@ enum {
 	DECODEMODE_NEC = 0,
 	DECODEMODE_DUOKAN = 1,
 	DECODEMODE_RCMM,
-	DECODEMODE_SONYSIRC,
+	DECODEMODE_SONYSIRC12,
+	DECODEMODE_SONYSIRC15,
+	DECODEMODE_SONYSIRC20,
 	DECODEMODE_SKIPLEADER,
 	DECODEMODE_MITSUBISHI,
 	DECODEMODE_THOMSON,
@@ -101,12 +103,111 @@ static const reg_remote RDECODEMODE_RC5[] = {
 	{CONFIG_END, 0}
 };
 
+static const reg_remote RDECODEMODE_SONYSIRC12[] = {
+	/* (4 +/- .5) * 600 us */
+	{ AO_MF_IR_DEC_LDR_ACTIVE, 135 << 16 | 105 << 0		    },
+	/* (1 +/- .5) * 600 us */
+	{ AO_MF_IR_DEC_LDR_IDLE,   45 << 16 | 15 << 0		    },
+	/* No repeat code */
+	{ AO_MF_IR_DEC_LDR_REPEAT, 0				    },
+	/* (2 +/- .5) * 600 us */
+	{ AO_MF_IR_DEC_BIT_0,	   75 << 16 | 45 << 0		    },
+	/*
+	 * Filter: 140 us, max frame time: (4.5 + 1.5 + 12 * 3.5) * 600 us,
+	 * base time: 20 us
+	 */
+	{ AO_MF_IR_DEC_REG0,	   7 << 28 | 1440 << 12 | (20 - 1)  },
+	/* Logic "1": (3 +/- .5) * 600 us */
+	{ AO_MF_IR_DEC_STATUS,	   1 << 30 | 105 << 20 | 75 << 10   },
+	/*
+	 * Reset the decoder as a workaround for an IP erratum causing the
+	 * repeat max frame interval in REG3 to be ignored for SIRC.
+	 */
+	{ AO_MF_IR_DEC_REG1,	   1 << 15 | (11 - 1) << 8 | 1	    },
+	/* Decoder, frame body limited to 11 bits because of IP erratum */
+	{ AO_MF_IR_DEC_REG1,	   1 << 15 | (11 - 1) << 8	    },
+	/* Check repeat time, compare frames for repeat, lsb first, Sony SIRC */
+	{ AO_MF_IR_DEC_REG2,	   1 << 12 | 1 << 11 | 0 << 8 | 0x6 },
+	{ AO_MF_IR_DEC_DURATN2,	   0				    },
+	{ AO_MF_IR_DEC_DURATN3,	   0				    },
+	/* Repeat max frame interval: 50 ms */
+	{ AO_MF_IR_DEC_REG3,	   500				    },
+	{ CONFIG_END,		   0				    }
+};
+
+static const reg_remote RDECODEMODE_SONYSIRC15[] = {
+	/* (4 +/- .5) * 600 us */
+	{ AO_MF_IR_DEC_LDR_ACTIVE, 135 << 16 | 105 << 0		    },
+	/* (1 +/- .5) * 600 us */
+	{ AO_MF_IR_DEC_LDR_IDLE,   45 << 16 | 15 << 0		    },
+	/* No repeat code */
+	{ AO_MF_IR_DEC_LDR_REPEAT, 0				    },
+	/* (2 +/- .5) * 600 us */
+	{ AO_MF_IR_DEC_BIT_0,	   75 << 16 | 45 << 0		    },
+	/*
+	 * Filter: 140 us, max frame time: (4.5 + 1.5 + 15 * 3.5) * 600 us,
+	 * base time: 20 us
+	 */
+	{ AO_MF_IR_DEC_REG0,	   7 << 28 | 1755 << 12 | (20 - 1)  },
+	/* Logic "1": (3 +/- .5) * 600 us */
+	{ AO_MF_IR_DEC_STATUS,	   1 << 30 | 105 << 20 | 75 << 10   },
+	/*
+	 * Reset the decoder as a workaround for an IP erratum causing the
+	 * repeat max frame interval in REG3 to be ignored for SIRC.
+	 */
+	{ AO_MF_IR_DEC_REG1,	   1 << 15 | (14 - 1) << 8 | 1	    },
+	/* Decoder, frame body limited to 14 bits because of IP erratum */
+	{ AO_MF_IR_DEC_REG1,	   1 << 15 | (14 - 1) << 8	    },
+	/* Check repeat time, compare frames for repeat, lsb first, Sony SIRC */
+	{ AO_MF_IR_DEC_REG2,	   1 << 12 | 1 << 11 | 0 << 8 | 0x6 },
+	{ AO_MF_IR_DEC_DURATN2,	   0				    },
+	{ AO_MF_IR_DEC_DURATN3,	   0				    },
+	/* Repeat max frame interval: 50 ms */
+	{ AO_MF_IR_DEC_REG3,	   500				    },
+	{ CONFIG_END,		   0				    }
+};
+
+static const reg_remote RDECODEMODE_SONYSIRC20[] = {
+	/* (4 +/- .5) * 600 us */
+	{ AO_MF_IR_DEC_LDR_ACTIVE, 135 << 16 | 105 << 0		    },
+	/* (1 +/- .5) * 600 us */
+	{ AO_MF_IR_DEC_LDR_IDLE,   45 << 16 | 15 << 0		    },
+	/* No repeat code */
+	{ AO_MF_IR_DEC_LDR_REPEAT, 0				    },
+	/* (2 +/- .5) * 600 us */
+	{ AO_MF_IR_DEC_BIT_0,	   75 << 16 | 45 << 0		    },
+	/*
+	 * Filter: 140 us, max frame time: (4.5 + 1.5 + 20 * 3.5) * 600 us,
+	 * base time: 20 us
+	 */
+	{ AO_MF_IR_DEC_REG0,	   7 << 28 | 2280 << 12 | (20 - 1)  },
+	/* Logic "1": (3 +/- .5) * 600 us */
+	{ AO_MF_IR_DEC_STATUS,	   1 << 30 | 105 << 20 | 75 << 10   },
+	/*
+	 * Reset the decoder as a workaround for an IP erratum causing the
+	 * repeat max frame interval in REG3 to be ignored for SIRC.
+	 */
+	{ AO_MF_IR_DEC_REG1,	   1 << 15 | (19 - 1) << 8 | 1	    },
+	/* Decoder, frame body limited to 19 bits because of IP erratum */
+	{ AO_MF_IR_DEC_REG1,	   1 << 15 | (19 - 1) << 8	    },
+	/* Check repeat time, compare frames for repeat, lsb first, Sony SIRC */
+	{ AO_MF_IR_DEC_REG2,	   1 << 12 | 1 << 11 | 0 << 8 | 0x6 },
+	{ AO_MF_IR_DEC_DURATN2,	   0				    },
+	{ AO_MF_IR_DEC_DURATN3,	   0				    },
+	/* Repeat max frame interval: 50 ms */
+	{ AO_MF_IR_DEC_REG3,	   500				    },
+	{ CONFIG_END,		   0				    }
+};
+
 static const reg_remote *remoteregsTab[] = {
 	RDECODEMODE_NEC,
 	RDECODEMODE_DUOKAN,
 	RDECODEMODE_TOSHIBA,
 	RDECODEMODE_RCA,
 	RDECODEMODE_RC5,
+	RDECODEMODE_SONYSIRC12,
+	RDECODEMODE_SONYSIRC15,
+	RDECODEMODE_SONYSIRC20,
 };
 
 void setremotereg(const reg_remote * r)
