@@ -26,6 +26,9 @@
 #ifdef CONFIG_KVIM2
 #include <asm/arch/secure_apb.h>
 #endif
+#ifdef CONFIG_KVIM2L
+#include <asm/arch/secure_apb.h>
+#endif
 
 static struct list_head mmc_devices;
 static int cur_dev_num = -1;
@@ -1561,6 +1564,16 @@ void mmc_bus_init(void)
 	(*((volatile unsigned *)((volatile uint32_t *)0xc1108c88))) =(0x2ab313);
 }
 #endif
+#ifdef CONFIG_KVIM2L
+void mmc_bus_init(void)
+{
+	*P_PAD_PULL_UP_EN_REG2 = 0xffffffff;
+	*P_PAD_PULL_UP_REG2 = 0xffffffff;
+	*P_PERIPHS_PIN_MUX_7 = 0xf0000000;
+	(*((volatile unsigned *)((volatile uint32_t *)0xc1108c88))) =(0x2ab313);
+}
+#endif
+
 
 int mmc_init(struct mmc *mmc)
 {
@@ -1572,6 +1585,9 @@ int mmc_init(struct mmc *mmc)
 
 	start = get_timer(0);
 #ifdef CONFIG_KVIM2
+	mmc_bus_init();
+#endif
+#ifdef CONFIG_KVIM2L
 	mmc_bus_init();
 #endif
 

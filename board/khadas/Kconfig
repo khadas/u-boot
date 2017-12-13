@@ -6,9 +6,16 @@ config KVIM2
 	bool "Support Khadas Vim2 SBC board"
 	default n
 
+config KVIM2L
+	bool "Support Khadas Vim2l SBC board"
+	default n
+
 if KVIM
 source "board/khadas/kvim/Kconfig"
 endif
 if KVIM2
 source "board/khadas/kvim2/Kconfig"
+endif
+if KVIM2L
+source "board/khadas/kvim2l/Kconfig"
 endif
