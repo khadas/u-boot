@@ -512,6 +512,9 @@ static int do_kbi_switchmac(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 		return CMD_RET_USAGE;
 
 	if (strcmp(argv[1], "w") == 0) {
+		if (argc < 3)
+			return CMD_RET_USAGE;
+
 		if (strcmp(argv[2], "0") == 0) {
 			set_switch_mac(0);
 		} else if (strcmp(argv[2], "1") == 0) {
@@ -530,14 +533,14 @@ static int do_kbi_switchmac(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 static int do_kbi_led(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	int ret = 0;
-	if (argc < 2)
+	if (argc < 3)
 		return CMD_RET_USAGE;
 
 	if (strcmp(argv[1], "systemoff") ==0) {
 		if (strcmp(argv[2], "r") == 0) {
 			get_blue_led_mode(LED_SYSTEM_OFF);
 		} else if (strcmp(argv[2], "w") == 0) {
-			if (argc <3)
+			if (argc < 4)
 				return CMD_RET_USAGE;
 			if (strcmp(argv[3], "breathe") == 0) {
 				ret = set_blue_led_mode(LED_SYSTEM_OFF, LED_BREATHE_MODE);
@@ -556,7 +559,7 @@ static int do_kbi_led(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]
 		if (strcmp(argv[2], "r") == 0) {
 			get_blue_led_mode(LED_SYSTEM_ON);
 		} else if (strcmp(argv[2], "w") == 0) {
-			if (argc <3)
+			if (argc <4)
 				return CMD_RET_USAGE;
 			if (strcmp(argv[3], "breathe") == 0) {
 				ret = set_blue_led_mode(LED_SYSTEM_ON, LED_BREATHE_MODE);
@@ -586,7 +589,7 @@ static int do_kbi_poweroff(cmd_tbl_t * cmdtp, int flag, int argc, char * const a
 
 static int do_kbi_trigger(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
-	if (argc < 2)
+	if (argc < 3)
 		return CMD_RET_USAGE;
 
 	if (strcmp(argv[2], "r") == 0) {
@@ -606,7 +609,7 @@ static int do_kbi_trigger(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 		else
 			return CMD_RET_USAGE;
 	} else if (strcmp(argv[2], "w") == 0) {
-		if (argc < 3)
+		if (argc < 4)
 			return CMD_RET_USAGE;
 		if ((strcmp(argv[3], "1") != 0) && (strcmp(argv[3], "0") != 0))
 			return CMD_RET_USAGE;
@@ -668,10 +671,10 @@ static int do_kbi_trigger(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 
 static int do_kbi_bootmode(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
-	if (argc < 1)
+	if (argc < 2)
 		return CMD_RET_USAGE;
 	if (strcmp(argv[1], "w") == 0) {
-		if (argc < 2)
+		if (argc < 3)
 			return CMD_RET_USAGE;
 		if (strcmp(argv[2], "emmc") == 0) {
 			set_bootmode(BOOT_MODE_EMMC);
