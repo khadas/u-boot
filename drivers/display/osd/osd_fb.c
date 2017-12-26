@@ -34,6 +34,10 @@
 #include "osd_log.h"
 #include "osd_hw.h"
 
+#ifdef CONFIG_DDR_AUTO_DTB
+extern int check_ddrsize(void);
+#endif
+
 #define INVALID_BPP_ITEM {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 static const struct color_bit_define_s default_color_format_array[] = {
 	INVALID_BPP_ITEM,
@@ -256,8 +260,20 @@ unsigned long get_fb_addr(void)
 			osd_logi("not find /meson-fb node: %s\n",fdt_strerror(parent_offset));
 			osd_logi("use default fb_addr parameters\n");
 		} else {
+
+#ifdef CONFIG_DDR_AUTO_DTB
+			char *ddr_size = getenv("ddr_size");
+			if (strcmp(ddr_size,"2") == 0) {
+				propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr_2g", NULL);
+			} else if (strcmp(ddr_size,"3") == 0) {
+				propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr_3g", NULL);
+			} else {
+				propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr", NULL);
+			}
+#else
 			/* check fb_addr */
 			propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr", NULL);
+#endif
 			if (propdata == NULL) {
 				osd_logi("failed to get fb addr for logo\n");
 				osd_logi("use default fb_addr parameters\n");
@@ -290,6 +306,10 @@ void *video_hw_init(void)
 	u32 fb_width = 0;
 	u32 fb_height = 0;;
 	char *layer_str;
+
+#ifdef CONFIG_DDR_AUTO_DTB
+	check_ddrsize();
+#endif
 
 	vout_init();
 	fb_addr = get_fb_addr();

@@ -125,7 +125,7 @@
             "else fi;"\
             "\0"\
     "storeargs="\
-            "setenv bootargs ${initargs} androidboot.selinux=${EnableSelinux} logo=${display_layer},loaded,${fb_addr},${outputmode} maxcpus=${maxcpus} vout=${outputmode},enable hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${cecconfig} cvbsdrv=${cvbs_drv}  pq=${pq} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
+            "setenv bootargs ${initargs} androidboot.selinux=${EnableSelinux} logo=${display_layer},loaded,${fb_addr},${outputmode} maxcpus=${maxcpus} vout=${outputmode},enable hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${cecconfig} ddr_size=${ddr_size} cvbsdrv=${cvbs_drv}  pq=${pq} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
 	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "setenv bootargs ${bootargs} androidboot.veritymode=permissive androidboot.slot_suffix=${active_slot};"\
@@ -276,6 +276,7 @@
 #define CONFIG_CPU_CLK					1200 //MHz. Range: 600-1800, should be multiple of 24
 
 /* ddr */
+#define CONFIG_DDR_AUTO_DTB             1
 #define CONFIG_DDR_SIZE					0 //MB //0 means ddr size auto-detect
 #define CONFIG_DDR_CLK					912  //MHz, Range: 384-1200, should be multiple of 24
 #define CONFIG_DDR4_CLK					1008  //MHz, for boards which use different ddr chip

@@ -512,10 +512,37 @@ phys_size_t get_effective_memsize(void)
 #endif
 }
 
+#ifdef CONFIG_DDR_AUTO_DTB
+int check_ddrsize(void)
+{
+	unsigned int ddr_size=0;
+	int i;
+	for (i=0; i<CONFIG_NR_DRAM_BANKS; i++) {
+		ddr_size += gd->bd->bi_dram[i].size;
+	}
+#if defined(CONFIG_SYS_MEM_TOP_HIDE)
+	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
+#endif
+	switch (ddr_size) {
+		case 0x80000000:
+			setenv("ddr_size", "2"); //2G DDR
+			break;
+		case 0xc0000000:
+			setenv("ddr_size", "3"); //3G DDR
+			break;
+		default:
+			setenv("ddr_size", "0");
+			break;
+	}
+	return 0;
+}
+#endif
+
 const char * const _env_args_reserve_[] =
 {
 	"aml_dt",
 	"firstboot",
+	"ddr_size",
 
 	NULL//Keep NULL be last to tell END
 };
