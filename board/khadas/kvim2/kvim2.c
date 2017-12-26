@@ -404,6 +404,10 @@ int board_init(void)
 		aml_try_factory_usb_burning(0, gd->bd);
 	}
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
+
+	clrbits_le32(PREG_PAD_GPIO0_EN_N, (1 << 2));
+	clrbits_le32(PREG_PAD_GPIO0_O, 1 << 2);
+
 	/* LED Pin: GPIOAO_9 */
 	clrbits_le32(AO_GPIO_O_EN_N, 1 << 9);   // output mode
 	setbits_le32(AO_GPIO_O_EN_N, 1 << 25);  // set 1
