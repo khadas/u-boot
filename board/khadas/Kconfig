@@ -1,0 +1,7 @@
+config KVIM
+	bool "Support Khadas VIM SBC board"
+	default n
+
+if KVIM
+source "board/khadas/kvim/Kconfig"
+endif

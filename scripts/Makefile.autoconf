@@ -78,7 +78,13 @@ ifneq ($(config_file), $(wildcard $(config_file)))
 # 3rd. this is amlogic customer config folder
 config_file=$(shell echo "$(srctree)/customer/board/configs/$(CONFIG_SYS_BOARD).h")
 ifneq ($(config_file), $(wildcard $(config_file)))
+
+# 4th. Khadas
+config_file=$(shell echo "$(srctree)/board/khadas/configs/$(CONFIG_SYS_BOARD).h")
+ifneq ($(config_file), $(wildcard $(config_file)))
 $(error $(shell echo "Error: Can not find $(CONFIG_SYS_BOARD).h"))
+
+endif
 endif
 endif
 endif
