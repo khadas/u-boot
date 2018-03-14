@@ -401,6 +401,16 @@ int board_init(void)
 	//set output 1
 	setbits_le32(PREG_PAD_GPIO0_O, (1 << 24));
 
+	//pull up GPIODV_11 for VTV Lock LED
+	//set output mode
+	clrbits_le32(PREG_PAD_GPIO0_EN_N, (1 << 11));
+	//set output 1
+	setbits_le32(PREG_PAD_GPIO0_O, (1 << 11));
+	//pull down GPIODV_20 for VTV Antenna Power (5V)
+	//set output mode
+	clrbits_le32(PREG_PAD_GPIO0_EN_N, (1 << 20));
+	//set output 0
+	clrbits_le32(PREG_PAD_GPIO0_O, (1 << 20));
 	/*Power on GPIOAO_2 for VCC_5V*/
 	clrbits_le32(P_AO_GPIO_O_EN_N, ((1<<2)|(1<<18)));
 #ifdef CONFIG_USB_XHCI_AMLOGIC_GXL
