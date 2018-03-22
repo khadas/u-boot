@@ -130,12 +130,13 @@ static unsigned char chartonum(char c)
 	return 0;
 }
 
-static void get_wol(void)
+static int get_wol(void)
 {
 	int enable;
 	enable = kbi_i2c_read(REG_BOOT_EN_WOL);
 	printf("boot wol: %s\n", enable==1 ? "enable" : "disable");
 	setenv("wol_enable", enable == 1 ? "1" : "0");
+	return enable;
 }
 
 static void set_wol(int enable)
@@ -583,6 +584,9 @@ static int do_kbi_led(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]
 static int do_kbi_poweroff(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	printf("%s\n",__func__);
+	int enable = get_wol();
+	if (enable)
+		set_wol(enable);
 	run_command("gpio set GPIODV_2", 0);
 	return 0;
 }
