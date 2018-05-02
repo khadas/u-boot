@@ -143,6 +143,7 @@
             "fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
+            "kbi resetflag 0;"\
             "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
             "run update;"\
             "\0"\
@@ -247,6 +248,7 @@
             "fi;fi;"\
             "\0"\
          "wol_init="\
+            "kbi init;"\
             "kbi powerstate;"\
             "kbi trigger wol r;"\
             "setenv bootargs ${bootargs} wol_enable=${wol_enable};"\
