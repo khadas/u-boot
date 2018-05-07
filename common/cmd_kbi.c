@@ -573,9 +573,9 @@ static int do_kbi_resetflag(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	if (strcmp(argv[2], "1") == 0) {
+	if (strcmp(argv[1], "1") == 0) {
 		run_command("i2c mw 0x18 0x87 1 1", 0);
-	} else if (strcmp(argv[2], "0") == 0) {
+	} else if (strcmp(argv[1], "0") == 0) {
 		run_command("i2c mw 0x18 0x87 0 1", 0);
 	} else {
 		return CMD_RET_USAGE;
