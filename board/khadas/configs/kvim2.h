@@ -69,6 +69,7 @@
 #define CONFIG_BAUDRATE  115200
 #define CONFIG_AML_MESON_SERIAL   1
 #define CONFIG_SERIAL_MULTI		1
+#define CONFIG_USID_FROM_ETH_MAC 1
 
 //Enable ir remote wake up for bl30
 //#define CONFIG_IR_REMOTE
@@ -210,10 +211,9 @@
             "\0"\
         "cmdline_keys="\
             "if keyman init 0x1234; then "\
-                "if keyman read usid ${loadaddr} str; then "\
-                    "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-                    "setenv serial ${usid};"\
-                "fi;"\
+                "kbi usid;"\
+                "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+                "setenv serial ${usid};"\
                 "kbi ethmac;"\
                 "setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
                 "if keyman read deviceid ${loadaddr} str; then "\

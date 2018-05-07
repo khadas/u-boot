@@ -280,14 +280,36 @@ static void get_mac(void)
 
 static void get_usid(void)
 {
+	char serial[64];
 	int usid[USID_LENGHT] = {};
-	int i;
+	int i, mode;
+#ifdef CONFIG_USID_FROM_ETH_MAC
+	mode = kbi_i2c_read(REG_MAC_SWITCH);
+
+	if (mode == 1) {
+		kbi_i2c_read_block(REG_MAC, MAC_LENGHT, usid);
+	} else {
+		run_command("efuse mac", 0);
+		char *s = getenv("eth_mac");
+		if ((s != NULL) && (strcmp(s, "00:00:00:00:00:00") != 0)) {
+			for (i = 0; i < 6 && s[0] != '\0' && s[1] != '\0'; i++) {
+			usid[i] = chartonum(s[0]) << 4 | chartonum(s[1]);
+			s +=3;
+			}
+		} else {
+			kbi_i2c_read_block(REG_MAC, MAC_LENGHT, usid);
+		}
+	}
+#else
 	kbi_i2c_read_block(REG_USID, USID_LENGHT, usid);
+#endif
 	printf("usid: ");
 	for (i=0; i< USID_LENGHT; i++) {
 		printf("%x",usid[i]);
 	}
 	printf("\n");
+	sprintf(serial, "%02x%02x%02x%02x%02x%02x",usid[0],usid[1],usid[2],usid[3],usid[4],usid[5]);
+	setenv("usid", serial);
 }
 
 static void get_adc(void)
