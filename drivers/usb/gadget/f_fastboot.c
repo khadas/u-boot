@@ -548,6 +548,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	char *s1;
 	char *s2;
 	char *s3;
+	char s_version[24];
 	size_t chars_left;
 
 	run_command("get_valid_slot", 0);
@@ -586,16 +587,21 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		chars_left -= strlen(cmd) + 1;
 	}
 
+	strcpy(s_version, "01.01.");
+	printf("U_BOOT_DATE_TIME: %s\n", U_BOOT_DATE_TIME);
+	strcat(s_version, U_BOOT_DATE_TIME);
+	printf("s_version: %s\n", s_version);
+
 	if (!strcmp_l1("version-baseband", cmd)) {
 		strncat(response, "N/A", chars_left);
 	} else if (!strcmp_l1("version-bootloader", cmd)) {
-		strncat(response, U_BOOT_VERSION, chars_left);
+		strncat(response, s_version, chars_left);
 	} else if (!strcmp_l1("hw-revision", cmd)) {
 		strncat(response, "0", chars_left);
 	} else if (!strcmp_l1("version", cmd)) {
 		strncat(response, FASTBOOT_VERSION, chars_left);
 	} else if (!strcmp_l1("bootloader-version", cmd)) {
-		strncat(response, U_BOOT_VERSION, chars_left);
+		strncat(response, s_version, chars_left);
 	} else if (!strcmp_l1("off-mode-charge", cmd)) {
 		strncat(response, "0", chars_left);
 	} else if (!strcmp_l1("variant", cmd)) {
