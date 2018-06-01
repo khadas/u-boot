@@ -523,6 +523,8 @@ int check_vref(void)
 
 int board_late_init(void){
 
+	run_command("if test ${bls} = linux; then "\
+			"setenv hdmimode 1080p60hz; fi;", 0);
 	run_command("if itest ${firstboot} == 1; then "\
 			"defenv_reserv;setenv firstboot 1; setenv upgrade_step 2; saveenv; fi;", 0);
 	//update env before anyone using it
