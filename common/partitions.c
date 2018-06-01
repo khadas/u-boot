@@ -1,4 +1,5 @@
 #include <common.h>
+#include <mmc.h>
 #include <malloc.h>
 #include <linux/err.h>
 #include <partition_table.h>
@@ -153,7 +154,15 @@ int get_partition_from_dts(unsigned char *buffer)
 		/* fill parition table */
 		if (uname != NULL)
 			memcpy(part_table[index].name, uname, strlen(uname));
-		part_table[index].size = ((unsigned long)be32_to_cpup((u32*)usize) << 32) | (unsigned long)be32_to_cpup((((u32*)usize)+1));
+			part_table[index].size = ((unsigned long)be32_to_cpup((u32*)usize) << 32) | (unsigned long)be32_to_cpup((((u32*)usize)+1));
+			if (strcmp(uname, "data") == 0)
+			{
+				int size = get_emmc_size();
+				if (size == 3)
+					part_table[index].size = 0x200000000; //8G data part for 32G EMMC
+				else if (size == 4)
+					part_table[index].size = 0x400000000; //16G data part for 64G EMMC
+			}
 		part_table[index].mask_flags = be32_to_cpup((u32*)umask);
 		printf("%02d:%10s\t%016llx %01x\n", index, uname, part_table[index].size, part_table[index].mask_flags);
 

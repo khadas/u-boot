@@ -32,6 +32,7 @@
 
 static struct list_head mmc_devices;
 static int cur_dev_num = -1;
+int cur_emmc_size = 1;
 
 bool emmckey_is_access_range_legal (struct mmc *mmc, ulong start, lbaint_t blkcnt) {
 #ifdef CONFIG_STORE_COMPATIBLE
@@ -1309,6 +1310,17 @@ static int mmc_startup(struct mmc *mmc)
 	mmc->block_dev.blksz = mmc->read_bl_len;
 	mmc->block_dev.log2blksz = LOG2(mmc->block_dev.blksz);
 	mmc->block_dev.lba = lldiv(mmc->capacity, mmc->read_bl_len);
+	if (!IS_SD(mmc))
+	{
+		if (mmc->capacity == 0xe8f800000) //64G
+			cur_emmc_size = 4;
+		else if (mmc->capacity == 0x747c00000) //32G
+			cur_emmc_size = 3;
+		else if (mmc->capacity == 0x3a3e00000) //16G
+			cur_emmc_size = 2;
+		else
+			cur_emmc_size = 1;
+	}
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 	sprintf(mmc->block_dev.vendor, "Man %06x Snr %04x%04x",
 		mmc->cid[0] >> 24, (mmc->cid[2] & 0xffff),
@@ -1664,6 +1676,11 @@ void print_mmc_devices(char separator)
 #else
 void print_mmc_devices(char separator) { }
 #endif
+
+int get_emmc_size(void)
+{
+	return cur_emmc_size;
+}
 
 int get_mmc_num(void)
 {
