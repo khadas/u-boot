@@ -69,6 +69,7 @@
 	"partitions=" PARTS_DEFAULT \
 	ROCKCHIP_DEVICE_SETTINGS \
 	RKIMG_DET_BOOTDEV \
+	"update=rockusb 0 mmc 0\0" \
 	BOOTENV
 
 #endif
