@@ -109,6 +109,8 @@ void rockchip_dnl_mode_check(void)
 	if (rockchip_dnl_key_pressed()) {
 		if (rockchip_u2phy_vbus_detect()) {
 			printf("download key pressed, entering download mode...\n");
+			/* Set system led(GPIO0_A6) on */
+			run_command_list("gpio set 6", -1, 0);
 			/* If failed, we fall back to bootrom download mode */
 			run_command_list("rockusb 0 ${devtype} ${devnum}", -1, 0);
 			set_back_to_bootrom_dnl_flag();
@@ -149,7 +151,7 @@ int setup_boot_mode(void)
 		break;
 	case BOOT_MODE_LOADER:
 		printf("enter Rockusb!\n");
-		env_set("preboot", "setenv preboot; rockusb 0 ${devtype} ${devnum}");
+		env_set("preboot", "setenv preboot; gpio set 6; rockusb 0 ${devtype} ${devnum}");
 		break;
 	case BOOT_MODE_CHARGING:
 		printf("enter charging!\n");
