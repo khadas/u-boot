@@ -39,7 +39,7 @@ void set_back_to_bootrom_dnl_flag(void)
  * some special boards.
  */
 #define KEY_DOWN_MIN_VAL	0
-#define KEY_DOWN_MAX_VAL	30
+#define KEY_DOWN_MAX_VAL	100
 
 __weak int rockchip_dnl_key_pressed(void)
 {
@@ -72,6 +72,8 @@ __weak int rockchip_dnl_key_pressed(void)
 		printf("%s adc_channel_single_shot fail! ret=%d\n", __func__, ret);
 		return false;
 	}
+
+	printf("SARADC: %d\n", val);
 
 	if ((val >= KEY_DOWN_MIN_VAL) && (val <= KEY_DOWN_MAX_VAL))
 		return true;
