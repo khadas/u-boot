@@ -11,7 +11,7 @@
 
 #ifndef CONFIG_SPL_BUILD
 #undef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND RKIMG_BOOTCOMMAND
+#define CONFIG_BOOTCOMMAND "cfgload; run distro_bootcmd"
 #endif
 
 #define CONFIG_MMC_SDHCI_SDMA
