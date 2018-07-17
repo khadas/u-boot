@@ -76,6 +76,7 @@
         "loadaddr=1080000\0"\
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
+        "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
         "display_bpp=16\0" \
@@ -97,6 +98,7 @@
         "EnableSelinux=disabled\0"\
         "recovery_part=recovery\0"\
         "recovery_offset=0\0"\
+        "cvbs_drv=0\0"\
         "initargs="\
              "rootfstype=ramfs init=/init console=ttyS0,115200 no_console_suspend earlyprintk=aml-uart,0xc81004c0 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
@@ -304,7 +306,7 @@
 #define CONFIG_CMD_BMP 1
 
 #if defined(CONFIG_AML_VOUT)
-#undef CONFIG_AML_CVBS
+#define CONFIG_AML_CVBS
 #endif
 
 /* USB
