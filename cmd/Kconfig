@@ -1600,3 +1600,13 @@ config CMD_UBIFS
 	  UBIFS is a file system for flash devices which works on top of UBI.
 
 endmenu
+
+menu "Khadas commands"
+
+config CMD_KHADAS_CFGLOAD
+       bool "cfgload command - load boot.ini from FAT/EXT4 partition"
+       depends on TARGET_KEDGE
+       help
+         cfgload support
+
+endmenu
