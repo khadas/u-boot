@@ -1,0 +1,15 @@
+if TARGET_KEDGE
+
+config SYS_BOARD
+	default "kedge"
+
+config SYS_VENDOR
+	default "rockchip"
+
+config SYS_CONFIG_NAME
+	default "kedge"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+
+endif

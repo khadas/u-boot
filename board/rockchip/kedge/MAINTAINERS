@@ -1,0 +1,6 @@
+KEDGE
+M:      Nick <nick@khadas.com>
+S:      Maintained
+F:      board/rockchip/kedge
+F:      include/configs/kedge.h
+F:      configs/kedge_defconfig
