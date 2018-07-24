@@ -20,6 +20,11 @@
 		u-boot,spl-boot-order = &sdhci, &sdmmc;
 	};
 
+	aliases {
+		spi0 = &spi1;
+		spi1 = &spi5;
+	};
+
 	backlight: backlight {
 		compatible = "pwm-backlight";
 		enable-gpios = <&gpio1 RK_PB5 GPIO_ACTIVE_HIGH>;
@@ -652,4 +657,27 @@
 
 &usb_host1_ohci {
 	status = "okay";
+};
+
+&spi1 {
+   u-boot,dm-pre-reloc;
+
+   status = "okay";
+
+   #address-cells = <1>;
+   #size-cells = <0>;
+
+   spiflash: w25q32dw@0 {
+       u-boot,dm-pre-reloc;
+
+       compatible = "spi-flash";
+       reg = <0>;
+       spi-max-frequency = <49500000>;
+       spi-cpol;
+       spi-cpha;
+   };
+};
+
+&spi5 {
+   status = "okay";
 };
