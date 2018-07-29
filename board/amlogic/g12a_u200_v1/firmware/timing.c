@@ -23,7 +23,9 @@
 #include <asm/arch/timing.h>
 #include <asm/arch/ddr_define.h>
 
-
+/* board clk defines */
+#define DDR_SIZE				0
+#define CPU_CLK					1200
 
 /* ddr config support multiple configs for boards which use same bootloader:
  * config steps:
@@ -431,7 +433,7 @@ ddr_set_t __ddr_setting[] = {
 };
 
 pll_set_t __pll_setting = {
-	.cpu_clk				= CONFIG_CPU_CLK / 24 * 24,
+	.cpu_clk				= CPU_CLK / 24 * 24,
 #ifdef CONFIG_PXP_EMULATOR
 	.pxp					= 1,
 #else
@@ -439,11 +441,6 @@ pll_set_t __pll_setting = {
 #endif
 	.spi_ctrl				= 0,
 	.lCustomerID			= CONFIG_AML_CUSTOMER_ID,
-#ifdef CONFIG_DEBUG_MODE
-	.debug_mode				= CONFIG_DEBUG_MODE,
-	.ddr_clk_debug			= CONFIG_DDR_CLK_DEBUG,
-	.cpu_clk_debug			= CONFIG_CPU_CLK_DEBUG,
-#endif
 };
 
 ddr_reg_t __ddr_reg[] = {

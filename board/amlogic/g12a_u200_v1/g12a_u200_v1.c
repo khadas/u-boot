@@ -24,19 +24,19 @@
 #include <errno.h>
 #include <environment.h>
 #include <fdt_support.h>
-#include <libfdt.h>
-#include <asm/cpu_id.h>
+#include <linux/libfdt.h>
+#include <asm/arch/cpu_id.h>
 #include <asm/arch/secure_apb.h>
 #ifdef CONFIG_SYS_I2C_AML
-#include <aml_i2c.h>
+#include <amlogic/aml_i2c.h>
 #endif
 #ifdef CONFIG_SYS_I2C_MESON
 #include <amlogic/i2c.h>
 #endif
 #ifdef CONFIG_AML_VPU
 #include <vpu.h>
-#endif
 #include <vpp.h>
+#endif
 #ifdef CONFIG_AML_V2_FACTORY_BURN
 #include <amlogic/aml_v2_burning.h>
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
@@ -55,6 +55,7 @@
 #ifdef CONFIG_AML_SPIFC
 #include <amlogic/spifc.h>
 #endif
+#include <asm/armv8/mmu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -325,6 +326,7 @@ static void board_mmc_register(unsigned port)
 }
 int board_mmc_init(bd_t	*bis)
 {
+#if 0
 #ifdef CONFIG_VLSI_EMULATOR
 	//board_mmc_register(SDIO_PORT_A);
 #else
@@ -333,6 +335,7 @@ int board_mmc_init(bd_t	*bis)
 	board_mmc_register(SDIO_PORT_B);
 	board_mmc_register(SDIO_PORT_C);
 //	board_mmc_register(SDIO_PORT_B1);
+#endif
 	return 0;
 }
 
@@ -578,6 +581,8 @@ void set_i2c_ao_pinmux(void)
 
 int board_init(void)
 {
+	printf("board init\n");
+#if 0
 	sys_led_init();
     //Please keep CONFIG_AML_V2_FACTORY_BURN at first place of board_init
     //As NOT NEED other board init If USB BOOT MODE
@@ -601,7 +606,7 @@ int board_init(void)
 #ifdef CONFIG_SYS_I2C_MESON
 	set_i2c_ao_pinmux();
 #endif
-
+#endif
 	return 0;
 }
 
@@ -659,6 +664,7 @@ void aml_config_dtb(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
+#if 0
 		//update env before anyone using it
 		run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
 						"if test ${reboot_mode} = factory_reset; then "\
@@ -702,7 +708,7 @@ int board_late_init(void)
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
-	vpp_init();
+	//vpp_init();
 #ifdef CONFIG_AML_HDMITX20
 	hdmi_tx_set_hdmi_5v();
 	hdmi_tx_init();
@@ -722,6 +728,8 @@ int board_late_init(void)
 
 	/**/
 	aml_config_dtb();
+#endif
+	printf("board late init\n");
 	return 0;
 }
 #endif
@@ -792,3 +800,45 @@ int checkhw(char * name)
 }
 #endif
 
+static struct mm_region bd_mem_map[] = {
+	{
+		.virt = 0x0UL,
+		.phys = 0x0UL,
+		.size = 0x80000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.virt = 0x80000000UL,
+		.phys = 0x80000000UL,
+		.size = 0x80000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		/* List terminator */
+		0,
+	}
+};
+
+struct mm_region *mem_map = bd_mem_map;
+
+void board_nand_init(void) {
+	printf("board_nand_init\n");
+	return;
+}
+
+int print_cpuinfo(void) {
+	printf("print_cpuinfo\n");
+	return 0;
+}
+
+int mach_cpu_init(void) {
+	printf("mach_cpu_init\n");
+	return 0;
+}
+
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	/* eg: bl31/32 rsv */
+	return 0;
+}

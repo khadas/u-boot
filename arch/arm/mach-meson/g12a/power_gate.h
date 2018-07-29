@@ -24,7 +24,7 @@
 
 #include <asm/arch/io.h>
 #include <common.h>
-#include <asm/arch-gxb/io.h>
+//#include <asm/arch-gxb/io.h>
 /* #include <asm/arch-gxb/register.h> */
 #include <asm/arch/secure_apb.h>
 /* clock gate control */

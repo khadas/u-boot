@@ -23,7 +23,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/secure_apb.h>
 #include <asm/arch/io.h>
-#include <asm/saradc.h>
+#include <asm/arch/saradc.h>
 #include <asm/arch/mailbox.h>
 
 #define P_EE_TIMER_E		(*((volatile unsigned *)(0xffd00000 + (0x3c62 << 2))))
@@ -128,7 +128,7 @@ void aml_cal_pwm(unsigned int ee_voltage, unsigned int vcck_voltage)
 	vcck_delt = aml_delt_get(vcck_val, vcck_voltage);
 	ee_delt = aml_delt_get(ee_val, ee_voltage);
 	send_pwm_delt(vcck_delt, ee_delt);
-	aml_set_voltage(pwm_ee, CONFIG_VDDEE_INIT_VOLTAGE, ee_delt);
+	aml_set_voltage(pwm_ee, VDDEE_INIT_VOLTAGE, ee_delt);
 	//aml_set_voltage(pwm_vcck, CONFIG_VCCK_INIT_VOLTAGE, vcck_delt);
 	printf("aml board pwm vcck: %x, ee: %x\n", vcck_delt, ee_delt);
 }
@@ -137,6 +137,6 @@ void aml_pwm_cal_init(int mode)
 {
 	printf("aml pwm cal init\n");
 	saradc_enable();
-	aml_cal_pwm(CONFIG_VDDEE_INIT_VOLTAGE, CONFIG_VCCK_INIT_VOLTAGE);
+	aml_cal_pwm(VDDEE_INIT_VOLTAGE, VCCK_INIT_VOLTAGE);
 	saradc_disable();
 }

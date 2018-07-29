@@ -22,7 +22,7 @@
 #include <common.h>
 #include <dm.h>
 #include <linux/compiler.h>
-#include <aml_gpio.h>
+#include <amlogic/aml_gpio.h>
 #include <asm/arch/gpio.h>
 
 struct pin_mux_desc {
