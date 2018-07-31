@@ -32,6 +32,8 @@
 # Default values for build configurations
 #
 
+export CROSS_COMPILE=/opt/gcc-linaro-aarch64-none-elf-4.8-2013.11_linux/bin/aarch64-none-elf-
+
 include $(buildsrc)/config.mk
 include $(buildtree)/include/autoconf.mk
 include $(buildtree)/.config
@@ -88,8 +90,8 @@ BL_COMMON_SOURCES	:=	common/bl_common.c			\
 
 BUILD_BASE		:=	$(buildtree)/firmware
 #BUILD_PLAT		:=	${BUILD_BASE}/${PLAT}
-#BUILD_PLAT		:=	$(buildtree)/board/${BOARDDIR}/firmware
-BUILD_PLAT		:=	$(buildtree)/${BOARDDIR}/firmware
+BUILD_PLAT		:=	$(buildtree)/board/${BOARDDIR}/firmware
+#BUILD_PLAT		:=	$(buildtree)/${BOARDDIR}/firmware
 
 # Convenience function for adding build definitions
 # $(eval $(call add_define,FOO)) will have:
@@ -111,6 +113,11 @@ endif
 all: msg_start
 
 msg_start:
+	@echo "srctree: ${srctree}"
+	@echo "buildsrc: ${buildsrc}"
+	@echo "buildtree: ${buildtree}"
+	@echo "CURDIR: ${CURDIR}"
+	@echo "KBUILD_OUTPUT: ${KBUILD_OUTPUT}"
 	@echo "Building ${BOARDDIR}/acs.bin"
 
 #include plat/${PLAT}/platform.mk
@@ -170,8 +177,8 @@ $(eval $(call add_define,NS_TIMER_SWITCH))
 $(eval $(call assert_boolean,RESET_TO_BL31))
 $(eval $(call add_define,RESET_TO_BL31))
 
-#VPATH_LIST = $(buildsrc)/board/$(BOARDDIR)
-VPATH_LIST = $(buildsrc)/$(BOARDDIR)
+VPATH_LIST = $(buildsrc)/board/$(BOARDDIR)
+#VPATH_LIST = $(buildsrc)/$(BOARDDIR)
 VPATH_LIST:=$(VPATH_LIST:%=%/firmware/)
 
 vpath %.c $(VPATH_LIST)

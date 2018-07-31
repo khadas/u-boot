@@ -426,7 +426,7 @@ ddr_set_t __ddr_setting[] = {
 	.ddr_lpddr34_dq_remap	= {1,2,7,4,0,3,5,6,8,12,14,9,11,10,15,13,21,22,16,17,23,20,19,18,31,29,26,27,30,28,25,24},
 	//{21,22,16,17,23,20,19,18,8,12,14,9,11,10,15,13,31,29,26,27,30,28,25,24,1,2,7,4,0,3,5,6},
 	.dram_rtt_nom_wr_park	= {00,00},
-	.ddr_func				= DDR_FUNC,
+	.ddr_func				= (DDR_FUNC),
 	.magic					= DRAM_CFG_MAGIC,
 	.diagnose				= CONFIG_DIAGNOSE_DISABLE,
 },
@@ -440,7 +440,7 @@ pll_set_t __pll_setting = {
 	.pxp					= 0,
 #endif
 	.spi_ctrl				= 0,
-	.lCustomerID			= CONFIG_AML_CUSTOMER_ID,
+	.lCustomerID			= AML_CUSTOMER_ID,
 };
 
 ddr_reg_t __ddr_reg[] = {
@@ -450,8 +450,8 @@ ddr_reg_t __ddr_reg[] = {
 	{0, 0, 0, 0, 0, 0},
 };
 
-#define VCCK_VAL				CONFIG_VCCK_INIT_VOLTAGE
-#define VDDEE_VAL				CONFIG_VDDEE_INIT_VOLTAGE
+#define VCCK_VAL				AML_VCCK_INIT_VOLTAGE
+#define VDDEE_VAL				AML_VDDEE_INIT_VOLTAGE
 /* VCCK PWM table */
 #if   (VCCK_VAL == 800)
 	#define VCCK_VAL_REG	0x00150007
@@ -567,7 +567,7 @@ bl2_reg_t __bl2_reg[] = {
 	{GPIO_O_REG3,         (1 << 8),                0xffffffff,   0, BL2_INIT_STAGE_1, 0},
 	/* Enable VCCK */
 	{AO_SEC_REG0,         (1 << 0),                0xffffffff,   0, BL2_INIT_STAGE_1, 0},
-	{AO_GPIO_O,           (1 << 31),               0xffffffff,   0, BL2_INIT_STAGE_1, 0},
+	{AO_GPIO_O,           (0x80000000),               0xffffffff,   0, BL2_INIT_STAGE_1, 0},
 	/* Init sys led*/
 	{AO_GPIO_O_EN_N,      (0 << 11),               (1 << 11),    0, BL2_INIT_STAGE_1, 0},
 	{AO_GPIO_O,           (1 << 11),               (1 << 11),    0, BL2_INIT_STAGE_1, 0},

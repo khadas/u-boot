@@ -193,14 +193,14 @@ int check_adc_key_resume(void)
 	int max;
 
 	/*the sampling value of adc: 0-1023*/
-	min = CONFIG_ADC_POWER_KEY_VAL - 40;
+	min = AML_ADC_POWER_KEY_VAL - 40;
 	if (min < 0)
 		min = 0;
-	max = CONFIG_ADC_POWER_KEY_VAL + 40;
+	max = AML_ADC_POWER_KEY_VAL + 40;
 	if (max > 1023)
 		max = 1023;
 
-	value = get_adc_sample_gxbb(CONFIG_ADC_POWER_KEY_CHAN);
+	value = get_adc_sample_gxbb(AML_ADC_POWER_KEY_CHAN);
 	if ((value >= min) && (value <= max))
 		return 1;
 	else

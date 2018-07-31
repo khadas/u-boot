@@ -215,7 +215,10 @@ obj		:= $(objtree)
 
 VPATH		:= $(srctree)$(if $(KBUILD_EXTMOD),:$(KBUILD_EXTMOD))
 
-export srctree objtree VPATH
+buildsrc	:= $(abspath $(srctree))
+buildtree	:= $(abspath $(CURDIR)/$(KBUILD_OUTPUT))
+
+export srctree objtree VPATH buildsrc buildtree
 
 # Make sure CDPATH settings don't interfere
 unexport CDPATH
@@ -801,6 +804,7 @@ endif
 
 # Always append ALL so that arch config.mk's can add custom ones
 ALL-y += u-boot.srec u-boot.bin u-boot.sym System.map binary_size_check
+ALL-y += bl301.bin
 
 ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
@@ -1035,6 +1039,18 @@ else
 u-boot.bin: u-boot-nodtb.bin FORCE
 	$(call if_changed,copy)
 endif
+
+.PHONY : bl301.bin
+bl301.bin: tools prepare acs.bin bl21.bin
+	$(Q)$(MAKE) -C $(srctree)/arch/arm/mach-meson/${SOC}/firmware/scp_task
+
+.PHONY : acs.bin
+acs.bin: tools prepare u-boot.bin
+	$(Q)$(MAKE) -C $(srctree)/arch/arm/mach-meson/${SOC}/firmware/acs all FIRMWARE=$@
+
+.PHONY : bl21.bin
+bl21.bin: tools prepare u-boot.bin acs.bin
+	$(Q)$(MAKE) -C $(srctree)/arch/arm/mach-meson/${SOC}/firmware/bl21 all FIRMWARE=$@
 
 %.imx: %.bin
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@

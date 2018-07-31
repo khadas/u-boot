@@ -128,7 +128,7 @@ void aml_cal_pwm(unsigned int ee_voltage, unsigned int vcck_voltage)
 	vcck_delt = aml_delt_get(vcck_val, vcck_voltage);
 	ee_delt = aml_delt_get(ee_val, ee_voltage);
 	send_pwm_delt(vcck_delt, ee_delt);
-	aml_set_voltage(pwm_ee, VDDEE_INIT_VOLTAGE, ee_delt);
+	aml_set_voltage(pwm_ee, AML_VDDEE_INIT_VOLTAGE, ee_delt);
 	//aml_set_voltage(pwm_vcck, CONFIG_VCCK_INIT_VOLTAGE, vcck_delt);
 	printf("aml board pwm vcck: %x, ee: %x\n", vcck_delt, ee_delt);
 }
@@ -137,6 +137,6 @@ void aml_pwm_cal_init(int mode)
 {
 	printf("aml pwm cal init\n");
 	saradc_enable();
-	aml_cal_pwm(VDDEE_INIT_VOLTAGE, VCCK_INIT_VOLTAGE);
+	aml_cal_pwm(AML_VDDEE_INIT_VOLTAGE, AML_VCCK_INIT_VOLTAGE);
 	saradc_disable();
 }

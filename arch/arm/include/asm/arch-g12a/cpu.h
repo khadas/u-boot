@@ -73,19 +73,17 @@
 #define CONFIG_AML_CUSTOMER_ID  (0)
 #endif
 
+#define AML_CUSTOMER_ID  (0)
+
 /* #define CONFIG_SILENT_CONSOLE */
 #define CONFIG_SILENT_CONSOLE_UPDATE_ON_RELOC
 #define CONFIG_SILENT_U_BOOT_ONLY
 
 /* 2018.03.19 new compress solution, only support BL33 LZ4 compress */
-#if 0
 #define CONFIG_AML_BL33_COMPRESS_ENABLE 1
-#endif
 
 /* 2018.03.19 G12A only support v3 format for normal & secure boot */
-#if 0
 #define CONFIG_AML_SECURE_BOOT_V3 1
-#endif
 
 #define NR_CPUS		4
 

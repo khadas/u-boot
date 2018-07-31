@@ -1,3 +1,30 @@
+# function list
+
+config AML_BL33_COMPRESS_ENABLE
+	bool "Amlogic U-boot compress"
+	help
+		Support U-boot compress function
+
+config AML_SECURE_BOOT_V3
+	bool "Amlogic SecureBoot V3"
+	help
+		"Support Amlogic SecureBoot V3 version"
+
+config FIP_IMG_SUPPORT
+	bool "Amlogic FIP IMG format file"
+	help
+		"Support Amlogic FIP IMG format"
+
+config AML_SECURE_UBOOT
+	bool "Amlogic SecureBoot function"
+	help
+		"Support Amlogic SecureBoot function"
+
+config AML_CRYPTO_UBOOT
+	bool "Encrypt Amlogic U-boot"
+	help
+		"Support U-boot encrypt function"
+
 
 if MESON_G12A
 

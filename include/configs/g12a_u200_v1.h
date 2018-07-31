@@ -41,9 +41,9 @@
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	731		// VDDEE suspend voltage
 #endif
 
-#define VCCK_INIT_VOLTAGE    800     // VCCK power up voltage
-#define VDDEE_INIT_VOLTAGE   800     // VDDEE power up voltage
-#define VDDEE_SLEEP_VOLTAGE  731     // VDDEE suspend voltage
+#define AML_VCCK_INIT_VOLTAGE    800     // VCCK power up voltage
+#define AML_VDDEE_INIT_VOLTAGE   800     // VDDEE power up voltage
+#define AML_VDDEE_SLEEP_VOLTAGE  731     // VDDEE suspend voltage
 
 /* configs for CEC */
 #if 0
@@ -88,12 +88,23 @@
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL8 0xFFFFFFFF
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL9 0xFFFFFFFF
 #endif
+#define AML_IR_REMOTE_POWER_UP_KEY_VAL1 0xef10fe01 //amlogic tv ir --- power
+#define AML_IR_REMOTE_POWER_UP_KEY_VAL2 0XBB44FB04 //amlogic tv ir --- ch+
+#define AML_IR_REMOTE_POWER_UP_KEY_VAL3 0xF20DFE01 //amlogic tv ir --- ch-
+#define AML_IR_REMOTE_POWER_UP_KEY_VAL4 0XBA45BD02 //amlogic small ir--- power
+#define AML_IR_REMOTE_POWER_UP_KEY_VAL5 0xe51afb04
+#define AML_IR_REMOTE_POWER_UP_KEY_VAL6 0xFFFFFFFF
+#define AML_IR_REMOTE_POWER_UP_KEY_VAL7 0xFFFFFFFF
+#define AML_IR_REMOTE_POWER_UP_KEY_VAL8 0xFFFFFFFF
+#define AML_IR_REMOTE_POWER_UP_KEY_VAL9 0xFFFFFFFF
 
 /*config the default parameters for adc power key*/
 #if 0
 #define CONFIG_ADC_POWER_KEY_CHAN   2  /*channel range: 0-7*/
 #define CONFIG_ADC_POWER_KEY_VAL    0  /*sample value range: 0-1023*/
 #endif
+#define AML_ADC_POWER_KEY_CHAN   2  /*channel range: 0-7*/
+#define AML_ADC_POWER_KEY_VAL    0  /*sample value range: 0-1023*/
 
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
@@ -293,6 +304,12 @@
 #define CONFIG_DDR4_TIMING_TEST			0 //0:disable, 1:enable. ddr4 timing test function
 #define CONFIG_DDR_PLL_BYPASS			0 //0:disable, 1:enable. ddr pll bypass function
 #endif
+#define DDR_FULL_TEST            0 //0:disable, 1:enable. ddr full test
+#define DDR_LOW_POWER            0 //0:disable, 1:enable. ddr clk gate for lp
+#define DDR_ZQ_PD                0 //0:disable, 1:enable. ddr zq power down
+#define DDR_USE_EXT_VREF         0 //0:disable, 1:enable. ddr use external vref
+#define DDR4_TIMING_TEST         0 //0:disable, 1:enable. ddr4 timing test function
+#define DDR_PLL_BYPASS           0 //0:disable, 1:enable. ddr pll bypass function
 
 /* storage: emmc/nand/sd */
 #if 0
@@ -595,6 +612,7 @@
 #define CONFIG_CMD_CPU_TEMP 1
 #define CONFIG_CMD_LOADB    1
 #endif
+#define CONFIG_FIP_IMG_SUPPORT  1
 #define CONFIG_SYS_MEM_TOP_HIDE 0x08000000 /* hide 128MB for kernel reserve */
 
 #define CONFIG_CPU_ARMV8
@@ -602,9 +620,7 @@
 /* #define CONFIG_MULTI_DTB    1 */
 
 /* support secure boot */
-#if 0
 #define CONFIG_AML_SECURE_UBOOT   1
-#endif
 
 #if defined(CONFIG_AML_SECURE_UBOOT)
 
@@ -613,9 +629,7 @@
 /* #undef CONFIG_AML_NAND */
 
 /* unify build for generate encrypted bootloader "u-boot.bin.encrypt" */
-#if 0
 #define CONFIG_AML_CRYPTO_UBOOT   1
-#endif
 
 /* unify build for generate encrypted kernel image
    SRC : "board/amlogic/(board)/boot.img"
