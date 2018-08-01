@@ -22,6 +22,8 @@ obj-y	+= fwcall.o
 obj-y	+= cpu-dt.o
 obj-$(CONFIG_ARM_SMCCC)		+= smccc-call.o
 
+obj-y	+= a32_kernel_pre_entry.o
+
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_ARMV8_SPIN_TABLE) += spin_table.o spin_table_v8.o
 endif

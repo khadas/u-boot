@@ -317,12 +317,14 @@ static void switch_to_el1(void)
 #endif
 
 /* Subcommand: GO */
+extern void jump_to_a32_kernel(unsigned long, unsigned long, unsigned long);
 static void boot_jump_linux(bootm_headers_t *images, int flag)
 {
 #ifdef CONFIG_ARM64
 	void (*kernel_entry)(void *fdt_addr, void *res0, void *res1,
 			void *res2);
 	int fake = (flag & BOOTM_STATE_OS_FAKE_GO);
+	unsigned long machid = 0xf81;
 
 	kernel_entry = (void (*)(void *fdt_addr, void *res0, void *res1,
 				void *res2))images->ep;
@@ -356,6 +358,10 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 					    images->ep,
 					    ES_TO_AARCH64);
 #endif
+		if (images->os.arch == IH_ARCH_ARM)
+			jump_to_a32_kernel(images->ep, machid, (unsigned long)images->ft_addr);
+		else
+			kernel_entry(images->ft_addr, NULL, NULL, NULL);
 	}
 #else
 	unsigned long machid = gd->bd->bi_arch_number;
