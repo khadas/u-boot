@@ -1,8 +1,7 @@
-
 /*
- * arch/arm/cpu/armv8/txl/hdmitx20/hw_enc_clk_config.h
+ * driver/amlogic/media/vout/hdmitx/hdmitx_common.h
  *
- * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
+ * Copyright (C) 2018 Amlogic, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,11 +18,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef __HW_ENC_CLK_CONFIG_H__
-#define __HW_ENC_CLK_CONFIG_H__
-#include <amlogic/hdmi.h>
+#ifndef __HDMITX_COMMON_H__
+#define __HDMITX_COMMON_H__
 
-//#include <linux/amlogic/vout/enc_clk_config.h>
+#include <common.h>
+#include <amlogic/media/vout/hdmitx.h>
 
 #define CLK_UTIL_VID_PLL_DIV_1      0
 #define CLK_UTIL_VID_PLL_DIV_2      1
@@ -40,7 +39,7 @@
 #define CLK_UTIL_VID_PLL_DIV_14     12
 #define CLK_UTIL_VID_PLL_DIV_15     13
 #define CLK_UTIL_VID_PLL_DIV_2p5    14
-#define CLK_UTIL_VID_PLL_DIV_3p25	15
+#define CLK_UTIL_VID_PLL_DIV_3p25   15
 
 enum viu_type {
     VIU_ENCL = 0,
@@ -64,8 +63,8 @@ typedef struct{
     unsigned enci_div;
 }hw_enc_clk_val_t;
 
-#define GROUP_MAX	10
-#define GROUP_END	-1
+#define GROUP_MAX       10
+#define GROUP_END       -1
 struct hw_enc_clk_val_group {
     enum hdmi_vic group[GROUP_MAX];
     unsigned viu_path;
@@ -81,7 +80,13 @@ struct hw_enc_clk_val_group {
     unsigned enci_div;
 };
 
-void hdmitx_set_clk(struct hdmitx_dev *hdev);
-void set_hdmitx_clk_420(void);
+struct reg_t {
+	volatile unsigned int* reg;
+	unsigned int val;
+};
+
+extern void hdmitx_set_clk(struct hdmitx_dev *hdev);
+extern void set_hdmitx_clk_420(void);
+extern void set_vmode_enc_hw(enum hdmi_vic vic);
 
 #endif

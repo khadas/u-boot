@@ -447,7 +447,6 @@
 
 /* DISPLAY & HDMITX */
 #if 0
-#define CONFIG_AML_HDMITX20 1
 #define CONFIG_AML_CANVAS 1
 #define CONFIG_AML_VOUT 1
 #define CONFIG_AML_OSD 1

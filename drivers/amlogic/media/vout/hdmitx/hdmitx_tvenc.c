@@ -1,8 +1,7 @@
-
 /*
- * arch/arm/cpu/armv8/txl/hdmitx20/hdmitx_tvenc.c
+ * driver/amlogic/media/vout/hdmitx/hdmitx_tvenc.c
  *
- * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
+ * Copyright (C) 2018 Amlogic, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,10 +18,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include "mach_reg.h"
-#include "hdmitx_tvenc.h"
+#include <asm/arch/register.h>
+#include <asm/arch/secure_apb.h>
 
-#define MREG_END_MARKER 0xFFFF
+#include "hdmitx_common.h"
+
+#define MREG_END_MARKER  (volatile unsigned int *)0xFFFF
 
 static const struct reg_t tvregs_720p[] = {
 	{P_ENCP_VIDEO_EN, 0},

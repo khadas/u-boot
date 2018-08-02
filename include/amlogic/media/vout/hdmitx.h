@@ -368,18 +368,54 @@ struct hdmitx_dev {
 	unsigned int dc30;
 };
 
-struct hdmi_format_para *hdmi_get_fmt_paras(enum hdmi_vic vic);
-enum hdmi_vic hdmi_get_fmt_vic(char const *name);
-void hdmi_parse_attr(struct hdmi_format_para *para, char const *name);
-void hdmi_tx_set(struct hdmitx_dev *hdev);
+extern struct hdmi_format_para *hdmi_get_fmt_paras(enum hdmi_vic vic);
+extern enum hdmi_vic hdmi_get_fmt_vic(char const *name);
+extern void hdmi_parse_attr(struct hdmi_format_para *para, char const *name);
+extern void hdmi_tx_set(struct hdmitx_dev *hdev);
 /* Parsing RAW EDID data from edid to pRXCap */
-unsigned int hdmi_edid_parsing(unsigned char *edid, struct rx_cap *pRXCap);
-struct hdmi_format_para *hdmi_match_dtd_paras(struct dtd *t);
+extern unsigned int hdmi_edid_parsing(unsigned char *edid, struct rx_cap *pRXCap);
+extern struct hdmi_format_para *hdmi_match_dtd_paras(struct dtd *t);
 
-/*
- * Must be called at uboot
- */
-void hdmi_tx_init(void);
+
+
+
+/*These functions below are different in chip level*/
+
+/*READ/WRITE REGISTERS*/
+extern unsigned long hd_read_reg(volatile unsigned int* addr);
+extern void hd_write_reg(volatile unsigned int* addr, unsigned long val);
+extern void hd_set_reg_bits(volatile unsigned int* addr, unsigned long value,
+	unsigned long offset, unsigned long len);
+extern unsigned int hdmitx_rd_reg(unsigned int addr);
+extern void hdmitx_wr_reg(unsigned int addr, unsigned int data);
+extern void hdmitx_set_reg_bits(unsigned int addr, unsigned int value,
+	unsigned int offset, unsigned int len);
+extern void hdmitx_poll_reg(unsigned int addr, unsigned int val,
+	unsigned long timeout);
+extern void hdmitx_rd_check_reg (unsigned long addr,
+	unsigned long exp_data, unsigned long mask);
+/*PHY*/
+extern void hdmitx_set_phy(struct hdmitx_dev *hdev);
+extern void hdmitx_turnoff(void);
+/*PLL*/
+extern void set_hpll_clk_out(unsigned clk, struct hdmitx_dev *hdev);
+/*OD1 OD2 OD3*/
+extern void set_hpll_od1(unsigned div);
+extern void set_hpll_od2(unsigned div);
+extern void set_hpll_od3(unsigned div);
+/*SSPLL*/
+extern void set_hpll_sspll(struct hdmitx_dev *hdev);
+/*DDC CHANNEL*/
+extern void ddc_pinmux_init(void);
+/*HPD*/
+extern int hdmitx_get_hpd_state(void);
+/*PRBS*/
+extern void hdmitx_prbs(void);
+/*APB3 bus for hdmitx DWC/TOP registers*/
+extern void hdmitx_enable_apb3(void);
+
+/*hdmitx init by called in board.c*/
+extern void hdmi_tx_init(void);
 
 extern struct hdmitx_dev hdmitx_device;
 
@@ -389,7 +425,5 @@ extern struct hdmitx_dev hdmitx_device;
 #ifndef pr_info
 #define pr_info printf
 #endif
-
-#define hdmitx_debug() /* printf("hd: %s[%d]\n", __func__, __LINE__) */
 
 #endif

@@ -40,8 +40,8 @@
 #ifdef CONFIG_AML_V2_FACTORY_BURN
 #include <amlogic/aml_v2_burning.h>
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
-#ifdef CONFIG_AML_HDMITX20
-#include <amlogic/media/vout/hdmi.h>
+#ifdef CONFIG_AML_HDMITX
+#include <amlogic/media/vout/hdmitx.h>
 #endif
 #ifdef CONFIG_AML_LCD
 #include <amlogic/media/vout/aml_lcd.h>
@@ -445,12 +445,6 @@ struct amlogic_usb_config g_usb_config_GXL_skt={
 
 #endif /*CONFIG_USB_XHCI_AMLOGIC*/
 
-#ifdef CONFIG_AML_HDMITX20
-static void hdmi_tx_set_hdmi_5v(void)
-{
-}
-#endif
-
 /*
  * mtd nand partition table, only care the size!
  * offset will be calculated by nand driver.
@@ -707,17 +701,23 @@ int board_late_init(void)
 
 		/* load unifykey */
 		run_command("keyunify init 0x1234", 0);
+#endif
+/*open vpu  hdmitx and cvbs driver*/
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
 	//vpp_init();
-#ifdef CONFIG_AML_HDMITX20
-	hdmi_tx_set_hdmi_5v();
+
+#ifdef CONFIG_AML_HDMITX
 	hdmi_tx_init();
 #endif
+
 #ifdef CONFIG_AML_CVBS
 	run_command("cvbs init", 0);
 #endif
+
+#if 0
+
 #ifdef CONFIG_AML_LCD
 	lcd_probe();
 #endif

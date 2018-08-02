@@ -1,0 +1,5 @@
+config AML_HDMITX
+	bool "AML Hdmitx drivers Support"
+	help
+		HDMITX Output Enable
+
