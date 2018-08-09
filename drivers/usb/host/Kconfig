@@ -21,6 +21,10 @@ config USB_XHCI_DWC3
 	  Say Y or if your system has a Dual Role SuperSpeed
 	  USB controller based on the DesignWare USB3 IP Core.
 
+config USB_XHCI_AMLOGIC_V2
+	bool "amlogic usb for g12a"
+	help
+
 config USB_XHCI_DWC3_OF_SIMPLE
 	bool "DesignWare USB3 DRD Generic OF Simple Glue Layer"
 	depends on DM_USB

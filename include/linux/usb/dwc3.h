@@ -214,6 +214,12 @@ struct dwc3 {					/* offset: 0xC100 */
 #define GFLADJ_30MHZ(n)				((n) & 0x3f)
 #define GFLADJ_30MHZ_DEFAULT			0x20
 
+#define DWC3_GFLADJ           0xff50c630
+#define DWC3_GFLADJ_30MHZ_MASK                        0x3f
+
+/* Global User Control Register */
+#define DWC3_GUCTL_USBHSTINAUTORETRYEN (1 << 14)
+
 #ifdef CONFIG_USB_XHCI_DWC3
 void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode);
 void dwc3_core_soft_reset(struct dwc3 *dwc3_reg);

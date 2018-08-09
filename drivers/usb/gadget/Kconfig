@@ -101,7 +101,7 @@ config CI_UDC
 config USB_GADGET_VBUS_DRAW
 	int "Maximum VBUS Power usage (2-500 mA)"
 	range 2 500
-	default 2
+	default 500
 	help
 	   Some devices need to draw power from USB when they are
 	   configured, perhaps to operate circuitry or to recharge
@@ -118,6 +118,14 @@ config USB_GADGET_VBUS_DRAW
 # Selected by UDC drivers that support high-speed operation.
 config USB_GADGET_DUALSPEED
 	bool
+	default y
+
+config USB_DEVICE_V2
+	bool
+
+config FASTBOOT_DWC_PCD
+	bool "fastboot usb driver support"
+	select USB_DEVICE_V2
 
 config USB_GADGET_DOWNLOAD
 	bool "Enable USB download gadget"

@@ -244,6 +244,10 @@ struct amlogic_usb_config {
 	unsigned int u2_port_num;
 	unsigned int u3_port_num;
 	unsigned int usb_phy2_pll_base_addr[4];
+	/* initialize/shutdown the phy */
+	void	(*phy3_init)(struct usb_aml_regs *x, unsigned int u3portnum);
+	void	(*phy2_init)(struct u2p_aml_regs *phy, unsigned int u2portnum,uint32_t volatile **phypl);
+	void	(*phy_shutdown)(struct usb_aml_regs *phy, struct u2p_aml_regs *phy2);
 };
 
 //struct amlogic_usb_config amlogic_usb_config_gxl;
@@ -252,6 +256,10 @@ struct amlogic_usb_config {
 #define BOARD_USB_MODE_SLAVE	1
 #define BOARD_USB_MODE_CHARGER	2
 #define BOARD_USB_MODE_MAX	3
+
+void set_comb_phy_to_usb3_mode(void);
+void usb_config_set_function(struct amlogic_usb_config **usbcon, int mode,int index);
+
 struct amlogic_usb_config * board_usb_start(int mode,int index);
 int board_usb_stop(int mode,int index);
 void board_usb_init(struct amlogic_usb_config * usb_cfg,int mode);

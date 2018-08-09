@@ -1211,8 +1211,13 @@ static int xhci_lowlevel_init(struct xhci_ctrl *ctrl)
 		return -ENOMEM;
 
 	reg = xhci_readl(&hccr->cr_hcsparams1);
+#ifdef CONFIG_USB_XHCI_AMLOGIC_V2
+	descriptor.hub.bNbrPorts = 2;
+#else
 	descriptor.hub.bNbrPorts = ((reg & HCS_MAX_PORTS_MASK) >>
 						HCS_MAX_PORTS_SHIFT);
+#endif
+
 	printf("Register %x NbrPorts %d\n", reg, descriptor.hub.bNbrPorts);
 
 	/* Port Indicators */
