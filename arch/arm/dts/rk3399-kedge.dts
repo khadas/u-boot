@@ -7,6 +7,7 @@
 /dts-v1/;
 #include <dt-bindings/pwm/pwm.h>
 #include <dt-bindings/pinctrl/rockchip.h>
+#include <dt-bindings/input/input.h>
 #include "rk3399.dtsi"
 #include "rk3399-sdram-ddr3-1600.dtsi"
 #include "rk3399-u-boot.dtsi"
@@ -175,6 +176,21 @@
 		regulator-boot-on;
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
+	};
+
+	adc-keys {
+		u-boot,dm-pre-reloc;
+		compatible = "adc-keys";
+		io-channels = <&saradc 1>;
+		io-channel-names = "download";
+		keyup-threshold-microvolt = <1800000>;
+
+		vol-up-key {
+			u-boot,dm-pre-reloc;
+			linux,code = <KEY_VOLUMEUP>;
+			label = "volume up";
+			press-threshold-microvolt = <120000>;
+		};
 	};
 };
 
