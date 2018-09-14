@@ -1622,4 +1622,10 @@ config CMD_KHADAS_CFGLOAD
        help
          cfgload support
 
+config CMD_KHADAS_KBI
+	bool "Khadas Bootloader Instructions"
+	depends on TARGET_KEDGE
+	help
+	  Khadas Bootloader Instructions
+
 endmenu
