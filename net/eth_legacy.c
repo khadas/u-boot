@@ -130,41 +130,98 @@ static int on_ethaddr(const char *name, const char *value, enum env_op op,
 }
 U_BOOT_ENV_CALLBACK(ethaddr, on_ethaddr);
 
+
+static int eth_get_efuse_mac(struct eth_device *dev)
+{
+#ifndef CONFIG_UNIFY_KEY_MANAGE
+       printf("\nWarning: %s MAC addresses is not from dtb\n",
+                                               dev->name);
+	   return -1;
+#else
+#define MAC_MAX_LEN	17
+	int i = 0;
+	int err = 0, exist = 0;
+	ssize_t keysize = 0;
+	const char* seedNum = "0x1234";
+	unsigned char buf[MAC_MAX_LEN+1] = {0};
+
+	err = key_unify_init(seedNum, NULL);
+	if (err)
+		return err;
+
+	err = key_unify_query_exist("mac", &exist);
+	if (err || (!exist))
+		return -EEXIST;
+
+	err = key_unify_query_size("mac", &keysize);
+	if (err)
+		return err;
+
+	if (keysize != MAC_MAX_LEN) {
+		return -EINVAL;
+	}
+
+	err = key_unify_read("mac", buf, keysize);
+	if (err)
+		return err;
+
+	for (i=0; i<6; i++) {
+		buf[i*3 + 2] = '\0';
+		dev->enetaddr[i] = simple_strtoul((char *)&buf[i*3], NULL, 16);
+	}
+
+	return key_unify_uninit();
+#endif
+}
 int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 		   int eth_number)
 {
 	unsigned char env_enetaddr[ARP_HLEN];
 	int ret = 0;
 
-	eth_env_get_enetaddr_by_index(base_name, eth_number, env_enetaddr);
+	eth_get_efuse_mac(dev);
 
-	if (!is_zero_ethaddr(env_enetaddr)) {
-		if (!is_zero_ethaddr(dev->enetaddr) &&
-		    memcmp(dev->enetaddr, env_enetaddr, ARP_HLEN)) {
-			printf("\nWarning: %s MAC addresses don't match:\n",
-			       dev->name);
-			printf("Address in SROM is         %pM\n",
-			       dev->enetaddr);
-			printf("Address in environment is  %pM\n",
-			       env_enetaddr);
-		}
-
-		memcpy(dev->enetaddr, env_enetaddr, ARP_HLEN);
-	} else if (is_valid_ethaddr(dev->enetaddr)) {
+	if (is_valid_ethaddr(dev->enetaddr)) {
 		eth_env_set_enetaddr_by_index(base_name, eth_number,
 					      dev->enetaddr);
-	} else if (is_zero_ethaddr(dev->enetaddr)) {
-#ifdef CONFIG_NET_RANDOM_ETHADDR
-		net_random_ethaddr(dev->enetaddr);
-		printf("\nWarning: %s (eth%d) using random MAC address - %pM\n",
-		       dev->name, eth_number, dev->enetaddr);
-#else
-		printf("\nError: %s address not set.\n",
-		       dev->name);
-		return -EINVAL;
-#endif
-	}
+	} else {
+		uint8_t buff[16];
+		if (get_chip_id(&buff[0], sizeof(buff)) == 0) {
+			sprintf((char *)env_enetaddr,"02:%02x:%02x:%02x:%02x:%02x",buff[8],
+				buff[7],buff[6],buff[5],buff[4]);
+			printf("MACADDR:%s(from chipid)\n",env_enetaddr);
+			env_set("ethaddr",(const char *)env_enetaddr);
+		}
 
+		eth_env_get_enetaddr_by_index(base_name, eth_number, env_enetaddr);
+
+		if (!is_zero_ethaddr(env_enetaddr)) {
+			if (!is_zero_ethaddr(dev->enetaddr) &&
+			memcmp(dev->enetaddr, env_enetaddr, ARP_HLEN)) {
+				printf("\nWarning: %s MAC addresses don't match:\n",
+						dev->name);
+				printf("Address in SROM is         %pM\n",
+						dev->enetaddr);
+				printf("Address in environment is  %pM\n",
+						env_enetaddr);
+			}
+
+			memcpy(dev->enetaddr, env_enetaddr, ARP_HLEN);
+		} else if (is_valid_ethaddr(dev->enetaddr)) {
+			eth_env_set_enetaddr_by_index(base_name, eth_number,
+							dev->enetaddr);
+		} else if (is_zero_ethaddr(dev->enetaddr)) {
+#ifdef CONFIG_NET_RANDOM_ETHADDR
+			net_random_ethaddr(dev->enetaddr);
+			printf("\nWarning: %s (eth%d) using random MAC address - %pM\n",
+				dev->name, eth_number, dev->enetaddr);
+#else
+			printf("\nError: %s address not set.\n",
+				dev->name);
+			return -EINVAL;
+#endif
+		}
+	}
 	if (dev->write_hwaddr && !eth_mac_skip(eth_number)) {
 		if (!is_valid_ethaddr(dev->enetaddr)) {
 			printf("\nError: %s address %pM illegal value\n",
