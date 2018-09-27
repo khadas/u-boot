@@ -1,43 +1,41 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+ * Copyright 2018 - AmLogic, Inc.
+ */
+#ifndef _ARCH_MESON_G12A_CLOCK_H_
+#define _ARCH_MESON_G12A_CLOCK_H_
 
 /*
- * arch/arm/include/asm/arch-txlx/clock.h
+ * Clock controller register offsets
  *
- * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
+ * Register offsets from the data sheet are listed in comment blocks below.
+ * Those offsets must be multiplied by 4 before adding them to the base address
+ * to get the right value
+ */
 
-#ifndef __ARCH_ARM_MESON_CLOCK_H_U_BOOT_
-#define __ARCH_ARM_MESON_CLOCK_H_U_BOOT_
+#define HHI_GCLK_MPEG0			0x140 /* 0x50 offset in data sheet1 */
+#define HHI_GCLK_MPEG1			0x144 /* 0x51 offset in data sheet1 */
+#define HHI_GCLK_MPEG2			0x148 /* 0x52 offset in data sheet1 */
+#define HHI_GCLK_OTHER			0x150 /* 0x54 offset in data sheet1 */
 
-/* add define if needed */
-#define CLK81                          (7)
+#define HHI_FIX_PLL_CNTL0		0x2A0 /* 0xa8 offset in data sheet1 */
+#define HHI_FIX_PLL_CNTL1		0x2A4 /* 0xa9 offset in data sheet1 */
 
-#if 0
-__u32 get_cpu_clk(void);
-__u32 get_clk_ddr(void);
-__u32 get_misc_pll_clk(void);
+#define HHI_SYS_PLL_CNTL0		0x2f4 /* 0xbd offset in data sheet1 */
+#define HHI_SYS_PLL_CNTL1		0x2f8 /* 0xbe offset in data sheet1 */
+#define HHI_SYS_PLL_CNTL2		0x2fc /* 0xbf offset in data sheet1 */
+#define HHI_SYS_PLL_CNTL3		0x300 /* 0xc0 offset in data sheet1 */
+#define HHI_SYS_PLL_CNTL4		0x304 /* 0xc1 offset in data sheet1 */
+#define HHI_SYS_PLL_CNTL5		0x308 /* 0xc2 offset in data sheet1 */
+#define HHI_SYS_PLL_CNTL6		0x30c /* 0xc3 offset in data sheet1 */
+#define HHI_SPICC_CLK_CNTL		0x3dc /* 0xf7 offset in data sheet1 */
+
+#define CLKID_UNREALIZED		0xfff
+
+/* AO registers */
+#define AO_SAR_CLK			0x90
+#define AO_CLK_GATE0			0x4c
+
+ulong meson_measure_clk_rate(unsigned int clk);
+
 #endif
-
-__u32 get_clk81(void);
-int clk_get_rate(unsigned clksrc);
-unsigned long clk_util_clk_msr(unsigned long clk_mux);
-unsigned long clk_util_ring_msr(unsigned long clk_mux);
-
-int clk_msr(int index);
-int ring_msr(int index);
-
-#endif /* __ARCH_ARM_MESON_CLOCK_H_U_BOOT_ */
-

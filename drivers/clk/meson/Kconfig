@@ -1,0 +1,6 @@
+config CLK_MESON_G12A
+	bool "Support G12A Clock"
+	depends on CLK
+	help
+	  This option is used to enable the meson g12a clock
+	  driver.

@@ -98,6 +98,13 @@ config CLK_STM32MP1
 	  Enable the STM32 clock (RCC) driver. Enable support for
 	  manipulating STM32MP1's on-SoC clocks.
 
+config CLK_MESON
+	bool "Enable clock driver support for Meson"
+	depends on CLK
+	help
+	  This clock driver adds support for clock realted settings for
+	  meson platform.
+
 source "drivers/clk/at91/Kconfig"
 source "drivers/clk/exynos/Kconfig"
 source "drivers/clk/imx/Kconfig"
@@ -106,6 +113,7 @@ source "drivers/clk/owl/Kconfig"
 source "drivers/clk/renesas/Kconfig"
 source "drivers/clk/tegra/Kconfig"
 source "drivers/clk/uniphier/Kconfig"
+source "drivers/clk/meson/Kconfig"
 
 config ICS8N3QV01
 	bool "Enable ICS8N3QV01 VCXO driver"

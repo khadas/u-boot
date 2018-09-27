@@ -51,6 +51,7 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/pwm/pwm.h>
 #include <dt-bindings/pwm/meson.h>
+#include <dt-bindings/clock/g12a-clkc.h>
 
 / {
 	interrupt-parent = <&gic>;
@@ -371,10 +372,9 @@
 			ranges = <0x0 0x0 0x0 0xff800000 0x0 0x100000>;
 
 			clkc_AO: clock-controller@0 {
-				compatible = "amlogic,gx-aoclkc", "amlogic,gxbb-aoclkc";
+				compatible = "amlogic,g12a-aoclkc";
 				reg = <0x0 0x0 0x0 0x320>;
 				#clock-cells = <1>;
-				#reset-cells = <1>;
 			};
 
 			uart_AO: serial@3000 {
@@ -443,6 +443,12 @@
 			#address-cells = <2>;
 			#size-cells = <2>;
 			ranges = <0x0 0x0 0x0 0xff63c000 0x0 0x2000>;
+
+			clkc: clock-controller@0 {
+				compatible = "amlogic,g12a-clkc";
+				#clock-cells = <1>;
+				reg = <0x0 0x0 0x0 0x320>;
+			};
 
 			mailbox: mailbox@404 {
 				compatible = "amlogic,meson-gx-mhu", "amlogic,meson-gxbb-mhu";
