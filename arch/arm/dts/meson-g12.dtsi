@@ -49,6 +49,8 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/pwm/pwm.h>
+#include <dt-bindings/pwm/meson.h>
 
 / {
 	interrupt-parent = <&gic>;
@@ -250,22 +252,22 @@
 			};
 
 			pwm_ab: pwm@1b000 {
-				compatible = "amlogic,meson-gx-pwm", "amlogic,meson-gxbb-pwm";
+				compatible = "amlogic,g12a-ee-pwm";
 				reg = <0x0 0x1b000 0x0 0x20>;
 				#pwm-cells = <3>;
 				status = "disabled";
 			};
 
 			pwm_cd: pwm@1a000 {
-				compatible = "amlogic,meson-gx-pwm", "amlogic,meson-gxbb-pwm";
-				reg = <0x0 0x1a000 0x0 0x20>;
+				compatible = "amlogic,g12a-ee-pwm";
+				reg = <0x0 0x1a000  0x0 0x20>;
 				#pwm-cells = <3>;
 				status = "disabled";
 			};
 
 			pwm_ef: pwm@19000 {
-				compatible = "amlogic,meson-gx-pwm", "amlogic,meson-gxbb-pwm";
-				reg = <0x0 0x19000 0x0 0x20>;
+				compatible = "amlogic,g12a-ee-pwm";
+				reg = <0x0 0x19000  0x0 0x20>;
 				#pwm-cells = <3>;
 				status = "disabled";
 			};
@@ -392,8 +394,15 @@
 			};
 
 			pwm_AO_ab: pwm@7000 {
-				compatible = "amlogic,meson-gx-ao-pwm", "amlogic,meson-gxbb-ao-pwm";
-				reg = <0x0 0x7000 0x0 0x20>;
+				compatible = "amlogic,g12a-ao-pwm";
+				reg = <0x0 0x7000  0x0 0x20>;
+				#pwm-cells = <3>;
+				status = "disabled";
+			};
+
+			pwm_AO_cd: pwm@2000 {
+				compatible = "amlogic,g12a-ao-pwm";
+				reg = <0x0 0x2000  0x0 0x20>;
 				#pwm-cells = <3>;
 				status = "disabled";
 			};

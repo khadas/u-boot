@@ -38,7 +38,37 @@ int pwm_set_enable(struct udevice *dev, uint channel, bool enable)
 
 	return ops->set_enable(dev, channel, enable);
 }
+#ifdef CONFIG_PWM_MESON
+int pwm_set_times(struct udevice *dev, uint channel, uint times)
+{
+	struct pwm_ops *ops = pwm_get_ops(dev);
 
+	if (!ops->set_enable)
+		return -ENOSYS;
+
+	return ops->set_times(dev, channel, times);
+}
+
+int pwm_set_blink_times(struct udevice *dev, uint channel, uint times)
+{
+	struct pwm_ops *ops = pwm_get_ops(dev);
+
+	if (!ops->set_enable)
+		return -ENOSYS;
+
+	return ops->set_blink_times(dev, channel, times);
+}
+
+int pwm_set_blink_enable(struct udevice *dev, uint channel, bool enable)
+{
+	struct pwm_ops *ops = pwm_get_ops(dev);
+
+	if (!ops->set_enable)
+		return -ENOSYS;
+
+	return ops->set_blink_enable(dev, channel, enable);
+}
+#endif
 UCLASS_DRIVER(pwm) = {
 	.id		= UCLASS_PWM,
 	.name		= "pwm",

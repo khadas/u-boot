@@ -50,3 +50,13 @@ config PWM_SUNXI
 	help
 	  This PWM is found on H3, A64 and other Allwinner SoCs. It supports a
 	  programmable period and duty cycle. A 16-bit counter is used.
+
+config PWM_MESON
+	bool "Enable support for the Amlogic Meson PWM"
+	depends on DM_PWM
+	help
+	  This PWM is found on Amlogic Meson SoCs. It supports  pwm_a/b
+	  pwm_c/d pwm_e/f pwmao_a/b pwmao_c/d channels with a programmable
+	  period and duty cycle. There are 4 clock sources to choose ,
+	  it supported by the driver but the duty cycle is configurable.
+

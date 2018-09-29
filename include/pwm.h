@@ -42,6 +42,35 @@ struct pwm_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*set_invert)(struct udevice *dev, uint channel, bool polarity);
+#ifdef CONFIG_PWM_MESON
+	/**
+	 * set_times() - Set the PWM times
+	 *
+	 * @dev:        PWM device to update
+	 * @channel:    PWM channel to update
+	 * @times: 	  	dual channel to set times
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*set_times)(struct udevice *dev, uint channel, uint times);
+	/**
+	 * set_blink_times() - Set the PWM blink times
+	 *
+	 * @dev:        PWM device to update
+	 * @channel:    PWM channel to update
+	 * @times:   	set blink times
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*set_blink_times)(struct udevice *dev, uint channel, uint times);
+	/**
+	 * set_blink_enable() - Enable or disable the PWM blink
+	 *
+	 * @dev:        PWM device to update
+	 * @channel:    PWM channel to update
+	 * @enable:   	true to enable, false to disable
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*set_blink_enable)(struct udevice *dev, uint channel, bool enable);
+#endif
 };
 
 #define pwm_get_ops(dev)	((struct pwm_ops *)(dev)->driver->ops)
@@ -77,7 +106,37 @@ int pwm_set_enable(struct udevice *dev, uint channel, bool enable);
  * @return 0 if OK, -ve on error
  */
 int pwm_set_invert(struct udevice *dev, uint channel, bool polarity);
+#ifdef CONFIG_PWM_MESON
+/**
+ * pwm_set_times() - Set the PWM times
+ *
+ * @dev:		PWM device to update
+ * @channel:	PWM channel to update
+ * @times:		dual channel to set times
+ * @return 0 if OK, -ve on error
+ */
+int pwm_set_times(struct udevice *dev, uint channel, uint times);
 
+/**
+ * pwm_set_blink_times() - Set the PWM blink times
+ *
+ * @dev:		PWM device to update
+ * @channel:	PWM channel to update
+ * @times:		set blink times
+ * @return 0 if OK, -ve on error
+ */
+int pwm_set_blink_times(struct udevice *dev, uint channel, uint times);
+
+/**
+ * pwm_set_blink_enable() - Enable or disable the PWM blink
+ *
+ * @dev:		PWM device to update
+ * @channel:	PWM channel to update
+ * @enable: 	true to enable, false to disable
+ * @return 0 if OK, -ve on error
+ */
+int pwm_set_blink_enable(struct udevice *dev, uint channel, bool enable);
+#endif
 /* Legacy interface */
 #ifndef CONFIG_DM_PWM
 int	pwm_init		(int pwm_id, int div, int invert);
