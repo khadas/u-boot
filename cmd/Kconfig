@@ -879,6 +879,11 @@ config CMD_NAND
 	help
 	  NAND support.
 
+config AML_STORAGE
+	bool "aml storage support"
+	help
+		storage cmd support
+
 if CMD_NAND
 config CMD_NAND_TRIMFFS
 	bool "nand write.trimffs"

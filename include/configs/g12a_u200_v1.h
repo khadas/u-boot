@@ -335,11 +335,11 @@
 /* axg only support slc nand */
 /* swither for mtd nand which is for slc only. */
 /* support for mtd */
-#if 0
-#define CONFIG_AML_MTD 1
-#endif
+
+/* #define CONFIG_AML_MTD 1*/
+
 /* support for nftl */
-/* #define CONFIG_AML_NAND	1 */
+#define CONFIG_AML_NAND	1
 
 #if defined(CONFIG_AML_NAND) && defined(CONFIG_AML_MTD)
 #error CONFIG_AML_NAND/CONFIG_AML_MTD can not support at the sametime;

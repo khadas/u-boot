@@ -24,6 +24,7 @@ obj-$(CONFIG_$(SPL_)DM_MAILBOX) += mailbox/
 obj-$(CONFIG_$(SPL_)REMOTEPROC) += remoteproc/
 obj-$(CONFIG_$(SPL_TPL_)TPM) += tpm/
 obj-$(CONFIG_AML_V2_FACTORY_BURN)       += usb/gadget/v2_burning/
+obj-$(CONFIG_AML_NAND) += nand/
 
 ifndef CONFIG_TPL_BUILD
 ifdef CONFIG_SPL_BUILD
