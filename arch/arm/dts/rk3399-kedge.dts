@@ -17,11 +17,6 @@
 	model = "Khadas Edge";
 	compatible = "khadas,edge", "rockchip,rk3399";
 
-	chosen {
-		stdout-path = &uart2;
-		u-boot,spl-boot-order = &sdmmc, &sdhci;
-	};
-
 	aliases {
 		spi0 = &spi1;
 		spi1 = &spi5;
@@ -217,6 +212,10 @@
 
 &cpu_b1 {
 	cpu-supply = <&vdd_cpu_b>;
+};
+
+&uart2 {
+	status = "okay";
 };
 
 &emmc_phy {
