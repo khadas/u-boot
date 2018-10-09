@@ -48,6 +48,25 @@
 
 / {
 	compatible = "amlogic,meson-g12a";
+
+	vpu {
+		compatible = "amlogic, vpu-g12a";
+		status = "okay";
+		/*clocks = <&clkc CLKID_VAPB_MUX>,
+		 *	<&clkc CLKID_VPU_INTR>,
+		 *	<&clkc CLKID_VPU_P0_COMP>,
+		 *	<&clkc CLKID_VPU_P1_COMP>,
+		 *	<&clkc CLKID_VPU_MUX>;
+		 *clock-names = "vapb_clk",
+		 *	"vpu_intr_gate",
+		 *	"vpu_clk0",
+		 *	"vpu_clk1",
+		 *	"vpu_clk";
+		 */
+		clk_level = <7>;
+		/* 0: 100.0M    1: 166.7M    2: 200.0M    3: 250.0M */
+		/* 4: 333.3M    5: 400.0M    6: 500.0M    7: 666.7M */
+	};
 };
 
 &ethmac {
@@ -205,18 +224,6 @@
 			};
 		};
 	};
-};
-
-&hdmi_tx {
-	compatible = "amlogic,meson-g12a-dw-hdmi", "amlogic,meson-g12a-dw-hdmi";
-	resets = <&reset RESET_HDMITX_CAPB3>,
-		 <&reset RESET_HDMI_SYSTEM_RESET>,
-		 <&reset RESET_HDMI_TX>;
-	reset-names = "hdmitx_apb", "hdmitx", "hdmitx_phy";
-	clocks = <&clkc CLKID_HDMI_PCLK>,
-		 <&clkc CLKID_CLK81>,
-		 <&clkc CLKID_GCLK_VENCI_INT0>;
-	clock-names = "isfr", "iahb", "venci";
 };
 
 &hiubus {
@@ -623,6 +630,3 @@
 	clocks = <&clkc CLKID_SPI>;
 };
 
-&vpu {
-	compatible = "amlogic,meson-g12a-vpu", "amlogic,meson-gx-vpu";
-};

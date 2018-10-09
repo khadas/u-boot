@@ -1,0 +1,10 @@
+menu "Device Drivers"
+
+config AML_DRIVER
+	bool "AML drivers Support"
+	help
+	  Enable support for the Amlogic drivers.
+
+source "drivers/amlogic/media/Kconfig"
+
+endmenu

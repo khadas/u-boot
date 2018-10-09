@@ -451,8 +451,7 @@
 #endif
 
 /* vpu */
-/* #define CONFIG_AML_VPU 1 */
-/* #define CONFIG_VPU_CLK_LEVEL_DFT 7 */
+#define AML_VPU_CLK_LEVEL_DFT 7
 
 /* DISPLAY & HDMITX */
 #if 0

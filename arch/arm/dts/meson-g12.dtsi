@@ -490,53 +490,5 @@
 				status = "disabled";
 			};
 		};
-
-		vpu: vpu@ff900000 {
-			compatible = "amlogic,meson-gx-vpu";
-			reg = <0x0 0xff900000 0x0 0x40000>,
-			      <0x0 0xff63c000 0x0 0x2000>,
-			      <0x0 0xff638000 0x0 0x2000>;
-			reg-names = "vpu", "hhi", "dmc";
-			interrupts = <GIC_SPI 3 IRQ_TYPE_EDGE_RISING>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			/* CVBS VDAC output port */
-			cvbs_vdac_port: port@0 {
-				reg = <0>;
-			};
-
-			/* HDMI-TX output port */
-			hdmi_tx_port: port@1 {
-				reg = <1>;
-
-				hdmi_tx_out: endpoint {
-					remote-endpoint = <&hdmi_tx_in>;
-				};
-			};
-		};
-
-		hdmi_tx: hdmi-tx@ff63a000 {
-			compatible = "amlogic,meson-gx-dw-hdmi";
-			reg = <0x0 0xff63a000 0x0 0x1c>;
-			interrupts = <GIC_SPI 57 IRQ_TYPE_EDGE_RISING>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-			status = "disabled";
-
-			/* VPU VENC Input */
-			hdmi_tx_venc_port: port@0 {
-				reg = <0>;
-
-				hdmi_tx_in: endpoint {
-					remote-endpoint = <&hdmi_tx_out>;
-				};
-			};
-
-			/* TMDS Output */
-			hdmi_tx_tmds_port: port@1 {
-				reg = <1>;
-			};
-		};
 	};
 };

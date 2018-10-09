@@ -25,6 +25,7 @@ obj-$(CONFIG_$(SPL_)REMOTEPROC) += remoteproc/
 obj-$(CONFIG_$(SPL_TPL_)TPM) += tpm/
 obj-$(CONFIG_AML_V2_FACTORY_BURN)       += usb/gadget/v2_burning/
 obj-$(CONFIG_AML_NAND) += nand/
+obj-$(CONFIG_AML_DRIVER) += amlogic/
 
 ifndef CONFIG_TPL_BUILD
 ifdef CONFIG_SPL_BUILD

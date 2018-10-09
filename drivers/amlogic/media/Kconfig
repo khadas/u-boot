@@ -1,0 +1,6 @@
+config AML_MEDIA
+	bool "AML Media drivers Support"
+	help
+	  Enable support for the Amlogic Media drivers.
+
+source "drivers/amlogic/media/common/Kconfig"

@@ -14,7 +14,7 @@
  */
 
 #include <common.h>
-#include <amlogic/aml_lcd.h>
+#include <amlogic/media/vout/aml_lcd.h>
 #include <asm/arch/gpio.h>
 
 #ifdef CONFIG_AML_LCD_EXTERN

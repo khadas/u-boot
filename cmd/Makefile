@@ -180,6 +180,7 @@ endif # !CONFIG_SPL_BUILD
 obj-y += nvedit.o
 
 obj-$(CONFIG_TI_COMMON_CMD_OPTIONS) += ti/
+obj-$(CONFIG_AML_DRIVER) += amlogic/
 
 filechk_data_gz = (echo "static const char data_gz[] ="; cat $< | scripts/bin2c; echo ";")
 

@@ -34,17 +34,17 @@
 #include <amlogic/i2c.h>
 #endif
 #ifdef CONFIG_AML_VPU
-#include <vpu.h>
-#include <vpp.h>
+#include <amlogic/media/vpu/vpu.h>
+#include <amlogic/media/vpp/vpp.h>
 #endif
 #ifdef CONFIG_AML_V2_FACTORY_BURN
 #include <amlogic/aml_v2_burning.h>
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 #ifdef CONFIG_AML_HDMITX20
-#include <amlogic/hdmi.h>
+#include <amlogic/media/vout/hdmi.h>
 #endif
 #ifdef CONFIG_AML_LCD
-#include <amlogic/aml_lcd.h>
+#include <amlogic/media/vout/aml_lcd.h>
 #endif
 #include <asm/arch/eth_setup.h>
 #include <phy.h>
