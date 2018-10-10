@@ -286,6 +286,11 @@ config ZYNQMP_GQSPI
 	  This option is used to enable ZynqMP QSPI controller driver which
 	  is used to communicate with qspi flash devices.
 
+config AML_SPICC
+	bool "Amlogic SPICC Driver"
+	help
+	  Enable support for SPICC on all meson SoCs.
+
 endif # if DM_SPI
 
 config SOFT_SPI

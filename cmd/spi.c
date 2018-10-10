@@ -35,6 +35,8 @@
 static unsigned int	bus;
 static unsigned int	cs;
 static unsigned int	mode;
+static int		speed = 1000000;
+static int		wordlen = 8;
 static int   		bitlen;
 static uchar 		dout[MAX_SPI_BYTES];
 static uchar 		din[MAX_SPI_BYTES];
@@ -52,18 +54,18 @@ static int do_spi_xfer(int bus, int cs)
 	str = strdup(name);
 	if (!str)
 		return -ENOMEM;
-	ret = spi_get_bus_and_cs(bus, cs, 1000000, mode, "spi_generic_drv",
+	ret = spi_get_bus_and_cs(bus, cs, speed, mode, "spi_generic_drv",
 				 str, &dev, &slave);
 	if (ret)
 		return ret;
 #else
-	slave = spi_setup_slave(bus, cs, 1000000, mode);
+	slave = spi_setup_slave(bus, cs, speed, mode);
 	if (!slave) {
 		printf("Invalid device %d:%d\n", bus, cs);
 		return -EINVAL;
 	}
 #endif
-
+	slave->wordlen = wordlen;
 	ret = spi_claim_bus(slave);
 	if (ret)
 		goto done;
@@ -126,7 +128,11 @@ int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				bus = CONFIG_DEFAULT_SPI_BUS;
 			}
 			if (*cp == '.')
-				mode = simple_strtoul(cp+1, NULL, 10);
+				mode = simple_strtoul(cp+1, &cp, 10);
+			if (*cp == '.')
+				speed = simple_strtoul(cp+1, &cp, 10);
+			if (*cp == '.')
+				wordlen = simple_strtoul(cp+1, &cp, 10);
 		}
 		if (argc >= 3)
 			bitlen = simple_strtoul(argv[2], NULL, 10);

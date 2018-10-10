@@ -16,6 +16,8 @@
 	aliases {
 		serial0 = &uart_AO;
 		serial1 = &uart_A;
+		spi0 = &spicc0;
+		spi1 = &spicc1;
 	};
 
 	chosen {
@@ -167,4 +169,11 @@
 	status = "okay";
 	pinctrl-0 = <&uart_ao_a_pins>;
 	pinctrl-names = "default";
+};
+
+&spicc1 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&spicc1_pins>;
+	cs-gpios = <&gpio GPIOH_6 0>;
 };
