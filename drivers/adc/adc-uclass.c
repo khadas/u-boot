@@ -90,6 +90,38 @@ int adc_channel_mask(struct udevice *dev, unsigned int *channel_mask)
 	return 0;
 }
 
+#ifdef CONFIG_SARADC_MESON
+int adc_set_mode(struct udevice *dev, int channel, unsigned int mode)
+{
+	const struct adc_ops *ops = dev_get_driver_ops(dev);
+	int ret;
+
+	if (!ops->set_mode)
+		return -ENOSYS;
+
+	ret = check_channel(dev, channel, CHECK_NUMBER, __func__);
+	if (ret)
+		return ret;
+
+	return ops->set_mode(dev, channel, mode);
+}
+
+int adc_select_input_voltage(struct udevice *dev, int channel, int mux)
+{
+	const struct adc_ops *ops = dev_get_driver_ops(dev);
+	int ret;
+
+	if (!ops->select_input_voltage)
+		return -ENOSYS;
+
+	ret = check_channel(dev, channel, CHECK_NUMBER, __func__);
+	if (ret)
+		return ret;
+
+	return ops->select_input_voltage(dev, channel, mux);
+}
+#endif
+
 int adc_stop(struct udevice *dev)
 {
 	const struct adc_ops *ops = dev_get_driver_ops(dev);
@@ -191,6 +223,40 @@ int adc_channels_data(struct udevice *dev, unsigned int channel_mask,
 	return ret;
 }
 
+#ifdef CONFIG_SARADC_MESON
+int adc_channel_single_shot_mode(const char *name, unsigned int mode,
+			int channel, unsigned int *data)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device_by_name(UCLASS_ADC, name, &dev);
+	if (ret)
+		return ret;
+
+	ret = adc_set_mode(dev, channel, mode);
+	if (ret)
+		return ret;
+
+	ret = adc_start_channel(dev, channel);
+	if (ret)
+		return ret;
+
+	ret = adc_channel_data(dev, channel, data);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+int adc_channel_single_shot(const char *name, int channel, unsigned int *data)
+{
+	return adc_channel_single_shot_mode(name, ADC_MODE_AVERAGE,
+				channel, data);
+}
+
+#else
+
 int adc_channel_single_shot(const char *name, int channel, unsigned int *data)
 {
 	struct udevice *dev;
@@ -210,6 +276,7 @@ int adc_channel_single_shot(const char *name, int channel, unsigned int *data)
 
 	return 0;
 }
+#endif
 
 static int _adc_channels_single_shot(struct udevice *dev,
 				     unsigned int channel_mask,
@@ -222,6 +289,12 @@ static int _adc_channels_single_shot(struct udevice *dev,
 		/* Check channel bit. */
 		if (!((channel_mask >> channel) & 0x1))
 			continue;
+
+#ifdef CONFIG_SARADC_MESON
+		ret = adc_set_mode(dev, channel, ADC_MODE_AVERAGE);
+		if (ret)
+			return ret;
+#endif
 
 		ret = adc_start_channel(dev, channel);
 		if (ret)

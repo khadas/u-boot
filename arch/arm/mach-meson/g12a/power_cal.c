@@ -118,25 +118,35 @@ void aml_set_voltage(unsigned int id, unsigned int voltage, int delt)
 	_udelay_(200);
 }
 
-void aml_cal_pwm(unsigned int ee_voltage, unsigned int vcck_voltage)
+int aml_cal_pwm(unsigned int ee_voltage, unsigned int vcck_voltage)
 {
 	int32_t ee_delt, vcck_delt;
 	unsigned int ee_val, vcck_val;
+	int ret;
+
 	/*txlx vcck ch4,vddee ch5*/
-	vcck_val = get_adc_sample_gxbb(vcck_adc_channel);
-	ee_val = get_adc_sample_gxbb(ee_adc_channel);
+	ret = adc_channel_single_shot_mode("adc", ADC_MODE_HIGH_PRECISION,
+			vcck_adc_channel, &vcck_val);
+	if (ret)
+		return ret;
+
+	ret = adc_channel_single_shot_mode("adc", ADC_MODE_HIGH_PRECISION,
+			ee_adc_channel, &ee_val);
+	if (ret)
+		return ret;
+
 	vcck_delt = aml_delt_get(vcck_val, vcck_voltage);
 	ee_delt = aml_delt_get(ee_val, ee_voltage);
 	send_pwm_delt(vcck_delt, ee_delt);
 	aml_set_voltage(pwm_ee, AML_VDDEE_INIT_VOLTAGE, ee_delt);
 	//aml_set_voltage(pwm_vcck, CONFIG_VCCK_INIT_VOLTAGE, vcck_delt);
 	printf("aml board pwm vcck: %x, ee: %x\n", vcck_delt, ee_delt);
+
+	return 0;
 }
 
 void aml_pwm_cal_init(int mode)
 {
 	printf("aml pwm cal init\n");
-	saradc_enable();
 	aml_cal_pwm(AML_VDDEE_INIT_VOLTAGE, AML_VCCK_INIT_VOLTAGE);
-	saradc_disable();
 }

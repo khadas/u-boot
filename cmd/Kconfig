@@ -1094,6 +1094,12 @@ config CMD_AXI
 	  Interface) busses, a on-chip interconnect specification for managing
 	  functional blocks in SoC designs, which is also often used in designs
 	  involving FPGAs (e.g.  communication with IP cores in Xilinx FPGAs).
+
+config CMD_SARADC
+	bool "saradc"
+	help
+	  SARADC support.
+
 endmenu
 
 

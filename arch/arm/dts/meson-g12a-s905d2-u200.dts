@@ -93,3 +93,7 @@
 &uart_AO {
 	status = "okay";
 };
+
+&saradc {
+	status = "okay";
+};

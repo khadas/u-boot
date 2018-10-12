@@ -13,6 +13,18 @@
 /* The last possible selected channel with 32-bit mask */
 #define ADC_MAX_CHANNEL		31
 
+#ifdef CONFIG_SARADC_MESON
+
+#define ADC_CAPACITY_COMMON			0x00000000
+#define ADC_CAPACITY_AVERAGE			0x00000001
+#define ADC_CAPACITY_HIGH_PRECISION_VREF	0x00000002
+
+#define ADC_MODE_STARDAND		ADC_CAPACITY_COMMON
+#define ADC_MODE_AVERAGE		ADC_CAPACITY_AVERAGE
+#define ADC_MODE_HIGH_PRECISION		(ADC_CAPACITY_AVERAGE | \
+					ADC_CAPACITY_HIGH_PRECISION_VREF)
+#endif
+
 /**
  * adc_data_format: define the ADC output data format, can be useful when
  * the device's input Voltage range is bipolar.
@@ -157,6 +169,29 @@ struct adc_ops {
 	 * @return:       0 if OK, -ve on error
 	 */
 	int (*stop)(struct udevice *dev);
+
+#ifdef CONFIG_SARADC_MESON
+	/**
+	 * set_mode() - set mode of the given ADC device
+	 *
+	 * @dev:          ADC device to set mode
+	 * @channel:	  selected analog channel number
+	 * @mode:	  ADC sampling mode
+	 * @return:       0 if OK, -ve on error
+	 */
+	int (*set_mode)(struct udevice *dev, int channel, unsigned int mode);
+
+	/**
+	 * select_input_voltage() - select input voltage of specific channel
+	 *			of the given ADC device
+	 *
+	 * @dev:          ADC device to select input voltage
+	 * @channel:	  selected analog channel number
+	 * @mux:	  the corresponding register value of input voltage
+	 * @return:       0 if OK, -ve on error
+	 */
+	int (*select_input_voltage)(struct udevice *dev, int channel, int mux);
+#endif
 };
 
 /**
@@ -304,5 +339,47 @@ int adc_stop(struct udevice *dev);
  * @return:  0 on success or -ve on error
  */
 int adc_raw_to_uV(struct udevice *dev, unsigned int raw, int *uV);
+
+#ifdef CONFIG_SARADC_MESON
+/**
+ * adc_set_mode() - set mode of the given ADC device
+ *
+ * @dev:	  ADC device to set mode
+ * @channel:	  selected analog channel number
+ * @mode:	  ADC sampling mode
+ * @return:	  0 if OK, -ve on error
+ */
+int adc_set_mode(struct udevice *dev, int channel, unsigned int mode);
+
+/**
+ * adc_select_input_voltage() - select input voltage of specific channel
+ *			of the given ADC device
+ *
+ * @dev:          ADC device to select input voltage
+ * @channel:	  selected analog channel number
+ * @mux:	  the corresponding register value of input voltage
+ * @return:       0 if OK, -ve on error
+ */
+int adc_select_input_voltage(struct udevice *dev, int channel, int mux);
+
+/**
+ * adc_channel_single_shot_mode() - get output data of conversion based on
+ * specific mode for the ADC device's channel. This function searches for
+ * the device with the given name, starts the given channel conversion and
+ * returns the output data.
+ *
+ * Note: To use this function, device must implement metods:
+ * - start_channel()
+ * - channel_data()
+ *
+ * @name:    device's name to search
+ * @mode:    working mode of ADC
+ * @channel: device's input channel to init
+ * @data:    pointer to conversion output data
+ * @return:  0 if OK, -ve on error
+ */
+int adc_channel_single_shot_mode(const char *name, unsigned int mode,
+			int channel, unsigned int *data);
+#endif
 
 #endif

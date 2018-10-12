@@ -469,7 +469,7 @@
 			#io-channel-cells = <1>;
 			interrupts = <GIC_SPI 200 IRQ_TYPE_EDGE_RISING>;
 			status = "disabled";
-			};
+		};
 
 		apb: apb@ffe01000 {
 			compatible = "simple-bus";
