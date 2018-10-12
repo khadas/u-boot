@@ -1,0 +1,7 @@
+config AML_VOUT
+	bool "Driver support for video"
+	help
+	  Enable support for amlogic video output
+	  lcd,cvbs...
+
+source "drivers/amlogic/media/vout/cvbs/Kconfig"

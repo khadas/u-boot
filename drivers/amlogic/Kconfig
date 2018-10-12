@@ -1,4 +1,4 @@
-menu "Device Drivers"
+menu "AMLOGIC Drivers"
 
 config AML_DRIVER
 	bool "AML drivers Support"

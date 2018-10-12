@@ -4,3 +4,5 @@ config AML_MEDIA
 	  Enable support for the Amlogic Media drivers.
 
 source "drivers/amlogic/media/common/Kconfig"
+
+source "drivers/amlogic/media/vout/Kconfig"
