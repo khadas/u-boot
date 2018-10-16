@@ -20,7 +20,8 @@
 #include <linux/list.h>
 #include <div64.h>
 #include "mmc_private.h"
-
+#include <emmc_partitions.h>
+#include <partition_table.h>
 static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage);
 static int mmc_power_cycle(struct mmc *mmc);
 #if !CONFIG_IS_ENABLED(MMC_TINY)
@@ -724,6 +725,13 @@ static int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd)
 	return err;
 }
 
+
+int mmc_get_ext_csd(struct mmc *mmc, u8 *ext_csd)
+{
+	return mmc_send_ext_csd(mmc, ext_csd);
+}
+
+
 int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 {
 	struct mmc_cmd cmd;
@@ -754,6 +762,26 @@ int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 }
 
 #if !CONFIG_IS_ENABLED(MMC_TINY)
+u8 ext_csd_w[] = {191, 187, 185, 183, 179, 178, 177, 175,
+					173, 171, 169, 167, 165, 164, 163, 162,
+					161, 156, 155, 143, 140, 136, 134, 133,
+					132, 131, 62, 59, 56, 52, 37, 34,
+					33, 32, 31, 30, 29, 22, 17, 16, 15};
+
+int mmc_set_ext_csd(struct mmc *mmc, u8 index, u8 value)
+{
+	int ret = -21, i;
+
+	for (i = 0; i < sizeof(ext_csd_w); i++) {
+		if (ext_csd_w[i] == index)
+			break;
+	}
+	if (i != sizeof(ext_csd_w))
+		ret = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, index, value);
+
+	return ret;
+}
+
 static int mmc_set_card_speed(struct mmc *mmc, enum bus_mode mode)
 {
 	int err;
@@ -2738,7 +2766,12 @@ int mmc_init(struct mmc *mmc)
 		err = mmc_complete_init(mmc);
 	if (err)
 		pr_info("%s: %d, time %lu\n", __func__, err, get_timer(start));
-
+	if (IS_MMC(mmc)) {
+		if (mmc_device_init(mmc) == 0) {
+			is_partition_checked = true;
+			printf("eMMC/TSD partition table have been checked OK!\n");
+		}
+	}
 	return err;
 }
 
@@ -2862,3 +2895,28 @@ int mmc_set_bkops_enable(struct mmc *mmc)
 	return 0;
 }
 #endif
+
+
+int mmc_key_erase(void)
+{
+	/*ulong start, start_blk, blkcnt, ret;
+	struct partitions * part = NULL;
+	struct virtual_partition *vpart = NULL;
+	vpart = aml_get_virtual_partition_by_name(MMC_KEY_NAME);
+	part = aml_get_partition_by_name(MMC_RESERVED_NAME);
+	int dev = EMMC_DTB_DEV;
+
+	start = part->offset + vpart->offset;
+	start_blk = (start / MMC_BLOCK_SIZE);
+	blkcnt = (vpart->size / MMC_BLOCK_SIZE) * 2;//key and backup key
+	info_disprotect |= DISPROTECT_KEY;
+	ret = mmc_berase(dev, start_blk, blkcnt);
+	info_disprotect &= ~DISPROTECT_KEY;
+	if (ret) {
+		printf("[%s] %d mmc_berase error\n",
+				__func__, __LINE__);
+		return 1;
+	}*/
+	return 0;
+}
+

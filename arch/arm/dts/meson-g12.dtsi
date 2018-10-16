@@ -479,7 +479,7 @@
 			ranges = <0x0 0x0 0x0 0xffe01000 0x0 0x7f000>;
 
 			sd_emmc_a: mmc@2000 {
-				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
+				compatible = "";
 				reg = <0x0 0x2000 0x0 0x800>;
 				interrupts = <GIC_SPI 189 IRQ_TYPE_EDGE_RISING>;
 				status = "disabled";

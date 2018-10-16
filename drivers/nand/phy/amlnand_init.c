@@ -16,7 +16,7 @@
 #include <asm/arch/secure_apb.h>
 
 struct amlnand_chip *aml_nand_chip = NULL;
-unsigned device_boot_flag = 0xff;
+extern unsigned device_boot_flag;
 
 extern int boot_dev_init(struct amlnand_chip *aml_chip);
 

@@ -100,6 +100,10 @@
 #define MMC_CMD_SET_BLOCK_COUNT         23
 #define MMC_CMD_WRITE_SINGLE_BLOCK	24
 #define MMC_CMD_WRITE_MULTIPLE_BLOCK	25
+#define MMC_CMD_SET_WRITE_PROTECT       28
+#define MMC_CMD_CLR_WRITE_PROT          29
+#define MMC_CMD_SEND_WRITE_PROT         30
+#define MMC_CMD_SEND_WRITE_PROT_TYPE    31
 #define MMC_CMD_ERASE_GROUP_START	35
 #define MMC_CMD_ERASE_GROUP_END		36
 #define MMC_CMD_ERASE			38
@@ -203,6 +207,7 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 /*
  * EXT_CSD fields
  */
+#define EXT_CSD_CLASS_6_CTRL        59  /*R/W/E_P*/
 #define EXT_CSD_ENH_START_ADDR		136	/* R/W */
 #define EXT_CSD_ENH_SIZE_MULT		140	/* R/W */
 #define EXT_CSD_GP_SIZE_MULT		143	/* R/W */
@@ -215,6 +220,7 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 #define EXT_CSD_WR_REL_PARAM		166	/* R */
 #define EXT_CSD_WR_REL_SET		167	/* R/W */
 #define EXT_CSD_RPMB_MULT		168	/* RO */
+#define EXT_CSD_USER_WP             171 /* R/W */
 #define EXT_CSD_ERASE_GROUP_DEF		175	/* R/W */
 #define EXT_CSD_BOOT_BUS_WIDTH		177
 #define EXT_CSD_PART_CONF		179	/* R/W */
@@ -222,12 +228,18 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 #define EXT_CSD_HS_TIMING		185	/* R/W */
 #define EXT_CSD_REV			192	/* RO */
 #define EXT_CSD_CARD_TYPE		196	/* RO */
+#define EXT_CSD_DRIVER_STRENGTH 197	/* RO */
 #define EXT_CSD_SEC_CNT			212	/* RO, 4 bytes */
 #define EXT_CSD_HC_WP_GRP_SIZE		221	/* RO */
 #define EXT_CSD_HC_ERASE_GRP_SIZE	224	/* RO */
 #define EXT_CSD_BOOT_MULT		226	/* RO */
+#define EXT_CSD_DEV_LIFETIME_EST_TYP_A	268	/* RO */
 #define EXT_CSD_BKOPS_SUPPORT		502	/* RO */
-
+#define EXT_CSD_SUPPORTED_MODES	493 /* RO */
+#define EXT_CSD_FW_VERSION	254 /* RO, 261:254 */
+#define EXT_CSD_FW_CFG	169 /* R/W */
+#define EXT_CSD_MODE_CFG	30 /* R/W */
+#define EXT_CSD_FFU_STATUS	26 /* RO */
 /*
  * EXT_CSD field definitions
  */
@@ -318,6 +330,21 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 #define PART_SUPPORT		(0x1)
 #define ENHNCD_SUPPORT		(0x2)
 #define PART_ENH_ATTRIB		(0x1f)
+
+#define US_PWR_WP_DIS_BIT      1<<3
+#define US_PERM_WP_DIS_BIT     1<<4
+#define WP_CLEAR_TYPE          0
+#define WP_POWER_ON_TYPE       (1<<1)
+#define WP_TEMPORARY_TYPE      1
+#define WP_PERMANENT_TYPE      ((1<<0)|(1<<1))
+#define WP_TYPE_MASK           3
+#define WP_ENABLE_MASK         7
+#define WP_TEMPORARY_EN_BIT    0
+#define WP_POWER_ON_EN_BIT     (1<<0)
+#define WP_PERM_EN_BIT         (1<<2)
+#define WP_GRP_SIZE_MASK       31
+
+
 
 #define MMC_QUIRK_RETRY_SEND_CID	BIT(0)
 #define MMC_QUIRK_RETRY_SET_BLOCKLEN	BIT(1)

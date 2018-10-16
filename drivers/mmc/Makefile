@@ -10,7 +10,7 @@ obj-$(CONFIG_$(SPL_)MMC_WRITE) += mmc_write.o
 ifndef CONFIG_$(SPL_)BLK
 obj-y += mmc_legacy.o
 endif
-
+obj-$(CONFIG_MMC_MESON_GX) += aml_emmc_partition.o
 obj-$(CONFIG_SUPPORT_EMMC_BOOT) += mmc_boot.o
 
 ifdef CONFIG_SPL_BUILD
