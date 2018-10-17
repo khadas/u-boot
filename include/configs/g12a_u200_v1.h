@@ -445,6 +445,9 @@
 /* vpu */
 #define AML_VPU_CLK_LEVEL_DFT 7
 
+/* osd */
+#define OSD_SCALE_ENABLE 1
+
 /* DISPLAY & HDMITX */
 #if 0
 #define CONFIG_AML_CANVAS 1

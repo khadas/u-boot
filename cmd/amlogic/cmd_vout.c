@@ -28,8 +28,8 @@
 #include <amlogic/media/vpp/vpp.h>
 #endif
 #include <amlogic/media/vout/aml_vout.h>
-#ifdef CONFIG_AML_HDMITX20
-#include <amlogic/media/vout/hdmi.h>
+#ifdef CONFIG_AML_HDMITX
+#include <amlogic/media/vout/hdmitx.h>
 #endif
 
 #ifdef CONFIG_AML_CVBS
@@ -45,7 +45,7 @@ static int do_vout_list(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv
 	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
 #endif
 
-#ifdef CONFIG_AML_HDMITX20
+#ifdef CONFIG_AML_HDMITX
 	printf("\nvalid hdmi mode:\n");
 	hdmitx_device.HWOp.list_support_modes();
 #endif
@@ -72,7 +72,7 @@ static int do_vout_list(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv
 
 static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-#ifdef CONFIG_AML_HDMITX20
+#ifdef CONFIG_AML_HDMITX
 	char mode[64];
 #endif
 #ifdef CONFIG_AML_LCD
@@ -92,7 +92,7 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 	}
 #endif
 
-#ifdef CONFIG_AML_HDMITX20
+#ifdef CONFIG_AML_HDMITX
 	if (hdmi_outputmode_check(argv[1]) == 0) {
 #ifdef CONFIG_AML_VPP
 		vpp_matrix_update(VPP_CM_YUV);

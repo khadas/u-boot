@@ -41,12 +41,12 @@ struct __packed bmp_header {
 	/* ColorTable */
 };
 
-struct bmp_image {
+typedef struct bmp_image {
 	struct bmp_header header;
 	/* We use a zero sized array just as a placeholder for variable
 	   sized array */
 	struct bmp_color_table_entry color_table[0];
-};
+} bmp_image_t;
 
 /* Data in the bmp_image is aligned to this length */
 #define BMP_DATA_ALIGN	4
