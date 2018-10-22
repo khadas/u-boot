@@ -3,6 +3,12 @@ config AML_MEDIA
 	help
 	  Enable support for the Amlogic Media drivers.
 
+config AML_VOUT
+	bool "Driver support for video"
+	help
+	  Enable support for amlogic video output
+	  lcd,cvbs...
+
 source "drivers/amlogic/media/common/Kconfig"
 
 source "drivers/amlogic/media/vout/Kconfig"
