@@ -61,7 +61,7 @@ int v2_key_read(const char* keyName, u8* keyVal, const unsigned keyValLen, char*
  */
 unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyValLen, char* errInfo);
 
-#ifdef CONFIG_AML_MTD   //Assume MTD <==> small memory size
+#if 1//defined(CONFIG_AML_MTD)   //Assume MTD <==> small memory size
 #define DDR_MEM_ADDR_START  ( 0x010<<20 )
 #define OPTIMUS_DOWNLOAD_TRANSFER_BUF_TOTALSZ   (0X20<<20)//32M
 #else

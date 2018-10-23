@@ -43,12 +43,14 @@ int do_v2_usbtool (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     int rc = 0;
     unsigned timeout            = (2 <= argc) ? simple_strtoul(argv[1], NULL, 0) : 0;
+#if (defined AML_USB_BURN_TOOL)
     //if get burning tool identify command in pcToolWaitTime, then auto jump into burning mode
     unsigned pcToolWaitTime     = (3 <= argc) ? simple_strtoul(argv[2], NULL, 0) : 0;
-#if (defined CONFIG_USB_BURNING_TOOL)
     optimus_work_mode_set(OPTIMUS_WORK_MODE_USB_UPDATE);
     setenv(_ENV_TIME_OUT_TO_AUTO_BURN, pcToolWaitTime ? argv[2] : "");
-#endif
+#else
+    /*#error "xxxx"*/
+#endif// #if (defined AML_USB_BURN_TOOL)
     rc = v2_usbburning(timeout);
     /*close_usb_phy_clock(0);*/
 

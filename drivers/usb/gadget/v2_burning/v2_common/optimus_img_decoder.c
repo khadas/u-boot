@@ -71,7 +71,7 @@ HIMAGE image_open(const char* interface, const char* device, const char* part, c
     if (!strcmp("store", interface))
     {
             DWN_DBG("imgHead=0x%p, hImg=%p\n", &hImg->imgHead, hImg);
-            ret = store_read_ops((u8*)part, (u8*)&hImg->imgHead, IMG_OFFSET_IN_PART, HeadSz);
+            ret = store_read(part, IMG_OFFSET_IN_PART, HeadSz, &hImg->imgHead);
             if (ret) {
                     DWN_ERR("Fail to read image header.\n");
                     ret = __LINE__; goto _err;
@@ -275,7 +275,7 @@ int image_item_read(HIMAGE hImg, HIMAGEITEM hItem, void* pBuf, const __u32 wantS
 
     if (IMAGE_IF_TYPE_STORE == imgInfo->imgSrcIf.devIf)
     {
-            unsigned char* part = (unsigned char*)imgInfo->imgSrcIf.partName;
+            char* part = imgInfo->imgSrcIf.partName;
             const uint64_t offsetInPart = imgInfo->imgSrcIf.itemCurSeekOffsetInImg + IMG_OFFSET_IN_PART;
             int rc = 0;
             const unsigned storeBlkSz      = imgInfo->imgSrcIf.devAlignSz;
@@ -292,7 +292,7 @@ int image_item_read(HIMAGE hImg, HIMAGEITEM hItem, void* pBuf, const __u32 wantS
 
                     DWN_MSG("offsetInPart %llx, wantSz=%x\n", offsetInPart, wantSz);
                     bufInABlk = (u8*)malloc(storeBlkSz);
-                    rc = store_read_ops(part, bufInABlk, readOffset, storeBlkSz);
+                    rc = store_read(part, readOffset, storeBlkSz, bufInABlk);
                     if (rc) {
                             DWN_ERR("Fail to read: readOffset=%llx, storeBlkSz=%x\n", readOffset, storeBlkSz);
                             free(bufInABlk);
@@ -305,7 +305,7 @@ int image_item_read(HIMAGE hImg, HIMAGEITEM hItem, void* pBuf, const __u32 wantS
 
                     if (sizeNotAlignInFirstBlk < wantSz && offsetNotAlign)
                     {
-                            rc = store_read_ops(part, (u8*)pBuf, (offsetInPart + sizeNotAlignInFirstBlk), thisTotalReadSz);
+                            rc = store_read(part, (offsetInPart + sizeNotAlignInFirstBlk), thisTotalReadSz, pBuf);
                             if (rc) {
                                     DWN_ERR("Fail in store_read_ops to read %u at offset %llx.\n", wantSz,
                                                     offsetInPart + sizeNotAlignInFirstBlk);
@@ -315,7 +315,7 @@ int image_item_read(HIMAGE hImg, HIMAGEITEM hItem, void* pBuf, const __u32 wantS
             }
             else
             {
-                    rc = store_read_ops(part, (u8*)pBuf, offsetInPart, wantSz);
+                    rc = store_read(part, offsetInPart, wantSz, pBuf);
                     if (rc) {
                             DWN_ERR("Fail in store_read_ops to read %u at offset %llx.\n", wantSz, offsetInPart);
                             return __LINE__;

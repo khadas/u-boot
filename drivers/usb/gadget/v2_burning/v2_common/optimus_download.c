@@ -10,7 +10,7 @@
  *
  */
 #include "../v2_burning_i.h"
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <partition_table.h>
 #include <asm/arch/secure_apb.h>
 #include <asm/arch/bl31_apis.h>
@@ -95,7 +95,7 @@ struct ImgBurnInfo{
 };
 
 static struct ImgBurnInfo OptimusImgBurnInfo = {0};
-extern const char*   _usbDownPartImgType ;
+static const char*   _usbDownPartImgType = "";
 
 struct imgBurnInfo_sparse{
 
@@ -112,49 +112,47 @@ struct imgBurnInfo_bootloader{
 
 COMPILE_TIME_ASSERT(IMG_BURN_INFO_SZ == sizeof(struct ImgBurnInfo));
 
-#if defined(CONFIG_STORE_COMPATIBLE)
-#if defined(CONFIG_AML_MTD)
-#define _assert_logic_partition_cap(thePartName, nandPartCap) 0
-#else
+#if CONFIG_AML_STORAGE
 //asset logical partition size >= CFG size in storage.c
 //nand often make mistake this size, emmc should always ok
 static int _assert_logic_partition_cap(const char* thePartName, const uint64_t nandPartCap)
 {
-        extern struct partitions * part_table;
+    extern struct partitions * part_table;
 
-        int partIndex                   = 0;
-        struct partitions * thePart     = NULL;
-		if (NULL == part_table)
-            return 0;
-        for (thePart = part_table; partIndex < MAX_PART_NAME_LEN; ++thePart, ++partIndex)
-        {
-                const uint64_t partSzInBytes = thePart->size;
-                if (memcmp(thePartName, thePart->name, strlen(thePartName))) continue;
+    int partIndex                   = 0;
+    struct partitions * thePart     = NULL;
+    if (NULL == part_table)
+        return 0;
+    for (thePart = part_table; partIndex < 36; ++thePart, ++partIndex)
+    {
+        if (memcmp(thePartName, thePart->name, strnlen(thePartName, MAX_PART_NAME_LEN))) continue;
 
-                DWN_DBG("cfg partSzInBytes %llx for part(%s)\n", partSzInBytes, thePartName);
-                if (NAND_PART_SIZE_FULL == partSzInBytes) {return 0;}
-                if (partSzInBytes > nandPartCap) {
-                        DWN_ERR("partSz of logic part(%s): sz dts %llx > Sz flash %llx\n",
-                                        thePartName, partSzInBytes, nandPartCap);
-                        return __LINE__;
-                }
-
-                return 0;
+        const uint64_t dtsPartSz = thePart->size;
+        DWN_DBG("cfg dtsPartSz %llx for part(%s)\n", dtsPartSz, thePartName);
+        if (NAND_PART_SIZE_FULL == dtsPartSz) {return 0;}
+        if (dtsPartSz > nandPartCap) {
+            DWN_ERR("partSz of logic part(%s): sz dts %llx > Sz flash %llx\n",
+                    thePartName, dtsPartSz, nandPartCap);
+            return __LINE__;
         }
 
-        DWN_ERR("Can't find your download part(%s)\n", thePartName);
-        return __LINE__;
+        return 0;
+    }
+
+    DWN_ERR("Can't find your download part(%s)\n", thePartName);
+    return __LINE__;
 }
-#endif// #if defined(CONFIG_AML_MTD)
-#endif// #if defined(CONFIG_STORE_COMPATIBLE)
+#else
+#define _assert_logic_partition_cap(thePartName, nandPartCap) 0
+#endif// #if CONFIG_AML_STORAGE
 
 //return value is the actual size it write
 static int optimus_download_dtb_image(struct ImgBurnInfo* pDownInfo, u32 dataSzReceived, const u8* data)
 {
     int ret = 0;
     DWN_MSG("%s:dataSzReceived=0x%x\n", __func__, dataSzReceived);
-    store_erase_ops((u8*)"dtb", 0, 0, 0);
-    ret = store_dtb_rw((void*)data, dataSzReceived, 1);
+    store_erase("dtb", 0, store_rsv_size("dtb"), 0);
+    ret = store_rsv_write("dtb", dataSzReceived, (u8*)data);
 
     return ret ? 0 : dataSzReceived;
 }
@@ -166,7 +164,7 @@ static int optimus_verify_dtb(struct ImgBurnInfo* pDownInfo, u8* genSum)
     uint64_t size = 0;
 
     size=pDownInfo->imgPktSz;
-    ret = store_dtb_rw(pBuf, size, 2);//'2' means using 'store dtb iread' rather than 'read'
+    ret = store_rsv_read("dtb", size, pBuf);
     if (ret) {
         DWN_ERR("Fail to read dtb\n");
         return __LINE__;
@@ -184,7 +182,8 @@ static int optimus_verify_dtb(struct ImgBurnInfo* pDownInfo, u8* genSum)
 static int optimus_download_bootloader_image(struct ImgBurnInfo* pDownInfo, u32 dataSzReceived, const u8* data)
 {
     int ret = OPT_DOWN_OK;
-    uint64_t size = dataSzReceived;
+    int size = dataSzReceived;
+    int iCopy = 0;
 
     if (dataSzReceived < pDownInfo->imgPktSz) {
         DWN_ERR("please write back bootloader after all data rx end.0x(%x, %x)\n", dataSzReceived, (u32)pDownInfo->imgPktSz);
@@ -192,17 +191,31 @@ static int optimus_download_bootloader_image(struct ImgBurnInfo* pDownInfo, u32 
     }
 
     if (size > (2U<<20)) {
-        DWN_ERR("uboot.bin size 0x%llx > 2M unsupported\n", size);
+        DWN_ERR("uboot.bin size 0x%x > 2M unsupported\n", size);
         return 0;
     }
 
+    const char* bootName = "bootloader";
+    const int bootCpyNum = store_boot_copy_num(bootName);
+    const int bootCpySz  = (int)store_boot_copy_size(bootName);
+    DWN_MSG("bootCpyNum %d, bootCpySz 0x%x\n", bootCpyNum, bootCpySz);
+    if (size > bootCpySz) {
+        DWN_MSG("bootloader img sz 0x%x > bootCpySz 0x%x\n", size, bootCpySz);
+        return 0;
+    }
 #if BOOTLOADER_ALIGN_BITS
     size += (1U<<BOOTLOADER_ALIGN_BITS) -1;
     size >>= BOOTLOADER_ALIGN_BITS;
     size <<= BOOTLOADER_ALIGN_BITS;
+    if (dataSzReceived != size)DWN_MSG("align bootloader sz from 0x%x to 0x%lx\n", dataSzReceived, size) ;
 #endif// #if BOOTLOADER_ALIGN_BITS
-    ret = store_boot_write((unsigned char*)data, 0, size);
-    if (dataSzReceived != size)DWN_MSG("align bootloader sz from 0x%x to 0x%llx\n", dataSzReceived, size) ;
+    for (; iCopy < bootCpyNum; ++iCopy) {
+        ret = store_boot_write(bootName, iCopy, size, (u8*)data);
+        if (ret) {
+            DWN_ERR("FAil in program[%s] at copy[%d]\n", bootName, iCopy);
+            return 0;
+        }
+    }
 
     return ret ? 0 : dataSzReceived;
 }
@@ -211,28 +224,46 @@ static int optimus_verify_bootloader(struct ImgBurnInfo* pDownInfo, u8* genSum)
 {
     int ret = OPT_DOWN_OK;
     unsigned char* pBuf = (unsigned char*)OPTIMUS_DOWNLOAD_TRANSFER_BUF_ADDR;
-    uint64_t size = 0;
-    uint64_t off  = 0;
+    int size = 0;
+    int iCopy = 0;
+    int bootRealSz = pDownInfo->imgPktSz;
 
 #if defined(CONFIG_AML_MTD) && defined(CONFIG_DISCRETE_BOOTLOADER)
+    uint64_t off  = 0;
     if ( NAND_BOOT_FLAG == device_boot_flag )
         off  = (1ULL << 62) - 1; //verify mode for verify discrete bootloader
 #endif//#if defined(CONFIG_AML_MTD)
 
-    size=pDownInfo->imgPktSz;
+    size=bootRealSz;
+    const char* bootName = "bootloader";
+    const int bootCpyNum = store_boot_copy_num(bootName);
+    const int bootCpySz  = (int)store_boot_copy_size(bootName);
+    DWN_MSG("bootCpyNum %d, bootCpySz 0x%x\n", bootCpyNum, bootCpySz);
+    if (size > bootCpySz) {
+        DWN_MSG("bootloader img sz 0x%x > bootCpySz 0x%x\n", size, bootCpySz);
+        return 0;
+    }
 #if BOOTLOADER_ALIGN_BITS
     size += (1U<<BOOTLOADER_ALIGN_BITS) -1;
     size >>= BOOTLOADER_ALIGN_BITS;
     size <<= BOOTLOADER_ALIGN_BITS;
 #endif// #if BOOTLOADER_ALIGN_BITS
-    ret = store_boot_read(pBuf, off, size);
-    if (ret) {
-        DWN_ERR("Fail to read bootloader\n");
-        return __LINE__;
+    for (iCopy = 0; iCopy < bootCpyNum; ++iCopy) {
+        void* dataBuf = iCopy ? pBuf + size : pBuf;
+        ret = store_boot_read(bootName, iCopy, size, dataBuf);
+        if (ret) {
+            DWN_ERR("Fail to read boot[%s] at copy[%d]\n", bootName, iCopy);
+            return __LINE__;
+        }
+        if (iCopy) {
+            if (memcmp(pBuf, dataBuf, bootRealSz)) {
+                DWN_ERR("copy[%d] content not the same as copy[0]\n", iCopy);
+                return __LINE__;
+            }
+        }
     }
 
-    sha1_csum(pBuf, (u32)pDownInfo->imgPktSz, genSum);
-
+    sha1_csum(pBuf, bootRealSz, genSum);
     return ret;
 }
 
@@ -240,7 +271,7 @@ static int optimus_verify_bootloader(struct ImgBurnInfo* pDownInfo, u8* genSum)
 u32 optimus_cb_simg_write_media(const unsigned destAddrInSec, const unsigned dataSzInBy, const char* data)
 {
     int ret = OPT_DOWN_OK;
-    unsigned char* partName = (unsigned char*)OptimusImgBurnInfo.partName;
+    const char* partName = OptimusImgBurnInfo.partName;
 
     if (OPTIMUS_MEDIA_TYPE_STORE < OptimusImgBurnInfo.storageMediaType) {
         DWN_ERR("storage type %d not supported yet!\n", OptimusImgBurnInfo.storageMediaType);
@@ -248,8 +279,7 @@ u32 optimus_cb_simg_write_media(const unsigned destAddrInSec, const unsigned dat
     }
 
     DWN_DBG("1addrOffset=0x%llx, dataSz=0x%x, data = 0x%p\t", (((u64)destAddrInSec)<<9), dataSzInBy, (void*)data);
-    //FIXME:why dirty value if not convert to u64
-    ret = store_write_ops(partName, (u8*)data, (((u64)destAddrInSec)<<9), (u64)dataSzInBy);
+    ret = store_write(partName, (((u64)destAddrInSec)<<9), dataSzInBy, (void*)data);
     if (ret) {
         DWN_ERR("Fail to write to media, ret = %d\n", ret);
         return 0;
@@ -286,7 +316,7 @@ static u32 optimus_download_normal_image(struct ImgBurnInfo* pDownInfo, u32 data
 
     DWN_DBG("addrOffset=0x%llx, dataSz=0x%x, data = 0x%p\n", addrOrOffsetInBy, dataSz, data);
 
-    ret = store_write_ops((u8*)pDownInfo->partName, (u8*)data, addrOrOffsetInBy, (u64)dataSz);
+    ret = store_write(pDownInfo->partName, addrOrOffsetInBy, dataSz, (void*)data);
     if (ret) {
         DWN_ERR("Fail to write to media\n");
         return 0;
@@ -356,7 +386,6 @@ static int optimus_storage_open(struct ImgBurnInfo* pDownInfo, const u8* data, c
             {
                 if (IMG_TYPE_BOOTLOADER != pDownInfo->imgType && !pDownInfo->devHdle) //if not bootloader and device not open
                 {
-                    /*pDownInfo->devHdle = aml_nftl_get_dev(partName);*/
                     pDownInfo->devHdle = (void*)1;
                     if (!pDownInfo->devHdle) {
                         DWN_ERR("Fail to open nand part %s\n", partName);
@@ -509,7 +538,7 @@ static int optimus_storage_read(struct ImgBurnInfo* pDownInfo, u64 addrOrOffsetI
 {
     int ret = 0;
     const int MediaType = pDownInfo->storageMediaType;
-    unsigned char* partName = (unsigned char*)pDownInfo->partName;
+    const char* partName = pDownInfo->partName;
 
     addrOrOffsetInBy += pDownInfo->partBaseOffset;
 
@@ -521,14 +550,14 @@ static int optimus_storage_read(struct ImgBurnInfo* pDownInfo, u64 addrOrOffsetI
             {
                 if (IMG_TYPE_BOOTLOADER == pDownInfo->imgType)
                 {
-                    ret = store_boot_read(buff, addrOrOffsetInBy, (u64)readSzInBy);
+                    ret = store_boot_read("bootloader", 0, readSzInBy, (char*)buff);
                 }
                 else if (IMG_TYPE_DTB == pDownInfo->imgType) {
-                    ret = store_dtb_rw(buff, readSzInBy, 0);
+                    ret = store_rsv_read("dtb", readSzInBy, buff);
                 }
                 else
                 {
-                    ret = store_read_ops(partName, buff, addrOrOffsetInBy, (u64)readSzInBy);
+                    ret = store_read(partName, addrOrOffsetInBy, readSzInBy, buff);
                     platform_busy_increase_un_reported_size(readSzInBy);
                 }
                 if (ret) {
@@ -687,13 +716,11 @@ static int _parse_img_download_info(struct ImgBurnInfo* pDownInfo, const char* p
     {
         if (strcmp("bootloader", partName) && strcmp("_aml_dtb", partName)) //get size if not bootloader
         {
-            u64 partCap = 0;
-            ret = store_get_partititon_size((u8*)partName, &partCap);
-            if (ret) {
+            u64 partCap = store_part_size(partName);
+            if (!partCap) {
                 DWN_ERR("Fail to get size for part %s\n", partName);
                 return __LINE__;
             }
-            partCap <<= 9;//trans sector to byte
             DWN_MSG("flash LOGIC partCap 0x%llxB\n", partCap);
             if (imgSz > partCap) {
                 DWN_ERR("imgSz 0x%llx out of cap 0x%llx\n", imgSz, partCap);
@@ -736,18 +763,18 @@ static int _disk_intialed_ok = 0;
 
 int is_optimus_storage_inited(void)
 {
-        return _disk_intialed_ok;
+    return _disk_intialed_ok;
 }
 
 int optimus_save_loaded_dtb_to_flash(void)
 {
-        unsigned char* dtbLoadedAddr = (unsigned char*)OPTIMUS_DTB_LOAD_ADDR;
+    unsigned char* dtbLoadedAddr = (unsigned char*)OPTIMUS_DTB_LOAD_ADDR;
 
-        if (!_dtb_is_loaded) return 0;
+    if (!_dtb_is_loaded) return 0;
 
-        //dtb erasing before write
-        store_erase_ops((u8*)"dtb", 0, 0, 0);
-        return store_dtb_rw(dtbLoadedAddr, _dtb_is_loaded, 1);
+    //dtb erasing before write, or some NAND chip maybe cannot write real
+    store_rsv_erase("dtb");
+    return store_rsv_write("dtb", _dtb_is_loaded, dtbLoadedAddr);
 }
 
 int optimus_storage_init(int toErase)
@@ -757,14 +784,14 @@ int optimus_storage_init(int toErase)
     unsigned char* dtbLoadedAddr = (unsigned char*)OPTIMUS_DTB_LOAD_ADDR;
 
     if (_disk_intialed_ok) {//To assert only actual disk intialed once
-        DWN_MSG("Disk inited again.\n");
-        return 0;
+        DWN_MSG("Disk inited but init again!!!\n");
+        /*return 0;*/
     }
 
     if (OPTIMUS_WORK_MODE_USB_PRODUCE != optimus_work_mode_get()) //Already inited in other work mode
     {
-        DWN_MSG("Exit before re-init\n");
-        store_exit();
+        /*DWN_MSG("Exit before re-init\n");*/
+        /*store_exit1();*/
     }
 
     if (!_dtb_is_loaded) {
@@ -851,23 +878,16 @@ int optimus_storage_init(int toErase)
 #endif// #ifdef CONFIG_MULTI_DTB
                 ret = fdt_check_header((char*)fdtAddr);
                 unsigned fdtsz    = fdt_totalsize((char*)fdtAddr);
-                if (ret || !fdtsz || fdtsz > _dtb_is_loaded) {
+                if (ret || !fdtsz ) {
                         DWN_ERR("Fail in fdt check header\n");
                         return __LINE__;
                 }
-                if (fdtsz < _dtb_is_loaded)
+               // if (fdtsz < _dtb_is_loaded)
                         memmove((char*)dtbLoadedAddr, (char*)fdtAddr, fdtsz);
         }
     }
 
     return ret;
-}
-
-int optimus_storage_exit(void)
-{
-    _disk_intialed_ok = 0;
-    DWN_MSG("store_exit yet!!\n");
-    return store_exit();
 }
 
 int is_optimus_on_burn(void)//is now transfering image
@@ -1033,11 +1053,11 @@ int optimus_media_download_verify(const int argc, char * const argv[], char *inf
     u64 verifyLen = OptimusImgBurnInfo.imgPktSz;
     int ret = 0;
 
-	if (argc != 3) {
-		strcpy(info, "failed:need 3 args\n");
+    if (argc != 3) {
+        strcpy(info, "failed:need 3 args\n");
         printf(info);
-		return -1;
-	}
+        return -1;
+    }
 
     if (strcmp(verifyType, "sha1sum")) {
         ret = __LINE__;
@@ -1284,7 +1304,7 @@ void optimus_reset(const int cfgFlag)
     //set reboot mode
     _optimus_set_reboot_mode(cfgFlag);
     printf("Burn Reboot...\n");//Add printf to delay to save env
-    while (--i) ;
+    while (--i > 0) {;}
 
     /*disable_interrupts();*/
 	reset_cpu(0);
@@ -1404,6 +1424,12 @@ int optimus_erase_bootloader(const char* extBootDev)
 #endif// #if ROM_BOOT_SKIP_BOOT_ENABLED_4_SDC
     }
 
-    return store_erase_ops((u8*)"boot", 0, 0, 0);
+    const char* bootName = "bootloader";
+    const int bootCpyNum = store_boot_copy_num(bootName);
+    int iCopy = 0;
+    for (; iCopy < bootCpyNum; ++iCopy) {
+        store_boot_erase(bootName, iCopy);
+    }
+    return 0;
 }
 

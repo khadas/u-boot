@@ -37,25 +37,24 @@ static int optimus_sysrec_clear_usr_data_parts(void)
         for (partIndex = 0; partIndex < dataPartsNum; ++partIndex)
         {
                 u64 partCap = 0;
-                unsigned char* thePart = (unsigned char*)_usrDataParts[partIndex];
+                const char* thePart = _usrDataParts[partIndex];
                 int rcode = 0;
                 u64 offset = 0;
                 u64 ClearSz = 2U<<20;
 
                 DWN_MSG("To clear data part[%s]\n", thePart);
-                rcode = store_get_partititon_size(thePart, &partCap);
+                partCap = store_part_size(thePart);
                 if (rcode) {
                         DWN_ERR("Fail to get partSz for part[%s]\n", thePart);
                         return rcode;
                 }
-                partCap <<= 9;
                 //FIXME: If there is fschk before firstboot, the 2MB to destroy the data if not enough
                 /*ClearSz = partCap>>1;*/
                 DWN_MSG("partCap 0x%llxMB, ClearSz=%llxMb\n", (partCap>>20), (ClearSz>>20));
 
                 for (; offset < ClearSz; offset += BufSz)
                 {
-                        rcode = store_write_ops(thePart, clearBuf, offset, BufSz);
+                        rcode = store_write(thePart, offset, BufSz, clearBuf);
                         if (rcode) {
                                 DWN_ERR("Failed when clear data part[%s], rcode=%d\n", thePart, rcode);
                                 ret += rcode;

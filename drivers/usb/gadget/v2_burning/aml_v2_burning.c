@@ -117,7 +117,9 @@ int aml_burn_usb_producing(int flag, bd_t* bis)
     flag = flag; bis = bis;//avoid compile warning
 
     set_usb_boot_function(CLEAR_USB_BOOT);
+#if (defined AML_USB_BURN_TOOL)
     optimus_work_mode_set(OPTIMUS_WORK_MODE_USB_PRODUCE);
+#endif//#if (defined AML_USB_BURN_TOOL)
 
     close_usb_phy_clock(0);//disconect before re-connect to enhance pc compatibility
     return v2_usbburning(20000);
@@ -152,7 +154,7 @@ int aml_try_factory_usb_burning(int flag, bd_t* bis)
     if (!is_tpl_loaded_from_usb()) return 1;
 
     if ( !flag ) {
-#ifdef CONFIG_GENERIC_MMC
+#ifdef CONFIG_MMC
         DWN_MSG("MMC init in usb\n");
         mmc_initialize(bis);
 #endif

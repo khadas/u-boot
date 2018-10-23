@@ -69,6 +69,7 @@ static void do_setup_out_status_phase( pcd_struct_t *_pcd)
 
 }
 
+#if (defined AML_USB_BURN_TOOL)
 static void pcd_out_completed(pcd_struct_t *_pcd)
 {
     if (_pcd->cmdtype.out_complete && _pcd->cmdtype.in_complete)
@@ -82,6 +83,7 @@ static void pcd_in_completed(pcd_struct_t *_pcd)
 {
 	do_vendor_in_complete(_pcd,(struct usb_ctrlrequest*)&_pcd->setup_pkt);
 }
+#endif//#if (defined AML_USB_BURN_TOOL)
 
 
 static void pcd_setup( pcd_struct_t *_pcd )
@@ -115,7 +117,7 @@ static void pcd_setup( pcd_struct_t *_pcd )
         /* handle non-standard (class/vendor) requests in the gadget driver */
         //do_gadget_setup(_pcd, &ctrl );
         DBG("Vendor requset\n");
-#if (defined CONFIG_USB_BURNING_TOOL)
+#if (defined AML_USB_BURN_TOOL)
         do_vendor_request(_pcd, &ctrl );
         dwc_otg_ep_req_start(_pcd,0);
 #endif
@@ -239,7 +241,7 @@ static void handle_ep0( int is_in )
             }
             else {
                 ep0_complete_request( _pcd );
-                #if (defined CONFIG_USB_BURNING_TOOL)
+                #if (defined AML_USB_BURN_TOOL)
                 pcd_in_completed(_pcd);/////////////
                 #endif
             }
@@ -248,7 +250,7 @@ static void handle_ep0( int is_in )
         case EP0_OUT_DATA_PHASE:
             ep0_complete_request(_pcd );
             _pcd->cmdtype.in_complete = 1;
-            #if (defined CONFIG_USB_BURNING_TOOL)
+            #if (defined AML_USB_BURN_TOOL)
             pcd_out_completed(_pcd);
             #endif
             break;
@@ -306,7 +308,7 @@ static void complete_ep( int ep_num,int is_in )
 		ep->xfer_buff = 0;
 		ep->xfer_len = 0;
 	}
-#if (defined CONFIG_USB_BURNING_TOOL)
+#if (defined AML_USB_BURN_TOOL)
 
 	do_bulk_complete(pcd);
 #endif
@@ -1253,7 +1255,7 @@ int dwc_common_irq(void)
 	}
 	if (gotgint.b.sesenddet) {
 		ERR("Session End Detected, Line Disconected\n");
-		#if (defined CONFIG_USB_BURNING_TOOL)
+		#if (defined AML_USB_BURN_TOOL)
                 cb_4_dis_connect_intr();
         #endif
 	}
@@ -1294,7 +1296,7 @@ int dwc_pcd_irq(void)
 
 	if (gintr_status.b.rxstsqlvl) {
 		dwc_otg_pcd_handle_rx_status_q_level_intr();
-		#if (defined CONFIG_USB_BURNING_TOOL)
+		#if (defined AML_USB_BURN_TOOL)
 		pcd_out_completed(&this_pcd[0]);
 		#endif
 	}

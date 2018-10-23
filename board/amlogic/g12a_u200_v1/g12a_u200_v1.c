@@ -447,17 +447,17 @@ extern void aml_pwm_cal_init(int mode);
 int board_init(void)
 {
 	printf("board init\n");
-	pinctrl_devices_active(PIN_CONTROLLER_NUM);
-#if 0
-	sys_led_init();
-    //Please keep CONFIG_AML_V2_FACTORY_BURN at first place of board_init
-    //As NOT NEED other board init If USB BOOT MODE
+//Please keep CONFIG_AML_V2_FACTORY_BURN at first place of board_init
+//As NOT NEED other board init If USB BOOT MODE
 #ifdef CONFIG_AML_V2_FACTORY_BURN
 	if ((0x1b8ec003 != readl(P_PREG_STICKY_REG2)) && (0x1b8ec004 != readl(P_PREG_STICKY_REG2))) {
-				aml_try_factory_usb_burning(0, gd->bd);
+		aml_try_factory_usb_burning(0, gd->bd);
 	}
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 
+	pinctrl_devices_active(PIN_CONTROLLER_NUM);
+#if 0
+	sys_led_init();
 #if 0
 	aml_pwm_cal_init(0);
 #endif//
@@ -524,6 +524,7 @@ void aml_config_dtb(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
+	printf("board late init\n");
 #if 0
 		//update env before anyone using it
 		run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
@@ -589,16 +590,15 @@ int board_late_init(void)
 	lcd_probe();
 #endif
 
-#ifdef CONFIG_AML_V2_FACTORY_BURN
-	if (0x1b8ec003 == readl(P_PREG_STICKY_REG2))
-		aml_try_factory_usb_burning(1, gd->bd);
-		aml_try_factory_sdcard_burning(0, gd->bd);
-#endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
-
 	/**/
 	aml_config_dtb();
 #endif
-	printf("board late init\n");
+#ifdef CONFIG_AML_V2_FACTORY_BURN
+	if (0x1b8ec003 == readl(P_PREG_STICKY_REG2))
+		aml_try_factory_usb_burning(1, gd->bd);
+	aml_try_factory_sdcard_burning(0, gd->bd);
+#endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
+
 	return 0;
 }
 #endif

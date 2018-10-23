@@ -245,7 +245,7 @@ void usb_parameter_init(int time_out)
     //printf("need_check_timeout %d, time_out_val %d, time_out %d\n", need_check_timeout, time_out_val, time_out);
 
     //Added by Sam Wu
-#if (defined CONFIG_USB_BURNING_TOOL)
+#if (defined AML_USB_BURN_TOOL)
     optimus_buf_manager_init(16*1024);
     optimus_download_init();
 #endif
@@ -272,7 +272,7 @@ int usb_pcd_irq(void)
                         return 2;// return to other device boot
                 }
         }
-#if (defined CONFIG_USB_BURNING_TOOL)
+#if (defined AML_USB_BURN_TOOL)
 
         if (_auto_burn_time_out_base) {
                 unsigned waitIdentifyTime = get_timer(_auto_burn_time_out_base);
@@ -287,7 +287,7 @@ int usb_pcd_irq(void)
 
 #if (defined CONFIG_USB_DEVICE_V2)
         if (((Time_sof - curTime_sof) > 0x100) && (_sofintr)) {
-                ERR("sof timeout\n");
+                DBG("sof timeout\n");
                 _sofintr = 0;
                 dwc_otg_power_off_phy();
         }
@@ -413,7 +413,7 @@ void do_gadget_setup( pcd_struct_t *_pcd, struct usb_ctrlrequest * ctrl)
               _pcd->length = 0;
               _pcd->request_config = 1;   /* Configuration changed */
               need_check_timeout = 0;
-              #if (defined CONFIG_USB_BURNING_TOOL)
+              #if (defined AML_USB_BURN_TOOL)
               if (OPTIMUS_WORK_MODE_USB_UPDATE == optimus_work_mode_get()) {//not booting from usb
                       if (getenv(_ENV_TIME_OUT_TO_AUTO_BURN))_auto_burn_time_out_base = get_timer(0) ;
               }

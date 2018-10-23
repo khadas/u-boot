@@ -14,6 +14,7 @@
 
 #include "../v2_burning_i.h"
 #include <fat.h>
+#include <blk.h>
 #include <part.h>
 
 #define ITEM_NOT_EXIST   0x55
@@ -122,10 +123,10 @@ long do_fat_fopen(const char *filename);
 long do_fat_fread(int fd, __u8 *buffer, unsigned long maxsize);
 void do_fat_fclose(int fd);
 s64 do_fat_get_fileSz(const char* imgItemPath);
-int do_fat_fseek(int fd, const __u64 offset, int wherehence);
+int do_fat_fseek(int fd, const int64_t offset, int wherehence);
 unsigned do_fat_get_bytesperclust(int fd);
 int optimus_device_probe(const char* interface, const char* inPart);
-int optimus_fat_register_device(block_dev_desc_t *dev_desc, int part_no);
+int optimus_fat_register_device(const char *ifname, const char *dev_part_str);
 
 //<0 if failed, 0 is normal, 1 is sparse, others reserved
 int do_fat_get_file_format(const char* imgFilePath, unsigned char* pbuf, const unsigned bufSz);

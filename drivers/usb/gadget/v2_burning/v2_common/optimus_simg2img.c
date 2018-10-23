@@ -219,14 +219,13 @@ int optimus_simg_to_media(char* simgPktHead, const u32 pktLen, u32* unParsedData
                             sperr("error FILL chunk\n");
                             return -__LINE__;
                     }
-                    switch (device_boot_flag) {
-                            case EMMC_BOOT_FLAG:
-                            case SPI_EMMC_FLAG:
+                    switch (store_get_type()) {
+                            case BOOT_EMMC:
+                            case BOOT_SD:
                                     _NeedFillAsNotErasedYet = (fillVal != 0);
                                     break;
 
-                            case NAND_BOOT_FLAG:
-                            case SPI_NAND_FLAG:
+                            case BOOT_MLC:
                                     _NeedFillAsNotErasedYet = (fillVal != 0XFFFFFFFFU);
                                     break;
                             default:
