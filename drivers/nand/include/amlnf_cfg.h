@@ -11,7 +11,7 @@
 #define __DEBUG_L04__				(1)
 
 #define	AML_NAND_DBG				(0)
-#define	AML_CFG_INSIDE_PARTTBL		(1)
+#define	AML_CFG_INSIDE_PARTTBL		(0)
 #define AML_CFG_2PLANE_READ_EN		(1)
 /* support nand with readretry&e-slc */
 #define	AML_CFG_NEW_NAND_SUPPORT	(1)

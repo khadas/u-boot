@@ -22,6 +22,7 @@ int get_flash_type(struct amlnand_chip *aml_chip)
 	u8 flash_id0 = 0xff;
 	u8 onfi_param_data[512] = {0};
 
+
 	ret = operation->read_id(aml_chip,
 		0,
 		NAND_CMD_ID_ADDR_NORMAL,
@@ -82,8 +83,6 @@ int get_flash_type(struct amlnand_chip *aml_chip)
 		type->T_RHOH,
 		aml_chip->flash.T_REA,
 		aml_chip->flash.T_RHOH);
-
-	aml_nand_msg("detect NAND device: %s", type->name);
 
 #ifdef AML_SLC_NAND_SUPPORT
 	type = &aml_chip->flash;

@@ -653,29 +653,6 @@ struct chip_operation {
 	int (*update_bbt_chip_op)(struct amlnand_chip *aml_chip);
 };
 
-/***********support storage API*********/
-struct store_operation {
-	/********normal logic area opera***********/
-	uint64_t (*get_part_size)(const char *part_name);
-	int (*read)(const char *part_name, loff_t off, size_t size, void *dest);
-	int (*write)(const char *part_name, loff_t off, size_t size, void *source);
-	int (*erase)(const char *part_name, loff_t off, size_t size, int scrub_flag);
-
-	/*********bootloader area opera**************/
-	uint8_t (*get_copies)(const char *part_name);
-	uint64_t (*get_copy_size)(const char *part_name);
-	int (*boot_read)(const char *part_name, uint8_t cpy, size_t size, void *dest);
-	int (*boot_write)(const char *part_name, uint8_t cpy, size_t size, void *source);
-	int (*boot_erase)(const char *part_name, uint8_t cpy);
-
-	/************reserve area opera*************/
-	uint32_t (*get_rsv_size)(const char *rsv_name);
-	int (*read_rsv)(const char *rsv_name, size_t size, void *buf);
-	int (*write_rsv)(const char *rsv_name, size_t size, void *buf);
-	int (*erase_rsv)(const char *rsv_name);
-	int (*protect_rsv)(const char *rsv_name, bool ops);
-};
-
 /*** basic nand flash information  ***/
 struct nand_flash {
 	char *name;
@@ -849,7 +826,6 @@ struct amlnand_chip {
 	struct chip_ops_para ops_para;
 
 	struct chip_operation operation;
-	struct store_operation storage_opera;
 	struct nand_flash flash;
 
 	struct nand_arg_info config_msg;
@@ -909,7 +885,6 @@ extern int amlnand_get_device(struct amlnand_chip *aml_chip,
 extern void amlnand_release_device(struct amlnand_chip *aml_chip);
 extern int amlnand_hwcontroller_init(struct amlnand_chip *aml_chip);
 extern int amlnand_init_operation(struct amlnand_chip *aml_chip);
-extern int amlnand_store_interf_init(struct amlnand_chip *aml_chip);
 extern int amlnand_get_dev_configs(struct amlnand_chip *aml_chip);
 extern u32 amlnand_chip_init(struct amlnand_chip *aml_chip);
 extern int amlnand_phydev_init(struct amlnand_chip *aml_chip);

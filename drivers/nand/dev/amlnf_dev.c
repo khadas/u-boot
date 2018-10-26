@@ -5,9 +5,29 @@
  */
 
 #include "../include/amlnf_dev.h"
-/*#include "partition_table.h"*/
+#include "../include/phynand.h"
+
+#include <storage.h>
+#include "partition_table.h"
 int boot_device_flag = 0;
 struct aml_nand_device *aml_nand_dev = NULL;
+
+extern uint32_t amlnf_get_rsv_size(const char *name);
+extern int amlnf_read_rsv(const char *name, size_t size, void *buf);
+extern int amlnf_write_rsv(const char *name, size_t size, void *buf);
+extern int amlnf_erase_rsv(const char *name);
+extern u8 amlnf_boot_cpys(const char *part_name);
+extern u64 amlnf_boot_copy_size(const char *part_name);
+extern u64 amlnf_get_size(const char *part_name);
+extern int amlnf_read(const char *part_name, loff_t off, size_t size,void *dest);
+extern int amlnf_write(const char *part_name, loff_t off, size_t size, void *source);
+extern int amlnf_erase(const char *part_name, loff_t off, size_t size, int scrub_flag);
+extern int amlnf_boot_read(const char *part_name, uint8_t copy, size_t size, void *buf);
+extern int amlnf_boot_write(const char *part_name, uint8_t copy, size_t size, void *buf);
+extern int amlnf_boot_erase(const char *part_name, uint8_t copy);
+extern int amlnf_rsv_protect(const char *name, bool ops);
+extern void store_register(struct storage_t *store_dev);
+
 
 int is_phydev_off_adjust(void)
 {
@@ -765,8 +785,8 @@ static int _amlnf_init(struct platform_device *pdev, u32 flag)
 	}
 
 	PHY_NAND_LINE
-	//only read id, quit myself.
-	if (flag == NAND_SCAN_ID_INIT)
+	//read id or erase env/erase all, quit myself.
+	if (flag >= NAND_BOOT_ERASE_PROTECT_CACHE)
 		goto exit_error0;
 	PHY_NAND_LINE
 	/*Nand logic init*/
@@ -786,42 +806,14 @@ exit_error0:
 	return ret; /* fixme, */
 }
 
-extern int pre_judge_mlc(struct platform_device *pdev,u8 flag);
-int storage_dev_is_mlc(u8 flag)
-{
-	int ret = 0;
-	struct platform_device plat_dev;
-	struct platform_device *pdev = &plat_dev;
-
-	ret = amlnf_get_resource(pdev);
-	if (ret < 0) {
-		aml_nand_msg("get resource fail!");
-		return 1;
-	}
-
-	/*judge if it is nand boot device*/
-	ret = check_storage_device();
-	if (ret < 0) {
-		aml_nand_msg("do not init nand");
-		return 1;
-	}
-
-	/*Initializing Nand Flash*/
-	ret = pre_judge_mlc(pdev, flag);
-	if (ret < 0) {
-		aml_nand_msg("not mlc");
-		return 1;
-	}
-
-	return ret;
-}
-
 #ifndef AML_NAND_UBOOT
 static int amlnf_driver_probe(struct platform_device *pdev)
 #else
+static  struct storage_t *storage_dev = NULL;
 int amlnf_init(u32 flag)
 #endif /* AML_NAND_UBOOT */
 {
+	struct amlnand_chip *aml_chip;
 	int ret = 0;
 #ifndef AML_NAND_UBOOT
 	u32 flag = 0;
@@ -829,9 +821,7 @@ int amlnf_init(u32 flag)
 	struct platform_device plat_dev;
 	struct platform_device *pdev = &plat_dev;
 #endif /* AML_NAND_UBOOT */
-	/*if (!storage_dev_is_mlc(0)) {
-		aml_nand_msg("dev is mlc");
-	}*/
+
 	PHY_NAND_LINE
 	ret = amlnf_get_resource(pdev);
 	if (ret < 0) {
@@ -846,9 +836,79 @@ int amlnf_init(u32 flag)
 		return 0;
 	}
 	PHY_NAND_LINE
+
 	/*Initializing Nand Flash*/
 	ret = _amlnf_init(pdev, flag);
+	if (ret) {
+		aml_nand_msg("amlnf init failed ret: %x",ret);
+		goto exit_error;
+	}
 	PHY_NAND_LINE
+
+	if (flag == NAND_SCAN_ID_INIT)
+		goto exit_error;
+
+#if 1/*support storage func*/
+	if (storage_dev == NULL) {
+		storage_dev = kzalloc(sizeof(struct storage_t), GFP_KERNEL);
+		if (!storage_dev) {
+			aml_nand_msg("malloc failed for storage_dev");
+			ret = -1;
+			goto exit_error;
+		}
+	} else {
+		storage_dev->init_flag = flag;
+		aml_nand_msg("only update flag");
+		goto exit_error;
+	}
+
+	if (aml_nand_chip == NULL) {
+		aml_nand_msg("error: aml_nand_chip is null");
+		ret = -1;
+		goto exit_error1;
+	}
+	aml_chip = aml_nand_chip;
+	storage_dev->init_flag = flag;
+	storage_dev->type = BOOT_MLC;
+	aml_nand_msg("store flag: %d,type: %d",storage_dev->init_flag,
+		storage_dev->type);
+
+	memcpy((char *)(storage_dev->info.name), aml_chip->flash.name,
+		32*sizeof(char));
+	memcpy((char *)(storage_dev->info.id), (char *)(aml_chip->flash.id),
+		8*sizeof(char));
+	storage_dev->info.read_unit = aml_chip->flash.pagesize;
+	storage_dev->info.write_unit = aml_chip->flash.pagesize;
+	storage_dev->info.erase_unit = aml_chip->flash.blocksize;
+	storage_dev->info.caps = aml_chip->flash.chipsize;
+	storage_dev->info.mode = COMPACT_BOOTLOADER;
+
+	aml_nand_msg("name: %s",storage_dev->info.name);
+	storage_dev->get_part_size = amlnf_get_size;
+	storage_dev->read = amlnf_read;
+	storage_dev->write = amlnf_write;
+	storage_dev->erase = amlnf_erase;
+	storage_dev->get_copies = amlnf_boot_cpys;
+	storage_dev->get_copy_size = amlnf_boot_copy_size;
+	storage_dev->boot_read = amlnf_boot_read;
+	storage_dev->boot_write = amlnf_boot_write;
+	storage_dev->boot_erase = amlnf_boot_erase;
+	storage_dev->get_rsv_size = amlnf_get_rsv_size;
+	storage_dev->read_rsv = amlnf_read_rsv;
+	storage_dev->write_rsv = amlnf_write_rsv;
+	storage_dev->erase_rsv = amlnf_erase_rsv;
+	storage_dev->protect_rsv = amlnf_rsv_protect;
+
+	store_register(storage_dev);
+	aml_nand_msg("amlnf init success");
+#endif
+
+exit_error1:
+	aml_nand_free(storage_dev);
+exit_error:
+	if (flag > NAND_BOOT_ERASE_PROTECT_CACHE)
+		aml_nand_free(aml_nand_chip);
+
 	return ret;
 }
 

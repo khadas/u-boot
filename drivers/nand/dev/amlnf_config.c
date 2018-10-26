@@ -1,7 +1,7 @@
 
 #include "../include/amlnf_dev.h"
 #include "../include/phynand.h"
-/*#include "storage.h"*/
+#include "emmc_storage.h"
 /***********************************************************************
  * Nand Config
  **********************************************************************/
@@ -12,67 +12,6 @@ struct amlnf_partition *amlnand_config = NULL;
 static struct partitions * part_table = NULL;
 #define SZ_1M                           0x00100000
 
-#if 0
-struct partitions partition_table[] = {
-		{
-			.name = "logo",
-			.size = 32*SZ_1M,
-			.mask_flags = STORE_CODE,
-		},
-		{
-			.name = "recovery",
-			.size = 32*SZ_1M,
-			.mask_flags = STORE_CODE,
-		},
-		{
-			.name = "dtb",
-			.size = 8*SZ_1M,
-			.mask_flags = STORE_CODE,
-		},
-		{
-			.name = "tee",
-			.size = 8*SZ_1M,
-			.mask_flags = STORE_CODE,
-		},
-		{
-			.name = "crypt",
-			.size = 32*SZ_1M,
-			.mask_flags = STORE_CODE,
-		},
-		{
-			.name = "misc",
-			.size = 32*SZ_1M,
-			.mask_flags = STORE_CODE,
-		},
-#ifdef CONFIG_INSTABOOT
-		{
-			.name = "instaboot",
-			.size = 1024*SZ_1M,
-			.mask_flags = STORE_CODE,
-		},
-#endif
-		{
-			.name = "boot",
-			.size = 32*SZ_1M,
-			.mask_flags = STORE_CODE,
-		},
-		{
-			.name = "system",
-			.size = 1024*SZ_1M,
-			.mask_flags = STORE_CODE,
-		},
-		{
-			.name = "cache",
-			.size = 512*SZ_1M,
-			.mask_flags = STORE_CACHE,
-		},
-		{
-			.name = "data",
-			.size = NAND_PART_SIZE_FULL,
-			.mask_flags = STORE_DATA,
-		},
-};
-#endif
 /*partition info by liuxj*/
 struct partitions partition_table[] = {
 		{
@@ -235,7 +174,7 @@ int amlnand_get_partition_table(struct amlnand_chip *aml_chip)
 	aml_nand_msg("outside dtb: %p", part_table);
 
 	/*use inner partition info*/
-	#if 0
+	#if 1
 	if (part_table == NULL) {
 		aml_nand_msg("using dtb on nand");
 		/* fixme, not initialized by outside then using dtb of our self. */
@@ -258,7 +197,7 @@ int amlnand_get_partition_table(struct amlnand_chip *aml_chip)
 	}
 	#endif
 
-#if 0
+#if 1
 	if (ret) {
 		part_table = def_partition_table;
 		aml_nand_msg("%s() %p, using default one to bootup", __func__, part_table);

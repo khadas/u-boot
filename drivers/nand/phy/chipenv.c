@@ -4035,18 +4035,6 @@ int  shipped_bbt_invalid_ops(struct amlnand_chip *aml_chip)
 			aml_nand_msg("save nand dev_configs failed and ret:%d",ret);
 			goto exit_error0;
 		}
-		/*
-		liang: it is not need here. is it ??? when uboot run and will check it,if crc error, will overwrite env.
-		*/
-		if (aml_chip->init_flag > NAND_BOOT_ERASE_PROTECT_CACHE) {
-			aml_chip->uboot_env.update_flag = 1;
-			if ((aml_chip->uboot_env.arg_valid == 1) && (aml_chip->uboot_env.update_flag)) {
-				aml_nand_update_ubootenv(aml_chip,NULL);
-				aml_chip->uboot_env.update_flag = 0;
-				aml_nand_msg("NAND UPDATE CKECK  : arg %s: arg_valid= %d, valid_blk_addr = %d, valid_page_addr = %d",\
-					"ubootenv",aml_chip->uboot_env.arg_valid, aml_chip->uboot_env.valid_blk_addr, aml_chip->uboot_env.valid_page_addr);
-			}
-		}
 	}
 #else
 

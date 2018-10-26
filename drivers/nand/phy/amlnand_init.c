@@ -16,6 +16,7 @@
 #include <asm/arch/secure_apb.h>
 
 struct amlnand_chip *aml_nand_chip = NULL;
+
 extern unsigned device_boot_flag;
 
 extern int boot_dev_init(struct amlnand_chip *aml_chip);
@@ -292,55 +293,6 @@ void secure_storage_set_info(uint32_t info)
 #endif
 
 extern int get_flash_type(struct amlnand_chip *aml_chip);
-int pre_judge_mlc(struct platform_device *pdev,u8 flag)
-{
-	struct amlnand_chip *aml_chip = NULL;
-	int ret = 0;
-
-	aml_chip = aml_nand_malloc(sizeof(struct amlnand_chip));
-	if (aml_chip == NULL) {
-		aml_nand_msg("malloc failed for aml_chip:%x",
-			(uint32_t)sizeof(struct amlnand_chip));
-		ret = -NAND_MALLOC_FAILURE;
-		goto exit_error1;
-	}
-
-	memset(aml_chip , 0, sizeof(struct amlnand_chip));
-	memset(aml_chip->reserved_blk, 0xff, RESERVED_BLOCK_CNT);
-	aml_chip->init_flag = flag;
-	aml_chip->nand_status = NAND_STATUS_NORMAL;
-	//aml_nand_chip = aml_chip;
-	PHY_NAND_LINE
-
-	/* Step 1: init hw controller */
-	ret = amlnand_hwcontroller_init(aml_chip);
-	if (ret < 0) {
-		aml_nand_msg("aml_hw_controller_init failed");
-		ret = -NAND_FAILED;
-		goto exit_error1;
-	}
-	PHY_NAND_LINE
-	/* Step 2: init aml_chip operation */
-	ret = amlnand_init_operation(aml_chip);
-	if (ret < 0) {
-		aml_nand_msg("chip detect failed and ret:%x", ret);
-		ret = -NAND_FAILED;
-		goto exit_error1;
-	}
-	PHY_NAND_LINE
-	/* Step 3: get nand id*/
-
-	ret = get_flash_type(aml_chip);
-	if (ret < 0) {
-		aml_nand_msg("get_chip_type and ret:%x", ret);
-		goto exit_error1;
-	}
-
-exit_error1:
-	aml_nand_free(aml_chip);
-	aml_nand_msg("free aml_chip scussess");
-	return ret;
-}
 
 
 int amlnf_phy_init(u8 flag, struct platform_device *pdev)
@@ -386,7 +338,6 @@ int amlnf_phy_init(u8 flag, struct platform_device *pdev)
 		goto exit_error1;
 	}
 
-	ret = amlnand_store_interf_init(aml_chip);
 	PHY_NAND_LINE
 	/* Step 3: get nand id and get hw flash information */
 	ret = amlnand_chip_init(aml_chip);
@@ -451,9 +402,9 @@ int amlnf_phy_init(u8 flag, struct platform_device *pdev)
 		aml_nand_free(controller->oob_buf);
 
 		//nand_buf_free(aml_chip);
-		/*exit with error code in porpoises, while we are erasing.*/
-		ret = -1;
-		goto exit_error1;
+		/*exit with NAND_SUCCESS while we are erasing.*/
+		ret = NAND_SUCCESS;
+		goto exit_error0;
 	}else{
 
 		//Step 5: register nand device, and config device information

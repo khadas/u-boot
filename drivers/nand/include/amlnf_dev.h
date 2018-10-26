@@ -5,8 +5,8 @@
 #include "hw_ctrl.h"
 #include "amlnf_ctrl.h"
 #include "amlnf_cfg.h"
-/*no get dtb by liuxj*/
-/*#include "partition_table.h"*/
+
+#include "partition_table.h"
 #include <asm/arch/secure_apb.h>
 #include <asm/arch/cpu_sdio.h>
 #include <asm/io.h>

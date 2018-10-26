@@ -1,21 +1,11 @@
 #include "storage.h"
-#include "../drivers/nand/include/phynand.h"
 
-extern void store_register(struct storage_t *store_dev);
-extern int storage_dev_is_mlc(u8 flag);
+extern int amlnf_pre(void);
+extern int amlnf_probe(uint32_t init_flag);
 
 int emmc_pre(void)
 {
 	return 1;
-}
-
-int amlnf_pre(void)
-{
-	char ret = 0xff;
-
-	ret = storage_dev_is_mlc(0);
-
-	return ret;
 }
 
 int nand_pre(void)
@@ -40,96 +30,6 @@ int emmc_probe(uint32_t init_flag)
 	return 1;
 }
 
-#if 1
-extern int amlnf_init(unsigned char flag);
-extern struct amlnand_chip *aml_nand_chip;
-
-extern uint32_t amlnf_get_rsv_size(const char *name);
-extern int amlnf_read_rsv(const char *name, size_t size, void *buf);
-extern int amlnf_write_rsv(const char *name, size_t size, void *buf);
-extern int amlnf_erase_rsv(const char *name);
-extern u8 amlnf_boot_cpys(const char *part_name);
-extern u64 amlnf_boot_copy_size(const char *part_name);
-extern u64 amlnf_get_size(const char *part_name);
-extern int amlnf_read(const char *part_name, loff_t off, size_t size,void *dest);
-extern int amlnf_write(const char *part_name, loff_t off, size_t size, void *source);
-extern int amlnf_erase(const char *part_name, loff_t off, size_t size, int scrub_flag);
-extern int amlnf_boot_read(const char *part_name, uint8_t copy, size_t size, void *buf);
-extern int amlnf_boot_write(const char *part_name, uint8_t copy, size_t size, void *buf);
-extern int amlnf_boot_erase(const char *part_name, uint8_t copy);
-extern int amlnf_rsv_protect(const char *name, bool ops);
-#endif
-
-int amlnf_probe(uint32_t init_flag)
-{
-	char ret = 0xff;
-	static struct storage_t *storage_dev = NULL;
-	struct amlnand_chip *aml_chip = NULL;
-	/*struct store_operation *storage_opera = NULL;*/
-
-	storage_dev = kzalloc(sizeof(struct storage_t), GFP_KERNEL);
-	if (storage_dev == NULL) {
-		printf("malloc failed for storage_dev\n");
-		ret = -1;
-		goto exit_error;
-	}
-
-	ret = amlnf_init(init_flag); /*flag 0*/
-	if (ret) {
-		printf("amlnf init failed ret:%x\n", ret);
-		goto exit_error;
-	}
-	/******basic info*******/
-	storage_dev->init_flag = init_flag;
-	storage_dev->type = BOOT_MLC;
-
-	printf("store flag: %d, types: %d\n",storage_dev->init_flag,storage_dev->type);
-	if (aml_nand_chip == NULL) {
-		printf("error aml_nand_chip is NULL\n");
-		ret = -1;
-		goto exit_error;
-	}
-	aml_chip = aml_nand_chip;
-	/*storage_opera = &(aml_chip->storage_opera);*/
-	memcpy((char *)(storage_dev->info.name), (char *)(aml_chip->flash.name),
-		32*sizeof(char));
-
-	memcpy((char *)(storage_dev->info.id), (char *)(aml_chip->flash.id),
-		8*sizeof(char));
-	storage_dev->info.read_unit = aml_chip->flash.pagesize;
-	storage_dev->info.write_unit = aml_chip->flash.pagesize;
-	storage_dev->info.erase_unit = aml_chip->flash.blocksize;
-	storage_dev->info.caps = aml_chip->flash.chipsize;
-	storage_dev->info.mode = COMPACT_BOOTLOADER;
-	printf("page size: 0x%x\n",storage_dev->info.read_unit);
-
-#if 0
-
-#else
-	storage_dev->get_part_size = amlnf_get_size;
-	storage_dev->read = amlnf_read;
-	storage_dev->write = amlnf_write;
-	storage_dev->erase = amlnf_erase;
-
-	storage_dev->get_copies = amlnf_boot_cpys;
-	storage_dev->get_copy_size = amlnf_boot_copy_size;
-	storage_dev->boot_read = amlnf_boot_read;
-	storage_dev->boot_write = amlnf_boot_write;
-	storage_dev->boot_erase = amlnf_boot_erase;
-
-	storage_dev->get_rsv_size = amlnf_get_rsv_size;
-	storage_dev->read_rsv = amlnf_read_rsv;
-	storage_dev->write_rsv = amlnf_write_rsv;
-	storage_dev->erase_rsv = amlnf_erase_rsv;
-	storage_dev->protect_rsv = amlnf_rsv_protect;
-#endif
-	if (storage_dev->init_flag < NAND_BOOT_ERASE_PROTECT_CACHE)
-		store_register(storage_dev);
-	printf("amlnf probe success\n");
-exit_error:
-	return ret;
-	return 0;
-}
 int nand_probe(uint32_t init_flag)
 {
 	return 0;
@@ -234,11 +134,19 @@ int store_init(uint32_t init_flag)
 	printf("device_list cnt: %d, %ld\n", dev_list, ARRAY_SIZE(device_list));
 	for (i = 0; i < ARRAY_SIZE(device_list); i++) {
 		if (dev_list & device_list[i].index) {
-			if (!store_device_valid(device_list[i].index)) {
+			/*call store init multiple time*/
+			if ((device_list[i].index == BOOT_EMMC)
+				|| (device_list[i].index == BOOT_MLC)) {
+				printf("emmc/mlc probe\n");
+				ret = device_list[i].probe(init_flag);
+				if (ret)
+					printf("%s %d %d device probe fail\n",
+							__func__, __LINE__, device_list[i].index);
+			} else if (!store_device_valid(device_list[i].index)) {
 				printf("store no probe,first probe\n");
 				ret = device_list[i].probe(init_flag);
 				if (ret)
-					pr_info("%s %d %d device probe fail\n",
+					printf("%s %d %d device probe fail\n",
 							__func__, __LINE__, device_list[i].index);
 			}
 		}
