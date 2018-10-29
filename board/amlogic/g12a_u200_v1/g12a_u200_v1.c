@@ -30,6 +30,8 @@
 #include <asm/arch/pinctrl_init.h>
 #ifdef CONFIG_AML_VPU
 #include <amlogic/media/vpu/vpu.h>
+#endif
+#ifdef CONFIG_AML_VPP
 #include <amlogic/media/vpp/vpp.h>
 #endif
 #ifdef CONFIG_AML_V2_FACTORY_BURN
@@ -568,7 +570,10 @@ int board_late_init(void)
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
-	//vpp_init();
+
+#ifdef CONFIG_AML_VPP
+	vpp_init();
+#endif
 
 #ifdef CONFIG_AML_HDMITX
 	hdmi_tx_init();

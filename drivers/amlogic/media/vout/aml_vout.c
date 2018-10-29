@@ -419,9 +419,9 @@ static void vout_vinfo_init(ulong width, ulong height, ulong field_height)
 	vout_info.height = height;
 	vout_info.field_height = field_height;
 	vout_info.vd_base = (void *)get_fb_addr();
-	vout_info.vl_bpix = simple_strtoul(getenv("display_bpp"), NULL, 10);
-	vout_info.vd_color_fg = simple_strtoul(getenv("display_color_fg"), NULL, 0);
-	vout_info.vd_color_bg = simple_strtoul(getenv("display_color_bg"), NULL, 0);
+	vout_info.vl_bpix = simple_strtoul(env_get("display_bpp"), NULL, 10);
+	vout_info.vd_color_fg = simple_strtoul(env_get("display_color_fg"), NULL, 0);
+	vout_info.vd_color_bg = simple_strtoul(env_get("display_color_bg"), NULL, 0);
 }
 
 static void vout_axis_init(ulong w, ulong h)
@@ -429,8 +429,8 @@ static void vout_axis_init(ulong w, ulong h)
 	ulong width = w;
 	ulong height = h;
 
-	setenv_ulong("display_width", width);
-	setenv_ulong("display_height", height);
+	env_set_ulong("display_width", width);
+	env_set_ulong("display_height", height);
 }
 
 static void vout_vmode_init(void)
@@ -444,7 +444,7 @@ static void vout_vmode_init(void)
 	struct aml_lcd_drv_s *lcd_drv;
 #endif
 
-	outputmode = getenv("outputmode");
+	outputmode = env_get("outputmode");
 	vmode = vout_find_mode_by_name(outputmode);
 	vout_set_current_vmode(vmode);
 	switch (vmode) {
@@ -490,16 +490,16 @@ static int my_atoi(const char *str)
 
 static int getenv_int(char *env, int def)
 {
-	if (getenv(env) == NULL)
+	if (env_get(env) == NULL)
 		return def;
 	else
-		return my_atoi(getenv(env));
+		return my_atoi(env_get(env));
 }
 
 static int get_window_axis(int *axis)
 {
 	int ret = 0;
-	char *mode = getenv("outputmode");
+	char *mode = env_get("outputmode");
 	int def_x, def_y, def_w, def_h;
 
 	def_x = 0;
