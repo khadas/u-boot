@@ -535,17 +535,6 @@
 #endif /* (CONFIG_CMD_NET) */
 
 /* other devices */
-/* I2C DM driver*/
-/* #define CONFIG_DM_I2C */
-
-#if defined(CONFIG_DM_I2C)
-#define CONFIG_SYS_I2C_MESON		1
-#else
-#if 0
-#define CONFIG_SYS_I2C_AML			1
-#endif
-#define CONFIG_SYS_I2C_SPEED		400000
-#endif
 #if 0
 #define CONFIG_EFUSE 1
 #endif
@@ -557,7 +546,6 @@
 #define CONFIG_CMD_CACHE 1
 #define CONFIG_CMD_BOOTI 1
 #define CONFIG_CMD_EFUSE 1
-#define CONFIG_CMD_I2C 1
 #define CONFIG_CMD_MEMORY 1
 #define CONFIG_CMD_FAT 1
 #define CONFIG_CMD_GPIO 1
