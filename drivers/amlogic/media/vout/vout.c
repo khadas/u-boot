@@ -1,5 +1,5 @@
 /*
- * drivers/display/vout/vout.c
+ * drivers/amlogic/media/vout/vout.c
  *
  * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
  *
@@ -13,9 +13,10 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
- * Author: Platform-BJ @platform.bj@amlogic.com
- *
-*/
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 
 
 #include <common.h>
@@ -24,7 +25,7 @@
 #include <amlogic/media/vout/aml_vmode.h>
 #include <amlogic/media/vout/aml_vout.h>
 #ifdef CONFIG_AML_LCD
-#include <amlogic/media/vout/aml_lcd.h>
+#include <amlogic/media/vout/lcd/aml_lcd.h>
 #endif
 
 #define VOUT_LOG_DBG 0

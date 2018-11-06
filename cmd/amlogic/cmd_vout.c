@@ -36,7 +36,7 @@
 #include <amlogic/media/vout/aml_cvbs.h>
 #endif
 #ifdef CONFIG_AML_LCD
-#include <amlogic/media/vout/aml_lcd.h>
+#include <amlogic/media/vout/lcd/aml_lcd.h>
 #endif
 
 static int do_vout_list(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])

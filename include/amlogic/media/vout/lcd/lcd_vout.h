@@ -1,16 +1,21 @@
 /*
- * include/amlogic/aml_lcd_vout.h
+ * include/amlogic/media/vout/lcd/lcd_vout.h
+ *
+ * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the named License,
- * or any later version.
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
  *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #ifndef INC_AML_LCD_VOUT_H
@@ -18,6 +23,8 @@
 
 #include <common.h>
 #include <linux/list.h>
+#include <dm.h>
+#include <asm/gpio.h>
 
 /* **********************************
  * debug print define
@@ -50,32 +57,14 @@ extern unsigned int lcd_debug_print_flag;
 #define CLK_CTRL_FRAC               0  /* [18:0] */
 
 
+#define LCD_PINMUX_END          0xff
+#define LCD_PINMUX_NUM          15
+
 /* **********************************
  * VENC to TCON sync delay
  * ********************************** */
 #define TTL_DELAY                   13
 
-
-/* ******** MIPI_DSI_PHY ******** */
-/* bit[15:11] */
-#define MIPI_PHY_LANE_BIT        11
-#define MIPI_PHY_LANE_WIDTH      5
-
-/* MIPI-DSI */
-#define DSI_LANE_0              (1 << 4)
-#define DSI_LANE_1              (1 << 3)
-#define DSI_LANE_CLK            (1 << 2)
-#define DSI_LANE_2              (1 << 1)
-#define DSI_LANE_3              (1 << 0)
-#define DSI_LANE_COUNT_1        (DSI_LANE_CLK | DSI_LANE_0)
-#define DSI_LANE_COUNT_2        (DSI_LANE_CLK | DSI_LANE_0 | DSI_LANE_1)
-#define DSI_LANE_COUNT_3        (DSI_LANE_CLK | DSI_LANE_0 |\
-					DSI_LANE_1 | DSI_LANE_2)
-#define DSI_LANE_COUNT_4        (DSI_LANE_CLK | DSI_LANE_0 |\
-					DSI_LANE_1 | DSI_LANE_2 | DSI_LANE_3)
-
-#define LCD_PINMUX_END          0xff
-#define LCD_PINMUX_NUM          15
 
 /* **********************************
  * global control define
@@ -87,15 +76,8 @@ enum lcd_mode_e {
 };
 
 enum lcd_chip_e {
-	LCD_CHIP_GXTVBB = 0,
-	LCD_CHIP_GXL,     	/* 1 */
-	LCD_CHIP_GXM,     	/* 2 */
-	LCD_CHIP_TXL,     	/* 3 */
-	LCD_CHIP_TXLX,    	/* 4 */
-	LCD_CHIP_AXG, 		/* 5 */
-	LCD_CHIP_TXHD, 		/* 6 */
-	LCD_CHIP_G12A, 		/* 7 */
-	LCD_CHIP_G12B, 		/* 8 */
+	LCD_CHIP_G12A = 0,
+	LCD_CHIP_G12B, 	/* 1 */
 	LCD_CHIP_MAX,
 };
 
@@ -176,22 +158,7 @@ struct lcd_timing_s {
 	unsigned short vs_vs_addr;
 	unsigned short vs_ve_addr;
 };
-/*
-struct lcd_effect_s {
-	unsigned int rgb_base_addr;
-	unsigned int rgb_coeff_addr;
-	unsigned char dith_user;
-	unsigned int dith_ctrl;
 
-	unsigned char gamma_ctrl;
-	unsigned short gamma_r_coeff;
-	unsigned short gamma_g_coeff;
-	unsigned short gamma_b_coeff;
-	unsigned short GammaTableR[256];
-	unsigned short GammaTableG[256];
-	unsigned short GammaTableB[256];
-};
-*/
 struct ttl_config_s {
 	unsigned int clk_pol;
 	unsigned int sync_valid; /* [1]DE, [0]hvsync */
@@ -309,7 +276,6 @@ struct dsi_config_s {
 	unsigned char check_state;
 };
 
-#define LCD_TCON_TABLE_MAX    4096
 struct mlvds_config_s {
 	unsigned int channel_num;
 	unsigned int channel_sel0;
@@ -323,10 +289,6 @@ struct mlvds_config_s {
 	/* internal used */
 	unsigned int pi_clk_sel; /* bit[9:0] */
 	unsigned int bit_rate; /* Hz */
-	unsigned char tcon_enable;
-	unsigned short reg_table_len;
-	unsigned char *reg_table;
-	unsigned int fb_addr;
 };
 
 struct lcd_ctrl_config_s {
@@ -348,36 +310,21 @@ enum lcd_power_type_e {
 	LCD_POWER_TYPE_MAX,
 };
 
-enum lcd_pmu_gpio_e {
-	LCD_PMU_GPIO0 = 0,
-	LCD_PMU_GPIO1,
-	LCD_PMU_GPIO2,
-	LCD_PMU_GPIO3,
-	LCD_PMU_GPIO4,
-	LCD_PMU_GPIO_MAX,
-};
-
-#define LCD_GPIO_MAX                    0xff
-#define LCD_GPIO_OUTPUT_LOW             0
-#define LCD_GPIO_OUTPUT_HIGH            1
-#define LCD_GPIO_INPUT                  2
+#define LCD_CPU_GPIO_NAME_MAX        15
 
 /* Power Control */
 #define LCD_CPU_GPIO_NUM_MAX         10
-#define LCD_CPU_GPIO_NAME_MAX        10
-#define LCD_PMU_GPIO_NUM_MAX         3
 
 #define LCD_PWR_STEP_MAX             15
 struct lcd_power_step_s {
 	unsigned char type;
-	int index; /* point to lcd_cpu_gpio_s or lcd_pmu_gpio_s or lcd_extern */
+	int index; /* point to lcd_cpu_gpio or lcd_extern */
 	unsigned short value;
 	unsigned short delay;
 };
 
 struct lcd_power_ctrl_s {
 	char cpu_gpio[LCD_CPU_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX];
-	int *pmu_gpio;
 	struct lcd_power_step_s power_on_step[LCD_PWR_STEP_MAX];
 	struct lcd_power_step_s power_off_step[LCD_PWR_STEP_MAX];
 };
@@ -401,7 +348,6 @@ struct lcd_config_s {
 	unsigned int backlight_index;
 	struct lcd_basic_s lcd_basic;
 	struct lcd_timing_s lcd_timing;
-	/*struct lcd_effect_s lcd_effect;*/
 	struct lcd_ctrl_config_s lcd_control;
 	struct lcd_power_ctrl_s *lcd_power;
 	unsigned char pinctrl_ver;
@@ -529,12 +475,14 @@ struct aml_lcd_drv_s {
 	struct lcd_config_s *lcd_config;
 	struct bl_config_s *bl_config;
 
+	int  (*outputmode_check)(char *mode);
 	int  (*config_check)(char *mode);
-	void  (*driver_init_pre)(void);
+	void (*driver_init_pre)(void);
 	int  (*driver_init)(void);
 	void (*driver_disable)(void);
 	void (*list_support_mode)(void);
 	int  (*lcd_probe)(void);
+	int  (*lcd_outputmode_check)(char *mode);
 	void (*lcd_enable)(char *mode);
 	void (*lcd_disable)(void);
 	void (*lcd_set_ss)(int level);
@@ -545,10 +493,9 @@ struct aml_lcd_drv_s {
 	void (*lcd_reg)(void);
 	void (*lcd_tcon_reg)(void);
 	void (*lcd_tcon_table)(void);
-	void (*bl_on)(void);
-	void (*bl_off)(void);
-	void (*set_bl_level)(int level);
-	int  (*get_bl_level)(void);
+	void (*bl_power_ctrl)(int status);
+	void (*bl_set_level)(unsigned int level);
+	unsigned int (*bl_get_level)(void);
 	void (*bl_config_print)(void);
 	int unifykey_test_flag;
 	void (*unifykey_test)(void);

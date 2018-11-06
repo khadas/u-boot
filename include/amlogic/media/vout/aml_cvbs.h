@@ -15,5 +15,7 @@ int cvbs_set_bist(char* bist_mode);
 int cvbs_set_vdac(int status);
 int cvbs_reg_debug(int argc, char* const argv[]);
 
+extern int cvbs_outputmode_check(char *vmode_name);
+
 #endif
 

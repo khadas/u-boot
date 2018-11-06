@@ -1,0 +1,14 @@
+config AML_BL_EXTERN
+	bool "bl_extern driver for lcd"
+	help
+	  Support for lcd bl_extern controlling
+
+config AML_BL_EXTERN_I2C_LP8556
+	bool "bl_extern LP8556 driver for lcd"
+	help
+	  Support for lcd bl_extern LP8556 controlling
+
+config AML_BL_EXTERN_MIPI_IT070ME05
+	bool "bl_extern MIPI_IT070ME05 driver for lcd"
+	help
+	  Support for lcd bl_extern MIPI_IT070ME05 controlling

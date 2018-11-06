@@ -1,0 +1,21 @@
+config AML_BL_LOCAL_DIMMING
+	bool "bl_local_dimming driver for lcd"
+	help
+	  Support for lcd bl_local_dimming controlling
+
+config AML_LOCAL_DIMMING_GLOBAL
+	bool "bl ldim global dimming driver for lcd"
+	help
+	  Support for lcd bl ldim global dimming controlling
+
+config AML_LOCAL_DIMMING_OB3350
+	bool "bl ldim OB3350 driver for lcd"
+	help
+	  Support for lcd bl ldim OB3350 controlling
+
+config AML_LOCAL_DIMMING_IW7027
+	bool "bl ldim IW7027 driver for lcd"
+	help
+	  Support for lcd bl ldim IW7027 controlling
+
+

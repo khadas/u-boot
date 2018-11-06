@@ -584,12 +584,11 @@ int board_late_init(void)
 	run_command("cvbs init", 0);
 #endif
 
-#if 0
-
 #ifdef CONFIG_AML_LCD
 	lcd_probe();
 #endif
 
+#if 0
 	/**/
 	aml_config_dtb();
 #endif

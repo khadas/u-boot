@@ -27,7 +27,7 @@
 #include <asm/byteorder.h>
 #include <amlogic/media/vout/hdmitx.h>
 #ifdef CONFIG_AML_LCD
-#include <amlogic/aml_lcd.h>
+#include <amlogic/media/vout/lcd/aml_lcd.h>
 #endif
 
 static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
