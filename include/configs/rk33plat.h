@@ -427,6 +427,7 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMD_GPIO
+#define CONFIG_CMD_I2C
 
 /* Khadas commands */
 #define CONFIG_CMD_KBI
