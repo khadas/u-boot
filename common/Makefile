@@ -181,9 +181,7 @@ obj-$(CONFIG_CMD_STRINGS) += cmd_strings.o
 obj-$(CONFIG_CMD_TERMINAL) += cmd_terminal.o
 obj-$(CONFIG_CMD_TIME) += cmd_time.o
 obj-$(CONFIG_CMD_TRACE) += cmd_trace.o
-ifndef CONFIG_ROCKCHIP
 obj-$(CONFIG_SYS_HUSH_PARSER) += cmd_test.o
-endif
 obj-$(CONFIG_CMD_TPM) += cmd_tpm.o
 obj-$(CONFIG_CMD_TSI148) += cmd_tsi148.o
 obj-$(CONFIG_CMD_UBI) += cmd_ubi.o

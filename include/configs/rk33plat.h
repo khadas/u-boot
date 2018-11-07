@@ -428,9 +428,36 @@
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_I2C
+#define CONFIG_CMD_RUN
+#define CONFIG_CMD_ITEST
+#define CONFIG_SYS_HUSH_PARSER
 
 /* Khadas commands */
 #define CONFIG_CMD_KBI
+#define CONFIG_KHADAS_CMDLINE
+
+#ifdef CONFIG_KHADAS_CMDLINE
+#define CONFIG_KHADAS_CMDLINE_ENV \
+		"wol_init="\
+			"kbi init;"\
+			"kbi powerstate;"\
+			"kbi trigger wol r;"\
+			"setenv khadas_bootargs wol_enable=${wol_enable};"\
+			"if test ${power_state} = 1; then "\
+				"kbi trigger wol w 1;"\
+				"gpio set GPIODV_2;"\
+			"fi;"\
+			"\0"\
+		"cmdline_keys="\
+			"kbi ethmac;" \
+			"setenv khadas_bootargs ${khadas_bootargs}  mac=${eth_mac} androidboot.mac=${eth_mac};" \
+			"\0"
+
+#define CONFIG_KHADAS_APPENDED_CMDLINE \
+		"run wol_init; " \
+		"run cmdline_keys; "
+
+#endif /* CONFIG_KHADAS_CMDLINE */
 
 /* more config for charge */
 #ifdef CONFIG_UBOOT_CHARGE

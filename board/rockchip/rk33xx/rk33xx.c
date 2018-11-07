@@ -114,6 +114,22 @@ int arch_early_init_r(void)
 }
 #endif
 
+#ifdef CONFIG_KHADAS_CMDLINE
+void khadas_append_cmdline(char *cmdline, int len)
+{
+	char *s = NULL;
+
+	if (NULL == cmdline || len <= 0) return;
+
+	run_command(CONFIG_KHADAS_APPENDED_CMDLINE, 0);
+
+	s = getenv("khadas_bootargs");
+
+	if (s != NULL) {
+		snprintf(cmdline, len, "%s %s", cmdline, s);
+	}
+}
+#endif /* CONFIG_KHADAS_CMDLINE */
 
 #define RAMDISK_ZERO_COPY_SETTING	"0xffffffffffffffff=n\0"
 static void board_init_adjust_env(void)

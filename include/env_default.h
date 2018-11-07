@@ -124,6 +124,9 @@ const uchar default_environment[] = {
 #ifdef	CONFIG_SILENT_CONSOLE
 	"silent="		"rk silent"			"\0"
 #endif
+#ifdef CONFIG_KHADAS_CMDLINE_ENV
+	CONFIG_KHADAS_CMDLINE_ENV
+#endif
 	"\0"
 #ifdef DEFAULT_ENV_INSTANCE_EMBEDDED
 	}

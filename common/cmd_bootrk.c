@@ -608,6 +608,11 @@ static void rk_commandline_setenv(const char *boot_name, rk_boot_img_hdr *hdr, b
 		}
 	}
 
+#ifdef CONFIG_KHADAS_CMDLINE
+	extern void khadas_append_cmdline(char *cmdline, int len);
+	khadas_append_cmdline(command_line, sizeof(command_line));
+#endif /* CONFIG_KHADAS_CMDLINE */
+
 	command_line[sizeof(command_line) - 1] = 0;
 
 	setenv("bootargs", command_line);
