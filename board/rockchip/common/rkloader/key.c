@@ -132,7 +132,7 @@ __maybe_unused static void RockusbKeyInit(void)
 	key_rockusb.type = KEY_AD;
 	key_rockusb.key.adc.index = KEY_ADC_CN;
 	key_rockusb.key.adc.keyValueLow = 0;
-	key_rockusb.key.adc.keyValueHigh = 30;
+	key_rockusb.key.adc.keyValueHigh = 90;
 	key_rockusb.key.adc.data = SARADC_BASE + 0;
 	key_rockusb.key.adc.stas = SARADC_BASE + 4;
 	key_rockusb.key.adc.ctrl = SARADC_BASE + 8;

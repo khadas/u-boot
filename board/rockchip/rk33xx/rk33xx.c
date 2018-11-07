@@ -195,7 +195,7 @@ int board_late_init(void)
 	debug("fixed_init\n");
 	fixed_regulator_init();
 	debug("pmic_init\n");
-	pmic_init(0);
+	pmic_init(4);
 #if defined(CONFIG_POWER_PWM_REGULATOR)
 	debug("pwm_regulator_init\n");
 	pwm_regulator_init();
