@@ -424,6 +424,9 @@
 #endif
 #endif
 
+#define CONFIG_CMDLINE_EDITING
+#define CONFIG_AUTO_COMPLETE
+
 /* more config for charge */
 #ifdef CONFIG_UBOOT_CHARGE
 
