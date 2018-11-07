@@ -426,6 +426,7 @@
 
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
+#define CONFIG_CMD_GPIO
 
 /* more config for charge */
 #ifdef CONFIG_UBOOT_CHARGE
