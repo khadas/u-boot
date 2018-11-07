@@ -68,7 +68,7 @@ static void rk_i2c_iomux_config(int i2c_id)
 		grf_writel((3 << 16) | (2 << 0), GRF_GPIO2B_IOMUX);
 		break;
 	case RK_I2C8_IOMUX:
-		pmugrf_writel((3 << 26) | (3 << 24) | (1 << 10) | (1 << 8), PMU_GRF_GPIO1B_IOMUX);
+		pmugrf_writel((3 << 26) | (3 << 24) | (1 << 10) | (1 << 8), PMU_GRF_GPIO1C_IOMUX);
 		break;
 	default:
 		debug("i2c id = %d iomux error!\n", i2c_id);

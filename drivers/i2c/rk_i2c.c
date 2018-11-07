@@ -132,7 +132,8 @@ static struct rk_i2c rki2c_base[I2C_BUS_MAX] = {
 	{ .regs = (uint32_t)RKIO_I2C4_BASE, 0 },
 	{ .regs = (uint32_t)RKIO_I2C5_BASE, 0 },
 	{ .regs = (uint32_t)RKIO_I2C6_BASE, 0 },
-	{ .regs = (uint32_t)RKIO_I2C7_BASE, 0 }
+	{ .regs = (uint32_t)RKIO_I2C7_BASE, 0 },
+	{ .regs = (uint32_t)RKIO_I2C8_BASE, 0 }
 };
 #endif
 

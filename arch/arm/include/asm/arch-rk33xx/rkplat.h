@@ -68,6 +68,7 @@ typedef enum rk_i2c_bus_ch {
 	I2C_CH5,
 	I2C_CH6,
 	I2C_CH7,
+	I2C_CH8,
 
 	I2C_BUS_MAX
 } eI2C_ch_t;
@@ -281,6 +282,7 @@ typedef enum SPI_ch {
 	#define RKIO_I2C5_BASE		RKIO_I2C5_PHYS
 	#define RKIO_I2C6_BASE		RKIO_I2C6_PHYS
 	#define RKIO_I2C7_BASE		RKIO_I2C7_PHYS
+	#define RKIO_I2C8_BASE		RKIO_I2C8_PHYS
 
 	/* spi */
 	#define RKIO_SPI0_BASE		RKIO_SPI0_PHYS
