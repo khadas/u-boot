@@ -72,6 +72,7 @@ int board_init(void)
 	gd->bd->bi_arch_number = MACH_TYPE_RK30XX;
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x88000;
 
+	run_command("gpio set 6", 0);
 	return 0;
 }
 
