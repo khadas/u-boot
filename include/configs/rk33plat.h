@@ -211,7 +211,7 @@
 #endif /* CONFIG_SECUREBOOT_CRYPTO */
 
 /* mod it to enable console commands.	*/
-#define CONFIG_BOOTDELAY		0
+#define CONFIG_BOOTDELAY		1
 
 /* efuse version */
 #ifdef CONFIG_RK_EFUSE
