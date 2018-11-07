@@ -428,6 +428,9 @@
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMD_GPIO
 
+/* Khadas commands */
+#define CONFIG_CMD_KBI
+
 /* more config for charge */
 #ifdef CONFIG_UBOOT_CHARGE
 
