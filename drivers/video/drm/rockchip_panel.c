@@ -277,6 +277,10 @@ static int rockchip_panel_prepare(struct display_state *state)
 	mdelay(plat->delay.reset);
 	dm_gpio_set_value(&priv->reset_gpio, 0);
 
+	mdelay(plat->delay.reset);
+	dm_gpio_set_value(&priv->reset_gpio, 1);
+	mdelay(plat->delay.reset);
+
 	mdelay(plat->delay.init);
 
 	if (plat->on_cmds) {
@@ -321,7 +325,7 @@ static void rockchip_panel_unprepare(struct display_state *state)
 			printf("failed to send off cmds: %d\n", ret);
 	}
 
-	dm_gpio_set_value(&priv->reset_gpio, 1);
+	dm_gpio_set_value(&priv->reset_gpio, 0);
 	dm_gpio_set_value(&priv->enable_gpio, 0);
 
 	if (priv->power_supply) {
