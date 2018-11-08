@@ -264,7 +264,7 @@ static void get_mac(void)
 			return;
 		}
 
-		ret = vendor_storage_read(VENDOR_LAN_MAC_ID, mac_addr, MAC_LENGHT);
+		ret = vendor_storage_read(3, mac_addr, MAC_LENGHT);
 		if (MAC_LENGHT == ret && !is_zero_ether_addr((const u8 *)mac_addr)) {
 			printf("read mac from vendor successfully!\n");
 		} else {
