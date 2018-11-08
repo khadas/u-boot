@@ -826,7 +826,7 @@ int amlnf_init(u32 flag)
 	ret = amlnf_get_resource(pdev);
 	if (ret < 0) {
 		aml_nand_msg("get resource fail!");
-		return 0;
+		return -1;
 	}
 	PHY_NAND_LINE
 	/*judge if it is nand boot device*/
@@ -841,12 +841,12 @@ int amlnf_init(u32 flag)
 	ret = _amlnf_init(pdev, flag);
 	if (ret) {
 		aml_nand_msg("amlnf init failed ret: %x",ret);
-		goto exit_error;
+		goto exit_error0;
 	}
 	PHY_NAND_LINE
 
 	if (flag == NAND_SCAN_ID_INIT)
-		goto exit_error;
+		goto exit_error1;
 
 #if 1/*support storage func*/
 	if (storage_dev == NULL) {
@@ -854,18 +854,18 @@ int amlnf_init(u32 flag)
 		if (!storage_dev) {
 			aml_nand_msg("malloc failed for storage_dev");
 			ret = -1;
-			goto exit_error;
+			goto exit_error0;
 		}
 	} else {
 		storage_dev->init_flag = flag;
 		aml_nand_msg("only update flag");
-		goto exit_error;
+		goto exit_error0;
 	}
 
 	if (aml_nand_chip == NULL) {
 		aml_nand_msg("error: aml_nand_chip is null");
 		ret = -1;
-		goto exit_error1;
+		goto exit_error0;
 	}
 	aml_chip = aml_nand_chip;
 	storage_dev->init_flag = flag;
@@ -904,11 +904,12 @@ int amlnf_init(u32 flag)
 #endif
 
 exit_error1:
-	aml_nand_free(storage_dev);
-exit_error:
-	if (flag > NAND_BOOT_ERASE_PROTECT_CACHE)
-		aml_nand_free(aml_nand_chip);
+	if (flag >= NAND_BOOT_ERASE_PROTECT_CACHE) {
+		if (aml_nand_chip)
+			aml_nand_free(aml_nand_chip);
+	}
 
+exit_error0:
 	return ret;
 }
 

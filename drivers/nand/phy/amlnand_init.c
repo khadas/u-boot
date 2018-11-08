@@ -308,7 +308,7 @@ int amlnf_phy_init(u8 flag, struct platform_device *pdev)
 		aml_nand_msg("malloc failed for aml_chip:%x",
 			(uint32_t)sizeof(struct amlnand_chip));
 		ret = -NAND_MALLOC_FAILURE;
-		goto exit_error1;
+		goto exit_error0;
 	}
 	memset(aml_chip , 0, sizeof(struct amlnand_chip));
 	memset(aml_chip->reserved_blk, 0xff, RESERVED_BLOCK_CNT);
@@ -358,7 +358,7 @@ int amlnf_phy_init(u8 flag, struct platform_device *pdev)
 
 	PHY_NAND_LINE
 	if (aml_chip->init_flag == NAND_SCAN_ID_INIT)
-		goto exit_error1;
+		goto exit_error0;
 	PHY_NAND_LINE
 
 	//fixme, debug code
@@ -420,9 +420,9 @@ int amlnf_phy_init(u8 flag, struct platform_device *pdev)
 	return ret;
 
 exit_error1:
-	aml_nand_free(aml_chip);
+	if (aml_chip)
+		aml_nand_free(aml_chip);
 exit_error0:
-
 
 	return ret;
 }
