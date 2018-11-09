@@ -41,6 +41,19 @@ config PHY_SANDBOX
 	  This select a dummy sandbox PHY driver. It used only to implement
 	  the unit tests for the phy framework
 
+config AML_USB3_PHY
+	bool "amlogic PHY3 support"
+	depends on PHY
+	help
+	  This select a amlogic PHY3 driver.
+
+config AML_USB2_PHY
+	bool "amlogic PHY2 support"
+	depends on PHY
+	help
+	  This select a amlogic PHY2 driver.
+
+
 config NOP_PHY
 	bool "NOP PHY driver"
 	depends on PHY

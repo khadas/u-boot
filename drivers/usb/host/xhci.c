@@ -1187,6 +1187,10 @@ static int _xhci_submit_control_msg(struct usb_device *udev, unsigned long pipe,
 	return xhci_ctrl_tx(udev, pipe, setup, length, buffer);
 }
 
+#ifdef CONFIG_AML_USB
+extern unsigned int usb2portnum;
+#endif
+
 static int xhci_lowlevel_init(struct xhci_ctrl *ctrl)
 {
 	struct xhci_hccr *hccr;
@@ -1211,8 +1215,8 @@ static int xhci_lowlevel_init(struct xhci_ctrl *ctrl)
 		return -ENOMEM;
 
 	reg = xhci_readl(&hccr->cr_hcsparams1);
-#ifdef CONFIG_USB_XHCI_AMLOGIC_V2
-	descriptor.hub.bNbrPorts = 2;
+#ifdef CONFIG_AML_USB
+	descriptor.hub.bNbrPorts = usb2portnum;
 #else
 	descriptor.hub.bNbrPorts = ((reg & HCS_MAX_PORTS_MASK) >>
 						HCS_MAX_PORTS_SHIFT);

@@ -343,62 +343,6 @@ int board_early_init_f(void){
 }
 #endif
 
-#ifdef CONFIG_USB_XHCI_AMLOGIC_V2
-#include <asm/arch/usb-v2.h>
-#define AML_GXL_USB_U2_PORT_NUM	2
-
-#ifdef CONFIG_USB_XHCI_AMLOGIC_USB3_V2
-#define AML_GXL_USB_U3_PORT_NUM	1
-#else
-#define AML_GXL_USB_U3_PORT_NUM	0
-#endif
-
-static void gpio_set_vbus_power(char is_power_on)
-{
-	int ret;
-	struct gpio_desc desc;
-
-	ret = dm_gpio_lookup_name(AML_USB_GPIO_PWR_NAME, &desc);
-	if (ret) {
-		printf("%s: not found\n", AML_USB_GPIO_PWR_NAME);
-		return;
-	}
-
-	ret = dm_gpio_request(&desc, AML_USB_GPIO_PWR_NAME);
-	if (ret) {
-		printf("%s: failed to request gpio\n", AML_USB_GPIO_PWR_NAME);
-		return;
-	}
-
-	ret = dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
-	if (ret) {
-		printf("%s: failed to set direction\n", AML_USB_GPIO_PWR_NAME);
-		return;
-	}
-
-	if (is_power_on) {
-		dm_gpio_set_value(&desc, 1);
-	} else {
-		dm_gpio_set_value(&desc, 0);
-	}
-}
-
-struct amlogic_usb_config g_usb_config_GXL_skt={
-	AML_GXL_XHCI_BASE,
-	USB_ID_MODE_HARDWARE,
-	gpio_set_vbus_power,//gpio_set_vbus_power, //set_vbus_power
-	AML_GXL_USB_PHY2_BASE,
-	AML_GXL_USB_PHY3_BASE,
-	AML_GXL_USB_U2_PORT_NUM,
-	AML_GXL_USB_U3_PORT_NUM,
-	.usb_phy2_pll_base_addr = {
-		AML_USB_PHY_20,
-		AML_USB_PHY_21,
-	}
-};
-
-#endif /*CONFIG_USB_XHCI_AMLOGIC*/
-
 /*
  * mtd nand partition table, only care the size!
  * offset will be calculated by nand driver.
@@ -501,8 +445,6 @@ extern void aml_pwm_cal_init(int mode);
 int board_init(void)
 {
 	printf("board init\n");
-	board_usb_pll_disable(&g_usb_config_GXL_skt);
-	board_usb_init(&g_usb_config_GXL_skt,BOARD_USB_MODE_HOST);
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 #if 0
 	sys_led_init();
@@ -513,10 +455,6 @@ int board_init(void)
 				aml_try_factory_usb_burning(0, gd->bd);
 	}
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
-#ifdef CONFIG_USB_XHCI_AMLOGIC_V2
-	board_usb_pll_disable(&g_usb_config_GXL_skt);
-	board_usb_init(&g_usb_config_GXL_skt,BOARD_USB_MODE_HOST);
-#endif /*CONFIG_USB_XHCI_AMLOGIC*/
 
 #if 0
 	aml_pwm_cal_init(0);

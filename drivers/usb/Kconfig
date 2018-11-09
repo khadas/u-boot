@@ -66,6 +66,12 @@ config SPL_DM_USB_GADGET
 	  Enable driver model for USB Gadget in SPL
 	  (Peripheral mode)
 
+config AML_USB
+	bool "the CONFIG_AML_USB is used to mark our own modifications"
+	depends on USB
+	---help---
+	  Say Y here if you want to use usb.
+
 source "drivers/usb/host/Kconfig"
 
 source "drivers/usb/dwc3/Kconfig"

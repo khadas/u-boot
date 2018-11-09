@@ -468,25 +468,12 @@
  */
 /* #define CONFIG_MUSB_UDC		1 */
 /* #define CONFIG_CMD_USB 1 */
-#if defined(CONFIG_CMD_USB)
-	#define AML_GXL_XHCI_BASE            0xff500000
-	#define AML_GXL_USB_PHY2_BASE        0xffe09000
-	#define AML_GXL_USB_PHY3_BASE        0xffe09080
-	#define AML_USB_PHY_20				0xff636000
-	#define AML_USB_PHY_21				0xff63A000
-	/*#define CONFIG_USB_STORAGE      1
-	#define CONFIG_USB_XHCI		1
-	#define CONFIG_USB_XHCI_AMLOGIC_V2 1*/
-	#define AML_USB_GPIO_PWR_NAME		"GPIOH_6"
-	/* #define CONFIG_USB_XHCI_AMLOGIC_USB3_V2		1 */
-#endif /* CONFIG_CMD_USB */
 
-#if 1
-#define AML_TXLX_USB        1
-#endif
 #define USB_PHY2_PLL_PARAMETER_1	0x09400414
 #define USB_PHY2_PLL_PARAMETER_2	0x927e0000
 #define USB_PHY2_PLL_PARAMETER_3	0xAC5F49E5
+
+#define AML_TXLX_USB        1
 
 /* UBOOT fastboot config */
 #if 0
