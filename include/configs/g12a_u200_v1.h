@@ -339,7 +339,7 @@
 /* #define CONFIG_AML_MTD 1*/
 
 /* support for nftl */
-#define CONFIG_AML_NAND	1
+/*#define CONFIG_AML_NAND	1*/
 
 #if defined(CONFIG_AML_NAND) && defined(CONFIG_AML_MTD)
 #error CONFIG_AML_NAND/CONFIG_AML_MTD can not support at the sametime;
@@ -371,7 +371,7 @@
 /* #define CONFIG_CMD_NAND 1 */
 #define CONFIG_MTD_DEVICE y
 /* mtd parts of ourown.*/
-#define CONFIFG_AML_MTDPART	1
+#define CONFIG_AML_MTDPART	1
 /* mtd parts by env default way.*/
 /*
 #define MTDIDS_NAME_STR		"aml_nand.0"
@@ -409,32 +409,10 @@
 #define 	CONFIG_SYS_NO_FLASH  1
 #endif
 
-/* SPI flash config */
-#ifdef CONFIG_AML_SPIFC
-	#define CONFIG_SPI_FLASH
-	#define CONFIG_DM_SPI_FLASH
-	#define CONFIG_CMD_SF
-	/* SPI flash surpport list */
-	#define CONFIG_SPI_FLASH_ATMEL
-	#define CONFIG_SPI_FLASH_EON
-	#define CONFIG_SPI_FLASH_GIGADEVICE
-	#define CONFIG_SPI_FLASH_MACRONIX
-	#define CONFIG_SPI_FLASH_SPANSION
-	#define CONFIG_SPI_FLASH_STMICRO
-	#define CONFIG_SPI_FLASH_SST
-	#define CONFIG_SPI_FLASH_WINBOND
-	#define CONFIG_SPI_FRAM_RAMTRON
-	#define CONFIG_SPI_M95XXX
-	#define CONFIG_SPI_FLASH_ESMT
-	/* SPI nand flash support */
-	#define CONFIG_SPI_NAND
-	#define CONFIG_BL2_SIZE (64 * 1024)
-#endif
-
 #if defined CONFIG_AML_MTD || defined CONFIG_SPI_NAND
 	#define CONFIG_CMD_NAND 1
 	#define CONFIG_MTD_DEVICE y
-	#define CONFIG_RBTREE
+	/* #define CONFIG_RBTREE */
 	#define CONFIG_CMD_NAND_TORTURE 1
 	#define CONFIG_CMD_MTDPARTS   1
 	#define CONFIG_MTD_PARTITIONS 1

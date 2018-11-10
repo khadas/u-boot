@@ -291,6 +291,12 @@ config AML_SPICC
 	help
 	  Enable support for SPICC on all meson SoCs.
 
+config AML_SPIFC
+	bool "Amlogic SPIFC Driver"
+	help
+	  Enable support for SPI Flash Controller on all meson SoCs.
+	  It should be set when user want SPI NAND or SPI NOR on meson SoCs.
+
 endif # if DM_SPI
 
 config SOFT_SPI

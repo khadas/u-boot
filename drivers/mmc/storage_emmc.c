@@ -1,4 +1,5 @@
-#include <storage.h>
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+#include <amlogic/storage.h>
 #include <dm/pinctrl.h>
 #include <partition_table.h>
 #include <emmc_partitions.h>

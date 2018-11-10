@@ -186,6 +186,191 @@ struct nand_flash_dev nand_flash_ids[] = {
 	{NULL}
 };
 
+#ifdef CONFIG_SPI_NAND
+/*
+ * The chip ID list:
+ *    name, device ID, page size, chip size in MiB, eraseblock size, options
+ */
+struct nand_flash_dev spi_nand_ids[] = {
+	{"SPI NAND GD5F1GQ4UA 128MiB 3.3V",
+		{ .id = {0xc8, 0xf1} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_128M,
+		.erasesize = SZ_128K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 64
+	},
+	{"SPI NAND GD5F2GQ4UA 256MiB 3.3V",
+		{ .id = {0xc8, 0xf2} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_256M,
+		.erasesize = SZ_128K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 64
+	},
+	{"SPI NAND GD5F4GQ4UA 512MiB 3.3V",
+		{ .id = {0xc8, 0xf4} },
+		.pagesize = SZ_4K,
+		.chipsize = SZ_512M,
+		.erasesize = SZ_256K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 128
+	},
+	{"SPI NAND GD5F1GQ4RA 128MiB 1.8V",
+		{ .id = {0xc8, 0xe1} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_128M,
+		.erasesize = SZ_128K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 64
+	},
+	{"SPI NAND GD5F2GQ4RA 256MiB 1.8V",
+		{ .id = {0xc8, 0xe2} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_256M,
+		.erasesize = SZ_128K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 64
+	},
+	{"SPI NAND GD5F4GQ4RA 512MiB 1.8V",
+		{ .id = {0xc8, 0xe4} },
+		.pagesize = SZ_4K,
+		.chipsize = SZ_512M,
+		.erasesize = SZ_256K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 128
+	},
+	{"SPI NAND GD5F1GQ4UB 128MiB 3.3V",
+		{ .id = {0xc8, 0xD1} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_128M,
+		.erasesize = SZ_128K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 64
+	},
+	{"SPI NAND GD5F2GQ4UB 256MiB 3.3V",
+		{ .id = {0xc8, 0xD2} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_256M,
+		.erasesize = SZ_128K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 64
+	},
+	{"SPI NAND GD5F4GQ4UB 512MiB 3.3V",
+		{ .id = {0xc8, 0xD4} },
+		.pagesize = SZ_4K,
+		.chipsize = SZ_512M,
+		.erasesize = SZ_256K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 128
+	},
+	{"SPI NAND GD5F1GQ4RB 128MiB 1.8V",
+		{ .id = {0xc8, 0xC1} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_128M,
+		.erasesize = SZ_128K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 64
+	},
+	{"SPI NAND GD5F2GQ4RB 256MiB 1.8V",
+		{ .id = {0xc8, 0xC2} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_256M,
+		.erasesize = SZ_128K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 64
+	},
+	{"SPI NAND GD5F4GQ4RB 512MiB 1.8V",
+		{ .id = {0xc8, 0xC4} },
+		.pagesize = SZ_4K,
+		.chipsize = SZ_512M,
+		.erasesize = SZ_256K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 128
+	},
+	{"SPI NAND GD5F1GQ1UC 128MiB 3.3V",
+		{ .id = {0xc8, 0xB1} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_128M,
+		.erasesize = SZ_128K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 64
+	},
+	{"SPI NAND GD5F2GQ4UC 256MiB 3.3V",
+		{ .id = {0xc8, 0xB2} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_256M,
+		.erasesize = SZ_128K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 64
+	},
+	{"SPI NAND GD5F4GQ4UC 512MiB 3.3V",
+		{ .id = {0xc8, 0xB4} },
+		.pagesize = SZ_4K,
+		.chipsize = SZ_512M,
+		.erasesize = SZ_256K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 128
+	},
+	{"SPI NAND GD5F1GQ1RC 128MiB 1.8V",
+		{ .id = {0xc8, 0xA1} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_128M,
+		.erasesize = SZ_128K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 64
+	},
+	{"SPI NAND GD5F2GQ4RC 256MiB 1.8V",
+		{ .id = {0xc8, 0xA2} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_256M,
+		.erasesize = SZ_128K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 64
+	},
+	{"SPI NAND GD5F4GQ4RC 512MiB 1.8V",
+		{ .id = {0xc8, 0xA4} },
+		.pagesize = SZ_4K,
+		.chipsize = SZ_512M,
+		.erasesize = SZ_256K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 128
+	},
+	{"SPI NAND TC58CVG1S3HRAIG 128MiB 3.3V",
+		{ .id = {0x98, 0xcb} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_256M,
+		.erasesize = SZ_128K,
+		.options = 0,
+		.id_len = 2,
+		/**
+		 * TODO: fix the oob layout
+		 * use 64, because the oob layout
+		 * has some problem yet.
+		 */
+		.oobsize = 64
+	},
+	{NULL}
+};
+#endif/* CONFIG_SPI_NAND */
 /* Manufacturer IDs */
 struct nand_manufacturers nand_manuf_ids[] = {
 	{NAND_MFR_TOSHIBA, "Toshiba"},
@@ -202,6 +387,7 @@ struct nand_manufacturers nand_manuf_ids[] = {
 	{NAND_MFR_SANDISK, "SanDisk"},
 	{NAND_MFR_INTEL, "Intel"},
 	{NAND_MFR_ATO, "ATO"},
+	{NAND_MFR_GIGA, "Gigadevice"},
 	{0x0, "Unknown"}
 };
 

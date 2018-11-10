@@ -27,7 +27,7 @@
 //#include <asm/arch/reboot.h>
 #include <asm/arch/romboot.h>
 //#include <amlogic/aml_lcd.h>
-#include <storage.h>
+#include <amlogic/storage.h>
 #include "v2_common/sparse_format.h"
 #include "v2_common/optimus_download.h"
 #include "v2_common/amlImage_if.h"

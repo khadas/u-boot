@@ -31,7 +31,7 @@
 #include <linux/types.h>
 #include <amlogic/secure_storage.h>
 #include <amlogic/amlkey_if.h>
-#include <storage.h>
+#include <amlogic/storage.h>
 #ifdef CONFIG_STORE_COMPATIBLE
 #include <partition_table.h>
 #endif

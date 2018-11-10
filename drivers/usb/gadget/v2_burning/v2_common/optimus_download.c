@@ -220,6 +220,8 @@ static int optimus_download_bootloader_image(struct ImgBurnInfo* pDownInfo, u32 
     return ret ? 0 : dataSzReceived;
 }
 
+extern unsigned device_boot_flag;
+
 static int optimus_verify_bootloader(struct ImgBurnInfo* pDownInfo, u8* genSum)
 {
     int ret = OPT_DOWN_OK;

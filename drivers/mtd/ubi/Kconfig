@@ -21,6 +21,12 @@ config MTD_UBI
 
 if MTD_UBI
 
+config MTD_PARTITIONS
+	bool "Enable mtd part"
+	default y
+	help
+		Sometimes user want partitions their mtd device, it't helpful to their management and operates their storage device in logic partition, enable this, mtd driver will support partitions.
+
 config MTD_UBI_WL_THRESHOLD
 	int "UBI wear-leveling threshold"
 	default 4096

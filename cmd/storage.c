@@ -1,80 +1,86 @@
-#include "storage.h"
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Storage interface module
+ *
+ * Copyright (C) 2018 Amlogic Corporation
+ *
+ */
+#include <amlogic/storage.h>
 
+#ifdef CONFIG_SPI_FLASH
+extern int spi_nor_pre(void);
+extern int spi_nor_probe(u32 init_flag);
+#endif
+
+#ifdef CONFIG_SPI_NAND
+extern int spi_nand_pre(void);
+extern int spi_nand_probe(u32 init_flag);
+#endif
+
+#ifdef CONFIG_AML_NAND
 extern int amlnf_pre(void);
-extern int amlnf_probe(uint32_t init_flag);
-extern int  emmc_pre(void);
-extern int emmc_probe(uint32_t init_flag);
+extern int amlnf_probe(u32 init_flag);
+#endif
 
-
-int nand_pre(void)
-{
-	return 1;
-}
-int spi_nand_pre(void)
-{
-	return 1;
-}
-int spi_nor_pre(void)
-{
-	return 1;
-}
-int sdcard_pre(void)
-{
-	return 1;
-}
-
-int nand_probe(uint32_t init_flag)
-{
-	return 0;
-}
-int spi_nand_probe(uint32_t init_flag)
-{
-	return 0;
-}
-int spi_nor_probe(uint32_t init_flag)
-{
-	return 0;
-}
-int sdcard_probe(uint32_t init_flag)
-{
-	return 0;
-}
-
-static struct device_node_t {
-	enum boot_type_e index;
-	int (*probe)(uint32_t init_flag);
-};
-
+static struct storage_t *current;
 static struct device_node_t device_list[] = {
-	{BOOT_EMMC, emmc_probe},
-	{BOOT_SD, sdcard_probe},
-	{BOOT_MLC, amlnf_probe},
-	{BOOT_SLC, nand_probe},
-	{BOOT_SNAND, spi_nand_probe},
-	{BOOT_SNOR, spi_nor_probe}
+#if 0
+	{BOOT_EMMC, "emmc", emmc_pre, emmc_probe},
+	{BOOT_SD, "sd", sdcard_pre, sdcard_probe},
+	{BOOT_SLC, "slc", nand_pre, nand_probe},
+#endif
+#ifdef CONFIG_AML_NAND
+	{BOOT_MLC, "mlc", amlnf_pre, amlnf_probe},
+#endif
+#ifdef CONFIG_SPI_NAND
+	{BOOT_SNAND, "spi-nand", spi_nand_pre, spi_nand_probe},
+#endif
+#if CONFIG_SPI_FLASH
+	{BOOT_SNOR, "spi-nor", spi_nor_pre, spi_nor_probe}
+#endif
 };
 
-static struct storage_t *store_current;
-
-void store_register(struct storage_t *store_dev)
+int store_register(struct storage_t *store_dev)
 {
-	if (!store_current) {
+	if (!store_dev)
+		return 1;
+	if (!current) {
 		INIT_LIST_HEAD(&store_dev->list);
-		store_current = store_dev;
-	} else {
-		list_add_tail(&store_dev->list, &store_current->list);
-		if (store_dev->type != BOOT_SD)
-			store_current = store_dev;
+		current = store_dev;
+		return 0;
 	}
+	/**
+	 * the head node will not be a valid node
+	 * usually when we use the list, but in storage
+	 * interface module, we init the device node as
+	 * a head instead a global list_head pointer,
+	 * it should be traversaled.
+	 */
+	if (store_dev == current)
+		return 0;
+	struct storage_t *dev;
+
+	if (store_dev->type == current->type)
+		return 1;
+	list_for_each_entry(dev, &current->list, list) {
+		if (dev == store_dev)
+			return 0;
+		else if (dev->type == store_dev->type)
+			return 1;
+	}
+	list_add_tail(&store_dev->list, &current->list);
+	current = store_dev;
+	return 0;
 }
 
 void store_unregister(struct storage_t *store_dev)
 {
-	if (store_dev == store_current) {
-		if (list_empty_careful(&store_dev->list))
-			store_current = NULL;
-		else {
-			store_current = list_entry((store_current->list).next, struct storage_t, list);
+	if (store_dev == current) {
+		if (list_empty_careful(&store_dev->list)) {
+			current = NULL;
+		} else {
+			current = list_entry((current->list).next,
+					     struct storage_t, list);
 			list_del_init(&store_dev->list);
 		}
 	} else {
@@ -82,16 +88,16 @@ void store_unregister(struct storage_t *store_dev)
 	}
 }
 
-uint8_t store_device_valid(enum boot_type_e type)
+u8 store_device_valid(enum boot_type_e type)
 {
 	struct list_head *entry;
 	struct storage_t *dev;
 
-	if (!store_current)
+	if (!current)
 		return 0;
-	if (store_current->type == type)
+	if (current->type == type)
 		return 1;
-	list_for_each(entry, &store_current->list) {
+	list_for_each(entry, &current->list) {
 		dev = list_entry(entry, struct storage_t, list);
 		if (dev->type == type)
 			return 1;
@@ -99,58 +105,23 @@ uint8_t store_device_valid(enum boot_type_e type)
 	return 0;
 }
 
-static uint32_t store_scan(void)
+int store_init(u32 init_flag)
 {
-	uint32_t ret = 0;
-	if (!emmc_pre())
-		ret |= BOOT_EMMC;
-	if (!sdcard_pre())
-		ret |= BOOT_SD;
-	if (!amlnf_pre())
-		ret |= BOOT_MLC;
-	if (!nand_pre())
-		ret |= BOOT_SLC;
-	if (!spi_nand_pre())
-		ret |= BOOT_SNAND;
-	if (!spi_nor_pre())
-		ret |= BOOT_SNOR;
-	return ret;
-}
+	int i, ret;
+	int record = 0;
 
-int store_init(uint32_t init_flag)
-{
-	uint32_t dev_list = 0;
-	int ret = 1, i;
-	dev_list = store_scan();
-	if (!dev_list)
-		return ret;
-	printf("device_list cnt: %d, %ld\n", dev_list, ARRAY_SIZE(device_list));
-	for (i = 0; i < ARRAY_SIZE(device_list); i++) {
-		if (dev_list & device_list[i].index) {
-			/*call store init multiple time*/
-			if ((device_list[i].index == BOOT_EMMC)
-				|| (device_list[i].index == BOOT_MLC)) {
-				printf("emmc/mlc probe\n");
-				ret = device_list[i].probe(init_flag);
-				if (ret)
-					printf("%s %d %d device probe fail\n",
-							__func__, __LINE__, device_list[i].index);
-			} else if (!store_device_valid(device_list[i].index)) {
-				printf("store no probe,first probe\n");
-				ret = device_list[i].probe(init_flag);
-				if (ret)
-					printf("%s %d %d device probe fail\n",
-							__func__, __LINE__, device_list[i].index);
-			}
+	for (i = 0; i < ARRAY_SIZE(device_list); i++)
+		if (!device_list[i].pre()) {
+			ret = device_list[i].probe(init_flag);
+			if (ret)
+				record |= device_list[i].index;
 		}
-	}
-
-	return ret;
+	return record;
 }
 
 static struct storage_t *store_get_current(void)
 {
-	return store_current;
+	return current;
 }
 
 int store_set_device(enum boot_type_e type)
@@ -167,21 +138,22 @@ int store_set_device(enum boot_type_e type)
 	list_for_each(entry, &store_dev->list) {
 		dev = list_entry(entry, struct storage_t, list);
 		if (dev->type == type) {
-			store_current = dev;
+			current = dev;
 			return 0;
 		}
 	}
 	pr_info("%s %d please confirm the %d device is valid\n",
-			__func__, __LINE__, type);
-	return 0;
+		__func__, __LINE__, type);
+	return 1;
 }
 
 enum boot_type_e store_get_type(void)
 {
 	struct storage_t *store = store_get_current();
+
 	if (!store) {
 		pr_info("%s %d please init storage device first\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return BOOT_NONE;
 	}
 
@@ -191,22 +163,25 @@ enum boot_type_e store_get_type(void)
 int store_get_device_info(struct storage_info_t *info)
 {
 	struct storage_t *store = store_get_current();
+
 	if (!store) {
 		pr_info("%s %d please init storage device first\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return 1;
 	}
 
-	memcpy((char *)info, (char *)&(store->info), sizeof(struct storage_info_t));
+	memcpy((char *)info, (char *)&store->info,
+	       sizeof(struct storage_info_t));
 	return 0;
 }
 
 int store_read(const char *name, loff_t off, size_t size, void *buf)
 {
 	struct storage_t *store = store_get_current();
+
 	if (!store) {
 		pr_info("%s %d please init storage device first\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return 1;
 	}
 	return store->read(name, off, size, buf);
@@ -215,9 +190,10 @@ int store_read(const char *name, loff_t off, size_t size, void *buf)
 int store_write(const char *name, loff_t off, size_t size, void *buf)
 {
 	struct storage_t *store = store_get_current();
+
 	if (!store) {
 		pr_info("%s %d please init storage device first\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return 1;
 	}
 	return store->write(name, off, size, buf);
@@ -226,86 +202,94 @@ int store_write(const char *name, loff_t off, size_t size, void *buf)
 int store_erase(const char *name, loff_t off, size_t size, int scrub)
 {
 	struct storage_t *store = store_get_current();
+
 	if (!store) {
 		pr_info("%s %d please init storage device first\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return 1;
 	}
 	return store->erase(name, off, size, scrub);
 }
 
-uint64_t store_part_size(const char *name)
+u64 store_part_size(const char *name)
 {
 	struct storage_t *store = store_get_current();
+
 	if (!store) {
 		pr_info("%s %d please init storage device first\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return 1;
 	}
 	return store->get_part_size(name);
 }
 
-uint8_t store_boot_copy_num(const char *name)
+u8 store_boot_copy_num(const char *name)
 {
 	struct storage_t *store = store_get_current();
+
 	if (!store) {
 		pr_info("%s %d please init storage device first\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return 1;
 	}
 	return store->get_copies(name);
 }
 
-uint64_t store_boot_copy_size(const char *name)
+u64 store_boot_copy_size(const char *name)
 {
 	struct storage_t *store = store_get_current();
+
 	if (!store) {
 		pr_info("%s %d please init storage device first\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return 1;
 	}
 	return store->get_copy_size(name);
 }
 
-int store_boot_read(const char *name, uint8_t copy, size_t size, void *buf)
+int store_boot_read(const char *name, u8 copy, size_t size, void *buf)
 {
 	struct storage_t *store = store_get_current();
+
 	if (!store) {
 		pr_info("%s %d please init storage device first\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return 1;
 	}
 	return store->boot_read(name, copy, size, buf);
 }
 
-int store_boot_write(const char *name, uint8_t copy, size_t size, void *buf)
+int store_boot_write(const char *name, u8 copy, size_t size, void *buf)
 {
 	struct storage_t *store = store_get_current();
+
 	if (!store) {
 		pr_info("%s %d please init storage device first\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return 1;
 	}
 	return store->boot_write(name, copy, size, buf);
 }
 
-int store_boot_erase(const char *name, uint8_t copy)
+int store_boot_erase(const char *name, u8 copy)
 {
 	struct storage_t *store = store_get_current();
+
 	if (!store) {
 		pr_info("%s %d please init storage device first\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return 1;
 	}
 	return store->boot_erase(name, copy);
 }
 
-uint32_t store_rsv_size(const char *name)
+u32 store_rsv_size(const char *name)
 {
 	struct storage_t *store = store_get_current();
+
 	if (!store) {
 		pr_info("%s %d please init storage device first\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return 1;
 	}
 	return store->get_rsv_size(name);
@@ -314,9 +298,10 @@ uint32_t store_rsv_size(const char *name)
 int store_rsv_read(const char *name, size_t size, void *buf)
 {
 	struct storage_t *store = store_get_current();
+
 	if (!store) {
 		pr_info("%s %d please init storage device first\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return 1;
 	}
 	return store->read_rsv(name, size, buf);
@@ -325,9 +310,10 @@ int store_rsv_read(const char *name, size_t size, void *buf)
 int store_rsv_write(const char *name, size_t size, void *buf)
 {
 	struct storage_t *store = store_get_current();
+
 	if (!store) {
 		pr_info("%s %d please init storage device first\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return 1;
 	}
 	return store->write_rsv(name, size, buf);
@@ -336,9 +322,10 @@ int store_rsv_write(const char *name, size_t size, void *buf)
 int store_rsv_erase(const char *name)
 {
 	struct storage_t *store = store_get_current();
+
 	if (!store) {
 		pr_info("%s %d please init storage device first\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return 1;
 	}
 	return store->erase_rsv(name);
@@ -347,51 +334,96 @@ int store_rsv_erase(const char *name)
 int store_rsv_protect(const char *name, bool ops)
 {
 	struct storage_t *store = store_get_current();
+
 	if (!store) {
 		pr_info("%s %d please init storage device first\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return 1;
 	}
 	return store->protect_rsv(name, ops);
 }
 
-static int do_store_init(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_store_init(cmd_tbl_t *cmdtp,
+			 int flag, int argc, char * const argv[])
 {
-	uint32_t init_flag = 1;
-	if (unlikely((argc != 2) && (argc != 3)))
+	u32 init_flag = 1;
+
+	if (unlikely(argc != 2 && argc != 3))
 		return CMD_RET_USAGE;
 
 	if (argc == 3)
 		init_flag = simple_strtoul(argv[2], NULL, 10);
+
 	return store_init(init_flag);
 }
 
-static int do_store_scrub(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+void store_print_device(struct storage_t *store_dev)
 {
-	struct storage_t *store = store_get_current();
-	unsigned long offset;
-	size_t size;
-	char *name = NULL;
+	int i;
 
-	if (!store) {
-		printf("%s %d please init your storage device first!\n",
-				__func__, __LINE__);
-		return CMD_RET_FAILURE;
-	}
-
-	if (unlikely((argc != 4) && (argc != 5)))
-		return CMD_RET_USAGE;
-
-	size = (size_t)simple_strtoul(argv[argc - 1], NULL, 16);
-	offset = simple_strtoul(argv[argc - 2], NULL, 16);
-	if (argc == 5)
-		name = argv[2];
-
-	printf ("%s, name %s,size: %ld",__func__, name,size);
-	return store->erase(name, offset, size, 1);
+	for (i = 0; i < ARRAY_SIZE(device_list); i++)
+		if (store_dev->type & device_list[i].index)
+			pr_info("device type: [%s]\n", device_list[i].type);
+	pr_info("name %s\n", store_dev->info.name);
+	pr_info("id :");
+	for (i = 0; i < ARRAY_SIZE(store_dev->info.id); i++)
+		pr_info(" 0x%x", store_dev->info.id[i]);
+	pr_info("\n");
+	pr_info("read unit %d\n", store_dev->info.read_unit);
+	pr_info("write unit %d\n", store_dev->info.write_unit);
+	pr_info("erase unit %d\n", store_dev->info.erase_unit);
+	pr_info("total size %lld\n", store_dev->info.caps);
+	if (store_dev->info.mode)
+		pr_info("bootloader in discrete mode : %d\n",
+			store_dev->info.mode);
+	else
+		pr_info("bootloader in compact mode : %d\n",
+			store_dev->info.mode);
 }
 
-static int do_store_erase(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_store_device(cmd_tbl_t *cmdtp,
+			   int flag, int argc, char * const argv[])
+{
+	if (argc == 2) {
+		struct storage_t *store_dev, *dev;
+		struct list_head *entry;
+
+		store_dev = store_get_current();
+		pr_info("current device:\n");
+		pr_info("----------------------------------\n");
+		store_print_device(store_dev);
+		pr_info("----------------------------------\n");
+		list_for_each(entry, &store_dev->list) {
+			dev = list_entry(entry, struct storage_t, list);
+			pr_info("valid device:\n");
+			pr_info("----------------------------------\n");
+			store_print_device(dev);
+			pr_info("----------------------------------\n");
+		}
+		return 0;
+	} else if (argc == 3) {
+		char *name = NULL;
+		int i = 0, ret = 0;
+
+		name = argv[2];
+		for (i = 0; i < ARRAY_SIZE(device_list); i++)
+			if (!strcmp(name, device_list[i].type)) {
+				ret = store_set_device(device_list[i].index);
+				if (!ret) {
+					pr_info("now current device is: %s\n",
+						name);
+					return 0;
+				}
+			}
+		pr_info("%s %d no such device: %s\n",
+			__func__, __LINE__, name);
+		return ret;
+	}
+	return CMD_RET_USAGE;
+}
+
+static int do_store_scrub(cmd_tbl_t *cmdtp,
+			  int flag, int argc, char * const argv[])
 {
 	struct storage_t *store = store_get_current();
 	unsigned long offset;
@@ -400,12 +432,36 @@ static int do_store_erase(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 
 	if (!store) {
 		pr_info("%s %d please init your storage device first!\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return CMD_RET_FAILURE;
 	}
 
-	printf("mode :%d",store->info.mode);
-	if (unlikely((argc != 4) && (argc != 5)))
+	if (unlikely(argc != 4 && argc != 5))
+		return CMD_RET_USAGE;
+
+	size = (size_t)simple_strtoul(argv[argc - 1], NULL, 16);
+	offset = simple_strtoul(argv[argc - 2], NULL, 16);
+	if (argc == 5)
+		name = argv[2];
+
+	return store->erase(name, offset, size, 1);
+}
+
+static int do_store_erase(cmd_tbl_t *cmdtp,
+			  int flag, int argc, char * const argv[])
+{
+	struct storage_t *store = store_get_current();
+	unsigned long offset;
+	size_t size;
+	char *name = NULL;
+
+	if (!store) {
+		pr_info("%s %d please init your storage device first!\n",
+			__func__, __LINE__);
+		return CMD_RET_FAILURE;
+	}
+
+	if (unlikely(argc != 4 && argc != 5))
 		return CMD_RET_USAGE;
 
 	size = (size_t)simple_strtoul(argv[argc - 1], NULL, 16);
@@ -416,7 +472,8 @@ static int do_store_erase(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 	return store->erase(name, offset, size, 0);
 }
 
-static int do_store_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_store_read(cmd_tbl_t *cmdtp,
+			 int flag, int argc, char * const argv[])
 {
 	struct storage_t *store = store_get_current();
 	unsigned long offset, addr;
@@ -425,11 +482,11 @@ static int do_store_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 
 	if (!store) {
 		pr_info("%s %d please init your storage device first!\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return CMD_RET_FAILURE;
 	}
 
-	if (unlikely((argc != 5) && (argc != 6)))
+	if (unlikely(argc != 5 && argc != 6))
 		return CMD_RET_USAGE;
 
 	addr = simple_strtoul(argv[2], NULL, 16);
@@ -440,7 +497,8 @@ static int do_store_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	return store->read(name, offset, size, (u_char *)addr);
 }
 
-static int do_store_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_store_write(cmd_tbl_t *cmdtp,
+			  int flag, int argc, char * const argv[])
 {
 	struct storage_t *store = store_get_current();
 	unsigned long offset, addr;
@@ -449,11 +507,11 @@ static int do_store_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 
 	if (!store) {
 		pr_info("%s %d please init your storage device first!\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return CMD_RET_FAILURE;
 	}
 
-	if (unlikely((argc != 5) && (argc != 6)))
+	if (unlikely(argc != 5 && argc != 6))
 		return CMD_RET_USAGE;
 
 	addr = simple_strtoul(argv[2], NULL, 16);
@@ -465,17 +523,18 @@ static int do_store_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 	return store->write(name, offset, size, (u_char *)addr);
 }
 
-static int do_store_boot_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_store_boot_read(cmd_tbl_t *cmdtp,
+			      int flag, int argc, char * const argv[])
 {
 	struct storage_t *store = store_get_current();
 	unsigned long addr;
 	size_t size;
-	uint8_t cpy;
+	u8 cpy;
 	char *name;
 
 	if (!store) {
 		pr_info("%s %d please init your storage device first!\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return CMD_RET_FAILURE;
 	}
 
@@ -484,68 +543,71 @@ static int do_store_boot_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 
 	name = argv[2];
 	addr = (unsigned long)simple_strtoul(argv[3], NULL, 16);
-	cpy = (uint8_t)simple_strtoul(argv[4], NULL, 16);
+	cpy = (u8)simple_strtoul(argv[4], NULL, 16);
 	size = (size_t)simple_strtoul(argv[5], NULL, 16);
 
 	return store->boot_read(name, cpy, size, (u_char *)addr);
 }
 
-static int do_store_boot_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_store_boot_write(cmd_tbl_t *cmdtp,
+			       int flag, int argc, char * const argv[])
 {
 	struct storage_t *store = store_get_current();
 	unsigned long addr;
 	size_t size;
-	uint8_t cpy = BOOT_OPS_ALL;
+	u8 cpy = BOOT_OPS_ALL;
 	char *name;
 
 	if (!store) {
 		pr_info("%s %d please init your storage device first!\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return CMD_RET_FAILURE;
 	}
 
-	if (unlikely((argc != 5) && (argc != 6)))
+	if (unlikely(argc != 5 && argc != 6))
 		return CMD_RET_USAGE;
 
 	name = argv[2];
 	addr = (unsigned long)simple_strtoul(argv[3], NULL, 16);
 	size = (size_t)simple_strtoul(argv[argc - 1], NULL, 16);
 	if (argc == 6)
-		cpy = (uint8_t)simple_strtoul(argv[4], NULL, 16);
+		cpy = (u8)simple_strtoul(argv[4], NULL, 16);
 
 	return store->boot_write(name, cpy, size, (u_char *)addr);
 }
 
-static int do_store_boot_erase(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_store_boot_erase(cmd_tbl_t *cmdtp,
+			       int flag, int argc, char * const argv[])
 {
 	struct storage_t *store = store_get_current();
-	uint8_t cpy = BOOT_OPS_ALL;
+	u8 cpy = BOOT_OPS_ALL;
 	char *name;
 
 	if (!store) {
 		pr_info("%s %d please init your storage device first!\n",
-				__func__, __LINE__);
+			__func__, __LINE__);
 		return CMD_RET_FAILURE;
 	}
 
-	if (unlikely((argc != 3) && (argc != 4)))
+	if (unlikely(argc != 3 && argc != 4))
 		return CMD_RET_USAGE;
 
 	name = argv[2];
 	if (argc == 4)
-		cpy = (uint8_t)simple_strtoul(argv[3], NULL, 16);
+		cpy = (u8)simple_strtoul(argv[3], NULL, 16);
 
 	return store->boot_erase(name, cpy);
 }
 
-static int do_store_rsv_ops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_store_rsv_ops(cmd_tbl_t *cmdtp,
+			    int flag, int argc, char * const argv[])
 {
 	struct storage_t *store = store_get_current();
 	char *name = NULL;
 
 	if (!store) {
-		printf("%s %d please init your storage device first!\n",
-				__func__, __LINE__);
+		pr_info("%s %d please init your storage device first!\n",
+			__func__, __LINE__);
 		return CMD_RET_FAILURE;
 	}
 
@@ -559,11 +621,11 @@ static int do_store_rsv_ops(cmd_tbl_t *cmdtp, int flag, int argc, char * const a
 		return store->erase_rsv(name);
 	} else if (!strcmp(argv[2], "read") ||
 			   !strcmp(argv[2], "write")) {
-		uint8_t cmd = strcmp(argv[2], "read") ? 0 : 1;
+		u8 cmd = strcmp(argv[2], "read") ? 0 : 1;
 		unsigned long addr = simple_strtoul(argv[4], NULL, 16);
 		size_t size = (size_t)simple_strtoul(argv[5], NULL, 16);
-		name = argv[3];
 
+		name = argv[3];
 		if (unlikely(argc != 6))
 			return CMD_RET_USAGE;
 		if (cmd)
@@ -574,7 +636,7 @@ static int do_store_rsv_ops(cmd_tbl_t *cmdtp, int flag, int argc, char * const a
 		bool flag = false;
 		char *ops;
 
-		if (unlikely((argc != 4) && (argc != 5)))
+		if (unlikely(argc != 4 && argc != 5))
 			return CMD_RET_USAGE;
 
 		name = (argc == 4) ? NULL : argv[3];
@@ -589,15 +651,16 @@ static int do_store_rsv_ops(cmd_tbl_t *cmdtp, int flag, int argc, char * const a
 }
 
 static cmd_tbl_t cmd_store_sub[] = {
-	U_BOOT_CMD_MKENT(init,			4, 0, do_store_init, "", ""),
-	U_BOOT_CMD_MKENT(scrub,			5, 0, do_store_scrub, "", ""),
-	U_BOOT_CMD_MKENT(erase,			5, 0, do_store_erase, "", ""),
-	U_BOOT_CMD_MKENT(read,			6, 0, do_store_read, "", ""),
-	U_BOOT_CMD_MKENT(write,			7, 0, do_store_write, "", ""),
-	U_BOOT_CMD_MKENT(boot_read,		6, 0, do_store_boot_read, "", ""),
+	U_BOOT_CMD_MKENT(init,	4, 0, do_store_init, "", ""),
+	U_BOOT_CMD_MKENT(device,	4, 0, do_store_device, "", ""),
+	U_BOOT_CMD_MKENT(scrub,	5, 0, do_store_scrub, "", ""),
+	U_BOOT_CMD_MKENT(erase,	5, 0, do_store_erase, "", ""),
+	U_BOOT_CMD_MKENT(read,	6, 0, do_store_read, "", ""),
+	U_BOOT_CMD_MKENT(write,	7, 0, do_store_write, "", ""),
+	U_BOOT_CMD_MKENT(boot_read,	6, 0, do_store_boot_read, "", ""),
 	U_BOOT_CMD_MKENT(boot_write,	6, 0, do_store_boot_write, "", ""),
 	U_BOOT_CMD_MKENT(boot_erase,	4, 0, do_store_boot_erase, "", ""),
-	U_BOOT_CMD_MKENT(rsv,			6, 0, do_store_rsv_ops, "", ""),
+	U_BOOT_CMD_MKENT(rsv,	6, 0, do_store_rsv_ops, "", ""),
 };
 
 static int do_store(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -609,17 +672,22 @@ static int do_store(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	c = find_cmd_tbl(argv[1], cmd_store_sub, ARRAY_SIZE(cmd_store_sub));
 
-	if (c) {
+	if (c)
 		return c->cmd(cmdtp, flag, argc, argv);
-	}
 
 	return CMD_RET_USAGE;
 }
 
 U_BOOT_CMD(store, CONFIG_SYS_MAXARGS, 1, do_store,
-	"STORE sub-system",
+	   "STORE sub-system",
 	"store init [flag]\n"
 	"	init storage device\n"
+	"store device [name]\n"
+	"	init storage device\n"
+	"	'store device' command will list\n"
+	"	all valid storage device and print.\n"
+	"	'store device [name]' will set the\n"
+	"	[name] device to the current device\n"
 	"store read addr [partition name] off size\n"
 	"	read 'size' bytes from offset 'off'\n"
 	"	of device/partition 'partition name' to.\n"
@@ -635,21 +703,31 @@ U_BOOT_CMD(store, CONFIG_SYS_MAXARGS, 1, do_store,
 	"	erase 'size' bytes from offset 'off'\n"
 	"	of device/partition [partition name]\n"
 	"	includes oob area if the device has.\n"
-	"store boot_read bootloader/tpl addr cpy size\n"
-	"	read 'size' bytes from 'cpy'th backup\n"
-	"	of 'bootloader/tpl' partition.\n"
-	"store boot_write bootloader/tpl addr [cpy] size\n"
-	"	write 'size' bytes to 'cpy' of\n"
-	"	bootloader/tpl partition from address\n"
-	"	'addr' of memory. when the optional 'cpy'\n"
+	"store boot_read [name] addr copy size\n"
+	"	read 'size' bytes from 'copy'th backup\n"
+	"	in [name] partition, 'copy' can't be null.\n"
+	"	[name]:\n"
+	"	in discrete mode: 'bl2'/'tpl'(fip)\n"
+	"	in compact mode: 'bootloader'\n"
+	"store boot_write [name] addr [copy] size\n"
+	"	write 'size' bytes to 'copy'th backup\n"
+	"	in [name] partition from address\n"
+	"	'addr' of memory. when the optional 'copy'\n"
 	"	is null, it will writes to all copies\n"
-	"store boot_erase bootloader/tpl [cpy]\n"
-	"	when the optional 'cpy' is null, it\n"
+	"	[name]:\n"
+	"	in discrete mode: 'bl2'/'tpl'(fip)\n"
+	"	in compact mode: 'bootloader'\n"
+	"store boot_erase [name] [copy]\n"
+	"	erase the [name] info from 'copy'th backup\n"
+	"	when the optional 'copy' is null, it\n"
 	"	will erase all copies.\n"
+	"	[name]:\n"
+	"	in discrete mode: 'bl2'/'tpl'(fip)\n"
+	"	in compact mode: 'bootloader'\n"
 	"store rsv read name addr size\n"
 	"	read 'size' bytes 'name' rsv info\n"
 	"	to address 'addr' of memory\n"
-	"	'name' could be key/dtb/env etc..."
+	"	'name' could be key/dtb/env etc...\n"
 	"store rsv write name addr size\n"
 	"	write 'size' bytes 'name' rsv info\n"
 	"	from address 'addr' of memory\n"
