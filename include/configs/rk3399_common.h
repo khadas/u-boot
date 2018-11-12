@@ -70,6 +70,7 @@
 	ROCKCHIP_DEVICE_SETTINGS \
 	RKIMG_DET_BOOTDEV \
 	"update=gpio set 6; rockusb 0 mmc 0\0" \
+	"maskrom=rbrom\0" \
 	BOOTENV
 
 #endif
