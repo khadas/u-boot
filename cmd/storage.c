@@ -2,11 +2,9 @@
 
 extern int amlnf_pre(void);
 extern int amlnf_probe(uint32_t init_flag);
+extern int  emmc_pre(void);
+extern int emmc_probe(uint32_t init_flag);
 
-int emmc_pre(void)
-{
-	return 1;
-}
 
 int nand_pre(void)
 {
@@ -21,11 +19,6 @@ int spi_nor_pre(void)
 	return 1;
 }
 int sdcard_pre(void)
-{
-	return 1;
-}
-
-int emmc_probe(uint32_t init_flag)
 {
 	return 1;
 }

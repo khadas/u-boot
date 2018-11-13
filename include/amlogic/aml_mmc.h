@@ -47,7 +47,7 @@ int mmc_key_erase(void);
 
 /* partition operation */
 int renew_partition_tbl(unsigned char *buffer);
-int find_dev_num_by_partition_name (char *name);
+int find_dev_num_by_partition_name (char const *name);
 
 #ifdef CONFIG_AML_PARTITION
 int emmc_update_mbr(unsigned char *buffer);

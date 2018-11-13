@@ -1487,6 +1487,7 @@ config CMD_TERMINAL
 config CMD_UUID
 	bool "uuid, guid - generation of unique IDs"
 	select LIB_UUID
+	default y if AML_GPT
 	help
 	  This enables two commands:
 

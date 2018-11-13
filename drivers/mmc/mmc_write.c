@@ -14,6 +14,10 @@
 #include <linux/math64.h>
 #include "mmc_private.h"
 
+
+extern bool emmckey_is_access_range_legal(struct mmc *mmc,
+		ulong start, lbaint_t blkcnt);
+
 static ulong mmc_erase_t(struct mmc *mmc, ulong start, lbaint_t blkcnt)
 {
 	struct mmc_cmd cmd;
@@ -34,7 +38,6 @@ static ulong mmc_erase_t(struct mmc *mmc, ulong start, lbaint_t blkcnt)
 		start_cmd = MMC_CMD_ERASE_GROUP_START;
 		end_cmd = MMC_CMD_ERASE_GROUP_END;
 	}
-
 	cmd.cmdidx = start_cmd;
 	cmd.cmdarg = start;
 	cmd.resp_type = MMC_RSP_R1;
@@ -45,7 +48,6 @@ static ulong mmc_erase_t(struct mmc *mmc, ulong start, lbaint_t blkcnt)
 
 	cmd.cmdidx = end_cmd;
 	cmd.cmdarg = end;
-
 	err = mmc_send_cmd(mmc, &cmd, NULL);
 	if (err)
 		goto err_out;
@@ -84,11 +86,17 @@ ulong mmc_berase(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt)
 	if (!mmc)
 		return -1;
 
+	if (!emmckey_is_access_range_legal(mmc, start, blkcnt))
+		return blkcnt;
+
 	err = blk_select_hwpart_devnum(IF_TYPE_MMC, dev_num,
 				       block_dev->hwpart);
 	if (err < 0)
 		return -1;
-
+	if (blkcnt == 0) {
+		blkcnt = mmc->capacity/512 - (mmc->capacity/512)% mmc->erase_grp_size; // erase whole
+		printf("blkcnt = %lu\n",blkcnt);
+	}
 	/*
 	 * We want to see if the requested start or total block count are
 	 * unaligned.  We discard the whole numbers and only care about the
@@ -109,21 +117,21 @@ ulong mmc_berase(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt)
 			blk_r = ((blkcnt - blk) > mmc->ssr.au) ?
 				mmc->ssr.au : (blkcnt - blk);
 		} else {
-			blk_r = ((blkcnt - blk) > mmc->erase_grp_size) ?
+			blk_r = ((blkcnt - blk) < mmc->erase_grp_size) ?
 				mmc->erase_grp_size : (blkcnt - blk);
 		}
 		err = mmc_erase_t(mmc, start + blk, blk_r);
 		if (err)
-			break;
+			return 1;
 
 		blk += blk_r;
 
 		/* Waiting for the ready status */
 		if (mmc_send_status(mmc, timeout))
-			return 0;
+			return 1;
 	}
 
-	return blk;
+	return 0;
 }
 
 static ulong mmc_write_blocks(struct mmc *mmc, lbaint_t start,
@@ -132,7 +140,6 @@ static ulong mmc_write_blocks(struct mmc *mmc, lbaint_t start,
 	struct mmc_cmd cmd;
 	struct mmc_data data;
 	int timeout = 1000;
-
 	if ((start + blkcnt) > mmc_get_blk_desc(mmc)->lba) {
 		printf("MMC: block number 0x" LBAF " exceeds max(0x" LBAF ")\n",
 		       start + blkcnt, mmc_get_blk_desc(mmc)->lba);
@@ -209,15 +216,19 @@ ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 	if (mmc_set_blocklen(mmc, mmc->write_bl_len))
 		return 0;
 
+	if (!emmckey_is_access_range_legal(mmc, start, blkcnt))
+		return 0;
+
 	do {
 		cur = (blocks_todo > mmc->cfg->b_max) ?
 			mmc->cfg->b_max : blocks_todo;
+
 		if (mmc_write_blocks(mmc, start, cur, src) != cur)
 			return 0;
+
 		blocks_todo -= cur;
 		start += cur;
 		src += cur * mmc->write_bl_len;
 	} while (blocks_todo > 0);
-
 	return blkcnt;
 }

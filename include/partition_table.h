@@ -7,7 +7,7 @@
 //#include <asm/arch/poc.h>
 
 
-//#define STORE_DBG
+#define STORE_DBG
 #ifdef STORE_DBG
 #define store_dbg(fmt, ...) printk( "%s: line:%d " fmt "\n", \
 				  __func__, __LINE__, ##__VA_ARGS__)
@@ -43,7 +43,6 @@
 #define SPI_EMMC_FLAG			5
 
 #define _AML_DEVICE_BOOT_FLAG_DEFAULT   (0XFFFFFFFF)
-extern unsigned  device_boot_flag;
 
 #define START_ADDR 			0xd9000200
 #define TABLE_MAGIC_NAME  		"part"
@@ -70,8 +69,6 @@ extern struct partitions *get_partitions(void);
 extern int get_partition_count(void);
 extern void free_partitions(void);
 /* only nand&emmc for gxb and later soc */
-static inline int is_mainstorage_emmc(void) {return(device_boot_flag == EMMC_BOOT_FLAG);}
-static inline int is_mainstorage_nand(void) {return(device_boot_flag == NAND_BOOT_FLAG);}
 
 #endif// #ifndef _PARTITION_TABLE_H
 

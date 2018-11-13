@@ -49,7 +49,7 @@ struct storage_t {
 	int (*write)(const char *part_name, loff_t off, size_t size, void *source);
 	int (*erase)(const char *part_name, loff_t off, size_t size, int scrub_flag);
 
-#define BOOT_OPS_ALL 0xFF;/* for cpy parameter operats all copies */
+#define BOOT_OPS_ALL 0xff;/* for cpy parameter operats all copies */
 	uint8_t (*get_copies)(const char *part_name);
 	uint64_t (*get_copy_size)(const char *part_name);
 	int (*boot_read)(const char *part_name, uint8_t cpy, size_t size, void *dest);

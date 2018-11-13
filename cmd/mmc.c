@@ -428,9 +428,9 @@ static int do_mmc_erase(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	}
 	n = blk_derase(mmc_get_blk_desc(mmc), blk, cnt);
-	printf("%d blocks erased: %s\n", n, (n == cnt) ? "OK" : "ERROR");
+	printf("%d blocks erased: %s\n", n, (n == 0) ? "OK" : "ERROR");
 
-	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
+	return (!n) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
 }
 #endif
 

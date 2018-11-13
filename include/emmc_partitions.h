@@ -227,9 +227,9 @@ extern int get_emmc_partition_arraysize(void);
  *	< 0 means no partition found
  *	>= 0 means valid partition
  */
-extern int get_partition_num_by_name(char *name);
+extern int get_partition_num_by_name(char const *name);
 
-struct partitions* find_mmc_partition_by_name (char *name);
+struct partitions* find_mmc_partition_by_name (char const *name);
 struct partitions *aml_get_partition_by_name(const char *name);
 int mmc_boot_size(char *name, uint64_t* size);
 struct virtual_partition *aml_get_virtual_partition_by_name(const char *name);

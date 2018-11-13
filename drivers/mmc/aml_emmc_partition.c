@@ -22,6 +22,8 @@
 #include <asm/arch-g12a/cpu_id.h>
 #include <part_efi.h>
 
+
+DECLARE_GLOBAL_DATA_PTR;
 /* using mbr*/
 #define CONFIG_PTBL_MBR	(0)
 #if (CONFIG_PTBL_MBR)
@@ -95,12 +97,7 @@ struct _iptbl {
 	int count;	/* partition count in use */
 };
 
-#ifdef CONFIG_AML_NAND
-unsigned device_boot_flag = (unsigned)_AML_DEVICE_BOOT_FLAG_DEFAULT;
-#else
-/*unsigned device_boot_flag = (unsigned)_AML_DEVICE_BOOT_FLAG_DEFAULT;*/
-unsigned device_boot_flag = (unsigned)EMMC_BOOT_FLAG;
-#endif
+unsigned device_boot_flag = 0xff;
 bool is_partition_checked = false;
 
 #ifndef CONFIG_AML_MMC_INHERENT_PART
@@ -240,6 +237,8 @@ static ulong _mmc_rsv_write(struct mmc *mmc, ulong offset, ulong size, void * bu
 	return (ulong)(_cnt * mmc->read_bl_len);
 }
 
+
+
 static struct partitions * get_ptbl_from_dtb(struct mmc *mmc)
 {
 	struct partitions * ptbl = NULL;
@@ -290,6 +289,9 @@ _err:
 #endif
 }
 
+
+
+
 static struct partitions *is_prio_partition(struct _iptbl *list, struct partitions *part)
 {
 	int i;
@@ -332,8 +334,6 @@ static int _calculate_offset(struct mmc *mmc, struct _iptbl *itbl, u32 bottom)
 #endif
 	if (!strcmp(part->name, "bootloader")) {
 		gap = MMC_BOOT_PARTITION_RESERVED;
-		if (!is_mainstorage_emmc())
-			sprintf(part->name, "bootloadere");
 	}
 	for (i=1; i<itbl->count; i++) {
 		/**/
@@ -990,7 +990,7 @@ static __attribute__((unused)) int _update_ptbl_mbr(struct mmc *mmc, struct _ipt
 	return ret;
 }
 
-#if (AML_CONSTRUCT_GPT)
+#ifdef CONFIG_AML_GPT
 int is_gpt_changed(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 {
 	int i, k;
@@ -1003,7 +1003,6 @@ int is_gpt_changed(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 	uint64_t size;
 	char name[PARTNAME_SZ];
 	int gpt_changed = 0;
-
 	struct blk_desc *dev_desc = mmc_get_blk_desc(mmc);
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
 
@@ -1026,7 +1025,6 @@ int is_gpt_changed(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 		}
 			return 1;
 	}
-
 	for (i = 0; i < le32_to_cpu(gpt_head->num_partition_entries); i++) {
 		if (!is_pte_valid(&gpt_pte[i]))
 			break;
@@ -1280,7 +1278,7 @@ int mmc_device_init (struct mmc *mmc)
 		}
 	}
 #endif
-#if (AML_CONSTRUCT_GPT)
+#ifdef CONFIG_AML_GPT
 	char *str_disk_guid;
 	int gpt_priority = GPT_PRIORITY;
 	disk_partition_t *disk_partition;
@@ -1288,7 +1286,6 @@ int mmc_device_init (struct mmc *mmc)
 	struct blk_desc *dev_desc = mmc_get_blk_desc(mmc);
 	disk_partition = calloc(1, PAD_TO_BLOCKSIZE(sizeof(disk_partition_t) * dcount, dev_desc));
 	trans_ept_to_diskpart(p_iptbl_ept, disk_partition);
-
 	str_disk_guid = malloc(UUID_STR_LEN + 1);
 	if (str_disk_guid == NULL) {
 		free(disk_partition);
@@ -1322,12 +1319,13 @@ _out:
 }
 
 
-struct partitions *find_mmc_partition_by_name (char *name)
+struct partitions *find_mmc_partition_by_name (char const *name)
 {
 	struct partitions *partition = NULL;
 
-	if (NULL == p_iptbl_ept)
+	if (NULL == p_iptbl_ept) {
 		goto _out;
+	}
 	partition = p_iptbl_ept->partitions;
 	partition = _find_partition_by_name(partition,
 			p_iptbl_ept->count, name);
@@ -1338,7 +1336,7 @@ _out:
 /*
  find virtual partition in inherent table.
 */
-int find_virtual_partition_by_name (char *name, struct partitions *partition)
+int find_virtual_partition_by_name (char const *name, struct partitions *partition)
 {
 	int ret = 0;
 	ulong offset;
@@ -1361,7 +1359,7 @@ int find_virtual_partition_by_name (char *name, struct partitions *partition)
 	return ret;
 }
 
-int find_dev_num_by_partition_name (char *name)
+int find_dev_num_by_partition_name (char const *name)
 {
 	int dev = -1;
 
@@ -1502,7 +1500,7 @@ _out:
  *     < 0 means no partition found
  *     >= 0 means valid partition
  */
-__weak int get_partition_num_by_name(char *name)
+__weak int get_partition_num_by_name(char const *name)
 {
 	   int ret = -1;
 	   struct partitions *partition = NULL;

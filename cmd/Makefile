@@ -8,8 +8,9 @@ ifndef CONFIG_SPL_BUILD
 obj-y += boot.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-y += help.o
-obj-$(CONFIG_CMD_MMC) += version.o
+obj-y += version.o
 obj-$(CONFIG_CMD_MMC) += aml_mmc.o
+
 # command
 obj-$(CONFIG_CMD_AES) += aes.o
 obj-$(CONFIG_CMD_ADC) += adc.o

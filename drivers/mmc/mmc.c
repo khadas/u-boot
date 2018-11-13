@@ -22,10 +22,62 @@
 #include "mmc_private.h"
 #include <emmc_partitions.h>
 #include <partition_table.h>
+
+
 static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage);
 static int mmc_power_cycle(struct mmc *mmc);
 #if !CONFIG_IS_ENABLED(MMC_TINY)
 static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps);
+#endif
+
+extern int emmc_probe(uint32_t init_flag);
+
+bool emmckey_is_access_range_legal (struct mmc *mmc, ulong start, lbaint_t blkcnt) {
+	ulong key_start_blk, key_end_blk;
+	u64 key_glb_offset;
+	struct partitions * part = NULL;
+	struct virtual_partition *vpart = NULL;
+	if (IS_MMC(mmc)) {
+		vpart = aml_get_virtual_partition_by_name(MMC_KEY_NAME);
+		part = aml_get_partition_by_name(MMC_RESERVED_NAME);
+		key_glb_offset = part->offset + vpart->offset;
+		key_start_blk = (key_glb_offset / MMC_BLOCK_SIZE);
+		key_end_blk = ((key_glb_offset + vpart->size) / MMC_BLOCK_SIZE - 1);
+		if (!(info_disprotect & DISPROTECT_KEY)) {
+			if ((key_start_blk <= (start + blkcnt -1))
+				&& (key_end_blk >= start)
+				&& (blkcnt != start)) {
+				printf("%s, keys %ld, keye %ld, start %ld, blkcnt %ld\n", __func__,
+					key_start_blk, key_end_blk, start, blkcnt);
+				printf("Emmckey: Access range is illegal!\n");
+				return 0;
+			}
+		}
+	}
+	return 1;
+}
+
+#if CONFIG_IS_ENABLED(MMC_TINY)
+static struct mmc mmc_static;
+struct mmc *find_mmc_device(int dev_num)
+{
+	return &mmc_static;
+}
+
+void mmc_do_preinit(void)
+{
+	struct mmc *m = &mmc_static;
+#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
+	mmc_set_preinit(m, 1);
+#endif
+	if (m->preinit)
+		mmc_start_init(m);
+}
+
+struct blk_desc *mmc_get_blk_desc(struct mmc *mmc)
+{
+	return &mmc->block_dev;
+}
 #endif
 
 #if !CONFIG_IS_ENABLED(DM_MMC)
@@ -211,7 +263,7 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 {
 	struct mmc_cmd cmd;
 	int err, retries = 5;
-
+	int status;
 	cmd.cmdidx = MMC_CMD_SEND_STATUS;
 	cmd.resp_type = MMC_RSP_R1;
 	if (!mmc_host_is_spi(mmc))
@@ -244,11 +296,15 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 	mmc_trace_state(mmc, &cmd);
 	if (timeout <= 0) {
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-		pr_err("Timeout waiting card ready\n");
+		printf("Timeout waiting card ready\n");
 #endif
 		return -ETIMEDOUT;
 	}
-
+	status = (cmd.response[0] & MMC_STATUS_CURR_STATE) >> 9;
+	if (cmd.response[0] & MMC_STATUS_SWITCH_ERROR) {
+		printf("mmc status swwitch error status =0x%x\n", status);
+		return -21;
+	}
 	return 0;
 }
 
@@ -436,6 +492,8 @@ ulong mmc_bread(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 		pr_debug("%s: Failed to set blocklen\n", __func__);
 		return 0;
 	}
+	if (!emmckey_is_access_range_legal(mmc, start, blkcnt))
+		return 0;
 
 	do {
 		cur = (blocks_todo > mmc->cfg->b_max) ?
@@ -1097,7 +1155,6 @@ int mmc_hwpart_config(struct mmc *mmc,
 		/* update erase group size to be high-capacity */
 		mmc->erase_grp_size =
 			ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] * 1024;
-
 	}
 
 	/* all OK, write the configuration */
@@ -2212,7 +2269,6 @@ static int mmc_startup_v4(struct mmc *mmc)
 	else {
 		/* Calculate the group size from the csd value. */
 		int erase_gsz, erase_gmul;
-
 		erase_gsz = (mmc->csd[2] & 0x00007c00) >> 10;
 		erase_gmul = (mmc->csd[2] & 0x000003e0) >> 5;
 		mmc->erase_grp_size = (erase_gsz + 1)
@@ -2766,13 +2822,19 @@ int mmc_init(struct mmc *mmc)
 		err = mmc_complete_init(mmc);
 	if (err)
 		pr_info("%s: %d, time %lu\n", __func__, err, get_timer(start));
+	info_disprotect |= DISPROTECT_KEY;
 	if (IS_MMC(mmc)) {
-		if (mmc_device_init(mmc) == 0) {
+		if (!is_partition_checked) {
+			if (mmc_device_init(mmc) == 0) {
 			is_partition_checked = true;
 			printf("eMMC/TSD partition table have been checked OK!\n");
+			}
 		}
+	err = emmc_probe(0xff);
 	}
+	info_disprotect &= ~DISPROTECT_KEY;
 	return err;
+
 }
 
 int mmc_set_dsr(struct mmc *mmc, u16 val)
@@ -2896,27 +2958,96 @@ int mmc_set_bkops_enable(struct mmc *mmc)
 }
 #endif
 
+extern unsigned long blk_dwrite(struct blk_desc *block_dev, lbaint_t start,
+		lbaint_t blkcnt, const void *buffer);
+
+int mmc_key_write(unsigned char *buf, unsigned int size, uint32_t *actual_lenth)
+{
+	ulong start, start_blk, blkcnt, ret;
+	unsigned char * temp_buf = buf;
+	int i = 2, dev = EMMC_DTB_DEV;
+	struct partitions * part = NULL;
+	struct mmc *mmc;
+	struct virtual_partition *vpart = NULL;
+	vpart = aml_get_virtual_partition_by_name(MMC_KEY_NAME);
+	part = aml_get_partition_by_name(MMC_RESERVED_NAME);
+
+	mmc = find_mmc_device(dev);
+
+	start = part->offset + vpart->offset;
+	start_blk = (start / MMC_BLOCK_SIZE);
+	blkcnt = (size / MMC_BLOCK_SIZE);
+	info_disprotect |= DISPROTECT_KEY;
+	do {
+		ret = blk_dwrite(mmc_get_blk_desc(mmc), start_blk, blkcnt, temp_buf);
+		if (ret != blkcnt) {
+			printf("[%s] %d, mmc_bwrite error\n",
+				__func__, __LINE__);
+			return 1;
+		}
+		start_blk += vpart->size / MMC_BLOCK_SIZE;
+	} while (--i);
+	info_disprotect &= ~DISPROTECT_KEY;
+	return 0;
+}
+
+
+
+
+extern unsigned long blk_derase(struct blk_desc *block_dev, lbaint_t start,
+		lbaint_t blkcnt);
 
 int mmc_key_erase(void)
 {
-	/*ulong start, start_blk, blkcnt, ret;
+	ulong start, start_blk, blkcnt, ret;
 	struct partitions * part = NULL;
 	struct virtual_partition *vpart = NULL;
+	struct mmc *mmc;
 	vpart = aml_get_virtual_partition_by_name(MMC_KEY_NAME);
 	part = aml_get_partition_by_name(MMC_RESERVED_NAME);
 	int dev = EMMC_DTB_DEV;
 
+	mmc = find_mmc_device(dev);
 	start = part->offset + vpart->offset;
 	start_blk = (start / MMC_BLOCK_SIZE);
 	blkcnt = (vpart->size / MMC_BLOCK_SIZE) * 2;//key and backup key
 	info_disprotect |= DISPROTECT_KEY;
-	ret = mmc_berase(dev, start_blk, blkcnt);
+	ret = blk_derase(mmc_get_blk_desc(mmc), start_blk, blkcnt);
 	info_disprotect &= ~DISPROTECT_KEY;
 	if (ret) {
 		printf("[%s] %d mmc_berase error\n",
 				__func__, __LINE__);
 		return 1;
-	}*/
+	}
 	return 0;
 }
+
+
+int mmc_key_read(unsigned char *buf, unsigned int size, uint32_t *actual_lenth)
+{
+	ulong start, start_blk, blkcnt, ret;
+	int dev = EMMC_DTB_DEV;
+	unsigned char *temp_buf = buf;
+	struct partitions * part = NULL;
+	struct mmc *mmc;
+	struct virtual_partition *vpart = NULL;
+	vpart = aml_get_virtual_partition_by_name(MMC_KEY_NAME);
+	part = aml_get_partition_by_name(MMC_RESERVED_NAME);
+
+	mmc = find_mmc_device(dev);
+	*actual_lenth =  0x40000;/*key size is 256KB*/
+	start = part->offset + vpart->offset;
+	start_blk = (start / MMC_BLOCK_SIZE);
+	blkcnt = (size / MMC_BLOCK_SIZE);
+	info_disprotect |= DISPROTECT_KEY;
+	ret = blk_dread(mmc_get_blk_desc(mmc), start_blk, blkcnt, temp_buf);
+	info_disprotect &= ~DISPROTECT_KEY;
+	if (ret != blkcnt) {
+		printf("[%s] %d, mmc_bread error\n",
+			__func__, __LINE__);
+		return 1;
+	}
+	return 0;
+}
+
 
