@@ -191,12 +191,16 @@ static void board_init_adjust_env(void)
 extern char bootloader_ver[24];
 int board_late_init(void)
 {
+    int board = 0;
 	debug("board_late_init\n");
 
 	board_init_adjust_env();
 
 	load_disk_partitions();
 
+    board = getBoardType();
+    setenv("board_type", simple_itoa(board));
+    printf("getBoardType=%d\n", board);
 #ifdef CONFIG_RK_PWM_REMOTE
         RemotectlInit();
 #endif

@@ -450,7 +450,7 @@
 			"\0"\
 		"cmdline_keys="\
 			"kbi ethmac;" \
-			"setenv khadas_bootargs ${khadas_bootargs}  mac=${eth_mac} androidboot.mac=${eth_mac};" \
+			"setenv khadas_bootargs ${khadas_bootargs} board.type=${board_type}  mac=${eth_mac} androidboot.mac=${eth_mac};" \
 			"\0"
 
 #define CONFIG_KHADAS_APPENDED_CMDLINE \

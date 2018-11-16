@@ -85,6 +85,39 @@ static int GetPortState(key_config *key)
 	return 0;
 }
 
+int getBoardType()
+{
+   uint32 tt;
+   uint32 captain_hCnt = 0;
+   uint32 edge_hCnt = 0;
+   uint32 edge_v_hCnt = 0;
+   int needCnt = 5;
+   for (tt = 0; tt < 10; tt++) {
+      uint32 value;
+      uint32 timeout = 0;
+      write_XDATA32(SARADC_BASE + 8, 0);
+      DRVDelayUs(5);
+      write_XDATA32(SARADC_BASE + 8, 0x0028 | CARRIER_DET_CN);
+      DRVDelayUs(5);
+      do {
+        value = read_XDATA32(SARADC_BASE + 8);
+        timeout++;
+      } while((value & 0x40) == 0);
+      value = read_XDATA32(SARADC_BASE + 0);
+      if ((value <= EDGE_HIGH_VAL) && (value >= EDGE_LOW_VAL))
+          edge_hCnt++;
+      if ((value <= CAPTAIN_HIGH_VAL) && (value >= CAPTAIN_LOW_VAL))
+          captain_hCnt++;
+    }
+    write_XDATA32(SARADC_BASE + 8, 0);
+    if (captain_hCnt > needCnt)
+	   return CAPTAIN_BOARD;
+    if (edge_hCnt > needCnt)
+       return EDGE_BOARD;
+    if (edge_v_hCnt > needCnt)
+       return EDGE_V_BOARD;
+    return EDGE_BOARD;
+}
 
 int checkKey(uint32* boot_rockusb, uint32* boot_recovery, uint32* boot_fastboot)
 {

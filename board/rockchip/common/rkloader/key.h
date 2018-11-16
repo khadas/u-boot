@@ -19,6 +19,15 @@
 #define KEY_ADC_CN		1
 #endif
 
+#define EDGE_BOARD     0
+#define CAPTAIN_BOARD  1
+#define EDGE_V_BOARD   2
+#define CARRIER_DET_CN  0
+#define EDGE_LOW_VAL  1000
+#define EDGE_HIGH_VAL 1040
+#define CAPTAIN_LOW_VAL  150
+#define CAPTAIN_HIGH_VAL 180
+
 typedef enum{
 	KEY_NULL,
 	KEY_AD,      // AD°´¼ü
