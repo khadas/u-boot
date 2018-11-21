@@ -15,19 +15,20 @@
 #define SD_EMMC_CLKSRC_24M		24000000	/* 24 MHz */
 #define SD_EMMC_CLKSRC_DIV2		1000000000	/* 1 GHz */
 
+
 #define MESON_SD_EMMC_CLOCK		0x00
-#define   CLK_MAX_DIV			63
-#define   CLK_SRC_24M			(0 << 6)
-#define   CLK_SRC_DIV2			(1 << 6)
-#define   CLK_CO_PHASE_000		(0 << 8)
-#define   CLK_CO_PHASE_090		(1 << 8)
-#define   CLK_CO_PHASE_180		(2 << 8)
-#define   CLK_CO_PHASE_270		(3 << 8)
-#define   CLK_TX_PHASE_000		(0 << 10)
-#define   CLK_TX_PHASE_090		(1 << 10)
-#define   CLK_TX_PHASE_180		(2 << 10)
-#define   CLK_TX_PHASE_270		(3 << 10)
-#define   CLK_ALWAYS_ON			BIT(24)
+#define CLK_MAX_DIV   63
+#define	Cfg_div 	0
+#define Cfg_src		6
+#define Cfg_co_phase	8
+#define	Cfg_tx_phase	10
+#define	Cfg_rx_phase	12
+#define	Cfg_sram_pd		14
+#define	Cfg_tx_delay	16
+#define	Cfg_rx_delay	22
+#define	Cfg_always_on	28
+#define	Cfg_irq_sdio_sleep   29
+#define Cfg_irq_sdio_sleep_ds		30
 
 #define MESON_SD_EMMC_CFG		0x44
 #define   CFG_BUS_WIDTH_MASK		GENMASK(1, 0)

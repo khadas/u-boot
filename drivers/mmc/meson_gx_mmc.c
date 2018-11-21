@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <malloc.h>
+#include <clk.h>
 #include <mmc.h>
 #include <asm/io.h>
 #include <asm/arch/sd_emmc.h>
@@ -31,33 +32,51 @@ static inline void meson_write(struct mmc *mmc, uint32_t val, int offset)
 
 static void meson_mmc_config_clock(struct mmc *mmc)
 {
+	struct clk clk_24, clk_1000, clk_gate, clk_div, clk_mux, core;
+	struct udevice *clk_udevice;
 	uint32_t meson_mmc_clk = 0;
-	unsigned int clk, clk_src, clk_div;
 
 	if (!mmc->clock)
 		return;
-
-	/* 1GHz / CLK_MAX_DIV = 15,9 MHz */
-	if (mmc->clock > 16000000) {
-		clk = SD_EMMC_CLKSRC_DIV2;
-		clk_src = CLK_SRC_DIV2;
+	meson_mmc_clk =((0 << Cfg_irq_sdio_sleep_ds) |
+					(0 << Cfg_irq_sdio_sleep) |
+					(1 << Cfg_always_on) |
+					(0 << Cfg_rx_delay) |
+					(0 << Cfg_tx_delay) |
+					(0 << Cfg_sram_pd) |
+					(0 << Cfg_rx_phase) |
+					(0 << Cfg_src) |
+					(1 << Cfg_div));
+	if (mmc->clock<25000000) {
+		meson_mmc_clk |= (dev_read_u32_default(mmc->dev, "core-phase0", 2)<<Cfg_co_phase);
+		meson_mmc_clk |= (dev_read_u32_default(mmc->dev, "tx-phase0", 0)<<Cfg_tx_phase);
 	} else {
-		clk = SD_EMMC_CLKSRC_24M;
-		clk_src = CLK_SRC_24M;
+		meson_mmc_clk |= (dev_read_u32_default(mmc->dev, "core-phase1", 2)<<Cfg_co_phase);
+		meson_mmc_clk |= (dev_read_u32_default(mmc->dev, "tx-phase1", 0)<<Cfg_tx_phase);
 	}
-	clk_div = DIV_ROUND_UP(clk, mmc->clock);
-
-	/* 180 phase core clock */
-	meson_mmc_clk |= CLK_CO_PHASE_180;
-
-	/* 180 phase tx clock */
-	meson_mmc_clk |= CLK_TX_PHASE_000;
-
-	/* clock settings */
-	meson_mmc_clk |= clk_src;
-	meson_mmc_clk |= clk_div;
-
 	meson_write(mmc, meson_mmc_clk, MESON_SD_EMMC_CLOCK);
+
+
+	uclass_get_device_by_name(UCLASS_CLK, "amlogic,g12a-clkc", &clk_udevice);
+
+
+	clk_get_by_name(mmc->dev, "clkin", &clk_1000);
+	clk_get_by_name(mmc->dev, "clkin1", &clk_24);
+	clk_get_by_name(mmc->dev, "clkin2", &clk_mux);
+	clk_get_by_name(mmc->dev, "clkin3", &clk_div);
+	clk_get_by_name(mmc->dev, "clkin4", &clk_gate);
+	clk_get_by_name(mmc->dev, "core", &core);
+
+	clk_enable(&core);
+
+	if (mmc->clock > 16000000)
+		clk_set_parent(&clk_mux, &clk_1000);
+	else
+		clk_set_parent(&clk_mux, &clk_24);
+
+	clk_set_rate(&clk_div, mmc->clock);
+	clk_enable(&clk_gate);
+
 }
 
 static int meson_dm_mmc_set_ios(struct udevice *dev)
@@ -254,6 +273,7 @@ static int meson_mmc_probe(struct udevice *dev)
 
 	mmc_set_clock(mmc, cfg->f_min, MMC_CLK_ENABLE);
 
+
 	/* reset all status bits */
 	meson_write(mmc, STATUS_MASK, MESON_SD_EMMC_STATUS);
 
@@ -265,7 +285,6 @@ static int meson_mmc_probe(struct udevice *dev)
 	val &= ~CFG_SDCLK_ALWAYS_ON;
 	val |= CFG_AUTO_CLK;
 	meson_write(mmc, val, MESON_SD_EMMC_CFG);
-
 	return 0;
 }
 

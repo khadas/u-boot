@@ -49,23 +49,33 @@ static struct meson_gate gates[] = {
 		{CLKID_SPICC1_GATE,	HHI_SPICC_CLK_CNTL, 22},
 		{CLKID_SARADC_GATE,	AO_SAR_CLK, 8},
 		{CLKID_AO_I2C,		AO_CLK_GATE0, 2},
+		{CLKID_SD_EMMC_A_P0_GATE,       HHI_SD_EMMC_CLK_CNTL, 7},
+		{CLKID_SD_EMMC_B_P0_GATE,       HHI_SD_EMMC_CLK_CNTL, 23},
+		{CLKID_SD_EMMC_C_P0_GATE,       HHI_NAND_CLK_CNTL, 7},
 };
 
 static unsigned int spicc_parents[] = {CLKID_XTAL, CLKID_CLK81, CLKID_FCLK_DIV4,
 CLKID_FCLK_DIV3, CLKID_UNREALIZED, CLKID_FCLK_DIV5, CLKID_FCLK_DIV7, CLKID_UNREALIZED};
 
 static unsigned int saradc_parents[] = {CLKID_XTAL, CLKID_AO_CLK81};
-
+static unsigned int sd_emmc_parents[] = {CLKID_XTAL, CLKID_FCLK_DIV2, CLKID_FCLK_DIV3,
+	CLKID_FCLK_DIV5, CLKID_FCLK_DIV7, CLKID_UNREALIZED, CLKID_UNREALIZED, CLKID_UNREALIZED};
 static struct meson_mux muxes[] = {
 		{CLKID_SPICC0_MUX, HHI_SPICC_CLK_CNTL, 7,  7, spicc_parents, ARRAY_SIZE(spicc_parents)},
 		{CLKID_SPICC1_MUX, HHI_SPICC_CLK_CNTL, 23, 7, spicc_parents, ARRAY_SIZE(spicc_parents)},
 		{CLKID_SARADC_MUX, AO_SAR_CLK, 9, 3, saradc_parents, ARRAY_SIZE(saradc_parents)},
+		{CLKID_SD_EMMC_A_P0_MUX, HHI_SD_EMMC_CLK_CNTL, 9, 7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
+		{CLKID_SD_EMMC_B_P0_MUX, HHI_SD_EMMC_CLK_CNTL, 25, 7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
+		{CLKID_SD_EMMC_C_P0_MUX, HHI_NAND_CLK_CNTL, 25, 7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
 };
 
 static struct meson_div divs[] = {
 		{CLKID_SPICC0_DIV, HHI_SPICC_CLK_CNTL, 0,  6, CLKID_SPICC0_MUX},
 		{CLKID_SPICC1_DIV, HHI_SPICC_CLK_CNTL, 16, 7, CLKID_SPICC1_MUX},
 		{CLKID_SARADC_DIV, AO_SAR_CLK, 0, 8, CLKID_SARADC_MUX},
+		{CLKID_SD_EMMC_A_P0_DIV, HHI_SD_EMMC_CLK_CNTL, 0, 7, CLKID_SD_EMMC_A_P0_MUX},
+		{CLKID_SD_EMMC_B_P0_DIV, HHI_SD_EMMC_CLK_CNTL, 16, 7, CLKID_SD_EMMC_B_P0_MUX},
+		{CLKID_SD_EMMC_C_P0_DIV, HHI_NAND_CLK_CNTL, 0, 7, CLKID_SD_EMMC_C_P0_MUX},
 };
 
 static struct parm meson_fixed_pll_parm[3] = {

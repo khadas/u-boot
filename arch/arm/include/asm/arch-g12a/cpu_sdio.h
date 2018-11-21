@@ -30,17 +30,6 @@
 #define SDIO_PORT_B 1
 #define SDIO_PORT_C 2
 
-#define	Cfg_div 	0
-#define Cfg_src		6
-#define Cfg_co_phase	8
-#define	Cfg_tx_phase	10
-#define	Cfg_rx_phase	12
-#define	Cfg_sram_pd		14
-#define	Cfg_tx_delay	16
-#define	Cfg_rx_delay	22
-#define	Cfg_always_on	28
-#define	Cfg_irq_sdio_sleep   29
-#define Cfg_irq_sdio_sleep_ds		30
 
 #define	SD_EMMC_RXD_ERROR				1
 #define	SD_EMMC_TXD_ERROR				1<<1

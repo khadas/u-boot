@@ -4,6 +4,7 @@
 #include <partition_table.h>
 #include <emmc_partitions.h>
 #include <asm/arch-g12a/cpu_id.h>
+#include <asm/arch-g12a/bl31_apis.h>
 #include <linux/compat.h>
 
 #define USER_PARTITION 0
@@ -33,39 +34,45 @@ extern int dtb_read(void *addr);
 extern int dtb_write(void *addr);
 extern int renew_partition_tbl(unsigned char *buffer);
 
-
-static int storage_range_check(char const *part_name,loff_t offset, size_t *size,loff_t *off) {
+static int storage_range_check(struct mmc *mmc,char const *part_name,loff_t offset, size_t *size,loff_t *off) {
 
 	struct partitions *part_info = NULL;
+
 	cpu_id_t cpu_id = get_cpu_id();
 
 
-	part_info = find_mmc_partition_by_name(part_name);
-	if (!part_info) {
-		printf("error partition name!\n");
-		return 1;
-	}
-	*off = part_info->offset+offset;
-	if (offset >= part_info->size) {
-		printf("Start address out #%s# partition'address region,(off < 0x%llx)\n",
-						part_name, part_info->size);
-		return 1;
-	}
-	if ((*off+*size) > (part_info->size+part_info->offset)) {
-		printf("End address exceeds #%s# partition,(offset = 0x%llx,size = 0x%llx)\n",
-						part_name, part_info->offset,part_info->size);
-		return 1;
-	}
-	if (*size == 0) {
-		*size = part_info->size - offset;
-
-		if (cpu_id.family_id >= MESON_CPU_MAJOR_ID_GXL&&!strcmp(part_name,"bootloader")) {
+	if (strcmp(part_name, "bootloader") == 0) {
+		*off = 0;
+		if (cpu_id.family_id >= MESON_CPU_MAJOR_ID_GXL) {
 			*off += 512;
-			*size = *size -512;
+		}
+		if (*size == 0) {
+			*size =mmc->capacity_boot;
+			if (cpu_id.family_id >= MESON_CPU_MAJOR_ID_GXL) {
+				*size = *size - 512;
+			}
 		}
 	} else {
-		if (cpu_id.family_id >= MESON_CPU_MAJOR_ID_GXL&&!strcmp(part_name,"bootloader"))
-			*off += 512;
+		part_info = find_mmc_partition_by_name(part_name);
+		if (!part_info) {
+			printf("error partition name!\n");
+			return 1;
+		}
+		*off = part_info->offset+offset;
+		if (offset >= part_info->size) {
+			printf("Start address out #%s# partition'address region,(off < 0x%llx)\n",
+						part_name, part_info->size);
+			return 1;
+		}
+		if ((*off+*size) > (part_info->size+part_info->offset)) {
+			printf("End address exceeds #%s# partition,(offset = 0x%llx,size = 0x%llx)\n",
+						part_name, part_info->offset,part_info->size);
+			return 1;
+		}
+
+		if (*size == 0) {
+			*size = part_info->size - offset;
+		}
 	}
 	return 0;
 }
@@ -81,13 +88,13 @@ static int storage_rsv_range_check(char const *part_name, size_t *size,loff_t *o
 	vpart = aml_get_virtual_partition_by_name(part_name);
 
 	if (!vpart) {
-	printf("error partition name!\n");
-	return 1;
+		printf("error partition name!\n");
+		return 1;
 	}
 	part = aml_get_partition_by_name(MMC_RESERVED_NAME);
 	if (!part) {
-	printf("error partition name!\n");
-	return 1;
+		printf("error partition name!\n");
+		return 1;
 	}
 	*off = part->offset + vpart->offset;
 	if ((*size) > vpart->size) {
@@ -204,21 +211,14 @@ static int storage_byte_erase(struct mmc *mmc,loff_t off, size_t  size) {
 static int storage_erase_in_part(char const *part_name, loff_t off, size_t size)
 {
 	int ret = 1;
-	int dev = 0;
 	struct mmc *mmc;
 	loff_t offset;
 
-	dev = find_dev_num_by_partition_name (part_name);
-
-	if (dev < 0) {
-		printf("Cannot find dev.\n");
-		return 1;
-	}
-	mmc = find_mmc_device(dev);
+	mmc = find_mmc_device(STORAGE_EMMC);
 	if (!mmc)
 		return 1;
 
-	ret = storage_range_check(part_name, off, &size, &offset);
+	ret = storage_range_check(mmc,part_name, off, &size, &offset);
 	if (ret)
 		return ret;
 
@@ -230,22 +230,15 @@ static int storage_erase_in_part(char const *part_name, loff_t off, size_t size)
 
 static int storage_read_in_part(char const *part_name, loff_t off, size_t size, void *dest)
 {
-	int dev;
 	int ret =1;
 	struct mmc *mmc;
 	loff_t offset;
-	dev = find_dev_num_by_partition_name (part_name);
 
-	if (dev < 0) {
-		printf("Cannot find dev.\n");
-		return 1;
-	}
-
-	mmc = find_mmc_device(dev);
+	mmc = find_mmc_device(STORAGE_EMMC);
 	if (!mmc)
 		return 1;
 
-	ret = storage_range_check(part_name,off,&size,&offset);
+	ret = storage_range_check(mmc,part_name,off,&size,&offset);
 
 	if (ret) return ret;
 
@@ -257,22 +250,16 @@ static int storage_read_in_part(char const *part_name, loff_t off, size_t size, 
 
 static int storage_write_in_part(char const *part_name, loff_t off, size_t size, void *source)
 {
-	int dev;
 	int ret = 1;
 	loff_t offset;
 	struct mmc *mmc;
 
-	dev = find_dev_num_by_partition_name (part_name);
-	if (dev < 0) {
-		printf("Cannot find dev.\n");
-		return 1;
-	}
-	mmc = find_mmc_device(dev);
+	mmc = find_mmc_device(STORAGE_EMMC);
 	if (!mmc) {
 		printf("Cannot find mmc. \n");
 		return 1;
 	}
-	ret = storage_range_check(part_name, off, &size, &offset);
+	ret = storage_range_check(mmc,part_name, off, &size, &offset);
 	if (ret) return ret;
 
 	ret = storage_byte_write(mmc, offset, size, source);
@@ -585,11 +572,10 @@ E_SWITCH_BACK:
 
 uint32_t mmc_get_rsv_size(const char *rsv_name) {
 
-	char ret=0;
 	struct virtual_partition *vpart = NULL;
 	vpart = aml_get_virtual_partition_by_name(rsv_name);
-	printf("the %s partition size is:%llx   byte\n",rsv_name,(vpart->size)*2);
-	return (vpart->size)*2;
+	printf("the %s partition size is:%llx   byte\n",rsv_name,vpart->size);
+	return vpart->size;
 
 }
 
@@ -598,7 +584,7 @@ int mmc_read_rsv(const char *rsv_name, size_t size, void *buf) {
 	char ret=1;
 	struct mmc *mmc;
 	loff_t off =0;
-
+	unsigned long dtImgAddr = simple_strtoul(buf, NULL, 16);
 	ret = !strcmp("key", rsv_name) || !strcmp("dtb", rsv_name)||!strcmp("fastboot", rsv_name);
 	if (!ret) return 1;
 
@@ -772,6 +758,9 @@ int emmc_probe(uint32_t init_flag)
 	storage_dev->protect_rsv = mmc_protect_rsv;
 	store_register(storage_dev);
 	printf("emmc probe success\n");
+
+	if (init_flag != 0xff)
+		return !is_partition_checked;
 exit_error:
 	return ret;
 }

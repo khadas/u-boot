@@ -18,6 +18,9 @@
 #define HHI_GCLK_MPEG2			0x148 /* 0x52 offset in data sheet1 */
 #define HHI_GCLK_OTHER			0x150 /* 0x54 offset in data sheet1 */
 
+#define HHI_NAND_CLK_CNTL              0x25c /* 0x97 offset in data sheet1 */
+#define HHI_SD_EMMC_CLK_CNTL   0x264 /* 0x99 offset in data sheet1 */
+
 #define HHI_FIX_PLL_CNTL0		0x2A0 /* 0xa8 offset in data sheet1 */
 #define HHI_FIX_PLL_CNTL1		0x2A4 /* 0xa9 offset in data sheet1 */
 
