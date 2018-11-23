@@ -85,7 +85,7 @@
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL3 0xffffffff //amlogic tv ir --- ch-
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL4 0xBA45BD02
 
-#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL5 0xffffffff
+#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL5 0x3ac5bd02 // map 'info' to 'netflix'
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS \

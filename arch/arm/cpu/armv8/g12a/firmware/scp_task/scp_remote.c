@@ -41,7 +41,7 @@ typedef struct remote_pwrkeys {
 }remote_pwrkeys_t;
 
 remote_pwrkeys_t pwr_keys_list;
-unsigned int usr_pwr_key = 0xffffffff;
+unsigned int usr_pwr_key = 0x3ac5bd02; // map 'info' to 'netflix'
 
 //24M
 static const reg_remote RDECODEMODE_NEC[] = {
