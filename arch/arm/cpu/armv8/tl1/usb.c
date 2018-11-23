@@ -102,6 +102,7 @@ void board_usb_pll_disable(struct amlogic_usb_config *cfg)
 
 void set_usb_phy_tuning_1(int port)
 {
+#ifndef CONFIG_USB_AMLOGIC_PHY_V2
 	unsigned long phy_reg_base;
 
 	if (port > 2)
@@ -116,6 +117,6 @@ void set_usb_phy_tuning_1(int port)
 	(*(volatile uint32_t *)(phy_reg_base + 0x50)) = 0xfe18;
 	(*(volatile uint32_t *)(phy_reg_base + 0x38)) = 0xe0004;
 	(*(volatile uint32_t *)(phy_reg_base + 0x34)) = 0xc8000;
+#endif
 }
 #endif
-

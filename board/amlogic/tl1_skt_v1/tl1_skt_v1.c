@@ -397,14 +397,14 @@ int board_early_init_f(void){
 #ifdef CONFIG_USB_XHCI_AMLOGIC_V2
 #include <asm/arch/usb-v2.h>
 #include <asm/arch/gpio.h>
-#define CONFIG_GXL_USB_U2_PORT_NUM	2
+#define CONFIG_GXL_USB_U2_PORT_NUM	CONFIG_USB_U2_PORT_NUM
 
 #ifdef CONFIG_USB_XHCI_AMLOGIC_USB3_V2
 #define CONFIG_GXL_USB_U3_PORT_NUM	1
 #else
 #define CONFIG_GXL_USB_U3_PORT_NUM	0
 #endif
-
+#if 0
 static void gpio_set_vbus_power(char is_power_on)
 {
 	int ret;
@@ -423,11 +423,11 @@ static void gpio_set_vbus_power(char is_power_on)
 		gpio_direction_output(CONFIG_USB_GPIO_PWR, 0);
 	}
 }
-
+#endif
 struct amlogic_usb_config g_usb_config_GXL_skt={
 	CONFIG_GXL_XHCI_BASE,
 	USB_ID_MODE_HARDWARE,
-	gpio_set_vbus_power,//gpio_set_vbus_power, //set_vbus_power
+	NULL,//gpio_set_vbus_power,//gpio_set_vbus_power, //set_vbus_power
 	CONFIG_GXL_USB_PHY2_BASE,
 	CONFIG_GXL_USB_PHY3_BASE,
 	CONFIG_GXL_USB_U2_PORT_NUM,
@@ -435,6 +435,7 @@ struct amlogic_usb_config g_usb_config_GXL_skt={
 	.usb_phy2_pll_base_addr = {
 		CONFIG_USB_PHY_20,
 		CONFIG_USB_PHY_21,
+		CONFIG_USB_PHY_22,
 	}
 };
 
