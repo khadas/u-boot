@@ -7,4 +7,8 @@ config AML_DRIVER
 
 source "drivers/amlogic/media/Kconfig"
 
+source "drivers/amlogic/keymanage/Kconfig"
+
+source "drivers/amlogic/storagekey/Kconfig"
+
 endmenu

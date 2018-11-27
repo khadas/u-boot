@@ -1,0 +1,15 @@
+menuconfig UNIFY_KEY_MANAGE
+    bool "Amlogic unifykey"
+	depends on OF_LIBFDT
+    help
+        This enables support for keyman (Amlogic key manage),
+        A driver providing APIs for flash key and efuse key
+if UNIFY_KEY_MANAGE
+    config AML_SECURITY_KEY
+        depends on SECURE_STORAGE
+        bool "Amlogic flash key"
+        default y
+        select SHA256
+        help
+            "security key wrapper for APIs bl31"
+endif #if UNIFY_KEY_MANAGE
