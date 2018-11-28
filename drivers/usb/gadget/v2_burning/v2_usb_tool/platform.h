@@ -12,10 +12,6 @@
 
 #include <asm/arch/register.h>
 
-//#include "romboot.h"
-//Elvis Fool
-//#pragma Offwarn(88)  /* disable "Expression has no side-effects" print debug info*/
-
 /* A3,CS2,M3 chip, PORT_A is OTG, work as ROM Boot port */
 #ifdef __USE_PORT_B
 #define PORT_REG_OFFSET   0x80000

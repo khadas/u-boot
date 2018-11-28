@@ -21,7 +21,7 @@
 #define UPGRADE_STEPS_FOR_BURN_DATA_PARTS_IN_PKG(allInPkg)     \
     ((allInPkg) ? (UPGRADE_STPES_AFTER_BURN_DATA_PARTS_OK - UPGRADE_STEPS_AFTER_DISK_INIT_OK - 1) : (UPGRADE_STPES_AFTER_BURN_DATA_PARTS_OK - UPGRADE_STEPS_AFTER_DISK_INIT_OK - 10))
 
-#if CONFIG_SD_BURNING_SUPPORT_UI
+#if defined(CONFIG_SD_BURNING_SUPPORT_UI)
 int show_logo_to_report_burning(void);//show bmp 'upgrade_upgrading'
 
 int show_logo_to_report_burn_failed(void); //Display logo to report burning result is failed

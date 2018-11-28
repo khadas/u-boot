@@ -41,6 +41,7 @@ static KmDevKeyOps _SecukeyOps = {
         .can_overwrite       = 1                               ,
 };
 
+#if defined(CONFIG_EFUSE)
 static KmDevKeyOps _efuseKeyOps = {
         .pInitFunc           = keymanage_efuse_init            ,
         .pUninitFunc         = keymange_efuse_exit             ,
@@ -52,6 +53,7 @@ static KmDevKeyOps _efuseKeyOps = {
 
         .can_overwrite       = 0                               ,
 };
+#endif//#if defined(CONFIG_EFUSE)
 
 #define _KM_DEV_INDEX_SECUREKEY         0
 #define _KM_DEV_INDEX_EFUSE             1

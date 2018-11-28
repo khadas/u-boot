@@ -14,6 +14,8 @@
 #include <lcd.h>
 #include <video_font.h>
 
+typedef struct bmp_header bmp_header_t;
+
 #ifdef CONFIG_VIDEO_AMLLCD
 extern int lcd_drawchars (ushort x, ushort y, uchar *str, int count);
 #else
@@ -22,7 +24,11 @@ extern int lcd_drawchars (ushort x, ushort y, uchar *str, int count);
 #endif// #ifdef CONFIG_VIDEO_AMLLCD
 
 #ifdef CONFIG_AML_VOUT
+#ifdef OSD_SCALE_ENABLE
 #define _VIDEO_DEV_OPEN "hdmitx hpd;osd open;osd clear;vout output ${outputmode};bmp scale;"
+#else
+#define _VIDEO_DEV_OPEN "hdmitx hpd;osd open;osd clear;vout output ${outputmode};"
+#endif//#ifdef OSD_SCALE_ENABLE
 #else
 #define _VIDEO_DEV_OPEN "video dev bl_on;"
 #endif// #ifdef CONFIG_VIDEO_AMLTVOUT
@@ -144,9 +150,6 @@ static int _show_burn_logo(const char* bmpOffsetName) //Display logo to report b
         DWN_ERR("Fail in run[%s], bmpOffsetName=%s\n", bmpCmd, bmpOffsetName);
         return __LINE__;
     }
-#ifdef CONFIG_OSD_SCALE_ENABLE
-    /*run_command("bmp scale", 0);*/
-#endif// #ifdef CONFIG_OSD_SCALE_ENABLE
 
     return 0;
 }
@@ -317,10 +320,6 @@ int optimus_progress_ui_set_unfocus_bkg(__hdle hUiProgress, unsigned long unfocu
         progressBarX += bkgWidth;
     }
 
-#ifdef CONFIG_OSD_SCALE_ENABLE
-    //run_command("bmp scale", 0);
-#endif// #ifdef CONFIG_OSD_SCALE_ENABLE
-
     return 0;
 }
 
@@ -392,9 +391,6 @@ int optimus_progress_ui_direct_update_progress(__hdle hUiProgress, const int per
 
         pUiProgress->nextProgressBarX += pUiProgress->progressBarWidth_f;
     }
-#ifdef CONFIG_OSD_SCALE_ENABLE
-    //run_command("bmp scale", 0);
-#endif// #ifdef CONFIG_OSD_SCALE_ENABLE
 
     pUiProgress->curPercent                 = percents;
 
