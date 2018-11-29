@@ -157,4 +157,11 @@ config WDT_MPC8xx
 	help
 	   Select this to enable mpc8xx watchdog timer
 
+config WDT_MESON
+	bool "Amlogic Meson watchdog timer support"
+	depends on WDT
+	help
+	   Select this to enable Amlogic Meson watchdog timer, which can be
+	   found on some Amlogic Meson chips.
+
 endmenu

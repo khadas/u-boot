@@ -1928,4 +1928,9 @@ config CMD_UBIFS
 	help
 	  UBIFS is a file system for flash devices which works on top of UBI.
 
+config CMD_WATCHDOG
+	bool "CMD_WATCHDOG"
+	help
+	 CMD_WATCHDOG support.
+
 endmenu

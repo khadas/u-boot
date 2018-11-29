@@ -352,9 +352,10 @@
 			};
 
 			watchdog@0f0d0 {
-				compatible = "amlogic,meson-gx-wdt", "amlogic,meson-gxbb-wdt";
+				compatible = "amlogic,meson-gxbb-wdt";
 				reg = <0x0 0x0f0d0 0x0 0x10>;
 				clocks = <&xtal>;
+				clock-names = "wdt-clk";
 			};
 		};
 
