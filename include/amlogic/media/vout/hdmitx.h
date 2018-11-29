@@ -416,6 +416,7 @@ extern void hdmitx_enable_apb3(void);
 
 /*hdmitx init by called in board.c*/
 extern void hdmi_tx_init(void);
+extern int hdmi_outputmode_check(char *mode);
 
 extern struct hdmitx_dev hdmitx_device;
 

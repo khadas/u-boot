@@ -41,7 +41,7 @@
 #include <amlogic/media/vout/hdmitx.h>
 #endif
 #ifdef CONFIG_AML_LCD
-#include <amlogic/media/vout/aml_lcd.h>
+#include <amlogic/media/vout/lcd/aml_lcd.h>
 #endif
 #include <asm/arch/eth_setup.h>
 #include <phy.h>

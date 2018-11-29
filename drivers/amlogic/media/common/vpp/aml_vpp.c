@@ -1260,7 +1260,7 @@ void vpp_pq_init(int brightness, int contrast, int sat, int hue)
 void vpp_pq_load(void)
 {
 	int i = 0, cnt = 0;
-	char const *pq = getenv("pq");
+	char const *pq = env_get("pq");
 	char *tk, *str, *tmp[4];
 	short val[4];
 
