@@ -63,7 +63,7 @@ static int do_osd_clear(cmd_tbl_t *cmdtp, int flag, int argc,
 		return 1;
 	}
 
-#ifdef CONFIG_OSD_SCALE_ENABLE
+#ifdef OSD_SCALE_ENABLE
 	memset((void *)(long long)(gdev->frameAdrs), 0,
 	       (gdev->fb_width * gdev->fb_height)*gdev->gdfBytesPP);
 
