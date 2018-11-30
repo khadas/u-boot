@@ -183,8 +183,8 @@ static int rockchip_panel_send_mcu_cmds(struct display_state *state,
 static int rockchip_panel_send_spi_cmds(struct display_state *state,
 					struct rockchip_panel_cmds *cmds)
 {
-	struct panel_state *panel_state = &state->panel_state;
-	struct rockchip_panel_priv *priv = dev_get_priv(panel_state->dev);
+	struct rockchip_panel *panel = state_get_panel(state);
+	struct rockchip_panel_priv *priv = dev_get_priv(panel->dev);
 	int i;
 
 	if (!cmds)
@@ -253,9 +253,9 @@ static int rockchip_panel_send_dsi_cmds(struct display_state *state,
 
 static int rockchip_panel_prepare(struct display_state *state)
 {
-	struct panel_state *panel_state = &state->panel_state;
-	struct rockchip_panel_plat *plat = dev_get_platdata(panel_state->dev);
-	struct rockchip_panel_priv *priv = dev_get_priv(panel_state->dev);
+	struct rockchip_panel *panel = state_get_panel(state);
+	struct rockchip_panel_plat *plat = dev_get_platdata(panel->dev);
+	struct rockchip_panel_priv *priv = dev_get_priv(panel->dev);
 	int ret;
 
 	if (priv->prepared)
@@ -303,9 +303,9 @@ static int rockchip_panel_prepare(struct display_state *state)
 
 static void rockchip_panel_unprepare(struct display_state *state)
 {
-	struct panel_state *panel_state = &state->panel_state;
-	struct rockchip_panel_plat *plat = dev_get_platdata(panel_state->dev);
-	struct rockchip_panel_priv *priv = dev_get_priv(panel_state->dev);
+	struct rockchip_panel *panel = state_get_panel(state);
+	struct rockchip_panel_plat *plat = dev_get_platdata(panel->dev);
+	struct rockchip_panel_priv *priv = dev_get_priv(panel->dev);
 	int ret;
 
 	if (!priv->prepared)
@@ -342,9 +342,9 @@ static void rockchip_panel_unprepare(struct display_state *state)
 
 static int rockchip_panel_enable(struct display_state *state)
 {
-	struct panel_state *panel_state = &state->panel_state;
-	struct rockchip_panel_plat *plat = dev_get_platdata(panel_state->dev);
-	struct rockchip_panel_priv *priv = dev_get_priv(panel_state->dev);
+	struct rockchip_panel *panel = state_get_panel(state);
+	struct rockchip_panel_plat *plat = dev_get_platdata(panel->dev);
+	struct rockchip_panel_priv *priv = dev_get_priv(panel->dev);
 
 	if (priv->enabled)
 		return 0;
@@ -361,9 +361,9 @@ static int rockchip_panel_enable(struct display_state *state)
 
 static void rockchip_panel_disable(struct display_state *state)
 {
-	struct panel_state *panel_state = &state->panel_state;
-	struct rockchip_panel_plat *plat = dev_get_platdata(panel_state->dev);
-	struct rockchip_panel_priv *priv = dev_get_priv(panel_state->dev);
+	struct rockchip_panel *panel = state_get_panel(state);
+	struct rockchip_panel_plat *plat = dev_get_platdata(panel->dev);
+	struct rockchip_panel_priv *priv = dev_get_priv(panel->dev);
 
 	if (!priv->enabled)
 		return;
@@ -379,10 +379,9 @@ static void rockchip_panel_disable(struct display_state *state)
 static int rockchip_panel_init(struct display_state *state)
 {
 	struct connector_state *conn_state = &state->conn_state;
-	struct panel_state *panel_state = &state->panel_state;
-	struct rockchip_panel_plat *plat = dev_get_platdata(panel_state->dev);
+	struct rockchip_panel *panel = state_get_panel(state);
 
-	conn_state->bus_format = plat->bus_format;
+	conn_state->bus_format = panel->bus_format;
 
 	return 0;
 }
@@ -454,6 +453,9 @@ free_on_cmds:
 static int rockchip_panel_probe(struct udevice *dev)
 {
 	struct rockchip_panel_priv *priv = dev_get_priv(dev);
+	struct rockchip_panel_plat *plat = dev_get_platdata(dev);
+	struct rockchip_panel *panel =
+		(struct rockchip_panel *)dev_get_driver_data(dev);
 	int ret;
 	const char *cmd_type;
 
@@ -519,6 +521,9 @@ static int rockchip_panel_probe(struct udevice *dev)
 		dm_gpio_set_value(&priv->reset_gpio, 0);
 	}
 
+	panel->dev = dev;
+	panel->bus_format = plat->bus_format;
+
 	return 0;
 }
 
@@ -536,7 +541,7 @@ static const struct drm_display_mode auo_b125han03_mode = {
 	.flags = DRM_MODE_FLAG_NVSYNC | DRM_MODE_FLAG_NHSYNC,
 };
 
-static const struct rockchip_panel auo_b125han03_data = {
+static const struct rockchip_panel auo_b125han03_driver_data = {
 	.funcs = &rockchip_panel_funcs,
 	.data = &auo_b125han03_mode,
 };
@@ -555,28 +560,32 @@ static const struct drm_display_mode lg_lp079qx1_sp0v_mode = {
 	.flags = DRM_MODE_FLAG_NVSYNC | DRM_MODE_FLAG_NHSYNC,
 };
 
-static const struct rockchip_panel lg_lp079qx1_sp0v_data = {
+static const struct rockchip_panel lg_lp079qx1_sp0v_driver_data = {
 	.funcs = &rockchip_panel_funcs,
 	.data = &lg_lp079qx1_sp0v_mode,
 };
 
-static const struct rockchip_panel rockchip_panel_data = {
+static const struct rockchip_panel panel_simple_driver_data = {
+	.funcs = &rockchip_panel_funcs,
+};
+
+static const struct rockchip_panel panel_simple_dsi_driver_data = {
 	.funcs = &rockchip_panel_funcs,
 };
 
 static const struct udevice_id rockchip_panel_ids[] = {
 	{
 		.compatible = "auo,b125han03",
-		.data = (ulong)&auo_b125han03_data,
+		.data = (ulong)&auo_b125han03_driver_data,
 	}, {
 		.compatible = "lg,lp079qx1-sp0v",
-		.data = (ulong)&lg_lp079qx1_sp0v_data,
+		.data = (ulong)&lg_lp079qx1_sp0v_driver_data,
 	}, {
 		.compatible = "simple-panel",
-		.data = (ulong)&rockchip_panel_data,
+		.data = (ulong)&panel_simple_driver_data,
 	}, {
 		.compatible = "simple-panel-dsi",
-		.data = (ulong)&rockchip_panel_data,
+		.data = (ulong)&panel_simple_dsi_driver_data,
 	},
 	{}
 };
