@@ -186,6 +186,9 @@ static int rockchip_dsi_panel_prepare(struct display_state *state)
 	fdtdec_set_gpio(&panel->reset_gpio, 1);
 	msleep(panel->delay_reset);
 	fdtdec_set_gpio(&panel->reset_gpio, 0);
+	msleep(panel->delay_reset);
+	fdtdec_set_gpio(&panel->reset_gpio, 1);
+	msleep(panel->delay_reset);
 
 	msleep(panel->delay_init);
 
@@ -210,7 +213,7 @@ static int rockchip_dsi_panel_unprepare(struct display_state *state)
 			printf("failed to send on cmds: %d\n", ret);
 	}
 
-	fdtdec_set_gpio(&panel->reset_gpio, 1);
+	fdtdec_set_gpio(&panel->reset_gpio, 0);
 
 	mdelay(panel->delay_unprepare);
 
