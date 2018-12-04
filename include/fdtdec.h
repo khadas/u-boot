@@ -167,7 +167,7 @@ enum fdt_compat_id {
 	COMPAT_ALTERA_SOCFPGA_FPGA0,		/* SOCFPGA FPGA manager */
 	COMPAT_ALTERA_SOCFPGA_NOC,		/* SOCFPGA Arria 10 NOC */
 	COMPAT_ALTERA_SOCFPGA_CLK_INIT,		/* SOCFPGA Arria 10 clk init */
-
+	COMPAT_MESON_NAND,			/*AMLOGIC Meson Nand Flash Controller*/
 	COMPAT_COUNT,
 };
 

@@ -377,17 +377,17 @@ static int get_part(const char *partname, int *idx, loff_t *off, loff_t *size,
 	ret = find_dev_and_part(partname, &dev, &pnum, &part);
 	if (ret)
 		return ret;
-
 	if (dev->id->type != devtype) {
 		printf("not same typ %d != %d\n", dev->id->type, devtype);
 		return -1;
 	}
 
+
 	*off = part->offset;
 	*size = part->size;
 	*maxsize = part->size;
-	*idx = dev->id->num;
 
+	*idx = dev->id->num;
 	return 0;
 #else
 	puts("mtdparts support missing.\n");
@@ -400,7 +400,6 @@ int mtd_arg_off(const char *arg, int *idx, loff_t *off, loff_t *size,
 {
 	if (!str2off(arg, off))
 		return get_part(arg, idx, off, size, maxsize, devtype);
-
 	if (*off >= chipsize) {
 		puts("Offset exceeds device limit\n");
 		return -1;

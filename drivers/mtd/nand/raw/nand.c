@@ -16,7 +16,7 @@
 
 int nand_curr_device = -1;
 
-static struct mtd_info *nand_info[CONFIG_SYS_MAX_NAND_DEVICE];
+struct mtd_info *nand_info[CONFIG_SYS_MAX_NAND_DEVICE];
 
 #ifndef CONFIG_SYS_NAND_SELF_INIT
 static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
@@ -134,6 +134,7 @@ static void create_mtd_concat(void)
 #else
 static void create_mtd_concat(void)
 {
+
 }
 #endif
 
@@ -155,10 +156,10 @@ void nand_init(void)
 	initialized = 1;
 
 #ifdef CONFIG_SYS_NAND_SELF_INIT
+	printf("borad nand init\n");
 	board_nand_init();
 #else
 	int i;
-
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
 		nand_init_chip(i);
 #endif

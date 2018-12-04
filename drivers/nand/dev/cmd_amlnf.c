@@ -26,7 +26,6 @@ extern struct amlnf_dev* aml_nftl_get_dev(const char * name);
 extern void amlnf_get_chip_size(u64 *size);
 extern void show_phydev_list(void);
 extern void show_ldev_list(void);
-extern unsigned device_boot_flag;
 
 #endif
 extern void amlnf_dump_chipinfo(void);
@@ -797,12 +796,7 @@ static int do_amlnfphy(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 
 	/* show boot flag!*/
 	if (strcmp(cmd, "boot") == 0) {
-		aml_nand_msg("device_boot_flag 0x%x", device_boot_flag);
-		if (device_boot_flag == NAND_BOOT_FLAG) {
-			aml_nand_msg("boot from nand!");
-		} else {
-			aml_nand_msg("bootflag not ready yet!");
-		}
+		aml_nand_msg("bootflag not use yet!");
 		return 0;
 	}
 	if (strcmp(cmd, "bootloader") == 0) {

@@ -869,7 +869,7 @@ int amlnf_init(u32 flag)
 	}
 	aml_chip = aml_nand_chip;
 	storage_dev->init_flag = flag;
-	storage_dev->type = BOOT_MLC;
+	storage_dev->type = BOOT_NAND_NFTL;
 	aml_nand_msg("store flag: %d,type: %d",storage_dev->init_flag,
 		storage_dev->type);
 

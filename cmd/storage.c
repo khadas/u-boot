@@ -7,6 +7,9 @@
  */
 #include <amlogic/storage.h>
 
+#undef pr_info
+#define pr_info       printf
+
 #ifdef CONFIG_SPI_FLASH
 extern int spi_nor_pre(void);
 extern int spi_nor_probe(u32 init_flag);
@@ -40,9 +43,11 @@ static struct device_node_t device_list[] = {
 #if 0
 	{BOOT_SD, "sd", sdcard_pre, sdcard_probe},
 #endif
+
 #ifdef CONFIG_MESON_NFC
 	{BOOT_NAND_MTD, "mtd", nand_pre, nand_probe},
 #endif
+
 #ifdef CONFIG_AML_NAND
 	{BOOT_NAND_NFTL, "nftl", amlnf_pre, amlnf_probe},
 #endif
@@ -396,7 +401,7 @@ void store_print_device(struct storage_t *store_dev)
 }
 
 static int do_store_device(cmd_tbl_t *cmdtp,
-			   int flag, int argc, char * const argv[])
+			int flag, int argc, char * const argv[])
 {
 	if (argc == 2) {
 		struct storage_t *store_dev, *dev;
@@ -418,10 +423,10 @@ static int do_store_device(cmd_tbl_t *cmdtp,
 	} else if (argc == 3) {
 		char *name = NULL;
 		int i = 0, ret = 0;
-
 		name = argv[2];
 		for (i = 0; i < ARRAY_SIZE(device_list); i++)
 			if (!strcmp(name, device_list[i].type)) {
+
 				ret = store_set_device(device_list[i].index);
 				if (!ret) {
 					pr_info("now current device is: %s\n",
@@ -710,7 +715,6 @@ static int do_store(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return CMD_RET_USAGE;
 
 	c = find_cmd_tbl(argv[1], cmd_store_sub, ARRAY_SIZE(cmd_store_sub));
-
 	if (c)
 		return c->cmd(cmdtp, flag, argc, argv);
 

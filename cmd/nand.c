@@ -134,6 +134,17 @@ static int set_dev(int dev)
 	return 0;
 }
 
+/* interface for cmd_amlmtd */
+int set_mtd_dev(int dev)
+{
+	return set_dev(dev);
+}
+
+int get_mtd_dev(void)
+{
+	return nand_curr_device;
+}
+
 #ifdef CONFIG_CMD_NAND_LOCK_UNLOCK
 static void print_status(ulong start, ulong end, ulong erasesize, int status)
 {
@@ -405,6 +416,12 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		putc('\n');
 		for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
 			nand_print_and_set_info(i);
+		return 0;
+	}
+
+	if (strcmp(cmd, "init") == 0) {
+		extern void nand_init(void);
+		nand_init();
 		return 0;
 	}
 

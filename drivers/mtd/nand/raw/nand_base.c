@@ -490,6 +490,7 @@ static int nand_check_wp(struct mtd_info *mtd)
 		return 0;
 
 	/* Check the WP bit */
+
 	chip->cmdfunc(mtd, NAND_CMD_STATUS, -1, -1);
 	return (chip->read_byte(mtd) & NAND_STATUS_WP) ? 0 : 1;
 }
@@ -2839,7 +2840,7 @@ int nand_erase_nand(struct mtd_info *mtd, struct erase_info *instr,
 
 	/* Check, if it is write protected */
 	if (nand_check_wp(mtd)) {
-		pr_debug("%s: device is write protected!\n",
+		printf("%s: device is write protected!\n",
 				__func__);
 		instr->state = MTD_ERASE_FAILED;
 		goto erase_exit;

@@ -166,6 +166,56 @@
 	vqmmc-supply = <&vddio_boot>;
 };
 
+/* nand */
+&nand {
+	status = "okay";
+	pinctrl-names = "default", "nand_all_pins", "nand_cs_only";
+	pinctrl-0 = <&all_nand_pins>;
+	pinctrl-1 = <&all_nand_pins>;
+	pinctrl-2 = <&nand_cs_pins>;
+
+	/*
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	nand@0 {
+		reg = <0>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		nand-on-flash-bbt;
+		nand-ecc-mode = "hw";
+		nand-ecc-strength = <8>;
+		nand-ecc-step-size = <1024>;
+
+		meson-nand-user-mode = <2>;
+		meson-nand-ran-mode = <1>;
+
+		partition@0 {
+			label = "boot";
+			reg = <0x00000000 0x00200000>;
+			read-only;
+		};
+		partition@200000 {
+			label = "env";
+			reg = <0x00200000 0x00400000>;
+		};
+		partition@600000 {
+			label = "system";
+			reg = <0x00600000 0x00a00000>;
+		};
+		partition@1000000 {
+			label = "rootfs";
+			reg = <0x01000000 0x03000000>;
+		};
+		partition@4000000 {
+			label = "media";
+			reg = <0x04000000 0x8000000>;
+		};
+	};*/
+
+};
+
 &dwc3 {
 	status = "okay";
 	dr_mode = "host";

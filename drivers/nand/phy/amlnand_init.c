@@ -17,8 +17,6 @@
 
 struct amlnand_chip *aml_nand_chip = NULL;
 
-extern unsigned device_boot_flag;
-
 extern int boot_dev_init(struct amlnand_chip *aml_chip);
 
 static void show_nand_driver_version(void)
@@ -343,14 +341,11 @@ int amlnf_phy_init(u8 flag, struct platform_device *pdev)
 	ret = amlnand_chip_init(aml_chip);
 	if (ret < 0) {
 		aml_nand_msg("chip detect failed and ret:%x", ret);
-		device_boot_flag = EMMC_BOOT_FLAG;
 		amlnand_clear_pinmux(aml_chip);
 		ret = -NAND_FAILED;
 		goto exit_error1;
 	}
 	PHY_NAND_LINE
-	/* update device_boot_flag for outsides */
-	device_boot_flag = NAND_BOOT_FLAG;
 	/* write 2 gp2*/
 	#if 0
 	secure_storage_set_info(STORAGE_DEV_NAND);

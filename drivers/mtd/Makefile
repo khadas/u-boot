@@ -20,3 +20,4 @@ obj-$(CONFIG_STM32_FLASH) += stm32_flash.o
 obj-$(CONFIG_RENESAS_RPC_HF) += renesas_rpc_hf.o
 
 obj-y += nand/
+obj-$(CONFIG_AML_STORAGE) += aml_storage.o

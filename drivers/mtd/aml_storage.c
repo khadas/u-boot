@@ -20,6 +20,8 @@
 #include <amlogic/aml_mtd.h>
 #include <amlogic/aml_rsv.h>
 #include <asm/arch/cpu_config.h>
+#include <partition_table.h>
+#include <time.h>
 
 #undef pr_info
 #define pr_info	printf
@@ -394,8 +396,8 @@ static size_t mtd_store_logic_part_size(struct mtd_info *mtd,
 	loff_t start, end;
 	u32 cnt = 0;
 
-	start = part->offset;
-	end = part->offset + part->size;
+	start = part->offset / mtd->erasesize;
+	end = (part->offset + part->size) / mtd->erasesize;
 
 	while (start++ < end)
 		if (mtd_block_isbad(mtd, start))
@@ -415,6 +417,8 @@ void mtd_store_init_map(void)
 		pr_info("%s %d can not calculate block cnt\n",
 			__func__, __LINE__);
 
+	printf("%s %d block cnt: 0x%x\n",
+			   __func__, __LINE__, blk_cnt);
 	page_per_blk = mtd->erasesize / mtd->writesize;
 	skip = BOOT_TOTAL_PAGES / page_per_blk;
 	skip += NAND_RSV_BLOCK_NUM;
@@ -446,6 +450,7 @@ static int mtd_store_get_offset(const char *partname,
 	struct mtd_device *dev;
 	struct part_info *part;
 #endif
+	*retoff = 0;
 	if (!partname) {
 		offset = off;
 	}
@@ -455,19 +460,23 @@ static int mtd_store_get_offset(const char *partname,
 		if (!strcmp(partname, BOOT_LOADER) ||
 		    !strcmp(partname, BOOT_BL2) ||
 		    !strcmp(partname, BOOT_SPL)) {
-			find_dev_and_part(BOOT_LOADER,
+			ret = find_dev_and_part(BOOT_LOADER,
 					  &dev,
 					  &pnum,
 					  &part);
+			if (ret)
+				return ret; /* avoid operates null pointer */
 			*retoff = part->offset + off;
 			return 0;
 		}
 		if (!strcmp(partname, BOOT_TPL) ||
 		    !strcmp(partname, BOOT_FIP)) {
-			find_dev_and_part(BOOT_TPL,
+			ret = find_dev_and_part(BOOT_TPL,
 					  &dev,
 					  &pnum,
 					  &part);
+			if (ret)
+				return ret;
 			*retoff = part->offset + off;
 			return 0;
 		}
@@ -539,6 +548,15 @@ static int mtd_store_read(const char *part_name,
 	ret = mtd_store_get_offset((const char *)part_name, &offset, off);
 	if (ret)
 		return ret;
+	if (!part_name) {/*normal area except tpl*/
+		offset = off;
+		off += BOOT_TOTAL_PAGES * mtd->writesize;
+		off += NAND_RSV_BLOCK_NUM * mtd->erasesize;
+#ifdef CONFIG_DISCRETE_BOOTLOADER
+		off += CONFIG_TPL_SIZE_PER_COPY * CONFIG_TPL_COPY_NUM;
+#endif
+	}
+
 	offset = mtd_store_ltop(offset);
 
 	ret = mtd_store_read_skip_bad(mtd, offset, &size,
@@ -568,6 +586,14 @@ static int mtd_store_write(const char *part_name,
 	ret = mtd_store_get_offset((const char *)part_name, &offset, off);
 	if (ret)
 		return ret;
+	if (!part_name) {/*normal area except tpl*/
+		offset = off;
+		off += BOOT_TOTAL_PAGES * mtd->writesize;
+		off += NAND_RSV_BLOCK_NUM * mtd->erasesize;
+#ifdef CONFIG_DISCRETE_BOOTLOADER
+		off += CONFIG_TPL_SIZE_PER_COPY * CONFIG_TPL_COPY_NUM;
+#endif
+	}
 	offset = mtd_store_ltop(offset);
 
 	ret = mtd_store_write_skip_bad(mtd, offset, &size,
@@ -595,8 +621,12 @@ static int mtd_store_erase(const char *part_name,
 	struct erase_info info;
 	int ret;
 
-	if (!part_name)
+	if (!part_name)	{
 		mtd = mtd_store_get(1);
+		printf("!!!warn: erase all chip\n");
+		size = mtd->size;
+		mtd = mtd_store_get(0);
+	}
 	else
 		mtd = mtd_store_get_by_name(part_name, 0);
 	if (IS_ERR(mtd))
@@ -609,16 +639,18 @@ static int mtd_store_erase(const char *part_name,
 	erase_len = lldiv(size + mtd->erasesize - 1,
 			  mtd->erasesize);
 
-	pr_info("erasing from 0x%llx, length 0x%lx\n",
-		offset, size);
+	printf("erasing from 0x%llx, length 0x%lx\n",
+		   offset, size);
+
 	for (erased_size = 0; erased_size < erase_len;
 		 offset += mtd->erasesize) {
+		if (!part_name)/*erase chip,erase_len include bb*/
+			erased_size++;
 		WATCHDOG_RESET();
 		if (!scrub_flag) {
 			ret = mtd_block_isbad(mtd, offset);
 			if (ret > 0) {
 				pr_info("skip bad block in 0x%08llx\n", offset);
-				//erased_size++;
 				continue;
 			} else if (ret < 0) {
 				pr_info("MTD get bad block failed in 0x%08llx\n",
@@ -631,7 +663,14 @@ static int mtd_store_erase(const char *part_name,
 		info.len = mtd->erasesize;
 		info.scrub = scrub_flag;
 		info.callback = NULL;
-		erased_size++;
+		if (part_name) /*erase partition,erase_len except bb*/
+			erased_size++;
+
+		loff_t bootloader_max_addr = BOOT_TOTAL_PAGES * mtd->writesize;
+		if (offset >= bootloader_max_addr) {
+			mtd = mtd_store_get(1);
+		}
+
 		ret = mtd_erase(mtd, &info);
 		if (ret)
 			pr_info("%s %d mtd erase err, ret %d\n",
@@ -663,6 +702,30 @@ static u8 mtd_store_boot_copy_num(const char *part_name)
 
 	pr_info("%s %d invalid name: %s!\n",
 		__func__, __LINE__, part_name);
+	return 0;
+}
+
+int is_mtd_store_boot_area(const char *part_name)
+{
+	if (!part_name) {
+		pr_info("%s %d invalid name!\n",
+			__func__, __LINE__);
+		return 0;
+	}
+
+#ifdef CONFIG_DISCRETE_BOOTLOADER
+	if (!strcmp(part_name, BOOT_LOADER) ||
+	    !strcmp(part_name, BOOT_BL2) ||
+	    !strcmp(part_name, BOOT_SPL))
+		return 1;
+
+	if (!strcmp(part_name, BOOT_TPL) ||
+	    !strcmp(part_name, BOOT_FIP))
+		return 1;
+#else
+	if (!strcmp(part_name, BOOT_LOADER))
+		return 1;
+#endif
 	return 0;
 }
 
@@ -1007,11 +1070,19 @@ static int mtd_store_rsv_protect(const char *rsv_name, bool ops)
 		return 1;
 	if (!strcmp(rsv_name, RSV_KEY)) {
 		if (ops)
-			info_disprotect |= DISPROTECT_KEY;
+			info_disprotect &= ~DISPROTECT_KEY;/*protect*/
 		else
-			info_disprotect &= ~DISPROTECT_KEY;
+
+			info_disprotect |= DISPROTECT_KEY;/*disprotect*/
+
+		printf("info_disprotect: %d\n", info_disprotect);
 	} else if (!strcmp(rsv_name, RSV_BBT)) {
-		pr_info("we always protect bbt info!\n");
+		if (ops)
+			info_disprotect &= ~DISPROTECT_FBBT;/*protect*/
+		else
+			info_disprotect |= DISPROTECT_FBBT;/*disprotect*/
+		printf("info_disprotect: %d\n", info_disprotect);
+
 	} else {
 		pr_info("no matched info in protection!\n");
 	}
@@ -1030,6 +1101,7 @@ static int nor_rsv_read(const char *name, size_t size, void *buf)
 	struct mtd_info *mtd;
 	loff_t offset;
 	size_t length, total;
+	int ret = 0;
 
 	if (!name)
 		return 1;
@@ -1041,7 +1113,9 @@ static int nor_rsv_read(const char *name, size_t size, void *buf)
 			length, total);
 		return 1;
 	}
-	mtd_store_get_offset(name, &offset, 0);
+	ret = mtd_store_get_offset(name, &offset, 0);
+	if (ret)
+		return ret;
 	return mtd_read(mtd, offset, length, &length, buf);
 }
 
@@ -1050,6 +1124,7 @@ static int nor_rsv_write(const char *name, size_t size, void *buf)
 	struct mtd_info *mtd;
 	loff_t offset;
 	size_t length, total;
+	int ret = 0;
 
 	if (!name)
 		return 1;
@@ -1061,7 +1136,9 @@ static int nor_rsv_write(const char *name, size_t size, void *buf)
 			length, total);
 		return 1;
 	}
-	mtd_store_get_offset(name, &offset, 0);
+	ret = mtd_store_get_offset(name, &offset, 0);
+	if (ret)
+		return ret;
 	return mtd_write(mtd, offset, length, &length, buf);
 }
 
@@ -1071,12 +1148,15 @@ static int nor_rsv_erase(const char *name)
 	loff_t offset;
 	size_t length;
 	struct erase_info erase;
+	int ret = 0;
 
 	if (!name)
 		return 1;
 	length = nor_rsv_size(name);
 	mtd = mtd_store_get(0);
-	mtd_store_get_offset(name, &offset, 0);
+	ret = mtd_store_get_offset(name, &offset, 0);
+	if (ret)
+		return ret;
 	erase.mtd = mtd;
 	erase.addr = offset;
 	erase.len = length;
@@ -1091,6 +1171,7 @@ static int nor_rsv_protect(const char *name, bool ops)
 
 void mtd_store_mount_ops(struct storage_t *store)
 {
+	store->get_part_size = mtd_store_size;
 	store->read = mtd_store_read;
 	store->write = mtd_store_write;
 	store->erase = mtd_store_erase;

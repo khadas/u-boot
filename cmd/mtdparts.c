@@ -107,6 +107,11 @@ DECLARE_GLOBAL_DATA_PTR;
  * field for read-only partitions */
 #define MTD_WRITEABLE_CMD		1
 
+#ifdef CONFIG_AML_MTDPART
+extern struct list_head aml_device;
+extern int mtdparts_init(void);
+#endif
+
 /* default values for mtdids and mtdparts variables */
 #if !defined(MTDIDS_DEFAULT)
 #ifdef CONFIG_MTDIDS_DEFAULT
@@ -1344,6 +1349,7 @@ static void list_partitions(void)
  * @param part pointer to requested partition (output)
  * @return 0 on success, 1 otherwise
  */
+#ifndef CONFIG_AML_MTDPART
 int find_dev_and_part(const char *id, struct mtd_device **dev,
 		u8 *part_num, struct part_info **part)
 {
@@ -1397,6 +1403,37 @@ int find_dev_and_part(const char *id, struct mtd_device **dev,
 
 	return 0;
 }
+
+#else
+int find_dev_and_part(const char *id, struct mtd_device **dev,
+u8 *part_num, struct part_info **part)
+{
+	struct list_head *dentry, *pentry;
+
+	*part_num = 0;
+	printf("--- find_dev_and_part ---\nid = %s\n", id);
+	if (list_empty(&aml_device)) {
+		printk("%s() %d: no valid part\n", __func__, __LINE__);
+		return -1;
+	}
+
+	list_for_each(dentry, &aml_device) {
+		*part_num = 0;
+		*dev = list_entry(dentry, struct mtd_device, link);
+		list_for_each(pentry, &(*dev)->parts) {
+		*part = list_entry(pentry, struct part_info, link);
+		if (strcmp((*part)->name, id) == 0)
+			return 0;
+		(*part_num)++;
+		}
+	}
+
+	*dev = NULL;
+	*part = NULL;
+	*part_num = 0;
+	return 1;
+}
+#endif
 
 /**
  * Find and delete partition. For partition id format see find_dev_and_part().

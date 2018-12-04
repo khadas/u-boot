@@ -1,5 +1,5 @@
 ﻿#include "../include/phynand.h"
-#include "storage.h"
+/*#include "storage.h"*/
 
 
 extern int amlnf_init(u32 flag);

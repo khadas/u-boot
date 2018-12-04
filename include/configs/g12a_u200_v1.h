@@ -334,18 +334,14 @@
 */
 /* axg only support slc nand */
 /* swither for mtd nand which is for slc only. */
-/* support for mtd */
 
-/* #define CONFIG_AML_MTD 1*/
 
-/* support for nftl */
-/*#define CONFIG_AML_NAND	1*/
-
-#if defined(CONFIG_AML_NAND) && defined(CONFIG_AML_MTD)
-#error CONFIG_AML_NAND/CONFIG_AML_MTD can not support at the sametime;
+#if defined(CONFIG_AML_NAND) && defined(CONFIG_MESON_NFC)
+#error CONFIG_AML_NAND/CONFIG_MESON_NFC can not support at the sametime;
 #endif
 
-#ifdef CONFIG_AML_MTD
+#if 0
+#ifdef CONFIG_MESON_NFC
 
 /* bootlaoder is construct by bl2 and fip
  * when DISCRETE_BOOTLOADER is enabled, bl2 & fip
@@ -394,7 +390,8 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE  2
 #define CONFIG_SYS_NAND_BASE_LIST   {0}
 #endif
-/* endof CONFIG_AML_MTD */
+#endif
+
 /* #define		CONFIG_AML_SD_EMMC 1 */
 #ifdef		CONFIG_AML_SD_EMMC
 	#define 	CONFIG_GENERIC_MMC 1
@@ -409,7 +406,7 @@
 #define 	CONFIG_SYS_NO_FLASH  1
 #endif
 
-#if defined CONFIG_AML_MTD || defined CONFIG_SPI_NAND
+#if defined CONFIG_MESON_NFC || defined CONFIG_SPI_NAND
 	#define CONFIG_CMD_NAND 1
 	#define CONFIG_MTD_DEVICE y
 	/* #define CONFIG_RBTREE */
