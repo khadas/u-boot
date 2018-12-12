@@ -1040,7 +1040,7 @@ static void vsfilter_write(uint16_t id, char *buff, uint32_t size)
 
 	switch (id) {
 	case VSH_ID_FILTER_WIDEVINE_OFFSET:
-		/* WIDEVINE write process */
+	case VSH_ID_FILTER_PLAYREADY_OFFSET:
 #ifdef CONFIG_OPTEE_V1
 		write_keybox_to_secure_storage(buff, size);
 #endif

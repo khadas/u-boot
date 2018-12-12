@@ -8,10 +8,12 @@
 #include <common.h>
 #include <optee_include/OpteeClientApiLib.h>
 #include <optee_include/tee_client_api.h>
+#include <optee_include/OpteeClientInterface.h>
 
 #define	BOOT_FROM_EMMC	(1<<1)
 #define	WIDEVINE_TAG	"KBOX"
 #define	ATTESTATION_TAG	"ATTE"
+#define PLAYREADY_TAG   "SL30"
 
 uint32_t rk_send_keybox_to_ta(uint8_t *filename, uint32_t filename_size,
 			      TEEC_UUID uuid,
@@ -127,6 +129,19 @@ int write_keybox_to_secure_storage(uint8_t *uboot_data, uint32_t len)
 			printf("write widevine keybox fail\n");
 	} else if (memcmp(uboot_data, ATTESTATION_TAG, 4) == 0) {
 		/* attestation key */
+	} else if (memcmp(uboot_data, PLAYREADY_TAG, 4) == 0) {
+		/* PlayReady SL3000 root key */
+		data_size = *(uboot_data + 4);
+		ret = write_to_keymaster((uint8_t *)"PlayReady_SL3000",
+					 sizeof("PlayReady_SL3000"),
+					 uboot_data + 8, data_size);
+		if (ret == TEEC_SUCCESS) {
+			ret = 0;
+			printf("write PlayReady SL3000 root key to secure storage success\n");
+		} else {
+			ret = -1;
+			printf("write PlayReady SL3000 root key to secure storage fail\n");
+		}
 	}
 
 	return ret;

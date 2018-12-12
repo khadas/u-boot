@@ -351,6 +351,7 @@ struct vs_hdr {
 #define VSH_ID_FILTER_BASE	0x5500
 #define VSH_ID_FILTER_VERSION_OFFSET	0x0
 #define VSH_ID_FILTER_WIDEVINE_OFFSET	0x1
+#define VSH_ID_FILTER_PLAYREADY_OFFSET  0x2
 	__le16 id;
 	__le16 flag;
 	__le16 size;
