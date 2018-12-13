@@ -388,7 +388,7 @@
 #define CONFIG_RK3399_EDP
 #endif
 
-#undef CONFIG_UBOOT_CHARGE
+#define CONFIG_UBOOT_CHARGE
 
 #else
 
@@ -397,7 +397,7 @@
 #undef CONFIG_RK_HDMI
 #undef CONFIG_RK_TVE
 #undef CONFIG_CMD_BMP
-#undef CONFIG_UBOOT_CHARGE
+#define CONFIG_UBOOT_CHARGE
 
 #endif /* CONFIG_LCD */
 
