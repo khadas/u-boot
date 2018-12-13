@@ -243,80 +243,93 @@ static int get_wol(bool is_print)
 static void set_wol(bool is_shutdown, int enable)
 {
 	char cmd[64];
-//	int mode;
+	int mode;
 
 	if ((enable&0x01) != 0) {
+		char mac_addr[MAC_LENGHT] = {0};
+		if (is_shutdown)
+			run_command("mdio write ethernet@fe300000 0 0", 0);
+		else
+			run_command("mdio write ethernet@fe300000 0 0x1040", 0);
 
-//	int mac_addr[MAC_LENGHT] = {0};
-//	if (is_shutdown)
-//		run_command("phyreg w 0 0", 0);
-//	else
-//		run_command("phyreg w 0 0x1040", 0);
-//
-//	run_command("phyreg w 31 0xd40", 0);
-//	run_command("phyreg w 22 0x20", 0);
-//	run_command("phyreg w 31 0", 0);
+		run_command("mdio write ethernet@fe300000 0x1f 0xd40", 0);
+		run_command("mdio write ethernet@fe300000 0x16 0x20", 0);
+		run_command("mdio write ethernet@fe300000 0x1f 0", 0);
 
-//	mode = kbi_i2c_read(REG_MAC_SWITCH);
-//	if (mode == 1) {
-//		kbi_i2c_read_block(REG_MAC, MAC_LENGHT, mac_addr);
-//	} else {
-//		run_command("efuse mac", 0);
-//		char *s = getenv("eth_mac");
-//		if ((s != NULL) && (strcmp(s, "00:00:00:00:00:00") != 0)) {
-//			printf("getmac = %s\n", s);
-//			int i = 0;
-//			for (i = 0; i < 6 && s[0] != '\0' && s[1] != '\0'; i++) {
-//			mac_addr[i] = chartonum(s[0]) << 4 | chartonum(s[1]);
-//			s +=3;
-//			}
+		mode = kbi_i2c_read(REG_MAC_SWITCH);
+		if (mode == 1) {
+			kbi_i2c_read_block(REG_MAC, MAC_LENGHT, mac_addr);
+		} else {
+//			run_command("efuse mac", 0);
+//			char *s = getenv("eth_mac");
+//			if ((s != NULL) && (strcmp(s, "00:00:00:00:00:00") != 0)) {
+//				printf("getmac = %s\n", s);
+//				int i = 0;
+//				for (i = 0; i < 6 && s[0] != '\0' && s[1] != '\0'; i++) {
+//				mac_addr[i] = chartonum(s[0]) << 4 | chartonum(s[1]);
+//				s +=3;
+//				}
 //		} else {
 //			kbi_i2c_read_block(REG_MAC, MAC_LENGHT, mac_addr);
 //		}
-//	}
-//	run_command("phyreg w 31 0xd8c", 0);
-//	sprintf(cmd, "phyreg w 16 0x%x%x", mac_addr[1], mac_addr[0]);
-//	run_command(cmd, 0);
-//	sprintf(cmd, "phyreg w 17 0x%x%x", mac_addr[3], mac_addr[2]);
-//	run_command(cmd, 0);
-//	sprintf(cmd, "phyreg w 18 0x%x%x", mac_addr[5], mac_addr[4]);
-//	run_command(cmd, 0);
-//	run_command("phyreg w 31 0", 0);
-//
-//	run_command("phyreg w 31 0xd8a", 0);
-//	run_command("phyreg w 17 0x9fff", 0);
-//	run_command("phyreg w 31 0", 0);
-//
-//	run_command("phyreg w 31 0xd8a", 0);
-//	run_command("phyreg w 16 0x1000", 0);
-//	run_command("phyreg w 31 0", 0);
-//
-//	run_command("phyreg w 31 0xd80", 0);
-//	run_command("phyreg w 16 0x3000", 0);
-//	run_command("phyreg w 17 0x0020", 0);
-//	run_command("phyreg w 18 0x03c0", 0);
-//	run_command("phyreg w 19 0x0000", 0);
-//	run_command("phyreg w 20 0x0000", 0);
-//	run_command("phyreg w 21 0x0000", 0);
-//	run_command("phyreg w 22 0x0000", 0);
-//	run_command("phyreg w 23 0x0000", 0);
-//	run_command("phyreg w 31 0", 0);
-//
-//	run_command("phyreg w 31 0xd8a", 0);
-//	run_command("phyreg w 19 0x1002", 0);
-//	run_command("phyreg w 31 0", 0);
-//
-// } else {
-//	run_command("phyreg w 31 0xd8a", 0);
-//	run_command("phyreg w 16 0", 0);
-//	run_command("phyreg w 17 0x7fff", 0);
-//	run_command("phyreg w 31 0", 0);
-  }
+
+			int ret;
+			ret = vendor_storage_init();
+			if (ret) {
+				printf("KBI: vendor_storage_init failed %d\n", ret);
+				return;
+			}
+
+			ret = vendor_storage_read(VENDOR_LAN_MAC_ID, mac_addr, MAC_LENGHT);
+			if (MAC_LENGHT == ret && !is_zero_ethaddr((const u8 *)mac_addr)) {
+				debug("read mac from vendor successfully!\n");
+			} else {
+				kbi_i2c_read_block(REG_MAC, MAC_LENGHT, mac_addr);
+			}
+		}
+		run_command("mdio write ethernet@fe300000 0x1f 0xd8c", 0);
+		sprintf(cmd, "mdio write ethernet@fe300000 0x10 0x%x%x", mac_addr[1], mac_addr[0]);
+		run_command(cmd, 0);
+		sprintf(cmd, "mdio write ethernet@fe300000 0x11 0x%x%x", mac_addr[3], mac_addr[2]);
+		run_command(cmd, 0);
+		sprintf(cmd, "mdio write ethernet@fe300000 0x12 0x%x%x", mac_addr[5], mac_addr[4]);
+		run_command(cmd, 0);
+		run_command("mdio write ethernet@fe300000 0x1f 0", 0);
+
+		run_command("mdio write ethernet@fe300000 0x1f 0xd8a", 0);
+		run_command("mdio write ethernet@fe300000 0x11 0x9fff", 0);
+		run_command("mdio write ethernet@fe300000 0x1f 0", 0);
+
+		run_command("mdio write ethernet@fe300000 0x1f 0xd8a", 0);
+		run_command("mdio write ethernet@fe300000 0x10 0x1000", 0);
+		run_command("mdio write ethernet@fe300000 0x1f 0", 0);
+
+		run_command("mdio write ethernet@fe300000 0x1f 0xd80", 0);
+		run_command("mdio write ethernet@fe300000 0x10 0x3000", 0);
+		run_command("mdio write ethernet@fe300000 0x11 0x0020", 0);
+		run_command("mdio write ethernet@fe300000 0x12 0x03c0", 0);
+		run_command("mdio write ethernet@fe300000 0x13 0x0000", 0);
+		run_command("mdio write ethernet@fe300000 0x14 0x0000", 0);
+		run_command("mdio write ethernet@fe300000 0x15 0x0000", 0);
+		run_command("mdio write ethernet@fe300000 0x16  0x0000", 0);
+		run_command("mdio write ethernet@fe300000 0x17 0x0000", 0);
+		run_command("mdio write ethernet@fe300000 0x1f 0", 0);
+
+		run_command("mdio write ethernet@fe300000 0x1f 0xd8a", 0);
+		run_command("mdio write ethernet@fe300000 0x13 0x1002", 0);
+		run_command("mdio write ethernet@fe300000 0x1f 0", 0);
+
+	} else {
+		run_command("mdio write ethernet@fe300000 0x1f 0xd8a", 0);
+		run_command("mdio write ethernet@fe300000 0x10 0", 0);
+		run_command("mdio write ethernet@fe300000 0x11 0x7fff", 0);
+		run_command("mdio write ethernet@fe300000 0x1f 0", 0);
+	}
 
 	run_command("i2c dev 8", 0);
 	sprintf(cmd, "i2c mw %x %x %d 1", CHIP_ADDR, REG_BOOT_EN_WOL, enable);
 	run_command(cmd, 0);
-//	printf("%s: %d\n", __func__, enable);
+	printf("%s: %d\n", __func__, enable);
 }
 
 static void get_version(void)
