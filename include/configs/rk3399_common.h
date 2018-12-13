@@ -71,11 +71,21 @@
 	RKIMG_DET_BOOTDEV \
 	"update=gpio set 6; rockusb 0 mmc 0\0" \
 	"maskrom=rbrom\0" \
+	"wol_init="\
+		"kbi init;"\
+		"kbi powerstate;"\
+		"kbi trigger wol r;"\
+		"setenv bootargs ${bootargs} wol_enable=${wol_enable};"\
+		"if test ${power_state} = 1; then "\
+			"kbi trigger wol w 1;"\
+			"kbi poweroff;"\
+		"fi;"\
+		"\0"\
 	BOOTENV
-
 #endif
 
-#define CONFIG_PREBOOT
+#define CONFIG_PREBOOT \
+	"run wol_init;"
 
 /* enable usb config for usb ether */
 
