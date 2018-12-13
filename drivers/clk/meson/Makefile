@@ -5,3 +5,4 @@
 #
 obj-$(CONFIG_CLK_MESON) += clk.o
 obj-$(CONFIG_CLK_MESON_G12A) += clk_meson_g12a.o
+obj-$(CONFIG_CLK_MESON_G12B) += clk_meson_g12b.o

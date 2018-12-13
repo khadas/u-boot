@@ -1,0 +1,16 @@
+if TARGET_G12B_W400_V1
+
+config SYS_BOARD
+	default "g12b_w400_v1"
+
+config SYS_VENDOR
+	default "amlogic"
+
+config SYS_CONFIG_NAME
+	default "g12b_w400_v1"
+
+config CONFIG_AML_ANTIROLLBACK
+	bool
+	default n
+
+endif

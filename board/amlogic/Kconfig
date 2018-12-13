@@ -39,6 +39,17 @@ config TARGET_G12A_U211_V1
 
 endif
 
+if MESON_G12B
+
+config SYS_SOC
+	default "g12b"
+
+config TARGET_G12B_W400_V1
+	bool "G12B_W400_V1"
+
+endif
+
 # Amlogic boards
 
 source "board/amlogic/g12a_u200_v1/Kconfig"
+source "board/amlogic/g12b_w400_v1/Kconfig"
