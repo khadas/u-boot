@@ -416,7 +416,7 @@ int pmic_rk808_init(unsigned char bus)
 void pmic_rk808_shut_down(void)
 {
 	u8 reg;
-	i2c_set_bus_num(0);
+	i2c_set_bus_num(8);
 	reg = i2c_reg_read(0x1b, 0x4b);
 	i2c_reg_write(0x1b, 0x4b, (reg |(0x1 <<3)));
 
