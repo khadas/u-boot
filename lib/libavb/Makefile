@@ -9,5 +9,6 @@ obj-$(CONFIG_LIBAVB) += avb_slot_verify.o avb_util.o avb_version.o
 obj-$(CONFIG_LIBAVB) += avb_descriptor.o avb_hash_descriptor.o
 obj-$(CONFIG_LIBAVB) += avb_kernel_cmdline_descriptor.o avb_rsa.o avb_sha512.o
 obj-$(CONFIG_LIBAVB) += avb_sysdeps_posix.o avb_vbmeta_image.o
+obj-$(CONFIG_LIBAVB) += testkey.o
 
 ccflags-y = -DAVB_COMPILATION

@@ -14,3 +14,13 @@ obj-$(CONFIG_AML_DEFENV) += defenv_without.o
 
 obj-y += cmd_reboot.o
 obj-$(CONFIG_CMD_RSVMEM) += cmd_rsvmem.o
+
+ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+obj-y += cmd_bcb.o
+ifdef CONFIG_CMD_BOOTCTOL_AVB
+obj-y += cmd_bootctl_avb.o
+else
+obj-y += cmd_bootctl.o
+endif
+endif
+obj-y += cmd_avb.o

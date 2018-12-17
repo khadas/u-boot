@@ -3,12 +3,12 @@
  * Copyright (C) 2016 The Android Open Source Project
  */
 
-#include "avb_vbmeta_image.h"
-#include "avb_crypto.h"
+#include <libavb/avb_vbmeta_image.h>
+#include <libavb/avb_crypto.h>
 #include "avb_rsa.h"
 #include "avb_sha.h"
-#include "avb_util.h"
-#include "avb_version.h"
+#include <libavb/avb_util.h>
+#include <libavb/avb_version.h>
 
 AvbVBMetaVerifyResult avb_vbmeta_image_verify(
     const uint8_t* data,

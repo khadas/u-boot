@@ -23,8 +23,8 @@
 extern "C" {
 #endif
 
-#include "avb_crypto.h"
-#include "avb_sysdeps.h"
+#include <libavb/avb_crypto.h>
+#include <libavb/avb_sysdeps.h>
 
 /* Using the key given by |key|, verify a RSA signature |sig| of
  * length |sig_num_bytes| against an expected |hash| of length

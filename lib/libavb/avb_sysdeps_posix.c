@@ -5,8 +5,7 @@
 
 #include <stdarg.h>
 #include <stdlib.h>
-
-#include "avb_sysdeps.h"
+#include <libavb/avb_sysdeps.h>
 
 int avb_memcmp(const void* src1, const void* src2, size_t n) {
   return memcmp(src1, src2, n);
@@ -28,14 +27,9 @@ size_t avb_strlen(const char* str) {
   return strlen(str);
 }
 
-uint32_t avb_div_by_10(uint64_t* dividend) {
-  uint32_t rem = (uint32_t)(*dividend % 10);
-  *dividend /= 10;
-  return rem;
-}
-
 void avb_abort(void) {
-  hang();
+  panic ("avb abort\n");
+  //abort();
 }
 
 void avb_print(const char* message) {
@@ -59,4 +53,10 @@ void* avb_malloc_(size_t size) {
 
 void avb_free(void* ptr) {
   free(ptr);
+}
+
+uint32_t avb_div_by_10(uint64_t* dividend) {
+  uint32_t rem = (uint32_t)(*dividend % 10);
+  *dividend /= 10;
+  return rem;
 }

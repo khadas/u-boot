@@ -5,8 +5,8 @@
 
 #include "avb_cmdline.h"
 #include "avb_sha.h"
-#include "avb_util.h"
-#include "avb_version.h"
+#include <libavb/avb_util.h>
+#include <libavb/avb_version.h>
 
 #define NUM_GUIDS 3
 
@@ -20,9 +20,9 @@ char* avb_sub_cmdline(AvbOps* ops,
                       bool using_boot_for_vbmeta,
                       const AvbCmdlineSubstList* additional_substitutions) {
   const char* part_name_str[NUM_GUIDS] = {"system", "boot", "vbmeta"};
-  const char* replace_str[NUM_GUIDS] = {"$(ANDROID_SYSTEM_PARTUUID)",
-                                        "$(ANDROID_BOOT_PARTUUID)",
-                                        "$(ANDROID_VBMETA_PARTUUID)"};
+  const char* replace_str[NUM_GUIDS] = {"PARTUUID=$(ANDROID_SYSTEM_PARTUUID)",
+                                        "PARTUUID=$(ANDROID_BOOT_PARTUUID)",
+                                        "PARTUUID=$(ANDROID_VBMETA_PARTUUID)"};
   char* ret = NULL;
   AvbIOResult io_ret;
   size_t n;
@@ -203,7 +203,7 @@ AvbSlotVerifyResult avb_append_options(
     AvbAlgorithmType algorithm_type,
     AvbHashtreeErrorMode hashtree_error_mode) {
   AvbSlotVerifyResult ret;
-  const char* verity_mode;
+  const char* verity_mode = "invalid";
   bool is_device_unlocked;
   AvbIOResult io_ret;
 
@@ -250,11 +250,13 @@ AvbSlotVerifyResult avb_append_options(
     case AVB_ALGORITHM_TYPE_SHA256_RSA2048:
     case AVB_ALGORITHM_TYPE_SHA256_RSA4096:
     case AVB_ALGORITHM_TYPE_SHA256_RSA8192: {
+      AvbSHA256Ctx ctx;
       size_t n, total_size = 0;
-      uint8_t vbmeta_digest[AVB_SHA256_DIGEST_SIZE];
-      avb_slot_verify_data_calculate_vbmeta_digest(
-          slot_data, AVB_DIGEST_TYPE_SHA256, vbmeta_digest);
+      avb_sha256_init(&ctx);
       for (n = 0; n < slot_data->num_vbmeta_images; n++) {
+        avb_sha256_update(&ctx,
+                          slot_data->vbmeta_images[n].vbmeta_data,
+                          slot_data->vbmeta_images[n].vbmeta_size);
         total_size += slot_data->vbmeta_images[n].vbmeta_size;
       }
       if (!cmdline_append_option(
@@ -263,7 +265,7 @@ AvbSlotVerifyResult avb_append_options(
               slot_data, "androidboot.vbmeta.size", total_size) ||
           !cmdline_append_hex(slot_data,
                               "androidboot.vbmeta.digest",
-                              vbmeta_digest,
+                              avb_sha256_final(&ctx),
                               AVB_SHA256_DIGEST_SIZE)) {
         ret = AVB_SLOT_VERIFY_RESULT_ERROR_OOM;
         goto out;
@@ -273,11 +275,13 @@ AvbSlotVerifyResult avb_append_options(
     case AVB_ALGORITHM_TYPE_SHA512_RSA2048:
     case AVB_ALGORITHM_TYPE_SHA512_RSA4096:
     case AVB_ALGORITHM_TYPE_SHA512_RSA8192: {
+      AvbSHA512Ctx ctx;
       size_t n, total_size = 0;
-      uint8_t vbmeta_digest[AVB_SHA512_DIGEST_SIZE];
-      avb_slot_verify_data_calculate_vbmeta_digest(
-          slot_data, AVB_DIGEST_TYPE_SHA512, vbmeta_digest);
+      avb_sha512_init(&ctx);
       for (n = 0; n < slot_data->num_vbmeta_images; n++) {
+        avb_sha512_update(&ctx,
+                          slot_data->vbmeta_images[n].vbmeta_data,
+                          slot_data->vbmeta_images[n].vbmeta_size);
         total_size += slot_data->vbmeta_images[n].vbmeta_size;
       }
       if (!cmdline_append_option(
@@ -286,7 +290,7 @@ AvbSlotVerifyResult avb_append_options(
               slot_data, "androidboot.vbmeta.size", total_size) ||
           !cmdline_append_hex(slot_data,
                               "androidboot.vbmeta.digest",
-                              vbmeta_digest,
+                              avb_sha512_final(&ctx),
                               AVB_SHA512_DIGEST_SIZE)) {
         ret = AVB_SLOT_VERIFY_RESULT_ERROR_OOM;
         goto out;
@@ -301,7 +305,7 @@ AvbSlotVerifyResult avb_append_options(
   if (toplevel_vbmeta->flags & AVB_VBMETA_IMAGE_FLAGS_HASHTREE_DISABLED) {
     verity_mode = "disabled";
   } else {
-    const char* dm_verity_mode;
+    const char* dm_verity_mode = "invalid";
     char* new_ret;
 
     switch (hashtree_error_mode) {

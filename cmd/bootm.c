@@ -19,6 +19,12 @@
 #include <linux/ctype.h>
 #include <linux/err.h>
 #include <u-boot/zlib.h>
+#include <asm/arch/bl31_apis.h>
+#include <libavb.h>
+#ifdef CONFIG_AML_ANTIROLLBACK
+#include <anti-rollback.h>
+#endif
+#include <asm/arch/secure_apb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -90,6 +96,8 @@ static int do_bootm_subcommand(cmd_tbl_t *cmdtp, int flag, int argc,
 
 int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+	char *avb_s;
+	int nRet = 0;
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	static int relocated = 0;
 
@@ -122,6 +130,65 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return do_bootm_subcommand(cmdtp, flag, argc, argv);
 	}
 
+	avb_s = env_get("avb2");
+	if (avb_s == NULL) {
+		run_command("get_avb_mode;", 0);
+		avb_s = env_get("avb2");
+	}
+	printf("avb2: %s\n", avb_s);
+	if (strcmp(avb_s, "1") == 0) {
+		AvbSlotVerifyData* out_data;
+		char *bootargs = NULL;
+		char *newbootargs = NULL;
+		const char *bootstate_o = "androidboot.verifiedbootstate=orange";
+		const char *bootstate_g = "androidboot.verifiedbootstate=green";
+		const char *bootstate = NULL;
+		nRet = avb_verify(&out_data);
+		printf("avb verification: locked = %d, result = %d\n", !is_device_unlocked(), nRet);
+		if (is_device_unlocked()) {
+			if(nRet != AVB_SLOT_VERIFY_RESULT_OK &&
+					nRet != AVB_SLOT_VERIFY_RESULT_ERROR_VERIFICATION &&
+					nRet != AVB_SLOT_VERIFY_RESULT_ERROR_ROLLBACK_INDEX &&
+					nRet != AVB_SLOT_VERIFY_RESULT_ERROR_PUBLIC_KEY_REJECTED) {
+				avb_slot_verify_data_free(out_data);
+				return nRet;
+			}
+		} else {
+			if (nRet == AVB_SLOT_VERIFY_RESULT_OK) {
+#ifdef CONFIG_AML_ANTIROLLBACK
+				uint32_t i = 0;
+				uint32_t version;
+				for (i = 0; i < AVB_MAX_NUMBER_OF_ROLLBACK_INDEX_LOCATIONS; i++) {
+					if (get_avb_antirollback(i, &version) &&
+							version != (uint32_t )out_data->rollback_indexes[i]) {
+						if (!set_avb_antirollback(i, (uint32_t )out_data->rollback_indexes[i]))
+							printf("rollback(%d) = %u failed\n", i, (uint32_t )out_data->rollback_indexes[i]);
+					}
+				}
+#endif
+			}
+			if (nRet != AVB_SLOT_VERIFY_RESULT_OK) {
+				avb_slot_verify_data_free(out_data);
+				return nRet;
+			}
+		}
+		bootargs = env_get("bootargs");
+		if (!bootargs) {
+			bootargs = "\0";
+		}
+		if (is_device_unlocked())
+			bootstate = bootstate_o;
+		else
+			bootstate = bootstate_g;
+		newbootargs = malloc(strlen(bootargs) + strlen(out_data->cmdline) + strlen(bootstate) + 1 + 1 + 1);
+		if (!newbootargs) {
+			printf("failed to allocate buffer for bootarg\n");
+			return -1;
+		}
+		sprintf(newbootargs, "%s %s %s", bootargs, out_data->cmdline, bootstate);
+		env_set("bootargs", newbootargs);
+		avb_slot_verify_data_free(out_data);
+	}
 	return do_bootm_states(cmdtp, flag, argc, argv, BOOTM_STATE_START |
 		BOOTM_STATE_FINDOS | BOOTM_STATE_FINDOTHER |
 		BOOTM_STATE_LOADOS |

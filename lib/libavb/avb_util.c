@@ -3,7 +3,7 @@
  * Copyright (C) 2016 The Android Open Source Project
  */
 
-#include "avb_util.h"
+#include <libavb/avb_util.h>
 
 #include <stdarg.h>
 

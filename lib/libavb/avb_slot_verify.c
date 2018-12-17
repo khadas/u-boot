@@ -3,17 +3,18 @@
  * Copyright (C) 2016 The Android Open Source Project
  */
 
-#include "avb_slot_verify.h"
-#include "avb_chain_partition_descriptor.h"
+#include "avb_crypto.h"
+#include <libavb/avb_slot_verify.h>
+#include <libavb/avb_chain_partition_descriptor.h>
 #include "avb_cmdline.h"
-#include "avb_footer.h"
-#include "avb_hash_descriptor.h"
-#include "avb_hashtree_descriptor.h"
-#include "avb_kernel_cmdline_descriptor.h"
+#include <libavb/avb_footer.h>
+#include <libavb/avb_hash_descriptor.h>
+#include <libavb/avb_hashtree_descriptor.h>
+#include <libavb/avb_kernel_cmdline_descriptor.h>
 #include "avb_sha.h"
-#include "avb_util.h"
-#include "avb_vbmeta_image.h"
-#include "avb_version.h"
+#include <libavb/avb_util.h>
+#include <libavb/avb_vbmeta_image.h>
+#include <libavb/avb_version.h>
 
 /* Maximum number of partitions that can be loaded with avb_slot_verify(). */
 #define MAX_NUMBER_OF_LOADED_PARTITIONS 32
