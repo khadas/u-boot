@@ -333,6 +333,49 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 		(ulong) kernel_entry);
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
+	printf("images->legacy_hdr_os: %lx\n", images->legacy_hdr_os);
+	printf("images->legacy_hdr_os_copy: %lx\n", images->legacy_hdr_os_copy);
+	printf("images->legacy_hdr_valid: %lx\n", images->legacy_hdr_valid);
+#if IMAGE_ENABLE_FIT
+	printf("images->fit_uname_cfg: %lx\n", images->fit_uname_cfg);
+	printf("images->fit_hdr_os: %lx\n", images->fit_hdr_os);
+	printf("images->fit_uname_os: %lx\n", images->fit_uname_os);
+	printf("images->fit_noffset_os: %lx\n", images->fit_noffset_os);
+	printf("images->fit_hdr_rd: %lx\n", images->fit_hdr_rd);
+	printf("images->fit_uname_rd: %lx\n", images->fit_uname_rd);
+	printf("images->fit_noffset_rd: %lx\n", images->fit_noffset_rd);
+	printf("images->fit_hdr_fdt: %lx\n", images->fit_hdr_fdt);
+	printf("images->fit_uname_fdt: %lx\n", images->fit_uname_fdt);
+	printf("images->fit_noffset_fdt: %lx\n", images->fit_noffset_fdt);
+	printf("images->fit_hdr_setup: %lx\n", images->fit_hdr_setup);
+	printf("images->fit_uname_setup: %lx\n", images->fit_uname_setup);
+	printf("images->fit_noffset_setup: %lx\n", images->fit_noffset_setup);
+#endif
+
+#ifndef USE_HOSTCC
+	printf("images->os.start: %lx\n", (uint64_t)images->os.start);
+	printf("images->os.end: %lx\n", (uint64_t)images->os.end);
+	printf("images->os.image_start: %lx\n", (uint64_t)images->os.image_start);
+	printf("images->os.image_len: %lx\n", (uint64_t)images->os.image_len);
+	printf("images->os.load: %lx\n", (uint64_t)images->os.load);
+	printf("images->os.comp: %lx\n", (uint64_t)images->os.comp);
+	printf("images->os.type: %lx\n", (uint64_t)images->os.type);
+	printf("images->os.os: %lx\n", (uint64_t)images->os.os);
+	printf("images->os.arch: %lx\n", (uint64_t)images->os.arch);
+	printf("images->ep: %lx\n", images->ep);
+	printf("images->rd_start: %lx\n", images->rd_start);
+	printf("images->rd_end: %lx\n", images->rd_end);
+	printf("images->ft_addr: %lx\n", images->ft_addr);
+	printf("images->ft_len: %lx\n", images->ft_len);
+	printf("images->initrd_start: %lx\n", images->initrd_start);
+	printf("images->initrd_end: %lx\n", images->initrd_end);
+	printf("images->cmdline_start: %lx\n", images->cmdline_start);
+	printf("images->cmdline_end: %lx\n", images->cmdline_end);
+	printf("images->kbd: %lx\n", images->kbd);
+#endif
+	printf("images->verify: %lx\n", images->verify);
+	printf("images->state: %lx\n", images->state);
+
 	announce_and_cleanup(fake);
 
 	if (!fake) {
@@ -343,25 +386,37 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 
 		update_os_arch_secondary_cores(images->os.arch);
 
+/* disable EL switch */
+#if 0
+		printf("switch el\n");
 #ifdef CONFIG_ARMV8_SWITCH_TO_EL1
 		armv8_switch_to_el2((u64)images->ft_addr, 0, 0, 0,
 				    (u64)switch_to_el1, ES_TO_AARCH64);
 #else
 		if ((IH_ARCH_DEFAULT == IH_ARCH_ARM64) &&
-		    (images->os.arch == IH_ARCH_ARM))
+		    (images->os.arch == IH_ARCH_ARM)) {
+			printf("switch el2-1\n");
 			armv8_switch_to_el2(0, (u64)gd->bd->bi_arch_number,
 					    (u64)images->ft_addr, 0,
 					    (u64)images->ep,
 					    ES_TO_AARCH32);
-		else
+		}
+		else {
+			printf("switch el2-2\n");
 			armv8_switch_to_el2((u64)images->ft_addr, 0, 0, 0,
 					    images->ep,
 					    ES_TO_AARCH64);
+		}
 #endif
-		if (images->os.arch == IH_ARCH_ARM)
+#endif
+		if (images->os.arch == IH_ARCH_ARM) {
+			printf("boot 32bit kernel\n");
 			jump_to_a32_kernel(images->ep, machid, (unsigned long)images->ft_addr);
-		else
+		}
+		else {
+			printf("boot 64bit kernel\n");
 			kernel_entry(images->ft_addr, NULL, NULL, NULL);
+		}
 	}
 #else
 	unsigned long machid = gd->bd->bi_arch_number;

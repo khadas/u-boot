@@ -652,6 +652,7 @@ int board_init(void)
 int board_late_init(void)
 {
 	printf("board late init\n");
+	run_command("mmc dev 1", 0);
 #if 0
 		//update env before anyone using it
 		run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\

@@ -157,8 +157,20 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	case IMAGE_FORMAT_ANDROID:
+		if (image_get_magic((image_header_t *)images.os.image_start) == IH_MAGIC) {
+			env_set("initrd_high", "0A000000");
+			env_set("fdt_high", "0A000000");
+			images.os.arch = ((image_header_t *)(images.os.image_start))->ih_arch;
+			images.os.image_start += sizeof(image_header_t);
+		}
 		images.os.type = IH_TYPE_KERNEL;
-		images.os.comp =  android_image_get_comp(os_hdr);
+
+		if (images.os.arch == IH_ARCH_ARM)
+			images.os.comp = image_get_comp(os_hdr + 0x800);
+		else
+			images.os.comp =  android_image_get_comp(os_hdr);
+
+		//images.os.comp =  android_image_get_comp(os_hdr);
 		images.os.os = IH_OS_LINUX;
 
 		images.os.end = android_image_get_end(os_hdr);
@@ -683,6 +695,15 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		boot_fdt_add_mem_rsv_regions(&images->lmb, images->ft_addr);
 		ret = boot_relocate_fdt(&images->lmb, &images->ft_addr,
 					&images->ft_len);
+	}
+#endif
+
+	/* Check reserved memory region */
+#ifdef CONFIG_CMD_RSVMEM
+	ret = run_command("rsvmem check", 0);
+	if (ret) {
+		puts("rsvmem check failed\n");
+		return ret;
 	}
 #endif
 
