@@ -116,7 +116,7 @@
         "active_slot=normal\0"\
         "lock=10001000\0"\
         "boot_part=boot\0"\
-        "model_name=t962e_r321_hdmitx\0" \
+        "model_name=hdmitx\0" \
         "reboot_mode_android=""normal""\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\

@@ -120,7 +120,7 @@
         "video_reverse=0\0"\
         "active_slot=normal\0"\
         "boot_part=boot\0"\
-        "model_name=t962x_r311_FHD\0" \
+        "model_name=FHD\0" \
         "edid_14_dir=/system/etc/port_14.bin\0" \
         "edid_20_dir=/system/etc/port_20.bin\0" \
         "edid_select=0\0" \
