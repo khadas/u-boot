@@ -386,7 +386,7 @@ static const char *board_type_to_string(char board_type)
 {
 	switch (board_type) {
 		case BOARD_TYPE_EDGEV:
-			return "EdgeV";
+			return "Edge-V";
 		case BOARD_TYPE_EDGE:
 			return "Edge";
 		case BOARD_TYPE_CAPTAIN:
