@@ -119,7 +119,7 @@ static void osd_debug_dump_register_all(void)
 	reg = VPP_HOLD_LINES;
 	osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
 	if (osd_hw.osd_ver == OSD_HIGH_ONE) {
-#ifdef CONFIG_MESON_G12A
+#ifdef AML_OSD_HIGH_VERSION
 		reg = OSD_PATH_MISC_CTRL;
 		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
 		reg = VIU_OSD_BLEND_CTRL;
@@ -245,7 +245,7 @@ static void osd_test_dummydata(void)
 	osd_reset();
 	osd_logi("--- OSD TEST DUMMYDATA ---\n");
 	if (osd_hw.osd_ver == OSD_HIGH_ONE) {
-#ifdef CONFIG_MESON_G12A
+#ifdef AML_OSD_HIGH_VERSION
 		osd_reg_write(VPP_POST_BLEND_BLEND_DUMMY_DATA, 0xff);
 		msleep(OSD_TEST_DURATION);
 		osd_reg_write(VPP_POST_BLEND_BLEND_DUMMY_DATA, 0xff00);

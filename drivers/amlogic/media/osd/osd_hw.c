@@ -610,7 +610,7 @@ static u32 line_stride_calc(
 	return line_stride;
 }
 
-#ifdef CONFIG_MESON_G12A
+#ifdef AML_OSD_HIGH_VERSION
 /* only one layer */
 void osd_setting_default_hwc(u32 index, struct pandata_s *disp_data)
 {
@@ -842,7 +842,7 @@ void osd_setup_hw(u32 index,
 	if (update_geometry)
 		add_to_update_list(index, DISP_GEOMETRY);
 	add_to_update_list(index, DISP_OSD_REVERSE);
-#ifdef CONFIG_MESON_G12A
+#ifdef AML_OSD_HIGH_VERSION
 	if (osd_hw.osd_ver == OSD_HIGH_ONE)
 		osd_setting_default_hwc(index, &disp_data);
 #endif

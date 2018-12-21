@@ -946,7 +946,7 @@ int video_scale_bitmap(void)
 	char *layer_str = NULL;
 	int osd_index = -1;
 	int axis[4] = {};
-#ifdef CONFIG_MESON_G12A
+#ifdef AML_OSD_HIGH_VERSION
 	struct pandata_s disp_data;
 #endif
 
@@ -978,7 +978,7 @@ int video_scale_bitmap(void)
 	osd_set_window_axis_hw(osd_index, axis[0], axis[1], axis[0] + axis[2] - 1,
 			       axis[1] + axis[3] - 1);
 	osd_set_free_scale_enable_hw(osd_index, 0x10001);
-#ifdef CONFIG_MESON_G12A
+#ifdef AML_OSD_HIGH_VERSION
 	disp_data.x_start = axis[0];
 	disp_data.y_start = axis[1];
 	disp_data.x_end = axis[0] + axis[2] - 1;
