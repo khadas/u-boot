@@ -17,13 +17,8 @@
 #define HHI_GCLK_MPEG1			0x144 /* 0x51 offset in data sheet1 */
 #define HHI_GCLK_MPEG2			0x148 /* 0x52 offset in data sheet1 */
 #define HHI_GCLK_OTHER			0x150 /* 0x54 offset in data sheet1 */
-
-#define HHI_NAND_CLK_CNTL              0x25c /* 0x97 offset in data sheet1 */
-#define HHI_SD_EMMC_CLK_CNTL   0x264 /* 0x99 offset in data sheet1 */
-
 #define HHI_FIX_PLL_CNTL0		0x2A0 /* 0xa8 offset in data sheet1 */
 #define HHI_FIX_PLL_CNTL1		0x2A4 /* 0xa9 offset in data sheet1 */
-
 #define HHI_SYS_PLL_CNTL0		0x2f4 /* 0xbd offset in data sheet1 */
 #define HHI_SYS_PLL_CNTL1		0x2f8 /* 0xbe offset in data sheet1 */
 #define HHI_SYS_PLL_CNTL2		0x2fc /* 0xbf offset in data sheet1 */
@@ -32,6 +27,8 @@
 #define HHI_SYS_PLL_CNTL5		0x308 /* 0xc2 offset in data sheet1 */
 #define HHI_SYS_PLL_CNTL6		0x30c /* 0xc3 offset in data sheet1 */
 #define HHI_SPICC_CLK_CNTL		0x3dc /* 0xf7 offset in data sheet1 */
+#define HHI_NAND_CLK_CNTL		0x25c /* 0x97 offset in data sheet1 */
+#define HHI_SD_EMMC_CLK_CNTL		0x264 /* 0x99 offset in data sheet1 */
 
 #define CLKID_UNREALIZED		0xfff
 

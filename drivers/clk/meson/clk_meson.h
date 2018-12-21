@@ -50,11 +50,11 @@ struct parm {
 #define PARM_SET(width, shift, reg, val)                                \
 	(((reg) & CLRPMASK(width, shift)) | ((val) << (shift)))
 
-#define XTAL_RATE 	24000000
 #define CLK81_RATE	166666667
 
 struct meson_clk {
 	void __iomem *addr;
+	struct clk clkin;
 };
 
 /* MPLL Parameters */

@@ -10,7 +10,7 @@
 #include <clk-uclass.h>
 #include <div64.h>
 #include <dm.h>
-#include <dt-bindings/clock/g12a-clkc.h>
+#include <dt-bindings/clock/g12-clkc.h>
 #include "clk_meson.h"
 
 /* clk81 gates */
@@ -58,15 +58,17 @@ static unsigned int spicc_parents[] = {CLKID_XTAL, CLKID_CLK81, CLKID_FCLK_DIV4,
 CLKID_FCLK_DIV3, CLKID_UNREALIZED, CLKID_FCLK_DIV5, CLKID_FCLK_DIV7, CLKID_UNREALIZED};
 
 static unsigned int saradc_parents[] = {CLKID_XTAL, CLKID_AO_CLK81};
+
 static unsigned int sd_emmc_parents[] = {CLKID_XTAL, CLKID_FCLK_DIV2, CLKID_FCLK_DIV3,
 	CLKID_FCLK_DIV5, CLKID_FCLK_DIV7, CLKID_UNREALIZED, CLKID_UNREALIZED, CLKID_UNREALIZED};
+
 static struct meson_mux muxes[] = {
 		{CLKID_SPICC0_MUX, HHI_SPICC_CLK_CNTL, 7,  7, spicc_parents, ARRAY_SIZE(spicc_parents)},
 		{CLKID_SPICC1_MUX, HHI_SPICC_CLK_CNTL, 23, 7, spicc_parents, ARRAY_SIZE(spicc_parents)},
 		{CLKID_SARADC_MUX, AO_SAR_CLK, 9, 3, saradc_parents, ARRAY_SIZE(saradc_parents)},
 		{CLKID_SD_EMMC_A_P0_MUX, HHI_SD_EMMC_CLK_CNTL, 9, 7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
 		{CLKID_SD_EMMC_B_P0_MUX, HHI_SD_EMMC_CLK_CNTL, 25, 7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
-		{CLKID_SD_EMMC_C_P0_MUX, HHI_NAND_CLK_CNTL, 25, 7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
+		{CLKID_SD_EMMC_C_P0_MUX, HHI_NAND_CLK_CNTL, 9, 7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
 };
 
 static struct meson_div divs[] = {
@@ -104,7 +106,7 @@ static ulong meson_pll_get_rate(struct clk *clk, unsigned long id)
 {
 	struct meson_clk *priv = dev_get_priv(clk->dev);
 	struct parm *pm, *pn, *pod;
-	unsigned long parent_rate_mhz = XTAL_RATE / 1000000;
+	unsigned long parent_rate_mhz = clk_get_rate(&priv->clkin)/1000000;
 	u16 n, m, od;
 	u32 reg;
 
@@ -138,8 +140,12 @@ static ulong meson_pll_get_rate(struct clk *clk, unsigned long id)
 static ulong meson_clk_get_rate_by_id(struct clk *clk, ulong id)
 {
 	ulong rate;
+	struct meson_clk *priv = dev_get_priv(clk->dev);
 
 	switch (id) {
+	case CLKID_XTAL:
+		rate = clk_get_rate(&priv->clkin);
+		break;
 	case CLKID_FIXED_PLL:
 	case CLKID_SYS_PLL:
 		rate = meson_pll_get_rate(clk, id);
@@ -219,6 +225,7 @@ static int meson_clk_probe(struct udevice *dev)
 {
 	struct meson_clk *priv = dev_get_priv(dev);
 
+	clk_get_by_name(dev, "xtal", &priv->clkin);
 	priv->addr = dev_read_addr_ptr(dev);
 
 	debug("meson-clk: probed at addr %p\n", priv->addr);

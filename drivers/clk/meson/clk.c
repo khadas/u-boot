@@ -120,6 +120,7 @@ int meson_clk_set_div(struct meson_clk *priv, struct meson_div *div,
 	unsigned int val;
 
 	val = readl(priv->addr + div->reg);
+	val &= ~((1 << div->width) - 1);
 	val |= (div_val & ((1 << div->width) - 1)) << div->shift;
 	writel(val, priv->addr + div->reg);
 

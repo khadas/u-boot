@@ -51,7 +51,7 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/pwm/pwm.h>
 #include <dt-bindings/pwm/meson.h>
-#include <dt-bindings/clock/g12a-clkc.h>
+#include <dt-bindings/clock/g12-clkc.h>
 
 / {
 	interrupt-parent = <&gic>;
@@ -475,6 +475,8 @@
 				compatible = "amlogic,g12a-clkc";
 				#clock-cells = <1>;
 				reg = <0x0 0x0 0x0 0x320>;
+				clocks = <&xtal>;
+				clock-names = "xtal";
 			};
 
 			mailbox: mailbox@404 {
