@@ -424,7 +424,7 @@
 				reg = <0x0 0x05000 0x0 0x20>;
 				#address-cells = <1>;
 				#size-cells = <0>;
-				clocks = <&clkc_AO CLKID_AO_I2C>;
+				clocks = <&clkc CLKID_AO_I2C>;
 				clock-names = "clk_i2c";
 				status = "disabled";
 			};
