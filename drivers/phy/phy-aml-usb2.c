@@ -66,8 +66,9 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 	int time_dly = RESET_COMPLETE_TIME;
 
 	priv->reset_addr = dev_read_addr_index(phy->dev, 1);
-	if (priv->usb_phy2_pll_base_addr[i] == FDT_ADDR_T_NONE) {
+	if (priv->reset_addr == FDT_ADDR_T_NONE) {
 		pr_err("Coun't get usb_phy2_pll_base_addr[%d]\n", i);
+		return -1;
 	}
 	*(volatile unsigned long *)priv->reset_addr |= (1<<2);
 
@@ -76,13 +77,15 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 	priv->u2_port_num = u2portnum;
 
 	priv->usb_phy2_pll_base_addr[0] = dev_read_addr_index(phy->dev, 2);
-	if (priv->usb_phy2_pll_base_addr[i] == FDT_ADDR_T_NONE) {
+	if (priv->usb_phy2_pll_base_addr[0] == FDT_ADDR_T_NONE) {
 		pr_err("Coun't get usb_phy2_pll_base_addr[%d]\n", i);
+		return -1;
 	}
 
 	priv->usb_phy2_pll_base_addr[1] = dev_read_addr_index(phy->dev, 3);
-	if (priv->usb_phy2_pll_base_addr[i] == FDT_ADDR_T_NONE) {
+	if (priv->usb_phy2_pll_base_addr[1] == FDT_ADDR_T_NONE) {
 		pr_err("Coun't get usb_phy2_pll_base_addr[%d]\n", i);
+		return -1;
 	}
 	priv->base_addr = dev_read_addr(phy->dev);
 

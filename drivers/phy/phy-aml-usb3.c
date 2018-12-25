@@ -92,15 +92,15 @@ static int phy_aml_usb3_init(struct phy *phy)
 	priv->base_addr = dev_read_addr(phy->dev);
 	if (priv->base_addr == FDT_ADDR_T_NONE) {
 		pr_err("Coun't get usb3 base addr\n");
+		return -1;
 	}
 	pr_info("usb3_phy: portnum=%d, base addr = 0x%08x\n",
 		u3portnum, priv->base_addr);
 	if (u3portnum == 0) {
 		usb_aml_reg = (struct usb_aml_regs *)((ulong)priv->base_addr);
 		r1.d32 = usb_aml_reg->usb_r1;
-		usb_aml_reg->usb_r2 = r1.d32;
-		r1.b.u3h_fladj_30mhz_reg = 0x26;
-		usb_aml_reg->usb_r2 = r1.d32;
+		r1.b.u3h_fladj_30mhz_reg = 0x20;
+		usb_aml_reg->usb_r1 = r1.d32;
 		udelay(100);
 	}
 
@@ -120,7 +120,7 @@ static int phy_aml_usb3_init(struct phy *phy)
 		r1.d32 = usb_aml_reg->usb_r1;
 		r1.b.u3h_host_port_power_control_present = 1;
 		r1.b.u3h_fladj_30mhz_reg = 32;
-		usb_aml_reg->usb_r2 = r1.d32;
+		usb_aml_reg->usb_r1 = r1.d32;
 		udelay(2);
 #if 0
 		/*
