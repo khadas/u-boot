@@ -203,7 +203,7 @@ int board_fbt_key_pressed(void)
 	ir_keycode = g_ir_keycode;
 #endif
 	printf("vbus = %d\n", vbus);
-	if ((boot_recovery && (vbus == 0)) || (ir_keycode == KEY_POWER)) {
+	if ((boot_recovery && (vbus == 0)) || (ir_keycode == KEY_POWER) || (boot_rockusb && (vbus == 0))) {
 		printf("recovery key pressed.\n");
 		frt = FASTBOOT_REBOOT_RECOVERY;
 	} else if ((boot_rockusb && (vbus != 0)) || (ir_keycode == KEY_HOME)) {
