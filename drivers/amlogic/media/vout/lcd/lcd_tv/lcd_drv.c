@@ -21,6 +21,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <asm/arch/io.h>
+#include <amlogic/media/vpp/vpp.h>
 #include <amlogic/media/vout/lcd/aml_lcd.h>
 #include "../lcd_reg.h"
 #include "../lcd_common.h"
@@ -1045,6 +1046,7 @@ void lcd_tv_driver_init_pre(void)
 	lcd_clk_set(pconf);
 	lcd_venc_set(pconf);
 	lcd_encl_tcon_set(pconf);
+	vpp_init_lcd_gamma_table();
 }
 
 int lcd_tv_driver_init(void)

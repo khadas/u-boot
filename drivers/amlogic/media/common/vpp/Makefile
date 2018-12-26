@@ -1,2 +1,2 @@
-obj-$(CONFIG_AML_VPP) += aml_vpp.o
+obj-$(CONFIG_AML_VPP) += vpp.o
 
