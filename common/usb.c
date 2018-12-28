@@ -908,7 +908,7 @@ __weak int usb_alloc_device(struct usb_device *udev)
 }
 #endif /* !CONFIG_IS_ENABLED(DM_USB) */
 
-static int usb_hub_port_reset(struct usb_device *dev, struct usb_device *hub)
+static int usb_root_port_reset(struct usb_device *dev, struct usb_device *hub)
 {
 	if (!hub)
 		usb_reset_root_port(dev);
@@ -1016,10 +1016,26 @@ static int usb_setup_descriptor(struct usb_device *dev, bool do_read)
 	return 0;
 }
 
+static int usb_enable_device(struct usb_device *dev)
+{
+	int res;
+
+	debug("usb enable %d\n", dev->devnum);
+	res = usb_control_msg(dev, usb_snddefctrl(dev),
+				USB_ENABLE, 0,
+				(dev->devnum), 0,
+				NULL, 0, USB_CNTL_TIMEOUT);
+	return res;
+}
+
+
 static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 			      struct usb_device *parent)
 {
 	int err;
+
+	int retry_count = 0;
+	unsigned short portstatus;
 
 	/*
 	 * Allocate usb 3.0 device context.
@@ -1035,17 +1051,45 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 	err = usb_setup_descriptor(dev, do_read);
 	if (err)
 		return err;
-	err = usb_hub_port_reset(dev, parent);
+
+	retry:
+	err = usb_root_port_reset(dev, parent);
+
 	if (err)
 		return err;
 
 	dev->devnum = addr;
 
 	err = usb_set_address(dev); /* set address */
+	if (err < 0) {
+		printf("\n  1    USB device not accepting new address " \
+			"(error=%lX), port= %d\n", dev->status, parent->portnr);
+			err = usb_set_address(dev); /* set address */
+	}
 
 	if (err < 0) {
-		printf("\n      USB device not accepting new address " \
+			err = usb_hub_port_reset(parent, dev->portnr -1, &portstatus);
+			if (err < 0) {
+				printf("\n	   Couldn't reset port %i\n", dev->portnr);
+				return 1;
+			}
+			usb_enable_device(dev);
+			mdelay(100);
+			err = usb_hub_port_reset(parent, dev->portnr -1, &portstatus);
+			if (err < 0) {
+				printf("\n	   Couldn't reset port %i\n", dev->portnr);
+				return 1;
+			}
+			err = usb_set_address(dev); /* set address */
+		}
+	if (err < 0) {
+		printf("\n  2    USB device not accepting new address " \
 			"(error=%lX)\n", dev->status);
+		if (retry_count == 0) {
+			retry_count++;
+			printf("retry new usb device\n");
+			goto retry;
+		}
 		return err;
 	}
 

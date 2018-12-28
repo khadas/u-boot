@@ -343,52 +343,6 @@ int board_early_init_f(void){
 }
 #endif
 
-#ifdef CONFIG_USB_XHCI_AMLOGIC_V2
-#include <asm/arch/usb-v2.h>
-#include <asm/arch/gpio.h>
-#define CONFIG_GXL_USB_U2_PORT_NUM	2
-
-#ifdef CONFIG_USB_XHCI_AMLOGIC_USB3_V2
-#define CONFIG_GXL_USB_U3_PORT_NUM	1
-#else
-#define CONFIG_GXL_USB_U3_PORT_NUM	0
-#endif
-
-static void gpio_set_vbus_power(char is_power_on)
-{
-	int ret;
-
-	ret = gpio_request(CONFIG_USB_GPIO_PWR,
-		CONFIG_USB_GPIO_PWR_NAME);
-	if (ret && ret != -EBUSY) {
-		printf("gpio: requesting pin %u failed\n",
-			CONFIG_USB_GPIO_PWR);
-		return;
-	}
-
-	if (is_power_on) {
-		gpio_direction_output(CONFIG_USB_GPIO_PWR, 1);
-	} else {
-		gpio_direction_output(CONFIG_USB_GPIO_PWR, 0);
-	}
-}
-
-struct amlogic_usb_config g_usb_config_GXL_skt={
-	CONFIG_GXL_XHCI_BASE,
-	USB_ID_MODE_HARDWARE,
-	gpio_set_vbus_power,//gpio_set_vbus_power, //set_vbus_power
-	CONFIG_GXL_USB_PHY2_BASE,
-	CONFIG_GXL_USB_PHY3_BASE,
-	CONFIG_GXL_USB_U2_PORT_NUM,
-	CONFIG_GXL_USB_U3_PORT_NUM,
-	.usb_phy2_pll_base_addr = {
-		CONFIG_USB_PHY_20,
-		CONFIG_USB_PHY_21,
-	}
-};
-
-#endif /*CONFIG_USB_XHCI_AMLOGIC*/
-
 #ifdef CONFIG_AML_HDMITX20
 static void hdmi_tx_set_hdmi_5v(void)
 {
@@ -531,11 +485,6 @@ int board_init(void)
 				aml_try_factory_usb_burning(0, gd->bd);
 	}
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
-#ifdef CONFIG_USB_XHCI_AMLOGIC_V2
-	board_usb_pll_disable(&g_usb_config_GXL_skt);
-	board_usb_init(&g_usb_config_GXL_skt,BOARD_USB_MODE_HOST);
-#endif /*CONFIG_USB_XHCI_AMLOGIC*/
-
 #if 0
 	aml_pwm_cal_init(0);
 #endif//

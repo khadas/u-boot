@@ -50,6 +50,8 @@
 #define USB_DIR_OUT			0		/* to device */
 #define USB_DIR_IN			0x80		/* to host */
 
+#define USB_ENABLE	0xea
+
 /*
  * USB types, the second of three bRequestType fields
  */

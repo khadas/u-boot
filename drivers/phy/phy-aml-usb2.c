@@ -42,6 +42,9 @@ static void set_usb_pll(struct phy *phy, uint32_t volatile *phy2_pll_base)
 	dev_read_u32(phy->dev, "pll-setting-1", &pll_set1);
 	dev_read_u32(phy->dev, "pll-setting-2", &pll_set2);
 	dev_read_u32(phy->dev, "pll-setting-3", &pll_set3);
+	debug("pll1=0x%08x, pll2=0x%08x, pll-setting-3 =0x%08x\n",
+		pll_set1, pll_set2, pll_set3);
+	pll_set3 = 0xac5f69e5;
 
     (*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x40))
         = (pll_set1 | USB_PHY2_RESET | USB_PHY2_ENABLE);
@@ -89,7 +92,7 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 	}
 	priv->base_addr = dev_read_addr(phy->dev);
 
-	pr_info("usb2 phy: portnum=%d, addr1= 0x%08x, addr2= 0x%08x\n",
+	debug("usb2 phy: portnum=%d, addr1= 0x%08x, addr2= 0x%08x\n",
 		u2portnum, priv->usb_phy2_pll_base_addr[0],
 		priv->usb_phy2_pll_base_addr[1]);
 
@@ -119,7 +122,7 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 	}
 
 	for (i = 0; i < u2portnum; i++) {
-		pr_info("------set usb pll\n");
+		debug("------set usb pll\n");
 		set_usb_pll(phy, priv->usb_phy2_pll_base_addr[i]);
 	}
 	return 0;
@@ -129,6 +132,34 @@ static void phy_aml_usb2_reset(struct phy_aml_usb2_priv *priv)
 {
 	return;
 }
+
+static int phy_aml_usb2_tuning(struct phy *phy, int port)
+{
+	struct phy_aml_usb2_priv *priv = dev_get_priv(phy->dev);
+	unsigned long phy_reg_base;
+	unsigned int pll_set1, pll_set2, pll_set3, pll_set4;
+
+	if (port > 2)
+			return 0;
+
+	dev_read_u32(phy->dev, "pll-setting-4", &pll_set2);
+	dev_read_u32(phy->dev, "pll-setting-5", &pll_set1);
+	dev_read_u32(phy->dev, "pll-setting-7", &pll_set4);
+	dev_read_u32(phy->dev, "pll-setting-6", &pll_set3);
+
+	debug("pll1=0x%08x, pll2=0x%08x, pll-setting-3 =0x%08x\n",
+			pll_set2, pll_set1, pll_set3);
+
+
+	phy_reg_base = priv->usb_phy2_pll_base_addr[port];
+
+	(*(volatile uint32_t *)(phy_reg_base + 0x10)) = pll_set2;
+	(*(volatile uint32_t *)(phy_reg_base + 0x50)) = pll_set1;
+	(*(volatile uint32_t *)(phy_reg_base + 0x38)) = pll_set4;
+	(*(volatile uint32_t *)(phy_reg_base + 0x34)) = pll_set3;
+	return 0;
+}
+
 
 static void
 phy_aml_usb2_set_host_mode(struct phy_aml_usb2_priv *priv)
@@ -150,6 +181,7 @@ struct phy_ops amlogic_usb2_phy_ops = {
 	.init = phy_aml_usb2_phy_init,
 	.power_on = phy_aml_usb2_power_on,
 	.power_off = phy_aml_usb2_power_off,
+	.tuning = phy_aml_usb2_tuning,
 };
 
 int phy_aml_usb2_probe(struct udevice *dev)

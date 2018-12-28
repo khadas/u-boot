@@ -11,7 +11,6 @@
 #define __PLATFORM_H__
 
 #include <asm/arch/register.h>
-#define HEHE_DEBUG(x...)   printf(x)
 
 /* A3,CS2,M3 chip, PORT_A is OTG, work as ROM Boot port */
 #ifdef __USE_PORT_B

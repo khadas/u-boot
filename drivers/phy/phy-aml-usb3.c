@@ -41,7 +41,7 @@ static int phy_aml_usb3_power_on(struct phy *phy){
 	const void *fdt = gd->fdt_blob;
 
 	usb_vbus_gpioname = fdt_getprop(fdt, dev_of_offset(phy->dev), "gpio-vbus-power", NULL);
-	pr_info("usb_vbus_gpioname=%s\n", usb_vbus_gpioname);
+	debug("usb_vbus_gpioname=%s\n", usb_vbus_gpioname);
 
 	ret = dm_gpio_lookup_name(usb_vbus_gpioname, &desc);
 	if (ret) {
@@ -94,7 +94,7 @@ static int phy_aml_usb3_init(struct phy *phy)
 		pr_err("Coun't get usb3 base addr\n");
 		return -1;
 	}
-	pr_info("usb3_phy: portnum=%d, base addr = 0x%08x\n",
+	debug("usb3_phy: portnum=%d, base addr = 0x%08x\n",
 		u3portnum, priv->base_addr);
 	if (u3portnum == 0) {
 		usb_aml_reg = (struct usb_aml_regs *)((ulong)priv->base_addr);

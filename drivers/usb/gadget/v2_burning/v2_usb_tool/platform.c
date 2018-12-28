@@ -182,24 +182,20 @@ static void set_usb_phy21_pll(void)
 
 void set_usb_phy21_tuning_update(void)
 {
-#if !defined(CONFIG_USB_AMLOGIC_PHY_V2) && !defined(USE_FULL_SPEED)
 	unsigned long phy_reg_base = USB_REG_B;
 
-	(*(volatile uint32_t *)(phy_reg_base + 0x10)) = 0xfff;
-	(*(volatile uint32_t *)(phy_reg_base + 0x50)) = 0xfe18;
-	(*(volatile uint32_t *)(phy_reg_base + 0x38)) = 0xe000c;
-	(*(volatile uint32_t *)(phy_reg_base + 0x34)) = 0xc8000;
-#endif//#if !defined(CONFIG_USB_AMLOGIC_PHY_V2) && !defined(USE_FULL_SPEED)
+	(*(volatile uint32_t *)(phy_reg_base + 0x10)) = USB_G12x_PHY_PLL_SETTING_2;
+	(*(volatile uint32_t *)(phy_reg_base + 0x50)) = USB_G12x_PHY_PLL_SETTING_1;
+	(*(volatile uint32_t *)(phy_reg_base + 0x38)) = USB_G12x_PHY_PLL_SETTING_5;
+	(*(volatile uint32_t *)(phy_reg_base + 0x34)) = USB_G12x_PHY_PLL_SETTING_3;
 }
 
 void set_usb_phy21_tuning_update_reset(void)
 {
-#if !defined(CONFIG_USB_AMLOGIC_PHY_V2) && !defined(USE_FULL_SPEED)
 	unsigned long phy_reg_base = USB_REG_B;
 
 	(*(volatile uint32_t *)(phy_reg_base + 0x38)) = 0x0;
-	(*(volatile uint32_t *)(phy_reg_base + 0x34)) = 0xc8000;
-#endif//#if !defined(CONFIG_USB_AMLOGIC_PHY_V2) && !defined(USE_FULL_SPEED)
+	(*(volatile uint32_t *)(phy_reg_base + 0x34)) = USB_G12x_PHY_PLL_SETTING_3;
 }
 
 #endif

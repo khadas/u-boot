@@ -265,7 +265,7 @@ static inline char *portspeed(int portstatus)
  * @port:	Port number to reset (note ports are numbered from 0 here)
  * @portstat:	Returns port status
  */
-static int usb_hub_port_reset(struct usb_device *dev, int port,
+int usb_hub_port_reset(struct usb_device *dev, int port,
 			      unsigned short *portstat)
 {
 	int err, tries;
@@ -393,6 +393,13 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 		speed = USB_SPEED_FULL;
 		break;
 	}
+
+#ifdef CONFIG_USB_DEVICE_V2
+	if (usb_hub_is_root_hub(dev->dev)) {
+		usb_tuning_port(dev, port);
+		mdelay(10);
+	}
+#endif
 
 #if CONFIG_IS_ENABLED(DM_USB)
 	struct udevice *child;

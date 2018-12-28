@@ -120,6 +120,7 @@ struct phy_ops {
 	* @return 0 if OK, or a negative error code
 	*/
 	int	(*power_off)(struct phy *phy);
+	int (*tuning)(struct phy *phy, int port);
 };
 
 #ifdef CONFIG_PHY
@@ -131,6 +132,8 @@ struct phy_ops {
  * @return 0 if OK, or a negative error code
  */
 int generic_phy_init(struct phy *phy);
+int generic_phy_tuning(struct phy *phy, int port);
+
 
 /**
  * generic_phy_init() - de-initialize the PHY device

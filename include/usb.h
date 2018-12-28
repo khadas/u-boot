@@ -16,6 +16,7 @@
 #include <linux/usb/ch9.h>
 #include <asm/cache.h>
 #include <part.h>
+
 #define HEHE_DEBUG(x...)   printf(x)
 //#define HEHE_DEBUG(x...)
 
@@ -819,6 +820,7 @@ struct dm_usb_ops {
 	 * in a USB transfer. USB class driver needs to be aware of this.
 	 */
 	int (*get_max_xfer_size)(struct udevice *bus, size_t *size);
+	int (*tuning)(struct usb_device *dev, int port);
 };
 
 #define usb_get_ops(dev)	((struct dm_usb_ops *)(dev)->driver->ops)
@@ -1106,5 +1108,10 @@ struct usb_generic_descriptor **usb_emul_find_descriptor(
  * each.
  */
 void usb_show_tree(void);
+
+int usb_hub_port_reset(struct usb_device *dev, int port,
+			      unsigned short *portstat);
+
+int usb_tuning_port(struct usb_device *udev, int port);
 
 #endif /*_USB_H_ */

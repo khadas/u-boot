@@ -126,6 +126,27 @@ void dwc3_set_fladj(struct dwc3 *dwc3_reg, u32 val)
 }
 
 #if CONFIG_IS_ENABLED(DM_USB)
+
+void xhci_dwc3_phy_tuning_1(struct udevice *dev, int port)
+{
+    unsigned long phy_reg_base;
+    int ret, i;
+    struct xhci_dwc3_platdata *plat;
+    struct udevice *udev = dev;
+
+	plat = dev_get_platdata(udev);
+
+    for (i = 0; i < plat->num_phys; i++) {
+		ret = generic_phy_tuning(&plat->usb_phys[i], port);
+		if (ret) {
+			pr_err("Can't tuning USB PHY%d for %s\n",
+			       i, dev->name);
+			return ;
+		}
+	}
+
+}
+
 static int xhci_dwc3_setup_phy(struct udevice *dev)
 {
 	struct xhci_dwc3_platdata *plat = dev_get_platdata(dev);

@@ -1288,5 +1288,6 @@ int xhci_register(struct udevice *dev, struct xhci_hccr *hccr,
 extern struct dm_usb_ops xhci_usb_ops;
 
 struct xhci_ctrl *xhci_get_ctrl(struct usb_device *udev);
+void xhci_dwc3_phy_tuning_1(struct udevice *dev, int port);
 
 #endif /* HOST_XHCI_H_ */
