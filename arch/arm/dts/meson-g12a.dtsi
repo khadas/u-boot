@@ -732,7 +732,7 @@
 					 "nor_hold",
 					 "nor_wp";
 				function = "nor";
-				drive-strength = <1>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -932,12 +932,7 @@
 	clock-names = "core", "comp";
  };
 */
-/*
-&spifc {
-	clocks = <&clkc CLKID_CLK81>;
-	clock-names = "core";
-};
-*/
+
 &usb2_phy_v2 {
 	pll-setting-1 = <0x09400414>;
 	pll-setting-2 = <0x927E0000>;

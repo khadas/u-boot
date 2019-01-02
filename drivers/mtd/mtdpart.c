@@ -1067,8 +1067,6 @@ int mtdparts_init(void)
 		list_add(&dev->link, &aml_device);
 	}
 	list_for_each_entry(dentry, &aml_device, link) {
-		printf("numparts 0x%x, id.type 0x%x, id.num 0x%x, id.size 0x%llx\n",
-			dentry->num_parts, dentry->id->type, dentry->id->num, dentry->id->size);
 		list_for_each_entry(temp, &dentry->parts, link)
 			printf("0x%012llx-0x%012llx : \"%s\"\n",
 			(unsigned long long)temp->offset,

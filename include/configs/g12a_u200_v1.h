@@ -340,6 +340,10 @@
 #error CONFIG_AML_NAND/CONFIG_MESON_NFC can not support at the sametime;
 #endif
 
+#if defined(CONFIG_SPI_NAND) && defined(CONFIG_MESON_NFC)
+#error CONFIG_SPI_NAND/CONFIG_MESON_NFC can not support at the sametime;
+#endif
+
 #if 0
 #ifdef CONFIG_MESON_NFC
 

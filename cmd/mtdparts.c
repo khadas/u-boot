@@ -1411,9 +1411,9 @@ u8 *part_num, struct part_info **part)
 	struct list_head *dentry, *pentry;
 
 	*part_num = 0;
-	printf("--- find_dev_and_part ---\nid = %s\n", id);
+	debug("--- find_dev_and_part ---\nid = %s\n", id);
 	if (list_empty(&aml_device)) {
-		printk("%s() %d: no valid part\n", __func__, __LINE__);
+		pr_err("%s() %d: no valid part\n", __func__, __LINE__);
 		return -1;
 	}
 

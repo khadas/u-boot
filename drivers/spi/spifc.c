@@ -126,39 +126,15 @@ struct spifc_regs {
 		#define SPIFC_CACHE_SIZE_IN_BYTE SPIFC_CACHE_SIZE_IN_WORD << 2
 };
 
-/*
- * @reg: controller registers address.
- * @mem_map: memory_mapped for read operations.
- * @core: clk source.
- * @speed: spi bus frequency, and you should know
- *         we use clk_81 as a clk source now, max
- *         speed is 166M.
- * @io_num: max io number, SIO0 SIO1 SIO2 SIO3.
- * @num_chipselect: the slave number we select.
- * @cs_gpios: gpio array, we use the cs pin as
- *            gpio, cause the spifc controller
- *            can not hold enough time sometimes.
- */
-
-struct spifc_platdata {
-	ulong reg;
-	ulong mem_map;
-#if defined(CONFIG_CLK) && (CONFIG_CLK)
-	struct clk core;
-#endif/* CONFIG_CLK */
-	u32 speed;
-	u32 io_num;
-	u32 num_chipselect;
-	struct gpio_desc cs_gpios[SPIFC_MAX_CS];
-};
-
 struct spifc_priv {
 	struct spifc_regs *regs;
 	void __iomem *mem_map;
-	unsigned int speed;
-	unsigned int mode;
+#if defined(CONFIG_CLK) && (CONFIG_CLK)
+	struct clk core;
+#endif/* CONFIG_CLK */
 	unsigned int wordlen;
 	unsigned char cmd;
+	struct gpio_desc cs_gpios;
 };
 
 /* flash dual/quad read command */
@@ -172,7 +148,8 @@ struct spifc_priv {
 #define FCMD_WRITE				0x02
 #define FCMD_WRITE_QUAD_OUT		0x32
 
-#define CONFIG_SPIFC_DEFAULT_SPEED 40000000
+#define SPIFC_MAX_CLK_RATE		166666666
+#define SPIFC_DEFAULT_SPEED		40000000
 
 static void spifc_set_rx_op_mode(struct spifc_priv *priv,
 				 unsigned int slave_mode, unsigned char cmd)
@@ -289,35 +266,32 @@ static int spifc_user_cmd_din(struct spifc_priv *priv,
 
 static int spifc_claim_bus(struct udevice *dev)
 {
-#if 1
 	struct udevice *bus = dev->parent;
-	struct spifc_platdata *plat = dev_get_platdata(bus);
-	int ret, i;
+	struct spifc_priv *priv = dev_get_priv(bus);
+	int ret;
 
 	ret = pinctrl_select_state(bus, "default");
 	if (ret) {
-		printf("%s %d ret %d\n", __func__, __LINE__, ret);
+		pr_err("%s %d ret %d\n", __func__, __LINE__, ret);
 		return ret;
 	}
-	for (i = 0; i < ARRAY_SIZE(plat->cs_gpios); i++) {
-		dm_gpio_free(bus, &plat->cs_gpios[i]);
-		ret = gpio_request_by_name(bus, "cs-gpios",
-					   i, &plat->cs_gpios[i], 0);
-		if (ret) {
-			printf("can't get cs pin%d\n", i);
-			return ret;
-		}
-		ret = dm_gpio_is_valid(&plat->cs_gpios[i]);
-		if (!ret) {
-			printf("gpio:%d invalid!\n", i);
-			return ret;
-		}
-		ret = dm_gpio_set_dir_flags(&plat->cs_gpios[i], GPIOD_IS_OUT);
+
+	dm_gpio_free(bus, &priv->cs_gpios);
+	ret = gpio_request_by_name(bus, "cs-gpios",
+				   0, &priv->cs_gpios, 0);
+	if (ret) {
+		pr_err("%s %d request gpio error!\n", __func__, __LINE__);
+		return ret;
 	}
+	if (!dm_gpio_is_valid(&priv->cs_gpios)) {
+		pr_err("%s %d cs pin gpio invalid!\n", __func__, __LINE__);
+		return 1;
+	}
+	ret = dm_gpio_set_dir_flags(&priv->cs_gpios, GPIOD_IS_OUT);
+	if (ret)
+		pr_err("%s %d set dir error!\n", __func__, __LINE__);
+
 	return ret;
-#else
-	return 0;
-#endif
 }
 
 static int spifc_release_bus(struct udevice *bus)
@@ -329,34 +303,42 @@ static void spifc_chipselect(struct udevice *dev, bool select)
 {
 	struct udevice *bus = dev->parent;
 	struct spifc_platdata *plat = dev_get_platdata(bus);
+	struct spifc_priv *priv = dev_get_priv(bus);
 	struct spi_slave *slave = dev_get_parent_priv(dev);
 	bool level = slave->mode & SPI_CS_HIGH;
 	int cs = spi_chip_select(dev);
 
-	if (cs > plat->num_chipselect) {
-		printf("cs %d exceed the bus num_chipselect\n", cs);
+	if (cs > plat->max_cs) {
+		printf("cs %d exceed the bus max_cs\n", cs);
 		return;
 	}
 	if (!select)
 		level = !level;
-	dm_gpio_set_value(&plat->cs_gpios[cs], level);
+	dm_gpio_set_value(&priv->cs_gpios, level);
 }
 
 static int spifc_set_speed(struct udevice *bus, uint hz)
 {
 	struct spifc_priv *priv = dev_get_priv(bus);
+	struct spifc_platdata *plat = dev_get_platdata(bus);
 	struct spifc_regs *regs = priv->regs;
-	u32 div, value;
-
-	priv->speed = hz;
+	static u32 div;
+	u32 value = 0;
 
 	if (!hz)
 		return 0;
 
-	value = SPIFC_DEFAULT_CLK_RATE;
+	value = SPIFC_MAX_CLK_RATE;
+	if (div == value / hz)
+		return 0;
 	div = value / hz;
-	if (div < 2)
-		div = 2;
+	if (div < 2) {
+		pr_err("%s %d can not support %d speed!\n",
+			__func__, __LINE__, hz);
+		if (!plat->speed)
+			div = 2;
+		hz = SPIFC_MAX_CLK_RATE / div;
+	}
 #ifdef CONFIG_SPIFC_COMPATIBLE_TO_APPOLO
 	if (div > 0x10)
 		div = 0x10;
@@ -375,16 +357,17 @@ static int spifc_set_speed(struct udevice *bus, uint hz)
 	writel(value, &regs->clock);
 #endif
 
+	plat->speed = hz;
 	return 0;
 }
 
 static int spifc_set_mode(struct udevice *bus, uint mode)
 {
-	struct spifc_priv *priv = dev_get_priv(bus);
+	struct spifc_platdata *plat= dev_get_platdata(bus);
 
-	if (mode == priv->mode)
+	if (mode == plat->mode)
 		return 0;
-	priv->mode = mode;
+	plat->mode = mode;
 	return 0;
 }
 
@@ -413,6 +396,7 @@ static int spifc_xfer(struct udevice *dev,
 		printf("%s: error bitlen\n", __func__);
 		return -EINVAL;
 	}
+	spifc_claim_bus(dev);
 	spifc_set_speed(bus, slave->max_hz);
 	spifc_set_mode(bus, slave->mode);
 	if (flags & SPI_XFER_BEGIN) {
@@ -460,12 +444,38 @@ static int spifc_probe(struct udevice *bus)
 {
 	struct spifc_platdata *plat = dev_get_platdata(bus);
 	struct spifc_priv *priv = dev_get_priv(bus);
+	int ret = 0;
 
 	priv->regs = (struct spifc_regs *)plat->reg;
-	priv->speed = plat->speed;
-	priv->mode = -1;
+#if defined(CONFIG_CLK) && (CONFIG_CLK)
+	ret = clk_get_by_name(bus, "core", &priv->core);
+	if (ret) {
+		printf("can't get clk source!\n");
+		return ret;
+	}
+	ret = clk_enable(&priv->core);
+	if (ret) {
+		printf("enable clk source fail\n");
+		return ret;
+	}
+#endif/* CONFIG_CLK */
 
-	return 0;
+	ret = gpio_request_by_name(bus, "cs-gpios",
+					   0, &priv->cs_gpios, 0);
+	if (ret) {
+		pr_err("%s %d can't get cs pin!\n", __func__, __LINE__);
+		return ret;
+	}
+	if (!dm_gpio_is_valid(&priv->cs_gpios)) {
+		pr_err("%s %d cs pin gpio invalid!\n", __func__, __LINE__);
+		return 1;
+	}
+	/* gpio act like cs pin, default dir-out and pull up */
+	ret = dm_gpio_set_dir_flags(&priv->cs_gpios, GPIOD_IS_OUT);
+	if (ret)
+		pr_err("%s %d set dir error!\n", __func__, __LINE__);
+
+	return ret;
 }
 
 static int spifc_ofdata_to_platdata(struct udevice *bus)
@@ -473,49 +483,23 @@ static int spifc_ofdata_to_platdata(struct udevice *bus)
 	struct spifc_platdata *plat = dev_get_platdata(bus);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(bus);
-	int ret, i;
 
 	plat->reg = (ulong)dev_read_addr_ptr(bus);
 	/* plat->mem_map = fdtdec_get_addr(blob, node, "ahb"); */
-#if defined(CONFIG_CLK) && (CONFIG_CLK)
-	ret = clk_get_by_name(bus, "core", &plat->core);
-	if (ret) {
-		printf("can't get clk source!\n");
-		return ret;
-	}
-	ret = clk_enable(&plat->core);
-	if (ret) {
-		printf("enable clk source fail\n");
-		return ret;
-	}
-#endif/* CONFIG_CLK */
+
 	plat->speed = fdtdec_get_uint(blob, node,
 				      "max-frequency",
 				      40000000);
 	plat->io_num = fdtdec_get_uint(blob, node,
 				       "max-io",
-				       0);
-	plat->num_chipselect = fdtdec_get_uint(blob, node,
+				       2);/* default 2 because some board only have 2 spifc io */
+	plat->max_cs = fdtdec_get_uint(blob, node,
 					       "max-cs",
-					       0);
-	for (i = 0; i < ARRAY_SIZE(plat->cs_gpios); i++) {
-		ret = gpio_request_by_name(bus, "cs-gpios",
-					   i, &plat->cs_gpios[i], 0);
-		if (ret) {
-			printf("can't get cs pin%d\n", i);
-			return ret;
-		}
-		ret = dm_gpio_is_valid(&plat->cs_gpios[i]);
-		if (!ret) {
-			printf("gpio:%d invalid!\n", i);
-			return ret;
-		}
-		/* gpio act like cs pin, default dir-out and pull up */
-		ret = dm_gpio_set_dir_flags(&plat->cs_gpios[i], GPIOD_IS_OUT);
-	}
-	printf("spifc freq %d, max io %d, reg %p\n",
+					       2);
+	plat->mode = 0;
+	pr_debug("spifc freq %d, max io %d, reg %p\n",
 	       plat->speed, plat->io_num, (void *)plat->reg);
-	return ret;
+	return 0;
 }
 
 static const struct udevice_id spifc_ids[] = {
