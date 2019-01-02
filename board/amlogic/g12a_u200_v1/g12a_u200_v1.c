@@ -27,6 +27,7 @@
 #include <linux/libfdt.h>
 #include <asm/arch/cpu_id.h>
 #include <asm/arch/secure_apb.h>
+#include <asm/arch/pinctrl_init.h>
 #ifdef CONFIG_SYS_I2C_AML
 #include <amlogic/aml_i2c.h>
 #endif
@@ -401,7 +402,6 @@ int board_early_init_f(void){
 
 #ifdef CONFIG_USB_XHCI_AMLOGIC_V2
 #include <asm/arch/usb-v2.h>
-#include <asm/arch/gpio.h>
 #define AML_GXL_USB_U2_PORT_NUM	2
 
 #ifdef CONFIG_USB_XHCI_AMLOGIC_USB3_V2
@@ -413,19 +413,30 @@ int board_early_init_f(void){
 static void gpio_set_vbus_power(char is_power_on)
 {
 	int ret;
+	struct gpio_desc desc;
 
-	ret = gpio_request(AML_USB_GPIO_PWR,
-		AML_USB_GPIO_PWR_NAME);
-	if (ret && ret != -EBUSY) {
-		printf("gpio: requesting pin %u failed\n",
-			AML_USB_GPIO_PWR);
+	ret = dm_gpio_lookup_name(AML_USB_GPIO_PWR_NAME, &desc);
+	if (ret) {
+		printf("%s: not found\n", AML_USB_GPIO_PWR_NAME);
+		return;
+	}
+
+	ret = dm_gpio_request(&desc, AML_USB_GPIO_PWR_NAME);
+	if (ret) {
+		printf("%s: failed to request gpio\n", AML_USB_GPIO_PWR_NAME);
+		return;
+	}
+
+	ret = dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
+	if (ret) {
+		printf("%s: failed to set direction\n", AML_USB_GPIO_PWR_NAME);
 		return;
 	}
 
 	if (is_power_on) {
-		gpio_direction_output(AML_USB_GPIO_PWR, 1);
+		dm_gpio_set_value(&desc, 1);
 	} else {
-		gpio_direction_output(AML_USB_GPIO_PWR, 0);
+		dm_gpio_set_value(&desc, 0);
 	}
 }
 
@@ -578,6 +589,7 @@ int board_init(void)
 	printf("board init\n");
 	board_usb_pll_disable(&g_usb_config_GXL_skt);
 	board_usb_init(&g_usb_config_GXL_skt,BOARD_USB_MODE_HOST);
+	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 #if 0
 	sys_led_init();
     //Please keep CONFIG_AML_V2_FACTORY_BURN at first place of board_init

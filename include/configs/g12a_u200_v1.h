@@ -477,7 +477,6 @@
 	/*#define CONFIG_USB_STORAGE      1
 	#define CONFIG_USB_XHCI		1
 	#define CONFIG_USB_XHCI_AMLOGIC_V2 1*/
-	#define AML_USB_GPIO_PWR  			GPIOEE(GPIOH_6)
 	#define AML_USB_GPIO_PWR_NAME		"GPIOH_6"
 	/* #define CONFIG_USB_XHCI_AMLOGIC_USB3_V2		1 */
 #endif /* CONFIG_CMD_USB */

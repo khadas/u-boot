@@ -1,27 +1,43 @@
 if ARCH_MESON
 
 config PINCTRL_MESON
-	select PINCTRL_GENERIC
 	bool
 
-config PINCTRL_MESON_GX_PMX
-	select PINCTRL_MESON
+config PINCTRL_MESON8_PMX
 	bool
 
 config PINCTRL_MESON_AXG_PMX
-	select PINCTRL_MESON
+	bool
+
+config PINCONF_MESON_G12A
 	bool
 
 config PINCTRL_MESON_GXBB
 	bool "Amlogic Meson GXBB SoC pinctrl driver"
-	select PINCTRL_MESON_GX_PMX
+	depends on PINCTRL_GENERIC
+	depends on PINCONF
+	select PINCTRL_MESON
+	select PINCTRL_MESON8_PMX
 
 config PINCTRL_MESON_GXL
 	bool "Amlogic Meson GXL SoC pinctrl driver"
-	select PINCTRL_MESON_GX_PMX
+	depends on PINCTRL_GENERIC
+	depends on PINCONF
+	select PINCTRL_MESON
+	select PINCTRL_MESON8_PMX
 
 config PINCTRL_MESON_AXG
 	bool "Amlogic Meson AXG SoC pinctrl driver"
+	depends on PINCTRL_GENERIC
+	depends on PINCONF
+	select PINCTRL_MESON
 	select PINCTRL_MESON_AXG_PMX
 
+config PINCTRL_MESON_G12A
+	bool "Amlogic Meson G12A SoC pinctrl driver"
+	depends on PINCTRL_GENERIC
+	depends on PINCONF
+	select PINCTRL_MESON
+	select PINCTRL_MESON_AXG_PMX
+	select PINCONF_MESON_G12A
 endif

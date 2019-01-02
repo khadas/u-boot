@@ -20,7 +20,6 @@
 */
 
 #include <common.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/secure_apb.h>
 #include <asm/arch/io.h>
 #include <asm/arch/saradc.h>

@@ -14,6 +14,10 @@
 #include <linux/ctype.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+#ifdef CONFIG_PINCTRL_MESON
+extern int meson_gpio_find_offset_by_name(struct udevice *,
+				const char *, ulong *);
+#endif
 
 /**
  * gpio_to_device() - Convert global GPIO number to device, number
@@ -61,8 +65,9 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 	for (ret = uclass_first_device(UCLASS_GPIO, &dev);
 	     dev;
 	     ret = uclass_next_device(&dev)) {
+#ifndef CONFIG_PINCTRL_MESON
 		int len;
-
+#endif
 		uc_priv = dev_get_uclass_priv(dev);
 		if (numeric != -1) {
 			offset = numeric - uc_priv->gpio_base;
@@ -70,13 +75,17 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 			if (offset < uc_priv->gpio_count)
 				break;
 		}
-
+#ifndef CONFIG_PINCTRL_MESON
 		len = uc_priv->bank_name ? strlen(uc_priv->bank_name) : 0;
 
 		if (!strncasecmp(name, uc_priv->bank_name, len)) {
 			if (!strict_strtoul(name + len, 10, &offset))
 				break;
 		}
+#else
+		if (!meson_gpio_find_offset_by_name(dev, name, &offset))
+			break;
+#endif
 	}
 
 	if (!dev)
@@ -854,46 +863,11 @@ static int gpio_pre_remove(struct udevice *dev)
 	return gpio_renumber(dev);
 }
 
-static int gpio_post_bind(struct udevice *dev)
-{
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-	struct dm_gpio_ops *ops = (struct dm_gpio_ops *)device_get_ops(dev);
-	static int reloc_done;
-
-	if (!reloc_done) {
-		if (ops->request)
-			ops->request += gd->reloc_off;
-		if (ops->free)
-			ops->free += gd->reloc_off;
-		if (ops->direction_input)
-			ops->direction_input += gd->reloc_off;
-		if (ops->direction_output)
-			ops->direction_output += gd->reloc_off;
-		if (ops->get_value)
-			ops->get_value += gd->reloc_off;
-		if (ops->set_value)
-			ops->set_value += gd->reloc_off;
-		if (ops->get_open_drain)
-			ops->get_open_drain += gd->reloc_off;
-		if (ops->set_open_drain)
-			ops->set_open_drain += gd->reloc_off;
-		if (ops->get_function)
-			ops->get_function += gd->reloc_off;
-		if (ops->xlate)
-			ops->xlate += gd->reloc_off;
-
-		reloc_done++;
-	}
-#endif
-	return 0;
-}
-
 UCLASS_DRIVER(gpio) = {
 	.id		= UCLASS_GPIO,
 	.name		= "gpio",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_probe	= gpio_post_probe,
-	.post_bind	= gpio_post_bind,
 	.pre_remove	= gpio_pre_remove,
 	.per_device_auto_alloc_size = sizeof(struct gpio_dev_priv),
 };
