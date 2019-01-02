@@ -180,7 +180,7 @@ void rockchip_dnl_mode_check(void)
 {
 	if (rockchip_dnl_key_pressed()) {
 		printf("download key pressed... ");
-		if (rockchip_u2phy_vbus_detect()) {
+		if (rockchip_u2phy_vbus_detect() > 0) {
 			/* Set system led(GPIO0_A6) on */
 			run_command_list("gpio set 6", -1, 0);
 			printf("entering download mode...\n");
