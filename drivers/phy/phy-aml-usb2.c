@@ -142,8 +142,8 @@ static int phy_aml_usb2_tuning(struct phy *phy, int port)
 	if (port > 2)
 			return 0;
 
-	dev_read_u32(phy->dev, "pll-setting-4", &pll_set2);
-	dev_read_u32(phy->dev, "pll-setting-5", &pll_set1);
+	dev_read_u32(phy->dev, "pll-setting-4", &pll_set1);
+	dev_read_u32(phy->dev, "pll-setting-5", &pll_set2);
 	dev_read_u32(phy->dev, "pll-setting-7", &pll_set4);
 	dev_read_u32(phy->dev, "pll-setting-6", &pll_set3);
 
