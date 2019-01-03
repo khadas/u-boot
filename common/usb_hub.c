@@ -372,7 +372,9 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 	}
 
 	/* Reset the port */
+	mdelay(200);
 	ret = usb_hub_port_reset(dev, port, &portstatus);
+	mdelay(500);
 	if (ret < 0) {
 		if (ret != -ENXIO)
 			printf("cannot reset port %i!?\n", port + 1);
