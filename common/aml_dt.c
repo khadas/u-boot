@@ -40,24 +40,6 @@
 //#define readl(addr) (*(volatile unsigned int*)(addr))
 extern int checkhw(char * name);
 
-/* return 1 if dtb is encrpted */
-int is_dtb_encrypt(unsigned char *buffer)
-{
-#if 0
-	unsigned int magic = *(unsigned int*)buffer;
-
-	if ((DT_HEADER_MAGIC == magic)
-			|| (AML_DT_HEADER_MAGIC == magic)
-			|| (IS_GZIP_FORMAT(magic)))
-		return 0;
-	return 1;
-#else
-		const unsigned long cfg10 = readl(AO_SEC_SD_CFG10);
-		/*KM_MSG("cfg10=0x%lX\n", cfg10);*/
-		return ( cfg10 & (0x1<< 4) );
-#endif//#if 0
-}
-
 unsigned long __attribute__((unused))
 	get_multi_dt_entry(unsigned long fdt_addr){
 	unsigned int dt_magic = readl(fdt_addr);

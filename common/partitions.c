@@ -4,8 +4,8 @@
 #include <partition_table.h>
 #include <linux/libfdt.h>
 #include <asm/arch/bl31_apis.h>
+#include <amlogic/aml_efuse.h>
 
-extern int is_dtb_encrypt(unsigned char *buffer);
 #ifdef CONFIG_MULTI_DTB
 	extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
 #endif
@@ -62,7 +62,7 @@ int check_valid_dts(unsigned char *buffer)
 	/* g12a merge to trunk, use trunk code */
 	//unsigned char *sbuffer = (unsigned char *)0x1000000;
 
-	if (is_dtb_encrypt(buffer)) {
+	if (IS_FEAT_BOOT_VERIFY()) {
 		memcpy(sbuffer, buffer, AML_DTB_IMG_MAX_SZ);
 		flush_cache((unsigned long)sbuffer, AML_DTB_IMG_MAX_SZ);
 		ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, (long unsigned)sbuffer, AML_DTB_IMG_MAX_SZ, 0);

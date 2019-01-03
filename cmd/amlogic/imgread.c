@@ -17,6 +17,7 @@
 #include <asm/arch/bl31_apis.h>
 #include <asm/arch/secure_apb.h>
 #include <amlogic/storage.h>
+#include <amlogic/aml_efuse.h>
 
 typedef struct andr_img_hdr boot_img_hdr;
 
@@ -78,12 +79,6 @@ typedef struct{
 #define COMPILE_TYPE_ASSERT(expr, t)       typedef char t[(expr) ? 1 : -1]
 COMPILE_TYPE_ASSERT(2048 >= sizeof(AmlSecureBootImgHeader), _cc);
 
-static int is_secure_boot_enabled(void)
-{
-    const unsigned long cfg10 = readl(AO_SEC_SD_CFG10);
-    return ( cfg10 & (0x1<< 4) );
-}
-
 static int is_andr_9_image(void* pBuffer)
 {
     int nReturn = 0;
@@ -108,7 +103,7 @@ static int _aml_get_secure_boot_kernel_size(const void* pLoadaddr, unsigned* pTo
     unsigned secureKernelImgSz = 2048;
     unsigned int nBlkCnt = 0;
     const t_aml_enc_blk* pBlkInf = NULL;
-    const int isSecure = is_secure_boot_enabled();
+    const int isSecure = IS_FEAT_BOOT_VERIFY();
     unsigned char *pAndHead = (unsigned char *)pLoadaddr;
 
     if (is_andr_9_image(pAndHead))
@@ -232,7 +227,7 @@ static int do_image_read_dtb_from_rsv(unsigned char* loadaddr)
         errorP("Fail read dtb from rsv with sz 0x%x\n", dtbMaxSz);
         return -__LINE__;
     }
-    if (is_secure_boot_enabled()) {
+    if (IS_FEAT_BOOT_VERIFY()) {
         flush_cache((unsigned long)loadaddr, dtbMaxSz);
         iRet = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, (long)loadaddr, dtbMaxSz, 0);
         if (iRet) {
