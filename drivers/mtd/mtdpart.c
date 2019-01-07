@@ -29,9 +29,6 @@
 #include <linux/sizes.h>
 
 #include "mtdcore.h"
-#ifdef CONFIG_AML_MTDPART
-#include <jffs2/load_kernel.h>
-#endif
 
 #ifndef __UBOOT__
 static DEFINE_MUTEX(mtd_partitions_mutex);
@@ -980,8 +977,8 @@ int parse_mtd_partitions(struct mtd_info *master, const char *const *types,
 		ret = (*parser->parse_fn)(master, pparts, data);
 		put_partition_parser(parser);
 		if (ret > 0) {
-			pr_info("%d %s partitions found on MTD device %s\n",
-				ret, parser->name, master->name);
+			printk(KERN_NOTICE "%d %s partitions found on MTD device %s\n",
+			       ret, parser->name, master->name);
 			break;
 		}
 	}
@@ -998,39 +995,3 @@ uint64_t mtd_get_device_size(const struct mtd_info *mtd)
 	return mtd->size;
 }
 EXPORT_SYMBOL_GPL(mtd_get_device_size);
-
-#ifdef CONFIG_AML_MTDPART
-int aml_part_cnt;
-struct part_info *aml_part;
-int mtdparts_init(void)
-{
-	struct mtd_part *mtdpart;
-	int i;
-
-	if (aml_part) {
-		pr_info("%s %d already init\n",
-			__func__, __LINE__);
-		return 0;
-	}
-
-	list_for_each_entry(mtdpart, &mtd_partitions, list) {
-		aml_part_cnt++;
-	}
-	aml_part = (struct part_info *)malloc(aml_part_cnt *
-		sizeof(struct part_info));
-	i = aml_part_cnt - 1;
-	list_for_each_entry(mtdpart, &mtd_partitions, list) {
-		aml_part[i].name = mtdpart->mtd.name;
-		aml_part[i].offset = mtdpart->offset;
-		aml_part[i].size = mtdpart->mtd.size;
-		i--;
-	}
-	for (i = 0; i < aml_part_cnt; i++)
-		pr_info("0x%012llx-0x%012llx : \"%s\"\n",
-			(unsigned long long)aml_part[i].offset,
-			(unsigned long long)(aml_part[i].offset +
-					aml_part[i].size),
-			aml_part[i].name);
-	return 0;
-}
-#endif

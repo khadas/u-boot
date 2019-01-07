@@ -7,44 +7,11 @@
 #include <malloc.h>
 #include <linux/errno.h>
 #include <linux/mtd/mtd.h>
-#include <linux/mtd/partitions.h>
 #include <spi_flash.h>
-
-#define SF_BOOT_SIZE	0x200000
-#define SF_DTB_SIZE		0x80000
-#define SF_ENV_SIZE		0x80000
-#define SF_KEY_SIZE		0x80000
 
 static struct mtd_info sf_mtd_info;
 static bool sf_mtd_registered;
 static char sf_mtd_name[8];
-static const struct mtd_partition spi_flash_part[] = {
-	{
-		.name = "bootloader",
-		.offset = 0x0,
-		.size = SF_BOOT_SIZE,
-	},
-	{
-		.name = "dtb",
-		.offset = 0x0,
-		.size = SF_DTB_SIZE,
-	},
-	{
-		.name = "env",
-		.offset = 0x0,
-		.size = SF_ENV_SIZE,
-	},
-	{
-		.name = "key",
-		.offset = 0x0,
-		.size = SF_KEY_SIZE,
-	},
-	{
-		.name = "data",
-		.offset = 0x0,
-		.size = MTDPART_SIZ_FULL,
-	},
-};
 
 static int spi_flash_mtd_erase(struct mtd_info *mtd, struct erase_info *instr)
 {
@@ -101,50 +68,6 @@ static int spi_flash_mtd_write(struct mtd_info *mtd, loff_t to, size_t len,
 	return err;
 }
 
-static int spi_flash_add_partitions(struct mtd_info *mtd,
-				    const struct mtd_partition *parts,
-				    int pn)
-{
-	int i, cnt = 0;
-	struct mtd_partition *temp;
-	u64 vernier = 0;
-
-	cnt = pn;
-	temp = kzalloc(sizeof(*temp) * cnt, GFP_KERNEL);
-	if (!temp)
-		return -ENOMEM;
-
-	for (i = 0; i < cnt; i++) {
-		temp[i].name = parts[i].name;
-		temp[i].offset = vernier;
-		if (parts[i].size % mtd->erasesize) {
-			pr_info("part:%s size must align to erase size!\n",
-				parts[i].name);
-			return 1;
-		}
-		if (parts[i].size == MTDPART_SIZ_FULL &&
-		    i != (cnt - 1)) {
-			pr_info("%s %d please check the size of %s!\n",
-				__func__, __LINE__, parts[i].name);
-			return 1;
-		}
-		temp[i].size = parts[i].size;
-		vernier += temp[i].size;
-		if (vernier > mtd->size) {
-			pr_info("over flash size!\n");
-			return 1;
-		}
-		if (i == (cnt - 1))
-			temp[i].size = mtd->size - temp[i].offset;
-
-		pr_info("0x%012llx-0x%012llx : \"%s\"\n",
-			(unsigned long long)temp[i].offset,
-			(unsigned long long)(temp[i].offset + temp[i].size),
-			temp[i].name);
-	}
-	return add_mtd_partitions(mtd, temp, cnt);
-}
-
 static void spi_flash_mtd_sync(struct mtd_info *mtd)
 {
 }
@@ -156,11 +79,6 @@ static int spi_flash_mtd_number(void)
 #else
 	return 0;
 #endif
-}
-
-struct mtd_info *spi_flash_get_mtd(void)
-{
-	return &sf_mtd_info;
 }
 
 int spi_flash_mtd_register(struct spi_flash *flash)
@@ -177,7 +95,7 @@ int spi_flash_mtd_register(struct spi_flash *flash)
 
 	sf_mtd_registered = false;
 	memset(&sf_mtd_info, 0, sizeof(sf_mtd_info));
-	spr_info(sf_mtd_name, "nor%d", spi_flash_mtd_number());
+	sprintf(sf_mtd_name, "nor%d", spi_flash_mtd_number());
 
 	sf_mtd_info.name = sf_mtd_name;
 	sf_mtd_info.type = MTD_NORFLASH;
@@ -197,9 +115,11 @@ int spi_flash_mtd_register(struct spi_flash *flash)
 	sf_mtd_info.numeraseregions = 0;
 	sf_mtd_info.erasesize = flash->sector_size;
 
-	return spi_flash_add_partitions(&sf_mtd_info,
-					spi_flash_part,
-					ARRAY_SIZE(spi_flash_part));
+	ret = add_mtd_device(&sf_mtd_info);
+	if (!ret)
+		sf_mtd_registered = true;
+
+	return ret;
 }
 
 void spi_flash_mtd_unregister(void)

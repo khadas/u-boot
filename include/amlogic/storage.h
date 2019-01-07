@@ -19,11 +19,16 @@
 #include <asm/byteorder.h>
 #include <jffs2/jffs2.h>
 
+#define DISPROTECT_KEY			BIT(0)
+#define DISPROTECT_SECURE		BIT(1)
+#define DISPROTECT_FBBT			BIT(2)
+#define DISPROTECT_HYNIX		BIT(3)
+
 enum boot_type_e {
 	BOOT_EMMC = 1,
 	BOOT_SD = 1 << 1,
-	BOOT_MLC = 1 << 2,
-	BOOT_SLC = 1 << 3,
+	BOOT_NAND_NFTL = 1 << 2,
+	BOOT_NAND_MTD = 1 << 3,
 	BOOT_SNAND = 1 << 4,/* spi nand */
 	BOOT_SNOR = 1 << 5,/* spi nor */
 	BOOT_NONE = 0xFF

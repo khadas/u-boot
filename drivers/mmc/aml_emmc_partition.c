@@ -103,7 +103,9 @@ bool is_partition_checked = false;
 #ifndef CONFIG_AML_MMC_INHERENT_PART
 /* fixme, name should be changed as aml_inherent_ptbl */
 struct partitions emmc_partition_table[] = {
+#ifndef CONFIG_AML_GPT
 	PARTITION_ELEMENT(MMC_BOOT_NAME, MMC_BOOT_DEVICE_SIZE, 0),
+#endif
 	PARTITION_ELEMENT(MMC_RESERVED_NAME, MMC_RESERVED_SIZE, 0),
 	/* prior partitions, same partition name with dts*/
 	/* partition size will be overide by dts*/
@@ -120,10 +122,14 @@ struct virtual_partition virtual_partition_table[] = {
     VIRTUAL_PARTITION_ELEMENT(MMC_BOOT_NAME1, 0, 0),
 
     /* virtual partition in reserved partition, take care off and size */
+#ifdef CONFIG_AML_PARTITION
 	VIRTUAL_PARTITION_ELEMENT(MMC_TABLE_NAME, MMC_TABLE_OFFSET, MMC_TABLE_SIZE),
+#endif
 	VIRTUAL_PARTITION_ELEMENT(MMC_KEY_NAME, EMMCKEY_RESERVE_OFFSET, MMC_KEY_SIZE),
 	VIRTUAL_PARTITION_ELEMENT(MMC_PATTERN_NAME, CALI_PATTERN_OFFSET, CALI_PATTERN_SIZE),
+#ifndef DTB_BIND_KERNEL
 	VIRTUAL_PARTITION_ELEMENT(MMC_DTB_NAME, DTB_OFFSET, DTB_SIZE),
+#endif
 	VIRTUAL_PARTITION_ELEMENT(MMC_FASTBOOT_CONTEXT_NAME,
 			FASTBOOT_CONTEXT_OFFSET, FASTBOOT_CONTEXT_SIZE),
 };
@@ -173,6 +179,7 @@ static int _get_part_index_by_name(struct partitions *tbl,
 }
 
 
+
 static struct partitions *_find_partition_by_name(struct partitions *tbl,
 			int cnt, const char *name)
 {
@@ -211,6 +218,7 @@ static ulong _get_inherent_offset(const char *name)
 struct _iptbl *p_iptbl_ept = NULL;
 
 /* trans byte into lba manner for rsv area read/write */
+#ifdef CONFIG_AML_PARTITION
 static ulong _mmc_rsv_read(struct mmc *mmc, ulong offset, ulong size, void * buffer)
 {
 	lbaint_t _blk, _cnt;
@@ -236,12 +244,13 @@ static ulong _mmc_rsv_write(struct mmc *mmc, ulong offset, ulong size, void * bu
 
 	return (ulong)(_cnt * mmc->read_bl_len);
 }
-
+#endif
 
 
 static struct partitions * get_ptbl_from_dtb(struct mmc *mmc)
 {
 	struct partitions * ptbl = NULL;
+#ifdef CONFIG_AML_PARTITION
 #ifndef DTB_BIND_KERNEL
 	unsigned char * buffer = NULL;
 	ulong ret, offset;
@@ -276,9 +285,11 @@ static struct partitions * get_ptbl_from_dtb(struct mmc *mmc)
 		buffer = NULL;
 	}
 #endif
+#endif
 	/* asign partition info to *ptbl */
 	ptbl = get_partitions();
 	return ptbl;
+#ifdef CONFIG_AML_PARTITION
 #ifndef DTB_BIND_KERNEL
 _err1:
 	if (buffer)
@@ -286,6 +297,7 @@ _err1:
 _err:
 	free (ptbl);
 	return NULL;
+#endif
 #endif
 }
 
@@ -328,11 +340,16 @@ static int _calculate_offset(struct mmc *mmc, struct _iptbl *itbl, u32 bottom)
 	if (itbl->count <= 0)
 		return -1;
 	part = itbl->partitions;
-	part->offset = 0;
 #if (CONFIG_MPT_DEBUG)
 	_dump_part_tbl(part, itbl->count);
 #endif
+
+#if CONFIG_AML_GPT
+	part->offset = RESERVED_GPT_OFFSET;
+#endif
+
 	if (!strcmp(part->name, "bootloader")) {
+		part->offset = 0;
 		gap = MMC_BOOT_PARTITION_RESERVED;
 	}
 	for (i=1; i<itbl->count; i++) {
@@ -361,12 +378,47 @@ static int _calculate_offset(struct mmc *mmc, struct _iptbl *itbl, u32 bottom)
 	return ret;
 }
 
+static void compose_ept(struct _iptbl *dtb, struct _iptbl *inh,
+			struct _iptbl *ept)
+{
+	int i;
+	struct partitions *partition = NULL;
+	struct partitions *dst, *src, *prio;
+
+	/* overide inh info by dts */
+	apt_info("dtb %p, inh %p, ept %p\n", dtb, inh, ept);
+	apt_info("ept->partitions %p\n", ept->partitions);
+	partition = ept->partitions;
+	apt_info("partition %p\n", partition);
+	for (i=0; i<MAX_PART_COUNT; i++) {
+		apt_info("i %d, ept->count %d\n", i, ept->count);
+		dst = &partition[ept->count];
+		src = (i < inh->count) ? &inh->partitions[i]:&dtb->partitions[i-inh->count];
+
+		prio = is_prio_partition(ept, src);
+		if (prio) {
+			/* overide prio partition by new */
+			apt_info("override %d: %s\n", ept->count, prio->name);
+			//*prio = *src;
+			dst = prio;
+		} else
+			ept->count ++;
+		*dst = *src;
+		if (-1 == src->size) {
+			apt_info("break! %s\n", src->name);
+			break;
+		}
+	}
+
+	return;
+}
+#ifdef CONFIG_AML_PARTITION
 static int _get_version(unsigned char * s)
 {
 	int version = 0;
-	if (!strcmp((char *)s, MMC_MPT_VERSION_2))
+	if (!strncmp((char *)s, MMC_MPT_VERSION_2, sizeof(MMC_MPT_VERSION_2)))
 		version = 2;
-	else if (!strcmp((char *)s, MMC_MPT_VERSION_1))
+	else if (!strncmp((char *)s, MMC_MPT_VERSION_1, sizeof(MMC_MPT_VERSION_1)))
 		version = 1;
 	else
 		version = -1;
@@ -417,40 +469,27 @@ static int _calc_iptbl_check(struct partitions * part, int count, int version)
 }
 
 /* ept is malloced out side */
-static void compose_ept(struct _iptbl *dtb, struct _iptbl *inh,
-			struct _iptbl *ept)
+static int _cpy_iptbl(struct _iptbl * dst, struct _iptbl * src)
 {
-	int i;
-	struct partitions *partition = NULL;
-	struct partitions *dst, *src, *prio;
-
-	/* overide inh info by dts */
-	apt_info("dtb %p, inh %p, ept %p\n", dtb, inh, ept);
-	apt_info("ept->partitions %p\n", ept->partitions);
-	partition = ept->partitions;
-	apt_info("partition %p\n", partition);
-	for (i=0; i<MAX_PART_COUNT; i++) {
-		apt_info("i %d, ept->count %d\n", i, ept->count);
-		dst = &partition[ept->count];
-		src = (i < inh->count) ? &inh->partitions[i]:&dtb->partitions[i-inh->count];
-
-		prio = is_prio_partition(ept, src);
-		if (prio) {
-			/* overide prio partition by new */
-			apt_info("override %d: %s\n", ept->count, prio->name);
-			//*prio = *src;
-			dst = prio;
-		} else
-			ept->count ++;
-		*dst = *src;
-		if (-1 == src->size) {
-			apt_info("break! %s\n", src->name);
-			break;
-		}
+	int ret = 0;
+	if (!dst || !src) {
+		apt_err("invalid arg %s\n", !dst ? "dst" : "src");
+		ret = -1;
+		goto _out;
+	}
+	if (!dst->partitions || !src->partitions) {
+		apt_err("invalid arg %s->partitions\n", !dst ? "dst" : "src");
+		ret = -2;
+		goto _out;
 	}
 
-	return;
+	dst->count = src->count;
+	memcpy(dst->partitions, src->partitions, sizeof(struct partitions) * src->count);
+
+_out:
+	return ret;
 }
+
 
 /* get ptbl from rsv area from emmc */
 static int get_ptbl_rsv(struct mmc *mmc, struct _iptbl *rsv)
@@ -485,7 +524,7 @@ static int get_ptbl_rsv(struct mmc *mmc, struct _iptbl *rsv)
 	apt_info("magic %3.3s, version %8.8s, checksum %x\n", ptbl_rsv->magic,
 			ptbl_rsv->version, ptbl_rsv->checksum);
 	/* fixme, check magic ?*/
-	if (strcmp(ptbl_rsv->magic, MMC_PARTITIONS_MAGIC)) {
+	if (strncmp(ptbl_rsv->magic, MMC_PARTITIONS_MAGIC, sizeof(MMC_PARTITIONS_MAGIC))) {
 		apt_err("magic faild %s, %3.3s\n", MMC_PARTITIONS_MAGIC, ptbl_rsv->magic);
 		ret = -4;
 		goto _out;
@@ -495,6 +534,11 @@ static int get_ptbl_rsv(struct mmc *mmc, struct _iptbl *rsv)
 	if (version < 0) {
 		apt_err("version faild %s, %3.3s\n", MMC_PARTITIONS_MAGIC, ptbl_rsv->magic);
 		ret = -5;
+		goto _out;
+	}
+	if (ptbl_rsv->count > MAX_MMC_PART_NUM) {
+		apt_err("invalid partition count %d\n", ptbl_rsv->count);
+		ret = -1;
 		goto _out;
 	}
 	/* check sum */
@@ -538,6 +582,11 @@ static int update_ptbl_rsv(struct mmc *mmc, struct _iptbl *src)
 	ptbl_rsv = (struct ptbl_rsv *) buffer;
 	strcpy((char *)ptbl_rsv->version, MMC_MPT_VERSION);
 	strcpy(ptbl_rsv->magic, MMC_PARTITIONS_MAGIC);
+	if (src->count > MAX_MMC_PART_NUM) {
+		apt_err("too much partitions\n");
+		ret = -1;
+		goto _err;
+	}
 	ptbl_rsv->count = src->count;
 	memcpy(ptbl_rsv->partitions, src->partitions,
 		sizeof(struct partitions)*src->count);
@@ -556,11 +605,26 @@ _err:
 	return ret;
 }
 
+static void _free_iptbl(struct _iptbl *iptbl)
+{
+	if (iptbl && iptbl->partitions) {
+		free(iptbl->partitions);
+		iptbl->partitions = NULL;
+	}
+	if (iptbl) {
+		free(iptbl);
+		iptbl = NULL;
+	}
+
+	return;
+}
+
+#endif
 static int _cmp_partition(struct partitions *dst, struct partitions *src, int overide)
 {
 	int ret = 0;
 #if (CONFIG_CMP_PARTNAME)
-	if (strcmp(dst->name, src->name))
+	if (strncmp(dst->name, src->name, sizeof(src->name)))
 		ret = -2;
 #endif
 	if (dst->size != src->size)
@@ -655,42 +719,10 @@ _out:
 	return ret;
 }
 
-static void _free_iptbl(struct _iptbl *iptbl)
-{
-	if (iptbl && iptbl->partitions) {
-		free(iptbl->partitions);
-		iptbl->partitions = NULL;
-	}
-	if (iptbl) {
-		free(iptbl);
-		iptbl = NULL;
-	}
 
-	return;
-}
 /*
  * fixme, need check space size later.
  */
-static int _cpy_iptbl(struct _iptbl * dst, struct _iptbl * src)
-{
-	int ret = 0;
-	if (!dst || !src) {
-		apt_err("invalid arg %s\n", !dst ? "dst" : "src");
-		ret = -1;
-		goto _out;
-	}
-	if (!dst->partitions || !src->partitions) {
-		apt_err("invalid arg %s->partitions\n", !dst ? "dst" : "src");
-		ret = -2;
-		goto _out;
-	}
-
-	dst->count = src->count;
-	memcpy(dst->partitions, src->partitions, sizeof(struct partitions) * src->count);
-
-_out:
-	return ret;
-}
 
 static inline int le32_to_int(unsigned char *le32)
 {
@@ -1023,7 +1055,7 @@ int is_gpt_changed(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 			printf("%s: *** Using Backup GPT ***\n",
 					__func__);
 		}
-			return 1;
+			//return 1;
 	}
 	for (i = 0; i < le32_to_cpu(gpt_head->num_partition_entries); i++) {
 		if (!is_pte_valid(&gpt_pte[i]))
@@ -1038,10 +1070,18 @@ int is_gpt_changed(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 
 		size = ((le64_to_cpu(gpt_pte[i].ending_lba)+1) -
 			le64_to_cpu(gpt_pte[i].starting_lba)) << 9ULL;
+		if (i == parts_num - 1) {
+			if ((partitions[i].size - GPT_TOTAL_SIZE) != size) {
+				printf("Caution! GPT size had been changed\n");
+				gpt_changed = 1;
+				break;
+			}
+		} else {
 		if (partitions[i].size != size) {
 			printf("Caution! GPT size had been changed\n");
 			gpt_changed = 1;
 			break;
+			}
 		}
 
 		/* partition name */
@@ -1063,7 +1103,37 @@ int is_gpt_changed(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 		printf("Caution! GPT number had been changed\n");
 	}
 
+	free(gpt_pte);
 	return gpt_changed;
+}
+int is_gpt_broken(struct mmc *mmc)
+{
+	gpt_entry *gpt_pte = NULL;
+	int broken_status = 0;
+	struct blk_desc *dev_desc = mmc_get_blk_desc(mmc);
+	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
+
+	if (!dev_desc) {
+		printf("%s: Invalid Argument(s)\n", __func__);
+		return 1;
+	}
+
+	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
+				gpt_head, &gpt_pte) != 1) {
+		broken_status += 1;
+		printf("%s: ***ERROR:Invalid GPT ***\n", __func__);
+	}
+	if (is_gpt_valid(dev_desc, (dev_desc->lba - 1),
+				gpt_head, &gpt_pte) != 1) {
+		printf("%s: ***ERROR: Invalid Backup GPT ***\n",
+					__func__);
+		broken_status += 2;
+	}
+
+	if (broken_status != 3)
+		free(gpt_pte);
+	return broken_status;
+
 }
 
 int fill_ept_by_gpt(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
@@ -1093,7 +1163,7 @@ int fill_ept_by_gpt(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 			printf("%s: *** Using Backup GPT ***\n",
 					__func__);
 		}
-			return 1;
+			//return 1;
 	}
 
 	for (i = 0; i < le32_to_cpu(gpt_head->num_partition_entries); i++) {
@@ -1112,8 +1182,10 @@ int fill_ept_by_gpt(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 		memset(partitions[i].name, 0, sizeof(partitions[i].name));
 		for (k = 0; k < min(dosname_len, efiname_len); k++)
 			partitions[i].name[k] = (char)gpt_pte[i].partition_name[k];
-	}
 
+	}
+	ept->count = i;
+	free(gpt_pte);
 	return 0;
 }
 
@@ -1121,19 +1193,23 @@ void trans_ept_to_diskpart(struct _iptbl *ept, disk_partition_t *disk_part) {
 	struct partitions *part = ept->partitions;
 	int count = ept->count;
 	int i;
-	for (i = 0; i < count - 1; i++) {
-		disk_part[i].start = part[i + 1].offset >> 9;
-		strcpy((char *)disk_part[i].name, part[i+1].name);
-		strcpy((char *)disk_part[i].type_guid, part[i+1].name);
+	for (i = 0; i < count; i++) {
+		disk_part[i].start = part[i].offset >> 9;
+		strcpy((char *)disk_part[i].name, part[i].name);
+		strcpy((char *)disk_part[i].type_guid, part[i].name);
 		gen_rand_uuid_str(disk_part[i].uuid, UUID_STR_FORMAT_STD);
 		disk_part[i].bootable = 0;
-		if ( i == (count - 2))
-			disk_part[i].size = (part[i + 1].size - 34 * 512) >> 9;
+		if ( i == (count - 1))
+			disk_part[i].size = 0;
 		else
-			disk_part[i].size = (part[i + 1].size) >> 9;
+			disk_part[i].size = (part[i].size) >> 9;
 	}
 	return;
 }
+
+
+
+
 #endif
 
 /***************************************************
@@ -1172,13 +1248,11 @@ void trans_ept_to_diskpart(struct _iptbl *ept, disk_partition_t *disk_part) {
 int mmc_device_init (struct mmc *mmc)
 {
 	int ret = 1;
-#if (CONFIG_PTBL_MBR)
+#if (CONFIG_PTBL_MBR)  || (!CONFIG_AML_PARTITION)
 	cpu_id_t cpu_id = get_cpu_id();
 #endif
 	/* partition table from dtb/code/emmc rsv */
 	struct _iptbl iptbl_dtb, iptbl_inh;
-	struct _iptbl *p_iptbl_rsv = NULL;
-	int update = 1;
 
 	/* calculate inherent offset */
 	iptbl_inh.count = get_emmc_partition_arraysize();
@@ -1231,7 +1305,16 @@ int mmc_device_init (struct mmc *mmc)
 		}
 	} else
 		apt_wrn("get partition table from dtb failed\n");
+#ifndef CONFIG_AML_PARTITION
+	if (cpu_id.family_id < MESON_CPU_MAJOR_ID_G12B) {
+		printf("CONFIG_AML_PARTITION should define before G12B\n");
+		goto _out;
+	}
+#endif
 
+#ifdef CONFIG_AML_PARTITION
+	int update = 1;
+	struct _iptbl *p_iptbl_rsv = NULL;
 	/* try to get partiton table from rsv */
 	ret = _zalloc_iptbl(&p_iptbl_rsv);
 	if (ret)
@@ -1267,6 +1350,7 @@ int mmc_device_init (struct mmc *mmc)
 		apt_wrn("update rsv with dtb!\n");
 		ret = update_ptbl_rsv(mmc, p_iptbl_ept);
 	}
+#endif
 	//apt_wrn("ept source is %s\n", (ept_source == p_iptbl_ept)?"ept":"rsv");
 #if (CONFIG_PTBL_MBR)
 	/* 1st sector was reserved by romboot after gxl */
@@ -1282,7 +1366,7 @@ int mmc_device_init (struct mmc *mmc)
 	char *str_disk_guid;
 	int gpt_priority = GPT_PRIORITY;
 	disk_partition_t *disk_partition;
-	int dcount = p_iptbl_ept->count -1;
+	int dcount = p_iptbl_ept->count;
 	struct blk_desc *dev_desc = mmc_get_blk_desc(mmc);
 	disk_partition = calloc(1, PAD_TO_BLOCKSIZE(sizeof(disk_partition_t) * dcount, dev_desc));
 	trans_ept_to_diskpart(p_iptbl_ept, disk_partition);
@@ -1305,6 +1389,23 @@ int mmc_device_init (struct mmc *mmc)
 			printf("but EPT has higher priority, so gpt had been recover\n");
 		}
 	}
+
+	int broken_status = is_gpt_broken(mmc);
+	if (broken_status != 0 && broken_status != 3) {
+		fill_ept_by_gpt(mmc, p_iptbl_ept);
+		free(disk_partition);
+		dcount = p_iptbl_ept->count;
+		disk_partition = calloc(1, PAD_TO_BLOCKSIZE(sizeof(disk_partition_t) * dcount, dev_desc));
+		trans_ept_to_diskpart(p_iptbl_ept, disk_partition);
+		ret = gpt_restore(mmc_get_blk_desc(mmc), str_disk_guid, disk_partition, p_iptbl_ept->count);
+		if (broken_status == 1)
+			printf("The first gpt has been restore\n");
+		else if (broken_status == 2)
+			printf("The second gpt has been restore\n");
+		else
+			printf("Both gpt has been restore\n");
+	}
+
 	free(str_disk_guid);
 	free(disk_partition);
 #endif
@@ -1312,9 +1413,10 @@ int mmc_device_init (struct mmc *mmc)
 	part_init(mmc_get_blk_desc(mmc));
 
 _out:
+#ifdef CONFIG_AML_PARTITION
 	if (p_iptbl_rsv)
 		_free_iptbl(p_iptbl_rsv);
-
+#endif
 	return ret;
 }
 

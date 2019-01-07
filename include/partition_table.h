@@ -2,6 +2,7 @@
 #define _PARTITION_TABLE_H
 // #ifdef CONFIG_STORE_COMPATIBLE
 #include <emmc_storage.h>
+#include <amlogic/storage.h>
 // #endif
 //#include <asm/arch/nand.h>
 //#include <asm/arch/poc.h>

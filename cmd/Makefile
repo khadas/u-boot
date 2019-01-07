@@ -10,7 +10,6 @@ obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-y += help.o
 obj-y += version.o
 obj-$(CONFIG_CMD_MMC) += aml_mmc.o
-obj-$(CONFIG_SPI_NAND) += spi_nand.o
 
 # command
 obj-$(CONFIG_CMD_AES) += aes.o

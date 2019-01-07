@@ -158,7 +158,7 @@
 	core-phase0 = <3>;
 	tx-phase0 = <0>;
 
-	core-phase1 = <3>;
+	core-phase1 = <1>;
 	tx-phase1 = <0>;
 
 	mmc-pwrseq = <&emmc_pwrseq>;

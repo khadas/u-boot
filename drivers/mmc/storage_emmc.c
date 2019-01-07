@@ -430,12 +430,16 @@ uint64_t mmc_get_copy_size(const char *part_name) {
 
 	struct partitions *part_info = NULL;
 
+#ifdef CONFIG_AML_GPT
+	return UBOOT_SIZE*512;
+#else
 	part_info = find_mmc_partition_by_name("bootloader");
 	if (part_info == NULL) {
 		printf("get partition info failed !!\n");
 		return -1;
 	}
 	return part_info->size;
+#endif
 }
 
 int mmc_boot_read(const char *part_name, uint8_t cpy, size_t size, void *dest) {
@@ -456,6 +460,10 @@ int mmc_boot_read(const char *part_name, uint8_t cpy, size_t size, void *dest) {
 		if (cpy & 1) {
 			ret = blk_select_hwpart_devnum(IF_TYPE_MMC, STORAGE_EMMC, i);
 			if (ret) goto R_SWITCH_BACK;
+#ifdef CONFIG_AML_GPT
+			if (i == 0)
+				continue;
+#endif
 			ret = storage_read_in_part(part_name, 0, size, dest);
 
 			if (ret != 0) {
@@ -502,6 +510,10 @@ int mmc_boot_write(const char *part_name, uint8_t cpy, size_t size, void *source
 				size = CONFIG_EMMC_BOOT1_TOUCH_REGION;
 			}
 #endif
+#ifdef CONFIG_AML_GPT
+			if (i == 0)
+				continue;
+#endif
 			ret = storage_write_in_part(part_name, 0, size, source);
 
 			if (ret != 0) {
@@ -547,6 +559,10 @@ int mmc_boot_erase(const char *part_name, uint8_t cpy) {
 			if (i == 2) {
 				size = CONFIG_EMMC_BOOT1_TOUCH_REGION;
 			}
+#endif
+#ifdef CONFIG_AML_GPT
+			if (i == 0)
+				continue;
 #endif
 			ret = storage_erase_in_part(part_name, 0, size);
 

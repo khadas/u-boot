@@ -225,7 +225,7 @@ int optimus_simg_to_media(char* simgPktHead, const u32 pktLen, u32* unParsedData
                                     _NeedFillAsNotErasedYet = (fillVal != 0);
                                     break;
 
-                            case BOOT_MLC:
+                            case BOOT_NAND_NFTL:
                                     _NeedFillAsNotErasedYet = (fillVal != 0XFFFFFFFFU);
                                     break;
                             default:

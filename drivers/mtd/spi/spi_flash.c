@@ -1063,7 +1063,7 @@ static int spansion_quad_enable(struct spi_flash *flash)
 }
 #endif
 
-const struct spi_flash_info *spi_flash_read_id(struct spi_flash *flash)
+static const struct spi_flash_info *spi_flash_read_id(struct spi_flash *flash)
 {
 	int				tmp;
 	u8				id[SPI_FLASH_MAX_ID_LEN];

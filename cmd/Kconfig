@@ -876,6 +876,8 @@ config CMD_MTD
 config CMD_NAND
 	bool "nand"
 	default y if NAND_SUNXI
+	default y if MESON_NFC
+	default y if SPI_NAND
 	help
 	  NAND support.
 

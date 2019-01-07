@@ -16,10 +16,6 @@
 
 #include "sf_internal.h"
 
-#ifdef CONFIG_AML_STORAGE
-extern int spi_flash_fit_storage(struct spi_flash *flash);
-#endif
-
 /**
  * spi_flash_probe_slave() - Probe for a SPI flash device on a bus
  *
@@ -50,10 +46,6 @@ static int spi_flash_probe_slave(struct spi_flash *flash)
 
 #ifdef CONFIG_SPI_FLASH_MTD
 	ret = spi_flash_mtd_register(flash);
-#ifdef CONFIG_AML_STORAGE
-	if (!ret)
-		ret = spi_flash_fit_storage(flash);
-#endif
 #endif
 
 err_read_id:

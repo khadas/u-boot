@@ -29,10 +29,6 @@
 #define POWER_ABNORMAL_FLAG	0x01
 #define ECC_ABNORMAL_FLAG	0x02
 
-#define DISPROTECT_KEY			BIT(0)
-#define DISPROTECT_SECURE		BIT(1)
-#define DISPROTECT_FBBT			BIT(2)
-#define DISPROTECT_HYNIX		BIT(3)
 
 struct meson_rsv_info_t {
 	struct mtd_info *mtd;
@@ -105,4 +101,6 @@ int meson_rsv_scan(struct meson_rsv_info_t *rsv_info);
 int meson_rsv_read(struct meson_rsv_info_t *rsv_info, u_char *buf);
 int meson_rsv_save(struct meson_rsv_info_t *rsv_info, u_char *buf);
 int meson_rsv_write(struct meson_rsv_info_t *rsv_info, u_char *buf);
+int meson_rsv_erase_protect(struct meson_rsv_handler_t *handler,
+uint32_t block_addr);
 #endif/* __MESON_RSV_H_ */

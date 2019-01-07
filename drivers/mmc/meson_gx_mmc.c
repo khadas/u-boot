@@ -271,7 +271,7 @@ static int meson_mmc_probe(struct udevice *dev)
 	mmc->priv = pdata;
 	upriv->mmc = mmc;
 
-	mmc_set_clock(mmc, cfg->f_min, MMC_CLK_ENABLE);
+	mmc_set_clock(mmc, cfg->f_min, false);
 
 
 	/* reset all status bits */

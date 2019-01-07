@@ -22,7 +22,7 @@
 #include "mmc_private.h"
 #include <emmc_partitions.h>
 #include <partition_table.h>
-
+#include <amlogic/storage.h>
 
 static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage);
 static int mmc_power_cycle(struct mmc *mmc);

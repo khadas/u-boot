@@ -24,8 +24,6 @@
 #define CONFIG_TPL_COPY_NUM			4
 #endif/* CONFIG_DISCRETE_BOOTLOADER */
 
-#define CONFIG_SKIP_BAD_IN_PARTITION
-
 #define BOOT_LOADER			"bootloader"
 #define BOOT_BL2			"bl2"
 #define BOOT_SPL			"spl"

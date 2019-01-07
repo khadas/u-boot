@@ -910,15 +910,6 @@
 
 };
 
-&nand {
-	clocks = <&clkc CLKID_FCLK_DIV2>,
-			<&clkc CLKID_SD_EMMC_C_P0_MUX>,
-			<&clkc CLKID_SD_EMMC_C_P0_DIV>,
-			<&clkc CLKID_SD_EMMC_C_P0_GATE>;
-	clock-names = "clkin", "clkin1", "clkin2", "clkin3";
-	/*amlogic,mmc-syscon = <&sd_emmc_c>;*/
-};
-
 /*
 &spicc0 {
 	clocks = <&clkc CLKID_SPICC0>,

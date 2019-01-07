@@ -22,15 +22,29 @@ extern int amlnf_pre(void);
 extern int amlnf_probe(u32 init_flag);
 #endif
 
+#ifdef CONFIG_MESON_NFC
+extern int nand_pre(void);
+extern int nand_probe(uint32_t init_flag);
+#endif
+
+#ifdef CONFIG_MMC_MESON_GX
+extern int emmc_pre(void);
+extern int emmc_probe(u32 init_flag);
+#endif
+
 static struct storage_t *current;
 static struct device_node_t device_list[] = {
-#if 0
+#if CONFIG_MMC_MESON_GX
 	{BOOT_EMMC, "emmc", emmc_pre, emmc_probe},
+#endif
+#if 0
 	{BOOT_SD, "sd", sdcard_pre, sdcard_probe},
-	{BOOT_SLC, "slc", nand_pre, nand_probe},
+#endif
+#ifdef CONFIG_MESON_NFC
+	{BOOT_NAND_MTD, "mtd", nand_pre, nand_probe},
 #endif
 #ifdef CONFIG_AML_NAND
-	{BOOT_MLC, "mlc", amlnf_pre, amlnf_probe},
+	{BOOT_NAND_NFTL, "nftl", amlnf_pre, amlnf_probe},
 #endif
 #ifdef CONFIG_SPI_NAND
 	{BOOT_SNAND, "spi-nand", spi_nand_pre, spi_nand_probe},
@@ -422,38 +436,27 @@ static int do_store_device(cmd_tbl_t *cmdtp,
 	return CMD_RET_USAGE;
 }
 
-static int do_store_scrub(cmd_tbl_t *cmdtp,
-			  int flag, int argc, char * const argv[])
-{
-	struct storage_t *store = store_get_current();
-	unsigned long offset;
-	size_t size;
-	char *name = NULL;
-
-	if (!store) {
-		pr_info("%s %d please init your storage device first!\n",
-			__func__, __LINE__);
-		return CMD_RET_FAILURE;
-	}
-
-	if (unlikely(argc != 4 && argc != 5))
-		return CMD_RET_USAGE;
-
-	size = (size_t)simple_strtoul(argv[argc - 1], NULL, 16);
-	offset = simple_strtoul(argv[argc - 2], NULL, 16);
-	if (argc == 5)
-		name = argv[2];
-
-	return store->erase(name, offset, size, 1);
-}
-
+#ifdef CONFIG_AML_MTD
+extern int is_mtd_store_boot_area(const char *part_name);
+#endif
 static int do_store_erase(cmd_tbl_t *cmdtp,
 			  int flag, int argc, char * const argv[])
 {
 	struct storage_t *store = store_get_current();
 	unsigned long offset;
-	size_t size;
+	size_t size = 0;
 	char *name = NULL;
+	char *s;
+	int scrub_flag = 0;
+
+	const char *scrub =
+		"Warning: scrub_flag is 1!!!!"
+		"scrub operation!!!\n"
+		"will erase oob area\n"
+		"There is no reliable way to recover them.\n"
+		"		  "
+		"are sure of what you are doing!\n"
+		"\nReally erase this NAND flash? <y/N>\n";
 
 	if (!store) {
 		pr_info("%s %d please init your storage device first!\n",
@@ -461,15 +464,38 @@ static int do_store_erase(cmd_tbl_t *cmdtp,
 		return CMD_RET_FAILURE;
 	}
 
-	if (unlikely(argc != 4 && argc != 5))
-		return CMD_RET_USAGE;
+	if (strncmp(argv[1], "scrub", 5) == 0)
+		scrub_flag = 1;
 
-	size = (size_t)simple_strtoul(argv[argc - 1], NULL, 16);
-	offset = simple_strtoul(argv[argc - 2], NULL, 16);
-	if (argc == 5)
+	if (scrub_flag == 1) {
+		puts(scrub);
+		if (!confirm_yesno()) {
+			printf("erase aborted\n");
+			return 1;
+		}
+	}
+
+	/*store erase.chip*/
+	s = strchr(argv[1], '.');
+	if (s != NULL && strcmp(s, ".chip") == 0) {
+		offset = 0;
+	} else {
+		/*store erase normal, partition name can't NULL*/
+		if (unlikely(argc != 5))
+			return CMD_RET_USAGE;
+
+		size = (size_t)simple_strtoul(argv[argc - 1], NULL, 16);
+		offset = simple_strtoul(argv[argc - 2], NULL, 16);
 		name = argv[2];
-
-	return store->erase(name, offset, size, 0);
+#ifdef CONFIG_AML_MTD
+		if (is_mtd_store_boot_area(name)) {
+			pr_info("%s %d please enter normal partition name except tpl area!\n",
+				__func__, __LINE__);
+			return CMD_RET_FAILURE;
+		}
+#endif
+	}
+	return store->erase(name, offset, size, scrub_flag);
 }
 
 static int do_store_read(cmd_tbl_t *cmdtp,
@@ -494,6 +520,13 @@ static int do_store_read(cmd_tbl_t *cmdtp,
 	offset = simple_strtoul(argv[argc - 2], NULL, 16);
 	if (argc == 6)
 		name = argv[3];
+#ifdef CONFIG_AML_MTD
+	if (is_mtd_store_boot_area(name)) {
+			pr_info("%s %d please enter normal partition name except tpl area!\n",
+				__func__, __LINE__);
+			return CMD_RET_FAILURE;
+		}
+#endif
 	return store->read(name, offset, size, (u_char *)addr);
 }
 
@@ -519,7 +552,13 @@ static int do_store_write(cmd_tbl_t *cmdtp,
 	size = (size_t)simple_strtoul(argv[argc - 1], NULL, 16);
 	if (argc == 6)
 		name = argv[3];
-
+#ifdef CONFIG_AML_MTD
+	if (is_mtd_store_boot_area(name)) {
+			pr_info("%s %d please enter normal partition name except tpl area!\n",
+				__func__, __LINE__);
+			return CMD_RET_FAILURE;
+		}
+#endif
 	return store->write(name, offset, size, (u_char *)addr);
 }
 
@@ -653,7 +692,7 @@ static int do_store_rsv_ops(cmd_tbl_t *cmdtp,
 static cmd_tbl_t cmd_store_sub[] = {
 	U_BOOT_CMD_MKENT(init,	4, 0, do_store_init, "", ""),
 	U_BOOT_CMD_MKENT(device,	4, 0, do_store_device, "", ""),
-	U_BOOT_CMD_MKENT(scrub,	5, 0, do_store_scrub, "", ""),
+	U_BOOT_CMD_MKENT(scrub,	5, 0, do_store_erase, "", ""),
 	U_BOOT_CMD_MKENT(erase,	5, 0, do_store_erase, "", ""),
 	U_BOOT_CMD_MKENT(read,	6, 0, do_store_read, "", ""),
 	U_BOOT_CMD_MKENT(write,	7, 0, do_store_write, "", ""),
@@ -683,7 +722,7 @@ U_BOOT_CMD(store, CONFIG_SYS_MAXARGS, 1, do_store,
 	"store init [flag]\n"
 	"	init storage device\n"
 	"store device [name]\n"
-	"	init storage device\n"
+	"	show or set storage device\n"
 	"	'store device' command will list\n"
 	"	all valid storage device and print.\n"
 	"	'store device [name]' will set the\n"
@@ -692,17 +731,29 @@ U_BOOT_CMD(store, CONFIG_SYS_MAXARGS, 1, do_store,
 	"	read 'size' bytes from offset 'off'\n"
 	"	of device/partition 'partition name' to.\n"
 	"	address 'addr' of memory.\n"
+	"	if partition name NULL. read start with\n"
+	"	offset in normal logic area,if tpl area exist\n"
+	"	read offset at end of tpl area\n"
 	"store write addr [partition name] off size\n"
 	"	write 'size' bytes to offset 'off' of\n"
 	"	device/partition [partition name] from\n"
 	"	address 'addr' of memory.\n"
+	"	if partition name NULL. write start with\n"
+	"	offset in normal logic area,if tpl area exist\n"
+	"	write offset at end of tpl area\n"
 	"store erase [partition name] off size.\n"
 	"	erase 'size' bytes from offset 'off'\n"
 	"	of device/partition [partition name]\n"
+	"	partition name must't NULL\n"
 	"store scrub [partition name] off size.\n"
 	"	erase 'size' bytes from offset 'off'\n"
 	"	of device/partition [partition name]\n"
 	"	includes oob area if the device has.\n"
+	"	partition name must't NULL\n"
+	"store erase.chip\n"
+	"	erase all nand chip,except bad block\n"
+	"store scrub.chip\n"
+	"	erase all nand chip,include bad block\n"
 	"store boot_read [name] addr copy size\n"
 	"	read 'size' bytes from 'copy'th backup\n"
 	"	in [name] partition, 'copy' can't be null.\n"
