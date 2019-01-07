@@ -432,6 +432,7 @@ void aml_config_dtb(void)
 int board_late_init(void)
 {
 	printf("board late init\n");
+	run_command("mmc dev 1", 0);
 #if 0
 		//update env before anyone using it
 		run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
@@ -596,6 +597,11 @@ static struct mm_region bd_mem_map[] = {
 };
 
 struct mm_region *mem_map = bd_mem_map;
+
+void board_nand_init(void) {
+	printf("board_nand_init\n");
+	return;
+}
 
 int print_cpuinfo(void) {
 	printf("print_cpuinfo\n");

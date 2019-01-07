@@ -105,6 +105,7 @@ int android_image_get_kernel(const struct andr_img_hdr *hdr, int verify,
 		*os_len = hdr->kernel_size;
 
 #if defined(CONFIG_ANDROID_BOOT_IMAGE)
+			ulong end;
 			images.ft_len = (ulong)(hdr->second_size);
 			end = (ulong)hdr;
 			end += hdr->page_size;
