@@ -240,12 +240,13 @@
             "fi;"\
             "\0"\
         "vim2_check="\
-            "saradc open 1;"\
-            "if saradc get_in_range 0x1a0 0x220; then "\
-                "echo Product checking: pass!;"\
-            "else if saradc get_in_range 0x0 0x1cf; then "\
-                "echo Product checking: fail!; sleep 5; reboot;"\
-            "fi;fi;"\
+            "kbi hwver; "\
+            "if test ${hwver} != Unknow; then " \
+                "echo Product checking: pass! Hardware version: ${hwver};" \
+            "else " \
+                "echo Product checking: fail!; sleep 5; reboot;" \
+            "fi;" \
+            "setenv bootargs ${bootargs} hwver=${hwver};"\
             "\0"\
          "wol_init="\
             "kbi init;"\
