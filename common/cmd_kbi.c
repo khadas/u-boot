@@ -13,6 +13,7 @@
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
 #include <asm/u-boot.h>
+#include <asm/saradc.h>
 
 #define CHIP_ADDR              0x18
 #define CHIP_ADDR_CHAR         "0x18"
@@ -70,6 +71,14 @@
 #define ADC_LENGHT            2
 #define PASSWD_CUSTOM_LENGHT  6
 #define PASSWD_VENDOR_LENGHT  6
+
+#define HW_VERSION_ADV_VALUE_TOLERANCE   0x28
+#define HW_VERSION_ADC_VALUE_V12         0x1ce
+#define HW_VERSION_ADC_VALUE_V13         0x24a
+#define HW_VERSION_UNKNOW                0x00
+#define HW_VERSION_V12                   0x12
+#define HW_VERSION_V13                   0x13
+
 
 
 static char* LED_MODE_STR[] = { "off", "on", "breathe", "heartbeat"};
@@ -276,6 +285,39 @@ static void get_mac(void)
 	printf("\n");
 	sprintf(mac, "%02x:%02x:%02x:%02x:%02x:%02x",mac_addr[0],mac_addr[1],mac_addr[2],mac_addr[3],mac_addr[4],mac_addr[5]);
 	setenv("eth_mac", mac);
+}
+
+static const char *hw_version_str(int hw_ver)
+{
+	switch (hw_ver) {
+		case HW_VERSION_V12:
+			return "VIM2.V12";
+		case HW_VERSION_V13:
+			return "VIM2.V13";
+		default:
+			return "Unknow";
+	}
+}
+
+static int get_hw_version(void)
+{
+	int val = get_adc_sample_gxbb(1);
+	int hw_ver = 0;
+
+
+	if ((val >= HW_VERSION_ADC_VALUE_V12 - HW_VERSION_ADV_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VALUE_V12 + HW_VERSION_ADV_VALUE_TOLERANCE)) {
+		hw_ver = HW_VERSION_V12;
+	} else if ((val >= HW_VERSION_ADC_VALUE_V13 - HW_VERSION_ADV_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VALUE_V13 + HW_VERSION_ADV_VALUE_TOLERANCE)) {
+		hw_ver = HW_VERSION_V13;
+	} else {
+		hw_ver = HW_VERSION_UNKNOW;
+	}
+
+	printf("saradc: 0x%x, hw_ver: 0x%x\n", val, hw_ver);
+
+	setenv("hwver", hw_version_str(hw_ver));
+
+	return 0;
 }
 
 static void get_usid(void)
@@ -615,6 +657,11 @@ static int do_kbi_ethmac(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 	return 0;
 }
 
+static int do_kbi_hwver(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	return get_hw_version();
+}
+
 static int do_kbi_switchmac(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 
@@ -856,6 +903,7 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 	U_BOOT_CMD_MKENT(adc, 1, 1, do_kbi_adc, "", ""),
 	U_BOOT_CMD_MKENT(powerstate, 1, 1, do_kbi_powerstate, "", ""),
 	U_BOOT_CMD_MKENT(ethmac, 1, 1, do_kbi_ethmac, "", ""),
+	U_BOOT_CMD_MKENT(hwver, 1, 1, do_kbi_hwver, "", ""),
 	U_BOOT_CMD_MKENT(poweroff, 1, 1, do_kbi_poweroff, "", ""),
 	U_BOOT_CMD_MKENT(switchmac, 3, 1, do_kbi_switchmac, "", ""),
 	U_BOOT_CMD_MKENT(led, 4, 1, do_kbi_led, "", ""),
@@ -892,6 +940,7 @@ static char kbi_help_text[] =
 		"kbi powerstate - read power on state\n"
 		"kbi poweroff - power off device\n"
 		"kbi ethmac - read ethernet mac address\n"
+		"kbi hwver - read board hardware version\n"
 		"\n"
 		"kbi led [systemoff|systemon] w <off|on|breathe|heartbeat> - set blue led mode\n"
 		"kbi led [systemoff|systemon] r - read blue led mode\n"
