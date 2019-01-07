@@ -493,6 +493,8 @@ int board_init(void)
 				aml_try_factory_usb_burning(0, gd->bd);
 	}
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
+
+	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 #if 0
 	aml_pwm_cal_init(0);
 #endif//
