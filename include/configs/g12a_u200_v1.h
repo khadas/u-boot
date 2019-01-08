@@ -442,6 +442,12 @@
 #define USB_PHY2_PLL_PARAMETER_2	0x927e0000
 #define USB_PHY2_PLL_PARAMETER_3	0xAC5F49E5
 
+#define USB_G12x_PHY_PLL_SETTING_1	(0xfe18)
+#define USB_G12x_PHY_PLL_SETTING_2	(0xfff)
+#define USB_G12x_PHY_PLL_SETTING_3	(0x78000)
+#define USB_G12x_PHY_PLL_SETTING_4	(0xe0004)
+#define USB_G12x_PHY_PLL_SETTING_5	(0xe000c)
+
 #define AML_TXLX_USB        1
 
 /* UBOOT fastboot config */

@@ -38,24 +38,29 @@ struct phy_aml_usb2_priv {
 static void set_usb_pll(struct phy *phy, uint32_t volatile *phy2_pll_base)
 {
 	unsigned int pll_set1, pll_set2, pll_set3;
+	unsigned int tuning_disconnect_threshold = 0x34;
 
 	dev_read_u32(phy->dev, "pll-setting-1", &pll_set1);
 	dev_read_u32(phy->dev, "pll-setting-2", &pll_set2);
 	dev_read_u32(phy->dev, "pll-setting-3", &pll_set3);
 	debug("pll1=0x%08x, pll2=0x%08x, pll-setting-3 =0x%08x\n",
 		pll_set1, pll_set2, pll_set3);
-	pll_set3 = 0xac5f69e5;
 
-    (*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x40))
-        = (pll_set1 | USB_PHY2_RESET | USB_PHY2_ENABLE);
-    (*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x44)) =
-        pll_set2;
-    (*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x48)) =
-        pll_set3;
-    udelay(100);
-    (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x40))
-        = (((pll_set1) | (USB_PHY2_ENABLE))
-        & (~(USB_PHY2_RESET)));
+	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x40))
+		= (pll_set1 | USB_PHY2_RESET | USB_PHY2_ENABLE);
+	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x44)) =
+		pll_set2;
+	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x48)) =
+		pll_set3;
+	udelay(100);
+	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x40))
+		= (((pll_set1) | (USB_PHY2_ENABLE))
+			& (~(USB_PHY2_RESET)));
+
+	dev_read_u32(phy->dev, "disconnect-threshold", &tuning_disconnect_threshold);
+	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0xc)) =
+		tuning_disconnect_threshold;
+	debug("tuning_disconnect_threshold=0x%x\n", tuning_disconnect_threshold);
 }
 
 static int phy_aml_usb2_phy_init(struct phy *phy)
@@ -140,7 +145,7 @@ static int phy_aml_usb2_tuning(struct phy *phy, int port)
 	unsigned int pll_set1, pll_set2, pll_set3, pll_set4;
 
 	if (port > 2)
-			return 0;
+		return 0;
 
 	dev_read_u32(phy->dev, "pll-setting-4", &pll_set1);
 	dev_read_u32(phy->dev, "pll-setting-5", &pll_set2);
