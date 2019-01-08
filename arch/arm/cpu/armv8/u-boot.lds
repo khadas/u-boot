@@ -24,6 +24,10 @@ SECTIONS
 	}
 
 	. = ALIGN(8);
+	.__rodata_start :
+	{
+		*(.__rodata_start)
+	}
 	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
 
 	. = ALIGN(8);

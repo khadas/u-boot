@@ -70,6 +70,7 @@ extern void _start(void);
 extern char __bss_start[];
 extern char __bss_end[];
 extern char __image_copy_start[];
+extern char __rodata_start[];
 extern char __image_copy_end[];
 extern char __rel_dyn_start[];
 extern char __rel_dyn_end[];

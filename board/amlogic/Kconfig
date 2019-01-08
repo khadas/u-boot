@@ -351,6 +351,13 @@ config ODROID_C2
 	bool "Support Hardkernel ODROID-C2 board"
 	default n
 
+config KALLSYMS
+	bool "Support call stack dump when crash"
+	default y
+	help
+		This config can help to print call stack like linux kernel panic
+		when crash. It's very useful for debug crash issues.
+
 if GXB_SKT_V1
 source "board/amlogic/gxb_skt_v1/Kconfig"
 endif

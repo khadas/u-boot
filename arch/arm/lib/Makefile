@@ -38,6 +38,7 @@ obj-y	+= sections.o
 ifdef CONFIG_ARM64
 obj-y	+= gic_64.o
 obj-y	+= interrupts_64.o
+obj-$(CONFIG_KALLSYMS) += stacktrace_64.o
 else
 obj-y	+= interrupts.o
 endif
