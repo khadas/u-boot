@@ -881,25 +881,6 @@ config CMD_NAND
 	help
 	  NAND support.
 
-config AML_STORAGE
-	bool "aml storage support"
-	help
-		storage cmd support
-
-config AML_IMG_READ
-    depends on AML_STORAGE
-    bool "image read"
-    default y
-    help
-        based on AML_STORAGE
-        read image without specify size
-
-config AML_DEFENV
-    bool "aml defenv_without"
-    default y
-    help
-        support reserv env from c array
-
 if CMD_NAND
 config CMD_NAND_TRIMFFS
 	bool "nand write.trimffs"
@@ -1940,3 +1921,5 @@ config CMD_EFUSE
 	  support efuse command
 
 endmenu
+
+source "cmd/amlogic/Kconfig"

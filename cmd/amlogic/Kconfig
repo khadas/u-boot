@@ -4,3 +4,40 @@ config AML_RPMB_DISABLE
 	default n
 	help
 	  Support RPMB set in bootargs.
+
+config AML_STORAGE
+	bool "aml storage support"
+	help
+	  storage cmd support
+
+config AML_IMG_READ
+	depends on AML_STORAGE
+	bool "image read"
+	default y
+	help
+	  based on AML_STORAGE
+	  read image without specify size
+
+config AML_DEFENV
+	bool "aml defenv_without"
+	default y
+	help
+	  support reserv env from c array
+
+config BOOTLOADER_CONTROL_BLOCK
+	bool "bootloader control block support"
+	default n
+	help
+	  used for recovery and the bootloader to talk to each other
+
+config CMD_BOOTCTOL_AVB
+	bool "avb cmd"
+	default n
+	help
+	  support avb related cmds
+
+config CMD_RSVMEM
+	bool "rsvmem cmd"
+	default y
+	help
+	  support rsvmem cmd

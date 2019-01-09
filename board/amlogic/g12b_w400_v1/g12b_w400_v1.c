@@ -513,48 +513,50 @@ int board_late_init(void)
 {
 	printf("board late init\n");
 	run_command("mmc dev 1", 0);
-#if 0
-		//update env before anyone using it
-		run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
-						"if test ${reboot_mode} = factory_reset; then "\
-						"defenv_reserv;save; fi;", 0);
-		run_command("if itest ${upgrade_step} == 1; then "\
-						"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
-		/*add board late init function here*/
+#if 1
+	//update env before anyone using it
+	run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
+					"if test ${reboot_mode} = factory_reset; then "\
+					"defenv_reserv;save; fi;", 0);
+	run_command("if itest ${upgrade_step} == 1; then "\
+					"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
+	/*add board late init function here*/
 #ifndef DTB_BIND_KERNEL
-		int ret;
-		ret = run_command("store dtb read $dtb_mem_addr", 1);
-        if (ret) {
-				printf("%s(): [store dtb read $dtb_mem_addr] fail\n", __func__);
+	int ret;
+	ret = run_command("store dtb read $dtb_mem_addr", 1);
+	if (ret) {
+			printf("%s(): [store dtb read $dtb_mem_addr] fail\n", __func__);
 #ifdef CONFIG_DTB_MEM_ADDR
-				char cmd[64];
-				printf("load dtb to %x\n", CONFIG_DTB_MEM_ADDR);
-				sprintf(cmd, "store dtb read %x", CONFIG_DTB_MEM_ADDR);
-				ret = run_command(cmd, 1);
-                if (ret) {
-						printf("%s(): %s fail\n", __func__, cmd);
-				}
+			char cmd[64];
+			printf("load dtb to %x\n", CONFIG_DTB_MEM_ADDR);
+			sprintf(cmd, "store dtb read %x", CONFIG_DTB_MEM_ADDR);
+			ret = run_command(cmd, 1);
+			if (ret) {
+					printf("%s(): %s fail\n", __func__, cmd);
+			}
 #endif
-		}
+	}
 #elif defined(CONFIG_DTB_MEM_ADDR)
-		{
-				char cmd[128];
-				int ret;
-                if (!getenv("dtb_mem_addr")) {
-						sprintf(cmd, "setenv dtb_mem_addr 0x%x", CONFIG_DTB_MEM_ADDR);
-						run_command(cmd, 0);
-				}
-				sprintf(cmd, "imgread dtb boot ${dtb_mem_addr}");
-				ret = run_command(cmd, 0);
-                if (ret) {
-						printf("%s(): cmd[%s] fail, ret=%d\n", __func__, cmd, ret);
-				}
-		}
+	{
+			char cmd[128];
+			int ret;
+			if (!getenv("dtb_mem_addr")) {
+					sprintf(cmd, "setenv dtb_mem_addr 0x%x", CONFIG_DTB_MEM_ADDR);
+					run_command(cmd, 0);
+			}
+			sprintf(cmd, "imgread dtb boot ${dtb_mem_addr}");
+			ret = run_command(cmd, 0);
+			if (ret) {
+					printf("%s(): cmd[%s] fail, ret=%d\n", __func__, cmd, ret);
+			}
+	}
 #endif// #ifndef DTB_BIND_KERNEL
 
-		/* load unifykey */
-		run_command("keyunify init 0x1234", 0);
 #endif
+
+	/* load unifykey */
+	run_command("keyunify init 0x1234", 0);
+
 /*open vpu  hdmitx and cvbs driver*/
 #ifdef CONFIG_AML_VPU
 	vpu_probe();

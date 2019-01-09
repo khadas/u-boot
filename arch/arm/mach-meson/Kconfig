@@ -64,15 +64,6 @@ endchoice
 config SYS_MALLOC_F_LEN
 	default 0x1000
 
-config SYS_VENDOR
-	string "Vendor name"
-	default "amlogic"
-	help
-	  This option contains information about board name.
-	  Based on this option board/<CONFIG_SYS_VENDOR>/<CONFIG_SYS_BOARD> will
-	  be used.
-
 source "board/amlogic/Kconfig"
-
 
 endif

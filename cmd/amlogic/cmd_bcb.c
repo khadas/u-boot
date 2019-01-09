@@ -15,7 +15,7 @@
 #include <asm/byteorder.h>
 #include <config.h>
 #include <asm/arch/io.h>
-#include <storage.h>
+#include <amlogic/storage.h>
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 
