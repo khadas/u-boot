@@ -226,11 +226,12 @@
             "\0"\
         "combine_key="\
             "saradc open 0;"\
-            "if saradc get_in_range 0x0 0x1f; then "\
-            "echo Detect function key;"\
-            "if gpio input GPIOAO_2; then "\
-                "echo Detect combine keys;"\
-                "store init 3; fi;"\
+            "if saradc get_in_range 0x0 0x92; then "\
+                "echo Detect function key;"\
+                "if gpio input GPIOAO_2; then "\
+                    "echo Detect combine keys;"\
+                    "store init 3; " \
+                "fi;"\
             "fi;"\
             "\0"\
         "upgrade_key="\
