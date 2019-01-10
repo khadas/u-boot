@@ -347,6 +347,13 @@ extern void aml_pwm_cal_init(int mode);
 int board_init(void)
 {
 	printf("board init\n");
+
+	/*in kernel P_RESET1_LEVEL has been clear,
+	 * uboot need set these bits about usb,
+	 * otherwise the usb has problem.
+	 */
+	*(volatile uint32_t *)P_RESET1_LEVEL |= (3 << 16);
+
 //Please keep CONFIG_AML_V2_FACTORY_BURN at first place of board_init
 //As NOT NEED other board init If USB BOOT MODE
 #ifdef CONFIG_AML_V2_FACTORY_BURN

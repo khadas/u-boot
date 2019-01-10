@@ -77,6 +77,11 @@ void reset_system(void)
 {
 	int i;
 
+#ifdef CONFIG_USB_DEVICE_V2
+		*P_RESET1_REGISTER |= (1<<17);
+		mdelay(200);
+#endif
+
 	set_pwm_to_input();
 	_udelay(10000); //wait print
 	while (1) {
