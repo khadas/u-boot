@@ -149,11 +149,13 @@ int aml_burn_factory_producing(int flag, bd_t* bis)
         return 0;
 }
 
+extern void serial_initialize(void);
 int aml_try_factory_usb_burning(int flag, bd_t* bis)
 {
     if (!is_tpl_loaded_from_usb()) return 1;
 
     if ( !flag ) {
+        serial_initialize();//init for write memory
 #ifdef CONFIG_MMC
         DWN_MSG("MMC init in usb\n");
         mmc_initialize(bis);

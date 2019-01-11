@@ -803,5 +803,3 @@ U_BOOT_CMD(
    "argv: [sdc_burn_cfg_file]\n"//usage
    "    -aml_sdc_burn.ini is usually used configure file\n"
 );
-
- 

@@ -966,6 +966,9 @@ static int bulk_cmd_reply(const char* replyBuf)
     pcd->bulk_buf      = _bulk_replyBuf;
     pcd->bulk_out = 0;//////////////////////////////
     DWN_DBG("reply..[%s] len %d\n", _bulk_replyBuf, pcd->bulk_data_len);
+#if defined(USE_FULL_SPEED)
+    if (512 == pcd->bulk_data_len) udelay(100);
+#endif// #if defined(USE_FULL_SPEED)
     dwc_otg_ep_req_start(pcd,  BULK_IN_EP_NUM);//bulk in to reply result, it is ALWAYS IN
 
     return 0;

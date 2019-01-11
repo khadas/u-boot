@@ -10,7 +10,7 @@
 #ifndef __DWC_PCD_H__
 #define __DWC_PCD_H__
 
-#if CONFIG_AML_USB_BURN_FULL_SPPED
+#if defined(CONFIG_AML_USB_BURN_FULL_SPEED)
 #define USE_FULL_SPEED
 #endif// #if CONFIG_AML_USB_BURN_FULL_SPPED
 
