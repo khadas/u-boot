@@ -41,3 +41,15 @@ config CMD_RSVMEM
 	default y
 	help
 	  support rsvmem cmd
+
+config CMD_DDR_D2PLL
+	bool "d2pll cmd"
+	default n
+	help
+	  support d2pll cmd
+
+config CMD_DDR_TEST
+	bool "ddr test cmd"
+	default n
+	help
+	  support ddr_test cmd
