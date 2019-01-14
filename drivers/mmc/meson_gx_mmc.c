@@ -13,6 +13,14 @@
 #include <asm/arch/sd_emmc.h>
 #include <linux/log2.h>
 
+/* #define SD_DEBUG_ENABLE */
+
+#ifdef SD_DEBUG_ENABLE
+    #define sd_debug(a...) printf(a);
+#else
+    #define sd_debug(a...)
+#endif
+
 static inline void *get_regbase(const struct mmc *mmc)
 {
 	struct meson_mmc_platdata *pdata = mmc->priv;
@@ -20,6 +28,49 @@ static inline void *get_regbase(const struct mmc *mmc)
 	return pdata->regbase;
 }
 
+static int mmc_controller_debug(struct mmc_cmd *cmd,uint32_t status)
+{
+	int ret =0;
+	if (status & STATUS_RXD_ERR_MASK) {
+		ret |= SD_EMMC_RXD_ERROR;
+		printf("emmc/sd read error, cmd%d, status=0x%x\n",
+			cmd->cmdidx, status);
+	}
+	if (status & STATUS_TXD_ERR) {
+		ret |= SD_EMMC_TXD_ERROR;
+		printf("emmc/sd write error, cmd%d, status=0x%x\n",
+			cmd->cmdidx, status);
+	}
+	if (status & STATUS_DESC_ERR) {
+		ret |= SD_EMMC_DESC_ERROR;
+		printf("emmc/sd descripter error, cmd%d, status=0x%x\n",
+			cmd->cmdidx, status);
+	}
+	if (status & STATUS_RESP_ERR) {
+		ret |= SD_EMMC_RESP_CRC_ERROR;
+		printf("emmc/sd response crc error, cmd%d, status=0x%x\n",
+			cmd->cmdidx, status);
+	}
+	if (status & STATUS_RESP_TIMEOUT) {
+		ret |= SD_EMMC_RESP_TIMEOUT_ERROR;
+		printf("emmc/sd response timeout, cmd%d, status=0x%x\n",
+			cmd->cmdidx, status);
+	}
+	if (status & STATUS_DESC_TIMEOUT) {
+		ret |= SD_EMMC_DESC_TIMEOUT_ERROR;
+		printf("emmc/sd descripter timeout, cmd%d, status=0x%x\n",
+			cmd->cmdidx, status);
+	}
+
+	sd_debug("cmd->cmdidx = %d, cmd->cmdarg=0x%x, ret=0x%x\n",cmd->cmdidx,cmd->cmdarg,ret);
+	sd_debug("cmd->response[0]=0x%x;\n",cmd->response[0]);
+	sd_debug("cmd->response[1]=0x%x;\n",cmd->response[1]);
+	sd_debug("cmd->response[2]=0x%x;\n",cmd->response[2]);
+	sd_debug("cmd->response[3]=0x%x;\n",cmd->response[3]);
+
+	return ret;
+
+}
 static inline uint32_t meson_read(struct mmc *mmc, int offset)
 {
 	return readl(get_regbase(mmc) + offset);
@@ -214,21 +265,20 @@ static int meson_dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		status = meson_read(mmc, MESON_SD_EMMC_STATUS);
 	} while(!(status & STATUS_END_OF_CHAIN) && get_timer(start) < 10000);
 
-	if (!(status & STATUS_END_OF_CHAIN))
-		ret = -ETIMEDOUT;
-	else if (status & STATUS_RESP_TIMEOUT)
-		ret = -ETIMEDOUT;
-	else if (status & STATUS_ERR_MASK)
-		ret = -EIO;
-
 	meson_mmc_read_response(mmc, cmd);
 
+	ret = mmc_controller_debug(cmd,status);
 	if (data && data->flags == MMC_DATA_WRITE)
 		free(pdata->w_buf);
 
 	/* reset status bits */
 	meson_write(mmc, STATUS_MASK, MESON_SD_EMMC_STATUS);
-
+	if (ret) {
+			if (status & STATUS_RESP_TIMEOUT)
+				return -ETIMEDOUT;
+			else
+				return ret;
+	}
 	return ret;
 }
 
