@@ -26,6 +26,7 @@
 #include "aml_vpp_reg.h"
 #include <asm/arch/cpu.h>
 #include "aml_vpp.h"
+#include "hdr2.h"
 
 #define VPP_PR(fmt, args...)     printf("vpp: "fmt"", ## args)
 
@@ -1498,6 +1499,8 @@ void vpp_init(void)
 
 		/* set vpp data path to u12 */
 		set_vpp_bitdepth();
+
+		hdr_func(OSD1_HDR, HDR_BYPASS);
 	} else if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B) {
 		/* osd1: rgb->yuv limit,osd2: rgb2yuv limit,osd3: rgb2yuv limit*/
 		set_osd1_rgb2yuv(1);
@@ -1506,6 +1509,8 @@ void vpp_init(void)
 
 		/* set vpp data path to u12 */
 		set_vpp_bitdepth();
+
+		hdr_func(OSD1_HDR, HDR_BYPASS);
 	} else if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TL1) {
 		set_osd1_rgb2yuv(1);
 		set_osd2_rgb2yuv(1);
