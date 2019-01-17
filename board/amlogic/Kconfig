@@ -36,6 +36,11 @@ config AML_TSENSOR_COOL
 	help
 		"Support Amlogic High Temperature Cool"
 
+config AML_OSCRING
+	bool "Amlogic OSCRING MSR"
+	help
+		"Support Amlogic chip oscring msr"
+
 if MESON_G12A
 
 config SYS_SOC

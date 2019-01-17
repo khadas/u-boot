@@ -217,8 +217,7 @@ void set_boot_first_timeout(unsigned int command)
 	mb_message_end(LOW_PRIORITY);
 }
 
-#ifdef CONFIG_RING
-int efuse_get_value(unsigned char *efuseinfo)
+int oscring_get_value(unsigned char *efuseinfo)
 {
 	struct {
 		unsigned int status;
@@ -240,4 +239,3 @@ int efuse_get_value(unsigned char *efuseinfo)
 	else
 		return 0;
 }
-#endif

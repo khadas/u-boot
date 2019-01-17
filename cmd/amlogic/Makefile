@@ -25,3 +25,4 @@ endif
 endif
 obj-y += cmd_avb.o
 obj-$(CONFIG_AML_TSENSOR) += cmd_tsensor.o
+obj-$(CONFIG_AML_OSCRING) += cmd_ringmsr.o
