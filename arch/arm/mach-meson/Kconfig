@@ -51,14 +51,6 @@ config MESON_G12A
 	help
 		Support Amlogic Meson G12A (S905D2/S905X2/S905Y2 etc..)
 
-config MESON_G12A
-	bool "G12A"
-	select ARM64
-	select DM
-	select DM_SERIAL
-	help
-		Support Amlogic Meson G12A (S905D2/S905X2/S905Y2 etc..)
-
 config MESON_G12B
 	bool "Support Amlogic Meson G12B Series SoC"
 	select ARM64

@@ -25,6 +25,16 @@ config AML_CRYPTO_UBOOT
 	help
 		"Support U-boot encrypt function"
 
+config AML_TSENSOR
+	bool "Amlogic Temp Sensor"
+	help
+		"Support Amlogic Thermal Sensor"
+
+config AML_TSENSOR_COOL
+	bool "Amlogic HIGH TEMP COOL"
+	depends on AML_TSENSOR
+	help
+		"Support Amlogic High Temperature Cool"
 
 if MESON_G12A
 
