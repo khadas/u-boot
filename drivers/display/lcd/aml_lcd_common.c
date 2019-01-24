@@ -670,7 +670,10 @@ static int lcd_pinmux_load_from_bsp(struct lcd_config_s *pconf)
 		}
 		break;
 	case LCD_P2P:
-		sprintf(propname, "lcd_p2p_pin");
+		if (pconf->lcd_control.p2p_config->p2p_type == P2P_USIT)
+			sprintf(propname, "lcd_p2p_usit_pin");
+		else
+			sprintf(propname, "lcd_p2p_pin");
 		pinmux = pconf->lcd_pinmux;
 		for (i = 0; i < LCD_PINMX_MAX; i++) {
 			if (pinmux == NULL)

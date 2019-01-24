@@ -930,6 +930,7 @@ static void lcd_p2p_control_set(struct lcd_config_s *pconf)
 	/* phy_div: 0=div6, 1=div 7, 2=div8, 3=div10 */
 	switch (pconf->lcd_control.p2p_config->p2p_type) {
 	case P2P_CHPI: /* 8/10 coding */
+	case P2P_USIT:
 		phy_div = 3;
 		break;
 	default:

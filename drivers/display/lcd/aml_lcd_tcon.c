@@ -482,6 +482,7 @@ static int lcd_tcon_top_set_tl1(struct lcd_config_s *pconf)
 	if (pconf->lcd_basic.lcd_type == LCD_P2P) {
 		switch (pconf->lcd_control.p2p_config->p2p_type) {
 		case P2P_CHPI:
+		case P2P_USIT:
 			lcd_tcon_write(TCON_TOP_CTRL, 0x8199);
 			break;
 		default:
