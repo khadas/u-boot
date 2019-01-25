@@ -80,10 +80,17 @@
 			"kbi poweroff;"\
 		"fi;"\
 		"\0"\
+	"check_reboot_mode=" \
+		"if test X${reboot_mode} = Xreboot_test; then "\
+			"echo Reboot test mode detected;" \
+			"setenv bootargs ${bootargs} reboot_test;" \
+		"fi;"\
+	"\0"\
 	BOOTENV
 #endif
 
 #define CONFIG_PREBOOT \
+	"run check_reboot_mode;" \
 	"run wol_init;"
 
 /* enable usb config for usb ether */
