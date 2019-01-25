@@ -37,11 +37,12 @@ extern int emmc_probe(u32 init_flag);
 
 static struct storage_t *current;
 static struct device_node_t device_list[] = {
-#if CONFIG_MMC_MESON_GX
-	{BOOT_EMMC, "emmc", emmc_pre, emmc_probe},
-#endif
 #if 0
 	{BOOT_SD, "sd", sdcard_pre, sdcard_probe},
+#endif
+
+#ifdef CONFIG_MMC_MESON_GX
+	{BOOT_EMMC, "emmc", emmc_pre, emmc_probe},
 #endif
 
 #ifdef CONFIG_MESON_NFC
@@ -135,6 +136,7 @@ int store_init(u32 init_flag)
 			if (ret)
 				record |= device_list[i].index;
 		}
+
 	return record;
 }
 
