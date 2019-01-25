@@ -416,6 +416,10 @@ fallback:
 			printf("boot mode: charging\n");
 			boot_mode = BOOT_MODE_CHARGING;
 			break;
+		case BOOT_REBOOT_TEST:
+			printf("boot mode: reboot test\n");
+			boot_mode = BOOT_MODE_REBOOT_TEST;
+			break;
 		default:
 			printf("boot mode: None\n");
 			boot_mode = BOOT_MODE_UNDEFINE;

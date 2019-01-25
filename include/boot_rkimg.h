@@ -15,6 +15,7 @@ enum _boot_mode {
 	BOOT_MODE_LOADER,	/* Rockchip: Rockusb download mode */
 	BOOT_MODE_CHARGING,
 	BOOT_MODE_UMS,
+	BOOT_MODE_REBOOT_TEST,
 	BOOT_MODE_BROM_DOWNLOAD,
 	BOOT_MODE_UNDEFINE,
 };
