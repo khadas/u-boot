@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
+#include <dm/pinctrl.h>
 #include "mmc_private.h"
 
 int dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
@@ -202,6 +203,10 @@ struct mmc *find_mmc_device(int dev_num)
 	mmc_dev = dev_get_parent(dev);
 
 	struct mmc *mmc = mmc_get_mmc_dev(mmc_dev);
+	if (mmc) {
+		mmc_set_clock(mmc, mmc->clock, true);
+	}
+	pinctrl_select_state(mmc->dev, "default");
 
 	return mmc;
 }
