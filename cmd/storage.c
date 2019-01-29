@@ -133,7 +133,7 @@ int store_init(u32 init_flag)
 	for (i = 0; i < ARRAY_SIZE(device_list); i++)
 		if (!device_list[i].pre()) {
 			ret = device_list[i].probe(init_flag);
-			if (ret)
+			if (!ret)
 				record |= device_list[i].index;
 		}
 
@@ -368,6 +368,7 @@ static int do_store_init(cmd_tbl_t *cmdtp,
 			 int flag, int argc, char * const argv[])
 {
 	u32 init_flag = 1;
+	u8 ret = 0;
 
 	if (unlikely(argc != 2 && argc != 3))
 		return CMD_RET_USAGE;
@@ -375,7 +376,11 @@ static int do_store_init(cmd_tbl_t *cmdtp,
 	if (argc == 3)
 		init_flag = simple_strtoul(argv[2], NULL, 10);
 
-	return store_init(init_flag);
+	/*Returns a nonzero value: device index*/
+	if (store_init(init_flag))
+		ret = 0;
+	else ret = 1;
+	return ret;
 }
 
 void store_print_device(struct storage_t *store_dev)

@@ -383,8 +383,12 @@
 /* support for nftl */
 /*#define CONFIG_AML_NAND	1*/
 
-#if defined(CONFIG_AML_NAND) && defined(CONFIG_AML_MTD)
-#error CONFIG_AML_NAND/CONFIG_AML_MTD can not support at the sametime;
+#if defined(CONFIG_AML_NAND) && defined(CONFIG_MESON_NFC)
+#error CONFIG_AML_NAND/CONFIG_MESON_NFC can not support at the sametime;
+#endif
+
+#if defined(CONFIG_SPI_NAND) && defined(CONFIG_MESON_NFC)
+#error CONFIG_SPI_NAND/CONFIG_MESON_NFC can not support at the sametime;
 #endif
 
 #ifdef CONFIG_AML_MTD

@@ -676,11 +676,6 @@ static struct mm_region bd_mem_map[] = {
 
 struct mm_region *mem_map = bd_mem_map;
 
-void board_nand_init(void) {
-	printf("board_nand_init\n");
-	return;
-}
-
 int print_cpuinfo(void) {
 	printf("print_cpuinfo\n");
 	return 0;

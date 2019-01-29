@@ -116,8 +116,8 @@ struct device_node_t {
  * 5 NAND_SCAN_ID_INIT:only read nand id
  *
  * @return: init result
- *          0 = success
- *          other = fail
+ *          0 = failed
+ *          other = device_index that device probe successfully
  */
 int store_init(u32 init_flag);
 
