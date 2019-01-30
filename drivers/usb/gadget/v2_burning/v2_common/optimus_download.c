@@ -813,79 +813,67 @@ int optimus_storage_init(int toErase)
         }
     }
 
+    int initFlag = 1;
     switch (toErase)
     {
-        case 0://NO erase
-            ret = store_init(1);
+        case 0://default 1
             break;
-
         case 3://erase all(with key)
             {
-                cmd = "store disprotect key";
-                DWN_MSG("run cmd [%s]\n", cmd);
-                ret = run_command(cmd, 0);
-                if (ret) {
-                    DWN_ERR("Fail when run cmd[%s], ret %d\n", cmd, ret);
-                    break;
-                }
+              if (store_rsv_protect("key", false))  {
+                   DWN_ERR("Fail in disprotect key\n");
+                   return -__LINE__;
+               }
             }
         case 1://normal erase, store init 3
-            ret = store_init(3);
+            initFlag = 3;
             break;
 
         case 4://force erase all
             {
-                cmd = "store disprotect key; store disprotect hynix";
-                DWN_MSG("run cmd [%s]\n", cmd);
-                ret = run_command(cmd, 0);
-                if (ret) {
-                    DWN_ERR("Fail when run cmd[%s], ret %d\n", cmd, ret);
-                    break;
-                }
+               if (store_rsv_protect(NULL, false))  {
+                   DWN_ERR("Fail in disprotect key\n");
+                   return -__LINE__;
+               }
             }
         case 2:
-            ret = store_init(4);
+            initFlag = 4;
             break;
 
         default:
             DWN_ERR("Unsupported erase flag %d\n", toErase); ret = -__LINE__;
             break;
     }
+    ret = store_init(initFlag);
+    if ( ret <= 0 ) {
+        DWN_ERR("Fail in store init with flag %d\n", initFlag);
+        return -__LINE__;
+    }
+    DWN_MSG("store inited ret 0x%x\n", ret);
 
-    if (!ret)
+    _disk_intialed_ok  = 1;
+    _disk_intialed_ok += toErase <<16;
+
+    if (OPTIMUS_WORK_MODE_USB_PRODUCE == optimus_work_mode_get()) //env not relocated in this case
     {
-        _disk_intialed_ok  = 1;
-        _disk_intialed_ok += toErase <<16;
+        DWN_MSG("usb producing env_relocate\n");
+        env_relocate();
+    }
 
-#if 0
-        ret = optimus_save_loaded_dtb_to_flash();
-        if (ret) {
-                DWN_ERR("FAiled in dtb wr\n");
-                return __LINE__;
-        }
-#endif
-
-        if (OPTIMUS_WORK_MODE_USB_PRODUCE == optimus_work_mode_get()) //env not relocated in this case
-        {
-            DWN_MSG("usb producing env_relocate\n");
-            env_relocate();
-        }
-
-        if (_dtb_is_loaded)//for key init, or fail when get /unifykey
-        {
-                unsigned long fdtAddr = (unsigned long)dtbLoadedAddr;
+    if (_dtb_is_loaded)//for key init, or fail when get /unifykey
+    {
+        unsigned long fdtAddr = (unsigned long)dtbLoadedAddr;
 #ifdef CONFIG_MULTI_DTB
-                fdtAddr = get_multi_dt_entry(fdtAddr);
+        fdtAddr = get_multi_dt_entry(fdtAddr);
 #endif// #ifdef CONFIG_MULTI_DTB
-                ret = fdt_check_header((char*)fdtAddr);
-                unsigned fdtsz    = fdt_totalsize((char*)fdtAddr);
-                if (ret || !fdtsz ) {
-                        DWN_ERR("Fail in fdt check header\n");
-                        return __LINE__;
-                }
-               // if (fdtsz < _dtb_is_loaded)
-                        memmove((char*)dtbLoadedAddr, (char*)fdtAddr, fdtsz);
+        ret = fdt_check_header((char*)fdtAddr);
+        unsigned fdtsz    = fdt_totalsize((char*)fdtAddr);
+        if (ret || !fdtsz ) {
+            DWN_ERR("Fail in fdt check header\n");
+            return __LINE__;
         }
+        // if (fdtsz < _dtb_is_loaded)
+        memmove((char*)dtbLoadedAddr, (char*)fdtAddr, fdtsz);
     }
 
     return ret;
