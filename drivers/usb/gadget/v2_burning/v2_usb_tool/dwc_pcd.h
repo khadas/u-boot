@@ -163,6 +163,7 @@ typedef struct pcd_struct_s{
         uint32_t	d32[2];
     }setup_pkt;
 	 int ep0state;
+	 int ep0last_state;
 
 	 /* for USB_REQ_GET_STATUS */
 	 unsigned status;

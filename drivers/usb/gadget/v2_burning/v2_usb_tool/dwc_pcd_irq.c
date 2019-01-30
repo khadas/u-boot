@@ -241,27 +241,27 @@ static void handle_ep0( int is_in )
             }
             else {
                 ep0_complete_request( _pcd );
-                #if (defined AML_USB_BURN_TOOL)
-                pcd_in_completed(_pcd);/////////////
-                #endif
+                _pcd->ep0last_state = 1;
             }
             break;
 
         case EP0_OUT_DATA_PHASE:
             ep0_complete_request(_pcd );
             _pcd->cmdtype.in_complete = 1;
-            #if (defined AML_USB_BURN_TOOL)
-            pcd_out_completed(_pcd);
-            #endif
+            _pcd->ep0last_state = 2;
             break;
 
-
         case EP0_STATUS:
-
             ep0_complete_request( _pcd );
             _pcd->ep0state = EP0_IDLE;
             ep0->stopped = 1;
             ep0->is_in = 0;  /* OUT for next SETUP */
+            if (_pcd->ep0last_state == 1) {
+                pcd_in_completed(_pcd);
+            } else if (_pcd->ep0last_state == 2) {
+                pcd_out_completed(_pcd);
+            }
+            _pcd->ep0last_state = 0;
 
             break;
 
