@@ -21,6 +21,11 @@ struct rk322x_clk_priv {
 	struct rk322x_cru *cru;
 	ulong gpll_hz;
 	ulong cpll_hz;
+	ulong armclk_hz;
+	ulong armclk_enter_hz;
+	ulong armclk_init_hz;
+	bool sync_kernel;
+	bool set_armclk_rate;
 };
 
 struct rk322x_cru {
@@ -147,6 +152,14 @@ enum {
 	EMMC_DIV_MASK		= 0xff << EMMC_DIV_SHIFT,
 	SDIO_DIV_SHIFT		= 0,
 	SDIO_DIV_MASK		= 0xff << SDIO_DIV_SHIFT,
+
+	/* CLKSEL_CON24 */
+	CRYPTO_PLL_SEL_SHIFT	= 5,
+	CRYPTO_PLL_SEL_MASK	= 0x1 << CRYPTO_PLL_SEL_SHIFT,
+	CRYPTO_PLL_SEL_CPLL	= 0,
+	CRYPTO_PLL_SEL_GPLL,
+	CRYPTO_DIV_SHIFT	= 0,
+	CRYPTO_DIV_MASK		= 0x1f << CRYPTO_DIV_SHIFT,
 
 	/* CRU_CLKSEL26_CON */
 	DDR_CLK_PLL_SEL_SHIFT	= 8,

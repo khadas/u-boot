@@ -1111,6 +1111,11 @@ config CMD_MEMTESTER
 	help
 	  This enables memtester for ddr.
 
+config CMD_DDR_TEST_TOOL
+	bool "Enable ddr test tool"
+	help
+	  This enable ddr test tool code.
+
 menu "Misc commands"
 
 config CMD_BMP
@@ -1295,6 +1300,16 @@ config CMD_CHARGE_DISPLAY
 	bool "Enable Driver Model Charge Display command"
 	help
 	  Support U-Boot charge display.
+
+config CMD_DVFS
+	bool "Enable Driver Model DVFS command"
+	depends on DM_DVFS
+	default y
+	help
+	  Support dvfs policy apply API
+	  User interface features:
+	  - dvfs            - apply dvfs policy once
+	  - dvfs repeat     - repeat apply dvfs policy until achieve the target temperature
 
 endmenu
 

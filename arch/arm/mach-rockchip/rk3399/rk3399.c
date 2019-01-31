@@ -8,6 +8,7 @@
 #include <asm/armv8/mmu.h>
 #include <asm/arch/bootrom.h>
 #include <asm/arch/grf_rk3399.h>
+#include <asm/arch/cru_rk3399.h>
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 #include <syscon.h>
@@ -71,6 +72,9 @@ void rockchip_stimer_init(void)
 #define GRF_BASE	0xff770000
 #define PMUGRF_BASE	0xff320000
 #define PMUSGRF_BASE	0xff330000
+#define PMUCRU_BASE	0xff750000
+#define NIU_PERILP_NSP_ADDR	0xffad8188
+#define QOS_PRIORITY_LEVEL(h, l)	((((h) & 3) << 8) | ((l) & 3))
 
 int arch_cpu_init(void)
 {
@@ -101,6 +105,17 @@ int arch_cpu_init(void)
 	/* PWM3 select pwm3a io */
 	rk_clrreg(&pmugrf->soc_con0, 1 << 5);
 
+#if defined(CONFIG_ROCKCHIP_RK3399PRO)
+	struct rk3399_pmucru *pmucru = (void *)PMUCRU_BASE;
+
+	/* set wifi_26M to 24M and disabled by default */
+	writel(0x7f002000, &pmucru->pmucru_clksel[1]);
+	writel(0x01000100, &pmucru->pmucru_clkgate_con[0]);
+#endif
+
+	/* Set perilp_nsp QOS priority to 3 for USB 3.0 */
+	writel(QOS_PRIORITY_LEVEL(3, 3), NIU_PERILP_NSP_ADDR);
+
 	return 0;
 }
 
@@ -118,16 +133,23 @@ void board_debug_uart_init(void)
 		     GRF_GPIO2C1_SEL_MASK,
 		     GRF_UART0BT_SOUT << GRF_GPIO2C1_SEL_SHIFT);
 #else
-	/* Enable early UART2 channel C on the RK3399 */
+	/* Enable early UART2 channel C on the RK3399/RK3399PRO */
 	rk_clrsetreg(&grf->gpio4c_iomux,
 		     GRF_GPIO4C3_SEL_MASK,
 		     GRF_UART2DGBC_SIN << GRF_GPIO4C3_SEL_SHIFT);
 	rk_clrsetreg(&grf->gpio4c_iomux,
 		     GRF_GPIO4C4_SEL_MASK,
 		     GRF_UART2DBGC_SOUT << GRF_GPIO4C4_SEL_SHIFT);
+#if defined(CONFIG_ROCKCHIP_RK3399PRO)
+	/* Set channel A as UART2 input */
+	rk_clrsetreg(&grf->soc_con7,
+		     GRF_UART_DBG_SEL_MASK,
+		     GRF_UART_DBG_SEL_A << GRF_UART_DBG_SEL_SHIFT);
+#else
 	/* Set channel C as UART2 input */
 	rk_clrsetreg(&grf->soc_con7,
 		     GRF_UART_DBG_SEL_MASK,
 		     GRF_UART_DBG_SEL_C << GRF_UART_DBG_SEL_SHIFT);
+#endif
 #endif
 }

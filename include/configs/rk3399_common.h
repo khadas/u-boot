@@ -9,7 +9,7 @@
 
 #include "rockchip-common.h"
 
-#define CONFIG_SYS_MALLOC_LEN		(32 << 20)
+#define CONFIG_SYS_MALLOC_LEN		(192 << 20)
 #define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_SPL_FRAMEWORK
@@ -26,6 +26,7 @@
 #define CONFIG_SPL_BSS_START_ADDR	0x00400000
 #define CONFIG_SPL_BSS_MAX_SIZE         0x2000
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
+#define CONFIG_SUPPORT_EMMC_RPMB
 
 #define GICD_BASE			0xFEE00000
 #define GICR_BASE			0xFEF00000
@@ -57,8 +58,8 @@
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x00500000\0" \
 	"pxefile_addr_r=0x00600000\0" \
-	"fdt_addr_r=0x01f00000\0" \
-	"kernel_addr_r=0x02080000\0" \
+	"fdt_addr_r=0x08300000\0" \
+	"kernel_addr_r=0x00280000\0" \
 	"ramdisk_addr_r=0x0a200000\0"
 
 #include <config_distro_bootcmd.h>

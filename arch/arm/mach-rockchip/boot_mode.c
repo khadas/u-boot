@@ -8,7 +8,7 @@
 #include <adc.h>
 #include <asm/io.h>
 #include <asm/arch/boot_mode.h>
-#include <asm/arch/rk_atags.h>
+#include <asm/arch/param.h>
 #include <cli.h>
 #include <dm.h>
 #include <fdtdec.h>
@@ -92,88 +92,52 @@ void boot_devtype_init(void)
 	const char *devtype_num_set = "run rkimg_bootdev";
 	char *devtype = NULL, *devnum = NULL;
 	static int done = 0;
+	int atags_en = 0;
 	int ret;
 
 	if (done)
 		return;
 
-#ifdef CONFIG_ROCKCHIP_PRELOADER_ATAGS
-	struct tag *t;
-
-	t = atags_get_tag(ATAG_BOOTDEV);
-	if (t) {
-		switch (t->u.bootdev.devtype) {
-		case BOOT_TYPE_EMMC:
-			devtype = "mmc";
-			devnum = "0";
-			break;
-		case BOOT_TYPE_SD0:
-		case BOOT_TYPE_SD1:
-			devtype = "mmc";
-			devnum = "1";
-			break;
-		case BOOT_TYPE_NAND:
-			devtype = "rknand";
-			devnum = "0";
-			break;
-		case BOOT_TYPE_SPI_NAND:
-			devtype = "spinand";
-			devnum = "0";
-			break;
-		case BOOT_TYPE_SPI_NOR:
-			devtype = "spinor";
-			devnum = "1";
-			break;
-		case BOOT_TYPE_RAM:
-			devtype = "ramdisk";
-			devnum = "0";
-			break;
-		default:
-			printf("Unknown bootdev type: 0x%x\n",
-			       t->u.bootdev.devtype);
-			break;
-		}
-	}
-
-	debug("%s: Get bootdev from atags: %s %s\n", __func__, devtype, devnum);
-
-	if (devtype && devnum) {
+	ret = param_parse_bootdev(&devtype, &devnum);
+	if (!ret) {
+		atags_en = 1;
 		env_set("devtype", devtype);
 		env_set("devnum", devnum);
 #ifdef CONFIG_DM_MMC
 		if (!strcmp("mmc", devtype))
 			mmc_initialize(gd->bd);
 #endif
-		goto finish;
-	}
-#endif
-
+	} else {
 #ifdef CONFIG_DM_MMC
-	mmc_initialize(gd->bd);
+		mmc_initialize(gd->bd);
 #endif
-	ret = run_command_list(devtype_num_set, -1, 0);
-	if (ret) {
-		/* Set default dev type/num if command not valid */
-		devtype = "mmc";
-		devnum = "0";
-		env_set("devtype", devtype);
-		env_set("devnum", devnum);
+		ret = run_command_list(devtype_num_set, -1, 0);
+		if (ret) {
+			/* Set default dev type/num if command not valid */
+			devtype = "mmc";
+			devnum = "0";
+			env_set("devtype", devtype);
+			env_set("devnum", devnum);
+		}
 	}
-finish:
+
 	done = 1;
-	printf("Bootdev: %s %s\n", env_get("devtype"), env_get("devnum"));
+	printf("Bootdev%s: %s %s\n", atags_en ? "(atags)" : "",
+	       env_get("devtype"), env_get("devnum"));
 }
 
 void rockchip_dnl_mode_check(void)
 {
 	if (rockchip_dnl_key_pressed()) {
-		if (rockchip_u2phy_vbus_detect()) {
-			printf("download key pressed, entering download mode...\n");
+		printf("download key pressed... ");
+		if (rockchip_u2phy_vbus_detect() > 0) {
+			printf("entering download mode...\n");
 			/* If failed, we fall back to bootrom download mode */
 			run_command_list("rockusb 0 ${devtype} ${devnum}", -1, 0);
 			set_back_to_bootrom_dnl_flag();
 			do_reset(NULL, 0, 0, NULL);
 		} else {
+			printf("\n");
 #ifdef CONFIG_RKIMG_BOOTLOADER
 			/* If there is no recovery partition, just boot on */
 			struct blk_desc *dev_desc;

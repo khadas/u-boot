@@ -17,7 +17,7 @@
 #define CONFIG_SYS_SDRAM_BASE		0
 #define SDRAM_MAX_SIZE			0xff000000
 #define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_MALLOC_LEN		(32 << 20)
+#define CONFIG_SYS_MALLOC_LEN		(192 << 20)
 #define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
@@ -51,8 +51,8 @@
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x00500000\0" \
 	"pxefile_addr_r=0x00600000\0" \
-	"fdt_addr_r=0x01f00000\0" \
-	"kernel_addr_r=0x02080000\0" \
+	"fdt_addr_r=0x08300000\0" \
+	"kernel_addr_r=0x00280000\0" \
 	"ramdisk_addr_r=0x0a200000\0"
 
 #include <config_distro_bootcmd.h>

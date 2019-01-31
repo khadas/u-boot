@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <ram.h>
 #include <asm/io.h>
+#include <asm/arch/param.h>
 #include <asm/arch/rk_atags.h>
 #include <asm/arch/sdram_common.h>
 #include <dm/uclass-internal.h>
@@ -16,112 +17,26 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PARAM_DRAM_INFO_OFFSET 0x2000000
 #define TRUST_PARAMETER_OFFSET    (34 * 1024 * 1024)
 
-struct tos_parameter_t {
-	u32 version;
-	u32 checksum;
-	struct {
-		char name[8];
-		s64 phy_addr;
-		u32 size;
-		u32 flags;
-	}tee_mem;
-	struct {
-		char name[8];
-		s64 phy_addr;
-		u32 size;
-		u32 flags;
-	}drm_mem;
-	s64 reserve[8];
-};
-
 #if defined(CONFIG_SPL_FRAMEWORK) || !defined(CONFIG_SPL_OF_PLATDATA)
-static uint16_t trust_checksum(const uint8_t *buf, uint16_t len)
-{
-	uint16_t i;
-	uint16_t checksum = 0;
-
-	for (i = 0; i < len; i++) {
-		if (i % 2)
-			checksum += buf[i] << 8;
-		else
-			checksum += buf[i];
-	}
-	checksum = ~checksum;
-
-	return checksum;
-}
 
 #define SDRAM_OFFSET(offset)	(CONFIG_SYS_SDRAM_BASE + (offset))
 #define NOT_INITIAL		-1
 static int __dram_init_banksize(int resv_tee)
 {
+	struct sysmem_property prop;
 	size_t top = min((unsigned long)(gd->ram_size + CONFIG_SYS_SDRAM_BASE),
 			 gd->ram_top);
 	u64 start[CONFIG_NR_DRAM_BANKS], size[CONFIG_NR_DRAM_BANKS];
-	u64 tos_addr = 0, atf_addr = 0;
-	u64 tos_size = 0, atf_size = 0;
-	u32 checksum, i;
-	int idx = NOT_INITIAL;
-	struct tos_parameter_t *tos_parameter;
-#ifdef CONFIG_ROCKCHIP_PRELOADER_ATAGS
-	struct tag *t = NULL;
+	u64 tos_addr, atf_addr;
+	u64 tos_size, atf_size;
+	int i, idx = NOT_INITIAL;
 
-	/*
-	 * Get memory region of ATF
-	 *
-	 * 1. New way: atags info;
-	 * 2. Leagcy way: 2MB size and start from ddr 0x0 offset;
-	 */
-	t = atags_get_tag(ATAG_ATF_MEM);
-	if (t && t->u.atf_mem.size) {
-		atf_addr = t->u.atf_mem.phy_addr;
-		atf_size = t->u.atf_mem.size;
-		/* Sanity */
-		if (atf_addr + atf_size > SDRAM_OFFSET(SZ_1M)) {
-			printf("%s: ATF reserved region is not within 0-1MB offset(0x%08llx-0x%08llx)!\n",
-			       __func__, atf_addr, atf_addr + atf_size);
-			return -EINVAL;
-		}
-	}
-
-	/*
-	 * Get memory region of OP-TEE
-	 *
-	 * 1. New way: atags info;
-	 * 2. Leagcy way: info in ddr 34M offset;
-	 */
-	t = atags_get_tag(ATAG_TOS_MEM);
-	if (t && (t->u.tos_mem.tee_mem.flags == 1)) {
-		tos_addr = t->u.tos_mem.tee_mem.phy_addr;
-		tos_size = t->u.tos_mem.tee_mem.size;
-	}
-#endif
-
-	/* Legacy */
-	if (!atf_size) {
-		if (IS_ENABLED(CONFIG_ARM64) ||
-		    IS_ENABLED(CONFIG_ARM64_BOOT_AARCH32)) {
-			atf_addr = SDRAM_OFFSET(0);
-			atf_size = SZ_1M;
-		}
-	}
-
-	/* Legacy */
-	if (!tos_size) {
-		tos_parameter =
-		(struct tos_parameter_t *)(SDRAM_OFFSET(TRUST_PARAMETER_OFFSET));
-		checksum =
-		trust_checksum((uint8_t *)(unsigned long)tos_parameter + 8,
-				sizeof(struct tos_parameter_t) - 8);
-		if ((checksum == tos_parameter->checksum) &&
-		    (tos_parameter->tee_mem.flags == 1)) {
-			tos_addr = tos_parameter->tee_mem.phy_addr;
-			tos_size = tos_parameter->tee_mem.size;
-		}
-	}
-
-	debug("ATF: 0x%llx - 0x%llx\n", atf_addr, atf_addr + atf_size);
-	debug("TOS: 0x%llx - 0x%llx\n", tos_addr, tos_addr + tos_size);
+	prop = param_parse_atf_mem();
+	atf_addr = prop.base;
+	atf_size = prop.size;
+	prop = param_parse_optee_mem();
+	tos_addr = prop.base;
+	tos_size = prop.size;
 
 	/*
 	 * Reserve region for ATF bl31
@@ -372,6 +287,63 @@ size_t rockchip_sdram_size(phys_addr_t reg)
 		size_mb = (SDRAM_MAX_SIZE >> 20);
 
 	return (size_t)size_mb << 20;
+}
+
+static unsigned int get_ddr_os_reg(void)
+{
+	u32 os_reg = 0;
+
+#if defined(CONFIG_ROCKCHIP_PX30)
+	os_reg = readl(0xff010208);
+#elif defined(CONFIG_ROCKCHIP_RK3328)
+	os_reg = readl(0xff1005d0);
+#elif defined(CONFIG_ROCKCHIP_RK3399)
+	os_reg = readl(0xff320308);
+#elif defined(CONFIG_ROCKCHIP_RK322X)
+	os_reg = readl(0x110005d0);
+#elif defined(CONFIG_ROCKCHIP_RK3368)
+	os_reg = readl(0xff738208);
+#elif defined(CONFIG_ROCKCHIP_RK3288)
+	os_reg = readl(0x20004048);
+#elif defined(CONFIG_ROCKCHIP_RK3036)
+	os_reg = readl(0x200081cc);
+#elif defined(CONFIG_ROCKCHIP_RK3308)
+	os_reg = readl(0xff000508);
+#elif defined(CONFIG_ROCKCHIP_RK1808)
+	os_reg = readl(0xfe020208);
+#else
+	printf("unsupported chip type, get page size fail\n");
+#endif
+
+	return os_reg;
+}
+
+unsigned int get_page_size(void)
+{
+	u32 os_reg;
+	u32 col, bw;
+	int page_size;
+
+	os_reg = get_ddr_os_reg();
+	if (!os_reg)
+		return 0;
+
+	col = 9 + (os_reg >> SYS_REG_COL_SHIFT(0) & SYS_REG_COL_MASK);
+	bw = (2 >> ((os_reg >> SYS_REG_BW_SHIFT(0)) & SYS_REG_BW_MASK));
+	page_size = 1u << (col + bw);
+
+	return page_size;
+}
+
+unsigned int get_ddr_bw(void)
+{
+	u32 os_reg;
+	u32 bw = 2;
+
+	os_reg = get_ddr_os_reg();
+	if (os_reg)
+		bw = 2 >> ((os_reg >> SYS_REG_BW_SHIFT(0)) & SYS_REG_BW_MASK);
+	return bw;
 }
 
 #if defined(CONFIG_SPL_FRAMEWORK) || !defined(CONFIG_SPL_OF_PLATDATA)

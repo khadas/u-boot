@@ -8,7 +8,7 @@
 #include <config.h>
 #include <common.h>
 #include <errno.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
 #include <linux/hdmi.h>
@@ -18,6 +18,7 @@
 #include <malloc.h>
 #include <video.h>
 #include <video_rockchip.h>
+#include <video_bridge.h>
 #include <dm/device.h>
 #include <dm/uclass-internal.h>
 #include <asm/arch-rockchip/resource_img.h>
@@ -26,6 +27,7 @@
 #include "rockchip_display.h"
 #include "rockchip_crtc.h"
 #include "rockchip_connector.h"
+#include "rockchip_bridge.h"
 #include "rockchip_phy.h"
 #include "rockchip_panel.h"
 #include <dm.h>
@@ -117,9 +119,6 @@ static int get_public_phy(struct display_state *state,
 			return 0;
 		}
 
-		conn_state->phy_dev = dev;
-		conn_state->phy_node = dev->node;
-
 		ret = rockchip_phy_init(phy);
 		if (ret) {
 			printf("failed to init phy driver\n");
@@ -128,7 +127,6 @@ static int get_public_phy(struct display_state *state,
 		conn_state->phy = phy;
 
 		printf("inno hdmi phy init success, save it\n");
-		data->phy_node = ofnode_to_offset(conn_state->phy_node);
 		data->phy_drv = conn_state->phy;
 		data->phy_init = true;
 		return 0;
@@ -169,72 +167,11 @@ static bool can_direct_logo(int bpp)
 	return bpp == 24 || bpp == 32;
 }
 
-
-static struct udevice *get_panel_device(struct display_state *state, ofnode conn_node)
-{
-	struct panel_state *panel_state = &state->panel_state;
-	struct udevice *dev;
-	struct connector_state *conn_state = &state->conn_state;
-	ofnode node, ports_node, port_node;
-	struct device_node *port, *panel, *ep;
-	int ph;
-	int ret;
-
-	node = dev_read_subnode(conn_state->dev, "panel");
-	if (ofnode_valid(node) &&
-	    of_device_is_available(ofnode_to_np(node))) {
-		ret = uclass_get_device_by_ofnode(UCLASS_PANEL, node, &dev);
-		if (!ret) {
-			panel_state->node = node;
-			return dev;
-		}
-	}
-
-	/* TODO: this path not tested */
-	ports_node = dev_read_subnode(conn_state->dev, "ports");
-	if (!ofnode_valid(ports_node))
-		return NULL;
-
-	ofnode_for_each_subnode(port_node, ports_node) {
-		ofnode_for_each_subnode(node, port_node) {
-			ph = ofnode_read_u32_default(node, "remote-endpoint", -1);
-			if (!ph)
-				continue;
-			ep = of_find_node_by_phandle(ph);
-			if (!ofnode_valid(np_to_ofnode(ep))) {
-				printf("Warn: can't find endpoint from phdl\n");
-				continue;
-			}
-			port = of_get_parent(ep);
-			if (!ofnode_valid(np_to_ofnode(port))) {
-				printf("Warn: can't find port node\n");
-				continue;
-			}
-			panel = of_get_parent(port);
-			if (!ofnode_valid(np_to_ofnode(panel))) {
-				printf("Warn: can't find panel node\n");
-				continue;
-			}
-			ret = uclass_get_device_by_ofnode(UCLASS_PANEL,
-							  np_to_ofnode(panel),
-							  &dev);
-			if (!ret) {
-				panel_state->node = np_to_ofnode(panel);
-				return dev;
-			}
-		}
-	}
-
-	return NULL;
-}
-
 static int connector_phy_init(struct display_state *state,
 			      struct public_phy_data *data)
 {
 	struct connector_state *conn_state = &state->conn_state;
-	struct rockchip_phy *phy;
-	struct udevice *dev;
-	int ret, type;
+	int type;
 
 	/* does this connector use public phy with others */
 	type = check_public_use_phy(state);
@@ -252,38 +189,9 @@ static int connector_phy_init(struct display_state *state,
 		}
 
 		/* if this phy has been initialized, get it directly */
-		conn_state->phy_node = offset_to_ofnode(data->phy_node);
 		conn_state->phy = (struct rockchip_phy *)data->phy_drv;
 		return 0;
 	}
-
-	/*
-	 * if this connector don't use the same phy with others,
-	 * just get phy as original method.
-	 */
-	ret = uclass_get_device_by_phandle(UCLASS_PHY, conn_state->dev, "phys",
-					   &dev);
-	if (ret) {
-		printf("Warn: can't find phy driver\n");
-		return 0;
-	}
-
-	phy = (struct rockchip_phy *)dev_get_driver_data(dev);
-	if (!phy) {
-		printf("failed to find phy driver\n");
-		return 0;
-	}
-
-	conn_state->phy_dev = dev;
-	conn_state->phy_node = dev->node;
-
-	ret = rockchip_phy_init(phy);
-	if (ret) {
-		printf("failed to init phy driver\n");
-		return ret;
-	}
-
-	conn_state->phy = phy;
 
 	return 0;
 }
@@ -292,37 +200,14 @@ static int connector_panel_init(struct display_state *state)
 {
 	struct connector_state *conn_state = &state->conn_state;
 	struct panel_state *panel_state = &state->panel_state;
-	struct udevice *dev;
-	ofnode conn_node = conn_state->node;
-	const struct rockchip_panel *panel;
+	const struct rockchip_panel *panel = panel_state->panel;
 	ofnode dsp_lut_node;
 	int ret, len;
 
-	dm_scan_fdt_dev(conn_state->dev);
-
-	dev = get_panel_device(state, conn_node);
-	if (!dev) {
+	if (!panel)
 		return 0;
-	}
 
-	panel = (const struct rockchip_panel *)dev_get_driver_data(dev);
-	if (!panel) {
-		printf("failed to find panel driver\n");
-		return 0;
-	}
-
-	panel_state->dev = dev;
-	panel_state->panel = panel;
-
-	if (panel->funcs && panel->funcs->init) {
-		ret = panel->funcs->init(state);
-		if (ret) {
-			printf("failed to init panel driver\n");
-			return ret;
-		}
-	}
-
-	dsp_lut_node = dev_read_subnode(dev, "dsp-lut");
+	dsp_lut_node = dev_read_subnode(panel->dev, "dsp-lut");
 	if (!ofnode_valid(dsp_lut_node)) {
 		debug("%s can not find dsp-lut node\n", __func__);
 		return 0;
@@ -379,6 +264,7 @@ int drm_mode_vrefresh(const struct drm_display_mode *mode)
 static int display_get_timing_from_dts(struct panel_state *panel_state,
 				       struct drm_display_mode *mode)
 {
+	struct rockchip_panel *panel = panel_state->panel;
 	int phandle;
 	int hactive, vactive, pixelclock;
 	int hfront_porch, hback_porch, hsync_len;
@@ -386,7 +272,7 @@ static int display_get_timing_from_dts(struct panel_state *panel_state,
 	int val, flags = 0;
 	ofnode timing, native_mode;
 
-	timing = dev_read_subnode(panel_state->dev, "display-timings");
+	timing = dev_read_subnode(panel->dev, "display-timings");
 	if (!ofnode_valid(timing))
 		return -ENODEV;
 
@@ -585,11 +471,9 @@ static int display_get_timing(struct display_state *state)
 	const struct drm_display_mode *m;
 	struct panel_state *panel_state = &state->panel_state;
 	const struct rockchip_panel *panel = panel_state->panel;
-	const struct rockchip_panel_funcs *panel_funcs = panel->funcs;
-	ofnode panel_node = panel_state->node;
-	int ret;
 
-	if (ofnode_valid(panel_node) && !display_get_timing_from_dts(panel_state, mode)) {
+	if (dev_of_valid(panel->dev) &&
+	    !display_get_timing_from_dts(panel_state, mode)) {
 		printf("Using display timing dts\n");
 		goto done;
 	}
@@ -604,24 +488,12 @@ static int display_get_timing(struct display_state *state)
 	if (conn_funcs->get_edid && !conn_funcs->get_edid(state)) {
 		int panel_bits_per_colourp;
 
-		/* In order to read EDID, the panel needs to be powered on */
-		if (panel_funcs->prepare) {
-			ret = panel_funcs->prepare(state);
-			if (ret) {
-				printf("failed to prepare panel\n");
-				return ret;
-			}
-		}
-
 		if (!edid_get_drm_mode((void *)&conn_state->edid,
 				     sizeof(conn_state->edid), mode,
 				     &panel_bits_per_colourp)) {
 			printf("Using display timing from edid\n");
 			edid_print_info((void *)&conn_state->edid);
 			goto done;
-		} else {
-			if (panel_funcs->unprepare)
-				panel_funcs->unprepare(state);
 		}
 	}
 
@@ -645,6 +517,7 @@ done:
 static int display_init(struct display_state *state)
 {
 	struct connector_state *conn_state = &state->conn_state;
+	struct panel_state *panel_state = &state->panel_state;
 	const struct rockchip_connector *conn = conn_state->connector;
 	const struct rockchip_connector_funcs *conn_funcs = conn->funcs;
 	struct crtc_state *crtc_state = &state->crtc_state;
@@ -667,11 +540,18 @@ static int display_init(struct display_state *state)
 		return -ENXIO;
 	}
 
+	if (panel_state->panel)
+		rockchip_panel_init(panel_state->panel);
+
 	if (conn_funcs->init) {
 		ret = conn_funcs->init(state);
 		if (ret)
 			goto deinit;
 	}
+
+	if (conn_state->phy)
+		rockchip_phy_init(conn_state->phy);
+
 	/*
 	 * support hotplug, but not connect;
 	 */
@@ -698,13 +578,24 @@ static int display_init(struct display_state *state)
 
 	if (conn_funcs->get_timing) {
 		ret = conn_funcs->get_timing(state);
-		if (ret)
-			goto deinit;
-	} else {
+	} else if (panel_state->panel) {
 		ret = display_get_timing(state);
-		if (ret)
-			goto deinit;
+	} else if (conn_state->bridge) {
+		int bpc;
+
+		ret = video_bridge_read_edid(conn_state->bridge->dev,
+					     conn_state->edid, EDID_SIZE);
+		if (ret > 0) {
+			ret = edid_get_drm_mode(conn_state->edid, ret, mode,
+						&bpc);
+			if (!ret)
+				edid_print_info((void *)&conn_state->edid);
+		}
 	}
+
+	if (ret)
+		goto deinit;
+
 	drm_mode_set_crtcinfo(mode, CRTC_INTERLACE_HALVE_V);
 
 	if (crtc_funcs->init) {
@@ -760,58 +651,6 @@ static int display_set_plane(struct display_state *state)
 	return 0;
 }
 
-static int display_panel_prepare(struct display_state *state)
-{
-	struct panel_state *panel_state = &state->panel_state;
-	const struct rockchip_panel *panel = panel_state->panel;
-
-	if (!panel || !panel->funcs || !panel->funcs->prepare) {
-		printf("%s: failed to find panel prepare funcs\n", __func__);
-		return -ENODEV;
-	}
-
-	return panel->funcs->prepare(state);
-}
-
-static int display_panel_enable(struct display_state *state)
-{
-	struct panel_state *panel_state = &state->panel_state;
-	const struct rockchip_panel *panel = panel_state->panel;
-
-	if (!panel || !panel->funcs || !panel->funcs->enable) {
-		printf("%s: failed to find panel enable funcs\n", __func__);
-		return -ENODEV;
-	}
-
-	return panel->funcs->enable(state);
-}
-
-static void display_panel_unprepare(struct display_state *state)
-{
-	struct panel_state *panel_state = &state->panel_state;
-	const struct rockchip_panel *panel = panel_state->panel;
-
-	if (!panel || !panel->funcs || !panel->funcs->unprepare) {
-		printf("%s: failed to find panel unprepare funcs\n", __func__);
-		return;
-	}
-
-	panel->funcs->unprepare(state);
-}
-
-static void display_panel_disable(struct display_state *state)
-{
-	struct panel_state *panel_state = &state->panel_state;
-	const struct rockchip_panel *panel = panel_state->panel;
-
-	if (!panel || !panel->funcs || !panel->funcs->disable) {
-		printf("%s: failed to find panel disable funcs\n", __func__);
-		return;
-	}
-
-	panel->funcs->disable(state);
-}
-
 static int display_enable(struct display_state *state)
 {
 	struct connector_state *conn_state = &state->conn_state;
@@ -820,7 +659,7 @@ static int display_enable(struct display_state *state)
 	struct crtc_state *crtc_state = &state->crtc_state;
 	const struct rockchip_crtc *crtc = crtc_state->crtc;
 	const struct rockchip_crtc_funcs *crtc_funcs = crtc->funcs;
-	int ret = 0;
+	struct panel_state *panel_state = &state->panel_state;
 
 	display_init(state);
 
@@ -830,47 +669,33 @@ static int display_enable(struct display_state *state)
 	if (state->is_enable)
 		return 0;
 
-	if (crtc_funcs->prepare) {
-		ret = crtc_funcs->prepare(state);
-		if (ret)
-			return ret;
-	}
+	if (crtc_funcs->prepare)
+		crtc_funcs->prepare(state);
 
-	if (conn_funcs->prepare) {
-		ret = conn_funcs->prepare(state);
-		if (ret)
-			goto unprepare_crtc;
-	}
+	if (conn_funcs->prepare)
+		conn_funcs->prepare(state);
 
-	display_panel_prepare(state);
+	if (conn_state->bridge)
+		rockchip_bridge_pre_enable(conn_state->bridge);
 
-	if (crtc_funcs->enable) {
-		ret = crtc_funcs->enable(state);
-		if (ret)
-			goto unprepare_conn;
-	}
+	if (panel_state->panel)
+		rockchip_panel_prepare(panel_state->panel);
 
-	if (conn_funcs->enable) {
-		ret = conn_funcs->enable(state);
-		if (ret)
-			goto disable_crtc;
-	}
+	if (crtc_funcs->enable)
+		crtc_funcs->enable(state);
 
-	display_panel_enable(state);
+	if (conn_funcs->enable)
+		conn_funcs->enable(state);
+
+	if (conn_state->bridge)
+		rockchip_bridge_enable(conn_state->bridge);
+
+	if (panel_state->panel)
+		rockchip_panel_enable(panel_state->panel);
 
 	state->is_enable = true;
-	return 0;
 
-disable_crtc:
-	if (crtc_funcs->disable)
-		crtc_funcs->disable(state);
-unprepare_conn:
-	if (conn_funcs->unprepare)
-		conn_funcs->unprepare(state);
-unprepare_crtc:
-	if (crtc_funcs->unprepare)
-		crtc_funcs->unprepare(state);
-	return ret;
+	return 0;
 }
 
 static int display_disable(struct display_state *state)
@@ -881,6 +706,7 @@ static int display_disable(struct display_state *state)
 	struct crtc_state *crtc_state = &state->crtc_state;
 	const struct rockchip_crtc *crtc = crtc_state->crtc;
 	const struct rockchip_crtc_funcs *crtc_funcs = crtc->funcs;
+	struct panel_state *panel_state = &state->panel_state;
 
 	if (!state->is_init)
 		return 0;
@@ -888,15 +714,23 @@ static int display_disable(struct display_state *state)
 	if (!state->is_enable)
 		return 0;
 
-	display_panel_disable(state);
+	if (panel_state->panel)
+		rockchip_panel_disable(panel_state->panel);
 
-	if (crtc_funcs->disable)
-		crtc_funcs->disable(state);
+	if (conn_state->bridge)
+		rockchip_bridge_disable(conn_state->bridge);
 
 	if (conn_funcs->disable)
 		conn_funcs->disable(state);
 
-	display_panel_unprepare(state);
+	if (crtc_funcs->disable)
+		crtc_funcs->disable(state);
+
+	if (panel_state->panel)
+		rockchip_panel_unprepare(panel_state->panel);
+
+	if (conn_state->bridge)
+		rockchip_bridge_post_disable(conn_state->bridge);
 
 	if (conn_funcs->unprepare)
 		conn_funcs->unprepare(state);
@@ -1232,6 +1066,126 @@ void rockchip_show_logo(void)
 	}
 }
 
+enum {
+	PORT_DIR_IN,
+	PORT_DIR_OUT,
+};
+
+static struct rockchip_panel *rockchip_of_find_panel(struct udevice *dev)
+{
+	ofnode panel_node, ports, port, ep;
+	struct udevice *panel_dev;
+	int ret;
+
+	panel_node = dev_read_subnode(dev, "panel");
+	if (ofnode_valid(panel_node) && ofnode_is_available(panel_node)) {
+		ret = uclass_get_device_by_ofnode(UCLASS_PANEL, panel_node,
+						  &panel_dev);
+		if (!ret)
+			goto found;
+	}
+
+	ports = dev_read_subnode(dev, "ports");
+	if (!ofnode_valid(ports))
+		return NULL;
+
+	ofnode_for_each_subnode(port, ports) {
+		u32 reg;
+
+		if (ofnode_read_u32(port, "reg", &reg))
+			continue;
+
+		if (reg != PORT_DIR_OUT)
+			continue;
+
+		ofnode_for_each_subnode(ep, port) {
+			ofnode _ep, _port;
+			uint phandle;
+
+			if (ofnode_read_u32(ep, "remote-endpoint", &phandle))
+				continue;
+
+			_ep = ofnode_get_by_phandle(phandle);
+			if (!ofnode_valid(_ep))
+				continue;
+
+			_port = ofnode_get_parent(_ep);
+			if (!ofnode_valid(_port))
+				continue;
+
+			panel_node = ofnode_get_parent(_port);
+			if (!ofnode_valid(panel_node))
+				continue;
+
+			ret = uclass_get_device_by_ofnode(UCLASS_PANEL,
+							  panel_node,
+							  &panel_dev);
+			if (!ret)
+				goto found;
+		}
+	}
+
+	return NULL;
+
+found:
+	return (struct rockchip_panel *)dev_get_driver_data(panel_dev);
+}
+
+static struct rockchip_bridge *rockchip_of_find_bridge(struct udevice *conn_dev)
+{
+	ofnode node, ports, port, ep;
+	struct udevice *dev;
+	int ret;
+
+	ports = dev_read_subnode(conn_dev, "ports");
+	if (!ofnode_valid(ports))
+		return NULL;
+
+	ofnode_for_each_subnode(port, ports) {
+		u32 reg;
+
+		if (ofnode_read_u32(port, "reg", &reg))
+			continue;
+
+		if (reg != PORT_DIR_OUT)
+			continue;
+
+		ofnode_for_each_subnode(ep, port) {
+			ofnode _ep, _port, _ports;
+			uint phandle;
+
+			if (ofnode_read_u32(ep, "remote-endpoint", &phandle))
+				continue;
+
+			_ep = ofnode_get_by_phandle(phandle);
+			if (!ofnode_valid(_ep))
+				continue;
+
+			_port = ofnode_get_parent(_ep);
+			if (!ofnode_valid(_port))
+				continue;
+
+			_ports = ofnode_get_parent(_port);
+			if (!ofnode_valid(_ports))
+				continue;
+
+			node = ofnode_get_parent(_ports);
+			if (!ofnode_valid(node))
+				continue;
+
+			ret = uclass_get_device_by_ofnode(UCLASS_VIDEO_BRIDGE,
+							  node, &dev);
+			if (!ret)
+				goto found;
+		}
+	}
+
+	return NULL;
+
+found:
+	return (struct rockchip_bridge *)dev_get_driver_data(dev);
+}
+
 static struct udevice *rockchip_of_find_connector(ofnode endpoint)
 {
 	ofnode ep, port, ports, conn;
@@ -1265,6 +1219,18 @@ static struct udevice *rockchip_of_find_connector(ofnode endpoint)
 	return dev;
 }
 
+static struct rockchip_phy *rockchip_of_find_phy(struct udevice *dev)
+{
+	struct udevice *phy_dev;
+	int ret;
+
+	ret = uclass_get_device_by_phandle(UCLASS_PHY, dev, "phys", &phy_dev);
+	if (ret)
+		return NULL;
+
+	return (struct rockchip_phy *)dev_get_driver_data(phy_dev);
+}
+
 static int rockchip_display_probe(struct udevice *dev)
 {
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
@@ -1274,6 +1240,9 @@ static int rockchip_display_probe(struct udevice *dev)
 	struct udevice *crtc_dev, *conn_dev;
 	struct rockchip_crtc *crtc;
 	const struct rockchip_connector *conn;
+	struct rockchip_panel *panel = NULL;
+	struct rockchip_bridge *bridge = NULL;
+	struct rockchip_phy *phy = NULL;
 	struct display_state *s;
 	const char *name;
 	int ret;
@@ -1338,6 +1307,14 @@ static int rockchip_display_probe(struct udevice *dev)
 
 		conn = (const struct rockchip_connector *)dev_get_driver_data(conn_dev);
 
+		phy = rockchip_of_find_phy(conn_dev);
+
+		bridge = rockchip_of_find_bridge(conn_dev);
+		if (bridge)
+			panel = rockchip_of_find_panel(bridge->dev);
+		else
+			panel = rockchip_of_find_panel(conn_dev);
+
 		s = malloc(sizeof(*s));
 		if (!s)
 			continue;
@@ -1363,9 +1340,12 @@ static int rockchip_display_probe(struct udevice *dev)
 			s->charge_logo_mode = ROCKCHIP_DISPLAY_CENTER;
 
 		s->blob = blob;
+		s->panel_state.panel = panel;
 		s->conn_state.node = conn_dev->node;
 		s->conn_state.dev = conn_dev;
 		s->conn_state.connector = conn;
+		s->conn_state.phy = phy;
+		s->conn_state.bridge = bridge;
 		s->conn_state.overscan.left_margin = 100;
 		s->conn_state.overscan.right_margin = 100;
 		s->conn_state.overscan.top_margin = 100;
@@ -1375,6 +1355,13 @@ static int rockchip_display_probe(struct udevice *dev)
 		s->crtc_state.crtc = crtc;
 		s->crtc_state.crtc_id = get_crtc_id(np_to_ofnode(ep_node));
 		s->node = node;
+
+		if (bridge)
+			bridge->state = s;
+
+		if (panel)
+			panel->state = s;
+
 		get_crtc_mcu_mode(&s->crtc_state);
 
 		if (connector_panel_init(s)) {

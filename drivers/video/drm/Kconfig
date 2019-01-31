@@ -1,6 +1,8 @@
 menuconfig DRM_ROCKCHIP
 	bool "Rockchip DRM Support"
 	depends on DM_VIDEO && OF_LIVE
+	select VIDEO_BRIDGE
+	select PHY
 	help
 	  Rockchip SoCs provide video output capabilities for High-Definition
 	  Multimedia Interface (HDMI), Low-voltage Differential Signalling
@@ -28,6 +30,20 @@ config ROCKCHIP_INNO_HDMI_PHY
 	 This selects support for INNO HDMI PHY. If you want to
 	 use HDMI or TVE in RK322XH or RK322X, you should selet
 	 this option.
+
+config DRM_ROCKCHIP_INNO_VIDEO_PHY
+	tristate "Rockchip INNO LVDS/TTL PHY driver"
+	depends on DRM_ROCKCHIP
+	help
+	  Enable this to support the Rockchip LVDS/TTL PHY
+	  with Innosilicon IP block.
+
+config DRM_ROCKCHIP_INNO_VIDEO_COMBO_PHY
+	tristate "Rockchip INNO MIPI/LVDS/TTL PHY driver"
+	depends on DRM_ROCKCHIP
+	help
+	  Enable this to support the Rockchip MIPI/LVDS/TTL PHY
+	  with Innosilicon IP block.
 
 config DRM_ROCKCHIP_MIPI_DSI
 	bool
@@ -69,6 +85,15 @@ config DRM_ROCKCHIP_RGB
 	help
 	  Choose this option to enable support for Rockchip RGB driver.
 	  say Y to enable its driver.
+
+config DRM_ROCKCHIP_RK618
+	bool "Rockchip RK618 display bridge driver"
+	depends on DRM_ROCKCHIP
+	select DRM_ROCKCHIP_PANEL
+	select VIDEO_BRIDGE
+	help
+	  Choose this option to enable support for Rockchip RK618 display
+	  bridge chips driver. say Y to enable its driver.
 
 config ROCKCHIP_DRM_TVE
 	bool "Rockchip TVE Support"

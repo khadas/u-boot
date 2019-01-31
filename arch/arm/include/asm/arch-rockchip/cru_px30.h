@@ -43,6 +43,10 @@ struct px30_clk_priv {
 	struct px30_cru *cru;
 	ulong gpll_hz;
 	ulong armclk_hz;
+	ulong armclk_enter_hz;
+	ulong armclk_init_hz;
+	bool sync_kernel;
+	bool set_armclk_rate;
 };
 
 struct px30_pmuclk_priv {
@@ -294,6 +298,19 @@ enum {
 	BUS_PCLK_DIV_MASK	= 3 << BUS_PCLK_DIV_SHIFT,
 	BUS_HCLK_DIV_SHIFT	= 0,
 	BUS_HCLK_DIV_MASK	= 0x1f << BUS_HCLK_DIV_SHIFT,
+
+	/* CRU_CLK_SEL25_CON */
+	CRYPTO_APK_SEL_SHIFT	= 14,
+	CRYPTO_APK_PLL_SEL_MASK	= 3 << CRYPTO_APK_SEL_SHIFT,
+	CRYPTO_PLL_SEL_GPLL	= 0,
+	CRYPTO_PLL_SEL_CPLL,
+	CRYPTO_PLL_SEL_NPLL	= 0,
+	CRYPTO_APK_DIV_SHIFT	= 8,
+	CRYPTO_APK_DIV_MASK	= 0x1f << CRYPTO_APK_DIV_SHIFT,
+	CRYPTO_PLL_SEL_SHIFT	= 6,
+	CRYPTO_PLL_SEL_MASK	= 3 << CRYPTO_PLL_SEL_SHIFT,
+	CRYPTO_DIV_SHIFT	= 0,
+	CRYPTO_DIV_MASK		= 0x1f << CRYPTO_DIV_SHIFT,
 
 	/* CRU_CLK_SEL37_CON */
 	UART2_PLL_SEL_SHIFT	= 14,

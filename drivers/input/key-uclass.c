@@ -11,6 +11,13 @@
 
 static LIST_HEAD(key_list);
 
+const char *evt_name[] = {
+	"Not down",
+	"Down",
+	"Long down",
+	"Not exist",
+};
+
 static inline uint64_t arch_counter_get_cntpct(void)
 {
 	uint64_t cval = 0;
@@ -50,8 +57,8 @@ static int key_read_adc_simple_event(struct input_key *key, unsigned int adcval)
 	else
 		min = 0;
 
-	debug("%s: %s: val=%d, max=%d, min=%d, adcval=%d\n",
-	      __func__, key->name, key->adcval, max, min, adcval);
+	debug("%s: '%s' configure adc=%d: range[%d~%d]; hw adcval=%d\n",
+	      __func__, key->name, key->adcval, min, max, adcval);
 
 	/* Check */
 	if ((adcval <= max) && (adcval >= min)) {
@@ -137,41 +144,25 @@ void key_add(struct input_key *key)
 	if (!key)
 		return;
 
+	if (!key->parent) {
+		printf("Err: Can't find key(code=%d) device\n", key->code);
+		return;
+	}
+
+	key->pre_reloc = dev_read_bool(key->parent, "u-boot,dm-pre-reloc");
 	list_add_tail(&key->link, &key_list);
 }
 
-int key_read(int code)
+static int __key_read(struct input_key *key)
 {
-	struct udevice *dev;
-	struct input_key *key;
-	static int initialized;
 	unsigned int adcval;
 	int keyval = KEY_NOT_EXIST;
-	int found = 0, ret;
-
-	/* Initialize all key drivers */
-	if (!initialized) {
-		for (uclass_first_device(UCLASS_KEY, &dev);
-		     dev;
-		     uclass_next_device(&dev)) {
-			debug("%s: dev.name = %s\n", __func__, dev->name);
-			;
-		}
-	}
-
-	/* Search on the key list */
-	list_for_each_entry(key, &key_list, link) {
-		if (key->code == code) {
-			found = 1;
-			break;
-		}
-	}
-	if (!found)
-		goto out;
+	int ret;
 
 	/* Is a adc key? */
 	if (key->type & ADC_KEY) {
-		ret = adc_channel_single_shot("saradc", key->channel, &adcval);
+		ret = adc_channel_single_shot("saradc",
+					      key->channel, &adcval);
 		if (ret)
 			printf("%s: failed to read saradc, ret=%d\n",
 			       key->name, ret);
@@ -180,19 +171,61 @@ int key_read(int code)
 	/* Is a gpio key? */
 	} else if (key->type & GPIO_KEY) {
 		/* All pwrkey must register as an interrupt event */
-		if (key->code == KEY_POWER) {
+		if (key->code == KEY_POWER)
 			keyval = key_read_gpio_interrupt_event(key);
-		} else {
+		else
 			keyval = key_read_gpio_simple_event(key);
-		}
 	} else {
 		printf("%s: invalid key type!\n", __func__);
 	}
 
-	debug("%s: key.name=%s, code=%d, keyval=%d\n",
-	      __func__, key->name, key->code, keyval);
+	debug("%s: '%s'(code=%d) is %s\n",
+	      __func__, key->name, key->code, evt_name[keyval]);
 
-out:
+	return keyval;
+}
+
+int key_read(int code)
+{
+	struct udevice *dev;
+	struct input_key *key;
+	static int initialized;
+	int keyval = KEY_NOT_EXIST;
+
+	/* Initialize all key drivers */
+	if (!initialized) {
+		for (uclass_first_device(UCLASS_KEY, &dev);
+		     dev;
+		     uclass_next_device(&dev)) {
+			debug("%s: have found key driver '%s'\n\n",
+			      __func__, dev->name);
+		}
+	}
+
+	/* The key from kernel dtb has higher priority */
+	debug("Reading key from kernel\n");
+	list_for_each_entry(key, &key_list, link) {
+		if (key->pre_reloc || (key->code != code))
+			continue;
+
+		keyval = __key_read(key);
+		if (key_is_pressed(keyval))
+			return keyval;
+	}
+
+	/* If not found any key from kernel dtb, reading from U-Boot dtb */
+	if (keyval == KEY_NOT_EXIST) {
+		debug("Reading key from U-Boot\n");
+		list_for_each_entry(key, &key_list, link) {
+			if (!key->pre_reloc || (key->code != code))
+				continue;
+
+			keyval = __key_read(key);
+			if (key_is_pressed(keyval))
+				return keyval;
+		}
+	}
+
 	return keyval;
 }
 

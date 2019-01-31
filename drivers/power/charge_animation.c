@@ -342,6 +342,11 @@ static int charge_animation_show(struct udevice *dev)
  * 6. Enter charge !
  *
  */
+	if (!fuel_gauge_bat_is_exist(fg)) {
+		printf("Exit charge: battery is not exist\n");
+		return 0;
+	}
+
 	/* Extrem low power charge */
 	ret = charge_extrem_low_power(dev);
 	if (ret < 0) {
@@ -350,8 +355,8 @@ static int charge_animation_show(struct udevice *dev)
 	}
 
 	/* If there is preboot command, exit */
-	if (preboot) {
-		debug("exit charge, due to preboot: %s\n", preboot);
+	if (preboot && !strstr(preboot, "dvfs")) {
+		printf("Exit charge: due to preboot cmd '%s'\n", preboot);
 		return 0;
 	}
 
@@ -360,7 +365,7 @@ static int charge_animation_show(struct udevice *dev)
 	boot_mode = rockchip_get_boot_mode();
 	if ((boot_mode != BOOT_MODE_CHARGING) &&
 	    (boot_mode != BOOT_MODE_UNDEFINE)) {
-		debug("exit charge, due to boot mode: %d\n", boot_mode);
+		printf("Exit charge: due to boot mode\n");
 		return 0;
 	}
 #endif
@@ -368,7 +373,7 @@ static int charge_animation_show(struct udevice *dev)
 	/* Not charger online, exit */
 	charging = fuel_gauge_get_chrg_online(fg);
 	if (charging <= 0) {
-		debug("exit charge, due to charger offline\n");
+		printf("Exit charge: due to charger offline\n");
 		return 0;
 	}
 
@@ -380,7 +385,7 @@ static int charge_animation_show(struct udevice *dev)
 
 	/* Not enable U-Boot charge, exit */
 	if (!pdata->uboot_charge) {
-		debug("exit charge, due to not enable uboot charge\n");
+		printf("Exit charge: due to not enable uboot charge\n");
 		return 0;
 	}
 

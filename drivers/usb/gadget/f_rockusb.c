@@ -8,7 +8,7 @@
 #include <asm/io.h>
 #include <asm/arch/boot_mode.h>
 #include <asm/arch/chip_info.h>
-#include <optee_include/OpteeClientInterface.h>
+#include <write_keybox.h>
 
 #ifdef CONFIG_ROCKCHIP_VENDOR_PARTITION
 #include <asm/arch/vendor.h>
@@ -363,11 +363,13 @@ static int rkusb_do_vs_write(struct fsg_common *common)
 			} else {
 				/* RPMB */
 #ifdef CONFIG_OPTEE_V1
+#ifdef CONFIG_ANDROID_KEYMASTER_CA
 				rc =
 				write_keybox_to_secure_storage((u8 *)data,
 							       vhead->size);
 				if (rc < 0)
 					return -EIO;
+#endif
 #endif
 			}
 

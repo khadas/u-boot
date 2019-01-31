@@ -8,7 +8,6 @@
 #include <asm/arch/clock.h>
 #include <asm/io.h>
 #include <fdtdec.h>
-#include <libfdt.h>
 #include <syscon.h>
 
 #include "../gadget/dwc2_udc_otg_priv.h"
@@ -65,6 +64,20 @@ static void property_enable(struct dwc2_plat_otg_data *pdata,
 	val = (tmp << reg->bitstart) | (mask << BIT_WRITEABLE_SHIFT);
 
 	writel(val, pdata->regs_phy + reg->offset);
+}
+
+int rockchip_u2phy_vbus_detect(void)
+{
+	u32 val = 0;
+
+#ifdef CONFIG_ROCKCHIP_RK3288
+	u32 grf_base = (u32)syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+
+	val = readl(grf_base + 0x288);
+	val = (val & BIT(14)) >> 14;
+#endif
+
+	return val;
 }
 
 static int otg_phy_parse(struct dwc2_udc *dev)

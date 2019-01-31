@@ -51,7 +51,10 @@ struct rk3308_clk_priv {
 	ulong dpll_hz;
 	ulong vpll0_hz;
 	ulong vpll1_hz;
-	bool is_assigned;
+	ulong armclk_enter_hz;
+	ulong armclk_init_hz;
+	bool sync_kernel;
+	bool set_armclk_rate;
 };
 
 struct rk3308_cru {
@@ -165,6 +168,19 @@ enum {
 	BUS_PCLK_DIV_MASK	= 0x1f << BUS_PCLK_DIV_SHIFT,
 	BUS_HCLK_DIV_SHIFT	= 0,
 	BUS_HCLK_DIV_MASK	= 0x1f << BUS_HCLK_DIV_SHIFT,
+
+	/* CRU_CLK_SEL7_CON */
+	CRYPTO_APK_SEL_SHIFT	= 14,
+	CRYPTO_APK_PLL_SEL_MASK	= 3 << CRYPTO_APK_SEL_SHIFT,
+	CRYPTO_PLL_SEL_DPLL	= 0,
+	CRYPTO_PLL_SEL_VPLL0,
+	CRYPTO_PLL_SEL_VPLL1	= 0,
+	CRYPTO_APK_DIV_SHIFT	= 8,
+	CRYPTO_APK_DIV_MASK	= 0x1f << CRYPTO_APK_DIV_SHIFT,
+	CRYPTO_PLL_SEL_SHIFT	= 6,
+	CRYPTO_PLL_SEL_MASK	= 3 << CRYPTO_PLL_SEL_SHIFT,
+	CRYPTO_DIV_SHIFT	= 0,
+	CRYPTO_DIV_MASK		= 0x1f << CRYPTO_DIV_SHIFT,
 
 	/* CRU_CLK_SEL8_CON */
 	DCLK_VOP_SEL_SHIFT	= 14,

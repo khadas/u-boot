@@ -37,6 +37,24 @@ struct pll_div {
 	u32 no;
 };
 
+#ifndef CONFIG_SPL_BUILD
+#define RK3288_CLK_DUMP(_id, _name, _iscru)	\
+{						\
+	.id = _id,				\
+	.name = _name,				\
+	.is_cru = _iscru,			\
+}
+
+static const struct rk3288_clk_info clks_dump[] = {
+	RK3288_CLK_DUMP(PLL_APLL, "apll", true),
+	RK3288_CLK_DUMP(PLL_DPLL, "dpll", true),
+	RK3288_CLK_DUMP(PLL_CPLL, "cpll", true),
+	RK3288_CLK_DUMP(PLL_GPLL, "gpll", true),
+	RK3288_CLK_DUMP(PLL_NPLL, "npll", true),
+	RK3288_CLK_DUMP(ACLK_CPU, "aclk_bus", true),
+};
+#endif
+
 enum {
 	VCO_MAX_HZ	= 2200U * 1000000,
 	VCO_MIN_HZ	= 440 * 1000000,
@@ -126,6 +144,10 @@ enum {
 	CLK_SARADC_DIV_CON_MASK		= GENMASK(15, 8),
 	CLK_SARADC_DIV_CON_WIDTH	= 8,
 
+	/* CLKSEL26 */
+	CLK_CRYPTO_DIV_CON_SHIFT	= 6,
+	CLK_CRYPTO_DIV_CON_MASK		= GENMASK(7, 6),
+
 	SOCSTS_DPLL_LOCK	= 1 << 5,
 	SOCSTS_APLL_LOCK	= 1 << 6,
 	SOCSTS_CPLL_LOCK	= 1 << 7,
@@ -143,7 +165,7 @@ enum {
 
 /* Keep divisors as low as possible to reduce jitter and power usage */
 static const struct pll_div apll_init_cfg = PLL_DIVISORS(APLL_HZ, 1, 1);
-static const struct pll_div gpll_init_cfg = PLL_DIVISORS(GPLL_HZ, 2, 2);
+static const struct pll_div gpll_init_cfg = PLL_DIVISORS(GPLL_HZ, 2, 4);
 static const struct pll_div cpll_init_cfg = PLL_DIVISORS(CPLL_HZ, 1, 2);
 
 static int rkclk_set_pll(struct rk3288_cru *cru, enum rk_clk_id clk_id,
@@ -167,7 +189,12 @@ static int rkclk_set_pll(struct rk3288_cru *cru, enum rk_clk_id clk_id,
 	rk_clrsetreg(&pll->con0, CLKR_MASK | PLL_OD_MASK,
 		     ((div->nr - 1) << CLKR_SHIFT) | (div->no - 1));
 	rk_clrsetreg(&pll->con1, CLKF_MASK, div->nf - 1);
-	rk_clrsetreg(&pll->con2, PLL_BWADJ_MASK, (div->nf >> 1) - 1);
+
+	/* adjust gpll bw for better clock jitter */
+	if (pll_id == 3)
+		rk_clrsetreg(&pll->con2, PLL_BWADJ_MASK, 0);
+	else
+		rk_clrsetreg(&pll->con2, PLL_BWADJ_MASK, (div->nf >> 1) - 1);
 
 	udelay(10);
 
@@ -797,6 +824,46 @@ static ulong rockchip_tsadc_set_clk(struct rk3288_cru *cru, uint hz)
 	return rockchip_tsadc_get_clk(cru);
 }
 
+static ulong rockchip_aclk_cpu_get_clk(struct rk3288_cru *cru, uint gclk_rate)
+{
+	u32 div, val;
+
+	val = readl(&cru->cru_clksel_con[1]);
+	div = (val & PD_BUS_ACLK_DIV0_MASK) >> PD_BUS_ACLK_DIV0_SHIFT;
+
+	return DIV_TO_RATE(gclk_rate, div);
+}
+
+#ifndef CONFIG_SPL_BUILD
+
+static ulong rockchip_crypto_get_clk(struct rk3288_cru *cru, uint gclk_rate)
+{
+	u32 div, val;
+
+	val = readl(&cru->cru_clksel_con[26]);
+	div = (val & CLK_CRYPTO_DIV_CON_MASK) >> CLK_CRYPTO_DIV_CON_SHIFT;
+
+	return DIV_TO_RATE(rockchip_aclk_cpu_get_clk(cru, gclk_rate), div);
+}
+
+static ulong rockchip_crypto_set_clk(struct rk3288_cru *cru,
+				     uint gclk_rate, uint hz)
+{
+	int src_clk_div;
+	uint p_rate;
+
+	p_rate = rockchip_aclk_cpu_get_clk(cru, gclk_rate);
+	src_clk_div = DIV_ROUND_UP(p_rate, hz) - 1;
+	assert(src_clk_div < 3);
+
+	rk_clrsetreg(&cru->cru_clksel_con[26],
+		     CLK_CRYPTO_DIV_CON_MASK,
+		     src_clk_div << CLK_CRYPTO_DIV_CON_SHIFT);
+
+	return rockchip_crypto_get_clk(cru, gclk_rate);
+}
+#endif
+
 static ulong rk3288_clk_get_rate(struct clk *clk)
 {
 	struct rk3288_clk_priv *priv = dev_get_priv(clk->dev);
@@ -837,6 +904,14 @@ static ulong rk3288_clk_get_rate(struct clk *clk)
 	case SCLK_TSADC:
 		new_rate = rockchip_tsadc_get_clk(priv->cru);
 		break;
+	case ACLK_CPU:
+		new_rate = rockchip_aclk_cpu_get_clk(priv->cru, gclk_rate);
+		break;
+#ifndef CONFIG_SPL_BUILD
+	case SCLK_CRYPTO:
+		new_rate = rockchip_crypto_get_clk(priv->cru, gclk_rate);
+		break;
+#endif
 	default:
 		return -ENOENT;
 	}
@@ -904,6 +979,9 @@ static ulong rk3288_clk_set_rate(struct clk *clk, ulong rate)
 		udelay(1);
 		rk_clrreg(&cru->cru_clkgate_con[7], 1 << 9);
 		new_rate = rate;
+		break;
+	case SCLK_CRYPTO:
+		new_rate = rockchip_crypto_set_clk(priv->cru, gclk_rate, rate);
 		break;
 #endif
 	case SCLK_SARADC:
@@ -1194,8 +1272,20 @@ static int rk3288_clk_probe(struct udevice *dev)
 			init_clocks = true;
 	}
 
-	if (init_clocks)
+	priv->sync_kernel = false;
+	if (!priv->armclk_enter_hz)
+		priv->armclk_enter_hz = rkclk_pll_get_rate(priv->cru,
+							   CLK_ARM);
+
+	if (init_clocks) {
 		rkclk_init(priv->cru, priv->grf);
+		if (!priv->armclk_init_hz)
+			priv->armclk_init_hz = rkclk_pll_get_rate(priv->cru,
+								  CLK_ARM);
+	} else {
+		if (!priv->armclk_init_hz)
+			priv->armclk_init_hz = priv->armclk_enter_hz;
+	}
 
 	return 0;
 }
@@ -1252,3 +1342,69 @@ U_BOOT_DRIVER(rockchip_rk3288_cru) = {
 	.ofdata_to_platdata	= rk3288_clk_ofdata_to_platdata,
 	.probe		= rk3288_clk_probe,
 };
+
+#ifndef CONFIG_SPL_BUILD
+/**
+ * soc_clk_dump() - Print clock frequencies
+ * Returns zero on success
+ *
+ * Implementation for the clk dump command.
+ */
+int soc_clk_dump(void)
+{
+	struct udevice *cru_dev;
+	struct rk3288_clk_priv *priv;
+	const struct rk3288_clk_info *clk_dump;
+	struct clk clk;
+	unsigned long clk_count = ARRAY_SIZE(clks_dump);
+	unsigned long rate;
+	int i, ret;
+
+	ret = uclass_get_device_by_driver(UCLASS_CLK,
+					  DM_GET_DRIVER(rockchip_rk3288_cru),
+					  &cru_dev);
+	if (ret) {
+		printf("%s failed to get cru device\n", __func__);
+		return ret;
+	}
+
+	priv = dev_get_priv(cru_dev);
+	printf("CLK: (%s. arm: enter %lu KHz, init %lu KHz, kernel %lu%s)\n",
+	       priv->sync_kernel ? "sync kernel" : "uboot",
+	       priv->armclk_enter_hz / 1000,
+	       priv->armclk_init_hz / 1000,
+	       priv->set_armclk_rate ? priv->armclk_hz / 1000 : 0,
+	       priv->set_armclk_rate ? " KHz" : "N/A");
+	for (i = 0; i < clk_count; i++) {
+		clk_dump = &clks_dump[i];
+		if (clk_dump->name) {
+			clk.id = clk_dump->id;
+			if (clk_dump->is_cru)
+				ret = clk_request(cru_dev, &clk);
+			if (ret < 0)
+				return ret;
+
+			rate = clk_get_rate(&clk);
+			clk_free(&clk);
+			if (i == 0) {
+				if (rate < 0)
+					printf("  %s %s\n", clk_dump->name,
+					       "unknown");
+				else
+					printf("  %s %lu KHz\n", clk_dump->name,
+					       rate / 1000);
+			} else {
+				if (rate < 0)
+					printf("  %s %s\n", clk_dump->name,
+					       "unknown");
+				else
+					printf("  %s %lu KHz\n", clk_dump->name,
+					       rate / 1000);
+			}
+		}
+	}
+
+	return 0;
+}
+#endif
+

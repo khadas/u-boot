@@ -55,6 +55,7 @@
 #include <linux/compiler.h>
 #include <linux/err.h>
 #include <efi_loader.h>
+#include <sysmem.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -172,22 +173,7 @@ static int initr_reloc_global_data(void)
 
 static int initr_serial(void)
 {
-/*
- * 1. Serial has been initialized in board_f.c => serial_init(), there is
- *    no special reason to init it again;
- *
- * 2. Pre-serial works depending on aliases to get pre-serial phandle when
- *    parse dtb. If CONFIG_USING_KERNEL_DTB is enabled, there are both kernel
- *    dtb and U-Boot dtb aliases added into aliases_lookup, these nodes have
- *    same names but different phanles(U-Boot nodes has high prior), this may
- *    lead a wrong aliases node finding if try to get a node after kenrel dtb
- *    unflattened, i.e. using U-Boot phandle to get kernel dtb node!!
- *
- *    Notice: of_alias_dump() is provided to dump all aliases node.
- */
-#ifndef CONFIG_USING_KERNEL_DTB
 	serial_initialize();
-#endif
 	return 0;
 }
 
@@ -781,6 +767,9 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 	initr_barrier,
 	initr_malloc,
+#ifdef CONFIG_SYSMEM
+	sysmem_init,		/* After malloc setup */
+#endif
 	log_init,
 	initr_bootstage,	/* Needs malloc() but has its own timer */
 	initr_console_record,

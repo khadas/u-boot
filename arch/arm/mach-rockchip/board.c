@@ -9,6 +9,7 @@
 #include <debug_uart.h>
 #include <ram.h>
 #include <syscon.h>
+#include <sysmem.h>
 #include <asm/io.h>
 #include <asm/arch/vendor.h>
 #include <misc.h>
@@ -17,8 +18,15 @@
 #include <asm/arch/periph.h>
 #include <asm/arch/boot_mode.h>
 #include <asm/arch/rk_atags.h>
+#include <asm/arch/param.h>
 #ifdef CONFIG_DM_CHARGE_DISPLAY
 #include <power/charge_display.h>
+#endif
+#ifdef CONFIG_DM_DVFS
+#include <dvfs.h>
+#endif
+#ifdef CONFIG_ROCKCHIP_IO_DOMAIN
+#include <io-domain.h>
 #endif
 #ifdef CONFIG_DM_REGULATOR
 #include <power/regulator.h>
@@ -106,27 +114,6 @@ int fb_set_reboot_flag(void)
 }
 #endif
 
-#ifdef CONFIG_DM_CHARGE_DISPLAY
-static int charge_display(void)
-{
-	int ret;
-	struct udevice *dev;
-
-	ret = uclass_get_device(UCLASS_CHARGE_DISPLAY, 0, &dev);
-	if (ret) {
-		if (ret != -ENODEV) {
-			debug("Get UCLASS CHARGE DISPLAY failed: %d\n", ret);
-			return ret;
-		} else {
-			debug("Can't find charge display driver\n");
-		}
-		return 0;
-	}
-
-	return charge_display_show(dev);
-}
-#endif
-
 __weak int rk_board_init(void)
 {
 	return 0;
@@ -193,10 +180,27 @@ int init_kernel_dtb(void)
 
 	gd->fdt_blob = (void *)fdt_addr;
 
+	/* Reserve 'reserved-memory' */
+	ret = boot_fdt_add_sysmem_rsv_regions((void *)gd->fdt_blob);
+	if (ret)
+		return ret;
+
 	return 0;
 }
 #endif
 
+void board_env_fixup(void)
+{
+	ulong kernel_addr_r;
+
+	if (gd->flags & GD_FLG_BL32_ENABLED)
+		return;
+
+	/* If bl32 is disabled, maybe kernel can be load to lower address. */
+	kernel_addr_r = env_get_ulong("kernel_addr_no_bl32_r", 16, -1);
+	if (kernel_addr_r != -1)
+		env_set_hex("kernel_addr_r", kernel_addr_r);
+}
 
 int board_init(void)
 {
@@ -217,7 +221,16 @@ int board_init(void)
 	if (ret)
 		debug("%s: Cannot enable boot on regulator\n", __func__);
 #endif
+
+#ifdef CONFIG_ROCKCHIP_IO_DOMAIN
+	io_domain_init();
+#endif
+
 	set_armclk_rate();
+
+#ifdef CONFIG_DM_DVFS
+	dvfs_init(true);
+#endif
 
 	return rk_board_init();
 }
@@ -251,6 +264,14 @@ int board_fdt_fixup(void *blob)
 #endif
 
 	return ret;
+}
+
+void board_quiesce_devices(void)
+{
+#ifdef CONFIG_ROCKCHIP_PRELOADER_ATAGS
+	/* Destroy atags makes next warm boot safer */
+	atags_destroy();
+#endif
 }
 
 void enable_caches(void)
@@ -308,7 +329,36 @@ void board_lmb_reserve(struct lmb *lmb)
 }
 #endif
 
-#ifdef CONFIG_ROCKCHIP_PRELOADER_SERIAL
+#ifdef CONFIG_SYSMEM
+int board_sysmem_reserve(struct sysmem *sysmem)
+{
+	struct sysmem_property prop;
+	int ret;
+
+	/* ATF */
+	prop = param_parse_atf_mem();
+	ret = sysmem_reserve(prop.name, prop.base, prop.size);
+	if (ret)
+		return ret;
+
+	/* PSTORE/ATAGS/SHM */
+	prop = param_parse_common_resv_mem();
+	ret = sysmem_reserve(prop.name, prop.base, prop.size);
+	if (ret)
+		return ret;
+
+	/* OP-TEE */
+	prop = param_parse_optee_mem();
+	ret = sysmem_reserve(prop.name, prop.base, prop.size);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+#endif
+
+#if defined(CONFIG_ROCKCHIP_PRELOADER_SERIAL) && \
+    defined(CONFIG_ROCKCHIP_PRELOADER_ATAGS)
 int board_init_f_init_serial(void)
 {
 	struct tag *t = atags_get_tag(ATAG_SERIAL);

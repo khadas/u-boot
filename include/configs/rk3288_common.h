@@ -16,7 +16,7 @@
 #endif
 
 #define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
-#define CONFIG_SYS_MALLOC_LEN		(32 << 20)
+#define CONFIG_SYS_MALLOC_LEN		(192 << 20)
 #define CONFIG_SYS_CBSIZE		1024
 
 #define CONFIG_SPL_FRAMEWORK
@@ -32,6 +32,8 @@
 #define GICC_BASE			0xffc02000
 
 #define CONFIG_ROCKUSB_G_DNL_PID	0x320A
+
+#define CONFIG_SUPPORT_EMMC_RPMB
 
 /* MMC/SD IP block */
 #define CONFIG_BOUNCE_BUFFER
@@ -63,9 +65,9 @@
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x00000000\0" \
 	"pxefile_addr_r=0x00100000\0" \
-	"fdt_addr_r=0x01f00000\0" \
+	"fdt_addr_r=0x08300000\0" \
 	"kernel_addr_r=0x02008000\0" \
-	"ramdisk_addr_r=0x04000000\0"
+	"ramdisk_addr_r=0x0a200000\0"
 
 #include <config_distro_bootcmd.h>
 

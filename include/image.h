@@ -53,7 +53,7 @@ struct lmb;
 
 #if IMAGE_ENABLE_FIT
 #include <hash.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 # ifdef CONFIG_SPL_BUILD
 #  ifdef CONFIG_SPL_CRC32_SUPPORT
@@ -691,6 +691,9 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 		 bootm_headers_t *images,
 		 char **of_flat_tree, ulong *of_size);
 void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob);
+#ifdef CONFIG_SYSMEM
+int boot_fdt_add_sysmem_rsv_regions(void *fdt_blob);
+#endif
 int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size);
 
 int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,

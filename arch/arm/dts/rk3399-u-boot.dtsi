@@ -33,6 +33,10 @@
 	u-boot,dm-pre-reloc;
 };
 
+&pmu {
+	u-boot,dm-pre-reloc;
+};
+
 &pmugrf {
 	u-boot,dm-pre-reloc;
 };
@@ -71,4 +75,14 @@
 
 &emmc_phy {
 	u-boot,dm-pre-reloc;
+};
+
+&u2phy0 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&u2phy0_otg {
+	u-boot,dm-pre-reloc;
+	status = "okay";
 };

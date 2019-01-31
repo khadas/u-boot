@@ -134,6 +134,7 @@ typedef struct global_data {
 	int new_line;
 #endif
 	struct pre_serial serial;
+	ulong sys_start_tick;		/* For report system start-up time */
 #ifdef CONFIG_LOG
 	int log_drop_count;		/* Number of dropped log messages */
 	int default_log_level;		/* For devices with no filters */
@@ -171,6 +172,8 @@ typedef struct global_data {
 #ifdef CONFIG_ARCH_ROCKCHIP
 /* Currently, we use it to indicate console can be flushed before jump to OS */
 #define GD_FLG_OS_RUN		0x10000
+/* BL32 is enabled */
+#define GD_FLG_BL32_ENABLED	0x20000
 #endif
 
 #endif /* __ASM_GENERIC_GBL_DATA_H */
