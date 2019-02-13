@@ -21,7 +21,7 @@ Description:
 #include <config.h>
 #include <common.h>
 #include <command.h>
-#include <watchdog.h>
+//#include <watchdog.h>
 #include <malloc.h>
 #if defined(CONFIG_AML_NAND) || defined (CONFIG_AML_MTD)
 #include <nand.h>
@@ -38,6 +38,7 @@ Description:
 #include <asm/cpu_id.h>
 #include <asm/arch/bl31_apis.h>
 #include <asm/arch/cpu_config.h>
+#include <asm/arch/secure_apb.h>
 
 #if defined(CONFIG_AML_NAND) || defined (CONFIG_AML_MTD)
 extern int amlnf_init(unsigned flag);
@@ -402,6 +403,19 @@ static int do_store_mbr_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 		goto _out;
 	}
 _out:
+	return ret;
+}
+
+static int do_store_bootlog(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	int ret = 0;
+	unsigned int val;
+
+	if (argc < 2) return CMD_RET_USAGE;
+
+	val = readl(AO_SEC_GP_CFG2);
+	printf("Boot logs:\n\t bl2: %d\n\tfip: %d\n", (val >> 25) & 0x7, (val >> 22) & 0x7);
+
 	return ret;
 }
 
@@ -1912,6 +1926,7 @@ static cmd_tbl_t cmd_store_sub[] = {
 	U_BOOT_CMD_MKENT(key,           5, 0, do_store_key_ops, "", ""),
 	U_BOOT_CMD_MKENT(ddr_parameter, 5, 0, do_store_ddr_parameter_ops, "", ""),
 	U_BOOT_CMD_MKENT(mbr,           3, 0, do_store_mbr_ops, "", ""),
+	U_BOOT_CMD_MKENT(bootlog,       2, 0, do_store_bootlog, "", ""),
 };
 
 static int do_store(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
@@ -1955,5 +1970,7 @@ U_BOOT_CMD(store, CONFIG_SYS_MAXARGS, 1, do_store,
 	"	read/write ddr parameter, size is optional \n"
 	"store mbr addr\n"
 	"   update mbr/partition table by dtb\n"
+	"store bootlog\n"
+	"   show boot logs\n"
 );
 
