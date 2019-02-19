@@ -79,10 +79,9 @@ static void rk3399_emmc_phy_power_on(struct rockchip_emmc_phy *phy, u32 clock)
 
 	/*
 	 * According to the user manual, it asks driver to
-	 * wait 5us for calpad busy trimming. But it seems that
-	 * 5us of caldone isn't enough for all cases.
+	 * wait 5us for calpad busy trimming
 	 */
-	udelay(500);
+	udelay(5);
 	caldone = readl(&phy->emmcphy_status);
 	caldone = (caldone >> PHYCTRL_CALDONE_SHIFT) & PHYCTRL_CALDONE_MASK;
 	if (caldone != PHYCTRL_CALDONE_DONE) {
