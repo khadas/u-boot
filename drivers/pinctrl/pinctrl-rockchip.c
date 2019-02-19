@@ -1815,8 +1815,7 @@ static int rockchip_set_drive_perpin(struct rockchip_pin_bank *bank,
 	int reg, ret, i;
 	u32 data, rmask_bits, temp;
 	u8 bit;
-	/* Where need to clean the special mask for rockchip_perpin_drv_list */
-	int drv_type = bank->drv[pin_num / 8].drv_type & (~DRV_TYPE_IO_MASK);
+	int drv_type = bank->drv[pin_num / 8].drv_type & DRV_TYPE_IO_MASK;
 
 	debug("setting drive of GPIO%d-%d to %d\n", bank->bank_num,
 	      pin_num, strength);
@@ -1951,11 +1950,7 @@ static int rockchip_set_pull(struct rockchip_pin_bank *bank,
 	case RK3308:
 	case RK3368:
 	case RK3399:
-		/*
-		 * Where need to clean the special mask for
-		 * rockchip_pull_list.
-		 */
-		pull_type = bank->pull_type[pin_num / 8] & (~PULL_TYPE_IO_MASK);
+		pull_type = bank->pull_type[pin_num / 8] & PULL_TYPE_IO_MASK;
 		ret = -EINVAL;
 		for (i = 0; i < ARRAY_SIZE(rockchip_pull_list[pull_type]);
 			i++) {
