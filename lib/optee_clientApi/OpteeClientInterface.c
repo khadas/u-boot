@@ -489,8 +489,8 @@ uint32_t trusty_read_permanent_attributes(uint8_t *attributes, uint32_t size)
 	TEEC_Context TeecContext;
 	TEEC_Session TeecSession;
 	uint32_t ErrorOrigin;
-	TEEC_UUID tempuuid = { 0x1b484ea5, 0x698b, 0x4142,
-		{ 0x82, 0xb8, 0x3a, 0xcf, 0x16, 0xe9, 0x9e, 0x2a } };
+	TEEC_UUID tempuuid = { 0x258be795, 0xf9ca, 0x40e6,
+		{ 0xa8, 0x69, 0x9c, 0xe6, 0x88, 0x6c, 0x5d, 0x5d } };
 	TEEC_UUID *TeecUuid = &tempuuid;
 	TEEC_Operation TeecOperation = {0};
 	struct blk_desc *dev_desc;
@@ -552,7 +552,7 @@ uint32_t trusty_read_permanent_attributes(uint8_t *attributes, uint32_t size)
 						TEEC_NONE);
 
 	TeecResult = TEEC_InvokeCommand(&TeecSession,
-					0,
+					142,
 					&TeecOperation,
 					&ErrorOrigin);
 	if (TeecResult == TEEC_SUCCESS)
@@ -572,8 +572,8 @@ uint32_t trusty_write_permanent_attributes(uint8_t *attributes, uint32_t size)
 	TEEC_Context TeecContext;
 	TEEC_Session TeecSession;
 	uint32_t ErrorOrigin;
-	TEEC_UUID tempuuid = { 0x1b484ea5, 0x698b, 0x4142,
-		{ 0x82, 0xb8, 0x3a, 0xcf, 0x16, 0xe9, 0x9e, 0x2a } };
+	TEEC_UUID tempuuid = { 0x258be795, 0xf9ca, 0x40e6,
+		{ 0xa8, 0x69, 0x9c, 0xe6, 0x88, 0x6c, 0x5d, 0x5d } };
 	TEEC_UUID *TeecUuid = &tempuuid;
 	TEEC_Operation TeecOperation = {0};
 	struct blk_desc *dev_desc;
@@ -637,7 +637,7 @@ uint32_t trusty_write_permanent_attributes(uint8_t *attributes, uint32_t size)
 						TEEC_NONE);
 
 	TeecResult = TEEC_InvokeCommand(&TeecSession,
-					1,
+					141,
 					&TeecOperation,
 					&ErrorOrigin);
 
@@ -994,8 +994,8 @@ TEEC_Result read_from_keymaster(uint8_t *filename,
 	TEEC_Context TeecContext;
 	TEEC_Session TeecSession;
 	uint32_t ErrorOrigin;
-	TEEC_UUID tempuuid = { 0x1b484ea5, 0x698b, 0x4142,
-		{ 0x82, 0xb8, 0x3a, 0xcf, 0x16, 0xe9, 0x9e, 0x2a } };
+	TEEC_UUID tempuuid = { 0x258be795, 0xf9ca, 0x40e6,
+		{ 0xa8, 0x69, 0x9c, 0xe6, 0x88, 0x6c, 0x5d, 0x5d } };
 	TEEC_UUID *TeecUuid = &tempuuid;
 	TEEC_Operation TeecOperation = {0};
 	struct blk_desc *dev_desc;
@@ -1057,7 +1057,7 @@ TEEC_Result read_from_keymaster(uint8_t *filename,
 						TEEC_NONE);
 
 	TeecResult = TEEC_InvokeCommand(&TeecSession,
-					0,
+					142,
 					&TeecOperation,
 					&ErrorOrigin);
 	if (TeecResult == TEEC_SUCCESS)
@@ -1080,8 +1080,9 @@ uint32_t write_to_keymaster(uint8_t *filename,
 	TEEC_Context TeecContext;
 	TEEC_Session TeecSession;
 	uint32_t ErrorOrigin;
-	TEEC_UUID tempuuid = { 0x1b484ea5, 0x698b, 0x4142,
-		{ 0x82, 0xb8, 0x3a, 0xcf, 0x16, 0xe9, 0x9e, 0x2a } };
+
+	TEEC_UUID tempuuid = { 0x258be795, 0xf9ca, 0x40e6,
+		{ 0xa8, 0x69, 0x9c, 0xe6, 0x88, 0x6c, 0x5d, 0x5d } };
 	TEEC_UUID *TeecUuid = &tempuuid;
 	TEEC_Operation TeecOperation = {0};
 	struct blk_desc *dev_desc;
@@ -1145,7 +1146,7 @@ uint32_t write_to_keymaster(uint8_t *filename,
 						TEEC_NONE);
 
 	TeecResult = TEEC_InvokeCommand(&TeecSession,
-					1,
+					141,
 					&TeecOperation,
 					&ErrorOrigin);
 
@@ -1523,8 +1524,8 @@ uint32_t trusty_read_permanent_attributes_flag(uint8_t *attributes)
 	TEEC_Context TeecContext;
 	TEEC_Session TeecSession;
 	uint32_t ErrorOrigin;
-	TEEC_UUID tempuuid = { 0x1b484ea5, 0x698b, 0x4142,
-		{ 0x82, 0xb8, 0x3a, 0xcf, 0x16, 0xe9, 0x9e, 0x2a } };
+	TEEC_UUID tempuuid = { 0x258be795, 0xf9ca, 0x40e6,
+		{ 0xa8, 0x69, 0x9c, 0xe6, 0x88, 0x6c, 0x5d, 0x5d } };
 	TEEC_UUID *TeecUuid = &tempuuid;
 	TEEC_Operation TeecOperation = {0};
 	struct blk_desc *dev_desc;
@@ -1585,7 +1586,7 @@ uint32_t trusty_read_permanent_attributes_flag(uint8_t *attributes)
 						TEEC_NONE);
 
 	TeecResult = TEEC_InvokeCommand(&TeecSession,
-					0,
+					142,
 					&TeecOperation,
 					&ErrorOrigin);
 	if (TeecResult == TEEC_SUCCESS)
@@ -1605,8 +1606,8 @@ uint32_t trusty_write_permanent_attributes_flag(uint8_t attributes)
 	TEEC_Context TeecContext;
 	TEEC_Session TeecSession;
 	uint32_t ErrorOrigin;
-	TEEC_UUID tempuuid = { 0x1b484ea5, 0x698b, 0x4142,
-		{ 0x82, 0xb8, 0x3a, 0xcf, 0x16, 0xe9, 0x9e, 0x2a } };
+	TEEC_UUID tempuuid = { 0x258be795, 0xf9ca, 0x40e6,
+		{ 0xa8, 0x69, 0x9c, 0xe6, 0x88, 0x6c, 0x5d, 0x5d } };
 	TEEC_UUID *TeecUuid = &tempuuid;
 	TEEC_Operation TeecOperation = {0};
 	struct blk_desc *dev_desc;
@@ -1669,7 +1670,7 @@ uint32_t trusty_write_permanent_attributes_flag(uint8_t attributes)
 						TEEC_NONE);
 
 	TeecResult = TEEC_InvokeCommand(&TeecSession,
-					1,
+					141,
 					&TeecOperation,
 					&ErrorOrigin);
 
