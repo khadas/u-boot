@@ -1027,7 +1027,14 @@ static void vsfilter_read(uint16_t id, char *buff, uint32_t size)
 		vsfver->rev_level = cpu_to_le16(0);
 		break;
 	case VSH_ID_FILTER_WIDEVINE_OFFSET:
-		/* WIDEVINE read process */
+	case VSH_ID_FILTER_PLAYREADY_OFFSET:
+		/* read from secure storage(rpmb or rk secure storage) */
+ #ifdef CONFIG_OPTEE_V1
+		read_from_keymaster((uint8_t *)"raw_data",
+				    sizeof("raw_data"),
+				    (u8 *)buff,
+				    size);
+#endif
 		break;
 	default:
 		break;
