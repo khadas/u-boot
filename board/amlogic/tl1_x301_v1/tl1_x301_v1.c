@@ -632,6 +632,16 @@ int board_init(void)
 }
 
 #ifdef CONFIG_BOARD_LATE_INIT
+/* Reset BT-module */
+void reset_mt7668(void)
+{
+	/* Reset BT-module by reset-pin -- GPIOAO_5 */
+	clrbits_le32(P_AO_GPIO_O_EN_N, 1 << 5);
+	clrbits_le32(P_AO_GPIO_O_EN_N, 1 << 21);
+	mdelay(200);
+	setbits_le32(P_AO_GPIO_O_EN_N, 1 << 21);
+	mdelay(100);
+}
 int board_late_init(void)
 {
 		//update env before anyone using it
@@ -769,3 +779,9 @@ int checkhw(char * name)
 }
 #endif
 
+extern int do_setMtkBT( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+U_BOOT_CMD(
+	setMtkBT, CONFIG_SYS_MAXARGS, 1, do_setMtkBT,
+	"load MTK BT driver, and set woble\n",
+	NULL
+);

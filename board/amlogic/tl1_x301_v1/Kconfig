@@ -18,5 +18,10 @@ config SYS_SOC
 
 config SYS_CONFIG_NAME
 	default "tl1_x301_v1"
+config MTK_BT_USB
+    bool "enable mtk bt usb function"
+    default n
+    help
+        select this item will enable mtk bt usb device
 
 endif

@@ -86,7 +86,7 @@
         "upgrade_step=0\0"\
         "jtag=disable\0"\
         "loadaddr=1080000\0"\
-        "model_name=FHD2HDMI\0" \
+        "model_name=FHD\0" \
         "panel_type=lvds_1\0" \
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
@@ -119,6 +119,7 @@
         "video_reverse=0\0"\
         "active_slot=normal\0"\
         "boot_part=boot\0"\
+        "powermode=standby\0"\
         "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
@@ -131,7 +132,7 @@
             "else fi;"\
             "\0"\
         "storeargs="\
-            "setenv bootargs ${initargs} ${fs_type} logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} hdmimode=${hdmimode} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en} androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
+            "setenv bootargs ${initargs} ${fs_type} logo=${display_layer},loaded,${fb_addr} powermode=${powermode} vout=${outputmode},enable panel_type=${panel_type} hdmimode=${hdmimode} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
 	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
@@ -142,7 +143,13 @@
             "else if test ${reboot_mode} = update; then "\
                     "run update;"\
             "else if test ${reboot_mode} = cold_boot; then "\
-                /*"run try_auto_burn; "*/\
+                /*"run try_auto_burn;uboot wake up "*/\
+                /*"echo powermode=${powermode}; "\
+                "if test ${powermode} = standby; then "\
+                    "setMtkBT;systemoff; "\
+                "else if test ${powermode} = on; then "\
+                    "run try_auto_burn; "\
+                "fi; fi; "\*/\
             "else if test ${reboot_mode} = fastboot; then "\
                 "fastboot;"\
             "fi;fi;fi;fi;"\
@@ -270,7 +277,6 @@
 			"run update;\n" \
 			"fi;fi;" \
 		"fi;\0" \
-
 
 #define CONFIG_PREBOOT  \
 	"run bcb_cmd; "\
@@ -453,6 +459,7 @@
 #endif
 
 #define CONFIG_AML_LCD    1
+#define CONFIG_AML_LCD_TABLET 1
 #define CONFIG_AML_LCD_TV 1
 //#define CONFIG_AML_LCD_EXTERN 1
 
@@ -614,6 +621,9 @@
 #endif //CONFIG_AML_SECURE_UBOOT
 
 #define CONFIG_SECURE_STORAGE 1
+
+/* USB port for MT7668. */
+#define BT_USB_PORT_NUM	1
 
 //build with uboot auto test
 //#define CONFIG_AML_UBOOT_AUTO_TEST 1

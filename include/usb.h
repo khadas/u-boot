@@ -145,6 +145,15 @@ enum usb_init_type {
 	USB_INIT_DEVICE
 };
 
+#ifdef CONFIG_MTK_BT_USB
+typedef struct _os_usb_vid_pid_
+{
+    unsigned short vid;
+    unsigned short pid;
+    char name[16];
+} os_usb_vid_pid;
+#endif
+
 /**********************************************************************
  * this is how the lowlevel part communicate with the outer world
  */
@@ -251,8 +260,15 @@ int usb_control_msg(struct usb_device *dev, unsigned int pipe,
 			void *data, unsigned short size, int timeout);
 int usb_bulk_msg(struct usb_device *dev, unsigned int pipe,
 			void *data, int len, int *actual_length, int timeout);
+
+#ifndef CONFIG_MTK_BT_USB
 int usb_submit_int_msg(struct usb_device *dev, unsigned long pipe,
 			void *buffer, int transfer_len, int interval);
+#else
+int usb_submit_int_msg(struct usb_device *dev, unsigned long pipe,
+	                void *buffer, int transfer_len, int *actual_length, int interval);
+#endif
+
 int usb_disable_asynch(int disable);
 int usb_maxpacket(struct usb_device *dev, unsigned long pipe);
 int usb_get_configuration_no(struct usb_device *dev, unsigned char *buffer,
