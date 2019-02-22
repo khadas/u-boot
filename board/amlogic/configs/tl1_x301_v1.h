@@ -487,6 +487,7 @@
 	#define CONFIG_USB_GPIO_PWR_NAME		"GPIOH_6"
 	#define CONFIG_USB_AMLOGIC_PHY_V2		1
 	#define CONFIG_USB_U2_PORT_NUM			3
+	//#define CONFIG_RTK_USB_BT 1
 	//#define CONFIG_USB_XHCI_AMLOGIC_USB3_V2		1
 #endif //#if defined(CONFIG_CMD_USB)
 

@@ -14,6 +14,9 @@
 #include <asm/unaligned.h>
 #include <part.h>
 #include <usb.h>
+#ifdef CONFIG_RTK_USB_BT
+#include <rtk_fw.h>
+#endif
 
 #ifdef CONFIG_USB_STORAGE
 static int usb_stor_curr_dev = -1; /* current device */
@@ -498,6 +501,13 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 #ifdef CONFIG_USB_KEYBOARD
 			drv_usb_kbd_init();
+#endif
+#ifdef CONFIG_RTK_USB_BT
+			struct usb_device *rtk_dev;
+			printf("load rtk usb bt\n");
+			rtk_dev = get_rtl_dev();
+			if (rtk_dev)
+				load_rtl_firmware_dev(rtk_dev);
 #endif
 		}
 		return 0;
