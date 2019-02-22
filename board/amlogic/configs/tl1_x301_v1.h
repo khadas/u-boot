@@ -89,6 +89,7 @@
         "loadaddr=1080000\0"\
         "model_name=FHD\0" \
         "panel_type=lvds_1\0" \
+        "lcd_ctrl=0x00000000\0" \
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
@@ -136,7 +137,7 @@
             "else fi;"\
             "\0"\
         "storeargs="\
-            "setenv bootargs ${initargs} otg_device=${otg_device} logo=${display_layer},loaded,${fb_addr} powermode=${powermode} vout=${outputmode},enable panel_type=${panel_type} hdmimode=${hdmimode} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} mem_size=${mem_size} ; "\
+            "setenv bootargs ${initargs} otg_device=${otg_device} logo=${display_layer},loaded,${fb_addr} powermode=${powermode} vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} hdmimode=${hdmimode} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} mem_size=${mem_size} ; "\
             "setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
