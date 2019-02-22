@@ -89,6 +89,7 @@
         "jtag=apao\0"\
         "loadaddr=1080000\0"\
         "panel_type=lvds_0\0" \
+	"lcd_ctrl=0x00000000\0" \
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
@@ -131,6 +132,7 @@
                 "logo=${display_layer},loaded,${fb_addr} "\
                 "vout=${outputmode},enable "\
                 "panel_type=${panel_type} "\
+		"lcd_ctrl=${lcd_ctrl}"\
                 "osd_reverse=${osd_reverse} "\
                 "video_reverse=${video_reverse} "\
                 "jtag=${jtag} "\
