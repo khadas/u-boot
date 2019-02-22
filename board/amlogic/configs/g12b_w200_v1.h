@@ -87,7 +87,7 @@
         "jtag=disable\0"\
         "loadaddr=1080000\0"\
         "panel_type=lcd_1\0" \
-	"lcd_ctrl=0x00000000\0" \
+        "lcd_ctrl=0x00000000\0" \
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
         "colorattribute=444,8bit\0"\
