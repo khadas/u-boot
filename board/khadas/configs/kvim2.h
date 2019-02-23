@@ -249,6 +249,15 @@
             "fi;" \
             "setenv bootargs ${bootargs} hwver=${hwver};"\
             "\0"\
+         "set_fan_mode="\
+            "kbi hwver; "\
+            "if test ${hwver} = VIM2.V13; then "\
+                "fdt addr ${dtb_mem_addr};"\
+                "fdt resize 65536;"\
+                "fdt set /fan hwver VIM2.V13;"\
+                "fdt set /i2c@c11087c0/khadas-mcu hwver VIM2.V13;"\
+            "fi;"\
+            "\0"\
          "wol_init="\
             "kbi init;"\
             "kbi powerstate;"\
@@ -269,6 +278,7 @@
             "run combine_key;" \
             "run upgrade_key;" \
             "run vim2_check;" \
+            "run set_fan_mode;"\
             "run wol_init;"\
             "forceupdate;" \
             "run switch_bootmode;"
