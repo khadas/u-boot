@@ -60,7 +60,7 @@ static KmDevKeyOps _efuseKeyOps = {
 
 static KmDevKeyOps* _km_devKeyOpsArr[] = {
             [_KM_DEV_INDEX_SECUREKEY]      = &_SecukeyOps,
-#if 0
+#if 1
             [_KM_DEV_INDEX_EFUSE]          = &_efuseKeyOps,
 #endif//#if defined(CONFIG_EFUSE)
 };

@@ -1933,4 +1933,10 @@ config CMD_WATCHDOG
 	help
 	 CMD_WATCHDOG support.
 
+config CMD_EFUSE
+	bool "support efuse command"
+	default y
+	help
+	  support efuse command
+
 endmenu

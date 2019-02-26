@@ -49,6 +49,7 @@ endif
 obj-$(CONFIG_CMD_DISPLAY) += display.o
 obj-$(CONFIG_CMD_DTIMG) += dtimg.o
 obj-$(CONFIG_CMD_ECHO) += echo.o
+obj-$(CONFIG_CMD_EFUSE) += efuse.o
 obj-$(CONFIG_ENV_IS_IN_EEPROM) += eeprom.o
 obj-$(CONFIG_CMD_EEPROM) += eeprom.o
 obj-$(CONFIG_EFI_STUB) += efi.o
