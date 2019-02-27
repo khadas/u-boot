@@ -136,9 +136,9 @@ void rockchip_dnl_mode_check(void)
 	    gd->console_evt == CONSOLE_EVT_CTRL_D) {
 		printf("download key pressed... ");
 		if (rockchip_u2phy_vbus_detect() > 0) {
+			printf("entering download mode...\n");
 			/* Set system led(GPIO0_A6) on */
 			run_command_list("gpio set 6", -1, 0);
-			printf("entering download mode...\n");
 			/* If failed, we fall back to bootrom download mode */
 			run_command_list("rockusb 0 ${devtype} ${devnum}", -1, 0);
 			set_back_to_bootrom_dnl_flag();
