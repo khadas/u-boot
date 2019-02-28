@@ -72,9 +72,24 @@
 #define PASSWD_CUSTOM_LENGHT  6
 #define PASSWD_VENDOR_LENGHT  6
 
+// Board Detect
+#define BOARD_DETECT_ADC_DEVIATION      10
+#define BOARD_DETECT_ADC_VALUE_EDGE     1024
+#define BOARD_DETECT_ADC_VALUE_EDGEV    204
+#define BOARD_DETECT_ADC_VALUE_CAPTAIN  17
+
+#define BOARD_TYPE_UNKNOW   0   /* Unknow board */
+#define BOARD_TYPE_EDGE     1   /* Single Edge Board */
+#define BOARD_TYPE_EDGEV    2   /* Single Edge V Board */
+#define BOARD_TYPE_CAPTAIN  3   /* Edge with Captain */
+
+#define SARADC_BASE             RKIO_SARADC_PHYS
+#define read_XDATA32(address)   (*((uint32 volatile*)(address)))
+#define write_XDATA32(address, value)   (*((uint32 volatile*)(address)) = value)
 
 static char* LED_MODE_STR[] = { "off", "on", "breathe", "heartbeat"};
 
+extern void DRVDelayUs(uint32 count);
 
 static int kbi_i2c_read(uint reg)
 {
@@ -281,6 +296,60 @@ static void get_mac(void)
 	printf("\n");
 	sprintf(mac, "%02x:%02x:%02x:%02x:%02x:%02x",mac_addr[0],mac_addr[1],mac_addr[2],mac_addr[3],mac_addr[4],mac_addr[5]);
 	setenv("eth_mac", mac);
+}
+
+static const char *board_type_to_string(char board_type)
+{
+	switch (board_type) {
+		case BOARD_TYPE_EDGEV:
+			return "Edge-V";
+		case BOARD_TYPE_EDGE:
+			return "Edge";
+		case BOARD_TYPE_CAPTAIN:
+			return "Captain";
+		default:
+			return "UnknowBorad";
+	}
+}
+
+static char detect_board(void)
+{
+	int ret;
+	uint32 val;
+	char board_type = -1;
+	char str[4] = {0};
+
+	uint32 index = 0;
+	uint32 adc_data = SARADC_BASE;
+	uint32 adc_stas = SARADC_BASE+4;
+	uint32 adc_ctrl = SARADC_BASE+8;
+	uint32 timeout = 0;
+
+	write_XDATA32(adc_ctrl, 0);
+	DRVDelayUs(1);
+	write_XDATA32(adc_ctrl,0x0028|index);
+	DRVDelayUs(1);
+	do {
+		val = read_XDATA32(adc_ctrl);
+		timeout++;
+	} while ((val&0x40) == 0);
+	val = read_XDATA32(adc_data);
+
+	if (val >= (BOARD_DETECT_ADC_VALUE_EDGEV - BOARD_DETECT_ADC_DEVIATION) && val <= (BOARD_DETECT_ADC_VALUE_EDGEV + BOARD_DETECT_ADC_DEVIATION)) {
+		board_type = BOARD_TYPE_EDGEV;
+	} else if (val >= (BOARD_DETECT_ADC_VALUE_CAPTAIN - BOARD_DETECT_ADC_DEVIATION) && val <= (BOARD_DETECT_ADC_VALUE_CAPTAIN + BOARD_DETECT_ADC_DEVIATION)) {
+		board_type = BOARD_TYPE_CAPTAIN;
+	} else if (val >= (BOARD_DETECT_ADC_VALUE_EDGE - BOARD_DETECT_ADC_DEVIATION) && val <= (BOARD_DETECT_ADC_VALUE_EDGE + BOARD_DETECT_ADC_DEVIATION)) {
+		board_type = BOARD_TYPE_EDGE;
+	} else {
+		board_type = BOARD_TYPE_UNKNOW;
+	}
+	printf("board type = %s (%d)\n", board_type_to_string(board_type), board_type);
+
+	sprintf(str, "%d", board_type);
+	setenv("board_type", str);
+	setenv("board_type_name", board_type_to_string(board_type));
+	return board_type;
 }
 
 static void get_usid(void)
@@ -631,6 +700,12 @@ static int do_kbi_ethmac(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 	return 0;
 }
 
+static int do_kbi_boarddetect(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	detect_board();
+	return 0;
+}
+
 static int do_kbi_switchmac(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 
@@ -872,6 +947,7 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 	U_BOOT_CMD_MKENT(adc, 1, 1, do_kbi_adc, "", ""),
 	U_BOOT_CMD_MKENT(powerstate, 1, 1, do_kbi_powerstate, "", ""),
 	U_BOOT_CMD_MKENT(ethmac, 1, 1, do_kbi_ethmac, "", ""),
+	U_BOOT_CMD_MKENT(boarddetect, 1, 1, do_kbi_boarddetect, "", ""),
 	U_BOOT_CMD_MKENT(poweroff, 1, 1, do_kbi_poweroff, "", ""),
 	U_BOOT_CMD_MKENT(switchmac, 3, 1, do_kbi_switchmac, "", ""),
 	U_BOOT_CMD_MKENT(led, 4, 1, do_kbi_led, "", ""),
@@ -908,6 +984,7 @@ static char kbi_help_text[] =
 		"kbi powerstate - read power on state\n"
 		"kbi poweroff - power off device\n"
 		"kbi ethmac - read ethernet mac address\n"
+		"kbi boarddetect - detect board type\n"
 		"\n"
 		"kbi led [systemoff|systemon] w <off|on|breathe|heartbeat> - set blue led mode\n"
 		"kbi led [systemoff|systemon] r - read blue led mode\n"
