@@ -448,6 +448,10 @@
 				"gpio set GPIODV_2;"\
 			"fi;"\
 			"\0"\
+		"board_detect="\
+			"kbi boarddetect;"\
+			"setenv khadas_bootargs board.type=${board_type};"\
+			"\0"\
 		"cmdline_keys="\
 			"kbi ethmac;" \
 			"setenv khadas_bootargs ${khadas_bootargs} board.type=${board_type}  mac=${eth_mac} androidboot.mac=${eth_mac};" \
@@ -455,6 +459,7 @@
 
 #define CONFIG_KHADAS_APPENDED_CMDLINE \
 		"run wol_init; " \
+		"run board_detect; " \
 		"run cmdline_keys; "
 
 #endif /* CONFIG_KHADAS_CMDLINE */
