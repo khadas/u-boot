@@ -39,6 +39,7 @@
 #endif
 #include <of_live.h>
 #include <dm/root.h>
+#include <console.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 /* define serialno max length, the max length is 512 Bytes
@@ -48,6 +49,22 @@ DECLARE_GLOBAL_DATA_PTR;
 #define VENDOR_SN_MAX	513
 #define CPUID_LEN       0x10
 #define CPUID_OFF       0x7
+
+static int rockchip_set_ethaddr(void)
+{
+#ifdef CONFIG_ROCKCHIP_VENDOR_PARTITION
+	int ret;
+	u8 ethaddr[ARP_HLEN];
+	char buf[ARP_HLEN_ASCII + 1];
+
+	ret = vendor_storage_read(VENDOR_LAN_MAC_ID, ethaddr, sizeof(ethaddr));
+	if (ret > 0 && is_valid_ethaddr(ethaddr)) {
+		sprintf(buf, "%pM", ethaddr);
+		env_set("ethaddr", buf);
+	}
+#endif
+	return 0;
+}
 
 static int rockchip_set_serialno(void)
 {
@@ -136,6 +153,7 @@ __weak int set_armclk_rate(void)
 
 int board_late_init(void)
 {
+	rockchip_set_ethaddr();
 	rockchip_set_serialno();
 #if (CONFIG_ROCKCHIP_BOOT_MODE_REG > 0)
 	setup_boot_mode();
@@ -202,11 +220,30 @@ void board_env_fixup(void)
 		env_set_hex("kernel_addr_r", kernel_addr_r);
 }
 
+static void early_bootrom_download(void)
+{
+	if (!tstc())
+		return;
+
+	gd->console_evt = getc();
+#if (CONFIG_ROCKCHIP_BOOT_MODE_REG > 0)
+	/* ctrl+b */
+	if (gd->console_evt == CONSOLE_EVT_CTRL_B) {
+		printf("Enter bootrom download...");
+		mdelay(100);
+		writel(BOOT_BROM_DOWNLOAD, CONFIG_ROCKCHIP_BOOT_MODE_REG);
+		do_reset(NULL, 0, 0, NULL);
+		printf("failed!\n");
+	}
+#endif
+}
+
 int board_init(void)
 {
 	int ret;
 
 	board_debug_uart_init();
+	early_bootrom_download();
 
 #ifdef CONFIG_USING_KERNEL_DTB
 	init_kernel_dtb();
@@ -393,28 +430,33 @@ static struct dwc2_plat_otg_data otg_data = {
 int board_usb_init(int index, enum usb_init_type init)
 {
 	int node;
-	const char *mode;
 	fdt_addr_t addr;
 	const fdt32_t *reg;
-	bool matched = false;
 	const void *blob = gd->fdt_blob;
 
 	/* find the usb_otg node */
-	node = fdt_node_offset_by_compatible(blob, -1,
-					"snps,dwc2");
+	node = fdt_node_offset_by_compatible(blob, -1, "snps,dwc2");
 
-	while (node > 0) {
-		mode = fdt_getprop(blob, node, "dr_mode", NULL);
-		if (mode && strcmp(mode, "otg") == 0) {
-			matched = true;
-			break;
+retry:
+	if (node > 0) {
+		reg = fdt_getprop(blob, node, "reg", NULL);
+		if (!reg)
+			return -EINVAL;
+
+		addr = fdt_translate_address(blob, node, reg);
+		if (addr == OF_BAD_ADDR) {
+			pr_err("Not found usb_otg address\n");
+			return -EINVAL;
 		}
 
-		node = fdt_node_offset_by_compatible(blob, node,
-					"snps,dwc2");
-	}
-
-	if (!matched) {
+#if defined(CONFIG_ROCKCHIP_RK3288)
+		if (addr != 0xff580000) {
+			node = fdt_node_offset_by_compatible(blob, node,
+							     "snps,dwc2");
+			goto retry;
+		}
+#endif
+	} else {
 		/*
 		 * With kernel dtb support, rk3288 dwc2 otg node
 		 * use the rockchip legacy dwc2 driver "dwc_otg_310"
@@ -429,23 +471,12 @@ int board_usb_init(int index, enum usb_init_type init)
 		node = fdt_node_offset_by_compatible(blob, -1,
 				"rockchip,rk3368-usb");
 #endif
-
 		if (node > 0) {
-			matched = true;
+			goto retry;
 		} else {
 			pr_err("Not found usb_otg device\n");
 			return -ENODEV;
 		}
-	}
-
-	reg = fdt_getprop(blob, node, "reg", NULL);
-	if (!reg)
-		return -EINVAL;
-
-	addr = fdt_translate_address(blob, node, reg);
-	if (addr == OF_BAD_ADDR) {
-		pr_err("Not found usb_otg address\n");
-		return -EINVAL;
 	}
 
 	otg_data.regs_otg = (uintptr_t)addr;

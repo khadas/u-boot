@@ -1,4 +1,10 @@
 #!/bin/bash
+#
+# Copyright (c) 2019 Fuzhou Rockchip Electronics Co., Ltd
+#
+# SPDX-License-Identifier: GPL-2.0
+#
+
 set -e
 BOARD=$1
 SUBCMD=$1
@@ -61,6 +67,9 @@ PLATFORM_SHA=
 PLATFORM_UBOOT_IMG_SIZE=
 PLATFORM_TRUST_IMG_SIZE=
 PLATFORM_AARCH32=
+
+# Out env param
+PACK_IGNORE_BL32=$TRUST_PACK_IGNORE_BL32	# Value only: "--ignore-bl32"
 #########################################################################################################
 help()
 {
@@ -324,6 +333,8 @@ select_chip_info()
 		RKCHIP=${RKCHIP##*_}
 		grep '^CONFIG_ROCKCHIP_RK3368=y' ${OUTDIR}/.config >/dev/null \
 			&& RKCHIP=RK3368H
+		grep '^CONFIG_ROCKCHIP_RV1108=y' ${OUTDIR}/.config >/dev/null \
+			&& RKCHIP=RV110X
 	elif [ $count -gt 1 ]; then
 		# Grep the RK CHIP variant
 		grep '^CONFIG_ROCKCHIP_PX3SE=y' ${OUTDIR}/.config > /dev/null \
@@ -548,7 +559,8 @@ pack_trust_image()
 		fi
 
 		cd ${RKBIN}
-		${RKTOOLS}/trust_merger ${PLATFORM_SHA} ${PLATFORM_RSA} ${PLATFORM_TRUST_IMG_SIZE} ${BIN_PATH_FIXUP} ${RKBIN}/RKTRUST/${RKCHIP_TRUST}${PLATFORM_AARCH32}TRUST.ini
+		${RKTOOLS}/trust_merger ${PLATFORM_SHA} ${PLATFORM_RSA} ${PLATFORM_TRUST_IMG_SIZE} ${BIN_PATH_FIXUP} \
+					${PACK_IGNORE_BL32} ${RKBIN}/RKTRUST/${RKCHIP_TRUST}${PLATFORM_AARCH32}TRUST.ini
 
 		cd - && mv ${RKBIN}/trust.img ./trust.img
 		echo "pack trust okay! Input: ${RKBIN}/RKTRUST/${RKCHIP_TRUST}${PLATFORM_AARCH32}TRUST.ini"

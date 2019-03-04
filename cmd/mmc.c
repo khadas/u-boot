@@ -10,6 +10,7 @@
 #include <mmc.h>
 #include <optee_include/OpteeClientInterface.h>
 #include <optee_include/OpteeClientApiLib.h>
+#include <optee_test.h>
 
 static int curr_device = -1;
 
@@ -125,8 +126,8 @@ static int do_mmcinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 #ifdef CONFIG_OPTEE_CLIENT
-static int do_mmc_testrpmb(cmd_tbl_t *cmdtp,
-		int flag, int argc, char * const argv[])
+static int do_mmc_test_secure_storage(cmd_tbl_t *cmdtp,
+				      int flag, int argc, char * const argv[])
 {
 	struct mmc *mmc;
 
@@ -144,48 +145,30 @@ static int do_mmc_testrpmb(cmd_tbl_t *cmdtp,
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
-	uint64_t value;
-	trusty_write_rollback_index(0x87654321, 0x1122334455667788);
-	trusty_read_rollback_index(0x87654321, &value);
-	debug("sizeof(value) %zu\n ", sizeof(value));
-	if (value == 0x1122334455667788)
-		printf("good ! value==0x1122334455667788\n ");
-	else
-		printf("error ! value!=0x1122334455667788\n ");
+	int i, count = 100;
 
-	uint8_t data[] = "just a data";
-	uint8_t data_read[11];
-	trusty_write_permanent_attributes(data, sizeof(data));
-	trusty_read_permanent_attributes(data_read, sizeof(data));
-	printf("attribute: %s\n ", data_read);
+	for (i = 1; i <= count; i++) {
+		if (test_secure_storage_default() == 0) {
+			printf("test_secure_storage_default success! %d/%d\n", i, count);
+		} else {
+			printf("test_secure_storage_default fail! %d/%d\n", i, count);
+			break;
+		}
+		if (test_secure_storage_security_partition() == 0) {
+			printf("test_secure_storage_security_partition success! %d/%d\n", i, count);
+		} else {
+			printf("test_secure_storage_security_partition fail! %d/%d\n", i, count);
+			break;
+		}
+	}
 
-	trusty_notify_optee_uboot_end();
-	printf(" tell_optee_uboot_end \n ");
-	value = 0;
-	trusty_read_rollback_index(0x87654321, &value);
-	if (value == 0x1122334455667788)
-		printf(" value==0x1122334455667788 read still enable\n ");
-	else
-		printf(" good! value!=0x1122334455667788 read denied\n ");
 	return CMD_RET_SUCCESS;
 }
 
 static int do_mmc_testefuse(cmd_tbl_t *cmdtp,
 		int flag, int argc, char * const argv[])
 {
-	uint32_t buf32[8];
 	uint32_t outbuf32[8];
-
-	buf32[0] = 0x01020304;
-	buf32[1] = 0x05060708;
-	buf32[2] = 0x090a0b0c;
-	buf32[3] = 0x0d0e0f10;
-	buf32[4] = 0x11121314;
-	buf32[5] = 0x15161718;
-	buf32[6] = 0x191a1b1c;
-	buf32[7] = 0x1d1e1f20;
-
-	trusty_write_attribute_hash(buf32, 8);
 
 	trusty_read_attribute_hash(outbuf32, 8);
 
@@ -960,7 +943,7 @@ static cmd_tbl_t cmd_mmc[] = {
 	U_BOOT_CMD_MKENT(rst-function, 3, 0, do_mmc_rst_func, "", ""),
 #endif
 #ifdef CONFIG_OPTEE_CLIENT
-	U_BOOT_CMD_MKENT(testrpmb, 1, 0, do_mmc_testrpmb, "", ""),
+	U_BOOT_CMD_MKENT(testsecurestorage, 1, 0, do_mmc_test_secure_storage, "", ""),
 	U_BOOT_CMD_MKENT(testefuse, 1, 0, do_mmc_testefuse, "", ""),
 #endif
 #ifdef CONFIG_SUPPORT_EMMC_RPMB
@@ -1028,7 +1011,7 @@ U_BOOT_CMD(
 	"   WARNING: This is a write-once field and 0 / 1 / 2 are the only valid values.\n"
 #endif
 #ifdef CONFIG_OPTEE_CLIENT
-	"mmc testrpmb - test CA call static TA,and TA call rpmb in uboot\n"
+	"mmc testsecurestorage - test CA call static TA to store data in security\n"
 	"mmc testefuse - test CA call static TA,and TA read or write efuse\n"
 #endif
 #ifdef CONFIG_SUPPORT_EMMC_RPMB

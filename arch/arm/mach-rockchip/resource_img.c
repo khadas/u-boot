@@ -177,6 +177,9 @@ static int init_resource_list(struct resource_img_hdr *hdr)
 #endif
 
 	if (hdr) {
+		if (resource_image_check_header(hdr))
+			return -EEXIST;
+
 		content = (void *)((char *)hdr
 				   + (hdr->c_offset) * RK_BLK_SIZE);
 		for (e_num = 0; e_num < hdr->e_nums; e_num++) {
@@ -645,7 +648,7 @@ int rockchip_read_dtb_file(void *fdt_addr)
 		return size;
 
 	if (!sysmem_alloc_base("fdt", (phys_addr_t)fdt_addr,
-			       ALIGN(size, RK_BLK_SIZE)))
+			       ALIGN(size, RK_BLK_SIZE) + CONFIG_SYS_FDT_PAD))
 		return -ENOMEM;
 
 	ret = rockchip_read_resource_file((void *)fdt_addr, dtb_name, 0, 0);

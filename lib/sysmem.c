@@ -218,7 +218,7 @@ int sysmem_reserve(const char *name, phys_addr_t base, phys_size_t size)
 			SYSMEM_E("Failed to double reserve for existence \"%s\"\n", name);
 			return -EEXIST;
 		} else if (sysmem_is_overlap(prop->base, prop->size, base, size)) {
-			SYSMEM_W("\"%s\" (base=0x%08lx, size=0x%lx) reserve is "
+			SYSMEM_D("\"%s\" (base=0x%08lx, size=0x%lx) reserve is "
 				 "overlap with existence \"%s\" (base=0x%08lx, size=0x%lx)\n",
 				 name, (ulong)base, (ulong)size, prop->name,
 				 (ulong)prop->base, (ulong)prop->size);
@@ -265,6 +265,14 @@ void *sysmem_alloc_align_base(const char *name,
 		SYSMEM_E("NULL name for alloc sysmem\n");
 		return NULL;
 	}
+
+	if (!IS_ALIGNED(base, 4)) {
+		SYSMEM_E("\"%s\" base=0x%08lx is not 4-byte aligned\n", name, (ulong)base);
+		return NULL;
+	}
+
+	/* Must be 4-byte aligned */
+	size = ALIGN(size, 4);
 
 	/* Already allocated ? */
 	list_for_each(node, &sysmem->allocated_head) {
@@ -373,7 +381,7 @@ int sysmem_free(phys_addr_t base)
 
 	ret = lmb_free(&sysmem->lmb, prop->base, prop->size);
 	if (ret >= 0) {
-		SYSMEM_I("Free: \"%s\", paddr=0x%lx, size=0x%lx\n",
+		SYSMEM_D("Free: \"%s\", paddr=0x%lx, size=0x%lx\n",
 			 prop->name, (ulong)prop->base, (ulong)prop->size);
 		sysmem->allocated_cnt--;
 		list_del(&prop->node);

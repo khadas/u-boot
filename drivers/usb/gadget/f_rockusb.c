@@ -362,15 +362,11 @@ static int rkusb_do_vs_write(struct fsg_common *common)
 					return -EIO;
 			} else {
 				/* RPMB */
-#ifdef CONFIG_OPTEE_V1
-#ifdef CONFIG_ANDROID_KEYMASTER_CA
 				rc =
 				write_keybox_to_secure_storage((u8 *)data,
 							       vhead->size);
 				if (rc < 0)
 					return -EIO;
-#endif
-#endif
 			}
 
 			common->residue -= common->data_size;
@@ -436,6 +432,12 @@ static int rkusb_do_vs_read(struct fsg_common *common)
 			vhead->size = rc;
 		} else {
 			/* RPMB */
+			rc =
+			read_raw_data_from_secure_storage((u8 *)data,
+							  common->data_size);
+			if (!rc)
+				return -EIO;
+			vhead->size = rc;
 		}
 
 		common->residue   -= common->data_size;
@@ -465,7 +467,7 @@ static int rkusb_do_read_capacity(struct fsg_common *common,
 	 * bit[5:63}: Reserved.
 	 */
 	memset((void *)&buf[0], 0, len);
-	if (type == IF_TYPE_MMC)
+	if (type == IF_TYPE_MMC || type == IF_TYPE_SD)
 		buf[0] = BIT(0) | BIT(2) | BIT(4);
 	else
 		buf[0] = BIT(0) | BIT(4);

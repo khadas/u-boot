@@ -37,6 +37,11 @@ static const struct pmic_child_info power_key_info[] = {
 	{ },
 };
 
+static const struct pmic_child_info rtc_info[] = {
+	{ .prefix = "rtc", .driver = "rk8xx_rtc"},
+	{ },
+};
+
 static const struct pmic_child_info fuel_gauge_info[] = {
 	{ .prefix = "battery", .driver = "rk818_fg"},
 	{ .prefix = "battery", .driver = "rk817_fg"},
@@ -147,6 +152,10 @@ static int rk8xx_bind(struct udevice *dev)
 	if (!children)
 		debug("%s: %s - no child found\n", __func__, dev->name);
 
+	children = pmic_bind_children(dev, dev->node, rtc_info);
+	if (!children)
+		debug("%s: %s - no child found\n", __func__, dev->name);
+
 	children = pmic_bind_children(dev, dev->node, fuel_gauge_info);
 	if (!children)
 		debug("%s: %s - no child found\n", __func__, dev->name);
@@ -168,6 +177,8 @@ static int rk8xx_probe(struct udevice *dev)
 	int ret = 0, i, show_variant;
 	uint8_t msb, lsb, id_msb, id_lsb;
 	uint8_t on_source = 0, off_source = 0;
+	uint8_t power_en0, power_en1, power_en2, power_en3;
+	uint8_t value;
 
 	/* read Chip variant */
 	if (device_is_compatible(dev, "rockchip,rk817") ||
@@ -206,6 +217,15 @@ static int rk8xx_probe(struct udevice *dev)
 		init_data = rk817_init_reg;
 		init_data_num = ARRAY_SIZE(rk817_init_reg);
 #endif
+		power_en0 = pmic_reg_read(dev, RK817_POWER_EN0);
+		power_en1 = pmic_reg_read(dev, RK817_POWER_EN1);
+		power_en2 = pmic_reg_read(dev, RK817_POWER_EN2);
+		power_en3 = pmic_reg_read(dev, RK817_POWER_EN3);
+
+		value = (power_en0 & 0x0f) | ((power_en1 & 0x0f) << 4);
+		pmic_reg_write(dev, RK817_POWER_EN_SAVE0, value);
+		value = (power_en2 & 0x0f) | ((power_en3 & 0x0f) << 4);
+		pmic_reg_write(dev, RK817_POWER_EN_SAVE1, value);
 		break;
 	default:
 		printf("Unknown PMIC: RK%x!!\n", priv->variant);

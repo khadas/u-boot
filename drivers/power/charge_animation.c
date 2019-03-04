@@ -11,6 +11,8 @@
 #include <dm.h>
 #include <errno.h>
 #include <key.h>
+#include <led.h>
+#include <rtc.h>
 #include <pwm.h>
 #include <asm/arch/rockchip_smccc.h>
 #include <asm/suspend.h>
@@ -30,8 +32,14 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define IMAGE_SHOW_RESET			-1
+#define IMAGE_RESET_IDX				-1
+#define IMAGE_SOC_100_IDX(n)			((n) - 2)
+#define IMAGE_LOWPOWER_IDX(n)			((n) - 1)
+
 #define FUEL_GAUGE_POLL_MS			1000
+
+#define LED_CHARGING_NAME			"battery_charging"
+#define LED_CHARGING_FULL_NAME			"battery_full"
 
 struct charge_image {
 	const char *name;
@@ -42,6 +50,11 @@ struct charge_image {
 struct charge_animation_priv {
 	struct udevice *pmic;
 	struct udevice *fg;
+	struct udevice *rtc;
+#ifdef CONFIG_LED
+	struct udevice *led_charging;
+	struct udevice *led_full;
+#endif
 	const struct charge_image *image;
 	int image_num;
 
@@ -112,7 +125,16 @@ static int check_key_press(struct udevice *dev)
 {
 	struct charge_animation_pdata *pdata = dev_get_platdata(dev);
 	struct charge_animation_priv *priv = dev_get_priv(dev);
-	u32 state;
+	u32 state, rtc_state = 0;
+
+#ifdef CONFIG_DM_RTC
+	if (priv->rtc)
+		rtc_state = rtc_alarm_trigger(priv->rtc);
+#endif
+	if (rtc_state) {
+		printf("rtc alarm trigger...\n");
+		return KEY_PRESS_LONG_DOWN;
+	}
 
 	state = key_read(KEY_POWER);
 	if (state < 0)
@@ -124,7 +146,7 @@ static int check_key_press(struct udevice *dev)
 
 	/* Fixup key state for following cases */
 	if (pdata->auto_wakeup_interval) {
-		if  (pdata->auto_wakeup_screen_invert) {
+		if (pdata->auto_wakeup_screen_invert) {
 			if (priv->auto_wakeup_key_state == KEY_PRESS_DOWN) {
 				/* Value is updated in timer interrupt */
 				priv->auto_wakeup_key_state = KEY_PRESS_NONE;
@@ -197,6 +219,7 @@ static int system_suspend_enter(struct charge_animation_pdata *pdata)
 
 	return 0;
 }
+
 static void timer_irq_handler(int irq, void *data)
 {
 	struct udevice *dev = data;
@@ -248,6 +271,43 @@ static void charge_show_bmp(const char *name) {}
 static void charge_show_logo(void) {}
 #endif
 
+#ifdef CONFIG_LED
+static int leds_update(struct udevice *dev, int soc)
+{
+	struct charge_animation_priv *priv = dev_get_priv(dev);
+	static int old_soc = -1;
+	int ret, ledst;
+
+	if (old_soc == soc)
+		return 0;
+
+	old_soc = soc;
+	if (priv->led_charging) {
+		ledst = (soc < 100) ? LEDST_ON : LEDST_OFF;
+		ret = led_set_state(priv->led_charging, ledst);
+		if (ret) {
+			printf("set charging led %s failed, ret=%d\n",
+			       (ledst == LEDST_ON) ? "ON" : "OFF", ret);
+			return ret;
+		}
+	}
+
+	if (priv->led_full) {
+		ledst = (soc == 100) ? LEDST_ON : LEDST_OFF;
+		ret = led_set_state(priv->led_full, ledst);
+		if (ret) {
+			printf("set charging full led %s failed, ret=%d\n",
+			       ledst == LEDST_ON ? "ON" : "OFF", ret);
+			return ret;
+		}
+	}
+
+	return 0;
+}
+#else
+static int leds_update(struct udevice *dev, int soc) { return 0; }
+#endif
+
 static int charge_extrem_low_power(struct udevice *dev)
 {
 	struct charge_animation_pdata *pdata = dev_get_platdata(dev);
@@ -256,6 +316,7 @@ static int charge_extrem_low_power(struct udevice *dev)
 	struct udevice *fg = priv->fg;
 	int voltage, soc, charging = 1;
 	static int timer_initialized;
+	int ret;
 
 	voltage = fuel_gauge_get_voltage(fg);
 	if (voltage < 0)
@@ -292,6 +353,11 @@ static int charge_extrem_low_power(struct udevice *dev)
 			continue;
 		}
 
+		/* Update led */
+		ret = leds_update(dev, soc);
+		if (ret)
+			printf("update led failed: %d\n", ret);
+
 		printf("Extrem low power, force charging... threshold=%dmv, now=%dmv\n",
 		       pdata->low_power_voltage, voltage);
 
@@ -325,7 +391,7 @@ static int charge_animation_show(struct udevice *dev)
 	ulong show_start = 0, charge_start = 0, debug_start = 0;
 	ulong delta;
 	ulong ms = 0, sec = 0;
-	int start_idx = 0, show_idx = -1, old_show_idx = IMAGE_SHOW_RESET;
+	int start_idx = 0, show_idx = -1, old_show_idx = IMAGE_RESET_IDX;
 	int soc, voltage, current, key_state;
 	int i, charging = 1, ret;
 	int boot_mode;
@@ -434,8 +500,8 @@ static int charge_animation_show(struct udevice *dev)
 
 		/*
 		 * Most fuel gauge is I2C interface, it shouldn't be interrupted
-		 * during tansfer. The power key event depends on interrupt, so
-		 * so we should disable local irq when update fuel gauge.
+		 * during transfer. The power key event depends on interrupt, so
+		 * we should disable local irq when update fuel gauge.
 		 */
 		local_irq_disable();
 
@@ -475,8 +541,8 @@ static int charge_animation_show(struct udevice *dev)
 			printf("get current failed: %d\n", current);
 			continue;
 		}
-		first_poll_fg = 0;
 
+		first_poll_fg = 0;
 		local_irq_enable();
 
 show_images:
@@ -488,10 +554,16 @@ show_images:
 			debug_start = get_timer(0);
 		if (get_timer(debug_start) > 20000) {
 			debug_start = get_timer(0);
-			printf("[%8ld]: soc=%d%%, vol=%dmv, c=%dma, online=%d, screen_on=%d\n",
+			printf("[%8ld]: soc=%d%%, vol=%dmv, c=%dma, "
+			       "online=%d, screen_on=%d\n",
 			       get_timer(0)/1000, soc, voltage,
 			       current, charging, screen_on);
 		}
+
+		/* Update leds */
+		ret = leds_update(dev, soc);
+		if (ret)
+			printf("update led failed: %d\n", ret);
 
 		/*
 		 * If ever lowpower screen off, force screen_on=false, which
@@ -503,24 +575,24 @@ show_images:
 
 		/*
 		 * Auto turn on screen when voltage higher than Vol screen on.
-		 * 'ever_lowpower_screen_off' means enter while loop with
+		 * 'ever_lowpower_screen_off' means enter the while(1) loop with
 		 * screen off.
 		 */
 		if ((ever_lowpower_screen_off) &&
 		    (voltage > pdata->screen_on_voltage)) {
 			ever_lowpower_screen_off = false;
 			screen_on = true;
-			show_idx = IMAGE_SHOW_RESET;
+			show_idx = IMAGE_RESET_IDX;
 		}
 
 		/*
-		 * IMAGE_SHOW_RESET means show_idx show be update by start_idx.
+		 * IMAGE_RESET_IDX means show_idx show be update by start_idx.
 		 * When short key pressed event trigged, we will set show_idx
-		 * as IMAGE_SHOW_RESET which updates images index from start_idx
+		 * as IMAGE_RESET_IDX which updates images index from start_idx
 		 * that calculate by current soc.
 		 */
-		if (show_idx == IMAGE_SHOW_RESET) {
-			for (i = 0; i < image_num - 2; i++) {
+		if (show_idx == IMAGE_RESET_IDX) {
+			for (i = 0; i < IMAGE_SOC_100_IDX(image_num); i++) {
 				/* Find out which image we start to show */
 				if ((soc >= image[i].soc) &&
 				    (soc < image[i + 1].soc)) {
@@ -529,7 +601,7 @@ show_images:
 				}
 
 				if (soc >= 100) {
-					start_idx = image_num - 2;
+					start_idx = IMAGE_SOC_100_IDX(image_num);
 					break;
 				}
 			}
@@ -552,7 +624,7 @@ show_images:
 				debug("SHOW: %s\n", image[show_idx].name);
 				charge_show_bmp(image[show_idx].name);
 			}
-			/* Re calculate timeout to off screen */
+			/* Re-calculate timeout to off screen */
 			if (priv->auto_screen_off_timeout == 0)
 				priv->auto_screen_off_timeout = get_timer(0);
 		} else {
@@ -568,8 +640,8 @@ show_images:
 			show_start = get_timer(0);
 			/* Update to next image */
 			show_idx++;
-			if (show_idx > (image_num - 2))
-				show_idx = IMAGE_SHOW_RESET;
+			if (show_idx > IMAGE_SOC_100_IDX(image_num))
+				show_idx = IMAGE_RESET_IDX;
 		}
 
 		debug("step4 (%d)... \n", screen_on);
@@ -582,21 +654,15 @@ show_images:
 		 */
 		key_state = check_key_press(dev);
 		if (key_state == KEY_PRESS_DOWN) {
-			old_show_idx = IMAGE_SHOW_RESET;
-
-			/* NULL means show nothing, ie. turn off screen */
-			if (screen_on)
-				charge_show_bmp(NULL);
-
 			/*
 			 * Clear current image index, and show image
 			 * from start_idx
 			 */
-			show_idx = IMAGE_SHOW_RESET;
+			old_show_idx = IMAGE_RESET_IDX;
+			show_idx = IMAGE_RESET_IDX;
 
 			/*
-			 * We turn off screen by charge_show_bmp(NULL), so we
-			 * should tell while loop to stop show images any more.
+			 *	Reverse the screen state
 			 *
 			 * If screen_on=false, means this short key pressed
 			 * event turn on the screen and we need show images.
@@ -604,12 +670,14 @@ show_images:
 			 * If screen_on=true, means this short key pressed
 			 * event turn off the screen and we never show images.
 			 */
-			if (screen_on)
+			if (screen_on) {
+				charge_show_bmp(NULL); /* Turn off screen */
 				screen_on = false;
-			else
+			} else {
 				screen_on = true;
+			}
 		} else if (key_state == KEY_PRESS_LONG_DOWN) {
-			/* Only long pressed while screen off needs screen_on true */
+			/* Set screen_on=true anyway when key long pressed */
 			if (!screen_on)
 				screen_on = true;
 
@@ -618,7 +686,7 @@ show_images:
 				printf("soc=%d%%, threshold soc=%d%%\n",
 				       soc, pdata->exit_charge_level);
 				printf("Low power, unable to boot, charging...\n");
-				show_idx = image_num - 1;
+				show_idx = IMAGE_LOWPOWER_IDX(image_num);
 				continue;
 			}
 
@@ -626,7 +694,7 @@ show_images:
 				printf("voltage=%dmv, threshold voltage=%dmv\n",
 				       voltage, pdata->exit_charge_voltage);
 				printf("Low power, unable to boot, charging...\n");
-				show_idx = image_num - 1;
+				show_idx = IMAGE_LOWPOWER_IDX(image_num);
 				continue;
 			}
 
@@ -671,11 +739,10 @@ static const struct dm_charge_display_ops charge_animation_ops = {
 static int charge_animation_probe(struct udevice *dev)
 {
 	struct charge_animation_priv *priv = dev_get_priv(dev);
-	struct udevice *fg, *pmic;
 	int ret, soc;
 
 	/* Get PMIC: used for power off system  */
-	ret = uclass_get_device(UCLASS_PMIC, 0, &pmic);
+	ret = uclass_get_device(UCLASS_PMIC, 0, &priv->pmic);
 	if (ret) {
 		if (ret == -ENODEV)
 			printf("Can't find PMIC\n");
@@ -683,10 +750,9 @@ static int charge_animation_probe(struct udevice *dev)
 			printf("Get UCLASS PMIC failed: %d\n", ret);
 		return ret;
 	}
-	priv->pmic = pmic;
 
 	/* Get fuel gauge: used for charging */
-	ret = uclass_get_device(UCLASS_FG, 0, &fg);
+	ret = uclass_get_device(UCLASS_FG, 0, &priv->fg);
 	if (ret) {
 		if (ret == -ENODEV)
 			debug("Can't find FG\n");
@@ -694,7 +760,15 @@ static int charge_animation_probe(struct udevice *dev)
 			debug("Get UCLASS FG failed: %d\n", ret);
 		return ret;
 	}
-	priv->fg = fg;
+
+	/* Get rtc: used for power on */
+	ret = uclass_get_device(UCLASS_RTC, 0, &priv->rtc);
+	if (ret) {
+		if (ret == -ENODEV)
+			debug("Can't find RTC\n");
+		else
+			debug("Get UCLASS RTC failed: %d\n", ret);
+	}
 
 	/* Get PWRKEY: used for wakeup and turn off/on LCD */
 	if (key_read(KEY_POWER) == KEY_NOT_EXIST) {
@@ -703,11 +777,21 @@ static int charge_animation_probe(struct udevice *dev)
 	}
 
 	/* Initialize charge current */
-	soc = fuel_gauge_get_soc(fg);
+	soc = fuel_gauge_get_soc(priv->fg);
 	if (soc < 0 || soc > 100) {
 		debug("get soc failed: %d\n", soc);
 		return -EINVAL;
 	}
+
+	/* Get leds */
+#ifdef CONFIG_LED
+	ret = led_get_by_label(LED_CHARGING_NAME, &priv->led_charging);
+	if (!ret)
+		printf("Found Charging LED\n");
+	ret = led_get_by_label(LED_CHARGING_FULL_NAME, &priv->led_full);
+	if (!ret)
+		printf("Found Charging-Full LED\n");
+#endif
 
 	/* Get charge images */
 	priv->image = image;

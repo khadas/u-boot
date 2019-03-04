@@ -811,9 +811,10 @@ int android_fdt_overlay_apply(void *fdt_addr)
 				fdt_totalsize((void *)fdt_dtbo);
 		if (sysmem_free((phys_addr_t)fdt_addr))
 			goto out;
+
 		if (!sysmem_alloc_base("fdt(dtbo)",
 				       (phys_addr_t)fdt_addr,
-					fdt_size))
+					fdt_size + CONFIG_SYS_FDT_PAD))
 			goto out;
 		fdt_increase_size(fdt_addr, fdt_totalsize((void *)fdt_dtbo));
 		ret = fdt_overlay_apply(fdt_addr, (void *)fdt_dtbo);
@@ -893,8 +894,10 @@ int android_bootloader_boot_flow(struct blk_desc *dev_desc,
 	 */
 	part_num = part_get_info_by_name(dev_desc, ANDROID_PARTITION_MISC,
 					 &misc_part_info);
-	if (part_num < 0)
+	if (part_num < 0) {
 		printf("%s Could not find misc partition\n", __func__);
+		return -ENODEV;
+	}
 
 #ifdef CONFIG_ANDROID_KEYMASTER_CA
 	/* load attestation key from misc partition. */
@@ -969,7 +972,7 @@ int android_bootloader_boot_flow(struct blk_desc *dev_desc,
 
 	if (vboot_flag) {
 		printf("SecureBoot enabled, AVB verify\n");
-		android_avb_set_enabled(false);
+		android_avb_set_enabled(true);
 		if (android_slot_verify(boot_partname, &load_address,
 					slot_suffix))
 			return -1;
