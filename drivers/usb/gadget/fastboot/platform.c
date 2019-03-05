@@ -7,6 +7,8 @@
  *
  */
  #include "platform.h"
+#include <asm/arch/cpu_id.h>
+#include <asm/arch/secure_apb.h>
 
 /*CONFIG_AML_MESON_8 include m8, m8baby, m8m2, etc... defined in cpu.h*/
 #if !(defined(CONFIG_USB_XHCI_HCD) || defined(CONFIG_USB_DWC_OTG_294))
@@ -180,12 +182,36 @@ static void set_usb_phy21_pll(void)
 		& (~(USB_PHY2_RESET)));
 }
 
+static int f_platform_usb_check_g12b_revb (void)
+{
+	int rev_flag = 0;
+
+	cpu_id_t cpu_id = get_cpu_id();
+
+	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_G12B) {
+		if (cpu_id.chip_rev == 0xb)
+			rev_flag = 1;
+		else
+			rev_flag = 0;
+	} else {
+		rev_flag = 0;
+	}
+
+	return rev_flag;
+}
+
 #ifdef CONFIG_USB_DEVICE_V2
 #define USB_REG_B 0xFF63A000
 
 void set_usb_phy21_tuning_fb(void)
 {
 	unsigned long phy_reg_base = USB_REG_B;
+
+	if (f_platform_usb_check_g12b_revb()) {
+		(*(volatile uint32_t *)(phy_reg_base + 0x50)) = USB_G12x_PHY_PLL_SETTING_1;
+		(*(volatile uint32_t *)(phy_reg_base + 0x34)) = USB_G12x_PHY_PLL_SETTING_3 & (0x1f << 16);
+		return;
+	}
 
 	(*(volatile uint32_t *)(phy_reg_base + 0x10)) = USB_G12x_PHY_PLL_SETTING_2;
 	(*(volatile uint32_t *)(phy_reg_base + 0x50)) = USB_G12x_PHY_PLL_SETTING_1;
@@ -196,6 +222,9 @@ void set_usb_phy21_tuning_fb(void)
 void set_usb_phy21_tuning_fb_reset(void)
 {
 	unsigned long phy_reg_base = USB_REG_B;
+
+	if (f_platform_usb_check_g12b_revb())
+		return;
 
 	(*(volatile uint32_t *)(phy_reg_base + 0x38)) = 0x0;
 	(*(volatile uint32_t *)(phy_reg_base + 0x34)) = USB_G12x_PHY_PLL_SETTING_3;

@@ -17,6 +17,8 @@
 #include <power/regulator.h>
 #include <clk.h>
 #include <asm/arch/usb.h>
+#include <asm/arch/cpu_id.h>
+
 
 #include <linux/compat.h>
 #include <linux/ioport.h>
@@ -34,6 +36,30 @@ struct phy_aml_usb2_priv {
 	unsigned int u2_port_num;
 	unsigned int usb_phy2_pll_base_addr[4];
 };
+
+static int Rev_flag = 0;
+
+/*Rev_flag == 1, g12b and revB, tl1 */
+static void phy_aml_usb2_check_g12b_revb (void)
+{
+	cpu_id_t cpu_id = get_cpu_id();
+
+	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_G12B) {
+		if (cpu_id.chip_rev == 0xb)
+			Rev_flag = 1;
+		else
+			Rev_flag = 0;
+	} else {
+		Rev_flag = 0;
+	}
+	return;
+}
+
+static int phy_aml_usb2_get_revb_type (void)
+{
+	return Rev_flag;
+}
+
 
 static void set_usb_pll(struct phy *phy, uint32_t volatile *phy2_pll_base)
 {
@@ -130,6 +156,8 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 		debug("------set usb pll\n");
 		set_usb_pll(phy, priv->usb_phy2_pll_base_addr[i]);
 	}
+
+	phy_aml_usb2_check_g12b_revb();
 	return 0;
 }
 
@@ -157,6 +185,12 @@ static int phy_aml_usb2_tuning(struct phy *phy, int port)
 
 
 	phy_reg_base = priv->usb_phy2_pll_base_addr[port];
+
+	if (phy_aml_usb2_get_revb_type() == 1) {
+		(*(volatile uint32_t *)(phy_reg_base + 0x50)) = pll_set1;
+		(*(volatile uint32_t *)(phy_reg_base + 0x34)) = pll_set3 & (0x1f << 16);
+		return;
+	}
 
 	(*(volatile uint32_t *)(phy_reg_base + 0x10)) = pll_set2;
 	(*(volatile uint32_t *)(phy_reg_base + 0x50)) = pll_set1;
