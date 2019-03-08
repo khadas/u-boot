@@ -1277,10 +1277,10 @@ int tee_supp_rk_fs_init(void)
 
 	return 0;
 }
-int OpteeClientRkFsInit(void)
+void OpteeClientRkFsInit(void)
 {
 	debug(" OpteeClientRkFsInit\n");
-	return tee_supp_rk_fs_init();
+	tee_supp_rk_fs_init();
 }
 
 static int rkss_step = 0;
