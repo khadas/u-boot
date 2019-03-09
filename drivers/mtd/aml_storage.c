@@ -1156,28 +1156,6 @@ static int nor_rsv_read(const char *name, size_t size, void *buf)
 	return mtd_read(mtd, offset, length, &length, buf);
 }
 
-static int nor_rsv_write(const char *name, size_t size, void *buf)
-{
-	struct mtd_info *mtd;
-	loff_t offset;
-	size_t length, total;
-	int ret = 0;
-
-	if (!name)
-		return 1;
-	length = size;
-	mtd = mtd_store_get(0);
-	total = mtd_store_size(name);
-	if (length > total) {
-		pr_info("request 0x%lx over the rsv size 0x%lx\n",
-			length, total);
-		return 1;
-	}
-	ret = mtd_store_get_offset(name, &offset, 0);
-	if (ret)
-		return ret;
-	return mtd_write(mtd, offset, length, &length, buf);
-}
 
 static int nor_rsv_erase(const char *name)
 {
@@ -1197,8 +1175,51 @@ static int nor_rsv_erase(const char *name)
 	erase.mtd = mtd;
 	erase.addr = offset;
 	erase.len = length;
+	erase.callback = NULL;
 	return mtd_erase(mtd, &erase);
 }
+
+static int nor_rsv_write(const char *name, size_t size, void *buf)
+{
+	struct mtd_info *mtd;
+	loff_t offset;
+	size_t length, total;
+	int ret = 0;
+	struct erase_info erase;
+
+	if (!name)
+		return 1;
+
+	length = size;
+	mtd = mtd_store_get(0);
+	total = mtd_store_size(name);
+	if (length > total) {
+		pr_info("request 0x%lx over the rsv size 0x%lx\n",
+			length, total);
+		return 1;
+	}
+
+	ret = mtd_store_get_offset(name, &offset, 0);
+	if (ret)
+		return ret;
+	/* special path for erase */
+	if (!strcmp(name, RSV_ENV)) {
+		erase.mtd = mtd;
+		erase.addr = offset;
+		erase.callback = NULL;
+		erase.len = length;
+		if (mtd_mod_by_eb(length, mtd))
+			erase.len = (mtd_div_by_eb(length, mtd) + 1)
+					* mtd->erasesize;
+		ret = mtd_erase(mtd, &erase);
+		if (!ret)
+			printf("%s() %d, erase %s error %d\n",
+				__func__, __LINE__, name, ret);
+	}
+
+	return mtd_write(mtd, offset, length, &length, buf);
+}
+
 
 static int nor_rsv_protect(const char *name, bool ops)
 {

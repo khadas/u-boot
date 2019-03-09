@@ -595,13 +595,21 @@ uint32_t mmc_get_rsv_size(const char *rsv_name) {
 
 }
 
+static inline int env_read(size_t size, void *buf) {
+	return storage_read_in_part("env", 0, size, buf);
+}
+
+static inline int env_write(size_t size, void *buf) {
+	return storage_write_in_part("env", 0, size, buf);
+}
+
 int mmc_read_rsv(const char *rsv_name, size_t size, void *buf) {
 
 	char ret=1;
 	struct mmc *mmc;
 	loff_t off =0;
 	unsigned long dtImgAddr = simple_strtoul(buf, NULL, 16);
-	ret = !strcmp("key", rsv_name) || !strcmp("dtb", rsv_name)||!strcmp("fastboot", rsv_name);
+	ret = !strcmp("env", rsv_name) || !strcmp("key", rsv_name) || !strcmp("dtb", rsv_name)||!strcmp("fastboot", rsv_name);
 	if (!ret) return 1;
 
 	mmc = find_mmc_device(STORAGE_EMMC);
@@ -609,6 +617,12 @@ int mmc_read_rsv(const char *rsv_name, size_t size, void *buf) {
 		puts("no mmc devices available\n");
 		return 1;
 	}
+
+	if (!strcmp("env", rsv_name)) {
+		ret = env_read(size, buf);
+		return ret;
+	}
+
 	ret = storage_rsv_range_check(rsv_name, &size, &off);
 	if (ret) return ret;
 	if (!strcmp("dtb", rsv_name)) {
@@ -634,7 +648,7 @@ int mmc_write_rsv(const char *rsv_name, size_t size, void *buf) {
 	struct mmc *mmc;
 	loff_t off =0;
 
-	ret = !strcmp("key", rsv_name) || !strcmp("dtb", rsv_name)||!strcmp("fastboot", rsv_name);
+	ret = !strcmp("env", rsv_name) || !strcmp("key", rsv_name) || !strcmp("dtb", rsv_name)||!strcmp("fastboot", rsv_name);
 	if (!ret)
 		return 1;
 	mmc = find_mmc_device(STORAGE_EMMC);
@@ -642,6 +656,12 @@ int mmc_write_rsv(const char *rsv_name, size_t size, void *buf) {
 		puts("no mmc devices available\n");
 		return 1;
 	}
+
+	if (!strcmp("env", rsv_name)) {
+		ret = env_write(size, buf);
+		return ret;
+	}
+
 	ret = storage_rsv_range_check(rsv_name, &size, &off);
 	if (ret) return ret;
 
@@ -705,13 +725,12 @@ int mmc_protect_rsv(const char *rsv_name, bool ops) {
 
 }
 
-
-
-
+DECLARE_GLOBAL_DATA_PTR;
 int emmc_pre(void)
 {
 	char ret = 1;
 	struct mmc *mmc;
+	mmc_initialize(gd->bd);
 	mmc = find_mmc_device(STORAGE_EMMC);
 	ret = mmc_start_init(mmc);
 	if (ret == 0)
@@ -735,8 +754,7 @@ int emmc_probe(uint32_t init_flag)
 		goto exit_error;
 	}
 	mmc = find_mmc_device(STORAGE_EMMC);
-	if (init_flag != 0xff)
-		ret = mmc_storage_init(init_flag); /*flag 0*/
+	ret = mmc_storage_init(init_flag); /*flag 0*/
 	if (ret) {
 		printf("mmc init failed ret:%x\n", ret);
 		goto exit_error;

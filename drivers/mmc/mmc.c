@@ -2835,7 +2835,6 @@ int mmc_init(struct mmc *mmc)
 			pr_info("eMMC/TSD partition table have been checked OK!\n");
 			}
 		}
-	err = emmc_probe(0xff);
 	}
 	info_disprotect &= ~DISPROTECT_KEY;
 	return err;

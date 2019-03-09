@@ -80,6 +80,9 @@ static enum env_location env_locations[] = {
 #ifdef CONFIG_ENV_IS_IN_UBI
 	ENVL_UBI,
 #endif
+#ifdef CONFIG_ENV_IS_IN_STORAGE
+	ENVL_STORAGE,
+#endif
 #ifdef CONFIG_ENV_IS_NOWHERE
 	ENVL_NOWHERE,
 #endif
@@ -251,7 +254,7 @@ int env_init(void)
 		if (!drv->init || !(ret = drv->init()))
 			env_set_inited(drv->location);
 
-		debug("%s: Environment %s init done (ret=%d)\n", __func__,
+		printf("%s: Environment %s init done (ret=%d)\n", __func__,
 		      drv->name, ret);
 	}
 

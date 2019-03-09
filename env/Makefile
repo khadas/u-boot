@@ -19,10 +19,33 @@ obj-$(CONFIG_ENV_IS_IN_ONENAND) += onenand.o
 obj-$(CONFIG_ENV_IS_IN_SATA) += sata.o
 obj-$(CONFIG_ENV_IS_IN_REMOTE) += remote.o
 obj-$(CONFIG_ENV_IS_IN_UBI) += ubi.o
+obj-$(CONFIG_ENV_IS_NOWHERE) += nowhere.o
+obj-$(CONFIG_ENV_IS_IN_STORAGE) += storage.o
+endif
+
+ifdef CONFIG_SPL_BUILD
+obj-$(CONFIG_ENV_IS_IN_FLASH) += flash.o
+# environment
+ifdef CONFIG_TPL_BUILD
+obj-$(CONFIG_TPL_ENV_SUPPORT) += attr.o
+obj-$(CONFIG_TPL_ENV_SUPPORT) += flags.o
+obj-$(CONFIG_TPL_ENV_SUPPORT) += callback.o
 else
-obj-$(CONFIG_$(SPL_TPL_)ENV_SUPPORT) += attr.o
-obj-$(CONFIG_$(SPL_TPL_)ENV_SUPPORT) += flags.o
-obj-$(CONFIG_$(SPL_TPL_)ENV_SUPPORT) += callback.o
+obj-$(CONFIG_SPL_ENV_SUPPORT) += attr.o
+obj-$(CONFIG_SPL_ENV_SUPPORT) += flags.o
+obj-$(CONFIG_SPL_ENV_SUPPORT) += callback.o
+endif
+ifneq ($(CONFIG_TPL_ENV_SUPPORT)$(CONFIG_SPL_ENV_SUPPORT),)
+obj-$(CONFIG_ENV_IS_NOWHERE) += nowhere.o
+obj-$(CONFIG_ENV_IS_IN_MMC) += mmc.o
+obj-$(CONFIG_ENV_IS_IN_FAT) += fat.o
+obj-$(CONFIG_ENV_IS_IN_EXT4) += ext4.o
+obj-$(CONFIG_ENV_IS_IN_NAND) += nand.o
+obj-$(CONFIG_ENV_IS_IN_SPI_FLASH) += sf.o
+obj-$(CONFIG_ENV_IS_IN_FLASH) += flash.o
+obj-$(CONFIG_ENV_IS_IN_STORAGE) += storage.o
+endif
+
 endif
 
 obj-$(CONFIG_$(SPL_TPL_)ENV_IS_NOWHERE) += nowhere.o

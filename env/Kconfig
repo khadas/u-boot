@@ -13,6 +13,7 @@ config ENV_IS_NOWHERE
 	depends on !ENV_IS_IN_REMOTE
 	depends on !ENV_IS_IN_SPI_FLASH
 	depends on !ENV_IS_IN_UBI
+	depends on !ENV_IS_IN_STORAGE
 	default y
 	help
 	  Define this if you don't want to or can't have an environment stored
@@ -20,6 +21,24 @@ config ENV_IS_NOWHERE
 	  while U-Boot is running, but once U-Boot exits it will not be
 	  stored. U-Boot will therefore always start up with a default
 	  environment.
+
+config ENV_IS_IN_STORAGE
+	bool "Environment is in Amlogic storage device"
+	depends on AML_STORAGE
+	depends on !ENV_IS_IN_EEPROM
+	depends on !ENV_IS_IN_FAT
+	depends on !ENV_IS_IN_FLASH
+	depends on !ENV_IS_IN_MMC
+	depends on !ENV_IS_IN_NAND
+	depends on !ENV_IS_IN_NVRAM
+	depends on !ENV_IS_IN_ONENAND
+	depends on !ENV_IS_IN_REMOTE
+	depends on !ENV_IS_IN_SPI_FLASH
+	depends on !ENV_IS_IN_UBI
+	help
+	  Define this if you have a Amlogic virtual storage device which you
+	  want to use for the environment.
+	  This virtual device maybe a emmc or a nand device, or any others
 
 config ENV_IS_IN_EEPROM
 	bool "Environment in EEPROM"
