@@ -791,3 +791,15 @@ int checkhw(char * name)
 }
 #endif
 
+const char * const _env_args_reserve_[] =
+{
+		"aml_dt",
+		"firstboot",
+		"lock",
+		"upgrade_step",
+		"model_name",
+
+		NULL//Keep NULL be last to tell END
+};
+
+

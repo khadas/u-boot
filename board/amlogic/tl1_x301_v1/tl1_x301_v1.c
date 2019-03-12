@@ -807,3 +807,15 @@ U_BOOT_CMD(
 	"load MTK BT driver, and set woble\n",
 	NULL
 );
+
+const char * const _env_args_reserve_[] =
+{
+		"aml_dt",
+		"firstboot",
+		"lock",
+		"upgrade_step",
+		"model_name",
+
+		NULL//Keep NULL be last to tell END
+};
+

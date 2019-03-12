@@ -529,6 +529,7 @@ const char * const _env_args_reserve_[] =
 		"firstboot",
 		"lock",
 		"upgrade_step",
+		"model_name",
 
 		NULL//Keep NULL be last to tell END
 };
