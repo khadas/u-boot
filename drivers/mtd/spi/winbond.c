@@ -428,11 +428,16 @@ struct spi_flash *spi_flash_probe_winbond(struct spi_slave *spi, u8 *idcode)
 			break;
 	}
 
+	run_command("amlmmc rescan 1", 0);
+	run_command("amlmmc rescan 0", 0);
+
 	if (i == ARRAY_SIZE(winbond_spi_flash_table)) {
 		printf("SF: Unsupported Winbond ID %02x%02x\n",
 				idcode[1], idcode[2]);
+		setenv("spi_state", "0");
 		return NULL;
 	}
+	setenv("spi_state", "1");
 
 	stm = malloc(sizeof(struct winbond_spi_flash));
 	if (!stm) {

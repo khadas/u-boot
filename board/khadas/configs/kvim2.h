@@ -258,6 +258,10 @@
                 "fdt set /i2c@c11087c0/khadas-mcu hwver VIM2.V13;"\
             "fi;"\
             "\0"\
+         "spi_check="\
+            "sf probe;" \
+            "setenv bootargs ${bootargs} spi_state=${spi_state};"\
+            "\0"\
          "wol_init="\
             "kbi init;"\
             "kbi powerstate;"\
@@ -280,6 +284,7 @@
             "run vim2_check;" \
             "run set_fan_mode;"\
             "run wol_init;"\
+            "run spi_check;"\
             "forceupdate;" \
             "run switch_bootmode;"
 #define CONFIG_BOOTCOMMAND "run storeboot"
