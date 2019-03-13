@@ -252,6 +252,7 @@
          "set_fan_mode="\
             "kbi hwver; "\
             "if test ${hwver} = VIM2.V13; then "\
+                "setenv bootargs ${bootargs} VIM2.V13;"\
                 "fdt addr ${dtb_mem_addr};"\
                 "fdt resize 65536;"\
                 "fdt set /fan hwver VIM2.V13;"\
@@ -260,7 +261,9 @@
             "\0"\
          "spi_check="\
             "sf probe;" \
-            "setenv bootargs ${bootargs} spi_state=${spi_state};"\
+            "if test ${spi_state} = 1; then "\
+            "setenv bootargs ${bootargs} spi_ok;"\
+            "fi;"\
             "\0"\
          "wol_init="\
             "kbi init;"\
