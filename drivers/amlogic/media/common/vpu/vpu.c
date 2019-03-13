@@ -28,7 +28,8 @@
 #include "vpu_ctrl.h"
 
 /* v20181009: init version */
-#define VPU_VERION	"v20181009"
+/* v20190313: add sm1 support */
+#define VPU_VERION	"v20190313"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -50,6 +51,8 @@ static struct vpu_data_s vpu_data_g12a = {
 	.vpu_clk_table = vpu_clk_table,
 
 	.mem_pd_table = vpu_mem_pd_g12a,
+	.hdmi_iso_pre_table = vpu_hdmi_iso_pre_gxb,
+	.hdmi_iso_table = vpu_hdmi_iso_gxb,
 	.reset_table = vpu_reset_g12a,
 
 	.module_init_table_cnt = 0,
@@ -67,7 +70,67 @@ static struct vpu_data_s vpu_data_g12b = {
 	.vpu_clk_table = vpu_clk_table,
 
 	.mem_pd_table = vpu_mem_pd_g12a,
+	.hdmi_iso_pre_table = vpu_hdmi_iso_pre_gxb,
+	.hdmi_iso_table = vpu_hdmi_iso_gxb,
 	.reset_table = vpu_reset_g12a,
+
+	.module_init_table_cnt = 0,
+	.module_init_table = NULL,
+};
+
+static struct vpu_data_s vpu_data_tl1 = {
+	.chip_type = VPU_CHIP_TL1,
+	.chip_name = "tl1",
+	.clk_level_dft = CLK_LEVEL_DFT_G12A,
+	.clk_level_max = CLK_LEVEL_MAX_G12A,
+	.gp_pll_valid = 0,
+
+	.fclk_div_table = fclk_div_table_g12a,
+	.vpu_clk_table = vpu_clk_table,
+
+	.mem_pd_table = vpu_mem_pd_tl1,
+	.hdmi_iso_pre_table = vpu_hdmi_iso_pre_gxb,
+	.hdmi_iso_table = vpu_hdmi_iso_gxb,
+	.reset_table = vpu_reset_tl1,
+
+	.module_init_table_cnt = 0,
+	.module_init_table = NULL,
+};
+
+/* static struct vpu_data_s vpu_data_sm1 = {
+	.chip_type = VPU_CHIP_SM1,
+	.chip_name = "sm1",
+	.clk_level_dft = CLK_LEVEL_DFT_G12A,
+	.clk_level_max = CLK_LEVEL_MAX_G12A,
+	.gp_pll_valid = 0,
+
+	.fclk_div_table = fclk_div_table_g12a,
+	.vpu_clk_table = vpu_clk_table,
+
+	.mem_pd_table = vpu_mem_pd_tl1,
+	.hdmi_iso_pre_table = vpu_hdmi_iso_pre_gxb,
+	.hdmi_iso_table = vpu_hdmi_iso_sm1,
+	.reset_table = vpu_reset_gx,
+
+	.module_init_table_cnt = 0,
+	.module_init_table = NULL,
+};
+*/
+
+static struct vpu_data_s vpu_data_tm2 = {
+	.chip_type = VPU_CHIP_TM2,
+	.chip_name = "tm2",
+	.clk_level_dft = CLK_LEVEL_DFT_G12A,
+	.clk_level_max = CLK_LEVEL_MAX_G12A,
+	.gp_pll_valid = 0,
+
+	.fclk_div_table = fclk_div_table_g12a,
+	.vpu_clk_table = vpu_clk_table,
+
+	.mem_pd_table = vpu_mem_pd_tm2,
+	.hdmi_iso_pre_table = vpu_hdmi_iso_pre_gxb,
+	.hdmi_iso_table = vpu_hdmi_iso_sm1,
+	.reset_table = vpu_reset_tl1,
 
 	.module_init_table_cnt = 0,
 	.module_init_table = NULL,
@@ -85,6 +148,15 @@ static void vpu_chip_detect(void)
 		break;
 	case MESON_CPU_MAJOR_ID_G12B:
 		vpu_conf.data = &vpu_data_g12b;
+		break;
+	case MESON_CPU_MAJOR_ID_TL1:
+		vpu_conf.data = &vpu_data_tl1;
+		break;
+	//case MESON_CPU_MAJOR_ID_SM1:
+	//	vpu_conf.data = &vpu_data_sm1;
+	//	break;
+	case MESON_CPU_MAJOR_ID_TM2:
+		vpu_conf.data = &vpu_data_tm2;
 		break;
 	default:
 		vpu_conf.data = &vpu_data_g12a;
@@ -123,6 +195,9 @@ static int vpu_check(void)
 	switch (vpu_conf.data->chip_type) {
 	case VPU_CHIP_G12A:
 	case VPU_CHIP_G12B:
+	case VPU_CHIP_TL1:
+	case VPU_CHIP_SM1:
+	case VPU_CHIP_TM2:
 		ret = 0;
 		break;
 	default:
@@ -371,19 +446,21 @@ get_vpu_config_dft:
 
 int vpu_probe(void)
 {
+	int ret;
 	vpu_chip_detect();
 	if (vpu_check())
 		return -1;
 
-	get_vpu_config();
+	ret = get_vpu_config();
 	vpu_power_on();
 	set_vpu_clk(vpu_conf.clk_level);
+	//vpu_power_on();
 
 	/* vpu module init off, for power save, and special module init */
 	vpu_mem_pd_init_off();
 	vpu_module_init_config();
 
-	return 0;
+	return ret;
 }
 
 int vpu_remove(void)

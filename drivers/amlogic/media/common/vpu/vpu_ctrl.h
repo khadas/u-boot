@@ -97,6 +97,50 @@ static struct vpu_ctrl_s vpu_mem_pd_g12a[] = {
 	{VPU_REG_END,         0,   0,    0},
 };
 
+static struct vpu_ctrl_s vpu_mem_pd_tl1[] = {
+	/* reg,               val, bit, len */
+	{HHI_VPU_MEM_PD_REG0, 1,   0,   32},
+	{HHI_VPU_MEM_PD_REG1, 1,   0,   32},
+	{HHI_VPU_MEM_PD_REG2, 1,   0,   32},
+	{HHI_VPU_MEM_PD_REG3, 1,   0,   32},
+	{HHI_VPU_MEM_PD_REG4, 1,   0,    4},
+	{VPU_REG_END,         0,   0,    0},
+};
+
+static struct vpu_ctrl_s vpu_mem_pd_tm2[] = {
+	/* reg,               val, bit, len */
+	{HHI_VPU_MEM_PD_REG0, 1,   0,   32},
+	{HHI_VPU_MEM_PD_REG1, 1,   0,   32},
+	{HHI_VPU_MEM_PD_REG2, 1,   0,   32},
+	{HHI_VPU_MEM_PD_REG3, 1,   0,   32},
+	{HHI_VPU_MEM_PD_REG4, 1,   0,    8},
+	{VPU_REG_END,         0,   0,    0},
+};
+
+/* ******************************************************* */
+/*              VPU_HDMI ISO pre: before reset               */
+/* ******************************************************* */
+static struct vpu_ctrl_s vpu_hdmi_iso_pre_gxb[] = {
+	/* reg,                val, bit, len */
+	{AO_RTI_GEN_PWR_SLEEP0,  1,   8,   1},
+	{VPU_REG_END,            0,   0,   0},
+};
+
+/* ******************************************************* */
+/*              VPU_HDMI ISO                */
+/* ******************************************************* */
+static struct vpu_ctrl_s vpu_hdmi_iso_gxb[] = {
+	/* reg,                val, bit, len */
+	{AO_RTI_GEN_PWR_SLEEP0,  1,   9,   1},
+	{VPU_REG_END,            0,   0,   0},
+};
+
+static struct vpu_ctrl_s vpu_hdmi_iso_sm1[] = {
+	/* reg,                val, bit, len */
+	{AO_RTI_GEN_PWR_ISO0,    1,   8,   1},
+	{VPU_REG_END,            0,   0,   0},
+};
+
 /* ******************************************************* */
 /*                 VPU module init table                 */
 /* ******************************************************* */
@@ -128,4 +172,13 @@ static struct vpu_reset_s vpu_reset_g12a[] = {
 	{VPU_REG_END,  0},
 };
 
+static struct vpu_reset_s vpu_reset_tl1[] = {
+	/* reg,        mask */
+	{RESET0_LEVEL, ((1<<5) | (1<<10) | (1<<19) | (1<<13))},
+	{RESET1_LEVEL, ((1<<5) | (1<<4))},
+	{RESET2_LEVEL, (1<<15)},
+	{RESET4_LEVEL, ((1<<6) | (1<<7) | (1<<13) | (1<<5) | (1<<9) | (1<<4) | (1<<12))},
+	{RESET7_LEVEL, (1<<7)},
+	{VPU_REG_END,  0},
+};
 #endif
