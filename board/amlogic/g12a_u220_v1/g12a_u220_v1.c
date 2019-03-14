@@ -66,6 +66,18 @@ DECLARE_GLOBAL_DATA_PTR;
 //new static eth setup
 struct eth_board_socket*  eth_board_skt;
 
+static void gate_useless_clock(void)
+{
+        unsigned int mpeg0, mpeg1, mpeg2;
+
+        mpeg0 = (~0x100818);
+        mpeg1 = (~0x9000008);
+        mpeg2 = (~0x40);
+        /* close useless clk gate */
+        writel(readl(HHI_GCLK_MPEG0) & mpeg0, HHI_GCLK_MPEG0);
+        writel(readl(HHI_GCLK_MPEG1) & mpeg1, HHI_GCLK_MPEG1);
+        writel(readl(HHI_GCLK_MPEG2) & mpeg2, HHI_GCLK_MPEG2);
+}
 
 int serial_set_pin_port(unsigned long port_base)
 {
@@ -740,6 +752,9 @@ int board_late_init(void)
 		aml_try_factory_usb_burning(1, gd->bd);
 		aml_try_factory_sdcard_burning(0, gd->bd);
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
+
+	/* close useless clk gate */
+	gate_useless_clock();
 
 	/**/
 	aml_config_dtb();
