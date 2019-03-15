@@ -58,6 +58,9 @@
  *
  */
 
+//#define DMC_TEST_SLT_ENABLE_DDR_AUTO_FAST_BOOT 1<<5
+//#define DMC_TEST_SLT_ENABLE_DDR_AUTO_WINDOW_TEST 1<<4
+
 ddr_set_t __ddr_setting[] = {
 {
 	//lpddr4
@@ -65,7 +68,7 @@ ddr_set_t __ddr_setting[] = {
 	.version				= 1,
 	//.dram_rank_config		= CONFIG_DDR0_32BIT_RANK01_CH0,
 	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
-	.ddr_rfc_type			= DDR_RFC_TYPE_LPDDR4_4Gbx1,
+	.ddr_rfc_type			= DDR_RFC_TYPE_LPDDR4_8Gbx1,
 	.DramType				= CONFIG_DDR_TYPE_LPDDR4,
 	.DRAMFreq				= {1200, 0, 0, 0},
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
@@ -73,11 +76,11 @@ ddr_set_t __ddr_setting[] = {
 	.DisabledDbyte			= 0xf0,
 	.Is2Ttiming				= 0,
 	.HdtCtrl				= 0xa,
-	.dram_cs0_size_MB		= 2048,//1024,
+	.dram_cs0_size_MB		= 0xffff,//1024,
 	.dram_cs1_size_MB		= 0,//1024,
 	.training_SequenceCtrl	= {0x131f,0x61}, //ddr3 0x21f 0x31f
-	.phy_odt_config_rank	= {0x30,0x30,0x30,0x30}, // // Odt pattern for accesses //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
-	.dfi_odt_config			= 0x0808,
+	.phy_odt_config_rank	= {0x23,0x13}, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
+	.dfi_odt_config			= 0x0d0d,  //use 0d0d compatibility with 1rank and 2rank  //0808
 	.PllBypassEn			= 0, //bit0-ps0,bit1-ps1
 	.ddr_rdbi_wr_enable		= 0x3,
 	.clk_drv_ohm			= 60,
@@ -89,8 +92,8 @@ ddr_set_t __ddr_setting[] = {
 	.soc_data_odt_ohm_n		= 60,
 	.dram_data_drv_ohm		= 48, //lpddr4 sdram only240/1-6
 	.dram_data_odt_ohm		= 120,
-	.dram_ac_odt_ohm		=120,// 120,
-	.lpddr4_dram_vout_voltage_1_3_2_5_setting   =0,///1, 1/3vddq     0 2/5 vddq
+	.dram_ac_odt_ohm		= 120,// 120,
+	.lpddr4_dram_vout_voltage_1_3_2_5_setting   = 0,///1, 1/3vddq     0 2/5 vddq
 	.soc_clk_slew_rate		= 0x3ff,//0x253,
 	.soc_cs_slew_rate		= 0x100,//0x253,
 	.soc_ac_slew_rate		= 0x100,//0x253,
@@ -116,10 +119,13 @@ ddr_set_t __ddr_setting[] = {
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
 	.diagnose				= CONFIG_DIAGNOSE_DISABLE,
+	.fast_boot[0]			= 6,
+//	.slt_test_function[0]=DMC_TEST_SLT_ENABLE_DDR_AUTO_FAST_BOOT,
+//	.dqs_offset_value=0x1<<4,//bit 0-2 read offset ,bit 3 read offset direction ,bit 4-6 write offset,bit 7 write offset direction.
 },
 {
 	/// tl1 ref(x301) ddr3
-	.board_id				=CONFIG_BOARD_ID_MASK,
+	.board_id				= CONFIG_BOARD_ID_MASK,
 	.version				= 1,
 	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK01_CH0,
 	.DramType				= CONFIG_DDR_TYPE_DDR3,
@@ -129,11 +135,11 @@ ddr_set_t __ddr_setting[] = {
 	.DisabledDbyte			= 0xf0,
 	.Is2Ttiming				= 1,
 	.HdtCtrl				= 0xc8,//0xC8,
-	.dram_cs0_size_MB		= 1024,
-	.dram_cs1_size_MB		=1024,// 1024,
+	.dram_cs0_size_MB		= 0xffff,
+	.dram_cs1_size_MB		= 0xffff,// 1024,
 	.training_SequenceCtrl	= {0x31f,0}, //ddr3 0x21f 0x31f
-	.phy_odt_config_rank	= {0x23,0x13,0x30,0x30}, // // Odt pattern for accesses //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
-	.dfi_odt_config			= 0x0d0d,
+	.phy_odt_config_rank	= {0x23,0x13}, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
+	.dfi_odt_config			= 0x0d0d,  //use 0d0d compatibility with 1rank and 2rank  //0808
 	.PllBypassEn			= 0, //bit0-ps0,bit1-ps1
 	.ddr_rdbi_wr_enable		= 0,
 	.clk_drv_ohm			= 40,
@@ -142,11 +148,11 @@ ddr_set_t __ddr_setting[] = {
 	.soc_data_drv_ohm_p		= 40,
 	.soc_data_drv_ohm_n		= 40,
 	.soc_data_odt_ohm_p		= 60,//120, //48, ddr3 will use odt_ohm_p value
-	.soc_data_odt_ohm_n		=0,//120,
+	.soc_data_odt_ohm_n		= 0,//120,
 	.dram_data_drv_ohm		= 40, //ddr4 sdram only 34 or 48, skt board use 34 better
 	.dram_data_odt_ohm		= 40,
 	.dram_ac_odt_ohm		= 0,
-	.dram_data_wr_odt_ohm =120,
+	.dram_data_wr_odt_ohm	= 120,
 	.soc_clk_slew_rate		= 0x300,
 	.soc_cs_slew_rate		= 0x300,
 	.soc_ac_slew_rate		= 0x300,
@@ -186,6 +192,8 @@ ddr_set_t __ddr_setting[] = {
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
+//	.slt_test_function[0]=DMC_TEST_SLT_ENABLE_DDR_AUTO_FAST_BOOT,
+//	.dqs_offset_value=0x1,//bit 0-2 read offset ,bit 3 read offset direction ,bit 4-6 write offset,bit 7 write offset direction.
 },
 //*/
 {
@@ -204,8 +212,8 @@ ddr_set_t __ddr_setting[] = {
 	.dram_cs0_size_MB		= 0xffff,
 	.dram_cs1_size_MB		= 0,
 	.training_SequenceCtrl	= {0x31f,0x61}, //ddr3 0x21f 0x31f
-	.phy_odt_config_rank	= {0x23,0x13,0x30,0x30}, // // Odt pattern for accesses //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
-	.dfi_odt_config			= 0x0d0d,
+	.phy_odt_config_rank	= {0x23,0x13}, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
+	.dfi_odt_config			= 0x0d0d,  //use 0d0d compatibility with 1rank and 2rank  //0808
 	.PllBypassEn			= 0, //bit0-ps0,bit1-ps1
 	.ddr_rdbi_wr_enable		= 0x1,//bit 0 read-dbi,bit 1 write dbi
 	.clk_drv_ohm			= 40,
@@ -254,7 +262,10 @@ ddr_set_t __ddr_setting[] = {
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
-	.slt_test_function={0x0,0x0},   //{0x1,0x0},enable slt 4 DRAMFreq test;{0x0,0x0},disable slt 4 DRAMFreq test;
+	//.slt_test_function={0x0,0x0},   //{0x1,0x0},enable slt 4 DRAMFreq test;{0x0,0x0},disable slt 4 DRAMFreq test;
+	//.slt_test_function[0]=DMC_TEST_SLT_ENABLE_DDR_AUTO_FAST_BOOT|DMC_TEST_SLT_ENABLE_DDR_AUTO_WINDOW_TEST,
+	.slt_test_function[0]	= DMC_TEST_SLT_ENABLE_DDR_AUTO_FAST_BOOT,
+//	.dqs_offset_value=0x1,//bit 0-2 read offset ,bit 3 read offset direction ,bit 4-6 write offset,bit 7 write offset direction.
 },
 /*
 {
@@ -269,8 +280,8 @@ ddr_set_t __ddr_setting[] = {
 	.DisabledDbyte			= 0xf0,
 	.Is2Ttiming				= 1,
 	.HdtCtrl				= 0x5,//0xC8,
-	.dram_cs0_size_MB		= 1024,
-	.dram_cs1_size_MB		=0,// 1024,
+	.dram_cs0_size_MB		= 0xffff,
+	.dram_cs1_size_MB		= 0,// 1024,
 	.training_SequenceCtrl	= {0x31f,0}, //ddr3 0x21f 0x31f
 	.phy_odt_config_rank	= {0x30,0x30,0x30,0x30}, // // Odt pattern for accesses //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
 	.dfi_odt_config			= 0x0c0c,
@@ -339,8 +350,8 @@ ddr_set_t __ddr_setting[] = {
 	.DisabledDbyte			= 0xf0,
 	.Is2Ttiming				= 0,
 	.HdtCtrl				= 0xa,
-	.dram_cs0_size_MB		= 1024,//1024,
-	.dram_cs1_size_MB		= 1024,//1024,
+	.dram_cs0_size_MB		= 0xffff,//1024,
+	.dram_cs1_size_MB		= 0xffff,//1024,
 	.training_SequenceCtrl	= {0x131f,0x61}, //ddr3 0x21f 0x31f
 	.phy_odt_config_rank	= {0x30,0x30,0x30,0x30}, // // Odt pattern for accesses //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
 	.dfi_odt_config			= 0x0808,
@@ -450,8 +461,8 @@ ddr_set_t __ddr_setting[] = {
 	.DisabledDbyte			= 0xf0,
 	.Is2Ttiming				= 0,
 	.HdtCtrl				= 0xa,//0xa,
-	.dram_cs0_size_MB		= 1024,//1024,
-	.dram_cs1_size_MB		= 1024,//1024,
+	.dram_cs0_size_MB		= 0xffff,//1024,
+	.dram_cs1_size_MB		= 0xffff,//1024,
 	.training_SequenceCtrl	= {0x131f,0}, //ddr3 0x21f 0x31f
 	.phy_odt_config_rank	= {0x30,0x30,0x30,0x30}, // // Odt pattern for accesses //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
 	.dfi_odt_config			= 0x00c,
@@ -494,6 +505,10 @@ ddr_set_t __ddr_setting[] = {
 	.diagnose				= CONFIG_DIAGNOSE_DISABLE,
 },
 */
+{
+	/* use for fastboot */
+	.board_id				= CONFIG_BOARD_ID_MASK,
+},
 };
 
 pll_set_t __pll_setting = {
