@@ -7,5 +7,7 @@
 #define RING_PWM_VCCK		(0xff802000 + (0x01 << 2))
 #define RING_PWM_EE		(0xff807000 + (0x01 << 2))
 
+int ring_msr_g12a(int index);
+int ring_msr_sm1(int index);
 int ring_msr(int index);
 #endif
