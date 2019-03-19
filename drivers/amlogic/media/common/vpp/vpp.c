@@ -495,7 +495,8 @@ static void vpp_set_matrix_ycbcr2rgb(int vd1_or_vd2_or_post, int mode)
 	int *m = NULL;
 
 	if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) ||
-		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B)){
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B) ||
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TL1)){
 		/* POST2 matrix: YUV limit -> RGB  default is 12bit*/
 		m = YUV709l_to_RGB709_coeff12;
 
@@ -912,7 +913,9 @@ for G12A, set osd2 matrix(10bit) RGB2YUV
 	int *m = NULL;
 
 	if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) ||
-		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B)){
+	    (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B) ||
+	    (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TL1) ||
+	    (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SM1)) {
 		/* RGB -> 709 limit */
 		m = RGB709_to_YUV709l_coeff;
 
@@ -973,7 +976,9 @@ static void set_osd2_rgb2yuv(bool on)
 	int *m = NULL;
 
 	if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) ||
-		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B)){
+	    (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B) ||
+	    (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TL1) ||
+	    (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SM1)) {
 		/* RGB -> 709 limit */
 		m = RGB709_to_YUV709l_coeff;
 
@@ -1012,7 +1017,8 @@ static void set_osd3_rgb2yuv(bool on)
 	int *m = NULL;
 
 	if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) ||
-		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B)){
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B) ||
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SM1)) {
 		/* RGB -> 709 limit */
 		m = RGB709_to_YUV709l_coeff;
 
@@ -1049,7 +1055,9 @@ for txlx, set vpp default data path to u10
 static void set_vpp_bitdepth(void)
 {
 	if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) ||
-		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B)) {
+		   (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B) ||
+		   (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TL1) ||
+		   (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SM1)) {
 		/*after this step vd1 output data is U12,*/
 		vpp_reg_write(DOLBY_PATH_CTRL, 0xf);
 	}
@@ -1362,6 +1370,20 @@ void vpp_init(void)
 		/* set vpp data path to u12 */
 		set_vpp_bitdepth();
 	} else if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B) {
+		/* osd1: rgb->yuv limit,osd2: rgb2yuv limit,osd3: rgb2yuv limit*/
+		set_osd1_rgb2yuv(1);
+		set_osd2_rgb2yuv(1);
+		set_osd3_rgb2yuv(1);
+
+		/* set vpp data path to u12 */
+		set_vpp_bitdepth();
+	} else if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TL1) {
+		set_osd1_rgb2yuv(1);
+		set_osd2_rgb2yuv(1);
+
+		/* set vpp data path to u12 */
+		set_vpp_bitdepth();
+	} else if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SM1) {
 		/* osd1: rgb->yuv limit,osd2: rgb2yuv limit,osd3: rgb2yuv limit*/
 		set_osd1_rgb2yuv(1);
 		set_osd2_rgb2yuv(1);
