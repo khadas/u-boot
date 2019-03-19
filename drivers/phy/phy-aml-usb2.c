@@ -39,23 +39,24 @@ struct phy_aml_usb2_priv {
 
 static int Rev_flag = 0;
 
-/*Rev_flag == 1, g12b and revB, tl1 */
-static void phy_aml_usb2_check_g12b_revb (void)
+/*Rev_flag == 0XB, g12b and revB, tl1 */
+/*Rev_flag == 1, sm1 */
+static void phy_aml_usb2_check_rev (void)
 {
 	cpu_id_t cpu_id = get_cpu_id();
 
 	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_G12B) {
 		if (cpu_id.chip_rev == 0xb)
-			Rev_flag = 1;
+			Rev_flag = 0xb;
 		else
 			Rev_flag = 0;
-	} else {
-		Rev_flag = 0;
+	} else if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SM1){
+		Rev_flag = MESON_CPU_MAJOR_ID_SM1;
 	}
 	return;
 }
 
-static int phy_aml_usb2_get_revb_type (void)
+static int phy_aml_usb2_get_rev_type (void)
 {
 	return Rev_flag;
 }
@@ -71,6 +72,10 @@ static void set_usb_pll(struct phy *phy, uint32_t volatile *phy2_pll_base)
 	dev_read_u32(phy->dev, "pll-setting-3", &pll_set3);
 	debug("pll1=0x%08x, pll2=0x%08x, pll-setting-3 =0x%08x\n",
 		pll_set1, pll_set2, pll_set3);
+
+	if (phy_aml_usb2_get_rev_type() == MESON_CPU_MAJOR_ID_SM1) {
+		pll_set3 = 0xAC5F69E5;
+	}
 
 	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x40))
 		= (pll_set1 | USB_PHY2_RESET | USB_PHY2_ENABLE);
@@ -98,6 +103,15 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 	int i;
 	int cnt, u2portnum, node;
 	int time_dly = RESET_COMPLETE_TIME;
+
+	phy_aml_usb2_check_rev();
+	if (phy_aml_usb2_get_rev_type() == MESON_CPU_MAJOR_ID_SM1) {
+		writel((readl(P_AO_RTI_GEN_PWR_SLEEP0) & (~(0x1<<17))),
+			P_AO_RTI_GEN_PWR_SLEEP0);
+		writel((readl(P_AO_RTI_GEN_PWR_ISO0) & (~(0x1<<17))),
+			P_AO_RTI_GEN_PWR_ISO0);
+		writel((readl(HHI_MEM_PD_REG0) & (~(0x3<<30))), HHI_MEM_PD_REG0);
+	}
 
 	priv->reset_addr = dev_read_addr_index(phy->dev, 1);
 	if (priv->reset_addr == FDT_ADDR_T_NONE) {
@@ -156,8 +170,6 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 		debug("------set usb pll\n");
 		set_usb_pll(phy, priv->usb_phy2_pll_base_addr[i]);
 	}
-
-	phy_aml_usb2_check_g12b_revb();
 	return 0;
 }
 
@@ -186,7 +198,8 @@ static int phy_aml_usb2_tuning(struct phy *phy, int port)
 
 	phy_reg_base = priv->usb_phy2_pll_base_addr[port];
 
-	if (phy_aml_usb2_get_revb_type() == 1) {
+	if (phy_aml_usb2_get_rev_type() == 0xb
+		|| phy_aml_usb2_get_rev_type() == MESON_CPU_MAJOR_ID_SM1) {
 		(*(volatile uint32_t *)(phy_reg_base + 0x50)) = pll_set1;
 		(*(volatile uint32_t *)(phy_reg_base + 0x54)) = 0x2a;
 		(*(volatile uint32_t *)(phy_reg_base + 0x34)) = pll_set3 & (0x1f << 16);
