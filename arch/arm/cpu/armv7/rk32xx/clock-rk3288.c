@@ -162,8 +162,8 @@ static struct pll_clk_set apll_clks[] = {
 /* gpll clock table, should be from high to low */
 static struct pll_clk_set gpll_clks[] = {
 	/* rate, nr, nf, no,	aclk_peri_div, hclk_peri_div, pclk_peri_div,	axi_bus_div, aclk_bus_div, hclk_bus_div, pclk_bus_div */
-	_GPLL_SET_CLKS(768000, 1,  64, 2,    2, 2, 4,				1, 2, 2, 4),
-	_GPLL_SET_CLKS(594000, 1, 99, 4,    2, 2, 4,				1, 2, 2, 4),
+	_GPLL_SET_CLKS(768000, 1,  64, 2,    3, 2, 4,				3, 3, 2, 4),
+	_GPLL_SET_CLKS(594000, 1, 99, 4,    2, 2, 4,				2, 2, 2, 4),
 	_GPLL_SET_CLKS(300000, 1,  50, 4,    1, 2, 4,				1, 1, 2, 4),
 	_GPLL_SET_CLKS(297000, 1, 99, 8,    1, 2, 4,				1, 1, 2, 4),
 };
