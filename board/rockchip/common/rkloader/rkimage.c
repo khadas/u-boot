@@ -303,6 +303,9 @@ static bool rkimg_make_loader_data(const char* old_loader, char* new_loader, int
 int rkimage_store_image(const char *name, const disk_partition_t *ptn,
 		struct cmd_fastboot_interface *priv)
 {
+	printf("%s: partition '%s', start=0x%x, size=0x%x\n",
+		__func__, name, ptn->start, ptn->size);
+
 	if (!strcmp(PARAMETER_NAME, name))
 	{
 		//flash parameter.
@@ -349,9 +352,22 @@ int rkimage_store_image(const char *name, const disk_partition_t *ptn,
 		goto fail;
 	} else if (!strcmp((const char*)priv->pending_ptn->name, RECOVERY_NAME) ||
 			!strcmp((const char*)priv->pending_ptn->name, BOOT_NAME)) {
-		//flash boot/recovery.
-		if (!SecureModeVerifyBootImage((rk_boot_img_hdr *)priv->transfer_buffer)) {
-			goto fail;
+
+		rk_boot_img_hdr *boothdr = (rk_boot_img_hdr *)priv->transfer_buffer;
+		rk_kernel_image *rkhdr = (rk_kernel_image *)priv->transfer_buffer;
+		uint32 crc32 = 0;
+
+		/* rk format image */
+		if (memcmp(boothdr->magic, BOOT_MAGIC, BOOT_MAGIC_SIZE)) {
+			if (!CRC_32CheckBuffer((char *)rkhdr->image , rkhdr->size + 4)) {
+				PRINT_E("Image CRC32 failed!\n");
+				goto fail;
+			}
+		/* android format image */
+		} else {
+			if (!SecureModeVerifyBootImage((rk_boot_img_hdr *)priv->transfer_buffer)) {
+				goto fail;
+			}
 		}
 	} else if (!strcmp((const char*)priv->pending_ptn->name, UBOOT_NAME)) {
 		//flash uboot

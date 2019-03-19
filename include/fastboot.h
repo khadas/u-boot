@@ -201,6 +201,12 @@ struct cmd_fastboot_interface {
 	/* Indicate response to be sent, data to be recieved */
 	unsigned int flag;
 
+	/* Last packet buffer, get from malloc */
+	u8 *l_packet_buf;
+
+	/* The buffer position before last packet receive */
+	u8 *l_dnl_pos;
+
 	/* configuration status  */
 	unsigned int configured;
 

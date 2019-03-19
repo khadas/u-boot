@@ -82,7 +82,13 @@ static bool SecureNSModeUbootImageShaCheck(second_loader_hdr *hdr)
 	size = hdr->loader_load_size + sizeof(hdr->loader_load_size) \
 		 + sizeof(hdr->loader_load_addr) + sizeof(hdr->hash_len);
 
-	CryptoSHAInit(size, 160);
+	if (hdr->hash_len == 20) {
+		CryptoSHAInit(size, 160);
+	} else {
+		CryptoSHAInit(size, 256);
+		CryptoSHAInputByteSwap(1);
+	}
+
 	/* rockchip's second level image. */
 	CryptoSHAStart((uint32 *)((void *)hdr + sizeof(second_loader_hdr)), hdr->loader_load_size);
 	CryptoSHAStart((uint32 *)&hdr->loader_load_addr, sizeof(hdr->loader_load_addr));
@@ -227,8 +233,10 @@ static bool SecureNSModeBootImageShaCheck(rk_boot_img_hdr *boothdr)
 static bool SecureNSModeVerifyBootImageSign(rk_boot_img_hdr* boothdr)
 {
 	/* verify boot/recovery image */
-	if (memcmp(boothdr->magic, BOOT_MAGIC, BOOT_MAGIC_SIZE) != 0)
+	if (memcmp(boothdr->magic, BOOT_MAGIC, BOOT_MAGIC_SIZE) != 0) {
+		PRINT_E("bad boot or recovery magic\n");
 		return false;
+	}
 
 	/* check image sha, make sure image is ok. */
 	if (!SecureNSModeBootImageShaCheck(boothdr)) {

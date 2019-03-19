@@ -1581,15 +1581,34 @@ static int fbt_rx_process(unsigned char *buffer, int length)
 		data_buffer = buffer;
 
 		if (priv.d_bytes + length < priv.d_size) {
-			int buffer_length = priv.d_size - priv.d_bytes - length;
-			if (buffer_length > priv.transfer_buffer_size)
+			int buffer_length;
+
+			buffer_length = priv.d_size - priv.d_bytes - length;
+			if (buffer_length >= priv.transfer_buffer_size) {
 				buffer_length = priv.transfer_buffer_size;
-			if (priv.d_legacy)
-				fbt_read_bulk_ep(buffer_length, (u8 *)buffer + length);
-			else
+			} else {
+				if (buffer_length < FASTBOOT_COMMAND_SIZE)
+					buffer_length = FASTBOOT_COMMAND_SIZE;
+				priv.l_dnl_pos = (u8 *)buffer + length;
+				priv.l_packet_buf = malloc(buffer_length);
+				if (!priv.l_packet_buf) {
+					FBTERR("fail to malloc for last packet\n");
+					return 0;
+				}
+			}
+
+			if (priv.d_legacy) {
+				if (priv.l_packet_buf)
+					fbt_read_bulk_ep(buffer_length, (u8 *)priv.l_packet_buf);
+				else
+					fbt_read_bulk_ep(buffer_length, (u8 *)buffer + length);
+			} else {
 				fbt_read_bulk_ep(buffer_length, priv.buffer[buffer == priv.transfer_buffer]);
-			FBTDBG("buffer %p, len %x..\n", buffer, length);
+			}
 		}
+
+		FBTDBG("buffer %p, len %x..\n", buffer, length);
+
 		if (!priv.d_legacy)
 			board_fbt_handle_download(data_buffer, length, &priv);
 
@@ -1602,6 +1621,10 @@ static int fbt_rx_process(unsigned char *buffer, int length)
 			 */
 			return 0;
 		}
+
+		/* Only the last packet can reach here */
+		if (priv.l_packet_buf)
+			memcpy((u8 *)priv.l_dnl_pos, (u8 *)priv.l_packet_buf, length);
 
 		if (priv.d_status < 0 && priv.d_bytes < priv.d_size) {
 			FBTDBG("Failed to download, d_bytes:%lld d_size:%lld, length:%d\n",
@@ -1618,6 +1641,8 @@ static int fbt_rx_process(unsigned char *buffer, int length)
 		}
 		priv.d_size = 0;
 		priv.flag |= FASTBOOT_FLAG_RESPONSE;
+		priv.l_dnl_pos = 0;
+		free(priv.l_packet_buf);
 
 		FBTDBG("downloaded %llu bytes\n", priv.d_bytes);
 
@@ -1701,6 +1726,8 @@ static int fbt_rx_process(unsigned char *buffer, int length)
 		int d_size = simple_strtoul(cmdbuf + 9, NULL, 16);
 		priv.d_bytes = 0;
 		priv.d_status = 0;
+		priv.l_dnl_pos = 0;
+		priv.l_packet_buf = NULL;
 
 		FBTDBG("starting download of %d bytes\n", d_size);
 
@@ -1734,7 +1761,7 @@ static int fbt_rx_process(unsigned char *buffer, int length)
 			int buffer_length;
 			priv.d_size = d_size;
 			sprintf(priv.response, "DATA%08llx", priv.d_size);
-
+			FBTDBG("DATA: %08llx\n", priv.d_size);
 			/* we will check boot/recovery's sha, so need a big buffer to recv whole image.
 			 usb dwc_udc controller can receive 0x20000byte data for once */
 			priv.transfer_buffer_size = USB_MAX_TRANS_SIZE;
@@ -1884,6 +1911,7 @@ static int do_fastboot(cmd_tbl_t *cmdtp, int flag, int argc,
 	priv.pending_ptn_name[0] = '\0';
 	SecureBootCheck();
 
+	printf("Enter fastboot...OK\n");
 	while (1) {
 		if (priv.configured) {
 			fbt_handle_rx();
@@ -1922,6 +1950,8 @@ out:
 	priv.pending_ptn = NULL;
 	priv.pending_ptn_name[0] = '\0';
 	SecureBootCheck();
+
+	printf("Enter fastboot...OK\n");
 	while (1) {
 		dwc3_uboot_handle_interrupt();
 		if (priv.configured) {
