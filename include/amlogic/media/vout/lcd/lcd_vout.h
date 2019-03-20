@@ -78,6 +78,8 @@ enum lcd_mode_e {
 enum lcd_chip_e {
 	LCD_CHIP_G12A = 0,
 	LCD_CHIP_G12B, 	/* 1 */
+	LCD_CHIP_TL1,
+	LCD_CHIP_SM1,
 	LCD_CHIP_MAX,
 };
 
