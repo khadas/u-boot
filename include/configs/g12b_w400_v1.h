@@ -35,9 +35,9 @@
  */
 #if 0
 #define CONFIG_PLATFORM_POWER_INIT
-#define CONFIG_VCCK_INIT_VOLTAGE	800		// VCCK power up voltage
-#define CONFIG_VDDEE_INIT_VOLTAGE	800		// VDDEE power up voltage
-#define CONFIG_VDDEE_SLEEP_VOLTAGE	770		// VDDEE suspend voltage
+#define CONFIG_VCCK_INIT_VOLTAGE    800     // VCCK power up voltage
+#define CONFIG_VDDEE_INIT_VOLTAGE   800     // VDDEE power up voltage
+#define CONFIG_VDDEE_SLEEP_VOLTAGE  770     // VDDEE suspend voltage
 #endif
 
 #define AML_VCCK_INIT_VOLTAGE    800     // VCCK power up voltage
@@ -46,13 +46,13 @@
 
 /* configs for CEC */
 #if 0
-#define CONFIG_CEC_OSD_NAME		"AML_TV"
+#define CONFIG_CEC_OSD_NAME     "AML_TV"
 #define CONFIG_CEC_WAKEUP
 /*if use bt-wakeup,open it*/
 #define CONFIG_BT_WAKEUP
 #endif
 /* SMP Definitinos */
-#define CPU_RELEASE_ADDR		secondary_boot_func
+#define CPU_RELEASE_ADDR        secondary_boot_func
 
 /* config saradc*/
 #if 0
@@ -72,7 +72,7 @@
 #define CONFIG_BAUDRATE  115200
 /* #define CONFIG_AML_MESON_SERIAL   1 */
 #if 0
-#define CONFIG_SERIAL_MULTI		1
+#define CONFIG_SERIAL_MULTI     1
 #endif
 
 /* Enable ir remote wake up for bl30 */
@@ -139,12 +139,13 @@
         "recovery_part=recovery\0"\
         "recovery_offset=0\0"\
         "cvbs_drv=0\0"\
-        "lock=10001000\0"\
         "osd_reverse=0\0"\
         "video_reverse=0\0"\
-        "active_slot=_a\0"\
+        "lock=10001000\0"\
+        "active_slot=normal\0"\
         "boot_part=boot\0"\
         "reboot_mode_android=""normal""\0"\
+        "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
             "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xff803000 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
@@ -156,10 +157,9 @@
             "else fi;"\
             "\0"\
         "storeargs="\
-            "setenv bootargs ${initargs} ${fs_type} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} hdmimode=${hdmimode} frac_rate_policy=${frac_rate_policy} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
-	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
+            "setenv bootargs ${initargs} ${fs_type} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
+    "setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
-            "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
             "\0"\
         "switch_bootmode="\
             "get_rebootmode;"\
@@ -197,6 +197,20 @@
                     "setenv fs_type ""ro rootwait skip_initramfs"";"\
                     "run storeargs;"\
             "fi;"\
+            "get_valid_slot;"\
+            "get_avb_mode;"\
+            "echo active_slot: ${active_slot};"\
+            "if test ${active_slot} != normal; then "\
+                    "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
+            "fi;"\
+            "if test ${avb2} = 0; then "\
+                "if test ${active_slot} = _a; then "\
+                    "setenv bootargs ${bootargs} root=/dev/mmcblk0p23;"\
+                "else if test ${active_slot} = _b; then "\
+                    "setenv bootargs ${bootargs} root=/dev/mmcblk0p24;"\
+                "fi;fi;"\
+            "fi;"\
+            "imgread dtb _aml_dtb 0x01000000; fdt addr 0x01000000;"\
             "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
             "run update;"\
             "\0"\
@@ -249,8 +263,15 @@
                 "bootm ${loadaddr};fi;"\
             "\0"\
         "recovery_from_flash="\
-            "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
-            "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi"\
+            "get_valid_slot;"\
+            "echo active_slot: ${active_slot};"\
+            "if test ${active_slot} = normal; then "\
+                "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
+                "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
+            "else "\
+                "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
+                "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
+            "fi;"\
             "\0"\
         "init_display="\
             "get_rebootmode;"\
@@ -268,7 +289,6 @@
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
-                "hdmitx hpd;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};"\
             "fi;fi;"\
             "\0"\
         "cmdline_keys="\
@@ -286,6 +306,11 @@
                 "if keyman read deviceid ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
                 "fi;"\
+                "if keyman read region_code ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
+                "else "\
+                    "setenv bootargs ${bootargs} androidboot.wificountrycode=US;"\
+                "fi;"\
             "fi;"\
             "\0"\
         "bcb_cmd="\
@@ -297,15 +322,15 @@
                 "echo detect upgrade key; run update;"\
             "fi;"\
             "\0"\
-	"irremote_update="\
-		"if irkey 2500000 0xe31cfb04 0xb748fb04; then "\
-			"echo read irkey ok!; " \
-		"if itest ${irkey_value} == 0xe31cfb04; then " \
-			"run update;" \
-		"else if itest ${irkey_value} == 0xb748fb04; then " \
-			"run update;\n" \
-			"fi;fi;" \
-		"fi;\0" \
+    "irremote_update="\
+        "if irkey 2500000 0xe31cfb04 0xb748fb04; then "\
+            "echo read irkey ok!; " \
+        "if itest ${irkey_value} == 0xe31cfb04; then " \
+            "run update;" \
+        "else if itest ${irkey_value} == 0xb748fb04; then " \
+            "run update;\n" \
+            "fi;fi;" \
+        "fi;\0" \
 
 
 #define CONFIG_PREBOOT  \
@@ -318,6 +343,8 @@
             "bcb uboot-command;"\
             "run switch_bootmode;"
 
+#define CONFIG_BOOTCOMMAND "run storeboot"
+
 /* #define CONFIG_ENV_IS_NOWHERE  1 */
 #define CONFIG_ENV_SIZE   (64*1024)
 #define CONFIG_FIT 1
@@ -326,7 +353,7 @@
 #define CONFIG_SYS_BOOTM_LEN (64<<20) /* Increase max gunzip size*/
 
 /* cpu */
-/* #define CONFIG_CPU_CLK					1200 //MHz. Range: 360-2000, should be multiple of 24 */
+/* #define CONFIG_CPU_CLK                   1200 //MHz. Range: 360-2000, should be multiple of 24 */
 
 /* ATTENTION */
 /* DDR configs move to board/amlogic/[board]/firmware/timing.c */
@@ -334,14 +361,14 @@
 //#define CONFIG_NR_DRAM_BANKS			1
 /* ddr functions */
 #if 0
-#define CONFIG_DDR_FULL_TEST			0 //0:disable, 1:enable. ddr full test
-#define CONFIG_CMD_DDR_D2PLL			0 //0:disable, 1:enable. d2pll cmd
-#define CONFIG_CMD_DDR_TEST				0 //0:disable, 1:enable. ddrtest cmd
-#define CONFIG_DDR_LOW_POWER			0 //0:disable, 1:enable. ddr clk gate for lp
-#define CONFIG_DDR_ZQ_PD				0 //0:disable, 1:enable. ddr zq power down
-#define CONFIG_DDR_USE_EXT_VREF			0 //0:disable, 1:enable. ddr use external vref
-#define CONFIG_DDR4_TIMING_TEST			0 //0:disable, 1:enable. ddr4 timing test function
-#define CONFIG_DDR_PLL_BYPASS			0 //0:disable, 1:enable. ddr pll bypass function
+#define CONFIG_DDR_FULL_TEST            0 //0:disable, 1:enable. ddr full test
+#define CONFIG_CMD_DDR_D2PLL            0 //0:disable, 1:enable. d2pll cmd
+#define CONFIG_CMD_DDR_TEST             0 //0:disable, 1:enable. ddrtest cmd
+#define CONFIG_DDR_LOW_POWER            0 //0:disable, 1:enable. ddr clk gate for lp
+#define CONFIG_DDR_ZQ_PD                0 //0:disable, 1:enable. ddr zq power down
+#define CONFIG_DDR_USE_EXT_VREF         0 //0:disable, 1:enable. ddr use external vref
+#define CONFIG_DDR4_TIMING_TEST         0 //0:disable, 1:enable. ddr4 timing test function
+#define CONFIG_DDR_PLL_BYPASS           0 //0:disable, 1:enable. ddr pll bypass function
 #endif
 #define DDR_FULL_TEST            0 //0:disable, 1:enable. ddr full test
 #define DDR_LOW_POWER            0 //0:disable, 1:enable. ddr clk gate for lp
@@ -352,10 +379,10 @@
 
 /* storage: emmc/nand/sd */
 #if 0
-#define		CONFIG_STORE_COMPATIBLE 1
+#define     CONFIG_STORE_COMPATIBLE 1
 #endif
-#define 	CONFIG_ENV_OVERWRITE
-/* #define 	CONFIG_CMD_SAVEENV */
+#define     CONFIG_ENV_OVERWRITE
+/* #define  CONFIG_CMD_SAVEENV */
 /* fixme, need fix*/
 
 #if (defined(CONFIG_ENV_IS_IN_AMLNAND) || defined(CONFIG_ENV_IS_IN_MMC)) && defined(CONFIG_STORE_COMPATIBLE)
@@ -363,13 +390,13 @@
 #endif
 
 /*
-*				storage
-*		|---------|---------|
-*		|					|
-*		emmc<--Compatible-->nand
-*					|-------|-------|
-*					|				|
-*					MTD<-Exclusive->NFTL
+*               storage
+*       |---------|---------|
+*       |                   |
+*       emmc<--Compatible-->nand
+*                   |-------|-------|
+*                   |               |
+*                   MTD<-Exclusive->NFTL
 */
 /* axg only support slc nand */
 /* swither for mtd nand which is for slc only. */
@@ -378,7 +405,7 @@
 /* #define CONFIG_AML_MTD 1*/
 
 /* support for nftl */
-/*#define CONFIG_AML_NAND	1*/
+/*#define CONFIG_AML_NAND   1*/
 
 #if defined(CONFIG_AML_NAND) && defined(CONFIG_MESON_NFC)
 #error CONFIG_AML_NAND/CONFIG_MESON_NFC can not support at the sametime;
@@ -414,17 +441,17 @@
 /* #define CONFIG_CMD_NAND 1 */
 #define CONFIG_MTD_DEVICE y
 /* mtd parts of ourown.*/
-#define CONFIG_AML_MTDPART	1
+#define CONFIG_AML_MTDPART  1
 /* mtd parts by env default way.*/
 /*
-#define MTDIDS_NAME_STR		"aml_nand.0"
-#define MTDIDS_DEFAULT		"nand1=" MTDIDS_NAME_STR
-#define MTDPARTS_DEFAULT	"mtdparts=" MTDIDS_NAME_STR ":" \
-					"3M@8192K(logo),"	\
-					"10M(recovery),"	\
-					"8M(kernel),"	\
-					"40M(rootfs),"	\
-					"-(data)"
+#define MTDIDS_NAME_STR     "aml_nand.0"
+#define MTDIDS_DEFAULT      "nand1=" MTDIDS_NAME_STR
+#define MTDPARTS_DEFAULT    "mtdparts=" MTDIDS_NAME_STR ":" \
+                    "3M@8192K(logo),"   \
+                    "10M(recovery),"    \
+                    "8M(kernel),"   \
+                    "40M(rootfs),"  \
+                    "-(data)"
 */
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
@@ -438,29 +465,29 @@
 #define CONFIG_SYS_NAND_BASE_LIST   {0}
 #endif
 /* endof CONFIG_AML_MTD */
-/* #define		CONFIG_AML_SD_EMMC 1 */
-#ifdef		CONFIG_AML_SD_EMMC
-	#define 	CONFIG_GENERIC_MMC 1
-	#define 	CONFIG_CMD_MMC 1
-	#define CONFIG_CMD_GPT 1
-	#define	CONFIG_SYS_MMC_ENV_DEV 1
-	#define CONFIG_EMMC_DDR52_EN 0
-	#define CONFIG_EMMC_DDR52_CLK 35000000
+/* #define      CONFIG_AML_SD_EMMC 1 */
+#ifdef      CONFIG_AML_SD_EMMC
+    #define     CONFIG_GENERIC_MMC 1
+    #define     CONFIG_CMD_MMC 1
+    #define CONFIG_CMD_GPT 1
+    #define CONFIG_SYS_MMC_ENV_DEV 1
+    #define CONFIG_EMMC_DDR52_EN 0
+    #define CONFIG_EMMC_DDR52_CLK 35000000
 #endif
-#define		CONFIG_PARTITIONS 1
+#define     CONFIG_PARTITIONS 1
 #if 0
-#define 	CONFIG_SYS_NO_FLASH  1
+#define     CONFIG_SYS_NO_FLASH  1
 #endif
 
 #if defined CONFIG_AML_MTD || defined CONFIG_SPI_NAND
-	#define CONFIG_CMD_NAND 1
-	#define CONFIG_MTD_DEVICE y
-	/* #define CONFIG_RBTREE */
-	#define CONFIG_CMD_NAND_TORTURE 1
-	#define CONFIG_CMD_MTDPARTS   1
-	#define CONFIG_MTD_PARTITIONS 1
-	#define CONFIG_SYS_MAX_NAND_DEVICE  2
-	#define CONFIG_SYS_NAND_BASE_LIST   {0}
+    #define CONFIG_CMD_NAND 1
+    #define CONFIG_MTD_DEVICE y
+    /* #define CONFIG_RBTREE */
+    #define CONFIG_CMD_NAND_TORTURE 1
+    #define CONFIG_CMD_MTDPARTS   1
+    #define CONFIG_MTD_PARTITIONS 1
+    #define CONFIG_SYS_MAX_NAND_DEVICE  2
+    #define CONFIG_SYS_NAND_BASE_LIST   {0}
 #endif
 
 /* vpu */
@@ -481,18 +508,18 @@
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard
  * Enable CONFIG_MUSB_UDD for Device functionalities.
  */
-/* #define CONFIG_MUSB_UDC		1 */
+/* #define CONFIG_MUSB_UDC      1 */
 /* #define CONFIG_CMD_USB 1 */
 
-#define USB_PHY2_PLL_PARAMETER_1	0x09400414
-#define USB_PHY2_PLL_PARAMETER_2	0x927e0000
-#define USB_PHY2_PLL_PARAMETER_3	0xAC5F69E5
+#define USB_PHY2_PLL_PARAMETER_1    0x09400414
+#define USB_PHY2_PLL_PARAMETER_2    0x927e0000
+#define USB_PHY2_PLL_PARAMETER_3    0xAC5F69E5
 
-#define USB_G12x_PHY_PLL_SETTING_1	(0xfe18)
-#define USB_G12x_PHY_PLL_SETTING_2	(0xfff)
-#define USB_G12x_PHY_PLL_SETTING_3	(0x78000)
-#define USB_G12x_PHY_PLL_SETTING_4	(0xe0004)
-#define USB_G12x_PHY_PLL_SETTING_5	(0xe000c)
+#define USB_G12x_PHY_PLL_SETTING_1  (0xfe18)
+#define USB_G12x_PHY_PLL_SETTING_2  (0xfff)
+#define USB_G12x_PHY_PLL_SETTING_3  (0x78000)
+#define USB_G12x_PHY_PLL_SETTING_4  (0xe0004)
+#define USB_G12x_PHY_PLL_SETTING_5  (0xe000c)
 
 
 #define AML_TXLX_USB        1
@@ -505,8 +532,8 @@
 #define CONFIG_USB_GADGET 1
 #define CONFIG_USBDOWNLOAD_GADGET 1
 #define CONFIG_SYS_CACHELINE_SIZE 64
-#define CONFIG_FASTBOOT_MAX_DOWN_SIZE	0x8000000
-#define CONFIG_DEVICE_PRODUCT	"g12b_w400"
+#define CONFIG_FASTBOOT_MAX_DOWN_SIZE   0x8000000
+#define CONFIG_DEVICE_PRODUCT   "g12b_w400"
 #endif
 
 /* UBOOT Facotry usb/sdcard burning config */
@@ -526,21 +553,21 @@
 /* #define CONFIG_CMD_NET   1 */
 #define CONFIG_ETH_DESIGNWARE
 #if defined(CONFIG_CMD_NET)
-	#define CONFIG_DESIGNWARE_ETH 1
-	#define CONFIG_PHYLIB	1
-	#define CONFIG_NET_MULTI 1
-	#define CONFIG_CMD_PING 1
-	#define CONFIG_CMD_DHCP 1
-	#define CONFIG_CMD_RARP 1
-	#define CONFIG_HOSTNAME        "arm_gxbb"
+    #define CONFIG_DESIGNWARE_ETH 1
+    #define CONFIG_PHYLIB   1
+    #define CONFIG_NET_MULTI 1
+    #define CONFIG_CMD_PING 1
+    #define CONFIG_CMD_DHCP 1
+    #define CONFIG_CMD_RARP 1
+    #define CONFIG_HOSTNAME        "arm_gxbb"
 #if 0
-	#define CONFIG_RANDOM_ETHADDR  1				   /* use random eth addr, or default */
+    #define CONFIG_RANDOM_ETHADDR  1                   /* use random eth addr, or default */
 #endif
-	#define CONFIG_ETHADDR         00:15:18:01:81:31   /* Ethernet address */
-	#define CONFIG_IPADDR          10.18.9.97          /* Our ip address */
-	#define CONFIG_GATEWAYIP       10.18.9.1           /* Our getway ip address */
-	#define CONFIG_SERVERIP        10.18.9.113         /* Tftp server ip address */
-	#define CONFIG_NETMASK         255.255.255.0
+    #define CONFIG_ETHADDR         00:15:18:01:81:31   /* Ethernet address */
+    #define CONFIG_IPADDR          10.18.9.97          /* Our ip address */
+    #define CONFIG_GATEWAYIP       10.18.9.1           /* Our getway ip address */
+    #define CONFIG_SERVERIP        10.18.9.113         /* Tftp server ip address */
+    #define CONFIG_NETMASK         255.255.255.0
 #endif /* (CONFIG_CMD_NET) */
 
 /* other devices */
@@ -560,7 +587,7 @@
 #define CONFIG_CMD_GPIO 1
 #define CONFIG_CMD_REBOOT 1
 #define CONFIG_CMD_ECHO 1
-#define CONFIG_CMD_JTAG	1
+#define CONFIG_CMD_JTAG 1
 #define CONFIG_CMD_AUTOSCRIPT 1
 #define CONFIG_CMD_MISC 1
 #endif
@@ -587,10 +614,10 @@
 
 /* other functions */
 #if 0
-#define CONFIG_NEED_BL301	1
-#define CONFIG_NEED_BL32	1
-#define CONFIG_CMD_RSVMEM	1
-#define CONFIG_FIP_IMG_SUPPORT	1
+#define CONFIG_NEED_BL301   1
+#define CONFIG_NEED_BL32    1
+#define CONFIG_CMD_RSVMEM   1
+#define CONFIG_FIP_IMG_SUPPORT  1
 #define CONFIG_SYS_LONGHELP 1
 #define CONFIG_CMD_MISC     1
 #define CONFIG_CMD_ITEST    1

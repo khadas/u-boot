@@ -83,7 +83,8 @@ static int do_rsvmem_check(cmd_tbl_t *cmdtp, int flag, int argc,
 		return -2;
 	}
 	temp_env = env_get("temp_env");
-	if (temp_env && !strcmp(temp_env, "0x01000000"))
+	//if (temp_env && !strcmp(temp_env, "0x01000000"))
+	if (temp_env && !strcmp(temp_env, "0x00000001"))
 		aarch32 = 1;
 
 	memset(cmdbuf, 0, sizeof(cmdbuf));
@@ -104,7 +105,7 @@ static int do_rsvmem_check(cmd_tbl_t *cmdtp, int flag, int argc,
 		rsvmem_err("env set fail.\n");
 		return -2;
 	}
-	run_command("env_set env_compatible;", 0);
+	run_command("setenv env_compatible;", 0);
 
 	if ((bl31_rsvmem_size > 0) && (bl31_rsvmem_start > 0)) {
 		if (rsvmemtype == RSVMEM_RESERVED) {

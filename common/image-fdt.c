@@ -285,7 +285,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 			} else
 #endif
 			{
-				fdt_addr = simple_strtoul(select, NULL, 16);
+				fdt_addr = select; //simple_strtoul(select, NULL, 16);
 				debug("*  fdt: cmdline image address = 0x%08lx\n",
 				      fdt_addr);
 			}
