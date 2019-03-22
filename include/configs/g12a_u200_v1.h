@@ -627,7 +627,7 @@
 
 #define CONFIG_CPU_ARMV8
 
-/* #define CONFIG_MULTI_DTB    1 */
+#define CONFIG_MULTI_DTB	1
 
 /* support secure boot */
 #define CONFIG_AML_SECURE_UBOOT   1

@@ -55,6 +55,12 @@ config NEED_BL32
 	help
 		"Support bl32 function"
 
+config MULTI_DTB
+	bool "Amlogic Multi-DT function"
+	default n
+	help
+		"Support Multi-DT function"
+
 if MESON_GXBB
 
 config TARGET_ODROID_C2
