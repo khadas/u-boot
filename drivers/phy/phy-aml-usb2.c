@@ -188,8 +188,9 @@ static int phy_aml_usb2_tuning(struct phy *phy, int port)
 
 	if (phy_aml_usb2_get_revb_type() == 1) {
 		(*(volatile uint32_t *)(phy_reg_base + 0x50)) = pll_set1;
+		(*(volatile uint32_t *)(phy_reg_base + 0x54)) = 0x2a;
 		(*(volatile uint32_t *)(phy_reg_base + 0x34)) = pll_set3 & (0x1f << 16);
-		return;
+		return 0;
 	}
 
 	(*(volatile uint32_t *)(phy_reg_base + 0x10)) = pll_set2;

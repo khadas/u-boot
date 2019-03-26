@@ -37,6 +37,7 @@ void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode)
 static void dwc3_phy_reset(struct dwc3 *dwc3_reg)
 {
 	int i;
+	u32 reg;
 
 	/* Assert USB3 PHY reset */
 	setbits_le32(&dwc3_reg->g_usb3pipectl[0], DWC3_GUSB3PIPECTL_PHYSOFTRST);
@@ -54,11 +55,18 @@ static void dwc3_phy_reset(struct dwc3 *dwc3_reg)
 	/* Clear USB3 PHY reset */
 	clrbits_le32(&dwc3_reg->g_usb3pipectl[0], DWC3_GUSB3PIPECTL_PHYSOFTRST);
 
-	/* Clear USB2 PHY reset */
+#ifndef CONFIG_AML_USB
+		/* Clear USB2 PHY reset */
 	clrbits_le32(&dwc3_reg->g_usb2phycfg, DWC3_GUSB2PHYCFG_PHYSOFTRST);
-#ifdef CONFIG_AML_USB
-	for (i=1; i <= usb2portnum; i++) {
-		clrbits_le32(&dwc3_reg->g_usb2phycfg[i], DWC3_GUSB2PHYCFG_PHYSOFTRST);
+#else
+	for (i=0; i <= usb2portnum; i++) {
+		/* Clear USB2 PHY reset, DWC3_GUSB2PHYCFG_PHYIF must clear, */
+		/* otherwise the sof would occur many errors */
+		reg = readl(&dwc3_reg->g_usb2phycfg[i]);
+		reg &= ~DWC3_GUSB2PHYCFG_PHYSOFTRST;
+		reg &= ~DWC3_GUSB2PHYCFG_SUSPHY;
+		reg &= ~DWC3_GUSB2PHYCFG_PHYIF;
+		writel(reg, &dwc3_reg->g_usb2phycfg[i]);
 	}
 #endif
 }
