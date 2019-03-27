@@ -690,8 +690,8 @@ int mmc_erase_rsv(const char *rsv_name) {
 int mmc_protect_rsv(const char *rsv_name, bool ops) {
 
 	char ret=1;
-	ret = !strcmp("key", rsv_name);
-	if (!ret) return 1;
+	ret = strcmp("key", rsv_name);
+	if (ret) return 1;
 
 	if (ops) {
 
