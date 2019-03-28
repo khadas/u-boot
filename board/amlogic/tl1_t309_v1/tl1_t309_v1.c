@@ -756,37 +756,46 @@ phys_size_t get_effective_memsize(void)
 #ifdef CONFIG_MULTI_DTB
 int checkhw(char * name)
 {
-	/*
-	 * read board hw id
-	 * set and select the dts according the board hw id.
-	 *
-	 * hwid = 1	p321 v1
-	 * hwid = 2	p321 v2
-	 */
-	unsigned int hwid = 1;
+#ifdef CONFIG_AUTO_ADAPT_DDR_DTB
+	unsigned int ddr_size = 0;
 	char loc_name[64] = {0};
-
-	/* read hwid */
-	hwid = (readl(P_AO_SEC_GP_CFG0) >> 8) & 0xFF;
-
-	printf("checkhw:  hwid = %d\n", hwid);
-
-/*
-	switch (hwid) {
-		case 1:
-			strcpy(loc_name, "txl_p321_v1\0");
+	int i;
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		ddr_size += gd->bd->bi_dram[i].size;
+	}
+#if defined(CONFIG_SYS_MEM_TOP_HIDE)
+	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
+#endif
+	switch (ddr_size) {
+		case 0x80000000:
+			strcpy(loc_name, "tl1_t962x2_t309-2g\0");
 			break;
-		case 2:
-			strcpy(loc_name, "txl_p321_v2\0");
+		case 0x40000000:
+			strcpy(loc_name, "tl1_t962x2_t309-1g\0");
 			break;
 		default:
-			strcpy(loc_name, "txl_p321_v1");
+			printf("DDR size: 0x%x, multi-dt doesn't support\n", ddr_size);
+			strcpy(loc_name, "tl1_t962x2_t309_unsupport");
 			break;
 	}
-*/
 
 	strcpy(name, loc_name);
 	setenv("aml_dt", loc_name);
+
+#else
+
+	char loc_name[64] = {0};
+	char *ddr_mode = getenv("mem_size");
+	if (!strcmp(ddr_mode, "1g")) {
+		strcpy(loc_name, "tl1_t962x2_t309-1g\0");
+	} else {
+		strcpy(loc_name, "tl1_t962x2_t309-2g\0");
+	}
+
+	strcpy(name, loc_name);
+	setenv("aml_dt", loc_name);
+#endif
+
 	return 0;
 }
 #endif

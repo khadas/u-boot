@@ -123,6 +123,7 @@
         "powermode=on\0"\
         "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\
+        "mem_size=2g\0"\
         "initargs="\
             "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xff803000 printk.devkmsg=on ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
@@ -133,8 +134,8 @@
             "else fi;"\
             "\0"\
         "storeargs="\
-            "setenv bootargs ${initargs} ${fs_type} logo=${display_layer},loaded,${fb_addr} powermode=${powermode} vout=${outputmode},enable panel_type=${panel_type} hdmimode=${hdmimode} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
-        "setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
+            "setenv bootargs ${initargs} ${fs_type} logo=${display_layer},loaded,${fb_addr} powermode=${powermode} vout=${outputmode},enable panel_type=${panel_type} hdmimode=${hdmimode} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} mem_size=${mem_size} ; "\
+            "setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
         "switch_bootmode="\
@@ -633,7 +634,8 @@
 #define CONFIG_CMD_CPU_TEMP 1
 #define CONFIG_SYS_MEM_TOP_HIDE 0x08000000 //hide 128MB for kernel reserve
 #define CONFIG_CMD_LOADB    1
-//#define CONFIG_MULTI_DTB    1
+#define CONFIG_MULTI_DTB    1
+//#define CONFIG_AUTO_ADAPT_DDR_DTB 1
 
 /* debug mode defines */
 //#define CONFIG_DEBUG_MODE           1
