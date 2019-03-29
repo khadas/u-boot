@@ -378,7 +378,7 @@ static void dwc3_core_soft_reset(struct dwc3 *dwc3_reg)
 		xhci_writel(&dwc3_reg->g_usb3pipectl[i], reg);
 	}
 
-	for (i = 0; i < 3; i++) {
+	for (i = 0; i < amlogic.u2_port_num; i++) {
 		/* Assert USB2 PHY reset */
 		reg = xhci_readl(&dwc3_reg->g_usb2phycfg[i]);
 		reg |= DWC3_GUSB2PHYCFG_PHYSOFTRST;
@@ -397,7 +397,7 @@ static void dwc3_core_soft_reset(struct dwc3 *dwc3_reg)
 		xhci_writel(&dwc3_reg->g_usb3pipectl[i], reg);
 	}
 
-	for (i = 0; i < 3; i++) {
+	for (i = 0; i < amlogic.u2_port_num; i++) {
 			/* Clear USB2 PHY reset */
 		reg = xhci_readl(&dwc3_reg->g_usb2phycfg[i]);
 		reg &= ~DWC3_GUSB2PHYCFG_PHYSOFTRST;

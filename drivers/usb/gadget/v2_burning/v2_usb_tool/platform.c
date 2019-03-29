@@ -179,6 +179,8 @@ static void set_usb_phy21_pll(void)
 		& (~(USB_PHY2_RESET)));
 }
 
+#ifdef CONFIG_USB_DEVICE_V2
+#if (!defined(CONFIG_USB_AMLOGIC_PHY_V2) && !defined(USE_FULL_SPEED)) || !defined(CONFIG_USB_POWER)
 static int b_platform_usb_check_sm1 (void)
 {
 	int rev_flag = 0;
@@ -192,6 +194,8 @@ static int b_platform_usb_check_sm1 (void)
 
 	return rev_flag;
 }
+#endif
+#endif
 
 #if !defined(CONFIG_USB_AMLOGIC_PHY_V2) && !defined(USE_FULL_SPEED)
 static int b_platform_usb_check_g12b_revb (void)
@@ -290,8 +294,9 @@ void set_usb_phy_config(int cfg)
 	u2p_aml_regs_t * u2p_aml_regs = (u2p_aml_regs_t * )PREI_USB_PHY_2_REG_BASE;
 	usb_aml_regs_t *usb_aml_regs = (usb_aml_regs_t * )PREI_USB_PHY_3_REG_BASE;
 	int cnt;
-	u32 val;
 
+	u32 val;
+#ifndef CONFIG_USB_POWER
 	if (b_platform_usb_check_sm1() == 1) {
 		val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_SLEEP0;
 		*P_AO_RTI_GEN_PWR_SLEEP0 = val & (~(0x1<<17));
@@ -300,6 +305,14 @@ void set_usb_phy_config(int cfg)
 		val = *(volatile uint32_t *)HHI_MEM_PD_REG0;
 		*P_HHI_MEM_PD_REG0 = val & (~(0x3<<30));
 	}
+#else
+	val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_SLEEP0;
+	*P_AO_RTI_GEN_PWR_SLEEP0 = val & (~(0x1<<17));
+	val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_ISO0;
+	*P_AO_RTI_GEN_PWR_ISO0 = val & (~(0x1<<17));
+	val = *(volatile uint32_t *)HHI_MEM_PD_REG0;
+	*P_HHI_MEM_PD_REG0 = val & (~(0x3<<30));
+#endif
 
 #ifdef CONFIG_USB_DEVICE_V2
 	if ((*(volatile uint32_t *)(USB_REG_B + 0x38)) != 0) {
