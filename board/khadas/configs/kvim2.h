@@ -259,6 +259,14 @@
                 "fdt set /i2c@c11087c0/khadas-mcu hwver VIM2.V13;"\
             "fi;"\
             "\0"\
+         "set_func_adc="\
+            "kbi hwver; "\
+            "if test ${hwver} = VIM2.V13; then "\
+                "fdt addr ${dtb_mem_addr};"\
+                "fdt resize 65536;"\
+                "fdt set /adc_keypad key_val <120>;"\
+            "fi;"\
+            "\0"\
          "spi_check="\
             "sf probe;" \
             "if test ${spi_state} = 1; then "\
@@ -286,6 +294,7 @@
             "run upgrade_key;" \
             "run vim2_check;" \
             "run set_fan_mode;"\
+            "run set_func_adc;"\
             "run wol_init;"\
             "run spi_check;"\
             "forceupdate;" \
