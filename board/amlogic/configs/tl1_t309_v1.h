@@ -117,6 +117,8 @@
         "video_reverse=0\0"\
         "active_slot=normal\0"\
         "boot_part=boot\0"\
+        "suspend=off\0"\
+        "powermode=on\0"\
         "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
@@ -140,10 +142,29 @@
             "else if test ${reboot_mode} = update; then "\
                     "run update;"\
             "else if test ${reboot_mode} = cold_boot; then "\
-                /*"run try_auto_burn; "*/\
+                /*"run try_auto_burn;uboot wake up "*/\
+                "echo powermode=${powermode}; "\
+                "if test ${powermode} = on; then "\
+                    "run try_auto_burn; "\
+                "else if test ${powermode} = standby; then "\
+                    "systemoff; "\
+                "else if test ${powermode} = last; then "\
+                    "echo suspend=${suspend}; "\
+                    "if test ${suspend} = off; then "\
+                        "run try_auto_burn; "\
+                    "else if test ${suspend} = on; then "\
+                        "systemoff; "\
+                    "fi; fi; "\
+                "fi; fi; fi; "\
             "else if test ${reboot_mode} = fastboot; then "\
                 "fastboot;"\
             "fi;fi;fi;fi;"\
+            "\0" \
+        "reset_suspend="\
+            "if test ${suspend} = on; then "\
+                "setenv ""suspend off"";"\
+                "saveenv;"\
+            "fi;"\
             "\0" \
         "storeboot="\
             "get_system_as_root_mode;"\
@@ -234,6 +255,24 @@
         "init_display="\
             "osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode}"\
             "\0"\
+        "check_display="\
+            "if test ${reboot_mode} = cold_boot; then "\
+                "if test ${powermode} = standby; then "\
+                    "echo not init_display; "\
+                "else if test ${powermode} = last; then "\
+                    "echo suspend=${suspend}; "\
+                    "if test ${suspend} = off; then "\
+                        "run init_display; "\
+                    "else if test ${suspend} = on; then "\
+                        "echo not init_display; "\
+                    "fi; fi; "\
+                "else "\
+                    "run init_display; "\
+                "fi; fi; "\
+            "else "\
+                "run init_display; "\
+            "fi; "\
+            "\0"\
         "cmdline_keys="\
             "if keyman init 0x1234; then "\
                 "if keyman read usid ${loadaddr} str; then "\
@@ -275,10 +314,12 @@
 	"run bcb_cmd; "\
 	"run factory_reset_poweroff_protect;"\
 	"run upgrade_check;"\
-	"run init_display;"\
+	/* "run init_display;"\ */\
+	"run check_display;"\
 	"run storeargs;"\
 	"bcb uboot-command;"\
-	"run switch_bootmode;"
+	"run switch_bootmode;"\
+	"run reset_suspend;"
 
 
 #define CONFIG_BOOTCOMMAND "run storeboot"
