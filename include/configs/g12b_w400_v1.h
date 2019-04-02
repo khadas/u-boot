@@ -334,7 +334,7 @@
 /* ATTENTION */
 /* DDR configs move to board/amlogic/[board]/firmware/timing.c */
 
-#define CONFIG_NR_DRAM_BANKS			1
+//#define CONFIG_NR_DRAM_BANKS			1
 /* ddr functions */
 #if 0
 #define CONFIG_DDR_FULL_TEST			0 //0:disable, 1:enable. ddr full test
