@@ -146,23 +146,25 @@
                 /*"run try_auto_burn;uboot wake up "*/\
                 "echo powermode=${powermode}; "\
                 "if test ${powermode} = on; then "\
-                    "run try_auto_burn; "\
+                    /*"run try_auto_burn; "*/\
                 "else if test ${powermode} = standby; then "\
                     "systemoff; "\
                 "else if test ${powermode} = last; then "\
                     "echo suspend=${suspend}; "\
                     "if test ${suspend} = off; then "\
-                        "run try_auto_burn; "\
+                        /*"run try_auto_burn; "*/\
                     "else if test ${suspend} = on; then "\
                         "systemoff; "\
-                    "fi; fi; "\
+                    "else if test ${suspend} = shutdown; then "\
+                         "systemoff; "\
+                    "fi; fi; fi; "\
                 "fi; fi; fi; "\
             "else if test ${reboot_mode} = fastboot; then "\
                 "fastboot;"\
             "fi;fi;fi;fi;"\
             "\0" \
         "reset_suspend="\
-            "if test ${suspend} = on; then "\
+            "if test ${suspend} = on || test ${suspend} = shutdown; then "\
                 "setenv ""suspend off"";"\
                 "saveenv;"\
             "fi;"\
@@ -266,7 +268,9 @@
                         "run init_display; "\
                     "else if test ${suspend} = on; then "\
                         "echo not init_display; "\
-                    "fi; fi; "\
+                    "else if test ${suspend} = shutdown; then "\
+                         "echo not init_display; "\
+                    "fi; fi; fi; "\
                 "else "\
                     "run init_display; "\
                 "fi; fi; "\
