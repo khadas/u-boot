@@ -391,12 +391,12 @@
 			};
 		};
 
-		aobus: aobus@ff800000 {
+		aobus: aobus@fe000000 {
 			compatible = "simple-bus";
-			reg = <0x0 0xff800000 0x0 0x100000>;
+			reg = <0x0 0xfe000000 0x0 0x100000>;
 			#address-cells = <2>;
 			#size-cells = <2>;
-			ranges = <0x0 0x0 0x0 0xff800000 0x0 0x100000>;
+			ranges = <0x0 0x0 0x0 0xfe000000 0x0 0x100000>;
 
 			clkc_AO: clock-controller@0 {
 				compatible = "amlogic,g12a-aoclkc";
@@ -404,9 +404,9 @@
 				#clock-cells = <1>;
 			};
 
-			uart_AO: serial@3000 {
+			uart_AO: serial@1c00 {
 				compatible = "amlogic,meson-uart";
-				reg = <0x0 0x3000 0x0 0x14>;
+				reg = <0x0 0x1c00 0x0 0x14>;
 				interrupts = <GIC_SPI 193 IRQ_TYPE_EDGE_RISING>;
 				clocks = <&xtal>;
 				status = "disabled";

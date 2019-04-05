@@ -96,7 +96,6 @@ static int do_bootm_subcommand(cmd_tbl_t *cmdtp, int flag, int argc,
 
 int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	char *avb_s;
 	int nRet = 0;
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	static int relocated = 0;
@@ -129,8 +128,8 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if ((*endp != 0) && (*endp != ':') && (*endp != '#'))
 			return do_bootm_subcommand(cmdtp, flag, argc, argv);
 	}
-
-	avb_s = env_get("avb2");
+#ifdef CONFIG_CMD_BOOTCTOL_AVB
+	char *avb_s = env_get("avb2");
 	if (avb_s == NULL) {
 		run_command("get_avb_mode;", 0);
 		avb_s = env_get("avb2");
@@ -189,6 +188,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		env_set("bootargs", newbootargs);
 		avb_slot_verify_data_free(out_data);
 	}
+#endif//CONFIG_CMD_BOOTCTOL_AVB
 	return do_bootm_states(cmdtp, flag, argc, argv, BOOTM_STATE_START |
 		BOOTM_STATE_FINDOS | BOOTM_STATE_FINDOTHER |
 		BOOTM_STATE_LOADOS |

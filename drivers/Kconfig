@@ -56,7 +56,7 @@ source "drivers/misc/Kconfig"
 
 source "drivers/mmc/Kconfig"
 
-source "drivers/mtd/Kconfig"
+#source "drivers/mtd/Kconfig"
 
 source "drivers/net/Kconfig"
 
@@ -122,7 +122,7 @@ source "drivers/w1-eeprom/Kconfig"
 
 source "drivers/watchdog/Kconfig"
 
-source "drivers/nand/Kconfig"
+#source "drivers/nand/Kconfig"
 
 source "drivers/amlogic/Kconfig"
 
