@@ -22,10 +22,13 @@
 #define USB_DEBUG(fmt, args...) printf(fmt, ##args)
 #define CHIP_TYPE_RTL8723BU "fw_8723b_b.txt"
 #define CHIP_TYPE_RTL8723DU "fw_8723du_c.txt"
+#define CHIP_TYPE_RTL8822BU "fw_8822b_b.txt"
 #define CODE_MAXSIZE_24K    (1024*24)   //24K
 #define CODE_MAXSIZE_40K    (1024*40)   //40K
+#define code_maxsize     23639//56 * 10K
 int fw_8723bu=0;
 int fw_8723du=0;
+int fw_8822bu=0;
 
 //patch txt formate: total length(2 bytes) || fw patch || config patch
 static unsigned char lu8Code_RTL8723BU[CODE_MAXSIZE_24K] = {
@@ -34,6 +37,10 @@ static unsigned char lu8Code_RTL8723BU[CODE_MAXSIZE_24K] = {
 static unsigned char lu8Code_RTL8723DU[CODE_MAXSIZE_40K] = {
 #include CHIP_TYPE_RTL8723DU
 };
+static unsigned char lu8Code_RTL8822BU[code_maxsize] = {
+#include CHIP_TYPE_RTL8822BU
+};
+
 
 firmware_info *firmware_info_init(struct usb_device *dev)
 {
@@ -56,6 +63,11 @@ firmware_info *firmware_info_init(struct usb_device *dev)
     if (fw_8723du) {
         fw_info->fw_data = malloc(CODE_MAXSIZE_40K);
         memset(fw_info->fw_data,0,CODE_MAXSIZE_40K);
+    }
+    if (fw_8822bu) {
+        fw_info->fw_data = malloc(code_maxsize);
+        memset(fw_info->fw_data,0,code_maxsize);
+        //USB_DEBUG("zengqiu   %s[%d]: start.\n", __func__, __LINE__);
     }
 
 	if (!fw_info->fw_data) {
@@ -132,6 +144,14 @@ int load_firmware(firmware_info *fw_info, unsigned char **buff)
 
         memcpy(*buff, &lu8Code_RTL8723DU[2],size);
         fw_8723du= 0;
+        return size;
+    }
+    if (fw_8822bu) {
+        size = lu8Code_RTL8822BU[0] | (lu8Code_RTL8822BU[1] << 8);
+        USB_DEBUG("%s,size is %d\n",__func__, size);
+
+        memcpy(*buff, &lu8Code_RTL8822BU[2],size);
+        fw_8822bu = 0;
         return size;
     }
     return 0;
@@ -428,6 +448,11 @@ struct usb_device * get_rtl_dev(void){
 			if (le16_to_cpu(dev->descriptor.idVendor) == 0x0bda
                 && le16_to_cpu(dev->descriptor.idProduct) == 0xd723){
 				fw_8723du = 1;
+				return dev;
+			}
+			if (le16_to_cpu(dev->descriptor.idVendor) == 0x0bda
+				&& le16_to_cpu(dev->descriptor.idProduct) == 0xb82c){
+				fw_8822bu = 1;
 				return dev;
 			}
 		}
