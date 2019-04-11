@@ -37,16 +37,16 @@
 #endif
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(32*1024)
+#define CONFIG_SYS_MALLOC_LEN		(8*1024*1024)
 
 /* for uboot envrionment use */
-/* #define CONFIG_DDR_SIZE					1024 */
+/* #define CONFIG_DDR_SIZE					256 */
 
 /* dram */
-#define PHYS_SDRAM_1_BASE					0xFFF00000UL
-#define PHYS_SDRAM_1_SIZE					(1 << 20)
+#define PHYS_SDRAM_1_BASE					0x00000000UL
+#define PHYS_SDRAM_1_SIZE					0x10000000UL
 #define CONFIG_SYS_SDRAM_BASE				PHYS_SDRAM_1_BASE
-#define CONFIG_SYS_INIT_SP_ADDR				(0xffffffF0)
+#define CONFIG_SYS_INIT_SP_ADDR				(0x02000000)
 
 #define CONFIG_SYS_LOAD_ADDR		(PHYS_SDRAM_1_BASE + CONFIG_SYS_TEXT_BASE)
 

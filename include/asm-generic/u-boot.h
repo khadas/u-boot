@@ -14,7 +14,7 @@
 
 #ifndef __ASM_GENERIC_U_BOOT_H__
 #define __ASM_GENERIC_U_BOOT_H__
-
+#define DEBUG
 /*
  * Board information passed to Linux kernel from U-Boot
  *

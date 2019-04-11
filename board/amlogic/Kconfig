@@ -1,5 +1,10 @@
 # function list
 
+config PXP_EMULATOR
+	bool "Amlogic Pxp emulater flag"
+	help
+		Support PXP environment
+
 config AML_BL33_COMPRESS_ENABLE
 	bool "Amlogic U-boot compress"
 	help

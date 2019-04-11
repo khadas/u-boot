@@ -46,7 +46,7 @@ int serial_set_pin_port(unsigned long port_base)
 
 int dram_init(void)
 {
-	gd->ram_size = (1<<20);
+	gd->ram_size = PHYS_SDRAM_1_SIZE;
 	return 0;
 }
 
@@ -69,13 +69,6 @@ int board_init(void)
 	return 0;
 }
 
-/* set dts props */
-void aml_config_dtb(void)
-{
-
-	return;
-}
-
 int board_late_init(void)
 {
 	printf("board late init\n");
@@ -86,20 +79,20 @@ int board_late_init(void)
 
 phys_size_t get_effective_memsize(void)
 {
-	return (1<<20);
+	return PHYS_SDRAM_1_SIZE;
 }
 
 static struct mm_region bd_mem_map[] = {
 	{
-		.virt = 0xFFF00000UL,
-		.phys = 0xFFF00000UL,
-		.size = 1<<20,
+		.virt = 0x00000000UL,
+		.phys = 0x00000000UL,
+		.size = 0x80000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.virt = 0x00000000UL,
-		.phys = 0x00000000UL,
-		.size = 0xFFE00000UL,
+		.virt = 0x80000000UL,
+		.phys = 0x80000000UL,
+		.size = 0x80000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
@@ -110,8 +103,6 @@ static struct mm_region bd_mem_map[] = {
 };
 
 struct mm_region *mem_map = bd_mem_map;
-
-
 
 int mach_cpu_init(void) {
 	printf("\nmach_cpu_init\n");
