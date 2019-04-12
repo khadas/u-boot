@@ -15,7 +15,7 @@
 #include <linux/sizes.h>
 
 #define CONFIG_SYS_SDRAM_BASE		0
-#define SDRAM_MAX_SIZE			0xff000000
+#define SDRAM_MAX_SIZE			0xfe000000
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_MALLOC_LEN		(192 << 20)
 #define CONFIG_SYS_CBSIZE		1024
@@ -28,9 +28,10 @@
 
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE            0x00000000
-#define CONFIG_SPL_MAX_SIZE             0x40000
+#define CONFIG_SPL_MAX_SIZE             0x60000
 #define CONFIG_SPL_BSS_START_ADDR       0x400000
 #define CONFIG_SPL_BSS_MAX_SIZE         0x20000
+#define CONFIG_SPL_STACK		0x00188000
 
 #define GICD_BASE			0xffB71000
 #define GICC_BASE			0xffB72000

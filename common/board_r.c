@@ -56,6 +56,7 @@
 #include <linux/err.h>
 #include <efi_loader.h>
 #include <sysmem.h>
+#include <bidram.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -711,7 +712,7 @@ __weak int interrupt_debugger_init(void)
 	return 0;
 }
 
-__weak int dram_initr_banksize(void)
+__weak int board_initr_caches_fixup(void)
 {
 	return 0;
 }
@@ -760,15 +761,18 @@ static init_fnc_t init_sequence_r[] = {
 	 * like other regions, otherwise there would be dcache coherence issue
 	 * between firmware and U-Boot.
 	 */
-	dram_initr_banksize,
+	board_initr_caches_fixup,
 
 #if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
 	initr_unlock_ram_in_cache,
 #endif
 	initr_barrier,
 	initr_malloc,
+#ifdef CONFIG_BIDRAM
+	bidram_initr,
+#endif
 #ifdef CONFIG_SYSMEM
-	sysmem_init,		/* After malloc setup */
+	sysmem_initr,
 #endif
 	log_init,
 	initr_bootstage,	/* Needs malloc() but has its own timer */

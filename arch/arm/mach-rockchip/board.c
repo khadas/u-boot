@@ -5,8 +5,10 @@
  */
 #include <common.h>
 #include <clk.h>
+#include <bidram.h>
 #include <dm.h>
 #include <debug_uart.h>
+#include <memblk.h>
 #include <ram.h>
 #include <syscon.h>
 #include <sysmem.h>
@@ -282,26 +284,141 @@ int interrupt_debugger_init(void)
 	return ret;
 }
 
+#if defined(CONFIG_ROCKCHIP_RK1808) && !defined(CONFIG_COPROCESSOR_RK1808)
+#define PINCTRL_EMMC_BUS8_PATH		"/pinctrl/emmc/emmc-bus8"
+#define PINCTRL_EMMC_CMD_PATH		"/pinctrl/emmc/emmc-cmd"
+#define PINCTRL_EMMC_CLK_PATH		"/pinctrl/emmc/emmc-clk"
+#define PINCTRL_PCFG_PU_2MA_PATH	"/pinctrl/pcfg-pull-up-2ma"
+#define MAX_ROCKCHIP_PINS_ENTRIES	12
+
+static int rockchip_pinctrl_cfg_fdt_fixup(const char *path, u32 new_phandle)
+{
+	u32 cells[MAX_ROCKCHIP_PINS_ENTRIES * 4];
+	const u32 *data;
+	int i, count;
+	int node;
+
+	node = fdt_path_offset(gd->fdt_blob, path);
+	if (node < 0) {
+		debug("%s: can't find: %s\n", __func__, path);
+		return node;
+	}
+
+	data = fdt_getprop(gd->fdt_blob, node, "rockchip,pins", &count);
+	if (!data) {
+		debug("%s: can't find prop \"rockchip,pins\"\n", __func__);
+		return -ENODATA;
+	}
+
+	count /= sizeof(u32);
+	if (count > MAX_ROCKCHIP_PINS_ENTRIES * 4) {
+		debug("%s: %d is over max count\n", __func__, count);
+		return -EINVAL;
+	}
+
+	for (i = 0; i < count; i++)
+		cells[i] = data[i];
+
+	for (i = 0; i < (count >> 2); i++)
+		cells[4 * i + 3] = cpu_to_fdt32(new_phandle);
+
+	fdt_setprop((void *)gd->fdt_blob, node, "rockchip,pins",
+		    &cells, count * sizeof(u32));
+
+	return 0;
+}
+#endif
+
 int board_fdt_fixup(void *blob)
 {
-	__maybe_unused int ret = 0;
+	int ret = 0;
 
+	/*
+	 * Common fixup for DRM
+	 */
 #ifdef CONFIG_DRM_ROCKCHIP
 	rockchip_display_fixup(blob);
 #endif
 
+	/*
+	 * Platform fixup:
+	 *
+	 * - RK3288: Recognize RK3288W by HDMI Revision ID is 0x1A;
+	 * - RK1808: MMC strength 2mA;
+	 */
 #ifdef CONFIG_ROCKCHIP_RK3288
-	/* RK3288W HDMI Revision ID is 0x1A */
 	if (readl(0xff980004) == 0x1A) {
 		ret = fdt_setprop_string(blob, 0,
 					 "compatible", "rockchip,rk3288w");
 		if (ret)
 			printf("fdt set compatible failed: %d\n", ret);
 	}
+#elif defined(CONFIG_ROCKCHIP_RK1808) && !defined(CONFIG_COPROCESSOR_RK1808)
+	struct tag *t;
+	u32 ph_pu_2ma;
+
+	t = atags_get_tag(ATAG_SOC_INFO);
+	if (!t)
+		return 0;
+
+	debug("soc=0x%x, flags=0x%x\n", t->u.soc.name, t->u.soc.flags);
+
+	if (t->u.soc.flags != SOC_FLAGS_ET00)
+		return 0;
+
+	ph_pu_2ma = fdt_get_phandle(gd->fdt_blob,
+		    fdt_path_offset(gd->fdt_blob, PINCTRL_PCFG_PU_2MA_PATH));
+	if (!ph_pu_2ma) {
+		debug("Can't find: %s\n", PINCTRL_PCFG_PU_2MA_PATH);
+		return -EINVAL;
+	}
+
+	ret |= rockchip_pinctrl_cfg_fdt_fixup(PINCTRL_EMMC_BUS8_PATH, ph_pu_2ma);
+	ret |= rockchip_pinctrl_cfg_fdt_fixup(PINCTRL_EMMC_CMD_PATH, ph_pu_2ma);
+	ret |= rockchip_pinctrl_cfg_fdt_fixup(PINCTRL_EMMC_CLK_PATH, ph_pu_2ma);
 #endif
 
 	return ret;
 }
+
+#ifdef CONFIG_ARM64_BOOT_AARCH32
+/*
+ * Fixup MMU region attr for OP-TEE on ARMv8 CPU:
+ *
+ * What ever U-Boot is 64-bit or 32-bit mode, the OP-TEE is always 64-bit mode.
+ *
+ * Command for OP-TEE:
+ *	64-bit mode: dcache is always enabled;
+ *	32-bit mode: dcache is always disabled(Due to some unknown issue);
+ *
+ * Command for U-Boot:
+ *	64-bit mode: MMU table is static defined in rkxxx.c file, all memory
+ *		     regions are mapped. That's good to match OP-TEE MMU policy.
+ *
+ *	32-bit mode: MMU table is setup according to gd->bd->bi_dram[..] where
+ *		     the OP-TEE region has been reserved, so it can not be
+ *		     mapped(i.e. dcache is disabled). That's also good to match
+ *		     OP-TEE MMU policy.
+ *
+ * For the data coherence when communication between U-Boot and OP-TEE, U-Boot
+ * should follow OP-TEE MMU policy.
+ *
+ * Here is the special:
+ *	When CONFIG_ARM64_BOOT_AARCH32 is enabled, U-Boot is 32-bit mode while
+ *	OP-TEE is still 64-bit mode. U-Boot would not map MMU table for OP-TEE
+ *	region(but OP-TEE requires it cacheable) so we fixup here.
+ */
+int board_initr_caches_fixup(void)
+{
+	struct memblock mem;
+
+	mem = param_parse_optee_mem();
+	if (mem.size)
+		mmu_set_region_dcache_behaviour(mem.base, mem.size,
+						DCACHE_WRITEBACK);
+	return 0;
+}
+#endif
 
 void board_quiesce_devices(void)
 {
@@ -366,31 +483,36 @@ void board_lmb_reserve(struct lmb *lmb)
 }
 #endif
 
-#ifdef CONFIG_SYSMEM
-int board_sysmem_reserve(struct sysmem *sysmem)
+#ifdef CONFIG_BIDRAM
+int board_bidram_reserve(struct bidram *bidram)
 {
-	struct sysmem_property prop;
+	struct memblock mem;
 	int ret;
 
 	/* ATF */
-	prop = param_parse_atf_mem();
-	ret = sysmem_reserve(prop.name, prop.base, prop.size);
+	mem = param_parse_atf_mem();
+	ret = bidram_reserve(MEMBLK_ID_ATF, mem.base, mem.size);
 	if (ret)
 		return ret;
 
 	/* PSTORE/ATAGS/SHM */
-	prop = param_parse_common_resv_mem();
-	ret = sysmem_reserve(prop.name, prop.base, prop.size);
+	mem = param_parse_common_resv_mem();
+	ret = bidram_reserve(MEMBLK_ID_SHM, mem.base, mem.size);
 	if (ret)
 		return ret;
 
 	/* OP-TEE */
-	prop = param_parse_optee_mem();
-	ret = sysmem_reserve(prop.name, prop.base, prop.size);
+	mem = param_parse_optee_mem();
+	ret = bidram_reserve(MEMBLK_ID_OPTEE, mem.base, mem.size);
 	if (ret)
 		return ret;
 
 	return 0;
+}
+
+parse_fn_t board_bidram_parse_fn(void)
+{
+	return param_parse_ddr_mem;
 }
 #endif
 

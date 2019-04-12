@@ -283,6 +283,12 @@ config ROCKCHIP_RK3368
 
 if ROCKCHIP_RK3368
 
+config ROCKCHIP_PX5
+	bool "Support Rockchip PX5"
+	help
+	  PX5 is a variant of RK3368, it shares codes with RK3368, but we still
+	  need this macro to distinguish PX5 and RK3368.
+
 config TPL_LDSCRIPT
 	default "arch/arm/mach-rockchip/rk3368/u-boot-tpl.lds"
 
@@ -537,6 +543,14 @@ config RKIMG_BOOTLOADER
 	  with dtb and uboot/kernel logo bmp, vendor storage for custom info
 	  like SN and MAC address.
 
+config RKIMG_ANDROID_BOOTMODE_LEGACY
+	bool "Support set androidboot.mode with legacy rule"
+	depends on RKIMG_BOOTLOADER
+	default n
+	help
+	  Rockchip set "androidboot.mode=" as "charger" or boot media for android,
+	  which is a rockchip private solution(SDK < 8.1) and deprecated.
+
 config ROCKCHIP_RESOURCE_IMAGE
 	bool "Enable support for rockchip resource image"
 	depends on RKIMG_BOOTLOADER
@@ -544,6 +558,22 @@ config ROCKCHIP_RESOURCE_IMAGE
 	help
 	  This enables support to get dtb or logo files from
 	  rockchip resource image format partition.
+
+config ROCKCHIP_EARLY_DISTRO_DTB
+	bool "Enable support for distro dtb early"
+	depends on DISTRO_DEFAULTS && USING_KERNEL_DTB
+	default n
+	help
+	  This enables loading dtb from distro bootable partition when there
+	  is no valid dtb in android boot.img and rockchip resource.img.
+
+if ROCKCHIP_EARLY_DISTRO_DTB
+
+config ROCKCHIP_EARLY_DISTRO_DTB_PATH
+	string "/rk-kernel.dtb"
+	help
+	  "DTB file path in the bootable partition image"
+endif
 
 config ROCKCHIP_VENDOR_PARTITION
 	bool "Rockchip vendor storage partition support"

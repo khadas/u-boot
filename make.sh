@@ -324,7 +324,7 @@ select_chip_info()
 	#  - PX30, PX3SE
 	#  - RK????, RK????X
 	#  - RV????
-	local chip_reg='^CONFIG_ROCKCHIP_[R,P][X,V,K][0-9ESX]{2,5}'
+	local chip_reg='^CONFIG_ROCKCHIP_[R,P][X,V,K][0-9ESX]{1,5}'
 	count=`egrep -c ${chip_reg} ${OUTDIR}/.config`
 	# Obtain the matching only
 	RKCHIP=`egrep -o ${chip_reg} ${OUTDIR}/.config`
@@ -345,6 +345,8 @@ select_chip_info()
 			&& RKCHIP=RK3326
 		grep '^CONFIG_ROCKCHIP_RK3128X=y' ${OUTDIR}/.config >/dev/null \
 			&& RKCHIP=RK3128X
+		grep '^CONFIG_ROCKCHIP_PX5=y' ${OUTDIR}/.config >/dev/null \
+			&& RKCHIP=PX5
 		grep '^CONFIG_ROCKCHIP_RK3399PRO=y' ${OUTDIR}/.config >/dev/null \
 			&& RKCHIP=RK3399PRO
 	else
@@ -502,9 +504,29 @@ debug_command()
 
 pack_uboot_image()
 {
-	local UBOOT_LOAD_ADDR
+	local UBOOT_LOAD_ADDR UBOOT_MAX_KB UBOOT_KB HEAD_KB=2
 
+	# Check file size
+	UBOOT_KB=`ls -l u-boot.bin | awk '{print $5}'`
+	if [ "$PLATFORM_UBOOT_IMG_SIZE" = "" ]; then
+		UBOOT_MAX_KB=1046528
+	else
+		UBOOT_MAX_KB=`echo $PLATFORM_UBOOT_IMG_SIZE | awk '{print strtonum($2)}'`
+		UBOOT_MAX_KB=$(((UBOOT_MAX_KB-HEAD_KB)*1024))
+	fi
+
+	if [ $UBOOT_KB -gt $UBOOT_MAX_KB ]; then
+		echo
+		echo "ERROR: pack uboot failed! u-boot.bin actual: $UBOOT_KB bytes, max limit: $UBOOT_MAX_KB bytes"
+		exit 1
+	fi
+
+	# Pack image
 	UBOOT_LOAD_ADDR=`sed -n "/CONFIG_SYS_TEXT_BASE=/s/CONFIG_SYS_TEXT_BASE=//p" ${OUTDIR}/include/autoconf.mk|tr -d '\r'`
+	if [ ! $UBOOT_LOAD_ADDR ]; then
+		UBOOT_LOAD_ADDR=`sed -n "/CONFIG_SYS_TEXT_BASE=/s/CONFIG_SYS_TEXT_BASE=//p" ${OUTDIR}/.config|tr -d '\r'`
+	fi
+
 	${RKTOOLS}/loaderimage --pack --uboot ${OUTDIR}/u-boot.bin uboot.img ${UBOOT_LOAD_ADDR} ${PLATFORM_UBOOT_IMG_SIZE}
 
 	# Delete u-boot.img and u-boot-dtb.img, which makes users not be confused with final uboot.img
@@ -521,17 +543,17 @@ pack_uboot_image()
 
 pack_loader_image()
 {
-	local mode=$1 files ini
+	local mode=$1 files ini=${RKBIN}/RKBOOT/${RKCHIP_LOADER}MINIALL.ini
 
-	if [ ! -f ${RKBIN}/RKBOOT/${RKCHIP_LOADER}MINIALL.ini ]; then
-		echo "pack loader failed! Can't find: ${RKBIN}/RKBOOT/${RKCHIP_LOADER}MINIALL.ini"
+	if [ ! -f $ini ]; then
+		echo "pack loader failed! Can't find: $ini"
 		return
 	fi
 
 	cd ${RKBIN}
 
 	if [ "${mode}" = 'all' ]; then
-		files=`ls ${RKBIN}/RKBOOT/${RKCHIP_LOADER}*MINIALL*.ini`
+		files=`ls ${RKBIN}/RKBOOT/${RKCHIP_LOADER}MINIALL*.ini`
 		for ini in $files
 		do
 			if [ -f "$ini" ]; then
@@ -540,8 +562,8 @@ pack_loader_image()
 			fi
 		done
 	else
-		${RKTOOLS}/boot_merger ${BIN_PATH_FIXUP} ${RKBIN}/RKBOOT/${RKCHIP_LOADER}MINIALL.ini
-		echo "pack loader okay! Input: ${RKBIN}/RKBOOT/${RKCHIP_LOADER}MINIALL.ini"
+		${RKTOOLS}/boot_merger ${BIN_PATH_FIXUP} $ini
+		echo "pack loader okay! Input: $ini"
 	fi
 
 	cd - && mv ${RKBIN}/*_loader_*.bin ./
@@ -586,16 +608,10 @@ pack_trust_image()
 		TOS=$(echo ${TOS} | sed "s/tools\/rk_tools\//\.\//g")
 		TOS_TA=$(echo ${TOS_TA} | sed "s/tools\/rk_tools\//\.\//g")
 
-		if [ x$TOS_TA != x -a x$TOS != x ]; then
-			${RKTOOLS}/loaderimage --pack --trustos ${RKBIN}/${TOS} ./trust.img ${TEE_LOAD_ADDR} ${PLATFORM_TRUST_IMG_SIZE}
-			${RKTOOLS}/loaderimage --pack --trustos ${RKBIN}/${TOS_TA} ./trust_with_ta.img ${TEE_LOAD_ADDR} ${PLATFORM_TRUST_IMG_SIZE}
-			echo "Both trust.img and trust_with_ta.img are ready"
-		elif [ $TOS ]; then
-			${RKTOOLS}/loaderimage --pack --trustos ${RKBIN}/${TOS} ./trust.img ${TEE_LOAD_ADDR} ${PLATFORM_TRUST_IMG_SIZE}
-			echo "trust.img is ready"
-		elif [ $TOS_TA ]; then
+		if [ $TOS_TA ]; then
 			${RKTOOLS}/loaderimage --pack --trustos ${RKBIN}/${TOS_TA} ./trust.img ${TEE_LOAD_ADDR} ${PLATFORM_TRUST_IMG_SIZE}
-			echo "trust.img with ta is ready"
+		elif [ $TOS ]; then
+			${RKTOOLS}/loaderimage --pack --trustos ${RKBIN}/${TOS}    ./trust.img ${TEE_LOAD_ADDR} ${PLATFORM_TRUST_IMG_SIZE}
 		else
 			echo "Can't find any tee bin"
 			exit 1

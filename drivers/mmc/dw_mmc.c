@@ -13,6 +13,10 @@
 #include <memalign.h>
 #include <mmc.h>
 #include <dwmmc.h>
+#ifdef CONFIG_DM_GPIO
+#include <asm/gpio.h>
+#include <asm-generic/gpio.h>
+#endif
 
 #define PAGE_SIZE 4096
 
@@ -580,8 +584,16 @@ static int dwmci_init(struct mmc *mmc)
 
 	if (host->board_init)
 		host->board_init(host);
-
+#ifdef CONFIG_ARCH_ROCKCHIP
+	if (host->dev_index == 0)
+		dwmci_writel(host, DWMCI_PWREN, 1);
+	else if (host->dev_index == 1)
+		dwmci_writel(host, DWMCI_PWREN, 0);
+	else
+		dwmci_writel(host, DWMCI_PWREN, 1);
+#else
 	dwmci_writel(host, DWMCI_PWREN, 1);
+#endif
 
 	if (!dwmci_wait_reset(host, DWMCI_RESET_ALL)) {
 		debug("%s[%d] Fail-reset!!\n", __func__, __LINE__);
@@ -623,6 +635,24 @@ static int dwmci_init(struct mmc *mmc)
 	return 0;
 }
 
+static int dwmci_get_cd(struct udevice *dev)
+{
+	int ret = -1;
+#ifndef CONFIG_SPL_BUILD
+#ifdef CONFIG_DM_GPIO
+	struct gpio_desc detect;
+
+	ret = gpio_request_by_name(dev, "cd-gpios", 0, &detect, GPIOD_IS_IN);
+	if (ret) {
+		return ret;
+	}
+
+	ret = !dm_gpio_get_value(&detect);
+#endif
+#endif
+	return ret;
+}
+
 #ifdef CONFIG_DM_MMC
 int dwmci_probe(struct udevice *dev)
 {
@@ -635,6 +665,7 @@ const struct dm_mmc_ops dm_dwmci_ops = {
 	.card_busy	= dwmci_card_busy,
 	.send_cmd	= dwmci_send_cmd,
 	.set_ios	= dwmci_set_ios,
+	.get_cd         = dwmci_get_cd,
 	.execute_tuning	= dwmci_execute_tuning,
 };
 
@@ -643,6 +674,7 @@ static const struct mmc_ops dwmci_ops = {
 	.card_busy	= dwmci_card_busy,
 	.send_cmd	= dwmci_send_cmd,
 	.set_ios	= dwmci_set_ios,
+	.get_cd         = dwmci_get_cd,
 	.init		= dwmci_init,
 	.execute_tuning	= dwmci_execute_tuning,
 };

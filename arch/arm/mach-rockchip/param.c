@@ -4,12 +4,15 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <ram.h>
 #include <asm/io.h>
 #include <asm/arch/rk_atags.h>
 #include <asm/arch/param.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if !defined(CONFIG_SPL_BUILD) && !defined(CONFIG_TPL_BUILD)
 #define SDRAM_OFFSET(offset)		(CONFIG_SYS_SDRAM_BASE + (offset))
 #define PARAM_DRAM_INFO_OFFSET		(SZ_32M)
 #define PARAM_OPTEE_INFO_OFFSET		(SZ_32M + SZ_2M)
@@ -47,13 +50,12 @@ static uint16_t trust_checksum(const uint8_t *buf, uint16_t len)
 	return checksum;
 }
 
-struct sysmem_property param_parse_atf_mem(void)
+struct memblock param_parse_atf_mem(void)
 {
-	struct sysmem_property prop;
+	struct memblock mem;
 
-	prop.name = "ATF";
-	prop.base = 0;
-	prop.size = 0;
+	mem.base = 0;
+	mem.size = 0;
 
 #ifdef CONFIG_ROCKCHIP_PRELOADER_ATAGS
 	struct tag *t = NULL;
@@ -66,41 +68,40 @@ struct sysmem_property param_parse_atf_mem(void)
 	 */
 	t = atags_get_tag(ATAG_ATF_MEM);
 	if (t && t->u.atf_mem.size) {
-		prop.base = t->u.atf_mem.phy_addr;
-		prop.size = t->u.atf_mem.size;
+		mem.base = t->u.atf_mem.phy_addr;
+		mem.size = t->u.atf_mem.size;
 		/* Sanity */
-		if (prop.base + prop.size > SDRAM_OFFSET(SZ_1M)) {
+		if (mem.base + mem.size > SDRAM_OFFSET(SZ_1M)) {
 			printf("%s: ATF reserved region is not within 0-1MB "
 			       "offset(0x%08llx-0x%08llx)!\n",
-			       __func__, (u64)prop.base, (u64)prop.base + prop.size);
-			return prop;
+			       __func__, (u64)mem.base, (u64)mem.base + mem.size);
+			return mem;
 		}
 	}
 #endif
 
 	/* Legacy */
-	if (!prop.size) {
+	if (!mem.size) {
 		if (IS_ENABLED(CONFIG_ARM64) ||
 		    IS_ENABLED(CONFIG_ARM64_BOOT_AARCH32)) {
-			prop.base = SDRAM_OFFSET(0);
-			prop.size = SZ_1M;
+			mem.base = SDRAM_OFFSET(0);
+			mem.size = SZ_1M;
 		}
 	}
 
-	debug("ATF: 0x%llx - 0x%llx\n", (u64)prop.base, (u64)prop.base + prop.size);
+	debug("ATF: 0x%llx - 0x%llx\n", (u64)mem.base, (u64)mem.base + mem.size);
 
-	return prop;
+	return mem;
 }
 
-struct sysmem_property param_parse_optee_mem(void)
+struct memblock param_parse_optee_mem(void)
 {
 	struct tos_param_t *tos_parameter;
-	struct sysmem_property prop;
+	struct memblock mem;
 	u32 checksum;
 
-	prop.name = "OP-TEE";
-	prop.base = 0;
-	prop.size = 0;
+	mem.base = 0;
+	mem.size = 0;
 
 #ifdef CONFIG_ROCKCHIP_PRELOADER_ATAGS
 	struct tag *t = NULL;
@@ -113,13 +114,13 @@ struct sysmem_property param_parse_optee_mem(void)
 	 */
 	t = atags_get_tag(ATAG_TOS_MEM);
 	if (t && (t->u.tos_mem.tee_mem.flags == 1)) {
-		prop.base = t->u.tos_mem.tee_mem.phy_addr;
-		prop.size = t->u.tos_mem.tee_mem.size;
+		mem.base = t->u.tos_mem.tee_mem.phy_addr;
+		mem.size = t->u.tos_mem.tee_mem.size;
 	}
 #endif
 
 	/* Legacy */
-	if (!prop.size) {
+	if (!mem.size) {
 		tos_parameter =
 		(struct tos_param_t *)(SDRAM_OFFSET(PARAM_OPTEE_INFO_OFFSET));
 		checksum =
@@ -127,28 +128,30 @@ struct sysmem_property param_parse_optee_mem(void)
 			       sizeof(struct tos_param_t) - 8);
 		if ((checksum == tos_parameter->checksum) &&
 		    (tos_parameter->tee_mem.flags == 1)) {
-			prop.base = tos_parameter->tee_mem.phy_addr;
-			prop.size = tos_parameter->tee_mem.size;
+			mem.base = tos_parameter->tee_mem.phy_addr;
+			mem.size = tos_parameter->tee_mem.size;
 		}
 	}
 
-	if (prop.size)
+	if (mem.size)
 		gd->flags |= GD_FLG_BL32_ENABLED;
 
-	debug("TOS: 0x%llx - 0x%llx\n", (u64)prop.base, (u64)prop.base + prop.size);
+	debug("TOS: 0x%llx - 0x%llx\n", (u64)mem.base, (u64)mem.base + mem.size);
 
-	return prop;
+	return mem;
 }
 
-struct sysmem_property param_parse_common_resv_mem(void)
+struct memblock param_parse_common_resv_mem(void)
 {
-	struct sysmem_property prop;
+	struct memblock mem;
 
-	prop.name = "PSTORE/ATAGS/SHM";
-	prop.base = SDRAM_OFFSET(SZ_1M);
-	prop.size = SZ_1M;
-
-	return prop;
+#ifdef CONFIG_ARM64
+	mem.base = SDRAM_OFFSET(SZ_1M);
+	mem.size = SZ_1M;
+#else
+	mem.size = 0;
+#endif
+	return mem;
 }
 
 int param_parse_bootdev(char **devtype, char **devnum)
@@ -195,4 +198,71 @@ int param_parse_bootdev(char **devtype, char **devnum)
 #endif
 
 	return -ENOSYS;
+}
+#endif
+
+struct memblock *param_parse_ddr_mem(int *out_count)
+{
+	struct udevice *dev;
+	struct memblock *mem;
+	struct ram_info ram;
+	int i, ret, count;
+
+	/*
+	 * Get memory region of DDR
+	 *
+	 * 1. New: atags info;
+	 * 2. Leagcy: os register;
+	 */
+#ifdef CONFIG_ROCKCHIP_PRELOADER_ATAGS
+	struct tag *t;
+
+	t = atags_get_tag(ATAG_DDR_MEM);
+	if (t && t->u.ddr_mem.count) {
+		count = t->u.ddr_mem.count;
+		mem = calloc(count, sizeof(*mem));
+		if (!mem) {
+			printf("Calloc ddr memory failed\n");
+			return 0;
+		}
+
+		for (i = 0; i < count; i++) {
+			mem[i].base = t->u.ddr_mem.bank[i];
+			mem[i].size = t->u.ddr_mem.bank[i + count];
+		}
+
+		*out_count = count;
+		return mem;
+	}
+#endif
+
+	/* Leagcy */
+	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
+	if (ret) {
+		debug("DRAM init failed: %d\n", ret);
+		return NULL;
+	}
+	ret = ram_get_info(dev, &ram);
+	if (ret) {
+		debug("Cannot get DRAM size: %d\n", ret);
+		return NULL;
+	}
+
+	debug("SDRAM base=%lx, size=%lx\n",
+	      (unsigned long)ram.base, (unsigned long)ram.size);
+
+	count = 1;
+	mem = calloc(1, sizeof(*mem));
+	if (!mem) {
+		printf("Calloc ddr memory failed\n");
+		return 0;
+	}
+
+	for (i = 0; i < count; i++) {
+		mem[i].base = CONFIG_SYS_SDRAM_BASE;
+		mem[i].size = ram.size;
+	}
+
+	*out_count = count;
+	return mem;
 }

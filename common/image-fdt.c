@@ -88,6 +88,7 @@ void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob)
 	fdt_addr_t rsv_addr;
 	/* we needn't repeat do reserve, do_bootm_linux would call this again */
 	static int rsv_done;
+	const void *prop;
 
 	if (fdt_check_header(fdt_blob) != 0 || rsv_done)
 		return;
@@ -110,6 +111,10 @@ void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob)
 	for (offset = fdt_first_subnode(fdt_blob, rsv_offset);
 	     offset >= 0;
 	     offset = fdt_next_subnode(fdt_blob, offset)) {
+		prop = fdt_getprop(fdt_blob, offset, "status", NULL);
+		if (prop && !strcmp(prop, "disabled"))
+			continue;
+
 		rsv_addr = fdtdec_get_addr_size_auto_noparent(fdt_blob, offset,
 							      "reg", 0,
 							      &rsv_size, false);
@@ -137,7 +142,7 @@ int boot_fdt_add_sysmem_rsv_regions(void *fdt_blob)
 	fdt_addr_t rsv_addr;
 	static int rsv_done;
 	char resvname[32];
-	int ret;
+	const void *prop;
 
 	if (fdt_check_header(fdt_blob) != 0 || rsv_done)
 		return -EINVAL;
@@ -151,9 +156,8 @@ int boot_fdt_add_sysmem_rsv_regions(void *fdt_blob)
 		debug("   sysmem: reserving fdt memory region: addr=%llx size=%llx\n",
 		      (unsigned long long)addr, (unsigned long long)size);
 		sprintf(resvname, "fdt-memory-reserved%d", i);
-		ret = sysmem_reserve(resvname, addr, size);
-		if (ret)
-			return ret;
+		if (!sysmem_fdt_reserve_alloc_base(resvname, addr, size))
+			return -ENOMEM;
 	}
 
 	rsv_offset = fdt_subnode_offset(fdt_blob, 0, "reserved-memory");
@@ -163,6 +167,10 @@ int boot_fdt_add_sysmem_rsv_regions(void *fdt_blob)
 	for (offset = fdt_first_subnode(fdt_blob, rsv_offset);
 	     offset >= 0;
 	     offset = fdt_next_subnode(fdt_blob, offset)) {
+		prop = fdt_getprop(fdt_blob, offset, "status", NULL);
+		if (prop && !strcmp(prop, "disabled"))
+			continue;
+
 		rsv_addr = fdtdec_get_addr_size_auto_noparent(fdt_blob, offset,
 							      "reg", 0,
 							      &rsv_size, false);
@@ -171,10 +179,9 @@ int boot_fdt_add_sysmem_rsv_regions(void *fdt_blob)
 		debug("  sysmem: 'reserved-memory' %s: addr=%llx size=%llx\n",
 		      fdt_get_name(fdt_blob, offset, NULL),
 		      (unsigned long long)rsv_addr, (unsigned long long)rsv_size);
-		ret = sysmem_reserve(fdt_get_name(fdt_blob, offset, NULL),
-				     rsv_addr, rsv_size);
-		if (ret)
-			return ret;
+		if (!sysmem_fdt_reserve_alloc_base(fdt_get_name(fdt_blob, offset, NULL),
+					           rsv_addr, rsv_size))
+			return -ENOMEM;
 	}
 
 	return 0;

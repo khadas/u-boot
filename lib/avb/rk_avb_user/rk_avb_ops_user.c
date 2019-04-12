@@ -24,8 +24,45 @@
 #include <android_avb/avb_atx_validate.h>
 #include <android_avb/rk_avb_ops_user.h>
 #include <boot_rkimg.h>
+#include <asm/arch/rk_atags.h>
 
 /* rk used */
+int rk_avb_get_pub_key(struct rk_pub_key *pub_key)
+{
+	struct tag *t = NULL;
+
+	t = atags_get_tag(ATAG_PUB_KEY);
+	if (!t)
+		return -1;
+
+	memcpy(pub_key, t->u.pub_key.data, sizeof(struct rk_pub_key));
+
+	return 0;
+}
+int rk_avb_get_perm_attr_cer(uint8_t *cer, uint32_t size)
+{
+#ifdef CONFIG_OPTEE_CLIENT
+	if (trusty_read_permanent_attributes_cer((uint8_t *)cer, size))
+		return -EIO;
+
+	return 0;
+#else
+	return -1;
+#endif
+}
+
+int rk_avb_set_perm_attr_cer(uint8_t *cer, uint32_t size)
+{
+#ifdef CONFIG_OPTEE_CLIENT
+	if (trusty_write_permanent_attributes_cer((uint8_t *)cer, size))
+		return -EIO;
+
+	return 0;
+#else
+	return -1;
+#endif
+}
+
 int rk_avb_read_slot_count(char *slot_count)
 {
 	*slot_count = SLOT_NUM;
@@ -117,8 +154,14 @@ int rk_avb_get_current_slot(char *select_slot)
 	}
 
 	if (rk_avb_ab_slot_select(ops->ab_ops, select_slot) != 0) {
-		printf("get_current_slot error!\n");
-		ret = -1;
+		printf("###There is no bootable slot, bring up last_boot!###\n");
+		if (rk_get_lastboot() == 1)
+			memcpy(select_slot, "_b", 2);
+		else if(rk_get_lastboot() == 0)
+			memcpy(select_slot, "_a", 2);
+		else
+			return -1;
+		ret = 0;
 	}
 
 	avb_ops_user_free(ops);
@@ -696,4 +739,31 @@ int rk_generate_unlock_challenge(void *buffer, uint32_t *challenge_len)
 		return 0;
 	else
 		return -1;
+}
+
+int rk_get_lastboot(void)
+{
+
+	AvbIOResult io_ret = AVB_IO_RESULT_OK;
+	AvbABData ab_data;
+	int lastboot = -1;
+	AvbOps* ops;
+
+	ops = avb_ops_user_new();
+	if (ops == NULL) {
+		printf("avb_ops_user_new() failed!\n");
+		return -1;
+	}
+
+	io_ret = ops->ab_ops->read_ab_metadata(ops->ab_ops, &ab_data);
+	if (io_ret != AVB_IO_RESULT_OK) {
+		avb_error("I/O error while loading A/B metadata.\n");
+		goto out;
+	}
+
+	lastboot = ab_data.last_boot;
+out:
+	avb_ops_user_free(ops);
+
+	return lastboot;
 }

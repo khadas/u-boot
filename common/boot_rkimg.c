@@ -15,6 +15,8 @@
 #include <asm/arch/boot_mode.h>
 #include <asm/io.h>
 #include <part.h>
+#include <bidram.h>
+#include <console.h>
 #include <sysmem.h>
 
 #define TAG_KERNEL			0x4C4E524B
@@ -88,26 +90,16 @@ static void boot_lmb_init(bootm_headers_t *images)
  * return the image size on success, and a
  * negative value on error.
  */
-static int read_rockchip_image(struct blk_desc *dev_desc,
-			       disk_partition_t *part_info,
-			       void *dst)
+int read_rockchip_image(struct blk_desc *dev_desc,
+			disk_partition_t *part_info, void *dst)
 {
 	struct rockchip_image *img;
-	const char *name;
 	int header_len = 8;
 	int cnt;
 	int ret;
 #ifdef CONFIG_ROCKCHIP_CRC
 	u32 crc32;
 #endif
-
-	if (!strcmp((char *)part_info->name, "kernel"))
-		name = "kernel";
-	else if (!strcmp((char *)part_info->name, "boot") ||
-		 !strcmp((char *)part_info->name, "recovery"))
-		name = "ramdisk";
-	else
-		name = NULL;
 
 	img = memalign(ARCH_DMA_MINALIGN, RK_BLK_SIZE);
 	if (!img) {
@@ -133,7 +125,9 @@ static int read_rockchip_image(struct blk_desc *dev_desc,
 	 * total size  = image size + 8 bytes header + 4 bytes crc32
 	 */
 	cnt = DIV_ROUND_UP(img->size + 8 + 4, RK_BLK_SIZE);
-	if (!sysmem_alloc_base(name, (phys_addr_t)dst, cnt * dev_desc->blksz)) {
+	if (!sysmem_alloc_base_by_name((const char *)part_info->name,
+				       (phys_addr_t)dst,
+				       cnt * dev_desc->blksz)) {
 		ret = -ENXIO;
 		goto err;
 	}
@@ -208,10 +202,21 @@ int get_bootdev_type(void)
 
 	if (!appended && boot_media) {
 		appended = 1;
-		/*
-		 * 1. androidboot.mode=charger has higher priority, not override;
-		 * 2. rknand doesn't need "androidboot.mode=";
-		 */
+
+	/*
+	 * The legacy rockchip Android (SDK < 8.1) requires "androidboot.mode="
+	 * to be "charger" or boot media which is a rockchip private solution.
+	 *
+	 * The official Android rule (SDK >= 8.1) is:
+	 * "androidboot.mode=normal" or "androidboot.mode=charger".
+	 *
+	 * Now that this U-Boot is usually working with higher version
+	 * Android (SDK >= 8.1), we follow the official rules.
+	 *
+	 * Common: androidboot.mode=charger has higher priority, don't override;
+	 */
+#ifdef CONFIG_RKIMG_ANDROID_BOOTMODE_LEGACY
+		/* rknand doesn't need "androidboot.mode="; */
 		if (env_exist("bootargs", "androidboot.mode=charger") ||
 		    (type == IF_TYPE_RKNAND) ||
 		    (type == IF_TYPE_SPINAND) ||
@@ -222,6 +227,15 @@ int get_bootdev_type(void)
 			snprintf(boot_options, sizeof(boot_options),
 				 "storagemedia=%s androidboot.mode=%s",
 				 boot_media, boot_media);
+#else
+		if (env_exist("bootargs", "androidboot.mode=charger"))
+			snprintf(boot_options, sizeof(boot_options),
+				 "storagemedia=%s", boot_media);
+		else
+			snprintf(boot_options, sizeof(boot_options),
+				 "storagemedia=%s androidboot.mode=normal",
+				 boot_media);
+#endif
 		env_update("bootargs", boot_options);
 	}
 
@@ -352,9 +366,14 @@ int rockchip_get_boot_mode(void)
 	 * USB attach will do env_set("reboot_mode", "recovery");
 	 */
 	env_reboot_mode = env_get("reboot_mode");
-	if (env_reboot_mode && !strcmp(env_reboot_mode, "recovery")) {
-		boot_mode = BOOT_MODE_RECOVERY;
-		printf("boot mode: recovery\n");
+	if (env_reboot_mode) {
+		if (!strcmp(env_reboot_mode, "recovery")) {
+			boot_mode = BOOT_MODE_RECOVERY;
+			printf("boot mode: recovery\n");
+		} else if (!strcmp(env_reboot_mode, "fastboot")) {
+			boot_mode = BOOT_MODE_BOOTLOADER;
+			printf("boot mode: fastboot\n");
+		}
 	}
 
 	if (boot_mode != -1)
@@ -389,7 +408,6 @@ fallback:
 	} else {
 		/* Mode from boot mode register */
 		reg_boot_mode = readl((void *)CONFIG_ROCKCHIP_BOOT_MODE_REG);
-		writel(BOOT_NORMAL, (void *)CONFIG_ROCKCHIP_BOOT_MODE_REG);
 
 		switch (reg_boot_mode) {
 		case BOOT_NORMAL:
@@ -505,7 +523,11 @@ int boot_rockchip_image(struct blk_desc *dev_desc, disk_partition_t *boot_part)
 	printf("ramdisk  @ 0x%08lx (0x%08x)\n", ramdisk_addr_r, ramdisk_size);
 
 	fdt_ramdisk_skip_relocation();
-	sysmem_dump_check();
+
+	if (gd->console_evt == CONSOLE_EVT_CTRL_M) {
+		bidram_dump();
+		sysmem_dump();
+	}
 
 #if defined(CONFIG_ARM64)
 	char cmdbuf[64];

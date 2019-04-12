@@ -30,6 +30,13 @@ extern "C" {
 #define RPMB_BASE_ADDR		(64*1024/256)
 #define UBOOT_RB_INDEX_OFFSET 24
 #define TRUST_RB_INDEX_OFFSET 28
+#define ROCHCHIP_RSA_PARAMETER_SIZE 64
+
+struct rk_pub_key {
+	u_int32_t rsa_n[ROCHCHIP_RSA_PARAMETER_SIZE];
+	u_int32_t rsa_e[ROCHCHIP_RSA_PARAMETER_SIZE];
+	u_int32_t rsa_c[ROCHCHIP_RSA_PARAMETER_SIZE];
+};
 
 /**
  * Provided to fastboot to read how many slot in this system.
@@ -266,6 +273,38 @@ int rk_auth_unlock(void *buffer, char *out_is_trusted);
  * @return 0 if generate unlock challenge OK, -1 if not
  */
 int rk_generate_unlock_challenge(void *buffer, uint32_t *challenge_len);
+
+/**
+ * Get last boot slot
+ *
+ * @return 0 is slot A; 1 is slot B; -1 is error
+ */
+int rk_get_lastboot(void);
+
+/**
+ * Get permanent attribute certificate
+ *
+ * @param cer: certificate data
+ *
+ * @param size: certificate size
+ */
+int rk_avb_get_perm_attr_cer(uint8_t *cer, uint32_t size);
+
+/**
+ * Set permanent attribute certificate
+ *
+ * @param cer: certificate data
+ *
+ * @param size: certificate size
+ */
+int rk_avb_set_perm_attr_cer(uint8_t *cer, uint32_t size);
+
+/**
+ * Get public key
+ *
+ * @param pub_key: public key data
+ */
+int rk_avb_get_pub_key(struct rk_pub_key *pub_key);
 
 #ifdef __cplusplus
 }

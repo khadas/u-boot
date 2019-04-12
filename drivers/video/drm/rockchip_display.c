@@ -45,6 +45,7 @@
  **********************************************************************/
 
 #define RK_BLK_SIZE 512
+#define BMP_PROCESSED_FLAG 8399
 
 DECLARE_GLOBAL_DATA_PTR;
 static LIST_HEAD(rockchip_display_list);
@@ -465,8 +466,6 @@ bool drm_mode_is_420(const struct drm_display_info *display,
 static int display_get_timing(struct display_state *state)
 {
 	struct connector_state *conn_state = &state->conn_state;
-	const struct rockchip_connector *conn = conn_state->connector;
-	const struct rockchip_connector_funcs *conn_funcs = conn->funcs;
 	struct drm_display_mode *mode = &conn_state->mode;
 	const struct drm_display_mode *m;
 	struct panel_state *panel_state = &state->panel_state;
@@ -483,18 +482,6 @@ static int display_get_timing(struct display_state *state)
 		memcpy(mode, m, sizeof(*m));
 		printf("Using display timing from compatible panel driver\n");
 		goto done;
-	}
-
-	if (conn_funcs->get_edid && !conn_funcs->get_edid(state)) {
-		int panel_bits_per_colourp;
-
-		if (!edid_get_drm_mode((void *)&conn_state->edid,
-				     sizeof(conn_state->edid), mode,
-				     &panel_bits_per_colourp)) {
-			printf("Using display timing from edid\n");
-			edid_print_info((void *)&conn_state->edid);
-			goto done;
-		}
 	}
 
 	printf("failed to find display timing\n");
@@ -524,6 +511,7 @@ static int display_init(struct display_state *state)
 	struct rockchip_crtc *crtc = crtc_state->crtc;
 	const struct rockchip_crtc_funcs *crtc_funcs = crtc->funcs;
 	struct drm_display_mode *mode = &conn_state->mode;
+	int bpc;
 	int ret = 0;
 	static bool __print_once = false;
 
@@ -576,17 +564,24 @@ static int display_init(struct display_state *state)
 			goto deinit;
 	}
 
-	if (conn_funcs->get_timing) {
-		ret = conn_funcs->get_timing(state);
-	} else if (panel_state->panel) {
+	if (panel_state->panel) {
 		ret = display_get_timing(state);
 	} else if (conn_state->bridge) {
-		int bpc;
-
 		ret = video_bridge_read_edid(conn_state->bridge->dev,
 					     conn_state->edid, EDID_SIZE);
 		if (ret > 0) {
 			ret = edid_get_drm_mode(conn_state->edid, ret, mode,
+						&bpc);
+			if (!ret)
+				edid_print_info((void *)&conn_state->edid);
+		}
+	} else if (conn_funcs->get_timing) {
+		ret = conn_funcs->get_timing(state);
+	} else if (conn_funcs->get_edid) {
+		ret = conn_funcs->get_edid(state);
+		if (!ret) {
+			ret = edid_get_drm_mode((void *)&conn_state->edid,
+						sizeof(conn_state->edid), mode,
 						&bpc);
 			if (!ret)
 				edid_print_info((void *)&conn_state->edid);
@@ -929,6 +924,7 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 	void *dst = NULL, *pdst;
 	int size, len;
 	int ret = 0;
+	int reserved = 0;
 
 	if (!logo || !bmp_name)
 		return -EINVAL;
@@ -954,6 +950,9 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 	logo->bpp = get_unaligned_le16(&header->bit_count);
 	logo->width = get_unaligned_le32(&header->width);
 	logo->height = get_unaligned_le32(&header->height);
+	reserved = get_unaligned_le32(&header->reserved);
+	if (logo->height < 0)
+	    logo->height = -logo->height;
 	size = get_unaligned_le32(&header->file_size);
 	if (!can_direct_logo(logo->bpp)) {
 		if (size > MEMORY_POOL_SIZE) {
@@ -1001,7 +1000,10 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 		logo->ymirror = 0;
 	} else {
 		logo->offset = get_unaligned_le32(&header->data_offset);
-		logo->ymirror = 1;
+		if (reserved == BMP_PROCESSED_FLAG)
+			logo->ymirror = 0;
+		else
+			logo->ymirror = 1;
 	}
 	logo->mem = dst;
 

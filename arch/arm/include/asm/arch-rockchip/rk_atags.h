@@ -17,6 +17,8 @@
 #define ATAG_TOS_MEM		0x54410053
 #define ATAG_RAM_PARTITION	0x54410054
 #define ATAG_ATF_MEM		0x54410055
+#define ATAG_PUB_KEY		0x54410056
+#define ATAG_SOC_INFO		0x54410057
 #define ATAG_MAX		0x544100ff
 
 /* Tag size and offset */
@@ -44,6 +46,11 @@
 #define SERIAL_M_MODE_M1	0x1
 #define SERIAL_M_MODE_M2	0x2
 
+/* tag_soc_info.flags */
+#define SOC_FLAGS_ET00		0x45543030
+#define SOC_FLAGS_ET01		0x45543031
+#define SOC_FLAGS_ET02		0x45543032
+
 struct tag_serial {
 	u32 version;
 	u32 enable;
@@ -51,7 +58,8 @@ struct tag_serial {
 	u32 baudrate;
 	u32 m_mode;
 	u32 id;
-	u32 reserved[3];
+	u32 reserved[2];
+	u32 hash;
 } __packed;
 
 struct tag_bootdev {
@@ -59,14 +67,16 @@ struct tag_bootdev {
 	u32 devtype;
 	u32 devnum;
 	u32 mode;
-	u32 reserved[8];
+	u32 reserved[7];
+	u32 hash;
 } __packed;
 
 struct tag_ddr_mem {
 	u32 count;
 	u32 version;
 	u64 bank[20];
-	u32 reserved[4];
+	u32 reserved[3];
+	u32 hash;
 } __packed;
 
 struct tag_tos_mem {
@@ -85,7 +95,9 @@ struct tag_tos_mem {
 		u32 flags;
 	} drm_mem;
 
-	u64 reserved[8];
+	u64 reserved[7];
+	u32 reserved1;
+	u32 hash;
 } __packed;
 
 struct tag_atf_mem {
@@ -93,7 +105,16 @@ struct tag_atf_mem {
 	u64 phy_addr;
 	u32 size;
 	u32 flags;
-	u32 reserved[3];
+	u32 reserved[2];
+	u32 hash;
+} __packed;
+
+struct tag_pub_key {
+	u32 version;
+	u32 len;
+	u8  data[768];
+	u32 reserved[6];
+	u32 hash;
 } __packed;
 
 struct tag_ram_partition {
@@ -105,7 +126,18 @@ struct tag_ram_partition {
 		char name[16];
 		u64 start;
 		u64 size;
-	} part[16];
+	} part[6];
+
+	u32 reserved1[3];
+	u32 hash;
+} __packed;
+
+struct tag_soc_info {
+	u32 version;
+	u32 name;	/* Hex: 0x3288, 0x3399... */
+	u32 flags;
+	u32 reserved[6];
+	u32 hash;
 } __packed;
 
 struct tag_core {
@@ -130,6 +162,8 @@ struct tag {
 		struct tag_tos_mem	tos_mem;
 		struct tag_ram_partition ram_part;
 		struct tag_atf_mem	atf_mem;
+		struct tag_pub_key	pub_key;
+		struct tag_soc_info	soc;
 	} u;
 } __aligned(4);
 
