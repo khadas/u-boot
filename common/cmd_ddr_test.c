@@ -1,4 +1,5 @@
 #include <common.h>
+#include <u-boot/sha256.h>
 //#include <asm/arch/secure_apb.h>
 
 
@@ -22779,7 +22780,13 @@ int do_ddr_test_pwm_bdlr (cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 
 }
 
-uint32_t  ddr_set_t_p_arrary[sizeof(ddr_set_t)];
+typedef struct ddr_sha_s {
+	unsigned char sha2[SHA256_SUM_LEN];
+	ddr_set_t ddrs;
+} ddr_sha_t;
+
+ddr_sha_t ddr_sha = {{0}};
+ddr_set_t *ddr_set_t_p_arrary = &ddr_sha.ddrs;
 int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 
@@ -22791,7 +22798,7 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 		printf("\nargv[%d]=%s\n",i,argv[i]);
 
 	ddr_set_t *ddr_set_t_p=NULL;
-	ddr_set_t_p=(ddr_set_t *)(&ddr_set_t_p_arrary);
+	ddr_set_t_p=(ddr_set_t *)(ddr_set_t_p_arrary);
 	//ddr_set_t_p= (ddr_set_t *)G12_DMC_STICKY_0;
 	//if (sizeof(ddr_set_t)<loop_max)
 	printf("\nddr_set_t_p==0x%08x\n",(uint32_t)(uint64_t)(ddr_set_t_p));
@@ -23462,7 +23469,7 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 		return 1;
 
 	ddr_set_t *ddr_set_t_p=NULL;
-	ddr_set_t_p=(ddr_set_t *)(&ddr_set_t_p_arrary);
+	ddr_set_t_p=(ddr_set_t *)(ddr_set_t_p_arrary);
 	//ddr_set_t_p= (ddr_set_t *)G12_DMC_STICKY_0;
 	//if (sizeof(ddr_set_t)<loop_max)
 	uint32_t  ddr_set_add=0;
@@ -23662,10 +23669,21 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 		ddr_set_t_p->fast_boot[0]=0;
 
 	{
+		#if 1
+		printf("&ddr_sha.ddrs : 0x%x\n", (uint32_t)(uint64_t)&ddr_sha.ddrs);
+		printf("&ddr_sha.sha2 : 0x%x\n", (uint32_t)(uint64_t)&ddr_sha.sha2);
+		printf("ddr_set_add : 0x%x\n", (uint32_t)(uint64_t)ddr_set_add);
+
+		sha256_csum_wd((unsigned char *)(uint64_t)ddr_set_add, sizeof(ddr_set_t), ddr_sha.sha2, 0);
+		//sha2((unsigned char *)(uint64_t)ddr_set_add, sizeof(ddr_set_t), ddr_sha.sha2, 0);
+		printf("print sha\n");
+		sprintf(str,"md %08x 0x100", (uint32_t)(uint64_t)(ddr_set_add-32));
+		run_command(str,0);
+		#endif
 		#ifdef USE_FOR_UBOOT_2018
-		sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
+		sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,ddr_set_size+SHA256_SUM_LEN);
 		#else
-		sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
+		sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,ddr_set_size+SHA256_SUM_LEN);
 		#endif
 		//	sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
 		//	sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
@@ -24149,8 +24167,8 @@ int do_ddr_set_watchdog_value(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 	#define  TEST_ARG_BOOT_TIMES_H 7
 
 	//BYTE12-15
-	//#define  TEST_ARG_ERROR_FLAG 8   //take 4 byte for kernel test flag
-	#define  TEST_ARG_ERROR_FLAG 63*4   //take 4 byte for kernel test flag
+	#define  TEST_ARG_ERROR_FLAG 8   //take 4 byte for kernel test flag
+	//#define  TEST_ARG_ERROR_FLAG 63*4   //take 4 byte for kernel test flag
 
 	//BYTE16-19
 	//#define  TEST_ARG_16_LCDLR_TEMP_COUNT 16
@@ -24380,7 +24398,7 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 	//boot_times=num_arry[5];
 	//lcdlr_temp_count=num_arry[6];
 	*/
-	printf("TEST_ARG_0_DMC_STICKY_MAGIC==0x%08x\n",num_arry[TEST_ARG_0_DMC_STICKY_MAGIC]);
+	printf("\nTEST_ARG_0_DMC_STICKY_MAGIC==0x%08x\n",num_arry[TEST_ARG_0_DMC_STICKY_MAGIC]);
 	printf("\nTEST_ARG_1_CMD0==0x%08x\n",num_arry[TEST_ARG_1_CMD0]);
 	printf("TEST_ARG_2_STEP==0x%08x\n",num_arry[TEST_ARG_2_STEP]);
 	printf("TEST_ARG_3_ALL_TOGHTER==0x%08x\n",num_arry[TEST_ARG_3_ALL_TOGHTER]);
@@ -24425,7 +24443,7 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 	}
 	printf("test_sticky is not magic nummber,boot times==%d\n",test_boot_times);
 
-	if(config_register==1)
+	//if(config_register==1)
 	{
 		wr_reg((sticky_reg_base_add+TEST_ARG_CS0_TEST_START_INDEX), cs0_test_start);
 		wr_reg((sticky_reg_base_add+TEST_ARG_CS0_TEST_SIZE_INDEX), cs0_test_size);
@@ -24439,8 +24457,11 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 		}
 		num_arry[TEST_ARG_TEST_INDEX_ENALBE_INDEX]=test_index_enable;
 		ddr_wr_8_16bit_on_32reg(sticky_reg_base_add,8,TEST_ARG_TEST_INDEX_ENALBE_INDEX,num_arry[TEST_ARG_TEST_INDEX_ENALBE_INDEX]);
+		if (config_register == 1)
+			{
 		num_arry[TEST_ARG_2_STEP]=0;
 		ddr_wr_8_16bit_on_32reg(sticky_reg_base_add,8,TEST_ARG_2_STEP,num_arry[TEST_ARG_2_STEP]);
+			}
 		num_arry[TEST_ARG_3_ALL_TOGHTER]=all_toghter_enable;
 		ddr_wr_8_16bit_on_32reg(sticky_reg_base_add,8,TEST_ARG_3_ALL_TOGHTER,num_arry[TEST_ARG_3_ALL_TOGHTER]);
 	}
@@ -24534,6 +24555,19 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 
 	}
 
+if (all_toghter_enable)
+{
+	for (nibble_step = 0; nibble_step < 72; nibble_step++)
+	{
+		if ((nibble_step == 0) || (nibble_step == 10) || (nibble_step == (10+16)))
+		{
+			//num_arry[TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+nibble_step*TEST_ARG_NIBBLE_WIDTH_BYTE+LCD_BDLR_STATUS]=0;
+		}
+		else
+			num_arry[TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+nibble_step*TEST_ARG_NIBBLE_WIDTH_BYTE+LCD_BDLR_STATUS]=4;
+	}
+}
+
 if(config_register==1)
 {
 	num_arry[TEST_ARG_2_STEP]=0;
@@ -24556,15 +24590,16 @@ for(test_index=num_arry[TEST_ARG_2_STEP];test_index<test_index_max ;test_index++
 		{
 			nibble_save_offset=0;
 			nibble_max=10;
+			nibble_mask[0]= 0x30;
 			if((dram_type==CONFIG_DDR_TYPE_LPDDR3))
 			{
-				nibble_mask[0]= 0x3e0;
+				nibble_mask[0]= 0x3e3;
 			}
 			if((dram_type==CONFIG_DDR_TYPE_LPDDR4))
 			{
-				nibble_mask[0]= 0x210;
+				nibble_mask[0]= 0x273;
 				if((channel_mode==CONFIG_DDR0_32BIT_RANK01_CH0))
-					nibble_mask[0]= 0x3f0;
+					nibble_mask[0]= 0x3f3;
 			}
 			test_left_max_init_value=64;
 			test_right_max_init_value=64;
@@ -24727,6 +24762,33 @@ for(test_index=num_arry[TEST_ARG_2_STEP];test_index<test_index_max ;test_index++
 				nibble_mask[2]=((0xffffffff)&(~(1<<(nibble_step-64))));
 			}
 		}
+		if (all_toghter_enable)
+		{
+			if (test_index == DMC_TEST_WINDOW_INDEX_ATXDLY)
+			{
+				nibble_save_offset=0;
+				nibble_max=10;
+				nibble_mask[0]= 0x30;
+				nibble_mask[1]= 0;
+				nibble_mask[2]= 0;
+				if ((dram_type == CONFIG_DDR_TYPE_LPDDR3))
+				{
+					nibble_mask[0]= 0x3e3;
+				}
+				if ((dram_type == CONFIG_DDR_TYPE_LPDDR4))
+				{
+					nibble_mask[0]= 0x273;
+					if ((channel_mode == CONFIG_DDR0_32BIT_RANK01_CH0))
+						nibble_mask[0]= 0x3f3;
+				}
+			}
+			else
+			{
+				nibble_mask[0]= 0;
+				nibble_mask[1]= 0;
+				nibble_mask[2]= 0;
+			}
+		}
 
 		ddr_test_watchdog_enable(watchdog_time_s); //s
 		printf("\nenable %ds watchdog \n",watchdog_time_s);
@@ -24766,16 +24828,26 @@ for(test_index=num_arry[TEST_ARG_2_STEP];test_index<test_index_max ;test_index++
 					num_arry[TEST_ARG_ERROR_FLAG]);
 				}
 
-				if(all_toghter_enable)
-					sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,0,0,0,DDR_PARAMETER_LEFT,
-					num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MIN)]);
-				else
-					sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,nibble_mask[0],nibble_mask[1],nibble_mask[2],DDR_PARAMETER_LEFT,
-					num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MIN)]);
+				//if(all_toghter_enable)
+				//	sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,0,0,0,DDR_PARAMETER_LEFT,
+				//	num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MIN)]);
+				//else
+				sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,nibble_mask[0],nibble_mask[1],nibble_mask[2],DDR_PARAMETER_LEFT,
+				num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MIN)]);
 				printf("\nstr=%s\n",str);
 				ddr_test_watchdog_clear();
 				run_command(str,0);
+
 				temp_test_error=ddr_test_s_cross_talk_pattern(ddr_test_size);
+				if (all_toghter_enable && cs1_test_size)
+				{
+					test_start_addr=cs1_test_start;
+					ddr_test_size=cs1_test_size;
+					temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+					test_start_addr=cs0_test_start;
+					ddr_test_size=cs0_test_size;
+					//temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+				}
 				if(temp_test_error)
 				{
 					run_command("reset",0);
@@ -24851,16 +24923,25 @@ for(test_index=num_arry[TEST_ARG_2_STEP];test_index<test_index_max ;test_index++
 					}
 					sprintf(buf, "0x%08x", ( num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MIN)]));
 					printf( "%s", buf);
-					if(all_toghter_enable)
-						sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,0,0,0,DDR_PARAMETER_LEFT,
-						( num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MIN)]));
-					else
-						sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,nibble_mask[0],nibble_mask[1],nibble_mask[2],DDR_PARAMETER_LEFT,
-						( num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MIN)]));
+				//	if(all_toghter_enable)
+				//		sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,0,0,0,DDR_PARAMETER_LEFT,
+				//		( num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MIN)]));
+				//	else
+					sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,nibble_mask[0],nibble_mask[1],nibble_mask[2],DDR_PARAMETER_LEFT,
+					( num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MIN)]));
 					printf("\nstr=%s\n",str);
 					ddr_test_watchdog_clear();
 					run_command(str,0);
 					temp_test_error=ddr_test_s_cross_talk_pattern(ddr_test_size);
+					if (all_toghter_enable && cs1_test_size)
+					{
+						test_start_addr=cs1_test_start;
+						ddr_test_size=cs1_test_size;
+						temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+						test_start_addr=cs0_test_start;
+						ddr_test_size=cs0_test_size;
+						//temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+					}
 					if(temp_test_error)
 					{
 						run_command("reset",0);
@@ -24929,12 +25010,27 @@ for(test_index=num_arry[TEST_ARG_2_STEP];test_index<test_index_max ;test_index++
 					TEST_ARG_ERROR_FLAG,	
 					num_arry[TEST_ARG_ERROR_FLAG]);
 				}
+			//	if(all_toghter_enable)
+			//	sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,0,0,0,DDR_PARAMETER_RIGHT,
+			//	num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MAX)]);
+			//	else
 				sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,nibble_mask[0],nibble_mask[1],nibble_mask[2],DDR_PARAMETER_RIGHT,
 				num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MAX)]);
 				printf("\nstr=%s\n",str);
 				ddr_test_watchdog_clear();
 				run_command(str,0);
 				temp_test_error=ddr_test_s_cross_talk_pattern(ddr_test_size);
+				if (all_toghter_enable && cs1_test_size)
+				{
+					test_start_addr=cs1_test_start;
+					ddr_test_size=cs1_test_size;
+					temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+					test_start_addr=cs0_test_start;
+					ddr_test_size=cs0_test_size;
+					//temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+				}
+			//	temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+			//	temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
 				if(temp_test_error)
 				{
 					run_command("reset",0);
@@ -25009,12 +25105,27 @@ for(test_index=num_arry[TEST_ARG_2_STEP];test_index<test_index_max ;test_index++
 					}
 					sprintf(buf, "0x%08x", ( num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MAX)]));
 					printf( "%s", buf);
+				//	if(all_toghter_enable)
+				//	sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,0,0,0,DDR_PARAMETER_RIGHT,
+				//	( num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MAX)]));
+				//	else
 					sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,nibble_mask[0],nibble_mask[1],nibble_mask[2],DDR_PARAMETER_RIGHT,
 					( num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MAX)]));
 					printf("\nstr=%s\n",str);
 					ddr_test_watchdog_clear();
 					run_command(str,0);
 					temp_test_error=ddr_test_s_cross_talk_pattern(ddr_test_size);
+					if (all_toghter_enable && cs1_test_size)
+					{
+						test_start_addr=cs1_test_start;
+						ddr_test_size=cs1_test_size;
+						temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+						test_start_addr=cs0_test_start;
+						ddr_test_size=cs0_test_size;
+						//temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+					}
+					//temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+					//temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
 					if(temp_test_error)
 					{
 						run_command("reset",0);
@@ -25117,6 +25228,10 @@ for(test_index=num_arry[TEST_ARG_2_STEP];test_index<test_index_max ;test_index++
 
 		char delay_left_margin=0;
 		char delay_right_margin=0;
+		if (all_toghter_enable == 1)
+		{
+			nibble_max=1;
+		}
 		for ( nibble_step=0;nibble_step<nibble_max;nibble_step++)
 		{
 			//serial_put_dec_out_align(delay_martix[count].add_index,8);
@@ -25190,6 +25305,9 @@ for(test_index=num_arry[TEST_ARG_2_STEP];test_index<test_index_max ;test_index++
 			ddr_wr_8_16bit_on_32reg(sticky_reg_base_add,8,TEST_ARG_2_STEP,	num_arry[TEST_ARG_2_STEP]);
 		}
 	}
+
+		if ((enable_kernel_test) && (num_arry[TEST_ARG_2_STEP]>1))
+		run_command("run storeboot",0);
 	return reg_value;
 }
 #else
@@ -37051,7 +37169,7 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	}
 	char str[1024]="";
 	ddr_set_t *ddr_set_t_p=NULL;
-	ddr_set_t_p=(ddr_set_t *)(&ddr_set_t_p_arrary);
+	ddr_set_t_p=(ddr_set_t *)(ddr_set_t_p_arrary);
 	//ddr_set_t_p= (ddr_set_t *)G12_DMC_STICKY_0;
 	//if (sizeof(ddr_set_t)<loop_max)
 	uint32_t  ddr_set_add=0;
@@ -37240,15 +37358,26 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		printf("\nuboot  auto fast boot  auto window test begin \n");
 		{
 			ddr_set_t_p->fast_boot[0]=0xfe;
+			#if 1
+			printf("&ddr_sha.ddrs : 0x%x\n", (uint32_t)(uint64_t)&ddr_sha.ddrs);
+			printf("&ddr_sha.sha2 : 0x%x\n", (uint32_t)(uint64_t)&ddr_sha.sha2);
+			printf("ddr_set_add : 0x%x\n", (uint32_t)(uint64_t)ddr_set_add);
+
+			sha256_csum_wd((unsigned char *)(uint64_t)ddr_set_add, sizeof(ddr_set_t), ddr_sha.sha2, 0);
+			//sha2((unsigned char *)(uint64_t)ddr_set_add, sizeof(ddr_set_t), ddr_sha.sha2, 0);
+			printf("print sha\n");
+			sprintf(str,"md %08x 0x100", (uint32_t)(uint64_t)(ddr_set_add-32));
+			run_command(str,0);
+			#endif
 
 			{
 				#ifdef USE_FOR_UBOOT_2018
-				sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
+				sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,ddr_set_size+SHA256_SUM_LEN);
 				#else
-				sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
+				sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,ddr_set_size+SHA256_SUM_LEN);
 				#endif
-				//		sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
-				//	sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
+						//		sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
+						//	sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
 				printf("\nstr=%s\n",str);
 				run_command(str,0);
 			}
@@ -37316,16 +37445,39 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 			}
 			else
 			{
-				#ifdef USE_FOR_UBOOT_2018
-				sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
-				#else
-				sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
-				#endif
-				//	sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
-				//	sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
-				printf("\nstr=%s\n",str);
+				#if 1
+				printf("&ddr_sha.ddrs : 0x%x\n", (uint32_t)(uint64_t)&ddr_sha.ddrs);
+				printf("&ddr_sha.sha2 : 0x%x\n", (uint32_t)(uint64_t)&ddr_sha.sha2);
+				printf("ddr_set_add : 0x%x\n", (uint32_t)(uint64_t)ddr_set_add);
 
+				sha256_csum_wd((unsigned char *)(uint64_t)ddr_set_add, sizeof(ddr_set_t), ddr_sha.sha2, 0);
+				//sha2((unsigned char *)(uint64_t)ddr_set_add, sizeof(ddr_set_t), ddr_sha.sha2, 0);
+				printf("print sha\n");
+				sprintf(str,"md %08x 0x100", (uint32_t)(uint64_t)(ddr_set_add-32));
 				run_command(str,0);
+				#endif
+
+				{
+					#ifdef USE_FOR_UBOOT_2018
+					sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,ddr_set_size+SHA256_SUM_LEN);
+					#else
+					sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,ddr_set_size+SHA256_SUM_LEN);
+					#endif
+							//		sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
+							//	sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
+					printf("\nstr=%s\n",str);
+					run_command(str,0);
+				}
+				//#ifdef USE_FOR_UBOOT_2018
+				//sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
+				//#else
+				//sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
+				//#endif
+				//sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
+				//sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
+				//printf("\nstr=%s\n",str);
+
+				//run_command(str,0);
 			}
 			return 1;
 		}
