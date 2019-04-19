@@ -333,49 +333,6 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 		(ulong) kernel_entry);
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
-	printf("images->legacy_hdr_os: %lx\n", images->legacy_hdr_os);
-	printf("images->legacy_hdr_os_copy: %lx\n", images->legacy_hdr_os_copy);
-	printf("images->legacy_hdr_valid: %lx\n", images->legacy_hdr_valid);
-#if IMAGE_ENABLE_FIT
-	printf("images->fit_uname_cfg: %lx\n", images->fit_uname_cfg);
-	printf("images->fit_hdr_os: %lx\n", images->fit_hdr_os);
-	printf("images->fit_uname_os: %lx\n", images->fit_uname_os);
-	printf("images->fit_noffset_os: %lx\n", images->fit_noffset_os);
-	printf("images->fit_hdr_rd: %lx\n", images->fit_hdr_rd);
-	printf("images->fit_uname_rd: %lx\n", images->fit_uname_rd);
-	printf("images->fit_noffset_rd: %lx\n", images->fit_noffset_rd);
-	printf("images->fit_hdr_fdt: %lx\n", images->fit_hdr_fdt);
-	printf("images->fit_uname_fdt: %lx\n", images->fit_uname_fdt);
-	printf("images->fit_noffset_fdt: %lx\n", images->fit_noffset_fdt);
-	printf("images->fit_hdr_setup: %lx\n", images->fit_hdr_setup);
-	printf("images->fit_uname_setup: %lx\n", images->fit_uname_setup);
-	printf("images->fit_noffset_setup: %lx\n", images->fit_noffset_setup);
-#endif
-
-#ifndef USE_HOSTCC
-	printf("images->os.start: %lx\n", (uint64_t)images->os.start);
-	printf("images->os.end: %lx\n", (uint64_t)images->os.end);
-	printf("images->os.image_start: %lx\n", (uint64_t)images->os.image_start);
-	printf("images->os.image_len: %lx\n", (uint64_t)images->os.image_len);
-	printf("images->os.load: %lx\n", (uint64_t)images->os.load);
-	printf("images->os.comp: %lx\n", (uint64_t)images->os.comp);
-	printf("images->os.type: %lx\n", (uint64_t)images->os.type);
-	printf("images->os.os: %lx\n", (uint64_t)images->os.os);
-	printf("images->os.arch: %lx\n", (uint64_t)images->os.arch);
-	printf("images->ep: %lx\n", images->ep);
-	printf("images->rd_start: %lx\n", images->rd_start);
-	printf("images->rd_end: %lx\n", images->rd_end);
-	printf("images->ft_addr: %lx\n", images->ft_addr);
-	printf("images->ft_len: %lx\n", images->ft_len);
-	printf("images->initrd_start: %lx\n", images->initrd_start);
-	printf("images->initrd_end: %lx\n", images->initrd_end);
-	printf("images->cmdline_start: %lx\n", images->cmdline_start);
-	printf("images->cmdline_end: %lx\n", images->cmdline_end);
-	printf("images->kbd: %lx\n", images->kbd);
-#endif
-	printf("images->verify: %lx\n", images->verify);
-	printf("images->state: %lx\n", images->state);
-
 	announce_and_cleanup(fake);
 
 	if (!fake) {
