@@ -7,6 +7,8 @@
 #include <asm/cpu_id.h>
 #include <amlogic/jtag.h>
 
+#define SWD_AP_AO     10
+
 static int get_jtag_sel(const char *argv)
 {
 	int sel;
@@ -18,6 +20,8 @@ static int get_jtag_sel(const char *argv)
 		sel = JTAG_M3_AO;
 	else if (strcmp(argv, "scpee") == 0)
 		sel = JTAG_M3_EE;
+	else if (strcmp(argv, "swd_apao") == 0)
+		sel = SWD_AP_AO;
 	else
 		sel = -1;
 
@@ -53,8 +57,9 @@ int do_jtagon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	jtagon,	3,	1,	do_jtagon,
 	"enable jtag",
-	"jtagon [apao|apee|scpao|scpee] [0|1]\n"
+	"jtagon [apao|swd_apao|apee|scpao|scpee] [0|1]\n"
 	" [apao|apee|scpao|scpee]  - ap or scp jtag connect to ao or ee domain\n"
+	" [swd_apao]               - ap swd connect to ao domain, only tm2 platforms support SWD mode \n"
 	" [0|1]                    - special for gxm, ap jtag to cluster 0 or cluster 1\n"
 );
 
@@ -79,5 +84,5 @@ int do_jtagoff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	jtagoff,	2,	1,	do_jtagoff,
 	"disable jtag",
-	"jtagoff [apao|apee|scpao|scpee]"
+	"jtagoff [apao|swd_apao|apee|scpao|scpee]"
 );
