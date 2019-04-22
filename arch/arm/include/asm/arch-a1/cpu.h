@@ -37,7 +37,7 @@
 #endif
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(8*1024*1024)
+#define CONFIG_SYS_MALLOC_LEN		(16*1024*1024)
 
 /* for uboot envrionment use */
 /* #define CONFIG_DDR_SIZE					256 */
