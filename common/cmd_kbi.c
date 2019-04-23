@@ -35,6 +35,8 @@
 #define REG_LED_SYSTEM_OFF_MODE 0x29
 #define REG_ADC                 0x2a
 #define REG_MAC_SWITCH          0x2d
+#define REG_IR_CODE1            0x2f
+#define REG_IR_CODE2            0x32
 
 #define REG_PASSWD_CUSTOM       0x40
 
@@ -939,6 +941,125 @@ static int do_kbi_bootmode(cmd_tbl_t * cmdtp, int flag, int argc, char * const a
 
 	return 0;
 }
+
+static void get_ir_ircode1(void)
+{
+	char usercode[3] = {};
+
+	kbi_i2c_read_block(REG_IR_CODE1, 3, usercode);
+	printf("usercode1:%02x%02x , power key code1:%02x\n",usercode[0],usercode[1],usercode[2]);
+}
+
+static void set_ir_ircode1(int usercodeH, int usercodeL,int powerkeycode)
+{
+	char cmd[64];
+	sprintf(cmd, "i2c mw %x %x %02x 1",CHIP_ADDR, REG_IR_CODE1, usercodeH);
+	run_command(cmd, 0);
+	sprintf(cmd, "i2c mw %x %x %02x 1",CHIP_ADDR, REG_IR_CODE1+1, usercodeL);
+	run_command(cmd, 0);
+	sprintf(cmd, "i2c mw %x %x %02x 1",CHIP_ADDR, REG_IR_CODE1+2, powerkeycode);
+	run_command(cmd, 0);
+}
+
+static int do_kbi_ircode1(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	char cmd[8];
+	int usercodeH;
+	int usercodeL;
+	int powerkeycode;
+	int i;
+	if (argc < 2){
+		return CMD_RET_USAGE;
+	}
+	if (strcmp(argv[1], "w") == 0) {
+		if (argc < 3){
+			printf("Error in command format (kbi ircode1 w xxxx:xx)\n");
+			return CMD_RET_USAGE;
+		}
+		if (strstr(argv[2], ":") != NULL && sizeof(argv[2])==8) {
+			memcpy(cmd,argv[2],sizeof(argv[2]));
+			//for(i=0;i<sizeof(argv[2]);i++)
+				//printf("cmd[%d]=%c\n",i,cmd[i]);
+
+			usercodeH = chartonum(cmd[0])<<4|chartonum(cmd[1]);
+			usercodeL = chartonum(cmd[2])<<4|chartonum(cmd[3]);
+			powerkeycode = chartonum(cmd[5])<<4|chartonum(cmd[6]);
+			//printf("usercodeH[%02x] usercodeL[%02x] powerkeycode[%02x]\n",usercodeH,usercodeL,powerkeycode);
+			set_ir_ircode1(usercodeH,usercodeL,powerkeycode);
+		} else {
+			printf("Error in command format (xxxx:xx)\n");
+			return CMD_RET_USAGE;
+		}
+	}
+	else if (strcmp(argv[1], "r") == 0) {
+		get_ir_ircode1();
+	} 
+	else {
+		return CMD_RET_USAGE;
+	}
+
+	return 0;
+}
+
+static void get_ir_ircode2(void)
+{
+	char usercode[3] = {};
+
+	kbi_i2c_read_block(REG_IR_CODE2, 3, usercode);
+	printf("usercode2:%02x%02x , power key code2:%02x\n",usercode[0],usercode[1],usercode[2]);
+}
+
+static void set_ir_ircode2(int usercodeH, int usercodeL,int powerkeycode)
+{
+	char cmd[64];
+	sprintf(cmd, "i2c mw %x %x %02x 1",CHIP_ADDR, REG_IR_CODE2, usercodeH);
+	run_command(cmd, 0);
+	sprintf(cmd, "i2c mw %x %x %02x 1",CHIP_ADDR, REG_IR_CODE2+1, usercodeL);
+	run_command(cmd, 0);
+	sprintf(cmd, "i2c mw %x %x %02x 1",CHIP_ADDR, REG_IR_CODE2+2, powerkeycode);
+	run_command(cmd, 0);
+}
+
+static int do_kbi_ircode2(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	char cmd[8];
+	int usercodeH;
+	int usercodeL;
+	int powerkeycode;
+	int i;
+	if (argc < 2){
+		return CMD_RET_USAGE;
+	}
+	if (strcmp(argv[1], "w") == 0) {
+		if (argc < 3){
+			printf("Error in command format (kbi ircode2 w xxxx:xx)\n");
+			return CMD_RET_USAGE;
+		}
+		if (strstr(argv[2], ":") != NULL && sizeof(argv[2])==8) {
+			memcpy(cmd,argv[2],sizeof(argv[2]));
+			//for(i=0;i<sizeof(argv[2]);i++)
+				//printf("cmd[%d]=%c\n",i,cmd[i]);
+
+			usercodeH = chartonum(cmd[0])<<4|chartonum(cmd[1]);
+			usercodeL = chartonum(cmd[2])<<4|chartonum(cmd[3]);
+			powerkeycode = chartonum(cmd[5])<<4|chartonum(cmd[6]);
+			//printf("usercodeH[%02x] usercodeL[%02x] powerkeycode[%02x]\n",usercodeH,usercodeL,powerkeycode);
+			set_ir_ircode2(usercodeH,usercodeL,powerkeycode);
+		} else {
+			printf("Error in command format (xxxx:xx)\n");
+			return CMD_RET_USAGE;
+		}
+	}
+	else if (strcmp(argv[1], "r") == 0) {
+		get_ir_ircode2();
+	} 
+	else {
+		return CMD_RET_USAGE;
+	}
+
+	return 0;
+}
+
 static cmd_tbl_t cmd_kbi_sub[] = {
 	U_BOOT_CMD_MKENT(init, 1, 1, do_kbi_init, "", ""),
 	U_BOOT_CMD_MKENT(resetflag, 2, 1, do_kbi_resetflag, "", ""),
@@ -953,6 +1074,8 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 	U_BOOT_CMD_MKENT(led, 4, 1, do_kbi_led, "", ""),
 	U_BOOT_CMD_MKENT(trigger, 4, 1, do_kbi_trigger, "", ""),
 	U_BOOT_CMD_MKENT(bootmode, 3, 1, do_kbi_bootmode, "", ""),
+	U_BOOT_CMD_MKENT(ircode1, 3, 1, do_kbi_ircode1, "", ""),
+	U_BOOT_CMD_MKENT(ircode2, 3, 1, do_kbi_ircode2, "", ""),
 	U_BOOT_CMD_MKENT(forcereset, 4, 1, do_kbi_forcereset, "", ""),
 };
 
@@ -995,6 +1118,10 @@ static char kbi_help_text[] =
 		"\n"
 		"kbi bootmode w <emmc|spi> - set bootmode to emmc or spi\n"
 		"kbi bootmode r - read current bootmode\n"
+		"kbi ircode1 w <usercode:powerkeycode> - set ir power key code1 as: kbi ircode1 w ff00:eb\n"
+		"kbi ircode1 r - read current ir power key code1\n"		
+		"kbi ircode2 w <usercode:powerkeycode> - set ir power key code2 as: kbi ircode2 w ff00:eb\n"
+		"kbi ircode2 r - read current ir power key code2\n" 	
 		"\n"
 		"kbi trigger [wol|rtc|ir|dcin|key|gpio] w <0|1> - disable/enable boot trigger\n"
 		"kbi trigger [wol|rtc|ir|dcin|key|gpio] r - read mode of a boot trigger";
