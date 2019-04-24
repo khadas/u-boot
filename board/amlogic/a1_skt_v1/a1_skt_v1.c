@@ -20,6 +20,7 @@
 */
 
 #include <common.h>
+#include <asm/io.h>
 #include <malloc.h>
 #include <errno.h>
 #include <environment.h>
@@ -79,7 +80,12 @@ int board_late_init(void)
 
 phys_size_t get_effective_memsize(void)
 {
-	return PHYS_SDRAM_1_SIZE;
+	// >>16 -> MB, <<20 -> real size, so >>16<<20 = <<4
+#if defined(CONFIG_SYS_MEM_TOP_HIDE)
+	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4) - CONFIG_SYS_MEM_TOP_HIDE;
+#else
+	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4);
+#endif
 }
 
 static struct mm_region bd_mem_map[] = {
