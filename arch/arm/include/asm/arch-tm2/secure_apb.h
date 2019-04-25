@@ -28,6 +28,7 @@
 //  APB4_DECODER_SECURE_BASE         32'hFF644000
 //`define MIPI_DSI_PHY_START      8'h00
 //`define MIPI_DSI_PHY_END        16'hffff
+#if 0
 #define     MIPI_DSI_PHY_CTRL                                  (0xff644000 + (0x000 << 2))
 #define SEC_MIPI_DSI_PHY_CTRL                                  (0xff644000 + (0x000 << 2))
 #define   P_MIPI_DSI_PHY_CTRL                                  (volatile uint32_t *)(0xff644000 + (0x000 << 2))
@@ -79,6 +80,7 @@
 #define     MIPI_DSI_TEST_CTRL1                                (0xff644000 + (0x010 << 2))
 #define SEC_MIPI_DSI_TEST_CTRL1                                (0xff644000 + (0x010 << 2))
 #define   P_MIPI_DSI_TEST_CTRL1                                (volatile uint32_t *)(0xff644000 + (0x010 << 2))
+#endif
 //========================================================================
 //  Temp sensor PLL
 //========================================================================
