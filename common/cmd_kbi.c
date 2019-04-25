@@ -29,7 +29,8 @@
 #define REG_BOOT_EN_RTC         0x22
 #define REG_BOOT_EN_IR          0x24
 #define REG_BOOT_EN_DCIN        0x25
-#define REG_BOOT_EN_KEY         0x26
+#define REG_BOOT_EN_KEY			0x26
+#define REG_EN_TST         		0x26
 #define REG_BOOT_EN_GPIO        0x23
 #define REG_LED_SYSTEM_ON_MODE  0x28
 #define REG_LED_SYSTEM_OFF_MODE 0x29
@@ -448,6 +449,28 @@ static void get_bootmode(void)
 	}
 }
 
+static void set_tst(int mode)
+{
+	char cmd[64];
+	sprintf(cmd, "i2c mw %x %x %d 1",CHIP_ADDR, REG_EN_TST, mode);
+	run_command(cmd, 0);
+
+}
+
+static void get_tst(void)
+{
+	int mode;
+	mode = kbi_i2c_read(REG_EN_TST);
+
+	if (mode == 1) {
+		printf("enable tst\n");
+	} else if (mode == 0) {
+		printf("disable tst\n");
+	} else {
+		printf("tst err: %d\n",mode);
+	}
+}
+
 static void get_rtc(void)
 {
 	int enable;
@@ -850,8 +873,8 @@ static int do_kbi_trigger(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 			get_boot_enable(BOOT_EN_IR);
 		else if (strcmp(argv[1], "dcin") == 0)
 			get_boot_enable(BOOT_EN_DCIN);
-		else if (strcmp(argv[1], "key") == 0)
-			get_boot_enable(BOOT_EN_KEY);
+		//else if (strcmp(argv[1], "key") == 0)
+			//get_boot_enable(BOOT_EN_KEY);
 		else if (strcmp(argv[1], "gpio") == 0)
 		    get_boot_enable(BOOT_EN_GPIO);
 		else
@@ -890,12 +913,12 @@ static int do_kbi_trigger(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 			else
 				set_boot_enable(BOOT_EN_DCIN, 0);
 
-		} else if (strcmp(argv[1], "key") == 0) {
+		/*} else if (strcmp(argv[1], "key") == 0) {
 
 			if (strcmp(argv[3], "1") == 0)
 				set_boot_enable(BOOT_EN_KEY, 1);
 			else
-			set_boot_enable(BOOT_EN_KEY, 0);
+			set_boot_enable(BOOT_EN_KEY, 0);*/
 
 		} else if (strcmp(argv[1], "gpio") == 0) {
 
@@ -941,6 +964,32 @@ static int do_kbi_bootmode(cmd_tbl_t * cmdtp, int flag, int argc, char * const a
 
 	return 0;
 }
+
+static int do_kbi_tst(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	if (argc < 2)
+		return CMD_RET_USAGE;
+	if (strcmp(argv[1], "w") == 0) {
+		if (argc < 3)
+			return CMD_RET_USAGE;
+		if (strcmp(argv[2], "on") == 0) {
+			set_tst(1);
+		} else if (strcmp(argv[2], "off") == 0) {
+			set_tst(0);
+		} else {
+			return CMD_RET_USAGE;
+		}
+	} else if (strcmp(argv[1], "r") == 0) {
+
+		get_tst();
+
+	} else {
+		return CMD_RET_USAGE;
+	}
+
+	return 0;
+}
+
 
 static void get_ir_ircode1(void)
 {
@@ -1074,6 +1123,7 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 	U_BOOT_CMD_MKENT(led, 4, 1, do_kbi_led, "", ""),
 	U_BOOT_CMD_MKENT(trigger, 4, 1, do_kbi_trigger, "", ""),
 	U_BOOT_CMD_MKENT(bootmode, 3, 1, do_kbi_bootmode, "", ""),
+	U_BOOT_CMD_MKENT(tst, 3, 1, do_kbi_tst, "", ""),
 	U_BOOT_CMD_MKENT(ircode1, 3, 1, do_kbi_ircode1, "", ""),
 	U_BOOT_CMD_MKENT(ircode2, 3, 1, do_kbi_ircode2, "", ""),
 	U_BOOT_CMD_MKENT(forcereset, 4, 1, do_kbi_forcereset, "", ""),
@@ -1103,7 +1153,7 @@ static char kbi_help_text[] =
 		"\n"
 		"kbi version - read version information\n"
 		"kbi usid - read usid information\n"
-		"kbi adc - read adc value\n"
+//		"kbi adc - read adc value\n"
 		"kbi powerstate - read power on state\n"
 		"kbi poweroff - power off device\n"
 		"kbi ethmac - read ethernet mac address\n"
@@ -1123,8 +1173,10 @@ static char kbi_help_text[] =
 		"kbi ircode2 w <usercode:powerkeycode> - set ir power key code2 as: kbi ircode2 w ff00:eb\n"
 		"kbi ircode2 r - read current ir power key code2\n" 	
 		"\n"
-		"kbi trigger [wol|rtc|ir|dcin|key|gpio] w <0|1> - disable/enable boot trigger\n"
-		"kbi trigger [wol|rtc|ir|dcin|key|gpio] r - read mode of a boot trigger";
+		"kbi tst w <on|off> - disable/enable tst\n"
+		"kbi tst r - read mode of tst\n"		
+		"kbi trigger [wol|rtc|ir|dcin|gpio] w <0|1> - disable/enable boot trigger\n"
+		"kbi trigger [wol|rtc|ir|dcin|gpio] r - read mode of a boot trigger";
 
 
 U_BOOT_CMD(
