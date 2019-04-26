@@ -1254,12 +1254,21 @@ static int aml_bl_config_load_from_dts(char *dt_addr, unsigned int index, struct
 	}
 	propdata = (char *)fdt_getprop(dt_addr, child_offset, "bl_power_attr", NULL);
 	if (propdata == NULL) {
-		LCDERR("bl: failed to get bl_power_attr\n");
-		bconf->en_gpio = BL_GPIO_NUM_MAX;
-		bconf->en_gpio_on = LCD_GPIO_OUTPUT_HIGH;
-		bconf->en_gpio_off = LCD_GPIO_OUTPUT_LOW;
-		bconf->power_on_delay = 100;
-		bconf->power_off_delay = 30;
+		propdata = (char *)fdt_getprop(dt_addr, child_offset, "bl_power_attr_uboot", NULL);
+		if (propdata == NULL) {
+			LCDERR("bl: failed to get bl_power_attr_uboot\n");
+			bconf->en_gpio = BL_GPIO_NUM_MAX;
+			bconf->en_gpio_on = LCD_GPIO_OUTPUT_HIGH;
+			bconf->en_gpio_off = LCD_GPIO_OUTPUT_LOW;
+			bconf->power_on_delay = 100;
+			bconf->power_off_delay = 30;
+		} else {
+			bconf->en_gpio = be32_to_cpup((u32*)propdata);
+			bconf->en_gpio_on = be32_to_cpup((((u32*)propdata)+1));
+			bconf->en_gpio_off = be32_to_cpup((((u32*)propdata)+2));
+			bconf->power_on_delay = be32_to_cpup((((u32*)propdata)+3));
+			bconf->power_off_delay = be32_to_cpup((((u32*)propdata)+4));
+		}
 	} else {
 		bconf->en_gpio = be32_to_cpup((u32*)propdata);
 		bconf->en_gpio_on = be32_to_cpup((((u32*)propdata)+1));
