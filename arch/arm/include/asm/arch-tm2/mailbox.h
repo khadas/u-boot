@@ -88,7 +88,8 @@ int thermal_get_value(unsigned int sensor_id, unsigned int *value);
 int send_usr_data(unsigned int clinet_id, unsigned int *val, unsigned int size);
 void send_pwm_delt(int32_t vcck_delt, int32_t ee_delt);
 void set_boot_first_timeout(unsigned int command);
-void init_dsp_cfg0(unsigned int id, unsigned int addr, unsigned int cfg0);
+void init_dsp(unsigned int id,unsigned int addr,unsigned int cfg0,unsigned int jtag_ctrl,unsigned int cfg1);
+void init_dsp_jtag(unsigned int id);
 #ifdef CONFIG_RING
 int efuse_get_value(unsigned char *efuseinfo);
 #endif

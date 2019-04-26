@@ -208,13 +208,24 @@ void send_pwm_delt(int32_t vcck_delt, int32_t ee_delt)
 	mb_message_end(LOW_PRIORITY);
 }
 
-void init_dsp_cfg0(unsigned int id, unsigned int addr, unsigned int cfg0)
+void init_dsp(unsigned int id,unsigned int addr,unsigned int cfg0,unsigned int jtag_ctrl,unsigned int cfg1)
 {
 	mb_message_start(HIGH_PRIORITY);
 	writel(id, ap_mb_payload[HIGH_PRIORITY]);
 	writel(addr, (ap_mb_payload[HIGH_PRIORITY]+1));
 	writel(cfg0, (ap_mb_payload[HIGH_PRIORITY]+2));
-	mb_message_send(SCPI_CMD_INIT_DSP, HIGH_PRIORITY);
+	writel(jtag_ctrl, (ap_mb_payload[HIGH_PRIORITY]+3));
+	writel(cfg1, (ap_mb_payload[HIGH_PRIORITY]+4));
+	mb_message_send(0x34, HIGH_PRIORITY);
+	mb_message_wait(HIGH_PRIORITY);
+	mb_message_end(HIGH_PRIORITY);
+}
+
+void init_dsp_jtag(unsigned int id)
+{
+	mb_message_start(HIGH_PRIORITY);
+	writel(id, ap_mb_payload[HIGH_PRIORITY]);
+	mb_message_send(0x35, HIGH_PRIORITY);
 	mb_message_wait(HIGH_PRIORITY);
 	mb_message_end(HIGH_PRIORITY);
 }

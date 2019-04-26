@@ -48,6 +48,10 @@
 #define CONFIG_CMD_SARADC 1
 #define CONFIG_SARADC_CH  2
 
+/*dsp boot*/
+#define CONFIG_CMD_STARTDSP 1
+#define CONFIG_CMD_DSPJTAGRESET 1
+
 /* Bootloader Control Block function
    That is used for recovery and the bootloader to talk to each other
   */
