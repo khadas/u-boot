@@ -648,4 +648,9 @@ bl2_reg_t __bl2_reg[] = {
 	/* Enable VCCK GPIOAO_2*/
 	{AO_GPIO_O_EN_N,      (0 << 2),                (1 << 2),  	 0, BL2_INIT_STAGE_1, 0},
 	{AO_GPIO_O,           (1 << 2),                (1 << 2),  	 0, BL2_INIT_STAGE_1, 0},
+	/* GPIOH13-15 and GPIODV_3 out pult low to avoid noise*/
+	{PREG_PAD_GPIO2_O,    (0 << 13),               (7 << 13),        0, BL2_INIT_STAGE_1, 0},
+	{PREG_PAD_GPIO2_EN_N, (0 << 13),               (7 << 13),        0, BL2_INIT_STAGE_1, 0},
+	{PREG_PAD_GPIO5_O,    (0 << 3),                (1 << 3),         0, BL2_INIT_STAGE_1, 0},
+	{PREG_PAD_GPIO5_EN_N, (0 << 3),                (1 << 3),         0, BL2_INIT_STAGE_1, 0},
 };
