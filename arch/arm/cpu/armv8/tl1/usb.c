@@ -96,6 +96,11 @@ void board_usb_pll_disable(struct amlogic_usb_config *cfg)
     }
 }
 
+void set_usb_poweroff(void)
+{
+    *(volatile uint32_t *)P_RESET1_LEVEL &= (~(0x7 << 16));
+}
+
 #ifdef CONFIG_USB_DEVICE_V2
 #define USB_REG_A 0xFF636000
 #define USB_REG_B 0xFF63A000

@@ -28,6 +28,7 @@
 #include <asm/arch/bl31_apis.h>
 #include <asm/cpu_id.h>
 #include <asm/arch/secure_apb.h>
+#include <asm/arch-tl1/usb-v2.h>
 
 static long sharemem_input_base;
 static long sharemem_output_base;
@@ -352,6 +353,8 @@ void aml_system_off(void)
 	/* TODO: Add poweroff capability */
 	unsigned int val;
 
+	/*shutdown devices for system off*/
+	set_usb_poweroff();
 	/* dram_check_channels failed in bl30,add it */
 	val = readl(HHI_VPU_MEM_PD_REG4) | 0xf;
 	writel(val, HHI_VPU_MEM_PD_REG4);
