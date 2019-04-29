@@ -641,38 +641,38 @@ int aml_sd_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
         if (status_irq_reg->rxd_err) {
                 ret |= SD_EMMC_RXD_ERROR;
                 if (!mmc->refix)
-                    printf("emmc/sd read error, cmd%d, status=0x%x\n",
-                        cmd->cmdidx, status_irq);
+                    printf("emmc/sd read error, cmd%d, cmd->cmdarg=0x%x, status=0x%x\n",
+                        cmd->cmdidx, cmd->cmdarg, status_irq);
         }
         if (status_irq_reg->txd_err) {
                 ret |= SD_EMMC_TXD_ERROR;
                 if (!mmc->refix)
-                    printf("emmc/sd write error, cmd%d, status=0x%x\n",
-                        cmd->cmdidx, status_irq);
+                    printf("emmc/sd write error, cmd%d, cmd->cmdarg=0x%x, status=0x%x\n",
+                        cmd->cmdidx, cmd->cmdarg, status_irq);
         }
         if (status_irq_reg->desc_err) {
                 ret |= SD_EMMC_DESC_ERROR;
                 if (!mmc->refix)
-                    printf("emmc/sd descripter error, cmd%d, status=0x%x\n",
-                        cmd->cmdidx, status_irq);
+                    printf("emmc/sd descripter error, cmd%d, cmd->cmdarg=0x%x, status=0x%x\n",
+                        cmd->cmdidx, cmd->cmdarg, status_irq);
         }
         if (status_irq_reg->resp_err) {
                 ret |= SD_EMMC_RESP_CRC_ERROR;
                 if (!mmc->refix)
-                    printf("emmc/sd response crc error, cmd%d, status=0x%x\n",
-                        cmd->cmdidx, status_irq);
+                    printf("emmc/sd response crc error, cmd%d, cmd->cmdarg=0x%x, status=0x%x\n",
+                        cmd->cmdidx, cmd->cmdarg, status_irq);
         }
         if (status_irq_reg->resp_timeout) {
                 ret |= SD_EMMC_RESP_TIMEOUT_ERROR;
                 if (!mmc->refix)
-                    printf("emmc/sd response timeout, cmd%d, status=0x%x\n",
-                        cmd->cmdidx, status_irq);
+                    printf("emmc/sd response timeout, cmd%d, cmd->cmdarg=0x%x, status=0x%x\n",
+                        cmd->cmdidx, cmd->cmdarg, status_irq);
         }
         if (status_irq_reg->desc_timeout) {
                 ret |= SD_EMMC_DESC_TIMEOUT_ERROR;
                 if (!mmc->refix)
-                    printf("emmc/sd descripter timeout, cmd%d, status=0x%x\n",
-                        cmd->cmdidx, status_irq);
+                    printf("emmc/sd descripter timeout, cmd%d, cmd->cmdarg=0x%x, status=0x%x\n",
+                        cmd->cmdidx, cmd->cmdarg, status_irq);
         }
         if (data) {
                 if ((data->blocks*data->blocksize <0x200) && (data->flags == MMC_DATA_READ)) {

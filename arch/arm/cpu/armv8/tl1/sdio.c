@@ -83,11 +83,11 @@ int cpu_sd_emmc_init(unsigned port)
 		clrsetbits_le32(P_PERIPHS_PIN_MUX_1,
 						((0xFFFFF) | (0xF << 20)),
 						((0x1 << 12) | (0x1 << 8) | 0x1));
-		/* hardware reset with pull boot12 */
-		clrbits_le32(P_PREG_PAD_GPIO0_EN_N, 1<<12);
-		clrbits_le32(P_PREG_PAD_GPIO0_O, 1<<12);
+		/* hardware reset with pull boot9 */
+		clrbits_le32(P_PREG_PAD_GPIO0_EN_N, 1<<9);
+		clrbits_le32(P_PREG_PAD_GPIO0_O, 1<<9);
 		udelay(10);
-		setbits_le32(P_PREG_PAD_GPIO0_O, 1<<12);
+		setbits_le32(P_PREG_PAD_GPIO0_O, 1<<9);
 		break;
 	default:
 		return -1;
