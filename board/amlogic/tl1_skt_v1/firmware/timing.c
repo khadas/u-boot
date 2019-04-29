@@ -505,10 +505,6 @@ ddr_set_t __ddr_setting[] = {
 	.diagnose				= CONFIG_DIAGNOSE_DISABLE,
 },
 */
-{
-	/* use for fastboot */
-	.board_id				= CONFIG_BOARD_ID_MASK,
-},
 };
 
 pll_set_t __pll_setting = {
