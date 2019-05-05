@@ -343,7 +343,9 @@ static int write_uboot(struct amlnand_phydev *phydev)
 	if (controller->bch_mode == NAND_ECC_BCH_SHORT)
 		page_size = (flash->pagesize / 512) * NAND_ECC_UNIT_SHORT;
 
-	oobsize = controller->ecc_steps*controller->user_mode;
+	//oobsize = controller->ecc_steps*controller->user_mode;
+	oobsize = ((flash->pagesize+flash->oobsize)/512) *
+		controller->user_mode;/*for infopage0 oobsize >data page oobsize*/
 	BOOT_LINE
 	tmp_size = phydev->writesize;
 	/* phydev->writesize = page_size; */

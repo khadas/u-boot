@@ -191,7 +191,8 @@ void pinmux_select_chip_mtd(unsigned ce_enable, unsigned rb_enable)
 		if (!((ce_enable >> 10) & 1))
 			AMLNF_SET_REG_MASK(P_PERIPHS_PIN_MUX_1, 2);
 	} else if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_TXHD)
-		|| (cpu_id.family_id == MESON_CPU_MAJOR_ID_TL1)) {
+		|| (cpu_id.family_id == MESON_CPU_MAJOR_ID_TL1) ||
+		(cpu_id.family_id == MESON_CPU_MAJOR_ID_TM2)) {
 		if (!((ce_enable >> 10) & 1))
 			AMLNF_SET_REG_MASK(P_PERIPHS_PIN_MUX_1, (2 << 16));
 	} else if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_GXBB) ||
@@ -453,7 +454,8 @@ static int m3_nand_options_confirm(struct aml_nand_chip *aml_chip)
 	if ((mtd->writesize <= 2048) ||
 	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_AXG) ||
 	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_TXHD) ||
-		(cpu_id.family_id == MESON_CPU_MAJOR_ID_TL1))
+		(cpu_id.family_id == MESON_CPU_MAJOR_ID_TL1) ||
+		(cpu_id.family_id == MESON_CPU_MAJOR_ID_TM2))
 		options_support = NAND_ECC_BCH8_MODE;
 
 	switch (options_support) {
