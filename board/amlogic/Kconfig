@@ -60,6 +60,12 @@ config NEED_BL32
 	help
 		"Support bl32 function"
 
+config DTB_MEM_ADDR
+	hex
+	default 0x01000000
+	help
+		"select Device tree load address"
+
 config MULTI_DTB
 	bool "Amlogic Multi-DT function"
 	default n

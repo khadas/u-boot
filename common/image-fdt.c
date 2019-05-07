@@ -250,11 +250,11 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 
 	if (!select) {
 		if (env_get("dtb_mem_addr")) {
-			select = simple_strtoul(env_get("dtb_mem_addr"), NULL, 16);
-			printf("env select addr: 0x%x\n", select);
+			select = env_get("dtb_mem_addr");
+			printf("env select addr: 0x%s\n", select);
 		}
 		else {
-			select = 0x01000000;
+			select = "0x01000000";
 		}
 	}
 
@@ -285,7 +285,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 			} else
 #endif
 			{
-				fdt_addr = select; //simple_strtoul(select, NULL, 16);
+				fdt_addr = simple_strtoul(select, NULL, 16);
 				debug("*  fdt: cmdline image address = 0x%08lx\n",
 				      fdt_addr);
 			}
