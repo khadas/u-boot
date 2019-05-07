@@ -421,7 +421,7 @@ int do_setMtkBT( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
     }
 
     /* Reset BT-module */
-    reset_mt7668();
+    //reset_mt7668();
 
     // MTK USB controller
     ret = findUsbDevice(&udev);

@@ -18,7 +18,7 @@
 #include "errno.h"
 
 //- Local Configuration -----------------------------------------------------
-#define LD_VERSION "1.2.0.1"
+#define LD_VERSION "1.2.0.2"
 
 #define BUFFER_SIZE  (1024 * 4)     /* Size of RX Queue */
 #define BT_SEND_HCI_CMD_BEFORE_SUSPEND 1
@@ -444,6 +444,8 @@ static int btmtk_usb_switch_iobase(struct LD_btmtk_usb_data *data, int base)
     return ret;
 }
 
+#define MAX_BIN_FILE_NAME_LEN 32
+
 //---------------------------------------------------------------------------
 static void btmtk_usb_cap_init(struct LD_btmtk_usb_data *data)
 {
@@ -464,7 +466,7 @@ static void btmtk_usb_cap_init(struct LD_btmtk_usb_data *data)
         usb_debug("btmtk:This is 7662T chip\n");
         data->need_load_fw = 0;
         data->need_load_rom_patch = 1;
-        data->rom_patch_bin_file_name = os_kzalloc(32, MTK_GFP_ATOMIC);
+        data->rom_patch_bin_file_name = os_kzalloc(MAX_BIN_FILE_NAME_LEN, MTK_GFP_ATOMIC);
         if (!data->rom_patch_bin_file_name) {
             usb_debug("Can't allocate memory (32)\n");
             return;
@@ -477,7 +479,7 @@ static void btmtk_usb_cap_init(struct LD_btmtk_usb_data *data)
         usb_debug("btmtk:This is 7662 chip\n");
         data->need_load_fw = 0;
         data->need_load_rom_patch = 1;
-        data->rom_patch_bin_file_name = os_kzalloc(32, MTK_GFP_ATOMIC);
+        data->rom_patch_bin_file_name = os_kzalloc(MAX_BIN_FILE_NAME_LEN, MTK_GFP_ATOMIC);
         if (!data->rom_patch_bin_file_name) {
             usb_debug("Can't allocate memory (32)\n");
             return;
@@ -485,34 +487,26 @@ static void btmtk_usb_cap_init(struct LD_btmtk_usb_data *data)
         os_memcpy(data->rom_patch_bin_file_name, "mt7662_patch_e3_hdr.bin", 23);
         data->rom_patch_offset = 0x90000;
         data->rom_patch_len = 0;
+    } else /*if (is_mt7668(data))*/ {
+        unsigned int fw_ver = 0;
+        btmtk_usb_io_read32_7668(data, 0x80000004, &fw_ver);
+        if ((fw_ver & 0xFF) != 0xFF) {
+            data->need_load_fw = 0;
+            data->need_load_rom_patch = 1;
+            data->rom_patch_bin_file_name = os_kzalloc(MAX_BIN_FILE_NAME_LEN, MTK_GFP_ATOMIC);
+            if (!data->rom_patch_bin_file_name) {
+                usb_debug("Can't allocate memory\n");
+                return;
+            }
 
-    } else if (is_mt7668(data)) {
-        unsigned int chip_ver = 0;
-
-        data->need_load_fw = 0;
-        data->need_load_rom_patch = 1;
-        data->rom_patch_bin_file_name = os_kzalloc(32, MTK_GFP_ATOMIC);
-        if (!data->rom_patch_bin_file_name) {
-            usb_debug("Can't allocate memory (32)\n");
+            snprintf(data->rom_patch_bin_file_name, MAX_BIN_FILE_NAME_LEN, "mt%04x_patch_e%x_hdr.bin", data->chip_id & 0xFFFF, (fw_ver & 0xFF) + 1);
+            usb_debug("patch name: %s", data->rom_patch_bin_file_name);
+            data->rom_patch_len = 0;
+        }
+        else {
+            usb_debug("Incorrect firmware version: 0xFF");
             return;
         }
-        btmtk_usb_io_read32_7668(data, 0x80000000, &chip_ver);
-        if (chip_ver == 0x8A00) {
-            usb_debug("btmtk:This is 7668 E1 chip\n");
-            os_memcpy(data->rom_patch_bin_file_name, "mt7668_patch_e1_hdr.bin", 23);
-        } else if (chip_ver == 0x8B10) {
-            usb_debug("btmtk:This is 7668 E2 chip\n");
-            os_memcpy(data->rom_patch_bin_file_name, "mt7668_patch_e2_hdr.bin", 23);
-        } else {
-            usb_debug("btmtk: Can't recognize version 0x%04X\n", chip_ver);
-            if (data->rom_patch_bin_file_name) os_kfree(data->rom_patch_bin_file_name);
-        }
-        data->chip_id |= chip_ver << 16;
-        data->rom_patch_offset = 0x2000000;
-        data->rom_patch_len = 0;
-
-    } else {
-        usb_debug("unknow chip(%x)\n", data->chip_id);
     }
 }
 

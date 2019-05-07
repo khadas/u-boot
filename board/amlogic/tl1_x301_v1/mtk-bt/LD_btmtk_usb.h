@@ -88,7 +88,7 @@ struct LD_btmtk_usb_data {
 
 	unsigned char *rom_patch;
 	unsigned char *rom_patch_header_image;
-	unsigned char *rom_patch_bin_file_name;
+	char *rom_patch_bin_file_name;
 	u32 chip_id;
 	u8 need_load_fw;
 	u8 need_load_rom_patch;
