@@ -26,6 +26,8 @@
 #define     MAX_MMC_PART_NUM                32
 #define     MAX_MMC_PART_NAME_LEN           16
 
+#define 	MMC_BOOT_PARTITION_SUPPORT		1
+
 #ifndef CONFIG_AML_MMC_INHERENT_PART
 #define     PARTITION_RESERVED              (8*SZ_1M)  // 8MB
 #define     MMC_BOOT_PARTITION_RESERVED     (32*SZ_1M) // 32MB

@@ -499,9 +499,7 @@ int amlmmc_write_bootloader(int dev, int map, unsigned int size, const void *src
 		ret = -2;
 		goto _out;
 	}
-#ifdef MMC_NO_BOOT_PARTITION
-	map = map & ~AML_BL_BOOT;
-#endif
+	printf("%s() %d: map 0x%x\n", __func__, __LINE__, map);
 	if (cpu_id.family_id >= MESON_CPU_MAJOR_ID_GXL)
 		start = GXL_START_BLK;
 	blkcnt = (size + mmc->read_bl_len - 1) / mmc->read_bl_len;
@@ -978,6 +976,11 @@ static int amlmmc_write_in_part(int argc, char *const argv[])
 	char *name = NULL;
 	u64 offset = 0, size = 0;
 	struct mmc *mmc;
+#ifdef MMC_BOOT_PARTITION_SUPPORT
+	int map = AML_BL_ALL;
+#else
+	int map = AML_BL_USER;
+#endif
 
 	name = argv[2];
 	if (strcmp(name, "bootloader") == 0)
@@ -998,7 +1001,15 @@ static int amlmmc_write_in_part(int argc, char *const argv[])
 	mmc_init(mmc);
 
 	if (strcmp(name, "bootloader") == 0) {
-		ret = amlmmc_write_bootloader(dev, AML_BL_ALL, size, addr);
+	#ifdef CONFIG_EMMC_KEEP_BOOT1
+		if (get_cpu_id().family_id != MESON_CPU_MAJOR_ID_TM2) {
+			printf("WRONG CONFIG_EMMC_KEEP_BOOT1 enabled!\n");
+			return -1;
+		}
+		if (get_cpu_id().chip_rev == 0xA)
+			map &= ~AML_BL_BOOT1;
+	#endif
+		ret = amlmmc_write_bootloader(dev, map, size, addr);
 		return ret;
 	} else
 		get_off_size(mmc, name, offset, size, &blk, &cnt, &sz_byte);

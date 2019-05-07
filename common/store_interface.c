@@ -69,7 +69,6 @@ extern int mmc_ddr_parameter_erase(void);
 #define CONFIG_ENV_IN_SPI_OFFSET 0
 //Ignore mbr since mmc driver already handled
 //#define MMC_UBOOT_CLEAR_MBR
-#define MMC_BOOT_PARTITION_SUPPORT
 
 #ifdef MMC_UBOOT_CLEAR_MBR
 static char _mbrFlag[4] ;
@@ -905,7 +904,7 @@ static int do_store_size(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 
 static int do_store_erase(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
-	int i, ret = 0;
+	int i, erase = 2, ret = 0;
 	loff_t size=0;
 	char *cmd = NULL, *area;
 	char	str[128];
@@ -961,9 +960,16 @@ static int do_store_erase(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 			}
 
 #ifdef MMC_BOOT_PARTITION_SUPPORT
-			printf("%s() %d\n", __func__, __LINE__);
-
-			for (i=0; i<2; i++) {
+		#ifdef CONFIG_EMMC_KEEP_BOOT1
+			/* do not erase the BOOT1 for TM2 revA ONLY*/
+			if (get_cpu_id().family_id != MESON_CPU_MAJOR_ID_TM2) {
+				store_msg("WRONG CONFIG_EMMC_KEEP_BOOT1 enabled!\n");
+				return -1;
+			}
+			if (get_cpu_id().chip_rev == 0xA)
+				erase = 1;
+		#endif
+			for (i=0; i < erase; i++) {
 				printf("%s() %d, i = %d\n", __func__, __LINE__, i);
 				//switch to boot partition here
 				sprintf(str, "amlmmc switch 1 boot%d", i);
@@ -1438,7 +1444,7 @@ static int do_store_rom_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 	char *cmd = NULL;
 	char	str[128];
 	int ret = 0;
-	int i = 0;
+	int i = 0, read = 2;
 	cpu_id_t cpu_id = get_cpu_id();
 
 	if (argc < 5) return CMD_RET_USAGE;
@@ -1597,8 +1603,15 @@ static int do_store_rom_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 		}
 
 #ifdef MMC_BOOT_PARTITION_SUPPORT
-
-		for (i=0; i<2; i++) {
+	#ifdef CONFIG_EMMC_KEEP_BOOT1
+		if (get_cpu_id().family_id != MESON_CPU_MAJOR_ID_TM2) {
+			store_msg("WRONG CONFIG_EMMC_KEEP_BOOT1 enabled!\n");
+			return -1;
+		}
+		if (get_cpu_id().chip_rev == 0xA)
+			read = 1;
+	#endif
+		for (i = 0; i < read; i++) {
 			//switch to boot partition here
 			sprintf(str, "amlmmc switch 1 boot%d", i);
 			store_dbg("command: %s\n", str);

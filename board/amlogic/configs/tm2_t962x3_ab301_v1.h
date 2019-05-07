@@ -403,6 +403,8 @@
 	#define	CONFIG_SYS_MMC_ENV_DEV 1
 	#define CONFIG_EMMC_DDR52_EN 0
 	#define CONFIG_EMMC_DDR52_CLK 35000000
+    /* !! For tm2 revA ONLY !!*/
+    #define CONFIG_EMMC_KEEP_BOOT1 1
 #endif
 #define		CONFIG_PARTITIONS 1
 #define 	CONFIG_SYS_NO_FLASH  1
