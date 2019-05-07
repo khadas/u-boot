@@ -15,7 +15,7 @@
 *.i
 *.lst
 *.order
-*.elf
+#*.elf
 *.swp
 *.bin
 *.patch
