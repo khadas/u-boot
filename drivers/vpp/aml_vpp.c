@@ -520,6 +520,7 @@ static void vpp_set_matrix_ycbcr2rgb(int vd1_or_vd2_or_post, int mode)
 
 	if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) ||
 		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B) ||
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SM1) ||
 		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TL1) ||
 		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TM2)){
 		/* POST2 matrix: YUV limit -> RGB  default is 12bit*/
