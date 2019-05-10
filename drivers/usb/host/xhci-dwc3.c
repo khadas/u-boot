@@ -267,10 +267,15 @@ static int xhci_dwc3_probe(struct udevice *dev)
 	hccr = (struct xhci_hccr *)((uintptr_t)dev_read_addr(dev));
 	hcor = (struct xhci_hcor *)((uintptr_t)hccr +
 			HC_LENGTH(xhci_readl(&(hccr)->cr_capbase)));
-
-	ret = dwc3_setup_phy(dev, &plat->usb_phys, &plat->num_phys);
-	if (ret && (ret != -ENOTSUPP))
+#ifdef CONFIG_AML_USB
+	ret = xhci_dwc3_setup_phy(dev);
+	if (ret)
 		return ret;
+#else
+	ret = dwc3_setup_phy(dev, &plat->usb_phys, &plat->num_phys);
+		if (ret && (ret != -ENOTSUPP))
+			return ret;
+#endif
 
 	dwc3_reg = (struct dwc3 *)((char *)(hccr) + DWC3_REG_OFFSET);
 
