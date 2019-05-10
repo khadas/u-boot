@@ -299,11 +299,11 @@
 					 "emmc_nand_d1",
 					 "emmc_nand_d0",
 					 "emmc_clk",
-					 "nand_ren_wr",
 					 "emmc_cmd";
 				function = "emmc";
 				input-enable;
 				bias-pull-up;
+				drive-strength = <3>;
 			};
 		};
 
@@ -890,23 +890,23 @@
 };
 
 &sd_emmc_b {
-	clocks = <&clkc CLKID_FCLK_DIV2>,
+	clocks = <&clkc CLKID_SD_EMMC_B>,
 			<&xtal>,
+			<&clkc CLKID_FCLK_DIV2>,
 			<&clkc CLKID_SD_EMMC_B_P0_MUX>,
 			<&clkc CLKID_SD_EMMC_B_P0_DIV>,
-			<&clkc CLKID_SD_EMMC_B_P0_GATE>,
-			<&clkc CLKID_SD_EMMC_B>;
-	clock-names = "clkin", "clkin1", "clkin2", "clkin3", "clkin4", "core";
+			<&clkc CLKID_SD_EMMC_B_P0_GATE>;
+	clock-names = "core", "clkin0", "clkin1", "mux", "div", "gate";
 };
 
 &sd_emmc_c {
-	clocks = <&clkc CLKID_FCLK_DIV2>,
+	clocks = <&clkc CLKID_SD_EMMC_C>,
 			<&xtal>,
+			<&clkc CLKID_FCLK_DIV2>,
 			<&clkc CLKID_SD_EMMC_C_P0_MUX>,
 			<&clkc CLKID_SD_EMMC_C_P0_DIV>,
-			<&clkc CLKID_SD_EMMC_C_P0_GATE>,
-			<&clkc CLKID_SD_EMMC_C>;
-	clock-names = "clkin", "clkin1", "clkin2", "clkin3", "clkin4", "core";
+			<&clkc CLKID_SD_EMMC_C_P0_GATE>;
+	clock-names = "core", "clkin0", "clkin1", "mux", "div", "gate";
 
 };
 

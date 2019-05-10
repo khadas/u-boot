@@ -47,9 +47,10 @@ bool emmckey_is_access_range_legal (struct mmc *mmc, ulong start, lbaint_t blkcn
 			if ((key_start_blk <= (start + blkcnt -1))
 				&& (key_end_blk >= start)
 				&& (blkcnt != start)) {
-				printf("%s, keys %ld, keye %ld, start %ld, blkcnt %ld\n", __func__,
-					key_start_blk, key_end_blk, start, blkcnt);
-				printf("Emmckey: Access range is illegal!\n");
+				pr_info("%s, keys %ld, keye %ld, start %ld, blkcnt %ld\n",
+						mmc->cfg->name, key_start_blk,
+						key_end_blk, start, blkcnt);
+				pr_err("Emmckey: Access range is illegal!\n");
 				return 0;
 			}
 		}
@@ -119,8 +120,8 @@ __weak int board_mmc_getcd(struct mmc *mmc)
 #ifdef CONFIG_MMC_TRACE
 void mmmc_trace_before_send(struct mmc *mmc, struct mmc_cmd *cmd)
 {
-	printf("CMD_SEND:%d\n", cmd->cmdidx);
-	printf("\t\tARG\t\t\t 0x%08X\n", cmd->cmdarg);
+	pr_info("CMD_SEND:%d\n", cmd->cmdidx);
+	pr_info("\t\tARG\t\t\t 0x%08X\n", cmd->cmdarg);
 }
 
 void mmmc_trace_after_send(struct mmc *mmc, struct mmc_cmd *cmd, int ret)
@@ -129,47 +130,47 @@ void mmmc_trace_after_send(struct mmc *mmc, struct mmc_cmd *cmd, int ret)
 	u8 *ptr;
 
 	if (ret) {
-		printf("\t\tRET\t\t\t %d\n", ret);
+		pr_info("\t\tRET\t\t\t %d\n", ret);
 	} else {
 		switch (cmd->resp_type) {
 		case MMC_RSP_NONE:
-			printf("\t\tMMC_RSP_NONE\n");
+			pr_info("\t\tMMC_RSP_NONE\n");
 			break;
 		case MMC_RSP_R1:
-			printf("\t\tMMC_RSP_R1,5,6,7 \t 0x%08X \n",
+			pr_info("\t\tMMC_RSP_R1,5,6,7 \t 0x%08X \n",
 				cmd->response[0]);
 			break;
 		case MMC_RSP_R1b:
-			printf("\t\tMMC_RSP_R1b\t\t 0x%08X \n",
+			pr_info("\t\tMMC_RSP_R1b\t\t 0x%08X \n",
 				cmd->response[0]);
 			break;
 		case MMC_RSP_R2:
-			printf("\t\tMMC_RSP_R2\t\t 0x%08X \n",
+			pr_info("\t\tMMC_RSP_R2\t\t 0x%08X \n",
 				cmd->response[0]);
-			printf("\t\t          \t\t 0x%08X \n",
+			pr_info("\t\t          \t\t 0x%08X \n",
 				cmd->response[1]);
-			printf("\t\t          \t\t 0x%08X \n",
+			pr_info("\t\t          \t\t 0x%08X \n",
 				cmd->response[2]);
-			printf("\t\t          \t\t 0x%08X \n",
+			pr_info("\t\t          \t\t 0x%08X \n",
 				cmd->response[3]);
-			printf("\n");
-			printf("\t\t\t\t\tDUMPING DATA\n");
+			pr_info("\n");
+			pr_info("\t\t\t\t\tDUMPING DATA\n");
 			for (i = 0; i < 4; i++) {
 				int j;
-				printf("\t\t\t\t\t%03d - ", i*4);
+				pr_info("\t\t\t\t\t%03d - ", i*4);
 				ptr = (u8 *)&cmd->response[i];
 				ptr += 3;
 				for (j = 0; j < 4; j++)
-					printf("%02X ", *ptr--);
-				printf("\n");
+					pr_info("%02X ", *ptr--);
+				pr_info("\n");
 			}
 			break;
 		case MMC_RSP_R3:
-			printf("\t\tMMC_RSP_R3,4\t\t 0x%08X \n",
+			pr_info("\t\tMMC_RSP_R3,4\t\t 0x%08X \n",
 				cmd->response[0]);
 			break;
 		default:
-			printf("\t\tERROR MMC rsp not supported\n");
+			pr_info("\t\tERROR MMC rsp not supported\n");
 			break;
 		}
 	}
@@ -180,7 +181,7 @@ void mmc_trace_state(struct mmc *mmc, struct mmc_cmd *cmd)
 	int status;
 
 	status = (cmd->response[0] & MMC_STATUS_CURR_STATE) >> 9;
-	printf("CURR STATE:%d\n", status);
+	pr_info("CURR STATE:%d\n", status);
 }
 #endif
 
@@ -296,13 +297,13 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 	mmc_trace_state(mmc, &cmd);
 	if (timeout <= 0) {
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-		printf("Timeout waiting card ready\n");
+		pr_debug("Timeout waiting card ready\n");
 #endif
 		return -ETIMEDOUT;
 	}
 	status = (cmd.response[0] & MMC_STATUS_CURR_STATE) >> 9;
 	if (cmd.response[0] & MMC_STATUS_SWITCH_ERROR) {
-		printf("mmc status swwitch error status =0x%x\n", status);
+		pr_err("mmc status switch error status =0x%x\n", status);
 		return -21;
 	}
 	return 0;
@@ -761,7 +762,6 @@ static int mmc_complete_op_cond(struct mmc *mmc)
 	return 0;
 }
 
-
 static int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd)
 {
 	struct mmc_cmd cmd;
@@ -783,12 +783,10 @@ static int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd)
 	return err;
 }
 
-
 int mmc_get_ext_csd(struct mmc *mmc, u8 *ext_csd)
 {
 	return mmc_send_ext_csd(mmc, ext_csd);
 }
-
 
 int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 {
@@ -1590,7 +1588,8 @@ int mmc_set_clock(struct mmc *mmc, uint clock, bool disable)
 	mmc->clock = clock;
 	mmc->clk_disable = disable;
 
-	debug("clock is %s (%dHz)\n", disable ? "disabled" : "enabled", clock);
+	pr_debug("clock is %s (%dHz)\n",
+			disable ? "disabled" : "enabled", clock);
 
 	return mmc_set_ios(mmc);
 }
@@ -1945,7 +1944,7 @@ static int mmc_select_hs400(struct mmc *mmc)
 	/* execute tuning if needed */
 	err = mmc_execute_tuning(mmc, MMC_CMD_SEND_TUNING_BLOCK_HS200);
 	if (err) {
-		debug("tuning failed\n");
+		pr_debug("tuning failed\n");
 		return err;
 	}
 
@@ -2032,7 +2031,7 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 			if (mwt->mode == MMC_HS_400) {
 				err = mmc_select_hs400(mmc);
 				if (err) {
-					printf("Select HS400 failed %d\n", err);
+					pr_err("Select HS400 failed %d\n", err);
 					goto error;
 				}
 			} else {
@@ -2224,6 +2223,12 @@ static int mmc_startup_v4(struct mmc *mmc)
 			mmc->enh_user_start <<= 9;
 	}
 #endif
+
+	/* dev life time estimate type A/B */
+	mmc->dev_lifetime_est_typ_a
+		= ext_csd[EXT_CSD_DEV_LIFETIME_EST_TYP_A];
+	mmc->dev_lifetime_est_typ_b
+		= ext_csd[EXT_CSD_DEV_LIFETIME_EST_TYP_B];
 
 	/*
 	 * Host needs to enable ERASE_GRP_DEF bit if device is
@@ -2827,7 +2832,7 @@ int mmc_init(struct mmc *mmc)
 		if (!is_partition_checked) {
 			if (mmc_device_init(mmc) == 0) {
 			is_partition_checked = true;
-			printf("eMMC/TSD partition table have been checked OK!\n");
+			pr_info("eMMC/TSD partition table have been checked OK!\n");
 			}
 		}
 	err = emmc_probe(0xff);
@@ -2835,6 +2840,144 @@ int mmc_init(struct mmc *mmc)
 	info_disprotect &= ~DISPROTECT_KEY;
 	return err;
 
+}
+
+ulong mmc_ffu_write(int dev_num, lbaint_t start, lbaint_t blkcnt, const void *src)
+{
+	struct mmc_cmd cmd;
+	struct mmc_data data;
+	int ret, timeout = 1000;
+	struct mmc *mmc = find_mmc_device(dev_num);
+	if (!mmc || !blkcnt)
+		return 0;
+
+	printf("mmc ffu start = %lx, cnt = %lx, addr = %p\n", start, blkcnt, src);
+
+	cmd.cmdidx = MMC_CMD_SET_BLOCK_COUNT;
+	cmd.cmdarg = blkcnt & 0xFFFF;
+	cmd.resp_type = MMC_RSP_R1;
+	ret = mmc_send_cmd(mmc, &cmd, NULL);
+	if (ret) {
+		printf("mmc set blkcnt failed\n");
+		return 0;
+	}
+
+	cmd.cmdidx = MMC_CMD_WRITE_MULTIPLE_BLOCK;
+	cmd.cmdarg = start;
+	cmd.resp_type = MMC_RSP_R1b;
+
+	data.src = src;
+	data.blocks = blkcnt;
+	data.blocksize = mmc->write_bl_len;
+	data.flags = MMC_DATA_WRITE;
+
+	ret = mmc_send_cmd(mmc, &cmd, &data);
+	if (ret) {
+		printf("mmc write failed\n");
+		return 0;
+	}
+
+	/* Waiting for the ready status */
+	if (mmc_send_status(mmc, timeout))
+		return 0;
+
+	return blkcnt;
+}
+
+int mmc_ffu_op(int dev, u64 ffu_ver, void *addr, u64 cnt)
+{
+	int err, i, supported_modes, fw_cfg, ffu_status;
+	u64 fw_ver = 0, n;
+	u8 ext_csd_ffu[512] = {0};
+	lbaint_t ffu_addr=0;
+	struct mmc *mmc = find_mmc_device(dev);
+	if (!mmc)
+		return -ENODEV;
+
+	printf("ffu update start\n");
+	/* check Manufacturer MID */
+	if ((mmc->cid[0] >> 24) == SAMSUNG_MID) {
+		ffu_addr = SAMSUNG_FFU_ADDR;
+	} else if ((mmc->cid[0] >> 24) == KINGSTON_MID) {
+		ffu_addr = KINGSTON_FFU_ADDR;
+	} else {
+		printf("FFU update for this manufacturer not support yet\n");
+		return -1;
+	}
+
+	/*
+	 * check FFU Supportability
+	 * check FFU Prohibited or not
+	 * check current firmware version
+	 */
+	memset(ext_csd_ffu, 0, 512);
+	err = mmc_get_ext_csd(mmc, ext_csd_ffu);
+	if (err)
+		return err;
+
+	supported_modes = ext_csd_ffu[EXT_CSD_SUPPORTED_MODES] & 0x1;
+	fw_cfg = ext_csd_ffu[EXT_CSD_FW_CFG] & 0x1;
+	for (i = 0; i < 8; i++)
+		fw_ver |= (ext_csd_ffu[EXT_CSD_FW_VERSION + i] << (i * 8));
+	printf("old fw_ver = %llx\n", fw_ver);
+	if (!supported_modes || fw_cfg || (fw_ver >= ffu_ver))
+		return -1;
+
+	/* Set FFU Mode */
+	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_MODE_CFG, 1);
+	if (err) {
+		printf("Failed: set FFU mode\n");
+		return err;
+	}
+
+	/* Write patch file at one write command */
+	n = mmc_ffu_write(dev, ffu_addr, cnt, addr);
+	if (n != cnt) {
+		printf("target is %llx block, but only %llx block has been write\n", cnt, n);
+		return -1;
+	}
+
+	memset(ext_csd_ffu, 0, 512);
+	err = mmc_get_ext_csd(mmc, ext_csd_ffu);
+	if (err)
+		return err;
+
+	for (i = 0; i < 8; i++)
+		fw_ver |= (ext_csd_ffu[EXT_CSD_FW_VERSION + i] << (i * 8));
+	printf("new fw_ver = %llx\n", fw_ver);
+	if ((mmc->cid[0] >> 24) == SAMSUNG_MID) {
+		/* Set Normal Mode */
+		err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_MODE_CFG, 0);
+		if (err)
+			return err;
+	}
+
+	/* reset devices */
+	err = mmc_go_idle(mmc);
+	if (err)
+		return err;
+
+	/* Initialization */
+	mmc->has_init = 0;
+	err = mmc_init(mmc);
+	if (err)
+		return err;
+
+	/* Read ffu_status, check ffu_version */
+	memset(ext_csd_ffu, 0, 512);
+	err = mmc_get_ext_csd(mmc, ext_csd_ffu);
+	if (err)
+		return err;
+	ffu_status = ext_csd_ffu[EXT_CSD_FFU_STATUS] & 0xff;
+	fw_ver = 0;
+	for (i = 0; i < 8; i++)
+		fw_ver |= (ext_csd_ffu[EXT_CSD_FW_VERSION + i] << (i * 8));
+	printf("new fw_ver = %llx\n", fw_ver);
+	if (ffu_status || (fw_ver != ffu_ver))
+		return ffu_status;
+
+	printf("FFU update ok!\n");
+	return 0;
 }
 
 int mmc_set_dsr(struct mmc *mmc, u16 val)
@@ -2981,7 +3124,7 @@ int mmc_key_write(unsigned char *buf, unsigned int size, uint32_t *actual_lenth)
 	do {
 		ret = blk_dwrite(mmc_get_blk_desc(mmc), start_blk, blkcnt, temp_buf);
 		if (ret != blkcnt) {
-			printf("[%s] %d, mmc_bwrite error\n",
+			pr_err("[%s] %d, mmc_bwrite error\n",
 				__func__, __LINE__);
 			return 1;
 		}
@@ -3015,7 +3158,7 @@ int mmc_key_erase(void)
 	ret = blk_derase(mmc_get_blk_desc(mmc), start_blk, blkcnt);
 	info_disprotect &= ~DISPROTECT_KEY;
 	if (ret) {
-		printf("[%s] %d mmc_berase error\n",
+		pr_err("[%s] %d mmc_berase error\n",
 				__func__, __LINE__);
 		return 1;
 	}
@@ -3043,7 +3186,7 @@ int mmc_key_read(unsigned char *buf, unsigned int size, uint32_t *actual_lenth)
 	ret = blk_dread(mmc_get_blk_desc(mmc), start_blk, blkcnt, temp_buf);
 	info_disprotect &= ~DISPROTECT_KEY;
 	if (ret != blkcnt) {
-		printf("[%s] %d, mmc_bread error\n",
+		pr_err("[%s] %d, mmc_bread error\n",
 			__func__, __LINE__);
 		return 1;
 	}

@@ -12,6 +12,7 @@
 #include <linux/list.h>
 #include <linux/sizes.h>
 #include <linux/compiler.h>
+#include <asm/gpio.h>
 #include <part.h>
 
 #if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT)
@@ -234,6 +235,7 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 #define EXT_CSD_HC_ERASE_GRP_SIZE	224	/* RO */
 #define EXT_CSD_BOOT_MULT		226	/* RO */
 #define EXT_CSD_DEV_LIFETIME_EST_TYP_A	268	/* RO */
+#define EXT_CSD_DEV_LIFETIME_EST_TYP_B	269	/* RO */
 #define EXT_CSD_BKOPS_SUPPORT		502	/* RO */
 #define EXT_CSD_SUPPORTED_MODES	493 /* RO */
 #define EXT_CSD_FW_VERSION	254 /* RO, 261:254 */
@@ -602,6 +604,7 @@ struct mmc {
 	uint version;
 	void *priv;
 	uint has_init;
+	uint is_in;
 	int high_capacity;
 	bool clk_disable; /* true if the clock can be turned off */
 	uint bus_width;
@@ -633,6 +636,8 @@ struct mmc {
 #if CONFIG_IS_ENABLED(MMC_WRITE)
 	struct sd_ssr	ssr;	/* SD status register */
 #endif
+	uint dev_lifetime_est_typ_a;
+	uint dev_lifetime_est_typ_b;
 	u64 capacity;
 	u64 capacity_user;
 	u64 capacity_boot;

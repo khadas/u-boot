@@ -512,6 +512,74 @@ static int do_mmc_list(cmd_tbl_t *cmdtp, int flag,
 	return CMD_RET_SUCCESS;
 }
 
+static int do_mmc_lifetime(cmd_tbl_t *cmdtp, int flag,
+		int argc, char * const argv[])
+{
+	int dev;
+	struct mmc *mmc;
+
+	if (curr_device < 0)
+		dev = 1;
+	else
+		dev = curr_device;
+	mmc = init_mmc_device(dev, false);
+	if (!mmc)
+		return CMD_RET_FAILURE;
+	printf("dev_lifetime_est_type: a = %x, b = %x\n",
+			mmc->dev_lifetime_est_typ_a, mmc->dev_lifetime_est_typ_b);
+	return CMD_RET_SUCCESS;
+}
+
+static int do_mmc_ext_csd(cmd_tbl_t *cmdtp, int flag,
+		int argc, char * const argv[])
+{
+	int bit = 0, value = 0, ret = 0;
+	struct mmc *mmc;
+	char str[128] = {0};
+
+	if ((argc != 2) && (argc != 3))
+		return CMD_RET_USAGE;
+
+	bit = simple_strtoul(argv[1], NULL, 10);
+	if (argc == 3)
+		value = simple_strtoul(argv[2], NULL, 16);
+
+	mmc = init_mmc_device(curr_device, false);
+	if (!mmc)
+		return CMD_RET_FAILURE;
+
+	if (argc == 2)
+		sprintf(str, "amlmmc ext_csd 1 %d", bit);
+	else
+		sprintf(str, "amlmmc ext_csd 1 %d %x", bit, value);
+
+	ret = run_command(str, 0);
+	return (ret == 0) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
+}
+
+static int do_mmc_ffu(cmd_tbl_t *cmdtp, int flag,
+		int argc, char * const argv[])
+{
+	struct mmc *mmc;
+	u64 ver, cnt;
+	int ret;
+	void *addr;
+
+	if (argc != 4)
+		return CMD_RET_USAGE;
+
+	ver = simple_strtoul(argv[1], NULL, 16);
+	addr = (void *)simple_strtoul(argv[2], NULL, 16);
+	cnt = simple_strtoul(argv[3], NULL, 16);
+
+	mmc = init_mmc_device(curr_device, false);
+	if (!mmc)
+		return CMD_RET_FAILURE;
+
+	ret = mmc_ffu_op(curr_device, ver, addr, cnt);
+	return (ret == 0) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
+}
+
 #if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
 static int parse_hwpart_user(struct mmc_hwpart_conf *pconf,
 			     int argc, char * const argv[])
@@ -877,6 +945,9 @@ static cmd_tbl_t cmd_mmc[] = {
 	U_BOOT_CMD_MKENT(part, 1, 1, do_mmc_part, "", ""),
 	U_BOOT_CMD_MKENT(dev, 3, 0, do_mmc_dev, "", ""),
 	U_BOOT_CMD_MKENT(list, 1, 1, do_mmc_list, "", ""),
+	U_BOOT_CMD_MKENT(lifetime, 1, 1, do_mmc_lifetime, "", ""),
+	U_BOOT_CMD_MKENT(ext_csd, 3, 0, do_mmc_ext_csd, "", ""),
+	U_BOOT_CMD_MKENT(ffu, 4, 0, do_mmc_ffu, "", ""),
 #if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
 	U_BOOT_CMD_MKENT(hwpartition, 28, 0, do_mmc_hwpartition, "", ""),
 #endif
@@ -935,6 +1006,9 @@ U_BOOT_CMD(
 	"mmc part - lists available partition on current mmc device\n"
 	"mmc dev [dev] [part] - show or set current mmc device [partition]\n"
 	"mmc list - lists available devices\n"
+	"mmc lifetime - show dev life time estimate type A/B\n"
+	"mmc ext_csd [byte] <val> - read/write ext_csd [byte] value\n"
+	"mmc ffu ver addr cnt - update ffu fw\n"
 #if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
 	"mmc hwpartition [args...] - does hardware partitioning\n"
 	"  arguments (sizes in 512-byte blocks):\n"

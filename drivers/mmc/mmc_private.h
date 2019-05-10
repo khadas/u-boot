@@ -11,6 +11,18 @@
 
 #include <mmc.h>
 
+#define SAMSUNG_MID			0x15
+#define KINGSTON_MID		0x70
+#define SAMSUNG_FFU_ADDR	0xc7810000
+#define KINGSTON_FFU_ADDR	0x0000ffff
+#define MAX_TUNING_RETRY	(4)
+#define CALI_BLK_CNT		(1024)
+#define REFIX_BLK_CNT		(100)
+#define CALI_PATTERN_ADDR   (0x13800)
+#define TUNING_NUM_PER_POINT 10
+#define MMC_MAX_DESC_NUM	512
+#define MAX_RESPONSE_BYTES	4
+
 extern int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			struct mmc_data *data);
 extern int mmc_send_status(struct mmc *mmc, int timeout);

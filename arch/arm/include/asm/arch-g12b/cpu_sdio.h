@@ -31,12 +31,14 @@
 #define SDIO_PORT_C 2
 
 
+#if 0
 #define	SD_EMMC_RXD_ERROR				1
 #define	SD_EMMC_TXD_ERROR				1<<1
 #define	SD_EMMC_DESC_ERROR				1<<2
 #define	SD_EMMC_RESP_CRC_ERROR			1<<3
 #define	SD_EMMC_RESP_TIMEOUT_ERROR		1<<4
 #define	SD_EMMC_DESC_TIMEOUT_ERROR		1<<5
+#endif
 
 struct sd_emmc_global_regs {
     volatile uint32_t gclock;     // 0x00
