@@ -24,6 +24,7 @@
 /* **********************************
  * clk config
  * ********************************** */
+#define PLL_RETRY_MAX		20
 #define LCD_CLK_CTRL_EN      0
 #define LCD_CLK_CTRL_RST     1
 #define LCD_CLK_CTRL_FRAC    2
