@@ -23,6 +23,11 @@
 #include <linux/compat.h>
 #include <linux/ioport.h>
 
+#define MESON_CPU_MAJOR_ID_A1	0x2C
+#define P_AO_RTI_GEN_PWR_SLEEP0 0xfe007808
+#define P_AO_RTI_GEN_PWR_ISO0 0xfe007804
+#define P_HHI_MEM_PD_REG0 0xfe007850
+
 #define RESET_COMPLETE_TIME				500
 #define MESON_CPU_MAJOR_ID_SM1	0x2B
 
@@ -43,6 +48,7 @@ struct phy_aml_usb2_priv {
 	unsigned int u2_hhi_mem_pd_mask;
 	unsigned int u2_ctrl_iso_shift;
 	unsigned int u2_hhi_mem_pd_shift;
+	unsigned int clktree_usb_bus_ctrl;
 	unsigned int usb_phy2_pll_base_addr[4];
 };
 
@@ -61,6 +67,8 @@ static void phy_aml_usb2_check_rev (void)
 			Rev_flag = 0;
 	} else if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SM1){
 		Rev_flag = MESON_CPU_MAJOR_ID_SM1;
+	}else if (cpu_id.family_id == MESON_CPU_MAJOR_ID_A1){
+		Rev_flag = MESON_CPU_MAJOR_ID_A1;
 	}
 	return;
 }
@@ -106,7 +114,7 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 	u2p_r0_t dev_u2p_r0;
 	u2p_r1_t dev_u2p_r1;
 	int i;
-	int cnt, u2portnum, node;
+	int cnt, u2portnum, node, rev_type;
 	int time_dly = RESET_COMPLETE_TIME;
 	int usbphy_reset_bit[8] = {0};
 	int usbctrl_reset_bit;
@@ -115,10 +123,11 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 	int u2_iso_shift;
 	int u2_pd_shift;
 
-	phy_aml_usb2_check_g12b_revb();
-	if (phy_aml_usb2_get_revb_type() == MESON_CPU_MAJOR_ID_SM1) {
+	phy_aml_usb2_check_rev();
+	rev_type = phy_aml_usb2_get_rev_type();
+	if ((rev_type == MESON_CPU_MAJOR_ID_SM1) || (rev_type == MESON_CPU_MAJOR_ID_A1)) {
 		u2_sleep_shift = dev_read_u32_default(phy->dev, "u2-ctrl-sleep-shift", -1);
-		if (usbphy_reset_bit != -1)
+		if (u2_sleep_shift != -1)
 			priv->u2_ctrl_sleep_shift = u2_sleep_shift;
 		else
 			goto sm1erro;
@@ -144,8 +153,8 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 			P_AO_RTI_GEN_PWR_SLEEP0);
 		writel((readl(P_AO_RTI_GEN_PWR_ISO0) & (~(0x1 << priv->u2_ctrl_iso_shift))),
 			P_AO_RTI_GEN_PWR_ISO0);
-		writel((readl(HHI_MEM_PD_REG0)
-			& (~(priv->u2_hhi_mem_pd_mask << priv->u2_hhi_mem_pd_shift))), HHI_MEM_PD_REG0);
+		writel((readl(P_HHI_MEM_PD_REG0)
+			& (~(priv->u2_hhi_mem_pd_mask << priv->u2_hhi_mem_pd_shift))), P_HHI_MEM_PD_REG0);
 	}
 
 	priv->reset_addr = dev_read_addr_index(phy->dev, 1);
@@ -175,17 +184,20 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 			priv->usbphy_reset_bit[i] = 16 + i;
 	}
 
-	priv->usb_phy2_pll_base_addr[0] = dev_read_addr_index(phy->dev, 2);
-	if (priv->usb_phy2_pll_base_addr[0] == FDT_ADDR_T_NONE) {
-		pr_err("Coun't get usb_phy2_pll_base_addr[%d]\n", i);
-		return -1;
+	for (i = 2; i < (u2portnum + 2); i++) {
+		priv->usb_phy2_pll_base_addr[i-2] = dev_read_addr_index(phy->dev, i);
+		if (priv->usb_phy2_pll_base_addr[i-2] == FDT_ADDR_T_NONE) {
+			pr_err("Coun't get usb_phy2_pll_base_addr[%d]\n", i-2);
+			return -1;
+		}
 	}
 
-	priv->usb_phy2_pll_base_addr[1] = dev_read_addr_index(phy->dev, 3);
-	if (priv->usb_phy2_pll_base_addr[1] == FDT_ADDR_T_NONE) {
-		pr_err("Coun't get usb_phy2_pll_base_addr[%d]\n", i);
-		return -1;
-	}
+	priv->clktree_usb_bus_ctrl = dev_read_addr_index(phy->dev, 2 + u2portnum);
+	if (priv->clktree_usb_bus_ctrl == FDT_ADDR_T_NONE)
+		pr_err("Coun't get clktree_usb_bus_ctrl addr index %d\n", 2 + u2portnum);
+	else
+		*(volatile unsigned long *)priv->clktree_usb_bus_ctrl |= (1 << 8) | (1 << 9);
+
 	priv->base_addr = dev_read_addr(phy->dev);
 
 	debug("usb2 phy: portnum=%d, addr1= 0x%08x, addr2= 0x%08x\n",

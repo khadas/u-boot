@@ -35,6 +35,7 @@ phy_aml_usb3_set_host_mode(struct phy_aml_usb3_priv *priv)
 }
 
 static int phy_aml_usb3_power_on(struct phy *phy){
+#ifdef CONFIG_DM_GPIO
 	int ret;
 	struct gpio_desc desc;
 	const char *usb_vbus_gpioname;
@@ -64,6 +65,7 @@ static int phy_aml_usb3_power_on(struct phy *phy){
 	}
 
 		dm_gpio_set_value(&desc, 1);
+#endif
 		return 0;
 }
 

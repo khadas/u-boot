@@ -527,38 +527,34 @@
 			};
 		};
 
-		dwc3: dwc3@ff500000 {
+		dwc3: dwc3@ff400000 {
 			compatible = "snps,dwc3","synopsys,xhci-dwc3";
 			status = "disable";
-			reg = <0x0 0xff500000 0x0 0x100000>;
+			reg = <0x0 0xff400000 0x0 0x100000>;
 			phys = <&usb2_phy_v2>, <&usb3_phy_v2>;
 			phy-names = "usb2-phy", "usb3-phy";
 		};
 
-		usb2_phy_v2: usb2phy@ffe09000 {
+		usb2_phy_v2: usb2phy@fe004420 {
 			compatible = "amlogic, amlogic-new-usb2-v2";
 			status = "disable";
 			#address-cells = <2>;
 			#size-cells = <2>;
 			phy-version = <2>;
-			reg = <0x0 0xffe09000 0x0 0x80
-					0x0 0xffd01008 0x0 0x100
-					0x0 0xff636000 0x0 0x2000
-					0x0 0xff63a000 0x0 0x2000>;
+			reg = <0x0 0xfe004420 0x0 0x80
+					0x0 0xfe000004 0x0 0x100
+					0x0 0xfe004000 0x0 0x2000
+					0x0 0xfe0008dc 0x0 0x4>;
 			#phy-cells = <0>;
 		};
 
-		usb3_phy_v2: usb3phy@ffe09080 {
+		usb3_phy_v2: usb3phy@fe004480 {
 			compatible = "amlogic, amlogic-new-usb3-v2";
 			status = "disable";
 			#address-cells = <2>;
 			#size-cells = <2>;
 			phy-version = <3>;
-			reg = <0x0 0xffe09080 0x0 0x20>;
-			phy-reg = <0xff646000>;
-			phy-reg-size = <0x2000>;
-			usb2-phy-reg = <0xffe09000>;
-			usb2-phy-reg-size = <0x80>;
+			reg = <0x0 0xfe004480 0x0 0x20>;
 			#phy-cells = <0>;
 		};
 
