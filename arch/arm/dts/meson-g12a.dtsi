@@ -932,14 +932,3 @@
 	clock-names = "core", "comp";
  };
 */
-
-&usb2_phy_v2 {
-	pll-setting-1 = <0x09400414>;
-	pll-setting-2 = <0x927E0000>;
-	pll-setting-3 = <0xac5f49e5>;
-	pll-setting-4 = <0xfe18>;
-	pll-setting-5 = <0x8000fff>;
-	pll-setting-6 = <0x78000>;
-	pll-setting-7 = <0xe0004>;
-	pll-setting-8 = <0xe000c>;
-};

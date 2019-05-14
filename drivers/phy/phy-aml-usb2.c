@@ -24,6 +24,7 @@
 #include <linux/ioport.h>
 
 #define RESET_COMPLETE_TIME				500
+char name[32];
 
 struct phy_aml_usb2_priv {
 	/* controller */
@@ -34,6 +35,12 @@ struct phy_aml_usb2_priv {
 	/* vbus call back */
 	unsigned int usb_phy2_base_addr;
 	unsigned int u2_port_num;
+	unsigned int usbphy_reset_bit[8];
+	unsigned int usbctrl_reset_bit;
+	unsigned int u2_ctrl_sleep_shift;
+	unsigned int u2_hhi_mem_pd_mask;
+	unsigned int u2_ctrl_iso_shift;
+	unsigned int u2_hhi_mem_pd_shift;
 	unsigned int usb_phy2_pll_base_addr[4];
 };
 
@@ -73,10 +80,6 @@ static void set_usb_pll(struct phy *phy, uint32_t volatile *phy2_pll_base)
 	debug("pll1=0x%08x, pll2=0x%08x, pll-setting-3 =0x%08x\n",
 		pll_set1, pll_set2, pll_set3);
 
-	if (phy_aml_usb2_get_rev_type() == MESON_CPU_MAJOR_ID_SM1) {
-		pll_set3 = 0xAC5F69E5;
-	}
-
 	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x40))
 		= (pll_set1 | USB_PHY2_RESET | USB_PHY2_ENABLE);
 	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x44)) =
@@ -103,14 +106,44 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 	int i;
 	int cnt, u2portnum, node;
 	int time_dly = RESET_COMPLETE_TIME;
+	int usbphy_reset_bit[8] = {0};
+	int usbctrl_reset_bit;
+	int u2_sleep_shift;
+	int u2_mem_pd_mask;
+	int u2_iso_shift;
+	int u2_pd_shift;
 
 	phy_aml_usb2_check_rev();
 	if (phy_aml_usb2_get_rev_type() == MESON_CPU_MAJOR_ID_SM1) {
-		writel((readl(P_AO_RTI_GEN_PWR_SLEEP0) & (~(0x1<<17))),
+		u2_sleep_shift = dev_read_u32_default(phy->dev, "u2-ctrl-sleep-shift", -1);
+		if (usbphy_reset_bit != -1)
+			priv->u2_ctrl_sleep_shift = u2_sleep_shift;
+		else
+			goto sm1erro;
+
+		u2_pd_shift = dev_read_u32_default(phy->dev, "u2-hhi-mem-pd-shift", -1);
+		if (u2_pd_shift != -1)
+			priv->u2_hhi_mem_pd_shift = u2_pd_shift;
+		else
+			goto sm1erro;
+
+		u2_mem_pd_mask = dev_read_u32_default(phy->dev, "u2-hhi-mem-pd-mask", -1);
+		if (u2_mem_pd_mask != -1)
+			priv->u2_hhi_mem_pd_mask = u2_mem_pd_mask;
+		else
+			goto sm1erro;
+
+		u2_iso_shift = dev_read_u32_default(phy->dev, "u2-ctrl-iso-shift", -1);
+		if (u2_iso_shift != -1)
+			priv->u2_ctrl_iso_shift = u2_iso_shift;
+		else
+			goto sm1erro;
+		writel((readl(P_AO_RTI_GEN_PWR_SLEEP0) & (~(0x1 << priv->u2_ctrl_sleep_shift))),
 			P_AO_RTI_GEN_PWR_SLEEP0);
-		writel((readl(P_AO_RTI_GEN_PWR_ISO0) & (~(0x1<<17))),
+		writel((readl(P_AO_RTI_GEN_PWR_ISO0) & (~(0x1 << priv->u2_ctrl_iso_shift))),
 			P_AO_RTI_GEN_PWR_ISO0);
-		writel((readl(HHI_MEM_PD_REG0) & (~(0x3<<30))), HHI_MEM_PD_REG0);
+		writel((readl(HHI_MEM_PD_REG0)
+			& (~(priv->u2_hhi_mem_pd_mask << priv->u2_hhi_mem_pd_shift))), HHI_MEM_PD_REG0);
 	}
 
 	priv->reset_addr = dev_read_addr_index(phy->dev, 1);
@@ -118,11 +151,27 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 		pr_err("Coun't get usb_phy2_pll_base_addr[%d]\n", i);
 		return -1;
 	}
-	*(volatile unsigned long *)priv->reset_addr |= (1<<2);
+
+	usbctrl_reset_bit = dev_read_u32_default(phy->dev, "usb-reset-bit", -1);
+	if (usbctrl_reset_bit != -1)
+		priv->usbctrl_reset_bit = usbctrl_reset_bit;
+	else
+		priv->usbctrl_reset_bit = 2;
+	*(volatile unsigned long *)priv->reset_addr |= (1 << priv->usbctrl_reset_bit);
 
 	udelay(time_dly);
 	dev_read_u32(phy->dev, "portnum", &u2portnum);
 	priv->u2_port_num = u2portnum;
+
+	for (i = 0; i < u2portnum; i++) {
+		memset(name, 0, 32 * sizeof(char));
+		sprintf(name, "phy2%d-reset-level-bit", i);
+		usbphy_reset_bit[i] = dev_read_u32_default(phy->dev, name, -1);
+		if (usbphy_reset_bit[i] != -1)
+			priv->usbphy_reset_bit[i] = usbphy_reset_bit[i];
+		else
+			priv->usbphy_reset_bit[i] = 16 + i;
+	}
 
 	priv->usb_phy2_pll_base_addr[0] = dev_read_addr_index(phy->dev, 2);
 	if (priv->usb_phy2_pll_base_addr[0] == FDT_ADDR_T_NONE) {
@@ -148,7 +197,7 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 		dev_u2p_r0.b.POR= 0;
 		u2p_aml_reg->u2p_r0  = dev_u2p_r0.d32;
 		udelay(10);
-		*(volatile unsigned long *)priv->reset_addr |= (1 << (16 + i));
+		*(volatile unsigned long *)priv->reset_addr |= (1 << priv->usbphy_reset_bit[i]);
 		udelay(50);
 
 		/* wait for phy ready */
@@ -171,6 +220,9 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 		set_usb_pll(phy, priv->usb_phy2_pll_base_addr[i]);
 	}
 	return 0;
+sm1erro:
+	pr_err("Coun't get sm1 power shift parmeters\n");
+	return -1;
 }
 
 static void phy_aml_usb2_reset(struct phy_aml_usb2_priv *priv)

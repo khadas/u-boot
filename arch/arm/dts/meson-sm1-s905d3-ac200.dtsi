@@ -65,7 +65,7 @@
 
 	emmc_pwrseq: emmc-pwrseq {
 		compatible = "mmc-pwrseq-emmc";
-		reset-gpios = <&gpio BOOT_9 GPIO_ACTIVE_LOW>;
+		reset-gpios = <&gpio BOOT_12 GPIO_ACTIVE_LOW>;
 	};
 
 	wifi32k: wifi32k {
@@ -116,6 +116,7 @@
 	non-removable;
 	disable-wp;
 
+	pinname = "sdio";
 	mmc-pwrseq = <&sdio_pwrseq>;
 
 	vmmc-supply = <&vddao_3v3>;
@@ -133,7 +134,15 @@
 	max-frequency = <100000000>;
 	disable-wp;
 
-	/* cd-gpios = <&gpio CARD_6 GPIO_ACTIVE_HIGH>; */
+	pinname = "sd";
+	init_co_phase = <3>;
+	init_tx_phase = <0>;
+	sd_hs_co_phase = <2>;
+	sd_hs_tx_phase = <0>;
+	sdr104_co_phase = <2>;
+	sdr104_hs_tx_phase = <0>;
+
+	cd-detect = <&gpio GPIOC_6 GPIO_ACTIVE_HIGH>;
 	/* cd-inverted; */
 
 	vmmc-supply = <&vddao_3v3>;
@@ -153,14 +162,20 @@
 	non-removable;
 	disable-wp;
 	/* mmc-ddr-1_8v; */
-	/* mmc-hs200-1_8v; */
+	mmc-hs200-1_8v;
 
-	core-phase0 = <3>;
-	tx-phase0 = <0>;
+	pinname = "emmc";
 
-	core-phase1 = <3>;
-	tx-phase1 = <0>;
+	init_co_phase = <3>;
+	init_tx_phase = <0>;
+	hs_co_phase = <3>;
+	hs_tx_phase = <0>;
+	ddr_co_phase = <2>;
+	ddr_tx_phase = <0>;
+	hs2_co_phase = <3>;
+	hs2_tx_phase = <0>;
 
+	hw_reset = <&gpio BOOT_12 GPIO_ACTIVE_HIGH>;
 	mmc-pwrseq = <&emmc_pwrseq>;
 	vmmc-supply = <&vcc_3v3>;
 	vqmmc-supply = <&vddio_boot>;
@@ -227,9 +242,13 @@
 	phy20-reset-level-bit = <16>;
 	phy21-reset-level-bit = <17>;
 	usb-reset-bit = <2>;
+	u2-ctrl-sleep-shift = <17>;
+	u2-hhi-mem-pd-shift = <30>;
+	u2-hhi-mem-pd-mask = <0x3>;
+	u2-ctrl-iso-shift = <17>;
 	pll-setting-1 = <0x09400414>;
 	pll-setting-2 = <0x927E0000>;
-	pll-setting-3 = <0xac5f49e5>;
+	pll-setting-3 = <0xac5f69e5>;
 	pll-setting-4 = <0xfe18>;
 	pll-setting-5 = <0x8000fff>;
 	pll-setting-6 = <0x78000>;
