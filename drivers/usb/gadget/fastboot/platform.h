@@ -19,6 +19,9 @@
 #define PORT_REG_OFFSET   0
 #endif
 
+#if (defined AML_USB_V2)
+#define DWC_REG_BASE   0xff500000
+#else
 #if (defined AML_TXLX_USB)
 #if ((defined CONFIG_USB_XHCI_HCD))
 #define DWC_REG_BASE   0xff400000
@@ -30,6 +33,7 @@
 #define DWC_REG_BASE   0xc9100000
 #else
 #define DWC_REG_BASE  (0xC9000000 + PORT_REG_OFFSET)
+#endif
 #endif
 #endif
 

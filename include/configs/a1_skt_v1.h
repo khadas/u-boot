@@ -518,6 +518,7 @@
 #define USB_G12x_PHY_PLL_SETTING_5	(0xe000c)
 
 #define AML_TXLX_USB        1
+#define AML_USB_V2             1
 
 /* UBOOT fastboot config */
 #if 0
