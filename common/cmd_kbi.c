@@ -79,7 +79,7 @@
 #define BOARD_DETECT_ADC_DEVIATION      10
 #define BOARD_DETECT_ADC_VALUE_EDGE     1024
 #define BOARD_DETECT_ADC_VALUE_EDGEV    204
-#define BOARD_DETECT_ADC_VALUE_CAPTAIN  17
+#define BOARD_DETECT_ADC_VALUE_CAPTAIN  170
 
 #define BOARD_TYPE_UNKNOW   0   /* Unknow board */
 #define BOARD_TYPE_EDGE     1   /* Single Edge Board */
@@ -347,7 +347,7 @@ static char detect_board(void)
 	} else {
 		board_type = BOARD_TYPE_UNKNOW;
 	}
-	printf("board type = %s (%d)\n", board_type_to_string(board_type), board_type);
+	printf("board type = %s (%d)(val=%d)\n", board_type_to_string(board_type), board_type, val);
 
 	sprintf(str, "%d", board_type);
 	setenv("board_type", str);
