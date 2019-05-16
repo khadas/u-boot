@@ -201,6 +201,12 @@ int f_dwc_core_init()
     return 0;
 }
 
+void f_dwc_otg_pullup(int is_on)
+{
+    if (is_on)
+        dwc_modify_reg32(DWC_REG_DCTL,2,0);// connect data line
+    else dwc_modify_reg32(DWC_REG_DCTL,0,2);// disconnect data line
+}
 
 
 int usb_pcd_irq_loop()
