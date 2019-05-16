@@ -16,20 +16,6 @@ config NAND_DENALI
 	select SYS_NAND_SELF_INIT
 	imply CMD_NAND
 
-config SPI_NAND
-	bool "Enable SPI NAND DRIVER"
-	depends on MTD && AML_SPIFC
-	help
-	  This option, if enabled, SOC can support SPI-NAND flash
-	  driver.
-
-config AML_MTDPART
-	bool "Enable Amlogic partition"
-	depends on MTD
-	help
-	  This option, if enabled, we will parse amlogic partition
-	  table.
-
 config NAND_DENALI_DT
 	bool "Support Denali NAND controller as a DT device"
 	select NAND_DENALI
@@ -181,20 +167,6 @@ config NAND_ZYNQ_USE_BOOTLOADER1_TIMINGS
 	help
 	  This flag prevent U-boot reconfigure NAND flash controller and reuse
 	  the NAND timing from 1st stage bootloader.
-
-config MESON_NFC
-	bool "Support for NAND on Amlogic SoCs"
-	depends on ARCH_MESON && MTD
-	help
-		This option, if enabled, support for MESON Nand flash controller.
-
-config AML_MTD
-	bool "support AML MTD for Raw NAND or SPI NAND or SPI NOR"
-	default y if MESON_NFC
-	default y if SPI_NAND
-	default y if SPI_FLASH
-	help
-		This option, if enabled, support for AML MTD
 
 comment "Generic NAND options"
 

@@ -29,6 +29,9 @@
 #include <linux/sizes.h>
 
 #include "mtdcore.h"
+#ifdef CONFIG_AML_MTDPART
+#include <jffs2/load_kernel.h>
+#endif
 
 #ifndef __UBOOT__
 static DEFINE_MUTEX(mtd_partitions_mutex);
@@ -861,6 +864,10 @@ EXPORT_SYMBOL_GPL(mtd_del_partition);
  * We don't register the master, or expect the caller to have done so,
  * for reasons of data integrity.
  */
+#ifdef CONFIG_AML_MTDPART
+static struct mtd_info **aml_partitions;
+static int aml_nbparts = 0;
+#endif
 
 int add_mtd_partitions(struct mtd_info *master,
 		       const struct mtd_partition *parts,
@@ -870,6 +877,10 @@ int add_mtd_partitions(struct mtd_info *master,
 	uint64_t cur_offset = 0;
 	int i;
 
+#ifdef CONFIG_AML_MTDPART
+	aml_partitions = kzalloc(nbparts * sizeof(slave), GFP_KERNEL);
+	aml_nbparts = nbparts;
+#endif
 	printk("Creating %d MTD partitions on \"%s\":\n", nbparts, master->name);
 
 	for (i = 0; i < nbparts; i++) {
@@ -880,7 +891,9 @@ int add_mtd_partitions(struct mtd_info *master,
 		mutex_lock(&mtd_partitions_mutex);
 		list_add_tail(&slave->node, &master->partitions);
 		mutex_unlock(&mtd_partitions_mutex);
-
+#ifdef CONFIG_AML_MTDPART
+		aml_partitions[i] = slave;
+#endif
 		add_mtd_device(slave);
 
 		cur_offset = slave->offset + slave->size;
@@ -1032,35 +1045,38 @@ int mtdparts_init(void)
 	return 0;
 #endif
 	static int init_flag = 0;
-	struct mtd_part *part;
+	struct mtd_info *part;
 	struct part_info *temp;
 	struct mtd_device *dev, *dentry;
+	int i;
 
 	if (init_flag) {
 		debug("%s %d part already init\n", __func__, __LINE__);
 		return 0;
 	}
 	INIT_LIST_HEAD(&aml_device);
-	list_for_each_entry(part, &mtd_partitions, list) {
+	for (i = 0; i < aml_nbparts; i++) {
+		part = aml_partitions[i];
 		dev = kzalloc(sizeof(*dev), GFP_KERNEL);
 		dev->num_parts = 1;
 		dev->id = kzalloc(sizeof(*dev->id), GFP_KERNEL);
-		if (part->mtd.type == MTD_NANDFLASH)
+		if (part->type == MTD_NANDFLASH)
 			dev->id->type = MTD_DEV_TYPE_NAND;
-		else if (part->mtd.type == MTD_NORFLASH)
+		else if (part->type == MTD_NORFLASH)
 			dev->id->type = MTD_DEV_TYPE_NOR;
 		else
 			dev->id->type = 0;
-		dev->id->size = part->mtd.size;
+		dev->id->size = part->size;
 		dev->id->num = 0;
 #ifdef CONFIG_MESON_NFC
-		if (strcmp(part->mtd.name, "bootloader"))
+		if (strcmp(part->name, "bootloader"))
 			dev->id->num = 1;
 #endif
 		temp = kzalloc(sizeof(*temp), GFP_KERNEL);
-		temp->name = part->mtd.name;
+		temp->name = part->name;
+
 		temp->offset = part->offset;
-		temp->size = part->mtd.size;
+		temp->size = part->size;
 		temp->dev = dev;
 		INIT_LIST_HEAD(&dev->parts);
 		list_add(&temp->link, &dev->parts);
