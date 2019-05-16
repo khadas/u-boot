@@ -48,6 +48,9 @@ void free_partitions(void)
 	part_table = NULL;
 }
 
+#ifndef IS_FEAT_BOOT_VERIFY
+#define IS_FEAT_BOOT_VERIFY() 0
+#endif// #ifndef IS_FEAT_BOOT_VERIFY
 
 /*
   return 0 if dts is valid

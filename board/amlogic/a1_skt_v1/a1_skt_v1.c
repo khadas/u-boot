@@ -33,6 +33,7 @@
 #include <asm-generic/gpio.h>
 #include <dm.h>
 #include <asm/armv8/mmu.h>
+#include <amlogic/aml_v3_burning.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -87,6 +88,10 @@ int active_a1_clk(void)
 int board_init(void)
 {
 	printf("board init\n");
+#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
+	if ((0x1b8ec003 != readl(SYSCTRL_STICKY_REG2)) && (0x1b8ec004 != readl(SYSCTRL_STICKY_REG2)))
+	{ aml_v3_factory_usb_burning(0, gd->bd); }
+#endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 	active_a1_clk();
 
