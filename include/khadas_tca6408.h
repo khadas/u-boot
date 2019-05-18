@@ -24,6 +24,8 @@
 #define TCA_ALL_MASK        (0xFF)
 
 int tca6408_gpio_init(void);
+int tca6408_output_set_value(u8 value, u8 mask);
+int tca6408_get_value(u8 *value, u8 mask);
 
 #endif
 
