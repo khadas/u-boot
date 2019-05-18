@@ -66,8 +66,22 @@ static int tca6408_read_reg(u8 reg, u8 *val)
 int tca6408_output_set_value(u8 value, u8 mask)
 {
 	int error;
+	u8 reg;
 
 	debug_info("%s, value = 0x%x, mask = 0x%x\n", __func__ ,value, mask);
+
+	// set direction output
+	error = tca6408_read_reg(TCA6408_DIRECTION, &reg);
+	if (error)
+		return error;
+
+	reg &= ~(mask);
+
+	error = tca6408_write_reg(TCA6408_DIRECTION, reg);
+	if (error)
+		return error;
+
+	// read value
 	error = tca6408_read_reg(TCA6408_OUTPUT, &chip.reg_output);
 	if (error)
 		return error;
@@ -97,13 +111,40 @@ int tca6408_output_get_value(u8 *value)
 	return 0;
 }
 
+// read GPIO
+int tca6408_get_value(u8 *value, u8 mask)
+{
+	int error;
+	u8 reg;
+
+	// set direction input
+	error = tca6408_read_reg(TCA6408_DIRECTION, &reg);
+	if (error)
+		return error;
+
+	reg |= mask;
+
+	error = tca6408_write_reg(TCA6408_DIRECTION, reg);
+	if (error)
+		return error;
+
+	// read value
+	error = tca6408_read_reg(TCA6408_INPUT, &reg);
+	if (error)
+		return error;
+
+	*value = (reg & mask) ? 1 : 0;
+
+	return 0;
+}
+
 static int tca6408_setup_registers(struct tca6408_gpio_chip *chip)
 {
 	int error;
 
 	debug_info("%s\n", __func__);
 
-	/* ensure that keypad pins are set to input */
+	/* ensure that keypad pins are set to output */
 	error = tca6408_write_reg(TCA6408_DIRECTION, 0x00);
 	if (error)
 		return error;
