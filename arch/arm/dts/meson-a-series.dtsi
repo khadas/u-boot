@@ -453,9 +453,7 @@
 
 		saradc: adc@ff809000 {
 			compatible = "amlogic,meson-saradc";
-			reg = <0x0 0xff809000 0x0 0x48>;
-			#io-channel-cells = <1>;
-			interrupts = <GIC_SPI 200 IRQ_TYPE_EDGE_RISING>;
+			reg = <0x0 0xfe002c00 0x0 0x48>;
 			status = "disabled";
 		};
 

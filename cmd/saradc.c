@@ -12,7 +12,7 @@
 #include <common.h>
 #include <command.h>
 #include <dm/uclass.h>
-#include <asm/arch/saradc.h>
+#include <amlogic/saradc.h>
 
 #define ENV_SARADC_VALUE "saradc_val"
 
@@ -182,6 +182,5 @@ U_BOOT_CMD(
 	"saradc close  - close the SARADC\n"
 	"saradc getval - get the value in current channel\n"
 	"saradc test   - test the SARADC by channel-7\n"
-	"saradc get_in_range <min> <max> - \
-		return 0 if current value in the range of current channel\n"
+	"saradc get_in_range <min> <max> - return 0 if current value in the range of current channel\n"
 );

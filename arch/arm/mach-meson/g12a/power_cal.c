@@ -22,7 +22,7 @@
 #include <common.h>
 #include <asm/arch/secure_apb.h>
 #include <asm/arch/io.h>
-#include <asm/arch/saradc.h>
+#include <amlogic/saradc.h>
 #include <asm/arch/mailbox.h>
 
 #define P_EE_TIMER_E		(*((volatile unsigned *)(0xffd00000 + (0x3c62 << 2))))

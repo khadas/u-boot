@@ -158,14 +158,11 @@
 
 &saradc {
 	compatible = "amlogic,meson-g12a-saradc", "amlogic,meson-saradc";
-	clocks = <&xtal>;
-	/*
-		 //<&clkc CLKID_SAR_ADC>,
-		 //<&clkc CLKID_SANA>,
-		 //<&clkc CLKID_SAR_ADC_CLK>,
-		 //<&clkc CLKID_SAR_ADC_SEL>;*/
-	clock-names = "clkin";
-	//"core", "sana", "adc_clk", "adc_sel";
+	clocks = <&xtal>,
+		 <&clkc CLKID_SARADC_MUX>,
+		 <&clkc CLKID_SARADC_DIV>,
+		 <&clkc CLKID_SAR_ADC_GATE>;
+	clock-names = "xtal", "adc_mux", "adc_div", "adc_gate";
 };
 
 &sd_emmc_a {
