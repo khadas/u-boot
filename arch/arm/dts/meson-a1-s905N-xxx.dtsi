@@ -23,7 +23,6 @@
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
 		i2c3 = &i2c3;
-		i2c4 = &i2c_AO;
 	};
 
 	chosen {
@@ -261,8 +260,8 @@
 	max-io = <4>;
 	max-cs = <2>;
 	/*cs-gpios = <&gpio BOOT_14 GPIO_ACTIVE_HIGH>;*/
-	clocks = <&clkc CLKID_CLK81>;
-	clock-names = "core";
+	//clocks = <&clkc CLKID_CLK81>;
+	//clock-names = "core";
 };
 
 &spicc1 {

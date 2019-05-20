@@ -63,11 +63,33 @@ int board_eth_init(bd_t *bis)
 	return 0;
 }
 
+int active_a1_clk(void)
+{
+	struct udevice *a1_clk = NULL;
+	int err;
+
+	err = uclass_get_device_by_name(UCLASS_CLK,
+			"xtal-clk", &a1_clk);
+	if (err) {
+		pr_err("Can't find xtal-clk clock (%d)\n", err);
+		return err;
+	}
+	err = uclass_get_device_by_name(UCLASS_CLK,
+			"clock-controller@0", &a1_clk);
+	if (err) {
+		pr_err("Can't find clock-controller@0 clock (%d)\n", err);
+		return err;
+	}
+
+	return 0;
+}
 
 int board_init(void)
 {
 	printf("board init\n");
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
+	active_a1_clk();
+
 	return 0;
 }
 
