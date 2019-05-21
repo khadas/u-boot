@@ -65,7 +65,7 @@
 
 	emmc_pwrseq: emmc-pwrseq {
 		compatible = "mmc-pwrseq-emmc";
-		reset-gpios = <&gpio BOOT_9 GPIO_ACTIVE_LOW>;
+		/*reset-gpios = <&gpio BOOT_9 GPIO_ACTIVE_LOW>;*/
 	};
 
 	wifi32k: wifi32k {
@@ -125,8 +125,8 @@
 /* SD card */
 &sd_emmc_b {
 	status = "okay";
-	pinctrl-0 = <&sd_all_pins>;
-	pinctrl-names = "default";
+	/*pinctrl-0 = <&sd_all_pins>;*/
+	/*pinctrl-names = "default";*/
 
 	bus-width = <4>;
 	cap-sd-highspeed;
@@ -143,8 +143,8 @@
 /* eMMC */
 &sd_emmc_c {
 	status = "okay";
-	pinctrl-0 = <&emmc_conf_pull_up &emmc_conf_pull_done>;
-	pinctrl-names = "default";
+	/* pinctrl-0 = <&emmc_conf_pull_up &emmc_conf_pull_done>; */
+	/* pinctrl-names = "default"; */
 
 	bus-width = <8>;
 	cap-sd-highspeed;
@@ -169,10 +169,10 @@
 /* nand */
 &nand {
 	status = "okay";
-	pinctrl-names = "default", "nand_all_pins", "nand_cs_only";
-	pinctrl-0 = <&all_nand_pins>;
-	pinctrl-1 = <&all_nand_pins>;
-	pinctrl-2 = <&nand_cs_pins>;
+	/* pinctrl-names = "default", "nand_all_pins", "nand_cs_only"; */
+	/* pinctrl-0 = <&all_nand_pins>; */
+	/* pinctrl-1 = <&all_nand_pins>; */
+	/* pinctrl-2 = <&nand_cs_pins>;  */
 
 	/*
 	#address-cells = <1>;
@@ -230,44 +230,44 @@
 	status = "okay";
 	portnum = <0>;
 	gpio-vbus-power = "GPIOH_6";
-	gpios = <&gpio GPIOH_6 GPIO_ACTIVE_HIGH>;
+	/*gpios = <&gpio GPIOH_6 GPIO_ACTIVE_HIGH>;*/
 };
 
 &pwm_ef {
 	status = "okay";
 	/* pinctrl-0 = <&pwm_e_pins>; */
-	pinctrl-names = "default";
+	/* pinctrl-names = "default"; */
 };
 
 /* This is connected to the Bluetooth module: */
 &uart_A {
 	status = "okay";
-	pinctrl-0 = <&a_uart_pins>;
-	pinctrl-names = "default";
+	/* pinctrl-0 = <&a_uart_pins>; */
+	/* pinctrl-names = "default";  */
 	uart-has-rtscts;
 };
 
 &uart_AO {
 	status = "okay";
-	pinctrl-0 = <&ao_uart_pins>;
-	pinctrl-names = "default";
+	/* pinctrl-0 = <&ao_uart_pins>; */
+	/* pinctrl-names = "default";   */
 };
 
 &spifc {
 	status = "disabled";
-	pinctrl-names = "default";
-	pinctrl-0 = <&spifc_all_pins>;
+	/* pinctrl-names = "default"; */
+	/* pinctrl-0 = <&spifc_all_pins>; */
 	max-frequency = <80000000>;
 	max-io = <4>;
 	max-cs = <2>;
-	cs-gpios = <&gpio BOOT_14 GPIO_ACTIVE_HIGH>;
+	/*cs-gpios = <&gpio BOOT_14 GPIO_ACTIVE_HIGH>;*/
 	clocks = <&clkc CLKID_CLK81>;
 	clock-names = "core";
 };
 
 &spicc1 {
 	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&spicc1_pins>;
-	cs-gpios = <&gpio GPIOH_6 0>;
+	/* pinctrl-names = "default"; */
+	/* pinctrl-0 = <&spicc1_pins>; */
+	/*cs-gpios = <&gpio GPIOH_6 0>;*/
 };

@@ -67,6 +67,7 @@ int board_eth_init(bd_t *bis)
 int board_init(void)
 {
 	printf("board init\n");
+	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 	return 0;
 }
 

@@ -958,7 +958,6 @@ config CMD_PCMCIA
 
 config CMD_PINMUX
 	bool "pinmux - show pins muxing"
-	default y if PINCTRL
 	help
 	  Parse all available pin-controllers and show pins muxing. This
 	  is useful for debug purpoer to check the pin muxing and to know if

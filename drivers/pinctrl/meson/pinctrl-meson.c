@@ -429,7 +429,9 @@ int meson_pinctrl_probe(struct udevice *dev)
 		priv->reg_pullen = (void __iomem *)addr;
 	}
 
-	if (!check_string(gpio, "reg-names", "drive-strength")) {
+	if (check_string(gpio, "reg-names", "drive-strength")) {
+		priv->reg_drive = priv->reg_pullen;
+	} else {
 		addr = parse_address(gpio, "drive-strength", na, ns);
 		if (addr == FDT_ADDR_T_NONE) {
 			debug("drive address not found\n");
