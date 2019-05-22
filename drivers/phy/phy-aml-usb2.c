@@ -24,6 +24,8 @@
 #include <linux/ioport.h>
 
 #define RESET_COMPLETE_TIME				500
+#define MESON_CPU_MAJOR_ID_SM1	0x2B
+
 char name[32];
 
 struct phy_aml_usb2_priv {
@@ -113,8 +115,8 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 	int u2_iso_shift;
 	int u2_pd_shift;
 
-	phy_aml_usb2_check_rev();
-	if (phy_aml_usb2_get_rev_type() == MESON_CPU_MAJOR_ID_SM1) {
+	phy_aml_usb2_check_g12b_revb();
+	if (phy_aml_usb2_get_revb_type() == MESON_CPU_MAJOR_ID_SM1) {
 		u2_sleep_shift = dev_read_u32_default(phy->dev, "u2-ctrl-sleep-shift", -1);
 		if (usbphy_reset_bit != -1)
 			priv->u2_ctrl_sleep_shift = u2_sleep_shift;
