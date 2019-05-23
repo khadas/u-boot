@@ -397,10 +397,12 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 	}
 
 #ifdef CONFIG_USB_DEVICE_V2
+#if CONFIG_IS_ENABLED(DM_USB)
 	if (usb_hub_is_root_hub(dev->dev)) {
 		usb_tuning_port(dev, port);
 		mdelay(10);
 	}
+#endif
 #endif
 
 #if CONFIG_IS_ENABLED(DM_USB)

@@ -216,6 +216,8 @@ void f_set_usb_phy_config(void)
 	val = *(volatile uint32_t *)P_HHI_MEM_PD_REG0;
 	*(volatile uint32_t *)P_HHI_MEM_PD_REG0 = val & (~(0x3));
 
+	*(unsigned int *)(CLKTREE_USB_BUSCLK_CTRL) = 0x300;
+
 	if ((*(volatile uint32_t *)(USB_REG_B + 0x38)) != 0) {
 		set_usb_phy21_tuning_fb_reset();
 		mdelay(150);
