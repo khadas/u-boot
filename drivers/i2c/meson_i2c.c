@@ -45,6 +45,7 @@ struct i2c_regs {
 struct meson_i2c_data {
 	u8 delay_ajust;
 	u8 div_factor;
+	u32 clkin_rate;
 };
 
 struct meson_i2c {
@@ -229,14 +230,9 @@ static int meson_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 static int meson_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 {
 	struct meson_i2c *i2c = dev_get_priv(bus);
-	ulong clk_rate;
+	unsigned int clk_rate = i2c->data->clkin_rate;
 	unsigned int div;
 
-	clk_rate = clk_get_rate(&i2c->clk);
-	if (IS_ERR_VALUE(clk_rate))
-		return -EINVAL;
-
-	/* div = DIV_ROUND_UP(clk_rate, speed * 4); */
 	div = DIV_ROUND_UP(clk_rate, speed * i2c->data->div_factor);
 
 	/* clock divider has 12 bits */
@@ -298,16 +294,25 @@ static int meson_i2c_ofdata_to_platdata(struct udevice *dev)
 static const struct meson_i2c_data i2c_meson_meson6_data = {
 	.div_factor = 4,
 	.delay_ajust = 15,
+	.clkin_rate = MESON_I2C_CLK_RATE,
 };
 
 static const struct meson_i2c_data i2c_meson_gx_data = {
 	.div_factor = 4,
 	.delay_ajust = 15,
+	.clkin_rate = MESON_I2C_CLK_RATE,
 };
 
 static const struct meson_i2c_data i2c_meson_data = {
 	.div_factor = 3,
 	.delay_ajust = 15,
+	.clkin_rate = MESON_I2C_CLK_RATE,
+};
+
+static const struct meson_i2c_data i2c_meson_a1_data = {
+	.div_factor = 3,
+	.delay_ajust = 15,
+	.clkin_rate = 64000000,
 };
 
 static const struct dm_i2c_ops meson_i2c_ops = {
@@ -320,6 +325,7 @@ static const struct udevice_id meson_i2c_ids[] = {
 	{ .compatible = "amlogic,meson-gx-i2c", .data = (long)&i2c_meson_gx_data },
 	{ .compatible = "amlogic,meson-gxbb-i2c", .data = (long)&i2c_meson_gx_data },
 	{ .compatible = "amlogic,meson-i2c", .data = (long)&i2c_meson_data },
+	{ .compatible = "amlogic,meson-a1-i2c", .data = (long)&i2c_meson_a1_data },
 	{ }
 };
 
