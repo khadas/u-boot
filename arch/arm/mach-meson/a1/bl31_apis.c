@@ -259,6 +259,38 @@ void set_viu_probe_enable(void)
 			"smc #0\n"
 			:"+r"(x0));
 }
+
+void power_set_dsp(unsigned int id, unsigned int powerflag)
+{
+	register long x0 asm("x0") = DSP_SEC_POWERSET;
+	register long x1 asm("x1") = id;
+	register long x2 asm("x2") = powerflag;
+	asm volatile(
+			__asmeq("%0", "x0")
+			__asmeq("%1", "x1")
+			__asmeq("%2", "x2")
+			"smc	#0\n"
+		: "+r" (x0)
+		: "r" (x1), "r" (x2));
+}
+
+void init_dsp(unsigned int id,unsigned int addr,unsigned int cfg0)
+{
+	register long x0 asm("x0") = START_HIFI4;
+	register long x1 asm("x1") = id;
+	register long x2 asm("x2") = addr;
+	register long x3 asm("x3") = cfg0;
+	asm volatile(
+			__asmeq("%0", "x0")
+			__asmeq("%1", "x1")
+			__asmeq("%2", "x2")
+			__asmeq("%3", "x3")
+			"smc	#0\n"
+		: "+r" (x0)
+		: "r" (x1), "r" (x2), "r" (x3));
+}
+
+
 unsigned aml_reboot(uint64_t function_id, uint64_t arg0, uint64_t arg1, uint64_t arg2)
 {
 	register long x0 asm("x0") = function_id;

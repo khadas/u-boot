@@ -246,6 +246,19 @@ config CMD_BOOTEFI_HELLO
 	  for testing that EFI is working at a basic level, and for bringing
 	  up EFI support on a new architecture.
 
+
+config CMD_DSPRUN
+        bool "dsprun cmd"
+        default y
+        help
+          support dsprun cmd
+
+config CMD_DSPSET
+        bool "dspset cmd"
+        default y
+        help
+          support dspset cmd
+
 source lib/efi_selftest/Kconfig
 
 config CMD_BOOTMENU

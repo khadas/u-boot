@@ -182,6 +182,9 @@ obj-$(CONFIG_X86) += x86/
 obj-$(CONFIG_ARCH_MVEBU) += mvebu/
 endif # !CONFIG_SPL_BUILD
 
+obj-$(CONFIG_CMD_DSPRUN) += cmd_dsprun.o
+obj-$(CONFIG_CMD_DSPSET) += cmd_dspset.o
+
 # core command
 obj-y += nvedit.o
 

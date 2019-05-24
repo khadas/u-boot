@@ -101,6 +101,10 @@
 /* Secure HAL APIs */
 #define TRUSTZONE_HAL_API_SRAM                  0x400
 
+/*start hifi4 */
+#define START_HIFI4			0x82000090
+#define DSP_SEC_POWERSET		0x82000092
+
 
 #define SRAM_HAL_API_CHECK_EFUSE 0x403
 struct sram_hal_api_arg {
@@ -153,4 +157,6 @@ void bl31_get_chipid(unsigned int *, unsigned int *,
 	unsigned int *, unsigned int *);
 void set_viu_probe_enable(void);
 void wdt_send_cmd_to_bl31(uint64_t cmd, uint64_t value);
+void power_set_dsp(unsigned int id, unsigned int powerflag);
+void init_dsp(unsigned int id,unsigned int addr,unsigned int cfg0);
 #endif
