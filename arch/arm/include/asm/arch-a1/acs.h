@@ -35,6 +35,11 @@ typedef struct acs_setting{
 		unsigned short		ddr_set_length;		//length of ddr struct.
 		unsigned long		ddr_set_addr;		//address of ddr setting.
 
+		char				psram_magic[5];
+		unsigned char		psram_set_version;
+		unsigned short		psram_set_length;
+		unsigned long		psram_set_addr;
+
 		char				ddr_reg_magic[5];
 		unsigned char		ddr_reg_version;
 		unsigned short		ddr_reg_length;

@@ -229,6 +229,51 @@ typedef struct ddr_set{
 	/* v2 start */
 }__attribute__ ((packed)) ddr_set_t;
 
+typedef struct psram_set {
+	unsigned int	magic;
+	unsigned int	board_id;
+	/* align8 */
+	unsigned int	version;
+	unsigned char	psram_mr[12];
+	/* align8 */
+	unsigned char	psram_board_mask;
+	unsigned char	psram_amlogic_protocol_id;
+	unsigned char	psram_test_function[2];
+	unsigned char	psram_vendor_id;
+	unsigned char	psram_device_id;
+	unsigned char	psram_soc_drv;
+	unsigned char	psram_dram_drv;
+	/* align8 */
+	unsigned int	psram_ac_timing0;
+	unsigned int	psram_ac_timing1;
+	unsigned int	psram_ac_timing2;
+	unsigned int	psram_mode_crtl;
+	/* align8 */
+	unsigned short	psram_frequency;
+	unsigned short	psram_size;
+	unsigned int	psram_mode_crtl_bl33;
+	unsigned int	psram_pin_crtl;
+	unsigned int	psram_lcd_ctrl;
+	/* align8 */
+	unsigned char	psram_pin_dq_in_delay[8];
+	unsigned char	psram_pin_dq_out_delay[8];
+	unsigned char	psram_pin_dq_out_oe_delay[8];
+	/* align8 */
+	unsigned char	psram_pin_dm_out_delay;
+	unsigned char	psram_pin_dm_out_oe_delay;
+	unsigned char	psram_pin_cs_out_delay;
+	unsigned char	psram_pin_dqsp_in_delay;
+	unsigned char	psram_pin_dqsn_in_delay;
+	unsigned char	psram_pin_ckp_out_delay;
+	unsigned char	psram_pin_ckn_out_delay;
+	/* align8 */
+	unsigned char	psram_pin_rden_delay;
+	unsigned char	psram_bdlr_delay;
+	unsigned char	psram_reserve[6];
+
+	/* pls check alignment of each variable */
+}__attribute__ ((packed)) psram_set_t;
+
 typedef struct ddr_timing{
 	//Identifier
 	unsigned char  identifier;
