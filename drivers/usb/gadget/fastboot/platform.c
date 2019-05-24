@@ -224,7 +224,7 @@ void f_set_usb_phy_config(void)
 	}
 
 	//step 1: usb controller reset
-	*USB_RESET1 |= (1<<4);
+	*USB_RESET1 = (1<<4);
 
 	// step 3: enable usb INT internal USB
 	dev_usb_r0.d32	 = usb_aml_regs->usb_r0;
@@ -245,7 +245,7 @@ void f_set_usb_phy_config(void)
 
 	udelay(10);
 	//step 6: phy21 reset
-	*USB_RESET1 |= (1<<6);
+	*USB_RESET1 = (1<<6);
 
 	udelay(50);
 	// step 6: wait for phy ready
