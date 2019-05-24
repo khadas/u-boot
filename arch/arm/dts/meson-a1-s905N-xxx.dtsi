@@ -225,10 +225,10 @@
 	portnum = <1>;
 	phy20-reset-level-bit = <6>;
 	usb-reset-bit = <4>;
-	u2-ctrl-sleep-shift = <0x24>;
+	u2-ctrl-sleep-shift = <24>;
 	u2-hhi-mem-pd-shift = <0x0>;
 	u2-hhi-mem-pd-mask = <0x3>;
-	u2-ctrl-iso-shift = <0x24>;
+	u2-ctrl-iso-shift = <24>;
 	pll-setting-1 = <0x09400414>;
 	pll-setting-2 = <0x927E0000>;
 	pll-setting-3 = <0xac5f69e5>;

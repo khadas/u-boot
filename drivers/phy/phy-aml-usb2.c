@@ -114,7 +114,7 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 	u2p_r0_t dev_u2p_r0;
 	u2p_r1_t dev_u2p_r1;
 	int i;
-	int cnt, u2portnum, node, rev_type;
+	int cnt, node, rev_type;
 	int time_dly = RESET_COMPLETE_TIME;
 	int usbphy_reset_bit[8] = {0};
 	int usbctrl_reset_bit;
@@ -122,6 +122,7 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 	int u2_mem_pd_mask;
 	int u2_iso_shift;
 	int u2_pd_shift;
+	uint32 u2portnum = 0;
 
 	phy_aml_usb2_check_rev();
 	rev_type = phy_aml_usb2_get_rev_type();
@@ -163,6 +164,15 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 		return -1;
 	}
 
+	dev_read_u32(phy->dev, "portnum", &u2portnum);
+	priv->u2_port_num = u2portnum;
+
+	priv->clktree_usb_bus_ctrl = dev_read_addr_index(phy->dev, 2 + u2portnum);
+	if (priv->clktree_usb_bus_ctrl == FDT_ADDR_T_NONE)
+		pr_err("Coun't get clktree_usb_bus_ctrl addr index %d\n", 2 + u2portnum);
+	else
+		*(volatile unsigned long *)priv->clktree_usb_bus_ctrl |= (1 << 8) | (1 << 9);
+
 	usbctrl_reset_bit = dev_read_u32_default(phy->dev, "usb-reset-bit", -1);
 	if (usbctrl_reset_bit != -1)
 		priv->usbctrl_reset_bit = usbctrl_reset_bit;
@@ -171,8 +181,6 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 	*(volatile unsigned long *)priv->reset_addr |= (1 << priv->usbctrl_reset_bit);
 
 	udelay(time_dly);
-	dev_read_u32(phy->dev, "portnum", &u2portnum);
-	priv->u2_port_num = u2portnum;
 
 	for (i = 0; i < u2portnum; i++) {
 		memset(name, 0, 32 * sizeof(char));
@@ -191,12 +199,6 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 			return -1;
 		}
 	}
-
-	priv->clktree_usb_bus_ctrl = dev_read_addr_index(phy->dev, 2 + u2portnum);
-	if (priv->clktree_usb_bus_ctrl == FDT_ADDR_T_NONE)
-		pr_err("Coun't get clktree_usb_bus_ctrl addr index %d\n", 2 + u2portnum);
-	else
-		*(volatile unsigned long *)priv->clktree_usb_bus_ctrl |= (1 << 8) | (1 << 9);
 
 	priv->base_addr = dev_read_addr(phy->dev);
 

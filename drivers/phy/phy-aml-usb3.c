@@ -47,7 +47,7 @@ static int phy_aml_usb3_power_on(struct phy *phy){
 	ret = dm_gpio_lookup_name(usb_vbus_gpioname, &desc);
 	if (ret) {
 		printf("%s: not found\n", usb_vbus_gpioname);
-		return ret;
+		return 0;
 	}
 
 	ret = dm_gpio_request(&desc, usb_vbus_gpioname);
@@ -61,7 +61,7 @@ static int phy_aml_usb3_power_on(struct phy *phy){
 	ret = dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
 	if (ret) {
 		pr_err("%s: failed to set direction\n", usb_vbus_gpioname);
-		return ret;
+		return 0;
 	}
 
 		dm_gpio_set_value(&desc, 1);
