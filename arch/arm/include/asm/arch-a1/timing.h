@@ -156,12 +156,24 @@ typedef struct ddr_set{
 	//#define DDR_RFC_TYPE_LPDDR4_2Gbx1				9
 	//#define DDR_RFC_TYPE_LPDDR4_3Gbx1				10
 	//#define DDR_RFC_TYPE_LPDDR4_4Gbx1				11
-	unsigned	char	reverse_3;
+	unsigned	char	enable_lpddr4x_mode;
 	//system reserve,do not modify
 	/* align8 */
 
 	unsigned	int		pll_ssc_mode;
-	//system reserve,do not modify
+	//
+	/* pll ssc config:
+	 *
+	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
+	 *      ppm = strength * 500
+	 *      mode: 0=center, 1=up, 2=down
+	 *
+	 *   eg:
+	 *     1. config 1000ppm center ss. then mode=0, strength=2
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
+	 *     2. config 3000ppm down ss. then mode=2, strength=6
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
+	 */
 	unsigned	short	clk_drv_ohm;
 	//config soc clk pin signal driver stength ,select 20,30,40,60ohm
 	unsigned	short	cs_drv_ohm;
@@ -191,22 +203,28 @@ typedef struct ddr_set{
 	unsigned	short	soc_data_slew_rate;
 	//system reserve,do not modify
 	unsigned	short	vref_output_permil; //phy
-	//system reserve,do not modify
+	//setting same with vref_dram_permil
 	unsigned	short	vref_receiver_permil; //soc
-	//soc init SOC receiver vref ,config like 500 means 0.5VDDQ
+	//soc init SOC receiver vref ,config like 500 means 0.5VDDQ,take care ,please follow SI
 	unsigned	short	vref_dram_permil;
-	//soc init DRAM receiver vref ,config like 500 means 0.5VDDQ
-	unsigned	short	vref_reverse;
-	//system reserve,do not modify
+	//soc init DRAM receiver vref ,config like 500 means 0.5VDDQ,take care ,please follow SI
+	unsigned	short	max_core_timmming_frequency;
+	//use for limited ddr speed core timmming parameter,for some old dram maybe have no over speed register
 	/* align8 */
 
-	unsigned	char	ac_trace_delay[12];
-	//system reserve,do not modify
+	unsigned	char	ac_trace_delay[10];
+	unsigned	char	lpddr4_dram_vout_voltage_1_3_2_5_setting;
+	unsigned	char	lpddr4_x8_mode;
+	//system reserve,do not modify ,take care ,please follow SI
 	unsigned	char	ac_pinmux[DWC_AC_PINMUX_TOTAL];
-	//system reserve,do not modify
+	//use for lpddr3 /lpddr4 ca pinmux remap
 	unsigned	char	dfi_pinmux[DWC_DFI_PINMUX_TOTAL];
+	unsigned	char	slt_test_function[2];  //[0] slt test function enable,bit 0 enable 4 frequency scan,bit 1 enable force delay line offset ,bit 7 enable skip training function
+	//[1],slt test parameter ,use for force delay line offset
 	//system reserve,do not modify
-	unsigned	char	rsv_char1[6];
+	unsigned	short	dq_bdlr_org;
+	unsigned	char	dram_data_wr_odt_ohm;
+	unsigned	char	bitTimeControl_2d;
 	//system reserve,do not modify
 	/* align8 */
 
@@ -214,9 +232,9 @@ typedef struct ddr_set{
 	//system reserve,do not modify
 	/* align8 */
 	unsigned char		ddr_lpddr34_ca_remap[4];
-	//system reserve,do not modify
+	////use for lpddr3 /lpddr4 ca training data byte lane remap
 	unsigned	char	ddr_lpddr34_dq_remap[32];
-	//system reserve,do not modify
+	////use for lpddr3 /lpddr4 ca pinmux remap
 	unsigned	int		dram_rtt_nom_wr_park[2];
 	//system reserve,do not modify
 	unsigned	int		ddr_func;
@@ -225,8 +243,17 @@ typedef struct ddr_set{
 
 	unsigned	long	rsv_long0[2];
 	/* v1 end */
+	unsigned	char	read_dqs_delay[16];
+	unsigned	char	read_dq_bit_delay[72];
+	unsigned	short	write_dqs_delay[16];
+	unsigned	short	write_dq_bit_delay[72];
+	unsigned	short	read_dqs_gate_delay[16];
+	unsigned	char	dq_dqs_delay_flag;//read_dqs  read_dq,write_dqs, write_dq
+	unsigned	char	dfi_mrl;
+	unsigned	char	dfi_hwtmrl;
+	unsigned	char	ARdPtrInitVal;
 
-	/* v2 start */
+	//override read bit delay
 }__attribute__ ((packed)) ddr_set_t;
 
 typedef struct psram_set {
