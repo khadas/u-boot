@@ -27,7 +27,5 @@ ifndef CONFIG_AML_RPMB_DISABLE
 obj-y += cmd_rpmb.o
 endif
 obj-y += cmd_avb.o
-obj-$(CONFIG_AML_TSENSOR) += cmd_tsensor.o
-obj-$(CONFIG_AML_OSCRING) += cmd_ringmsr.o
 obj-$(CONFIG_CMD_DDR_D2PLL) += cmd_d2pll.o
 obj-$(CONFIG_CMD_DDR_TEST) += cmd_ddr_test.o

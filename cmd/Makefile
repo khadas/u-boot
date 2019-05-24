@@ -188,6 +188,10 @@ obj-y += nvedit.o
 obj-$(CONFIG_TI_COMMON_CMD_OPTIONS) += ti/
 obj-$(CONFIG_AML_DRIVER) += amlogic/
 
+obj-$(CONFIG_AML_TSENSOR) += amlogic/cmd_tsensor.o
+obj-$(CONFIG_AML_OSCRING) += amlogic/cmd_ringmsr.o
+
+
 filechk_data_gz = (echo "static const char data_gz[] ="; cat $< | scripts/bin2c; echo ";")
 
 filechk_data_size = \

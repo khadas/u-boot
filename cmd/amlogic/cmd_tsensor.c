@@ -17,14 +17,11 @@ static int do_temp_triming(cmd_tbl_t *cmdtp, int flag1, int argc, char * const a
 		printf("too little args for temp triming!!\n");
 		return CMD_RET_USAGE;
 	}
-
 	temp_base = simple_strtoul(argv[1], NULL, 10);
 	printf("set base temperature: %d\n", temp_base);
-
 	ver = simple_strtoul(argv[2], NULL, 16);
 	ret = temp_trim_entry(temp_base, ver);
-	if (!ret)
-		printf("temperature triming error %x\n", ret);
+	printf("temperature triming %x\n", ret);
 	return ret;
 }
 
@@ -52,21 +49,14 @@ static char temp_trim_help_text[] =
 	"  - [ver]: [decimal]only for New thermal sensor\n"
 	"           BBT: OPS socket board, which can change chips\n"
 	"	    online: reference boards witch chip mounted\n"
-	"	AXG or TXHD:\n"
-	"           5  (0101)b: BBT, thermal0\n"
-	"           6  (0110)b: BBT, thermal1\n"
-	"           7  (0111)b: BBT, thermal01\n"
-	"           d  (1101)b: online, thermal0\n"
-	"           e  (1110)b: online, thermal1\n"
-	"           f  (1111)b: online, thermal01\n"
 	" 	G12A or G12B:\n"
 	"	    88	(10001000)b: BBT-SW, thermal1 thermal2, valid thermal cali data\n"
 	"	    89	(10001001)b: BBT-OPS, thermal1 thermal2, valid thermal cali data\n"
-	"	    8b	(10001001)b: SLT, thermal1 thermal2, valid thermal cali data\n"
-	" 	TL1:\n"
-	"	    8c	(10001001)b: BBT-SW, thermal1 ~ 3, valid thermal cali data\n"
-	"	    8d	(10001001)b: BBT-OPS, thermal1 ~ 3, valid thermal cali data\n"
-	"	    8f	(10001001)b: SLT, thermal1 ~ 3, valid thermal cali data\n";
+	"	    8b	(10001011)b: SLT, thermal1 thermal2, valid thermal cali data\n"
+	" 	A1:\n"
+	"	    84	(10000100)b: BBT-SW, thermal1, valid thermal cali data\n"
+	"	    85	(10000101)b: BBT-OPS, thermal1, valid thermal cali data\n"
+	"	    87	(10000111)b: SLT, thermal1, valid thermal cali data\n";
 
 U_BOOT_CMD(
 	temp_triming,	5,	1,	do_temp_triming,
