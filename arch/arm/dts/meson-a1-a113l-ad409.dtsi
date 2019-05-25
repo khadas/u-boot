@@ -14,8 +14,8 @@
 
 / {
 	aliases {
-		serial0 = &uart_a;
-		serial1 = &uart_b;
+		serial0 = &uart_b;
+		serial1 = &uart_a;
 		spi0 = &spifc;
 		spi1 = &spicc0;
 		spi2 = &spicc1;
