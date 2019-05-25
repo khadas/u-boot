@@ -41,7 +41,7 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "meson-ax.dtsi"
+#include "meson-a-series.dtsi"
 #include <dt-bindings/gpio/meson-a1-gpio.h>
 #include <dt-bindings/reset/amlogic,meson-gxbb-reset.h>
 
@@ -89,7 +89,7 @@
 	};
 };
 
-&aobus {
+&cbus {
 	pinctrl_periphs: pinctrl@0400 {
 		compatible = "amlogic,meson-a1-periphs-pinctrl";
 		#address-cells = <2>;

@@ -43,16 +43,20 @@
 
 /dts-v1/;
 
-#include "meson-a1-s905N-xxx.dtsi"
+#include "meson-a1-a113l-ad409.dtsi"
 #include "meson-a1_skt-panel.dtsi"
 
 / {
-	compatible = "amlogic,u200", "amlogic,s905d2", "amlogic,meson-g12a";
-	model = "Amlogic Meson G12A (S905D2) U200 Development Board";
+	compatible = "amlogic,ad409", "amlogic,a113l", "amlogic,meson-a1";
+	model = "Amlogic Meson A1 AD409 Development Board";
 };
 
 /* This UART is brought out to the DB9 connector */
-&uart_AO {
+&uart_a {
+	status = "okay";
+};
+
+&uart_b {
 	status = "okay";
 };
 

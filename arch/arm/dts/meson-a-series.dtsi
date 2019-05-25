@@ -214,12 +214,86 @@
 		#size-cells = <2>;
 		ranges;
 
-		cbus: cbus@ffd00000 {
+		gic: interrupt-controller@2c001000 {
+			compatible = "arm,gic-400";
+			reg = <0x0 0xffc01000 0 0x1000>,
+			      <0x0 0xffc02000 0 0x2000>,
+			      <0x0 0xffc04000 0 0x2000>,
+			      <0x0 0xffc06000 0 0x2000>;
+			interrupt-controller;
+			interrupts = <GIC_PPI 9
+				(GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_HIGH)>;
+			#interrupt-cells = <3>;
+			#address-cells = <0>;
+		};
+
+		sram: sram@fffa0000 {
+			compatible = "amlogic,meson-gx-sram", "amlogic,meson-gxbb-sram", "mmio-sram";
+			reg = <0x0 0xfffa0000 0x0 0x48000>;
+
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges = <0 0x0 0xfffa0000 0x48000>;
+
+			cpu_scp_lpri: scp-shmem@0 {
+				compatible = "amlogic,meson-gx-scp-shmem", "amlogic,meson-gxbb-scp-shmem";
+				reg = <0x47000 0x400>;
+			};
+
+			cpu_scp_hpri: scp-shmem@200 {
+				compatible = "amlogic,meson-gx-scp-shmem", "amlogic,meson-gxbb-scp-shmem";
+				reg = <0x47400 0x400>;
+			};
+		};
+
+		cbus: cbus@fe000000 {
 			compatible = "simple-bus";
-			reg = <0x0 0xffd00000 0x0 0x26000>;
+			reg = <0x0 0xfe000000 0x0 0x8000>;
 			#address-cells = <2>;
 			#size-cells = <2>;
-			ranges = <0x0 0x0 0x0 0xffd00000 0x0 0x26000>;
+			ranges = <0x0 0x0 0x0 0xfe000000 0x0 0x8000>;
+
+			uart_a: serial@1c00 {
+				compatible = "amlogic,meson-uart";
+				reg = <0x0 0x1c00 0x0 0x14>;
+				clocks = <&xtal>;
+				status = "disabled";
+			};
+
+			uart_b: serial@2000 {
+				compatible = "amlogic,meson-uart";
+				reg = <0x0 0x2000 0x0 0x14>;
+				clocks = <&xtal>;
+				status = "disabled";
+			};
+
+			pwm_ab: pwm@2400 {
+				compatible = "amlogic,a1-pwm-ab";
+				reg = <0x0 0x2400  0x0 0x20>;
+				#pwm-cells = <3>;
+				status = "disabled";
+			};
+
+			pwm_cd: pwm@2800 {
+				compatible = "amlogic,a1-pwm-cd";
+				reg = <0x0 0x2800  0x0 0x20>;
+				#pwm-cells = <3>;
+				status = "disabled";
+			};
+
+			pwm_ef: pwm@5400 {
+				compatible = "amlogic,a1-pwm-ef";
+				reg = <0x0 0x5400  0x0 0x20>;
+				#pwm-cells = <3>;
+				status = "disabled";
+			};
+
+			ir: ir@8040 {
+				compatible = "amlogic,meson-gx-ir", "amlogic,meson-gxbb-ir";
+				reg = <0x0 0x8040 0x0 0x40>;
+				interrupts = <GIC_SPI 196 IRQ_TYPE_EDGE_RISING>;
+				status = "disabled";
+			};
 
 			reset: reset-controller@1000 {
 				compatible = "amlogic,meson-gx-reset", "amlogic,meson-gxbb-reset";
@@ -227,44 +301,7 @@
 				#reset-cells = <1>;
 			};
 
-			uart_A: serial@24000 {
-				compatible = "amlogic,meson-uart";
-				reg = <0x0 0x24000 0x0 0x18>;
-				interrupts = <GIC_SPI 26 IRQ_TYPE_EDGE_RISING>;
-				clocks = <&xtal>;
-				status = "disabled";
-			};
-
-			uart_B: serial@23000 {
-				compatible = "amlogic,meson-uart";
-				reg = <0x0 0x23000 0x0 0x18>;
-				interrupts = <GIC_SPI 75 IRQ_TYPE_EDGE_RISING>;
-				clocks = <&xtal>;
-				status = "disabled";
-			};
-
-			pwm_ab: pwm@1b000 {
-				compatible = "amlogic,g12a-ee-pwm";
-				reg = <0x0 0x1b000 0x0 0x20>;
-				#pwm-cells = <3>;
-				status = "disabled";
-			};
-
-			pwm_cd: pwm@1a000 {
-				compatible = "amlogic,g12a-ee-pwm";
-				reg = <0x0 0x1a000  0x0 0x20>;
-				#pwm-cells = <3>;
-				status = "disabled";
-			};
-
-			pwm_ef: pwm@19000 {
-				compatible = "amlogic,g12a-ee-pwm";
-				reg = <0x0 0x19000  0x0 0x20>;
-				#pwm-cells = <3>;
-				status = "disabled";
-			};
-
-			uart_C: serial@22000 {
+			uart_c: serial@22000 {
 				compatible = "amlogic,meson-uart";
 				reg = <0x0 0x22000 0x0 0x18>;
 				interrupts = <GIC_SPI 93 IRQ_TYPE_EDGE_RISING>;
@@ -316,83 +353,6 @@
 				reg = <0x0 0x0f0d0 0x0 0x10>;
 				clocks = <&xtal>;
 				clock-names = "wdt-clk";
-			};
-		};
-
-		gic: interrupt-controller@2c001000 {
-			compatible = "arm,gic-400";
-			reg = <0x0 0xffc01000 0 0x1000>,
-			      <0x0 0xffc02000 0 0x2000>,
-			      <0x0 0xffc04000 0 0x2000>,
-			      <0x0 0xffc06000 0 0x2000>;
-			interrupt-controller;
-			interrupts = <GIC_PPI 9
-				(GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_HIGH)>;
-			#interrupt-cells = <3>;
-			#address-cells = <0>;
-		};
-
-		sram: sram@fffa0000 {
-			compatible = "amlogic,meson-gx-sram", "amlogic,meson-gxbb-sram", "mmio-sram";
-			reg = <0x0 0xfffa0000 0x0 0x48000>;
-
-			#address-cells = <1>;
-			#size-cells = <1>;
-			ranges = <0 0x0 0xfffa0000 0x48000>;
-
-			cpu_scp_lpri: scp-shmem@0 {
-				compatible = "amlogic,meson-gx-scp-shmem", "amlogic,meson-gxbb-scp-shmem";
-				reg = <0x47000 0x400>;
-			};
-
-			cpu_scp_hpri: scp-shmem@200 {
-				compatible = "amlogic,meson-gx-scp-shmem", "amlogic,meson-gxbb-scp-shmem";
-				reg = <0x47400 0x400>;
-			};
-		};
-
-		aobus: aobus@fe000000 {
-			compatible = "simple-bus";
-			reg = <0x0 0xfe000000 0x0 0x100000>;
-			#address-cells = <2>;
-			#size-cells = <2>;
-			ranges = <0x0 0x0 0x0 0xfe000000 0x0 0x100000>;
-
-			uart_AO: serial@1c00 {
-				compatible = "amlogic,meson-uart";
-				reg = <0x0 0x1c00 0x0 0x14>;
-				interrupts = <GIC_SPI 193 IRQ_TYPE_EDGE_RISING>;
-				clocks = <&xtal>;
-				status = "disabled";
-			};
-
-			uart_AO_B: serial@4000 {
-				compatible = "amlogic,meson-uart";
-				reg = <0x0 0x4000 0x0 0x14>;
-				interrupts = <GIC_SPI 197 IRQ_TYPE_EDGE_RISING>;
-				clocks = <&xtal>;
-				status = "disabled";
-			};
-
-			pwm_AO_ab: pwm@7000 {
-				compatible = "amlogic,g12a-ao-pwm";
-				reg = <0x0 0x7000  0x0 0x20>;
-				#pwm-cells = <3>;
-				status = "disabled";
-			};
-
-			pwm_AO_cd: pwm@2000 {
-				compatible = "amlogic,g12a-ao-pwm";
-				reg = <0x0 0x2000  0x0 0x20>;
-				#pwm-cells = <3>;
-				status = "disabled";
-			};
-
-			ir: ir@8040 {
-				compatible = "amlogic,meson-gx-ir", "amlogic,meson-gxbb-ir";
-				reg = <0x0 0x8040 0x0 0x40>;
-				interrupts = <GIC_SPI 196 IRQ_TYPE_EDGE_RISING>;
-				status = "disabled";
 			};
 		};
 

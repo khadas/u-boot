@@ -10,12 +10,12 @@
 
 /* Common DTSI for devices which are based on the P212 reference board. */
 
-#include "meson-a1-s905N.dtsi"
+#include "meson-a1-a113l.dtsi"
 
 / {
 	aliases {
-		serial0 = &uart_AO;
-		serial1 = &uart_A;
+		serial0 = &uart_a;
+		serial1 = &uart_b;
 		spi0 = &spifc;
 		spi1 = &spicc0;
 		spi2 = &spicc1;
@@ -253,17 +253,11 @@
 };
 
 /* This is connected to the Bluetooth module: */
-&uart_A {
+&uart_a {
 	status = "okay";
 	/* pinctrl-0 = <&a_uart_pins>; */
 	/* pinctrl-names = "default";  */
 	uart-has-rtscts;
-};
-
-&uart_AO {
-	status = "okay";
-	/* pinctrl-0 = <&ao_uart_pins>; */
-	/* pinctrl-names = "default";   */
 };
 
 &spifc {
