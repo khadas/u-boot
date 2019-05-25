@@ -1,15 +1,15 @@
-if TARGET_A1_SKT_V1
+if TARGET_A1_AD409
 
 config SYS_SOC
 	default "a1"
 
 config SYS_BOARD
-	default "a1_skt_v1"
+	default "a1_ad409"
 
 config SYS_VENDOR
 	default "amlogic"
 
 config SYS_CONFIG_NAME
-	default "a1_skt_v1"
+	default "a1_ad409"
 
 endif
