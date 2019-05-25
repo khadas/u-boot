@@ -121,8 +121,8 @@ config SYS_SOC
 config TARGET_A1_AD409
 	bool "A1_AD409"
 
-config TARGET_A1_SKT_V1
-	bool "A1_SKT_V1"
+config TARGET_A1_AD401
+	bool "A1_AD401"
 
 endif
 
@@ -156,6 +156,8 @@ endif
 # Amlogic boards
 
 source "board/amlogic/a1_ad409/Kconfig"
+
+source "board/amlogic/a1_ad401/Kconfig"
 
 source "board/amlogic/g12a_u200_v1/Kconfig"
 

@@ -1,0 +1,15 @@
+if TARGET_A1_AD401
+
+config SYS_SOC
+	default "a1"
+
+config SYS_BOARD
+	default "a1_ad401"
+
+config SYS_VENDOR
+	default "amlogic"
+
+config SYS_CONFIG_NAME
+	default "a1_ad401"
+
+endif
