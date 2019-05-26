@@ -39,9 +39,7 @@
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	731		// VDDEE suspend voltage
 #endif
 
-#define AML_VCCK_INIT_VOLTAGE    800     // VCCK power up voltage
-#define AML_VDDEE_INIT_VOLTAGE   800     // VDDEE power up voltage
-#define AML_VDDEE_SLEEP_VOLTAGE  731     // VDDEE suspend voltage
+#define AML_VDDCORE_INIT_VOLTAGE    805     // VCCK power up voltage
 
 /* configs for CEC */
 #if 0
