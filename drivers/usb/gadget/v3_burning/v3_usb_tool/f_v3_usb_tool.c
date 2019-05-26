@@ -276,6 +276,8 @@ static void fastboot_disable(struct usb_function *f)
 	}
 }
 
+#define EP_CMD_LEN_MAX 256
+static char EP_CMD_BUF[EP_CMD_LEN_MAX*2];
 static struct usb_request *fastboot_start_ep(struct usb_ep *ep)
 {
 	struct usb_request *req;
@@ -286,8 +288,11 @@ static struct usb_request *fastboot_start_ep(struct usb_ep *ep)
 		return NULL;
 
 	const int isBulkOut = strnlen(epName, 12) == strlen("ep1out");
-	req->length = EP_BUFFER_SIZE;
-	req->buf = isBulkOut ? (char*)V3_DOWNLOAD_EP_OUT : (char*)V3_DOWNLOAD_EP_IN;
+	/*req->length = EP_BUFFER_SIZE;*/
+	/*req->buf = isBulkOut ? (char*)V3_DOWNLOAD_EP_OUT : (char*)V3_DOWNLOAD_EP_IN;*/
+	req->buf = isBulkOut ? &EP_CMD_BUF[0] : &EP_CMD_BUF[EP_CMD_LEN_MAX];
+	req->length = EP_CMD_LEN_MAX;
+	FB_DBG("start %s EP, [%p]\n", isBulkOut ? "OUT" : "IN", req->buf);
 
 	memset(req->buf, 0, req->length);
 	return req;
@@ -480,95 +485,92 @@ static int strcmp_l1(const char *s1, const char *s2)
 }
 
 static const char* getvar_list[] = {
-    "version", "serialno", "product",
-	"erase-block-size", "logical-block-size", "secure",
+	"version", "serialno", "product", "erase-block-size", "secure",
 };
 static const char* getvar_list_ab[] = {
-    "version", "serialno", "product",
-    "erase-block-size", "logical-block-size", "secure",
-	"slot-count", "slot-suffixes","current-slot",
+	"version", "serialno", "product", "erase-block-size",
+	"secure", "slot-count", "slot-suffixes","current-slot",
 };
 
 static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 {
-    char *cmd = req->buf;
-    char cmdBuf[RESPONSE_LEN];
-    char* response = response_str;
-    size_t chars_left;
-    int replyLen = 0;
+	char *cmd = req->buf;
+	char cmdBuf[RESPONSE_LEN];
+	char* response = response_str;
+	size_t chars_left;
+	int replyLen = 0;
 
-    strcpy(response, "OKAY");
-    chars_left = sizeof(response_str) - strlen(response) - 1;
+	strcpy(response, "OKAY");
+	chars_left = sizeof(response_str) - strlen(response) - 1;
 
-    memcpy(cmdBuf, cmd, strnlen(cmd, RESPONSE_LEN-1)+1);
-    cmd = cmdBuf;
-    strsep(&cmd, ":");
-    printf("cb_getvar: %s\n", cmd);
-    if (!cmd) {
-        FBS_ERR(response, "FAILmissing var\n");
-        fastboot_tx_write_str(response);
-        return;
-    }
-    if (!strncmp(cmd, "all", 3)) {
-        static int cmdIndex = 0;
-        int getvar_num;
-        if (has_boot_slot == 1) {
-            strcpy(cmd, getvar_list_ab[cmdIndex]);
-            getvar_num = (sizeof(getvar_list_ab) / sizeof(getvar_list_ab[0]));
-        } else {
-            strcpy(cmd, getvar_list[cmdIndex]);//only support no-arg cmd
-            getvar_num = (sizeof(getvar_list) / sizeof(getvar_list[0]));
-        }
-        printf("getvar_num: %d\n", getvar_num);
-        if ( ++cmdIndex >= getvar_num) cmdIndex = 0;
-        else fastboot_busy(NULL);
-        FB_MSG("all cmd:%s\n", cmd);
-        strncat(response, cmd, chars_left);
-        strncat(response, ":", 1);
-        chars_left -= strlen(cmd) + 1;
-    }
+	memcpy(cmdBuf, cmd, strnlen(cmd, RESPONSE_LEN-1)+1);
+	cmd = cmdBuf;
+	strsep(&cmd, ":");
+	printf("cb_getvar: %s\n", cmd);
+	if (!cmd) {
+		FBS_ERR(response, "FAILmissing var\n");
+		fastboot_tx_write_str(response);
+		return;
+	}
+	if (!strncmp(cmd, "all", 3)) {
+		static int cmdIndex = 0;
+		int getvar_num;
+		if (has_boot_slot == 1) {
+			strcpy(cmd, getvar_list_ab[cmdIndex]);
+			getvar_num = (sizeof(getvar_list_ab) / sizeof(getvar_list_ab[0]));
+		} else {
+			strcpy(cmd, getvar_list[cmdIndex]);//only support no-arg cmd
+			getvar_num = (sizeof(getvar_list) / sizeof(getvar_list[0]));
+		}
+		printf("getvar_num: %d\n", getvar_num);
+		if ( ++cmdIndex >= getvar_num) cmdIndex = 0;
+		else fastboot_busy(NULL);
+		FB_MSG("all cmd:%s\n", cmd);
+		strncat(response, cmd, chars_left);
+		strncat(response, ":", 1);
+		chars_left -= strlen(cmd) + 1;
+	}
 
-    if (!strcmp_l1("version", cmd)) {
-        strncat(response, DNL_PROTOCOL_VERSION, chars_left);
-    } else if (!strcmp_l1("bootloader-version", cmd)) {
-        strncat(response, U_BOOT_VERSION, chars_left);
-    } else if (!strcmp_l1("burnsteps", cmd)) {
-        unsigned* steps = (unsigned*)(response + 4);
-        *steps = readl(P_PREG_STICKY_REG2);
-        fastboot_tx_write(response, 4 + sizeof(unsigned));
-        return;
-    } else if (!strcmp_l1("identify", cmd)) {
-        const int identifyLen = 8;
-        const char fwVer[] = {5, 0, 0, 16, 0, 0, 0, 0};
-        memcpy(response + 4, fwVer, identifyLen);
-        replyLen = 4 + identifyLen;
+	if (!strcmp_l1("version", cmd)) {
+		strncat(response, DNL_PROTOCOL_VERSION, chars_left);
+	} else if (!strcmp_l1("bootloader-version", cmd)) {
+		strncat(response, U_BOOT_VERSION, chars_left);
+	} else if (!strcmp_l1("burnsteps", cmd)) {
+		unsigned* steps = (unsigned*)(response + 4);
+		*steps = readl(P_PREG_STICKY_REG2);
+		fastboot_tx_write(response, 4 + sizeof(unsigned));
+		return;
+	} else if (!strcmp_l1("identify", cmd)) {
+		const int identifyLen = 8;
+		const char fwVer[] = {5, 0, 0, 16, 0, 0, 0, 0};
+		memcpy(response + 4, fwVer, identifyLen);
+		replyLen = 4 + identifyLen;
 #ifdef CONFIG_EFUSE
-    } else if (!strcmp_l1("secureboot", cmd)) {
-        unsigned securebootEnable = IS_FEAT_BOOT_VERIFY();
-        securebootEnable = securebootEnable ? 1 : 0;
-        memcpy(response + 4, &securebootEnable, sizeof(unsigned));
-        replyLen = 4 + sizeof(unsigned);
+	} else if (!strcmp_l1("secureboot", cmd)) {
+		unsigned securebootEnable = IS_FEAT_BOOT_VERIFY();
+		securebootEnable = securebootEnable ? 1 : 0;
+		memcpy(response + 4, &securebootEnable, sizeof(unsigned));
+		replyLen = 4 + sizeof(unsigned);
 #endif//#ifdef CONFIG_EFUSE
-    } else if (!strcmp_l1("serialno", cmd)) {
-        extern const char * get_usid_string(void);
-        const char* usid = get_usid_string();
-        if (usid) strncat(response, usid, chars_left);
-        else strncat(response, DEVICE_SERIAL, chars_left);
-    } else if (!strcmp_l1("product", cmd)) {
-        char* s1 = DEVICE_PRODUCT;
-        strncat(response, s1, chars_left);
-    } else if (!strcmp_l1("slot-count", cmd)) {
-        strncat(response, "2", chars_left);
-    } else if (!strcmp_l1("erase-block-size", cmd) ||
-            !strcmp_l1("logical-block-size", cmd)) {
-        strncat(response, "2000", chars_left);
-    } else {
-        FB_ERR("unknown variable: %s\n", cmd);
-        strcpy(response, "FAILVariable not implemented");
-    }
+	} else if (!strcmp_l1("serialno", cmd)) {
+		extern const char * get_usid_string(void);
+		const char* usid = get_usid_string();
+		if (usid) strncat(response, usid, chars_left);
+		else strncat(response, DEVICE_SERIAL, chars_left);
+	} else if (!strcmp_l1("product", cmd)) {
+		char* s1 = DEVICE_PRODUCT;
+		strncat(response, s1, chars_left);
+	} else if (!strcmp_l1("slot-count", cmd)) {
+		strncat(response, "2", chars_left);
+	} else if (!strcmp_l1("erase-block-size", cmd)) {
+		strncat(response, "2000", chars_left);
+	} else {
+		FB_ERR("unknown variable: %s\n", cmd);
+		strcpy(response, "FAILVariable not implemented");
+	}
 
-    replyLen = replyLen ? replyLen : strlen(response) + 1; //+1 means plus '\0'
-    fastboot_tx_write(response, replyLen);
+	replyLen = replyLen ? replyLen : strlen(response) + 1; //+1 means plus '\0'
+	fastboot_tx_write(response, replyLen);
 }
 
 static unsigned int rx_bytes_expected(void)
@@ -619,7 +621,9 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 		 */
 		download_size = 0;
 		req->complete = rx_handler_command;
-		req->length = EP_BUFFER_SIZE;
+		/*req->length = EP_BUFFER_SIZE;*/
+		req->length = EP_CMD_LEN_MAX;
+		req->buf	= &EP_CMD_BUF[0];
 
 		sprintf(response, "OKAY");
 		fastboot_tx_write_str(response);
@@ -656,6 +660,7 @@ static void cb_download(struct usb_ep *ep, struct usb_request *req)
 	} else {
 		sprintf(response, "DATA%08x", download_size);
 		req->complete = rx_handler_dl_image;
+		req->buf	  = (char*)V3_DOWNLOAD_EP_OUT;
 		req->length = rx_bytes_expected();
 		if (req->length < ep->maxpacket)
 			req->length = ep->maxpacket;
@@ -916,7 +921,7 @@ static void rx_handler_mwrite(struct usb_ep *ep, struct usb_request *req)
         FB_DBG("mwrite 0x%x bytes [%s]\n", _mwriteInfo.transferredBytes, ret ? "FAILED" : "OK");
 
         req->complete = rx_handler_command;//mwrite ended and return to receive command
-        req->length = EP_BUFFER_SIZE;
+        req->length = EP_CMD_LEN_MAX;
         if (_mwriteInfo.priv)req->buf    = (char*) _mwriteInfo.priv;
 
     } else {
@@ -929,7 +934,7 @@ static void rx_handler_mwrite(struct usb_ep *ep, struct usb_request *req)
     usb_ep_queue(ep, req, 0);
 }
 
-//[fastboot mwrite:datasz=0x%x,verify=addsum]
+//[fastboot mwrite:verify=addsum]
 static void cb_aml_media_write(struct usb_ep *ep, struct usb_request *req)
 {
     char *cmd = req->buf;
@@ -979,6 +984,7 @@ _exit:
         fastboot_fail(NULL);
     }else if(0 == _pUsbDownInf->dataSize){
         fastboot_okay(NULL);
+		FB_MSG("OK in Partition Image\n\n");
     }else {
         sprintf(response_str, "DATAOUT0x%x:0x%llx", _pUsbDownInf->dataSize, _pUsbDownInf->fileOffset);
         req->complete = rx_handler_mwrite;//handle for download complete
@@ -1382,6 +1388,7 @@ void cb_aml_media_read(struct usb_ep *outep, struct usb_request *outreq)
                 }
                 if ( 0 == _pUsbUpInf->dataSize ) {
                     fastboot_okay(NULL); response_str[4] = 0;//add NULL terminated
+					FB_MSG("OKAY in Upload Data\n\n");
                 } else {
                     _mreadInfo.totalBytes = _pUsbUpInf->dataSize;
                     sprintf(response_str, "DATAIN0x%x", _pUsbUpInf->dataSize);
@@ -1408,9 +1415,9 @@ void cb_aml_media_read(struct usb_ep *outep, struct usb_request *outreq)
             }
         case MREAD_STATUS_FINISH:
             {
-                if (_mreadInfo.totalBytes == _mreadInfo.transferredBytes)
-                    fastboot_tx_write_str("OKAY");
-                else fastboot_tx_write_str("FAIL");
+				const int uploadOk = (_mreadInfo.totalBytes == _mreadInfo.transferredBytes);
+				const char* ack = uploadOk ? "OKAY" : "FAIL";
+				fastboot_tx_write_str(ack);
             } break;//just reuturn
     }
 

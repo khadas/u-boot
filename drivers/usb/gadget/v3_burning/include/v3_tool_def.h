@@ -77,18 +77,18 @@ enum {
 #endif// #ifndef CONFIG_DTB_MEM_ADDR
 #define V3_DTB_LOAD_ADDR    CONFIG_DTB_MEM_ADDR
 
-#define EP_BUFFER_SIZE          4096
+#define EP_BUFFER_SIZE          4096	//temp buffer for command 'Download'
 #define V3_DOWNLOAD_EP_DATA     ( 0x012<<20 ) //CONFIG_DTB_MEM_ADDR + 2M
 #define V3_DOWNLOAD_EP_OUT      (V3_DOWNLOAD_EP_DATA)
 #define V3_DOWNLOAD_EP_IN       (V3_DOWNLOAD_EP_OUT + EP_BUFFER_SIZE * 2)
 
-#define V3_DOWNLOAD_MEM_BASE    (V3_DOWNLOAD_EP_DATA + (1U<<20)) //CONFIG_DTB_MEM_ADDR + 3M
-#define V3_DOWNLOAD_MEM_SIZE    (0X8<<20)    //8M for raw download
+#define V3_DOWNLOAD_MEM_BASE    (V3_DOWNLOAD_EP_DATA) //CONFIG_DTB_MEM_ADDR + 3M
+#define V3_DOWNLOAD_MEM_SIZE    (0X8<<20)    //each mwrite size for sparse image
 #define V3_DOWNLOAD_SPARE_SZ    (0X8<<10)    //8k for sparse spare
 #define V3_DOWNLOAD_VERIFY_INFO (V3_DOWNLOAD_MEM_BASE + V3_DOWNLOAD_MEM_SIZE + V3_DOWNLOAD_SPARE_SZ)//1MB for temp use
 #define V3_DOWNLOAD_VERIFY_INFO_SZ (0x1<<20)//
 
-#define _RAW_IMG_TRANSFER_LEN (128<<10)
+#define _RAW_IMG_TRANSFER_LEN (128<<10)	//each mwrite size for raw image
 #define _UNIFYKEY_MAX_SZ       (256<<10)
 
 enum {
