@@ -18,15 +18,15 @@
 
 /* clk81 gates */
 static struct meson_gate gates[] = {
-	{CLKID_SPIFC_XTAL_GATE,	SPIFC_CLK_CTRL, 15},
-	{CLKID_SPIFC_GATE, SPIFC_CLK_CTRL, 8},
-	{CLKID_SAR_ADC_GATE, SAR_ADC_CLK_CTRL, 8},
-	{CLKID_SD_EMMC_XTAL_GATE, SD_EMMC_CLK_CTRL, 15},
-	{CLKID_SD_EMMC_GATE, SD_EMMC_CLK_CTRL, 8},
-	{CLKID_I2C_M_A, SYS_CLK_EN0, 23},
-	{CLKID_I2C_M_B, SYS_CLK_EN0, 22},
-	{CLKID_I2C_M_C, SYS_CLK_EN0, 21},
-	{CLKID_I2C_M_D, SYS_CLK_EN0, 20},
+	{CLKID_SPIFC_XTAL_GATE,	A1_SPIFC_CLK_CTRL, 15},
+	{CLKID_SPIFC_GATE, A1_SPIFC_CLK_CTRL, 8},
+	{CLKID_SAR_ADC_GATE, A1_SAR_ADC_CLK_CTRL, 8},
+	{CLKID_SD_EMMC_XTAL_GATE, A1_SD_EMMC_CLK_CTRL, 15},
+	{CLKID_SD_EMMC_GATE, A1_SD_EMMC_CLK_CTRL, 8},
+	{CLKID_I2C_M_A, A1_SYS_CLK_EN0, 23},
+	{CLKID_I2C_M_B, A1_SYS_CLK_EN0, 22},
+	{CLKID_I2C_M_C, A1_SYS_CLK_EN0, 21},
+	{CLKID_I2C_M_D, A1_SYS_CLK_EN0, 20},
 };
 
 static unsigned int spifc_parents[] = {CLKID_FCLK_DIV2, CLKID_FCLK_DIV3,
@@ -37,27 +37,27 @@ static unsigned int sd_emmc_parents[] = {CLKID_FCLK_DIV2, CLKID_FCLK_DIV3,
 CLKID_FCLK_DIV5, CLKID_UNREALIZED};
 
 static struct meson_mux muxes[] = {
-		{CLKID_SPIFC_MUX, SPIFC_CLK_CTRL, 9,  0x3, spifc_parents, ARRAY_SIZE(spifc_parents)},
-		{CLKID_SARADC_MUX, SAR_ADC_CLK_CTRL, 9,  0x1, saradc_parents, ARRAY_SIZE(saradc_parents)},
-		{CLKID_SD_EMMC_MUX, SD_EMMC_CLK_CTRL, 9,  0x3, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
+		{CLKID_SPIFC_MUX, A1_SPIFC_CLK_CTRL, 9,  0x3, spifc_parents, ARRAY_SIZE(spifc_parents)},
+		{CLKID_SARADC_MUX, A1_SAR_ADC_CLK_CTRL, 9,  0x1, saradc_parents, ARRAY_SIZE(saradc_parents)},
+		{CLKID_SD_EMMC_MUX, A1_SD_EMMC_CLK_CTRL, 9,  0x3, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
 };
 
 static struct meson_div divs[] = {
-		{CLKID_SPIFC_DIV, SPIFC_CLK_CTRL, 0,  8, CLKID_SPIFC_MUX},
-		{CLKID_SARADC_DIV, SAR_ADC_CLK_CTRL, 0,  8, CLKID_SARADC_MUX},
-		{CLKID_SD_EMMC_DIV, SD_EMMC_CLK_CTRL, 0, 8, CLKID_SD_EMMC_MUX},
+		{CLKID_SPIFC_DIV, A1_SPIFC_CLK_CTRL, 0,  8, CLKID_SPIFC_MUX},
+		{CLKID_SARADC_DIV, A1_SAR_ADC_CLK_CTRL, 0,  8, CLKID_SARADC_MUX},
+		{CLKID_SD_EMMC_DIV, A1_SD_EMMC_CLK_CTRL, 0, 8, CLKID_SD_EMMC_MUX},
 };
 
 static struct parm meson_fixed_pll_parm[3] = {
-	{ANACTRL_FIXPLL_CTRL0, 0, 8}, /* pm */
-	{ANACTRL_FIXPLL_CTRL0, 10, 5}, /* pn */
+	{A1_ANACTRL_FIXPLL_CTRL0, 0, 8}, /* pm */
+	{A1_ANACTRL_FIXPLL_CTRL0, 10, 5}, /* pn */
 	/* {ANACTRL_FIXPLL_CTRL0, 16, 2},  pod */
 };
 
 static struct parm meson_sys_pll_parm[3] = {
-	{ANACTRL_SYSPLL_CTRL0, 0, 8}, /* pm */
-	{ANACTRL_SYSPLL_CTRL0, 10, 5}, /* pn */
-	/* {ANACTRL_SYSPLL_CTRL0, 16, 2},  pod */
+	{A1_ANACTRL_SYSPLL_CTRL0, 0, 8}, /* pm */
+	{A1_ANACTRL_SYSPLL_CTRL0, 10, 5}, /* pn */
+	/* {A1_ANACTRL_SYSPLL_CTRL0, 16, 2},  pod */
 };
 
 static int meson_clk_enable(struct clk *clk)

@@ -629,6 +629,11 @@ config CMD_CLK
 	  clock values from associated drivers. However currently no command
 	  exists for this.
 
+config CMD_CLKMSR
+	bool "clkmsr - Show clock measurement for different clock index"
+	help
+	  Show clock measurement for different clock index
+
 config CMD_DEMO
 	bool "demo - Demonstration commands for driver model"
 	depends on DM
