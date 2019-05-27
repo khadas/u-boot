@@ -753,7 +753,12 @@ static int set_blue_led_mode(int type, int mode)
 
 static int do_kbi_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
-	int enable = get_wol(false);
+	int enable = 0;
+
+	// switch to i2c8
+	run_command("i2c dev 8", 0);
+
+	enable = get_wol(false);
 	if ((enable&0x01) != 0)
 		set_wol(false, enable);
 	return 0;
