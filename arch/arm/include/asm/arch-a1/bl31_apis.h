@@ -152,4 +152,5 @@ void aml_system_off(void);
 void bl31_get_chipid(unsigned int *, unsigned int *,
 	unsigned int *, unsigned int *);
 void set_viu_probe_enable(void);
+void wdt_send_cmd_to_bl31(uint64_t cmd, uint64_t value);
 #endif

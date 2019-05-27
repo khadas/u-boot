@@ -25,6 +25,14 @@
 #include <asm/arch/watchdog.h>
 #include <asm/arch/io.h>
 #include <asm/arch/timer.h>
+#include <dm.h>
+
+#define WDT_DISABLE	1
+#define WDT_ENABLE	2
+#define WDT_PING	3
+#define WDT_INIT	4
+#define WDT_RESETNOW	5
+#define WDT_SETTIMEOUT	6
 
 void watchdog_init(uint32_t msec)
 {
@@ -81,26 +89,20 @@ void set_pwm_to_input(void)
 void reset_system(void)
 {
 	//int i;
+	struct udevice *watchdog_devp;
+	int ret;
 
 	set_pwm_to_input();
 
-	//_udelay(10000); //wait print
+	//_udelay(10000); //wait prin
 
-	writel(       (0 << 19) // src:24MHz
-				| (1 << 22) // reset_n_en
-				| (1 << 24) // clk en
-				| (1 << 25) // clk div en
-				| (24000-1) //24000 for 1ms
-		, RESETCTRL_WATCHDOG_CTRL0);
-
-	writel(1, RESETCTRL_WATCHDOG_CNT);
-	writel(0, RESETCTRL_WATCHDOG_CLR);
-
-	writel(readl(RESETCTRL_WATCHDOG_CTRL0) | (1<<18), // watchdog en
-		RESETCTRL_WATCHDOG_CTRL0);
-	//for (i=0; i<100; i++)
-	//	readl(RESETCTRL_WATCHDOG_CTRL0);/*Deceive gcc for waiting some cycles */
-
+	set_pwm_to_input();
+	ret = uclass_get_device_by_name(UCLASS_WDT, "watchdog", &watchdog_devp);
+	if (ret < 0) {
+		printf("Failed to find watchdog node, check device tree.\n");
+		return ret;
+	}
+	wdt_start(watchdog_devp, 0, 0);
 	while (1);
 }
 

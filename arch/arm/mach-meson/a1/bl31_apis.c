@@ -219,6 +219,22 @@ void aml_set_jtag_state(unsigned state, unsigned select)
 		: : "r" (command), "r"(select));
 }
 
+void wdt_send_cmd_to_bl31(uint64_t cmd, uint64_t value)
+{
+	register long x0 asm("x0") = 0x82000086;
+	register long x1 asm("x1") = cmd;
+	register long x2 asm("x2") = value;
+	register long x3 asm("x3") = 0;
+	asm volatile(
+			__asmeq("%0", "x0")
+			__asmeq("%1", "x1")
+			__asmeq("%2", "x2")
+			__asmeq("%3", "x3")
+			"smc	#0\n"
+		: "+r" (x0)
+		: "r" (x1), "r" (x2), "r" (x3));
+}
+
 unsigned aml_get_reboot_reason(void)
 {
 	unsigned reason;
