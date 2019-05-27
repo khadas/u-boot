@@ -35,87 +35,6 @@ int v2_key_command(const int argc, char * const argv[], char *info)
 #define key_manage_query_size(a,b) 0
 #endif//#ifndef CONFIG_UNIFY_KEY_MANAGE
 
-#if 1//storage wrapper
-static int bootloader_write(u8* dataBuf, unsigned off, unsigned binSz)
-{
-    int iCopy = 0;
-    const char* bootName = "bootloader";
-    const int bootCpyNum = store_boot_copy_num(bootName);
-    const int bootCpySz  = (int)store_boot_copy_size(bootName);
-
-    FB_MSG("bootCpyNum %d, bootCpySz 0x%x\n", bootCpyNum, bootCpySz);
-    if (binSz + off > bootCpySz) FBS_EXIT(_ACK, "bootloader sz(0x%x) + off(0x%x) > bootCpySz 0x%x\n", binSz, off, bootCpySz);
-
-    if (off) {
-        FBS_ERR(_ACK, "current only 0 suuported!\n");
-        return -__LINE__;
-    }
-
-    for (; iCopy < bootCpyNum; ++iCopy) {
-        int ret = store_boot_write(bootName, iCopy, binSz, dataBuf);
-        if (ret) FBS_EXIT(_ACK, "FAil in program[%s] at copy[%d]\n", bootName, iCopy);
-    }
-
-    return 0;
-}
-
-static int bootloader_read(u8* pBuf, unsigned off, unsigned binSz)
-{
-    int iCopy = 0;
-    const char* bootName = "bootloader";
-    const int bootCpyNum = store_boot_copy_num(bootName);
-    const int bootCpySz  = (int)store_boot_copy_size(bootName);
-
-    if (binSz + off > bootCpySz) {
-        FBS_ERR(_ACK, "bootloader sz(0x%x) + off(0x%x) > bootCpySz 0x%x\n", binSz, off, bootCpySz);
-        return -__LINE__;
-    }
-    if (off) FBS_EXIT(_ACK, "current only 0 suuported!\n");
-
-    for (iCopy = 0; iCopy < bootCpyNum; ++iCopy) {
-        void* dataBuf = iCopy ? pBuf + binSz : pBuf;
-        int ret = store_boot_read(bootName, iCopy, binSz, dataBuf);
-        if (ret) FBS_EXIT("Fail to read boot[%s] at copy[%d]\n", bootName, iCopy);
-        if (iCopy) {
-            if (memcmp(pBuf, dataBuf, binSz))
-                FBS_EXIT(_ACK, "copy[%d] content not the same as copy[0]\n", iCopy);
-        }
-    }
-
-    return 0;
-}
-
-//@rwFlag: 0---read, 1---write, 2---iread
-static int store_dtb_rw(void* buf, unsigned dtbSz, int rwFlag)
-{
-    int ret = 0;
-    const unsigned dtbCap = store_rsv_size("dtb");
-    if (dtbCap <= dtbSz)
-        FBS_EXIT(_ACK, "dtb sz 0x%x > cap 0x%x\t", dtbSz, dtbCap);
-
-    switch (rwFlag) {
-        case 2: {//iread
-            ret = store_rsv_read("dtb", dtbSz, buf);
-            if (ret) FBS_EXIT(_ACK, "err(%d) in read dtb\t", ret);
-        }
-        case 0: {//read
-            if ( 2 == rwFlag ) return 0;
-            //TODO: add dtb parser
-            FBS_EXIT(_ACK, "dtb parser not implemented yet\t");
-        }break;
-        case 1: {//write
-            ret = store_rsv_erase("dtb");
-            if (ret) FBS_EXIT(_ACK, "Fail erase dtb, ret %d\n", ret);
-            ret = store_rsv_write("dtb", dtbSz, buf);
-            if (ret) FBS_EXIT(_ACK, "Fail in dtb write, ret %d\t", ret);
-        }break;
-        default: FBS_EXIT(_ACK, "err dtb rwFlag %d\n", rwFlag);
-    }
-
-    return 0;
-}
-#endif// #if 1//storage wrapper
-
 static struct {
     ImgTransPara        imgTransPara;//user para
     int                 isDownload;
@@ -183,7 +102,7 @@ int v3tool_buffman_img_verify_sha1sum(unsigned char* vrySum)
                     {
                         thisVryLen = imgTotalLen - vryLen;
                         thisVryLen = thisVryLen > vryBuffLen ? vryBuffLen : thisVryLen;
-                        ret = store_read(part, vryLen + partBase, thisVryLen, vryBuff);
+                        ret = store_logic_read(part, vryLen + partBase, thisVryLen, vryBuff);
                         if ( ret ) {
                             FBS_ERR(_ACK, "FAil in store read");
                             return -__LINE__;
@@ -391,7 +310,7 @@ int v3tool_buffman_data_complete_download(const UsbDownInf* downloadInf)
                                 ret = store_dtb_rw(dataBuf, thisTransferLen, 1);
                             }
                             else {
-                                ret = store_write(partName, downloadInf->fileOffset, thisTransferLen, dataBuf);
+                                ret = store_logic_write(partName, downloadInf->fileOffset, thisTransferLen, dataBuf);
                             }
                         } break;
                     case V3TOOL_MEDIA_TYPE_MEM:
@@ -471,7 +390,7 @@ int v3tool_buffman_next_upload_info(UsbUpInf** uploadInfo)
                     ret = store_dtb_rw(dataBuf, dataSize, 2);
                 }
                 else  {
-                    ret = store_read(partName, _rawImgFileOffset, dataSize, dataBuf);
+                    ret = store_logic_read(partName, _rawImgFileOffset, dataSize, dataBuf);
                 }
                 if (ret) {
                     FB_ERR("Fail in read store at offset %llx\n", _rawImgFileOffset);

@@ -140,6 +140,14 @@ unsigned add_sum(const void* pBuf, const unsigned size)
     return sum;
 }
 
+/*#include <asm/arch/mailbox.h>*/
+/*#define ROM_BOOT_SKIP_BOOT_ENABLED_4_USB      1//skip boot to usb supported by romboot*/
+#ifdef SCPI_CMD_SDCARD_BOOT
+#define ROM_BOOT_SKIP_BOOT_ENABLED_4_SDC      1//skip boot sdcard supported by romboot
+#else
+#define ROM_BOOT_SKIP_BOOT_ENABLED_4_SDC      0
+#endif//#ifdef SCPI_CMD_SDCARD_BOOT
+
 static int optimus_enable_romboot_skip_boot(const char* extBootDev)
 {
     if (!strcmp("usb", extBootDev))

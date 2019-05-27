@@ -16,8 +16,14 @@
 #include <android_image.h>
 #include <asm/arch/bl31_apis.h>
 #include <asm/arch/secure_apb.h>
-#include <amlogic/storage.h>
+#include <amlogic/store_wrapper.h>
 #include <amlogic/aml_efuse.h>
+
+#ifndef IS_FEAT_BOOT_VERIFY
+#define IS_FEAT_BOOT_VERIFY() 0
+#endif// #ifndef IS_FEAT_BOOT_VERIFY
+int __attribute__((weak)) store_logic_read(const char *name, loff_t off, size_t size, void *buf)
+{ return store_read(name, off, size, buf);}
 
 typedef struct andr_img_hdr boot_img_hdr;
 
@@ -159,7 +165,7 @@ static int do_image_read_dtb_from_knl(const char* partName, unsigned char* loada
 
     nFlashLoadLen = preloadSz;//head info is one page size == 2k
     debugP("sizeof preloadSz=%u\n", nFlashLoadLen);
-    nReturn = store_read(partName, lflashReadOff, nFlashLoadLen, loadaddr);
+    nReturn = store_logic_read(partName, lflashReadOff, nFlashLoadLen, loadaddr);
     if (nReturn) {
         errorP("Fail to read 0x%xB from part[%s] at offset 0\n", nFlashLoadLen, partName);
         return __LINE__;
@@ -189,7 +195,7 @@ static int do_image_read_dtb_from_knl(const char* partName, unsigned char* loada
         return __LINE__;
     }
     unsigned char* secondAddr = (unsigned char*)loadaddr + lflashReadOff;
-    nReturn = store_read(partName, lflashReadOff, nFlashLoadLen, secondAddr);
+    nReturn = store_logic_read(partName, lflashReadOff, nFlashLoadLen, secondAddr);
     if (nReturn) {
         errorP("Fail to read 0x%xB from part[%s] at offset 0x%x\n", nFlashLoadLen, partName, (unsigned int)lflashReadOff);
         return __LINE__;
@@ -306,7 +312,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 
     if (3 < argc) flashReadOff = simple_strtoull(argv[3], NULL, 0) ;
 
-    rc = store_read(partName, flashReadOff, IMG_PRELOAD_SZ, loadaddr);
+    rc = store_logic_read(partName, flashReadOff, IMG_PRELOAD_SZ, loadaddr);
     if (rc) {
         errorP("Fail to read 0x%xB from part[%s] at offset 0\n", IMG_PRELOAD_SZ, partName);
         return __LINE__;
@@ -346,7 +352,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
         const unsigned leftSz = actualBootImgSz - IMG_PRELOAD_SZ;
 
         debugP("Left sz 0x%x\n", leftSz);
-        rc = store_read(partName, flashReadOff, leftSz, loadaddr + IMG_PRELOAD_SZ);
+        rc = store_logic_read(partName, flashReadOff, leftSz, loadaddr + IMG_PRELOAD_SZ);
         if (rc) {
             errorP("Fail to read 0x%xB from part[%s] at offset 0x%x\n", leftSz, partName, IMG_PRELOAD_SZ);
             return __LINE__;
@@ -422,7 +428,7 @@ static int do_image_read_res(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
     }
     pResImgHead = (AmlResImgHead_t*)loadaddr;
 
-    rc = store_read(partName, flashReadOff, IMG_PRELOAD_SZ, loadaddr);
+    rc = store_logic_read(partName, flashReadOff, IMG_PRELOAD_SZ, loadaddr);
     if (rc) {
         errorP("Fail to read 0x%xB from part[%s] at offset 0\n", IMG_PRELOAD_SZ, partName);
         return __LINE__;
@@ -440,7 +446,7 @@ static int do_image_read_res(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
     {
         const unsigned leftSz = totalSz - flashReadOff;
 
-        rc = store_read(partName, flashReadOff, leftSz, loadaddr + (unsigned)flashReadOff);
+        rc = store_logic_read(partName, flashReadOff, leftSz, loadaddr + (unsigned)flashReadOff);
         if (rc) {
             errorP("Fail to read 0x%xB from part[%s] at offset 0x%x\n", leftSz, partName, IMG_PRELOAD_SZ);
             return __LINE__;
@@ -507,7 +513,7 @@ static int do_image_read_pic(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
     pResImgHead = (AmlResImgHead_t*)loadaddr;
 
     debugP("to read pic (%s)\n", picName);
-    rc = store_read(partName, flashReadOff, PreloadSz, loadaddr);
+    rc = store_logic_read(partName, flashReadOff, PreloadSz, loadaddr);
     if (rc) {
         errorP("Fail to read 0x%xB from part[%s] at offset 0\n", PreloadSz, partName);
         return __LINE__;
@@ -555,7 +561,7 @@ static int do_image_read_pic(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
                     {
                         unsigned long rdOff = pItem->start;
                         unsigned long rdOffAlign = (rdOff >> 11) << 11;//align 2k page for mtd nand, 512 for emmc
-                        rc = store_read(partName, rdOffAlign, itemSz + (rdOff & 0x7ff),(char*)((picLoadAddr>>11)<<11));
+                        rc = store_logic_read(partName, rdOffAlign, itemSz + (rdOff & 0x7ff),(char*)((picLoadAddr>>11)<<11));
                         if (rc) {
                             errorP("Fail to read pic at offset 0x%x\n", pItem->start);
                             return __LINE__;
@@ -686,4 +692,5 @@ U_BOOT_CMD(
    "    argv: unpackimg <imgLoadaddr> \n"   //usage
    "    un pack the logo image, which already loaded at <imgLoadaddr>.\n"
 );
+
 

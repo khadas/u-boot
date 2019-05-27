@@ -17,13 +17,6 @@
 #include <asm/io.h>
 #include <asm/arch/mailbox.h>
 
-#define ROM_BOOT_SKIP_BOOT_ENABLED_4_USB      1//skip boot to usb supported by romboot
-#ifdef SCPI_CMD_SDCARD_BOOT
-#define ROM_BOOT_SKIP_BOOT_ENABLED_4_SDC      1//skip boot sdcard supported by romboot
-#else
-#define ROM_BOOT_SKIP_BOOT_ENABLED_4_SDC      0
-#endif//#ifdef SCPI_CMD_SDCARD_BOOT
-
 extern unsigned int get_multi_dt_entry(unsigned long fdt_addr);
 int is_optimus_storage_inited(void);
 

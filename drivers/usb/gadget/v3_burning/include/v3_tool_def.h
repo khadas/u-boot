@@ -26,7 +26,7 @@
 #include <partition_table.h>
 #include <amlogic/aml_efuse.h>
 #include <amlogic/keyunify.h>
-#include <amlogic/storage.h>
+#include <amlogic/store_wrapper.h>
 
 extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
 extern void f_dwc_otg_pullup(int is_on);
@@ -176,6 +176,10 @@ int v3tool_storage_exit(void);
 int is_v3tool_storage_inited(void);
 int v3tool_is_flash_erased(void);
 
+int bootloader_read(u8* pBuf, unsigned off, unsigned binSz);
+int bootloader_write(u8* dataBuf, unsigned off, unsigned binSz);
+int store_dtb_rw(void* buf, unsigned dtbSz, int rwFlag);
+
 //for key opearations
 //
 int v2_key_command(const int argc, char * const argv[], char *info);
@@ -215,11 +219,11 @@ void v3tool_media_set_busy(const char* info);
 void v3tool_media_set_free(const char* info);
 int v3tool_media_is_busy(void);
 
-#ifndef P_AO_SEC_SD_CFG9
-#define P_AO_SEC_SD_CFG9 	SYSCTRL_SEC_STATUS_REG1
+#ifndef P_AO_SEC_SD_CFG0
+//#define P_AO_SEC_SD_CFG9 	SYSCTRL_SEC_STATUS_REG1
 #define P_AO_SEC_GP_CFG0 	SYSCTRL_SEC_STATUS_REG4
-#define P_PREG_STICKY_REG2	SYSCTRL_STICKY_REG2
-#endif// #ifndef P_AO_SEC_SD_CFG9
+#define P_PREG_STICKY_REG2	SYSCTRL_SEC_STICKY_REG2
+#endif// #ifndef P_AO_SEC_SD_CFG0
 
 #endif//#ifndef __V3_TOOL_DEF_H__
 

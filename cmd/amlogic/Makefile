@@ -12,7 +12,7 @@ obj-$(CONFIG_AML_OSD) += cmd_osd.o
 obj-$(CONFIG_AML_IMG_READ) += imgread.o
 obj-$(CONFIG_AML_DEFENV) += defenv_without.o
 
-obj-y += cmd_reboot.o
+#obj-y += cmd_reboot.o
 obj-$(CONFIG_CMD_RSVMEM) += cmd_rsvmem.o
 
 ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
@@ -24,9 +24,9 @@ obj-y += cmd_bootctl.o
 endif
 endif
 ifndef CONFIG_AML_RPMB_DISABLE
-obj-y += cmd_rpmb.o
+#obj-y += cmd_rpmb.o
 endif
-obj-y += cmd_avb.o
+#obj-y += cmd_avb.o
 obj-$(CONFIG_CMD_DDR_D2PLL) += cmd_d2pll.o
 obj-$(CONFIG_CMD_DDR_TEST) += cmd_ddr_test.o
 

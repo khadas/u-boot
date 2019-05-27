@@ -33,16 +33,21 @@ static int is_boot_device_usb(void)
 
 static int is_bl1_usb_protocol_DNL(void)
 {
+#ifdef SYSCTRL_SEC_STATUS_REG1
+    const unsigned cfg9 = readl(SYSCTRL_SEC_STATUS_REG1);
+    FB_DBG("SYSCTRL_SEC_STATUS_REG1 0x%x\n", cfg9);
+    return !(cfg9 & (1U<<12));
+#else
     const unsigned cfg9 = readl(P_AO_SEC_SD_CFG9);
     FB_DBG("cfg9 0x%x\n", cfg9);
     return cfg9 & (1U<<15);
+#endif// #ifdef SYSCTRL_SEC_STATUS_REG1
 }
-
 
 int aml_v3_factory_usb_burning(int flag, bd_t* bis)
 {
     if (!is_boot_device_usb()) return 1;
-    /*if (!is_bl1_usb_protocol_DNL()) return 1;*/
+	if (!is_bl1_usb_protocol_DNL()) return 1;
 
     bis = bis;//avoid compiling warnning
     if ( !flag ) {
@@ -61,6 +66,4 @@ int aml_v3_factory_usb_burning(int flag, bd_t* bis)
     v3tool_work_mode_set(V3TOOL_WORK_MODE_USB_PRODUCE);
     return run_command("adnl", 0);
 }
-
-
 

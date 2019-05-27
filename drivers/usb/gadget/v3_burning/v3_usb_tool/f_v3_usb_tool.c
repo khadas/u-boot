@@ -537,6 +537,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		strncat(response, U_BOOT_VERSION, chars_left);
 	} else if (!strcmp_l1("burnsteps", cmd)) {
 		unsigned* steps = (unsigned*)(response + 4);
+		FB_DBG("SYSCTRL_STICKY_REG2 addr 0x%x\n", P_PREG_STICKY_REG2);
 		*steps = readl(P_PREG_STICKY_REG2);
 		fastboot_tx_write(response, 4 + sizeof(unsigned));
 		return;
@@ -545,13 +546,15 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		const char fwVer[] = {5, 0, 0, 16, 0, 0, 0, 0};
 		memcpy(response + 4, fwVer, identifyLen);
 		replyLen = 4 + identifyLen;
-#ifdef CONFIG_EFUSE
 	} else if (!strcmp_l1("secureboot", cmd)) {
-		unsigned securebootEnable = IS_FEAT_BOOT_VERIFY();
-		securebootEnable = securebootEnable ? 1 : 0;
+		unsigned securebootEnable = 0;
+#ifdef CONFIG_EFUSE
+		securebootEnable = IS_FEAT_BOOT_VERIFY() ? 1 : 0;
+#else
+		FB_MSG("Configure efuse not enabled\n");
+#endif//#ifdef CONFIG_EFUSE
 		memcpy(response + 4, &securebootEnable, sizeof(unsigned));
 		replyLen = 4 + sizeof(unsigned);
-#endif//#ifdef CONFIG_EFUSE
 	} else if (!strcmp_l1("serialno", cmd)) {
 		extern const char * get_usid_string(void);
 		const char* usid = get_usid_string();
@@ -1032,74 +1035,74 @@ static int _mread_cmd_parser(const int argc, char* argv[], char* ack);
 
 static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 {
-    int ret = 0;
-    char tmp[RESPONSE_LEN + 1];
-    char* cmd = req->buf;
-    char* ack = response_str + 4;
+	int ret = 0;
+	char tmp[RESPONSE_LEN + 1];
+	char* cmd = req->buf;
+	char* ack = response_str + 4;
 
-    ack[0] = '\0';//set err for which buf not setted
-    char* cmdBuf = tmp;
-    memcpy(cmdBuf, cmd, strnlen(cmd, RESPONSE_LEN)+1);//+1 to terminate str
-    strsep(&cmdBuf, " ");
-    printf("OEM cmd[%s]\n", cmdBuf);
-    response_str[4] = 0;
+	ack[0] = '\0';//set err for which buf not setted
+	char* cmdBuf = tmp;
+	memcpy(cmdBuf, cmd, strnlen(cmd, RESPONSE_LEN)+1);//+1 to terminate str
+	strsep(&cmdBuf, " ");
+	printf("OEM cmd[%s]\n", cmdBuf);
+	response_str[4] = 0;
 
-    int argc = 33;
-    char *argv[CONFIG_SYS_MAXARGS + 1];
-    argc = cli_simple_parse_line(cmdBuf, argv);
-    if (argc == 0) {
-        fastboot_fail("oem no command at all");
-        FB_ERR("%s\n", response_str);;
-        return;
-    }
+	int argc = 33;
+	char *argv[CONFIG_SYS_MAXARGS + 1];
+	argc = cli_simple_parse_line(cmdBuf, argv);
+	if (argc == 0) {
+		fastboot_fail("oem no command at all");
+		FB_ERR("%s\n", response_str);;
+		return;
+	}
 
-    if ( !strcmp("mwrite", argv[0]) ) {
-        ret = _mwrite_cmd_parser(argc, argv, ack);
-    } else if( !strcmp("verify", argv[0]) ){
-        ret = _verify_partition_img(argc, argv, ack);
-        if (fastboot_is_busy()) {
-            fastboot_tx_write_str(response_str);
-            return;
-        }
-    } else if( !strcmp("mread", argv[0]) ){
-        ret = _mread_cmd_parser(argc, argv, ack);
-    } else if( !strcmp("key", argv[0]) ){
-        ret = v2_key_command(argc, argv, ack);
-    } else if( !strcmp("disk_initial", argv[0]) ){
-        int toErase = argc > 1 ? simple_strtoul(argv[1], NULL, 0) : 0;
-        int dtbImgSz = (0x1b8e == _memDtbImg.hadDown) ? _memDtbImg.imgSize : 0;
-        ret = v3tool_storage_init(toErase, dtbImgSz);
-        memset(&_memDtbImg, 0, sizeof(_memDtbImg));
-    } else if( !strcmp("save_setting", argv[0]) ){
+	if ( !strcmp("mwrite", argv[0]) ) {
+		ret = _mwrite_cmd_parser(argc, argv, ack);
+	} else if( !strcmp("verify", argv[0]) ){
+		ret = _verify_partition_img(argc, argv, ack);
+		if (fastboot_is_busy()) {
+			fastboot_tx_write_str(response_str);
+			return;
+		}
+	} else if( !strcmp("mread", argv[0]) ){
+		ret = _mread_cmd_parser(argc, argv, ack);
+	} else if( !strcmp("key", argv[0]) ){
+		ret = v2_key_command(argc, argv, ack);
+	} else if( !strcmp("disk_initial", argv[0]) ){
+		int toErase = argc > 1 ? simple_strtoul(argv[1], NULL, 0) : 0;
+		int dtbImgSz = (0x1b8e == _memDtbImg.hadDown) ? _memDtbImg.imgSize : 0;
+		ret = v3tool_storage_init(toErase, dtbImgSz);
+		memset(&_memDtbImg, 0, sizeof(_memDtbImg));
+	} else if( !strcmp("save_setting", argv[0]) ){
 #if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
-        env_set("firstboot", "1");
-        env_set("upgrade_step", "1");
-        ret = run_command("saveenv", 0);
+		env_set("firstboot", "1");
+		env_set("upgrade_step", "1");
+		ret = run_command("saveenv", 0);
 #else
-        FB_MSG("saveenv not implemented\n");
-        ret = 0;
+		FB_MSG("saveenv not implemented\n");
+		ret = 0;
 #endif//#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
-    } else if( !strcmp("setvar", argv[0]) ){
-        ret = v3tool_bl33_setvar(argc, argv);
-    } else if( !strcmp("test", argv[0]) ){
-        static int i = 0;
-        if ( ++i < 20 ) {
-            fastboot_busy(NULL);
-            fastboot_tx_write_str(response_str);
-            return;
-        }
-    } else {
-        strsep(&cmd, " ");
-        ret = run_command(cmd, 0);
-        if ( ret ) {
-            FBS_ERR(ack,"fail in cmd[%s]", cmd);
-        }
-    }
+	} else if( !strcmp("setvar", argv[0]) ){
+		ret = v3tool_bl33_setvar(argc, argv);
+	} else if( !strcmp("test", argv[0]) ){
+		static int i = 0;
+		if ( ++i < 20 ) {
+			fastboot_busy(NULL);
+			fastboot_tx_write_str(response_str);
+			return;
+		}
+	} else {
+		strsep(&cmd, " ");
+		ret = run_command(cmd, 0);
+		if ( ret ) {
+			FBS_ERR(ack,"fail in cmd[%s]", cmd);
+		}
+	}
 
-    /*FB_MSG("ret %d\n", ret);*/
-    ret ? fastboot_fail(NULL) :fastboot_okay(NULL);
-    fastboot_tx_write_str(response_str);
-    return ;
+	ret ? fastboot_fail(NULL) :fastboot_okay(NULL);
+	fastboot_tx_write_str(response_str);
+	FB_MSG("response[%d][%s]\n", ret, response_str);
+	return ;
 }
 
 const char* _imgFmt[] = {"normal", "sparse", "ubifs"};
@@ -1107,232 +1110,232 @@ const char* _mediatype[] = {"store", "mem", "key"};
 
 static int _verify_partition_img(const int argc, char* argv[], char* ack)
 {
-    int ret = -__LINE__;
-    if (3 > argc) {
-        FBS_ERR(ack, "argc(%d) < 3 invalid\n", argc);
-        return -__LINE__;
-    }
-    const char* vryAlg = argv[1];
-    const char* origsumStr = argv[2];
-    unsigned char gensum[SHA1_SUM_LEN];
-    char gensumStr[SHA1_SUM_LEN*2+1];
+	int ret = -__LINE__;
+	if (3 > argc) {
+		FBS_ERR(ack, "argc(%d) < 3 invalid\n", argc);
+		return -__LINE__;
+	}
+	const char* vryAlg = argv[1];
+	const char* origsumStr = argv[2];
+	unsigned char gensum[SHA1_SUM_LEN];
+	char gensumStr[SHA1_SUM_LEN*2+1];
 
-    ret = strcmp(vryAlg, "sha1sum");
-    if (ret) {
-        FBS_ERR(ack, "vryAlg[%s] unsupported\n", vryAlg);
-        return -__LINE__;
-    }
-    if (40 != strnlen(origsumStr,48)) {
-        FBS_ERR(ack, "err vrySum in len for vryAlg[%s]\n", vryAlg);
-        return -__LINE__;
-    }
-    ret = v3tool_buffman_img_verify_sha1sum(gensum);
-    if (v3tool_media_is_busy()) {
-        return 0;
-    }
-    if ( ret ) {
-        FB_ERR("Fail in gen sha1sum,ret=%d", ret);
-        return -__LINE__;
-    }
-    ret = optimus_hex_data_2_ascii_str(gensum, SHA1_SUM_LEN, gensumStr, sizeof(gensumStr)/sizeof(gensumStr[0]));
-    if ( ret ) {
-        FBS_ERR(ack, "Fail in pass hex to str,ret %d", ret);
-        return -__LINE__;
-    }
-    ret = strncmp(gensumStr, origsumStr, 40);
-    if ( ret ) {
-        /*FBS_ERR(ack, "gensum[%s] NOT match orisum[%s]", gensumStr, origsumStr);*/
-        FBS_ERR(ack, "gensum[%s] NOT match, origsum[%s]", gensumStr, origsumStr);
-        return -__LINE__;
-    }
-    FB_MSG("Verify finish and successful!\n");
-    return 0;
+	ret = strcmp(vryAlg, "sha1sum");
+	if (ret) {
+		FBS_ERR(ack, "vryAlg[%s] unsupported\n", vryAlg);
+		return -__LINE__;
+	}
+	if (40 != strnlen(origsumStr,48)) {
+		FBS_ERR(ack, "err vrySum in len for vryAlg[%s]\n", vryAlg);
+		return -__LINE__;
+	}
+	ret = v3tool_buffman_img_verify_sha1sum(gensum);
+	if (v3tool_media_is_busy()) {
+		return 0;
+	}
+	if ( ret ) {
+		FB_ERR("Fail in gen sha1sum,ret=%d", ret);
+		return -__LINE__;
+	}
+	ret = optimus_hex_data_2_ascii_str(gensum, SHA1_SUM_LEN, gensumStr, sizeof(gensumStr)/sizeof(gensumStr[0]));
+	if ( ret ) {
+		FBS_ERR(ack, "Fail in pass hex to str,ret %d", ret);
+		return -__LINE__;
+	}
+	ret = strncmp(gensumStr, origsumStr, 40);
+	if ( ret ) {
+		/*FBS_ERR(ack, "gensum[%s] NOT match orisum[%s]", gensumStr, origsumStr);*/
+		FBS_ERR(ack, "gensum[%s] NOT match, origsum[%s]", gensumStr, origsumStr);
+		return -__LINE__;
+	}
+	FB_MSG("Verify finish and successful!\n");
+	return 0;
 }
 
 //[mwrite] $imgSize $imgFmt $mediaType $partition <$partOffset>
 static int _mwrite_cmd_parser(const int argc, char* argv[], char* ack)
 {
-    int i = 0, ret = 0;
-    if ( 5 > argc ) {
-        sprintf(ack, "argc(%d) too few for mwrite", argc);
-        FB_ERR("%s\n", ack);
-        return -__LINE__;
-    }
-    const int64_t imgSize = simple_strtoull(argv[1], NULL, 0);
-    const char* imgFmt  = argv[2];
-    const char* media = argv[3];
-    const char* partition = argv[4];
-    const int64_t partOff = argc > 5 ? simple_strtoull(argv[5], NULL, 0) : 0;
-    ImgTransPara imgTransPara;
-    ImgDownloadPara* imgDownloadPara = &imgTransPara.download;
-    ImgCommonPara* commonInf      = &imgDownloadPara->commonInf;
+	int i = 0, ret = 0;
+	if ( 5 > argc ) {
+		sprintf(ack, "argc(%d) too few for mwrite", argc);
+		FB_ERR("%s\n", ack);
+		return -__LINE__;
+	}
+	const int64_t imgSize = simple_strtoull(argv[1], NULL, 0);
+	const char* imgFmt  = argv[2];
+	const char* media = argv[3];
+	const char* partition = argv[4];
+	const int64_t partOff = argc > 5 ? simple_strtoull(argv[5], NULL, 0) : 0;
+	ImgTransPara imgTransPara;
+	ImgDownloadPara* imgDownloadPara = &imgTransPara.download;
+	ImgCommonPara* commonInf      = &imgDownloadPara->commonInf;
 
-    memset(&imgTransPara, 0 , sizeof(imgTransPara));
-    int imgFmtInt = -1;
-    for (; i < sizeof(_imgFmt)/sizeof(_imgFmt[0]); ++i) {
-        if (!strcmp(_imgFmt[i],imgFmt)) imgFmtInt = V3TOOL_PART_IMG_FMT_RAW + i;
-    }
-    if ( imgFmtInt == -1 ) {
-        FBS_ERR(ack, "illegal imgFmt %s", imgFmt);
-        return -__LINE__;
-    }
-    int mediaType = -1;
-    for (i=0; i < sizeof(_mediatype)/sizeof(_mediatype[0]); ++i) {
-        if (strcmp(_mediatype[i], media)) continue;
-        mediaType = V3TOOL_MEDIA_TYPE_STORE + i;
-        break;
-    }
-    if ( -1 == mediaType ) {
-        FBS_ERR(ack, "unsupprted media %s", media);
-        return -__LINE__;
-    }
+	memset(&imgTransPara, 0 , sizeof(imgTransPara));
+	int imgFmtInt = -1;
+	for (; i < sizeof(_imgFmt)/sizeof(_imgFmt[0]); ++i) {
+		if (!strcmp(_imgFmt[i],imgFmt)) imgFmtInt = V3TOOL_PART_IMG_FMT_RAW + i;
+	}
+	if ( imgFmtInt == -1 ) {
+		FBS_ERR(ack, "illegal imgFmt %s", imgFmt);
+		return -__LINE__;
+	}
+	int mediaType = -1;
+	for (i=0; i < sizeof(_mediatype)/sizeof(_mediatype[0]); ++i) {
+		if (strcmp(_mediatype[i], media)) continue;
+		mediaType = V3TOOL_MEDIA_TYPE_STORE + i;
+		break;
+	}
+	if ( -1 == mediaType ) {
+		FBS_ERR(ack, "unsupprted media %s", media);
+		return -__LINE__;
+	}
 
-    imgDownloadPara->imgFmt  = imgFmtInt;
-    commonInf->imgSzTotal = imgSize;
-    commonInf->mediaType = mediaType;
-    commonInf->partStartOff = partOff;
-    strncpy(commonInf->partName, partition,V3_PART_NAME_LEN);
-    switch (mediaType)
-    {
-        case V3TOOL_MEDIA_TYPE_MEM:
-            {
-                if (strcmp("dtb", partition)) {
-                    commonInf->partStartOff += simple_strtoull(partition, NULL, 0);
-                } else {
-                    commonInf->partStartOff += V3_DTB_LOAD_ADDR;
-                    _memDtbImg.hadDown  = 0x1b8e;
-                    _memDtbImg.imgSize  = imgSize;
-                }
-                FB_MSG("mem base %llx\n", commonInf->partStartOff);
-           } break;
-        case V3TOOL_MEDIA_TYPE_STORE:
-            {
-                //TODO: add part sz check (assert imgsz <= part cap)
-            }break;
-        case V3TOOL_MEDIA_TYPE_UNIFYKEY:
-            {
-                if ( imgSize >= _UNIFYKEY_MAX_SZ ) {
-                    FBS_ERR(ack, "key sz 0x%llx too large\n", imgSize);
-                    return -__LINE__;
-                }
-            }break;
-        default:
-            FBS_ERR(ack, "unsupported meida %s", media);
-            return -__LINE__;
-    }
-    ret = v3tool_buffman_img_init(&imgTransPara, 1);
-    if ( ret ) {
-        FB_ERR("Fail in buffman init, ret %d\n", ret);
-        return -__LINE__;
-    }
-    printf("Flash 0x%08llx Bytes %s img to %s:%s\n", imgSize, imgFmt, media, partition);
+	imgDownloadPara->imgFmt  = imgFmtInt;
+	commonInf->imgSzTotal = imgSize;
+	commonInf->mediaType = mediaType;
+	commonInf->partStartOff = partOff;
+	strncpy(commonInf->partName, partition,V3_PART_NAME_LEN);
+	switch (mediaType)
+	{
+		case V3TOOL_MEDIA_TYPE_MEM:
+			{
+				if (strcmp("dtb", partition)) {
+					commonInf->partStartOff += simple_strtoull(partition, NULL, 0);
+				} else {
+					commonInf->partStartOff += V3_DTB_LOAD_ADDR;
+					_memDtbImg.hadDown  = 0x1b8e;
+					_memDtbImg.imgSize  = imgSize;
+				}
+				FB_MSG("mem base %llx\n", commonInf->partStartOff);
+			} break;
+		case V3TOOL_MEDIA_TYPE_STORE:
+			{
+				//TODO: add part sz check (assert imgsz <= part cap)
+			}break;
+		case V3TOOL_MEDIA_TYPE_UNIFYKEY:
+			{
+				if ( imgSize >= _UNIFYKEY_MAX_SZ ) {
+					FBS_ERR(ack, "key sz 0x%llx too large\n", imgSize);
+					return -__LINE__;
+				}
+			}break;
+		default:
+			FBS_ERR(ack, "unsupported meida %s", media);
+			return -__LINE__;
+	}
+	ret = v3tool_buffman_img_init(&imgTransPara, 1);
+	if ( ret ) {
+		FB_ERR("Fail in buffman init, ret %d\n", ret);
+		return -__LINE__;
+	}
+	printf("Flash 0x%08llx Bytes %s img to %s:%s\n", imgSize, imgFmt, media, partition);
 
-    return ret;
+	return ret;
 }
 
 //[mread] $imgSize $imgFmt $mediaType $partition <$partOffset>
 static int _mread_cmd_parser(const int argc, char* argv[], char* ack)
 {
-    int i = 0, ret = 0;
-    if ( 5 > argc ) {
-        sprintf(ack, "argc(%d) too few for mwrite", argc);
-        FB_ERR("%s\n", ack);
-        return -__LINE__;
-    }
-    const int64_t imgSize = simple_strtoull(argv[1], NULL, 0);
-    const char* imgFmt  = argv[2];
-    const char* media = argv[3];
-    const char* partition = argv[4];
-    const int64_t partOff = argc > 5 ? simple_strtoull(argv[5], NULL, 0) : 0;
-    ImgTransPara imgTransPara;
-    ImgUploadPara* imgUploadPara = &imgTransPara.upload;
-    ImgCommonPara* commonInf      = &imgUploadPara->commonInf;
+	int i = 0, ret = 0;
+	if ( 5 > argc ) {
+		sprintf(ack, "argc(%d) too few for mwrite", argc);
+		FB_ERR("%s\n", ack);
+		return -__LINE__;
+	}
+	const int64_t imgSize = simple_strtoull(argv[1], NULL, 0);
+	const char* imgFmt  = argv[2];
+	const char* media = argv[3];
+	const char* partition = argv[4];
+	const int64_t partOff = argc > 5 ? simple_strtoull(argv[5], NULL, 0) : 0;
+	ImgTransPara imgTransPara;
+	ImgUploadPara* imgUploadPara = &imgTransPara.upload;
+	ImgCommonPara* commonInf      = &imgUploadPara->commonInf;
 
-    memset(&imgTransPara, 0 , sizeof(imgTransPara));
-    int imgFmtInt = -1;
-    for (; i < sizeof(_imgFmt)/sizeof(_imgFmt[0]); ++i) {
-        if (!strcmp(_imgFmt[i],imgFmt)) imgFmtInt = V3TOOL_PART_IMG_FMT_RAW + i;
-    }
-    if ( imgFmtInt == -1 ) {
-        FBS_ERR(ack, "illegal imgFmt %s", imgFmt);
-        return -__LINE__;
-    }
-    if (imgFmtInt != V3TOOL_PART_IMG_FMT_RAW) {
-        FBS_ERR(ack, "oops, only support normal fmt in upload mode");
-        return -__LINE__;
-    }
-    int mediaType = -1;
-    for (i=0; i < sizeof(_mediatype)/sizeof(_mediatype[0]); ++i) {
-        if (strcmp(_mediatype[i], media)) continue;
-        mediaType = V3TOOL_MEDIA_TYPE_STORE + i;
-        break;
-    }
-    if ( -1 == mediaType ) {
-        FBS_ERR(ack, "unsupprted media %s", media);
-        return -__LINE__;
-    }
+	memset(&imgTransPara, 0 , sizeof(imgTransPara));
+	int imgFmtInt = -1;
+	for (; i < sizeof(_imgFmt)/sizeof(_imgFmt[0]); ++i) {
+		if (!strcmp(_imgFmt[i],imgFmt)) imgFmtInt = V3TOOL_PART_IMG_FMT_RAW + i;
+	}
+	if ( imgFmtInt == -1 ) {
+		FBS_ERR(ack, "illegal imgFmt %s", imgFmt);
+		return -__LINE__;
+	}
+	if (imgFmtInt != V3TOOL_PART_IMG_FMT_RAW) {
+		FBS_ERR(ack, "oops, only support normal fmt in upload mode");
+		return -__LINE__;
+	}
+	int mediaType = -1;
+	for (i=0; i < sizeof(_mediatype)/sizeof(_mediatype[0]); ++i) {
+		if (strcmp(_mediatype[i], media)) continue;
+		mediaType = V3TOOL_MEDIA_TYPE_STORE + i;
+		break;
+	}
+	if ( -1 == mediaType ) {
+		FBS_ERR(ack, "unsupprted media %s", media);
+		return -__LINE__;
+	}
 
-    commonInf->imgSzTotal = imgSize;
-    commonInf->mediaType = mediaType;
-    commonInf->partStartOff = partOff;
-    switch (mediaType)
-    {
-        case V3TOOL_MEDIA_TYPE_MEM:
-            {
-                commonInf->partStartOff += simple_strtoull(partition, NULL, 0);
-                FB_MSG("partStartOff 0x%llx\n", commonInf->partStartOff);
-           } break;
-        case V3TOOL_MEDIA_TYPE_STORE:
-        case V3TOOL_MEDIA_TYPE_UNIFYKEY:
-            {
-                strncpy(commonInf->partName, partition,V3_PART_NAME_LEN);
-            }break;
-        default:
-            FBS_ERR(ack, "unsupported meida %s", media);
-            return -__LINE__;
-    }
-    ret = v3tool_buffman_img_init(&imgTransPara, 0);
-    if ( ret ) {
-        FB_ERR("Fail in buffman init, ret %d\n", ret);
-        return -__LINE__;
-    }
+	commonInf->imgSzTotal = imgSize;
+	commonInf->mediaType = mediaType;
+	commonInf->partStartOff = partOff;
+	switch (mediaType)
+	{
+		case V3TOOL_MEDIA_TYPE_MEM:
+			{
+				commonInf->partStartOff += simple_strtoull(partition, NULL, 0);
+				FB_MSG("partStartOff 0x%llx\n", commonInf->partStartOff);
+			} break;
+		case V3TOOL_MEDIA_TYPE_STORE:
+		case V3TOOL_MEDIA_TYPE_UNIFYKEY:
+			{
+				strncpy(commonInf->partName, partition,V3_PART_NAME_LEN);
+			}break;
+		default:
+			FBS_ERR(ack, "unsupported meida %s", media);
+			return -__LINE__;
+	}
+	ret = v3tool_buffman_img_init(&imgTransPara, 0);
+	if ( ret ) {
+		FB_ERR("Fail in buffman init, ret %d\n", ret);
+		return -__LINE__;
+	}
 
-    return ret;
+	return ret;
 }
 
 static void tx_handler_mread(struct usb_ep* inep, struct usb_request* inreq)
 {
-    const unsigned int transfer_size = inreq->actual;
+	const unsigned int transfer_size = inreq->actual;
 
-    if (inreq->status != 0) {
-        printf("in req Bad status: %d\n", inreq->status);
-        return;
-    }
-    if ( fastboot_func->in_req != inreq ) {
-        FB_ERR("exception, bogus req\n");
-        return ;
-    }
-    _mreadInfo.transferredBytes += transfer_size;
+	if (inreq->status != 0) {
+		printf("in req Bad status: %d\n", inreq->status);
+		return;
+	}
+	if ( fastboot_func->in_req != inreq ) {
+		FB_ERR("exception, bogus req\n");
+		return ;
+	}
+	_mreadInfo.transferredBytes += transfer_size;
 
-    /* Check if transfer is done */
-    if (_mreadInfo.transferredBytes >= _mreadInfo.totalBytes) {
-        FB_DBG("mread 0x%x bytes end\n", _mreadInfo.transferredBytes);
+	/* Check if transfer is done */
+	if (_mreadInfo.transferredBytes >= _mreadInfo.totalBytes) {
+		FB_DBG("mread 0x%x bytes end\n", _mreadInfo.transferredBytes);
 
-        inreq->complete = fastboot_complete;//mwrite ended and return to receive command
-        inreq->length = EP_BUFFER_SIZE;
-        if (_mreadInfo.priv)inreq->buf  = (char*) _mreadInfo.priv;
-        //should return to rx next command
-        v3tool_buffman_data_complete_upload(_pUsbUpInf);
-    } else {
-        const unsigned leftLen = _mreadInfo.totalBytes - _mreadInfo.transferredBytes;
-        inreq->length = DWC_BLK_LEN(leftLen);
-        inreq->buf   += transfer_size;//remove copy
+		inreq->complete = fastboot_complete;//mwrite ended and return to receive command
+		inreq->length = EP_BUFFER_SIZE;
+		if (_mreadInfo.priv)inreq->buf  = (char*) _mreadInfo.priv;
+		//should return to rx next command
+		v3tool_buffman_data_complete_upload(_pUsbUpInf);
+	} else {
+		const unsigned leftLen = _mreadInfo.totalBytes - _mreadInfo.transferredBytes;
+		inreq->length = DWC_BLK_LEN(leftLen);
+		inreq->buf   += transfer_size;//remove copy
 
-        inreq->actual = 0;
-        usb_ep_queue(inep, inreq, 0);
-    }
+		inreq->actual = 0;
+		usb_ep_queue(inep, inreq, 0);
+	}
 
-    return;
+	return;
 }
 
 enum {
@@ -1344,83 +1347,83 @@ enum {
 //[fastboot mread boot.img.dump]
 void cb_aml_media_read(struct usb_ep *outep, struct usb_request *outreq)
 {
-    char *cmd = outreq->buf;
-    FB_DBG("cmd cb_mread[%s]\n", cmd);
-    strsep(&cmd, ":");
-    int ret = -__LINE__;
-    int staMread = 0;
+	char *cmd = outreq->buf;
+	FB_DBG("cmd cb_mread[%s]\n", cmd);
+	strsep(&cmd, ":");
+	int ret = -__LINE__;
+	int staMread = 0;
 
-    //default attributes for mwrite
-    _mwriteInfo.dataCheckAlg = MWRITE_DATA_CHECK_ALG_NONE;//default no transfer verify
-    _mwriteInfo.transferredBytes = 0;
+	//default attributes for mwrite
+	_mwriteInfo.dataCheckAlg = MWRITE_DATA_CHECK_ALG_NONE;//default no transfer verify
+	_mwriteInfo.transferredBytes = 0;
 
-    const char* field = cmd;
-    strsep(&cmd, "=");
-    /*const int64_t val = simple_strtoull(cmd, &endptr, 0);*/
-    if (!strcmp(field,"status")) {
-        if (!strcmp("request", cmd)) {
-            staMread = MREAD_STATUS_REQUEST;
-        } else if(!strcmp("upload", cmd)){
-            staMread = MREAD_STATUS_UPLOAD;
-        } else if(!strcmp("finish", cmd)){
-            staMread = MREAD_STATUS_FINISH;
-        } else {
-            FBS_ERR(_ACK, "unsupported mread status %s", cmd);
-            fastboot_fail(NULL);
-            return;
-        }
-    }
+	const char* field = cmd;
+	strsep(&cmd, "=");
+	/*const int64_t val = simple_strtoull(cmd, &endptr, 0);*/
+	if (!strcmp(field,"status")) {
+		if (!strcmp("request", cmd)) {
+			staMread = MREAD_STATUS_REQUEST;
+		} else if(!strcmp("upload", cmd)){
+			staMread = MREAD_STATUS_UPLOAD;
+		} else if(!strcmp("finish", cmd)){
+			staMread = MREAD_STATUS_FINISH;
+		} else {
+			FBS_ERR(_ACK, "unsupported mread status %s", cmd);
+			fastboot_fail(NULL);
+			return;
+		}
+	}
 
-    switch (staMread)
-    {
-        case MREAD_STATUS_REQUEST:
-            {
-                //default attributes for mwrite
-                _mreadInfo.transferredBytes = 0;
-                _mreadInfo.totalBytes = 0;
+	switch (staMread)
+	{
+		case MREAD_STATUS_REQUEST:
+			{
+				//default attributes for mwrite
+				_mreadInfo.transferredBytes = 0;
+				_mreadInfo.totalBytes = 0;
 
-                ret = v3tool_buffman_next_upload_info(&_pUsbUpInf);
-                if ( ret || NULL == _pUsbUpInf) {
-                    FBS_ERR(_ACK, "Fail in buffman get, ret %d", ret);
-                    fastboot_fail(NULL);
-                    fastboot_tx_write_str(response_str);
-                    return;
-                }
-                if ( 0 == _pUsbUpInf->dataSize ) {
-                    fastboot_okay(NULL); response_str[4] = 0;//add NULL terminated
+				ret = v3tool_buffman_next_upload_info(&_pUsbUpInf);
+				if ( ret || NULL == _pUsbUpInf) {
+					FBS_ERR(_ACK, "Fail in buffman get, ret %d", ret);
+					fastboot_fail(NULL);
+					fastboot_tx_write_str(response_str);
+					return;
+				}
+				if ( 0 == _pUsbUpInf->dataSize ) {
+					fastboot_okay(NULL); response_str[4] = 0;//add NULL terminated
 					FB_MSG("OKAY in Upload Data\n\n");
-                } else {
-                    _mreadInfo.totalBytes = _pUsbUpInf->dataSize;
-                    sprintf(response_str, "DATAIN0x%x", _pUsbUpInf->dataSize);
-                }
-                fastboot_tx_write(response_str, strnlen(response_str, RESPONSE_LEN) + 1);//add 0 ternimated
-                FB_DBG("_pUsbUpInf %p,sz %d\n", _pUsbUpInf->dataBuf, _mreadInfo.totalBytes);
-                return ;
-            }
-        case MREAD_STATUS_UPLOAD:
-            {
-                struct usb_ep* inep = fastboot_func->in_ep;
-                struct usb_request* inreq = fastboot_func->in_req;
-                inreq->complete = tx_handler_mread;//handle for download complete
-                const unsigned leftLen = _mreadInfo.totalBytes - _mreadInfo.transferredBytes;
-                inreq->length = DWC_BLK_LEN(leftLen);
-                if (!_mreadInfo.priv) _mreadInfo.priv = inreq->buf;//backup command buf
-                inreq->buf = _pUsbUpInf->dataBuf;//to remove copy
-                FB_DBG("upload buf=%p, leftLen 0x%x, req len 0x%x\n",
-                        inreq->buf, leftLen, inreq->length);
-                ret = usb_ep_queue(inep, inreq, 0);
-                if (ret)
-                    FB_ERR("Error %d on queue\n", ret);
-                return;
-            }
-        case MREAD_STATUS_FINISH:
-            {
+				} else {
+					_mreadInfo.totalBytes = _pUsbUpInf->dataSize;
+					sprintf(response_str, "DATAIN0x%x", _pUsbUpInf->dataSize);
+				}
+				fastboot_tx_write(response_str, strnlen(response_str, RESPONSE_LEN) + 1);//add 0 ternimated
+				FB_DBG("_pUsbUpInf %p,sz %d\n", _pUsbUpInf->dataBuf, _mreadInfo.totalBytes);
+				return ;
+			}
+		case MREAD_STATUS_UPLOAD:
+			{
+				struct usb_ep* inep = fastboot_func->in_ep;
+				struct usb_request* inreq = fastboot_func->in_req;
+				inreq->complete = tx_handler_mread;//handle for download complete
+				const unsigned leftLen = _mreadInfo.totalBytes - _mreadInfo.transferredBytes;
+				inreq->length = DWC_BLK_LEN(leftLen);
+				if (!_mreadInfo.priv) _mreadInfo.priv = inreq->buf;//backup command buf
+				inreq->buf = _pUsbUpInf->dataBuf;//to remove copy
+				FB_DBG("upload buf=%p, leftLen 0x%x, req len 0x%x\n",
+						inreq->buf, leftLen, inreq->length);
+				ret = usb_ep_queue(inep, inreq, 0);
+				if (ret)
+					FB_ERR("Error %d on queue\n", ret);
+				return;
+			}
+		case MREAD_STATUS_FINISH:
+			{
 				const int uploadOk = (_mreadInfo.totalBytes == _mreadInfo.transferredBytes);
 				const char* ack = uploadOk ? "OKAY" : "FAIL";
 				fastboot_tx_write_str(ack);
-            } break;//just reuturn
-    }
+			} break;//just reuturn
+	}
 
-    return;
+	return;
 }
 

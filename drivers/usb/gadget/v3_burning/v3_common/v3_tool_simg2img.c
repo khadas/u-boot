@@ -226,7 +226,7 @@ static int simg2img_fill_chunk_write(const char* partName, int fillLen, const un
     }
     while (LeftDataLen >0) {
         const unsigned thisWriteLen = min(LeftDataLen, BufSz);
-        int ret = store_write(partName, flashAddr, thisWriteLen, fillBuf);
+        int ret = store_logic_write(partName, flashAddr, thisWriteLen, fillBuf);
         if (ret) {
             sperr("FILL_CHUNK:Want write 0x%x Bytes, but failed\n", thisWriteLen);
             return -__LINE__;
@@ -323,7 +323,7 @@ int v3tool_simg2img_write_img(const UsbDownInf* downInf, const ImgDownloadPara* 
         //spmsg("chunkInfo %p, %x\n", pChunk, pChunk->chunk_type);
         const unsigned chunkType = pChunk->chunk_type;
         if (CHUNK_TYPE_RAW == chunkType) {
-            if (store_write(part, flashAddr, flashWrLen, dataBuf)) {
+            if (store_logic_write(part, flashAddr, flashWrLen, dataBuf)) {
                 sperr("Fail in flash raw trunk\n");
                 return -__LINE__;
             }
@@ -450,7 +450,7 @@ int v3tool_simg2img_verify_img(sha1_context* ctx, const char* partName, int64_t 
         int64_t flashAddr = _partOffset + chunkDataLen - _dataChunkLeft;
         while ( _dataChunkLeft ) {
             const int thisLen = min(vryBuffLen, _dataChunkLeft);
-            if (store_read(partName, flashAddr, thisLen, dataBuf)) {
+            if (store_logic_read(partName, flashAddr, thisLen, dataBuf)) {
                 sperr("Fail in read storage for verify\n");
                 goto _verify_end;
             }

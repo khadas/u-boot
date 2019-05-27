@@ -1,9 +1,17 @@
 #
 # AML V3 burning
 #
+config AML_STORE_WRAPPER
+	depends on AML_STORAGE
+	bool "wrapper for store"
+	default y
+	help
+	  based on AML_STORAGE
+	  read/write don't care bad blocks
+
 menuconfig AML_V3_FACTORY_BURN
 	bool "Amlogic V3 burning Support"
-	depends on AML_STORAGE
+	depends on AML_STORE_WRAPPER
 	---help---
 	  Say Y here if you want to support amlogic V3 factory burning
 
