@@ -329,7 +329,7 @@
 						compatible = "spi-flash";
 						#address-cells = <1>;
 						#size-cells = <0>;
-						status = "disabled";
+						status = "okay";
 					};
 					spi-nand@1 {
 						compatible = "spi-nand";

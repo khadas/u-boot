@@ -261,13 +261,12 @@
 };
 
 &spifc {
-	status = "disabled";
+	status = "okay";
 	/* pinctrl-names = "default"; */
 	/* pinctrl-0 = <&spifc_all_pins>; */
-	max-frequency = <80000000>;
-	max-io = <4>;
+	max-frequency = <24000000>;
+	max-io = <1>;
 	max-cs = <2>;
-	/*cs-gpios = <&gpio BOOT_14 GPIO_ACTIVE_HIGH>;*/
 	//clocks = <&clkc CLKID_CLK81>;
 	//clock-names = "core";
 };

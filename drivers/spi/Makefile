@@ -61,3 +61,4 @@ obj-$(CONFIG_ZYNQ_QSPI) += zynq_qspi.o
 obj-$(CONFIG_ZYNQMP_GQSPI) += zynqmp_gqspi.o
 obj-$(CONFIG_AML_SPICC) += spicc.o
 obj-$(CONFIG_AML_SPIFC) += spifc.o
+obj-$(CONFIG_AML_SPIFCV2) += spifc_v2.o
