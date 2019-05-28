@@ -1,7 +1,8 @@
 
 /*
+ * board/khadas/configs/kvim3l.h
  *
- * Copyright (C) 2018 Khadas, Inc. All rights reserved.
+ * Copyright (C) 2019 Khadas, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +19,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef __KVIM3_H__
-#define __KVIM3_H__
+#ifndef __KVIM3L_H__
+#define __KVIM3L_H__
 
 #include <asm/arch/cpu.h>
 
@@ -36,11 +37,8 @@
 #define CONFIG_VDDEE_INIT_VOLTAGE	800		// VDDEE power up voltage
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	770		// VDDEE suspend voltage
 
-/* config for khadas kbi */
-#define CONFIG_KHADAS_KBI 1
-
 /* configs for CEC */
-#define CONFIG_CEC_OSD_NAME		"KVIM3"
+#define CONFIG_CEC_OSD_NAME		"KVIM3L"
 #define CONFIG_CEC_WAKEUP
 /*if use bt-wakeup,open it*/
 #define CONFIG_BT_WAKEUP
@@ -86,11 +84,11 @@
         "upgrade_step=0\0"\
         "jtag=disable\0"\
         "loadaddr=1080000\0"\
-        "panel_type=lcd_1\0" \
-        "outputmode=1080p60hz\0" \
+        "panel_type=lcd_7\0" \
+        "outputmode=panel\0" \
         "hdmimode=1080p60hz\0" \
-	"colorattribute=444,8bit\0"\
-        "cvbsmode=576cvbs\0" \
+        "colorattribute=444,8bit\0"\
+        "cvbsmode=panel\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
         "display_bpp=16\0" \
@@ -117,13 +115,13 @@
         "recovery_part=recovery\0"\
         "recovery_offset=0\0"\
         "cvbs_drv=0\0"\
-        "lock=10001000\0"\
         "osd_reverse=0\0"\
         "video_reverse=0\0"\
+        "lock=10001000\0"\
         "active_slot=normal\0"\
         "boot_part=boot\0"\
-        "Irq_check_en=0\0"\
         "reboot_mode_android=""normal""\0"\
+        "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
             "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xff803000 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
@@ -278,10 +276,16 @@
                     "setenv bootargs ${bootargs} androidboot.serialno=1234567890;"\
                     "setenv serial 1234567890;"\
                 "fi;"\
-                "kbi ethmac;"\
-                "setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
+                "if keyman read mac ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} mac=${mac} androidboot.mac=${mac};"\
+                "fi;"\
                 "if keyman read deviceid ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
+                "fi;"\
+                "if keyman read region_code ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
+                "else "\
+                    "setenv bootargs ${bootargs} androidboot.wificountrycode=US;"\
                 "fi;"\
             "fi;"\
             "\0"\
@@ -290,7 +294,7 @@
             "get_valid_slot;"\
             "\0"\
         "upgrade_key="\
-            "if gpio input GPIOAO_7; then "\
+            "if gpio input GPIOAO_3; then "\
                 "echo detect upgrade key; run update;"\
             "fi;"\
             "\0"\
@@ -311,7 +315,7 @@
             "run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
-            "run upgrade_key;"\
+            "run upgrade_key;" \
             "forceupdate;" \
             "bcb uboot-command;"\
             "run switch_bootmode;"
@@ -433,7 +437,7 @@
 
 /* meson SPI */
 #define CONFIG_AML_SPIFC
-#define CONFIG_AML_SPICC
+//#define CONFIG_AML_SPICC
 #if defined CONFIG_AML_SPIFC || defined CONFIG_AML_SPICC
 	#define CONFIG_OF_SPI
 	#define CONFIG_DM_SPI
@@ -481,9 +485,9 @@
 #define CONFIG_AML_CANVAS 1
 #define CONFIG_AML_VOUT 1
 #define CONFIG_AML_OSD 1
-#define CONFIG_AML_MINUI 1
 #define CONFIG_OSD_SCALE_ENABLE 1
 #define CONFIG_CMD_BMP 1
+#define CONFIG_AML_MINUI 1
 
 #if defined(CONFIG_AML_VOUT)
 #define CONFIG_AML_CVBS 1
@@ -492,7 +496,6 @@
 #define CONFIG_AML_LCD    1
 #define CONFIG_AML_LCD_TABLET 1
 #define CONFIG_AML_LCD_EXTERN 1
-
 
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard
@@ -509,8 +512,8 @@
 	#define CONFIG_USB_STORAGE      1
 	#define CONFIG_USB_XHCI		1
 	#define CONFIG_USB_XHCI_AMLOGIC_V2 1
-	#define CONFIG_USB_GPIO_PWR  			GPIOEE(GPIOA_6)
-	#define CONFIG_USB_GPIO_PWR_NAME		"GPIOA_6"
+	#define CONFIG_USB_GPIO_PWR  			GPIOEE(GPIOH_6)
+	#define CONFIG_USB_GPIO_PWR_NAME		"GPIOH_6"
 	//#define CONFIG_USB_XHCI_AMLOGIC_USB3_V2		1
 #endif //#if defined(CONFIG_CMD_USB)
 
@@ -518,7 +521,7 @@
 #define CONFIG_USB_DEVICE_V2    1
 #define USB_PHY2_PLL_PARAMETER_1	0x09400414
 #define USB_PHY2_PLL_PARAMETER_2	0x927e0000
-#define USB_PHY2_PLL_PARAMETER_3	0xAC5F69E5
+#define USB_PHY2_PLL_PARAMETER_3	0xAC5F49E5
 #define USB_G12x_PHY_PLL_SETTING_1	(0xfe18)
 #define USB_G12x_PHY_PLL_SETTING_2	(0xfff)
 #define USB_G12x_PHY_PLL_SETTING_3	(0x78000)
@@ -533,7 +536,7 @@
 #define CONFIG_USBDOWNLOAD_GADGET 1
 #define CONFIG_SYS_CACHELINE_SIZE 64
 #define CONFIG_FASTBOOT_MAX_DOWN_SIZE	0x8000000
-#define CONFIG_DEVICE_PRODUCT	"galilei"
+#define CONFIG_DEVICE_PRODUCT	"u202"
 
 //UBOOT Facotry usb/sdcard burning config
 #define CONFIG_AML_V2_FACTORY_BURN              1       //support facotry usb burning
@@ -565,6 +568,7 @@
 /* other devices */
 /* I2C DM driver*/
 //#define CONFIG_DM_I2C
+
 #if defined(CONFIG_DM_I2C)
 #define CONFIG_SYS_I2C_MESON		1
 #else
@@ -592,7 +596,6 @@
 #define CONFIG_CMD_JTAG	1
 #define CONFIG_CMD_AUTOSCRIPT 1
 #define CONFIG_CMD_MISC 1
-#define CONFIG_CMD_PLLTEST 1
 
 /*file system*/
 #define CONFIG_DOS_PARTITION 1
@@ -602,6 +605,8 @@
 #define CONFIG_FS_FAT 1
 #define CONFIG_FS_EXT4 1
 #define CONFIG_LZO 1
+
+#define CONFIG_MDUMP_COMPRESS 1
 
 /* Cache Definitions */
 //#define CONFIG_SYS_DCACHE_OFF
@@ -662,9 +667,19 @@
 #endif
 
 /* Choose One of Ethernet Type */
-#undef CONFIG_ETHERNET_NONE
-#define ETHERNET_EXTERNAL_PHY
-#undef  ETHERNET_INTERNAL_PHY
+#define CONFIG_ETHERNET_NONE
+#undef ETHERNET_INTERNAL_PHY
+#undef ETHERNET_EXTERNAL_PHY
+
+#define CONFIG_CMD_AML_MTEST 1
+#if defined(CONFIG_CMD_AML_MTEST)
+#if !defined(CONFIG_SYS_MEM_TOP_HIDE)
+#error CONFIG_CMD_AML_MTEST depends on CONFIG_SYS_MEM_TOP_HIDE;
+#endif
+#if !(CONFIG_SYS_MEM_TOP_HIDE)
+#error CONFIG_SYS_MEM_TOP_HIDE should not be zero;
+#endif
+#endif
 
 #define CONFIG_HIGH_TEMP_COOL 90
 #endif
