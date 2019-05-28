@@ -22,70 +22,22 @@
 
 #include <asm/arch/cpu.h>
 
-/* #define CONFIG_SYS_GENERIC_BOARD  1 */
-/*
-#ifndef CONFIG_AML_MESON
-#warning "include warning"
-#endif
-*/
-
 /*
  * platform power init config
  */
-#if 0
-#define CONFIG_PLATFORM_POWER_INIT
-#define CONFIG_VCCK_INIT_VOLTAGE	800		// VCCK power up voltage
-#define CONFIG_VDDEE_INIT_VOLTAGE	800		// VDDEE power up voltage
-#define CONFIG_VDDEE_SLEEP_VOLTAGE	731		// VDDEE suspend voltage
-#endif
-
 #define AML_VCCK_INIT_VOLTAGE    800     // VCCK power up voltage
 #define AML_VDDEE_INIT_VOLTAGE   800     // VDDEE power up voltage
 #define AML_VDDEE_SLEEP_VOLTAGE  731     // VDDEE suspend voltage
 
 /* configs for CEC */
-#if 0
-#define CONFIG_CEC_OSD_NAME		"AML_TV"
-#define CONFIG_CEC_WAKEUP
-/*if use bt-wakeup,open it*/
-#define CONFIG_BT_WAKEUP
-#endif
 /* SMP Definitinos */
 #define CPU_RELEASE_ADDR		secondary_boot_func
-
-/* config saradc*/
-#if 0
-#define CONFIG_CMD_SARADC 1
-#define CONFIG_SARADC_CH  2
-#endif
-
-/* Bootloader Control Block function
-   That is used for recovery and the bootloader to talk to each other
-  */
-#if 0
-#define CONFIG_BOOTLOADER_CONTROL_BLOCK
-#endif
 
 /* Serial config */
 #define CONFIG_CONS_INDEX 2
 #define CONFIG_BAUDRATE  115200
-/* #define CONFIG_AML_MESON_SERIAL   1 */
-#if 0
-#define CONFIG_SERIAL_MULTI		1
-#endif
 
 /* Enable ir remote wake up for bl30 */
-#if 0
-#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL1 0xef10fe01 //amlogic tv ir --- power
-#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL2 0XBB44FB04 //amlogic tv ir --- ch+
-#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL3 0xF20DFE01 //amlogic tv ir --- ch-
-#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL4 0XBA45BD02 //amlogic small ir--- power
-#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL5 0xe51afb04
-#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL6 0xFFFFFFFF
-#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL7 0xFFFFFFFF
-#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL8 0xFFFFFFFF
-#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL9 0xFFFFFFFF
-#endif
 #define AML_IR_REMOTE_POWER_UP_KEY_VAL1 0xef10fe01 //amlogic tv ir --- power
 #define AML_IR_REMOTE_POWER_UP_KEY_VAL2 0XBB44FB04 //amlogic tv ir --- ch+
 #define AML_IR_REMOTE_POWER_UP_KEY_VAL3 0xF20DFE01 //amlogic tv ir --- ch-
@@ -97,10 +49,6 @@
 #define AML_IR_REMOTE_POWER_UP_KEY_VAL9 0xFFFFFFFF
 
 /*config the default parameters for adc power key*/
-#if 0
-#define CONFIG_ADC_POWER_KEY_CHAN   2  /*channel range: 0-7*/
-#define CONFIG_ADC_POWER_KEY_VAL    0  /*sample value range: 0-1023*/
-#endif
 #define AML_ADC_POWER_KEY_CHAN   2  /*channel range: 0-7*/
 #define AML_ADC_POWER_KEY_VAL    0  /*sample value range: 0-1023*/
 
@@ -355,18 +303,7 @@
 /* ATTENTION */
 /* DDR configs move to board/amlogic/[board]/firmware/timing.c */
 
-//#define CONFIG_NR_DRAM_BANKS			1
 /* ddr functions */
-#if 0
-#define CONFIG_DDR_FULL_TEST			0 //0:disable, 1:enable. ddr full test
-#define CONFIG_CMD_DDR_D2PLL			0 //0:disable, 1:enable. d2pll cmd
-#define CONFIG_CMD_DDR_TEST				0 //0:disable, 1:enable. ddrtest cmd
-#define CONFIG_DDR_LOW_POWER			0 //0:disable, 1:enable. ddr clk gate for lp
-#define CONFIG_DDR_ZQ_PD				0 //0:disable, 1:enable. ddr zq power down
-#define CONFIG_DDR_USE_EXT_VREF			0 //0:disable, 1:enable. ddr use external vref
-#define CONFIG_DDR4_TIMING_TEST			0 //0:disable, 1:enable. ddr4 timing test function
-#define CONFIG_DDR_PLL_BYPASS			0 //0:disable, 1:enable. ddr pll bypass function
-#endif
 #define DDR_FULL_TEST            0 //0:disable, 1:enable. ddr full test
 #define DDR_LOW_POWER            0 //0:disable, 1:enable. ddr clk gate for lp
 #define DDR_ZQ_PD                0 //0:disable, 1:enable. ddr zq power down
@@ -375,9 +312,6 @@
 #define DDR_PLL_BYPASS           0 //0:disable, 1:enable. ddr pll bypass function
 
 /* storage: emmc/nand/sd */
-#if 0
-#define		CONFIG_STORE_COMPATIBLE 1
-#endif
 #define 	CONFIG_ENV_OVERWRITE
 /* #define 	CONFIG_CMD_SAVEENV */
 /* fixme, need fix*/
@@ -407,58 +341,6 @@
 #error CONFIG_SPI_NAND/CONFIG_MESON_NFC can not support at the sametime;
 #endif
 
-#if 0
-#ifdef CONFIG_MESON_NFC
-
-/* bootlaoder is construct by bl2 and fip
- * when DISCRETE_BOOTLOADER is enabled, bl2 & fip
- * will not be stored continuously, and nand layout
- * would be bl2|rsv|fip|normal, but not
- * bl2|fip|rsv|noraml anymore
- */
-#if 0
-#define CONFIG_DISCRETE_BOOTLOADER
-#endif
-
-#ifdef  CONFIG_DISCRETE_BOOTLOADER
-#if 0
-#define CONFIG_TPL_SIZE_PER_COPY          0x200000
-#define CONFIG_TPL_COPY_NUM               4
-#define CONFIG_TPL_PART_NAME              "tpl"
-/* for bl2, restricted by romboot */
-/* SKT 1024 pages only support 4 block, so 4 copies */
-#define CONFIG_BL2_COPY_NUM               4
-#endif
-#endif /* CONFIG_DISCRETE_BOOTLOADER */
-
-/* #define CONFIG_CMD_NAND 1 */
-#define CONFIG_MTD_DEVICE y
-/* mtd parts of ourown.*/
-#define CONFIG_AML_MTDPART	1
-/* mtd parts by env default way.*/
-/*
-#define MTDIDS_NAME_STR		"aml_nand.0"
-#define MTDIDS_DEFAULT		"nand1=" MTDIDS_NAME_STR
-#define MTDPARTS_DEFAULT	"mtdparts=" MTDIDS_NAME_STR ":" \
-					"3M@8192K(logo),"	\
-					"10M(recovery),"	\
-					"8M(kernel),"	\
-					"40M(rootfs),"	\
-					"-(data)"
-*/
-#define CONFIG_CMD_UBI
-#define CONFIG_CMD_UBIFS
-#define CONFIG_MTD_UBI_WL_THRESHOLD 4096
-#define CONFIG_MTD_UBI_BEB_LIMIT 20
-#define CONFIG_RBTREE
-#define CONFIG_CMD_NAND_TORTURE 1
-#define CONFIG_CMD_MTDPARTS   1
-#define CONFIG_MTD_PARTITIONS 1
-#define CONFIG_SYS_MAX_NAND_DEVICE  2
-#define CONFIG_SYS_NAND_BASE_LIST   {0}
-#endif
-#endif
-
 /* #define		CONFIG_AML_SD_EMMC 1 */
 #ifdef		CONFIG_AML_SD_EMMC
 	#define 	CONFIG_GENERIC_MMC 1
@@ -469,9 +351,6 @@
 	#define CONFIG_EMMC_DDR52_CLK 35000000
 #endif
 #define		CONFIG_PARTITIONS 1
-#if 0
-#define 	CONFIG_SYS_NO_FLASH  1
-#endif
 
 #if defined CONFIG_MESON_NFC || defined CONFIG_SPI_NAND
 	#define CONFIG_CMD_NAND 1
@@ -490,13 +369,6 @@
 /* osd */
 #define OSD_SCALE_ENABLE
 #define AML_OSD_HIGH_VERSION
-
-#if 0
-#define CONFIG_AML_CANVAS 1
-#define CONFIG_AML_OSD 1
-#define CONFIG_OSD_SCALE_ENABLE 1
-/* #define CONFIG_CMD_BMP 1 */
-#endif
 
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard
@@ -519,29 +391,10 @@
 #define AML_USB_V2             1
 
 /* UBOOT fastboot config */
-#if 0
-#define CONFIG_CMD_FASTBOOT 1
-#define CONFIG_FASTBOOT_FLASH_MMC_DEV 1
-#define CONFIG_FASTBOOT_FLASH 1
-#define CONFIG_USB_GADGET 1
-#define CONFIG_USBDOWNLOAD_GADGET 1
-#define CONFIG_SYS_CACHELINE_SIZE 64
-#define CONFIG_FASTBOOT_MAX_DOWN_SIZE	0x8000000
-#define CONFIG_DEVICE_PRODUCT	"u200"
-#endif
+
 
 /* UBOOT Facotry usb/sdcard burning config */
-/* #define CONFIG_AML_V2_FACTORY_BURN              1       //support facotry usb burning */
-#if 0
-#define CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE   1       //support factory sdcard burning
-#define CONFIG_POWER_KEY_NOT_SUPPORTED_FOR_BURN 1       //There isnt power-key for factory sdcard burning
-#define CONFIG_SD_BURNING_SUPPORT_UI            1       //Displaying upgrading progress bar when sdcard/udisk burning
-#endif
 
-#if 0
-#define CONFIG_AML_SECURITY_KEY                 1
-#define CONFIG_UNIFY_KEY_MANAGE                 1
-#endif
 
 /* net */
 /* #define CONFIG_CMD_NET   1 */
@@ -565,27 +418,8 @@
 #endif /* (CONFIG_CMD_NET) */
 
 /* other devices */
-#if 0
-#define CONFIG_EFUSE 1
-#endif
 #define CONFIG_SHA1 1
 #define CONFIG_MD5 1
-
-/* commands */
-#if 0
-#define CONFIG_CMD_CACHE 1
-#define CONFIG_CMD_BOOTI 1
-#define CONFIG_CMD_EFUSE 1
-#define CONFIG_CMD_MEMORY 1
-#define CONFIG_CMD_FAT 1
-#define CONFIG_CMD_GPIO 1
-#define CONFIG_CMD_REBOOT 1
-#define CONFIG_CMD_ECHO 1
-#define CONFIG_CMD_JTAG	1
-#define CONFIG_CMD_AUTOSCRIPT 1
-#define CONFIG_CMD_MISC 1
-#endif
-/* #define CONFIG_CMD_FDT 1 */
 
 /*file system*/
 #define CONFIG_DOS_PARTITION 1
@@ -598,28 +432,11 @@
 #define CONFIG_FS_EXT4 1
 #define CONFIG_LZO 1
 
-#if 0
-#define CONFIG_MDUMP_COMPRESS 1
-#endif
-
 /* Cache Definitions */
 /* #define CONFIG_SYS_DCACHE_OFF */
 /* #define CONFIG_SYS_ICACHE_OFF */
 
 /* other functions */
-#if 0
-#define CONFIG_NEED_BL301	1
-#define CONFIG_NEED_BL32	1
-#define CONFIG_CMD_RSVMEM	1
-#define CONFIG_FIP_IMG_SUPPORT	1
-#define CONFIG_SYS_LONGHELP 1
-#define CONFIG_CMD_MISC     1
-#define CONFIG_CMD_ITEST    1
-#define CONFIG_CMD_CPU_TEMP 1
-#define CONFIG_CMD_LOADB    1
-#endif
-//#define CONFIG_FIP_IMG_SUPPORT  1
-//#define CONFIG_SYS_MEM_TOP_HIDE 0x08000000 /* hide 128MB for kernel reserve */
 #define CONFIG_LIBAVB		1
 
 #define CONFIG_CPU_ARMV8
@@ -630,49 +447,8 @@
 #define CONFIG_AML_SECURE_UBOOT   1
 
 #if defined(CONFIG_AML_SECURE_UBOOT)
-
-/* for SRAM size limitation just disable NAND
-   as the socket board default has no NAND */
-/* #undef CONFIG_AML_NAND */
-
 /* unify build for generate encrypted bootloader "u-boot.bin.encrypt" */
 #define CONFIG_AML_CRYPTO_UBOOT   1
-
-/* unify build for generate encrypted kernel image
-   SRC : "board/amlogic/(board)/boot.img"
-   DST : "fip/boot.img.encrypt" */
-/* #define CONFIG_AML_CRYPTO_IMG       1 */
-
 #endif /* CONFIG_AML_SECURE_UBOOT */
 
-#if 0
-#define CONFIG_SECURE_STORAGE 1
 #endif
-
-/* build with uboot auto test */
-/* #define CONFIG_AML_UBOOT_AUTO_TEST 1 */
-
-/* board customer ID */
-/* #define CONFIG_CUSTOMER_ID  (0x6472616F624C4D41) */
-
-#if 0
-#if defined(CONFIG_CUSTOMER_ID)
-  #undef CONFIG_AML_CUSTOMER_ID
-  #define CONFIG_AML_CUSTOMER_ID  CONFIG_CUSTOMER_ID
-#endif
-#endif
-
-#if 0
-#define CONFIG_CMD_AML_MTEST 1
-#endif
-#if defined(CONFIG_CMD_AML_MTEST)
-#if !defined(CONFIG_SYS_MEM_TOP_HIDE)
-#error CONFIG_CMD_AML_MTEST depends on CONFIG_SYS_MEM_TOP_HIDE;
-#endif
-#if !(CONFIG_SYS_MEM_TOP_HIDE)
-#error CONFIG_SYS_MEM_TOP_HIDE should not be zero;
-#endif
-#endif
-
-#endif
-
