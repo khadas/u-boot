@@ -58,7 +58,7 @@
         "firstboot=1\0"\
         "upgrade_step=0\0"\
         "jtag=disable\0"\
-        "loadaddr=1080000\0"\
+        "loadaddr=0x00000000\0"\
         "panel_type=lcd_1\0" \
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
@@ -70,13 +70,13 @@
         "display_layer=osd0\0" \
         "display_color_fg=0xffff\0" \
         "display_color_bg=0\0" \
-        "dtb_mem_addr=0x1000000\0" \
-        "fb_addr=0x3d800000\0" \
+        "dtb_mem_addr=0x00200000\0" \
+        "fb_addr=0x00300000\0" \
         "fb_width=1920\0" \
         "fb_height=1080\0" \
         "frac_rate_policy=1\0" \
         "usb_burning=update 1000\0" \
-        "fdt_high=0x20000000\0"\
+        "fdt_high=0x00400000\0"\
         "try_auto_burn=update 700 750;\0"\
         "sdcburncfg=aml_sdc_burn.ini\0"\
         "sdc_burning=sdc_burn ${sdcburncfg}\0"\
@@ -302,6 +302,17 @@
 
 /* ATTENTION */
 /* DDR configs move to board/amlogic/[board]/firmware/timing.c */
+
+/* running in sram */
+#define UBOOT_RUN_IN_SRAM
+#ifdef UBOOT_RUN_IN_SRAM
+#define CONFIG_SYS_INIT_SP_ADDR				(0x00200000)
+/* Size of malloc() pool */
+#define CONFIG_SYS_MALLOC_LEN				(128*1024)
+#else
+#define CONFIG_SYS_INIT_SP_ADDR				(0x00200000)
+#define CONFIG_SYS_MALLOC_LEN				(1*1024*1024)
+#endif
 
 /* ddr functions */
 #define DDR_FULL_TEST            0 //0:disable, 1:enable. ddr full test

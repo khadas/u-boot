@@ -108,12 +108,16 @@ int board_late_init(void)
 
 phys_size_t get_effective_memsize(void)
 {
+#ifdef UBOOT_RUN_IN_SRAM
+	return 0x180000; /* SRAM 1.5MB */
+#else
 	// >>16 -> MB, <<20 -> real size, so >>16<<20 = <<4
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
 	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4) - CONFIG_SYS_MEM_TOP_HIDE;
 #else
 	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4);
-#endif
+#endif /* CONFIG_SYS_MEM_TOP_HIDE */
+#endif /* UBOOT_RUN_IN_SRAM */
 }
 
 static struct mm_region bd_mem_map[] = {
@@ -126,10 +130,16 @@ static struct mm_region bd_mem_map[] = {
 	}, {
 		.virt = 0x80000000UL,
 		.phys = 0x80000000UL,
-		.size = 0x80000000UL,
+		.size = 0x7FE00000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		.virt = 0xFFE00000UL,
+		.phys = 0xFFE00000UL,
+		.size = 0x00200000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
 	}, {
 		/* List terminator */
 		0,
