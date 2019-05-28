@@ -53,6 +53,7 @@ typedef unsigned int uint32_t;
 #define ETH_PHY_GPIO_SRC   (1<<12)
 
 struct pwr_op {
+	void (*power_off_at_mcu)(unsigned int);
 	void (*power_off_at_24M)(unsigned int);
 	void (*power_on_at_24M)(unsigned int);
 	void (*shut_down)(void);
