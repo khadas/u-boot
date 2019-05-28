@@ -138,6 +138,7 @@
             "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
 	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
+            "run wol_init;"\
             "\0"\
         "switch_bootmode="\
             "get_rebootmode;"\
@@ -268,6 +269,15 @@
                 "run storeargs;"\
                 "hdmitx hpd;hdmitx get_preferred_mode;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};vpp hdrpkt;"\
             "fi;fi;"\
+            "\0"\
+        "wol_init="\
+            "kbi powerstate;"\
+            "kbi trigger wol r;"\
+            "setenv bootargs ${bootargs} wol_enable=${wol_enable};"\
+            "if test ${power_state} = 1; then "\
+            "kbi trigger wol w 1;"\
+            "kbi poweroff;"\
+            "fi;"\
             "\0"\
         "cmdline_keys="\
             "if keyman init 0x1234; then "\
