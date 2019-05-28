@@ -269,6 +269,15 @@
                 "hdmitx hpd;hdmitx get_preferred_mode;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};vpp hdrpkt;"\
             "fi;fi;"\
             "\0"\
+        "wol_init="\
+            "kbi powerstate;"\
+            "kbi trigger wol r;"\
+            "setenv bootargs ${bootargs} wol_enable=${wol_enable};"\
+            "if test ${power_state} = 1; then "\
+            "kbi trigger wol w 1;"\
+            "kbi poweroff;"\
+            "fi;"\
+            "\0"\
         "cmdline_keys="\
             "if keyman init 0x1234; then "\
                 "if keyman read usid ${loadaddr} str; then "\
@@ -312,6 +321,7 @@
             "run init_display;"\
             "run storeargs;"\
             "run upgrade_key;"\
+            "run wol_init;"\
             "forceupdate;" \
             "bcb uboot-command;"\
             "run switch_bootmode;"
