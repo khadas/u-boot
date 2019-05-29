@@ -42,6 +42,9 @@ int  __attribute__((weak)) IS_FEAT_BOOT_VERIFY(void)
 	  #ifdef EFUSE_LIC0
 		  #define ADDR_IS_FEAT_BOOT_VERIFY (EFUSE_LIC0)
 		  #define OSET_IS_FEAT_BOOT_VERIFY (0)
+	  #elif defined(OTP_LIC0)
+		  #define ADDR_IS_FEAT_BOOT_VERIFY (OTP_LIC0)
+		  #define OSET_IS_FEAT_BOOT_VERIFY (0)
 	  #else
 		  #define ADDR_IS_FEAT_BOOT_VERIFY (AO_SEC_SD_CFG10)
 		  #define OSET_IS_FEAT_BOOT_VERIFY (4)
@@ -58,6 +61,9 @@ int  __attribute__((weak)) IS_FEAT_BOOT_ENCRYPT(void)
 	#ifndef ADDR_IS_FEAT_BOOT_ENCRYPT
 	  #ifdef EFUSE_LIC0
 		#define ADDR_IS_FEAT_BOOT_ENCRYPT (EFUSE_LIC0)
+		#define OSET_IS_FEAT_BOOT_ENCRYPT (1)
+	  #elif defined(OTP_LIC0)
+		#define ADDR_IS_FEAT_BOOT_ENCRYPT (OTP_LIC0)
 		#define OSET_IS_FEAT_BOOT_ENCRYPT (1)
 	  #else
 		#define ADDR_IS_FEAT_BOOT_ENCRYPT (AO_SEC_SD_CFG10)
