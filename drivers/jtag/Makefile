@@ -1,0 +1,1 @@
+obj-$(CONFIG_CMD_JTAG) += jtag.o

@@ -8,6 +8,7 @@ obj-$(CONFIG_$(SPL_TPL_)I2C_SUPPORT) += i2c/
 obj-$(CONFIG_$(SPL_TPL_)INPUT) += input/
 obj-$(CONFIG_$(SPL_TPL_)LED) += led/
 obj-$(CONFIG_$(SPL_TPL_)MMC_SUPPORT) += mmc/
+obj-$(CONFIG_$(SPL_TPL_)CMD_JTAG) += jtag/
 obj-$(CONFIG_$(SPL_TPL_)NAND_SUPPORT) += mtd/nand/raw/
 obj-$(CONFIG_$(SPL_TPL_)PCH_SUPPORT) += pch/
 obj-$(CONFIG_$(SPL_TPL_)PCI) += pci/

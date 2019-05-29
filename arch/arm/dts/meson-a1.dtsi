@@ -105,6 +105,16 @@
 			#gpio-cells = <2>;
 			gpio-ranges = <&pinctrl_periphs 0 0 63>;
 		};
+		
+		jtag_a_pins:jtag_a_pin {
+			mux {
+				groups = "jtag_a_clk",
+				"jtag_a_tms",
+				"jtag_a_tdi",
+				"jtag_a_tdo";
+				function = "jtag_a";
+			};
+		};
 	};
 };
 
@@ -134,6 +144,14 @@
 			reg = <0x2009087f>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+		};
+
+		swd_a_pins:swd_a_pin {
+			mux {
+				groups = "swclk",
+				"swdio";
+				function = "sw";
+			};
 		};
 	};
 };

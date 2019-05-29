@@ -1931,6 +1931,12 @@ config CMD_WATCHDOG
 	help
 	 CMD_WATCHDOG support.
 
+config CMD_JTAG
+	bool "CMD_JTAG"
+	depends on MISC
+	help
+	 CMD_JTAG support.
+
 config CMD_EFUSE
 	bool "support efuse command"
 	default y
