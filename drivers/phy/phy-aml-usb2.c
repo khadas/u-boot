@@ -251,6 +251,7 @@ static int phy_aml_usb2_tuning(struct phy *phy, int port)
 	struct phy_aml_usb2_priv *priv = dev_get_priv(phy->dev);
 	unsigned long phy_reg_base;
 	unsigned int pll_set1, pll_set2, pll_set3, pll_set4;
+	unsigned int rev_type = 0;
 
 	if (port > 2)
 		return 0;
@@ -266,8 +267,9 @@ static int phy_aml_usb2_tuning(struct phy *phy, int port)
 
 	phy_reg_base = priv->usb_phy2_pll_base_addr[port];
 
-	if (phy_aml_usb2_get_rev_type() == 0xb
-		|| phy_aml_usb2_get_rev_type() == MESON_CPU_MAJOR_ID_SM1) {
+	rev_type = phy_aml_usb2_get_rev_type();
+	if ((rev_type == 0xb) || (rev_type == MESON_CPU_MAJOR_ID_SM1)
+	    || (rev_type == MESON_CPU_MAJOR_ID_A1)) {
 		(*(volatile uint32_t *)(phy_reg_base + 0x50)) = pll_set1;
 		(*(volatile uint32_t *)(phy_reg_base + 0x54)) = 0x2a;
 		(*(volatile uint32_t *)(phy_reg_base + 0x34)) = pll_set3 & (0x1f << 16);
