@@ -371,6 +371,15 @@ struct nand_flash_dev spi_nand_ids[] = {
 		.id_len = 2,
 		.oobsize = 64
 	},
+	{"SPI NAND TC58CVG0S3HRAIG 128MiB 3.3V",
+		{ .id = {0x98, 0xc2} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_256M,
+		.erasesize = SZ_128K,
+		.options = 0,
+		.id_len = 2,
+		.oobsize = 64
+	},
 	{NULL}
 };
 
@@ -1402,7 +1411,7 @@ static int spinand_write_page_raw(struct mtd_info *mtd,
 		pr_debug("%s %d write info page to page %d\n",
 			 __func__, __LINE__, (page + 1));
 		chip->cmdfunc(mtd, info->pload_cmd, 0x00, -1);
-		chip->write_buf(mtd, (u8 *)info_buf, sizeof(struct info_page));
+		chip->write_buf(mtd, (u8 *)info_buf, mtd->writesize);
 
 		if (info->status < 0)
 			return info->status;

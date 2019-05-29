@@ -82,7 +82,8 @@ static struct aml_dtb_info dtb_infos = {{0, 0}, {0, 0}};
 extern int mmc_key_write(unsigned char *buf, unsigned int size, uint32_t *actual_lenth);
 extern int mmc_key_read(unsigned char *buf, unsigned int size, uint32_t *actual_lenth);
 
-int info_disprotect = 0;
+/* move this out to storage */
+//int info_disprotect = 0;
 
 
 int mmc_read_status(struct mmc *mmc, int timeout)

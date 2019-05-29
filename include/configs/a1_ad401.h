@@ -354,7 +354,7 @@
 
 #if defined CONFIG_MESON_NFC || defined CONFIG_SPI_NAND
 	#define CONFIG_CMD_NAND 1
-	#define CONFIG_MTD_DEVICE y
+	#define CONFIG_MTD_DEVICE 1
 	/* #define CONFIG_RBTREE */
 	#define CONFIG_CMD_NAND_TORTURE 1
 	#define CONFIG_CMD_MTDPARTS   1

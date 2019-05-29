@@ -35,6 +35,9 @@ extern int emmc_pre(void);
 extern int emmc_probe(u32 init_flag);
 #endif
 
+/* for info protect, fixme later */
+int info_disprotect = 0;
+
 static struct storage_t *current;
 static struct device_node_t device_list[] = {
 #if 0

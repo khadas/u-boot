@@ -151,10 +151,11 @@ struct spifc_priv {
 #define SPIFC_MAX_CLK_RATE		166666666
 #define SPIFC_DEFAULT_SPEED		40000000
 extern uint32_t get_time(void);
-
+/* Temporary processing */
 static u8 temp_cmd =0;
 static u32 temp_addr =0;
 static u32 temp_addr_len =0;
+static u32 temp_loop =0;
 
 static void spifc_set_rx_op_mode(struct spifc_priv *priv,
 				 unsigned int slave_mode, unsigned char cmd)
@@ -258,12 +259,13 @@ static int spifc_user_cmd(struct spifc_priv *priv,
 static int spifc_user_cmd_dout(struct spifc_priv *priv,
 			       u8 *buf, int len, unsigned long flags)
 {
-	struct spifc_regs *regs = priv->regs;
-	unsigned int *cache;
 	u32 *p;
 	unsigned int val;
 	int len32, i;
 	u16 bits = temp_addr_len ? (temp_addr_len - 1) : 0;
+	/* Temporary processing */
+	if (temp_loop)
+		temp_cmd = 0x84;
 
 	writel((0x3 << 30), SPIFC_DBUF_CTRL); // set write DBUF. auto update address
 
@@ -303,8 +305,6 @@ static int spifc_user_cmd_dout(struct spifc_priv *priv,
 static int spifc_user_cmd_din(struct spifc_priv *priv,
 			      u8 *buf, int len, unsigned long flags)
 {
-	struct spifc_regs *regs = priv->regs;
-	unsigned int *cache;
 	u32 *p;
 	int len32, i;
 	unsigned int val;
@@ -468,7 +468,7 @@ static int spifc_xfer(struct udevice *dev,
 	u8 *buf;
 	int len = bitlen >> 3;
 	int lening;
-	int ret = 0;
+	int ret;
 	int i = 0;
 	if (bitlen % 8) {
 		printf("%s: error bitlen\n", __func__);
@@ -506,6 +506,7 @@ static int spifc_xfer(struct udevice *dev,
 		}
 	} else if (dout && priv->cmd) { // write
 		buf = (u8 *)dout;
+		temp_loop = 0;
 		spifc_set_tx_op_mode(priv, slave->mode, priv->cmd);
 		while (len > 0) {
 			lening = min_t(size_t, 512, len);
@@ -514,7 +515,8 @@ static int spifc_xfer(struct udevice *dev,
 				break;
 			buf += lening;
 			len -= lening;
-			//temp_addr += lening;
+			temp_addr += lening;
+			temp_loop++;
 		}
 	} else if (din && priv->cmd) { // read
 		buf = (u8 *)din;
