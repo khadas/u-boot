@@ -94,6 +94,13 @@ config RENESAS_RPC_HF
 	  This enables access to Hyperflash memory through the Renesas
 	  RCar Gen3 RPC controller.
 
+config AML_MTDPART
+	bool "Enable Amlogic partition"
+	depends on MTD
+	help
+	  This option, if enabled, we will parse amlogic partition
+	  table.
+
 source "drivers/mtd/nand/Kconfig"
 
 source "drivers/mtd/spi/Kconfig"

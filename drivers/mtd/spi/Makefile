@@ -14,3 +14,4 @@ obj-$(CONFIG_SPI_FLASH_DATAFLASH) += sf_dataflash.o
 obj-$(CONFIG_SPI_FLASH_MTD) += sf_mtd.o
 obj-$(CONFIG_SPI_FLASH_SANDBOX) += sandbox.o
 obj-$(CONFIG_AML_STORAGE) += storage_sf.o
+obj-$(CONFIG_AML_MTDPART) += sf_partition.o

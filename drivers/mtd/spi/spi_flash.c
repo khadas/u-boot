@@ -378,8 +378,13 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 	return ret;
 }
 
-int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
+#ifndef CONFIG_AML_SPIFCV2
+static int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 		size_t len, const void *buf)
+#else
+static int _spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
+		size_t len, const void *buf)
+#endif
 {
 	struct spi_slave *spi = flash->spi;
 	unsigned long byte_addr, page_size;
@@ -439,6 +444,31 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 
 	return ret;
 }
+
+#ifdef CONFIG_AML_SPIFCV2
+int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
+		size_t len, const void *buf)
+{
+	int ret;
+	size_t lening = len;
+
+	if ((len > 16) && (len % 16)) {
+		lening >>= 4;
+		lening <<= 4;
+		ret = _spi_flash_cmd_write_ops(flash, offset,
+			lening, buf);
+
+		offset += lening;
+		len -= lening;
+		buf += lening;
+	}
+
+	ret = _spi_flash_cmd_write_ops(flash, offset,
+			len, buf);
+
+	return ret;
+}
+#endif
 
 int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 		size_t cmd_len, void *data, size_t data_len)
@@ -1063,7 +1093,7 @@ static int spansion_quad_enable(struct spi_flash *flash)
 }
 #endif
 
-static const struct spi_flash_info *spi_flash_read_id(struct spi_flash *flash)
+const struct spi_flash_info *spi_flash_read_id(struct spi_flash *flash)
 {
 	int				tmp;
 	u8				id[SPI_FLASH_MAX_ID_LEN];

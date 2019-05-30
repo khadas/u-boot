@@ -34,13 +34,6 @@ config SPI_NAND
 	  This option, if enabled, SOC can support SPI-NAND flash
 	  driver.
 
-config AML_MTDPART
-	bool "Enable Amlogic partition"
-	depends on MTD
-	help
-	  This option, if enabled, we will parse amlogic partition
-	  table.
-
 config NAND_DENALI_DT
 	bool "Support Denali NAND controller as a DT device"
 	select NAND_DENALI

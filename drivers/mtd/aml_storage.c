@@ -503,6 +503,25 @@ static int mtd_store_get_offset(const char *partname,
 	return ret;
 }
 
+extern int get_aml_mtdpart_count(void);
+static int mtd_store_count(void)
+{
+	return get_aml_mtdpart_count();
+}
+
+extern int get_aml_mtdpart_name(struct mtd_info *master, int idx, char *name);
+static int mtd_store_name(int idx, char *partname)
+{
+	int ret = 0;
+	struct mtd_info *mtd = mtd_store_get(1);
+
+	if (idx >= mtd_store_count())
+		return -1;
+	ret = get_aml_mtdpart_name(mtd, idx, partname);
+
+	return ret;
+}
+
 static u64 mtd_store_size(const char *part_name)
 {
 	struct mtd_info *mtd = mtd_store_get(1);
@@ -550,10 +569,10 @@ static int mtd_store_read(const char *part_name,
 		return ret;
 	if (!part_name) {/*normal area except tpl*/
 		offset = off;
-		off += BOOT_TOTAL_PAGES * mtd->writesize;
-		off += NAND_RSV_BLOCK_NUM * mtd->erasesize;
+		offset += BOOT_TOTAL_PAGES * mtd->writesize;
+		offset += NAND_RSV_BLOCK_NUM * mtd->erasesize;
 #ifdef CONFIG_DISCRETE_BOOTLOADER
-		off += CONFIG_TPL_SIZE_PER_COPY * CONFIG_TPL_COPY_NUM;
+		offset += CONFIG_TPL_SIZE_PER_COPY * CONFIG_TPL_COPY_NUM;
 #endif
 	}
 
@@ -588,10 +607,10 @@ static int mtd_store_write(const char *part_name,
 		return ret;
 	if (!part_name) {/*normal area except tpl*/
 		offset = off;
-		off += BOOT_TOTAL_PAGES * mtd->writesize;
-		off += NAND_RSV_BLOCK_NUM * mtd->erasesize;
+		offset += BOOT_TOTAL_PAGES * mtd->writesize;
+		offset += NAND_RSV_BLOCK_NUM * mtd->erasesize;
 #ifdef CONFIG_DISCRETE_BOOTLOADER
-		off += CONFIG_TPL_SIZE_PER_COPY * CONFIG_TPL_COPY_NUM;
+		offset += CONFIG_TPL_SIZE_PER_COPY * CONFIG_TPL_COPY_NUM;
 #endif
 	}
 	offset = mtd_store_ltop(offset);
@@ -621,6 +640,7 @@ static int mtd_store_erase(const char *part_name,
 	struct erase_info info;
 	int ret;
 
+	/*part_name=NULL,operation target is whole device*/
 	if (!part_name)	{
 		mtd = mtd_store_get(1);
 		printf("!!!warn: erase all chip\n");
@@ -636,6 +656,8 @@ static int mtd_store_erase(const char *part_name,
 	if (ret)
 		return ret;
 	offset = mtd_store_ltop(offset);
+	if (size == 0)
+		size = mtd_store_size(part_name) - off;
 	erase_len = lldiv(size + mtd->erasesize - 1,
 			  mtd->erasesize);
 
@@ -733,6 +755,7 @@ static u64 mtd_store_boot_copy_size(const char *part_name)
 {
 	struct mtd_info *mtd = mtd_store_get(0);
 	int pages_per_copy = 0;
+	u64 size;
 
 	if (!part_name) {
 		pr_info("%s %d invalid name!\n",
@@ -759,7 +782,13 @@ static u64 mtd_store_boot_copy_size(const char *part_name)
 	if (!num)
 		return 0;
 	pages_per_copy = BOOT_TOTAL_PAGES / num;
-	return mtd->writesize * pages_per_copy;
+
+	/* spinor using size from table */
+	if (mtd->writesize == 1)
+		size = mtd_store_size(BOOT_LOADER);
+	else
+		size = mtd->writesize * pages_per_copy;
+	return size;
 #endif
 }
 
@@ -778,7 +807,7 @@ static int mtd_store_boot_read(const char *part_name,
 			__func__, __LINE__);
 		return -ENXIO;
 	}
-	mtd = mtd_store_get_by_name(part_name, 1);
+	mtd = mtd_store_get_by_name(part_name, 1);/*fixed me liuxj*/
 	if (IS_ERR(mtd))
 		return -ENXIO;
 	ret = mtd_store_get_offset(part_name, &offset, 0);
@@ -790,8 +819,12 @@ static int mtd_store_boot_read(const char *part_name,
 	size_per_copy = mtd_store_boot_copy_size(part_name);
 	if (size_per_copy == 0)
 		return -ENXIO;
-	if (cpy >= num)
+	if (cpy >= num) {
+		pr_info("error: read cpy:0x%x >= num: 0x%x\
+ please input again\n",
+			cpy, num);
 		return -ENXIO;
+	}
 	offset += (cpy * size_per_copy);
 	limit = offset + size_per_copy;
 #if defined(CONFIG_SPI_NAND)
@@ -878,8 +911,12 @@ static int mtd_store_boot_write(const char *part_name,
 	if (size_per_copy == 0)
 		return -ENXIO;
 	if (cpy != BOOT_OPS_ALL) {
-		if (cpy >= num)
+		if (cpy >= num) {
+			pr_info("error: write cpy:0x%x >= num: 0x%x\
+ please input again\n",
+			cpy, num);
 			return -ENXIO;
+		}
 		offset += (cpy * size_per_copy);
 		endoff = offset + size_per_copy;
 	} else {
@@ -1171,6 +1208,8 @@ static int nor_rsv_protect(const char *name, bool ops)
 
 void mtd_store_mount_ops(struct storage_t *store)
 {
+	store->get_part_count = mtd_store_count;
+	store->get_part_name = mtd_store_name;
 	store->get_part_size = mtd_store_size;
 	store->read = mtd_store_read;
 	store->write = mtd_store_write;

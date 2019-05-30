@@ -57,6 +57,8 @@ struct storage_t {
 	struct storage_info_t info;
 	u32 init_flag;
 	struct list_head list;
+	int (*get_part_count)(void);
+	int (*get_part_name)(int idx, char *part_name);
 	/* when part_name is null, default to ops in whole chip */
 	/* int (*block_is_bad)(const char *part_name, loff_t off); */
 	u64 (*get_part_size)(const char *part_name);

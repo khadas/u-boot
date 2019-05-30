@@ -31,6 +31,7 @@
 #include "mtdcore.h"
 #ifdef CONFIG_AML_MTDPART
 #include <jffs2/load_kernel.h>
+#include <amlogic/aml_mtd.h>
 #endif
 
 #ifndef __UBOOT__
@@ -867,6 +868,32 @@ EXPORT_SYMBOL_GPL(mtd_del_partition);
 #ifdef CONFIG_AML_MTDPART
 static struct mtd_info **aml_partitions;
 static int aml_nbparts = 0;
+int get_aml_mtdpart_count(void)
+{
+	return aml_nbparts;
+}
+
+int get_aml_mtdpart_name(struct mtd_info *master, int idx, char *name)
+{
+	if (idx >= get_aml_mtdpart_count())
+		return -1;
+
+	snprintf(name, "%s", aml_partitions[idx]->name);
+
+	return 0;
+}
+
+void list_aml_mtd_partitions(struct mtd_info *master)
+{
+	//struct mtd_info *slave, *next;
+	struct mtd_info *slave;
+	int i;
+
+	list_for_each_entry(slave, &master->partitions, node)
+		printf("%2d: %-20s0x%08x\t0x%08x\n",
+					i++, slave->name, slave->size, slave->offset);
+	return;
+}
 #endif
 
 int add_mtd_partitions(struct mtd_info *master,
@@ -880,6 +907,7 @@ int add_mtd_partitions(struct mtd_info *master,
 #ifdef CONFIG_AML_MTDPART
 	aml_partitions = kzalloc(nbparts * sizeof(slave), GFP_KERNEL);
 	aml_nbparts = nbparts;
+	INIT_LIST_HEAD(&master->partitions);
 #endif
 	printk("Creating %d MTD partitions on \"%s\":\n", nbparts, master->name);
 
@@ -1079,14 +1107,14 @@ int mtdparts_init(void)
 		temp->size = part->size;
 		temp->dev = dev;
 		INIT_LIST_HEAD(&dev->parts);
-		list_add(&temp->link, &dev->parts);
-		list_add(&dev->link, &aml_device);
+		list_add_tail(&temp->link, &dev->parts);
+		list_add_tail(&dev->link, &aml_device);
 	}
 	list_for_each_entry(dentry, &aml_device, link) {
 		list_for_each_entry(temp, &dentry->parts, link)
 			printf("0x%012llx-0x%012llx : \"%s\"\n",
 			(unsigned long long)temp->offset,
-			(unsigned long long)(temp->offset + temp->size),
+			(unsigned long long)(temp->size),
 			temp->name);
 	}
 	init_flag = 1;

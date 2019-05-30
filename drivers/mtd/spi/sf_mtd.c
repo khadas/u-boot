@@ -8,10 +8,23 @@
 #include <linux/errno.h>
 #include <linux/mtd/mtd.h>
 #include <spi_flash.h>
+#include <linux/log2.h>
+
+#ifdef CONFIG_AML_MTDPART
+extern int spinor_add_partitions(struct mtd_info *mtd);
+extern int spinor_del_partitions(struct mtd_info *mtd);
+#endif
 
 static struct mtd_info sf_mtd_info;
 static bool sf_mtd_registered;
 static char sf_mtd_name[8];
+
+#ifdef CONFIG_AML_STORAGE
+struct mtd_info *spi_flash_get_mtd(void)
+{
+	return &sf_mtd_info;
+}
+#endif
 
 static int spi_flash_mtd_erase(struct mtd_info *mtd, struct erase_info *instr)
 {
@@ -86,7 +99,11 @@ int spi_flash_mtd_register(struct spi_flash *flash)
 	int ret;
 
 	if (sf_mtd_registered) {
+	#ifndef CONFIG_AML_MTDPART
 		ret = del_mtd_device(&sf_mtd_info);
+	#else
+		ret = spinor_del_partitions(&sf_mtd_info);
+	#endif
 		if (ret)
 			return ret;
 
@@ -114,6 +131,11 @@ int spi_flash_mtd_register(struct spi_flash *flash)
 	/* Only uniform flash devices for now */
 	sf_mtd_info.numeraseregions = 0;
 	sf_mtd_info.erasesize = flash->sector_size;
+#ifdef CONFIG_AML_MTDPART
+	if (is_power_of_2(sf_mtd_info.erasesize))
+		sf_mtd_info.erasesize_shift = ffs(sf_mtd_info.erasesize) - 1;
+	ret = spinor_add_partitions(&sf_mtd_info);
+#endif /* CONFIG_AML_MTDPART */
 
 	ret = add_mtd_device(&sf_mtd_info);
 	if (!ret)

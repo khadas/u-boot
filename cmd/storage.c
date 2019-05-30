@@ -451,6 +451,35 @@ static int do_store_device(cmd_tbl_t *cmdtp,
 	return CMD_RET_USAGE;
 }
 
+static int do_store_partition(cmd_tbl_t *cmdtp,
+			int flag, int argc, char * const argv[])
+{
+	struct storage_t *store_dev;
+	int i, partitions = 0;
+	int ret;
+	char name[16];
+
+	if (argc > 2)
+		return CMD_RET_USAGE;
+	else {
+		store_dev = store_get_current();
+		if (store_dev->get_part_count)
+			partitions = store_dev->get_part_count();
+		pr_info("%d partitions of device %s:\n",
+			partitions, store_dev->info.name);
+		for (i = 0; i < partitions; ++i) {
+			memset(name, 0, 16);
+			if (store_dev->get_part_name) {
+				ret = store_dev->get_part_name(i, name);
+				if (!ret)
+					printf("%2d: %-16s0x%08x\n",
+						i, name, store_dev->get_part_size(name));
+			}
+		}
+		return 0;
+	}
+}
+
 #ifdef CONFIG_AML_MTD
 extern int is_mtd_store_boot_area(const char *part_name);
 #endif
@@ -705,16 +734,17 @@ static int do_store_rsv_ops(cmd_tbl_t *cmdtp,
 }
 
 static cmd_tbl_t cmd_store_sub[] = {
-	U_BOOT_CMD_MKENT(init,	4, 0, do_store_init, "", ""),
-	U_BOOT_CMD_MKENT(device,	4, 0, do_store_device, "", ""),
-	U_BOOT_CMD_MKENT(scrub,	5, 0, do_store_erase, "", ""),
-	U_BOOT_CMD_MKENT(erase,	5, 0, do_store_erase, "", ""),
-	U_BOOT_CMD_MKENT(read,	6, 0, do_store_read, "", ""),
-	U_BOOT_CMD_MKENT(write,	7, 0, do_store_write, "", ""),
+	U_BOOT_CMD_MKENT(init, 4, 0, do_store_init, "", ""),
+	U_BOOT_CMD_MKENT(device, 4, 0, do_store_device, "", ""),
+	U_BOOT_CMD_MKENT(partition, 3, 0, do_store_partition, "", ""),
+	U_BOOT_CMD_MKENT(scrub, 5, 0, do_store_erase, "", ""),
+	U_BOOT_CMD_MKENT(erase, 5, 0, do_store_erase, "", ""),
+	U_BOOT_CMD_MKENT(read, 6, 0, do_store_read, "", ""),
+	U_BOOT_CMD_MKENT(write, 7, 0, do_store_write, "", ""),
 	U_BOOT_CMD_MKENT(boot_read,	6, 0, do_store_boot_read, "", ""),
-	U_BOOT_CMD_MKENT(boot_write,	6, 0, do_store_boot_write, "", ""),
-	U_BOOT_CMD_MKENT(boot_erase,	4, 0, do_store_boot_erase, "", ""),
-	U_BOOT_CMD_MKENT(rsv,	6, 0, do_store_rsv_ops, "", ""),
+	U_BOOT_CMD_MKENT(boot_write, 6, 0, do_store_boot_write, "", ""),
+	U_BOOT_CMD_MKENT(boot_erase, 4, 0, do_store_boot_erase, "", ""),
+	U_BOOT_CMD_MKENT(rsv, 6, 0, do_store_rsv_ops, "", ""),
 };
 
 static int do_store(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -741,6 +771,8 @@ U_BOOT_CMD(store, CONFIG_SYS_MAXARGS, 1, do_store,
 	"	all valid storage device and print.\n"
 	"	'store device [name]' will set the\n"
 	"	[name] device to the current device\n"
+	"store partition\n"
+	"	show partitions of current device\n"
 	"store read addr [partition name] off size\n"
 	"	read 'size' bytes from offset 'off'\n"
 	"	of device/partition 'partition name' to.\n"

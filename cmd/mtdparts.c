@@ -2000,7 +2000,7 @@ static int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 #ifdef CONFIG_AML_MTDPART
 	if (argc > 1)
-		printf("we are not support cmd mtdpats operates\n");
+		printf("we are not support cmd mtdparts operates\n");
 	return 0;
 #else
 	if (argc == 2) {

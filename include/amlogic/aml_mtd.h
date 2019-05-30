@@ -12,7 +12,9 @@
 #define __AMLMTD_H_
 #define BOOT_TOTAL_PAGES			1024
 
+#ifndef CONFIG_SPI_FLASH
 #define CONFIG_DISCRETE_BOOTLOADER
+#endif
 
 #if defined(CONFIG_SPI_NAND) && !defined(CONFIG_DISCRETE_BOOTLOADER)
 #error SPI NAND only support discrete boot mode!
