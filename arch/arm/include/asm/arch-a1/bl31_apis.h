@@ -98,6 +98,9 @@
 
 /*viu probe en*/
 #define VIU_PREOBE_EN		0x82000080
+/*set boot first timeout*/
+#define SET_BOOT_FIRST		0x82000087
+
 /* Secure HAL APIs */
 #define TRUSTZONE_HAL_API_SRAM                  0x400
 
@@ -159,4 +162,5 @@ void set_viu_probe_enable(void);
 void wdt_send_cmd_to_bl31(uint64_t cmd, uint64_t value);
 void power_set_dsp(unsigned int id, unsigned int powerflag);
 void init_dsp(unsigned int id,unsigned int addr,unsigned int cfg0);
+void set_boot_first_timeout(uint64_t arg0);
 #endif

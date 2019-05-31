@@ -84,5 +84,4 @@ int thermal_calibration(unsigned int type, unsigned int data);
 int thermal_get_value(unsigned int sensor_id, unsigned int *value);
 int send_usr_data(unsigned int clinet_id, unsigned int *val, unsigned int size);
 void send_pwm_delt(int32_t vcck_delt, int32_t ee_delt);
-void set_boot_first_timeout(unsigned int command);
  #endif

@@ -395,6 +395,17 @@ void set_usb_boot_function(unsigned long command)
 		: "r" (x1));
 }
 
+void set_boot_first_timeout(uint64_t arg0)
+{
+	register long x0 asm("x0") = SET_BOOT_FIRST;
+	register long x1 asm("x1") = arg0;
+	asm volatile(
+			__asmeq("%0", "x0")
+			__asmeq("%1", "x1")
+			"smc	#0\n"
+			: "+r" (x0)
+			: "r" (x1));
+}
 void aml_system_off(void)
 {
 	/* TODO: Add poweroff capability */
