@@ -19,7 +19,7 @@
 #include <div64.h>
 #include "mmc_private.h"
 #include <emmc_partitions.h>
-#include <asm/arch-g12a/cpu_id.h>
+#include <amlogic/cpu_id.h>
 #include <part_efi.h>
 
 

@@ -20,7 +20,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <asm/arch/io.h>
-#include <asm/arch/cpu_id.h>
+#include <amlogic/cpu_id.h>
 #include <asm/arch/cpu.h>
 
 /* Local Headers */

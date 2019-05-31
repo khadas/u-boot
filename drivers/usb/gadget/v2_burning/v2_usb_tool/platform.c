@@ -8,7 +8,7 @@
  */
 #include "platform.h"
 #include <asm/arch/secure_apb.h>
-#include <asm/arch/cpu_id.h>
+#include <amlogic/cpu_id.h>
 
 /*CONFIG_AML_MESON_8 include m8, m8baby, m8m2, etc... defined in cpu.h*/
 #if !(defined(CONFIG_USB_XHCI_HCD) || defined(CONFIG_USB_DWC_OTG_294))

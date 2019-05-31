@@ -9,7 +9,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <asm/cpu_id.h>
+#include <amlogic/cpu_id.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>

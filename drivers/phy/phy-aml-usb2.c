@@ -17,7 +17,7 @@
 #include <power/regulator.h>
 #include <clk.h>
 #include <asm/arch/usb.h>
-#include <asm/arch/cpu_id.h>
+#include <amlogic/cpu_id.h>
 
 
 #include <linux/compat.h>

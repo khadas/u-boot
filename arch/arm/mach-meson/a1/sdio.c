@@ -23,7 +23,7 @@
 #include <asm/arch/io.h>
 #include <asm/arch/cpu_sdio.h>
 #include <asm/arch/secure_apb.h>
-#include <asm/arch/cpu_id.h>
+#include <amlogic/cpu_id.h>
 #include <common.h>
 
 void  cpu_sd_emmc_pwr_prepare(unsigned port)

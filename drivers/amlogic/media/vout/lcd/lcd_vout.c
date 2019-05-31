@@ -20,7 +20,7 @@
 
 #include <common.h>
 #include <malloc.h>
-#include <asm/arch/cpu_id.h>
+#include <amlogic/cpu_id.h>
 #include <fdtdec.h>
 #include <amlogic/keyunify.h>
 #include <amlogic/media/vout/lcd/aml_lcd.h>

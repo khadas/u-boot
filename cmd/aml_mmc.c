@@ -32,7 +32,7 @@
 #include <asm/arch/cpu_sdio.h>
 #include <asm/arch/sd_emmc.h>
 #include <linux/sizes.h>
-#include <asm/arch-g12a/cpu_id.h>
+#include <amlogic/cpu_id.h>
 #include <amlogic/aml_mmc.h>
 
 /* info system. */

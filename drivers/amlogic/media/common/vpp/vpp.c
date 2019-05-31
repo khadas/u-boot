@@ -19,7 +19,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include <asm/arch/cpu_id.h>
+#include <amlogic/cpu_id.h>
 #include <config.h>
 #include <common.h>
 #include <amlogic/media/vpp/vpp.h>

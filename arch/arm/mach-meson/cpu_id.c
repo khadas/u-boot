@@ -19,7 +19,7 @@
 */
 
 #include <common.h>
-#include <asm/arch/cpu_id.h>
+#include <amlogic/cpu_id.h>
 #include <asm/arch/secure_apb.h>
 #include <asm/arch/io.h>
 
@@ -31,15 +31,15 @@
  */
 chip_id_t aml_chip_id = { 0, { 0 } };
 
-cpu_id_t get_cpu_id(void)
+cpu_id_t __attribute__((weak)) get_cpu_id(void)
 {
 	cpu_id_t cpu_id;
-	unsigned int cpu_id_reg = readl(P_AO_SEC_SD_CFG8);
+	unsigned int cpu_id_reg = readl(CPU_ID_REG);
 
-	cpu_id.family_id = (cpu_id_reg >> 24) & (0XFF);
-	cpu_id.package_id = (cpu_id_reg >> 16) & (0XF0);
-	cpu_id.chip_rev = (cpu_id_reg >> 8) & (0XFF);
-	cpu_id.layout_ver = (cpu_id_reg) & (0XF);
+	cpu_id.family_id = (cpu_id_reg >> 24) & (0xFF);
+	cpu_id.package_id = (cpu_id_reg >> 16) & (PACKAGE_ID_MASK);
+	cpu_id.chip_rev = (cpu_id_reg >> 8) & (0xFF);
+	cpu_id.layout_ver = (cpu_id_reg) & (0xF);
 	return cpu_id;
 }
 

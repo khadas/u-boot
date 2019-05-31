@@ -12,6 +12,7 @@
 #include <phy.h>
 #include <linux/errno.h>
 #include "eth_internal.h"
+#include <amlogic/cpu_id.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

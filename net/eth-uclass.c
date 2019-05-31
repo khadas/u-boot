@@ -13,7 +13,7 @@
 #include <dm/uclass-internal.h>
 #include "eth_internal.h"
 #include <amlogic/keyunify.h>
-#include <asm/arch/cpu_id.h>
+#include <amlogic/cpu_id.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

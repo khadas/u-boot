@@ -3,7 +3,7 @@
 #include <dm/pinctrl.h>
 #include <partition_table.h>
 #include <emmc_partitions.h>
-#include <asm/arch-g12a/cpu_id.h>
+#include <amlogic/cpu_id.h>
 #include <asm/arch-g12a/bl31_apis.h>
 #include <linux/compat.h>
 

@@ -11,7 +11,7 @@
 #include <misc.h>
 #include <malloc.h>
 #include <asm/arch/bl31_apis.h>
-#include <asm/arch-g12a/cpu_id.h>
+#include <amlogic/cpu_id.h>
 
 #define SWD_AP_AO                10
 #define JTAG_SETPINMUX   1

@@ -6,7 +6,7 @@
 #include <linux/err.h>
 #include <asm/cache.h>
 //#include <asm/arch/secure_apb.h>
-#include <asm/arch-g12a/cpu_id.h>
+#include <amlogic/cpu_id.h>
 #include <linux/log2.h>
 #include <dm/pinctrl.h>
 #include <dm/uclass.h>

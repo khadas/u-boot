@@ -26,7 +26,7 @@
 #include <asm/arch/efuse.h>
 #include <asm/cache.h>
 #include <asm/arch/bl31_apis.h>
-#include <asm/arch/cpu_id.h>
+#include <amlogic/cpu_id.h>
 #include <asm/arch/secure_apb.h>
 
 static long sharemem_input_base;

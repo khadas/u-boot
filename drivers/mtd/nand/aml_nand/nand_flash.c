@@ -7,7 +7,7 @@
 #include <asm/cache.h>
 
 //#include <asm/arch/secure_apb.h>
-#include <asm/arch-g12a/cpu_id.h>
+#include <amlogic/cpu_id.h>
 
 #include "aml_nand.h"
 

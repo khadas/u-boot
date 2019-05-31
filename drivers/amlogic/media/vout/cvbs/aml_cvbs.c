@@ -20,7 +20,7 @@
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch/cpu_id.h>
+#include <amlogic/cpu_id.h>
 #include "aml_cvbs_regs.h"
 #include "aml_cvbs_config.h"
 

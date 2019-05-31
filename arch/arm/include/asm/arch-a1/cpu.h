@@ -86,4 +86,7 @@
 
 #define NR_CPUS		4
 
+#define CPU_ID_REG		SYSCTRL_SEC_STATUS_REG0
+#define PACKAGE_ID_MASK 	0xFF
+
 #endif /* _CPU_H */

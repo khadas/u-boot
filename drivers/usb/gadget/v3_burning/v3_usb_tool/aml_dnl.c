@@ -89,7 +89,7 @@ static struct usb_gadget_strings *g_dnl_composite_strings[] = {
 	NULL,
 };
 
-#include <asm/arch/cpu_id.h>
+#include <amlogic/cpu_id.h>
 const char * get_usid_string(void)
 {
     static char chipid_str[32];

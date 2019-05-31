@@ -1,5 +1,5 @@
 /*
- * arch/arm/include/asm/cpu_id.h
+ * include/amlogic/cpu_id.h
  *
  * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
  *
@@ -37,9 +37,8 @@
 #define MESON_CPU_MAJOR_ID_TXHD		0x27
 #define MESON_CPU_MAJOR_ID_G12A		0x28
 #define MESON_CPU_MAJOR_ID_G12B		0x29
-#define MESON_CPU_MAJOR_ID_SM1		0x2B
-#define MESON_CPU_MAJOR_ID_TL1		0x2E
-#define MESON_CPU_MAJOR_ID_TM2		0x2F
+#define MESON_CPU_MAJOR_ID_A1		0x2C
+#define MESON_CPU_MAJOR_ID_TL1  	0x2E
 
 #define MESON_CPU_PACKAGE_ID_905D	0X00
 #define MESON_CPU_PACKAGE_ID_905M	0x20
@@ -59,8 +58,8 @@
 #define MESON_CPU_CHIP_REVISION_D	0xD
 
 typedef struct cpu_id {
-	unsigned int family_id:8; //S905/T968 etc.
-	unsigned int package_id:8; //T968/T966 etc.
+	unsigned int family_id:8;
+	unsigned int package_id:8;
 	unsigned int chip_rev:8; //RevA/RevB etc.
 	unsigned int reserve:4;
 	unsigned int layout_ver:4;

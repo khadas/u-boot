@@ -2,7 +2,7 @@
 #include "usb_pcd.h"
 #include "platform.h"
 //#include <partition_table.h>
-#include <asm/arch/cpu_id.h>
+#include <amlogic/cpu_id.h>
 
 #define MYDBG(fmt ...) printf("OPT]"fmt)
 

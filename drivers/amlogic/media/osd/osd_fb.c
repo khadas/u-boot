@@ -21,7 +21,7 @@
 #include <stdio_dev.h>
 #include <malloc.h>
 #include <bmp_layout.h>
-#include <asm/arch/cpu_id.h>
+#include <amlogic/cpu_id.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/timer.h>
 

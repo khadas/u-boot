@@ -20,7 +20,7 @@
 */
 
 #include <common.h>
-#include <asm/arch/cpu_id.h>
+#include <amlogic/cpu_id.h>
 #include <fdtdec.h>
 #include <amlogic/media/vpu/vpu.h>
 #include "vpu_reg.h"

@@ -5,7 +5,7 @@
 #include <linux/err.h>
 #include <asm/cache.h>
 //#include <asm/arch/secure_apb.h>
-#include <asm/arch-g12a/cpu_id.h>
+#include <amlogic/cpu_id.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/nand_ecc.h>

@@ -25,7 +25,7 @@
 #include <environment.h>
 #include <fdt_support.h>
 #include <linux/libfdt.h>
-#include <asm/arch/cpu_id.h>
+#include <amlogic/cpu_id.h>
 #include <asm/arch/secure_apb.h>
 #include <asm/arch/pinctrl_init.h>
 #ifdef CONFIG_AML_VPU
