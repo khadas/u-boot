@@ -140,60 +140,41 @@ unsigned add_sum(const void* pBuf, const unsigned size)
     return sum;
 }
 
-/*#include <asm/arch/mailbox.h>*/
-/*#define ROM_BOOT_SKIP_BOOT_ENABLED_4_USB      1//skip boot to usb supported by romboot*/
-#ifdef SCPI_CMD_SDCARD_BOOT
-#define ROM_BOOT_SKIP_BOOT_ENABLED_4_SDC      1//skip boot sdcard supported by romboot
-#else
-#define ROM_BOOT_SKIP_BOOT_ENABLED_4_SDC      0
-#endif//#ifdef SCPI_CMD_SDCARD_BOOT
-
-static int optimus_enable_romboot_skip_boot(const char* extBootDev)
+static void _erase_bootloader(uint64_t arg0)
 {
-    if (!strcmp("usb", extBootDev))
-    {
-#if ROM_BOOT_SKIP_BOOT_ENABLED_4_USB
-#if SCPI_CMD_USB_UNBOOT
-        set_boot_first_timeout(SCPI_CMD_USB_UNBOOT);
-#else
-        set_usb_boot_function(FORCE_USB_BOOT);
-#endif// #if SCPI_CMD_USB_UNBOOT
-#endif// #if ROM_BOOT_SKIP_BOOT_ENABLED_4_USB
-    }
+    const char* bootName = "bootloader";
+    const int bootCpyNum = store_boot_copy_num(bootName);
 
-    if (!strcmp("sdc", extBootDev))
-    {
-#if ROM_BOOT_SKIP_BOOT_ENABLED_4_SDC
-        set_boot_first_timeout(SCPI_CMD_SDCARD_BOOT);
-#endif// #if ROM_BOOT_SKIP_BOOT_ENABLED_4_SDC
+    printf("arg0[0x%llx]\n", arg0);
+    printf("set_boot_first_timeout not defined so Really erase\n");
+    int iCopy = 0;
+    for (; iCopy < bootCpyNum; ++iCopy) {
+        store_boot_erase(bootName, iCopy);
     }
-
-    return 0;
 }
-
+extern void set_boot_first_timeout(uint64_t arg0) __attribute__((weak, alias("_erase_bootloader")));
+#include <asm/arch/bl31_apis.h>
+#ifndef SCPI_CMD_USB_BOOT
+#define SCPI_CMD_USB_BOOT 		0xB0	//skip to wait pc with timeout
+#define SCPI_CMD_USB_UNBOOT 	0xB1	//skip to wait pc forever
+#define SCPI_CMD_SDCARD_BOOT 	0xB2
+#define SCPI_CMD_CLEAR_BOOT 	0xB3
+#endif//#ifndef SCPI_CMD_USB_BOOT
 //I assume that store_inited yet when "bootloader_is_old"!!!!
 int optimus_erase_bootloader(const char* extBootDev)
 {
     if (!strcmp("usb", extBootDev))
     {
-#if ROM_BOOT_SKIP_BOOT_ENABLED_4_USB
-    return optimus_enable_romboot_skip_boot("usb");
-#endif// #if ROM_BOOT_SKIP_BOOT_ENABLED_4_USB
+        set_boot_first_timeout(SCPI_CMD_USB_UNBOOT);
+        return 0;
     }
 
     if (!strcmp("sdc", extBootDev))
     {
-#if ROM_BOOT_SKIP_BOOT_ENABLED_4_SDC
-    return optimus_enable_romboot_skip_boot("sdc");
-#endif// #if ROM_BOOT_SKIP_BOOT_ENABLED_4_SDC
+        set_boot_first_timeout(SCPI_CMD_SDCARD_BOOT);
+        return 0;
     }
 
-    const char* bootName = "bootloader";
-    const int bootCpyNum = store_boot_copy_num(bootName);
-    int iCopy = 0;
-    for (; iCopy < bootCpyNum; ++iCopy) {
-        store_boot_erase(bootName, iCopy);
-    }
     return 0;
 }
 
