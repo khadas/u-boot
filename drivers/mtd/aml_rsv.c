@@ -659,7 +659,8 @@ int meson_rsv_init(struct mtd_info *mtd,
 
 	if (mtd->erasesize < 0x40000) {
 		handler->key->size = mtd->erasesize >> 2;
-		handler->dtb->size = mtd->erasesize;
+		/* reduce memory usage in sram */
+		handler->dtb->size = mtd->erasesize >> 1;
 	} else {
 		handler->key->size = 0x40000;
 		handler->dtb->size = 0x40000;
