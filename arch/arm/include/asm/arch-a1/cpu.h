@@ -53,8 +53,6 @@
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
 
-/* support board late init */
-#define CONFIG_BOARD_LATE_INIT
 /* use "hush" command parser */
 #if 0
 #define CONFIG_SYS_HUSH_PARSER

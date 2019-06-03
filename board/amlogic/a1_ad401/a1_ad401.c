@@ -85,6 +85,18 @@ int active_a1_clk(void)
 	return 0;
 }
 
+void board_init_mem(void) {
+	/* config bootm low size, make sure whole dram/psram space can be used */
+	phys_size_t ram_size;
+	char *env_tmp;
+	env_tmp = env_get("bootm_size");
+	if (!env_tmp) {
+		ram_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4);
+		env_set_hex("bootm_low", 0);
+		env_set_hex("bootm_size", ram_size);
+	}
+}
+
 int board_init(void)
 {
 	printf("board init\n");
@@ -101,7 +113,7 @@ int board_init(void)
 int board_late_init(void)
 {
 	printf("board late init\n");
-
+	board_init_mem();
 	return 0;
 }
 

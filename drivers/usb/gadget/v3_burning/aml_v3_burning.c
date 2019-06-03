@@ -16,6 +16,8 @@
 #define BOOT_DEVICE_USB                 5
 #endif// #ifndef BOOT_DEVICE_USB
 
+extern void board_init_mem(void);
+
 static unsigned _get_romcode_boot_id(void)
 {
 	FB_DBG("cfg0 0x%08x\n", readl(P_AO_SEC_GP_CFG0));
@@ -49,6 +51,7 @@ int aml_v3_factory_usb_burning(int flag, bd_t* bis)
         mmc_initialize(bis);
 #endif
 		set_default_env(NULL, 0);
+		board_init_mem();
     }
     //pull down and sleep in bl2-->tpl,
     //to improve pc compatibility
