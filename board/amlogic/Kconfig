@@ -10,6 +10,11 @@ config AML_BL33_COMPRESS_ENABLE
 	help
 		Support U-boot compress function
 
+config AML_CRYPTO_AES
+	bool "Amlogic Crypto AES for Secure Boot"
+	help
+		"Support AES for Amlogic Secure Boot"
+
 config AML_SECURE_BOOT_V3
 	bool "Amlogic SecureBoot V3"
 	help
