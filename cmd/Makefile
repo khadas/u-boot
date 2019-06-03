@@ -13,6 +13,7 @@ obj-y += help.o
 obj-y += version.o
 
 # command
+obj-$(CONFIG_CMD_KBI) += cmd_kbi.o
 obj-$(CONFIG_CMD_AES) += aes.o
 obj-$(CONFIG_CMD_AMBAPP) += ambapp.o
 obj-$(CONFIG_CMD_ANDROID_AB_SELECT) += android_ab_select.o android_cmds.o

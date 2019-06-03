@@ -68,11 +68,29 @@
 	"partitions=" PARTS_DEFAULT \
 	ROCKCHIP_DEVICE_SETTINGS \
 	RKIMG_DET_BOOTDEV \
+		"wol_init="\
+			"kbi init;"\
+			"kbi powerstate;"\
+			"kbi trigger wol r;"\
+			"if test ${power_state} = 1; then "\
+				"kbi trigger wol w 1;"\
+			"fi;"\
+			"\0"\
+		"board_detect="\
+			"kbi boarddetect;"\
+			"\0"\
+		"cmdline_keys="\
+			"kbi ethmac;" \
+			"setenv khadas_bootargs board.type=${board_type} wol_enable=${wol_enable}  mac=${eth_mac} androidboot.mac=${eth_mac};" \
+		"\0"\
 	BOOTENV
 
 #endif
 
-#define CONFIG_PREBOOT
+#define CONFIG_PREBOOT \
+		"run wol_init; " \
+		"run board_detect; " \
+		"run cmdline_keys; "
 
 /* enable usb config for usb ether */
 

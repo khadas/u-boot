@@ -672,6 +672,10 @@ config CMD_GPIO
 	help
 	  GPIO support.
 
+config CMD_KBI
+	bool "kbi"
+	help
+	  KBI support.
 config CMD_GPT
 	bool "GPT (GUID Partition Table) command"
 	select PARTITION_UUIDS
