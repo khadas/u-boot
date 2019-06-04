@@ -13,36 +13,7 @@
 #include <mtd.h>
 #include <amlogic/aml_mtd.h>
 
-#define SPINOR_BOOTLOADER_SIZE	(SZ_1M)
-static const struct mtd_partition spiflash_partitions[] = {
-	{
-		.name = "env",
-		.offset = 0,
-		.size = 1 * SZ_256K,
-	},
-	{
-		.name = "boot",
-		.offset = 0,
-		.size = 1 * SZ_1M,
-	},
-	{
-		.name = "dspA",
-		.offset = 0,
-		.size = 1 * SZ_512K,
-	},
-	{
-		.name = "dspB",
-		.offset = 0,
-		.size = 1 * SZ_512K,
-	},
-	/* last partition get the rest capacity */
-	{
-		.name = "user",
-		.offset = MTDPART_OFS_APPEND,
-		.size = MTDPART_SIZ_FULL,
-	}
-};
-
+#define SPINOR_BOOTLOADER_SIZE (SZ_1M)
 #define SPINOR_RSV_BLOCK_NUM	(4)
 
 static int _spinor_add_partitions(struct mtd_info *mtd,
@@ -105,10 +76,16 @@ static int _spinor_add_partitions(struct mtd_info *mtd,
 	return add_mtd_partitions(mtd, temp, part_num);
 }
 
+extern struct mtd_partition *get_partition_table(int *partitions);
 int spinor_add_partitions(struct mtd_info *mtd)
 {
+	struct mtd_partition *spiflash_partitions;
+	int partition_count;
+
+	spiflash_partitions = get_partition_table(&partition_count);
+
 	return _spinor_add_partitions(mtd, spiflash_partitions,
-			       ARRAY_SIZE(spiflash_partitions));
+			       partition_count);
 }
 
 int spinor_del_partitions(struct mtd_info *mtd)

@@ -404,35 +404,6 @@ static inline int spi_write_then_read(struct spi_slave *spi,
 }
 #endif /* __UBOOT__ */
 
-static const struct mtd_partition spinand_partitions[] = {
-	{
-		.name = "logo",
-		.offset = 0,
-		.size = 2 * SZ_1M,
-	},
-	{
-		.name = "recovery",
-		.offset = 0,
-		.size = 16 * SZ_1M,
-	},
-	{
-		.name = "boot",
-		.offset = 0,
-		.size = 16 * SZ_1M,
-	},
-	{
-		.name = "system",
-		.offset = 0,
-		.size = 64 * SZ_1M,
-	},
-	/* last partition get the rest capacity */
-	{
-		.name = "data",
-		.offset = MTDPART_OFS_APPEND,
-		.size = MTDPART_SIZ_FULL,
-	}
-};
-
 /* Define default oob placement schemes for large and small page devices */
 static struct nand_ecclayout nand_oob_8 = {
 	.eccbytes = 3,
@@ -2527,9 +2498,12 @@ static int spinand_probe(struct udevice *dev)
 	struct spinand_info *info;
 	struct nand_chip *chip;
 	int retval = 0;
+	struct mtd_partition *spinand_partitions;
+	int partition_count;
 #ifndef __UBOOT__
 	struct flash_platform_data *data;
 #ifdef CONFIG_OF
+
 	data = of_spinand_get_data(&pdev->dev);
 	pdev->dev.platform_data = data;
 #else
@@ -2627,10 +2601,11 @@ static int spinand_probe(struct udevice *dev)
 #endif
 	meson_rsv_check(info->rsv->key);
 	meson_rsv_check(info->rsv->dtb);
-
 #ifdef __UBOOT__
+	extern struct mtd_partition *get_partition_table(int *partitions);
+	spinand_partitions = get_partition_table(&partition_count);
 	WARN_ON(spinand_add_partitions(mtd, spinand_partitions,
-			       ARRAY_SIZE(spinand_partitions)));
+					partition_count));
 #elif defined CONFIG_OF
 	mtd_device_register(mtd, data->parts, data->nr_parts);
 #endif
