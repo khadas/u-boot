@@ -15,6 +15,7 @@
 #define BOOT_DEVICE_SD                  4
 #define BOOT_DEVICE_USB                 5
 #endif// #ifndef BOOT_DEVICE_USB
+extern void serial_initialize(void);
 
 extern void board_init_mem(void);
 
@@ -51,6 +52,7 @@ int aml_v3_factory_usb_burning(int flag, bd_t* bis)
 
     bis = bis;//avoid compiling warnning
     if ( !flag ) {
+        serial_initialize();//init for write memory
 #ifdef CONFIG_GENERIC_MMC
         FB_MSG("MMC init for dnl\n");
         mmc_initialize(bis);

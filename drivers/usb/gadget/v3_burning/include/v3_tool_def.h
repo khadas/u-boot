@@ -73,12 +73,12 @@ enum {
 };
 
 #ifndef CONFIG_DTB_MEM_ADDR
-#define CONFIG_DTB_MEM_ADDR     0x1000000
+#define CONFIG_DTB_MEM_ADDR     0x1000
 #endif// #ifndef CONFIG_DTB_MEM_ADDR
 #define V3_DTB_LOAD_ADDR    CONFIG_DTB_MEM_ADDR
 
 #define EP_BUFFER_SIZE          4096	//temp buffer for command 'Download'
-#define V3_DOWNLOAD_EP_DATA     ( 0x012<<20 ) //CONFIG_DTB_MEM_ADDR + 2M
+#define V3_DOWNLOAD_EP_DATA     ( 0x02<<20 ) //CONFIG_DTB_MEM_ADDR + 2M
 #define V3_DOWNLOAD_EP_OUT      (V3_DOWNLOAD_EP_DATA)
 #define V3_DOWNLOAD_EP_IN       (V3_DOWNLOAD_EP_OUT + EP_BUFFER_SIZE * 2)
 
