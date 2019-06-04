@@ -79,7 +79,7 @@
 #define GET_CHIP_ID			0x82000044
 
 /* tsensor calibration data */
-#define TSENSOR_CALI_SET       0x8200004B
+#define TSENSOR_CALI_SET       0x8200004C
 
 /* Security Key*/
 #define SECURITY_KEY_QUERY	0x82000060
