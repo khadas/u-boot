@@ -29,3 +29,5 @@ endif
 obj-y += cmd_avb.o
 obj-$(CONFIG_CMD_DDR_D2PLL) += cmd_d2pll.o
 obj-$(CONFIG_CMD_DDR_TEST) += cmd_ddr_test.o
+
+obj-$(CONFIG_CMD_OS_IDENT) += os_ident.o

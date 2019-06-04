@@ -1,3 +1,4 @@
+menu "Amlogic commands"
 
 config AML_RPMB_DISABLE
 	bool "support RPMB set in bootargs"
@@ -53,3 +54,11 @@ config CMD_DDR_TEST
 	default n
 	help
 	  support ddr_test cmd
+
+config CMD_OS_IDENT
+	bool "os_ident"
+	default y
+	help
+	  Ident OS type
+
+endmenu

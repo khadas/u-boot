@@ -1903,6 +1903,8 @@ config CMD_AVB
 	    avb verify - run full verification chain
 endmenu
 
+source "cmd/amlogic/Kconfig"
+
 config CMD_UBI
 	tristate "Enable UBI - Unsorted block images commands"
 	select CRC32
@@ -1944,5 +1946,3 @@ config CMD_EFUSE
 	  support efuse command
 
 endmenu
-
-source "cmd/amlogic/Kconfig"

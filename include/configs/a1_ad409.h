@@ -64,6 +64,9 @@
         "upgrade_step=0\0"\
         "jtag=disable\0"\
         "loadaddr=0x00020000\0"\
+        "os_ident_addr=0x00500000\0"\
+        "loadaddr_rtos=0x00001000\0"\
+        "loadaddr_kernel=0x00020000\0"\
         "panel_type=lcd_1\0" \
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
@@ -93,8 +96,8 @@
         "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-            "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xff803000 "\
-			"ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
+            "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xfe001c00 "\
+            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
             "echo upgrade_step=${upgrade_step}; "\
@@ -102,12 +105,12 @@
             "\0"\
         "storeargs="\
             "setenv bootargs ${initargs} ${fs_type}  "\
-				"logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} "\
-				"hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
-				"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} "\
-				"osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
-				"androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
-			"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
+                "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} "\
+                "hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
+                "frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} "\
+                "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
+                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
+            "setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
         "switch_bootmode="\
@@ -127,10 +130,21 @@
             "fi;fi;fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
-            "imgread dtb _aml_dtb ${dtb_mem_addr}; fdt addr ${dtb_mem_addr};"\
-            "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
-            "echo booting failure; run update;"\
-            "\0"\
+            "store read ${os_ident_addr} boot 0 0x1000;"\
+            "os_ident ${os_ident_addr}; echo os_type: ${os_type};"\
+            "if test ${os_type} = rtos; then "\
+                "setenv loadaddr ${loadaddr_rtos};"\
+                "store read ${loadaddr} boot 0 0x400000;"\
+                "bootm ${loadaddr};"\
+            "else if test ${os_type} = kernel; then "\
+                "setenv loadaddr ${loadaddr_kernel};"\
+                "imgread dtb _aml_dtb ${dtb_mem_addr}; fdt addr ${dtb_mem_addr};"\
+                "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
+                "echo booting failure; run update;"\
+            "else"\
+                "echo wrong OS format!; reset;"\
+            "fi;fi;"\
+            "\0" \
          "update="\
             /*first usb burning, second sdc_burn, third ext-sd autoscr/recovery, last udisk autoscr/recovery*/\
             /*"run usb_burning; "*/\
@@ -145,11 +159,11 @@
                 "bootm ${loadaddr};fi;"\
             "\0"\
         "recovery_from_flash="\
-			"setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
-			"if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
+            "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
+            "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
             "\0"\
         "cmdline_keys="\
-			"setenv usid 1234567890; setenv region_code US;"\
+            "setenv usid 1234567890; setenv region_code US;"\
             "if keyman init 0x1234; then "\
                 "if keyman read usid ${loadaddr} str; then fi;"\
                 "if keyman read region_code ${loadaddr} str; then fi;"\
@@ -160,9 +174,9 @@
                     "setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
                 "fi;"\
             "fi;"\
-			"setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
-			"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-			"setenv serial ${usid}; setenv serial# ${usid};"\
+            "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
+            "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+            "setenv serial ${usid}; setenv serial# ${usid};"\
             "\0"\
 
 #define CONFIG_PREBOOT  \
