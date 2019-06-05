@@ -150,6 +150,7 @@
             "fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
+            "boot_cooling;"\
             "get_system_as_root_mode;"\
             "echo system_mode: ${system_mode};"\
             "if test ${system_mode} = 1; then "\
@@ -639,6 +640,6 @@
 
 //DDR address to contain info from BL2 to BL3X
 //#define  AML_BL2_TMASTER_DDR_ADDR  (0x3000000)
-
+#define CONFIG_HIGH_TEMP_COOL  90
 #endif
 

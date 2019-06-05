@@ -1057,7 +1057,7 @@ int r1p1_temp_read(int type)
 						}
 					}
 					value_ts =  value_all_ts / cnt;
-					printf("sar tsensor avg: 0x%x\n", value_ts);
+					printf("sar tsensor avg: 0x%x, u_efuse: 0x%x\n", value_ts, u_efuse);
 					if (value_ts == 0) {
 						printf("tsensor read temp is zero\n");
 						return -1;
@@ -1411,6 +1411,23 @@ void r1p1_temp_cooling(void)
 				temp1 = r1p1_temp_read(1);
 				temp2 = r1p1_temp_read(2);
 				temp = temp1 > temp2 ? temp1 : temp2;
+				if (temp <= CONFIG_HIGH_TEMP_COOL) {
+					printf("device cool done\n");
+					break;
+				}
+				mdelay(2000);
+				printf("warning: temp %d over %d, cooling\n", temp,
+					CONFIG_HIGH_TEMP_COOL);
+			}
+			break;
+		case MESON_CPU_MAJOR_ID_TL1:
+		case MESON_CPU_MAJOR_ID_TM2:
+			while (1) {
+				temp1 = r1p1_temp_read(1);
+				temp2 = r1p1_temp_read(2);
+				temp = temp1 > temp2 ? temp1 : temp2;
+				temp1 = r1p1_temp_read(3);
+				temp = temp > temp1 ? temp : temp1;
 				if (temp <= CONFIG_HIGH_TEMP_COOL) {
 					printf("device cool done\n");
 					break;
