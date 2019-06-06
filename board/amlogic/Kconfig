@@ -123,14 +123,73 @@ if MESON_A1
 config SYS_SOC
 	default "a1"
 
-config TARGET_A1_AD409
-	bool "A1_AD409"
+choice
+	prompt "A1 Board"
+
+config A1_AD401_NOR_RTOS
+	bool "A1_AD401_NOR_RTOS"
+	select TARGET_A1_AD401
+	select MTD_SPI_FLASH
+	select SYSTEM_RTOS
+	help
+	  Select A1 AD401 NOR RTOS board config
+
+config A1_AD401_NAND_RTOS
+	bool "A1_AD401_NAND_RTOS"
+	select TARGET_A1_AD401
+	select SPI_NAND
+	select SYSTEM_RTOS
+	help
+	  Select A1 AD401 NOR RTOS board config
+
+config A1_AD401_NAND_LINUX
+	bool "A1_AD401_NAND_LINUX"
+	select TARGET_A1_AD401
+	select SPI_NAND
+	help
+	  Select A1 AD401 NOR RTOS board config
+
+config A1_AD409_NOR_RTOS
+	bool "A1_AD409_NOR_RTOS"
+	select TARGET_A1_AD409
+	select MTD_SPI_FLASH
+	select SYSTEM_RTOS
+	help
+	  Select A1 AD409 NOR RTOS board config
+
+config A1_AD409_NAND_RTOS
+	bool "A1_AD409_NAND_RTOS"
+	select TARGET_A1_AD409
+	select SPI_NAND
+	select SYSTEM_RTOS
+	help
+	  Select A1 AD409 NOR RTOS board config
+
+config A1_AD409_NAND_LINUX
+	bool "A1_AD409_NAND_LINUX"
+	select TARGET_A1_AD409
+	select SPI_NAND
+	help
+	  Select A1 AD409 NOR RTOS board config
+
+endchoice
 
 config TARGET_A1_AD401
-	bool "A1_AD401"
+	bool "A1 AD401 board"
+	depends on A1_AD401_NOR_RTOS || A1_AD401_NAND_RTOS || A1_AD401_NAND_LINUX
+
+config TARGET_A1_AD409
+	bool "A1 AD409 board"
+	depends on A1_AD409_NOR_RTOS || A1_AD409_NAND_RTOS || A1_AD409_NAND_LINUX
+
+config SYSTEM_RTOS
+	bool "SYSTEM_RTOS_PARTITION"
+	default n
+	depends on A1_AD401_NOR_RTOS || A1_AD409_NOR_RTOS || A1_AD401_NAND_RTOS || A1_AD409_NAND_RTOS
+	help
+	  Select SYSTEM RTOS partition table
 
 endif
-
 
 if MESON_G12A
 
