@@ -11,3 +11,4 @@ obj-$(CONFIG_CMD_AML_MTEST) += core.o
 obj-$(CONFIG_AML_HDMITX) += hdmitx.o
 #obj-y += usb.o
 obj-$(CONFIG_AML_TSENSOR) += tsensor.o
+obj-$(CONFIG_AML_OSCRING) += oscring.o

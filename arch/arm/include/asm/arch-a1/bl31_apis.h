@@ -81,6 +81,8 @@
 /* tsensor calibration data */
 #define TSENSOR_CALI_SET       0x8200004C
 
+/*oscring efuse value get */
+#define OSCRING_EFUSE_GET       0x8200004D
 /* Security Key*/
 #define SECURITY_KEY_QUERY	0x82000060
 #define SECURITY_KEY_READ	0x82000061
@@ -163,4 +165,5 @@ void wdt_send_cmd_to_bl31(uint64_t cmd, uint64_t value);
 void power_set_dsp(unsigned int id, unsigned int powerflag);
 void init_dsp(unsigned int id,unsigned int addr,unsigned int cfg0);
 void set_boot_first_timeout(uint64_t arg0);
+int bl31_get_cornerinfo(uint8_t *outbuf, int size);
 #endif

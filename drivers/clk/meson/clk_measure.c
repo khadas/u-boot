@@ -10,36 +10,6 @@
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
 
-
-unsigned long clk_util_ring_msr(unsigned long clk_mux)
-{
-	unsigned int regval = 0;
-
-	WRITE_CBUS_REG(MSR_CLK_REG0, 0);
-	/* Set the measurement gate to 64uS */
-	CLEAR_CBUS_REG_MASK(MSR_CLK_REG0, 0xffff);
-	/* 64uS is enough for measure the frequence? */
-	SET_CBUS_REG_MASK(MSR_CLK_REG0, (10000 - 1));
-	/* Disable continuous measurement */
-	/* Disable interrupts */
-	CLEAR_CBUS_REG_MASK(MSR_CLK_REG0, ((1 << 18) | (1 << 17)));
-	CLEAR_CBUS_REG_MASK(MSR_CLK_REG0, (0x7f << 20));
-	SET_CBUS_REG_MASK(MSR_CLK_REG0, (clk_mux << 20) | /* Select MUX */
-			(1 << 19) |       /* enable the clock */
-			(1 << 16));       /* enable measuring */
-	/* Wait for the measurement to be done */
-	regval = READ_CBUS_REG(MSR_CLK_REG0);
-	do {
-		regval = READ_CBUS_REG(MSR_CLK_REG0);
-	} while (regval & (1 << 31));
-
-	/* Disable measuring */
-	CLEAR_CBUS_REG_MASK(MSR_CLK_REG0, (1 << 16));
-	regval = (READ_CBUS_REG(MSR_CLK_REG2) + 31) & 0x000FFFFF;
-
-	return (regval / 10);
-}
-
 unsigned long clk_util_clk_msr(unsigned long clk_mux)
 {
 	unsigned int regval = 0;
