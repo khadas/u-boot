@@ -585,7 +585,7 @@ static int mtd_store_read(const char *part_name,
 			__func__, __LINE__, ret);
 		return ret;
 	}
-	if (retlen != size) {
+	if (retlen < size) {
 		ret = -EIO;
 		pr_info("%s %d mtd read err, size(%ld), retlen(%ld)\n",
 			__func__, __LINE__, size, retlen);
@@ -622,7 +622,7 @@ static int mtd_store_write(const char *part_name,
 			__func__, __LINE__, ret);
 		return ret;
 	}
-	if (retlen != size) {
+	if (retlen < size) {
 		ret = -EIO;
 		pr_info("%s %d mtd write err, size(%ld), retlen(%ld)\n",
 			__func__, __LINE__, size, retlen);
