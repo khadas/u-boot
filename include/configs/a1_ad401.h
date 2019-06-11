@@ -91,7 +91,7 @@
         "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-            "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml_uart,0xfe001c00 "\
+            "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml_uart,0xfe002000 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
