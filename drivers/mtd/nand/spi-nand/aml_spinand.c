@@ -440,8 +440,9 @@ static struct nand_ecclayout nand_oob_64 = {
 	},
 	.oobfree = {
 		{
+			/* Spare Area 62 */
 			.offset = 2,
-			.length = 38
+			.length = 62
 		}
 	}
 };

@@ -290,8 +290,9 @@ READ_RSV_AGAIN:
 				return -EIO;
 			goto READ_RSV_AGAIN;
 		}
+		/* Do not use strlen ,Use ARRAY_SIZE to make the length 4 */
 		if (memcmp(oobinfo.name, rsv_info->name,
-			   strlen(oobinfo.name)))
+			   ARRAY_SIZE(oobinfo.name)))
 			pr_info("invalid %s info in %llx:%s\n",
 				rsv_info->name, offset, oobinfo.name);
 		offset += mtd->writesize;
@@ -322,6 +323,7 @@ int meson_rsv_erase(struct meson_rsv_info_t *rsv_info)
 		rsv_info->nvalid->ec++;
 		rsv_info->nvalid->page_addr = 0;
 		rsv_info->nvalid->timestamp = 1;
+		rsv_info->valid = 0;
 	}
 
 	temp_node = rsv_info->nfree;
@@ -386,8 +388,9 @@ RE_RSV_INFO:
 		}
 		rsv_info->init = 1;
 		rsv_info->nvalid->status = 0;
+		/* Do not use strlen ,Use ARRAY_SIZE to make the length 4 */
 		if (!memcmp(oobinfo.name, rsv_info->name,
-			    strlen(oobinfo.name))) {
+			    ARRAY_SIZE(oobinfo.name))) {
 			rsv_info->valid = 1;
 			if (rsv_info->nvalid->blk_addr >= 0) {
 				free_node = get_free_node(rsv_info);
@@ -482,8 +485,9 @@ RE_RSV_INFO:
 				ret = -1;
 				continue;
 			}
+			/* Do not use strlen ,Use ARRAY_SIZE to make the length 4 */
 			if (!memcmp(oobinfo.name, rsv_info->name,
-				    strlen(oobinfo.name))) {
+				    ARRAY_SIZE(oobinfo.name))) {
 				good_addr[i] = 1;
 				rsv_info->nvalid->page_addr = i;
 			} else {
