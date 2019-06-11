@@ -1011,6 +1011,7 @@ int video_scale_bitmap(void)
 	osd_logd2("video_scale_bitmap src w=%d, h=%d, dst w=%d, dst h=%d\n",
 		fb_gdev.fb_width, fb_gdev.fb_height, fb_gdev.winSizeX, fb_gdev.winSizeY);
 
+	vout_get_current_axis(axis);
 	layer_str = getenv("display_layer");
 	if (strcmp(layer_str, "osd0") == 0)
 		osd_index = OSD1;
@@ -1018,12 +1019,11 @@ int video_scale_bitmap(void)
 		osd_index = OSD2;
 	else if (strcmp(layer_str, "viu2_osd0") == 0) {
 		osd_index = VIU2_OSD1;
-		goto enable_osd;
+		goto no_scale;
 	} else {
 		osd_logd2("video_scale_bitmap: invalid display_layer\n");
 		return (-1);
 	}
-	vout_get_current_axis(axis);
 
 #ifdef CONFIG_OSD_SUPERSCALE_ENABLE
 	if ((fb_gdev.fb_width * 2 != fb_gdev.winSizeX) ||
@@ -1040,6 +1040,8 @@ int video_scale_bitmap(void)
 	osd_set_window_axis_hw(osd_index, axis[0], axis[1], axis[0] + axis[2] - 1,
 			       axis[1] + axis[3] - 1);
 	osd_set_free_scale_enable_hw(osd_index, 0x10001);
+
+no_scale:
 #ifdef CONFIG_AML_MESON_G12A
 	disp_data.x_start = axis[0];
 	disp_data.y_start = axis[1];
@@ -1049,7 +1051,6 @@ int video_scale_bitmap(void)
 		osd_update_blend(&disp_data);
 #endif
 
-enable_osd:
 	osd_enable_hw(osd_index, 1);
 
 	return (1);
