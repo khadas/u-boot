@@ -67,6 +67,7 @@
         "os_ident_addr=0x00500000\0"\
         "loadaddr_rtos=0x00001000\0"\
         "loadaddr_kernel=0x00020000\0"\
+        "otg_device=1\0" \
         "panel_type=lcd_1\0" \
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
@@ -104,7 +105,7 @@
             "if itest ${upgrade_step} == 3; then run storeargs; run update; fi;"\
             "\0"\
         "storeargs="\
-            "setenv bootargs ${initargs} ${fs_type}  "\
+            "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} "\
                 "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} "\
                 "hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
                 "frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} "\
