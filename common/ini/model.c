@@ -1039,7 +1039,17 @@ static int handle_tcon_bin(void)
 	int tmp_len = 0;
 	unsigned char *tmp_buf = NULL;
 	unsigned char *tcon_buf = NULL;
-	char *file_name;
+	char *file_name, *tmp;
+	unsigned int bypass;
+
+	tmp = getenv("model_tcon_bypass");
+	if (tmp) {
+		bypass = (unsigned int)simple_strtoul(tmp, NULL, 10);
+		if (bypass) {
+			ALOGI("model_tcon_bypass\n");
+			return 0;
+		}
+	}
 
 	file_name = getenv("model_tcon");
 	if (file_name == NULL) {
