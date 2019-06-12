@@ -304,7 +304,7 @@ READ_RSV_AGAIN:
 int meson_rsv_erase(struct meson_rsv_info_t *rsv_info)
 {
 	struct mtd_info *mtd = rsv_info->mtd;
-	struct free_node_t *temp_node = NULL;
+	struct free_node_t *free_node, *temp_node = NULL;
 	int ret = 0;
 	struct erase_info erase_info;
 
@@ -313,17 +313,29 @@ int meson_rsv_erase(struct meson_rsv_info_t *rsv_info)
 			__func__, __LINE__, rsv_info->name);
 
 	if (rsv_info->valid) {
+		/*
 		memset(&erase_info, 0, sizeof(struct erase_info));
 		erase_info.mtd = mtd;
 		erase_info.addr = rsv_info->nvalid->blk_addr* mtd->erasesize;
 		erase_info.len = mtd->erasesize;
 		ret = mtd_erase(mtd, &erase_info);
-
 		printk("erasing valid info block: %llx \n", erase_info.addr);
+		*/
 		rsv_info->nvalid->ec++;
-		rsv_info->nvalid->page_addr = 0;
+		rsv_info->nvalid->page_addr = -1;
 		rsv_info->nvalid->timestamp = 1;
 		rsv_info->valid = 0;
+
+		free_node = get_free_node(rsv_info);
+		if (!free_node)
+			return -ENOMEM;
+		/* set current valid node to free list */
+		free_node->blk_addr = rsv_info->nvalid->blk_addr;
+		free_node->ec = rsv_info->nvalid->ec;
+		temp_node = rsv_info->nfree;
+		while (temp_node->next)
+			temp_node = temp_node->next;
+		temp_node->next = free_node;
 	}
 
 	temp_node = rsv_info->nfree;
@@ -725,6 +737,11 @@ int meson_rsv_bbt_read(u_char *dest, size_t size)
 	}
 	len = rsv_handler->bbt->size;
 	temp = kzalloc(len, GFP_KERNEL);
+	if (!temp) {
+		pr_err("%s %d kzalloc fail size = 0x%x\n",
+			__func__, __LINE__, len);
+		return -ENOMEM;
+	}
 	memset(temp, 0, len);
 	ret = meson_rsv_read(rsv_handler->bbt, temp);
 	memcpy(dest, temp, len > size ? size : len);
@@ -753,6 +770,11 @@ int meson_rsv_key_read(u_char *dest, size_t size)
 	}
 	len = rsv_handler->key->size;
 	temp = kzalloc(len, GFP_KERNEL);
+	if (!temp) {
+		pr_err("%s %d kzalloc fail size = 0x%x\n",
+			__func__, __LINE__, len);
+		return -ENOMEM;
+	}
 	memset(temp, 0, len);
 	ret = meson_rsv_read(rsv_handler->key, temp);
 	memcpy(dest, temp, len > size ? size : len);
@@ -781,6 +803,11 @@ int meson_rsv_env_read(u_char *dest, size_t size)
 	}
 	len = rsv_handler->env->size;
 	temp = kzalloc(len, GFP_KERNEL);
+	if (!temp) {
+		pr_err("%s %d kzalloc fail size = 0x%x\n",
+			__func__, __LINE__, len);
+		return -ENOMEM;
+	}
 	memset(temp, 0, len);
 	ret = meson_rsv_read(rsv_handler->env, temp);
 	memcpy(dest, temp, len > size ? size : len);
@@ -809,6 +836,11 @@ int meson_rsv_dtb_read(u_char *dest, size_t size)
 	}
 	len = rsv_handler->dtb->size;
 	temp = kzalloc(len, GFP_KERNEL);
+	if (!temp) {
+		pr_err("%s %d kzalloc fail size = 0x%x\n",
+			__func__, __LINE__, len);
+		return -ENOMEM;
+	}
 	memset(temp, 0, len);
 	ret = meson_rsv_read(rsv_handler->dtb, temp);
 	memcpy(dest, temp, len > size ? size : len);
@@ -838,6 +870,11 @@ int meson_rsv_bbt_write(u_char *source, size_t size)
 	}
 	len = rsv_handler->bbt->size;
 	temp = kzalloc(len, GFP_KERNEL);
+	if (!temp) {
+		pr_err("%s %d kzalloc fail size = 0x%x\n",
+			__func__, __LINE__, len);
+		return -ENOMEM;
+	}
 	memset(temp, 0, len);
 	memcpy(temp, source, len > size ? size : len);
 	ret = meson_rsv_save(rsv_handler->bbt, temp);
@@ -866,6 +903,11 @@ int meson_rsv_key_write(u_char *source, size_t size)
 	}
 	len = rsv_handler->key->size;
 	temp = kzalloc(len, GFP_KERNEL);
+	if (!temp) {
+		pr_err("%s %d kzalloc fail size = 0x%x\n",
+			__func__, __LINE__, len);
+		return -ENOMEM;
+	}
 	memset(temp, 0, len);
 	memcpy(temp, source, len > size ? size : len);
 	ret = meson_rsv_save(rsv_handler->key, temp);
@@ -894,6 +936,11 @@ int meson_rsv_env_write(u_char *source, size_t size)
 	}
 	len = rsv_handler->env->size;
 	temp = kzalloc(len, GFP_KERNEL);
+	if (!temp) {
+		pr_err("%s %d kzalloc fail size = 0x%x\n",
+			__func__, __LINE__, len);
+		return -ENOMEM;
+	}
 	memset(temp, 0, len);
 	memcpy(temp, source, len > size ? size : len);
 	ret = meson_rsv_save(rsv_handler->env, temp);
@@ -922,6 +969,11 @@ int meson_rsv_dtb_write(u_char *source, size_t size)
 	}
 	len = rsv_handler->dtb->size;
 	temp = kzalloc(len, GFP_KERNEL);
+	if (!temp) {
+		pr_err("%s %d kzalloc fail size = 0x%x\n",
+			__func__, __LINE__, len);
+		return -ENOMEM;
+	}
 	memset(temp, 0, len);
 	memcpy(temp, source, len > size ? size : len);
 	ret = meson_rsv_save(rsv_handler->dtb, temp);
