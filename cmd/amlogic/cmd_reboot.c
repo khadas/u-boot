@@ -25,7 +25,6 @@
 #include <asm/arch/secure_apb.h>
 #include <asm/io.h>
 #include <asm/arch/bl31_apis.h>
-#include <asm/arch/watchdog.h>
 
 /*
 run get_rebootmode  //set reboot_mode env with current mode

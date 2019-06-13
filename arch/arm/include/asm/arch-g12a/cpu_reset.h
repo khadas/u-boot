@@ -1,8 +1,5 @@
-
 /*
- * arch/arm/include/asm/arch-txl/watchdog.h
- *
- * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
+ * Copyright (C) 2019 Amlogic, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,15 +18,9 @@
 
 #ifndef _BOOT_ROM_WATCHDOG_H
 #define _BOOT_ROM_WATCHDOG_H
-
 #include <asm/arch/secure_apb.h>
 
-//#include "common.h"
-
-void watchdog_init(uint32_t msec);
-void watchdog_reset(void);
 void reset_system(void);
-void watchdog_disable(void);
 
 /* uboot reset interface */
 void reset_cpu(unsigned long flag);

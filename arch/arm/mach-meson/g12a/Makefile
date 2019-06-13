@@ -1,7 +1,7 @@
 
 obj-y	:= sdio.o pinctrl_init.o
 obj-y   += bl31_apis.o
-obj-y	+= watchdog.o
+obj-y	+= cpu_reset.o
 obj-y	+= timer.o
 obj-y	+= mailbox.o
 obj-y   += gate_init.o

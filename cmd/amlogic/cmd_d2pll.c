@@ -7,7 +7,7 @@
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
 #include <asm/arch/romboot.h>
-#include <asm/arch/watchdog.h>
+#include <asm/arch/cpu_reset.h>
 #include <amlogic/cpu_id.h>
 
 int do_ddr2pll(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
