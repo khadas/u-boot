@@ -116,6 +116,14 @@
 			};
 		};
 
+		swd_a_pins:swd_a_pin {
+			mux {
+				groups = "swclk",
+				"swdio";
+				function = "sw";
+			};
+		};
+
 		i2c0_master_pins1:i2c0_pins1 {
 			mux {
 				groups = "i2c_a_scl_f11",
@@ -244,14 +252,6 @@
 			reg = <0x2009087f>;
 			#address-cells = <1>;
 			#size-cells = <0>;
-		};
-
-		swd_a_pins:swd_a_pin {
-			mux {
-				groups = "swclk",
-				"swdio";
-				function = "sw";
-			};
 		};
 	};
 };

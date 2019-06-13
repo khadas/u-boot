@@ -12,101 +12,181 @@
 #include <malloc.h>
 #include <asm/arch/bl31_apis.h>
 #include <amlogic/cpu_id.h>
-
-#define SWD_AP_AO                10
-#define JTAG_SETPINMUX   1
-#define JTAG_CLEANPINMUX 0
+#include <amlogic/jtag.h>
+#include <linux/ctype.h>
 
 static struct udevice *jtag_devp;
+static int jtagon_id = INVALID_ID;
 
-static int get_jtag_sel(const char *argv)
+struct jtag_id_desc {
+	unsigned short id;
+	const char *core_type;
+	const char *jtag_type;
+	const char *alias
+};
+
+static struct jtag_id_desc jtag_id_data[] = {
+	{JTAG_SELECT_ID(AP,   JTAG_A,  0), "ap", "jtag_a", "apao"},
+	{JTAG_SELECT_ID(AP,   JTAG_B,  0), "ap", "jtag_b", "apee"},
+	{JTAG_SELECT_ID(AP,   SWD_A,   0), "ap",  "swd_a", "swd_apao"},
+
+	{JTAG_SELECT_ID(SCP,  JTAG_A,  0), "scp", "jtag_a", "scpao"},
+	{JTAG_SELECT_ID(SCP,  JTAG_B,  0), "scp", "jtag_b", "scpee"},
+	{JTAG_SELECT_ID(SCP,  SWD_A,   0), "scp", "swd_a"},
+
+	{JTAG_SELECT_ID(SP,   JTAG_A,  0), "sp", "jtag_a"},
+	{JTAG_SELECT_ID(SP,   JTAG_B,  0), "sp", "jtag_b"},
+	{JTAG_SELECT_ID(SP,   SWD_A,   0), "sp", "swd_a"},
+
+	{JTAG_SELECT_ID(DSPA, JTAG_A,  0), "dspa", "jtag_a"},
+	{JTAG_SELECT_ID(DSPA, JTAG_B,  0), "dspa", "jtag_b"},
+	{JTAG_SELECT_ID(DSPA, SWD_A,   0), "dspa", "swd_a"},
+
+	{JTAG_SELECT_ID(DSPB, JTAG_A,  0), "dspb", "jtag_a"},
+	{JTAG_SELECT_ID(DSPB, JTAG_B,  0), "dspb", "jtag_b"},
+	{JTAG_SELECT_ID(DSPB, SWD_A,   0), "dspb", "swd_a"},
+};
+
+static int jtag_id_find(const char *core_type, const char *jtag_type)
 {
-	int sel;
-	if (strcmp(argv, "apao") == 0)
-		sel = JTAG_A53_AO;
-	else if (strcmp(argv, "apee") == 0)
-		sel = JTAG_A53_EE;
-	else if (strcmp(argv, "scpao") == 0)
-		sel = JTAG_M3_AO;
-	else if (strcmp(argv, "scpee") == 0)
-		sel = JTAG_M3_EE;
-	else if (strcmp(argv, "swd_apao") == 0)
-		sel = SWD_AP_AO;
-	else
-		sel = -1;
+	int i;
 
-	return sel;
+	for (i = 0; i < ARRAY_SIZE(jtag_id_data); i++) {
+		if ((!jtag_id_data[i].core_type) || (!jtag_id_data[i].jtag_type))
+			continue;
+		if ((strcmp(core_type, jtag_id_data[i].core_type) == 0) &&
+		    (strcmp(jtag_type, jtag_id_data[i].jtag_type) == 0)) {
+			return jtag_id_data[i].id;
+		}
+	}
+
+	return INVALID_ID;
+}
+
+static int jtag_id_find_by_alias(const char *name)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(jtag_id_data); i++) {
+		if (!jtag_id_data[i].alias)
+			continue;
+		if (strcmp(name, jtag_id_data[i].alias) == 0)
+			return jtag_id_data[i].id;
+	}
+
+	return INVALID_ID;
+}
+
+static int jtag_id_get(int argc, char * const* argv)
+{
+	int jtag_id = INVALID_ID;
+	int cluster_type;
+
+	switch (argc) {
+	case 2:
+		jtag_id = jtag_id_find_by_alias(argv[1]);
+		break;
+	case 3:
+		if (isdigit(argv[2][0])) {
+			jtag_id = jtag_id_find_by_alias(argv[1]);
+			if (jtag_id < 0)
+				return jtag_id;
+
+			cluster_type = simple_strtoul(argv[2], NULL, 10);
+			if ((cluster_type & (~CLUSTER_TYPE_MASK)) != 0) {
+				printf("invalid cluster type.\n");
+				return INVALID_ID;
+			}
+			jtag_id = CLUSTER_TYPE_UPDATE(jtag_id, cluster_type);
+		} else {
+			jtag_id = jtag_id_find(argv[1], argv[2]);
+		}
+		break;
+	case 4:
+		jtag_id = jtag_id_find(argv[1], argv[2]);
+		if (jtag_id < 0)
+			return jtag_id;
+
+		cluster_type = simple_strtoul(argv[3], NULL, 10);
+		if ((cluster_type & (~CLUSTER_TYPE_MASK)) != 0) {
+			printf("invalid cluster type.\n");
+			return INVALID_ID;
+		}
+		jtag_id = CLUSTER_TYPE_UPDATE(jtag_id, cluster_type);
+		break;
+	default:
+		printf("invalid argument count!\n");
+		return INVALID_ID;
+	}
+
+	return jtag_id;
 }
 
 int do_jtagon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	int sel;
-	uint32_t ret = 0;
+	int jtag_id;
+	int ret = 0;
 
-	if (argc < 2) {
-		printf("invalid argument count!\n");
+	jtag_id = jtag_id_get(argc, argv);
+	if (jtag_id < 0) {
+		printf("can't find jtag id.\n");
 		return -1;
-	}
-	sel = get_jtag_sel(argv[1]);
-	if (sel < 0) {
-		printf("invalid argument!\n");
-		return -1;
-	}
-
-	if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXM) && (sel >1)) {
-		if (argv[2]) {
-			int tmp = simple_strtoul(argv[2], NULL, 10);
-			sel = sel | (tmp << CLUSTER_BIT);
-		} else {
-			printf("gxm: set A53 jtag to cluster0 by default!\n");
-		}
 	}
 
 	ret = uclass_get_device_by_name(UCLASS_MISC, "jtag", &jtag_devp);
-	if (ret < 0) {
-	pr_err("Failed to find jtag node, check device tree.\n");
+	if (ret) {
+		printf("failed to find jtag node, check device tree.\n");
 		return ret;
 	}
-	if (misc_ioctl(jtag_devp, JTAG_SETPINMUX, &sel) < 0) {
-		printf("jtag set pinmux error!\n");
+
+	if (misc_ioctl(jtag_devp, JTAG_SETPINMUX, &jtag_id) < 0) {
+		printf("failed to set jtag pinmux.\n");
 		return -1;
 	}
-	aml_set_jtag_state(JTAG_STATE_ON, sel);
+
+	if (misc_ioctl(jtag_devp, JTAG_EANBLE, &jtag_id) < 0) {
+		printf("failed to enable jtag.\n");
+		return -1;
+	}
+
+	jtagon_id = jtag_id;
+
 	return 0;
 }
 
 U_BOOT_CMD(
-	jtagon, 3,      1,      do_jtagon,
+	jtagon, 4, 1, do_jtagon,
 	"enable jtag",
-	"jtagon [apao|swd_apao|apee|scpao|scpee] [0|1]\n"
-	" [apao|apee|scpao|scpee]  - ap or scp jtag connect to ao or ee domain\n"
-	" [swd_apao]               - ap swd connect to ao domain, only tm2 platforms support SWD mode \n"
-	" [0|1]                    - special for gxm, ap jtag to cluster 0 or cluster 1\n"
+	"jtagon <core_type> <jtag_type> [cluster_type]\n"
+	"core_type: [ap | scp | sp | dspa | dspb]\n"
+	"jtag_type: [jtag_a | jtag_b | swd_a | swd_b]\n"
+	"cluster_type: [0 | 1]"
 );
 
 int do_jtagoff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	int sel;
-	if (argc < 2) {
-		printf("invalid argument count!\n");
-		return -1;
-	}
-	sel = get_jtag_sel(argv[1]);
-	if (sel < 0) {
-		printf("invalid argument!\n");
+	if (jtagon_id == INVALID_ID) {
+		printf("jtag is not enable!\n");
 		return -1;
 	}
 
-	if (misc_ioctl(jtag_devp, JTAG_CLEANPINMUX, &sel) < 0) {
-		printf("jtag clean pinmux error!\n");
+	if (misc_ioctl(jtag_devp, JTAG_CLRPINMUX, &jtagon_id) < 0) {
+		printf("failed to clear jtag pinmux.\n");
 		return -1;
 	}
-	aml_set_jtag_state(JTAG_STATE_OFF, sel);
+
+	if (misc_ioctl(jtag_devp, JTAG_DISABLE, &jtagon_id) < 0) {
+		printf("failed to disable jtag\n");
+		return -1;
+	}
+
+	jtagon_id = INVALID_ID;
+
 	return 0;
 }
 
 U_BOOT_CMD(
-	jtagoff,        2,      1,      do_jtagoff,
+	jtagoff, 1, 1, do_jtagoff,
 	"disable jtag",
-	"jtagoff [apao|swd_apao|apee|scpao|scpee]"
+	"jtagoff"
 );

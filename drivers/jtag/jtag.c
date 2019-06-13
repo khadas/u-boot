@@ -9,42 +9,45 @@
 #include <errno.h>
 #include <dm/pinctrl.h>
 #include <asm/arch/bl31_apis.h>
+#include <amlogic/jtag.h>
 
-#define SWD_AP_AO               10
-
-static int meson_jtag_ioctl(struct udevice *dev, unsigned long request, void *buf)
+static int meson_jtag_ioctl(struct udevice *dev, unsigned long cmd, void *buf)
 {
-	int sel = *(int *)buf;
+	int jtag_id = *(int *)buf;
+	int jtag_type = JTAG_TYPE_GET(jtag_id);
 	int ret;
 
-	if (request) { /* set pinmux */
-		if (sel == JTAG_A53_AO || sel == JTAG_M3_AO) {
-			ret = pinctrl_select_state(dev, "jtag_a_pins");
-			if (ret) {
-				printf("select state jtag_a_pins failed!\n");
-				return -EINVAL;
+	switch (cmd) {
+		case JTAG_SETPINMUX:
+			if (jtag_type == JTAG_A) {
+				ret = pinctrl_select_state(dev, "jtag_a_pins");
+				if (ret) {
+					printf("select state jtag_a_pins failed!\n");
+					return -EINVAL;
+				}
+			} else if (jtag_type == JTAG_B){
+				ret = pinctrl_select_state(dev, "jtag_b_pins");
+				if (ret) {
+					printf("select state jtag_b_pins failed!\n");
+					return -EINVAL;
+				}
+			} else if (jtag_type == SWD_A){
+				ret = pinctrl_select_state(dev, "swd_a_pins");
+				if (ret) {
+					printf("select state swd_a_pins failed!\n");
+					return -EINVAL;
+				}
 			}
-		} else if (sel == JTAG_A53_EE || sel == JTAG_M3_EE){ /* JTAG_A53_EE/JTAG_M3_EE */
-			ret = pinctrl_select_state(dev, "jtag_b_pins");
-			if (ret) {
-				printf("select state jtag_b_pins failed!\n");
-				return -EINVAL;
-			}
-		} else if (sel == SWD_AP_AO){ /* SWD */
-			ret = pinctrl_select_state(dev, "swd_a_pins");
-			if (ret) {
-				printf("select state swd_a_pins failed!\n");
-				return -EINVAL;
-			}
-		}
-	} else { /* clean pinmux */
-		if (sel == JTAG_A53_AO || sel == JTAG_M3_AO || sel == SWD_AP_AO) {
-
-		} else if (sel == JTAG_A53_EE || sel == JTAG_M3_EE){ /* JTAG_A53_EE/JTAG_M3_EE */
-
-		} else if (sel == SWD_AP_AO) {
-
-		}
+			break;
+		case JTAG_CLRPINMUX:
+			/* nothing to do now */
+			break;
+		case JTAG_EANBLE:
+			aml_set_jtag_state(JTAG_STATE_ON, jtag_id);
+			break;
+		case JTAG_DISABLE:
+			aml_set_jtag_state(JTAG_STATE_OFF, jtag_id);
+			break;
 	}
 
 	return 0;
