@@ -632,6 +632,8 @@ static int spicc_xfer(
 	spicc_dbg("slave %u:%u bitlen %u\n", bus->seq,
 			spi_chip_select(dev), bitlen);
 
+	if (!slave->wordlen)
+		slave->wordlen = 8;
 	spicc_set_wordlen(bus, slave->wordlen);
 	if (bitlen % spicc->wordlen) {
 		spicc_err("bitlen %d %d\n", bitlen, spicc->wordlen);
