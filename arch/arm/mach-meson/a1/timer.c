@@ -23,11 +23,9 @@
 #include <asm/arch/timer.h>
 #include <asm/types.h>
 
-#define P_EE_TIMER_E		P_ISA_TIMERE
-
 uint32_t get_time(void)
 {
-	return readl(P_EE_TIMER_E);
+	return readl(SYSCTRL_TIMERE);
 }
 
 void _udelay(unsigned int us)
