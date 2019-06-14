@@ -893,9 +893,10 @@ unknown:
 			break;
 		}
 
-		if (f && f->setup)
+		if (f && f->setup) {
 			value = f->setup(f, ctrl);
-		else {
+			break;
+		} else {
 			c = cdev->config;
 			if (c->setup)
 				value = c->setup(c, ctrl);
