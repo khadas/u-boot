@@ -246,8 +246,8 @@ ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE ?=
 endif
 
-CROSS_COMPILE ?= /opt/gcc-linaro-aarch64-none-elf-4.8-2013.11_linux/bin/aarch64-none-elf-
-CROSS_COMPILE_T32 ?= /opt/gcc-arm-none-eabi-6-2017-q2-update/bin/arm-none-eabi-
+CROSS_COMPILE ?= /opt/toolchains/gcc-linaro-aarch64-none-elf-4.8-2013.11_linux/bin/aarch64-none-elf-
+CROSS_COMPILE_T32 ?= /opt/toolchains/gcc-arm-none-eabi-6-2017-q2-update/bin/arm-none-eabi-
 export CROSS_COMPILE
 export CROSS_COMPILE_T32
 

@@ -118,6 +118,11 @@ do_board_defconfig () {
 	defconfig_path=$srctree/configs/$1
 	tmp_defconfig_path=configs/.tmp_defconfig
 
+	# khadas configs folder support
+	if [ ! -r $defconfig_path ]; then
+		defconfig_path=$srctree/board/khadas/defconfigs/$1
+	fi
+
 	# amlogic configs folder support
 	if [ ! -r $defconfig_path ]; then
 		defconfig_path=$srctree/board/amlogic/defconfigs/$1
