@@ -84,7 +84,7 @@ __weak int rockchip_dnl_key_pressed(void)
  * This is a generic interface to read key
  */
 #if defined(CONFIG_DM_KEY)
-	keyval = key_read(KEY_VOLUMEUP);
+	keyval = key_read(KEY_HOME);
 
 	return key_is_pressed(keyval);
 
