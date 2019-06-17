@@ -58,10 +58,13 @@ int meson_pinconf_set_drive_strength(struct meson_pinctrl *priv,
 	if (ret)
 		return ret;
 
-	if (arg >= 4) {
-		debug("pin %u: invalid drive-strength [0-3]: %d\n", pin, arg);
+	if (arg < 1 || arg > 4) {
+		debug("pin %u: invalid drive-strength [1-4]: %d\n", pin, arg);
 		return -EINVAL;
 	}
+
+	arg = arg - 1;
+
 	meson_drive_calc_reg_and_bit(drive_bank, pin, &reg, &bit);
 
 	clrsetbits_le32(priv->reg_drive + reg, 0x3 << bit, (arg & 0x3) << bit);

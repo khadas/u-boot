@@ -145,7 +145,7 @@
 				groups = "i2c_ao_sck",
 					"i2c_ao_sda";
 				function = "i2c_ao";
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -154,7 +154,7 @@
 				groups = "i2c_ao_sck_e",
 					"i2c_ao_sda_e";
 				function = "i2c_ao";
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -323,14 +323,14 @@
 				function = "sdcard";
 				input-enable;
 				bias-pull-up;
-				drive-strength = <3>;
+				drive-strength = <4>;
 			};
 			mux1 {
 				groups = "sdcard_clk_c";
 				function = "sdcard";
 				bias-pull-up;
 				output-high;
-				drive-strength = <3>;
+				drive-strength = <4>;
 			};
 		};
 
@@ -344,14 +344,14 @@
 				function = "sdcard";
 				input-enable;
 				bias-pull-up;
-				drive-strength = <3>;
+				drive-strength = <4>;
 			};
 			mux1 {
 				groups = "sdcard_clk_c";
 				function = "sdcard";
 				bias-pull-up;
 				output-high;
-				drive-strength = <3>;
+				drive-strength = <4>;
 			};
 		};
 
@@ -362,14 +362,14 @@
 				function = "sdcard";
 				input-enable;
 				bias-pull-up;
-				drive-strength = <3>;
+				drive-strength = <4>;
 			};
 			mux1 {
 				groups = "sdcard_clk_c";
 				function = "sdcard";
 				bias-pull-up;
 				output-high;
-				drive-strength = <3>;
+				drive-strength = <4>;
 			};
 		};
 
@@ -419,7 +419,7 @@
 				function = "sdio";
 				input-enable;
 				bias-pull-up;
-				drive-strength = <3>;
+				drive-strength = <4>;
 			};
 		};
 
@@ -434,7 +434,7 @@
 				function = "sdio";
 				input-enable;
 				bias-pull-up;
-				drive-strength = <3>;
+				drive-strength = <4>;
 			};
 		};
 
@@ -444,14 +444,14 @@
 				function = "gpio_periphs";
 				input-enable;
 				bias-pull-up;
-				drive-strength = <3>;
+				drive-strength = <4>;
 			};
 			mux1 {
 				groups = "GPIOX_4";
 				function = "gpio_periphs";
 				bias-pull-up;
 				output-high;
-				drive-strength = <3>;
+				drive-strength = <4>;
 			};
 		};
 
@@ -465,14 +465,14 @@
 				function = "gpio_periphs";
 				input-enable;
 				bias-pull-up;
-				drive-strength = <3>;
+				drive-strength = <4>;
 			};
 			mux1 {
 				groups = "GPIOX_4";
 				function = "gpio_periphs";
 				bias-pull-up;
 				output-high;
-				drive-strength = <3>;
+				drive-strength = <4>;
 			};
 		};
 
@@ -532,7 +532,7 @@
 				groups = "i2c0_sda_c",
 					"i2c0_sck_c";
 				function = "i2c0";
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -541,7 +541,7 @@
 				groups = "i2c0_sda_z0",
 					"i2c0_sck_z1";
 				function = "i2c0";
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -550,7 +550,7 @@
 				groups = "i2c0_sda_z7",
 					"i2c0_sck_z8";
 				function = "i2c0";
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -559,7 +559,7 @@
 				groups = "i2c1_sda_x",
 					"i2c1_sck_x";
 				function = "i2c1";
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -568,7 +568,7 @@
 				groups = "i2c1_sda_h2",
 					"i2c1_sck_h3";
 				function = "i2c1";
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -577,7 +577,7 @@
 				groups = "i2c1_sda_h6",
 					"i2c1_sck_h7";
 				function = "i2c1";
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -586,7 +586,7 @@
 				groups = "i2c2_sda_x",
 					"i2c2_sck_x";
 				function = "i2c2";
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -595,7 +595,7 @@
 				groups = "i2c2_sda_z",
 					"i2c2_sck_z";
 				function = "i2c2";
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -604,7 +604,7 @@
 				groups = "i2c3_sda_h",
 					"i2c3_sck_h";
 				function = "i2c3";
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -613,7 +613,7 @@
 				groups = "i2c3_sda_a",
 					"i2c3_sck_a";
 				function = "i2c3";
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -700,7 +700,7 @@
 					 "spi0_miso_x",
 					 "spi0_clk_x";
 				function = "spi0";
-				drive-strength = <1>;
+				drive-strength = <2>;
 			};
 		};
 
@@ -710,7 +710,7 @@
 					 "spi0_miso_c",
 					 "spi0_clk_c";
 				function = "spi0";
-				drive-strength = <1>;
+				drive-strength = <2>;
 			};
 		};
 
@@ -720,7 +720,7 @@
 					 "spi1_miso",
 					 "spi1_clk";
 				function = "spi1";
-				drive-strength = <1>;
+				drive-strength = <2>;
 			};
 		};
 
@@ -732,7 +732,7 @@
 					 "nor_hold",
 					 "nor_wp";
 				function = "nor";
-				drive-strength = <3>;
+				drive-strength = <4>;
 			};
 		};
 
@@ -784,7 +784,7 @@
 					"hdmitx_sck";
 				function = "hdmitx";
 				bias-disable;
-				drive-strength = <3>;
+				drive-strength = <4>;
 			};
 		};
 
@@ -837,7 +837,7 @@
 				"eth_txd2_rgmii",
 				"eth_txd3_rgmii";
 				function = "eth";
-				drive-strength = <3>;
+				drive-strength = <4>;
 			};
 		};
 	};

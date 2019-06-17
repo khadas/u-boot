@@ -122,7 +122,7 @@
 					"i2c_a_sda_f12";
 				function = "i2c_a";
 				bias-pull-up;
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -132,7 +132,7 @@
 					"i2c_a_sda_f10";
 				function = "i2c_a";
 				bias-pull-up;
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -142,7 +142,7 @@
 					"i2c_b_scl_x";
 				function = "i2c_b";
 				bias-pull-up;
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -152,7 +152,7 @@
 					"i2c_b_scl_a";
 				function = "i2c_b";
 				bias-pull-up;
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -162,7 +162,7 @@
 					"i2c_c_sda_x1";
 				function = "i2c_c";
 				bias-pull-up;
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -172,7 +172,7 @@
 					"i2c_c_sda_x16";
 				function = "i2c_c";
 				bias-pull-up;
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -182,7 +182,7 @@
 					"i2c_c_sda_a5";
 				function = "i2c_c";
 				bias-pull-up;
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -192,7 +192,7 @@
 					"i2c_c_sda_a9";
 				function = "i2c_c";
 				bias-pull-up;
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -202,7 +202,7 @@
 					"i2c_d_sda_x";
 				function = "i2c_d";
 				bias-pull-up;
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 
@@ -212,7 +212,7 @@
 					"i2c_d_sda_f";
 				function = "i2c_d";
 				bias-pull-up;
-				drive-strength = <2>;
+				drive-strength = <3>;
 			};
 		};
 	};
