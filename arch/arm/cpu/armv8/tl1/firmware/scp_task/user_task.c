@@ -24,6 +24,7 @@
 #include "data.h"
 #include "registers.h"
 #include "task_apis.h"
+#include "suspend.h"
 
 #define TASK_ID_IDLE 0
 #define TASK_ID_LOW_MB	3
@@ -104,6 +105,10 @@ void secure_task(void)
 				*response = RESPONSE_SUSPEND_LEAVE;
 				presume = (struct resume_param *)(response+1);
 				presume->method = resume_data.method;
+				if (presume->method == CEC_WAKEUP) {
+					presume->date1 = resume_data.date1;
+					presume->date2 = resume_data.date2;
+				}
 			}
 	}
 		__switch_back_securemb();
@@ -113,6 +118,18 @@ void secure_task(void)
 void set_wakeup_method(unsigned int method)
 {
 	resume_data.method = method;
+}
+
+void set_cec_val1(unsigned int cec_val)
+{
+	resume_data.date1 = cec_val;
+	dbg_print("val1: ", resume_data.date1);
+}
+
+void set_cec_val2(unsigned int cec_val)
+{
+	resume_data.date2 = cec_val;
+	dbg_print("val2: ", resume_data.date2);
 }
 
 void process_high_task(unsigned command)

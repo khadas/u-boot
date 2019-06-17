@@ -121,6 +121,13 @@
         "boot_part=boot\0"\
         "suspend=off\0"\
         "powermode=on\0"\
+		"edid_14_dir=/system/etc/port_14.bin\0" \
+		"edid_20_dir=/system/etc/port_20.bin\0" \
+		"edid_select=0\0" \
+		"port_map=0x4231\0" \
+		"cec_fun=0x2F\0" \
+		"logic_addr=0x0\0" \
+		"cec_ac_wakeup=0\0" \
         "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "mem_size=2g\0"\
