@@ -418,6 +418,7 @@ static void lcd_tcon_config_axi_offset_default(void)
 	if (str) {
 		tcon_rmem.mem_paddr = (unsigned int)simple_strtoul(str, NULL, 16);
 		tcon_rmem.mem_size = lcd_tcon_data->axi_mem_size;
+		LCDPR("get lcd_tcon mem_addr from default\n");
 	} else {
 		LCDERR("can't find env tcon_mem_addr\n");
 	}
@@ -429,6 +430,7 @@ static int lcd_tcon_config(char *dt_addr, struct lcd_config_s *pconf, int load_i
 	int parent_offset;
 	char *propdata;
 	int ret;
+	int mem_size;
 
 	if (load_id & 0x1) {
 		parent_offset = fdt_path_offset(dt_addr, "/reserved-memory");
@@ -447,7 +449,29 @@ static int lcd_tcon_config(char *dt_addr, struct lcd_config_s *pconf, int load_i
 					tcon_rmem.mem_paddr = be32_to_cpup((((u32*)propdata)+1));
 				else
 					tcon_rmem.mem_paddr = be32_to_cpup(((u32*)propdata));
-				tcon_rmem.mem_size = lcd_tcon_data->axi_mem_size;
+			}
+
+			propdata = (char *)fdt_getprop(dt_addr, parent_offset,
+				"size", NULL);
+			if (propdata == NULL) {
+				LCDERR("failed to get tcon size from dts\n");
+				lcd_tcon_config_axi_offset_default();
+			} else {
+				if (size == 2)
+					mem_size = be32_to_cpup
+							((((u32 *)propdata)+1));
+				else
+					mem_size = be32_to_cpup
+							(((u32 *)propdata));
+
+				if (mem_size < lcd_tcon_data->axi_mem_size) {
+					LCDERR("set mem_size too small\n");
+					tcon_rmem.mem_paddr = 0;
+					tcon_rmem.flag = 0;
+				} else {
+					tcon_rmem.mem_size =
+						lcd_tcon_data->axi_mem_size;
+				}
 			}
 		}
 	} else {
