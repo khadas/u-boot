@@ -121,6 +121,8 @@ ifeq ($(KBUILD_SRC),)
 # Do we want to locate output files in a separate directory?
 ifeq ("$(origin O)", "command line")
   KBUILD_OUTPUT := $(O)
+else
+  KBUILD_OUTPUT := build
 endif
 
 # That's our default target when none is given on the command line
@@ -218,7 +220,7 @@ VPATH		:= $(srctree)$(if $(KBUILD_EXTMOD),:$(KBUILD_EXTMOD))
 buildsrc	:= $(abspath $(srctree))
 buildtree	:= $(abspath $(CURDIR)/$(KBUILD_OUTPUT))
 
-export srctree objtree VPATH buildsrc buildtree
+export srctree objtree VPATH buildsrc buildtree KBUILD_OUTPUT
 
 # Make sure CDPATH settings don't interfere
 unexport CDPATH
@@ -246,6 +248,9 @@ export	HOSTARCH HOSTOS
 ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE ?=
 endif
+
+CROSS_COMPILE ?=/opt/gcc-linaro-7.3.1-2018.05-i686_aarch64-elf/bin/aarch64-elf-
+export CROSS_COMPILE
 
 KCONFIG_CONFIG	?= .config
 export KCONFIG_CONFIG
@@ -1813,6 +1818,7 @@ distclean: mrproper
 		-o -name '*.pyc' \) \
 		-type f -print | xargs rm -f
 	@rm -f boards.cfg
+	@rm -rf $(srctree)/build
 
 backup:
 	F=`basename $(srctree)` ; cd .. ; \
