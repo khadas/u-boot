@@ -581,9 +581,9 @@
 	#define CONFIG_HOSTNAME        arm_gxbb
 //	#define CONFIG_RANDOM_ETHADDR  1				   /* use random eth addr, or default */
 	#define CONFIG_ETHADDR         00:15:18:01:81:31   /* Ethernet address */
-	#define CONFIG_IPADDR          10.18.9.97          /* Our ip address */
-	#define CONFIG_GATEWAYIP       10.18.9.1           /* Our getway ip address */
-	#define CONFIG_SERVERIP        10.18.9.113         /* Tftp server ip address */
+	#define CONFIG_IPADDR          192.168.1.200          /* Our ip address */
+	#define CONFIG_GATEWAYIP       192.168.1.1           /* Our getway ip address */
+	#define CONFIG_SERVERIP        192.168.1.230         /* Tftp server ip address */
 	#define CONFIG_NETMASK         255.255.255.0
 #endif /* (CONFIG_CMD_NET) */
 
