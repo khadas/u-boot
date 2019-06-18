@@ -148,9 +148,9 @@ static struct lcd_pinmux_ctrl_s lcd_pinmux_ctrl[LCD_PINMX_MAX] = {
 
 static struct lcd_pinmux_ctrl_s bl_pinmux_ctrl[BL_PINMUX_MAX] = {
 	{
-		.name = "bl_pwm_on_pin", //GPIOH_5
-		.pinmux_set = {{11, 0x00400000}, {LCD_PINMUX_END, 0x0}},
-		.pinmux_clr = {{11, 0x00f00000}, {LCD_PINMUX_END, 0x0}},
+		.name = "bl_pwm_on_pin", //GPIOAO_6
+		.pinmux_set = {{11, 0x00400000}, {LCD_PINMUX_END, 0x0}}, // TBD
+		.pinmux_clr = {{11, 0x00f00000}, {LCD_PINMUX_END, 0x0}}, //
 	},
 	{
 		.name = "invalid",

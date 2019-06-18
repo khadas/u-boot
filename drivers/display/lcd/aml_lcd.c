@@ -167,6 +167,15 @@ static void lcd_power_ctrl(int status)
 			}
 			break;
 #endif
+		case LCD_POWER_TYPE_EXPANDER_IO:
+			if (power_step->index < LCD_EXPANDER_GPIO_NUM_MAX) {
+//				str = lcd_power->expander_gpio[power_step->index];
+//				gpio = aml_lcd_expander_gpio_name_map_num(str);
+				aml_lcd_expander_gpio_set(power_step->index, power_step->value);
+			} else {
+				LCDERR("expander_gpio index: %d\n", power_step->index);
+			}
+			break;
 		default:
 			break;
 		}
@@ -1141,6 +1150,28 @@ static int lcd_init_load_from_dts(char *dt_addr)
 	for (j = i; j < LCD_CPU_GPIO_NUM_MAX; j++)
 		strcpy(pconf->lcd_power->cpu_gpio[j], "invalid");
 
+	i = 0;
+	propdata = (char *)fdt_getprop(dt_addr, parent_offset, "lcd_expander_gpio_names", NULL);
+	if (propdata == NULL) {
+		LCDPR("failed to get lcd_expander_gpio_names\n");
+	} else {
+		p = propdata;
+		while (i < LCD_EXPANDER_GPIO_NUM_MAX) {
+			str = p;
+			if (strlen(str) == 0)
+				break;
+			strcpy(pconf->lcd_power->expander_gpio[i], str);
+			if (lcd_debug_print_flag) {
+				LCDPR("i=%d, gpio=%s\n",
+					i, pconf->lcd_power->expander_gpio[i]);
+			}
+			p += strlen(p) + 1;
+			i++;
+		}
+	}
+	for (j = i; j < LCD_EXPANDER_GPIO_NUM_MAX; j++)
+		strcpy(pconf->lcd_power->expander_gpio[j], "invalid");
+
 	return 0;
 }
 #endif
@@ -1322,13 +1353,14 @@ static int lcd_config_probe(void)
 	return 0;
 }
 
+//#define LCD_DEBUG_INFO 1
 int lcd_probe(void)
 {
+	int ret = 0;
 #ifdef LCD_DEBUG_INFO
 	lcd_debug_print_flag = 1;
 #else
 	char *str;
-	int ret = 0;
 
 	str = getenv("lcd_debug_print");
 	if (str == NULL) {

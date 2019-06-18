@@ -85,6 +85,9 @@ extern int lcd_tcon_probe(char *dt_addr, struct lcd_config_s *pconf, int load_id
 extern int aml_lcd_gpio_name_map_num(const char *name);
 extern int aml_lcd_gpio_set(int gpio, int value);
 extern unsigned int aml_lcd_gpio_input_get(int gpio);
+/* lcd expander gpio */
+extern int aml_lcd_expander_gpio_name_map_num(const char *name);
+extern int aml_lcd_expander_gpio_set(int gpio, int value);
 
 /* lcd driver */
 extern int get_lcd_tv_config(char *dt_addr, int load_id);

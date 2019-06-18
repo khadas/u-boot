@@ -743,6 +743,7 @@ static void bl_power_en_ctrl(struct bl_config_s *bconf, int status)
 		str = bconf->gpio_name[bconf->en_gpio];
 		gpio = aml_lcd_gpio_name_map_num(str);
 	}
+
 	if (status) {
 		if (gpio < LCD_GPIO_MAX)
 			aml_lcd_gpio_set(gpio, bconf->en_gpio_on);
@@ -993,6 +994,7 @@ static char *bl_pwm_name[] = {
 	"PWM_D",
 	"PWM_E",
 	"PWM_F",
+	"PWM_AO_C",
 	"PWM_VS",
 };
 
