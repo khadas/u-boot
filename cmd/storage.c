@@ -6,6 +6,8 @@
  *
  */
 #include <amlogic/storage.h>
+#include <div64.h>
+#include <linux/math64.h>
 
 #undef pr_info
 #define pr_info       printf
@@ -491,7 +493,8 @@ static int do_store_erase(cmd_tbl_t *cmdtp,
 	size_t size = 0;
 	char *name = NULL;
 	char *s;
-	int scrub_flag = 0;
+	int scrub_flag = 0, ret;
+	unsigned long time;
 
 	const char *scrub =
 		"Warning: scrub_flag is 1!!!!"
@@ -539,7 +542,22 @@ static int do_store_erase(cmd_tbl_t *cmdtp,
 		}
 #endif
 	}
-	return store->erase(name, offset, size, scrub_flag);
+
+	time = get_timer(0);
+	ret = store->erase(name, offset, size, scrub_flag);
+	time = get_timer(time);
+
+	if (size != 0)
+		printf("%llu bytes ", size);
+	printf("erased in %lu ms", time);
+	if ((time > 0) && (size != 0)) {
+		puts(" (");
+		print_size(div_u64(size, time) * 1000, "/s");
+		puts(")");
+	}
+	puts("\n");
+
+	return ret;
 }
 
 static int do_store_read(cmd_tbl_t *cmdtp,

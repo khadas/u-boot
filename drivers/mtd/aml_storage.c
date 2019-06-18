@@ -643,7 +643,7 @@ static int mtd_store_erase(const char *part_name,
 	/*part_name=NULL,operation target is whole device*/
 	if (!part_name)	{
 		mtd = mtd_store_get(1);
-		printf("!!!warn: erase all chip\n");
+		printf("!!!warn: erase all chip!!!\n");
 		size = mtd->size;
 		mtd = mtd_store_get(0);
 	}
@@ -663,40 +663,53 @@ static int mtd_store_erase(const char *part_name,
 
 	printf("erasing from 0x%llx, length 0x%lx\n",
 		   offset, size);
-
-	for (erased_size = 0; erased_size < erase_len;
-		 offset += mtd->erasesize) {
-		if (!part_name)/*erase chip,erase_len include bb*/
-			erased_size++;
-		WATCHDOG_RESET();
-		if (!scrub_flag) {
-			ret = mtd_block_isbad(mtd, offset);
-			if (ret > 0) {
-				pr_info("skip bad block in 0x%08llx\n", offset);
-				continue;
-			} else if (ret < 0) {
-				pr_info("MTD get bad block failed in 0x%08llx\n",
-					offset);
-				return ret;
-			}
-		}
+	if ((MTD_NORFLASH == mtd->type)
+		&& (size == mtd->size) && (0 == offset)) {
+		/* erase whole spi flash in one cmd */
 		info.mtd = mtd;
 		info.addr = offset;
-		info.len = mtd->erasesize;
+		info.len = size;
 		info.scrub = scrub_flag;
 		info.callback = NULL;
-		if (part_name) /*erase partition,erase_len except bb*/
-			erased_size++;
-
-		loff_t bootloader_max_addr = BOOT_TOTAL_PAGES * mtd->writesize;
-		if (offset >= bootloader_max_addr) {
-			mtd = mtd_store_get(1);
-		}
-
 		ret = mtd_erase(mtd, &info);
 		if (ret)
 			pr_info("%s %d mtd erase err, ret %d\n",
 				__func__, __LINE__, ret);
+	} else {
+		for (erased_size = 0; erased_size < erase_len;
+			 offset += mtd->erasesize) {
+			if (!part_name)/*erase chip,erase_len include bb*/
+				erased_size++;
+			WATCHDOG_RESET();
+			if (!scrub_flag) {
+				ret = mtd_block_isbad(mtd, offset);
+				if (ret > 0) {
+					pr_info("skip bad block in 0x%08llx\n", offset);
+					continue;
+				} else if (ret < 0) {
+					pr_info("MTD get bad block failed in 0x%08llx\n",
+						offset);
+					return ret;
+				}
+			}
+			info.mtd = mtd;
+			info.addr = offset;
+			info.len = mtd->erasesize;
+			info.scrub = scrub_flag;
+			info.callback = NULL;
+			if (part_name) /*erase partition,erase_len except bb*/
+				erased_size++;
+
+			loff_t bootloader_max_addr = BOOT_TOTAL_PAGES * mtd->writesize;
+			if (offset >= bootloader_max_addr) {
+				mtd = mtd_store_get(1);
+			}
+
+			ret = mtd_erase(mtd, &info);
+			if (ret)
+				pr_info("%s %d mtd erase err, ret %d\n",
+					__func__, __LINE__, ret);
+		}
 	}
 	return ret;
 }

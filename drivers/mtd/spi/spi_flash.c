@@ -323,26 +323,49 @@ int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,
 	return ret;
 }
 
-int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
+/* erase whole chip in one command */
+static int spi_flash_erase_chip(struct spi_flash *flash)
+{
+	struct spi_slave *spi = flash->spi;
+	unsigned long timeout = SPI_FLASH_CHIP_ERASE_TIMEOUT;
+	int ret;
+
+	ret = spi_claim_bus(spi);
+	if (ret) {
+		debug("SF: unable to claim SPI bus\n");
+		return ret;
+	}
+
+	ret = spi_flash_cmd_write_enable(flash);
+	if (ret < 0) {
+		debug("SF: enabling write failed\n");
+		return ret;
+	}
+
+	ret = spi_flash_cmd_erase_chip(flash);
+	if (ret < 0) {
+		debug("SF: erase chip cmd failed\n");
+		return ret;
+	}
+
+	ret = spi_flash_wait_till_ready(flash, timeout);
+	if (ret < 0) {
+		debug("SF: chip erase timed out\n");
+		return ret;
+	}
+
+	spi_release_bus(spi);
+
+	return ret;
+}
+
+static int _spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 {
 	u32 erase_size, erase_addr;
 	u8 cmd[SPI_FLASH_CMD_LEN];
 	int ret = -1;
 
 	erase_size = flash->erase_size;
-	if (offset % erase_size || len % erase_size) {
-		printf("SF: Erase offset/length not multiple of erase size\n");
-		return -1;
-	}
-
-	if (flash->flash_is_locked) {
-		if (flash->flash_is_locked(flash, offset, len) > 0) {
-			printf("offset 0x%x is protected and cannot be erased\n",
-			       offset);
-			return -EINVAL;
-		}
-	}
-
 	cmd[0] = flash->erase_cmd;
 	while (len) {
 		erase_addr = offset;
@@ -376,6 +399,34 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 #endif
 
 	return ret;
+}
+
+int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
+{
+	u32 erase_size;
+	int ret = -1;
+
+	erase_size = flash->erase_size;
+	if (offset % erase_size || len % erase_size) {
+		printf("SF: Erase offset/length not multiple of erase size\n");
+		return -1;
+	}
+
+	if (flash->flash_is_locked) {
+		if (flash->flash_is_locked(flash, offset, len) > 0) {
+			printf("offset 0x%x is protected and cannot be erased\n",
+			       offset);
+			return -EINVAL;
+		}
+	}
+
+	if ((offset == 0) && (len == flash->size))
+		ret = spi_flash_erase_chip(flash);
+	else
+		ret = _spi_flash_cmd_erase_ops(flash, offset, len);
+
+	return ret;
+
 }
 
 #ifndef CONFIG_AML_SPIFCV2

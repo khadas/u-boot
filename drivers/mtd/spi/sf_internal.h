@@ -84,6 +84,7 @@ enum spi_nor_option_flags {
 #define SPI_FLASH_PROG_TIMEOUT		(2 * CONFIG_SYS_HZ)
 #define SPI_FLASH_PAGE_ERASE_TIMEOUT	(5 * CONFIG_SYS_HZ)
 #define SPI_FLASH_SECTOR_ERASE_TIMEOUT	(10 * CONFIG_SYS_HZ)
+#define SPI_FLASH_CHIP_ERASE_TIMEOUT	(60 * CONFIG_SYS_HZ)
 
 /* SST specific */
 #ifdef CONFIG_SPI_FLASH_SST
@@ -192,6 +193,12 @@ static inline int spi_flash_cmd_write_enable(struct spi_flash *flash)
 static inline int spi_flash_cmd_write_disable(struct spi_flash *flash)
 {
 	return spi_flash_cmd(flash->spi, CMD_WRITE_DISABLE, NULL, 0);
+}
+
+/* Erase the whole chip on the SPI flash */
+static inline int spi_flash_cmd_erase_chip(struct spi_flash *flash)
+{
+	return spi_flash_cmd(flash->spi, CMD_ERASE_CHIP, NULL, 0);
 }
 
 /*
