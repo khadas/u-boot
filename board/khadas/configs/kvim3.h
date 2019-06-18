@@ -42,6 +42,10 @@
 /* Khadas commands */
 #define CONFIG_KHADAS_CFGLOAD 1
 
+#ifdef CONFIG_OF_LIBFDT_OVERLAY
+#undef CONFIG_OF_LIBFDT_OVERLAY
+#endif
+
 /* configs for CEC */
 #define CONFIG_CEC_OSD_NAME		"KVIM3"
 #define CONFIG_CEC_WAKEUP
