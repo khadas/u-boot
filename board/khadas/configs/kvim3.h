@@ -618,6 +618,8 @@
 #define CONFIG_CMD_AUTOSCRIPT 1
 #define CONFIG_CMD_MISC 1
 #define CONFIG_CMD_PLLTEST 1
+#define CONFIG_CMD_EXT4 1
+#define CONFIG_CMD_EXT2 1
 
 /*file system*/
 #define CONFIG_DOS_PARTITION 1
@@ -645,6 +647,9 @@
 #define CONFIG_SYS_MEM_TOP_HIDE 0x08000000 //hide 128MB for kernel reserve
 #define CONFIG_CMD_LOADB    1
 
+#define CONFIG_CMDLINE_EDITING 1
+#define CONFIG_AUTO_COMPLETE 1
+#define CONFIG_CMD_CHIPID 1
 
 /* debug mode defines */
 //#define CONFIG_DEBUG_MODE           1
