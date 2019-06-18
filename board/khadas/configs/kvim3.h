@@ -314,7 +314,9 @@
             "\0"\
         "upgrade_key="\
             "if gpio input GPIOAO_7; then "\
-                "echo detect upgrade key; run update;"\
+                "echo detect upgrade key;"\
+                "gpio set GPIOAO_4;"\
+                "run update;"\
             "fi;"\
             "\0"\
 	"irremote_update="\
