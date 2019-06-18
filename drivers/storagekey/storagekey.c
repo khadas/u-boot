@@ -66,7 +66,7 @@ int32_t amlkey_init(uint8_t *seed, uint32_t len, int encrypt_type)
 	uint32_t buffer_size, actual_size;
 
 	/* do nothing for now*/
-	printf("%s() enter!\n", __func__);
+	printf("\n%s() enter!\n", __func__);
 	if (storagekey_info.buffer != NULL) {
 		printf("%s() %d: already init!\n", __func__, __LINE__);
 		goto _out;
