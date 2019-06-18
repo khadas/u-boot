@@ -469,6 +469,7 @@ static void get_port_mode(void)
 	int mode;
 	mode = kbi_i2c_read(REG_PORT_MODE);
 	printf("port mode is %s\n", mode==0 ? "USB3.0" : "PCIE");
+	setenv("port_mode", mode==0 ? "0" : "1");
 }
 
 static void set_port_mode(int mode)
