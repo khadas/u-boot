@@ -62,6 +62,9 @@
 #ifdef CONFIG_AML_SPICC
 #include <amlogic/spicc.h>
 #endif
+#ifdef CONFIG_TCA6408
+#include <khadas_tca6408.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -648,6 +651,9 @@ int board_init(void)
 #endif
 #ifdef CONFIG_SYS_I2C_AML
 	board_i2c_init();
+#endif
+#ifdef CONFIG_TCA6408
+	tca6408_gpio_init();
 #endif
 	/* power on GPIOZ_5 : CMD_VDD_EN */
 	clrbits_le32(PREG_PAD_GPIO4_EN_N, (1 << 5));

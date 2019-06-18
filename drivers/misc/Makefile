@@ -29,3 +29,4 @@ obj-$(CONFIG_STATUS_LED) += status_led.o
 obj-$(CONFIG_TWL4030_LED) += twl4030_led.o
 obj-$(CONFIG_FSL_IFC) += fsl_ifc.o
 obj-$(CONFIG_AML_LED) += aml_led_pwm.o
+obj-$(CONFIG_TCA6408) += khadas_tca6408.o

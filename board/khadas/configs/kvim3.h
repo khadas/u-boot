@@ -42,6 +42,8 @@
 /* Khadas commands */
 #define CONFIG_KHADAS_CFGLOAD 1
 
+#define CONFIG_TCA6408 1
+
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
 #undef CONFIG_OF_LIBFDT_OVERLAY
 #endif
