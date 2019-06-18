@@ -35,7 +35,7 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 #ifdef CONFIG_AML_LCD
 	struct aml_lcd_drv_s *lcd_drv = NULL;
-	char *mode;
+	char *mode, *lcd_exist;
 #endif
 	int st;
 
@@ -44,8 +44,11 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (lcd_drv) {
 		if (lcd_drv->lcd_outputmode_check) {
 			mode = getenv("outputmode");
-			if (lcd_drv->lcd_outputmode_check(mode) == 0)
-				return 0;
+			if (lcd_drv->lcd_outputmode_check(mode) == 0) {
+				lcd_exist = getenv("lcd_exist");
+				if (0 == strcmp(lcd_exist, "1"))
+					return 0;
+			}
 		}
 	}
 #endif
