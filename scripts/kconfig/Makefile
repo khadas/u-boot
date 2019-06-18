@@ -125,7 +125,11 @@ endif
 endif
 
 %_defconfig: $(obj)/conf
+ifeq ($(wildcard arch/$(SRCARCH)/configs/$@),)
+	$(Q)$< $(silent) --defconfig=board/amlogic/defconfigs/$@ $(Kconfig)
+else
 	$(Q)$< $(silent) --defconfig=arch/$(SRCARCH)/configs/$@ $(Kconfig)
+endif
 
 # Added for U-Boot (backward compatibility)
 %_config: %_defconfig
