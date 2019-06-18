@@ -310,16 +310,20 @@
                 "run update;"\
             "fi;"\
             "\0"\
-	"irremote_update="\
-		"if irkey 2500000 0xe31cfb04 0xb748fb04; then "\
-			"echo read irkey ok!; " \
-		"if itest ${irkey_value} == 0xe31cfb04; then " \
-			"run update;" \
-		"else if itest ${irkey_value} == 0xb748fb04; then " \
-			"run update;\n" \
-			"fi;fi;" \
-		"fi;\0" \
-
+	    "irremote_update="\
+            "if irkey 2500000 0xe31cfb04 0xb748fb04; then "\
+                "echo read irkey ok!; " \
+                "if itest ${irkey_value} == 0xe31cfb04; then " \
+                    "run update;" \
+                "else if itest ${irkey_value} == 0xb748fb04; then " \
+                    "run update;\n" \
+			    "fi;fi;" \
+            "fi;\0" \
+        "updateu="\
+            "tftp 1080000 u-boot.bin;"\
+            "mmc dev 1;"\
+            "store rom_write 1080000 0 ${filesize}"\
+            "\0"
 
 #define CONFIG_PREBOOT  \
             "run upgrade_check;"\
