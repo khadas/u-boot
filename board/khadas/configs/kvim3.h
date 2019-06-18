@@ -586,6 +586,7 @@
 #define CONFIG_CMD_EXT2 1
 #define CONFIG_CMD_ENV_EXISTS 1
 #define CONFIG_CMD_FS_GENERIC 1
+#define CONFIG_CMD_PART 1
 
 /*file system*/
 #define CONFIG_DOS_PARTITION 1
