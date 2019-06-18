@@ -329,17 +329,13 @@
 
 
 #define CONFIG_PREBOOT  \
-            "run bcb_cmd; "\
-            "run factory_reset_poweroff_protect;"\
             "run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
             "run upgrade_key;"\
             "run wol_init;"\
             "run port_mode_change;"\
-            "forceupdate;" \
-            "bcb uboot-command;"\
-            "run switch_bootmode;"
+            "forceupdate;"
 
 #define CONFIG_BOOTCOMMAND "run storeboot"
 
