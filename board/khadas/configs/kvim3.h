@@ -189,7 +189,7 @@
                     "setenv bootargs ${bootargs} root=/dev/mmcblk0p24;"\
                 "fi;fi;"\
             "fi;"\
-            "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
+            "ext4load mmc 1:5 1080000 zImage;ext4load mmc 1:5 10000000 uInitrd;ext4load mmc 1:5 20000000 dtb.img;booti 1080000 10000000 20000000;"\
             "run update;"\
             "\0"\
         "factory_reset_poweroff_protect="\
