@@ -140,7 +140,7 @@
             "\0"\
         "storeargs="\
             "setenv bootargs ${initargs} logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} jtag=${jtag}; "\
-	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
+	"setenv bootargs ${bootargs} androidboot.hardware=amlogic; reboot_mode=${reboot_mode};"\
             "run cmdline_keys;"\
             "\0"\
         "switch_bootmode="\
