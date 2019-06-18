@@ -39,6 +39,9 @@
 /* config for khadas kbi */
 #define CONFIG_KHADAS_KBI 1
 
+/* Khadas commands */
+#define CONFIG_KHADAS_CFGLOAD 1
+
 /* configs for CEC */
 #define CONFIG_CEC_OSD_NAME		"KVIM3"
 #define CONFIG_CEC_WAKEUP
@@ -170,6 +173,7 @@
             "\0" \
         "storeboot="\
             "boot_cooling;"\
+            "cfgload;"\
             "ext4load mmc 1:5 1080000 zImage;ext4load mmc 1:5 10000000 uInitrd;ext4load mmc 1:5 20000000 dtb.img;booti 1080000 10000000 20000000;"\
             "run update;"\
             "\0"\
