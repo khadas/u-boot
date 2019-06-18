@@ -449,6 +449,10 @@ static int meson_saradc_channel_data(struct udevice *dev, int channel,
 
 	*data = val & uc_pdata->data_mask;
 
+	/* return the 10-bit sampling value */
+	if (priv->data->resolution == SARADC_12BIT)
+		*data = *data >> 2;
+
 	priv->active_channel = -1;
 
 	meson_saradc_put_race_flag(priv);
