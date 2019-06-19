@@ -43,5 +43,6 @@ bool g_dnl_detach(void);
 void g_dnl_trigger_detach(void);
 void g_dnl_clear_detach(void);
 int run_usb_dnl_gadget(int usbctrl_index, char *usb_dnl_gadget);
+void dwc_otg_power_off_phy_fb(void);
 
 #endif /* __G_DOWNLOAD_H_ */

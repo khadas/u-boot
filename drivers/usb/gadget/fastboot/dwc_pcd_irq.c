@@ -1042,9 +1042,10 @@ static void dwc_otg_handle_usb_suspend_intr(void)
 	dwc_write_reg32 (DWC_REG_GINTSTS, gintsts.d32);
 }
 
+unsigned int _sofintr_not_occur;
 #if (defined CONFIG_USB_DEVICE_V2)
-extern unsigned int fb_sofintr;
-extern unsigned fb_curTime_sof;
+unsigned int _sofintr;
+unsigned curTime_sof;
 #endif
 
 int f_dwc_pcd_irq(void)
@@ -1065,22 +1066,26 @@ int f_dwc_pcd_irq(void)
 	gotgint.d32 = dwc_read_reg32(DWC_REG_GOTGINT);
 
 	if (gotgint.b.sesreqsucstschng)
-		ERR("Session Request Success Status Change\n");
+		printf("Session Request Success Status Change\n");
 	else if (gotgint.b.sesenddet) {
 		/*break to romboot*/
-		ERR("Session End Detected\n");
+		printf("Session End Detected\n");
 		ret = 11;
 	}
 
 	/* clear intr */
 	dwc_write_reg32(DWC_REG_GOTGINT, gotgint.d32);
 
+    if (gintr_status.b.sofintr) {
 #if (defined CONFIG_USB_DEVICE_V2)
-	if (gintr_status.b.sofintr) {
-		fb_curTime_sof = get_timer(0);
-		fb_sofintr = 1;
-	}
+		curTime_sof = get_timer(0);
+		_sofintr = 1;
 #endif
+		if (_sofintr_not_occur) {
+			printf("sof\n");
+			_sofintr_not_occur = 0;
+		}
+	}
 
 	if (gintr_status.b.rxstsqlvl) {
 	    dwc_otg_pcd_handle_rx_status_q_level_intr();

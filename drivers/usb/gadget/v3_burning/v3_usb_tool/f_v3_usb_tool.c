@@ -223,22 +223,26 @@ static int fastboot_bind(struct usb_configuration *c, struct usb_function *f)
 	id = usb_interface_id(c, f);
 	if (id < 0)
 		return id;
+
 	interface_desc.bInterfaceNumber = id;
 
 	id = usb_string_id(c->cdev);
 	if (id < 0)
 		return id;
+
 	fastboot_string_defs[0].id = id;
 	interface_desc.iInterface = id;
 
 	f_fb->in_ep = usb_ep_autoconfig(gadget, &fs_ep_in);
 	if (!f_fb->in_ep)
 		return -ENODEV;
+
 	f_fb->in_ep->driver_data = c->cdev;
 
 	f_fb->out_ep = usb_ep_autoconfig(gadget, &fs_ep_out);
 	if (!f_fb->out_ep)
 		return -ENODEV;
+
 	f_fb->out_ep->driver_data = c->cdev;
 
 	f->descriptors = fb_fs_function;
@@ -298,6 +302,9 @@ static struct usb_request *fastboot_start_ep(struct usb_ep *ep)
 	return req;
 }
 
+extern unsigned int adnl_enum_timeout;
+extern unsigned int adnl_identify_timeout;
+
 static int fastboot_set_alt(struct usb_function *f,
 			    unsigned interface, unsigned alt)
 {
@@ -344,6 +351,9 @@ static int fastboot_set_alt(struct usb_function *f,
 	ret = usb_ep_queue(f_fb->out_ep, f_fb->out_req, 0);
 	if (ret)
 		goto err;
+
+	adnl_enum_timeout = 0;
+	adnl_identify_timeout = get_timer(0);
 
 	return 0;
 err:
@@ -492,6 +502,8 @@ static const char* getvar_list_ab[] = {
 	"secure", "slot-count", "slot-suffixes","current-slot",
 };
 
+extern unsigned int adnl_identify_timeout;
+
 static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
@@ -546,6 +558,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		const char fwVer[] = {5, 0, 0, 16, 0, 0, 0, 0};
 		memcpy(response + 4, fwVer, identifyLen);
 		replyLen = 4 + identifyLen;
+		adnl_identify_timeout = 0;
 	} else if (!strcmp_l1("secureboot", cmd)) {
 		unsigned securebootEnable = 0;
 #ifdef CONFIG_EFUSE
