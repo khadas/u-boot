@@ -207,19 +207,19 @@ static const struct mtd_partition spinand_partitions[] = {
 #else /*CONFIG_SYSTEM_RTOS*/
 static const struct mtd_partition spinand_partitions[] = {
 	{
-		.name = "logo",
+		.name = "misc",
 		.offset = 0,
-		.size = 2 * SZ_1M,
+		.size = 1 * SZ_256K,
 	},
 	{
 		.name = "recovery",
 		.offset = 0,
-		.size = 16 * SZ_1M,
+		.size = 12 * SZ_1M,
 	},
 	{
 		.name = "boot",
 		.offset = 0,
-		.size = 16 * SZ_1M,
+		.size = 11 * SZ_1M,
 	},
 	{
 		.name = "system",
