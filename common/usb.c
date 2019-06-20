@@ -1036,7 +1036,7 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 
 	int retry_count = 0;
 	unsigned short portstatus;
-
+	retry:
 	/*
 	 * Allocate usb 3.0 device context.
 	 * USB 3.0 (xHCI) protocol tries to allocate device slot
@@ -1052,7 +1052,6 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 	if (err)
 		return err;
 
-	retry:
 	err = usb_root_port_reset(dev, parent);
 
 	if (err)
@@ -1061,11 +1060,6 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 	dev->devnum = addr;
 
 	err = usb_set_address(dev); /* set address */
-	if (err < 0) {
-		printf("\n  1    USB device not accepting new address " \
-			"(error=%lX), port= %d\n", dev->status, parent->portnr);
-			err = usb_set_address(dev); /* set address */
-	}
 
 	if (err < 0) {
 			err = usb_hub_port_reset(parent, dev->portnr -1, &portstatus);
