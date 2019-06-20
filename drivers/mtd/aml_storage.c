@@ -640,9 +640,13 @@ static int mtd_store_erase(const char *part_name,
 {
 	struct mtd_info *mtd;
 	loff_t offset = 0;
-	unsigned long erased_size, erase_len;
+	unsigned long erased_size, erase_len, chip_size;
 	struct erase_info info;
 	int ret;
+
+	/* Record the current chip size first */
+	mtd = mtd_store_get(1);
+	chip_size = mtd->size;
 
 	/*part_name=NULL,operation target is whole device*/
 	if (!part_name)	{
@@ -691,6 +695,9 @@ static int mtd_store_erase(const char *part_name,
 				ret = mtd_block_isbad(mtd, offset);
 				if (ret > 0) {
 					pr_info("skip bad block in 0x%08llx\n", offset);
+					/* If the last block of chip is a bad block */
+					if (offset == (chip_size - mtd->erasesize))
+						return 0;
 					continue;
 				} else if (ret < 0) {
 					pr_info("MTD get bad block failed in 0x%08llx\n",
@@ -712,9 +719,13 @@ static int mtd_store_erase(const char *part_name,
 			}
 
 			ret = mtd_erase(mtd, &info);
-			if (ret)
+			if (ret) {
 				pr_info("%s %d mtd erase err, ret %d\n",
 					__func__, __LINE__, ret);
+				/* If the last block of chip is a bad block */
+				if (offset == (chip_size - mtd->erasesize))
+					return 0;
+			}
 		}
 	}
 	return ret;
