@@ -415,24 +415,6 @@ typedef union usb_r5 {
     } b;
 } usb_r5_t;
 
-static int f_platform_usb_check_rev(void)
-{
-    int rev_flag = 0;
-
-    cpu_id_t cpu_id = get_cpu_id();
-
-	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_G12B) {
-		if (cpu_id.chip_rev == 0xb)
-            rev_flag = 0xb;
-        else
-            rev_flag = 0;
-    } else if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SM1){
-        rev_flag = MESON_CPU_MAJOR_ID_SM1;
-    }
-
-    return rev_flag;
-}
-
 #define PLL_REG32_16    (0xFF63A000 + 0x40)
 #define PLL_REG32_17    (0xFF63A000 + 0x44)
 #define PLL_REG32_18    (0xFF63A000 + 0x48)
@@ -445,16 +427,30 @@ static void set_usb_phy21_pll(void)
 		= (USB_PHY2_PLL_PARAMETER_1 | USB_PHY2_RESET | USB_PHY2_ENABLE);
 	(*(volatile uint32_t *)(unsigned long)(PLL_REG32_17)) =
 		USB_PHY2_PLL_PARAMETER_2;
-	if (f_platform_usb_check_rev() == MESON_CPU_MAJOR_ID_SM1)
-		(*(volatile uint32_t *)(unsigned long)(PLL_REG32_18)) =
-		0xAC5F69E5;
-	else
-		(*(volatile uint32_t *)(unsigned long)(PLL_REG32_18)) =
-			USB_PHY2_PLL_PARAMETER_3;
+	(*(volatile uint32_t *)(unsigned long)(PLL_REG32_18)) =
+		USB_PHY2_PLL_PARAMETER_3;
 	udelay(100);
 	(*(volatile uint32_t *)(unsigned long)(PLL_REG32_16))
 		= (((USB_PHY2_PLL_PARAMETER_1) | (USB_PHY2_ENABLE))
 		& (~(USB_PHY2_RESET)));
+}
+
+static int f_platform_usb_check_g12b_revb (void)
+{
+	int rev_flag = 0;
+
+	cpu_id_t cpu_id = get_cpu_id();
+
+	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_G12B) {
+		if (cpu_id.chip_rev == 0xb)
+			rev_flag = 1;
+		else
+			rev_flag = 0;
+	} else {
+		rev_flag = 0;
+	}
+
+	return rev_flag;
 }
 
 #ifdef CONFIG_USB_DEVICE_V2
@@ -464,7 +460,7 @@ void set_usb_phy21_tuning_fb(void)
 {
 	unsigned long phy_reg_base = USB_REG_B;
 
-	if (f_platform_usb_check_rev()) {
+	if (f_platform_usb_check_g12b_revb()) {
 		(*(volatile uint32_t *)(phy_reg_base + 0x50)) = USB_G12x_PHY_PLL_SETTING_1;
 		(*(volatile uint32_t *)(phy_reg_base + 0x54)) = 0x2a;
 		(*(volatile uint32_t *)(phy_reg_base + 0x34)) = USB_G12x_PHY_PLL_SETTING_3 & (0x1f << 16);
@@ -481,7 +477,7 @@ void set_usb_phy21_tuning_fb_reset(void)
 {
 	unsigned long phy_reg_base = USB_REG_B;
 
-	if (f_platform_usb_check_rev())
+	if (f_platform_usb_check_g12b_revb())
 		return;
 
 	(*(volatile uint32_t *)(phy_reg_base + 0x38)) = 0x0;
@@ -507,16 +503,6 @@ void f_set_usb_phy_config(void)
 	u2p_aml_regs_t * u2p_aml_regs = (u2p_aml_regs_t * )PREI_USB_PHY_2_REG_BASE;
 	usb_aml_regs_t *usb_aml_regs = (usb_aml_regs_t * )PREI_USB_PHY_3_REG_BASE;
 	int cnt;
-	u32 val;
-
-	if (f_platform_usb_check_rev() == MESON_CPU_MAJOR_ID_SM1) {
-		val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_SLEEP0;
-		*P_AO_RTI_GEN_PWR_SLEEP0 = val & (~(0x1<<17));
-		val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_ISO0;
-		*P_AO_RTI_GEN_PWR_ISO0 = val & (~(0x1<<17));
-		val = *(volatile uint32_t *)HHI_MEM_PD_REG0;
-		*P_HHI_MEM_PD_REG0 = val & (~(0x3<<30));
-	}
 
 	printf("PHY2=0x%08x\n", PREI_USB_PHY_2_REG_BASE);
 #ifdef CONFIG_USB_DEVICE_V2

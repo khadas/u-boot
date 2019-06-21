@@ -48,7 +48,7 @@ static int is_bl1_usb_protocol_DNL(void)
 int aml_v3_factory_usb_burning(int flag, bd_t* bis)
 {
     if (!is_boot_device_usb()) return 1;
-	if (!is_bl1_usb_protocol_DNL()) return 1;
+    if (!is_bl1_usb_protocol_DNL()) return 1;
 
     bis = bis;//avoid compiling warnning
     if ( !flag ) {
@@ -57,8 +57,8 @@ int aml_v3_factory_usb_burning(int flag, bd_t* bis)
         FB_MSG("MMC init for dnl\n");
         mmc_initialize(bis);
 #endif
-    set_default_env(NULL, 0);
-    board_init_mem();
+        set_default_env(NULL, 0);
+        board_init_mem();
     }
     //pull down and sleep in bl2-->tpl,
     //to improve pc compatibility

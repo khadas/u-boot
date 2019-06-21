@@ -220,7 +220,30 @@ int v3tool_media_check_image_size(int64_t imgSz, const char* partName)
             FBS_EXIT(_ACK, "imgsz 0x%llx > copy sz 0x%x !\t", imgSz, bootSz);
     }
 
-	return 0;
+    if (!strcmp("_aml_dtb", partName)) {
+        const unsigned dtbCap = store_rsv_size("dtb");
+        if (imgSz >= dtbCap)
+            FB_EXIT("imgsz 0x%llx >= max sz 0x%x\n", imgSz, dtbCap);
+        return 0;
+    }
+
+    partCap = store_part_size(partName);
+    if (!partCap) {
+        DWN_ERR("Fail to get size for part %s\n", partName);
+        return __LINE__;
+    }
+    DWN_MSG("flash LOGIC partCap 0x%llxB\n", partCap);
+    if (imgSz > partCap) {
+        DWN_ERR("imgSz 0x%llx out of cap 0x%llx\n", imgSz, partCap);
+        return __LINE__;
+    }
+    ret = _assert_logic_partition_cap(partName, partCap);
+    if (ret) {
+        DWN_ERR("Fail in _assert_logic_partition_cap\n");
+        return __LINE__;
+    }
+
+    return 0;
 }
 
 static int _optimusWorkMode = V3TOOL_WORK_MODE_NONE;
