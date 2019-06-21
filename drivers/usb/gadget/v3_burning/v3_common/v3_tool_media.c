@@ -24,79 +24,79 @@ DECLARE_GLOBAL_DATA_PTR;
 //make sure logic part sz == dtb configured sz
 static int _assert_logic_partition_cap(const char* thePartName, const uint64_t nandPartCap)
 {
-    extern struct partitions * part_table;
+	extern struct partitions * part_table;
 
-    int partIndex                   = 0;
-    struct partitions * thePart     = NULL;
-    if (NULL == part_table)
-        return 0;
-    for (thePart = part_table; partIndex < MAX_PART_NUM; ++thePart, ++partIndex)
-    {
-        const uint64_t partSzInBytes = thePart->size;
-        if (memcmp(thePartName, thePart->name, strlen(thePartName))) continue;
+	int partIndex                   = 0;
+	struct partitions * thePart     = NULL;
+	if (NULL == part_table)
+		return 0;
+	for (thePart = part_table; partIndex < MAX_PART_NUM; ++thePart, ++partIndex)
+	{
+		const uint64_t partSzInBytes = thePart->size;
+		if (memcmp(thePartName, thePart->name, strlen(thePartName))) continue;
 
-        FB_DBG("cfg partSzInBytes %llx for part(%s)\n", partSzInBytes, thePartName);
-        if (NAND_PART_SIZE_FULL == partSzInBytes) {return 0;}
-        if (partSzInBytes > nandPartCap) {
-            FB_EXIT("partSz of logic part(%s): sz dts %llx > Sz flash %llx\n",
-                    thePartName, partSzInBytes, nandPartCap);
-        }
+		FB_DBG("cfg partSzInBytes %llx for part(%s)\n", partSzInBytes, thePartName);
+		if (NAND_PART_SIZE_FULL == partSzInBytes) {return 0;}
+		if (partSzInBytes > nandPartCap) {
+			FB_EXIT("partSz of logic part(%s): sz dts %llx > Sz flash %llx\n",
+					thePartName, partSzInBytes, nandPartCap);
+		}
 
-        return 0;
-    }
+		return 0;
+	}
 
-    FB_EXIT("Can't find your download part(%s)\n", thePartName);
+	FB_EXIT("Can't find your download part(%s)\n", thePartName);
 }
 
 int v3tool_media_check_image_size(int64_t imgSz, const char* partName)
 {
-    int ret = 0;
-    u64 partCap = 0;
+	int ret = 0;
+	u64 partCap = 0;
 
-    if (!strcmp("bootloader", partName)) {
-        const unsigned bootSz = store_boot_copy_size("bootloader");
-        if (imgSz > bootSz)
-            FB_EXIT("imgsz 0x%llx > copy sz 0x%x\n", imgSz, bootSz);
-        return 0;
-    }
+	if (!strcmp("bootloader", partName)) {
+		const unsigned bootSz = store_boot_copy_size("bootloader");
+		if (imgSz > bootSz)
+			FB_EXIT("imgsz 0x%llx > copy sz 0x%x\n", imgSz, bootSz);
+		return 0;
+	}
 
-    if (!strcmp("_aml_dtb", partName)) {
-        const unsigned dtbCap = store_rsv_size("dtb");
-        if (imgSz >= dtbCap)
-            FB_EXIT("imgsz 0x%llx >= max sz 0x%x\n", imgSz, dtbCap);
-        return 0;
-    }
+	if (!strcmp("_aml_dtb", partName)) {
+		const unsigned dtbCap = store_rsv_size("dtb");
+		if (imgSz >= dtbCap)
+			FB_EXIT("imgsz 0x%llx >= max sz 0x%x\n", imgSz, dtbCap);
+		return 0;
+	}
 
-    partCap = store_part_size(partName);
-    if (!partCap) {
-        DWN_ERR("Fail to get size for part %s\n", partName);
-        return __LINE__;
-    }
-    DWN_MSG("flash LOGIC partCap 0x%llxB\n", partCap);
-    if (imgSz > partCap) {
-        DWN_ERR("imgSz 0x%llx out of cap 0x%llx\n", imgSz, partCap);
-        return __LINE__;
-    }
-    ret = _assert_logic_partition_cap(partName, partCap);
-    if (ret) {
-        DWN_ERR("Fail in _assert_logic_partition_cap\n");
-        return __LINE__;
-    }
+	partCap = store_part_size(partName);
+	if (!partCap) {
+		DWN_ERR("Fail to get size for part %s\n", partName);
+		return __LINE__;
+	}
+	DWN_MSG("flash LOGIC partCap 0x%llxB\n", partCap);
+	if (imgSz > partCap) {
+		DWN_ERR("imgSz 0x%llx out of cap 0x%llx\n", imgSz, partCap);
+		return __LINE__;
+	}
+	ret = _assert_logic_partition_cap(partName, partCap);
+	if (ret) {
+		DWN_ERR("Fail in _assert_logic_partition_cap\n");
+		return __LINE__;
+	}
 
-    return 0;
+	return 0;
 }
 
 static int _optimusWorkMode = V3TOOL_WORK_MODE_NONE;
 
 int v3tool_work_mode_get(void)
 {
-    return _optimusWorkMode;
+	return _optimusWorkMode;
 }
 
 int v3tool_work_mode_set(int workmode)
 {
-    _optimusWorkMode = workmode;
-    return 0;
+	_optimusWorkMode = workmode;
+	return 0;
 }
 
 
@@ -104,7 +104,7 @@ static int _disk_intialed_ok = 0;
 
 int v3tool_is_flash_erased(void)
 {
-    return _disk_intialed_ok>>16;
+	return _disk_intialed_ok>>16;
 }
 
 static int should_load_env(void)
