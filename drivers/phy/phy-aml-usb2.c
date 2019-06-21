@@ -19,17 +19,14 @@
 #include <asm/arch/usb.h>
 #include <amlogic/cpu_id.h>
 
-
 #include <linux/compat.h>
 #include <linux/ioport.h>
 
-#define MESON_CPU_MAJOR_ID_A1	0x2C
 #define P_AO_RTI_GEN_PWR_SLEEP0 0xfe007808
 #define P_AO_RTI_GEN_PWR_ISO0 0xfe007804
 #define P_HHI_MEM_PD_REG0 0xfe007850
 
 #define RESET_COMPLETE_TIME				500
-#define MESON_CPU_MAJOR_ID_SM1	0x2B
 
 char name[32];
 
