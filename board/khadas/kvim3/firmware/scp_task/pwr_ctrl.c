@@ -279,6 +279,12 @@ static unsigned int detect_key(unsigned int suspend_from)
 			exit_reason = ETH_PMT_WAKEUP;
 		}
 
+		if (suspend_from) {
+			if (!(readl(PREG_PAD_GPIO4_I) & (0x01 << 14))) {
+				exit_reason = WOL_WAKEUP;
+			}
+		}
+
 		if (exit_reason)
 			break;
 		else

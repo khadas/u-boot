@@ -38,6 +38,7 @@ typedef unsigned int uint32_t;
 #define ETH_PMT_WAKEUP      10
 #define CECB_WAKEUP		11
 #define ETH_PHY_GPIO    12
+#define WOL_WAKEUP      13
 /* wake up source*/
 #define UDEFINED_WAKEUP_SRC	(1<<0)
 #define CHARGING_WAKEUP_SRC (1<<1)
