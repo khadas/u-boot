@@ -43,6 +43,7 @@
 
 #define CONFIG_CMDLINE_EDITING 1
 #define CONFIG_AUTO_COMPLETE 1
+#define CONFIG_CMD_ENV_EXISTS 1
 
 /* configs for CEC */
 #define CONFIG_CEC_OSD_NAME		"KVIM3"
