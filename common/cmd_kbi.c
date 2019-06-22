@@ -5,6 +5,7 @@
 #include <dm.h>
 #include <edid.h>
 #include <environment.h>
+#include <asm/cpu_id.h>
 #include <errno.h>
 #include <i2c.h>
 #include <malloc.h>
@@ -35,8 +36,9 @@
 #define REG_LED_SYSTEM_OFF_MODE 0x29
 #define REG_ADC                 0x2a
 #define REG_MAC_SWITCH          0x2d
+#ifdef CONFIG_KHADAS_VIM3
 #define REG_PORT_MODE           0x33
-
+#endif
 #define REG_PASSWD_CUSTOM       0x40
 
 #define REG_POWER_OFF           0x80
@@ -73,13 +75,14 @@
 #define PASSWD_CUSTOM_LENGHT  6
 #define PASSWD_VENDOR_LENGHT  6
 
-#define HW_VERSION_ADV_VALUE_TOLERANCE   0x28
-#define HW_VERSION_ADC_VALUE_V12         0x1ce
-#define HW_VERSION_ADC_VALUE_V13         0x24a
+#define HW_VERSION_ADC_VALUE_TOLERANCE   0x28
+#define HW_VERSION_ADC_VAL_VIM2_V12      0x1ce
+#define HW_VERSION_ADC_VAL_VIM2_V14      0x24a
+#define HW_VERSION_ADC_VAL_VIM3_V11      0x200
 #define HW_VERSION_UNKNOW                0x00
-#define HW_VERSION_V12                   0x12
-#define HW_VERSION_V13                   0x13
-
+#define HW_VERSION_VIM2_V12              0x01
+#define HW_VERSION_VIM2_V14              0x02
+#define HW_VERSION_VIM3_V11              0x30
 
 
 static char* LED_MODE_STR[] = { "off", "on", "breathe", "heartbeat"};
@@ -197,14 +200,6 @@ static void set_wol(bool is_shutdown, int enable)
 		} else {
 			kbi_i2c_read_block(REG_MAC, MAC_LENGHT, mac_addr);
 		}
-		if (mac_addr[5] == 0x02) {
-			mac_addr[0] = 0x98;
-			mac_addr[1] = 0xa3;
-			mac_addr[2] = 0x45;
-			mac_addr[3] = 0xa0;
-			mac_addr[4] = 0x25;
-			mac_addr[5] = 0x99;
-		}
 	}
 	run_command("phyreg w 31 0xd8c", 0);
 	sprintf(cmd, "phyreg w 16 0x%x%x", mac_addr[1], mac_addr[0]);
@@ -284,14 +279,6 @@ static void get_mac(void)
 			kbi_i2c_read_block(REG_MAC, MAC_LENGHT, mac_addr);
 		}
 	}
-	if (mac_addr[5] == 0x02) {
-		mac_addr[0] = 0x98;
-		mac_addr[1] = 0xa3;
-		mac_addr[2] = 0x45;
-		mac_addr[3] = 0xa0;
-		mac_addr[4] = 0x25;
-		mac_addr[5] = 0x99;
-	}
 	printf("mac address: ");
 	for (i=0; i<MAC_LENGHT; i++) {
 		if (i == (MAC_LENGHT-1))
@@ -307,10 +294,12 @@ static void get_mac(void)
 static const char *hw_version_str(int hw_ver)
 {
 	switch (hw_ver) {
-		case HW_VERSION_V12:
+		case HW_VERSION_VIM2_V12:
 			return "VIM2.V12";
-		case HW_VERSION_V13:
-			return "VIM2.V13";
+		case HW_VERSION_VIM2_V14:
+			return "VIM2.V14";
+		case HW_VERSION_VIM3_V11:
+			return "VIM3.V11";
 		default:
 			return "Unknow";
 	}
@@ -320,16 +309,21 @@ static int get_hw_version(void)
 {
 	int val = get_adc_sample_gxbb(1);
 	int hw_ver = 0;
-
-
-	if ((val >= HW_VERSION_ADC_VALUE_V12 - HW_VERSION_ADV_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VALUE_V12 + HW_VERSION_ADV_VALUE_TOLERANCE)) {
-		hw_ver = HW_VERSION_V12;
-	} else if ((val >= HW_VERSION_ADC_VALUE_V13 - HW_VERSION_ADV_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VALUE_V13 + HW_VERSION_ADV_VALUE_TOLERANCE)) {
-		hw_ver = HW_VERSION_V13;
+	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXM) {
+		if ((val >= HW_VERSION_ADC_VAL_VIM2_V12 - HW_VERSION_ADC_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VAL_VIM2_V12 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
+			hw_ver = HW_VERSION_VIM2_V12;
+		} else if ((val >= HW_VERSION_ADC_VAL_VIM2_V14 - HW_VERSION_ADC_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VAL_VIM2_V14 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
+			hw_ver = HW_VERSION_VIM2_V14;
+		} else {
+		hw_ver = HW_VERSION_UNKNOW; 
+		}
 	} else {
-		hw_ver = HW_VERSION_UNKNOW;
+		if ((val >= HW_VERSION_ADC_VAL_VIM3_V11 - HW_VERSION_ADC_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VAL_VIM3_V11 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
+			hw_ver = HW_VERSION_VIM3_V11;
+		} else {
+			hw_ver = HW_VERSION_UNKNOW;
+		}
 	}
-
 	printf("saradc: 0x%x, hw_ver: 0x%x\n", val, hw_ver);
 
 	setenv("hwver", hw_version_str(hw_ver));
@@ -372,6 +366,7 @@ static void get_usid(void)
 	setenv("usid", serial);
 }
 
+#if  defined(CONFIG_KVIM2) || defined(CONFIG_KHADAS_VIM2)
 static void get_adc(void)
 {
 	int adc[ADC_LENGHT] = {};
@@ -379,6 +374,7 @@ static void get_adc(void)
 	printf("adc: 0x%x\n",(adc[0] << 8) | adc[1]);
 
 }
+#endif
 
 
 static void get_power_state(void)
@@ -464,11 +460,12 @@ static void set_ir(int enable)
 	run_command(cmd, 0);
 }
 
+#ifdef CONFIG_KHADAS_VIM3
 static void get_port_mode(void)
 {
 	int mode;
 	mode = kbi_i2c_read(REG_PORT_MODE);
-	printf("port mode is %s\n", mode==0 ? "USB3.0" : "PCIE");
+	printf("port mode is %s\n", mode==0 ? "usb3.0" : "pcie");
 	setenv("port_mode", mode==0 ? "0" : "1");
 }
 
@@ -480,10 +477,11 @@ static void set_port_mode(int mode)
 		return;
 	}
 	sprintf(cmd, "i2c mw %x %x %d 1",CHIP_ADDR, REG_PORT_MODE, mode);
-	printf("set port mode to :%s\n", mode==0 ? "USB3.0" : "PCIE");
+	printf("set port mode to :%s\n", mode==0 ? "usb3.0" : "pcie");
 	run_command(cmd, 0);
 	setenv("port_mode", mode==0 ? "0" : "1");
 }
+#endif
 
 static void get_switch_mac(void)
 {
@@ -677,11 +675,13 @@ static int do_kbi_usid(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[
 	return 0;
 }
 
+#if  defined(CONFIG_KVIM2) || defined(CONFIG_KHADAS_VIM2)
 static int do_kbi_adc(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	get_adc();
 	return 0;
 }
+#endif
 
 static int do_kbi_powerstate(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
@@ -726,6 +726,7 @@ static int do_kbi_switchmac(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 	return 0;
 }
 
+#ifdef CONFIG_KHADAS_VIM3
 static int do_kbi_portmode(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 
@@ -750,6 +751,7 @@ static int do_kbi_portmode(cmd_tbl_t * cmdtp, int flag, int argc, char * const a
 	}
 	return 0;
 }
+#endif
 
 static int do_kbi_led(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
@@ -966,7 +968,9 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 	U_BOOT_CMD_MKENT(resetflag, 2, 1, do_kbi_resetflag, "", ""),
 	U_BOOT_CMD_MKENT(usid, 1, 1, do_kbi_usid, "", ""),
 	U_BOOT_CMD_MKENT(version, 1, 1, do_kbi_version, "", ""),
+#if  defined(CONFIG_KVIM2) || defined(CONFIG_KHADAS_VIM2)
 	U_BOOT_CMD_MKENT(adc, 1, 1, do_kbi_adc, "", ""),
+#endif
 	U_BOOT_CMD_MKENT(powerstate, 1, 1, do_kbi_powerstate, "", ""),
 	U_BOOT_CMD_MKENT(ethmac, 1, 1, do_kbi_ethmac, "", ""),
 	U_BOOT_CMD_MKENT(hwver, 1, 1, do_kbi_hwver, "", ""),
@@ -975,7 +979,9 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 	U_BOOT_CMD_MKENT(led, 4, 1, do_kbi_led, "", ""),
 	U_BOOT_CMD_MKENT(trigger, 4, 1, do_kbi_trigger, "", ""),
 	U_BOOT_CMD_MKENT(bootmode, 3, 1, do_kbi_bootmode, "", ""),
+#ifdef CONFIG_KHADAS_VIM3
 	U_BOOT_CMD_MKENT(portmode, 1, 1, do_kbi_portmode, "", ""),
+#endif
 	U_BOOT_CMD_MKENT(forcereset, 4, 1, do_kbi_forcereset, "", ""),
 };
 
@@ -1003,7 +1009,9 @@ static char kbi_help_text[] =
 		"\n"
 		"kbi version - read version information\n"
 		"kbi usid - read usid information\n"
+#if  defined(CONFIG_KVIM2) || defined(CONFIG_KHADAS_VIM2)
 		"kbi adc - read adc value\n"
+#endif
 		"kbi powerstate - read power on state\n"
 		"kbi poweroff - power off device\n"
 		"kbi ethmac - read ethernet mac address\n"
@@ -1019,9 +1027,11 @@ static char kbi_help_text[] =
 		"kbi bootmode w <emmc|spi> - set bootmode to emmc or spi\n"
 		"kbi bootmode r - read current bootmode\n"
 		"\n"
-		"kbi portmode w <0|1> - set port as USB3.0 or PCIE\n"
+#ifdef CONFIG_KHADAS_VIM3
+		"kbi portmode w <0|1> - set port as usb3.0 or pcie\n"
 		"kbi portmode r - read current port mode\n"
 		"\n"
+#endif
 		"kbi trigger [wol|rtc|ir|dcin|key|gpio] w <0|1> - disable/enable boot trigger\n"
 		"kbi trigger [wol|rtc|ir|dcin|key|gpio] r - read mode of a boot trigger";
 
