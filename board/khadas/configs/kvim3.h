@@ -38,6 +38,7 @@
 
 /* config for khadas kbi */
 #define CONFIG_KHADAS_KBI 1
+#define CONFIG_USID_FROM_ETH_MAC 1
 
 
 #define CONFIG_CMDLINE_EDITING 1
@@ -297,13 +298,9 @@
             "\0"\
         "cmdline_keys="\
             "if keyman init 0x1234; then "\
-                "if keyman read usid ${loadaddr} str; then "\
-                    "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-                    "setenv serial ${usid};"\
-                "else "\
-                    "setenv bootargs ${bootargs} androidboot.serialno=1234567890;"\
-                    "setenv serial 1234567890;"\
-                "fi;"\
+                "kbi usid;"\
+                "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+                "setenv serial ${usid};"\
                 "kbi ethmac;"\
                 "setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
                 "if keyman read deviceid ${loadaddr} str; then "\
