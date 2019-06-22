@@ -146,7 +146,7 @@
             "\0"\
         "storeargs="\
             "setenv bootargs ${initargs} logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} jtag=${jtag}; "\
-	"setenv bootargs ${bootargs} androidboot.hardware=amlogic; reboot_mode=${reboot_mode};"\
+	"setenv bootargs ${bootargs} androidboot.hardware=amlogic reboot_mode=${reboot_mode} ddr_size=${ddr_size};"\
             "run cmdline_keys;"\
             "\0"\
         "switch_bootmode="\
@@ -349,6 +349,8 @@
 
 /* ATTENTION */
 /* DDR configs move to board/amlogic/[board]/firmware/timing.c */
+
+#define CONFIG_DDR_AUTO_DTB             1
 
 #define CONFIG_NR_DRAM_BANKS			1
 /* ddr functions */
