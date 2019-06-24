@@ -307,8 +307,13 @@ static const char *hw_version_str(int hw_ver)
 
 static int get_hw_version(void)
 {
-	int val = get_adc_sample_gxbb(1);
+	int val = 0;
 	int hw_ver = 0;
+
+	saradc_enable();
+	udelay(100);
+
+	val = get_adc_sample_gxbb(1);
 	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXM) {
 		if ((val >= HW_VERSION_ADC_VAL_VIM2_V12 - HW_VERSION_ADC_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VAL_VIM2_V12 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
 			hw_ver = HW_VERSION_VIM2_V12;
@@ -327,6 +332,8 @@ static int get_hw_version(void)
 	printf("saradc: 0x%x, hw_ver: 0x%x\n", val, hw_ver);
 
 	setenv("hwver", hw_version_str(hw_ver));
+
+	saradc_disable();
 
 	return 0;
 }
