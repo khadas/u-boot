@@ -75,7 +75,7 @@ int optimus_update_progress(const unsigned thisBurnSz)
     _progressInfo.currentStep       += _progressInfo.unReportSzInByte / _progressInfo.bytesToIncOneStep;
     _progressInfo.unReportSzInByte  %= _progressInfo.bytesToIncOneStep;
 
-    printf("Downloading %%%d\r", _progressInfo.currentStep);
+    printf("Downloading %d%%\r", _progressInfo.currentStep);
     if (_progressInfo.currentStep == _progressInfo.endStep) {
         printf("\n");
     }
