@@ -323,9 +323,20 @@
             "tftp 1080000 u-boot.bin;"\
             "mmc dev 1;"\
             "store rom_write 1080000 0 ${filesize}"\
-            "\0"
+            "\0" \
+        "vim3_check="\
+            "kbi hwver; "\
+            "if test ${hwver} != Unknow; then " \
+                "echo Product checking: pass! Hardware version: ${hwver};" \
+            "else " \
+                "echo Product checking: fail!; sleep 5; reboot;" \
+            "fi;" \
+            "setenv bootargs ${bootargs} hwver=${hwver};"\
+            "\0"\
+
 
 #define CONFIG_PREBOOT  \
+            "run vim3_check;" \
             "run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
