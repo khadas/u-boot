@@ -495,11 +495,11 @@ static int do_phyreg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			if (argc != 4) {
 				return cmd_usage(cmdtp);
 			}
-			printf("=== ethernet phy register write:\n");
+//			printf("=== ethernet phy register write:\n");
 			reg = simple_strtoul(argv[2], NULL, 10);
 			value = simple_strtoul(argv[3], NULL, 16);
 			phy_write(priv->phydev, MDIO_DEVAD_NONE, reg, value);
-			printf("[reg_%d] 0x%x\n", reg, phy_read(priv->phydev, MDIO_DEVAD_NONE, reg));
+//			printf("[reg_%d] 0x%x\n", reg, phy_read(priv->phydev, MDIO_DEVAD_NONE, reg));
 			break;
 
 		default:
