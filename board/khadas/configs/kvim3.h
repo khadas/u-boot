@@ -307,6 +307,7 @@
             "if gpio input GPIOAO_7; then "\
                 "echo detect upgrade key;"\
                 "gpio set GPIOAO_4;"\
+                "run fan_stop;"\
                 "run update;"\
             "fi;"\
             "\0"\
@@ -333,7 +334,9 @@
             "fi;" \
             "setenv bootargs ${bootargs} hwver=${hwver};"\
             "\0"\
-
+        "fan_stop=" \
+            "i2c mw 0x18 0x88 0" \
+            "\0"
 
 #define CONFIG_PREBOOT  \
             "run vim3_check;" \
@@ -343,7 +346,8 @@
             "run upgrade_key;"\
             "run wol_init;"\
             "run port_mode_change;"\
-            "forceupdate;"
+            "forceupdate;" \
+            "run fan_stop;"
 
 #define CONFIG_BOOTCOMMAND "run storeboot"
 

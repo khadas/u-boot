@@ -750,6 +750,9 @@ int board_late_init(void)
 		aml_try_factory_sdcard_burning(0, gd->bd);
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 
+	// Setup FAN to MAX speed for testing
+	run_command("i2c mw 0x18 0x88 3", 0);
+
 	return 0;
 }
 #endif
