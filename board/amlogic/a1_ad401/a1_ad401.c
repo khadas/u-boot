@@ -101,6 +101,8 @@ void board_init_mem(void) {
 int board_init(void)
 {
 	printf("board init\n");
+	/* reset uart A for BT*/
+	writel(0x4000000, RESETCTRL_RESET1);
 #if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 	if ((0x1b8ec003 != readl(SYSCTRL_STICKY_REG2)) && (0x1b8ec004 != readl(SYSCTRL_STICKY_REG2)))
 	{ aml_v3_factory_usb_burning(0, gd->bd); }
