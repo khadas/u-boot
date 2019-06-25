@@ -14,8 +14,8 @@
 #./check_compile.sh all        -check both amlogic and customer boards
 
 
-folder_board="board/amlogic"
-customer_folder="customer/board"
+folder_board="board/amlogic/defconfigs"
+customer_folder="customer/board/defconfigs"
 
 echo "************** Amlogic Compile Check Tool **************"
 
@@ -44,13 +44,11 @@ then
   filter=$1
   for file in ${folder_board}/*; do
     temp_file=`basename $file`
-    #echo "$temp_file"
-    if [ -d ${folder_board}/${temp_file} ] && [ "$temp_file" != "defconfigs" ] && [ "$temp_file" != "configs" ];then
-      #echo "  \c"
-      #echo $temp_file
-      ARRAY_CFG[$TOTAL_CFG]=$temp_file
-      TOTAL_CFG=$TOTAL_CFG+1
-    fi
+    # del "_defconfig"
+    temp_file=${temp_file%_*}
+    echo "$temp_file"
+    ARRAY_CFG[$TOTAL_CFG]=$temp_file
+    TOTAL_CFG=$TOTAL_CFG+1
   done
 fi
 
@@ -62,12 +60,10 @@ then
   if [ -e ${customer_folder} ];then
     for file in ${customer_folder}/*; do
       temp_file=`basename $file`
-      if [ -d ${customer_folder}/${temp_file} ] && [ "$temp_file" != "defconfigs" ] && [ "$temp_file" != "configs" ];then
-        #echo "  \c"
-        #echo $temp_file
-        ARRAY_CFG_C[$TOTAL_CFG_C]=$temp_file
-        TOTAL_CFG_C=$TOTAL_CFG_C+1
-      fi
+      temp_file=${temp_file%_*}
+      #echo $temp_file
+      ARRAY_CFG_C[$TOTAL_CFG_C]=$temp_file
+      TOTAL_CFG_C=$TOTAL_CFG_C+1
     done
   fi
 fi
