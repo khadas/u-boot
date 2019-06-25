@@ -125,7 +125,6 @@ endif
 
 source "drivers/usb/gadget/Kconfig"
 source "drivers/usb/gadget/v2_burning/Kconfig"
-source "drivers/usb/gadget/v3_burning/Kconfig"
 
 source "drivers/usb/eth/Kconfig"
 
