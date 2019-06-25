@@ -276,11 +276,9 @@
             "if test ${port_mode} = 0; then "\
                 "fdt set /usb3phy@ffe09080 status okay;"\
                 "fdt set /pcieA@fc000000 status disable;"\
-                "kbi portmode w 0;"\
             "else "\
                 "fdt set /usb3phy@ffe09080 status disable;"\
                 "fdt set /pcieA@fc000000 status okay;"\
-                "kbi portmode w 1;"\
             "fi;"\
             "\0"\
         "cmdline_keys="\
