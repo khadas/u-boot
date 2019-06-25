@@ -78,7 +78,7 @@ ddr_set_t __ddr_setting[] = {
 	.dram_cs0_size_MB		= 0xffff,//1024,
 	.dram_cs1_size_MB		= 0,//1024,
 	.training_SequenceCtrl	= {0x131f,0x61}, //ddr3 0x21f 0x31f
-	.phy_odt_config_rank	= {0x23,0x13}, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
+	.phy_odt_config_rank	= {0x00,0x00}, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
 	.dfi_odt_config			= 0x0d0d,  //use 0d0d compatibility with 1rank and 2rank  //0808
 	.PllBypassEn			= 0, //bit0-ps0,bit1-ps1
 	.ddr_rdbi_wr_enable		= 0,
@@ -131,6 +131,9 @@ ddr_set_t __ddr_setting[] = {
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
 	.diagnose				= CONFIG_DIAGNOSE_DISABLE,
+	.bitTimeControl_2d      = 1,
+	.fast_boot[0]           = 1,
+	.rever1                 = 0,
 },
 {
 	/* lpddr4 SK hynix H9HCNNNCPMALHR-NEE 2 RANKs */
