@@ -561,6 +561,36 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		strncat(response, "yes", chars_left);
 	} else if (!strcmp_l1("battery-voltage", cmd)) {
 		strncat(response, "4.2V", chars_left);
+	} else if (!strcmp_l1("is-userspace", cmd)) {
+		strncat(response, "no", chars_left);
+	} else if (!strcmp_l1("is-logical", cmd)) {
+		strsep(&cmd, ":");
+		printf("partition is %s\n", cmd);
+		if (!dynamic_partition) {
+			strncat(response, "no", chars_left);
+		} else {
+			if ((strcmp(cmd, "system") == 0) ||  (strcmp(cmd, "vendor") == 0)
+				|| (strcmp(cmd, "odm") == 0) || (strcmp(cmd, "product") == 0)) {
+				strncat(response, "yes", chars_left);
+			} else {
+				strncat(response, "no", chars_left);
+			}
+		}
+	} else if (!strcmp_l1("super-partition-name", cmd)) {
+		char *slot_name;
+		slot_name = getenv("slot-suffixes");
+		if (has_boot_slot == 0) {
+			strncat(response, "super", chars_left);
+		} else {
+			printf("slot-suffixes: %s\n", slot_name);
+			if (strcmp(slot_name, "0") == 0) {
+				printf("active_slot is %s\n", "a");
+				strncat(response, "super_a", chars_left);
+			} else if (strcmp(slot_name, "1") == 0) {
+				printf("active_slot is %s\n", "b");
+				strncat(response, "super_b", chars_left);
+			}
+		}
 	} else if (!strcmp_l1("downloadsize", cmd) ||
 		!strcmp_l1("max-download-size", cmd)) {
 		char str_num[12];
@@ -612,29 +642,55 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		} else
 			strncat(response, "no", chars_left);
 	} else if (!strcmp_l1("has-slot:system", cmd)) {
-		if (has_system_slot == 1) {
-			printf("has system slot\n");
-			strncat(response, "yes", chars_left);
-		} else
+		if (dynamic_partition) {
 			strncat(response, "no", chars_left);
+		} else {
+			if (has_system_slot == 1) {
+				printf("has system slot\n");
+				strncat(response, "yes", chars_left);
+			} else
+				strncat(response, "no", chars_left);
+		}
 	} else if (!strcmp_l1("has-slot:vendor", cmd)) {
-		if (has_boot_slot == 1) {
-			printf("has vendor slot\n");
-			strncat(response, "yes", chars_left);
-		} else
+		if (dynamic_partition) {
 			strncat(response, "no", chars_left);
+		} else {
+			if (has_boot_slot == 1) {
+				printf("has vendor slot\n");
+				strncat(response, "yes", chars_left);
+			} else
+				strncat(response, "no", chars_left);
+		}
 	} else if (!strcmp_l1("has-slot:vbmeta", cmd)) {
-		if (has_boot_slot == 1) {
-			printf("has vbmeta slot\n");
-			strncat(response, "yes", chars_left);
-		} else
+		if (dynamic_partition) {
 			strncat(response, "no", chars_left);
+		} else {
+			if (has_boot_slot == 1) {
+				printf("has vbmeta slot\n");
+				strncat(response, "yes", chars_left);
+			} else
+				strncat(response, "no", chars_left);
+		}
 	} else if (!strcmp_l1("has-slot:product", cmd)) {
-		if (has_boot_slot == 1) {
-			printf("has product slot\n");
-			strncat(response, "yes", chars_left);
-		} else
+		if (dynamic_partition) {
 			strncat(response, "no", chars_left);
+		} else {
+			if (has_boot_slot == 1) {
+				printf("has product slot\n");
+				strncat(response, "yes", chars_left);
+			} else
+				strncat(response, "no", chars_left);
+		}
+	} else if (!strcmp_l1("has-slot:super", cmd)) {
+		if (!dynamic_partition) {
+			strncat(response, "no", chars_left);
+		} else {
+			if (has_boot_slot == 1) {
+				printf("has product slot\n");
+				strncat(response, "yes", chars_left);
+			} else
+				strncat(response, "no", chars_left);
+		}
 	} else if (!strcmp_l1("has-slot:metadata", cmd)) {
 		if (has_boot_slot == 1) {
 			printf("has metadata slot\n");
@@ -1112,6 +1168,15 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 		error("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
 		fastboot_tx_write_str("FAILlocked device");
 		return;
+	}
+
+	if (dynamic_partition) {
+		if ((strcmp(cmd, "system") == 0) || (strcmp(cmd, "vendor") == 0)
+			|| (strcmp(cmd, "odm") == 0) || (strcmp(cmd, "product") == 0)) {
+			error("system/vendor/odm/product is logic partition, can not write here\n");
+			fastboot_tx_write_str("FAILlogic partition");
+			return;
+		}
 	}
 
 	printf("partition is %s\n", cmd);
