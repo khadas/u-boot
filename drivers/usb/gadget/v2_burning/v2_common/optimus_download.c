@@ -1232,7 +1232,7 @@ int optimus_set_burn_complete_flag(void)
     if (IsTplLoadedFromBurningPackage)
     {
         /*rc = run_command("defenv", 0);//use new env directly if uboot is new !!!*/
-        set_default_env("## save_setting ##\n");//use new env directly if uboot is new !!!
+        set_default_env("## save_setting ##\n", 0);//use new env directly if uboot is new !!!
 #if 0
         const char* def_env_initargs = getenv("initargs");
         const char* def_env_bootargs = getenv("bootargs");

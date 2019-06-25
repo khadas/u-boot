@@ -226,7 +226,7 @@ static unsigned int time_out_wait_sof;
 static unsigned int _sofintr_not_occur;
 #if (defined CONFIG_USB_DEVICE_V2)
 static unsigned int _sofintr;
-unsigned curTime_sof;
+extern unsigned curTime_sof;
 #endif
 
 void usb_parameter_init(int time_out)

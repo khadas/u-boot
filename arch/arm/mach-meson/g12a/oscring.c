@@ -5,7 +5,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/mailbox.h>
 #include <asm/arch/oscring.h>
-#include <asm/arch/cpu_id.h>
+#include <amlogic/cpu_id.h>
 
 void ring_powerinit(void)
 {
