@@ -574,6 +574,8 @@ int board_init(void)
 	val = readl(AO_GPIO_O);
 	val |= 1 << 3;
 	writel(val, AO_GPIO_O);
+	clrbits_le32(P_PREG_PAD_GPIO5_EN_N, 1 << 5);
+	setbits_le32(P_PREG_PAD_GPIO5_O, 1 << 5);
     //Please keep CONFIG_AML_V2_FACTORY_BURN at first place of board_init
     //As NOT NEED other board init If USB BOOT MODE
 #ifdef CONFIG_AML_V2_FACTORY_BURN
