@@ -2062,9 +2062,9 @@ static void osd1_update_enable(void)
 			if (osd_hw.osd_ver <= OSD_NORMAL)
 			VSYNCOSD_SET_MPEG_REG_MASK(VPP_MISC,
 						   VPP_OSD1_POSTBLEND | VPP_POSTBLEND_EN);
-			VSYNCOSD_SET_MPEG_REG_MASK(VIU_OSD1_CTRL_STAT, 1 << 21);
+			VSYNCOSD_SET_MPEG_REG_MASK(VIU_OSD1_CTRL_STAT, 1 << 0);
 		} else {
-			VSYNCOSD_CLR_MPEG_REG_MASK(VIU_OSD1_CTRL_STAT, 1 << 21);
+			VSYNCOSD_CLR_MPEG_REG_MASK(VIU_OSD1_CTRL_STAT, 1 << 0);
 			if (osd_hw.osd_ver <= OSD_NORMAL)
 			VSYNCOSD_CLR_MPEG_REG_MASK(VPP_MISC,
 						   VPP_OSD1_POSTBLEND);
@@ -2112,10 +2112,10 @@ static void osd2_update_enable(void)
 							   VPP_OSD1_POSTBLEND
 							   | VPP_POSTBLEND_EN);
 				VSYNCOSD_SET_MPEG_REG_MASK(VIU_OSD2_CTRL_STAT,
-							   1 << 21);
+							   1 << 0);
 			} else {
 				VSYNCOSD_CLR_MPEG_REG_MASK(VIU_OSD2_CTRL_STAT,
-							   1 << 21);
+							   1 << 0);
 #ifndef CONFIG_FB_OSD2_CURSOR
 				/*
 				VSYNCOSD_CLR_MPEG_REG_MASK(VPP_MISC,
@@ -2648,10 +2648,6 @@ static void osd1_basic_update_disp_geometry(void)
 			 | (osd_hw.pandata[OSD1].y_end & 0x1fff) << 16;
 		VSYNCOSD_WR_MPEG_REG(VIU_OSD1_BLK0_CFG_W2, data32);
 	}
-	data32 = osd_reg_read(VIU_OSD1_CTRL_STAT);
-	data32 &= 0xfffffff0;
-	data32 |= HW_OSD_BLOCK_ENABLE_0;
-	osd_reg_write(VIU_OSD1_CTRL_STAT, data32);
 }
 
 static void osd1_update_disp_geometry(void)
@@ -2860,8 +2856,8 @@ void osd_init_hw_viu2(void)
 
 	osd_reg_write(VIU2_OSD1_FIFO_CTRL_STAT, data32);
 
-	/* enable osd */
-	data32 = 0x1 << 0;
+	/* disable  osd */
+	data32 = 0x0 << 0;
 	data32 |= OSD_GLOBAL_ALPHA_DEF << 12;
 	data32 |= 0x80000000;
 	osd_reg_write(VIU2_OSD1_CTRL_STAT , data32);
@@ -2966,13 +2962,8 @@ void osd_init_hw(void)
 			osd_reg_clr_mask(VPP_MISC,
 				VPP_OSD1_POSTBLEND | VPP_OSD2_POSTBLEND | VPP_VD1_POSTBLEND);
 		/* just disable osd to avoid booting hang up */
-		if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_M6TV)
-		    || (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_MTVD)) {
-			data32 = 0x0 << 0; /* osd_blk_enable */
-		} else
-			data32 = 0x1 << 0;
+		data32 = 0x0 << 0;
 		data32 |= OSD_GLOBAL_ALPHA_DEF << 12;
-		data32 |= (1 << 21);
 		osd_reg_write(VIU_OSD1_CTRL_STAT , data32);
 		osd_reg_write(VIU_OSD2_CTRL_STAT , data32);
 
