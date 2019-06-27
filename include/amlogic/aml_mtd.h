@@ -26,6 +26,9 @@
 #define CONFIG_TPL_COPY_NUM			4
 #endif/* CONFIG_DISCRETE_BOOTLOADER */
 
+/* Mapping conversion between phyAddr and logicAddr,do not open it temporarily */
+//#define CONFIG_MTD_LOGIC_MAP
+
 #define BOOT_LOADER			"bootloader"
 #define BOOT_BL2			"bl2"
 #define BOOT_SPL			"spl"

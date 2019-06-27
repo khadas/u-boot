@@ -8,8 +8,9 @@
 #include <dm/device.h>
 
 static struct storage_t *slcnand_storage;
-
+#ifdef CONFIG_MTD_LOGIC_MAP
 extern void mtd_store_init_map(void);
+#endif
 extern void mtd_store_set(struct mtd_info *mtd, int dev);
 extern void mtd_store_mount_ops(struct storage_t* store);
 
@@ -74,9 +75,9 @@ int slcnand_fit_storage(void)
 	mtd_store_mount_ops(slc_nand);
 
 	//mtd_store_set(nand_info[0], 0);
-
+#ifdef CONFIG_MTD_LOGIC_MAP
 	mtd_store_init_map();
-
+#endif
 	return store_register(slc_nand);
 }
 

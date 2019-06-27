@@ -31,8 +31,9 @@ struct map_handler_t {
 	u16 valid_max;
 	u8 init_flag;
 };
-
+#ifdef CONFIG_MTD_LOGIC_MAP
 static struct map_handler_t mtd_map;
+#endif
 static struct mtd_info *mtd_store_list[MAX_MTD_CNT];
 extern int info_disprotect;
 
@@ -371,6 +372,22 @@ int mtd_store_write_skip_bad(struct mtd_info *mtd,
 	return 0;
 }
 
+static size_t mtd_store_logic_part_size(struct mtd_info *mtd,
+					struct part_info *part)
+{
+	loff_t start, end;
+	u32 cnt = 0;
+
+	start = part->offset / mtd->erasesize;
+	end = (part->offset + part->size) / mtd->erasesize;
+
+	while (start++ < end)
+		if (mtd_block_isbad(mtd, start))
+			cnt++;
+	return part->size - cnt * mtd->erasesize;
+}
+
+#ifdef CONFIG_MTD_LOGIC_MAP
 static loff_t mtd_store_ltop(loff_t off)
 {
 	struct mtd_info *mtd = mtd_store_get(1);
@@ -388,21 +405,6 @@ static loff_t mtd_store_ltop(loff_t off)
 		return (loff_t)-1;
 	}
 	return (mtd_map.map[logic_blk] * mtd->erasesize) + remainder;
-}
-
-static size_t mtd_store_logic_part_size(struct mtd_info *mtd,
-					struct part_info *part)
-{
-	loff_t start, end;
-	u32 cnt = 0;
-
-	start = part->offset / mtd->erasesize;
-	end = (part->offset + part->size) / mtd->erasesize;
-
-	while (start++ < end)
-		if (mtd_block_isbad(mtd, start))
-			cnt++;
-	return part->size - cnt * mtd->erasesize;
 }
 
 void mtd_store_init_map(void)
@@ -439,6 +441,7 @@ void mtd_store_init_map(void)
 	pr_info("%s %d: skipped %d, bad block need re-map: %d\n",
 		__func__, __LINE__, skip, blk_cnt - j);
 }
+#endif
 
 static int mtd_store_get_offset(const char *partname,
 				loff_t *retoff, loff_t off)
@@ -575,9 +578,9 @@ static int mtd_store_read(const char *part_name,
 		offset += CONFIG_TPL_SIZE_PER_COPY * CONFIG_TPL_COPY_NUM;
 #endif
 	}
-
+#ifdef CONFIG_MTD_LOGIC_MAP
 	offset = mtd_store_ltop(offset);
-
+#endif
 	ret = mtd_store_read_skip_bad(mtd, offset, &size,
 				      &retlen, mtd->size, (u_char *)dest);
 	if (ret) {
@@ -613,8 +616,9 @@ static int mtd_store_write(const char *part_name,
 		offset += CONFIG_TPL_SIZE_PER_COPY * CONFIG_TPL_COPY_NUM;
 #endif
 	}
+#ifdef CONFIG_MTD_LOGIC_MAP
 	offset = mtd_store_ltop(offset);
-
+#endif
 	ret = mtd_store_write_skip_bad(mtd, offset, &size,
 				       &retlen, mtd->size, (u_char *)source, 0);
 	if (ret) {
@@ -655,7 +659,9 @@ static int mtd_store_erase(const char *part_name,
 	ret = mtd_store_get_offset((const char *)part_name, &offset, off);
 	if (ret)
 		return ret;
+#ifdef CONFIG_MTD_LOGIC_MAP
 	offset = mtd_store_ltop(offset);
+#endif
 	if (size == 0)
 		size = mtd_store_size(part_name) - off;
 	erase_len = lldiv(size + mtd->erasesize - 1,

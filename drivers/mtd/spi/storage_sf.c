@@ -20,7 +20,9 @@
 struct storage_t *snor_storage;
 
 extern const struct spi_flash_info *spi_flash_read_id(struct spi_flash *flash);
+#ifdef CONFIG_MTD_LOGIC_MAP
 extern void mtd_store_init_map(void);
+#endif
 extern void mtd_store_set(struct mtd_info *mtd, int dev);
 extern void mtd_store_mount_ops(struct storage_t *store);
 extern struct mtd_info *spi_flash_get_mtd(void);
@@ -65,7 +67,9 @@ int spi_flash_fit_storage(struct spi_flash *flash)
 	set_snor_storage(spi_nor);
 	mtd_store_mount_ops(spi_nor);
 	mtd_store_set(spi_flash_get_mtd(), 0);
+#ifdef CONFIG_MTD_LOGIC_MAP
 	mtd_store_init_map();
+#endif
 	return store_register(spi_nor);
 }
 

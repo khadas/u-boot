@@ -18,8 +18,9 @@
 #include <amlogic/aml_mtd.h>
 
 static struct storage_t *snand_storage;
-
+#ifdef CONFIG_MTD_LOGIC_MAP
 extern void mtd_store_init_map(void);
+#endif
 extern void mtd_store_set(struct mtd_info *mtd, int dev);
 extern void mtd_store_mount_ops(struct storage_t *store);
 
@@ -63,7 +64,9 @@ int spinand_fit_storage(struct nand_chip *chip, char *name, u8 *id)
 	set_snand_storage(spi_nand);
 	mtd_store_mount_ops(spi_nand);
 	mtd_store_set(mtd, 0);
+#ifdef CONFIG_MTD_LOGIC_MAP
 	mtd_store_init_map();
+#endif
 	return store_register(spi_nand);
 }
 
