@@ -138,6 +138,7 @@ struct meson_host {
 	struct mmc *mmc;
 	uint is_in;
 	uint is_tuning;
+	uint card_type;
 	struct clk core;
 	struct clk xtal;
 	struct clk div2;
@@ -156,5 +157,6 @@ struct meson_mmc_platdata {
 	void *regbase;
 	void *w_buf;
 };
-
+//boot from sd or emmc
+#define SEC_AO_SEC_GP_CFG0      (SYSCTRL_SEC_STATUS_REG4)
 #endif

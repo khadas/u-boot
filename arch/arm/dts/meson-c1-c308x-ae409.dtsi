@@ -136,6 +136,11 @@
 	cd-gpios = <&gpio GPIOC_6 GPIO_ACTIVE_HIGH>;
 	cd-inverted;
 
+	cary_type = <5>;
+
+	init_co_phase = <2>;
+	init_tx_phase = <0>;
+
 	hs_co_phase = <2>;
 	hs_to_phase = <0>;
 
@@ -157,14 +162,17 @@
 	non-removable;
 	disable-wp;
 	/* mmc-ddr-1_8v; */
-	/* mmc-hs200-1_8v; */
+	cary_type = <1>;
+
+	init_co_phase = <2>;
+	init_tx_phase = <0>;
 
 	hs_co_phase = <2>;
 	hs_to_phase = <0>;
 
 	hs2_co_phase = <2>;
 	hs2_to_phase = <0>;
-	
+
 	hw_reset = <&gpio GPIOB_9 GPIO_ACTIVE_HIGH>;
 
 	mmc-pwrseq = <&emmc_pwrseq>;

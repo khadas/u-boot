@@ -131,32 +131,32 @@ static void meson_mmc_config_clock(struct meson_host *host)
 		case MMC_LEGACY:
 		case SD_LEGACY:
 			co_phase = dev_read_u32_default(mmc->dev, "init_co_phase", 2);
-			tx_phase = dev_read_u32_default(mmc->dev, "init_to_phase", 0);
+			tx_phase = dev_read_u32_default(mmc->dev, "init_tx_phase", 0);
 			break;
 		case MMC_HS:
 		case MMC_HS_52:
 			dev_read_u32(mmc->dev, "hs_co_phase", &co_phase);
-			dev_read_u32(mmc->dev, "hs_to_phase", &tx_phase);
+			dev_read_u32(mmc->dev, "hs_tx_phase", &tx_phase);
 			break;
 		case SD_HS:
 			break;
 		case MMC_HS_200:
 			dev_read_u32(mmc->dev, "hs2_co_phase", &co_phase);
-			dev_read_u32(mmc->dev, "hs2_to_phase", &tx_phase);
+			dev_read_u32(mmc->dev, "hs2_tx_phase", &tx_phase);
 			break;
 		case UHS_SDR104:
 			dev_read_u32(mmc->dev, "sdr104_co_phase", &co_phase);
-			dev_read_u32(mmc->dev, "sdr104_to_phase", &tx_phase);
+			dev_read_u32(mmc->dev, "sdr104_tx_phase", &tx_phase);
 			break;
 		case MMC_DDR_52:
 			dev_read_u32(mmc->dev, "ddr_co_phase", &co_phase);
-			dev_read_u32(mmc->dev, "ddr_to_phase", &tx_phase);
+			dev_read_u32(mmc->dev, "ddr_tx_phase", &tx_phase);
 			break;
 		case MMC_HS_400:
 			break;
 		default:
 			co_phase = dev_read_u32_default(mmc->dev, "init_co_phase", 2);
-			tx_phase = dev_read_u32_default(mmc->dev, "init_to_phase", 0);
+			tx_phase = dev_read_u32_default(mmc->dev, "init_tx_phase", 0);
 			break;
 	}
 
@@ -949,9 +949,7 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 				"hw_reset", 0, &host->gpio_reset,
 				GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 		if (ret)
-			printf("%s() %d, ret %d\n", __func__, __LINE__, ret);
-		else
-			dm_gpio_set_value(&host->gpio_reset, 1);
+			return ret;
 	}
 
 	uclass_get_device_by_name(UCLASS_CLK, "amlogic,g12a-clkc", &clk_udevice);

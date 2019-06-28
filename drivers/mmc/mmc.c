@@ -24,6 +24,7 @@
 #include <partition_table.h>
 #include <amlogic/storage.h>
 #include <asm/arch/secure_apb.h>
+#include <asm/arch/sd_emmc.h>
 
 static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage);
 static int mmc_power_cycle(struct mmc *mmc);
