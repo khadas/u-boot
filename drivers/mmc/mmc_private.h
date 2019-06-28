@@ -23,6 +23,25 @@
 #define MMC_MAX_DESC_NUM	512
 #define MAX_RESPONSE_BYTES	4
 
+/* unknown */
+#define CARD_TYPE_UNKNOWN       0
+/* MMC card */
+#define CARD_TYPE_MMC           1
+/* SD card */
+#define CARD_TYPE_SD            2
+/* SDIO card */
+#define CARD_TYPE_SDIO          3
+/* SD combo (IO+mem) card */
+#define CARD_TYPE_SD_COMBO      4
+/* NON sdio device (means SD/MMC card) */
+#define CARD_TYPE_NON_SDIO      5
+
+#define aml_card_type_unknown(c)    ((c)->card_type == CARD_TYPE_UNKNOWN)
+#define aml_card_type_mmc(c)        ((c)->card_type == CARD_TYPE_MMC)
+#define aml_card_type_sd(c)      ((c)->card_type == CARD_TYPE_SD)
+#define aml_card_type_sdio(c)      ((c)->card_type == CARD_TYPE_SDIO)
+#define aml_card_type_non_sdio(c)   ((c)->card_type == CARD_TYPE_NON_SDIO)
+
 extern int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			struct mmc_data *data);
 extern int mmc_send_status(struct mmc *mmc, int timeout);
@@ -146,4 +165,5 @@ int mmc_switch_part(struct mmc *mmc, unsigned int part_num);
  */
 int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value);
 
+int emmc_boot_chk(struct mmc *mmc);
 #endif /* _MMC_PRIVATE_H_ */

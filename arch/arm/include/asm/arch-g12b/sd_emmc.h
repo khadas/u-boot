@@ -138,6 +138,7 @@ struct meson_host {
 	struct mmc *mmc;
 	uint is_in;
 	uint is_tuning;
+	uint card_type;
 	struct clk core;
 	struct clk xtal;
 	struct clk div2;

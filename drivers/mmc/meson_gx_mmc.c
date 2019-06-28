@@ -547,7 +547,7 @@ void meson_hw_reset(struct udevice *dev)
 	struct meson_host *host = dev_get_priv(dev);
 	struct mmc *mmc = &pdata->mmc;
 
-	if (!strcmp(mmc->cfg->name, "emmc")) {
+	if (aml_card_type_mmc(host)) {
 		dm_gpio_set_value(&host->gpio_reset, 0);
 		mdelay(2);
 		dm_gpio_set_value(&host->gpio_reset, 1);
@@ -562,7 +562,7 @@ int meson_get_cd(struct udevice *dev)
 	struct mmc *mmc = &pdata->mmc;
 	int ret = 0;
 
-	if (!strcmp(mmc->cfg->name, "sd")) {
+	if (aml_card_type_non_sdio(host)) {
 		ret = dm_gpio_get_value(&host->gpio_cd);
 		if (ret < 0)
 			pr_err("card detect get failed!\n");
@@ -635,7 +635,7 @@ u32 meson_tuning_transfer(struct udevice *dev, u32 opcode)
 		if (!tuning_err) {
 			nmatch++;
 		} else {
-			pr_err("Tuning transfer error: nmatch=%d tuning_err:0x%x\n",
+			pr_info("Tuning transfer error: nmatch=%d tuning_err:0x%x\n",
 					nmatch, tuning_err);
 			break;
 		}
@@ -726,10 +726,11 @@ int meson_execute_tuning(struct udevice *dev, uint opcode)
 	if (host->blk_test == NULL)
 		return -EINVAL;
 
+	printf("%s: tuning start:\n", mmc->cfg->name);
 	meson_write(mmc, 0, MESON_SD_EMMC_ADJUST);
 	old_dly = meson_read(mmc, MESON_SD_EMMC_DELAY1);
 	d1_dly = (old_dly & DLY_D1_MASK) >> Dly_d1;
-	printf("Data 1 aligned delay is %d\n", d1_dly);
+	pr_info("Data 1 aligned delay is %d\n", d1_dly);
 
 tuning:
 	wrap_win_start = -1;
@@ -746,7 +747,7 @@ tuning:
 	else
 		clk_src = 1000000000;
 	clock = (clk_src / clk_div);
-	printf("%s: clk %d tuning start:\n", mmc->cfg->name, clock);
+	pr_info("%s: tuning clk is %d\n", mmc->cfg->name, clock);
 
 	host->is_tuning = 1;
 	for (adj_delay = 0; adj_delay < clk_div; adj_delay++) {
@@ -771,7 +772,7 @@ tuning:
 				curr_win_start = adj_delay;
 
 			curr_win_size++;
-			printf("%s: rx_tuning_result[%d] = %d\n",
+			pr_info("%s: rx_tuning_result[%d] = %d\n",
 					mmc->cfg->name, adj_delay, nmatch);
 		} else {
 			if (curr_win_start >= 0) {
@@ -918,6 +919,7 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 {
 	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
 	struct meson_host *host = dev_get_priv(dev);
+	struct mmc *mmc = &pdata->mmc;
 	struct mmc_config *cfg = &pdata->cfg;
 	struct udevice *clk_udevice;
 	fdt_addr_t addr;
@@ -937,18 +939,19 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 	if (dev_read_bool(dev, "non-removable"))
 		host->is_in = 1;
 
-	if (!strcmp(dev->name, "sd")) {
+	dev_read_u32(dev, "card_type", &host->card_type);
+	if (aml_card_type_non_sdio(host)) {
 		ret = gpio_request_by_name(dev,
 				"cd-detect", 0, &host->gpio_cd, GPIOD_IS_IN);
 		if (ret)
 			return ret;
 	}
-	if (!strcmp(dev->name, "emmc")) {
+	if (aml_card_type_mmc(host)) {
 		ret = gpio_request_by_name(dev,
-				"hw_reset", 0, &host->gpio_reset, GPIOD_IS_OUT);
+				"hw_reset", 0, &host->gpio_reset,
+				GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 		if (ret)
 			return ret;
-		dm_gpio_set_value(&host->gpio_reset, 1);
 	}
 
 	uclass_get_device_by_name(UCLASS_CLK, "amlogic,g12a-clkc", &clk_udevice);

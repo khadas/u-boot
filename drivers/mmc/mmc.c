@@ -23,6 +23,7 @@
 #include <emmc_partitions.h>
 #include <partition_table.h>
 #include <amlogic/storage.h>
+#include <asm/arch/secure_apb.h>
 
 static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage);
 static int mmc_power_cycle(struct mmc *mmc);
@@ -56,6 +57,20 @@ bool emmckey_is_access_range_legal (struct mmc *mmc, ulong start, lbaint_t blkcn
 		}
 	}
 	return 1;
+}
+
+int emmc_boot_chk(struct mmc *mmc)
+{
+	u32 val = 0;
+
+	val = readl(SEC_AO_SEC_GP_CFG0);
+	pr_info("SEC_AO_SEC_GP_CFG0 = %x\n", val);
+
+	if (!strcmp(mmc->dev->name, "emmc")
+			&& ((val & 0xf) == 0x1))
+		return 1;
+
+	return 0;
 }
 
 #if CONFIG_IS_ENABLED(MMC_TINY)
@@ -2318,51 +2333,77 @@ static int mmc_startup(struct mmc *mmc)
 	}
 #endif
 
-	/* Put the Card in Identify Mode */
-	cmd.cmdidx = mmc_host_is_spi(mmc) ? MMC_CMD_SEND_CID :
-		MMC_CMD_ALL_SEND_CID; /* cmd not supported in spi */
-	cmd.resp_type = MMC_RSP_R2;
-	cmd.cmdarg = 0;
+	if (emmc_boot_chk(mmc)) {
+		mmc_switch_part(mmc, 0);
 
-	err = mmc_send_cmd(mmc, &cmd, NULL);
-
-#ifdef CONFIG_MMC_QUIRKS
-	if (err && (mmc->quirks & MMC_QUIRK_RETRY_SEND_CID)) {
-		int retries = 4;
-		/*
-		 * It has been seen that SEND_CID may fail on the first
-		 * attempt, let's try a few more time
-		 */
-		do {
+		/* disSelect the card, and put it into detect Mode */
+		if (!mmc_host_is_spi(mmc)) { /* cmd not supported in spi */
+			cmd.cmdidx = MMC_CMD_SELECT_CARD;
+			cmd.resp_type = MMC_RSP_NONE;
+			cmd.cmdarg = 0;
 			err = mmc_send_cmd(mmc, &cmd, NULL);
-			if (!err)
-				break;
-		} while (retries--);
-	}
-#endif
 
-	if (err)
-		return err;
+			if (err)
+				return err;
+		}
 
-	memcpy(mmc->cid, cmd.response, 16);
-
-	/*
-	 * For MMC cards, set the Relative Address.
-	 * For SD cards, get the Relatvie Address.
-	 * This also puts the cards into Standby State
-	 */
-	if (!mmc_host_is_spi(mmc)) { /* cmd not supported in spi */
-		cmd.cmdidx = SD_CMD_SEND_RELATIVE_ADDR;
+		/* Put the Card in Identify Mode */
+		cmd.cmdidx = MMC_CMD_SEND_CID;
+		cmd.resp_type = MMC_RSP_R2;
 		cmd.cmdarg = mmc->rca << 16;
-		cmd.resp_type = MMC_RSP_R6;
 
 		err = mmc_send_cmd(mmc, &cmd, NULL);
+		if (err)
+			return err;
+
+		memcpy(mmc->cid, cmd.response, 16);
+	} else {
+		/* Put the Card in Identify Mode */
+		cmd.cmdidx = mmc_host_is_spi(mmc) ? MMC_CMD_SEND_CID :
+			MMC_CMD_ALL_SEND_CID; /* cmd not supported in spi */
+		cmd.resp_type = MMC_RSP_R2;
+		cmd.cmdarg = 0;
+
+		err = mmc_send_cmd(mmc, &cmd, NULL);
+
+#ifdef CONFIG_MMC_QUIRKS
+		if (err && (mmc->quirks & MMC_QUIRK_RETRY_SEND_CID)) {
+			int retries = 4;
+			/*
+			 * It has been seen that SEND_CID may fail on the first
+			 * attempt, let's try a few more time
+			 */
+			do {
+				err = mmc_send_cmd(mmc, &cmd, NULL);
+				if (!err)
+					break;
+			} while (retries--);
+		}
+#endif
 
 		if (err)
 			return err;
 
-		if (IS_SD(mmc))
-			mmc->rca = (cmd.response[0] >> 16) & 0xffff;
+		memcpy(mmc->cid, cmd.response, 16);
+
+		/*
+		 * For MMC cards, set the Relative Address.
+		 * For SD cards, get the Relatvie Address.
+		 * This also puts the cards into Standby State
+		 */
+		if (!mmc_host_is_spi(mmc)) { /* cmd not supported in spi */
+			cmd.cmdidx = SD_CMD_SEND_RELATIVE_ADDR;
+			cmd.cmdarg = mmc->rca << 16;
+			cmd.resp_type = MMC_RSP_R6;
+
+			err = mmc_send_cmd(mmc, &cmd, NULL);
+
+			if (err)
+				return err;
+
+			if (IS_SD(mmc))
+				mmc->rca = (cmd.response[0] >> 16) & 0xffff;
+		}
 	}
 
 	/* Get the Card-Specific Data */
@@ -2781,7 +2822,12 @@ int mmc_start_init(struct mmc *mmc)
 		return -ENOMEDIUM;
 	}
 
-	err = mmc_get_op_cond(mmc);
+	if (emmc_boot_chk(mmc)) {
+		mmc->high_capacity = 1;
+		mmc->rca = 1;
+		mmc->version = MMC_VERSION_UNKNOWN;
+	} else
+		err = mmc_get_op_cond(mmc);
 
 	if (!err)
 		mmc->init_in_progress = 1;

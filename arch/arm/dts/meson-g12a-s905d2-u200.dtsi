@@ -117,6 +117,7 @@
 	disable-wp;
 
 	pinname = "sdio";
+	card_type = <3>;
 	mmc-pwrseq = <&sdio_pwrseq>;
 
 	vmmc-supply = <&vddao_3v3>;
@@ -135,6 +136,7 @@
 	disable-wp;
 
 	pinname = "sd";
+	card_type = <5>;
 	init_co_phase = <3>;
 	init_tx_phase = <0>;
 	sd_hs_co_phase = <2>;
@@ -165,7 +167,7 @@
 	mmc-hs200-1_8v;
 
 	pinname = "emmc";
-
+	card_type = <1>;
 	init_co_phase = <3>;
 	init_tx_phase = <0>;
 	hs_co_phase = <3>;
