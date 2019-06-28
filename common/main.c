@@ -11,11 +11,18 @@
 #include <autoboot.h>
 #include <cli.h>
 #include <version.h>
+#include <asm/arch/timer.h>
 
 #ifdef CONFIG_MDUMP_COMPRESS
 #include <ramdump.h>
 #endif
 DECLARE_GLOBAL_DATA_PTR;
+
+#if defined(BL33_BOOT_TIME_PROBE)
+	#define TE TE_time
+#else
+	#define TE(...)
+#endif
 
 /*
  * Board-specific Platform code can reimplement show_boot_progress () if needed
@@ -45,8 +52,9 @@ static void run_preboot_environment_command(void)
 # ifdef CONFIG_AUTOBOOT_KEYED
 		int prev = disable_ctrlc(1);	/* disable Control C checking */
 # endif
-
+		TE("preboot");
 		run_command_list(p, -1, 0);
+		TE("preboot");
 
 # ifdef CONFIG_AUTOBOOT_KEYED
 		disable_ctrlc(prev);	/* restore Control C checking */
@@ -117,7 +125,6 @@ void main_loop(void)
 			run_command("reset",0);
 	}
 #endif //#if defined(CONFIG_AML_UBOOT_AUTO_TEST)
-
 
 	autoboot_command(s);
 
