@@ -51,6 +51,13 @@ config MESON_A1
 	help
 		Support Amlogic Meson A1 (A1 etc..)
 
+config MESON_C1
+	bool "C1"
+	select ARM64
+	select DM
+	select DM_SERIAL
+	help
+		Support Amlogic Meson C1
 
 config MESON_G12A
 	bool "G12A"

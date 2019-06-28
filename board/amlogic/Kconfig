@@ -191,6 +191,37 @@ config SYSTEM_RTOS
 
 endif
 
+
+if MESON_C1
+
+config SYS_SOC
+	default "c1"
+
+choice
+	prompt "C1 Board"
+
+config C1_SKT
+	bool "C1_SKT"
+	select TARGET_C1_SKT
+	select SPI_NAND
+	help
+	  Select C1 SKT config
+
+endchoice
+
+config TARGET_C1_SKT
+	bool "C1 skt board"
+	depends on C1_SKT
+
+config SYSTEM_RTOS
+	bool "SYSTEM_RTOS_PARTITION"
+	default n
+	depends on TARGET_C1_SKT
+	help
+	  Select SYSTEM RTOS partition table
+
+endif
+
 if MESON_G12A
 
 config SYS_SOC
@@ -222,6 +253,8 @@ endif
 source "board/amlogic/a1_ad409/Kconfig"
 
 source "board/amlogic/a1_ad401/Kconfig"
+
+source "board/amlogic/c1_skt/Kconfig"
 
 source "board/amlogic/g12a_u200_v1/Kconfig"
 
