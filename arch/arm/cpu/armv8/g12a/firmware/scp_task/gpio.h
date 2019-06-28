@@ -34,6 +34,10 @@
 #define GPIOAO_9	9
 #define GPIOAO_10	10
 #define GPIOAO_11	11
+#define GPIOE_0		12
+#define GPIOE_1		13
+#define GPIOE_2		14
+
 /*EE Bank*/
 #define GPIOZ_0		0
 #define GPIOZ_1		1
@@ -120,9 +124,5 @@
 #define GPIOX_17	82
 #define GPIOX_18	83
 #define GPIOX_19	84
-#define GPIOE_0		85
-#define GPIOE_1		86
-#define GPIOE_2		87
 
-#define GPIO_TEST_N	88
 #endif
