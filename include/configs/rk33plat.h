@@ -438,6 +438,8 @@
 
 #ifdef CONFIG_KHADAS_CMDLINE
 #define CONFIG_KHADAS_CMDLINE_ENV \
+		"update=gpio set 6; rockusb 0 mmc 0\0" \
+		"maskrom=rbrom\0" \
 		"wol_init="\
 			"kbi init;"\
 			"kbi powerstate;"\
