@@ -97,131 +97,13 @@
 		ranges;
 
 		gpio: bank@0400 {
-			reg = <0x0 0x0400 0x0 0x003c>,
-			      <0x0 0x0480 0x0 0x0118>;
+			reg = <0x0 0x0400 0x0 0x0040>,
+			      <0x0 0x0480 0x0 0x01d8>;
 			reg-names = "mux",
 				    "gpio";
 			gpio-controller;
 			#gpio-cells = <2>;
-			gpio-ranges = <&pinctrl_periphs 0 0 63>;
-		};
-
-		jtag_a_pins:jtag_a_pin {
-			mux {
-				groups = "jtag_a_clk",
-				"jtag_a_tms",
-				"jtag_a_tdi",
-				"jtag_a_tdo";
-				function = "jtag_a";
-			};
-		};
-
-		swd_a_pins:swd_a_pin {
-			mux {
-				groups = "swclk",
-				"swdio";
-				function = "sw";
-			};
-		};
-
-		i2c0_master_pins1:i2c0_pins1 {
-			mux {
-				groups = "i2c_a_scl_f11",
-					"i2c_a_sda_f12";
-				function = "i2c_a";
-				bias-pull-up;
-				drive-strength = <3>;
-			};
-		};
-
-		i2c0_master_pins2:i2c0_pins2 {
-			mux {
-				groups = "i2c_a_scl_f9",
-					"i2c_a_sda_f10";
-				function = "i2c_a";
-				bias-pull-up;
-				drive-strength = <3>;
-			};
-		};
-
-		i2c1_master_pins1:i2c1_pins1 {
-			mux {
-				groups = "i2c_b_sda_x",
-					"i2c_b_scl_x";
-				function = "i2c_b";
-				bias-pull-up;
-				drive-strength = <3>;
-			};
-		};
-
-		i2c1_master_pins2:i2c1_pins2 {
-			mux {
-				groups = "i2c_b_sda_a",
-					"i2c_b_scl_a";
-				function = "i2c_b";
-				bias-pull-up;
-				drive-strength = <3>;
-			};
-		};
-
-		i2c2_master_pins1:i2c2_pins1 {
-			mux {
-				groups = "i2c_c_scl_x0",
-					"i2c_c_sda_x1";
-				function = "i2c_c";
-				bias-pull-up;
-				drive-strength = <3>;
-			};
-		};
-
-		i2c2_master_pins2:i2c2_pins2 {
-			mux {
-				groups = "i2c_c_scl_x15",
-					"i2c_c_sda_x16";
-				function = "i2c_c";
-				bias-pull-up;
-				drive-strength = <3>;
-			};
-		};
-
-		i2c2_master_pins3:i2c2_pins3 {
-			mux {
-				groups = "i2c_c_scl_a4",
-					"i2c_c_sda_a5";
-				function = "i2c_c";
-				bias-pull-up;
-				drive-strength = <3>;
-			};
-		};
-
-		i2c2_master_pins4:i2c2_pins4 {
-			mux {
-				groups = "i2c_c_scl_a8",
-					"i2c_c_sda_a9";
-				function = "i2c_c";
-				bias-pull-up;
-				drive-strength = <3>;
-			};
-		};
-
-		i2c3_master_pins1:i2c3_pins1 {
-			mux {
-				groups = "i2c_d_scl_x",
-					"i2c_d_sda_x";
-				function = "i2c_d";
-				bias-pull-up;
-				drive-strength = <3>;
-			};
-		};
-
-		i2c3_master_pins2:i2c3_pins2 {
-			mux {
-				groups = "i2c_d_scl_f",
-					"i2c_d_sda_f";
-				function = "i2c_d";
-				bias-pull-up;
-				drive-strength = <3>;
-			};
+			gpio-ranges = <&pinctrl_periphs 0 0 90>;
 		};
 	};
 };
@@ -321,3 +203,122 @@
 	clock-names = "core", "comp";
  };
 */
+&pinctrl_periphs {
+	jtag_a_pins:jtag_a_pin {
+		mux {
+			groups = "jtag_a_clk",
+			"jtag_a_tms",
+			"jtag_a_tdi",
+			"jtag_a_tdo";
+			function = "jtag_a";
+		};
+	};
+
+	swd_a_pins:swd_a_pin {
+		mux {
+			groups = "swclk",
+			"swdio";
+			function = "sw";
+		};
+	};
+
+	i2c0_master_pins1:i2c0_pins1 {
+		mux {
+			groups = "i2c_a_scl_f11",
+				"i2c_a_sda_f12";
+			function = "i2c_a";
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c0_master_pins2:i2c0_pins2 {
+		mux {
+			groups = "i2c_a_scl_f9",
+				"i2c_a_sda_f10";
+			function = "i2c_a";
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c1_master_pins1:i2c1_pins1 {
+		mux {
+			groups = "i2c_b_sda_x",
+				"i2c_b_scl_x";
+			function = "i2c_b";
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c1_master_pins2:i2c1_pins2 {
+		mux {
+			groups = "i2c_b_sda_a",
+				"i2c_b_scl_a";
+			function = "i2c_b";
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c2_master_pins1:i2c2_pins1 {
+		mux {
+			groups = "i2c_c_scl_x0",
+				"i2c_c_sda_x1";
+			function = "i2c_c";
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c2_master_pins2:i2c2_pins2 {
+		mux {
+			groups = "i2c_c_scl_x15",
+				"i2c_c_sda_x16";
+			function = "i2c_c";
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c2_master_pins3:i2c2_pins3 {
+		mux {
+			groups = "i2c_c_scl_a4",
+				"i2c_c_sda_a5";
+			function = "i2c_c";
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c2_master_pins4:i2c2_pins4 {
+		mux {
+			groups = "i2c_c_scl_a8",
+				"i2c_c_sda_a9";
+			function = "i2c_c";
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c3_master_pins1:i2c3_pins1 {
+		mux {
+			groups = "i2c_d_scl_x",
+				"i2c_d_sda_x";
+			function = "i2c_d";
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+	};
+
+	i2c3_master_pins2:i2c3_pins2 {
+		mux {
+			groups = "i2c_d_scl_f",
+				"i2c_d_sda_f";
+			function = "i2c_d";
+			bias-pull-up;
+			drive-strength = <3>;
+		};
+	};
+};

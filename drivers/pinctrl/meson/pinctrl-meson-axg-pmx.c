@@ -26,6 +26,7 @@
 #include "pinctrl-meson.h"
 #include "pinctrl-meson-axg-pmx.h"
 
+static char pin_name[PINNAME_SIZE];
 static const struct pinconf_param meson_axg_pinconf_params[] = {
 	{ "bias-disable",	PIN_CONFIG_BIAS_DISABLE,	0 },
 	{ "bias-pull-up",	PIN_CONFIG_BIAS_PULL_UP,	1 },
@@ -119,11 +120,88 @@ static int meson_axg_pmx_request_gpio(struct udevice *dev, int offset)
 	return meson_axg_pmx_update_function(priv, offset, 0);
 }
 
+static int meson_pinmux_get_pins_count(struct udevice *dev)
+{
+	struct meson_pinctrl *priv = dev_get_priv(dev);
+
+	return priv->data->num_pins;
+}
+
+const char *meson_pinmux_get_pin_name(struct udevice *dev, unsigned selector)
+{
+	struct meson_pinctrl *priv = dev_get_priv(dev);
+	const char *name;
+	int i;
+	int offset;
+
+	/*get bank name according to selector*/
+	for (i = 0; i < priv->data->num_banks; i++) {
+		if (selector >= priv->data->banks[i].first &&
+		    selector <= priv->data->banks[i].last) {
+			name = priv->data->banks[i].name;
+			offset = selector - priv->data->banks[i].first;
+			break;
+		}
+	}
+
+	/*make pin name*/
+	snprintf(pin_name, PINNAME_SIZE, "%s%d", name, offset);
+
+	return pin_name;
+}
+
+int meson_pinmux_get_pin_muxing(struct udevice *dev, int selector, char *buf,
+			   int size)
+{
+	struct meson_pinctrl *priv = dev_get_priv(dev);
+	struct meson_pmx_bank *bank;
+	struct meson_pmx_group *group;
+	struct meson_pmx_axg_data *pmx_data;
+
+	void __iomem *addr;
+	int reg;
+	int offset;
+	int ret;
+	int func;
+	int i,j;
+
+	ret = meson_axg_pmx_get_bank(priv, selector, &bank);
+	if (ret)
+		return ret;
+
+	meson_pmx_calc_reg_and_offset(bank, selector, &reg, &offset);
+	addr = priv->reg_mux + reg * 4;
+	func = (readl(addr) & (0xf << offset)) >> offset;
+
+	for (i = 0; i < priv->data->num_groups; i++) {
+		group = &priv->data->groups[i];
+		pmx_data = (struct meson_pmx_axg_data *)group->data;
+
+		if (pmx_data->func != func)
+			continue;
+
+		for (j = 0; j < group->num_pins; j++) {
+			if (group->pins[j] == selector) {
+				snprintf(buf, size, "%s (%x)",
+					 group->name, func);
+				return 0;
+			}
+		}
+	}
+
+	snprintf(buf, size, "Unknown (%x)", func);
+
+	return 0;
+}
+
 const struct pinctrl_ops meson_axg_pinctrl_ops = {
 	.get_groups_count = meson_pinctrl_get_groups_count,
 	.get_group_name = meson_pinctrl_get_group_name,
 	.get_functions_count = meson_pinmux_get_functions_count,
 	.get_function_name = meson_pinmux_get_function_name,
+	.get_pins_count = meson_pinmux_get_pins_count,
+	.get_pin_name = meson_pinmux_get_pin_name,
+	.get_pin_muxing = meson_pinmux_get_pin_muxing,
 	.pinmux_group_set = meson_axg_pmx_set_mux,
 	.set_state = pinctrl_generic_set_state,
 	.set_gpio_mux = meson_axg_pmx_request_gpio,

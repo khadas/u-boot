@@ -303,14 +303,10 @@ int pinctrl_get_pin_muxing(struct udevice *dev, int selector, char *buf,
 {
 	struct pinctrl_ops *ops = pinctrl_get_ops(dev);
 
-#if 0
 	if (!ops->get_pin_muxing)
 		return -ENOSYS;
 
 	return ops->get_pin_muxing(dev, selector, buf, size);
-#else
-	return 0;
-#endif
 }
 
 /**
