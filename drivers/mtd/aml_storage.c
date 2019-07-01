@@ -57,13 +57,17 @@ static u8 boot_num_get(void)
 static struct mtd_info *mtd_store_get_by_name(const char *part_name,
 					      int boot)
 {
-	if (!strcmp(part_name, BOOT_LOADER) ||
-	    !strcmp(part_name, BOOT_BL2) ||
+#ifndef CONFIG_DISCRETE_BOOTLOADER
+	if (!strcmp(part_name, BOOT_LOADER)) {
+		return mtd_store_get(0);
+#else
+	if (!strcmp(part_name, BOOT_BL2) ||
 	    !strcmp(part_name, BOOT_SPL)) {
 		return mtd_store_get(0);
 	} else if (!strcmp(part_name, BOOT_TPL) ||
 			   !strcmp(part_name, BOOT_FIP)) {
 		return mtd_store_get(1);
+#endif
 	} else if (boot) {
 		pr_info("%s %d invalid name: %s\n",
 			__func__, __LINE__, part_name);
@@ -460,8 +464,7 @@ static int mtd_store_get_offset(const char *partname,
 #if defined(CONFIG_CMD_MTDPARTS)
 	else if (!mtdparts_init()) {
 #ifdef CONFIG_DISCRETE_BOOTLOADER
-		if (!strcmp(partname, BOOT_LOADER) ||
-		    !strcmp(partname, BOOT_BL2) ||
+		if (!strcmp(partname, BOOT_BL2) ||
 		    !strcmp(partname, BOOT_SPL)) {
 			ret = find_dev_and_part(BOOT_LOADER,
 					  &dev,
@@ -531,13 +534,7 @@ static u64 mtd_store_size(const char *part_name)
 
 	if (!part_name)
 		return mtd->size;
-#ifndef CONFIG_CMD_MTDPARTS
-	if (!strcmp(part_name, BOOT_LOADER))
-		mtd = mtd_store_get(0);
-	else
-		pr_info("no partition, whole device size\n");
-	return mtd->size;
-#else
+
 	u8 pnum;
 	struct mtd_device *dev;
 	struct part_info *part;
@@ -555,7 +552,6 @@ static u64 mtd_store_size(const char *part_name)
 		}
 		return mtd_store_logic_part_size(mtd, part);
 	}
-#endif
 	return 0;
 }
 
@@ -739,8 +735,7 @@ static u8 mtd_store_boot_copy_num(const char *part_name)
 		return 0;
 	}
 #ifdef CONFIG_DISCRETE_BOOTLOADER
-	if (!strcmp(part_name, BOOT_LOADER) ||
-	    !strcmp(part_name, BOOT_BL2) ||
+	if (!strcmp(part_name, BOOT_BL2) ||
 	    !strcmp(part_name, BOOT_SPL))
 		return CONFIG_BL2_COPY_NUM;
 
@@ -766,8 +761,7 @@ int is_mtd_store_boot_area(const char *part_name)
 	}
 
 #ifdef CONFIG_DISCRETE_BOOTLOADER
-	if (!strcmp(part_name, BOOT_LOADER) ||
-	    !strcmp(part_name, BOOT_BL2) ||
+	if (!strcmp(part_name, BOOT_BL2) ||
 	    !strcmp(part_name, BOOT_SPL))
 		return 1;
 
@@ -793,8 +787,7 @@ static u64 mtd_store_boot_copy_size(const char *part_name)
 		return 0;
 	}
 #ifdef CONFIG_DISCRETE_BOOTLOADER
-	if (!strcmp(part_name, BOOT_LOADER) ||
-	    !strcmp(part_name, BOOT_BL2) ||
+	if (!strcmp(part_name, BOOT_BL2) ||
 	    !strcmp(part_name, BOOT_SPL)) {
 		pages_per_copy = BOOT_TOTAL_PAGES / CONFIG_BL2_COPY_NUM;
 		return mtd->writesize * pages_per_copy;
@@ -864,8 +857,7 @@ static int mtd_store_boot_read(const char *part_name,
 	 * romcode read size limit bug and afunction of
 	 * bad block skipping.
 	 */
-	if (!strcmp(part_name, BOOT_LOADER) ||
-	    !strcmp(part_name, BOOT_BL2) ||
+	if (!strcmp(part_name, BOOT_BL2) ||
 	    !strcmp(part_name, BOOT_SPL)) {
 		int i, read_cnt;
 		loff_t off = offset;
@@ -966,8 +958,7 @@ static int mtd_store_boot_write(const char *part_name,
 		 * SPI NAND drvier, which we can not know the bad
 		 * block skiped or not.
 		 */
-		if (!strcmp(part_name, BOOT_LOADER) ||
-		    !strcmp(part_name, BOOT_BL2) ||
+		if (!strcmp(part_name, BOOT_BL2) ||
 		    !strcmp(part_name, BOOT_SPL)) {
 			int i, write_cnt;
 			loff_t off = offset;
@@ -1021,17 +1012,11 @@ static int mtd_store_boot_write(const char *part_name,
 	return ret;
 }
 
-static int mtd_store_boot_erase(const char *part_name, u8 cpy)
+static int _mtd_store_boot_erase(const char *part_name, u8 cpy)
 {
 	u8 num;
 	size_t size_per_copy = 0, erasesize = 0;
 	loff_t offset = 0;
-
-	if (!part_name) {
-		pr_info("%s %d invalid name!\n",
-			__func__, __LINE__);
-		return 1;
-	}
 
 	num = mtd_store_boot_copy_num(part_name);
 	size_per_copy = mtd_store_boot_copy_size(part_name);
@@ -1047,6 +1032,47 @@ static int mtd_store_boot_erase(const char *part_name, u8 cpy)
 	}
 	return mtd_store_erase(part_name, offset, erasesize, 0);
 }
+
+static int mtd_store_boot_erase(const char *part_name, u8 cpy)
+{
+	u8 num;
+	int ret;
+
+	if (!part_name) {
+		pr_info("%s %d invalid name!\n",
+			__func__, __LINE__);
+		return 1;
+	}
+#ifdef CONFIG_DISCRETE_BOOTLOADER
+	if (!strcmp(part_name, BOOT_LOADER)) {
+		num = CONFIG_BL2_COPY_NUM;
+		if (num < CONFIG_TPL_COPY_NUM)
+			num = CONFIG_TPL_COPY_NUM;
+
+		if ((cpy > num - 1) && (cpy != BOOT_OPS_ALL)) {
+			pr_info("%s %d unsupport erase bl2&tpl cpy %d\n",
+				__func__, __LINE__, cpy);
+			pr_info("BL2 backups: %d, TPL backups: %d\n",
+				CONFIG_BL2_COPY_NUM,
+				CONFIG_TPL_COPY_NUM);
+			return 1;
+		} else {
+			//erase bl2 & tpl
+			part_name = BOOT_BL2;
+			ret = _mtd_store_boot_erase(part_name, cpy);
+			if (!ret) {
+				part_name = BOOT_TPL;
+				ret = _mtd_store_boot_erase(part_name, cpy);
+			}
+			if (ret)
+				pr_info("!!!BL2 & TPL partition erase failed\n");
+		}
+		return ret;
+	}
+#endif
+	return _mtd_store_boot_erase(part_name, cpy);
+}
+
 
 static u32 mtd_store_rsv_size(const char *rsv_name)
 {
