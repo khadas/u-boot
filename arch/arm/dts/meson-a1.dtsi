@@ -321,3 +321,18 @@
 	clock-names = "core", "comp";
  };
 */
+
+&pinctrl_periphs {
+	spifc_pins: spifc_pins {
+		mux {
+			groups = "spif_mo",
+				 "spif_mi",
+				 "spif_clk",
+				 "spif_cs",
+				 "spif_hold_n",
+				 "spif_wp_n";
+			function = "spif";
+			drive-strength = <3>;
+		};
+	};
+};

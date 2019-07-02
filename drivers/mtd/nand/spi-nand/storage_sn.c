@@ -78,12 +78,12 @@ int spi_nand_pre(void)
 int spi_nand_probe(u32 init_flag)
 {
 	struct storage_t *spi_nand = get_snand_storage();
-	printf("zheng spi_nand_probe init_flag =%d\n",init_flag);
+
 	if (spi_nand) {
 		spi_nand->init_flag = init_flag;
 		return 0;
 	}
-	printf("zheng spi_nand_probe\n");
+
 	board_nand_init();
 	spi_nand = get_snand_storage();
 	if (!spi_nand) {

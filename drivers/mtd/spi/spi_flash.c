@@ -72,7 +72,7 @@ static int write_sr(struct spi_flash *flash, u8 ws)
 	return 0;
 }
 
-#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
+#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND) || defined(CONFIG_SPI_FLASH_GIGADEVICE)
 static int read_cr(struct spi_flash *flash, u8 *rc)
 {
 	int ret;
@@ -1116,7 +1116,7 @@ static int macronix_quad_enable(struct spi_flash *flash)
 }
 #endif
 
-#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
+#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND) || defined(CONFIG_SPI_FLASH_GIGADEVICE)
 static int spansion_quad_enable(struct spi_flash *flash)
 {
 	u8 qeb_status;
@@ -1177,9 +1177,10 @@ static int set_quad_mode(struct spi_flash *flash,
 	case SPI_FLASH_CFI_MFR_MACRONIX:
 		return macronix_quad_enable(flash);
 #endif
-#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
+#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND) || defined(CONFIG_SPI_FLASH_GIGADEVICE)
 	case SPI_FLASH_CFI_MFR_SPANSION:
 	case SPI_FLASH_CFI_MFR_WINBOND:
+	case SPI_FLASH_CFI_MFR_GIGA:
 		return spansion_quad_enable(flash);
 #endif
 #ifdef CONFIG_SPI_FLASH_STMICRO
@@ -1401,6 +1402,8 @@ int spi_flash_scan(struct spi_flash *flash)
 	print_size(flash->size, "");
 	if (flash->memory_map)
 		printf(", mapped at %p", flash->memory_map);
+		printf(" erase_cmd = 0x%x read_cmd = 0x%x write_cmd = 0x%x\n",
+			flash->erase_cmd, flash->read_cmd, flash->write_cmd);
 	puts("\n");
 #endif
 

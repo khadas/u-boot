@@ -63,7 +63,7 @@ const struct spi_flash_info spi_flash_ids[] = {
 #endif
 #ifdef CONFIG_SPI_FLASH_GIGADEVICE	/* GIGADEVICE */
 	{"gd25q16c",	   INFO(0xc84015, 0x0, 64 * 1024,    32, RD_FULL | WR_QPP | SECT_4K) },
-	{"gd25q64b",	   INFO(0xc84017, 0x0, 64 * 1024,   128, SECT_4K) },
+	{"gd25q64b",	   INFO(0xc84017, 0x0, 64 * 1024,   128, RD_QUAD | RD_DUAL | WR_QPP | SECT_4K) },
 	{"gd25q32b",       INFO(0xc84016, 0x0, 64 * 1024,    64, SECT_4K) },
 	{"gd25lq32",	   INFO(0xc86016, 0x0, 64 * 1024,    64, SECT_4K) },
 	{"gd25lq64",	   INFO(0xc86017, 0x0, 64 * 1024,   128, SECT_4K) },

@@ -262,13 +262,17 @@
 
 &spifc {
 	status = "okay";
-	/* pinctrl-names = "default"; */
-	/* pinctrl-0 = <&spifc_all_pins>; */
+	pinctrl-names = "default";
+	pinctrl-0 = <&spifc_pins>;
 	max-frequency = <24000000>;
-	max-io = <1>;
+	max-io = <4>;
 	max-cs = <2>;
-	//clocks = <&clkc CLKID_CLK81>;
-	//clock-names = "core";
+	/* 512M */
+	clocks = <&clkc CLKID_FCLK_DIV3>,
+		 <&clkc CLKID_SPIFC_MUX>,
+		 <&clkc CLKID_SPIFC_DIV>,
+		 <&clkc CLKID_SPIFC_GATE>;
+	clock-names = "fclk_source", "spifc_mux", "spifc_div", "spifc_gate";
 };
 
 &spicc1 {

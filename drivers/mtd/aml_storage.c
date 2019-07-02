@@ -492,7 +492,7 @@ static int mtd_store_get_offset(const char *partname,
 					&pnum,
 					&part);
 		if (ret) {
-			pr_info("%s %d can not find part:%s",
+			pr_info("%s %d can not find part:%s\n",
 				__func__, __LINE__, partname);
 			ret = -EINVAL;
 		}
@@ -546,7 +546,7 @@ static u64 mtd_store_size(const char *part_name)
 					&pnum,
 					&part);
 		if (ret) {
-			pr_info("%s %d can not find part:%s",
+			pr_info("%s %d can not find part:%s\n",
 				__func__, __LINE__, part_name);
 			return 0;
 		}

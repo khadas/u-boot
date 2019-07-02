@@ -564,9 +564,10 @@ static int do_store_read(cmd_tbl_t *cmdtp,
 			 int flag, int argc, char * const argv[])
 {
 	struct storage_t *store = store_get_current();
-	unsigned long offset, addr;
+	unsigned long offset, addr, time;
 	size_t size;
 	char *name = NULL;
+	int ret;
 
 	if (!store) {
 		pr_info("%s %d please init your storage device first!\n",
@@ -589,16 +590,31 @@ static int do_store_read(cmd_tbl_t *cmdtp,
 			return CMD_RET_FAILURE;
 		}
 #endif
-	return store->read(name, offset, size, (u_char *)addr);
+	time = get_timer(0);
+	ret = store->read(name, offset, size, (u_char *)addr);
+	time = get_timer(time);
+
+	if (size != 0)
+		printf("%llu bytes ", size);
+	printf("read in %lu ms", time);
+	if ((time > 0) && (size != 0)) {
+		puts(" (");
+		print_size(div_u64(size, time) * 1000, "/s");
+		puts(")");
+	}
+	puts("\n");
+
+	return ret;
 }
 
 static int do_store_write(cmd_tbl_t *cmdtp,
 			  int flag, int argc, char * const argv[])
 {
 	struct storage_t *store = store_get_current();
-	unsigned long offset, addr;
+	unsigned long offset, addr, time;
 	size_t size;
 	char *name = NULL;
+	int ret;
 
 	if (!store) {
 		pr_info("%s %d please init your storage device first!\n",
@@ -621,7 +637,21 @@ static int do_store_write(cmd_tbl_t *cmdtp,
 			return CMD_RET_FAILURE;
 		}
 #endif
-	return store->write(name, offset, size, (u_char *)addr);
+	time = get_timer(0);
+	ret = store->write(name, offset, size, (u_char *)addr);
+	time = get_timer(time);
+
+	if (size != 0)
+		printf("%llu bytes ", size);
+	printf("write in %lu ms", time);
+	if ((time > 0) && (size != 0)) {
+		puts(" (");
+		print_size(div_u64(size, time) * 1000, "/s");
+		puts(")");
+	}
+	puts("\n");
+
+	return ret;
 }
 
 static int do_store_boot_read(cmd_tbl_t *cmdtp,

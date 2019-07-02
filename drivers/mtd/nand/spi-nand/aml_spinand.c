@@ -258,7 +258,7 @@ struct nand_flash_dev spi_nand_ids[] = {
 		.pagesize = SZ_2K,
 		.chipsize = SZ_128M,
 		.erasesize = SZ_128K,
-		.options = 0,
+		.options = SPI_RX_QUAD | SPI_TX_QUAD,
 		.id_len = 2,
 		.oobsize = 64
 	},
@@ -376,7 +376,7 @@ struct nand_flash_dev spi_nand_ids[] = {
 		.pagesize = SZ_2K,
 		.chipsize = SZ_128M,
 		.erasesize = SZ_128K,
-		.options = 0,
+		.options = SPI_RX_QUAD,
 		.id_len = 2,
 		.oobsize = 64
 	},
