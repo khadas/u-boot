@@ -6,6 +6,14 @@ config AML_RPMB_DISABLE
 	help
 	  Support RPMB set in bootargs.
 
+config AML_STORE_WRAPPER
+	depends on AML_STORAGE
+	bool "wrapper for store"
+	default y
+	help
+	  based on AML_STORAGE
+	  read/write don't care bad blocks
+
 config AML_IMG_READ
 	depends on AML_STORAGE
 	bool "image read"

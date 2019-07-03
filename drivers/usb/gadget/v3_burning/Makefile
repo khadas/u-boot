@@ -1,4 +1,3 @@
-obj-$(CONFIG_AML_STORE_WRAPPER) += store_wrapper.o
 obj-$(CONFIG_AML_V3_FACTORY_BURN) += aml_v3_burning.o
 obj-$(CONFIG_AML_V3_FACTORY_BURN) += v3_common/
 ifdef CONFIG_AML_V3_FACTORY_BURN

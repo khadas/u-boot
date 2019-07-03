@@ -54,7 +54,7 @@ static int optimus_sysrec_clear_usr_data_parts(void)
 
                 for (; offset < ClearSz; offset += BufSz)
                 {
-                        rcode = store_write(thePart, offset, BufSz, clearBuf);
+                        rcode = store_logic_write(thePart, offset, BufSz, clearBuf);
                         if (rcode) {
                                 DWN_ERR("Failed when clear data part[%s], rcode=%d\n", thePart, rcode);
                                 ret += rcode;

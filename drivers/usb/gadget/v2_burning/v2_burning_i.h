@@ -32,6 +32,7 @@
 #include "v2_common/optimus_download.h"
 #include "v2_common/amlImage_if.h"
 #include "v2_common/optimus_progress_ui.h"
+#include <amlogic/store_wrapper.h>
 
 extern int cli_simple_parse_line(char *line, char *argv[]);
 #ifndef getenv

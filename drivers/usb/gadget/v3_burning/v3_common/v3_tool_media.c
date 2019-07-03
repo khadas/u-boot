@@ -125,7 +125,7 @@ int bootloader_write(u8* dataBuf, unsigned off, unsigned binSz)
 	return -__LINE__;
 }
 
-int _bootloader_read(u8* pBuf, unsigned off, unsigned binSz, const char* bootName)
+static int _bootloader_read(u8* pBuf, unsigned off, unsigned binSz, const char* bootName)
 {
 	int iCopy = 0;
 	const int bootCpyNum = store_boot_copy_num(bootName);
@@ -311,6 +311,10 @@ int v3tool_storage_init(const int eraseFlash, unsigned dtbImgSz)
 		dtb_valid = 1;
 	}
 
+	ret = store_init(1);
+	if (ret <= 0)
+		FBS_EXIT(_ACK, "Fail in store init %d, ret %d\n", 1, ret);
+
 	int initFlag = 0;
 	switch (eraseFlash) {
 		case 0://NO erase
@@ -338,10 +342,6 @@ int v3tool_storage_init(const int eraseFlash, unsigned dtbImgSz)
 		default:
 				FBS_EXIT(_ACK, "Unsupported erase flag %d\n", eraseFlash);
 	}
-
-	ret = store_init(1);
-	if (ret <= 0)
-		FBS_EXIT(_ACK, "Fail in store init %d, ret %d\n", initFlag, ret);
 
 	FB_MSG("eraseFlash %d, initFlag %d\n", eraseFlash, initFlag);
 	if (5 == eraseFlash) {//erase key only
