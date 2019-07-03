@@ -469,16 +469,11 @@ static int do_store_partition(cmd_tbl_t *cmdtp,
 			partitions = store_dev->get_part_count();
 		pr_info("%d partitions of device %s:\n",
 			partitions, store_dev->info.name);
-		for (i = 0; i < partitions; ++i) {
-			memset(name, 0, 16);
-			if (store_dev->get_part_name) {
-				ret = store_dev->get_part_name(i, name);
-				if (!ret)
-					printf("%2d: %-16s0x%08x\n",
-						i, name, store_dev->get_part_size(name));
-			}
-		}
-		return 0;
+
+		if (store_dev->list_part_name)
+			ret = store_dev->list_part_name(i, name);
+
+		return ret;
 	}
 }
 
@@ -835,11 +830,11 @@ U_BOOT_CMD(store, CONFIG_SYS_MAXARGS, 1, do_store,
 	"	if partition name not value. write start with\n"
 	"	offset in normal logic area,if tpl area exist\n"
 	"	write offset at end of tpl area\n"
-	"store erase [partition name] off size.\n"
+	"store erase partition name off size.\n"
 	"	erase 'size' bytes from offset 'off'\n"
 	"	of device/partition [partition name]\n"
 	"	partition name must't NULL\n"
-	"store scrub [partition name] off size.\n"
+	"store scrub partition name off size.\n"
 	"	erase 'size' bytes from offset 'off'\n"
 	"	of device/partition [partition name]\n"
 	"	includes oob area if the device has.\n"
@@ -848,25 +843,25 @@ U_BOOT_CMD(store, CONFIG_SYS_MAXARGS, 1, do_store,
 	"	erase all nand chip,except bad block\n"
 	"store scrub.chip\n"
 	"	erase all nand chip,include bad block\n"
-	"store boot_read [name] addr copy size\n"
+	"store boot_read name addr copy size\n"
 	"	read 'size' bytes from 'copy'th backup\n"
-	"	in [name] partition, 'copy' can't be null.\n"
-	"	[name]:\n"
+	"	in name partition, 'copy' can't be null.\n"
+	"	name:\n"
 	"	in discrete mode: 'bl2'/'tpl'(fip)\n"
 	"	in compact mode: 'bootloader'\n"
-	"store boot_write [name] addr [copy] size\n"
+	"store boot_write name addr [copy] size\n"
 	"	write 'size' bytes to 'copy'th backup\n"
 	"	in [name] partition from address\n"
 	"	'addr' of memory. when the optional 'copy'\n"
 	"	is null, it will writes to all copies\n"
-	"	[name]:\n"
+	"	name:\n"
 	"	in discrete mode: 'bl2'/'tpl'(fip)\n"
 	"	in compact mode: 'bootloader'\n"
-	"store boot_erase [name] [copy]\n"
-	"	erase the [name] info from 'copy'th backup\n"
+	"store boot_erase name [copy]\n"
+	"	erase the name info from 'copy'th backup\n"
 	"	when the optional 'copy' not value, it\n"
 	"	will erase all copies.\n"
-	"	[name]:\n"
+	"	name:\n"
 	"	in discrete mode: \n"
 	"	'bl2'/'tpl'(fip): erase bl2/tpl partition\n"
 	"	'bootloader':erase bl2 + tpl partition\n"

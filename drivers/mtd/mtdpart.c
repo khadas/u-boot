@@ -866,7 +866,7 @@ EXPORT_SYMBOL_GPL(mtd_del_partition);
  * for reasons of data integrity.
  */
 #ifdef CONFIG_AML_MTDPART
-static struct mtd_info **aml_partitions;
+struct list_head aml_device;
 static int aml_nbparts = 0;
 int get_aml_mtdpart_count(void)
 {
@@ -875,11 +875,20 @@ int get_aml_mtdpart_count(void)
 
 int get_aml_mtdpart_name(struct mtd_info *master, int idx, char *name)
 {
+	int i;
+	struct part_info *temp;
+	struct mtd_device *dentry;
 	if (idx >= get_aml_mtdpart_count())
 		return -1;
 
-	snprintf(name, "%s", aml_partitions[idx]->name);
-
+	list_for_each_entry(dentry, &aml_device, link) {
+		list_for_each_entry(temp, &dentry->parts, link) {
+			printf("0x%012llx-0x%012llx : \"%s\"\n",
+			(unsigned long long)temp->offset,
+			(unsigned long long)(temp->offset + temp->size),
+			temp->name);
+		}
+	}
 	return 0;
 }
 
@@ -905,9 +914,11 @@ int add_mtd_partitions(struct mtd_info *master,
 	int i;
 
 #ifdef CONFIG_AML_MTDPART
-	aml_partitions = kzalloc(nbparts * sizeof(slave), GFP_KERNEL);
-	aml_nbparts = nbparts;
-	INIT_LIST_HEAD(&master->partitions);
+	printf("%s, %d, master: %p, master->partitions: %p\n", __func__, __LINE__, master, &master->partitions);
+	if (master->partitions.next == NULL) {
+		printf("%s, %d INIT partition\n", __func__, __LINE__);
+		INIT_LIST_HEAD(&master->partitions);
+	}
 #endif
 	printk("Creating %d MTD partitions on \"%s\":\n", nbparts, master->name);
 
@@ -919,9 +930,7 @@ int add_mtd_partitions(struct mtd_info *master,
 		mutex_lock(&mtd_partitions_mutex);
 		list_add_tail(&slave->node, &master->partitions);
 		mutex_unlock(&mtd_partitions_mutex);
-#ifdef CONFIG_AML_MTDPART
-		aml_partitions[i] = slave;
-#endif
+
 		add_mtd_device(slave);
 
 		cur_offset = slave->offset + slave->size;
@@ -1038,64 +1047,42 @@ uint64_t mtd_get_device_size(const struct mtd_info *mtd)
 EXPORT_SYMBOL_GPL(mtd_get_device_size);
 
 #ifdef CONFIG_AML_MTDPART
-struct list_head aml_device;
+extern struct mtd_info *mtd_store_get(int dev);
 
 int mtdparts_init(void)
 {
-#if 0
-	struct mtd_part *mtdpart;
-	int i;
-
-	if (aml_part) {
-		pr_info("%s %d already init\n",
-			__func__, __LINE__);
-		return 0;
-	}
-
-	list_for_each_entry(mtdpart, &mtd_partitions, list) {
-		aml_part_cnt++;
-	}
-	aml_part = (struct part_info *)malloc(aml_part_cnt *
-		sizeof(struct part_info));
-	i = aml_part_cnt - 1;
-	list_for_each_entry(mtdpart, &mtd_partitions, list) {
-		aml_part[i].name = mtdpart->mtd.name;
-		aml_part[i].offset = mtdpart->offset;
-		aml_part[i].size = mtdpart->mtd.size;
-		i--;
-	}
-	for (i = 0; i < aml_part_cnt; i++)
-		pr_info("0x%012llx-0x%012llx : \"%s\"\n",
-			(unsigned long long)aml_part[i].offset,
-			(unsigned long long)(aml_part[i].offset +
-					aml_part[i].size),
-			aml_part[i].name);
-	return 0;
-#endif
 	static int init_flag = 0;
 	struct mtd_info *part;
 	struct part_info *temp;
 	struct mtd_device *dev, *dentry;
-	int i;
+	struct mtd_info *mtd = NULL;
+	u8 i = 0;
 
 	if (init_flag) {
 		debug("%s %d part already init\n", __func__, __LINE__);
 		return 0;
 	}
 	INIT_LIST_HEAD(&aml_device);
-	for (i = 0; i < aml_nbparts; i++) {
-		part = aml_partitions[i];
-		dev = kzalloc(sizeof(*dev), GFP_KERNEL);
-		dev->num_parts = 1;
-		dev->id = kzalloc(sizeof(*dev->id), GFP_KERNEL);
-		if (part->type == MTD_NANDFLASH)
-			dev->id->type = MTD_DEV_TYPE_NAND;
-		else if (part->type == MTD_NORFLASH)
-			dev->id->type = MTD_DEV_TYPE_NOR;
-		else
-			dev->id->type = 0;
-		dev->id->size = part->size;
-		dev->id->num = 0;
+#ifdef CONFIG_MESON_NFC
+	for (i = 0; i < MAX_MTD_CNT; i++) {
+#endif
+#if defined(CONFIG_SPI_FLASH) || defined(CONFIG_SPI_NAND)
+	for (i = 0; i < MAX_MTD_CNT - 1; i++) {
+#endif
+		mtd = mtd_store_get(i);
+		printf("%s, %d,mtd->partition: 0x%p, mtd: 0x%p\n", __func__, __LINE__, &mtd->partitions, mtd);
+		list_for_each_entry(part, &mtd->partitions, node) {
+			dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+			dev->num_parts = 1;
+			dev->id = kzalloc(sizeof(*dev->id), GFP_KERNEL);
+			if (part->type == MTD_NANDFLASH)
+				dev->id->type = MTD_DEV_TYPE_NAND;
+			else if (part->type == MTD_NORFLASH)
+				dev->id->type = MTD_DEV_TYPE_NOR;
+			else
+				dev->id->type = 0;
+			dev->id->size = part->size;
+			dev->id->num = 0;
 #ifdef CONFIG_MESON_NFC
 		if (strcmp(part->name, "bootloader"))
 			dev->id->num = 1;
@@ -1109,13 +1096,16 @@ int mtdparts_init(void)
 		INIT_LIST_HEAD(&dev->parts);
 		list_add_tail(&temp->link, &dev->parts);
 		list_add_tail(&dev->link, &aml_device);
+		}
 	}
 	list_for_each_entry(dentry, &aml_device, link) {
-		list_for_each_entry(temp, &dentry->parts, link)
+		list_for_each_entry(temp, &dentry->parts, link) {
 			printf("0x%012llx-0x%012llx : \"%s\"\n",
 			(unsigned long long)temp->offset,
-			(unsigned long long)(temp->size),
+			(unsigned long long)(temp->offset + temp->size),
 			temp->name);
+			aml_nbparts++;
+		}
 	}
 	init_flag = 1;
 	return 0;

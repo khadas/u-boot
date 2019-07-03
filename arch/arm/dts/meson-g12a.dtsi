@@ -916,7 +916,6 @@
 			<&clkc CLKID_SD_EMMC_C_P0_DIV>,
 			<&clkc CLKID_SD_EMMC_C_P0_GATE>;
 	clock-names = "clkin", "clkin1", "clkin2", "clkin3";
-	/*amlogic,mmc-syscon = <&sd_emmc_c>;*/
 };
 
 /*

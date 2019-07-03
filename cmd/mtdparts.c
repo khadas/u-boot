@@ -1591,6 +1591,7 @@ static const char *env_get_mtdparts(char *buf)
  * @param mtdparts string specifing mtd partitions
  * @return 0 on success, 1 otherwise
  */
+#ifndef CONFIG_AML_MTDPART
 static int parse_mtdparts(const char *const mtdparts)
 {
 	const char *p;
@@ -1640,6 +1641,7 @@ static int parse_mtdparts(const char *const mtdparts)
 
 	return err;
 }
+#endif
 
 /**
  * Parse provided string describing mtdids mapping (see file header for mtdids
@@ -1649,6 +1651,7 @@ static int parse_mtdparts(const char *const mtdparts)
  * @param ids mapping string
  * @return 0 on success, 1 otherwise
  */
+#ifndef CONFIG_AML_MTDPART
 static int parse_mtdids(const char *const ids)
 {
 	const char *p = ids;
@@ -1751,7 +1754,7 @@ static int parse_mtdids(const char *const ids)
 
 	return 0;
 }
-
+#endif
 
 /**
  * Parse and initialize global mtdids mapping and create global

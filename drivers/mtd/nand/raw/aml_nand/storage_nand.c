@@ -90,7 +90,7 @@ int nand_probe(uint32_t init_flag)
 
 	if (slc_nand) {
 		slc_nand->init_flag = init_flag;
-		printf("nand probe success\n");
+		printf("nand probe success1\n");
 		return 0;
 	}
 
@@ -102,7 +102,7 @@ int nand_probe(uint32_t init_flag)
 		return 1;
 	}
 	slc_nand->init_flag = init_flag;
-	printf("nand probe success\n");
+	printf("nand probe success0\n");
 	return 0;
 }
 

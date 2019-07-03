@@ -37,7 +37,7 @@ static struct map_handler_t mtd_map;
 static struct mtd_info *mtd_store_list[MAX_MTD_CNT];
 extern int info_disprotect;
 
-static inline struct mtd_info *mtd_store_get(int dev)
+struct mtd_info *mtd_store_get(int dev)
 {
 #if defined(CONFIG_SPI_FLASH) || defined(CONFIG_SPI_NAND)
 	return mtd_store_list[0];
@@ -1286,7 +1286,7 @@ static int nor_rsv_protect(const char *name, bool ops)
 void mtd_store_mount_ops(struct storage_t *store)
 {
 	store->get_part_count = mtd_store_count;
-	store->get_part_name = mtd_store_name;
+	store->list_part_name = mtd_store_name;
 	store->get_part_size = mtd_store_size;
 	store->read = mtd_store_read;
 	store->write = mtd_store_write;

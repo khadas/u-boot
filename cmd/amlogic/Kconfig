@@ -6,11 +6,6 @@ config AML_RPMB_DISABLE
 	help
 	  Support RPMB set in bootargs.
 
-config AML_STORAGE
-	bool "aml storage support"
-	help
-	  storage cmd support
-
 config AML_IMG_READ
 	depends on AML_STORAGE
 	bool "image read"

@@ -353,7 +353,7 @@ static void hdmi_tx_set_hdmi_5v(void)
  * mtd nand partition table, only care the size!
  * offset will be calculated by nand driver.
  */
-#ifdef CONFIG_AML_MTD
+#ifdef CONFIG_MESON_NFC
 static struct mtd_partition normal_partition_info[] = {
 #ifdef CONFIG_DISCRETE_BOOTLOADER
     /* MUST NOT CHANGE this part unless u know what you are doing!

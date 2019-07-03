@@ -828,6 +828,7 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 	}
 
 	nand_info[dev_num] = mtd;
+	printf("%s, %d, mtd: %p, dev_num: 0x%x\n", __func__, __LINE__, mtd, dev_num);
 	mtd_store_set(nand_info[dev_num], dev_num);/*need fix*/
 	printf("mtd name: %s\n", mtd->name);/*nand name*/
 	return 0;
@@ -1002,7 +1003,7 @@ static const struct udevice_id aml_nfc_ids[] = {
 };
 
 U_BOOT_DRIVER(meson_nfc) = {
-	.name	= "mesong_nfc",
+	.name	= "meson-g12a-nfc",
 	.id	= UCLASS_MTD,
 	.of_match = aml_nfc_ids,
 	.probe = meson_nfc_probe,

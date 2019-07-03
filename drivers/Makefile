@@ -29,7 +29,7 @@ obj-$(CONFIG_AML_V3_FACTORY_BURN)       += usb/gadget/v3_burning/
 obj-$(CONFIG_AML_NAND) += nand/
 obj-$(CONFIG_AML_DRIVER) += amlogic/
 obj-$(CONFIG_SPI_NAND) += mtd/nand/spi-nand/
-obj-$(CONFIG_MESON_NFC) += mtd/nand/aml_nand/
+obj-$(CONFIG_MESON_NFC) += mtd/nand/raw/aml_nand/
 
 ifndef CONFIG_TPL_BUILD
 ifdef CONFIG_SPL_BUILD

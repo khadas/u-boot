@@ -634,6 +634,62 @@ int ft_board_setup(void *blob, bd_t *bd)
 	return 0;
 }
 
+
+/*
+* mtd nand partition table, only care the size!
+* offset will be calculated by nand driver.
+*/
+static struct mtd_partition normal_partition_info[] = {
+/* MUST NOT CHANGE this part unless u know what you are doing!
+* inherent parition for descrete bootloader to store fip
+* size is determind by TPL_SIZE_PER_COPY*TPL_COPY_NUM
+* name must be same with TPL_PART_NAME
+*/
+{
+	.name = "tpl",
+	.offset = 0,
+	.size = 0,
+},
+
+{
+	.name = "logo",
+	.offset = 0,
+	.size = 2*SZ_1M,
+},
+{
+	.name = "recovery",
+	.offset = 0,
+	.size = 16*SZ_1M,
+},
+{
+	.name = "boot",
+	.offset = 0,
+	.size = 15*SZ_1M,
+},
+{
+	.name = "system",
+	.offset = 0,
+	.size = 64*SZ_1M,
+},
+/* last partition get the rest capacity */
+{
+	.name = "data",
+	.offset = MTDPART_OFS_APPEND,
+	.size = MTDPART_SIZ_FULL,
+},
+};
+
+struct mtd_partition *get_aml_mtd_partition(void)
+{
+	return normal_partition_info;
+}
+
+int get_aml_partition_count(void)
+{
+	return ARRAY_SIZE(normal_partition_info);
+}
+
+
 static const struct mtd_partition spinand_partitions[] = {
 	{
 		.name = "logo",
