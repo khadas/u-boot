@@ -223,8 +223,8 @@
 &usb2_phy_v2 {
 	status = "okay";
 	portnum = <1>;
-	phy20-reset-level-bit = <6>;
-	usb-reset-bit = <4>;
+	phy20-reset-level-bit = <4>;
+	usb-reset-bit = <3>;
 	u2-ctrl-sleep-shift = <24>;
 	u2-hhi-mem-pd-shift = <0x0>;
 	u2-hhi-mem-pd-mask = <0x3>;
@@ -242,7 +242,7 @@
 &usb3_phy_v2 {
 	status = "okay";
 	portnum = <0>;
-	gpio-vbus-power = "GPIOH_6";
+	/* gpio-vbus-power = "GPIOH_6"; */
 	/*gpios = <&gpio GPIOH_6 GPIO_ACTIVE_HIGH>;*/
 };
 

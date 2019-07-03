@@ -296,6 +296,8 @@
 
 #define AML_TXLX_USB        1
 #define AML_USB_V2             1
+#define USB_GENERAL_BIT         3
+#define USB_PHY21_BIT           4
 
 /* UBOOT fastboot config */
 
