@@ -2602,6 +2602,11 @@ static int spinand_probe(struct udevice *dev)
 #endif
 	meson_rsv_check(info->rsv->key);
 	meson_rsv_check(info->rsv->dtb);
+	/*
+	 * nand_register must be before add_mtd_partition
+	 * because nand_register will init mtd->partitions
+	 */
+	nand_register(0, mtd);
 #ifdef __UBOOT__
 	extern struct mtd_partition *get_partition_table(int *partitions);
 	spinand_partitions = get_partition_table(&partition_count);
@@ -2616,7 +2621,7 @@ static int spinand_probe(struct udevice *dev)
 	printf("%s: max_hz=%d, mode=0x%x, read_cmd=0x%x, pload_cmd=0x%x\n",
 	       __func__, pdev->max_hz, pdev->mode,
 		 info->read_cmd, info->pload_cmd);
-	return nand_register(0, mtd);
+	return 0;
 
 exit_error3:
 	kfree(info->chip.buffers);

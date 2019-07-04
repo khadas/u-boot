@@ -292,7 +292,7 @@ READ_RSV_AGAIN:
 		}
 		/* Do not use strlen ,Use ARRAY_SIZE to make the length 4 */
 		if (memcmp(oobinfo.name, rsv_info->name,
-			   ARRAY_SIZE(rsv_info->name)))
+			   ARRAY_SIZE(oobinfo.name)))
 			pr_info("invalid %s info in %llx:%s\n",
 				rsv_info->name, offset, oobinfo.name);
 		offset += mtd->writesize;
@@ -402,7 +402,7 @@ RE_RSV_INFO:
 		rsv_info->nvalid->status = 0;
 		/* Do not use strlen ,Use ARRAY_SIZE to make the length 4 */
 		if (!memcmp(oobinfo.name, rsv_info->name,
-			    ARRAY_SIZE(rsv_info->name))) {
+			    ARRAY_SIZE(oobinfo.name))) {
 			rsv_info->valid = 1;
 			if (rsv_info->nvalid->blk_addr >= 0) {
 				free_node = get_free_node(rsv_info);
@@ -499,7 +499,7 @@ RE_RSV_INFO:
 			}
 			/* Do not use strlen ,Use ARRAY_SIZE to make the length 4 */
 			if (!memcmp(oobinfo.name, rsv_info->name,
-				    ARRAY_SIZE(rsv_info->name))) {
+				    ARRAY_SIZE(oobinfo.name))) {
 				good_addr[i] = 1;
 				rsv_info->nvalid->page_addr = i;
 			} else {
