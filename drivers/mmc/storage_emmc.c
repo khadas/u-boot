@@ -772,7 +772,7 @@ int emmc_probe(uint32_t init_flag)
 	storage_dev->info.write_unit = mmc->write_bl_len;
 	storage_dev->info.erase_unit = mmc->erase_grp_size;
 	storage_dev->info.caps = mmc->capacity_user;
-	storage_dev->info.mode = DISCRETE_BOOTLOADER;
+	storage_dev->info.mode = COMPACT_BOOTLOADER;
 
 	storage_dev->get_part_size = mmc_storage_get_part_size;
 	storage_dev->read = mmc_storage_read;
