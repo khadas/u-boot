@@ -189,8 +189,8 @@ int boot_info_open_partition(char *miscbuf)
     char *partition = "misc";
     //int i;
     printf("Start read %s partition datas!\n", partition);
-    if (store_read_ops((unsigned char *)partition,
-        (unsigned char *)miscbuf, 0, MISCBUF_SIZE) < 0) {
+    if (store_read((unsigned char *)partition, 0, MISCBUF_SIZE,
+        (unsigned char *)miscbuf) < 0) {
         printf("failed to store read %s.\n", partition);
         return -1;
     }
@@ -214,16 +214,18 @@ bool boot_info_save(BrilloBootInfo *info, char *miscbuf)
     memcpy(miscbuf+BOOTINFO_OFFSET, info, SLOTBUF_SIZE);
     dump_boot_info(info);
 #ifdef CONFIG_AML_MTD
-    if (NAND_BOOT_FLAG == device_boot_flag || SPI_NAND_FLAG == device_boot_flag) {
+    enum boot_type_e device_boot_flag = store_get_type();
+    if (BOOT_NAND_NFTL == device_boot_flag || BOOT_NAND_MTD== device_boot_flag ||
+        BOOT_SNAND== device_boot_flag) {
         int ret = 0;
-        ret = run_command("store erase partition misc", 0);
+        ret = run_command("store erase misc 0 0x4000", 0);
         if (ret != 0) {
             printf("erase partition misc failed!\n");
             return false;
         }
     }
 #endif
-    store_write_ops((unsigned char *)partition, (unsigned char *)miscbuf, 0, MISCBUF_SIZE);
+    store_write((unsigned char *)partition, 0, MISCBUF_SIZE, (unsigned char *)miscbuf);
     return true;
 }
 
@@ -283,7 +285,8 @@ static int do_GetValidSlot(
 
 #ifdef CONFIG_AML_MTD
     //check if boot_a/b on nand
-    if (device_boot_flag == NAND_BOOT_FLAG) {
+    enum boot_type_e device_boot_flag = store_get_type();
+    if (device_boot_flag == BOOT_NAND_MTD) {
         struct mtd_info *nand;
         nand = get_mtd_device_nm("boot_a");
         if (!IS_ERR(nand)) {
@@ -296,24 +299,24 @@ static int do_GetValidSlot(
 
     if (slot == 0) {
         if (has_boot_slot == 1) {
-            setenv("active_slot","_a");
-            setenv("boot_part","boot_a");
-            setenv("slot-suffixes","0");
+            env_set("active_slot","_a");
+            env_set("boot_part","boot_a");
+            env_set("slot-suffixes","0");
         }
         else {
-            setenv("active_slot","normal");
-            setenv("boot_part","boot");
+            env_set("active_slot","normal");
+            env_set("boot_part","boot");
         }
     }
     else {
         if (has_boot_slot == 1) {
-            setenv("active_slot","_b");
-            setenv("boot_part","boot_b");
-            setenv("slot-suffixes","1");
+            env_set("active_slot","_b");
+            env_set("boot_part","boot_b");
+            env_set("slot-suffixes","1");
         }
         else {
-            setenv("active_slot","normal");
-            setenv("boot_part","boot");
+            env_set("active_slot","normal");
+            env_set("boot_part","boot");
         }
     }
 
@@ -352,15 +355,15 @@ static int do_SetActiveSlot(
     }
 
     if (strcmp(argv[1], "a") == 0) {
-        setenv("active_slot","_a");
-        setenv("boot_part","boot_a");
-        setenv("slot-suffixes","0");
+        env_set("active_slot","_a");
+        env_set("boot_part","boot_a");
+        env_set("slot-suffixes","0");
         printf("set active slot a \n");
         boot_info_set_active_slot(&info, 0);
     } else if (strcmp(argv[1], "b") == 0) {
-        setenv("active_slot","_b");
-        setenv("boot_part","boot_b");
-        setenv("slot-suffixes","1");
+        env_set("active_slot","_b");
+        env_set("boot_part","boot_b");
+        env_set("slot-suffixes","1");
         printf("set active slot b \n");
         boot_info_set_active_slot(&info, 1);
     } else {
@@ -379,16 +382,16 @@ int do_GetSystemMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_SYSTEM_AS_ROOT
     system = CONFIG_SYSTEM_AS_ROOT;
 #else
-    setenv("system_mode","0");
+    env_set("system_mode","0");
     return 0;
 #endif
     strcpy(system, CONFIG_SYSTEM_AS_ROOT);
     printf("CONFIG_SYSTEM_AS_ROOT: %s \n", CONFIG_SYSTEM_AS_ROOT);
     if (strcmp(system, "systemroot") == 0) {
-        setenv("system_mode","1");
+        env_set("system_mode","1");
     }
     else
-        setenv("system_mode","0");
+        env_set("system_mode","0");
 
     return 0;
 
@@ -396,7 +399,7 @@ int do_GetSystemMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int do_GetAvbMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-    setenv("avb2","0");
+    env_set("avb2","0");
 
     return 0;
 }

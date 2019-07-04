@@ -52,6 +52,8 @@
 #define AML_ADC_POWER_KEY_CHAN   2  /*channel range: 0-7*/
 #define AML_ADC_POWER_KEY_VAL    0  /*sample value range: 0-1023*/
 
+#define CONFIG_BOOTLOADER_CONTROL_BLOCK
+
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -156,7 +158,15 @@
             "\0"\
         "recovery_from_flash="\
             "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
+            "if imgread dtb recovery ${dtb_mem_addr}; then "\
+                "fdt addr ${dtb_mem_addr};"\
+            "else"\
+                "imgread dtb _aml_dtb ${dtb_mem_addr}; fdt addr ${dtb_mem_addr};"\
+            "fi;"\
             "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
+            "\0"\
+        "bcb_cmd="\
+            "get_valid_slot;"\
             "\0"\
         "cmdline_keys="\
             "setenv usid 1234567890; setenv region_code US;"\
@@ -176,9 +186,9 @@
             "\0"\
 
 #define CONFIG_PREBOOT  \
+            "run bcb_cmd; "\
             "run upgrade_check;"\
-            "run storeargs;"\
-            "run switch_bootmode;"
+            "run storeargs;"
 
 /* #define CONFIG_ENV_IS_NOWHERE  1 */
 #define CONFIG_ENV_SIZE   (8*1024)
