@@ -124,10 +124,10 @@
         "boot_part=boot\0"\
         "suspend=off\0"\
         "powermode=on\0"\
-		"edid_14_dir=/system/etc/port_14.bin\0" \
-		"edid_20_dir=/system/etc/port_20.bin\0" \
+		"edid_14_dir=/vendor/etc/tvconfig/hdmi/port_14.bin\0" \
+		"edid_20_dir=/vendor/etc/tvconfig/hdmi/port_20.bin\0" \
 		"edid_select=0\0" \
-		"port_map=0x4231\0" \
+		"port_map=0x4321\0" \
 		"cec_fun=0x2F\0" \
 		"logic_addr=0x0\0" \
 		"cec_ac_wakeup=0\0" \
@@ -160,12 +160,30 @@
                 "if test ${powermode} = on; then "\
                     /*"run try_auto_burn; "*/\
                 "else if test ${powermode} = standby; then "\
+					"echo cec_ac_wakeup=${cec_ac_wakeup}; "\
+					"if test ${cec_ac_wakeup} = 1; then "\
+						"cec ${logic_addr} ${cec_fun}; "\
+						"if test ${edid_select} = 1111; then "\
+							"hdmirx init ${port_map} ${edid_20_dir}; "\
+						"else if test ${edid_select} != 1111; then "\
+							"hdmirx init ${port_map} ${edid_14_dir}; "\
+						"fi;fi;"\
+					"fi;"\
                     "systemoff; "\
                 "else if test ${powermode} = last; then "\
                     "echo suspend=${suspend}; "\
                     "if test ${suspend} = off; then "\
                         /*"run try_auto_burn; "*/\
                     "else if test ${suspend} = on; then "\
+						"echo cec_ac_wakeup=${cec_ac_wakeup}; "\
+						"if test ${cec_ac_wakeup} = 1; then "\
+							"cec ${logic_addr} ${cec_fun}; "\
+							"if test ${edid_select} = 1111; then "\
+								"hdmirx init ${port_map} ${edid_20_dir}; "\
+							"else if test ${edid_select} != 1111; then "\
+								"hdmirx init ${port_map} ${edid_14_dir}; "\
+							"fi;fi;"\
+						"fi;"\
                         "systemoff; "\
                     "else if test ${suspend} = shutdown; then "\
                         "systemoff; "\
@@ -651,6 +669,8 @@
 #define CONFIG_CMD_MISC     1
 #define CONFIG_CMD_ITEST    1
 #define CONFIG_CMD_CPU_TEMP 1
+/* #define CONFIG_CMD_CEC      1 */
+#define CONFIG_CMD_HDMIRX   1
 #define CONFIG_SYS_MEM_TOP_HIDE 0x08000000 //hide 128MB for kernel reserve
 #define CONFIG_CMD_LOADB    1
 #define CONFIG_MULTI_DTB    1
