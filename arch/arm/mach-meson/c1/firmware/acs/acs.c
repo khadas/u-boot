@@ -35,11 +35,6 @@ acs_set_t __acs_set={
 					.ddr_set_length	= sizeof(__ddr_setting),
 					.ddr_set_addr	= (unsigned long)(&__ddr_setting),
 
-					.psram_magic	= "psram",
-					.psram_set_version = 1,
-					.psram_set_length = sizeof(__psram_setting),
-					.psram_set_addr = (unsigned long)(&__psram_setting),
-
 					.ddr_reg_magic	= "ddrr_",
 					.ddr_reg_version= 1,
 					.ddr_reg_length	= sizeof(__ddr_reg),

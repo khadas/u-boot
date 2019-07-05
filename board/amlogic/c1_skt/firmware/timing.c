@@ -76,19 +76,6 @@
 #define DDR_RFC_TYPE_LPDDR4_3Gbx1				10
 #define DDR_RFC_TYPE_LPDDR4_4Gbx1				11
 
-
-#define PSRAM_CHIP_LOGIC_INDEX_SOC				1
-
-#define PSRAM_CHIP_LOGIC_INDEX_WINBOND_3_CMD_W955D8MKY	0x20
-#define PSRAM_CHIP_LOGIC_INDEX_WINBOND_3_CMD_W956D8MKY	0x21
-#define PSRAM_CHIP_LOGIC_INDEX_AP_MEMORY_3_CMD			0x30
-
-//#define PSRAM_ENABLE
-#ifdef PSRAM_ENABLE
-#define PSRAM_CHIP_LOGIC_INDEX PSRAM_CHIP_LOGIC_INDEX_AP_MEMORY_3_CMD
-#endif
-
-/* please config __psram_setting[] if board use psram */
 ddr_set_t __ddr_setting[] = {
 {
 	/* ddr3 */
@@ -241,45 +228,6 @@ ddr_set_t __ddr_setting[] = {
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
 },
-};
-
-psram_set_t __psram_setting[] = {
-#ifdef PSRAM_ENABLE
-{
-	.psram_mr					= {0}, /* 12 uint8 */
-	.psram_board_mask			= 0,
-	.psram_amlogic_protocol_id	= PSRAM_CHIP_LOGIC_INDEX,
-	.psram_test_function		= {0}, /* 2 uint8 */
-	.psram_vendor_id			= 0,
-	.psram_device_id			= 0,
-	.psram_soc_drv				= 0,
-	.psram_dram_drv				= 0,
-	.psram_ac_timing0			= 0,
-	.psram_ac_timing1			= 0,
-	.psram_ac_timing2			= 0,
-	.psram_mode_crtl			= 0,
-	/* psram_frequency = 24, 64, 96, 128, 192, 256 */
-	.psram_frequency			= 0xffff,//192,,
-	.psram_size					= 8,
-	.psram_mode_crtl_bl33		= 0,
-	.psram_pin_crtl				= 0,
-	.psram_lcd_ctrl				= 0,
-	.psram_pin_dq_in_delay		= {0}, /* 8 uint8 */
-	.psram_pin_dq_out_delay		= {0}, /* 8 uint8 */
-	.psram_pin_dq_out_oe_delay	= {0}, /* 8 uint8 */
-	.psram_pin_dm_out_delay		= 0,
-	.psram_pin_dm_out_oe_delay	= 0,
-	.psram_pin_cs_out_delay		= 0,
-	.psram_pin_dqsp_in_delay	= 0,
-	.psram_pin_dqsn_in_delay	= 0,
-	.psram_pin_ckp_out_delay	= 0,
-	.psram_pin_ckn_out_delay	= 0,
-	.psram_pin_rden_delay		= 0,
-	.psram_bdlr_delay			= 0,
-},
-#else
-	{0},
-#endif
 };
 
 pll_set_t __pll_setting = {
