@@ -247,7 +247,7 @@ static int meson_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 	clrsetbits_le32(&i2c->regs->ctrl, REG_CTRL_CLKDIVEXT_MASK,
 			(div >> 10) << REG_CTRL_CLKDIVEXT_SHIFT);
 
-	debug("meson i2c: set clk %u, src %lu, div %u\n", speed, clk_rate, div);
+	debug("meson i2c: set clk %u, src %u, div %u\n", speed, clk_rate, div);
 
 	return 0;
 }
@@ -255,19 +255,8 @@ static int meson_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 static int meson_i2c_probe(struct udevice *bus)
 {
 	struct meson_i2c *i2c = dev_get_priv(bus);
-	int ret;
-
-	ret = clk_get_by_index(bus, 0, &i2c->clk);
-	if (ret < 0)
-		return ret;
-
-	ret = clk_enable(&i2c->clk);
-	if (ret)
-		return ret;
 
 	i2c->data = (struct meson_i2c_data *)dev_get_driver_data(bus);
-
-	clk_enable(&i2c->clk);
 
 	clrbits_le32(&i2c->regs->ctrl, REG_CTRL_START);
 
@@ -277,16 +266,8 @@ static int meson_i2c_probe(struct udevice *bus)
 static int meson_i2c_ofdata_to_platdata(struct udevice *dev)
 {
 	struct meson_i2c *i2c = dev_get_priv(dev);
-	int ret;
 
 	i2c->regs = dev_read_addr_ptr(dev);
-
-	ret = clk_get_by_name(dev, "clk_i2c", &i2c->clk);
-	if (ret < 0) {
-		debug("%s: Can't get clock for %s: %d\n", __func__, dev->name,
-		      ret);
-		return ret;
-	}
 
 	return 0;
 }
