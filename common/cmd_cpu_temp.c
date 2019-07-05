@@ -39,7 +39,7 @@
 //#define HHI_SAR_CLK_CNTL    0xc883c000+0xf6*4 //0xc883c3d8
 int temp_base = 27;
 #define NUM 16	/*for trim sensor*/
-#define READ_NUM 1	/*for read sensor*/
+#define READ_NUM 2	/*for read sensor*/
 uint32_t vref_en = 0;
 uint32_t trim = 0;
 int saradc_vref = -1;
@@ -977,7 +977,7 @@ int r1p1_temp_read(int type)
 						udelay(50);
 						value_ts = readl(TS_PLL_STAT0) & 0xffff;
 					}
-					for (i = 0; i <= READ_NUM; i ++) {
+					for (i = 0; i < READ_NUM; i ++) {
 						udelay(4500);
 						value_ts = readl(TS_PLL_STAT0) & 0xffff;
 						if ((value_ts >= 0x1500) && (value_ts <= 0x3500)) {
@@ -985,7 +985,12 @@ int r1p1_temp_read(int type)
 							cnt ++;
 						}
 					}
-					value_ts =  value_all_ts / cnt;
+					if (cnt) {
+						value_ts =  value_all_ts / cnt;
+					} else {
+						value_ts = 0;
+						printf("tsensor read temp cnt is 0\n");
+					}
 					printf("pll tsensor avg: 0x%x, u_efuse: 0x%x\n", value_ts, u_efuse);
 					if (value_ts == 0) {
 						printf("tsensor read temp is zero\n");
@@ -1013,7 +1018,7 @@ int r1p1_temp_read(int type)
 						udelay(50);
 						value_ts = readl(TS_DDR_STAT0) & 0xffff;
 					}
-					for (i = 0; i <= READ_NUM; i ++) {
+					for (i = 0; i < READ_NUM; i ++) {
 						udelay(4500);
 						value_ts = readl(TS_DDR_STAT0) & 0xffff;
 						if ((value_ts >= 0x1500) && (value_ts <= 0x3500)) {
@@ -1021,7 +1026,12 @@ int r1p1_temp_read(int type)
 							cnt ++;
 						}
 					}
-					value_ts =  value_all_ts / cnt;
+					if (cnt) {
+						value_ts =  value_all_ts / cnt;
+					} else {
+						value_ts = 0;
+						printf("tsensor read temp cnt is 0\n");
+					}
 					printf("ddr tsensor avg: 0x%x, u_efuse: 0x%x\n", value_ts, u_efuse);
 					if (value_ts == 0) {
 						printf("tsensor read temp is zero\n");
@@ -1049,7 +1059,7 @@ int r1p1_temp_read(int type)
 						udelay(50);
 						value_ts = readl(TS_SAR_STAT0) & 0xffff;
 					}
-					for (i = 0; i <= READ_NUM; i ++) {
+					for (i = 0; i < READ_NUM; i ++) {
 						udelay(4500);
 						value_ts = readl(TS_SAR_STAT0) & 0xffff;
 						if ((value_ts >= 0x1500) && (value_ts <= 0x3500)) {
@@ -1057,7 +1067,12 @@ int r1p1_temp_read(int type)
 							cnt ++;
 						}
 					}
-					value_ts =  value_all_ts / cnt;
+					if (cnt) {
+						value_ts =  value_all_ts / cnt;
+					} else {
+						value_ts = 0;
+						printf("tsensor read temp cnt is 0\n");
+					}
 					printf("sar tsensor avg: 0x%x, u_efuse: 0x%x\n", value_ts, u_efuse);
 					if (value_ts == 0) {
 						printf("tsensor read temp is zero\n");
