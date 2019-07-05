@@ -23,7 +23,8 @@
 
 #define CONFIG_HIGH_TEMP_COOL	90
 
-#define T_AVG_NUM	16 /*read temp cnt*/
+#define T_AVG_NUM	16 /*trim temp cnt*/
+#define T_READ_NUM	2 /*read temp cnt*/
 #define T_VER_MASK	0x80
 #define T_VALUE_MIN	0x1500
 #define T_VALUE_MAX	0x3500
