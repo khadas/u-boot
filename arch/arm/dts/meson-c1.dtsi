@@ -165,25 +165,25 @@
 
 &sd_emmc_b {
 	/*
-	clocks = <&clkc CLKID_FCLK_DIV2>,
-			<&xtal>,
-			<&clkc CLKID_SD_EMMC_B_P0_MUX>,
-			<&clkc CLKID_SD_EMMC_B_P0_DIV>,
+	clocks = <&clkc CLKID_SD_EMMC_B_P0_MUX>,
+		    <&clkc CLKID_SD_EMMC_B_P0_DIV>,
 			<&clkc CLKID_SD_EMMC_B_P0_GATE>,
-			<&clkc CLKID_SD_EMMC_B>;
-	clock-names = "clkin", "clkin1", "clkin2", "clkin3", "clkin4", "core";
+			<&clkc CLKID_SD_EMMC_B>,
+			<&xtal>,
+			<&clkc CLKID_FCLK_DIV2>;
+	     clock-names = "mux", "div", "gate", "core", "clkin0", "clkin1";
 	*/
 };
 
 &sd_emmc_c {
 	/*
-	clocks = <&clkc CLKID_FCLK_DIV2>,
-			<&xtal>,
-			<&clkc CLKID_SD_EMMC_C_P0_MUX>,
+	clocks = <&clkc CLKID_SD_EMMC_C_P0_MUX>,
 			<&clkc CLKID_SD_EMMC_C_P0_DIV>,
 			<&clkc CLKID_SD_EMMC_C_P0_GATE>,
-			<&clkc CLKID_SD_EMMC_C>;
-	clock-names = "clkin", "clkin1", "clkin2", "clkin3", "clkin4", "core";
+			<&clkc CLKID_SD_EMMC_C>,
+			<&xtal>,
+			<&clkc CLKID_FCLK_DIV2>;
+		clock-names = "mux", "div", "gate", "core", "clkin0", "clkin1";
 	*/
 };
 
@@ -373,4 +373,65 @@
 			drive-strength = <3>;
 		};
 	};
+	emmc_pins: emmc {
+		mux {
+			groups = "emmc_nand_d0",
+				"emmc_nand_d1",
+				"emmc_nand_d2",
+				"emmc_nand_d3",
+				"emmc_nand_d4",
+				"emmc_nand_d5",
+				"emmc_nand_d6",
+				"emmc_nand_d7",
+				"emmc_clk",
+				"emmc_cmd";
+			function = "emmc";
+			bias-pull-up;
+			input-enable;
+		};
+		mux1 {
+			groups = "emmc_nand_ds";
+			function = "emmc";
+			input-enable;
+			bias-pull-down;
+		};
+	};
+
+	emmc_clk_gate_pins: emmc_clk_gate {
+		mux {
+			groups = "emmc_clk";
+			function = "emmc";
+			bias-pull-down;
+		};
+	};
+
+	sdcard_pins: sdcard {
+		mux {
+			groups = "sdcard_d0",
+				"sdcard_d1",
+				"sdcard_d2",
+				"sdcard_d3",
+				"sdcard_cmd";
+			function = "sdcard";
+			bias-pull-up;
+			input-enable;
+			drive-strength = <4>;
+		};
+		mux1 {
+			groups ="sdcard_clk";
+			function = "sdcard";
+			bias-pull-up;
+			output-high;
+			drive-strength = <4>;
+		};
+	};
+
+	sdcard_clk_gate_pins: sdcard_clk_gate {
+		mux {
+			groups = "sdcard_clk";
+			function = "sdcard";
+			bias-pull-down;
+		};
+	};
+
 };

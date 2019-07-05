@@ -37,6 +37,10 @@ extern int emmc_pre(void);
 extern int emmc_probe(u32 init_flag);
 #endif
 
+#ifdef CONFIG_MMC_MESON_GX
+extern int sdcard_pre(void);
+extern int sdcard_probe(u32 init_flag);
+#endif
 /* for info protect, fixme later */
 int info_disprotect = 0;
 

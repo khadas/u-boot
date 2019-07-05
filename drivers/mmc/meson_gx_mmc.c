@@ -186,9 +186,7 @@ static int meson_dm_mmc_set_ios(struct udevice *dev)
 		meson_write(mmc, 0, MESON_SD_EMMC_DELAY2);
 		meson_write(mmc, 0, MESON_SD_EMMC_ADJUST);
 	}
-
 	meson_mmc_config_clock(host);
-
 	meson_mmc_cfg = meson_read(mmc, MESON_SD_EMMC_CFG);
 
 	meson_mmc_cfg &= ~CFG_BUS_WIDTH_MASK;
@@ -909,7 +907,7 @@ static const struct dm_mmc_ops meson_dm_mmc_ops = {
 	.send_cmd = meson_dm_mmc_send_cmd,
 	.set_ios = meson_dm_mmc_set_ios,
 	.send_init_stream = meson_hw_reset,
-	.get_cd = meson_get_cd,
+//	.get_cd = meson_get_cd,
 #ifdef MMC_SUPPORTS_TUNING
 	.execute_tuning = meson_execute_tuning,
 #endif
@@ -963,10 +961,17 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 	clk_get_by_name(dev, "div", &host->div);
 	clk_get_by_name(dev, "gate", &host->gate);
 
-	clk_enable(&host->core);
-	clk_enable(&host->gate);
+	//clk_enable(&host->core);
+	//clk_enable(&host->gate);
 
 	return 0;
+}
+
+void mmc_set_source_clock(mmc)
+{
+	writel(0x81008100, ((0x0038<<2) + 0xfe000800));
+	writel(0x8100, ((0x0048<<2) + 0xfe000800));
+	pr_debug("===========0x%x\n", readl(((0x0038<<2) + 0xfe000800)));
 }
 
 static int meson_mmc_probe(struct udevice *dev)
@@ -986,12 +991,12 @@ static int meson_mmc_probe(struct udevice *dev)
 	cfg->name = dev->name;
 
 	host->mmc = &pdata->mmc;
-	if (host->blk_test == NULL)
+	/*if (host->blk_test == NULL)
 		host->blk_test = malloc(MMC_MAX_BLOCK_LEN * CALI_BLK_CNT);
 	if (!host->blk_test) {
 		ret = -ENOMEM;
 		goto err;
-	}
+	}*/
 	if (host->desc_buf == NULL)
 		host->desc_buf
 			= malloc(MMC_MAX_DESC_NUM * (sizeof(struct sd_emmc_desc_info)));
@@ -1001,6 +1006,8 @@ static int meson_mmc_probe(struct udevice *dev)
 	}
 	mmc->priv = pdata;
 	upriv->mmc = mmc;
+
+	mmc_set_source_clock(mmc);
 
 	mmc_set_clock(mmc, cfg->f_min, false);
 

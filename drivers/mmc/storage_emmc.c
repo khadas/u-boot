@@ -726,6 +726,17 @@ int mmc_protect_rsv(const char *rsv_name, bool ops) {
 }
 
 DECLARE_GLOBAL_DATA_PTR;
+int sdcard_pre(void)
+{
+	return 0;
+}
+
+
+int sdcard_probe(uint32_t init_flag)
+{
+	return 0;
+}
+
 int emmc_pre(void)
 {
 	char ret = 1;

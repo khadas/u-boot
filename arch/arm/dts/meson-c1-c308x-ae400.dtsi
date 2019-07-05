@@ -124,16 +124,16 @@
 /* SD card */
 &sd_emmc_b {
 	status = "okay";
-	/*pinctrl-0 = <&sd_all_pins>;*/
-	/*pinctrl-names = "default";*/
+	pinctrl-0 = <&sdcard_pins>;
+	pinctrl-names = "default";
 
 	bus-width = <4>;
 	cap-sd-highspeed;
 	max-frequency = <100000000>;
 	disable-wp;
 
-	/* cd-gpios = <&gpio CARD_6 GPIO_ACTIVE_HIGH>; */
-	/* cd-inverted; */
+	cd-gpios = <&gpio CARD_6 GPIO_ACTIVE_HIGH>;
+	cd-inverted;
 
 	vmmc-supply = <&vddao_3v3>;
 	vqmmc-supply = <&vddio_boot>;
@@ -142,8 +142,8 @@
 /* eMMC */
 &sd_emmc_c {
 	status = "okay";
-	/* pinctrl-0 = <&emmc_conf_pull_up &emmc_conf_pull_done>; */
-	/* pinctrl-names = "default"; */
+	pinctrl-0 = <&emmc_pins>;
+	pinctrl-names = "default";
 
 	bus-width = <8>;
 	cap-sd-highspeed;

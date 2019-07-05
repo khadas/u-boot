@@ -203,7 +203,6 @@ choice
 config C1_SKT
 	bool "C1_SKT"
 	select TARGET_C1_SKT
-	select SPI_NAND
 	help
 	  Select C1 SKT config
 

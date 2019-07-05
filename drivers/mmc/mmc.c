@@ -2597,7 +2597,6 @@ static int mmc_send_if_cond(struct mmc *mmc)
 	cmd.resp_type = MMC_RSP_R7;
 
 	err = mmc_send_cmd(mmc, &cmd, NULL);
-
 	if (err)
 		return err;
 
@@ -2760,7 +2759,6 @@ retry:
 
 	/* Reset the Card */
 	err = mmc_go_idle(mmc);
-
 	if (err)
 		return err;
 
