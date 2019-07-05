@@ -183,6 +183,8 @@ int do_reboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	mdelay(200);
 #endif
 
+	dcache_disable();
+
 	aml_reboot (PSCI_SYS_REBOOT, reboot_mode_val, 0, 0);
 	return 0;
 }
