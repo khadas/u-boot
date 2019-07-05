@@ -408,9 +408,16 @@ static void compl_do_reset(struct usb_ep *ep, struct usb_request *req)
 
 static void compl_do_reboot_bootloader(struct usb_ep *ep, struct usb_request *req)
 {
-	run_command("reboot fastboot", 0);
+	if (dynamic_partition)
+		run_command("reboot bootloader", 0);
+	else
+		run_command("reboot fastboot", 0);
 }
 
+static void compl_do_reboot_fastboot(struct usb_ep *ep, struct usb_request *req)
+{
+	run_command("reboot fastboot", 0);
+}
 
 static void cb_reboot(struct usb_ep *ep, struct usb_request *req)
 {
@@ -425,7 +432,12 @@ static void cb_reboot(struct usb_ep *ep, struct usb_request *req)
 		return;
 	}
 
-	fastboot_func->in_req->complete = compl_do_reboot_bootloader;
+	printf("cmd cb_reboot is %s\n", cmd);
+	if (strcmp(cmd, "bootloader") == 0)
+		fastboot_func->in_req->complete = compl_do_reboot_bootloader;
+	else if (strcmp(cmd, "fastboot") == 0)
+		fastboot_func->in_req->complete = compl_do_reboot_fastboot;
+
 	fastboot_tx_write_str("OKAY");
 }
 
@@ -1409,6 +1421,10 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 	},
 	{
 		.cmd = "reboot-bootloader",
+		.cb = cb_reboot,
+	},
+	{
+		.cmd = "reboot-fastboot",
 		.cb = cb_reboot,
 	},
 	{
