@@ -10,3 +10,10 @@ config CLK_MESON_A1
 	help
 	  This option is used to enable the meson a1 clock
 	  driver.
+
+config CLK_MESON_C1
+        bool "Support C1 Clock"
+        depends on CLK
+        help
+          This option is used to enable the meson c1 clock
+          driver.
