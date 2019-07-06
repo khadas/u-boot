@@ -54,7 +54,7 @@ config CMD_DDR_D2PLL
 
 config CMD_DDR_TEST
 	bool "ddr test cmd"
-	default n
+	default y
 	help
 	  support ddr_test cmd
 
