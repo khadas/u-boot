@@ -21,8 +21,8 @@
 #include <common.h>
 #include <command.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch-a1/secure_apb.h>
-#include <asm/arch-a1/timer.h>
+#include <asm/arch/secure_apb.h>
+#include <asm/arch/timer.h>
 #include <asm/arch/bl31_apis.h>
 #include <asm/arch/p_register.h>
 #include <serial.h>
@@ -125,9 +125,6 @@ static int do_dspset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	udelay(10);
 	dsp_power_set(dspid,  powerflag) ;
 	printf("dsp init CLK, power over! \n");
-
-	printf("bl33: P_DSP_CFG0 ! 0x%x\n", readl(DSP_CFG0));
-	printf("bl33: P_DSPB_CFG0 ! 0x%x\n", readl(DSPB_CFG0));
 
 	return ret;
 }

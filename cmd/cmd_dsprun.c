@@ -21,8 +21,8 @@
 #include <common.h>
 #include <command.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch-a1/secure_apb.h>
-#include <asm/arch-a1/timer.h>
+#include <asm/arch/secure_apb.h>
+#include <asm/arch/timer.h>
 #include <asm/arch/bl31_apis.h>
 #include <asm/arch/p_register.h>
 #include <serial.h>
@@ -91,7 +91,7 @@ static int do_dsprun(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 U_BOOT_CMD(
 	dsprun,	3,	1,	do_dsprun,
-	"load dspboot.bin from ddr address \n",
+	"load dspboot.bin from ddr address",
 	"arg[0]: cmd\n"
 	"arg[1]: dspid \n"
 	"arg[2]: dspboot.bin load address!"
