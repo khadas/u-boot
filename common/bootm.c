@@ -111,6 +111,10 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 		images.os.end = image_get_image_end(os_hdr);
 		images.os.load = image_get_load(os_hdr);
 		images.os.arch = image_get_arch(os_hdr);
+		if (images.os.arch == IH_ARCH_ARM) {
+			env_set("initrd_high", "0A000000");
+			env_set("fdt_high", "0A000000");
+		}
 		break;
 #endif
 #if IMAGE_ENABLE_FIT
