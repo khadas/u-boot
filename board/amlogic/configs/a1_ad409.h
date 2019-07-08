@@ -103,6 +103,10 @@
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
+            "echo recovery_status=${recovery_status};"\
+            "if itest.s \"${recovery_status}\" == \"in_progress\"; then "\
+                "run storeargs; run recovery_from_flash;"\
+            "else fi;"\
             "echo upgrade_step=${upgrade_step}; "\
             "if itest ${upgrade_step} == 3; then run storeargs; run update; fi;"\
             "\0"\
