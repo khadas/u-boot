@@ -328,43 +328,43 @@ ddr_reg_t __ddr_reg[] = {
 #endif
 
 /* VDDEE_VAL_REG: VDDEE PWM table  0.69v-0.89v*/
-#if    (VDDEE_VAL == 700)
+#if    (VDDEE_VAL == 741)
 	#define VDDEE_VAL_REG	0x120000
-#elif (VDDEE_VAL == 710)
+#elif (VDDEE_VAL == 751)
 	#define VDDEE_VAL_REG	0x110001
-#elif (VDDEE_VAL == 720)
+#elif (VDDEE_VAL == 761)
 	#define VDDEE_VAL_REG	0x100002
-#elif (VDDEE_VAL == 730)
+#elif (VDDEE_VAL == 771)
 	#define VDDEE_VAL_REG	0xf0003
-#elif (VDDEE_VAL == 740)
+#elif (VDDEE_VAL == 781)
 	#define VDDEE_VAL_REG	0xe0004
-#elif (VDDEE_VAL == 750)
+#elif (VDDEE_VAL == 791)
 	#define VDDEE_VAL_REG	0xd0005
-#elif (VDDEE_VAL == 760)
+#elif (VDDEE_VAL == 801)
 	#define VDDEE_VAL_REG	0xc0006
-#elif (VDDEE_VAL == 770)
+#elif (VDDEE_VAL == 811)
 	#define VDDEE_VAL_REG	0xb0007
-#elif (VDDEE_VAL == 780)
+#elif (VDDEE_VAL == 821)
 	#define VDDEE_VAL_REG	0xa0008
-#elif (VDDEE_VAL == 790)
+#elif (VDDEE_VAL == 831)
 	#define VDDEE_VAL_REG	0x90009
-#elif (VDDEE_VAL == 800)
+#elif (VDDEE_VAL == 841)
 	#define VDDEE_VAL_REG	0x8000a
-#elif (VDDEE_VAL == 810)
+#elif (VDDEE_VAL == 851)
 	#define VDDEE_VAL_REG	0x7000b
-#elif (VDDEE_VAL == 820)
+#elif (VDDEE_VAL == 861)
 	#define VDDEE_VAL_REG	0x6000c
-#elif (VDDEE_VAL == 830)
+#elif (VDDEE_VAL == 871)
 	#define VDDEE_VAL_REG	0x5000d
-#elif (VDDEE_VAL == 840)
+#elif (VDDEE_VAL == 881)
 	#define VDDEE_VAL_REG	0x4000e
-#elif (VDDEE_VAL == 850)
+#elif (VDDEE_VAL == 891)
 	#define VDDEE_VAL_REG	0x3000f
-#elif (VDDEE_VAL == 860)
+#elif (VDDEE_VAL == 902)
 	#define VDDEE_VAL_REG	0x20010
-#elif (VDDEE_VAL == 870)
+#elif (VDDEE_VAL == 912)
 	#define VDDEE_VAL_REG	0x10011
-#elif (VDDEE_VAL == 880)
+#elif (VDDEE_VAL == 922)
 	#define VDDEE_VAL_REG	0x12
 #else
 	#error "VDDEE val out of range\n"
