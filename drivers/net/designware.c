@@ -23,6 +23,21 @@
 #include <asm/io.h>
 #include <power/regulator.h>
 #include "designware.h"
+#include <linux/ioport.h>
+
+
+#define ETH_PLL_CTL0 0x44
+#define ETH_PLL_CTL1 0x48
+#define ETH_PLL_CTL2 0x4C
+#define ETH_PLL_CTL3 0x50
+#define ETH_PLL_CTL4 0x54
+#define ETH_PLL_CTL5 0x58
+#define ETH_PLL_CTL6 0x5C
+#define ETH_PLL_CTL7 0x60
+
+#define ETH_PHY_CNTL0 0x80
+#define ETH_PHY_CNTL1 0x84
+#define ETH_PHY_CNTL2 0x88
 
 static int dw_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
@@ -668,6 +683,7 @@ static int designware_eth_bind(struct udevice *dev)
 	return 0;
 }
 
+#ifdef CONFIG_DM_ETH
 static void setup_internal_phy(struct udevice *dev)
 {
 	int phy_cntl1 = 0;
@@ -675,6 +691,7 @@ static void setup_internal_phy(struct udevice *dev)
 	int pll_val[3] = {0};
 	int analog_val[3] = {0};
 	int rtn = 0;
+	struct resource eth_top, eth_cfg;
 
 	phy_cntl1 = dev_read_u32_default(dev, "phy_cntl1", 4);
 	if (phy_cntl1 < 0) {
@@ -703,47 +720,54 @@ static void setup_internal_phy(struct udevice *dev)
 	for (int i = 0;i <3; i++) {
 		debug("analog_val 0x%08x\n", analog_val[i]);
 	}
-	/*top*/
-	setbits_le32(P_PREG_ETH_REG0, mc_val);
 
+	rtn = dev_read_resource_byname(dev, "eth_top", &eth_top);
+	if (rtn) {
+		printf("can't get eth_top resource(ret = %d)\n", rtn);
+	}
+
+	rtn = dev_read_resource_byname(dev, "eth_cfg", &eth_cfg);
+	if (rtn) {
+		printf("can't get eth_cfg resource(ret = %d)\n", rtn);
+	}
+	printf("wzh eth_top 0x%x eth_cfg 0x%x \n", eth_top.start, eth_cfg.start);
+	/*top*/
+//	setbits_le32(ETHTOP_CNTL0, mc_val);
+	setbits_le32(eth_top.start, mc_val);
 	/*pll*/
-	writel(pll_val[0] | 0x30000000, P_ETH_PLL_CTL0);
-	writel(pll_val[1], P_ETH_PLL_CTL1);
-	writel(pll_val[2], P_ETH_PLL_CTL2);
-	writel(0x00000000, P_ETH_PLL_CTL3);
+	writel(pll_val[0] | 0x30000000, eth_cfg.start + ETH_PLL_CTL0);
+	writel(pll_val[1], eth_cfg.start + ETH_PLL_CTL1);
+	writel(pll_val[2], eth_cfg.start + ETH_PLL_CTL2);
+	writel(0x00000000, eth_cfg.start + ETH_PLL_CTL3);
 	udelay(200);
-	writel(pll_val[0] | 0x10000000, P_ETH_PLL_CTL0);
+	writel(pll_val[0] | 0x10000000, eth_cfg.start + ETH_PLL_CTL0);
 
 	/*analog*/
-	writel(analog_val[0], P_ETH_PLL_CTL5);
-	writel(analog_val[1], P_ETH_PLL_CTL6);
-	writel(analog_val[2], P_ETH_PLL_CTL7);
+	writel(analog_val[0], eth_cfg.start + ETH_PLL_CTL5);
+	writel(analog_val[1], eth_cfg.start + ETH_PLL_CTL6);
+	writel(analog_val[2], eth_cfg.start + ETH_PLL_CTL7);
 
 	/*ctrl*/
 	/*config phyid should between  a 0~0xffffffff*/
 	/*please don't use 44000181, this has been used by internal phy*/
-	writel(0x33000180, P_ETH_PHY_CNTL0);
+	writel(0x33000180, eth_cfg.start + ETH_PHY_CNTL0);
 
 	/*use_phy_smi | use_phy_ip | co_clkin from eth_phy_top*/
-	writel(0x260, P_ETH_PHY_CNTL2);
-	writel(phy_cntl1, P_ETH_PHY_CNTL1);
-	writel(phy_cntl1 & (~0x40000), P_ETH_PHY_CNTL1);
-	writel(phy_cntl1, P_ETH_PHY_CNTL1);
+	writel(0x260, eth_cfg.start + ETH_PHY_CNTL2);
+	writel(phy_cntl1, eth_cfg.start + ETH_PHY_CNTL1);
+	writel(phy_cntl1 & (~0x40000), eth_cfg.start + ETH_PHY_CNTL1);
+	writel(phy_cntl1, eth_cfg.start + ETH_PHY_CNTL1);
 	udelay(200);
 
-	/* eth core clock */
-	setbits_le32(HHI_GCLK_MPEG1, (0x1 << 3));
-	/* eth phy clock */
-	setbits_le32(HHI_GCLK_MPEG0, (0x1 << 4));
-	/* eth phy pll, clk50m */
-	setbits_le32(HHI_FIX_PLL_CNTL3, (0x1 << 5));
-	/* power on memory */
-	clrbits_le32(HHI_MEM_PD_REG0, (1 << 3) | (1<<2));
 
+	clrbits_le32(ANACTRL_PLL_GATE_DIS, (0x1 << 6));
+	clrbits_le32(ANACTRL_PLL_GATE_DIS, (0x1 << 7));
+	clrbits_le32(ANACTRL_PLL_GATE_DIS, (0x1 << 19));
 }
 
 static void setup_external_phy(struct udevice *dev)
 {
+#if 0
 	u32 mc_val;
 
 	/*driver strength*/
@@ -764,8 +788,11 @@ static void setup_external_phy(struct udevice *dev)
 	setbits_le32(HHI_GCLK_MPEG1, 0x1 << 3);
 	/* power on memory */
 	clrbits_le32(HHI_MEM_PD_REG0, (1 << 3) | (1<<2));
-
+#endif
 }
+
+#endif
+#ifdef CONFIG_DM_ETH
 static void __iomem *DM_network_interface_setup(struct udevice *dev)
 {
 	u32 internal_phy = 0;
@@ -784,6 +811,7 @@ static void __iomem *DM_network_interface_setup(struct udevice *dev)
 	}
 	udelay(1000);
 }
+#endif
 /*parse dts end*/
 int designware_eth_probe(struct udevice *dev)
 {
@@ -794,8 +822,9 @@ int designware_eth_probe(struct udevice *dev)
 	int ret;
 	struct reset_ctl_bulk reset_bulk;
 
+#ifdef CONFIG_DM_ETH
 	DM_network_interface_setup(dev);
-
+#endif
 #ifdef CONFIG_CLK
 	int i, err, clock_nb;
 
