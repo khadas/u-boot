@@ -200,24 +200,27 @@ config SYS_SOC
 choice
 	prompt "C1 Board"
 
-config C1_SKT
-	bool "C1_SKT"
-	select TARGET_C1_SKT
+config C1_AE409
+	bool "C1_AE409"
+	select TARGET_C1_AE409
 	help
-	  Select C1 SKT config
+	  Select C1 SKT(AE409) config
+
+config C1_AE400
+	bool "C1_AE400"
+	select TARGET_C1_AE400
+	help
+	  Select C1 AE400 config
 
 endchoice
 
-config TARGET_C1_SKT
-	bool "C1 skt board"
-	depends on C1_SKT
+config TARGET_C1_AE409
+	bool "C1 AE409 board"
+	depends on C1_AE409
 
-config SYSTEM_RTOS
-	bool "SYSTEM_RTOS_PARTITION"
-	default n
-	depends on TARGET_C1_SKT
-	help
-	  Select SYSTEM RTOS partition table
+config TARGET_C1_AE400
+	bool "C1 AE400 board"
+	depends on C1_AE400
 
 endif
 
@@ -253,7 +256,9 @@ source "board/amlogic/a1_ad409/Kconfig"
 
 source "board/amlogic/a1_ad401/Kconfig"
 
-source "board/amlogic/c1_skt/Kconfig"
+source "board/amlogic/c1_ae400/Kconfig"
+
+source "board/amlogic/c1_ae409/Kconfig"
 
 source "board/amlogic/g12a_u200_v1/Kconfig"
 

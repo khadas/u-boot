@@ -48,7 +48,7 @@
 
 / {
 	compatible = "amlogic,ae400", "amlogic,c308x", "amlogic,meson-c1";
-	model = "Amlogic Meson C1 AE400 Development Board";
+	model = "Amlogic Meson C1 AE400 Reference Board";
 };
 
 /* This UART is brought out to the DB9 connector */

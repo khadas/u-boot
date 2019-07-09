@@ -23,6 +23,7 @@
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
 		i2c3 = &i2c3;
+		i2c4 = &i2c4;
 	};
 
 	chosen {
@@ -103,8 +104,8 @@
 /* Wireless SDIO Module */
 &sd_emmc_a {
 	status = "disabled";
-	/* pinctrl-0 = <&sdio_pins>; */
-	/* pinctrl-names = "default"; */
+	/*pinctrl-0 = <&sdio_pins>;*/
+	/*pinctrl-names = "default";*/
 	#address-cells = <1>;
 	#size-cells = <0>;
 
@@ -132,7 +133,7 @@
 	max-frequency = <100000000>;
 	disable-wp;
 
-	cd-gpios = <&gpio CARD_6 GPIO_ACTIVE_HIGH>;
+	cd-gpios = <&gpio GPIOC_6 GPIO_ACTIVE_HIGH>;
 	cd-inverted;
 
 	hs_co_phase = <2>;
