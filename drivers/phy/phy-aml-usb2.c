@@ -25,6 +25,7 @@
 #define P_AO_RTI_GEN_PWR_SLEEP0 0xfe007808
 #define P_AO_RTI_GEN_PWR_ISO0 0xfe007804
 #define P_HHI_MEM_PD_REG0 0xfe007850
+#define MESON_CPU_MAJOR_ID_C1 0x30
 
 #define RESET_COMPLETE_TIME				500
 
@@ -62,19 +63,35 @@ static void phy_aml_usb2_check_rev (void)
 			Rev_flag = 0xb;
 		else
 			Rev_flag = 0;
-	} else if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SM1){
+	} else if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SM1) {
 		Rev_flag = MESON_CPU_MAJOR_ID_SM1;
-	}else if (cpu_id.family_id == MESON_CPU_MAJOR_ID_A1){
+	} else if (cpu_id.family_id == MESON_CPU_MAJOR_ID_A1) {
 		Rev_flag = MESON_CPU_MAJOR_ID_A1;
+	} else if (cpu_id.family_id == MESON_CPU_MAJOR_ID_C1) {
+		Rev_flag = MESON_CPU_MAJOR_ID_C1;
 	}
 	return;
 }
 
 static int phy_aml_usb2_get_rev_type (void)
 {
-	return Rev_flag;
-}
+	int val = 0;
 
+	switch (Rev_flag) {
+	case MESON_CPU_MAJOR_ID_SM1:
+	case MESON_CPU_MAJOR_ID_A1:
+	case MESON_CPU_MAJOR_ID_C1:
+	case 0xb:
+		val = 1;
+		break;
+	default:
+		printk("amlogic usb phy need tuning\n");
+		val = 0;
+		break;
+	}
+
+	return val;
+}
 
 static void set_usb_pll(struct phy *phy, uint32_t volatile *phy2_pll_base)
 {
@@ -123,7 +140,7 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 
 	phy_aml_usb2_check_rev();
 	rev_type = phy_aml_usb2_get_rev_type();
-	if ((rev_type == MESON_CPU_MAJOR_ID_SM1) || (rev_type == MESON_CPU_MAJOR_ID_A1)) {
+	if (rev_type && (Rev_flag != 0xb)) {
 		u2_sleep_shift = dev_read_u32_default(phy->dev, "u2-ctrl-sleep-shift", -1);
 		if (u2_sleep_shift != -1)
 			priv->u2_ctrl_sleep_shift = u2_sleep_shift;
@@ -265,8 +282,7 @@ static int phy_aml_usb2_tuning(struct phy *phy, int port)
 	phy_reg_base = priv->usb_phy2_pll_base_addr[port];
 
 	rev_type = phy_aml_usb2_get_rev_type();
-	if ((rev_type == 0xb) || (rev_type == MESON_CPU_MAJOR_ID_SM1)
-	    || (rev_type == MESON_CPU_MAJOR_ID_A1)) {
+	if (rev_type) {
 		(*(volatile uint32_t *)(phy_reg_base + 0x50)) = pll_set1;
 		(*(volatile uint32_t *)(phy_reg_base + 0x54)) = 0x2a;
 		(*(volatile uint32_t *)(phy_reg_base + 0x34)) = pll_set3 & (0x1f << 16);
