@@ -457,12 +457,12 @@
 			status = "disabled";
 		};
 
-		nand: nfc@ffe07800 {
+		nand: nfc@fe012800 {
 			compatible = "amlogic,meson-g12a-nfc";
-			reg = <0x0 0xFFE07800 0x0 0x200>;
+			reg = <0x0 0xfe012800 0x0 0x200>;
 			interrupts = <GIC_SPI 34 IRQ_TYPE_EDGE_RISING>;
 			status = "disabled";
-			clk_reg = <0 0xFFE07000>;
+			clk_reg = <0 0xfe000920>;
 		};
 
 		apb: apb@fe000000 {

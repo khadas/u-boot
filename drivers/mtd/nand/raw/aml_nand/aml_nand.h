@@ -1,7 +1,6 @@
 #ifndef __AML_SLCNAND_H_
 #define __AML_SLCNAND_H_
 
-
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/nand_ecc.h>
@@ -13,6 +12,8 @@
 
 #include <amlogic/aml_rsv.h>
 #include <amlogic/aml_mtd.h>
+
+#define BRINGUP_C1
 
 #define NAND_MAX_DEVICE 		4
 

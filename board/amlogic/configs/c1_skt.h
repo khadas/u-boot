@@ -217,7 +217,8 @@
 #define DDR_PLL_BYPASS           0 //0:disable, 1:enable. ddr pll bypass function
 
 /* storage: emmc/nand/sd */
-#define 	CONFIG_ENV_OVERWRITE
+#define CONFIG_ENV_OVERWRITE
+//#define CONFIG_MESON_NFC
 /* #define 	CONFIG_CMD_SAVEENV */
 /* fixme, need fix*/
 
