@@ -1117,6 +1117,10 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 		if (info->lock_state == 0 ) {
 			char *avb_s;
 			avb_s = getenv("avb2");
+			if (avb_s == NULL) {
+				run_command("get_avb_mode;", 0);
+				avb_s = getenv("avb2");
+			}
 			printf("avb2: %s\n", avb_s);
 			if (strcmp(avb_s, "1") == 0) {
 #ifdef CONFIG_AML_ANTIROLLBACK
