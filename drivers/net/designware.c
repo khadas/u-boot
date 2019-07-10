@@ -25,6 +25,9 @@
 #include "designware.h"
 #include <linux/ioport.h>
 
+#ifdef CONFIG_DM_ETH
+#include <asm/arch/pwr_ctrl.h>
+#endif
 
 #define ETH_PLL_CTL0 0x44
 #define ETH_PLL_CTL1 0x48
@@ -823,6 +826,8 @@ int designware_eth_probe(struct udevice *dev)
 	struct reset_ctl_bulk reset_bulk;
 
 #ifdef CONFIG_DM_ETH
+	printf("pwr up eth\n");
+	pwr_ctrl_psci_smc(PM_ETH, 1);
 	DM_network_interface_setup(dev);
 #endif
 #ifdef CONFIG_CLK
