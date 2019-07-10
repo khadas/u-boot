@@ -17,11 +17,9 @@
 *.order
 *.elf
 *.swp
-*.bin
 *.patch
 *.cfgtmp
 *.diff
-*.bl2
 *.tpl
 *.efuse
 *.encrypt
@@ -31,6 +29,20 @@ customer/
 
 # host programs on Cygwin
 *.exe
+
+fip/_tmp/
+fip/_tmp/bl2.n.bin.sig
+fip/_tmp/bl30_new.bin.enc
+fip/_tmp/bl30_new.bin.g12.enc
+fip/_tmp/bl33.bin
+fip/_tmp/bl33.bin.enc
+fip/_tmp/boot_new.bin
+fip/_tmp/fip.bin
+fip/_tmp/u-boot.bin
+fip/_tmp/u-boot.bin.encrypt.sd.bin
+fip/_tmp/u-boot.bin.encrypt.usb.bl2
+fip/_tmp/u-boot.bin.sd.bin
+fip/_tmp/u-boot.bin.usb.bl2
 
 # Build tree
 /build-*
