@@ -804,8 +804,6 @@ int emmc_probe(uint32_t init_flag)
 	store_register(storage_dev);
 	printf("emmc probe success\n");
 
-	if (init_flag != 0xff)
-		return !is_partition_checked;
 exit_error:
 	return ret;
 }

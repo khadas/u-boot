@@ -991,12 +991,12 @@ static int meson_mmc_probe(struct udevice *dev)
 	cfg->name = dev->name;
 
 	host->mmc = &pdata->mmc;
-	/*if (host->blk_test == NULL)
+	if (host->blk_test == NULL)
 		host->blk_test = malloc(MMC_MAX_BLOCK_LEN * CALI_BLK_CNT);
 	if (!host->blk_test) {
 		ret = -ENOMEM;
 		goto err;
-	}*/
+	}
 	if (host->desc_buf == NULL)
 		host->desc_buf
 			= malloc(MMC_MAX_DESC_NUM * (sizeof(struct sd_emmc_desc_info)));

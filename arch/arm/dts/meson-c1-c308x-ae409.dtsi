@@ -136,6 +136,9 @@
 	cd-gpios = <&gpio GPIOC_6 GPIO_ACTIVE_HIGH>;
 	cd-inverted;
 
+	hs_co_phase = <2>;
+	hs_to_phase = <0>;
+
 	vmmc-supply = <&vddao_3v3>;
 	vqmmc-supply = <&vddio_boot>;
 };
@@ -149,17 +152,18 @@
 	bus-width = <8>;
 	cap-sd-highspeed;
 	cap-mmc-highspeed;
+	mmc-hs200-1_8v;
 	max-frequency = <200000000>;
 	non-removable;
 	disable-wp;
 	/* mmc-ddr-1_8v; */
 	/* mmc-hs200-1_8v; */
 
-	core-phase0 = <3>;
-	tx-phase0 = <0>;
+	hs_co_phase = <2>;
+	hs_to_phase = <0>;
 
-	core-phase1 = <3>;
-	tx-phase1 = <0>;
+	hs2_co_phase = <2>;
+	hs2_to_phase = <0>;
 
 	mmc-pwrseq = <&emmc_pwrseq>;
 	vmmc-supply = <&vcc_3v3>;
