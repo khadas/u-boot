@@ -12,4 +12,10 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "a1_ad401"
 
+config CMD_PLLTEST
+	bool "support plltest command"
+	default y
+	help
+	  support plltest command
+
 endif

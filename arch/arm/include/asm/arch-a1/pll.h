@@ -7,18 +7,39 @@
 
 typedef struct sys_pll_set_s {
 	unsigned int cpu_clk;
-	unsigned int pll_cntl;
+	unsigned int pll_cntl0;
 	unsigned int pll_cntl1;
 	unsigned int pll_cntl2;
 	unsigned int pll_cntl3;
 	unsigned int pll_cntl4;
-	unsigned int pll_cntl5;
-	unsigned int pll_cntl6;
 }sys_pll_set_t;
+
+typedef struct hifi_pll_set_s {
+	unsigned int pll_clk;
+	unsigned int pll_cntl0;
+	unsigned int pll_cntl1;
+	unsigned int pll_cntl2;
+	unsigned int pll_cntl3;
+	unsigned int pll_cntl4;
+}hifi_pll_set_t;
+
+typedef struct usbphy_pll_set_s {
+	unsigned int pll_clk;
+	unsigned int pll_cntl0;
+	unsigned int pll_cntl1;
+	unsigned int pll_cntl2;
+}usbphy_pll_set_t;
 
 typedef struct sys_pll_cfg_s {
 	sys_pll_set_t sys_pll[PLL_TEST_SYS_TOTAL];
 }sys_pll_cfg_t;
+
+typedef struct hifipll_rate_table_s {
+	unsigned int rate;
+	unsigned int m;
+	unsigned int n;
+	unsigned int od;
+}hifipll_rate_table_t;
 
 #if 0
 unsigned int fix_pll_cfg[6] = {
@@ -36,6 +57,7 @@ unsigned int ddr_pll_cfg[][6] = {
 };
 #endif
 
+#if 0
 typedef struct hdmi_pll_set_s {
 	unsigned int pll_clk;
 	unsigned int pll_cntl0;
@@ -68,6 +90,7 @@ typedef struct gp0_pll_set_s {
 	unsigned int pll_cntl5;
 	unsigned int pll_cntl6;
 }gp0_pll_set_t;
+#endif
 
 #if 0
 unsigned int hdmi_pll_cfg[][7] = {
@@ -88,8 +111,8 @@ enum pll_enum {
 	PLL_SYS = 0,
 	PLL_FIX,
 	PLL_DDR,
-	PLL_HDMI,
-	PLL_GP0,
+	PLL_HIFI,
+	PLL_USBPHY,
 	PLL_ENUM,
 };
 

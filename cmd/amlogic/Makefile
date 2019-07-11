@@ -8,6 +8,7 @@ obj-$(CONFIG_AML_CVBS) += cmd_cvbs.o
 obj-$(CONFIG_AML_HDMITX) += cmd_hdmitx.o
 obj-$(CONFIG_AML_LCD) += cmd_lcd.o
 obj-$(CONFIG_AML_OSD) += cmd_osd.o
+obj-$(CONFIG_CMD_PLLTEST) += cmd_plltest.o
 
 obj-$(CONFIG_AML_STORE_WRAPPER) += store_wrapper.o
 obj-$(CONFIG_AML_IMG_READ) += imgread.o
