@@ -30,6 +30,7 @@
 
 # Build tree
 /build-*
+build/*
 
 #
 # Top-level generic files
