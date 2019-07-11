@@ -1425,12 +1425,19 @@ struct partitions *find_mmc_partition_by_name (char const *name)
 {
 	struct partitions *partition = NULL;
 
+	apt_info("p_iptbl_ept %p\n", p_iptbl_ept);
 	if (NULL == p_iptbl_ept) {
 		goto _out;
 	}
 	partition = p_iptbl_ept->partitions;
 	partition = _find_partition_by_name(partition,
 			p_iptbl_ept->count, name);
+	apt_info("partition %p\n", partition);
+	if (!partition) {
+		partition = _find_partition_by_name(emmc_partition_table,
+			get_emmc_partition_arraysize(), name);
+	}
+	apt_info("partition %p\n", partition);
 _out:
 	return partition;
 }

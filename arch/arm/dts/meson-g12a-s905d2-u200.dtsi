@@ -144,7 +144,7 @@
 	sdr104_co_phase = <2>;
 	sdr104_hs_tx_phase = <0>;
 
-	cd-detect = <&gpio GPIOC_6 GPIO_ACTIVE_HIGH>;
+	cd-gpios = <&gpio GPIOC_6 GPIO_ACTIVE_HIGH>;
 	/* cd-inverted; */
 
 	vmmc-supply = <&vddao_3v3>;

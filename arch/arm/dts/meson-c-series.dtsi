@@ -477,6 +477,7 @@
 				reg = <0x0 0x10000 0x0 0x800>;
 				interrupts = <GIC_SPI 85 IRQ_TYPE_EDGE_RISING>;
 				status = "disabled";
+				pinname = "sdio";
 			};
 
 			sd_emmc_b: mmc@11000 {
@@ -484,6 +485,7 @@
 				reg = <0x0 0x11000 0x0 0x800>;
 				interrupts = <GIC_SPI 86 IRQ_TYPE_EDGE_RISING>;
 				status = "disabled";
+				pinname = "sd";
 			};
 
 			sd_emmc_c: mmc@12000 {
@@ -491,6 +493,7 @@
 				reg = <0x0 0x12000 0x0 0x800>;
 				interrupts = <GIC_SPI 87 IRQ_TYPE_EDGE_RISING>;
 				status = "disabled";
+				pinname = "emmc";
 			};
 		};
 

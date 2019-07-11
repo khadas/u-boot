@@ -164,6 +164,8 @@
 
 	hs2_co_phase = <2>;
 	hs2_to_phase = <0>;
+	
+	hw_reset = <&gpio GPIOB_9 GPIO_ACTIVE_HIGH>;
 
 	mmc-pwrseq = <&emmc_pwrseq>;
 	vmmc-supply = <&vcc_3v3>;

@@ -940,7 +940,7 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 	dev_read_u32(dev, "card_type", &host->card_type);
 	if (aml_card_type_non_sdio(host)) {
 		ret = gpio_request_by_name(dev,
-				"cd-detect", 0, &host->gpio_cd, GPIOD_IS_IN);
+				"cd-gpios", 0, &host->gpio_cd, GPIOD_IS_IN);
 		if (ret)
 			return ret;
 	}
@@ -949,7 +949,9 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 				"hw_reset", 0, &host->gpio_reset,
 				GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 		if (ret)
-			return ret;
+			printf("%s() %d, ret %d\n", __func__, __LINE__, ret);
+		else
+			dm_gpio_set_value(&host->gpio_reset, 1);
 	}
 
 	uclass_get_device_by_name(UCLASS_CLK, "amlogic,g12a-clkc", &clk_udevice);
