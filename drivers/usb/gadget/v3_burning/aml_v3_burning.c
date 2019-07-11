@@ -66,6 +66,7 @@ int aml_v3_factory_usb_burning(int flag, bd_t* bis)
     udelay(2*1000*1000);
 
     v3tool_work_mode_set(V3TOOL_WORK_MODE_USB_PRODUCE);
+    optimus_clear_ovd_register();//clear OVD register for normal reboot
     return run_command("adnl", 0);
 }
 

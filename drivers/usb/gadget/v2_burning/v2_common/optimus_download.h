@@ -162,6 +162,8 @@ int optimus_update_progress(const unsigned thisBurnSz);
 
 //common internal function
 int optimus_erase_bootloader(const char* extBootDev);
+void optimus_clear_ovd_register(void);
+
 void optimus_reset(const int cfgFlag);
 int optimus_storage_init(int toErase);//init dest burning staorge
 int optimus_storage_exit(void);
@@ -198,6 +200,11 @@ int optimus_work_mode_set(int workmode);
 #else
 #define OPTIMUS_BURN_TARGET_SUPPORT_UBIFS       0
 #endif// #if defined(CONFIG_AML_MTD) && (defined(UBIFS_IMG) || defined(CONFIG_CMD_UBIFS))
+
+#ifndef P_AO_SEC_SD_CFG0
+#define P_AO_SEC_GP_CFG0 	SYSCTRL_SEC_STATUS_REG4
+#define P_PREG_STICKY_REG2	SYSCTRL_SEC_STICKY_REG2
+#endif// #ifndef P_AO_SEC_SD_CFG0
 
 #endif//ifndef __OPTIMUS_DOWNLOAD_H__
 

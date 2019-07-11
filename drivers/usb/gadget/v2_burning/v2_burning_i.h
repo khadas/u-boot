@@ -22,6 +22,9 @@
 #include <malloc.h>
 #include <u-boot/sha1.h>
 #include <console.h>
+#include <asm/arch/secure_apb.h>
+#include <asm/arch/io.h>
+#include <asm/arch/bl31_apis.h>
 
 #include <amlogic/aml_v2_burning.h>
 //#include <asm/arch/reboot.h>

@@ -41,6 +41,9 @@ int v2_key_command(const int argc, char * const argv[], char *info)
     return OPT_DOWN_FAIL;
 }
 #endif//#ifndef CONFIG_UNIFY_KEY_MANAGE
+#ifndef CONFIG_USB_BURNING_TOOL
+#define platform_busy_increase_un_reported_size(sz)
+#endif// #ifndef CONFIG_USB_BURNING_TOOL
 
 #if 1//storage wrapper
 #define FBS_ERR(a, fmt...) DWN_ERR(fmt)

@@ -218,6 +218,7 @@ int v3tool_media_check_image_size(int64_t imgSz, const char* partName)
         const unsigned bootSz = bootloader_copy_sz();
         if (imgSz > bootSz)
             FBS_EXIT(_ACK, "imgsz 0x%llx > copy sz 0x%x !\t", imgSz, bootSz);
+        return 0;
     }
 
     if (!strcmp("_aml_dtb", partName)) {

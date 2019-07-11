@@ -54,7 +54,7 @@ int do_usb_burn(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
     int rcode = 0;
     const char* sdc_cfg_file = argv[1];
 
-	setenv("usb_update","1");
+    setenv("usb_update","1");
 
     if (argc < 2 ) {
         cmd_usage(cmdtp);
@@ -77,7 +77,7 @@ int do_usb_burn(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 // added by scy
 U_BOOT_CMD(
    usb_burn,      //command name
-   5,               //maxargs
+   2,               //maxargs
    0,               //repeatable
    do_usb_burn,   //command function
    "Burning with amlogic format package in usb ",           //description

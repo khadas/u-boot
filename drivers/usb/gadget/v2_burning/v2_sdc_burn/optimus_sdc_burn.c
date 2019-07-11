@@ -671,7 +671,7 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
     }
     ret = optimus_storage_init(eraseFlag);
     if (ret) {
-        DWN_ERR("Fail to init stoarge for sdc burn\n");
+        DWN_ERR("Fail to init stoarge for sdc burn, ret %d\n", ret);
         return __LINE__;
     }
 
@@ -776,7 +776,7 @@ int do_sdc_burn(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
     }
 
     if ( !aml_check_is_ready_for_sdc_produce() ) {
-        DWN_DBG("Not ready\n");
+        DWN_MSG("sdcard Not ready for sdc_burn\n");
         return __LINE__;
     }
 
@@ -796,7 +796,7 @@ int do_sdc_burn(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 U_BOOT_CMD(
    sdc_burn,      //command name
-   5,               //maxargs
+   2,               //maxargs
    0,               //repeatable
    do_sdc_burn,   //command function
    "Burning with amlogic format package in sdmmc ",           //description

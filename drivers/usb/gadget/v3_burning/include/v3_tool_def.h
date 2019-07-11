@@ -54,6 +54,7 @@ extern char* fb_response_str;
 
 unsigned add_sum(const void* pBuf, const unsigned size);//Add-sum used for 64K transfer
 int optimus_erase_bootloader(const char* extBootDev);
+void optimus_clear_ovd_register(void);
 
 //outStr will be null-terminater after format
 int optimus_hex_data_2_ascii_str(const unsigned char* hexData, const unsigned nBytes, char* outStr, const unsigned strSz);

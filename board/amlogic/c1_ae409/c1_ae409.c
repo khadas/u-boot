@@ -100,7 +100,7 @@ int board_init(void)
 {
 	printf("board init\n");
 #if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
-	if ((0x1b8ec003 != readl(SYSCTRL_STICKY_REG2)) && (0x1b8ec004 != readl(SYSCTRL_STICKY_REG2)))
+	if ((0x1b8ec003 != readl(SYSCTRL_SEC_STICKY_REG2)) && (0x1b8ec004 != readl(SYSCTRL_SEC_STICKY_REG2)))
 	{ aml_v3_factory_usb_burning(0, gd->bd); }
 #endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
@@ -113,6 +113,14 @@ int board_late_init(void)
 {
 	printf("board late init\n");
 	board_init_mem();
+
+#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
+	if (0x1b8ec003 == readl(SYSCTRL_SEC_STICKY_REG2))
+	{ aml_v3_factory_usb_burning(0, gd->bd); }
+#endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
+#if defined(CONFIG_AML_V2_FACTORY_BURN) && defined(CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE)
+	aml_try_factory_sdcard_burning(0, gd->bd);
+#endif// #if defined(CONFIG_AML_V2_FACTORY_BURN) && defined(CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE)
 	return 0;
 }
 

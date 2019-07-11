@@ -11,9 +11,6 @@
  */
 #include "v2_burning_i.h"
 #include <mmc.h>
-#include <asm/arch/secure_apb.h>
-#include <asm/arch/io.h>
-#include <asm/arch/bl31_apis.h>
 
 #ifndef BOOT_DEVICE_USB
 #define BOOT_DEVICE_SD                  4
@@ -72,11 +69,7 @@ static unsigned _get_romcode_boot_id(void)
 int is_tpl_loaded_from_usb(void)
 {
         const int boot_id  = _get_romcode_boot_id();
-        const unsigned forceUsbBoot = readl(P_AO_SEC_GP_CFG7) ;
-        DWN_DBG("forceUsbBoot=%p, %x\n", P_AO_SEC_GP_CFG7, forceUsbBoot);
-        int ret = (BOOT_DEVICE_USB == boot_id) || ( forceUsbBoot & (1U<<31) );
-
-        return ret;
+        return (BOOT_DEVICE_USB == boot_id);
 }
 
 //is the uboot loaded from sdcard mmc 0
@@ -111,8 +104,16 @@ int aml_burn_check_is_ready_for_burn(int flag, bd_t* bis)
         return 0;
 }
 
+int aml_burn_sdc_producing(int flag, bd_t* bis)
+{
+    optimus_work_mode_set(OPTIMUS_WORK_MODE_SDC_PRODUCE);
+
+    return optimus_burn_package_in_sdmmc(getenv("sdcburncfg"));
+}
+
+#ifdef CONFIG_USB_BURNING_TOOL
 //producing mode means boot from raw flash, i.e, uboot is loaded from usb
-int aml_burn_usb_producing(int flag, bd_t* bis)
+static int aml_burn_usb_producing(int flag, bd_t* bis)
 {
     flag = flag; bis = bis;//avoid compile warning
 
@@ -122,31 +123,8 @@ int aml_burn_usb_producing(int flag, bd_t* bis)
 #endif//#if (defined AML_USB_BURN_TOOL)
 
     close_usb_phy_clock(0);//disconect before re-connect to enhance pc compatibility
+    optimus_clear_ovd_register();//clear OVD register for normal reboot
     return v2_usbburning(20000);
-}
-
-int aml_burn_sdc_producing(int flag, bd_t* bis)
-{
-    optimus_work_mode_set(OPTIMUS_WORK_MODE_SDC_PRODUCE);
-
-    return optimus_burn_package_in_sdmmc(getenv("sdcburncfg"));
-}
-
-//burning flash from romboot stage
-int aml_burn_factory_producing(int flag, bd_t* bis)
-{
-        if (is_tpl_loaded_from_usb())
-        {
-                return aml_burn_usb_producing(flag, bis);
-        }
-
-        if (is_tpl_loaded_from_ext_sdmmc())
-        {
-                return aml_burn_sdc_producing(flag, bis);
-        }
-
-        DWN_ERR("Shouldnot reach here!\n");
-        return 0;
 }
 
 extern void serial_initialize(void);
@@ -163,6 +141,27 @@ int aml_try_factory_usb_burning(int flag, bd_t* bis)
     }
     return aml_burn_usb_producing(flag, bis);
 }
+#endif// #ifdef CONFIG_USB_BURNING_TOOL
+
+//burning flash from romboot stage
+int aml_burn_factory_producing(int flag, bd_t* bis)
+{
+#ifdef CONFIG_USB_BURNING_TOOL
+        if (is_tpl_loaded_from_usb())
+        {
+                return aml_burn_usb_producing(flag, bis);
+        }
+#endif// #ifdef CONFIG_USB_BURNING_TOOL
+
+        if (is_tpl_loaded_from_ext_sdmmc())
+        {
+                return aml_burn_sdc_producing(flag, bis);
+        }
+
+        DWN_ERR("Shouldnot reach here!\n");
+        return 0;
+}
+
 
 int aml_try_factory_sdcard_burning(int flag, bd_t* bis)
 {
