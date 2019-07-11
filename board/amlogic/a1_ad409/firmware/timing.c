@@ -83,6 +83,18 @@
 #define PSRAM_CHIP_LOGIC_INDEX_WINBOND_3_CMD_W956D8MKY	0x21
 #define PSRAM_CHIP_LOGIC_INDEX_AP_MEMORY_3_CMD			0x30
 
+#define G12_D2PLL_CMD_DMC_FULL_TEST   0x01
+#define G12_D2PLL_CMD_OVER_RIDE   0x02
+#define G12_D2PLL_CMD_OVER_RIDE_PLUS_FULLTEST  0x03
+#define G12_D2PLL_CMD_OVER_RIDE_TRAINING_HDTL  0x04
+#define G12_D2PLL_CMD_PRINT_DDR_INFORMATION  0x05
+#define G12_D2PLL_CMD_WINDOW_TEST  0x11
+#define G12_D2PLL_CMD_WINDOW_TEST_AND_STICKY_OVERRIDE  0x12
+#define G12_D2PLL_CMD_SUSPEND_TEST  0x21
+#define G12_D2PLL_CMD_FREQUENCY_TABLE_TEST  0x31
+#define G12_D2PLL_CMD_SWEEP_EE_VOLTAGE_FREQUENCY_TABLE_TEST  0x32
+#define G12_D2PLL_CMD_DDR_EYE_TEST  0x41
+#define G12_D2PLL_CMD_DDR_EYE_TEST_AND_STICKY_OVERRIDE    0x42
 //#define PSRAM_ENABLE
 #ifdef PSRAM_ENABLE
 #define PSRAM_CHIP_LOGIC_INDEX PSRAM_CHIP_LOGIC_INDEX_AP_MEMORY_3_CMD
@@ -105,7 +117,7 @@ ddr_set_t __ddr_setting[] = {
 	.DisabledDbyte			= 0xfc,
 	.Is2Ttiming				= 1,
 	.HdtCtrl				= 0xC8,
-	.dram_cs0_size_MB		= 128,
+	.dram_cs0_size_MB		= 0xffff,
 	.dram_cs1_size_MB		= 0,
 	.training_SequenceCtrl	= {0x31f,0}, //ddr3 0x21f 0x31f
 	.phy_odt_config_rank	= {0x23,0x13}, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
@@ -175,7 +187,7 @@ ddr_set_t __ddr_setting[] = {
 	/* ddr4 */
 	.board_id				= CONFIG_BOARD_ID_MASK,
 	.version				= 1,
-	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
+	.dram_rank_config		= CONFIG_DDR0_16BIT_CH0,
 	.DramType				= CONFIG_DDR_TYPE_DDR4,
 	/* DRAMFreq = 192, 256, 384, 512, 768-1536 */
 	.DRAMFreq				= {768, 0, 0, 0},
@@ -184,9 +196,9 @@ ddr_set_t __ddr_setting[] = {
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
 	.dmem_load_size			= 0x1000, //4K
 
-	.DisabledDbyte			= 0xf0,
+	.DisabledDbyte			= 0xfc,
 	.Is2Ttiming				= 1,
-	.HdtCtrl				= 0xC8,
+	.HdtCtrl				= 10,//0xC8,
 	.dram_cs0_size_MB		= 0xffff,
 	.dram_cs1_size_MB		= 0,
 	.training_SequenceCtrl	= {0x31f,0x61}, //ddr3 0x21f 0x31f
@@ -214,6 +226,7 @@ ddr_set_t __ddr_setting[] = {
 	//.vref_reverse			= 0,
 	//.ac_trace_delay		= {0x0,0x0},// {0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40},
 	.ac_trace_delay			= {32,32,32,32,32,32,32,32,32,32},
+#if 0
 	.ddr_dmc_remap			= {
 							[0] = ( 5 |  7 << 5 |  8 << 10 |  9 << 15 | 10 << 20 | 11 << 25 ),
 							[1] = ( 12|  0 << 5 |  0 << 10 | 14 << 15 | 15 << 20 | 16 << 25 ),
@@ -221,6 +234,16 @@ ddr_set_t __ddr_setting[] = {
 							[3] = ( 24| 25 << 5 | 26 << 10 | 27 << 15 | 28 << 20 | 29 << 25 ),
 							[4] = ( 30| 13 << 5 | 20 << 10 |  6 << 15 |  0 << 20 |  0 << 25 ),
 	},
+#else
+	//16bit
+	.ddr_dmc_remap			= {
+							[0] = ( 0 |  5 << 5 |  7<< 10 |  8 << 15 | 9 << 20 | 10 << 25 ),
+							[1] = ( 11|  0 << 5 |  0 << 10 | 13 << 15 | 14 << 20 | 15 << 25 ),
+							[2] = ( 16|( 17 << 5) |( 18 << 10) |( 19 << 15) |( 21 << 20) | (22 << 25 )),
+							[3] = ( 23| 24 << 5 | 25 << 10 | 26 << 15 | 27 << 20 | 28 << 25 ),
+							[4] = ( 29| 12<< 5 | 20 << 10 |  6<< 15 |  0 << 20 |  0 << 25 ),
+	},
+#endif
 	.ddr_lpddr34_ca_remap	= {00,00},
 	.ddr_lpddr34_dq_remap	= {00,00},
 	.dram_rtt_nom_wr_park	= {00,00},
@@ -249,7 +272,7 @@ psram_set_t __psram_setting[] = {
 	.psram_mr					= {0}, /* 12 uint8 */
 	.psram_board_mask			= 0,
 	.psram_amlogic_protocol_id	= PSRAM_CHIP_LOGIC_INDEX,
-	.psram_test_function		= {0}, /* 2 uint8 */
+	//.psram_test_function		= {G12_D2PLL_CMD_WINDOW_TEST,0}, /* 2 uint8 */
 	.psram_vendor_id			= 0,
 	.psram_device_id			= 0,
 	.psram_soc_drv				= 0,

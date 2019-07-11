@@ -217,16 +217,16 @@ typedef struct ddr_set{
 
 	unsigned	char	ac_trace_delay[10];
 	unsigned	char	lpddr4_dram_vout_voltage_1_3_2_5_setting;
+	//use for lpddr4 read vout voltage  setting 0 --->2/5VDDQ ,1--->1/3VDDQ
 	unsigned	char	lpddr4_x8_mode;
 	//system reserve,do not modify ,take care ,please follow SI
 	unsigned	char	ac_pinmux[DWC_AC_PINMUX_TOTAL];
 	//use for lpddr3 /lpddr4 ca pinmux remap
 	unsigned	char	dfi_pinmux[DWC_DFI_PINMUX_TOTAL];
-	unsigned	char	slt_test_function[2];  //[0] slt test function enable,bit 0 enable 4 frequency scan,bit 1 enable force delay line offset ,bit 7 enable skip training function
-	//[1],slt test parameter ,use for force delay line offset
+	unsigned	char	slt_test_function[2];  //[0] slt test function enable,bit 0 enable 4 frequency scan,bit 1 enable force delay line offset ,[1],slt test parameter ,use for force delay line offset
 	//system reserve,do not modify
 	unsigned	short	tdqs2dq;
-	unsigned	char	dram_data_wr_odt_ohm;
+	unsigned	char  dram_data_wr_odt_ohm;
 	unsigned	char	bitTimeControl_2d;
 	//system reserve,do not modify
 	/* align8 */
@@ -246,7 +246,10 @@ typedef struct ddr_set{
 
 	//unsigned	long	rsv_long0[2];
 	/* v1 end */
-	///*
+	//unsigned	char	read_dqs_adjust[16]; //rank 0 --lane 0 1 2 3  rank 1--4 5 6 7 write  //rank 0 --lane 0 1 2 3  rank 1--4 5 6 7 read
+	//unsigned	char	read_dq_bit_delay[72];
+	//unsigned	char	write_dq_bit_delay[72];
+
 	unsigned	char	read_dqs_delay[16];
 	unsigned	char	read_dq_bit_delay[72];
 	unsigned	short	write_dqs_delay[16];
