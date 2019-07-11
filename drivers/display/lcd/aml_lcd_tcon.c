@@ -195,7 +195,7 @@ static int lcd_tcon_top_set_tl1(struct lcd_config_s *pconf)
 	unsigned int size[3] = {4162560, 4162560, 1960440};
 	int i;
 
-	LCDPR("lcd tcon top set\n");
+	LCDPR("%s\n", __func__);
 
 	if (tcon_rmem.flag == 0) {
 		LCDERR("%s: invalid axi mem\n", __func__);
@@ -528,6 +528,22 @@ static int lcd_tcon_config(char *dt_addr, struct lcd_config_s *pconf, int load_i
 	return 0;
 }
 
+static int lcd_tcon_core_flag(struct aml_lcd_drv_s *lcd_drv)
+{
+	int ret = 0;
+
+	switch (lcd_drv->chip_type) {
+	case LCD_CHIP_TL1:
+	case LCD_CHIP_TM2:
+		ret = (readl(TCON_CORE_FLAG_LIC2) >> 17) & 0x1;
+		break;
+	default:
+		break;
+	}
+
+	return ret;
+}
+
 /* **********************************
  * tcon function api
  * **********************************
@@ -768,7 +784,13 @@ int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *lcd_drv, int load_id)
 		case LCD_MLVDS:
 		case LCD_P2P:
 			lcd_tcon_data = &tcon_data_tl1;
-			lcd_tcon_data->tcon_valid = 1;
+			if (lcd_tcon_core_flag(lcd_drv)) {
+				if (lcd_debug_print_flag)
+					LCDPR("%s: tcon invalid\n", __func__);
+				lcd_tcon_data->tcon_valid = 0;
+			} else {
+				lcd_tcon_data->tcon_valid = 1;
+			}
 			break;
 		default:
 			break;

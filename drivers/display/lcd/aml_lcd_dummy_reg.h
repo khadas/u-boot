@@ -275,6 +275,8 @@ Description:
 #define VBO_INFILTER_TICK_PERIOD_H                 0x1477
 #endif
 
+#define TCON_CORE_FLAG_LIC2			(0xff630000L + (0x00e << 2))
+
 #ifndef REG_TCON_APB_BASE
 #define REG_TCON_APB_BASE                          (0xFF600000L)
 #define TCON_CORE_REG_START                        0x0000
