@@ -84,6 +84,7 @@
 #define NAND_MFR_SANDISK    	0x45
 #define NAND_MFR_USER          0x100
 #define NAND_MFR_EFUSE         0x101
+#define NAND_MFR_ZETTA		0xba
 
 typedef struct nand_setup {
     union {

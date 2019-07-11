@@ -380,6 +380,24 @@ struct nand_flash_dev spi_nand_ids[] = {
 		.id_len = 2,
 		.oobsize = 64
 	},
+	{"SPI NAND ZD35Q1GA 128MiB 3.3V",
+		{ .id = {0xba, 0x71} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_128M,
+		.erasesize = SZ_128K,
+		.options = SPI_TX_QUAD | SPI_RX_DUAL | SPI_RX_QUAD,
+		.id_len = 2,
+		.oobsize = 64
+	},
+	{"SPI NAND ZD35M1GA 128MiB 1.8V",
+		{ .id = {0xba, 0x21} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_128M,
+		.erasesize = SZ_128K,
+		.options = SPI_TX_QUAD | SPI_RX_DUAL | SPI_RX_QUAD,
+		.id_len = 2,
+		.oobsize = 64
+	},
 	{NULL}
 };
 
@@ -1003,7 +1021,8 @@ static int spinand_do_read_ops(struct mtd_info *mtd,
 			 */
 			struct spinand_info *info = mtd_to_spinand(mtd);
 			if (info->read_cmd == SPINAND_CMD_QUAD_READ &&
-			    info->id[0] == 0xc8)
+			    ((info->id[0] == NAND_MFR_GIGA) ||
+			    (info->id[0] == NAND_MFR_ZETTA)))
 				spinand_set_qeb(mtd, chip);
 			chip->cmdfunc(mtd, info->read_cmd, 0, -1);
 			if (unlikely(ops->mode == MTD_OPS_RAW))
@@ -1130,7 +1149,7 @@ static int spinand_set_infopage(struct mtd_info *mtd,
 	info_page->fip_num = CONFIG_TPL_COPY_NUM;
 	switch (spinand->read_cmd) {
 	case SPINAND_CMD_QUAD_READ:
-		if (spinand->id[0] != 0xc8)
+		if (spinand->id[0] != NAND_MFR_GIGA)
 			info_page->dev.s.rd_max = 4;
 		else
 			info_page->dev.s.rd_max = 2;
@@ -1205,7 +1224,8 @@ static int spinand_do_read_oob(struct mtd_info *mtd,
 		chip->waitfunc(mtd, chip);
 		struct spinand_info *info = mtd_to_spinand(mtd);
 		if (info->read_cmd == SPINAND_CMD_QUAD_READ &&
-		    info->id[0] == 0xc8)
+		    ((info->id[0] == NAND_MFR_GIGA) ||
+		    (info->id[0] == NAND_MFR_ZETTA)))
 			spinand_set_qeb(mtd, chip);
 		chip->cmdfunc(mtd, info->read_cmd, mtd->writesize, -1);
 
@@ -1419,7 +1439,8 @@ static int spinand_write_page(struct mtd_info *mtd,
 	int status;
 	struct spinand_info *info = mtd_to_spinand(mtd);
 	if (info->pload_cmd == SPINAND_CMD_QUAD_PLOAD &&
-	    info->id[0] == 0xc8)
+	    ((info->id[0] == NAND_MFR_GIGA) ||
+	    (info->id[0] == NAND_MFR_ZETTA)))
 		spinand_set_qeb(mtd, chip);
 	chip->cmdfunc(mtd, info->pload_cmd, 0x00, -1);
 
@@ -1554,7 +1575,8 @@ static int spinand_write_oob_raw(struct mtd_info *mtd,
 	struct spinand_info *info = mtd_to_spinand(mtd);
 	int status = 0;
 	if (info->pload_cmd == SPINAND_CMD_QUAD_PLOAD &&
-	    info->id[0] == 0xc8)
+	    ((info->id[0] == NAND_MFR_GIGA) ||
+	    (info->id[0] == NAND_MFR_ZETTA)))
 		spinand_set_qeb(mtd, chip);
 	chip->cmdfunc(mtd, info->pload_cmd, mtd->writesize, -1);
 
@@ -1575,7 +1597,8 @@ static int spinand_write_oob_std(struct mtd_info *mtd,
 	struct spinand_info *info = mtd_to_spinand(mtd);
 	int status = 0;
 	if (info->pload_cmd == SPINAND_CMD_QUAD_PLOAD &&
-	    info->id[0] == 0xc8)
+	    ((info->id[0] == NAND_MFR_GIGA) ||
+	    (info->id[0] == NAND_MFR_ZETTA)))
 		spinand_set_qeb(mtd, chip);
 	chip->cmdfunc(mtd, info->pload_cmd, mtd->writesize, -1);
 
@@ -1716,7 +1739,8 @@ static int spinand_block_bad(struct mtd_info *mtd, loff_t offs)
 		chip->cmdfunc(mtd, SPINAND_CMD_READ, -1, page);
 		chip->waitfunc(mtd, chip);
 		if (info->read_cmd == SPINAND_CMD_QUAD_READ &&
-		    info->id[0] == 0xc8)
+		    ((info->id[0] == NAND_MFR_GIGA) ||
+		    (info->id[0] == NAND_MFR_ZETTA)))
 			spinand_set_qeb(mtd, chip);
 		chip->cmdfunc(mtd, info->read_cmd,
 				mtd->writesize + chip->badblockpos, -1);
@@ -2010,7 +2034,7 @@ spinand_get_flash_type(struct mtd_info *mtd,
 		info->chip_ver = GIGA_SPINAND_CHIP_VER_A;
 	break;
 	}
-	if (id_data[0] == NAND_MFR_TOSHIBA)
+	if ((id_data[0] == NAND_MFR_TOSHIBA) || (id_data[0] == NAND_MFR_ZETTA))
 		info->chip_ver = GIGA_SPINAND_CHIP_VER_B;
 
 	if (info->chip_ver == GIGA_SPINAND_CHIP_VER_C) {
@@ -2380,7 +2404,8 @@ int spinand_scan_tail(struct mtd_info *mtd)
 
 	if ((info->read_cmd == SPINAND_CMD_QUAD_READ ||
 	     info->pload_cmd == SPINAND_CMD_QUAD_PLOAD) &&
-	     info->id[0] == 0xc8)
+	     ((info->id[0] == NAND_MFR_GIGA) ||
+	     (info->id[0] == NAND_MFR_ZETTA)))
 		spinand_set_qeb(mtd, chip);
 
 	/* Check, if we should skip the bad block table scan */

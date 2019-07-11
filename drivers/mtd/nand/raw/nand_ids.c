@@ -203,6 +203,7 @@ struct nand_manufacturers nand_manuf_ids[] = {
 	{NAND_MFR_INTEL, "Intel"},
 	{NAND_MFR_ATO, "ATO"},
 	{NAND_MFR_GIGA, "Gigadevice"},
+	{NAND_MFR_ZETTA, "Zetta"},
 	{0x0, "Unknown"}
 };
 
