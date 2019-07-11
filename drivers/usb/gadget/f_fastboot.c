@@ -496,6 +496,19 @@ static const char* getvar_list[] = {
 	"partition-type:odm", "partition-size:odm", "partition-type:data", "partition-size:data",
 	"erase-block-size", "logical-block-size", "secure", "unlocked",
 };
+
+static const char* getvar_list_dynamic[] = {
+	"hw-revision", "battery-voltage", "is-userspace", "is-logical:data",
+	"is-logical:metadata", "is-logical:misc", "is-logical:super", "is-logical:boot",
+	"is-logical:system", "is-logical:vendor", "is-logical:product", "is-logical:odm",
+	"slot-count", "max-download-size", "serialno", "product", "unlocked", "has-slot:data",
+	"has-slot:metadata", "has-slot:misc", "has-slot:super", "has-slot:boot",
+	"has-slot:system", "has-slot:vendor", "has-slot:product", "has-slot:odm",
+	"secure", "super-partition-name", "version-baseband", "version-bootloader",
+	"partition-size:boot", "partition-size:metadata", "partition-size:misc",
+	"partition-size:super", "partition-size:data", "version",
+};
+
 static const char* getvar_list_ab[] = {
 	"version-baseband", "version-bootloader", "version", "hw-revision", "max-download-size",
 	"serialno", "product", "off-mode-charge", "variant", "battery-soc-ok",
@@ -542,6 +555,9 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		if (has_boot_slot == 1) {
 			strcpy(cmd, getvar_list_ab[cmdIndex]);
 			getvar_num = (sizeof(getvar_list_ab) / sizeof(getvar_list_ab[0]));
+		} else if (dynamic_partition) {
+			strcpy(cmd, getvar_list_dynamic[cmdIndex]);//only support no-arg cmd
+			getvar_num = (sizeof(getvar_list_dynamic) / sizeof(getvar_list_dynamic[0]));
 		} else {
 			strcpy(cmd, getvar_list[cmdIndex]);//only support no-arg cmd
 			getvar_num = (sizeof(getvar_list) / sizeof(getvar_list[0]));
@@ -560,7 +576,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	} else if (!strcmp_l1("version-bootloader", cmd)) {
 		strncat(response, U_BOOT_VERSION, chars_left);
 	} else if (!strcmp_l1("hw-revision", cmd)) {
-		strncat(response, "EVT", chars_left);
+		strncat(response, "0", chars_left);
 	} else if (!strcmp_l1("version", cmd)) {
 		strncat(response, FASTBOOT_VERSION, chars_left);
 	} else if (!strcmp_l1("bootloader-version", cmd)) {
@@ -572,7 +588,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	} else if (!strcmp_l1("battery-soc-ok", cmd)) {
 		strncat(response, "yes", chars_left);
 	} else if (!strcmp_l1("battery-voltage", cmd)) {
-		strncat(response, "4.2V", chars_left);
+		strncat(response, "4", chars_left);
 	} else if (!strcmp_l1("is-userspace", cmd)) {
 		strncat(response, "no", chars_left);
 	} else if (!strcmp_l1("is-logical", cmd)) {
@@ -626,7 +642,10 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 #endif
 		strncat(response, s1, chars_left);
 	} else if (!strcmp_l1("slot-count", cmd)) {
-		strncat(response, "2", chars_left);
+		if (has_boot_slot == 1)
+			strncat(response, "2", chars_left);
+		else
+			strncat(response, "0", chars_left);
 	} else if (!strcmp_l1("slot-suffixes", cmd)) {
 		s2 = getenv("slot-suffixes");
 		printf("slot-suffixes: %s\n", s2);
@@ -715,6 +734,10 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 			strncat(response, "yes", chars_left);
 		} else
 			strncat(response, "no", chars_left);
+	} else if (!strcmp_l1("has-slot:data", cmd)) {
+		strncat(response, "no", chars_left);
+	} else if (!strcmp_l1("has-slot:misc", cmd)) {
+		strncat(response, "no", chars_left);
 	} else if (!strcmp_l1("has-slot:odm", cmd)) {
 		if (has_boot_slot == 1) {
 			printf("has odm slot\n");
