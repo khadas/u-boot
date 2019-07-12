@@ -34,7 +34,7 @@ unsigned long clk_util_ring_msr(unsigned long clk_mux)
 	clrbits_le32(MSR_CLK_REG0, 1 << 16);
 	regval = (readl(MSR_CLK_REG2) + 31) & 0x000fffff;
 
-	return (regval / 6);
+	return (regval / 10);
 }
 
 int ring_msr(int index)
