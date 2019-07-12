@@ -27,6 +27,37 @@
 #define AML_BL_BOOT     (0x6)
 #define AML_BL_ALL		(0x7)
 
+#define VPART_PROPERTY_SIZE sizeof(struct vpart_property)
+struct vpart_property {
+	u32 addr;
+	u32 size;
+};
+
+#define VPARTITION_SIZE sizeof(struct vpartition)
+struct vpartition {
+	struct vpart_property os;
+	struct vpart_property otr;
+};
+/*
+ * sizeof(struct storage_emmc_boot_info) is strictly
+ * smaller than or equal to one sector. we will bind
+ * it in one sector with u-boot.bin together and
+ * write into boot loader area.
+ * @rsv_base_addr : the sector address of reserved area
+ * @dtb  : the sector address and size of dtb property
+ * @ddr  : the sector address and size of ddr property
+ */
+#define EMMC_BOOT_INFO_SIZE	512
+struct storage_emmc_boot_info {
+	u32 version;
+	u32 rsv_base_addr;
+	struct vpart_property dtb;
+	struct vpart_property ddr;
+	struct vpart_property rtos[2];
+	u8 reserved[512 - 4 * VPART_PROPERTY_SIZE - 12];
+	u32 checksum;
+};
+
 int amlmmc_write_bootloader(int dev, int map,
 		unsigned int size, const void *src);
 int amlmmc_erase_bootloader(int dev, int map);

@@ -41,6 +41,7 @@
 #define		MMC_BOTTOM_RSV_SIZE				(0)
 #endif		/* CONFIG_AML_MMC_INHERENT_PART */
 
+#define     MMC_FREERTOS_NAME               "rtos-0"
 #define     MMC_CACHE_NAME                  "cache"
 // #define     MMC_CACHE_SIZE                  (512*SZ_1M) // this is not used and should be get from spl
 
@@ -54,6 +55,10 @@
 #define     MMC_BLOCK_SIZE                   (512)
 // #define     MMC_SECURE_NAME                 "secure"
 // #define     MMC_SECURE_SIZE                 (0x1*SZ_1M)
+
+#define MMC_DDR_PARAMETER_NAME	"ddr-parameter"
+#define DDR_PARAMETER_OFFSET	(SZ_1M * 8)
+#define DDR_PARAMETER_SIZE	(4 * 512)
 
 #define     MMC_MPT_VERSION_1               "01.00.00"
 #define     MMC_MPT_VERSION_2               "01.02.00"

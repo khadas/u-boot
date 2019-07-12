@@ -6,6 +6,7 @@
 #include <amlogic/cpu_id.h>
 #include <asm/arch-g12a/bl31_apis.h>
 #include <linux/compat.h>
+#include <amlogic/aml_mmc.h>
 
 #define USER_PARTITION 0
 #define BOOT0_PARTITION 1
@@ -442,6 +443,71 @@ uint64_t mmc_get_copy_size(const char *part_name) {
 #endif
 }
 
+/* dtb read&write operation with backup updates */
+static u32 _calc_boot_info_checksum(struct storage_emmc_boot_info *boot_info)
+{
+	u32 *buffer = (u32*)boot_info;
+	u32 checksum = 0;
+	int i = 0;
+
+	do {
+		checksum += buffer[i];
+	} while (i++ < ((EMMC_BOOT_INFO_SIZE >> 2) - 2));
+
+	return checksum;
+}
+
+static int amlmmc_write_info_sector(struct mmc *mmc)
+{
+	struct storage_emmc_boot_info *boot_info;
+	struct virtual_partition *ddr_part;
+	struct partitions *part;
+	u8 *buffer;
+	int ret = 0;
+
+	buffer = malloc(MMC_BLOCK_SIZE);
+	if (!buffer)
+		return -ENOMEM;
+
+	memset(buffer, 0, sizeof(*boot_info));
+	boot_info = (struct storage_emmc_boot_info *)buffer;
+	part = aml_get_partition_by_name(MMC_RESERVED_NAME);
+	boot_info->rsv_base_addr = part->offset / MMC_BLOCK_SIZE;
+	ddr_part =  aml_get_virtual_partition_by_name(MMC_DDR_PARAMETER_NAME);
+	boot_info->ddr.addr = ddr_part->offset / MMC_BLOCK_SIZE;
+	boot_info->ddr.size = ddr_part->size / MMC_BLOCK_SIZE;
+
+	part = find_mmc_partition_by_name(MMC_FREERTOS_NAME);
+	if (part == NULL) {
+		boot_info->rtos[0].addr = -1;
+		boot_info->rtos[0].size = -1;
+	} else {
+		boot_info->rtos[0].addr = part->offset / MMC_BLOCK_SIZE;
+		boot_info->rtos[0].size = part->size / MMC_BLOCK_SIZE;
+	}
+/*
+	part = aml_get_partition_by_name(MMC_FREERTOS_NAME);
+	boot_info->freeos.os.addr = part->offset / MMC_BLOCK_SIZE;
+	boot_info->freeos.os.size = part->size / MMC_BLOCK_SIZE;
+*/
+	boot_info->version = 1;
+	boot_info->checksum = _calc_boot_info_checksum(boot_info);
+
+	printf("boot_info.rsv_base_addr\t:\t%04x\n", boot_info->rsv_base_addr);
+	printf("boot_info.ddr.addr\t:\t%04x\n", boot_info->ddr.addr);
+	printf("boot_info.ddr.size\t:\t%04x\n", boot_info->ddr.size);
+	printf("boot_info.rtos.addr\t:\t%04x\n", boot_info->rtos[0].addr);
+	printf("boot_info.rtos.size\t:\t%04x\n", boot_info->rtos[0].size);
+	printf("boot_info.version\t:\t%04x\n", boot_info->version);
+	printf("boot_info.checksum\t:\t%04x\n", boot_info->checksum);
+
+	if (blk_dwrite(mmc_get_blk_desc(mmc), 0, 1, buffer) != 1)
+		ret = -EIO;
+
+	free(buffer);
+	return ret;
+}
+
 int mmc_boot_read(const char *part_name, uint8_t cpy, size_t size, void *dest) {
 
 	char ret=1;
@@ -490,6 +556,9 @@ int mmc_boot_write(const char *part_name, uint8_t cpy, size_t size, void *source
 
 	char ret=1;
 	int i = 0;
+	struct mmc *mmc;
+
+	mmc = find_mmc_device(STORAGE_EMMC);
 
 	if (cpy == 0)
 		cpy = 1;
@@ -520,6 +589,8 @@ int mmc_boot_write(const char *part_name, uint8_t cpy, size_t size, void *source
 				printf("storage write bootloader failed \n");
 				goto W_SWITCH_BACK;
 			}
+			if (i != 0)
+				amlmmc_write_info_sector(mmc);
 		}
 		cpy = cpy >> 1;
 	}
@@ -609,7 +680,9 @@ int mmc_read_rsv(const char *rsv_name, size_t size, void *buf) {
 	struct mmc *mmc;
 	loff_t off =0;
 	unsigned long dtImgAddr = simple_strtoul(buf, NULL, 16);
-	ret = !strcmp("env", rsv_name) || !strcmp("key", rsv_name) || !strcmp("dtb", rsv_name)||!strcmp("fastboot", rsv_name);
+	ret = !strcmp("env", rsv_name) || !strcmp("key", rsv_name)
+		|| !strcmp("dtb", rsv_name)||!strcmp("fastboot", rsv_name)
+		||!strcmp("ddr-parameter", rsv_name);
 	if (!ret) return 1;
 
 	mmc = find_mmc_device(STORAGE_EMMC);
@@ -646,9 +719,11 @@ int mmc_write_rsv(const char *rsv_name, size_t size, void *buf) {
 	char ret=1;
 
 	struct mmc *mmc;
-	loff_t off =0;
+	loff_t off = 0;
 
-	ret = !strcmp("env", rsv_name) || !strcmp("key", rsv_name) || !strcmp("dtb", rsv_name)||!strcmp("fastboot", rsv_name);
+	ret = !strcmp("env", rsv_name) || !strcmp("key", rsv_name)
+		|| !strcmp("dtb", rsv_name)||!strcmp("fastboot", rsv_name)
+		||!strcmp("ddr-parameter", rsv_name);
 	if (!ret)
 		return 1;
 	mmc = find_mmc_device(STORAGE_EMMC);
@@ -687,7 +762,9 @@ int mmc_erase_rsv(const char *rsv_name) {
 	struct mmc *mmc;
 	loff_t off = 0;
 	size_t size = 0;
-	ret = !strcmp("key", rsv_name) || !strcmp("dtb", rsv_name)||!strcmp("fastboot", rsv_name);
+	ret = !strcmp("key", rsv_name) || !strcmp("dtb", rsv_name)
+		||!strcmp("fastboot", rsv_name)
+		||!strcmp("ddr-parameter", rsv_name);
 	if (!ret) return 1;
 	mmc = find_mmc_device(STORAGE_EMMC);
 	if (!mmc) {
