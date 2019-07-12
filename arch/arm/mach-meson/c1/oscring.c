@@ -7,8 +7,8 @@
 
 void ring_powerinit(void)
 {
-	writel(0x0017000b, RING_PWM_VCCK);/*set vcck 0.8v*/
-	//writel(0x10000c, RING_PWM_EE);/*set ee 0.8v*/
+	writel(0x18000a, RING_PWM_VCCK);/*set vcck 0.8v*/
+	writel(0xc0006, RING_PWM_EE);/*set ee 0.8v*/
 }
 
 unsigned long clk_util_ring_msr(unsigned long clk_mux)
@@ -34,24 +34,29 @@ unsigned long clk_util_ring_msr(unsigned long clk_mux)
 	clrbits_le32(MSR_CLK_REG0, 1 << 16);
 	regval = (readl(MSR_CLK_REG2) + 31) & 0x000fffff;
 
-	return (regval / 6);
+	return (regval / 10);
 }
 
 int ring_msr(int index)
 {
 	const char* clk_table[] = {
-			[9] = "osc_ring_ramb(16svt) " ,
-			[8] = "osc_ring_rama(16svt) " ,
-			[7] = "osc_ring_dspb(16svt) " ,
-			[6] = "osc_ring_dspa(16svt) " ,
-			[5] = "osc_ring_dmc(16svt) " ,
-			[4] = "osc_ring_ddr(24svt) " ,
-			[3] = "osc_ring_top1(16svt) " ,
-			[2] = "osc_ring_top0(20lvt) " ,
-			[1] = "osc_ring_cpu1(20lvt) " ,
-			[0] = "osc_ring_cpu0(20lvt) " ,
+			[14] = "osc_ring_clk_dos3 " ,
+			[13] = "osc_ring_clk_dos2 " ,
+			[12] = "osc_ring_clk_dos1 " ,
+			[11] = "osc_ring_clk_dos0 " ,
+			[10] = "osc_ring_clk_ramc " ,
+			[9] = "osc_ring_clk_ramb " ,
+			[8] = "osc_ring_clk_rama " ,
+			[7] = "osc_ring_clk_dspb " ,
+			[6] = "osc_ring_clk_dspa " ,
+			[5] = "osc_ring_clk_dmc " ,
+			[4] = "osc_ring_clk_ddr " ,
+			[3] = "osc_ring_clk_cpu3 " ,
+			[2] = "osc_ring_clk_cpu2 " ,
+			[1] = "osc_ring_clk_cpu1 " ,
+			[0] = "osc_ring_clk_cpu0" ,
 		};
-	const int tb[] = {50, 51, 54, 55, 56, 57, 58, 59, 60, 61};
+	const int tb[] = {46,47,48,49,50, 51, 54, 55, 56, 57, 58, 59, 60};
 	unsigned long i;
 	uint8_t efuseinfo[4] = {0, 0, 0, 0};
 
@@ -72,9 +77,10 @@ int ring_msr(int index)
 		printf("set vcck vddee to 800mv\n");
 	}
 	/*RING_OSCILLATOR       0x7f: set slow ring*/
-	writel(OSCRING_CTL_DATA, OSCRING_CTL_REG);
+	writel(OSCRING_CTL_DATA0, OSCRING_CTL_REG0);
+	writel(OSCRING_CTL_DATA1, OSCRING_CTL_REG1);
 
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < 15; i++) {
 		printf("%s      :",clk_table[i]);
 		printf("%ld     KHz",clk_util_ring_msr(tb[i]));
 		printf("\n");
