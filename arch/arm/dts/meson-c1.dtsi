@@ -434,4 +434,33 @@
 		};
 	};
 
+	spicc0_pins1: spicc0_pins1 {
+		mux {
+			groups = "spi_a_mosi_a",
+				 "spi_a_miso_a",
+				 "spi_a_sclk_a";
+			function = "spi_a";
+			drive-strength = <2>;
+		};
+	};
+
+	spicc0_pins2: spicc0_pins2 {
+		mux {
+			groups = "spi_a_mosi_c",
+				 "spi_a_miso_c",
+				 "spi_a_sclk_c";
+			function = "spi_a";
+			drive-strength = <2>;
+		};
+	};
+
+	spicc1_pins1: spicc1_pins1 {
+		mux {
+			groups = "spi_b_mosi_a",
+				 "spi_b_miso_a",
+				 "spi_b_sclk_a";
+			function = "spi_b";
+			drive-strength = <2>;
+		};
+	};
 };

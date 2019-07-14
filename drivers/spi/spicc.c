@@ -21,7 +21,13 @@
 #include <dm/root.h>
 #include <dm/lists.h>
 #include <dm/util.h>
+#ifdef CONFIG_SECURE_POWER_CONTROL
+#include <asm/arch/pwr_ctrl.h>
+#endif
 
+#ifdef CONFIG_CLK_MESON_A1
+#define CONFIG_CLK_IF
+#endif
 
 /* Register Map */
 #define SPICC_RXDATA	0x00
@@ -185,7 +191,7 @@ struct meson_spicc_data {
 
 struct meson_spicc_device {
 	void __iomem			*base;
-#ifdef CONFIG_CLK
+#ifdef CONFIG_CLK_IF
 	struct clk			core;
 	struct clk			comp;
 	struct clk			clk;
@@ -240,7 +246,7 @@ static void meson_spicc_auto_io_delay(struct meson_spicc_device *spicc)
 
 	mi_delay = SPICC_MI_NO_DELAY;
 	cap_delay = SPICC_CAP_AHEAD_2_CYCLE;
-#ifdef CONFIG_CLK
+#ifdef CONFIG_CLK_IF
 	hz = clk_get_rate(&spicc->clk);
 #else
 	hz = spicc->real_speed_hz;
@@ -421,7 +427,7 @@ static int spicc_set_speed(struct udevice *bus, uint hz)
 {
 	struct meson_spicc_device *spicc = dev_get_priv(bus);
 
-#ifdef CONFIG_CLK
+#ifdef CONFIG_CLK_IF
 	clk_set_rate(&spicc->clk, hz);
 #else
 	u32 sys_clk_rate, div, mid, real_hz;
@@ -581,7 +587,7 @@ static int spicc_xfer(
 static int spicc_clk_init(struct udevice *bus)
 {
 	struct meson_spicc_device *spicc = dev_get_priv(bus);
-#ifdef CONFIG_CLK
+#ifdef CONFIG_CLK_IF
 	int ret;
 
 	/* Get core clk */
@@ -612,6 +618,29 @@ static int spicc_clk_init(struct udevice *bus)
 	}
 	else
 		clk_set_parent(&spicc->clk, &spicc->core);
+#elif defined CONFIG_CLK_MESON_C1
+	u32 regv;
+	/* spicc a */
+	regv = readl(CLKTREE_SPICC_CLK_CTRL);
+	regv &= ~0xfff;
+	/* src [11~9]:  0 = div2(768M)
+	 * gate   [8]:  1
+	 * rate[7~ 0]:  4 = 768M/4 = 192000000
+	 */
+	regv |= (0 << 9) | (1 << 8) | (4 << 0);
+	writel(regv, CLKTREE_SPICC_CLK_CTRL);
+	spicc->parent_clk_rate = 192000000;
+
+	/* spicc b */
+	regv = readl(CLKTREE_SPICC_CLK_CTRL);
+	regv &= ~0xfff0000;
+	/* src [11~25]:  0 = div2(768M)
+	 * gate   [24]:  1
+	 * rate[23~16]:  4 = 768M/4 = 192000000
+	 */
+	regv |= (0 << 25) | (1 << 24) | (4 << 16);
+	writel(regv, CLKTREE_SPICC_CLK_CTRL);
+	spicc->parent_clk_rate = 192000000;
 #else
 	u32 regv;
 	u8 mux=3, div = 0;
@@ -670,6 +699,10 @@ static int spicc_probe(struct udevice *bus)
 	spicc->data = (struct meson_spicc_data *)dev_get_driver_data(bus);
 	spicc->base = (void __iomem *)dev_read_addr(bus);
 
+#ifdef CONFIG_SECURE_POWER_CONTROL
+	pwr_ctrl_psci_smc(PM_SPICC, true);
+	pwr_ctrl_psci_smc(PM_SPICC_B, true);
+#endif
 	spicc_info("0x%p\n", spicc->base);
 	if (spicc_clk_init(bus))
 		return -ENODEV;
