@@ -14,6 +14,7 @@
 #include <command.h>
 #include <asm/cpu_id.h>
 #include <asm/arch/io.h>
+#include <asm/arch/secure_apb.h>
 #include <asm/arch/cec_tx_reg.h>
 #include <amlogic/aml_cec.h>
 #include "cec.h"
@@ -109,10 +110,12 @@ void cec_hw_reset(void)
 	cec_set_reg_bits(AO_CECB_GEN_CNTL, 0, 0, 1);
 
 	/* set up pinmux */
+	#if 0
 	writel(readl(AO_RTI_PIN_MUX_REG) & (~(1 << 14 | 1 << 15 | 1 << 17)),
 	       AO_RTI_PIN_MUX_REG);
 	writel(readl(AO_RTI_PULL_UP_REG) & (~(1 << 7)), AO_RTI_PULL_UP_REG);
 	writel(readl(AO_RTI_PIN_MUX_REG2) | (1 << 13), AO_RTI_PIN_MUX_REG2);
+	#endif
 	writel(CECB_IRQ_EN_MASK, AO_CECB_INTR_MASKN);
 }
 
@@ -157,6 +160,7 @@ int cec_hw_init(int logic_addr, unsigned char fun_cfg)
 		cec_set_log_addr(logic_addr);
 	}
 	writel(fun_cfg, P_AO_DEBUG_REG0);
+	writel(logic_addr, AO_DEBUG_REG1);
 	printf("cec function:%#x, log_addr:%#x,%#x\n", readl(P_AO_DEBUG_REG0),
 	       cec_get_log_addr(), readl(AO_DEBUG_REG1));
 	return 0;

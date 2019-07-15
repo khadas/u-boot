@@ -22,7 +22,7 @@
 #include <asm/arch/clock.h>
 #include <amlogic/aml_cec.h>
 
-#define CEC_VERSION "Ver 2017/11/14\n"
+#define CEC_VERSION "tl1 cec AC suspend mode 20190715\n"
 
 static void cec_init(int logic_addr, unsigned char fun_cfg)
 {
@@ -41,6 +41,9 @@ static int do_cec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		logic_addr = simple_strtoul(argv[1], NULL, 10);
 	if (argc >=  3)
 		fun_cfg = simple_strtoul(argv[2], NULL, 16);
+
+	printf("logic_addr=0x%x, fun_cfg=0x%x\n",
+		logic_addr, fun_cfg);
 
 	cec_init(logic_addr, (unsigned char)fun_cfg);
 
