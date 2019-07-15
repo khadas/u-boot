@@ -1150,22 +1150,18 @@ static void set_phy_by_mode(struct hdmitx_dev *hdev, unsigned int mode)
 {
 	switch (mode) {
 	case 1: /* 5.94/4.5/3.7Gbps */
-		hd_write_reg(P_HHI_HDMI_PHY_CNTL0, 0x37eb65c4);
-		if (hdev->dongle_mode)
-			hd_write_reg(P_HHI_HDMI_PHY_CNTL0, 0x37eb5584);
+		hd_write_reg(P_HHI_HDMI_PHY_CNTL0, 0x33eb65c4);
 		hd_write_reg(P_HHI_HDMI_PHY_CNTL3, 0x2ab0ff3b);
 		hd_write_reg(P_HHI_HDMI_PHY_CNTL5, 0x0000080b);
 		break;
 	case 2: /* 2.97Gbps */
-		hd_write_reg(P_HHI_HDMI_PHY_CNTL0, 0x33eb6262);
-		if (hdev->dongle_mode)
-			hd_write_reg(P_HHI_HDMI_PHY_CNTL0, 0x33eb4262);
+		hd_write_reg(P_HHI_HDMI_PHY_CNTL0, 0x33eb42a5);
 		hd_write_reg(P_HHI_HDMI_PHY_CNTL3, 0x2ab0ff3b);
 		hd_write_reg(P_HHI_HDMI_PHY_CNTL5, 0x00000003);
 		break;
 	case 3: /* 1.485Gbps, and below */
 	default:
-		hd_write_reg(P_HHI_HDMI_PHY_CNTL0, 0x33eb4242);
+		hd_write_reg(P_HHI_HDMI_PHY_CNTL0, 0x33eb4262);
 		hd_write_reg(P_HHI_HDMI_PHY_CNTL3, 0x2ab0ff3b);
 		hd_write_reg(P_HHI_HDMI_PHY_CNTL5, 0x00000003);
 		break;
