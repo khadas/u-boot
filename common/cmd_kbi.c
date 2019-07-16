@@ -257,7 +257,7 @@ static void get_version(void)
 	printf("\n");
 }
 
-static void get_mac(void)
+static void get_mac(int is_print)
 {
 	char mac[64];
 	int mac_addr[MAC_LENGHT] = {0};
@@ -279,14 +279,16 @@ static void get_mac(void)
 			kbi_i2c_read_block(REG_MAC, MAC_LENGHT, mac_addr);
 		}
 	}
-	printf("mac address: ");
-	for (i=0; i<MAC_LENGHT; i++) {
-		if (i == (MAC_LENGHT-1))
-			printf("%02x",mac_addr[i]);
-		else
-			printf("%02x:",mac_addr[i]);
+	if (is_print) {
+		printf("mac address: ");
+		for (i=0; i<MAC_LENGHT; i++) {
+			if (i == (MAC_LENGHT-1))
+				printf("%02x",mac_addr[i]);
+			else
+				printf("%02x:",mac_addr[i]);
+		}
+		printf("\n");
 	}
-	printf("\n");
 	sprintf(mac, "%02x:%02x:%02x:%02x:%02x:%02x",mac_addr[0],mac_addr[1],mac_addr[2],mac_addr[3],mac_addr[4],mac_addr[5]);
 	setenv("eth_mac", mac);
 }
@@ -338,7 +340,7 @@ static int get_hw_version(void)
 	return 0;
 }
 
-static void get_usid(void)
+static void get_usid(int is_print)
 {
 	char serial[64];
 	int usid[USID_LENGHT] = {};
@@ -364,11 +366,13 @@ static void get_usid(void)
 #else
 	kbi_i2c_read_block(REG_USID, USID_LENGHT, usid);
 #endif
-	printf("usid: ");
-	for (i=0; i< USID_LENGHT; i++) {
-		printf("%x",usid[i]);
+	if (is_print) {
+		printf("usid: ");
+		for (i=0; i< USID_LENGHT; i++) {
+			printf("%x",usid[i]);
+		}
+		printf("\n");
 	}
-	printf("\n");
 	sprintf(serial, "%02x%02x%02x%02x%02x%02x",usid[0],usid[1],usid[2],usid[3],usid[4],usid[5]);
 	setenv("usid", serial);
 }
@@ -678,7 +682,13 @@ static int do_kbi_version(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 
 static int do_kbi_usid(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
-	get_usid();
+	if (argc == 2) {
+		if (strcmp(argv[1], "noprint") == 0) {
+			get_usid(0);
+			return 0;
+		}
+	}
+	get_usid(1);
 	return 0;
 }
 
@@ -699,7 +709,13 @@ static int do_kbi_powerstate(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 
 static int do_kbi_ethmac(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
-	get_mac();
+	if (argc == 2) {
+		if (strcmp(argv[1], "noprint") == 0) {
+			get_mac(0);
+			return 0;
+		}
+	}
+	get_mac(1);
 	return 0;
 }
 
