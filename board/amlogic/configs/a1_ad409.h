@@ -339,6 +339,8 @@
 	#define CONFIG_NETMASK         255.255.255.0
 #endif /* (CONFIG_CMD_NET) */
 
+#define MAC_ADDR_NEW  1
+
 /* other devices */
 #define CONFIG_SHA1 1
 #define CONFIG_MD5 1
