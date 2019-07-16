@@ -119,8 +119,9 @@
             "else fi;"\
             "\0"\
         "storeargs="\
+            "get_bootloaderversion;" \
             "setenv bootargs ${initargs} logo=${display_layer},loaded,androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
-	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
+	"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
             "run cmdline_keys;"\
             "\0"\
         "switch_bootmode="\

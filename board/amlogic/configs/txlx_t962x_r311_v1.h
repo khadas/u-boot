@@ -139,9 +139,10 @@
             "else fi;"\
             "\0"\
         "storeargs="\
+            "get_bootloaderversion;" \
             "setenv bootargs ${initargs} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} osd_reverse=${osd_reverse} video_reverse=${video_reverse} androidboot.selinux=${EnableSelinux} irq_check_en=${Irq_check_en} androidboot.firstboot=${firstboot} jtag=${jtag} ui_mode=${ui_mode}; "\
             "setenv bootargs ${bootargs} page_trace=${page_trace};" \
-		       "setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
+		"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
             "run cmdline_keys;"\
             "\0"\
         "switch_bootmode="\

@@ -828,6 +828,7 @@ const char * const _env_args_reserve_[] =
 		"lock",
 		"upgrade_step",
 		"model_name",
+		"bootloader_version",
 
 		NULL//Keep NULL be last to tell END
 };

@@ -129,8 +129,9 @@
             "else fi;"\
             "\0"\
     "storeargs="\
+            "get_bootloaderversion;" \
             "setenv bootargs ${initargs} reboot_mode_android=${reboot_mode_android} androidboot.selinux=${EnableSelinux} maxcpus=${maxcpus} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
-	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
+	"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
             "run cmdline_keys;"\
             "\0"\
         "switch_bootmode="\
