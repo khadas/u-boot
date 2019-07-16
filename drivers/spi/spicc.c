@@ -700,7 +700,7 @@ static int spicc_probe(struct udevice *bus)
 	spicc->base = (void __iomem *)dev_read_addr(bus);
 
 #ifdef CONFIG_SECURE_POWER_CONTROL
-	pwr_ctrl_psci_smc(PM_SPICC, true);
+	/* SPICC_A enabled in bl2 already */
 	pwr_ctrl_psci_smc(PM_SPICC_B, true);
 #endif
 	spicc_info("0x%p\n", spicc->base);
