@@ -358,10 +358,11 @@
 			jtag {
 				compatible = "amlogic, jtag";
 				status = "okay";
-				select = "disable"; /* disable/jtag-a/swd-a */
-				pinctrl-names="jtag_a_pins", "swd_a_pins";
+				select = "disable"; /* disable/jtag-a/jtag-b/swd-a */
+				pinctrl-names="jtag_a_pins", "jtag_b_pins", "swd_a_pins";
 				pinctrl-0=<&jtag_a_pins>;
-				pinctrl-1=<&swd_a_pins>;
+				pinctrl-1=<&jtag_b_pins>;
+				pinctrl-2=<&swd_a_pins>;
 			};
 		};
 

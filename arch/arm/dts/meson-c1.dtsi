@@ -221,6 +221,16 @@
 		};
 	};
 
+	jtag_b_pins:jtag_b_pin {
+		mux {
+			groups = "jtag_b_clk",
+			"jtag_b_tms",
+			"jtag_b_tdi",
+			"jtag_b_tdo";
+			function = "jtag_b";
+		};
+	};
+
 	swd_a_pins:swd_a_pin {
 		mux {
 			groups = "swclk",

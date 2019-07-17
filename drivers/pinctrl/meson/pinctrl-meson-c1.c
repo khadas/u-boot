@@ -854,7 +854,7 @@ static const char * const clk12_24_groups[] = {
 };
 
 static const char * const sw_groups[] = {
-	"swlck", "swdio",
+	"swclk", "swdio",
 };
 
 static const char * const clk25_groups[] = {
