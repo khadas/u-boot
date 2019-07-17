@@ -1624,3 +1624,21 @@ _out:
 	   return ret;
 }
 
+/*
+ * get the partition info by number
+ * return value
+ *     < 0 means no partition found
+ *     >= 0 means valid partition
+ */
+__weak struct partitions *get_partition_info_by_num(const int num)
+{
+	struct partitions *partition = NULL;
+
+	if ((NULL == p_iptbl_ept)
+		|| (num >= p_iptbl_ept->count))
+		goto _out;
+	partition = &p_iptbl_ept->partitions[num];
+
+_out:
+	return partition;
+}

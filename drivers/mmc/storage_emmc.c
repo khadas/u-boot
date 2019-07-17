@@ -29,7 +29,8 @@
 
 
 extern int find_dev_num_by_partition_name (char const *name);
-extern bool emmckey_is_protected (struct mmc *mmc);
+extern struct partitions *get_partition_info_by_num(const int num);
+extern bool emmckey_is_protected(struct mmc *mmc);
 extern int info_disprotect;
 extern int dtb_read(void *addr);
 extern int dtb_write(void *addr);
@@ -457,13 +458,39 @@ static u32 _calc_boot_info_checksum(struct storage_emmc_boot_info *boot_info)
 	return checksum;
 }
 
+static int fill_mask8_part(struct part_property *mask8)
+{
+	struct partitions *part;
+	int i = 0, mask8_cnt = 0;
+
+	part = get_partition_info_by_num(i);
+	while (part) {
+		if ((part->mask_flags == 8)
+			&& (mask8_cnt++ < BOOTINFO_MAX_PARTITIONS)) {
+			strncpy(mask8->name, part->name, strlen(part->name));
+			mask8->addr = part->offset / MMC_BLOCK_SIZE;
+			mask8->size = part->size / MMC_BLOCK_SIZE;
+			mask8++;
+		}
+		if (mask8_cnt == BOOTINFO_MAX_PARTITIONS)
+			break;
+		i++;
+		part = get_partition_info_by_num(i);
+	}
+
+	return mask8_cnt;
+}
+
 static int amlmmc_write_info_sector(struct mmc *mmc)
 {
 	struct storage_emmc_boot_info *boot_info;
 	struct virtual_partition *ddr_part;
 	struct partitions *part;
+	/* partitons with mask = 8 need to fill to bootinfo */
+	struct part_property *mask8;
+	int mask8_partition_count;
 	u8 *buffer;
-	int ret = 0;
+	int ret = 0, i;
 
 	buffer = malloc(MMC_BLOCK_SIZE);
 	if (!buffer)
@@ -477,29 +504,24 @@ static int amlmmc_write_info_sector(struct mmc *mmc)
 	boot_info->ddr.addr = ddr_part->offset / MMC_BLOCK_SIZE;
 	boot_info->ddr.size = ddr_part->size / MMC_BLOCK_SIZE;
 
-	part = find_mmc_partition_by_name(MMC_FREERTOS_NAME);
-	if (part == NULL) {
-		boot_info->rtos[0].addr = -1;
-		boot_info->rtos[0].size = -1;
-	} else {
-		boot_info->rtos[0].addr = part->offset / MMC_BLOCK_SIZE;
-		boot_info->rtos[0].size = part->size / MMC_BLOCK_SIZE;
-	}
-/*
-	part = aml_get_partition_by_name(MMC_FREERTOS_NAME);
-	boot_info->freeos.os.addr = part->offset / MMC_BLOCK_SIZE;
-	boot_info->freeos.os.size = part->size / MMC_BLOCK_SIZE;
-*/
+	mask8 = boot_info->parts;
+	mask8_partition_count = fill_mask8_part(mask8);
+
 	boot_info->version = 1;
 	boot_info->checksum = _calc_boot_info_checksum(boot_info);
 
-	printf("boot_info.rsv_base_addr\t:\t%04x\n", boot_info->rsv_base_addr);
-	printf("boot_info.ddr.addr\t:\t%04x\n", boot_info->ddr.addr);
-	printf("boot_info.ddr.size\t:\t%04x\n", boot_info->ddr.size);
-	printf("boot_info.rtos.addr\t:\t%04x\n", boot_info->rtos[0].addr);
-	printf("boot_info.rtos.size\t:\t%04x\n", boot_info->rtos[0].size);
-	printf("boot_info.version\t:\t%04x\n", boot_info->version);
-	printf("boot_info.checksum\t:\t%04x\n", boot_info->checksum);
+	printf("boot_info.rsv_base_addr:\t%04x\n", boot_info->rsv_base_addr);
+	printf("boot_info.ddr.addr:%04x\n", boot_info->ddr.addr);
+	printf("boot_info.ddr.size:%04x\n", boot_info->ddr.size);
+	printf("boot info: parts %d\n", mask8_partition_count);
+	for (i = 0; i < mask8_partition_count; i++) {
+		printf("boot_info.part[%d]\n", i);
+		printf("\t.name:%s\n", boot_info->parts[i].name);
+		printf("\t.addr:%04x\n", boot_info->parts[i].addr);
+		printf("\t.size:%04x\n", boot_info->parts[i].size);
+	}
+	printf("boot_info.version:%04x\n", boot_info->version);
+	printf("boot_info.checksum:%04x\n", boot_info->checksum);
 
 	if (blk_dwrite(mmc_get_blk_desc(mmc), 0, 1, buffer) != 1)
 		ret = -EIO;

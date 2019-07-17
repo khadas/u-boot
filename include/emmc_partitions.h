@@ -42,6 +42,8 @@
 #endif		/* CONFIG_AML_MMC_INHERENT_PART */
 
 #define     MMC_FREERTOS_NAME               "rtos-0"
+#define		MMC_NBG_NAME					"NBG"
+
 #define     MMC_CACHE_NAME                  "cache"
 // #define     MMC_CACHE_SIZE                  (512*SZ_1M) // this is not used and should be get from spl
 
