@@ -137,6 +137,7 @@ static int do_RunBcbCommand(
         memcpy(miscbuf, CMD_RUN_RECOVERY, sizeof(CMD_RUN_RECOVERY));
         memcpy(miscbuf+sizeof(command)+sizeof(status), "recovery\n--fastboot", sizeof("recovery\n--fastboot"));
         store_write_ops((unsigned char *)partition, (unsigned char *)miscbuf, 0, sizeof(miscbuf));
+        return 0;
     }
 
     printf("Start read %s partition datas!\n", partition);

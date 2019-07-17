@@ -58,6 +58,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define FB_DBG(...)
 #define FB_HERE()    printf("f(%s)L%d\n", __func__, __LINE__)
 
+extern void f_dwc_otg_pullup(int is_on);
 
 /* The 64 defined bytes plus \0 */
 
@@ -416,6 +417,7 @@ static void compl_do_reboot_bootloader(struct usb_ep *ep, struct usb_request *re
 
 static void compl_do_reboot_fastboot(struct usb_ep *ep, struct usb_request *req)
 {
+	f_dwc_otg_pullup(0);
 	run_command("reboot fastboot", 0);
 }
 
