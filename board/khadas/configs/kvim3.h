@@ -164,11 +164,6 @@
                     "setenv reboot_mode_android ""quiescent"";"\
                     "run storeargs;"\
                     "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
-            "else if test ${reboot_mode} = recovery_quiescent; then "\
-                    "setenv reboot_mode_android ""quiescent"";"\
-                    "run storeargs;"\
-                    "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
-                    "run recovery_from_flash;"\
             "else if test ${reboot_mode} = cold_boot; then "\
                     "setenv reboot_mode_android ""normal"";"\
                     "run storeargs;"\
@@ -176,7 +171,7 @@
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
                 "fastboot;"\
-            "fi;fi;fi;fi;fi;fi;"\
+            "fi;fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
             "boot_cooling;"\
@@ -251,16 +246,11 @@
                     "run storeargs;"\
                     "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
                     "osd open;osd clear;"\
-            "else if test ${reboot_mode} = recovery_quiescent; then "\
-                    "setenv reboot_mode_android ""quiescent"";"\
-                    "run storeargs;"\
-                    "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
-                    "osd open;osd clear;"\
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
                 "hdmitx hpd;hdmitx get_preferred_mode;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};vpp hdrpkt;"\
-            "fi;fi;"\
+            "fi;"\
             "\0"\
         "wol_init="\
             "kbi powerstate;"\
