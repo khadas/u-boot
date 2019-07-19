@@ -132,6 +132,7 @@
         "active_slot=normal\0"\
         "boot_part=boot\0"\
         "Irq_check_en=0\0"\
+        "spi_state=0\0"\
         "reboot_mode_android=""normal""\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
@@ -144,7 +145,7 @@
             "else fi;"\
             "\0"\
         "storeargs="\
-            "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} wol_enable=${wol_enable}; "\
+            "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} wol_enable=${wol_enable} spi_state=${spi_state}; "\
 	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
@@ -287,6 +288,13 @@
             "kbi poweroff;"\
             "fi;"\
             "\0"\
+        "spi_check="\
+            "if sf probe; then "\
+                "setenv spi_state ""1"";"\
+            "fi;"\
+            "mmc dev 0;"\
+            "mmc dev 1;"\
+            "\0"\
         "port_mode_change="\
             "fdt addr ${dtb_mem_addr}; "\
             "kbi portmode r;"\
@@ -331,6 +339,7 @@
             "run upgrade_check;"\
             "run init_display;"\
             "run wol_init;"\
+            "run spi_check;"\
             "run storeargs;"\
             "run upgrade_key;"\
             "run port_mode_change;"\
