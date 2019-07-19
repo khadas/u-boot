@@ -1086,6 +1086,7 @@ int fusb302_init(void)
 	chip.addr = FUSB302_I2C_ADDR;
 	chip.port_num = 0;
 
+	setenv("fusb302_state", "0");
 	ret = fusb302_i2c_probe(chip.addr);
 	if (ret) {
 		printf("fusb302 i2c probe failed: %d\n", ret);
@@ -1099,6 +1100,7 @@ int fusb302_init(void)
 		return ret;
 	}
 	printf("%s: Device ID: 0x%02X\n", __func__, id);
+	setenv("fusb302_state", "1");
 
 	wait_for_complete = 100;//////////
 
