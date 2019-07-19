@@ -36,15 +36,29 @@ struct lcd_tcon_data_s {
 	unsigned int ctrl_timing_cnt;
 
 	unsigned int axi_mem_size;
+	unsigned int core_size;
+	unsigned int vac_size;
+	unsigned int demura_set_size;
+	unsigned int demura_lut_size;
 	unsigned char *reg_table;
+
+	struct udevice **devp;
 
 	int (*tcon_enable)(struct lcd_config_s *pconf);
 };
 
 struct tcon_rmem_s {
-	unsigned char flag;
+	unsigned int flag;
 	unsigned int mem_paddr;
+	unsigned int core_mem_paddr;
+	unsigned int vac_mem_paddr;
+	unsigned int demura_set_paddr;
+	unsigned int demura_lut_paddr;
 	unsigned int mem_size;
+	unsigned int core_mem_size;
+	unsigned int vac_mem_size;
+	unsigned int demura_set_mem_size;
+	unsigned int demura_lut_mem_size;
 };
 
 /* **********************************
@@ -77,6 +91,13 @@ struct tcon_rmem_s {
 #define CTRL_TIMING_OFFSET_TL1           12
 #define CTRL_TIMING_CNT_TL1              0
 
+#ifdef CONFIG_CMD_INI
+extern int handle_tcon_vac(unsigned char *vac_data, unsigned char vac_mem_size);
+extern int handle_tcon_demura_set(unsigned char *demura_set_data,
+				  unsigned int demura_set_size);
+extern int handle_tcon_demura_lut(unsigned char *demura_lut_data,
+				  unsigned int demura_lut_size);
+#endif
 
 #endif
 

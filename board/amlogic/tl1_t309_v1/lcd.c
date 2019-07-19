@@ -260,7 +260,7 @@ static struct lcd_pinmux_ctrl_s lcd_pinmux_ctrl[LCD_PINMX_MAX] = {
 	},
 	{
 		.name = "lcd_p2p_pin", //GPIOH_0~19
-		.pinmux_set = {{7, 0x11111111}, {8, 0x11111111}, {9, 0x11111}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_set = {{7, 0x11111111}, {8, 0x11111111}, {9, 0x1}, {LCD_PINMUX_END, 0x0}},
 		.pinmux_clr = {{7, 0xffffffff}, {8, 0xffffffff}, {9, 0xfffff}, {LCD_PINMUX_END, 0x0}},
 	},
 	{

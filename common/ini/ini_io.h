@@ -21,8 +21,11 @@ Description:
 #ifndef __INI_IO_H__
 #define __INI_IO_H__
 
-#define CC_MAX_DATA_SIZE                         (0x10000)
+#define CC_MAX_DATA_SIZE                         (0x300000)
 #define CC_MAX_TCON_BIN_SIZE                     (0x5dc0)  /* max:24000 */
+#define CC_MAX_TCON_VAC_SIZE                     (0x1000)
+#define CC_MAX_TCON_DEMURA_SET_SIZE		 (0x1000)
+#define CC_MAX_TCON_DEMURA_LUT_SIZE		 (0x300000)
 #define CC_ONE_SECTION_SIZE                      (0x10000)
 
 #define CS_LCD_ITEM_NAME                          "lcd"
