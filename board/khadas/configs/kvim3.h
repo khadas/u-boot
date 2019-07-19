@@ -325,11 +325,30 @@
             "\0"\
         "fan_stop=" \
             "i2c mw 0x18 0x88 0" \
+            "\0"\
+        "uboot_update_check=" \
+            "get_rebootmode;" \
+            "print reboot_mode;" \
+            "if test ${reboot_mode} = uboot_updated; then "\
+                "echo u-boot updated, pass to kernel...;" \
+                "env default -a;" \
+                "saveenv;" \
+            "else "\
+                "if test -e mmc 1:5 /usr/lib/u-boot/.UBOOT-NEED-UPDATE; then " \
+                    "echo New u-boot found!Try to upgrade u-boot...;" \
+                    "if load mmc 1:5 1080000 /usr/lib/u-boot/u-boot.bin; then " \
+                        "store rom_write 1080000 0 $filesize;" \
+                        "echo u-boot upgrade done, reboot...;" \
+                        "reboot uboot_updated;" \
+                    "fi;"\
+                "fi;"\
+             "fi;"\
             "\0"
 
 #define CONFIG_PREBOOT  \
             "run vim3_check;" \
             "run upgrade_check;"\
+            "run uboot_update_check;"\
             "run init_display;"\
             "run storeargs;"\
             "run upgrade_key;"\
