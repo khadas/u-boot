@@ -235,6 +235,12 @@ static inline bool is_meson_tl1_cpu(void)
 		MESON_CPU_MAJOR_ID_TL1) ? 1 : 0;
 }
 
+static inline bool is_meson_tm2_cpu(void)
+{
+	return (get_cpu_id().family_id ==
+		MESON_CPU_MAJOR_ID_TM2) ? 1 : 0;
+}
+
 static bool inline is_meson_txl_cpu(void)
 {
 	return (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TXL)?
@@ -486,7 +492,7 @@ int cvbs_reg_debug(int argc, char* const argv[])
 		if (check_cpu_type(MESON_CPU_MAJOR_ID_G12A) ||
 			check_cpu_type(MESON_CPU_MAJOR_ID_G12B) ||
 			check_cpu_type(MESON_CPU_MAJOR_ID_SM1) ||
-			is_meson_tl1_cpu()) {
+			is_meson_tl1_cpu() || is_meson_tm2_cpu()) {
 			if (value == 1 || value == 2 ||
 				value == 3 || value == 0) {
 				s_enci_clk_path = value;
@@ -743,7 +749,7 @@ static int cvbs_config_clock(void)
 			cvbs_config_gp0pll_g12a();
 		else
 			cvbs_config_hdmipll_g12a();
-	} else if (is_meson_tl1_cpu()) {
+	} else if (is_meson_tl1_cpu() || is_meson_tm2_cpu()) {
 		cvbs_config_tcon_pll();
 	} else if (is_equal_after_meson_cpu(MESON_CPU_MAJOR_ID_GXL))
 		cvbs_config_hdmipll_gxl();
@@ -755,7 +761,7 @@ static int cvbs_config_clock(void)
 			cvbs_set_vid1_clk(s_enci_clk_path & 0x1);
 		else
 			cvbs_set_vid2_clk(s_enci_clk_path & 0x1);
-	} else if (is_meson_tl1_cpu()) {
+	} else if (is_meson_tl1_cpu() || is_meson_tm2_cpu()) {
 		if (s_enci_clk_path & 0x2)
 			cvbs_set_vid1_clk(0);
 		else
