@@ -345,7 +345,6 @@
 
 /* commands */
 
-
 /*file system*/
 #define CONFIG_DOS_PARTITION 1
 #define CONFIG_EFI_PARTITION 1
@@ -360,6 +359,8 @@
 
 /* other functions */
 #define CONFIG_LIBAVB		1
+/* top hide for NBG file */
+#define CONFIG_SYS_MEM_TOP_HIDE		0x00400000
 
 #define CONFIG_CPU_ARMV8
 
