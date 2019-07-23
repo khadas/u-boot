@@ -19,6 +19,10 @@ static const char *const state_label[] = {
 #ifdef CONFIG_LED_BLINK
 	[LEDST_BLINK]	= "blink",
 #endif
+#ifdef CONFIG_AML_LED_PWM
+	[LEDST_SET_BRIGHTNESS] = "set_brightness",
+	[LEDST_GET_BRIGHTNESS] = "get_brightness",
+#endif
 };
 
 enum led_state_t get_led_cmd(char *var)
@@ -79,13 +83,16 @@ int do_led(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_LED_BLINK
 	int freq_ms = 0;
 #endif
+#ifdef CONFIG_AML_LED_PWM
+	int brightness = 0;
+#endif
 	int ret;
 
 	/* Validate arguments */
 	if (argc < 2)
 		return CMD_RET_USAGE;
 	led_label = argv[1];
-	if (*led_label == 'l')
+	if (!strncmp(led_label, "list", 4))
 		return list_leds();
 
 	cmd = argc > 2 ? get_led_cmd(argv[2]) : LEDST_COUNT;
@@ -94,6 +101,13 @@ int do_led(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (argc < 4)
 			return CMD_RET_USAGE;
 		freq_ms = simple_strtoul(argv[3], NULL, 10);
+	}
+#endif
+#ifdef CONFIG_AML_LED_PWM
+	if (cmd == LEDST_SET_BRIGHTNESS) {
+		if (argc < 4)
+			return CMD_RET_USAGE;
+		brightness = simple_strtoul(argv[3], NULL, 10);
 	}
 #endif
 	ret = led_get_by_label(led_label, &dev);
@@ -118,6 +132,14 @@ int do_led(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		printf("LED '%s': ", led_label);
 		ret = show_led_state(dev);
 		break;
+#ifdef CONFIG_AML_LED_PWM
+	case LEDST_SET_BRIGHTNESS:
+		ret = led_set_brightness(dev, brightness);
+		break;
+	case LEDST_GET_BRIGHTNESS:
+		printf("LED '%s' brightness: %d\n",led_label,led_get_brightness(dev));
+		break;
+#endif
 	}
 	if (ret < 0) {
 		printf("LED '%s' operation failed (err=%d)\n", led_label, ret);
@@ -138,5 +160,9 @@ U_BOOT_CMD(
 	"manage LEDs",
 	"<led_label> on|off|toggle" BLINK "\tChange LED state\n"
 	"led [<led_label>\tGet LED state\n"
-	"led list\t\tshow a list of LEDs"
+#ifdef CONFIG_AML_LED_PWM
+	"led [<led_label> set_brightness\tSet LED brightness\n"
+	"led [<led_label> get_brightness\tGet LED brightness\n"
+#endif
+	"led list\t\tshow a list of LEDs\n"
 );

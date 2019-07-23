@@ -80,6 +80,32 @@
 		clocks = <&wifi32k>;
 		clock-names = "ext_clock";
 	};
+
+	leds {
+		compatible = "pwm-leds";
+		status = "okay";
+
+		red {
+			label = "led_red";
+			pwms = <&pwm_cd MESON_PWM_0 10000000 0>;
+			max-brightness=<255>;
+			default-brightness=<255>;
+		};
+
+		green {
+			label = "led_green";
+			pwms = <&pwm_ab MESON_PWM_1 10000000 0>;
+			max-brightness=<255>;
+			default-brightness=<255>;
+		};
+
+		blue {
+			label = "led_blue";
+			pwms = <&pwm_ab MESON_PWM_0 10000000 0>;
+			max-brightness=<255>;
+			default-brightness=<255>;
+		};
+	};
 };
 
 &ethmac {
@@ -280,4 +306,18 @@
 	/* pinctrl-names = "default"; */
 	/* pinctrl-0 = <&spicc1_pins>; */
 	/*cs-gpios = <&gpio GPIOH_6 0>;*/
+};
+
+&pwm_ab {
+	status = "okay";
+	/* set mux pwm_a_pins4 pwm_b_pins2 for led */
+	pinctrl-names="default";
+	pinctrl-0=<&pwm_a_pins4 &pwm_b_pins2>;
+};
+
+&pwm_cd {
+	status = "okay";
+	/* set mux pwm_c_pins3 for led */
+	pinctrl-names="default";
+	pinctrl-0=<&pwm_c_pins3>;
 };

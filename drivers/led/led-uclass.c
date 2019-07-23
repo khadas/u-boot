@@ -52,6 +52,28 @@ enum led_state_t led_get_state(struct udevice *dev)
 	return ops->get_state(dev);
 }
 
+#ifdef CONFIG_AML_LED_PWM
+int led_set_brightness(struct udevice *dev, int brightness)
+{
+	struct led_ops *ops = led_get_ops(dev);
+
+	if (!ops->set_brightness)
+		return -ENOSYS;
+
+	return ops->set_brightness(dev, brightness);
+}
+
+int led_get_brightness(struct udevice *dev)
+{
+	struct led_ops *ops = led_get_ops(dev);
+
+	if (!ops->set_brightness)
+		return -ENOSYS;
+
+	return ops->get_brightness(dev);
+}
+#endif
+
 #ifdef CONFIG_LED_BLINK
 int led_set_period(struct udevice *dev, int period_ms)
 {

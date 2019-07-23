@@ -32,6 +32,10 @@ enum led_state_t {
 #ifdef CONFIG_LED_BLINK
 	LEDST_BLINK,
 #endif
+#ifdef CONFIG_AML_LED_PWM
+	LEDST_SET_BRIGHTNESS,
+	LEDST_GET_BRIGHTNESS,
+#endif
 
 	LEDST_COUNT,
 };
@@ -66,6 +70,27 @@ struct led_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*set_period)(struct udevice *dev, int period_ms);
+#endif
+#ifdef CONFIG_AML_LED_PWM
+	/**
+	 * set_brightness() - set the brightness of an LED
+	 *
+	 *
+	 * @dev:	LED device to change
+	 * @brightness:	LED brightness
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*set_brightness)(struct udevice *dev, int brightness);
+	/**
+	 * get_brightness() - get the brightness of an LED
+	 *
+	 * Thie records the period if supported, or returns -ENOSYS if not.
+	 * To start the LED blinking, use set_state().
+	 *
+	 * @dev:	LED device to change
+	 * @return brightness
+	 */
+	int (*get_brightness)(struct udevice *dev);
 #endif
 };
 
@@ -115,4 +140,28 @@ int led_set_period(struct udevice *dev, int period_ms);
  */
 int led_default_state(void);
 
+#ifdef CONFIG_AML_LED_PWM
+/**
+ * set_brightness() - set the brightness of an LED
+ *
+ * Thie records the period if supported, or returns -ENOSYS if not.
+ * To start the LED blinking, use set_state().
+ *
+ * @dev:	LED device to change
+ * @period_ms:	LED blink period in milliseconds
+ * @return 0 if OK, -ve on error
+ */
+int led_set_brightness(struct udevice *dev, int brightness);
+/**
+ * get_brightness() - get the brightness of an LED
+ *
+ * Thie records the period if supported, or returns -ENOSYS if not.
+ * To start the LED blinking, use set_state().
+ *
+ * @dev:	LED device to change
+ * @period_ms:	LED blink period in milliseconds
+ * @return 0 if OK, -ve on error
+ */
+int led_get_brightness(struct udevice *dev);
+#endif
 #endif
