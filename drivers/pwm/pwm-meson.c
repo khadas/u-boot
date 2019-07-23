@@ -22,6 +22,8 @@
 struct meson_pwm_priv{
 	struct meson_pwm_reg *regs;
 	struct meson_pwm_state *pwm_state;
+	struct meson_pwm_data *pwm_data;
+	u32 extern_clk_addr;
 };
 
 static u64 meson_pwm_clock_get_rate(void)
@@ -115,18 +117,25 @@ static void pwm_meson_config(struct udevice *dev, unsigned channel)
 	struct meson_pwm_priv *priv = dev_get_priv(dev);
 	struct meson_pwm_reg *regs = priv->regs;
 	struct meson_pwm_state *pwm_state = priv->pwm_state;
+	u32 clk_addr = priv->extern_clk_addr;
 
 	switch (channel) {
 		case MESON_PWM0:
 			/*set div and clock enable*/
-			setbits_le32(&regs->miscr, (pwm_state[channel].pre_div << 8 | 1 << 15));
+			if (priv->pwm_data->extern_clk)
+				clrsetbits_le32(clk_addr, (0xff << 0) | (3 << 9) ,(pwm_state[channel].pre_div << 0 | 1 << 8));
+			else
+				setbits_le32(&regs->miscr, (pwm_state[channel].pre_div << 8 | 1 << 15));
 			/*set duty*/
 			writel((pwm_state[channel].hi << 16 | pwm_state[channel].lo), &regs->dar);
 			break;
 
 		case MESON_PWM1:
 			/*set div and clock enable*/
-			setbits_le32(&regs->miscr, (pwm_state[channel].pre_div << 16 | 1 << 23));
+			if (priv->pwm_data->extern_clk)
+				clrsetbits_le32(clk_addr, (0xff << 16) | (3 << 25) ,(pwm_state[channel].pre_div << 16 | 1 << 24));
+			else
+				setbits_le32(&regs->miscr, (pwm_state[channel].pre_div << 16 | 1 << 23));
 			/*set duty*/
 			writel((pwm_state[channel].hi << 16 | pwm_state[channel].lo), &regs->dbr);
 			break;
@@ -273,20 +282,25 @@ static void meson_pwm_meson_enable(struct udevice *dev, unsigned channel)
 	struct meson_pwm_priv *priv = dev_get_priv(dev);
 	struct meson_pwm_reg *regs = priv->regs;
 	struct meson_pwm_state *pwm_state = priv->pwm_state;
-	unsigned int val, orig;
+	u32 clk_addr = priv->extern_clk_addr;
+	unsigned int val, val_clk, orig;
 
 	switch (channel) {
 		case MESON_PWM0:
 			val = 1 << 0;
+			val_clk = 1 << 8;
 			break;
 		case MESON_PWM1:
 			val = 1 << 1;
+			val_clk = 1 << 24;
 			break;
 		case MESON_PWM2:
 			val = 1 << 25;
+			val_clk = 1 << 8;
 			break;
 		case MESON_PWM3:
 			val = 1 << 24;
+			val_clk = 1 << 24;
 			break;
 		default:
 			pr_err("channel is not legal\n");
@@ -296,6 +310,11 @@ static void meson_pwm_meson_enable(struct udevice *dev, unsigned channel)
 	orig = readl(&regs->miscr);
 	orig |= val;
 	writel(orig, &regs->miscr);
+	if (priv->pwm_data->extern_clk) {
+		orig = readl(clk_addr);
+		orig |= val_clk;
+		writel(orig, clk_addr);
+	}
 	pwm_state[channel].enabled = 1;
 }
 
@@ -304,20 +323,25 @@ static void meson_pwm_meson_disable(struct udevice *dev, unsigned channel)
 	struct meson_pwm_priv *priv = dev_get_priv(dev);
 	struct meson_pwm_reg *regs = priv->regs;
 	struct meson_pwm_state *pwm_state = priv->pwm_state;
-	unsigned int val, orig;
+	u32 clk_addr = priv->extern_clk_addr;
+	unsigned int val, val_clk, orig;
 
 	switch (channel) {
 	case MESON_PWM0:
 		val = 1 << 0;
+		val_clk = 1 << 8;
 		break;
 	case MESON_PWM1:
 		val = 1 << 1;
+		val_clk = 1 << 24;
 		break;
 	case MESON_PWM2:
 		val = 1 << 25;
+		val_clk = 1 << 8;
 		break;
 	case MESON_PWM3:
 		val = 1 << 24;
+		val_clk = 1 << 24;
 		break;
 	default:
 		pr_err("channel is not legal\n");
@@ -327,6 +351,11 @@ static void meson_pwm_meson_disable(struct udevice *dev, unsigned channel)
 	orig = readl(&regs->miscr);
 	orig &= ~val;
 	writel(orig, &regs->miscr);
+	if (priv->pwm_data->extern_clk) {
+		orig = readl(clk_addr);
+		orig &= ~val_clk;
+		writel(orig, clk_addr);
+	}
 	pwm_state[channel].enabled = 0;
 }
 
@@ -483,7 +512,21 @@ static int meson_pwm_probe(struct udevice *dev)
 {
 	struct meson_pwm_priv *priv = dev_get_priv(dev);
 
-	priv->regs = (struct meson_pwm_reg *)dev_read_addr(dev);
+	priv->pwm_data = (struct meson_pwm_data *)dev_get_driver_data(dev);
+	priv->regs = (struct meson_pwm_reg *)dev_read_addr_index(dev, 0);
+	if (priv->regs == FDT_ADDR_T_NONE) {
+		pr_err("Coun't get pwm base regs addr\n");
+		return -1;
+	}
+
+	/* If you use external clk, get clk regs addr */
+	if (priv->pwm_data->extern_clk)
+		priv->extern_clk_addr = dev_read_addr_index(dev, 1);
+		if (priv->regs == FDT_ADDR_T_NONE) {
+			pr_err("Coun't get pwm clk regs addr\n");
+			return -1;
+		}
+
 	priv->pwm_state = (struct meson_pwm_state *)calloc(4, sizeof(struct meson_pwm_state));
 
 	return 0;
@@ -498,6 +541,14 @@ int meson_pwm_remove(struct udevice *dev)
 	return 0;
 }
 
+static const struct meson_pwm_data pwm_meson_g12a_data = {
+	.extern_clk = 0,
+};
+
+static const struct meson_pwm_data pwm_meson_a1_data = {
+	.extern_clk = 1,
+};
+
 static const struct pwm_ops meson_pwm_ops = {
 	.set_config = meson_pwm_set_config,
 	.set_enable = meson_pwm_set_enable,
@@ -508,8 +559,9 @@ static const struct pwm_ops meson_pwm_ops = {
 };
 
 static const struct udevice_id meson_pwm_ids[] = {
-		{.compatible = "amlogic,g12a-ee-pwm"},
-		{.compatible = "amlogic,g12a-ao-pwm"},
+		{.compatible = "amlogic,g12a-ee-pwm", .data = (long)&pwm_meson_g12a_data},
+		{.compatible = "amlogic,g12a-ao-pwm", .data = (long)&pwm_meson_g12a_data},
+		{.compatible = "amlogic,a1-pwm", .data = (long)&pwm_meson_a1_data},
 		{}
 };
 

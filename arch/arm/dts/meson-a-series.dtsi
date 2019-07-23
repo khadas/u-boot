@@ -268,22 +268,25 @@
 			};
 
 			pwm_ab: pwm@2400 {
-				compatible = "amlogic,a1-pwm-ab";
-				reg = <0x0 0x2400  0x0 0x20>;
+				compatible = "amlogic,a1-pwm";
+				reg = <0x0 0x2400  0x0 0x20>,
+					<0x0 0x08c4  0x0 0x04>;
 				#pwm-cells = <3>;
 				status = "disabled";
 			};
 
 			pwm_cd: pwm@2800 {
-				compatible = "amlogic,a1-pwm-cd";
-				reg = <0x0 0x2800  0x0 0x20>;
+				compatible = "amlogic,a1-pwm";
+				reg = <0x0 0x2800  0x0 0x20>,
+					<0x0 0x08c8  0x0 0x04>;
 				#pwm-cells = <3>;
 				status = "disabled";
 			};
 
 			pwm_ef: pwm@5400 {
 				compatible = "amlogic,a1-pwm-ef";
-				reg = <0x0 0x5400  0x0 0x20>;
+				reg = <0x0 0x5400  0x0 0x20>,
+					<0x0 0x08cc  0x0 0x04>;
 				#pwm-cells = <3>;
 				status = "disabled";
 			};

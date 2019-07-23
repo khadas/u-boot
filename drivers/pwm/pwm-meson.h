@@ -19,6 +19,10 @@ struct meson_pwm_reg {
 	u32 br;/*Blink Register*/
 };
 
+struct meson_pwm_data {
+	u8 extern_clk; /* use external clktree */
+};
+
 enum pwm_polarity {
 	PWM_POLARITY_NORMAL,
 	PWM_POLARITY_INVERSED,
