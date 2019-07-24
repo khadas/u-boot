@@ -179,10 +179,11 @@ int do_reboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 	}
 #ifdef CONFIG_USB_DEVICE_V2
+#if !(defined AML_USB_V2)
 	*P_RESET1_REGISTER |= (1<<17);
 	mdelay(200);
 #endif
-
+#endif
 	dcache_disable();
 
 	aml_reboot (PSCI_SYS_REBOOT, reboot_mode_val, 0, 0);
