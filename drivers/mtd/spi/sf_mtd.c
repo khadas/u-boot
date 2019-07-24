@@ -131,16 +131,20 @@ int spi_flash_mtd_register(struct spi_flash *flash)
 	/* Only uniform flash devices for now */
 	sf_mtd_info.numeraseregions = 0;
 	sf_mtd_info.erasesize = flash->sector_size;
-#ifdef CONFIG_AML_MTDPART
-	if (is_power_of_2(sf_mtd_info.erasesize))
-		sf_mtd_info.erasesize_shift = ffs(sf_mtd_info.erasesize) - 1;
-	ret = spinor_add_partitions(&sf_mtd_info);
-#endif /* CONFIG_AML_MTDPART */
 
 	ret = add_mtd_device(&sf_mtd_info);
 	if (!ret)
 		sf_mtd_registered = true;
 
+#ifdef CONFIG_AML_MTDPART
+	/*
+	 * add_mtd_device must be before spinor_add_partitions
+	 * because add_mtd_device will init mtd->partitions
+	 */
+	if (is_power_of_2(sf_mtd_info.erasesize))
+		sf_mtd_info.erasesize_shift = ffs(sf_mtd_info.erasesize) - 1;
+	ret = spinor_add_partitions(&sf_mtd_info);
+#endif /* CONFIG_AML_MTDPART */
 	return ret;
 }
 
