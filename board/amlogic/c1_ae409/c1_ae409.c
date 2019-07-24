@@ -63,19 +63,19 @@ int board_eth_init(bd_t *bis)
 	return 0;
 }
 
-int active_a1_clk(void)
+int active_clk(void)
 {
-	struct udevice *a1_clk = NULL;
+	struct udevice *clk = NULL;
 	int err;
 
 	err = uclass_get_device_by_name(UCLASS_CLK,
-			"xtal-clk", &a1_clk);
+			"xtal-clk", &clk);
 	if (err) {
 		pr_err("Can't find xtal-clk clock (%d)\n", err);
 		return err;
 	}
 	err = uclass_get_device_by_name(UCLASS_CLK,
-			"clock-controller@0", &a1_clk);
+			"clock-controller@0", &clk);
 	if (err) {
 		pr_err("Can't find clock-controller@0 clock (%d)\n", err);
 		return err;
@@ -104,7 +104,7 @@ int board_init(void)
 	{ aml_v3_factory_usb_burning(0, gd->bd); }
 #endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
-	active_a1_clk();
+	active_clk();
 
 	return 0;
 }
