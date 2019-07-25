@@ -41,14 +41,14 @@ int amlnf_key_read(u8 *buf, int len, uint32_t *actual_lenth)
 	}
 	if (len > aml_chip->keysize) {
 		printk("%s key data len too much\n",__func__);
-		return -EFAULT;
+		memset(buf+aml_chip->keysize, 0, len-aml_chip->keysize);
 	}
 	key_ptr = kzalloc(aml_chip->keysize, GFP_KERNEL);
 	if (key_ptr == NULL)
 		return -ENOMEM;
 	aml_nand_ext_read_rsv_info(mtd,
 		aml_chip_key->aml_nandkey_info, 0, key_ptr);
-	memcpy(buf, key_ptr, len);
+	memcpy(buf, key_ptr, aml_chip->keysize);
 	*actual_lenth = aml_chip->keysize;
 	kfree(key_ptr);
 	return 0;
