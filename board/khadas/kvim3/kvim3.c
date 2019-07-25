@@ -726,6 +726,14 @@ int board_late_init(void)
 		aml_try_factory_sdcard_burning(0, gd->bd);
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 
+	cpu_id_t cpu_id = get_cpu_id();
+	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_G12B) {
+		char cmd[16];
+		setenv("maxcpus","6");
+		sprintf(cmd, "%X", cpu_id.chip_rev);
+		setenv("chiprev", cmd);
+	}
+
 	return 0;
 }
 #endif
