@@ -1134,20 +1134,7 @@ int handle_panel_ini(void)
 	struct lcd_ext_attr_s lcd_ext_attr;
 	struct bl_attr_s bl_attr;
 	struct panel_misc_s misc_attr;
-	char *file_name, *tmp;
-	char outputmode_str[64] = {0}, reverse_str[10] = {0};
-	unsigned char env_save = 0, reverse_tmp = 0;
-
-	tmp = getenv("outputmode");
-	if (tmp == NULL)
-		strcpy(outputmode_str, "null");
-	else
-		strcpy(outputmode_str, tmp);
-	tmp = getenv("panel_reverse");
-	if (tmp == NULL)
-		strcpy(reverse_str, "null");
-	else
-		strcpy(reverse_str, tmp);
+	char *file_name;
 
 	file_name = getenv("model_panel");
 	if (file_name == NULL) {
@@ -1227,28 +1214,7 @@ int handle_panel_ini(void)
 	}
 	// end handle backlight param
 
-	// start handle panel misc
-	if (strcmp(outputmode_str, "nul1") == 0) {
-		env_save = 1;
-	} else {
-		if (strcmp(outputmode_str, misc_attr.outputmode))
-			env_save = 1;
-	}
-	if (strcmp(reverse_str, "nul1") == 0) {
-		env_save = 1;
-	} else {
-		if (strcmp(reverse_str, "1") == 0)
-			reverse_tmp = 1;
-		else
-			reverse_tmp = 0;
-		if (reverse_tmp != misc_attr.panel_reverse)
-			env_save = 1;
-	}
-	if (env_save) {
-		ALOGD("%s, save env.\n", __func__);
-		run_command("saveenv", 0);
-	}
-	// end handle panel misc
+	// panel misc don't saving env
 
 	free(tmp_buf);
 	tmp_buf = NULL;
