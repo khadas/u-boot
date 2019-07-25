@@ -6,13 +6,13 @@ include $(buildtree)/include/autoconf.mk
 include $(buildtree)/.config
 
 # Select ARMv7-m bare-metal toolchain
-CROSS_COMPILE=arm-none-eabi-
-ASM=$(CROSS_COMPILE)as
-CC=$(CROSS_COMPILE)gcc
-CPP=$(CROSS_COMPILE)cpp
-LD=$(CROSS_COMPILE)ld
-OBJCOPY=$(CROSS_COMPILE)objcopy
-OBJDUMP=$(CROSS_COMPILE)objdump
+CROSS_COMPILE_BL301=arm-none-eabi-
+ASM=$(CROSS_COMPILE_BL301)as
+CC=$(CROSS_COMPILE_BL301)gcc
+CPP=$(CROSS_COMPILE_BL301)cpp
+LD=$(CROSS_COMPILE_BL301)ld
+OBJCOPY=$(CROSS_COMPILE_BL301)objcopy
+OBJDUMP=$(CROSS_COMPILE_BL301)objdump
 
 ARM_ARCH=armv7-m
 ARM_CPU=cortex-m3

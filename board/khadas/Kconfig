@@ -1,3 +1,11 @@
+config KHADAS_VIM
+	bool "Support Khadas VIM board"
+	default y
+
+if KHADAS_VIM
+source "board/khadas/kvim/Kconfig"
+endif
+
 config KHADAS_VIM3
 	bool "Support Khadas VIM3 board"
 	default n

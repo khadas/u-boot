@@ -62,6 +62,7 @@ RESET_TO_BL31		:= 0
 BUILD_NAME		:= bl21
 
 # Define the AARCH32/AARCH64 flag based on the ARCH flag
+CROSS_COMPILE_T32 = arm-none-eabi-
 ifeq (${ARCH},aarch32)
 CROSS_COMPILE_BL21 = ${CROSS_COMPILE_T32}
 else
