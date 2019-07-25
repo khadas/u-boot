@@ -296,6 +296,11 @@ const char *bootdelay_process(void)
 		s = getenv("bootcmd");
 
 	process_fdt_options(gd->fdt_blob);
+
+	if (0 == strcmp(getenv("reboot_mode"), "bootloader")) {
+		bootdelay = -1;
+	}
+
 	stored_bootdelay = bootdelay;
 
 	return s;
