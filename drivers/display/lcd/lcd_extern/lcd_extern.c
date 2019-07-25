@@ -1378,6 +1378,10 @@ static int aml_lcd_extern_add_i2c(struct aml_lcd_extern_driver_s *ext_drv)
 #ifdef CONFIG_AML_LCD_EXTERN_I2C_ANX6862_7911
 		ret = aml_lcd_extern_i2c_ANX6862_7911_probe(ext_drv);
 #endif
+	} else if (strcmp(ext_drv->config->name, "i2c_CS602") == 0) {
+#ifdef CONFIG_AML_LCD_EXTERN_I2C_CS602
+		ret = aml_lcd_extern_i2c_CS602_probe(ext_drv);
+#endif
 	} else {
 		EXTERR("invalid driver name: %s\n", ext_drv->config->name);
 	}
@@ -1577,6 +1581,12 @@ static int aml_lcd_extern_add_driver_default(int index,
 #ifdef CONFIG_AML_LCD_EXTERN_I2C_ANX6862_7911
 	if (strcmp(ext_drv->config->name, "i2c_ANX6862_7911") == 0) {
 		ret = aml_lcd_extern_i2c_ANX6862_7911_probe(ext_drv);
+		goto add_driver_default_end;
+	}
+#endif
+#ifdef CONFIG_AML_LCD_EXTERN_I2C_CS602
+	if (strcmp(ext_drv->config->name, "i2c_CS602") == 0) {
+		ret = aml_lcd_extern_i2c_CS602_probe(ext_drv);
 		goto add_driver_default_end;
 	}
 #endif
