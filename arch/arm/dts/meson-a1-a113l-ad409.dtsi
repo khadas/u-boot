@@ -268,7 +268,6 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&spifc_pins>;
 	max-frequency = <24000000>;
-	max-io = <4>;
 	max-cs = <2>;
 	/* 512M */
 	clocks = <&clkc CLKID_FCLK_DIV3>,

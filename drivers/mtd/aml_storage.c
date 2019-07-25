@@ -39,7 +39,7 @@ extern int info_disprotect;
 
 struct mtd_info *mtd_store_get(int dev)
 {
-#if defined(CONFIG_SPI_FLASH) || defined(CONFIG_SPI_NAND)
+#if defined(CONFIG_SPI_FLASH) || defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND)
 	return mtd_store_list[0];
 #else
 	return mtd_store_list[dev];
@@ -78,7 +78,7 @@ static struct mtd_info *mtd_store_get_by_name(const char *part_name,
 
 void mtd_store_set(struct mtd_info *mtd, int dev)
 {
-#if defined(CONFIG_SPI_FLASH) || defined(CONFIG_SPI_NAND)
+#if defined(CONFIG_SPI_FLASH) || defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND)
 	mtd_store_list[0] = mtd;
 #else
 	mtd_store_list[dev] = mtd;
@@ -850,7 +850,7 @@ static int mtd_store_boot_read(const char *part_name,
 	}
 	offset += (cpy * size_per_copy);
 	limit = offset + size_per_copy;
-#if defined(CONFIG_SPI_NAND)
+#if defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND)
 	/**
 	 * TODO:
 	 * Need delete this part of code when we fix the
@@ -948,7 +948,7 @@ static int mtd_store_boot_write(const char *part_name,
 		pr_info("write %lx bytes to %llx\n",
 			size, offset);
 		limit = offset + size_per_copy;
-#if defined(CONFIG_SPI_NAND)
+#if defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND)
 		/**
 		 * TODO:
 		 * 1.Need delete this part of code when we fix the

@@ -22,6 +22,46 @@
 #include <spi-mem.h>
 #include <linux/mtd/nand.h>
 #endif
+#define NAND_BLOCK_GOOD		0
+#define NAND_BLOCK_BAD		1
+#define NAND_FACTORY_BAD	2
+
+#define SPINAND_MESON_RSV			1
+#define SPINAND_MESON_INFO_PAGE		1
+
+
+#if SPINAND_MESON_INFO_PAGE
+struct info_page {
+	char magic[8];	/* magic header of info page */
+	/* info page version, +1 when you update this struct */
+	u8 version;	/* 1 for now */
+	u8 mode;	/* 1 discrete, 0 compact */
+	u8 bl2_num;	/* bl2 copy number */
+	u8 fip_num;	/* fip copy number */
+	union {
+		struct {
+#define SPINAND_MAGIC       "AMLIFPG"
+#define SPINAND_INFO_VER    1
+			u8 rd_max; /* spi nand max read io */
+			u8 oob_offset; /* user bytes offset */
+			uint8_t planes_per_lun;
+			u8 rsv;
+			u32 fip_start; /* start pages */
+			u32 fip_pages; /* pages per fip */
+			u32 page_size; /* spi nand page size (bytes) */
+			u32 page_per_blk;	/* page number per block */
+			u32 oob_size;	/* valid oob size (bytes) */
+			u32 bbt_start; /* bbt start pages */
+			u32 bbt_valid; /* bbt valid offset pages */
+			u32 bbt_size;	/* bbt occupied bytes */
+		} s;/* spi nand */
+		struct {
+			u32 reserved;
+		} e;/* emmc */
+	} dev;
+
+};
+#endif
 
 /**
  * Standard SPI NAND flash operations
@@ -39,11 +79,20 @@
 		   SPI_MEM_OP_NO_DUMMY,					\
 		   SPI_MEM_OP_NO_DATA)
 
+#if 0
 #define SPINAND_READID_OP(ndummy, buf, len)				\
 	SPI_MEM_OP(SPI_MEM_OP_CMD(0x9f, 1),				\
 		   SPI_MEM_OP_NO_ADDR,					\
 		   SPI_MEM_OP_DUMMY(ndummy, 1),				\
 		   SPI_MEM_OP_DATA_IN(len, buf, 1))
+#else
+/* Adjust the timing of read ID */
+#define SPINAND_READID_OP(ndummy, buf, len)				\
+	SPI_MEM_OP(SPI_MEM_OP_CMD(0x9f, 1),				\
+		   SPI_MEM_OP_ADDR(1, 0x00, 1),			\
+		   SPI_MEM_OP_DUMMY(ndummy, 1),				\
+		   SPI_MEM_OP_DATA_IN(len, buf+1, 1))
+#endif
 
 #define SPINAND_SET_FEATURE_OP(reg, valptr)				\
 	SPI_MEM_OP(SPI_MEM_OP_CMD(0x1f, 1),				\
@@ -202,9 +251,12 @@ struct spinand_manufacturer {
 
 /* SPI NAND manufacturers */
 extern const struct spinand_manufacturer gigadevice_spinand_manufacturer;
+extern const struct spinand_manufacturer toshiba_spinand_manufacturer;
 extern const struct spinand_manufacturer macronix_spinand_manufacturer;
 extern const struct spinand_manufacturer micron_spinand_manufacturer;
 extern const struct spinand_manufacturer winbond_spinand_manufacturer;
+extern const struct spinand_manufacturer zetta_spinand_manufacturer;
+extern const struct spinand_manufacturer xtx_spinand_manufacturer;
 
 /**
  * struct spinand_op_variants - SPI NAND operation variants
@@ -362,7 +414,16 @@ struct spinand_device {
 	u8 *oobbuf;
 	u8 *scratchbuf;
 	const struct spinand_manufacturer *manufacturer;
+	/* Record the current spinand */
+	const char *model;
 	void *priv;
+#if	SPINAND_MESON_RSV
+	/* add for aml rsv */
+	struct meson_rsv_handler_t *rsv;
+	/* aml bbt */
+	u8 *bbt;
+	u8 bbt_scan;
+#endif
 };
 
 /**

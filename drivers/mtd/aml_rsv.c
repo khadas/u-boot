@@ -694,8 +694,14 @@ int meson_rsv_init(struct mtd_info *mtd,
 		/* reduce memory usage in sram */
 		handler->dtb->size = mtd->erasesize >> 1;
 	} else {
+		#ifdef CONFIG_MTD_SPI_NAND
+		/* Reduce space use, malloc may fail */
+		handler->key->size = mtd->erasesize >> 2;
+		handler->dtb->size = mtd->erasesize >> 1;
+		#else
 		handler->key->size = 0x40000;
 		handler->dtb->size = 0x40000;
+		#endif
 	}
 
 	if ((vernier - start) > NAND_RSV_BLOCK_NUM) {

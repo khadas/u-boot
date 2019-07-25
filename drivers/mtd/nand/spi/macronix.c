@@ -95,7 +95,7 @@ static int mx35lf1ge4ab_ecc_get_status(struct spinand_device *spinand,
 }
 
 static const struct spinand_info macronix_spinand_table[] = {
-	SPINAND_INFO("MX35LF1GE4AB", 0x12,
+	SPINAND_INFO("MX35LF1GE4AB 3.3v", 0x12,
 		     NAND_MEMORG(1, 2048, 64, 64, 1024, 1, 1, 1),
 		     NAND_ECCREQ(4, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
@@ -104,6 +104,7 @@ static const struct spinand_info macronix_spinand_table[] = {
 		     SPINAND_HAS_QE_BIT,
 		     SPINAND_ECCINFO(&mx35lfxge4ab_ooblayout,
 				     mx35lf1ge4ab_ecc_get_status)),
+#if 0
 	SPINAND_INFO("MX35LF2GE4AB", 0x22,
 		     NAND_MEMORG(1, 2048, 64, 64, 2048, 2, 1, 1),
 		     NAND_ECCREQ(4, 512),
@@ -112,6 +113,7 @@ static const struct spinand_info macronix_spinand_table[] = {
 					      &update_cache_variants),
 		     SPINAND_HAS_QE_BIT,
 		     SPINAND_ECCINFO(&mx35lfxge4ab_ooblayout, NULL)),
+#endif
 };
 
 static int macronix_spinand_detect(struct spinand_device *spinand)

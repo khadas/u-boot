@@ -137,7 +137,8 @@ config A1_AD401_NOR_RTOS
 config A1_AD401_NAND_RTOS
 	bool "A1_AD401_NAND_RTOS"
 	select TARGET_A1_AD401
-	select SPI_NAND
+	#select SPI_NAND
+	select MTD_SPI_NAND
 	select SYSTEM_RTOS
 	help
 	  Select A1 AD401 NOR RTOS board config
@@ -145,7 +146,8 @@ config A1_AD401_NAND_RTOS
 config A1_AD401_NAND_LINUX
 	bool "A1_AD401_NAND_LINUX"
 	select TARGET_A1_AD401
-	select SPI_NAND
+	#select SPI_NAND
+	select MTD_SPI_NAND
 	help
 	  Select A1 AD401 NOR RTOS board config
 
@@ -160,7 +162,8 @@ config A1_AD402_NOR_RTOS
 config A1_AD402_NAND_RTOS
 	bool "A1_AD402_NAND_RTOS"
 	select TARGET_A1_AD402
-	select SPI_NAND
+	#select SPI_NAND
+	select MTD_SPI_NAND
 	select SYSTEM_RTOS
 	help
 	  Select A1 AD402 NOR RTOS board config
@@ -168,7 +171,8 @@ config A1_AD402_NAND_RTOS
 config A1_AD402_NAND_LINUX
 	bool "A1_AD402_NAND_LINUX"
 	select TARGET_A1_AD402
-	select SPI_NAND
+	#select SPI_NAND
+	select MTD_SPI_NAND
 	help
 	  Select A1 AD402 NOR RTOS board config
 
@@ -183,7 +187,8 @@ config A1_AD409_NOR_RTOS
 config A1_AD409_NAND_RTOS
 	bool "A1_AD409_NAND_RTOS"
 	select TARGET_A1_AD409
-	select SPI_NAND
+	#select SPI_NAND
+	select MTD_SPI_NAND
 	select SYSTEM_RTOS
 	help
 	  Select A1 AD409 NOR RTOS board config
@@ -191,7 +196,8 @@ config A1_AD409_NAND_RTOS
 config A1_AD409_NAND_LINUX
 	bool "A1_AD409_NAND_LINUX"
 	select TARGET_A1_AD409
-	select SPI_NAND
+	#select SPI_NAND
+	select MTD_SPI_NAND
 	help
 	  Select A1 AD409 NOR RTOS board config
 

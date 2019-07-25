@@ -103,7 +103,7 @@ config AML_MTDPART
 
 config AML_MTD
 	bool "support AML MTD for Raw NAND or SPI NAND or SPI NOR"
-	default y if MESON_NFC || SPI_NAND || SPI_FLASH
+	default y if MESON_NFC || SPI_NAND || SPI_FLASH || MTD_SPI_NAND
 	help
 		This option, if enabled, support for AML MTD
 

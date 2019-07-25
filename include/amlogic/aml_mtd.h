@@ -16,7 +16,7 @@
 #define CONFIG_DISCRETE_BOOTLOADER
 #endif
 
-#if defined(CONFIG_SPI_NAND) && !defined(CONFIG_DISCRETE_BOOTLOADER)
+#if (defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND)) && !defined(CONFIG_DISCRETE_BOOTLOADER)
 #error SPI NAND only support discrete boot mode!
 #endif
 

@@ -7,13 +7,16 @@
  *	Peter Pan <peterpandong@micron.com>
  */
 
-#define pr_fmt(fmt)	"nand: " fmt
-
+//#define pr_fmt(fmt)	"nand: " fmt
+#include <linux/bitops.h>
 #ifndef __UBOOT__
 #include <linux/module.h>
 #endif
 #include <linux/mtd/nand.h>
-
+#ifdef CONFIG_MTD_SPI_NAND
+#include <linux/mtd/spinand.h>
+#include <amlogic/aml_rsv.h>
+#endif
 /**
  * nanddev_isbad() - Check if a block is bad
  * @nand: NAND device
@@ -23,6 +26,31 @@
  */
 bool nanddev_isbad(struct nand_device *nand, const struct nand_pos *pos)
 {
+#ifdef CONFIG_MTD_SPI_NAND
+	struct spinand_device *spinand = nand_to_spinand(nand);
+	u8 bad_block;
+
+	/* If bbt is already initialized, use the bbt of meson
+	 * to manage bad blocks.
+	 */
+	if (spinand->bbt && !spinand->bbt_scan) {
+		bad_block = spinand->bbt[pos->eraseblock];
+		if (bad_block != NAND_BLOCK_BAD &&
+		    bad_block != NAND_FACTORY_BAD &&
+		    bad_block != NAND_BLOCK_GOOD) {
+			pr_err("bad block table is mixed\n");
+			return true;
+		}
+
+		if (bad_block == NAND_BLOCK_GOOD)
+			return false;
+
+		pr_err("meson %s bad block at 0x%x\n",
+			(bad_block == NAND_FACTORY_BAD) ? "factory" : "user",
+			pos->eraseblock*(u32)nanddev_eraseblock_size(nand));
+		return true;
+	}
+#endif
 	if (nanddev_bbt_is_initialized(nand)) {
 		unsigned int entry;
 		int status;
@@ -71,8 +99,38 @@ int nanddev_markbad(struct nand_device *nand, const struct nand_pos *pos)
 
 	ret = nand->ops->markbad(nand, pos);
 	if (ret)
-		pr_warn("failed to write BBM to block @%llx (err = %d)\n",
+		pr_err("failed to write BBM to block @%llx (err = %d)\n",
 			nanddev_pos_to_offs(nand, pos), ret);
+
+#ifdef CONFIG_MTD_SPI_NAND
+	extern int meson_rsv_bbt_write(u_char *source, size_t size);
+	struct spinand_device *spinand = nand_to_spinand(nand);
+	u8 bad_block;
+	u8 *buf = NULL;
+
+	/* If bbt is already initialized, use the bbt of meson
+	 * to manage bad blocks.
+	 */
+	if (spinand->bbt && !spinand->bbt_scan) {
+		bad_block = spinand->bbt[pos->eraseblock];
+		if (bad_block != NAND_BLOCK_BAD &&
+		    bad_block != NAND_FACTORY_BAD &&
+		    bad_block != NAND_BLOCK_GOOD) {
+			pr_err("bad block table is mixed\n");
+			return -EINVAL;
+		}
+
+		if (bad_block == NAND_BLOCK_GOOD) {
+			buf = spinand->bbt;
+			buf[pos->eraseblock] = NAND_BLOCK_BAD;
+			meson_rsv_bbt_write((u_char *)buf,
+					    spinand->rsv->bbt->size);
+		}
+	} else {
+		pr_err("meson bbt table is not initial");
+		return -EINVAL;
+	}
+#endif
 
 	if (!nanddev_bbt_is_initialized(nand))
 		goto out;
@@ -105,6 +163,10 @@ bool nanddev_isreserved(struct nand_device *nand, const struct nand_pos *pos)
 {
 	unsigned int entry;
 	int status;
+
+#ifdef CONFIG_MTD_SPI_NAND
+	return false;
+#endif
 
 	if (!nanddev_bbt_is_initialized(nand))
 		return false;

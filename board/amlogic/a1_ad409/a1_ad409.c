@@ -217,7 +217,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 /* partition table */
 /* partition table for spinand flash */
-#ifdef CONFIG_SPI_NAND
+#if (defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND))
 #ifdef CONFIG_SYSTEM_RTOS
 static const struct mtd_partition spinand_partitions[] = {
 	{
@@ -277,7 +277,7 @@ static const struct mtd_partition spinand_partitions[] = {
 	}
 };
 #endif /*CONFIG_SYSTEM_RTOS*/
-struct mtd_partition *get_partition_table(int *partitions)
+const struct mtd_partition *get_partition_table(int *partitions)
 {
 	*partitions = ARRAY_SIZE(spinand_partitions);
 	return spinand_partitions;
@@ -324,7 +324,7 @@ static const struct mtd_partition spiflash_partitions[] = {
 		.size = MTDPART_SIZ_FULL,
 	}
 };
-struct mtd_partition *get_partition_table(int *partitions)
+const struct mtd_partition *get_partition_table(int *partitions)
 {
 	*partitions = ARRAY_SIZE(spiflash_partitions);
 	return spiflash_partitions;

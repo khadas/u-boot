@@ -323,6 +323,8 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 		return -EIO;
 #else
 
+/* meson need suppport x2 x4 */
+#ifndef CONFIG_MTD_SPI_NAND
 	/* U-Boot does not support parallel SPI data lanes */
 	if ((op->cmd.buswidth != 1) ||
 	    (op->addr.nbytes && op->addr.buswidth != 1) ||
@@ -331,7 +333,7 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 		printf("Dual/Quad raw SPI transfers not supported\n");
 		return -ENOTSUPP;
 	}
-
+#endif
 	if (op->data.nbytes) {
 		if (op->data.dir == SPI_MEM_DATA_IN)
 			rx_buf = op->data.buf.in;

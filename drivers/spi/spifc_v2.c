@@ -316,6 +316,7 @@ static int spifc_xfer(struct udevice *dev,
 			}
 			else
 				priv->save_addr = 0;
+
 			priv->cmd = buf[0];
 		}
 	} else if (dout && priv->cmd) {
@@ -428,15 +429,11 @@ static int spifc_ofdata_to_platdata(struct udevice *bus)
 	plat->speed = fdtdec_get_uint(blob, node,
 				      "max-frequency",
 				      40000000);
-	plat->io_num = fdtdec_get_uint(blob, node,
-				       "max-io",
-				       2);/* default 2 because some board only have 2 spifc io */
 	plat->max_cs = fdtdec_get_uint(blob, node,
 					       "max-cs",
 					       2);
 	plat->mode = 0;
-	printf("spifc freq %d, max io %d, reg %p\n",
-	       plat->speed, plat->io_num, (void *)plat->reg);
+	printf("spifc freq %d reg %p\n", plat->speed, (void *)plat->reg);
 	return 0;
 }
 

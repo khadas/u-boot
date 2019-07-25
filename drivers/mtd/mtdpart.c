@@ -1060,7 +1060,7 @@ int mtdparts_init(void)
 #ifdef CONFIG_MESON_NFC
 	cnt = MAX_MTD_CNT;
 #endif
-#if defined(CONFIG_SPI_FLASH) || defined(CONFIG_SPI_NAND)
+#if defined(CONFIG_SPI_FLASH) || defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND)
 	cnt = MAX_MTD_CNT - 1;
 #endif
 

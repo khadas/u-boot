@@ -22,7 +22,7 @@
 #else
 #if defined(CONFIG_NAND_FSL_ELBC) || defined(CONFIG_NAND_ATMEL)\
 	|| defined(CONFIG_NAND_FSL_IFC) || defined(CONFIG_SPI_NAND)\
-	|| defined(CONFIG_MESON_NFC)
+	|| defined(CONFIG_MESON_NFC) || defined(CONFIG_MTD_SPI_NAND)
 #define CONFIG_SYS_NAND_SELF_INIT
 #endif
 #endif

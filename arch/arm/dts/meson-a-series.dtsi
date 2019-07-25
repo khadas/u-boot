@@ -338,6 +338,8 @@
 					};
 					spi-nand@1 {
 						reg = <1>;
+						spi-tx-bus-width = <4>;
+        					spi-rx-bus-width = <4>;
 						compatible = "spi-nand";
 						#address-cells = <1>;
 						#size-cells = <0>;
