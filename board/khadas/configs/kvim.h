@@ -41,6 +41,9 @@
 #define CONFIG_VDDEE_INIT_VOLTAGE	1000		// voltage for power up
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	 850		// voltage for suspend
 
+/* config for khadas kbi */
+#define CONFIG_KHADAS_KBI 1
+
 /* configs for CEC */
 #define CONFIG_CEC_OSD_NAME		"KVIM"
 #define CONFIG_CEC_WAKEUP
