@@ -1174,7 +1174,8 @@ int fill_ept_by_gpt(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 		partitions[i].offset = le64_to_cpu(gpt_pte[i].starting_lba<<9ULL);
 		partitions[i].size = ((le64_to_cpu(gpt_pte[i].ending_lba)+1) -
 			le64_to_cpu(gpt_pte[i].starting_lba)) << 9ULL;
-
+		/* mask flag */
+		partitions[i].mask_flags = (uint32_t)le64_to_cpu(gpt_pte[i].attributes.fields.reserved);
 		/* partition name */
 		efiname_len = sizeof(gpt_pte[i].partition_name)
 			/ sizeof(efi_char16_t);
@@ -1197,8 +1198,14 @@ void trans_ept_to_diskpart(struct _iptbl *ept, disk_partition_t *disk_part) {
 	for (i = 0; i < count; i++) {
 		disk_part[i].start = part[i].offset >> 9;
 		strcpy((char *)disk_part[i].name, part[i].name);
+		/* store maskflag into type, 8bits ONLY! */
+		disk_part[i].type[0] = (uchar)part[i].mask_flags;
+	#ifdef CONFIG_PARTITION_TYPE_GUID
 		strcpy((char *)disk_part[i].type_guid, part[i].name);
+	#endif
+	#ifdef CONFIG_RANDOM_UUID
 		gen_rand_uuid_str(disk_part[i].uuid, UUID_STR_FORMAT_STD);
+	#endif
 		disk_part[i].bootable = 0;
 		if ( i == (count - 1))
 			disk_part[i].size = 0;
@@ -1376,8 +1383,9 @@ int mmc_device_init (struct mmc *mmc)
 		free(disk_partition);
 		return -ENOMEM;
 	}
+#ifdef CONFIG_RANDOM_UUID
 	gen_rand_uuid_str(str_disk_guid, UUID_STR_FORMAT_STD);
-
+#endif
 	if (part_test_efi(mmc_get_blk_desc(mmc)) != 0) {
 		ret = gpt_restore(mmc_get_blk_desc(mmc), str_disk_guid, disk_partition, dcount);
 		printf("GPT IS RESTORED %s\n", ret ? "Failed!" : "OK!");

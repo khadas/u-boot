@@ -537,7 +537,10 @@ int gpt_fill_pte(struct blk_desc *dev_desc,
 
 		if (partitions[i].bootable)
 			gpt_e[i].attributes.fields.legacy_bios_bootable = 1;
-
+	#ifdef CONFIG_ARCH_MESON
+		if (partitions[i].type[0])
+			gpt_e[i].attributes.fields.reserved = partitions[i].type[0];
+	#endif /* CONFIG_ARCH_MESON */
 		/* partition name */
 		efiname_len = sizeof(gpt_e[i].partition_name)
 			/ sizeof(efi_char16_t);
