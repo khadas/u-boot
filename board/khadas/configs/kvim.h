@@ -471,6 +471,8 @@
  * Enable CONFIG_MUSB_UDD for Device functionalities.
  */
 /* #define CONFIG_MUSB_UDC		1 */
+#define CONFIG_USB_GPIO_PWR  			PIN_GPIOH_3
+#define CONFIG_USB_GPIO_PWR_NAME		"GPIOH_3"
 #define CONFIG_CMD_USB 1
 #if defined(CONFIG_CMD_USB)
 	#define CONFIG_GXL_XHCI_BASE		0xc9000000

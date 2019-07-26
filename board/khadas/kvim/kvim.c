@@ -43,6 +43,7 @@
 #include <phy.h>
 #include <asm/cpu_id.h>
 #include <asm/arch/mailbox.h>
+#include <asm-generic/gpio.h>
 #ifdef DTB_BIND_KERNEL
 #include "storage.h"
 #endif
@@ -331,10 +332,29 @@ int board_early_init_f(void){
 #define CONFIG_GXL_USB_U2_PORT_NUM	2
 #define CONFIG_GXL_USB_U3_PORT_NUM	0
 
+void gpio_set_vbus_power(char is_power_on)
+{
+        int ret;
+
+        ret = gpio_request(CONFIG_USB_GPIO_PWR,
+                CONFIG_USB_GPIO_PWR_NAME);
+        if (ret && ret != -EBUSY) {
+                printf("gpio: requesting pin %u failed\n",
+                        CONFIG_USB_GPIO_PWR);
+                return;
+        }
+
+        if (is_power_on) {
+                gpio_direction_output(CONFIG_USB_GPIO_PWR, 1);
+        } else {
+                gpio_direction_output(CONFIG_USB_GPIO_PWR, 0);
+        }
+}
+
 struct amlogic_usb_config g_usb_config_GXL_skt={
 	CONFIG_GXL_XHCI_BASE,
 	USB_ID_MODE_HARDWARE,
-	NULL,//gpio_set_vbus_power, //set_vbus_power
+	gpio_set_vbus_power,//gpio_set_vbus_power, //set_vbus_power
 	CONFIG_GXL_USB_PHY2_BASE,
 	CONFIG_GXL_USB_PHY3_BASE,
 	CONFIG_GXL_USB_U2_PORT_NUM,
