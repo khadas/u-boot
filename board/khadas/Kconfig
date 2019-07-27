@@ -1,14 +1,22 @@
 config KHADAS_VIM
 	bool "Support Khadas VIM board"
-	default y
+	default n
+
+config KHADAS_VIM2
+	bool "Support Khadas VIM2 board"
+	default n
+
+config KHADAS_VIM3
+	bool "Support Khadas VIM3 board"
+	default n
 
 if KHADAS_VIM
 source "board/khadas/kvim/Kconfig"
 endif
 
-config KHADAS_VIM3
-	bool "Support Khadas VIM3 board"
-	default n
+if KHADAS_VIM2
+source "board/khadas/kvim2/Kconfig"
+endif
 
 if KHADAS_VIM3
 source "board/khadas/kvim3/Kconfig"
