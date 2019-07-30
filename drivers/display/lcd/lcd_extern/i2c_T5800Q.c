@@ -59,7 +59,7 @@ static int lcd_extern_reg_read(unsigned char reg, unsigned char *buf)
 	return ret;
 }
 
-static int lcd_extern_reg_write(unsigned char reg, unsigned char value)
+static int lcd_extern_reg_write(unsigned char *buf, unsigned int len)
 {
 	int ret = 0;
 

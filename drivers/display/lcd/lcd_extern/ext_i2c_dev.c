@@ -129,6 +129,11 @@ int aml_lcd_extern_i2c_write(unsigned char i2c_bus, unsigned i2c_addr,
 	struct i2c_msg msg;
 	int i, ret = 0;
 
+	if (!len) {
+		EXTERR("%s: invalid len\n", __func__);
+		return -1;
+	}
+
 	msg.addr = i2c_addr;
 	msg.flags = 0;
 	msg.len = len;

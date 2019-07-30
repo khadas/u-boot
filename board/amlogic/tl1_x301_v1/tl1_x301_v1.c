@@ -63,6 +63,8 @@
 #include <amlogic/spicc.h>
 #endif
 #include <asm/arch/timer.h>
+#include <spi.h>
+#include <spi_flash.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -620,6 +622,112 @@ U_BOOT_DEVICES(meson_pwm) = {
 	{ "amlogic,general-pwm", &pwm_data[4] },
 };
 #endif /*end CONFIG_PWM_MESON*/
+
+#ifdef CONFIG_AML_LCD
+struct lcd_spi_flash_s {
+	struct udevice *devp;
+	struct spi_flash *flash;
+	unsigned int bus;
+	unsigned int cs;
+	unsigned int speed;
+	unsigned int mode;
+};
+
+static struct lcd_spi_flash_s lcd_pgamma_spi = {
+	.devp = NULL,
+	.flash = NULL,
+	.bus = CONFIG_SF_DEFAULT_BUS,
+	.cs = CONFIG_SF_DEFAULT_CS,
+	.speed = CONFIG_SF_DEFAULT_SPEED,
+	.mode = CONFIG_SF_DEFAULT_MODE,
+};
+
+static int lcd_pgamma_spi_refresh(unsigned int offset, unsigned int len)
+{
+#ifdef CONFIG_AML_LCD_EXTERN
+	struct aml_lcd_extern_driver_s *lcd_ext = aml_lcd_extern_get_driver();
+#endif
+	void *data = NULL;
+	int ret;
+
+	ret = spi_flash_probe_bus_cs(lcd_pgamma_spi.bus, lcd_pgamma_spi.cs,
+				     lcd_pgamma_spi.speed, lcd_pgamma_spi.mode,
+				     &lcd_pgamma_spi.devp);
+	if (ret) {
+		printf("%s: error: probe sf flash fail\n", __func__);
+		return -1;
+	}
+
+	if (lcd_pgamma_spi.devp == NULL) {
+		printf("%s: error: get spi devp fail\n", __func__);
+		return -1;
+	}
+
+	lcd_pgamma_spi.flash = lcd_pgamma_spi.devp->uclass_priv;
+
+	data = malloc(len);
+	spi_flash_read(lcd_pgamma_spi.flash, offset, len, data);
+	if (data == NULL) {
+		printf("%s: spi flash read fail\n", __func__);
+		free(data);
+		return -1;
+	}
+
+#ifdef CONFIG_AML_LCD_EXTERN
+	if (lcd_ext->reg_write) {
+		lcd_ext->reg_write(data, len);
+	} else {
+		printf("%s: lcd_ext reg_write is null\n", __func__);
+		free(data);
+		return -1;
+	}
+#endif
+
+	free(data);
+	return 0;
+}
+
+static int do_lcd_pgamma(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	unsigned int offset, len;
+	char *str;
+	int ret = 0;
+
+	if (argc < 1) {
+		cmd_usage(cmdtp);
+		return -1;
+	}
+
+	str = getenv("lcd_spi_flash_pgamma_offset");
+	if (str) {
+		offset = (unsigned int)simple_strtoul(str, NULL, 10);
+	} else {
+		printf("%s: no lcd_spi_flash_pgamma_offset\n", __func__);
+		return -1;
+	}
+
+	str = getenv("lcd_spi_flash_pgamma_len");
+	if (str) {
+		len = (unsigned int)simple_strtoul(str, NULL, 10);
+	} else {
+		printf("%s: no lcd_spi_flash_pgamma_len\n", __func__);
+		return -1;
+	}
+	if (len == 0) {
+		printf("%s: pgamma len is 0\n", __func__);
+		return -1;
+	}
+
+	ret = lcd_pgamma_spi_refresh(offset, len);
+	return ret;
+}
+
+U_BOOT_CMD(
+	lcd_pgamma,	2,	0,	do_lcd_pgamma,
+	"load lcd pgamma from spi flash and write to pmu\n",
+	NULL
+);
+#endif
 
 int board_init(void)
 {
