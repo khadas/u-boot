@@ -633,7 +633,7 @@ u32 meson_tuning_transfer(struct udevice *dev, u32 opcode)
 		if (!tuning_err) {
 			nmatch++;
 		} else {
-			pr_info("Tuning transfer error: nmatch=%d tuning_err:0x%x\n",
+			pr_debug("Tuning transfer error: nmatch=%d tuning_err:0x%x\n",
 					nmatch, tuning_err);
 			break;
 		}
@@ -728,7 +728,7 @@ int meson_execute_tuning(struct udevice *dev, uint opcode)
 	meson_write(mmc, 0, MESON_SD_EMMC_ADJUST);
 	old_dly = meson_read(mmc, MESON_SD_EMMC_DELAY1);
 	d1_dly = (old_dly & DLY_D1_MASK) >> Dly_d1;
-	pr_info("Data 1 aligned delay is %d\n", d1_dly);
+	pr_debug("Data 1 aligned delay is %d\n", d1_dly);
 
 tuning:
 	wrap_win_start = -1;
@@ -745,7 +745,7 @@ tuning:
 	else
 		clk_src = 1000000000;
 	clock = (clk_src / clk_div);
-	pr_info("%s: tuning clk is %d\n", mmc->cfg->name, clock);
+	pr_debug("%s: clk %d tuning start:\n", mmc->cfg->name, clock);
 
 	host->is_tuning = 1;
 	for (adj_delay = 0; adj_delay < clk_div; adj_delay++) {
@@ -770,7 +770,7 @@ tuning:
 				curr_win_start = adj_delay;
 
 			curr_win_size++;
-			pr_info("%s: rx_tuning_result[%d] = %d\n",
+			pr_debug("%s: rx_tuning_result[%d] = %d\n",
 					mmc->cfg->name, adj_delay, nmatch);
 		} else {
 			if (curr_win_start >= 0) {

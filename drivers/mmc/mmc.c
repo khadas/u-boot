@@ -3067,7 +3067,7 @@ int mmc_initialize(bd_t *bis)
 		return ret;
 
 #ifndef CONFIG_SPL_BUILD
-	print_mmc_devices(',');
+	//print_mmc_devices(',');
 #endif
 
 	mmc_do_preinit();

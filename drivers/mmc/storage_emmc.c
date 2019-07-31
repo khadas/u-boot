@@ -321,7 +321,6 @@ int mmc_storage_init(unsigned char init_flag) {
 	int ret =1;
 	struct mmc *mmc;
 	mmc = find_mmc_device(STORAGE_EMMC);
-	mmc->init_in_progress = 0;
 	mmc->has_init=0;
 	pinctrl_select_state(mmc->dev, "default");
 	if (!mmc) {

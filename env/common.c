@@ -223,24 +223,19 @@ int env_export(env_t *env_out)
 void env_relocate(void)
 {
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
-	printf("%s() %d\n", __func__, __LINE__);
 	env_reloc();
 	env_fix_drivers();
 	env_htab.change_ok += gd->reloc_off;
 #endif
 	if (gd->env_valid == ENV_INVALID) {
-		printf("%s() %d\n", __func__, __LINE__);
 #if defined(CONFIG_ENV_IS_NOWHERE) || defined(CONFIG_SPL_BUILD)
-		printf("%s() %d\n", __func__, __LINE__);
 		/* Environment not changable */
 		set_default_env(NULL, 0);
 #else
-		printf("%s() %d\n", __func__, __LINE__);
 		bootstage_error(BOOTSTAGE_ID_NET_CHECKSUM);
 		set_default_env("bad CRC", 0);
 #endif
 	} else {
-		printf("%s() %d\n", __func__, __LINE__);
 		env_load();
 	}
 }

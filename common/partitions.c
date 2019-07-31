@@ -80,7 +80,7 @@ int check_valid_dts(unsigned char *buffer)
 #else
 	dt_addr = (char *)buffer;
 #endif
-	printf("start dts,buffer=%p,dt_addr=%p\n", buffer, dt_addr);
+	pr_debug("start dts,buffer=%p,dt_addr=%p\n", buffer, dt_addr);
 	ret = fdt_check_header(dt_addr);
 	if ( ret < 0 )
 		printf("%s: %s\n",__func__,fdt_strerror(ret));
@@ -105,7 +105,7 @@ int get_partition_from_dts(unsigned char *buffer)
 		goto _err;
 
 	ret = check_valid_dts(buffer);
-	printf("%s() %d: ret %d\n",__func__, __LINE__, ret);
+	pr_debug("%s() %d: ret %d\n",__func__, __LINE__, ret);
 	if ( ret < 0 )
 	{
 		printf("%s() %d: ret %d\n",__func__, __LINE__, ret);
@@ -124,7 +124,7 @@ int get_partition_from_dts(unsigned char *buffer)
 		goto _err;
 	}
 	parts_num = (int *)fdt_getprop(dt_addr, nodeoffset, "parts", NULL);
-	printf("parts: %d\n",be32_to_cpup((u32*)parts_num));
+	pr_debug("parts: %d\n",be32_to_cpup((u32*)parts_num));
 
 	if (parts_num > 0)
 	{
@@ -165,7 +165,7 @@ int get_partition_from_dts(unsigned char *buffer)
 			memcpy(part_table[index].name, uname, strlen(uname));
 		part_table[index].size = ((unsigned long)be32_to_cpup((u32*)usize) << 32) | (unsigned long)be32_to_cpup((((u32*)usize)+1));
 		part_table[index].mask_flags = be32_to_cpup((u32*)umask);
-		printf("%02d:%10s\t%016llx %01x\n", index, uname, part_table[index].size, part_table[index].mask_flags);
+		pr_debug("%02d:%10s\t%016llx %01x\n", index, uname, part_table[index].size, part_table[index].mask_flags);
 
 		if (strcmp(uname, "boot_a") == 0) {
 			has_boot_slot = 1;
