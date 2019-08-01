@@ -44,6 +44,9 @@
 /* config for khadas kbi */
 #define CONFIG_KHADAS_KBI 1
 
+#define CONFIG_CMDLINE_EDITING 1
+#define CONFIG_AUTO_COMPLETE 1
+
 /* configs for CEC */
 #define CONFIG_CEC_OSD_NAME		"KVIM"
 #define CONFIG_CEC_WAKEUP
