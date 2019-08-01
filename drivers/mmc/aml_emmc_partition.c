@@ -977,6 +977,8 @@ static __attribute__((unused)) int _update_ptbl_mbr(struct mmc *mmc, struct _ipt
 
 	ptb = p_iptbl;
 	mbr = malloc(sizeof(struct dos_mbr_or_ebr));
+	if (mbr == NULL)
+		return -ENOMEM;
 
 	for (i=0;i<ptb->count;i++) {
 		apt_info("-update MBR-: partition[%02d]: %016llx - %016llx\n",i,
@@ -1306,12 +1308,14 @@ int mmc_device_init (struct mmc *mmc)
 	int dcount = p_iptbl_ept->count -1;
 	block_dev_desc_t *dev_desc = &mmc->block_dev;
 	disk_partition = calloc(1, PAD_TO_BLOCKSIZE(sizeof(disk_partition_t) * dcount, dev_desc));
+	if (disk_partition)
+		goto _out;
 	trans_ept_to_diskpart(p_iptbl_ept, disk_partition);
 
 	str_disk_guid = malloc(UUID_STR_LEN + 1);
 	if (str_disk_guid == NULL) {
 		free(disk_partition);
-		return -ENOMEM;
+		goto _out;
 	}
 	gen_rand_uuid_str(str_disk_guid, UUID_STR_FORMAT_STD);
 
