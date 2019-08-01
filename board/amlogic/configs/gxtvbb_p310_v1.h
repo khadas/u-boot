@@ -104,7 +104,7 @@
 	"wipe_cache=successful\0"\
 	"lock=10001000\0"\
 	"EnableSelinux=enforcing\0" \
-	"jtag=apao\0"\
+	"jtag=disable\0"\
 	"active_slot=_a\0"\
 	"boot_part=boot\0"\
 	"upgrade_check="\
