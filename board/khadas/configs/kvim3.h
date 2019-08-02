@@ -357,7 +357,7 @@
             "forceupdate;" \
             "run fan_stop;"
 
-#define CONFIG_BOOTCOMMAND "ddr_auto_fast_boot_check 6 0 0 50;run storeboot"
+#define CONFIG_BOOTCOMMAND "run storeboot"
 
 //#define CONFIG_ENV_IS_NOWHERE  1
 #define CONFIG_ENV_SIZE   (64*1024)
