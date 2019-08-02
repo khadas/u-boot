@@ -84,22 +84,27 @@ int32_t amlkey_init(uint8_t *seed, uint32_t len, int encrypt_type)
 	if (encrypt_type == -1)
 		encrypt_type = 0;
 	secure_storage_set_enctype(encrypt_type);
+	actual_size = meson_rsv_key_size();
+	printf("%s %d actual_size: 0x%x\n", __func__, __LINE__,
+		actual_size);
 
-	/* full fill key infos from storage. */
+	storagekey_info.size = min_t(uint32_t, actual_size, buffer_size);
 	ret = store_rsv_read("key", storagekey_info.size, storagekey_info.buffer);
+	/* When the key is invalid at the first burn, it should be initialized again. */
+	if (ret == RSV_UNVAIL)
+		ret = 0;
 	if (ret) {
+		printf("amlkey init rsv read key faill\n");
 		/* memset head info for bl31 */
 		memset(storagekey_info.buffer, 0, SECUESTORAGE_HEAD_SIZE);
 		ret = 0;
 		goto _out;
 	}
-    actual_size = storagekey_info.size;
 
-	storagekey_info.size = actual_size;
-	secure_storage_notifier_ex(actual_size, 0);
+	secure_storage_notifier_ex(storagekey_info.size, 0);
 
 	storagekey_info.buffer = secure_storage_getbuffer(&buffer_size);
-	if (buffer_size != actual_size) {
+	if (buffer_size != storagekey_info.size) {
 		ret = -1;
 		goto _out;
 	}

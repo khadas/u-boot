@@ -19,6 +19,8 @@
 #include <asm/byteorder.h>
 #include <jffs2/jffs2.h>
 
+#define RSV_UNVAIL	140	/* rsv unvail error */
+
 #define DISPROTECT_KEY			BIT(0)
 #define DISPROTECT_SECURE		BIT(1)
 #define DISPROTECT_FBBT			BIT(2)

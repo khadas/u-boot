@@ -726,9 +726,17 @@ int meson_rsv_bbt_read(u_char *dest, size_t size)
 
 	if (!rsv_handler ||
 	    !rsv_handler->bbt) {
-		pr_info("%s %d rsv info not inited yet!\n",
-			__func__, __LINE__);
+		pr_info("%s %d %s not inited yet!\n",
+			__func__, __LINE__,
+			rsv_handler->bbt->name);
 		return 1;
+	}
+
+	if (!rsv_handler->bbt->valid) {
+		pr_info("%s, %d, %s invalid!, read exit!\n",
+			__func__, __LINE__,
+			rsv_handler->bbt->name);
+		return RSV_UNVAIL;
 	}
 	if (!dest || size == 0) {
 		pr_info("%s %d parameter error %p %ld\n",
@@ -759,9 +767,17 @@ int meson_rsv_key_read(u_char *dest, size_t size)
 
 	if (!rsv_handler ||
 	    !rsv_handler->key) {
-		pr_info("%s %d rsv info not inited yet!\n",
-			__func__, __LINE__);
+		pr_info("%s %d %s not inited yet!\n",
+			__func__, __LINE__,
+			rsv_handler->key->name);
 		return 1;
+	}
+
+	if (!rsv_handler->key->valid) {
+		pr_info("%s, %d, %s invalid!, read exit!\n",
+			__func__, __LINE__,
+			rsv_handler->key->name);
+		return RSV_UNVAIL;
 	}
 	if (!dest || size == 0) {
 		pr_info("%s %d parameter error %p %ld\n",
@@ -792,9 +808,16 @@ int meson_rsv_env_read(u_char *dest, size_t size)
 
 	if (!rsv_handler ||
 	    !rsv_handler->env) {
-		pr_info("%s %d rsv info not inited yet!\n",
-			__func__, __LINE__);
+		pr_info("%s %d %s not inited yet!\n",
+			__func__, __LINE__,
+			rsv_handler->env->name);
 		return 1;
+	}
+	if (!rsv_handler->env->valid) {
+		pr_info("%s, %d, %s invalid!, read exit!\n",
+			__func__, __LINE__,
+			rsv_handler->env->name);
+		return RSV_UNVAIL;
 	}
 	if (!dest || size == 0) {
 		pr_info("%s %d parameter error %p %ld\n",
@@ -826,8 +849,15 @@ int meson_rsv_dtb_read(u_char *dest, size_t size)
 	if (!rsv_handler ||
 	    !rsv_handler->dtb) {
 		pr_info("%s %d rsv info not inited yet!\n",
-			__func__, __LINE__);
+			__func__, __LINE__,
+			rsv_handler->dtb->name);
 		return 1;
+	}
+	if (!rsv_handler->dtb->valid) {
+		pr_info("%s, %d, %s invalid!, read exit!\n",
+			__func__, __LINE__,
+			rsv_handler->dtb->name);
+		return RSV_UNVAIL;
 	}
 	if (!dest || size == 0) {
 		pr_info("%s %d parameter error %p %ld\n",
