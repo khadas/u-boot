@@ -197,7 +197,7 @@ ddr_set_t __ddr_setting[] = {
 	.version				= 1,
 	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
 	.DramType				= CONFIG_DDR_TYPE_DDR4,
-	.DRAMFreq				= {792, 0, 0, 0},
+	.DRAMFreq				= {1008, 0, 0, 0},
 	.ddr_rfc_type			= DDR_RFC_TYPE_DDR4_2Gbx8,
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
@@ -231,7 +231,8 @@ ddr_set_t __ddr_setting[] = {
 	//.vref_reverse			= 0,
 	//.ac_trace_delay			={0x0,0x0},// {0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40},
 	//.ac_trace_delay			= {32+10,32+10,32+10,32+10,32,32+10,32+10,32+10,32+10,32+10},
-	.ac_trace_delay			= {32-15,32-20,32-10,32,32,32,32,32,32-10,32-15},
+	//.ac_trace_delay			= {32-15,32-20,32-10,32,32,32,32,32,32-10,32-15},
+	.ac_trace_delay			= {32-10,32+20,32+20,32+20,32+10,32,32+20,32+20,32+20,32+16},
 	.ddr_dmc_remap			= {
 							[0] = ( 5 |  7 << 5 |  8 << 10 |  9 << 15 | 10 << 20 | 11 << 25 ),
 							[1] = ( 12|  0 << 5 |  0 << 10 | 14 << 15 | 15 << 20 | 16 << 25 ),
@@ -259,7 +260,7 @@ ddr_set_t __ddr_setting[] = {
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
 	.slt_test_function={0x0,0x0},   //{0x1,0x0},enable slt 4 DRAMFreq test;{0x0,0x0},disable slt 4 DRAMFreq test;
-	.fast_boot[0]			= 0,
+	.fast_boot[0]			= 1,
 },
 /*
 {
