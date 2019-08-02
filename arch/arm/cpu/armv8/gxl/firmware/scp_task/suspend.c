@@ -80,6 +80,10 @@ void enter_suspend(unsigned int suspend_from)
 
 	gxbb_com_gate_off();
 	p_pwr_op->power_off_at_32k();
+
+        if (p_pwr_op->power_off_at_mcu)
+                p_pwr_op->power_off_at_mcu(suspend_from);
+
 	exit_reason = p_pwr_op->detect_key(suspend_from);
 	p_pwr_op->power_on_at_32k();
 	gxbb_com_gate_on();

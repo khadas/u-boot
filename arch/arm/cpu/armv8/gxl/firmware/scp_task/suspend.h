@@ -26,6 +26,7 @@
 #define ETH_PHY_WAKEUP_SRC (1<<9)
 
 struct pwr_op {
+        void (*power_off_at_mcu)(unsigned int);
 	void (*power_off_at_clk81)(void);
 	void (*power_on_at_clk81)(void);
 
