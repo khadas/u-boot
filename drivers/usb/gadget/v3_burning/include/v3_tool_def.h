@@ -183,6 +183,7 @@ int store_dtb_rw(void* buf, unsigned dtbSz, int rwFlag);
 
 //for key opearations
 //
+#ifdef CONFIG_V3_KEY_BURNING_SUPPORT
 int v2_key_command(const int argc, char * const argv[], char *info);
 
 /*
@@ -204,6 +205,7 @@ int v2_key_read(const char* keyName, u8* keyVal, const unsigned keyValLen, char*
  *@errInfo: start it with success if burned ok, or format error info into it tell pc burned failed
  */
 unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyValLen, char* errInfo);
+#endif//#ifdef CONFIG_V3_KEY_BURNING_SUPPORT
 
 
 int v3tool_media_check_image_size(int64_t imgSz, const char* partName);

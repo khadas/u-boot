@@ -1079,8 +1079,10 @@ static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 		}
 	} else if( !strcmp("mread", argv[0]) ){
 		ret = _mread_cmd_parser(argc, argv, ack);
+#ifdef CONFIG_V3_KEY_BURNING_SUPPORT
 	} else if( !strcmp("key", argv[0]) ){
 		ret = v2_key_command(argc, argv, ack);
+#endif//#ifdef CONFIG_V3_KEY_BURNING_SUPPORT
 	} else if( !strcmp("disk_initial", argv[0]) ){
 		int toErase = argc > 1 ? simple_strtoul(argv[1], NULL, 0) : 0;
 		int dtbImgSz = (0x1b8e == _memDtbImg.hadDown) ? _memDtbImg.imgSize : 0;

@@ -15,27 +15,25 @@ int v3tool_simg2img_init(const ImgDownloadPara* downPara);
 int v3tool_simg2img_get_img(UsbDownInf* downInf);
 int v3tool_simg2img_write_img(const UsbDownInf* downInf, const ImgDownloadPara* downPara);
 int v3tool_simg2img_verify_img(sha1_context* ctx, const char* partName, int64_t partBase);
-#if !defined(CONFIG_UNIFY_KEY_MANAGE)
-#ifndef CONFIG_AML_V2_FACTORY_BURN
-int v2_key_read(const char* keyName, u8* keyVal, const unsigned keyValLen, char* errInfo, unsigned* fmtLen)
+#ifndef CONFIG_V3_KEY_BURNING_SUPPORT
+static int v2_key_read(const char* keyName, u8* keyVal, const unsigned keyValLen, char* errInfo, unsigned* fmtLen)
 {
     FB_ERR("burn key not supported as CONFIG_UNIFY_KEY_MANAGE undef!!");
     return -1;
 }
-unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyValLen, char* errInfo)
+static unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyValLen, char* errInfo)
 {
     FB_ERR("burn key not supported as CONFIG_UNIFY_KEY_MANAGE undef!!");
     return -1;
 }
 
-int v2_key_command(const int argc, char * const argv[], char *info)
+static int v2_key_command(const int argc, char * const argv[], char *info)
 {
     FB_ERR("burn key not supported as CONFIG_UNIFY_KEY_MANAGE undef!!");
     return -1;
 }
-#endif// #ifndef CONFIG_AML_V2_FACTORY_BURN
 #define key_manage_query_size(a,b) 1
-#endif// #if !defined(CONFIG_UNIFY_KEY_MANAGE)
+#endif// //#ifdef CONFIG_V3_KEY_BURNING_SUPPORT
 
 static struct {
     ImgTransPara        imgTransPara;//user para

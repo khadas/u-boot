@@ -289,6 +289,9 @@ static int initr_env(void)
 	return 0;
 }
 
+struct mtd_partition* __attribute__((weak)) get_partition_table(int *partitions)
+{ FB_WRN("get_partition_table undefined\n"); return NULL;}
+
 int v3tool_storage_init(const int eraseFlash, unsigned dtbImgSz)
 {
 	int ret = 0;
@@ -301,12 +304,14 @@ int v3tool_storage_init(const int eraseFlash, unsigned dtbImgSz)
 	}
 
 	if (dtbImgSz) {
-#ifdef CONFIG_AML_MTD
-		if ( BOOT_NAND_MTD == store_get_type() ) {
+#if defined(CONFIG_MTD) && defined(CONFIG_AML_MTDPART)
+		extern struct mtd_partition *get_partition_table(int *partitions);
+		int mtdParts = -1;
+		if ( get_partition_table(&mtdParts)) {//
 			extern int check_valid_dts(unsigned char *buffer);
 			ret = check_valid_dts(dtbLoadedAddr);
 		} else
-#endif // #ifdef CONFIG_AML_MTD
+#endif // #if defined(CONFIG_MTD) && defined(CONFIG_AML_MTDPART)
 			ret = get_partition_from_dts(dtbLoadedAddr);
 		if (ret) FBS_EXIT(_ACK, "Failed at check dts\n");
 		dtb_valid = 1;

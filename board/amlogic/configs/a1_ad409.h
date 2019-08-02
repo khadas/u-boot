@@ -97,6 +97,7 @@
         "video_reverse=0\0"\
         "boot_part=boot\0"\
         "Irq_check_en=0\0"\
+        "common_dtb_load=imgread dtb _aml_dtb ${dtb_mem_addr};\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
             "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xfe002000"\
@@ -137,24 +138,19 @@
             "fi;fi;fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
-            "store read ${os_ident_addr} boot 0 0x1000;"\
-            "os_ident ${os_ident_addr}; echo os_type: ${os_type};"\
             "if test ${os_type} = rtos; then "\
                 "setenv loadaddr ${loadaddr_rtos};"\
                 "store read ${loadaddr} boot 0 0x400000;"\
                 "bootm ${loadaddr};"\
             "else if test ${os_type} = kernel; then "\
                 "setenv loadaddr ${loadaddr_kernel};"\
-                "imgread dtb _aml_dtb ${dtb_mem_addr}; fdt addr ${dtb_mem_addr};"\
                 "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
-                "echo booting failure; run update;"\
-            "else"\
-                "echo wrong OS format!; reset;"\
-            "fi;fi;"\
+            "else echo wrong OS format ${os_type}; fi;fi;"\
+            "echo try upgrade as booting failure; run update;"\
             "\0" \
          "update="\
             /*first usb burning, second sdc_burn, third ext-sd autoscr/recovery, last udisk autoscr/recovery*/\
-            /*"run usb_burning; "*/\
+            "run usb_burning; "\
             "if usb start 0; then run recovery_from_udisk; fi;"\
             "run recovery_from_flash;"\
             "\0"\
@@ -162,17 +158,14 @@
             "if fatload usb 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;"\
             "if fatload usb 0 ${loadaddr} recovery.img; then "\
                 "if fatload usb 0 ${dtb_mem_addr} dtb.img; then echo udisk dtb.img loaded; fi;"\
-                "wipeisb; "\
                 "bootm ${loadaddr};fi;"\
             "\0"\
         "recovery_from_flash="\
             "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
             "if imgread dtb recovery ${dtb_mem_addr}; then "\
-                "fdt addr ${dtb_mem_addr};"\
-            "else"\
-                "imgread dtb _aml_dtb ${dtb_mem_addr}; fdt addr ${dtb_mem_addr};"\
+                "else echo restore dtb; run common_dtb_load;"\
             "fi;"\
-            "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
+            "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
             "\0"\
         "bcb_cmd="\
             "get_valid_slot;"\

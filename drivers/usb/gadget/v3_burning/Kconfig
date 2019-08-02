@@ -24,5 +24,11 @@ config V3_USB_BURN_FULL_SPEED
 	---help---
 	  Change Y Only when u testing on usb or FS mode have problem
 
+config V3_KEY_BURNING_SUPPORT
+	depends on UNIFY_KEY_MANAGE
+	bool "support burning unifykey in v3 burning"
+	default y
+	select AML_V2_FACTORY_BURN
+
 endif #AML_V3_FACTORY_BURN
 

@@ -228,7 +228,7 @@ static int do_image_read_dtb_from_rsv(unsigned char* loadaddr)
         errorP("dtbMaxSz(0x%x) invalid\n", dtbMaxSz);
         return -__LINE__;
     }
-    int iRet = store_rsv_read("dtb", dtbMaxSz/2, loadaddr);
+    int iRet = store_rsv_read("dtb", dtbMaxSz, loadaddr);
     if (iRet) {
         errorP("Fail read dtb from rsv with sz 0x%x\n", dtbMaxSz);
         return -__LINE__;

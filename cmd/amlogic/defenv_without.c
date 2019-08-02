@@ -80,7 +80,7 @@ static int _reserve_env_list_after_defenv(const int reservNum, const char* const
                 }
         }
 
-        set_default_env("## defenv_reserve\n", 0);
+        set_default_env("## defenv_reserve ##", 0);
 
         if (sumOfEnvVal)
         {
