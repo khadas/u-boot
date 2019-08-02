@@ -42,6 +42,11 @@
 #include <asm/arch/eth_setup.h>
 #include <phy.h>
 #include <asm/cpu_id.h>
+#include <dm.h>
+#ifdef CONFIG_AML_SPIFC
+#include <amlogic/spifc.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 //new static eth setup
@@ -309,6 +314,46 @@ int board_mmc_init(bd_t	*bis)
 //	board_mmc_register(SDIO_PORT_B1);
 	return 0;
 }
+
+#ifdef CONFIG_AML_SPIFC
+/*
+ * BOOT_11: NOR_D:reg7[13], clr reg7[4] + reg7[15]
+ * BOOT_12: NOR_Q:reg7[12], clr reg7[3]
+ * BOOT_13: NOR_C:reg7[11], clr reg7[2]
+ * BOOT_15: NOR_CS:reg7[10],clr reg7[0] + reg7[28]
+ */
+#define SPIFC_NUM_CS 1
+static int spifc_cs_gpios[SPIFC_NUM_CS] = {97/*PIN_BOOT_15*/};
+
+static int spifc_pinctrl_enable(void *pinctrl, bool enable)
+{
+    unsigned int val;
+
+    val = readl(P_PERIPHS_PIN_MUX_7);
+    val &= ~((1<<13)|(1<<12)|(1<<11)|(1<<10));
+    if (enable) {
+        val |= (1<<13)|(1<<12)|(1<<11);
+        val &= ~((1<<28)|(1<<15)|(1<<4)|(1<<3)|(1<<2)|(1<<0));
+    }
+    writel(val, P_PERIPHS_PIN_MUX_7);
+
+    return 0;
+}
+
+static const struct spifc_platdata spifc_platdata = {
+    .reg = 0xc1108c80,
+    .mem_map = 0xcc000000,
+    .pinctrl_enable = spifc_pinctrl_enable,
+    .num_chipselect = SPIFC_NUM_CS,
+    .cs_gpios = spifc_cs_gpios,
+};
+
+U_BOOT_DEVICE(spifc) = {
+    .name = "spifc",
+    .platdata = &spifc_platdata,
+};
+#endif /* CONFIG_AML_SPIFC */
+
 
 #ifdef CONFIG_SYS_I2C_AML
 static void board_i2c_set_pinmux(void){

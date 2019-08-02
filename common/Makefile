@@ -55,7 +55,7 @@ obj-$(CONFIG_ENV_IS_IN_MMC) += env_mmc.o
 obj-$(CONFIG_ENV_IS_IN_FAT) += env_fat.o
 obj-$(CONFIG_ENV_IS_IN_NAND) += env_nand.o
 obj-$(CONFIG_ENV_IS_IN_AMLNAND) += env_amlnand.o
-ifneq ($(CONFIG_ENV_IS_NOWHERE),y)
+ifneq ($(CONFIG_SPI_BOOT),y)
 obj-$(CONFIG_STORE_COMPATIBLE) += env_mmc.o env_storage.o
 ifdef CONFIG_ENV_IS_IN_NAND
 obj-y += env_nand.o
