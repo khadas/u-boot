@@ -1057,18 +1057,22 @@ int mtdparts_init(void)
 	struct mtd_device *dev, *dentry;
 	struct mtd_info *mtd = NULL;
 	u8 i = 0;
+	u8 cnt = 0;
+
+#ifdef CONFIG_MESON_NFC
+	cnt = MAX_MTD_CNT;
+#endif
+#if defined(CONFIG_SPI_FLASH) || defined(CONFIG_SPI_NAND)
+	cnt = MAX_MTD_CNT - 1;
+#endif
 
 	if (init_flag) {
 		debug("%s %d part already init\n", __func__, __LINE__);
 		return 0;
 	}
 	INIT_LIST_HEAD(&aml_device);
-#ifdef CONFIG_MESON_NFC
-	for (i = 0; i < MAX_MTD_CNT; i++) {
-#endif
-#if defined(CONFIG_SPI_FLASH) || defined(CONFIG_SPI_NAND)
-	for (i = 0; i < MAX_MTD_CNT - 1; i++) {
-#endif
+
+	for (i = 0; i < cnt; i++) {
 		mtd = mtd_store_get(i);
 		printf("%s, %d,mtd->partition: 0x%p, mtd: 0x%p\n", __func__, __LINE__, &mtd->partitions, mtd);
 		list_for_each_entry(part, &mtd->partitions, node) {
