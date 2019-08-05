@@ -435,6 +435,8 @@ static void get_power_state(void)
 		setenv("power_state","f");
 	}
 }
+
+#ifndef CONFIG_KHADAS_VIM
 static void set_bootmode(int mode)
 {
 	char cmd[64];
@@ -456,6 +458,7 @@ static void get_bootmode(void)
 		printf("bootmode err: %d\n",mode);
 	}
 }
+#endif
 
 static void get_rtc(void)
 {
@@ -995,7 +998,7 @@ static int do_kbi_trigger(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 	return 0;
 }
 
-
+#ifndef CONFIG_KHADAS_VIM
 static int do_kbi_bootmode(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc < 2)
@@ -1020,6 +1023,8 @@ static int do_kbi_bootmode(cmd_tbl_t * cmdtp, int flag, int argc, char * const a
 
 	return 0;
 }
+#endif
+
 static cmd_tbl_t cmd_kbi_sub[] = {
 	U_BOOT_CMD_MKENT(init, 1, 1, do_kbi_init, "", ""),
 	U_BOOT_CMD_MKENT(resetflag, 2, 1, do_kbi_resetflag, "", ""),
@@ -1035,7 +1040,9 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 	U_BOOT_CMD_MKENT(switchmac, 3, 1, do_kbi_switchmac, "", ""),
 	U_BOOT_CMD_MKENT(led, 4, 1, do_kbi_led, "", ""),
 	U_BOOT_CMD_MKENT(trigger, 4, 1, do_kbi_trigger, "", ""),
+#ifndef CONFIG_KHADAS_VIM
 	U_BOOT_CMD_MKENT(bootmode, 3, 1, do_kbi_bootmode, "", ""),
+#endif
 #ifdef CONFIG_KHADAS_VIM3
 	U_BOOT_CMD_MKENT(portmode, 1, 1, do_kbi_portmode, "", ""),
 #endif
@@ -1082,17 +1089,23 @@ static char kbi_help_text[] =
 		"kbi forcereset [wol|gpio] r - read state of force-reset\n"
 		"[notice: the wol|gpio boot trigger must be enabled if you want to enable force-reset]\n"
 		"\n"
+#ifndef CONFIG_KHADAS_VIM
 		"kbi bootmode w <emmc|spi> - set bootmode to emmc or spi\n"
 		"kbi bootmode r - read current bootmode\n"
 		"\n"
+#endif
 #ifdef CONFIG_KHADAS_VIM3
 		"kbi portmode w <0|1> - set port as usb3.0 or pcie\n"
 		"kbi portmode r - read current port mode\n"
 		"\n"
 #endif
+#ifndef CONFIG_KHADAS_VIM
 		"kbi trigger [wol|rtc|ir|dcin|key|gpio] w <0|1> - disable/enable boot trigger\n"
 		"kbi trigger [wol|rtc|ir|dcin|key|gpio] r - read mode of a boot trigger";
-
+#else
+		"kbi trigger [rtc|iir|dcin|key|gpio] w <0|1> - disable/enable boot trigger\n"
+		"kbi trigger [rtc|ir|dcin|key|gpio] r - read mode of a boot trigger";
+#endif
 
 U_BOOT_CMD(
 		kbi, 6, 1, do_kbi,
