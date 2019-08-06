@@ -280,6 +280,7 @@ static int unifykey_item_create(const void* dt_addr,int num)
 int keymanage_dts_parse(const void* dt_addr)
 {
     int ret = 0;
+	int child;
 	int nodeoffset;
 	char *punifykey_num, *encrypt_type;
 
@@ -302,11 +303,10 @@ int keymanage_dts_parse(const void* dt_addr)
 	}
 
 	unify_key_info.key_num = 0;
-	punifykey_num = (char*)fdt_getprop((const void *)dt_addr, nodeoffset, "unifykey-num",NULL);
-	if (punifykey_num) {
-//		printf("unifykey-num config is %x\n",be32_to_cpup((unsigned int*)punifykey_num));
-		unify_key_info.key_num = be32_to_cpup((unsigned int*)punifykey_num);
+	fdt_for_each_subnode(child, dt_addr, nodeoffset) {
+		unify_key_info.key_num++;
 	}
+	KM_MSG("key_num: %d\n", unify_key_info.key_num);
 
 	unify_key_info.encrypt_type = -1;
 	encrypt_type = (char*)fdt_getprop((const void *)dt_addr, nodeoffset, "unifykey-encrypt",NULL);
