@@ -294,11 +294,14 @@
             "fi;"\
             "\0"\
         "spi_check="\
-            "if sf probe; then "\
-                "setenv spi_state ""1"";"\
+            "kbi factorytest;"\
+             "if test ${factorytest} = 1; then "\
+                "if sf probe; then "\
+                    "setenv spi_state ""1"";"\
+                "fi;"\
+                "mmc dev 0;"\
+                "mmc dev 1;"\
             "fi;"\
-            "mmc dev 0;"\
-            "mmc dev 1;"\
             "\0"\
         "port_mode_change="\
             "fdt addr ${dtb_mem_addr}; "\
