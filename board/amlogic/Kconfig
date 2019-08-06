@@ -240,6 +240,10 @@ config SM1_AC213_V1
 	bool "Support amlogic sm1 ac213 v1 board"
 	default n
 
+config SM1_AC223_V1
+	bool "Support amlogic sm1 ac223 v1 board"
+	default n
+
 config TM2_T962E2_AB319_V1
 	bool "Support amlogic tm2 t962e2 ab319 v1 board"
 	default n
@@ -506,6 +510,10 @@ endif
 
 if SM1_AC200_V1
 source "board/amlogic/sm1_ac200_v1/Kconfig"
+endif
+
+if SM1_AC223_V1
+source "board/amlogic/sm1_ac223_v1/Kconfig"
 endif
 
 if SM1_AC213_V1
