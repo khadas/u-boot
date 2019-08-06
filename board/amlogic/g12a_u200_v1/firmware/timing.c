@@ -359,6 +359,7 @@ ddr_set_t __ddr_setting[] = {
 	.magic					= DRAM_CFG_MAGIC,
 	.fast_boot[0]			= 1,
 },
+#if 0
 {
 	/* lpddr3 */
 	.board_id				= CONFIG_BOARD_ID_MASK,
@@ -420,6 +421,7 @@ ddr_set_t __ddr_setting[] = {
 	.diagnose				= CONFIG_DIAGNOSE_DISABLE,
 	.fast_boot[0]			= 1,
 },
+#endif
 };
 
 pll_set_t __pll_setting = {

@@ -549,6 +549,7 @@ ddr_set_t __ddr_setting[] = {
 	.magic					= DRAM_CFG_MAGIC,
 	.bitTimeControl_2d=7,
 },
+#if 0
 {
 	/* lpddr3 */
 	.board_id				= CONFIG_BOARD_ID_MASK,
@@ -609,6 +610,7 @@ ddr_set_t __ddr_setting[] = {
 	.magic					= DRAM_CFG_MAGIC,
 	.diagnose				= CONFIG_DIAGNOSE_DISABLE,
 },
+#endif
 };
 
 pll_set_t __pll_setting = {
