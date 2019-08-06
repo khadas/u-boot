@@ -585,6 +585,7 @@ ddr_set_t __ddr_setting[] = {
 	.magic					= DRAM_CFG_MAGIC,
 	.diagnose				= CONFIG_DIAGNOSE_DISABLE,
 },
+#if 0
 {
 	/* Y2 dongle */
 	.board_id				= CONFIG_BOARD_ID_MASK,
@@ -656,6 +657,7 @@ ddr_set_t __ddr_setting[] = {
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
 },
+#endif
 };
 
 pll_set_t __pll_setting = {

@@ -7,6 +7,7 @@
 
 //#define USE_FOR_UBOOT_2018
 #define USE_FOR_UBOOT_2015
+#define GET_CHIP_ID
 
 #ifdef  USE_FOR_UBOOT_2018
 #define  DISABLE_ENV
@@ -28,6 +29,7 @@ struct ddr_base_address_table{
 	unsigned	int		ddr_pctl_timing_end_address;
 	unsigned	int		ddr_dmc_sticky0;
 	unsigned	int		sys_watchdog_base_address;
+	unsigned	int		sys_watchdog_enable_value;
 	unsigned	int		ddr_pll_base_address;
 	unsigned	int		ee_timer_base_address;
 	unsigned	int		ee_pwm_base_address;
@@ -55,6 +57,7 @@ typedef struct  ddr_base_address_table ddr_base_address_table_t;
 
 #define MESON_CPU_MAJOR_ID_TL1		0x2E
 #define MESON_CPU_MAJOR_ID_TM2		0x2F
+#define MESON_CPU_MAJOR_ID_C1		0x30
 
 #define MESON_CPU_VERSION_LVL_MAJOR	0
 #define MESON_CPU_VERSION_LVL_MINOR	1
@@ -70,33 +73,35 @@ char global_chip_id[12]={0};
 #define MESON_CPU_CHIP_ID_SIZE    12   //4  //12byte
 int ddr_get_chip_id(void)
 {
-int soc_family_id=0;
-soc_family_id =get_cpu_id().family_id ;
-printf("\nsoc_family_id==%08x",soc_family_id);
+	int soc_family_id=0;
+	soc_family_id =get_cpu_id().family_id ;
+	printf("\nsoc_family_id==0x%08x",soc_family_id);
 
-unsigned char chipid[16];
-//unsigned char chipid_inv[12];
-get_chip_id(chipid, 16);
-int count=0;
-for (count=0;count<16;count++ )
-{
-if (count>3)
-{
-global_chip_id[16-1-count]=chipid[count];
-}
-//printf("\nchipid[%d]==%08x",count,chipid[count]);
-}
-//for(int count=0;count<12;count++ )
-//{
-//printf("\nchipid_inv[%d]==%08x",count,chipid_inv[count]);
-//}
-return soc_family_id;
-//return CHIP_ID_A1;
-//return CHIP_ID_G12A;
-//return CHIP_ID_MASK;
+	unsigned char chipid[16];
+	//unsigned char chipid_inv[12];
+	#ifdef GET_CHIP_ID
+	get_chip_id(chipid, 16);
+	#endif
+	int count=0;
+	for (count=0;count<16;count++ )
+	{
+		if (count>3)
+		{
+			global_chip_id[16-1-count]=chipid[count];
+		}
+		//printf("\nchipid[%d]==%08x",count,chipid[count]);
+	}
+	//for(int count=0;count<12;count++ )
+	//{
+	//printf("\nchipid_inv[%d]==%08x",count,chipid_inv[count]);
+	//}
+	return soc_family_id;
+	//return CHIP_ID_A1;
+	//return CHIP_ID_G12A;
+	//return CHIP_ID_MASK;
 }
 
-char CMD_VER[] = "Ver_11";
+char CMD_VER[] = "Ver_12";
 ddr_base_address_table_t  __ddr_base_address_table[] = {
 	//g12a
 	{
@@ -107,7 +112,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ddr_pctl_timing_base_address=((0x0000  << 2) + 0xff638400),
 	.ddr_pctl_timing_end_address=((0x00bb  << 2) + 0xff638400),
 	.ddr_dmc_sticky0=0xff638800,
-	.sys_watchdog_base_address=((0x0040  << 2) + 0xfe000000),
+	.sys_watchdog_base_address=((0x3c34  << 2) + 0xffd00000),
 	.ddr_pll_base_address=((0x0000  << 2) + 0xff638c00),
 	.ee_timer_base_address=((0x3c62  << 2) + 0xffd00000),
 	.ee_pwm_base_address=(0xff807000 + (0x001 << 2)),
@@ -123,7 +128,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ddr_pctl_timing_base_address=((0x0000  << 2) + 0xff638400),
 	.ddr_pctl_timing_end_address=((0x00bb  << 2) + 0xff638400),
 	.ddr_dmc_sticky0=0xff638800,
-	.sys_watchdog_base_address=((0x0040  << 2) + 0xfe000000),
+	.sys_watchdog_base_address=((0x3c34  << 2) + 0xffd00000),
 	.ddr_pll_base_address=((0x0000  << 2) + 0xff638c00),
 	.ee_timer_base_address=((0x3c62  << 2) + 0xffd00000),
 	.ee_pwm_base_address=(0xff807000 + (0x001 << 2)),
@@ -139,7 +144,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ddr_pctl_timing_base_address=((0x0000  << 2) + 0xff638400),
 	.ddr_pctl_timing_end_address=((0x00bb  << 2) + 0xff638400),
 	.ddr_dmc_sticky0=0xff638800,
-	.sys_watchdog_base_address=((0x0040  << 2) + 0xfe000000),
+	.sys_watchdog_base_address=((0x3c34  << 2) + 0xffd00000),
 	.ddr_pll_base_address=((0x0000  << 2) + 0xff638c00),
 	.ee_timer_base_address=((0x3c62  << 2) + 0xffd00000),
 	.ee_pwm_base_address=(0xff807000 + (0x001 << 2)),
@@ -155,7 +160,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ddr_pctl_timing_base_address=((0x0000  << 2) + 0xff638400),
 	.ddr_pctl_timing_end_address=((0x00bb  << 2) + 0xff638400),
 	.ddr_dmc_sticky0=0xff638800,
-	.sys_watchdog_base_address=((0x0040  << 2) + 0xfe000000),
+	.sys_watchdog_base_address=((0x3c34  << 2) + 0xffd00000),
 	.ddr_pll_base_address=((0x0000  << 2) + 0xff638c00),
 	.ee_timer_base_address=((0x3c62  << 2) + 0xffd00000),
 	.ee_pwm_base_address=(0xff807000 + (0x001 << 2)),
@@ -171,7 +176,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ddr_pctl_timing_base_address=((0x0000  << 2) + 0xff638400),
 	.ddr_pctl_timing_end_address=((0x00bb  << 2) + 0xff638400),
 	.ddr_dmc_sticky0=0xff638800,
-	.sys_watchdog_base_address=((0x0040  << 2) + 0xfe000000),
+	.sys_watchdog_base_address=((0x3c34  << 2) + 0xffd00000),
 	.ddr_pll_base_address=((0x0000  << 2) + 0xff638c00),
 	.ee_timer_base_address=((0x3c62  << 2) + 0xffd00000),
 	.ee_pwm_base_address=(0xff807000 + (0x001 << 2)),
@@ -189,6 +194,23 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ddr_dmc_sticky0=0xfd020800,
 	.ddr_dmc_apd_address=((0x008c  << 2) + 0xfd020400),
 	.ddr_dmc_asr_address=((0x008d  << 2) + 0xfd020400),
+	.sys_watchdog_base_address=0,//((0x0040  << 2) + 0xfe000000),
+	.sys_watchdog_enable_value=0x03c401ff,
+	},
+	//c1
+	{
+	.soc_family_name="C1",
+	.chip_id=MESON_CPU_MAJOR_ID_C1,
+	.preg_sticky_reg0=0xfffff400,//use sram  A1,((0x00b0  << 2) + 0xfe005800),//SYSCTRL_STICKY_REG0
+	.ddr_phy_base_address=0xfd000000,
+	.ddr_pctl_timing_base_address=((0x0000  << 2) + 0xfe024400),
+	.ddr_pctl_timing_end_address=((0x00bb  << 2) + 0xfe024400),
+	.ddr_dmc_sticky0=((0x0000  << 2) + 0xfe024800),
+	.ddr_pll_base_address=((0x0000  << 2) + 0xfe024c00),
+	.ddr_dmc_apd_address=((0x008c  << 2) + 0xfe024400),
+	.ddr_dmc_asr_address=((0x008d  << 2) + 0xfe024400),
+	.sys_watchdog_base_address=0,//((0x0040  << 2) + 0xfe000000),
+	.sys_watchdog_enable_value=0x03c401ff,
 	},
 	// force id use id mask
 	{
@@ -199,7 +221,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ddr_pctl_timing_base_address=((0x0000  << 2) + 0xff638400),
 	.ddr_pctl_timing_end_address=((0x00bb  << 2) + 0xff638400),
 	.ddr_dmc_sticky0=0xff638800,
-	.sys_watchdog_base_address=((0x0040  << 2) + 0xfe000000),
+	.sys_watchdog_base_address=((0x3c34  << 2) + 0xffd00000),
 	.ddr_pll_base_address=((0x0000  << 2) + 0xff638c00),
 	.ee_timer_base_address=((0x3c62  << 2) + 0xffd00000),
 	.ee_pwm_base_address=(0xff807000 + (0x001 << 2)),
@@ -216,7 +238,7 @@ ddr_base_address_table_t * p_ddr_base={0};
 
 int setenv(const char *varname, const char *varvalue)
 {
-return 1;
+	return 1;
 }
 
 char *getenv(const char *name)
@@ -300,6 +322,34 @@ static uint32_t ddr_wr_8_16bit_on_32reg(uint32_t base_addr,uint32_t size,uint32_
 	*(volatile uint32_t *)(( unsigned long )(addr_t))=write_value;
 	return write_value;
 }
+typedef struct retraining_set{
+	unsigned short    csr_pllctrl3;
+	unsigned short    csr_pptctlstatic[4];
+	unsigned short    csr_trainingincdecdtsmen[4];
+	unsigned short      csr_tsmbyte0[4];
+	unsigned short    csr_vrefinglobal;
+	//unsigned short    csr_dfimrl[4];
+	unsigned short    csr_dqsrcvcntrl[4];
+	unsigned short     csr_pptdqscntinvtrntg0[4];
+	unsigned short     csr_pptdqscntinvtrntg1[4];
+	unsigned short     csr_seq0bgpr[9];
+	//unsigned short     csr_seq0bgpr2;
+	//unsigned short     csr_seq0bgpr3;
+	//unsigned short     csr_seq0bgpr4;
+	//unsigned short     csr_seq0bgpr5;
+	//unsigned short     csr_seq0bgpr6;
+	//unsigned short     csr_seq0bgpr7;
+	//unsigned short     csr_seq0bgpr8;
+	unsigned short     csr_dllgainctl;
+	unsigned short     csr_dlllockpara;
+	//unsigned short     csr_hwtmrl;
+	unsigned short     csr_hwtcamode;
+	unsigned short     csr_hwtlpcsena;
+	unsigned short     csr_hwtlpcsenb;
+	unsigned short     csr_acsmctrl13;
+	unsigned short     csr_acsmctrl23;
+	//unsigned short     rev_41;
+} retraining_set_t;
 typedef struct ddr_set{
 	unsigned	int		magic;
 	unsigned	char	fast_boot[4];// 0   fastboot enable  1 window test margin  2 auto offset after window test 3 auto window test
@@ -362,8 +412,9 @@ typedef struct ddr_set{
 	unsigned	short	training_SequenceCtrl[2];
 	//system reserve,do not modify
 	unsigned	char	phy_odt_config_rank[2];
-	unsigned	char	 rever1;
-	unsigned	char	 rever2;
+	//unsigned	char	 rever1;
+	//unsigned	char	 rever2;
+	unsigned	short	rank1_ca_vref_permil;
 	//training odt config ,only use for training
 	// [0]Odt pattern for accesses targeting rank 0. [3:0] is used for write ODT [7:4] is used for read ODT
 	// [1]Odt pattern for accesses targeting rank 1. [3:0] is used for write ODT [7:4] is used for read ODT
@@ -465,8 +516,8 @@ typedef struct ddr_set{
 	unsigned	char	slt_test_function[2];  //[0] slt test function enable,bit 0 enable 4 frequency scan,bit 1 enable force delay line offset ,bit 7 enable skip training function
 	//[1],slt test parameter ,use for force delay line offset
 	//system reserve,do not modify
-	unsigned	short	tdqs2dq;//dq_bdlr_org;
-	unsigned	char  dram_data_wr_odt_ohm;
+	unsigned	short	tdqs2dq;
+	unsigned	char	dram_data_wr_odt_ohm;
 	unsigned	char	bitTimeControl_2d;
 	//system reserve,do not modify
 	/* align8 */
@@ -501,12 +552,8 @@ typedef struct ddr_set{
 	unsigned	char	dfi_hwtmrl;
 	unsigned	char	ARdPtrInitVal;
 	unsigned	char	retraining[16];
+	retraining_set_t	retraining_extra_set_t;
 	//override read bit delay
-	//extra
-	//char chip_id[12];
-//	unsigned	short	dmc_test_worst_window_tx;
-//	unsigned	short	dmc_test_worst_window_rx;
-//	*/
 }ddr_set_t;
 
 ddr_set_t p_ddr_set_t;
@@ -517,8 +564,7 @@ ddr_set_t p_ddr_set_t;
 #define SHA256_SUM_LEN	32
 #define SHA256_DER_LEN	19
 
-extern const uint8_t sha256_der_prefix[];
-
+//extern const uint8_t sha256_der_prefix[];
 /* Reset watchdog each time we process this many bytes */
 #define CHUNKSZ_SHA256	(64 * 1024)
 
@@ -528,8 +574,7 @@ typedef struct {
 	uint8_t buffer[64];
 } sha256_context;
 
-
-const uint8_t sha256_der_prefix[SHA256_DER_LEN] = {
+const uint8_t sha256_der_prefix_ddr[SHA256_DER_LEN] = {
 	0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86,
 	0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05,
 	0x00, 0x04, 0x20
@@ -780,8 +825,9 @@ void sha256_csum_wd_internal(const unsigned char *input, unsigned int ilen,
 {
 #if 0
 	int count=0;
-for ( count=0;count<ilen;count++)
-	{printf("\ninput %08x,p+%08x,%08x",(unsigned int)(unsigned long)(input+count),count,*(input+count));
+	for ( count=0;count<ilen;count++)
+	{
+		printf("\ninput %08x,p+%08x,%08x",(unsigned int)(unsigned long)(input+count),count,*(input+count));
 	}
 #endif
 	sha256_context ctx;
@@ -789,8 +835,9 @@ for ( count=0;count<ilen;count++)
 	sha256_update_internal(&ctx, input, ilen);
 	sha256_finish_internal(&ctx, output);
 #if 0
-for ( count=0;count<32;count++)
-	{printf("\noutput %08x,p+%08x,%08x",(unsigned int)(unsigned long)(output+count),count,*(output+count));
+	for ( count=0;count<32;count++)
+	{
+		printf("\noutput %08x,p+%08x,%08x",(unsigned int)(unsigned long)(output+count),count,*(output+count));
 	}
 #endif
 }
@@ -920,22 +967,20 @@ return (tok);
 */
 int TOLOWER(int ch)
 {
-
-if ((unsigned int)(ch - 'A') < 26u )
-ch += 'a' - 'A';
-
-return ch;
+	if ((unsigned int)(ch - 'A') < 26u )
+		ch += 'a' - 'A';
+	return ch;
 }//大写字母转换为小写字母。
 
 int isxdigit(int ch)
 {
-return (unsigned int)( ch         - '0') < 10u  ||
-(unsigned int)((ch | 0x20) - 'a') <  6u;
+	return (unsigned int)( ch         - '0') < 10u  ||
+	(unsigned int)((ch | 0x20) - 'a') <  6u;
 }//判断字符c是否为十六进制数字。
 //当c为A-F,a-f或0-9之间的十六进制数字时，返回非零值，否则返回零。
 int isdigit(int ch)
 {
-return (unsigned int)(ch - '0') < 10u;
+	return (unsigned int)(ch - '0') < 10u;
 }//判断字符c是否为数字
 unsigned int simple_guess_base(const char *cp)
 {
@@ -1163,7 +1208,7 @@ unsigned int  acbdlr0_9_reg_setup_max[40];
 unsigned int  acbdlr0_9_reg_hold_max[40];
 unsigned int  acbdlr0_9_reg_setup_time[40];
 unsigned int  acbdlr0_9_reg_hold_time[40];
-//    unsigned int  data_bdlr0_5_reg_org[6];
+//unsigned int  data_bdlr0_5_reg_org[6];
 unsigned int  data_bdlr0_5_reg_org[28];//4//4lane
 unsigned int  bdlr0_9_reg_setup_max[24*4];//4//4 lane 96 bdlr
 unsigned int  bdlr0_9_reg_hold_max[24*4];
@@ -1232,12 +1277,12 @@ unsigned int  pre_fetch_enable=0;
 
 #define  DDR_LCDLR_CK_USE_FAST_PATTERN
 #if (CONFIG_DDR_PHY > P_DDR_PHY_DEFAULT)
-#define  DDR_PREFETCH_CACHE
+	#define  DDR_PREFETCH_CACHE
 #endif
 #ifdef DDR_PREFETCH_CACHE
-#define ddr_pld_cache(P)   asm ("prfm PLDL1KEEP, [%0, #376]"::"r" (P))
+	#define ddr_pld_cache(P)   asm ("prfm PLDL1KEEP, [%0, #376]"::"r" (P))
 #else
-#define ddr_pld_cache(P)
+	#define ddr_pld_cache(P)
 #endif
 
 
@@ -1265,20 +1310,19 @@ unsigned int  pre_fetch_enable=0;
 
 unsigned int  dwc_ddrphy_apb_wr(unsigned int addr,unsigned int dat)
 {
-*(volatile uint16_t *)(int_convter_p(((addr) << 1)+(p_ddr_base->ddr_phy_base_address)))=((uint16_t)dat);
-return 1;
+	*(volatile uint16_t *)(int_convter_p(((addr) << 1)+(p_ddr_base->ddr_phy_base_address)))=((uint16_t)dat);
+	return 1;
 }
+
 unsigned int  dwc_ddrphy_apb_rd(unsigned int addr)
 {
-return *(volatile uint16_t *)(int_convter_p(((addr) << 1)+(p_ddr_base->ddr_phy_base_address)));
+	return *(volatile uint16_t *)(int_convter_p(((addr) << 1)+(p_ddr_base->ddr_phy_base_address)));
 }
+
 void ddr_udelay(unsigned int us)
 {
-
 	unsigned int t0 = (rd_reg((p_ddr_base->ee_timer_base_address)));
-
 	while ((rd_reg(((p_ddr_base->ee_timer_base_address)))) - t0 <= us)	;
-
 }
 
 #define DDR_PARAMETER_SOURCE_FROM_DMC_STICKY  1
@@ -1473,17 +1517,20 @@ void ddr_test_watchdog_reset_system(void)
 {
 	int i;
 	//_udelay(10000); //wait print
-	while (1) {
-		writel( 0x3 | (1 << 21) // sys reset en
+	if (p_ddr_base->sys_watchdog_enable_value == 0)
+		p_ddr_base->sys_watchdog_enable_value=0x3 | (1 << 21) // sys reset en
 					| (1 << 23) // interrupt en
 					| (1 << 24) // clk en
 					| (1 << 25) // clk div en
-					| (1 << 26) // sys reset now
+					| (1 << 26) ;// sys reset now
+	writel(0, (p_ddr_base->sys_watchdog_base_address+12));
+	while (1) {
+		writel(p_ddr_base->sys_watchdog_enable_value
 			, (p_ddr_base->sys_watchdog_base_address));
+		//writel(0, (p_ddr_base->sys_watchdog_base_address+12));
 		writel(0, (p_ddr_base->sys_watchdog_base_address+12));
-
-		writel(readl((p_ddr_base->sys_watchdog_base_address)) | (1<<18), // watchdog en
-			(p_ddr_base->sys_watchdog_base_address));
+		writel((p_ddr_base->sys_watchdog_enable_value) | (1<<18),
+			(p_ddr_base->sys_watchdog_base_address));// watchdog en
 		for (i=0; i<100; i++)
 			readl((p_ddr_base->sys_watchdog_base_address));/*Deceive gcc for waiting some cycles */
 	}
@@ -1756,7 +1803,8 @@ static void ddr_read(void *buff,  unsigned int  m_length)
 					case 25:
 					case 30:
 						if (*(p+i) != TDATA32F)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), TDATA32F);
 						}
 						break;
@@ -1765,19 +1813,25 @@ static void ddr_read(void *buff,  unsigned int  m_length)
 					case 8:
 					case 17:
 					case 22:
-						if (*(p+i) != 0) {error_count++;
+						if (*(p+i) != 0)
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0);
 						}break;
 					case 16:
 					case 23:
 					case 31:
-						if (*(p+i) != TDATA32A) {error_count++;
+						if (*(p+i) != TDATA32A)
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), TDATA32A);
 						} break;
 					case 7:
 					case 15:
 					case 24:
-						if (*(p+i) != TDATA325) {error_count++;
+						if (*(p+i) != TDATA325)
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), TDATA325);
 						} break;
 					case 2:
@@ -1788,7 +1842,9 @@ static void ddr_read(void *buff,  unsigned int  m_length)
 					case 21:
 					case 27:
 					case 29:
-						if (*(p+i) != 1<<j) {error_count++;
+						if (*(p+i) != 1<<j)
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 1<<j);
 						} break;
 					case 3:
@@ -1799,7 +1855,9 @@ static void ddr_read(void *buff,  unsigned int  m_length)
 					case 20:
 					case 26:
 					case 28:
-						if (*(p+i) != ~(1<<j)) {error_count++;
+						if (*(p+i) != ~(1<<j))
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~(1<<j));
 						} break;
 				}
@@ -1850,14 +1908,12 @@ static void ddr_write4(void *buff,  unsigned int  m_length)
 					case 1:
 					case 2:
 					case 3:
-
 						*(p+i) = 0xff00ff00;
 						break;
 					case 4:
 					case 5:
 					case 6:
 					case 7:
-
 						*(p+i) = ~0xff00ff00;
 						break;
 					case 8:
@@ -1881,10 +1937,8 @@ static void ddr_write4(void *buff,  unsigned int  m_length)
 					case 25:
 					case 26:
 					case 27:
-
 						*(p+i) = 1<<j;
 						break;
-
 					case 20:
 					case 21:
 					case 22:
@@ -1944,15 +1998,14 @@ static void ddr_read4(void *buff,  unsigned int  m_length)
 				}
 				switch (i)
 				{
-
 					case 0:
 					case 1:
 					case 2:
 					case 3:
-
 						//   *(p+i) = 0xff00ff00;
 						if (*(p+i) != 0xff00ff00)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), TDATA32F);
 						}
 						break;
@@ -1960,10 +2013,10 @@ static void ddr_read4(void *buff,  unsigned int  m_length)
 					case 5:
 					case 6:
 					case 7:
-
 						//      *(p+i) = ~0xff00ff00;
 						if (*(p+i) != ~0xff00ff00)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), TDATA32F);
 						}
 						break;
@@ -1973,7 +2026,8 @@ static void ddr_read4(void *buff,  unsigned int  m_length)
 					case 11:
 						//    *(p+i) = 0xaa55aa55;
 						if (*(p+i) != 0xaa55aa55)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), TDATA32F);
 						}
 						break;
@@ -1983,7 +2037,8 @@ static void ddr_read4(void *buff,  unsigned int  m_length)
 					case 15:
 						//   *(p+i) = ~0xaa55aa55;
 						if (*(p+i) != ~0xaa55aa55)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), TDATA32F);
 						}
 						break;
@@ -1996,14 +2051,13 @@ static void ddr_read4(void *buff,  unsigned int  m_length)
 					case 25:
 					case 26:
 					case 27:
-
 						//   *(p+i) = 1<<j;
 						if (*(p+i) != (1<<j))
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), TDATA32F);
 						}
 						break;
-
 					case 20:
 					case 21:
 					case 22:
@@ -2014,7 +2068,8 @@ static void ddr_read4(void *buff,  unsigned int  m_length)
 					case 31:
 						//  *(p+i) = ~(1<<j);
 						if (*(p+i) !=~( 1<<j))
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), TDATA32F);
 						}
 						break;
@@ -2061,7 +2116,8 @@ static void ddr_read_full(void *buff,  unsigned int  m_length,unsigned int  star
 			break;
 		}
 		if ((*(p+i)) !=(start_pattern+pattern_offset*i))
-		{error_count++;
+		{
+			error_count++;
 			printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i),
 					(start_pattern+pattern_offset*i));
 		}
@@ -2647,7 +2703,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 						//   case 30:
 						//      *(p+i) = TDATA32F;
 						if (*(p+i) != TDATA32F)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), TDATA32F);
 							break;
 						}
@@ -2671,7 +2728,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 						//   case 22:
 						//   *(p+i) = 0;
 						if (*(p+i) != 0)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0);
 							break;}
 						break;
@@ -2694,7 +2752,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 						//   case 30:
 						//        *(p+i) = TDATA32A;
 						if (*(p+i) != TDATA32A)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), TDATA32A);
 							break;
 						}
@@ -2717,7 +2776,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_1+31:
 						//	*(p+i) = TDATA325;
 						if (*(p+i) != TDATA325)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), TDATA325);
 							break;
 						}
@@ -2728,7 +2788,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+3:
 						//   	*(p+i) =0xfe01fe01;
 						if (*(p+i) !=0xfe01fe01)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xfe01fe01);
 							break;
 						}
@@ -2739,7 +2800,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+7:
 						// 	*(p+i) =0xfd02fd02;
 						if (*(p+i) != 0xfd02fd02)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xfd02fd02);
 							break;
 						}
@@ -2750,7 +2812,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+11:
 						//	*(p+i) =0xfb04fb04;
 						if (*(p+i) != 0xfb04fb04)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xfb04fb04);
 							break;
 						}
@@ -2761,7 +2824,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+15:
 						//	*(p+i) =0xf7b08f708;
 						if (*(p+i) != 0xf708f708)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xf708f708);
 							break;
 						}
@@ -2772,7 +2836,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+19:
 						//	*(p+i) =0xef10ef10;
 						if (*(p+i) != 0xef10ef10)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xef10ef10);
 							break;
 						}
@@ -2783,7 +2848,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+23:
 						//	*(p+i) =0xdf20df20;
 						if (*(p+i) != 0xdf20df20)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xdf20df20);
 							break;
 						}
@@ -2794,7 +2860,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+27:
 						//  	*(p+i) =0xbf40bf40;
 						if (*(p+i) != 0xbf40bf40)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xbf40bf40);
 							break;
 						}
@@ -2805,7 +2872,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+31:
 						//   	*(p+i) =0x7f807f80;
 						if (*(p+i) != 0x7f807f80)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0x7f807f80);
 							break;
 
@@ -2817,7 +2885,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+3:
 						//	*(p+i) =0x00000100;
 						if (*(p+i) != 0x00000100)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0x00000100);
 							break;
 						}
@@ -2828,7 +2897,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+7:
 						//  	*(p+i) =0x00000100;
 						if (*(p+i) != 0x00000200)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0x00000200);
 							break;
 						}
@@ -2839,7 +2909,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+11:
 						//	*(p+i) =0x00000100;
 						if (*(p+i) != 0x00000400)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0x00000400);
 							break;
 						}
@@ -2850,7 +2921,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+15:
 						//	*(p+i) =0x00000100;
 						if (*(p+i) != 0x00000800)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0x00000800);
 							break;
 						}
@@ -2861,7 +2933,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+19:
 						//	*(p+i) =0xfffffeff;
 						if (*(p+i) != 0x00001000)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0x00001000);
 							break;
 						}
@@ -2872,7 +2945,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+23:
 						// 	*(p+i) =0xfffffeff;
 						if (*(p+i) != 0x00002000)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0x00002000);
 
 						} break;
@@ -2882,7 +2956,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+27:
 						//	*(p+i) =0xfffffeff;
 						if (*(p+i) != 0x00004000)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0x00004000);
 							break;
 						}
@@ -2893,7 +2968,8 @@ static void ddr_read_pattern4_cross_talk_p(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+31:
 						//	*(p+i) =0xfffffeff;
 						if (*(p+i) != 0x00008000)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0x00008000);
 							break;
 						}
@@ -2957,7 +3033,8 @@ static void ddr_read_pattern4_cross_talk_p2(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+3:
 						//   *(p+i) = 0xfe01fe01;
 						if (*(p+i) != 0xfe01fe01)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xfe01fe01);
 							break;
 						}
@@ -2968,7 +3045,8 @@ static void ddr_read_pattern4_cross_talk_p2(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+7:
 						//	   *(p+i) = 0xfd02fd02;
 						if (*(p+i) != 0xfd02fd02)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xfd02fd02);
 							break;
 						}
@@ -2980,7 +3058,8 @@ static void ddr_read_pattern4_cross_talk_p2(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+11:
 						//   *(p+i) = 0xfb04fb04;
 						if (*(p+i) != 0xfb04fb04)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xfb04fb04);
 							break;
 						}
@@ -2992,7 +3071,8 @@ static void ddr_read_pattern4_cross_talk_p2(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+15:
 						//	   *(p+i) = 0xf708f708;
 						if (*(p+i) != 0xf708f708)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xf708f708);
 							break;
 						}
@@ -3004,7 +3084,8 @@ static void ddr_read_pattern4_cross_talk_p2(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+19:
 						//	   *(p+i) = 0xef10ef10;
 						if (*(p+i) != 0xef10ef10)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xef10ef10);
 							break;
 						}
@@ -3016,7 +3097,8 @@ static void ddr_read_pattern4_cross_talk_p2(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+23:
 						//   *(p+i) = 0xdf20df20;
 						if (*(p+i) != 0xdf20df20)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xdf20df20);
 							break;
 						}
@@ -3028,7 +3110,8 @@ static void ddr_read_pattern4_cross_talk_p2(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+27:
 						//	   *(p+i) = 0xbf40bf40;
 						if (*(p+i) != 0xbf40bf40)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xbf40bf40);
 							break;
 						}
@@ -3039,7 +3122,8 @@ static void ddr_read_pattern4_cross_talk_p2(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+31:
 						//	   *(p+i) = 0x7f807f80;
 						if (*(p+i) != 0x7f807f80)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0x7f807f80);
 							break;
 						}
@@ -3050,7 +3134,8 @@ static void ddr_read_pattern4_cross_talk_p2(void *buff,  unsigned int  m_length)
 
 						//  *(p+i) = 0xff00ff00;
 						if (*(p+i) != 0xff00ff00)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xff00ff00);
 							break;
 						}
@@ -3453,7 +3538,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 						//   case 30:
 						//      *(p+i) = TDATA32F;
 						if (*(p+i) !=~TDATA32F)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~TDATA32F);
 							break;
 						}
@@ -3477,7 +3563,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 						//   case 22:
 						//   *(p+i) = 0;
 						if (*(p+i) !=~0)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0);
 						}
 						break;
@@ -3500,7 +3587,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 						//   case 30:
 						//        *(p+i) = TDATA32A;
 						if (*(p+i) != ~TDATA32A)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i),~TDATA32A);
 						}
 						break;
@@ -3522,7 +3610,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_1+31:
 						//	*(p+i) = TDATA325;
 						if (*(p+i) != ~TDATA325)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~TDATA325);
 						}
 						break;
@@ -3532,7 +3621,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+3:
 						//   	*(p+i) =0xfe01fe01;
 						if (*(p+i) !=~0xfe01fe01)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xfe01fe01);
 						}
 						break;
@@ -3542,7 +3632,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+7:
 						// 	*(p+i) =0xfd02fd02;
 						if (*(p+i) != ~0xfd02fd02)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xfd02fd02);
 						}
 						break;
@@ -3553,7 +3644,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+11:
 						//	*(p+i) =0xfb04fb04;
 						if (*(p+i) != ~0xfb04fb04)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xfb04fb04);
 						}
 						break;
@@ -3563,7 +3655,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+15:
 						//	*(p+i) =0xf7b08f708;
 						if (*(p+i) != ~0xf708f708)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xf708f708);
 						}
 						break;
@@ -3573,7 +3666,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+19:
 						//	*(p+i) =0xef10ef10;
 						if (*(p+i) != ~0xef10ef10)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xef10ef10);
 						}
 						break;
@@ -3583,7 +3677,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+23:
 						//	*(p+i) =0xdf20df20;
 						if (*(p+i) != ~0xdf20df20)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xdf20df20);
 						}
 						break;
@@ -3593,7 +3688,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+27:
 						//  	*(p+i) =0xbf40bf40;
 						if (*(p+i) != ~0xbf40bf40)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xbf40bf40);
 						}
 						break;
@@ -3603,7 +3699,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+31:
 						//   	*(p+i) =0x7f807f80;
 						if (*(p+i) != ~0x7f807f80)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0x7f807f80);
 						}
 						break;
@@ -3614,7 +3711,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+3:
 						//	*(p+i) =0x00000100;
 						if (*(p+i) != ~0x00000100)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0x00000100);
 						}
 						break;
@@ -3624,7 +3722,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+7:
 						//  	*(p+i) =0x00000100;
 						if (*(p+i) != ~0x00000200)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0x00000200);
 						}
 						break;
@@ -3634,7 +3733,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+11:
 						//	*(p+i) =0x00000100;
 						if (*(p+i) != ~0x00000400)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0x00000400);
 						}
 						break;
@@ -3644,7 +3744,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+15:
 						//	*(p+i) =0x00000100;
 						if (*(p+i) != ~0x00000800)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0x00000800);
 						}
 						break;
@@ -3654,7 +3755,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+19:
 						//	*(p+i) =0xfffffeff;
 						if (*(p+i) != ~0x00001000)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0x00001000);
 						}
 						break;
@@ -3664,7 +3766,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+23:
 						// 	*(p+i) =0xfffffeff;
 						if (*(p+i) != ~0x00002000)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0x00002000);
 						}
 						break;
@@ -3674,7 +3777,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+27:
 						//	*(p+i) =0xfffffeff;
 						if (*(p+i) != ~0x00004000)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0x00004000);
 						}
 						break;
@@ -3684,7 +3788,8 @@ static void ddr_read_pattern4_cross_talk_n(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+31:
 						//	*(p+i) =0xfffffeff;
 						if (*(p+i) != ~0x00008000)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0x00008000);
 						}
 						break;
@@ -3749,7 +3854,8 @@ static void ddr_read_pattern4_cross_talk_n2(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+3:
 						//   *(p+i) = 0xfe01fe01;
 						if (*(p+i) != ~0xfe01fe01)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xfe01fe01);
 							break;
 						}
@@ -3760,7 +3866,8 @@ static void ddr_read_pattern4_cross_talk_n2(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+7:
 						//	   *(p+i) = 0xfd02fd02;
 						if (*(p+i) != ~0xfd02fd02)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xfd02fd02);
 							break;
 						}
@@ -3772,7 +3879,8 @@ static void ddr_read_pattern4_cross_talk_n2(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+11:
 						//   *(p+i) = 0xfb04fb04;
 						if (*(p+i) != ~0xfb04fb04)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xfb04fb04);
 							break;
 						}
@@ -3784,7 +3892,8 @@ static void ddr_read_pattern4_cross_talk_n2(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+15:
 						//	   *(p+i) = 0xf708f708;
 						if (*(p+i) != ~0xf708f708)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xf708f708);
 							break;
 						}
@@ -3796,7 +3905,8 @@ static void ddr_read_pattern4_cross_talk_n2(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+19:
 						//	   *(p+i) = 0xef10ef10;
 						if (*(p+i) != ~0xef10ef10)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xef10ef10);
 							break;
 						}
@@ -3808,7 +3918,8 @@ static void ddr_read_pattern4_cross_talk_n2(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+23:
 						//   *(p+i) = 0xdf20df20;
 						if (*(p+i) != ~0xdf20df20)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xdf20df20);
 							break;
 						}
@@ -3820,7 +3931,8 @@ static void ddr_read_pattern4_cross_talk_n2(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+27:
 						//	   *(p+i) = 0xbf40bf40;
 						if (*(p+i) != ~0xbf40bf40)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xbf40bf40);
 							break;
 						}
@@ -3831,7 +3943,8 @@ static void ddr_read_pattern4_cross_talk_n2(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+31:
 						//	   *(p+i) = 0x7f807f80;
 						if (*(p+i) != ~0x7f807f80)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0x7f807f80);
 							break;
 						}
@@ -3842,7 +3955,8 @@ static void ddr_read_pattern4_cross_talk_n2(void *buff,  unsigned int  m_length)
 
 						//  *(p+i) = 0xff00ff00;
 						if (*(p+i) != ~0xff00ff00)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xff00ff00);
 							break;
 						}
@@ -4147,7 +4261,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 						//	  if(*(p+i) !=~TDATA32F)
 
 						if ( *(p+i) != 0xff00ff00)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xff00ff00);
 						}
 						break;
@@ -4156,7 +4271,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case 6:
 					case 7:
 						if ( *(p+i) != 0xffff0000)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xffff0000);
 						}
 						break;
@@ -4167,7 +4283,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case 11:
 						// *(p+i) = 0xff000000;
 						if ( *(p+i) != 0xff000000)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xff000000);
 						}
 						break;
@@ -4177,7 +4294,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case 15:
 						// *(p+i) = 0xff00ffff;
 						if ( *(p+i) != 0xff00ffff)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xff00ffff);
 						}
 						break;
@@ -4188,7 +4306,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case 19:
 						//	 *(p+i) = 0xff00ffff;
 						if ( *(p+i) != 0xff00ffff)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xff00ffff);
 						}
 						break;
@@ -4198,7 +4317,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case 23:
 						//  *(p+i) = 0xff0000ff;
 						if ( *(p+i) != 0xff0000ff)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xff0000ff);
 						}
 						break;
@@ -4208,7 +4328,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case 27:
 						//  *(p+i) = 0xffff0000;
 						if ( *(p+i) != 0xffff0000)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xffff0000);
 						}
 						break;
@@ -4219,7 +4340,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case 31:
 						//  *(p+i) = 0x00ff00ff;
 						if ( *(p+i) != 0x00ff00ff)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0x00ff00ff);
 						}
 						break;
@@ -4229,7 +4351,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_1+3:
 						//  	*(p+i) =~0xff00ff00;
 						if ( *(p+i) != ~0xff00ff00)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xff00ff00);
 						}
 						break;
@@ -4239,7 +4362,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_1+7:
 						// 	*(p+i) =~0xffff0000;
 						if ( *(p+i) != ~0xffff0000)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xffff0000);
 						}
 						break;
@@ -4249,7 +4373,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_1+11:
 						// 	*(p+i) =~0xff000000;
 						if ( *(p+i) != ~0xff000000)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xff000000);
 						}
 						break;
@@ -4259,7 +4384,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_1+15:
 						//	*(p+i) =~0xff00ffff;
 						if ( *(p+i) != ~0xff00ffff)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xff00ffff);
 						}
 						break;
@@ -4269,7 +4395,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_1+19:
 						//	*(p+i) =~0xff00ffff;
 						if ( *(p+i) != ~0xff00ffff)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xff00ffff);
 						}
 						break;
@@ -4279,7 +4406,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_1+23:
 						//	*(p+i) =~0xff00ffff;
 						if ( *(p+i) != ~0xff00ffff)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xff00ffff);
 						}
 						break;
@@ -4289,7 +4417,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_1+27:
 						//	*(p+i) =~0xffff0000;
 						if ( *(p+i) != ~0xffff0000)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xffff0000);
 						}
 						break;
@@ -4299,7 +4428,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_1+31:
 						//  	*(p+i) =~0x00ff00ff;
 						if ( *(p+i) != ~0x00ff00ff)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0x00ff00ff);
 						}
 						break;
@@ -4310,7 +4440,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+3:
 						//  	*(p+i) =0x00ff0000;
 						if ( *(p+i) != 0x00ff0000)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0x00ff0000);
 						}
 						break;
@@ -4320,7 +4451,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+7:
 						//   	*(p+i) =0xff000000;
 						if ( *(p+i) != 0xff000000)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xff000000);
 						}
 						break;
@@ -4330,7 +4462,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+11:
 						// 	*(p+i) =0x0000ffff;
 						if ( *(p+i) != 0x0000ffff)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0x0000ffff);
 						}
 						break;
@@ -4340,7 +4473,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+15:
 						//   	*(p+i) =0x000000ff;
 						if ( *(p+i) != 0x000000ff)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0x000000ff);
 						}
 						break;
@@ -4350,7 +4484,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+19:
 						//   	*(p+i) =0x00ff00ff;
 						if ( *(p+i) != 0x00ff00ff)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0x00ff00ff);
 						}
 						break;
@@ -4360,7 +4495,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+23:
 						//	*(p+i) =0xff00ff00;
 						if ( *(p+i) != 0xff00ff00)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xff00ff00);
 						}
 						break;
@@ -4370,7 +4506,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+27:
 						//   	*(p+i) =0xff00ffff;
 						if ( *(p+i) != 0xff00ffff)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xff00ffff);
 						}
 						break;
@@ -4380,7 +4517,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_2+31:
 						//	   	*(p+i) =0xff00ff00;
 						if ( *(p+i) != 0xff00ff00)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), 0xff00ff00);
 						}
 						break;
@@ -4390,7 +4528,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+3:
 						//	*(p+i) =~0x00ff0000;
 						if ( *(p+i) != ~0x00ff0000)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0x00ff0000);
 						}
 						break;
@@ -4400,7 +4539,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+7:
 						//   	*(p+i) =~0xff000000;
 						if ( *(p+i) != ~0xff000000)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xff000000);
 						}
 						break;
@@ -4410,7 +4550,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+11:
 						//  	*(p+i) =~0x0000ffff;
 						if ( *(p+i) != ~0x0000ffff)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0x0000ffff);
 						}
 						break;
@@ -4420,7 +4561,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+15:
 						//   	*(p+i) =~0x000000ff;
 						if ( *(p+i) != ~0x000000ff)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0x000000ff);
 						}
 						break;
@@ -4430,7 +4572,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+19:
 						//   	*(p+i) =~0x00ff00ff;
 						if ( *(p+i) != ~0x00ff00ff)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0x00ff00ff);
 						}
 						break;
@@ -4440,7 +4583,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+23:
 						//	*(p+i) =~0xff00ff00;
 						if ( *(p+i) != ~0xff00ff00)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xff00ff00);
 						}
 						break;
@@ -4450,7 +4594,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+27:
 						//  	*(p+i) =~0xff00ffff;
 						if ( *(p+i) != ~0xff00ffff)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xff00ffff);
 						}
 						break;
@@ -4460,7 +4605,8 @@ static void ddr_read_pattern4_no_cross_talk(void *buff,  unsigned int  m_length)
 					case DDR_PATTERN_LOOP_3+31:
 						//   	*(p+i) =~0xff00ff00;
 						if ( *(p+i) != ~0xff00ff00)
-						{error_count++;
+						{
+							error_count++;
 							printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i), ~0xff00ff00);
 						}
 						break;
@@ -5947,16 +6093,17 @@ int get_ddr_clk(void)
 		(p_ddr_base->chip_id==MESON_CPU_MAJOR_ID_G12B)||
 		(p_ddr_base->chip_id==MESON_CPU_MAJOR_ID_TL1)||
 		(p_ddr_base->chip_id==MESON_CPU_MAJOR_ID_SM1)||
-		(p_ddr_base->chip_id==MESON_CPU_MAJOR_ID_TM2))
-		{
-	ddr_pll=rd_reg(p_ddr_base->ddr_pll_base_address);
-	ddr_pll=ddr_pll&0xfffff;
-	ddr_clk=pll_convert_to_ddr_clk_g12a(  ddr_pll);
-		}
+		(p_ddr_base->chip_id==MESON_CPU_MAJOR_ID_TM2)||
+		(p_ddr_base->chip_id==MESON_CPU_MAJOR_ID_C1))
+	{
+		ddr_pll=rd_reg(p_ddr_base->ddr_pll_base_address);
+		ddr_pll=ddr_pll&0xfffff;
+		ddr_clk=pll_convert_to_ddr_clk_g12a(  ddr_pll);
+	}
 	if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_A1)
-		{
+	{
 		ddr_clk=768;
-		}
+	}
 	return ddr_clk;
 //#endif
 	//return ddr_clk;
@@ -6784,6 +6931,143 @@ int do_read_ddr_training_data(char log_level,ddr_set_t *ddr_set_t_p)
 				ddr_set_t_p->retraining[4*t_count+3]=dwc_ddrphy_apb_rd((0<<20)|(1<<16)|(t_count<<12)|(0xaf));  //PptDqsCntInvTrnTg0  ps0 rank1 lane 0-3
 			}
 	}
+
+	#if 1  //add for skip training
+	printf_log(log_level,"\n extra retraining setting.");
+	t_count=0;
+	add_offset=(0<<20)|(2<<16)|(0<<12)|(0xcb);
+	dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
+	delay_temp=dq_bit_delay[t_count];
+	ddr_set_t_p->retraining_extra_set_t.csr_pllctrl3=delay_temp;
+	printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
+
+	for (t_count=0;t_count<4;t_count++)
+	{
+		add_offset=((0<<20)|(1<<16)|(t_count<<12)|(0xaa));
+		dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
+		delay_temp=dq_bit_delay[t_count];
+		ddr_set_t_p->retraining_extra_set_t.csr_pptctlstatic[t_count]=delay_temp;
+		printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
+	}
+	for (t_count=0;t_count<4;t_count++)
+	{
+		add_offset=((0<<20)|(1<<16)|(t_count<<12)|(0x62));
+		dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
+		delay_temp=dq_bit_delay[t_count];
+		ddr_set_t_p->retraining_extra_set_t.csr_trainingincdecdtsmen[t_count]=delay_temp;
+		printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
+	}
+	for (t_count=0;t_count<4;t_count++)
+	{
+		add_offset=((0<<20)|(1<<16)|(t_count<<12)|(0x01));
+		dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
+		delay_temp=dq_bit_delay[t_count];
+		ddr_set_t_p->retraining_extra_set_t.csr_tsmbyte0[t_count]=delay_temp;
+		printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
+	}
+	for (t_count=0;t_count<4;t_count++)
+	{
+		add_offset=((0<<20)|(1<<16)|(t_count<<12)|(0x43));
+		dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
+		delay_temp=dq_bit_delay[t_count];
+		ddr_set_t_p->retraining_extra_set_t.csr_dqsrcvcntrl[t_count]=delay_temp;
+		printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
+	}
+	for (t_count=0;t_count<4;t_count++)
+	{
+		//t_count=0;
+		add_offset=((0<<20)|(1<<16)|(t_count<<12)|(0xae));
+		dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
+		delay_temp=dq_bit_delay[t_count];
+		ddr_set_t_p->retraining_extra_set_t.csr_pptdqscntinvtrntg0[t_count]=delay_temp;
+		printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
+	}
+	for (t_count=0;t_count<4;t_count++)
+	{
+		//t_count=0;
+		add_offset=((0<<20)|(1<<16)|(t_count<<12)|(0xaf));
+		dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
+		delay_temp=dq_bit_delay[t_count];
+		ddr_set_t_p->retraining_extra_set_t.csr_pptdqscntinvtrntg1[t_count]=delay_temp;
+		printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
+	}
+	//for(t_count=0;t_count<4;t_count++)
+	{
+		t_count=0;
+		add_offset=((0<<20)|(2<<16)|(t_count<<12)|(0xb2));
+		dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
+		delay_temp=dq_bit_delay[t_count];
+		ddr_set_t_p->retraining_extra_set_t.csr_vrefinglobal=delay_temp;
+		printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
+	}
+	for (t_count=1;t_count<9;t_count++)
+	{
+		//t_count=0;
+		add_offset=((0<<20)|(9<<16)|(0<<12)|(0x200)|t_count);
+		dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
+		delay_temp=dq_bit_delay[t_count];
+		ddr_set_t_p->retraining_extra_set_t.csr_seq0bgpr[t_count]=delay_temp;
+		printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
+	}
+	{
+		t_count=0;
+		add_offset=((0<<20)|(2<<16)|(t_count<<12)|(0x7c));
+		dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
+		delay_temp=dq_bit_delay[t_count];
+		ddr_set_t_p->retraining_extra_set_t.csr_dllgainctl=delay_temp;
+		printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
+	}
+	{
+		t_count=0;
+		add_offset=((0<<20)|(2<<16)|(t_count<<12)|(0x7d));
+		dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
+		delay_temp=dq_bit_delay[t_count];
+		ddr_set_t_p->retraining_extra_set_t.csr_dlllockpara=delay_temp;
+		printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
+	}
+	{
+		t_count=0;
+		add_offset=((0<<20)|(2<<16)|(t_count<<12)|(0x77));
+		dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
+		delay_temp=dq_bit_delay[t_count];
+		ddr_set_t_p->retraining_extra_set_t.csr_hwtcamode=delay_temp;
+		printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
+	}
+	{
+		t_count=0;
+		add_offset=((0<<20)|(2<<16)|(t_count<<12)|(0x72));
+		dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
+		delay_temp=dq_bit_delay[t_count];
+		ddr_set_t_p->retraining_extra_set_t.csr_hwtlpcsena=delay_temp;
+		printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
+	}
+	{
+		t_count=0;
+		add_offset=((0<<20)|(2<<16)|(t_count<<12)|(0x73));
+		dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
+		delay_temp=dq_bit_delay[t_count];
+		ddr_set_t_p->retraining_extra_set_t.csr_hwtlpcsenb=delay_temp;
+		printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
+	}
+	{
+		t_count=0;
+		add_offset=((0<<20)|(4<<16)|(t_count<<12)|(0xfd));
+		dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
+		delay_temp=dq_bit_delay[t_count];
+		ddr_set_t_p->retraining_extra_set_t.csr_acsmctrl13=delay_temp;
+		printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
+	}
+	{
+		t_count=0;
+		add_offset=((0<<20)|(4<<16)|(t_count<<12)|(0xc0));
+		dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
+		delay_temp=dq_bit_delay[t_count];
+		ddr_set_t_p->retraining_extra_set_t.csr_acsmctrl23=delay_temp;
+		printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
+	}
+	//dwc_ddrphy_apb_wr((ps<<20)|(9<<16)|(0<<12)|(0x28),		0);   //  csr_PhyInLP3_ADDR
+	#endif
+
 }
 
 	return 1;
@@ -6868,12 +7152,14 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 		//	ddr_log_serial_puts("\n",p_dev->ddr_gloabl_message.stick_ddr_log_level);
 }
 
-	printf("\n ");
+	printf("\n {");
 
 
 	uint32_t temp_count=0;
 	{
 		printf("\n.magic=0x%08x,// %d",ddr_set_t_p->magic,ddr_set_t_p->magic);
+		printf("\n//old fast_boot[%d]=0x%08x,// %d",0,ddr_set_t_p->fast_boot[0],ddr_set_t_p->fast_boot[0]);
+		ddr_set_t_p->fast_boot[0]=0xfd; //add for auto copy to  code test
 		for ( temp_count=0;temp_count<4;temp_count++)
 			printf("\n.fast_boot[%d]=0x%08x,// %d",temp_count,ddr_set_t_p->fast_boot[temp_count],ddr_set_t_p->fast_boot[temp_count]);
 		//printf("\n.rsv_int0=0x%08x,// %d",ddr_set_t_p->rsv_int0,ddr_set_t_p->rsv_int0);
@@ -6897,8 +7183,10 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 		printf("\n.training_SequenceCtrl[1]=0x%08x,// %d",ddr_set_t_p->training_SequenceCtrl[1],ddr_set_t_p->training_SequenceCtrl[1]);
 		printf("\n.phy_odt_config_rank[0]=0x%08x,// %d",ddr_set_t_p->phy_odt_config_rank[0],ddr_set_t_p->phy_odt_config_rank[0]);
 		printf("\n.phy_odt_config_rank[1]=0x%08x,// %d",ddr_set_t_p->phy_odt_config_rank[1],ddr_set_t_p->phy_odt_config_rank[1]);
-		printf("\n.rever1=0x%08x,// %d",ddr_set_t_p->rever1,ddr_set_t_p->rever1);
-		printf("\n.rever2=0x%08x,// %d",ddr_set_t_p->rever2,ddr_set_t_p->rever2);
+		//printf("\n.rever1=0x%08x,// %d",ddr_set_t_p->rever1,ddr_set_t_p->rever1);
+		//printf("\n.rever2=0x%08x,// %d",ddr_set_t_p->rever2,ddr_set_t_p->rever2);
+		printf("\n.rank1_ca_vref_permil=0x%08x,// %d",ddr_set_t_p->rank1_ca_vref_permil,ddr_set_t_p->rank1_ca_vref_permil);
+
 		//	unsigned	char	phy_odt_config_rank[2];
 		//	unsigned	char	 ddr_fast_boot_function;
 		//	unsigned	char	 dqs_offset_value;
@@ -7076,13 +7364,148 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 			//printf("\n.dram_bit_vref[%d]=%d,",temp_count,ddr_set_t_p->dram_bit_vref[temp_count]);
 			printf("\n.retraining[%d]=0x%08x,// %d",temp_count,ddr_set_t_p->retraining[temp_count],ddr_set_t_p->retraining[temp_count]);
 
-		printf("\n");
+		printf("\n.retraining_extra_set_t.csr_pllctrl3=0x%08x,// %d",ddr_set_t_p->retraining_extra_set_t.csr_pllctrl3,ddr_set_t_p->retraining_extra_set_t.csr_pllctrl3);
+		for ( temp_count=0;temp_count<4;temp_count++)
+		printf("\n.retraining_extra_set_t.csr_pptctlstatic[%d]=0x%08x,// %d",temp_count,ddr_set_t_p->retraining_extra_set_t.csr_pptctlstatic[temp_count],ddr_set_t_p->retraining_extra_set_t.csr_pptctlstatic[temp_count]);
+		for ( temp_count=0;temp_count<4;temp_count++)
+		printf("\n.retraining_extra_set_t.csr_trainingincdecdtsmen[%d]=0x%08x,// %d",temp_count,ddr_set_t_p->retraining_extra_set_t.csr_trainingincdecdtsmen[temp_count],ddr_set_t_p->retraining_extra_set_t.csr_trainingincdecdtsmen[temp_count]);
+		for ( temp_count=0;temp_count<4;temp_count++)
+		printf("\n.retraining_extra_set_t.csr_tsmbyte0[%d]=0x%08x,// %d",temp_count,ddr_set_t_p->retraining_extra_set_t.csr_tsmbyte0[temp_count],ddr_set_t_p->retraining_extra_set_t.csr_tsmbyte0[temp_count]);
+
+		printf("\n.retraining_extra_set_t.csr_vrefinglobal=0x%08x,// %d",ddr_set_t_p->retraining_extra_set_t.csr_vrefinglobal,ddr_set_t_p->retraining_extra_set_t.csr_vrefinglobal);
+		for ( temp_count=0;temp_count<4;temp_count++)
+		printf("\n.retraining_extra_set_t.csr_dqsrcvcntrl[%d]=0x%08x,// %d",temp_count,ddr_set_t_p->retraining_extra_set_t.csr_dqsrcvcntrl[temp_count],ddr_set_t_p->retraining_extra_set_t.csr_dqsrcvcntrl[temp_count]);
+		for ( temp_count=0;temp_count<4;temp_count++)
+		printf("\n.retraining_extra_set_t.csr_pptdqscntinvtrntg0[%d]=0x%08x,// %d",temp_count,ddr_set_t_p->retraining_extra_set_t.csr_pptdqscntinvtrntg0[temp_count],ddr_set_t_p->retraining_extra_set_t.csr_pptdqscntinvtrntg0[temp_count]);
+		for ( temp_count=0;temp_count<4;temp_count++)
+		printf("\n.retraining_extra_set_t.csr_pptdqscntinvtrntg1[%d]=0x%08x,// %d",temp_count,ddr_set_t_p->retraining_extra_set_t.csr_pptdqscntinvtrntg1[temp_count],ddr_set_t_p->retraining_extra_set_t.csr_pptdqscntinvtrntg1[temp_count]);
+		for ( temp_count=0;temp_count<9;temp_count++)
+		printf("\n.retraining_extra_set_t.csr_seq0bgpr[%d]=0x%08x,// %d",temp_count,ddr_set_t_p->retraining_extra_set_t.csr_seq0bgpr[temp_count],ddr_set_t_p->retraining_extra_set_t.csr_seq0bgpr[temp_count]);
+		printf("\n.retraining_extra_set_t.csr_dllgainctl=0x%08x,// %d",ddr_set_t_p->retraining_extra_set_t.csr_dllgainctl,ddr_set_t_p->retraining_extra_set_t.csr_dllgainctl);
+		printf("\n.retraining_extra_set_t.csr_dlllockpara=0x%08x,// %d",ddr_set_t_p->retraining_extra_set_t.csr_dlllockpara,ddr_set_t_p->retraining_extra_set_t.csr_dlllockpara);
+		printf("\n.retraining_extra_set_t.csr_hwtcamode=0x%08x,// %d",ddr_set_t_p->retraining_extra_set_t.csr_hwtcamode,ddr_set_t_p->retraining_extra_set_t.csr_hwtcamode);
+		printf("\n.retraining_extra_set_t.csr_hwtlpcsena=0x%08x,// %d",ddr_set_t_p->retraining_extra_set_t.csr_hwtlpcsena,ddr_set_t_p->retraining_extra_set_t.csr_hwtlpcsena);
+		printf("\n.retraining_extra_set_t.csr_hwtlpcsenb=0x%08x,// %d",ddr_set_t_p->retraining_extra_set_t.csr_hwtlpcsenb,ddr_set_t_p->retraining_extra_set_t.csr_hwtlpcsenb);
+		printf("\n.retraining_extra_set_t.csr_acsmctrl13=0x%08x,// %d",ddr_set_t_p->retraining_extra_set_t.csr_acsmctrl13,ddr_set_t_p->retraining_extra_set_t.csr_acsmctrl13);
+		printf("\n.retraining_extra_set_t.csr_acsmctrl23=0x%08x,// %d",ddr_set_t_p->retraining_extra_set_t.csr_acsmctrl23,ddr_set_t_p->retraining_extra_set_t.csr_acsmctrl23);
+
+		printf("\n},\n");
 
 	}
 	return 1;
 }
 
+#ifdef USE_FOR_UBOOT_2018
+#include <amlogic/storage.h>
+extern  struct storage_t *current;
+static int ddr_do_store_ddr_parameter_ops(uint8_t *buffer, uint32_t length)
+{
+	//if (!current) {
+	//	INIT_LIST_HEAD(&store_dev->list);
+	//	current = store_dev;
+	//	return 0;
+	//}
+	if (!current)
+	{
+		char str[1024]="";
+		sprintf(str,"store init");
+		run_command(str,0);
+	}
+	struct storage_t *store = current;//store_get_current();
+	char *name = NULL;
+	{
+		name ="ddr-parameter";
+		printf("\nstore rsv write ddr-parameter 0x%08x 0x%08x\n",(uint32_t)(uint64_t)buffer,length);
+		return store->write_rsv(name, length, (u_char *)buffer);
+	}
+}
 
+#else
+
+static int ddr_do_store_ddr_parameter_ops(uint8_t *buffer, uint32_t length)
+{
+#if 0
+	unsigned long addr;
+	int ret = 0;
+	//char* ops = argv[2];
+	const unsigned maxDdrPSz = 2 * 1024;
+	unsigned int actualDtbSz = 0;
+	actualDtbSz = maxDdrPSz;
+	if (argc > 4) {
+		const unsigned bufSz = simple_strtoull_ddr(argv[4], NULL, 0);
+		if (bufSz > maxDdrPSz) {
+			printf("fail bufSz (%s) > max 0x%x\n", argv[4], maxDdrPSz);
+			//return CMD_RET_FAILURE;
+		}
+	}
+	addr = (unsigned long)simple_strtoull_ddr(argv[3], NULL, 16);
+#endif
+	extern int store_ddr_parameter_write(uint8_t *buffer, uint32_t length);
+	//char str[1024]="";
+	printf("\nstore ddr_parameter write 0x%08x 0x%08x\n",(uint32_t)(uint64_t)buffer,length);
+	//run_command(str,0);
+	store_ddr_parameter_write((uint8_t *)buffer, length);
+
+
+	return 1;
+}
+#endif
+#if 0
+int do_ddr_store_write_ddr_parameter_ops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	//do_store_ddr_parameter_ops(cmd_tbl_t * cmdtp,      int flag, int argc, char * const argv[])
+	//unsigned int  ddr_test_cmd=0;
+	unsigned int  arg[30]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,};
+	//char *endp;
+	unsigned int i=0;
+	//ddr_test_cmd = simple_strtoull_ddr(argv[1], &endp, 0);
+	//for (i = 2;i<argc;i++)
+	//	arg[i-2]=simple_strtoull_ddr(argv[i], &endp, 0);
+	//printf("\nddr_test_cmd== 0x%08x\n", ddr_test_cmd);
+
+	for (i = 0;i<(argc-0);i++)
+		printf("\narg[%08x]=%08x\n",i,arg[i]);
+	for (i = 0;i<(argc-0);i++)
+		printf("\nargv[%08x]=%s\n",i,argv[i]);
+	//int argc2_length;
+	//argc2_length=(argc-2);
+	//cmd_tbl_t *cmdtp2;
+	//int flag2;
+	int argc2;
+	char* argv2[30];
+
+	argc2=5;//argc-1;
+	//for (i = 1;i<(argc);i++)
+	//	argv2[i-1]=argv[i];
+
+		#ifdef USE_FOR_UBOOT_2018
+		//sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,write_size);
+		argc2=6;
+		argv2[1]="rsv";
+		argv2[2]="write";
+		argv2[3]="ddr-parameter";
+		argv2[4]=argv[1];//simple_strtoull_ddr(argv[1], &endp, 0);
+		argv2[5]=argv[2];//simple_strtoull_ddr(argv[1], &endp, 0);
+		do_store_rsv_ops(cmdtp,flag,argc2,argv2[]);
+		#else
+		//sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,write_size);
+		argc2=5;
+		argv2[1]="ddr_parameter";
+		argv2[2]="write";
+		argv2[3]=argv[1];// simple_strtoull_ddr(argv[1], &endp, 0);
+		argv2[4]=argv[2];//simple_strtoull_ddr(argv[1], &endp, 0);
+		//extern  int do_store_ddr_parameter_ops(cmd_tbl_t * cmdtp,
+		//		      int flag, int argc, char * const argv[]);
+		ddr_do_store_ddr_parameter_ops(cmdtp,flag,argc2,argv2);
+		#endif
+	return 1;
+}
+U_BOOT_CMD(
+	ddr_store_write,	30,	1,	do_ddr_store_write_ddr_parameter_ops,
+	"ddr_test_cmd cmd arg1 arg2 arg3...",
+	"ddr_test_cmd cmd arg1 arg2 arg3... \n dcache off ? \n"
+	);
+#endif
 int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	check_base_address();
@@ -7115,6 +7538,8 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 	uint32_t  ddr_set_size=0;
 	ddr_set_add=(uint32_t)(uint64_t)(ddr_set_t_p);
 	ddr_set_size=sizeof(ddr_set_t);
+	uint32_t  write_size=0;
+	write_size=((ddr_set_size+SHA256_SUM_LEN+MESON_CPU_CHIP_ID_SIZE+511)/512)*512;
 	do_read_ddr_training_data(1,ddr_set_t_p);
 {
 
@@ -7139,7 +7564,7 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 
 }
 
-	char str[1024]="";
+
 	//store ddr_parameter write 0x77f81cf0 0x300
 	//printf("\n ");
 
@@ -7153,7 +7578,7 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 		#if 1
 		printf("&ddr_sha.ddrs : 0x%x\n", (uint32_t)(uint64_t)&ddr_sha.ddrs);
 		printf("&ddr_sha.sha2 : 0x%x\n", (uint32_t)(uint64_t)&ddr_sha.sha2);
-		printf("ddr_set_add : 0x%x\n", (uint32_t)(uint64_t)ddr_set_add);
+		printf("ddr_set_add : 0x%x   sizeof(ddr_set_t):0x%x\n ", (uint32_t)(uint64_t)ddr_set_add, (uint32_t)(uint64_t)sizeof(ddr_set_t));
 		printf("ddr_set_add_chip_id : 0x%x\n", (uint32_t)(uint64_t)(ddr_set_add+ddr_set_size));
 		sha256_csum_wd_internal((unsigned char *)(uint64_t)ddr_set_add, sizeof(ddr_set_t), ddr_sha.sha2, 0);
 		//sha2((unsigned char *)(uint64_t)ddr_set_add, sizeof(ddr_set_t), ddr_sha.sha2, 0);
@@ -7161,15 +7586,38 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 		//sprintf(str,"md %08x 0x100", (uint32_t)(uint64_t)(ddr_set_add-32));
 		//run_command(str,0);
 		#endif
+		#if 0
+		char str[1024]="";
 		#ifdef USE_FOR_UBOOT_2018
-		sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,ddr_set_size+SHA256_SUM_LEN+MESON_CPU_CHIP_ID_SIZE);
+		sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,write_size);
 		#else
-		sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,ddr_set_size+SHA256_SUM_LEN+MESON_CPU_CHIP_ID_SIZE);
+		sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,write_size);
 		#endif
 		//	sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
 		//	sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
 		printf("\nstr=%s\n",str);
 		run_command(str,0);
+		#endif
+		#if 0
+		int argc2;
+		char* argv2[30];
+		argc2=3;
+
+		//for (i = 2;i<argc;i++)
+		//	arg[i-2]=simple_strtoull_ddr(argv[i], &endp, 0);
+		//printf("\nddr_test_cmd== 0x%08x\n", ddr_test_cmd);
+		//	sprintf(argv2[0],"ddr_store_write");
+		sprintf(argv2[1],"0x%08x",ddr_set_add-SHA256_SUM_LEN);
+		sprintf(argv2[2],"0x%08x",write_size);
+		//sprintf(argv2[3],"0x%08x",0);
+		for (i = 0;i<(argc2-0);i++)
+			printf("\nargc2[%08x]=%s\n",i,argv2[i]);
+		for (i = 0;i<(argc2-0);i++)
+			printf("\ndebug\n");
+
+		do_ddr_store_write_ddr_parameter_ops(cmdtp,flag,argc2,argv2);
+		#endif
+		ddr_do_store_ddr_parameter_ops((uint8_t *)(unsigned long)(ddr_set_add-SHA256_SUM_LEN),write_size);
 	}
 
 	return 1;
@@ -7637,24 +8085,24 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 
 	}
 
-if (all_toghter_enable)
-{
-	for (nibble_step = 0; nibble_step < 72; nibble_step++)
-				{
-					if ((nibble_step == 0) || (nibble_step == 10) || (nibble_step == (10+16)))
-						{
-					//	num_arry[TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+nibble_step*TEST_ARG_NIBBLE_WIDTH_BYTE+LCD_BDLR_STATUS]=0;
-						}
-					else
-						num_arry[TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+nibble_step*TEST_ARG_NIBBLE_WIDTH_BYTE+LCD_BDLR_STATUS]=4;
-				}
-}
+	if (all_toghter_enable)
+	{
+		for (nibble_step = 0; nibble_step < 72; nibble_step++)
+		{
+			if ((nibble_step == 0) || (nibble_step == 10) || (nibble_step == (10+16)))
+			{
+			//	num_arry[TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+nibble_step*TEST_ARG_NIBBLE_WIDTH_BYTE+LCD_BDLR_STATUS]=0;
+			}
+			else
+				num_arry[TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+nibble_step*TEST_ARG_NIBBLE_WIDTH_BYTE+LCD_BDLR_STATUS]=4;
+		}
+	}
 
-if (config_register == 1)
-{
-	num_arry[TEST_ARG_2_STEP]=0;
-	ddr_wr_8_16bit_on_32reg(sticky_reg_base_add,8,TEST_ARG_2_STEP,	num_arry[TEST_ARG_2_STEP]);
-}
+	if (config_register == 1)
+	{
+		num_arry[TEST_ARG_2_STEP]=0;
+		ddr_wr_8_16bit_on_32reg(sticky_reg_base_add,8,TEST_ARG_2_STEP,	num_arry[TEST_ARG_2_STEP]);
+	}
 
 if (( num_arry[TEST_ARG_2_STEP]))
 {
@@ -7844,35 +8292,33 @@ for (test_index=num_arry[TEST_ARG_2_STEP];test_index<test_index_max ;test_index+
 				nibble_mask[2]=((0xffffffff)&(~(1<<(nibble_step-64))));
 			}
 		}
-			if (all_toghter_enable)
-				{
-				if (test_index == DMC_TEST_WINDOW_INDEX_ATXDLY)
+		if (all_toghter_enable)
 		{
-			nibble_save_offset=0;
-			nibble_max=10;
-			nibble_mask[0]= 0x30;
-			nibble_mask[1]= 0;
-			nibble_mask[2]= 0;
-			if ((dram_type == CONFIG_DDR_TYPE_LPDDR3))
+			if (test_index == DMC_TEST_WINDOW_INDEX_ATXDLY)
 			{
-				nibble_mask[0]= 0x3e3;
+				nibble_save_offset=0;
+				nibble_max=10;
+				nibble_mask[0]= 0x30;
+				nibble_mask[1]= 0;
+				nibble_mask[2]= 0;
+				if ((dram_type == CONFIG_DDR_TYPE_LPDDR3))
+				{
+					nibble_mask[0]= 0x3e3;
+				}
+				if ((dram_type == CONFIG_DDR_TYPE_LPDDR4))
+				{
+					nibble_mask[0]= 0x273;
+					if ((channel_mode == CONFIG_DDR0_32BIT_RANK01_CH0))
+						nibble_mask[0]= 0x3f3;
+				}
 			}
-			if ((dram_type == CONFIG_DDR_TYPE_LPDDR4))
+			else
 			{
-				nibble_mask[0]= 0x273;
-				if ((channel_mode == CONFIG_DDR0_32BIT_RANK01_CH0))
-					nibble_mask[0]= 0x3f3;
-			}
-
-		}
-				else
-					{
 				nibble_mask[0]= 0;
 				nibble_mask[1]= 0;
 				nibble_mask[2]= 0;
-					}
-
-				}
+			}
+		}
 
 		ddr_test_watchdog_enable(watchdog_time_s); //s
 		printf("\nenable %ds watchdog \n",watchdog_time_s);
@@ -7916,22 +8362,22 @@ for (test_index=num_arry[TEST_ARG_2_STEP];test_index<test_index_max ;test_index+
 				//	sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,0,0,0,DDR_PARAMETER_LEFT,
 				//	num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MIN)]);
 				//else
-					sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,nibble_mask[0],nibble_mask[1],nibble_mask[2],DDR_PARAMETER_LEFT,
-					num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MIN)]);
+				sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,nibble_mask[0],nibble_mask[1],nibble_mask[2],DDR_PARAMETER_LEFT,
+				num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MIN)]);
 				printf("\nstr=%s\n",str);
 				ddr_test_watchdog_clear();
 				run_command(str,0);
 
 				temp_test_error=ddr_test_s_cross_talk_pattern(ddr_test_size);
-					if (all_toghter_enable && cs1_test_size)
-						{
-				test_start_addr=cs1_test_start;
-				ddr_test_size=cs1_test_size;
-				temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+				if (all_toghter_enable && cs1_test_size)
+				{
+					test_start_addr=cs1_test_start;
+					ddr_test_size=cs1_test_size;
+					temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
 					test_start_addr=cs0_test_start;
-				ddr_test_size=cs0_test_size;
-				//temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
-						}
+					ddr_test_size=cs0_test_size;
+					//temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+				}
 				if (temp_test_error)
 				{
 					run_command("reset",0);
@@ -8011,21 +8457,21 @@ for (test_index=num_arry[TEST_ARG_2_STEP];test_index<test_index_max ;test_index+
 				//		sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,0,0,0,DDR_PARAMETER_LEFT,
 				//		( num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MIN)]));
 				//	else
-						sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,nibble_mask[0],nibble_mask[1],nibble_mask[2],DDR_PARAMETER_LEFT,
+					sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,nibble_mask[0],nibble_mask[1],nibble_mask[2],DDR_PARAMETER_LEFT,
 						( num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MIN)]));
 					printf("\nstr=%s\n",str);
 					ddr_test_watchdog_clear();
 					run_command(str,0);
 					temp_test_error=ddr_test_s_cross_talk_pattern(ddr_test_size);
-				if (all_toghter_enable && cs1_test_size)
-						{
-				test_start_addr=cs1_test_start;
-				ddr_test_size=cs1_test_size;
-				temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
-					test_start_addr=cs0_test_start;
-				ddr_test_size=cs0_test_size;
-				//temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
-						}
+					if (all_toghter_enable && cs1_test_size)
+					{
+						test_start_addr=cs1_test_start;
+						ddr_test_size=cs1_test_size;
+						temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+						test_start_addr=cs0_test_start;
+						ddr_test_size=cs0_test_size;
+						//temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+					}
 					if (temp_test_error)
 					{
 						run_command("reset",0);
@@ -8104,15 +8550,15 @@ for (test_index=num_arry[TEST_ARG_2_STEP];test_index<test_index_max ;test_index+
 				ddr_test_watchdog_clear();
 				run_command(str,0);
 				temp_test_error=ddr_test_s_cross_talk_pattern(ddr_test_size);
-					if (all_toghter_enable && cs1_test_size)
-						{
-				test_start_addr=cs1_test_start;
-				ddr_test_size=cs1_test_size;
-				temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+				if (all_toghter_enable && cs1_test_size)
+				{
+					test_start_addr=cs1_test_start;
+					ddr_test_size=cs1_test_size;
+					temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
 					test_start_addr=cs0_test_start;
-				ddr_test_size=cs0_test_size;
-				//temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
-						}
+					ddr_test_size=cs0_test_size;
+					//temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+				}
 			//	temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
 			//	temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
 				if (temp_test_error)
@@ -8199,17 +8645,17 @@ for (test_index=num_arry[TEST_ARG_2_STEP];test_index<test_index_max ;test_index+
 					ddr_test_watchdog_clear();
 					run_command(str,0);
 					temp_test_error=ddr_test_s_cross_talk_pattern(ddr_test_size);
-						if (all_toghter_enable && cs1_test_size)
-						{
-				test_start_addr=cs1_test_start;
-				ddr_test_size=cs1_test_size;
-				temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
-					test_start_addr=cs0_test_start;
-				ddr_test_size=cs0_test_size;
-				//temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
-						}
-				//	temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
-				//      temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+					if (all_toghter_enable && cs1_test_size)
+					{
+						test_start_addr=cs1_test_start;
+						ddr_test_size=cs1_test_size;
+						temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+						test_start_addr=cs0_test_start;
+						ddr_test_size=cs0_test_size;
+						//temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+					}
+					//temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
+					//temp_test_error=temp_test_error+ddr_test_s_cross_talk_pattern(ddr_test_size);
 					if (temp_test_error)
 					{
 						run_command("reset",0);
@@ -8313,9 +8759,9 @@ for (test_index=num_arry[TEST_ARG_2_STEP];test_index<test_index_max ;test_index+
 		char delay_left_margin=0;
 		char delay_right_margin=0;
 		if (all_toghter_enable == 1)
-{
-	nibble_max=1;
-}
+		{
+			nibble_max=1;
+		}
 		for ( nibble_step=0;nibble_step<nibble_max;nibble_step++)
 		{
 			//serial_put_dec_out_align(delay_martix[count].add_index,8);
@@ -8325,18 +8771,14 @@ for (test_index=num_arry[TEST_ARG_2_STEP];test_index<test_index_max ;test_index+
 			//serial_puts(" ");
 			//if ((test_index == DMC_TEST_WINDOW_INDEX_TXDQSDLY) )
 			{
-				{
-					printf(" ");
-					printf("%08d",0//num_arry[TEST_ARG_NIBBLE_SAVE_OFFSET+nibble_step*TEST_ARG_NIBBLE_WIDTH+LCD_BDLR_MIN]
-						);
-				}
+				printf(" ");
+				printf("%08d",0//num_arry[TEST_ARG_NIBBLE_SAVE_OFFSET+nibble_step*TEST_ARG_NIBBLE_WIDTH+LCD_BDLR_MIN]
+					);
 			}
 			{
-				{
-					printf(" ");
-					printf("%08d",0//num_arry[TEST_ARG_NIBBLE_SAVE_OFFSET+nibble_step*TEST_ARG_NIBBLE_WIDTH+LCD_BDLR_MAX]
-						);
-				}
+				printf(" ");
+				printf("%08d",0//num_arry[TEST_ARG_NIBBLE_SAVE_OFFSET+nibble_step*TEST_ARG_NIBBLE_WIDTH+LCD_BDLR_MAX]
+					);
 			}
 
 			//	delay_left_margin=((num_arry[TEST_ARG_NIBBLE_SAVE_OFFSET+nibble_step*TEST_ARG_NIBBLE_WIDTH+LCD_BDLR_ORG]>num_arry[TEST_ARG_NIBBLE_SAVE_OFFSET+nibble_step*TEST_ARG_NIBBLE_WIDTH+LCD_BDLR_MIN])?
@@ -8549,16 +8991,14 @@ unsigned int do_ddr_g12_read_write_ddr_add_window_lcdlr(unsigned int rank_index,
 	dwc_ddrphy_apb_wr(0xd0000,0);//mw fe1a0000  0
 	//  reg_base_adj=(p_ddr_base->ddr_phy_base_address);
 	// reg_add=(((0<<20)|(0<<16)|(test_ACx<<12)|(0x80))<<1) + reg_base_adj;
-		if (read_write_flag == DDR_PARAMETER_READ)
-		{
-
-			lcdlr_value=dwc_ddrphy_apb_rd((0<<20)|(0<<16)|(add_index<<12)|(0x80));
-		}
-		if (read_write_flag == DDR_PARAMETER_WRITE)
-		{
-
-			dwc_ddrphy_apb_wr(((0<<20)|(0<<16)|(add_index<<12)|(0x80)), lcdlr_value);
-		}
+	if (read_write_flag == DDR_PARAMETER_READ)
+	{
+		lcdlr_value=dwc_ddrphy_apb_rd((0<<20)|(0<<16)|(add_index<<12)|(0x80));
+	}
+	if (read_write_flag == DDR_PARAMETER_WRITE)
+	{
+		dwc_ddrphy_apb_wr(((0<<20)|(0<<16)|(add_index<<12)|(0x80)), lcdlr_value);
+	}
 
 	printf("rank_index %d   add_index %d  lcdlr== %d \n", rank_index,add_index,lcdlr_value);
 	return lcdlr_value;
@@ -8594,13 +9034,11 @@ void dwc_window_reg_after_training_update_increas_dq(char over_ride_index,uint32
 		delay_reg_value=ddr_cacl_phy_over_ride_back_reg(over_ride_index, delay_reg_value);
 		dwc_ddrphy_apb_wr(reg_add,delay_reg_value);
 		//	dwc_ddrphy_apb_wr(reg_add+4,delay_reg_value);
-
 	}
 
-printf("reg_add %08x old_value %08x update_to %08x dec %d to %d \n",((unsigned int)(((reg_add) << 1)+(p_ddr_base->ddr_phy_base_address))),
-			delay_old_value,dwc_ddrphy_apb_rd(reg_add),ddr_cacl_phy_delay_all_step(over_ride_index, delay_old_value),
-			(unsigned int)ddr_cacl_phy_delay_all_step(over_ride_index, dwc_ddrphy_apb_rd(reg_add)));
-
+	printf("reg_add %08x old_value %08x update_to %08x dec %d to %d \n",((unsigned int)(((reg_add) << 1)+(p_ddr_base->ddr_phy_base_address))),
+		delay_old_value,dwc_ddrphy_apb_rd(reg_add),ddr_cacl_phy_delay_all_step(over_ride_index, delay_old_value),
+		(unsigned int)ddr_cacl_phy_delay_all_step(over_ride_index, dwc_ddrphy_apb_rd(reg_add)));
 }
 
 void dwc_window_reg_after_training_update(char over_ride_index,uint32_t over_ride_sub_index,uint32_t over_ride_value)
@@ -8717,24 +9155,24 @@ void dwc_window_reg_after_training_update_increas_sub(char over_ride_index,uint3
 	//	dwc_ddrphy_apb_wr((0<<20)|(1<<16)|((over_ride_sub_index%4)<<12)|(0x1d0+(over_ride_sub_index/4)),delay_reg_value);
 
 
-//some case will happen tdqs from 0x1f to 0x0 or 0x0 to 0x1f ,then fast boot write back will happen error ,because
-// fast boot write back will re-calculate coarse UI,then result dq phase fail.
-/*
+	//some case will happen tdqs from 0x1f to 0x0 or 0x0 to 0x1f ,then fast boot write back will happen error ,because
+	// fast boot write back will re-calculate coarse UI,then result dq phase fail.
+	/*
 	if (over_ride_increase_decrease == 0)
-//  if(over_ride_value>ddr_cacl_phy_delay_all_step(over_ride_index,delay_old_value))
+	//  if(over_ride_value>ddr_cacl_phy_delay_all_step(over_ride_index,delay_old_value))
 	{dwc_ddrphy_apb_wr(reg_add,((delay_old_value&0x3f)+step_value)|(delay_old_value&0xffc0));
 	if (((delay_old_value&0x3f)+step_value)>0x3f)
-		dwc_ddrphy_apb_wr(reg_add,0x3f|(delay_old_value&0xffc0));
+	dwc_ddrphy_apb_wr(reg_add,0x3f|(delay_old_value&0xffc0));
 	}
 	else
-		{//dwc_ddrphy_apb_wr(reg_add,((delay_old_value&0x3f)-step_value)|(delay_old_value&0xffc0));
-		if (((delay_old_value&0x3f)<step_value))
-		dwc_ddrphy_apb_wr(reg_add,(delay_old_value&0xffc0));
-		else
-		dwc_ddrphy_apb_wr(reg_add,((delay_old_value&0x3f)-step_value)|(delay_old_value&0xffc0));
-		}
+	{//dwc_ddrphy_apb_wr(reg_add,((delay_old_value&0x3f)-step_value)|(delay_old_value&0xffc0));
+	if (((delay_old_value&0x3f)<step_value))
+	dwc_ddrphy_apb_wr(reg_add,(delay_old_value&0xffc0));
+	else
+	dwc_ddrphy_apb_wr(reg_add,((delay_old_value&0x3f)-step_value)|(delay_old_value&0xffc0));
+	}
 
-*/
+	*/
 	if ((over_ride_sub_index%2) == 0)
 	{
 		char	temp_test_index=DMC_TEST_WINDOW_INDEX_TXDQDLY;
@@ -8865,8 +9303,8 @@ void dwc_window_reg_after_training_update_increas_sub(char over_ride_index,uint3
 		dwc_ddrphy_apb_wr(reg_add,delay_reg_value);
 	}
 	printf("reg_add %08x old_value %08x update_to %08x dec %d to %d \n",((unsigned int)(((reg_add) << 1)+(p_ddr_base->ddr_phy_base_address))),
-			delay_old_value,dwc_ddrphy_apb_rd(reg_add),ddr_cacl_phy_delay_all_step(over_ride_index, delay_old_value),
-			(unsigned int)ddr_cacl_phy_delay_all_step(over_ride_index, dwc_ddrphy_apb_rd(reg_add)));
+		delay_old_value,dwc_ddrphy_apb_rd(reg_add),ddr_cacl_phy_delay_all_step(over_ride_index, delay_old_value),
+		(unsigned int)ddr_cacl_phy_delay_all_step(over_ride_index, dwc_ddrphy_apb_rd(reg_add)));
 
 }
 
@@ -8901,7 +9339,8 @@ void dwc_window_reg_after_training_update_increas(char over_ride_index,uint32_t 
 		}
 	}
 
-	if (over_ride_index == DMC_TEST_WINDOW_INDEX_TXDQSDLY) {
+	if (over_ride_index == DMC_TEST_WINDOW_INDEX_TXDQSDLY)
+	{
 		reg_add=((0<<20)|(1<<16)|(((over_ride_sub_index%8)>>1)<<12)|(0xd0+(over_ride_sub_index/8)+((over_ride_sub_index%2)<<8)));
 		delay_old_value=dwc_ddrphy_apb_rd(reg_add);
 		/*
@@ -8910,16 +9349,16 @@ void dwc_window_reg_after_training_update_increas(char over_ride_index,uint32_t 
 		delay_reg_value=ddr_cacl_phy_delay_all_step(over_ride_index, delay_old_value);
 		if (over_ride_increase_decrease == 0)
 		{
-			delay_reg_value=delay_reg_value+offset_value;
-			if (delay_reg_value>96)
-				delay_reg_value=96;
+		delay_reg_value=delay_reg_value+offset_value;
+		if (delay_reg_value>96)
+		delay_reg_value=96;
 		}
 		if (over_ride_increase_decrease == 1)
 		{
-			if (delay_reg_value >= offset_value)
-				delay_reg_value=delay_reg_value-offset_value;
-			else
-				delay_reg_value=0;
+		if (delay_reg_value >= offset_value)
+		delay_reg_value=delay_reg_value-offset_value;
+		else
+		delay_reg_value=0;
 		}
 		delay_reg_value=ddr_cacl_phy_over_ride_back_reg(over_ride_index, delay_reg_value);
 		dwc_ddrphy_apb_wr(reg_add,delay_reg_value|(delay_old_value&0xffc0));
@@ -8927,14 +9366,15 @@ void dwc_window_reg_after_training_update_increas(char over_ride_index,uint32_t 
 
 		//	{enable_bit5=(delay_old_value>>5)&1;}
 		//delay_reg_value=ddr_cacl_phy_over_ride_back_reg(over_ride_index, over_ride_value,enable_bit5);
-	*/
-	for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
+		*/
+		for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
+		{
+			dwc_window_reg_after_training_update_increas_sub(over_ride_index
+			,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
+		}
+	}
+	if (over_ride_index == DMC_TEST_WINDOW_INDEX_RXCLKDLY)
 	{
-		dwc_window_reg_after_training_update_increas_sub(over_ride_index
-		,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
-	}
-	}
-	if (over_ride_index == DMC_TEST_WINDOW_INDEX_RXCLKDLY) {
 		reg_add=((0<<20)|(1<<16)|(((over_ride_sub_index%8)>>1)<<12)|(0x8c+(over_ride_sub_index/8)+((over_ride_sub_index%2)<<8)));
 		delay_old_value=dwc_ddrphy_apb_rd(reg_add);
 		/*
@@ -8956,191 +9396,190 @@ void dwc_window_reg_after_training_update_increas(char over_ride_index,uint32_t 
 		dwc_ddrphy_apb_wr(reg_add,delay_reg_value|(delay_old_value&0xffc0));
 		dwc_ddrphy_apb_wr(reg_add+4,delay_reg_value|(delay_old_value&0xffc0));
 		*/
-			for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
+		for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
 		{
-	dwc_window_reg_after_training_update_increas_sub(over_ride_index
-		,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
+			dwc_window_reg_after_training_update_increas_sub(over_ride_index
+			,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
 		}
 
 		/*
-		   delay_old_value=dwc_ddrphy_apb_rd((0<<20)|(1<<16)|((over_ride_sub_index%8)<<12)|(0x18c+(over_ride_sub_index/8)));
-		   if (over_ride_increase_decrease == 0)
-		   delay_reg_value=delay_old_value+1;
-		   if (over_ride_increase_decrease == 1)
-		   delay_reg_value=delay_old_value-1;
-		   dwc_ddrphy_apb_wr((0<<20)|(1<<16)|((over_ride_sub_index%8)<<12)|(0x18c+(over_ride_sub_index/8)),delay_reg_value|(delay_old_value&0xffc0));
-		   dwc_ddrphy_apb_wr((0<<20)|(1<<16)|((over_ride_sub_index%8)<<12)|(0x190+(over_ride_sub_index/8)),delay_reg_value|(delay_old_value&0xffc0));
-		   */
+		delay_old_value=dwc_ddrphy_apb_rd((0<<20)|(1<<16)|((over_ride_sub_index%8)<<12)|(0x18c+(over_ride_sub_index/8)));
+		if (over_ride_increase_decrease == 0)
+		delay_reg_value=delay_old_value+1;
+		if (over_ride_increase_decrease == 1)
+		delay_reg_value=delay_old_value-1;
+		dwc_ddrphy_apb_wr((0<<20)|(1<<16)|((over_ride_sub_index%8)<<12)|(0x18c+(over_ride_sub_index/8)),delay_reg_value|(delay_old_value&0xffc0));
+		dwc_ddrphy_apb_wr((0<<20)|(1<<16)|((over_ride_sub_index%8)<<12)|(0x190+(over_ride_sub_index/8)),delay_reg_value|(delay_old_value&0xffc0));
+		*/
 	}
-	if (over_ride_index == DMC_TEST_WINDOW_INDEX_TXDQDLY) {
+	if (over_ride_index == DMC_TEST_WINDOW_INDEX_TXDQDLY)
+	{
 		reg_add=((0<<20)|(1<<16)|(((over_ride_sub_index%36)/9)<<12)|(0xc0+((over_ride_sub_index%9)<<8)+(over_ride_sub_index/36)));
 		delay_old_value=dwc_ddrphy_apb_rd(reg_add);
 		/*
-			delay_reg_value=ddr_cacl_phy_delay_all_step(over_ride_index, delay_old_value);
+		delay_reg_value=ddr_cacl_phy_delay_all_step(over_ride_index, delay_old_value);
 		if (over_ride_increase_decrease == 0)
-			{
+		{
 		delay_reg_value=delay_reg_value+offset_value;
 		if (delay_reg_value>96)
-			delay_reg_value=96;
-			}
-				if (over_ride_increase_decrease == 1)
+		delay_reg_value=96;
+		}
+		if (over_ride_increase_decrease == 1)
 		{
-				if (delay_reg_value >= offset_value)
-				delay_reg_value=delay_reg_value-offset_value;
-				else
-				delay_reg_value=0;
-			}
+		if (delay_reg_value >= offset_value)
+		delay_reg_value=delay_reg_value-offset_value;
+		else
+		delay_reg_value=0;
+		}
 		//delay_reg_value=ddr_cacl_phy_delay_all_step(over_ride_index,delay_old_value)+1;
 		//if(over_ride_increase_decrease==1)
 		//delay_reg_value=ddr_cacl_phy_delay_all_step(over_ride_index,delay_old_value)-1;
 		//dwc_ddrphy_apb_wr(((0<<20)|(1<<16)|(((over_ride_sub_index%36)/9)<<12)|(0xc0+((over_ride_sub_index%9)<<8)+(over_ride_sub_index/36))),delay_reg_value|(delay_old_value&0xffc0));
-delay_reg_value=ddr_cacl_phy_over_ride_back_reg(over_ride_index, delay_reg_value);
+		delay_reg_value=ddr_cacl_phy_over_ride_back_reg(over_ride_index, delay_reg_value);
 		dwc_ddrphy_apb_wr(reg_add,delay_reg_value);
 		*/
-					for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
+		for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
 		{
-	dwc_window_reg_after_training_update_increas_sub(over_ride_index
-		,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
+			dwc_window_reg_after_training_update_increas_sub(over_ride_index
+			,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
 		}
-
 	}
-	if (over_ride_index == DMC_TEST_WINDOW_INDEX_RXPBDLY) {
+	if (over_ride_index == DMC_TEST_WINDOW_INDEX_RXPBDLY)
+	{
 		reg_add=((0<<20)|(1<<16)|(((over_ride_sub_index%36)/9)<<12)|(0x68+((over_ride_sub_index%9)<<8)+(over_ride_sub_index/36)));
 		delay_old_value=dwc_ddrphy_apb_rd(reg_add);
 		/*
 		delay_reg_value=delay_old_value;
-				if (over_ride_increase_decrease == 0)
-			{
+		if (over_ride_increase_decrease == 0)
+		{
 		delay_reg_value=delay_reg_value+offset_value;
 		if (delay_reg_value>96)
-			delay_reg_value=96;
-			}
-				if (over_ride_increase_decrease == 1)
+		delay_reg_value=96;
+		}
+		if (over_ride_increase_decrease == 1)
 		{
-				if (delay_reg_value >= offset_value)
-				delay_reg_value=delay_reg_value-offset_value;
-				else
-				delay_reg_value=0;
-			}
-delay_reg_value=ddr_cacl_phy_over_ride_back_reg(over_ride_index, delay_reg_value);
+		if (delay_reg_value >= offset_value)
+		delay_reg_value=delay_reg_value-offset_value;
+		else
+		delay_reg_value=0;
+		}
+		delay_reg_value=ddr_cacl_phy_over_ride_back_reg(over_ride_index, delay_reg_value);
 		dwc_ddrphy_apb_wr(reg_add,delay_reg_value);
 		*/
-					for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
+		for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
 		{
-	dwc_window_reg_after_training_update_increas_sub(over_ride_index
-		,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
+			dwc_window_reg_after_training_update_increas_sub(over_ride_index
+			,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
 		}
 	}
 
-	if (over_ride_index == DMC_TEST_WINDOW_INDEX_RXENDLY) {
-
+	if (over_ride_index == DMC_TEST_WINDOW_INDEX_RXENDLY)
+	{
 		reg_add=((0<<20)|(1<<16)|((over_ride_sub_index%8)<<12)|(0x80+(over_ride_sub_index/8)));
 		delay_old_value=dwc_ddrphy_apb_rd(reg_add);
 		/*
-	delay_reg_value=ddr_cacl_phy_delay_all_step(over_ride_index, delay_old_value);
-			if (over_ride_increase_decrease == 0)
-			{
+		delay_reg_value=ddr_cacl_phy_delay_all_step(over_ride_index, delay_old_value);
+		if (over_ride_increase_decrease == 0)
+		{
 		delay_reg_value=delay_reg_value+offset_value;
 		if (delay_reg_value>96)
-			delay_reg_value=96;
-			}
+		delay_reg_value=96;
+		}
 		if (over_ride_increase_decrease == 1)
 		{
-				if (delay_reg_value >= offset_value)
-				delay_reg_value=delay_reg_value-offset_value;
-				else
-				delay_reg_value=0;
-			}
+		if (delay_reg_value >= offset_value)
+		delay_reg_value=delay_reg_value-offset_value;
+		else
+		delay_reg_value=0;
+		}
 		delay_reg_value=ddr_cacl_phy_over_ride_back_reg(over_ride_index, delay_reg_value);
 		dwc_ddrphy_apb_wr(reg_add,delay_reg_value|(delay_old_value&0xffc0));
 		*/
-					for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
+		for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
 		{
-	dwc_window_reg_after_training_update_increas_sub(over_ride_index
-		,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
+			dwc_window_reg_after_training_update_increas_sub(over_ride_index
+			,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
 		}
-		}
+	}
 
-
-if (over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF) {
-
+	if (over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF)
+	{
 		//dwc_ddrphy_apb_wr((0<<20)|(1<<16)|(((over_ride_sub_index%36)/9)<<12)|(((over_ride_sub_index%36)%9)<<8)|(0x40),over_ride_value);
 		//reg_add=((0<<20)|(1<<16)|(((over_ride_sub_index%36)/9)<<12)|(0x68+((over_ride_sub_index%9)<<8)+(over_ride_sub_index/36)));
 		reg_add=((0<<20)|(1<<16)|(((over_ride_sub_index%36)/9)<<12)|(((over_ride_sub_index%36)%9)<<8)|(0x40));
 		delay_old_value=dwc_ddrphy_apb_rd(reg_add);
 		/*
 		delay_reg_value=delay_old_value;
-				if (over_ride_increase_decrease == 0)
-			{
+		if (over_ride_increase_decrease == 0)
+		{
 		delay_reg_value=delay_reg_value+offset_value;
 		if (delay_reg_value>127)
-			delay_reg_value=127;
-			}
-				if (over_ride_increase_decrease == 1)
+		delay_reg_value=127;
+		}
+		if (over_ride_increase_decrease == 1)
 		{
-				if (delay_reg_value >= offset_value)
-				delay_reg_value=delay_reg_value-offset_value;
-				else
-				delay_reg_value=0;
-			}
-//delay_reg_value=ddr_cacl_phy_over_ride_back_reg(over_ride_index, delay_reg_value);
+		if (delay_reg_value >= offset_value)
+		delay_reg_value=delay_reg_value-offset_value;
+		else
+		delay_reg_value=0;
+		}
+		//delay_reg_value=ddr_cacl_phy_over_ride_back_reg(over_ride_index, delay_reg_value);
 		dwc_ddrphy_apb_wr(reg_add,delay_reg_value);
-*/
-	for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
+		*/
+		for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
 		{
-	dwc_window_reg_after_training_update_increas_sub(over_ride_index
-		,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
+			dwc_window_reg_after_training_update_increas_sub(over_ride_index
+			,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
 		}
 	}
 
-printf("over_ride_increase_decrease==%d\n",over_ride_increase_decrease);
+	printf("over_ride_increase_decrease==%d\n",over_ride_increase_decrease);
 
-if (over_ride_increase_decrease == 1)
-{
-unsigned int org_cacl_value=(delay_old_value)&0x3f;
-printf("org_cacl_value==%d\n",org_cacl_value);
-printf("offset_value==%d\n",offset_value);
-	if ((org_cacl_value&0x3f)<offset_value) {
-
-	char temp_test_index_2=0;
-	char temp_count_4=0;
-	char temp_count_2=0;
-	if (over_ride_index == DMC_TEST_WINDOW_INDEX_TXDQSDLY)
+	if (over_ride_increase_decrease == 1)
+	{
+		unsigned int org_cacl_value=(delay_old_value)&0x3f;
+		printf("org_cacl_value==%d\n",org_cacl_value);
+		printf("offset_value==%d\n",offset_value);
+		if ((org_cacl_value&0x3f)<offset_value)
 		{
-	temp_test_index_2=DMC_TEST_WINDOW_INDEX_TXDQDLY;
-	if (over_ride_sub_index%2 == 0) {
-	for (temp_count_2=0;temp_count_2<9;temp_count_2++)
-		{for(temp_count_4=0;temp_count_4<(offset_value-org_cacl_value);temp_count_4++)
-{
-	dwc_window_reg_after_training_update_increas_sub(temp_test_index_2
-		,((over_ride_sub_index>>1)*9+temp_count_2),		0,1) ;
-		}
-		}
-		}
-/*
-	temp_test_index_2=DMC_TEST_WINDOW_INDEX_TXDQSDLY;
-	dwc_window_reg_after_training_update_increas_sub(temp_test_index_2
-		,((over_ride_index%2)?
-		(over_ride_index-1):
-		(over_ride_index+1)),		0) ;
-		}
-*/
-		}
-if (over_ride_index == DMC_TEST_WINDOW_INDEX_RXCLKDLY)
-{
-	temp_test_index_2=DMC_TEST_WINDOW_INDEX_RXPBDLY;
-
-for ( temp_count_2=0;temp_count_2<4;temp_count_2++)
-	for (temp_count_4=0;temp_count_4<(((offset_value-org_cacl_value)*ui_1_32_100step)/bdlr_100step);temp_count_4++)
-		{
-{
-	dwc_window_reg_after_training_update_increas_sub(temp_test_index_2
-		,((over_ride_sub_index/2)*9+
-		temp_count_2+(over_ride_sub_index%2)*4),		0,1) ;
-
+			char temp_test_index_2=0;
+			char temp_count_4=0;
+			char temp_count_2=0;
+			if (over_ride_index == DMC_TEST_WINDOW_INDEX_TXDQSDLY)
+			{
+				temp_test_index_2=DMC_TEST_WINDOW_INDEX_TXDQDLY;
+				if (over_ride_sub_index%2 == 0)
+				{
+					for (temp_count_2=0;temp_count_2<9;temp_count_2++)
+					{
+						for (temp_count_4=0;temp_count_4<(offset_value-org_cacl_value);temp_count_4++)
+						{
+							dwc_window_reg_after_training_update_increas_sub(temp_test_index_2
+							,((over_ride_sub_index>>1)*9+temp_count_2),		0,1) ;
+						}
+					}
 				}
-		}
-}
+				/*
+				temp_test_index_2=DMC_TEST_WINDOW_INDEX_TXDQSDLY;
+				dwc_window_reg_after_training_update_increas_sub(temp_test_index_2
+					,((over_ride_index%2)?
+					(over_ride_index-1):
+					(over_ride_index+1)),		0) ;
+					}
+				*/
+			}
+			if (over_ride_index == DMC_TEST_WINDOW_INDEX_RXCLKDLY)
+			{
+				temp_test_index_2=DMC_TEST_WINDOW_INDEX_RXPBDLY;
+
+				for ( temp_count_2=0;temp_count_2<4;temp_count_2++)
+					for (temp_count_4=0;temp_count_4<(((offset_value-org_cacl_value)*ui_1_32_100step)/bdlr_100step);temp_count_4++)
+					{
+						dwc_window_reg_after_training_update_increas_sub(temp_test_index_2
+						,((over_ride_sub_index/2)*9+
+						temp_count_2+(over_ride_sub_index%2)*4),		0,1) ;
+					}
+			}
 
 			if (over_ride_index == DMC_TEST_WINDOW_INDEX_RXPBDLY)
 			{
@@ -9148,30 +9587,29 @@ for ( temp_count_2=0;temp_count_2<4;temp_count_2++)
 
 				for ( temp_count_2=0;temp_count_2<4;temp_count_2++)
 				{
-					if (temp_count_2 == ((over_ride_sub_index%9)%4))
-						temp_count_2++;
-for (temp_count_4=0;temp_count_4<(offset_value-org_cacl_value);temp_count_4++)
+				if (temp_count_2 == ((over_ride_sub_index%9)%4))
+					temp_count_2++;
+				for (temp_count_4=0;temp_count_4<(offset_value-org_cacl_value);temp_count_4++)
 					dwc_window_reg_after_training_update_increas_sub(temp_test_index_2
-							,((over_ride_sub_index/9)*9+
-		temp_count_2+(((over_ride_sub_index%9)>3)?4:0)),		0,1) ;
-
+					,((over_ride_sub_index/9)*9+
+					temp_count_2+(((over_ride_sub_index%9)>3)?4:0)),		0,1) ;
 				}
 				//bdlr_100step  (org_cacl_value<offset_value)
 				if ((((offset_value-org_cacl_value)*bdlr_100step)/ui_1_32_100step))
 				{
 					temp_test_index_2=DMC_TEST_WINDOW_INDEX_RXCLKDLY;
-	for (temp_count_4=0;temp_count_4<(((offset_value-org_cacl_value)*bdlr_100step)/ui_1_32_100step);temp_count_4++)
-					dwc_window_reg_after_training_update_increas_sub(temp_test_index_2
-							,(((over_ride_sub_index/9)<<1)+
-								(((over_ride_sub_index%9)>3)?1:0)
-		),		0,1) ;
+					for (temp_count_4=0;temp_count_4<(((offset_value-org_cacl_value)*bdlr_100step)/ui_1_32_100step);temp_count_4++)
+						dwc_window_reg_after_training_update_increas_sub(temp_test_index_2
+						,(((over_ride_sub_index/9)<<1)+
+						(((over_ride_sub_index%9)>3)?1:0)
+						),		0,1) ;
 				}
 			}
 		}
-}
+	}
 	printf("reg_add %08x old_value %08x update_to %08x dec %d to %d \n",((unsigned int)(((reg_add) << 1)+(p_ddr_base->ddr_phy_base_address))),
-			delay_old_value,dwc_ddrphy_apb_rd(reg_add),ddr_cacl_phy_delay_all_step(over_ride_index, delay_old_value),
-	ddr_cacl_phy_delay_all_step(over_ride_index, dwc_ddrphy_apb_rd(reg_add)));
+		delay_old_value,dwc_ddrphy_apb_rd(reg_add),ddr_cacl_phy_delay_all_step(over_ride_index, delay_old_value),
+		ddr_cacl_phy_delay_all_step(over_ride_index, dwc_ddrphy_apb_rd(reg_add)));
 	//ddr_log_serial_puts(" ",0);
 	//ddr_log_serial_put_hex(delay_reg_value,16,0);
 	//ddr_log_serial_puts(" ",0);
@@ -9180,8 +9618,8 @@ for (temp_count_4=0;temp_count_4<(offset_value-org_cacl_value);temp_count_4++)
 
 int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-check_base_address();
-#define DMC_WINDOW_CMD   20180010  //g12_d2pll 1584 0 0 0 0 0x8
+	check_base_address();
+	#define DMC_WINDOW_CMD   20180010  //g12_d2pll 1584 0 0 0 0 0x8
 	//g12_d2pll 1600 5 0 0x10 1
 	//g12_d2pll 1600 0 0 0 0 0x10 0 1
 	//g12_d2pll 1400 0 0 0 0 0 0 0 0 1 1200  1900    test ddr frequency
@@ -9212,29 +9650,28 @@ check_base_address();
 	//init_range_2  range2_value vref_start2 vref_end2 pin_index_min pin_index_max  test_size
 
 
-#define G12_D2PLL_CMD_DMC_FULL_TEST   0x01
-#define G12_D2PLL_CMD_OVER_RIDE   0x02
-#define G12_D2PLL_CMD_OVER_RIDE_PLUS_FULLTEST  0x03
-#define G12_D2PLL_CMD_OVER_RIDE_TRAINING_HDTL  0x04
-#define G12_D2PLL_CMD_WINDOW_TEST  0x11
-#define G12_D2PLL_CMD_WINDOW_TEST_AND_STICKY_OVERRIDE  0x12
-#define G12_D2PLL_CMD_SUSPEND_TEST  0x21
+	#define G12_D2PLL_CMD_DMC_FULL_TEST   0x01
+	#define G12_D2PLL_CMD_OVER_RIDE   0x02
+	#define G12_D2PLL_CMD_OVER_RIDE_PLUS_FULLTEST  0x03
+	#define G12_D2PLL_CMD_OVER_RIDE_TRAINING_HDTL  0x04
+	#define G12_D2PLL_CMD_WINDOW_TEST  0x11
+	#define G12_D2PLL_CMD_WINDOW_TEST_AND_STICKY_OVERRIDE  0x12
+	#define G12_D2PLL_CMD_SUSPEND_TEST  0x21
 	//#define G12_D2PLL_CMD_FREQUENCY_TABLE_TEST  0x31
-#define G12_D2PLL_CMD_SWEEP_EE_VOLTAGE_FREQUENCY_TABLE_TEST  0x32
-#define G12_D2PLL_CMD_DDR_EYE_TEST  0x41
-#define G12_D2PLL_CMD_DDR_EYE_TEST_AND_STICKY_OVERRIDE    0x42
+	#define G12_D2PLL_CMD_SWEEP_EE_VOLTAGE_FREQUENCY_TABLE_TEST  0x32
+	#define G12_D2PLL_CMD_DDR_EYE_TEST  0x41
+	#define G12_D2PLL_CMD_DDR_EYE_TEST_AND_STICKY_OVERRIDE    0x42
 
-
-#define G12_D2PLL_CMD_DDR_DVFS_TEST  0x51
+	#define G12_D2PLL_CMD_DDR_DVFS_TEST  0x51
 
 	//OVERRIDE_OPTION
-#define DMC_TEST_WINDOW_INDEX_ATXDLY 1
-#define DMC_TEST_WINDOW_INDEX_TXDQSDLY 2
-#define DMC_TEST_WINDOW_INDEX_RXCLKDLY  3
-#define DMC_TEST_WINDOW_INDEX_TXDQDLY  4
-#define DMC_TEST_WINDOW_INDEX_RXPBDLY  5
+	#define DMC_TEST_WINDOW_INDEX_ATXDLY 1
+	#define DMC_TEST_WINDOW_INDEX_TXDQSDLY 2
+	#define DMC_TEST_WINDOW_INDEX_RXCLKDLY  3
+	#define DMC_TEST_WINDOW_INDEX_TXDQDLY  4
+	#define DMC_TEST_WINDOW_INDEX_RXPBDLY  5
 
-#define DMC_TEST_WINDOW_INDEX_EE_VOLTAGE  0x11
+	#define DMC_TEST_WINDOW_INDEX_EE_VOLTAGE  0x11
 
 	char *endp;
 	unsigned int pll;
@@ -9408,18 +9845,15 @@ check_base_address();
 		para_meter[3]=(para_meter[3]<<24)|(para_meter[4]<<16)|(para_meter[5]<<0);
 		para_meter[4]=(para_meter[6]<<24)|(para_meter[7]<<16)|(para_meter[8]<<0);
 		para_meter[5]=(para_meter[9]<<24)|(para_meter[10]<<16)|(para_meter[11]<<0);
-
 	}
 	if ((window_test_stick_cmd_value == G12_D2PLL_CMD_WINDOW_TEST) || (window_test_stick_cmd_value == G12_D2PLL_CMD_WINDOW_TEST_AND_STICKY_OVERRIDE))
 	{
 		//para_meter[8]  size   9  stick_dmc_ddr_window_test_no_use_dqs_dq_correction   10 disable_scramble_use_define_pattern  11 stick_dmc_window_test_loop_flag window loop test
 		//12 if reinit when test dq  13 pass_to_fail_flag    14  test_dmc_or_cpu
 		para_meter[5]=(para_meter[9]<<28)|(para_meter[10]<<24)|(para_meter[11]<<20)|(para_meter[12]<<21)|(para_meter[13]<<22)|(para_meter[14]<<25)|(para_meter[5]<<0);
-
 	}
 	if ((window_test_stick_cmd_value == G12_D2PLL_CMD_DDR_EYE_TEST) || (window_test_stick_cmd_value == G12_D2PLL_CMD_DDR_EYE_TEST_AND_STICKY_OVERRIDE))
 	{
-
 		para_meter[3]=(para_meter[3]<<0)|(para_meter[4]<<8)|(para_meter[5]<<16)|(para_meter[6]<<24);
 		para_meter[4]=(para_meter[7]<<0)|(para_meter[8]<<8)|(para_meter[9]<<16)|(para_meter[10]<<24);
 		para_meter[5]=para_meter[11];//(para_meter[11]<<0)|(para_meter[12]<<8)|(para_meter[13]<<16)|(para_meter[14]<<24);
@@ -9449,9 +9883,9 @@ check_base_address();
 		*/
 	printf("reset...\n");
 	dcache_disable();
+	if ((p_ddr_base->sys_watchdog_base_address) == 0)
 	run_command("reset",0);
 	ddr_test_watchdog_reset_system();
-
 
 	return 0;
 
@@ -9466,7 +9900,6 @@ U_BOOT_CMD(
 	"g12_d2pll 1300  1 0x10 0",
 	"g12_d2pll  clk delay_index delay_value before_after_training_setting\n"
 );
-
 
 #endif
 
@@ -9514,8 +9947,8 @@ check_base_address();
 	//	unsigned int reg_value=0;
 
 	if (argc == 1)
-	{  printf("\nplease read help\n");
-
+	{
+		printf("\nplease read help\n");
 	}
 	else if  (argc >4)
 	{//offset_enable=1;
@@ -9604,7 +10037,7 @@ check_base_address();
 	char *endp;
 	//rank_index  dq_index  write_read left/right  offset_value
 	unsigned int test_index=0; // 1 ac ,0x2, write dqs ,0x4,read dqs,0x8,write dq,0x10 read dq
-	//  unsigned int dq_index=0;  //0-8 rank0 lane0 ,rank0 9-17 lane1,rank0 18-26 lane2, rank0 27-35 lane3,  36+0-8 rank1 lane0 ,rank1  36+9-17 lane1,rank1  36+18-26 lane2, rank1  36+27-35 lane3
+	//unsigned int dq_index=0;  //0-8 rank0 lane0 ,rank0 9-17 lane1,rank0 18-26 lane2, rank0 27-35 lane3,  36+0-8 rank1 lane0 ,rank1  36+9-17 lane1,rank1  36+18-26 lane2, rank1  36+27-35 lane3
 	unsigned int test_dq_mask_1=0; //each bit mask corresspond with dq_index
 	unsigned int test_dq_mask_2=0; //each bit mask corresspond with dq_index
 	unsigned int test_dq_mask_3=0; //each bit mask corresspond with dq_index
@@ -9612,15 +10045,15 @@ check_base_address();
 	unsigned int left_right_flag=0;//  1 left ,2 right   #define  DDR_PARAMETER_LEFT		1     #define 	DDR_PARAMETER_RIGHT		2
 	unsigned int offset_value=0;//
 
-	//   unsigned int offset_enable=0;//
+	//unsigned int offset_enable=0;//
 
-	//	 unsigned int temp_value=0;//
+	//unsigned int temp_value=0;//
 	unsigned int count=0;
 	//unsigned int count1=0;
 	unsigned int count_max=0;
 	unsigned int lcdlr_max=0;
-	//	unsigned int reg_add=0;
-	//	unsigned int reg_value=0;
+	//unsigned int reg_add=0;
+	//unsigned int reg_value=0;
 
 	global_ddr_clk=get_ddr_clk();
 	bdlr_100step=get_bdlr_100step(global_ddr_clk);
@@ -9628,8 +10061,8 @@ check_base_address();
 	ui_1_32_100step=(1000000*100/(global_ddr_clk*2*32));
 
 	if (argc == 1)
-	{  printf("\nplease read help\n");
-
+	{
+		printf("\nplease read help\n");
 	}
 	else if  (argc >6)
 	{//offset_enable=1;
@@ -10511,6 +10944,7 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	uint32_t auto_window_test_dq_size=0;
 	char pattern_dis_scramble=0;
 	uint32_t stick_dmc_ddr_window_test_read_vref_offset_value=0;
+	uint32_t  ddr_set_size=0;
 	if (argc>1)
 	{
 		auto_window_test_enable_item = simple_strtoull_ddr(argv[1], &endp, 0);
@@ -10539,21 +10973,25 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	int verify_error=0;
 	verify_error=do_verify_flash_ddr_parameter(1);
 	if ((verify_error) == 0)
-		{
+	{
 		if ((ddr_sha.ddrs.fast_boot[0]) == 0xff)
-		{printf("\nuboot  auto fast boot check flash data is ok return \n");
-		return 1 ;
+		{
+			printf("\nuboot  auto fast boot check flash data is ok return \n");
+			return 1 ;
 		}
-		}
+	}
 	ddr_set_t *ddr_set_t_p=NULL;
 	ddr_set_t_p=(ddr_set_t *)(ddr_set_t_p_arrary);
 	//ddr_set_t_p= (ddr_set_t *)(p_ddr_base->ddr_dmc_sticky0);
 	//if (sizeof(ddr_set_t)<loop_max)
 	uint32_t  ddr_set_add=0;
-	uint32_t  ddr_set_size=0;
+
 	ddr_set_add=(uint32_t)(uint64_t)(ddr_set_t_p);
 	ddr_set_size=sizeof(ddr_set_t);
 	printf("\nddr_set_t_p==0x%08x\n",ddr_set_add);
+
+	uint32_t write_size=0;
+	write_size=((ddr_set_size+SHA256_SUM_LEN+MESON_CPU_CHIP_ID_SIZE+511)/512)*512;
 	#if 1
 	do_read_ddr_training_data(1,ddr_set_t_p);
 	#endif
@@ -10561,9 +10999,10 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	{
 		printf("\nuboot enable auto fast boot funciton \n");
 		if ((verify_error))
-			{printf("\nuboot  auto fast boot check verify data happen wrong \n");
+		{
+			printf("\nuboot  auto fast boot check verify data happen wrong \n");
 			(ddr_set_t_p->fast_boot[0])=1;
-			}
+		}
 	}
 	else
 		return 1 ;
@@ -10581,30 +11020,43 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		printf("\nuboot  auto fast boot  auto window test begin \n");
 		{
 			ddr_set_t_p->fast_boot[0]=0xfe;
-		//#if 1
-		//printf("print sha\n");
-		//sprintf(str,"md %08x 0x100", (uint32_t)(uint64_t)(ddr_set_add-32));
-		//run_command(str,0);
-		sha256_csum_wd_internal((unsigned char *)(uint64_t)ddr_set_add, sizeof(ddr_set_t), ddr_sha.sha2, 0);
-		//printf("print sha\n");
-		//sprintf(str,"md %08x 0x100", (uint32_t)(uint64_t)(ddr_set_add-32));
-		//run_command(str,0);
-		//#endif
+			//#if 1
+			//printf("print sha\n");
+			//sprintf(str,"md %08x 0x100", (uint32_t)(uint64_t)(ddr_set_add-32));
+			//run_command(str,0);
+			sha256_csum_wd_internal((unsigned char *)(uint64_t)ddr_set_add, sizeof(ddr_set_t), ddr_sha.sha2, 0);
+			//printf("print sha\n");
+			//sprintf(str,"md %08x 0x100", (uint32_t)(uint64_t)(ddr_set_add-32));
+			//run_command(str,0);
+			//#endif
+			write_size=((ddr_set_size+SHA256_SUM_LEN+MESON_CPU_CHIP_ID_SIZE+511)/512)*512;
+			{
+				#if 0
+				#ifdef USE_FOR_UBOOT_2018
+				sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,write_size);
+				#else
+				sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,write_size);
+				#endif
+				//sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
+				//sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
+				printf("\nstr=%s\n",str);
+				run_command(str,0);
+				#endif
 
-		{
-		#ifdef USE_FOR_UBOOT_2018
-		sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,ddr_set_size+SHA256_SUM_LEN+MESON_CPU_CHIP_ID_SIZE);
-		#else
-		sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,ddr_set_size+SHA256_SUM_LEN+MESON_CPU_CHIP_ID_SIZE);
-		#endif
-				//		sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
-				//	sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add,ddr_set_size);
-		printf("\nstr=%s\n",str);
-		run_command(str,0);
-		}
-		//verify_error=do_verify_flash_ddr_parameter(&ddr_sha,0);
-		//return 1;
-		sprintf(str,"g12_d2pll %d 0x11 %d 0 0 0 0 %d 0x%08x  0 %d",ddr_set_t_p->DRAMFreq[0],auto_window_test_enable_item,stick_dmc_ddr_window_test_read_vref_offset_value,auto_window_test_dq_size,pattern_dis_scramble);
+				#if 0
+				int argc2;
+				char* argv2[30];
+				argc2=3;
+				sprintf(argv2[1],"0x%08x",ddr_set_add-SHA256_SUM_LEN);
+				sprintf(argv2[2],"0x%08x",write_size);
+
+				do_ddr_store_write_ddr_parameter_ops(cmdtp,flag,argc2,argv2);
+				#endif
+				ddr_do_store_ddr_parameter_ops((uint8_t *)(unsigned long)(ddr_set_add-SHA256_SUM_LEN),write_size);
+			}
+			//verify_error=do_verify_flash_ddr_parameter(&ddr_sha,0);
+			//return 1;
+			sprintf(str,"g12_d2pll %d 0x11 %d 0 0 0 0 %d 0x%08x  0 %d",ddr_set_t_p->DRAMFreq[0],auto_window_test_enable_item,stick_dmc_ddr_window_test_read_vref_offset_value,auto_window_test_dq_size,pattern_dis_scramble);
 			printf("\nstr=%s\n",str);
 
 			run_command(str,0);
@@ -10678,17 +11130,18 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	//	sprintf(str,"md %08x 0x100", (uint32_t)(uint64_t)(ddr_set_add-32));
 	//	run_command(str,0);
 	//	#endif
-
+	#if 0
 		{
 		#ifdef USE_FOR_UBOOT_2018
-		sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,ddr_set_size+SHA256_SUM_LEN+MESON_CPU_CHIP_ID_SIZE);
+		sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,write_size);
 		#else
-		sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,ddr_set_size+SHA256_SUM_LEN+MESON_CPU_CHIP_ID_SIZE);
+		sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,write_size);
 		#endif
 		printf("\nstr=%s\n",str);
 		run_command(str,0);
 		}
-
+	#endif
+		ddr_do_store_ddr_parameter_ops((uint8_t *)(unsigned long)(ddr_set_add-SHA256_SUM_LEN),write_size);
 			}
 			return 1;
 		}

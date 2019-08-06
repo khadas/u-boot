@@ -363,6 +363,7 @@ ddr_set_t __ddr_setting[] = {
 	.bitTimeControl_2d		= 1,
 	.fast_boot[0]			= 1,
 },
+#if 0
 {
 	/* lpddr3 */
 	.board_id				= CONFIG_BOARD_ID_MASK,
@@ -425,6 +426,7 @@ ddr_set_t __ddr_setting[] = {
 	.bitTimeControl_2d		= 1,
 	.fast_boot[0]			= 1,
 },
+#endif
 };
 
 pll_set_t __pll_setting = {
