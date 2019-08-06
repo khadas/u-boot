@@ -1556,17 +1556,21 @@ static void lcd_clk_generate_txl(struct lcd_config_s *pconf)
 		if (lcd_debug_print_flag == 2) {
 			LCDPR("clk_div_in=%d, fout=%d, xd=%d, clk_div_out=%d\n",
 				clk_div_in, cConf->fout,
-				clk_div_out, cConf->xd);
+				cConf->xd, clk_div_out);
 		}
 		if (clk_div_out > cConf->data->div_out_fmax)
 			goto generate_clk_done_txl;
 		clk_div_sel = clk_vid_pll_div_get(
 				clk_div_in * 100 / clk_div_out);
-		cConf->div_sel = clk_div_sel;
+		if (clk_div_sel == CLK_DIV_SEL_MAX) {
+			clk_div_sel = CLK_DIV_SEL_1;
+			cConf->xd *= clk_div_in / clk_div_out;
+		} else
+			cConf->div_sel = clk_div_sel;
 		if (lcd_debug_print_flag == 2) {
-			LCDPR("clk_div_sel=%s(index %d)\n",
+			LCDPR("clk_div_sel=%s(index %d), xd=%d\n",
 				lcd_clk_div_sel_table[clk_div_sel],
-				cConf->div_sel);
+				cConf->div_sel, cConf->xd);
 		}
 		done = check_pll_txl(cConf, pll_fout);
 		if (done == 0)
