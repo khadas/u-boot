@@ -18,6 +18,8 @@
 #include <common.h>
 #include <fdt_support.h>
 #include <asm/armv7.h>
+#include <asm/io.h>
+#include <asm/arch/secure_apb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -32,6 +34,12 @@ int arch_fixup_fdt(void *blob)
 		start[bank] = bd->bi_dram[bank].start;
 		size[bank] = bd->bi_dram[bank].size;
 	}
+
+#if defined(CONFIG_SYS_MEM_TOP_HIDE)
+	size[0] = (((readl(AO_SEC_GP_CFG0)) & 0xFFFF0000) << 4) - CONFIG_SYS_MEM_TOP_HIDE;
+#else
+	size[0] = (((readl(AO_SEC_GP_CFG0)) & 0xFFFF0000) << 4);
+#endif
 
 	ret = fdt_fixup_memory_banks(blob, start, size, CONFIG_NR_DRAM_BANKS);
 #if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
