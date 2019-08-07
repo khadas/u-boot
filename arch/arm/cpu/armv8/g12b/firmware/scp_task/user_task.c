@@ -36,6 +36,8 @@ enum scpi_client_id {
 	SCPI_CL_POWER,
 	SCPI_CL_THERMAL,
 	SCPI_CL_REMOTE,
+	SCPI_CL_IRPROTO,
+	SCPI_CL_REMOTE_MASK,
 	SCPI_MAX,
 };
 
@@ -146,6 +148,9 @@ void high_task(void)
 }
 
 extern unsigned int usr_pwr_key;
+extern unsigned int usr_pwr_key_mask;
+extern unsigned int usr_ir_proto;
+
 void process_low_task(unsigned command)
 {
 	unsigned *pcommand =
@@ -157,6 +162,12 @@ void process_low_task(unsigned command)
 		if ((command >> 16) == SCPI_CL_REMOTE) {
 			usr_pwr_key = *(pcommand + 2);/*tx_size locates at *(pcommand + 1)*/
 			dbg_print("pwr_key=",usr_pwr_key);
+		} else if ((command >> 16) == SCPI_CL_IRPROTO) {
+			usr_ir_proto = *(pcommand + 2);
+			dbg_print("usr_ir_proto = ", usr_ir_proto);
+		} else if ((command >> 16) == SCPI_CL_REMOTE_MASK) {
+			usr_pwr_key_mask = *(pcommand + 2);
+			dbg_print("pwr_key_mask = ", usr_pwr_key_mask);
 		}
 	}
 }
