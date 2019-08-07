@@ -202,6 +202,10 @@ void get_wakeup_source(void *response, unsigned int suspend_from)
 	val = (POWER_KEY_WAKEUP_SRC | AUTO_WAKEUP_SRC | REMOTE_WAKEUP_SRC |
 	       BT_WAKEUP_SRC);
 
+#ifdef CONFIG_CEC_WAKEUP
+	val |= CECB_WAKEUP_SRC;
+#endif
+
 	p->sources = val;
 
 	/* Power Key: AO_GPIO[7]*/
@@ -243,10 +247,13 @@ static unsigned int detect_key(unsigned int suspend_from)
 
 	do {
 		#ifdef CONFIG_CEC_WAKEUP
-		if (irq[IRQ_AO_CECB] == IRQ_AO_CEC2_NUM) {
-			irq[IRQ_AO_CECB] = 0xFFFFFFFF;
-			if (cec_power_on_check())
-				exit_reason = CEC_WAKEUP;
+		if (!cec_msg.log_addr)
+			cec_node_init();
+		else {
+			if (readl(AO_CECB_INTR_STAT) & CECB_IRQ_RX_EOM) {
+				if (cec_power_on_check())
+					exit_reason = CEC_WAKEUP;
+			}
 		}
 		#endif
 		if (irq[IRQ_AO_IR_DEC] == IRQ_AO_IR_DEC_NUM) {
