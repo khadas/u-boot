@@ -53,8 +53,10 @@ static void lcd_chip_detect(void)
 {
 #if 1
 	unsigned int cpu_type;
+	unsigned int rev_type;
 
 	cpu_type = get_cpu_id().family_id;
+	rev_type = get_cpu_id().chip_rev;
 	switch (cpu_type) {
 	case MESON_CPU_MAJOR_ID_GXTVBB:
 		aml_lcd_driver.chip_type = LCD_CHIP_GXTVBB;
@@ -85,6 +87,7 @@ static void lcd_chip_detect(void)
 		break;
 	case MESON_CPU_MAJOR_ID_TL1:
 		aml_lcd_driver.chip_type = LCD_CHIP_TL1;
+		aml_lcd_driver.rev_type = rev_type;
 		break;
 	case MESON_CPU_MAJOR_ID_SM1:
 		aml_lcd_driver.chip_type = LCD_CHIP_SM1;

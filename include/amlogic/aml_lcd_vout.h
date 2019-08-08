@@ -518,6 +518,7 @@ extern struct bl_config_s bl_config_dft;
 struct aml_lcd_drv_s {
 	char version[15];
 	enum lcd_chip_e chip_type;
+	char rev_type;
 	unsigned char lcd_status;
 
 	struct lcd_config_s *lcd_config;
