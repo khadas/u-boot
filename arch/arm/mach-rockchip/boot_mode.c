@@ -203,10 +203,6 @@ int setup_boot_mode(void)
 		printf("enter charging!\n");
 		env_set("preboot", "setenv preboot; charge");
 		break;
-	case BOOT_MODE_RECOVERY:
-		printf("enter Recovery mode!\n");
-		env_set("reboot_mode", "recovery");
-		break;
 	case BOOT_MODE_REBOOT_TEST:
 		printf("enter reboot test mode!\n");
 		env_set("reboot_mode", "reboot_test");
