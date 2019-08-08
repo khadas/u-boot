@@ -131,7 +131,7 @@ ddr_set_t __ddr_setting[] = {
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
 	.bitTimeControl_2d      = 1,
-	.fast_boot[0]			= 0,
+	.fast_boot[0]			= 1,
 	.enable_lpddr4x_mode	= 1,
 },
 {
@@ -205,7 +205,7 @@ ddr_set_t __ddr_setting[] = {
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
 	.bitTimeControl_2d      = 1,
-	.fast_boot[0]			= 0,
+	.fast_boot[0]			= 1,
 	.enable_lpddr4x_mode	= 1,
 },
 {
