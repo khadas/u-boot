@@ -60,6 +60,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern void f_dwc_otg_pullup(int is_on);
 
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+extern int is_partition_logical(char* parition_name);
+#endif
+
 /* The 64 defined bytes plus \0 */
 
 #define EP_BUFFER_SIZE	4096
@@ -599,12 +603,16 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		if (!dynamic_partition) {
 			strncat(response, "no", chars_left);
 		} else {
-			if ((strcmp(cmd, "system") == 0) ||  (strcmp(cmd, "vendor") == 0)
-				|| (strcmp(cmd, "odm") == 0) || (strcmp(cmd, "product") == 0)) {
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+			if (is_partition_logical(cmd) == 0) {
+				error("%s is logic partition\n", cmd);
 				strncat(response, "yes", chars_left);
 			} else {
 				strncat(response, "no", chars_left);
 			}
+#else
+			strncat(response, "no", chars_left);
+#endif
 		}
 	} else if (!strcmp_l1("super-partition-name", cmd)) {
 		char *slot_name;
@@ -1211,14 +1219,15 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 		return;
 	}
 
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 	if (dynamic_partition) {
-		if ((strcmp(cmd, "system") == 0) || (strcmp(cmd, "vendor") == 0)
-			|| (strcmp(cmd, "odm") == 0) || (strcmp(cmd, "product") == 0)) {
-			error("system/vendor/odm/product is logic partition, can not write here\n");
+		if (is_partition_logical(cmd) == 0) {
+			error("%s is logic partition, can not write here.......\n", cmd);
 			fastboot_tx_write_str("FAILlogic partition");
 			return;
 		}
 	}
+#endif
 
 	printf("partition is %s\n", cmd);
 	if (strcmp(cmd, "userdata") == 0) {

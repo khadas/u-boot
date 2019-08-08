@@ -144,6 +144,7 @@ obj-$(CONFIG_CMD_LED) += cmd_led.o
 obj-$(CONFIG_CMD_LICENSE) += cmd_license.o
 ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 obj-y += cmd_bcb.o
+obj-y += cmd_dynamic.o
 ifdef CONFIG_CMD_BOOTCTOL_AVB
 obj-y += cmd_bootctl_avb.o
 else
