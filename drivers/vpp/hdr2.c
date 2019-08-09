@@ -885,6 +885,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 	int bit_depth;
 	unsigned int i = 0;
 	struct hdr_proc_mtx_param_s hdr_mtx_param;
+	printf("hdr_func %d, hdr_process_select 0x%x\n", module_sel, hdr_process_select);
 
 	memset(&hdr_mtx_param, 0, sizeof(struct hdr_proc_mtx_param_s));
 	memset(&hdr_lut_param, 0, sizeof(struct hdr_proc_lut_param_s));

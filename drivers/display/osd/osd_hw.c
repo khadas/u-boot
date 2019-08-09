@@ -819,9 +819,6 @@ void osd_setting_default_hwc(u32 index, struct pandata_s *disp_data)
 	osd_reg_write(VIU_OSD_BLEND_BLEND1_SIZE,
 		height  << 16 |
 		width);
-	osd_reg_set_bits(DOLBY_PATH_CTRL,
-		0x3, 2, 2);
-
 	osd_reg_write(VPP_OSD1_IN_SIZE,
 		height << 16 | width);
 
