@@ -83,6 +83,8 @@
 				(chl_set == CONFIG_DDR0_16BIT))
 #define DDR_USE_2_RANK(chl_set)	((chl_set == CONFIG_DDR0_RANK01))
 
+#define DMC_TEST_SLT_ENABLE_DDR_AUTO_FAST_BOOT 1<<5
+#define DMC_TEST_SLT_ENABLE_DDR_AUTO_WINDOW_TEST 1<<4
 /* DMC_DDR_CTRL defines */
 #define DDR_DDR4_ENABLE						(1<<22)
 #define DDR_RANK1_ENABLE					(1<<21)
@@ -97,6 +99,8 @@
 
 #define DMC_TEST_SLT_SCAN_FREQUENCY				1
 #define DMC_TEST_SLT_OFFSET_DELAY				(1<<1)
+
+//#define DMC_TEST_SLT_ENABLE_DDR_MAX_CORE_TIMMING_LIMIT 1<<6
 #define DMC_TEST_SLT_ENABLE_DDR_SKIP_TRAINING	(1<<6)
 #define DMC_TEST_SLT_ENABLE_DDR_DVFS			(1<<7)
 
@@ -151,68 +155,73 @@
 */
 
 /* d2pll support */
-#ifndef CONFIG_CMD_D2PLL
-#define CONFIG_CMD_D2PLL				0
+#ifndef CONFIG_CMD_DDR_D2PLL
+#define CONFIG_CMD_DDR_D2PLL				0
 #endif
-#define DDR_FUNC_D2PLL						(CONFIG_CMD_D2PLL<<0)
+#define DDR_FUNC_D2PLL						(CONFIG_CMD_DDR_D2PLL<<0)
 
 /* ddr low power function support */
-#ifndef DDR_LOW_POWER
-#define DDR_LOW_POWER				0
+#ifndef CONFIG_DDR_LOW_POWER
+#define CONFIG_DDR_LOW_POWER				0
 #endif
-#define DDR_FUNC_LP							(DDR_LOW_POWER<<1)
+#define DDR_FUNC_LP							(CONFIG_DDR_LOW_POWER<<1)
 
 /* ddr zq power down support */
-#ifndef DDR_ZQ_PD
-#define DDR_ZQ_PD					0
+#ifndef CONFIG_DDR_ZQ_PD
+#define CONFIG_DDR_ZQ_PD					0
 #endif
-#define DDR_FUNC_ZQ_PD						(DDR_ZQ_PD<<2)
+#define DDR_FUNC_ZQ_PD						(CONFIG_DDR_ZQ_PD<<2)
 
 /* ddr vref function */
-#ifndef DDR_USE_EXT_VREF
-#define DDR_USE_EXT_VREF				0
+#ifndef CONFIG_DDR_USE_EXT_VREF
+#define CONFIG_DDR_USE_EXT_VREF				0
 #endif
-#define DDR_FUNC_EXT_VREF					(DDR_USE_EXT_VREF<<3)
+#define DDR_FUNC_EXT_VREF					(CONFIG_DDR_USE_EXT_VREF<<3)
 
 /* ddr4 timing test function */
-#ifndef DDR4_TIMING_TEST
-#define DDR4_TIMING_TEST				0
+#ifndef CONFIG_DDR4_TIMING_TEST
+#define CONFIG_DDR4_TIMING_TEST				0
 #endif
-#define DDR_FUNC_DDR4_TIMING_TEST			(DDR4_TIMING_TEST<<4)
+#define DDR_FUNC_DDR4_TIMING_TEST			(CONFIG_DDR4_TIMING_TEST<<4)
 
 /* ddr pll bypass */
-#ifndef DDR_PLL_BYPASS
-#define DDR_PLL_BYPASS				0
+#ifndef CONFIG_DDR_PLL_BYPASS
+#define CONFIG_DDR_PLL_BYPASS				0
 #endif
-#define DDR_FUNC_DDR_PLL_BYPASS				(DDR_PLL_BYPASS<<5)
+#define DDR_FUNC_DDR_PLL_BYPASS				(CONFIG_DDR_PLL_BYPASS<<5)
 
 /* ddr rdbi function */
-#ifndef DDR_FUNC_RDBI
-#define DDR_FUNC_RDBI				0
+#ifndef CONFIG_DDR_FUNC_RDBI
+#define CONFIG_DDR_FUNC_RDBI				0
 #endif
-#define DDR_FUNC_DDR_RDBI					(DDR_FUNC_RDBI<<6)
+#define DDR_FUNC_RDBI						(CONFIG_DDR_FUNC_RDBI<<6)
 
 /* lpddr3 ca trainingi function */
-#ifndef DDR_FUNC_LPDDR3_CA
-#define DDR_FUNC_LPDDR3_CA				0
+#ifndef CONFIG_DDR_FUNC_LPDDR3_CA
+#define CONFIG_DDR_FUNC_LPDDR3_CA				0
 #endif
-#define DDR_FUNC_LPDDR3_CA_TRAIN			(DDR_FUNC_LPDDR3_CA<<7)
+#define DDR_FUNC_LPDDR3_CA					(CONFIG_DDR_FUNC_LPDDR3_CA<<7)
 
 /* print ddr training window */
-#ifndef DDR_FUNC_PRINT_WINDOW
-#define DDR_FUNC_PRINT_WINDOW		0
+#ifndef CONFIG_DDR_FUNC_PRINT_WINDOW
+#define CONFIG_DDR_FUNC_PRINT_WINDOW		0
 #endif
-#define DDR_FUNC_PRINT_WINDOW_EN			(DDR_FUNC_PRINT_WINDOW<<8)
+#define DDR_FUNC_PRINT_WINDOW				(CONFIG_DDR_FUNC_PRINT_WINDOW<<8)
 
 
 /* print ddr training window */
-#ifndef DDR_FULL_TEST
-#define DDR_FULL_TEST				0
+//#ifndef CONFIG_DDR_FULL_TEST
+//#define CONFIG_DDR_FULL_TEST				0
+//#endif
+//#define DDR_FULL_TEST						(CONFIG_DDR_FULL_TEST<<10)
+
+/* non-sec region scramble function */
+#ifndef CONFIG_DDR_NONSEC_SCRAMBLE
+#define CONFIG_DDR_NONSEC_SCRAMBLE			0
 #endif
-#define DDR_FULL_TEST_EN					(DDR_FULL_TEST<<10)
+#define DDR_NONSEC_SCRAMBLE					(CONFIG_DDR_NONSEC_SCRAMBLE<<11)
 
-
-#if(DDR_FUNC_LPDDR3_CA==1)
+#if(CONFIG_DDR_FUNC_LPDDR3_CA==1)
 #if (CONFIG_LPDDR3_CA_TRAINING_CA0==CONFIG_LPDDR3_CA_TRAINING_USE_LANE0)
 #define DDR_FUNC_LPDDR3_CA_TRAINING_CA0_BIT0					(0<<20)
 #define DDR_FUNC_LPDDR3_CA_TRAINING_CA0_BIT1						(0<<21)
@@ -251,17 +260,18 @@
 #else
 #define DDR_FUNC_LPDDR3_SOC_ODT_ONLY_UP						(0<<25)
 #endif
-
+#define DDR_FUNC_FAST_BOOT_CHECK_CHIP_ID					(1<<30)
 #define DDR_FUNC							(DDR_FUNC_D2PLL					| \
 											DDR_FUNC_LP						| \
 											DDR_FUNC_ZQ_PD					| \
 											DDR_FUNC_EXT_VREF				| \
 											DDR_FUNC_DDR4_TIMING_TEST		| \
 											DDR_FUNC_DDR_PLL_BYPASS			| \
-											DDR_FUNC_DDR_RDBI				| \
-											DDR_FUNC_LPDDR3_CA_TRAIN		| \
-											DDR_FUNC_PRINT_WINDOW_EN		| \
-											DDR_FULL_TEST_EN				| \
+											DDR_FUNC_RDBI					| \
+											DDR_FUNC_LPDDR3_CA				| \
+											DDR_FUNC_PRINT_WINDOW			| \
+											DDR_FULL_TEST					| \
+											DDR_NONSEC_SCRAMBLE				| \
 											DDR_FUNC_LPDDR3_CA_TRAINING_CA0_BIT0| \
 											DDR_FUNC_LPDDR3_CA_TRAINING_CA0_BIT1| \
 											DDR_FUNC_LPDDR3_CA_TRAINING_CA1_BIT0| \

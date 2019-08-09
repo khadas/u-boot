@@ -71,9 +71,39 @@ typedef struct ddr_reg {
 	unsigned char	rsv_0;
 }__attribute__ ((packed)) ddr_reg_t;
 
+typedef struct retraining_set{
+	unsigned short    csr_pllctrl3;
+	unsigned short    csr_pptctlstatic[4];
+	unsigned short    csr_trainingincdecdtsmen[4];
+	unsigned short      csr_tsmbyte0[4];
+	unsigned short    csr_vrefinglobal;
+	//unsigned short    csr_dfimrl[4];
+	unsigned short    csr_dqsrcvcntrl[4];
+	unsigned short     csr_pptdqscntinvtrntg0[4];
+	unsigned short     csr_pptdqscntinvtrntg1[4];
+	unsigned short     csr_seq0bgpr[9];
+	//unsigned short     csr_seq0bgpr2;
+	//unsigned short     csr_seq0bgpr3;
+	//unsigned short     csr_seq0bgpr4;
+	//unsigned short     csr_seq0bgpr5;
+	//unsigned short     csr_seq0bgpr6;
+	//unsigned short     csr_seq0bgpr7;
+	//unsigned short     csr_seq0bgpr8;
+	unsigned short     csr_dllgainctl;
+	unsigned short     csr_dlllockpara;
+	//unsigned short     csr_hwtmrl;
+	unsigned short     csr_hwtcamode;
+	unsigned short     csr_hwtlpcsena;
+	unsigned short     csr_hwtlpcsenb;
+	unsigned short     csr_acsmctrl13;
+	unsigned short     csr_acsmctrl23;
+	//unsigned short     DqDqsRcvCntrl[8];
+	//unsigned short     rev_41;
+}__attribute__ ((packed)) retraining_set_t;
 typedef struct ddr_set{
 	unsigned	int		magic;
-	unsigned	int		rsv_int0;
+	unsigned	char	fast_boot[4];// 0   fastboot enable  1 window test margin  2 auto offset after window test 3 auto window test
+	//unsigned	int		rsv_int0;
 	unsigned	char	board_id;
 	//board id reserve,,do not modify
 	unsigned	char	version;
@@ -131,7 +161,10 @@ typedef struct ddr_set{
 
 	unsigned	short	training_SequenceCtrl[2];
 	//system reserve,do not modify
-	unsigned	char	phy_odt_config_rank[4];
+	unsigned	char	phy_odt_config_rank[2];
+	//unsigned	char	 rever1;
+	//unsigned	char	 rever2;
+	unsigned	short	rank1_ca_vref_permil;
 	//training odt config ,only use for training
 	// [0]Odt pattern for accesses targeting rank 0. [3:0] is used for write ODT [7:4] is used for read ODT
 	// [1]Odt pattern for accesses targeting rank 1. [3:0] is used for write ODT [7:4] is used for read ODT
@@ -221,6 +254,7 @@ typedef struct ddr_set{
 	//soc init DRAM receiver vref ,config like 500 means 0.5VDDQ,take care ,please follow SI
 	unsigned	short	max_core_timmming_frequency;
 	//use for limited ddr speed core timmming parameter,for some old dram maybe have no over speed register
+	/* align8 */
 
 	unsigned	char	ac_trace_delay[10];
 	unsigned	char	lpddr4_dram_vout_voltage_1_3_2_5_setting;
@@ -230,10 +264,11 @@ typedef struct ddr_set{
 	unsigned	char	ac_pinmux[DWC_AC_PINMUX_TOTAL];
 	//use for lpddr3 /lpddr4 ca pinmux remap
 	unsigned	char	dfi_pinmux[DWC_DFI_PINMUX_TOTAL];
-	unsigned	char	slt_test_function[2];  //[0] slt test function enable,bit 0 enable 4 frequency scan,bit 1 enable force delay line offset ,[1],slt test parameter ,use for force delay line offset
-		//system reserve,do not modify
-	unsigned	short	dq_bdlr_org;
-	unsigned	char  dram_data_wr_odt_ohm;
+	unsigned	char	slt_test_function[2];  //[0] slt test function enable,bit 0 enable 4 frequency scan,bit 1 enable force delay line offset ,bit 7 enable skip training function
+	//[1],slt test parameter ,use for force delay line offset
+	//system reserve,do not modify
+	unsigned	short	tdqs2dq;
+	unsigned	char	dram_data_wr_odt_ohm;
 	unsigned	char	bitTimeControl_2d;
 	//system reserve,do not modify
 	/* align8 */
@@ -251,23 +286,26 @@ typedef struct ddr_set{
 	//system reserve,do not modify
 	/* align8 */
 
-	unsigned	long	rsv_long0[2];
+	//unsigned	long	rsv_long0[2];
 	/* v1 end */
-	//unsigned	char	read_dqs_adjust[16]; //rank 0 --lane 0 1 2 3  rank 1--4 5 6 7 write  //rank 0 --lane 0 1 2 3  rank 1--4 5 6 7 read
-	//unsigned	char	read_dq_bit_delay[72];
-	//unsigned	char	write_dq_bit_delay[72];
-
+//	/*
 	unsigned	char	read_dqs_delay[16];
 	unsigned	char	read_dq_bit_delay[72];
 	unsigned	short	write_dqs_delay[16];
+//	*/
 	unsigned	short	write_dq_bit_delay[72];
 	unsigned	short	read_dqs_gate_delay[16];
-	unsigned	char	dq_dqs_delay_flag; //read_dqs  read_dq,write_dqs, write_dq
+	unsigned	char	soc_bit_vref[32];
+	unsigned	char	dram_bit_vref[32];
+	///*
+	unsigned	char	rever3;//read_dqs  read_dq,write_dqs, write_dq
 	unsigned	char	dfi_mrl;
 	unsigned	char	dfi_hwtmrl;
 	unsigned	char	ARdPtrInitVal;
+	unsigned	char	retraining[16];
+	retraining_set_t	retraining_extra_set_t;
 	//override read bit delay
-}__attribute__ ((packed)) ddr_set_t;
+} __attribute__ ((packed)) ddr_set_t;
 
 typedef struct ddr_timing{
 	//Identifier
