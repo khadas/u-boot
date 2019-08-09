@@ -87,11 +87,21 @@ typedef struct _ext_info{
 	/* add new below, */
 } ext_info_t;
 
+typedef struct _fip_info {
+    uint16_t version; //version
+    uint16_t mode;    //compact or discrete
+    uint32_t fip_start; //fip start, pages
+}fip_info_t;
+
 typedef struct _nand_page0 {
 	nand_setup_t nand_setup;		//8
 	unsigned char page_list[NAND_PAGELIST_CNT]; 	//16
 	nand_cmd_t retry_usr[32];		//64 (32 cmd max I/F)
 	ext_info_t ext_info;			//64
+#if (SUPPORT_DDR_PARAMETER)
+	fip_info_t fip_info;
+	uint32 ddrp_start_page;
+#endif
 } nand_page0_t;	//384 bytes max.
 /* --------------------------------------------------- */
 union nand_core_clk_t {
@@ -152,6 +162,7 @@ union nand_core_clk_t {
 #define	ENV_INFO_HEAD_MAGIC		"nenv"
 #define	DTD_INFO_HEAD_MAGIC		"ndtb"
 #define	PHY_PARTITION_HEAD_MAGIC	"phyp"
+#define DDR_PARAMETER_HEAD_MAGIC	"nddr"
 
 #define	FBBT_COPY_NUM	1
 
@@ -863,6 +874,10 @@ struct amlnand_chip {
 	struct nand_arg_info amlnf_dtb;
 	u32 detect_dtb_flag;	/*1:no dtb in flash */
 #endif
+
+#if (SUPPORT_DDR_PARAMETER)
+	struct nand_arg_info nand_ddr_para;
+#endif
 #ifndef AML_NAND_UBOOT
 	struct pinctrl *nand_pinctrl;
 	struct pinctrl_state *nand_pinstate;
@@ -887,6 +902,9 @@ struct amlnand_chip {
 	u32 h_cache_dev;
 	u32 keysize;
 	u32 dtbsize;
+#if (SUPPORT_DDR_PARAMETER)
+	u32 ddrsize;
+#endif
 };
 
 extern struct nand_flash flash_ids_slc[];
@@ -932,6 +950,7 @@ extern int aml_ubootenv_init(struct amlnand_chip *aml_chip);
 extern void nand_get_chip(void *aml_chip);
 extern void nand_release_chip(void *aml_chip);
 extern int aml_key_init(struct amlnand_chip *aml_chip);
+extern int aml_ddr_parameter_init(struct amlnand_chip *aml_chip);
 extern int aml_secure_init(struct amlnand_chip *aml_chip);
 extern unsigned int aml_info_checksum(unsigned char *data, int lenth);
 extern int amlnand_info_init(struct amlnand_chip *aml_chip,
@@ -957,14 +976,6 @@ extern int amlnand_erase_info_by_name(struct amlnand_chip *aml_chip,
 	u8 *info,
 	u8 *name);
 extern int aml_sys_info_error_handle(struct amlnand_chip *aml_chip);
-extern int aml_nand_update_key(struct amlnand_chip *aml_chip, char *key_ptr);
-extern int aml_nand_update_secure(struct amlnand_chip *aml_chip,
-	char *secure_ptr);
-extern int aml_nand_update_ubootenv(struct amlnand_chip *aml_chip,
-	char *env_ptr);
-
-extern int aml_nand_update_dtb(struct amlnand_chip *aml_chip,
-	char *dtb_ptr);
 
 extern void amlchip_dumpinfo(struct amlnand_chip *aml_chip);
 

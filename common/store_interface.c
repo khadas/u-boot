@@ -439,7 +439,7 @@ int store_ddr_parameter_read(uint8_t *buffer,
 
 	if (IS_STORAGE_EMMC_BOOT(device_boot_flag))
 		ret = mmc_ddr_parameter_read(buffer, (int)length);
-#if defined(CONFIG_AML_MTD)
+#if defined(CONFIG_AML_MTD) || defined(CONFIG_AML_NAND)
 	else
 		ret = amlnf_ddr_parameter_read(buffer, (int)length);
 #endif
@@ -459,7 +459,7 @@ int store_ddr_parameter_write(uint8_t *buffer, uint32_t length)
 		extern int amlmmc_check_and_update_boot_info(void);
 		amlmmc_check_and_update_boot_info();
 		ret = mmc_ddr_parameter_write(buffer, (int)length);
-#if defined(CONFIG_AML_MTD)
+#if defined(CONFIG_AML_MTD) || defined(CONFIG_AML_NAND)
 	} else
 		ret = amlnf_ddr_parameter_write(buffer, (int)length);
 #else
@@ -479,7 +479,7 @@ int store_ddr_parameter_erase(void)
 
 	if (IS_STORAGE_EMMC_BOOT(device_boot_flag))
 		ret = mmc_ddr_parameter_erase();
-#if defined(CONFIG_AML_MTD)
+#if defined(CONFIG_AML_MTD) || defined(CONFIG_AML_NAND)
 	else
 		ret = amlnf_ddr_parameter_erase();
 #endif

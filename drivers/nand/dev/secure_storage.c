@@ -25,46 +25,6 @@ Description:
 //#define SECURE_SIZE  (CONFIG_SECURE_SIZE - (sizeof(uint32_t)))
 struct amlnand_chip *aml_chip_secure = NULL;
 
-
-int aml_nand_update_secure(struct amlnand_chip * aml_chip, char *secure_ptr)
-{
-	int ret = 0;
-	char malloc_flag = 0;
-	unsigned char *secure_buf = NULL;
-	struct nand_flash *flash = &aml_chip->flash;
-
-	if (secure_buf == NULL) {
-
-		secure_buf = kzalloc(CONFIG_SECURE_SIZE + flash->pagesize,
-		GFP_KERNEL);
-		malloc_flag = 1;
-		if (secure_buf == NULL)
-			return -ENOMEM;
-		memset(secure_buf,0,CONFIG_SECURE_SIZE);
-		ret = amlnand_read_info_by_name(aml_chip, (unsigned char *)(&aml_chip->nand_secure),secure_buf,(unsigned char *)SECURE_INFO_HEAD_MAGIC, CONFIG_SECURE_SIZE);
-		if (ret)
-		{
-			aml_nand_msg("read key error,%s\n",__func__);
-			ret = -EFAULT;
-			goto exit;
-		}
-	}else{
-		secure_buf = (unsigned char *)secure_ptr;
-	}
-
-	ret = amlnand_save_info_by_name(aml_chip, (unsigned char *)(&aml_chip->nand_secure), secure_buf, (unsigned char *)SECURE_INFO_HEAD_MAGIC, CONFIG_SECURE_SIZE);
-	if (ret < 0) {
-		aml_nand_msg("aml_nand_update_secure : update secure failed");
-	}
-
-exit:
-	if (malloc_flag && (secure_buf)) {
-		kfree(secure_buf);
-		secure_buf = NULL;
-	}
-	return 0;
-}
-
  int32_t nand_secure_read(struct amlnand_chip * aml_chip, char *buf, unsigned int len)
 {
 	//struct amlnand_chip * aml_chip = provider->priv;

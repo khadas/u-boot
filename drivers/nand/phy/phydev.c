@@ -1521,11 +1521,9 @@ int amlnand_phydev_init(struct amlnand_chip *aml_chip)
 
 			phydev->offset = 0;
 			phydev->size = (BOOT_COPY_NUM * BOOT_PAGES_PER_COPY);
-			//printk("----------%llx\n", phydev->size);
 			phydev->size *= flash->pagesize;
 			//printk("----------%llx\n", phydev->size);
 			/* phydev->size *= chip_num; */
-
 			phydev->writesize_shift = ffs(phydev->writesize) - 1;
 			phydev->erasesize_shift = ffs(phydev->erasesize) - 1;
 			phydev->writesize_mask =
@@ -1741,68 +1739,6 @@ int amlnand_phydev_init(struct amlnand_chip *aml_chip)
 
 	show_phydev_info();
 	PHYDEV_LINE
-#if 0
-	phydev = NULL;
-	list_for_each_entry(phydev, &nphy_dev_list, list) {
-		if (phydev == NULL)
-			break;
-
-		aml_nand_dbg("-----------------------------\n");
-		aml_nand_dbg("name:%s,offset:%llx,size:%llx,option:%x",
-			phydev->name,
-			phydev->offset,
-			phydev->size,
-			phydev->option);
-		aml_nand_dbg("es:%x,ws:%x,oob:%x,eshift:%x,wshift:%d",
-			phydev->erasesize,
-			phydev->writesize,
-			phydev->oobavail,
-			phydev->erasesize_shift,
-			phydev->writesize_shift);
-		aml_nand_dbg(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
-		relative_offset = 0;
-		bad_blk_cnt = 0;
-		devops = &(phydev->ops);
-		memset(bad_blk, 0, 128*sizeof(u64));
-		do {
-			memset(devops, 0x0, sizeof(struct phydev_ops));
-			memset(devops, 0x0, sizeof(struct phydev_ops));
-			devops->addr = relative_offset;
-			devops->len = phydev->erasesize;
-			devops->datbuf = NULL;
-			devops->oobbuf = NULL;
-			devops->mode = NAND_HW_ECC;
-			ret = nand_block_isbad(phydev);
-			if (ret == NAND_BLOCK_USED_BAD) {
-				if (bad_blk_cnt < 128) {
-					bad_blk[bad_blk_cnt] = relative_offset;
-					bad_blk_cnt++;
-				}
-			}
-				relative_offset += phydev->erasesize;
-		} while (relative_offset < phydev->size);
-
-		aml_nand_msg("(%s) bad blks %d", phydev->name, bad_blk_cnt);
-
-		if ((bad_blk_cnt * 32 >
-			(phydev->size >> phydev->erasesize_shift)) ||
-			(bad_blk_cnt > 10)) {
-			aml_nand_dbg("Too many new bad blks,try to repair..\n");
-			/*
-			ret = aml_repair_bbt(phydev,bad_blk,bad_blk_cnt);
-			*/
-		}
-	}
-	kfree(bad_blk);
-#endif
-#ifdef AML_NAND_UBOOT
-	if (aml_chip->init_flag == NAND_BOOT_ERASE_PROTECT_CACHE) {
-		ret = phydev_init_erase(aml_chip);
-		if (ret < 0) {
-			aml_nand_msg("amlnand_phydev_init : phydev_init_erase failed");
-		}
-	}
-#endif /* AML_NAND_UBOOT */
 	return NAND_SUCCESS;
 
 exit_error0:

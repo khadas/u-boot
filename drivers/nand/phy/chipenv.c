@@ -26,7 +26,6 @@ extern  int block_markbad(struct amlnand_chip *aml_chip);
 extern int amlnand_save_info_by_name(struct amlnand_chip *aml_chip,unsigned char * info,unsigned char * buf,unsigned char * name,unsigned size);
 extern int aml_sys_info_error_handle(struct amlnand_chip *aml_chip);
 extern int aml_sys_info_init(struct amlnand_chip *aml_chip);
-extern int aml_nand_update_ubootenv(struct amlnand_chip * aml_chip, char *env_ptr);
 extern int amlnand_get_partition_table(struct amlnand_chip *aml_chip);
 extern void amlnf_get_chip_size(u64 *size);
 extern int  amlnf_erase_ops(uint64_t off,
@@ -74,6 +73,9 @@ int chipenv_init_erase_protect(struct amlnand_chip *aml_chip, int flag,int block
 			ret = 0;
 		}else if((block_num == aml_chip->nand_key.valid_blk_addr)&&(aml_chip->nand_key.valid_blk_addr >= start_blk)&&(!(info_disprotect & DISPROTECT_KEY))){
 			aml_nand_msg("protect nand_key info at blk %d",block_num);
+			ret = -1;
+		}else if((block_num == aml_chip->nand_ddr_para.valid_blk_addr)&&(aml_chip->nand_ddr_para.valid_blk_addr >= start_blk)){
+			aml_nand_msg("protect nand_ddr_parameter info at blk %d",block_num);
 			ret = -1;
 		}else if((block_num == aml_chip->nand_secure.valid_blk_addr)&&(aml_chip->nand_secure.valid_blk_addr >= start_blk)&&(!(info_disprotect & DISPROTECT_SECURE))){
 			aml_nand_msg("protect nand_secure info at blk %d",block_num);
@@ -139,6 +141,13 @@ static int amlnand_oops_handle(struct amlnand_chip *aml_chip, int flag)
 	ret = amlnand_info_init(aml_chip, (unsigned char *)&(aml_chip->nand_key),buf,(unsigned char *)KEY_INFO_HEAD_MAGIC, aml_chip->keysize);
 	if (ret < 0) {
 		aml_nand_msg("%s() %d invalid nand key\n", __FUNCTION__, __LINE__);
+		goto exit_error0;
+	}
+
+	ret = amlnand_info_init(aml_chip, (unsigned char *)&(aml_chip->nand_ddr_para),buf,
+		(unsigned char *)DDR_PARAMETER_HEAD_MAGIC, aml_chip->ddrsize);
+	if (ret < 0) {
+		aml_nand_msg("%s() %d invalid nand ddr parameter\n", __FUNCTION__, __LINE__);
 		goto exit_error0;
 	}
 
@@ -248,10 +257,10 @@ int  phrase_driver_version(unsigned int cp, unsigned int cmp)
 {
 	int ret=0;
 
-	if (((cp >> 24)&0xff) != ((cp >> 24)&0xff)) {
+	if (((cp >> 24)&0xff) != ((cmp >> 24)&0xff)) {
 		ret = -1;
 	}
-	if (((cp >> 16)&0xff)!= ((cp >> 16)&0xff)) {
+	if (((cp >> 16)&0xff)!= ((cmp >> 16)&0xff)) {
 		ret = -1;
 	}
 	return ret;
@@ -266,6 +275,7 @@ void reset_amlchip_member(struct amlnand_chip *aml_chip)
 	memset(&aml_chip->nand_key,0x0,sizeof(struct nand_arg_info));
 	memset(&aml_chip->nand_secure,0x0,sizeof(struct nand_arg_info));
 	memset(&aml_chip->config_msg,0x0,sizeof(struct nand_arg_info));
+	memset(&aml_chip->nand_ddr_para,0x0,sizeof(struct nand_arg_info));
 }
 #endif /* AML_NAND_UBOOT */
 
@@ -3289,7 +3299,8 @@ for (n = 0; n < controller->chip_num; n++)
 		for (start_block=start_blk; start_block < total_block; start_block++) {
 		//for(start_block = 0; start_block < total_block; start_block++){
 			if (((start_block ==  ((aml_chip->nand_key.valid_blk_addr +(controller->chip_num -1)*4)/controller->chip_num)) && (aml_chip->nand_key.arg_valid))
-				||((start_block ==  ((aml_chip->nand_secure.valid_blk_addr +(controller->chip_num -1)*4)/controller->chip_num))&&(aml_chip->nand_secure.arg_valid))){
+			||((start_block ==  ((aml_chip->nand_secure.valid_blk_addr +(controller->chip_num -1)*4)/controller->chip_num))&&(aml_chip->nand_secure.arg_valid))
+			||((start_block ==  ((aml_chip->nand_ddr_para.valid_blk_addr +(controller->chip_num -1)*4)/controller->chip_num)) && (aml_chip->nand_ddr_para.arg_valid))){
 				aml_nand_msg("shipped_badblock_detect skip block %d,chipnr %d",start_block,chipnr);
 				continue;
 			}
@@ -3571,6 +3582,10 @@ void amlnand_set_config_attribute(struct amlnand_chip *aml_chip)
 #if (AML_CFG_DTB_RSV_EN)
 	aml_chip->amlnf_dtb.arg_type = FULL_PAGE;
 #endif
+
+#if (SUPPORT_DDR_PARAMETER)
+	aml_chip->nand_ddr_para.arg_type = FULL_PAGE;
+#endif
 	return;
 }
 
@@ -3638,7 +3653,6 @@ int  shipped_bbt_invalid_ops(struct amlnand_chip *aml_chip)
 /*
 	clean nand case!!!!!
 */
-#if 1 //clean nand case
 	/* need erase */
 	if (aml_chip->init_flag > NAND_BOOT_ERASE_PROTECT_CACHE) {
 		/*
@@ -3703,6 +3717,11 @@ int  shipped_bbt_invalid_ops(struct amlnand_chip *aml_chip)
 			aml_nand_msg("invalid nand key\n");
 			goto exit_error0;
 		}
+		ret = amlnand_info_init(aml_chip, (unsigned char *)&(aml_chip->nand_ddr_para),buf,(unsigned char *)DDR_PARAMETER_HEAD_MAGIC, aml_chip->ddrsize);
+		if (ret < 0) {
+			aml_nand_msg("invalid nand ddr parameter\n");
+			goto exit_error0;
+		}
 #ifdef CONFIG_SECURE_NAND
 		ret = amlnand_info_init(aml_chip, (unsigned char *)&(aml_chip->nand_secure),buf,(unsigned char *)SECURE_INFO_HEAD_MAGIC, CONFIG_SECURE_SIZE);
 		if (ret < 0) {
@@ -3761,97 +3780,7 @@ int  shipped_bbt_invalid_ops(struct amlnand_chip *aml_chip)
 			aml_nand_msg("save nand dev_configs failed and ret:%d",ret);
 			goto exit_error0;
 		}
-		/*
-		liang: it is not need here. is it ??? when uboot run and will check it,if crc error, will overwrite env.
-		*/
-		if (aml_chip->init_flag > NAND_BOOT_ERASE_PROTECT_CACHE) {
-			aml_chip->uboot_env.update_flag = 1;
-			if ((aml_chip->uboot_env.arg_valid == 1) && (aml_chip->uboot_env.update_flag)) {
-				aml_nand_update_ubootenv(aml_chip,NULL);
-				aml_chip->uboot_env.update_flag = 0;
-				aml_nand_msg("NAND UPDATE CKECK  : arg %s: arg_valid= %d, valid_blk_addr = %d, valid_page_addr = %d",\
-					"ubootenv",aml_chip->uboot_env.arg_valid, aml_chip->uboot_env.valid_blk_addr, aml_chip->uboot_env.valid_page_addr);
-			}
-		}
 	}
-#else
-
-	ret = amlnand_info_init(aml_chip, (unsigned char *)&(aml_chip->nand_key),buf,(unsigned char *)KEY_INFO_HEAD_MAGIC, aml_chip->keysize);
-	if (ret < 0) {
-	aml_nand_msg("invalid nand key\n");
-	goto exit_error0;
-	}
-
-#ifdef CONFIG_SECURE_NAND
-	ret = amlnand_info_init(aml_chip, (unsigned char *)&(aml_chip->nand_secure),buf,(unsigned char *)SECURE_INFO_HEAD_MAGIC, CONFIG_SECURE_SIZE);
-	if (ret < 0) {
-		aml_nand_msg("invalid nand secure_ptr\n");
-		goto exit_error0;
-	}
-#endif
-
-
-	if (aml_chip->init_flag > NAND_BOOT_ERASE_PROTECT_CACHE) {
-		amlnand_oops_handle(aml_chip,aml_chip->init_flag);
-	}
-
-	ret = shipped_badblock_detect(aml_chip);
-	if (ret < 0 ) {
-	 aml_nand_msg("nand detect factory bbt failed and ret:%d", ret);
-	 goto exit_error0;
-	}
-
-	ret = amlnand_init_block_status(aml_chip);
-	if (ret < 0) {
-	 aml_nand_msg("nand init block status failed and ret:%d", ret);
-	 goto exit_error0;
-	}
-
-//if((aml_chip->init_flag == NAND_BOOT_ERASE_ALL))
-	// amlnand_oops_handle(aml_chip,aml_chip->init_flag);
-
-	ret = aml_sys_info_init(aml_chip); //key  and  stoarge
-	if (ret < 0) {
-		aml_nand_msg("nand init sys_info failed and ret:%d", ret);
-		goto exit_error0;
-	}
-
-	   aml_chip->block_status->crc = aml_info_checksum((unsigned char *)(aml_chip->block_status->blk_status),(MAX_CHIP_NUM*MAX_BLK_NUM));
-	   ret = amlnand_save_info_by_name(aml_chip, (unsigned char *)&(aml_chip->nand_bbtinfo),(unsigned char *)(aml_chip->block_status),(unsigned char *)BBT_HEAD_MAGIC, sizeof(struct block_status));
-	   if (ret < 0) {
-		   aml_nand_msg("nand save bbt failed and ret:%d", ret);
-		   goto exit_error0;
-	   }
-
-	   aml_chip->shipped_bbt_ptr->crc = aml_info_checksum((unsigned char *)(aml_chip->shipped_bbt_ptr->shipped_bbt),(MAX_CHIP_NUM*MAX_BAD_BLK_NUM));
-	   aml_chip->shipped_bbt_ptr->chipnum = controller->chip_num;
-	   ret = amlnand_save_info_by_name(aml_chip, (unsigned char *)&(aml_chip->shipped_bbtinfo),(unsigned char *)(aml_chip->shipped_bbt_ptr),(unsigned char *)SHIPPED_BBT_HEAD_MAGIC, sizeof(struct shipped_bbt));
-	   if (ret < 0) {
-		   aml_nand_msg("nand save shipped bbt failed and ret:%d",ret);
-		   goto exit_error0;
-	   }
-	   //save config
-	   aml_chip->config_ptr->driver_version = DRV_PHY_VERSION;
-	   aml_chip->config_ptr->fbbt_blk_addr = aml_chip->shipped_bbtinfo.valid_blk_addr;
-	   amlnand_get_dev_num(aml_chip,(struct amlnf_partition *)amlnand_config);
-
-	   aml_chip->config_ptr->crc = aml_info_checksum((unsigned char *)(aml_chip->config_ptr->dev_para),(MAX_DEVICE_NUM*sizeof(struct dev_para)));
-	  ret = amlnand_save_info_by_name(aml_chip, (unsigned char *)&(aml_chip->config_msg),(unsigned char *)(aml_chip->config_ptr),(unsigned char *)CONFIG_HEAD_MAGIC, sizeof(struct nand_config));
-	   if (ret < 0) {
-		   aml_nand_msg("save nand dev_configs failed and ret:%d",ret);
-		   goto exit_error0;
-	   }
-
-	if (aml_chip->init_flag > NAND_BOOT_ERASE_PROTECT_CACHE) {
-		aml_chip->uboot_env.update_flag = 1;
-		 if ((aml_chip->uboot_env.arg_valid == 1) && (aml_chip->uboot_env.update_flag)) {
-			aml_nand_update_ubootenv(aml_chip,NULL);
-			aml_chip->uboot_env.update_flag = 0;
-			aml_nand_msg("NAND UPDATE CKECK  : arg %s: arg_valid= %d, valid_blk_addr = %d, valid_page_addr = %d",\
-					"ubootenv",aml_chip->uboot_env.arg_valid, aml_chip->uboot_env.valid_blk_addr, aml_chip->uboot_env.valid_page_addr);
-		}
-	}
-#endif
 
 exit_error0:
 	if (buf) {
@@ -3955,16 +3884,6 @@ int shipped_bbt_valid_ops(struct amlnand_chip *aml_chip)
 				goto exit_error0;
 			}
 			ENV_NAND_LINE
-		}
-		/* fixme, can not reach here! */
-		if (aml_chip->init_flag > NAND_BOOT_ERASE_PROTECT_CACHE) {
-			aml_chip->uboot_env.update_flag = 1;
-			if ((aml_chip->uboot_env.arg_valid == 1) && (aml_chip->uboot_env.update_flag)) {
-				aml_nand_update_ubootenv(aml_chip,NULL);
-				aml_chip->uboot_env.update_flag = 0;
-				aml_nand_msg("NAND UPDATE CKECK  : arg %s: arg_valid= %d, valid_blk_addr = %d, valid_page_addr = %d",\
-						"ubootenv",aml_chip->uboot_env.arg_valid, aml_chip->uboot_env.valid_blk_addr, aml_chip->uboot_env.valid_page_addr);
-			}
 		}
 	} else {
 		aml_chip->nand_bbtinfo.arg_valid = 1;//risking?it is need here.
@@ -4089,6 +4008,9 @@ int amlnand_get_dev_configs(struct amlnand_chip *aml_chip)
 		aml_chip->keysize = 0x40000;
 		aml_chip->dtbsize = 0x40000;
 	}
+#if (SUPPORT_DDR_PARAMETER)
+	aml_chip->ddrsize = 2048;
+#endif
 
 	/* 1. setting config attribute.*/
 	ENV_NAND_LINE;

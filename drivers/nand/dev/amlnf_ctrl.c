@@ -33,8 +33,6 @@ extern int aml_ubootenv_init(struct amlnand_chip *aml_chip);
 extern int amlnf_dtb_init(struct amlnand_chip *aml_chip);
 #endif
 extern int amlnand_save_info_by_name(struct amlnand_chip *aml_chip,unsigned char * info,unsigned char * buf, u8 * name,unsigned size);
-extern int aml_nand_update_key(struct amlnand_chip * aml_chip, char *key_ptr);
-extern int aml_nand_update_ubootenv(struct amlnand_chip * aml_chip, char *env_ptr);
 
 #ifdef AML_NAND_UBOOT
 struct list_head nf_dev_list;
@@ -522,6 +520,7 @@ void nand_boot_info_prepare(struct amlnand_phydev *phydev,
 	nand_page0_t * p_nand_page0 = NULL;
 	ext_info_t * p_ext_info = NULL;
 	nand_setup_t * p_nand_setup = NULL;
+	u32 pages_per_blk_shift;
 
 	slc_info = &(controller->slc_info);
 
@@ -596,6 +595,19 @@ void nand_boot_info_prepare(struct amlnand_phydev *phydev,
 	p_ext_info->xlc = 2;
 	p_ext_info->boot_num = boot_num;
 	p_ext_info->each_boot_pages = each_boot_pages;
+#if (SUPPORT_DDR_PARAMETER)
+	pages_per_blk_shift =
+		(controller->block_shift - controller->page_shift);
+	p_nand_page0->fip_info.fip_start = 0;
+	p_nand_page0->fip_info.mode = 0;
+	p_nand_page0->fip_info.version = 0;
+	p_nand_page0->ddrp_start_page =
+		(aml_chip->nand_ddr_para.valid_blk_addr << pages_per_blk_shift) + \
+		aml_chip->nand_ddr_para.valid_page_addr;
+	printk("ddrp blk = 0x%x ddr_page = 0x%x\n",
+		aml_chip->nand_ddr_para.valid_blk_addr,
+		aml_chip->nand_ddr_para.valid_page_addr);
+#endif
 	if (slc_info->micron_l0l3_mode == 1)
 		p_ext_info->new_type |= (1<<31);/* mircon l0l3 type mode*/
 	printk("new_type = 0x%x\n", p_ext_info->new_type);
@@ -626,6 +638,9 @@ int aml_sys_info_init(struct amlnand_chip *aml_chip)
 #if (AML_CFG_DTB_RSV_EN)
 	struct nand_arg_info *amlnf_dtb = &aml_chip->amlnf_dtb;
 #endif
+#if (SUPPORT_DDR_PARAMETER)
+	struct nand_arg_info *amlnf_ddr_para = &aml_chip->nand_ddr_para;
+#endif
 	struct nand_arg_info *uboot_env =  &aml_chip->uboot_env;
 	struct nand_flash *flash = &aml_chip->flash;
 	u8 *buf = NULL;
@@ -649,6 +664,18 @@ int aml_sys_info_init(struct amlnand_chip *aml_chip)
 		}
 	}
 #endif
+
+#if (SUPPORT_DDR_PARAMETER)
+	if (amlnf_ddr_para->arg_valid == 0) {
+		NAND_LINE
+		ret = aml_ddr_parameter_init(aml_chip);
+		if (ret < 0) {
+			aml_nand_msg("nand ddr parameter init failed");
+			goto exit_error;
+		}
+	}
+#endif
+
 
 #ifdef CONFIG_SECURE_NAND
 	if (nand_secure->arg_valid == 0) {
@@ -698,6 +725,23 @@ int aml_sys_info_init(struct amlnand_chip *aml_chip)
 	}
 #endif
 
+#if (SUPPORT_DDR_PARAMETER)
+	if (amlnf_ddr_para->arg_valid == 0) {
+		NAND_LINE
+		ret = amlnand_save_info_by_name(aml_chip,
+			(u8 *)(&(aml_chip->nand_ddr_para)),
+			buf,
+			(u8 *)DDR_PARAMETER_HEAD_MAGIC,
+			aml_chip->ddrsize);
+		NAND_LINE
+		if (ret < 0) {
+			aml_nand_msg("nand save default ddr parameter failed");
+			goto exit_error;
+		}
+	}
+#endif
+
+
 #ifdef CONFIG_SECURE_NAND
 	/*save a empty value! */
 	if (nand_secure->arg_valid == 0) {
@@ -721,64 +765,6 @@ exit_error:
 	kfree(buf);
 	buf = NULL;
 	return ret;
-}
-
-int aml_sys_info_error_handle(struct amlnand_chip *aml_chip)
-{
-
-#if (AML_CFG_KEY_RSV_EN)
-	 if ((aml_chip->nand_key.arg_valid == 1) &&
-		(aml_chip->nand_key.update_flag)) {
-		aml_nand_update_key(aml_chip, NULL);
-		aml_chip->nand_key.update_flag = 0;
-		aml_nand_msg("NAND UPDATE CKECK  : ");
-		aml_nand_msg("arg %s:arg_valid=%d,blk_addr=%d,page_addr=%d",
-			"nandkey",
-			aml_chip->nand_key.arg_valid,
-			aml_chip->nand_key.valid_blk_addr,
-			aml_chip->nand_key.valid_page_addr);
-	}
-#endif
-
-#ifdef CONFIG_SECURE_NAND
-	if ((aml_chip->nand_secure.arg_valid == 1)
-		&& (aml_chip->nand_secure.update_flag)) {
-		aml_nand_update_secure(aml_chip, NULL);
-		aml_chip->nand_secure.update_flag = 0;
-		aml_nand_msg("NAND UPDATE CKECK  : ");
-		aml_nand_msg("arg%s:arg_valid=%d,blk_addr=%d,page_addr=%d",
-			"nandsecure",
-			aml_chip->nand_secure.arg_valid,
-			aml_chip->nand_secure.valid_blk_addr,
-			aml_chip->nand_secure.valid_page_addr);
-	}
-#endif
-
-#if (AML_CFG_DTB_RSV_EN)
-	if ((aml_chip->amlnf_dtb.arg_valid == 1)
-		&& (aml_chip->amlnf_dtb.update_flag)) {
-		aml_nand_update_dtb(aml_chip, NULL);
-		aml_chip->amlnf_dtb.update_flag = 0;
-		aml_nand_msg("NAND UPDATE CKECK  : ");
-		aml_nand_msg("arg%s:arg_valid=%d,blk_addr=%d,page_addr=%d",
-			"dtb",
-			aml_chip->amlnf_dtb.arg_valid,
-			aml_chip->amlnf_dtb.valid_blk_addr,
-			aml_chip->amlnf_dtb.valid_page_addr);
-	}
-#endif
-	if ((aml_chip->uboot_env.arg_valid == 1)
-		&& (aml_chip->uboot_env.update_flag)) {
-		aml_nand_update_ubootenv(aml_chip, NULL);
-		aml_chip->uboot_env.update_flag = 0;
-		aml_nand_msg("NAND UPDATE CKECK  : ");
-		aml_nand_msg("arg%s:arg_valid=%d,blk_addr=%d,page_addr=%d",
-			"ubootenv",
-			aml_chip->uboot_env.arg_valid,
-			aml_chip->uboot_env.valid_blk_addr,
-			aml_chip->uboot_env.valid_page_addr);
-	}
-	return 0;
 }
 
 #ifdef AML_NAND_UBOOT

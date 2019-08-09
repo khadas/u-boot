@@ -41,6 +41,7 @@ Description:
 #define AML_CFG_DTB_RSV_EN			(1)
 /* store key in rsv area */
 #define AML_CFG_KEY_RSV_EN			(1)
+#define SUPPORT_DDR_PARAMETER			(1)
 
 #define NAND_ADJUST_PART_TABLE
 
