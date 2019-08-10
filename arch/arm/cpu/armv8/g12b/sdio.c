@@ -25,6 +25,9 @@
 #include <asm/arch/secure_apb.h>
 #include <asm/cpu_id.h>
 #include <common.h>
+#ifdef CONFIG_TCA6408
+#include <khadas_tca6408.h>
+#endif
 
 void  cpu_sd_emmc_pwr_prepare(unsigned port)
 {
@@ -73,6 +76,10 @@ int cpu_sd_emmc_init(unsigned port)
 		setbits_le32(P_PAD_PULL_UP_REG1, 0x7F);
 		clrbits_le32(P_PREG_PAD_GPIO5_O, 1<<17);
 
+#ifdef CONFIG_TCA6408
+		tca6408_output_set_value(0<<7, 1<<7);
+		udelay(10);
+#endif
 		if (sd_debug_board_1bit_flag == 1)
 			clrsetbits_le32(P_PERIPHS_PIN_MUX_9,
 						((0xFF << 16) | 0xF), ((0x11 << 16) | 0x1));
