@@ -37,6 +37,9 @@
 #define CONFIG_VDDEE_INIT_VOLTAGE	800		// VDDEE power up voltage
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	770		// VDDEE suspend voltage
 
+/* config for khadas kbi */
+#define CONFIG_KHADAS_KBI 1
+
 /* configs for CEC */
 #define CONFIG_CEC_OSD_NAME		"AML_TV"
 #define CONFIG_CEC_WAKEUP
