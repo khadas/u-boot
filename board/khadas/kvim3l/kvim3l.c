@@ -342,27 +342,17 @@ int board_mmc_init(bd_t	*bis)
 }
 
 #ifdef CONFIG_SYS_I2C_AML
-#if 0
 static void board_i2c_set_pinmux(void){
-	/*********************************************/
-	/*                | I2C_Master_AO        |I2C_Slave            |       */
-	/*********************************************/
-	/*                | I2C_SCK                | I2C_SCK_SLAVE  |      */
-	/* GPIOAO_4  | [AO_PIN_MUX: 6]     | [AO_PIN_MUX: 2]   |     */
-	/*********************************************/
-	/*                | I2C_SDA                 | I2C_SDA_SLAVE  |     */
-	/* GPIOAO_5  | [AO_PIN_MUX: 5]     | [AO_PIN_MUX: 1]   |     */
-	/*********************************************/
 
 	//disable all other pins which share with I2C_SDA_AO & I2C_SCK_AO
-	clrbits_le32(P_AO_RTI_PIN_MUX_REG, ((1<<2)|(1<<24)|(1<<1)|(1<<23)));
+	clrbits_le32(P_AO_RTI_PINMUX_REG0, ((1<<8)|(1<<9)|(1<<10)|(1<<11)));
+	clrbits_le32(P_AO_RTI_PINMUX_REG0, ((1<<12)|(1<<13)|(1<<14)|(1<<15)));
 	//enable I2C MASTER AO pins
-	setbits_le32(P_AO_RTI_PIN_MUX_REG,
-	(MESON_I2C_MASTER_AO_GPIOAO_4_BIT | MESON_I2C_MASTER_AO_GPIOAO_5_BIT));
+	setbits_le32(P_AO_RTI_PINMUX_REG0,
+	(MESON_I2C_MASTER_AO_GPIOAO_2_BIT | MESON_I2C_MASTER_AO_GPIOAO_3_BIT));
 
 	udelay(10);
 };
-#endif
 struct aml_i2c_platform g_aml_i2c_plat = {
 	.wait_count         = 1000000,
 	.wait_ack_interval  = 5,
@@ -372,13 +362,12 @@ struct aml_i2c_platform g_aml_i2c_plat = {
 	.use_pio            = 0,
 	.master_i2c_speed   = AML_I2C_SPPED_400K,
 	.master_ao_pinmux = {
-		.scl_reg    = (unsigned long)MESON_I2C_MASTER_AO_GPIOAO_4_REG,
-		.scl_bit    = MESON_I2C_MASTER_AO_GPIOAO_4_BIT,
-		.sda_reg    = (unsigned long)MESON_I2C_MASTER_AO_GPIOAO_5_REG,
-		.sda_bit    = MESON_I2C_MASTER_AO_GPIOAO_5_BIT,
+		.scl_reg    = (unsigned long)MESON_I2C_MASTER_AO_GPIOAO_2_REG,
+		.scl_bit    = MESON_I2C_MASTER_AO_GPIOAO_2_BIT,
+		.sda_reg    = (unsigned long)MESON_I2C_MASTER_AO_GPIOAO_3_REG,
+		.sda_bit    = MESON_I2C_MASTER_AO_GPIOAO_3_BIT,
 	}
 };
-#if 0
 static void board_i2c_init(void)
 {
 	//set I2C pinmux with PCB board layout
@@ -386,11 +375,11 @@ static void board_i2c_init(void)
 
 	//Amlogic I2C controller initialized
 	//note: it must be call before any I2C operation
+	i2c_plat_init();
 	aml_i2c_init();
 
 	udelay(10);
 }
-#endif
 #endif
 #endif
 
@@ -624,6 +613,9 @@ int board_init(void)
 #endif
 #ifdef CONFIG_SYS_I2C_MESON
 	set_i2c_ao_pinmux();
+#endif
+#ifdef CONFIG_SYS_I2C_AML
+	board_i2c_init();
 #endif
 
 	return 0;
