@@ -302,6 +302,11 @@
                 "else "\
                     "setenv bootargs ${bootargs} androidboot.wificountrycode=US;"\
                 "fi;"\
+                "if keyman read oemkey ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} androidboot.oem.key1=${oemkey};"\
+                "else "\
+                    "setenv bootargs ${bootargs} androidboot.oem.key1=ATV00104319;"\
+                "fi;"\
             "fi;"\
             "\0"\
         "bcb_cmd="\

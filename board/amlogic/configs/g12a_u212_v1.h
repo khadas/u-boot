@@ -296,6 +296,11 @@
                 "if keyman read deviceid ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
                 "fi;"\
+                "if keyman read oemkey ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} androidboot.oem.key1=${oemkey};"\
+                "else "\
+                    "setenv bootargs ${bootargs} androidboot.oem.key1=ATV00104319;"\
+                "fi;"\
             "fi;"\
             "\0"\
         "bcb_cmd="\
