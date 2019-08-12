@@ -39,6 +39,7 @@
 
 /* config for khadas kbi */
 #define CONFIG_KHADAS_KBI 1
+#define CONFIG_POWER_FUSB302 1
 
 /* configs for CEC */
 #define CONFIG_CEC_OSD_NAME		"AML_TV"
