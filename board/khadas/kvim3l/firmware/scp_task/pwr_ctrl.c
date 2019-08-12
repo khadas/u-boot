@@ -93,6 +93,96 @@ static void power_on_at_24M(unsigned int suspend_from)
 	_udelay(10000);
 }
 
+static void set_gpio_level(int pin, int high)
+{
+	//pin 0: sda 1: scl
+	if (pin == 1)
+	{
+		if (high == 1)
+		{
+			writel(readl(AO_GPIO_O) | (1 << 2), AO_GPIO_O);
+			writel(readl(AO_GPIO_O_EN_N) & (~(1 << 2)), AO_GPIO_O_EN_N);
+		}
+		else
+		{
+			writel(readl(AO_GPIO_O) & (~(1 << 2)), AO_GPIO_O);
+			writel(readl(AO_GPIO_O_EN_N) & (~(1 << 2)), AO_GPIO_O_EN_N);
+		}
+	writel(readl(AO_RTI_PIN_MUX_REG) & (~(0xf << 8)), AO_RTI_PIN_MUX_REG);
+	}
+	else
+
+	{
+		if (high == 1)
+		{
+			writel(readl(AO_GPIO_O) | (1 << 3), AO_GPIO_O);
+			writel(readl(AO_GPIO_O_EN_N) & (~(1 << 3)), AO_GPIO_O_EN_N);
+		}
+		else
+		{
+			writel(readl(AO_GPIO_O) & (~(1 << 3)), AO_GPIO_O);
+			writel(readl(AO_GPIO_O_EN_N) & (~(1 << 3)), AO_GPIO_O_EN_N);
+		}
+	writel(readl(AO_RTI_PIN_MUX_REG) & (~(0xf << 12)), AO_RTI_PIN_MUX_REG);
+	}
+}
+
+static void i2c_start(void)
+{
+	set_gpio_level(0, 1); //sda high
+	_udelay(1);
+	set_gpio_level(1, 1); //scl high
+	_udelay(1);
+	set_gpio_level(0, 0); //sda low
+	_udelay(1);
+}
+
+static void i2c_stop(void)
+{
+	set_gpio_level(1, 0); //scl low
+	_udelay(2);
+	set_gpio_level(1, 1); //scl high
+	_udelay(2);
+	set_gpio_level(0, 0); //sda low
+	_udelay(2);
+	set_gpio_level(0, 1); //sda high
+	_udelay(1);
+}
+
+static void i2c_send(unsigned char data)
+{
+	unsigned char i = 0;
+	for(; i < 8 ; i++)
+	{
+		set_gpio_level(1, 0); //scl low
+		_udelay(1);
+		if (data & 0x80)
+			set_gpio_level(0, 1); //sda high
+		else
+			set_gpio_level(0, 0); //sda low
+		data <<= 1;
+		_udelay(1);
+		set_gpio_level(1, 1); //scl high
+		_udelay(1);
+	}
+	_udelay(3);
+	set_gpio_level(1, 0);
+	_udelay(2);
+	set_gpio_level(1, 1);
+	_udelay(3);
+}
+
+static void power_off_at_mcu(unsigned int shutdown)
+{
+	if(shutdown == 0) {
+		i2c_start();
+		i2c_send(0x30);
+		i2c_send(0x80);
+		i2c_send(0x01);
+		i2c_stop();
+	}
+}
+
 void get_wakeup_source(void *response, unsigned int suspend_from)
 {
 	struct wakeup_info *p = (struct wakeup_info *)response;
@@ -209,6 +299,7 @@ static unsigned int detect_key(unsigned int suspend_from)
 
 static void pwr_op_init(struct pwr_op *pwr_op)
 {
+	pwr_op->power_off_at_mcu = power_off_at_mcu;
 	pwr_op->power_off_at_24M = power_off_at_24M;
 	pwr_op->power_on_at_24M = power_on_at_24M;
 	pwr_op->detect_key = detect_key;
