@@ -1,5 +1,10 @@
 #!/bin/bash -e
 
+# Copyright (c) 2018 Amlogic, Inc. All rights reserved.
+#
+# This source code is subject to the terms and conditions defined in the
+# file 'LICENSE' which is part of this source code package.
+
 #set -x
 
 SCRIPT_PATH=${SCRIPT_PATH:-$(dirname $(readlink -f $0))}
@@ -359,9 +364,9 @@ get_pem_key_len() {
         exit 1
     fi
     bits=$(openssl rsa -in $pem -text -noout | \
-        grep '^Private-Key: (' | \
-        sed 's/Private-Key: (//' | \
-        sed 's/ bit)//')
+        grep 'Private-Key: (' | \
+        sed -r 's/(RSA )?Private-Key: \(//'| \
+        sed -r 's/ bit(,.?[0-9].?primes)?\)//')
     if [ "$bits" -ne 1024 ] && [ "$bits" -ne 2048 ] &&
        [ "$bits" -ne 4096 ] && [ "$bits" -ne 8192]; then
        echo "Unexpected key size  $bits"
@@ -1039,6 +1044,7 @@ create_unsigned_bl() {
         cp $bl31 $TMP/bl32.img-info
         bl32=$TMP/bl32.img-info
     fi
+
     pack_bl3x -i $bl33 -o $TMP/bl33.bin.img
 
     create_fip_unsigned \

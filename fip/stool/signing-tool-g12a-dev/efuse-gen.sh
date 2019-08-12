@@ -1,5 +1,10 @@
 #!/bin/bash -e
 
+# Copyright (c) 2018 Amlogic, Inc. All rights reserved.
+#
+# This source code is subject to the terms and conditions defined in the
+# file 'LICENSE' which is part of this source code package.
+
 #set -x
 
 VERSION=1.6
@@ -22,8 +27,8 @@ usage() {
 Usage: $(basename $0) --help
        $(basename $0) --version
        $(basename $0) --generate-efuse-pattern \\
-                      --soc [gxl | txlx | axg | g12a] \\
-                      --soc-rev [a | b] \\
+                      --soc [gxl | txlx | axg | g12a | sm1] \\
+                      [--soc-rev [a | b]] \\
                       [--root-hash rootkeys.hash] \\
                       [--password-hash password.hash] \\
                       [--scan-password-hash password.hash] \\
@@ -142,27 +147,6 @@ external_encrypt() {
     exit 1
 }
 
-# Get key len in bytes of private PEM RSA key
-# $1: PEM file
-get_pem_key_len() {
-    local pem=$1
-    local bits=0
-    if [ ! -f "$1" ]; then
-        echo "Argument error, \"$1\""
-        exit 1
-    fi
-    bits=$(openssl rsa -in $pem -text -noout | \
-        grep '^Private-Key: (' | \
-        sed 's/Private-Key: (//' | \
-        sed 's/ bit)//')
-    if [ "$bits" -ne 1024 ] && [ "$bits" -ne 2048 ] &&
-       [ "$bits" -ne 4096 ] && [ "$bits" -ne 8192]; then
-       echo "Unexpected key size  $bits"
-       exit 1
-    fi
-    echo $(( $bits / 8 ))
-}
-
 kwrap=""
 wrlock_kwrap="false"
 roothash=""
@@ -219,9 +203,9 @@ generate_efuse_pattern() {
     i=0
     while [ $i -lt $# ]; do
         arg="${argv[$i]}"
-	#echo "i=$i arg=\"$arg\""
+        #echo "i=$i arg=\"$arg\""
         i=$((i + 1))
-	#echo "i=$i argv[$i]=${argv[$i]}"
+        #echo "i=$i argv[$i]=${argv[$i]}"
         case "$arg" in
             --kwrap)
                 kwrap="${argv[$i]}" ;;
@@ -283,7 +267,7 @@ generate_efuse_pattern() {
                 keyhashver="${argv[$i]}" ;;
             --generate-efuse-pattern)
                 i=$((i - 1))
-		;;
+                ;;
             --raw-otp-pattern)
                 opt_raw_otp_pattern="${argv[$i]}" ;;
             --soc)
@@ -319,14 +303,18 @@ generate_efuse_pattern() {
     if [ "$soc" == "s905d2" ]; then
         soc=g12a
     fi
+    if [ "$soc" == "s905d3" ]; then
+        soc=sm1
+    fi
 
-    if [ "$soc" != "gxl" ] && [ "$soc" != "axg" ] && [ "$soc" != "txlx" ] && [ "$soc" != "g12a" ]; then
+    if [ "$soc" != "gxl" ] && [ "$soc" != "axg" ] && [ "$soc" != "txlx" ] &&
+            [ "$soc" != "g12a" ] && [ "$soc" != "sm1" ]; then
         echo Error: invalid soc: \"$soc\"
-	exit 1
+        exit 1
     fi
 
     # Starting from TXLX and AXG, only full key hash (v2) is supported
-    if [ "$soc" == "txlx" ] || [ "$soc" == "axg" ] || [ "$soc" == "g12a" ]; then
+    if [ "$soc" == "txlx" ] || [ "$soc" == "axg" ] || [ "$soc" == "g12a" ] || [ "$soc" == "sm1" ]; then
         keyhashver=2
     fi
 
@@ -363,7 +351,7 @@ generate_efuse_pattern() {
         fi
         wrlock_kwrap=true
     fi
-    if [ "$soc" != "g12a" ]; then
+    if [ "$soc" != "g12a" ] && [ "$soc" != "sm1" ] ; then
         if [ "$m4roothash" != "" ] || [ "$m4aeskey" != "" ]; then
             echo "M4 key given but not supported for $soc"
             exit 1
@@ -440,11 +428,13 @@ generate_efuse_pattern() {
     fi
 
     if [ "$soc" == "gxl" ] || [ "$soc" == "txlx" ]; then
-	generate_efuse_pattern_gxl
+        generate_efuse_pattern_gxl
     elif [ "$soc" == "g12a" ]; then
-	generate_efuse_pattern_g12a
+        generate_efuse_pattern_g12a
+    elif [ "$soc" == "sm1" ]; then
+        generate_efuse_pattern_sm1
     else
-	generate_efuse_pattern_axg
+        generate_efuse_pattern_axg
     fi
 
     rm -f $patt
@@ -866,6 +856,228 @@ generate_efuse_pattern_g12a() {
         b_a0="$(printf %02x $(( 0x$b_a0 | 0x08 )))"
         # Enable M4 encryption:
         b_a0="$(printf %02x $(( 0x$b_a0 | 0x20 )))"
+    fi
+
+    b_196="00"
+    if $revokersk0; then
+        b_196="$(printf %02x $(( 0x$b_196 | 0x10 )))"
+    fi
+    if $revokersk1; then
+        b_196="$(printf %02x $(( 0x$b_196 | 0x08 )))"
+    fi
+    if $revokersk2; then
+        b_196="$(printf %02x $(( 0x$b_196 | 0x04 )))"
+    fi
+    if $revokersk3; then
+        b_196="$(printf %02x $(( 0x$b_196 | 0x02 )))"
+    fi
+
+    # Generate empty eFUSE pattern data
+    dd if=/dev/zero of=$patt count=512 bs=1 &> /dev/null
+
+    # Create and write license block
+    if [ ${#b_a0} -ne 2 ] || [ ${#b_a1} -ne 2 ] || [ ${#b_a2} -ne 2 ] || [ ${#b_a3} -ne 2 ] || [ ${#b_196} -ne 2 ]; then
+        echo Internal Error
+        exit 1
+    fi
+
+    echo $b_a0 $b_a1 $b_a2 $b_a3 00 00 00 00 00 00 00 00 00 00 00 00 | xxd -r -p > $license
+    echo 00 00 00 00 00 00 $b_196 00 00 00 00 00 00 00 00 00 | xxd -r -p > $license2
+
+    filesize=$(wc -c < $license)
+    if [ $filesize -ne 16 ]; then
+        echo Internal Error -- Invalid license pattern length
+        exit 1
+    fi
+
+    filesize=$(wc -c < $license2)
+    if [ $filesize -ne 16 ]; then
+        echo Internal Error -- Invalid license pattern length
+        exit 1
+    fi
+
+    dd if=$license of=$patt bs=16 seek=10 count=1 \
+        conv=notrunc >& /dev/null
+
+    dd if=$license2 of=$patt bs=16 seek=25 count=1 \
+        conv=notrunc >& /dev/null
+
+    if [ "$roothash" != "" ]; then
+        dd if=$roothash of=$patt bs=16 seek=20 count=2 \
+            conv=notrunc >& /dev/null
+
+        # Lock root hash blocks
+        b_b2="$(printf %02x $(( 0x$b_b2 | 0x30 )))"
+    fi
+
+    if [ "$aeskey" != "" ]; then
+        dd if=$aeskey of=$patt bs=16 seek=2 count=2 \
+            conv=notrunc >& /dev/null
+
+        # Lock aes key blocks
+        b_b0="$(printf %02x $(( 0x$b_b0 | 0x0c )))"
+    fi
+
+    if [ "$m4roothash" != "" ]; then
+        dd if=$m4roothash of=$patt bs=16 seek=22 count=2 \
+            conv=notrunc >& /dev/null
+
+        # Lock m4 root hash blocks
+        b_b2="$(printf %02x $(( 0x$b_b2 | 0xc0 )))"
+    fi
+
+    if [ "$m4aeskey" != "" ]; then
+        dd if=$m4aeskey of=$patt bs=16 seek=5 count=1 \
+            conv=notrunc >& /dev/null
+
+        # Lock m4 aes key block
+        b_b0="$(printf %02x $(( 0x$b_b0 | 0x20 )))"
+    fi
+
+    if [ "$passwordhash" != "" ]; then
+        dd if=$passwordhash of=$patt bs=16 seek=6 count=2 \
+            conv=notrunc >& /dev/null
+
+        # Lock jtag password hash blocks
+        b_b0="$(printf %02x $(( 0x$b_b0 | 0xc0 )))"
+    fi
+
+    if [ "$scanpasswordhash" != "" ]; then
+        dd if=$scanpasswordhash of=$patt bs=16 seek=8 count=2 \
+            conv=notrunc >& /dev/null
+
+        # Lock scan password hash blocks
+        b_b1="$(printf %02x $(( 0x$b_b1 | 0x03 )))"
+    fi
+
+    if [ "$userefusefile" != "" ]; then
+        dd if=$userefusefile of=$patt bs=16 seek=26 count=6 \
+            conv=notrunc >& /dev/null
+    fi
+
+    # Write kwrap (in user data area) last
+    if [ "$kwrap" != "" ]; then
+        dd if=$kwrap of=$patt bs=16 seek=31 count=1 \
+            conv=notrunc >& /dev/null
+
+        if $wrlock_kwrap; then
+            b_b3="$(printf %02x $(( 0x$b_b3 | 0x80 )))"
+        fi
+    fi
+
+    # Create and write write-lock
+    if [ ${#b_b0} -ne 2 ] || [ ${#b_b1} -ne 2 ] || [ ${#b_b2} -ne 2 ] || [ ${#b_b3} -ne 2 ]; then
+        echo Internal Error
+        exit 1
+    fi
+
+    echo $b_b0 $b_b1 $b_b2 $b_b3 00 00 00 00 00 00 00 00 00 00 00 00 | xxd -r -p > $wrlock
+    filesize=$(wc -c < $wrlock)
+    if [ $filesize -ne 16 ]; then
+        echo Internal Error -- Invalid write-lock pattern length
+        exit 1
+    fi
+    dd if=$wrlock of=$patt bs=16 seek=11 count=1 conv=notrunc >& /dev/null
+
+    if [ "$opt_raw_otp_pattern" == "true" ]; then
+        cp $patt $output
+    else
+        ${TOOL_PATH}/aml_encrypt_g12a --efsgen3 --input $patt --output $output
+    fi
+
+    echo "done"
+}
+
+generate_efuse_pattern_sm1() {
+    echo -n "Generate OTP pattern for SM1 (S905X3/Y3/D3) ... "
+
+    # Additional args check
+    if [ "$userefusefile" != "" ]; then
+        check_file userefusefile "$userefusefile"
+        local filesize=$(wc -c < ${userefusefile})
+        if [ $filesize -ne 96 ]; then
+            echo "User efuse file incorrect size $filesize != 96"
+            exit 1
+        fi
+    fi
+
+    # Create input pattern
+
+    # OTP write lock control
+    b_b0="00"
+    b_b1="00"
+    b_b2="00"
+    b_b3="00"
+
+    # Construct license bits
+    b_a0="00"
+    b_a1="00"
+    b_a2="00"
+    b_a3="00"
+    if [ "$disablejtag" == "true" ]; then
+        # Disable *ALL* JTAG (M3, M4, AP) in SM1
+        b_a3="$(printf %02x $(( 0x$b_a3 | 0x80 )))"
+        b_a3="$(printf %02x $(( 0x$b_a3 | 0x40 )))"
+        b_a3="$(printf %02x $(( 0x$b_a3 | 0x20 )))"
+    fi
+
+    if [ "$disableprint" == "true" ]; then
+        b_a2="$(printf %02x $(( 0x$b_a2 | 0x40 )))"
+    fi
+    if [ "$disablebootusb" == "true" ]; then
+        b_a2="$(printf %02x $(( 0x$b_a2 | 0x20 )))"
+    fi
+    if [ "$disablebootspi" == "true" ]; then
+        b_a2="$(printf %02x $(( 0x$b_a2 | 0x10 )))"
+    fi
+    if [ "$disablebootsdcard" == "true" ]; then
+        b_a2="$(printf %02x $(( 0x$b_a2 | 0x08 )))"
+    fi
+    if [ "$disablebootnandemmc" == "true" ]; then
+        b_a2="$(printf %02x $(( 0x$b_a2 | 0x04 )))"
+    fi
+    if [ "$disablebootrecover" == "true" ]; then
+        b_a2="$(printf %02x $(( 0x$b_a2 | 0x02 )))"
+    fi
+    if [ "$disablescanchain" == "true" ]; then
+        b_a2="$(printf %02x $(( 0x$b_a2 | 0x01 )))"
+    fi
+
+    if [ "$enableusbpassword" == "true" ]; then
+        b_a1="$(printf %02x $(( 0x$b_a1 | 0x02 )))"
+        b_a3="$(printf %02x $(( 0x$b_a3 | 0x04 )))"
+    fi
+    if [ "$enablejtagpassword" == "true" ]; then
+        b_a1="$(printf %02x $(( 0x$b_a1 | 0x01 )))"
+        b_a3="$(printf %02x $(( 0x$b_a3 | 0x02 )))"
+        b_a3="$(printf %02x $(( 0x$b_a3 | 0x08 )))"
+        b_a3="$(printf %02x $(( 0x$b_a3 | 0x10 )))"
+    fi
+
+    if [ "$enablescanpassword" == "true" ]; then
+        b_a0="$(printf %02x $(( 0x$b_a0 | 0x80 )))"
+        b_a3="$(printf %02x $(( 0x$b_a3 | 0x01 )))"
+    fi
+    if [ "$enableantirollback" == "true" ]; then
+        b_a0="$(printf %02x $(( 0x$b_a0 | 0x40 )))"
+    fi
+    if [ "$enablesb" == "true" ]; then
+        # Enable SCP, AP, SP secure boot
+        b_a0="$(printf %02x $(( 0x$b_a0 | 0x01 )))"
+        b_a0="$(printf %02x $(( 0x$b_a0 | 0x04 )))"
+        b_a0="$(printf %02x $(( 0x$b_a0 | 0x10 )))"
+        b_a1="$(printf %02x $(( 0x$b_a1 | 0x08 )))"
+        b_a1="$(printf %02x $(( 0x$b_a1 | 0x20 )))"
+        b_a1="$(printf %02x $(( 0x$b_a1 | 0x80 )))"
+    fi
+    if [ "$enableaes" == "true" ]; then
+        # Enable SCP, AP, SP encryption
+        b_a0="$(printf %02x $(( 0x$b_a0 | 0x02 )))"
+        b_a0="$(printf %02x $(( 0x$b_a0 | 0x08 )))"
+        b_a0="$(printf %02x $(( 0x$b_a0 | 0x20 )))"
+        b_a1="$(printf %02x $(( 0x$b_a1 | 0x10 )))"
+        b_a1="$(printf %02x $(( 0x$b_a1 | 0x40 )))"
+        b_a2="$(printf %02x $(( 0x$b_a2 | 0x80 )))"
     fi
 
     b_196="00"

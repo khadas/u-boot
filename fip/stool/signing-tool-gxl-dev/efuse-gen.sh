@@ -1,5 +1,10 @@
 #!/bin/bash -e
 
+# Copyright (c) 2018 Amlogic, Inc. All rights reserved.
+#
+# This source code is subject to the terms and conditions defined in the
+# file 'LICENSE' which is part of this source code package.
+
 #set -x
 
 VERSION=1.6
@@ -139,9 +144,9 @@ get_pem_key_len() {
         exit 1
     fi
     bits=$(openssl rsa -in $pem -text -noout | \
-        grep '^Private-Key: (' | \
-        sed 's/Private-Key: (//' | \
-        sed 's/ bit)//')
+        grep 'Private-Key: (' | \
+        sed -r 's/(RSA )?Private-Key: \(//'| \
+        sed -r 's/ bit(,.?[0-9].?primes)?\)//')
     if [ "$bits" -ne 1024 ] && [ "$bits" -ne 2048 ] &&
        [ "$bits" -ne 4096 ] && [ "$bits" -ne 8192]; then
        echo "Unexpected key size  $bits"

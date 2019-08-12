@@ -109,7 +109,8 @@ function encrypt() {
 		--ddrfw1  ./${FIP_FOLDER}${CUR_SOC}/ddr4_1d.fw --ddrfw2  ./${FIP_FOLDER}${CUR_SOC}/ddr4_2d.fw \
 		--ddrfw3  ./${FIP_FOLDER}${CUR_SOC}/ddr3_1d.fw --ddrfw4  ./${FIP_FOLDER}${CUR_SOC}/piei.fw \
 		--ddrfw5  ./${FIP_FOLDER}${CUR_SOC}/lpddr4_1d.fw --ddrfw6  ./${FIP_FOLDER}${CUR_SOC}/lpddr4_2d.fw \
-		--ddrfw7  ./${FIP_FOLDER}${CUR_SOC}/diag_lpddr4.fw --ddrfw8 ./${FIP_FOLDER}${CUR_SOC}/${DDR_FW_NAME}
+		--ddrfw7  ./${FIP_FOLDER}${CUR_SOC}/diag_lpddr4.fw --ddrfw8 ./${FIP_FOLDER}${CUR_SOC}/${DDR_FW_NAME} \
+		--ddrfw9  ./${FIP_FOLDER}${CUR_SOC}/lpddr3_1d.fw
 
 	if [ "y" == "${CONFIG_AML_CRYPTO_UBOOT}" ]; then
 		encrypt_step --efsgen --amluserkey ${UBOOT_SRC_FOLDER}/${BOARD_DIR}/${AML_KEY_BLOB_NANE} \
