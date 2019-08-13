@@ -84,12 +84,12 @@
 #define HW_VERSION_ADC_VAL_VIM3_V11      0x200
 #define HW_VERSION_ADC_VAL_VIM3_V12      0x288
 #define HW_VERSION_UNKNOW                0x00
-#define HW_VERSION_VIM1_V12              0x11
-#define HW_VERSION_VIM1_V13              0x10
-#define HW_VERSION_VIM2_V12              0x01
-#define HW_VERSION_VIM2_V14              0x02
-#define HW_VERSION_VIM3_V11              0x30
-#define HW_VERSION_VIM3_V12              0x31
+#define HW_VERSION_VIM1_V12              0x12
+#define HW_VERSION_VIM1_V13              0x13
+#define HW_VERSION_VIM2_V12              0x22
+#define HW_VERSION_VIM2_V14              0x24
+#define HW_VERSION_VIM3_V11              0x31
+#define HW_VERSION_VIM3_V12              0x32
 
 
 static char* LED_MODE_STR[] = { "off", "on", "breathe", "heartbeat"};
@@ -303,6 +303,8 @@ static void get_mac(int is_print)
 static const char *hw_version_str(int hw_ver)
 {
 	switch (hw_ver) {
+		case HW_VERSION_VIM1_V12:
+			return "VIM1.V12";
 		case HW_VERSION_VIM1_V13:
 			return "VIM1.V13";
 		case HW_VERSION_VIM2_V12:
@@ -352,7 +354,7 @@ static int get_hw_version(void)
 			hw_ver = HW_VERSION_UNKNOW;
 		}
 	}
-	printf("saradc: 0x%x, hw_ver: 0x%x\n", val, hw_ver);
+	printf("saradc: 0x%x, hw_ver: 0x%x (%s)\n", val, hw_ver, hw_version_str(hw_ver));
 
 	setenv("hwver", hw_version_str(hw_ver));
 
