@@ -69,7 +69,7 @@
         "loadaddr=0x00020000\0"\
         "os_ident_addr=0x00500000\0"\
         "loadaddr_rtos=0x00001000\0"\
-        "loadaddr_kernel=0x00020000\0"\
+	"loadaddr_kernel=0x01080000\0"\
         "otg_device=1\0" \
         "panel_type=lcd_1\0" \
         "outputmode=1080p60hz\0" \
