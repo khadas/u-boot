@@ -1157,6 +1157,73 @@ void trans_ept_to_diskpart(struct _iptbl *ept, disk_partition_t *disk_part) {
 	}
 	return;
 }
+
+
+/*********************************
+*
+* note: ept shouldn't empty
+* otherwise this function
+* shouldn't be called
+*
+* *******************************
+*
+* if gpt is empty
+*     construct gpt by ept
+* elif partition table is changed
+*     if ept has higher priority
+*         use ept update gpt
+*     else
+*		   use gpt update ept
+*
+********************************/
+int confirm_gpt(struct mmc *mmc)
+{
+	char *str_disk_guid;
+	int gpt_priority = GPT_PRIORITY;
+	int dcount;
+	int ret = 1;
+	disk_partition_t *disk_partition;
+	block_dev_desc_t *dev_desc = &mmc->block_dev;
+
+	/*remove bootloader partition*/
+	dcount = p_iptbl_ept->count - 1;
+	if (dcount < 1)
+		return 1;
+
+	disk_partition = malloc(PAD_TO_BLOCKSIZE(sizeof(disk_partition_t) * dcount,
+							dev_desc));
+	if (disk_partition == NULL)
+		return -ENOMEM;
+	trans_ept_to_diskpart(p_iptbl_ept, disk_partition);
+
+	str_disk_guid = malloc(UUID_STR_LEN + 1);
+	if (str_disk_guid == NULL) {
+		free(disk_partition);
+		return -ENOMEM;
+	}
+	gen_rand_uuid_str(str_disk_guid, UUID_STR_FORMAT_STD);
+
+	if (test_part_efi(&mmc->block_dev) != 0) {
+		/*gpt is empty write gpt*/
+		ret = gpt_restore(&mmc->block_dev, str_disk_guid, disk_partition, dcount);
+		printf("GPT IS RESTORED %s\n", ret ? "Failed!" : "OK!");
+	} else if (is_gpt_changed(mmc, p_iptbl_ept)) {
+		if (gpt_priority) {
+			/*gpt have higher priority update ept*/
+			ret = fill_ept_by_gpt(mmc, p_iptbl_ept);
+			printf("and gpt has higher priority, so ept had been update\n");
+		} else {
+			/*ept have higher priority update gpt*/
+			ret = gpt_restore(&mmc->block_dev, str_disk_guid, disk_partition, dcount);
+			printf("but ept has higher priority, so gpt had been recover\n");
+		}
+	}
+
+	free(str_disk_guid);
+	free(disk_partition);
+	return ret;
+}
+
 #endif
 
 /***************************************************
@@ -1302,37 +1369,7 @@ int mmc_device_init (struct mmc *mmc)
 	}
 #endif
 #ifdef CONFIG_AML_GPT
-	char *str_disk_guid;
-	int gpt_priority = GPT_PRIORITY;
-	disk_partition_t *disk_partition;
-	int dcount = p_iptbl_ept->count -1;
-	block_dev_desc_t *dev_desc = &mmc->block_dev;
-	disk_partition = calloc(1, PAD_TO_BLOCKSIZE(sizeof(disk_partition_t) * dcount, dev_desc));
-	if (disk_partition)
-		goto _out;
-	trans_ept_to_diskpart(p_iptbl_ept, disk_partition);
-
-	str_disk_guid = malloc(UUID_STR_LEN + 1);
-	if (str_disk_guid == NULL) {
-		free(disk_partition);
-		goto _out;
-	}
-	gen_rand_uuid_str(str_disk_guid, UUID_STR_FORMAT_STD);
-
-	if (test_part_efi(&mmc->block_dev) != 0) {
-		ret = gpt_restore(&mmc->block_dev, str_disk_guid, disk_partition, dcount);
-		printf("GPT IS RESTORED %s\n", ret ? "Failed!" : "OK!");
-	} else if (is_gpt_changed(mmc, p_iptbl_ept)) {
-		if (gpt_priority) {
-			fill_ept_by_gpt(mmc, p_iptbl_ept);
-			printf("and gpt has higher priority, so ept had been update\n");
-		} else {
-			gpt_restore(&mmc->block_dev, str_disk_guid, disk_partition, dcount);
-			printf("but EPT has higher priority, so gpt had been recover\n");
-		}
-	}
-	free(str_disk_guid);
-	free(disk_partition);
+	ret = confirm_gpt(mmc);
 #endif
 	/* init part again */
 	init_part(&mmc->block_dev);
