@@ -301,6 +301,24 @@
 			"tftp 1080000 u-boot.bin;"\
 			"mmc dev 1;"\
 			"store rom_write 1080000 0 ${filesize}"\
+			"\0"\
+		"uboot_update_check=" \
+			"get_rebootmode;" \
+			"print reboot_mode;" \
+			"if test ${reboot_mode} = uboot_updated; then "\
+				"echo u-boot updated, pass to kernel...;" \
+				"env default -a;" \
+				"saveenv;" \
+			"else "\
+				"if test -e mmc 1:5 /usr/lib/u-boot/.UBOOT-NEED-UPDATE; then " \
+					"echo New u-boot found!Try to upgrade u-boot...;" \
+					"if load mmc 1:5 1080000 /usr/lib/u-boot/u-boot.bin; then " \
+						"store rom_write 1080000 0 $filesize;" \
+						"echo u-boot upgrade done, reboot...;" \
+						"reboot uboot_updated;" \
+					"fi;"\
+				"fi;"\
+			"fi;"\
 			"\0"
 
 
@@ -315,6 +333,7 @@
 			"run combine_key;" \
 			"run upgrade_key;" \
 			"run vim_check;" \
+			"run uboot_update_check;" \
 			"run switch_bootmode;"
 #define CONFIG_BOOTCOMMAND "run storeboot"
 
