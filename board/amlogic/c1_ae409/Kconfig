@@ -12,4 +12,8 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "c1_ae409"
 
+config DTB_BIND_KERNEL
+    bool "load dtb from boot part but not flash rsv"
+    default n
+
 endif

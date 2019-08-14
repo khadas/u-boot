@@ -59,6 +59,12 @@
 
 #define CONFIG_BOOTLOADER_CONTROL_BLOCK
 
+#ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
+#define CONFIG_DTB_LOAD  "imgread dtb boot ${dtb_mem_addr}"
+#else
+#define CONFIG_DTB_LOAD  "imgread dtb _aml_dtb ${dtb_mem_addr}"
+#endif//#ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
+
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -97,7 +103,9 @@
         "video_reverse=0\0"\
         "boot_part=boot\0"\
         "Irq_check_en=0\0"\
-        "common_dtb_load=imgread dtb _aml_dtb ${dtb_mem_addr};\0"\
+        "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
+        "get_os_type=if store read ${os_ident_addr} boot 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
+        "fatload_dev=usb\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
             "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xfe002000"\
@@ -138,11 +146,13 @@
             "fi;fi;fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
+            "run get_os_type;"\
             "if test ${os_type} = rtos; then "\
                 "setenv loadaddr ${loadaddr_rtos};"\
                 "store read ${loadaddr} boot 0 0x400000;"\
                 "bootm ${loadaddr};"\
             "else if test ${os_type} = kernel; then "\
+                "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
                 "setenv loadaddr ${loadaddr_kernel};"\
                 "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
             "else echo wrong OS format ${os_type}; fi;fi;"\
@@ -151,16 +161,22 @@
          "update="\
             /*first usb burning, second sdc_burn, third ext-sd autoscr/recovery, last udisk autoscr/recovery*/\
             "run usb_burning; "\
-            "if usb start 0; then run recovery_from_udisk; fi;"\
+            "run recovery_from_udisk;"\
             "run recovery_from_flash;"\
             "\0"\
-        "recovery_from_udisk="\
-            "if fatload usb 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;"\
-            "if fatload usb 0 ${loadaddr} recovery.img; then "\
-                "if fatload usb 0 ${dtb_mem_addr} dtb.img; then echo udisk dtb.img loaded; fi;"\
+        "recovery_from_fat_dev="\
+            "setenv loadaddr ${loadaddr_kernel};"\
+            "if fatload ${fatload_dev} 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;"\
+            "if fatload ${fatload_dev} 0 ${loadaddr} recovery.img; then "\
+                "if fatload ${fatload_dev} 0 ${dtb_mem_addr} dtb.img; then echo ${fatload_dev} dtb.img loaded; fi;"\
                 "bootm ${loadaddr};fi;"\
             "\0"\
+        "recovery_from_udisk="\
+            "setenv fatload_dev usb;"\
+            "if usb start 0; then run recovery_from_fat_dev; fi;"\
+            "\0"\
         "recovery_from_flash="\
+            "setenv loadaddr ${loadaddr_kernel};"\
             "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
             "if imgread dtb recovery ${dtb_mem_addr}; then "\
                 "else echo restore dtb; run common_dtb_load;"\

@@ -672,7 +672,7 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
     ret = optimus_storage_init(eraseFlag);
     if (ret) {
         DWN_ERR("Fail to init stoarge for sdc burn, ret %d\n", ret);
-        return __LINE__;
+        return __LINE__; goto _finish;
     }
 
     optimus_progress_ui_direct_update_progress(hUiProgress, UPGRADE_STEPS_AFTER_DISK_INIT_OK);

@@ -103,10 +103,12 @@ int board_init(void)
 	printf("board init\n");
 	/* reset uart A for BT*/
 	writel(0x4000000, RESETCTRL_RESET1);
+	//Please keep try usb boot first in board_init, as other init before usb may cause burning failure
 #if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 	if ((0x1b8ec003 != readl(SYSCTRL_SEC_STICKY_REG2)) && (0x1b8ec004 != readl(SYSCTRL_SEC_STICKY_REG2)))
 	{ aml_v3_factory_usb_burning(0, gd->bd); }
 #endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
+
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 	active_a1_clk();
 
@@ -120,9 +122,6 @@ int board_late_init(void)
 			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 	board_init_mem();
 
-#ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
-	env_set("common_dtb_load",  "imgread dtb boot ${dtb_mem_addr}");
-#endif//#ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
 #ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
 	if ( run_command("run common_dtb_load", 0) ) {
 		printf("Fail in load dtb with cmd[%s]\n", env_get("common_dtb_load"));
@@ -131,11 +130,12 @@ int board_late_init(void)
 		run_command("if fdt addr ${dtb_mem_addr}; then else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
 	}
 #endif//#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
-	if ( run_command( "store read ${os_ident_addr} boot 0 0x1000;"
-				"os_ident ${os_ident_addr}; echo os_type is ${os_type};", 0) ) {
-		printf("Fail in identify os_type\n");
-	}
 
+	//auto enter usb mode after board_late_init if 'adnl.exe setvar burnsteps 0x1b8ec003'
+#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
+	if (0x1b8ec003 == readl(SYSCTRL_SEC_STICKY_REG2))
+	{ aml_v3_factory_usb_burning(0, gd->bd); }
+#endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 	return 0;
 }
 

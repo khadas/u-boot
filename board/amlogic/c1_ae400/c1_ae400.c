@@ -34,6 +34,7 @@
 #include <dm.h>
 #include <asm/armv8/mmu.h>
 #include <amlogic/aml_v3_burning.h>
+#include <amlogic/aml_v2_burning.h>
 #include <linux/mtd/partitions.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -101,10 +102,12 @@ void board_init_mem(void) {
 int board_init(void)
 {
 	printf("board init\n");
+	//Please keep try usb boot first in board_init, as other init before usb may cause burning failure
 #if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 	if ((0x1b8ec003 != readl(SYSCTRL_SEC_STICKY_REG2)) && (0x1b8ec004 != readl(SYSCTRL_SEC_STICKY_REG2)))
 	{ aml_v3_factory_usb_burning(0, gd->bd); }
 #endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
+
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 	active_clk();
 
@@ -114,16 +117,27 @@ int board_init(void)
 int board_late_init(void)
 {
 	printf("board late init\n");
+	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
+			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 	board_init_mem();
 
+#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
+	if ( run_command("run common_dtb_load", 0) ) {
+		printf("Fail in load dtb with cmd[%s]\n", env_get("common_dtb_load"));
+	} else {
+		//load dtb here then users can directly use 'fdt' command
+		run_command("if fdt addr ${dtb_mem_addr}; then else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
+	}
+#endif//#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
+
+#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
+	aml_try_factory_sdcard_burning(0, gd->bd);
+#endif//#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE
+	//auto enter usb mode after board_late_init if 'adnl.exe setvar burnsteps 0x1b8ec003'
 #if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 	if (0x1b8ec003 == readl(SYSCTRL_SEC_STICKY_REG2))
 	{ aml_v3_factory_usb_burning(0, gd->bd); }
 #endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
-#if defined(CONFIG_AML_V2_FACTORY_BURN) && defined(CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE)
-	aml_try_factory_sdcard_burning(0, gd->bd);
-#endif// #if defined(CONFIG_AML_V2_FACTORY_BURN) && defined(CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE)
-
 	return 0;
 }
 

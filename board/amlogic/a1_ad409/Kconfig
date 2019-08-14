@@ -18,4 +18,8 @@ config CMD_PLLTEST
 	help
 	  support plltest command
 
+config DTB_BIND_KERNEL
+    bool "load dtb from boot part but not flash rsv"
+    default n
+
 endif
