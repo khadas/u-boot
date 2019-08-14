@@ -57,6 +57,8 @@
 /*config irblaster*/
 #define CONFIG_CMD_IRBLASTER 1
 
+/* Khadas commands */
+#define CONFIG_KHADAS_KBI 1
 #define CONFIG_KHADAS_CFGLOAD 1
 
 /* support ext4*/
