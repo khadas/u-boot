@@ -346,11 +346,11 @@
             "\0"
 
 #define CONFIG_PREBOOT  \
-            "run vim3_check;" \
             "run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
             "run upgrade_key;"\
+            "run vim3_check;" \
             "run uboot_update_check;"\
             "run wol_init;"\
             "run port_mode_change;"\
