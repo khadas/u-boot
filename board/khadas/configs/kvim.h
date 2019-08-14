@@ -291,6 +291,10 @@
             "\0"\
         "hwver_check="\
             "kbi hwver;"\
+            "if test ${hwver} = VIM1.V13; then "\
+                "fdt addr ${dtb_mem_addr}; "\
+                "fdt set /soc/cbus@c1100000/i2c@87c0/khadas-mcu status okay;"\
+            "fi;"\
             "\0"\
         "cmdline_keys="\
             "if keyman init 0x1234; then "\
