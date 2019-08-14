@@ -283,14 +283,13 @@
             "fi;"\
             "\0"\
 		"vim_check="\
-			"saradc open 1;"\
-			"if saradc get_in_range 0x1a0 0x220; then "\
-				"setenv hwver VIM1.V12;" \
-				"echo Product checking: pass! Hardware version: ${hwver};"\
-				"setenv bootargs ${bootargs} hwver=${hwver};" \
-			"else if saradc get_in_range 0x0 0x1cf; then "\
-				"echo Product checking: fail!; sleep 5; reboot;"\
-			"fi;fi;"\
+			"kbi hwver;"\
+			"if test ${hwver} != Unknow; then " \
+				"echo Product checking: pass! Hardware version: ${hwver};" \
+			"else " \
+				"echo Product checking: fail!; sleep 5; reboot;" \
+			"fi;" \
+			"setenv bootargs ${bootargs} hwver=${hwver};"\
 			"\0"\
 		"setup_ethmac=" \
 			"if test X${custom_ethmac} != X; then " \
