@@ -1018,6 +1018,29 @@ static int do_kbi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *c;
 
+#ifdef CONFIG_KHADAS_VIM
+	int hw_ver = 0;
+	int val = 0;
+	saradc_enable();
+	udelay(100);
+	val = get_adc_sample_gxbb(1);
+	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXL) {
+		if ((val >= HW_VERSION_ADC_VAL_VIM1_V13 - HW_VERSION_ADC_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VAL_VIM1_V13 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
+			hw_ver = HW_VERSION_VIM1_V13;
+		} else if ((val >= HW_VERSION_ADC_VAL_VIM1_V12 - HW_VERSION_ADC_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VAL_VIM1_V12 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
+			hw_ver = HW_VERSION_VIM1_V12;
+		} else {
+			hw_ver = HW_VERSION_UNKNOW;
+		}
+		if ((hw_ver == HW_VERSION_UNKNOW) || (hw_ver == HW_VERSION_VIM1_V12)) {
+			printf("The Board don't support KBI interface\n");
+			setenv("hwver", hw_version_str(hw_ver));
+			return CMD_RET_FAILURE;
+		}
+	}
+	saradc_disable();
+#endif
+
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
