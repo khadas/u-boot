@@ -36,11 +36,10 @@
 #define CONFIG_VDDEE_INIT_VOLTAGE	800		// VDDEE power up voltage
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	770		// VDDEE suspend voltage
 
-/* config for khadas kbi */
-#define CONFIG_KHADAS_KBI 1
-
 /* Khadas commands */
+#define CONFIG_KHADAS_KBI 1
 #define CONFIG_KHADAS_CFGLOAD 1
+#define CONFIG_KHADAS_SCRIPT 1
 
 #define CONFIG_TCA6408 1
 #define CONFIG_POWER_FUSB302 1
