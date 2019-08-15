@@ -14,7 +14,8 @@
 #include <amlogic/aml_mtd.h>
 
 #define SPINOR_BOOTLOADER_SIZE (SZ_1M)
-#define SPINOR_RSV_BLOCK_NUM	(4)
+/* The size of the partition must be block aligned */
+#define SPINOR_RSV_BLOCK_NUM	(32) //128k
 
 static int _spinor_add_partitions(struct mtd_info *mtd,
 				  const struct mtd_partition *parts,
