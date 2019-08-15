@@ -44,37 +44,40 @@ static char* read_cfgload(void)
 	char cmd[128];
 	unsigned long filesize;
 	char *p;
+	const char *partition_pairs[][2] = {
+	    //partition		 boot.ini
+		{"0:1", 		"/boot.ini"},
+		{"1:1", 		"/boot.ini"},
+		{"1:5", 		"/boot/boot.ini"}
+	};
+	int partition_array_len = sizeof(partition_pairs) / sizeof(partition_pairs[0]);
+	int i = 0;
 
 	p = (char *)simple_strtoul(getenv("loadaddr"), NULL, 16);
 	if (NULL == p)
 		p = (char *)CONFIG_SYS_LOAD_ADDR;
 
-	setenv("filesize", "0");
-
-	// Try to load fatfs partition
-	printf("reading boot.ini from mmc 0:1 ...\n");
-	sprintf(cmd, "fatload mmc 0:1 0x%p boot.ini", (void *)p);
-	run_command(cmd, 0);
-
-	filesize = getenv_ulong("filesize", 16, 0);
-	if (0 == filesize) {
-		printf("cfgload: fatload: no boot.ini or empty file\n");
-
-		// Try to load ext4 partition
-		printf("reading boot.ini from mmc 1:5 ...\n");
-		sprintf(cmd, "ext4load mmc 1:5 0x%p /boot/boot.ini", (void *)p);
+	for (i=0; i<partition_array_len; i++) {
+		setenv("filesize", "0");
+		printf("cfgload: reading %s from mmc %s ...\n", partition_pairs[i][1], partition_pairs[i][0]);
+		sprintf(cmd, "load mmc %s 0x%p %s", partition_pairs[i][0], (void *)p, partition_pairs[i][1]);
 		run_command(cmd, 0);
 
 		filesize = getenv_ulong("filesize", 16, 0);
-		if (0 == filesize) {
-			printf("cfgload: ext4load: no boot.ini or empty file\n");
+		if (0 != filesize)
+			break;
 
-			return NULL;
-		}
+		printf("cfgload: no %s or empty file on mmc %s\n", partition_pairs[i][1], partition_pairs[i][0]);
+	}
+
+	if (i == partition_array_len) {
+		printf("cfgload: failed to read boot.ini on all partitions!\n");
+
+		return NULL;
 	}
 
 	if (filesize > SZ_BOOTINI) {
-		printf("boot.ini: 'boot.ini' exceeds %d, size=%ld\n",
+		printf("cfgload: 'boot.ini' exceeds %d, size=%ld\n",
 				SZ_BOOTINI, filesize);
 		return NULL;
     }
@@ -102,13 +105,13 @@ static char* read_cfgload(void)
 	return NULL;
 }
 
-//extern int is_hdmimode_valid(const char *);
-
 static int do_load_cfgload(cmd_tbl_t *cmdtp, int flag, int argc,
 		char *const argv[])
 {
 	char *p;
-	char *cmd;
+	char cmd[64];
+
+	printf("cfgload: start ...\n");
 
 	p = read_cfgload();
 	if (NULL == p)
@@ -116,34 +119,15 @@ static int do_load_cfgload(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	printf("cfgload: applying boot.ini...\n");
 
-	while (p) {
-		cmd = strsep(&p, "\n");
-		if (!valid_command(cmd))
-			continue;
-
-		printf("cfgload: %s\n", cmd);
-
-#ifndef CONFIG_SYS_HUSH_PARSER
-		run_command(cmd, 0);
-#else
-		parse_string_outer(cmd, FLAG_PARSE_SEMICOLON
-				| FLAG_EXIT_FROM_LOOP);
-#endif
-		/* Check the hdmimode validation */
-//		if (strstr(cmd, "hdmimode")) {
-//			if (!is_hdmimode_valid(getenv("hdmimode")))
-//				setenv("hdmimode", "1080p60hz");
-//		}
-	}
+	sprintf(cmd, "script %p %ld 0", p, strlen(p));
+	run_command(cmd, 0);
 
 	return 0;
 }
 
 U_BOOT_CMD(
 		cfgload,		1,		0,		do_load_cfgload,
-		"read 'boot.ini' from FAT partiton",
+		"read 'boot.ini' from FAT/EXT4 partition",
 		"\n"
-		"    - read boot.ini from the first partiton treated as FAT partiton"
+		"    - read boot.ini from the boot partition"
 );
-
-/* vim: set ts=4 sw=4 tw=80: */
