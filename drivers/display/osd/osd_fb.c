@@ -345,6 +345,8 @@ unsigned long get_fb_addr(void)
 					char *ddr_size = getenv("ddr_size");
 					if (strcmp(ddr_size,"2") == 0) {
 						propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr_2g", NULL);
+					} else if (strcmp(ddr_size,"3") == 0) {
+						propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr_3g", NULL);
 					} else if (strcmp(ddr_size,"4") == 0) {
 						propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr_4g", NULL);
 					} else {
@@ -363,7 +365,20 @@ unsigned long get_fb_addr(void)
 				}
 			} else {
 				/* check fb_addr */
+#ifdef CONFIG_DDR_AUTO_DTB
+				char *ddr_size = getenv("ddr_size");
+				if (strcmp(ddr_size,"2") == 0) {
+					propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr_2g", NULL);
+				} else if (strcmp(ddr_size,"3") == 0) {
+					propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr_3g", NULL);
+				} else if (strcmp(ddr_size,"4") == 0) {
+					propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr_4g", NULL);
+				} else {
+					propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr", NULL);
+				}
+#else
 				propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr", NULL);
+#endif /* CONFIG_DDR_AUTO_DTB */
 				if (propdata == NULL) {
 					osd_logi("failed to get fb addr for logo\n");
 					osd_logi("use default fb_addr parameters\n");
