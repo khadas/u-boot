@@ -687,6 +687,18 @@ static int designware_eth_bind(struct udevice *dev)
 }
 
 #ifdef CONFIG_DM_ETH
+unsigned int setup_amp;
+void setup_tx_amp(struct udevice *dev)
+{
+	unsigned int tx_amp_src = 0;
+	tx_amp_src = dev_read_u32_default(dev, "tx_amp_src", 0);
+	if (0 == tx_amp_src) {
+		printf("not set tx_amp_src\n");
+	} else {
+		setup_amp = readl(tx_amp_src);
+		printf("addr 0x%x  =  0x%x\n", tx_amp_src, readl(tx_amp_src));
+	}
+}
 static void setup_internal_phy(struct udevice *dev)
 {
 	int phy_cntl1 = 0;
@@ -734,6 +746,8 @@ static void setup_internal_phy(struct udevice *dev)
 		printf("can't get eth_cfg resource(ret = %d)\n", rtn);
 	}
 	printf("wzh eth_top 0x%x eth_cfg 0x%x \n", eth_top.start, eth_cfg.start);
+
+	setup_tx_amp(dev);
 	/*top*/
 //	setbits_le32(ETHTOP_CNTL0, mc_val);
 	setbits_le32(eth_top.start, mc_val);

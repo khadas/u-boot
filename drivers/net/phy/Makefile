@@ -30,3 +30,4 @@ obj-$(CONFIG_PHY_XILINX) += xilinx_phy.o
 obj-$(CONFIG_PHY_VITESSE) += vitesse.o
 obj-$(CONFIG_PHY_MSCC) += mscc.o
 obj-$(CONFIG_PHY_FIXED) += fixed.o
+obj-$(CONFIG_PHY_AMLOGIC) += amlogic.o

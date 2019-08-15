@@ -84,6 +84,7 @@
 	mc_val = <0x4be04>;
 	pll_val = <0x9c0040a 0x927e0000 0xac5f49e5>;
 	analog_val = <0x20200000 0x0000c000 0x00000023>;
+	tx_amp_src = <0xfe005b30>;
 //	clocks = <&clkc CLKID_ETH_CORE>,
 //		 <&clkc CLKID_FCLK_DIV2>,
 //		 <&clkc CLKID_MPLL2>;

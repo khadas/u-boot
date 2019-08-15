@@ -528,6 +528,9 @@ int phy_init(void)
 #ifdef CONFIG_PHY_FIXED
 	phy_fixed_init();
 #endif
+#ifdef CONFIG_PHY_AMLOGIC
+	phy_amlogic_init();
+#endif
 	return 0;
 }
 
