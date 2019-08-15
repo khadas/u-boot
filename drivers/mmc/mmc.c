@@ -64,11 +64,12 @@ int emmc_boot_chk(struct mmc *mmc)
 {
 	u32 val = 0;
 
+	if (strcmp(mmc->dev->name, "emmc"))
+		return 0;
+
 	val = readl(SEC_AO_SEC_GP_CFG0);
 	pr_info("SEC_AO_SEC_GP_CFG0 = %x\n", val);
-
-	if (!strcmp(mmc->dev->name, "emmc")
-			&& ((val & 0xf) == 0x1))
+	if ((val & 0xf) == 0x1)
 		return 1;
 
 	return 0;

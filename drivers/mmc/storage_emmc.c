@@ -841,6 +841,7 @@ int emmc_pre(void)
 	struct mmc *mmc;
 	mmc_initialize(gd->bd);
 	mmc = find_mmc_device(STORAGE_EMMC);
+	mmc->has_init = 0;
 	ret = mmc_start_init(mmc);
 	if (ret == 0)
 			printf("emmc init success!\n");

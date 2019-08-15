@@ -115,6 +115,7 @@
 
 	non-removable;
 	disable-wp;
+	card_type = <3>;
 
 	mmc-pwrseq = <&sdio_pwrseq>;
 
@@ -136,7 +137,7 @@
 	cd-gpios = <&gpio GPIOC_6 GPIO_ACTIVE_HIGH>;
 	cd-inverted;
 
-	cary_type = <5>;
+	card_type = <5>;
 
 	init_co_phase = <2>;
 	init_tx_phase = <0>;
@@ -162,7 +163,7 @@
 	non-removable;
 	disable-wp;
 	/* mmc-ddr-1_8v; */
-	cary_type = <1>;
+	card_type = <1>;
 
 	init_co_phase = <2>;
 	init_tx_phase = <0>;

@@ -907,7 +907,7 @@ static const struct dm_mmc_ops meson_dm_mmc_ops = {
 	.send_cmd = meson_dm_mmc_send_cmd,
 	.set_ios = meson_dm_mmc_set_ios,
 	.send_init_stream = meson_hw_reset,
-//	.get_cd = meson_get_cd,
+	.get_cd = meson_get_cd,
 #ifdef MMC_SUPPORTS_TUNING
 	.execute_tuning = meson_execute_tuning,
 #endif

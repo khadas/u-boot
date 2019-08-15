@@ -140,6 +140,7 @@
 
 	non-removable;
 	disable-wp;
+	card_type = <3>;
 
 	mmc-pwrseq = <&sdio_pwrseq>;
 
@@ -149,7 +150,7 @@
 
 /* SD card */
 &sd_emmc_b {
-	status = "okay";
+	status = "disabled";
 	/*pinctrl-0 = <&sd_all_pins>;*/
 	/*pinctrl-names = "default";*/
 
@@ -157,6 +158,7 @@
 	cap-sd-highspeed;
 	max-frequency = <100000000>;
 	disable-wp;
+	card_type = <5>;
 
 	/* cd-gpios = <&gpio CARD_6 GPIO_ACTIVE_HIGH>; */
 	/* cd-inverted; */
@@ -167,7 +169,7 @@
 
 /* eMMC */
 &sd_emmc_c {
-	status = "okay";
+	status = "disabled";
 	/* pinctrl-0 = <&emmc_conf_pull_up &emmc_conf_pull_done>; */
 	/* pinctrl-names = "default"; */
 
@@ -179,6 +181,7 @@
 	disable-wp;
 	/* mmc-ddr-1_8v; */
 	/* mmc-hs200-1_8v; */
+	card_type = <1>;
 
 	core-phase0 = <3>;
 	tx-phase0 = <0>;
