@@ -338,6 +338,7 @@ obj-y += cmd_vpp.o
 
 # Khadas commands
 obj-$(CONFIG_KHADAS_CFGLOAD)  += cmd_cfgload.o
+obj-$(CONFIG_KHADAS_SCRIPT) += cmd_script.o
 
 # amlogic commands
 obj-$(CONFIG_CMD_REBOOT) += cmd_reboot.o
