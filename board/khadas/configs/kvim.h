@@ -319,6 +319,7 @@
 					"echo New u-boot found!Try to upgrade u-boot...;" \
 					"if load mmc 1:5 1080000 /usr/lib/u-boot/u-boot.bin; then " \
 						"store rom_write 1080000 0 $filesize;" \
+						"store erase partition env;"\
 						"echo u-boot upgrade done, reboot...;" \
 						"reboot uboot_updated;" \
 					"fi;"\
