@@ -548,6 +548,8 @@
 #define CONFIG_LZO 1
 #define CONFIG_CMD_EXT2 1
 #define CONFIG_CMD_EXT4 1
+#define CONFIG_CMD_UNZIP   1
+#define CONFIG_LZMA        1
 
 /* Cache Definitions */
 //#define CONFIG_SYS_DCACHE_OFF
