@@ -63,6 +63,13 @@ static struct aml_card_sd_info aml_sd_emmc_ports[]={
 	{ .sd_emmc_port=SDIO_PORT_C,.name="SDIO Port C"},
 };
 
+/*The default source clock is 1GMHZ, tx_phase is 0*/
+#define MMC_CLOCK_MAX	2
+static struct fixed_adj_table calc_fixed_adj[]={
+	{40000000, 20},
+	{50000000, 18},
+};
+
 struct aml_card_sd_info * cpu_sd_emmc_get(unsigned port)
 {
 	if (port<SDIO_PORT_C+1)
@@ -789,7 +796,7 @@ int aml_send_calibration_blocks(struct mmc *mmc, char *buffer, u32 start_blk, u3
 	return 0;
 }
 
-int sd_emmc_test_adj(struct mmc *mmc)
+int __attribute__((unused)) sd_emmc_test_adj(struct mmc *mmc)
 {
 	int err = 0, ret = 0;
 	struct mmc_cmd cmd = {0};
@@ -847,6 +854,31 @@ __Retry:
 		goto __Retry;
 	}
 	free(blk_test);
+	return 0;
+}
+
+int set_emmc_calc_fixed_adj(struct mmc *mmc)
+{
+	struct aml_card_sd_info *aml_priv = mmc->priv;
+	struct sd_emmc_global_regs *sd_emmc_reg = aml_priv->sd_emmc_reg;
+	u32 adjust = sd_emmc_reg->gadjust;
+	struct sd_emmc_adjust *gadjust = (struct sd_emmc_adjust *)&adjust;
+	u32 clk_num;
+
+	gadjust->adj_enable = 1;
+	for (clk_num = 0; clk_num < MMC_CLOCK_MAX; clk_num++) {
+		if (mmc->clock == calc_fixed_adj[clk_num].clk) {
+			gadjust->adj_delay = calc_fixed_adj[clk_num].fixed_adj;
+			sd_emmc_reg->gadjust = adjust;
+			printf("[%s][%d]find fixed adj_delay=%d\n",
+					__func__, __LINE__, gadjust->adj_delay);
+			break;
+		}
+	}
+	if (clk_num == MMC_CLOCK_MAX) {
+		printf("[%s][%d] no find fixed adj value\n", __func__, __LINE__);
+		return -1;
+	}
 	return 0;
 }
 
@@ -1034,7 +1066,7 @@ int aml_sd_retry_refix(struct mmc *mmc)
 			adj_delay);
 #endif
 /* test adj sampling point*/
-	ret = sd_emmc_test_adj(mmc);
+	/*ret = sd_emmc_test_adj(mmc);*/
 
 	return ret;
 }
@@ -1060,6 +1092,7 @@ static const struct mmc_ops aml_sd_emmc_ops = {
 #ifdef MMC_ADJ_FIXED
 	.calibration = aml_sd_calibration,
 	.refix = aml_sd_retry_refix,
+	.calc_fixed_adj = set_emmc_calc_fixed_adj,
 #endif
 #ifdef MMC_ADJ_FIX_CALC
 	.calc = aml_fixdiv_calc,

@@ -349,6 +349,7 @@ struct mmc_ops {
 	int (*getcd)(struct mmc *mmc);
 	int (*getwp)(struct mmc *mmc);
 	int (*calibration)(struct mmc *mmc);
+	int (*calc_fixed_adj)(struct mmc *mmc);
 	int (*refix)(struct mmc *mmc);
 	int (*calc)(struct mmc *mmc);
 };
@@ -375,6 +376,12 @@ struct clock_lay_t {
 	unsigned int sdclk;
 };
 
+struct fixed_adj_table {
+	/* mmc clock */
+	unsigned long clk;
+	/* default fixed adj */
+	unsigned long fixed_adj;
+};
 /* todly in ns*/
 #define TODLY_MIN_NS   (2)
 #define TODLY_MAX_NS   (14)
