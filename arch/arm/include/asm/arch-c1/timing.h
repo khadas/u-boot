@@ -332,7 +332,7 @@ typedef struct pll_set{
 	unsigned long     lCustomerID;
 	unsigned short    debug_mode;
 	unsigned char     log_chl;
-	unsigned char     rsv1;
+	unsigned char     log_ctrl;
 	unsigned short    rsv2;
 	unsigned short    rsv3;
 	/* align 8Byte */
