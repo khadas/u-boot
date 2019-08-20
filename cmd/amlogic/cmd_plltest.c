@@ -341,6 +341,86 @@ Part5: A1 usage
 
 	NOTICE:usbphy pll does not connect clk_msr£¬so here only judge whether is locked
 
+Part6: C1 usage
+
+1. sys pll
+
+	test pass print: sys pll test pass!
+	test fail print: sys pll test failed!
+
+	uboot command(select one as needed):
+	768MHz:	    plltest sys 0x01f18420 0x01800000 0x00001100 0x10022300 0x00300000
+	888MHz:	    plltest sys 0x01f18425 0x01800000 0x00001100 0x10022300 0x00300000
+	960MHz:	    plltest sys 0x01f18428 0x01800000 0x00001100 0x10022300 0x00300000
+	1008MHz:	plltest sys 0x01f1842A 0x01800000 0x00001100 0x10022300 0x00300000
+	1152MHz:	plltest sys 0x01f18430 0x01800000 0x00001100 0x10022300 0x00300000
+	1248MHz:	plltest sys 0x01f18434 0x01800000 0x00001100 0x10022300 0x00300000
+	1392MHz:	plltest sys 0x01f1843A 0x01800000 0x00001100 0x10022300 0x00300000
+	1536MHz:	plltest sys 0x01f18440 0x01800000 0x00001100 0x10022300 0x00300000
+	all:		plltest sys
+
+2. hifi pll
+
+	test pass print: hifi pll test pass!
+	test fail print: hifi pll test failed!
+
+	uboot command:
+	864MHz:	    plltest hifi 0x01f18424 0x01800000 0x00001100 0x10022300 0x00300000
+	960MHz:	    plltest hifi 0x01f18428 0x01800000 0x00001100 0x10022300 0x00300000
+	1056MHz:    plltest hifi 0x01f1842C 0x01800000 0x00001100 0x10022300 0x00300000
+	1200MHz:    plltest hifi 0x01f18432 0x01800000 0x00001100 0x10022300 0x00300000
+	1320MHz:    plltest hifi 0x01f18437 0x01800000 0x00001100 0x10022300 0x00300000
+	1536MHz:    plltest hifi 0x01f18440 0x01800000 0x00001100 0x10022300 0x00300000
+	all:	    plltest hifi
+
+3. gp pll
+
+	test pass print: gp pll test pass!
+	test fail print: gp pll test failed!
+
+	uboot command:
+	864MHz:	    plltest gp 0x01f18424 0x01800000 0x00001100 0x10022300 0x00300000 0x00088888
+	960MHz:	    plltest gp 0x01f18428 0x01800000 0x00001100 0x10022300 0x00300000 0x00088888
+	1056MHz:    plltest gp 0x01f1842C 0x01800000 0x00001100 0x10022300 0x00300000 0x00088888
+	1200MHz:    plltest gp 0x01f18432 0x01800000 0x00001100 0x10022300 0x00300000 0x00088888
+	1320MHz:    plltest gp 0x01f18437 0x01800000 0x00001100 0x10022300 0x00300000 0x00088888
+	1536MHz:    plltest gp 0x01f18440 0x01800000 0x00001100 0x10022300 0x00300000 0x00088888
+	all:	    plltest gp
+
+4. dds pll
+
+	test pass print: dds pll test pass!
+	test fail print: dds pll test failed!
+
+	uboot command:
+	32MHz:	    plltest dds 0x4 0x50041340 0x0 0x0 0x000003e8 0x00000040
+	50MHz:	    plltest dds 0x4 0x50041340 0x0 0x0 0x000003e8 0x00000064
+	60MHz:      plltest dds 0x4 0x50041340 0x0 0x0 0x0000052  0x000000A
+	80MHz:      plltest dds 0x4 0x50041340 0x0 0x0 0x00000271 0x00000064
+	100MHz:     plltest dds 0x4 0x50041340 0x0 0x0 0x000005   0x0000001
+	all:	    plltest dds
+
+5. usbphy pll
+
+	test pass print: usbphy pll test pass!
+	test fail print: usbphy pll test failed!
+
+	uboot command:
+	480MHz:	    plltest usbphy 0x09400414 0x927e0000 0xac5f69e5
+	all:		plltest usbphy
+
+	NOTICE:usbphy pll does not connect clk_msr£¬so here only judge whether is locked
+
+6. ethphy pll
+
+	test pass print: ethphy pll test pass!
+	test fail print: ethphy pll test failed!
+
+	uboot command:
+	500MHz:	       plltest ethphy 0x9c0040a 0x927e0000 0xac5f49e5
+	all:	       plltest ethphy
+
+
 */
 
 #include <common.h>
@@ -379,5 +459,6 @@ U_BOOT_CMD(
 	"plltest ethphy cntl cntl1 cntl2 ...         - test ethphy pll with params\n"
 	"plltest usbphy                              - test usbphy pll with all preset freq\n"
 	"plltest usbphy cntl cntl1 cntl2 ...         - test usbphy pll with params\n"
-
+	"plltest dds                                 - test dds pll with all preset freq\n"
+	"plltest dds cntl cntl1 cntl2 ...            - test dds pll with params\n"
 );
