@@ -558,13 +558,28 @@ int meson_get_cd(struct udevice *dev)
 	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
 	struct meson_host *host = dev_get_priv(dev);
 	struct mmc *mmc = &pdata->mmc;
-	int ret = 0;
+	int ret = 0, sduart_f = 0;
+	u32 status = 0;
 
 	if (aml_card_type_non_sdio(host)) {
+		sduart_f = pinctrl_select_state(mmc->dev, "sd_all_pins");
 		ret = dm_gpio_get_value(&host->gpio_cd);
 		if (ret < 0)
 			pr_err("card detect get failed!\n");
-		host->is_in = !ret;
+		else if (!ret) {
+			host->is_in = 1;
+			status = meson_read(mmc, MESON_SD_EMMC_STATUS);
+			if (!(status & (1 << 19)) && !sduart_f) {
+				pinctrl_select_state(mmc->dev, "sd_uart");
+				host->is_sduart = 1;
+				host->is_in = 0;
+				printf("uart in\n");
+			} else {
+				host->is_sduart = 0;
+				printf("card in\n");
+			}
+		} else
+			host->is_in = 0;
 	}
 
 	return host->is_in;

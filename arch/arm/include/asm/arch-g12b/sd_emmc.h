@@ -6,7 +6,6 @@
 #ifndef __SD_EMMC_H__
 #define __SD_EMMC_H__
 
-#include <clk.h>
 #include <mmc.h>
 
 #define SDIO_PORT_A			0
@@ -133,29 +132,5 @@
 #define SD_EMMC_RESP_CRC_ERROR          (1 << 3)
 #define SD_EMMC_RESP_TIMEOUT_ERROR      (1 << 4)
 #define SD_EMMC_DESC_TIMEOUT_ERROR      (1 << 5)
-
-struct meson_host {
-	struct mmc *mmc;
-	uint is_in;
-	uint is_tuning;
-	uint card_type;
-	struct clk core;
-	struct clk xtal;
-	struct clk div2;
-	struct clk mux;
-	struct clk div;
-	struct clk gate;
-	struct gpio_desc gpio_cd;
-	struct gpio_desc gpio_reset;
-	char *blk_test;
-	char* desc_buf;
-};
-
-struct meson_mmc_platdata {
-	struct mmc_config cfg;
-	struct mmc mmc;
-	void *regbase;
-	void *w_buf;
-};
 
 #endif

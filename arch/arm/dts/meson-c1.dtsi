@@ -445,6 +445,24 @@
 		};
 	};
 
+	to_sduart_pins: to_sduart_pins{
+		mux {
+			groups = "uart_b_rx_c", "uart_b_tx_c";
+			function = "uart_b";
+			bias-pull-up;
+			input-enable;
+		};
+	};
+
+	sd_to_uart_pins: sd_to_uart_pins{
+		mux {
+			groups = "uart_b_rx_d", "uart_b_tx_d";
+			function = "uart_b";
+			bias-pull-up;
+			input-enable;
+		};
+	};
+
 	spicc0_pins1: spicc0_pins1 {
 		mux {
 			groups = "spi_a_mosi_a",

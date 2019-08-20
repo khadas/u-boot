@@ -127,7 +127,8 @@
 &sd_emmc_b {
 	status = "okay";
 	pinctrl-0 = <&sdcard_pins>;
-	pinctrl-names = "default";
+	pinctrl-1 = <&sdcard_pins &to_sduart_pins>;
+	pinctrl-names = "sd_all_pins", "sd_uart";
 
 	bus-width = <4>;
 	cap-sd-highspeed;
