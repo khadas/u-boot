@@ -796,8 +796,11 @@ int erase_nand(struct mtd_info *mtd, struct erase_info *instr, int allowbbt)
 	/* Grab_the_lock and see if_the device is available */
 	spinand_get_device(mtd, FL_ERASING);
 
-	if (meson_rsv_erase_protect(info->rsv, instr->addr / mtd->erasesize))
+	if (meson_rsv_erase_protect(info->rsv, instr->addr / mtd->erasesize)) {
+		printf("%s blk 0x%x is protected\n", __func__,
+			instr->addr / mtd->erasesize);
 		goto erase_exit;
+	}
 
 	/* Shift to get first page */
 	page = (int)(instr->addr >> chip->page_shift);

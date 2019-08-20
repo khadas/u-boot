@@ -62,6 +62,21 @@ static void release_free_node(struct meson_rsv_info_t *rsv_info,
 		__func__, __LINE__, handler->fn_bitmask);
 }
 
+static inline void menson_rsv_disprotect(void)
+{
+	/*disprotect*/
+	info_disprotect |= DISPROTECT_KEY;
+	info_disprotect |= DISPROTECT_FBBT;
+}
+static inline void menson_rsv_protect(void)
+{
+	/*protect*/
+	info_disprotect &= ~DISPROTECT_KEY;
+	info_disprotect &= ~DISPROTECT_FBBT;
+
+}
+
+
 int meson_rsv_erase_protect(struct meson_rsv_handler_t *handler,
 			    u32 block_addr)
 {
@@ -97,7 +112,9 @@ int meson_rsv_free(struct meson_rsv_info_t *rsv_info)
 		erase_info.mtd = mtd;
 		erase_info.addr = addr;
 		erase_info.len = mtd->erasesize;
-		error = mtd->_erase(mtd, &erase_info);
+		menson_rsv_disprotect();
+		error = mtd_erase(mtd, &erase_info);
+		menson_rsv_protect();
 		pr_info("erasing valid info block: %llx\n", addr);
 		rsv_info->nvalid->blk_addr = -1;
 		rsv_info->nvalid->ec = -1;
@@ -144,7 +161,9 @@ RE_SEARCH:
 				erase_info.mtd = mtd;
 				erase_info.addr = offset;
 				erase_info.len = mtd->erasesize;
+				menson_rsv_disprotect();
 				ret = mtd_erase(mtd, &erase_info);
+				menson_rsv_protect();
 				rsv_info->nvalid->ec++;
 				pr_info("%s %d: erasing bad info block:0x%llx\n",
 					__func__, __LINE__, offset);
@@ -197,12 +216,16 @@ RE_SEARCH:
 		erase_info.mtd = mtd;
 		erase_info.addr = offset;
 		erase_info.len = mtd->erasesize;
+		menson_rsv_disprotect();
 		ret = mtd_erase(mtd, &erase_info);
+		menson_rsv_protect();
 		if (ret) {
 			pr_info("%s %d %s erase failed at 0x%llx ,mark it bad\n",
 				__func__, __LINE__, rsv_info->name, offset);
 			mtd_block_markbad(mtd, offset);
-			return ret;
+			//return ret;
+			rsv_info->nvalid->page_addr = pages_per_blk;
+			goto RE_SEARCH;
 		}
 		rsv_info->nvalid->ec++;
 	}
@@ -313,14 +336,6 @@ int meson_rsv_erase(struct meson_rsv_info_t *rsv_info)
 			__func__, __LINE__, rsv_info->name);
 
 	if (rsv_info->valid) {
-		/*
-		memset(&erase_info, 0, sizeof(struct erase_info));
-		erase_info.mtd = mtd;
-		erase_info.addr = rsv_info->nvalid->blk_addr* mtd->erasesize;
-		erase_info.len = mtd->erasesize;
-		ret = mtd_erase(mtd, &erase_info);
-		printk("erasing valid info block: %llx \n", erase_info.addr);
-		*/
 		rsv_info->nvalid->ec++;
 		rsv_info->nvalid->page_addr = -1;
 		rsv_info->nvalid->timestamp = 1;
@@ -344,8 +359,9 @@ int meson_rsv_erase(struct meson_rsv_info_t *rsv_info)
 		erase_info.mtd = mtd;
 		erase_info.addr = temp_node->blk_addr* mtd->erasesize;
 		erase_info.len = mtd->erasesize;
+		menson_rsv_disprotect();
 		ret = mtd_erase(mtd, &erase_info);
-
+		menson_rsv_protect();
 		printk("erasing valid info block: %llx \n", erase_info.addr);
 		rsv_info->nvalid->ec = -1;
 		temp_node->dirty_flag = 0;
@@ -1065,7 +1081,11 @@ int meson_rsv_bbt_erase(void)
 			__func__, __LINE__);
 		return 1;
 	}
-	return meson_rsv_erase(rsv_handler->bbt);
+
+	if (rsv_handler->bbt->valid) {
+		return meson_rsv_erase(rsv_handler->bbt);
+	}
+	return 0;
 }
 
 int meson_rsv_key_erase(void)
@@ -1076,7 +1096,10 @@ int meson_rsv_key_erase(void)
 			__func__, __LINE__);
 		return 1;
 	}
-	return meson_rsv_erase(rsv_handler->key);
+	if (rsv_handler->key->valid) {
+		return meson_rsv_erase(rsv_handler->key);
+	}
+	return 0;
 }
 
 int meson_rsv_env_erase(void)
@@ -1087,7 +1110,10 @@ int meson_rsv_env_erase(void)
 			__func__, __LINE__);
 		return 1;
 	}
-	return meson_rsv_erase(rsv_handler->env);
+	if (rsv_handler->env->valid) {
+		return meson_rsv_erase(rsv_handler->env);
+	}
+	return 0;
 }
 
 int meson_rsv_dtb_erase(void)
@@ -1098,7 +1124,9 @@ int meson_rsv_dtb_erase(void)
 			__func__, __LINE__);
 		return 1;
 	}
-
-	return meson_rsv_erase(rsv_handler->dtb);
+	if (rsv_handler->dtb->valid) {
+		return meson_rsv_erase(rsv_handler->dtb);
+	}
+	return 0;
 
 }

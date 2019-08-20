@@ -84,7 +84,7 @@ int32_t amlkey_init(uint8_t *seed, uint32_t len, int encrypt_type)
 	if (encrypt_type == -1)
 		encrypt_type = 0;
 	secure_storage_set_enctype(encrypt_type);
-	actual_size = meson_rsv_key_size();
+	actual_size = store_rsv_size("key");
 	printf("%s %d actual_size: 0x%x\n", __func__, __LINE__,
 		actual_size);
 
