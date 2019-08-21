@@ -36,9 +36,20 @@ extern int ldim_spi_driver_remove(struct aml_ldim_driver_s *ldim_drv);
 extern int ldim_dev_iw7019_probe(struct aml_ldim_driver_s *ldim_drv);
 extern int ldim_dev_iw7019_remove(struct aml_ldim_driver_s *ldim_drv);
 #endif
+
 #ifdef CONFIG_AML_LOCAL_DIMMING_IW7027
 extern int ldim_dev_iw7027_probe(struct aml_ldim_driver_s *ldim_drv);
 extern int ldim_dev_iw7027_remove(struct aml_ldim_driver_s *ldim_drv);
+#endif
+
+#ifdef CONFIG_AML_LOCAL_DIMMING_IW7027_HE
+extern int ldim_dev_iw7027_he_probe(struct aml_ldim_driver_s *ldim_drv);
+extern int ldim_dev_iw7027_he_remove(struct aml_ldim_driver_s *ldim_drv);
+#endif
+
+#ifdef CONFIG_AML_LOCAL_DIMMING_IW7038
+int ldim_dev_iw7038_probe(struct aml_ldim_driver_s *ldim_drv);
+int ldim_dev_iw7038_remove(struct aml_ldim_driver_s *ldim_drv);
 #endif
 
 #ifdef CONFIG_AML_LOCAL_DIMMING_OB3350

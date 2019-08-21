@@ -96,8 +96,8 @@ static int ldim_set_level(unsigned int level)
 	level = ((level - level_min) * (LD_DATA_MAX - LD_DATA_MIN)) /
 		(level_max - level_min) + LD_DATA_MIN;
 	level &= 0xfff;
-	ldim_brightness_update(level);
 
+	ldim_brightness_update(level);
 	return ret;
 }
 
@@ -193,7 +193,8 @@ int ldim_config_load_from_unifykey(unsigned char *para)
 	ldim_blk_col = *(p + LCD_UKEY_BL_LDIM_COL);
 	ldim_config.row = ldim_blk_row;
 	ldim_config.col = ldim_blk_col;
-	LDIMPR("get region row = %d, col = %d\n", ldim_blk_row, ldim_blk_col);
+	LDIMPR("get region row = %d, col = %d\n",
+	       ldim_blk_row, ldim_blk_col);
 
 	/* get ldim_dev_index 1byte*/
 	ldim_driver.dev_index = *(p + LCD_UKEY_BL_LDIM_DEV_INDEX);

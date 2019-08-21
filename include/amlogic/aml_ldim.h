@@ -68,6 +68,7 @@ struct ldim_dev_config_s {
 	char gpio_name[BL_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX];
 
 	unsigned short bl_regnum;
+	unsigned int device_count;
 };
 
 #define LDIM_SPI_NAME_MAX    30
