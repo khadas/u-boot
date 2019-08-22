@@ -596,7 +596,12 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	} else if (!strcmp_l1("battery-voltage", cmd)) {
 		strncat(response, "4", chars_left);
 	} else if (!strcmp_l1("is-userspace", cmd)) {
-		strncat(response, "no", chars_left);
+		if (dynamic_partition) {
+			strncat(response, "no", chars_left);
+		} else {
+			error("unknown variable: %s\n", cmd);
+			strcpy(response, "FAILVariable not implemented");
+		}
 	} else if (!strcmp_l1("is-logical", cmd)) {
 		strsep(&cmd, ":");
 		printf("partition is %s\n", cmd);
