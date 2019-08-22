@@ -23,6 +23,9 @@ static struct meson_gate gates[] = {
 	{CLKID_SAR_ADC_GATE, C1_SAR_ADC_CLK_CTRL, 8},
 	{CLKID_SPICC_A_GATE, C1_SPICC_CLK_CTRL, 8},
 	{CLKID_SPICC_B_GATE, C1_SPICC_CLK_CTRL, 24},
+	{CLKID_SD_EMMC_A_GATE, C1_SD_EMMC_CLK_CTRL, 8},
+	{CLKID_SD_EMMC_B_GATE, C1_SD_EMMC_CLK_CTRL, 24},
+	{CLKID_SD_EMMC_C_GATE, C1_SD_EMMC_CLK_CTRL1, 8},
 };
 
 static unsigned int spifc_parents[] = {CLKID_FCLK_DIV2, CLKID_FCLK_DIV3,
@@ -31,11 +34,18 @@ CLKID_FCLK_DIV4, CLKID_FCLK_DIV5, CLKID_FCLK_DIV7};
 
 static unsigned int saradc_parents[] = {CLKID_XTAL, CLKID_SYS_CLK};
 
+static unsigned int sd_emmc_parents[] = {CLKID_FCLK_DIV2, CLKID_FCLK_DIV3,
+CLKID_FCLK_DIV2P5, CLKID_UNREALIZED, CLKID_UNREALIZED,
+CLKID_FCLK_DIV4, CLKID_FCLK_DIV5, CLKID_FCLK_DIV7};
+
 static struct meson_mux muxes[] = {
 		{CLKID_SPIFC_MUX, C1_SPIFC_CLK_CTRL, 9,  0x7, spifc_parents, ARRAY_SIZE(spifc_parents)},
 		{CLKID_SARADC_MUX, C1_SAR_ADC_CLK_CTRL, 9,  0x1, saradc_parents, ARRAY_SIZE(saradc_parents)},
 		{CLKID_SPICC_A_MUX, C1_SPICC_CLK_CTRL, 9,  0x7, spifc_parents, ARRAY_SIZE(spifc_parents)},
 		{CLKID_SPICC_B_MUX, C1_SPICC_CLK_CTRL, 25,  0x7, spifc_parents, ARRAY_SIZE(spifc_parents)},
+		{CLKID_SD_EMMC_A_MUX, C1_SD_EMMC_CLK_CTRL, 9, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
+		{CLKID_SD_EMMC_B_MUX, C1_SD_EMMC_CLK_CTRL, 25, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
+		{CLKID_SD_EMMC_C_MUX, C1_SD_EMMC_CLK_CTRL1, 9, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
 };
 
 static struct meson_div divs[] = {
@@ -43,6 +53,9 @@ static struct meson_div divs[] = {
 		{CLKID_SARADC_DIV, C1_SAR_ADC_CLK_CTRL, 0,  8, CLKID_SARADC_MUX},
 		{CLKID_SPICC_A_DIV, C1_SPICC_CLK_CTRL, 0,  8, CLKID_SPICC_A_MUX},
 		{CLKID_SPICC_B_DIV, C1_SPICC_CLK_CTRL, 16,  8, CLKID_SPICC_A_MUX},
+		{CLKID_SD_EMMC_A_DIV, C1_SD_EMMC_CLK_CTRL, 0, 8, CLKID_SD_EMMC_A_MUX},
+		{CLKID_SD_EMMC_B_DIV, C1_SD_EMMC_CLK_CTRL, 16, 8, CLKID_SD_EMMC_B_MUX},
+		{CLKID_SD_EMMC_C_DIV, C1_SD_EMMC_CLK_CTRL1, 0, 8, CLKID_SD_EMMC_C_MUX},
 };
 
 static struct parm meson_fixed_pll_parm[3] = {
