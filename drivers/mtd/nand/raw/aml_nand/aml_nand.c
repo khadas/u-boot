@@ -72,7 +72,7 @@ static struct mtd_partition normal_partition_info[] = {
 {
 	.name = "system",
 	.offset = 0,
-	.size = 128*SZ_1M,
+	.size = 64*SZ_1M,
 },
 /* last partition get the rest capacity */
 {
@@ -1483,6 +1483,7 @@ int aml_nand_write_page_hwecc(struct mtd_info *mtd,
 					page_addr);
 				goto exit;
 			}
+
 			if (chip->cmdfunc == aml_nand_command) {
 				if (aml_chip->cached_prog_status)
 					aml_chip->aml_nand_command(aml_chip,
@@ -1612,7 +1613,6 @@ int aml_nand_block_bad(struct mtd_info *mtd, loff_t ofs)
 		aml_oob_ops.ooboffs = chip->ecc.layout->oobfree[0].offset;
 		aml_oob_ops.datbuf = chip->buffers->databuf;
 		aml_oob_ops.oobbuf = chip->oob_poi;
-
 		for (read_cnt = 0; read_cnt < 2; read_cnt++) {
 			addr =
 			ofs + (pages_per_blk - 1) * read_cnt * mtd->writesize;
@@ -2142,7 +2142,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 		if ((col0_oob != 0xFF) || (col0_data != 0xFF)) {
 			printk("detect factory Bad block:%llx blk:%d chip:%d\n",
 				(uint64_t)addr, start_blk, i);
-
+			bad_blk_cnt++;
 			aml_chip->block_status[start_blk] = NAND_FACTORY_BAD;
 			break;
 		}
@@ -2152,7 +2152,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 		if (col0_oob != 0xFF) {
 			printk("detect factory Bad block:%llx blk:%d chip:%d\n",
 				(uint64_t)addr, start_blk, i);
-
+			bad_blk_cnt++;
 			aml_chip->block_status[start_blk] = NAND_FACTORY_BAD;
 			break;
 		}
@@ -2167,6 +2167,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 			if (col0_oob != 0xFF) {
 				printk("detect factory Bad block:%llx blk=%d chip=%d\n",
 					(uint64_t)addr, start_blk, i);
+				bad_blk_cnt++;
 				aml_chip->block_status[start_blk] = NAND_FACTORY_BAD;
 				break;
 			}
@@ -2178,7 +2179,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 			if (col0_oob != 0xFF) {
 				pr_info("detect a fbb:%llx blk=%d chip=%d\n",
 					(uint64_t)addr, start_blk, i);
-
+				bad_blk_cnt++;
 				aml_chip->block_status[start_blk] =
 					NAND_FACTORY_BAD;
 				break;
@@ -2189,6 +2190,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 			if (col0_oob != 0xFF) {
 				printk("detect factory Bad block:%llx blk=%d chip=%d\n",
 					(uint64_t)addr, start_blk, i);
+				bad_blk_cnt++;
 				aml_chip->block_status[start_blk] = NAND_FACTORY_BAD;
 				break;
 			}
@@ -2204,6 +2206,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 			if (bad_sandisk_flag ) {
 				printk("detect factory Bad block:%llx blk=%d chip=%d\n",
 					(uint64_t)addr, start_blk, i);
+				bad_blk_cnt++;
 				aml_chip->block_status[start_blk] = NAND_FACTORY_BAD;
 				bad_sandisk_flag=0;
 				break;
@@ -2214,6 +2217,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 			if ((col0_oob != 0xFF) && (col0_data != 0xFF)) {
 				printk("detect factory Bad block:%llx blk=%d chip=%d\n",
 					(uint64_t)addr, start_blk, i);
+				bad_blk_cnt++;
 				aml_chip->block_status[start_blk] = NAND_FACTORY_BAD;
 					break;
 			}
@@ -2223,6 +2227,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 			if ((col0_oob != 0xFF) && (col0_data != 0xFF)) {
 				printk("detect factory Bad block:%llx blk=%d chip=%d\n",
 					(uint64_t)addr, start_blk, i);
+				bad_blk_cnt++;
 				aml_chip->block_status[start_blk] = NAND_FACTORY_BAD;
 				break;
 			}
@@ -2232,6 +2237,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 			if (col0_oob == 0x0) {
 				printk("detect factory Bad block:%llx blk=%d chip=%d\n",
 					(uint64_t)addr, start_blk, i);
+				bad_blk_cnt++;
 				aml_chip->block_status[start_blk] = NAND_FACTORY_BAD;
 				break;
 			}

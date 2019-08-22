@@ -185,10 +185,10 @@
 /* nand */
 &nand {
 	status = "okay";
-	/* pinctrl-names = "default", "nand_all_pins", "nand_cs_only"; */
-	/* pinctrl-0 = <&all_nand_pins>; */
-	/* pinctrl-1 = <&all_nand_pins>; */
-	/* pinctrl-2 = <&nand_cs_pins>;  */
+	pinctrl-names = "default", "nand_all_pins", "nand_cs_only";
+	pinctrl-0 = <&all_nand_pins>;
+	pinctrl-1 = <&all_nand_pins>;
+	pinctrl-2 = <&nand_cs_pins>;
 
 	/*
 	#address-cells = <1>;

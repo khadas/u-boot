@@ -101,6 +101,18 @@ config AML_MTDPART
 	  This option, if enabled, we will parse amlogic partition
 	  table.
 
+config AML_MTD
+	bool "support AML MTD for Raw NAND or SPI NAND or SPI NOR"
+	default y if MESON_NFC || SPI_NAND || SPI_FLASH
+	help
+		This option, if enabled, support for AML MTD
+
+config AML_MTDPART
+	bool "support AML MTD partition for raw NAND or SPI nand or SPI NOR"
+	default y if AML_MTD
+	help
+		This option, if enabled, support for AML MTD partition
+
 source "drivers/mtd/nand/Kconfig"
 
 source "drivers/mtd/spi/Kconfig"

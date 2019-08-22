@@ -224,20 +224,6 @@ config MESON_NFC
 	help
 		This option, if enabled, support for MESON Nand flash controller.
 
-config AML_MTD
-	bool "support AML MTD for Raw NAND or SPI NAND or SPI NOR"
-	default y if MESON_NFC
-	default y if SPI_NAND
-	default y if SPI_FLASH
-	help
-		This option, if enabled, support for AML MTD
-
-config AML_MTDPART
-	bool "support AML MTD partition for raw NAND or SPI nand or SPI NOR"
-	default y if AML_MTD
-	help
-		This option, if enabled, support for AML MTD partition
-
 comment "Generic NAND options"
 
 config SYS_NAND_BLOCK_SIZE

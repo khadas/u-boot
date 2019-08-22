@@ -13,8 +13,6 @@
 #include <amlogic/aml_rsv.h>
 #include <amlogic/aml_mtd.h>
 
-#define BRINGUP_C1
-
 #define NAND_MAX_DEVICE 		4
 
 #define CONFIG_MTD_PARTITIONS 1

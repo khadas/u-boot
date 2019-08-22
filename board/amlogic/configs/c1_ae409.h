@@ -246,7 +246,6 @@
 
 /* storage: emmc/nand/sd */
 #define CONFIG_ENV_OVERWRITE
-//#define CONFIG_MESON_NFC
 /* #define 	CONFIG_CMD_SAVEENV */
 /* fixme, need fix*/
 
@@ -260,8 +259,12 @@
 *		|					|
 *		emmc<--Compatible-->nand
 *					|-------|-------|
-*					|				|
+*					|		|
 *					MTD<-Exclusive->NFTL
+*					|
+*			|***************|***************|
+*			slc-nand	SPI-nand	SPI-nor
+*			(raw nand)
 */
 /* axg only support slc nand */
 /* swither for mtd nand which is for slc only. */
