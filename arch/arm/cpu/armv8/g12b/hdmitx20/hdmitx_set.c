@@ -29,6 +29,7 @@
 #include "hdmitx_tvenc.h"
 #include "mach_reg.h"
 #include "hw_enc_clk_config.h"
+#include <amlogic/dolby_vision.h>
 
 const static char *vend_name = "Amlogic"; /* Max 8 bytes */
 const static char *prod_desc = "MBox Meson Ref"; /* Max 16 bytes */
@@ -3126,6 +3127,12 @@ static void hdmitx_set_hw(struct hdmitx_dev* hdev)
 		break;
 	}
 	hd_write_reg(P_ENCP_VIDEO_EN, 1); /* enable it finially */
+
+	if (is_dolby_enable()) {
+		hdmitx_set_reg_bits(HDMITX_DWC_FC_INVIDCONF, 0, 3, 1);
+		msleep(1);
+		hdmitx_set_reg_bits(HDMITX_DWC_FC_INVIDCONF, 1, 3, 1);
+	}
 }
 
 // Use this self-made function rather than %, because % appears to produce wrong
