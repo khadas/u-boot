@@ -582,7 +582,7 @@
 	#define CONFIG_CMD_PING 1
 	#define CONFIG_CMD_DHCP 1
 	#define CONFIG_CMD_RARP 1
-	#define CONFIG_HOSTNAME        arm_gxbb
+	#define CONFIG_HOSTNAME        KVIM3
 //	#define CONFIG_RANDOM_ETHADDR  1				   /* use random eth addr, or default */
 	#define CONFIG_ETHADDR         00:15:18:01:81:31   /* Ethernet address */
 	#define CONFIG_IPADDR          192.168.1.200          /* Our ip address */
