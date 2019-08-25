@@ -192,6 +192,12 @@
                 "if keyman read deviceid ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
                 "fi;"\
+                "if keyman read mac_wifi ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} mac_wifi=${mac_wifi} androidboot.mac_wifi=${mac_wifi};"\
+                "fi;"\
+                "if keyman read mac_bt ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} mac_bt=${mac_bt} androidboot.mac_bt=${mac_bt};"\
+                "fi;"\
             "fi;"\
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
             "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
