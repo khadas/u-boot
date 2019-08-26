@@ -214,6 +214,10 @@
 	cpu-supply = <&vdd_cpu_b>;
 };
 
+&crypto {
+	status = "okay";
+};
+
 &uart2 {
 	status = "okay";
 };
