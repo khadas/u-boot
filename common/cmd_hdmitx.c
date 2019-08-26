@@ -97,16 +97,12 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	hdmimode = getenv("hdmimode");
 	if (hdmimode)
 		printf("do_hpd_detect: hdmimode=%s\n", hdmimode);
-	if ((hdmimode) && (memcmp(hdmimode, 0, sizeof(5))))
-		setenv("hdmimode", hdmimode);
+
 
 	colorattribute = getenv("colorattribute");
-
 	if (colorattribute)
 		printf("do_hpd_detect: colorattribute=%s\n", colorattribute);
 
-	if ((colorattribute) && (memcmp(colorattribute, 0, sizeof(5))))
-		setenv("colorattribute", colorattribute);
 	if (st) {
 		setenv("outputmode", getenv("hdmimode"));
 	} else {
@@ -728,8 +724,6 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 
 	//colorattribute = get_logoparam_value("logoparam.var.hdmi_colorattr");
 	colorattribute = getenv("colorattribute");
-	if ((colorattribute) && (memcmp(colorattribute, 0, sizeof(5))))
-		setenv("colorattribute", colorattribute);
 
 	printf("read hdmichecksum %s, colorattribute %s\n", store_checkvalue, colorattribute);
 
