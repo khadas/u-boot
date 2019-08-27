@@ -20,14 +20,18 @@ static int do_bootm_standalone(int flag, int argc, char * const argv[],
 	char *s;
 	int (*appl)(int, char *const[]);
 
-	/* Don't start if "autostart" is set to "no" */
-	s = env_get("autostart");
-	if ((s != NULL) && !strcmp(s, "no")) {
-		env_set_hex("filesize", images->os.image_len);
-		return 0;
+	if (images->os.arch == IH_ARCH_ARM) {
+		jump_to_a32_kernel(images->ep, 0, 0);
+	} else {
+		/* Don't start if "autostart" is set to "no" */
+		s = env_get("autostart");
+		if ((s != NULL) && !strcmp(s, "no")) {
+			env_set_hex("filesize", images->os.image_len);
+			return 0;
+		}
+		appl = (int (*)(int, char * const []))images->ep;
+		appl(argc, argv);
 	}
-	appl = (int (*)(int, char * const []))images->ep;
-	appl(argc, argv);
 	return 0;
 }
 

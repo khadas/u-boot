@@ -82,4 +82,6 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
  */
 void board_quiesce_devices(void);
 
+void jump_to_a32_kernel(unsigned long a, unsigned long b, unsigned long c);
+
 #endif
