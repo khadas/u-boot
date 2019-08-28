@@ -284,6 +284,16 @@ static const struct mtd_partition spiflash_partitions[] = {
 		.offset = 0,
 		.size = 1 * SZ_512K,
 	},
+	{
+		.name = "rsv",
+		.offset = 0,
+		.size = 0x2A0000,
+	},
+	{
+		.name = "xip",
+		.offset = 0,
+		.size = 0x100000,
+	},
 	/* last partition get the rest capacity */
 	{
 		.name = "user",
