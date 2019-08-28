@@ -251,6 +251,25 @@ static int spifc_set_wordlen(struct udevice *bus, unsigned int wordlen)
 	return 0;
 }
 
+#define CMD_NREAD 0x03
+
+int spifc_xip_prepare(void)
+{
+	uint32_t ctrl, ctrl1;
+	/* Temporary default x1 for pxp */
+	ctrl = (1 << 31) | (1 << 30) | (CMD_NREAD << 20) | (1 << 19) | (2 << 15);
+	ctrl1 = 0;
+
+	writel(0, SPIFC_USER_CTRL1);
+	writel(ctrl, SPIFC_AHB_REQ_CTRL);
+	writel(ctrl1, SPIFC_AHB_REQ_CTRL1);
+	writel(0, SPIFC_AHB_REQ_CTRL2);
+	writel(0, SPIFC_USER_DBUF_ADDR);
+	writel((1 << 31), SPIFC_AHB_CTRL);
+
+	return 0;
+}
+
 static int spifc_xfer(struct udevice *dev,
 		      unsigned int bitlen,
 				const void *dout,

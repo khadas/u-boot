@@ -170,30 +170,37 @@ int dram_init_banksize(void)
 }
 
 static struct mm_region bd_mem_map[] = {
+	{.virt = 0x00000000UL,
+	 .phys = 0x00000000UL,
+	 .size = 0x80000000UL,
+	 .attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			  PTE_BLOCK_INNER_SHARE},
+	{.virt = 0x80000000UL,
+	 .phys = 0x80000000UL,
+	 .size = 0x60000000UL,
+	 .attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			  PTE_BLOCK_NON_SHARE |
+			  PTE_BLOCK_PXN | PTE_BLOCK_UXN},
+	{.virt = 0xE0000000UL,
+	 .phys = 0xE0000000UL,
+	 .size = 0x10000000UL,
+	 .attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			  PTE_BLOCK_INNER_SHARE},
+	{.virt = 0xF0000000UL,
+	 .phys = 0xF0000000UL,
+	 .size = 0x0FE00000UL,
+	 .attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			  PTE_BLOCK_NON_SHARE |
+			  PTE_BLOCK_PXN | PTE_BLOCK_UXN},
+	{.virt = 0xFFE00000UL,
+	 .phys = 0xFFE00000UL,
+	 .size = 0x00200000UL,
+	 .attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			  PTE_BLOCK_INNER_SHARE},
 	{
-		.virt = 0x00000000UL,
-		.phys = 0x00000000UL,
-		.size = 0x80000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_INNER_SHARE
-	}, {
-		.virt = 0x80000000UL,
-		.phys = 0x80000000UL,
-		.size = 0x7FE00000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
-			 PTE_BLOCK_NON_SHARE |
-			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, {
-		.virt = 0xFFE00000UL,
-		.phys = 0xFFE00000UL,
-		.size = 0x00200000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_INNER_SHARE
-	}, {
 		/* List terminator */
 		0,
-	}
-};
+	}};
 
 struct mm_region *mem_map = bd_mem_map;
 

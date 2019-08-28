@@ -316,6 +316,42 @@ static int do_spi_flash_read_write(int argc, char * const argv[])
 	return ret == 0 ? 0 : 1;
 }
 
+#ifdef CONFIG_AML_SPIFCV2
+extern int spifc_xip_prepare(void);
+static int do_spi_xip(int argc, char * const argv[])
+{
+	unsigned long addr;
+	void *buf;
+	char *endp;
+	int ret = 0;
+	int (*xip_entrance)(int, char **);
+
+	if (argc == 2) {
+		addr = simple_strtoul(argv[1], &endp, 16);
+		if (*argv[1] == 0 || *endp != 0)
+			return -1;
+		printf("addr 0x%x\n", addr);
+	}
+
+	ret = spifc_xip_prepare();
+	if (ret)
+		goto _out;
+
+	if (argc == 2) {
+		xip_entrance = (int (*)(int, char **))(addr);
+		xip_entrance(3, NULL);
+	}
+
+_out:
+	return ret;
+}
+#else
+static int do_spi_xip(int argc, char * const argv[])
+{
+	return -1;
+}
+#endif /* only v2 supprt this. */
+
 static int do_spi_flash_erase(int argc, char * const argv[])
 {
 	int ret;
@@ -558,6 +594,9 @@ static int do_spi_flash(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (strcmp(cmd, "probe") == 0) {
 		ret = do_spi_flash_probe(argc, argv);
 		goto done;
+	} else if (strcmp(cmd, "xip") == 0) {
+		ret = do_spi_xip(argc, argv);
+		goto done;
 	}
 
 	/* The remaining commands require a selected device */
@@ -596,7 +635,7 @@ usage:
 #endif
 
 U_BOOT_CMD(
-	sf,	5,	1,	do_spi_flash,
+	sf, 5, 1, do_spi_flash,
 	"SPI flash sub-system",
 	"probe [[bus:]cs] [hz] [mode]	- init flash device on given SPI bus\n"
 	"				  and chip select\n"
@@ -614,5 +653,5 @@ U_BOOT_CMD(
 	"					  or to start of mtd `partition'\n"
 	"sf protect lock/unlock sector len	- protect/unprotect 'len' bytes starting\n"
 	"					  at address 'sector'\n"
-	SF_TEST_HELP
-);
+	"sf xip [addr]	- switch to xip and run to addr if addr exsit\n"
+	SF_TEST_HELP);
