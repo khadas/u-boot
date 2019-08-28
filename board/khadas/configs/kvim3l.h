@@ -251,7 +251,19 @@
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
-                "hdmitx hpd;hdmitx get_preferred_mode;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};vpp hdrpkt;"\
+                "hdmitx hpd;"\
+                "hdmitx get_preferred_mode;"\
+                "if test ${lcd_exist} = 1 && test ${outputmode} = panel; then "\
+                    "setenv fb_width 1088;"\
+                    "setenv fb_height 1920;"\
+                "fi;"\
+                "osd open;"\
+                "osd clear;"\
+                "imgread pic logo bootup $loadaddr;"\
+                "bmp display $bootup_offset;"\
+                "bmp scale;"\
+                "vout output ${outputmode};"\
+                "vpp hdrpkt;"\
             "fi;"\
             "\0"\
         "wol_init="\
