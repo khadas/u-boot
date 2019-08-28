@@ -386,7 +386,7 @@
 /* ATTENTION */
 /* DDR configs move to board/amlogic/[board]/firmware/timing.c */
 
-#define CONFIG_DDR_AUTO_DTB             1
+//#define CONFIG_DDR_AUTO_DTB             1
 
 #define CONFIG_NR_DRAM_BANKS			1
 /* ddr functions */
