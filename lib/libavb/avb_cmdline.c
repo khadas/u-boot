@@ -370,6 +370,14 @@ AvbSlotVerifyResult avb_append_options(
     goto out;
   }
 
+  if (!cmdline_append_hex(slot_data,
+                          "androidboot.vbmeta.bootkey_hash",
+                          slot_data->boot_key_hash,
+                          AVB_SHA256_DIGEST_SIZE)) {
+      ret = AVB_SLOT_VERIFY_RESULT_ERROR_OOM;
+      goto out;
+  }
+
   ret = AVB_SLOT_VERIFY_RESULT_OK;
 
 out:
