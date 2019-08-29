@@ -179,7 +179,7 @@ static int lcd_config_load_from_dts(char *dt_addr, struct lcd_config_s *pconf)
 		LCDERR("failed to get basic_setting\n");
 		return -1;
 	} else {
-		pconf->lcd_basic.h_active = be32_to_cpup((u32*)propdata);
+		pconf->lcd_basic.h_active = be32_to_cpup((u32*)propdata) == 1088 ? 1080 : be32_to_cpup((u32*)propdata);
 		pconf->lcd_basic.v_active = be32_to_cpup((((u32*)propdata)+1));
 		pconf->lcd_basic.h_period = be32_to_cpup((((u32*)propdata)+2));
 		pconf->lcd_basic.v_period = be32_to_cpup((((u32*)propdata)+3));
