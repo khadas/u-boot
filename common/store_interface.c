@@ -277,6 +277,50 @@ static int get_off_size(int argc, char *argv[],  loff_t *off, loff_t *size)
 		return 0;
 }
 
+static int do_decrypt_dtb(char *dtbaddr) {
+	int ret = 0;
+	unsigned long dtImgAddr = simple_strtoul(dtbaddr, NULL, 16);
+
+	ret = fdt_check_header((char*)dtImgAddr);
+	if (!ret) {
+		MsgP("Is good fdt check header, no need decrypt!\n");
+		return ret;
+	}
+
+	flush_cache(dtImgAddr, AML_DTB_IMG_MAX_SZ);
+	ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, dtImgAddr, AML_DTB_IMG_MAX_SZ, 0);
+	if (ret) {
+		MsgP("decrypt dtb: Sig Check %d\n",ret);
+		return ret;
+	}
+
+	ulong nCheckOffset;
+	nCheckOffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,GXB_IMG_LOAD_ADDR,GXB_EFUSE_PATTERN_SIZE,GXB_IMG_DEC_ALL);
+	if (AML_D_Q_IMG_SIG_HDR_SIZE == (nCheckOffset & 0xFFFF))
+		nCheckOffset = (nCheckOffset >> 16) & 0xFFFF;
+	else
+		nCheckOffset = 0;
+
+	if (nCheckOffset)
+		memmove((char *)dtImgAddr, (char*)dtImgAddr + nCheckOffset, AML_DTB_IMG_MAX_SZ);
+
+#ifdef CONFIG_MULTI_DTB
+	extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
+
+	unsigned long fdtAddr = get_multi_dt_entry(dtImgAddr);
+	ret = fdt_check_header((char*)fdtAddr);
+	if (ret) {
+		ErrP("Fail in fdt check header\n");
+		return CMD_RET_FAILURE;
+	}
+
+	unsigned fdtsz    = fdt_totalsize((char*)fdtAddr);
+	memmove((char*)dtImgAddr, (char*)fdtAddr, fdtsz);
+#endif// #ifdef CONFIG_MULTI_DTB
+
+	return ret;
+}
+
 //store dtb read/write buff size
 static int do_store_dtb_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
@@ -289,6 +333,11 @@ static int do_store_dtb_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 		char* dtbLoadaddr = argv[3];
 
 		if (argc < 4) return CMD_RET_USAGE;
+
+		const int is_decrypt = !strcmp("decrypt", ops);
+		if (is_decrypt) {
+				return do_decrypt_dtb(dtbLoadaddr);
+		}
 
 		const int is_write = !strcmp("write", ops);
 		if (!is_write) {

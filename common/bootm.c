@@ -440,6 +440,11 @@ static int bootm_find_fdt(int flag, int argc, char * const argv[])
 	unsigned long long dtb_mem_addr =  -1;
 	char *ft_addr_bak;
 	ulong ft_len_bak;
+
+	//try to do store dtb decrypt ${dtb_mem_addr}
+	//because if load dtb.img from cache/udisk maybe encrypted.
+	run_command("store dtb decrypt ${dtb_mem_addr}", 0);
+
 	if (getenv("dtb_mem_addr"))
 		dtb_mem_addr = simple_strtoul(getenv("dtb_mem_addr"), NULL, 16);
 	else

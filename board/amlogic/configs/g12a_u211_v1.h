@@ -55,6 +55,9 @@
 
 #define CONFIG_CMD_BOOTCTOL_AVB
 
+/* support ext4*/
+#define CONFIG_CMD_EXT4 1
+
 /* Serial config */
 #define CONFIG_CONS_INDEX 2
 #define CONFIG_BAUDRATE  115200
@@ -247,6 +250,10 @@
             "echo active_slot: ${active_slot};"\
             "if test ${active_slot} = normal; then "\
                 "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
+                "if itest ${upgrade_step} == 3; then "\
+                    "if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;"\
+                    "if ext4load mmc 1:2 ${loadaddr} /recovery/recovery.img; then echo cache recovery.img loaded; wipeisb; bootm ${loadaddr}; fi;"\
+                "else fi;"\
                 "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
             "else "\
                 "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
