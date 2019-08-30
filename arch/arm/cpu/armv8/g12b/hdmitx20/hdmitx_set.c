@@ -1119,8 +1119,6 @@ static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
 	/* Reset pulse */
 	hdmitx_rd_check_reg(HDMITX_DWC_MC_LOCKONCLOCK, 0xff, 0x9f);
 
-	hdmitx_wr_reg(HDMITX_DWC_MC_CLKDIS, 0xdf);
-
 	hdmitx_wr_reg(HDMITX_DWC_MC_SWRSTZREQ, 0);
 	mdelay(10);
 
@@ -1135,8 +1133,6 @@ static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
 	hdmitx_wr_reg(HDMITX_DWC_MC_SWRSTZREQ, data32);
 	hdmitx_wr_reg(HDMITX_DWC_FC_VSYNCINWIDTH,
 		hdmitx_rd_reg(HDMITX_DWC_FC_VSYNCINWIDTH));
-
-	hdmitx_wr_reg(HDMITX_DWC_MC_CLKDIS, 0);
 } /* config_hdmi20_tx */
 
 /* Set TV encoder for HDMI */
@@ -3127,12 +3123,6 @@ static void hdmitx_set_hw(struct hdmitx_dev* hdev)
 		break;
 	}
 	hd_write_reg(P_ENCP_VIDEO_EN, 1); /* enable it finially */
-
-	if (is_dolby_enable()) {
-		hdmitx_set_reg_bits(HDMITX_DWC_FC_INVIDCONF, 0, 3, 1);
-		msleep(1);
-		hdmitx_set_reg_bits(HDMITX_DWC_FC_INVIDCONF, 1, 3, 1);
-	}
 }
 
 // Use this self-made function rather than %, because % appears to produce wrong
