@@ -657,6 +657,10 @@ int board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
+	char outputModePre[30];
+	char outputModeCur[30];
+	strcpy(outputModePre,getenv("outputmode"));
+
 	TE(__func__);
 		//update env before anyone using it
 		run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
@@ -695,7 +699,6 @@ int board_late_init(void)
 				}
 		}
 #endif// #ifndef DTB_BIND_KERNEL
-
 		/* load unifykey */
 		run_command("keyunify init 0x1234", 0);
 #ifdef CONFIG_AML_VPU
@@ -722,7 +725,11 @@ int board_late_init(void)
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 
 	TE(__func__);
-
+	strcpy(outputModeCur,getenv("outputmode"));
+	if (strcmp(outputModeCur,outputModePre)) {
+		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
+		run_command("saveenv", 0);
+	}
 	return 0;
 }
 #endif

@@ -423,6 +423,9 @@ int board_init(void)
 int board_late_init(void)
 {
 	int ret;
+	char outputModePre[30];
+	char outputModeCur[30];
+	strcpy(outputModePre,getenv("outputmode"));
 
 	//update env before anyone using it
 	run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
@@ -466,6 +469,11 @@ int board_late_init(void)
 #ifdef CONFIG_AML_V2_FACTORY_BURN
 	/*aml_try_factory_sdcard_burning(0, gd->bd);*/
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
+	strcpy(outputModeCur,getenv("outputmode"));
+	if (strcmp(outputModeCur,outputModePre)) {
+		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
+		run_command("saveenv", 0);
+	}
 
 	return 0;
 }

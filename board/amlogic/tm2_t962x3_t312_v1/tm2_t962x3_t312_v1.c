@@ -615,6 +615,10 @@ void reset_mt7668(void)
 int board_late_init(void)
 {
 	TE(__func__);
+	char outputModePre[30];
+	char outputModeCur[30];
+	strcpy(outputModePre,getenv("outputmode"));
+
 		//update env before anyone using it
 		run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
 						"if test ${reboot_mode} = factory_reset; then "\
@@ -679,7 +683,11 @@ int board_late_init(void)
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 
 	TE(__func__);
-
+	strcpy(outputModeCur,getenv("outputmode"));
+	if (strcmp(outputModeCur,outputModePre)) {
+		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
+		run_command("saveenv", 0);
+	}
 	return 0;
 }
 #endif
