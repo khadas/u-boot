@@ -25,7 +25,7 @@
 
 /* board clk defines */
 #define DDR_SIZE				0
-#define CPU_CLK					1200
+#define CPU_CLK					1512
 
 /* ddr config support multiple configs for boards which use same bootloader:
  * config steps:
