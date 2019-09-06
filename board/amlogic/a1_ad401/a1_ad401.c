@@ -139,19 +139,35 @@ int board_late_init(void)
 	return 0;
 }
 
-
-phys_size_t get_effective_memsize(void)
+phys_size_t get_dram_size(void)
 {
-#ifdef UBOOT_RUN_IN_SRAM
-	return 0x180000; /* SRAM 1.5MB */
-#else
 	// >>16 -> MB, <<20 -> real size, so >>16<<20 = <<4
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
 	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4) - CONFIG_SYS_MEM_TOP_HIDE;
 #else
 	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4);
 #endif /* CONFIG_SYS_MEM_TOP_HIDE */
+}
+
+phys_size_t get_effective_memsize(void)
+{
+#ifdef UBOOT_RUN_IN_SRAM
+	return 0x180000; /* SRAM 1.5MB */
+#else
+	return get_dram_size();
 #endif /* UBOOT_RUN_IN_SRAM */
+}
+
+ulong board_get_usable_ram_top(ulong total_size)
+{
+	return PHYS_SDRAM_1_BASE+PHYS_SDRAM_1_SIZE;
+}
+
+int dram_init_banksize(void)
+{
+	gd->bd->bi_dram[0].start = 0;
+	gd->bd->bi_dram[0].size = get_dram_size();
+	return 0;
 }
 
 static struct mm_region bd_mem_map[] = {
