@@ -101,7 +101,7 @@ int ddr_get_chip_id(void)
 	//return CHIP_ID_MASK;
 }
 
-char CMD_VER[] = "Ver_12";
+char CMD_VER[] = "Ver_13";
 ddr_base_address_table_t  __ddr_base_address_table[] = {
 	//g12a
 	{
@@ -348,6 +348,7 @@ typedef struct retraining_set{
 	unsigned short     csr_hwtlpcsenb;
 	unsigned short     csr_acsmctrl13;
 	unsigned short     csr_acsmctrl23;
+	unsigned char     csr_soc_vref_dac1_dfe[36];
 	//unsigned short     rev_41;
 } retraining_set_t;
 typedef struct ddr_set{
@@ -544,7 +545,7 @@ typedef struct ddr_set{
 //	*/
 	unsigned	short	write_dq_bit_delay[72];
 	unsigned	short	read_dqs_gate_delay[16];
-	unsigned	char	soc_bit_vref[32];
+	unsigned	char	soc_bit_vref[36];
 	unsigned	char	dram_bit_vref[32];
 	///*
 	unsigned	char	rever3;//read_dqs  read_dq,write_dqs, write_dq
@@ -2166,6 +2167,7 @@ static void ddr_test_copy(void *addr_dest,void *addr_src,unsigned int memcpy_siz
 //*/
 int do_ddr_test_copy(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+	check_base_address();
 	char *endp;
 	unsigned long   loop = 1;
 	unsigned int   print_flag =1;
@@ -6323,6 +6325,7 @@ unsigned int cpu_ddr_test(unsigned test_init_start,unsigned int start_add, unsig
 
 int do_cpu_ddr_test (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+	check_base_address();
 	//ddr_cpu_test 0x1080000 0x10000000 0x2000000 0xffffffff 10  //size do not overlap
 	int i=0;
 	printf("\nargc== 0x%08x\n", argc);
@@ -6898,7 +6901,7 @@ int do_read_ddr_training_data(char log_level,ddr_set_t *ddr_set_t_p)
 		//((0<<20)|(1<<16)|(((over_ride_sub_index%36)/9)<<12)|(((over_ride_sub_index%36)%9)<<8)|(0x40),over_ride_value)
 		uint32_t vref_t_count=0;
 		for (t_count=0;t_count<72;t_count++)
-		{
+		{//add normal vref0---vrefDac0 for just 1->x transitions
 			add_offset=((0<<20)|(1<<16)|(((t_count%36)/9)<<12)|(((t_count%36)%9)<<8)|(0x40));
 			dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
 			delay_org=dq_bit_delay[t_count];
@@ -6907,6 +6910,31 @@ int do_read_ddr_training_data(char log_level,ddr_set_t *ddr_set_t_p)
 			{
 				vref_t_count=((((t_count%36)/9)*8)+(t_count%9));
 				ddr_set_t_p->soc_bit_vref[vref_t_count]=delay_temp;
+			}
+			if ((t_count%9) == 8)
+			{
+				vref_t_count=32+((((t_count%36)/9)));
+				ddr_set_t_p->soc_bit_vref[vref_t_count]=delay_temp;
+			}
+
+			printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
+		}
+		printf_log(log_level,"\n soc vref-dfe dac1 0--->x : lpddr4-- VREF = VDDQ*(0.047 + VrefDAC0[6:0]*0.00367   DDR4 --VREF = VDDQ*(0.510 + VrefDAC0[6:0]*0.00345");
+		for (t_count=0;t_count<72;t_count++)
+		{ //add dfe vref1---vrefDac1 for just 0->x transitions
+			add_offset=((0<<20)|(1<<16)|(((t_count%36)/9)<<12)|(((t_count%36)%9)<<8)|(0x30));
+			dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
+			delay_org=dq_bit_delay[t_count];
+			delay_temp=((delay_org));
+			if (t_count<35)
+			{
+				vref_t_count=((((t_count%36)/9)*8)+(t_count%9));
+				ddr_set_t_p->retraining_extra_set_t.csr_soc_vref_dac1_dfe[vref_t_count]=delay_temp;
+			}
+			if ((t_count%9) == 8)
+			{
+				vref_t_count=32+((((t_count%36)/9)));
+				ddr_set_t_p->retraining_extra_set_t.csr_soc_vref_dac1_dfe[vref_t_count]=delay_temp;
 			}
 			printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
 		}
@@ -7347,9 +7375,13 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 		for ( temp_count=0;temp_count<16;temp_count++)
 		//printf("\n.read_dqs_gate_delay[%d]=%d,",temp_count,ddr_set_t_p->read_dqs_gate_delay[temp_count]);
 		printf("\n.read_dqs_gate_delay[%d]=0x%08x,// %d",temp_count,ddr_set_t_p->read_dqs_gate_delay[temp_count],ddr_set_t_p->read_dqs_gate_delay[temp_count]);
-		for ( temp_count=0;temp_count<32;temp_count++)
+		for ( temp_count=0;temp_count<36;temp_count++)
 		//printf("\n.soc_bit_vref[%d]=%d,",temp_count,ddr_set_t_p->soc_bit_vref[temp_count]);
 		printf("\n.soc_bit_vref[%d]=0x%08x,// %d",temp_count,ddr_set_t_p->soc_bit_vref[temp_count],ddr_set_t_p->soc_bit_vref[temp_count]);
+		for ( temp_count=0;temp_count<36;temp_count++)
+		//printf("\n.soc_bit_vref[%d]=%d,",temp_count,ddr_set_t_p->soc_bit_vref[temp_count]);
+		printf("\n.retraining_extra_set_t.csr_soc_vref_dac1_dfe[%d]=0x%08x,// %d",temp_count,ddr_set_t_p->retraining_extra_set_t.csr_soc_vref_dac1_dfe[temp_count],ddr_set_t_p->retraining_extra_set_t.csr_soc_vref_dac1_dfe[temp_count]);
+		//printf("\n.soc_bit_vref[%d]=0x%08x,// %d",temp_count,ddr_set_t_p->soc_bit_vref[temp_count],ddr_set_t_p->soc_bit_vref[temp_count]);
 		for ( temp_count=0;temp_count<32;temp_count++)
 		//printf("\n.dram_bit_vref[%d]=%d,",temp_count,ddr_set_t_p->dram_bit_vref[temp_count]);
 		printf("\n.dram_bit_vref[%d]=0x%08x,// %d",temp_count,ddr_set_t_p->dram_bit_vref[temp_count],ddr_set_t_p->dram_bit_vref[temp_count]);
@@ -7405,18 +7437,21 @@ static int ddr_do_store_ddr_parameter_ops(uint8_t *buffer, uint32_t length)
 	//	current = store_dev;
 	//	return 0;
 	//}
+	char str[1024]="";
 	if (!current)
 	{
-		char str[1024]="";
 		sprintf(str,"store init");
 		run_command(str,0);
 	}
-	struct storage_t *store = current;//store_get_current();
+
 	char *name = NULL;
 	{
 		name ="ddr-parameter";
 		printf("\nstore rsv write ddr-parameter 0x%08x 0x%08x\n",(uint32_t)(uint64_t)buffer,length);
-		return store->write_rsv(name, length, (u_char *)buffer);
+		//struct storage_t *store = current;//store_get_current();
+		//return store->write_rsv(name, length, (u_char *)buffer);
+		sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x\n",(uint32_t)(uint64_t)buffer,length);
+		run_command(str,0);
 	}
 }
 
@@ -9661,6 +9696,8 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	#define G12_D2PLL_CMD_SWEEP_EE_VOLTAGE_FREQUENCY_TABLE_TEST  0x32
 	#define G12_D2PLL_CMD_DDR_EYE_TEST  0x41
 	#define G12_D2PLL_CMD_DDR_EYE_TEST_AND_STICKY_OVERRIDE    0x42
+	#define G12_D2PLL_CMD_DDR_EYE_TEST_DAC1  0x43
+	#define G12_D2PLL_CMD_DDR_EYE_TEST_AND_STICKY_OVERRIDE_DAC1    0x44
 
 	#define G12_D2PLL_CMD_DDR_DVFS_TEST  0x51
 
@@ -9852,7 +9889,7 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		//12 if reinit when test dq  13 pass_to_fail_flag    14  test_dmc_or_cpu
 		para_meter[5]=(para_meter[9]<<28)|(para_meter[10]<<24)|(para_meter[11]<<20)|(para_meter[12]<<21)|(para_meter[13]<<22)|(para_meter[14]<<25)|(para_meter[5]<<0);
 	}
-	if ((window_test_stick_cmd_value == G12_D2PLL_CMD_DDR_EYE_TEST) || (window_test_stick_cmd_value == G12_D2PLL_CMD_DDR_EYE_TEST_AND_STICKY_OVERRIDE))
+	if ((window_test_stick_cmd_value >= G12_D2PLL_CMD_DDR_EYE_TEST)&& (window_test_stick_cmd_value <= G12_D2PLL_CMD_DDR_EYE_TEST_AND_STICKY_OVERRIDE_DAC1))
 	{
 		para_meter[3]=(para_meter[3]<<0)|(para_meter[4]<<8)|(para_meter[5]<<16)|(para_meter[6]<<24);
 		para_meter[4]=(para_meter[7]<<0)|(para_meter[8]<<8)|(para_meter[9]<<16)|(para_meter[10]<<24);

@@ -120,6 +120,7 @@ ddr_set_t __ddr_setting[] = {
 	.magic					= DRAM_CFG_MAGIC,
 	.diagnose				= CONFIG_DIAGNOSE_DISABLE,
 	.fast_boot[0]			= 6,
+	.ddr_func				= DDR_FUNC|DDR_FUNC_CONFIG_DFE_FUNCTION,
 //	.slt_test_function[0]=DMC_TEST_SLT_ENABLE_DDR_AUTO_FAST_BOOT,
 //	.dqs_offset_value=0x1<<4,//bit 0-2 read offset ,bit 3 read offset direction ,bit 4-6 write offset,bit 7 write offset direction.
 },
@@ -190,7 +191,7 @@ ddr_set_t __ddr_setting[] = {
 
 
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func				= DDR_FUNC,
+	.ddr_func				= DDR_FUNC|DDR_FUNC_CONFIG_DFE_FUNCTION,
 	.magic					= DRAM_CFG_MAGIC,
 //	.slt_test_function[0]=DMC_TEST_SLT_ENABLE_DDR_AUTO_FAST_BOOT,
 //	.dqs_offset_value=0x1,//bit 0-2 read offset ,bit 3 read offset direction ,bit 4-6 write offset,bit 7 write offset direction.

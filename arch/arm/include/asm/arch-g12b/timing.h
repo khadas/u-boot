@@ -97,6 +97,7 @@ typedef struct retraining_set{
 	unsigned short     csr_hwtlpcsenb;
 	unsigned short     csr_acsmctrl13;
 	unsigned short     csr_acsmctrl23;
+	unsigned char     csr_soc_vref_dac1_dfe[36];
 	//unsigned short     DqDqsRcvCntrl[8];
 	//unsigned short     rev_41;
 }__attribute__ ((packed)) retraining_set_t;
@@ -298,7 +299,7 @@ typedef struct ddr_set{
 //*/
 	unsigned	short	write_dq_bit_delay[72];
 	unsigned	short	read_dqs_gate_delay[16];
-	unsigned	char	soc_bit_vref[32];
+	unsigned	char	soc_bit_vref[36];
 	unsigned	char	dram_bit_vref[32];
 //		/*
 	unsigned	char	rever3;//read_dqs  read_dq,write_dqs, write_dq

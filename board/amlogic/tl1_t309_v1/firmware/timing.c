@@ -113,7 +113,7 @@ ddr_set_t __ddr_setting[] = {
 	.ddr_lpddr34_dq_remap	= {4,5,6,7,0,2,3,1,  15,14,13,12,11,9,10,8,   20,18,17,16,23,22,19,21,   30,31,25,24,26,28,29,27},
 	.dram_rtt_nom_wr_park	= {00,00},
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func				= DDR_FUNC,
+	.ddr_func				= DDR_FUNC|DDR_FUNC_CONFIG_DFE_FUNCTION,
 	.magic					= DRAM_CFG_MAGIC,
 	.diagnose				= CONFIG_DIAGNOSE_DISABLE,
 	.bitTimeControl_2d		= 1,	//training time setting,=1,200ms;=7,2s
@@ -186,9 +186,10 @@ ddr_set_t __ddr_setting[] = {
 
 
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func				= DDR_FUNC,
+	.ddr_func				= DDR_FUNC|DDR_FUNC_CONFIG_DFE_FUNCTION,
 	.magic					= DRAM_CFG_MAGIC,
-	.fast_boot[0]			= 1,
+	.fast_boot[0]			= 0,
+	.fast_boot[2]			= (1<<3)|(2<<0),
 },
 //*/
 {
