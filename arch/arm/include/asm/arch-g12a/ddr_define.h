@@ -261,6 +261,7 @@
 #define DDR_FUNC_LPDDR3_SOC_ODT_ONLY_UP						(0<<25)
 #endif
 #define DDR_FUNC_FAST_BOOT_CHECK_CHIP_ID					(1<<30)
+#define DDR_FUNC_CONFIG_DFE_FUNCTION						(1<<29)
 #define DDR_FUNC							(DDR_FUNC_D2PLL					| \
 											DDR_FUNC_LP						| \
 											DDR_FUNC_ZQ_PD					| \
