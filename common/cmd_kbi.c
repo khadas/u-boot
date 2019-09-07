@@ -1110,11 +1110,11 @@ static char kbi_help_text[] =
 		"kbi led [systemoff|systemon] w <off|on|breathe|heartbeat> - set blue led mode\n"
 		"kbi led [systemoff|systemon] r - read blue led mode\n"
 		"\n"
+#ifndef CONFIG_KHADAS_VIM
 		"kbi forcereset [wol|gpio] w <0|1> - disable/enable force-reset\n"
 		"kbi forcereset [wol|gpio] r - read state of force-reset\n"
 		"[notice: the wol|gpio boot trigger must be enabled if you want to enable force-reset]\n"
 		"\n"
-#ifndef CONFIG_KHADAS_VIM
 		"kbi bootmode w <emmc|spi> - set bootmode to emmc or spi\n"
 		"kbi bootmode r - read current bootmode\n"
 		"\n"
@@ -1128,7 +1128,7 @@ static char kbi_help_text[] =
 		"kbi trigger [wol|rtc|ir|dcin|key|gpio] w <0|1> - disable/enable boot trigger\n"
 		"kbi trigger [wol|rtc|ir|dcin|key|gpio] r - read mode of a boot trigger";
 #else
-		"kbi trigger [rtc|iir|dcin|key|gpio] w <0|1> - disable/enable boot trigger\n"
+		"kbi trigger [rtc|ir|dcin|key|gpio] w <0|1> - disable/enable boot trigger\n"
 		"kbi trigger [rtc|ir|dcin|key|gpio] r - read mode of a boot trigger";
 #endif
 
