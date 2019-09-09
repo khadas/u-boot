@@ -57,6 +57,7 @@ Reboot reason AND corresponding env setting:
 #define AMLOGIC_WATCHDOG_REBOOT			13
 #define AMLOGIC_RECOVERY_QUIESCENT_REBOOT	14
 
+unsigned int do_get_reboot_reason(void);
 /*
 old version env
 0x01010101, normal

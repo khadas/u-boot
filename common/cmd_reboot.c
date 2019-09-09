@@ -32,6 +32,13 @@
 /*
 run get_rebootmode  //set reboot_mode env with current mode
 */
+unsigned int do_get_reboot_reason(void)
+{
+	uint32_t reboot_reason;
+
+	reboot_reason = ((readl(AO_SEC_SD_CFG15) >> 12) & 0xf);
+	return reboot_reason;
+}
 
 int do_get_rebootmode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
