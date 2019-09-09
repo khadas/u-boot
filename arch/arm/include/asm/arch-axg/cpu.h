@@ -79,4 +79,7 @@
 
 #define NR_CPUS     4
 
+#define CONFIG_AML_RSVD_ADDR	0x08300000
+#define CONFIG_AML_RSVD_SIZE	0x100000
+
 #endif /* _CPU_H */
