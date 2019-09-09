@@ -642,12 +642,13 @@ static struct lcd_spi_flash_s lcd_pgamma_spi = {
 	.mode = CONFIG_SF_DEFAULT_MODE,
 };
 
-static int lcd_pgamma_spi_refresh(unsigned int offset, unsigned int len)
+static int lcd_pgamma_spi_refresh(unsigned int reg, unsigned int offset, unsigned int len)
 {
 #ifdef CONFIG_AML_LCD_EXTERN
 	struct aml_lcd_extern_driver_s *lcd_ext = aml_lcd_extern_get_driver();
 #endif
-	void *data = NULL;
+	unsigned char *data = NULL;
+	/* unsigned char buf[2]; */
 	int ret;
 
 	ret = spi_flash_probe_bus_cs(lcd_pgamma_spi.bus, lcd_pgamma_spi.cs,
@@ -665,9 +666,14 @@ static int lcd_pgamma_spi_refresh(unsigned int offset, unsigned int len)
 
 	lcd_pgamma_spi.flash = lcd_pgamma_spi.devp->uclass_priv;
 
-	data = malloc(len);
-	spi_flash_read(lcd_pgamma_spi.flash, offset, len, data);
+	data = (unsigned char *)malloc(len + 1);
 	if (data == NULL) {
+		printf("%s: data malloc fail\n", __func__);
+		return -1;
+	}
+	data[0] = (unsigned char)reg;
+	ret = spi_flash_read(lcd_pgamma_spi.flash, offset, len, (void *)(&data[1]));
+	if (ret) {
 		printf("%s: spi flash read fail\n", __func__);
 		free(data);
 		return -1;
@@ -675,6 +681,11 @@ static int lcd_pgamma_spi_refresh(unsigned int offset, unsigned int len)
 
 #ifdef CONFIG_AML_LCD_EXTERN
 	if (lcd_ext->reg_write) {
+		/* cs602 disable crc to write gamma data
+		 * buf[0] = 0x64;
+		 * buf[1] = 0x80;
+		 * lcd_ext->reg_write(buf, 2);
+		 */
 		lcd_ext->reg_write(data, len);
 	} else {
 		printf("%s: lcd_ext reg_write is null\n", __func__);
@@ -689,7 +700,7 @@ static int lcd_pgamma_spi_refresh(unsigned int offset, unsigned int len)
 
 static int do_lcd_pgamma(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	unsigned int offset, len;
+	unsigned int reg, offset, len;
 	char *str;
 	int ret = 0;
 
@@ -698,9 +709,17 @@ static int do_lcd_pgamma(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 		return -1;
 	}
 
+	str = getenv("lcd_spi_flash_pgamma_reg");
+	if (str) {
+		reg = (unsigned int)simple_strtoul(str, NULL, 16);
+	} else {
+		printf("%s: no lcd_spi_flash_pgamma_reg\n", __func__);
+		return -1;
+	}
+
 	str = getenv("lcd_spi_flash_pgamma_offset");
 	if (str) {
-		offset = (unsigned int)simple_strtoul(str, NULL, 10);
+		offset = (unsigned int)simple_strtoul(str, NULL, 16);
 	} else {
 		printf("%s: no lcd_spi_flash_pgamma_offset\n", __func__);
 		return -1;
@@ -718,7 +737,7 @@ static int do_lcd_pgamma(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 		return -1;
 	}
 
-	ret = lcd_pgamma_spi_refresh(offset, len);
+	ret = lcd_pgamma_spi_refresh(reg, offset, len);
 	return ret;
 }
 
