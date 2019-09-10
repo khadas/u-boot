@@ -1025,6 +1025,7 @@ void aml_nand_set_onfi_features(struct aml_nand_chip *aml_chip,
 	}
 }
 
+extern struct aml_pre_scan *pre_scan;
 static struct aml_nand_flash_dev *aml_nand_get_flash_type(struct mtd_info *mtd,
 	struct nand_chip *chip,
 	int busw, int *maf_id)
@@ -1058,6 +1059,17 @@ static struct aml_nand_flash_dev *aml_nand_get_flash_type(struct mtd_info *mtd,
 			break;
 		}
 	}
+
+	if (pre_scan->pre_scan_flag) {
+		if (type) {
+			/*printk(KERN_INFO "NAND device: Manufacturer ID:"
+	       " 0x%02x, Chip ID: 0x%02x (%s %s)\n", *maf_id, dev_id[0],
+	       nand_manuf_ids[maf_idx].name, type->name);*/
+			pre_scan->is_nand = 1;
+		}
+		return type;
+	}
+
 	if (!type) {
 		if (plat->nand_flash_dev) {
 			if (!strncmp((char*) plat->nand_flash_dev->id,
@@ -1166,7 +1178,7 @@ static int aml_nand_scan_ident(struct mtd_info *mtd, int maxchips)
 	int i, busw, nand_maf_id, valid_chip_num = 1;
 	struct nand_chip *chip = mtd->priv;
 	struct aml_nand_chip *aml_chip = mtd_to_nand_chip(mtd);
-	struct aml_nand_flash_dev *aml_type;
+	struct aml_nand_flash_dev *aml_type = NULL;
 	struct aml_nand_platform *plat = aml_chip->platform;
 	u8 dev_id[MAX_ID_LEN], onfi_features[4];
 	unsigned temp_chip_shift;
@@ -1188,6 +1200,13 @@ static int aml_nand_scan_ident(struct mtd_info *mtd, int maxchips)
 
 	/* Read the flash type */
 	aml_type = aml_nand_get_flash_type(mtd, chip, busw, &nand_maf_id);
+	if (pre_scan->pre_scan_flag) {
+		if (!aml_type) {
+		chip->select_chip(mtd, -1);
+		return PTR_ERR(aml_type);
+		}
+		return 0;
+	}
 
 	if (IS_ERR(aml_type)) {
 		printk(KERN_WARNING "No NAND device found!!!\n");
@@ -1298,7 +1317,7 @@ int aml_nand_scan(struct mtd_info *mtd, int maxchips)
 	int ret;
 
 	ret = aml_nand_scan_ident(mtd, maxchips);
-	if (!ret)
+	if (!ret && !(pre_scan->pre_scan_flag))
 		ret = nand_scan_tail(mtd);
 	return ret;
 }

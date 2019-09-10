@@ -320,6 +320,12 @@ struct aml_nand_chip {
 	int (*aml_nand_block_bad_scrub)(struct mtd_info *mtd);
 };
 
+struct aml_pre_scan {
+	u8 pre_scan_flag;
+	u8 is_nand;
+};
+
+
 struct aml_nand_platform {
 	struct aml_nand_flash_dev *nand_flash_dev;
 	char *name;

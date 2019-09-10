@@ -11,8 +11,8 @@ static struct storage_t *slcnand_storage;
 #ifdef CONFIG_MTD_LOGIC_MAP
 extern void mtd_store_init_map(void);
 #endif
-extern void mtd_store_set(struct mtd_info *mtd, int dev);
 extern void mtd_store_mount_ops(struct storage_t* store);
+struct aml_pre_scan *pre_scan;
 
 static inline void set_slc_nand_storage(struct storage_t *slc_nand)
 {
@@ -24,14 +24,25 @@ static inline struct storage_t *get_slc_nand_storage(void)
 	return slcnand_storage;
 }
 
-
 int nand_pre(void)
 {
-	return 0;
+	int ret = 0;
+	pre_scan->pre_scan_flag = 1;
+	pre_scan->is_nand = 0;
+	board_nand_init();
+	if (pre_scan->is_nand) {
+		printf("scan valid slc-nand\n");
+		ret = 0;
+	} else {
+		ret = 1;
+		printf("scan no valid slc-nand\n");
+	}
+	pre_scan->pre_scan_flag = 0;
+	pre_scan->is_nand = 0;
+	return ret;
 }
 
 extern struct mtd_info *nand_info[CONFIG_SYS_MAX_NAND_DEVICE];
-//extern struct aml_nand_flash_dev aml_nand_flash_ids[];
 int slcnand_fit_storage(void)
 {
 	struct storage_t *slc_nand = NULL;
@@ -74,7 +85,6 @@ int slcnand_fit_storage(void)
 	set_slc_nand_storage(slc_nand);
 	mtd_store_mount_ops(slc_nand);
 
-	//mtd_store_set(nand_info[0], 0);
 #ifdef CONFIG_MTD_LOGIC_MAP
 	mtd_store_init_map();
 #endif
@@ -84,6 +94,7 @@ int slcnand_fit_storage(void)
 extern int amlmtd_init;
 extern void board_nand_init(void);
 extern int meson_nfc_probe(struct udevice *dev);
+struct udevice *nand_dev;
 int nand_probe(uint32_t init_flag)
 {
 	struct storage_t *slc_nand  = get_slc_nand_storage();
@@ -94,7 +105,7 @@ int nand_probe(uint32_t init_flag)
 		return 0;
 	}
 
-	board_nand_init();
+	meson_nfc_probe(nand_dev);
 	slc_nand = get_slc_nand_storage();
 	if (!slc_nand) {
 		printf("%s %d can not get slc nand!\n",

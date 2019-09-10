@@ -27,7 +27,6 @@ extern int aml_nand_scan_shipped_bbt(struct mtd_info *mtd);
 
 uint8_t nand_boot_flag = 0;
 extern unsigned char pagelist_1ynm_hynix256_mtd[128];
-extern struct aml_nand_flash_dev aml_nand_flash_ids[];
 extern struct hw_controller *controller;
 
 #define NAND_CMD_SANDISK_DSP_OFF 0x25
@@ -1708,6 +1707,7 @@ void aml_platform_write_byte(struct aml_nand_chip *aml_chip, uint8_t data)
 		;
 }
 
+extern struct aml_pre_scan *pre_scan;
 int aml_nand_init(struct aml_nand_chip *aml_chip)
 {
 	struct aml_nand_platform *plat = aml_chip->platform;
@@ -1721,9 +1721,6 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 
 	chip->IO_ADDR_R = chip->IO_ADDR_W =
 		(void __iomem *)((volatile u32 *)(NAND_BASE_APB + P_NAND_BUF));
-
-	chip->options |= NAND_SKIP_BBTSCAN;
-	chip->options |= NAND_NO_SUBPAGE_WRITE;
 
 	chip->ecc.layout = &aml_nand_oob_64;
 	chip->select_chip = aml_nand_select_chip;
@@ -1754,7 +1751,8 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 	chip->options = 0;
 	chip->options |=  NAND_SKIP_BBTSCAN;
 	chip->options |= NAND_NO_SUBPAGE_WRITE;
-	if (aml_nand_scan(mtd, controller->chip_num)) {
+	err = aml_nand_scan(mtd, controller->chip_num);
+	if (err || (pre_scan->pre_scan_flag)) {
 		err = -ENXIO;
 		goto exit_error;
 	}

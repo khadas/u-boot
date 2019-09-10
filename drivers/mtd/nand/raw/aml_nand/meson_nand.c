@@ -34,6 +34,7 @@ struct hw_controller *controller = NULL;
 
 extern struct mtd_info *nand_info[CONFIG_SYS_MAX_NAND_DEVICE];
 extern void mtd_store_set(struct mtd_info *mtd, int dev);
+extern struct aml_pre_scan *pre_scan;;
 
 #ifdef CONFIG_MTD_DEVICE
 static __attribute__((unused)) char dev_name[CONFIG_SYS_MAX_NAND_DEVICE][8];
@@ -220,7 +221,6 @@ void aml_nfc_get_clk_name(struct hw_controller *controller)
 	unsigned int rate;
 	clk_get_by_name(controller->device, "clkin", &controller->clk[0]);
 	rate = clk_get_rate(&controller->clk[0]);
-	printf("____fclk rate0: %d\n", rate);
 	clk_get_by_name(controller->device, "clkin1", &controller->clk[1]);
 	clk_get_by_name(controller->device, "clkin2", &controller->clk[2]);
 	clk_get_by_name(controller->device, "clkin3", &controller->clk[3]);
@@ -729,6 +729,26 @@ static int m3_nand_hwecc_correct(struct aml_nand_chip *aml_chip,
 	return 0;
 }
 
+void register_aml_chip_contorller(struct aml_nand_chip *aml_chip)
+{
+	/*register amlogic hw controller functions*/
+	aml_chip->aml_nand_hw_init = m3_nand_hw_init;
+	aml_chip->aml_nand_adjust_timing = m3_nand_adjust_timing;
+	aml_chip->aml_nand_select_chip = m3_nand_select_chip;
+	aml_chip->aml_nand_options_confirm = m3_nand_options_confirm;
+	aml_chip->aml_nand_dma_read = m3_nand_dma_read;
+	aml_chip->aml_nand_dma_write = m3_nand_dma_write;
+	aml_chip->aml_nand_hwecc_correct = m3_nand_hwecc_correct;
+	aml_chip->aml_nand_cmd_ctrl = aml_platform_cmd_ctrl;
+	aml_chip->aml_nand_write_byte = aml_platform_write_byte;
+	aml_chip->aml_nand_wait_devready = aml_platform_wait_devready;
+	aml_chip->aml_nand_get_user_byte = aml_platform_get_user_byte;
+	aml_chip->aml_nand_set_user_byte = aml_platform_set_user_byte;
+	aml_chip->aml_nand_command = aml_nand_base_command;
+	aml_chip->aml_nand_block_bad_scrub =
+		aml_nand_block_bad_scrub_update_bbt;
+}
+
 static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 {
 	struct aml_nand_chip *aml_chip = NULL;
@@ -770,30 +790,14 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 	plat->aml_chip = aml_chip;
 	mtd->name = plat->name;
 
-	/*register amlogic hw controller functions*/
-	aml_chip->aml_nand_hw_init = m3_nand_hw_init;
-	aml_chip->aml_nand_adjust_timing = m3_nand_adjust_timing;
-	aml_chip->aml_nand_select_chip = m3_nand_select_chip;
-	aml_chip->aml_nand_options_confirm = m3_nand_options_confirm;
-	aml_chip->aml_nand_dma_read = m3_nand_dma_read;
-	aml_chip->aml_nand_dma_write = m3_nand_dma_write;
-	aml_chip->aml_nand_hwecc_correct = m3_nand_hwecc_correct;
-	aml_chip->aml_nand_cmd_ctrl = aml_platform_cmd_ctrl;
-	aml_chip->aml_nand_write_byte = aml_platform_write_byte;
-	aml_chip->aml_nand_wait_devready = aml_platform_wait_devready;
-	aml_chip->aml_nand_get_user_byte = aml_platform_get_user_byte;
-	aml_chip->aml_nand_set_user_byte = aml_platform_set_user_byte;
-	aml_chip->aml_nand_command = aml_nand_base_command;
-	aml_chip->aml_nand_block_bad_scrub =
-		aml_nand_block_bad_scrub_update_bbt;
-
+	register_aml_chip_contorller(aml_chip);
 	aml_chip->ran_mode = plat->ran_mode;
 	aml_chip->rbpin_detect = plat->rbpin_detect;
 
 	aml_nfc_get_clk_name(controller);
 
 	err = aml_nand_init(aml_chip);
-	if (err)
+	if (err || pre_scan->pre_scan_flag)
 		goto exit_error;
 
 	if (!strncmp((char*)plat->name,
@@ -823,6 +827,8 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 exit_error:
 	if (aml_chip)
 		kfree(aml_chip);
+	if (plat->nand_flash_dev)
+		kfree(plat->nand_flash_dev);
 	mtd->name = NULL;
 	return err;
 }
@@ -843,6 +849,7 @@ void nand_hw_init(struct aml_nand_platform *plat)
 		aml_chip->aml_nand_adjust_timing(aml_chip);
 	aml_chip->aml_nand_select_chip(aml_chip, 0);
 }
+
 
 #ifdef CONFIG_AMLOGIC_DM_FLASH
 static void meson_nfc_init_dm(void)
@@ -871,12 +878,14 @@ void board_nand_init(void)
 
 int amlmtd_init = 0;
 #ifdef CONFIG_AMLOGIC_DM_FLASH
+extern struct udevice *nand_dev;
 int meson_nfc_probe(struct udevice *dev)
 {
 	struct mtd_info *mtd;
 
 	struct aml_nand_platform *plat = NULL;
 	const void *blob = gd->fdt_blob;
+	nand_dev = dev;
 	fdt_addr_t regs, clk_regs;
 	int node;
 	int i, ret = 0;
@@ -963,6 +972,10 @@ int meson_nfc_probe(struct udevice *dev)
 		}
 
 		ret = m3_nand_probe(plat, i);
+		if (pre_scan->pre_scan_flag && !i) { //Get the flash id as fastest as possible
+			free(controller);
+			return 0;
+		}
 		if (ret)
 			printk("nand init failed: %d\n", ret);
 	}
