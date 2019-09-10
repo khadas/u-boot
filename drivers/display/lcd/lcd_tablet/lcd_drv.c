@@ -995,10 +995,6 @@ void lcd_tablet_driver_disable(void)
 		break;
 	}
 
-	lcd_vcbus_write(ENCL_VIDEO_EN, 0);
-
-	lcd_clk_disable();
-
 	if (lcd_debug_print_flag)
 		LCDPR("%s finished\n", __func__);
 }
