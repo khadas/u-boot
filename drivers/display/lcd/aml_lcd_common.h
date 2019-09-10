@@ -29,8 +29,12 @@
 /* 20190118: support tcon bin data management */
 /* 20190225: fix tcon axi_mem detect mistake for kernel 64bit */
 /* 20190308: add more panel clk_ss_level step for tl1*/
-#define LCD_DRV_VERSION    "20190308"
+/* 20190911: add lcd_tcon_load_data for tl1*/
 
+#define LCD_DRV_VERSION    "20190911"
+
+#define LCD_STATUS_IF_ON      (1 << 0)
+#define LCD_STATUS_ENCL_ON    (1 << 1)
 #define VPP_OUT_SATURATE            (1 << 0)
 
 extern void mdelay(unsigned long n);
@@ -64,6 +68,7 @@ extern void lcd_tcon_info_print(void);
 extern int lcd_tcon_enable(struct lcd_config_s *pconf);
 extern void lcd_tcon_disable(void);
 extern int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *lcd_drv, int load_id);
+extern int lcd_tcon_data_load(int *vac_valid, int *demura_valid);
 
 /* lcd gpio */
 extern int aml_lcd_gpio_name_map_num(const char *name);

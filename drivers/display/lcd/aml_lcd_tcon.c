@@ -554,25 +554,18 @@ static int lcd_tcon_mem_config(void)
 	return 0;
 }
 
-static int lcd_tcon_enable_tl1(struct lcd_config_s *pconf)
+int lcd_tcon_data_load(int *vac_valid, int *demura_valid)
 {
 	unsigned char *table = lcd_tcon_data->reg_table;
-	unsigned int n = 10;
-	char *str;
 	int ret;
-	unsigned int vac_valid = 0, demura_valid = 0;
 
 	ret = lcd_tcon_valid_check();
 	if (ret)
 		return -1;
 
-	str = getenv("tcon_delay");
-	if (str)
-		n = (unsigned int)simple_strtoul(str, NULL, 10);
-
 	ret = lcd_tcon_vac_load();
 	if (ret == 0)
-		vac_valid = 1;
+		*vac_valid = 1;
 	ret = lcd_tcon_demura_set_load();
 	if (ret)  {
 		table[0x178] = 0x38;
@@ -587,9 +580,28 @@ static int lcd_tcon_enable_tl1(struct lcd_config_s *pconf)
 			table[0x181] = 0x00;
 			table[0x23d] &= ~(1 << 0);
 		} else {
-			demura_valid = 1;
+			*demura_valid = 1;
 		}
 	}
+	return 0;
+}
+
+static int lcd_tcon_enable_tl1(struct lcd_config_s *pconf)
+{
+	unsigned int n = 10;
+	char *str;
+	int ret;
+	int vac_valid = 0, demura_valid = 0;
+
+	ret = lcd_tcon_valid_check();
+	if (ret)
+		return -1;
+
+	str = getenv("tcon_delay");
+	if (str)
+		n = (unsigned int)simple_strtoul(str, NULL, 10);
+
+	lcd_tcon_data_load(&vac_valid, &demura_valid);
 
 	/* step 1: tcon top */
 	lcd_tcon_top_set_tl1(pconf);
