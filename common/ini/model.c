@@ -1314,12 +1314,13 @@ int handle_tcon_vac(unsigned char *vac_data, unsigned int vac_mem_size)
 	if (model_debug_flag & DEBUG_TCON)
 		ALOGD("vac_data addr: 0x%p\n", vac_data);
 
-	n = 0;
+	n = 8;
 	len = TCON_VAC_SET_PARAM_NUM;
 
 	ini_value = IniGetString("lcd_tcon_vac", "vac_set", "null");
 	tmp_cnt = transBufferData(ini_value, tmp_buf);
 	data_cnt = tmp_cnt;
+
 	if ((tmp_cnt > CC_MAX_TCON_VAC_SIZE) || (tmp_cnt < len)) {
 		ALOGE("%s: invalid vac_set data cnt %d\n", __func__, tmp_cnt);
 		return -1;
@@ -1334,15 +1335,15 @@ int handle_tcon_vac(unsigned char *vac_data, unsigned int vac_mem_size)
 		vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
 		if (model_debug_flag & DEBUG_TCON) {
 			ALOGD("vac_set: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
-				vac_data[n+i*2], vac_data[n+i*2+1],
-				tmp_buf[i]);
+			      vac_data[n+i*2], vac_data[n+i*2+1],
+			      tmp_buf[i]);
 		}
 	}
 
 	len = TCON_VAC_LUT_PARAM_NUM;
 
 	ini_value = IniGetString("lcd_tcon_vac", "vac_ramt1", "null");
-	tmp_cnt = transBufferData(ini_value, tmp_buf);
+		tmp_cnt = transBufferData(ini_value, tmp_buf);
 	data_cnt += tmp_cnt;
 	if ((tmp_cnt > CC_MAX_TCON_VAC_SIZE) || (tmp_cnt < len)) {
 		ALOGE("%s: invalid vac_ramt1 data cnt %d\n", __func__, tmp_cnt);
@@ -1365,7 +1366,7 @@ int handle_tcon_vac(unsigned char *vac_data, unsigned int vac_mem_size)
 	}
 
 	ini_value = IniGetString("lcd_tcon_vac", "vac_ramt2", "null");
-	tmp_cnt = transBufferData(ini_value, tmp_buf);
+		tmp_cnt = transBufferData(ini_value, tmp_buf);
 	data_cnt += tmp_cnt;
 	if ((tmp_cnt > CC_MAX_TCON_VAC_SIZE) || (tmp_cnt < len)) {
 		ALOGE("%s: invalid vac_ramt2 data cnt %d\n", __func__, tmp_cnt);
@@ -1518,10 +1519,22 @@ int handle_tcon_vac(unsigned char *vac_data, unsigned int vac_mem_size)
 		vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
 		if ((model_debug_flag & DEBUG_TCON) && (i < 30)) {
 			ALOGD("vac_ramt3_6_data: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
-				vac_data[n+i*2], vac_data[n+i*2+1],
-				tmp_buf[i]);
+			      vac_data[n+i*2], vac_data[n+i*2+1],
+			      tmp_buf[i]);
 		}
 	}
+
+	/*add check data: total_size(4byte) + crc(4byte) +
+	 *crc todo
+	*/
+	vac_data[0] = data_cnt & 0xff;
+	vac_data[1] = (data_cnt >> 8) & 0xff;
+	vac_data[2] = (data_cnt >> 16) & 0xff;
+	vac_data[3] = (data_cnt >> 24) & 0xff;
+	vac_data[4] = 0;
+	vac_data[5] = 0;
+	vac_data[6] = 0;
+	vac_data[7] = 0;
 
 	if (model_debug_flag & DEBUG_NORMAL)
 		ALOGD("%s finish\n", __func__);
@@ -1535,6 +1548,7 @@ int handle_tcon_demura_set(unsigned char *demura_set_data,
 {
 	unsigned long int bin_size;
 	char *file_name;
+	int n;
 
 	file_name = getenv("model_tcon_demura_set");
 	if (file_name == NULL) {
@@ -1562,7 +1576,16 @@ int handle_tcon_demura_set(unsigned char *demura_set_data,
 		return -1;
 	}
 
-	GetBinData(demura_set_data, bin_size);
+	n = 8;
+	demura_set_data[0] = bin_size & 0xff;
+	demura_set_data[1] = (bin_size >> 8) & 0xff;
+	demura_set_data[2] = (bin_size >> 16) & 0xff;
+	demura_set_data[3] = (bin_size >> 24) & 0xff;
+	demura_set_data[4] = 0;
+	demura_set_data[5] = 0;
+	demura_set_data[6] = 0;
+	demura_set_data[7] = 0;
+	GetBinData(&demura_set_data[n], bin_size);
 
 	if (model_debug_flag & DEBUG_NORMAL)
 		ALOGD("%s finish\n", __func__);
@@ -1577,6 +1600,7 @@ int handle_tcon_demura_lut(unsigned char *demura_lut_data,
 {
 	unsigned long int bin_size;
 	char *file_name;
+	int n;
 
 	file_name = getenv("model_tcon_demura_lut");
 	if (file_name == NULL) {
@@ -1604,10 +1628,19 @@ int handle_tcon_demura_lut(unsigned char *demura_lut_data,
 		return -1;
 	}
 
-	GetBinData(demura_lut_data, bin_size);
+	n = 8;
+	demura_lut_data[0] = bin_size & 0xff;
+	demura_lut_data[1] = (bin_size >> 8) & 0xff;
+	demura_lut_data[2] = (bin_size >> 16) & 0xff;
+	demura_lut_data[3] = (bin_size >> 24) & 0xff;
+	demura_lut_data[4] = 0;
+	demura_lut_data[5] = 0;
+	demura_lut_data[6] = 0;
+	demura_lut_data[7] = 0;
+	GetBinData(&demura_lut_data[n], bin_size);
 
-	if (model_debug_flag & DEBUG_NORMAL)
-		ALOGD("%s finish\n", __func__);
+	if (model_debug_flag)
+		ALOGD("%s finish, bin_size = 0x%lx\n", __func__, bin_size);
 
 	BinFileUninit();
 

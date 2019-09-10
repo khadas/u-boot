@@ -92,7 +92,7 @@ struct tcon_rmem_s {
 #define CTRL_TIMING_CNT_TL1              0
 
 #ifdef CONFIG_CMD_INI
-extern int handle_tcon_vac(unsigned char *vac_data, unsigned char vac_mem_size);
+int handle_tcon_vac(unsigned char *vac_data, unsigned int vac_mem_size);
 extern int handle_tcon_demura_set(unsigned char *demura_set_data,
 				  unsigned int demura_set_size);
 extern int handle_tcon_demura_lut(unsigned char *demura_lut_data,

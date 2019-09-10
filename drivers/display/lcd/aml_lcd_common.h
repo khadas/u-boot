@@ -31,8 +31,9 @@
 /* 20190308: add more panel clk_ss_level step for tl1*/
 /* 20190911: add lcd_tcon_load_data for tl1*/
 /* 20191025: tcon chpi phy setting update*/
+/* 20191115: add lcd_tcon_load_data chk_data for tl1*/
 
-#define LCD_DRV_VERSION    "20191025"
+#define LCD_DRV_VERSION    "20191115"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
