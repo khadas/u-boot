@@ -20,9 +20,7 @@ Description:
 
 #ifndef __PAEL_INI_H__
 #define __PAEL_INI_H__
-
-#define CC_MAX_TEMP_BUF_SIZE                    (0x1000)
-#define CC_MAX_PANEL_ALL_DATA_SIZE              (0x100000)
+#include "ini_size_define.h"
 
 #ifdef __cplusplus
 extern "C" {

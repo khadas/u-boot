@@ -25,10 +25,8 @@ Description:
 #define LOG_NDEBUG 0
 
 #include "ini_log.h"
-
 #include "UnifyKey.h"
-
-#define CC_ONE_SECTION_SIZE                      (0x1000)
+#include "ini_size_define.h"
 
 #if (defined (CC_INI_IO_USE_UNIFY_KEY))
 
