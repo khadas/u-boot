@@ -1235,6 +1235,8 @@ static int handle_tcon_bin(void)
 	return 0;
 }
 
+#define TCON_VAC_SET_PARAM_NUM    3
+#define TCON_VAC_LUT_PARAM_NUM    256
 int handle_tcon_vac(unsigned char *vac_data, unsigned int vac_mem_size)
 {
 	int i, n, tmp_cnt, len;
@@ -1275,48 +1277,52 @@ int handle_tcon_vac(unsigned char *vac_data, unsigned int vac_mem_size)
 		ALOGD("vac_data addr: 0x%p\n", vac_data);
 
 	n = 0;
+	len = TCON_VAC_SET_PARAM_NUM;
+
 	ini_value = IniGetString("lcd_tcon_vac", "vac_set", "null");
 	tmp_cnt = transBufferData(ini_value, tmp_buf);
 	data_cnt = tmp_cnt;
-	if ((tmp_cnt > CC_MAX_TCON_VAC_SIZE) || (tmp_cnt < 2)) {
+	if ((tmp_cnt > CC_MAX_TCON_VAC_SIZE) || (tmp_cnt < len)) {
 		ALOGE("%s: invalid vac_set data cnt %d\n", __func__, tmp_cnt);
-	} else if ((data_cnt * 2) > vac_mem_size) {
+		return -1;
+	}
+	if ((data_cnt * 2) > vac_mem_size) {
 		ALOGE("data size %d is out of memory size %d (data_cnt=%d)\n",
 		      (data_cnt * 2), vac_mem_size, data_cnt);
 		return -1;
-	} else {
-		for (i = 0; i < 2; i++) {
-			vac_data[n+i*2] = tmp_buf[i] & 0xff;
-			vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
-			if (model_debug_flag & DEBUG_TCON) {
-				ALOGD("vac_set: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
-					vac_data[n+i*2], vac_data[n+i*2+1],
-					tmp_buf[i]);
-			}
+	}
+	for (i = 0; i < len; i++) {
+		vac_data[n+i*2] = tmp_buf[i] & 0xff;
+		vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
+		if (model_debug_flag & DEBUG_TCON) {
+			ALOGD("vac_set: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
+				vac_data[n+i*2], vac_data[n+i*2+1],
+				tmp_buf[i]);
 		}
 	}
 
-	len = 256;
+	len = TCON_VAC_LUT_PARAM_NUM;
 
 	ini_value = IniGetString("lcd_tcon_vac", "vac_ramt1", "null");
 	tmp_cnt = transBufferData(ini_value, tmp_buf);
 	data_cnt += tmp_cnt;
 	if ((tmp_cnt > CC_MAX_TCON_VAC_SIZE) || (tmp_cnt < len)) {
 		ALOGE("%s: invalid vac_ramt1 data cnt %d\n", __func__, tmp_cnt);
-	} else if ((data_cnt * 2) > vac_mem_size) {
+		return -1;
+	}
+	if ((data_cnt * 2) > vac_mem_size) {
 		ALOGE("data size %d is out of memory size %d (data_cnt=%d)\n",
 		      (data_cnt * 2), vac_mem_size, data_cnt);
 		return -1;
-	} else {
-		n += (2 * 2);
-		for (i = 0; i < len; i++) {
-			vac_data[n+i*2] = tmp_buf[i] & 0xff;
-			vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
-			if ((model_debug_flag & DEBUG_TCON) && (i < 30)) {
-				ALOGD("vac_ramt1_data: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
-				      vac_data[n+i*2], vac_data[n+i*2+1],
-					tmp_buf[i]);
-			}
+	}
+	n += (TCON_VAC_SET_PARAM_NUM * 2);
+	for (i = 0; i < len; i++) {
+		vac_data[n+i*2] = tmp_buf[i] & 0xff;
+		vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
+		if ((model_debug_flag & DEBUG_TCON) && (i < 30)) {
+			ALOGD("vac_ramt1_data: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
+			      vac_data[n+i*2], vac_data[n+i*2+1],
+				tmp_buf[i]);
 		}
 	}
 
@@ -1325,20 +1331,21 @@ int handle_tcon_vac(unsigned char *vac_data, unsigned int vac_mem_size)
 	data_cnt += tmp_cnt;
 	if ((tmp_cnt > CC_MAX_TCON_VAC_SIZE) || (tmp_cnt < len)) {
 		ALOGE("%s: invalid vac_ramt2 data cnt %d\n", __func__, tmp_cnt);
-	} else if ((data_cnt * 2) > vac_mem_size) {
+		return -1;
+	}
+	if ((data_cnt * 2) > vac_mem_size) {
 		ALOGE("data size %d is out of memory size %d (data_cnt=%d)\n",
 		      (data_cnt * 2), vac_mem_size, data_cnt);
 		return -1;
-	} else {
-		n += (len * 2);
-		for (i = 0; i < len; i++) {
-			vac_data[n+i*2] = tmp_buf[i] & 0xff;
-			vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
-			if ((model_debug_flag & DEBUG_TCON) && (i < 30)) {
-				ALOGD("vac_ramt2_data: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
-					vac_data[n+i*2], vac_data[n+i*2+1],
-					tmp_buf[i]);
-			}
+	}
+	n += (len * 2);
+	for (i = 0; i < len; i++) {
+		vac_data[n+i*2] = tmp_buf[i] & 0xff;
+		vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
+		if ((model_debug_flag & DEBUG_TCON) && (i < 30)) {
+			ALOGD("vac_ramt2_data: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
+				vac_data[n+i*2], vac_data[n+i*2+1],
+				tmp_buf[i]);
 		}
 	}
 
@@ -1347,20 +1354,21 @@ int handle_tcon_vac(unsigned char *vac_data, unsigned int vac_mem_size)
 	data_cnt += tmp_cnt;
 	if ((tmp_cnt > CC_MAX_TCON_VAC_SIZE) || (tmp_cnt < len)) {
 		ALOGE("%s: invalid vac_ramt3_1 data cnt %d\n", __func__, tmp_cnt);
-	} else if ((data_cnt * 2) > vac_mem_size) {
+		return -1;
+	}
+	if ((data_cnt * 2) > vac_mem_size) {
 		ALOGE("data size %d is out of memory size %d (data_cnt=%d)\n",
 		      (data_cnt * 2), vac_mem_size, data_cnt);
 		return -1;
-	} else {
-		n += (len * 2);
-		for (i = 0; i < len; i++) {
-			vac_data[n+i*2] = tmp_buf[i] & 0xff;
-			vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
-			if ((model_debug_flag & DEBUG_TCON) && (i < 30)) {
-				ALOGD("vac_ramt3_1_data: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
-					vac_data[n+i*2], vac_data[n+i*2+1],
-					tmp_buf[i]);
-			}
+	}
+	n += (len * 2);
+	for (i = 0; i < len; i++) {
+		vac_data[n+i*2] = tmp_buf[i] & 0xff;
+		vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
+		if ((model_debug_flag & DEBUG_TCON) && (i < 30)) {
+			ALOGD("vac_ramt3_1_data: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
+				vac_data[n+i*2], vac_data[n+i*2+1],
+				tmp_buf[i]);
 		}
 	}
 
@@ -1369,20 +1377,21 @@ int handle_tcon_vac(unsigned char *vac_data, unsigned int vac_mem_size)
 	data_cnt += tmp_cnt;
 	if ((tmp_cnt > CC_MAX_TCON_VAC_SIZE) || (tmp_cnt < len)) {
 		ALOGE("%s: invalid vac_ramt3_2 data cnt %d\n", __func__, tmp_cnt);
-	} else if ((data_cnt * 2) > vac_mem_size) {
+		return -1;
+	}
+	if ((data_cnt * 2) > vac_mem_size) {
 		ALOGE("data size %d is out of memory size %d (data_cnt=%d)\n",
 		      (data_cnt * 2), vac_mem_size, data_cnt);
 		return -1;
-	} else {
-		n += (len * 2);
-		for (i = 0; i < len; i++) {
-			vac_data[n+i*2] = tmp_buf[i] & 0xff;
-			vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
-			if ((model_debug_flag & DEBUG_TCON) && (i < 30)) {
-				ALOGD("vac_ramt3_2_data: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
-					vac_data[n+i*2], vac_data[n+i*2+1],
-					tmp_buf[i]);
-			}
+	}
+	n += (len * 2);
+	for (i = 0; i < len; i++) {
+		vac_data[n+i*2] = tmp_buf[i] & 0xff;
+		vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
+		if ((model_debug_flag & DEBUG_TCON) && (i < 30)) {
+			ALOGD("vac_ramt3_2_data: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
+				vac_data[n+i*2], vac_data[n+i*2+1],
+				tmp_buf[i]);
 		}
 	}
 
@@ -1391,20 +1400,20 @@ int handle_tcon_vac(unsigned char *vac_data, unsigned int vac_mem_size)
 	data_cnt += tmp_cnt;
 	if ((data_cnt > CC_MAX_TCON_VAC_SIZE) || (tmp_cnt < len)) {
 		ALOGE("%s: invalid vac_ramt3_3 data cnt %d\n", __func__, tmp_cnt);
-	} else if (data_cnt > vac_mem_size) {
+		return -1;
+	}if (data_cnt > vac_mem_size) {
 		ALOGE("data size %d is out of memory size %d (data_cnt=%d)\n",
 		      (data_cnt * 2), vac_mem_size, data_cnt);
 		return -1;
-	} else {
-		n += (len * 2);
-		for (i = 0; i < len; i++) {
-			vac_data[n+i*2] = tmp_buf[i] & 0xff;
-			vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
-			if ((model_debug_flag & DEBUG_TCON) && (i < 30)) {
-				ALOGD("vac_ramt3_3_data: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
-					vac_data[n+i*2], vac_data[n+i*2+1],
-					tmp_buf[i]);
-			}
+	}
+	n += (len * 2);
+	for (i = 0; i < len; i++) {
+		vac_data[n+i*2] = tmp_buf[i] & 0xff;
+		vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
+		if ((model_debug_flag & DEBUG_TCON) && (i < 30)) {
+			ALOGD("vac_ramt3_3_data: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
+				vac_data[n+i*2], vac_data[n+i*2+1],
+				tmp_buf[i]);
 		}
 	}
 
@@ -1413,20 +1422,21 @@ int handle_tcon_vac(unsigned char *vac_data, unsigned int vac_mem_size)
 	data_cnt += tmp_cnt;
 	if ((tmp_cnt > CC_MAX_TCON_VAC_SIZE) || (tmp_cnt < len)) {
 		ALOGE("%s: invalid vac_ramt3_4 data cnt %d\n", __func__, tmp_cnt);
-	} else if (data_cnt > vac_mem_size) {
+		return -1;
+	}
+	if (data_cnt > vac_mem_size) {
 		ALOGE("data size %d is out of memory size %d (data_cnt=%d)\n",
 		      (data_cnt * 2), vac_mem_size, data_cnt);
 		return -1;
-	} else {
-		n += (len * 2);
-		for (i = 0; i < len; i++) {
-			vac_data[n+i*2] = tmp_buf[i] & 0xff;
-			vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
-			if ((model_debug_flag & DEBUG_TCON) && (i < 30)) {
-				ALOGD("vac_ramt3_4_data: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
-					vac_data[n+i*2], vac_data[n+i*2+1],
-					tmp_buf[i]);
-			}
+	}
+	n += (len * 2);
+	for (i = 0; i < len; i++) {
+		vac_data[n+i*2] = tmp_buf[i] & 0xff;
+		vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
+		if ((model_debug_flag & DEBUG_TCON) && (i < 30)) {
+			ALOGD("vac_ramt3_4_data: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
+				vac_data[n+i*2], vac_data[n+i*2+1],
+				tmp_buf[i]);
 		}
 	}
 
@@ -1435,20 +1445,20 @@ int handle_tcon_vac(unsigned char *vac_data, unsigned int vac_mem_size)
 	data_cnt += tmp_cnt;
 	if ((tmp_cnt > CC_MAX_TCON_VAC_SIZE) || (tmp_cnt < len)) {
 		ALOGE("%s: invalid vac_ramt3_5 data cnt %d\n", __func__, tmp_cnt);
-	} else if (data_cnt > vac_mem_size) {
+		return -1;
+	}if (data_cnt > vac_mem_size) {
 		ALOGE("data size %d is out of memory size %d (data_cnt=%d)\n",
 		      (data_cnt * 2), vac_mem_size, data_cnt);
 		return -1;
-	} else {
-		n += (len * 2);
-		for (i = 0; i < len; i++) {
-			vac_data[n+i*2] = tmp_buf[i] & 0xff;
-			vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
-			if ((model_debug_flag & DEBUG_TCON) && (i < 30)) {
-				ALOGD("vac_ramt3_5_data: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
-					vac_data[n+i*2], vac_data[n+i*2+1],
-					tmp_buf[i]);
-			}
+	}
+	n += (len * 2);
+	for (i = 0; i < len; i++) {
+		vac_data[n+i*2] = tmp_buf[i] & 0xff;
+		vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
+		if ((model_debug_flag & DEBUG_TCON) && (i < 30)) {
+			ALOGD("vac_ramt3_5_data: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
+				vac_data[n+i*2], vac_data[n+i*2+1],
+				tmp_buf[i]);
 		}
 	}
 
@@ -1457,20 +1467,21 @@ int handle_tcon_vac(unsigned char *vac_data, unsigned int vac_mem_size)
 	data_cnt += tmp_cnt;
 	if ((tmp_cnt > CC_MAX_TCON_VAC_SIZE) || (tmp_cnt < len)) {
 		ALOGE("%s: invalid vac_ramt3_6 data cnt %d\n", __func__, tmp_cnt);
-	} else if (data_cnt > vac_mem_size) {
+		return -1;
+	}
+	if (data_cnt > vac_mem_size) {
 		ALOGE("data size %d is out of memory size %d (data_cnt=%d)\n",
 		      (data_cnt * 2), vac_mem_size, data_cnt);
 		return -1;
-	} else {
-		n += (len * 2);
-		for (i = 0; i < len; i++) {
-			vac_data[n+i*2] = tmp_buf[i] & 0xff;
-			vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
-			if ((model_debug_flag & DEBUG_TCON) && (i < 30)) {
-				ALOGD("vac_ramt3_6_data: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
-					vac_data[n+i*2], vac_data[n+i*2+1],
-					tmp_buf[i]);
-			}
+	}
+	n += (len * 2);
+	for (i = 0; i < len; i++) {
+		vac_data[n+i*2] = tmp_buf[i] & 0xff;
+		vac_data[n+i*2+1] = (tmp_buf[i] >> 8) & 0xff;
+		if ((model_debug_flag & DEBUG_TCON) && (i < 30)) {
+			ALOGD("vac_ramt3_6_data: 0x%02x, 0x%02x; tmp_buf: 0x%04x\n",
+				vac_data[n+i*2], vac_data[n+i*2+1],
+				tmp_buf[i]);
 		}
 	}
 

@@ -99,5 +99,8 @@ extern int handle_tcon_demura_lut(unsigned char *demura_lut_data,
 				  unsigned int demura_lut_size);
 #endif
 
+#define TCON_VAC_SET_PARAM_NUM    3
+#define TCON_VAC_LUT_PARAM_NUM    256
+
 #endif
 

@@ -275,10 +275,10 @@ static int lcd_tcon_enable_txhd(struct lcd_config_s *pconf)
 	return 0;
 }
 
-static void lcd_tcon_vac_set_tl1(void)
+static void lcd_tcon_vac_set_tl1(unsigned int demura_valid)
 {
 	int len, i, j, n;
-	unsigned int d0, d1, temp, set1, set2;
+	unsigned int d0, d1, temp, demura_support, set1, set2;
 	unsigned char *vac_data =
 		(unsigned char *)(unsigned long)(tcon_rmem.vac_mem_paddr);
 
@@ -288,18 +288,28 @@ static void lcd_tcon_vac_set_tl1(void)
 	LCDPR("lcd_tcon vac_set\n");
 
 	n = 0;
-	set1 = vac_data[n];
-	set2 = vac_data[n+2];
-	n += (2 * 2);
+	len = TCON_VAC_SET_PARAM_NUM;
+	demura_support = vac_data[n];
+	set1 = vac_data[n + 2];
+	set2 = vac_data[n + 4];
+	n += (len * 2);
 	if (lcd_debug_print_flag)
-		LCDPR("vac_set: 0x%x, 0x%x\n", set1, set2);
+		LCDPR("vac_set: %d, 0x%x, 0x%x\n", demura_support, set1, set2);
+
+	/* vac support demura policy */
+	if (demura_support) {
+		if (demura_valid == 0) {
+			LCDPR("lcd_tcon vac_set exit for demura invalid\n");
+			return;
+		}
+	}
 
 	lcd_tcon_write_byte(0x0267, lcd_tcon_read_byte(0x0267) | 0xa0);
 	/*vac_cntl, 12pipe delay temp for pre_dt*/
 	lcd_tcon_write(0x2800, 0x807);
 	lcd_tcon_write(0x2817, (0x1e | ((set1 & 0xff) << 8)));
 
-	len = 256;
+	len = TCON_VAC_LUT_PARAM_NUM;
 	if (lcd_debug_print_flag)
 		LCDPR("%s: start write vac_ramt1~2\n", __func__);
 	/*write vac_ramt1: 8bit, 256 regs*/
@@ -549,7 +559,8 @@ static int lcd_tcon_enable_tl1(struct lcd_config_s *pconf)
 	unsigned char *table = lcd_tcon_data->reg_table;
 	unsigned int n = 10;
 	char *str;
-	int ret, ret_vac, ret_demura;
+	int ret;
+	unsigned int vac_valid = 0, demura_valid = 0;
 
 	ret = lcd_tcon_valid_check();
 	if (ret)
@@ -559,18 +570,24 @@ static int lcd_tcon_enable_tl1(struct lcd_config_s *pconf)
 	if (str)
 		n = (unsigned int)simple_strtoul(str, NULL, 10);
 
-	ret_vac = lcd_tcon_vac_load();
-	ret_demura = lcd_tcon_demura_set_load();
-	if (ret_demura)  {
+	ret = lcd_tcon_vac_load();
+	if (ret == 0)
+		vac_valid = 1;
+	ret = lcd_tcon_demura_set_load();
+	if (ret)  {
 		table[0x178] = 0x38;
 		table[0x17c] = 0x20;
+		table[0x181] = 0x00;
 		table[0x23d] &= ~(1 << 0);
 	} else {
-		ret_demura = lcd_tcon_demura_lut_load();
-		if (ret_demura)  {
+		ret = lcd_tcon_demura_lut_load();
+		if (ret)  {
 			table[0x178] = 0x38;
 			table[0x17c] = 0x20;
+			table[0x181] = 0x00;
 			table[0x23d] &= ~(1 << 0);
+		} else {
+			demura_valid = 1;
 		}
 	}
 
@@ -589,9 +606,9 @@ static int lcd_tcon_enable_tl1(struct lcd_config_s *pconf)
 		}
 	}
 
-	if (ret_vac == 0)
-		lcd_tcon_vac_set_tl1();
-	if (ret_demura == 0) {
+	if (vac_valid)
+		lcd_tcon_vac_set_tl1(demura_valid);
+	if (demura_valid) {
 		lcd_tcon_demura_set_tl1();
 		lcd_tcon_demura_lut_tl1();
 	}
