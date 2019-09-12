@@ -63,6 +63,7 @@ const struct spi_flash_info spi_flash_ids[] = {
 #endif
 #ifdef CONFIG_SPI_FLASH_GIGADEVICE	/* GIGADEVICE */
 	{"gd25q16c",	   INFO(0xc84015, 0x0, 64 * 1024,    32, RD_FULL | WR_QPP | SECT_4K) },
+	{"gd25q127c",	   INFO(0xc84018, 0x0, 64 * 1024,   256, SECT_4K) },
 	/*
 	 * The id of gd25q64b and gd25q64c are the same, but the commands
 	 * that enable qe are different. For software compatibility,
