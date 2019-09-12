@@ -128,6 +128,23 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if ((*endp != 0) && (*endp != ':') && (*endp != '#'))
 			return do_bootm_subcommand(cmdtp, flag, argc, argv);
 	}
+
+	unsigned int nLoadAddr = GXB_IMG_LOAD_ADDR; //default load address
+
+	if (argc > 0)
+	{
+		char *endp;
+		nLoadAddr = simple_strtoul(argv[0], &endp, 16);
+		//printf("aml log : addr = 0x%x\n",nLoadAddr);
+	}
+
+	nRet = aml_sec_boot_check(AML_D_P_IMG_DECRYPT,nLoadAddr,GXB_IMG_SIZE,GXB_IMG_DEC_ALL);
+	if (nRet)
+	{
+		printf("\naml log : Sig Check %d\n",nRet);
+		return nRet;
+	}
+
 #ifdef CONFIG_CMD_BOOTCTOL_AVB
 	char *avb_s = env_get("avb2");
 	if (avb_s == NULL) {

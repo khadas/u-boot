@@ -135,8 +135,8 @@ efuse_action:
 			lAddr1 = simple_strtoul(argv[2], &end, 16);
 
 		lAddr2 = get_sharemem_info(GET_SHARE_MEM_INPUT_BASE);
-		memcpy((void *)lAddr2, (void *)lAddr1, GXB_EFUSE_PATTERN_SIZE);
-		flush_cache(lAddr2, GXB_EFUSE_PATTERN_SIZE);
+		memcpy((void *)lAddr2, (void *)lAddr1, GXB_EFUSE_PATTERN_SIZE<<1);
+		flush_cache(lAddr2, GXB_EFUSE_PATTERN_SIZE<<1);
 
 		switch (action) {
 		case CMD_EFUSE_SECURE_BOOT_SET:
@@ -155,7 +155,7 @@ efuse_action:
 			return -1;
 		}
 
-		ret = aml_sec_boot_check(nType, lAddr2, GXB_EFUSE_PATTERN_SIZE, 0);
+		ret = aml_sec_boot_check(nType, lAddr2, GXB_EFUSE_PATTERN_SIZE<<1, 0);
 		if (ret)
 			printf("aml log : EFUSE pattern programming fail [%d]!\n",
 			       ret);
