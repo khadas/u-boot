@@ -94,6 +94,9 @@ static int do_bootm_subcommand(cmd_tbl_t *cmdtp, int flag, int argc,
 /* bootm - boot application image from image in memory */
 /*******************************************************************/
 
+//temp solution for A1, as A1 secure boot not ready yet...
+#include <amlogic/cpu_id.h>
+//end
 int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int nRet = 0;
@@ -139,6 +142,12 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	nRet = aml_sec_boot_check(AML_D_P_IMG_DECRYPT,nLoadAddr,GXB_IMG_SIZE,GXB_IMG_DEC_ALL);
+
+	//temp solution for A1, as A1 secure boot not ready yet...
+	if (MESON_CPU_MAJOR_ID_A1 == get_cpu_id().family_id)
+		nRet = 0;
+	//end
+
 	if (nRet)
 	{
 		printf("\naml log : Sig Check %d\n",nRet);
