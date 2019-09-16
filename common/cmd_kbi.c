@@ -686,9 +686,28 @@ static int set_blue_led_mode(int type, int mode)
 
 static int do_kbi_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
-	int enable = get_wol(false);
-	if ((enable&0x01) != 0)
-		set_wol(false, enable);
+	//burn ethernet mac address
+	char cmd[64];
+	char mac_str[12];
+	int i;
+	int count = 0;
+	run_command("efuse mac", 0);
+	char *s = getenv("eth_mac");
+	if (strcmp(s, "00:00:00:00:00:00") == 0) {
+		char *mac = getenv("factory_mac");
+		if (mac == NULL)
+			return 0;
+		int len = strlen(mac);
+		for (i = 0 ; i< len; i++) {
+			if (mac[i] != ':') {
+				mac_str[count] = mac[i];
+				count++;
+			}
+		}
+		sprintf(cmd, "efuse write 0 0xc %s", mac_str);
+		printf("=====write mac=%s\n", mac_str);
+		run_command(cmd, 0);
+	}
 	return 0;
 }
 

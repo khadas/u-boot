@@ -332,6 +332,9 @@
             "get_avb_mode;"\
             "get_valid_slot;"\
             "\0"\
+        "burn_mac="\
+            "kbi init;"\
+            "\0"\
         "upgrade_key="\
             "if gpio input GPIOAO_7; then "\
                 "echo detect upgrade key; run update;"\
@@ -350,6 +353,7 @@
 
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
+            "run burn_mac;"\
             "run factory_reset_poweroff_protect;"\
             "run upgrade_check;"\
             "run init_display;"\
