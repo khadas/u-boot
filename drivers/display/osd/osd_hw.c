@@ -2901,6 +2901,20 @@ void osd_init_hw_viu2(void)
 }
 #endif
 
+static void set_vpp_super_position(void)
+{
+#define PREBLD_SR0_VD1_SCALER		(1 << 1)
+#define DNLP_SR1_CM			        (1 << 3)
+
+	if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) ||
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B) ||
+		 (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SM1))
+		osd_reg_set_mask(VPP_MISC, PREBLD_SR0_VD1_SCALER);
+	else if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TL1) ||
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TM2))
+		osd_reg_set_mask(VPP_MISC, DNLP_SR1_CM);
+}
+
 void osd_init_hw(void)
 {
 	u32 group, idx, data32, data2;
@@ -2993,6 +3007,8 @@ void osd_init_hw(void)
 
 	if (osd_hw.osd_ver <= OSD_NORMAL)
 		osd_reg_clr_mask(VPP_MISC, VPP_POST_FG_OSD2 | VPP_PRE_FG_OSD2);
+	else if (osd_hw.osd_ver > OSD_NORMAL)
+		set_vpp_super_position();
 	osd_hw.order = OSD_ORDER_01;
 	osd_hw.enable[OSD2] = osd_hw.enable[OSD1] = DISABLE;
 	osd_hw.fb_gem[OSD1].canvas_idx = OSD1_CANVAS_INDEX;
