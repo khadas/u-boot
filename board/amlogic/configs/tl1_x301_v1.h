@@ -133,7 +133,7 @@
 		"cec_ac_wakeup=0\0" \
         "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\
-        "mem_size=2g\0"\
+        "mem_size=1g\0"\
         "initargs="\
             "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xff803000 printk.devkmsg=on ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
@@ -674,7 +674,7 @@
 #define CONFIG_SYS_MEM_TOP_HIDE 0x08000000 //hide 128MB for kernel reserve
 #define CONFIG_CMD_LOADB    1
 #define CONFIG_MULTI_DTB    1
-//#define CONFIG_AUTO_ADAPT_DDR_DTB 1
+#define CONFIG_AUTO_ADAPT_DDR_DTB 1
 
 /* debug mode defines */
 //#define CONFIG_DEBUG_MODE           1

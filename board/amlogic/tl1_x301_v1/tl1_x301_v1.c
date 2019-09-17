@@ -908,6 +908,8 @@ int checkhw(char * name)
 	unsigned int ddr_size = 0;
 	char loc_name[64] = {0};
 	int i;
+	char *mem_size = getenv("mem_size");
+
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		ddr_size += gd->bd->bi_dram[i].size;
 	}
@@ -917,6 +919,11 @@ int checkhw(char * name)
 	switch (ddr_size) {
 		case 0x80000000:
 			strcpy(loc_name, "tl1_t962x2_x301-2g\0");
+
+			/* if limit memory size */
+			if (!strcmp(mem_size, "1g")) {
+				strcpy(loc_name, "tl1_t962x2_x301-1g\0");
+			}
 			break;
 		case 0x40000000:
 			strcpy(loc_name, "tl1_t962x2_x301-1g\0");
