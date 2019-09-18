@@ -266,6 +266,8 @@ static void pcd_setup(pcd_struct_t *_pcd)
 	case USB_REQ_SET_CONFIGURATION:
 		/* Configuration changed */
 		req_flag->request_config = 1;
+		driver->setup(gadget, &ctrl);
+		break;
 	default:
 		DBG("Call the Gadget Driver's setup functions\n");
 		/* Call the Gadget Driver's setup functions */
@@ -828,8 +830,6 @@ static void dwc_otg_pcd_handle_in_ep_intr(void)
 	u32 epnum = 0;
 
 	/* Read in the device interrupt bits */
-	ep_intr = dwc_read_reg32(DWC_REG_DAINT);
-
 	ep_intr = (dwc_read_reg32(DWC_REG_DAINT) &
 		dwc_read_reg32(DWC_REG_DAINTMSK));
 	ep_intr =(ep_intr & 0xffff);
