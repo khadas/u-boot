@@ -23,6 +23,7 @@
 #include <asm/arch/io.h>
 #include <asm/arch/cpu_sdio.h>
 #include <asm/arch/secure_apb.h>
+#include <common.h>
 
 void  cpu_sd_emmc_pwr_prepare(unsigned port)
 {
@@ -67,7 +68,12 @@ int cpu_sd_emmc_init(unsigned port)
 		writel(0x5fff, P_PAD_PULL_UP_REG4);
 		clrsetbits_le32(P_PERIPHS_PIN_MUX_0, 0xEEEEEEEE, 0x11111111);
 		clrsetbits_le32(P_PERIPHS_PIN_MUX_1, 0xEFFEFE, 0x100101);
-		/* fixme, need a hardware reset ? */
+
+		/* hardware reset with pull boot9 */
+		clrbits_le32(PREG_PAD_GPIO4_EN_N, 1<<9);
+		clrbits_le32(PREG_PAD_GPIO4_O, 1<<9);
+		udelay(10);
+		setbits_le32(PREG_PAD_GPIO4_O, 1<<9);
 
 		break;
 	case SDIO_PORT_A:
