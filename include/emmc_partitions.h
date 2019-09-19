@@ -233,7 +233,7 @@ struct _mmc_device{
 #define LOCK_MAJOR_VERSION 1
 #define LOCK_MINOR_VERSION 0
 
-#define LOCK_DATA_SIZE 8
+#define LOCK_DATA_SIZE 16
 
 typedef struct LockData {
 	uint8_t version_major;

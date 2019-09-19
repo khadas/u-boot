@@ -166,13 +166,13 @@ static char response_str[RESPONSE_LEN + 1];
 
 void fastboot_fail(const char *s)
 {
-	strncpy(response_str, "FAIL", 4);
+	strncpy(response_str, "FAIL", 5);
 	if (s)strncat(response_str, s, RESPONSE_LEN - 4 - 1) ;
 }
 
 void fastboot_okay(const char *s)
 {
-	strncpy(response_str, "OKAY", 4);
+	strncpy(response_str, "OKAY", 5);
 	if (s)strncat(response_str, s, RESPONSE_LEN - 4 - 1) ;
 }
 
@@ -357,16 +357,18 @@ static int  fastboot_setup(struct usb_function *f,
 
 static int fastboot_add(struct usb_configuration *c)
 {
-	struct f_fastboot *f_fb = fastboot_func;
+	struct f_fastboot *f_fb;
 	int status;
 
-	if (!f_fb) {
+	if (fastboot_func == NULL) {
 		f_fb = memalign(CONFIG_SYS_CACHELINE_SIZE, sizeof(*f_fb));
 		if (!f_fb)
 			return -ENOMEM;
 
 		fastboot_func = f_fb;
 		memset(f_fb, 0, sizeof(*f_fb));
+	} else {
+		f_fb = fastboot_func;
 	}
 
 	f_fb->usb_function.name = "f_fastboot";
@@ -381,7 +383,7 @@ static int fastboot_add(struct usb_configuration *c)
 	status = usb_add_function(c, &f_fb->usb_function);
 	if (status) {
 		free(f_fb);
-		fastboot_func = f_fb;
+		fastboot_func = NULL;
 	}
 
 	return status;
@@ -478,20 +480,27 @@ static int check_lock(void)
 	}
 	printf("lock state: %s\n", lock_s);
 
-	info = (LockData_t*)malloc(sizeof(struct LockData));
-	memset(info,0,LOCK_DATA_SIZE);
-	info->version_major = (int)(lock_s[0] - '0');
-	info->version_minor = (int)(lock_s[1] - '0');
-	info->lock_state = (int)(lock_s[4] - '0');
-	info->lock_critical_state = (int)(lock_s[5] - '0');
-	info->lock_bootloader = (int)(lock_s[6] - '0');
+	info = malloc(sizeof(struct LockData));
+	if (info) {
+		memset(info,0,LOCK_DATA_SIZE);
+		info->version_major = (int)(lock_s[0] - '0');
+		info->version_minor = (int)(lock_s[1] - '0');
+		info->lock_state = (int)(lock_s[4] - '0');
+		info->lock_critical_state = (int)(lock_s[5] - '0');
+		info->lock_bootloader = (int)(lock_s[6] - '0');
 
-	dump_lock_info(info);
-
-	if (( info->lock_state == 1 ) || ( info->lock_critical_state == 1 ))
-		return 1;
-	else
+		dump_lock_info(info);
+	} else
 		return 0;
+
+	if ((info->lock_state == 1 ) || ( info->lock_critical_state == 1 )) {
+		free (info);
+		return 1;
+	}
+	else {
+		free (info);
+		return 0;
+	}
 }
 
 static const char* getvar_list[] = {
@@ -557,14 +566,14 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	}
 	if (!strncmp(cmd, "all", 3)) {
 		static int cmdIndex = 0;
-		int getvar_num;
-		if (has_boot_slot == 1) {
+		int getvar_num = 0;
+		if (has_boot_slot == 1 && strlen(getvar_list_ab[cmdIndex]) < 64) {
 			strcpy(cmd, getvar_list_ab[cmdIndex]);
 			getvar_num = (sizeof(getvar_list_ab) / sizeof(getvar_list_ab[0]));
-		} else if (dynamic_partition) {
+		} else if (dynamic_partition && strlen(getvar_list_dynamic[cmdIndex]) < 64) {
 			strcpy(cmd, getvar_list_dynamic[cmdIndex]);//only support no-arg cmd
 			getvar_num = (sizeof(getvar_list_dynamic) / sizeof(getvar_list_dynamic[0]));
-		} else {
+		} else if (strlen(getvar_list[cmdIndex]) < 64) {
 			strcpy(cmd, getvar_list[cmdIndex]);//only support no-arg cmd
 			getvar_num = (sizeof(getvar_list) / sizeof(getvar_list[0]));
 		}
@@ -1056,11 +1065,10 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd;
 	char* response = response_str;
-	char *lock_s;
+	char* lock_s;
 	LockData_t* info;
 	size_t chars_left;
 	char lock_d[LOCK_DATA_SIZE];
-	static int cmd_index = -1;
 
 	lock_s = getenv("lock");
 	if (!lock_s) {
@@ -1071,10 +1079,18 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 		run_command("defenv_reserv; saveenv;", 0);
 	} else {
 		printf("lock state: %s\n", lock_s);
-		strcpy(lock_d, lock_s);
+		if (strlen(lock_s) > 15)
+			strncpy(lock_d, lock_s, 15);
+		else
+			strncpy(lock_d, lock_s, strlen(lock_s));
 	}
 
-	info = (LockData_t*)malloc(sizeof(struct LockData));
+	info = malloc(sizeof(struct LockData));
+	if (!info) {
+		error("malloc error\n");
+		fastboot_tx_write_str("FAILmalloc error");
+		return;
+	}
 	memset(info,0,LOCK_DATA_SIZE);
 	info->version_major = (int)(lock_d[0] - '0');
 	info->version_minor = (int)(lock_d[1] - '0');
@@ -1089,38 +1105,10 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 	strsep(&cmd, " ");
 	printf("cb_flashing: %s\n", cmd);
 	if (!cmd) {
-		if ( cmd_index == -1 ) {
-			error("missing variable\n");
-			fastboot_tx_write_str("FAILmissing var");
-			return;
-		} else {
-			fastboot_tx_write_str(response);
-			return;
-		}
-	}
-
-	if (!strncmp(cmd, "get_unlock_ability", 18)) {
-		cmd_index = 0;
-		strcpy(cmd, "get_unlock_ability");
-		if ( ++cmd_index >= 2) cmd_index = 0;
-		else fastboot_busy(NULL);
-		FB_MSG("flashing cmd:%s\n", cmd);
-		chars_left = sizeof(response_str) - strlen(response) - 1;
-		strncat(response, cmd, chars_left);
-		strncat(response, ":", 1);
-		chars_left -= strlen(cmd) + 1;
-	}
-
-	if (!strncmp(cmd, "get_unlock_bootloader_nonce", 27)) {
-		cmd_index = 0;
-		strcpy(cmd, "get_unlock_bootloader_nonce");
-		if ( ++cmd_index >= 2) cmd_index = 0;
-		else fastboot_busy(NULL);
-		FB_MSG("flashing cmd:%s\n", cmd);
-		chars_left = sizeof(response_str) - strlen(response) - 1;
-		strncat(response, cmd, chars_left);
-		strncat(response, ":", 1);
-		chars_left -= strlen(cmd) + 1;
+		error("missing variable\n");
+		fastboot_tx_write_str("FAILmissing var");
+		free(info);
+		return;
 	}
 
 	if (!strcmp_l1("unlock_critical", cmd)) {
@@ -1128,11 +1116,11 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 	} else if (!strcmp_l1("lock_critical", cmd)) {
 		info->lock_critical_state = 1;
 	} else if (!strcmp_l1("get_unlock_ability", cmd)) {
-		char str_num[1];
+		char str_num[8];
 		sprintf(str_num, "%d", info->lock_state);
 		strncat(response, str_num, chars_left);
 	} else if (!strcmp_l1("get_unlock_bootloader_nonce", cmd)) {
-		char str_num[1];
+		char str_num[8];
 		sprintf(str_num, "%d", info->lock_critical_state);
 		strncat(response, str_num, chars_left);
 	} else if (!strcmp_l1("unlock_bootloader", cmd)) {
@@ -1198,7 +1186,7 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 	setenv("lock", lock_d);
 	run_command("defenv_reserv; saveenv;", 0);
 	printf("response: %s\n", response);
-
+	free(info);
 	fastboot_tx_write_str(response);
 }
 
