@@ -84,6 +84,7 @@
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS \
         "firstboot=1\0"\
+        "factory_mode=0\0"\
         "upgrade_step=0\0"\
         "jtag=disable\0"\
         "loadaddr=1080000\0"\
@@ -101,7 +102,7 @@
         "active_slot=normal\0"\
         "boot_part=boot\0"\
         "initargs="\
-            "rootfstype=ramfs init=/init console=ttyS0,115200 no_console_suspend earlycon=aml_uart,0xff803000 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
+            "rootfstype=ramfs init=/init ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
             "echo recovery_status=${recovery_status};"\
@@ -209,6 +210,23 @@
         "bcb_cmd="\
             "get_valid_slot;"\
             "\0"\
+        "set_adb_debuggable="\
+            "echo enable adb debug prop;"\
+            "setenv bootargs ${bootargs} android.debuggable=1 android.secure=0;"\
+            "setenv bootargs ${bootargs} console=ttyS0,115200 no_console_suspend earlycon=aml_uart,0xff803000;"\
+            "\0"\
+        "clr_adb_debuggable="\
+            "echo disable adb debug prop;"\
+            "setenv bootargs ${bootargs} android.debuggable=0 android.secure=1;"\
+            "setenv bootargs ${bootargs} console=ttyS9,115200 no_console_suspend;"\
+            "\0"\
+        "adb_setting="\
+            "if itest ${factory_mode} == 1; then "\
+                "run clr_adb_debuggable;"\
+            "else "\
+                "run set_adb_debuggable;"\
+            "fi;"\
+            "\0"\
         "upgrade_key="\
             "if gpio input GPIOAO_3; then "\
                 "echo detect upgrade key; run update;"\
@@ -230,6 +248,7 @@
             "run factory_reset_poweroff_protect;"\
             "run upgrade_check;"\
             "run storeargs;"\
+            "run adb_setting;"\
             "run switch_bootmode;"
 #define CONFIG_BOOTCOMMAND "run storeboot"
 
