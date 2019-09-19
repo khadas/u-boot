@@ -19,6 +19,7 @@ obj-$(CONFIG_CMD_RSVMEM) += cmd_rsvmem.o
 
 ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 obj-y += cmd_bcb.o
+obj-y += get_bcb_boot_part.o
 ifdef CONFIG_CMD_BOOTCTOL_AVB
 obj-y += cmd_bootctl_avb.o
 else

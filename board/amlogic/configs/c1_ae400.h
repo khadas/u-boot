@@ -105,7 +105,7 @@
         "boot_part=boot\0"\
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
-        "get_os_type=if store read ${os_ident_addr} boot 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
+        "get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
         "fatload_dev=usb\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
@@ -150,7 +150,7 @@
             "run get_os_type;"\
             "if test ${os_type} = rtos; then "\
                 "setenv loadaddr ${loadaddr_rtos};"\
-                "store read ${loadaddr} boot 0 0x400000;"\
+                "store read ${loadaddr} ${boot_part} 0 0x400000;"\
                 "bootm ${loadaddr};"\
             "else if test ${os_type} = kernel; then "\
                 "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
@@ -190,7 +190,7 @@
             "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
             "\0"\
         "bcb_cmd="\
-            "get_valid_slot;"\
+            "get_boot_part;"\
             "\0"\
         "cmdline_keys="\
             "setenv usid 1234567890; setenv region_code US;"\
