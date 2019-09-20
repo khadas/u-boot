@@ -212,6 +212,12 @@ config C1_AE400
 	help
 	  Select C1 AE400 config
 
+config C1_AE401
+	bool "C1_AE401"
+	select TARGET_C1_AE401
+	help
+	  Select C1 AE401 config
+
 endchoice
 
 config TARGET_C1_AE409
@@ -221,6 +227,10 @@ config TARGET_C1_AE409
 config TARGET_C1_AE400
 	bool "C1 AE400 board"
 	depends on C1_AE400
+
+config TARGET_C1_AE401
+	bool "C1 AE401 board"
+	depends on C1_AE401
 
 endif
 
@@ -257,6 +267,8 @@ source "board/amlogic/a1_ad409/Kconfig"
 source "board/amlogic/a1_ad401/Kconfig"
 
 source "board/amlogic/c1_ae400/Kconfig"
+
+source "board/amlogic/c1_ae401/Kconfig"
 
 source "board/amlogic/c1_ae409/Kconfig"
 
