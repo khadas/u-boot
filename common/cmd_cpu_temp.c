@@ -178,7 +178,7 @@ static int adc_init_chan6(void)
 		writel(0x00000110, SAR_CLK_CNTL);/*Clock*/
 		writel(0x002c2060, SAR_ADC_REG11);/*bit20 disabled*/
 		#ifdef MANUAL_POWER
-		if ((ver != 0x9) || (ver != 0xa) || (ver != 0xb))/*ft trim no use 1.8v*/
+		if (0 == ((ver == 0x9) || (ver == 0xa) || (ver == 0xb)))/*ft trim no use 1.8v*/
 		#endif
 		writel(readl(SAR_ADC_REG11) | 0x1, SAR_ADC_REG11);/*manual trim use 1.8V*/
 		break;
@@ -587,6 +587,7 @@ static int do_write_trim(cmd_tbl_t *cmdtp, int flag1,
 
 static int read_temp0(void)
 {
+#ifndef R1P1_TSENSOR_MODE
 	int temp;
 	int TS_C;
 	int flag, adc, count, tempa;
@@ -653,9 +654,8 @@ static int read_temp0(void)
 		setenv("err_info_tempa", buf);
 		return -1;
 	}
-
+#endif
 	return 0;
-
 }
 
 #if defined(NEW_THERMAL_MODE)
@@ -709,14 +709,13 @@ static int do_read_temp(cmd_tbl_t *cmdtp, int flag1,
 #if defined(R1P1_TSENSOR_MODE)
 		printf("read temp\n");
 		r1p1_read_entry();
-		return 0;
 #endif
-
 #if defined(NEW_THERMAL_MODE)
 		printf("read new and old temp\n");
 		read_temp1();
 #endif
 		read_temp0();
+
 	return 0;
 }
 
