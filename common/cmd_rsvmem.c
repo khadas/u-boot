@@ -67,7 +67,12 @@ static int do_rsvmem_check(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 
 	memset(cmdbuf, 0, sizeof(cmdbuf));
-	sprintf(cmdbuf, "fdt addr %s;", fdtaddr);
+	if (strlen(fdtaddr) + strlen("fdt addr ;") < sizeof(cmdbuf)) {
+		sprintf(cmdbuf, "fdt addr %s;", fdtaddr);
+	} else {
+		rsvmem_err("cmdbuf length not enough!\n");
+		return -1;
+	}
 	rsvmem_dbg("CMD: %s\n", cmdbuf);
 	ret = run_command(cmdbuf, 0);
 	if (ret != 0 ) {
