@@ -130,7 +130,6 @@ static unsigned int detect_key(unsigned int suspend_from)
 	unsigned char adc_key_cnt = 0;
 
 	init_remote();
-	saradc_enable();
 
 	do {
 		if (irq[IRQ_AO_IR_DEC] == IRQ_AO_IR_DEC_NUM) {
@@ -151,6 +150,7 @@ static unsigned int detect_key(unsigned int suspend_from)
 
 		if (irq[IRQ_AO_TIMERA] == IRQ_AO_TIMERA_NUM) {
 			irq[IRQ_AO_TIMERA] = 0xFFFFFFFF;
+			saradc_enable();
 			if (check_adc_key_resume()) {
 				adc_key_cnt++;
 				/*using variable 'adc_key_cnt' to eliminate the dithering of the key*/
@@ -159,6 +159,7 @@ static unsigned int detect_key(unsigned int suspend_from)
 			} else {
 				adc_key_cnt = 0;
 			}
+			saradc_disable();
 		}
 
 		if (exit_reason)
@@ -166,8 +167,6 @@ static unsigned int detect_key(unsigned int suspend_from)
 		else
 			__switch_idle_task();
 	} while (1);
-
-	saradc_disable();
 
 	return exit_reason;
 }

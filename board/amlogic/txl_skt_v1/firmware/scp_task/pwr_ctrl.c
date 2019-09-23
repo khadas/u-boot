@@ -250,7 +250,6 @@ static unsigned int detect_key(unsigned int suspend_from)
 	unsigned *irq = (unsigned *)WAKEUP_SRC_IRQ_ADDR_BASE;
 	/* unsigned *wakeup_en = (unsigned *)SECURE_TASK_RESPONSE_WAKEUP_EN; */
 
-	saradc_enable();
 	reset_ao_timera();
 	/* setup wakeup resources*/
 	init_remote();
@@ -273,6 +272,7 @@ static unsigned int detect_key(unsigned int suspend_from)
 #endif
 		if (irq[IRQ_AO_TIMERA] == IRQ_AO_TIMERA_NUM) {
 			irq[IRQ_AO_TIMERA] = 0xFFFFFFFF;
+			saradc_enable();
 			if (check_adc_key_resume()) {
 				adc_key_cnt++;
 				/*using variable 'adc_key_cnt' to eliminate the dithering of the key*/
@@ -281,6 +281,7 @@ static unsigned int detect_key(unsigned int suspend_from)
 			} else {
 				adc_key_cnt = 0;
 			}
+			saradc_disable();
 		}
 		if (irq[IRQ_AO_IR_DEC] == IRQ_AO_IR_DEC_NUM) {
 			irq[IRQ_AO_IR_DEC] = 0xFFFFFFFF;
@@ -298,7 +299,6 @@ static unsigned int detect_key(unsigned int suspend_from)
 			asm volatile("wfi");
 	} while (1);
 	restore_ao_timer();
-	saradc_disable();
 	return exit_reason;
 }
 
