@@ -205,6 +205,18 @@
                 "if keyman read deviceid ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
                 "fi;"\
+                "if keyman read lang ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} androidboot.lang=${lang};"\
+                "fi;"\
+                "if keyman read country ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} androidboot.country=${country};"\
+                "fi;"\
+                "if keyman read locale_lang ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} androidboot.locale.lang=${locale_lang};"\
+                "fi;"\
+                "if keyman read locale_region ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} androidboot.locale.region=${locale_region};"\
+                "fi;"\
             "fi;"\
             "\0"\
         "bcb_cmd="\
