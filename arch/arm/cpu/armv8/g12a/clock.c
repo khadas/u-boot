@@ -450,7 +450,7 @@ unsigned long clk_util_clk_msr(unsigned long clk_mux)
 
 int clk_msr(int index)
 {
-	unsigned int index_total;
+	unsigned int index_total = 0;
 	int i = 0;
 	bool is_g12a = false;
 
