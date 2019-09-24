@@ -323,7 +323,7 @@
             "fi;"\
             "\0"\
         "init_display="\
-            "lcd enable;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode}"\
+		"osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode}"\
             "\0"\
         "check_display="\
             "if test ${reboot_mode} = cold_boot; then "\
