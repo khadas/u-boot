@@ -163,6 +163,37 @@ static int handle_integrity_flag(void)
 	return 0;
 }
 
+static int handle_tcon_path(void)
+{
+	const char *ini_value = NULL;
+
+	ini_value = IniGetString("lcd_Path", "TCON_BIN_PATH", "null");
+	if (strcmp(ini_value, "null") != 0)
+		setenv("model_tcon", ini_value);
+	else if (model_debug_flag & DEBUG_TCON)
+		ALOGE("%s, tcon bin load file error!\n", __func__);
+
+	ini_value = IniGetString("tcon_Path", "TCON_VAC_PATH", "null");
+	if (strcmp(ini_value, "null") != 0)
+		setenv("model_tcon_vac", ini_value);
+	else if (model_debug_flag & DEBUG_TCON)
+		ALOGE("%s, vac ini load file error!\n", __func__);
+
+	ini_value = IniGetString("tcon_Path", "TCON_DEMURA_SET_PATH", "null");
+	if (strcmp(ini_value, "null") != 0)
+		setenv("model_tcon_demura_set", ini_value);
+	else if (model_debug_flag & DEBUG_TCON)
+		ALOGE("%s, demura set load file error!\n", __func__);
+
+	ini_value = IniGetString("tcon_Path", "TCON_DEMURA_LUT_PATH", "null");
+	if (strcmp(ini_value, "null") != 0)
+		setenv("model_tcon_demura_lut", ini_value);
+	else if (model_debug_flag & DEBUG_TCON)
+		ALOGE("%s, demura lut load file error!\n", __func__);
+
+	return 0;
+}
+
 static int handle_lcd_basic(struct lcd_attr_s *p_attr)
 {
 	const char *ini_value = NULL;
@@ -1081,8 +1112,12 @@ static int handle_panel_misc(struct panel_misc_s *p_misc)
 	return 0;
 }
 
-static int parse_panel_ini(const char *file_name, struct lcd_attr_s *lcd_attr, struct lcd_ext_attr_s *lcd_ext_attr, struct bl_attr_s *bl_attr, struct panel_misc_s *misc_attr)
+static int parse_panel_ini(const char *file_name, struct lcd_attr_s *lcd_attr,
+			   struct lcd_ext_attr_s *lcd_ext_attr,
+			   struct bl_attr_s *bl_attr,
+			   struct panel_misc_s *misc_attr)
 {
+
 	memset((void *)lcd_attr, 0, sizeof(struct lcd_attr_s));
 	memset((void *)bl_attr, 0, sizeof(struct bl_attr_s));
 
@@ -1100,7 +1135,10 @@ static int parse_panel_ini(const char *file_name, struct lcd_attr_s *lcd_attr, s
 		return -1;
 	}
 
-	// handle lcd attr
+	/*handle lcd tcon path */
+	handle_tcon_path();
+
+	/* handle lcd attr */
 	handle_lcd_basic(lcd_attr);
 	handle_lcd_timming(lcd_attr);
 	handle_lcd_customer(lcd_attr);
@@ -1702,22 +1740,6 @@ int parse_model_sum(const char *file_name, char *model_name)
 		setenv("model_panel", ini_value);
 	else
 		ALOGE("%s, invalid PANELINI_PATH!!!\n", __func__);
-
-	ini_value = IniGetString(model_name, "TCON_BIN_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
-		setenv("model_tcon", ini_value);
-
-	ini_value = IniGetString(model_name, "TCON_VAC_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
-		setenv("model_tcon_vac", ini_value);
-
-	ini_value = IniGetString(model_name, "TCON_DEMURA_SET_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
-		setenv("model_tcon_demura_set", ini_value);
-
-	ini_value = IniGetString(model_name, "TCON_DEMURA_LUT_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
-		setenv("model_tcon_demura_lut", ini_value);
 
 	ini_value = IniGetString(model_name, "EDID_14_FILE_PATH", "null");
 	if (strcmp(ini_value, "null") != 0)
