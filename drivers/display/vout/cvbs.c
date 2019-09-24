@@ -805,9 +805,8 @@ void cvbs_performance_config(void)
 	return ;
 }
 
-static void cvbs_performance_enhancement(int mode)
+static void cvbs_performance_enhancement(int mode, unsigned int index)
 {
-	unsigned int index = CONFIG_CVBS_PERFORMANCE_ACTIVED;
 	unsigned int max = 0;
 	unsigned int type = 0;
 	const struct reg_s *s = NULL;
@@ -894,6 +893,8 @@ static void cvbs_performance_enhancement(int mode)
 
 static int cvbs_config_enci(int vmode)
 {
+	unsigned int index = CONFIG_CVBS_PERFORMANCE_ACTIVED;
+
 	if (VMODE_PAL == vmode)
 		cvbs_write_vcbus_array((struct reg_s*)&tvregs_576cvbs_enc[0]);
 	else if (VMODE_NTSC == vmode)
@@ -905,7 +906,7 @@ static int cvbs_config_enci(int vmode)
 	else if (VMODE_PAL_N == vmode)
 		cvbs_write_vcbus_array((struct reg_s*)&tvregs_pal_n_enc[0]);
 
-	cvbs_performance_enhancement(vmode);
+	cvbs_performance_enhancement(vmode, index);
 
 	return 0;
 }
