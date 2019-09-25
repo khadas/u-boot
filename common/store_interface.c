@@ -190,10 +190,14 @@ static inline int str2longlong(char *p, unsigned long long *num)
 	    {
 	        case 'g':
 	        case 'G':
-	            *num<<=10;
+	            *num<<=30;
+		    endptr++;
+		    break;
 	        case 'm':
 	        case 'M':
-	            *num<<=10;
+	            *num<<=20;
+		    endptr++;
+		    break;
 	        case 'k':
 	        case 'K':
 	            *num<<=10;
@@ -316,6 +320,7 @@ static int do_decrypt_dtb(char *dtbaddr) {
 
 	unsigned fdtsz    = fdt_totalsize((char*)fdtAddr);
 	memmove((char*)dtImgAddr, (char*)fdtAddr, fdtsz);
+	free((char*)fdtAddr);
 #endif// #ifdef CONFIG_MULTI_DTB
 
 	return ret;
@@ -711,6 +716,7 @@ static int do_store_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 				}
 			}
 			return ret;
+			break;
 #endif// #ifdef	CONFIG_AML_MTD
 		case EMMC_BOOT_FLAG:
 			{
@@ -739,110 +745,66 @@ static int do_store_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 			}
 			break;
 		case SPI_EMMC_FLAG:
-		case SPI_NAND_FLAG:
 			{
-				/*
-				   if (device_boot_flag == -1)
-				   {
-				   ret = run_command("sf probe 2", 0);
-				   if (ret) {
-				   store_msg(" cmd %s failed \n",cmd);
-				   return -1;
-				   }
-				   if ((init_flag > STORE_BOOT_ERASE_PROTECT_CACHE) && (init_flag <= STORE_BOOT_SCRUB_ALL)) {
-				   sprintf(str, "sf erase 0 0x%x", _SPI_FLASH_ERASE_SZ);
-				   ret = run_command(str,0);
-				   }
-				   sprintf(str, "amlnf  init  %d ",init_flag);
-				   store_dbg("command:	%s", str);
-				   ret = run_command(str, 0);
-				   if (ret < 0) //fail to init NAND flash
-				   {
-				   store_msg("nand cmd %s failed \n",cmd);
-				   device_boot_flag = SPI_EMMC_FLAG;
-				   store_dbg("spi+mmc , %s %d ",__func__,__LINE__);
-				   ret = run_command("mmcinfo 1", 0);
-				   if (ret != 0) {
-				   store_msg("mmc cmd %s failed \n",cmd);
-				   return -2;
-				   }
-				   if (init_flag == STORE_BOOT_ERASE_PROTECT_CACHE) { // OTA upgrade protect cache
-				   store_msg("mmc erase non_cache \n");
-				   ret = run_command("mmc erase non_cache", 0);
-				   }else if(init_flag >= STORE_BOOT_ERASE_ALL){ // erase all except  reserved area
-				   if (_info_disprotect_back_before_mmcinfo1 & DISPROTECT_KEY) {
-				   MsgP("mmc key;\n");
-				   run_command("mmc key", 0);
-				   }
-				   MsgP("mmc erase 1 \n");
-				   ret = run_command("mmc erase 1", 0);
-				   }
-				   return 0;
-				   }
-				   else if((ret == NAND_INIT_FAILED)&&(init_flag == STORE_BOOT_ERASE_ALL)){
-				   sprintf(str, "amlnf  init  %d ",4);
-				   ret = run_command(str, 0);
-				   }
-				   device_boot_flag = SPI_NAND_FLAG;
-				   return 0;
-				   }
-				   */
-				if (device_boot_flag == SPI_NAND_FLAG) {
-					store_dbg("spi+nand , %s %d ",__func__,__LINE__);
-#if defined(CONFIG_AML_NAND)
-					if ((init_flag >=STORE_BOOT_ERASE_PROTECT_CACHE) && (init_flag <=STORE_BOOT_SCRUB_ALL)) {
-						sprintf(str, "amlnf  init  %d ",init_flag);
-						run_command(str, 0);
-					}
-					sprintf(str, "amlnf  init  %d ",1);
-					store_dbg("command:	%s", str);
-					ret = run_command(str, 0);
-#else
-					ret = NAND_INIT_FAILED;
-#endif
-#if	0
-					if ((ret == NAND_INIT_FAILED) && (init_flag == STORE_BOOT_ERASE_ALL)) {
-						sprintf(str, "amlnf  init  %d ",4);
-						ret = run_command(str, 0);
-					}
-#else
-					if (ret == NAND_INIT_FAILED) {
-						return -1;
-					}
-#endif
-					if ((init_flag > STORE_BOOT_ERASE_PROTECT_CACHE) && (init_flag <= STORE_BOOT_SCRUB_ALL)) {
-						ret = run_command("sf probe 2", 0);
-						sprintf(str, "sf erase  0 0x%x", _SPI_FLASH_ERASE_SZ);
-						ret = run_command(str,0);
-					}
-				}
-				if (device_boot_flag == SPI_EMMC_FLAG) {
-					store_dbg("spi+mmc , %s %d ",__func__,__LINE__);
-					ret = run_command("mmcinfo 1", 0);
+				store_dbg("spi+mmc , %s %d ",__func__,__LINE__);
+				ret = run_command("mmcinfo 1", 0);
 
-					if (init_flag == STORE_BOOT_ERASE_PROTECT_CACHE) { // OTA upgrade protect cache
-						store_msg("amlmmc erase non_cache \n");
-						ret = run_command("amlmmc erase non_cache", 0);
-					}else if(init_flag == STORE_BOOT_ERASE_ALL){ // erase all except  reserved area
-						if (_info_disprotect_back_before_mmcinfo1 & DISPROTECT_KEY) {
-							run_command("mmc key", 0);
-						}
-						MsgP("amlmmc erase 1 \n");
-						ret = run_command("amlmmc erase 1", 0);
+				if (init_flag == STORE_BOOT_ERASE_PROTECT_CACHE) { // OTA upgrade protect cache
+					store_msg("amlmmc erase non_cache \n");
+					ret = run_command("amlmmc erase non_cache", 0);
+				}else if(init_flag == STORE_BOOT_ERASE_ALL){ // erase all except  reserved area
+					if (_info_disprotect_back_before_mmcinfo1 & DISPROTECT_KEY) {
+						run_command("mmc key", 0);
 					}
-					if ((init_flag > STORE_BOOT_ERASE_PROTECT_CACHE) && (init_flag <= STORE_BOOT_SCRUB_ALL)) {
-						ret = run_command("sf probe 2", 0);
-						sprintf(str, "sf erase  0 0x%x", _SPI_FLASH_ERASE_SZ);
-						ret = run_command(str,0);
-					}
+					MsgP("amlmmc erase 1 \n");
+					ret = run_command("amlmmc erase 1", 0);
 				}
-
+				if ((init_flag > STORE_BOOT_ERASE_PROTECT_CACHE) && (init_flag <= STORE_BOOT_SCRUB_ALL)) {
+					ret = run_command("sf probe 2", 0);
+					sprintf(str, "sf erase  0 0x%x", _SPI_FLASH_ERASE_SZ);
+					ret = run_command(str,0);
+				}
 				if (ret != 0) {
 					store_msg("cmd %s failed \n",cmd);
 					return -1;
 				}
 
 				return ret;
+			}
+			break;
+		case SPI_NAND_FLAG:
+			{
+				store_dbg("spi+nand , %s %d ",__func__,__LINE__);
+#if defined(CONFIG_AML_NAND)
+				if ((init_flag >=STORE_BOOT_ERASE_PROTECT_CACHE) && (init_flag <=STORE_BOOT_SCRUB_ALL)) {
+					sprintf(str, "amlnf  init  %d ",init_flag);
+					run_command(str, 0);
+				}
+				sprintf(str, "amlnf  init  %d ",1);
+				store_dbg("command:	%s", str);
+				ret = run_command(str, 0);
+#else
+				ret = NAND_INIT_FAILED;
+#endif
+
+				if (ret == NAND_INIT_FAILED) {
+					return -1;
+#if defined(CONFIG_AML_NAND)
+				} else {
+					if ((init_flag > STORE_BOOT_ERASE_PROTECT_CACHE) && (init_flag <= STORE_BOOT_SCRUB_ALL)) {
+						ret = run_command("sf probe 2", 0);
+						sprintf(str, "sf erase  0 0x%x", _SPI_FLASH_ERASE_SZ);
+						ret = run_command(str,0);
+					}
+
+					if (ret != 0) {
+						store_msg("cmd %s failed \n",cmd);
+						return -1;
+					}
+
+					return ret;
+#endif
+				}
 			}
 		default:
 			store_dbg("CARD BOOT, %s %d",__func__,__LINE__);
@@ -943,8 +905,11 @@ static int do_store_size(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 		if (ret != 0) {
 			store_msg("nand cmd %s failed",cmd);
 			return -1;
+#if defined(CONFIG_AML_NAND) || defined(CONFIG_AML_NAND)
+		} else {
+			return ret;
+#endif
 		}
-		return ret;
 	}
 	else if(device_boot_flag == SPI_NAND_FLAG){
 		#if defined(CONFIG_AML_NAND)
@@ -957,8 +922,11 @@ static int do_store_size(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 		if (ret != 0) {
 			store_msg("nand cmd %s failed",cmd);
 			return -1;
+#if defined(CONFIG_AML_NAND)
+		} else {
+			return ret;
+#endif
 		}
-		return ret;
 	}
 	else if(device_boot_flag == SPI_EMMC_FLAG){
 		store_dbg("MMC , %s %d ",__func__,__LINE__);
@@ -1129,6 +1097,7 @@ E_SWITCH_BACK:
 		else if(device_boot_flag == SPI_NAND_FLAG){
 			store_dbg("spi+nand , %s %d ",__func__,__LINE__);
 			#if defined(CONFIG_AML_NAND)
+			/*case for uboot in nor flash,system in nand flash*/
 			ret = run_command("amlnf  deverase data 0",0);
 			if (ret != 0) {
 				store_msg("nand cmd %s failed ",cmd);
@@ -1229,6 +1198,8 @@ E_SWITCH_BACK:
 				return CMD_RET_FAILURE;
 
 			mmc_init(mmc);
+			if (!ffs(mmc->read_bl_len))
+				return CMD_RET_FAILURE;
 			blk_shift = ffs(mmc->read_bl_len) -1;
 			if (!(info_disprotect & DISPROTECT_KEY)
 					&& (strncmp(p_name, MMC_RESERVED_NAME,
@@ -1594,6 +1565,7 @@ static int do_store_rom_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 			ret = run_command(str, 0);
 			if (ret) {
 				ErrP("Failed at pgram bl2[%d],ret=%d\n", i, ret);
+				free(tmpBuf);
 				return CMD_RET_FAILURE;
 			}
 #if CONFIG_BL2_VAL_NUM_MIN
@@ -1612,6 +1584,7 @@ static int do_store_rom_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 #if CONFIG_BL2_VAL_NUM_MIN
 		if (okCrcNum < CONFIG_BL2_VAL_NUM_MIN && verifyMode) {
 			ErrP("okCrcNum(%d) < CONFIG_BL2_VAL_NUM_MIN(%d)\n", okCrcNum, CONFIG_BL2_VAL_NUM_MIN);
+			free(tmpBuf);
 			return CMD_RET_FAILURE;
 		}
 		okCrcNum = 0;
@@ -1631,6 +1604,7 @@ static int do_store_rom_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 				ret = run_command(str, 0);
 				if (ret) {
 					ErrP("Failed at pgram bl2[%d],ret=%d\n", i, ret);
+					free(tmpBuf);
 					return CMD_RET_FAILURE;
 				}
 #if CONFIG_TPL_VAL_NUM_MIN
@@ -1649,6 +1623,7 @@ static int do_store_rom_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 #if CONFIG_TPL_VAL_NUM_MIN
 			if (okCrcNum < CONFIG_TPL_VAL_NUM_MIN && verifyMode) {
 				ErrP("okCrcNum(%d) < CONFIG_TPL_VAL_NUM_MIN(%d)\n", okCrcNum, CONFIG_TPL_VAL_NUM_MIN);
+				free(tmpBuf);
 				return CMD_RET_FAILURE;
 			}
 #endif//#if CONFIG_TPL_VAL_NUM_MIN
@@ -1812,13 +1787,17 @@ static int do_store_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 		store_dbg("command:	%s\n", str);
 		ret = run_command(str, 0);
 		#else
-		ret = -1;
+		return -1;
 		#endif
+
+#if defined(CONFIG_AML_NAND)
 		if (ret != 0) {
 			store_msg("nand cmd %s failed \n",cmd);
 			return -1;
+		} else {
+			return ret;
 		}
-		return ret;
+#endif
 	}
 	else if(device_boot_flag == SPI_EMMC_FLAG){
 		store_dbg("spi+mmc , %s %d ",__func__,__LINE__);
@@ -1930,11 +1909,15 @@ static int do_store_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 		#else
 		ret = -1;
 		#endif
+
 		if (ret != 0) {
 			store_msg("nand cmd %s failed \n",cmd);
 			return -1;
+		#if defined(CONFIG_AML_NAND)
+		} else {
+			return ret;
+		#endif
 		}
-		return ret;
 	}
 	else if(device_boot_flag == SPI_EMMC_FLAG){
 		store_dbg("spi+mmc , %s %d ",__func__,__LINE__);

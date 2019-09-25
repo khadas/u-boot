@@ -330,7 +330,8 @@ static int do_fip_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]
 		sub = argv[2];
 		base = 3;
 	}
-	fip_base = 1024*nand->writesize + RESERVED_BLOCK_NUM*nand->erasesize;
+	fip_base = 1024*((u64)nand->writesize) + \
+		RESERVED_BLOCK_NUM*((u64)nand->erasesize);
 	if (!strcmp("read", sub)) {
 		printk("%s() %s\n", __func__, sub);
 		if (argc - base < 2) {

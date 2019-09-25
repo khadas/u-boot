@@ -810,7 +810,9 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 	struct nand_chip *chip = NULL;
 	struct mtd_info *mtd = NULL;
 	int err = 0, i, array_length;
+#ifdef NEW_NAND_SUPPORT
 	unsigned nand_type = 0;
+#endif
 	struct nand_oobfree *oobfree;
 
 	if (!plat) {
@@ -818,7 +820,7 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 		goto exit_error;
 	}
 
-	aml_chip = kzalloc(sizeof(*aml_chip), GFP_KERNEL);
+	aml_chip = malloc(sizeof(*aml_chip));
 	if (aml_chip == NULL) {
 		printk("no memory for flash info\n");
 		err = -ENOMEM;
@@ -860,15 +862,15 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 	err = aml_nand_init(aml_chip);
 	if (err)
 		goto exit_error;
-	#ifdef NEW_NAND_SUPPORT
+#ifdef NEW_NAND_SUPPORT
 	nand_type =
 	((aml_chip->new_nand_info.type < 10)&&(aml_chip->new_nand_info.type));
-	#endif
 
 	if (nand_type && nand_boot_flag) {
 		printk("detect CHIP revB with Hynix new nand error\n");
 		aml_chip->err_sts = NAND_CHIP_REVB_HY_ERR;
 	}
+#endif
 
 	if (!strncmp((char*)plat->name,
 		NAND_BOOT_NAME, strlen((const char*)NAND_BOOT_NAME))) {
@@ -878,8 +880,9 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 		chip->write_page = m3_nand_boot_write_page;
 		oobfree = chip->ecc.layout->oobfree;
 		array_length = ARRAY_SIZE(chip->ecc.layout->oobfree);
-		if (chip->ecc.layout)
-			oobfree[0].length =
+		if (!(chip->ecc.layout))
+			return -ENOMEM;
+		oobfree[0].length =
 			(mtd->writesize / 512) * aml_chip->user_byte_mode;
 		chip->ecc.layout->oobavail = 0;
 		for (i = 0; oobfree[i].length && i < array_length; i++)
@@ -899,8 +902,9 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 
 exit_error:
 	if (aml_chip)
-		kfree(aml_chip);
-	mtd->name = NULL;
+		free(aml_chip);
+	if (mtd)
+		mtd->name = NULL;
 	return err;
 }
 
@@ -1023,10 +1027,6 @@ void nand_init(void)
 
 	for (i=0; i<aml_nand_mid_device.dev_num; i++) {
 		plat = &aml_nand_mid_device.aml_nand_platform[i];
-		if (!plat) {
-			printk("error for not platform data\n");
-			continue;
-		}
 
 		ret = m3_nand_probe(plat, i);
 		if (ret)

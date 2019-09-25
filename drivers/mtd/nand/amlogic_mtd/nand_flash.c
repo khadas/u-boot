@@ -2945,6 +2945,8 @@ static struct aml_nand_flash_dev *aml_nand_get_flash_type(struct mtd_info *mtd,
 	}
 
 	/* Calculate the address shift from the page size */
+	if (!ffs(mtd->writesize))
+		return ERR_PTR(-EINVAL);
 	chip->page_shift = ffs(mtd->writesize) - 1;
 	/* Convert chipsize to number of pages per chip -1. */
 	chip->pagemask = (chip->chipsize >> chip->page_shift) - 1;

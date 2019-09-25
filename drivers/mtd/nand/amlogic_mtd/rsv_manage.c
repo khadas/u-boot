@@ -87,9 +87,11 @@ static struct free_node_t *get_free_node(struct mtd_info *mtd)
 		aml_chip->freeNodeBitmask);
 #endif
 	index = find_first_zero_bit((void *)&aml_chip->freeNodeBitmask, 64);
-	if (index > RESERVED_BLOCK_NUM)
+	if (index >= RESERVED_BLOCK_NUM) {
 		printk("%s %d: index=%d is greater than max! error",
 			__func__, __LINE__, index);
+		return NULL;
+	}
 	test_and_set_bit(index, (void *)&aml_chip->freeNodeBitmask);
 #ifdef CONFIG_DBG_BITMAP
 	printk("%s %d: bitmap=%llx\n", __func__, __LINE__,
@@ -155,13 +157,16 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 	loff_t addr, offset;
 	int  start_blk =0, total_blk =0,i, j, bad_blk_cnt =0, phys_erase_shift;
 	int realpage, col0_data=0, col0_oob=0, valid_page_num = 1;
-	int col_data_sandisk[6], bad_sandisk_flag=0;
+	int col_data_sandisk[6] = {0}, bad_sandisk_flag=0;
+
+	if (!fls(mtd->erasesize))
+		return -ENOMEM;
 
 	phys_erase_shift = fls(mtd->erasesize) - 1;
 	chip->pagebuf = -1;
 	pages_per_blk = (1 << (chip->phys_erase_shift - chip->page_shift));
 
-	data_buf = kzalloc(mtd->writesize, GFP_KERNEL);
+	data_buf = malloc(mtd->writesize);
 	if (data_buf == NULL) {
 		printk("%s %d malloc failed\n",__func__,__LINE__);
 		return -ENOMEM;
@@ -416,7 +421,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 
 	printk("aml_nand_scan_bbt: factory Bad block bad_blk_cnt=%d\n",
 		bad_blk_cnt);
-	kfree(data_buf);
+	free(data_buf);
 	return 0;
 }
 
@@ -1234,6 +1239,8 @@ int aml_nand_bbt_check(struct mtd_info *mtd)
 	int ret =0;
 	int8_t *buf = NULL;
 
+	if (!fls(mtd->erasesize))
+		return -ENOMEM;
 	phys_erase_shift = fls(mtd->erasesize) - 1;
 	ret = aml_nand_scan_rsv_info(mtd, aml_chip->aml_nandbbt_info);
 	if ((ret !=0) && ((ret != (-1)))) {
@@ -1252,7 +1259,7 @@ int aml_nand_bbt_check(struct mtd_info *mtd)
 		printk("%s %d bbt is invalid, scanning.\n", __func__, __LINE__);
 		/*no bbt haven't been found, abnormal or clean nand! rebuild*/
 		aml_chip->nand_bbt_info =
-			kzalloc(sizeof(struct aml_nand_bbt_info), GFP_KERNEL);
+			malloc(sizeof(struct aml_nand_bbt_info));
 		if (!aml_chip->nand_bbt_info) {
 			ret = -ENOMEM;
 			goto exit_error;
@@ -1263,7 +1270,7 @@ int aml_nand_bbt_check(struct mtd_info *mtd)
 		aml_nand_ext_save_rsv_info(mtd,
 			aml_chip->aml_nandbbt_info, (u_char *)buf);
 		if (aml_chip->nand_bbt_info)
-			kfree(aml_chip->nand_bbt_info);
+			free(aml_chip->nand_bbt_info);
 	}
 
 	/*make uboot bbt perspective the same with normal bbt*/
