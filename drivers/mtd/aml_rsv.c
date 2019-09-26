@@ -254,7 +254,7 @@ int meson_rsv_write(struct meson_rsv_info_t *rsv_info, u_char *buf)
 	offset += rsv_info->nvalid->page_addr * mtd->writesize;
 	pr_info("%s %d write %s to 0x%llx\n",
 		__func__, __LINE__, rsv_info->name, offset);
-	memcpy(oobinfo.name, rsv_info->name, strlen(rsv_info->name));
+	memcpy(oobinfo.name, rsv_info->name, 4);
 	oobinfo.ec = rsv_info->nvalid->ec;
 	/* TODO: prevent the unrolling situation here */
 	oobinfo.timestamp = rsv_info->nvalid->timestamp;
@@ -315,7 +315,7 @@ READ_RSV_AGAIN:
 		}
 		/* Do not use strlen ,Use ARRAY_SIZE to make the length 4 */
 		if (memcmp(oobinfo.name, rsv_info->name,
-			   ARRAY_SIZE(oobinfo.name)))
+			   4))
 			pr_info("invalid %s info in %llx:%s\n",
 				rsv_info->name, offset, oobinfo.name);
 		offset += mtd->writesize;
@@ -418,7 +418,7 @@ RE_RSV_INFO:
 		rsv_info->nvalid->status = 0;
 		/* Do not use strlen ,Use ARRAY_SIZE to make the length 4 */
 		if (!memcmp(oobinfo.name, rsv_info->name,
-			    ARRAY_SIZE(oobinfo.name))) {
+			    4)) {
 			rsv_info->valid = 1;
 			if (rsv_info->nvalid->blk_addr >= 0) {
 				free_node = get_free_node(rsv_info);
@@ -515,7 +515,7 @@ RE_RSV_INFO:
 			}
 			/* Do not use strlen ,Use ARRAY_SIZE to make the length 4 */
 			if (!memcmp(oobinfo.name, rsv_info->name,
-				    ARRAY_SIZE(oobinfo.name))) {
+				    4)) {
 				good_addr[i] = 1;
 				rsv_info->nvalid->page_addr = i;
 			} else {
