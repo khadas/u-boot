@@ -240,6 +240,7 @@ pll_set_t __pll_setting = {
 	.spi_ctrl				= 0,
 	.lCustomerID			= AML_CUSTOMER_ID,
 	.log_chl				= 0x3, /* 0xFF: all channel enabled */
+	.log_ctrl				= (1<<7), /* (1<<7), print bl2 log into buffer */
 };
 
 ddr_reg_t __ddr_reg[] = {
