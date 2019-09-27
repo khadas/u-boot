@@ -126,9 +126,8 @@ static void lcd_power_ctrl(int status)
 	struct aml_lcd_extern_driver_s *ext_drv;
 #endif
 	char *str;
-	unsigned int i, temp, wait, gpio;
+	unsigned int i, wait, gpio;
 	int value = LCD_PMU_GPIO_NUM_MAX;
-	int ret;
 
 	i = 0;
 	lcd_power = lcd_drv->lcd_config->lcd_power;
@@ -217,16 +216,6 @@ static void lcd_power_ctrl(int status)
 				"get value: %d, wait timeout!\n", value);
 			break;
 		case LCD_POWER_TYPE_CLK_SS:
-			temp = lcd_drv->lcd_config->lcd_timing.ss_level;
-			value = (power_step->value) & 0xff;
-			ret = lcd_set_ss(0xff,
-				(value >> LCD_CLK_SS_BIT_FREQ) & 0xf,
-				(value >> LCD_CLK_SS_BIT_MODE) & 0xf);
-			if (ret == 0) {
-				temp &= ~(0xff << 8);
-				temp |= (value << 8);
-				lcd_drv->lcd_config->lcd_timing.ss_level = temp;
-			}
 			break;
 		default:
 			break;

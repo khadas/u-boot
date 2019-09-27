@@ -2412,6 +2412,8 @@ static void lcd_clk_config_print_g12a(void)
 void lcd_clk_generate_parameter(struct lcd_config_s *pconf)
 {
 	unsigned int ss_level;
+	unsigned int ss_freq;
+	unsigned int ss_mode;
 
 	if (clk_conf.data == NULL) {
 		LCDERR("%s: clk config data is null\n", __func__);
@@ -2421,9 +2423,15 @@ void lcd_clk_generate_parameter(struct lcd_config_s *pconf)
 	if (clk_conf.data->clk_generate_parameter)
 		clk_conf.data->clk_generate_parameter(pconf);
 
-	ss_level = pconf->lcd_timing.ss_level;
+	ss_level = pconf->lcd_timing.ss_level & 0xff;
 	clk_conf.ss_level = (ss_level >= clk_conf.data->ss_level_max) ?
 				0 : ss_level;
+	ss_freq = (pconf->lcd_timing.ss_level >> 8) & 0xf;
+	clk_conf.ss_freq = (ss_freq >= clk_conf.data->ss_freq_max) ?
+				0 : ss_freq;
+	ss_mode = (pconf->lcd_timing.ss_level >> 12) & 0xf;
+	clk_conf.ss_mode = (ss_mode >= clk_conf.data->ss_mode_max) ?
+				0 : ss_mode;
 }
 
 void lcd_get_ss(void)

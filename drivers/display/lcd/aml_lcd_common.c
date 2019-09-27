@@ -163,6 +163,11 @@ int lcd_power_load_from_dts(struct lcd_config_s *pconf, char *dt_addr, int child
 			pconf->lcd_power->power_on_step[i].value = temp;
 			temp = be32_to_cpup((((u32*)propdata)+j+3));
 			pconf->lcd_power->power_on_step[i].delay = temp;
+			if (pconf->lcd_power->power_on_step[i].type ==
+			    LCD_POWER_TYPE_CLK_SS) {
+				temp = pconf->lcd_power->power_on_step[i].value;
+				pconf->lcd_timing.ss_level |= temp << 8;
+			}
 			i++;
 		}
 	}
@@ -195,7 +200,7 @@ int lcd_power_load_from_dts(struct lcd_config_s *pconf, char *dt_addr, int child
 int lcd_power_load_from_unifykey(struct lcd_config_s *pconf,
 		unsigned char *buf, int key_len, int len)
 {
-	int i, j;
+	int i, j, temp;
 	unsigned char *p;
 	int ret = 0;
 
@@ -232,6 +237,11 @@ int lcd_power_load_from_unifykey(struct lcd_config_s *pconf,
 		if (pconf->lcd_power->power_on_step[i].type >= LCD_POWER_TYPE_MAX)
 			break;
 
+		if (pconf->lcd_power->power_on_step[i].type ==
+		    LCD_POWER_TYPE_CLK_SS) {
+			temp = pconf->lcd_power->power_on_step[i].value;
+			pconf->lcd_timing.ss_level |= temp << 8;
+		}
 		i++;
 	}
 
