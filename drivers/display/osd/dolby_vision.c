@@ -59,10 +59,10 @@ static unsigned int dolby_vision_target_graphics_max[3] = {
 /* 0: video priority 1: graphic priority */
 static unsigned int dv_graphics_priority = 1;
 
-static unsigned int vinfo_width;
-static unsigned int vinfo_height;
-static unsigned int vinfo_duration_num;
-static unsigned int vinfo_field_height;
+static unsigned int vinfo_width = 1920;
+static unsigned int vinfo_height = 1080;
+static unsigned int vinfo_duration_num = 60;
+static unsigned int vinfo_field_height = 1080;
 static bool dolby_vision_on;
 static char *dolby_status;
 #define COEFF_NORM(a) ((int)((((a) * 2048.0) + 1) / 2))
@@ -468,23 +468,27 @@ static void dolby_vision_get_vinfo(struct hdmitx_dev *hdmitx_device)
 	} else if (strstr(mode_name, "720")) {
 		width = 1280;
 		height = 720;
+	} else if (strstr(mode_name, "576")) {
+		width = 720;
+		height = 576;
 	} else if (strstr(mode_name, "480")) {
 		width = 720;
 		height = 480;
 	} else {
-		width = 0;
-		height = 0;
+		printf("unkown mode, use default 1080p\n");
+		width = 1920;
+		height = 1080;
 	}
 
 	if (strstr(mode_name, "60hz"))
 		sync_duration_num = 60;
-	 else if (strstr(mode_name, "50hz"))
+	else if (strstr(mode_name, "50hz"))
 		sync_duration_num = 50;
 	else if (strstr(mode_name, "30hz"))
 		sync_duration_num = 30;
 	else if (strstr(mode_name, "25hz"))
 		sync_duration_num = 25;
-	 else if (strstr(mode_name, "24hz"))
+	else if (strstr(mode_name, "24hz"))
 		sync_duration_num = 24;
 	else
 		sync_duration_num = 60;
