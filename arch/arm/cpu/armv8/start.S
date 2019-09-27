@@ -11,6 +11,7 @@
 #include <linux/linkage.h>
 #include <asm/macro.h>
 #include <asm/armv8/mmu.h>
+#include <asm/system.h>
 
 /*************************************************************************
  *
@@ -87,6 +88,7 @@ reset:
 .extern get_stack_base
 .extern enable_caches
 .extern get_core_entry_fn
+.extern mmu_setup
 #endif
 slave_cpu:
 #ifdef CONFIG_CMD_AML_MTEST
@@ -94,21 +96,77 @@ slave_cpu:
 	mov x18, x0
 
 	mrs x0, mpidr_el1
+	ubfx x1, x0, #24, 1
+	cbz x1, slave_cpu_next
+	lsr x0, x0, #8
+slave_cpu_next:
 	and	x1, x0, #0xff
 	and	x0, x0, #0xff00
 	add	x0, x1, x0, LSR #6
+
 	bl get_stack_base
 	mov sp, x0
 
-	bl enable_caches
+	//bl enable_caches
+	bl __asm_invalidate_icache_all
+	switch_el x1, i3f, i2f, i1f
+i3f:
+	mrs x0, sctlr_el3
+	orr x0, x0, #CR_I
+	msr sctlr_el3, x0
+	isb
+	b i0f
+i2f:
+	mrs x0, sctlr_el2
+	orr x0, x0, #CR_I
+	msr sctlr_el2, x0
+	isb
+	b i0f
+i1f:
+	mrs x0, sctlr_el1
+	orr x0, x0, #CR_I
+	msr sctlr_el1, x0
+	isb
+i0f:
+
+	bl __asm_invalidate_dcache_all
+	bl __asm_invalidate_tlb_all
+	bl mmu_setup
+	switch_el x1, d3f, d2f, d1f
+d3f:
+	mrs x0, sctlr_el3
+	orr x0, x0, #CR_C
+	msr sctlr_el3, x0
+	isb
+	b d0f
+d2f:
+	mrs x0, sctlr_el2
+	orr x0, x0, CR_C
+	msr sctlr_el2, x0
+	isb
+	b d0f
+d1f:
+	mrs x0, sctlr_el1
+	orr x0, x0, CR_C
+	msr sctlr_el1, x0
+	isb
+d0f:
 
 	mrs x0, mpidr_el1
+	ubfx x1, x0, #24, 1
+	cbz x1, slave_cpu_next1
+	lsr x0, x0, #8
+slave_cpu_next1:
 	and	x1, x0, #0xff
 	and	x0, x0, #0xff00
 	add	x0, x1, x0, LSR #6
 	bl get_core_entry_fn
 	mov x2, x0
 	mrs x0, mpidr_el1
+	ubfx x1, x0, #24, 1
+	cbz x1, slave_cpu_next2
+	lsr x0, x0, #8
+slave_cpu_next2:
 	and	x1, x0, #0xff
 	and	x0, x0, #0xff00
 	add	x0, x1, x0, LSR #6

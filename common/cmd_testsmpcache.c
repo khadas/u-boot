@@ -34,7 +34,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 typedef void (*test_pattern_t)(unsigned int *memstart, unsigned int count);
 
-unsigned core_stack[NR_CPUS][STACK_SIZE/4] __attribute__ ((aligned (4)));
+unsigned long core_stack[NR_CPUS][STACK_SIZE/8] __attribute__ ((aligned (16)));
 unsigned core_online[NR_CPUS];
 unsigned long core_entry_fn[NR_CPUS];
 unsigned long gd_addr;
@@ -231,7 +231,7 @@ unsigned get_gd_addr(void)
 
 unsigned get_stack_base(unsigned cpuidx)
 {
-	return (unsigned)(unsigned long)&(core_stack[cpuidx]);
+	return (unsigned)((unsigned long)&(core_stack[cpuidx]) + STACK_SIZE);
 }
 
 unsigned long get_core_entry_fn(unsigned cpuidx)
@@ -349,7 +349,11 @@ static int do_testsmp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	for (i = 1; i < get_core_max(); i++) {
 		mpidr = get_core_mpidr(i);
+		if (mpidr < 0)
+			return -1;
 		cpuidx = get_core_idx((unsigned int)mpidr);
+		if (cpuidx < 0)
+			return -1;
 		core_online[cpuidx] = CPU_ON;
 		core_entry_fn[cpuidx] = (unsigned long)secondary_cpu_test_smp_entry;
 		__asm__ volatile("dsb sy");
