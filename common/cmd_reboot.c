@@ -124,6 +124,11 @@ int do_get_rebootmode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 			setenv("reboot_mode","recovery_quiescent");
 			break;
 		}
+		case AMLOGIC_FFV_REBOOT:
+		{
+			setenv("reboot_mode","ffv_reboot");
+			break;
+		}
 		default:
 		{
 			setenv("reboot_mode","charging");
