@@ -138,7 +138,9 @@
             "echo upgrade_step=${upgrade_step}; "\
             "if itest ${upgrade_step} == 3; then "\
                 "run init_display; run storeargs; run update;"\
-            "else fi;"\
+            "else if itest ${upgrade_step} == 4; then "\
+                "run init_display; run storeargs; run update;"\
+            "fi;fi;"\
             "\0"\
         "storeargs="\
             "get_bootloaderversion;" \
@@ -208,6 +210,16 @@
                 "fi;"\
                 "run recovery_from_flash;"\
             "fi; \0" \
+         "recovery_from_backup="\
+            "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset}; "\
+            "ubi part data; "\
+            "ubi getVolName data 0; "\
+            "ubifsmount ubi0:${volName}; "\
+            "ubifsload ${dtb_mem_addr} .data/dtb.img; "\
+            "ubifsload ${loadaddr} .data/recovery.img; "\
+            "wipeisb; "\
+            "bootm ${loadaddr}; "\
+            "\0"\
          "update="\
             /*first usb burning, second sdc_burn, third ext-sd autoscr/recovery, last udisk autoscr/recovery*/\
             "run usb_burning; "\
@@ -218,7 +230,11 @@
             "if usb start 0; then "\
                 "run recovery_from_udisk;"\
             "fi;"\
-            "run recovery_from_flash;"\
+            "if itest ${upgrade_step} == 4; then "\
+                "run recovery_from_backup;"\
+            "else if itest ${upgrade_step} == 3; then "\
+                "run recovery_from_flash;"\
+            "fi;fi" \
             "\0"\
         "recovery_from_sdcard="\
             "if fatload mmc 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;"\
