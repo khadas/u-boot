@@ -14,5 +14,5 @@ SECTIONS
         *(.data*)
     }
 
-    ASSERT(. <= 0xFFFC0000, "timing image has exceeded its limit.")
+    //ASSERT(. <= 0xFFFC0000, "timing image has exceeded its limit.")
 }
