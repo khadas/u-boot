@@ -227,7 +227,6 @@ static void lcd_module_enable(char *mode)
 	}
 	pconf->retry_enable_cnt = 0;
 
-	lcd_vcbus_write(VPP_POSTBLEND_H_SIZE, pconf->lcd_basic.h_active);
 	lcd_vcbus_write(VENC_INTCTRL, 0x200);
 
 	aml_bl_pwm_config_update(lcd_drv->bl_config);

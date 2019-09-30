@@ -33,6 +33,7 @@
 #include <amlogic/vout.h>
 #endif
 #include <amlogic/fb.h>
+#include <video_fb.h>
 
 /* Local Headers */
 #include "osd_canvas.h"
@@ -66,6 +67,7 @@ static int use_v_filter_mode = -1;
 
 static unsigned int osd_h_filter_mode = 1;
 static unsigned int osd_v_filter_mode = 1;
+extern GraphicDevice fb_gdev;
 
 static unsigned int osd_filter_coefs_bicubic_sharp[] = {
 	0x01fa008c, 0x01fa0100, 0xff7f0200, 0xfe7f0300,
@@ -961,11 +963,21 @@ void osd_setup_hw(u32 index,
 		}
 #ifdef CONFIG_AML_CANVAS
 		else {
-		canvas_config(osd_hw.fb_gem[index].canvas_idx,
-			      osd_hw.fb_gem[index].addr,
-			      osd_hw.fb_gem[index].width,
-			      osd_hw.fb_gem[index].height,
-			      CANVAS_ADDR_NOWRAP, CANVAS_BLKMODE_LINEAR);
+			if (index < VIU2_OSD1) {
+				canvas_config(osd_hw.fb_gem[index].canvas_idx,
+					      osd_hw.fb_gem[index].addr,
+					      osd_hw.fb_gem[index].width,
+					      osd_hw.fb_gem[index].height,
+					      CANVAS_ADDR_NOWRAP, CANVAS_BLKMODE_LINEAR);
+			} else {
+				/* for dual logo display */
+				osd_hw.fb_gem[index].addr += fb_gdev.fb_height * fb_gdev.fb_width * color->bpp >> 3;
+				canvas_config(osd_hw.fb_gem[index].canvas_idx,
+					      osd_hw.fb_gem[index].addr,
+					      osd_hw.fb_gem[index].width,
+					      osd_hw.fb_gem[index].height,
+					      CANVAS_ADDR_NOWRAP, CANVAS_BLKMODE_LINEAR);
+			}
 		}
 #endif
 	}
