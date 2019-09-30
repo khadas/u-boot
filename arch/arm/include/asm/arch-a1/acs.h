@@ -35,11 +35,12 @@ typedef struct acs_setting{
 		unsigned short		ddr_set_length;		//length of ddr struct.
 		unsigned long		ddr_set_addr;		//address of ddr setting.
 
+#if 0
 		char				psram_magic[5];
 		unsigned char		psram_set_version;
 		unsigned short		psram_set_length;
 		unsigned long		psram_set_addr;
-
+#endif
 		char				ddr_reg_magic[5];
 		unsigned char		ddr_reg_version;
 		unsigned short		ddr_reg_length;
@@ -60,10 +61,21 @@ typedef struct acs_setting{
 		unsigned short		bl2_regs_length;
 		unsigned long		bl2_regs_addr;
 
+#if 1
+		char				psram_magic[5];
+		unsigned char		psram_set_version;
+		unsigned short		psram_set_length;
+		unsigned long		psram_set_addr;
+#endif
+#if 0
 		char				rsv_magic[5];
 		unsigned char		rsv_set_version;
 		unsigned short		rsv_set_length;
 		unsigned long		rsv_set_addr;
+#endif
+		char				board_id[12];
+		unsigned short		ddr_struct_size[12];
+		unsigned long		ddr_struct_org_size;
 }__attribute__ ((packed)) acs_set_t;
 
 #endif

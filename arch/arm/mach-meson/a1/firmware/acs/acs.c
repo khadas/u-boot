@@ -35,11 +35,12 @@ acs_set_t __acs_set={
 					.ddr_set_length	= sizeof(__ddr_setting),
 					.ddr_set_addr	= (unsigned long)(&__ddr_setting),
 
+#if 0
 					.psram_magic	= "psram",
 					.psram_set_version = 1,
 					.psram_set_length = sizeof(__psram_setting),
 					.psram_set_addr = (unsigned long)(&__psram_setting),
-
+#endif
 					.ddr_reg_magic	= "ddrr_",
 					.ddr_reg_version= 1,
 					.ddr_reg_length	= sizeof(__ddr_reg),
@@ -60,8 +61,19 @@ acs_set_t __acs_set={
 					.bl2_regs_length = sizeof(__bl2_reg),
 					.bl2_regs_addr	= (unsigned long)(&__bl2_reg),
 
+#if 1
+					.psram_magic	= "psram",
+					.psram_set_version = 1,
+					.psram_set_length = sizeof(__psram_setting),
+					.psram_set_addr = (unsigned long)(&__psram_setting),
+#endif
+#if 0
 					.rsv_magic		= "rsv0_",
 					.rsv_set_version= 1,
 					.rsv_set_length	= 0,
 					.rsv_set_addr	= 0,
+#endif
+					.board_id		= {0,},
+					.ddr_struct_size = {0,},
+					.ddr_struct_org_size = sizeof(ddr_set_t),
 };
