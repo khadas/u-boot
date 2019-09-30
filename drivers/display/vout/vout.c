@@ -27,6 +27,8 @@
 #ifdef CONFIG_AML_LCD
 #include <amlogic/aml_lcd.h>
 #endif
+#include <amlogic/fb.h>
+#include <video_fb.h>
 
 #define VOUT_LOG_DBG 0
 #define VOUT_LOG_TAG "[VOUT]"
@@ -568,11 +570,17 @@ static void vout_vmode_init(void)
 	ulong width = 0;
 	ulong height = 0;
 	ulong field_height = 0;
+	uint index = 0;
 #ifdef CONFIG_AML_LCD
 	struct aml_lcd_drv_s *lcd_drv;
 #endif
 
-	outputmode = getenv("outputmode");
+	index = get_osd_layer();
+	if (index < VIU2_OSD1)
+		outputmode = getenv("outputmode");
+	else
+		outputmode = getenv("outputmode2");
+
 	vmode = vout_find_mode_by_name(outputmode);
 	vout_set_current_vmode(vmode);
 	switch (vmode) {
@@ -590,7 +598,10 @@ static void vout_vmode_init(void)
 		field_height = vout_find_field_height_by_name(outputmode);
 		break;
 	}
-	vout_reg_write(VPP_POSTBLEND_H_SIZE, width);
+
+	if (index < VIU2_OSD1)
+		vout_reg_write(VPP_POSTBLEND_H_SIZE, width);
+
 	vout_axis_init(width, height);
 
 	vout_vinfo_init(width, height, field_height);
@@ -750,6 +761,9 @@ void vout_viu_mux(int viu_sel, int venc_sel)
 	switch (get_cpu_id().family_id) {
 	case MESON_CPU_MAJOR_ID_G12A:
 	case MESON_CPU_MAJOR_ID_G12B:
+	case MESON_CPU_MAJOR_ID_TL1:
+	case MESON_CPU_MAJOR_ID_TM2:
+	case MESON_CPU_MAJOR_ID_SM1:
 		viu2_valid = 1;
 		break;
 	default:
