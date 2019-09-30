@@ -247,14 +247,12 @@ static void lcd_gamma_init(void)
 static void lcd_encl_on(void)
 {
 	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
-	struct lcd_config_s *pconf = lcd_drv->lcd_config;
 
 	lcd_drv->driver_init_pre();
 	if (lcd_debug_test)
 		aml_lcd_debug_test(lcd_debug_test);
 	lcd_gamma_init();
 
-	lcd_vcbus_write(VPP_POSTBLEND_H_SIZE, pconf->lcd_basic.h_active);
 	lcd_vcbus_write(VENC_INTCTRL, 0x200);
 	lcd_drv->lcd_status |= LCD_STATUS_ENCL_ON;
 }

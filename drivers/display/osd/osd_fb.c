@@ -176,7 +176,6 @@ typedef struct pic_info_t {
 } pic_info_t;
 static pic_info_t g_pic_info;
 static int img_video_init = 0;
-static int fb_index = -1;
 
 #if defined(CONFIG_AML_MINUI)
 extern int in_fastboot_mode;
@@ -220,8 +219,7 @@ static void osd_layer_init(GraphicDevice *gdev, int layer)
 		osd_init_hw_viu2();
 	else
 #endif
-		osd_init_hw();
-
+	osd_init_hw();
 	osd_setup_hw(index,
 		     xoffset,
 		     yoffset,
@@ -389,17 +387,15 @@ int get_osd_layer(void)
 	char *layer_str;
 	int osd_index = -1;
 
-	if (fb_index < 0) {
-		layer_str = getenv("display_layer");
-		if (strcmp(layer_str, "osd0") == 0)
-			osd_index = OSD1;
-		else if (strcmp(layer_str, "osd1") == 0)
-			osd_index = OSD2;
-		else if (strcmp(layer_str, "viu2_osd0") == 0)
-			osd_index = VIU2_OSD1;
-		fb_index = osd_index;
-	}
-	return fb_index;
+	layer_str = getenv("display_layer");
+	if (strcmp(layer_str, "osd0") == 0)
+		osd_index = OSD1;
+	else if (strcmp(layer_str, "osd1") == 0)
+		osd_index = OSD2;
+	else if (strcmp(layer_str, "viu2_osd0") == 0)
+		osd_index = VIU2_OSD1;
+
+	return osd_index;
 }
 static void *osd_hw_init(void)
 {
@@ -422,6 +418,7 @@ static void *osd_hw_init(void)
 		osd_loge("osd_hw_init: invalid osd_index\n");
 		return NULL;
 	}
+
 	if (osd_index == OSD1)
 		osd_layer_init(&fb_gdev, OSD1);
 	else if (osd_index == OSD2) {
@@ -452,11 +449,12 @@ void *video_hw_init(int display_mode)
 	u32 fg = 0;
 	u32 bg = 0;
 	u32 fb_width = 0;
-	u32 fb_height = 0;;
+	u32 fb_height = 0;
 
 	get_osd_version();
 
 	vout_init();
+
 	fb_addr = get_fb_addr();
 	switch (display_mode) {
 	case MIDDLE_MODE:
@@ -703,10 +701,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 	if ((y + height) > pheight)
 		height = pheight - y;
 
-	osd_enable_hw(osd_index, 1);
-
 	bmap = (uchar *)bmp + le32_to_cpu(bmp->header.data_offset);
-	fb   = (uchar *)(info->vd_base +
+	fb   = (uchar *)(osd_hw.fb_gem[osd_index].addr +
 			 (y + height - 1) * lcd_line_length + x * fb_gdev.gdfBytesPP);
 
 	osd_logd("fb=0x%p; bmap=0x%p, width=%ld, height= %ld, lcd_line_length=%d, padded_line=%d, fb_gdev.fb_width=%d, fb_gdev.fb_height=%d \n",
@@ -808,7 +804,7 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 	buffer_rgb = NULL;
 	ptr_rgb = NULL;
 
-	flush_cache((unsigned long)info->vd_base,
+	flush_cache((unsigned long)osd_hw.fb_gem[osd_index].addr,
 		    pheight * pwidth * info->vl_bpix / 8);
 	return (0);
 }
@@ -1028,7 +1024,7 @@ no_scale:
 	disp_data.y_start = axis[1];
 	disp_data.x_end = axis[0] + axis[2] - 1;
 	disp_data.y_end = axis[1] + axis[3] - 1;
-	if (osd_hw.osd_ver == OSD_HIGH_ONE)
+	if (osd_hw.osd_ver == OSD_HIGH_ONE && osd_index < VIU2_OSD1)
 		osd_update_blend(&disp_data);
 #endif
 

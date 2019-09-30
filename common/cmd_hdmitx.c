@@ -108,7 +108,6 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	} else {
 		setenv("outputmode", getenv("cvbsmode"));
 		setenv("hdmichecksum", "0x00000000");
-		setenv("hdmimode", "null");
 		run_command("saveenv", 0);
 	}
 	return st;
