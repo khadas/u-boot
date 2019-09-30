@@ -24,3 +24,5 @@ Description:
 acs_entry:
 	.word 0
 	.word __acs_set
+	.word 0
+	.word	__ddr_setting

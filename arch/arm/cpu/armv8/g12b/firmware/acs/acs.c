@@ -59,4 +59,7 @@ acs_set_t __acs_set={
 					.rsv_set_version= 1,
 					.rsv_set_length	= 0,
 					.rsv_set_addr	= 0,
+					.board_id		= {0,},
+					.ddr_struct_size = {0,},
+					.ddr_struct_org_size = sizeof(ddr_set_t),
 };

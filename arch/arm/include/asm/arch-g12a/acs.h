@@ -59,6 +59,9 @@ typedef struct acs_setting{
 		unsigned char		rsv_set_version;
 		unsigned short		rsv_set_length;
 		unsigned long		rsv_set_addr;
+		char				board_id[12];
+		unsigned short		ddr_struct_size[12];
+		unsigned long		ddr_struct_org_size;
 }__attribute__ ((packed)) acs_set_t;
 
 #endif

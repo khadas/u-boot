@@ -262,6 +262,7 @@
 #endif
 #define DDR_FUNC_FAST_BOOT_CHECK_CHIP_ID					(1<<30)
 #define DDR_FUNC_CONFIG_DFE_FUNCTION						(1<<29)
+#define DDR_FUNC_CONFIG_DDR_DVFS_FUNCTION					(1<<28)
 #define DDR_FUNC							(DDR_FUNC_D2PLL					| \
 											DDR_FUNC_LP						| \
 											DDR_FUNC_ZQ_PD					| \
