@@ -1721,7 +1721,7 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 	loff_t offset;
 
 	if (!fls(mtd->erasesize)) {
-		printk("%s, %d bit shift is zero\n",
+		printk("%s, %d !!!!ERROR, bit shift is zero\n",
 			__func__,__LINE__);
 		return ret;
 	}
@@ -1734,6 +1734,7 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 		parts = malloc(sizeof(struct mtd_partition));
 		if (!parts)
 			return -ENOMEM;
+		memset(parts, 0, sizeof(struct mtd_partition));
 		parts->name = NAND_BOOT_NAME;
 		parts->offset = 0;
 		parts->size = (mtd->writesize * 1024);
@@ -3567,7 +3568,7 @@ int aml_nand_block_bad(struct mtd_info *mtd, loff_t ofs, int getchip)
 		return 0;
 
 	if (!fls(mtd->erasesize)) {
-		printk("%s, %d bit shift is zero\n",
+		printk("%s, %d !!!error,bit shift is zero\n",
 			__func__,__LINE__);
 		return ret;
 	}
@@ -3660,7 +3661,7 @@ int aml_nand_block_markbad(struct mtd_info *mtd, loff_t ofs)
 	int ret = 0;
 
 	if (!fls(mtd->erasesize)) {
-		printk("%s, %d bit shift is zero\n",
+		printk("%s, %d !!!!error,bit shift is zero\n",
 			__func__,__LINE__);
 		return ret;
 	}
@@ -3773,6 +3774,7 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 	chip->options = 0;
 	chip->options |=  NAND_SKIP_BBTSCAN;
 	chip->options |= NAND_NO_SUBPAGE_WRITE;
+
 	if (aml_nand_scan(mtd, controller->chip_num)) {
 		err = -ENXIO;
 		goto exit_error;
@@ -3912,6 +3914,9 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 		err = -ENOMEM;
 		goto exit_error;
 	}
+	memset(aml_chip->aml_nand_data_buf, 0,
+		mtd->writesize + mtd->oobsize);
+
 	aml_chip->user_info_buf =
 		malloc((mtd->writesize / chip->ecc.size) * PER_INFO_BYTE);
 	if (aml_chip->user_info_buf == NULL) {
@@ -3919,6 +3924,8 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 		err = -ENOMEM;
 		goto exit_error;
 	}
+	memset(aml_chip->user_info_buf, 0,
+		(mtd->writesize / chip->ecc.size) * PER_INFO_BYTE);
 
 	if (chip->buffers == NULL) {
 		printk("no memory for flash data buf\n");

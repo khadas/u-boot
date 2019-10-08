@@ -46,6 +46,7 @@ int amlnf_key_read(u8 *buf, int len, uint32_t *actual_lenth)
 	key_ptr = malloc(aml_chip->keysize);
 	if (key_ptr == NULL)
 		return -ENOMEM;
+	memset(key_ptr, 0, aml_chip->keysize);
 	aml_nand_ext_read_rsv_info(mtd,
 		aml_chip_key->aml_nandkey_info, 0, key_ptr);
 	memcpy(buf, key_ptr, aml_chip->keysize);
@@ -73,6 +74,7 @@ int amlnf_key_write(u8 *buf, int len, uint32_t *actual_lenth)
 	key_ptr = malloc(aml_chip->keysize);
 	if (key_ptr == NULL)
 		return -ENOMEM;
+	memset(key_ptr, 0, aml_chip->keysize);
 	memcpy(key_ptr, buf, len);
 	aml_nand_ext_save_rsv_info(mtd,
 		aml_chip_key->aml_nandkey_info, key_ptr);

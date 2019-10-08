@@ -159,8 +159,11 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 	int realpage, col0_data=0, col0_oob=0, valid_page_num = 1;
 	int col_data_sandisk[6] = {0}, bad_sandisk_flag=0;
 
-	if (!fls(mtd->erasesize))
+	if (!fls(mtd->erasesize)) {
+		printk("%s, %d !!!!ERROR, bit shift is zero\n",
+			__func__,__LINE__);
 		return -ENOMEM;
+	}
 
 	phys_erase_shift = fls(mtd->erasesize) - 1;
 	chip->pagebuf = -1;
@@ -171,6 +174,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 		printk("%s %d malloc failed\n",__func__,__LINE__);
 		return -ENOMEM;
 	}
+	memset(data_buf, 0, mtd->writesize);
 
 	/*need scan factory bad block in bootloader area*/
 	start_blk = 0;
@@ -1239,8 +1243,11 @@ int aml_nand_bbt_check(struct mtd_info *mtd)
 	int ret =0;
 	int8_t *buf = NULL;
 
-	if (!fls(mtd->erasesize))
+	if (!fls(mtd->erasesize)) {
+		printk("%s, %d !!!!ERROR, bit shift is zero\n",
+			__func__,__LINE__);
 		return -ENOMEM;
+	}
 	phys_erase_shift = fls(mtd->erasesize) - 1;
 	ret = aml_nand_scan_rsv_info(mtd, aml_chip->aml_nandbbt_info);
 	if ((ret !=0) && ((ret != (-1)))) {
@@ -1264,6 +1271,10 @@ int aml_nand_bbt_check(struct mtd_info *mtd)
 			ret = -ENOMEM;
 			goto exit_error;
 		}
+
+		memset(aml_chip->nand_bbt_info,
+			0, sizeof(struct aml_nand_bbt_info));
+
 		memset(aml_chip->block_status,
 			0, (mtd->size >> phys_erase_shift));
 		aml_nand_scan_shipped_bbt(mtd);

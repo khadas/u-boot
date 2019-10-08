@@ -52,6 +52,7 @@ int amlnf_dtb_save(u8 *buf, unsigned int len)
 		ret = -1;
 		goto exit_err;
 	}
+	memset(dtb_buf, 0, aml_chip_dtb->dtbsize);
 	memcpy(dtb_buf, buf, len);
 	aml_nand_ext_save_rsv_info(mtd,
 		aml_chip_dtb->aml_nanddtb_info, dtb_buf);

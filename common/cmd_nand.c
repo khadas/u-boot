@@ -315,8 +315,10 @@ static int get_part(const char *partname, int *idx, loff_t *off, loff_t *size,
 	int ret;
 
 	ret = mtdparts_init();
-	if (ret)
+	if (ret) {
+		printf("mtd part init failed, ret: %d\n", ret);
 		return ret;
+	}
 
 	ret = find_dev_and_part(partname, &dev, &pnum, &part);
 	if (ret)

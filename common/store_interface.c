@@ -905,7 +905,7 @@ static int do_store_size(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 		if (ret != 0) {
 			store_msg("nand cmd %s failed",cmd);
 			return -1;
-#if defined(CONFIG_AML_NAND) || defined(CONFIG_AML_NAND)
+#if defined(CONFIG_AML_NAND) || defined(CONFIG_AML_MTD)
 		} else {
 			return ret;
 #endif

@@ -468,6 +468,7 @@ static int m3_nand_options_confirm(struct aml_nand_chip *aml_chip)
 		chip->ecc.write_page_raw = aml_nand_write_page_raw;
 		chip->ecc.mode = NAND_ECC_SOFT;
 	}
+
 	chip->write_buf = aml_nand_dma_write_buf;
 	chip->read_buf = aml_nand_dma_read_buf;
 
@@ -826,6 +827,7 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 		err = -ENOMEM;
 		goto exit_error;
 	}
+	memset(aml_chip, 0, sizeof(*aml_chip));
 
 	/* initialize mtd info data struct */
 	aml_chip->controller = controller;

@@ -68,7 +68,7 @@ int amlnf_env_save(u8 *buf, int len)
 		ret = -1;
 		goto exit_err;
 	}
-
+	memset(env_buf, 0, CONFIG_ENV_SIZE);
 	memcpy(env_buf, buf, len);
 	ret = amlnand_save_info_by_name_mtd(aml_chip_env,
 		env_buf,
@@ -105,6 +105,7 @@ int amlnf_env_read(u8 *buf, int len)
 		ret = -1;
 		goto exit_err;
 	}
+	memset(env_buf, 0, CONFIG_ENV_SIZE);
 	ret = amlnand_read_info_by_name_mtd(aml_chip_env,
 		(u8 *)env_buf,
 		CONFIG_ENV_SIZE);
