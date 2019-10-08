@@ -239,7 +239,13 @@ pll_set_t __pll_setting = {
 #endif
 	.spi_ctrl				= 0,
 	.lCustomerID			= AML_CUSTOMER_ID,
-	.log_chl				= 0x3, /* 0xFF: all channel enabled */
+	.log_chl				= 0x3, /* 0x77: all channel enable. 0xFF: with stream info */
+	.log_ctrl				= (1<<7) | /* (1<<7), print bl2 log into buffer */
+#ifdef CONFIG_SILENT_CONSOLE
+							  (1<<6),    /* do not print log buffer */
+#else
+							  (0<<6),    /* print log buffer before run bl31 */
+#endif
 };
 
 ddr_reg_t __ddr_reg[] = {

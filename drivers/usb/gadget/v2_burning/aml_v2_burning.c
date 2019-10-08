@@ -166,7 +166,10 @@ int aml_burn_factory_producing(int flag, bd_t* bis)
 int aml_try_factory_sdcard_burning(int flag, bd_t* bis)
 {
         if (!is_tpl_loaded_from_ext_sdmmc()) return 1;
-
+#ifdef CONFIG_SILENT_CONSOLE
+        /* enable console output */
+        gd->flags &= ~GD_FLG_SILENT;
+#endif
         if ( aml_check_is_ready_for_sdc_produce() )
         {
             return aml_burn_sdc_producing(flag, bis);

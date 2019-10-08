@@ -294,6 +294,11 @@ const char *bootdelay_process(void)
 
 	bootcount_inc();
 
+#ifdef CONFIG_SILENT_CONSOLE
+	/* disable silent */
+	gd->flags &= ~GD_FLG_SILENT;
+#endif
+
 	s = env_get("bootdelay");
 	bootdelay = s ? (int)simple_strtol(s, NULL, 10) : CONFIG_BOOTDELAY;
 

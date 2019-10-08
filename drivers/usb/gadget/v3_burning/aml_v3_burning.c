@@ -49,10 +49,13 @@ int aml_v3_factory_usb_burning(int flag, bd_t* bis)
 {
     if (!is_boot_device_usb()) return 1;
     if (!is_bl1_usb_protocol_DNL()) return 1;
-
+#ifdef CONFIG_SILENT_CONSOLE
+    /* enable console output */
+    gd->flags &= ~GD_FLG_SILENT;
+#endif
     bis = bis;//avoid compiling warnning
     if ( !flag ) {
-        serial_initialize();//init for write memory
+        //serial_initialize();//init for write memory
 #ifdef CONFIG_GENERIC_MMC
         FB_MSG("MMC init for dnl\n");
         mmc_initialize(bis);

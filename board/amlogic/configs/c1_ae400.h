@@ -70,6 +70,7 @@
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS \
         "firstboot=1\0"\
+        "silent=1\0"\
         "upgrade_step=0\0"\
         "jtag=disable\0"\
         "loadaddr=0x00020000\0"\
