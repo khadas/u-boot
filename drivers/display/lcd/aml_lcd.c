@@ -1092,6 +1092,7 @@ static struct aml_lcd_drv_s aml_lcd_driver = {
 	.lcd_set_ss = aml_lcd_set_ss,
 	.lcd_get_ss = aml_lcd_get_ss,
 	.lcd_test = aml_lcd_test,
+	.lcd_prbs = aml_lcd_prbs_test,
 	.lcd_clk = aml_lcd_clk,
 	.lcd_info = aml_lcd_info,
 	.lcd_reg = aml_lcd_reg,

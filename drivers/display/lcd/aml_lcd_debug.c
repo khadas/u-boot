@@ -775,6 +775,45 @@ void aml_lcd_mute_setting(unsigned char flag)
 	}
 }
 
+int aml_lcd_prbs_test(unsigned int s)
+{
+	unsigned int val1, val2, cnt = 0, timeout;
+	int i, ret;
+
+	lcd_hiu_write(HHI_LVDS_TX_PHY_CNTL0, 0xfff20c4);
+	lcd_hiu_setb(HHI_LVDS_TX_PHY_CNTL0, 1, 12, 1);
+	val1 = lcd_hiu_getb(HHI_LVDS_TX_PHY_CNTL1, 12, 12);
+
+	s = (s == 0) ? 1 : ((s > 1800) ? 1800 : s);
+	timeout = s * 200;
+	while (cnt++ < timeout) {
+		mdelay(5);
+		ret = 1;
+		for (i = 0; i < 5; i++) {
+			val2 = lcd_hiu_getb(HHI_LVDS_TX_PHY_CNTL1, 12, 12);
+			if (val2 != val1) {
+				ret = 0;
+				break;
+			}
+		}
+		if (ret) {
+			lcd_hiu_setb(HHI_LVDS_TX_PHY_CNTL0, 0, 12, 2);
+			LCDERR("lcd prbs check error 1, val:0x%03x, cnt:%d\n", val2, cnt);
+			return -1;
+		}
+		val1 = val2;
+		if (lcd_hiu_getb(HHI_LVDS_TX_PHY_CNTL1, 0, 12)) {
+			lcd_hiu_setb(HHI_LVDS_TX_PHY_CNTL0, 0, 12, 2);
+			LCDERR("lcd prbs check error 2, cnt:%d\n", cnt);
+			return -1;
+		}
+	}
+	lcd_hiu_setb(HHI_LVDS_TX_PHY_CNTL0, 0, 12, 2);
+
+	LCDPR("lcd prbs check ok\n");
+	return 0;
+}
+
 void aml_lcd_info_print(void)
 {
 	unsigned int lcd_clk;

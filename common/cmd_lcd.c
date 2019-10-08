@@ -393,6 +393,28 @@ static int do_lcd_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	return 0;
 }
 
+static int do_lcd_prbs(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	struct aml_lcd_drv_s *lcd_drv;
+	unsigned int s;
+
+	if (argc == 1) {
+		return -1;
+	}
+	s = (unsigned int)simple_strtoul(argv[1], NULL, 10);
+
+	lcd_drv = aml_lcd_get_driver();
+	if (lcd_drv) {
+		if (lcd_drv->lcd_prbs)
+			lcd_drv->lcd_prbs(s);
+		else
+			printf("no lcd prbs\n");
+	} else {
+		printf("no lcd driver\n");
+	}
+	return 0;
+}
+
 static int do_lcd_key(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct aml_lcd_drv_s *lcd_drv;
@@ -504,6 +526,7 @@ static cmd_tbl_t cmd_lcd_sub[] = {
 	U_BOOT_CMD_MKENT(tcon, 3, 0, do_lcd_tcon, "", ""),
 	U_BOOT_CMD_MKENT(reg,  2, 0, do_lcd_reg, "", ""),
 	U_BOOT_CMD_MKENT(test, 3, 0, do_lcd_test, "", ""),
+	U_BOOT_CMD_MKENT(prbs, 2, 0, do_lcd_prbs, "", ""),
 	U_BOOT_CMD_MKENT(key,  4, 0, do_lcd_key, "", ""),
 #ifdef CONFIG_AML_LCD_EXTERN
 	U_BOOT_CMD_MKENT(ext,  2, 0, do_lcd_ext, "", ""),
