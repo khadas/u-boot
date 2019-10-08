@@ -277,32 +277,32 @@ static int aml_i2c_wait_ack(struct aml_i2c *i2c)
 }
 
 static void aml_i2c_get_read_data(struct aml_i2c *i2c, unsigned char *buf,
-														size_t len)
+				  size_t len)
 {
 	AML_I2C_DBG(1, "FILE:%s:%d, FUNC:%s\n", __FILE__,__LINE__,__func__);
 	int i;
 	unsigned long rdata0 = i2c->master_regs->i2c_token_rdata_0;
 	unsigned long rdata1 = i2c->master_regs->i2c_token_rdata_1;
 
-	for (i=0; i< min_t(size_t, len, AML_I2C_MAX_TOKENS>>1); i++)
+	for (i = 0; i< min_t(size_t, len, AML_I2C_MAX_TOKENS>>1); i++)
 		*buf++ = (rdata0 >> (i*8)) & 0xff;
 
-	for (; i< min_t(size_t, len, AML_I2C_MAX_TOKENS); i++)
+	for (i = 4; i< min_t(size_t, len, AML_I2C_MAX_TOKENS); i++)
 		*buf++ = (rdata1 >> ((i - (AML_I2C_MAX_TOKENS>>1))*8)) & 0xff;
 }
 
 static void aml_i2c_fill_data(struct aml_i2c *i2c, unsigned char *buf,
-							size_t len)
+			      size_t len)
 {
 	AML_I2C_DBG(1, "FILE:%s:%d, FUNC:%s\n", __FILE__,__LINE__,__func__);
 	int i;
 	unsigned int wdata0 = 0;
 	unsigned int wdata1 = 0;
 
-	for (i=0; i< min_t(size_t, len, AML_I2C_MAX_TOKENS>>1); i++)
+	for (i = 0; i< min_t(size_t, len, AML_I2C_MAX_TOKENS>>1); i++)
 		wdata0 |= (*buf++) << (i*8);
 
-	for (; i< min_t(size_t, len, AML_I2C_MAX_TOKENS); i++)
+	for (i = 4; i< min_t(size_t, len, AML_I2C_MAX_TOKENS); i++)
 		wdata1 |= (*buf++) << ((i - (AML_I2C_MAX_TOKENS>>1))*8);
 
 	i2c->master_regs->i2c_token_wdata_0 = wdata0;
@@ -665,7 +665,7 @@ int aml_i2c_init_port(struct aml_i2c_platform *plat)
 	i2c->master_no = plat->master_no;
 
 	i2c->use_pio = plat->use_pio;
-	AML_I2C_ASSERT((i2c->master_no >= 0) && (i2c->master_no <= 4));
+	AML_I2C_ASSERT(i2c->master_no <= 4);
 
 	/*master a or master b*/
 	if (i2c->master_no >= ARRAY_SIZE(g_aml_i2c_reg_start))
