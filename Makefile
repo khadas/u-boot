@@ -873,7 +873,7 @@ bl21.bin: tools prepare u-boot.bin acs.bin
 	$(Q)$(MAKE) -C $(srctree)/$(CPUDIR)/${SOC}/firmware/bl21 all FIRMWARE=$@
 
 .PHONY : dovi
-dovi: tools prepare u-boot
+dovi: tools prepare
 ifeq ($(CONFIG_AML_DOLBY), y)
 	$(Q)$(MAKE) -C $(srctree)/drivers/display/osd/dv dovi.o
 endif
