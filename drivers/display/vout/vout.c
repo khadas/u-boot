@@ -752,11 +752,13 @@ void vout_vinfo_dump(void)
 	vout_log("vinfo.vd_color_bg: %d\n", info->vd_color_bg);
 }
 
+static unsigned int vout_viu1_mux = VIU_MUX_MAX;
+static unsigned int vout_viu2_mux = VIU_MUX_MAX;
 void vout_viu_mux(int viu_sel, int venc_sel)
 {
-	unsigned int mux_bit = 0xff;
 	unsigned int clk_bit = 0xff, clk_sel = 0;
 	unsigned int viu2_valid = 0;
+	unsigned int vout_viu_sel = 0xf;
 
 	switch (get_cpu_id().family_id) {
 	case MESON_CPU_MAJOR_ID_G12A:
@@ -777,19 +779,24 @@ void vout_viu_mux(int viu_sel, int venc_sel)
 			vout_hiu_setb(HHI_VPU_CLKC_CNTL, 2, 9, 3);
 			vout_hiu_setb(HHI_VPU_CLKC_CNTL, 1, 0, 1);
 			vout_hiu_setb(HHI_VPU_CLKC_CNTL, 1, 8, 3);
-			mux_bit = 2;
 			clk_sel = 1;
 		}
+		if (venc_sel == vout_viu1_mux)
+			vout_viu1_mux = VIU_MUX_MAX;
+		vout_viu2_mux = venc_sel;
 		break;
 	case VOUT_VIU1_SEL:
 		if (viu2_valid)
 			vout_hiu_setb(HHI_VPU_CLKC_CNTL, 0, 8, 1);
-		mux_bit = 0;
 		clk_sel = 0;
+		if (venc_sel == vout_viu2_mux)
+			vout_viu2_mux = VIU_MUX_MAX;
+		vout_viu1_mux = venc_sel;
 		break;
 	default:
 		break;
 	}
+	vout_viu_sel = (vout_viu1_mux | (vout_viu2_mux << 2));
 
 	switch (venc_sel) {
 	case VIU_MUX_ENCL:
@@ -805,10 +812,7 @@ void vout_viu_mux(int viu_sel, int venc_sel)
 		break;
 	}
 
-	vout_reg_setb(VPU_VIU_VENC_MUX_CTRL, 0xf, 0, 4);
-	if (mux_bit < 0xff)
-		vout_reg_setb(VPU_VIU_VENC_MUX_CTRL, venc_sel, mux_bit, 2);
-
+	vout_reg_setb(VPU_VIU_VENC_MUX_CTRL, vout_viu_sel, 0, 4);
 	if (viu2_valid) {
 		if (clk_bit < 0xff)
 			vout_reg_setb(VPU_VENCX_CLK_CTRL, clk_sel, clk_bit, 1);
