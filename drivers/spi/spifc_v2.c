@@ -34,6 +34,7 @@ struct spifc_priv {
 	struct clk spifc_mux;
 	struct clk spifc_div;
 	struct clk spifc_gate;
+	struct clk spifc_xtal_gate;
 #endif/* CONFIG_CLK */
 	unsigned int wordlen;
 	unsigned char cmd;
@@ -379,6 +380,19 @@ static int spifc_probe(struct udevice *bus)
 	ret = clk_get_by_name(bus, "spifc_gate", &priv->spifc_gate);
 	if (ret) {
 		pr_err("can't get clk spifc_gate!\n");
+		return ret;
+	}
+
+	ret = clk_get_by_name(bus, "spifc_xtal_gate", &priv->spifc_xtal_gate);
+	if (ret) {
+		pr_err("can't get clk spifc_xtal_gate!\n");
+		return ret;
+	}
+
+	/* Do not use xtal */
+	ret = clk_disable(&priv->spifc_xtal_gate);
+	if (ret) {
+		pr_err("disable xtal_gate fail\n");
 		return ret;
 	}
 
