@@ -8,3 +8,5 @@ obj-$(CONFIG_MESON_GX) += board-gx.o
 obj-$(CONFIG_MESON_AXG) += board-axg.o
 
 obj-$(CONFIG_ARCH_MESON) += $(SOC)/
+
+obj-$(CONFIG_AML_HW_SHA2) += hard_sha2.o

@@ -384,6 +384,12 @@
 
 #define CONFIG_CPU_ARMV8
 
+//use sha2 command
+#define CONFIG_CMD_SHA2
+
+//use hardware sha2
+//#define CONFIG_AML_HW_SHA2
+
 /* #define CONFIG_MULTI_DTB    1 */
 
 /* support secure boot */
