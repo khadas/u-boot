@@ -298,10 +298,10 @@ static int sys_pll_test_all(sys_pll_cfg_t * sys_pll_cfg) {
 
 
 static int sys_pll_test(sys_pll_set_t * sys_pll_set) {
-	unsigned int clk_msr_reg = 0;
+	//unsigned int clk_msr_reg = 0;
 	unsigned int clk_msr_val = 0;
 	unsigned int sys_clk = 0;
-	unsigned int sys_pll_cntl = 0;
+	//unsigned int sys_pll_cntl = 0;
 	int ret=0;
 
 	/* switch sys clk to oscillator */
@@ -496,10 +496,10 @@ static int hifi_pll_test_all(void){
 }
 
 static int gp_pll_test(gp_pll_set_t * gp_pll) {
-	int ret=0;
-	unsigned int i=0, pll_clk=0;
+	int ret = 0;
+	unsigned int i = 0, pll_clk = 0;
 	unsigned int lock_check = PLL_LOCK_CHECK_MAX;
-	unsigned int clk_msr_val = 0, od=0;
+	unsigned int clk_msr_val = 0;
 
 	for (i=0; i<(sizeof(gpll_tbl)/sizeof(gpll_tbl[0])); i++) {
 		if ((gp_pll->pll_cntl0 & 0xFF) == gpll_tbl[i].m) {
@@ -704,8 +704,8 @@ static int dds_pll_test_all(void) {
 }
 
 static int usbphy_pll_test(usbphy_pll_set_t * usbphy_pll) {
-	int ret=0;
-	unsigned int i=0, pll_clk=0;
+	int ret = 0;
+	unsigned int pll_clk = 0;
 	unsigned int lock_check = PLL_LOCK_CHECK_MAX;
 	unsigned long usbphy_base_cfg = 0xFE004000;
 

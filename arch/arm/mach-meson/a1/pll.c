@@ -12,7 +12,7 @@
 #include <amlogic/cpu_id.h>
 #include <malloc.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
+#include <asm/arch/clk_measure.h>
 #include <asm/arch/secure_apb.h>
 #include <asm/arch/timer.h>
 #include <asm/arch/pll.h>
@@ -388,10 +388,10 @@ static int sys_pll_test_all(sys_pll_cfg_t * sys_pll_cfg) {
 }
 
 static int sys_pll_test(sys_pll_set_t * sys_pll_set) {
-	unsigned int clk_msr_reg = 0;
+	//unsigned int clk_msr_reg = 0;
 	unsigned int clk_msr_val = 0;
 	unsigned int sys_clk = 0;
-	unsigned int sys_pll_cntl = 0;
+	//unsigned int sys_pll_cntl = 0;
 	int ret=0;
 
 	/* switch sys clk to oscillator */
@@ -587,7 +587,6 @@ static int hifi_pll_test(hifi_pll_set_t * hifi_pll) {
 
 
 static int usbphy_pll_test_all(void) {
-	unsigned int i=0;
 	unsigned int lock_check = PLL_LOCK_CHECK_MAX;
 	int ret=0;
 	unsigned long usbphy_base_cfg = 0xFE004000;
@@ -618,8 +617,8 @@ static int usbphy_pll_test_all(void) {
 }
 
 static int usbphy_pll_test(usbphy_pll_set_t * usbphy_pll) {
-	int ret=0;
-	unsigned int i=0, pll_clk=0;
+	int ret = 0;
+	unsigned int pll_clk = 0;
 	unsigned int lock_check = PLL_LOCK_CHECK_MAX;
 	unsigned long usbphy_base_cfg = 0xFE004000;
 

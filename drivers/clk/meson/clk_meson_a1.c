@@ -73,9 +73,9 @@ static int meson_clk_disable(struct clk *clk)
 static ulong meson_pll_get_rate(struct clk *clk, unsigned long id)
 {
 	struct meson_clk *priv = dev_get_priv(clk->dev);
-	struct parm *pm, *pn, *pod;
+	struct parm *pm, *pn;
 	unsigned long parent_rate_mhz = clk_get_rate(&priv->clkin)/1000000;
-	u16 n, m, od;
+	u16 n, m;
 	u32 reg;
 
 	switch (id) {

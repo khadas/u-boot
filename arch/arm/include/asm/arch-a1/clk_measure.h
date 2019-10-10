@@ -61,6 +61,7 @@ static const char* clk_msr_table[] = {
 	[61] = "osc_ring_ramb",
 };
 
+unsigned long clk_util_clk_msr(unsigned long clk_mux);
 int clk_msr(int index);
 
 #endif

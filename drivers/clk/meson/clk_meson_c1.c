@@ -112,7 +112,6 @@ static ulong meson_pll_get_rate(struct clk *clk, unsigned long id)
 	/* there is OD in C1 */
 	 reg = readl(priv->addr + pod->reg_off);
 	od = PARM_GET(pod->width, pod->shift, reg);
-	((parent_rate_mhz * m / n) >> od) * 1000000;
 
 	return ((parent_rate_mhz * m / n) >> od) * 1000000;
 }
@@ -172,7 +171,7 @@ static ulong meson_clk_set_rate(struct clk *clk, ulong rate)
 	unsigned int div_val;
 	struct meson_clk *priv = dev_get_priv(clk->dev);
 	unsigned int i;
-	struct meson_div *div;
+	struct meson_div *div = NULL;
 
 	for (i = 0; i < ARRAY_SIZE(divs); i++) {
 		if (clk->id == divs[i].index)
