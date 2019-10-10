@@ -127,12 +127,12 @@ static int meson_pinmux_get_pins_count(struct udevice *dev)
 	return priv->data->num_pins;
 }
 
-const char *meson_pinmux_get_pin_name(struct udevice *dev, unsigned selector)
+static const char *meson_pinmux_get_pin_name(struct udevice *dev, unsigned selector)
 {
 	struct meson_pinctrl *priv = dev_get_priv(dev);
 	const char *name;
 	int i;
-	int offset;
+	int offset = 0;
 
 	/*get bank name according to selector*/
 	for (i = 0; i < priv->data->num_banks; i++) {
@@ -144,14 +144,17 @@ const char *meson_pinmux_get_pin_name(struct udevice *dev, unsigned selector)
 		}
 	}
 
-	/*make pin name*/
-	snprintf(pin_name, PINNAME_SIZE, "%s%d", name, offset);
+	if (i >= priv->data->num_banks)
+		snprintf(pin_name, PINNAME_SIZE, "%s", "Error");
+	else
+		snprintf(pin_name, PINNAME_SIZE, "%s%d", name, offset);
 
 	return pin_name;
 }
 
-int meson_pinmux_get_pin_muxing(struct udevice *dev, int selector, char *buf,
-			   int size)
+static int meson_pinmux_get_pin_muxing(struct udevice *dev,
+				       unsigned int selector, char *buf,
+				       int size)
 {
 	struct meson_pinctrl *priv = dev_get_priv(dev);
 	struct meson_pmx_bank *bank;
@@ -159,8 +162,8 @@ int meson_pinmux_get_pin_muxing(struct udevice *dev, int selector, char *buf,
 	struct meson_pmx_axg_data *pmx_data;
 
 	void __iomem *addr;
-	int reg;
-	int offset;
+	unsigned int reg;
+	unsigned int offset;
 	int ret;
 	int func;
 	int i,j;
