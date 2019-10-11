@@ -37,9 +37,7 @@
 #define REG_LED_SYSTEM_OFF_MODE 0x29
 #define REG_ADC                 0x2a
 #define REG_MAC_SWITCH          0x2d
-#ifdef CONFIG_KHADAS_VIM3
 #define REG_PORT_MODE           0x33
-#endif
 #define REG_PASSWD_CUSTOM       0x40
 
 #define REG_POWER_OFF           0x80
@@ -505,7 +503,7 @@ static void set_ir(int enable)
 	run_command(cmd, 0);
 }
 
-#ifdef CONFIG_KHADAS_VIM3
+#if defined(CONFIG_KHADAS_VIM3) || defined(CONFIG_KHADAS_VIM3L)
 static void get_port_mode(void)
 {
 	int mode;
@@ -807,7 +805,7 @@ static int do_kbi_switchmac(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 	return 0;
 }
 
-#ifdef CONFIG_KHADAS_VIM3
+#if  defined(CONFIG_KHADAS_VIM3) || defined(CONFIG_KHADAS_VIM3L)
 static int do_kbi_portmode(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 
@@ -1064,7 +1062,7 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 #ifndef CONFIG_KHADAS_VIM
 	U_BOOT_CMD_MKENT(bootmode, 3, 1, do_kbi_bootmode, "", ""),
 #endif
-#ifdef CONFIG_KHADAS_VIM3
+#if defined(CONFIG_KHADAS_VIM3) || defined(CONFIG_KHADAS_VIM3L)
 	U_BOOT_CMD_MKENT(portmode, 1, 1, do_kbi_portmode, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(forcereset, 4, 1, do_kbi_forcereset, "", ""),
@@ -1138,7 +1136,7 @@ static char kbi_help_text[] =
 		"kbi bootmode r - read current bootmode\n"
 		"\n"
 #endif
-#ifdef CONFIG_KHADAS_VIM3
+#if defined(CONFIG_KHADAS_VIM3) || defined(CONFIG_KHADAS_VIM3L)
 		"kbi portmode w <0|1> - set port as usb3.0 or pcie\n"
 		"kbi portmode r - read current port mode\n"
 		"\n"
