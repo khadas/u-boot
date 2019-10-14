@@ -133,6 +133,7 @@ extern void __switch_idle_task(void);
 static unsigned int detect_key(unsigned int suspend_from)
 {
 	int exit_reason = 0;
+	unsigned char adc_key_cnt = 0;
 	unsigned *irq = (unsigned *)WAKEUP_SRC_IRQ_ADDR_BASE;
 	init_remote();
 #ifdef CONFIG_CEC_WAKEUP
@@ -158,6 +159,22 @@ static unsigned int detect_key(unsigned int suspend_from)
 		if (irq[IRQ_VRTC] == IRQ_VRTC_NUM) {
 			irq[IRQ_VRTC] = 0xFFFFFFFF;
 			exit_reason = RTC_WAKEUP;
+		}
+
+		if (irq[IRQ_AO_TIMERA] == IRQ_AO_TIMERA_NUM) {
+			irq[IRQ_AO_TIMERA] = 0xFFFFFFFF;
+			saradc_enable();
+			if (check_adc_key_resume()) {
+				adc_key_cnt++;
+				/* using variable 'adc_key_cnt' to eliminate
+				 * the dithering of the key
+				 */
+				if (2 == adc_key_cnt)
+					exit_reason = POWER_KEY_WAKEUP;
+			} else {
+				adc_key_cnt = 0;
+			}
+			saradc_disable();
 		}
 
 		if (exit_reason)
