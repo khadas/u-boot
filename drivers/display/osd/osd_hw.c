@@ -262,8 +262,16 @@ static inline void  osd_update_3d_mode(int enable_osd1, int enable_osd2,
 static void get_encp_line(int *enc_line, int *active_line_begin)
 {
 	unsigned int reg = 0;
+	unsigned int viu_sel;
+	int osd_index;
 
-	switch (osd_reg_read(VPU_VIU_VENC_MUX_CTRL) & 0x3) {
+	osd_index = get_osd_layer();
+	if (osd_index < VIU2_OSD1)
+		viu_sel = osd_reg_read(VPU_VIU_VENC_MUX_CTRL) & 0x3;
+	else
+		viu_sel = (osd_reg_read(VPU_VIU_VENC_MUX_CTRL) >> 2) & 0x3;
+
+	switch (viu_sel) {
 	case 0:
 		reg = osd_reg_read(ENCL_INFO_READ);
 		*active_line_begin =

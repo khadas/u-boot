@@ -332,7 +332,7 @@
 	"setenv outputmode $hdmimode;setenv display_layer osd0;"\
 	"vout output $hdmimode;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
 	"setenv outputmode2 panel;setenv display_layer viu2_osd0;"\
-	"vout2 output panel;osd open;osd clear;imgread pic logo bootup_secondary $loadaddr;bmp display $bootup_secondary_offset;bmp scale;"\
+	"vout2 prepare panel;osd open;osd clear;imgread pic logo bootup_secondary $loadaddr;bmp display $bootup_secondary_offset;bmp scale;vout2 output panel;"\
 	"\0"\
 
 #define CONFIG_SINGLE_LOGO \
