@@ -220,6 +220,24 @@ static struct vpu_ctrl_s vpu_module_init_txlx[] = {
 	{VPU_REG_END,               0,   0,   0},
 };
 
+static struct vpu_ctrl_s vpu_module_init_g12a[] = {
+	/* reg,                     val, bit, len */
+	{DOLBY_CORE1_CLKGATE_CTRL,  0x55555555, 0,   32},
+	{DOLBY_CORE2A_CLKGATE_CTRL, 0x55555555, 0,   32},
+	{DOLBY_CORE3_CLKGATE_CTRL,  0x55555555, 0,   32},
+	{VPU_REG_END,               0,          0,   0},
+};
+
+static struct vpu_ctrl_s vpu_module_init_tm2[] = {
+	/* reg,                     val, bit, len */
+	{DOLBY_CORE1_CLKGATE_CTRL,  0x55555555, 0,   32},
+	{DOLBY_CORE2A_CLKGATE_CTRL, 0x55555555, 0,   32},
+	{DOLBY_CORE3_CLKGATE_CTRL,  0x55555555, 0,   32},
+	{DOLBY_CORE1_1_CLKGATE_CTRL,0x55555555, 0,   32},
+	{DOLBY_TM2_TV_CLKGATE_CTRL, 0x55555555, 0,   32},
+	{VPU_REG_END,              0,          0,   0},
+};
+
 /* ******************************************************* */
 /*                 VPU reset table                    */
 /* ******************************************************* */
