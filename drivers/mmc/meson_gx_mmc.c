@@ -14,6 +14,7 @@
 #include <asm/arch/cpu_sdio.h>
 #include <asm/arch/sd_emmc.h>
 #include <linux/log2.h>
+#include <dm/pinctrl.h>
 #include "mmc_private.h"
 
 static inline void *get_regbase(const struct mmc *mmc)
@@ -216,7 +217,7 @@ static int meson_dm_mmc_set_ios(struct udevice *dev)
 	return 0;
 }
 
-static void meson_mmc_setup_cmd(struct mmc *mmc, struct mmc_data *data,
+__attribute__((unused)) static void meson_mmc_setup_cmd(struct mmc *mmc, struct mmc_data *data,
 				struct mmc_cmd *cmd)
 {
 	uint32_t meson_mmc_cmd = 0, cfg, bl_len = 0;
@@ -262,7 +263,7 @@ static void meson_mmc_setup_cmd(struct mmc *mmc, struct mmc_data *data,
 	meson_write(mmc, meson_mmc_cmd, MESON_SD_EMMC_CMD_CFG);
 }
 
-static void meson_mmc_setup_addr(struct mmc *mmc, struct mmc_data *data)
+__attribute__((unused)) static void meson_mmc_setup_addr(struct mmc *mmc, struct mmc_data *data)
 {
 	struct meson_mmc_platdata *pdata = mmc->priv;
 	unsigned int data_size;
@@ -369,10 +370,8 @@ static int mmc_setup_data(struct udevice *dev, struct mmc_data *data,
 		struct sd_emmc_desc_info *desc_cur)
 {
 	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
-	struct meson_host *host = dev_get_priv(dev);
-	struct mmc *mmc = &pdata->mmc;
 	uint32_t *meson_mmc_cmd = NULL;
-	unsigned int data_size, blks = 0, desc_cnt = 0, bl_len = 0;
+	unsigned int data_size, desc_cnt = 0;
 	uint32_t data_addr = 0;
 
 	meson_mmc_cmd = &(desc_cur->cmd_info);
@@ -496,7 +495,6 @@ static int meson_dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 				 struct mmc_data *data)
 {
 	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
-	struct meson_host *host = dev_get_priv(dev);
 	struct mmc *mmc = &pdata->mmc;
 	uint32_t status;
 	ulong start;
@@ -541,9 +539,7 @@ static int meson_dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 
 void meson_hw_reset(struct udevice *dev)
 {
-	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
 	struct meson_host *host = dev_get_priv(dev);
-	struct mmc *mmc = &pdata->mmc;
 
 	if (aml_card_type_mmc(host)) {
 		dm_gpio_set_value(&host->gpio_reset, 0);
@@ -589,7 +585,6 @@ int meson_send_cali_blks(struct udevice *dev, char *buffer, u32 start_blk, u32 c
 {
 	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
 	struct mmc *mmc = &pdata->mmc;
-	struct meson_host *host = dev_get_priv(dev);
 	int err = 0, ret = 0;
 	struct mmc_cmd cmd = {0};
 	struct mmc_cmd stop = {0};
@@ -617,7 +612,7 @@ int meson_send_cali_blks(struct udevice *dev, char *buffer, u32 start_blk, u32 c
 		pr_debug("%s: send calibration read blocks error %d cnt = %d\n",
 				mmc->cfg->name, err, cnt);
 	if (cnt > 1 || err) {
-		ret = meson_dm_mmc_send_cmd(mmc, &stop, NULL);
+		ret = meson_dm_mmc_send_cmd(dev, &stop, NULL);
 		if (ret)
 			pr_debug("%s: send calibration stop blocks error %d\n",
 					mmc->cfg->name, ret);
@@ -632,7 +627,6 @@ u32 meson_tuning_transfer(struct udevice *dev, u32 opcode)
 	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
 	struct meson_host *host = dev_get_priv(dev);
 	struct mmc *mmc = &pdata->mmc;
-	u32 vctrl = meson_read(mmc, MESON_SD_EMMC_CFG);
 	u32 tuning_err = 0, start_blk = CALI_PATTERN_ADDR;
 	int cmd_err = 0, n, nmatch;
 
@@ -724,13 +718,13 @@ int meson_execute_tuning(struct udevice *dev, uint opcode)
 	struct mmc *mmc = &pdata->mmc;
 	u32 clk_src, clock;
 	u32 vclk = 0, clk_div = 0, adj = 0, dly = 0, d1_dly, old_dly;
-	int err = 0, ret = 0, adj_delay = 0;
+	int ret = 0, adj_delay = 0;
 	int tuning_num = 0;
 #ifdef MMC_HS200_MODE
 	int pre_status = 0;
 	int start = 0;
 #endif
-	int n, nmatch;
+	int nmatch;
 	int wrap_win_start = -1, wrap_win_size = 0;
 	int best_win_start = -1, best_win_size = -1;
 	int curr_win_start = -1, curr_win_size = 0;
@@ -932,7 +926,6 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 {
 	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
 	struct meson_host *host = dev_get_priv(dev);
-	struct mmc *mmc = &pdata->mmc;
 	struct mmc_config *cfg = &pdata->cfg;
 	struct udevice *clk_udevice;
 	fdt_addr_t addr;
@@ -982,7 +975,7 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-void mmc_set_source_clock(mmc)
+void mmc_set_source_clock(void)
 {
 	writel(0x81008100, ((0x0038<<2) + 0xfe000800));
 	writel(0x8100, ((0x0048<<2) + 0xfe000800));
@@ -1022,7 +1015,7 @@ static int meson_mmc_probe(struct udevice *dev)
 	mmc->priv = pdata;
 	upriv->mmc = mmc;
 
-	mmc_set_source_clock(mmc);
+	mmc_set_source_clock();
 
 	mmc_set_clock(mmc, cfg->f_min, false);
 

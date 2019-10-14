@@ -52,7 +52,7 @@ static int clear_misc_partition(char *clearbuf, int size)
     char *partition = "misc";
 
     memset(clearbuf, 0, size);
-    if (store_write((unsigned char *)partition,
+    if (store_write((const char *)partition,
         0, size, (unsigned char *)clearbuf) < 0) {
         printf("failed to clear %s.\n", partition);
         return -1;
@@ -97,16 +97,16 @@ static int do_RunBcbCommand(
         printf("Start to write --wipe_data to %s\n", partition);
         memcpy(miscbuf, CMD_RUN_RECOVERY, sizeof(CMD_RUN_RECOVERY));
         memcpy(miscbuf+sizeof(command)+sizeof(status), "recovery\n--wipe_data", sizeof("recovery\n--wipe_data"));
-        store_write((unsigned char *)partition, 0, sizeof(miscbuf), (unsigned char *)miscbuf);
+        store_write((const char *)partition, 0, sizeof(miscbuf), (unsigned char *)miscbuf);
     } else if (!memcmp(command_mark, CMD_SYSTEM_CRASH, strlen(command_mark))) {
         printf("Start to write --system_crash to %s\n", partition);
         memcpy(miscbuf, CMD_RUN_RECOVERY, sizeof(CMD_RUN_RECOVERY));
         memcpy(miscbuf+sizeof(command)+sizeof(status), "recovery\n--system_crash", sizeof("recovery\n--system_crash"));
-        store_write((unsigned char *)partition, 0, sizeof(miscbuf), (unsigned char *)miscbuf);
+        store_write((const char *)partition, 0, sizeof(miscbuf), (unsigned char *)miscbuf);
     }
 
     printf("Start read %s partition datas!\n", partition);
-    if (store_read((unsigned char *)partition,
+    if (store_read((const char *)partition,
         0, sizeof(miscbuf), (unsigned char *)miscbuf) < 0) {
         printf("failed to store read %s.\n", partition);
         goto ERR;

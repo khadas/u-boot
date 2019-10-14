@@ -700,7 +700,7 @@ int mmc_read_rsv(const char *rsv_name, size_t size, void *buf) {
 	char ret=1;
 	struct mmc *mmc;
 	loff_t off =0;
-	unsigned long dtImgAddr = simple_strtoul(buf, NULL, 16);
+	/*unsigned long dtImgAddr = simple_strtoul(buf, NULL, 16);*/
 	ret = !strcmp("env", rsv_name) || !strcmp("key", rsv_name)
 		|| !strcmp("dtb", rsv_name)||!strcmp("fastboot", rsv_name)
 		||!strcmp("ddr-parameter", rsv_name);

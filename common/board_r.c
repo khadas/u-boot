@@ -48,6 +48,7 @@
 #include <linux/compiler.h>
 #include <linux/err.h>
 #include <efi_loader.h>
+#include <amlogic/storage.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

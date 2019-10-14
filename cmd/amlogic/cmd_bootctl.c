@@ -189,7 +189,7 @@ int boot_info_open_partition(char *miscbuf)
     char *partition = "misc";
     //int i;
     printf("Start read %s partition datas!\n", partition);
-    if (store_read((unsigned char *)partition, 0, MISCBUF_SIZE,
+    if (store_read((const char *)partition, 0, MISCBUF_SIZE,
         (unsigned char *)miscbuf) < 0) {
         printf("failed to store read %s.\n", partition);
         return -1;
@@ -225,7 +225,7 @@ bool boot_info_save(BrilloBootInfo *info, char *miscbuf)
         }
     }
 #endif
-    store_write((unsigned char *)partition, 0, MISCBUF_SIZE, (unsigned char *)miscbuf);
+    store_write((const char *)partition, 0, MISCBUF_SIZE, (unsigned char *)miscbuf);
     return true;
 }
 

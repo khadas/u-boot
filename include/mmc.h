@@ -502,7 +502,7 @@ int dm_mmc_get_cd(struct udevice *dev);
 int dm_mmc_get_wp(struct udevice *dev);
 int dm_mmc_execute_tuning(struct udevice *dev, uint opcode);
 int dm_mmc_wait_dat0(struct udevice *dev, int state, int timeout);
-
+int mmc_ffu_op(int dev, u64 ffu_ver, void *addr, u64 cnt);
 /* Transition functions for compatibility */
 int mmc_set_ios(struct mmc *mmc);
 void mmc_send_init_stream(struct mmc *mmc);
