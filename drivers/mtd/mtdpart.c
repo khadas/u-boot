@@ -875,7 +875,6 @@ int get_aml_mtdpart_count(void)
 
 int get_aml_mtdpart_name(struct mtd_info *master, int idx, char *name)
 {
-	int i;
 	struct part_info *temp;
 	struct mtd_device *dentry;
 	if (idx >= get_aml_mtdpart_count())
@@ -894,12 +893,11 @@ int get_aml_mtdpart_name(struct mtd_info *master, int idx, char *name)
 
 void list_aml_mtd_partitions(struct mtd_info *master)
 {
-	//struct mtd_info *slave, *next;
 	struct mtd_info *slave;
-	int i;
+	int i = 0;
 
 	list_for_each_entry(slave, &master->partitions, node)
-		printf("%2d: %-20s0x%08x\t0x%08x\n",
+		printf("%2d: %-20s0x%08llx\t0x%08llx\n",
 					i++, slave->name, slave->size, slave->offset);
 	return;
 }

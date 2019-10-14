@@ -411,58 +411,6 @@
 #error CONFIG_SPI_NAND/CONFIG_MESON_NFC can not support at the sametime;
 #endif
 
-#if 0
-#ifdef CONFIG_MESON_NFC
-
-/* bootlaoder is construct by bl2 and fip
- * when DISCRETE_BOOTLOADER is enabled, bl2 & fip
- * will not be stored continuously, and nand layout
- * would be bl2|rsv|fip|normal, but not
- * bl2|fip|rsv|noraml anymore
- */
-#if 0
-#define CONFIG_DISCRETE_BOOTLOADER
-#endif
-
-#ifdef  CONFIG_DISCRETE_BOOTLOADER
-#if 0
-#define CONFIG_TPL_SIZE_PER_COPY          0x200000
-#define CONFIG_TPL_COPY_NUM               4
-#define CONFIG_TPL_PART_NAME              "tpl"
-/* for bl2, restricted by romboot */
-/* SKT 1024 pages only support 4 block, so 4 copies */
-#define CONFIG_BL2_COPY_NUM               4
-#endif
-#endif /* CONFIG_DISCRETE_BOOTLOADER */
-
-/* #define CONFIG_CMD_NAND 1 */
-#define CONFIG_MTD_DEVICE 1
-/* mtd parts of ourown.*/
-#define CONFIG_AML_MTDPART	1
-/* mtd parts by env default way.*/
-/*
-#define MTDIDS_NAME_STR		"aml_nand.0"
-#define MTDIDS_DEFAULT		"nand1=" MTDIDS_NAME_STR
-#define MTDPARTS_DEFAULT	"mtdparts=" MTDIDS_NAME_STR ":" \
-					"3M@8192K(logo),"	\
-					"10M(recovery),"	\
-					"8M(kernel),"	\
-					"40M(rootfs),"	\
-					"-(data)"
-*/
-#define CONFIG_CMD_UBI
-#define CONFIG_CMD_UBIFS
-#define CONFIG_MTD_UBI_WL_THRESHOLD 4096
-#define CONFIG_MTD_UBI_BEB_LIMIT 20
-#define CONFIG_RBTREE
-#define CONFIG_CMD_NAND_TORTURE 1
-#define CONFIG_CMD_MTDPARTS   1
-#define CONFIG_MTD_PARTITIONS 1
-#define CONFIG_SYS_MAX_NAND_DEVICE  2
-#define CONFIG_SYS_NAND_BASE_LIST   {0}
-#endif
-#endif
-
 /* #define		CONFIG_AML_SD_EMMC 1 */
 #ifdef		CONFIG_AML_SD_EMMC
 	#define 	CONFIG_GENERIC_MMC 1
@@ -478,14 +426,7 @@
 #endif
 
 #if defined CONFIG_MESON_NFC || defined CONFIG_SPI_NAND
-	#define CONFIG_CMD_NAND 1
-	#define CONFIG_MTD_DEVICE 1
-	/* #define CONFIG_RBTREE */
-	#define CONFIG_CMD_NAND_TORTURE 1
-	#define CONFIG_CMD_MTDPARTS   1
-	#define CONFIG_MTD_PARTITIONS 1
 	#define CONFIG_SYS_MAX_NAND_DEVICE  2
-	#define CONFIG_SYS_NAND_BASE_LIST   {0}
 #endif
 
 /* vpu */

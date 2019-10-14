@@ -21,7 +21,6 @@
 #include <linux/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/clock.h>
-#include <dt-bindings/clock/g12-clkc.h>
 #include <clk.h>
 #include <dm/pinctrl.h>
 #include <asm/arch/register.h>
@@ -217,10 +216,8 @@ static void m3_nand_select_chip(struct aml_nand_chip *aml_chip, int chipnr)
 
 void aml_nfc_get_clk_name(struct hw_controller *controller)
 {
-	static struct udevice *clk_udevice;
-	unsigned int rate;
 	clk_get_by_name(controller->device, "clkin", &controller->clk[0]);
-	rate = clk_get_rate(&controller->clk[0]);
+	clk_get_rate(&controller->clk[0]);
 	clk_get_by_name(controller->device, "clkin1", &controller->clk[1]);
 	clk_get_by_name(controller->device, "clkin2", &controller->clk[2]);
 	clk_get_by_name(controller->device, "clkin3", &controller->clk[3]);

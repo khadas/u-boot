@@ -283,14 +283,7 @@
 #define		CONFIG_PARTITIONS 1
 
 #if defined CONFIG_MESON_NFC || defined CONFIG_SPI_NAND
-	#define CONFIG_CMD_NAND 1
-	#define CONFIG_MTD_DEVICE 1
-	/* #define CONFIG_RBTREE */
-	#define CONFIG_CMD_NAND_TORTURE 1
-	#define CONFIG_CMD_MTDPARTS   1
-	#define CONFIG_MTD_PARTITIONS 1
 	#define CONFIG_SYS_MAX_NAND_DEVICE  2
-	#define CONFIG_SYS_NAND_BASE_LIST   {0}
 #endif
 
 /* vpu */
@@ -358,9 +351,7 @@
 /*file system*/
 #define CONFIG_DOS_PARTITION 1
 #define CONFIG_EFI_PARTITION 1
-#if 0
-#define CONFIG_AML_PARTITION 1
-#endif
+
 /* #define CONFIG_MMC 1 */
 #define CONFIG_FS_FAT 1
 #define CONFIG_FS_EXT4 1

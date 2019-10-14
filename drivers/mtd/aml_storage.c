@@ -779,7 +779,6 @@ static u64 mtd_store_boot_copy_size(const char *part_name)
 {
 	struct mtd_info *mtd = mtd_store_get(0);
 	int pages_per_copy = 0;
-	u64 size;
 
 	if (!part_name) {
 		pr_info("%s %d invalid name!\n",
@@ -798,6 +797,7 @@ static u64 mtd_store_boot_copy_size(const char *part_name)
 	return 0;
 #else
 	u8 num;
+	u64 size;
 
 	if (strcmp(part_name, BOOT_LOADER))
 		return 0;

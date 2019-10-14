@@ -475,7 +475,7 @@ static int do_store_partition(cmd_tbl_t *cmdtp,
 			int flag, int argc, char * const argv[])
 {
 	struct storage_t *store_dev;
-	int i, partitions = 0;
+	int i = 0, partitions = 0;
 	int ret = 0;
 	char name[16];
 
@@ -561,7 +561,8 @@ static int do_store_erase(cmd_tbl_t *cmdtp,
 	time = get_timer(time);
 
 	if (size != 0)
-		printf("%llu bytes ", (long long unsigned)size);
+		printf("%lu bytes ", size);
+
 	printf("erased in %lu ms", time);
 	if ((time > 0) && (size != 0)) {
 		puts(" (");
@@ -608,7 +609,8 @@ static int do_store_read(cmd_tbl_t *cmdtp,
 	time = get_timer(time);
 
 	if (size != 0)
-		printf("%llu bytes ", (long long unsigned)size);
+		printf("%lu bytes ", size);
+
 	printf("read in %lu ms", time);
 	if ((time > 0) && (size != 0)) {
 		puts(" (");
@@ -655,7 +657,8 @@ static int do_store_write(cmd_tbl_t *cmdtp,
 	time = get_timer(time);
 
 	if (size != 0)
-		printf("%llu bytes ", (long long unsigned)size);
+		printf("%lu bytes ", size);
+
 	printf("write in %lu ms", time);
 	if ((time > 0) && (size != 0)) {
 		puts(" (");

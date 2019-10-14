@@ -139,15 +139,10 @@ static const char *mtdparts_default = MTDPARTS_DEFAULT;
 #define MTDIDS_MAXLEN		128
 #define MTDPARTS_MAXLEN		512
 #define PARTITION_MAXLEN	16
-static char last_ids[MTDIDS_MAXLEN + 1];
-static char last_parts[MTDPARTS_MAXLEN + 1];
 static char last_partition[PARTITION_MAXLEN + 1];
 
 /* low level jffs2 cache cleaning routine */
 extern void jffs2_free_cache(struct part_info *part);
-
-/* mtdids mapping list, filled by parse_ids() */
-static struct list_head mtdids;
 
 /* device/partition list, parse_cmdline() parses into here */
 static struct list_head devices;
@@ -159,10 +154,9 @@ u8 current_mtd_partnum = 0;
 u8 use_defaults;
 
 static struct part_info* mtd_part_info(struct mtd_device *dev, unsigned int part_num);
-
-/* command line only routines */
-static struct mtdids* id_find_by_mtd_id(const char *mtd_id, unsigned int mtd_id_len);
-static int device_del(struct mtd_device *dev);
+#ifndef CONFIG_AML_MTDPART
+/* mtdids mapping list, filled by parse_ids() */
+static struct list_head mtdids;
 
 /**
  * Parses a string into a number.  The number stored at ptr is
@@ -200,7 +194,7 @@ static u64 memsize_parse (const char *const ptr, const char **retptr)
 
 	return ret;
 }
-#ifndef CONFIG_AML_MTDPART
+
 /**
  * Format string describing supplied size. This routine does the opposite job
  * to memsize_parse(). Size in bytes is converted to string and if possible
@@ -299,7 +293,7 @@ static void current_save(void)
 	index_partitions();
 }
 
-
+#ifndef CONFIG_AML_MTDPART
 /**
  * Produce a mtd_info given a type and num.
  *
@@ -322,6 +316,7 @@ static int get_mtd_info(u8 type, u8 num, struct mtd_info **mtd)
 
 	return 0;
 }
+
 
 /**
  * Performs sanity check for supplied flash partition.
@@ -419,6 +414,7 @@ static int part_validate_eraseblock(struct mtdids *id, struct part_info *part)
  * @param part partition to validate
  * @return 0 if partition is valid, 1 otherwise
  */
+
 static int part_validate(struct mtdids *id, struct part_info *part)
 {
 	if (part->size == SIZE_REMAINING)
@@ -447,7 +443,7 @@ static int part_validate(struct mtdids *id, struct part_info *part)
 	 */
 	return part_validate_eraseblock(id, part);
 }
-#ifndef CONFIG_AML_MTDPART
+
 /**
  * Delete selected partition from the partition list of the specified device.
  *
@@ -455,6 +451,7 @@ static int part_validate(struct mtdids *id, struct part_info *part)
  * @param part partition to delete
  * @return 0 on success, 1 otherwise
  */
+static int device_del(struct mtd_device *dev);
 static int part_del(struct mtd_device *dev, struct part_info *part)
 {
 	u8 current_save_needed = 0;
@@ -493,7 +490,7 @@ static int part_del(struct mtd_device *dev, struct part_info *part)
 
 	return 0;
 }
-#endif
+
 /**
  * Delete all partitions from parts head list, free memory.
  *
@@ -575,7 +572,7 @@ static int part_sort_add(struct mtd_device *dev, struct part_info *part)
 	index_partitions();
 	return 0;
 }
-#ifndef CONFIG_AML_MTDPART
+
 /**
  * Add provided partition to the partition list of a given device.
  *
@@ -595,7 +592,6 @@ static int part_add(struct mtd_device *dev, struct part_info *part)
 
 	return 0;
 }
-#endif
 /**
  * Parse one partition definition, allocate memory and return pointer to this
  * location in retpart.
@@ -714,6 +710,7 @@ static int part_parse(const char *const partdef, const char **ret, struct part_i
 	*retpart = part;
 	return 0;
 }
+#endif
 
 /**
  * Check device number to be within valid range for given device type.
@@ -723,6 +720,7 @@ static int part_parse(const char *const partdef, const char **ret, struct part_i
  * @param size a pointer to the size of the mtd device (output)
  * @return 0 if device is valid, 1 otherwise
  */
+#ifndef CONFIG_AML_MTDPART
 static int mtd_device_validate(u8 type, u8 num, u64 *size)
 {
 	struct mtd_info *mtd = NULL;
@@ -757,6 +755,7 @@ static int device_delall(struct list_head *head)
 
 	return 0;
 }
+#endif
 
 /**
  * If provided device exists it's partitions are deleted, device is removed
@@ -765,6 +764,7 @@ static int device_delall(struct list_head *head)
  * @param dev device to be deleted
  * @return 0 on success, 1 otherwise
  */
+#ifndef CONFIG_AML_MTDPART
 static int device_del(struct mtd_device *dev)
 {
 	part_delall(&dev->parts);
@@ -788,7 +788,7 @@ static int device_del(struct mtd_device *dev)
 	index_partitions();
 	return 0;
 }
-
+#endif
 /**
  * Search global device list and return pointer to the device of type and num
  * specified.
@@ -835,7 +835,7 @@ static void device_add(struct mtd_device *dev)
 	else
 		index_partitions();
 }
-#endif
+
 /**
  * Parse device type, name and mtd-id. If syntax is ok allocate memory and
  * return pointer to the device structure.
@@ -845,6 +845,7 @@ static void device_add(struct mtd_device *dev)
  * @param retdev pointer to the allocated device (output)
  * @return 0 on success, 1 otherwise
  */
+static struct mtdids* id_find_by_mtd_id(const char *mtd_id, unsigned int mtd_id_len);
 static int device_parse(const char *const mtd_dev, const char **ret, struct mtd_device **retdev)
 {
 	struct mtd_device *dev;
@@ -976,6 +977,7 @@ static int device_parse(const char *const mtd_dev, const char **ret, struct mtd_
  *
  * @return 0 on success, 1 otherwise
  */
+static char last_parts[MTDPARTS_MAXLEN + 1];
 static int mtd_devices_init(void)
 {
 	last_parts[0] = '\0';
@@ -984,7 +986,7 @@ static int mtd_devices_init(void)
 
 	return device_delall(&devices);
 }
-#ifndef CONFIG_AML_MTDPART
+
 /*
  * Search global mtdids list and find id of requested type and number.
  *
@@ -1004,7 +1006,6 @@ static struct mtdids* id_find(u8 type, u8 num)
 
 	return NULL;
 }
-#endif
 /**
  * Search global mtdids list and find id of a requested mtd_id.
  *
@@ -1036,6 +1037,7 @@ static struct mtdids* id_find_by_mtd_id(const char *mtd_id, unsigned int mtd_id_
 
 	return NULL;
 }
+#endif
 
 /**
  * Parse device id string <dev-id> := 'nand'|'nor'|'onenand'|'spi-nand'<dev-num>,
@@ -1575,6 +1577,7 @@ static int spread_partitions(void)
  * @param buf temporary buffer pointer MTDPARTS_MAXLEN long
  * @return mtdparts variable string, NULL if not found
  */
+#ifndef CONFIG_AML_MTDPART
 static const char *env_get_mtdparts(char *buf)
 {
 	if (gd->flags & GD_FLG_ENV_READY)
@@ -1591,7 +1594,6 @@ static const char *env_get_mtdparts(char *buf)
  * @param mtdparts string specifing mtd partitions
  * @return 0 on success, 1 otherwise
  */
-#ifndef CONFIG_AML_MTDPART
 static int parse_mtdparts(const char *const mtdparts)
 {
 	const char *p;
@@ -1652,6 +1654,7 @@ static int parse_mtdparts(const char *const mtdparts)
  * @return 0 on success, 1 otherwise
  */
 #ifndef CONFIG_AML_MTDPART
+static char last_ids[MTDIDS_MAXLEN + 1];
 static int parse_mtdids(const char *const ids)
 {
 	const char *p = ids;

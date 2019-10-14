@@ -14,9 +14,6 @@
 #include <amlogic/aml_mtd.h>
 
 #define NAND_MAX_DEVICE 		4
-
-#define CONFIG_MTD_PARTITIONS 1
-
 /*MAX page list cnt for usrdef mode*/
 #define NAND_PAGELIST_CNT 16
 
