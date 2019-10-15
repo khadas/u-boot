@@ -428,8 +428,7 @@
 				"nand_ale",
 				"nand_cle",
 				"nand_wen_clk",
-				"nand_ren_wr",
-				"nand_rb0";
+				"nand_ren_wr";
 			function = "nand";
 			input-enable;
 		};

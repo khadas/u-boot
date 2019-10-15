@@ -350,31 +350,18 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 #endif
 }
 
-#ifndef P_PAD_DS_REG0A
-#define P_PAD_DS_REG0A (volatile uint32_t *)(0xff634400 + (0x0d0 << 2))
-#endif
 void nand_get_chip(void *chip)
 {
 
 	struct aml_nand_chip *aml_chip = (struct aml_nand_chip *)chip;
 	struct hw_controller *controller = aml_chip->controller;
-	int retry = 0, ret = 0;
+	int ret = 0;
 
-	while (1) {
-		ret = pinctrl_select_state(controller->device, "default");
-		if (!ret) {
-			if (aml_chip->aml_nand_adjust_timing)
-				aml_chip->aml_nand_adjust_timing(aml_chip);
-			break;
-		}
-
-		if (retry++ > 10) {
-			pr_info("get pin fail over 10 times retry=%d\n",
-				retry);
-			break;
-		}
+	ret = pinctrl_select_state(controller->device, "default");
+	if (ret) {
+		printf("ERROR get pinmux failed\n");
 	}
-
+	return;
 }
 
 
