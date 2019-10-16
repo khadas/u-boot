@@ -914,10 +914,7 @@ static int _construct_mbr_entry(struct _iptbl *p_iptbl, struct dos_partition *p_
 	uint64_t externed_size = 0;
 	int i;
 	/* the entry is active or not */
-	if (part_num == 0 )
-		p_entry->boot_ind = 0x00;
-	else
-		p_entry->boot_ind = 0x00;
+	p_entry->boot_ind = 0x00;
 
 	if (part_num == 3) {/* the logic partion entry */
 		/* the entry type */
@@ -1413,7 +1410,7 @@ int find_virtual_partition_by_name (char *name, struct partitions *partition)
 	}
 
 	if (!strcmp(name, "dtb")) {
-		strcpy(partition->name, name);
+		strncpy(partition->name, name, 3);
 		partition->offset = offset + vpart->offset;
 		partition->size = (vpart->size * DTB_COPIES);
 	}

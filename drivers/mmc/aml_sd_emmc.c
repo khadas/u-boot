@@ -440,6 +440,7 @@ int aml_sd_send_cmd_ffu(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *d
 				}
 			} else {
 				printf("data blks < 1\n");
+				free(write_buffer);
 				return 1;
 			}
 		} else {

@@ -669,16 +669,21 @@ static int do_mmc_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	u32 *p = (u32 *)addr;
 	u64 blk, size_blk, blocks, cnt, n, i, j;
 	u32 crc1 = 0,crc2 = 0,count = 1,num = 1;
+	int blk_shift;
+	struct mmc *mmc;
 	if (argc != 4) {
 		printf("test command Input is invalid, nothing happen.\n");
 		return 1;
 	}
 	printf("enter test().................................\n");
-	struct mmc *mmc = find_mmc_device(curr_device);
+	mmc = find_mmc_device(curr_device);
+	if (!mmc)
+		return CMD_RET_FAILURE;
+
 	blk = simple_strtoul(argv[1], NULL, 16);
 	size_blk= simple_strtoul(argv[2],NULL,16);
 	num = simple_strtoul(argv[3],NULL,16);
-	int blk_shift = ffs(mmc->read_bl_len) -1;
+	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len) -1 : 0;
 	while (count <= num) {
 		printf("TEST TIMES: %d........................\n",count);
 		n = mmc->block_dev.block_erase(curr_device, blk, size_blk); // erase the whole card
