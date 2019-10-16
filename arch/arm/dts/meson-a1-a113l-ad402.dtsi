@@ -300,8 +300,9 @@
 	clocks = <&clkc CLKID_FCLK_DIV3>,
 		 <&clkc CLKID_SPIFC_MUX>,
 		 <&clkc CLKID_SPIFC_DIV>,
-		 <&clkc CLKID_SPIFC_GATE>;
-	clock-names = "fclk_source", "spifc_mux", "spifc_div", "spifc_gate";
+		 <&clkc CLKID_SPIFC_GATE>,
+		 <&clkc CLKID_SPIFC_XTAL_GATE>;
+	clock-names = "fclk_source", "spifc_mux", "spifc_div", "spifc_gate", "spifc_xtal_gate";
 };
 
 &spicc1 {

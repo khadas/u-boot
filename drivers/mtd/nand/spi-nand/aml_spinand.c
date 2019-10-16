@@ -398,6 +398,16 @@ struct nand_flash_dev spi_nand_ids[] = {
 		.id_len = 2,
 		.oobsize = 64
 	},
+	{"SPI NAND MX35LF1GE4AB 128MiB 3.3V",
+		{ .id = {0xc2, 0x12} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_128M,
+		.erasesize = SZ_128K,
+		.options = SPI_TX_QUAD | SPI_RX_DUAL | SPI_RX_QUAD,
+		.id_len = 2,
+		.oobsize = 64
+	},
+
 	{NULL}
 };
 
@@ -1025,6 +1035,7 @@ static int spinand_do_read_ops(struct mtd_info *mtd,
 			struct spinand_info *info = mtd_to_spinand(mtd);
 			if (info->read_cmd == SPINAND_CMD_QUAD_READ &&
 			    ((info->id[0] == NAND_MFR_GIGA) ||
+			    (info->id[0] == NAND_MFR_MACRONIX) ||
 			    (info->id[0] == NAND_MFR_ZETTA)))
 				spinand_set_qeb(mtd, chip);
 			chip->cmdfunc(mtd, info->read_cmd, 0, -1);
@@ -1228,6 +1239,7 @@ static int spinand_do_read_oob(struct mtd_info *mtd,
 		struct spinand_info *info = mtd_to_spinand(mtd);
 		if (info->read_cmd == SPINAND_CMD_QUAD_READ &&
 		    ((info->id[0] == NAND_MFR_GIGA) ||
+		    (info->id[0] == NAND_MFR_MACRONIX) ||
 		    (info->id[0] == NAND_MFR_ZETTA)))
 			spinand_set_qeb(mtd, chip);
 		chip->cmdfunc(mtd, info->read_cmd, mtd->writesize, -1);
@@ -1373,7 +1385,6 @@ static int spinand_write_page_raw(struct mtd_info *mtd,
 	if (info->status < 0)
 		return info->status;
 
-	chip->cmdfunc(mtd, SPINAND_CMD_WREN, -1, -1);
 	chip->cmdfunc(mtd, SPINAND_CMD_PROG, -1, page);
 	status = chip->waitfunc(mtd, chip);
 	chip->cmdfunc(mtd, SPINAND_CMD_WRDI, -1, -1);
@@ -1405,13 +1416,13 @@ static int spinand_write_page_raw(struct mtd_info *mtd,
 
 		pr_debug("%s %d write info page to page %d\n",
 			 __func__, __LINE__, (page + 1));
+		chip->cmdfunc(mtd, SPINAND_CMD_WREN, -1, -1);
 		chip->cmdfunc(mtd, info->pload_cmd, 0x00, -1);
 		chip->write_buf(mtd, (u8 *)info_buf, mtd->writesize);
 
 		if (info->status < 0)
 			return info->status;
 
-		chip->cmdfunc(mtd, SPINAND_CMD_WREN, -1, -1);
 		chip->cmdfunc(mtd, SPINAND_CMD_PROG, -1, page + 1);
 		status = chip->waitfunc(mtd, chip);
 		chip->cmdfunc(mtd, SPINAND_CMD_WRDI, -1, -1);
@@ -1443,8 +1454,10 @@ static int spinand_write_page(struct mtd_info *mtd,
 	struct spinand_info *info = mtd_to_spinand(mtd);
 	if (info->pload_cmd == SPINAND_CMD_QUAD_PLOAD &&
 	    ((info->id[0] == NAND_MFR_GIGA) ||
+	    (info->id[0] == NAND_MFR_MACRONIX) ||
 	    (info->id[0] == NAND_MFR_ZETTA)))
 		spinand_set_qeb(mtd, chip);
+	chip->cmdfunc(mtd, SPINAND_CMD_WREN, -1, -1);
 	chip->cmdfunc(mtd, info->pload_cmd, 0x00, -1);
 
 	if (unlikely(raw))
@@ -1579,14 +1592,15 @@ static int spinand_write_oob_raw(struct mtd_info *mtd,
 	int status = 0;
 	if (info->pload_cmd == SPINAND_CMD_QUAD_PLOAD &&
 	    ((info->id[0] == NAND_MFR_GIGA) ||
+	    (info->id[0] == NAND_MFR_MACRONIX) ||
 	    (info->id[0] == NAND_MFR_ZETTA)))
 		spinand_set_qeb(mtd, chip);
+	chip->cmdfunc(mtd, SPINAND_CMD_WREN, -1, -1);
 	chip->cmdfunc(mtd, info->pload_cmd, mtd->writesize, -1);
 
 	info->oob_required = 1;
 	chip->write_buf(mtd, NULL, 0);
 
-	chip->cmdfunc(mtd, SPINAND_CMD_WREN, -1, -1);
 	chip->cmdfunc(mtd, SPINAND_CMD_PROG, -1, page);
 	status = chip->waitfunc(mtd, chip);
 	chip->cmdfunc(mtd, SPINAND_CMD_WRDI, -1, -1);
@@ -1601,14 +1615,15 @@ static int spinand_write_oob_std(struct mtd_info *mtd,
 	int status = 0;
 	if (info->pload_cmd == SPINAND_CMD_QUAD_PLOAD &&
 	    ((info->id[0] == NAND_MFR_GIGA) ||
+	    (info->id[0] == NAND_MFR_MACRONIX) ||
 	    (info->id[0] == NAND_MFR_ZETTA)))
 		spinand_set_qeb(mtd, chip);
+	chip->cmdfunc(mtd, SPINAND_CMD_WREN, -1, -1);
 	chip->cmdfunc(mtd, info->pload_cmd, mtd->writesize, -1);
 
 	info->oob_required = 1;
 	chip->write_buf(mtd, NULL, 0);
 
-	chip->cmdfunc(mtd, SPINAND_CMD_WREN, -1, -1);
 	chip->cmdfunc(mtd, SPINAND_CMD_PROG, -1, page);
 	status = chip->waitfunc(mtd, chip);
 	chip->cmdfunc(mtd, SPINAND_CMD_WRDI, -1, -1);
@@ -1743,6 +1758,7 @@ static int spinand_block_bad(struct mtd_info *mtd, loff_t offs)
 		chip->waitfunc(mtd, chip);
 		if (info->read_cmd == SPINAND_CMD_QUAD_READ &&
 		    ((info->id[0] == NAND_MFR_GIGA) ||
+		    (info->id[0] == NAND_MFR_MACRONIX) ||
 		    (info->id[0] == NAND_MFR_ZETTA)))
 			spinand_set_qeb(mtd, chip);
 		chip->cmdfunc(mtd, info->read_cmd,
@@ -2037,7 +2053,7 @@ spinand_get_flash_type(struct mtd_info *mtd,
 		info->chip_ver = GIGA_SPINAND_CHIP_VER_A;
 	break;
 	}
-	if ((id_data[0] == NAND_MFR_TOSHIBA) || (id_data[0] == NAND_MFR_ZETTA))
+	if ((id_data[0] == NAND_MFR_TOSHIBA) || (id_data[0] == NAND_MFR_ZETTA) || (id_data[0] == NAND_MFR_MACRONIX))
 		info->chip_ver = GIGA_SPINAND_CHIP_VER_B;
 
 	if (info->chip_ver == GIGA_SPINAND_CHIP_VER_C) {
@@ -2408,6 +2424,7 @@ int spinand_scan_tail(struct mtd_info *mtd)
 	if ((info->read_cmd == SPINAND_CMD_QUAD_READ ||
 	     info->pload_cmd == SPINAND_CMD_QUAD_PLOAD) &&
 	     ((info->id[0] == NAND_MFR_GIGA) ||
+	     (info->id[0] == NAND_MFR_MACRONIX) ||
 	     (info->id[0] == NAND_MFR_ZETTA)))
 		spinand_set_qeb(mtd, chip);
 
