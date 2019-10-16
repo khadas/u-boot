@@ -84,6 +84,15 @@ int dram_init(void)
 	return 0;
 }
 
+int enableLcdVcc(void)
+{
+	/* set gpioz_8 low to enable lcd vcc*/
+	writel(readl(PREG_PAD_GPIO4_O) & (~(1 << 8)), PREG_PAD_GPIO4_O);
+	writel(readl(PREG_PAD_GPIO4_EN_N) & (~(1 << 8)), PREG_PAD_GPIO4_EN_N);
+	writel(readl(PERIPHS_PIN_MUX_7) & (~(0xf)), PERIPHS_PIN_MUX_7);
+	return 0;
+}
+
 /* secondary_boot_func
  * this function should be write with asm, here, is is only for compiling pass
  * */
@@ -722,6 +731,9 @@ int board_late_init(void)
 #ifdef CONFIG_AML_LCD
 	lcd_probe();
 #endif
+
+//enable Lcd VCC
+enableLcdVcc();
 
 #ifdef CONFIG_AML_V2_FACTORY_BURN
 	if (0x1b8ec003 == readl(P_PREG_STICKY_REG2))
