@@ -947,6 +947,21 @@ static void lcd_reg_print(void)
 	}
 }
 
+static void lcd_module_prepare(char *mode)
+{
+	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
+	int ret;
+
+	ret = lcd_drv->config_check(mode);
+	if (ret) {
+		LCDERR("prepare exit\n");
+		return;
+	}
+
+	if ((lcd_drv->lcd_status & LCD_STATUS_ENCL_ON) == 0)
+		lcd_encl_on();
+}
+
 static void lcd_vbyone_filter_flag_print(struct lcd_config_s *pconf)
 {
 	struct vbyone_config_s *vx1_conf = pconf->lcd_control.vbyone_config;
@@ -1384,6 +1399,16 @@ static int lcd_outputmode_check(char *mode)
 	return -1;
 }
 
+static void lcd_prepare(char *mode)
+{
+	if (lcd_check_valid())
+		return;
+	if (aml_lcd_driver.lcd_status & LCD_STATUS_ENCL_ON)
+		LCDPR("already enabled\n");
+	else
+		lcd_module_prepare(mode);
+}
+
 static void lcd_enable(char *mode)
 {
 	if (lcd_check_valid())
@@ -1642,6 +1667,7 @@ static struct aml_lcd_drv_s aml_lcd_driver = {
 	.config_check = NULL,
 	.lcd_probe = lcd_probe,
 	.lcd_outputmode_check = lcd_outputmode_check,
+	.lcd_prepare = lcd_prepare,
 	.lcd_enable = lcd_enable,
 	.lcd_disable = lcd_disable,
 	.lcd_set_ss = aml_lcd_set_ss,

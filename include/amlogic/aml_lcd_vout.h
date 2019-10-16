@@ -539,6 +539,7 @@ struct aml_lcd_drv_s {
 	void (*list_support_mode)(void);
 	int  (*lcd_probe)(void);
 	int  (*lcd_outputmode_check)(char *mode);
+	void (*lcd_prepare)(char *mode);
 	void (*lcd_enable)(char *mode);
 	void (*lcd_disable)(void);
 	void (*lcd_set_ss)(int level);
