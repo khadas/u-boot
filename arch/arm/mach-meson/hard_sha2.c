@@ -39,7 +39,7 @@ typedef struct dma_dsc {
 	uint32_t tgt_addr;
 } dma_dsc_t;
 
-#endif /* __AP_DMA_SHA_H__ */
+#endif /* __AP_DMA_H__ */
 
 static sha2_ctx *cur_ctx;
 
@@ -53,6 +53,7 @@ static void hw_update(const uint8_t *input, uint32_t ilen,
 		      uint8_t *hash, uint8_t last_update)
 {
 	dma_dsc_t dsc;
+	unsigned char szTempSHA2[32];
 
 	if (!last_update && (ilen % 64))
 	{
@@ -73,6 +74,7 @@ static void hw_update(const uint8_t *input, uint32_t ilen,
 
 	arrSteps[0].lSource = (unsigned long)input;
 	arrSteps[0].lTarget = (unsigned long)hash;
+	arrSteps[1].lTarget = (unsigned long)szTempSHA2;
 
 	int nStep_len = (128<<10) - 64; //17bit length
 	/*If input length bigger than (128KB - 64bytes),default use block mode is 1. */
@@ -82,7 +84,6 @@ static void hw_update(const uint8_t *input, uint32_t ilen,
 		arrSteps[0].nLength = ilen >> 9;
 		arrSteps[0].nBlkFlag = 1;
 		arrSteps[1].lSource = arrSteps[0].lSource + (arrSteps[0].nLength << 9);
-		arrSteps[1].lTarget = arrSteps[0].lTarget + (arrSteps[0].nLength << 9);
 		arrSteps[1].nLength = ilen % 512;
 		arrSteps[1].nBlkFlag = 0;
 	}
@@ -106,7 +107,9 @@ static void hw_update(const uint8_t *input, uint32_t ilen,
 		dsc.dsc_cfg.b.owner = 1;
 		dsc.dsc_cfg.b.block = arrSteps[index].nBlkFlag;
 
-		flush_dcache_all();
+		flush_dcache_range((unsigned long)&dsc,(unsigned long)&dsc+sizeof(dsc));
+		invalidate_dcache_range((unsigned long)dsc.tgt_addr,(unsigned long)dsc.tgt_addr + 32);
+
 		*P_DMA_STS0 = 0xf;
 		*P_DMA_T0 = (uint64_t)&dsc | 2;
 
@@ -118,7 +121,6 @@ static void hw_update(const uint8_t *input, uint32_t ilen,
 			cur_ctx->tot_len += arrSteps[index].nLength;
 
 		while (*P_DMA_STS0 == 0);
-		invalidate_dcache_all();
 
 		if (!dsc.dsc_cfg.b.block)
 			return;
@@ -159,6 +161,7 @@ static void SHA2_HW_update(sha2_ctx *ctx, const uint8_t *data, uint32_t len)
 	if (ctx->len) {
 		fill_len = SHA256_BLOCK_SIZE - ctx->len;
 		memcpy(&ctx->block[ctx->len], data, fill_len);
+		flush_dcache_range((unsigned long)ctx->block,(unsigned long)ctx->block+128);
 		data_len -= fill_len;
 		offset = fill_len;
 		ctx->len += fill_len;
@@ -185,6 +188,7 @@ static void SHA2_HW_update(sha2_ctx *ctx, const uint8_t *data, uint32_t len)
 	if (rem_len) {
 		/* save the remaining data */
 		memcpy(ctx->block, &data[offset], rem_len);
+		flush_dcache_range((unsigned long)ctx->block,(unsigned long)ctx->block+128);
 		ctx->len = rem_len;
 	}
 }
@@ -203,13 +207,14 @@ static uint8_t *SHA2_HW_final(sha2_ctx *ctx)
 	}
 
 	hw_update(ctx->block, ctx->len,ctx->buf, 1);
-	//printf("%s%d\n",__func__,__LINE__);
 	cur_ctx = NULL;
 	return ctx->buf;
 }
 
  void sha256_starts(sha256_context * ctx)
 {
+	if (ctx)
+		memset(ctx,0,sizeof(sha256_context));
 	SHA2_HW_init(ctx, 256);
 }
 
@@ -237,12 +242,18 @@ static uint8_t *SHA2_HW_final(sha2_ctx *ctx)
  void sha256_finish(sha256_context * ctx, uint8_t digest[SHA256_SUM_LEN])
 {
 	SHA2_HW_final(ctx);
+	/*before memcpy,must invalidate dcache.so memcpy data from ddr*/
+	invalidate_dcache_range((unsigned long)digest,(unsigned long)(digest+32));
+	invalidate_dcache_range((unsigned long)ctx->buf,(unsigned long)(ctx->buf+32));
+
 	memcpy(digest,ctx->buf,32);
 }
 
  void sha256_csum_wd(const unsigned char *input, unsigned int ilen,
 											unsigned char *output, unsigned int chunk_sz)
 {
+	flush_dcache_range((unsigned long)input,(unsigned long)input+ilen);
+
 	sha2_ctx sha_ctx;
 
 	sha256_starts(&sha_ctx);
