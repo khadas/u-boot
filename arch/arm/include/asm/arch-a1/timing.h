@@ -42,6 +42,16 @@
 #define BL2_INIT_STAGE_8			8
 #define BL2_INIT_STAGE_9			9
 
+#define BL2_INIT_STAGE_POWERKEY_PRE_INIT		0x81
+#define BL2_INIT_STAGE_POWERKEY_CHK_HW		0x82
+#define BL2_INIT_STAGE_POWERKEY_CFG_GROUP	0x83
+#define BL2_INIT_STAGE_POWERKEY_INIT			0xC0
+
+#define POWERKEY_CFG0						0
+#define POWERKEY_CFG1						1
+#define POWERKEY_CFG2						2
+#define POWERKEY_CFG3						3
+
 typedef struct bl2_reg {
 	unsigned int	reg;
 	unsigned int	value;

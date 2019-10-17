@@ -404,4 +404,21 @@ ddr_reg_t __ddr_reg[] = {
 bl2_reg_t __bl2_reg[] = {
 	/* demo, user defined override register */
 	{0,        0,            0xffffffff,   0, 0, 0},
+
+	/* power key */
+	/* step1: CHK HW */
+	{(uint64_t)PADCTRL_GPIOF_I,  9,            0,            0, BL2_INIT_STAGE_POWERKEY_CHK_HW,           0},
+
+	/* step2: match power key config */
+	/* GPIOF[BIT9]=0 power key press, =1 power key up */
+	{0x0,                 POWERKEY_CFG0,                0,            0, BL2_INIT_STAGE_POWERKEY_CFG_GROUP,        0},
+	{0x1,                 POWERKEY_CFG1,                0,            0, BL2_INIT_STAGE_POWERKEY_CFG_GROUP,        0},
+
+	/* step3: config power key */
+	/* power key press config*/
+	{PADCTRL_PIN_MUX_REG7,        0,          0xf << 12,   0, BL2_INIT_STAGE_POWERKEY_INIT | POWERKEY_CFG0,  0},
+	{PADCTRL_GPIOF_OEN,  0,  1 << 11, 0, BL2_INIT_STAGE_POWERKEY_INIT | POWERKEY_CFG0,  0},
+	{PADCTRL_GPIOF_O,     1 << 11,               0,  0, BL2_INIT_STAGE_POWERKEY_INIT | POWERKEY_CFG0,  0},
+	/* power key up config*/
+
 };
