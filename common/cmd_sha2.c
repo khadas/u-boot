@@ -44,7 +44,7 @@
 #include <asm/arch/regs.h>
 #include <u-boot/sha256.h>
 
-#define DATA_MAX_LEN    (100<<20) //max length of SHA2 is 100MB
+#define DATA_MAX_LEN    (1 << 31) //max length of SHA2 is 2 GB
 static int do_sha2(cmd_tbl_t *cmdtp, int flag, int argc,
 			char * const argv[])
 {
@@ -112,14 +112,11 @@ static int do_sha2(cmd_tbl_t *cmdtp, int flag, int argc,
 		pSHA2=(unsigned char *)addr_out;
 	}
 
-
 	sha256_csum_wd((unsigned char *)addr_in, nLength,pSHA2,0);
-
+	printf("\nSHA%d of addr_in: 0x%08x, len: 0x%08x ", nSHA2Type, (unsigned int)addr_in, (unsigned int)nLength);
 	if (argc > 3)
-	printf("\nSHA%d of addr_in: 0x%08x, len: 0x%08x, addr_out: 0x%08x \n", nSHA2Type, (unsigned int)addr_in, (unsigned int)nLength,(unsigned int)addr_out);
-	else
-	printf("\nSHA%d of addr_in: 0x%08x, len: 0x%08x \n", nSHA2Type, (unsigned int)addr_in, (unsigned int)nLength);
-
+		printf(", addr_out: 0x%08x \n", (unsigned int)addr_out);
+	printf("\n");
 
 	for (i=0; i<SHA256_SUM_LEN; i++)
 		printf("%02x%s", pSHA2[i], ((i+1) % 16==0) ? "\n" :" ");
