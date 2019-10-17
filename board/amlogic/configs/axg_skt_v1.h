@@ -410,8 +410,8 @@
 
 
 /* vpu */
-#define CONFIG_AML_VPU 1
-#define CONFIG_VPU_CLK_LEVEL_DFT 3
+//#define CONFIG_AML_VPU 1
+//#define CONFIG_VPU_CLK_LEVEL_DFT 3
 
 /* DISPLAY & HDMITX */
 //#define CONFIG_AML_HDMITX20 1
@@ -439,9 +439,9 @@
 #define CONFIG_PCIE_AMLOGIC 1
 #define CONFIG_PCI_SCAN_SHOW 1
 
-#define CONFIG_AML_LCD    1
+//#define CONFIG_AML_LCD    1
 //#define CONFIG_AML_LCD_TV 1
-#define CONFIG_AML_LCD_TABLET 1
+//#define CONFIG_AML_LCD_TABLET 1
 
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard
