@@ -278,13 +278,16 @@ AvbSlotVerifyResult avb_append_options(
                           slot_data->vbmeta_images[n].vbmeta_size);
         total_size += slot_data->vbmeta_images[n].vbmeta_size;
       }
+      avb_memcpy(slot_data->vbmeta_digest,
+              avb_sha256_final(&ctx),
+              AVB_SHA256_DIGEST_SIZE);
       if (!cmdline_append_option(
               slot_data, "androidboot.vbmeta.hash_alg", "sha256") ||
           !cmdline_append_uint64_base10(
               slot_data, "androidboot.vbmeta.size", total_size) ||
           !cmdline_append_hex(slot_data,
                               "androidboot.vbmeta.digest",
-                              avb_sha256_final(&ctx),
+                              slot_data->vbmeta_digest,
                               AVB_SHA256_DIGEST_SIZE)) {
         ret = AVB_SLOT_VERIFY_RESULT_ERROR_OOM;
         goto out;
@@ -369,7 +372,7 @@ AvbSlotVerifyResult avb_append_options(
     ret = AVB_SLOT_VERIFY_RESULT_ERROR_OOM;
     goto out;
   }
-
+#if 0
   if (!cmdline_append_hex(slot_data,
                           "androidboot.vbmeta.bootkey_hash",
                           slot_data->boot_key_hash,
@@ -377,7 +380,7 @@ AvbSlotVerifyResult avb_append_options(
       ret = AVB_SLOT_VERIFY_RESULT_ERROR_OOM;
       goto out;
   }
-
+#endif
   ret = AVB_SLOT_VERIFY_RESULT_OK;
 
 out:

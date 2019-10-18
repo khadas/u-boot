@@ -258,6 +258,7 @@ typedef struct {
   char* cmdline;
   uint64_t rollback_indexes[AVB_MAX_NUMBER_OF_ROLLBACK_INDEX_LOCATIONS];
   uint8_t boot_key_hash[AVB_SHA256_DIGEST_SIZE];
+  uint8_t vbmeta_digest[AVB_SHA256_DIGEST_SIZE];
 } AvbSlotVerifyData;
 
 /* Frees a |AvbSlotVerifyData| including all data it points to. */

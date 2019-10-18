@@ -235,12 +235,29 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (!bootargs) {
 			bootargs = "\0";
 		}
-		if (is_device_unlocked())
-			bootstate = bootstate_o;
-		else
-			bootstate = bootstate_g;
 
 		if (out_data) {
+			keymaster_boot_params boot_params;
+			const int is_dev_unlocked = is_device_unlocked();
+
+			boot_params.device_locked = is_dev_unlocked? 0: 1;
+			if (is_dev_unlocked) {
+				bootstate = bootstate_o;
+				boot_params.verified_boot_state = 2;
+			}
+			else {
+				bootstate = bootstate_g;
+				boot_params.verified_boot_state = 0;
+			}
+			memcpy(boot_params.verified_boot_key, out_data->boot_key_hash,
+					sizeof(boot_params.verified_boot_key));
+			memcpy(boot_params.verified_boot_hash, out_data->vbmeta_digest,
+					sizeof(boot_params.verified_boot_hash));
+
+			if (set_boot_params(&boot_params) < 0) {
+				printf("failed to set boot params.\n");
+			}
+
 			newbootargs = malloc(strlen(bootargs) + strlen(out_data->cmdline) + strlen(bootstate) + 1 + 1 + 1);
 			if (!newbootargs) {
 				printf("failed to allocate buffer for bootarg\n");

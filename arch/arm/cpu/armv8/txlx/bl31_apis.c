@@ -42,6 +42,36 @@ long get_sharemem_info(unsigned long function_id)
 	return function_id;
 }
 
+int32_t set_boot_params(const keymaster_boot_params *boot_params)
+{
+	const unsigned cmd = SET_BOOT_PARAMS;
+
+	if (!boot_params)
+		return -1;
+
+	if (!sharemem_input_base)
+		sharemem_input_base =
+			get_sharemem_info(GET_SHARE_MEM_INPUT_BASE);
+
+	memcpy((void *)sharemem_input_base,
+			(const void *)boot_params, sizeof(keymaster_boot_params));
+
+	asm __volatile__("" : : : "memory");
+	register uint64_t x0 asm("x0") = cmd;
+	register uint64_t x1 asm("x1") = sizeof(keymaster_boot_params);
+	do {
+		asm volatile(
+		    __asmeq("%0", "x0")
+		    __asmeq("%1", "x0")
+		    __asmeq("%2", "x1")
+		    "smc    #0\n"
+		    : "=r"(x0)
+		    : "r"(x0), "r"(x1));
+	} while (0);
+
+	return (!x0)? -1: 0;
+}
+
 #ifdef CONFIG_EFUSE
 int32_t meson_trustzone_efuse(struct efuse_hal_api_arg *arg)
 {
