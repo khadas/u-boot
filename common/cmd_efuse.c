@@ -40,7 +40,7 @@
 int cmd_efuse(int argc, char * const argv[], char *buf)
 {
 	int i, action = -1;
-	uint32_t offset;
+	loff_t offset;
 	uint32_t size, max_size;
 	char *end;
 	char *s;
@@ -79,7 +79,7 @@ int cmd_efuse(int argc, char * const argv[], char *buf)
 	/*check efuse user data max size*/
 	offset = simple_strtoul(argv[2], &end, 16);
 	size = simple_strtoul(argv[3], &end, 16);
-	printf("%s: offset is %d  size is  %d\n", __func__, offset, size);
+	printf("%s: offset is %d  size is  %d\n", __func__, (unsigned int)offset, size);
 	max_size = efuse_get_max();
 	if (!size) {
 		printf("\n error: size is zero!!!\n");
@@ -224,11 +224,6 @@ efuse_action:
 
 		return ret;
 	}
-	else
-	{
-		printf("arg error\n");
-		return CMD_RET_USAGE;
-	}
 
 	return 0;
 }
@@ -272,9 +267,6 @@ static int do_query(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int nReturn = CMD_RET_USAGE;
 
-	if (argc < 2)
-		goto exit;
-
 	struct{
 		char *szQuery;	unsigned long lAddrConfig;	unsigned int nMask; unsigned int nNegFlag;
 	} ArrQuery[] = {
@@ -286,6 +278,10 @@ static int do_query(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	};
 
 	int nIndex;
+
+	if (argc < 2)
+		goto exit;
+
 	for (nIndex = 0;nIndex < sizeof(ArrQuery)/sizeof(ArrQuery[0]);++nIndex)
 	{
 		if (ArrQuery[nIndex].szQuery)
