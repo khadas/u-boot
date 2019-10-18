@@ -206,6 +206,7 @@ void f_set_usb_phy_config(void)
 	usb_aml_regs_t *usb_aml_regs = (usb_aml_regs_t * )PREI_USB_PHY_3_REG_BASE;
 	int cnt;
 	u32 val;
+	cpu_id_t cpu_id = get_cpu_id();
 
 	printf("PHY2=0x%08x\n", PREI_USB_PHY_2_REG_BASE);
 
@@ -216,7 +217,10 @@ void f_set_usb_phy_config(void)
 	val = *(volatile uint32_t *)P_HHI_MEM_PD_REG0;
 	*(volatile uint32_t *)P_HHI_MEM_PD_REG0 = val & (~(0x3));
 
-	*(unsigned int *)(CLKTREE_USB_BUSCLK_CTRL) = 0x300;
+	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_C1)
+		*(unsigned int *)(CLKTREE_USB_BUSCLK_CTRL) = 0x509;
+	else
+		*(unsigned int *)(CLKTREE_USB_BUSCLK_CTRL) = 0x300;
 
 	if ((*(volatile uint32_t *)(USB_REG_B + 0x38)) != 0) {
 		set_usb_phy21_tuning_fb_reset();

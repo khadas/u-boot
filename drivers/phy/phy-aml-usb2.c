@@ -25,7 +25,7 @@
 #define P_AO_RTI_GEN_PWR_SLEEP0 0xfe007808
 #define P_AO_RTI_GEN_PWR_ISO0 0xfe007804
 #define P_HHI_MEM_PD_REG0 0xfe007850
-#define MESON_CPU_MAJOR_ID_C1 0x30
+//#define MESON_CPU_MAJOR_ID_C1 0x30
 
 #define RESET_COMPLETE_TIME				500
 
@@ -182,10 +182,14 @@ static int phy_aml_usb2_phy_init(struct phy *phy)
 	priv->u2_port_num = u2portnum;
 
 	priv->clktree_usb_bus_ctrl = dev_read_addr_index(phy->dev, 2 + u2portnum);
-	if (priv->clktree_usb_bus_ctrl == FDT_ADDR_T_NONE)
+	if (priv->clktree_usb_bus_ctrl == FDT_ADDR_T_NONE) {
 		pr_err("Coun't get clktree_usb_bus_ctrl addr index %d\n", 2 + u2portnum);
-	else
-		*(volatile unsigned int *)priv->clktree_usb_bus_ctrl |= (1 << 8) | (1 << 9);
+	} else {
+		if (Rev_flag == MESON_CPU_MAJOR_ID_C1)
+			*(volatile unsigned int *)priv->clktree_usb_bus_ctrl = (1 << 8) | (2 << 9) | (9 << 0);
+		else
+			*(volatile unsigned int *)priv->clktree_usb_bus_ctrl = (1 << 8) | (1 << 9) | (0 << 0);
+	}
 
 	usbctrl_reset_bit = dev_read_u32_default(phy->dev, "usb-reset-bit", -1);
 	if (usbctrl_reset_bit != -1)
