@@ -250,6 +250,7 @@ static int spifc_user_cmd_dout(
 	writel(0, &regs->addr);
 	writel(1 << SPI_FLASH_USR, &regs->cmd);
 	while ((readl(&regs->cmd) >> SPI_FLASH_USR) & 1);
+
 	spifc_dbg_buff(buf, len, i);
 	return 0;
 }
