@@ -717,8 +717,17 @@ static int dolby_core2_set(
 	if ((vinfo_width < 1280) && ((vinfo_height < 720)
 		&& (vinfo_field_height < 720)))
 		g_vpotch = 0x60;
-	else if ((vinfo_width == 1920) && (vinfo_height == 1080)
-		&& (vinfo_duration_num == 24))
+	else if ((vinfo_width == 1280) &&
+		 (vinfo_height == 720) &&
+		 (vinfo_field_height < 720))
+		g_vpotch = 0x60;
+	else if ((vinfo_width == 1920) &&
+		  (vinfo_height == 1080) &&
+		  (vinfo_duration_num == 24))
+		g_vpotch = 0x60;
+	else if ((vinfo_width == 1920) &&
+		 (vinfo_height == 1080) &&
+		 (vinfo_field_height < 1080))
 		g_vpotch = 0x60;
 	else if ((vinfo_width == 1280) && (vinfo_height == 720))
 		g_vpotch = 0x38;
