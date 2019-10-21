@@ -636,7 +636,6 @@ static int set_vpu_clk(unsigned int vclk)
 		clk_level = vclk;
 
 	if (clk_level >= vpu_conf.data->clk_level_max) {
-		ret = 1;
 		clk_level = vpu_conf.data->clk_level_dft;
 		VPUPR("clk out of supported range, set to default\n");
 	}
@@ -774,7 +773,7 @@ int vpu_clk_change(int level)
 	if (level >= vpu_conf.data->clk_level_max) {
 		clk_table = vpu_conf.data->vpu_clk_table + (vpu_conf.data->clk_level_max - 1);
 		VPUPR("clk out of supported range\n");
-		VPUPR("clk max level: %u(&uHz)\n",
+		VPUPR("clk max level: %u(%uHz)\n",
 			(vpu_conf.data->clk_level_max - 1),
 			clk_table->freq);
 		return -1;
