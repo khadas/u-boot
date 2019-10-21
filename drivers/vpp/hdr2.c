@@ -1144,9 +1144,9 @@ void hdr_func(enum hdr_module_sel module_sel,
 					ncl_709_2020[i];
 				if (i < 3) {
 					hdr_mtx_param.mtxi_pre_offset[i] =
-						bypass_coeff[i];
+						bypass_pre[i];
 					hdr_mtx_param.mtxi_pos_offset[i] =
-						bypass_coeff[i];
+						bypass_pos[i];
 					hdr_mtx_param.mtxo_pre_offset[i] =
 						rgb2yuvpre[i];
 					hdr_mtx_param.mtxo_pos_offset[i] =

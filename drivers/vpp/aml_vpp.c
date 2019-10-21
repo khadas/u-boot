@@ -1581,14 +1581,17 @@ void hdr_tx_pkt_cb(void)
 	int sdr_mode = 0;
 	struct master_display_info_s hdr_data;
 	struct hdr_info *hdrinfo;
-	const char *sdr_mode_env = getenv("sdr2hdr");
+	// const char *sdr_mode_env = getenv("sdr2hdr");
 
-	if (sdr_mode_env == NULL)
-		return;
+	// if (sdr_mode_env == NULL)
+	// 	return;
 
-	sdr_mode = simple_strtoul(sdr_mode_env, NULL, 10);
+	// sdr_mode = simple_strtoul(sdr_mode_env, NULL, 10);
 	hdrinfo = hdmitx_get_rx_hdr_info();
+	if (hdrinfo && !hdrinfo->hdr_sup_eotf_smpte_st_2084)
+		sdr_mode = 2;
 
+	// follow source HDR_BYPASS
 	if ((hdrinfo && hdrinfo->hdr_sup_eotf_smpte_st_2084) &&
 		(sdr_mode == 2)) {
 		hdr_func(OSD1_HDR, SDR_HDR);
@@ -1597,7 +1600,7 @@ void hdr_tx_pkt_cb(void)
 		hdmitx_set_drm_pkt(&hdr_data);
 	}
 
-	VPP_PR("sdr_mode = %d\n", sdr_mode);
+	//VPP_PR("sdr_mode = %d\n", sdr_mode);
 	if (hdrinfo)
 		VPP_PR("Rx hdr_info.hdr_sup_eotf_smpte_st_2084 = %d\n",
 			hdrinfo->hdr_sup_eotf_smpte_st_2084);
