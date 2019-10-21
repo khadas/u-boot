@@ -92,11 +92,12 @@ COMPILE_TYPE_ASSERT(2048 >= sizeof(AmlSecureBootImgHeader), _cc);
 static int is_andr_9_image(void* pBuffer)
 {
     int nReturn = 0;
+    struct andr_img_hdr *pAHdr = NULL;
 
 	if (!pBuffer)
         goto exit;
 
-    struct andr_img_hdr *pAHdr = (struct andr_img_hdr*)(unsigned long)pBuffer;
+    pAHdr = (struct andr_img_hdr*)(unsigned long)pBuffer;
 
 	if (pAHdr->kernel_version)
         nReturn = 1;
@@ -517,7 +518,8 @@ static int imgread_uncomp_pic(unsigned char* srcAddr, const unsigned srcSz,
     /*debugP("srcAddr[%x, %x]\n", srcAddr[0], srcAddr[1]);*/
     if (!memcmp(srcAddr, gzip_magic, sizeof(gzip_magic)))
     {
-        *dstDatSz = srcSz;
+        if (dstDatSz) *dstDatSz = srcSz;
+        else return -__LINE__; //need dstDatSz to check src sz in gunzip
         return gunzip(dstAddr, dstBufSz, srcAddr, dstDatSz);
     }
 
@@ -577,7 +579,13 @@ static int do_image_read_pic(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
         if (rc) {
             bootupOutmode[2] = "bootup_720";
             if (picName) {
-                sprintf(cmdBuf, "%s_720", picName);
+                if (strnlen(picName, sizeof(cmdBuf)/2 + 8) > sizeof(cmdBuf)/2) {
+                    errorP("picName too long\n");
+                    return __LINE__;
+                }
+                /*sprintf(cmdBuf, "%s_720", picName);*/
+                memcpy(cmdBuf, picName, strnlen(picName, sizeof(cmdBuf)/2));
+                strncpy(&cmdBuf[strlen(cmdBuf)], "_720", 4+1);
                 bootupOutmode[0] = cmdBuf;
             }
             break;
@@ -585,7 +593,9 @@ static int do_image_read_pic(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
 
         bootupOutmode[2] = "bootup_1080";
         if (picName) {
-            sprintf(cmdBuf, "%s_1080", picName);
+            /*sprintf(cmdBuf, "%s_1080", picName);*/
+            memcpy(cmdBuf, picName, strnlen(picName, sizeof(cmdBuf)/2));
+            strncpy(&cmdBuf[strlen(cmdBuf)], "_1080", 5+1);
             bootupOutmode[0] = cmdBuf;
         }
         break;
