@@ -875,7 +875,7 @@ static int amlmmc_erase_whole(int argc, char *const argv[])
 	if (!mmc)
 		return 1;
 	mmc_init(mmc);
-	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len - 1) : 0;
+	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len) - 1 : 0;
 	start_blk = 0;
 
 	if (emmckey_is_protected(mmc)) {
@@ -931,7 +931,7 @@ static int amlmmc_erase_non_cache(int arc, char *const argv[])
 	if (!mmc)
 		return 1;
 	mmc_init(mmc);
-	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len - 1) : 0;
+	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len) - 1 : 0;
 	if (emmckey_is_protected(mmc)) {
 		part_info = find_mmc_partition_by_name(MMC_RESERVED_NAME);
 		if (part_info == NULL) {
@@ -1131,7 +1131,7 @@ static int amlmmc_write_in_card(int argc, char *const argv[])
 	if (!mmc)
 		return 1;
 
-	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len - 1) : 0;
+	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len) - 1 : 0;
 	cnt = size >> blk_shift;
 	blk = offset >> blk_shift;
 	sz_byte = size - (cnt<<blk_shift);
@@ -1265,7 +1265,7 @@ static int amlmmc_read_in_card(int argc, char *const argv[])
 	if (!mmc)
 		return 1;
 
-	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len - 1) : 0;
+	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len) - 1 : 0;
 	cnt = size >> blk_shift;
 	blk = offset >> blk_shift;
 	sz_byte = size - (cnt<<blk_shift);
@@ -1910,7 +1910,7 @@ static int compute_write_protect_range(struct mmc *mmc, char *name,
 
 	wp_grp_size = write_protect_group_size(mmc, ext_csd);
 
-	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len - 1) : 0;
+	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len) - 1 : 0;
 
 	part_info = find_mmc_partition_by_name(name);
 	if (part_info == NULL)
@@ -2114,7 +2114,7 @@ static int send_add_wp_type(struct mmc *mmc, u64 start, u64 cnt)
 		part_end = group_start + cnt * wp_grp_size - 1;
 	}
 
-	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len - 1) : 0;
+	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len) - 1 : 0;
 	mmc_boundary = mmc->capacity>>blk_shift;
 
 	if ((part_end + 1) > mmc_boundary) {
@@ -2238,7 +2238,7 @@ static int set_add_write_protect(struct mmc *mmc, u8 wp_type, u64 start, u64 cnt
 	  part_end = group_start + cnt * wp_grp_size - 1;
 	}
 
-	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len - 1) : 0;
+	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len) - 1 : 0;
 	mmc_boundary = mmc->capacity>>blk_shift;
 
 	if ((part_end + 1) > mmc_boundary) {
@@ -2453,7 +2453,7 @@ static int set_add_clear_wp(struct mmc *mmc, u64 start, u64 cnt)
 		part_end = group_start + cnt * wp_grp_size - 1;
 	}
 
-	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len - 1) : 0;
+	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len) - 1 : 0;
 	mmc_boundary = mmc->capacity>>blk_shift;
 
 	if ((part_end + 1) > mmc_boundary) {
@@ -2649,7 +2649,7 @@ static int send_add_wp_status(struct mmc *mmc, u64 start, u64 cnt)
 		 part_end = group_start + cnt * wp_grp_size - 1;
 	 }
 
-	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len - 1) : 0;
+	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len) - 1 : 0;
 	mmc_boundary = mmc->capacity>>blk_shift;
 
 	if ((part_end + 1) > mmc_boundary) {
