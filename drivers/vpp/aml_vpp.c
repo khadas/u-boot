@@ -22,6 +22,7 @@
 #include <asm/cpu_id.h>
 #include <config.h>
 #include <common.h>
+#include <malloc.h>
 #include <vpp.h>
 #include "aml_vpp_reg.h"
 #include <asm/arch/cpu.h>
@@ -950,7 +951,7 @@ void set_vpp_lut(
 		for (i = 0; i < 16; i++)
 			vpp_reg_write(data_port,
 				g_map[i * 2 + 1]
-				| (b_map[i * 2 + 2] << 16));
+				| (g_map[i * 2 + 2] << 16));
 		for (i = 0; i < 16; i++)
 			vpp_reg_write(data_port,
 				b_map[i * 2]
@@ -1372,9 +1373,10 @@ void vpp_pq_load(void)
 	str = strdup(pq);
 
 	for (tk = strsep(&str, ","); tk != NULL; tk = strsep(&str, ",")) {
-		tmp[cnt] = tk;
-		if (cnt++ > 4)
+		if (cnt >= 4)
 			break;
+		tmp[cnt] = tk;
+		cnt++;
 	}
 
 	if (cnt == 4) {
@@ -1384,6 +1386,8 @@ void vpp_pq_load(void)
 		}
 		vpp_pq_init(val[0], val[1], val[2], val[3]);
 	}
+
+	free(str);
 }
 
 void vpp_load_gamma_table(unsigned short *data, unsigned int len, enum vpp_gamma_sel_e flag)
