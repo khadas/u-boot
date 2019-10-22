@@ -95,6 +95,7 @@ static void lcd_chip_detect(void)
 		break;
 	case MESON_CPU_MAJOR_ID_TM2:
 		aml_lcd_driver.chip_type = LCD_CHIP_TM2;
+		aml_lcd_driver.rev_type = rev_type;
 		break;
 	default:
 		aml_lcd_driver.chip_type = LCD_CHIP_MAX;
@@ -768,6 +769,7 @@ static int lcd_config_probe(void)
 	aml_lcd_driver.lcd_config->retry_enable_flag = 0;
 	aml_lcd_driver.lcd_config->retry_enable_cnt = 0;
 
+	lcd_phy_probe();
 	lcd_clk_config_probe();
 	lcd_mode_probe(dt_addr, load_id);
 	aml_lcd_debug_probe(&aml_lcd_driver);

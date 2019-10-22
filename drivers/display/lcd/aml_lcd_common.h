@@ -30,8 +30,9 @@
 /* 20190225: fix tcon axi_mem detect mistake for kernel 64bit */
 /* 20190308: add more panel clk_ss_level step for tl1*/
 /* 20190911: add lcd_tcon_load_data for tl1*/
+/* 20191025: tcon chpi phy setting update*/
 
-#define LCD_DRV_VERSION    "20190911"
+#define LCD_DRV_VERSION    "20191025"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
@@ -62,6 +63,8 @@ extern void lcd_vbyone_phy_set(struct lcd_config_s *pconf, int status);
 extern void lcd_mlvds_phy_set(struct lcd_config_s *pconf, int status);
 extern void lcd_p2p_phy_set(struct lcd_config_s *pconf, int status);
 extern void lcd_mipi_phy_set(struct lcd_config_s *pconf, int status);
+extern int lcd_phy_probe(void);
+extern void lcd_phy_tcon_chpi_bbc_init_tl1(int delay);
 
 /* lcd tcon */
 extern void lcd_tcon_info_print(void);
