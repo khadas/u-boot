@@ -255,7 +255,6 @@ long load_pic_from_partition(const char *pic_name)
 {
 	char str[128] = {0};
 	int ret = 0;
-	char *env = NULL;
 
 	if (pic_name == NULL) {
 		ui_loge("wrong pic_name.\n");
@@ -270,14 +269,9 @@ long load_pic_from_partition(const char *pic_name)
 	}
 
 	sprintf(str, "%s_offset", pic_name);
-	env = getenv(str);
-	if (env) {
-		return simple_strtoul(env, NULL, 16);
-	} else {
-		ui_loge("getenv fail.\n");
-		return -3;
-	}
+	return getenv_ulong(str, 16, 0);
 }
+
 int read_bmp(const char *filename, BITMAPINFOHEADER *pstBmpInfoHeader, unsigned char **buffer)
 {
 	unsigned short bfType = 0x4d42;
@@ -287,7 +281,7 @@ int read_bmp(const char *filename, BITMAPINFOHEADER *pstBmpInfoHeader, unsigned 
 	long bmp_addr;
 
 	bmp_addr = load_pic_from_partition(filename);
-	if (bmp_addr < 0) {
+	if (bmp_addr <= 0) {
 		ui_loge("load_pic_from_partition fail.\n");
 		return -1;
 	}

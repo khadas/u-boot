@@ -391,7 +391,7 @@ static inline void walk_through_update_list(void)
 	u32  i, j;
 	for (i = 0; i < HW_OSD_COUNT; i++) {
 		j = 0;
-		while (osd_hw.updated[i] && j < 32) {
+		while (osd_hw.updated[i] && j < HW_REG_INDEX_MAX) {
 			if (osd_hw.updated[i] & (1 << j)) {
 				osd_hw.reg[i][j].update_func();
 				remove_from_update_list(i, j);

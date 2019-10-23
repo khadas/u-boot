@@ -238,11 +238,8 @@ static void osd_layer_init(GraphicDevice *gdev, int layer)
 static unsigned long env_strtoul(const char *name, int base)
 {
 	unsigned long ret = 0;
-	char *str = NULL;
 
-	str = getenv(name);
-	if (str)
-		ret = simple_strtoul(str, NULL, base);
+	ret = getenv_ulong(name, base, 0);
 
 	if (base == 16)
 		osd_logd("%s: 0x%lx\n", name, ret);
@@ -394,6 +391,8 @@ int get_osd_layer(void)
 		osd_index = OSD2;
 	else if (strcmp(layer_str, "viu2_osd0") == 0)
 		osd_index = VIU2_OSD1;
+	else
+		osd_loge("%s, error found\n", __func__);
 
 	return osd_index;
 }
@@ -1350,16 +1349,16 @@ void hist_set_golden_data(void)
 		if (str) {
 			switch (i%4) {
 				case 0:
-					hist_max_min[i/4][family_id] = simple_strtoul(str, NULL, 16);
+					hist_max_min[i/4][family_id] = env_strtoul(str, 16);
 					break;
 				case 1:
-					hist_spl_val[i/4][family_id] = simple_strtoul(str, NULL, 16);
+					hist_spl_val[i/4][family_id] = env_strtoul(str, 16);
 					break;
 				case 2:
-					hist_spl_pix_cnt[i/4][family_id] = simple_strtoul(str, NULL, 16);
+					hist_spl_pix_cnt[i/4][family_id] = env_strtoul(str, 16);
 					break;
 				case 3:
-					hist_cheoma_sum[i/4][family_id] = simple_strtoul(str, NULL, 16);
+					hist_cheoma_sum[i/4][family_id] = env_strtoul(str, 16);
 					break;
 			}
 		}
