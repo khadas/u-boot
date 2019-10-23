@@ -114,10 +114,17 @@ static void meson_mmc_config_clock(struct meson_host *host)
 	if (mmc->clock > 12000000) {
 		clk = 1000000000;
 		clk_src = 1;
+		clk_disable(&host->xtal);
+		clk_set_parent(&host->mux, &host->div2);
+		clk_set_rate(&host->div, clk);
 	} else {
 		clk = 24000000;
 		clk_src = 0;
+		clk_enable(&host->xtal);
 	}
+
+	//printf("sd_emmc_clk_ctrl:0x%x\n", readl(((0x0038<<2) + 0xfe000800)));
+	//printf("sd_emmc_clk_ctrl1:0x%x\n", readl(((0x0048<<2) + 0xfe000800)));
 
 	clk_div = clk / mmc->clock;
 	if (clk % mmc->clock)
@@ -962,25 +969,30 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 
 	uclass_get_device_by_name(UCLASS_CLK, "amlogic,g12a-clkc", &clk_udevice);
 
-	clk_get_by_name(dev, "core", &host->core);
-	clk_get_by_name(dev, "clkin0", &host->xtal);
-	clk_get_by_name(dev, "clkin1", &host->div2);
+	clk_get_by_name(dev, "clkin", &host->div2);
+	clk_get_by_name(dev, "xtal", &host->xtal);
 	clk_get_by_name(dev, "mux", &host->mux);
 	clk_get_by_name(dev, "div", &host->div);
 	clk_get_by_name(dev, "gate", &host->gate);
 
 	//clk_enable(&host->core);
-	//clk_enable(&host->gate);
+	clk_enable(&host->gate);
 
 	return 0;
 }
 
-void mmc_set_source_clock(void)
+/*void mmc_set_source_clock(struct udevice *dev)
 {
-	writel(0x81008100, ((0x0038<<2) + 0xfe000800));
-	writel(0x8100, ((0x0048<<2) + 0xfe000800));
-	pr_debug("===========0x%x\n", readl(((0x0038<<2) + 0xfe000800)));
-}
+	struct meson_host *host = dev_get_priv(dev);
+	unsigned long rate;
+
+	clk_set_rate(&host->div, 1000000000);
+	clk_disable(&host->xtal);
+	clk_enable(&host->gate);
+
+	printf("sd_emmc_clk_ctrl:0x%x\n", readl(((0x0038<<2) + 0xfe000800)));
+	printf("sd_emmc_clk_ctrl1:0x%x\n", readl(((0x0048<<2) + 0xfe000800)));
+}*/
 
 static int meson_mmc_probe(struct udevice *dev)
 {
@@ -1015,7 +1027,7 @@ static int meson_mmc_probe(struct udevice *dev)
 	mmc->priv = pdata;
 	upriv->mmc = mmc;
 
-	mmc_set_source_clock();
+	//mmc_set_source_clock(dev);
 
 	mmc_set_clock(mmc, cfg->f_min, false);
 
@@ -1030,11 +1042,11 @@ static int meson_mmc_probe(struct udevice *dev)
 	val &= ~CFG_SDCLK_ALWAYS_ON;
 	val |= CFG_AUTO_CLK;
 	meson_write(mmc, val, MESON_SD_EMMC_CFG);
-	pr_info("%s: probe success!\n", mmc->cfg->name);
+	printf("[%s]%s: probe success!\n", __func__, mmc->cfg->name);
 
 	return 0;
 err:
-	pr_err("%s: probe fail, ret = %d!\n", mmc->cfg->name, ret);
+	pr_err("[%s]%s: probe fail, ret = %d!\n", __func__, mmc->cfg->name, ret);
 	if (host->blk_test)
 		free(host->blk_test);
 	if (host->desc_buf)

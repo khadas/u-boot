@@ -46,14 +46,6 @@ int info_disprotect = 0;
 
 static struct storage_t *current;
 static struct device_node_t device_list[] = {
-#if 0
-	{BOOT_SD, "sd", sdcard_pre, sdcard_probe},
-#endif
-
-#ifdef CONFIG_MMC_MESON_GX
-	{BOOT_EMMC, "emmc", emmc_pre, emmc_probe},
-#endif
-
 #ifdef CONFIG_MESON_NFC
 	{BOOT_NAND_MTD, "mtd", nand_pre, nand_probe},
 #endif
@@ -67,6 +59,14 @@ static struct device_node_t device_list[] = {
 #if CONFIG_SPI_FLASH
 	{BOOT_SNOR, "spi-nor", spi_nor_pre, spi_nor_probe}
 #endif
+#if 0
+	{BOOT_SD, "sd", sdcard_pre, sdcard_probe},
+#endif
+
+#ifdef CONFIG_MMC_MESON_GX
+	{BOOT_EMMC, "emmc", emmc_pre, emmc_probe},
+#endif
+
 };
 
 int store_register(struct storage_t *store_dev)
