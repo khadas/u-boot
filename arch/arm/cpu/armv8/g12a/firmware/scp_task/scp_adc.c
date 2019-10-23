@@ -220,7 +220,7 @@ int check_adc_key_resume(void)
 	if (min < 0)
 		min = 0;
 	max = CONFIG_ADC_POWER_KEY_VAL + 40;
-	if (max > 1023)
+	if (CONFIG_ADC_POWER_KEY_VAL > 983)
 		max = 1023;
 
 	value = get_adc_sample_gxbb(CONFIG_ADC_POWER_KEY_CHAN);
