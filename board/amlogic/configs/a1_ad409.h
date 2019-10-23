@@ -27,6 +27,14 @@
  */
 
 #define AML_VDDCORE_INIT_VOLTAGE    805     // VCCK power up voltage
+/* If AML_VDDCORE_INIT_VOLTAGE_SEL is 1, the voltage of vddee
+ * will be controlled by efuse. if 0, it is controlled by
+ * AML_VDDCORE_INIT_VOLTAGE
+ */
+#define AML_VDDCORE_INIT_VOLTAGE_SEL 			0
+#define AML_VDDCORE_INIT_EFUSE_MARGIN			30
+#define AML_VDDCORE_INIT_EFUSE_OFFSET			0xc8
+#define AML_VDDCORE_INIT_EFUSE_BASE_V0LT		680
 
 /* SMP Definitinos */
 #define CPU_RELEASE_ADDR		secondary_boot_func

@@ -52,6 +52,11 @@
 #define POWERKEY_CFG2						2
 #define POWERKEY_CFG3						3
 
+/* Share vddcore parameters with bl2 */
+#define BL2_INIT_STAGE_VDDCORE_TABLE		0x84
+#define BL2_INIT_STAGE_VDDCORE_CONFIG		0x85
+#define BL2_INIT_STAGE_VDDCORE_CONFIG_1		0x86
+
 typedef struct bl2_reg {
 	unsigned	int		reg;
 	unsigned	int		value;
