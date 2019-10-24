@@ -22,7 +22,7 @@ struct jtag_id_desc {
 	unsigned short id;
 	const char *core_type;
 	const char *jtag_type;
-	const char *alias
+	const char *alias;
 };
 
 static struct jtag_id_desc jtag_id_data[] = {
