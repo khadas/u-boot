@@ -61,7 +61,7 @@ int get_burn_parts_from_img(HIMAGE hImg, ConfigPara_t* pcfgPara)
                     if (OPTIMUS_WORK_MODE_SYS_RECOVERY == optimus_work_mode_get()) continue;
             }
 
-            strcpy(partName, sub_type);
+            strncpy(partName, sub_type, PART_NAME_LEN_MAX - 1);
             pburnPartsCfg->bitsMap4BurnParts |= 1U<<burnNum;
             burnNum += 1;
         }
@@ -600,6 +600,9 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
     ConfigPara_t* pSdcCfgPara = &g_sdcBurnPara;
     const char* pkgPath = pSdcCfgPara->burnEx.pkgPath;
     __hdle hUiProgress = NULL;
+    int hasBootloader = 0;
+    u64 datapartsSz = 0;
+    int eraseFlag = pSdcCfgPara->custom.eraseFlash;
 
     hImg = image_open("mmc", "0", "1", cfgFile);
     if (!hImg) {
@@ -685,10 +688,7 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
     }
     optimus_progress_ui_direct_update_progress(hUiProgress, UPGRADE_STEPS_AFTER_IMAGE_OPEN_OK);
 
-    int hasBootloader = 0;
-    u64 datapartsSz = optimus_img_decoder_get_data_parts_size(hImg, &hasBootloader);
-
-    int eraseFlag = pSdcCfgPara->custom.eraseFlash;
+    datapartsSz = optimus_img_decoder_get_data_parts_size(hImg, &hasBootloader);
     if (!datapartsSz) {
             eraseFlag = 0;
             DWN_MSG("Disable erase as data parts size is 0\n");
@@ -696,7 +696,7 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
     ret = optimus_storage_init(eraseFlag);
     if (ret) {
         DWN_ERR("Fail to init stoarge for sdc burn\n");
-        return __LINE__;
+        ret = __LINE__; goto _finish;
     }
 
     optimus_progress_ui_direct_update_progress(hUiProgress, UPGRADE_STEPS_AFTER_DISK_INIT_OK);
@@ -759,9 +759,9 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
 
 _finish:
     image_close(hImg);
-    optimus_progress_ui_report_upgrade_stat(hUiProgress, !ret);
+    if (hUiProgress) optimus_progress_ui_report_upgrade_stat(hUiProgress, !ret);
     optimus_report_burn_complete_sta(ret, pSdcCfgPara->custom.rebootAfterBurn);
-    optimus_progress_ui_release(hUiProgress);
+    if (hUiProgress) optimus_progress_ui_release(hUiProgress);
     //optimus_storage_exit();//temporary not exit storage driver when failed as may continue burning after burn
     return ret;
 }

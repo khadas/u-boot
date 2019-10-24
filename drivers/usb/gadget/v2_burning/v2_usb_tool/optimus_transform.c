@@ -37,32 +37,6 @@ static inline int str2long(const char *p, unsigned long *num)
 	return (*p != '\0' && *endptr == '\0') ? 1 : 0;
 }
 
-static inline int str2longlong(char *p, unsigned long long *num)
-{
-	char *endptr;
-
-	*num = simple_strtoull(p, &endptr, 16);
-	if (*endptr != '\0')
-	{
-	    switch (*endptr)
-	    {
-	        case 'g':
-	        case 'G':
-	            *num<<=10;
-	        case 'm':
-	        case 'M':
-	            *num<<=10;
-	        case 'k':
-	        case 'K':
-	            *num<<=10;
-	            endptr++;
-	            break;
-	    }
-	}
-
-	return (*p != '\0' && *endptr == '\0') ? 1 : 0;
-}
-
 static int opimus_func_write_bootloader(unsigned long addr)
 {
         int ret = 0;
@@ -99,37 +73,6 @@ int opimus_func_write_raw_img(int argc, char *argv[], char *info)
         return ret;
 }
 
-
-//read_raw_img partName memAddr partOffset readSzInBytes
-int opimus_func_read_raw_img(int argc, char *argv[], char *info)
-{
-        int ret = 0;
-        unsigned long addr;
-        u64 off, size;
-        unsigned char* partName = (unsigned char*)argv[1];
-
-        MYDBG("%s, %s, %s, %s\n", __func__, argv[0], argv[1], argv[2]);
-
-        if (!(str2long(argv[2], &addr)))
-        {
-                sprintf(info, "failed:'%s' is not a number\n", argv[2]);
-                return -1;
-        }
-        if (!(str2longlong(argv[3], &off)))
-        {
-                sprintf(info, "failed:'%s' is not a number\n", argv[3]);
-                return -1;
-        }
-        if (!(str2longlong(argv[4], &size)))
-        {
-                sprintf(info, "failed:'%s' is not a number\n", argv[4]);
-                return -1;
-        }
-
-        ret = store_read_ops(partName, (u8*)addr, off, size);
-
-        return ret;
-}
 
 int optimus_simg2part (int argc, char * const argv[], char *info)
 {
@@ -368,8 +311,7 @@ static int _cpu_temp_in_valid_range(int argc, char* argv[], char* errInfo)
         int ret = 0;
         int minTemp = 0;
         int maxTemp = 0;
-        int cpu_temp = 0;
-        char* env_cpu_temp = NULL;
+        unsigned long env_cpu_temp = 0;
 
         if (3 > argc) {
                 sprintf(errInfo, "argc %d < 3 is invalid\n", argc);
@@ -386,18 +328,15 @@ static int _cpu_temp_in_valid_range(int argc, char* argv[], char* errInfo)
                 sprintf(errInfo, "cmd[cpu_temp] failed\n");
                 return __LINE__;
         }
-        env_cpu_temp = getenv("tempa");
-        if (!env_cpu_temp) {
-                sprintf(errInfo, "Can't get cpu_temp, cpu is not calibrated.\n");
-                return __LINE__;
-        }
-        cpu_temp = simple_strtol(env_cpu_temp, NULL, 0);
-        ret = (cpu_temp >= minTemp && cpu_temp <= maxTemp) ? 0 : __LINE__;
+
+        env_cpu_temp = getenv_ulong("tempa", 10, 0);
+        ret = (env_cpu_temp >= minTemp && env_cpu_temp <= maxTemp) ? 0 : __LINE__;
         if (!ret) {
-                sprintf(errInfo, "%s", env_cpu_temp);
+                sprintf(errInfo, "%lu", env_cpu_temp);
         }
         else{
-                sprintf(errInfo, "%s is out of temp range[%d, %d], errInfo[%s]\n", env_cpu_temp, minTemp, maxTemp, getenv("err_info_tempa"));
+                sprintf(errInfo, "%lu is out of temp range[%d, %d], errInfo[%s]\n",
+                        env_cpu_temp, minTemp, maxTemp, getenv_optimus("err_info_tempa"));
         }
 
         return ret;
@@ -464,10 +403,6 @@ int optimus_working (const char *cmd, char* buff)
         {
                 ret = opimus_func_write_raw_img(argc, argv, buff);
         }
-        else if(strcmp(optCmd, "read_raw_img") == 0)
-        {
-                ret = opimus_func_read_raw_img(argc, argv, buff);
-        }
         else if(strcmp(optCmd, "simg2part") == 0)
         {
                 ret = optimus_simg2part(argc, argv, buff);
@@ -518,10 +453,11 @@ int optimus_working (const char *cmd, char* buff)
         {
 #ifndef CONFIG_CMD_CPU_TEMP
                 ret = __LINE__;
+                sprintf(buff + 7, "cpu temp control cmd NOT supported.\n");
 #else
                 ret = 0;
+                sprintf(buff + 7, "cpu temp control cmd DO supported.\n");
 #endif// #ifdef CONFIG_CMD_CPU_TEMP
-                sprintf(buff + 7, "cpu temp control cmd %s supported.\n", ret ? "NOT" : "DO");//7 == strlen("failed")
         }
         else if(!strcmp(optCmd, "tempcontrol"))
         {

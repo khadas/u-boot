@@ -56,7 +56,8 @@ int aml_check_is_ready_for_sdc_produce(void)
     sdc_cfg_file = getenv("sdcburncfg");
     if (!sdc_cfg_file) {
         sdc_cfg_file = "aml_sdc_burn.ini";
-        setenv("sdcburncfg", sdc_cfg_file); }
+        setenv("sdcburncfg", sdc_cfg_file);
+    }
 
     cmd = "fatsize mmc 0 ${sdcburncfg}";
     ret = run_command(cmd, 0);
@@ -136,7 +137,7 @@ int aml_burn_sdc_producing(int flag, bd_t* bis)
 {
     optimus_work_mode_set(OPTIMUS_WORK_MODE_SDC_PRODUCE);
 
-    return optimus_burn_package_in_sdmmc(getenv("sdcburncfg"));
+    return optimus_burn_package_in_sdmmc(getenv_optimus("sdcburncfg"));
 }
 
 //burning flash from romboot stage

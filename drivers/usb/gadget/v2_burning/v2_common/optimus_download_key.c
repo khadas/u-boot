@@ -136,7 +136,6 @@ static void hdcp2DataDecryption(const unsigned len, const char *input, char *out
 unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyValLen, char* errInfo)
 {
     int ret = 0;
-    unsigned writtenLen = 0;
 
     DWN_DBG("to write key[%s] in len=%d\n", keyName, keyValLen);
     if (!strcmp(keyName, _AML_HDCP22_RX_KEY_NAME) || !strcmp(keyName, _AML_HDCP22_RP_KEY_NAME))
@@ -177,7 +176,7 @@ unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyVa
             const char* keyN = _amlHdcp22RxKey[k].keyName;
             DWN_MSG("burnkey[%s] at sz[%d]\n", keyN, itemSz);
             ret = key_manage_write(keyN, itembuf, itemSz);
-            if (ret) {
+            if (ret != 0) {
                 DWN_ERR("Fail to write key[[%s] in len=%d\n", keyN, itemSz);
                 return 0;
             }
@@ -186,14 +185,13 @@ unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyVa
     else
     {
         ret = key_manage_write(keyName, keyVal, keyValLen);
-        if (ret) {
+        if (ret != 0) {
             DWN_ERR("Fail to write key[%s] in len=%d\n", keyName, keyValLen);
             return 0;
         }
     }
 
-    writtenLen = ret >=0 ? keyValLen : 0;
-    return writtenLen;
+    return keyValLen;
 }
 
 
@@ -348,7 +346,7 @@ int v2_key_command(const int argc, char * const argv[], char *info)
     {
         const char* keyName = subCmd_argv[1];
         const int cswBufLen = CMD_BUFF_SIZE - sizeof("success") + 1;
-        unsigned char* keyValBuf = (unsigned char*)info + CMD_BUFF_SIZE - cswBufLen;
+        char* keyValBuf = (char*)info + CMD_BUFF_SIZE - cswBufLen;
 
         if (subCmd_argc < 2) {
             sprintf(info, "failed: %s %s need a keyName\n", argv[0], argv[1]);
@@ -359,7 +357,7 @@ int v2_key_command(const int argc, char * const argv[], char *info)
         sprintf(info, "keyman read %s 0x%p str", keyName, keyValBuf);
         rcode = run_command(info, 0);
         if (!rcode)
-            sprintf(info, "success:%s=[%s]", keyName, getenv(keyName));
+            sprintf(info, "success:%s=[%s]", keyName, keyValBuf);
         else
             sprintf(info, "failed in read key");
     }

@@ -691,7 +691,7 @@ static int _parse_img_download_info(struct ImgBurnInfo* pDownInfo, const char* p
     }
 
     pDownInfo->partBaseOffset   = partBaseOffset;
-    memcpy(pDownInfo->partName, partName, strlen(partName));
+    strncpy(pDownInfo->partName, partName, sizeof pDownInfo->partName - 1);
 
     if (OPTIMUS_MEDIA_TYPE_MEM > pDownInfo->storageMediaType) //if command for burning partition
     {
@@ -1305,19 +1305,7 @@ void optimus_reset(const int cfgFlag)
     while (--i) ;
 
     /*disable_interrupts();*/
-	reset_cpu(0);
-
-    while (i++)
-    {
-        unsigned ret = i;
-        unsigned mask = 1U<<20;
-
-        mask -= 1;
-        ret &= mask;
-        if (!ret) {
-            printf("To reseting...\n");
-        }
-    }
+    reset_cpu(0);
 }
 
 void optimus_poweroff(void)
@@ -1354,7 +1342,8 @@ int optimus_burn_complete(const int choice)
                     {
                             rc = run_command("getkey", 0);
                     }while(rc);
-            }
+                    optimus_poweroff();
+            }break;
         case OPTIMUS_BURN_COMPLETE__POWEROFF_DIRECT:
             optimus_poweroff();
             break;
@@ -1367,10 +1356,10 @@ int optimus_burn_complete(const int choice)
             return (0xefe == _isBurnComplete);
 
         case OPTIMUS_BURN_COMPLETE__REBOOT_UPDATE:
+            optimus_reset(choice);
+            break;
         case OPTIMUS_BURN_COMPLETE__REBOOT_NORMAL:
-            {
-                optimus_reset(choice);
-            }
+            optimus_reset(choice);
             break;
 
 
@@ -1423,5 +1412,24 @@ int optimus_erase_bootloader(const char* extBootDev)
     }
 
     return store_erase_ops((u8*)"boot", 0, 0, 0);
+}
+
+//getenv wrapper to avoid coverity tained string error
+const char* getenv_optimus(const char* name)
+{
+    char* envBuf = OPTIMUS_GETENV_BUF;
+    const char* envVal = getenv(name);
+    if (!envVal) {envBuf[0] = '\0'; return envBuf;}
+
+    int i = 0;
+    int len = OPTIMUS_ENV_MAXLEN;
+    for (; i < OPTIMUS_ENV_MAXLEN; ++i) {
+        if ('\0' == envVal[i]) {
+            len = i + 1;
+            break;
+        }
+    }
+    memcpy(envBuf, envVal, len);
+    return envBuf;
 }
 

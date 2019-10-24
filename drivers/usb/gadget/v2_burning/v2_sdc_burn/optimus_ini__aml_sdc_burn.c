@@ -145,7 +145,7 @@ static int parse_set_burnEx(const char* key, const char* strVal)
             return __LINE__;
         }
 
-        strcpy(pBurnEx->pkgPath, strVal);
+        strncpy(pBurnEx->pkgPath, strVal, sizeof pBurnEx->pkgPath - 1);
         pBurnEx->bitsMap.pkgPath = 1;
 
         return 0;
@@ -159,7 +159,7 @@ static int parse_set_burnEx(const char* key, const char* strVal)
         }
         if (strVal)
         {
-            strcpy(pBurnEx->mediaPath, strVal);
+            strncpy(pBurnEx->mediaPath, strVal, sizeof pBurnEx->mediaPath - 1);
             pBurnEx->bitsMap.mediaPath = 1;
         }
 
@@ -323,7 +323,7 @@ static int parse_burn_parts(const char* key, const char* strVal)
 
         partName = (char*)pBurnParts->burnParts[burnIndex];
         if (!strVal) {
-            err("value of %s can't empty\n", key);
+            err("value of %s can't empty\n", strVal);
             return __LINE__;
         }
 
@@ -332,7 +332,7 @@ static int parse_burn_parts(const char* key, const char* strVal)
             return __LINE__;
         }
 
-        strcpy(partName, strVal);
+        strncpy(partName, strVal, PART_NAME_LEN_MAX - 1);
     }
 
     return 0;
