@@ -221,7 +221,7 @@ static struct vpu_data_s vpu_data_g12b = {
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
 
-	.mem_pd_table = vpu_mem_pd_g12a,
+	.mem_pd_table = vpu_mem_pd_g12b,
 	.hdmi_iso_table = vpu_hdmi_iso_gxb,
 	.reset_table = vpu_reset_gx,
 

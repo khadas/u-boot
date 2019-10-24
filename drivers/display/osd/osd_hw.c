@@ -946,14 +946,7 @@ void osd_setup_hw(u32 index,
 		osd_hw.fb_gem[index].addr = fbmem;
 		osd_hw.fb_gem[index].width = w;
 		osd_hw.fb_gem[index].height = yres_virtual;
-		osd_logd("osd[%d] canvas.idx =0x%x\n",
-			 index, osd_hw.fb_gem[index].canvas_idx);
-		osd_logd("osd[%d] canvas.addr=0x%x\n",
-			 index, osd_hw.fb_gem[index].addr);
-		osd_logd("osd[%d] canvas.width=%d\n",
-			 index, osd_hw.fb_gem[index].width);
-		osd_logd("osd[%d] canvas.height=%d\n",
-			 index, osd_hw.fb_gem[index].height);
+
 		if (osd_hw.osd_ver == OSD_SIMPLE) {
 			u32 line_stride, fmt_mode, bpp;
 
@@ -974,20 +967,28 @@ void osd_setup_hw(u32 index,
 			if (index < VIU2_OSD1) {
 				canvas_config(osd_hw.fb_gem[index].canvas_idx,
 					      osd_hw.fb_gem[index].addr,
-					      osd_hw.fb_gem[index].width,
+					      CANVAS_ALIGNED(osd_hw.fb_gem[index].width),
 					      osd_hw.fb_gem[index].height,
 					      CANVAS_ADDR_NOWRAP, CANVAS_BLKMODE_LINEAR);
 			} else {
 				/* for dual logo display */
-				osd_hw.fb_gem[index].addr += fb_gdev.fb_height * fb_gdev.fb_width * color->bpp >> 3;
+				osd_hw.fb_gem[index].addr += fb_gdev.fb_height * CANVAS_ALIGNED(fb_gdev.fb_width * color->bpp >> 3);
 				canvas_config(osd_hw.fb_gem[index].canvas_idx,
 					      osd_hw.fb_gem[index].addr,
-					      osd_hw.fb_gem[index].width,
+					      CANVAS_ALIGNED(osd_hw.fb_gem[index].width),
 					      osd_hw.fb_gem[index].height,
 					      CANVAS_ADDR_NOWRAP, CANVAS_BLKMODE_LINEAR);
 			}
 		}
 #endif
+		osd_logd("osd[%d] canvas.idx =0x%x\n",
+			 index, osd_hw.fb_gem[index].canvas_idx);
+		osd_logd("osd[%d] canvas.addr=0x%x\n",
+			 index, osd_hw.fb_gem[index].addr);
+		osd_logd("osd[%d] canvas.width=%d\n",
+			 index, CANVAS_ALIGNED(osd_hw.fb_gem[index].width));
+		osd_logd("osd[%d] canvas.height=%d\n",
+			 index, osd_hw.fb_gem[index].height);
 	}
 	/* osd blank only control by /sys/class/graphcis/fbx/blank */
 #if 0

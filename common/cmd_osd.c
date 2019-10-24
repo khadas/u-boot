@@ -115,20 +115,19 @@ static int do_osd_clear(cmd_tbl_t *cmdtp, int flag, int argc,
 	index = get_osd_layer();
 	if (index < VIU2_OSD1) {
 		fb_addr = (ulong)gdev->frameAdrs;
-		fb_len = gdev->fb_width * gdev->fb_height * gdev->gdfBytesPP;
+		fb_len = CANVAS_ALIGNED(gdev->fb_width * gdev->gdfBytesPP) * gdev->fb_height;
 	} else {
 		fb_addr = (ulong)(gdev->frameAdrs +
-			gdev->fb_width * gdev->fb_height * gdev->gdfBytesPP);
-		fb_len = gdev->winSizeX * gdev->winSizeY * gdev->gdfBytesPP;
+			CANVAS_ALIGNED(gdev->fb_width * gdev->gdfBytesPP) * gdev->fb_height);
+		fb_len = CANVAS_ALIGNED(gdev->winSizeX * gdev->gdfBytesPP) * gdev->winSizeY;
 	}
 	memset((void *)fb_addr, 0, fb_len);
 	flush_cache(fb_addr, fb_len);
 #else
-	memset((void *)(long long)(gdev->frameAdrs), 0,
-	       (gdev->winSizeX * gdev->winSizeY)*gdev->gdfBytesPP);
+	fb_len = CANVAS_ALIGNED(gdev->winSizeX * gdev->gdfBytesPP) * gdev->winSizeY;
+	memset((void *)(long long)(gdev->frameAdrs), 0, fb_len);
 
-	flush_cache(gdev->frameAdrs,
-		    ((gdev->winSizeX * gdev->winSizeY)*gdev->gdfBytesPP));
+	flush_cache(gdev->frameAdrs, fb_len);
 #endif
 	return 0;
 }

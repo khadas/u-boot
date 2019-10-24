@@ -629,7 +629,7 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 		pwidth = fb_gdev.fb_width;
 	}
 
-	lcd_line_length = (pwidth * NBITS(info->vl_bpix)) / 8;
+	lcd_line_length = CANVAS_ALIGNED((pwidth * NBITS(info->vl_bpix)) / 8);
 	if (fb_gdev.mode != FULL_SCREEN_MODE)
 		if (parse_bmp_info(bmp_image))
 			return -1;
@@ -805,7 +805,7 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 	ptr_rgb = NULL;
 
 	flush_cache((unsigned long)osd_hw.fb_gem[osd_index].addr,
-		    pheight * pwidth * info->vl_bpix / 8);
+		    pheight * CANVAS_ALIGNED(pwidth * info->vl_bpix / 8));
 	return (0);
 }
 
