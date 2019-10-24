@@ -39,8 +39,8 @@ struct meson_wdt_priv {
 	void __iomem *regs;
 };
 
-static struct meson_wdt_data {
-	struct wdt_ops * ops;
+struct meson_wdt_data {
+	struct wdt_ops *ops;
 };
 
 /***************** gxbb ***********************/
