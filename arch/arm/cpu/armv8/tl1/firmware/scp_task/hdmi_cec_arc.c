@@ -639,7 +639,7 @@ static unsigned int cec_handle_message(void)
 {
 	unsigned char opcode;
 	unsigned char source;
-	unsigned int  phy_addr, wake;
+	unsigned int  phy_addr/*, wake*/;
 
 	source = (cec_msg.buf[cec_msg.rx_read_pos].msg[0] >> 4) & 0xf;
 	if (((hdmi_cec_func_config>>CEC_FUNC_MASK) & 0x1) &&
@@ -693,8 +693,8 @@ static unsigned int cec_handle_message(void)
 				/* request active source needed */
 				phy_addr = 0xffff;
 				cec_msg.cec_power = 0x1;
-				wake =  (phy_addr << 0) |
-					(source << 16);
+				/*wake =  (phy_addr << 0) |*/
+				/*	(source << 16);*/
 				/*writel(wake, AO_RTI_STATUS_REG1);*/
 				cec_wakup.wk_logic_addr = source;
 				cec_wakup.wk_phy_addr = phy_addr;
@@ -711,8 +711,8 @@ static unsigned int cec_handle_message(void)
 			    (!is_playback_dev(cec_msg.log_addr) && check_addr(phy_addr))) {
 				cec_msg.cec_power = 0x1;
 				cec_msg.active_source = 1;
-				wake =  (phy_addr << 0) |
-					(source << 16);
+				/*wake =  (phy_addr << 0) |*/
+				/*	(source << 16);*/
 				uart_puts("source : 0x");
 				uart_put_hex(source, 8);
 				uart_puts("\n");
