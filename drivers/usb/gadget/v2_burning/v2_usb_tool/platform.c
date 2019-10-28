@@ -321,21 +321,21 @@ void set_usb_phy_config(int cfg)
 		val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_SLEEP0;
 		*P_AO_RTI_GEN_PWR_SLEEP0 = val & (~(0x1<<17));
 		mdelay(20);
-		val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_ISO0;
-		*P_AO_RTI_GEN_PWR_ISO0 = val & (~(0x1<<17));
-		mdelay(20);
 		val = *(volatile uint32_t *)HHI_MEM_PD_REG0;
 		*P_HHI_MEM_PD_REG0 = val & (~(0x3<<30));
+		udelay(100);
+		val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_ISO0;
+		*P_AO_RTI_GEN_PWR_ISO0 = val & (~(0x1<<17));
 	}
 #else
 	val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_SLEEP0;
 	*P_AO_RTI_GEN_PWR_SLEEP0 = val & (~(0x1<<17));
 	mdelay(20);
-	val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_ISO0;
-	*P_AO_RTI_GEN_PWR_ISO0 = val & (~(0x1<<17));
-	mdelay(20);
 	val = *(volatile uint32_t *)HHI_MEM_PD_REG0;
 	*P_HHI_MEM_PD_REG0 = val & (~(0x3<<30));
+	udelay(100);
+	val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_ISO0;
+	*P_AO_RTI_GEN_PWR_ISO0 = val & (~(0x1<<17));
 #endif
 
 	mdelay(50);

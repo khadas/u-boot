@@ -54,9 +54,12 @@ void board_usb_init(struct amlogic_usb_config * usb_cfg,int mode)
 #ifdef CONFIG_USB_POWER
 	writel((readl(P_AO_RTI_GEN_PWR_SLEEP0) & (~(0x1<<17))),
 			P_AO_RTI_GEN_PWR_SLEEP0);
+	writel((readl(HHI_MEM_PD_REG0) & (~(0x3<<30))), HHI_MEM_PD_REG0);
+
+	udelay(100);
+
 	writel((readl(P_AO_RTI_GEN_PWR_ISO0) & (~(0x1<<17))),
 			P_AO_RTI_GEN_PWR_ISO0);
-	writel((readl(HHI_MEM_PD_REG0) & (~(0x3<<30))), HHI_MEM_PD_REG0);
 #endif
 
 	if (mode < 0 || mode >= BOARD_USB_MODE_MAX || !usb_cfg)
