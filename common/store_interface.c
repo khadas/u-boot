@@ -392,11 +392,14 @@ static int do_store_dtb_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 	   if (!strcmp("read", argv[2]))
 	   {
 		   flush_cache(dtImgAddr, AML_DTB_IMG_MAX_SZ);
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
+
 		   ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, dtImgAddr, AML_DTB_IMG_MAX_SZ, 0);
 		   if (ret) {
 			   MsgP("decrypt dtb: Sig Check %d\n",ret);
 			   return ret;
 		   }
+#endif
 	   }
 
 	   if (!is_write && strcmp("iread", argv[2]))

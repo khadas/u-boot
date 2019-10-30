@@ -136,8 +136,10 @@ static int _aml_get_secure_boot_kernel_size(const void* pLoadaddr, unsigned* pTo
 
 	if (isSecure)
     {
-        ulong nCheckOffset;
+        ulong nCheckOffset = 0;
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
         nCheckOffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,GXB_IMG_LOAD_ADDR,GXB_EFUSE_PATTERN_SIZE,GXB_IMG_DEC_ALL);
+#endif /*CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK*/
 		if (AML_D_Q_IMG_SIG_HDR_SIZE == (nCheckOffset & 0xFFFF) &&
             ((nCheckOffset>>16) & 0xFFFF))
         {
@@ -262,11 +264,13 @@ static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
         //here must update the cache, otherwise nand will fail (eMMC is OK)
         flush_cache((unsigned long)dtImgAddr,(unsigned long)nFlashLoadLen);
 
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
         nReturn = aml_sec_boot_check(AML_D_P_IMG_DECRYPT,(unsigned long)loadaddr,GXB_IMG_SIZE,GXB_IMG_DEC_DTB);
         if (nReturn) {
             errorP("\n[dtb]aml log : Sig Check is %d\n",nReturn);
             return __LINE__;
         }
+#endif /*CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK*/
         MsgP("Enc dtb sz 0x%x\n", nFlashLoadLen);
     }
 
@@ -316,8 +320,10 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
         loadaddr = (unsigned char*)simple_strtoul(getenv("loadaddr"), NULL, 16);
     }
 
-    ulong nCheckOffset;
+    ulong nCheckOffset = 0;
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
     nCheckOffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,GXB_IMG_LOAD_ADDR,GXB_EFUSE_PATTERN_SIZE,GXB_IMG_DEC_ALL);
+#endif /*CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK*/
 	if (AML_D_Q_IMG_SIG_HDR_SIZE == (nCheckOffset & 0xFFFF))
         nCheckOffset = (nCheckOffset >> 16) & 0xFFFF;
     else
@@ -355,11 +361,13 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
     }
 
     //Check if encrypted image
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
     rc = _aml_get_secure_boot_kernel_size(loadaddr, &secureKernelImgSz);
     if (rc) {
             errorP("Fail in _aml_get_secure_boot_kernel_size, rc=%d\n", rc);
             return __LINE__;
     }
+#endif /*CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK*/
     if (secureKernelImgSz)
     {
         actualBootImgSz = secureKernelImgSz + nCheckOffset;
