@@ -77,6 +77,7 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 	int st;
 	char* hdmimode;
+	char* cvbsmode;
 	char* colorattribute;
 
 #ifdef CONFIG_AML_LCD
@@ -104,10 +105,14 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 		printf("do_hpd_detect: colorattribute=%s\n", colorattribute);
 
 	if (st) {
-		setenv("outputmode", getenv("hdmimode"));
+		if (hdmimode)
+			setenv("outputmode", hdmimode);
 	} else {
-		setenv("outputmode", getenv("cvbsmode"));
+		cvbsmode = getenv("cvbsmode");
+		if (cvbsmode)
+			setenv("outputmode", cvbsmode);
 		setenv("hdmichecksum", "0x00000000");
+		setenv("hdmimode", "null");
 		run_command("saveenv", 0);
 	}
 	return st;
@@ -323,12 +328,12 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 				hdmitx_device.para->cs = HDMI_COLOR_FORMAT_444;
 				printf("set cs as %d\n", HDMI_COLOR_FORMAT_444);
 			}
-			break;
 			/* For VESA modes, should be RGB format */
 			if (hdmitx_device.vic >= HDMITX_VESA_OFFSET) {
 				hdmitx_device.para->cs = HDMI_COLOR_FORMAT_RGB;
 				hdmitx_device.para->cd = HDMI_COLOR_DEPTH_24B;
 			}
+			break;
 		}
 		hdmi_tx_set(&hdmitx_device);
 	}
@@ -478,7 +483,7 @@ static int getBestHdmiColorAttributes(struct rx_cap *pRXCap,
 		//2.user request LL mdoe && sink support LL mode
 		} else if (request_ll_mode() && (pRXCap->dv_info.ver == 1) &&
 			(pRXCap->dv_info.length == 0xB) && pRXCap->dv_info.low_latency == 1) {
-			printf("getBestHdmiColorAttributes: 4k LL dovi, COLOR_ATTR_YCBCR422_12BIT\n");
+			printf("getBestHdmiColorAttributes: non-4k LL dovi, COLOR_ATTR_YCBCR422_12BIT\n");
 			return COLOR_ATTR_YCBCR422_12BIT;
 		}
 		//std dovi
@@ -505,6 +510,7 @@ static int getBestHdmiColorAttributes(struct rx_cap *pRXCap,
 			printf("getBestHdmiColorAttributes: COLOR_ATTR_RGB_12BIT\n");
 			return COLOR_ATTR_RGB_12BIT;
 		}
+		break;
 	case HDMI_COLOR_DEPTH_30B:
 		if (inColorSpace == HDMI_COLOR_FORMAT_444) {
 			if ((pRXCap->dc_y444) && (pRXCap->dc_30bit)) {
@@ -521,6 +527,7 @@ static int getBestHdmiColorAttributes(struct rx_cap *pRXCap,
 			printf("getBestHdmiColorAttributes: COLOR_ATTR_RGB_10BIT\n");
 			return COLOR_ATTR_RGB_10BIT;
 		};
+		break;
 	default:
 		if (inColorSpace == HDMI_COLOR_FORMAT_444) {
 			if (pRXCap->support_ycbcr444_flag) {
@@ -536,10 +543,10 @@ static int getBestHdmiColorAttributes(struct rx_cap *pRXCap,
 				return COLOR_ATTR_YCBCR420_8BIT;
 			}
 		}
-		//default to rgb,8 bits always
-		printf("getBestHdmiColorAttributes: COLOR_ATTR_RGB_8BIT\n");
-		return COLOR_ATTR_RGB_8BIT;
 	}
+	//default to rgb,8 bits always
+	printf("getBestHdmiColorAttributes: COLOR_ATTR_RGB_8BIT\n");
+	return COLOR_ATTR_RGB_8BIT;
 }
 
 bool isYuv4kSink(struct rx_cap *pRXCap)
@@ -560,13 +567,13 @@ bool isYuv4kSink(struct rx_cap *pRXCap)
 	for (i = 0; i < pRXCap->VIC_count; i++) {
 		VIC = pRXCap->VIC[i];
 		if ((VIC == HDMI_3840x2160p60_16x9_Y420 ||
-		     VIC == HDMI_3840x2160p60_16x9_Y420) &&
+			VIC == HDMI_3840x2160p50_16x9_Y420) &&
 			maxTMDSRate >= 297) {
 			printf("isYuv4kSink: true, maxTMDSRate=%d\n", maxTMDSRate);
 			return true;
 		}
-		if ((VIC == HDMI_3840x2160p60_16x9  ||
-		     VIC == HDMI_3840x2160p60_16x9) &&
+		if  ((VIC == HDMI_3840x2160p60_16x9  ||
+			VIC == HDMI_3840x2160p50_16x9) &&
 			maxTMDSRate > 594) {
 			printf("isYuv4kSink: true, maxTMDSRate=%d\n", maxTMDSRate);
 			return true;
@@ -996,8 +1003,5 @@ struct hdr_info *hdmitx_get_rx_hdr_info(void)
 {
 	struct hdmitx_dev *hdev = &hdmitx_device;
 
-	if (hdev)
-		return &hdev->RXCap.hdr_info;
-	else
-		return NULL;
+	return &hdev->RXCap.hdr_info;
 }
