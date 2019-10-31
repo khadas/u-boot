@@ -693,9 +693,11 @@ static int do_kbi_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[
 	char *s = getenv("eth_mac");
 	if (strcmp(s, "00:00:00:00:00:00") == 0) {
 		char *mac = getenv("factory_mac");
-		if (mac == NULL)
+		if ((mac == NULL) || (strcmp(mac, "0") == 0))
 			return 0;
 		int len = strlen(mac);
+		if (len != 17)
+			return 0;
 		for (i = 0 ; i< len; i++) {
 			if (mac[i] != ':') {
 				mac_str[count] = mac[i];
@@ -705,6 +707,11 @@ static int do_kbi_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[
 		sprintf(cmd, "efuse write 0 0xc %s", mac_str);
 		printf("=====write mac=%s\n", mac_str);
 		run_command(cmd, 0);
+		run_command("efuse mac", 0);
+	} else {
+		char *mac = getenv("factory_mac");
+		if ((mac == NULL) || (strcmp(mac, "0") == 0))
+			setenv("factory_mac", s);
 	}
 	return 0;
 }
