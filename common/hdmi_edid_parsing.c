@@ -117,7 +117,6 @@ static int check_dvi_hdmi_edid_valid(unsigned char *buf)
 #endif
 static void dump_dtd_info(struct dtd *t)
 {
-	return; /* debug only */
 	printk("%s[%d]\n", __func__, __LINE__);
 #define PR(a) pr_info("%s %d\n", #a, t->a)
 	PR(pixel_clock);
