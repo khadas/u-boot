@@ -557,15 +557,20 @@ static int lcd_pinmux_load_from_bsp(struct lcd_config_s *pconf)
 				for (j = 0; j < LCD_PINMUX_NUM; j++ ) {
 					if (pinmux->pinmux_set[j][0] == LCD_PINMUX_END)
 						break;
-					pconf->pinmux_set[j+set_cnt][0] = pinmux->pinmux_set[j][0];
-					pconf->pinmux_set[j+set_cnt][1] = pinmux->pinmux_set[j][1];
+					pconf->pinmux_set[j][0] =
+						pinmux->pinmux_set[j][0];
+					pconf->pinmux_set[j][1] =
+						pinmux->pinmux_set[j][1];
 					set_cnt++;
 				}
 				for (j = 0; j < LCD_PINMUX_NUM; j++ ) {
-					if (pinmux->pinmux_clr[j][0] == LCD_PINMUX_END)
+					if (pinmux->pinmux_clr[j][0] ==
+								LCD_PINMUX_END)
 						break;
-					pconf->pinmux_clr[j+clr_cnt][0] = pinmux->pinmux_clr[j][0];
-					pconf->pinmux_clr[j+clr_cnt][1] = pinmux->pinmux_clr[j][1];
+					pconf->pinmux_clr[j][0] =
+						pinmux->pinmux_clr[j][0];
+					pconf->pinmux_clr[j][1] =
+						pinmux->pinmux_clr[j][1];
 					clr_cnt++;
 				}
 				break;

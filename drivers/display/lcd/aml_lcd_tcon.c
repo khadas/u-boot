@@ -79,7 +79,10 @@ static int lcd_tcon_vac_load(void)
 {
 	unsigned char *vac_data =
 		(unsigned char *)(unsigned long)(tcon_rmem.vac_mem_paddr);
-	int i, ret = -1;
+	int ret = 0;
+#ifdef CONFIG_CMD_INI
+	int i;
+#endif
 
 	if ((!tcon_rmem.vac_mem_size) || (vac_data == NULL))
 		return -1;
@@ -90,13 +93,11 @@ static int lcd_tcon_vac_load(void)
 		LCDPR("%s: no vac_data\n", __func__);
 		return -1;
 	}
-#endif
-
-	if (lcd_debug_print_flag && (ret == 0)) {
+	if (lcd_debug_print_flag) {
 		for (i = 0; i < 256; i++)
 			LCDPR("vac_data[%d]: %d\n", i, vac_data[i * 1]);
 	}
-
+#endif
 	return ret;
 }
 
@@ -104,7 +105,10 @@ static int lcd_tcon_demura_set_load(void)
 {
 	unsigned char *demura_setting = (unsigned char *)(unsigned long)
 			       (tcon_rmem.demura_set_paddr);
-	int i, ret = -1;
+	int ret = 0;
+#ifdef CONFIG_CMD_INI
+	int i;
+#endif
 
 	if ((!tcon_rmem.demura_set_mem_size) || (demura_setting == NULL))
 		return -1;
@@ -116,13 +120,12 @@ static int lcd_tcon_demura_set_load(void)
 		LCDPR("%s: no demura_set data\n", __func__);
 		return -1;
 	}
-#endif
-
-	if (lcd_debug_print_flag && (ret == 0)) {
+	if (lcd_debug_print_flag) {
 		for (i = 0; i < 100; i++)
 			LCDPR("demura_set[%d]: 0x%x\n",
 			      i, demura_setting[i]);
 	}
+#endif
 
 	return ret;
 }
@@ -131,8 +134,10 @@ static int lcd_tcon_demura_lut_load(void)
 {
 	unsigned char *demura_lut_data = (unsigned char *)(unsigned long)
 			       (tcon_rmem.demura_lut_paddr);
-	int i, ret = -1;
-
+	int ret = 0;
+#ifdef CONFIG_CMD_INI
+	int i;
+#endif
 	if ((!tcon_rmem.demura_lut_mem_size) || (demura_lut_data == NULL))
 		return -1;
 
@@ -143,13 +148,12 @@ static int lcd_tcon_demura_lut_load(void)
 		LCDPR("%s: no demura_lut data\n", __func__);
 		return -1;
 	}
-#endif
-
-	if (lcd_debug_print_flag && (ret == 0)) {
+	if (lcd_debug_print_flag) {
 		for (i = 0; i < 100; i++)
 			LCDPR("demura_lut_data[%d]: 0x%x\n",
 			      i, demura_lut_data[i]);
 	}
+#endif
 
 	return ret;
 }
@@ -552,7 +556,6 @@ int lcd_tcon_data_load(int *vac_valid, int *demura_valid)
 static int lcd_tcon_enable_tl1(struct lcd_config_s *pconf)
 {
 	unsigned int n = 10;
-	char *str;
 	int ret;
 	int vac_valid = 0, demura_valid = 0;
 
@@ -560,9 +563,7 @@ static int lcd_tcon_enable_tl1(struct lcd_config_s *pconf)
 	if (ret)
 		return -1;
 
-	str = getenv("tcon_delay");
-	if (str)
-		n = (unsigned int)simple_strtoul(str, NULL, 10);
+	n = getenv_ulong("tcon_delay", 10, 10);
 
 	lcd_tcon_data_load(&vac_valid, &demura_valid);
 
@@ -693,11 +694,9 @@ static void lcd_tcon_p2p_chpi_irq(void)
 #endif
 static void lcd_tcon_config_axi_offset_default(void)
 {
-	char *str = NULL;
 
-	str = getenv("tcon_mem_addr");
-	if (str) {
-		tcon_rmem.mem_paddr = (unsigned int)simple_strtoul(str, NULL, 16);
+	tcon_rmem.mem_paddr = getenv_ulong("tcon_mem_addr", 16, 0);
+	if (tcon_rmem.mem_paddr) {
 		tcon_rmem.mem_size = lcd_tcon_data->axi_mem_size;
 		LCDPR("get lcd_tcon mem_addr from default\n");
 	} else {

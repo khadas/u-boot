@@ -377,62 +377,65 @@ static void lcd_vbyone_filter_flag_print(struct lcd_config_s *pconf)
 static void lcd_vbyone_filter_env_init(struct lcd_config_s *pconf)
 {
 	struct vbyone_config_s *vx1_conf = pconf->lcd_control.vbyone_config;
-	char *str;
 	unsigned int temp = 0;
 
-	str = getenv("lcd_debug_vx1_sw_filter");
-	if (str)
-		temp = simple_strtoul(str, NULL, 10);
-	if (temp == 0)
+	temp = getenv_ulong("lcd_debug_vx1_sw_filter", 10, 0);
+	if (!temp)
 		return;
 
 	LCDPR("%s\n", __func__);
-	str = getenv("vx1_sw_filter_en");
-	if (str) {
-		vx1_conf->vx1_sw_filter_en = simple_strtoul(str, NULL, 10);
+	temp = getenv_ulong("vx1_sw_filter_en", 10, 0xffff);
+	if (temp != 0xffff) {
+		vx1_conf->vx1_sw_filter_en = temp;
 		LCDPR("vx1_sw_filter_en: %d\n", vx1_conf->vx1_sw_filter_en);
 	}
 
-	str = getenv("vx1_sw_filter_time"); /* 100us */
-	if (str) {
-		vx1_conf->vx1_sw_filter_time = simple_strtoul(str, NULL, 10);
+	/* 100us */
+	temp = getenv_ulong("vx1_sw_filter_time", 10, 0xffff);
+	if (temp != 0xffff) {
+		vx1_conf->vx1_sw_filter_time = temp;
 		LCDPR("vx1_sw_filter_time: %d\n", vx1_conf->vx1_sw_filter_time);
 	}
 
-	str = getenv("vx1_sw_filter_cnt");
-	if (str) {
-		vx1_conf->vx1_sw_filter_cnt = simple_strtoul(str, NULL, 10);
+	temp = getenv_ulong("vx1_sw_filter_cnt", 10, 0xffff);
+	if (temp != 0xffff) {
+		vx1_conf->vx1_sw_filter_cnt = temp;
 		LCDPR("vx1_sw_filter_cnt: %d\n", vx1_conf->vx1_sw_filter_cnt);
 	}
 
-	str = getenv("vx1_sw_filter_retry_cnt");
-	if (str) {
-		vx1_conf->vx1_sw_filter_retry_cnt = simple_strtoul(str, NULL, 10);
-		LCDPR("vx1_sw_filter_retry_cnt: %d\n", vx1_conf->vx1_sw_filter_retry_cnt);
+	temp = getenv_ulong("vx1_sw_filter_retry_cnt", 10, 0xffff);
+	if (temp != 0xffff) {
+		vx1_conf->vx1_sw_filter_cnt = temp;
+		LCDPR("vx1_sw_filter_retry_cnt: %d\n",
+		      vx1_conf->vx1_sw_filter_retry_cnt);
+	}
+	 /* ms */
+	temp = getenv_ulong("vx1_sw_filter_retry_delay", 10, 0xffff);
+	if (temp != 0xffff) {
+		vx1_conf->vx1_sw_filter_retry_delay = temp;
+		LCDPR("vx1_sw_filter_retry_delay: %d\n",
+		      vx1_conf->vx1_sw_filter_retry_delay);
+	}
+	/* us * 100 */
+	temp = getenv_ulong("vx1_sw_cdr_detect_time", 10, 0xffff);
+	if (temp != 0xffff) {
+		vx1_conf->vx1_sw_filter_cnt = temp;
+		LCDPR("vx1_sw_cdr_detect_time: %d\n",
+		      vx1_conf->vx1_sw_cdr_detect_time);
 	}
 
-	str = getenv("vx1_sw_filter_retry_delay"); /* ms */
-	if (str) {
-		vx1_conf->vx1_sw_filter_retry_delay = simple_strtoul(str, NULL, 10);
-		LCDPR("vx1_sw_filter_retry_delay: %d\n", vx1_conf->vx1_sw_filter_retry_delay);
+	temp = getenv_ulong("vx1_sw_cdr_detect_cnt", 10, 0xffff);
+	if (temp != 0xffff) {
+		vx1_conf->vx1_sw_cdr_detect_cnt = temp;
+		LCDPR("vx1_sw_cdr_detect_cnt: %d\n",
+		      vx1_conf->vx1_sw_cdr_detect_cnt);
 	}
 
-	str = getenv("vx1_sw_cdr_detect_time"); /* us * 100 */
-	if (str) {
-		vx1_conf->vx1_sw_cdr_detect_time = simple_strtoul(str, NULL, 10);
-		LCDPR("vx1_sw_cdr_detect_time: %d\n", vx1_conf->vx1_sw_cdr_detect_time);
-	}
-
-	str = getenv("vx1_sw_cdr_detect_cnt");
-	if (str) {
-		vx1_conf->vx1_sw_cdr_detect_cnt = simple_strtoul(str, NULL, 10);
-		LCDPR("vx1_sw_cdr_detect_cnt: %d\n", vx1_conf->vx1_sw_cdr_detect_cnt);
-	}
-
-	str = getenv("vx1_sw_cdr_timeout_cnt");
-	if (str) {
-		vx1_conf->vx1_sw_cdr_timeout_cnt = simple_strtoul(str, NULL, 10);
-		LCDPR("vx1_sw_cdr_timeout_cnt: %d\n", vx1_conf->vx1_sw_cdr_timeout_cnt);
+	temp = getenv_ulong("vx1_sw_cdr_timeout_cnt", 10, 0xffff);
+	if (temp != 0xffff) {
+		vx1_conf->vx1_sw_cdr_timeout_cnt = temp;
+		LCDPR("vx1_sw_cdr_timeout_cnt: %d\n",
+		      vx1_conf->vx1_sw_cdr_timeout_cnt);
 	}
 }
 
@@ -527,14 +530,14 @@ static int lcd_init_load_from_dts(char *dt_addr)
 		pconf->lcd_clk_path = (unsigned char)(be32_to_cpup((u32*)propdata));
 		LCDPR("detect lcd_clk_path: %d\n", pconf->lcd_clk_path);
 	}
-	str = getenv("lcd_clk_path");
-	if (str) {
-		temp = simple_strtoul(str, NULL, 10);
+	temp = getenv_ulong("lcd_clk_path", 10, 0xffff);
+	if (temp != 0xffff) {
 		if (temp)
 			pconf->lcd_clk_path = 1;
 		else
 			pconf->lcd_clk_path = 0;
-		LCDPR("lcd_clk_path flag set clk_path: %d\n", pconf->lcd_clk_path);
+		LCDPR("lcd_clk_path flag set clk_path: %d\n",
+		      pconf->lcd_clk_path);
 	}
 
 	i = 0;
@@ -821,40 +824,18 @@ static void lcd_update_boot_ctrl_bootargs(void)
 
 int lcd_probe(void)
 {
-	char *str;
 	int ret = 0;
 
-	str = getenv("lcd_debug_print");
-	if (str == NULL) {
-		lcd_debug_print_flag = 0;
-	} else {
-		lcd_debug_print_flag = simple_strtoul(str, NULL, 10);
-		LCDPR("lcd_debug_print flag: %d\n", lcd_debug_print_flag);
-	}
+	lcd_debug_print_flag = getenv_ulong("lcd_debug_print", 10, 0);
+	LCDPR("lcd_debug_print flag: %d\n", lcd_debug_print_flag);
 
-	str = getenv("lcd_debug_test");
-	if (str == NULL)
-		lcd_debug_test = 0;
-	else
-		lcd_debug_test = simple_strtoul(str, NULL, 10);
+	lcd_debug_test = getenv_ulong("lcd_debug_test", 10, 0);
 
-	str = getenv("lcd_debug_para");
-	if (str == NULL)
-		boot_ctrl.lcd_debug_para = 0;
-	else
-		boot_ctrl.lcd_debug_para = simple_strtoul(str, NULL, 10);
+	boot_ctrl.lcd_debug_para = getenv_ulong("lcd_debug_para", 10, 0);
 
-	str = getenv("lcd_debug_mode");
-	if (str == NULL)
-		boot_ctrl.lcd_debug_mode = 0;
-	else
-		boot_ctrl.lcd_debug_mode = simple_strtoul(str, NULL, 10);
+	boot_ctrl.lcd_debug_mode = getenv_ulong("lcd_debug_mode", 10, 0);
 
-	str = getenv("lcd_init_level");
-	if (str == NULL)
-		boot_ctrl.lcd_init_level = 0;
-	else
-		boot_ctrl.lcd_init_level = simple_strtoul(str, NULL, 10);
+	boot_ctrl.lcd_init_level = getenv_ulong("lcd_init_level", 10, 0);
 
 	lcd_chip_detect();
 	lcd_config_bsp_init();

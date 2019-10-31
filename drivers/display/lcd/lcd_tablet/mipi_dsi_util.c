@@ -1906,9 +1906,8 @@ void lcd_mipi_dsi_config_set(struct lcd_config_s *pconf)
 	unsigned int bit_rate_max, bit_rate_min, pll_out_fmin = 0;
 	struct dsi_config_s *dconf = pconf->lcd_control.mipi_config;
 	struct lcd_clk_config_s *cConf = get_lcd_clk_config();
-	int n;
+	int n, status;
 	unsigned int temp;
-	const char *str;
 
 	/* unit in kHz for calculation */
 	if (cConf->data)
@@ -1966,12 +1965,12 @@ void lcd_mipi_dsi_config_set(struct lcd_config_s *pconf)
 
 	/* check_state */
 	if (dconf->check_en) {
-		str = getenv("lcd_mipi_check");
-		if (str) {
-			temp = simple_strtoul(str, NULL, 10);
-			if (temp == 0) {
+		status = getenv_ulong("lcd_mipi_check", 10, 0xffff);
+		if (status != 0xffff) {
+			temp = status;
+			if (!temp) {
 				dconf->check_en = 0;
-				LCDPR("lcd_mipi_check flag disable check_state\n");
+				LCDPR("lcd_mipi_check disable check_state\n");
 			}
 		}
 	}

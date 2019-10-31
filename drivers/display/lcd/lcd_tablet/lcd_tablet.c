@@ -150,7 +150,7 @@ static int lcd_config_load_from_dts(char *dt_addr, struct lcd_config_s *pconf)
 	}
 	LCDPR("use panel_type=%s\n", panel_type);
 
-	sprintf(propname, "/lcd/%s", panel_type);
+	snprintf(propname, 30, "/lcd/%s", panel_type);
 	child_offset = fdt_path_offset(dt_addr, propname);
 	if (child_offset < 0) {
 		LCDERR("not find /lcd/%s node: %s\n",
@@ -444,7 +444,11 @@ static int lcd_config_load_from_bsp(struct lcd_config_s *pconf)
 	}
 	LCDPR("use panel_type=%s\n", panel_type);
 
-	strcpy(pconf->lcd_basic.model_name, panel_type);
+	strncpy(pconf->lcd_basic.model_name, panel_type,
+		sizeof(pconf->lcd_basic.model_name));
+	pconf->lcd_basic.model_name[sizeof(pconf->lcd_basic.model_name) - 1]
+		= '\0';
+
 	pconf->lcd_basic.lcd_type = ext_lcd->lcd_type;
 	pconf->lcd_basic.lcd_bits = ext_lcd->lcd_bits;
 

@@ -474,8 +474,8 @@ struct bl_pwm_config_s {
 	unsigned int pwm_gpio;
 	unsigned int pwm_gpio_off;
 	unsigned int pinmux_flag;
-	unsigned int pinmux_set[10][2];
-	unsigned int pinmux_clr[10][2];
+	unsigned int pinmux_set[15][2];
+	unsigned int pinmux_clr[15][2];
 };
 
 struct bl_config_s {
