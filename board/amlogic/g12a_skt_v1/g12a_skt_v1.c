@@ -622,6 +622,9 @@ U_BOOT_DEVICES(meson_pwm) = {
 
 int board_init(void)
 {
+	unsigned int val=0;
+	cpu_id_t cpu_id = get_cpu_id();
+
     //Please keep CONFIG_AML_V2_FACTORY_BURN at first place of board_init
     //As NOT NEED other board init If USB BOOT MODE
 #ifdef CONFIG_AML_V2_FACTORY_BURN
@@ -637,6 +640,14 @@ int board_init(void)
 #if 0
 	aml_pwm_cal_init(0);
 #endif//
+
+	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SM1) {
+		//Set GPIOH_8 to input, enable HDMI power
+		val = readl(PREG_PAD_GPIO3_EN_N);
+		val |= 1 << 8;
+		writel(val, PREG_PAD_GPIO3_EN_N);
+	}
+
 #ifdef CONFIG_AML_NAND
 	extern int amlnf_init(unsigned char flag);
 	amlnf_init(0);
