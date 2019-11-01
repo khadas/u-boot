@@ -89,6 +89,8 @@
 #define HW_VERSION_VIM3_V11              0x31
 #define HW_VERSION_VIM3_V12              0x32
 
+#define HW_RECOVERY_KEY_ADC              0x82
+
 
 static char* LED_MODE_STR[] = { "off", "on", "breathe", "heartbeat"};
 
@@ -765,6 +767,22 @@ static int do_kbi_powerstate(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 
 }
 
+static int do_kbi_recovery_key_detect(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	int val;
+	saradc_enable();
+	udelay(100);
+
+	val = get_adc_sample_gxbb(2);
+	if ((val > (HW_RECOVERY_KEY_ADC - HW_VERSION_ADC_VALUE_TOLERANCE))  && (val < (HW_RECOVERY_KEY_ADC + HW_VERSION_ADC_VALUE_TOLERANCE)))
+		setenv("boot_mode", "recovery");
+	else
+		setenv("boot_mode", "normal");
+	saradc_disable();
+	return 0;
+
+}
+
 static int do_kbi_ethmac(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc == 2) {
@@ -1059,6 +1077,7 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 #if  defined(CONFIG_KVIM2) || defined(CONFIG_KHADAS_VIM2)
 	U_BOOT_CMD_MKENT(adc, 1, 1, do_kbi_adc, "", ""),
 #endif
+	U_BOOT_CMD_MKENT(recovery_key, 1, 1, do_kbi_recovery_key_detect, "", ""),
 	U_BOOT_CMD_MKENT(powerstate, 1, 1, do_kbi_powerstate, "", ""),
 	U_BOOT_CMD_MKENT(ethmac, 1, 1, do_kbi_ethmac, "", ""),
 	U_BOOT_CMD_MKENT(hwver, 1, 1, do_kbi_hwver, "", ""),
