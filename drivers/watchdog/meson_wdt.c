@@ -33,7 +33,7 @@
 #define WDT_SETTIMEOUT	6
 #define WDT_OPS		0x82000086
 
-#define DEFAULT_TIMEOUT 1
+#define DEFAULT_TIMEOUT 1			/* second */
 
 struct meson_wdt_priv {
 	void __iomem *regs;
@@ -55,10 +55,10 @@ static int meson_gxbb_wdt_reset(struct udevice *dev)
 	return 0;
 }
 
-static int meson_gxbb_wdt_set_timeout(struct udevice *dev, unsigned int timeout)
+static int meson_gxbb_wdt_set_timeout(struct udevice *dev, u64 timeout_ms)
 {
 	struct meson_wdt_priv *priv;
-	unsigned long tcnt = timeout * 1000;
+	unsigned long tcnt = timeout_ms;
 
 	assert(dev);
 	priv = dev_get_priv(dev);
@@ -70,13 +70,13 @@ static int meson_gxbb_wdt_set_timeout(struct udevice *dev, unsigned int timeout)
 	return 0;
 }
 
-static int meson_gxbb_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
+static int meson_gxbb_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 {
 	struct meson_wdt_priv *priv;
 
 	assert(dev);
 	priv = dev_get_priv(dev);
-	meson_gxbb_wdt_set_timeout(dev, timeout);
+	meson_gxbb_wdt_set_timeout(dev, timeout_ms);
 	writel(readl(priv->regs + MESON_WDT_CTRL_REG) | MESON_WDT_CTRL_EN,
 	       priv->regs + MESON_WDT_CTRL_REG);
 
@@ -131,7 +131,7 @@ static int meson_gxbb_wdt_probe(struct udevice *dev)
 		MESON_WDT_CTRL_EE_RESET |
 		MESON_WDT_CTRL_CLK_EN |
 		MESON_WDT_CTRL_CLKDIV_EN, priv->regs + MESON_WDT_CTRL_REG);
-	meson_gxbb_wdt_set_timeout(dev, DEFAULT_TIMEOUT);
+	meson_gxbb_wdt_set_timeout(dev, DEFAULT_TIMEOUT * 1000);
 	meson_gxbb_wdt_stop(dev);
 
 	return 0;
@@ -153,9 +153,9 @@ void __attribute__((weak)) wdt_send_cmd_to_bl31(uint64_t cmd, uint64_t value)
 {
 
 }
-static int meson_a1_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
+static int meson_a1_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 {
-	wdt_send_cmd_to_bl31(WDT_INIT, timeout);
+	wdt_send_cmd_to_bl31(WDT_INIT, timeout_ms);
 	wdt_send_cmd_to_bl31(WDT_ENABLE, 0);
 	wdt_send_cmd_to_bl31(WDT_PING, 0);
 

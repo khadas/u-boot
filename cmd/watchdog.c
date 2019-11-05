@@ -36,7 +36,7 @@ static int do_watchdog(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		return CMD_RET_USAGE;
 
 	/* enable the watchdog and set timeout */
-	wdt_start(watchdog_devp, timeout, 0);
+	wdt_start(watchdog_devp, timeout * 1000, 0);
 	wdt_reset(watchdog_devp);
 
 	return CMD_RET_SUCCESS;
