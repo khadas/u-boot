@@ -44,7 +44,7 @@
  *                            |        |
  *     COMPRESS_START_ADDR -> +--------+
  */
-#define CONFIG_DDR_TOTAL_SIZE		(CONFIG_DDR_SIZE << 20)
+#define CONFIG_DDR_TOTAL_SIZE		(((unsigned int)CONFIG_DDR_SIZE) << 20)
 #define CONFIG_COMPRESSED_DATA_ADDR	(0x08000000)
 #define CONFIG_COMPRESSED_DATA_ADDR1	(0x08000000)
 
