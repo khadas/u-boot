@@ -238,7 +238,13 @@ Description:
 #ifndef PWM_PWM_F
 #define PWM_PWM_F                                  ((0x6401 << 2) + 0xffd00000)
 #endif
+#ifndef PWM_PWM_AO_C
+#define PWM_PWM_AO_C                               ((0x0 << 2) + 0xff802000)
+#endif
 #ifndef PWM_MISC_REG_EF
 #define PWM_MISC_REG_EF                            ((0x6402 << 2) + 0xffd00000)
+#endif
+#ifndef PWM_MISC_REG_AO_CD
+#define PWM_MISC_REG_AO_CD                         ((0x2 << 2) + 0xff802000)
 #endif
 

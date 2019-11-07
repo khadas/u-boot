@@ -101,7 +101,7 @@
         "outputmode=panel\0" \
         "hdmimode=1080p60hz\0" \
 	"colorattribute=444,8bit\0"\
-        "cvbsmode=576cvbs\0" \
+        "cvbsmode=panel\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
         "display_bpp=16\0" \
@@ -382,6 +382,7 @@
  * logo1: bootup.bmp (or find env "board_defined_bootup" first in uboot)
  * logo2: bootup_secondary.bmp
  */
+/*
 #define CONFIG_DUAL_LOGO \
       "setenv outputmode $hdmimode;setenv display_layer osd0;"\
       "vout output $hdmimode;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
@@ -393,7 +394,7 @@
       "setenv outputmode panel;setenv display_layer osd0;"\
       "vout output panel;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
       "\0"\
-
+*/
 //#define CONFIG_ENV_IS_NOWHERE  1
 #define CONFIG_ENV_SIZE   (64*1024)
 #define CONFIG_FIT 1

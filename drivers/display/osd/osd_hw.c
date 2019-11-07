@@ -2966,7 +2966,7 @@ void osd_init_hw(void)
 			data32 |= 0x18 << 5;
 		} else {
 			if (osd_hw.osd_ver == OSD_HIGH_ONE)
-				data32 |= 8 << 5;  /* hold_fifo_lines */
+				data32 |= 4 << 5;  /* hold_fifo_lines */
 			else
 				data32 |= 4 << 5;  /* hold_fifo_lines */
 		}

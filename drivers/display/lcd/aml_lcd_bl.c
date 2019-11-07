@@ -307,7 +307,7 @@ static void bl_pwm_pinmux_ctrl(struct bl_config_s *bconf, int status)
 	}
 }
 
-static unsigned int pwm_misc[6][5] = {
+static unsigned int pwm_misc[7][5] = {
 	/* pwm_reg,         pre_div, clk_sel, clk_en, pwm_en*/
 	{PWM_MISC_REG_AB,   8,       4,       15,     0,},
 	{PWM_MISC_REG_AB,   16,      6,       23,     0,},
@@ -315,15 +315,17 @@ static unsigned int pwm_misc[6][5] = {
 	{PWM_MISC_REG_CD,   16,      6,       23,     0,},
 	{PWM_MISC_REG_EF,   8,       4,       15,     0,},
 	{PWM_MISC_REG_EF,   16,      6,       23,     0,},
+	{PWM_MISC_REG_AO_CD,   8,       4,       15,     0,},
 };
 
-static unsigned int pwm_reg[6] = {
+static unsigned int pwm_reg[7] = {
 	PWM_PWM_A,
 	PWM_PWM_B,
 	PWM_PWM_C,
 	PWM_PWM_D,
 	PWM_PWM_E,
 	PWM_PWM_F,
+	PWM_PWM_AO_C,
 };
 
 static void bl_pwm_config_init(struct bl_pwm_config_s *bl_pwm)
@@ -547,6 +549,11 @@ static void bl_set_pwm(struct bl_pwm_config_s *bl_pwm)
 		if (lcd_debug_print_flag)
 			LCDPR("bl: pwm_reg=0x%08x\n", lcd_cbus_read(pwm_reg[port]));
 		break;
+	case BL_PWM_AO_C:
+		lcd_aobus_write(pwm_reg[port], (pwm_hi << 16) | pwm_lo);
+		if (lcd_debug_print_flag)
+			LCDPR("bl: pwm_reg=0x%08x\n", lcd_aobus_read(pwm_reg[port]));
+		break;
 	case BL_PWM_VS:
 		pwm_hi = bl_pwm->pwm_level;
 		memset(vs, 0xffff, sizeof(unsigned int) * 4);
@@ -711,6 +718,16 @@ void bl_pwm_ctrl(struct bl_pwm_config_s *bl_pwm, int status)
 			/* pwm enable */
 			lcd_cbus_setb(pwm_misc[port][0], 0x3, pwm_misc[port][4], 2);
 			break;
+		case BL_PWM_AO_C:
+			lcd_aobus_setb(pwm_misc[port][0], pre_div, pwm_misc[port][1], 7);
+			/* pwm clk_sel */
+			lcd_aobus_setb(pwm_misc[port][0], 0, pwm_misc[port][2], 2);
+			/* pwm clk_en */
+			lcd_aobus_setb(pwm_misc[port][0], 1, pwm_misc[port][3], 1);
+			/* pwm enable */
+			lcd_aobus_setb(pwm_misc[port][0], 0x3, pwm_misc[port][4], 2);
+			LCDPR("bl: pwm_reg=0x%08x\n", lcd_aobus_read(pwm_misc[port][0]));
+                        break;
 		default:
 			break;
 		}
@@ -725,6 +742,11 @@ void bl_pwm_ctrl(struct bl_pwm_config_s *bl_pwm, int status)
 		case BL_PWM_F:
 			/* pwm clk_disable */
 			lcd_cbus_setb(pwm_misc[port][0], 0, pwm_misc[port][3], 1);
+			break;
+		case BL_PWM_AO_C:
+			/* pwm clk_disable */
+			lcd_aobus_setb(pwm_misc[port][0], 0, pwm_misc[port][3], 1);
+			LCDPR("bl: pwm_reg=0x%08x\n", lcd_aobus_read(pwm_misc[port][0]));
 			break;
 		default:
 			break;
@@ -811,7 +833,7 @@ void aml_bl_power_ctrl(int status, int delay_flag)
 				if (bconf->pwm_on_delay > 0)
 					mdelay(bconf->pwm_on_delay);
 				/* step 2: power on enable */
-				bl_power_en_ctrl(bconf, 1);
+				//bl_power_en_ctrl(bconf, 1);
 			}
 			break;
 		case BL_CTRL_PWM_COMBO:
@@ -901,7 +923,7 @@ void aml_bl_power_ctrl(int status, int delay_flag)
 				bl_power_en_ctrl(bconf, 0);
 			} else {
 				/* step 1: power off enable */
-				bl_power_en_ctrl(bconf, 0);
+				//bl_power_en_ctrl(bconf, 0);
 				/* step 2: power off pwm */
 				if (bconf->pwm_off_delay > 0)
 					mdelay(bconf->pwm_off_delay);
@@ -993,6 +1015,7 @@ static char *bl_pwm_name[] = {
 	"PWM_D",
 	"PWM_E",
 	"PWM_F",
+	"PWM_AO_C",
 	"PWM_VS",
 };
 
@@ -1069,8 +1092,10 @@ void aml_bl_config_print(void)
 					LCDPR("bl: pwm_duty 	 = %d%%(%d)\n", bl_pwm->pwm_duty * 100 / 255, bl_pwm->pwm_duty);
 				else
 					LCDPR("bl: pwm_duty      = %d%%(%d)\n", bl_pwm->pwm_duty, bl_pwm->pwm_duty);
-
-				LCDPR("bl: pwm_reg       = 0x%08x\n", lcd_cbus_read(pwm_reg[bl_pwm->pwm_port]));
+				if(bl_pwm->pwm_port == 6)
+					LCDPR("bl: pwm_reg       = 0x%08x\n", lcd_aobus_read(pwm_reg[bl_pwm->pwm_port]));
+				else
+					LCDPR("bl: pwm_reg       = 0x%08x\n", lcd_cbus_read(pwm_reg[bl_pwm->pwm_port]));
 			}
 			LCDPR("bl: pwm_duty_max  = %d\n", bl_pwm->pwm_duty_max);
 			LCDPR("bl: pwm_duty_min  = %d\n", bl_pwm->pwm_duty_min);

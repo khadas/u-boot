@@ -274,7 +274,7 @@ static inline void lcd_pinmux_set_mask(unsigned int n, unsigned int _mask)
 {
 	unsigned int _reg = PERIPHS_PIN_MUX_0;
 
-	if (n > 15)
+	if (n > 15 && n != 0x72e55)
 		return;
 
 	_reg += (n << 2);
