@@ -179,25 +179,32 @@ typedef union usb_r5 {
     } b;
 } usb_r5_t;
 
-#define PLL_REG32_16    (0xFF63A000 + 0x40)
-#define PLL_REG32_17    (0xFF63A000 + 0x44)
-#define PLL_REG32_18    (0xFF63A000 + 0x48)
+#define USB_REG_B 0xFF63A000
+#define PLL_REG32_16    (USB_REG_B + 0x40)
+#define PLL_REG32_17    (USB_REG_B + 0x44)
+#define PLL_REG32_18    (USB_REG_B + 0x48)
 #define USB_PHY2_ENABLE			0x10000000
 #define USB_PHY2_RESET			0x20000000
 
-static void set_usb_phy21_pll(void)
+#ifndef CONFIG_USB_AMLOGIC_PHY_V2
+static int b_platform_usb_check_g12b_revb (void)
 {
-	(*(volatile uint32_t *)(unsigned long)(PLL_REG32_16))
-		= (USB_PHY2_PLL_PARAMETER_1 | USB_PHY2_RESET | USB_PHY2_ENABLE);
-	(*(volatile uint32_t *)(unsigned long)(PLL_REG32_17)) =
-		USB_PHY2_PLL_PARAMETER_2;
-	(*(volatile uint32_t *)(unsigned long)(PLL_REG32_18)) =
-		USB_PHY2_PLL_PARAMETER_3;
-	udelay(100);
-	(*(volatile uint32_t *)(unsigned long)(PLL_REG32_16))
-		= (((USB_PHY2_PLL_PARAMETER_1) | (USB_PHY2_ENABLE))
-		& (~(USB_PHY2_RESET)));
+	int rev_flag = 0;
+
+	cpu_id_t cpu_id = get_cpu_id();
+
+	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_G12B) {
+		if (cpu_id.chip_rev == 0xb)
+			rev_flag = 1;
+		else
+			rev_flag = 0;
+	} else {
+		rev_flag = 0;
+	}
+
+	return rev_flag;
 }
+#endif
 
 #ifdef CONFIG_USB_DEVICE_V2
 #if (!defined(CONFIG_USB_AMLOGIC_PHY_V2) && !defined(USE_FULL_SPEED)) || !defined(CONFIG_USB_POWER)
@@ -217,43 +224,7 @@ static int b_platform_usb_check_sm1 (void)
 #endif
 #endif
 
-#if !defined(CONFIG_USB_AMLOGIC_PHY_V2) && !defined(USE_FULL_SPEED)
-static int b_platform_usb_check_g12b_revb (void)
-{
-	int rev_flag = 0;
-
-	cpu_id_t cpu_id = get_cpu_id();
-
-	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_G12B) {
-		if (cpu_id.chip_rev == 0xb)
-			rev_flag = 1;
-		else
-			rev_flag = 0;
-	} else {
-		rev_flag = 0;
-	}
-
-	return rev_flag;
-}
-
-static void set_usb_phy21_sm1_pll(void)
-{
-	(*(volatile uint32_t *)(unsigned long)(PLL_REG32_16))
-		= (0x09400414 | USB_PHY2_RESET | USB_PHY2_ENABLE);
-	(*(volatile uint32_t *)(unsigned long)(PLL_REG32_17)) =
-		0x927e0000;
-	(*(volatile uint32_t *)(unsigned long)(PLL_REG32_18)) =
-		0xAC5F69E5;
-	udelay(100);
-	(*(volatile uint32_t *)(unsigned long)(PLL_REG32_16))
-		= (((0x09400414) | (USB_PHY2_ENABLE))
-		& (~(USB_PHY2_RESET)));
-}
-#endif
-
 #ifdef CONFIG_USB_DEVICE_V2
-#define USB_REG_B 0xFF63A000
-
 void set_usb_phy21_tuning_update(void)
 {
 #if !defined(CONFIG_USB_AMLOGIC_PHY_V2) && !defined(USE_FULL_SPEED)
@@ -288,21 +259,13 @@ void set_usb_phy21_tuning_update_reset(void)
 
 #endif
 
-#if 0
-void usb_phy21_pll_disable(void)
-{
-	(*(volatile uint32_t *)(unsigned long)PLL_REG32_16)
-		= ((USB_PHY2_PLL_PARAMETER_1 | USB_PHY2_RESET)
-		& (~(USB_PHY2_ENABLE)));
-}
-#endif
-
 #if (defined CONFIG_TXLX_USB)
 #define USB_RESET1       (volatile unsigned long *)0xffd01008
 #else
 #define USB_RESET1       (volatile unsigned long *)0xc1104408
 #endif
 
+extern void set_usb_pll(uint32_t volatile *phy2_pll_base);
 void set_usb_phy_config(int cfg)
 {
 	u2p_r0_t dev_u2p_r0;
@@ -389,14 +352,7 @@ void set_usb_phy_config(int cfg)
 
 	printf("wait for phy ready count is %d\n", cnt);
 	mdelay(20);
-#ifndef CONFIG_USB_AMLOGIC_PHY_V2
-	if (b_platform_usb_check_sm1())
-		set_usb_phy21_sm1_pll();
-	else
-		set_usb_phy21_pll();
-#else
-	set_usb_phy21_pll();
-#endif
+	set_usb_pll((uint32_t volatile *)USB_REG_B);
 
 	mdelay(20);
 	//--------------------------------------------------
