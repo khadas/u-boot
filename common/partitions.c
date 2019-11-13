@@ -122,6 +122,7 @@ int get_partition_from_dts(unsigned char *buffer)
 		parts_total_num = be32_to_cpup((u32*)parts_num);
 	}
 	dynamic_partition = false;
+	setenv("partiton_mode","normal");
 	for (index = 0; index < be32_to_cpup((u32*)parts_num); index++)
 	{
 		sprintf(propname,"part-%d", index);
@@ -167,6 +168,7 @@ int get_partition_from_dts(unsigned char *buffer)
 
 		if (strcmp(uname, "super") == 0) {
 			dynamic_partition = true;
+			setenv("partiton_mode","dynamic");
 			printf("enable dynamic_partition\n");
 		}
 	}

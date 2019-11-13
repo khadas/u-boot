@@ -524,13 +524,28 @@ static const char* getvar_list_dynamic[] = {
 	"partition-size:super", "partition-size:data", "version",
 };
 
+static const char* getvar_list_dynamic_ab[] = {
+	"hw-revision", "battery-voltage", "is-userspace", "is-logical:data",
+	"is-logical:metadata_a", "is-logical:metadata_b", "is-logical:misc", "is-logical:super",
+	"is-logical:boot_a", "is-logical:boot_b", "is-logical:system_a", "is-logical:system_b",
+	"is-logical:vendor_a", "is-logical:vendor_b", "is-logical:product_a", "is-logical:product_b",
+	"is-logical:odm_a", "is-logical:odm_b",
+	"slot-count", "max-download-size", "serialno", "product", "unlocked", "has-slot:data",
+	"has-slot:metadata", "has-slot:misc", "has-slot:super", "has-slot:boot",
+	"has-slot:system", "has-slot:vendor", "has-slot:product", "has-slot:odm", "current-slot",
+	"secure", "super-partition-name", "version-baseband", "version-bootloader",
+	"partition-size:super", "partition-size:metadata_a", "partition-size:metadata_b",
+	"partition-size:boot_a", "partition-size:boot_b", "partition-size:misc",
+	"partition-size:data", "version",
+};
+
+
 static const char* getvar_list_ab[] = {
 	"version-baseband", "version-bootloader", "version", "hw-revision", "max-download-size",
 	"serialno", "product", "off-mode-charge", "variant", "battery-soc-ok",
-	"battery-voltage", "partition-type:boot", "partition-size:boot",
-	"partition-type:system", "partition-size:system", "partition-type:vendor", "partition-size:vendor",
-	"partition-type:odm", "partition-size:odm", "partition-type:data", "partition-size:data",
-	"partition-type:cache", "partition-size:cache",
+	"battery-voltage", "partition-type:boot_a", "partition-size:boot_a",
+	"partition-type:system_a", "partition-size:system_a", "partition-type:vendor_a", "partition-size:vendor_a",
+	"partition-type:odm_a", "partition-size:odm_a", "partition-type:data", "partition-size:data",
 	"erase-block-size", "logical-block-size", "secure", "unlocked",
 	"slot-count", "slot-suffixes","current-slot", "has-slot:bootloader", "has-slot:boot",
 	"has-slot:system", "has-slot:vendor", "has-slot:odm", "has-slot:vbmeta",
@@ -568,7 +583,10 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	if (!strncmp(cmd, "all", 3)) {
 		static int cmdIndex = 0;
 		int getvar_num = 0;
-		if (has_boot_slot == 1 && strlen(getvar_list_ab[cmdIndex]) < 64) {
+		if (dynamic_partition && has_boot_slot == 1 && strlen(getvar_list_dynamic_ab[cmdIndex]) < 64) {
+			strcpy(cmd, getvar_list_dynamic_ab[cmdIndex]);
+			getvar_num = (sizeof(getvar_list_dynamic_ab) / sizeof(getvar_list_dynamic_ab[0]));
+		} else if (has_boot_slot == 1 && strlen(getvar_list_ab[cmdIndex]) < 64) {
 			strcpy(cmd, getvar_list_ab[cmdIndex]);
 			getvar_num = (sizeof(getvar_list_ab) / sizeof(getvar_list_ab[0]));
 		} else if (dynamic_partition && strlen(getvar_list_dynamic[cmdIndex]) < 64) {
@@ -702,6 +720,12 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 			strncat(response, "yes", chars_left);
 		} else
 			strncat(response, "no", chars_left);
+	} else if (!strcmp_l1("has-slot:recovery", cmd)) {
+		if (has_boot_slot == 1) {
+			printf("has recovery slot\n");
+			strncat(response, "yes", chars_left);
+		} else
+			strncat(response, "no", chars_left);
 	} else if (!strcmp_l1("has-slot:system", cmd)) {
 		if (dynamic_partition) {
 			strncat(response, "no", chars_left);
@@ -723,15 +747,11 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 				strncat(response, "no", chars_left);
 		}
 	} else if (!strcmp_l1("has-slot:vbmeta", cmd)) {
-		if (dynamic_partition) {
+		if (has_boot_slot == 1) {
+			printf("has vbmeta slot\n");
+			strncat(response, "yes", chars_left);
+		} else
 			strncat(response, "no", chars_left);
-		} else {
-			if (has_boot_slot == 1) {
-				printf("has vbmeta slot\n");
-				strncat(response, "yes", chars_left);
-			} else
-				strncat(response, "no", chars_left);
-		}
 	} else if (!strcmp_l1("has-slot:product", cmd)) {
 		if (dynamic_partition) {
 			strncat(response, "no", chars_left);
@@ -778,11 +798,22 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		char str_num[20];
 		struct partitions *pPartition;
 		uint64_t sz;
+		char *slot_name;
 		strsep(&cmd, ":");
 		printf("partition is %s\n", cmd);
 		if (strcmp(cmd, "userdata") == 0) {
 			strcpy(cmd, "data");
 			printf("partition is %s\n", cmd);
+		}
+		if ((has_boot_slot == 1) && (strcmp(cmd, "metadata") == 0)) {
+			slot_name = getenv("slot-suffixes");
+			if (strcmp(slot_name, "0") == 0) {
+				printf("set partiton metadata_a\n");
+				strcpy(cmd, "metadata_a");
+			} else if (strcmp(slot_name, "1") == 0) {
+				printf("set partiton metadata_b\n");
+				strcpy(cmd, "metadata_b");
+			}
 		}
 		if (!strncmp("mbr", cmd, strlen("mbr"))) {
 			strcpy(response, "FAILVariable not implemented");

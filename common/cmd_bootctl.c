@@ -308,22 +308,26 @@ static int do_GetValidSlot(
         if (has_boot_slot == 1) {
             setenv("active_slot","_a");
             setenv("boot_part","boot_a");
+            setenv("recovery_part","recovery_a");
             setenv("slot-suffixes","0");
         }
         else {
             setenv("active_slot","normal");
             setenv("boot_part","boot");
+            setenv("recovery_part","recovery");
         }
     }
     else {
         if (has_boot_slot == 1) {
             setenv("active_slot","_b");
             setenv("boot_part","boot_b");
+            setenv("recovery_part","recovery_b");
             setenv("slot-suffixes","1");
         }
         else {
             setenv("active_slot","normal");
             setenv("boot_part","boot");
+            setenv("recovery_part","recovery");
         }
     }
 
@@ -364,12 +368,14 @@ static int do_SetActiveSlot(
     if (strcmp(argv[1], "a") == 0) {
         setenv("active_slot","_a");
         setenv("boot_part","boot_a");
+        setenv("recovery_part","recovery_a");
         setenv("slot-suffixes","0");
         printf("set active slot a \n");
         boot_info_set_active_slot(&info, 0);
     } else if (strcmp(argv[1], "b") == 0) {
         setenv("active_slot","_b");
         setenv("boot_part","boot_b");
+        setenv("recovery_part","recovery_b");
         setenv("slot-suffixes","1");
         printf("set active slot b \n");
         boot_info_set_active_slot(&info, 1);
