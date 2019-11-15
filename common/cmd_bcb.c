@@ -91,6 +91,7 @@ static int do_RunBcbCommand(
     char recovery[RECOVERYBUF_SIZE] = {0};
     char miscbuf[MISCBUF_SIZE] = {0};
     char clearbuf[COMMANDBUF_SIZE+STATUSBUF_SIZE+RECOVERYBUF_SIZE] = {0};
+    char* RebootMode;
 
     if (argc != 2) {
         return cmd_usage(cmdtp);
@@ -163,6 +164,14 @@ static int do_RunBcbCommand(
     printf("get bootloader message from misc partition:\n");
     printf("[commannd:%s]\n[status:%s]\n[recovery:%s]\n",
             command, status, recovery);
+
+    run_command("get_rebootmode", 0);
+    RebootMode = getenv("reboot_mode");
+    if (strstr(RebootMode, "quiescent") != NULL) {
+        printf("quiescent mode.\n");
+        run_command("run storeargs", 0);
+        run_command("setenv bootargs ${bootargs} androidboot.quiescent=1;", 0);
+    }
 
     if (!memcmp(command, CMD_RUN_RECOVERY, strlen(CMD_RUN_RECOVERY))) {
         if (run_command("run recovery_from_flash", 0) < 0) {
