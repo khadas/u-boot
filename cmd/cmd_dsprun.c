@@ -46,14 +46,17 @@ void dsp_reset(uint32_t id,uint32_t reset_addr)
 		printf("\n *P_DSP_CFG0 : ADDR_0X%p, value_0x%8x \n",P_DSP_CFG0,*P_DSP_CFG0);
 		*P_DSP_CFG0 = (*P_DSP_CFG0 & ~(0xffff <<0)) | (0x2018 << 0) | (1<<29) | (0<<0) ;      //irq_clken
 		udelay(10);
+
+		*P_DSP_CFG0 = *P_DSP_CFG0 | (1<<31);     //Dreset deassert
+		udelay(10);
+
 		*P_DSP_CFG0 = *P_DSP_CFG0 & ~(1<<31);     //Dreset assert
 		udelay(10);
-		// *P_DSP_CFG0 = *P_DSP_CFG0 | (1<<31);     //Dreset deassert
-		// _udelay(10);
+
+		*P_DSP_CFG0 = *P_DSP_CFG0 | (1<<30);    //Breset deassert
+		udelay(10);
 		*P_DSP_CFG0 = *P_DSP_CFG0 & ~(1<<30);    //Breset
 		udelay(10);
-		// *P_DSP_CFG0 = *P_DSP_CFG0 | (1<<30);    //Breset deassert
-		// _udelay(10);
 		printf("\n *P_DSP_CFG0 : ADDR_0X%p, value_0x%8x \n",P_DSP_CFG0,*P_DSP_CFG0);
 	} else {
 		init_dsp(id,reset_addr, (0x1 | StatVectorSel<<1 | strobe<<2));
