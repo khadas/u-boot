@@ -2143,36 +2143,37 @@ static void osd2_update_enable(void)
 	u32 video_enable = 0;
 
 	if (osd_hw.free_scale_mode[OSD2]) {
-		if (osd_hw.enable[OSD2] == ENABLE) {
+		if (osd_hw.enable[OSD2] == ENABLE)
+			VSYNCOSD_SET_MPEG_REG_MASK(VIU_OSD2_CTRL_STAT,
+						   1 << 0);
+		else
+			VSYNCOSD_CLR_MPEG_REG_MASK(VIU_OSD2_CTRL_STAT,
+						   1 << 0);
+
+		/* for older chips than g12a:
+		 * freescale output always on VPP_OSD1_POSTBLEND
+		 * if freescale is enable, VPP_OSD1_POSTBLEND to control OSD1&OSD2
+		 * if freescale is disable, VPP_OSD2_POSTBLEND to control OSD2
+		 */
+		if (osd_hw.osd_ver <= OSD_NORMAL) {
 			if (osd_hw.free_scale_enable[OSD2]) {
-				if (osd_hw.osd_ver <= OSD_NORMAL)
-				VSYNCOSD_SET_MPEG_REG_MASK(VPP_MISC,
-							   VPP_OSD1_POSTBLEND
-							   | VPP_POSTBLEND_EN);
-				VSYNCOSD_SET_MPEG_REG_MASK(VIU_OSD2_CTRL_STAT,
-							   1 << 0);
+				if (osd_hw.enable[OSD2] == ENABLE)
+						VSYNCOSD_SET_MPEG_REG_MASK(VPP_MISC,
+									   VPP_OSD1_POSTBLEND
+									   | VPP_POSTBLEND_EN);
+				else
+					if (!osd_hw.enable[OSD1])
+						VSYNCOSD_CLR_MPEG_REG_MASK(VPP_MISC,
+									   VPP_OSD1_POSTBLEND);
 			} else {
-				VSYNCOSD_CLR_MPEG_REG_MASK(VIU_OSD2_CTRL_STAT,
-							   1 << 0);
-#ifndef CONFIG_FB_OSD2_CURSOR
-				/*
-				VSYNCOSD_CLR_MPEG_REG_MASK(VPP_MISC,
-						VPP_OSD1_POSTBLEND);
-				*/
-#endif
-				if (osd_hw.osd_ver <= OSD_NORMAL)
-				VSYNCOSD_SET_MPEG_REG_MASK(VPP_MISC,
-							   VPP_OSD2_POSTBLEND
-							   | VPP_POSTBLEND_EN);
+				if (osd_hw.enable[OSD2] == ENABLE)
+						VSYNCOSD_SET_MPEG_REG_MASK(VPP_MISC,
+									   VPP_OSD2_POSTBLEND
+									   | VPP_POSTBLEND_EN);
+				else
+						VSYNCOSD_CLR_MPEG_REG_MASK(VPP_MISC,
+									   VPP_OSD2_POSTBLEND);
 			}
-		} else {
-			if (osd_hw.enable[OSD1] == ENABLE)
-				VSYNCOSD_CLR_MPEG_REG_MASK(VPP_MISC,
-							   VPP_OSD2_POSTBLEND);
-			else
-				VSYNCOSD_CLR_MPEG_REG_MASK(VPP_MISC,
-							   VPP_OSD1_POSTBLEND
-							   | VPP_OSD2_POSTBLEND);
 		}
 	} else if (osd_hw.osd_ver <= OSD_NORMAL){
 		video_enable |= VSYNCOSD_RD_MPEG_REG(VPP_MISC)&VPP_VD1_PREBLEND;

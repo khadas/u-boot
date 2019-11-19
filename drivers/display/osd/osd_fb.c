@@ -1189,9 +1189,7 @@ static int _osd_hw_init(void)
 	u32 fg = 0;
 	u32 bg = 0;
 	u32 fb_width = 0;
-	u32 fb_height = 0;;
-
-	get_osd_version();
+	u32 fb_height = 0;
 
 	vout_init();
 	fb_addr = get_fb_addr();
@@ -1246,10 +1244,6 @@ static int osd_hw_init_by_index(u32 osd_index)
 
 	return 0;
 }
-
-
-
-
 
 static int video_display_osd(u32 osd_index)
 {
@@ -1349,16 +1343,16 @@ void hist_set_golden_data(void)
 		if (str) {
 			switch (i%4) {
 				case 0:
-					hist_max_min[i/4][family_id] = env_strtoul(str, 16);
+					hist_max_min[i/4][family_id] = env_strtoul(hist_env_key[i], 16);
 					break;
 				case 1:
-					hist_spl_val[i/4][family_id] = env_strtoul(str, 16);
+					hist_spl_val[i/4][family_id] = env_strtoul(hist_env_key[i], 16);
 					break;
 				case 2:
-					hist_spl_pix_cnt[i/4][family_id] = env_strtoul(str, 16);
+					hist_spl_pix_cnt[i/4][family_id] = env_strtoul(hist_env_key[i], 16);
 					break;
 				case 3:
-					hist_cheoma_sum[i/4][family_id] = env_strtoul(str, 16);
+					hist_cheoma_sum[i/4][family_id] = env_strtoul(hist_env_key[i], 16);
 					break;
 			}
 		}
@@ -1371,6 +1365,7 @@ int osd_rma_test(u32 osd_index)
 	u32 hist_result[4];
 	u32 family_id = get_cpu_id().family_id;
 
+	get_osd_version();
 	if (osd_hw.osd_ver == OSD_SIMPLE) {
 		osd_max = 0;
 	} else if (osd_hw.osd_ver == OSD_HIGH_ONE) {
