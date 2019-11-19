@@ -416,6 +416,7 @@ function select_chip_info()
 	chip_pattern='^CONFIG_ROCKCHIP_[R,P][X,V,K][0-9ESX]{1,5}'
 	RKCHIP=`egrep -o ${chip_pattern} .config`
 
+
 	# default
 	RKCHIP=${RKCHIP##*_}
 
