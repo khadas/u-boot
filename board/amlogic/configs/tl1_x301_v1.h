@@ -124,13 +124,26 @@
         "boot_part=boot\0"\
         "suspend=off\0"\
         "powermode=on\0"\
-		"edid_14_dir=/vendor/etc/tvconfig/hdmi/port_14.bin\0" \
-		"edid_20_dir=/vendor/etc/tvconfig/hdmi/port_20.bin\0" \
-		"edid_select=0\0" \
-		"port_map=0x4321\0" \
-		"cec_fun=0x2F\0" \
-		"logic_addr=0x0\0" \
-		"cec_ac_wakeup=0\0" \
+	"edid_14_dir=/vendor/etc/tvconfig/hdmi/port_14.bin\0" \
+	"edid_20_dir=/vendor/etc/tvconfig/hdmi/port_20.bin\0" \
+	"edid_select=0\0" \
+	"port_map=0x4321\0" \
+	"cec_fun=0x2F\0" \
+	"logic_addr=0x0\0" \
+	"cec_ac_wakeup=1\0" \
+        "cec_init= "\
+		"echo cec_ac_wakeup=${cec_ac_wakeup}; "\
+		"echo port_map=${port_map}; "\
+		"echo cec_fun=${cec_fun}; "\
+		"if test ${cec_ac_wakeup} = 1; then "\
+			"cec ${logic_addr} ${cec_fun}; "\
+			"if test ${edid_select} = 1111; then "\
+				"hdmirx init ${port_map} ${edid_20_dir}; "\
+			"else if test ${edid_select} != 1111; then "\
+				"hdmirx init ${port_map} ${edid_14_dir}; "\
+			"fi;fi; "\
+		"fi; "\
+		"\0"\
         "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "mem_size=1g\0"\
@@ -156,37 +169,22 @@
                     "run update;"\
             "else if test ${reboot_mode} = cold_boot; then "\
                 /*"run try_auto_burn;uboot wake up "*/\
-                "echo powermode=${powermode}; "\
+		"echo powermode=${powermode}; "\
                 "if test ${powermode} = on; then "\
                     /*"run try_auto_burn; "*/\
                 "else if test ${powermode} = standby; then "\
-					"echo cec_ac_wakeup=${cec_ac_wakeup}; "\
-					"if test ${cec_ac_wakeup} = 1; then "\
-						"cec ${logic_addr} ${cec_fun}; "\
-						"if test ${edid_select} = 1111; then "\
-							"hdmirx init ${port_map} ${edid_20_dir}; "\
-						"else if test ${edid_select} != 1111; then "\
-							"hdmirx init ${port_map} ${edid_14_dir}; "\
-						"fi;fi;"\
-					"fi;"\
+		    "run cec_init; "\
                     "systemoff; "\
                 "else if test ${powermode} = last; then "\
-                    "echo suspend=${suspend}; "\
+			"echo suspend=${suspend}; "\
                     "if test ${suspend} = off; then "\
                         /*"run try_auto_burn; "*/\
                     "else if test ${suspend} = on; then "\
-						"echo cec_ac_wakeup=${cec_ac_wakeup}; "\
-						"if test ${cec_ac_wakeup} = 1; then "\
-							"cec ${logic_addr} ${cec_fun}; "\
-							"if test ${edid_select} = 1111; then "\
-								"hdmirx init ${port_map} ${edid_20_dir}; "\
-							"else if test ${edid_select} != 1111; then "\
-								"hdmirx init ${port_map} ${edid_14_dir}; "\
-							"fi;fi;"\
-						"fi;"\
+			"run cec_init; "\
                         "systemoff; "\
                     "else if test ${suspend} = shutdown; then "\
-                        "systemoff; "\
+			"run cec_init; "\
+			"systemoff; "\
                     "fi; fi; fi; "\
                 "fi; fi; fi; "\
             "else if test ${reboot_mode} = fastboot; then "\
