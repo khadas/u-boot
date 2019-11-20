@@ -11102,7 +11102,7 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	{
 		printf("\nuboot  auto fast boot  auto window test begin \n");
 		{
-			ddr_set_t_p->fast_boot[0]=0xfe;
+			ddr_set_t_p->fast_boot[0]=0xfd; //0xfd for check unexcept power off status
 			//#if 1
 			//printf("print sha\n");
 			//sprintf(str,"md %08x 0x100", (uint32_t)(uint64_t)(ddr_set_add-32));
