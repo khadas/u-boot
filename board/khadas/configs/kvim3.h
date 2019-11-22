@@ -230,6 +230,7 @@
             "fi; \0" \
          "update="\
             /*first usb burning, second sdc_burn, third ext-sd autoscr/recovery, last udisk autoscr/recovery*/\
+            "kbi lcd_reset; "\
             "run usb_burning; "\
             "run sdc_burning; "\
             "if mmcinfo; then "\
