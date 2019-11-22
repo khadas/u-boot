@@ -386,7 +386,7 @@
             "bcb uboot-command;"\
             "run switch_bootmode;"
 
-#define CONFIG_BOOTCOMMAND "ddr_auto_fast_boot_check 6 0 0 50;run storeboot"
+#define CONFIG_BOOTCOMMAND "run storeboot"
 
 /*
  * logo image path: device/khadas/$(proj_name)/logo_img_files/
