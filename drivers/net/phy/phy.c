@@ -613,6 +613,7 @@ static struct phy_device *create_phy_by_mask(struct mii_dev *bus,
 	while (phy_mask) {
 		int addr = ffs(phy_mask) - 1;
 		int r = get_phy_id(bus, addr, devad, &phy_id);
+		udelay(1000);  //1ms
 		/* If the PHY ID is mostly f's, we didn't find anything */
 #ifdef CONFIG_PXP_EMULATOR
 		if (r == 0 && (phy_id & 0x1fffffff) != 0x1fffffff)
