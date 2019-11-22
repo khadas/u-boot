@@ -360,5 +360,6 @@ obj-y += cmd_avb.o
 # khadas commands
 obj-$(CONFIG_KHADAS_KBI) += cmd_kbi.o
 obj-$(CONFIG_KHADAS_CFGLOAD)  += cmd_cfgload.o
+obj-$(CONFIG_KHADAS_SCRIPT) += cmd_script.o
 
 CFLAGS_env_embedded.o := -Wa,--no-warn -DENV_CRC=$(shell tools/envcrc 2>/dev/null)
