@@ -190,6 +190,7 @@
             "\0" \
         "storeboot="\
             "kbi resetflag 0;"\
+            "cfgload;"\
             "boot_cooling;"\
             "get_system_as_root_mode;"\
             "echo system_mode: ${system_mode};"\

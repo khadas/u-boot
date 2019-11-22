@@ -190,6 +190,7 @@
             "fi;fi;fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
+            "cfgload;"\
             "get_system_as_root_mode;"\
             "echo system_mode: ${system_mode};"\
             "if test ${system_mode} = 1; then "\
