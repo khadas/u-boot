@@ -41,16 +41,17 @@ int amlnf_key_read(u8 *buf, int len, uint32_t *actual_lenth)
 	}
 	if (len > aml_chip->keysize) {
 		printk("%s key data len too much\n",__func__);
-		return -EFAULT;
+		memset(buf+aml_chip->keysize, 0, len-aml_chip->keysize);
 	}
-	key_ptr = kzalloc(aml_chip->keysize, GFP_KERNEL);
+	key_ptr = malloc(aml_chip->keysize);
 	if (key_ptr == NULL)
 		return -ENOMEM;
+	memset(key_ptr, 0, aml_chip->keysize);
 	aml_nand_ext_read_rsv_info(mtd,
 		aml_chip_key->aml_nandkey_info, 0, key_ptr);
-	memcpy(buf, key_ptr, len);
+	memcpy(buf, key_ptr, aml_chip->keysize);
 	*actual_lenth = aml_chip->keysize;
-	kfree(key_ptr);
+	free(key_ptr);
 	return 0;
 }
 
@@ -70,13 +71,14 @@ int amlnf_key_write(u8 *buf, int len, uint32_t *actual_lenth)
 		printk("key data len too much,%s\n",__func__);
 		return -EFAULT;
 	}
-	key_ptr = kzalloc(aml_chip->keysize, GFP_KERNEL);
+	key_ptr = malloc(aml_chip->keysize);
 	if (key_ptr == NULL)
 		return -ENOMEM;
+	memset(key_ptr, 0, aml_chip->keysize);
 	memcpy(key_ptr, buf, len);
 	aml_nand_ext_save_rsv_info(mtd,
 		aml_chip_key->aml_nandkey_info, key_ptr);
-	kfree(key_ptr);
+	free(key_ptr);
 	return error;
 }
 

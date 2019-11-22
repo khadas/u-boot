@@ -84,7 +84,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
         "firstboot=0\0"\
         "upgrade_step=0\0"\
-        "jtag=apee\0"\
+        "jtag=disable\0"\
         "loadaddr=1080000\0"\
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
@@ -127,8 +127,9 @@
             "else fi;"\
             "\0"\
     "storeargs="\
+            "get_bootloaderversion;" \
             "setenv bootargs ${initargs} reboot_mode_android=${reboot_mode_android} androidboot.selinux=${EnableSelinux} logo=${display_layer},loaded,${fb_addr},${outputmode} vout=${outputmode},enable hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${cecconfig} cvbsdrv=${cvbs_drv} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
-	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
+	"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
             "run cmdline_keys;"\
             "\0"\
         "switch_bootmode="\

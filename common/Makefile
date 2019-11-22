@@ -144,6 +144,7 @@ obj-$(CONFIG_CMD_LED) += cmd_led.o
 obj-$(CONFIG_CMD_LICENSE) += cmd_license.o
 ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 obj-y += cmd_bcb.o
+obj-y += cmd_dynamic.o
 ifdef CONFIG_CMD_BOOTCTOL_AVB
 obj-y += cmd_bootctl_avb.o
 else
@@ -218,6 +219,7 @@ ifdef CONFIG_CMD_USB
 obj-y += cmd_usb.o
 obj-y += usb.o usb_hub.o
 obj-$(CONFIG_USB_STORAGE) += usb_storage.o
+obj-$(CONFIG_RTK_USB_BT) += rtk_fw.o
 endif
 obj-$(CONFIG_CMD_FASTBOOT) += cmd_fastboot.o
 obj-$(CONFIG_CMD_FS_UUID) += cmd_fs_uuid.o
@@ -343,6 +345,7 @@ obj-$(CONFIG_AML_HDMITX20) += hdmi_parameters.o hdmi_edid_parsing.o cmd_hdmitx.o
 obj-$(CONFIG_CMD_JTAG) += cmd_jtag.o
 obj-$(CONFIG_AML_OSD) += cmd_osd.o cmd_img_osd.o
 obj-$(CONFIG_AML_MINUI) += cmd_ui.o
+obj-$(CONFIG_AML_DOLBY) += cmd_dolbyvision.o
 obj-$(CONFIG_AML_CVBS) += cmd_cvbs.o
 obj-$(CONFIG_AML_VOUT) += cmd_vout.o
 obj-$(CONFIG_AML_LCD) += cmd_lcd.o
@@ -350,6 +353,8 @@ obj-$(CONFIG_CMD_RSVMEM) += cmd_rsvmem.o
 obj-$(CONFIG_CMD_CHIPID) += cmd_chipid.o
 obj-$(CONFIG_CMD_WATCHDOG) += cmd_watchdog.o
 obj-$(CONFIG_CMD_VIU_PROBE) +=cmd_viuprobe.o
+obj-$(CONFIG_CMD_STARTDSP) +=cmd_startdsp.o
+obj-$(CONFIG_CMD_DSPJTAGRESET) +=cmd_dspjtagreset.o
 obj-$(CONFIG_CMD_LOAD_BL40) +=cmd_bl40.o
 obj-$(CONFIG_CMD_AML_MTEST) += cmd_testsmpcache.o
 obj-$(CONFIG_AML_ANTIROLLBACK) += anti-rollback.o

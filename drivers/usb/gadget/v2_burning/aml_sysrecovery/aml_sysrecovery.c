@@ -88,6 +88,8 @@ static int optimus_sysrec_burn_package_from_partition(const char* partName, cons
         __hdle hUiProgress = NULL;
         HIMAGE hImg = NULL;
         int ret = 0;
+        int hasBootloader = 0;
+        u64 datapartsSz = 0;
 
         ret = optimus_storage_init(0);//Init all partitions for burning
 
@@ -119,8 +121,7 @@ static int optimus_sysrec_burn_package_from_partition(const char* partName, cons
         }
         optimus_progress_ui_direct_update_progress(hUiProgress, UPGRADE_STEPS_AFTER_DISK_INIT_OK);
 
-        int hasBootloader = 0;
-        u64 datapartsSz = optimus_img_decoder_get_data_parts_size(hImg, &hasBootloader);
+        datapartsSz = optimus_img_decoder_get_data_parts_size(hImg, &hasBootloader);
         DWN_MSG("datapartsSz=[%8u]MB\n", (unsigned)(datapartsSz >> 20));
         ret = optimus_progress_ui_set_smart_mode(hUiProgress, datapartsSz,
                         UPGRADE_STEPS_FOR_BURN_DATA_PARTS_IN_PKG(!pSdcCfgPara->burnEx.bitsMap.mediaPath));
@@ -173,9 +174,9 @@ static int optimus_sysrec_burn_package_from_partition(const char* partName, cons
 
 _finish:
         image_close(hImg);
-        optimus_progress_ui_report_upgrade_stat(hUiProgress, !ret);
+        if (hUiProgress) optimus_progress_ui_report_upgrade_stat(hUiProgress, !ret);
         optimus_report_burn_complete_sta(ret, 1/*pSdcCfgPara->custom.rebootAfterBurn*/);
-        optimus_progress_ui_release(hUiProgress);
+        if (hUiProgress) optimus_progress_ui_release(hUiProgress);
         //optimus_storage_exit();//temporary not exit storage driver when failed as may continue burning after burn
         return ret;
 }

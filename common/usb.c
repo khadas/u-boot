@@ -40,6 +40,11 @@
 #include <asm/4xx_pci.h>
 #endif
 
+#ifdef CONFIG_MTK_BT_USB
+extern int max_mtk_wifi_id;
+extern os_usb_vid_pid *pmtk_wifi;
+#endif
+
 #ifdef CONFIG_USB_DEVICE_V2
 extern void set_usb_phy_tuning_1(int port);
 #endif
@@ -125,6 +130,19 @@ int usb_init(void)
 		if (dev)
 			usb_new_device(dev);
 
+/* Support MTK BT device. */
+#ifdef CONFIG_MTK_BT_USB
+               for (i = 0; i < max_mtk_wifi_id; i++) {
+                       if ((dev->descriptor.idVendor == (pmtk_wifi+i)->vid) && (dev->descriptor.idProduct == (pmtk_wifi+i)->pid)) {
+							   printf("Found USB WIFI [%s] in usb port %d\n", (pmtk_wifi+i)->name, dev->portnr);
+
+					   /* Amlogic USB need to support interrupt pipe/endpoint.
+						* If Amlogic has already enabled intr endpoint, then skip it.
+						*/
+					   }
+			   }
+#endif
+
 		if (start_index == dev_index)
 			puts("No USB Device found\n");
 		else {
@@ -189,11 +207,22 @@ int usb_disable_asynch(int disable)
 /*
  * submits an Interrupt Message
  */
+#ifndef CONFIG_MTK_BT_USB
 int usb_submit_int_msg(struct usb_device *dev, unsigned long pipe,
 			void *buffer, int transfer_len, int interval)
 {
 	return submit_int_msg(dev, pipe, buffer, transfer_len, interval);
 }
+#else
+int usb_submit_int_msg(struct usb_device *dev, unsigned long pipe,
+					   void *buffer, int transfer_len, int *actual_length, int interval)
+{
+	   submit_int_msg(dev, pipe, buffer, transfer_len, interval);
+	   *actual_length = dev->act_len;
+	   printf("usb_submit_int_msg:act_len:%d\n", dev->act_len);
+	   return 0;
+}
+#endif
 
 /*
  * submits a control message and waits for comletion (at least timeout * 1ms)
@@ -1106,6 +1135,13 @@ retry:
 	memset(dev->mf, 0, sizeof(dev->mf));
 	memset(dev->prod, 0, sizeof(dev->prod));
 	memset(dev->serial, 0, sizeof(dev->serial));
+
+/* For MTK BT. */
+#ifdef CONFIG_MTK_BT_USB
+       if (!((dev->descriptor.idVendor == 0x0e8d) && (dev->descriptor.idProduct == 0x7668)))
+			   mdelay(200);
+#endif
+
 	if (dev->descriptor.iManufacturer)
 		usb_string(dev, dev->descriptor.iManufacturer,
 			   dev->mf, sizeof(dev->mf));

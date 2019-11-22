@@ -118,7 +118,8 @@
         "active_slot=normal\0"\
         "lock=10001000\0"\
         "boot_part=boot\0"\
-        "model_name=t962e_r321_hdmitx\0" \
+        "model_name=hdmitx\0" \
+        "Irq_check_en=0\0"\
         "reboot_mode_android=""normal""\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
@@ -131,9 +132,10 @@
             "else fi;"\
             "\0"\
         "storeargs="\
+            "get_bootloaderversion;" \
             "setenv bootargs ${initargs} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} osd_reverse=${osd_reverse} video_reverse=${video_reverse} hdmimode=${hdmimode} frac_rate_policy=${frac_rate_policy} cvbsmode=${cvbsmode} androidboot.selinux=${EnableSelinux} irq_check_en=${Irq_check_en} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
             "setenv bootargs ${bootargs} page_trace=${page_trace};" \
-	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
+	"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
             "run cmdline_keys;"\
             "\0"\
         "switch_bootmode="\
@@ -291,6 +293,11 @@
                     "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
                 "else "\
                     "setenv bootargs ${bootargs} androidboot.wificountrycode=US;"\
+                "fi;"\
+                "if keyman read oemkey ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} androidboot.oem.key1=${oemkey};"\
+                "else "\
+                    "setenv bootargs ${bootargs} androidboot.oem.key1=ATV00104319;"\
                 "fi;"\
             "fi;"\
             "\0"\
@@ -559,7 +566,6 @@
   #undef CONFIG_AML_CUSTOMER_ID
   #define CONFIG_AML_CUSTOMER_ID  CONFIG_CUSTOMER_ID
 #endif
-#define ETHERNET_INTERNAL_PHY
-
+#define CONFIG_INTERNAL_PHY
 #endif
 

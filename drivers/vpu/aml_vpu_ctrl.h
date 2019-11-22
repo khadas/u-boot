@@ -168,8 +168,28 @@ static struct vpu_ctrl_s vpu_mem_pd_tl1[] = {
 	{HHI_VPU_MEM_PD_REG0, 1,   0,   32},
 	{HHI_VPU_MEM_PD_REG1, 1,   0,   32},
 	{HHI_VPU_MEM_PD_REG2, 1,   0,   32},
+	{HHI_VPU_MEM_PD_REG3, 1,   0,   32},
 	{HHI_VPU_MEM_PD_REG4, 1,   0,    4},
 	{VPU_REG_END,         0,   0,    0},
+};
+
+static struct vpu_ctrl_s vpu_mem_pd_tm2[] = {
+	/* reg,               val, bit, len */
+	{HHI_VPU_MEM_PD_REG0, 1,   0,   32},
+	{HHI_VPU_MEM_PD_REG1, 1,   0,   32},
+	{HHI_VPU_MEM_PD_REG2, 1,   0,   32},
+	{HHI_VPU_MEM_PD_REG3, 1,   0,   32},
+	{HHI_VPU_MEM_PD_REG4, 1,   0,    8},
+	{VPU_REG_END,         0,   0,    0},
+};
+
+/* ******************************************************* */
+/*              VPU_HDMI ISO pre: before reset               */
+/* ******************************************************* */
+static struct vpu_ctrl_s vpu_hdmi_iso_pre_gxb[] = {
+	/* reg,                val, bit, len */
+	{AO_RTI_GEN_PWR_SLEEP0,  1,   8,   1},
+	{VPU_REG_END,            0,   0,   0},
 };
 
 /* ******************************************************* */
@@ -209,6 +229,24 @@ static struct vpu_ctrl_s vpu_module_init_txlx[] = {
 	{DOLBY_CORE3_CLKGATE_CTRL,  0,   1,   1},
 	{DOLBY_CORE3_CLKGATE_CTRL,  1,   2,   2},
 	{VPU_REG_END,               0,   0,   0},
+};
+
+static struct vpu_ctrl_s vpu_module_init_g12a[] = {
+	/* reg,                     val, bit, len */
+	{DOLBY_CORE1_CLKGATE_CTRL,  0x55555555, 0,   32},
+	{DOLBY_CORE2A_CLKGATE_CTRL, 0x55555555, 0,   32},
+	{DOLBY_CORE3_CLKGATE_CTRL,  0x55555555, 0,   32},
+	{VPU_REG_END,               0,          0,   0},
+};
+
+static struct vpu_ctrl_s vpu_module_init_tm2[] = {
+	/* reg,                     val, bit, len */
+	{DOLBY_CORE1_CLKGATE_CTRL,  0x55555555, 0,   32},
+	{DOLBY_CORE2A_CLKGATE_CTRL, 0x55555555, 0,   32},
+	{DOLBY_CORE3_CLKGATE_CTRL,  0x55555555, 0,   32},
+	{DOLBY_CORE1_1_CLKGATE_CTRL,0x55555555, 0,   32},
+	{DOLBY_TM2_TV_CLKGATE_CTRL, 0x55555555, 0,   32},
+	{VPU_REG_END,              0,          0,   0},
 };
 
 /* ******************************************************* */

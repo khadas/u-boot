@@ -210,7 +210,9 @@ void pinmux_select_chip_mtd(unsigned ce_enable, unsigned rb_enable)
 	} else if (cpu_id.family_id == MESON_CPU_MAJOR_ID_AXG) {
 		if (!((ce_enable >> 10) & 1))
 			AMLNF_SET_REG_MASK(P_PERIPHS_PIN_MUX_1, 2);
-	} else if (cpu_id.family_id == MESON_CPU_MAJOR_ID_TXHD) {
+	} else if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_TXHD)
+		|| (cpu_id.family_id == MESON_CPU_MAJOR_ID_TL1) ||
+		(cpu_id.family_id == MESON_CPU_MAJOR_ID_TM2)) {
 		if (!((ce_enable >> 10) & 1))
 			AMLNF_SET_REG_MASK(P_PERIPHS_PIN_MUX_1, (2 << 16));
 	} else if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_GXBB) ||
@@ -338,12 +340,19 @@ static void m3_nand_hw_init(struct aml_nand_chip *aml_chip)
 		bus_timing = bus_cycle + 1;
 	}
 	*/
-
+#ifndef _pxp_test
 	sys_clk_rate = 200;
 	bus_cycle  = 6;
 	bus_timing = bus_cycle + 1;
+#else
+	/******for pxp******/
+	sys_clk_rate = 24;
+	bus_cycle = 4;
+	bus_timing = 2;
+#endif
 	get_sys_clk_rate_mtd(controller, &sys_clk_rate);
 
+	printk("bus cycle0: %d,timing: %d\n", bus_cycle, bus_timing);
 	NFC_SET_CFG(controller, 0);
 	NFC_SET_TIMING_ASYC(controller, bus_timing, (bus_cycle - 1));
 	NFC_SEND_CMD(controller, 1<<31);
@@ -378,12 +387,18 @@ static void m3_nand_adjust_timing(struct aml_nand_chip *aml_chip)
 		bus_timing = bus_cycle + 1;
 	}
 	*/
+#ifndef _pxp_test
 	bus_cycle  = 6;
 	bus_timing = bus_cycle + 1;
+#else
+	sys_clk_rate = 24;
+	bus_cycle = 4;
+	bus_timing = 2;
+#endif
 	get_sys_clk_rate_mtd(controller, &sys_clk_rate);
 
 
-	printf("%s() sys_clk_rate %d, bus_c %d, bus_t %d\n",
+	printk("%s() sys_clk_rate %d, bus_c %d, bus_t %d\n",
 		__func__, sys_clk_rate, bus_cycle, bus_timing);
 
 	NFC_SET_CFG(controller , 0);
@@ -453,12 +468,15 @@ static int m3_nand_options_confirm(struct aml_nand_chip *aml_chip)
 		chip->ecc.write_page_raw = aml_nand_write_page_raw;
 		chip->ecc.mode = NAND_ECC_SOFT;
 	}
+
 	chip->write_buf = aml_nand_dma_write_buf;
 	chip->read_buf = aml_nand_dma_read_buf;
 
 	if ((mtd->writesize <= 2048) ||
 	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_AXG) ||
-	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_TXHD))
+	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_TXHD) ||
+		(cpu_id.family_id == MESON_CPU_MAJOR_ID_TL1) ||
+		(cpu_id.family_id == MESON_CPU_MAJOR_ID_TM2))
 		options_support = NAND_ECC_BCH8_MODE;
 
 	switch (options_support) {
@@ -793,7 +811,9 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 	struct nand_chip *chip = NULL;
 	struct mtd_info *mtd = NULL;
 	int err = 0, i, array_length;
+#ifdef NEW_NAND_SUPPORT
 	unsigned nand_type = 0;
+#endif
 	struct nand_oobfree *oobfree;
 
 	if (!plat) {
@@ -801,12 +821,13 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 		goto exit_error;
 	}
 
-	aml_chip = kzalloc(sizeof(*aml_chip), GFP_KERNEL);
+	aml_chip = malloc(sizeof(*aml_chip));
 	if (aml_chip == NULL) {
 		printk("no memory for flash info\n");
 		err = -ENOMEM;
 		goto exit_error;
 	}
+	memset(aml_chip, 0, sizeof(*aml_chip));
 
 	/* initialize mtd info data struct */
 	aml_chip->controller = controller;
@@ -843,15 +864,15 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 	err = aml_nand_init(aml_chip);
 	if (err)
 		goto exit_error;
-	#ifdef NEW_NAND_SUPPORT
+#ifdef NEW_NAND_SUPPORT
 	nand_type =
 	((aml_chip->new_nand_info.type < 10)&&(aml_chip->new_nand_info.type));
-	#endif
 
 	if (nand_type && nand_boot_flag) {
 		printk("detect CHIP revB with Hynix new nand error\n");
 		aml_chip->err_sts = NAND_CHIP_REVB_HY_ERR;
 	}
+#endif
 
 	if (!strncmp((char*)plat->name,
 		NAND_BOOT_NAME, strlen((const char*)NAND_BOOT_NAME))) {
@@ -861,8 +882,9 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 		chip->write_page = m3_nand_boot_write_page;
 		oobfree = chip->ecc.layout->oobfree;
 		array_length = ARRAY_SIZE(chip->ecc.layout->oobfree);
-		if (chip->ecc.layout)
-			oobfree[0].length =
+		if (!(chip->ecc.layout))
+			return -ENOMEM;
+		oobfree[0].length =
 			(mtd->writesize / 512) * aml_chip->user_byte_mode;
 		chip->ecc.layout->oobavail = 0;
 		for (i = 0; oobfree[i].length && i < array_length; i++)
@@ -882,8 +904,9 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 
 exit_error:
 	if (aml_chip)
-		kfree(aml_chip);
-	mtd->name = NULL;
+		free(aml_chip);
+	if (mtd)
+		mtd->name = NULL;
 	return err;
 }
 
@@ -1006,10 +1029,6 @@ void nand_init(void)
 
 	for (i=0; i<aml_nand_mid_device.dev_num; i++) {
 		plat = &aml_nand_mid_device.aml_nand_platform[i];
-		if (!plat) {
-			printk("error for not platform data\n");
-			continue;
-		}
 
 		ret = m3_nand_probe(plat, i);
 		if (ret)

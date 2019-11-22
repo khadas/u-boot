@@ -199,6 +199,8 @@ static void set_usb_phy21_pll(void)
 		& (~(USB_PHY2_RESET)));
 }
 
+#ifdef CONFIG_USB_DEVICE_V2
+#if (!defined(CONFIG_USB_AMLOGIC_PHY_V2) && !defined(USE_FULL_SPEED)) || !defined(CONFIG_USB_POWER)
 static int b_platform_usb_check_sm1 (void)
 {
 	int rev_flag = 0;
@@ -212,6 +214,8 @@ static int b_platform_usb_check_sm1 (void)
 
 	return rev_flag;
 }
+#endif
+#endif
 
 #if !defined(CONFIG_USB_AMLOGIC_PHY_V2) && !defined(USE_FULL_SPEED)
 static int b_platform_usb_check_g12b_revb (void)
@@ -310,16 +314,31 @@ void set_usb_phy_config(int cfg)
 	u2p_aml_regs_t * u2p_aml_regs = (u2p_aml_regs_t * )PREI_USB_PHY_2_REG_BASE;
 	usb_aml_regs_t *usb_aml_regs = (usb_aml_regs_t * )PREI_USB_PHY_3_REG_BASE;
 	int cnt;
-	u32 val;
 
+	u32 val;
+#ifndef CONFIG_USB_POWER
 	if (b_platform_usb_check_sm1() == 1) {
 		val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_SLEEP0;
 		*P_AO_RTI_GEN_PWR_SLEEP0 = val & (~(0x1<<17));
-		val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_ISO0;
-		*P_AO_RTI_GEN_PWR_ISO0 = val & (~(0x1<<17));
+		mdelay(20);
 		val = *(volatile uint32_t *)HHI_MEM_PD_REG0;
 		*P_HHI_MEM_PD_REG0 = val & (~(0x3<<30));
+		udelay(100);
+		val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_ISO0;
+		*P_AO_RTI_GEN_PWR_ISO0 = val & (~(0x1<<17));
 	}
+#else
+	val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_SLEEP0;
+	*P_AO_RTI_GEN_PWR_SLEEP0 = val & (~(0x1<<17));
+	mdelay(20);
+	val = *(volatile uint32_t *)HHI_MEM_PD_REG0;
+	*P_HHI_MEM_PD_REG0 = val & (~(0x3<<30));
+	udelay(100);
+	val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_ISO0;
+	*P_AO_RTI_GEN_PWR_ISO0 = val & (~(0x1<<17));
+#endif
+
+	mdelay(50);
 
 #ifdef CONFIG_USB_DEVICE_V2
 	if ((*(volatile uint32_t *)(USB_REG_B + 0x38)) != 0) {
@@ -329,17 +348,20 @@ void set_usb_phy_config(int cfg)
 #endif
 	//step 1: usb controller reset
 	*USB_RESET1 |= (1<<2);
+	mdelay(50);
 
 	// step 3: enable usb INT internal USB
 	dev_usb_r0.d32	 = usb_aml_regs->usb_r0;
 	dev_usb_r0.b.u2d_ss_scaledown_mode = 0;
 	dev_usb_r0.b.u2d_act			   = 1;
 	usb_aml_regs->usb_r0 = dev_usb_r0.d32;
+	mdelay(20);
 
 	// step 4: disable usb phy sleep
 	dev_usb_r4.d32	 = usb_aml_regs->usb_r4;
 	dev_usb_r4.b.p21_SLEEPM0   = 1;
 	usb_aml_regs->usb_r4   = dev_usb_r4.d32;
+	mdelay(20);
 
 	// step 5: config phy21 device mode
 	dev_u2p_r0.d32	 = u2p_aml_regs->u2p_r0;
@@ -347,11 +369,11 @@ void set_usb_phy_config(int cfg)
 	dev_u2p_r0.b.POR= 0;
 	u2p_aml_regs->u2p_r0  = dev_u2p_r0.d32;
 
-	udelay(10);
+	mdelay(20);
 	//step 6: phy21 reset
 	*USB_RESET1 |= (1<<17);
 
-	udelay(50);
+	mdelay(20);
 	// step 6: wait for phy ready
 	dev_u2p_r1.d32	= u2p_aml_regs->u2p_r1;
 	cnt = 0;
@@ -365,6 +387,8 @@ void set_usb_phy_config(int cfg)
 		}
 	}
 
+	printf("wait for phy ready count is %d\n", cnt);
+	mdelay(20);
 #ifndef CONFIG_USB_AMLOGIC_PHY_V2
 	if (b_platform_usb_check_sm1())
 		set_usb_phy21_sm1_pll();
@@ -374,6 +398,7 @@ void set_usb_phy_config(int cfg)
 	set_usb_phy21_pll();
 #endif
 
+	mdelay(20);
 	//--------------------------------------------------
 
 	// ------------- usb phy21 initinal end ----------

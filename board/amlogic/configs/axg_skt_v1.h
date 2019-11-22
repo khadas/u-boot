@@ -76,7 +76,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
         "firstboot=1\0"\
         "upgrade_step=0\0"\
-        "jtag=apao\0"\
+        "jtag=disable\0"\
         "i2c_auto_test=disable\0" \
         "loadaddr=1080000\0"\
         "panel_type=lcd_0\0" \
@@ -114,14 +114,19 @@
             "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml_uart,0xff803000 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
+            "echo recovery_status=${recovery_status};"\
+            "if itest.s \"${recovery_status}\" == \"in_progress\"; then "\
+                "run storeargs; run recovery_from_flash;"\
+            "else fi;"\
             "echo upgrade_step=${upgrade_step}; "\
             "if itest ${upgrade_step} == 3; then "\
                 "run init_display; run storeargs; run update;"\
             "else fi;"\
             "\0"\
         "storeargs="\
+            "get_bootloaderversion;" \
             "setenv bootargs ${initargs} logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl={lcd_ctrl} osd_reverse=${osd_reverse} video_reverse=${video_reverse} androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} i2c_auto_test=${i2c_auto_test}; "\
-	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
+	"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
             "run cmdline_keys;"\
             "\0"\
         "switch_bootmode="\
@@ -411,8 +416,8 @@
 
 
 /* vpu */
-//#define CONFIG_AML_VPU 1
-//#define CONFIG_VPU_CLK_LEVEL_DFT 3
+#define CONFIG_AML_VPU 1
+#define CONFIG_VPU_CLK_LEVEL_DFT 3
 
 /* DISPLAY & HDMITX */
 //#define CONFIG_AML_HDMITX20 1
@@ -440,9 +445,9 @@
 #define CONFIG_PCIE_AMLOGIC 1
 #define CONFIG_PCI_SCAN_SHOW 1
 
-//#define CONFIG_AML_LCD    1
+#define CONFIG_AML_LCD    1
 //#define CONFIG_AML_LCD_TV 1
-//#define CONFIG_AML_LCD_TABLET 1
+#define CONFIG_AML_LCD_TABLET 1
 
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard

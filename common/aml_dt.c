@@ -94,7 +94,6 @@ unsigned long __attribute__((unused))
 
 	dbg_printf("      DBG: fdt_addr: 0x%x\n", (unsigned int)fdt_addr);
 	dbg_printf("      DBG: dt_magic: 0x%x\n", (unsigned int)dt_magic);
-	dbg_printf("      DBG: gzip_format: %d\n", gzip_format);
 
 	/*printf("      Process device tree. dt magic: %x\n", dt_magic);*/
 	if (dt_magic == DT_HEADER_MAGIC) {/*normal dtb*/
@@ -267,14 +266,16 @@ int check_valid_dts(unsigned char *buffer)
 
 		memcpy(sbuffer, buffer, AML_DTB_IMG_MAX_SZ);
 		flush_cache((unsigned long)sbuffer, AML_DTB_IMG_MAX_SZ);
+		ulong nCheckOffset = 0;
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
 		ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, (long unsigned)sbuffer, AML_DTB_IMG_MAX_SZ, 0);
 		if (ret) {
 			printf("\n %s() %d: Decrypt dtb: Sig Check %d\n", __func__, __LINE__, ret);
 			return -__LINE__;
 		}
 
-		ulong nCheckOffset;
 		nCheckOffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,GXB_IMG_LOAD_ADDR,GXB_EFUSE_PATTERN_SIZE,GXB_IMG_DEC_ALL);
+#endif /*CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK*/
 		if (AML_D_Q_IMG_SIG_HDR_SIZE == (nCheckOffset & 0xFFFF))
 			nCheckOffset = (nCheckOffset >> 16) & 0xFFFF;
 		else

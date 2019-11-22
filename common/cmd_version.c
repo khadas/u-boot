@@ -30,6 +30,21 @@ static int do_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
+static int do_bootloadr_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	char s_version[64];
+	strcpy(s_version, U_BOOT_VERSION);
+	printf("s_version: %s\n", s_version);
+	setenv("bootloader_version", s_version);
+	return 0;
+}
+
+U_BOOT_CMD(
+	get_bootloaderversion,	1,		0,	do_bootloadr_version,
+	"print bootloader version",
+	""
+);
+
 U_BOOT_CMD(
 	version,	1,		1,	do_version,
 	"print monitor, compiler and linker version",

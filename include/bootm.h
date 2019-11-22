@@ -56,4 +56,6 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 
 void arch_preboot_os(void);
 
+void jump_to_a32_kernel(unsigned long a, unsigned long b, unsigned long c);
+
 #endif

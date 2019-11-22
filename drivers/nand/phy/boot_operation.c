@@ -135,10 +135,7 @@ static int read_uboot(struct amlnand_phydev *phydev)
 		controller->ecc_steps);
 	while (1) {
 		if ((((u32)addr / flash->pagesize) %
-			(each_boot_pages >> 1)) == 0)
-
-			/* if ((((u32)addr / flash->pagesize) %
-			each_boot_pages) == 0)*/{
+			each_boot_pages) == 0) {
 				uboot_set_ran_mode(phydev);
 				page_size = (flash->pagesize / 512) *
 					NAND_ECC_UNIT_SHORT;
@@ -185,7 +182,7 @@ static int read_uboot(struct amlnand_phydev *phydev)
 				NAND_BOOT_NAME,
 				strlen((const char *)NAND_BOOT_NAME)))
 				&& (((((u32)addr / flash->pagesize))%/*each_boot_pages*/
-			(each_boot_pages >> 1)) == 0)) {
+			each_boot_pages) == 0)) {
 			controller->ran_mode = 1;
 			memcpy((u8 *)(&configure_data_w),
 				ops_para->data_buf,
@@ -366,7 +363,9 @@ static int write_uboot(struct amlnand_phydev *phydev)
 	if (controller->bch_mode == NAND_ECC_BCH_SHORT)
 		page_size = (flash->pagesize / 512) * NAND_ECC_UNIT_SHORT;
 
-	oobsize = controller->ecc_steps*controller->user_mode;
+	//oobsize = controller->ecc_steps*controller->user_mode;
+	oobsize = ((flash->pagesize+flash->oobsize)/512) *
+		controller->user_mode;/*for infopage0 oobsize >data page oobsize*/
 	BOOT_LINE
 	tmp_size = phydev->writesize;
 	/* phydev->writesize = page_size; */

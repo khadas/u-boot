@@ -412,7 +412,7 @@ int amlnf_phy_init(u8 flag, struct platform_device *pdev)
 			ret = -NAND_READ_FAILED;
 			goto exit_error0;
 		}
-}
+	}
 	return ret;
 
 exit_error1:

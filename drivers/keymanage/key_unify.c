@@ -166,15 +166,7 @@ int key_unify_init(const char* seedStr, const char* dtbLoadaddr)
     int i;
     uint64_t seedNum = 0;
 
-    if (!dtbLoadaddr)
-    {
-        dtbLoadaddr = getenv("dtb_mem_addr");
-        if (!dtbLoadaddr) {
-            KM_ERR("env dtb_mem_addr not defined, pls set ir or asign dtbLoadaddr\n");
-            return __LINE__;
-        }
-    }
-    dtbLoadaddr = (char*)simple_strtoul(dtbLoadaddr, NULL, 0) ;
+    dtbLoadaddr = (char*) getenv_ulong("dtb_mem_addr", 16, CONFIG_SYS_SDRAM_BASE + (16U<<20));
 
     if (keymanage_dts_parse(dtbLoadaddr)) {
         KM_DBG("Fail parse /unifykey at addr[0x%p]\n", dtbLoadaddr);

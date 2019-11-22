@@ -92,11 +92,12 @@ COMPILE_TYPE_ASSERT(2048 >= sizeof(AmlSecureBootImgHeader), _cc);
 static int is_andr_9_image(void* pBuffer)
 {
     int nReturn = 0;
+    struct andr_img_hdr *pAHdr = NULL;
 
 	if (!pBuffer)
         goto exit;
 
-    struct andr_img_hdr *pAHdr = (struct andr_img_hdr*)(unsigned long)pBuffer;
+    pAHdr = (struct andr_img_hdr*)(unsigned long)pBuffer;
 
 	if (pAHdr->kernel_version)
         nReturn = 1;
@@ -135,8 +136,10 @@ static int _aml_get_secure_boot_kernel_size(const void* pLoadaddr, unsigned* pTo
 
 	if (isSecure)
     {
-        ulong nCheckOffset;
+        ulong nCheckOffset = 0;
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
         nCheckOffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,GXB_IMG_LOAD_ADDR,GXB_EFUSE_PATTERN_SIZE,GXB_IMG_DEC_ALL);
+#endif /*CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK*/
 		if (AML_D_Q_IMG_SIG_HDR_SIZE == (nCheckOffset & 0xFFFF) &&
             ((nCheckOffset>>16) & 0xFFFF))
         {
@@ -261,11 +264,13 @@ static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
         //here must update the cache, otherwise nand will fail (eMMC is OK)
         flush_cache((unsigned long)dtImgAddr,(unsigned long)nFlashLoadLen);
 
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
         nReturn = aml_sec_boot_check(AML_D_P_IMG_DECRYPT,(unsigned long)loadaddr,GXB_IMG_SIZE,GXB_IMG_DEC_DTB);
         if (nReturn) {
             errorP("\n[dtb]aml log : Sig Check is %d\n",nReturn);
             return __LINE__;
         }
+#endif /*CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK*/
         MsgP("Enc dtb sz 0x%x\n", nFlashLoadLen);
     }
 
@@ -304,6 +309,9 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
     int rc = 0;
     uint64_t flashReadOff = 0;
     unsigned secureKernelImgSz = 0;
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
+    image_header_t *hdr;
+#endif
 
     if (2 < argc) {
         loadaddr = (unsigned char*)simple_strtoul(argv[2], NULL, 16);
@@ -312,8 +320,10 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
         loadaddr = (unsigned char*)simple_strtoul(getenv("loadaddr"), NULL, 16);
     }
 
-    ulong nCheckOffset;
+    ulong nCheckOffset = 0;
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
     nCheckOffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,GXB_IMG_LOAD_ADDR,GXB_EFUSE_PATTERN_SIZE,GXB_IMG_DEC_ALL);
+#endif /*CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK*/
 	if (AML_D_Q_IMG_SIG_HDR_SIZE == (nCheckOffset & 0xFFFF))
         nCheckOffset = (nCheckOffset >> 16) & 0xFFFF;
     else
@@ -330,6 +340,17 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
     }
     flashReadOff += IMG_PRELOAD_SZ;
 
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
+    //check image format for rtos
+    genFmt = genimg_get_format(loadaddr);
+    hdr = (image_header_t *)loadaddr;
+    if (genFmt == IMAGE_FORMAT_LEGACY
+        && image_check_type(hdr, IH_TYPE_STANDALONE) ) {
+        actualBootImgSz = image_get_image_size(hdr);
+        goto load_left;
+    }
+#endif
+
 	if (!nCheckOffset)
     {
         genFmt = genimg_get_format(hdr_addr);
@@ -340,11 +361,13 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
     }
 
     //Check if encrypted image
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
     rc = _aml_get_secure_boot_kernel_size(loadaddr, &secureKernelImgSz);
     if (rc) {
             errorP("Fail in _aml_get_secure_boot_kernel_size, rc=%d\n", rc);
             return __LINE__;
     }
+#endif /*CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK*/
     if (secureKernelImgSz)
     {
         actualBootImgSz = secureKernelImgSz + nCheckOffset;
@@ -360,7 +383,9 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
         debugP("ramdisk_size 0x%x, totalSz 0x%x\n", hdr_addr->ramdisk_size, ramdisk_size);
         debugP("dtbSz 0x%x, Total actualBootImgSz 0x%x\n", dtbSz, actualBootImgSz);
     }
-
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
+load_left:
+#endif
     if (actualBootImgSz > IMG_PRELOAD_SZ)
     {
         const unsigned leftSz = actualBootImgSz - IMG_PRELOAD_SZ;
@@ -501,7 +526,8 @@ static int imgread_uncomp_pic(unsigned char* srcAddr, const unsigned srcSz,
     /*debugP("srcAddr[%x, %x]\n", srcAddr[0], srcAddr[1]);*/
     if (!memcmp(srcAddr, gzip_magic, sizeof(gzip_magic)))
     {
-        *dstDatSz = srcSz;
+        if (dstDatSz) *dstDatSz = srcSz;
+        else return -__LINE__; //need dstDatSz to check src sz in gunzip
         return gunzip(dstAddr, dstBufSz, srcAddr, dstDatSz);
     }
 
@@ -561,7 +587,13 @@ static int do_image_read_pic(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
         if (rc) {
             bootupOutmode[2] = "bootup_720";
             if (picName) {
-                sprintf(cmdBuf, "%s_720", picName);
+                if (strnlen(picName, sizeof(cmdBuf)/2 + 8) > sizeof(cmdBuf)/2) {
+                    errorP("picName too long\n");
+                    return __LINE__;
+                }
+                /*sprintf(cmdBuf, "%s_720", picName);*/
+                memcpy(cmdBuf, picName, strnlen(picName, sizeof(cmdBuf)/2));
+                strncpy(&cmdBuf[strlen(cmdBuf)], "_720", 4+1);
                 bootupOutmode[0] = cmdBuf;
             }
             break;
@@ -569,7 +601,9 @@ static int do_image_read_pic(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
 
         bootupOutmode[2] = "bootup_1080";
         if (picName) {
-            sprintf(cmdBuf, "%s_1080", picName);
+            /*sprintf(cmdBuf, "%s_1080", picName);*/
+            memcpy(cmdBuf, picName, strnlen(picName, sizeof(cmdBuf)/2));
+            strncpy(&cmdBuf[strlen(cmdBuf)], "_1080", 5+1);
             bootupOutmode[0] = cmdBuf;
         }
         break;

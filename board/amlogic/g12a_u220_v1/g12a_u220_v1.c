@@ -62,18 +62,21 @@
 #include <asm/arch/timer.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-#define P_EE_PCIE_A_CTRL     (volatile uint32_t *)(0xff646000 + (0x000 << 2))
 
 //new static eth setup
 struct eth_board_socket*  eth_board_skt;
 
-
-void pcie_phy_shutdown(void)
+static void gate_useless_clock(void)
 {
-	/* power down pcieA */
-	writel(0x20000060, P_HHI_PCIE_PLL_CNTL5);
-	writel(0x20090496, P_HHI_PCIE_PLL_CNTL0);
-	writel(0x1d, P_EE_PCIE_A_CTRL);
+        unsigned int mpeg0, mpeg1, mpeg2;
+
+        mpeg0 = (~0x100818);
+        mpeg1 = (~0x9000008);
+        mpeg2 = (~0x40);
+        /* close useless clk gate */
+        writel(readl(HHI_GCLK_MPEG0) & mpeg0, HHI_GCLK_MPEG0);
+        writel(readl(HHI_GCLK_MPEG1) & mpeg1, HHI_GCLK_MPEG1);
+        writel(readl(HHI_GCLK_MPEG2) & mpeg2, HHI_GCLK_MPEG2);
 }
 
 int serial_set_pin_port(unsigned long port_base)
@@ -750,8 +753,8 @@ int board_late_init(void)
 		aml_try_factory_sdcard_burning(0, gd->bd);
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 
-	/* close pcie phy */
-	pcie_phy_shutdown();
+	/* close useless clk gate */
+	gate_useless_clock();
 
 	/**/
 	aml_config_dtb();
@@ -834,6 +837,7 @@ const char * const _env_args_reserve_[] =
 		"firstboot",
 		"lock",
 		"upgrade_step",
+		"bootloader_version",
 
 		NULL//Keep NULL be last to tell END
 };

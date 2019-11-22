@@ -27,7 +27,7 @@ void set_pgtable_section(u64 *page_table, u64 index, u64 section,
 }
 
 /* to activate the MMU we need to set up virtual memory */
-static void mmu_setup(void)
+void mmu_setup(void)
 {
 	u64 i, j, el;
 	bd_t *bd = gd->bd;
@@ -48,6 +48,7 @@ static void mmu_setup(void)
 #else
 		ulong end = bd->bi_dram[i].start + bd->bi_dram[i].size;
 #endif
+		end &= 0xF8000000;
 		if ((end >> (SECTION_SHIFT-2)) & 1) {
 			/* odd multiple of 128MB, align to 256M */
 			end += (SECTION_SIZE>>2);
@@ -56,6 +57,11 @@ static void mmu_setup(void)
 			/* odd multiple of 256MB, align to 512M */
 			end += (SECTION_SIZE>>1);
 		}
+		printf("mmu cfg end: 0x%lx\n", end);
+		if (end == 0x100000000) {
+			end -= SECTION_SIZE;
+		}
+		printf("mmu cfg end: 0x%lx\n", end);
 		for (j = start >> SECTION_SHIFT; j < end >> SECTION_SHIFT; j++) {
 			set_pgtable_section(page_table, j, j << SECTION_SHIFT, MT_NORMAL);
 		}

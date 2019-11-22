@@ -433,7 +433,8 @@ struct dv_vsif_para {
 	} vers;
 };
 
-#define VIC_MAX_NUM 256
+#define Y420CMDB_MAX 32
+#define VIC_MAX_NUM  256
 struct rx_cap {
 	unsigned int native_Mode;
 	/*video*/
@@ -450,10 +451,13 @@ struct rx_cap {
 	unsigned int scdc_present:1;
 	unsigned int scdc_rr_capable:1; /* SCDC read request */
 	unsigned int lte_340mcsc_scramble:1;
+	unsigned support_ycbcr444_flag:1;
+	unsigned support_ycbcr422_flag:1;
 	unsigned int dc_y444:1;
 	unsigned int dc_30bit:1;
 	unsigned int dc_36bit:1;
 	unsigned int dc_48bit:1;
+	unsigned int dc_y420:1;
 	unsigned int dc_30bit_420:1;
 	unsigned int dc_36bit_420:1;
 	unsigned int dc_48bit_420:1;
@@ -478,6 +482,36 @@ struct rx_cap {
 	struct hdr10_plus_info hdr10plus_info;
 	/*blk0 check sum*/
 	unsigned char chksum;
+	/*blk0-3 check sum*/
+	unsigned char checksum[10];
+	unsigned char edid_changed;
+	/* for total = 32*8 = 256 VICs */
+	/* for Y420CMDB bitmap */
+	unsigned char bitmap_valid;
+	unsigned char bitmap_length;
+	unsigned char y420_all_vic;
+	unsigned char y420cmdb_bitmap[Y420CMDB_MAX];
+};
+
+enum color_attr_type {
+	COLOR_ATTR_YCBCR444_12BIT = 0,
+	COLOR_ATTR_YCBCR422_12BIT,
+	COLOR_ATTR_YCBCR420_12BIT,
+	COLOR_ATTR_RGB_12BIT,
+	COLOR_ATTR_YCBCR444_10BIT,
+	COLOR_ATTR_YCBCR422_10BIT,
+	COLOR_ATTR_YCBCR420_10BIT,
+	COLOR_ATTR_RGB_10BIT,
+	COLOR_ATTR_YCBCR444_8BIT,
+	COLOR_ATTR_YCBCR422_8BIT,
+	COLOR_ATTR_YCBCR420_8BIT,
+	COLOR_ATTR_RGB_8BIT,
+	COLOR_ATTR_RESERVED,
+};
+
+struct color_attr_to_string {
+	enum color_attr_type color_attr;
+	const char *color_attr_string;
 };
 
 enum hdmi_color_depth {

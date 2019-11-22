@@ -108,6 +108,7 @@ void nand_info_page_prepare(struct aml_nand_chip *aml_chip, u8 *page0_buf)
 	nand_setup_t *p_nand_setup = NULL;
 	int each_boot_pages, boot_num, bbt_pages;
 	unsigned int pages_per_blk_shift ,bbt_size;
+	uint32_t ddrp_start_block = 0;
 #ifdef CONFIG_DISCRETE_BOOTLOADER
 	fip_info_t *p_fip_info = NULL;
 #endif
@@ -163,17 +164,11 @@ void nand_info_page_prepare(struct aml_nand_chip *aml_chip, u8 *page0_buf)
 	p_ext_info->bbt_occupy_pages = bbt_pages;
 	p_ext_info->bbt_start_block =
 		(BOOT_TOTAL_PAGES >> pages_per_blk_shift) + NAND_GAP_BLOCK_NUM;
-	p_ext_info->ddrp_start_occupy_pages =
-		(((2048 + mtd->writesize - 1) / mtd->writesize) << 16) &
-		0xffff0000;
-	p_ext_info->ddrp_start_occupy_pages |=
-		aml_chip_normal->aml_nandddr_info->valid_node->phy_page_addr &
-		0x0000ffff;
-	p_ext_info->ddrp_start_block =
-		aml_chip_normal->aml_nandddr_info->start_block;
-	printk("ddrp_start_occupy_pages = 0x%x ddr_start_block = 0x%x\n",
-		p_ext_info->ddrp_start_occupy_pages,
-		p_ext_info->ddrp_start_block);
+	ddrp_start_block = aml_chip_normal->aml_nandddr_info->start_block;
+	p_nand_page0->ddrp_start_page = (ddrp_start_block << pages_per_blk_shift)
+		+ aml_chip_normal->aml_nandddr_info->valid_node->phy_page_addr;
+	printk("ddrp_start_page = 0x%x ddr_start_block = 0x%x\n",
+		p_nand_page0->ddrp_start_page, ddrp_start_block);
 #ifdef CONFIG_DISCRETE_BOOTLOADER
 	p_fip_info = &p_nand_page0->fip_info;
 	p_fip_info->version = 1;
@@ -199,8 +194,7 @@ void m3_nand_boot_erase_cmd(struct mtd_info *mtd, int page)
 	struct nand_chip *chip = mtd->priv;
 	loff_t ofs;
 
-	ofs = (page << chip->page_shift);
-
+	ofs = ((loff_t)page << chip->page_shift);
 	if (chip->block_bad(mtd, ofs, 0))
 		return;
 
@@ -350,9 +344,10 @@ int m3_nand_boot_read_page_hwecc(struct mtd_info *mtd,
 	}
 
 	read_page = page;
-        read_page++;
+	read_page++;
+
 READ_BAD_BLOCK:
-	ofs = (read_page << chip->page_shift);
+	ofs = ((loff_t)read_page << chip->page_shift);
 	if (!(ofs % mtd->erasesize)) {
 		if (chip->block_bad(mtd, ofs, 0)) {
 			read_page +=
@@ -571,7 +566,7 @@ int m3_nand_boot_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 		write_page++;
 
 WRITE_BAD_BLOCK:
-	ofs = (write_page << chip->page_shift);
+	ofs = ((loff_t)write_page << chip->page_shift);
 	if (!(ofs % mtd->erasesize)) {
 		if (chip->block_bad(mtd, ofs, 0)) {
 			write_page +=

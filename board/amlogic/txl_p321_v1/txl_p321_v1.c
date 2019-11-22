@@ -130,9 +130,11 @@ static void setup_net_chip(void)
 
 extern struct eth_board_socket* eth_board_setup(char *name);
 extern int designware_initialize(ulong base_addr, u32 interface);
+#define P_RESET1_LEVEL (volatile unsigned int *)((0x21<< 2) + 0xc1104400)
 
 int board_eth_init(bd_t *bis)
 {
+	*P_RESET1_LEVEL |= (1<<11);
 	setup_net_chip();
 	udelay(1000);
 	designware_initialize(ETH_BASE, PHY_INTERFACE_MODE_RMII);
@@ -488,6 +490,9 @@ int board_late_init(void)
 	int ret;
 	char* env;
 	unsigned int hwid = 1;
+	char outputModePre[30];
+	char outputModeCur[30];
+	strcpy(outputModePre,getenv("outputmode"));
 
 	/*USE_HDMI_UART_FUNC*/
 	env = getenv("hdmiuart_mode");
@@ -572,6 +577,11 @@ int board_late_init(void)
 			setbits_le32(P_AO_GPIO_O_EN_N, (1<<26));
 			printf("invalid hwid = %d\n", hwid);
 			break;
+	}
+	strcpy(outputModeCur,getenv("outputmode"));
+	if (strcmp(outputModeCur,outputModePre)) {
+		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
+		run_command("saveenv", 0);
 	}
 
 	return 0;
@@ -670,6 +680,8 @@ const char * const _env_args_reserve_[] =
 		"firstboot",
 		"lock",
 		"upgrade_step",
+		"model_name",
+		"bootloader_version",
 
 		NULL//Keep NULL be last to tell END
 };

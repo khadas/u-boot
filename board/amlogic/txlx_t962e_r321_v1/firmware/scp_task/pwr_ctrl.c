@@ -316,7 +316,6 @@ static unsigned int detect_key(unsigned int suspend_from)
 	if (time_out_ms != 0)
 		wakeup_timer_setup();
 	init_remote();
-	saradc_enable();
 #ifdef CONFIG_CEC_WAKEUP
 	if (hdmi_cec_func_config & 0x1) {
 		cec_hw_reset();
@@ -349,12 +348,12 @@ static unsigned int detect_key(unsigned int suspend_from)
 			if (time_out_ms != 0)
 				time_out_ms--;
 			if (time_out_ms == 0) {
-				wakeup_timer_clear();
 				exit_reason = AUTO_WAKEUP;
 			}
 		}
 		if (irq[IRQ_AO_TIMERA] == IRQ_AO_TIMERA_NUM) {
 			irq[IRQ_AO_TIMERA] = 0xFFFFFFFF;
+			saradc_enable();
 			if (check_adc_key_resume()) {
 				adc_key_cnt++;
 				/*using variable 'adc_key_cnt' to eliminate the dithering of the key*/
@@ -363,6 +362,7 @@ static unsigned int detect_key(unsigned int suspend_from)
 			} else {
 				adc_key_cnt = 0;
 			}
+			saradc_disable();
 		}
 #ifdef CONFIG_BT_WAKEUP
 		if (irq[IRQ_AO_GPIO0] == IRQ_AO_GPIO0_NUM) {
@@ -393,7 +393,7 @@ static unsigned int detect_key(unsigned int suspend_from)
 			asm volatile("wfi");
 	} while (1);
 
-	saradc_disable();
+	wakeup_timer_clear();
 
 	return exit_reason;
 }

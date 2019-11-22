@@ -208,7 +208,7 @@ static int do_osd_set(cmd_tbl_t *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
 	int i;
-	ulong osdID;
+	long osdID;
 	char *str = NULL;
 	char *hist_env_key[12] = {"hist_max_min_osd0","hist_spl_val_osd0","hist_spl_pix_cnt_osd0","hist_cheoma_sum_osd0",
 	                         "hist_max_min_osd1","hist_spl_val_osd1","hist_spl_pix_cnt_osd1","hist_cheoma_sum_osd1",
@@ -216,7 +216,7 @@ static int do_osd_set(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (argc != 6) {
 		return CMD_RET_USAGE;
 	}
-	osdID = simple_strtoul(argv[1], NULL, 10);
+	osdID = simple_strtol(argv[1], NULL, 10);
 
 	if ((osdID < 0) || (osdID > 2)) {
 		printf("=== osdID is wrong. ===\n");

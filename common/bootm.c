@@ -54,7 +54,7 @@
 #define IH_INITRD_ARCH IH_ARCH_DEFAULT
 
 #ifdef CONFIG_MDUMP_COMPRESS
-extern void check_ramdump(void);
+#include <ramdump.h>
 #endif
 #ifndef USE_HOSTCC
 
@@ -280,7 +280,7 @@ static int read_fdto_partition(void)
 	char	*s1;
 	struct	dt_table_header hdr;
 
-	run_command("get_valid_slot;", 0);
+	//run_command("get_valid_slot;", 0);
 	s1 = getenv("active_slot");
 	printf("active_slot is %s\n", s1);
 	if (strcmp(s1, "normal") == 0) {
@@ -440,6 +440,11 @@ static int bootm_find_fdt(int flag, int argc, char * const argv[])
 	unsigned long long dtb_mem_addr =  -1;
 	char *ft_addr_bak;
 	ulong ft_len_bak;
+
+	//try to do store dtb decrypt ${dtb_mem_addr}
+	//because if load dtb.img from cache/udisk maybe encrypted.
+	run_command("store dtb decrypt ${dtb_mem_addr}", 0);
+
 	if (getenv("dtb_mem_addr"))
 		dtb_mem_addr = simple_strtoul(getenv("dtb_mem_addr"), NULL, 16);
 	else
@@ -883,10 +888,12 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 
 	/* Check reserved memory region */
 #ifdef CONFIG_CMD_RSVMEM
-	ret = run_command("rsvmem check", 0);
-	if (ret) {
-		puts("rsvmem check failed\n");
-		return ret;
+	if (images->os.type != IH_TYPE_STANDALONE) {
+		ret = run_command("rsvmem check", 0);
+		if (ret) {
+			puts("rsvmem check failed\n");
+			return ret;
+		}
 	}
 #endif
 

@@ -36,11 +36,7 @@ int keymanage_efuse_init(const char *buf, int len)
     char ver;
     int ret = 0;
 
-    const char* dtbLoadAddr = getenv("dtb_mem_addr");
-    if (!dtbLoadAddr) {
-        setenv("dtb_mem_addr", simple_itoa(CONFIG_SYS_SDRAM_BASE + (16U<<20)));
-    }
-    dtbLoadAddr = (char*)simple_strtoul(dtbLoadAddr, NULL, 0);
+    const char* dtbLoadAddr = (char*) getenv_ulong("dtb_mem_addr", 16, CONFIG_SYS_SDRAM_BASE + (16U<<20));
 
     ret = efuse_usr_api_init_dtb(dtbLoadAddr);
     if (ret) {

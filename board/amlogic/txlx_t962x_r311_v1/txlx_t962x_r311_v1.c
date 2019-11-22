@@ -141,6 +141,7 @@ extern int designware_initialize(ulong base_addr, u32 interface);
 
 int board_eth_init(bd_t *bis)
 {
+	*P_RESET1_LEVEL |= (1<<11);
 	setup_net_chip();
 	udelay(1000);
 	designware_initialize(ETH_BASE, PHY_INTERFACE_MODE_RMII);
@@ -428,6 +429,9 @@ int board_init(void)
 int board_late_init(void)
 {
 	int ret;
+	char outputModePre[30];
+	char outputModeCur[30];
+	strcpy(outputModePre,getenv("outputmode"));
 
 	//update env before anyone using it
 	run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
@@ -475,6 +479,11 @@ int board_late_init(void)
 #ifdef CONFIG_AML_V2_FACTORY_BURN
 	/*aml_try_factory_sdcard_burning(0, gd->bd);*/
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
+	strcpy(outputModeCur,getenv("outputmode"));
+	if (strcmp(outputModeCur,outputModePre)) {
+		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
+		run_command("saveenv", 0);
+	}
 
 	return 0;
 }
@@ -533,6 +542,8 @@ const char * const _env_args_reserve_[] =
 		"firstboot",
 		"lock",
 		"upgrade_step",
+		"model_name",
+		"bootloader_version",
 
 		NULL//Keep NULL be last to tell END
 };

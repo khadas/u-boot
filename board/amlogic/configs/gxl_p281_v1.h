@@ -91,7 +91,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
         "firstboot=0\0"\
         "upgrade_step=0\0"\
-        "jtag=apao\0"\
+        "jtag=disable\0"\
         "loadaddr=1080000\0"\
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
@@ -140,8 +140,9 @@
             "else fi;"\
             "\0"\
     "storeargs="\
+            "get_bootloaderversion;" \
             "setenv bootargs ${initargs} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} androidboot.selinux=${EnableSelinux} logo=${display_layer},loaded,${fb_addr},${outputmode} maxcpus=${maxcpus} vout=${outputmode},enable hdmimode=${hdmimode} frac_rate_policy=${frac_rate_policy} cvbsmode=${cvbsmode} hdmitx=${cecconfig},${colorattribute} cvbsdrv=${cvbs_drv} irq_check_en=${Irq_check_en}  androidboot.firstboot=${firstboot} jtag=${jtag}; "\
-	    "setenv bootargs ${bootargs} androidboot.veritymode=enforcing androidboot.hardware=amlogic;"\
+	    "setenv bootargs ${bootargs} androidboot.veritymode=enforcing androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
         "setenv bootargs ${bootargs} page_trace=${page_trace};" \
 	    "setenv bootargs ${bootargs} androidboot.rpmb_state=${rpmb_state};"\
             "run cmdline_keys;"\

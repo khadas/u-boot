@@ -247,12 +247,7 @@ static int meson_pwm_set_config(struct udevice *dev, uint channel, uint period_n
 		return -EINVAL;
 	}
 
-	if ((duty_ns < 0) || (period_ns <= 0)) {
-		pwm_err("Not available duty_ns period_ns error\n");
-		return -EINVAL;
-	}
-
-	if (duty_ns > period_ns) {
+	if ((duty_ns > period_ns) || !period_ns) {
 		pwm_err("Not available duty_ns period_ns error\n");
 		return -EINVAL;
 	}

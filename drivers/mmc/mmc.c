@@ -456,8 +456,8 @@ static int mmc_send_op_cond_iter(struct mmc *mmc, struct mmc_cmd *cmd,
 
 static int mmc_send_op_cond(struct mmc *mmc)
 {
-	struct mmc_cmd cmd;
-	int err, i;
+//	struct mmc_cmd cmd;
+//	int err, i;
 
 	/* Some cards seem to need this */
 	mmc_go_idle(mmc);
@@ -466,17 +466,17 @@ static int mmc_send_op_cond(struct mmc *mmc)
 	mmc->op_cond_pending = 1;
 
 	return IN_PROGRESS;
-
-	for (i = 0; i < 2; i++) {
-		err = mmc_send_op_cond_iter(mmc, &cmd, i != 0);
-		if (err)
-			return err;
-
-		/* exit if not busy (flag seems to be inverted) */
-		if (mmc->op_cond_response & OCR_BUSY)
-			return 0;
-	}
-	return IN_PROGRESS;
+/*
+ *	for (i = 0; i < 2; i++) {
+ *		err = mmc_send_op_cond_iter(mmc, &cmd, i != 0);
+ *		if (err)
+ *			return err;
+ *
+ *		if (mmc->op_cond_response & OCR_BUSY)
+ *			return 0;
+ *	}
+ *	return IN_PROGRESS;
+ */
 }
 
 static int mmc_complete_op_cond(struct mmc *mmc)
@@ -701,12 +701,16 @@ int mmc_hwpart_config(struct mmc *mmc,
 		printf("Card already partitioned\n");
 		puts("\tUser Enhanced Start: ");
 		u64 temp,  j;
-		for (j = 0, temp = 0; j < 4; j++)
-			temp |= ext_csd[EXT_CSD_ENH_START_ADDR + j] << (8 * j);
+		for (j = 0, temp = 0; j < 4; j++) {
+			temp |= ext_csd[EXT_CSD_ENH_START_ADDR + 3 - j];
+			temp = temp << 8;
+		}
 		print_size(temp << 9, "\n");
 		puts("\tUser Enhanced Size: ");
-		for (j = 0, temp = 0; j < 3; j++)
-			temp |= ext_csd[EXT_CSD_ENH_SIZE_MULT + j] << (8 * j);
+		for (j = 0, temp = 0; j < 3; j++) {
+			temp |= ext_csd[EXT_CSD_ENH_SIZE_MULT + 2 - j];
+			temp = temp << 8;
+		}
 		temp *= mmc->hc_wp_grp_size;
 		print_size(temp << 9, "\n");
 		return -EPERM;
@@ -1130,8 +1134,15 @@ int aml_emmc_refix(struct mmc *mmc)
 	mmc->refix = 1;
 	if (0)
 		mmc->cfg->ops->calibration(mmc);
-	if (mmc->cfg->ops->refix != NULL)
+	if (mmc->cfg->ops->calc_fixed_adj != NULL)
+		mmc->cfg->ops->calc_fixed_adj(mmc);
+	else if (mmc->cfg->ops->refix != NULL) {
 		ret = mmc->cfg->ops->refix(mmc);
+		if (!ret)
+			printf("[%s] mmc refix success\n", __func__);
+		else
+			printf("[%s] mmc refix error\n", __func__);
+	}
 	mmc->refix = 0;
 	return ret;
 }
@@ -1350,10 +1361,10 @@ static int mmc_startup(struct mmc *mmc)
 			 * ext_csd's capacity is valid if the value is more
 			 * than 2GB
 			 */
-			capacity = ext_csd[EXT_CSD_SEC_CNT] << 0
+			capacity = (u64)(ext_csd[EXT_CSD_SEC_CNT] << 0
 					| ext_csd[EXT_CSD_SEC_CNT + 1] << 8
 					| ext_csd[EXT_CSD_SEC_CNT + 2] << 16
-					| ext_csd[EXT_CSD_SEC_CNT + 3] << 24;
+					| ext_csd[EXT_CSD_SEC_CNT + 3] << 24);
 			capacity *= MMC_MAX_BLOCK_LEN;
 			if ((capacity >> 20) > 2 * 1024)
 				mmc->capacity_user = capacity;
@@ -1415,10 +1426,10 @@ static int mmc_startup(struct mmc *mmc)
 			if (mmc->high_capacity &&
 			    (ext_csd[EXT_CSD_PARTITION_SETTING] &
 			     EXT_CSD_PARTITION_SETTING_COMPLETED)) {
-				capacity = (ext_csd[EXT_CSD_SEC_CNT]) |
+				capacity = (u64)((ext_csd[EXT_CSD_SEC_CNT]) |
 					(ext_csd[EXT_CSD_SEC_CNT + 1] << 8) |
 					(ext_csd[EXT_CSD_SEC_CNT + 2] << 16) |
-					(ext_csd[EXT_CSD_SEC_CNT + 3] << 24);
+					(ext_csd[EXT_CSD_SEC_CNT + 3] << 24));
 				capacity *= MMC_MAX_BLOCK_LEN;
 				mmc->capacity_user = capacity;
 			}
@@ -1578,12 +1589,10 @@ static int mmc_startup(struct mmc *mmc)
 
 	mmc_set_clock(mmc, mmc->tran_speed);
 
-	if (mmc->card_caps & MMC_MODE_HS) {
+	if (mmc->card_caps & MMC_MODE_HS_52MHz) {
 		err = aml_emmc_refix(mmc);
-		if (!err)
-			printf("[%s] mmc refix success\n", __func__);
-		else
-			printf("[%s] mmc refix error\n", __func__);
+		if (err)
+			return err;
 	}
 
 	/* Fix the block length for DDR mode */
@@ -1935,8 +1944,10 @@ int mmc_ffu_op(int dev, u64 ffu_ver, void *addr, u64 cnt)
 
 	supported_modes = ext_csd_ffu[EXT_CSD_SUPPORTED_MODES] & 0x1;
 	fw_cfg = ext_csd_ffu[EXT_CSD_FW_CFG] & 0x1;
-	for (i = 0; i < 8; i++)
-		fw_ver |= (ext_csd_ffu[EXT_CSD_FW_VERSION + i] << (i * 8));
+	for (i = 0; i < 8; i++) {
+		fw_ver |= ext_csd_ffu[EXT_CSD_FW_VERSION + 7 - i];
+		fw_ver <<= 8;
+	}
 	printf("old fw_ver = %llx\n", fw_ver);
 	if (!supported_modes || fw_cfg || (fw_ver >= ffu_ver))
 		return -1;
@@ -1960,8 +1971,10 @@ int mmc_ffu_op(int dev, u64 ffu_ver, void *addr, u64 cnt)
 	if (err)
 		return err;
 
-	for (i = 0; i < 8; i++)
-		fw_ver |= (ext_csd_ffu[EXT_CSD_FW_VERSION + i] << (i * 8));
+	for (i = 0; i < 8; i++) {
+		fw_ver |= ext_csd_ffu[EXT_CSD_FW_VERSION + 7 - i];
+		fw_ver <<= 8;
+	}
 	printf("new fw_ver = %llx\n", fw_ver);
 	if ((mmc->cid[0] >> 24) == SAMSUNG_MID) {
 		/* Set Normal Mode */
@@ -1988,8 +2001,10 @@ int mmc_ffu_op(int dev, u64 ffu_ver, void *addr, u64 cnt)
 		return err;
 	ffu_status = ext_csd_ffu[EXT_CSD_FFU_STATUS] & 0xff;
 	fw_ver = 0;
-	for (i = 0; i < 8; i++)
-		fw_ver |= (ext_csd_ffu[EXT_CSD_FW_VERSION + i] << (i * 8));
+	for (i = 0; i < 8; i++) {
+		fw_ver |= ext_csd_ffu[EXT_CSD_FW_VERSION + 7 - i];
+		fw_ver <<= 8;
+	}
 	printf("new fw_ver = %llx\n", fw_ver);
 	if (ffu_status || (fw_ver != ffu_ver))
 		return ffu_status;

@@ -200,6 +200,7 @@ static u64 memsize_parse (const char *const ptr, const char **retptr)
  * @param buf output buffer
  * @param size size to be converted to string
  */
+#ifndef CONFIFG_AML_MTDPART
 static void memsize_format(char *buf, u64 size)
 {
 #define SIZE_GB ((u32)1024*1024*1024)
@@ -215,6 +216,7 @@ static void memsize_format(char *buf, u64 size)
 	else
 		sprintf(buf, "%llu", size);
 }
+#endif
 
 /**
  * This routine does global indexing of all partitions. Resulting index for
@@ -436,6 +438,7 @@ static int part_validate(struct mtdids *id, struct part_info *part)
  * @param part partition to delete
  * @return 0 on success, 1 otherwise
  */
+#ifndef CONFIFG_AML_MTDPART
 static int part_del(struct mtd_device *dev, struct part_info *part)
 {
 	u8 current_save_needed = 0;
@@ -474,6 +477,7 @@ static int part_del(struct mtd_device *dev, struct part_info *part)
 
 	return 0;
 }
+#endif
 
 /**
  * Delete all partitions from parts head list, free memory.
@@ -564,6 +568,7 @@ static int part_sort_add(struct mtd_device *dev, struct part_info *part)
  * @param part partition to be added
  * @return 0 on success, 1 otherwise
  */
+#ifndef CONFIFG_AML_MTDPART
 static int part_add(struct mtd_device *dev, struct part_info *part)
 {
 	/* verify alignment and size */
@@ -576,6 +581,7 @@ static int part_add(struct mtd_device *dev, struct part_info *part)
 
 	return 0;
 }
+#endif
 
 /**
  * Parse one partition definition, allocate memory and return pointer to this
@@ -798,6 +804,7 @@ struct mtd_device *device_find(u8 type, u8 num)
  *
  * @param dev device to be added
  */
+#ifndef CONFIFG_AML_MTDPART
 static void device_add(struct mtd_device *dev)
 {
 	u8 current_save_needed = 0;
@@ -815,6 +822,7 @@ static void device_add(struct mtd_device *dev)
 	else
 		index_partitions();
 }
+#endif
 
 /**
  * Parse device type, name and mtd-id. If syntax is ok allocate memory and
@@ -979,6 +987,7 @@ static int mtd_devices_init(void)
  *
  * @return pointer to the id if it exists, NULL otherwise
  */
+#ifndef CONFIFG_AML_MTDPART
 static struct mtdids* id_find(u8 type, u8 num)
 {
 	struct list_head *entry;
@@ -993,6 +1002,7 @@ static struct mtdids* id_find(u8 type, u8 num)
 
 	return NULL;
 }
+#endif
 
 /**
  * Search global mtdids list and find id of a requested mtd_id.
@@ -1075,6 +1085,7 @@ int mtd_id_parse(const char *id, const char **ret_id, u8 *dev_type,
  * @param buflen buffer size
  * @return 0 on success, 1 otherwise
  */
+#ifndef CONFIFG_AML_MTDPART
 static int generate_mtdparts(char *buf, u32 buflen)
 {
 	struct list_head *pentry, *dentry;
@@ -1194,6 +1205,7 @@ cleanup:
 	last_parts[0] = '\0';
 	return 1;
 }
+#endif
 
 /**
  * Call generate_mtdparts to process all devices and generate corresponding
@@ -1203,6 +1215,7 @@ cleanup:
  * @param buflen buffer size
  * @return 0 on success, 1 otherwise
  */
+#ifndef CONFIFG_AML_MTDPART
 static int generate_mtdparts_save(char *buf, u32 buflen)
 {
 	int ret;
@@ -1216,6 +1229,7 @@ static int generate_mtdparts_save(char *buf, u32 buflen)
 
 	return ret;
 }
+#endif
 
 #if defined(CONFIG_CMD_MTDPARTS_SHOW_NET_SIZES)
 /**
@@ -1436,6 +1450,7 @@ int find_dev_and_part(const char *id, struct mtd_device **dev,
  * @param id string describing device and partition
  * @return 0 on success, 1 otherwise
  */
+#ifndef CONFIFG_AML_MTDPART
 static int delete_partition(const char *id)
 {
 	u8 pnum;
@@ -1461,6 +1476,7 @@ static int delete_partition(const char *id)
 	printf("partition %s not found\n", id);
 	return 1;
 }
+#endif
 
 #if defined(CONFIG_CMD_MTDPARTS_SPREAD)
 /**
@@ -2009,6 +2025,7 @@ static int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc,
 		return 0;
 	}
 
+#ifndef CONFIFG_AML_MTDPART
 	/* mtdparts add <mtd-dev> <size>[@<offset>] <name> [ro] */
 	if (((argc == 5) || (argc == 6)) && (strncmp(argv[1], "add", 3) == 0)) {
 #define PART_ADD_DESC_MAXLEN 64
@@ -2091,8 +2108,10 @@ static int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc,
 	if ((argc == 2) && (strcmp(argv[1], "spread") == 0))
 		return spread_partitions();
 #endif /* CONFIG_CMD_MTDPARTS_SPREAD */
+#endif
 
 	return CMD_RET_USAGE;
+
 }
 
 /***************************************************/

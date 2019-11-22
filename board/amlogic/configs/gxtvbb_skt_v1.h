@@ -96,7 +96,7 @@
 	"sdc_burning=sdc_burn ${sdcburncfg}\0"\
 	"wipe_data=successful\0"\
 	"wipe_cache=successful\0"\
-	"jtag=apao\0"\
+	"jtag=disable\0"\
 	"upgrade_check="\
 		"echo upgrade_step=${upgrade_step}; "\
 		"if itest ${upgrade_step} == 3; then "\

@@ -38,6 +38,7 @@ static struct bl_config_s *bl_check_valid(void)
 {
 	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
 	struct bl_config_s *bconf;
+	unsigned int bconf_flag = 1;
 #ifdef CONFIG_AML_BL_EXTERN
 	struct aml_bl_extern_driver_s *bl_ext;
 #endif
@@ -50,17 +51,17 @@ static struct bl_config_s *bl_check_valid(void)
 	case BL_CTRL_PWM:
 		if (bconf->bl_pwm == NULL) {
 			LCDERR("bl: no bl_pwm struct\n");
-			bconf = NULL;
+			bconf_flag = 0;
 		}
 		break;
 	case BL_CTRL_PWM_COMBO:
 		if (bconf->bl_pwm_combo0 == NULL) {
 			LCDERR("bl: no bl_pwm_combo_0 struct\n");
-			bconf = NULL;
+			bconf_flag = 0;
 		}
 		if (bconf->bl_pwm_combo1 == NULL) {
 			LCDERR("bl: no bl_pwm_combo_1 struct\n");
-			bconf = NULL;
+			bconf_flag = 0;
 		}
 		break;
 	case BL_CTRL_GPIO:
@@ -79,16 +80,20 @@ static struct bl_config_s *bl_check_valid(void)
 		bl_ext = aml_bl_extern_get_driver();
 		if (bl_ext == NULL) {
 			LCDERR("bl: no bl_extern driver\n");
-			bconf = NULL;
+			bconf_flag = 0;
 		}
 		break;
 #endif
 	default:
 		if (lcd_debug_print_flag)
 			LCDPR("bl: invalid control_method: %d\n", bconf->method);
-		bconf = NULL;
+		bconf_flag = 0;
 		break;
 	}
+
+	if (!bconf_flag)
+		bconf = NULL;
+
 	return bconf;
 }
 
@@ -401,10 +406,15 @@ void aml_bl_pwm_config_update(struct bl_config_s *bconf)
 	case BL_CTRL_LOCAL_DIMMING:
 		ldim_drv = aml_ldim_get_driver();
 		if (ldim_drv) {
-			if (ldim_drv->ldev_conf)
-				bl_pwm_config_init(&ldim_drv->ldev_conf->pwm_config);
-			else
+			if (ldim_drv->ldev_conf) {
+				if (ldim_drv->ldev_conf->ldim_pwm_config.pwm_port >= BL_PWM_MAX)
+					break;
+				bl_pwm_config_init(&ldim_drv->ldev_conf->ldim_pwm_config);
+				if (ldim_drv->ldev_conf->analog_pwm_config.pwm_port < BL_PWM_VS)
+					bl_pwm_config_init(&ldim_drv->ldev_conf->analog_pwm_config);
+			} else {
 				LCDERR("bl: ldim_config is null\n");
+			}
 		} else {
 			LCDERR("bl: ldim_drv is null\n");
 		}
@@ -556,8 +566,8 @@ static void bl_set_pwm(struct bl_pwm_config_s *bl_pwm)
 		break;
 	case BL_PWM_VS:
 		pwm_hi = bl_pwm->pwm_level;
-		memset(vs, 0xffff, sizeof(unsigned int) * 4);
-		memset(ve, 0xffff, sizeof(unsigned int) * 4);
+		memset(vs, 0xff, sizeof(unsigned int) * 4);
+		memset(ve, 0xff, sizeof(unsigned int) * 4);
 		n = bl_pwm->pwm_freq;
 		sw = (bl_pwm->pwm_cnt * 10 / n + 5) / 10;
 		pwm_hi = (pwm_hi * 10 / n + 5) / 10;
@@ -615,7 +625,6 @@ static void bl_set_level_pwm(struct bl_pwm_config_s *bl_pwm, unsigned int level)
 
 void aml_bl_set_level(unsigned int level)
 {
-	unsigned int temp = 0;
 	struct bl_config_s *bconf;
 	struct bl_pwm_config_s *pwm0, *pwm1;
 #ifdef CONFIG_AML_BL_EXTERN
@@ -644,18 +653,27 @@ void aml_bl_set_level(unsigned int level)
 	case BL_CTRL_PWM_COMBO:
 		pwm0 = bconf->bl_pwm_combo0;
 		pwm1 = bconf->bl_pwm_combo1;
-		if ((level >= pwm0->level_min) && (level <= pwm0->level_max)) {
-			temp = (pwm0->level_min > pwm1->level_min) ? pwm1->level_max : pwm1->level_min;
+
+		if (level >= pwm0->level_max) {
+			bl_set_level_pwm(pwm0, pwm0->level_max);
+		} else if ((level > pwm0->level_min) &&
+			(level < pwm0->level_max)) {
 			if (lcd_debug_print_flag)
-				LCDPR("bl: pwm0 region, level=%u, pwm1_level=%u\n", level, temp);
+				LCDPR("bl: pwm0 region, level=%u\n", level);
 			bl_set_level_pwm(pwm0, level);
-			bl_set_level_pwm(pwm1, temp);
-		} else if ((level >= pwm1->level_min) && (level <= pwm1->level_max)) {
-			temp = (pwm1->level_min > pwm0->level_min) ? pwm0->level_max : pwm0->level_min;
+		} else {
+			bl_set_level_pwm(pwm0, pwm0->level_min);
+		}
+
+		if (level >= pwm1->level_max) {
+			bl_set_level_pwm(pwm1, pwm1->level_max);
+		} else if ((level > pwm1->level_min) &&
+			(level < pwm1->level_max)) {
 			if (lcd_debug_print_flag)
-				LCDPR("bl: pwm1 region, level=%u, pwm0_level=%u\n", level, temp);
-			bl_set_level_pwm(pwm0, temp);
+				LCDPR("bl: pwm1 region, level=%u\n", level);
 			bl_set_level_pwm(pwm1, level);
+		} else {
+			bl_set_level_pwm(pwm1, pwm1->level_min);
 		}
 		break;
 #ifdef CONFIG_AML_LOCAL_DIMMING
@@ -915,8 +933,8 @@ void aml_bl_power_ctrl(int status, int delay_flag)
 		case BL_CTRL_PWM:
 			if (bconf->en_sequence_reverse) {
 				/* step 1: power off pwm */
-				bl_pwm_ctrl(bconf->bl_pwm, 0);
 				bl_pwm_pinmux_ctrl(bconf, 0);
+				bl_pwm_ctrl(bconf->bl_pwm, 0);
 				if (bconf->pwm_off_delay > 0)
 					mdelay(bconf->pwm_off_delay);
 				/* step 2: power off enable */
@@ -927,16 +945,16 @@ void aml_bl_power_ctrl(int status, int delay_flag)
 				/* step 2: power off pwm */
 				if (bconf->pwm_off_delay > 0)
 					mdelay(bconf->pwm_off_delay);
-				bl_pwm_ctrl(bconf->bl_pwm, 0);
 				bl_pwm_pinmux_ctrl(bconf, 0);
+				bl_pwm_ctrl(bconf->bl_pwm, 0);
 			}
 			break;
 		case BL_CTRL_PWM_COMBO:
 			if (bconf->en_sequence_reverse) {
 				/* step 1: power off pwm_combo */
+				bl_pwm_pinmux_ctrl(bconf, 0);
 				bl_pwm_ctrl(bconf->bl_pwm_combo0, 0);
 				bl_pwm_ctrl(bconf->bl_pwm_combo1, 0);
-				bl_pwm_pinmux_ctrl(bconf, 0);
 				if (bconf->pwm_off_delay > 0)
 					mdelay(bconf->pwm_off_delay);
 				/* step 2: power off enable */
@@ -947,9 +965,9 @@ void aml_bl_power_ctrl(int status, int delay_flag)
 				/* step 2: power off pwm_combo */
 				if (bconf->pwm_off_delay > 0)
 					mdelay(bconf->pwm_off_delay);
+				bl_pwm_pinmux_ctrl(bconf, 0);
 				bl_pwm_ctrl(bconf->bl_pwm_combo0, 0);
 				bl_pwm_ctrl(bconf->bl_pwm_combo1, 0);
-				bl_pwm_pinmux_ctrl(bconf, 0);
 			}
 			break;
 #ifdef CONFIG_AML_LOCAL_DIMMING
@@ -1149,33 +1167,55 @@ void aml_bl_config_print(void)
 				LCDPR("bl: pwm_combo1_freq     = %d x vfreq\n", bl_pwm->pwm_freq);
 				LCDPR("bl: pwm_combo1_cnt      = %u\n", bl_pwm->pwm_cnt);
 				if (bl_pwm->pwm_duty_max > 100)
-					LCDPR("bl: pwm_combo1_duty = %d%%(%d)\n", bl_pwm->pwm_duty * 100 / 255, bl_pwm->pwm_duty);
+					LCDPR("bl:pwm_combo1_duty = %d%% %d\n",
+					      bl_pwm->pwm_duty * 100 / 255,
+					      bl_pwm->pwm_duty);
 				else
-					LCDPR("bl: pwm_combo1_duty = %d%%(%d)\n", bl_pwm->pwm_duty, bl_pwm->pwm_duty);
+					LCDPR("bl:pwm_combo1_duty = %d%% %d\n",
+					      bl_pwm->pwm_duty,
+					      bl_pwm->pwm_duty);
 
-				LCDPR("bl: pwm_combo1_reg0     = 0x%08x\n", lcd_vcbus_read(VPU_VPU_PWM_V0));
-				LCDPR("bl: pwm_combo1_reg1     = 0x%08x\n", lcd_vcbus_read(VPU_VPU_PWM_V1));
-				LCDPR("bl: pwm_combo1_reg2     = 0x%08x\n", lcd_vcbus_read(VPU_VPU_PWM_V2));
-				LCDPR("bl: pwm_combo1_reg3     = 0x%08x\n", lcd_vcbus_read(VPU_VPU_PWM_V3));
+				LCDPR("bl: pwm_combo1_reg0     = 0x%08x\n",
+				      lcd_vcbus_read(VPU_VPU_PWM_V0));
+				LCDPR("bl: pwm_combo1_reg1     = 0x%08x\n",
+				      lcd_vcbus_read(VPU_VPU_PWM_V1));
+				LCDPR("bl: pwm_combo1_reg2     = 0x%08x\n",
+				      lcd_vcbus_read(VPU_VPU_PWM_V2));
+				LCDPR("bl: pwm_combo1_reg3     = 0x%08x\n",
+				      lcd_vcbus_read(VPU_VPU_PWM_V3));
 			} else {
-				LCDPR("bl: pwm_combo1_freq     = %uHz\n", bl_pwm->pwm_freq);
-				LCDPR("bl: pwm_combo1_cnt      = %u\n", bl_pwm->pwm_cnt);
-				LCDPR("bl: pwm_combo1_pre_div  = %u\n", bl_pwm->pwm_pre_div);
+				LCDPR("bl: pwm_combo1_freq     = %uHz\n",
+				      bl_pwm->pwm_freq);
+				LCDPR("bl: pwm_combo1_cnt      = %u\n",
+				      bl_pwm->pwm_cnt);
+				LCDPR("bl: pwm_combo1_pre_div  = %u\n",
+				      bl_pwm->pwm_pre_div);
 				if (bl_pwm->pwm_duty_max > 100)
-					LCDPR("bl: pwm_combo1_duty = %d%%(%d)\n", bl_pwm->pwm_duty * 100 / 255, bl_pwm->pwm_duty);
+					LCDPR("bl: pwm_combo1_duty = %d%% %d\n",
+					      bl_pwm->pwm_duty * 100 / 255,
+					      bl_pwm->pwm_duty);
 				else
-					LCDPR("bl: pwm_combo1_duty     = %d%%(%d)\n", bl_pwm->pwm_duty, bl_pwm->pwm_duty);
+					LCDPR("bl: pwm_combo1_duty = %d%% %d\n",
+					      bl_pwm->pwm_duty,
+					      bl_pwm->pwm_duty);
 
-				LCDPR("bl: pwm_combo1_reg      = 0x%08x\n", lcd_cbus_read(pwm_reg[bl_pwm->pwm_port]));
+				LCDPR("bl: pwm_combo1_reg      = 0x%08x\n",
+				      lcd_cbus_read(
+				      pwm_reg[bl_pwm->pwm_port]));
 			}
-			LCDPR("bl: pwm_combo1_duty_max = %d\n", bl_pwm->pwm_duty_max);
-			LCDPR("bl: pwm_combo1_duty_min = %d\n", bl_pwm->pwm_duty_min);
-			LCDPR("bl: pwm_combo1_gpio     = %d\n", bl_pwm->pwm_gpio);
-			LCDPR("bl: pwm_combo1_gpio_off = %d\n", bl_pwm->pwm_gpio_off);
+			LCDPR("bl: pwm_combo1_duty_max = %d\n",
+			      bl_pwm->pwm_duty_max);
+			LCDPR("bl: pwm_combo1_duty_min = %d\n",
+			      bl_pwm->pwm_duty_min);
+			LCDPR("bl: pwm_combo1_gpio     = %d\n",
+			      bl_pwm->pwm_gpio);
+			LCDPR("bl: pwm_combo1_gpio_off = %d\n",
+			      bl_pwm->pwm_gpio_off);
 		}
 		LCDPR("bl: pwm_on_delay        = %d\n", bconf->pwm_on_delay);
 		LCDPR("bl: pwm_off_delay       = %d\n", bconf->pwm_off_delay);
-		LCDPR("bl: en_sequence_reverse = %d\n", bconf->en_sequence_reverse);
+		LCDPR("bl: en_sequence_reverse = %d\n",
+		      bconf->en_sequence_reverse);
 		break;
 #ifdef CONFIG_AML_LOCAL_DIMMING
 	case BL_CTRL_LOCAL_DIMMING:
@@ -1528,7 +1568,9 @@ static int aml_bl_config_load_from_bsp(struct bl_config_s *bconf)
 		return -1;
 	}
 
-	strcpy(bconf->name, panel_type);
+	strncpy(bconf->name, panel_type, sizeof(bconf->name));
+	bconf->name[sizeof(bconf->name) - 1] = '\0';
+
 	bconf->level_default     = ext_lcd->level_default;
 	bconf->level_min         = ext_lcd->level_min;
 	bconf->level_max         = ext_lcd->level_max;
@@ -2137,6 +2179,10 @@ static int aml_bl_pinmux_load_from_bsp(struct bl_config_s *bconf)
 		sprintf(propname,"%s", bl_pinmux_str[pinmux_index]);
 		pinmux = bconf->bl_pinmux;
 		for (i = 0; i < LCD_PINMX_MAX; i++) {
+			if (pinmux == NULL)
+				break;
+			if (pinmux->name == NULL)
+				break;
 			if (strncmp(pinmux->name, "invalid", 7) == 0)
 				break;
 			if (strncmp(pinmux->name, propname, strlen(propname)) == 0) {
@@ -2196,6 +2242,10 @@ static int aml_bl_pinmux_load_from_bsp(struct bl_config_s *bconf)
 
 		pinmux = bconf->bl_pinmux;
 		for (i = 0; i < LCD_PINMX_MAX; i++) {
+			if (pinmux == NULL)
+				break;
+			if (pinmux->name == NULL)
+				break;
 			if (strncmp(pinmux->name, "invalid", 7) == 0)
 				break;
 			if (strncmp(pinmux->name, propname, strlen(propname)) == 0) {
@@ -2254,6 +2304,10 @@ static int aml_bl_pinmux_load_from_bsp(struct bl_config_s *bconf)
 		set_cnt = 0;
 		clr_cnt = 0;
 		for (i = 0; i < LCD_PINMX_MAX; i++) {
+			if (pinmux == NULL)
+				break;
+			if (pinmux->name == NULL)
+				break;
 			if (strncmp(pinmux->name, "invalid", 7) == 0)
 				break;
 			if (strncmp(pinmux->name, propname, strlen(propname)) == 0) {
@@ -2453,8 +2507,8 @@ int aml_bl_config_load(char *dt_addr, int load_id)
 	unsigned int index;
 #endif
 	char *bl_off_policy_str;
-	char *bl_level_str;
 	int ret;
+	unsigned int bl_level;
 
 	bl_status = 0;
 
@@ -2521,9 +2575,9 @@ int aml_bl_config_load(char *dt_addr, int load_id)
 	}
 
 	/* get bl_level */
-	bl_level_str = getenv("bl_level");
-	if (bl_level_str != NULL) {
-		lcd_drv->bl_config->level_default = (int)simple_strtoul(bl_level_str, NULL, 10);
+	bl_level = getenv_ulong("bl_level", 10, 0xffff);
+	if (bl_level != 0xffff) {
+		lcd_drv->bl_config->level_default = bl_level;
 		LCDPR("bl: bl_level: %d\n", lcd_drv->bl_config->level_default);
 	}
 

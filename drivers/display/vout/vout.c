@@ -543,15 +543,20 @@ static int vout_find_field_height_by_name(const char* name)
 	return height;
 }
 
+static unsigned int vout_env2uint(const char *name, int base)
+{
+	return (unsigned int)getenv_ulong(name, base, 0);
+}
+
 static void vout_vinfo_init(ulong width, ulong height, ulong field_height)
 {
 	vout_info.width = width;
 	vout_info.height = height;
 	vout_info.field_height = field_height;
 	vout_info.vd_base = (void *)get_fb_addr();
-	vout_info.vl_bpix = simple_strtoul(getenv("display_bpp"), NULL, 10);
-	vout_info.vd_color_fg = simple_strtoul(getenv("display_color_fg"), NULL, 0);
-	vout_info.vd_color_bg = simple_strtoul(getenv("display_color_bg"), NULL, 0);
+	vout_info.vl_bpix = (unsigned char)vout_env2uint("display_bpp", 10);
+	vout_info.vd_color_fg = vout_env2uint("display_color_fg", 0);
+	vout_info.vd_color_bg = vout_env2uint("display_color_bg", 0);
 }
 
 static void vout_axis_init(ulong w, ulong h)

@@ -55,9 +55,6 @@
   */
 #define CONFIG_BOOTLOADER_CONTROL_BLOCK
 
-/*a/b update */
-#define CONFIG_CMD_BOOTCTOL_AVB
-
 /* Serial config */
 #define CONFIG_CONS_INDEX 2
 #define CONFIG_BAUDRATE  115200
@@ -87,8 +84,9 @@
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS \
         "firstboot=1\0"\
+        "factory_mode=0\0"\
         "upgrade_step=0\0"\
-        "jtag=apao\0"\
+        "jtag=disable\0"\
         "loadaddr=1080000\0"\
         "dtb_mem_addr=0x1000000\0" \
         "usb_burning=update 1000\0" \
@@ -104,18 +102,26 @@
         "active_slot=normal\0"\
         "boot_part=boot\0"\
         "initargs="\
-            "rootfstype=ramfs init=/init console=ttyS0,115200 no_console_suspend earlycon=aml_uart,0xff803000 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
+            "rootfstype=ramfs init=/init ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
+            "echo recovery_status=${recovery_status};"\
+            "if itest.s \"${recovery_status}\" == \"in_progress\"; then "\
+                "run storeargs; run recovery_from_flash;"\
+            "else fi;"\
             "echo upgrade_step=${upgrade_step}; "\
             "if itest ${upgrade_step} == 3; then "\
                 "run storeargs; run update;"\
-            "else fi;"\
+            "else if itest ${upgrade_step} == 4; then "\
+                "run storeargs; run update;"\
+            "fi;fi;"\
             "\0"\
         "storeargs="\
+            "get_bootloaderversion;" \
             "setenv bootargs ${initargs} logo=${display_layer},loaded,androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
-	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
+	"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
             "setenv bootargs ${bootargs} slot_suffix=${active_slot};"\
+	    "setenv bootargs ${bootargs} defendkey=0x08300000,0x100000;"\
             "run cmdline_keys;"\
             "\0"\
         "switch_bootmode="\
@@ -131,19 +137,6 @@
             "fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
-            "get_valid_slot;"\
-            "get_avb_mode;"\
-            "echo active_slot: ${active_slot};"\
-            "if test ${active_slot} != normal; then "\
-                    "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
-            "fi;"\
-            "if test ${avb2} = 0; then "\
-                "if test ${active_slot} = _a; then "\
-                    "setenv bootargs ${bootargs} root=/dev/mmcblk0p23;"\
-                "else if test ${active_slot} = _b; then "\
-                    "setenv bootargs ${bootargs} root=/dev/mmcblk0p24;"\
-                "fi;fi;"\
-            "fi;"\
             "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
             "run update;"\
             "\0"\
@@ -169,6 +162,16 @@
                 "fi;"\
                 "run recovery_from_flash;"\
             "fi; \0" \
+         "recovery_from_backup="\
+            "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset}; "\
+            "ubi part data; "\
+            "ubi getVolName data 0; "\
+            "ubifsmount ubi0:${volName}; "\
+            "ubifsload ${dtb_mem_addr} .data/dtb.img; "\
+            "ubifsload ${loadaddr} .data/recovery.img; "\
+            "wipeisb; "\
+            "bootm ${loadaddr}; "\
+            "\0"\
          "update="\
             /*first usb burning, second sdc_burn, third ext-sd autoscr/recovery, last udisk autoscr/recovery*/\
             "run usb_burning; "\
@@ -179,7 +182,11 @@
             "if usb start 0; then "\
                 "run recovery_from_udisk;"\
             "fi;"\
-            "run recovery_from_flash;"\
+            "if itest ${upgrade_step} == 4; then "\
+                "run recovery_from_backup;"\
+            "else if itest ${upgrade_step} == 3; then "\
+                "run recovery_from_flash;"\
+            "fi;fi" \
             "\0"\
         "recovery_from_sdcard="\
             "if fatload mmc 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;"\
@@ -214,11 +221,39 @@
                 "if keyman read deviceid ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
                 "fi;"\
+                "if keyman read lang ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} androidboot.lang=${lang};"\
+                "fi;"\
+                "if keyman read country ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} androidboot.country=${country};"\
+                "fi;"\
+                "if keyman read locale_lang ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} androidboot.locale.lang=${locale_lang};"\
+                "fi;"\
+                "if keyman read locale_region ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} androidboot.locale.region=${locale_region};"\
+                "fi;"\
             "fi;"\
             "\0"\
         "bcb_cmd="\
-            "get_avb_mode;"\
             "get_valid_slot;"\
+            "\0"\
+        "set_adb_debuggable="\
+            "echo enable adb debug prop;"\
+            "setenv bootargs ${bootargs} android.debuggable=1 android.secure=0;"\
+            "setenv bootargs ${bootargs} console=ttyS0,115200 no_console_suspend earlycon=aml_uart,0xff803000;"\
+            "\0"\
+        "clr_adb_debuggable="\
+            "echo disable adb debug prop;"\
+            "setenv bootargs ${bootargs} android.debuggable=0 android.secure=1;"\
+            "setenv bootargs ${bootargs} console=ttyS9,115200 no_console_suspend;"\
+            "\0"\
+        "adb_setting="\
+            "if itest ${factory_mode} == 1; then "\
+                "run clr_adb_debuggable;"\
+            "else "\
+                "run set_adb_debuggable;"\
+            "fi;"\
             "\0"\
         "upgrade_key="\
             "if gpio input GPIOAO_3; then "\
@@ -241,6 +276,7 @@
             "run factory_reset_poweroff_protect;"\
             "run upgrade_check;"\
             "run storeargs;"\
+            "run adb_setting;"\
             "run switch_bootmode;"
 #define CONFIG_BOOTCOMMAND "run storeboot"
 

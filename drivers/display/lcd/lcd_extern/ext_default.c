@@ -78,6 +78,15 @@ static void spi_write_byte(unsigned char data)
 	}
 }
 
+static int lcd_extern_spi_read(unsigned char reg, unsigned char *buf)
+{
+	EXTERR("%s: %s(%d): extern_type %d is not support\n",
+			__func__, ext_config->name,
+			ext_config->index, ext_config->type);
+
+	return -1;
+}
+
 static int lcd_extern_spi_write(unsigned char *buf, int len)
 {
 	int i;
@@ -104,12 +113,66 @@ static int lcd_extern_reg_read(unsigned char reg, unsigned char *buf)
 {
 	int ret = 0;
 
+	if (buf == NULL) {
+		EXTERR("%s: buf is null\n", __func__);
+		return -1;
+	}
+
+	switch (ext_config->type) {
+	case LCD_EXTERN_I2C:
+		buf[0] = reg;
+		ret = aml_lcd_extern_i2c_read(ext_config->i2c_bus,
+					      ext_config->i2c_addr,
+					      buf, 1);
+		break;
+	case LCD_EXTERN_SPI:
+		ret = lcd_extern_spi_read(reg, buf);
+		break;
+	default:
+		EXTERR("%s: %s(%d): extern_type %d is not support\n",
+			__func__, ext_config->name,
+			ext_config->index, ext_config->type);
+		ret = -1;
+		break;
+	}
+	if (ret)
+		EXTERR("%s: faild\n", __func__);
+
 	return ret;
 }
 
-static int lcd_extern_reg_write(unsigned char reg, unsigned char value)
+static int lcd_extern_reg_write(unsigned char *buf, unsigned int len)
 {
 	int ret = 0;
+
+	if (buf == NULL) {
+		EXTERR("%s: buf is null\n", __func__);
+		return -1;
+	}
+
+	if (!len) {
+		EXTERR("%s: invalid len\n", __func__);
+		return -1;
+	}
+
+	switch (ext_config->type) {
+	case LCD_EXTERN_I2C:
+		ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
+					       ext_config->i2c_addr,
+					       buf, len);
+		break;
+	case LCD_EXTERN_SPI:
+		ret = lcd_extern_spi_write(buf, len);
+		break;
+	default:
+		EXTERR("%s: %s(%d): extern_type %d is not support\n",
+			__func__, ext_config->name,
+			ext_config->index, ext_config->type);
+		ret = -1;
+		break;
+	}
+	if (ret)
+		EXTERR("%s: faild\n", __func__);
 
 	return ret;
 }

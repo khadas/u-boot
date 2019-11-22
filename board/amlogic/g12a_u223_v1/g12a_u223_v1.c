@@ -75,6 +75,19 @@ static void pcie_phy_shutdown(void)
 	writel(0x1d, P_EE_PCIE_A_CTRL);
 }
 
+static void gate_useless_clock(void)
+{
+	unsigned int mpeg0, mpeg1, mpeg2;
+
+	mpeg0 = (~0x100818);
+	mpeg1 = (~0x9000008);
+	mpeg2 = (~0x40);
+	/* close useless clk gate */
+	writel(readl(HHI_GCLK_MPEG0) & mpeg0, HHI_GCLK_MPEG0);
+	writel(readl(HHI_GCLK_MPEG1) & mpeg1, HHI_GCLK_MPEG1);
+	writel(readl(HHI_GCLK_MPEG2) & mpeg2, HHI_GCLK_MPEG2);
+}
+
 int serial_set_pin_port(unsigned long port_base)
 {
     //UART in "Always On Module"
@@ -755,6 +768,8 @@ int board_late_init(void)
     if (MESON_CPU_MAJOR_ID_SM1 == get_cpu_id().family_id) {
 		setenv("board_defined_bootup", "bootup_Y3");
 	}
+	/* close useless clk gate */
+	gate_useless_clock();
 	/**/
 	aml_config_dtb();
 
@@ -835,6 +850,7 @@ const char * const _env_args_reserve_[] =
 		"firstboot",
 		"lock",
 		"upgrade_step",
+		"bootloader_version",
 
 		NULL//Keep NULL be last to tell END
 };

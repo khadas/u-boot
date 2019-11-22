@@ -87,6 +87,9 @@ unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyVa
 #define OPTIMUS_SPARSE_IMG_LEFT_DATA_ADDR_LOW   (DDR_MEM_ADDR_START + (2U<<20))//Don't access First 1M address
 #define OPTIMUS_SPARSE_IMG_LEFT_DATA_MAX_SZ    (0X2<<20) //back up address for sparse image, 2M
 
+#define OPTIMUS_GETENV_BUF                      (char*)(OPTIMUS_SPARSE_IMG_LEFT_DATA_ADDR_LOW - CONFIG_ENV_SIZE)
+#define OPTIMUS_ENV_MAXLEN                      (CONFIG_ENV_SIZE / 2)
+
 //[Buffer 2] This 64M buffer is used to cache image data received from USB download,
 //            This Buffer size  should be 64M, other size has pending bugs when sparse image is very large.
 #define OPTIMUS_DOWNLOAD_TRANSFER_BUF_ADDR      (OPTIMUS_SPARSE_IMG_LEFT_DATA_ADDR_LOW + OPTIMUS_SPARSE_IMG_LEFT_DATA_MAX_SZ)
@@ -207,6 +210,10 @@ int optimus_work_mode_set(int workmode);
 #else
 #define OPTIMUS_BURN_TARGET_SUPPORT_UBIFS       0
 #endif// #if defined(CONFIG_AML_MTD) && (defined(UBIFS_IMG) || defined(CONFIG_CMD_UBIFS))
+
+//getenv wrapper to avoid coverity tained string error
+//cannot called nested as it shares the same buffer
+const char* getenv_optimus(const char* name);
 
 #endif//ifndef __OPTIMUS_DOWNLOAD_H__
 

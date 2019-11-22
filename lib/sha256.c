@@ -35,7 +35,7 @@
 }
 #endif
 
-void sha256_starts(sha256_context * ctx)
+void __attribute__((weak)) sha256_starts(sha256_context * ctx)
 {
 	ctx->total[0] = 0;
 	ctx->total[1] = 0;
@@ -181,7 +181,7 @@ static void sha256_process(sha256_context *ctx, const uint8_t data[64])
 	ctx->state[7] += H;
 }
 
-void sha256_update(sha256_context *ctx, const uint8_t *input, uint32_t length)
+void __attribute__((weak)) sha256_update(sha256_context *ctx, const uint8_t *input, uint32_t length)
 {
 	uint32_t left, fill;
 
@@ -222,7 +222,7 @@ static uint8_t sha256_padding[64] = {
 	   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-void sha256_finish(sha256_context * ctx, uint8_t digest[32])
+void __attribute__((weak)) sha256_finish(sha256_context * ctx, uint8_t digest[32])
 {
 	uint32_t last, padn;
 	uint32_t high, low;
@@ -255,7 +255,7 @@ void sha256_finish(sha256_context * ctx, uint8_t digest[32])
  * Output = SHA-256( input buffer ). Trigger the watchdog every 'chunk_sz'
  * bytes of input processed.
  */
-void sha256_csum_wd(const unsigned char *input, unsigned int ilen,
+void __attribute__((weak)) sha256_csum_wd(const unsigned char *input, unsigned int ilen,
 		unsigned char *output, unsigned int chunk_sz)
 {
 	sha256_context ctx;

@@ -1720,16 +1720,21 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 	uint64_t start_blk = 0, part_blk = 0;
 	loff_t offset;
 
+	if (!fls(mtd->erasesize)) {
+		printk("%s, %d !!!!ERROR, bit shift is zero\n",
+			__func__,__LINE__);
+		return ret;
+	}
 	phys_erase_shift = fls(mtd->erasesize) - 1;
 #endif
 
 	if (!strncmp((char*)plat->name,
 		NAND_BOOT_NAME, strlen((const char*)NAND_BOOT_NAME))) {\
 		/* boot partition must be set as this because of romboot restrict */
-		parts = kzalloc(sizeof(struct mtd_partition),
-				GFP_KERNEL);
+		parts = malloc(sizeof(struct mtd_partition));
 		if (!parts)
 			return -ENOMEM;
+		memset(parts, 0, sizeof(struct mtd_partition));
 		parts->name = NAND_BOOT_NAME;
 		parts->offset = 0;
 		parts->size = (mtd->writesize * 1024);
@@ -1741,7 +1746,7 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 		nr = get_aml_partition_count();
 		if (nand_boot_flag)
 			adjust_offset =
-				(1024 * mtd->writesize / aml_chip->plane_num);
+				((loff_t)1024 * mtd->writesize / aml_chip->plane_num);
 	#ifdef CONFIG_DISCRETE_BOOTLOADER
 		/* reserved area size is fixed 48 blocks and
 		 * have fip between rsv and normal, so
@@ -1816,7 +1821,7 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 	}
 	ret = add_mtd_partitions(mtd, parts, nr);
 	if (nr == 1)
-		kfree(parts);
+		free(parts);
 	return ret;
 #else
 	return add_mtd_device(mtd);
@@ -1878,12 +1883,23 @@ static void inline nand_get_chip(void )
 				writel(0xFFFFFFFF, P_PAD_DS_REG0A);
 		} else
 			writel(0xFFFFFFFF, P_PAD_DS_REG0A);
+	} else if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_TL1) ||
+			(cpu_id.family_id == MESON_CPU_MAJOR_ID_TM2)) {
+
+		AMLNF_SET_REG_MASK(P_PAD_PULL_UP_EN_REG0, 0x1FFF);
+		AMLNF_SET_REG_MASK(P_PAD_PULL_UP_REG0,
+			((AMLNF_READ_REG(P_PAD_PULL_UP_REG0) & (~0x1FFF))
+			| 0x1500));
+
+		AMLNF_WRITE_REG(P_PERIPHS_PIN_MUX_0, 0x11111111);
+		AMLNF_WRITE_REG(P_PERIPHS_PIN_MUX_1,
+			((AMLNF_READ_REG(P_PERIPHS_PIN_MUX_1) & (~0xFFFFF)) | 0x22222));
+		writel(0xFFFFFFFF, P_PAD_DS_REG0A);
 	} else {
 		printk("%s() %d: cpuid 0x%x not support yet!\n",
 			__func__, __LINE__, cpu_id.family_id);
 		BUG();
 	}
-
 	return ;
 }
 
@@ -1987,7 +2003,7 @@ void aml_nand_cmd_ctrl(struct mtd_info *mtd, int cmd,  unsigned int ctrl)
 int aml_nand_wait(struct mtd_info *mtd, struct nand_chip *chip)
 {
 	struct aml_nand_chip *aml_chip = mtd_to_nand_chip(mtd);
-	int status[MAX_CHIP_NUM], i = 0, time_cnt = 0;
+	int status[MAX_CHIP_NUM] = {0}, i = 0, time_cnt = 0;
 	struct aml_nand_platform *plat = aml_chip->platform;
 	int read_status =0;
 	/* Apply this short delay always to ensure that we do wait tWB in
@@ -3551,6 +3567,11 @@ int aml_nand_block_bad(struct mtd_info *mtd, loff_t ofs, int getchip)
 		NAND_BOOT_NAME, strlen((const char*)NAND_BOOT_NAME))))
 		return 0;
 
+	if (!fls(mtd->erasesize)) {
+		printk("%s, %d !!!error,bit shift is zero\n",
+			__func__,__LINE__);
+		return ret;
+	}
 	mtd_erase_shift = fls(mtd->erasesize) - 1;
 	blk_addr = (int)(ofs >> mtd_erase_shift);
 
@@ -3634,10 +3655,16 @@ int aml_nand_block_markbad(struct mtd_info *mtd, loff_t ofs)
 {
 	struct nand_chip * chip = mtd->priv;
 	struct aml_nand_chip *aml_chip = mtd_to_nand_chip(mtd);
-	struct mtd_oob_ops aml_oob_ops;
 	int blk_addr, mtd_erase_shift;
 	int8_t *buf = NULL;
+	int page, chipnr;
+	int ret = 0;
 
+	if (!fls(mtd->erasesize)) {
+		printk("%s, %d !!!!error,bit shift is zero\n",
+			__func__,__LINE__);
+		return ret;
+	}
 	mtd_erase_shift = fls(mtd->erasesize) - 1;
 	blk_addr = (int)(ofs >> mtd_erase_shift);
 	if (aml_chip->block_status != NULL) {
@@ -3655,18 +3682,19 @@ int aml_nand_block_markbad(struct mtd_info *mtd, loff_t ofs)
 	}
 mark_bad:
 	/*no erase here, fixit*/
-	aml_oob_ops.mode = MTD_OPS_AUTO_OOB;
-	aml_oob_ops.len = mtd->writesize;
-	aml_oob_ops.ooblen = mtd->oobavail;
-	aml_oob_ops.ooboffs = chip->ecc.layout->oobfree[0].offset;
-	aml_oob_ops.datbuf = chip->buffers->databuf;
-	aml_oob_ops.oobbuf = chip->oob_poi;
 	chip->pagebuf = -1;
 
-	memset((unsigned char *)aml_oob_ops.datbuf, 0x0, mtd->writesize);
-	memset((unsigned char *)aml_oob_ops.oobbuf, 0x0, aml_oob_ops.ooblen);
+	memset((unsigned char *)chip->buffers->databuf, 0x0, mtd->writesize);
+	memset((unsigned char *)chip->oob_poi, 0x0, mtd->oobavail);
 
-	return mtd->_write_oob(mtd, ofs, &aml_oob_ops);
+	chipnr = (int)(ofs >> chip->chip_shift);
+	page = (int)(ofs >> chip->page_shift);
+	chip->select_chip(mtd, chipnr);
+	ret = chip->write_page(mtd, chip, 0, mtd->writesize,
+		chip->buffers->databuf,
+		1, page, 0, 0);
+	chip->select_chip(mtd, -1);
+	return ret;
 }
 
 static uint8_t aml_platform_read_byte(struct mtd_info *mtd)
@@ -3738,12 +3766,15 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 	aml_chip->toggle_mode =0;
 	aml_chip->bch_info = NAND_ECC_BCH60_1K;
 	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_AXG) ||
-	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_TXHD))
+	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_TXHD) ||
+		(cpu_id.family_id == MESON_CPU_MAJOR_ID_TL1) ||
+		(cpu_id.family_id == MESON_CPU_MAJOR_ID_TM2))
 		aml_chip->bch_info = NAND_ECC_BCH8_1K;
 
 	chip->options = 0;
 	chip->options |=  NAND_SKIP_BBTSCAN;
 	chip->options |= NAND_NO_SUBPAGE_WRITE;
+
 	if (aml_nand_scan(mtd, controller->chip_num)) {
 		err = -ENXIO;
 		goto exit_error;
@@ -3781,7 +3812,7 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 		else if (chip->ecc.mode != NAND_ECC_SOFT) {
 			switch (aml_chip->oob_size) {
 				case 64:
-				memcpy(chip->ecc.layout,
+				memmove(chip->ecc.layout,
 					&aml_nand_oob_64,
 					sizeof(struct nand_ecclayout));
 				break;
@@ -3843,7 +3874,7 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 				default:
 				printk("default, use nand base oob layout %d\n",
 					mtd->oobsize);
-				oobfree[0].length =
+				chip->ecc.layout->oobfree[0].length =
 		((mtd->writesize / chip->ecc.size) * aml_chip->user_byte_mode);
 				break;
 			}
@@ -3864,7 +3895,9 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 	 */
 	chip->ecc.layout->oobavail = 0;
 	oobfree = chip->ecc.layout->oobfree;
-	for (i = 0; oobfree[i].length && i < ARRAY_SIZE(oobfree); i++)
+	for (i = 0;
+		oobfree[i].length && i < ARRAY_SIZE(chip->ecc.layout->oobfree);
+		i++)
 		chip->ecc.layout->oobavail += oobfree[i].length;
 	printk("oob avail size %d\n", chip->ecc.layout->oobavail);
 
@@ -3875,20 +3908,24 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 	aml_chip->virtual_block_size = mtd->erasesize;
 
 	aml_chip->aml_nand_data_buf =
-		kzalloc((mtd->writesize + mtd->oobsize), GFP_KERNEL);
+		malloc((mtd->writesize + mtd->oobsize));
 	if (aml_chip->aml_nand_data_buf == NULL) {
 		printk("no memory for flash data buf\n");
 		err = -ENOMEM;
 		goto exit_error;
 	}
+	memset(aml_chip->aml_nand_data_buf, 0,
+		mtd->writesize + mtd->oobsize);
+
 	aml_chip->user_info_buf =
-		kzalloc((mtd->writesize / chip->ecc.size) * PER_INFO_BYTE,
-		GFP_KERNEL);
+		malloc((mtd->writesize / chip->ecc.size) * PER_INFO_BYTE);
 	if (aml_chip->user_info_buf == NULL) {
 		printk("no memory for flash info buf\n");
 		err = -ENOMEM;
 		goto exit_error;
 	}
+	memset(aml_chip->user_info_buf, 0,
+		(mtd->writesize / chip->ecc.size) * PER_INFO_BYTE);
 
 	if (chip->buffers == NULL) {
 		printk("no memory for flash data buf\n");
@@ -3946,7 +3983,7 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 
 exit_error:
 	if (aml_chip->user_info_buf) {
-		kfree(aml_chip->user_info_buf);
+		free(aml_chip->user_info_buf);
 		aml_chip->user_info_buf = NULL;
 	}
 	if (chip->buffers) {
@@ -3954,7 +3991,7 @@ exit_error:
 		chip->buffers = NULL;
 	}
 	if (aml_chip->aml_nand_data_buf) {
-		kfree(aml_chip->aml_nand_data_buf);
+		free(aml_chip->aml_nand_data_buf);
 		aml_chip->aml_nand_data_buf = NULL;
 	}
 	if (aml_chip->block_status) {

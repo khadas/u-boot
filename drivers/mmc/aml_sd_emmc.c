@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <errno.h>
 //#include <asm/dma-mapping.h>
 #include <asm/io.h>
 #include <mmc.h>
@@ -57,16 +58,23 @@ unsigned long sd_emmc_base_addr[3] = {SD_EMMC_BASE_A,
 										SD_EMMC_BASE_C};
 
 static struct aml_card_sd_info aml_sd_emmc_ports[]={
-    { .sd_emmc_port=SDIO_PORT_A,.name="SDIO Port A"},
-    { .sd_emmc_port=SDIO_PORT_B,.name="SDIO Port B"},
-    { .sd_emmc_port=SDIO_PORT_C,.name="SDIO Port C"},
+	{ .sd_emmc_port=SDIO_PORT_A,.name="SDIO Port A"},
+	{ .sd_emmc_port=SDIO_PORT_B,.name="SDIO Port B"},
+	{ .sd_emmc_port=SDIO_PORT_C,.name="SDIO Port C"},
+};
+
+/*The default source clock is 1GMHZ, tx_phase is 0*/
+#define MMC_CLOCK_MAX	2
+static struct fixed_adj_table calc_fixed_adj[]={
+	{40000000, 20},
+	{50000000, 18},
 };
 
 struct aml_card_sd_info * cpu_sd_emmc_get(unsigned port)
 {
-    if (port<SDIO_PORT_C+1)
-        return &aml_sd_emmc_ports[port];
-    return NULL;
+	if (port<SDIO_PORT_C+1)
+		return &aml_sd_emmc_ports[port];
+	return NULL;
 }
 
 int aml_fixdiv_calc(struct mmc *mmc)
@@ -117,7 +125,7 @@ int aml_fixdiv_calc(struct mmc *mmc)
 		val_idx_min = sdclk_idx - 1;
 		val_idx_sta = val_idx_max;
 		val_idx_win = full_div / 2;
-		//val_idx_win = (full_div + val_idx_min) -  val_idx_max;
+		//val_idx_win = (full_div + val_idx_min) - val_idx_max;
 	}
 
 	printf("val_idx_sta %d, val_idx_win %d\n", val_idx_sta, val_idx_win);
@@ -151,9 +159,9 @@ void aml_sd_cfg_swth(struct mmc *mmc)
 	}
 
 	if (mmc->clock<mmc->cfg->f_min)
-	    mmc->clock=mmc->cfg->f_min;
+		mmc->clock=mmc->cfg->f_min;
 	if (mmc->clock>mmc->cfg->f_max)
-	    mmc->clock=mmc->cfg->f_max;
+		mmc->clock=mmc->cfg->f_max;
 
 	clk_div= clk / mmc->clock;
 #if CONFIG_EMMC_DDR52_EN
@@ -179,16 +187,16 @@ void aml_sd_cfg_swth(struct mmc *mmc)
 	sd_emmc_reg->gclock = sd_emmc_clkc;
 	vconf = sd_emmc_reg->gcfg;
 
-	sd_emmc_cfg->bus_width = bus_width;     //1bit mode
-    sd_emmc_cfg->bl_len = 9;      //512byte block length
-    sd_emmc_cfg->resp_timeout = 7;      //64 CLK cycle, here 2^8 = 256 clk cycles
-    sd_emmc_cfg->rc_cc = 4;      //1024 CLK cycle, Max. 100mS.
+	sd_emmc_cfg->bus_width = bus_width;    //1bit mode
+	sd_emmc_cfg->bl_len = 9;               //512byte block length
+	sd_emmc_cfg->resp_timeout = 7;         //64 CLK cycle, here 2^8 = 256 clk cycles
+	sd_emmc_cfg->rc_cc = 4;                //1024 CLK cycle, Max. 100mS.
 #if CONFIG_EMMC_DDR52_EN
-    sd_emmc_cfg->ddr = mmc->ddr_mode;
+	sd_emmc_cfg->ddr = mmc->ddr_mode;
 #endif
-    sd_emmc_reg->gcfg = vconf;
+	sd_emmc_reg->gcfg = vconf;
 
-    sd_emmc_para_config(sd_emmc_reg, mmc->clock, aml_priv->sd_emmc_port);
+	sd_emmc_para_config(sd_emmc_reg, mmc->clock, aml_priv->sd_emmc_port);
 
 	if (mmc->cfg->ops->calc && (!strcmp(mmc->cfg->name, "SDIO Port C"))) {
 		mmc->clk_lay.source = mmc->clock * clk_div;
@@ -206,15 +214,15 @@ void aml_sd_cfg_swth(struct mmc *mmc)
 		}
 	}
 
-    printf("co-phase 0x%x, tx-dly %d, clock %d\n",
-        (sd_emmc_reg->gclock >> Cfg_co_phase) & 3,
-        (sd_emmc_reg->gclock >> Cfg_tx_delay) & 0x3f,
-        mmc->clock);
+	printf("co-phase 0x%x, tx-dly %d, clock %d\n",
+		(sd_emmc_reg->gclock >> Cfg_co_phase) & 3,
+		(sd_emmc_reg->gclock >> Cfg_tx_delay) & 0x3f,
+		mmc->clock);
 
-    emmc_debug("bus_width=%d; tclk_div=%d; tclk=%d;sd_clk=%d\n",
-        bus_width,clk_div,clk,mmc->clock);
-    emmc_debug("port=%d act_clk=%d\n",aml_priv->sd_emmc_port,clk/clk_div);
-    return;
+	emmc_debug("bus_width=%d; tclk_div=%d; tclk=%d;sd_clk=%d\n",
+		bus_width,clk_div,clk,mmc->clock);
+	emmc_debug("port=%d act_clk=%d\n",aml_priv->sd_emmc_port,clk/clk_div);
+	return;
 }
 
 static int sd_inand_check_insert(struct	mmc	*mmc)
@@ -303,7 +311,7 @@ static int sd_inand_staff_init(struct mmc *mmc)
 	//unsigned base;
 
 	sd_debug("");
-    sdio->sd_emmc_pwr_prepare(sdio->sd_emmc_port);
+	sdio->sd_emmc_pwr_prepare(sdio->sd_emmc_port);
 	sd_debug("power off");
 	sdio->sd_emmc_pwr_off(sdio->sd_emmc_port);
 	//try to init mmc controller clock firstly
@@ -313,30 +321,30 @@ static int sd_inand_staff_init(struct mmc *mmc)
 	if (sdio->sd_emmc_port == SDIO_PORT_B) {
 		//base=get_timer(0);
 #if defined(CONFIG_VLSI_EMULATOR)
-	    //while (get_timer(base)<1) ;
+		//while (get_timer(base)<1) ;
 #else
 		//while (get_timer(base)<200) ;
 #endif
-    }
-    sdio->sd_emmc_pwr_on(sdio->sd_emmc_port);
-    sdio->sd_emmc_init(sdio->sd_emmc_port);
+	}
+	sdio->sd_emmc_pwr_on(sdio->sd_emmc_port);
+	sdio->sd_emmc_init(sdio->sd_emmc_port);
 	if (sd_debug_board_1bit_flag == 1) {
-        struct mmc_config *cfg;
-        cfg = &((struct aml_card_sd_info *)mmc->priv)->cfg;
-        cfg->host_caps = MMC_MODE_HS;
-        mmc->cfg = cfg;
-    }
-    //only power ctrl for external tf card
-    if (sdio->sd_emmc_port == SDIO_PORT_B) {
-        //base=get_timer(0);
+		struct mmc_config *cfg;
+		cfg = &((struct aml_card_sd_info *)mmc->priv)->cfg;
+		cfg->host_caps = MMC_MODE_HS;
+		mmc->cfg = cfg;
+	}
+	//only power ctrl for external tf card
+	if (sdio->sd_emmc_port == SDIO_PORT_B) {
+		//base=get_timer(0);
 #if defined(CONFIG_VLSI_EMULATOR)
-        //while (get_timer(base)<1) ;
+		//while (get_timer(base)<1) ;
 #else
-        //while (get_timer(base)<200) ;
+		//while (get_timer(base)<200) ;
 #endif
-    }
-    if (!sdio->inited_flag)
-        sdio->inited_flag = 1;
+	}
+	if (!sdio->inited_flag)
+		sdio->inited_flag = 1;
 	return SD_NO_ERROR;
 }
 
@@ -394,6 +402,10 @@ int aml_sd_send_cmd_ffu(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *d
 		des_cmd_cur->data_io = 1; // cmd has data read or write
 		if (data->flags == MMC_DATA_WRITE) {
 			write_buffer = (u32 *)malloc(data->blocks * data->blocksize);
+			if (!write_buffer) {
+				printf("%s: No memory for write_buffer\n", __func__);
+				return -ENOMEM;
+			}
 			memset(write_buffer, 0, data->blocks * data->blocksize);
 			memcpy(write_buffer, (u32 *)data->src, data->blocks*data->blocksize);
 			flush_dcache_range((unsigned)(long)write_buffer,(unsigned long)(write_buffer+data->blocks*data->blocksize));
@@ -428,6 +440,7 @@ int aml_sd_send_cmd_ffu(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *d
 				}
 			} else {
 				printf("data blks < 1\n");
+				free(write_buffer);
 				return 1;
 			}
 		} else {
@@ -525,209 +538,212 @@ int aml_sd_send_cmd_ffu(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *d
  */
 int aml_sd_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 {
-        int ret = SD_NO_ERROR;
-        //u32 vconf;
-        u32 buffer = 0;
-        u32 resp_buffer;
-        u32 vstart = 0;
-        u32 status_irq = 0;
-        //u32 inalign = 0;
-        u32 *write_buffer = NULL;
-        struct sd_emmc_status *status_irq_reg = (void *)&status_irq;
-        struct sd_emmc_start *desc_start = (struct sd_emmc_start*)&vstart;
-        //struct sd_emmc_config* sd_emmc_cfg = (struct sd_emmc_config*)&vconf;
-        struct aml_card_sd_info *aml_priv = mmc->priv;
-        struct sd_emmc_global_regs *sd_emmc_reg = aml_priv->sd_emmc_reg;
-        struct cmd_cfg *des_cmd_cur = NULL;
-        struct sd_emmc_desc_info *desc_cur = (struct sd_emmc_desc_info*)aml_priv->desc_buf;
+	int ret = SD_NO_ERROR;
+	//u32 vconf;
+	u32 buffer = 0;
+	u32 resp_buffer;
+	u32 vstart = 0;
+	u32 status_irq = 0;
+	//u32 inalign = 0;
+	u32 *write_buffer = NULL;
+	struct sd_emmc_status *status_irq_reg = (void *)&status_irq;
+	struct sd_emmc_start *desc_start = (struct sd_emmc_start*)&vstart;
+	//struct sd_emmc_config* sd_emmc_cfg = (struct sd_emmc_config*)&vconf;
+	struct aml_card_sd_info *aml_priv = mmc->priv;
+	struct sd_emmc_global_regs *sd_emmc_reg = aml_priv->sd_emmc_reg;
+	struct cmd_cfg *des_cmd_cur = NULL;
+	struct sd_emmc_desc_info *desc_cur = (struct sd_emmc_desc_info*)aml_priv->desc_buf;
 
-        //vconf = sd_emmc_reg->gcfg;
+	//vconf = sd_emmc_reg->gcfg;
 
-        memset(desc_cur, 0, (NEWSD_MAX_DESC_MUN>>2)*sizeof(struct sd_emmc_desc_info));
+	memset(desc_cur, 0, (NEWSD_MAX_DESC_MUN>>2)*sizeof(struct sd_emmc_desc_info));
 
-        des_cmd_cur = (struct cmd_cfg *)&(desc_cur->cmd_info);
-        des_cmd_cur->cmd_index = 0x80 | cmd->cmdidx; //bit:31 owner = 1 bit:24-29 cmdidx
-        desc_cur->cmd_arg = cmd->cmdarg;
+	des_cmd_cur = (struct cmd_cfg *)&(desc_cur->cmd_info);
+	des_cmd_cur->cmd_index = 0x80 | cmd->cmdidx; //bit:31 owner = 1 bit:24-29 cmdidx
+	desc_cur->cmd_arg = cmd->cmdarg;
 
-        sd_inand_clear_response(cmd->response);
+	sd_inand_clear_response(cmd->response);
 
-        //check response type
-        if (cmd->resp_type & MMC_RSP_PRESENT) {
-                resp_buffer = (unsigned long)cmd->response;//dma_map_single((void*)cmd->response,sizeof(uint)*4,DMA_FROM_DEVICE);
-                des_cmd_cur->no_resp = 0;
+	//check response type
+	if (cmd->resp_type & MMC_RSP_PRESENT) {
+		resp_buffer = (unsigned long)cmd->response;//dma_map_single((void*)cmd->response,sizeof(uint)*4,DMA_FROM_DEVICE);
+		des_cmd_cur->no_resp = 0;
 
-                //save Resp into Resp addr, and check response from register for RSP_136
-                if (cmd->resp_type & MMC_RSP_136)
-                        des_cmd_cur->resp_128 = 1;
+		//save Resp into Resp addr, and check response from register for RSP_136
+		if (cmd->resp_type & MMC_RSP_136)
+			des_cmd_cur->resp_128 = 1;
 
-                if (cmd->resp_type & MMC_RSP_BUSY)
-                        des_cmd_cur->r1b = 1;    //check data0 busy after R1 reponse
+		if (cmd->resp_type & MMC_RSP_BUSY)
+			des_cmd_cur->r1b = 1;    //check data0 busy after R1 reponse
 
-                if (!(cmd->resp_type & MMC_RSP_CRC))
-                        des_cmd_cur->resp_nocrc = 1;
+		if (!(cmd->resp_type & MMC_RSP_CRC))
+			des_cmd_cur->resp_nocrc = 1;
 
-                des_cmd_cur->resp_num = 0;
-                desc_cur->resp_addr = resp_buffer;
-        }else
-                des_cmd_cur->no_resp = 1;
+		des_cmd_cur->resp_num = 0;
+		desc_cur->resp_addr = resp_buffer;
+	} else
+		des_cmd_cur->no_resp = 1;
 
-        if (data) {
-                des_cmd_cur->data_io = 1; // cmd has data read or write
-                if (data->flags == MMC_DATA_READ) {
-                        des_cmd_cur->data_wr = 0;  //read data from sd/emmc
-                        buffer = (unsigned long)data->dest;//dma_map_single((void*)data->dest,data->blocks*data->blocksize,DMA_FROM_DEVICE);
-                        invalidate_dcache_range((unsigned long)data->dest, (unsigned long)(data->dest+data->blocks*data->blocksize));
-                }else{
-                        des_cmd_cur->data_wr = 1;
-                        //buffer = (unsigned long)data->src;//dma_map_single((void*)data->src,data->blocks*data->blocksize,DMA_TO_DEVICE);//(char *)data->src;
-                        write_buffer = (u32 *)malloc(128*1024);
-                        memset(write_buffer, 0 ,128*1024);
-                        memcpy(write_buffer, (u32 *)data->src, data->blocks*data->blocksize);
-                        flush_dcache_range((unsigned)(long)write_buffer,(unsigned long)(write_buffer+data->blocks*data->blocksize));
-                }
+	if (data) {
+		des_cmd_cur->data_io = 1; // cmd has data read or write
+		if (data->flags == MMC_DATA_READ) {
+			des_cmd_cur->data_wr = 0;  //read data from sd/emmc
+			buffer = (unsigned long)data->dest;//dma_map_single((void*)data->dest,data->blocks*data->blocksize,DMA_FROM_DEVICE);
+			invalidate_dcache_range((unsigned long)data->dest, (unsigned long)(data->dest+data->blocks*data->blocksize));
+		} else {
+			des_cmd_cur->data_wr = 1;
+			//buffer = (unsigned long)data->src;//dma_map_single((void*)data->src,data->blocks*data->blocksize,DMA_TO_DEVICE);//(char *)data->src;
+			write_buffer = (u32 *)malloc(data->blocks * data->blocksize);
+			if (!write_buffer) {
+				printf("%s: No memory for write_buffer\n", __func__);
+				return -ENOMEM;
+			}
+			memset(write_buffer, 0 ,data->blocks * data->blocksize);
+			memcpy(write_buffer, (u32 *)data->src, data->blocks*data->blocksize);
+			flush_dcache_range((unsigned)(long)write_buffer,(unsigned long)(write_buffer+data->blocks*data->blocksize));
+		}
 
-                if (data->blocks > 1) {
-                        des_cmd_cur->block_mode = 1;
-                        des_cmd_cur->length = data->blocks;
-                }else{
-                        des_cmd_cur->block_mode = 0;
-                        des_cmd_cur->length = data->blocksize;
-                }
-                des_cmd_cur->data_num = 0;
-                if (des_cmd_cur->data_wr == 1)
-                        desc_cur->data_addr = (unsigned long)write_buffer;
-                else
-                        desc_cur->data_addr = buffer;
-                desc_cur->data_addr &= ~(1<<0);   //DDR
+		if (data->blocks > 1) {
+			des_cmd_cur->block_mode = 1;
+			des_cmd_cur->length = data->blocks;
+		} else {
+			des_cmd_cur->block_mode = 0;
+			des_cmd_cur->length = data->blocksize;
+		}
+		des_cmd_cur->data_num = 0;
+		if (des_cmd_cur->data_wr == 1)
+			desc_cur->data_addr = (unsigned long)write_buffer;
+		else
+			desc_cur->data_addr = buffer;
+		desc_cur->data_addr &= ~(1<<0);   //DDR
 
-        }
-        if (data) {
-                if ((data->blocks*data->blocksize <0x200) && (data->flags == MMC_DATA_READ)) {
-                        desc_cur->data_addr = (unsigned long)sd_emmc_reg->gping;
-                        desc_cur->data_addr |= 1<<0;
-                }
-                //des_cmd_cur->timeout = 7;
-        }
-        /*Prepare desc for config register*/
-        des_cmd_cur->owner = 1;
-        des_cmd_cur->end_of_chain = 0;
+	}
+	if (data) {
+		if ((data->blocks*data->blocksize <0x200) && (data->flags == MMC_DATA_READ)) {
+			desc_cur->data_addr = (unsigned long)sd_emmc_reg->gping;
+			desc_cur->data_addr |= 1<<0;
+		}
+		//des_cmd_cur->timeout = 7;
+	}
+	/*Prepare desc for config register*/
+	des_cmd_cur->owner = 1;
+	des_cmd_cur->end_of_chain = 0;
 
-        //sd_emmc_reg->gcfg = vconf;
+	//sd_emmc_reg->gcfg = vconf;
 
-        des_cmd_cur->end_of_chain = 1; //the end flag of descriptor chain
+	des_cmd_cur->end_of_chain = 1; //the end flag of descriptor chain
 
-        sd_emmc_reg->gstatus = NEWSD_IRQ_ALL;
+	sd_emmc_reg->gstatus = NEWSD_IRQ_ALL;
 
-        invalidate_dcache_range((unsigned long)aml_priv->desc_buf,
-                        (unsigned long)(aml_priv->desc_buf+NEWSD_MAX_DESC_MUN*(sizeof(struct sd_emmc_desc_info))));
-        //start transfer cmd
-        desc_start->init = 0;
-        desc_start->busy = 1;
-        desc_start->addr = (unsigned long)aml_priv->desc_buf >> 2;
+	invalidate_dcache_range((unsigned long)aml_priv->desc_buf,
+					(unsigned long)(aml_priv->desc_buf+NEWSD_MAX_DESC_MUN*(sizeof(struct sd_emmc_desc_info))));
+	//start transfer cmd
+	desc_start->init = 0;
+	desc_start->busy = 1;
+	desc_start->addr = (unsigned long)aml_priv->desc_buf >> 2;
 #if 0
-        sd_emmc_reg->gstart = vstart;
+	sd_emmc_reg->gstart = vstart;
 #else
-        sd_emmc_reg->gcmd_cfg = desc_cur->cmd_info;
-        sd_emmc_reg->gcmd_dat = desc_cur->data_addr;
-        sd_emmc_reg->gcmd_arg = desc_cur->cmd_arg;
+	sd_emmc_reg->gcmd_cfg = desc_cur->cmd_info;
+	sd_emmc_reg->gcmd_dat = desc_cur->data_addr;
+	sd_emmc_reg->gcmd_arg = desc_cur->cmd_arg;
 #endif
-    //waiting end of chain
-        //mmc->refix = 0;
-        while (1) {
-                status_irq = sd_emmc_reg->gstatus;
-                if (status_irq_reg->end_of_chain)
-                        break;
-        }
-        if (status_irq_reg->rxd_err) {
-                ret |= SD_EMMC_RXD_ERROR;
-                if (!mmc->refix)
-                    printf("emmc/sd read error, cmd%d, status=0x%x\n",
-                        cmd->cmdidx, status_irq);
-        }
-        if (status_irq_reg->txd_err) {
-                ret |= SD_EMMC_TXD_ERROR;
-                if (!mmc->refix)
-                    printf("emmc/sd write error, cmd%d, status=0x%x\n",
-                        cmd->cmdidx, status_irq);
-        }
-        if (status_irq_reg->desc_err) {
-                ret |= SD_EMMC_DESC_ERROR;
-                if (!mmc->refix)
-                    printf("emmc/sd descripter error, cmd%d, status=0x%x\n",
-                        cmd->cmdidx, status_irq);
-        }
-        if (status_irq_reg->resp_err) {
-                ret |= SD_EMMC_RESP_CRC_ERROR;
-                if (!mmc->refix)
-                    printf("emmc/sd response crc error, cmd%d, status=0x%x\n",
-                        cmd->cmdidx, status_irq);
-        }
-        if (status_irq_reg->resp_timeout) {
-                ret |= SD_EMMC_RESP_TIMEOUT_ERROR;
-                if (!mmc->refix)
-                    printf("emmc/sd response timeout, cmd%d, status=0x%x\n",
-                        cmd->cmdidx, status_irq);
-        }
-        if (status_irq_reg->desc_timeout) {
-                ret |= SD_EMMC_DESC_TIMEOUT_ERROR;
-                if (!mmc->refix)
-                    printf("emmc/sd descripter timeout, cmd%d, status=0x%x\n",
-                        cmd->cmdidx, status_irq);
-        }
-        if (data) {
-                if ((data->blocks*data->blocksize <0x200) && (data->flags == MMC_DATA_READ)) {
-                        memcpy(data->dest, (const void *)sd_emmc_reg->gping,data->blocks*data->blocksize);
-                }
-        }
-        /*we get response [0]:bit0~31
-         *        response [1]:bit32~63
-         *        response [2]:bit64~95
-         *        response [3]:bit96~127
-         * actually mmc driver definition is:
-         *		 response [0]:bit96~127
-         *        response [1]:bit64~95
-         *        response [2]:bit32~63
-         *        response [3]:bit0~31
-         */
+	//waiting end of chain
+	//mmc->refix = 0;
+	while (1) {
+		status_irq = sd_emmc_reg->gstatus;
+		if (status_irq_reg->end_of_chain)
+			break;
+	}
+	if (status_irq_reg->rxd_err) {
+		ret |= SD_EMMC_RXD_ERROR;
+		if (!mmc->refix)
+			printf("emmc/sd read error, cmd%d, cmd->cmdarg=0x%x, status=0x%x\n",
+				cmd->cmdidx, cmd->cmdarg, status_irq);
+	}
+	if (status_irq_reg->txd_err) {
+		ret |= SD_EMMC_TXD_ERROR;
+		if (!mmc->refix)
+			printf("emmc/sd write error, cmd%d, cmd->cmdarg=0x%x, status=0x%x\n",
+				cmd->cmdidx, cmd->cmdarg, status_irq);
+	}
+	if (status_irq_reg->desc_err) {
+		ret |= SD_EMMC_DESC_ERROR;
+		if (!mmc->refix)
+			printf("emmc/sd descripter error, cmd%d, cmd->cmdarg=0x%x, status=0x%x\n",
+				cmd->cmdidx, cmd->cmdarg, status_irq);
+	}
+	if (status_irq_reg->resp_err) {
+		ret |= SD_EMMC_RESP_CRC_ERROR;
+		if (!mmc->refix)
+			printf("emmc/sd response crc error, cmd%d, cmd->cmdarg=0x%x, status=0x%x\n",
+				cmd->cmdidx, cmd->cmdarg, status_irq);
+	}
+	if (status_irq_reg->resp_timeout) {
+		ret |= SD_EMMC_RESP_TIMEOUT_ERROR;
+		if (!mmc->refix)
+			printf("emmc/sd response timeout, cmd%d, cmd->cmdarg=0x%x, status=0x%x\n",
+				cmd->cmdidx, cmd->cmdarg, status_irq);
+	}
+	if (status_irq_reg->desc_timeout) {
+		ret |= SD_EMMC_DESC_TIMEOUT_ERROR;
+		if (!mmc->refix)
+			printf("emmc/sd descripter timeout, cmd%d, cmd->cmdarg=0x%x, status=0x%x\n",
+				cmd->cmdidx, cmd->cmdarg, status_irq);
+	}
+	if (data) {
+		if ((data->blocks*data->blocksize <0x200) && (data->flags == MMC_DATA_READ)) {
+			memcpy(data->dest, (const void *)sd_emmc_reg->gping,data->blocks*data->blocksize);
+		}
+	}
+	/*we get response [0]:bit0~31
+	 *		  response [1]:bit32~63
+	 *		  response [2]:bit64~95
+	 *		  response [3]:bit96~127
+	 * actually mmc driver definition is:
+	 *		 response [0]:bit96~127
+	 *		  response [1]:bit64~95
+	 *		  response [2]:bit32~63
+	 *		  response [3]:bit0~31
+	 */
 
-        if (cmd->resp_type & MMC_RSP_136) {
-                cmd->response[0] = sd_emmc_reg->gcmd_rsp3;
-                cmd->response[1] = sd_emmc_reg->gcmd_rsp2;
-                cmd->response[2] = sd_emmc_reg->gcmd_rsp1;
-                cmd->response[3] = sd_emmc_reg->gcmd_rsp0;
-        } else {
-                cmd->response[0] = sd_emmc_reg->gcmd_rsp0;
-        }
+	if (cmd->resp_type & MMC_RSP_136) {
+		cmd->response[0] = sd_emmc_reg->gcmd_rsp3;
+		cmd->response[1] = sd_emmc_reg->gcmd_rsp2;
+		cmd->response[2] = sd_emmc_reg->gcmd_rsp1;
+		cmd->response[3] = sd_emmc_reg->gcmd_rsp0;
+	} else {
+		cmd->response[0] = sd_emmc_reg->gcmd_rsp0;
+	}
 
+	sd_debug("cmd->cmdidx = %d, cmd->cmdarg=0x%x, ret=0x%x\n",cmd->cmdidx,cmd->cmdarg,ret);
+	sd_debug("cmd->response[0]=0x%x;\n",cmd->response[0]);
+	sd_debug("cmd->response[1]=0x%x;\n",cmd->response[1]);
+	sd_debug("cmd->response[2]=0x%x;\n",cmd->response[2]);
+	sd_debug("cmd->response[3]=0x%x;\n",cmd->response[3]);
+	if (des_cmd_cur->data_wr == 1) {
+		free(write_buffer);
+		write_buffer = NULL;
+	}
+	if (ret) {
+		if (status_irq_reg->resp_timeout)
+			return TIMEOUT;
+		else
+			return ret;
+	}
 
-        sd_debug("cmd->cmdidx = %d, cmd->cmdarg=0x%x, ret=0x%x\n",cmd->cmdidx,cmd->cmdarg,ret);
-        sd_debug("cmd->response[0]=0x%x;\n",cmd->response[0]);
-        sd_debug("cmd->response[1]=0x%x;\n",cmd->response[1]);
-        sd_debug("cmd->response[2]=0x%x;\n",cmd->response[2]);
-        sd_debug("cmd->response[3]=0x%x;\n",cmd->response[3]);
-        if (des_cmd_cur->data_wr == 1) {
-                free(write_buffer);
-                write_buffer = NULL;
-        }
-        if (ret) {
-                if (status_irq_reg->resp_timeout)
-                        return TIMEOUT;
-                else
-                        return ret;
-        }
-
-        return SD_NO_ERROR;
+	return SD_NO_ERROR;
 }
 
 int aml_sd_init(struct mmc *mmc)
 {
 	struct aml_card_sd_info *sdio=mmc->priv;
 
-    if (sdio->inited_flag) {
+	if (sdio->inited_flag) {
 		sdio->sd_emmc_init(sdio->sd_emmc_port);
 		mmc->cfg->ops->set_ios(mmc);
-        return 0;
-    }
+		return 0;
+	}
 
 	if (sd_inand_check_insert(mmc)) {
 		sd_inand_staff_init(mmc);
@@ -760,7 +776,7 @@ int aml_send_calibration_blocks(struct mmc *mmc, char *buffer, u32 start_blk, u3
 		cmd.cmdidx = MMC_CMD_READ_MULTIPLE_BLOCK;
 	else
 		cmd.cmdidx = MMC_CMD_READ_SINGLE_BLOCK;
-	cmd.cmdarg = start_blk;          //start address = 0
+	cmd.cmdarg = start_blk;			 //start address = 0
 	cmd.resp_type = MMC_RSP_R1;
 
 	data.dest = buffer;
@@ -781,7 +797,7 @@ int aml_send_calibration_blocks(struct mmc *mmc, char *buffer, u32 start_blk, u3
 	return 0;
 }
 
-int sd_emmc_test_adj(struct mmc *mmc)
+int __attribute__((unused)) sd_emmc_test_adj(struct mmc *mmc)
 {
 	int err = 0, ret = 0;
 	struct mmc_cmd cmd = {0};
@@ -834,11 +850,36 @@ __Retry:
 		sd_emmc_reg->gadjust = adjust;
 		printf("adj retry sampling point:(%d)->(%d)",
 			gadjust->adj_delay+1, gadjust->adj_delay);
-		emmc_debug("%s [%d]:  delay = 0x%x   gadjust =0x%x\n",
+		emmc_debug("%s [%d]:  delay = 0x%x  gadjust =0x%x\n",
 			__func__, __LINE__, sd_emmc_reg->gdelay, sd_emmc_reg->gadjust);
 		goto __Retry;
 	}
 	free(blk_test);
+	return 0;
+}
+
+int set_emmc_calc_fixed_adj(struct mmc *mmc)
+{
+	struct aml_card_sd_info *aml_priv = mmc->priv;
+	struct sd_emmc_global_regs *sd_emmc_reg = aml_priv->sd_emmc_reg;
+	u32 adjust = sd_emmc_reg->gadjust;
+	struct sd_emmc_adjust *gadjust = (struct sd_emmc_adjust *)&adjust;
+	u32 clk_num;
+
+	gadjust->adj_enable = 1;
+	for (clk_num = 0; clk_num < MMC_CLOCK_MAX; clk_num++) {
+		if (mmc->clock == calc_fixed_adj[clk_num].clk) {
+			gadjust->adj_delay = calc_fixed_adj[clk_num].fixed_adj;
+			sd_emmc_reg->gadjust = adjust;
+			printf("[%s][%d]find fixed adj_delay=%d\n",
+					__func__, __LINE__, gadjust->adj_delay);
+			break;
+		}
+	}
+	if (clk_num == MMC_CLOCK_MAX) {
+		printf("[%s][%d] no find fixed adj value\n", __func__, __LINE__);
+		return -1;
+	}
 	return 0;
 }
 
@@ -1019,15 +1060,14 @@ int aml_sd_retry_refix(struct mmc *mmc)
 		}
 	}
 
-	printf("meson-mmc: emmc: %s[%d]:delay1 = 0x%x,delay2 = 0x%x, gadjust =0x%x\n",
+	printf("meson-mmc: emmc: %s[%d]:delay1 = 0x%x, gadjust =0x%x\n",
 		__func__, __LINE__, sd_emmc_reg->gdelay,
-		sd_emmc_reg->gdelay1,
 		sd_emmc_reg->gadjust);
 	printf("meson-mmc: emmc: %s [%d]: adj_delay = %d\n", __func__, __LINE__,
 			adj_delay);
 #endif
 /* test adj sampling point*/
-	ret = sd_emmc_test_adj(mmc);
+	/*ret = sd_emmc_test_adj(mmc);*/
 
 	return ret;
 }
@@ -1053,6 +1093,7 @@ static const struct mmc_ops aml_sd_emmc_ops = {
 #ifdef MMC_ADJ_FIXED
 	.calibration = aml_sd_calibration,
 	.refix = aml_sd_retry_refix,
+	.calc_fixed_adj = set_emmc_calc_fixed_adj,
 #endif
 #ifdef MMC_ADJ_FIX_CALC
 	.calc = aml_fixdiv_calc,
@@ -1074,9 +1115,9 @@ void sd_emmc_register(struct aml_card_sd_info * aml_priv)
 	cfg->voltages = MMC_VDD_33_34|MMC_VDD_32_33|MMC_VDD_31_32|MMC_VDD_165_195;
 	cfg->host_caps = MMC_MODE_8BIT|MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS |
 #if CONFIG_EMMC_DDR52_EN
-			     MMC_MODE_HC | MMC_MODE_DDR_52MHz;
+				 MMC_MODE_HC | MMC_MODE_DDR_52MHz;
 #else
-			     MMC_MODE_HC;
+				 MMC_MODE_HC;
 #endif
 	cfg->f_min = 400000;
 #ifdef MMC_HS200_MODE
@@ -1102,7 +1143,7 @@ void sd_emmc_register(struct aml_card_sd_info * aml_priv)
 
 bool aml_is_emmc_tsd (struct mmc *mmc) // is eMMC OR TSD
 {
-    struct aml_card_sd_info * sdio=mmc->priv;
+	struct aml_card_sd_info * sdio=mmc->priv;
 
-    return ((sdio->sd_emmc_port == SDIO_PORT_C));
+	return ((sdio->sd_emmc_port == SDIO_PORT_C));
 }

@@ -47,6 +47,7 @@ extern int store_write_ops(
 #define CMD_RUN_RECOVERY   "boot-recovery"
 #define CMD_RESIZE_DATA    "resize2fs_data"
 #define CMD_FOR_RECOVERY "recovery_"
+#define CMD_FASTBOOTD          "fastbootd"
 
 struct bootloader_message {
     char command[32];
@@ -129,6 +130,12 @@ static int do_RunBcbCommand(
         memcpy(miscbuf, CMD_RUN_RECOVERY, sizeof(CMD_RUN_RECOVERY));
         sprintf(recovery, "%s%s", "recovery\n--", command_mark);
         memcpy(miscbuf+sizeof(command)+sizeof(status), recovery, strlen(recovery));
+        store_write_ops((unsigned char *)partition, (unsigned char *)miscbuf, 0, sizeof(miscbuf));
+        return 0;
+    } else if (!memcmp(command_mark, CMD_FASTBOOTD, strlen(command_mark))) {
+        printf("write cmd to enter fastbootd \n");
+        memcpy(miscbuf, CMD_RUN_RECOVERY, sizeof(CMD_RUN_RECOVERY));
+        memcpy(miscbuf+sizeof(command)+sizeof(status), "recovery\n--fastboot", sizeof("recovery\n--fastboot"));
         store_write_ops((unsigned char *)partition, (unsigned char *)miscbuf, 0, sizeof(miscbuf));
         return 0;
     }

@@ -34,17 +34,17 @@ extern const char * const _env_args_reserve_[0] __attribute__((weak, alias("temp
 #define ModPrefix(pre) printf(pre"[def_wi]")
 #define debugP(fmt...) //ModPrefix("Dbg"),printf("L%d:", __LINE__),printf(fmt)
 #define errorP(fmt...) ModPrefix("Err"), printf("L%d:", __LINE__),printf(fmt)
-#define wrnP(fmt...)   ModPrefix("Err"), printf(fmt)
-#define MsgP(fmt...)   ModPrefix("Err"), printf(fmt)
+#define wrnP(fmt...)   ModPrefix("Wrn"), printf(fmt)
+#define MsgP(fmt...)   ModPrefix("Msg"), printf(fmt)
+#define MaxEnvLen      2048
 
 static int _reserve_env_list_after_defenv(const int reservNum, const char* const reservNameList[])
 {
         int ret = 0;
         int index = 0;
-        unsigned sumOfEnvVal = 0;//sum of strlen(getenv(env_i))
         const int MaxReservNum = CONFIG_SYS_MAXARGS - 1;
         const char* valListBuf[MaxReservNum];//store at most 64 envs
-        char* tmpEnvBuf = NULL;
+        char tmpBuf[MaxEnvLen];
 
         if (reservNum > MaxReservNum) {
                 errorP("max reserved env list num %d < wanted %d\n", MaxReservNum, reservNum);
@@ -54,58 +54,37 @@ static int _reserve_env_list_after_defenv(const int reservNum, const char* const
         for (index = 0; index < reservNum; ++index)
         {
                 const char* cfgEnvKey = reservNameList[index];
-                const char* cfgEnvVal = getenv(cfgEnvKey);
 
-                if (cfgEnvVal) {
-                        sumOfEnvVal += strlen(cfgEnvVal) + 1;
+                int i = 0;
+                const char* envVal = getenv(cfgEnvKey);
+                if (!envVal) {valListBuf[index] = NULL; continue;}
+
+                int envLen = MaxEnvLen;
+                for (; i < MaxEnvLen; ++i) {
+                    if ('\0' == envVal[i]) {
+                        envLen = i + 1;//include '\0'
+                        break;
+                    }
                 }
-                valListBuf[index] = cfgEnvVal;
-        }
-
-        //2, transfer the env values to buffer
-        if (sumOfEnvVal)
-        {
-                tmpEnvBuf = (char*)malloc(sumOfEnvVal);
-                if (!tmpEnvBuf) {
-                        errorP("Fail in malloc(%d)\n", sumOfEnvVal);
-                        return __LINE__;
-                }
-                memset(tmpEnvBuf, 0, sumOfEnvVal);
-
-                char* tmpbuf    = tmpEnvBuf;
-                for (index = 0; index < reservNum; ++index )
-                {
-                        const char*    valBeforeDef     = valListBuf[index];
-
-                        if (!valBeforeDef) continue;
-
-                        const unsigned thisValLen       = strlen(valBeforeDef) + 1;
-                        memcpy(tmpbuf, valBeforeDef, thisValLen);
-                        valListBuf[index] = tmpbuf;
-                        tmpbuf += thisValLen ;
-                        debugP("tmpEnvBuf=%p, tmpbuf=%p, thisValLen=%d\n", tmpEnvBuf, tmpbuf, thisValLen);
-                        debugP("cp:k[%s]%s-->%s\n", reservNameList[index], valBeforeDef, tmpEnvBuf);
-                }
+                memcpy(tmpBuf, envVal, envLen);
+                tmpBuf[--envLen] = '\0';
+                valListBuf[index] = strdup(tmpBuf);
         }
 
         set_default_env("## defenv_reserve\n");
 
-        if (sumOfEnvVal)
+        for (index = 0; index < reservNum; ++index)
         {
-                for (index = 0; index < reservNum; ++index)
-                {
-                        const char* cfgEnvKey           = reservNameList[index];
-                        const char* valAftDef           = valListBuf[index];
+            const char* cfgEnvKey           = reservNameList[index];
+            const char* valAftDef           = valListBuf[index];
 
-                        if (valAftDef)
-                        {
-                                setenv(cfgEnvKey, valAftDef);
-                                debugP("set[%s=%s]\n", cfgEnvKey, valAftDef);
-                        }
-                }
+            if (!valAftDef) continue;
+
+            setenv(cfgEnvKey, valAftDef);
+            debugP("set[%s=%s]\n", cfgEnvKey, valAftDef);
+            free((char*)valAftDef);
         }
 
-        if (tmpEnvBuf) free(tmpEnvBuf) ;
         return ret;
 }
 

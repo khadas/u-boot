@@ -46,6 +46,8 @@ Description:
 #define     MAX_MMC_PART_NUM                32
 #define     MAX_MMC_PART_NAME_LEN           16
 
+#define 	MMC_BOOT_PARTITION_SUPPORT		1
+
 #ifndef CONFIG_AML_MMC_INHERENT_PART
 #define     PARTITION_RESERVED              (8*SZ_1M)  // 8MB
 #define     MMC_BOOT_PARTITION_RESERVED     (32*SZ_1M) // 32MB
@@ -231,7 +233,7 @@ struct _mmc_device{
 #define LOCK_MAJOR_VERSION 1
 #define LOCK_MINOR_VERSION 0
 
-#define LOCK_DATA_SIZE 8
+#define LOCK_DATA_SIZE 16
 
 typedef struct LockData {
 	uint8_t version_major;

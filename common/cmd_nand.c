@@ -314,7 +314,12 @@ static int get_part(const char *partname, int *idx, loff_t *off, loff_t *size,
 	u8 pnum;
 	int ret;
 
-	mtdparts_init();
+	ret = mtdparts_init();
+	if (ret) {
+		printf("mtd part init failed, ret: %d\n", ret);
+		return ret;
+	}
+
 	ret = find_dev_and_part(partname, &dev, &pnum, &part);
 	if (ret)
 		return ret;
@@ -614,7 +619,7 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i, ret = 0;
 	ulong addr;
-	loff_t off, size, maxsize;
+	loff_t off, size, maxsize = 0;
 	char *cmd, *s;
 	nand_info_t *nand;
 #ifdef CONFIG_SYS_NAND_QUIET

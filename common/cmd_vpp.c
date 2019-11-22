@@ -21,6 +21,8 @@ Description:
 #include <common.h>
 #include <command.h>
 #include <vpp.h>
+#include <amlogic/dolby_vision.h>
+#include <asm/cpu_id.h>
 
 static int do_vpp_pq(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
@@ -60,8 +62,10 @@ static int do_hdr_packet(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 		printf("[vpp] hdr packet error !!!\n");
 		return cmd_usage(cmdtp);
 	}
-
-	hdr_tx_pkt_cb();
+	if (!check_dolby_vision_on()) {
+		printf("hdr_packet\n");
+		hdr_tx_pkt_cb();
+	}
 
 	return CMD_RET_SUCCESS;
 }

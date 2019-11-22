@@ -53,9 +53,10 @@ struct amlogic_usb_config * board_usb_start(int mode,int index)
 	if (board_usb_get_sm1_type() == 1) {
 		writel((readl(P_AO_RTI_GEN_PWR_SLEEP0) & (~(0x1<<17))),
 			P_AO_RTI_GEN_PWR_SLEEP0);
+		writel((readl(HHI_MEM_PD_REG0) & (~(0x3<<30))), HHI_MEM_PD_REG0);
+		udelay(100);
 		writel((readl(P_AO_RTI_GEN_PWR_ISO0) & (~(0x1<<17))),
 			P_AO_RTI_GEN_PWR_ISO0);
-		writel((readl(HHI_MEM_PD_REG0) & (~(0x3<<30))), HHI_MEM_PD_REG0);
 	}
 
 	if (mode < 0 || mode >= BOARD_USB_MODE_MAX||!g_usb_cfg[mode][index])
@@ -128,22 +129,17 @@ void set_usb_pll(uint32_t volatile *phy2_pll_base)
 void board_usb_pll_disable(struct amlogic_usb_config *cfg)
 {
     int i = 0;
+    uint32_t tmpvalue = USB_PHY2_PLL_PARAMETER_1;
 	*(volatile uint32_t *)P_RESET1_LEVEL |= (3 << 16);
 
-	if (board_usb_get_sm1_type() == 1) {
-		for (i = 0; i < cfg->u2_port_num; i++) {
-			(*(volatile uint32_t *)(unsigned long)
-			(cfg->usb_phy2_pll_base_addr[i] + 0x40))
-				= ((0x09400414 | USB_PHY2_RESET)
-				& (~(USB_PHY2_ENABLE)));
-		}
-	} else {
-		for (i = 0; i < cfg->u2_port_num; i++) {
-			(*(volatile uint32_t *)(unsigned long)
-			(cfg->usb_phy2_pll_base_addr[i] + 0x40))
-				= ((USB_PHY2_PLL_PARAMETER_1 | USB_PHY2_RESET)
-				& (~(USB_PHY2_ENABLE)));
-		}
+	if (board_usb_get_sm1_type() == 1)
+		tmpvalue = 0x09400414;
+
+	for (i = 0; i < cfg->u2_port_num; i++) {
+		(*(volatile uint32_t *)(unsigned long)
+		(cfg->usb_phy2_pll_base_addr[i] + 0x40))
+			= ((tmpvalue | USB_PHY2_RESET)
+			& (~(USB_PHY2_ENABLE)));
 	}
 }
 

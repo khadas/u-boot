@@ -31,7 +31,6 @@
 
 #include "avb_ops.h"
 #include "avb_vbmeta_image.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -258,6 +257,7 @@ typedef struct {
   size_t num_loaded_partitions;
   char* cmdline;
   uint64_t rollback_indexes[AVB_MAX_NUMBER_OF_ROLLBACK_INDEX_LOCATIONS];
+  uint8_t boot_key_hash[AVB_SHA256_DIGEST_SIZE];
 } AvbSlotVerifyData;
 
 /* Frees a |AvbSlotVerifyData| including all data it points to. */

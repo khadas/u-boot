@@ -26,6 +26,11 @@ Description:
 extern "C" {
 #endif
 
+void BinFileInit(void);
+void BinFileUninit(void);
+int ReadBinFile(const char* filename);
+int GetBinData(unsigned char* file_buf, unsigned int file_size);
+
 void IniParserInit(void);
 void IniParserUninit(void);
 int IniParseFile(const char* filename);

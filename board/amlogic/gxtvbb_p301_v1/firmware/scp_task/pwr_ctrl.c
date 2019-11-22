@@ -333,7 +333,6 @@ static unsigned int detect_key(unsigned int suspend_from)
 			}
 		}
 	}
-	saradc_enable();
 	reset_ao_timera();
 	init_remote();
 #ifdef CONFIG_AML_LED
@@ -377,6 +376,7 @@ static unsigned int detect_key(unsigned int suspend_from)
 		}
 		if (irq[IRQ_AO_TIMERA] == IRQ_AO_TIMERA_NUM) {
 			irq[IRQ_AO_TIMERA] = 0xFFFFFFFF;
+			saradc_enable();
 #ifdef CONFIG_AML_LED
 			pled_suspend_timer_proc();
 #endif
@@ -388,6 +388,7 @@ static unsigned int detect_key(unsigned int suspend_from)
 			} else {
 				adc_key_cnt = 0;
 			}
+			saradc_disable();
 		}
 		if (irq[IRQ_AO_IR_DEC] == IRQ_AO_IR_DEC_NUM) {
 			irq[IRQ_AO_IR_DEC] = 0xFFFFFFFF;
@@ -426,7 +427,6 @@ static unsigned int detect_key(unsigned int suspend_from)
 	} while (1);
 	wakeup_timer_clear();
 	restore_ao_timer();
-	saradc_disable();
 	return exit_reason;
 }
 

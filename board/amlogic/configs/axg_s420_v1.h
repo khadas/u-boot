@@ -58,9 +58,6 @@
   */
 #define CONFIG_BOOTLOADER_CONTROL_BLOCK
 
-/*a/b update */
-#define CONFIG_CMD_BOOTCTOL_AVB
-
 /* Serial config */
 #define CONFIG_CONS_INDEX 2
 #define CONFIG_BAUDRATE  115200
@@ -91,7 +88,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
         "firstboot=1\0"\
         "upgrade_step=0\0"\
-        "jtag=apao\0"\
+        "jtag=disable\0"\
         "loadaddr=1080000\0"\
         "dtb_mem_addr=0x1000000\0" \
         "usb_burning=update 1000\0" \
@@ -112,14 +109,19 @@
             "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml_uart,0xff803000 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
+            "echo recovery_status=${recovery_status};"\
+            "if itest.s \"${recovery_status}\" == \"in_progress\"; then "\
+                "run storeargs; run recovery_from_flash;"\
+            "else fi;"\
             "echo upgrade_step=${upgrade_step}; "\
             "if itest ${upgrade_step} == 3; then "\
                 "run storeargs; run update;"\
             "else fi;"\
             "\0"\
         "storeargs="\
+            "get_bootloaderversion;" \
             "setenv bootargs ${initargs} logo=${display_layer},loaded,androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
-	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
+	"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
             "run cmdline_keys;"\
             "\0"\
         "switch_bootmode="\
@@ -141,19 +143,6 @@
                     "setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
             "else "\
                     "setenv bootargs ${bootargs} ${fs_type};"\
-            "fi;"\
-            "get_valid_slot;"\
-            "get_avb_mode;"\
-            "echo active_slot: ${active_slot};"\
-            "if test ${active_slot} != normal; then "\
-                    "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
-            "fi;"\
-            "if test ${avb2} = 0; then "\
-                "if test ${active_slot} = _a; then "\
-                    "setenv bootargs ${bootargs} root=/dev/mmcblk0p23;"\
-                "else if test ${active_slot} = _b; then "\
-                    "setenv bootargs ${bootargs} root=/dev/mmcblk0p24;"\
-                "fi;fi;"\
             "fi;"\
             "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
             "run storeargs; run update;"\
@@ -230,7 +219,6 @@
             "fi;"\
             "\0"\
         "bcb_cmd="\
-            "get_avb_mode;"\
             "get_valid_slot;"\
             "\0"\
         "upgrade_key="\

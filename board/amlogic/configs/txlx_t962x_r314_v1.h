@@ -81,7 +81,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
         "firstboot=1\0"\
         "upgrade_step=0\0"\
-        "jtag=apee\0"\
+        "jtag=disable\0"\
         "loadaddr=1080000\0"\
         "panel_type=lvds_1\0" \
 	"lcd_ctrl=0x00000000\0" \
@@ -117,7 +117,7 @@
         "video_reverse=0\0"\
         "active_slot=normal\0"\
         "boot_part=boot\0"\
-        "model_name=t962x_r311_FHD\0" \
+        "model_name=FHD\0" \
         "ui_mode=720p\0" \
         "edid_14_dir=/system/etc/port_14.bin\0" \
         "edid_20_dir=/system/etc/port_20.bin\0" \
@@ -139,9 +139,10 @@
             "else fi;"\
             "\0"\
         "storeargs="\
+            "get_bootloaderversion;" \
             "setenv bootargs ${initargs} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} osd_reverse=${osd_reverse} video_reverse=${video_reverse} androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} ui_mode=${ui_mode}; "\
             "setenv bootargs ${bootargs} page_trace=${page_trace};" \
-		"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
+		"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
             "run cmdline_keys;"\
             "\0"\
         "switch_bootmode="\
@@ -590,7 +591,6 @@
   #undef CONFIG_AML_CUSTOMER_ID
   #define CONFIG_AML_CUSTOMER_ID  CONFIG_CUSTOMER_ID
 #endif
-#define ETHERNET_INTERNAL_PHY
-
+#define CONFIG_INTERNAL_PHY
 #endif
 

@@ -130,7 +130,10 @@ static void defendkey_process(void)
 
 int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+	int nRet;
 	char *avb_s;
+	char argv0_new[12] = {0};
+	char *argv_new = (char*)&argv0_new;
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	static int relocated = 0;
 
@@ -166,6 +169,8 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return do_bootm_subcommand(cmdtp, flag, argc, argv);
 	}
 
+#ifndef CONFIG_SKIP_KERNEL_DTB_VERIFY
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
 	unsigned int nLoadAddr = GXB_IMG_LOAD_ADDR; //default load address
 
 	if (argc > 0)
@@ -175,12 +180,14 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		//printf("aml log : addr = 0x%x\n",nLoadAddr);
 	}
 
-	int nRet = aml_sec_boot_check(AML_D_P_IMG_DECRYPT,nLoadAddr,GXB_IMG_SIZE,GXB_IMG_DEC_ALL);
+	nRet = aml_sec_boot_check(AML_D_P_IMG_DECRYPT,nLoadAddr,GXB_IMG_SIZE,GXB_IMG_DEC_ALL);
 	if (nRet)
 	{
 		printf("\naml log : Sig Check %d\n",nRet);
 		return nRet;
 	}
+#endif /*CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK*/
+#endif /* ! CONFIG_SKIP_KERNEL_DTB_VERIFY */
 
 	avb_s = getenv("avb2");
 	if (avb_s == NULL) {
@@ -257,14 +264,15 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		* Only skip if secure boot so normal boot can use plain boot.img+		 */
 		ulong img_addr,nCheckOffset;
 		img_addr = genimg_get_kernel_addr(argc < 1 ? NULL : argv[0]);
+		nCheckOffset = 0;
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
 		nCheckOffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,GXB_IMG_LOAD_ADDR,GXB_EFUSE_PATTERN_SIZE,GXB_IMG_DEC_ALL);
+#endif /*CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK*/
 		if (AML_D_Q_IMG_SIG_HDR_SIZE == (nCheckOffset & 0xFFFF))
 			nCheckOffset = (nCheckOffset >> 16) & 0xFFFF;
 		else
 			nCheckOffset = 0;
 		img_addr += nCheckOffset;
-		char argv0_new[12] = {0};
-		char *argv_new = (char*)&argv0_new;
 		snprintf(argv0_new, sizeof(argv0_new), "%lx", img_addr);
 		argc = 1;
 		argv = (char**)&argv_new;

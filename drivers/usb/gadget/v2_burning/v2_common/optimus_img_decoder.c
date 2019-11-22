@@ -88,7 +88,7 @@ HIMAGE image_open(const char* interface, const char* device, const char* part, c
 
             pImgSrcIf->devIf = IMAGE_IF_TYPE_STORE;
             pImgSrcIf->devAlignSz = 4*1024;//512;//OPTIMUS_DOWNLOAD_SLOT_SZ;
-            strcpy(pImgSrcIf->partName, part);
+            strncpy(pImgSrcIf->partName, part, sizeof pImgSrcIf->partName - 1);
     }
     else
     {

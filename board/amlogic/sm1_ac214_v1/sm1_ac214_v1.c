@@ -55,6 +55,7 @@
 #include <linux/mtd/partitions.h>
 #include <linux/sizes.h>
 #include <asm-generic/gpio.h>
+#include "avb2_kpub.c"
 #include <dm.h>
 #ifdef CONFIG_AML_SPIFC
 #include <amlogic/spifc.h>
@@ -823,19 +824,19 @@ int checkhw(char * name)
 		switch (ddr_size) {
 			case 0x80000000:
 				if (!strcmp(ddr_mode, "1g")) {
-					strcpy(loc_name, "sm1_ac214_1g\0");
+					strcpy(loc_name, "g12a_u212_1g\0");
 					break;
 				}
-				strcpy(loc_name, "sm1_ac214_2g\0");
+				strcpy(loc_name, "g12a_u212_2g\0");
 				break;
 			case 0x40000000:
-				strcpy(loc_name, "sm1_ac214_1g\0");
+				strcpy(loc_name, "g12a_u212_1g\0");
 				break;
 			case 0x2000000:
-				strcpy(loc_name, "sm1_ac214_512m\0");
+				strcpy(loc_name, "g12a_u212_512m\0");
 				break;
 			default:
-				strcpy(loc_name, "sm1_ac214_unsupport");
+				strcpy(loc_name, "g12a_u212_unsupport");
 				break;
 		}
 	}
@@ -852,6 +853,7 @@ const char * const _env_args_reserve_[] =
 		"firstboot",
 		"lock",
 		"upgrade_step",
+		"bootloader_version",
 
 		NULL//Keep NULL be last to tell END
 };

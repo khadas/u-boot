@@ -488,6 +488,7 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
   bool is_main_vbmeta;
   bool is_vbmeta_partition;
   AvbVBMetaData* vbmeta_image_data = NULL;
+  bool out_is_unlocked = 0;
 
   ret = AVB_SLOT_VERIFY_RESULT_OK;
 
@@ -624,8 +625,18 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
   switch (vbmeta_ret) {
     case AVB_VBMETA_VERIFY_RESULT_OK:
       avb_assert(pk_data != NULL && pk_len > 0);
-      break;
 
+      io_ret = ops->read_is_device_unlocked(ops, &out_is_unlocked);
+      /* Only calculate hash for successful and locked case */
+      if (io_ret == AVB_IO_RESULT_OK && !out_is_unlocked) {
+          AvbSHA256Ctx boot_key_sha256_ctx;
+          avb_sha256_init(&boot_key_sha256_ctx);
+          avb_sha256_update(&boot_key_sha256_ctx, pk_data, pk_len);
+          avb_memcpy(slot_data->boot_key_hash,
+                  avb_sha256_final(&boot_key_sha256_ctx),
+                  AVB_SHA256_DIGEST_SIZE);
+      }
+      break;
     case AVB_VBMETA_VERIFY_RESULT_OK_NOT_SIGNED:
     case AVB_VBMETA_VERIFY_RESULT_HASH_MISMATCH:
     case AVB_VBMETA_VERIFY_RESULT_SIGNATURE_MISMATCH:

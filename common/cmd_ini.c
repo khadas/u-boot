@@ -18,24 +18,7 @@
 #include <linux/ctype.h>
 #include <linux/string.h>
 #include "ini/model.h"
-
-#ifdef CONFIG_INI_MAX_LINE
-#define MAX_LINE CONFIG_INI_MAX_LINE
-#else
-#define MAX_LINE 200
-#endif
-
-#ifdef CONFIG_INI_MAX_SECTION
-#define MAX_SECTION CONFIG_INI_MAX_SECTION
-#else
-#define MAX_SECTION 50
-#endif
-
-#ifdef CONFIG_INI_MAX_NAME
-#define MAX_NAME CONFIG_INI_MAX_NAME
-#else
-#define MAX_NAME 50
-#endif
+#include "ini/ini_size_define.h"
 
 /* Strip whitespace chars off end of given string, in place. Return s. */
 static char *rstrip(char *s)

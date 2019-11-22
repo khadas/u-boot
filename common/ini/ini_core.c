@@ -20,11 +20,8 @@ Description:
 
 
 #include "ini_config.h"
-
 #include "ini_core.h"
-
-#define MAX_SECTION 50
-#define MAX_NAME 50
+#include "ini_size_define.h"
 
 /* Strip whitespace chars off end of given string, in place. Return s. */
 static char* rstrip(char* s) {

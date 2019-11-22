@@ -32,6 +32,7 @@ static struct lcd_type_match_s lcd_type_match_table[] = {
 	{"vbyone",  LCD_VBYONE},
 	{"mipi",    LCD_MIPI},
 	{"minilvds", LCD_MLVDS},
+	{"p2p", LCD_P2P},
 	{"invalid", LCD_TYPE_MAX},
 };
 
@@ -83,72 +84,6 @@ int lcd_mode_str_to_mode(const char *str)
 char *lcd_mode_mode_to_str(int mode)
 {
 	return lcd_mode_table[mode];
-}
-
-unsigned int lcd_lvds_channel_on_value(struct lcd_config_s *pconf)
-{
-	unsigned int channel_on = 0;
-
-	if (pconf->lcd_control.lvds_config->dual_port == 0) {
-		if (pconf->lcd_control.lvds_config->lane_reverse == 0) {
-			switch (pconf->lcd_basic.lcd_bits) {
-			case 6:
-				channel_on = 0xf;
-				break;
-			case 8:
-				channel_on = 0x1f;
-				break;
-			case 10:
-			default:
-				channel_on = 0x3f;
-				break;
-			}
-		} else {
-			switch (pconf->lcd_basic.lcd_bits) {
-			case 6:
-				channel_on = 0x3c;
-				break;
-			case 8:
-				channel_on = 0x3e;
-				break;
-			case 10:
-			default:
-				channel_on = 0x3f;
-				break;
-			}
-		}
-		if (pconf->lcd_control.lvds_config->port_swap == 1)
-			channel_on = (channel_on << 6); /* use channel B */
-	} else {
-		if (pconf->lcd_control.lvds_config->lane_reverse == 0) {
-			switch (pconf->lcd_basic.lcd_bits) {
-			case 6:
-				channel_on = 0x3cf;
-				break;
-			case 8:
-				channel_on = 0x7df;
-				break;
-			case 10:
-			default:
-				channel_on = 0xfff;
-				break;
-			}
-		} else {
-			switch (pconf->lcd_basic.lcd_bits) {
-			case 6:
-				channel_on = 0xf3c;
-				break;
-			case 8:
-				channel_on = 0xfbe;
-				break;
-			case 10:
-			default:
-				channel_on = 0xfff;
-				break;
-			}
-		}
-	}
-	return channel_on;
 }
 
 void lcd_pinmux_set(int status)
@@ -228,6 +163,11 @@ int lcd_power_load_from_dts(struct lcd_config_s *pconf, char *dt_addr, int child
 			pconf->lcd_power->power_on_step[i].value = temp;
 			temp = be32_to_cpup((((u32*)propdata)+j+3));
 			pconf->lcd_power->power_on_step[i].delay = temp;
+			if (pconf->lcd_power->power_on_step[i].type ==
+			    LCD_POWER_TYPE_CLK_SS) {
+				temp = pconf->lcd_power->power_on_step[i].value;
+				pconf->lcd_timing.ss_level |= temp << 8;
+			}
 			i++;
 		}
 	}
@@ -260,7 +200,7 @@ int lcd_power_load_from_dts(struct lcd_config_s *pconf, char *dt_addr, int child
 int lcd_power_load_from_unifykey(struct lcd_config_s *pconf,
 		unsigned char *buf, int key_len, int len)
 {
-	int i, j;
+	int i, j, temp;
 	unsigned char *p;
 	int ret = 0;
 
@@ -297,6 +237,11 @@ int lcd_power_load_from_unifykey(struct lcd_config_s *pconf,
 		if (pconf->lcd_power->power_on_step[i].type >= LCD_POWER_TYPE_MAX)
 			break;
 
+		if (pconf->lcd_power->power_on_step[i].type ==
+		    LCD_POWER_TYPE_CLK_SS) {
+			temp = pconf->lcd_power->power_on_step[i].value;
+			pconf->lcd_timing.ss_level |= temp << 8;
+		}
 		i++;
 	}
 
@@ -560,7 +505,10 @@ static int lcd_pinmux_load_from_bsp(struct lcd_config_s *pconf)
 		sprintf(propname, "%s", lcd_ttl_pinmux_str[pinmux_index]);
 		pinmux = pconf->lcd_pinmux;
 		for (i = 0; i < LCD_PINMX_MAX; i++) {
-			pinmux += i;
+			if (pinmux == NULL)
+				break;
+			if (pinmux->name == NULL)
+				break;
 			if (strncmp(pinmux->name, "invalid", 7) == 0)
 				break;
 			if (strncmp(pinmux->name, propname, strlen(propname)) == 0) {
@@ -580,6 +528,7 @@ static int lcd_pinmux_load_from_bsp(struct lcd_config_s *pconf)
 				}
 				break;
 			}
+			pinmux++;
 		}
 
 		/* sync */
@@ -598,26 +547,35 @@ static int lcd_pinmux_load_from_bsp(struct lcd_config_s *pconf)
 		sprintf(propname, "%s", lcd_ttl_pinmux_str[pinmux_index]);
 		pinmux = pconf->lcd_pinmux;
 		for (i = 0; i < LCD_PINMX_MAX; i++) {
-			pinmux += i;
+			if (pinmux == NULL)
+				break;
+			if (pinmux->name == NULL)
+				break;
 			if (strncmp(pinmux->name, "invalid", 7) == 0)
 				break;
 			if (strncmp(pinmux->name, propname, strlen(propname)) == 0) {
 				for (j = 0; j < LCD_PINMUX_NUM; j++ ) {
 					if (pinmux->pinmux_set[j][0] == LCD_PINMUX_END)
 						break;
-					pconf->pinmux_set[j+set_cnt][0] = pinmux->pinmux_set[j][0];
-					pconf->pinmux_set[j+set_cnt][1] = pinmux->pinmux_set[j][1];
+					pconf->pinmux_set[j][0] =
+						pinmux->pinmux_set[j][0];
+					pconf->pinmux_set[j][1] =
+						pinmux->pinmux_set[j][1];
 					set_cnt++;
 				}
 				for (j = 0; j < LCD_PINMUX_NUM; j++ ) {
-					if (pinmux->pinmux_clr[j][0] == LCD_PINMUX_END)
+					if (pinmux->pinmux_clr[j][0] ==
+								LCD_PINMUX_END)
 						break;
-					pconf->pinmux_clr[j+clr_cnt][0] = pinmux->pinmux_clr[j][0];
-					pconf->pinmux_clr[j+clr_cnt][1] = pinmux->pinmux_clr[j][1];
+					pconf->pinmux_clr[j][0] =
+						pinmux->pinmux_clr[j][0];
+					pconf->pinmux_clr[j][1] =
+						pinmux->pinmux_clr[j][1];
 					clr_cnt++;
 				}
 				break;
 			}
+			pinmux++;
 		}
 
 		if (set_cnt < LCD_PINMUX_NUM) {
@@ -639,7 +597,10 @@ static int lcd_pinmux_load_from_bsp(struct lcd_config_s *pconf)
 		sprintf(propname, "lcd_minilvds_pin");
 		pinmux = pconf->lcd_pinmux;
 		for (i = 0; i < LCD_PINMX_MAX; i++) {
-			pinmux += i;
+			if (pinmux == NULL)
+				break;
+			if (pinmux->name == NULL)
+				break;
 			if (strncmp(pinmux->name, "invalid", 7) == 0)
 				break;
 			if (strncmp(pinmux->name, propname, strlen(propname)) == 0) {
@@ -659,6 +620,7 @@ static int lcd_pinmux_load_from_bsp(struct lcd_config_s *pconf)
 				}
 				break;
 			}
+			pinmux++;
 		}
 		if (set_cnt < LCD_PINMUX_NUM) {
 			pconf->pinmux_set[set_cnt][0] = LCD_PINMUX_END;
@@ -673,7 +635,10 @@ static int lcd_pinmux_load_from_bsp(struct lcd_config_s *pconf)
 		sprintf(propname, "lcd_vbyone_pin");
 		pinmux = pconf->lcd_pinmux;
 		for (i = 0; i < LCD_PINMX_MAX; i++) {
-			pinmux += i;
+			if (pinmux == NULL)
+				break;
+			if (pinmux->name == NULL)
+				break;
 			if (strncmp(pinmux->name, "invalid", 7) == 0)
 				break;
 			if (strncmp(pinmux->name, propname, strlen(propname)) == 0) {
@@ -693,6 +658,45 @@ static int lcd_pinmux_load_from_bsp(struct lcd_config_s *pconf)
 				}
 				break;
 			}
+			pinmux++;
+		}
+		if (set_cnt < LCD_PINMUX_NUM) {
+			pconf->pinmux_set[set_cnt][0] = LCD_PINMUX_END;
+			pconf->pinmux_set[set_cnt][1] = 0x0;
+		}
+		if (clr_cnt < LCD_PINMUX_NUM) {
+			pconf->pinmux_clr[clr_cnt][0] = LCD_PINMUX_END;
+			pconf->pinmux_clr[clr_cnt][1] = 0x0;
+		}
+		break;
+	case LCD_P2P:
+		sprintf(propname, "lcd_p2p_pin");
+		pinmux = pconf->lcd_pinmux;
+		for (i = 0; i < LCD_PINMX_MAX; i++) {
+			if (pinmux == NULL)
+				break;
+			if (pinmux->name == NULL)
+				break;
+			if (strncmp(pinmux->name, "invalid", 7) == 0)
+				break;
+			if (strncmp(pinmux->name, propname, strlen(propname)) == 0) {
+				for (j = 0; j < LCD_PINMUX_NUM; j++ ) {
+					if (pinmux->pinmux_set[j][0] == LCD_PINMUX_END)
+						break;
+					pconf->pinmux_set[j][0] = pinmux->pinmux_set[j][0];
+					pconf->pinmux_set[j][1] = pinmux->pinmux_set[j][1];
+					set_cnt++;
+				}
+				for (j = 0; j < LCD_PINMUX_NUM; j++ ) {
+					if (pinmux->pinmux_clr[j][0] == LCD_PINMUX_END)
+						break;
+					pconf->pinmux_clr[j][0] = pinmux->pinmux_clr[j][0];
+					pconf->pinmux_clr[j][1] = pinmux->pinmux_clr[j][1];
+					clr_cnt++;
+				}
+				break;
+			}
+			pinmux++;
 		}
 		if (set_cnt < LCD_PINMUX_NUM) {
 			pconf->pinmux_set[set_cnt][0] = LCD_PINMUX_END;
@@ -783,8 +787,8 @@ void lcd_timing_init_config(struct lcd_config_s *pconf)
 	vsync_bp = pconf->lcd_timing.vsync_bp;
 	vsync_width = pconf->lcd_timing.vsync_width;
 
-	de_hstart = h_period - h_active - 1;
-	de_vstart = v_period - v_active;
+	de_hstart = hsync_bp + hsync_width;
+	de_vstart = vsync_bp + vsync_width;
 
 	pconf->lcd_timing.video_on_pixel = de_hstart - h_delay;
 	pconf->lcd_timing.video_on_line = de_vstart;

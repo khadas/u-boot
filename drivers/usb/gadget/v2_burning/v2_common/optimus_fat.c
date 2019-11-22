@@ -39,7 +39,7 @@
 #endif
 
 #ifndef SECTOR_SIZE
-#define SECTOR_SIZE 512
+#define SECTOR_SIZE 512U
 #endif
 #ifndef FS_BLOCK_SIZE
 #define FS_BLOCK_SIZE   SECTOR_SIZE
@@ -102,12 +102,13 @@ static int v2_ext_mmc_read(__u32 startblock, __u32 nBlk, __u8 * bufptr)
 /*
  * Convert a string to lowercase.
  */
-static void
-downcase(char *str)
+static void downcase(char *str)
 {
-	while (*str != '\0') {
-        *str = tolower(*str);
-        str++;
+   char c = *str;
+   for (; '\0' != c; ++str, c = *str) {
+        if (c < 0) continue;
+        if (!isascii(c)) continue;
+        *str = tolower(c);
     }
 }
 
@@ -350,8 +351,6 @@ get_fatent(fsdata *mydata, __u32 entry/*cluster index*/)
 			ret = FAT2CPU16(((__u16*)mydata->fatbuf)[off16]);;
 			ret = (ret & 0xfff0) >> 4;
 			break;
-		default:
-			break;
 		}
 	}
 	break;
@@ -508,30 +507,31 @@ get_vfatname(fsdata *mydata, int curclust, __u8 *cluster,
 
 	l_name[idx] = '\0';
 	if (*l_name == DELETED_FLAG) *l_name = '\0';
-	else if (*l_name == aRING) *l_name = DELETED_FLAG;
+	else if (*l_name == aRING) *(int8_t*)l_name = DELETED_FLAG;
 	downcase(l_name);
 
 	/* Return the real directory entry */
-	memcpy(retdent, realdent, sizeof(dir_entry));
+	//memcpy(retdent, realdent, sizeof(dir_entry));//coverity says maybe overlap when copying
+	memmove(retdent, realdent, sizeof(dir_entry));
 
 	return 0;
 }
 
 
-/* Calculate short name checksum */
+/* Calculate short name and ext checksum */
 static __u8
 mkcksum(const char *str)
 {
 	int i;
 	__u8 ret = 0;
 
-	for (i = 0; i < 11; i++) {
+	for (i = 0; i < 11; i++) {//name 8, ext 3
 		ret = (((ret&1)<<7)|((ret&0xfe)>>1)) + str[i];
 	}
 
 	return ret;
 }
-#endif
+#endif// #ifdef CONFIG_SUPPORT_VFAT
 
 
 /*
@@ -620,7 +620,8 @@ static dir_entry *get_dentfromdir (fsdata * mydata, int startsect,
 		return NULL;
 	    }
 #ifdef CONFIG_SUPPORT_VFAT
-	    if (dols && mkcksum (dentptr->name) == prevcksum) {
+		//change dentptr->name to dentptr to avoid coverity array overrun event
+		if (dols && mkcksum ((char*)dentptr/*->name*/) == prevcksum) {
 		dentptr++;
 		continue;
 	    }
@@ -727,18 +728,18 @@ read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 	 * is ok - it's just the buffer.
 	 */
 	fstype = vistart->fs_type;
-	fstype[8] = '\0';
+	//fstype[8] = '\0';//disable for coverity error
 
 	if (*fatsize == 32) {
-		if (compare_sign(FAT32_SIGN, vistart->fs_type) == 0) {
+		if (compare_sign(FAT32_SIGN, fstype) == 0) {
 			return 0;
 		}
 	} else {
-		if (compare_sign(FAT12_SIGN, vistart->fs_type) == 0) {
+		if (compare_sign(FAT12_SIGN, fstype) == 0) {
 			*fatsize = 12;
 			return 0;
 		}
-		if (compare_sign(FAT16_SIGN, vistart->fs_type) == 0) {
+		if (compare_sign(FAT16_SIGN, fstype) == 0) {
 			*fatsize = 16;
 			return 0;
 		}
@@ -808,17 +809,17 @@ static void put_fd(int fd_index)
 /* wherehence: 0 to seek from start of file; 1 to seek from current position from file */
 int do_fat_fseek(int fd, const __u64 offset, int wherehence)
 {
+    if (fd<0) {
+		FAT_ERROR("invalid fd %d\n", fd);
+		return -1;
+	}
     unsigned long curoffset;
     unsigned long offset_in_clust;
-	unsigned long seeked;
+    unsigned long seeked;
     const unsigned int bytesperclust = fs_info[fd].datablock.clust_size * SECTOR_SIZE;
     const unsigned long filesize = files[fd].filesize;
     __u32 curclust;
 
-    if (fd<0) {
-        FAT_ERROR("invalid fd %d\n", fd);
-        return -1;
-    }
 
     curclust = files[fd].curclust;
     curoffset = files[fd].offset;
@@ -996,7 +997,8 @@ long do_fat_fopen(const char *filename)
     while (ISDIRDELIM (*filename))
         filename++;
     /* Make a copy of the filename and convert it to lowercase */
-    strcpy (fnamecopy, filename);
+    /*strcpy (fnamecopy, filename);*/
+    strncpy (fnamecopy, filename, sizeof fnamecopy - 1); fnamecopy[sizeof fnamecopy - 1] = '\0';
     downcase (fnamecopy);
     if (*fnamecopy == '\0') {
         put_fd(fd);
@@ -1163,12 +1165,11 @@ rootdir_done:
 
 unsigned do_fat_get_bytesperclust(int fd)
 {
-	const unsigned bytesperclust = fs_info[fd].datablock.clust_size * SECTOR_SIZE;
-
     if (fd < 0) {
         FAT_ERROR("Invalid fd %d\n", fd);
         return -1;
     }
+    const unsigned bytesperclust = fs_info[fd].datablock.clust_size * SECTOR_SIZE;
 
     return bytesperclust;
 }
@@ -1177,6 +1178,11 @@ unsigned do_fat_get_bytesperclust(int fd)
 // data moddule: <first cluser not engouh cluster> + <n * Consecutive clusters > + <last cluster not engouh cluster>
 long do_fat_fread(int fd, __u8 *buffer, unsigned long maxsize)
 {
+        if (fd < 0) {
+                FAT_ERROR("Invalid fd %d\n", fd);
+                return -1;
+        }
+
         __u32 gotsize = 0;
         __u32 curclust;
         unsigned long actsize = maxsize;
@@ -1189,11 +1195,6 @@ long do_fat_fread(int fd, __u8 *buffer, unsigned long maxsize)
         int ret = 0;
         __u8* tmpbuf = NULL, *dstBuf = NULL, *alignBuf = NULL;
         unsigned long notAlignSz = 0;
-
-        if (fd < 0) {
-                FAT_ERROR("Invalid fd %d\n", fd);
-                return -1;
-        }
 
         offset = pFile->offset;
         curclust = pFile->curclust;
@@ -1381,7 +1382,6 @@ s64 do_fat_get_fileSz(const char* imgItemPath)
 {
     char cmdBuf[256] = "";
     int rcode = 0;
-    const char* envFileSz = NULL;
     const char* usb_update = getenv("usb_update");
 
     if (!strcmp(usb_update,"1"))
@@ -1391,7 +1391,7 @@ s64 do_fat_get_fileSz(const char* imgItemPath)
     }
     else
     {
-        rcode = optimus_sdc_burn_switch_to_extmmc();
+        optimus_sdc_burn_switch_to_extmmc();
         sprintf(cmdBuf, "fatsize mmc 0 %s", imgItemPath);
     }
     /*SDC_DBG("to run cmd [%s]\n", cmdBuf);*/
@@ -1400,10 +1400,8 @@ s64 do_fat_get_fileSz(const char* imgItemPath)
         printf("fail in cmd [%s], rcode %d\n", cmdBuf, rcode);
         return 0;//item size is 0
     }
-    envFileSz = getenv("filesize");
-    /*SDC_DBG("size of item %s is 0x%s\n", imgItemPath, envFileSz);*/
 
-    return simple_strtoull(envFileSz, NULL, 16);
+    return getenv_ulong("filesize", 16, 0);
 }
 
 //<0 if failed, 0 is normal, 1 is sparse, others reserved

@@ -1,7 +1,20 @@
 /*
-*board/amlogic/txl_p321_v1/firmware/scp_task/pwm_vol_tab.h
-*table for Dynamic Voltage/Frequency Scaling
-*/
+ * board/amlogic/g12a_u202_v1/firmware/scp_task/pwm_ctrl.h
+ *
+ * Copyright (C) 2017 Amlogic, Inc. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ */
+
 #ifndef __PWM_CTRL_H__
 #define __PWM_CTRL_H__
 

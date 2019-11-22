@@ -305,11 +305,22 @@ void f_set_usb_phy_config(void)
 	if (f_platform_usb_check_sm1() == 1) {
 		val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_SLEEP0;
 		*P_AO_RTI_GEN_PWR_SLEEP0 = val & (~(0x1<<17));
-		val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_ISO0;
-		*P_AO_RTI_GEN_PWR_ISO0 = val & (~(0x1<<17));
 		val = *(volatile uint32_t *)HHI_MEM_PD_REG0;
 		*P_HHI_MEM_PD_REG0 = val & (~(0x3<<30));
+		udelay(100);
+		val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_ISO0;
+		*P_AO_RTI_GEN_PWR_ISO0 = val & (~(0x1<<17));
 	}
+
+#ifdef CONFIG_USB_POWER
+	val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_SLEEP0;
+	*P_AO_RTI_GEN_PWR_SLEEP0 = val & (~(0x1<<17));
+	val = *(volatile uint32_t *)HHI_MEM_PD_REG0;
+	*P_HHI_MEM_PD_REG0 = val & (~(0x3<<30));
+	udelay(100);
+	val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_ISO0;
+	*P_AO_RTI_GEN_PWR_ISO0 = val & (~(0x1<<17));
+#endif
 
 #ifdef CONFIG_USB_DEVICE_V2
 	if ((*(volatile uint32_t *)(USB_REG_B + 0x38)) != 0) {

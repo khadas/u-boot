@@ -885,6 +885,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 	int bit_depth;
 	unsigned int i = 0;
 	struct hdr_proc_mtx_param_s hdr_mtx_param;
+	printf("hdr_func %d, hdr_process_select 0x%x\n", module_sel, hdr_process_select);
 
 	memset(&hdr_mtx_param, 0, sizeof(struct hdr_proc_mtx_param_s));
 	memset(&hdr_lut_param, 0, sizeof(struct hdr_proc_lut_param_s));
@@ -1016,6 +1017,21 @@ void hdr_func(enum hdr_module_sel module_sel,
 			hdr_lut_param.cgain_en = LUT_ON;
 		else
 			hdr_lut_param.cgain_en = LUT_OFF;
+	} else if (hdr_process_select & HDR_OFF) {
+		for (i = 0; i < HDR2_OETF_LUT_SIZE; i++) {
+			hdr_lut_param.oetf_lut[i]  = oe_y_lut_sdr[i];
+			hdr_lut_param.ogain_lut[i] =
+				oo_y_lut_hdr_sdr[i];
+			if (i < HDR2_EOTF_LUT_SIZE)
+				hdr_lut_param.eotf_lut[i] =
+					eo_y_lut_hdr[i];
+			if (i < HDR2_CGAIN_LUT_SIZE)
+				hdr_lut_param.cgain_lut[i] =
+					cgain_lut1[i] - 1;
+		}
+		hdr_lut_param.lut_on = LUT_OFF;
+		hdr_lut_param.bitdepth = bit_depth;
+		hdr_lut_param.cgain_en = LUT_OFF;
 	} else
 		return;
 
@@ -1240,6 +1256,29 @@ void hdr_func(enum hdr_module_sel module_sel,
 		}
 		hdr_mtx_param.mtx_on = MTX_ON;
 		hdr_mtx_param.p_sel = SDR_HLG;
+	} else if (hdr_process_select & HDR_OFF) {
+		for (i = 0; i < 15; i++) {
+			hdr_mtx_param.mtx_in[i] = rgb2ycbcr_709[i];
+			hdr_mtx_param.mtx_cgain[i] = bypass_coeff[i];
+			hdr_mtx_param.mtx_ogain[i] = bypass_coeff[i];
+			hdr_mtx_param.mtx_out[i] = bypass_coeff[i];
+			if (i < 9)
+				hdr_mtx_param.mtx_gamut[i] =
+					bypass_coeff[i];
+			if (i < 3) {
+				hdr_mtx_param.mtxi_pre_offset[i] =
+					rgb2yuvpre[i];
+				hdr_mtx_param.mtxi_pos_offset[i] =
+					rgb2yuvpos[i];
+				hdr_mtx_param.mtxo_pre_offset[i] =
+					bypass_pre[i];
+				hdr_mtx_param.mtxo_pos_offset[i] =
+					bypass_pos[i];
+			}
+		}
+		hdr_mtx_param.mtx_on = MTX_OFF;
+		hdr_mtx_param.p_sel = HDR_BYPASS;
+		hdr_mtx_param.mtx_only = HDR_ONLY;
 	}
 
 	set_hdr_matrix(module_sel, HDR_IN_MTX, &hdr_mtx_param);

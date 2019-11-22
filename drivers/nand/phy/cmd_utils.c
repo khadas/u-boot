@@ -222,6 +222,7 @@ static int erase_env_protect(struct amlnand_chip *aml_chip, int blk)
 	struct nand_arg_info *shipped_bbtinfo = &aml_chip->shipped_bbtinfo;
 	struct nand_arg_info *bbtinfo = &aml_chip->nand_bbtinfo;
 	struct nand_arg_info *nand_key = &aml_chip->nand_key;
+	struct nand_arg_info *nand_ddr_para = &aml_chip->nand_ddr_para;
 	struct nand_arg_info *nand_secure = &aml_chip->nand_secure;
 	unsigned char phys_erase_shift;
 	unsigned short start_blk, nand_boot;
@@ -265,6 +266,10 @@ static int erase_env_protect(struct amlnand_chip *aml_chip, int blk)
 			&&(nand_key->valid_blk_addr >= start_blk)
 			&&(!(info_disprotect & DISPROTECT_KEY))){
 			aml_nand_msg("protect nand_key info at blk %d",blk);
+			ret = -1;
+		}else if((blk == nand_ddr_para->valid_blk_addr)
+			&&(nand_ddr_para->valid_blk_addr >= start_blk)){
+			aml_nand_msg("protect nand_ddr parameter info at blk %d",blk);
 			ret = -1;
 		}else if((blk == nand_secure->valid_blk_addr)
 			&&(nand_secure->valid_blk_addr >= start_blk)

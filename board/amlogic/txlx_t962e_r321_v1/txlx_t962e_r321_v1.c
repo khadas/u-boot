@@ -139,6 +139,7 @@ extern int designware_initialize(ulong base_addr, u32 interface);
 
 int board_eth_init(bd_t *bis)
 {
+	*P_RESET1_LEVEL |= (1<<11);
 	setup_net_chip();
 	udelay(1000);
 	designware_initialize(ETH_BASE, PHY_INTERFACE_MODE_RMII);
@@ -528,6 +529,8 @@ const char * const _env_args_reserve_[] =
 		"firstboot",
 		"lock",
 		"upgrade_step",
+		"model_name",
+		"bootloader_version",
 
 		NULL//Keep NULL be last to tell END
 };

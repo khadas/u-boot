@@ -62,13 +62,13 @@ int amlnf_env_save(u8 *buf, int len)
 		printk("uboot env data len too much,%s\n", __func__);
 		return -EFAULT;
 	}
-	env_buf = kzalloc(CONFIG_ENV_SIZE, GFP_KERNEL);
+	env_buf = malloc(CONFIG_ENV_SIZE);
 	if (env_buf == NULL) {
 		printk("nand malloc for uboot env failed\n");
 		ret = -1;
 		goto exit_err;
 	}
-
+	memset(env_buf, 0, CONFIG_ENV_SIZE);
 	memcpy(env_buf, buf, len);
 	ret = amlnand_save_info_by_name_mtd(aml_chip_env,
 		env_buf,
@@ -79,7 +79,7 @@ int amlnf_env_save(u8 *buf, int len)
 		goto exit_err;
 	}
 exit_err:
-	kfree(env_buf);
+	free(env_buf);
 	return ret;
 }
 
@@ -99,12 +99,13 @@ int amlnf_env_read(u8 *buf, int len)
 		printk("uboot env arg_valid = 0 invalid,%s\n", __func__);
 		return 0;
 	}
-	env_buf = kzalloc(CONFIG_ENV_SIZE, GFP_KERNEL);
+	env_buf = malloc(CONFIG_ENV_SIZE);
 	if (env_buf == NULL) {
 		printk("nand malloc for uboot env failed\n");
 		ret = -1;
 		goto exit_err;
 	}
+	memset(env_buf, 0, CONFIG_ENV_SIZE);
 	ret = amlnand_read_info_by_name_mtd(aml_chip_env,
 		(u8 *)env_buf,
 		CONFIG_ENV_SIZE);
@@ -115,7 +116,7 @@ int amlnf_env_read(u8 *buf, int len)
 	}
 	memcpy(buf, env_buf, len);
 exit_err:
-	kfree(env_buf);
+	free(env_buf);
 	return ret;
 }
 

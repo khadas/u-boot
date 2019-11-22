@@ -201,7 +201,12 @@ int f_dwc_core_init()
     return 0;
 }
 
-
+void f_dwc_otg_pullup(int is_on)
+{
+    if (is_on)
+        dwc_modify_reg32(DWC_REG_DCTL,2,0);// connect data line
+    else dwc_modify_reg32(DWC_REG_DCTL,0,2);// disconnect data line
+}
 
 int usb_pcd_irq_loop()
 {
@@ -331,10 +336,8 @@ static void dwc_otg_pcd_free_request(struct usb_ep *ep, struct usb_request *req)
 static dwc_otg_pcd_ep_t *get_ep_from_handle(pcd_struct_t *pcd, void *handle)
 {
 	int i;
-	if (pcd->dwc_eps[0].priv == handle)
-		return &pcd->dwc_eps[0];
 
-	for (i = 1; i < 5; i++) {
+	for (i = 0; i < 4; i++) {
 		if (pcd->dwc_eps[i].priv == handle) {
 			return &pcd->dwc_eps[i];
 		}
@@ -349,7 +352,6 @@ static int ep_queue(struct usb_ep *usb_ep, struct usb_request *usb_req,
 {
 	pcd_struct_t *pcd;
 	struct dwc_otg_pcd_ep *ep = NULL;
-	int retval = 0;
 
 	if (!usb_req || !usb_req->complete || !usb_req->buf) {
 		printf("bad params\n");
@@ -382,9 +384,6 @@ static int ep_queue(struct usb_ep *usb_ep, struct usb_request *usb_req,
 	ep->req = usb_req;
 
 	pcd_queue(ep->dwc_ep.num, ep->dwc_ep.is_in, usb_req);
-
-	if (retval)
-		return -3;
 
 	return 0;
 }
@@ -597,18 +596,12 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 		&& driver->speed != USB_SPEED_HIGH)
 	    || !driver->bind || !driver->disconnect || !driver->setup)
 		return -EINVAL;
-	if (!dev)
-		return -ENODEV;
+
 	if (dev->driver)
 		return -EBUSY;
 
 	/* first hook up the driver ... */
 	dev->driver = driver;
-
-	if (retval) { /* TODO */
-		printf("target device_add failed, error %d\n", retval);
-		return retval;
-	}
 
 	ep = &gadget_wrapper.pcd.dwc_eps[0];
 	dwc_otg_pcd_init_ep(&gadget_wrapper.pcd, ep, 0, 0);
@@ -640,8 +633,6 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 {
 	gadget_wrapper_t *dev = &gadget_wrapper;
 
-	if (!dev)
-		return -ENODEV;
 	if (!driver || driver != dev->driver)
 		return -EINVAL;
 

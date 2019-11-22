@@ -60,6 +60,7 @@ static struct vpu_data_s vpu_data_gxb = {
 	.vpu_clk_table = vpu_clk_table,
 
 	.mem_pd_table = vpu_mem_pd_gxb,
+	.hdmi_iso_pre_table = vpu_hdmi_iso_pre_gxb,
 	.hdmi_iso_table = vpu_hdmi_iso_gxb,
 	.reset_table = vpu_reset_gx,
 
@@ -78,6 +79,7 @@ static struct vpu_data_s vpu_data_gxtvbb = {
 	.vpu_clk_table = vpu_clk_table,
 
 	.mem_pd_table = vpu_mem_pd_gxb,
+	.hdmi_iso_pre_table = vpu_hdmi_iso_pre_gxb,
 	.hdmi_iso_table = vpu_hdmi_iso_gxb,
 	.reset_table = vpu_reset_gx,
 
@@ -96,6 +98,7 @@ static struct vpu_data_s vpu_data_gxl = {
 	.vpu_clk_table = vpu_clk_table,
 
 	.mem_pd_table = vpu_mem_pd_gxb,
+	.hdmi_iso_pre_table = vpu_hdmi_iso_pre_gxb,
 	.hdmi_iso_table = vpu_hdmi_iso_gxb,
 	.reset_table = vpu_reset_gx,
 
@@ -114,6 +117,7 @@ static struct vpu_data_s vpu_data_gxm = {
 	.vpu_clk_table = vpu_clk_table,
 
 	.mem_pd_table = vpu_mem_pd_gxb,
+	.hdmi_iso_pre_table = vpu_hdmi_iso_pre_gxb,
 	.hdmi_iso_table = vpu_hdmi_iso_gxb,
 	.reset_table = vpu_reset_gx,
 
@@ -132,6 +136,7 @@ static struct vpu_data_s vpu_data_txl = {
 	.vpu_clk_table = vpu_clk_table,
 
 	.mem_pd_table = vpu_mem_pd_gxb,
+	.hdmi_iso_pre_table = vpu_hdmi_iso_pre_gxb,
 	.hdmi_iso_table = vpu_hdmi_iso_gxb,
 	.reset_table = vpu_reset_gx,
 
@@ -150,6 +155,7 @@ static struct vpu_data_s vpu_data_txlx = {
 	.vpu_clk_table = vpu_clk_table,
 
 	.mem_pd_table = vpu_mem_pd_gxb,
+	.hdmi_iso_pre_table = vpu_hdmi_iso_pre_gxb,
 	.hdmi_iso_table = vpu_hdmi_iso_gxb,
 	.reset_table = vpu_reset_gx,
 
@@ -168,6 +174,7 @@ static struct vpu_data_s vpu_data_axg = {
 	.vpu_clk_table = vpu_clk_table,
 
 	.mem_pd_table = vpu_mem_pd_axg,
+	.hdmi_iso_pre_table = vpu_hdmi_iso_pre_gxb,
 	.hdmi_iso_table = vpu_hdmi_iso_gxb,
 	.reset_table = vpu_reset_gx,
 
@@ -186,6 +193,7 @@ static struct vpu_data_s vpu_data_txhd = {
 	.vpu_clk_table = vpu_clk_table,
 
 	.mem_pd_table = vpu_mem_pd_txhd,
+	.hdmi_iso_pre_table = vpu_hdmi_iso_pre_gxb,
 	.hdmi_iso_table = vpu_hdmi_iso_gxb,
 	.reset_table = vpu_reset_txhd,
 
@@ -204,11 +212,12 @@ static struct vpu_data_s vpu_data_g12a = {
 	.vpu_clk_table = vpu_clk_table,
 
 	.mem_pd_table = vpu_mem_pd_g12a,
+	.hdmi_iso_pre_table = vpu_hdmi_iso_pre_gxb,
 	.hdmi_iso_table = vpu_hdmi_iso_gxb,
 	.reset_table = vpu_reset_gx,
 
-	.module_init_table_cnt = 0,
-	.module_init_table = NULL,
+	.module_init_table_cnt = sizeof(vpu_module_init_g12a) / sizeof(struct vpu_ctrl_s),
+	.module_init_table = vpu_module_init_g12a,
 };
 
 static struct vpu_data_s vpu_data_g12b = {
@@ -222,11 +231,12 @@ static struct vpu_data_s vpu_data_g12b = {
 	.vpu_clk_table = vpu_clk_table,
 
 	.mem_pd_table = vpu_mem_pd_g12b,
+	.hdmi_iso_pre_table = vpu_hdmi_iso_pre_gxb,
 	.hdmi_iso_table = vpu_hdmi_iso_gxb,
 	.reset_table = vpu_reset_gx,
 
-	.module_init_table_cnt = 0,
-	.module_init_table = NULL,
+	.module_init_table_cnt = sizeof(vpu_module_init_g12a) / sizeof(struct vpu_ctrl_s),
+	.module_init_table = vpu_module_init_g12a,
 };
 
 static struct vpu_data_s vpu_data_tl1 = {
@@ -240,6 +250,7 @@ static struct vpu_data_s vpu_data_tl1 = {
 	.vpu_clk_table = vpu_clk_table,
 
 	.mem_pd_table = vpu_mem_pd_tl1,
+	.hdmi_iso_pre_table = vpu_hdmi_iso_pre_gxb,
 	.hdmi_iso_table = vpu_hdmi_iso_gxb,
 	.reset_table = vpu_reset_tl1,
 
@@ -258,16 +269,37 @@ static struct vpu_data_s vpu_data_sm1 = {
 	.vpu_clk_table = vpu_clk_table,
 
 	.mem_pd_table = vpu_mem_pd_tl1,
+	.hdmi_iso_pre_table = vpu_hdmi_iso_pre_gxb,
 	.hdmi_iso_table = vpu_hdmi_iso_sm1,
 	.reset_table = vpu_reset_gx,
 
-	.module_init_table_cnt = 0,
-	.module_init_table = NULL,
+	.module_init_table_cnt = sizeof(vpu_module_init_g12a) / sizeof(struct vpu_ctrl_s),
+	.module_init_table = vpu_module_init_g12a,
+
+};
+
+
+static struct vpu_data_s vpu_data_tm2 = {
+	.chip_type = VPU_CHIP_TM2,
+	.chip_name = "tm2",
+	.clk_level_dft = CLK_LEVEL_DFT_G12A,
+	.clk_level_max = CLK_LEVEL_MAX_G12A,
+	.gp_pll_valid = 0,
+
+	.fclk_div_table = fclk_div_table_g12a,
+	.vpu_clk_table = vpu_clk_table,
+
+	.mem_pd_table = vpu_mem_pd_tm2,
+	.hdmi_iso_pre_table = vpu_hdmi_iso_pre_gxb,
+	.hdmi_iso_table = vpu_hdmi_iso_sm1,
+	.reset_table = vpu_reset_tl1,
+
+	.module_init_table_cnt = sizeof(vpu_module_init_tm2) / sizeof(struct vpu_ctrl_s),
+	.module_init_table = vpu_module_init_tm2,
 };
 
 static void vpu_chip_detect(void)
 {
-#if 1
 	unsigned int cpu_type;
 
 	cpu_type = get_cpu_id().family_id;
@@ -308,28 +340,34 @@ static void vpu_chip_detect(void)
 	case MESON_CPU_MAJOR_ID_SM1:
 		vpu_conf.data = &vpu_data_sm1;
 		break;
+	case MESON_CPU_MAJOR_ID_TM2:
+		vpu_conf.data = &vpu_data_tm2;
+		break;
 	default:
-		vpu_conf.data = &vpu_data_sm1;
+		vpu_conf.data = NULL;
 		break;
 	}
-#else
-	vpu_conf.data = &vpu_data_sm1;
-#endif
 
 	strcpy(vpu_conf.drv_version, VPU_VERION);
+
+	if (vpu_conf.data == NULL) {
+		VPUERR("invalid vpu\n");
+		return ;
+	} else {
 #ifdef CONFIG_VPU_CLK_LEVEL_DFT
-	vpu_conf.data->clk_level_dft = CONFIG_VPU_CLK_LEVEL_DFT;
+		vpu_conf.data->clk_level_dft = CONFIG_VPU_CLK_LEVEL_DFT;
 #endif
 
 #ifdef VPU_DEBUG_PRINT
-	VPUPR("driver version: %s\n", vpu_conf.drv_version);
-	VPUPR("detect chip type: %d\n", vpu_conf.data->chip_type);
-	VPUPR("clk_level default: %d(%dHz), max: %d(%dHz)\n",
-		vpu_conf.data->clk_level_dft,
-		(vpu_conf.data->vpu_clk_table + vpu_conf.data->clk_level_dft)->freq,
-		(vpu_conf.data->clk_level_max - 1),
-		(vpu_conf.data->vpu_clk_table + (vpu_conf.data->clk_level_max - 1))->freq);
+		VPUPR("driver version: %s\n", vpu_conf.drv_version);
+		VPUPR("detect chip type: %d\n", vpu_conf.data->chip_type);
+		VPUPR("clk_level default: %d(%dHz), max: %d(%dHz)\n",
+			vpu_conf.data->clk_level_dft,
+			(vpu_conf.data->vpu_clk_table + vpu_conf.data->clk_level_dft)->freq,
+			(vpu_conf.data->clk_level_max - 1),
+			(vpu_conf.data->vpu_clk_table + (vpu_conf.data->clk_level_max - 1))->freq);
 #endif
+	}
 }
 
 static int vpu_check(void)
@@ -354,6 +392,7 @@ static int vpu_check(void)
 	case VPU_CHIP_G12B:
 	case VPU_CHIP_TL1:
 	case VPU_CHIP_SM1:
+	case VPU_CHIP_TM2:
 		ret = 0;
 		break;
 	default:
@@ -597,7 +636,6 @@ static int set_vpu_clk(unsigned int vclk)
 		clk_level = vclk;
 
 	if (clk_level >= vpu_conf.data->clk_level_max) {
-		ret = 1;
 		clk_level = vpu_conf.data->clk_level_dft;
 		VPUPR("clk out of supported range, set to default\n");
 	}
@@ -735,7 +773,7 @@ int vpu_clk_change(int level)
 	if (level >= vpu_conf.data->clk_level_max) {
 		clk_table = vpu_conf.data->vpu_clk_table + (vpu_conf.data->clk_level_max - 1);
 		VPUPR("clk out of supported range\n");
-		VPUPR("clk max level: %u(&uHz)\n",
+		VPUPR("clk max level: %u(%uHz)\n",
 			(vpu_conf.data->clk_level_max - 1),
 			clk_table->freq);
 		return -1;

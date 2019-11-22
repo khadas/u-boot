@@ -33,14 +33,29 @@ Description:
 #ifdef CONFIG_AML_ANTIROLLBACK
 #include <anti-rollback.h>
 #endif
+#include <amlogic/aml_efuse.h>
 
 #define AVB_USE_TESTKEY
-#define MAX_DTB_SIZE (256 * 1024)
+#define MAX_DTB_SIZE (AML_DTB_IMG_MAX_SZ + 512)
+#define AVB_NUM_SLOT (4)
 
-#ifdef AVB_USE_TESTKEY
-extern const char testkey2048[520];
-extern const int testkey2048_length;
-#endif
+#define CONFIG_AVB2_KPUB_EMBEDDED
+#define CONFIG_AVB2_KPUB_DEFAULT
+
+#ifdef CONFIG_AVB2_KPUB_VENDOR
+/**
+ * Use of vendor public key automatically disable default public key
+ */
+#undef CONFIG_AVB2_KPUB_DEFAULT
+extern const char avb2_kpub_vendor[];
+extern const int avb2_kpub_vendor_len;
+#endif /* CONFIG_AVB_KPUB_VENDOR */
+
+#if defined(CONFIG_AVB2_KPUB_DEFAULT) || defined(CONFIG_AVB2_KPUB_DEFAULT_VENDOR)
+extern const char avb2_kpub_default[];
+extern const int avb2_kpub_default_len;
+#endif /* CONFIG_AVB_KPUB_DEFAULT || CONFIG_AVB2_KPUB_DEFAULT_VENDOR */
+
 AvbOps avb_ops_;
 
 static AvbIOResult read_from_partition(AvbOps* ops, const char* partition, int64_t offset,
@@ -170,23 +185,80 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps* ops, const uint8_t* public
         size_t public_key_length, const uint8_t* public_key_metadata, size_t public_key_metadata_length,
         bool* out_is_trusted)
 {
-#ifdef AVB_USE_TESTKEY
-    printf("Verified using testkey\n");
-    if (testkey2048_length != public_key_length) {
+#ifdef CONFIG_AVB2_KPUB_EMBEDDED
+/**
+ * CONFIG_AVB2_KPUB_DEFAULT and CONFIG_AVB2_KPUB_VENDOR should be
+ * exclusive ideally, however the world is not ideal.
+ *
+ * Instead of forbidding it, just print out a warning to let the user
+ * know this is not something they should be doing unless they really
+ * know what they are doing.
+ */
+#if defined(CONFIG_AVB2_KPUB_VENDOR) && defined(CONFIG_AVB2_KPUB_DEFAULT_VENDOR)
+  #pragma message("Both vendor and default AVB2 public keys are enabled")
+#endif /* CONFIG_AVB2_KPUB_VENDOR && CONFIG_AVB2_KPUB_DEFAULT_VENDOR */
+
+#if defined(CONFIG_AVB2_KPUB_VENDOR)
+    printf("AVB2 verify with vendor kpub\n");
+    if (avb2_kpub_vendor_len != public_key_length)
         *out_is_trusted = false;
-        return AVB_IO_RESULT_OK;
+    else {
+        if (!avb_safe_memcmp(public_key_data, avb2_kpub_vendor, avb2_kpub_vendor_len)) {
+            *out_is_trusted = true;
+            return AVB_IO_RESULT_OK;
+        }
+        else
+            *out_is_trusted = false;
     }
-    if (!avb_safe_memcmp(public_key_data, testkey2048, testkey2048_length))
-        *out_is_trusted = true;
-    else
+
+    unsigned int isSecure = IS_FEAT_BOOT_VERIFY();
+    printf("isSecure: %d\n", isSecure);
+    if (isSecure == 0) {
+
+/**
+ * Allow re-verify with default AVB2 public key if really want to do.
+ *
+ * Use of this is *NOT* typical and you should really know what you are
+ * doing if want to enable this.
+ */
+#ifdef CONFIG_AVB2_KPUB_DEFAULT_VENDOR
+    printf("AVB2 re-verify with default kpub\n");
+    if (avb2_kpub_default_len != public_key_length)
         *out_is_trusted = false;
+    else {
+        if (!avb_safe_memcmp(public_key_data, avb2_kpub_default, avb2_kpub_default_len)) {
+            *out_is_trusted = true;
+            return AVB_IO_RESULT_OK;
+        }
+        else
+            *out_is_trusted = false;
+    }
+#endif /* CONFIG_AVB2_KPUB_DEFAULT_VENDOR */
+    }
+#elif defined(CONFIG_AVB2_KPUB_DEFAULT)
+    printf("AVB2 verify with default kpub\n");
+    if (avb2_kpub_default_len != public_key_length)
+        *out_is_trusted = false;
+    else {
+        if (!avb_safe_memcmp(public_key_data, avb2_kpub_default, avb2_kpub_default_len)) {
+            *out_is_trusted = true;
+            return AVB_IO_RESULT_OK;
+        }
+        else
+            *out_is_trusted = false;
+    }
 #else
+  #error "No AVB2 public key defined"
+#endif /* CONFIG_AVB2_KPUB_VENDOR */
+
+#else /* CONFIG_AVB2_KPUB_EMBEDDED */
     unsigned long bl31_addr = get_sharemem_info(GET_SHARE_MEM_INPUT_BASE);
     memcpy((void *)bl31_addr, public_key_data, public_key_length);
     flush_cache(bl31_addr, public_key_length);
     *out_is_trusted = aml_sec_boot_check(AML_D_P_AVB_PUBKEY_VERIFY,
             bl31_addr, public_key_length, 0);
-#endif
+#endif /* CONFIG_AVB2_KPUB_EMBEDDED */
+
     return AVB_IO_RESULT_OK;
 }
 
@@ -300,10 +372,13 @@ int is_device_unlocked(void)
 
 int avb_verify(AvbSlotVerifyData** out_data)
 {
-    const char * const requested_partitions[5] = {"boot", "recovery", "dtb", NULL};
+    /* The last slot must be NULL */
+    const char * requested_partitions[AVB_NUM_SLOT + 1] = {"boot", "dtb", NULL, NULL, NULL};
     AvbSlotVerifyResult result = AVB_SLOT_VERIFY_RESULT_OK;
     char *s1;
     char *ab_suffix;
+    uint32_t i = 0;
+
     run_command("get_valid_slot;", 0);
     s1 = getenv("active_slot");
     printf("active_slot is %s\n", s1);
@@ -323,6 +398,19 @@ int avb_verify(AvbSlotVerifyData** out_data)
 
     if (is_device_unlocked() || !strcmp(upgradestep, "3"))
         flags |= AVB_SLOT_VERIFY_FLAGS_ALLOW_VERIFICATION_ERROR;
+
+    if (!strcmp(ab_suffix, "")) {
+        for (i = 0; i < AVB_NUM_SLOT; i++) {
+            if (requested_partitions[i] == NULL) {
+                requested_partitions[i] = "recovery";
+                break;
+            }
+        }
+        if (i == AVB_NUM_SLOT) {
+            printf("ERROR: failed to find an empty slot for recovery");
+            return AVB_SLOT_VERIFY_RESULT_ERROR_INVALID_ARGUMENT;
+        }
+    }
 
     result = avb_slot_verify(&avb_ops_, requested_partitions, ab_suffix,
             flags,

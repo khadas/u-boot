@@ -101,8 +101,6 @@ typedef struct _ext_info{
 	/* for comptible reason */
 	uint32_t bbt_occupy_pages;
 	uint32_t bbt_start_block;
-	uint32_t ddrp_start_block;
-	uint32_t ddrp_start_occupy_pages;
 } ext_info_t;
 
 #define NAND_FIPMODE_COMPACT    (0)
@@ -125,6 +123,7 @@ typedef struct _nand_page0 {
 	ext_info_t ext_info;			//72
 	/* added for slc nand in mtd drivers 20170503*/
 	fip_info_t fip_info;
+	uint32_t ddrp_start_page;
 } nand_page0_t;	//384 bytes max.
 
 

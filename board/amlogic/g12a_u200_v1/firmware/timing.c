@@ -128,7 +128,6 @@ ddr_set_t __ddr_setting[] = {
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
-	.bitTimeControl_2d		= 1,
 	.fast_boot[0]			= 1,
 },
 {
@@ -211,7 +210,6 @@ ddr_set_t __ddr_setting[] = {
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
-	.bitTimeControl_2d		= 1,
 	.fast_boot[0]			= 1,
 },
 {
@@ -287,7 +285,6 @@ ddr_set_t __ddr_setting[] = {
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
 	.diagnose				= CONFIG_DIAGNOSE_DISABLE,
-	.bitTimeControl_2d		= 1,
 	.fast_boot[0]			= 1,
 },
 {
@@ -360,7 +357,6 @@ ddr_set_t __ddr_setting[] = {
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
-	.bitTimeControl_2d		= 1,
 	.fast_boot[0]			= 1,
 },
 #if 0
@@ -423,7 +419,6 @@ ddr_set_t __ddr_setting[] = {
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
 	.diagnose				= CONFIG_DIAGNOSE_DISABLE,
-	.bitTimeControl_2d		= 1,
 	.fast_boot[0]			= 1,
 },
 #endif

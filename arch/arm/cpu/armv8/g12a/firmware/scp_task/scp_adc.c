@@ -134,10 +134,7 @@ void saradc_enable(void)
 	aml_write_reg32(P_AO_SAR_ADC_CHAN_LIST, 0);
 	/* REG2: all chanel set to 8-samples & median averaging mode */
 	aml_write_reg32(P_AO_SAR_ADC_AVG_CNTL, 0);
-	aml_write_reg32(P_AO_SAR_ADC_REG3, 0x9388000a);
-
-	if (adc_type)
-		aml_set_reg32_bits(P_AO_SAR_ADC_REG3,0x1,27,1);
+	aml_write_reg32(P_AO_SAR_ADC_REG3, 0x9b88000a);
 
 	saradc_clock_set(20);
 
@@ -145,6 +142,12 @@ void saradc_enable(void)
 	aml_write_reg32(P_AO_SAR_ADC_AUX_SW, 0x3eb1a0c);
 	aml_write_reg32(P_AO_SAR_ADC_CHAN_10_SW, 0x8c000c);
 	aml_write_reg32(P_AO_SAR_ADC_DETECT_IDLE_SW, 0xc000c);
+
+	/* select the VDDA as Vref for txlx and later SoCs */
+	aml_set_reg32_bits(P_AO_SAR_ADC_REG11, 1, 0, 1);
+
+	/* REG11 bit[1] must be set to <1> for g12a and later SoCs */
+	aml_set_reg32_bits(P_AO_SAR_ADC_REG11, 1, 1, 1);
 
 	saradc_power_control(1);
 }
@@ -217,7 +220,7 @@ int check_adc_key_resume(void)
 	if (min < 0)
 		min = 0;
 	max = CONFIG_ADC_POWER_KEY_VAL + 40;
-	if (max > 1023)
+	if (CONFIG_ADC_POWER_KEY_VAL > 983)
 		max = 1023;
 
 	value = get_adc_sample_gxbb(CONFIG_ADC_POWER_KEY_CHAN);

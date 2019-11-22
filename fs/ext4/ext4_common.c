@@ -2012,6 +2012,12 @@ int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 			}
 			free(fdiro);
 		}
+		if (!dirent.direntlen) {
+			printf("%s dirent:%d %d %d %d\n", __func__,
+				dirent.namelen, dirent.inode,
+				dirent.direntlen, dirent.filetype);
+			return 0;
+		}
 		fpos += __le16_to_cpu(dirent.direntlen);
 	}
 	return 0;

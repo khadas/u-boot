@@ -97,7 +97,7 @@ struct aml_lcd_extern_driver_s {
 	struct lcd_extern_config_s *config;
 	struct lcd_extern_common_s *common;
 	int (*reg_read)  (unsigned char reg, unsigned char *buf);
-	int (*reg_write) (unsigned char reg, unsigned char value);
+	int (*reg_write) (unsigned char *buf, unsigned int len);
 	int (*power_on)(void);
 	int (*power_off)(void);
 	void (*info_print)(void);

@@ -562,7 +562,7 @@ ddr_set_t __ddr_setting = {
 	.t_pub_zq2pr			= 0x3f95d,   //PUB ZQ2PR
 	.t_pub_zq3pr			= 0x1dd1d,   //PUB ZQ3PR
 #else // ddr3 and auto
-/* p244 4layer board ddr3 */
+/* p212 4layer board ddr3 */
 	.t_pub_zq0pr			= 0x5d95d,   //PUB ZQ0PR
 	.t_pub_zq1pr			= 0x5d95d,   //PUB ZQ1PR
 	.t_pub_zq2pr			= 0x5d95d,   //PUB ZQ2PR

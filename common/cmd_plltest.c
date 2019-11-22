@@ -253,6 +253,49 @@ Part4: G12A usage
 	912MHz:		plltest gp0 0x38060498 0 0 0x48681c00 0x33771290 0x39272000 0x56540000
 	all:		plltest gp0
 
+4. hifi pll
+
+	test pass print: hifi pll test pass!
+	test fail print: hifi pll test failed!
+
+	uboot command:
+	1008MHz:	plltest hifi 0x380604A8 0 0 0x48681c00 0x33771290 0x39272000 0x56540000
+	1104MHz:	plltest hifi 0x380604B8 0 0 0x48681c00 0x33771290 0x39272000 0x56540000
+	1200MHz:	plltest hifi 0x380604C8 0 0 0x48681c00 0x33771290 0x39272000 0x56540000
+	1296MHz:	plltest hifi 0x380604D8 0 0 0x48681c00 0x33771290 0x39272000 0x56540000
+	1398MHz:	plltest hifi 0x380604E9 0 0 0x48681c00 0x33771290 0x39272000 0x56540000
+	1494MHz:	plltest hifi 0x380604F9 0 0 0x48681c00 0x33771290 0x39272000 0x56540000
+	all:		plltest hifi
+
+5. pcie pll
+
+	test pass print: pcie pll test pass!
+	test fail print: pcie pll test failed!
+
+	uboot command:
+	100MHz:	        plltest pcie 0x200c04c8 0 0x00001100 0x10058e00 0x000100c0 0x68000048
+	all:	        plltest pcie
+
+6. ethphy pll
+
+	test pass print: ethphy pll test pass!
+	test fail print: ethphy pll test failed!
+
+	uboot command:
+	500MHz:	       plltest ethphy 0x9c0040a 0x927e0000 0xac5f49e5 0x00000000
+	all:	       plltest ethphy
+
+7. usbphy pll
+
+	test pass print: usbphy pll test pass!
+	test fail print: usbphy pll test failed!
+
+	uboot command:
+	480MHz:	      plltest usbphy 0x8000fff 0x34 0x78000 0 0x09400414 0x927E0000 0xac5f69e5 0xfe18
+	all:	      plltest usbphy
+
+	NOTICE:usbphy pll does not connect clk_msr£¬so here only judge whether is locked
+
 */
 
 #include <common.h>
@@ -279,7 +322,7 @@ U_BOOT_CMD(
 	"test pll",
 	"\n"
 	"	- test pll and report result\n\n"
-	"plltest [all/sys/hdmi/gp0] [pll_cntl pll_cntl2 ...]\n\n"
+	"plltest [all/sys/hdmi/gp0/hifi/pcie/ethphy/usbphy] [pll_cntl pll_cntl2 ...]\n\n"
 	"examples:\n"
 	"plltest all                                 - test all plls\n"
 	"plltest sys                                 - test sys pll with all preset freq\n"
@@ -288,4 +331,13 @@ U_BOOT_CMD(
 	"plltest hdmi cntl cntl1 cntl2 ...           - test hdmi pll with params\n"
 	"plltest gp0                                 - test gp0 pll with all preset freq\n"
 	"plltest gp0 cntl cntl1 cntl2 ...            - test gp0 pll with params\n"
+	"plltest hifi                                - test hifi pll with all preset freq\n"
+	"plltest hifi cntl cntl1 cntl2 ...           - test hifi pll with params\n"
+	"plltest pcie                                - test pcie pll with all preset freq\n"
+	"plltest pcie cntl cntl1 cntl2 ...           - test pcie pll with params\n"
+	"plltest ethphy                              - test ethphy pll with all preset freq\n"
+	"plltest ethphy cntl cntl1 cntl2 ...         - test ethphy pll with params\n"
+	"plltest usbphy                              - test usbphy pll with all preset freq\n"
+	"plltest usbphy cntl cntl1 cntl2 ...         - test usbphy pll with params\n"
+
 );

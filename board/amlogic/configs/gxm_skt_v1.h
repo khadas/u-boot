@@ -82,7 +82,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
         "firstboot=0\0"\
         "upgrade_step=0\0"\
-        "jtag=apee\0"\
+        "jtag=disable\0"\
         "loadaddr=1080000\0"\
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
@@ -91,7 +91,7 @@
         "display_height=1080\0" \
         "display_bpp=16\0" \
         "display_color_index=16\0" \
-        "display_layer=osd1\0" \
+        "display_layer=osd0\0" \
         "display_color_fg=0xffff\0" \
         "display_color_bg=0\0" \
         "dtb_mem_addr=0x1000000\0" \

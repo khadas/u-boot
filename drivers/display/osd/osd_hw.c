@@ -391,7 +391,7 @@ static inline void walk_through_update_list(void)
 	u32  i, j;
 	for (i = 0; i < HW_OSD_COUNT; i++) {
 		j = 0;
-		while (osd_hw.updated[i] && j < 32) {
+		while (osd_hw.updated[i] && j < HW_REG_INDEX_MAX) {
 			if (osd_hw.updated[i] & (1 << j)) {
 				osd_hw.reg[i][j].update_func();
 				remove_from_update_list(i, j);
@@ -829,9 +829,6 @@ void osd_setting_default_hwc(u32 index, struct pandata_s *disp_data)
 	osd_reg_write(VIU_OSD_BLEND_BLEND1_SIZE,
 		height  << 16 |
 		width);
-	osd_reg_set_bits(DOLBY_PATH_CTRL,
-		0x3, 2, 2);
-
 	osd_reg_write(VPP_OSD1_IN_SIZE,
 		height << 16 | width);
 
@@ -2103,9 +2100,9 @@ static void osd1_update_enable(void)
 			if (osd_hw.osd_ver <= OSD_NORMAL)
 			VSYNCOSD_SET_MPEG_REG_MASK(VPP_MISC,
 						   VPP_OSD1_POSTBLEND | VPP_POSTBLEND_EN);
-			VSYNCOSD_SET_MPEG_REG_MASK(VIU_OSD1_CTRL_STAT, 1 << 21);
+			VSYNCOSD_SET_MPEG_REG_MASK(VIU_OSD1_CTRL_STAT, 1 << 0);
 		} else {
-			VSYNCOSD_CLR_MPEG_REG_MASK(VIU_OSD1_CTRL_STAT, 1 << 21);
+			VSYNCOSD_CLR_MPEG_REG_MASK(VIU_OSD1_CTRL_STAT, 1 << 0);
 			if (osd_hw.osd_ver <= OSD_NORMAL)
 			VSYNCOSD_CLR_MPEG_REG_MASK(VPP_MISC,
 						   VPP_OSD1_POSTBLEND);
@@ -2153,10 +2150,10 @@ static void osd2_update_enable(void)
 							   VPP_OSD1_POSTBLEND
 							   | VPP_POSTBLEND_EN);
 				VSYNCOSD_SET_MPEG_REG_MASK(VIU_OSD2_CTRL_STAT,
-							   1 << 21);
+							   1 << 0);
 			} else {
 				VSYNCOSD_CLR_MPEG_REG_MASK(VIU_OSD2_CTRL_STAT,
-							   1 << 21);
+							   1 << 0);
 #ifndef CONFIG_FB_OSD2_CURSOR
 				/*
 				VSYNCOSD_CLR_MPEG_REG_MASK(VPP_MISC,
@@ -2689,10 +2686,6 @@ static void osd1_basic_update_disp_geometry(void)
 			 | (osd_hw.pandata[OSD1].y_end & 0x1fff) << 16;
 		VSYNCOSD_WR_MPEG_REG(VIU_OSD1_BLK0_CFG_W2, data32);
 	}
-	data32 = osd_reg_read(VIU_OSD1_CTRL_STAT);
-	data32 &= 0xfffffff0;
-	data32 |= HW_OSD_BLOCK_ENABLE_0;
-	osd_reg_write(VIU_OSD1_CTRL_STAT, data32);
 }
 
 static void osd1_update_disp_geometry(void)
@@ -2901,8 +2894,8 @@ void osd_init_hw_viu2(void)
 
 	osd_reg_write(VIU2_OSD1_FIFO_CTRL_STAT, data32);
 
-	/* enable osd */
-	data32 = 0x1 << 0;
+	/* disable  osd */
+	data32 = 0x0 << 0;
 	data32 |= OSD_GLOBAL_ALPHA_DEF << 12;
 	data32 |= 0x80000000;
 	osd_reg_write(VIU2_OSD1_CTRL_STAT , data32);
@@ -2928,6 +2921,20 @@ void osd_init_hw_viu2(void)
 	osd_hw.rotation_pandata[VIU2_OSD1].y_start = 0;
 }
 #endif
+
+static void set_vpp_super_position(void)
+{
+#define PREBLD_SR0_VD1_SCALER		(1 << 1)
+#define DNLP_SR1_CM			        (1 << 3)
+
+	if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) ||
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B) ||
+		 (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SM1))
+		osd_reg_set_mask(VPP_MISC, PREBLD_SR0_VD1_SCALER);
+	else if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TL1) ||
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TM2))
+		osd_reg_set_mask(VPP_MISC, DNLP_SR1_CM);
+}
 
 void osd_init_hw(void)
 {
@@ -3007,13 +3014,8 @@ void osd_init_hw(void)
 			osd_reg_clr_mask(VPP_MISC,
 				VPP_OSD1_POSTBLEND | VPP_OSD2_POSTBLEND | VPP_VD1_POSTBLEND);
 		/* just disable osd to avoid booting hang up */
-		if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_M6TV)
-		    || (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_MTVD)) {
-			data32 = 0x0 << 0; /* osd_blk_enable */
-		} else
-			data32 = 0x1 << 0;
+		data32 = 0x0 << 0;
 		data32 |= OSD_GLOBAL_ALPHA_DEF << 12;
-		data32 |= (1 << 21);
 		osd_reg_write(VIU_OSD1_CTRL_STAT , data32);
 		osd_reg_write(VIU_OSD2_CTRL_STAT , data32);
 
@@ -3026,6 +3028,8 @@ void osd_init_hw(void)
 
 	if (osd_hw.osd_ver <= OSD_NORMAL)
 		osd_reg_clr_mask(VPP_MISC, VPP_POST_FG_OSD2 | VPP_PRE_FG_OSD2);
+	else if (osd_hw.osd_ver > OSD_NORMAL)
+		set_vpp_super_position();
 	osd_hw.order = OSD_ORDER_01;
 	osd_hw.enable[OSD2] = osd_hw.enable[OSD1] = DISABLE;
 	osd_hw.fb_gem[OSD1].canvas_idx = OSD1_CANVAS_INDEX;
@@ -3064,8 +3068,7 @@ void osd_init_hw(void)
 		osd_hw.free_scale_data[OSD2].y_end = 0;
 		osd_hw.free_scale_mode[OSD1] = 1;
 		osd_hw.free_scale_mode[OSD2] = 1;
-		if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXM)
-			||(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TXLX))
+		if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXM))
 			osd_reg_write(VPP_OSD_SC_DUMMY_DATA, 0x00202000);
 		else if (get_cpu_id().family_id ==
 			MESON_CPU_MAJOR_ID_GXTVBB)

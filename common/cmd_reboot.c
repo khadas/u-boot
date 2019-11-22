@@ -26,10 +26,19 @@
 #include <asm/io.h>
 #include <asm/arch/bl31_apis.h>
 #include <asm/arch/watchdog.h>
+#include <partition_table.h>
+
 
 /*
 run get_rebootmode  //set reboot_mode env with current mode
 */
+unsigned int do_get_reboot_reason(void)
+{
+	uint32_t reboot_reason;
+
+	reboot_reason = ((readl(AO_SEC_SD_CFG15) >> 12) & 0xf);
+	return reboot_reason;
+}
 
 int do_get_rebootmode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -115,6 +124,11 @@ int do_get_rebootmode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 			setenv("reboot_mode","recovery_quiescent");
 			break;
 		}
+		case AMLOGIC_FFV_REBOOT:
+		{
+			setenv("reboot_mode","ffv_reboot");
+			break;
+		}
 		default:
 		{
 			setenv("reboot_mode","charging");
@@ -129,7 +143,8 @@ int do_get_rebootmode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 			break;
 		}
 		case AMLOGIC_BOOTLOADER_REBOOT: {
-			setenv("bootdelay","-1");
+			if (dynamic_partition)
+				setenv("reboot_mode","fastboot");
 			break;
 		}
 	}
@@ -160,9 +175,14 @@ int do_reboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			reboot_mode_val = AMLOGIC_FACTORY_RESET_REBOOT;
 		else if (strcmp(mode, "update") == 0)
 			reboot_mode_val = AMLOGIC_UPDATE_REBOOT;
-		else if (strcmp(mode, "fastboot") == 0)
-			reboot_mode_val = AMLOGIC_FASTBOOT_REBOOT;
-		else if (strcmp(mode, "bootloader") == 0)
+		else if (strcmp(mode, "fastboot") == 0) {
+			if (dynamic_partition) {
+				printf("dynamic partition, enter fastbootd");
+				reboot_mode_val = AMLOGIC_FACTORY_RESET_REBOOT;
+				run_command("bcb fastbootd",0);
+			} else
+				reboot_mode_val = AMLOGIC_FASTBOOT_REBOOT;
+		} else if (strcmp(mode, "bootloader") == 0)
 			reboot_mode_val = AMLOGIC_BOOTLOADER_REBOOT;
 		else if (strcmp(mode, "suspend_off") == 0)
 			reboot_mode_val = AMLOGIC_SUSPEND_REBOOT;
