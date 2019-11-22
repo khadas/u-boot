@@ -50,6 +50,11 @@
 #define CONFIG_AUTO_COMPLETE 1
 #define CONFIG_CMD_ENV_EXISTS 1
 #define CONFIG_CMD_FS_GENERIC 1
+#define CONFIG_CMD_EXT2 1
+#define CONFIG_CMD_PART 1
+#define CONFIG_CMD_UNZIP    1
+#define CONFIG_LZMA         1
+
 
 /* configs for CEC */
 #define CONFIG_CEC_OSD_NAME		"KVIM"

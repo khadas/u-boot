@@ -45,6 +45,13 @@
 #define CONFIG_POWER_FUSB302 1
 #define CONFIG_TCA6408 1
 
+#define CONFIG_CMD_ENV_EXISTS 1
+#define CONFIG_CMD_FS_GENERIC 1
+#define CONFIG_CMD_EXT4 1
+#define CONFIG_CMD_EXT2 1
+#define CONFIG_CMD_PART 1
+#define CONFIG_CMD_UNZIP    1
+#define CONFIG_LZMA         1
 /* configs for CEC */
 #define CONFIG_CEC_OSD_NAME		"AML_TV"
 #define CONFIG_CEC_WAKEUP
