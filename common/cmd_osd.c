@@ -261,12 +261,27 @@ static int do_osd_dual_logo(cmd_tbl_t *cmdtp, int flag, int argc,
 	printf("osd: hpd_state=%c\n", st ? '1' : '0');
 
 	if (st) {
-		/* hdmi plugin, dual logo display */
-	#if defined(CONFIG_DUAL_LOGO)
-		run_command(CONFIG_DUAL_LOGO, 0);
-	#else
-		printf("osd: dual logo cmd macro is not defined\n");
-	#endif
+		/* hdmi plugin, dual logo display
+		 * CONFIG_RECOVERY_DUAL_LOGO is given priority in recovery
+		 */
+		if (!strncmp(getenv("reboot_mode"), "factory_reset", 13)) {
+		#if defined(CONFIG_RECOVERY_DUAL_LOGO)
+			run_command(CONFIG_RECOVERY_DUAL_LOGO, 0);
+		#else
+		#if defined(CONFIG_DUAL_LOGO)
+			printf("osd: use dual logo cmd macro in recovery mode\n");
+			run_command(CONFIG_DUAL_LOGO, 0);
+		#else
+			printf("osd: dual logo cmd macro is not defined in recovery mode\n");
+		#endif
+		#endif
+		} else {
+		#if defined(CONFIG_DUAL_LOGO)
+			run_command(CONFIG_DUAL_LOGO, 0);
+		#else
+			printf("osd: dual logo cmd macro is not defined\n");
+		#endif
+		}
 	} else {
 		/* hdmi plugout, single logo display */
 	#if defined(CONFIG_SINGLE_LOGO)
