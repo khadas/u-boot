@@ -305,7 +305,10 @@ int mmc_bind(struct udevice *dev, struct mmc *mmc, const struct mmc_config *cfg)
 	ret = dev_read_alias_seq(dev, &devnum);
 	debug("%s: alias ret=%d, devnum=%d\n", __func__, ret, devnum);
 #endif
-
+	if (!strcmp(dev->name, "emmc"))
+		devnum = 1;
+	else
+		devnum = 0;
 	ret = blk_create_devicef(dev, "mmc_blk", "blk", IF_TYPE_MMC,
 			devnum, 512, 0, &bdev);
 	if (ret) {

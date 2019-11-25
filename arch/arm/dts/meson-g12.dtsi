@@ -521,21 +521,21 @@
 			#size-cells = <2>;
 			ranges = <0x0 0x0 0x0 0xffe01000 0x0 0x7f000>;
 
-			sd_emmc_a: mmc@2000 {
+			sd_emmc_a: sdio {
 				compatible = "";
 				reg = <0x0 0x2000 0x0 0x800>;
 				interrupts = <GIC_SPI 189 IRQ_TYPE_EDGE_RISING>;
 				status = "disabled";
 			};
 
-			sd_emmc_b: mmc@4000 {
+			sd_emmc_b: sd {
 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
 				reg = <0x0 0x4000 0x0 0x800>;
 				interrupts = <GIC_SPI 190 IRQ_TYPE_EDGE_RISING>;
 				status = "disabled";
 			};
 
-			sd_emmc_c: mmc@6000 {
+			sd_emmc_c: emmc {
 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
 				reg = <0x0 0x6000 0x0 0x800>;
 				interrupts = <GIC_SPI 191 IRQ_TYPE_EDGE_RISING>;

@@ -473,7 +473,7 @@
 			#size-cells = <2>;
 			ranges = <0x0 0x0 0x0 0xfe000000 0x0 0x1000000>;
 
-			sd_emmc_a: mmc@10000 {
+			sd_emmc_a: sdio {
 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
 				reg = <0x0 0x10000 0x0 0x800>;
 				interrupts = <GIC_SPI 85 IRQ_TYPE_EDGE_RISING>;
@@ -481,7 +481,7 @@
 				pinname = "sdio";
 			};
 
-			sd_emmc_b: mmc@11000 {
+			sd_emmc_b: sd {
 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
 				reg = <0x0 0x11000 0x0 0x800>;
 				interrupts = <GIC_SPI 86 IRQ_TYPE_EDGE_RISING>;
@@ -489,7 +489,7 @@
 				pinname = "sd";
 			};
 
-			sd_emmc_c: mmc@12000 {
+			sd_emmc_c: emmc {
 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
 				reg = <0x0 0x12000 0x0 0x800>;
 				interrupts = <GIC_SPI 87 IRQ_TYPE_EDGE_RISING>;
