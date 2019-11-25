@@ -474,6 +474,9 @@ static void dolby_vision_get_vinfo(struct hdmitx_dev *hdmitx_device)
 	} else if (strstr(mode_name, "480")) {
 		width = 720;
 		height = 480;
+	} else if (strstr(mode_name, "smpte")) {
+		width = 4096;
+		height = 2160;
 	} else {
 		printf("unkown mode, use default 1080p\n");
 		width = 1920;
