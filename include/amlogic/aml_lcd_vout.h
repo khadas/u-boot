@@ -47,6 +47,7 @@ extern unsigned int lcd_debug_print_flag;
 
 /* ******** clk_ctrl ******** */
 #define CLK_CTRL_LEVEL              28 /* [30:28] */
+#define CLK_CTRL_FRAC_SHIFT         24 /* [24] */
 #define CLK_CTRL_FRAC               0  /* [18:0] */
 
 
