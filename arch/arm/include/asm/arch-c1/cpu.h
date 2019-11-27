@@ -37,7 +37,7 @@
 #endif
 
 /* for uboot envrionment use */
-/* #define CONFIG_DDR_SIZE					256 */
+#define CONFIG_DDR_SIZE					256
 
 /* dram */
 #define PHYS_SDRAM_1_BASE					0x00000000UL
