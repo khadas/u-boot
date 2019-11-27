@@ -292,6 +292,11 @@ static int initr_env(void)
 struct mtd_partition* __attribute__((weak)) get_partition_table(int *partitions)
 { FB_WRN("get_partition_table undefined\n"); return NULL;}
 
+#ifdef CONFIG_BACKUP_PART_NORMAL_ERASE
+const char* BackupPart = (const char*)(CONFIG_BACKUP_PART_NORMAL_ERASE);
+char* BackupPartAddr = (char*)(V3_DOWNLOAD_MEM_BASE);
+#endif// #ifdef CONFIG_BACKUP_PART_NORMAL_ERASE
+
 int v3tool_storage_init(const int eraseFlash, unsigned dtbImgSz)
 {
 	int ret = 0;
@@ -321,6 +326,9 @@ int v3tool_storage_init(const int eraseFlash, unsigned dtbImgSz)
 	if (ret <= 0)
 		FBS_EXIT(_ACK, "Fail in store init %d, ret %d\n", 1, ret);
 
+#ifdef CONFIG_BACKUP_PART_NORMAL_ERASE
+	u32 backupPartSz = 0;
+#endif//#ifdef CONFIG_BACKUP_PART_NORMAL_ERASE
 	int initFlag = 0;
 	switch (eraseFlash) {
 		case 0://NO erase
@@ -329,12 +337,20 @@ int v3tool_storage_init(const int eraseFlash, unsigned dtbImgSz)
 			break;
 
 		case 3://erase all(with key)
-			{
-				if (store_rsv_protect("key", false))
-					FBS_EXIT(_ACK, "Fail in disprotect key\n");
-			}
 		case 1://normal erase, store init 3
 			initFlag = 3;
+			if (3 == eraseFlash) {
+				if (store_rsv_protect("key", false))
+					FBS_EXIT(_ACK, "Fail in disprotect key\n");
+			} else {
+#ifdef CONFIG_BACKUP_PART_NORMAL_ERASE
+				//backup env to memory
+				backupPartSz = (u32)store_part_size(BackupPart);
+				FB_MSG("BackupPart %s sz 0x%x\n", BackupPart, backupPartSz);
+				ret = store_read(BackupPart, 0, backupPartSz, BackupPartAddr);
+				if (ret) { FBS_EXIT(_ACK, "FAil in backup important part %s to mem\n", BackupPart);}
+#endif//#ifdef CONFIG_BACKUP_PART_NORMAL_ERASE
+			}
 			break;
 
 		case 4: {//force erase all
@@ -356,6 +372,12 @@ int v3tool_storage_init(const int eraseFlash, unsigned dtbImgSz)
 	} else if (initFlag > 1) {
 		ret = store_erase(NULL, 0, 0, 0);
 		if (ret) FBS_EXIT(_ACK, "Fail in erase flash, ret[%d]\n", ret);
+#ifdef CONFIG_BACKUP_PART_NORMAL_ERASE
+		if (backupPartSz) {
+			FB_MSG("restore BackupPart %s from mem\n", BackupPart);
+			store_write(BackupPart, 0, backupPartSz, BackupPartAddr);
+		}
+#endif//#ifdef CONFIG_BACKUP_PART_NORMAL_ERASE
 	}
 
 	if (V3TOOL_WORK_MODE_USB_PRODUCE == v3tool_work_mode_get()) {
