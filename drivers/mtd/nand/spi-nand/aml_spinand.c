@@ -382,6 +382,15 @@ struct nand_flash_dev spi_nand_ids[] = {
 		.id_len = 2,
 		.oobsize = 64
 	},
+	{"SPI NAND TC58CVG1S3HRAIG 256MiB 3.3V",
+		{ .id = {0x98, 0xcb} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_256M,
+		.erasesize = SZ_128K,
+		.options = SPI_RX_QUAD,
+		.id_len = 2,
+		.oobsize = 64
+	},
 	{"SPI NAND ZD35Q1GA 128MiB 3.3V",
 		{ .id = {0xba, 0x71} },
 		.pagesize = SZ_2K,
