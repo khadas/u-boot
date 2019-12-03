@@ -727,7 +727,6 @@ ALL-y += u-boot.hex
 ifeq ($(CONFIG_NEED_BL301), y)
 ALL-y += bl301.bin
 endif
-ALL-$(CONFIG_AML_DOLBY) += dovi
 ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
 ALL-$(CONFIG_RAMBOOT_PBL) += u-boot-with-spl-pbl.bin
@@ -1115,7 +1114,7 @@ cmd_smap = \
 	$(CC) $(c_flags) -DSYSTEM_MAP="\"$${smap}\"" \
 		-c $(srctree)/common/system_map.c -o common/system_map.o
 
-u-boot:	dovi $(u-boot-init) $(u-boot-main) u-boot.lds
+u-boot: dovi $(u-boot-init) $(u-boot-main) u-boot.lds
 	$(call if_changed,u-boot__)
 ifeq ($(CONFIG_KALLSYMS),y)
 	$(call cmd,smap)
