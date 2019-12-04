@@ -2461,6 +2461,13 @@ Description:
 #define     HHI_VPU_MEM_PD_REG4                                (0xff63c000 + (0x044 << 2))
 #define SEC_HHI_VPU_MEM_PD_REG4                                (0xff63c000 + (0x044 << 2))
 #define   P_HHI_VPU_MEM_PD_REG4                                (volatile uint32_t *)(0xff63c000 + (0x044 << 2))
+#define     HHI_NANOQ_MEM_PD_REG0                              (0xff63c000 + (0x046 << 2))
+#define SEC_HHI_NANOQ_MEM_PD_REG0                              (0xff63c000 + (0x046 << 2))
+#define   P_HHI_NANOQ_MEM_PD_REG0                              (volatile uint32_t *)(0xff63c000 + (0x046 << 2))
+#define     HHI_NANOQ_MEM_PD_REG1                              (0xff63c000 + (0x047 << 2))
+#define SEC_HHI_NANOQ_MEM_PD_REG1                              (0xff63c000 + (0x047 << 2))
+#define   P_HHI_NANOQ_MEM_PD_REG1                              (volatile uint32_t *)(0xff63c000 + (0x047 << 2))
+
 //`define HHI_DEMOD_MEM_PD_REG     8'h43
 //`define HHI_AUD_DAC_CTRL          8'h44
 // `define HHI_VIID_PLL_CNTL4      8'h46 // video PLL read back
