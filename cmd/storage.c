@@ -49,7 +49,6 @@ static struct device_node_t device_list[] = {
 #ifdef CONFIG_MESON_NFC
 	{BOOT_NAND_MTD, "mtd", nand_pre, nand_probe},
 #endif
-
 #ifdef CONFIG_AML_NAND
 	{BOOT_NAND_NFTL, "nftl", amlnf_pre, amlnf_probe},
 #endif
@@ -136,15 +135,30 @@ u8 store_device_valid(enum boot_type_e type)
 
 int store_init(u32 init_flag)
 {
-	int i, ret;
-	int record = 0;
+	int i, ret = 0;
+	u8 record = 0;
 
-	for (i = 0; i < ARRAY_SIZE(device_list); i++)
+	/*1. pre scan*/
+	for (i = 0; i < ARRAY_SIZE(device_list); i++) {
 		if (!device_list[i].pre()) {
-			ret = device_list[i].probe(init_flag);
-			if (!ret)
-				record |= device_list[i].index;
+			record |= BIT(i);
 		}
+	}
+
+	if (!record) {
+		pr_info("No Valid storage device\n");
+		return record;
+	}
+
+	/*2. Enter the probe of the valid device*/
+	for (i = 0; i < ARRAY_SIZE(device_list); i++) {
+		if (record & BIT(i)) {
+			ret = device_list[i].probe(init_flag);
+			if (ret)
+				pr_info("the 0x%x storage device probe failed\n",
+			device_list[i].index);
+		}
+	}
 
 	return record;
 }
