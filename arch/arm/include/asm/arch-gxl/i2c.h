@@ -135,7 +135,28 @@ struct i2c_msg {
  * GPIOE_17								SDA_B REG5[25]		SDA_A REG5[26]
 */
 
-#if defined(CONFIG_KVIM2) || defined(CONFIG_KHADAS_VIM2)
+#if  defined(CONFIG_KVIM) || defined(CONFIG_KHADAS_VIM)
+/*i2c master a*/
+#define MESON_I2C_MASTER_A_GPIODV_24_REG               (P_PERIPHS_PIN_MUX_1)
+#define MESON_I2C_MASTER_A_GPIODV_24_BIT               (1<<15)
+#define MESON_I2C_MASTER_A_GPIODV_25_REG               (P_PERIPHS_PIN_MUX_1)
+#define MESON_I2C_MASTER_A_GPIODV_25_BIT               (1<<14)
+/*i2c master b*/
+#define MESON_I2C_MASTER_B_GPIODV_26_REG               (P_PERIPHS_PIN_MUX_1)
+#define MESON_I2C_MASTER_B_GPIODV_26_BIT               (1<<13)
+#define MESON_I2C_MASTER_B_GPIODV_27_REG               (P_PERIPHS_PIN_MUX_1)
+#define MESON_I2C_MASTER_B_GPIODV_27_BIT               (1<<12)
+ /*i2c master c*/
+#define MESON_I2C_MASTER_C_GPIODV_28_REG               (P_PERIPHS_PIN_MUX_1)
+#define MESON_I2C_MASTER_C_GPIODV_28_BIT               (1<<11)
+#define MESON_I2C_MASTER_C_GPIODV_29_REG               (P_PERIPHS_PIN_MUX_1)
+#define MESON_I2C_MASTER_C_GPIODV_29_BIT               (1<<10)
+/*i2c master d*/
+#define MESON_I2C_MASTER_D_GPIOX_10_REG                        (PERIPHS_PIN_MUX_5)
+#define MESON_I2C_MASTER_D_GPIOX_10_BIT                        (1<<5)
+#define MESON_I2C_MASTER_D_GPIOX_11_REG                        (PERIPHS_PIN_MUX_5)
+#define MESON_I2C_MASTER_D_GPIOX_11_BIT                        (1<<5)
+#elif defined(CONFIG_KVIM2) || defined(CONFIG_KHADAS_VIM2)
 /*i2c master a*/
 #define MESON_I2C_MASTER_A_GPIODV_24_REG               (P_PERIPHS_PIN_MUX_1)
 #define MESON_I2C_MASTER_A_GPIODV_24_BIT               (1<<15)
