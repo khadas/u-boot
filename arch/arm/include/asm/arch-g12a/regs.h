@@ -6325,8 +6325,8 @@ Description:
 #define P_DOS_SW_RESET4                            (volatile unsigned int *)((0x3f37  << 2) + 0xff620000)
 #define   DOS_GCLK_EN4                             (0x3f38)
 #define P_DOS_GCLK_EN4                             (volatile unsigned int *)((0x3f38  << 2) + 0xff620000)
-#define   DOS_MEM_PD_VP9DEC                        (0x3f39)
-#define P_DOS_MEM_PD_VP9DEC                        (volatile unsigned int *)((0x3f39  << 2) + 0xff620000)
+#define   DOS_MEM_PD_WAVE420L                      (0x3f39)
+#define P_DOS_MEM_PD_WAVE420L                      (volatile unsigned int *)((0x3f39  << 2) + 0xff620000)
 // bit[31]    mcrcc_stall_en
 // bit[30:28] Reserved
 // bit[27:20] target_canvas

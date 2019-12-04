@@ -8,6 +8,7 @@ obj-y	+= timer.o
 obj-y	+= mailbox.o
 obj-y   += gate_init.o
 obj-y   += power_cal.o
+obj-y   += power_domain.o
 obj-$(CONFIG_CMD_PLLTEST)	+= pll.o
 obj-$(CONFIG_CMD_AML_MTEST) += core.o
 obj-$(CONFIG_AML_HDMITX20) += sound.o
