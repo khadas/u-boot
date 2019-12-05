@@ -673,6 +673,11 @@ u-boot-init := $(head-y)
 u-boot-main := $(libs-y)
 
 
+ifeq ($(CONFIG_AML_DOLBY), y)
+PLATFORM_CPPFLAGS += -I$(srctree)/drivers/display/osd/dv
+PLATFORM_LIBS += $(srctree)/drivers/display/osd/dv/dovi.a
+endif
+
 # Add GCC lib
 ifeq ($(CONFIG_USE_PRIVATE_LIBGCC),y)
 PLATFORM_LIBGCC = arch/$(ARCH)/lib/lib.a
@@ -870,12 +875,6 @@ acs.bin: tools prepare u-boot.bin
 .PHONY : bl21.bin
 bl21.bin: tools prepare u-boot.bin acs.bin
 	$(Q)$(MAKE) -C $(srctree)/$(CPUDIR)/${SOC}/firmware/bl21 all FIRMWARE=$@
-
-.PHONY : dovi
-dovi: tools prepare
-ifeq ($(CONFIG_AML_DOLBY), y)
-	$(Q)$(MAKE) -C $(srctree)/drivers/display/osd/dv dovi.o
-endif
 
 #
 # U-Boot entry point, needed for booting of full-blown U-Boot
@@ -1114,7 +1113,7 @@ cmd_smap = \
 	$(CC) $(c_flags) -DSYSTEM_MAP="\"$${smap}\"" \
 		-c $(srctree)/common/system_map.c -o common/system_map.o
 
-u-boot: dovi $(u-boot-init) $(u-boot-main) u-boot.lds
+u-boot: $(u-boot-init) $(u-boot-main) u-boot.lds
 	$(call if_changed,u-boot__)
 ifeq ($(CONFIG_KALLSYMS),y)
 	$(call cmd,smap)
