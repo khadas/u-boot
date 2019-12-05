@@ -387,7 +387,7 @@ typedef struct ddr_set{
 	//system reserve,do not modify
 	/* align8 */
     unsigned	char	char_rev1;
-	unsigned	char	char_rev2;
+	unsigned	char	training_offset;//char_rev2;
 	unsigned	int		ddr_dmc_remap[5];
 	unsigned	int		dram_rtt_nom_wr_park[2];
 	//system reserve,do not modify
