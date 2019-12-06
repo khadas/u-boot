@@ -140,7 +140,7 @@ static int optimus_burn_one_partition(const char* partName, HIMAGE hImg, __hdle 
     u32 thisReadLen     = 0;
     __hdle hImgItem     = NULL;
     char* downTransBuf  = NULL;//get buffer from optimus_buffer_manager
-    const unsigned ItemReadBufSz = OPTIMUS_DOWNLOAD_SLOT_SZ;//read this size from image item each time
+    const unsigned ItemReadBufSz = OPTIMUS_LOCAL_UPGRADE_SLOT_SZ;//read this size from image item each time
     unsigned sequenceNo = 0;
     const char* fileFmt = NULL;
     /*static */char _errInfo[512];
@@ -489,7 +489,10 @@ static int sdc_burn_aml_keys(HIMAGE hImg, const int keyOverWrite)
         const char** pCurKeysName = NULL;
         unsigned index = 0;
 
-        rc = run_command("aml_key_burn probe vfat sdc", 0);
+        if (strcmp("1", getenv("usb_update")))
+            rc = run_command("aml_key_burn probe vfat sdc", 0);
+        else
+            rc = run_command("aml_key_burn probe vfat udisk", 0);
         if (rc) {
                 DWN_ERR("Fail in probe for aml_key_burn\n");
                 return __LINE__;
@@ -591,6 +594,12 @@ static int sdc_burn_aml_keys(HIMAGE hImg, const int keyOverWrite)
 #define sdc_burn_aml_keys(fmt...)     0
 #endif// #if CONFIG_SUPPORT_SDC_KEYBURN
 
+#if SUM_FUNC_TIME_COST
+unsigned long ImageRdTime = 0;
+unsigned long FlashRdTime = 0;
+unsigned long FlashWrTime = 0;
+#endif//#if SUM_FUNC_TIME_COST
+
 int optimus_burn_with_cfg_file(const char* cfgFile)
 {
     extern ConfigPara_t g_sdcBurnPara ;
@@ -604,6 +613,7 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
     u64 datapartsSz = 0;
     int eraseFlag = pSdcCfgPara->custom.eraseFlash;
 
+    optimus_buf_manager_init(16*1024);
     hImg = image_open("mmc", "0", "1", cfgFile);
     if (!hImg) {
         DWN_MSG("cfg[%s] not valid aml pkg, parse it as ini\n", cfgFile);
@@ -693,7 +703,16 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
             eraseFlag = 0;
             DWN_MSG("Disable erase as data parts size is 0\n");
     }
-    ret = optimus_storage_init(eraseFlag);
+    if (eraseFlag && !strcmp("1", getenv("usb_update"))) {
+        ret = optimus_storage_init(0);
+        if (ret) {
+            DWN_ERR("FAil in init flash for usb upgrade\n");
+            return __LINE__;
+        }
+        ret = run_command("store erase data", 0);//erase after bootloader
+    }
+    else
+        ret = optimus_storage_init(eraseFlag);
     if (ret) {
         DWN_ERR("Fail to init stoarge for sdc burn\n");
         ret = __LINE__; goto _finish;
@@ -759,6 +778,9 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
 
 _finish:
     image_close(hImg);
+#if SUM_FUNC_TIME_COST
+    DWN_MSG("[ms]ImageRdTime %ld, FlashRdTime %ld, FlashWrTime %ld\n", ImageRdTime/1000, FlashRdTime/1000, FlashWrTime/1000);
+#endif//#if SUM_FUNC_TIME_COST
     if (hUiProgress) optimus_progress_ui_report_upgrade_stat(hUiProgress, !ret);
     optimus_report_burn_complete_sta(ret, pSdcCfgPara->custom.rebootAfterBurn);
     if (hUiProgress) optimus_progress_ui_release(hUiProgress);

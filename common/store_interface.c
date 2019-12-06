@@ -1134,7 +1134,8 @@ E_SWITCH_BACK:
 		else if(device_boot_flag==EMMC_BOOT_FLAG){
 			store_dbg("MMC BOOT,erase data : %s %d  off =%llx ,size=%llx",__func__,__LINE__, off, size);
 			off = size =0;
-			ret = run_command("amlmmc erase 1",0); //whole
+			MsgP("amlmmc erase non_loader\n");
+			ret = run_command("amlmmc erase non_loader",0); //whole
 			if (ret != 0) {
 				store_msg("amlmmc cmd %s failed ",cmd);
 				return -1;

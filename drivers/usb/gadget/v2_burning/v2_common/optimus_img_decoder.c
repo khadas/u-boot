@@ -128,6 +128,12 @@ _err:
     return NULL;
 }
 
+unsigned image_get_crc(HIMAGE hImg)
+{
+    ImgInfo_t* imgInfo = (ImgInfo_t*)hImg;
+    return imgInfo->imgHead.crc;
+}
+
 
 //close a Amlogic firmware image
 int image_close(HIMAGE hImg)

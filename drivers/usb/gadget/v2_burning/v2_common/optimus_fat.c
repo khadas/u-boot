@@ -1174,9 +1174,13 @@ unsigned do_fat_get_bytesperclust(int fd)
     return bytesperclust;
 }
 
+#if SUM_FUNC_TIME_COST
+static long _do_fat_fread(int fd, __u8 *buffer, unsigned long maxsize)
+#else
 // clusters need to read:
 // data moddule: <first cluser not engouh cluster> + <n * Consecutive clusters > + <last cluster not engouh cluster>
 long do_fat_fread(int fd, __u8 *buffer, unsigned long maxsize)
+#endif// #if SUM_FUNC_TIME_COST
 {
         if (fd < 0) {
                 FAT_ERROR("Invalid fd %d\n", fd);
@@ -1351,6 +1355,16 @@ exit:
         pFile->curclust = curclust;
         return gotsize;
 }
+
+#if SUM_FUNC_TIME_COST
+long do_fat_fread(int fd, __u8 *buffer, unsigned long maxsize)
+{
+    extern unsigned long ImageRdTime;
+    long ret = 0;
+    _func_cost_utime_yret(ImageRdTime, ret, _do_fat_fread, fd, buffer, maxsize);
+    return ret;
+}
+#endif//#if SUM_FUNC_TIME_COST
 
 void
 do_fat_fclose(int fd)

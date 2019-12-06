@@ -101,11 +101,13 @@ static int do_opt_keysburn_probe(cmd_tbl_t *cmdtp, int flag, int argc, char * co
 
                 if (!_udiskProbe)
                 {
+#if 0
                         rc = run_command("usb start 0", 0);
                         if (rc) {
                                 _AML_KEY_ERR("Fail in mmcinfo\n");
                                 return __LINE__;
                         }
+#endif
                         rc = optimus_device_probe("usb", "0");
                         if (rc) {
                                 _AML_KEY_ERR("Fail to detect device mmc 0\n");
@@ -170,39 +172,18 @@ static int optimus_read_keyfile_2_mem(const char* filePath, u8* buf, unsigned* k
 {
         int rc = 0;
         unsigned keySz = 0;
+        char cmd[128];
 
         if (DEV_FILE_FMT_VFAT == _optKeyInfo.fileFmt)
         {
-                long hFile = -1;
-                unsigned readSz = 0;
-
-#if 1//FIXME: remove this mmcinfo
-                /*rc = run_command("mmcinfo 0", 0);*/
-                rc = optimus_sdc_burn_switch_to_extmmc();
-                if (rc) {
-                        DWN_ERR("Fail in mmcinfo\n");
-                        return __LINE__;
-                }
-#endif//
-                keySz = (unsigned)do_fat_get_fileSz(filePath);//can support both sdc and udisk
-                if (!keySz) {
-                        DWN_ERR("size is 0 of file [%s]\n", filePath);
-                        return __LINE__;
-                }
-
-                hFile = do_fat_fopen(filePath);
-                if (hFile < 0) {
-                        DWN_ERR("Fail to open file[%s]\n", filePath);
-                        return __LINE__;
-                }
-
-                readSz = do_fat_fread(hFile, buf, keySz);
-                if (readSz != keySz) {
-                        DWN_ERR("Want read %d bytes, but %d\n", keySz, readSz);
-                        return __LINE__;
-                }
-
-                do_fat_fclose(hFile);
+            if (strcmp("1", getenv("usb_update")))
+                sprintf(cmd, "fatload mmc 0 %p %s", buf, filePath);
+            else
+                sprintf(cmd, "fatload usb 0 %p %s", buf, filePath);
+            rc = run_command(cmd, 0);
+            if (rc) {
+                DWN_ERR("Fail in load key cmd[%s]\n", cmd);
+            }
         }
 
         *keyValLen = keySz;

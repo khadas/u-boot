@@ -95,6 +95,7 @@ unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyVa
 #define OPTIMUS_DOWNLOAD_TRANSFER_BUF_ADDR      (OPTIMUS_SPARSE_IMG_LEFT_DATA_ADDR_LOW + OPTIMUS_SPARSE_IMG_LEFT_DATA_MAX_SZ)
 
 #define OPTIMUS_DOWNLOAD_SLOT_SZ                (64<<10)    //64K
+#define OPTIMUS_LOCAL_UPGRADE_SLOT_SZ           (OPTIMUS_DOWNLOAD_SLOT_SZ * 16) //1M per time for fatload
 #define OPTIMUS_DOWNLOAD_SLOT_SZ_SHIFT_BITS     (16)    //64K
 #define OPTIMUS_DOWNLOAD_SLOT_NUM               (OPTIMUS_DOWNLOAD_TRANSFER_BUF_TOTALSZ/OPTIMUS_DOWNLOAD_SLOT_SZ)
 
@@ -214,6 +215,29 @@ int optimus_work_mode_set(int workmode);
 //getenv wrapper to avoid coverity tained string error
 //cannot called nested as it shares the same buffer
 const char* getenv_optimus(const char* name);
+
+#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE
+#define SUM_FUNC_TIME_COST 0
+#if SUM_FUNC_TIME_COST
+#define _func_cost_utime_yret(sum, ret, func, ...) do {\
+    unsigned long uTime = timer_get_us(); \
+    ret = func(__VA_ARGS__); \
+    sum += timer_get_us() - uTime; \
+} while(0)
+
+#define _func_cost_utime_nret(sum, func, ...) do {\
+    unsigned long uTime = timer_get_us(); \
+    func(__VA_ARGS__); \
+    sum += timer_get_us() - uTime; \
+} while(0)
+
+extern unsigned long ImageRdTime;
+extern unsigned long FlashRdTime;
+extern unsigned long FlashWrTime;
+
+#else
+#endif//#if SUM_FUNC_TIME_COST
+#endif//#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE
 
 #endif//ifndef __OPTIMUS_DOWNLOAD_H__
 
