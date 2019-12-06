@@ -672,6 +672,8 @@ static void lcd_vbyone_control_set(struct lcd_config_s *pconf)
 	//lcd_vcbus_setb(VBO_PXL_CTRL,0x2,0,4);
 	//lcd_vcbus_setb(VBO_PXL_CTRL,0x3,VBO_PXL_CTR1_BIT,VBO_PXL_CTR1_WID);
 	//set_vbyone_ctlbits(1,0,0); */
+	/* VBO_RGN_GEN clk always on */
+	lcd_vcbus_setb(VBO_GCLK_MAIN, 2, 2, 2);
 
 	/* PAD select: */
 	if ((lane_count == 1) || (lane_count == 2))
