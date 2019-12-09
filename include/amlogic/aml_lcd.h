@@ -54,6 +54,8 @@
 #define LCD_EXT_CMD_TYPE_CMD_DELAY    0x00
 #define LCD_EXT_CMD_TYPE_CMD2_DELAY   0x01  /* for i2c device 2nd addr */
 #define LCD_EXT_CMD_TYPE_NONE         0x10
+#define LCD_EXT_CMD_TYPE_CMD_BIN      0xb0
+#define LCD_EXT_CMD_TYPE_CMD2_BIN     0xb1  /* for i2c device 2nd addr */
 #define LCD_EXT_CMD_TYPE_CMD          0xc0
 #define LCD_EXT_CMD_TYPE_CMD2         0xc1  /* for i2c device 2nd addr */
 #define LCD_EXT_CMD_TYPE_GPIO         0xf0

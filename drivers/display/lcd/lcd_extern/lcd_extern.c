@@ -80,7 +80,9 @@ static void aml_lcd_extern_init_table_dynamic_size_print(
 				for (j = 0; j < cmd_size; j++)
 					printf("%d,", table[i+2+j]);
 			} else if ((table[i] == LCD_EXT_CMD_TYPE_CMD) ||
-				(table[i] == LCD_EXT_CMD_TYPE_CMD2)) {
+				   (table[i] == LCD_EXT_CMD_TYPE_CMD2) ||
+				   (table[i] == LCD_EXT_CMD_TYPE_CMD_BIN) ||
+				   (table[i] == LCD_EXT_CMD_TYPE_CMD2_BIN)) {
 				for (j = 0; j < cmd_size; j++)
 					printf("0x%02x,", table[i+2+j]);
 			} else if ((table[i] == LCD_EXT_CMD_TYPE_CMD_DELAY) ||

@@ -223,11 +223,13 @@ static int lcd_extern_power_cmd_dynamic_size(unsigned char *table, int flag)
 					delay_ms += table[i+2+j];
 				if (delay_ms > 0)
 					mdelay(delay_ms);
-			} else if (type == LCD_EXT_CMD_TYPE_CMD) {
+			} else if ((type == LCD_EXT_CMD_TYPE_CMD) ||
+				   (type == LCD_EXT_CMD_TYPE_CMD_BIN)) {
 				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
 					ext_config->i2c_addr,
 					&table[i+2], cmd_size);
-			} else if (type == LCD_EXT_CMD_TYPE_CMD2) {
+			} else if ((type == LCD_EXT_CMD_TYPE_CMD2) ||
+				   (type == LCD_EXT_CMD_TYPE_CMD2_BIN)) {
 				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
 					ext_config->i2c_addr2,
 					&table[i+2], cmd_size);
@@ -287,7 +289,8 @@ power_cmd_dynamic_i2c_next:
 					delay_ms += table[i+2+j];
 				if (delay_ms > 0)
 					mdelay(delay_ms);
-			} else if (type == LCD_EXT_CMD_TYPE_CMD) {
+			} else if ((type == LCD_EXT_CMD_TYPE_CMD) ||
+				   (type == LCD_EXT_CMD_TYPE_CMD_BIN)) {
 				ret = lcd_extern_spi_write(&table[i+2], cmd_size);
 			} else if (type == LCD_EXT_CMD_TYPE_CMD_DELAY) {
 				ret = lcd_extern_spi_write(&table[i+2], (cmd_size-1));
@@ -354,11 +357,13 @@ static int lcd_extern_power_cmd_fixed_size(unsigned char *table, int flag)
 					delay_ms += table[i+1+j];
 				if (delay_ms > 0)
 					mdelay(delay_ms);
-			} else if (type == LCD_EXT_CMD_TYPE_CMD) {
+			} else if ((type == LCD_EXT_CMD_TYPE_CMD) ||
+				   (type == LCD_EXT_CMD_TYPE_CMD_BIN)) {
 				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
 					ext_config->i2c_addr,
 					&table[i+1], (cmd_size-1));
-			} else if (type == LCD_EXT_CMD_TYPE_CMD2) {
+			} else if ((type == LCD_EXT_CMD_TYPE_CMD2) ||
+				   (type == LCD_EXT_CMD_TYPE_CMD2_BIN)) {
 				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
 					ext_config->i2c_addr2,
 					&table[i+1], (cmd_size-1));
@@ -406,7 +411,8 @@ static int lcd_extern_power_cmd_fixed_size(unsigned char *table, int flag)
 					delay_ms += table[i+1+j];
 				if (delay_ms > 0)
 					mdelay(delay_ms);
-			} else if (type == LCD_EXT_CMD_TYPE_CMD) {
+			} else if ((type == LCD_EXT_CMD_TYPE_CMD) ||
+				   (type == LCD_EXT_CMD_TYPE_CMD_BIN)) {
 				ret = lcd_extern_spi_write(&table[i+1], (cmd_size-1));
 			} else if (type == LCD_EXT_CMD_TYPE_CMD_DELAY) {
 				ret = lcd_extern_spi_write(&table[i+1], (cmd_size-2));
