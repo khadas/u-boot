@@ -54,6 +54,8 @@
   */
 #define CONFIG_BOOTLOADER_CONTROL_BLOCK
 
+#define CONFIG_CMD_BOOTCTOL_AVB
+
 /* Serial config */
 #define CONFIG_CONS_INDEX 2
 #define CONFIG_BAUDRATE  115200
