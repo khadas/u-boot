@@ -347,6 +347,7 @@ int v3tool_storage_init(const int eraseFlash, unsigned dtbImgSz)
 				//backup env to memory
 				backupPartSz = (u32)store_part_size(BackupPart);
 				FB_MSG("BackupPart %s sz 0x%x\n", BackupPart, backupPartSz);
+				if (!backupPartSz) { FBS_EXIT(_ACK, " FAil in find BackupPart %s\n", BackupPart);}
 				ret = store_read(BackupPart, 0, backupPartSz, BackupPartAddr);
 				if (ret) { FBS_EXIT(_ACK, "FAil in backup important part %s to mem\n", BackupPart);}
 #endif//#ifdef CONFIG_BACKUP_PART_NORMAL_ERASE

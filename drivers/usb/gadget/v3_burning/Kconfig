@@ -30,8 +30,13 @@ config V3_KEY_BURNING_SUPPORT
 	default y
 	select AML_V2_FACTORY_BURN
 
+config SUPPORT_BACKUP_PART_NORMAL_ERASE
+    bool "support backup part when normal erasing"
+    default n
+
 config BACKUP_PART_NORMAL_ERASE
-    string "backup part when normal erasing"
+    depends on SUPPORT_BACKUP_PART_NORMAL_ERASE
+    string "config backup part name"
     help
         This configure define part which need backup to mem before normal erase
         backup before erasing, and restore it after erasing
