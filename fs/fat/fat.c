@@ -131,27 +131,33 @@ static int dirdelim(char *str)
  */
 static void get_name(dir_entry *dirent, char *s_name)
 {
-	char *ptr;
+	char *ptr, *dot = NULL;
 
 	memcpy(s_name, dirent->name, 8);
 	s_name[8] = '\0';
 	ptr = s_name;
 	while (*ptr && *ptr != ' ')
 		ptr++;
+	if (dirent->lcase & 0x08) {	/* down case for 8 */
+		downcase(s_name);
+	}
 	if (dirent->ext[0] && dirent->ext[0] != ' ') {
 		*ptr = '.';
 		ptr++;
+		dot = ptr;
 		memcpy(ptr, dirent->ext, 3);
 		ptr[3] = '\0';
 		while (*ptr && *ptr != ' ')
 			ptr++;
 	}
 	*ptr = '\0';
+	if (dot && dirent->lcase & 0x10) {	/* down case for 3 */
+		downcase(dot);
+	}
 	if (*s_name == DELETED_FLAG)
 		*s_name = '\0';
 	else if (*s_name == aRING)
 		*s_name = DELETED_FLAG;
-	downcase(s_name);
 }
 
 /*
@@ -544,7 +550,6 @@ get_vfatname(fsdata *mydata, int curclust, __u8 *cluster,
 		*l_name = '\0';
 	else if (*l_name == aRING)
 		*l_name = DELETED_FLAG;
-	downcase(l_name);
 
 	/* Return the real directory entry */
 	memcpy(retdent, realdent, sizeof(dir_entry));
@@ -893,7 +898,6 @@ int do_fat_read_at(const char *filename, loff_t pos, void *buffer,
 
 	/* Make a copy of the filename and convert it to lowercase */
 	strcpy(fnamecopy, filename);
-	downcase(fnamecopy);
 
 	if (*fnamecopy == '\0') {
 		if (!dols)
