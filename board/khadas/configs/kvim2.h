@@ -241,6 +241,9 @@
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
+                "hdmitx get_preferred_mode;"\
+                "hdmitx edid;"\
+                "hdmitx hpd;"\
                 "osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale; "\
             "fi;fi;"\
             "\0"\

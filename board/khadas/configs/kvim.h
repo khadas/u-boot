@@ -248,6 +248,9 @@
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
+                "hdmitx get_preferred_mode;"\
+                "hdmitx edid;"\
+                "hdmitx hpd;"\
                 "osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale; "\
             "fi;fi;"\
             "\0"\
@@ -550,6 +553,8 @@
 #define CONFIG_CMD_EXT4 1
 #define CONFIG_CMD_UNZIP   1
 #define CONFIG_LZMA        1
+#define CONFIG_FAT_WRITE	1
+#define CONFIG_CMD_EXT4_WRITE	1
 
 /* Cache Definitions */
 //#define CONFIG_SYS_DCACHE_OFF
