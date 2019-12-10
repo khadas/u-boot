@@ -252,8 +252,9 @@
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
-                "hdmitx hpd;"\
                 "hdmitx get_preferred_mode;"\
+                "hdmitx edid;"\
+                "hdmitx hpd;"\
                 "if test ${lcd_exist} = 1 && test ${outputmode} = panel; then "\
                     "setenv fb_width 1088;"\
                     "setenv fb_height 1920;"\
@@ -654,6 +655,8 @@
 #define CONFIG_LZO 1
 #define CONFIG_CMD_UNZIP    1
 #define CONFIG_LZMA         1
+#define CONFIG_FAT_WRITE	1
+#define CONFIG_CMD_EXT4_WRITE	1
 
 #define CONFIG_MDUMP_COMPRESS 1
 
