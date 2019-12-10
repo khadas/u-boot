@@ -58,7 +58,7 @@
  *
  */
 
-ddr_set_t __ddr_setting[] = {
+ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 {
 	// g12a 4layer 4pcs ddr4 rank01 (1320)(T204)
 	.board_id				= CONFIG_BOARD_ID_MASK,

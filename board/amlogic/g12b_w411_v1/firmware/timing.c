@@ -58,7 +58,7 @@
  *
  */
 
-ddr_set_t __ddr_setting[] = {
+ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 {
 	/* ddr4 */
 	.board_id				= 0,//CONFIG_BOARD_ID_MASK,

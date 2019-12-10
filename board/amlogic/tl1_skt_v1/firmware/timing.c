@@ -61,7 +61,7 @@
 //#define DMC_TEST_SLT_ENABLE_DDR_AUTO_FAST_BOOT 1<<5
 //#define DMC_TEST_SLT_ENABLE_DDR_AUTO_WINDOW_TEST 1<<4
 
-ddr_set_t __ddr_setting[] = {
+ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 {
 	//lpddr4
 	.board_id				= CONFIG_BOARD_ID_MASK,
