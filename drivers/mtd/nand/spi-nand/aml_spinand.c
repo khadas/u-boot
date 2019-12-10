@@ -427,12 +427,22 @@ struct nand_flash_dev spi_nand_ids[] = {
 		.id_len = 2,
 		.oobsize = 64
 	},
+	{"MT29F2G01ABAGD/F50L2G41XA 256MiB 3.3V",
+		{ .id = {0x2c, 0x24} },
+		.pagesize = SZ_2K,
+		.chipsize = SZ_256M,
+		.erasesize = SZ_128K,
+		.options = SPI_TX_QUAD | SPI_RX_DUAL | SPI_RX_QUAD,
+		.id_len = 2,
+		.oobsize = 64
+	},
 
 	{NULL}
 };
 
 static chip_plane_ids[][3] = {
-	{ 0xba, 0x72, 2 },
+	{ 0xba, 0x72, 2 },	/* ZD35Q2GA */
+	{ 0x2c, 0x24, 2 },	/* MT29F2G01ABAGD/F50L2G41XA */
 };
 
 
