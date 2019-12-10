@@ -76,7 +76,7 @@
 #define DDR_RFC_TYPE_LPDDR4_3Gbx1				10
 #define DDR_RFC_TYPE_LPDDR4_4Gbx1				11
 
-ddr_set_t __ddr_setting[] = {
+ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 {
 	/* ddr3 */
 	.board_id				= CONFIG_BOARD_ID_MASK,
