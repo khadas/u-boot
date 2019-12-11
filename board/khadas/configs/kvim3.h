@@ -346,7 +346,6 @@
             "print reboot_mode;" \
             "if test ${reboot_mode} = uboot_updated; then "\
                 "echo u-boot updated, pass to kernel...;" \
-                "env default -a;" \
                 "saveenv;" \
             "else "\
                 "if test -e mmc 1:5 /usr/lib/u-boot/.UBOOT-NEED-UPDATE; then " \
