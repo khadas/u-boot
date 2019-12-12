@@ -60,7 +60,24 @@ void vpu_module_init_config(void)
 	/* dmc_arb_config */
 	vpu_vcbus_write(VPU_RDARB_MODE_L1C1, 0x0); //0x210000
 	vpu_vcbus_write(VPU_RDARB_MODE_L1C2, 0x10000);
-	vpu_vcbus_write(VPU_RDARB_MODE_L2C1, 0x900000);
+	switch (vpu_conf.data->chip_type) {
+	case VPU_CHIP_GXBB:
+	case VPU_CHIP_GXTVBB:
+	case VPU_CHIP_GXL:
+	case VPU_CHIP_GXM:
+	case VPU_CHIP_TXL:
+	case VPU_CHIP_TXLX:
+	case VPU_CHIP_AXG:
+	case VPU_CHIP_TXHD:
+	case VPU_CHIP_G12A:
+	case VPU_CHIP_G12B:
+	case VPU_CHIP_SM1:
+		vpu_vcbus_write(VPU_RDARB_MODE_L2C1, 0x900000);
+		break;
+	default:
+		vpu_vcbus_write(VPU_RDARB_MODE_L2C1, 0x20000);
+		break;
+	}
 	vpu_vcbus_write(VPU_WRARB_MODE_L2C1, 0x20000);
 
 	VPUPR("%s\n", __func__);
