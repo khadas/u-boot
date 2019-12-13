@@ -33,5 +33,10 @@
 #define	PM_DSPB			22
 #define	PM_DEMOD		23
 
+#ifdef CONFIG_AML_POWER_DOMAIN
 void power_domain_switch(int pwr_domain, bool pwr_switch);
-
+#else
+static void power_domain_switch(int pwr_domain, bool pwr_switch)
+{
+}
+#endif
