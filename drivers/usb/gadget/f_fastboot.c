@@ -1233,6 +1233,7 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
 	char* response = response_str;
+	char *slot_name;
 
 	printf("cmd cb_flash is %s\n", cmd);
 
@@ -1258,6 +1259,17 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 		}
 	}
 #endif
+
+	if ((has_boot_slot == 1) && (strcmp(cmd, "metadata") == 0)) {
+		slot_name = getenv("slot-suffixes");
+		if (strcmp(slot_name, "0") == 0) {
+			printf("set partiton metadata_a\n");
+			strcpy(cmd, "metadata_a");
+		} else if (strcmp(slot_name, "1") == 0) {
+			printf("set partiton metadata_b\n");
+			strcpy(cmd, "metadata_b");
+		}
+	}
 
 	printf("partition is %s\n", cmd);
 	if (strcmp(cmd, "userdata") == 0) {
@@ -1359,6 +1371,7 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 {
 	char* response = response_str;
 	char *cmd = req->buf;
+	char *slot_name;
 
 	printf("cmd cb_erase is %s\n", cmd);
 
@@ -1376,6 +1389,17 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 	}
 
 	printf("partition is %s\n", cmd);
+	if ((has_boot_slot == 1) && (strcmp(cmd, "metadata") == 0)) {
+		slot_name = getenv("slot-suffixes");
+		if (strcmp(slot_name, "0") == 0) {
+			printf("set partiton metadata_a\n");
+			strcpy(cmd, "metadata_a");
+		} else if (strcmp(slot_name, "1") == 0) {
+			printf("set partiton metadata_b\n");
+			strcpy(cmd, "metadata_b");
+		}
+	}
+
 	if (strcmp(cmd, "userdata") == 0) {
 		strcpy(cmd, "data");
 		printf("partition is %s\n", cmd);
