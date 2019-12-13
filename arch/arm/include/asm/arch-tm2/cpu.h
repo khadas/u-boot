@@ -81,6 +81,8 @@
 #define CONFIG_AML_RSVD_ADDR	0x08300000
 #define CONFIG_AML_RSVD_SIZE	0x100000
 
+#define CONFIG_AML_POWER_DOMAIN	1
+
 /* bl33 boot time */
 //#define BL33_BOOT_TIME_PROBE
 
