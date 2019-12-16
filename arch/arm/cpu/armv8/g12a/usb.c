@@ -22,7 +22,7 @@
 #include <asm/arch/usb-v2.h>
 #include <asm/arch/romboot.h>
 #include <asm/cpu_id.h>
-
+#include <amlogic/power_domain.h>
 
 static struct amlogic_usb_config * g_usb_cfg[BOARD_USB_MODE_MAX][USB_PHY_PORT_MAX];
 static int Rev_flag = 0;
@@ -50,14 +50,8 @@ struct amlogic_usb_config * board_usb_start(int mode,int index)
 	printf("USB3.0 XHCI init start\n");
 	board_usb_check_sm1();
 
-	if (board_usb_get_sm1_type() == 1) {
-		writel((readl(P_AO_RTI_GEN_PWR_SLEEP0) & (~(0x1<<17))),
-			P_AO_RTI_GEN_PWR_SLEEP0);
-		writel((readl(HHI_MEM_PD_REG0) & (~(0x3<<30))), HHI_MEM_PD_REG0);
-		udelay(100);
-		writel((readl(P_AO_RTI_GEN_PWR_ISO0) & (~(0x1<<17))),
-			P_AO_RTI_GEN_PWR_ISO0);
-	}
+	if (board_usb_get_sm1_type() == 1)
+		power_domain_switch(PM_USB, PWR_ON);
 
 	if (mode < 0 || mode >= BOARD_USB_MODE_MAX||!g_usb_cfg[mode][index])
 		return 0;

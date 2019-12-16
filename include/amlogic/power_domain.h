@@ -36,7 +36,9 @@
 #ifdef CONFIG_AML_POWER_DOMAIN
 void power_domain_switch(int pwr_domain, bool pwr_switch);
 #else
+#if (defined CONFIG_USB_DEVICE_V2)
 static void power_domain_switch(int pwr_domain, bool pwr_switch)
 {
 }
+#endif
 #endif
