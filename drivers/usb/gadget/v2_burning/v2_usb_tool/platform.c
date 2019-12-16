@@ -30,6 +30,7 @@ Description:
 //#include "power_gate.h"
 #include <asm/arch/secure_apb.h>
 #include <asm/cpu_id.h>
+#include <amlogic/power_domain.h>
 
 /*CONFIG_AML_MESON_8 include m8, m8baby, m8m2, etc... defined in cpu.h*/
 #if !(defined(CONFIG_USB_XHCI) || defined(CONFIG_USB_DWC_OTG_294))
@@ -278,27 +279,11 @@ void set_usb_phy_config(int cfg)
 	usb_aml_regs_t *usb_aml_regs = (usb_aml_regs_t * )PREI_USB_PHY_3_REG_BASE;
 	int cnt;
 
-	u32 val;
 #ifndef CONFIG_USB_POWER
-	if (b_platform_usb_check_sm1() == 1) {
-		val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_SLEEP0;
-		*P_AO_RTI_GEN_PWR_SLEEP0 = val & (~(0x1<<17));
-		mdelay(20);
-		val = *(volatile uint32_t *)HHI_MEM_PD_REG0;
-		*P_HHI_MEM_PD_REG0 = val & (~(0x3<<30));
-		udelay(100);
-		val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_ISO0;
-		*P_AO_RTI_GEN_PWR_ISO0 = val & (~(0x1<<17));
-	}
+	if (b_platform_usb_check_sm1() == 1)
+		power_domain_switch(PM_USB, PWR_ON);
 #else
-	val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_SLEEP0;
-	*P_AO_RTI_GEN_PWR_SLEEP0 = val & (~(0x1<<17));
-	mdelay(20);
-	val = *(volatile uint32_t *)HHI_MEM_PD_REG0;
-	*P_HHI_MEM_PD_REG0 = val & (~(0x3<<30));
-	udelay(100);
-	val = *(volatile uint32_t *)P_AO_RTI_GEN_PWR_ISO0;
-	*P_AO_RTI_GEN_PWR_ISO0 = val & (~(0x1<<17));
+	power_domain_switch(PM_USB, PWR_ON);
 #endif
 
 	mdelay(50);
