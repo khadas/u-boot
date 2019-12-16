@@ -193,6 +193,12 @@ static int handle_tcon_path(void)
 	else if (model_debug_flag & DEBUG_TCON)
 		ALOGE("%s, demura lut load file error!\n", __func__);
 
+	ini_value = IniGetString("tcon_Path", "TCON_ACC_LUT_PATH", "null");
+	if (strcmp(ini_value, "null") != 0)
+		setenv("model_tcon_acc_lut", ini_value);
+	else if (model_debug_flag & DEBUG_TCON)
+		ALOGE("%s, acc lut load file error!\n", __func__);
+
 	ini_value = IniGetString("tcon_Path", "TCON_EXT_B0_BIN_PATH", "null");
 	if (strcmp(ini_value, "null") != 0)
 		setenv("model_tcon_ext_b0", ini_value);
@@ -1807,6 +1813,58 @@ int handle_tcon_demura_lut(unsigned char *demura_lut_data,
 	demura_lut_data[6] = 0;
 	demura_lut_data[7] = 0;
 	GetBinData(&demura_lut_data[n], bin_size);
+
+	if (model_debug_flag)
+		ALOGD("%s finish, bin_size = 0x%lx\n", __func__, bin_size);
+
+	BinFileUninit();
+
+	return 0;
+}
+
+int handle_tcon_acc_lut(unsigned char *acc_lut_data, unsigned int acc_lut_size)
+{
+	unsigned long int bin_size;
+	char *file_name;
+	int n;
+
+	file_name = getenv("model_tcon_acc_lut");
+	if (!file_name) {
+		if (model_debug_flag & DEBUG_NORMAL)
+			ALOGD("%s, no model_tcon_acc_lut path\n", __func__);
+		return -1;
+	}
+
+	if ((!acc_lut_data) || (acc_lut_size == 0)) {
+		ALOGE("%s, buffer memory or size error!!!\n", __func__);
+		return -1;
+	}
+
+	if (!iniIsFileExist(file_name)) {
+		ALOGE("%s, model_tcon_demura_lut file name \"%s\" not exist.\n",
+			__func__, file_name);
+		return -1;
+	}
+	if (model_debug_flag & DEBUG_NORMAL)
+		ALOGD("%s: model_tcon_demura_lut: %s\n", __func__, file_name);
+
+	bin_size = read_bin_file(file_name, CC_MAX_TCON_ACC_LUT_SIZE);
+	if (!bin_size || (bin_size > acc_lut_size)) {
+		ALOGE("%s, bin_size 0x%lx error!(memory_size 0x%x)\n",
+		      __func__, bin_size, acc_lut_size);
+		return -1;
+	}
+
+	n = 8;
+	acc_lut_data[0] = bin_size & 0xff;
+	acc_lut_data[1] = (bin_size >> 8) & 0xff;
+	acc_lut_data[2] = (bin_size >> 16) & 0xff;
+	acc_lut_data[3] = (bin_size >> 24) & 0xff;
+	acc_lut_data[4] = 0;
+	acc_lut_data[5] = 0;
+	acc_lut_data[6] = 0;
+	acc_lut_data[7] = 0;
+	GetBinData(&acc_lut_data[n], bin_size);
 
 	if (model_debug_flag)
 		ALOGD("%s finish, bin_size = 0x%lx\n", __func__, bin_size);

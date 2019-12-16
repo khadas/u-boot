@@ -351,6 +351,21 @@ static int do_lcd_tcon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		} else {
 			printf("no lcd_tcon_reg_read\n");
 		}
+	} else if (strcmp(argv[1], "vac") == 0) {
+		if (lcd_drv->lcd_tcon_vac_print)
+			lcd_drv->lcd_tcon_vac_print();
+		else
+			printf("no lcd tcon_vac_print\n");
+	} else if (strcmp(argv[1], "demura") == 0) {
+		if (lcd_drv->lcd_tcon_demura_print)
+			lcd_drv->lcd_tcon_demura_print();
+		else
+			printf("no lcd tcon_demura_print\n");
+	} else if (strcmp(argv[1], "acc") == 0) {
+		if (lcd_drv->lcd_tcon_acc_print)
+			lcd_drv->lcd_tcon_acc_print();
+		else
+			printf("no lcd tcon_acc_print\n");
 	} else {
 		ret = -1;
 	}

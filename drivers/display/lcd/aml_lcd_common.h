@@ -72,7 +72,7 @@ extern void lcd_tcon_info_print(void);
 extern int lcd_tcon_enable(struct lcd_config_s *pconf);
 extern void lcd_tcon_disable(void);
 extern int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *lcd_drv, int load_id);
-extern int lcd_tcon_data_load(int *vac_valid, int *demura_valid);
+extern int lcd_tcon_data_probe(void);
 
 /* lcd gpio */
 extern int aml_lcd_gpio_name_map_num(const char *name);

@@ -35,7 +35,8 @@ Description:
 #define CC_MAX_TCON_BIN_SIZE             (0x5dc0)  /* max:24000 */
 #define CC_MAX_TCON_VAC_SIZE             (0x1000)
 #define CC_MAX_TCON_DEMURA_SET_SIZE      (0x1000)
-#define CC_MAX_TCON_DEMURA_LUT_SIZE      (0x300000)
+#define CC_MAX_TCON_DEMURA_LUT_SIZE      (0x120000)
+#define CC_MAX_TCON_ACC_LUT_SIZE         (0x1000)
 #define CC_ONE_SECTION_SIZE              (0x10000)
 
 

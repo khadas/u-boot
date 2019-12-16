@@ -291,7 +291,7 @@ static void lcd_module_enable(char *mode)
 	unsigned int sync_duration;
 	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
 	struct lcd_config_s *pconf = lcd_drv->lcd_config;
-	int ret, ret_vac = 0, ret_demura = 0;
+	int ret;
 
 	ret = lcd_drv->config_check(mode);
 	if (ret) {
@@ -314,7 +314,7 @@ static void lcd_module_enable(char *mode)
 			lcd_interface_on();
 			lcd_backlight_enable();
 		} else {
-			lcd_tcon_data_load(&ret_vac, &ret_demura);
+			lcd_tcon_data_probe();
 		}
 	}
 	if (!lcd_debug_test)
