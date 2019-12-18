@@ -558,7 +558,7 @@ struct aml_lcd_drv_s {
 	int unifykey_test_flag;
 	void (*unifykey_test)(void);
 	void (*unifykey_tcon_test)(void);
-	void (*unifykey_dump)(void);
+	void (*unifykey_dump)(unsigned int);
 	void (*lcd_extern_info)(void);
 
 	/* for factory test */

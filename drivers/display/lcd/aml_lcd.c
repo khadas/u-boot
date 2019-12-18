@@ -1035,18 +1035,26 @@ static void aml_lcd_key_tcon_test(void)
 	}
 }
 
-static void aml_lcd_key_dump(void)
+static void aml_lcd_key_dump(unsigned int flag)
 {
-	int flag = LCD_UKEY_DEBUG_NORMAL;
+	unsigned int key_flag = LCD_UKEY_DEBUG_NORMAL;
 
-	switch (aml_lcd_driver.chip_type) {
-	case LCD_CHIP_TXHD:
-		flag |= LCD_UKEY_DEBUG_TCON;
-		break;
-	default:
-		break;
+	if (flag & (1 << 0)) {
+		key_flag = LCD_UKEY_DEBUG_NORMAL;
+	} else if (flag & (1 << 1)) {
+		switch (aml_lcd_driver.chip_type) {
+		case LCD_CHIP_TXHD:
+			key_flag = (LCD_UKEY_DEBUG_TCON | LCD_UKEY_TCON_SIZE);
+			break;
+		case LCD_CHIP_TL1:
+		case LCD_CHIP_TM2:
+			key_flag = (LCD_UKEY_DEBUG_TCON | LCD_UKEY_TCON_SIZE_NEW);
+			break;
+		default:
+			break;
+		}
 	}
-	aml_lcd_unifykey_dump(flag);
+	aml_lcd_unifykey_dump(key_flag);
 }
 
 static void aml_lcd_extern_info(void)

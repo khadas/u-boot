@@ -26,6 +26,7 @@ Description:
 #define CS_LCD_EXT_ITEM_NAME                      "lcd_extern"
 #define CS_BACKLIGHT_ITEM_NAME                    "backlight"
 #define CS_LCD_TCON_ITEM_NAME                     "lcd_tcon"
+#define CS_LCD_TCON_SPI_ITEM_NAME                 "lcd_tcon_spi"
 #define CS_PANEL_INI_PATH_ITEM_NAME               "panel_ini_path"
 #define CS_PANEL_PQ_PATH_ITEM_NAME                "panel_pq_path"
 #define CS_PANEL_ALL_INFO_ITEM_NAME               "panel_all_info"
@@ -44,6 +45,8 @@ int ReadLCDExternParam(unsigned char data_buf[]);
 int SaveLCDExternParam(int wr_size, unsigned char data_buf[]);
 int ReadBackLightParam(unsigned char data_buf[]);
 int SaveBackLightParam(int wr_size, unsigned char data_buf[]);
+int ReadTconSpiParam(unsigned char data_buf[]);
+int SaveTconSpiParam(int wr_size, unsigned char data_buf[]);
 int ReadTconBinParam(unsigned char data_buf[]);
 int SaveTconBinParam(int wr_size, unsigned char data_buf[]);
 int ReadPanelIniName(char data_buf[]);

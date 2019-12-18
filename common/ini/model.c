@@ -46,7 +46,7 @@ Description:
 #define DEBUG_TCON          (1 << 5)
 static int model_debug_flag;
 
-static int gLcdDataCnt, gLcdExtDataCnt, gBlDataCnt;
+static int gLcdDataCnt, gLcdExtDataCnt, gBlDataCnt, gLcdTconSpi_cnt;
 static int g_lcd_pwr_on_seq_cnt, g_lcd_pwr_off_seq_cnt;
 static int gLcdTconDataCnt;
 static int gLcdExtInitOnCnt, gLcdExtInitOffCnt, gLcdExtCmdSize;
@@ -203,13 +203,13 @@ static int handle_tcon_path(void)
 	if (strcmp(ini_value, "null") != 0)
 		setenv("model_tcon_ext_b0", ini_value);
 	else if (model_debug_flag & DEBUG_TCON)
-		ALOGE("%s, tcon_ext_c0 bin load file error!\n", __func__);
+		ALOGE("%s, tcon_ext_b0 bin load file error!\n", __func__);
 
 	ini_value = IniGetString("tcon_Path", "TCON_EXT_B1_BIN_PATH", "null");
 	if (strcmp(ini_value, "null") != 0)
 		setenv("model_tcon_ext_b1", ini_value);
 	else if (model_debug_flag & DEBUG_TCON)
-		ALOGE("%s, tcon_ext_c1 bin load file error!\n", __func__);
+		ALOGE("%s, tcon_ext_b1 bin load file error!\n", __func__);
 
 	ini_value = IniGetString("tcon_Path", "TCON_EXT_B0_SPI_BIN_PATH", "null");
 	if (strcmp(ini_value, "null") != 0)
@@ -1220,10 +1220,314 @@ static int handle_panel_misc(struct panel_misc_s *p_misc)
 	return 0;
 }
 
+static int handle_tcon_spi(unsigned char *buff)
+{
+	const char *ini_value = NULL;
+	unsigned int temp, i, n;
+
+	/* block 0: demura_lut */
+	n = 16;
+	ini_value = IniGetString("tcon_spi_Attr", "demura_lut_offset", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, demura_lut_offset is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "demura_lut_size", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, demura_lut_size is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block0_param_0", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block0_param_0 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block0_param_1", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block0_param_1 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block0_param_2", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block0_param_2 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block0_param_3", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block0_param_3 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block0_param_4", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block0_param_4 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block0_param_5", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block0_param_5 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	/* block 1: p_gamma */
+	ini_value = IniGetString("tcon_spi_Attr", "p_gamma_offset", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, p_gamma_offset is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "p_gamma_size", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, p_gamma_size is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block1_param_0", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block1_param_0 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block1_param_1", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block1_param_1 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block1_param_2", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block1_param_2 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block1_param_3", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block1_param_3 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block1_param_4", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block1_param_4 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block1_param_5", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block1_param_5 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	/* block 2: acc_lut */
+	ini_value = IniGetString("tcon_spi_Attr", "acc_lut_offset", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, acc_lut_offset is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "acc_lut_size", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, acc_lut_size is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block2_param_0", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block2_param_0 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block2_param_1", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block2_param_1 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block2_param_2", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block2_param_2 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block2_param_3", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block2_param_3 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block2_param_4", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block2_param_4 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block2_param_5", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block2_param_5 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	/* block 3: auto_flicker */
+	ini_value = IniGetString("tcon_spi_Attr", "auto_flicker_offset", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, auto_flicker_offset is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "auto_flicker_size", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, auto_flicker_size is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block3_param_0", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block3_param_0 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block3_param_1", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block3_param_1 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block3_param_2", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block3_param_2 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block3_param_3", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block3_param_3 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block3_param_4", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block3_param_4 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	ini_value = IniGetString("tcon_spi_Attr", "block3_param_5", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block3_param_5 is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	for (i = 0; i < 4; i++)
+		buff[n + i] = (temp >> (i * 8)) & 0xff;
+	n += 4;
+
+	/* header */
+	ini_value = IniGetString("tcon_spi_Attr", "version", "null");
+	if (model_debug_flag & DEBUG_BACKLIGHT)
+		ALOGD("%s, version is (%s)\n", __func__, ini_value);
+	if (strcmp(ini_value, "null") == 0)
+		temp = 0;
+	else
+		temp = strtoul(ini_value, NULL, 0);
+	buff[8] = temp & 0xff;
+	buff[9] = (temp >> 8) & 0xff;
+	buff[10] = (temp >> 16) & 0xff;
+	buff[11] = (temp >> 24) & 0xff;
+
+	/* data cnt */
+	gLcdTconSpi_cnt = 144;
+	buff[4] = gLcdTconSpi_cnt & 0xff;
+	buff[5] = (gLcdTconSpi_cnt >> 8) & 0xff;
+	buff[6] = (gLcdTconSpi_cnt >> 16) & 0xff;
+	buff[7] = (gLcdTconSpi_cnt >> 24) & 0xff;
+
+	/* block cnt */
+	temp = 4;
+	buff[12] = temp & 0xff;
+	buff[13] = (temp >> 8) & 0xff;
+	buff[14] = (temp >> 16) & 0xff;
+	buff[15] = (temp >> 24) & 0xff;
+
+	/* crc */
+	temp = CalCRC32(0, (buff + 4), gLcdTconSpi_cnt - 4);
+	buff[0] = temp & 0xff;
+	buff[1] = (temp >> 8) & 0xff;
+	buff[2] = (temp >> 16) & 0xff;
+	buff[3] = (temp >> 24) & 0xff;
+
+	return 0;
+}
+
 static int parse_panel_ini(const char *file_name, struct lcd_attr_s *lcd_attr,
 			   struct lcd_ext_attr_s *lcd_ext_attr,
 			   struct bl_attr_s *bl_attr,
-			   struct panel_misc_s *misc_attr)
+			   struct panel_misc_s *misc_attr,
+			   unsigned char *tcon_spi_buf)
 {
 
 	memset((void *)lcd_attr, 0, sizeof(struct lcd_attr_s));
@@ -1270,6 +1574,12 @@ static int parse_panel_ini(const char *file_name, struct lcd_attr_s *lcd_attr,
 	handle_bl_header(bl_attr);
 
 	handle_panel_misc(misc_attr);
+
+	if (((lcd_attr->basic.lcd_type) == LCD_MLVDS) ||
+	    ((lcd_attr->basic.lcd_type) == LCD_P2P))
+		handle_tcon_spi(tcon_spi_buf);
+	else
+		gLcdTconSpi_cnt = 0;
 
 	IniParserUninit();
 
@@ -1883,6 +2193,7 @@ int handle_panel_ini(void)
 	struct lcd_ext_attr_s lcd_ext_attr;
 	struct bl_attr_s bl_attr;
 	struct panel_misc_s misc_attr;
+	unsigned char *tcon_spi;
 	char *file_name, *str;
 
 	str = getenv("model_debug_print");
@@ -1911,10 +2222,21 @@ int handle_panel_ini(void)
 		return -1;
 	}
 
+	tcon_spi = (unsigned char *) malloc(CC_MAX_TCON_SPI_SIZE);
+	if (tcon_spi == NULL) {
+		free(tmp_buf);
+		tmp_buf = NULL;
+		free(parse_buf);
+		parse_buf = NULL;
+		ALOGE("%s, malloc buffer memory error!!!\n", __func__);
+		return -1;
+	}
+
 	memset((void *)&lcd_attr, 0, sizeof(struct lcd_attr_s));
 	memset((void *)&lcd_ext_attr, 0, sizeof(struct lcd_ext_attr_s));
 	memset((void *)&bl_attr, 0, sizeof(struct bl_attr_s));
 	memset((void *)&misc_attr, 0, sizeof(struct panel_misc_s));
+	memset((void *)tcon_spi, 0, CC_MAX_TCON_SPI_SIZE);
 
 	//init misc attr as default
 	strcpy(misc_attr.version, "V001");
@@ -1933,7 +2255,7 @@ int handle_panel_ini(void)
 		return -1;
 	}
 
-	if (parse_panel_ini(file_name, &lcd_attr, &lcd_ext_attr, &bl_attr, &misc_attr) < 0) {
+	if (parse_panel_ini(file_name, &lcd_attr, &lcd_ext_attr, &bl_attr, &misc_attr, tcon_spi) < 0) {
 		free(tmp_buf);
 		tmp_buf = NULL;
 		free(parse_buf);
@@ -1970,6 +2292,18 @@ int handle_panel_ini(void)
 		SaveBackLightParam(gBlDataCnt, (unsigned char*)&bl_attr);
 	}
 	// end handle backlight param
+
+	// start handle lcd_tcon_spi param
+	if (gLcdTconSpi_cnt) {
+		memset((void *)tmp_buf, 0, CC_MAX_DATA_SIZE);
+		tmp_len = ReadTconSpiParam(tmp_buf);
+		//ALOGD("%s, start check lcd_tcon_spi param data (0x%x).\n", __func__, tmp_len);
+		if (check_param_valid(0, gLcdTconSpi_cnt, tcon_spi, tmp_len, tmp_buf) == CC_PARAM_CHECK_ERROR_NEED_UPDATE_PARAM) {
+			ALOGD("%s, check lcd_tcon_spi param data error (0x%x), save lcd_tcon_spi param.\n", __func__, tmp_len);
+			SaveTconSpiParam(gLcdTconSpi_cnt, tcon_spi);
+		}
+	}
+	// end handle lcd_tcon_spi param
 
 	// panel misc don't saving env
 

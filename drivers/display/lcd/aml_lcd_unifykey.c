@@ -801,11 +801,14 @@ void aml_lcd_unifykey_tcon_test(int n)
 #endif
 }
 
-void aml_lcd_unifykey_dump(int flag)
+void aml_lcd_unifykey_dump(unsigned int flag)
 {
 	unsigned char *para;
-	int key_len;
+	int key_len, tcon_len;
 	int ret, i;
+
+	if ((flag & LCD_UKEY_DEBUG_NORMAL) == 0)
+		goto aml_lcd_unifykey_dump_tcon;
 
 	/* dump unifykey: lcd */
 	para = (unsigned char *)malloc(sizeof(unsigned char) * LCD_UKEY_LCD_SIZE);
@@ -866,20 +869,43 @@ void aml_lcd_unifykey_dump(int flag)
 	}
 	printf("\n");
 	free(para);
+	return;
 
+aml_lcd_unifykey_dump_tcon:
 	if ((flag & LCD_UKEY_DEBUG_TCON) == 0)
 		return;
+	tcon_len = flag & LCD_UKEY_DEBUG_TCON_LEN_MASK;
 	/* dump unifykey: lcd_tcon */
-	para = (unsigned char *)malloc(sizeof(unsigned char) * LCD_UKEY_TCON_SIZE);
+	para = (unsigned char *)malloc(sizeof(unsigned char) * tcon_len);
 	if (!para) {
 		LCDUKEYERR("%s: Not enough memory\n", __func__);
 		return;
 	}
-	key_len = LCD_UKEY_TCON_SIZE;
+	key_len = tcon_len;
 	memset(para, 0, (sizeof(unsigned char) * key_len));
 	ret = aml_lcd_unifykey_get_no_header("lcd_tcon", para, &key_len);
 	if (ret == 0) {
 		printf("unifykey: lcd_tcon:");
+		for (i = 0; i < key_len; i++) {
+			if ((i % 16) == 0)
+				printf("\n%03x0:", (i / 16));
+			printf(" %02x", para[i]);
+		}
+	}
+	printf("\n");
+	free(para);
+
+	/* dump unifykey: lcd_tcon */
+	para = (unsigned char *)malloc(sizeof(unsigned char) * LCD_UKEY_TCON_SPI_SIZE);
+	if (!para) {
+		LCDUKEYERR("%s: Not enough memory\n", __func__);
+		return;
+	}
+	key_len = LCD_UKEY_TCON_SPI_SIZE;
+	memset(para, 0, (sizeof(unsigned char) * key_len));
+	ret = aml_lcd_unifykey_get("lcd_tcon_spi", para, &key_len);
+	if (ret == 0) {
+		printf("unifykey: lcd_tcon_spi:");
 		for (i = 0; i < key_len; i++) {
 			if ((i % 16) == 0)
 				printf("\n%03x0:", (i / 16));
@@ -938,7 +964,7 @@ void aml_lcd_unifykey_tcon_test(int n)
 	LCDUKEYERR("Don't support unifykey\n");
 }
 
-void aml_lcd_unifykey_dump(int flag)
+void aml_lcd_unifykey_dump(unsigned int flag)
 {
 	LCDUKEYERR("Don't support unifykey\n");
 }

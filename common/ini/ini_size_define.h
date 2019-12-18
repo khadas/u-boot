@@ -37,6 +37,7 @@ Description:
 #define CC_MAX_TCON_DEMURA_SET_SIZE      (0x1000)
 #define CC_MAX_TCON_DEMURA_LUT_SIZE      (0x120000)
 #define CC_MAX_TCON_ACC_LUT_SIZE         (0x1000)
+#define CC_MAX_TCON_SPI_SIZE             (0x100)
 #define CC_ONE_SECTION_SIZE              (0x10000)
 
 

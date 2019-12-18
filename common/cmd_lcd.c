@@ -433,7 +433,7 @@ static int do_lcd_prbs(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 static int do_lcd_key(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct aml_lcd_drv_s *lcd_drv;
-	int tmp;
+	int tmp = 0;
 
 	if (argc == 1) {
 		return -1;
@@ -468,10 +468,20 @@ static int do_lcd_key(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		else
 			printf("no lcd unifykey_dump\n");
 	} else if (strcmp(argv[1], "dump") == 0) {
-		if (lcd_drv->unifykey_dump)
-			lcd_drv->unifykey_dump();
-		else
-			printf("no lcd unifykey_dump\n");
+		if (argc == 3) {
+			if (strcmp(argv[2], "tcon") == 0)
+				tmp = (1 << 1);
+			if (lcd_drv->unifykey_dump)
+				lcd_drv->unifykey_dump(tmp);
+			else
+				printf("no lcd unifykey_dump\n");
+		} else {
+			tmp = (1 << 0);
+			if (lcd_drv->unifykey_dump)
+				lcd_drv->unifykey_dump(tmp);
+			else
+				printf("no lcd unifykey_dump\n");
+		}
 	}
 	return 0;
 }
