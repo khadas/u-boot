@@ -77,8 +77,13 @@ static void lcd_tcon_od_check(unsigned char *table)
 
 	reg = lcd_tcon_data->reg_core_od;
 	bit = lcd_tcon_data->bit_od_en;
-	/* disable od function*/
-	table[reg] &= ~(1 << bit);
+	if (((table[reg] >> bit) & 1) == 0)
+		return;
+
+	if (tcon_rmem.flag == 0) {
+		table[reg] &= ~(1 << bit);
+		LCDPR("%s: invalid memory, disable od function\n", __func__);
+	}
 }
 
 static int lcd_tcon_vac_load(void)
