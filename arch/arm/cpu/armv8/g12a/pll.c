@@ -80,7 +80,7 @@ static void update_bits(size_t reg, size_t mask, unsigned int val)
 
 gp0_pll_cfg_t gp0_pll_cfg = {
 	.gp0_pll[0] = {
-		.pll_clk   = 750, /* MHz */
+		.pll_clk   = 6000, /* MHz */
 		.pll_cntl0 = 0x080304fa,
 		.pll_cntl1 = 0x00000000,
 		.pll_cntl2 = 0x00000000,
@@ -90,7 +90,7 @@ gp0_pll_cfg_t gp0_pll_cfg = {
 		.pll_cntl6 = 0x56540000
 	},
 	.gp0_pll[1] = {
-		.pll_clk   = 375, /* MHz */
+		.pll_clk   = 3000, /* MHz */
 		.pll_cntl0 = 0X0803047d,
 		.pll_cntl1 = 0x00006aab,
 		.pll_cntl2 = 0x00000000,
@@ -103,8 +103,8 @@ gp0_pll_cfg_t gp0_pll_cfg = {
 
 hdmi_pll_cfg_t hdmi_pll_cfg = {
 	.hdmi_pll[0] = {
-		.pll_clk   = 46, /* MHz */
-		.pll_cntl0 = 0x0b3a04f7,
+		.pll_clk   = 5940, /* MHz */
+		.pll_cntl0 = 0x0b0004f7,
 		.pll_cntl1 = 0x00010000,
 		.pll_cntl2 = 0x00000000,
 		.pll_cntl3 = 0x6a28dc00,
@@ -113,8 +113,8 @@ hdmi_pll_cfg_t hdmi_pll_cfg = {
 		.pll_cntl6 = 0x56540000
 	},
 	.hdmi_pll[1] = {
-		.pll_clk   = 23,
-		.pll_cntl0 = 0x0b3a047b,
+		.pll_clk   = 2970,
+		.pll_cntl0 = 0x0b00047b,
 		.pll_cntl1 = 0x00018000,
 		.pll_cntl2 = 0x00000000,
 		.pll_cntl3 = 0x6a29dc00,
@@ -123,8 +123,8 @@ hdmi_pll_cfg_t hdmi_pll_cfg = {
 		.pll_cntl6 = 0x54540000
 	},
 	.hdmi_pll[2] = {
-		.pll_clk   = 2967,
-		.pll_cntl0 = 0x0b1004f7,
+		.pll_clk   = 5934,
+		.pll_cntl0 = 0x0b0004f7,
 		.pll_cntl1 = 0x00008147,
 		.pll_cntl2 = 0x00000000,
 		.pll_cntl3 = 0x6a685c00,
@@ -134,11 +134,11 @@ hdmi_pll_cfg_t hdmi_pll_cfg = {
 	},
 };
 
-uint32_t sys_pll_clk[] = {750, 375};
+uint32_t sys_pll_clk[] = {6000, 3000};
 sys_pll_cfg_t sys_pll_cfg = {
 	.sys_pll[0] = {
-		.cpu_clk   = 750,
-		.pll_cntl  = 0X080304fa,
+		.cpu_clk   = 6000,
+		.pll_cntl  = 0X080004fa,
 		.pll_cntl1 = 0x0,
 		.pll_cntl2 = 0x0,
 		.pll_cntl3 = 0x48681c00,
@@ -148,8 +148,8 @@ sys_pll_cfg_t sys_pll_cfg = {
 	},
 
 	.sys_pll[1] = {
-		.cpu_clk   = 375,
-		.pll_cntl  = 0X0803047d,
+		.cpu_clk   = 3000,
+		.pll_cntl  = 0X0800047d,
 		.pll_cntl1 = 0x0,
 		.pll_cntl2 = 0x0,
 		.pll_cntl3 = 0x48681c00,
@@ -159,10 +159,10 @@ sys_pll_cfg_t sys_pll_cfg = {
 	},
 };
 
-uint32_t hifi_pll_clk[] = {751, 375};
+uint32_t hifi_pll_clk[] = {6005, 3000};
 hifi_pll_cfg_t hifi_pll_cfg = {
 	.hifi_pll[0] = {
-		.pll_clk   = 751,
+		.pll_clk   = 6005,
 		.pll_cntl0 = 0X080304fa,
 		.pll_cntl1 = 0X00006aab,
 		.pll_cntl2 = 0x0,
@@ -173,7 +173,7 @@ hifi_pll_cfg_t hifi_pll_cfg = {
 	},
 
 	.hifi_pll[1] = {
-		.pll_clk   = 375,
+		.pll_clk   = 3000,
 		.pll_cntl0 = 0X0803047d,
 		.pll_cntl1 = 0X00006aab,
 		.pll_cntl2 = 0x0,
@@ -481,7 +481,6 @@ static int hdmi_pll_test_all(hdmi_pll_cfg_t * hdmi_pll_cfg)
 
 static int hdmi_pll_test(hdmi_pll_set_t * hdmi_pll_set)
 {
-	unsigned int i=0;
 	unsigned int pll_clk = 0;
 	unsigned int pll_clk_div = 0;
 	unsigned int clk_msr_val = 0;
@@ -507,10 +506,13 @@ static int hdmi_pll_test(hdmi_pll_set_t * hdmi_pll_set)
 	setbits_le32(HHI_VID_PLL_CLK_DIV, 1<<19);
 
 	/* test pll */
-	for (i=0; i<(sizeof(hdmi_pll_cfg_t)/sizeof(hdmi_pll_set_t)); i++) {
-		if (hdmi_pll_set->pll_cntl0 == hdmi_pll_cfg.hdmi_pll[i].pll_cntl0)
-			pll_clk = hdmi_pll_cfg.hdmi_pll[i].pll_clk;
-	}
+	if (hdmi_pll_set->pll_clk == 0)
+		pll_clk = (((24 * (hdmi_pll_set->pll_cntl0 & 0xff)) /
+			  ((hdmi_pll_set->pll_cntl0 >> 10) & 0x1f)) >>
+			  ((hdmi_pll_set->pll_cntl0 >> 16) & 0xf)) >>
+			  ((hdmi_pll_set->pll_cntl0 >> 20) & 0x3);
+	else
+		pll_clk = hdmi_pll_set->pll_clk;
 
 	_udelay(100);
 	ret = hdmi_pll_init(hdmi_pll_set);
@@ -540,11 +542,21 @@ static int hdmi_pll_test(hdmi_pll_set_t * hdmi_pll_set)
 
 static int gp0_pll_test(gp0_pll_set_t * gp0_pll)
 {
+	unsigned int pll_clk = 0;
 	int ret=0;
 	unsigned int lock_check = PLL_LOCK_CHECK_MAX;
-	unsigned int clk_msr_val = 0;
+	unsigned int clk_msr_val = 0, od = 0;
 
+	od = (gp0_pll->pll_cntl0 >> 16) & 0x7;
 	lock_check = PLL_LOCK_CHECK_MAX;
+
+	if (gp0_pll->pll_clk == 0)
+		//pll_clk = (24 / ((gp0_pll->pll_cntl0>>10)&0x1F) * (gp0_pll->pll_cntl0&0x1FF)) >> ((gp0_pll->pll_cntl0>>16)&0x7);
+		pll_clk = (24 / ((gp0_pll->pll_cntl0>>10)&0x1F) * (gp0_pll->pll_cntl0&0x1FF));
+	else
+		pll_clk = gp0_pll->pll_clk;
+
+
 	do {
 		writel(gp0_pll->pll_cntl0, HHI_GP0_PLL_CNTL0);
 		writel(gp0_pll->pll_cntl0 | (3 << 28), HHI_GP0_PLL_CNTL0);
@@ -562,14 +574,14 @@ static int gp0_pll_test(gp0_pll_set_t * gp0_pll)
 		//printf("gp0 lock_check: %4d\n", lock_check);
 	} while ((!((readl(HHI_GP0_PLL_CNTL0)>>31)&0x1)) && --lock_check);
 	if (0 == lock_check) {
-		printf("GP0 pll lock Failed! - %4d MHz\n", gp0_pll->pll_clk);
+		printf("GP0 pll lock Failed! - %4d MHz\n", pll_clk);
 		ret = RET_PLL_LOCK_FAIL;
 	} else {
-		printf("GP0 pll lock OK! - %4d MHz. ", gp0_pll->pll_clk);
+		printf("GP0 pll lock OK! - %4d MHz.Div8 - %4d MHz. ", pll_clk,pll_clk >> od);
 		/* get gp0_pll_clk */
 		clk_msr_val = clk_util_clk_msr(4);
 		printf("CLKMSR(4) - %4d MHz ", clk_msr_val);
-		if (clk_around(clk_msr_val, gp0_pll->pll_clk)) {
+		if (clk_around(clk_msr_val, pll_clk >> od)) {
 			printf(": Match\n");
 		} else {
 			printf(": MisMatch\n");
@@ -590,9 +602,19 @@ static int gp0_pll_test_all(gp0_pll_cfg_t * gp0_pll_cfg)
 
 static int hifi_pll_test(hifi_pll_set_t * hifi_pll)
 {
+	unsigned int pll_clk = 0;
 	int ret=0;
 	unsigned int lock_check = PLL_LOCK_CHECK_MAX;
-	unsigned int clk_msr_val = 0;
+	unsigned int clk_msr_val = 0, od = 0;
+
+	od = (hifi_pll->pll_cntl0 >> 16) & 0x3;
+
+	if (hifi_pll->pll_clk == 0)
+		//pll_clk = (24 / ((hifi_pll->pll_cntl0>>10)&0x1F) * (hifi_pll->pll_cntl0&0x1FF)) >> ((hifi_pll->pll_cntl0>>16)&0x3);
+		pll_clk = (24 / ((hifi_pll->pll_cntl0>>10)&0x1F) * (hifi_pll->pll_cntl0&0x1FF));
+	else
+		pll_clk = hifi_pll->pll_clk;
+
 
 	do {
 		writel(hifi_pll->pll_cntl0, HHI_HIFI_PLL_CNTL0);
@@ -610,14 +632,14 @@ static int hifi_pll_test(hifi_pll_set_t * hifi_pll)
 		//printf("hifi lock_check: %4d\n", lock_check);
 	} while ((!((readl(HHI_HIFI_PLL_CNTL0)>>31)&0x1)) && --lock_check);
 	if (0 == lock_check) {
-		printf("HIFI pll lock Failed! - %4d MHz\n", hifi_pll->pll_clk);
+		printf("HIFI pll lock Failed! - %4d MHz\n", pll_clk);
 		ret = RET_PLL_LOCK_FAIL;
 	} else {
-		printf("HIFI pll lock OK! - %4d MHz. ", hifi_pll->pll_clk);
+		printf("HIFI pll lock OK! - %4d MHz.Div8  - %4d MHz.", pll_clk, pll_clk >> od);
 		/* get hifi_pll_clk */
 		clk_msr_val = clk_util_clk_msr(12);
 		printf("CLKMSR(12) - %4d MHz ", clk_msr_val);
-		if (clk_around(clk_msr_val, hifi_pll->pll_clk)) {
+		if (clk_around(clk_msr_val, pll_clk >> od)) {
 			printf(": Match\n");
 		} else {
 			printf(": MisMatch\n");
@@ -755,7 +777,7 @@ static int ethphy_pll_test(ethphy_pll_set_t * ethphy_pll) {
 	}
 
 	do {
-		writel(ethphy_pll->pll_cntl0 | 0x30000000, ETH_PLL_CTL0);
+		writel(ethphy_pll->pll_cntl0, ETH_PLL_CTL0);
 		writel(ethphy_pll->pll_cntl1, ETH_PLL_CTL1);
 		writel(ethphy_pll->pll_cntl2, ETH_PLL_CTL2);
 		writel(ethphy_pll->pll_cntl3, ETH_PLL_CTL3);
@@ -973,7 +995,7 @@ int pll_test(int argc, char * const argv[])
 		PLL_GP0,
 		PLL_HIFI,
 		PLL_PCIE,
-		0xff,
+		PLL_ETHPHY,
 		PLL_USBPHY
 	};
 
