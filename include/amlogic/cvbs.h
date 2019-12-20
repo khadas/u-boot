@@ -18,15 +18,8 @@ You should have received a copy of the GNU General Public License along
 Description:
 */
 
-#ifndef __CVBS_H__
-#define __CVBS_H__
-
-#define CONFIG_CVBS_PERFORMANCE_COMPATIBILITY_SUPPORT	1
-
-#define CONFIG_CVBS_CHINASARFT		0x0
-#define CONFIG_CVBS_CHINATELECOM	0x1
-#define CONFIG_CVBS_CHINAMOBILE		0x2
-#define CONFIG_CVBS_PERFORMANCE_ACTIVED	CONFIG_CVBS_CHINASARFT
+#ifndef _INC_CVBS_H__
+#define _INC_CVBS_H__
 
 void cvbs_init(void);
 void cvbs_show_valid_vmode(void);
