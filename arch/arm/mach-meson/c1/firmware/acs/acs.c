@@ -18,7 +18,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
-
+#include <version.h>
 #include <asm/arch/acs.h>
 #include <asm/arch/timing.h>
 #include "timing.c"
@@ -62,4 +62,5 @@ acs_set_t __acs_set={
 					.board_id		= {0,},
 					.ddr_struct_size = {0,},
 					.ddr_struct_org_size = sizeof(ddr_set_t),
+					.revision		= ACS_VERSION,
 };

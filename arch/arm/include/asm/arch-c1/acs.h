@@ -62,6 +62,7 @@ typedef struct acs_setting{
 		char				board_id[12];
 		unsigned short		ddr_struct_size[12];
 		unsigned long		ddr_struct_org_size;
+		char				revision[40];
 }__attribute__ ((packed)) acs_set_t;
 
 #endif

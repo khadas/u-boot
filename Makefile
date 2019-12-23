@@ -391,7 +391,9 @@ KBUILD_AFLAGS	+= $(call cc-option,-fno-PIE)
 UBOOTRELEASE = $(shell cat include/config/uboot.release 2> /dev/null)
 UBOOTVERSION = $(VERSION)$(if $(PATCHLEVEL),.$(PATCHLEVEL)$(if $(SUBLEVEL),.$(SUBLEVEL)))$(EXTRAVERSION)
 
-export VERSION PATCHLEVEL SUBLEVEL UBOOTRELEASE UBOOTVERSION
+ACSRELEASE = $(shell cat include/config/acs.release 2> /dev/null)
+
+export VERSION PATCHLEVEL SUBLEVEL UBOOTRELEASE UBOOTVERSION ACSRELEASE
 export ARCH CPU BOARD VENDOR SOC CPUDIR BOARDDIR
 export CONFIG_SHELL HOSTCC HOSTCFLAGS HOSTLDFLAGS CROSS_COMPILE AS LD CC
 export CPP AR NM LDR STRIP OBJCOPY OBJDUMP
@@ -1548,9 +1550,16 @@ define filechk_uboot.release
 	echo "$(UBOOTVERSION)$$($(CONFIG_SHELL) $(srctree)/scripts/setlocalversion $(srctree))"
 endef
 
+define filechk_acs.release
+	echo "$(BOARD)$$($(CONFIG_SHELL) $(srctree)/scripts/setlocalversion $(srctree))"
+endef
+
 # Store (new) UBOOTRELEASE string in include/config/uboot.release
 include/config/uboot.release: include/config/auto.conf FORCE
 	$(call filechk,uboot.release)
+
+include/config/acs.release: include/config/auto.conf FORCE
+	$(call filechk,acs.release)
 
 
 # Things we need to do before we recursively start building the kernel
@@ -1565,7 +1574,7 @@ PHONY += prepare archprepare prepare0 prepare1 prepare2 prepare3
 # prepare3 is used to check if we are building in a separate output directory,
 # and if so do:
 # 1) Check that make has not been executed in the kernel src $(srctree)
-prepare3: include/config/uboot.release
+prepare3: include/config/uboot.release include/config/acs.release
 ifneq ($(KBUILD_SRC),)
 	@$(kecho) '  Using $(srctree) as source for U-Boot'
 	$(Q)if [ -f $(srctree)/.config -o -d $(srctree)/include/config ]; then \
@@ -1602,6 +1611,7 @@ prepare: prepare0
 
 define filechk_version.h
 	(echo \#define PLAIN_VERSION \"$(UBOOTRELEASE)\"; \
+	echo \#define ACS_VERSION \"$(ACSRELEASE)\"; \
 	echo \#define U_BOOT_VERSION \"U-Boot \" PLAIN_VERSION; \
 	echo \#define CONFIG_SYSTEM_AS_ROOT \"${SYSTEMMODE}\"; \
 	echo \#define CONFIG_AVB2 \"${AVBMODE}\"; \
@@ -1646,7 +1656,7 @@ define filechk_defaultenv.h
 	 xxd -i ; echo ", 0x00" ; )
 endef
 
-$(version_h): include/config/uboot.release FORCE
+$(version_h): include/config/uboot.release include/config/acs.release FORCE
 	$(call filechk,version.h)
 
 $(timestamp_h): $(srctree)/Makefile FORCE
