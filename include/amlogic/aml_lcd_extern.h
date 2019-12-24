@@ -59,6 +59,8 @@ struct lcd_extern_config_s {
 
 	unsigned char i2c_addr;
 	unsigned char i2c_addr2;
+	unsigned char i2c_addr3;
+	unsigned char i2c_addr4;
 	unsigned char i2c_bus;
 	unsigned char i2c_sck_gpio;
 	unsigned char i2c_sda_gpio;

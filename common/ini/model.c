@@ -51,7 +51,7 @@ static int g_lcd_pwr_on_seq_cnt, g_lcd_pwr_off_seq_cnt;
 static int gLcdTconDataCnt;
 static int gLcdExtInitOnCnt, gLcdExtInitOffCnt, gLcdExtCmdSize;
 
-static int handle_tcon_ext_pmu_data(int index, unsigned char *buf);
+static int handle_tcon_ext_pmu_data(int index, int flag, unsigned char *buf);
 
 static int transBufferData(const char *data_str, unsigned int data_buf[]) {
 	int item_ind = 0;
@@ -211,6 +211,18 @@ static int handle_tcon_path(void)
 	else if (model_debug_flag & DEBUG_TCON)
 		ALOGE("%s, tcon_ext_b1 bin load file error!\n", __func__);
 
+	ini_value = IniGetString("tcon_Path", "TCON_EXT_B2_BIN_PATH", "null");
+	if (strcmp(ini_value, "null") != 0)
+		setenv("model_tcon_ext_b2", ini_value);
+	else if (model_debug_flag & DEBUG_TCON)
+		ALOGE("%s, tcon_ext_b2 bin load file error!\n", __func__);
+
+	ini_value = IniGetString("tcon_Path", "TCON_EXT_B3_BIN_PATH", "null");
+	if (strcmp(ini_value, "null") != 0)
+		setenv("model_tcon_ext_b3", ini_value);
+	else if (model_debug_flag & DEBUG_TCON)
+		ALOGE("%s, tcon_ext_b3 bin load file error!\n", __func__);
+
 	ini_value = IniGetString("tcon_Path", "TCON_EXT_B0_SPI_BIN_PATH", "null");
 	if (strcmp(ini_value, "null") != 0)
 		setenv("model_tcon_ext_b0_spi", ini_value);
@@ -222,6 +234,18 @@ static int handle_tcon_path(void)
 		setenv("model_tcon_ext_b1_spi", ini_value);
 	else if (model_debug_flag & DEBUG_TCON)
 		ALOGE("%s, tcon_ext_b1_spi bin load file error!\n", __func__);
+
+	ini_value = IniGetString("tcon_Path", "TCON_EXT_B2_SPI_BIN_PATH", "null");
+	if (strcmp(ini_value, "null") != 0)
+		setenv("model_tcon_ext_b2_spi", ini_value);
+	else if (model_debug_flag & DEBUG_TCON)
+		ALOGE("%s, tcon_ext_b2_spi bin load file error!\n", __func__);
+
+	ini_value = IniGetString("tcon_Path", "TCON_EXT_B3_SPI_BIN_PATH", "null");
+	if (strcmp(ini_value, "null") != 0)
+		setenv("model_tcon_ext_b3_spi", ini_value);
+	else if (model_debug_flag & DEBUG_TCON)
+		ALOGE("%s, tcon_ext_b3_spi bin load file error!\n", __func__);
 
 	return 0;
 }
@@ -639,8 +663,8 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 	int i = 0, j = 0, k, tmp_cnt = 0, tmp_off = 0;
 	const char *ini_value = NULL;
 	unsigned int tmp_buf[2048];
-	unsigned char *b0_data_buf, *b1_data_buf, *data_buf = NULL;
-	unsigned int data_size = 0;
+	unsigned char *data_buf = NULL;
+	unsigned int data_size = 0, n, flag;
 
 	/* orignal data in ini */
 	ini_value = IniGetString("lcd_ext_Attr", "init_on", "null");
@@ -648,16 +672,8 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 		ALOGD("%s, init_on is (%s)\n", __func__, ini_value);
 	tmp_cnt = transBufferData(ini_value, tmp_buf);
 
-	b0_data_buf = (unsigned char *)malloc(LCD_EXTERN_INIT_ON_MAX);
-	if (b0_data_buf == NULL) {
-		ALOGE("%s, malloc buffer memory error!!!\n", __func__);
-		return -1;
-	}
-
-	b1_data_buf = (unsigned char *)malloc(LCD_EXTERN_INIT_ON_MAX);
-	if (b1_data_buf == NULL) {
-		free(b0_data_buf);
-		b0_data_buf = NULL;
+	data_buf = (unsigned char *)malloc(LCD_EXTERN_INIT_ON_MAX);
+	if (data_buf == NULL) {
 		ALOGE("%s, malloc buffer memory error!!!\n", __func__);
 		return -1;
 	}
@@ -670,8 +686,6 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 		gLcdExtInitOnCnt = 2;
 	} else {
 		if (gLcdExtCmdSize == 0xff) {
-			handle_tcon_ext_pmu_data(0, b0_data_buf);
-			handle_tcon_ext_pmu_data(1, b1_data_buf);
 			i = 0;
 			j = 0;
 			while (i < tmp_cnt) {
@@ -681,23 +695,28 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 					j += 2;
 					break;
 				}
-				data_buf = NULL;
-				if (p_attr->cmd_data[j] == 0xb0) {
-					if (b0_data_buf) {
-						if (b0_data_buf[0]) /* data size valid */
-							data_buf = b0_data_buf;
+				if ((((p_attr->cmd_data[j] >> 4) & 0xf) == 0xb) ||
+					(((p_attr->cmd_data[j] >> 4) & 0xf) == 0xd)) {
+					n = p_attr->cmd_data[j] & 0xf;
+					if (((p_attr->cmd_data[j] >> 4) & 0xf) == 0xb)
+						flag = 1;
+					else
+						flag = 0;
+					memset(data_buf, 0, LCD_EXTERN_INIT_ON_MAX);
+					handle_tcon_ext_pmu_data(n, flag, data_buf);
+					if (data_buf[0]) { /* bin data size valid */
+						data_size = data_buf[0];
+						p_attr->cmd_data[j + 1] = data_size;
+						memcpy(&p_attr->cmd_data[j + 2],
+							&data_buf[1], data_size);
+					} else { /* orignal ini data */
+						data_size = tmp_buf[i + 1];
+						p_attr->cmd_data[j + 1] = data_size;
+						for (k = 0; k < data_size; k++) {
+							p_attr->cmd_data[j + 2 + k] =
+								(unsigned char)tmp_buf[i + 2 +k];
+						}
 					}
-				} else if (p_attr->cmd_data[j] == 0xb1) {
-					if (b1_data_buf) {
-						if (b1_data_buf[0]) /* data size valid */
-							data_buf = b1_data_buf;
-					}
-				}
-				if (data_buf) { /* bin data */
-					data_size = data_buf[0];
-					p_attr->cmd_data[j + 1] = data_size;
-					memcpy(&p_attr->cmd_data[j + 2],
-						&data_buf[1], data_size);
 				} else { /* orignal ini data */
 					data_size = tmp_buf[i + 1];
 					p_attr->cmd_data[j + 1] = data_size;
@@ -745,10 +764,8 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 		}
 	}
 
-	free(b0_data_buf);
-	b0_data_buf = NULL;
-	free(b1_data_buf);
-	b1_data_buf = NULL;
+	free(data_buf);
+	data_buf = NULL;
 	return 0;
 }
 
@@ -1691,7 +1708,7 @@ static int handle_tcon_bin(void)
 	return 0;
 }
 
-static int handle_tcon_ext_pmu_data(int index, unsigned char *buf)
+static int handle_tcon_ext_pmu_data(int index, int flag, unsigned char *buf)
 {
 	char *file_name, str[2][30];
 	unsigned int data_size = 0, i, file_find = 0;
@@ -1703,12 +1720,26 @@ static int handle_tcon_ext_pmu_data(int index, unsigned char *buf)
 	buf[0] = 0; /* init invalid data */
 	i = 0;
 
-	if (index == 0) {
+	switch (index) {
+	case 0:
 		sprintf(str[0], "model_tcon_ext_b0_spi");
 		sprintf(str[1], "model_tcon_ext_b0");
-	} else {
+		break;
+	case 1:
 		sprintf(str[0], "model_tcon_ext_b1_spi");
 		sprintf(str[1], "model_tcon_ext_b1");
+		break;
+	case 2:
+		sprintf(str[0], "model_tcon_ext_b2_spi");
+		sprintf(str[1], "model_tcon_ext_b2");
+		break;
+	case 3:
+		sprintf(str[0], "model_tcon_ext_b3_spi");
+		sprintf(str[1], "model_tcon_ext_b3");
+		break;
+	default:
+		ALOGE("%s, invalid index %d\n", __func__, index);
+		return -1;
 	}
 
 	while (i < 2) {
@@ -1738,14 +1769,24 @@ static int handle_tcon_ext_pmu_data(int index, unsigned char *buf)
 		ALOGE("%s, %s data_size %d error!\n", __func__, str[i], data_size);
 		return -1;
 	}
+	if (data_size > LCD_EXTERN_INIT_ON_MAX) {
+		ALOGE("%s, %s data_size %d out of support(max %d)!\n",
+			__func__, str[i], data_size, LCD_EXTERN_INIT_ON_MAX);
+		return -1;
+	}
 
-	buf[0] = (data_size + 1); /* data size include reg start */
-	buf[1] = 0x00;            /* reg start */
-	GetBinData(&buf[2], data_size);
+	if (flag) { /* data with reg addr auto fill */
+		buf[0] = (data_size + 1); /* data size include reg start */
+		buf[1] = 0x00;            /* reg start */
+		GetBinData(&buf[2], data_size);
+	} else {
+		buf[0] = data_size;
+		GetBinData(&buf[1], data_size);
+	}
 
 	if (model_debug_flag & DEBUG_LCD_EXTERN) {
 		ALOGD("%s: %s:\n", __func__, str[i]);
-		for (i = 0; i < (data_size + 2); i++)
+		for (i = 0; i < (buf[0] + 1); i++)
 			printf(" 0x%02x", buf[i]);
 		printf("\n");
 	}

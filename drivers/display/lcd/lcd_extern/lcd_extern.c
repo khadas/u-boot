@@ -41,7 +41,7 @@ static void aml_lcd_extern_init_table_dynamic_size_print(
 		struct lcd_extern_config_s *econf, int flag)
 {
 	int i, j, max_len;
-	unsigned char cmd_size;
+	unsigned char type, size;
 	unsigned char *table;
 
 	if (flag) {
@@ -62,83 +62,91 @@ static void aml_lcd_extern_init_table_dynamic_size_print(
 	case LCD_EXTERN_I2C:
 	case LCD_EXTERN_SPI:
 		while ((i + 1) < max_len) {
-			if (table[i] == LCD_EXT_CMD_TYPE_END) {
-				printf("  0x%02x,%d,\n", table[i], table[i+1]);
+			type = table[i];
+			size = table[i+1];
+			if (type == LCD_EXT_CMD_TYPE_END) {
+				printf("  0x%02x,%d,\n", type, size);
 				break;
 			}
-			cmd_size = table[i+1];
-			printf("  0x%02x,%d,", table[i], cmd_size);
-			if (cmd_size == 0)
+			printf("  0x%02x,%d,", type, size);
+			if (size == 0)
 				goto init_table_dynamic_print_i2c_spi_next;
-			if (i + 2 + cmd_size > max_len) {
-				printf("cmd_size out of support\n");
+			if (i + 2 + size > max_len) {
+				printf("size out of support\n");
 				break;
 			}
 
-			if ((table[i] == LCD_EXT_CMD_TYPE_GPIO) ||
-				(table[i] == LCD_EXT_CMD_TYPE_DELAY)) {
-				for (j = 0; j < cmd_size; j++)
+			if ((type == LCD_EXT_CMD_TYPE_GPIO) ||
+				(type == LCD_EXT_CMD_TYPE_DELAY)) {
+				for (j = 0; j < size; j++)
 					printf("%d,", table[i+2+j]);
-			} else if ((table[i] == LCD_EXT_CMD_TYPE_CMD) ||
-				   (table[i] == LCD_EXT_CMD_TYPE_CMD2) ||
-				   (table[i] == LCD_EXT_CMD_TYPE_CMD_BIN) ||
-				   (table[i] == LCD_EXT_CMD_TYPE_CMD2_BIN)) {
-				for (j = 0; j < cmd_size; j++)
+			} else if ((type == LCD_EXT_CMD_TYPE_CMD) ||
+				   (type == LCD_EXT_CMD_TYPE_CMD2) ||
+				   (type == LCD_EXT_CMD_TYPE_CMD3) ||
+				   (type == LCD_EXT_CMD_TYPE_CMD4) ||
+				   (type == LCD_EXT_CMD_TYPE_CMD_BIN) ||
+				   (type == LCD_EXT_CMD_TYPE_CMD2_BIN) ||
+				   (type == LCD_EXT_CMD_TYPE_CMD3_BIN) ||
+				   (type == LCD_EXT_CMD_TYPE_CMD4_BIN) ||
+				   (type == LCD_EXT_CMD_TYPE_CMD_BIN_DATA) ||
+				   (type == LCD_EXT_CMD_TYPE_CMD2_BIN_DATA) ||
+				   (type == LCD_EXT_CMD_TYPE_CMD3_BIN_DATA) ||
+				   (type == LCD_EXT_CMD_TYPE_CMD4_BIN_DATA)) {
+				for (j = 0; j < size; j++)
 					printf("0x%02x,", table[i+2+j]);
-			} else if ((table[i] == LCD_EXT_CMD_TYPE_CMD_DELAY) ||
-				(table[i] == LCD_EXT_CMD_TYPE_CMD2_DELAY)) {
-				for (j = 0; j < (cmd_size - 1); j++)
+			} else if ((type == LCD_EXT_CMD_TYPE_CMD_DELAY) ||
+				(type == LCD_EXT_CMD_TYPE_CMD2_DELAY)) {
+				for (j = 0; j < (size - 1); j++)
 					printf("0x%02x,", table[i+2+j]);
-				printf("%d,", table[i+cmd_size+1]);
+				printf("%d,", table[i+size+1]);
 			} else {
-				for (j = 0; j < cmd_size; j++)
+				for (j = 0; j < size; j++)
 					printf("0x%02x,", table[i+2+j]);
 			}
 init_table_dynamic_print_i2c_spi_next:
 			printf("\n");
-			i += (cmd_size + 2);
+			i += (size + 2);
 		}
 		break;
 	case LCD_EXTERN_MIPI:
 		while ((i + 1) < max_len) {
-			cmd_size = table[i+1];
-			if (table[i] == LCD_EXT_CMD_TYPE_END) {
-				if (cmd_size == 0xff) {
-					printf("  0x%02x,0x%02x,\n",
-						table[i], table[i+1]);
+			type = table[i];
+			size = table[i+1];
+			if (type == LCD_EXT_CMD_TYPE_END) {
+				if (size == 0xff) {
+					printf("  0x%02x,0x%02x,\n", type, size);
 					break;
 				}
-				if (cmd_size == 0) {
-					printf("  0x%02x,%d,\n",
-						table[i], table[i+1]);
+				if (size == 0) {
+					printf("  0x%02x,%d,\n", type, size);
 					break;
 				}
-				cmd_size = 0;
+				size = 0;
 			}
 
-			printf("  0x%02x,%d,", table[i], table[i+1]);
-			if (cmd_size == 0)
+			printf("  0x%02x,%d,", type, table[i+1]);
+			if (size == 0)
 				goto init_table_dynamic_print_mipi_next;
-			if (i + 2 + cmd_size > max_len) {
-				printf("cmd_size out of support\n");
+			if (i + 2 + size > max_len) {
+				printf("size out of support\n");
 				break;
 			}
 
-			if ((table[i] == LCD_EXT_CMD_TYPE_GPIO) ||
-				(table[i] == LCD_EXT_CMD_TYPE_DELAY)) {
-				for (j = 0; j < cmd_size; j++)
+			if ((type == LCD_EXT_CMD_TYPE_GPIO) ||
+				(type == LCD_EXT_CMD_TYPE_DELAY)) {
+				for (j = 0; j < size; j++)
 					printf("%d,", table[i+2+j]);
-			} else if ((table[i] & 0xf) == 0x0) {
+			} else if ((type & 0xf) == 0x0) {
 				printf("  init_%s wrong data_type: 0x%02x\n",
-					flag ? "on" : "off", table[i]);
+					flag ? "on" : "off", type);
 				break;
 			} else {
-				for (j = 0; j < cmd_size; j++)
+				for (j = 0; j < size; j++)
 					printf("0x%02x,", table[i+2+j]);
 			}
 init_table_dynamic_print_mipi_next:
 			printf("\n");
-			i += (cmd_size + 2);
+			i += (size + 2);
 		}
 		break;
 	default:
@@ -205,6 +213,8 @@ static void aml_lcd_extern_info_print(void)
 	case LCD_EXTERN_I2C:
 		printf("i2c_addr:         0x%02x\n"
 			"i2c_addr2:        0x%02x\n"
+			"i2c_addr3:        0x%02x\n"
+			"i2c_addr4:        0x%02x\n"
 			"i2c_bus:          %d\n"
 			"i2c_sck_gpio:     %d\n"
 			"i2c_sck_gpio_off: %d\n"
@@ -212,6 +222,7 @@ static void aml_lcd_extern_info_print(void)
 			"i2c_sda_gpio_off: %d\n"
 			"table_loaded:     %d\n",
 			econf->i2c_addr, econf->i2c_addr2,
+			econf->i2c_addr3, econf->i2c_addr4,
 			ecommon->i2c_bus,
 			ecommon->i2c_sck_gpio,
 			ecommon->i2c_sck_gpio_off,
@@ -826,6 +837,26 @@ static int aml_lcd_extern_get_config_dts(char *dtaddr, int index,
 		}
 		if (lcd_debug_print_flag)
 			EXTPR("%s: i2c_address2=0x%02x\n", extconf->name, extconf->i2c_addr2);
+		propdata = (char *)fdt_getprop(dtaddr, nodeoffset, "i2c_address3", NULL);
+		if (propdata == NULL) {
+			if (lcd_debug_print_flag)
+				EXTPR("%s no i2c_address3 exist\n", extconf->name);
+			extconf->i2c_addr3 = 0xff;
+		} else {
+			extconf->i2c_addr3 = (unsigned char)(be32_to_cpup((u32*)propdata));
+		}
+		if (lcd_debug_print_flag)
+			EXTPR("%s: i2c_address3=0x%02x\n", extconf->name, extconf->i2c_addr3);
+		propdata = (char *)fdt_getprop(dtaddr, nodeoffset, "i2c_address4", NULL);
+		if (propdata == NULL) {
+			if (lcd_debug_print_flag)
+				EXTPR("%s no i2c_address4 exist\n", extconf->name);
+			extconf->i2c_addr4 = 0xff;
+		} else {
+			extconf->i2c_addr4 = (unsigned char)(be32_to_cpup((u32*)propdata));
+		}
+		if (lcd_debug_print_flag)
+			EXTPR("%s: i2c_address4=0x%02x\n", extconf->name, extconf->i2c_addr4);
 
 		if (extcommon->i2c_bus == LCD_EXTERN_I2C_BUS_MAX) { /* compatible for kernel3.14 */
 			propdata = (char *)fdt_getprop(dtaddr, nodeoffset, "i2c_bus", NULL);
@@ -1254,8 +1285,22 @@ static int aml_lcd_extern_get_config_unifykey(int index,
 	/* type: 10byte */
 	switch (extconf->type) {
 	case LCD_EXTERN_I2C:
-		extconf->i2c_addr = *(p + LCD_UKEY_EXT_TYPE_VAL_0);
-		extconf->i2c_addr2 = *(p + LCD_UKEY_EXT_TYPE_VAL_1);
+		if (*(p + LCD_UKEY_EXT_TYPE_VAL_0))
+			extconf->i2c_addr = *(p + LCD_UKEY_EXT_TYPE_VAL_0);
+		else
+			extconf->i2c_addr = LCD_EXT_I2C_ADDR_INVALID;
+		if (*(p + LCD_UKEY_EXT_TYPE_VAL_1))
+			extconf->i2c_addr2 = *(p + LCD_UKEY_EXT_TYPE_VAL_1);
+		else
+			extconf->i2c_addr2 = LCD_EXT_I2C_ADDR_INVALID;
+		if (*(p + LCD_UKEY_EXT_TYPE_VAL_4))
+			extconf->i2c_addr3 = *(p + LCD_UKEY_EXT_TYPE_VAL_4);
+		else
+			extconf->i2c_addr3 = LCD_EXT_I2C_ADDR_INVALID;
+		if (*(p + LCD_UKEY_EXT_TYPE_VAL_5))
+			extconf->i2c_addr4 = *(p + LCD_UKEY_EXT_TYPE_VAL_5);
+		else
+			extconf->i2c_addr4 = LCD_EXT_I2C_ADDR_INVALID;
 		if (extcommon->i2c_bus == LCD_EXTERN_I2C_BUS_MAX) /* compatible for kernel3.14 */
 			extcommon->i2c_bus = *(p + LCD_UKEY_EXT_TYPE_VAL_2);
 		extconf->i2c_bus = extcommon->i2c_bus;
