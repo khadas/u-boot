@@ -186,7 +186,7 @@ hifi_pll_cfg_t hifi_pll_cfg = {
 
 /*PCIE clk_out = 24M*m/2^(n+1)/OD*/
 static const struct pciepll_rate_table pcie_pll_rate_table[] = {
-	PLL_RATE(100, 200, 1, 12),
+	PLL_RATE(4800, 200, 1, 12),
 };
 
 unsigned long usbphy_base_cfg[2] = {CONFIG_USB_PHY_20, CONFIG_USB_PHY_21};
@@ -665,7 +665,7 @@ static int pcie_pll_test(pcie_pll_set_t * pcie_pll) {
 	unsigned int clk_msr_val = 0;
 
 	for (i=0; i<(sizeof(pcie_pll_rate_table)/sizeof(pcie_pll_rate_table[0])); i++) {
-		if ((pcie_pll->pll_cntl0 & 0xFF) == pcie_pll_rate_table[i].m)
+		if ((pcie_pll->pll_cntl0 & 0xFF) == pcie_pll_rate_table[i].m / 2)
 			pll_clk = pcie_pll_rate_table[i].rate;
 	}
 
@@ -697,11 +697,11 @@ static int pcie_pll_test(pcie_pll_set_t * pcie_pll) {
 		printf("PCIE pll lock Failed! - %4d MHz\n", pll_clk);
 		ret = RET_PLL_LOCK_FAIL;
 	} else {
-		printf("PCIE pll lock OK! - %4d MHz. ", pll_clk);
+		printf("PCIE pll lock OK! - %4d MHz.Div48  - %4d MHz. ", pll_clk, pll_clk / 48);
 		/* get pcie_pll_clk */
 		clk_msr_val = clk_util_clk_msr(29);
 		printf("CLKMSR(29) - %4d MHz ", clk_msr_val);
-		if (clk_around(clk_msr_val, pll_clk)) {
+		if (clk_around(clk_msr_val, pll_clk / 48)) {
 			printf(": Match\n");
 		} else {
 			printf(": MisMatch\n");
@@ -746,11 +746,14 @@ static int pcie_pll_test_all(void) {
 			printf("pcie pll lock Failed! - %4d MHz\n", pcie_pll_rate_table[i].rate);
 			ret += RET_PLL_LOCK_FAIL;
 		} else {
-			printf("pcie pll lock OK! - %4d MHz. ", pcie_pll_rate_table[i].rate);
+			printf("pcie pll lock OK! - %4d MHz.Div48  - %4d MHz.",
+				pcie_pll_rate_table[i].rate,
+				pcie_pll_rate_table[i].rate / 48);
 			/* get pcie_pll_clk */
 			clk_msr_val = clk_util_clk_msr(29);
 			printf("CLKMSR(29) - %4d MHz ", clk_msr_val);
-			if (clk_around(clk_msr_val, pcie_pll_rate_table[i].rate)) {
+			if (clk_around(clk_msr_val,
+				       pcie_pll_rate_table[i].rate / 48)) {
 				printf(": Match\n");
 			} else {
 				printf(": MisMatch\n");
@@ -1002,17 +1005,14 @@ int pll_test(int argc, char * const argv[])
 	if (0 == strcmp(STR_PLL_TEST_ALL, argv[1])) {
 		printf("Test all plls\n");
 		pll_test_all(plls);
-	}
-	else if(0 == strcmp(STR_PLL_TEST_SYS, argv[1])) {
+	} else if(0 == strcmp(STR_PLL_TEST_SYS, argv[1])) {
 		if (argc == 2) {
 			ret = sys_pll_test_all(&sys_pll_cfg);
 			pll_report(ret, STR_PLL_TEST_SYS);
-		}
-		else if (argc != 9){
+		} else if (argc != 9){
 			printf("%s pll test: args error\n", STR_PLL_TEST_SYS);
 			return -1;
-		}
-		else {
+		} else {
 			sys_pll_set.pll_cntl = simple_strtoul(argv[2], NULL, 16);
 			sys_pll_set.pll_cntl1 = simple_strtoul(argv[3], NULL, 16);
 			sys_pll_set.pll_cntl2 = simple_strtoul(argv[4], NULL, 16);
@@ -1023,17 +1023,14 @@ int pll_test(int argc, char * const argv[])
 			ret = sys_pll_test(&sys_pll_set);
 			pll_report(ret, STR_PLL_TEST_SYS);
 		}
-	}
-	else if (0 == strcmp(STR_PLL_TEST_HDMI, argv[1])) {
+	} else if (0 == strcmp(STR_PLL_TEST_HDMI, argv[1])) {
 		if (argc == 2) {
 			ret = hdmi_pll_test_all(&hdmi_pll_cfg);
 			pll_report(ret, STR_PLL_TEST_HDMI);
-		}
-		else if (argc != 9){
+		} else if (argc != 9){
 			printf("%s pll test: args error\n", STR_PLL_TEST_HDMI);
 			return -1;
-		}
-		else {
+		} else {
 			hdmi_pll_set.pll_cntl0 = simple_strtoul(argv[2], NULL, 16);
 			hdmi_pll_set.pll_cntl1 = simple_strtoul(argv[3], NULL, 16);
 			hdmi_pll_set.pll_cntl2 = simple_strtoul(argv[4], NULL, 16);
@@ -1044,17 +1041,14 @@ int pll_test(int argc, char * const argv[])
 			ret = hdmi_pll_test(&hdmi_pll_set);
 			pll_report(ret, STR_PLL_TEST_HDMI);
 		}
-	}
-	else if (0 == strcmp(STR_PLL_TEST_GP0, argv[1])) {
+	} else if (0 == strcmp(STR_PLL_TEST_GP0, argv[1])) {
 		if (argc == 2) {
 			ret = gp0_pll_test_all(&gp0_pll_cfg);
 			pll_report(ret, STR_PLL_TEST_GP0);
-		}
-		else if (argc != 9){
+		} else if (argc != 9){
 			printf("%s pll test: args error\n", STR_PLL_TEST_GP0);
 			return -1;
-		}
-		else {
+		} else {
 			gp0_pll_set.pll_cntl0 = simple_strtoul(argv[2], NULL, 16);
 			gp0_pll_set.pll_cntl1 = simple_strtoul(argv[3], NULL, 16);
 			gp0_pll_set.pll_cntl2 = simple_strtoul(argv[4], NULL, 16);
@@ -1065,17 +1059,14 @@ int pll_test(int argc, char * const argv[])
 			ret = gp0_pll_test(&gp0_pll_set);
 			pll_report(ret, STR_PLL_TEST_GP0);
 		}
-	}
-	else if (0 == strcmp(STR_PLL_TEST_HIFI, argv[1])) {
+	} else if (0 == strcmp(STR_PLL_TEST_HIFI, argv[1])) {
 		if (argc == 2) {
 			ret = hifi_pll_test_all(&hifi_pll_cfg);
 			pll_report(ret, STR_PLL_TEST_HIFI);
-		}
-		else if (argc != 9){
+		} else if (argc != 9){
 			printf("%s pll test: args error\n", STR_PLL_TEST_HIFI);
 			return -1;
-		}
-		else {
+		} else {
 			hifi_pll_set.pll_cntl0 = simple_strtoul(argv[2], NULL, 16);
 			hifi_pll_set.pll_cntl1 = simple_strtoul(argv[3], NULL, 16);
 			hifi_pll_set.pll_cntl2 = simple_strtoul(argv[4], NULL, 16);
@@ -1086,17 +1077,14 @@ int pll_test(int argc, char * const argv[])
 			ret = hifi_pll_test(&hifi_pll_set);
 			pll_report(ret, STR_PLL_TEST_HIFI);
 		}
-	}
-	else if (0 == strcmp(STR_PLL_TEST_PCIE, argv[1])) {
+	} else if (0 == strcmp(STR_PLL_TEST_PCIE, argv[1])) {
 		if (argc == 2) {
 			ret = pcie_pll_test_all();
 			pll_report(ret, STR_PLL_TEST_PCIE);
-		}
-		else if (argc != 8){
+		} else if (argc != 8){
 			printf("%s pll test: args error\n", STR_PLL_TEST_PCIE);
 			return -1;
-		}
-		else {
+		} else {
 			pcie_pll_set.pll_cntl0 = simple_strtoul(argv[2], NULL, 16);
 			pcie_pll_set.pll_cntl1 = simple_strtoul(argv[3], NULL, 16);
 			pcie_pll_set.pll_cntl2 = simple_strtoul(argv[4], NULL, 16);
@@ -1106,17 +1094,14 @@ int pll_test(int argc, char * const argv[])
 			ret = pcie_pll_test(&pcie_pll_set);
 			pll_report(ret, STR_PLL_TEST_PCIE);
 		}
-	}
-	else if (0 == strcmp(STR_PLL_TEST_ETHPHY, argv[1])) {
+	} else if (0 == strcmp(STR_PLL_TEST_ETHPHY, argv[1])) {
 		if (argc == 2) {
 			ret = ethphy_pll_test_all();
 			pll_report(ret, STR_PLL_TEST_ETHPHY);
-		}
-		else if (argc != 6){
+		} else if (argc != 6){
 			printf("%s pll test: args error\n", STR_PLL_TEST_ETHPHY);
 			return -1;
-		}
-		else {
+		} else {
 			ethphy_pll_set.pll_cntl0 = simple_strtoul(argv[2], NULL, 16);
 			ethphy_pll_set.pll_cntl1 = simple_strtoul(argv[3], NULL, 16);
 			ethphy_pll_set.pll_cntl2 = simple_strtoul(argv[4], NULL, 16);
@@ -1124,17 +1109,14 @@ int pll_test(int argc, char * const argv[])
 			ret = ethphy_pll_test(&ethphy_pll_set);
 			pll_report(ret, STR_PLL_TEST_ETHPHY);
 		}
-	}
-	else if (0 == strcmp(STR_PLL_TEST_USBPHY, argv[1])) {
+	} else if (0 == strcmp(STR_PLL_TEST_USBPHY, argv[1])) {
 		if (argc == 2) {
 			ret = usbphy_pll_test_all();
 			pll_report(ret, STR_PLL_TEST_USBPHY);
-		}
-		else if (argc != 10){
+		} else if (argc != 10){
 			printf("%s pll test: args error\n", STR_PLL_TEST_USBPHY);
 			return -1;
-		}
-		else {
+		} else {
 			usbphy_pll_set.pll_cntl0 = simple_strtoul(argv[2], NULL, 16);
 			usbphy_pll_set.pll_cntl1 = simple_strtoul(argv[3], NULL, 16);
 			usbphy_pll_set.pll_cntl2 = simple_strtoul(argv[4], NULL, 16);
@@ -1146,12 +1128,10 @@ int pll_test(int argc, char * const argv[])
 			ret = usbphy_pll_test(&usbphy_pll_set);
 			pll_report(ret, STR_PLL_TEST_USBPHY);
 		}
-	}
-	else if (0 == strcmp(STR_PLL_TEST_DDR, argv[1])) {
+	} else if (0 == strcmp(STR_PLL_TEST_DDR, argv[1])) {
 		printf("%s pll not support now\n", STR_PLL_TEST_DDR);
 		return -1;
-	}
-	else if (0 == strcmp(STR_PLL_TEST_FIX, argv[1])) {
+	} else if (0 == strcmp(STR_PLL_TEST_FIX, argv[1])) {
 		printf("%s pll not support now\n", STR_PLL_TEST_FIX);
 		return -1;
 	}
