@@ -268,6 +268,25 @@ static int storage_write_in_part(char const *part_name, loff_t off, size_t size,
 	return ret;
 }
 
+static int storage_mmc_erase_user(struct mmc *mmc) {
+	int ret = 0;
+	struct partitions *part_info = NULL;
+
+	if (info_disprotect & DISPROTECT_KEY) {//key disprotect,erase all
+		ret = blk_derase(mmc_get_blk_desc(mmc), 0, 0);
+	} else {//key protect erase all except reserved
+		part_info = find_mmc_partition_by_name("reserved");
+		if (!part_info) {
+			printf("error partition name!\n");
+			return 1;
+		}
+		ret = blk_derase(mmc_get_blk_desc(mmc), 0, part_info->offset / BLOCK_SIZE);
+		ret |= blk_derase(mmc_get_blk_desc(mmc), (part_info->offset
+				  + part_info->size) / BLOCK_SIZE, 0);
+	}
+	printf("user partition erased: %s\n", (ret == 0) ? "OK" : "ERROR");
+	return ret;
+}
 
 static int storage_mmc_erase(int flag, struct mmc *mmc) {
 
@@ -275,12 +294,8 @@ static int storage_mmc_erase(int flag, struct mmc *mmc) {
 	loff_t off = 0;
 	size_t size = 0;
 
-	if (flag >= ERASE_ALL) {//erase all
-
-		info_disprotect |= DISPROTECT_KEY;
-		ret = blk_derase(mmc_get_blk_desc(mmc), 0, 0);
-		printf("user partition erased: %s\n", (ret == 0) ? "OK" : "ERROR");
-		info_disprotect &= ~DISPROTECT_KEY;
+	if (flag >= ERASE_ALL) {//erase all except reserved
+		ret = storage_mmc_erase_user(mmc);
 		if (ret != 0) {
 			return -1;
 		}
@@ -406,13 +421,9 @@ int mmc_storage_erase(const char *part_name, loff_t off, size_t size, int scrub_
 		return 1;
 
 	if (!part_name) {//the operating object is the device,the unit of operation is block.
-		info_disprotect |= DISPROTECT_KEY;
-		ret = blk_derase(mmc_get_blk_desc(mmc), off, size);
-		info_disprotect &= ~DISPROTECT_KEY;
-		printf("%d blocks erased: %s\n", ret, (ret == 0) ? "OK" : "ERROR");
+		ret = storage_mmc_erase_user(mmc);
 		return (ret == 0) ? 0 : 1;
 	} else {//the opering object is partition,the unit of operation is byte.
-
 		ret = storage_erase_in_part(part_name, off, size);
 	}
 	return ret;

@@ -95,6 +95,7 @@ ulong mmc_berase(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt)
 		return -1;
 	if (blkcnt == 0) {
 		blkcnt = mmc->capacity/512 - (mmc->capacity/512)% mmc->erase_grp_size; // erase whole
+		blkcnt = blkcnt - start;
 		printf("blkcnt = %lu\n",blkcnt);
 	}
 	/*
