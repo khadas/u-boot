@@ -605,6 +605,13 @@ int board_late_init(void)
 {
 #ifdef CONFIG_PXP_EMULATOR
 	printf("\naml log : 20200211 bring up for TM2 revB@board_late_init\n");
+#ifdef CONFIG_AML_VPU
+	vpu_probe();
+#endif
+	vpp_init();
+#ifdef CONFIG_AML_HDMITX20
+	hdmi_tx_init();
+#endif
 #else
 	TE(__func__);
 		//update env before anyone using it
