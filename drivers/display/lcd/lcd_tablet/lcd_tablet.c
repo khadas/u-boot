@@ -362,6 +362,21 @@ static int lcd_config_load_from_dts(char *dt_addr, struct lcd_config_s *pconf)
 					pconf->lcd_control.vbyone_config->phy_preem);
 			}
 		}
+		propdata = (char *)fdt_getprop(dt_addr, child_offset, "hw_filter", NULL);
+		if (propdata == NULL) {
+			if (lcd_debug_print_flag)
+				LCDPR("failed to get hw_filter\n");
+			pconf->lcd_control.vbyone_config->hw_filter_time = 0;
+			pconf->lcd_control.vbyone_config->hw_filter_cnt = 0;
+		} else {
+			pconf->lcd_control.vbyone_config->hw_filter_time = be32_to_cpup((u32*)propdata);
+			pconf->lcd_control.vbyone_config->hw_filter_cnt = be32_to_cpup((((u32*)propdata)+1));
+			if (lcd_debug_print_flag) {
+				LCDPR("vbyone hw_filter=0x%x 0x%x\n",
+					pconf->lcd_control.vbyone_config->hw_filter_time,
+					pconf->lcd_control.vbyone_config->hw_filter_cnt);
+			}
+		}
 		break;
 	case LCD_MIPI:
 		if (pconf->lcd_control.mipi_config == NULL) {
@@ -550,6 +565,14 @@ static int lcd_config_load_from_bsp(struct lcd_config_s *pconf)
 		} else {
 			pconf->lcd_control.vbyone_config->phy_vswing = ext_lcd->lcd_spc_val4;
 			pconf->lcd_control.vbyone_config->phy_preem  = ext_lcd->lcd_spc_val5;
+		}
+		if ((ext_lcd->lcd_spc_val8 == Rsv_val) ||
+			(ext_lcd->lcd_spc_val9 == Rsv_val)) {
+			pconf->lcd_control.vbyone_config->hw_filter_time = 0;
+			pconf->lcd_control.vbyone_config->hw_filter_cnt = 0;
+		} else {
+			pconf->lcd_control.vbyone_config->hw_filter_time = ext_lcd->lcd_spc_val8;
+			pconf->lcd_control.vbyone_config->hw_filter_cnt  = ext_lcd->lcd_spc_val9;
 		}
 	} else if (pconf->lcd_basic.lcd_type == LCD_MIPI) {
 		if (pconf->lcd_control.mipi_config == NULL) {
@@ -849,6 +872,12 @@ static int lcd_config_load_from_unifykey(struct lcd_config_s *pconf)
 			pconf->lcd_control.vbyone_config->phy_preem =
 				(*(p + LCD_UKEY_IF_ATTR_5) |
 				((*(p + LCD_UKEY_IF_ATTR_5 + 1)) << 8)) & 0xff;
+			pconf->lcd_control.vbyone_config->hw_filter_time =
+				*(p + LCD_UKEY_IF_ATTR_8) |
+				((*(p + LCD_UKEY_IF_ATTR_8 + 1)) << 8);
+			pconf->lcd_control.vbyone_config->hw_filter_cnt =
+				*(p + LCD_UKEY_IF_ATTR_9) |
+				((*(p + LCD_UKEY_IF_ATTR_9 + 1)) << 8);
 		}
 	} else
 		LCDERR("unsupport lcd_type: %d\n", pconf->lcd_basic.lcd_type);

@@ -32,8 +32,8 @@
 /* 20190911: add lcd_tcon_load_data for tl1*/
 /* 20191025: tcon chpi phy setting update*/
 /* 20191115: add lcd_tcon_load_data chk_data for tl1*/
-
-#define LCD_DRV_VERSION    "20191115"
+/* 20191227: vbyone hw filter disable support*/
+#define LCD_DRV_VERSION    "20191227"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)

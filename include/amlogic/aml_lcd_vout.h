@@ -239,6 +239,9 @@ struct vbyone_config_s {
 	unsigned int vx1_sw_cdr_detect_time; /* us base * 100 times, must cover tcon lockn pulse */
 	unsigned int vx1_sw_cdr_detect_cnt;
 	unsigned int vx1_sw_cdr_timeout_cnt;
+	/* hw filter */
+	unsigned int hw_filter_time;
+	unsigned int hw_filter_cnt;
 };
 
 /* mipi-dsi config */

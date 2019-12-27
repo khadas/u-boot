@@ -173,6 +173,8 @@ static void lcd_info_print_vbyone(struct lcd_config_s *pconf)
 		"bit_rate                   %uHz\n"
 		"phy_vswing                 0x%x\n"
 		"phy_preemphasis            0x%x\n"
+		"hw_filter_time             0x%x\n"
+		"hw_filter_cnt              0x%x\n"
 		"ctrl_flag                  0x%x\n\n",
 		pconf->lcd_control.vbyone_config->lane_count,
 		pconf->lcd_control.vbyone_config->region_num,
@@ -180,6 +182,8 @@ static void lcd_info_print_vbyone(struct lcd_config_s *pconf)
 		pconf->lcd_timing.bit_rate,
 		pconf->lcd_control.vbyone_config->phy_vswing,
 		pconf->lcd_control.vbyone_config->phy_preem,
+		pconf->lcd_control.vbyone_config->hw_filter_time,
+		pconf->lcd_control.vbyone_config->hw_filter_cnt,
 		pconf->lcd_control.vbyone_config->ctrl_flag);
 	if (pconf->lcd_control.vbyone_config->ctrl_flag & 0x1) {
 		printf("power_on_reset_en          %u\n"
