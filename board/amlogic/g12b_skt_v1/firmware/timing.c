@@ -133,6 +133,7 @@ ddr_set_t __ddr_setting[] = {
 	.ddr_func	= DDR_FUNC,
 	.magic	= DRAM_CFG_MAGIC,
 	.bitTimeControl_2d	= 1,
+	.fast_boot[0]		= 1,
 },
 //*/
 {
