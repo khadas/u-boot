@@ -106,8 +106,8 @@
         "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
-        "display_bpp=16\0" \
-        "display_color_index=16\0" \
+        "display_bpp=24\0" \
+        "display_color_index=24\0" \
         "display_layer=osd1\0" \
         "display_color_fg=0xffff\0" \
         "display_color_bg=0\0" \
@@ -244,7 +244,12 @@
                 "hdmitx get_preferred_mode;"\
                 "hdmitx edid;"\
                 "hdmitx hpd;"\
-                "osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale; "\
+                "osd open;"\
+                "osd clear;"\
+                "if load mmc 0:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:5 ${loadaddr} /usr/share/fenix/logo/logo.bmp; then "\
+                    "bmp display ${loadaddr};"\
+                    "bmp scale; "\
+                "fi;"\
             "fi;fi;"\
             "\0"\
         "cmdline_keys="\
