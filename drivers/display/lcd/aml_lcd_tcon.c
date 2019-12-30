@@ -506,6 +506,9 @@ static int lcd_tcon_demura_lut_tl1(void)
 		(demura_lut_data[2] << 16) |
 		(demura_lut_data[3] << 24));
 	data_buf = &demura_lut_data[8];
+	/* fixed 2 byte 0 for border */
+	lcd_tcon_write_byte(0x187, 0);
+	lcd_tcon_write_byte(0x187, 0);
 	for (i = 0; i < data_cnt; i++)
 		lcd_tcon_write_byte(0x187, data_buf[i]);
 
