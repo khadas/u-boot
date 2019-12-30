@@ -35,6 +35,7 @@ struct ddr_base_address_table{
 	unsigned	int		ee_pwm_base_address;
 	unsigned	int		ddr_dmc_apd_address;
 	unsigned	int		ddr_dmc_asr_address;
+	unsigned	int		ddr_boot_reason_address;
 
 };
 typedef struct  ddr_base_address_table ddr_base_address_table_t;
@@ -118,6 +119,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ee_pwm_base_address=(0xff807000 + (0x001 << 2)),
 	.ddr_dmc_apd_address=((0x008c  << 2) + 0xff638400),
 	.ddr_dmc_asr_address=((0x008d  << 2) + 0xff638400),
+	.ddr_boot_reason_address=(0xff800000 + (0x08f << 2)),//AO_SEC_SD_CFG15
 	},
 	//g12b
 	{
@@ -134,6 +136,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ee_pwm_base_address=(0xff807000 + (0x001 << 2)),
 	.ddr_dmc_apd_address=((0x008c  << 2) + 0xff638400),
 	.ddr_dmc_asr_address=((0x008d  << 2) + 0xff638400),
+	.ddr_boot_reason_address=(0xff800000 + (0x08f << 2)),//AO_SEC_SD_CFG15
 	},
 	//tl1
 	{
@@ -150,6 +153,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ee_pwm_base_address=(0xff807000 + (0x001 << 2)),
 	.ddr_dmc_apd_address=((0x008c  << 2) + 0xff638400),
 	.ddr_dmc_asr_address=((0x008d  << 2) + 0xff638400),
+	.ddr_boot_reason_address=(0xff800000 + (0x08f << 2)),//AO_SEC_SD_CFG15
 	},
 	//sm1
 	{
@@ -166,6 +170,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ee_pwm_base_address=(0xff807000 + (0x001 << 2)),
 	.ddr_dmc_apd_address=((0x008c  << 2) + 0xff638400),
 	.ddr_dmc_asr_address=((0x008d  << 2) + 0xff638400),
+	.ddr_boot_reason_address=(0xff800000 + (0x08f << 2)),//AO_SEC_SD_CFG15
 	},
 	//tm2
 	{
@@ -182,6 +187,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ee_pwm_base_address=(0xff807000 + (0x001 << 2)),
 	.ddr_dmc_apd_address=((0x008c  << 2) + 0xff638400),
 	.ddr_dmc_asr_address=((0x008d  << 2) + 0xff638400),
+	.ddr_boot_reason_address=(0xff800000 + (0x08f << 2)),//AO_SEC_SD_CFG15
 	},
 	//a1
 	{
@@ -196,6 +202,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ddr_dmc_asr_address=((0x008d  << 2) + 0xfd020400),
 	.sys_watchdog_base_address=0,//((0x0040  << 2) + 0xfe000000),
 	.sys_watchdog_enable_value=0x03c401ff,
+	.ddr_boot_reason_address=((0x00e1  << 2) + 0xfe005800),//SYSCTRL_SEC_STICKY_REG1
 	},
 	//c1
 	{
@@ -211,6 +218,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ddr_dmc_asr_address=((0x008d  << 2) + 0xfe024400),
 	.sys_watchdog_base_address=0,//((0x0040  << 2) + 0xfe000000),
 	.sys_watchdog_enable_value=0x03c401ff,
+	.ddr_boot_reason_address=((0x00e1  << 2) + 0xfe005800),//SYSCTRL_SEC_STICKY_REG1
 	},
 	// force id use id mask
 	{
@@ -227,6 +235,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ee_pwm_base_address=(0xff807000 + (0x001 << 2)),
 	.ddr_dmc_apd_address=((0x008c  << 2) + 0xff638400),
 	.ddr_dmc_asr_address=((0x008d  << 2) + 0xff638400),
+	.ddr_boot_reason_address=(0xff800000 + (0x08f << 2)),//AO_SEC_SD_CFG15
 	},
 };
 
@@ -6914,7 +6923,7 @@ int do_read_ddr_training_data(char log_level,ddr_set_t *ddr_set_t_p)
 					add_offset=((ps<<20)|(1<<16)|(((t_count%8)>>1)<<12)|(0x80+(t_count/8)+((t_count%2)<<8)));
 					dq_bit_delay[t_count]=dwc_ddrphy_apb_rd(add_offset);
 					delay_org=dq_bit_delay[t_count];
-					delay_temp=(32*(((delay_org>>6)&0xf)+((delay_org>>5)&1))+(delay_org&0x1f));
+					delay_temp=(32*(((delay_org>>6)&0x1f)+((delay_org>>5)&1))+(delay_org&0x1f));
 
 					ddr_set_t_p->cfg_ddr_training_delay_ps[ps].read_dqs_gate_delay[t_count]=delay_temp;
 					printf_log(log_level,"\n t_count: %04d %04d  %08x %08x",t_count,delay_temp,((((add_offset) << 1)+(p_ddr_base->ddr_phy_base_address))),dq_bit_delay[t_count]);
@@ -11014,6 +11023,12 @@ int do_verify_flash_ddr_parameter(char log_level)
 	}
 	return error;
 }
+
+uint32_t enable_ddr_check_boot_reason=0;
+uint32_t boot_reason=0;
+#define HOT_BOOT_MAGIC   0x99887766
+#define HOT_BOOT_STICKY_ADD   (p_ddr_base->preg_sticky_reg0+(6<<2))
+#define AMLOGIC_COLD_BOOT				0
 int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	check_base_address();
@@ -11028,6 +11043,7 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	char pattern_dis_scramble=0;
 	uint32_t stick_dmc_ddr_window_test_read_vref_offset_value=0;
 	uint32_t  ddr_set_size=0;
+	uint32_t need_ddr_window_test=0;
 	if (argc>1)
 	{
 		auto_window_test_enable_item = simple_strtoull_ddr(argv[1], &endp, 0);
@@ -11063,6 +11079,18 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 			return 1 ;
 		}
 	}
+	enable_ddr_check_boot_reason=0;
+	#if 0
+	sprintf(str,"setenv enable_ddr_check_boot_reason 0");
+	printf("\nstr=%s\n",str);
+	run_command(str,0);
+	sprintf(str,"save");
+	printf("\nstr=%s\n",str);
+	run_command(str,0);
+	#endif
+	enable_ddr_check_boot_reason=env_to_a_num("enable_ddr_check_boot_reason");
+	printf("\nenable_ddr_check_boot_reason==%d \n",enable_ddr_check_boot_reason);
+	printf("\nddr_fast_boot_enable_flag==%d \n",env_to_a_num("ddr_fast_boot_enable_flag"));
 	ddr_set_t *ddr_set_t_p=NULL;
 	ddr_set_t_p=(ddr_set_t *)(ddr_set_t_p_arrary);
 	//ddr_set_t_p= (ddr_set_t *)(p_ddr_base->ddr_dmc_sticky0);
@@ -11089,7 +11117,61 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	}
 	else
 		return 1 ;
+	if (enable_ddr_check_boot_reason)
+	{
+		boot_reason=0;//ddr_set_t_p->boot_reason
+		//if(boot_reason==0)
+		{
+			//if(env_to_a_num("reboot_mode")==AMLOGIC_SHUTDOWN_REBOOT)
+			//if ((env_to_a_num("reboot_mode") == AMLOGIC_COLD_BOOT)
+			if ((((readl(p_ddr_base->ddr_boot_reason_address) >> 12) & 0xf) == AMLOGIC_COLD_BOOT) && ((rd_reg(HOT_BOOT_STICKY_ADD)) == HOT_BOOT_MAGIC))
+				boot_reason=1;
+			if (ddr_set_t_p->fast_boot[0] == 0xfe)
+				boot_reason=2;
+		}
+		printf("\nboot_reason=%08x \n",(boot_reason));
+		printf("\nHOT_BOOT_STICKY_ADD=%08x \n",(rd_reg(HOT_BOOT_STICKY_ADD)));
+		wr_reg(HOT_BOOT_STICKY_ADD,HOT_BOOT_MAGIC);
+		printf ("\nHOT_BOOT_STICKY_ADD=%08x \n",(rd_reg(HOT_BOOT_STICKY_ADD))) ;
 
+		//sprintf(str,"save");
+		//printf("\nstr=%s\n",str);
+		//run_command(str,0);
+		if (boot_reason == 0)
+		{
+			if ((ddr_set_t_p->fast_boot[0])<0xfe)
+			{
+				need_ddr_window_test=1;
+				#if 0
+				sprintf(str,"setenv ddr_fast_boot_enable_flag 0");
+				printf("\nstr=%s\n",str);
+				run_command(str,0);
+				sprintf(str,"save");
+				printf("\nstr=%s\n",str);
+				run_command(str,0);
+				#endif
+				sprintf(str,"setenv initargs ${initargs} need_ddr_window_test=%d",need_ddr_window_test);
+				printf("\nstr=%s\n",str);
+				run_command(str,0);
+				//sprintf(str,"save");
+				//printf("\nstr=%s\n",str);
+				//run_command(str,0);
+			}
+			else
+			{
+				sprintf(str,"setenv initargs ${initargs} need_ddr_window_test=%d",need_ddr_window_test);
+				printf("\nstr=%s\n",str);
+				run_command(str,0);
+			}
+			return 1 ;
+		}
+		else
+		{
+			sprintf(str,"setenv initargs ${initargs} need_ddr_window_test=%d",need_ddr_window_test);
+			printf("\nstr=%s\n",str);
+			run_command(str,0);
+		}
+	}
 	if ((ddr_set_t_p->fast_boot[0]) == 0xff)
 	{
 		printf("\nuboot  auto fast boot  auto window test is done \n");
@@ -11226,6 +11308,15 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	#endif
 		ddr_do_store_ddr_parameter_ops((uint8_t *)(unsigned long)(ddr_set_add-SHA256_SUM_LEN),write_size);
 			}
+		if ( (enable_ddr_check_boot_reason))
+		{
+			if (boot_reason)
+			{
+				sprintf(str,"systemoff");
+				printf("\nstr=%s\n",str);
+				run_command(str,0);
+			}
+		}
 			return 1;
 		}
 	}

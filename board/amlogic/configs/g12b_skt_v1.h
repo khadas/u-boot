@@ -254,6 +254,7 @@
 			"run update;\n" \
 			"fi;fi;" \
 		"fi;\0" \
+	"ddr_fast_boot_enable_flag=1\0" \
 
 
 #define CONFIG_PREBOOT  \
@@ -265,7 +266,12 @@
             "bcb uboot-command;"\
             "run switch_bootmode;"
 
-#define CONFIG_BOOTCOMMAND "run storeboot"
+#define CONFIG_BOOTCOMMAND \
+	"echo ddr_fast_boot_enable_flag = ${ddr_fast_boot_enable_flag};"\
+	"if itest ${ddr_fast_boot_enable_flag} == 1; then "\
+		"ddr_auto_fast_boot_check 4;"\
+	"fi;"\
+	"run storeboot"
 
 //#define CONFIG_ENV_IS_NOWHERE  1
 #define CONFIG_ENV_SIZE   (64*1024)
