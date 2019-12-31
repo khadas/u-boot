@@ -265,8 +265,8 @@
 #error CONFIG_AML_NAND/CONFIG_MESON_NFC can not support at the sametime;
 #endif
 
-#if defined(CONFIG_SPI_NAND) && defined(CONFIG_MESON_NFC)
-#error CONFIG_SPI_NAND/CONFIG_MESON_NFC can not support at the sametime;
+#if defined(CONFIG_SPI_NAND) && defined(CONFIG_MTD_SPI_NAND) && defined(CONFIG_MESON_NFC)
+#error CONFIG_SPI_NAND/CONFIG_MTD_SPI_NAND/CONFIG_MESON_NFC can not support at the sametime;
 #endif
 
 /* #define		CONFIG_AML_SD_EMMC 1 */
@@ -280,7 +280,7 @@
 #endif
 #define		CONFIG_PARTITIONS 1
 
-#if defined CONFIG_MESON_NFC || defined CONFIG_SPI_NAND
+#if defined CONFIG_MESON_NFC || defined CONFIG_SPI_NAND || defined CONFIG_MTD_SPI_NAND
 	#define CONFIG_SYS_MAX_NAND_DEVICE  2
 #endif
 

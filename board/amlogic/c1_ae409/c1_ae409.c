@@ -189,7 +189,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 /* partition table */
 /* partition table for spinand flash */
-#ifdef CONFIG_SPI_NAND
+#if (defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND))
 static const struct mtd_partition spinand_partitions[] = {
 	{
 		.name = "logo",
@@ -218,7 +218,7 @@ static const struct mtd_partition spinand_partitions[] = {
 		.size = MTDPART_SIZ_FULL,
 	}
 };
-struct mtd_partition *get_partition_table(int *partitions)
+const struct mtd_partition *get_partition_table(int *partitions)
 {
 	*partitions = ARRAY_SIZE(spinand_partitions);
 	return spinand_partitions;

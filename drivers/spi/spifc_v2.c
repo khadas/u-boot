@@ -359,6 +359,15 @@ static int spifc_probe(struct udevice *bus)
 	struct spifc_priv *priv = dev_get_priv(bus);
 	int ret = 0;
 
+	/* In consideration of compatibility with other storage media,
+	 * reset pinmux to spifc here.
+	 */
+	ret = pinctrl_select_state(bus, "default");
+	if (ret) {
+		pr_err("select state %s failed\n", "default");
+		return ret;
+	}
+
 #if defined(CONFIG_CLK) && (CONFIG_CLK)
 	ret = clk_get_by_name(bus, "fclk_source", &priv->spifc_source);
 	if (ret) {
