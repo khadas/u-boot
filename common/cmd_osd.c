@@ -253,6 +253,8 @@ static int do_osd_get(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_osd_dual_logo(cmd_tbl_t *cmdtp, int flag, int argc,
 			    char *const argv[])
 {
+	char *lcd_exist;
+	lcd_exist = getenv("lcd_exist");
 #ifdef CONFIG_AML_HDMITX20
 	int st = 0;
 
@@ -262,11 +264,20 @@ static int do_osd_dual_logo(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	if (st) {
 		/* hdmi plugin, dual logo display */
-	#if defined(CONFIG_DUAL_LOGO)
-		run_command(CONFIG_DUAL_LOGO, 0);
-	#else
-		printf("osd: dual logo cmd macro is not defined\n");
-	#endif
+		if (0 == strcmp(lcd_exist, "1")) {
+			#if defined(CONFIG_DUAL_LOGO)
+				run_command(CONFIG_DUAL_LOGO, 0);
+			#else
+				printf("osd: dual logo cmd macro is not defined\n");
+			#endif
+		} else {
+
+			#if defined(CONFIG_SINGLE_LOGO)
+				run_command(CONFIG_SINGLE_LOGO, 0);
+			#else
+				printf("osd: single logo cmd macro is not defined\n");
+			#endif
+		}
 	} else {
 		/* hdmi plugout, single logo display */
 	#if defined(CONFIG_SINGLE_LOGO)
