@@ -31,7 +31,7 @@
  * will be controlled by efuse. if 0, it is controlled by
  * AML_VDDCORE_INIT_VOLTAGE
  */
-#define AML_VDDCORE_INIT_VOLTAGE_SEL 			0
+#define AML_VDDCORE_INIT_VOLTAGE_SEL 			1
 #define AML_VDDCORE_INIT_EFUSE_MARGIN			30
 #define AML_VDDCORE_INIT_EFUSE_OFFSET			0xc8
 #define AML_VDDCORE_INIT_EFUSE_BASE_V0LT		680

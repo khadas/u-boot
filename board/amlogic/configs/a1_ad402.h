@@ -25,9 +25,15 @@
 /*
  * platform power init config
  */
-#define AML_VCCK_INIT_VOLTAGE    800     // VCCK power up voltage
-#define AML_VDDEE_INIT_VOLTAGE   800     // VDDEE power up voltage
-#define AML_VDDEE_SLEEP_VOLTAGE  731     // VDDEE suspend voltage
+#define AML_VDDCORE_INIT_VOLTAGE    840     // VCCK power up voltage
+	/* If AML_VDDCORE_INIT_VOLTAGE_SEL is 1, the voltage of vddee
+	 * will be controlled by efuse. if 0, it is controlled by
+	 * AML_VDDCORE_INIT_VOLTAGE
+	 */
+#define AML_VDDCORE_INIT_VOLTAGE_SEL 			1
+#define AML_VDDCORE_INIT_EFUSE_MARGIN			30
+#define AML_VDDCORE_INIT_EFUSE_OFFSET			0xc8
+#define AML_VDDCORE_INIT_EFUSE_BASE_V0LT		680
 
 /* configs for CEC */
 /* SMP Definitinos */

@@ -353,8 +353,8 @@ bl2_reg_t __bl2_reg[] = {
 	 * initialize in bl2 according to efuse
 	 */
 	/*{P_PWMAB_PWM_A,         0x0017000b,        0xffffffff, 	0, BL2_INIT_STAGE_1, 0},*/
-	{P_PWMAB_MISC_REG_AB,	((1 << 15) | (1 << 0)), 0x7f, 		0, BL2_INIT_STAGE_1, 0},
-	{CLK_PWM_CLK_AB_CTRL,	1 << 8 , 		0x3ff | 0x1 << 15, 0, BL2_INIT_STAGE_1, 0},
+	{P_PWMAB_MISC_REG_AB,	((1 << 15) | (1 << 0)), (0x7f << 8), 	0, BL2_INIT_STAGE_1, 0},
+	{CLK_PWM_CLK_AB_CTRL,	1 << 8 , 		((0x3 << 9) | (0xff << 0)), 0, BL2_INIT_STAGE_1, 0},
 	{P_PADCTRL_GPIOF_DS,	0x3 << 20, 		0x3 << 20,	0, BL2_INIT_STAGE_1, 0},
 	{P_PADCTRL_PIN_MUX_REG7,(0x1 << 8),		(0xf << 8),	0, BL2_INIT_STAGE_1, 0},
 

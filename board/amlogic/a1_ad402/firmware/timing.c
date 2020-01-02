@@ -303,95 +303,15 @@ ddr_reg_t __ddr_reg[] = {
 	{0, 0, 0, 0, 0, 0},
 };
 
-#define VCCK_VAL				AML_VCCK_INIT_VOLTAGE
-#define VDDEE_VAL				AML_VDDEE_INIT_VOLTAGE
-/* VCCK PWM table */
-#if   (VCCK_VAL == 800)
-	#define VCCK_VAL_REG	0x00150007
-#elif (VCCK_VAL == 810)
-	#define VCCK_VAL_REG	0x00140008
-#elif (VCCK_VAL == 820)
-	#define VCCK_VAL_REG	0x00130009
-#elif (VCCK_VAL == 830)
-	#define VCCK_VAL_REG	0x0012000a
-#elif (VCCK_VAL == 840)
-	#define VCCK_VAL_REG	0x0011000b
-#elif (VCCK_VAL == 850)
-	#define VCCK_VAL_REG	0x0010000c
-#elif (VCCK_VAL == 860)
-	#define VCCK_VAL_REG	0x000f000d
-#elif (VCCK_VAL == 870)
-	#define VCCK_VAL_REG	0x000e000e
-#elif (VCCK_VAL == 880)
-	#define VCCK_VAL_REG	0x000d000f
-#elif (VCCK_VAL == 890)
-	#define VCCK_VAL_REG	0x000c0010
-#elif (VCCK_VAL == 900)
-	#define VCCK_VAL_REG	0x000b0011
-#elif (VCCK_VAL == 910)
-	#define VCCK_VAL_REG	0x000a0012
-#elif (VCCK_VAL == 920)
-	#define VCCK_VAL_REG	0x00090013
-#elif (VCCK_VAL == 930)
-	#define VCCK_VAL_REG	0x00080014
-#elif (VCCK_VAL == 940)
-	#define VCCK_VAL_REG	0x00070015
-#elif (VCCK_VAL == 950)
-	#define VCCK_VAL_REG	0x00060016
-#elif (VCCK_VAL == 960)
-	#define VCCK_VAL_REG	0x00050017
-#elif (VCCK_VAL == 970)
-	#define VCCK_VAL_REG	0x00040018
-#elif (VCCK_VAL == 980)
-	#define VCCK_VAL_REG	0x00030019
-#elif (VCCK_VAL == 990)
-	#define VCCK_VAL_REG	0x0002001a
-#elif (VCCK_VAL == 1000)
-	#define VCCK_VAL_REG	0x0001001b
-#elif (VCCK_VAL == 1010)
-	#define VCCK_VAL_REG	0x0000001c
-#else
-	#error "VCCK val out of range\n"
-#endif
-
-/* VDDEE PWM table */
-#if    (VDDEE_VAL == 800)
-	#define VDDEE_VAL_REG	0x0010000c
-#elif (VDDEE_VAL == 810)
-	#define VDDEE_VAL_REG	0x000f000d
-#elif (VDDEE_VAL == 820)
-	#define VDDEE_VAL_REG	0x000e000e
-#elif (VDDEE_VAL == 830)
-	#define VDDEE_VAL_REG	0x000d000f
-#elif (VDDEE_VAL == 840)
-	#define VDDEE_VAL_REG	0x000c0010
-#elif (VDDEE_VAL == 850)
-	#define VDDEE_VAL_REG	0x000b0011
-#elif (VDDEE_VAL == 860)
-	#define VDDEE_VAL_REG	0x000a0012
-#elif (VDDEE_VAL == 870)
-	#define VDDEE_VAL_REG	0x00090013
-#elif (VDDEE_VAL == 880)
-	#define VDDEE_VAL_REG	0x00080014
-#elif (VDDEE_VAL == 890)
-	#define VDDEE_VAL_REG	0x00070015
-#elif (VDDEE_VAL == 900)
-	#define VDDEE_VAL_REG	0x00060016
-#elif (VDDEE_VAL == 910)
-	#define VDDEE_VAL_REG	0x00050017
-#elif (VDDEE_VAL == 920)
-	#define VDDEE_VAL_REG	0x00040018
-#elif (VDDEE_VAL == 930)
-	#define VDDEE_VAL_REG	0x00030019
-#elif (VDDEE_VAL == 940)
-	#define VDDEE_VAL_REG	0x0002001a
-#elif (VDDEE_VAL == 950)
-	#define VDDEE_VAL_REG	0x0001001b
-#elif (VDDEE_VAL == 960)
-	#define VDDEE_VAL_REG	0x0000001c
-#else
-	#error "VDDEE val out of range\n"
-#endif
+#define VDDCORE_VAL		AML_VDDCORE_INIT_VOLTAGE
+/* If AML_VDDCORE_INIT_VOLTAGE_SEL is 1, the voltage of vddcore
+ * will be controlled by efuse. if 0, it is controlled by
+ * AML_VDDCORE_INIT_VOLTAGE
+ */
+#define VDD_VAL_SEL		AML_VDDCORE_INIT_VOLTAGE_SEL
+#define BL2_EE_ADD      AML_VDDCORE_INIT_EFUSE_MARGIN       /* margin */
+#define FT_VMIN_OFFSET  AML_VDDCORE_INIT_EFUSE_OFFSET    /*vmin efuse offset*/
+#define FT_BASE_VOLT    AML_VDDCORE_INIT_EFUSE_BASE_V0LT
 
 /* for PWM use */
 /* PWM driver check http://scgit.amlogic.com:8080/#/c/38093/ */
@@ -400,6 +320,14 @@ ddr_reg_t __ddr_reg[] = {
 #define GPIO_I_REG3		((0xff634400 + (0x1b << 2)))
 #define AO_PIN_MUX_REG0	((0xff800000 + (0x05 << 2)))
 #define AO_PIN_MUX_REG1	((0xff800000 + (0x06 << 2)))
+
+#define P_PADCTRL_PIN_MUX_REG7	0xfe00041c
+#define P_PADCTRL_GPIOF_DS      0xfe000554
+#define CLK_PWM_CLK_EF_CTRL 	((0x0033  << 2) + 0xfe000800)
+#define P_PWMEF_MISC_REG_EF     0xfe005408
+#define	VDDCORE_TABLE_END		0XFFFFFFFF
+#define P_PWMEF_PWM_F           0xfe005404
+
 
 bl2_reg_t __bl2_reg[] = {
 	/* demo, user defined override register */
@@ -421,4 +349,37 @@ bl2_reg_t __bl2_reg[] = {
 	{PADCTRL_GPIOF_O,     1 << 11,               0,  0, BL2_INIT_STAGE_POWERKEY_INIT | POWERKEY_CFG0,  0},
 	/* power key up config*/
 
+	/* vddcore voltage init, controled by pwm f,
+	 * Do not initialize the pwm duty register here,
+	 * initialize in bl2 according to efuse
+	 */
+	{P_PWMEF_MISC_REG_EF,	((1 << 23) | (1 << 1)), 	(0x7f << 16), 0, BL2_INIT_STAGE_1, 0},
+	{CLK_PWM_CLK_EF_CTRL,	1 << 24 , 	((0x3 << 25) | (0xff << 16)), 0, BL2_INIT_STAGE_1, 0},
+	{P_PADCTRL_GPIOF_DS,	0x3 << 24, 		0x3 << 24,	0, BL2_INIT_STAGE_1, 0},
+	{P_PADCTRL_PIN_MUX_REG7,(0x2 << 16),		(0xf << 16),	0, BL2_INIT_STAGE_1, 0},
+
+	/* Transfer voltage table temporarily use __bl2_reg to transfer */
+	{0x00000022,	1041,	0x00010021,	1031,	BL2_INIT_STAGE_VDDCORE_TABLE, 0},
+	{0x00020020,	1021,	0x0003001f,	1011,	BL2_INIT_STAGE_VDDCORE_TABLE, 0},
+	{0x0004001e,	1001,	0x0005001d,	990,	BL2_INIT_STAGE_VDDCORE_TABLE, 0},
+	{0x0006001c,	980,	0x0007001b,	970,	BL2_INIT_STAGE_VDDCORE_TABLE, 0},
+	{0x0008001a,	960,	0x00090019,	950,	BL2_INIT_STAGE_VDDCORE_TABLE, 0},
+	{0x000a0018,	940,	0x000b0017,	930,	BL2_INIT_STAGE_VDDCORE_TABLE, 0},
+	{0x000c0016,	920,	0x000d0015,	910,	BL2_INIT_STAGE_VDDCORE_TABLE, 0},
+	{0x000e0014,	900,	0x000f0013,	890,	BL2_INIT_STAGE_VDDCORE_TABLE, 0},
+	{0x00100012,	880,	0x00110011,	870,	BL2_INIT_STAGE_VDDCORE_TABLE, 0},
+	{0x00120010,	860,	0x0013000f,	850,	BL2_INIT_STAGE_VDDCORE_TABLE, 0},
+	{0x0014000e,	840,	0x0015000d,	830,	BL2_INIT_STAGE_VDDCORE_TABLE, 0},
+	{0x0016000c,	820,	0x0017000b,	810,	BL2_INIT_STAGE_VDDCORE_TABLE, 0},
+	{0x0018000a,	800,	0x00190009,	790,	BL2_INIT_STAGE_VDDCORE_TABLE, 0},
+	{0x001a0008,	780,	0x001b0007,	770,	BL2_INIT_STAGE_VDDCORE_TABLE, 0},
+	{0x001c0006,	760,	0x001d0005,	750,	BL2_INIT_STAGE_VDDCORE_TABLE, 0},
+	{0x001e0004,	740,	0x001f0003,	730,	BL2_INIT_STAGE_VDDCORE_TABLE, 0},
+	{0x00200002,	720,	0x00210001,	710,	BL2_INIT_STAGE_VDDCORE_TABLE, 0},
+	/* If there are invalid parameters at the end, use VDDCORE_TABLE_END to fill */
+	{0x00220000,	700,	VDDCORE_TABLE_END,	0,		BL2_INIT_STAGE_VDDCORE_TABLE, 0},
+
+	/* Transfer customer voltage, pwm duty register addr, sel flag */
+	{P_PWMEF_PWM_F, VDDCORE_VAL, VDD_VAL_SEL, 0, BL2_INIT_STAGE_VDDCORE_CONFIG, 0},
+	{BL2_EE_ADD, FT_VMIN_OFFSET, FT_BASE_VOLT, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0},
 };
