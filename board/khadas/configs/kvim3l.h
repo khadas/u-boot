@@ -265,9 +265,9 @@
                 "if load mmc 0:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:5 ${loadaddr} /usr/share/fenix/logo/logo.bmp; then "\
                     "bmp display ${loadaddr};"\
                     "bmp scale;"\
-                    "vout output ${outputmode};"\
-                    "vpp hdrpkt;"\
                 "fi;"\
+                "vout output ${outputmode};"\
+                "vpp hdrpkt;"\
             "fi;"\
             "\0"\
         "wol_init="\
