@@ -1572,7 +1572,7 @@ static void amvecm_cp_hdr_info(struct master_display_info_s *hdr_data)
 	hdr_data->white_point[0] = bt2020_white_point[0];
 	hdr_data->white_point[1] = bt2020_white_point[1];
 	/* default luminance */
-	hdr_data->luminance[0] = 5000 * 10000;
+	hdr_data->luminance[0] = 1000 * 10000;
 	hdr_data->luminance[1] = 50;
 
 	/* content_light_level */
@@ -1584,29 +1584,26 @@ static void amvecm_cp_hdr_info(struct master_display_info_s *hdr_data)
 
 void hdr_tx_pkt_cb(void)
 {
-	int sdr_mode = 0;
+	int hdr_policy = 0;
 	struct master_display_info_s hdr_data;
 	struct hdr_info *hdrinfo;
-	// const char *sdr_mode_env = getenv("sdr2hdr");
+	const char *hdr_policy_env = getenv("hdr_policy");
 
-	// if (sdr_mode_env == NULL)
-	// 	return;
+	if (hdr_policy_env == NULL)
+		return;
 
-	// sdr_mode = simple_strtoul(sdr_mode_env, NULL, 10);
+	hdr_policy = simple_strtoul(hdr_policy_env, NULL, 10);
 	hdrinfo = hdmitx_get_rx_hdr_info();
-	if (hdrinfo && !hdrinfo->hdr_sup_eotf_smpte_st_2084)
-		sdr_mode = 2;
 
-	// follow source HDR_BYPASS
 	if ((hdrinfo && hdrinfo->hdr_sup_eotf_smpte_st_2084) &&
-		(sdr_mode == 2)) {
+		(hdr_policy == 0)) {
 		hdr_func(OSD1_HDR, SDR_HDR);
 		hdr_func(VD1_HDR, SDR_HDR);
 		amvecm_cp_hdr_info(&hdr_data);
 		hdmitx_set_drm_pkt(&hdr_data);
 	}
 
-	//VPP_PR("sdr_mode = %d\n", sdr_mode);
+	VPP_PR("hdr_policy = %d\n", hdr_policy);
 	if (hdrinfo)
 		VPP_PR("Rx hdr_info.hdr_sup_eotf_smpte_st_2084 = %d\n",
 			hdrinfo->hdr_sup_eotf_smpte_st_2084);
