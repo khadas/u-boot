@@ -103,7 +103,7 @@
         "fb_width=1920\0" \
         "fb_height=1080\0" \
         "frac_rate_policy=1\0" \
-        "sdr2hdr=2\0" \
+        "hdr_policy=0\0" \
         "hdmi_read_edid=1\0" \
         "hdmichecksum=0x00000000\0" \
         "dolby_status=0\0" \
