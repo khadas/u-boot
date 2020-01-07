@@ -183,8 +183,6 @@ static void lcd_power_ctrl(int status)
 #endif
 		case LCD_POWER_TYPE_EXPANDER_IO:
 			if (power_step->index < LCD_EXPANDER_GPIO_NUM_MAX) {
-//				str = lcd_power->expander_gpio[power_step->index];
-//				gpio = aml_lcd_expander_gpio_name_map_num(str);
 				aml_lcd_expander_gpio_set(power_step->index, power_step->value);
 			} else {
 				LCDERR("expander_gpio index: %d\n", power_step->index);
