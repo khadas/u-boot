@@ -361,5 +361,6 @@ obj-$(CONFIG_AML_ANTIROLLBACK) += anti-rollback.o
 obj-$(CONFIG_AML_SUPPORT_TLV) += aml_tlv.o
 obj-y += cmd_tee_log_level.o
 obj-y += cmd_avb.o
+obj-$(CONFIG_AML_FACTORY_PROVISION) += cmd_factory_provision.o
 
 CFLAGS_env_embedded.o := -Wa,--no-warn -DENV_CRC=$(shell tools/envcrc 2>/dev/null)

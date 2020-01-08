@@ -56,6 +56,9 @@
 /* support ext4*/
 #define CONFIG_CMD_EXT4 1
 
+#define CONFIG_FAT_WRITE 1
+#define CONFIG_AML_FACTORY_PROVISION 1
+
 /* Serial config */
 #define CONFIG_CONS_INDEX 2
 #define CONFIG_BAUDRATE  115200
@@ -297,6 +300,7 @@
                     "setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
                 "fi;"\
             "fi;"\
+            "factory_provision init;"\
             "\0"\
         "bcb_cmd="\
             "get_avb_mode;"\
