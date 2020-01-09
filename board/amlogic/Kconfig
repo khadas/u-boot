@@ -305,6 +305,28 @@ config TARGET_SC2_SKT
 
 endif
 
+if MESON_C2
+
+config SYS_SOC
+	default "c2"
+
+choice
+	prompt "C2 Board"
+
+config C2_SKT
+	bool "C2_SKT"
+	select TARGET_C2_SKT
+	help
+	  Select C2 SKT config
+
+endchoice
+
+config TARGET_C2_SKT
+	bool "C2 SKT board"
+	depends on C2_SKT
+
+endif
+
 if MESON_G12A
 
 config SYS_SOC
@@ -348,6 +370,8 @@ source "board/amlogic/c1_ae402/Kconfig"
 source "board/amlogic/c1_ae409/Kconfig"
 
 source "board/amlogic/sc2_skt/Kconfig"
+
+source "board/amlogic/c2_skt/Kconfig"
 
 source "board/amlogic/g12a_u200_v1/Kconfig"
 
