@@ -2057,10 +2057,11 @@ int handle_tcon_vac(unsigned char *vac_data, unsigned int vac_mem_size)
 	vac_data[1] = (data_cnt >> 8) & 0xff;
 	vac_data[2] = (data_cnt >> 16) & 0xff;
 	vac_data[3] = (data_cnt >> 24) & 0xff;
-	vac_data[4] = 0;
-	vac_data[5] = 0;
-	vac_data[6] = 0;
-	vac_data[7] = 0;
+
+	vac_data[4] = model_data_checksum(&vac_data[8], data_cnt);
+	vac_data[5] = model_data_lrc(&vac_data[8], data_cnt);
+	vac_data[6] = 0x55;
+	vac_data[7] = 0xaa;
 
 	if (model_debug_flag & DEBUG_NORMAL)
 		ALOGD("%s finish\n", __func__);
@@ -2103,15 +2104,17 @@ int handle_tcon_demura_set(unsigned char *demura_set_data,
 	}
 
 	n = 8;
+	GetBinData(&demura_set_data[n], bin_size);
+
 	demura_set_data[0] = bin_size & 0xff;
 	demura_set_data[1] = (bin_size >> 8) & 0xff;
 	demura_set_data[2] = (bin_size >> 16) & 0xff;
 	demura_set_data[3] = (bin_size >> 24) & 0xff;
-	demura_set_data[4] = 0;
-	demura_set_data[5] = 0;
-	demura_set_data[6] = 0;
-	demura_set_data[7] = 0;
-	GetBinData(&demura_set_data[n], bin_size);
+
+	demura_set_data[4] = model_data_checksum(&demura_set_data[8], bin_size);
+	demura_set_data[5] = model_data_lrc(&demura_set_data[8], bin_size);
+	demura_set_data[6] = 0x55;
+	demura_set_data[7] = 0xaa;
 
 	if (model_debug_flag & DEBUG_NORMAL)
 		ALOGD("%s finish\n", __func__);
@@ -2155,15 +2158,17 @@ int handle_tcon_demura_lut(unsigned char *demura_lut_data,
 	}
 
 	n = 8;
+	GetBinData(&demura_lut_data[n], bin_size);
+
 	demura_lut_data[0] = bin_size & 0xff;
 	demura_lut_data[1] = (bin_size >> 8) & 0xff;
 	demura_lut_data[2] = (bin_size >> 16) & 0xff;
 	demura_lut_data[3] = (bin_size >> 24) & 0xff;
-	demura_lut_data[4] = 0;
-	demura_lut_data[5] = 0;
-	demura_lut_data[6] = 0;
-	demura_lut_data[7] = 0;
-	GetBinData(&demura_lut_data[n], bin_size);
+
+	demura_lut_data[4] = model_data_checksum(&demura_lut_data[8], bin_size);
+	demura_lut_data[5] = model_data_lrc(&demura_lut_data[8], bin_size);
+	demura_lut_data[6] = 0x55;
+	demura_lut_data[7] = 0xaa;
 
 	if (model_debug_flag)
 		ALOGD("%s finish, bin_size = 0x%lx\n", __func__, bin_size);
@@ -2207,15 +2212,17 @@ int handle_tcon_acc_lut(unsigned char *acc_lut_data, unsigned int acc_lut_size)
 	}
 
 	n = 8;
+	GetBinData(&acc_lut_data[n], bin_size);
+
 	acc_lut_data[0] = bin_size & 0xff;
 	acc_lut_data[1] = (bin_size >> 8) & 0xff;
 	acc_lut_data[2] = (bin_size >> 16) & 0xff;
 	acc_lut_data[3] = (bin_size >> 24) & 0xff;
-	acc_lut_data[4] = 0;
-	acc_lut_data[5] = 0;
-	acc_lut_data[6] = 0;
-	acc_lut_data[7] = 0;
-	GetBinData(&acc_lut_data[n], bin_size);
+
+	acc_lut_data[4] = model_data_checksum(&acc_lut_data[8], bin_size);
+	acc_lut_data[5] = model_data_lrc(&acc_lut_data[8], bin_size);
+	acc_lut_data[6] = 0x55;
+	acc_lut_data[7] = 0xaa;
 
 	if (model_debug_flag)
 		ALOGD("%s finish, bin_size = 0x%lx\n", __func__, bin_size);

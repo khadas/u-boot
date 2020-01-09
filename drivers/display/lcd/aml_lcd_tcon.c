@@ -86,13 +86,47 @@ static void lcd_tcon_od_check(unsigned char *table)
 	}
 }
 
+#ifdef CONFIG_CMD_INI
+static unsigned char lcd_tcon_checksum(unsigned char *buf, unsigned int len)
+{
+	unsigned int temp = 0;
+	unsigned int i;
+
+	if (!buf)
+		return 0;
+	if (len == 0)
+		return 0;
+	for (i = 0; i < len; i++)
+		temp += buf[i];
+
+	return (unsigned char)(temp & 0xff);
+}
+
+static unsigned char lcd_tcon_lrc(unsigned char *buf, unsigned int len)
+{
+	unsigned char temp = 0;
+	unsigned int i;
+
+	if (!buf)
+		return 0xff;
+	if (len == 0)
+		return 0xff;
+	temp = buf[0];
+	for (i = 1; i < len; i++)
+		temp = temp ^ buf[i];
+
+	return temp;
+}
+#endif
+
 static int lcd_tcon_vac_load(void)
 {
 	unsigned char *vac_data =
 		(unsigned char *)(unsigned long)(tcon_rmem.vac_mem_paddr);
 	int ret = -1;
 #ifdef CONFIG_CMD_INI
-	int i, data_cnt = 0;
+	unsigned int i, data_cnt = 0;
+	unsigned char data_checksum, data_lrc, temp_checksum, temp_lrc;
 #endif
 	if ((!tcon_rmem.vac_mem_size) || (vac_data == NULL))
 		return -1;
@@ -112,6 +146,22 @@ static int lcd_tcon_vac_load(void)
 		LCDERR("%s: vac_data data_cnt error\n", __func__);
 		return -1;
 	}
+	data_checksum = vac_data[4];
+	data_lrc = vac_data[5];
+	temp_checksum = lcd_tcon_checksum(&vac_data[8], data_cnt);
+	temp_lrc = lcd_tcon_lrc(&vac_data[8], data_cnt);
+	if (data_checksum != temp_checksum) {
+		LCDERR("%s: vac_data checksum error\n", __func__);
+		return -1;
+	}
+	if (data_lrc != temp_lrc) {
+		LCDERR("%s: vac_data lrc error\n", __func__);
+		return -1;
+	}
+	if ((vac_data[6] != 0x55) || (vac_data[7] != 0xaa)) {
+		LCDERR("%s: vac_data pattern error\n", __func__);
+		return -1;
+	}
 
 	if (lcd_debug_print_flag == 3) {
 		for (i = 0; i < 30; i++)
@@ -127,7 +177,8 @@ static int lcd_tcon_demura_set_load(void)
 			       (tcon_rmem.demura_set_paddr);
 	int ret = -1;
 #ifdef CONFIG_CMD_INI
-	int i, data_cnt = 0;
+	unsigned int i, data_cnt = 0;
+	unsigned char data_checksum, data_lrc, temp_checksum, temp_lrc;
 #endif
 	if ((!tcon_rmem.demura_set_mem_size) || (demura_setting == NULL))
 		return -1;
@@ -146,7 +197,23 @@ static int lcd_tcon_demura_set_load(void)
 		(demura_setting[2] << 16) |
 		(demura_setting[3] << 24));
 	if (data_cnt == 0) {
-		LCDERR("%s: demura_setting data_cnt error\n", __func__);
+		LCDERR("%s: demura_set data_cnt error\n", __func__);
+		return -1;
+	}
+	data_checksum = demura_setting[4];
+	data_lrc = demura_setting[5];
+	temp_checksum = lcd_tcon_checksum(&demura_setting[8], data_cnt);
+	temp_lrc = lcd_tcon_lrc(&demura_setting[8], data_cnt);
+	if (data_checksum != temp_checksum) {
+		LCDERR("%s: demura_set checksum error\n", __func__);
+		return -1;
+	}
+	if (data_lrc != temp_lrc) {
+		LCDERR("%s: demura_set lrc error\n", __func__);
+		return -1;
+	}
+	if ((demura_setting[6] != 0x55) || (demura_setting[7] != 0xaa)) {
+		LCDERR("%s: demura_set pattern error\n", __func__);
 		return -1;
 	}
 
@@ -165,7 +232,8 @@ static int lcd_tcon_demura_lut_load(void)
 			       (tcon_rmem.demura_lut_paddr);
 	int ret = -1;
 #ifdef CONFIG_CMD_INI
-	int i, data_cnt = 0;
+	unsigned int i, data_cnt = 0;
+	unsigned char data_checksum, data_lrc, temp_checksum, temp_lrc;
 #endif
 	if ((!tcon_rmem.demura_lut_mem_size) || (demura_lut_data == NULL))
 		return -1;
@@ -186,9 +254,26 @@ static int lcd_tcon_demura_lut_load(void)
 		LCDERR("%s: demura_lut data_cnt error\n", __func__);
 		return -1;
 	}
+	data_checksum = demura_lut_data[4];
+	data_lrc = demura_lut_data[5];
+	temp_checksum = lcd_tcon_checksum(&demura_lut_data[8], data_cnt);
+	temp_lrc = lcd_tcon_lrc(&demura_lut_data[8], data_cnt);
+	if (data_checksum != temp_checksum) {
+		LCDERR("%s: demura_lut checksum error\n", __func__);
+		return -1;
+	}
+	if (data_lrc != temp_lrc) {
+		LCDERR("%s: demura_lut lrc error\n", __func__);
+		return -1;
+	}
+	if ((demura_lut_data[6] != 0x55) || (demura_lut_data[7] != 0xaa)) {
+		LCDERR("%s: demura_lut pattern error\n", __func__);
+		return -1;
+	}
+
 	if (lcd_debug_print_flag == 3) {
 		for (i = 0; i < 100; i++)
-			LCDPR("demura_lut_data[%d]: 0x%02x\n",
+			LCDPR("demura_lut[%d]: 0x%02x\n",
 			      i, demura_lut_data[i]);
 	}
 #endif
@@ -201,7 +286,8 @@ static int lcd_tcon_acc_lut_load(void)
 			       (tcon_rmem.acc_lut_paddr);
 	int ret = -1;
 #ifdef CONFIG_CMD_INI
-	int i, data_cnt = 0;
+	unsigned int i, data_cnt = 0;
+	unsigned char data_checksum, data_lrc, temp_checksum, temp_lrc;
 #endif
 
 	if ((tcon_rmem.acc_lut_mem_size == 0) || (!acc_lut_data))
@@ -222,9 +308,26 @@ static int lcd_tcon_acc_lut_load(void)
 		LCDERR("%s: acc_lut data_cnt error\n", __func__);
 		return -1;
 	}
+	data_checksum = acc_lut_data[4];
+	data_lrc = acc_lut_data[5];
+	temp_checksum = lcd_tcon_checksum(&acc_lut_data[8], data_cnt);
+	temp_lrc = lcd_tcon_lrc(&acc_lut_data[8], data_cnt);
+	if (data_checksum != temp_checksum) {
+		LCDERR("%s: acc_lut checksum error\n", __func__);
+		return -1;
+	}
+	if (data_lrc != temp_lrc) {
+		LCDERR("%s: acc_lut lrc error\n", __func__);
+		return -1;
+	}
+	if ((acc_lut_data[6] != 0x55) || (acc_lut_data[7] != 0xaa)) {
+		LCDERR("%s: acc_lut pattern error\n", __func__);
+		return -1;
+	}
+
 	if (lcd_debug_print_flag == 3) {
 		for (i = 0; i < 100; i++)
-			LCDPR("acc_lut_data[%d]: 0x%02x\n",
+			LCDPR("acc_lut[%d]: 0x%02x\n",
 			      i, acc_lut_data[i]);
 	}
 #endif
@@ -536,6 +639,12 @@ static int lcd_tcon_acc_lut_tl1(void)
 		(acc_lut_data[1] << 8) |
 		(acc_lut_data[2] << 16) |
 		(acc_lut_data[3] << 24));
+	if (data_cnt > 1161) { /* 0xb50~0xfd8, 1161 */
+		LCDPR("%s: data_cnt %d is invalid, force to 1161\n",
+		      __func__, data_cnt);
+		data_cnt = 1161;
+	}
+
 	data_buf = &acc_lut_data[8];
 	for (i = 0; i < data_cnt; i++)
 		lcd_tcon_write_byte((0xb50 + i), data_buf[i]);
@@ -594,6 +703,8 @@ static int lcd_tcon_top_set_tl1(struct lcd_config_s *pconf)
 
 static int lcd_tcon_mem_config(void)
 {
+	unsigned char *mem_addr =
+		(unsigned char *)(unsigned long)(tcon_rmem.mem_paddr);
 	unsigned int max_size;
 
 	max_size = lcd_tcon_data->axi_size +
@@ -643,6 +754,9 @@ static int lcd_tcon_mem_config(void)
 		LCDPR("tcon acc lut_paddr: 0x%08x, size: 0x%x\n",
 		      tcon_rmem.acc_lut_paddr,
 		      tcon_rmem.acc_lut_mem_size);
+
+	/* default clear tcon rmem */
+	memset(mem_addr, 0, tcon_rmem.mem_size);
 
 	return 0;
 }

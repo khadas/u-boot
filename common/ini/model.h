@@ -336,4 +336,7 @@ struct all_info_header_s {
 #define CC_MAX_PANEL_ALL_ONE_SEC_TAG_SIZE        (16)
 #define CC_MAX_PANEL_ALL_ONE_SEC_TAG_CONTENT     "panel_all_data0"
 
+unsigned char model_data_checksum(unsigned char *buf, unsigned int len);
+unsigned char model_data_lrc(unsigned char *buf, unsigned int len);
+
 #endif //__PAEL_INI_H__
