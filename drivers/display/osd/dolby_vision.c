@@ -431,12 +431,47 @@ static int check_tv_dv_mode(struct hdmitx_dev *hdmitx_device)
 }
 #endif
 
+/*true: attr match with dv_moder*/
+/*false: attr not match with dv_mode*/
+static bool is_attr_match(void)
+{
+	char *attr = getenv("colorattribute");
+
+	/*two case use std mode: */
+	/*1.user not requeset LL mode*/
+	/*2.user request LL mode but sink not support LL mode*/
+	if (dovi_mode.dv_rgb_444_8bit &&
+		(!request_ll_mode() || dovi_mode.ll_ycbcr_422_12bit == 0)) { /*STD*/
+		if (strcmp(attr, "444,8bit")) {
+			printf("expect output DV, but attr is %s\n", attr);
+			return false;
+		}
+	} else if (dovi_mode.ll_ycbcr_422_12bit) { /*LL YUV*/
+		if (strcmp(attr, "422,12bit")) {
+			printf("expect output LL YUV, but attr is %s\n", attr);
+			dovi_setting.dst_format = FORMAT_SDR;
+			return false;
+		}
+	} else if (dovi_mode.ll_rgb_444_10bit) {  /*LL RGB*/
+		if (strcmp(attr, "444,10bit")) {
+			printf("expect output LL RGB, but attr is %s\n", attr);
+			dovi_setting.dst_format = FORMAT_SDR;
+			return false;
+		}
+	}
+	return true;
+}
 static int check_tv_support(struct hdmitx_dev *hdmitx_device)
 {
 	if (check_tv_support_dv(hdmitx_device)) {
-		dovi_setting.dst_format = FORMAT_DOVI;
-		printf("output dovi mode: mode is : %s  attr: %s\n",
-			getenv("outputmode"), getenv("colorattribute"));
+		if (is_attr_match()) {
+			dovi_setting.dst_format = FORMAT_DOVI;
+			printf("output dovi mode: mode is : %s  attr: %s\n",
+				getenv("outputmode"), getenv("colorattribute"));
+		} else {
+			dovi_setting.dst_format = FORMAT_SDR;
+			printf("attr is not match, change to output SDR\n");
+		}
 	} else if (check_tv_support_hdr(hdmitx_device)) {
 		dovi_setting.dst_format = FORMAT_HDR10;
 		printf("output hdr mode: mode is : %s  attr: %s\n",
