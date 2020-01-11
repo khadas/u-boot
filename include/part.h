@@ -26,6 +26,8 @@ typedef struct block_dev_desc {
 	unsigned char	part_type;	/* partition type */
 	unsigned char	target;		/* target SCSI ID */
 	unsigned char	lun;		/* target LUN */
+	/* ported from uboot-2019*/
+	unsigned char	hwpart;		/* HW partition, e.g. for eMMC */
 	unsigned char	type;		/* device type */
 	unsigned char	removable;	/* removable device */
 #ifdef CONFIG_LBA48
@@ -140,6 +142,8 @@ int host_get_dev_err(int dev, block_dev_desc_t **blk_devp);
 /* disk/part.c */
 int get_partition_info(block_dev_desc_t *dev_desc, int part,
 			disk_partition_t *info);
+int get_partition_info_whole_disk(block_dev_desc_t *dev_desc,
+		       disk_partition_t *info);
 void print_part(block_dev_desc_t *dev_desc);
 void  init_part(block_dev_desc_t *dev_desc);
 void dev_print(block_dev_desc_t *dev_desc);

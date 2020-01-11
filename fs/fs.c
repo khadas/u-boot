@@ -29,6 +29,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static block_dev_desc_t *fs_dev_desc;
+static int fs_dev_part;
 static disk_partition_t fs_partition;
 static int fs_type = FS_TYPE_ANY;
 
@@ -42,6 +43,35 @@ static inline int fs_probe_unsupported(block_dev_desc_t *fs_dev_desc,
 static inline int fs_ls_unsupported(const char *dirname)
 {
 	return -1;
+}
+
+/* generic implementation of ls in terms of opendir/readdir/closedir */
+__maybe_unused
+static int fs_ls_generic(const char *dirname)
+{
+	struct fs_dir_stream *dirs;
+	struct fs_dirent *dent;
+	int nfiles = 0, ndirs = 0;
+
+	dirs = fs_opendir(dirname);
+	if (!dirs)
+		return -errno;
+
+	while ((dent = fs_readdir(dirs))) {
+		if (dent->type == FS_DT_DIR) {
+			printf("            %s/\n", dent->name);
+			ndirs++;
+		} else {
+			printf(" %8lld   %s\n", dent->size, dent->name);
+			nfiles++;
+		}
+	}
+
+	fs_closedir(dirs);
+
+	printf("\n%d file(s), %d dir(s)\n\n", nfiles, ndirs);
+
+	return 0;
 }
 
 static inline int fs_exists_unsupported(const char *filename)
@@ -77,8 +107,25 @@ static inline int fs_uuid_unsupported(char *uuid_str)
 	return -1;
 }
 
+static inline int fs_opendir_unsupported(const char *filename,
+					 struct fs_dir_stream **dirs)
+{
+	return -EACCES;
+}
+
+static inline int fs_unlink_unsupported(const char *filename)
+{
+	return -1;
+}
+
+static inline int fs_mkdir_unsupported(const char *dirname)
+{
+	return -1;
+}
+
 struct fstype_info {
 	int fstype;
+	char *name;
 	/*
 	 * Is it legal to pass NULL as .probe()'s  fs_dev_desc parameter? This
 	 * should be false in most cases. For "virtual" filesystems which
@@ -99,30 +146,52 @@ struct fstype_info {
 		     loff_t len, loff_t *actwrite);
 	void (*close)(void);
 	int (*uuid)(char *uuid_str);
+	/*
+	 * Open a directory stream.  On success return 0 and directory
+	 * stream pointer via 'dirsp'.  On error, return -errno.  See
+	 * fs_opendir().
+	 */
+	int (*opendir)(const char *filename, struct fs_dir_stream **dirsp);
+	/*
+	 * Read next entry from directory stream.  On success return 0
+	 * and directory entry pointer via 'dentp'.  On error return
+	 * -errno.  See fs_readdir().
+	 */
+	int (*readdir)(struct fs_dir_stream *dirs, struct fs_dirent **dentp);
+	/* see fs_closedir() */
+	void (*closedir)(struct fs_dir_stream *dirs);
+	int (*unlink)(const char *filename);
 };
 
 static struct fstype_info fstypes[] = {
 #ifdef CONFIG_FS_FAT
 	{
 		.fstype = FS_TYPE_FAT,
+		.name = "fat",
 		.null_dev_desc_ok = false,
 		.probe = fat_set_blk_dev,
 		.close = fat_close,
-		.ls = file_fat_ls,
+		.ls = fs_ls_generic,
 		.exists = fat_exists,
 		.size = fat_size,
 		.read = fat_read_file,
 #ifdef CONFIG_FAT_WRITE
 		.write = file_fat_write,
+		.unlink = fat_unlink,
 #else
 		.write = fs_write_unsupported,
+		.unlink = fs_unlink_unsupported,
 #endif
 		.uuid = fs_uuid_unsupported,
+		.opendir = fat_opendir,
+		.readdir = fat_readdir,
+		.closedir = fat_closedir,
 	},
 #endif
 #ifdef CONFIG_FS_EXT4
 	{
 		.fstype = FS_TYPE_EXT,
+		.name = "ext4",
 		.null_dev_desc_ok = false,
 		.probe = ext4fs_probe,
 		.close = ext4fs_close,
@@ -136,11 +205,15 @@ static struct fstype_info fstypes[] = {
 		.write = fs_write_unsupported,
 #endif
 		.uuid = ext4fs_uuid,
+		.opendir = fs_opendir_unsupported,
+		.unlink = fs_unlink_unsupported,
+		//.mkdir = fs_mkdir_unsupported,
 	},
 #endif
 #ifdef CONFIG_SANDBOX
 	{
 		.fstype = FS_TYPE_SANDBOX,
+		.name = "sandbox",
 		.null_dev_desc_ok = true,
 		.probe = sandbox_fs_set_blk_dev,
 		.close = sandbox_fs_close,
@@ -150,10 +223,14 @@ static struct fstype_info fstypes[] = {
 		.read = fs_read_sandbox,
 		.write = fs_write_sandbox,
 		.uuid = fs_uuid_unsupported,
+		.opendir = fs_opendir_unsupported,
+		.unlink = fs_unlink_unsupported,
+		//.mkdir = fs_mkdir_unsupported,
 	},
 #endif
 	{
 		.fstype = FS_TYPE_ANY,
+		.name = "unsupported",
 		.null_dev_desc_ok = true,
 		.probe = fs_probe_unsupported,
 		.close = fs_close_unsupported,
@@ -163,6 +240,9 @@ static struct fstype_info fstypes[] = {
 		.read = fs_read_unsupported,
 		.write = fs_write_unsupported,
 		.uuid = fs_uuid_unsupported,
+		.opendir = fs_opendir_unsupported,
+		.unlink = fs_unlink_unsupported,
+		//.mkdir = fs_mkdir_unsupported,
 	},
 };
 
@@ -178,6 +258,19 @@ static struct fstype_info *fs_get_info(int fstype)
 
 	/* Return the 'unsupported' sentinel */
 	return info;
+}
+
+/**
+ * fs_get_type_name() - Get type of current filesystem
+ *
+ * Return: Pointer to filesystem name
+ *
+ * Returns a string describing the current filesystem, or the sentinel
+ * "unsupported" for any unrecognised filesystem.
+ */
+const char *fs_get_type_name(void)
+{
+	return fs_get_info(fs_type)->name;
 }
 
 int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype)
@@ -215,6 +308,7 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype)
 
 		if (!info->probe(fs_dev_desc, &fs_partition)) {
 			fs_type = info->fstype;
+			fs_dev_part = part;
 			return 0;
 		}
 	}
@@ -222,6 +316,32 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype)
 	return -1;
 }
 
+/* set current blk device w/ blk_desc + partition # */
+int fs_set_blk_dev_with_part(block_dev_desc_t *desc, int part)
+{
+	struct fstype_info *info;
+	int ret, i;
+
+	if (part >= 1)
+		ret = get_partition_info(desc, part, &fs_partition);
+
+	else
+		ret = get_partition_info_whole_disk(desc, &fs_partition);
+
+	if (ret)
+		return ret;
+	fs_dev_desc = desc;
+
+	for (i = 0, info = fstypes; i < ARRAY_SIZE(fstypes); i++, info++) {
+		if (!info->probe(fs_dev_desc, &fs_partition)) {
+			fs_type = info->fstype;
+			fs_dev_part = part;
+			return 0;
+		}
+	}
+
+	return -1;
+}
 static void fs_close(void)
 {
 	struct fstype_info *info = fs_get_info(fs_type);
@@ -318,6 +438,72 @@ int fs_write(const char *filename, ulong addr, loff_t offset, loff_t len,
 		printf("** Unable to write file %s **\n", filename);
 		ret = -1;
 	}
+	fs_close();
+
+	return ret;
+}
+
+struct fs_dir_stream *fs_opendir(const char *filename)
+{
+	struct fstype_info *info = fs_get_info(fs_type);
+	struct fs_dir_stream *dirs = NULL;
+	int ret;
+
+	ret = info->opendir(filename, &dirs);
+	fs_close();
+	if (ret) {
+		errno = -ret;
+		return NULL;
+	}
+
+	dirs->desc = fs_dev_desc;
+	dirs->part = fs_dev_part;
+
+	return dirs;
+}
+
+struct fs_dirent *fs_readdir(struct fs_dir_stream *dirs)
+{
+	struct fstype_info *info;
+	struct fs_dirent *dirent;
+	int ret;
+
+	fs_set_blk_dev_with_part(dirs->desc, dirs->part);
+	info = fs_get_info(fs_type);
+
+	ret = info->readdir(dirs, &dirent);
+	fs_close();
+	if (ret) {
+		errno = -ret;
+		return NULL;
+	}
+
+	return dirent;
+}
+
+void fs_closedir(struct fs_dir_stream *dirs)
+{
+	struct fstype_info *info;
+
+	if (!dirs)
+		return;
+
+	fs_set_blk_dev_with_part(dirs->desc, dirs->part);
+	info = fs_get_info(fs_type);
+
+	info->closedir(dirs);
+	fs_close();
+}
+
+int fs_unlink(const char *filename)
+{
+	int ret;
+
+	struct fstype_info *info = fs_get_info(fs_type);
+
+	ret = info->unlink(filename);
+
+	fs_type = FS_TYPE_ANY;
 	fs_close();
 
 	return ret;
@@ -504,4 +690,18 @@ int do_fs_uuid(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		printf("%s\n", uuid);
 
 	return CMD_RET_SUCCESS;
+}
+int do_rm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+	  int fstype)
+{
+	if (argc != 4)
+		return CMD_RET_USAGE;
+
+	if (fs_set_blk_dev(argv[1], argv[2], fstype))
+		return 1;
+
+	if (fs_unlink(argv[3]))
+		return 1;
+
+	return 0;
 }
