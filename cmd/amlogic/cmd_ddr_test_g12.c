@@ -9744,6 +9744,7 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	#define G12_D2PLL_CMD_OVER_RIDE   0x02
 	#define G12_D2PLL_CMD_OVER_RIDE_PLUS_FULLTEST  0x03
 	#define G12_D2PLL_CMD_OVER_RIDE_TRAINING_HDTL  0x04
+	#define G12_D2PLL_CMD_OFFSET 0x06
 	#define G12_D2PLL_CMD_WINDOW_TEST  0x11
 	#define G12_D2PLL_CMD_WINDOW_TEST_AND_STICKY_OVERRIDE  0x12
 	#define G12_D2PLL_CMD_SUSPEND_TEST  0x21
@@ -11042,8 +11043,9 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	uint32_t auto_window_test_dq_size=0;
 	char pattern_dis_scramble=0;
 	uint32_t stick_dmc_ddr_window_test_read_vref_offset_value=0;
-	uint32_t  ddr_set_size=0;
+	uint32_t ddr_set_size=0;
 	uint32_t need_ddr_window_test=0;
+	uint32_t skip_window_test_enable=0;
 	if (argc>1)
 	{
 		auto_window_test_enable_item = simple_strtoull_ddr(argv[1], &endp, 0);
@@ -11062,11 +11064,17 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		if (*argv[3] == 0 || *endp != 0)
 		pattern_dis_scramble=0;
 	}
-		if (argc>4)
+	if (argc>4)
 	{
 		stick_dmc_ddr_window_test_read_vref_offset_value = simple_strtoull_ddr(argv[4], &endp, 0);
 		if (*argv[4] == 0 || *endp != 0)
 		stick_dmc_ddr_window_test_read_vref_offset_value=0;
+	}
+	if (argc>5)
+	{
+		skip_window_test_enable = simple_strtoull_ddr(argv[5], &endp, 0);
+		if (*argv[5] == 0 || *endp != 0)
+		skip_window_test_enable=0;
 	}
 	char str[1024]="";
 	int verify_error=0;
@@ -11117,6 +11125,7 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	}
 	else
 		return 1 ;
+
 	if (enable_ddr_check_boot_reason)
 	{
 		boot_reason=0;//ddr_set_t_p->boot_reason
@@ -11137,6 +11146,7 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		//sprintf(str,"save");
 		//printf("\nstr=%s\n",str);
 		//run_command(str,0);
+
 		if (boot_reason == 0)
 		{
 			if ((ddr_set_t_p->fast_boot[0])<0xfe)
@@ -11177,7 +11187,11 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		printf("\nuboot  auto fast boot  auto window test is done \n");
 		return 1 ;
 	}
-
+	if (skip_window_test_enable)
+	{
+		printf("enable skip window test fast boot mode! \n");
+		ddr_set_t_p->fast_boot[0]=0xfe;
+	}
 	printf("\n(ddr_set_t_p->fast_boot[0])==0x%08x\n",(ddr_set_t_p->fast_boot[0]));
 
 	if ((ddr_set_t_p->fast_boot[0])<0xfe)
@@ -11298,9 +11312,9 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	#if 0
 		{
 		#ifdef USE_FOR_UBOOT_2018
-		sprintf(str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,write_size);
+		sprintf (str,"store rsv write ddr-parameter 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,write_size);
 		#else
-		sprintf(str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,write_size);
+		sprintf (str,"store ddr_parameter write 0x%08x 0x%08x ",ddr_set_add-SHA256_SUM_LEN,write_size);
 		#endif
 		printf("\nstr=%s\n",str);
 		run_command(str,0);
