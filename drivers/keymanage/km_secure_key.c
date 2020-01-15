@@ -119,7 +119,7 @@ int keymanage_secukey_read(const char* keyname, void* databuf,  unsigned buflen)
         return __LINE__;
     }
 
-	const ssize_t readLen = amlkey_read((uint8_t*)keyname, (uint8_t*)databuf, buflen);
+    const ssize_t readLen = amlkey_read((uint8_t*)keyname, (uint8_t*)databuf, buflen);
     if (readLen != buflen) {
         KM_ERR("key[%s], want read %u Bytes, but %zd bytes\n", keyname, buflen, readLen);
         return __LINE__;

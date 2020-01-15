@@ -70,12 +70,27 @@ static KmDevKeyOps _efuseKeyOps = {
         .can_overwrite       = 0                               ,
 };
 
+static KmDevKeyOps _provisionKeyOps = {
+        .pInitFunc           = keymanage_provision_init				,
+        .pUninitFunc         = keymanage_provision_exit				,
+        .pWriteFunc          = keymanage_provision_write			,
+        .pGetSize            = keymanage_provision_size				,
+        .pKeyExist           = keymanage_provision_exist			,
+        .pKeyCanRead         = keymanage_provision_query_can_read	,
+        .pReadFunc           = keymanage_provision_read				,
+
+        .can_overwrite       = 1									,
+};
+
+
 #define _KM_DEV_INDEX_SECUREKEY         0
 #define _KM_DEV_INDEX_EFUSE             1
+#define _KM_DEV_INDEX_PROVISION			2
 
 static KmDevKeyOps* _km_devKeyOpsArr[] = {
             [_KM_DEV_INDEX_SECUREKEY]      = &_SecukeyOps,
             [_KM_DEV_INDEX_EFUSE]          = &_efuseKeyOps,
+            [_KM_DEV_INDEX_PROVISION]	   = &_provisionKeyOps,
 };
 
 static const int _KM_DEVCNT = sizeof(_km_devKeyOpsArr) / sizeof(_km_devKeyOpsArr[0]);
@@ -235,6 +250,10 @@ static const KmDevKeyOps* _get_km_ops_by_name(const char* keyname)
             }
             break;
 
+        case KEY_M_PROVISION_KEY:
+            theDevOps = _km_devKeyOpsArr[_KM_DEV_INDEX_PROVISION];
+            break;
+
         case KEY_M_UNKNOW_DEV:
         default:
             KM_ERR("key %s not know device %d\n", keyname, theDevice);
@@ -330,7 +349,6 @@ int key_unify_read(const char *keyname, void* keydata, const unsigned bufLen)
 
 int key_unify_query_size(const char* keyname, ssize_t* keysize)
 {
-    int ret = 0;
     const KmDevKeyOps* theDevOps  = NULL;
 
     theDevOps = _get_km_ops_by_name(keyname);
@@ -339,11 +357,13 @@ int key_unify_query_size(const char* keyname, ssize_t* keysize)
         return __LINE__;
     }
 
-    ret = theDevOps->pKeyCanRead(keyname);
+#if 0
+    int ret = theDevOps->pKeyCanRead(keyname);
     if (!ret) {
         KM_ERR("key[%s] can't read as it's secure\n", keyname);
         return __LINE__;
     }
+#endif
 
     *keysize = theDevOps->pGetSize(keyname);
 

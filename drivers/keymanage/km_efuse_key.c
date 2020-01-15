@@ -84,6 +84,11 @@ ssize_t keymanage_efuse_size(const char* keyname)
     int ret = 0;
     unsigned cfgSz = 0;
 
+    if (!strcmp(SECURE_BOOT_KEY_NAME, keyname)) {
+        KM_ERR("efuse pattern cannot be query[%s]\n", keyname);
+        return 0;
+    }
+
     ret = efuse_usr_api_get_cfg_key_size(keyname, &cfgSz);
     if (ret || !cfgSz) {
         KM_ERR("Fail at get cfg size for efuse key[%s]\n", keyname);

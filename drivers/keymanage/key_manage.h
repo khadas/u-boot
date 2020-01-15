@@ -26,6 +26,7 @@ enum key_manager_dev_e{
     KEY_M_EFUSE_NORMAL,
     KEY_M_SECURE_KEY,       //secure nandkey/emmckey
     KEY_M_NORAML_KEY,       //non-secure nandkey/emmckey
+    KEY_M_PROVISION_KEY,	//provision key
     KEY_M_MAX_DEV,
 };
 

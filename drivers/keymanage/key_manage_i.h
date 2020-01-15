@@ -61,5 +61,14 @@ int keymanage_secukey_exist(const char* keyname);
 int keymanage_secukey_can_read(const char* keyname);
 int keymanage_secukey_read(const char* keyname, void* databuf,  unsigned buflen);
 
+//provision key ops
+int keymanage_provision_init(const char *buf, int len);
+int keymanage_provision_exit(void);
+int keymanage_provision_write(const char *keyname, const void* keydata, unsigned int datalen);
+ssize_t keymanage_provision_size(const char* keyname);
+int keymanage_provision_exist(const char* keyname);
+int keymanage_provision_query_can_read(const char* keyname);
+int keymanage_provision_read(const char *keyname, void* databuf, const unsigned bufSz);
+
 #endif//#ifndef __KEY_MANAGE_I_H__
 

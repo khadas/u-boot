@@ -29,6 +29,7 @@ Description:
 #define UNIFYKEY_DEVICE_EFUSEKEY	"efuse"
 #define UNIFYKEY_DEVICE_NORMAL		"normal"
 #define UNIFYKEY_DEVICE_SECURESKEY	"secure"
+#define UNIFYKEY_DEVICE_PROVSIONKEY	"provision"
 
 #define UNIFYKEY_PERMIT_READ		"read"
 #define UNIFYKEY_PERMIT_WRITE		"write"
@@ -215,6 +216,9 @@ static int unifykey_item_dt_parse(const void* dt_addr,int nodeoffset,int id,char
     else if(strcmp(propdata,UNIFYKEY_DEVICE_NORMAL) == 0){
         temp_item->dev = KEY_M_NORAML_KEY;
     }
+    else if (!strcmp(propdata, UNIFYKEY_DEVICE_PROVSIONKEY)) {
+        temp_item->dev = KEY_M_PROVISION_KEY;
+    }
     else{
         KM_ERR("key-device %s is unknown at key_%d\n", propdata, id);
         return __LINE__;
@@ -338,7 +342,7 @@ int keymanage_dts_parse(const void* dt_addr)
 		KM_ERR("unifykey-num is not configured\n");
         return __LINE__;
 	}
-    if (unify_key_info.key_num > 32) {
+    if (unify_key_info.key_num > 256) {
         KM_ERR("Cfg key_num is %d > 32,pls check!\n", unify_key_info.key_num);
         return __LINE__;
     }

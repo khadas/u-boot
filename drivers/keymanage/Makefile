@@ -28,4 +28,5 @@ aml_key_manage-y 						 	   += key_manage.o
 aml_key_manage-$(CONFIG_OF_LIBFDT) 				+= km_dts.o
 aml_key_manage-$(CONFIG_AML_SECURITY_KEY) 		+= km_secure_key.o
 aml_key_manage-$(CONFIG_EFUSE) 					+= km_efuse_key.o
+aml_key_manage-y 								+= km_provision_key.o
 
