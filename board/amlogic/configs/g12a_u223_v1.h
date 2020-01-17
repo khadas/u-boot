@@ -656,7 +656,10 @@
 //#undef CONFIG_AML_NAND
 
 //unify build for generate encrypted bootloader "u-boot.bin.encrypt"
-#define CONFIG_AML_CRYPTO_UBOOT   1
+//#define CONFIG_AML_CRYPTO_UBOOT   1
+//For secure boot v3, need to rename this value to CONFIG_AML_SIGNED_UBOOT
+//#define CONFIG_AML_SIGNED_UBOOT   1
+//#define CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
 
 //unify build for generate encrypted kernel image
 //SRC : "board/amlogic/(board)/boot.img"

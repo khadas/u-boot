@@ -89,6 +89,7 @@ typedef struct{
 #define COMPILE_TYPE_ASSERT(expr, t)       typedef char t[(expr) ? 1 : -1]
 COMPILE_TYPE_ASSERT(2048 >= sizeof(AmlSecureBootImgHeader), _cc);
 
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
 static int is_andr_9_image(void* pBuffer)
 {
     int nReturn = 0;
@@ -106,6 +107,7 @@ exit:
 
     return nReturn;
 }
+#endif
 
 typedef struct {
 uint32_t magic;
@@ -119,6 +121,7 @@ uint8_t reserved[200];
 uint8_t rsa_sig[256];
 } aml_boot_header_t;
 
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
 static int _aml_get_secure_boot_kernel_size(const void* pLoadaddr, unsigned* pTotalEncKernelSz)
 {
     const AmlEncryptBootImgInfo*  amlEncrypteBootimgInfo = 0;
@@ -196,7 +199,7 @@ static int _aml_get_secure_boot_kernel_size(const void* pLoadaddr, unsigned* pTo
     *pTotalEncKernelSz = secureKernelImgSz;
     return 0;
 }
-
+#endif
 
 static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -233,11 +236,13 @@ static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
         return __LINE__;
     }
 
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
     nReturn = _aml_get_secure_boot_kernel_size(loadaddr, &secureKernelImgSz);
     if (nReturn) {
         errorP("Fail in _aml_get_secure_boot_kernel_size, rc=%d\n", nReturn);
         return __LINE__;
     }
+#endif
 
     const int pageSz = hdr_addr->page_size;
     /*lflashReadOff += secureKernelImgSz ? sizeof(AmlSecureBootImgHeader) : pageSz;*/

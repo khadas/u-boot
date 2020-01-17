@@ -373,6 +373,7 @@ int is_device_unlocked(void)
 int avb_verify(AvbSlotVerifyData** out_data)
 {
     /* The last slot must be NULL */
+    const char * requested_partitions_ab[AVB_NUM_SLOT + 1] = {"boot", NULL, NULL, NULL, NULL};
     const char * requested_partitions[AVB_NUM_SLOT + 1] = {"boot", "dtb", NULL, NULL, NULL};
     AvbSlotVerifyResult result = AVB_SLOT_VERIFY_RESULT_OK;
     char *s1;
@@ -412,7 +413,12 @@ int avb_verify(AvbSlotVerifyData** out_data)
         }
     }
 
-    result = avb_slot_verify(&avb_ops_, requested_partitions, ab_suffix,
+    if (!strcmp(ab_suffix, ""))
+        result = avb_slot_verify(&avb_ops_, requested_partitions, ab_suffix,
+            flags,
+            AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE, out_data);
+    else
+        result = avb_slot_verify(&avb_ops_, requested_partitions_ab, ab_suffix,
             flags,
             AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE, out_data);
 
