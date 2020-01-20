@@ -212,7 +212,7 @@ int amlnand_get_partition_table(struct amlnand_chip *aml_chip)
 		memcpy(amlnand_config[i].name, part_table[i].name, MAX_PART_NAME_LEN);
 		amlnand_config[i].size = part_table[i].size;
 		amlnand_config[i].offset = part_table[i].offset;
-		amlnand_config[i].mask_flags = part_table[i].mask_flags;
+		amlnand_config[i].mask_flags = (part_table[i].mask_flags & 0x0f);
 
 		if (amlnand_config[i].mask_flags == STORE_CACHE) {
 			aml_chip->h_cache_dev = 1;/*have cache dev*/
