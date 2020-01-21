@@ -1378,7 +1378,6 @@ _out:
 	return ret;
 }
 
-
 struct partitions *find_mmc_partition_by_name (char *name)
 {
 	struct partitions *partition = NULL;
@@ -1447,6 +1446,21 @@ static inline uint64_t get_part_offset(struct partitions *part, int num)
 static inline char * get_part_name(struct partitions *part, int num)
 {
     return (char *)part[num].name;
+}
+
+unsigned get_part_tbl_from_ept(int num, char *name)
+{
+    struct partitions *part = NULL;
+
+    if (NULL == p_iptbl_ept)
+        return -1;
+    if (num > (p_iptbl_ept->count-1))
+        return -1;
+
+    part =  p_iptbl_ept->partitions;
+    strcpy(name, get_part_name(part, num));
+
+    return part[num].mask_flags;
 }
 
 int get_part_info_from_tbl(block_dev_desc_t *dev_desc,
