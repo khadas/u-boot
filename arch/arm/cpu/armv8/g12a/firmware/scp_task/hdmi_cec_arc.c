@@ -454,20 +454,29 @@ static void cec_report_device_power_status(int dst)
 
 static void cec_set_stream_path(void)
 {
-	/*unsigned char phy_addr_ab = (readl(AO_DEBUG_REG1) >> 8) & 0xff;*/
-	/*unsigned char phy_addr_cd = readl(AO_DEBUG_REG1) & 0xff;*/
+	unsigned char phy_addr_ab = (readl(AO_DEBUG_REG1) >> 8) & 0xff;
+	unsigned char phy_addr_cd = readl(AO_DEBUG_REG1) & 0xff;
+	unsigned char phy_ab = cec_msg.buf[cec_msg.rx_read_pos].msg[2];
+	unsigned char phy_cd = cec_msg.buf[cec_msg.rx_read_pos].msg[3];
 
 	if ((hdmi_cec_func_config >> CEC_FUNC_MASK) & 0x1) {
 		if ((hdmi_cec_func_config >> AUTO_POWER_ON_MASK) & 0x1) {
 			/* some tv send a wrong phy address */
-			/*if ((phy_addr_ab == cec_msg.buf[cec_msg.rx_read_pos].msg[2]) &&*/
-			/*    (phy_addr_cd == cec_msg.buf[cec_msg.rx_read_pos].msg[3]))*/  {
+			if ((phy_addr_ab == phy_ab) &&
+			    (phy_addr_cd == phy_cd)) {
 				cec_msg.cec_power = 0x1;
 				uart_puts("stream_path pw on\n");
 			}
+			/*cec_dbg_print("phy addr  match:0x", phy_addr_ab);*/
+			/*cec_dbg_print("", phy_addr_cd);*/
+			/*uart_puts("\n");*/
+			/*cec_dbg_print("input:0x", phy_ab);*/
+			/*cec_dbg_print("", phy_cd);*/
+			/*uart_puts("\n");*/
 		}
 	}
 }
+
 
 void cec_routing_change(void)
 {
