@@ -72,6 +72,7 @@ struct partitions {
 	uint64_t size;			/* partition size */
 	uint64_t offset;		/* offset within the master space */
 	unsigned mask_flags;		/* master flags to mask out for this partition */
+	unsigned protect_flags; /*protect partition*/
 };
 
 struct config_nand {

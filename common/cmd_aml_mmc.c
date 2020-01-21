@@ -184,6 +184,8 @@ static int pwm_voltage_table_ee[][2] = {
 #define fb_err(fmt, ...)   printf("%s()-%d: " fmt , \
 				__func__, __LINE__, ##__VA_ARGS__)
 
+extern unsigned get_part_tbl_from_ept(int num, char *name);
+
 struct aml_dtb_rsv {
 	u8 data[DTB_BLK_SIZE*DTB_BLK_CNT - 4*sizeof(u32)];
 	u32 magic;
@@ -755,93 +757,17 @@ static int amlmmc_erase_by_add(int argc, char *const argv[])
 	return ret;
 }
 
-static int amlmmc_erase_non_loader(int argc, char *const argv[])
+static int _amlmmc_erase_single_part(int dev, struct mmc *mmc, char *name)
 {
-	int dev;
-	u32 n = 0;
-	int blk_shift;
-	u64 blk = 0, start_blk = 0;
-	struct partitions *part_info;
-	struct mmc *mmc;
-
-	dev = 1;
-	mmc = find_mmc_device(dev);
-	if (!mmc)
-		return 1;
-
-	mmc_init(mmc);
-
-	blk_shift =  mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len) - 1 : 0;
-	part_info = find_mmc_partition_by_name(MMC_BOOT_NAME);
-
-	if (part_info == NULL) {
-		start_blk = 0;
-		printf("no uboot partition for eMMC boot, just erase from 0\n");
-	}
-	else
-		start_blk = (part_info->offset + part_info->size) >> blk_shift;
-
-	if (emmckey_is_protected(mmc)) {
-		part_info = find_mmc_partition_by_name(MMC_RESERVED_NAME);
-		if (part_info == NULL) {
-			return 1;
-		}
-		blk = part_info->offset;
-		// it means: there should be other partitions before reserve-partition.
-		if (blk > 0)
-			blk -= PARTITION_RESERVED;
-		blk >>= blk_shift;
-		blk -= start_blk;
-		// (1) erase all the area before reserve-partition
-		if (blk > 0)
-			n = mmc->block_dev.block_erase(dev, start_blk, blk);
-		if (n == 0) { // not error
-			// (2) erase all the area after reserve-partition
-			start_blk = (part_info->offset + part_info->size + PARTITION_RESERVED)
-						 >> blk_shift;
-			u64 erase_cnt = (mmc->capacity >> blk_shift) - start_blk;
-			n = mmc->block_dev.block_erase(dev, start_blk, erase_cnt);
-		}
-	} else {
-		n = mmc->block_dev.block_erase(dev, start_blk, 0); // erase the whole card
-	}
-	return (n == 0) ? 0 : 1;
-}
-
-static int amlmmc_erase_single_part(int argc, char *const argv[])
-{
-	char *name = NULL;
-	int dev;
 	u32 n = 0;
 	int blk_shift;
 	u64 cnt = 0, blk = 0;
 	struct partitions *part_info;
-	struct mmc *mmc;
-	name = argv[2];
-	dev = find_dev_num_by_partition_name(name);
-	if (dev < 0) {
-		printf("Cannot find dev.\n");
-		return 1;
-	}
-	mmc = find_mmc_device(dev);
-
-	if (!mmc)
-		return 1;
-
-	mmc_init(mmc);
 
 	blk_shift =  mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len) - 1 : 0;
-	if (emmckey_is_protected(mmc)
-		&& (strncmp(name, MMC_RESERVED_NAME, sizeof(MMC_RESERVED_NAME)) == 0x00)) {
-		printf("\"%s-partition\" is been protecting and should no be erased!\n",
-				MMC_RESERVED_NAME);
-		return 1;
-	}
-
 	part_info = find_mmc_partition_by_name(name);
-	if (part_info == NULL) {
+	if (part_info == NULL)
 		return 1;
-	}
 
 	blk = part_info->offset >> blk_shift;
 	if (emmc_cur_partition && !strncmp(name, "bootloader", strlen("bootloader")))
@@ -853,169 +779,121 @@ static int amlmmc_erase_single_part(int argc, char *const argv[])
 	return (n == 0) ? 0 : 1;
 }
 
-static int amlmmc_erase_whole(int argc, char *const argv[])
+static int _amlmmc_erase_partition(int dev, struct mmc *mmc, char *exclude_name)
 {
-	char *name = NULL;
-	int dev;
+	int num = 0;
+	unsigned protect_mask = MMC_PARTITION_PROTECT_MASK;
+	unsigned protect_key;
 	u32 n = 0;
-	int blk_shift;
-	//u64 cnt = 0,
-	u64 blk = 0, start_blk = 0;
-	struct partitions *part_info;
-	struct mmc *mmc;
-	int map;
+	int ret = 0;
+	unsigned mask_flags;
+	char name[MAX_PART_NAME_LEN];
+	protect_key = emmckey_is_protected(mmc);
 
-	name = "logo";
-	dev = find_dev_num_by_partition_name(name);
-	if (dev < 0) {
-		printf("Cannot find dev.\n");
-		return 1;
+	if (!protect_key && !strcmp(exclude_name, "none")) {
+		n = mmc->block_dev.block_erase(dev, 0, 0);
+		return (n == 0) ? 0 : 1;
 	}
-	mmc = find_mmc_device(dev);
-	if (!mmc)
-		return 1;
-	mmc_init(mmc);
-	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len) - 1 : 0;
-	start_blk = 0;
 
-	if (emmckey_is_protected(mmc)) {
-		part_info = find_mmc_partition_by_name(MMC_RESERVED_NAME);
-		if (part_info == NULL) {
-			return 1;
+	while (get_part_tbl_from_ept(num, name) != -1) {
+		mask_flags = get_part_tbl_from_ept(num, name);
+		if ((mask_flags & protect_mask) && protect_key)
+			printf("%-10s partition is protected\n", name);
+		else if (!strcmp(name, exclude_name))
+			printf("%-10s partition is keeped\n", name);
+		else if (protect_key && !strcmp(name, MMC_RESERVED_NAME))
+			printf("%-10s partition is protected\n", name);
+		else {
+			printf("%-10s partition is erased: ", name);
+			ret |= _amlmmc_erase_single_part(dev, mmc, name);
 		}
-		blk = part_info->offset;
-		// it means: there should be other partitions before reserve-partition.
-		if (blk > 0)
-			blk -= PARTITION_RESERVED;
-		blk >>= blk_shift;
-		blk -= start_blk;
-		// (1) erase all the area before reserve-partition
-		if (blk > 0)
-			n = mmc->block_dev.block_erase(dev, start_blk, blk);
-		if (n == 0) { // not error
-			// (2) erase all the area after reserve-partition
-			start_blk = (part_info->offset + part_info->size + PARTITION_RESERVED)
-						 >> blk_shift;
-			u64 erase_cnt = (mmc->capacity >> blk_shift) - start_blk;
-			n = mmc->block_dev.block_erase(dev, start_blk, erase_cnt);
-		}
-	} else {
-		n = mmc->block_dev.block_erase(dev, start_blk, 0); // erase the whole card
+		num++;
 	}
-	map = AML_BL_BOOT;
-	if (n == 0)
-		n = amlmmc_erase_bootloader(dev, map);
-	if (n)
+
+	return ret;
+}
+
+static int amlmmc_erase_non_loader(int dev, struct mmc *mmc)
+{
+	return _amlmmc_erase_partition(dev, mmc, MMC_BOOT_NAME);
+}
+
+static int amlmmc_erase_single_part(int dev, struct mmc *mmc, char *name)
+{
+	return _amlmmc_erase_single_part(dev, mmc, name);
+}
+
+static int amlmmc_erase_whole(int dev, struct mmc *mmc)
+{
+	int ret = 0;
+
+	ret = _amlmmc_erase_partition(dev, mmc, "none");
+
+	if (ret == 0)
+		ret = amlmmc_erase_bootloader(dev, AML_BL_BOOT);
+	if (ret)
 		printf("erase bootloader in boot partition failed\n");
-	return (n == 0) ? 0 : 1;
+
+	return (ret == 0) ? 0 : 1;
 }
 
-static int amlmmc_erase_non_cache(int arc, char *const argv[])
+static int amlmmc_erase_non_cache(int dev, struct mmc *mmc)
 {
-	char *name = NULL;
-	int dev;
-	u32 n = 0;
-	int blk_shift;
-	u64 blk = 0, start_blk = 0;
-	struct partitions *part_info;
-	struct mmc *mmc;
-	int map;
+	u32 ret = 0;
 
-	name = "logo";
-	dev = find_dev_num_by_partition_name(name);
-	if (dev < 0) {
-		printf("Cannot find dev.\n");
-		return 1;
-	}
-	mmc = find_mmc_device(dev);
-	if (!mmc)
-		return 1;
-	mmc_init(mmc);
-	blk_shift = mmc->read_bl_len > 0 ? ffs(mmc->read_bl_len) - 1 : 0;
-	if (emmckey_is_protected(mmc)) {
-		part_info = find_mmc_partition_by_name(MMC_RESERVED_NAME);
-		if (part_info == NULL) {
-			return 1;
-		}
-		blk = part_info->offset;
-		// it means: there should be other partitions before reserve-partition.
-		if (blk > 0) {
-			blk -= PARTITION_RESERVED;
-		}
-		blk >>= blk_shift;
-		blk -= start_blk;
-		// (1) erase all the area before reserve-partition
-		if (blk > 0) {
-			n = mmc->block_dev.block_erase(dev, start_blk, blk);
-			// printf("(1) erase blk: 0 --> %llx %s\n", blk, (n == 0) ? "OK" : "ERROR");
-		}
-		if (n == 0) { // not error
-			// (2) erase all the area after reserve-partition
-			part_info = find_mmc_partition_by_name(MMC_CACHE_NAME);
-			if (part_info == NULL) {
-				return 1;
-			}
-			start_blk = (part_info->offset + part_info->size + PARTITION_RESERVED)
-				>> blk_shift;
-			u64 erase_cnt = (mmc->capacity >> blk_shift) - start_blk;
-			n = mmc->block_dev.block_erase(dev, start_blk, erase_cnt);
-		}
-	} else {
-		n = mmc->block_dev.block_erase(dev, start_blk, 0); // erase the whole card
-	}
-	map = AML_BL_BOOT;
-	if (n == 0) {
-		n = amlmmc_erase_bootloader(dev, map);
-		if (n)
-		printf("erase bootloader in boot partition failed\n");
-	}
-	return (n == 0) ? 0 : 1;
+	ret = _amlmmc_erase_partition(dev, mmc, MMC_CACHE_NAME);
+
+	if (ret == 0)
+		ret = amlmmc_erase_bootloader(dev, AML_BL_BOOT);
+	if (ret)
+			printf("erase bootloader in boot partition failed\n");
+
+	return (ret == 0) ? 0 : 1;
 }
 
-static int amlmmc_erase_dev(int argc, char *const argv[])
+static int amlmmc_erase_dev(int dev, struct mmc *mmc)
 {
-	return amlmmc_erase_whole(argc, argv);
+	return amlmmc_erase_whole(dev, mmc);
 }
 
-static int amlmmc_erase_allbootloader(int argc, char*const argv[])
+static int amlmmc_erase_allbootloader(int dev, struct mmc *mmc)
 {
-	int map;
-	int rc;
-	char *name = NULL;
-	int dev;
-	map = AML_BL_ALL;
-
-	name = "bootloader";
-	dev = find_dev_num_by_partition_name(name);
-
-	if (dev < 0) {
-		printf("Cannot find dev.\n");
-		return 1;
-	}
-
-	rc = amlmmc_erase_bootloader(dev, map);
-	return rc;
+	return amlmmc_erase_bootloader(dev, AML_BL_ALL);
 }
 
 static int amlmmc_erase_by_part(int argc, char *const argv[])
 {
 	int ret = CMD_RET_USAGE;
+	char *name = "logo";
+	struct mmc *mmc;
+	int dev;
 
 	if (argc != 3)
 		return ret;
 
+	dev = find_dev_num_by_partition_name(name);
+	if (dev < 0) {
+		printf("Cannot find dev.\n");
+		return 1;
+	}
+	mmc = find_mmc_device(dev);
+	if (!mmc)
+		return 1;
+	mmc_init(mmc);
+
 	if (isdigit(argv[2][0]))
-		ret = amlmmc_erase_dev(argc, argv);
+		ret = amlmmc_erase_dev(dev, mmc);
 	else if (strcmp(argv[2], "whole") == 0)
-		ret = amlmmc_erase_whole(argc, argv);
+		ret = amlmmc_erase_whole(dev, mmc);
 	else if (strcmp(argv[2], "non_cache") == 0)
-		ret = amlmmc_erase_non_cache(argc, argv);
+		ret = amlmmc_erase_non_cache(dev, mmc);
 	else if (strcmp(argv[2], "non_loader") == 0)
-		ret = amlmmc_erase_non_loader(argc, argv);
+		ret = amlmmc_erase_non_loader(dev, mmc);
 	else if (strcmp(argv[2], "allbootloader") == 0)
-		ret = amlmmc_erase_allbootloader(argc, argv);
+		ret = amlmmc_erase_allbootloader(dev, mmc);
 	else
-		ret = amlmmc_erase_single_part(argc, argv);
+		ret = amlmmc_erase_single_part(dev, mmc, argv[2]);
+
 	return ret;
 }
 
