@@ -1980,6 +1980,36 @@ static struct hdmi_format_para fmt_para_vesa_3440x1440p60_43x18 = {
 	},
 };
 
+static struct hdmi_format_para fmt_para_vesa_2400x1200p90_2x1 = {
+	.vic = HDMIV_2400x1200p90hz,
+	.name = "2400x1200p90hz",
+	.sname = "2400x1200p90hz",
+	.pixel_repetition_factor = 0,
+	.progress_mode = 1,
+	.scrambler_en = 0,
+	.tmds_clk_div40 = 0,
+	.tmds_clk = 280000,
+	.timing = {
+		.pixel_freq = 280000,
+		.h_freq = 112812,
+		.v_freq = 90106,
+		.vsync_polarity = 1,
+		.hsync_polarity = 1,
+		.h_active = 2400,
+		.h_total = 2482,
+		.h_blank = 82,
+		.h_front = 20,
+		.h_sync = 30,
+		.h_back = 32,
+		.v_active = 1200,
+		.v_total = 1252,
+		.v_blank = 52,
+		.v_front = 17,
+		.v_sync = 5,
+		.v_back = 30,
+		.v_sync_ln = 1,
+	},
+};
 
 static struct hdmi_format_para *all_fmt_paras[] = {
 	&fmt_para_3840x2160p60_y420_16x9,
@@ -2045,6 +2075,7 @@ static struct hdmi_format_para *all_fmt_paras[] = {
 	&fmt_para_vesa_2560x1440p60_16x9,
 	&fmt_para_vesa_2560x1600p60_8x5,
 	&fmt_para_vesa_3440x1440p60_43x18,
+	&fmt_para_vesa_2400x1200p90_2x1,
 	&fmt_para_non_hdmi_fmt,
 	NULL,
 };
