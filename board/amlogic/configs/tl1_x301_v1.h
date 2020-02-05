@@ -587,12 +587,15 @@
 #endif
 
 #define CONFIG_AML_LCD    1
+#if defined(CONFIG_AML_LCD)
+#define CONFIG_AML_LCD_TCON 1
 #define CONFIG_AML_LCD_TABLET 1
 #define CONFIG_AML_LCD_TV 1
 #define CONFIG_AML_LCD_EXTERN 1
 
 #define CONFIG_AML_LOCAL_DIMMING
 #define CONFIG_AML_LOCAL_DIMMING_GLOBAL
+#endif
 
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard

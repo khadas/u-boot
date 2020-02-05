@@ -208,6 +208,12 @@ static void lcd_power_ctrl(int status)
 			break;
 		case LCD_POWER_TYPE_CLK_SS:
 			break;
+#ifdef CONFIG_AML_LCD_TCON
+		case LCD_POWER_TYPE_TCON_SPI_DATA_LOAD:
+			if (lcd_drv->lcd_tcon_spi_data_load)
+				lcd_drv->lcd_tcon_spi_data_load();
+			break;
+#endif
 		default:
 			break;
 		}
@@ -303,8 +309,6 @@ static void lcd_module_enable(char *mode, unsigned int frac)
 		if (boot_ctrl.lcd_init_level == LCD_INIT_LEVEL_NORMAL) {
 			lcd_interface_on();
 			lcd_backlight_enable();
-		} else {
-			lcd_tcon_data_probe();
 		}
 	}
 	if (!lcd_debug_test)
@@ -713,10 +717,12 @@ static int lcd_mode_probe(char *dt_addr, int load_id)
 
 	if (aml_lcd_driver.lcd_config->lcd_basic.lcd_type == LCD_VBYONE)
 		lcd_vbyone_filter_env_init(aml_lcd_driver.lcd_config);
+#ifdef CONFIG_AML_LCD_TCON
 	if ((aml_lcd_driver.chip_type == LCD_CHIP_TXHD) ||
 		(aml_lcd_driver.chip_type == LCD_CHIP_TL1) ||
 		(aml_lcd_driver.chip_type == LCD_CHIP_TM2))
 		lcd_tcon_probe(dt_addr, &aml_lcd_driver, load_id);
+#endif
 
 #ifdef CONFIG_AML_LCD_EXTERN
 	lcd_extern_load_config(dt_addr, aml_lcd_driver.lcd_config);
@@ -1029,16 +1035,6 @@ static void aml_lcd_key_test(void)
 	}
 }
 
-static void aml_lcd_key_tcon_test(void)
-{
-	if (aml_lcd_driver.unifykey_test_flag) {
-		aml_lcd_unifykey_tcon_test(1080);
-		lcd_config_probe();
-	} else {
-		printf("lcd unifykey test disabled\n");
-	}
-}
-
 static void aml_lcd_key_dump(unsigned int flag)
 {
 	unsigned int key_flag = LCD_UKEY_DEBUG_NORMAL;
@@ -1046,6 +1042,7 @@ static void aml_lcd_key_dump(unsigned int flag)
 	if (flag & (1 << 0)) {
 		key_flag = LCD_UKEY_DEBUG_NORMAL;
 	} else if (flag & (1 << 1)) {
+#ifdef CONFIG_AML_LCD_TCON
 		switch (aml_lcd_driver.chip_type) {
 		case LCD_CHIP_TXHD:
 			key_flag = (LCD_UKEY_DEBUG_TCON | LCD_UKEY_TCON_SIZE);
@@ -1057,6 +1054,7 @@ static void aml_lcd_key_dump(unsigned int flag)
 		default:
 			break;
 		}
+#endif
 	}
 	aml_lcd_unifykey_dump(key_flag);
 }
@@ -1091,10 +1089,18 @@ static struct aml_lcd_drv_s aml_lcd_driver = {
 	.lcd_clk = aml_lcd_clk,
 	.lcd_info = aml_lcd_info,
 	.lcd_reg = aml_lcd_reg,
+#ifdef CONFIG_AML_LCD_TCON
 	.lcd_tcon_reg_print = NULL,
 	.lcd_tcon_table_print = NULL,
+	.lcd_tcon_vac_print = NULL,
+	.lcd_tcon_demura_print = NULL,
+	.lcd_tcon_acc_print = NULL,
+	.lcd_tcon_data_print = NULL,
+	.lcd_tcon_spi_print = NULL,
+	.lcd_tcon_spi_data_load = NULL,
 	.lcd_tcon_reg_read = NULL,
 	.lcd_tcon_reg_write = NULL,
+#endif
 	.lcd_vbyone_rst = lcd_vbyone_rst,
 	.lcd_vbyone_cdr = lcd_vbyone_cdr,
 	.bl_on = aml_backlight_power_on,
@@ -1104,7 +1110,6 @@ static struct aml_lcd_drv_s aml_lcd_driver = {
 	.bl_config_print = aml_bl_config_print,
 	.unifykey_test_flag = 0, /* default disable unifykey test */
 	.unifykey_test = aml_lcd_key_test,
-	.unifykey_tcon_test = aml_lcd_key_tcon_test,
 	.unifykey_dump = aml_lcd_key_dump,
 	.lcd_extern_info = aml_lcd_extern_info,
 

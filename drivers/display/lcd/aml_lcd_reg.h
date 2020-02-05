@@ -396,6 +396,29 @@ static inline void lcd_tcon_clr_mask(unsigned int _reg, unsigned int _mask)
 	lcd_tcon_write(_reg, (lcd_tcon_read(_reg) & (~(_mask))));
 }
 
+static inline void lcd_tcon_update_bits(unsigned int reg,
+		unsigned int mask, unsigned int value)
+{
+	if (mask == 0xffffffff) {
+		lcd_tcon_write(reg, value);
+	} else {
+		lcd_tcon_write(reg, (lcd_tcon_read(reg) & (~(mask))) |
+			       (value & mask));
+	}
+}
+
+static inline int lcd_tcon_check_bits(unsigned int reg,
+		unsigned int mask, unsigned int value)
+{
+	unsigned int temp;
+
+	temp = lcd_tcon_read(reg) & mask;
+	if (value != temp)
+		return -1;
+
+	return 0;
+}
+
 static inline unsigned char lcd_tcon_read_byte(unsigned int _reg)
 {
 	return *(volatile unsigned char *)(REG_ADDR_TCON_APB_BYTE(_reg));
@@ -418,6 +441,29 @@ static inline unsigned char lcd_tcon_getb_byte(unsigned int _reg,
 		unsigned int _start, unsigned int _len)
 {
 	return (lcd_tcon_read_byte(_reg) >> (_start)) & ((1L << (_len)) - 1);
+}
+
+static inline void lcd_tcon_update_bits_byte(unsigned int reg,
+		unsigned char mask, unsigned char value)
+{
+	if (mask == 0xff) {
+		lcd_tcon_write_byte(reg, value);
+	} else {
+		lcd_tcon_write_byte(reg, (lcd_tcon_read_byte(reg) & (~(mask))) |
+				    (value & mask));
+	}
+}
+
+static inline int lcd_tcon_check_bits_byte(unsigned int reg,
+		unsigned char mask, unsigned char value)
+{
+	unsigned char temp;
+
+	temp = lcd_tcon_read_byte(reg) & mask;
+	if ((value & mask) != temp)
+		return -1;
+
+	return 0;
 }
 
 #endif

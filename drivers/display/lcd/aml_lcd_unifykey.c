@@ -23,9 +23,6 @@
 #include <amlogic/aml_lcd.h>
 #include "aml_lcd_reg.h"
 #include "aml_lcd_common.h"
-#ifdef CONFIG_UNIFY_KEY_MANAGE
-#include "aml_lcd_tcon_ref.h"
-#endif
 
 #define LCD_UNIFYKEY_TEST
 #define LCDUKEY(fmt, args...)     printf("lcd ukey: "fmt"", ## args)
@@ -244,6 +241,12 @@ int aml_lcd_unifykey_get_no_header(const char *key_name, unsigned char *buf, int
 		LCDUKEYERR("%s unify read error\n", key_name);
 		return -1;
 	}
+	return 0;
+}
+
+int aml_lcd_unifykey_write(const char *key_name, unsigned char *buf, int len)
+{
+	key_unify_write(key_name, buf, len);
 	return 0;
 }
 
@@ -745,34 +748,6 @@ static void aml_bl_test_unifykey(void)
 
 	key_unify_write("backlight", buf, len);
 }
-
-static void aml_lcd_tcon_test_unifykey(int n)
-{
-	int len;
-	unsigned char *buf;
-
-	switch (n) {
-	case 768:
-		buf = &tcon_boe_hd_hsd_n56_1366x768[0];
-		len = sizeof(tcon_boe_hd_hsd_n56_1366x768);
-		break;
-	case 1080:
-		buf = &tcon_boe_fhd_goa_n10_1920x1080[0];
-		len = sizeof(tcon_boe_fhd_goa_n10_1920x1080);
-		break;
-	case 2160:
-		buf = &uhd_tcon_setting_ceds_3840x2160[0];
-		len = sizeof(uhd_tcon_setting_ceds_3840x2160);
-	default:
-		buf = NULL;
-		break;
-	}
-
-	if (buf)
-		key_unify_write("lcd_tcon", buf, len);
-	else
-		LCDUKEYERR("tcon_test error data\n");
-}
 #endif
 
 void aml_lcd_unifykey_test(void)
@@ -789,26 +764,22 @@ void aml_lcd_unifykey_test(void)
 #endif
 }
 
-void aml_lcd_unifykey_tcon_test(int n)
-{
-#ifdef LCD_UNIFYKEY_TEST
-	LCDUKEY("Be Careful!! This test will overwrite lcd_tcon unifykeys!!\n");
-	aml_lcd_tcon_test_unifykey(n);
-#else
-	LCDUKEY("default bypass for lcd unifykey test\n");
-	LCDUKEY("should enable macro definition: LCD_UNIFYKEY_TEST\n");
-	LCDUKEY("Be Careful!! This test will overwrite lcd unifykeys!!\n");
-#endif
-}
-
 void aml_lcd_unifykey_dump(unsigned int flag)
 {
 	unsigned char *para;
-	int key_len, tcon_len;
+	int key_len;
+#ifdef CONFIG_AML_LCD_TCON
+	int tcon_len;
+#endif
 	int ret, i;
 
+#ifdef CONFIG_AML_LCD_TCON
 	if ((flag & LCD_UKEY_DEBUG_NORMAL) == 0)
 		goto aml_lcd_unifykey_dump_tcon;
+#else
+	if ((flag & LCD_UKEY_DEBUG_NORMAL) == 0)
+		return;
+#endif
 
 	/* dump unifykey: lcd */
 	para = (unsigned char *)malloc(sizeof(unsigned char) * LCD_UKEY_LCD_SIZE);
@@ -871,6 +842,7 @@ void aml_lcd_unifykey_dump(unsigned int flag)
 	free(para);
 	return;
 
+#ifdef CONFIG_AML_LCD_TCON
 aml_lcd_unifykey_dump_tcon:
 	if ((flag & LCD_UKEY_DEBUG_TCON) == 0)
 		return;
@@ -914,6 +886,7 @@ aml_lcd_unifykey_dump_tcon:
 	}
 	printf("\n");
 	free(para);
+#endif
 }
 
 #else
@@ -954,12 +927,13 @@ int aml_lcd_unifykey_get_no_header(const char *key_name, unsigned char *buf, int
 	return -1;
 }
 
-void aml_lcd_unifykey_test(void)
+int aml_lcd_unifykey_write(const char *key_name, unsigned char *buf, int len)
 {
 	LCDUKEYERR("Don't support unifykey\n");
+	return -1;
 }
 
-void aml_lcd_unifykey_tcon_test(int n)
+void aml_lcd_unifykey_test(void)
 {
 	LCDUKEYERR("Don't support unifykey\n");
 }

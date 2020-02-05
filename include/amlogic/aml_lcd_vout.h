@@ -18,6 +18,9 @@
 
 #include <common.h>
 #include <linux/list.h>
+#ifdef CONFIG_AML_LCD_TCON
+#include <amlogic/aml_lcd_tcon_data.h>
+#endif
 
 /* **********************************
  * debug print define
@@ -336,11 +339,12 @@ struct lcd_ctrl_config_s {
  * ********************************** */
 enum lcd_power_type_e {
 	LCD_POWER_TYPE_CPU = 0,
-	LCD_POWER_TYPE_PMU,
-	LCD_POWER_TYPE_SIGNAL,
-	LCD_POWER_TYPE_EXTERN,
-	LCD_POWER_TYPE_WAIT_GPIO,
-	LCD_POWER_TYPE_CLK_SS,
+	LCD_POWER_TYPE_PMU,                 /* 1 */
+	LCD_POWER_TYPE_SIGNAL,              /* 2 */
+	LCD_POWER_TYPE_EXTERN,              /* 3 */
+	LCD_POWER_TYPE_WAIT_GPIO,           /* 4 */
+	LCD_POWER_TYPE_CLK_SS,              /* 5 */
+	LCD_POWER_TYPE_TCON_SPI_DATA_LOAD,  /* 6 */
 	LCD_POWER_TYPE_MAX,
 };
 
@@ -575,13 +579,20 @@ struct aml_lcd_drv_s {
 	void (*lcd_clk)(void);
 	void (*lcd_info)(void);
 	void (*lcd_reg)(void);
+#ifdef CONFIG_AML_LCD_TCON
 	void (*lcd_tcon_reg_print)(void);
 	void (*lcd_tcon_table_print)(void);
 	void (*lcd_tcon_vac_print)(void);
 	void (*lcd_tcon_demura_print)(void);
 	void (*lcd_tcon_acc_print)(void);
+	void (*lcd_tcon_data_print)(unsigned char index);
+	void (*lcd_tcon_spi_print)(void);
+	int (*lcd_tcon_spi_data_load)(void);
 	unsigned int (*lcd_tcon_reg_read)(unsigned int addr, unsigned int flag);
 	void (*lcd_tcon_reg_write)(unsigned int addr, unsigned int val, unsigned int flag);
+	unsigned char (*lcd_tcon_table_read)(unsigned int addr);
+	unsigned char (*lcd_tcon_table_write)(unsigned int addr, unsigned char val);
+#endif
 	void (*lcd_vbyone_rst)(void);
 	void (*lcd_vbyone_cdr)(void);
 	void (*bl_on)(void);
@@ -591,7 +602,6 @@ struct aml_lcd_drv_s {
 	void (*bl_config_print)(void);
 	int unifykey_test_flag;
 	void (*unifykey_test)(void);
-	void (*unifykey_tcon_test)(void);
 	void (*unifykey_dump)(unsigned int);
 	void (*lcd_extern_info)(void);
 
@@ -605,6 +615,5 @@ extern void lcd_config_bsp_init(void);
 extern struct aml_lcd_drv_s *aml_lcd_get_driver(void);
 
 extern int lcd_probe(void);
-extern unsigned char *lcd_tcon_table_get(unsigned int *size);
 
 #endif /* INC_AML_LCD_VOUT_H */

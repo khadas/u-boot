@@ -265,7 +265,7 @@ struct lcd_ext_header_s {
 };
 
 #define LCD_EXTERN_CMD_SIZE_DYNAMIC    0xff
-#define LCD_EXTERN_INIT_ON_MAX         1000
+#define LCD_EXTERN_INIT_ON_MAX         3000
 #define LCD_EXTERN_INIT_OFF_MAX        100
 
 struct lcd_ext_basic_s {
@@ -307,6 +307,15 @@ struct panel_misc_s {
 	char version[8];
 	char outputmode[64];
 	unsigned char panel_reverse;
+};
+
+struct lcd_tcon_spi_block_s {
+	unsigned short data_type;
+	unsigned short data_index;
+	unsigned int data_flag;
+	unsigned int spi_offset;
+	unsigned int spi_size;
+	unsigned int param_cnt;
 };
 
 #define CC_MAX_SUPPORT_PANEL_CNT          (128)

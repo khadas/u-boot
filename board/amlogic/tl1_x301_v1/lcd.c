@@ -18,6 +18,9 @@
 #ifdef CONFIG_AML_LOCAL_DIMMING
 #include <amlogic/aml_ldim.h>
 #endif
+#ifdef CONFIG_AML_LCD_TCON
+#include "lcd_tconless_spi_data.h"
+#endif
 
 static char lcd_cpu_gpio[LCD_CPU_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
 	"GPIOAO_4",
@@ -616,5 +619,9 @@ void lcd_config_bsp_init(void)
 	}
 	for (j = i; j < BL_GPIO_NUM_MAX; j++)
 		strcpy(ldim_config_dft.gpio_name[j], "invalid");
+#endif
+
+#ifdef CONFIG_AML_LCD_TCON
+	lcd_tconless_spi_data_probe();
 #endif
 }

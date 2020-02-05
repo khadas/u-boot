@@ -267,11 +267,11 @@ static int do_lcd_info(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	return 0;
 }
 
+#ifdef CONFIG_AML_LCD_TCON
 static int do_lcd_tcon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct aml_lcd_drv_s *lcd_drv;
-	unsigned int addr, val, len, size;
-	unsigned char *table = NULL;
+	unsigned int addr, val, len;
 	int ret = 0, i;
 
 	if (argc == 1)
@@ -295,38 +295,20 @@ static int do_lcd_tcon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	} else if (strcmp(argv[1], "tw") == 0) {
 		addr = (unsigned int)simple_strtoul(argv[2], NULL, 16);
 		val = (unsigned int)simple_strtoul(argv[3], NULL, 16);
-		table = lcd_tcon_table_get(&size);
-		if (size == 0) {
-			printf("invalid tcon table\n");
-			return 0;
+		if (lcd_drv->lcd_tcon_table_write) {
+			val = lcd_drv->lcd_tcon_table_write(addr, val);
+			printf("write tcon table[0x%04x] = 0x%02x\n", addr, val);
+		} else {
+			printf("no lcd_tcon_table_write\n");
 		}
-		if (table == NULL) {
-			printf("tcon table is NULL\n");
-			return 0;
-		}
-		if (addr >= size) {
-			printf("invalid tcon table addr: 0x%04x\n", addr);
-			return 0;
-		}
-		table[addr] = (unsigned char)val;
-		printf("write tcon table[0x%04x] = 0x%02x\n",
-			addr, table[addr]);
 	} else if (strcmp(argv[1], "tr") == 0) {
 		addr = (unsigned int)simple_strtoul(argv[2], NULL, 16);
-		table = lcd_tcon_table_get(&size);
-		if (size == 0) {
-			printf("invalid tcon table\n");
-			return 0;
+		if (lcd_drv->lcd_tcon_table_read) {
+			val = lcd_drv->lcd_tcon_table_read(addr);
+			printf("read tcon table[0x%04x] = 0x%02x\n", addr, val);
+		} else {
+			printf("no lcd_tcon_table_write\n");
 		}
-		if (table == NULL) {
-			printf("tcon table is NULL\n");
-			return 0;
-		}
-		if (addr >= size) {
-			printf("invalid tcon table addr: 0x%04x\n", addr);
-			return 0;
-		}
-		printf("read tcon table[0x%04x] = 0x%02x\n", addr, table[addr]);
 	} else if (strcmp(argv[1], "wb") == 0) {
 		if (lcd_drv->lcd_tcon_reg_write) {
 			addr = (unsigned int)simple_strtoul(argv[2], NULL, 16);
@@ -402,11 +384,30 @@ static int do_lcd_tcon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 			lcd_drv->lcd_tcon_acc_print();
 		else
 			printf("no lcd tcon_acc_print\n");
+	} else if (strcmp(argv[1], "data") == 0) {
+		if (argc == 3) {
+			i = (unsigned char)simple_strtoul(argv[2], NULL, 10);
+			if (lcd_drv->lcd_tcon_data_print)
+				lcd_drv->lcd_tcon_data_print(i);
+			else
+				printf("no lcd tcon_data_print\n");
+		} else {
+			if (lcd_drv->lcd_tcon_data_print)
+				lcd_drv->lcd_tcon_data_print(0xff);
+			else
+				printf("no lcd tcon_data_print\n");
+		}
+	} else if (strcmp(argv[1], "spi") == 0) {
+		if (lcd_drv->lcd_tcon_spi_print)
+			lcd_drv->lcd_tcon_spi_print();
+		else
+			printf("no lcd tcon_spi_print\n");
 	} else {
 		ret = -1;
 	}
 	return ret;
 }
+#endif
 
 static int do_lcd_vbyone(cmd_tbl_t *cmdtp, int flag, int argc,
 			 char * const argv[])
@@ -544,11 +545,6 @@ static int do_lcd_key(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			lcd_drv->unifykey_test();
 		else
 			printf("no lcd unifykey_test\n");
-	} else if (strcmp(argv[1], "tcon") == 0) {
-		if (lcd_drv->unifykey_tcon_test)
-			lcd_drv->unifykey_tcon_test();
-		else
-			printf("no lcd unifykey_dump\n");
 	} else if (strcmp(argv[1], "dump") == 0) {
 		if (argc == 3) {
 			if (strcmp(argv[2], "tcon") == 0)
@@ -630,7 +626,9 @@ static cmd_tbl_t cmd_lcd_sub[] = {
 	U_BOOT_CMD_MKENT(bl,   4, 0, do_lcd_bl,   "", ""),
 	U_BOOT_CMD_MKENT(clk , 2, 0, do_lcd_clk, "", ""),
 	U_BOOT_CMD_MKENT(info, 2, 0, do_lcd_info, "", ""),
+#ifdef CONFIG_AML_LCD_TCON
 	U_BOOT_CMD_MKENT(tcon, 3, 0, do_lcd_tcon, "", ""),
+#endif
 	U_BOOT_CMD_MKENT(vbyone, 3, 0, do_lcd_vbyone, "", ""),
 	U_BOOT_CMD_MKENT(reg,  2, 0, do_lcd_reg, "", ""),
 	U_BOOT_CMD_MKENT(test, 3, 0, do_lcd_test, "", ""),

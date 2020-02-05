@@ -19,7 +19,7 @@
 
 #define REG_LCD_TCON_MAX    0xffff
 
-struct lcd_tcon_data_s {
+struct lcd_tcon_config_s {
 	unsigned char tcon_valid;
 
 	unsigned int core_reg_width;
@@ -35,8 +35,9 @@ struct lcd_tcon_data_s {
 	unsigned int ctrl_timing_offset;
 	unsigned int ctrl_timing_cnt;
 
-	unsigned int resv_mem_size;
+	unsigned int rsv_mem_size;
 	unsigned int axi_size;
+	unsigned int bin_path_size;
 	unsigned int vac_size;
 	unsigned int demura_set_size;
 	unsigned int demura_lut_size;
@@ -50,19 +51,39 @@ struct tcon_rmem_s {
 	unsigned int flag;
 	unsigned int mem_paddr;
 	unsigned int axi_mem_paddr;
+	unsigned int bin_path_mem_paddr;
 	unsigned int vac_mem_paddr;
 	unsigned int demura_set_paddr;
 	unsigned int demura_lut_paddr;
 	unsigned int acc_lut_paddr;
 	unsigned int mem_size;
 	unsigned int axi_mem_size;
+	unsigned int bin_path_mem_size;
+};
+
+struct tcon_data_priority_s {
+	unsigned int index;
+	unsigned int priority;
+};
+
+struct tcon_mem_map_table_s {
+	unsigned int version;
+	unsigned int data_load_level;
+	unsigned int block_cnt;
+	unsigned int valid_flag;
+
 	unsigned int vac_mem_size;
 	unsigned int demura_set_mem_size;
 	unsigned int demura_lut_mem_size;
 	unsigned int acc_lut_mem_size;
-	unsigned int vac_valid;
-	unsigned int demura_valid;
-	unsigned int acc_valid;
+
+	struct tcon_data_priority_s *data_priority;
+	unsigned char *vac_mem_vaddr;
+	unsigned char *demura_set_mem_vaddr;
+	unsigned char *demura_lut_mem_vaddr;
+	unsigned char *acc_lut_mem_vaddr;
+	unsigned char *bin_path_mem_vaddr;
+	unsigned char **data_mem_vaddr;
 };
 
 /* **********************************
@@ -96,6 +117,8 @@ struct tcon_rmem_s {
 #define CTRL_TIMING_CNT_TL1              0
 
 #ifdef CONFIG_CMD_INI
+extern void *handle_lcd_ext_buf_get(void);
+extern void *handle_tcon_path_mem_get(unsigned int size);
 int handle_tcon_vac(unsigned char *vac_data, unsigned int vac_mem_size);
 extern int handle_tcon_demura_set(unsigned char *demura_set_data,
 				  unsigned int demura_set_size);
@@ -103,10 +126,16 @@ extern int handle_tcon_demura_lut(unsigned char *demura_lut_data,
 				  unsigned int demura_lut_size);
 extern int handle_tcon_acc_lut(unsigned char *acc_lut_data,
 			       unsigned int acc_lut_size);
+extern int handle_tcon_data_load(unsigned char **buf, unsigned int index);
 #endif
 
 #define TCON_VAC_SET_PARAM_NUM    3
 #define TCON_VAC_LUT_PARAM_NUM    256
+
+extern int lcd_tcon_spi_data_probe(struct aml_lcd_drv_s *lcd_drv);
+
+extern struct tcon_rmem_s *get_lcd_tcon_rmem(void);
+extern struct tcon_mem_map_table_s *get_lcd_tcon_mm_table(void);
 
 #endif
 

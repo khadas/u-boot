@@ -345,6 +345,7 @@ static void lcd_lvds_disable(void)
 	lcd_vcbus_setb(LVDS_GEN_CNTL, 0, 3, 1); /* disable lvds fifo */
 }
 
+#ifdef CONFIG_AML_LCD_TCON
 static void lcd_mlvds_control_set(struct lcd_config_s *pconf)
 {
 	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
@@ -404,6 +405,7 @@ static void lcd_mlvds_disable(void)
 {
 	lcd_tcon_disable();
 }
+#endif
 
 static void lcd_vbyone_sync_pol(int hsync_pol, int vsync_pol)
 {
@@ -1004,6 +1006,7 @@ static void lcd_vbyone_wait_hpd(struct lcd_config_s *pconf)
 	}
 }
 
+#ifdef CONFIG_AML_LCD_TCON
 static void lcd_p2p_control_set(struct lcd_config_s *pconf)
 {
 	unsigned int phy_div;
@@ -1047,6 +1050,7 @@ static void lcd_p2p_disable(void)
 {
 	lcd_tcon_disable();
 }
+#endif
 
 static unsigned int vbyone_lane_num[] = {
 	1,
@@ -1116,6 +1120,7 @@ static void lcd_vbyone_config_set(struct lcd_config_s *pconf)
 	}
 }
 
+#ifdef CONFIG_AML_LCD_TCON
 static void lcd_mlvds_config_set(struct lcd_config_s *pconf)
 {
 	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
@@ -1236,6 +1241,7 @@ static void lcd_p2p_config_set(struct lcd_config_s *pconf)
 			(pclk / 1000), (pclk % 1000));
 	}
 }
+#endif
 
 void lcd_tv_config_update(struct lcd_config_s *pconf)
 {
@@ -1244,12 +1250,14 @@ void lcd_tv_config_update(struct lcd_config_s *pconf)
 	case LCD_VBYONE:
 		lcd_vbyone_config_set(pconf);
 		break;
+#ifdef CONFIG_AML_LCD_TCON
 	case LCD_MLVDS:
 		lcd_mlvds_config_set(pconf);
 		break;
 	case LCD_P2P:
 		lcd_p2p_config_set(pconf);
 		break;
+#endif
 	default:
 		break;
 	}
@@ -1297,6 +1305,7 @@ int lcd_tv_driver_init(void)
 		lcd_vbyone_phy_set(pconf, 1);
 		lcd_vbyone_wait_stable(pconf);
 		break;
+#ifdef CONFIG_AML_LCD_TCON
 	case LCD_MLVDS:
 		lcd_mlvds_control_set(pconf);
 		lcd_pinmux_set(1);
@@ -1307,6 +1316,7 @@ int lcd_tv_driver_init(void)
 		lcd_p2p_phy_set(pconf, 1);
 		lcd_p2p_control_set(pconf);
 		break;
+#endif
 	default:
 		break;
 	}
@@ -1340,6 +1350,7 @@ void lcd_tv_driver_disable(void)
 		lcd_pinmux_set(0);
 		lcd_vbyone_disable();
 		break;
+#ifdef CONFIG_AML_LCD_TCON
 	case LCD_MLVDS:
 		lcd_mlvds_disable();
 		lcd_mlvds_phy_set(pconf, 0);
@@ -1350,6 +1361,7 @@ void lcd_tv_driver_disable(void)
 		lcd_p2p_phy_set(pconf, 0);
 		lcd_pinmux_set(0);
 		break;
+#endif
 	default:
 		break;
 	}

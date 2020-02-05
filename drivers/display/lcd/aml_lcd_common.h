@@ -34,7 +34,8 @@
 /* 20191115: add lcd_tcon_load_data chk_data for tl1*/
 /* 20191227: vbyone hw filter disable support*/
 /* 20200610: correct P2P CHPI tx low common setting*/
-#define LCD_DRV_VERSION    "20200610"
+/* 20200710: tconless new data format*/
+#define LCD_DRV_VERSION    "20200710"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
@@ -73,7 +74,6 @@ extern void lcd_tcon_info_print(void);
 extern int lcd_tcon_enable(struct lcd_config_s *pconf);
 extern void lcd_tcon_disable(void);
 extern int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *lcd_drv, int load_id);
-extern int lcd_tcon_data_probe(void);
 
 /* lcd gpio */
 extern int aml_lcd_gpio_name_map_num(const char *name);

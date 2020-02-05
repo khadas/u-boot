@@ -567,7 +567,8 @@
 //#define CONFIG_AML_CVBS 1
 #endif
 
-#define CONFIG_AML_LCD    1    //wait to verify lcd function
+#define CONFIG_AML_LCD    1
+#define CONFIG_AML_LCD_TCON 1
 #define CONFIG_AML_LCD_TV 1
 #define CONFIG_AML_LCD_EXTERN 1
 

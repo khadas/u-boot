@@ -246,6 +246,7 @@ static void lcd_info_print_mipi(struct lcd_config_s *pconf)
 #endif
 }
 
+#ifdef CONFIG_AML_LCD_TCON
 static void lcd_info_print_mlvds(struct lcd_config_s *pconf)
 {
 	printf("channel_num       %d\n"
@@ -295,6 +296,7 @@ static void lcd_info_print_p2p(struct lcd_config_s *pconf)
 	lcd_tcon_info_print();
 	lcd_pinmux_info_print(pconf);
 }
+#endif
 
 static void lcd_reg_print_serializer(void)
 {
@@ -447,6 +449,7 @@ static void lcd_reg_print_vbyone(void)
 	}
 }
 
+#ifdef CONFIG_AML_LCD_TCON
 static void lcd_reg_print_tcon(void)
 {
 	unsigned int reg;
@@ -570,6 +573,7 @@ static void lcd_reg_print_tcon_tl1(void)
 	printf("LVDS_CH_SWAP2       [0x%04x] = 0x%08x\n",
 		reg, lcd_vcbus_read(reg));
 }
+#endif
 
 static void lcd_reg_print_mipi(void)
 {
@@ -1166,6 +1170,7 @@ static struct lcd_debug_info_if_s lcd_debug_info_if_mipi = {
 	.reg_dump_phy = lcd_reg_print_mipi_phy_analog,
 };
 
+#ifdef CONFIG_AML_LCD_TCON
 static struct lcd_debug_info_if_s lcd_debug_info_if_mlvds = {
 	.interface_print = lcd_info_print_mlvds,
 	.reg_dump_interface = lcd_reg_print_tcon,
@@ -1177,6 +1182,7 @@ static struct lcd_debug_info_if_s lcd_debug_info_if_p2p = {
 	.reg_dump_interface = lcd_reg_print_tcon_tl1,
 	.reg_dump_phy = lcd_reg_print_phy_analog,
 };
+#endif
 
 void aml_lcd_debug_probe(struct aml_lcd_drv_s *lcd_drv)
 {
@@ -1192,14 +1198,16 @@ void aml_lcd_debug_probe(struct aml_lcd_drv_s *lcd_drv)
 			lcd_reg_print_phy_analog_tl1;
 		lcd_debug_info_if_vbyone.reg_dump_phy =
 			lcd_reg_print_phy_analog_tl1;
+#ifdef CONFIG_AML_LCD_TCON
 		lcd_debug_info_if_mlvds.reg_dump_interface =
 			lcd_reg_print_tcon_tl1;
 		lcd_debug_info_if_mlvds.reg_dump_phy =
 			lcd_reg_print_phy_analog_tl1;
+		lcd_debug_info_if_p2p.reg_dump_interface =
+			lcd_reg_print_tcon_tl1;
 		lcd_debug_info_if_p2p.reg_dump_phy =
 			lcd_reg_print_phy_analog_tl1;
-		lcd_debug_info_if_mlvds.reg_dump_phy =
-			lcd_reg_print_phy_analog_tl1;
+#endif
 		break;
 	case LCD_CHIP_G12A:
 	case LCD_CHIP_G12B:
@@ -1246,12 +1254,14 @@ void aml_lcd_debug_probe(struct aml_lcd_drv_s *lcd_drv)
 	case LCD_MIPI:
 		lcd_debug_info_if = &lcd_debug_info_if_mipi;
 		break;
+#ifdef CONFIG_AML_LCD_TCON
 	case LCD_MLVDS:
 		lcd_debug_info_if = &lcd_debug_info_if_mlvds;
 		break;
 	case LCD_P2P:
 		lcd_debug_info_if = &lcd_debug_info_if_p2p;
 		break;
+#endif
 	default:
 		lcd_debug_info_if = NULL;
 		break;

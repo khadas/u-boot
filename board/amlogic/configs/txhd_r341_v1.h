@@ -347,6 +347,7 @@
 #endif
 
 #define CONFIG_AML_LCD    1
+#define CONFIG_AML_LCD_TCON 1
 #define CONFIG_AML_LCD_TV 1
 #define CONFIG_AML_LCD_TABLET 1
 #define CONFIG_AML_LCD_EXTERN 1

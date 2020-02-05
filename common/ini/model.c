@@ -49,12 +49,17 @@ Description:
 #define DEBUG_TCON          (1 << 5)
 static int model_debug_flag;
 
-static int gLcdDataCnt, gLcdExtDataCnt, gBlDataCnt, gLcdTconSpi_cnt;
+static int gLcdDataCnt, gLcdExtDataCnt, gBlDataCnt;
 static int g_lcd_pwr_on_seq_cnt, g_lcd_pwr_off_seq_cnt;
-static int gLcdTconDataCnt;
 static int gLcdExtInitOnCnt, gLcdExtInitOffCnt, gLcdExtCmdSize;
+static struct lcd_ext_attr_s *lcd_ext_attr;
+#ifdef CONFIG_AML_LCD_TCON
+static int gLcdTconDataCnt, gLcdTconSpi_cnt;
+static unsigned int g_lcd_tcon_bin_block_cnt;
+static unsigned char *g_lcd_tcon_bin_path_mem;
 
 static int handle_tcon_ext_pmu_data(int index, int flag, unsigned char *buf);
+#endif
 #endif
 
 #ifdef CONFIG_AML_LCD
@@ -169,10 +174,73 @@ static int handle_integrity_flag(void)
 	return 0;
 }
 
+void *handle_lcd_ext_buf_get(void)
+{
+	return (void *)lcd_ext_attr;
+}
+
+#ifdef CONFIG_AML_LCD_TCON
+static unsigned int handle_tcon_char_data_size_align(unsigned int size)
+{
+	unsigned int new_size;
+
+	if (size % 4)
+		new_size = (size / 4 + 1) * 4;
+	else
+		new_size = size;
+
+	return new_size;
+}
+
+void *handle_tcon_path_mem_get(unsigned int size)
+{
+	unsigned int data_size = 0;
+
+	if (!g_lcd_tcon_bin_path_mem) {
+		ALOGE("%s, buf is null\n", __func__);
+		return NULL;
+	}
+
+	data_size = g_lcd_tcon_bin_path_mem[4] |
+		(g_lcd_tcon_bin_path_mem[5] << 8) |
+		(g_lcd_tcon_bin_path_mem[6] << 16) |
+		(g_lcd_tcon_bin_path_mem[7] << 24);
+	if (data_size > size) {
+		ALOGE("%s, buf size invalid\n", __func__);
+		return NULL;
+	}
+
+	return g_lcd_tcon_bin_path_mem;
+}
+
+static char *handle_tcon_path_file_name_get(unsigned int index)
+{
+	unsigned int n;
+	char *str;
+
+	if (!g_lcd_tcon_bin_path_mem) {
+		ALOGE("%s, tcon_path buf is null\n", __func__);
+		return NULL;
+	}
+
+	if (index >= g_lcd_tcon_bin_block_cnt) {
+		ALOGE("%s, invalid index %d\n", __func__, index);
+		return NULL;
+	}
+
+	n = 32 + (index * 256);
+	str = (char *)&g_lcd_tcon_bin_path_mem[n];
+	return str;
+}
+
 static int handle_tcon_path(void)
 {
+	unsigned char *buf;
+	char str[30], env_str[30];
 	const char *ini_value = NULL;
+	unsigned int temp, i, n, version, block_cnt, data_size;
 
+	/* tcon regs bin */
 	ini_value = IniGetString("tcon_Path", "TCON_BIN_PATH", "null");
 	if (!strcmp(ini_value, "null")) {
 		if (model_debug_flag & DEBUG_TCON)
@@ -180,106 +248,145 @@ static int handle_tcon_path(void)
 	}
 	setenv("model_tcon", ini_value);
 
-	ini_value = IniGetString("tcon_Path", "TCON_VAC_PATH", "null");
-	if (!strcmp(ini_value, "null")) {
-		if (model_debug_flag & DEBUG_TCON)
-			ALOGE("%s, vac ini load file error!\n", __func__);
+	/* tcon data bin path */
+	g_lcd_tcon_bin_path_mem = (unsigned char *) malloc(CC_MAX_TCON_BIN_PATH_SIZE);
+	if (!g_lcd_tcon_bin_path_mem) {
+		ALOGE("%s, malloc buffer memory error!!!\n", __func__);
+		return -1;
 	}
-	setenv("model_tcon_vac", ini_value);
+	memset(g_lcd_tcon_bin_path_mem, 0, CC_MAX_TCON_BIN_PATH_SIZE);
+	buf = g_lcd_tcon_bin_path_mem;
 
-	ini_value = IniGetString("tcon_Path", "TCON_DEMURA_SET_PATH", "null");
-	if (!strcmp(ini_value, "null")) {
-		if (model_debug_flag & DEBUG_TCON)
-			ALOGE("%s, demura set load file error!\n", __func__);
-	}
-	setenv("model_tcon_demura_set", ini_value);
+	/* version */
+	ini_value = IniGetString("tcon_Path", "version", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, version is (%s)\n", __func__, ini_value);
+	version = strtoul(ini_value, NULL, 0);
+	buf[8] = version & 0xff;
+	buf[9] = (version >> 8) & 0xff;
+	buf[10] = (version >> 16) & 0xff;
+	buf[11] = (version >> 24) & 0xff;
 
-	ini_value = IniGetString("tcon_Path", "TCON_DEMURA_LUT_PATH", "null");
-	if (!strcmp(ini_value, "null")) {
-		if (model_debug_flag & DEBUG_TCON)
-			ALOGE("%s, demura lut load file error!\n", __func__);
-	}
-	setenv("model_tcon_demura_lut", ini_value);
+	/* data_load_level */
+	ini_value = IniGetString("tcon_Path", "data_load_level", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, data_load_level is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	buf[12] = temp & 0xff;
+	buf[13] = (temp >> 8) & 0xff;
+	buf[14] = (temp >> 16) & 0xff;
+	buf[15] = (temp >> 24) & 0xff;
 
-	ini_value = IniGetString("tcon_Path", "TCON_ACC_LUT_PATH", "null");
-	if (!strcmp(ini_value, "null")) {
-		if (model_debug_flag & DEBUG_TCON)
-			ALOGE("%s, acc lut load file error!\n", __func__);
-	}
-	setenv("model_tcon_acc_lut", ini_value);
+	block_cnt = 0;
+	n = 32;
 
-	ini_value = IniGetString("tcon_Path", "TCON_EXT_B0_BIN_PATH", "null");
-	if (!strcmp(ini_value, "null")) {
-		if (model_debug_flag & DEBUG_TCON) {
-			ALOGE("%s, tcon_ext_b0 bin load file error!\n",
-			      __func__);
+	if (version == 0) {/* tcon data bin: old data format */
+		ini_value = IniGetString("tcon_Path", "TCON_VAC_PATH", "null");
+		if (!strcmp(ini_value, "null")) {
+			if (model_debug_flag & DEBUG_TCON)
+				ALOGD("%s, no vac ini file\n", __func__);
 		}
-	}
-	setenv("model_tcon_ext_b0", ini_value);
+		setenv("model_tcon_vac", ini_value);
+		strncpy((char *)&buf[n], ini_value, 256);
+		n += 256;
 
-	ini_value = IniGetString("tcon_Path", "TCON_EXT_B1_BIN_PATH", "null");
-	if (!strcmp(ini_value, "null")) {
-		if (model_debug_flag & DEBUG_TCON) {
-			ALOGE("%s, tcon_ext_b1 bin load file error!\n",
-			      __func__);
+		ini_value = IniGetString("tcon_Path", "TCON_DEMURA_SET_PATH", "null");
+		if (!strcmp(ini_value, "null")) {
+			if (model_debug_flag & DEBUG_TCON)
+				ALOGD("%s, no demura_set file\n", __func__);
 		}
-	}
-	setenv("model_tcon_ext_b1", ini_value);
+		setenv("model_tcon_demura_set", ini_value);
+		strncpy((char *)&buf[n], ini_value, 256);
+		n += 256;
 
-	ini_value = IniGetString("tcon_Path", "TCON_EXT_B2_BIN_PATH", "null");
-	if (!strcmp(ini_value, "null")) {
-		if (model_debug_flag & DEBUG_TCON)
-			ALOGE("%s, tcon_ext_b2 bin load file error!\n",
-			      __func__);
-	}
-	setenv("model_tcon_ext_b2", ini_value);
-
-	ini_value = IniGetString("tcon_Path", "TCON_EXT_B3_BIN_PATH", "null");
-	if (!strcmp(ini_value, "null")) {
-		if (model_debug_flag & DEBUG_TCON) {
-			ALOGE("%s, tcon_ext_b3 bin load file error!\n",
-			      __func__);
+		ini_value = IniGetString("tcon_Path", "TCON_DEMURA_LUT_PATH", "null");
+		if (!strcmp(ini_value, "null")) {
+			if (model_debug_flag & DEBUG_TCON)
+				ALOGD("%s, no demura_lut file\n", __func__);
 		}
-	}
-	setenv("model_tcon_ext_b3", ini_value);
+		setenv("model_tcon_demura_lut", ini_value);
+		strncpy((char *)&buf[n], ini_value, 256);
+		n += 256;
 
-	ini_value = IniGetString("tcon_Path", "TCON_EXT_B0_SPI_BIN_PATH", "null");
-	if (!strcmp(ini_value, "null")) {
-		if (model_debug_flag & DEBUG_TCON) {
-			ALOGE("%s, tcon_ext_b0_spi bin load file error!\n",
-			      __func__);
+		ini_value = IniGetString("tcon_Path", "TCON_ACC_LUT_PATH", "null");
+		if (!strcmp(ini_value, "null")) {
+			if (model_debug_flag & DEBUG_TCON)
+				ALOGD("%s, no acc_lut file\n", __func__);
 		}
-	}
-	setenv("model_tcon_ext_b0_spi", ini_value);
+		setenv("model_tcon_acc_lut", ini_value);
+		strncpy((char *)&buf[n], ini_value, 256);
 
-	ini_value = IniGetString("tcon_Path", "TCON_EXT_B1_SPI_BIN_PATH", "null");
-	if (!strcmp(ini_value, "null")) {
-		if (model_debug_flag & DEBUG_TCON)
-			ALOGE("%s, tcon_ext_b1_spi bin load file error!\n",
-			      __func__);
-	}
-	setenv("model_tcon_ext_b1_spi", ini_value);
+		/* block cnt */
+		block_cnt = 4;
+		buf[16] = block_cnt & 0xff;
+		buf[17] = (block_cnt >> 8) & 0xff;
+		buf[18] = (block_cnt >> 16) & 0xff;
+		buf[19] = (block_cnt >> 24) & 0xff;
+	} else {/* tcon data bin: new data format */
+		for (i = 0; i < 32; i++) {
+			snprintf(str, 30, "TCON_DATA_%d_BIN_PATH", i);
+			ini_value = IniGetString("tcon_Path", str, "null");
+			if (strcmp(ini_value, "null") == 0)
+				break;
 
-	ini_value = IniGetString("tcon_Path", "TCON_EXT_B2_SPI_BIN_PATH", "null");
-	if (!strcmp(ini_value, "null")) {
-		if (model_debug_flag & DEBUG_TCON) {
-			ALOGE("%s, tcon_ext_b2_spi bin load file error!\n",
-			      __func__);
+			if (model_debug_flag & DEBUG_TCON) {
+				ALOGD("%s, tcon_path %d is (%s)\n",
+					__func__, i, ini_value);
+			}
+			strncpy((char *)&buf[n], ini_value, 256);
+			block_cnt++;
+			n += 256;
 		}
-	}
-	setenv("model_tcon_ext_b2_spi", ini_value);
 
-	ini_value = IniGetString("tcon_Path", "TCON_EXT_B3_SPI_BIN_PATH", "null");
-	if (!strcmp(ini_value, "null")) {
-		if (model_debug_flag & DEBUG_TCON) {
-			ALOGE("%s, tcon_ext_b3_spi bin load file error!\n",
-			      __func__);
-		}
+		/* block cnt */
+		buf[16] = block_cnt & 0xff;
+		buf[17] = (block_cnt >> 8) & 0xff;
+		buf[18] = (block_cnt >> 16) & 0xff;
+		buf[19] = (block_cnt >> 24) & 0xff;
 	}
-	setenv("model_tcon_ext_b3_spi", ini_value);
+
+	/* tcon data bin path */
+	g_lcd_tcon_bin_block_cnt = block_cnt;
+
+	/* data size */
+	data_size = 32 + block_cnt * 256;
+	buf[4] = data_size & 0xff;
+	buf[5] = (data_size >> 8) & 0xff;
+	buf[6] = (data_size >> 16) & 0xff;
+	buf[7] = (data_size >> 24) & 0xff;
+
+	/* data check */
+	buf[0] = model_data_checksum(&buf[4], (data_size - 4));
+	buf[1] = model_data_lrc(&buf[4], (data_size - 4));
+	buf[2] = 0x55;
+	buf[3] = 0xaa;
+
+	/* pmu bin */
+	for (i = 0; i < 4; i++) {
+		snprintf(str, 30, "TCON_EXT_B%d_BIN_PATH", i);
+		snprintf(env_str, 30, "model_tcon_ext_b%d", i);
+		ini_value = IniGetString("tcon_Path", str, "null");
+		if (!strcmp(ini_value, "null")) {
+			if (model_debug_flag & DEBUG_TCON)
+				ALOGD("%s, no %s file\n", __func__, str);
+		}
+		setenv(env_str, ini_value);
+	}
+
+	for (i = 0; i < 4; i++) {
+		snprintf(str, 30, "TCON_EXT_B%d_SPI_BIN_PATH", i);
+		snprintf(env_str, 30, "model_tcon_ext_b%d_spi", i);
+		ini_value = IniGetString("tcon_Path", str, "null");
+		if (!strcmp(ini_value, "null")) {
+			if (model_debug_flag & DEBUG_TCON)
+				ALOGD("%s, no %s file\n", __func__, str);
+		}
+		setenv(env_str, ini_value);
+	}
 
 	return 0;
 }
+#endif
 
 static int handle_lcd_basic(struct lcd_attr_s *p_attr)
 {
@@ -697,7 +804,10 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 	const char *ini_value = NULL;
 	unsigned int tmp_buf[2048];
 	unsigned char *data_buf = NULL;
-	unsigned int data_size = 0, n, flag;
+	unsigned int data_size = 0;
+#ifdef CONFIG_AML_LCD_TCON
+	unsigned int n, flag;
+#endif
 
 	/* orignal data in ini */
 	ini_value = IniGetString("lcd_ext_Attr", "init_on", "null");
@@ -730,6 +840,7 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 				}
 				if ((((p_attr->cmd_data[j] >> 4) & 0xf) == 0xb) ||
 					(((p_attr->cmd_data[j] >> 4) & 0xf) == 0xd)) {
+#ifdef CONFIG_AML_LCD_TCON
 					n = p_attr->cmd_data[j] & 0xf;
 					if (((p_attr->cmd_data[j] >> 4) & 0xf) == 0xb)
 						flag = 1;
@@ -750,6 +861,7 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 								(unsigned char)tmp_buf[i + 2 +k];
 						}
 					}
+#endif
 				} else { /* orignal ini data */
 					data_size = tmp_buf[i + 1];
 					p_attr->cmd_data[j + 1] = data_size;
@@ -1282,10 +1394,34 @@ static int handle_panel_misc(struct panel_misc_s *p_misc)
 	return 0;
 }
 
-static int handle_tcon_spi(unsigned char *buff)
+#ifdef CONFIG_AML_LCD_TCON
+static int handle_tcon_spi_v0(unsigned char *buff)
 {
 	const char *ini_value = NULL;
-	unsigned int temp, i, n;
+	char str[30];
+	unsigned int temp, i, j, n;
+
+	/* header */
+	/* version */
+	temp = 0;
+	buff[8] = temp & 0xff;
+	buff[9] = (temp >> 8) & 0xff;
+	buff[10] = (temp >> 16) & 0xff;
+	buff[11] = (temp >> 24) & 0xff;
+
+	/* block cnt */
+	temp = 4;
+	buff[12] = temp & 0xff;
+	buff[13] = (temp >> 8) & 0xff;
+	buff[14] = (temp >> 16) & 0xff;
+	buff[15] = (temp >> 24) & 0xff;
+
+	/* data size */
+	gLcdTconSpi_cnt = (16 + 32 * 4);
+	buff[4] = gLcdTconSpi_cnt & 0xff;
+	buff[5] = (gLcdTconSpi_cnt >> 8) & 0xff;
+	buff[6] = (gLcdTconSpi_cnt >> 16) & 0xff;
+	buff[7] = (gLcdTconSpi_cnt >> 24) & 0xff;
 
 	/* block 0: demura_lut */
 	n = 16;
@@ -1305,53 +1441,16 @@ static int handle_tcon_spi(unsigned char *buff)
 		buff[n + i] = (temp >> (i * 8)) & 0xff;
 	n += 4;
 
-	ini_value = IniGetString("tcon_spi_Attr", "block0_param_0", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block0_param_0 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block0_param_1", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block0_param_1 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block0_param_2", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block0_param_2 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block0_param_3", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block0_param_3 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block0_param_4", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block0_param_4 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block0_param_5", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block0_param_5 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
+	for (j = 0; j < 6; j++) {
+		sprintf(str, "block0_param_%d", j);
+		ini_value = IniGetString("tcon_spi_Attr", str, "0");
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGD("%s, %s is (%s)\n", __func__, str, ini_value);
+		temp = strtoul(ini_value, NULL, 0);
+		for (i = 0; i < 4; i++)
+			buff[n + i] = (temp >> (i * 8)) & 0xff;
+		n += 4;
+	}
 
 	/* block 1: p_gamma */
 	ini_value = IniGetString("tcon_spi_Attr", "p_gamma_offset", "0");
@@ -1370,53 +1469,16 @@ static int handle_tcon_spi(unsigned char *buff)
 		buff[n + i] = (temp >> (i * 8)) & 0xff;
 	n += 4;
 
-	ini_value = IniGetString("tcon_spi_Attr", "block1_param_0", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block1_param_0 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block1_param_1", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block1_param_1 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block1_param_2", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block1_param_2 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block1_param_3", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block1_param_3 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block1_param_4", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block1_param_4 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block1_param_5", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block1_param_5 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
+	for (j = 0; j < 6; j++) {
+		sprintf(str, "block1_param_%d", j);
+		ini_value = IniGetString("tcon_spi_Attr", str, "0");
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGD("%s, %s is (%s)\n", __func__, str, ini_value);
+		temp = strtoul(ini_value, NULL, 0);
+		for (i = 0; i < 4; i++)
+			buff[n + i] = (temp >> (i * 8)) & 0xff;
+		n += 4;
+	}
 
 	/* block 2: acc_lut */
 	ini_value = IniGetString("tcon_spi_Attr", "acc_lut_offset", "0");
@@ -1435,53 +1497,16 @@ static int handle_tcon_spi(unsigned char *buff)
 		buff[n + i] = (temp >> (i * 8)) & 0xff;
 	n += 4;
 
-	ini_value = IniGetString("tcon_spi_Attr", "block2_param_0", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block2_param_0 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block2_param_1", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block2_param_1 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block2_param_2", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block2_param_2 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block2_param_3", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block2_param_3 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block2_param_4", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block2_param_4 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block2_param_5", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block2_param_5 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
+	for (j = 0; j < 6; j++) {
+		sprintf(str, "block2_param_%d", j);
+		ini_value = IniGetString("tcon_spi_Attr", str, "0");
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGD("%s, %s is (%s)\n", __func__, str, ini_value);
+		temp = strtoul(ini_value, NULL, 0);
+		for (i = 0; i < 4; i++)
+			buff[n + i] = (temp >> (i * 8)) & 0xff;
+		n += 4;
+	}
 
 	/* block 3: auto_flicker */
 	ini_value = IniGetString("tcon_spi_Attr", "auto_flicker_offset", "0");
@@ -1500,80 +1525,16 @@ static int handle_tcon_spi(unsigned char *buff)
 		buff[n + i] = (temp >> (i * 8)) & 0xff;
 	n += 4;
 
-	ini_value = IniGetString("tcon_spi_Attr", "block3_param_0", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block3_param_0 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block3_param_1", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block3_param_1 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block3_param_2", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block3_param_2 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block3_param_3", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block3_param_3 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block3_param_4", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block3_param_4 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	ini_value = IniGetString("tcon_spi_Attr", "block3_param_5", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, block3_param_5 is (%s)\n", __func__, ini_value);
-	temp = strtoul(ini_value, NULL, 0);
-	for (i = 0; i < 4; i++)
-		buff[n + i] = (temp >> (i * 8)) & 0xff;
-	n += 4;
-
-	/* header */
-	ini_value = IniGetString("tcon_spi_Attr", "version", "null");
-	if (model_debug_flag & DEBUG_BACKLIGHT)
-		ALOGD("%s, version is (%s)\n", __func__, ini_value);
-	if (strcmp(ini_value, "null") == 0)
-		temp = 0;
-	else
+	for (j = 0; j < 6; j++) {
+		sprintf(str, "block3_param_%d", j);
+		ini_value = IniGetString("tcon_spi_Attr", str, "0");
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGD("%s, %s is (%s)\n", __func__, str, ini_value);
 		temp = strtoul(ini_value, NULL, 0);
-	buff[8] = temp & 0xff;
-	buff[9] = (temp >> 8) & 0xff;
-	buff[10] = (temp >> 16) & 0xff;
-	buff[11] = (temp >> 24) & 0xff;
-
-	/* data cnt */
-	gLcdTconSpi_cnt = 144;
-	buff[4] = gLcdTconSpi_cnt & 0xff;
-	buff[5] = (gLcdTconSpi_cnt >> 8) & 0xff;
-	buff[6] = (gLcdTconSpi_cnt >> 16) & 0xff;
-	buff[7] = (gLcdTconSpi_cnt >> 24) & 0xff;
-
-	/* block cnt */
-	temp = 4;
-	buff[12] = temp & 0xff;
-	buff[13] = (temp >> 8) & 0xff;
-	buff[14] = (temp >> 16) & 0xff;
-	buff[15] = (temp >> 24) & 0xff;
+		for (i = 0; i < 4; i++)
+			buff[n + i] = (temp >> (i * 8)) & 0xff;
+		n += 4;
+	}
 
 	/* crc */
 	temp = CalCRC32(0, (buff + 4), gLcdTconSpi_cnt - 4);
@@ -1585,8 +1546,135 @@ static int handle_tcon_spi(unsigned char *buff)
 	return 0;
 }
 
+static int handle_tcon_spi(unsigned char *buff)
+{
+	unsigned char *p;
+	const char *ini_value = NULL;
+	char str[30];
+	unsigned int data_size, block_cnt, param_cnt;
+	unsigned int temp, i, j, k, n;
+
+	/* header */
+	/* version */
+	ini_value = IniGetString("tcon_spi_Attr", "version", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, version is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	if (temp == 0) {
+		handle_tcon_spi_v0(buff);
+		return 0;
+	}
+
+	/* new data format */
+	/* version */
+	buff[8] = temp & 0xff;
+	buff[9] = (temp >> 8) & 0xff;
+
+	/* block cnt */
+	ini_value = IniGetString("tcon_spi_Attr", "block_cnt", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, block_cnt is (%s)\n", __func__, ini_value);
+	block_cnt = strtoul(ini_value, NULL, 0);
+	buff[14] = block_cnt & 0xff;
+	buff[15] = (block_cnt >> 8) & 0xff;
+
+	p = &buff[16];
+	n = 0;
+	for (i = 0; i < block_cnt; i++) {
+		snprintf(str, 30, "block%d_data_type", i);
+		ini_value = IniGetString("tcon_spi_Attr", str, "0");
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGD("%s, %s is (%s)\n", __func__, str, ini_value);
+		temp = strtoul(ini_value, NULL, 0);
+		p[n] = temp & 0xff;
+		p[n + 1] = (temp >> 8) & 0xff;
+
+		snprintf(str, 30, "block%d_data_index", i);
+		ini_value = IniGetString("tcon_spi_Attr", str, "0xff");
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGD("%s, %s is (%s)\n", __func__, str, ini_value);
+		temp = strtoul(ini_value, NULL, 0);
+		p[n + 2] = temp & 0xff;
+		p[n + 3] = (temp >> 8) & 0xff;
+
+		snprintf(str, 30, "block%d_data_flag", i);
+		ini_value = IniGetString("tcon_spi_Attr", str, "0xff");
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGD("%s, %s is (%s)\n", __func__, str, ini_value);
+		temp = strtoul(ini_value, NULL, 0);
+		p[n + 4] = temp & 0xff;
+		p[n + 5] = (temp >> 8) & 0xff;
+		p[n + 6] = (temp >> 16) & 0xff;
+		p[n + 7] = (temp >> 24) & 0xff;
+
+		snprintf(str, 30, "block%d_spi_data_offset", i);
+		ini_value = IniGetString("tcon_spi_Attr", str, "0");
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGD("%s, %s is (%s)\n", __func__, str, ini_value);
+		temp = strtoul(ini_value, NULL, 0);
+		p[n + 8] = temp & 0xff;
+		p[n + 9] = (temp >> 8) & 0xff;
+		p[n + 10] = (temp >> 16) & 0xff;
+		p[n + 11] = (temp >> 24) & 0xff;
+
+		snprintf(str, 30, "block%d_spi_data_size", i);
+		ini_value = IniGetString("tcon_spi_Attr", str, "0");
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGD("%s, %s is (%s)\n", __func__, str, ini_value);
+		temp = strtoul(ini_value, NULL, 0);
+		p[n + 12] = temp & 0xff;
+		p[n + 13] = (temp >> 8) & 0xff;
+		p[n + 14] = (temp >> 16) & 0xff;
+		p[n + 15] = (temp >> 24) & 0xff;
+
+		snprintf(str, 30, "block%d_param_cnt", i);
+		ini_value = IniGetString("tcon_spi_Attr", str, "0");
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGD("%s, %s is (%s)\n", __func__, str, ini_value);
+		param_cnt = strtoul(ini_value, NULL, 0);
+		p[n + 16] = param_cnt & 0xff;
+		p[n + 17] = (param_cnt >> 8) & 0xff;
+		p[n + 18] = (param_cnt >> 16) & 0xff;
+		p[n + 19] = (param_cnt >> 24) & 0xff;
+
+		/* conversion parameters */
+		k = n + 20;
+		for (j = 0; j < param_cnt; j++) {
+			snprintf(str, 30, "block%d_param_%d", i, j);
+			ini_value = IniGetString("tcon_spi_Attr", str, "0");
+			if (model_debug_flag & DEBUG_TCON)
+				ALOGD("%s, %s is (%s)\n", __func__, str, ini_value);
+			temp = strtoul(ini_value, NULL, 0);
+			p[k] = temp & 0xff;
+			p[k + 1] = (temp >> 8) & 0xff;
+			p[k + 2] = (temp >> 16) & 0xff;
+			p[k + 3] = (temp >> 24) & 0xff;
+			k += 4;
+		}
+		n += (20 + param_cnt * 4);
+	}
+
+	/* data size */
+	data_size = 16 + n;
+	buff[4] = data_size & 0xff;
+	buff[5] = (data_size >> 8) & 0xff;
+	buff[6] = (data_size >> 16) & 0xff;
+	buff[7] = (data_size >> 24) & 0xff;
+	gLcdTconSpi_cnt = data_size;
+
+	/* crc */
+	temp = CalCRC32(0, (buff + 4), gLcdTconSpi_cnt - 4);
+	buff[0] = temp & 0xff;
+	buff[1] = (temp >> 8) & 0xff;
+	buff[2] = (temp >> 16) & 0xff;
+	buff[3] = (temp >> 24) & 0xff;
+
+	return 0;
+}
+#endif
+
 static int parse_panel_ini(const char *file_name, struct lcd_attr_s *lcd_attr,
-			   struct lcd_ext_attr_s *lcd_ext_attr,
+			   struct lcd_ext_attr_s *ext_attr,
 			   struct bl_attr_s *bl_attr,
 			   struct panel_misc_s *misc_attr,
 			   unsigned char *tcon_spi_buf)
@@ -1610,8 +1698,10 @@ static int parse_panel_ini(const char *file_name, struct lcd_attr_s *lcd_attr,
 		return -1;
 	}
 
-	/*handle lcd tcon path */
+#ifdef CONFIG_AML_LCD_TCON
+	/*should ready tcon path here, for lcd_ext usage */
 	handle_tcon_path();
+#endif
 
 	/* handle lcd attr */
 	handle_lcd_basic(lcd_attr);
@@ -1622,10 +1712,10 @@ static int parse_panel_ini(const char *file_name, struct lcd_attr_s *lcd_attr,
 	handle_lcd_header(lcd_attr);
 
 	// handle lcd extern attr
-	handle_lcd_ext_basic(lcd_ext_attr);
-	handle_lcd_ext_type(lcd_ext_attr);
-	handle_lcd_ext_cmd_data(lcd_ext_attr);
-	handle_lcd_ext_header(lcd_ext_attr);
+	handle_lcd_ext_basic(ext_attr);
+	handle_lcd_ext_type(ext_attr);
+	handle_lcd_ext_cmd_data(ext_attr);
+	handle_lcd_ext_header(ext_attr);
 
 	// handle bl attr
 	handle_bl_basic(bl_attr);
@@ -1638,17 +1728,20 @@ static int parse_panel_ini(const char *file_name, struct lcd_attr_s *lcd_attr,
 
 	handle_panel_misc(misc_attr);
 
+#ifdef CONFIG_AML_LCD_TCON
 	if (((lcd_attr->basic.lcd_type) == LCD_MLVDS) ||
 	    ((lcd_attr->basic.lcd_type) == LCD_P2P))
 		handle_tcon_spi(tcon_spi_buf);
 	else
 		gLcdTconSpi_cnt = 0;
+#endif
 
 	IniParserUninit();
 
 	return 0;
 }
 
+#ifdef CONFIG_AML_LCD_TCON
 static int read_bin_file(const char *file_name, unsigned long int max_buf_len)
 {
 	int size;
@@ -1767,28 +1860,13 @@ static int handle_tcon_ext_pmu_data(int index, int flag, unsigned char *buf)
 	buf[0] = 0; /* init invalid data */
 	i = 0;
 
-	switch (index) {
-	case 0:
-		sprintf(str[0], "model_tcon_ext_b0_spi");
-		sprintf(str[1], "model_tcon_ext_b0");
-		break;
-	case 1:
-		sprintf(str[0], "model_tcon_ext_b1_spi");
-		sprintf(str[1], "model_tcon_ext_b1");
-		break;
-	case 2:
-		sprintf(str[0], "model_tcon_ext_b2_spi");
-		sprintf(str[1], "model_tcon_ext_b2");
-		break;
-	case 3:
-		sprintf(str[0], "model_tcon_ext_b3_spi");
-		sprintf(str[1], "model_tcon_ext_b3");
-		break;
-	default:
+	if (index >= 4) {
 		ALOGE("%s, invalid index %d\n", __func__, index);
 		return -1;
 	}
 
+	sprintf(str[0], "model_tcon_ext_b%d_spi", index);
+	sprintf(str[1], "model_tcon_ext_b%d", index);
 	while (i < 2) {
 		file_name = getenv(str[i]);
 		if (file_name == NULL) {
@@ -2244,12 +2322,12 @@ int handle_tcon_acc_lut(unsigned char *acc_lut_data, unsigned int acc_lut_size)
 	}
 
 	if (!iniIsFileExist(file_name)) {
-		ALOGE("%s, model_tcon_demura_lut file name \"%s\" not exist.\n",
+		ALOGE("%s, model_tcon_acc_lut file name \"%s\" not exist.\n",
 			__func__, file_name);
 		return -1;
 	}
 	if (model_debug_flag & DEBUG_NORMAL)
-		ALOGD("%s: model_tcon_demura_lut: %s\n", __func__, file_name);
+		ALOGD("%s: model_tcon_acc_lut: %s\n", __func__, file_name);
 
 	bin_size = read_bin_file(file_name, CC_MAX_TCON_ACC_LUT_SIZE);
 	if (!bin_size || (bin_size > acc_lut_size)) {
@@ -2279,16 +2357,115 @@ int handle_tcon_acc_lut(unsigned char *acc_lut_data, unsigned int acc_lut_size)
 	return 0;
 }
 
+int handle_tcon_data_load(unsigned char **buf, unsigned int index)
+{
+	unsigned char *data_buf;
+	unsigned long int bin_size, new_size;
+	unsigned int data_size;
+	unsigned char data_checksum, data_lrc, temp_checksum, temp_lrc;
+	char *file_name;
+
+	if (!buf) {
+		ALOGE("%s, buf is null\n", __func__);
+		return -1;
+	}
+
+	file_name = handle_tcon_path_file_name_get(index);
+	if (!file_name)
+		return -1;
+	if (!iniIsFileExist(file_name)) {
+		ALOGE("%s, tcon_data[%d] file name \"%s\" not exist.\n",
+			__func__, index, file_name);
+		return -1;
+	}
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s: tcon_data[%d] file name: %s\n", __func__, index, file_name);
+
+	bin_size = read_bin_file(file_name, CC_MAX_DATA_SIZE);
+	if (bin_size == 0) {
+		ALOGE("%s, bin_size 0x%lx error!\n", __func__, bin_size);
+		return -1;
+	}
+
+	data_buf = buf[index];
+	if (data_buf) { /* already exist for reload */
+		data_size = data_buf[8] |
+			(data_buf[9] << 8) |
+			(data_buf[10] << 16) |
+			(data_buf[11] << 24);
+		if (data_size >= bin_size)
+			goto handle_tcon_data_load_next;
+	}
+	/* note: all the tcon data buf size must align to 32byte */
+	new_size = handle_tcon_char_data_size_align(bin_size);
+	data_buf = (unsigned char *)malloc(new_size);
+	if (!data_buf) {
+		ALOGE("%s: Not enough memory\n", __func__);
+		return -1;
+	}
+	memset(data_buf, 0, new_size);
+	buf[index] = data_buf;
+
+handle_tcon_data_load_next:
+	GetBinData(data_buf, bin_size);
+	data_size = data_buf[8] |
+		(data_buf[9] << 8) |
+		(data_buf[10] << 16) |
+		(data_buf[11] << 24);
+	if (data_size > bin_size) {
+		ALOGE("%s: data_size 0x%x invalid, bin_size 0x%lx\n",
+			__func__, data_size, bin_size);
+		free(data_buf);
+		return -1;
+	}
+
+	/* update init_priority */
+	data_buf[24] = index & 0xff;
+	data_buf[25] = (index >> 8) & 0xff;
+
+	data_checksum = data_buf[0];
+	data_lrc = data_buf[1];
+	temp_checksum = model_data_checksum(&data_buf[4], (data_size - 4));
+	temp_lrc = model_data_lrc(&data_buf[4], (data_size - 4));
+	if (model_debug_flag & DEBUG_TCON) {
+		ALOGD("%s: tcon_data[%d] checksum=0x%02x(0x%02x), lrc=0x%02x(0x%02x)\n",
+			 __func__, index, temp_checksum, data_checksum,
+			 temp_lrc, data_lrc);
+	}
+	if (data_checksum != temp_checksum) {
+		ALOGE("%s: tcon_data[%d] checksum error\n", __func__, index);
+		free(data_buf);
+		return -1;
+	}
+	if (data_lrc != temp_lrc) {
+		ALOGE("%s: tcon_data[%d] lrc error\n", __func__, index);
+		free(data_buf);
+		return -1;
+	}
+	if ((data_buf[2] != 0x55) || (data_buf[3] != 0xaa)) {
+		ALOGE("%s: tcon_data[%d] pattern error\n", __func__, index);
+		free(data_buf);
+		return -1;
+	}
+
+	data_buf[47] = '\0'; /* ensure name string ending */
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s %d finish, bin_size = 0x%lx\n", __func__, index, bin_size);
+
+	BinFileUninit();
+
+	return 0;
+}
+#endif
+
 int handle_panel_ini(void)
 {
 	int tmp_len = 0;
 	unsigned char *tmp_buf = NULL;
-	unsigned char *parse_buf = NULL;
 	struct lcd_attr_s lcd_attr;
-	struct lcd_ext_attr_s lcd_ext_attr;
 	struct bl_attr_s bl_attr;
 	struct panel_misc_s misc_attr;
-	unsigned char *tcon_spi;
+	unsigned char *tcon_spi = NULL;
 	char *file_name;
 	int print_flag;
 
@@ -2310,23 +2487,29 @@ int handle_panel_ini(void)
 		return -1;
 	}
 
-	parse_buf = (unsigned char *) malloc(CC_MAX_DATA_SIZE);
-	if (parse_buf == NULL) {
+	if (!lcd_ext_attr) {
+		lcd_ext_attr = (struct lcd_ext_attr_s *) malloc(sizeof(struct lcd_ext_attr_s));
+		if (!lcd_ext_attr) {
+			ALOGE("%s, malloc buffer memory error!!!\n", __func__);
+			goto handle_panel_ini_err1;
+		}
+	}
+
+#ifdef CONFIG_AML_LCD_TCON
+	tcon_spi = (unsigned char *) malloc(CC_MAX_TCON_SPI_SIZE);
+	if (!tcon_spi) {
 		ALOGE("%s, malloc buffer memory error!!!\n", __func__);
 		goto handle_panel_ini_err1;
 	}
-
-	tcon_spi = (unsigned char *) malloc(CC_MAX_TCON_SPI_SIZE);
-	if (tcon_spi == NULL) {
-		ALOGE("%s, malloc buffer memory error!!!\n", __func__);
-		goto handle_panel_ini_err2;
-	}
+#endif
 
 	memset((void *)&lcd_attr, 0, sizeof(struct lcd_attr_s));
-	memset((void *)&lcd_ext_attr, 0, sizeof(struct lcd_ext_attr_s));
+	memset((void *)lcd_ext_attr, 0, sizeof(struct lcd_ext_attr_s));
 	memset((void *)&bl_attr, 0, sizeof(struct bl_attr_s));
 	memset((void *)&misc_attr, 0, sizeof(struct panel_misc_s));
-	memset((void *)tcon_spi, 0, CC_MAX_TCON_SPI_SIZE);
+#ifdef CONFIG_AML_LCD_TCON
+	memset(tcon_spi, 0, CC_MAX_TCON_SPI_SIZE);
+#endif
 
 	//init misc attr as default
 	strcpy(misc_attr.version, "V001");
@@ -2338,13 +2521,13 @@ int handle_panel_ini(void)
 		ALOGD("%s: model_panel: %s\n", __func__, file_name);
 	if (!iniIsFileExist(file_name)) {
 		ALOGE("%s, file name \"%s\" not exist.\n", __func__, file_name);
-		goto handle_panel_ini_err3;
+		goto handle_panel_ini_err2;
 	}
 
-	if (parse_panel_ini(file_name, &lcd_attr, &lcd_ext_attr, &bl_attr, &misc_attr, tcon_spi) < 0) {
+	if (parse_panel_ini(file_name, &lcd_attr, lcd_ext_attr, &bl_attr, &misc_attr, tcon_spi) < 0) {
 		ALOGE("%s, parse_panel_ini file name \"%s\" fail.\n",
 		      __func__, file_name);
-		goto handle_panel_ini_err3;
+		goto handle_panel_ini_err2;
 	}
 
 	// start handle lcd param
@@ -2361,9 +2544,9 @@ int handle_panel_ini(void)
 	memset((void *)tmp_buf, 0, CC_MAX_DATA_SIZE);
 	tmp_len = ReadLCDExternParam(tmp_buf);
 	//ALOGD("%s, start check lcd extern param data (0x%x).\n", __func__, tmp_len);
-	if (check_param_valid(0, gLcdExtDataCnt, (unsigned char*)&lcd_ext_attr, tmp_len, tmp_buf) == CC_PARAM_CHECK_ERROR_NEED_UPDATE_PARAM) {
+	if (check_param_valid(0, gLcdExtDataCnt, (unsigned char*)lcd_ext_attr, tmp_len, tmp_buf) == CC_PARAM_CHECK_ERROR_NEED_UPDATE_PARAM) {
 		ALOGD("%s, check lcd extern param data error (0x%x), save lcd extern param.\n", __func__, tmp_len);
-		SaveLCDExternParam(gLcdExtDataCnt, (unsigned char*)&lcd_ext_attr);
+		SaveLCDExternParam(gLcdExtDataCnt, (unsigned char*)lcd_ext_attr);
 	}
 	// end handle lcd extern param
 
@@ -2377,6 +2560,7 @@ int handle_panel_ini(void)
 	}
 	// end handle backlight param
 
+#ifdef CONFIG_AML_LCD_TCON
 	// start handle lcd_tcon_spi param
 	if (gLcdTconSpi_cnt) {
 		memset((void *)tmp_buf, 0, CC_MAX_DATA_SIZE);
@@ -2388,26 +2572,24 @@ int handle_panel_ini(void)
 		}
 	}
 	// end handle lcd_tcon_spi param
+#endif
 
 	// panel misc don't saving env
 
 	free(tcon_spi);
 	tcon_spi = NULL;
-	free(parse_buf);
-	parse_buf = NULL;
 	free(tmp_buf);
 	tmp_buf = NULL;
 
+#ifdef CONFIG_AML_LCD_TCON
 	handle_tcon_bin();
+#endif
 
 	return 0;
 
-handle_panel_ini_err3:
+handle_panel_ini_err2:
 	free(tcon_spi);
 	tcon_spi = NULL;
-handle_panel_ini_err2:
-	free(parse_buf);
-	parse_buf = NULL;
 handle_panel_ini_err1:
 	free(tmp_buf);
 	tmp_buf = NULL;
