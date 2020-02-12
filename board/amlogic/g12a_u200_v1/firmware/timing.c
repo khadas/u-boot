@@ -133,7 +133,7 @@ ddr_set_t __ddr_setting[] = {
 	.training_offset 		= (1<<3) | (4<<0),//read dqs offset after training,bit3=0 right move,bit3=1 left move,bit[2:0] offset step
 },
 {
-	/* g12a skt (u209) ddr4 */
+	// g12a 4layer 2pcs ddr4 rank0 (1320)(U200)
 	.board_id				= CONFIG_BOARD_ID_MASK,
 	.version				= 1,
 	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
@@ -174,7 +174,7 @@ ddr_set_t __ddr_setting[] = {
 	.vref_dram_permil		= 0,//700,
 	//.vref_reverse			= 0,
 	//.ac_trace_delay		= {0x0,0x0},// {0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40},
-	.ac_trace_delay			= {32,32,32,32,32,32,32,32,32,32},
+	.ac_trace_delay			= {32-10,32,32,32,32,32,32,32,32,32},
 	.ddr_dmc_remap			= {
 							[0] = ( 5 |  7 << 5 |  8 << 10 |  9 << 15 | 10 << 20 | 11 << 25 ),
 							[1] = ( 12|  0 << 5 |  0 << 10 | 14 << 15 | 15 << 20 | 16 << 25 ),
