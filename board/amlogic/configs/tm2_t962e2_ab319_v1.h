@@ -385,6 +385,10 @@
 			"fi;fi;" \
 		"fi;\0" \
 
+#ifdef CONFIG_PXP_EMULATOR
+#define CONFIG_PREBOOT "echo preboot for pxp"
+#define CONFIG_BOOTCOMMAND "echo bootcmd for pxp"
+#else
 #define CONFIG_PREBOOT  \
 	"run bcb_cmd; "\
 	"run factory_reset_poweroff_protect;"\
@@ -397,6 +401,7 @@
 	"run reset_suspend;"
 
 #define CONFIG_BOOTCOMMAND "run storeboot"
+#endif // #ifdef CONFIG_PXP_EMULATOR
 
 //#define CONFIG_ENV_IS_NOWHERE  1
 #define CONFIG_ENV_SIZE   (64*1024)

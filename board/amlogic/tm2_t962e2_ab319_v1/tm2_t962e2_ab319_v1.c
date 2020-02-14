@@ -391,10 +391,12 @@ struct amlogic_usb_config g_usb_config_GXL_skt={
 
 #endif /*CONFIG_USB_XHCI_AMLOGIC*/
 
+#ifndef CONFIG_PXP_EMULATOR
 #ifdef CONFIG_AML_HDMITX20
 static void hdmi_tx_set_hdmi_5v(void)
 {
 }
+#endif
 #endif
 
 /*
@@ -568,6 +570,9 @@ U_BOOT_DEVICES(meson_pwm) = {
 
 int board_init(void)
 {
+#ifdef CONFIG_PXP_EMULATOR
+	printf("\naml log : 20200211 bring up for TM2 revB@board_late_init\n");
+#else
     //Please keep CONFIG_AML_V2_FACTORY_BURN at first place of board_init
     //As NOT NEED other board init If USB BOOT MODE
 #ifdef CONFIG_AML_V2_FACTORY_BURN
@@ -590,12 +595,17 @@ int board_init(void)
 #ifdef CONFIG_SYS_I2C_MESON
 	set_i2c_ao_pinmux();
 #endif
+#endif //#ifdef CONFIG_PXP_EMULATOR
+
 	return 0;
 }
 
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
+#ifdef CONFIG_PXP_EMULATOR
+	printf("\naml log : 20200211 bring up for TM2 revB@board_late_init\n");
+#else
 	TE(__func__);
 		//update env before anyone using it
 		run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
@@ -659,6 +669,7 @@ int board_late_init(void)
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 
 	TE(__func__);
+#endif
 
 	return 0;
 }
