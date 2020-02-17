@@ -24,6 +24,7 @@
 #include <asm/arch-tm2/secure_apb.h>
 #include <asm/arch-tm2/timer.h>
 #include <asm/arch-tm2/mailbox.h>
+#include <amlogic/power_domain.h>
 
 #include <serial.h>
 
@@ -142,99 +143,14 @@ void start_dsp(uint32_t id,uint32_t reset_addr)
 	}
 }
 
-//#define P_RESET0_LEVEL                             (volatile uint32_t *)0xffd01080
-//#define P_RESET1_LEVEL                             (volatile uint32_t *)0xffd01084
-//#define P_RESET2_LEVEL                             (volatile uint32_t *)0xffd01088
-//#define P_RESET3_LEVEL                             (volatile uint32_t *)0xffd0108c
-//#define P_RESET4_LEVEL                             (volatile uint32_t *)0xffd01090
-//#define P_RESET5_LEVEL                             (volatile uint32_t *)0xffd01094
-//#define P_RESET6_LEVEL                             (volatile uint32_t *)0xffd01098
-//#define P_RESET7_LEVEL                             (volatile uint32_t *)0xffd0109c
-
-void power_switch_to_dsp_a(int64_t pwr_cntl)
-{
-	if (pwr_cntl == 1) {
-		printf("[PWR]: Power on DSP A\n");
-		// Powerup dsp a
-		writel32(readl32(P_AO_RTI_GEN_PWR_SLEEP0) & (~(0x1<<21)),P_AO_RTI_GEN_PWR_SLEEP0); // power on
-		_udelay(5);
-		// Power up memory
-		*P_HHI_DSP_MEM_PD_REG0 &= ~(0xffff<<0);
-		_udelay(5);
-		// reset
-		*P_RESET4_LEVEL &= ~(0x1<<0);
-		*P_RESET1_LEVEL &= ~(0x1<<20);
-		_udelay(5);
-		// remove isolation
-		writel32(readl32(P_AO_RTI_GEN_PWR_ISO0) & (~(0x1<<21)),P_AO_RTI_GEN_PWR_ISO0);
-		// pull up reset
-		*P_RESET4_LEVEL |= (0x1<<0);
-		*P_RESET1_LEVEL |= (0x1<<20);
-		_udelay(5);
-
-	} else {
-		// reset
-		*P_RESET4_LEVEL &= ~(0x1<<0);
-		*P_RESET1_LEVEL &= ~(0x1<<20);
-		// add isolation
-		writel32(readl32(P_AO_RTI_GEN_PWR_ISO0) | (0x1<<21),P_AO_RTI_GEN_PWR_ISO0 );
-		_udelay(5);
-		// power down memory
-		*P_HHI_DSP_MEM_PD_REG0 |= (0xffff<<0);
-		_udelay(5);
-		// power down dsp a
-		writel32(readl32(P_AO_RTI_GEN_PWR_SLEEP0) | (0x1<<21),P_AO_RTI_GEN_PWR_SLEEP0);
-	}
-}
-
-void power_switch_to_dsp_b(int64_t pwr_cntl)
-{
-	if (pwr_cntl == 1) {
-		printf("[PWR]: Power on DSP B\n");
-		// Powerup dsp b
-		writel32(readl32(P_AO_RTI_GEN_PWR_SLEEP0) & (~(0x1<<22)),P_AO_RTI_GEN_PWR_SLEEP0); // power on
-		_udelay(5);
-		// Power up memory
-
-		*P_HHI_DSP_MEM_PD_REG0 &= ~(0xffff<<16);
-		_udelay(5);
-		// reset
-		*P_RESET4_LEVEL &= ~(0x1<<1);
-		*P_RESET1_LEVEL &= ~(0x1<<21);
-		_udelay(5);
-
-		// remove isolation
-		writel32(readl32(P_AO_RTI_GEN_PWR_ISO0) & (~(0x1<<22)),P_AO_RTI_GEN_PWR_ISO0);
-		// pull up reset
-		*P_RESET4_LEVEL |= (0x1<<1);
-		*P_RESET1_LEVEL |= (0x1<<21);
-		_udelay(5);
-
-	} else {
-		// reset
-		*P_RESET4_LEVEL &= ~(0x1<<1);
-		*P_RESET1_LEVEL &= ~(0x1<<21);
-
-		// add isolation
-		writel32(readl32(P_AO_RTI_GEN_PWR_ISO0) | (0x1<<22),P_AO_RTI_GEN_PWR_ISO0 );
-		_udelay(5);
-		// power down memory
-		*P_HHI_DSP_MEM_PD_REG0 |= (0xffff<<16);
-		_udelay(5);
-
-		// power down dsp a
-		writel32(readl32(P_AO_RTI_GEN_PWR_SLEEP0) | (0x1<<22),P_AO_RTI_GEN_PWR_SLEEP0);
-	}
-}
-
 void dsp_init(unsigned int dspid, uint32_t reset_addr, uint32_t freq_sel) {
 	printf("the rest_addr passing : 0x%8x \n",reset_addr);
 	clk_util_set_dsp_clk(dspid,freq_sel);
 	_udelay(10);
 	if (dspid == 0 )
-		power_switch_to_dsp_a(1);	//start dsp0, at the reset address 0x30000000
+		power_domain_switch(PM_DSPA, PWR_ON);	//start dsp0, at the reset address 0x30000000
 	else
-		power_switch_to_dsp_b(1);	//start dsp1, at the reset address 0x30800000
+		power_domain_switch(PM_DSPB, PWR_ON);	//start dsp1, at the reset address 0x30800000
 	start_dsp(dspid,reset_addr);	//set the frep to 500Mhz
 
 	*P_AO_RTI_PULL_UP_EN_REG |= (0xf << 6 );
