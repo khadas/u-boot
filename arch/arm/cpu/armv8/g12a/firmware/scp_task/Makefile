@@ -65,6 +65,10 @@ OBJS += suspend.o
 OBJS += lib/string.o
 OBJS += lib/delay.o
 
+ifdef CONFIG_BT_RCU
+OBJS += uart_rcu.o
+endif
+
 OBJS := $(OBJS:%=$(obj)/%)
 
 .NOTPARALLEL : all

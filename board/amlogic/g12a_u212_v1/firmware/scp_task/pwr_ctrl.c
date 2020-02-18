@@ -125,6 +125,10 @@ static unsigned int detect_key(unsigned int suspend_from)
 	int exit_reason = 0;
 	unsigned *irq = (unsigned *)WAKEUP_SRC_IRQ_ADDR_BASE;
 	init_remote();
+#ifdef CONFIG_BT_RCU
+	host_init_uart();
+#endif
+
 #ifdef CONFIG_CEC_WAKEUP
 		if (hdmi_cec_func_config & 0x1) {
 			remote_cec_hw_reset();
@@ -155,8 +159,16 @@ static unsigned int detect_key(unsigned int suspend_from)
 			irq[IRQ_GPIO1] = 0xFFFFFFFF;
 			if (!(readl(PREG_PAD_GPIO2_I) & (0x01 << 18))
 					&& (readl(PREG_PAD_GPIO2_O) & (0x01 << 17))
-					&& !(readl(PREG_PAD_GPIO2_EN_N) & (0x01 << 17)))
+					&& !(readl(PREG_PAD_GPIO2_EN_N) & (0x01 << 17)) ) {
+			#ifdef CONFIG_BT_RCU
+				if (read_event() == 1)
+					exit_reason = BT_WAKEUP;
+				else if(read_event() == 2)
+					exit_reason = REMOTE_CUS_WAKEUP;
+			#else
 				exit_reason = BT_WAKEUP;
+			#endif
+			}
 		}
 
 		if (irq[IRQ_ETH_PTM] == IRQ_ETH_PMT_NUM) {
