@@ -38,6 +38,7 @@ Description:
 #define AVB_USE_TESTKEY
 #define MAX_DTB_SIZE (AML_DTB_IMG_MAX_SZ + 512)
 #define AVB_NUM_SLOT (4)
+#define MAX_AVBKEY_LEN (8 + 1024)
 
 #define CONFIG_AVB2_KPUB_EMBEDDED
 #define CONFIG_AVB2_KPUB_DEFAULT
@@ -185,6 +186,34 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps* ops, const uint8_t* public
         size_t public_key_length, const uint8_t* public_key_metadata, size_t public_key_metadata_length,
         bool* out_is_trusted)
 {
+#ifdef CONFIG_AVB2_KPUB_FROM_FIP
+    uint8_t public_key[MAX_AVBKEY_LEN];
+    uint32_t ret = 0;
+#endif
+
+    *out_is_trusted = false;
+
+#ifdef CONFIG_AVB2_KPUB_FROM_FIP
+    printf("AVB2 try finding fip kpub\n");
+    memset(public_key, 0, MAX_AVBKEY_LEN);
+    ret = get_avbkey_from_fip(public_key, MAX_AVBKEY_LEN);
+    if (!ret) {
+        printf("AVB2 verifying with fip kpub\n");
+        if (!avb_safe_memcmp(public_key_data, public_key, public_key_length)) {
+            *out_is_trusted = true;
+            return AVB_IO_RESULT_OK;
+        } else {
+            *out_is_trusted = false;
+            return AVB_IO_RESULT_OK;
+        }
+    } else {
+        printf("cannot find fip kpub\n");
+    }
+#endif
+    /* fall through here.
+     * Since AVB2_KPUB_FROM_FIP only works with secureboot enabled
+     * In order not to break compatiblity, it will fallback to embedded mode
+     */
 #ifdef CONFIG_AVB2_KPUB_EMBEDDED
 /**
  * CONFIG_AVB2_KPUB_DEFAULT and CONFIG_AVB2_KPUB_VENDOR should be
@@ -251,12 +280,6 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps* ops, const uint8_t* public
   #error "No AVB2 public key defined"
 #endif /* CONFIG_AVB2_KPUB_VENDOR */
 
-#else /* CONFIG_AVB2_KPUB_EMBEDDED */
-    unsigned long bl31_addr = get_sharemem_info(GET_SHARE_MEM_INPUT_BASE);
-    memcpy((void *)bl31_addr, public_key_data, public_key_length);
-    flush_cache(bl31_addr, public_key_length);
-    *out_is_trusted = aml_sec_boot_check(AML_D_P_AVB_PUBKEY_VERIFY,
-            bl31_addr, public_key_length, 0);
 #endif /* CONFIG_AVB2_KPUB_EMBEDDED */
 
     return AVB_IO_RESULT_OK;

@@ -128,6 +128,9 @@ struct sram_hal_api_arg {
 #define CLUSTER_BIT 2
 
 
+/* AVB2 */
+#define GET_AVBKEY_FROM_FIP              0x820000b0
+
 /////////////////////////////////////////////////////////////////////////////////
 #define AML_DATA_PROCESS                 (0x820000FF)
 	#define AML_D_P_W_EFUSE_SECURE_BOOT  (0x10)
@@ -161,4 +164,5 @@ void bl31_get_chipid(unsigned int *, unsigned int *,
 	unsigned int *, unsigned int *);
 void set_viu_probe_enable(void);
 int32_t set_boot_params(const keymaster_boot_params*);
+int32_t get_avbkey_from_fip(uint8_t *buf, uint32_t buflen);
 #endif

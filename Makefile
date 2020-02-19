@@ -678,6 +678,10 @@ PLATFORM_CPPFLAGS += -I$(srctree)/drivers/display/osd/dv
 PLATFORM_LIBS += $(srctree)/drivers/display/osd/dv/dovi.a
 endif
 
+ifneq ($(CONFIG_AVB2_KPUB_FROM_FIP),)
+PLATFORM_CPPFLAGS += -DCONFIG_AVB2_KPUB_FROM_FIP
+endif
+
 # Add GCC lib
 ifeq ($(CONFIG_USE_PRIVATE_LIBGCC),y)
 PLATFORM_LIBGCC = arch/$(ARCH)/lib/lib.a
