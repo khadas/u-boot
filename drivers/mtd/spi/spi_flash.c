@@ -1402,8 +1402,8 @@ int spi_flash_scan(struct spi_flash *flash)
 	print_size(flash->size, "");
 	if (flash->memory_map)
 		printf(", mapped at %p", flash->memory_map);
-		printf(" erase_cmd = 0x%x read_cmd = 0x%x write_cmd = 0x%x\n",
-			flash->erase_cmd, flash->read_cmd, flash->write_cmd);
+	printf(" erase_cmd = 0x%x read_cmd = 0x%x write_cmd = 0x%x\n",
+	       flash->erase_cmd, flash->read_cmd, flash->write_cmd);
 	puts("\n");
 #endif
 

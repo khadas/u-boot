@@ -440,7 +440,7 @@ struct nand_flash_dev spi_nand_ids[] = {
 	{NULL}
 };
 
-static chip_plane_ids[][3] = {
+static int chip_plane_ids[][3] = {
 	{ 0xba, 0x72, 2 },	/* ZD35Q2GA */
 	{ 0x2c, 0x24, 2 },	/* MT29F2G01ABAGD/F50L2G41XA */
 };
@@ -616,7 +616,7 @@ static void spinand_cmdfunc(struct mtd_info *mtd,
 {
 	struct spinand_info *info = mtd_to_spinand(mtd);
 	struct nand_chip *chip = mtd->priv;
-	unsigned int plane, shift;
+	unsigned int plane;
 
 	memset(info->cmd, 0, MAX_CMD_SIZE);
 	info->cmd[0] = command;
@@ -863,7 +863,7 @@ int erase_nand(struct mtd_info *mtd, struct erase_info *instr, int allowbbt)
 
 	if (meson_rsv_erase_protect(info->rsv, instr->addr / mtd->erasesize)) {
 		printf("%s blk 0x%x is protected\n", __func__,
-			instr->addr / mtd->erasesize);
+		       (unsigned int)instr->addr / mtd->erasesize);
 		goto erase_exit;
 	}
 

@@ -321,7 +321,6 @@ extern int spifc_xip_prepare(void);
 static int do_spi_xip(int argc, char * const argv[])
 {
 	unsigned long addr;
-	void *buf;
 	char *endp;
 	int ret = 0;
 	int (*xip_entrance)(int, char **);
@@ -330,7 +329,7 @@ static int do_spi_xip(int argc, char * const argv[])
 		addr = simple_strtoul(argv[1], &endp, 16);
 		if (*argv[1] == 0 || *endp != 0)
 			return -1;
-		printf("addr 0x%x\n", addr);
+		printf("addr 0x%lu\n", addr);
 	}
 
 	ret = spifc_xip_prepare();

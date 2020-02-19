@@ -1035,8 +1035,10 @@ static int _mtd_store_boot_erase(const char *part_name, u8 cpy)
 
 static int mtd_store_boot_erase(const char *part_name, u8 cpy)
 {
+#ifdef CONFIG_DISCRETE_BOOTLOADER
 	u8 num;
 	int ret;
+#endif
 
 	if (!part_name) {
 		pr_info("%s %d invalid name!\n",
