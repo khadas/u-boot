@@ -11,12 +11,13 @@
  * all used regs
  */
 /*
- * ISA_TIMERE use SYSCTRL_TIMERE
- * WATCHDOG_CNTL use RESETCTRL_WATCHDOG_CTRL0
- * WATCHDOG_TCNT use RESETCTRL_WATCHDOG_CNT
- * WATCHDOG_RESET use RESETCTRL_WATCHDOG_CLR
+#define SYSCTRL_TIMERE_CTRL                        ((0x0040  << 2) + 0xfe005800)
+#define RESETCTRL_WATCHDOG_CTRL0             ((0x0040  << 2) + 0xfe000000)
+#define RESETCTRL_WATCHDOG_CTRL1             ((0x0041  << 2) + 0xfe000000)
+#define RESETCTRL_WATCHDOG_CNT                ((0x0042  << 2) + 0xfe000000)
+#define RESETCTRL_WATCHDOG_CLR                 ((0x0043  << 2) + 0xfe000000)
  */
-#define ISA_TIMERE			((0x0041  << 2) + 0xfe005800)
+#define ISA_TIMERE			    ((0x0041  << 2) + 0xfe005800)
 #define WATCHDOG_CNTL			((0x0040  << 2) + 0xfe000000)
 #define WATCHDOG_TCNT			((0x0042  << 2) + 0xfe000000)
 #define WATCHDOG_RESET			((0x0043  << 2) + 0xfe000000)

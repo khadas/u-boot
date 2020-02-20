@@ -5,9 +5,9 @@
 //
 // and was applied to the file
 //
-// Project name: c1
+// Project name: c2
 //
-// Create time: Mon Jun 10 01:54:02 Local time zone must be set--see zic manual page 2019 by testuser
+// Create time: Wed Jan  8 10:22:41 CST 2020 by leilei.ge
 //
 // ./REG_LIST_RTL.h
 //
@@ -17,6 +17,20 @@
 #ifdef REGISTER_H
 #else
 #define REGISTER_H
+
+
+#if 0
+#ifndef VERIFICATION
+    #define Wr64(addr, data) *(volatile uint64_t *)(addr)=(data)
+    #define Rd64(addr) *(volatile uint64_t *)(addr)
+    #define Wr(addr, data) *(volatile uint32_t *)(addr)=(data)
+    #define Rd(addr) *(volatile uint32_t *)(addr)
+    #define Wr_reg_bits(reg, val, start, len) \
+      Wr(reg, ((Rd(reg) & ~(((1L<<(len))-1)<<(start))) | ((uint32_t)(val) << (start))))
+#else
+    #include "dpi.h"
+#endif
+#endif
 
 //
 // Reading file:  ./REG_LIST_RTL.h
@@ -149,7 +163,9 @@
 #define EE_AUDIO_FRDDR_C_FINISH_ADDRB              ((0x0098  << 2) + 0xfe050000)
 #define EE_AUDIO_FRDDR_C_INIT_ADDR                 ((0x0099  << 2) + 0xfe050000)
 #define EE_AUDIO_FRDDR_C_CTRL2                     ((0x009a  << 2) + 0xfe050000)
-#define EE_AUDIO_ARB_CTRL                          ((0x00a0  << 2) + 0xfe050000)
+#define EE_AUDIO_ARB_CTRL0                         ((0x00a0  << 2) + 0xfe050000)
+#define EE_AUDIO_ARB_CTRL1                         ((0x00a1  << 2) + 0xfe050000)
+#define EE_AUDIO_ARB_STS                           ((0x00a8  << 2) + 0xfe050000)
 #define EE_AUDIO_LB_A_CTRL0                        ((0x00b0  << 2) + 0xfe050000)
 #define EE_AUDIO_LB_A_CTRL1                        ((0x00b1  << 2) + 0xfe050000)
 #define EE_AUDIO_LB_A_CTRL2                        ((0x00b2  << 2) + 0xfe050000)
@@ -163,6 +179,8 @@
 #define EE_AUDIO_LB_A_LB_CH_ID2                    ((0x00ba  << 2) + 0xfe050000)
 #define EE_AUDIO_LB_A_LB_CH_ID3                    ((0x00bb  << 2) + 0xfe050000)
 #define EE_AUDIO_LB_A_STS                          ((0x00bc  << 2) + 0xfe050000)
+#define EE_AUDIO_LB_A_CHSYNC_CTRL_INSERT           ((0x00bd  << 2) + 0xfe050000)
+#define EE_AUDIO_LB_A_CHSYNC_CTRL_ORIG             ((0x00be  << 2) + 0xfe050000)
 #define EE_AUDIO_TDMIN_A_CTRL                      ((0x00c0  << 2) + 0xfe050000)
 #define EE_AUDIO_TDMIN_A_SWAP0                     ((0x00c1  << 2) + 0xfe050000)
 #define EE_AUDIO_TDMIN_A_MASK0                     ((0x00c2  << 2) + 0xfe050000)
@@ -307,6 +325,7 @@
 //`define EE_AUDIO_POW_DET_VALUE          10'h184
 #define EE_AUDIO_SECURITY_CTRL0                    ((0x0190  << 2) + 0xfe050000)
 #define EE_AUDIO_SECURITY_CTRL1                    ((0x0191  << 2) + 0xfe050000)
+#define EE_AUDIO_IRQ_FIFO_CNT                      ((0x0192  << 2) + 0xfe050000)
 #define EE_AUDIO_SPDIFOUT_B_STAT                   ((0x01a0  << 2) + 0xfe050000)
 #define EE_AUDIO_SPDIFOUT_B_GAIN0                  ((0x01a1  << 2) + 0xfe050000)
 #define EE_AUDIO_SPDIFOUT_B_GAIN1                  ((0x01a2  << 2) + 0xfe050000)
@@ -327,6 +346,10 @@
 #define EE_AUDIO_SPDIFOUT_B_CHSTSA                 ((0x01b1  << 2) + 0xfe050000)
 #define EE_AUDIO_SPDIFOUT_B_CHSTSB                 ((0x01b2  << 2) + 0xfe050000)
 #define EE_AUDIO_SPDIFOUT_B_MUTE_VAL               ((0x01b3  << 2) + 0xfe050000)
+#define EE_AUDIO_SPDIFOUT_B_GAIN2                  ((0x01b4  << 2) + 0xfe050000)
+#define EE_AUDIO_SPDIFOUT_B_GAIN3                  ((0x01b5  << 2) + 0xfe050000)
+#define EE_AUDIO_SPDIFOUT_B_GAIN_EN                ((0x01b6  << 2) + 0xfe050000)
+#define EE_AUDIO_SPDIFOUT_B_GAIN_CTRL              ((0x01b7  << 2) + 0xfe050000)
 #define EE_AUDIO_TORAM_CTRL0                       ((0x01c0  << 2) + 0xfe050000)
 #define EE_AUDIO_TORAM_CTRL1                       ((0x01c1  << 2) + 0xfe050000)
 #define EE_AUDIO_TORAM_START_ADDR                  ((0x01c2  << 2) + 0xfe050000)
@@ -398,6 +421,8 @@
 #define EE_AUDIO_LB_B_LB_CH_ID2                    ((0x023a  << 2) + 0xfe050000)
 #define EE_AUDIO_LB_B_LB_CH_ID3                    ((0x023b  << 2) + 0xfe050000)
 #define EE_AUDIO_LB_B_STS                          ((0x023c  << 2) + 0xfe050000)
+#define EE_AUDIO_LB_B_CHSYNC_CTRL_INSERT           ((0x023d  << 2) + 0xfe050000)
+#define EE_AUDIO_LB_B_CHSYNC_CTRL_ORIG             ((0x023e  << 2) + 0xfe050000)
 #define EE_AUDIO_TODDR_E_CTRL0                     ((0x0240  << 2) + 0xfe050000)
 #define EE_AUDIO_TODDR_E_CTRL1                     ((0x0241  << 2) + 0xfe050000)
 #define EE_AUDIO_TODDR_E_START_ADDR                ((0x0242  << 2) + 0xfe050000)
@@ -468,6 +493,8 @@
 #define EE_AUDIO_TDMOUT_A_MUTE5                    ((0x02a9  << 2) + 0xfe050000)
 #define EE_AUDIO_TDMOUT_A_MUTE6                    ((0x02aa  << 2) + 0xfe050000)
 #define EE_AUDIO_TDMOUT_A_MUTE7                    ((0x02ab  << 2) + 0xfe050000)
+#define EE_AUDIO_TDMOUT_A_GAIN_EN                  ((0x02ac  << 2) + 0xfe050000)
+#define EE_AUDIO_TDMOUT_A_GAIN_CTRL                ((0x02ad  << 2) + 0xfe050000)
 #define EE_AUDIO_TDMOUT_B_CTRL2                    ((0x02b0  << 2) + 0xfe050000)
 #define EE_AUDIO_TDMOUT_B_SWAP1                    ((0x02b1  << 2) + 0xfe050000)
 #define EE_AUDIO_TDMOUT_B_GAIN2                    ((0x02b2  << 2) + 0xfe050000)
@@ -480,6 +507,8 @@
 #define EE_AUDIO_TDMOUT_B_MUTE5                    ((0x02b9  << 2) + 0xfe050000)
 #define EE_AUDIO_TDMOUT_B_MUTE6                    ((0x02ba  << 2) + 0xfe050000)
 #define EE_AUDIO_TDMOUT_B_MUTE7                    ((0x02bb  << 2) + 0xfe050000)
+#define EE_AUDIO_TDMOUT_B_GAIN_EN                  ((0x02bc  << 2) + 0xfe050000)
+#define EE_AUDIO_TDMOUT_B_GAIN_CTRL                ((0x02bd  << 2) + 0xfe050000)
 #define EE_AUDIO_TDMOUT_C_CTRL2                    ((0x02c0  << 2) + 0xfe050000)
 #define EE_AUDIO_TDMOUT_C_SWAP1                    ((0x02c1  << 2) + 0xfe050000)
 #define EE_AUDIO_TDMOUT_C_GAIN2                    ((0x02c2  << 2) + 0xfe050000)
@@ -492,6 +521,44 @@
 #define EE_AUDIO_TDMOUT_C_MUTE5                    ((0x02c9  << 2) + 0xfe050000)
 #define EE_AUDIO_TDMOUT_C_MUTE6                    ((0x02ca  << 2) + 0xfe050000)
 #define EE_AUDIO_TDMOUT_C_MUTE7                    ((0x02cb  << 2) + 0xfe050000)
+#define EE_AUDIO_TODDR_A_CHNUM_ID0                 ((0x0300  << 2) + 0xfe050000)
+#define EE_AUDIO_TODDR_A_CHNUM_ID1                 ((0x0301  << 2) + 0xfe050000)
+#define EE_AUDIO_TODDR_A_CHNUM_ID2                 ((0x0302  << 2) + 0xfe050000)
+#define EE_AUDIO_TODDR_A_CHNUM_ID3                 ((0x0303  << 2) + 0xfe050000)
+#define EE_AUDIO_TODDR_A_CHNUM_ID4                 ((0x0304  << 2) + 0xfe050000)
+#define EE_AUDIO_TODDR_A_CHNUM_ID5                 ((0x0305  << 2) + 0xfe050000)
+#define EE_AUDIO_TODDR_A_CHNUM_ID6                 ((0x0306  << 2) + 0xfe050000)
+#define EE_AUDIO_TODDR_A_CHNUM_ID7                 ((0x0307  << 2) + 0xfe050000)
+#define EE_AUDIO_TODDR_A_CHSYNC_CTRL               ((0x030f  << 2) + 0xfe050000)
+#define EE_AUDIO_TODDR_B_CHNUM_ID0                 ((0x0310  << 2) + 0xfe050000)
+#define EE_AUDIO_TODDR_B_CHNUM_ID1                 ((0x0311  << 2) + 0xfe050000)
+#define EE_AUDIO_TODDR_B_CHNUM_ID2                 ((0x0312  << 2) + 0xfe050000)
+#define EE_AUDIO_TODDR_B_CHNUM_ID3                 ((0x0313  << 2) + 0xfe050000)
+#define EE_AUDIO_TODDR_B_CHNUM_ID4                 ((0x0314  << 2) + 0xfe050000)
+#define EE_AUDIO_TODDR_B_CHNUM_ID5                 ((0x0315  << 2) + 0xfe050000)
+#define EE_AUDIO_TODDR_B_CHNUM_ID6                 ((0x0316  << 2) + 0xfe050000)
+#define EE_AUDIO_TODDR_B_CHNUM_ID7                 ((0x0317  << 2) + 0xfe050000)
+#define EE_AUDIO_TODDR_B_CHSYNC_CTRL               ((0x031f  << 2) + 0xfe050000)
+#define EE_AUDIO_RSAMP_A_CHNUM_ID0                 ((0x0350  << 2) + 0xfe050000)
+#define EE_AUDIO_RSAMP_A_CHNUM_ID1                 ((0x0351  << 2) + 0xfe050000)
+#define EE_AUDIO_RSAMP_A_CHNUM_ID2                 ((0x0352  << 2) + 0xfe050000)
+#define EE_AUDIO_RSAMP_A_CHNUM_ID3                 ((0x0353  << 2) + 0xfe050000)
+#define EE_AUDIO_RSAMP_A_CHNUM_ID4                 ((0x0354  << 2) + 0xfe050000)
+#define EE_AUDIO_RSAMP_A_CHNUM_ID5                 ((0x0355  << 2) + 0xfe050000)
+#define EE_AUDIO_RSAMP_A_CHNUM_ID6                 ((0x0356  << 2) + 0xfe050000)
+#define EE_AUDIO_RSAMP_A_CHNUM_ID7                 ((0x0357  << 2) + 0xfe050000)
+#define EE_AUDIO_RSAMP_CHSYNC_MASK                 ((0x035e  << 2) + 0xfe050000)
+#define EE_AUDIO_RSAMP_A_CHSYNC_CTRL               ((0x035f  << 2) + 0xfe050000)
+#define EE_AUDIO_EXCEPTION_IRQ_STS0                ((0x0380  << 2) + 0xfe050000)
+#define EE_AUDIO_EXCEPTION_IRQ_STS1                ((0x0381  << 2) + 0xfe050000)
+#define EE_AUDIO_EXCEPTION_IRQ_MASK0               ((0x0382  << 2) + 0xfe050000)
+#define EE_AUDIO_EXCEPTION_IRQ_MASK1               ((0x0383  << 2) + 0xfe050000)
+#define EE_AUDIO_EXCEPTION_IRQ_MODE0               ((0x0384  << 2) + 0xfe050000)
+#define EE_AUDIO_EXCEPTION_IRQ_MODE1               ((0x0385  << 2) + 0xfe050000)
+#define EE_AUDIO_EXCEPTION_IRQ_CLR0                ((0x0386  << 2) + 0xfe050000)
+#define EE_AUDIO_EXCEPTION_IRQ_CLR1                ((0x0387  << 2) + 0xfe050000)
+#define EE_AUDIO_EXCEPTION_IRQ_INV0                ((0x0388  << 2) + 0xfe050000)
+#define EE_AUDIO_EXCEPTION_IRQ_INV1                ((0x0389  << 2) + 0xfe050000)
 //========================================================================
 //  PDM - Registers
 //========================================================================
@@ -705,6 +772,86 @@
 #define AED_TOP_CTL0                               ((0x0083  << 2) + 0xfe052000)
 #define AED_TOP_CTL1                               ((0x0084  << 2) + 0xfe052000)
 #define AED_TOP_CTL2                               ((0x0085  << 2) + 0xfe052000)
+#define AED_TOP_ST                                 ((0x0086  << 2) + 0xfe052000)
+#define AED_EQDRC_DYNAMIC_CNTL                     ((0x0090  << 2) + 0xfe052000)
+#define AED_COEF_RAM_CNTL_B                        ((0x0091  << 2) + 0xfe052000)
+#define AED_COEF_RAM_DATA_B                        ((0x0092  << 2) + 0xfe052000)
+#define AED_DRC_RMS_COEF0_B                        ((0x0093  << 2) + 0xfe052000)
+#define AED_DRC_RMS_COEF1_B                        ((0x0094  << 2) + 0xfe052000)
+#define AED_DRC_THD0_B                             ((0x0095  << 2) + 0xfe052000)
+#define AED_DRC_THD1_B                             ((0x0096  << 2) + 0xfe052000)
+#define AED_DRC_THD2_B                             ((0x0097  << 2) + 0xfe052000)
+#define AED_DRC_THD3_B                             ((0x0098  << 2) + 0xfe052000)
+#define AED_DRC_THD4_B                             ((0x0099  << 2) + 0xfe052000)
+#define AED_DRC_K0_B                               ((0x009a  << 2) + 0xfe052000)
+#define AED_DRC_K1_B                               ((0x009b  << 2) + 0xfe052000)
+#define AED_DRC_K2_B                               ((0x009c  << 2) + 0xfe052000)
+#define AED_DRC_K3_B                               ((0x009d  << 2) + 0xfe052000)
+#define AED_DRC_K4_B                               ((0x009e  << 2) + 0xfe052000)
+#define AED_DRC_K5_B                               ((0x009f  << 2) + 0xfe052000)
+#define AED_DRC_THD_OUT0_B                         ((0x00a0  << 2) + 0xfe052000)
+#define AED_DRC_THD_OUT1_B                         ((0x00a1  << 2) + 0xfe052000)
+#define AED_DRC_THD_OUT2_B                         ((0x00a2  << 2) + 0xfe052000)
+#define AED_DRC_THD_OUT3_B                         ((0x00a3  << 2) + 0xfe052000)
+#define AED_DRC_OFFSET_B                           ((0x00a4  << 2) + 0xfe052000)
+#define AED_DRC_RELEASE_COEF00_B                   ((0x00a5  << 2) + 0xfe052000)
+#define AED_DRC_RELEASE_COEF01_B                   ((0x00a6  << 2) + 0xfe052000)
+#define AED_DRC_RELEASE_COEF10_B                   ((0x00a7  << 2) + 0xfe052000)
+#define AED_DRC_RELEASE_COEF11_B                   ((0x00a8  << 2) + 0xfe052000)
+#define AED_DRC_RELEASE_COEF20_B                   ((0x00a9  << 2) + 0xfe052000)
+#define AED_DRC_RELEASE_COEF21_B                   ((0x00aa  << 2) + 0xfe052000)
+#define AED_DRC_RELEASE_COEF30_B                   ((0x00ab  << 2) + 0xfe052000)
+#define AED_DRC_RELEASE_COEF31_B                   ((0x00ac  << 2) + 0xfe052000)
+#define AED_DRC_RELEASE_COEF40_B                   ((0x00ad  << 2) + 0xfe052000)
+#define AED_DRC_RELEASE_COEF41_B                   ((0x00ae  << 2) + 0xfe052000)
+#define AED_DRC_RELEASE_COEF50_B                   ((0x00af  << 2) + 0xfe052000)
+#define AED_DRC_RELEASE_COEF51_B                   ((0x00b0  << 2) + 0xfe052000)
+#define AED_DRC_ATTACK_COEF00_B                    ((0x00b1  << 2) + 0xfe052000)
+#define AED_DRC_ATTACK_COEF01_B                    ((0x00b2  << 2) + 0xfe052000)
+#define AED_DRC_ATTACK_COEF10_B                    ((0x00b3  << 2) + 0xfe052000)
+#define AED_DRC_ATTACK_COEF11_B                    ((0x00b4  << 2) + 0xfe052000)
+#define AED_DRC_ATTACK_COEF20_B                    ((0x00b5  << 2) + 0xfe052000)
+#define AED_DRC_ATTACK_COEF21_B                    ((0x00b6  << 2) + 0xfe052000)
+#define AED_DRC_ATTACK_COEF30_B                    ((0x00b7  << 2) + 0xfe052000)
+#define AED_DRC_ATTACK_COEF31_B                    ((0x00b8  << 2) + 0xfe052000)
+#define AED_DRC_ATTACK_COEF40_B                    ((0x00b9  << 2) + 0xfe052000)
+#define AED_DRC_ATTACK_COEF41_B                    ((0x00ba  << 2) + 0xfe052000)
+#define AED_DRC_ATTACK_COEF50_B                    ((0x00bb  << 2) + 0xfe052000)
+#define AED_DRC_ATTACK_COEF51_B                    ((0x00bc  << 2) + 0xfe052000)
+#define AED_MDRC_RMS_COEF00_B                      ((0x00bd  << 2) + 0xfe052000)
+#define AED_MDRC_RMS_COEF01_B                      ((0x00be  << 2) + 0xfe052000)
+#define AED_MDRC_RMS_COEF10_B                      ((0x00bf  << 2) + 0xfe052000)
+#define AED_MDRC_RMS_COEF11_B                      ((0x00c0  << 2) + 0xfe052000)
+#define AED_MDRC_RMS_COEF20_B                      ((0x00c1  << 2) + 0xfe052000)
+#define AED_MDRC_RMS_COEF21_B                      ((0x00c2  << 2) + 0xfe052000)
+#define AED_MDRC_RELEASE_COEF00_B                  ((0x00c3  << 2) + 0xfe052000)
+#define AED_MDRC_RELEASE_COEF01_B                  ((0x00c4  << 2) + 0xfe052000)
+#define AED_MDRC_RELEASE_COEF10_B                  ((0x00c5  << 2) + 0xfe052000)
+#define AED_MDRC_RELEASE_COEF11_B                  ((0x00c6  << 2) + 0xfe052000)
+#define AED_MDRC_RELEASE_COEF20_B                  ((0x00c7  << 2) + 0xfe052000)
+#define AED_MDRC_RELEASE_COEF21_B                  ((0x00c8  << 2) + 0xfe052000)
+#define AED_MDRC_ATTACK_COEF00_B                   ((0x00c9  << 2) + 0xfe052000)
+#define AED_MDRC_ATTACK_COEF01_B                   ((0x00ca  << 2) + 0xfe052000)
+#define AED_MDRC_ATTACK_COEF10_B                   ((0x00cb  << 2) + 0xfe052000)
+#define AED_MDRC_ATTACK_COEF11_B                   ((0x00cc  << 2) + 0xfe052000)
+#define AED_MDRC_ATTACK_COEF20_B                   ((0x00cd  << 2) + 0xfe052000)
+#define AED_MDRC_ATTACK_COEF21_B                   ((0x00ce  << 2) + 0xfe052000)
+#define AED_MDRC_THD0_B                            ((0x00cf  << 2) + 0xfe052000)
+#define AED_MDRC_THD1_B                            ((0x00d0  << 2) + 0xfe052000)
+#define AED_MDRC_THD2_B                            ((0x00d1  << 2) + 0xfe052000)
+#define AED_MDRC_K0_B                              ((0x00d2  << 2) + 0xfe052000)
+#define AED_MDRC_K1_B                              ((0x00d3  << 2) + 0xfe052000)
+#define AED_MDRC_K2_B                              ((0x00d4  << 2) + 0xfe052000)
+#define AED_MDRC_OFFSET0_B                         ((0x00d5  << 2) + 0xfe052000)
+#define AED_MDRC_OFFSET1_B                         ((0x00d6  << 2) + 0xfe052000)
+#define AED_MDRC_OFFSET2_B                         ((0x00d7  << 2) + 0xfe052000)
+#define AED_MDRC_LOW_GAIN_B                        ((0x00d8  << 2) + 0xfe052000)
+#define AED_MDRC_MID_GAIN_B                        ((0x00d9  << 2) + 0xfe052000)
+#define AED_MDRC_HIGH_GAIN_B                       ((0x00da  << 2) + 0xfe052000)
+#define AED_DRC_CNTL_B                             ((0x00db  << 2) + 0xfe052000)
+#define AED_DRC_LOOPBACK_CNTL_B                    ((0x00dc  << 2) + 0xfe052000)
+#define AED_MDRC_CNTL_B                            ((0x00dd  << 2) + 0xfe052000)
+#define AED_STATUS_REG                             ((0x00de  << 2) + 0xfe052000)
 //========================================================================
 //  AUDIO locker - Registers
 //========================================================================
@@ -796,6 +943,15 @@
 #define VAD_IN_SEL0                                ((0x002f  << 2) + 0xfe051800)
 #define VAD_IN_SEL1                                ((0x0030  << 2) + 0xfe051800)
 #define VAD_TO_DDR                                 ((0x0031  << 2) + 0xfe051800)
+#define VAD_SYNC_CTRL0                             ((0x0032  << 2) + 0xfe051800)
+#define VAD_SYNC_CHNUM_ID0                         ((0x0033  << 2) + 0xfe051800)
+#define VAD_SYNC_CHNUM_ID1                         ((0x0034  << 2) + 0xfe051800)
+#define VAD_SYNC_CHNUM_ID2                         ((0x0035  << 2) + 0xfe051800)
+#define VAD_SYNC_CHNUM_ID3                         ((0x0036  << 2) + 0xfe051800)
+#define VAD_SYNC_CHNUM_ID4                         ((0x0037  << 2) + 0xfe051800)
+#define VAD_SYNC_CHNUM_ID5                         ((0x0038  << 2) + 0xfe051800)
+#define VAD_SYNC_CHNUM_ID6                         ((0x0039  << 2) + 0xfe051800)
+#define VAD_SYNC_CHNUM_ID7                         ((0x003a  << 2) + 0xfe051800)
 //
 // Closing file:  VAD_REG.h
 //
@@ -814,7 +970,8 @@
 //Bit   1         reg_rsamp_rst     //unsigned  , default =0;
 //Bit   0         reg_sw_rst        //unsigned  , default =0;
 #define AUDIO_RSAMP_CTRL1                          ((0x0001  << 2) + 0xfe051c00)
-//Bit   31:26      reserved          //unsigned  , default =0;
+//Bit   31:27      reserved          //unsigned  , default =0;
+//Bit   26         reg_watchdog_en   //unsigned  , default =0;
 //Bit   25         reg_rsamp_rst_sel //unsigned  , default =0;
 //Bit   24         reg_module_bypas  //unsigned  , default =0;
 //Bit   23:18      reg_gclk_ctrl     //unsigned  , default =0;
@@ -868,6 +1025,8 @@
 //Bit   31:0       reg_rsamp_adj_force_err      //signed , default = 8;
 #define AUDIO_RSAMP_ADJ_KI_FORCE                   ((0x000b  << 2) + 0xfe051c00)
 //Bit   31:0       reg_rsamp_adj_ki_force //signed , default = 0;
+#define AUDIO_RSAMP_WATCHDOG_THRD                  ((0x000c  << 2) + 0xfe051c00)
+//Bit   31:0       reg_watchdog_thrd      //signed , default = 32'h1000;
 #define AUDIO_RSAMP_RO_STATUS                      ((0x0010  << 2) + 0xfe051c00)
 //Bit   31:0       ro_rsamp_stat  //{din_chx_chk_err,is_idle_st,rsamp_fifo_over_cnt[7:0]}
 #define AUDIO_RSAMP_RO_ADJ_FREQ                    ((0x0011  << 2) + 0xfe051c00)
@@ -918,6 +1077,8 @@
 #define EE_AUDIO2_SW_RESET0                        ((0x0002  << 2) + 0xfe054800)
 #define EE_AUDIO2_CLK_GATE_EN0                     ((0x0003  << 2) + 0xfe054800)
 #define EE_AUDIO2_SECURITY_CTRL0                   ((0x0004  << 2) + 0xfe054800)
+#define EE_AUDIO2_IRQ_FIFO_CNT                     ((0x0007  << 2) + 0xfe054800)
+#define EE_AUDIO2_DDRASYNC_STAT                    ((0x0008  << 2) + 0xfe054800)
 #define EE_AUDIO2_MCLK_VAD_CTRL                    ((0x0010  << 2) + 0xfe054800)
 #define EE_AUDIO2_VAD_CLK_CTRL                     ((0x0011  << 2) + 0xfe054800)
 #define EE_AUDIO2_MST_DLY_CTRL0                    ((0x0012  << 2) + 0xfe054800)
@@ -959,6 +1120,20 @@
 #define EE_AUDIO2_TDMIN_VAD_MASK5                  ((0x005d  << 2) + 0xfe054800)
 #define EE_AUDIO2_TDMIN_VAD_MASK6                  ((0x005e  << 2) + 0xfe054800)
 #define EE_AUDIO2_TDMIN_VAD_MASK7                  ((0x005f  << 2) + 0xfe054800)
+#define EE_AUDIO2_EXCEPTION_IRQ_STS0               ((0x0060  << 2) + 0xfe054800)
+#define EE_AUDIO2_EXCEPTION_IRQ_MASK0              ((0x0062  << 2) + 0xfe054800)
+#define EE_AUDIO2_EXCEPTION_IRQ_MODE0              ((0x0064  << 2) + 0xfe054800)
+#define EE_AUDIO2_EXCEPTION_IRQ_CLR0               ((0x0066  << 2) + 0xfe054800)
+#define EE_AUDIO2_EXCEPTION_IRQ_INV0               ((0x0068  << 2) + 0xfe054800)
+#define EE_AUDIO2_TODDR_VAD_CHNUM_ID0              ((0x0070  << 2) + 0xfe054800)
+#define EE_AUDIO2_TODDR_VAD_CHNUM_ID1              ((0x0071  << 2) + 0xfe054800)
+#define EE_AUDIO2_TODDR_VAD_CHNUM_ID2              ((0x0072  << 2) + 0xfe054800)
+#define EE_AUDIO2_TODDR_VAD_CHNUM_ID3              ((0x0073  << 2) + 0xfe054800)
+#define EE_AUDIO2_TODDR_VAD_CHNUM_ID4              ((0x0074  << 2) + 0xfe054800)
+#define EE_AUDIO2_TODDR_VAD_CHNUM_ID5              ((0x0075  << 2) + 0xfe054800)
+#define EE_AUDIO2_TODDR_VAD_CHNUM_ID6              ((0x0076  << 2) + 0xfe054800)
+#define EE_AUDIO2_TODDR_VAD_CHNUM_ID7              ((0x0077  << 2) + 0xfe054800)
+#define EE_AUDIO2_TODDR_VAD_CHSYNC_CTRL            ((0x007f  << 2) + 0xfe054800)
 //
 // Closing file:  REG_LIST_AUDIO_RTL.h
 //
@@ -977,6 +1152,7 @@
   //bit 31   AHB BUS enable.  1 enable ahb request.  0: disable ahb request.
   //bit 30.  decerr_en for (AXI->AHB bridge).
   //bit 29.  force_incr.  for ( AXI->AHB bridge).
+  //bit 20.  ahb_idle_ctrl. 1: show idle status in C1 mode. 0: show Idle always.
   //bit 19.  critical word first.  CWF_EN.  1: enable.   0 : disable.
   //bit 18:17 RDBUF_SIZE . 00: 64bytes. 01: 32 bytes. 10: 16 bytes. 11: reserved.
   //bit 16  AHB MASTER enable.  if enabled, each master use one dedicated HRDATA buffer inside ahb2api model. total 3 HRDATA buffers inside ahb2spi.
@@ -984,7 +1160,8 @@
   //bit 14  write 1 to clean the HRDATA buffer 2. read 0 finished clean operation.
   //bit 13  write 1 to clean the HRDATA buffer 1. read 0 finished clean operation.
   //bit 12  write 1 to clean the HRDATA buffer 0. read 0 finished clean operation.
-  //bit 11:0. not used.
+  //bit 11.  clr_wtchdg:   1: clear WTCHDG_STS bits in STS registers. 0 : normal.
+  //bit 10:0.  not used.
 #define SPIFC_CLK_CTRL                             ((0x0001  << 2) + 0xfe00ac00)
   //bit 14   asynchronous buffer ahb clock disable.  1 = disable. 0 = enable.
   //bit 13   ahb2spi ahb clock disable.  1 = disable. 0 = enable.
@@ -1004,8 +1181,11 @@
    //bit 10.  range2 enable:   1: enable; 0 : disable.
    //bit 9.   range1 enable:   1: enable; 0 : disable.
    //bit 8.   range0 enable:   1: enable; 0 : disable.
-   //bit 7:4  to control spi clock register security.  bit 7 = 1, APB bus can access spi clock domain register.  bit 7 == 0 : only PPROT[0] == bit 4, the APB can access spic clock domain register.
-   //bit 3:0  to control ahb clock domain register secruity. bit 3 = 1, APB bus can access ahb clock domain register.  bit 3 ==0; only PPROT[0] == bit 0, the APB can access ahb clock domain register.
+#define SPIFC_APB_CTRL                             ((0x0003  << 2) + 0xfe00ac00)
+  //bit 31   APB control lock bit. if this bit = 1, this register can't access any more.
+  //bit 30~16. Not used.
+  //bit 15:8.  SPI clock domain regsiter APB access control. each bit for one APB user ID.
+  //bit 7:0    AHB clock domain register APB access control. each bit for one APB user ID.
 #define SPIFC_RANGE0_STA                           ((0x0010  << 2) + 0xfe00ac00)
   //bit 28 :6.
   //AHB security range 0  start address in unit of 64Byte. related to HADDR bit 28:6.
@@ -1014,8 +1194,21 @@
   //bit 28 :6.
   //AHB security range 0  end address in unit of 64Byte. related to HADDR bit 28:6.
   //bit 5:0.  always 0.
+//HMASTER[4:0] defines:
+//5'h0:     CPU secure data access.
+//5'h1:     CPU secure instruction access.
+//5'h2:     CPU non-secure data access.
+//5'h3:     CPU non-secure instruction access.
+//5'h4:     DSPA secure data access.
+//5'h5:     DSPA secure instruction access.
+//5'h6:     DSPA non-secure data access.
+//5'h7:     DSPA non-secure instruction access.
+//5'h08~5'h0f. for DMA access with HMASTER[2:0] as DMA thread ID.
+//5'h10     all other REQUEST not CPU DSP and DMA.
+//5'h1x.    Not used.
 #define SPIFC_RANGE0_CTRL                          ((0x0012  << 2) + 0xfe00ac00)
   // AHB secruity range 0 control.
+  // bit 16. range 0 access control for HMASTEr == 6   //all other access that is not CPU DSP and DMA.
   //bit 15:8 range 0 access control for DMA access.
   //bit  15  range 0 access control for DMA thread 7
   //bit  14  range 0 access control for DMA Thread 6
@@ -1025,14 +1218,14 @@
   // bit 10. range 0 access control for DMA Thread 2
   // bit  9. range 0 access control for DMA Thread 1.
   // bit  8. range 0 access control for DMA Thread 0.
-  // bit  7. range 0 access control for HMASTER == 7   Not used.
-  // bit  6. range 0 access control for HMASTEr == 6   //all other access that is not CPU DSP and DMA.
-  // bit  5. range 0 access control for HMASTER == 5   //DSPB non secure
-  // bit  4. range 0 access control for HMASTER == 4   //DSPB non secure
-  // bit  3. range 0 access control for HMASTER == 3   //DSPA secure
-  // bit  2. range 0 access control for HMASTER == 2   //DSPA non secure
-  // bit  1. range 0 access control for HMASTER == 1   //CPU secure access
-  // bit  0. range 0 access control for HMASTER == 0   //CPU non secure.
+  // bit  7. range 0 access control for HMASTER == 7   //DSPA secure   instruction access.
+  // bit  6. range 0 access control for HMASTER == 6   //DSPA secure   data access.
+  // bit  5. range 0 access control for HMASTER == 5   //DSPA non secure   instruction access
+  // bit  4. range 0 access control for HMASTER == 4   //DSPA non secure   data access.
+  // bit  3. range 0 access control for HMASTER == 3   //CPU secure   instruction access.
+  // bit  2. range 0 access control for HMASTER == 2   //CPU secure   data access.
+  // bit  1. range 0 access control for HMASTER == 1   //CPU non secure   instruction access
+  // bit  0. range 0 access control for HMASTER == 0   //CPU non secure   data access.
 #define SPIFC_RANGE1_STA                           ((0x0013  << 2) + 0xfe00ac00)
   //bit 28 :6.
   //AHB security range 1  start address in unit of 64Byte. related to HADDR bit 28:6.
@@ -1215,20 +1408,25 @@
   // bit  1. range 7 access control for HMASTER == 1   //CPU secure access
   // bit  0. range 7 access control for HMASTER == 0   //CPU non secure.
 #define SPIFC_AHB_WTCH_CTRL                        ((0x0026  << 2) + 0xfe00ac00)
+  //bit 16.     Wtch dog enable.
   //bit 15:0.   ahb bus watch dog timer. if AHB bus not response, the timer over this number, the SPIFC will send back  a error response.
 #define SPIFC_SEC_VIO0                             ((0x0027  << 2) + 0xfe00ac00)
   //bit 31:0  VIO ADDR
 #define SPIFC_SEC_VIO1                             ((0x0028  << 2) + 0xfe00ac00)
   //bit  31.  AHB VIO status.  write 1 to clear the error info.
-  //bit 6:5  HMASTER.
-  //bit 4:2  HPROT.
-  //bit 1    HNONSEC.
+  //bit 30:6  Not used.
+  //bit 5:1  HMASTER.
   //bit 0    HWRITE.
 #define SPIFC_AHB_STS                              ((0x0029  << 2) + 0xfe00ac00)
   //bit 31.  AHB IDLE.  when ahb disabled, to show ahb status. 1,  no more ahb request or ahb requent is holded.  0, ahb is still busy.
   //bit 30.  AHB data cycle status, when ahb disabled, to show ahb data cycle status. 1, data cycle is holded,  0 : not in data cycle or data cycle is processing.
   //bit 29.  AHB bus spi requst status. 1: still waiting for spi data. 0: idle.
-  //bit 28:0.  not used.
+  //bit 28.  WTCHDG_STS.  1: AHB BUS access watchdog triggered. 0: no watchdo triggered.
+  //bit 27:21.  not used.
+  //bit 20:16.  WTCHDOG triggered AHB Master.
+  //bit 15:0.  not used.
+#define SPIFC_AHB_WTCH_ADDR                        ((0x0030  << 2) + 0xfe00ac00)
+  //bit 27:0  WTCHDG triggered AHB ADDRESS
 //SPI cts_spi_clk domain regsiter.
 #define SPIFC_USER_CTRL0                           ((0x0080  << 2) + 0xfe00ac00)
   //bit 31.    user request enable.  write 1 to enable.  read 0, means user command accepted by the SPI_CTRL.
@@ -1336,7 +1534,131 @@
 // Closing file:  ../spifc/rtl/spifc_reg.vh
 //
 //
-// Reading file:  ../mmc_lp4/dmc/rtl/dmc_sec.vh
+// Reading file:  ../mmc_new/dmc_clk_freq/rtl/dmc_clk_freq.vh
+//
+//`ifdef DMC_FREQ_REG_DEFINE
+//`else
+//`define DMC_FREQ_REG_DEFINE
+// -----------------------------------------------
+// APB_BASE:  APB1_BASE_ADDR = 0xfe024c00
+// -----------------------------------------------
+//`define DMC_FREQ_REG_BASE      32'hfe024c00
+#define AM_DDR_PLL_CNTL0                           ((0x0000  << 2) + 0xfe024c00)
+  //bit 31    : ddr_gp_pll_rst.      default 1
+  //bit 30    : ddr_gp_pll_rstn.     default 0.
+  //bit 29    : ddr_gp_pll_lk_rstn   default 0
+  //bit 28    : ddr_gp_pll_en.       default 0
+  //bit 25:24 : ddr_gp_pll_output_od2     default 0
+  //bit 23:20 : ddr_gp_pll_od1            default 0
+  //bit 17:16 : ddr_gp_pll_od_s1          default 0
+  //bit 15    : ddr_gp_pll_clk1x_inv_sel  default 0
+  //bit 14    : ddr_gp_pll_clk4x_by_en    default 0
+  //bit 12:8  : ddr_gp_pll_n              default 0
+  //bit 7:0   : ddr_gp_pll_pll_div_m      default 0
+#define AM_DDR_PLL_CNTL1                           ((0x0001  << 2) + 0xfe024c00)
+  //bit 31    : ddr_sdm_pll_rst           default 1
+  //bit 30    : ddr_sdm_pll_e             default 0.
+  //bit 29    : ddr_sdm_pll_dvdd_pd       default 0
+  //bit 28    : ddr_sdm_pll_free_run      default 0
+  //bit 17:16 : ddr_sdm_pll_output_od     default 1
+  //bit 12:8  : ddr_sdm_pll_n             default 1
+  //bit 7:0   : ddr_sdm_pll_div_m
+#define AM_DDR_PLL_CNTL2                           ((0x0002  << 2) + 0xfe024c00)
+  //default 0x0
+  //bit 31:24  : ddr_sdm_pll_reve
+  //bit 23:20  : ddr_sdm_pll_cp_adj
+  //bit 19:16  : ddr_sdm_pll_bias_icp_adj
+  //bit 15:14  : ddr_sdm_pll_lock_long
+  //bit 12     : ddr_sdm_pll_dead_time_select
+  //bit 11     : ddr_sdm_pll_cp_offset_en
+  //bit 10     : ddr_sdm_pll_ldo0p8_adj
+  //bit 9      : ddr_sdm_pll_ldo1p5_adj
+  //bit 8      : ddr_sdm_pll_lock_f
+  //bit 7:6    : ddr_sdm_pll_r3_cnt
+  //bit 5:4    : ddr_sdm_pll_r2_cnt
+  //bit 3:2    : ddr_sdm_pll_c3_cnt
+  //bit 1:0    : ddr_sdm_pll_c2_cnt.
+#define AM_DDR_PLL_CNTL3                           ((0x0003  << 2) + 0xfe024c00)
+  //default 0x0
+  //bit 31:4 : not used.
+  //bit 3:2  : ddr_sdm_pll_ini_vco_adj
+  //bit 1:0  : ddr_sdm_pll_lkdet_sel
+#define AM_DDR_PLL_CNTL4                           ((0x0004  << 2) + 0xfe024c00)
+  //default 0x0
+  //bit 31     : ddr_gp_pll_dpll_load
+  //bit 30     : ddr_gp_pll_free_run
+  //bit 29:28  : ddr_gp_pll_judge_win
+  //bit 27     : ddr_gp_pll_ldo0p8_ref_mux
+  //bit 26     : ddr_gp_pll_ldo1p5_adj
+  //bit 25     : ddr_gp_pll_ldo0p8_daj
+  //bit 24:21  : ddr_gp_pll_ssc_str_m
+  //bit 20:18  : ddr_gp_pll_fref_sel
+  //bit 17:16  : ddr_gp_pll_lk_vco_div_od
+  //bit 15:12  : ddr_gp_pll_cp_icp_ctrl
+  //bit 11:8   : ddr_gp_pll_ssc_dep_sel
+  //bit 7      : ddr_gp_pll_dead_time_select
+  //bit 6:0    : ddr_gp_pll_m_s1
+#define AM_DDR_PLL_CNTL5                           ((0x0005  << 2) + 0xfe024c00)
+  //default 0x0
+  //bit 31:24  : ddr_gp_pll_reve
+  //bit 23:22  : ddr_gp_pll_ss_mode
+  //bit 21:20  : ddr_gp_pll_ini_vco_adj
+  //bit 19:16  : ddr_gp_pll_bias_icp_ctrl
+  //bit 15     : ddr_gp_pll_clk_by_sel
+  //bit 14     : ddr_gp_pll_cp_offset_en
+  //bit 13     : ddr_gp_pll_lk_width
+  //bit 12     : ddr_gp_pll_lk_bypass
+  //bit 11     : ddr_gp_pll_sdm_en
+  //bit 10     : ddr_gp_pll_shift_en
+  //bit 9      : ddr_gp_pll_load_en
+  //bit 8:4    : ddr_gp_pll_vco_limit
+  //bit 3:2    : ddr_gp_pll_shift_v
+  //bit 1:0    : ddr_gp_pll_os_ssc
+#define AM_DDR_PLL_CNTL6                           ((0x0006  << 2) + 0xfe024c00)
+  //default 0x0
+  //bit 31:30  : ddr_gp_pll_c3_cnt
+  //bit 29:28  : ddr_gp_pll_c2_cnt
+  //bit 27:26  : ddr_gp_pll_r3_cnt
+  //bit 25:24  : ddr_gp_pll_r2_cnt
+  //bit 23:19  : ddr_gp_pll_inte_num
+  //bit 18:0   : ddr_gp_pll_fracin
+#define AM_DDR_PLL_STS                             ((0x0007  << 2) + 0xfe024c00)
+  //bit 31     : DDR PLL lock bit.  1 = locked. 0 = not locked.
+  //bit 30:0   :  not used.
+#define DDR_CLK_CNTL                               ((0x0008  << 2) + 0xfe024c00)
+  //bit 31     ddr_pll_clk enable. enable the clock from DDR_PLL to clock generateion.
+  // whenever change the DDR_PLL frequency, disable the clock, after the DDR_PLL locked, then enable it again.
+  //bit 30.    ddr_pll_prod_test_en.  enable the clock to clock/32 which to clock frequency measurement and production test pin.
+  //bit 29.    not used.
+  //bit 28.    clock generation logic soft reset. 0 = reset.
+  //bit 27.    phy_4xclk phase inverter..
+  //bit 25.    DDRPHY DfiClk/DMC clock selection.  1:  AM_PLL clk output /2.  0: directly output from AM_PLL .
+  //bit 24.    enable AM_PLL CLK output /2 function.   1: enable.  0: disable.   if try to use this clkoutput/2 function.
+  //bit 26.    pll_freq divide/2. 1:  use pll div/2 clock as the n_clk. 0: use pll clock as n_clk.  this setting is used for the synopsys DDR PHY PLL fast lock mode.
+  //bit 2. enable dmc_clk.
+  //bit 1. not used.
+  //bit 0. enable LPDDR4-PHY clock
+#define DDR_PHY_CTRL                               ((0x0009  << 2) + 0xfe024c00)
+  // LPDDR4 power on reset need to special combination of PwrOkIn and phy_reset_n.
+  //bit 31:  DDr PHY power on status.  read only.
+  //bit 4.   DDR PHY PwrOkIn pin.
+  //bit 1.   DDR PHY APB soft reset_n.
+  //bit 0.   phy_reset_n.
+#define AM_DDR_PLL_FREQ1_OD                        ((0x000c  << 2) + 0xfe024c00)
+ //freqency set 1 PLL OD and OD1 setting. when change to freqency 1 will use this setting.
+//frequency set 0 use original DDR_PLL_CNTL0 setting.
+ //bit 8     currunt FREQ selection.  it can forced to change to select which freqency to select, or it can auto changed by FREQ change hardware.
+ //bit 7:0 is the FREQ1 GP_PLL output clock setting.
+ //bit 7     gp_pll_clk1x_inv_sel
+ //bit 6     gp_pll_clk4x_by_en
+ //bit 5:4   gp_pll_output_od2.
+ //bit 3:0.  gp_pll_od1.
+//`endif
+//
+// Closing file:  ../mmc_new/dmc_clk_freq/rtl/dmc_clk_freq.vh
+//
+//
+// Reading file:  ../mmc_new/dmc/rtl/dmc_sec.vh
 //
 //`ifdef DMC_SEC_REG_DEFINE
 //`else
@@ -1383,520 +1705,601 @@
 // all the 15 regions can be enabled or disabled  seperately. Each range use security level bit to select one of the two des key to do data scramble.
 // The region can be overlapped or crossover.  For one transaction, DMC would check the address from region 0 to 15.
 // DMC would use the policy defined in the region that this transaction address hit first.
-// the region is define by  >= STA && <= EDA.
-#define DMC_SEC_RANGE0_STA                         ((0x0000  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 start address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE0_EDA                         ((0x0001  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 end address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE1_STA                         ((0x0002  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 start address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE1_EDA                         ((0x0003  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 end address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE2_STA                         ((0x0004  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 start address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE2_EDA                         ((0x0005  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 end address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE3_STA                         ((0x0006  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 start address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE3_EDA                         ((0x0007  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 end address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE4_STA                         ((0x0008  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 start address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE4_EDA                         ((0x0009  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 end address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE5_STA                         ((0x000a  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 start address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE5_EDA                         ((0x000b  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 end address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE6_STA                         ((0x000c  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 start address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE6_EDA                         ((0x000d  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 end address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE7_STA                         ((0x000e  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 start address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE7_EDA                         ((0x000f  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 end address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE8_STA                         ((0x0010  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 start address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE8_EDA                         ((0x0011  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 end address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE9_STA                         ((0x0012  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 start address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE9_EDA                         ((0x0013  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 end address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE10_STA                        ((0x0014  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 start address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE10_EDA                        ((0x0015  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 end address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE11_STA                        ((0x0016  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 start address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE11_EDA                        ((0x0017  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 end address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE12_STA                        ((0x0018  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 start address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE12_EDA                        ((0x0019  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 end address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE13_STA                        ((0x001a  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 start address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE13_EDA                        ((0x001b  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 end address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE14_STA                        ((0x001c  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 start address.
-  //bit 11:0    : reserved to be 0.
-#define DMC_SEC_RANGE14_EDA                        ((0x001d  << 2) + 0xfe025000)
-  //bit 31:12   : range 0 end address.
-  //bit 11:0    : reserved to be 0.
-//there's total 36 bit sid_en polocis for each region read/write seperately.
-//*_sid_en[35:0]
-//bit 35: dmc_test access enable bit. 1: enable : 0 disable.
-//bit 34: i2c  access enable bit. 1: enable : 0 disable.
-//bit 33: jpeg  access enable bit. 1: enable : 0 disable.
-//bit 32: USB host access enable bit. 1: enable : 0 disable.
-//bit 31: USB device access enable bit. 1: enable : 0 disable.
-//bit 30: NNA non-secure access enable bit. 1: enable : 0 disable.
-//bit 29: NNA secure access enable bit. 1: enable : 0 disable.
-//bit 28: ISP access enable bit. 1: enable : 0 disable.
-//bit 27: GE2D read source 1 enable bit.     not used for write. 1: enable : 0 disable.
-//bit 26: GE2D read source 0 enable bit.    GE2D write access enable bit for write. 1: enable : 0 disable.
-//bit 25: GDC access enable bit. 1: enable.  0: disable.
-//bit 24: WAVE access enable bit. 1: enable.  0: disable.
-//bit 23: NAND_EMMCC access enable bit. 1: enable.  0: disable.
-//bit 22: SD_EMMCB access enable bit. 1: enable.  0: disable.
-//bit 21: SD_EMMCA access enable bit. 1: enable.  0: disable.
-//bit 20: SPICC_B access enable bit. 1: enable.  0: disable.
-//bit 19: SPICC_A access enable bit. 1: enable.  0: disable.
-//bit 18: ETH access enable bit. 1: enable.  0: disable.
-//bit 17:10: DMA thread ID access enable bit.  each thread for one bit.  (only 4/6 threads supports in C1). 1: enable.  0: disable.
-//bit 9:6: AUDIO channel sub ID access enable bit.  each ID for one bit. (2 read IDs and 2 write IDs supports in C1). 1: enable.  0: disable.
-//bit 5:   DSP_B non-secure access enable bit. 1: enable.  0: disable.
-//bit 4:   DSP_B secure access enable bit. 1: enable.  0: disable.
-//bit 3:   DSP_A non-secure access enable bit. 1: enable.  0: disable.
-//bit 2:   DSP_A secure access enable bit. 1: enable.  0: disable.
-//bit 1:   A55 non-secure access enable bit. 1: enable.  0: disable.
-//bit 0:   A55 secure access enable bit. 1: enable.  0: disable.
-//wire [1:0]  cpu_sid_en    = range_sid_en[1:0];
-//wire [1:0]  dspa_sid_en   = range_sid_en[3:2];
-//wire [1:0]  dspb_sid_en   = range_sid_en[5:4];
-//wire [3:0]  audio_sid_en  = range_sid_en[9:6];
-//wire [7:0]  dma_sid_en    = range_sid_en[17:10];
-//wire [7:0]  dev_sid_en    = {range_sid_en[23], 2'b0, range_sid_en[22:18]};
-//wire        wave_sid_en   = range_sid_en[24];
-//wire        gdc_sid_en    = range_sid_en[25];
-//wire [1:0]  ge2d_sid_en   = range_sid_en[27:26];
-//wire        isp_sid_en    = range_sid_en[28];
-//wire [1:0]  nna_sid_en    = range_sid_en[30:29];
-//wire        usb_sid_en    = range_sid_en[31];
-//wire        usb2_sid_en   = range_sid_en[32];
-//wire        jpeg_sid_en   = range_sid_en[33];
-//wire        i2c_sid_en    = range_sid_en[34];
-//wire        test_sid_en   = range_sid_en[35];
+#define DMC_SEC_RANGE0_CTRL                        ((0x0000  << 2) + 0xfe025000)
+  //bit 31:16   | 0 | range0_eda | range 0 end address  higher 16bits.
+  //bit 15:0    | 0 | range0_sta | range 0 start address higher 16bits.
+#define DMC_SEC_RANGE0_CTRL1                       ((0x0001  << 2) + 0xfe025000)
+  //bit 7:5 | 0 | range0_secrity_level | range0 secruity level for DMC and DEMUX only.
+  //bit 4  | 0 | range0_prot_en       | range0 allow protect monitor function.  1: allowed.  0: not allowed.
+  //bit 3  | 0 | range0_local_des_en  | range0 data describle enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES_EN to decide this region data describle enable or not.
+  //bit 2  | 0 | range0_lock  |  lock range 0 registers. write 1 to lock range 0 register. can't change anymore.
+  //bit 1  | 0 | range0_key_sel | range 0 data describle key selection.  1 : key1. 0 : key0.
+  //bit 0  | 0 | range0_en    | range 0 enable bit. 1 : enable, 0 : disable.
+#define DMC_SEC_RANGE1_CTRL                        ((0x0002  << 2) + 0xfe025000)
+  //bit 31:16   | 0 | range1_eda | range 1 end address  higher 16bits.
+  //bit 15:0    | 0 | range1_sta | range 1 start address higher 16bits.
+#define DMC_SEC_RANGE1_CTRL1                       ((0x0003  << 2) + 0xfe025000)
+  //bit 7:5 | 0 | range1_secrity_level | range1 secruity level for DMC and DEMUX only.
+  //bit 4  | 0 | range1_prot_en       | range1 allow protect monitor function.  1: allowed.  0: not allowed.
+  //bit 3  | 0 | range1_local_des_en  | range1 data describle enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES_EN to decide this region data describle enable or not.
+  //bit 2  | 0 | range1_lock  |  lock range 1 registers. write 1 to lock range 1 register. can't change anymore.
+  //bit 1  | 0 | range1_key_sel | range 1 data describle key selection.  1 : key1. 1 : key0.
+  //bit 0  | 0 | range1_en    | range 0 enable bit. 1 : enable, 0 : disable.
+#define DMC_SEC_RANGE2_CTRL                        ((0x0004  << 2) + 0xfe025000)
+  //bit 31:16   | 0 | range2_eda | range 2 end address  higher 16bits.
+  //bit 15:0    | 0 | range2_sta | range 2 start address higher 16bits.
+#define DMC_SEC_RANGE2_CTRL1                       ((0x0005  << 2) + 0xfe025000)
+  //bit 7:5 | 0 | range2_secrity_level | range2 secruity level for DMC and DEMUX only.
+  //bit 4  | 0 | range2_prot_en       | range2 allow protect monitor function.  1: allowed.  0: not allowed.
+  //bit 3  | 0 | range2_local_des_en  | range2 data describle enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES to decide this region data describle enable or not.
+  //bit 2  | 0 | range2_lock  |  lock range 2 registers. write 1 to lock range 2 register. can't change anymore.
+  //bit 1  | 0 | range2_key_sel | range 2 data describle key selection.  1 : key1. 1 : key0.
+  //bit 0  | 0 | range2_en    | range 2 enable bit. 1 : enable, 0 : disable.
+#define DMC_SEC_RANGE3_CTRL                        ((0x0006  << 2) + 0xfe025000)
+  //bit 31:16   | 0 | range3_eda | range 3 end address  higher 16bits.
+  //bit 15:0    | 0 | range3_sta | range 3 start address higher 16bits.
+#define DMC_SEC_RANGE3_CTRL1                       ((0x0007  << 2) + 0xfe025000)
+  //bit 7:5 | 0 | range3_secrity_level | range3 secruity level for DMC and DEMUX only.
+  //bit 4  | 0 | range3_prot_en       | range3 allow protect monitor function.  1: allowed.  0: not allowed.
+  //bit 3  | 0 | range3_local_des_en  | range3 data describle enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES to decide this region data describle enable or not.
+  //bit 2  | 0 | range3_lock    | lock range 3 registers. write 1 to lock range 3 related registers. can't change anymore.
+  //bit 1  | 0 | range3_key_sel | range 3 data describle key selection.  1 : key1. 1 : key0.
+  //bit 0  | 0 | range3_en      | range 3 enable bit. 1 : enable, 0 : disable.
+#define DMC_SEC_RANGE4_CTRL                        ((0x0008  << 2) + 0xfe025000)
+  //bit 31:16   | 0 | range4_eda | range 4 end address  higher 16bits.
+  //bit 15:0    | 0 | range4_sta | range 4 start address higher 16bits.
+#define DMC_SEC_RANGE4_CTRL1                       ((0x0009  << 2) + 0xfe025000)
+  //bit 7:5 | 0 | range4_secrity_level | range4 secruity level for DMC and DEMUX only.
+  //bit 4  | 0 | range4_prot_en       | range4 allow protect monitor function.  1: allowed.  0: not allowed.
+  //bit 3  | 0 | range4_local_des_en  | range4 data describle enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES to decide this region data describle enable or not.
+  //bit 2  | 0 | range4_lock    | lock range 4 registers. write 1 to lock range 4 related registers. can't change anymore.
+  //bit 1  | 0 | range4_key_sel | range 4 data describle key selection.  1 : key1. 1 : key0.
+  //bit 0  | 0 | range4_en      | range 4 enable bit. 1 : enable, 0 : disable.
+#define DMC_SEC_RANGE5_CTRL                        ((0x000a  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE5_CTRL1                       ((0x000b  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE6_CTRL                        ((0x000c  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE6_CTRL1                       ((0x000d  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE7_CTRL                        ((0x000e  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE7_CTRL1                       ((0x000f  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE8_CTRL                        ((0x0010  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE8_CTRL1                       ((0x0011  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE9_CTRL                        ((0x0012  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE9_CTRL1                       ((0x0013  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE10_CTRL                       ((0x0014  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE10_CTRL1                      ((0x0015  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE11_CTRL                       ((0x0016  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE11_CTRL1                      ((0x0017  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE12_CTRL                       ((0x0018  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE12_CTRL1                      ((0x0019  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE13_CTRL                       ((0x001a  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE13_CTRL1                      ((0x001b  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE14_CTRL                       ((0x001c  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE14_CTRL1                      ((0x001d  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE15_CTRL1                      ((0x001f  << 2) + 0xfe025000)
+//per range per sub ID access enable.
 #define DMC_SEC_RANGE0_RID_CTRL0                   ((0x0020  << 2) + 0xfe025000)
-  //range0_rd_sid_en[31:0];
+  //range_rd_sid_en[31:0];
 #define DMC_SEC_RANGE0_RID_CTRL1                   ((0x0021  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range0_rd_sid_en[35:32];
-#define DMC_SEC_RANGE1_RID_CTRL0                   ((0x0022  << 2) + 0xfe025000)
-  //range1_rd_sid_en[31:0];
-#define DMC_SEC_RANGE1_RID_CTRL1                   ((0x0023  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range1_rd_sid_en[35:32];
-#define DMC_SEC_RANGE2_RID_CTRL0                   ((0x0024  << 2) + 0xfe025000)
-  //range2_rd_sid_en[31:0];
-#define DMC_SEC_RANGE2_RID_CTRL1                   ((0x0025  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range2_rd_sid_en[35:32];
-#define DMC_SEC_RANGE3_RID_CTRL0                   ((0x0026  << 2) + 0xfe025000)
-  //range3_rd_sid_en[31:0];
-#define DMC_SEC_RANGE3_RID_CTRL1                   ((0x0027  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range3_rd_sid_en[35:32];
-#define DMC_SEC_RANGE4_RID_CTRL0                   ((0x0028  << 2) + 0xfe025000)
-  //range4_rd_sid_en[31:0];
-#define DMC_SEC_RANGE4_RID_CTRL1                   ((0x0029  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range4_rd_sid_en[35:32];
-#define DMC_SEC_RANGE5_RID_CTRL0                   ((0x002a  << 2) + 0xfe025000)
-  //range5_rd_sid_en[31:0];
-#define DMC_SEC_RANGE5_RID_CTRL1                   ((0x002b  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range5_rd_sid_en[35:32];
-#define DMC_SEC_RANGE6_RID_CTRL0                   ((0x002c  << 2) + 0xfe025000)
-  //range6_rd_sid_en[31:0];
-#define DMC_SEC_RANGE6_RID_CTRL1                   ((0x002d  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range6_rd_sid_en[35:32];
-#define DMC_SEC_RANGE7_RID_CTRL0                   ((0x002e  << 2) + 0xfe025000)
-  //range7_rd_sid_en[31:0];
-#define DMC_SEC_RANGE7_RID_CTRL1                   ((0x002f  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range7_rd_sid_en[35:32];
-#define DMC_SEC_RANGE8_RID_CTRL0                   ((0x0030  << 2) + 0xfe025000)
-  //range8_rd_sid_en[31:0];
-#define DMC_SEC_RANGE8_RID_CTRL1                   ((0x0031  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range8_rd_sid_en[35:32];
-#define DMC_SEC_RANGE9_RID_CTRL0                   ((0x0032  << 2) + 0xfe025000)
-  //range9_rd_sid_en[31:0];
-#define DMC_SEC_RANGE9_RID_CTRL1                   ((0x0033  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range9_rd_sid_en[35:32];
-#define DMC_SEC_RANGE10_RID_CTRL0                  ((0x0034  << 2) + 0xfe025000)
-  //range10_rd_sid_en[31:0];
-#define DMC_SEC_RANGE10_RID_CTRL1                  ((0x0035  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range10_rd_sid_en[35:32];
-#define DMC_SEC_RANGE11_RID_CTRL0                  ((0x0036  << 2) + 0xfe025000)
-  //range11_rd_sid_en[31:0];
-#define DMC_SEC_RANGE11_RID_CTRL1                  ((0x0037  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range11_rd_sid_en[35:32];
-#define DMC_SEC_RANGE12_RID_CTRL0                  ((0x0038  << 2) + 0xfe025000)
-  //range12_rd_sid_en[31:0];
-#define DMC_SEC_RANGE12_RID_CTRL1                  ((0x0039  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range12_rd_sid_en[35:32];
-#define DMC_SEC_RANGE13_RID_CTRL0                  ((0x003a  << 2) + 0xfe025000)
-  //range13_rd_sid_en[31:0];
-#define DMC_SEC_RANGE13_RID_CTRL1                  ((0x003b  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range13_rd_sid_en[35:32];
-#define DMC_SEC_RANGE14_RID_CTRL0                  ((0x003c  << 2) + 0xfe025000)
-  //range14_rd_sid_en[31:0];
-#define DMC_SEC_RANGE14_RID_CTRL1                  ((0x003d  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range14_rd_sid_en[35:32];
-#define DMC_SEC_RANGE15_RID_CTRL0                  ((0x003e  << 2) + 0xfe025000)
-  //range15_rd_sid_en[31:0];
-#define DMC_SEC_RANGE15_RID_CTRL1                  ((0x003f  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range15_rd_sid_en[35:32];
-#define DMC_SEC_RANGE0_WID_CTRL0                   ((0x0060  << 2) + 0xfe025000)
-  //range0_wr_sid_en[31:0];
-#define DMC_SEC_RANGE0_WID_CTRL1                   ((0x0061  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range0_wr_sid_en[35:32];
-#define DMC_SEC_RANGE1_WID_CTRL0                   ((0x0062  << 2) + 0xfe025000)
-  //range1_wr_sid_en[31:0];
-#define DMC_SEC_RANGE1_WID_CTRL1                   ((0x0063  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range0_wr_sid_en[35:32];
-#define DMC_SEC_RANGE2_WID_CTRL0                   ((0x0064  << 2) + 0xfe025000)
-  //range2_wr_sid_en[31:0];
-#define DMC_SEC_RANGE2_WID_CTRL1                   ((0x0065  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range0_wr_sid_en[35:32];
-#define DMC_SEC_RANGE3_WID_CTRL0                   ((0x0066  << 2) + 0xfe025000)
-  //range3_wr_sid_en[31:0];
-#define DMC_SEC_RANGE3_WID_CTRL1                   ((0x0067  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range0_wr_sid_en[35:32];
-#define DMC_SEC_RANGE4_WID_CTRL0                   ((0x0068  << 2) + 0xfe025000)
-  //range4_wr_sid_en[31:0];
-#define DMC_SEC_RANGE4_WID_CTRL1                   ((0x0069  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range0_wr_sid_en[35:32];
-#define DMC_SEC_RANGE5_WID_CTRL0                   ((0x006a  << 2) + 0xfe025000)
-  //range5_wr_sid_en[31:0];
-#define DMC_SEC_RANGE5_WID_CTRL1                   ((0x006b  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range0_wr_sid_en[35:32];
-#define DMC_SEC_RANGE6_WID_CTRL0                   ((0x006c  << 2) + 0xfe025000)
-  //range6_wr_sid_en[31:0];
-#define DMC_SEC_RANGE6_WID_CTRL1                   ((0x006d  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range0_wr_sid_en[35:32];
-#define DMC_SEC_RANGE7_WID_CTRL0                   ((0x006e  << 2) + 0xfe025000)
-  //range7_wr_sid_en[31:0];
-#define DMC_SEC_RANGE7_WID_CTRL1                   ((0x006f  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range0_wr_sid_en[35:32];
-#define DMC_SEC_RANGE8_WID_CTRL0                   ((0x0070  << 2) + 0xfe025000)
-  //range8_wr_sid_en[31:0];
-#define DMC_SEC_RANGE8_WID_CTRL1                   ((0x0071  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range0_wr_sid_en[35:32];
-#define DMC_SEC_RANGE9_WID_CTRL0                   ((0x0072  << 2) + 0xfe025000)
-  //range9_wr_sid_en[31:0];
-#define DMC_SEC_RANGE9_WID_CTRL1                   ((0x0073  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range0_wr_sid_en[35:32];
-#define DMC_SEC_RANGE10_WID_CTRL0                  ((0x0074  << 2) + 0xfe025000)
-  //range10_wr_sid_en[31:0];
-#define DMC_SEC_RANGE10_WID_CTRL1                  ((0x0075  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range0_wr_sid_en[35:32];
-#define DMC_SEC_RANGE11_WID_CTRL0                  ((0x0076  << 2) + 0xfe025000)
-  //range11_wr_sid_en[31:0];
-#define DMC_SEC_RANGE11_WID_CTRL1                  ((0x0077  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range0_wr_sid_en[35:32];
-#define DMC_SEC_RANGE12_WID_CTRL0                  ((0x0078  << 2) + 0xfe025000)
-  //range12_wr_sid_en[31:0];
-#define DMC_SEC_RANGE12_WID_CTRL1                  ((0x0079  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range0_wr_sid_en[35:32];
-#define DMC_SEC_RANGE13_WID_CTRL0                  ((0x007a  << 2) + 0xfe025000)
-  //range13_wr_sid_en[31:0];
-#define DMC_SEC_RANGE13_WID_CTRL1                  ((0x007b  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range0_wr_sid_en[35:32];
-#define DMC_SEC_RANGE14_WID_CTRL0                  ((0x007c  << 2) + 0xfe025000)
-  //range14_wr_sid_en[31:0];
-#define DMC_SEC_RANGE14_WID_CTRL1                  ((0x007d  << 2) + 0xfe025000)
-  //bit 31:4.  Not used.
-  //bit 3:0 range0_wr_sid_en[35:32];
-#define DMC_SEC_RANGE15_WID_CTRL0                  ((0x007e  << 2) + 0xfe025000)
-  //range15_wr_sid_en[31:0];
-#define DMC_SEC_RANGE15_WID_CTRL1                  ((0x007f  << 2) + 0xfe025000)
-#define DMC_SEC_RANGE_CTRL                         ((0x00a0  << 2) + 0xfe025000)
-  //bit 31:16    16 range security level. each
-  //bit 15:0     16 range enable. each bit for one range to indentify the range is enabled or not.
-#define DMC_DES_PADDING                            ((0x00a1  << 2) + 0xfe025000)
-  //32bits address padding used for DES data generation.
-#define DMC_DES_CTRL                               ((0x00a2  << 2) + 0xfe025000)
- //bit 1   DES enable.  1: DES enable. 0 : DES disable.  default is 1.
- //bit 0.  DES register mask. if write 1 only. after write 1, DES_CTRL and DES_padding regsiter can't be write and read.
-// two address protection function for debug purpose.
-// protected address[31:12] >= STA && <= EDA,
-#define DMC_PROT0_STA                              ((0x00a3  << 2) + 0xfe025000)
-  //bit 31:12.   PROT0 start addresss
-#define DMC_PROT0_EDA                              ((0x00a4  << 2) + 0xfe025000)
-  //bit 31:12.   PROT0 end addresss
-#define DMC_PROT0_CTRL                             ((0x00a5  << 2) + 0xfe025000)
-  //31:0  PROT0 IDs enable bit for ID[4:0].  1: under protection control.  0 normal access.
-#define DMC_PROT0_CTRL1                            ((0x00a6  << 2) + 0xfe025000)
-  //bit 26.  protection 0  read access protection enable.
-  //bit 25.  protection 0  write access block function. if enabled, the hit access wouldn't write to the DDR SDRAM.  if not enabled only generate a interrupt, but the access still wrote to DDR.
-  //bit 24.  protection 0  write access protection enable.
-  //other bits not used.
-#define DMC_PROT1_STA                              ((0x00a7  << 2) + 0xfe025000)
-  //bit 31:12.   PROT1 start addresss
-#define DMC_PROT1_EDA                              ((0x00a8  << 2) + 0xfe025000)
-  //bit 31:12.   PROT1 end addresss
-#define DMC_PROT1_CTRL                             ((0x00a9  << 2) + 0xfe025000)
-  //31:0  PROT1 IDs enable bit for ID[4:0].  1: under protection control.  0 normal access.
-#define DMC_PROT1_CTRL1                            ((0x00aa  << 2) + 0xfe025000)
-  //bit 26.  PROT1  read access protection enable.
-  //bit 25.  PROT1  write access block function. if enabled, the hit access wouldn't write to the DDR SDRAM.  if not enabled only generate a interrupt, but the access still wrote to DDR.
-  //bit 24.  PROT1  write access protection enable.
-  //other bits not used.
+  //range_rd_sid_en[63:32];
+#define DMC_SEC_RANGE0_RID_CTRL2                   ((0x0022  << 2) + 0xfe025000)
+  //range_rd_sid_en[95:64];
+#define DMC_SEC_RANGE0_RID_CTRL3                   ((0x0023  << 2) + 0xfe025000)
+  //range_rd_sid_en[127:96];
+#define DMC_SEC_RANGE0_RID_CTRL4                   ((0x0024  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE1_RID_CTRL0                   ((0x0026  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE1_RID_CTRL1                   ((0x0027  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE1_RID_CTRL2                   ((0x0028  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE1_RID_CTRL3                   ((0x0029  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE1_RID_CTRL4                   ((0x002a  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE2_RID_CTRL0                   ((0x002c  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE2_RID_CTRL1                   ((0x002d  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE2_RID_CTRL2                   ((0x002e  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE2_RID_CTRL3                   ((0x002f  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE2_RID_CTRL4                   ((0x0030  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE3_RID_CTRL0                   ((0x0032  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE3_RID_CTRL1                   ((0x0033  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE3_RID_CTRL2                   ((0x0034  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE3_RID_CTRL3                   ((0x0035  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE3_RID_CTRL4                   ((0x0036  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE4_RID_CTRL0                   ((0x0038  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE4_RID_CTRL1                   ((0x0039  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE4_RID_CTRL2                   ((0x003a  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE4_RID_CTRL3                   ((0x003b  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE4_RID_CTRL4                   ((0x003c  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE5_RID_CTRL0                   ((0x003e  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE5_RID_CTRL1                   ((0x003f  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE5_RID_CTRL2                   ((0x0040  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE5_RID_CTRL3                   ((0x0041  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE5_RID_CTRL4                   ((0x0042  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE6_RID_CTRL0                   ((0x0044  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE6_RID_CTRL1                   ((0x0045  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE6_RID_CTRL2                   ((0x0046  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE6_RID_CTRL3                   ((0x0047  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE6_RID_CTRL4                   ((0x0048  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE7_RID_CTRL0                   ((0x004a  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE7_RID_CTRL1                   ((0x004b  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE7_RID_CTRL2                   ((0x004c  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE7_RID_CTRL3                   ((0x004d  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE7_RID_CTRL4                   ((0x004e  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE8_RID_CTRL0                   ((0x0050  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE8_RID_CTRL1                   ((0x0051  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE8_RID_CTRL2                   ((0x0052  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE8_RID_CTRL3                   ((0x0053  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE8_RID_CTRL4                   ((0x0054  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE9_RID_CTRL0                   ((0x0056  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE9_RID_CTRL1                   ((0x0057  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE9_RID_CTRL2                   ((0x0058  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE9_RID_CTRL3                   ((0x0059  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE9_RID_CTRL4                   ((0x005a  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE10_RID_CTRL0                  ((0x005c  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE10_RID_CTRL1                  ((0x005d  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE10_RID_CTRL2                  ((0x005e  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE10_RID_CTRL3                  ((0x005f  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE10_RID_CTRL4                  ((0x0060  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE11_RID_CTRL0                  ((0x0062  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE11_RID_CTRL1                  ((0x0063  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE11_RID_CTRL2                  ((0x0064  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE11_RID_CTRL3                  ((0x0065  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE11_RID_CTRL4                  ((0x0066  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE12_RID_CTRL0                  ((0x0068  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE12_RID_CTRL1                  ((0x0069  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE12_RID_CTRL2                  ((0x006a  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE12_RID_CTRL3                  ((0x006b  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE12_RID_CTRL4                  ((0x006c  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE13_RID_CTRL0                  ((0x006e  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE13_RID_CTRL1                  ((0x006f  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE13_RID_CTRL2                  ((0x0070  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE13_RID_CTRL3                  ((0x0071  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE13_RID_CTRL4                  ((0x0072  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE14_RID_CTRL0                  ((0x0074  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE14_RID_CTRL1                  ((0x0075  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE14_RID_CTRL2                  ((0x0076  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE14_RID_CTRL3                  ((0x0077  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE14_RID_CTRL4                  ((0x0078  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE15_RID_CTRL0                  ((0x007a  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE15_RID_CTRL1                  ((0x007b  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE15_RID_CTRL2                  ((0x007c  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE15_RID_CTRL3                  ((0x007d  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE15_RID_CTRL4                  ((0x007e  << 2) + 0xfe025000)
+//per range per sub ID access enable.
+#define DMC_SEC_RANGE0_WID_CTRL0                   ((0x0080  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE0_WID_CTRL1                   ((0x0081  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE0_WID_CTRL2                   ((0x0082  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE0_WID_CTRL3                   ((0x0083  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE0_WID_CTRL4                   ((0x0084  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE1_WID_CTRL0                   ((0x0086  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE1_WID_CTRL1                   ((0x0087  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE1_WID_CTRL2                   ((0x0088  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE1_WID_CTRL3                   ((0x0089  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE1_WID_CTRL4                   ((0x008a  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE2_WID_CTRL0                   ((0x008c  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE2_WID_CTRL1                   ((0x008d  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE2_WID_CTRL2                   ((0x008e  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE2_WID_CTRL3                   ((0x008f  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE2_WID_CTRL4                   ((0x0090  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE3_WID_CTRL0                   ((0x0092  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE3_WID_CTRL1                   ((0x0093  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE3_WID_CTRL2                   ((0x0094  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE3_WID_CTRL3                   ((0x0095  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE3_WID_CTRL4                   ((0x0096  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE4_WID_CTRL0                   ((0x0098  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE4_WID_CTRL1                   ((0x0099  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE4_WID_CTRL2                   ((0x009a  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE4_WID_CTRL3                   ((0x009b  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE4_WID_CTRL4                   ((0x009c  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE5_WID_CTRL0                   ((0x009e  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE5_WID_CTRL1                   ((0x009f  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE5_WID_CTRL2                   ((0x00a0  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE5_WID_CTRL3                   ((0x00a1  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE5_WID_CTRL4                   ((0x00a2  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE6_WID_CTRL0                   ((0x00a4  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE6_WID_CTRL1                   ((0x00a5  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE6_WID_CTRL2                   ((0x00a6  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE6_WID_CTRL3                   ((0x00a7  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE6_WID_CTRL4                   ((0x00a8  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE7_WID_CTRL0                   ((0x00aa  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE7_WID_CTRL1                   ((0x00ab  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE7_WID_CTRL2                   ((0x00ac  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE7_WID_CTRL3                   ((0x00ad  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE7_WID_CTRL4                   ((0x00ae  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE8_WID_CTRL0                   ((0x00b0  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE8_WID_CTRL1                   ((0x00b1  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE8_WID_CTRL2                   ((0x00b2  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE8_WID_CTRL3                   ((0x00b3  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE8_WID_CTRL4                   ((0x00b4  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE9_WID_CTRL0                   ((0x00b6  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE9_WID_CTRL1                   ((0x00b7  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE9_WID_CTRL2                   ((0x00b8  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE9_WID_CTRL3                   ((0x00b9  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE9_WID_CTRL4                   ((0x00ba  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE10_WID_CTRL0                  ((0x00bc  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE10_WID_CTRL1                  ((0x00bd  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE10_WID_CTRL2                  ((0x00be  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE10_WID_CTRL3                  ((0x00bf  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE10_WID_CTRL4                  ((0x00c0  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE11_WID_CTRL0                  ((0x00c2  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE11_WID_CTRL1                  ((0x00c3  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE11_WID_CTRL2                  ((0x00c4  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE11_WID_CTRL3                  ((0x00c5  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE11_WID_CTRL4                  ((0x00c6  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE12_WID_CTRL0                  ((0x00c8  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE12_WID_CTRL1                  ((0x00c9  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE12_WID_CTRL2                  ((0x00ca  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE12_WID_CTRL3                  ((0x00cb  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE12_WID_CTRL4                  ((0x00cc  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE13_WID_CTRL0                  ((0x00ce  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE13_WID_CTRL1                  ((0x00cf  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE13_WID_CTRL2                  ((0x00d0  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE13_WID_CTRL3                  ((0x00d1  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE13_WID_CTRL4                  ((0x00d2  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE14_WID_CTRL0                  ((0x00d4  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE14_WID_CTRL1                  ((0x00d5  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE14_WID_CTRL2                  ((0x00d6  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE14_WID_CTRL3                  ((0x00d7  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE14_WID_CTRL4                  ((0x00d8  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE15_WID_CTRL0                  ((0x00da  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE15_WID_CTRL1                  ((0x00db  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE15_WID_CTRL2                  ((0x00dc  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE15_WID_CTRL3                  ((0x00dd  << 2) + 0xfe025000)
+#define DMC_SEC_RANGE15_WID_CTRL4                  ((0x00de  << 2) + 0xfe025000)
+#define DMC_DES_PADDING                            ((0x00e0  << 2) + 0xfe025000)
+  //bit 31:0 | 0 | des_pading | 32bits address padding used for DES dkey generation.
+#define DMC_DES_CTRL                               ((0x00e1  << 2) + 0xfe025000)
+ //bit 31 : range15_des_en policy : 1 range15_des_en = range15_local_des_en && GLOBAL_DES_EN. 0 : range15_des_en = range15_local_des_en ||  GLOBAL_DES_EN.
+ //bit 30 : range14_des_en policy : 1 range14_des_en = range14_local_des_en && GLOBAL_DES_EN. 0 : range14_des_en = range14_local_des_en ||  GLOBAL_DES_EN.
+ //bit 29 : range13_des_en policy : 1 range13_des_en = range13_local_des_en && GLOBAL_DES_EN. 0 : range13_des_en = range13_local_des_en ||  GLOBAL_DES_EN.
+ //bit 28 : range12_des_en policy : 1 range12_des_en = range12_local_des_en && GLOBAL_DES_EN. 0 : range12_des_en = range12_local_des_en ||  GLOBAL_DES_EN.
+ //bit 27 : range11_des_en policy : 1 range11_des_en = range11_local_des_en && GLOBAL_DES_EN. 0 : range11_des_en = range11_local_des_en ||  GLOBAL_DES_EN.
+ //bit 26 : range10_des_en policy : 1 range11_des_en = range10_local_des_en && GLOBAL_DES_EN. 0 : range10_des_en = range10_local_des_en ||  GLOBAL_DES_EN.
+ //bit 25 : range9_des_en policy  : 1  range9_des_en =  range9_local_des_en && GLOBAL_DES_EN. 0 :  range9_des_en =  range9_local_des_en ||  GLOBAL_DES_EN.
+ //bit 24 : range8_des_en policy  : 1  range8_des_en =  range8_local_des_en && GLOBAL_DES_EN. 0 :  range8_des_en =  range8_local_des_en ||  GLOBAL_DES_EN.
+ //bit 23 : range7_des_en policy  : 1  range7_des_en =  range7_local_des_en && GLOBAL_DES_EN. 0 :  range7_des_en =  range7_local_des_en ||  GLOBAL_DES_EN.
+ //bit 22 : range6_des_en policy  : 1  range6_des_en =  range6_local_des_en && GLOBAL_DES_EN. 0 :  range6_des_en =  range6_local_des_en ||  GLOBAL_DES_EN.
+ //bit 21 : range5_des_en policy  : 1  range5_des_en =  range5_local_des_en && GLOBAL_DES_EN. 0 :  range5_des_en =  range5_local_des_en ||  GLOBAL_DES_EN.
+ //bit 20 : range4_des_en policy  : 1  range4_des_en =  range4_local_des_en && GLOBAL_DES_EN. 0 :  range4_des_en =  range4_local_des_en ||  GLOBAL_DES_EN.
+ //bit 19 : range3_des_en policy  : 1  range3_des_en =  range3_local_des_en && GLOBAL_DES_EN. 0 :  range3_des_en =  range3_local_des_en ||  GLOBAL_DES_EN.
+ //bit 18 : range2_des_en policy  : 1  range2_des_en =  range2_local_des_en && GLOBAL_DES_EN. 0 :  range2_des_en =  range2_local_des_en ||  GLOBAL_DES_EN.
+ //bit 17 : range1_des_en policy  : 1  range1_des_en =  range1_local_des_en && GLOBAL_DES_EN. 0 :  range1_des_en =  range1_local_des_en ||  GLOBAL_DES_EN.
+ //bit 16 : range0_des_en policy  : 1  range0_des_en =  range0_local_des_en && GLOBAL_DES_EN. 0 :  range0_des_en =  range0_local_des_en ||  GLOBAL_DES_EN.
+ //bit 1 | 0 | GLOBAL_DES_EN |  1: Global DES enable. 0 : global DES disable.  default is 0.
+ //bit 0 | 0 | DES_lock  |  one time lock bit. after write 1 to this bit, DMC_DES_CTRL,DMC_DES_PADDING  can't be write and read.
+//DES KEY register can only be reset by pad reset.  But it can be changed by software after watch dog reset.
+#define DMC_DES_KEY0_REG0                          ((0x00e2  << 2) + 0xfe025000)
+#define DMC_DES_KEY0_REG1                          ((0x00e3  << 2) + 0xfe025000)
+#define DMC_DES_KEY0_REG2                          ((0x00e4  << 2) + 0xfe025000)
+#define DMC_DES_KEY0_REG3                          ((0x00e5  << 2) + 0xfe025000)
+#define DMC_DES_KEY1_REG0                          ((0x00e6  << 2) + 0xfe025000)
+#define DMC_DES_KEY1_REG1                          ((0x00e7  << 2) + 0xfe025000)
+#define DMC_DES_KEY1_REG2                          ((0x00e8  << 2) + 0xfe025000)
+#define DMC_DES_KEY1_REG3                          ((0x00e9  << 2) + 0xfe025000)
+//FROM SC2, the APB bus provided Master ID through PUSER signals.
+//there's total 8 master IDs could access DMC non-secure registers.
+//we assign 1 control bit for each APB Master and each DMC non-secure register domains
+#define DDR_APB_SEC_CTRL0                          ((0x00f0  << 2) + 0xfe025000)
+   // APB access  control for dmc REQUEST control register access control register.
+   // default : 0x0ff
+   //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
+   //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
+#define DDR_APB_SEC_CTRL1                          ((0x00f1  << 2) + 0xfe025000)
+   // APB access control for DMC DRAM timing parameter and DFI inteface registers.
+   //default : 0x0ff
+   //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
+   //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
+#define DDR_APB_SEC_CTRL2                          ((0x00f2  << 2) + 0xfe025000)
+   // APB access control for DMC PLL clock frequency control regsiter.
+   //default : 0x0ff
+   //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
+   //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
+#define DDR_APB_SEC_CTRL3                          ((0x00f3  << 2) + 0xfe025000)
+   // APB access control for DMC sticky control regsiter.
+   //default : 0x0ff
+   //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
+   //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
+#define DDR_APB_SEC_CTRL4                          ((0x00f4  << 2) + 0xfe025000)
+   // APB access control for DMC test control regsiter.
+   //default : 0x0ff
+   //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
+   //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
+#define DDR_APB_SEC_CTRL5                          ((0x00f5  << 2) + 0xfe025000)
+   // APB access control for DMC clk reset control regsiter.
+   //default : 0x0ff
+   //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
+   //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
+#define DDR_APB_SEC_CTRL6                          ((0x00f6  << 2) + 0xfe025000)
+   // APB access control for DMC protection regsiter.
+   //default : 0x0ff
+   //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
+   //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
+#define DDR_APB_SEC_CTRL7                          ((0x00f7  << 2) + 0xfe025000)
+   // APB access control for DMC normal regsiter.
+   //default : 0x0ff
+   //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
+   //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
+#define DDR_APB_SEC_CTRL8                          ((0x00f8  << 2) + 0xfe025000)
+   // APB access control for DDR PHY group 0 regsiters.
+   //default : 0x0ff
+   //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
+   //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
+#define DDR_APB_SEC_CTRL9                          ((0x00f9  << 2) + 0xfe025000)
+   // APB access control for DDR PHY group 1 regsiters.
+   //default : 0x0ff
+   //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
+   //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
 //registers to check the security protection and watch point error information.
-#define DMC_SEC_STATUS                             ((0x00b8  << 2) + 0xfe025000)
- //bit 31. sec key valid.  des key is from outside, when is valid, DMC will catch the Key and save in local when the key valid signal change to 1 from 0.
- //bit 30~2. not used.
+#define DMC_SEC_STATUS                             ((0x00fa  << 2) + 0xfe025000)
+ //bit 31~2. not used.
+ //bit 6
+ //bit 5
+ //bit 4
+ //bit 3   1 : normal security register write violation.( APB bus WDATA not equre the register value when APB write).  write 1 to clean this bit to 0.
+ //bit 2   sec_alert.   1 DMC secruity register alert function triggered. can't clean. only reset DMC can clear this bit.
  //bit 1   write security violation.
  //bit 0.  read security violation.
-#define DMC_VIO_ADDR0                              ((0x00b9  << 2) + 0xfe025000)
+#define DMC_VIO_ADDR0                              ((0x00fb  << 2) + 0xfe025000)
   //ddr0 write secure violation address.
-#define DMC_VIO_ADDR1                              ((0x00ba  << 2) + 0xfe025000)
-  //bit 31:25 . not used. always 0.
+#define DMC_VIO_ADDR1                              ((0x00fc  << 2) + 0xfe025000)
+  //bit 31:24 . not used. always 0.
   //24     ddr0 secure check violation.
-  //23     ddr0 protection 1 vilation.
-  //22     ddr0 protection 0 vilation.
-  //21:20  not used. always 0.
+  //23     not used.
+  //22     not used.
+  //21     not used.
+  //20.    not used.
   //19     ddr0 write address overflow. write out of DDR size.
   //18:16. ddr0 write violation AWPROT bits.
-  //15:14. reserved for future ID bits.
-  //13:0   ddr0_write violation ID.
-#define DMC_VIO_ADDR2                              ((0x00bb  << 2) + 0xfe025000)
+  //15:0   ddr0_write violation ID.
+#define DMC_VIO_ADDR2                              ((0x00fd  << 2) + 0xfe025000)
   //ddr0 read seure violation address
-#define DMC_VIO_ADDR3                              ((0x00bc  << 2) + 0xfe025000)
+#define DMC_VIO_ADDR3                              ((0x00fe  << 2) + 0xfe025000)
   //24     ddr0 read secure check violation.
-  //23     ddr0 read protection 1 violation.
-  //22     ddr0 read protection 0 violation.
-  //21:20  Not used.  read to be 0.
+  //23     not used.
+  //22     not used.
+  //21     ddr0 read trap1 violation
+  //20     ddr0 read trap0 violation
   //19     ddr 0 read address overflow. write out of DDR size.
   //18:16. ddr 0 read violation ARPROT bits.
-  //15:14  reserved for future ID bits.
-  //13:0   ddr 0 read violation ID.
-//DDR3/4 LPDDR3/4 SDRAM address  to 32bits linear address address map:
-//DDR0_ADDRMAP is used to select RANK0 bank, row, col address selection.
-//DDR1_ADDRMAP is used to select RANK1 bank, row, col address selection.
-#define DDR0_ADDRMAP_0                             ((0x00d0  << 2) + 0xfe025000)
-  //29:25 ca8.
-  //24:20 ca7.
-  //19:15 ca6.
-  //14:10 ca5.
-  //9:5   ca4.
-  //4:0   ca3.
-#define DDR0_ADDRMAP_1                             ((0x00d1  << 2) + 0xfe025000)
-  //29:25 ra2.
-  //24:20 ra1.
-  //19:15 ra0.
-  //14:10 ca11.
-  //9:5   ca10.
-  //4:0   ca9.
-#define DDR0_ADDRMAP_2                             ((0x00d2  << 2) + 0xfe025000)
-  //29:25 ra8.
-  //24:20 ra7.
-  //19:15 ra6.
-  //14:10 ra5.
-  //9:5   ra4.
-  //4:0   ra3.
-#define DDR0_ADDRMAP_3                             ((0x00d3  << 2) + 0xfe025000)
-  //29:25 ra14.
-  //24:20 ra13.
-  //19:15 ra12.
-  //14:10 ra11.
-  //9:5   ra10.
-  //4:0   ra9.
-#define DDR0_ADDRMAP_4                             ((0x00d4  << 2) + 0xfe025000)
-  //29:25 ra16 for DDR4 SDRAM
-  //24:20 bg1  for DDR4 SDRAM.
-  //19:15 ba2.    or bg0 for DDR4.
-  //14:10 ba1.
-  //9:5   ba0.
-  //4:0   ra15.
-#define DDR1_ADDRMAP_0                             ((0x00d5  << 2) + 0xfe025000)
-  //29:25 ca8.
-  //24:20 ca7.
-  //19:15 ca6.
-  //14:10 ca5.
-  //9:5   ca4.
-  //4:0   ca3.
-#define DDR1_ADDRMAP_1                             ((0x00d6  << 2) + 0xfe025000)
-  //29:25 ra2.
-  //24:20 ra1.
-  //19:15 ra0.
-  //14:10 ca11.
-  //9:5   ca10.
-  //4:0   ca9.
-#define DDR1_ADDRMAP_2                             ((0x00d7  << 2) + 0xfe025000)
-  //29:25 ra8.
-  //24:20 ra7.
-  //19:15 ra6.
-  //14:10 ra5.
-  //9:5   ra4.
-  //4:0   ra3.
-#define DDR1_ADDRMAP_3                             ((0x00d8  << 2) + 0xfe025000)
-  //29:25 ra14.
-  //24:20 ra13.
-  //19:15 ra12.
-  //14:10 ra11.
-  //9:5   ra10.
-  //4:0   ra9.
-#define DDR1_ADDRMAP_4                             ((0x00d9  << 2) + 0xfe025000)
-  //29:25 ra16 for DDR4 SDRAM
-  //24:20 bg1  for DDR4 SDRAM.
-  //19:15 ba2  or bg0 for DDR4 SDRAM..
-  //14:10 ba1.
-  //9:5   ba0.
-  //4:0   ra15.
-#define DMC_DDR_CTRL                               ((0x00da  << 2) + 0xfe025000)
-   //bit 31:28.  16bit selection for DDR3/4 not balanced mode.
-        //4'b1000:    3Gbyte mode.  low 2Gbyte is in 32bits mode. 2G~3G is 16bits mode.
-        //4'b0100:    1.5Gbyte mode.  low 1Gbyte is in 32bits mode. 1G~1.5G is in 16bits mode.
-        //4'b0010:    768Mbyte mode.  low 512Mbyte is in 32bits mode. 512M~768M is in 16bits mode.
-        //4'b0001:    384Mbyte mode.  low 25Mbyte is in 32bits mode.  256M~384M is in 16bits m0doe.
-       // 4'b000 or others   balance mode. ether 32bits mode or 16bits mode depends on bit
-   //bit 27.  0 : in 16bits mode. 16bit address postion at the top.
-           // 1 : in 16bits mode. 16bits address postion start at address 0.
+  //15:0   ddr 0 read violation ID.
+#define DMC_DDR_CTRL                               ((0x0100  << 2) + 0xfe025000)
   //bit 24:22   3'b000 : ddr3 mode.
               //3'b001 : ddr4 mode.
               //3'b010 : lpddr3 mode.
               //3'b011 : lpddr4 mode.
    //bit 21.   rank1 enable bit. if 1,  rank1 used the address map is as bit 5:3 defined.
    //bit 20    DDR4 BG1 enable bit.
-   //bit 18:   always 0.
-   //bit 16.   1 only use 16bits data in a 32bits phy data interface. 0 : normal data interface.
-  //bit 7:4 :  DDR rank 1 size.
+   //bit 18:   ddrphy_16b, DDR PHY DDR SDRAM data bits width.  1: 16bits. 0 : 32 bits.
+   //bit 16.   ddr_16b,   1: only use 16bits data in a 32bits DDR PHY data interface. 0 : normal data interface.
+  //bit 7:4 :  ddr1_size.  DDR rank1 size control.
      //4'b0000 : DDR rank 1 is 128Mbyte.
      //4'b0001 : DDR rank 1 is 256Mbyte.
      //4'b0010 : DDR rank 1 is 512Mbyte.
      //4'b0011 : DDR rank 1 is 1Gbyte.
      //4'b0100 : DDR rank 1 is 2Gbyte.
+     //4'b0101 : DDR rank 1 is 4Gbyte.
      //4'b1000 : DDR rank 1 is 192Mbyte.
      //4'b1001 : DDR rank 1 is 374Mbyte.
      //4'b1010 : DDR rank 1 is 768Mbyte.
      //4'b1011 : DDR rank 1 is 1.5Gbyte.
      //4'b1100 : DDR rank 1 is 3Gbyte.
      //others :  reserved.
-  //bit 3:0  :  DDR rank 0 size.
+  //bit 3:0  :  ddr0_size. DDR rank0 size control.
      //4'b0000 : DDR rank 0 is 128Mbyte.
      //4'b0001 : DDR rank 0 is 256Mbyte.
      //4'b0010 : DDR rank 0 is 512Mbyte.
      //4'b0011 : DDR rank 0 is 1Gbyte.
      //4'b0100 : DDR rank 0 is 2Gbyte.
-     //4'b1000 : DDR rank 0 is 192Mbyte.
-     //4'b1001 : DDR rank 0 is 374Mbyte.
-     //4'b1010 : DDR rank 0 is 768Mbyte.
-     //4'b1011 : DDR rank 0 is 1.5Gbyte.
-     //4'b1100 : DDR rank 0 is 3Gbyte.
+     //4'b0101 : DDR rank 0 is 4Gbyte.
+     //4'b1000 : DDR rank 1 is 192Mbyte.
+     //4'b1001 : DDR rank 1 is 374Mbyte.
+     //4'b1010 : DDR rank 1 is 768Mbyte.
+     //4'b1011 : DDR rank 1 is 1.5Gbyte.
+     //4'b1100 : DDR rank 1 is 3Gbyte.
      //others :  reserved.
-#define DDR_APB_SEC_CTRL                           ((0x00db  << 2) + 0xfe025000)
-  //bit 19:16.  DMC normal APB register secure control.
-    //bit 19:  1:  all can write those register.  0:  the APB_PROT[0] must match the bit 0 to write those regsiter.
-    //Bit15:12.   DMC sticky APB regsiter secure control.
-    //bit 15.  1: All APB bus can write those registers. 0: The APB_PROT[0] must match the bit 12 to write those register.
-    //bit 11:8.   DMC DDR PLL clock related  APB regsiter secure control.
-    //bit 11.  1: All APB bus can write those registers. 0: The APB_PROT[0] must match the bit 8 to write those register.
-    //Bit 7:4.   DMC DDR SDRAM protocal contorl register contorl
-    //bit 11.  1: All APB bus can write those registers. 0: The APB_PROT[0] must match the bit 4 to write those register.
-    //bit 3:0.   LPDDR4 PHY APB regsiter secure control.
-    //bit 3.  1: All APB bus can write those registers. 0: The APB_PROT[0] must match the bit 0 to write those register.
-//`endif
+//DDR3/4 LPDDR3/4 SDRAM address  to 32bits linear address address map:
+//DDR0_ADDRMAP is used to select RANK0 bank, row, col address selection.
+//DDR1_ADDRMAP is used to select RANK1 bank, row, col address selection.
+#define DDR0_ADDRMAP_0                             ((0x0101  << 2) + 0xfe025000)
+  //29:25 ca8.
+  //24:20 ca7.
+  //19:15 ca6.
+  //14:10 ca5.
+  //9:5   ca4.
+  //4:0   ca3.
+#define DDR0_ADDRMAP_1                             ((0x0102  << 2) + 0xfe025000)
+  //29:25 ra2.
+  //24:20 ra1.
+  //19:15 ra0.
+  //14:10 ca11.
+  //9:5   ca10.
+  //4:0   ca9.
+#define DDR0_ADDRMAP_2                             ((0x0103  << 2) + 0xfe025000)
+  //29:25 ra8.
+  //24:20 ra7.
+  //19:15 ra6.
+  //14:10 ra5.
+  //9:5   ra4.
+  //4:0   ra3.
+#define DDR0_ADDRMAP_3                             ((0x0104  << 2) + 0xfe025000)
+  //29:25 ra14.
+  //24:20 ra13.
+  //19:15 ra12.
+  //14:10 ra11.
+  //9:5   ra10.
+  //4:0   ra9.
+#define DDR0_ADDRMAP_4                             ((0x0105  << 2) + 0xfe025000)
+  //29:25 ra16 for DDR4 SDRAM
+  //24:20 bg1  for DDR4 SDRAM.
+  //19:15 ba2.    or bg0 for DDR4.
+  //14:10 ba1.
+  //9:5   ba0.
+  //4:0   ra15.
+#define DDR1_ADDRMAP_0                             ((0x0106  << 2) + 0xfe025000)
+  //29:25 ca8.
+  //24:20 ca7.
+  //19:15 ca6.
+  //14:10 ca5.
+  //9:5   ca4.
+  //4:0   ca3.
+#define DDR1_ADDRMAP_1                             ((0x0107  << 2) + 0xfe025000)
+  //29:25 ra2.
+  //24:20 ra1.
+  //19:15 ra0.
+  //14:10 ca11.
+  //9:5   ca10.
+  //4:0   ca9.
+#define DDR1_ADDRMAP_2                             ((0x0108  << 2) + 0xfe025000)
+  //29:25 ra8.
+  //24:20 ra7.
+  //19:15 ra6.
+  //14:10 ra5.
+  //9:5   ra4.
+  //4:0   ra3.
+#define DDR1_ADDRMAP_3                             ((0x0109  << 2) + 0xfe025000)
+  //29:25 ra14.
+  //24:20 ra13.
+  //19:15 ra12.
+  //14:10 ra11.
+  //9:5   ra10.
+  //4:0   ra9.
+#define DDR1_ADDRMAP_4                             ((0x010a  << 2) + 0xfe025000)
+  //29:25 ra16 for DDR4 SDRAM
+  //24:20 bg1  for DDR4 SDRAM.
+  //19:15 ba2  or bg0 for DDR4 SDRAM..
+  //14:10 ba1.
+  //9:5   ba0.
+  //4:0   ra15.
+#define DDR_MEM_PD_CTRL                            ((0x010b  << 2) + 0xfe025000)
+   //bit 31:14 not used.
+   //2 bit control for each mem. 00 normal working. 11 power down.
+   //bit 13:12   wc_fifo
+   //bit 11:10   wd_mem
+   //bit 9:8     rd_mem
+   //bit 7:6     dfifo
+   //bit 5:4     cfifo
+   //bit 3:2     cav_ram
+   //bit 1:0     sticky ram
+#define DMC_AXI2DDR0                               ((0x0120  << 2) + 0xfe025000)
+  //for AXI address first 256MB  AXI ADDRESS[31:28] == 4'b0000.
+  //bit 6  range_valid     1 : valid address 0 : not valid.
+  //bit 5  rank_sel,       0 : rank0.   1: rank1.
+  //bit 4  ddr_data_width, 0 : 32bits.  1: 16bits.
+  //bti 3:0. remap to one rank of DDR SDRAM linear address[31:28]
+#define DMC_AXI2DDR1                               ((0x0121  << 2) + 0xfe025000)
+  //for AXI_ADDRESS[31:28] == 4'b0001.
+  //bit 6  range_valid     1 : valid address 0 : not valid.
+  //bit 5  rank_sel,       0 : rank0.   1: rank1.
+  //bit 4  ddr_data_width, 0 : 32bits.  1: 16bits.
+  //bti 3:0. remap to one rank of DDR SDRAM linear address[31:28]
+#define DMC_AXI2DDR2                               ((0x0122  << 2) + 0xfe025000)
+  //for AXI_ADDRESS[31:28] == 4'b0010.
+  //bit 6  range_valid     1 : valid address 0 : not valid.
+  //bit 5  rank_sel,       0 : rank0.   1: rank1.
+  //bit 4  ddr_data_width, 0 : 32bits.  1: 16bits.
+  //bti 3:0. remap to one rank of DDR SDRAM linear address[31:28]
+#define DMC_AXI2DDR3                               ((0x0123  << 2) + 0xfe025000)
+  //for AXI_ADDRESS[31:28] == 4'b0011.
+  //bit 6  range_valid     1 : valid address 0 : not valid.
+  //bit 5  rank_sel,       0 : rank0.   1: rank1.
+  //bit 4  ddr_data_width, 0 : 32bits.  1: 16bits.
+  //bti 3:0. remap to one rank of DDR SDRAM linear address[31:28]
+#define DMC_AXI2DDR4                               ((0x0124  << 2) + 0xfe025000)
+  //for AXI_ADDRESS[31:28] == 4'b0100.
+  //bit 6  range_valid     1 : valid address 0 : not valid.
+  //bit 5  rank_sel,       0 : rank0.   1: rank1.
+  //bit 4  ddr_data_width, 0 : 32bits.  1: 16bits.
+  //bti 3:0. remap to one rank of DDR SDRAM linear address[31:28]
+#define DMC_AXI2DDR5                               ((0x0125  << 2) + 0xfe025000)
+  //for AXI_ADDRESS[31:28] == 4'b0101.
+  //bit 6  range_valid     1 : valid address 0 : not valid.
+  //bit 5  rank_sel,       0 : rank0.   1: rank1.
+  //bit 4  ddr_data_width, 0 : 32bits.  1: 16bits.
+  //bti 3:0. remap to one rank of DDR SDRAM linear address[31:28]
+#define DMC_AXI2DDR6                               ((0x0126  << 2) + 0xfe025000)
+  //for AXI_ADDRESS[31:28] == 4'b0110.
+  //bit 6  range_valid     1 : valid address 0 : not valid.
+  //bit 5  rank_sel,       0 : rank0.   1: rank1.
+  //bit 4  ddr_data_width, 0 : 32bits.  1: 16bits.
+  //bti 3:0. remap to one rank of DDR SDRAM linear address[31:28]
+#define DMC_AXI2DDR7                               ((0x0127  << 2) + 0xfe025000)
+  //for AXI_ADDRESS[31:28] == 4'b0111.
+  //bit 6  range_valid     1 : valid address 0 : not valid.
+  //bit 5  rank_sel,       0 : rank0.   1: rank1.
+  //bit 4  ddr_data_width, 0 : 32bits.  1: 16bits.
+  //bti 3:0. remap to one rank of DDR SDRAM linear address[31:28]
+#define DMC_AXI2DDR8                               ((0x0128  << 2) + 0xfe025000)
+  //for AXI_ADDRESS[31:28] == 4'b1000.
+  //bit 6  range_valid     1 : valid address 0 : not valid.
+  //bit 5  rank_sel,       0 : rank0.   1: rank1.
+  //bit 4  ddr_data_width, 0 : 32bits.  1: 16bits.
+  //bti 3:0. remap to one rank of DDR SDRAM linear address[31:28]
+#define DMC_AXI2DDR9                               ((0x0129  << 2) + 0xfe025000)
+  //for AXI_ADDRESS[31:28] == 4'b1001.
+  //bit 6  range_valid     1 : valid address 0 : not valid.
+  //bit 5  rank_sel,       0 : rank0.   1: rank1.
+  //bit 4  ddr_data_width, 0 : 32bits.  1: 16bits.
+  //bti 3:0. remap to one rank of DDR SDRAM linear address[31:28]
+#define DMC_AXI2DDRA                               ((0x012a  << 2) + 0xfe025000)
+  //for AXI_ADDRESS[31:28] == 4'b1010.
+  //bit 6  range_valid     1 : valid address 0 : not valid.
+  //bit 5  rank_sel,       0 : rank0.   1: rank1.
+  //bit 4  ddr_data_width, 0 : 32bits.  1: 16bits.
+  //bti 3:0. remap to one rank of DDR SDRAM linear address[31:28]
+#define DMC_AXI2DDRB                               ((0x012b  << 2) + 0xfe025000)
+  //for AXI_ADDRESS[31:28] == 4'b1011.
+  //bit 6  range_valid     1 : valid address 0 : not valid.
+  //bit 5  rank_sel,       0 : rank0.   1: rank1.
+  //bit 4  ddr_data_width, 0 : 32bits.  1: 16bits.
+  //bti 3:0. remap to one rank of DDR SDRAM linear address[31:28]
+#define DMC_AXI2DDRC                               ((0x012c  << 2) + 0xfe025000)
+  //for AXI_ADDRESS[31:28] == 4'b1100.
+  //bit 6  range_valid     1 : valid address 0 : not valid.
+  //bit 5  rank_sel,       0 : rank0.   1: rank1.
+  //bit 4  ddr_data_width, 0 : 32bits.  1: 16bits.
+  //bti 3:0. remap to one rank of DDR SDRAM linear address[31:28]
+#define DMC_AXI2DDRD                               ((0x012d  << 2) + 0xfe025000)
+  //for AXI_ADDRESS[31:28] == 4'b1101.
+  //bit 6  range_valid     1 : valid address 0 : not valid.
+  //bit 5  rank_sel,       0 : rank0.   1: rank1.
+  //bit 4  ddr_data_width, 0 : 32bits.  1: 16bits.
+  //bti 3:0. remap to one rank of DDR SDRAM linear address[31:28]
+#define DMC_AXI2DDRE                               ((0x012e  << 2) + 0xfe025000)
+  //for AXI_ADDRESS[31:28] == 4'b1110.
+  //bit 6  range_valid     1 : valid address 0 : not valid.
+  //bit 5  rank_sel,       0 : rank0.   1: rank1.
+  //bit 4  ddr_data_width, 0 : 32bits.  1: 16bits.
+  //bti 3:0. remap to one rank of DDR SDRAM linear address[31:28]
+#define DMC_AXI2DDRF                               ((0x012f  << 2) + 0xfe025000)
+  //for AXI_ADDRESS[31:28] == 4'b1111.
+  //bit 6  range_valid     1 : valid address 0 : not valid.
+  //bit 5  rank_sel,       0 : rank0.   1: rank1.
+  //bit 4  ddr_data_width, 0 : 32bits.  1: 16bits.
+  //bti 3:0. remap to one rank of DDR SDRAM linear address[31:28]
+#define DMC_DDR_CTRL1                              ((0x0130  << 2) + 0xfe025000)
+  //bit 0. DMC_DDR_LOCK.    1: LOCK DMC_DDR_CTRL, DMC_DDR_CTRL1, DMC_AXI2DDRx, DDR0/1_ADDRMAP_x registers. those register can't modified any more.
+                        //  0: all these regsiters can be read/write by secure APB access.
 //
-// Closing file:  ../mmc_lp4/dmc/rtl/dmc_sec.vh
+// Closing file:  ../mmc_new/dmc/rtl/dmc_sec.vh
 //
 //
-// Reading file:  ../mmc_lp4/dmc/rtl/dmc_test.vh
+// Reading file:  ../mmc_new/dmc/rtl/dmc_test.vh
 //
 // -----------------------------------------------
 // -----------------------------------------------
-// APB_BASE:  APB1_BASE_ADDR = 0xfe025400
+// APB_BASE:  APB1_BASE_ADDR = 0xfe037800
 // -----------------------------------------------
 // -----------------------------------------------
-//`define DMC_TEST_REG_BASE               32'hfe025400
-#define DMC_TEST_WRCMD_ADDR                        ((0x0000  << 2) + 0xfe025400)
-  // the current write cmd address.
-#define DMC_TEST_RDRSP_ADDR                        ((0x0001  << 2) + 0xfe025400)
-  // the failed read response address(for error data )
-#define DMC_TEST_RDCMD_ADDR                        ((0x0002  << 2) + 0xfe025400)
-   // the current read command address.
-#define DMC_TEST_WDG                               ((0x0003  << 2) + 0xfe025400)
-  //31:16.  write response watch dog.
-  //15:0.   read response  watch dog.
-#define DMC_TEST_STA                               ((0x0004  << 2) + 0xfe025400)
+//`define DMC_TEST_REG_BASE               32'hfe025800
+#define DMC_TEST_STA                               ((0x0000  << 2) + 0xfe037800)
   //test start address.  for non-sha mode,  the last 5 bits would be ignored. the test address at 32bytes boundary.
   //                     for sha mode,      address must be in 64 bytes boundary. that mean the last 6 bits must be 0.
-#define DMC_TEST_EDA                               ((0x0005  << 2) + 0xfe025400)
+#define DMC_TEST_EDA                               ((0x0001  << 2) + 0xfe037800)
   //test end address.  for non-sha mode,  the last 5 bits would be ignored. the test address at 32bytes boundary.
   //                   for sha mode,       address must be in 64 bytes boundary. that mean the last 6bits must be 1.
-#define DMC_TEST_CTRL                              ((0x0006  << 2) + 0xfe025400)
+#define DMC_TEST_CTRL                              ((0x0002  << 2) + 0xfe037800)
    //bit 31.  enable test.
    //bit 30.  when enable test, enable the write to DDR function.
    //bit 29.  when enable test, enable the read from DDR function.
    //bit 28.  when enable test,  enable the sha calculation function  must be same as read enable but without write function.
    //bit 27.  enabe to compare data.  when do the read enable to enable the error comparaion. suppose the read data should be same as the data in the write buffer.
-   //bit 26.   reserved.
+   //bit 26.  0: save sha result to test_sha_message registers.  1 : don't save.
    //bit 25.  address generation type.  0: continuous increase the address in the range of test start address and test end address.
    //                                   1: test module would pick the random address from test start address  and test end address.
    //bit 24.  done type.      0 : use the DMC_TEST_NUM register as the counter of test numbers.
@@ -1905,7 +2308,7 @@
    //                         1 : finshed at end address.
    //bit 23.  wdata type.     1 : the first write is {WD3, WD2,WD1,WD0}, then the latter is the previous data plus a pattern.( { + WD7,  + WD6, + WD5, + WD4}).
    //                         0 : the WDATA is the data in write register.
-   //bit 23.  reserved.
+   //bit 23.  1  compare the sha result with the test sha message registers. 0 : dont compare the result.
    //bit 22:20.   read repeat times.  for non-sha function, we can define multi times of the read. the test module would repeat the same adddress repeat times.
    //bit 19.     limit write.  0: no outstanding write request limitation.
    //                          1: limit the outstanding write commands to the number of bits [15:8]
@@ -1914,77 +2317,92 @@
    //bit 17:16.  sha mode for sha function enabled.  00 : not used.  01 : sha1. 2: sha2-256. 3: sha2_224. not used in GXL fixed to be  Sha 2.
    //bit 15:8.   write outstanding commands limit.
    //bit 7:0.    read  outstanding commands limit.
-#define DMC_TEST_NUM                               ((0x0007  << 2) + 0xfe025400)
+#define DMC_TEST_NUM                               ((0x0003  << 2) + 0xfe037800)
    // how many test command for the test if the DMC_TEST_CTRL bit 24 is 0.
-#define DMC_TEST_WD0                               ((0x0010  << 2) + 0xfe025400)
+#define DMC_TEST_WDG                               ((0x0004  << 2) + 0xfe037800)
+  //31:16.  write response watch dog.
+  //15:0.   read response  watch dog.
+#define DMC_TEST_COMP_MASK                         ((0x0005  << 2) + 0xfe037800)
+  //32bits for DMC TEST COMPARE bit enable.
+  //1 : to MASK this bit.  0: compare this bit.
+#define DMC_TEST_WSTRB0                            ((0x0006  << 2) + 0xfe037800)
+  //MPC WR FIFO command DM bit write data
+  //bit 31:16  the second cycle.
+  //bit 15:0   the first cycle.
+#define DMC_TEST_WSTRB1                            ((0x0007  << 2) + 0xfe037800)
+  //MPC WR FIFO command DM bit write data
+  //bit 31:16. the Forth cycle.
+  //bit 15:0.  the third cycle.
+#define DMC_TEST_WD0                               ((0x0010  << 2) + 0xfe037800)
    // write data 0 for write command. also for read back data comparision.
-#define DMC_TEST_WD1                               ((0x0011  << 2) + 0xfe025400)
+#define DMC_TEST_WD1                               ((0x0011  << 2) + 0xfe037800)
    // write data 1 for write command. also for read back data comparision.
-#define DMC_TEST_WD2                               ((0x0012  << 2) + 0xfe025400)
+#define DMC_TEST_WD2                               ((0x0012  << 2) + 0xfe037800)
    // write data 2 for write command. also for read back data comparision.
-#define DMC_TEST_WD3                               ((0x0013  << 2) + 0xfe025400)
+#define DMC_TEST_WD3                               ((0x0013  << 2) + 0xfe037800)
    // write data 3 for write command. also for read back data comparision.
-#define DMC_TEST_WD4                               ((0x0014  << 2) + 0xfe025400)
+#define DMC_TEST_WD4                               ((0x0014  << 2) + 0xfe037800)
    // write data 4 for write command. also for read back data comparision.
-#define DMC_TEST_WD5                               ((0x0015  << 2) + 0xfe025400)
+#define DMC_TEST_WD5                               ((0x0015  << 2) + 0xfe037800)
    // write data 5 for write command. also for read back data comparision.
-#define DMC_TEST_WD6                               ((0x0016  << 2) + 0xfe025400)
+#define DMC_TEST_WD6                               ((0x0016  << 2) + 0xfe037800)
    // write data 6 for write command. also for read back data comparision.
-#define DMC_TEST_WD7                               ((0x0017  << 2) + 0xfe025400)
+#define DMC_TEST_WD7                               ((0x0017  << 2) + 0xfe037800)
    // write data 7 for write command. also for read back data comparision.
-#define DMC_TEST_WD8                               ((0x0018  << 2) + 0xfe025400)
+#define DMC_TEST_WD8                               ((0x0018  << 2) + 0xfe037800)
    // write data 8 for write command. also for read back data comparision.
-#define DMC_TEST_WD9                               ((0x0019  << 2) + 0xfe025400)
+#define DMC_TEST_WD9                               ((0x0019  << 2) + 0xfe037800)
    // write data 9 for write command. also for read back data comparision.
-#define DMC_TEST_WD10                              ((0x001a  << 2) + 0xfe025400)
+#define DMC_TEST_WD10                              ((0x001a  << 2) + 0xfe037800)
    // write data 10 for write command. also for read back data comparision.
-#define DMC_TEST_WD11                              ((0x001b  << 2) + 0xfe025400)
+#define DMC_TEST_WD11                              ((0x001b  << 2) + 0xfe037800)
    // write data 11 for write command. also for read back data comparision.
-#define DMC_TEST_WD12                              ((0x001c  << 2) + 0xfe025400)
+#define DMC_TEST_WD12                              ((0x001c  << 2) + 0xfe037800)
    // write data 12 for write command. also for read back data comparision.
-#define DMC_TEST_WD13                              ((0x001d  << 2) + 0xfe025400)
+#define DMC_TEST_WD13                              ((0x001d  << 2) + 0xfe037800)
    // write data 13 for write command. also for read back data comparision.
-#define DMC_TEST_WD14                              ((0x001e  << 2) + 0xfe025400)
+#define DMC_TEST_WD14                              ((0x001e  << 2) + 0xfe037800)
    // write data 14 for write command. also for read back data comparision.
-#define DMC_TEST_WD15                              ((0x001f  << 2) + 0xfe025400)
+#define DMC_TEST_WD15                              ((0x001f  << 2) + 0xfe037800)
    // write data 15 for write command. also for read back data comparision.
-#define DMC_TEST_RD0                               ((0x0020  << 2) + 0xfe025400)
+#define DMC_TEST_RD0                               ((0x0020  << 2) + 0xfe037800)
    // the read back data 0.  if error happens, it would capture the first error data.
-#define DMC_TEST_RD1                               ((0x0021  << 2) + 0xfe025400)
+#define DMC_TEST_RD1                               ((0x0021  << 2) + 0xfe037800)
    // the read back data 1.  if error happens, it would capture the first error data.
-#define DMC_TEST_RD2                               ((0x0022  << 2) + 0xfe025400)
+#define DMC_TEST_RD2                               ((0x0022  << 2) + 0xfe037800)
    // the read back data 2.  if error happens, it would capture the first error data.
-#define DMC_TEST_RD3                               ((0x0023  << 2) + 0xfe025400)
+#define DMC_TEST_RD3                               ((0x0023  << 2) + 0xfe037800)
    // the read back data 3.  if error happens, it would capture the first error data.
-#define DMC_TEST_RD4                               ((0x0024  << 2) + 0xfe025400)
+#define DMC_TEST_RD4                               ((0x0024  << 2) + 0xfe037800)
    // the read back data 4.  if error happens, it would capture the first error data.
-#define DMC_TEST_RD5                               ((0x0025  << 2) + 0xfe025400)
+#define DMC_TEST_RD5                               ((0x0025  << 2) + 0xfe037800)
    // the read back data 5.  if error happens, it would capture the first error data.
-#define DMC_TEST_RD6                               ((0x0026  << 2) + 0xfe025400)
+#define DMC_TEST_RD6                               ((0x0026  << 2) + 0xfe037800)
    // the read back data 6.  if error happens, it would capture the first error data.
-#define DMC_TEST_RD7                               ((0x0027  << 2) + 0xfe025400)
+#define DMC_TEST_RD7                               ((0x0027  << 2) + 0xfe037800)
    // the read back data 7.  if error happens, it would capture the first error data.
-#define DMC_TEST_RD8                               ((0x0028  << 2) + 0xfe025400)
+#define DMC_TEST_RD8                               ((0x0028  << 2) + 0xfe037800)
    // the read back data 7.  if error happens, it would capture the first error data.
-#define DMC_TEST_RD9                               ((0x0029  << 2) + 0xfe025400)
+#define DMC_TEST_RD9                               ((0x0029  << 2) + 0xfe037800)
    // the read back data 7.  if error happens, it would capture the first error data.
-#define DMC_TEST_RD10                              ((0x002a  << 2) + 0xfe025400)
+#define DMC_TEST_RD10                              ((0x002a  << 2) + 0xfe037800)
    // the read back data 7.  if error happens, it would capture the first error data.
-#define DMC_TEST_RD11                              ((0x002b  << 2) + 0xfe025400)
+#define DMC_TEST_RD11                              ((0x002b  << 2) + 0xfe037800)
    // the read back data 7.  if error happens, it would capture the first error data.
-#define DMC_TEST_RD12                              ((0x002c  << 2) + 0xfe025400)
+#define DMC_TEST_RD12                              ((0x002c  << 2) + 0xfe037800)
    // the read back data 7.  if error happens, it would capture the first error data.
-#define DMC_TEST_RD13                              ((0x002d  << 2) + 0xfe025400)
+#define DMC_TEST_RD13                              ((0x002d  << 2) + 0xfe037800)
    // the read back data 7.  if error happens, it would capture the first error data.
-#define DMC_TEST_RD14                              ((0x002e  << 2) + 0xfe025400)
+#define DMC_TEST_RD14                              ((0x002e  << 2) + 0xfe037800)
    // the read back data 7.  if error happens, it would capture the first error data.
-#define DMC_TEST_RD15                              ((0x002f  << 2) + 0xfe025400)
+#define DMC_TEST_RD15                              ((0x002f  << 2) + 0xfe037800)
    // the read back data 7.  if error happens, it would capture the first error data.
-#define DMC_TEST_ERR_ADDR                          ((0x0030  << 2) + 0xfe025400)
-  // it capature the first error address.
-#define DMC_TEST_ERR_CNT                           ((0x0031  << 2) + 0xfe025400)
-  // how many data error happens in the whole test period.
-#define DMC_TEST_STS                               ((0x0032  << 2) + 0xfe025400)
+#define DMC_TEST_ERR_ADDR                          ((0x0040  << 2) + 0xfe037800)
+  //read only. it capature the first error address.
+#define DMC_TEST_ERR_CNT                           ((0x0041  << 2) + 0xfe037800)
+  //read only. how many data error happens in the whole test period.
+#define DMC_TEST_STS                               ((0x0042  << 2) + 0xfe037800)
+  //read only.
   //bit 31,   test done bit. write 1 to clean.
   //bit 30,   indicate address err
   //bit 29~7.  not used.
@@ -1995,51 +2413,18 @@
   //bit 2,    read done.    write 1 to clean
   //bit 1,    write watchdog triggered.   write 1 to clean
   //bit 0,    read watchdog triggered.    write 1 to clean.
-#define DMC_TEST_COMP_MASK                         ((0x0033  << 2) + 0xfe025400)
-  //32bits for DMC TEST COMPARE bit enable.
-  //1 : to MASK this bit.  0: compare this bit.
-#define DMC_TEST_RDBI0                             ((0x0034  << 2) + 0xfe025400)
-  //MPC RD FIFO command DBI read back data
-  //bit 31:16  the second cycle.
-  //bit 15:0   the first cycle.
-#define DMC_TEST_RDBI1                             ((0x0035  << 2) + 0xfe025400)
-  //MPC RD FIFO command DBI read back data
-  //bit 31:16. the Forth cycle.
-  //bit 15:0.  the third cycle.
-#define DMC_TEST_WSTRB0                            ((0x0036  << 2) + 0xfe025400)
-  //MPC WR FIFO command DM bit write data
-  //bit 31:16  the second cycle.
-  //bit 15:0   the first cycle.
-#define DMC_TEST_WSTRB1                            ((0x0037  << 2) + 0xfe025400)
-  //MPC WR FIFO command DM bit write data
-  //bit 31:16. the Forth cycle.
-  //bit 15:0.  the third cycle.
-#define DMC_TEST_DRAM_CMD                          ((0x0038  << 2) + 0xfe025400)
- //bit 31. cmd done.  write 0 to clean.
- //bit 30. data done. write 0 to clean.
- //bit 4:0.  only one bit can be 1. read data stored in DMC_TEST_RD* write data from DMC_TEST_W
- //bit 4. LPDDR4 MPC write data command( MPC WR FIFO).
- //bit 3. LPDDR4 MPC read data command (MPC RD Calibration and RD FIFO).
- //bit 2. LPDDR4 MPC-1 command ( NOP,  Start DQS interval ....)
- //bit 1. mrr comand.
- //bit 0. mrw command.
-#define DMC_TEST_DRAM_CMD_CODE                     ((0x0039  << 2) + 0xfe025400)
- //bit 27:26. 128bits data cycles . 0: 1 clock cycles;  1: 2  clock cycles; 2: 3 clock cycles; 3:4 clock cycles.
- //           LPDDR4 32bits: 4 clock cycles; LPDDR4 16bits: 2 clock cycles;
- //           DDR3/4/LPDDR3 32 bits : 2 clock cycles. DDR3/4 16bits:  1 cycles.
- //bit 25  MRW/MRR/MPC command rank 1 select.  1: select.  0: not select.
- //bit 24. MRW/MRR/MPC command rank 0 select.  1: select.  0: not select.
- //bit 23:16  MR addr.  DDR4 case :  18:16 ba[2:0].    20:19 BG[1:0].
- //bit 15:0   opcode.
-#define DMC_TEST_DRAM_CMD_TIME                     ((0x003a  << 2) + 0xfe025400)
-//bit 31:16  PRE  CMD timer. //delay how many cycle to start the command.
-//bit 15:0   POST CMD timer  //delay how many cycle after the command execute.
+#define DMC_TEST_WRCMD_ADDR                        ((0x0043  << 2) + 0xfe037800)
+  //read only. the current write cmd address.
+#define DMC_TEST_RDCMD_ADDR                        ((0x0044  << 2) + 0xfe037800)
+   //read only. the current read command address.
+#define DMC_TEST_RDRSP_ADDR                        ((0x0045  << 2) + 0xfe037800)
+  //read only. the failed read response address(for error data )
 //`endif
 //
-// Closing file:  ../mmc_lp4/dmc/rtl/dmc_test.vh
+// Closing file:  ../mmc_new/dmc/rtl/dmc_test.vh
 //
 //
-// Reading file:  ../mmc_lp4/dmc/rtl/dmc_reg.vh
+// Reading file:  ../mmc_new/dmc/rtl/dmc_reg.vh
 //
 //`ifdef DMC_REG_DEFINE
 //`else
@@ -2048,8 +2433,15 @@
 // APB_BASE:  APB1_BASE_ADDR = 0xfe024000
 // -----------------------------------------------
 //`define DMC_REG_BASE      32'hfe024000
-#define DMC_SOFT_RST                               ((0x0000  << 2) + 0xfe024000)
+#define DMC_SOFT_RST                               ((0x0001  << 2) + 0xfe024000)
+  //bit 31~24. reserved for future.
+  //bit 23:16 8 AMBUS input interface n_clk domain reset_n signal. 0 : reset.  1: normal working mode.
+  //bit 15:0. 16 AXI BUS input intefaces n_clk domain reset_n signal. 0: reset. 1: normal working mode. each bit for one interface.
 #define DMC_SOFT_RST1                              ((0x0002  << 2) + 0xfe024000)
+  //To reset the Async interface, you need to disable the interface both clock domain, then reset both n_clk and m_clk domain
+  //bit 31~24 not used.
+  //bit 23.16  8 am bus interfaces master clock domain reset_n signal. 0 : reset : 1 normal working mode.
+  //bit 15:0.  16 AXI bus interfaces master clock domain reset_n signal. 0 : reset : 1 normal working mode.
 #define DMC_SOFT_RST2                              ((0x0003  << 2) + 0xfe024000)
   //bit 31~11.  reserved for future.
   //bit 10  DMC DFI cmd soft reset_n
@@ -2063,8 +2455,45 @@
   //bit 2.  DMC register modle soft reset_n.       0 : reset. 1 : normal working mode.
   //bit 1.  DMC canvas transfer module soft reset_n.  0 : reset. 1 : normal working mode.
   //bit 0.  DMC command buffers and command generation modules soft reset.  0 = reset. 1:
-#define DMC_VERSION                                ((0x0005  << 2) + 0xfe024000)
-   //read only 32'h000b0001.  for A1
+#define DMC_RST_STS1                               ((0x0004  << 2) + 0xfe024000)
+  //31~24.  not used.
+  //23~0.   Read only.  the DMC_SOFT_RST1 signal in n_clk domain. the purpose of this register is when one of the 2 clocks is too slow or too fast,  we can read this register to make sure another clock domain reset is done.
+#define DMC_CLKG_CTRL0                             ((0x0006  << 2) + 0xfe024000)
+  //bit 23:16. enable the 8 ambus interfaces both main and n_clk auto clock gating function. each 1 bit for one interface.
+  //bit 15:0.  enable the 16 axi interfaces both main and n_clk auto clock gating function. each 1 bit for one interface.
+#define DMC_CLKG_CTRL1                             ((0x0007  << 2) + 0xfe024000)
+  //bit 23:16. force to disable the 8 ambus interfaces both main and n_clk. each 1 bit for one interface.
+  //bit 15:0.  force to disable the 16 axi interfaces both main and n_clk. each 1 bit for one interface.
+#define DMC_CLKG_CTRL2                             ((0x0008  << 2) + 0xfe024000)
+  //bit 12  enalbe auto clock gating for awcmdfifo.
+  //bit 11  enalbe auto clock gating for arcmdfifo.
+  //bit 10  enable auto clock gating for dfi command generation
+  //bit 9   enable auto clock gating for dram cntroller
+  //bit 8   enable auto clock gating for dfi data path.
+  //bit 7.  enalbe auto clock gating for write rsp generation.
+  //bit 6.  enalbe auto clock gating for read rsp generation.
+  //bit 5.  enalbe auto clock gating for ddr0 command filter.
+  //bit 4.  enalbe auto clock gating for ddr0 write reorder buffer.
+  //bit 3.  enalbe auto clock gating for ddr0 write data buffer.
+  //bit 2.  enalbe auto clock gating for ddr0 read reorder buffer.
+  //bit 1.  enalbe auto clock gating for read canvas.
+  //bit 0.  enalbe auto clock gating for write canvas.
+#define DMC_CLKG_CTRL3                             ((0x0009  << 2) + 0xfe024000)
+  //bit 12  force to disable the clock of awcmdfifo.
+  //bit 11  force to disable the clock of arcmdfifo.
+  //bit 10  force to disable the clock of dfi command generation
+  //bit 9   force to disable the clock of dram cntroller
+  //bit 8   force to disable the clock of dfi data path.
+  //bit 7. force to disalbe the clock of write rsp generation.
+  //bit 6. force to disalbe the clock of read rsp generation.
+  //bit 5.  force to disalbe the clock of  command filter.
+  //bit 4.  force to disalbe the clock of  write reorder buffer.
+  //bit 3.  force to disalbe the clock of write data buffer.
+  //bit 2.  force to disalbe the clock of read reorder buffer.
+  //bit 1.  force to disalbe the clock of read canvas.
+  //bit 0.  force to disalbe the clock of write canvas.
+#define DMC_VERSION                                ((0x0010  << 2) + 0xfe024000)
+   //read only 32'h000a0006.  for TM2_REVB
 #define DMC_MON_CTRL0                              ((0x0020  << 2) + 0xfe024000)
    //bit 31.   qos_mon_en.    write 1 to trigger the enable. polling this bit 0, means finished.  or use interrupt to check finish.
    //bit 30.   qos_mon interrupt clear.  clear the qos monitor result.  read 1 = qos mon finish interrupt.
@@ -2074,106 +2503,122 @@
    //bit 0.    qos monitor 0 enable.
 #define DMC_MON_CTRL1                              ((0x0021  << 2) + 0xfe024000)
   //enable to check which modules  bandwidth in QOS monitor 0
-  //bit 31:21: not used.
-  //bit 20:   enable DMC_TEST bandwidth check. 1 : enable. 0 : disable.
-  //bit 19:   enable I2C bandwidth check. 1 : enable. 0 : disable.
-  //bit 18:   enable USB host bandwidth check. 1 : enable. 0 : disable.
-  //bit 17:   enable USB device bandwidth check. 1 : enable. 0 : disable.
-  //bit 16:   enable NAND_EMMCC bandwidth check. 1 : enable. 0 : disable.
-  //bit 15:   enable DMA bandwidth check. 1 : enable. 0 : disable.
-  //bit 14:   enable AUDIO bandwidth check. 1 : enable. 0 : disable.
-  //bit 13:   enable SD_EMMCB bandwidth check. 1 : enable. 0 : disable.
-  //bit 12:   enable SD_EMMCA bandwidth check. 1 : enable. 0 : disable.
-  //bit 11:   enable SPICC_B bandwidth check. 1 : enable. 0 : disable.
-  //bit 10:   enable SPICC_A bandwidth check. 1 : enable. 0 : disable.
-  //bit 9:    enable ETH bandwidth check. 1 : enable. 0 : disable.
-  //bit 8:    enable JPEG bandwidth check. 1 : enable. 0 : disable.
-  //bit 7:    enable NNA bandwidth check. 1 : enable. 0 : disable.
-  //bit 6:    enable ISP bandwidth check. 1 : enable. 0 : disable.
-  //bit 5:    enable GE2D bandwidth check. 1 : enable. 0 : disable.
-  //bit 4:    enable GDC bandwidth check. 1 : enable. 0 : disable.
-  //bit 3:    enable WAVE bandwidth check. 1 : enable. 0 : disable.
-  //bit 2:    enable DSPB bandwidth check. 1 : enable. 0 : disable.
-  //bit 1:    enable DSPA bandwidth check. 1 : enable. 0 : disable.
-  //bit 0:    enable CPU bandwidth check. 1 : enable. 0 : disable.
+  //32bits for 32 different ID protection.
+  //bit 24. prot_en for all undefined IDs.
+  //bit 23. prot_en for SDEMMC_C
+  //bit 22. prot_en for DMA
+  //bit 21. prot_en for AUDIO
+  //bit 20. prot_en for SDEMMC_B
+  //bit 19. prot_en for SDEMMC_A
+  //bit 18. prot_en for SPICC_B
+  //bit 17. prot_en for SPICC_A
+  //bit 16. prot_en for ETH
+  //bit 15. prot_en for DMC TEST
+  //bit 14. prot_en for VAD
+  //bit 13. prot_en for NNA
+  //bit 12. prot_en for ISP
+  //bit 11. prot_en for USB Host
+  //bit 10. prot_en for USB Devi
+  //bit  9. prot_en for GE2D SRC1
+  //bit  8. prot_en for GE2D SRC0/DEST
+  //bit  7. prot_en for GDC
+  //bit  6. prot_en for WAVE
+  //bit  5. prot_en for JPEG
+  //bit  4. prot_en for DSPA
+  //bit  3. prot_en for RICV
+  //bit  2. prot_en for JTAG/PROD
+  //bit  1. prot_en for REE
+  //bit  0. prot_en for TEE
 #define DMC_MON_CTRL2                              ((0x0022  << 2) + 0xfe024000)
- //not used in C1
+ //not used in C2
 #define DMC_MON_CTRL3                              ((0x0023  << 2) + 0xfe024000)
   //enable to check which modules  bandwidth in QOS monitor 1
-  //bit 31:21: not used.
-  //bit 20:   enable DMC_TEST bandwidth check. 1 : enable. 0 : disable.
-  //bit 19:   enable I2C bandwidth check. 1 : enable. 0 : disable.
-  //bit 18:   enable USB host bandwidth check. 1 : enable. 0 : disable.
-  //bit 17:   enable USB device bandwidth check. 1 : enable. 0 : disable.
-  //bit 16:   enable NAND_EMMCC bandwidth check. 1 : enable. 0 : disable.
-  //bit 15:   enable DMA bandwidth check. 1 : enable. 0 : disable.
-  //bit 14:   enable AUDIO bandwidth check. 1 : enable. 0 : disable.
-  //bit 13:   enable SD_EMMCB bandwidth check. 1 : enable. 0 : disable.
-  //bit 12:   enable SD_EMMCA bandwidth check. 1 : enable. 0 : disable.
-  //bit 11:   enable SPICC_B bandwidth check. 1 : enable. 0 : disable.
-  //bit 10:   enable SPICC_A bandwidth check. 1 : enable. 0 : disable.
-  //bit 9:    enable ETH bandwidth check. 1 : enable. 0 : disable.
-  //bit 8:    enable JPEG bandwidth check. 1 : enable. 0 : disable.
-  //bit 7:    enable NNA bandwidth check. 1 : enable. 0 : disable.
-  //bit 6:    enable ISP bandwidth check. 1 : enable. 0 : disable.
-  //bit 5:    enable GE2D bandwidth check. 1 : enable. 0 : disable.
-  //bit 4:    enable GDC bandwidth check. 1 : enable. 0 : disable.
-  //bit 3:    enable WAVE bandwidth check. 1 : enable. 0 : disable.
-  //bit 2:    enable DSPB bandwidth check. 1 : enable. 0 : disable.
-  //bit 1:    enable DSPA bandwidth check. 1 : enable. 0 : disable.
-  //bit 0:    enable CPU bandwidth check. 1 : enable. 0 : disable.
+  //32bits for 32 different ID protection.
+  //bit 24. prot_en for all undefined IDs.
+  //bit 23. prot_en for SDEMMC_C
+  //bit 22. prot_en for DMA
+  //bit 21. prot_en for AUDIO
+  //bit 20. prot_en for SDEMMC_B
+  //bit 19. prot_en for SDEMMC_A
+  //bit 18. prot_en for SPICC_B
+  //bit 17. prot_en for SPICC_A
+  //bit 16. prot_en for ETH
+  //bit 15. prot_en for DMC TEST
+  //bit 14. prot_en for VAD
+  //bit 13. prot_en for NNA
+  //bit 12. prot_en for ISP
+  //bit 11. prot_en for USB Host
+  //bit 10. prot_en for USB Devi
+  //bit  9. prot_en for GE2D SRC1
+  //bit  8. prot_en for GE2D SRC0/DEST
+  //bit  7. prot_en for GDC
+  //bit  6. prot_en for WAVE
+  //bit  5. prot_en for JPEG
+  //bit  4. prot_en for DSPA
+  //bit  3. prot_en for RICV
+  //bit  2. prot_en for JTAG/PROD
+  //bit  1. prot_en for REE
+  //bit  0. prot_en for TEE
 #define DMC_MON_CTRL4                              ((0x0024  << 2) + 0xfe024000)
-  //not used in C1
+  //not used in C2
 #define DMC_MON_CTRL5                              ((0x0025  << 2) + 0xfe024000)
   //enable to check which modules  bandwidth in QOS monitor 2
-  //bit 31:21: not used.
-  //bit 20:   enable DMC_TEST bandwidth check. 1 : enable. 0 : disable.
-  //bit 19:   enable I2C bandwidth check. 1 : enable. 0 : disable.
-  //bit 18:   enable USB host bandwidth check. 1 : enable. 0 : disable.
-  //bit 17:   enable USB device bandwidth check. 1 : enable. 0 : disable.
-  //bit 16:   enable NAND_EMMCC bandwidth check. 1 : enable. 0 : disable.
-  //bit 15:   enable DMA bandwidth check. 1 : enable. 0 : disable.
-  //bit 14:   enable AUDIO bandwidth check. 1 : enable. 0 : disable.
-  //bit 13:   enable SD_EMMCB bandwidth check. 1 : enable. 0 : disable.
-  //bit 12:   enable SD_EMMCA bandwidth check. 1 : enable. 0 : disable.
-  //bit 11:   enable SPICC_B bandwidth check. 1 : enable. 0 : disable.
-  //bit 10:   enable SPICC_A bandwidth check. 1 : enable. 0 : disable.
-  //bit 9:    enable ETH bandwidth check. 1 : enable. 0 : disable.
-  //bit 8:    enable JPEG bandwidth check. 1 : enable. 0 : disable.
-  //bit 7:    enable NNA bandwidth check. 1 : enable. 0 : disable.
-  //bit 6:    enable ISP bandwidth check. 1 : enable. 0 : disable.
-  //bit 5:    enable GE2D bandwidth check. 1 : enable. 0 : disable.
-  //bit 4:    enable GDC bandwidth check. 1 : enable. 0 : disable.
-  //bit 3:    enable WAVE bandwidth check. 1 : enable. 0 : disable.
-  //bit 2:    enable DSPB bandwidth check. 1 : enable. 0 : disable.
-  //bit 1:    enable DSPA bandwidth check. 1 : enable. 0 : disable.
-  //bit 0:    enable CPU bandwidth check. 1 : enable. 0 : disable.
+  //32bits for 32 different ID protection.
+  //bit 24. prot_en for all undefined IDs.
+  //bit 23. prot_en for SDEMMC_C
+  //bit 22. prot_en for DMA
+  //bit 21. prot_en for AUDIO
+  //bit 20. prot_en for SDEMMC_B
+  //bit 19. prot_en for SDEMMC_A
+  //bit 18. prot_en for SPICC_B
+  //bit 17. prot_en for SPICC_A
+  //bit 16. prot_en for ETH
+  //bit 15. prot_en for DMC TEST
+  //bit 14. prot_en for VAD
+  //bit 13. prot_en for NNA
+  //bit 12. prot_en for ISP
+  //bit 11. prot_en for USB Host
+  //bit 10. prot_en for USB Devi
+  //bit  9. prot_en for GE2D SRC1
+  //bit  8. prot_en for GE2D SRC0/DEST
+  //bit  7. prot_en for GDC
+  //bit  6. prot_en for WAVE
+  //bit  5. prot_en for JPEG
+  //bit  4. prot_en for DSPA
+  //bit  3. prot_en for RICV
+  //bit  2. prot_en for JTAG/PROD
+  //bit  1. prot_en for REE
+  //bit  0. prot_en for TEE
 #define DMC_MON_CTRL6                              ((0x0026  << 2) + 0xfe024000)
-  //not USED in C1
+  //not USED in C2
 #define DMC_MON_CTRL7                              ((0x0027  << 2) + 0xfe024000)
   //enable to check which modules  bandwidth in QOS monitor 3
-  //bit 31:21: not used.
-  //bit 20:   enable DMC_TEST bandwidth check. 1 : enable. 0 : disable.
-  //bit 19:   enable I2C bandwidth check. 1 : enable. 0 : disable.
-  //bit 18:   enable USB host bandwidth check. 1 : enable. 0 : disable.
-  //bit 17:   enable USB device bandwidth check. 1 : enable. 0 : disable.
-  //bit 16:   enable NAND_EMMCC bandwidth check. 1 : enable. 0 : disable.
-  //bit 15:   enable DMA bandwidth check. 1 : enable. 0 : disable.
-  //bit 14:   enable AUDIO bandwidth check. 1 : enable. 0 : disable.
-  //bit 13:   enable SD_EMMCB bandwidth check. 1 : enable. 0 : disable.
-  //bit 12:   enable SD_EMMCA bandwidth check. 1 : enable. 0 : disable.
-  //bit 11:   enable SPICC_B bandwidth check. 1 : enable. 0 : disable.
-  //bit 10:   enable SPICC_A bandwidth check. 1 : enable. 0 : disable.
-  //bit 9:    enable ETH bandwidth check. 1 : enable. 0 : disable.
-  //bit 8:    enable JPEG bandwidth check. 1 : enable. 0 : disable.
-  //bit 7:    enable NNA bandwidth check. 1 : enable. 0 : disable.
-  //bit 6:    enable ISP bandwidth check. 1 : enable. 0 : disable.
-  //bit 5:    enable GE2D bandwidth check. 1 : enable. 0 : disable.
-  //bit 4:    enable GDC bandwidth check. 1 : enable. 0 : disable.
-  //bit 3:    enable WAVE bandwidth check. 1 : enable. 0 : disable.
-  //bit 2:    enable DSPB bandwidth check. 1 : enable. 0 : disable.
-  //bit 1:    enable DSPA bandwidth check. 1 : enable. 0 : disable.
-  //bit 0:    enable CPU bandwidth check. 1 : enable. 0 : disable.
+  //32bits for 32 different ID protection.
+  //bit 24. prot_en for all undefined IDs.
+  //bit 23. prot_en for SDEMMC_C
+  //bit 22. prot_en for DMA
+  //bit 21. prot_en for AUDIO
+  //bit 20. prot_en for SDEMMC_B
+  //bit 19. prot_en for SDEMMC_A
+  //bit 18. prot_en for SPICC_B
+  //bit 17. prot_en for SPICC_A
+  //bit 16. prot_en for ETH
+  //bit 15. prot_en for DMC TEST
+  //bit 14. prot_en for VAD
+  //bit 13. prot_en for NNA
+  //bit 12. prot_en for ISP
+  //bit 11. prot_en for USB Host
+  //bit 10. prot_en for USB Devi
+  //bit  9. prot_en for GE2D SRC1
+  //bit  8. prot_en for GE2D SRC0/DEST
+  //bit  7. prot_en for GDC
+  //bit  6. prot_en for WAVE
+  //bit  5. prot_en for JPEG
+  //bit  4. prot_en for DSPA
+  //bit  3. prot_en for RICV
+  //bit  2. prot_en for JTAG/PROD
+  //bit  1. prot_en for REE
+  //bit  0. prot_en for TEE
 #define DMC_MON_CTRL8                              ((0x0028  << 2) + 0xfe024000)
   //not used.
 #define DMC_MON_ALL_REQ_CNT                        ((0x0029  << 2) + 0xfe024000)
@@ -2190,36 +2635,34 @@
   // at the test period,  the granted data cycles for the selected channel and ports.
 #define DMC_MON_TIMER                              ((0x002f  << 2) + 0xfe024000)
  // timer for the monitor period.
-#define DMC_CLKG_CTRL2                             ((0x0032  << 2) + 0xfe024000)
-  //bit 10  enable auto clock gating for dfi command generation
-  //bit 9   enable auto clock gating for dram cntroller
-  //bit 8   enable auto clock gating for dfi data path.
-  //bit 7.  enalbe auto clock gating for write rsp generation.
-  //bit 6.  enalbe auto clock gating for read rsp generation.
-  //bit 5.  enalbe auto clock gating for ddr0 command filter.
-  //bit 4.  enalbe auto clock gating for ddr0 write reorder buffer.
-  //bit 3.  enalbe auto clock gating for ddr0 write data buffer.
-  //bit 2.  enalbe auto clock gating for ddr0 read reorder buffer.
-  //bit 1.  reserved
-  //bit 0.  reserved
-#define DMC_CLKG_CTRL3                             ((0x0033  << 2) + 0xfe024000)
-  //bit 10  force to disable the clock of dfi command generation
-  //bit 9   force to disable the clock of dram cntroller
-  //bit 8   force to disable the clock of dfi data path.
-  //bit 7. force to disalbe the clock of write rsp generation.
-  //bit 6. force to disalbe the clock of read rsp generation.
-  //bit 5.  force to disalbe the clock of  command filter.
-  //bit 4.  force to disalbe the clock of  write reorder buffer.
-  //bit 3.  force to disalbe the clock of write data buffer.
-  //bit 2.  force to disalbe the clock of read reorder buffer.
-  //bit 1.  reserved.
-  //bit 0.  reserved.
-#define DMC_CHAN_STS                               ((0x0036  << 2) + 0xfe024000)
+#define DMC_IRQ_STS                                ((0x0030  << 2) + 0xfe024000)
+  //bit 31:3   Not used.
+  //bit 2 :    QOS Monitor interrupt flag.  1: means there's QOS monitor interrup.  write 1 to clean this interrupt.
+  //bit 1 :    WRITE protection interrupt.  1: means there's write protection violation.  need to write DMC_PROT_IRQ_CTRL  bit 1to clean this bit.
+  //bit 0 :    read protection interrupt.   1: means there's read  protection violation.  need to write DMC_PROT_IRQ_CTRL bit 0 to clean this bit.
+#define DMC_AXI0_HOLD_CTRL                         ((0x0031  << 2) + 0xfe024000)
+    //31:24 write hold num.   max outstanding request number.
+    //23:16  write hold release num. if the outstanding request == hold num, then hold this request unless the outstanding request number bellow the hold release number, then continue to request.
+    //15:8 read hold num.   max outstanding request number.
+    //7:0  read hold release num. if the outstanding request == hold num, then hold this request unless the outstanding request number bellow the hold release number, then continue to request.
+#define DMC_AXI5_HOLD_CTRL                         ((0x0035  << 2) + 0xfe024000)
+    //31:24 write hold num.   max outstanding request number.
+    //23:16  write hold release num. if the outstanding request == hold num, then hold this request unless the outstanding request number bellow the hold release number, then continue to request.
+    //15:8 read hold num.   max outstanding request number.
+    //7:0  read hold release num. if the outstanding request == hold num, then hold this request unless the outstanding request number bellow the hold release number, then continue to request.
+#define DMC_CHAN_STS                               ((0x003c  << 2) + 0xfe024000)
   //bit 4      always 1
   //bit 3      ddr0 write data buffer idle. 1 : idle 0: busy.
   //bit 2      always 1.
   //bit 1      ddr0 wbuf idle.              1 : idle 0: busy.
   //bit 0.      axi0 channel idle.         1 : idle 0: busy.
+#define DMC_CMD_FILTER_CTRL1                       ((0x0040  << 2) + 0xfe024000)
+  //not used.
+#define DMC_CMD_FILTER_CTRL2                       ((0x0041  << 2) + 0xfe024000)
+  //31:24. keep the bank active if there's urgent level 3 read bank hit request.
+  //23:16. keep the bank active if there's urgent level 2 read bank hit request.
+  //15:8.  keep the bank active if there's urgent level 1 read bank hit request.
+  //7:0.   keep the bank active if there's urgent level 0 read bank hit request.
 #define DMC_CMD_FILTER_CTRL3                       ((0x0042  << 2) + 0xfe024000)
   //bit 31.    force wbuf empty.
   //bit 30:26  wbuf high level number
@@ -2245,15 +2688,20 @@
   //bit 15:8.   write urgent 1 request pending hold num.
   //bit 7:0.    write urgent 0 request pending hold num.
 #define DMC_CMD_FILTER_CTRL7                       ((0x0046  << 2) + 0xfe024000)
+  //bit 31:24.  aw_req_pedning singal assertion after wbuf full.
+  //bit 23:16   aw_req_pending singal hold how long if wbuf not full.
   //bit 15:8    write to read waiting cycles if there write hit request.
   //bit 7:0     read to write waiting cycles if there write hit request.
-#define DMC_CMD_BUFFER_CTRL                        ((0x0047  << 2) + 0xfe024000)
+#define DMC_CMD_FILTER_CTRL8                       ((0x0047  << 2) + 0xfe024000)
+  //bit 31:8    reserved.
+  //bit 7:0     rank limit to change to another rank.
+#define DMC_CMD_BUFFER_CTRL                        ((0x0048  << 2) + 0xfe024000)
   //bit 31:26  total write buffer number. default 32.
   //bit 25:20  total read buffer number. default 32.
-  //bit 19:14.  Not used.
-  //bit 13:8   write command fifo depth. default 32.
+  //bit 19:14  reserved.
+  //bit 13:8   wr cmd fifo depth
   //bit 7:0    aw_pending_inc_num.  incease write ugent level 1 when write command waiting to in write buffer that long.
-#define DMC_CMD_BUFFER_CTRL1                       ((0x0048  << 2) + 0xfe024000)
+#define DMC_CMD_BUFFER_CTRL1                       ((0x0049  << 2) + 0xfe024000)
   //bit 29:24  read buffer number in non-urgent request.
   //bit 23:16  read buffer bank miss watch dog threshold.
   //bit 15:12  read buffer urgent level 3 counter inc weight.
@@ -2270,22 +2718,103 @@
   //bit 11:8     ugt2 QOS level.
   //bit 7:4      ugt1 QOS level.
   //bit 3:0      not used.
-#define DMC_AXI0_HOLD_CTRL                         ((0x0081  << 2) + 0xfe024000)
-    //31:24 write hold num.   max outstanding request number.
-    //23:16  write hold release num. if the outstanding request == hold num, then hold this request unless the outstanding request number bellow the hold release number, then continue to request.
-    //15:8 read hold num.   max outstanding request number.
-    //7:0  read hold release num. if the outstanding request == hold num, then hold this request unless the outstanding request number bellow the hold release number, then continue to request.
-#define DMC_AXI5_HOLD_CTRL                         ((0x0095  << 2) + 0xfe024000)
-    //31:24 write hold num.   max outstanding request number.
-    //23:16  write hold release num. if the outstanding request == hold num, then hold this request unless the outstanding request number bellow the hold release number, then continue to request.
-    //15:8 read hold num.   max outstanding request number.
-    //7:0  read hold release num. if the outstanding request == hold num, then hold this request unless the outstanding request number bellow the hold release number, then continue to request.
+#define DMC_PROT0_RANGE                            ((0x0090  << 2) + 0xfe024000)
+  //protection 0 address range. the range define is 64Kbyte boundary.  current address [31:16] >= start address && current address [31:16] <= end address.
+  //bit 31:16 :   range end address.
+  //bit 15:0  :   range start address
+#define DMC_PROT0_CTRL                             ((0x0091  << 2) + 0xfe024000)
+  //32bits for 32 different ID protection.
+  //bit 24. prot_en for all undefined IDs.
+  //bit 23. prot_en for SDEMMC_C
+  //bit 22. prot_en for DMA
+  //bit 21. prot_en for AUDIO
+  //bit 20. prot_en for SDEMMC_B
+  //bit 19. prot_en for SDEMMC_A
+  //bit 18. prot_en for SPICC_B
+  //bit 17. prot_en for SPICC_A
+  //bit 16. prot_en for ETH
+  //bit 15. prot_en for DMC TEST
+  //bit 14. prot_en for VAD
+  //bit 13. prot_en for NNA
+  //bit 12. prot_en for ISP
+  //bit 11. prot_en for USB Host
+  //bit 10. prot_en for USB Devi
+  //bit  9. prot_en for GE2D SRC1
+  //bit  8. prot_en for GE2D SRC0/DEST
+  //bit  7. prot_en for GDC
+  //bit  6. prot_en for WAVE
+  //bit  5. prot_en for JPEG
+  //bit  4. prot_en for DSPA
+  //bit  3. prot_en for RICV
+  //bit  2. prot_en for JTAG/PROD
+  //bit  1. prot_en for REE
+  //bit  0. prot_en for TEE
+#define DMC_PROT0_CTRL1                            ((0x0092  << 2) + 0xfe024000)
+  //bit 26.  protection 0  read access protection enable.
+  //bit 25.  protection 0  write access block function. if enabled, the access wouldn't write to the DDR SDRAM.  if not enabled only generate a interrupt, but the access still wrote to DDR.
+  //bit 24.  protection range 0  write access protection enable.
+#define DMC_PROT1_RANGE                            ((0x0093  << 2) + 0xfe024000)
+  //protection 1 address range. the range define is 64Kbyte boundary.  current address [31:16] >= start address && current address [31:16] <= end address.
+  //bit 31:16 :   range end address.
+  //bit 15:0  :   range start address
+#define DMC_PROT1_CTRL                             ((0x0094  << 2) + 0xfe024000)
+  //32bits for 32 different ID protection.
+  //bit 24. prot_en for all undefined IDs.
+  //bit 23. prot_en for SDEMMC_C
+  //bit 22. prot_en for DMA
+  //bit 21. prot_en for AUDIO
+  //bit 20. prot_en for SDEMMC_B
+  //bit 19. prot_en for SDEMMC_A
+  //bit 18. prot_en for SPICC_B
+  //bit 17. prot_en for SPICC_A
+  //bit 16. prot_en for ETH
+  //bit 15. prot_en for DMC TEST
+  //bit 14. prot_en for VAD
+  //bit 13. prot_en for NNA
+  //bit 12. prot_en for ISP
+  //bit 11. prot_en for USB Host
+  //bit 10. prot_en for USB Devi
+  //bit  9. prot_en for GE2D SRC1
+  //bit  8. prot_en for GE2D SRC0/DEST
+  //bit  7. prot_en for GDC
+  //bit  6. prot_en for WAVE
+  //bit  5. prot_en for JPEG
+  //bit  4. prot_en for DSPA
+  //bit  3. prot_en for RICV
+  //bit  2. prot_en for JTAG/PROD
+  //bit  1. prot_en for REE
+  //bit  0. prot_en for TEE
+#define DMC_PROT1_CTRL1                            ((0x0095  << 2) + 0xfe024000)
+  //bit 26.  protection range 1 read access protection enable bit.
+  //bit 25.  protection 1  write access block function. if enabled, the access wouldn't write to the DDR SDRAM.  if not enabled only generate a interrupt, but the access still wrote to DDR.
+  //bit 24.  protection range 1 write access protection enable bit.
+#define DMC_PROT_VIO_0                             ((0x0096  << 2) + 0xfe024000)
+  //ddr0 write proection violation address.
+#define DMC_PROT_VIO_1                             ((0x0097  << 2) + 0xfe024000)
+  //31   ddr0 protection 1 vilation.
+  //30   ddr0 protection 0 vilation.
+  //29   not used.
+  //28:26. ddr0 write violation AWPROT bits.
+  //25:16. ddr0_write AWUSER[9:0];
+  //15:0   ddr0_write violation ID.
+#define DMC_PROT_VIO_2                             ((0x0098  << 2) + 0xfe024000)
+  //ddr0 read prot violation address
+#define DMC_PROT_VIO_3                             ((0x0099  << 2) + 0xfe024000)
+  //bit 31:21 . not used. always 0.
+  //20     ddr0 read protection 1 violation.
+  //19     ddr0 read protection 0 violation.
+  //18:16. ddr0 read violation ARPROT bits.
+  //15:0   ddr0 read violation ID.
+#define DMC_PROT_IRQ_CTRL                          ((0x009a  << 2) + 0xfe024000)
+  //bit 2 :  protect function IRQ enable.
+  //bit 1 :  write protection violation.  write 1 to clean write protection vio registers.
+  //bit 0 :  read  protection violation.  write 1 to clean read protection vio registers.
 //`endif
 //
-// Closing file:  ../mmc_lp4/dmc/rtl/dmc_reg.vh
+// Closing file:  ../mmc_new/dmc/rtl/dmc_reg.vh
 //
 //
-// Reading file:  ../mmc_lp4/dmc/rtl/dmc_siu_reg.vh
+// Reading file:  ../mmc_new/dmc/rtl/dmc_siu_reg.vh
 //
 //`ifdef DMC_SIU_REG_DEFINE
 //`else
@@ -2299,7 +2828,7 @@
 //DMC_DRAM_* is for Frequency set 0.
 //DMC_NFQ_* is for Freqency set 1.
 #define DMC_DRAM_TMRD                              ((0x0000  << 2) + 0xfe024400)
-   //bit 3:0.  tMRD.
+   //bit 4:0.  tMRD. //MR command cycles, in DDR3/4.  in LPDDR4, it should be value of tMRW
 #define DMC_DRAM_TRFC                              ((0x0001  << 2) + 0xfe024400)
    //bit 9:0 tRFC
 #define DMC_DRAM_TRP                               ((0x0002  << 2) + 0xfe024400)
@@ -2307,6 +2836,9 @@
    //bit 5:0.    tRP for precharge one bank.
 #define DMC_DRAM_TRTW                              ((0x0003  << 2) + 0xfe024400)
    //bit 5:0   tRTW
+   //In LPDDR4 .   the total read command -> write command = RL +DQSCK_MAX + BL/2 - tODT_on + tWPRE +RD(tRPST) + tODT_on.
+   //                 tRTW = TDQSCK_MAX + tWPRE + tRD(tRPST)    tODT_on + (delay margin)
+   //In DDR4 mode.
 #define DMC_DRAM_TCL                               ((0x0004  << 2) + 0xfe024400)
   //bit 5:0  tCL/tRL. read latency.
 #define DMC_DRAM_TCWL                              ((0x0005  << 2) + 0xfe024400)
@@ -2333,13 +2865,13 @@
   //bit 19:16. tCCD/tCCD_l.
   //bit 3:0 tCCD/tCCD_s    read to read command time or write to write command time.
 #define DMC_DRAM_TEXSR                             ((0x000f  << 2) + 0xfe024400)
-  //bit 9:0. tEXSR.  EXIT SELF-REFRESH to read/write command.
+  //bit 12:0. tEXSR.  EXIT SELF-REFRESH to read/write command.
 #define DMC_DRAM_TXS                               ((0x0010  << 2) + 0xfe024400)
   //bit 9:0  tXS.  EXIT SELF_REFRESH to other command time
 #define DMC_DRAM_TXP                               ((0x0011  << 2) + 0xfe024400)
   //bit 3:0. tXP.  EXIT power down to other command time
 #define DMC_DRAM_TXPDLL                            ((0x0012  << 2) + 0xfe024400)
-  //bit 9:0.  tXPDLL,  EXIT power down to read/write command time(need to relock PLL).
+  //bit 12:0.  tXPDLL,  EXIT power down to read/write command time(need to relock PLL).
 #define DMC_DRAM_TZQCS                             ((0x0013  << 2) + 0xfe024400)
   //bit 11:0.  ZQCS command to other command time.
 #define DMC_DRAM_TCKSRE                            ((0x0014  << 2) + 0xfe024400)
@@ -2349,15 +2881,22 @@
 #define DMC_DRAM_TCKE                              ((0x0016  << 2) + 0xfe024400)
   //bit 4:0.  CKE high or low minimum time.
 #define DMC_DRAM_TMOD                              ((0x0017  << 2) + 0xfe024400)
-  //bit 4:0  tMOD.  MRR/MRW to other command time.
+  //bit 4:0  tMOD.  MRR/MRW to other command time. in LPDDR4, still use this register but it called tMRD.
 #define DMC_DRAM_TDQS                              ((0x0018  << 2) + 0xfe024400)
-  //bit 3:0 tDQS. the delay to access different rank.
+  //bit 31:28 reserved
+  //bit 27:24 tDQS. the delay for write after read in different rank.
+  //bit 23:20 reserved
+  //bit 19:16 tDQS. the delay for read after write in different rank.
+  //bit 15:12 reserved
+  //bit 11:8  tDQS. the delay for write after write in different rank.
+  //bit 7:4 reserved
+  //bit 3:0 tDQS. the delay for read after read in different rank.
 #define DMC_DRAM_TRSTL                             ((0x0019  << 2) + 0xfe024400)
   //not used.
 #define DMC_DRAM_TZQLAT                            ((0x001a  << 2) + 0xfe024400)
   //bit 5:0 ZQ LATCH command to other comand timing in LPDDR4 mode.
 #define DMC_DRAM_TMRR                              ((0x001b  << 2) + 0xfe024400)
-  //bit 7:0 tMRR  not used in DMC. not support MR READ.
+  //bit 7:0 tMRR  not used in DMC.
 #define DMC_DRAM_TCKESR                            ((0x001c  << 2) + 0xfe024400)
  //bit 9:0 tCKESR.   CKE low minimum pulse in self refresh mode.
 #define DMC_DRAM_TDPD                              ((0x001d  << 2) + 0xfe024400)
@@ -2376,8 +2915,6 @@
   //bit 7:0.  CTRLUPD_MIN  minimux clock cycle to maintain CTRLUPD_REQ.
 #define DMC_DRAM_DFITCTRLUPDMAX                    ((0x0024  << 2) + 0xfe024400)
   //bit 7:0   CTRLUPD_MAX.  maxmum clock cycle to maintain CTRLUPD_REQ if no CTRLUPD_ACK response.
-#define DMC_DRAM_DFITMSTRRESP                      ((0x0025  << 2) + 0xfe024400)
-  //not used.
 #define DMC_DRAM_DFITREFMSKI                       ((0x0026  << 2) + 0xfe024400)
   //not used.
 #define DMC_DRAM_DFITCTRLUPDI                      ((0x0027  << 2) + 0xfe024400)
@@ -2389,9 +2926,6 @@
 //bit 7:0   DRAM CLK enable  enable timer
 #define DMC_DRAM_DFITLPRESP                        ((0x002a  << 2) + 0xfe024400)
   //bit 3:0.  dfi_lp_ctrl_req response time. after dfi_lp_ctrl_req asserted, and after response time if there's still no dfi_lp_ack respone, then drop the dfi_lp_ctrl_req.
-#define DMC_DRAM_DFITPHYMSTR                       ((0x002b  << 2) + 0xfe024400)
- //bit 15  1: enable DFIPHYMASTER INTERFACE 0 disable DFIPHYMSTR en response.
- // always 0  we would use DFI_RETRAIN function for PHY retrain required from LPDDR4.
 #define DMC_DRAM_TCKECK                            ((0x002c  << 2) + 0xfe024400)
  //bit 4:0. tCKECK  from CKE low to assert dfi_dram_clk_disable time. this time + dfi_t_ctrl_delay
 #define DMC_DRAM_TREFI                             ((0x002d  << 2) + 0xfe024400)
@@ -2407,13 +2941,46 @@
 #define DMC_DRAM_TESCKE                            ((0x0030  << 2) + 0xfe024400)
   //bit 5:0  tESCKE.  enter self refresh to power time for LPDDR4.
 #define DMC_DRAM_TREFI_DDR3                        ((0x0031  << 2) + 0xfe024400)
-  //7:0. 8*DDR3 SDRAM tREFI time . the unit is t100ns.  use this to check in 8*tREFI time, the DMC should sent more than 16 auto REFRESH command.
+  //7:0. DDR3 SDRAM tREFI single auto refresh time . the unit is t100ns.
+  //use this to check in 8*tREFI time, the DMC should not sent more than 16 auto REFRESH command.
 #define DMC_DRAM_TZQCAL                            ((0x0032  << 2) + 0xfe024400)
-  //7:0. ZQCAL for LPDDR4.
+  //11:0. ZQCAL for LPDDR4. ZQINIT/ZQoper for DDR3/4 ZQCL command.
 #define DMC_DRAM_T10US                             ((0x0033  << 2) + 0xfe024400)
   //10us clock cycle number used for LP2 mode.
 #define DMC_DRAM_TMRRI                             ((0x0034  << 2) + 0xfe024400)
 //bit 7:0   tMRRI for MRR
+#define DMC_DRAM_TXS_FAST                          ((0x0035  << 2) + 0xfe024400)
+ //bit 9:0 DDR4 mode XS_FAST exit self_refrest to zqcl/zqcs/mrs command.
+#define DMC_DRAM_DFIODTCFG                         ((0x0036  << 2) + 0xfe024400)
+  //bit 12.  rank1 ODT default. default vulue for ODT[1] pins if theres no read/write activity.
+  //bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
+  //bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
+  //bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
+  //bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occure in rank0.
+  //bit 4.   rank0 ODT default.    default vulue for ODT[0] pins if theres no read/write activity.
+  //bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
+  //bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
+  //bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
+  //bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occure in rank1.
+#define DMC_DRAM_DFIODTCFG1                        ((0x0037  << 2) + 0xfe024400)
+  //bit 27:24  ODT length for BL8 read transfer.
+  //bit 19:16. ODT length for BL8 write transfer.
+  //bit 12:8.  ODT latency for reads.  suppose to be 0.
+  //bit 4:0.   ODT latency for writes.  suppose to be 0.
+#define DMC_DRAM_TWODTON                           ((0x0038  << 2) + 0xfe024400)
+  //bit 5:0   DRAM write access ODT on time.
+  //      in DDR3/4 should be same as WL.
+  //   in LPDDR4 = tODTLon + tODTon.min
+#define DMC_DRAM_TRETRAIN                          ((0x0039  << 2) + 0xfe024400)
+ //bit 15:0 LPDDR4 OSCRING retraining timer(units = auto_refresh timer). sync with autorefresh
+#define DMC_DRAM_PHYADDRON                         ((0x003a  << 2) + 0xfe024400)
+  //PHY_CTRL_ADDR_ON for new PHY. default : 12
+#define DMC_DRAM_PHYWRON                           ((0x003b  << 2) + 0xfe024400)
+  // PHY_CTRL_WR_ON.  = 10 + WL/2 + (tDQSS+ tDQS2DQ + tWPST)/dfi_clk + BL/4
+#define DMC_DRAM_PHYRDON                           ((0x003c  << 2) + 0xfe024400)
+  // PHY_CTRL_RD_ON.  = 10 + RL/2 + (tDQSCK+ tRPST + tDQSQ)/dfi_clk + BL/4
+#define DMC_DRAM_DFITRDDATACSEN                    ((0x003d  << 2) + 0xfe024400)
+#define DMC_DRAM_DFITPHYWRCSLAT                    ((0x003e  << 2) + 0xfe024400)
 //timing paramter for frequency set 1.
 #define DMC_NFQ_TMRD                               ((0x0040  << 2) + 0xfe024400)
 #define DMC_NFQ_TRFC                               ((0x0041  << 2) + 0xfe024400)
@@ -2452,12 +3019,10 @@
 #define DMC_NFQ_DFITPHYRDLAT                       ((0x0062  << 2) + 0xfe024400)
 #define DMC_NFQ_DFITCTRLUPDMIN                     ((0x0063  << 2) + 0xfe024400)
 #define DMC_NFQ_DFITCTRLUPDMAX                     ((0x0064  << 2) + 0xfe024400)
-#define DMC_NFQ_DFITMSTRRESP                       ((0x0065  << 2) + 0xfe024400)
 #define DMC_NFQ_DFITREFMSKI                        ((0x0066  << 2) + 0xfe024400)
 #define DMC_NFQ_DFITCTRLUPDI                       ((0x0067  << 2) + 0xfe024400)
 #define DMC_NFQ_DFITDRAMCLK                        ((0x0068  << 2) + 0xfe024400)
 #define DMC_NFQ_DFITLPRESP                         ((0x006a  << 2) + 0xfe024400)
-#define DMC_NFQ_DFITPHYMSTR                        ((0x006b  << 2) + 0xfe024400)
 #define DMC_NFQ_TCKECK                             ((0x006c  << 2) + 0xfe024400)
 #define DMC_NFQ_TREFI                              ((0x006d  << 2) + 0xfe024400)
 #define DMC_NFQ_TSR                                ((0x006e  << 2) + 0xfe024400)
@@ -2467,6 +3032,17 @@
 #define DMC_NFQ_TZQCAL                             ((0x0072  << 2) + 0xfe024400)
 #define DMC_NFQ_T10US                              ((0x0073  << 2) + 0xfe024400)
 #define DMC_NFQ_TMRRI                              ((0x0074  << 2) + 0xfe024400)
+#define DMC_NFQ_TXS_FAST                           ((0x0075  << 2) + 0xfe024400)
+#define DMC_NFQ_DFIODTCFG                          ((0x0076  << 2) + 0xfe024400)
+#define DMC_NFQ_DFIODTCFG1                         ((0x0077  << 2) + 0xfe024400)
+#define DMC_NFQ_TWODTON                            ((0x0078  << 2) + 0xfe024400)
+#define DMC_NFQ_TRETRAIN                           ((0x0079  << 2) + 0xfe024400)
+#define DMC_NFQ_PHYADDRON                          ((0x007a  << 2) + 0xfe024400)
+#define DMC_NFQ_PHYWRON                            ((0x007b  << 2) + 0xfe024400)
+#define DMC_NFQ_PHYRDON                            ((0x007c  << 2) + 0xfe024400)
+#define DMC_NFQ_DFITRDDATACSEN                     ((0x007d  << 2) + 0xfe024400)
+#define DMC_NFQ_DFITPHYWRCSLAT                     ((0x007e  << 2) + 0xfe024400)
+//end of second frequency timing parameter
 #define DMC_DRAM_DFITPHYUPDTYPE0                   ((0x0080  << 2) + 0xfe024400)
  //dfi_phyupd_ack hold time for dfi_phyupd_req type = 0.
 #define DMC_DRAM_DFITPHYUPDTYPE1                   ((0x0081  << 2) + 0xfe024400)
@@ -2475,23 +3051,9 @@
  //dfi_phyupd_ack hold time for dfi_phyupd_req type = 2.
 #define DMC_DRAM_DFITPHYUPDTYPE3                   ((0x0083  << 2) + 0xfe024400)
  //dfi_phyupd_ack hold time for dfi_phyupd_req type = 3.
-#define DMC_DRAM_DFIODTCFG                         ((0x0084  << 2) + 0xfe024400)
-  //bit 12.  rank1 ODT default. default vulue for ODT[1] pins if theres no read/write activity.
-  //bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
-  //bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
-  //bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
-  //bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occure in rank0.
-  //bit 4.   rank0 ODT default.    default vulue for ODT[0] pins if theres no read/write activity.
-  //bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
-  //bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
-  //bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
-  //bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occure in rank1.
-#define DMC_DRAM_DFIODTCFG1                        ((0x0085  << 2) + 0xfe024400)
-  //bit 27:24  ODT length for BL8 read transfer.
-  //bit 19:16. ODT length for BL8 write transfer.
-  //bit 12:8.  ODT latency for reads.  suppose to be 0.
-  //bit 4:0.   ODT latency for writes.  suppose to be 0.
 #define DMC_DRAM_MCFG                              ((0x0086  << 2) + 0xfe024400)
+ //bit 18.   send retrain command after siu self refresh exit. 1 : enable. 0 : disable.
+ //bit 17.   in DDR3/4 mode, send ZQCL command after exit register triggered self refresh.
  //bit 16.   send refresh command after finish frequency change. 1 : enable. 0 : disable.
  //bit 15.   send refresh command after finish LPDDR4 retraining. 1 : enable. 0 : disable.
  //bit 14.   1: cke init low.  0 : cke init high.
@@ -2510,12 +3072,11 @@
  //bit 1     enable PHY triggered DFI_PHYUPD_REQ.
  //bit 0     2T mode. always 1 in DDR3/4 mode.
 #define DMC_DRAM_DFI_CTRL                          ((0x0089  << 2) + 0xfe024400)
-  //bit 20 siu_dfi1_phymstr_ack_en
-  //bit 19 siu_dfi_phymstr_req_and
-  //bit 18 siu_dfi_phymstr_req_or
-  //bit 17 siu_dfi_phymstr_type_sel
-  //bit 16 siu_dfi_phymstr_cs_sel
-  //bit 15 siu_dfi1_lp_en
+  //bit 31 siu_dfi_lat err generation enable.  1: if dfi read latency violation, generate data error. 0 : disable.
+  //bit 18:  dfi_rddata_cs_n polariy.  0:  rank0 select = 2'b10. rank1 select = 2'b10. 1: rank0 select = 2'b01, rank1_select = 2'b10.
+  //bit 17:  dfi_wrdata_cs_n polariy.  0:  rank0 select = 2'b10. rank1 select = 2'b10. 1: rank0 select = 2'b01, rank1_select = 2'b10.
+  //bit 16:  force PHY ctrl_on  if = 1, phy_ctrl_on singal will keep on.
+   //bit 15 siu_dfi1_lp_en
   //bit 14 siu_dfi_lp_ack_and
   //bit 13 siu_dfi_lp_ack_or
   //bit 12 siu_dfi1_init_start_en
@@ -2551,31 +3112,41 @@
  //bit 9:0    0  disable auto power down mode.
             //non zero value to enable auto power down when DMC is in idle state for this number of clock cycles.
 #define DMC_DRAM_ASR_CTRL                          ((0x008d  << 2) + 0xfe024400)
-  //bit [23:20] DFI_LP_WAKEUP value in self refresh DFI_LP_REQ mode.
-  //bit 17 : send REFRESH command after exit from auto self refersh mode(ASR).
-  //bit 16 : send REFERSH command before enter to Auto self refresh mode(ASR).
-  //bit 15 : send ZQCS command after exit from Auto self refresh mode(ASR).
-  //bit 14 : send dfi_ctrl_upd after exit from ASR mode
-  //bit 13 : send power down command when enter ASR mode. //for LPDDR4 only.
-  //bit 12 : set the PHY enter LP2 mode after enter ASR mode.
-  //bit 11 : send DFI_LP_REQ  after enter ASR mode.
-  //bit 10 : set DFI_CLK_DISABLE after enter ASR mode.
-  //bit 9:0.   0 disable auto ASR mode.
+  //bit 31. enable RETRAIN PHY after auto selfrefresh exit. for AM_PHY only.
+  //bit 30. in DDR3/4 mode, send ZQCL command after exit from auto self refresh mode.
+  //bit 29. enable PHY clock in LP2 mode.  1: enable. 0 : disable.
+  //bit 28. enable dmc wait 10us after LP2 mode exit if it's long time the PHY in LP2 mode..
+  //bit [27:24] DFI_LP_WAKEUP value in self refresh DFI_LP_REQ mode.
+  //bit 23 : send REFRESH command after exit from auto self refersh mode(ASR).
+  //bit 22 : send REFERSH command before enter to Auto self refresh mode(ASR).
+  //bit 21 : send ZQCS command after exit from Auto self refresh mode(ASR).
+  //bit 20 : send dfi_ctrl_upd after exit from ASR mode
+  //bit 19 : send power down command when enter ASR mode. //for LPDDR4 only.
+  //bit 18 : set the PHY enter LP2 mode after enter ASR mode.
+  //bit 17 : send DFI_LP_REQ  after enter ASR mode.
+  //bit 16 : set DFI_CLK_DISABLE after enter ASR mode.
+  //bit 15:0.   0 disable auto ASR mode.
              // Non-zero valule enable ASR mode. when DMC is in idle state for this number of clock cycles, the DMC will enter ASR mode.
-#define DMC_DRAM_PHYMSTR_CTRL                      ((0x0090  << 2) + 0xfe024400)
-  //not used in G12A. should be all 0.
-#define DMC_DRAM_DFIODTRANKMAP                     ((0x0091  << 2) + 0xfe024400)
- //not used in G12A.
 #define DMC_DRAM_REFR_CTRL                         ((0x0092  << 2) + 0xfe024400)
   //bit 17:8 auto refresh request pending cnt if there's page hit request.
+  //bit 7  retrain enable for auto refresh requent. 1: enable. 0: disable.
   //bit 6  Disabled auto refresh command if over 16 auto refresh command sent in 2 TREFI_DDR3 period
   //bit 5  enable dmc send ZQCS command .
   //bit 4. enable dmc send DFI_CTRUPD_REQ.
   //bit 3:1. how many refresh command send for one period. = this number + 1
   //bit 0.  enable dmc send auto refresh command.
 #define DMC_DRAM_FREQ_CTRL                         ((0x0093  << 2) + 0xfe024400)
-//bit 31 .  wiret 1 to change freqency   read 0: finished.
-//bit 30:9.  not used.
+//bit 31 .  write 1 to change freqency   read 0: finished.
+//bit 30.   waiting for software to send some manual command.  1 : waiting. 0 : not ready yet.
+//bit 29:9.  not used.
+//bit 19:16. how many cycles to send PLL change req after init_complete signal to low.
+//bit 15.   freq pre  config_en. Before freq enter stop state let DMC configure DDR SDRAM.
+//bit 13.   freq post config_en. After  freq enter stop state let DMC configure DDR SDRAM.
+//bit 13.   send zqcl after freq change in DDR3/4 mode.
+//bit 13.   send zqcl after freq change in DDR3/4 mode.
+//bit 12.   send zqcs after freq change. 1: enable. 0 not send.
+//bit 11.   in AUTO MRW fucntion: the data format.  1: use USR_CMD format.  0: MRW format.
+//bit 10.   AUTO MRW function:  1 use hardware auto MRW function.  0: don't do auto MRW.
 //bit 9.  1 : FREQ MRW done. let FREQ change machine continue.
 //bit 8   FREQ WAIT. 1 when freq change finishes, state machine stop at self refresh state in case there's something need to handle.
               //     0 after freq change finishes  the state machine go back to access state.
@@ -2648,6 +3219,8 @@
 //bit 15:0.   timer setting to measure how long the chip is entered LP2 mode.
 //this timer is 40bits counter with DMC PCLK.
 //we use the high 16bits to compare this register. if the counter is large than this number,  that means  the PHY need addition 10us after wakeup the PHY and before exit self_refresh mode.
+#define DMC_DRAM_COMPLETE_WAIT                     ((0x009b  << 2) + 0xfe024400)
+ //read only how long to waiting for DFI_INIT_COMPLETE become high after DFI_INIT_START triggered.
 #define DMC_DRAM_DFI_SWAP_0                        ((0x00a0  << 2) + 0xfe024400)
   //bit 5:0. dfi_act_n function select
   // 6'h00 : the function itself.
@@ -2980,14 +3553,95 @@
   //bit 5:0. dfi_a[15] function select
 #define DMC_DRAM_DFI_SWAP_25                       ((0x00b9  << 2) + 0xfe024400)
   //bit 5:0. dfi_a[16] function select
-#define DMC_DRAM_DFI_SWAP_26                       ((0x00bb  << 2) + 0xfe024400)
+#define DMC_DRAM_DFI_SWAP_26                       ((0x00ba  << 2) + 0xfe024400)
   //bit 5:0. dfi_a[17] function select
-//`endif
+#define DMC_DRAM_CMD                               ((0x00d0  << 2) + 0xfe024400)
+ //bit 31. cmd done.  write 0 to clean.
+ //bit 30. data done. write 0 to clean.
+ //bit 5.  user defined command.
+ //bit 4.  LPDDR4 MPC write data command( MPC WR FIFO).
+ //bit 3.  LPDDR4 MPC read data command (MPC RD Calibration and RD FIFO).
+ //bit 2.  LPDDR4 MPC-1 command ( NOP,  Start DQS interval ....)
+ //bit 1.  mrr comand.
+ //bit 0.  mrw command.
+#define DMC_DRAM_CMD_CODE                          ((0x00d1  << 2) + 0xfe024400)
+ //bit 31:28  user command case: = {act_n, ras_n, cas_n, we_n}
+ //bit 27:26. 128bits data cycles . 0: 1 clock cycles;  1: 2  clock cycles; 2: 3 clock cycles; 3:4 clock cycles.
+ //           LPDDR4 32bits: 4 clock cycles; LPDDR4 16bits: 2 clock cycles;
+ //           DDR3/4/LPDDR3 32 bits : 2 clock cycles. DDR3/4 16bits:  1 cycles.
+ //bit 25     MRW/MRR/MPC command rank 1 select.  1: select.  0: not select.
+ //bit 24.    MRW/MRR/MPC command rank 0 select.  1: select.  0: not select.
+ //bit 23:16  MR addr.  DDR4 case :  18:16 ba[2:0].    20:19 BG[1:0].
+ //bit 15:0   opcode.
+#define DMC_DRAM_CMD_TIME                          ((0x00d2  << 2) + 0xfe024400)
+//bit 31:16  PRE  CMD timer. //delay how many cycle to start the command.
+//bit 15:0   POST CMD timer  //delay how many cycle after the command execute.
+#define DMC_DRAM_WSTRB0                            ((0x00d3  << 2) + 0xfe024400)
+#define DMC_DRAM_WSTRB1                            ((0x00d4  << 2) + 0xfe024400)
+#define DMC_DRAM_RDBI0                             ((0x00d5  << 2) + 0xfe024400)
+  //MPC RD FIFO command DBI read back data
+  //bit 31:16  the second cycle.
+  //bit 15:0   the first cycle.
+#define DMC_DRAM_RDBI1                             ((0x00d6  << 2) + 0xfe024400)
+  //MPC RD FIFO command DBI read back data
+  //bit 31:16. the Forth cycle.
+  //bit 15:0.  the third cycle.
+//WD0~16 and RD0~16 can be used as MRW command as Frequency change .
+//WD0~16 is for Freq1 DRAM MR setting, it would send to DRAM right before FREQ0-> FREQ1
+//RD0_16 is for Freq0 DRAM MR setting. it would send to DRAM right before FREQ1-> FREQ0.
+//each register can be one MRW command. So total 16 MRW command can be sent to DRAM.
+//The register formats:
+//bit 31.   MRW/USER comand enable.  1: enabled command. 0 not enabled.
+//bit 30.   last MRW/USER command.   if this bit =1, After send this command, the DRAM controller will contine frequency next stage.
+//bit 29:26. USER COMMAND parameter: in DDR3/DDR4.  {act_n, ras_n, cas_n, we_n} value for user command
+                                     //in LPDDR4.  bit 16: 1 4 cycles command.  0 2 cycles command.
+//bit 25     MRW/USER command rank 1 select.  1: select.  0: not select.
+//bit 24.    MRW/USER command rank 0 select.  1: select.  0: not select.
+//bit 23:0.  USER command.
+             //DDR3:    18:16 bank address. 15:0:  address.
+             //DDR4:    20:19 bank group address.   18:16: bank address. 15:0 address.
+             //LPDDR3:   9:0. rising edge address.  19:10.  falling edge address.
+             //LPDDR4.   5:0, first edge address,  11:6 second edge address, 17:12: third edge address. 23:18, forth edge address.
+           //MRW command format:
+              //bit 23:16  MR addr.  DDR4 case :  18:16 ba[2:0].    20:19 BG[1:0].
+              //bit 15:0   opcode.
+#define DMC_DRAM_WD0                               ((0x00e0  << 2) + 0xfe024400)
+#define DMC_DRAM_WD1                               ((0x00e1  << 2) + 0xfe024400)
+#define DMC_DRAM_WD2                               ((0x00e2  << 2) + 0xfe024400)
+#define DMC_DRAM_WD3                               ((0x00e3  << 2) + 0xfe024400)
+#define DMC_DRAM_WD4                               ((0x00e4  << 2) + 0xfe024400)
+#define DMC_DRAM_WD5                               ((0x00e5  << 2) + 0xfe024400)
+#define DMC_DRAM_WD6                               ((0x00e6  << 2) + 0xfe024400)
+#define DMC_DRAM_WD7                               ((0x00e7  << 2) + 0xfe024400)
+#define DMC_DRAM_WD8                               ((0x00e8  << 2) + 0xfe024400)
+#define DMC_DRAM_WD9                               ((0x00e9  << 2) + 0xfe024400)
+#define DMC_DRAM_WD10                              ((0x00ea  << 2) + 0xfe024400)
+#define DMC_DRAM_WD11                              ((0x00eb  << 2) + 0xfe024400)
+#define DMC_DRAM_WD12                              ((0x00ec  << 2) + 0xfe024400)
+#define DMC_DRAM_WD13                              ((0x00ed  << 2) + 0xfe024400)
+#define DMC_DRAM_WD14                              ((0x00ee  << 2) + 0xfe024400)
+#define DMC_DRAM_WD15                              ((0x00ef  << 2) + 0xfe024400)
+#define DMC_DRAM_RD0                               ((0x00f0  << 2) + 0xfe024400)
+#define DMC_DRAM_RD1                               ((0x00f1  << 2) + 0xfe024400)
+#define DMC_DRAM_RD2                               ((0x00f2  << 2) + 0xfe024400)
+#define DMC_DRAM_RD3                               ((0x00f3  << 2) + 0xfe024400)
+#define DMC_DRAM_RD4                               ((0x00f4  << 2) + 0xfe024400)
+#define DMC_DRAM_RD5                               ((0x00f5  << 2) + 0xfe024400)
+#define DMC_DRAM_RD6                               ((0x00f6  << 2) + 0xfe024400)
+#define DMC_DRAM_RD7                               ((0x00f7  << 2) + 0xfe024400)
+#define DMC_DRAM_RD8                               ((0x00f8  << 2) + 0xfe024400)
+#define DMC_DRAM_RD9                               ((0x00f9  << 2) + 0xfe024400)
+#define DMC_DRAM_RD10                              ((0x00fa  << 2) + 0xfe024400)
+#define DMC_DRAM_RD11                              ((0x00fb  << 2) + 0xfe024400)
+#define DMC_DRAM_RD12                              ((0x00fc  << 2) + 0xfe024400)
+#define DMC_DRAM_RD13                              ((0x00fd  << 2) + 0xfe024400)
+#define DMC_DRAM_RD14                              ((0x00fe  << 2) + 0xfe024400)
+#define DMC_DRAM_RD15                              ((0x00ff  << 2) + 0xfe024400)
 //
-// Closing file:  ../mmc_lp4/dmc/rtl/dmc_siu_reg.vh
+// Closing file:  ../mmc_new/dmc/rtl/dmc_siu_reg.vh
 //
 //
-// Reading file:  ../mmc_lp4/dmc/rtl/dmc_sticky_reg.vh
+// Reading file:  ../mmc_new/dmc/rtl/dmc_sticky_reg.vh
 //
 //`ifdef DMC_STICKY_REG_DEFINE
 //`else
@@ -3063,113 +3717,167 @@
 #define DMC_STICKY_63                              ((0x003f  << 2) + 0xfe024800)
 //`endif
 //
-// Closing file:  ../mmc_lp4/dmc/rtl/dmc_sticky_reg.vh
+// Closing file:  ../mmc_new/dmc/rtl/dmc_sticky_reg.vh
 //
 //
-// Reading file:  ../mmc_lp4/dmc_clk_freq/rtl/dmc_clk_freq.vh
+// Reading file:  ../sp/rtl/SP_REG_LIST.h
 //
-//`ifdef DMC_FREQ_REG_DEFINE
-//`else
-//`define DMC_FREQ_REG_DEFINE
+//========================================================================
+//  APB_MPU_CTRL - Registers
+//========================================================================
 // -----------------------------------------------
-// APB_BASE:  APB1_BASE_ADDR = 0xfe024c00
+// APB_BASE:  APB_BASE_ADDR = 0xfe00c000
 // -----------------------------------------------
-//`define DMC_FREQ_REG_BASE      32'hfe024c00
-#define AM_DDR_PLL_CNTL0                           ((0x0000  << 2) + 0xfe024c00)
-  //bit 29    : dpll_reset.
-  //bit 28    : dpll_en.
-  //bit 27:26 : dpll_clk_en
-  //bit
-  //bit 20:19 : od1
-  //bit 18:16 : od
-  //bit 14:10 : dpll_ref_div_n
-  //bit 8:0   : dpll_int_num
-#define AM_DDR_PLL_CNTL1                           ((0x0001  << 2) + 0xfe024c00)
-  //bit 18:0    : ddr_dpll_frac
-#define AM_DDR_PLL_CNTL2                           ((0x0002  << 2) + 0xfe024c00)
-  //bit 22:20  : fref_sel
-  //bit 17:16  : os_ssc
-  //bit 15:12  : ssc_str_m
-  //bit 8      : ssc_en
-  //bit 7:4    : ssc_dep_sel
-  //bit 1:0    : dpll ss_mode.
-#define AM_DDR_PLL_CNTL3                           ((0x0003  << 2) + 0xfe024c00)
-  //bit 31     : afc bypass
-  //bit 30     : afc clk sel
-  //bit 29     : code new
-  //bit 28     : dco_m_en
-  //bit 27     : dco_sdm_en
-  //bit 26     : div2
-  //bit 25     : div mode
-  //bit 24     : fast_lock mode
-  //bit 23     : fb_pre_div
-  //bit 22     : filter_mode
-  //bit 21     : fix_en
-  //bit 20     : freq_shift_en
-  //bit 19     : load
-  //bit 18     : load_en
-  //bit 17     : lock_f
-  //bit 16     : pulse_width_en
-  //bit 15     : sdmnc_en
-  //bit 14     : sdmnc_mode
-  //bit 13     : sdmnc_range
-  //bit 12     : tdc_en
-  //bit 11     : tdc_mode_sel
-  //bit 10     :  wait_en
-#define AM_DDR_PLL_CNTL4                           ((0x0004  << 2) + 0xfe024c00)
-  //bit 1:0    : pfd_gain
-  //bit 7:4    : filter_pvt1
-  //bit 11:8   : filter pvt2
-  //bit 13:12  : acq_gain
-  //bit 18:16  : lambda0
-  //bit 22:20  : lambda1
-  //bit 26:24  : rou
-  //bit 30:28  : alpha
-#define AM_DDR_PLL_CNTL5                           ((0x0005  << 2) + 0xfe024c00)
-  //bit 15:0   : reve
-  //bit 21:16  : lm_s
-  //bit 27:24  : lm_w
-  //bit 30:28  : adj_vco_ldo
-#define AM_DDR_PLL_CNTL6                           ((0x0006  << 2) + 0xfe024c00)
-  //bit 15:0   : reve
-  //bit 21:16  : lm_s
-  //bit 27:24  : lm_w
-  //bit 30:28  : adj_vco_ldo
-#define AM_DDR_PLL_STS                             ((0x0007  << 2) + 0xfe024c00)
-  //bit 31     : DDR_PLL_LOCK
-  //bit 30:19  : not used.
-  //bit 18     : DDR_AFC_DONE
-  //bit 17     : DDR_PLL_LOCK
-  //bit 16:7   : DDR_DPLL_OUT_RSV
-  //bit 6:0    : DDR_SDMNC_MONITOR
-#define DDR_CLK_CNTL                               ((0x0008  << 2) + 0xfe024c00)
-  //bit 31     ddr_pll_clk enable. enable the clock from DDR_PLL to clock generateion.
-  // whenever change the DDR_PLL frequency, disable the clock, after the DDR_PLL locked, then enable it again.
-  //bit 30.    ddr_pll_prod_test_en.  enable the clock to clock/32 which to clock frequency measurement and production test pin.
-  //bit 29.    not used.
-  //bit 28.    clock generation logic soft reset. 0 = reset.
-  //bit 27.    phy_4xclk phase inverter..
-  //bit 25.    DDRPHY DfiClk/DfiCtlClk/DMC clock selection.  1:  AM_PLL clk output /2.  0: directly output from AM_PLL .
-  //bit 24.    enable AM_PLL CLK output /2 function.   1: enable.  0: disable.   if try to use this clkoutput/2 function.
-  //bit 26.    pll_freq divide/2. 1:  use pll div/2 clock as the n_clk. 0: use pll clock as n_clk.  this setting is used for the synopsys DDR PHY PLL fast lock mode.
-  //bit 2. enable dmc_clk.
-  //bit 1. enable LPDDR4-PHY DfiClk.
-  //bit 0. enable LPDDR4-PHY DfiCtlClk.
-#define DDR_PHY_CTRL                               ((0x0009  << 2) + 0xfe024c00)
-  // LPDDR4 power on reset need to special combination of PwrOkIn and phy_reset_n.
-  // please check the PHY PUB data book for detail.
-  //bit 4.   DDR PHY PwrOkIn pin.
-  //bit 1.   DDR PHY APB soft reset_n.
-  //bit 0.   phy_reset_n.
-#define AM_DDR_PLL_FREQ1_OD                        ((0x000c  << 2) + 0xfe024c00)
- //freqency set 1 PLL OD and OD1 setting. when change to freqency 1 will use this setting.
-//frequency set 0 use original DDR_PLL_CNTL0 setting.
- //bit 8     currunt FREQ selection.  it can forced to change to select which freqency to select, or it can auto changed by FREQ change hardware.
- //bit 5:4   OD1.
- //bit 2:0.  OD.
-//`endif
+#define MPU_REGION0_ST                             ((0x0000  << 2) + 0xfe00c000)
+#define MPU_REGION0_ED                             ((0x0001  << 2) + 0xfe00c000)
+#define MPU_REGION1_ST                             ((0x0002  << 2) + 0xfe00c000)
+#define MPU_REGION1_ED                             ((0x0003  << 2) + 0xfe00c000)
+#define MPU_REGION2_ST                             ((0x0004  << 2) + 0xfe00c000)
+#define MPU_REGION2_ED                             ((0x0005  << 2) + 0xfe00c000)
+#define MPU_REGION3_ST                             ((0x0006  << 2) + 0xfe00c000)
+#define MPU_REGION3_ED                             ((0x0007  << 2) + 0xfe00c000)
+#define MPU_REGION4_ST                             ((0x0008  << 2) + 0xfe00c000)
+#define MPU_REGION4_ED                             ((0x0009  << 2) + 0xfe00c000)
+#define MPU_REGION5_ST                             ((0x000a  << 2) + 0xfe00c000)
+#define MPU_REGION5_ED                             ((0x000b  << 2) + 0xfe00c000)
+#define MPU_REGION6_ST                             ((0x000c  << 2) + 0xfe00c000)
+#define MPU_REGION6_ED                             ((0x000d  << 2) + 0xfe00c000)
+#define MPU_REGION7_ST                             ((0x000e  << 2) + 0xfe00c000)
+#define MPU_REGION7_ED                             ((0x000f  << 2) + 0xfe00c000)
+#define MPU_REGION8_ST                             ((0x0010  << 2) + 0xfe00c000)
+#define MPU_REGION8_ED                             ((0x0011  << 2) + 0xfe00c000)
+#define MPU_REGION9_ST                             ((0x0012  << 2) + 0xfe00c000)
+#define MPU_REGION9_ED                             ((0x0013  << 2) + 0xfe00c000)
+#define MPU_REGION10_ST                            ((0x0014  << 2) + 0xfe00c000)
+#define MPU_REGION10_ED                            ((0x0015  << 2) + 0xfe00c000)
+#define MPU_REGION11_ST                            ((0x0016  << 2) + 0xfe00c000)
+#define MPU_REGION11_ED                            ((0x0017  << 2) + 0xfe00c000)
+#define MPU_REGION12_ST                            ((0x0018  << 2) + 0xfe00c000)
+#define MPU_REGION12_ED                            ((0x0019  << 2) + 0xfe00c000)
+#define MPU_REGION13_ST                            ((0x001a  << 2) + 0xfe00c000)
+#define MPU_REGION13_ED                            ((0x001b  << 2) + 0xfe00c000)
+#define MPU_REGION14_ST                            ((0x001c  << 2) + 0xfe00c000)
+#define MPU_REGION14_ED                            ((0x001d  << 2) + 0xfe00c000)
+#define MPU_REGION15_ST                            ((0x001e  << 2) + 0xfe00c000)
+#define MPU_REGION15_ED                            ((0x001f  << 2) + 0xfe00c000)
+#define MPU_SEC_CTRL0                              ((0x0020  << 2) + 0xfe00c000)
+#define MPU_ILLEGAL0_INFO0                         ((0x0021  << 2) + 0xfe00c000)
+#define MPU_ILLEGAL0_INFO1                         ((0x0022  << 2) + 0xfe00c000)
+#define MPU_ILLEGAL0_COUNT                         ((0x0023  << 2) + 0xfe00c000)
+#define MPU_ILLEGAL1_INFO0                         ((0x0024  << 2) + 0xfe00c000)
+#define MPU_ILLEGAL1_INFO1                         ((0x0025  << 2) + 0xfe00c000)
+#define MPU_ILLEGAL1_COUNT                         ((0x0026  << 2) + 0xfe00c000)
+#define MPU_CONFIG_VIO                             ((0x0027  << 2) + 0xfe00c000)
+//========================================================================
+//  APB_MAILBOX_CTRL - Registers
+//========================================================================
+// -----------------------------------------------
+// APB_BASE:  APB_BASE_ADDR = 0xff010000
+// -----------------------------------------------
+// `define MB_SCPU2REE_CSR_ADDR        12'h300
+// `define MB_SCPU2REE_DATA_ST_ADDR    12'h380
+// `define MB_SCPU2REE_DATA_ED_ADDR    12'h39f
+// `define MB_SCPU2TEE_CSR_ADDR        12'h100
+// `define MB_SCPU2TEE_DATA_ST_ADDR    12'h180
+// `define MB_SCPU2TEE_DATA_ED_ADDR    12'h19f
+// `define MB_REE2SCPU_CSR_ADDR        12'h200
+// `define MB_REE2SCPU_DATA_ST_ADDR    12'h280
+// `define MB_REE2SCPU_DATA_ED_ADDR    12'h29f
+// `define MB_TEE2SCPU_CSR_ADDR        12'h0
+// `define MB_TEE2SCPU_DATA_ST_ADDR    12'h80
+// `define MB_TEE2SCPU_DATA_ED_ADDR    12'h9f
+//========================================================================
+//  APB_EDP_KL_CTRL - Registers
+//========================================================================
+// -----------------------------------------------
+// APB_BASE:  APB_BASE_ADDR = 0xff020000
+// -----------------------------------------------
+//========================================================================
+//  APB_RSA_CTRL - Registers
+//========================================================================
+// -----------------------------------------------
+// APB_BASE:  APB_BASE_ADDR = 0xff030000
+// -----------------------------------------------
+//========================================================================
+//  APB_DMA_CTRL - Registers
+//========================================================================
+// -----------------------------------------------
+// APB_BASE:  APB_BASE_ADDR = 0xff060000
+// -----------------------------------------------
+//========================================================================
+//  APB_REG_CTRL - Registers
+//========================================================================
+// -----------------------------------------------
+// APB_BASE:  APB_BASE_ADDR = 0xfe00c200
+// -----------------------------------------------
+#define SP_TOP_CTRL0                               ((0x0000  << 2) + 0xfe00c200)
+#define SP_TOP_CTRL1                               ((0x0001  << 2) + 0xfe00c200)
+#define SP_TOP_CTRL2                               ((0x0002  << 2) + 0xfe00c200)
+#define SP_TOP_CTRL3                               ((0x0003  << 2) + 0xfe00c200)
+#define SP_TOP_CTRL4                               ((0x0004  << 2) + 0xfe00c200)
+#define SP_TOP_CTRL5                               ((0x0005  << 2) + 0xfe00c200)
+#define SP_TOP_CTRL6                               ((0x0006  << 2) + 0xfe00c200)
+#define SP_TOP_CTRL7                               ((0x0007  << 2) + 0xfe00c200)
+#define SP_TOP_CTRL8                               ((0x0008  << 2) + 0xfe00c200)
+#define SP_TOP_CTRL9                               ((0x0009  << 2) + 0xfe00c200)
+#define SP_TOP_CTRL10_LOCK                         ((0x000a  << 2) + 0xfe00c200)
+#define SP_TOP_CTRL11_LOCK                         ((0x000b  << 2) + 0xfe00c200)
+#define SP_TOP_CTRL12_LOCK                         ((0x000c  << 2) + 0xfe00c200)
+#define SP_TOP_CTRL13_LOCK                         ((0x000d  << 2) + 0xfe00c200)
+#define SP_TOP_CTRL14_LOCK                         ((0x000e  << 2) + 0xfe00c200)
+#define SP_TOP_LOCK_CTRL                           ((0x000f  << 2) + 0xfe00c200)
+#define SP_TOP_STATUS0                             ((0x0020  << 2) + 0xfe00c200)
+#define SP_TOP_STATUS1                             ((0x0021  << 2) + 0xfe00c200)
+#define SP_TOP_STATUS2                             ((0x0022  << 2) + 0xfe00c200)
+#define SP_TOP_STATUS3                             ((0x0023  << 2) + 0xfe00c200)
+#define SP_TOP_ACPU_CTRL0                          ((0x0010  << 2) + 0xfe00c200)
+#define SP_TOP_ACPU_CTRL1                          ((0x0011  << 2) + 0xfe00c200)
+#define SP_TOP_ACPU_CTRL2                          ((0x0012  << 2) + 0xfe00c200)
+#define SP_TOP_ACPU_CTRL3                          ((0x0013  << 2) + 0xfe00c200)
+#define SP_TOP_ACPU_LOCK_CTRL                      ((0x0014  << 2) + 0xfe00c200)
+#define SP_TOP_ACPU_STATUS0                        ((0x0018  << 2) + 0xfe00c200)
+#define SP_TOP_ACPU_STATUS1                        ((0x0019  << 2) + 0xfe00c200)
+#define SP_TOP_ACPU_STATUS2                        ((0x001a  << 2) + 0xfe00c200)
+#define SP_TOP_ACPU_STATUS3                        ((0x001b  << 2) + 0xfe00c200)
+#define SP_TOP_INFO0                               ((0x0030  << 2) + 0xfe00c200)
+#define SP_TOP_INFO1                               ((0x0031  << 2) + 0xfe00c200)
+#define SP_TOP_INFO2                               ((0x0032  << 2) + 0xfe00c200)
+#define SP_TOP_INFO3                               ((0x0033  << 2) + 0xfe00c200)
+#define SP_TOP_INFO4                               ((0x0034  << 2) + 0xfe00c200)
+#define SP_TOP_INFO5                               ((0x0035  << 2) + 0xfe00c200)
+#define SP_TOP_INFO6                               ((0x0036  << 2) + 0xfe00c200)
+#define SP_TOP_INFO7                               ((0x0037  << 2) + 0xfe00c200)
+#define SP_TOP_INFO8                               ((0x0038  << 2) + 0xfe00c200)
+#define SP_TOP_INFO9                               ((0x0039  << 2) + 0xfe00c200)
+#define SP_TOP_INFO10                              ((0x003a  << 2) + 0xfe00c200)
+#define SP_TOP_INFO11                              ((0x003b  << 2) + 0xfe00c200)
+#define SP_TOP_INFO12                              ((0x003c  << 2) + 0xfe00c200)
+#define SP_TOP_INFO13                              ((0x003d  << 2) + 0xfe00c200)
+#define SP_TOP_INFO14                              ((0x003e  << 2) + 0xfe00c200)
+#define SP_TOP_INFO15                              ((0x003f  << 2) + 0xfe00c200)
+#define SP_EXCEPTION_HANDLER                       ((0x0040  << 2) + 0xfe00c200)
+#define SP_AOCPU_IRQ_SEL0                          ((0x0060  << 2) + 0xfe00c200)
+#define SP_AOCPU_IRQ_SEL1                          ((0x0061  << 2) + 0xfe00c200)
+#define SP_AOCPU_IRQ_SEL2                          ((0x0062  << 2) + 0xfe00c200)
+#define SP_AOCPU_IRQ_SEL3                          ((0x0063  << 2) + 0xfe00c200)
+#define SP_AOCPU_IRQ_SEL4                          ((0x0064  << 2) + 0xfe00c200)
+#define SP_AOCPU_IRQ_SEL5                          ((0x0065  << 2) + 0xfe00c200)
+#define SP_AOCPU_IRQ_SEL6                          ((0x0066  << 2) + 0xfe00c200)
+#define SP_AOCPU_IRQ_SEL7                          ((0x0067  << 2) + 0xfe00c200)
+//========================================================================
+//  APB_RNG_CTRL - Registers
+//========================================================================
+// -----------------------------------------------
+// APB_BASE:  APB_BASE_ADDR = 0xff0e0000
+// -----------------------------------------------
+//========================================================================
+//  APB_OTP_CTRL - Registers
+//========================================================================
+// -----------------------------------------------
+// APB_BASE:  APB_BASE_ADDR = 0xff0f0000
+// -----------------------------------------------
 //
-// Closing file:  ../mmc_lp4/dmc_clk_freq/rtl/dmc_clk_freq.vh
+// Closing file:  ../sp/rtl/SP_REG_LIST.h
 //
 //========================================================================
 //  APB0_RESET_CTRL - Registers
@@ -3230,24 +3938,28 @@
 #define PADCTRL_GPIOD_PULL_EN                      ((0x0023  << 2) + 0xfe000400)
 #define PADCTRL_GPIOD_PULL_UP                      ((0x0024  << 2) + 0xfe000400)
 #define PADCTRL_GPIOD_DS                           ((0x0025  << 2) + 0xfe000400)
+#define PADCTRL_GPIOD_VTHX                         ((0x0026  << 2) + 0xfe000400)
 #define PADCTRL_GPIOE_I                            ((0x0030  << 2) + 0xfe000400)
 #define PADCTRL_GPIOE_O                            ((0x0031  << 2) + 0xfe000400)
 #define PADCTRL_GPIOE_OEN                          ((0x0032  << 2) + 0xfe000400)
 #define PADCTRL_GPIOE_PULL_EN                      ((0x0033  << 2) + 0xfe000400)
 #define PADCTRL_GPIOE_PULL_UP                      ((0x0034  << 2) + 0xfe000400)
 #define PADCTRL_GPIOE_DS                           ((0x0035  << 2) + 0xfe000400)
+#define PADCTRL_GPIOE_VTHX                         ((0x0036  << 2) + 0xfe000400)
 #define PADCTRL_GPIOB_I                            ((0x0040  << 2) + 0xfe000400)
 #define PADCTRL_GPIOB_O                            ((0x0041  << 2) + 0xfe000400)
 #define PADCTRL_GPIOB_OEN                          ((0x0042  << 2) + 0xfe000400)
 #define PADCTRL_GPIOB_PULL_EN                      ((0x0043  << 2) + 0xfe000400)
 #define PADCTRL_GPIOB_PULL_UP                      ((0x0044  << 2) + 0xfe000400)
 #define PADCTRL_GPIOB_DS                           ((0x0045  << 2) + 0xfe000400)
+#define PADCTRL_GPIOB_VTHX                         ((0x0046  << 2) + 0xfe000400)
 #define PADCTRL_GPIOC_I                            ((0x0050  << 2) + 0xfe000400)
 #define PADCTRL_GPIOC_O                            ((0x0051  << 2) + 0xfe000400)
 #define PADCTRL_GPIOC_OEN                          ((0x0052  << 2) + 0xfe000400)
 #define PADCTRL_GPIOC_PULL_EN                      ((0x0053  << 2) + 0xfe000400)
 #define PADCTRL_GPIOC_PULL_UP                      ((0x0054  << 2) + 0xfe000400)
 #define PADCTRL_GPIOC_DS                           ((0x0055  << 2) + 0xfe000400)
+#define PADCTRL_GPIOC_VTHX                         ((0x0056  << 2) + 0xfe000400)
 #define PADCTRL_GPIOX_I                            ((0x0060  << 2) + 0xfe000400)
 #define PADCTRL_GPIOX_O                            ((0x0061  << 2) + 0xfe000400)
 #define PADCTRL_GPIOX_OEN                          ((0x0062  << 2) + 0xfe000400)
@@ -3255,18 +3967,21 @@
 #define PADCTRL_GPIOX_PULL_UP                      ((0x0064  << 2) + 0xfe000400)
 #define PADCTRL_GPIOX_DS                           ((0x0065  << 2) + 0xfe000400)
 #define PADCTRL_GPIOX_DS_EXT                       ((0x0066  << 2) + 0xfe000400)
+#define PADCTRL_GPIOX_VTHX                         ((0x0067  << 2) + 0xfe000400)
 #define PADCTRL_GPIOM_I                            ((0x0070  << 2) + 0xfe000400)
 #define PADCTRL_GPIOM_O                            ((0x0071  << 2) + 0xfe000400)
 #define PADCTRL_GPIOM_OEN                          ((0x0072  << 2) + 0xfe000400)
 #define PADCTRL_GPIOM_PULL_EN                      ((0x0073  << 2) + 0xfe000400)
 #define PADCTRL_GPIOM_PULL_UP                      ((0x0074  << 2) + 0xfe000400)
 #define PADCTRL_GPIOM_DS                           ((0x0075  << 2) + 0xfe000400)
+#define PADCTRL_GPIOM_VTHX                         ((0x0076  << 2) + 0xfe000400)
 #define PADCTRL_GPIOA_I                            ((0x0080  << 2) + 0xfe000400)
 #define PADCTRL_GPIOA_O                            ((0x0081  << 2) + 0xfe000400)
 #define PADCTRL_GPIOA_OEN                          ((0x0082  << 2) + 0xfe000400)
 #define PADCTRL_GPIOA_PULL_EN                      ((0x0083  << 2) + 0xfe000400)
 #define PADCTRL_GPIOA_PULL_UP                      ((0x0084  << 2) + 0xfe000400)
 #define PADCTRL_GPIOA_DS                           ((0x0085  << 2) + 0xfe000400)
+#define PADCTRL_GPIOA_VTHX                         ((0x0086  << 2) + 0xfe000400)
 #define PADCTRL_TESTN_I                            ((0x0090  << 2) + 0xfe000400)
 #define PADCTRL_TESTN_O                            ((0x0091  << 2) + 0xfe000400)
 #define PADCTRL_TESTN_OEN                          ((0x0092  << 2) + 0xfe000400)
@@ -3332,6 +4047,7 @@
 #define CLKTREE_PWM_CLK_GH_CTRL                    ((0x004a  << 2) + 0xfe000800)
 #define CLKTREE_PWM_CLK_IJ_CTRL                    ((0x004b  << 2) + 0xfe000800)
 #define CLKTREE_MBIST_ATSPEED_CTRL                 ((0x004c  << 2) + 0xfe000800)
+#define CLKTREE_SECPU_CLK_CTRL                     ((0x004d  << 2) + 0xfe000800)
 //========================================================================
 //  APB0_CEC - Registers
 //========================================================================
@@ -3416,8 +4132,11 @@
 #define I2C_M_A_CNTL_DELY2                         ((0x000a  << 2) + 0xfe001400)
 #define I2C_M_A_LOW_DELY                           ((0x000b  << 2) + 0xfe001400)
 #define I2C_M_A_HIGH_DELY                          ((0x000c  << 2) + 0xfe001400)
-#define I2C_M_A_FIFO_CTRL_REG                      ((0x000d  << 2) + 0xfe001400)
-#define I2C_M_A_STATE_REG                          ((0x000e  << 2) + 0xfe001400)
+#define I2C_M_A_FIFO_CTRL0                         ((0x000d  << 2) + 0xfe001400)
+#define I2C_M_A_FIFO_CTRL1                         ((0x000e  << 2) + 0xfe001400)
+#define I2C_M_A_FIFO_PENDING                       ((0x000f  << 2) + 0xfe001400)
+#define I2C_M_A_FIFO_PENDING_MASK                  ((0x0010  << 2) + 0xfe001400)
+#define I2C_M_A_FIFO_ST0                           ((0x0011  << 2) + 0xfe001400)
 //========================================================================
 //  APB0_I2C_S - Registers
 //========================================================================
@@ -3502,10 +4221,48 @@
 #define SAR_ADC_REG11                              ((0x000b  << 2) + 0xfe002c00)
 #define SAR_ADC_REG12                              ((0x000c  << 2) + 0xfe002c00)
 #define SAR_ADC_REG13                              ((0x000d  << 2) + 0xfe002c00)
-#define SAR_ADC_CHNL01                             ((0x000e  << 2) + 0xfe002c00)
-#define SAR_ADC_CHNL23                             ((0x000f  << 2) + 0xfe002c00)
-#define SAR_ADC_CHNL45                             ((0x0010  << 2) + 0xfe002c00)
-#define SAR_ADC_CHNL67                             ((0x0011  << 2) + 0xfe002c00)
+#define SAR_ADC_REG14                              ((0x000e  << 2) + 0xfe002c00)
+#define SAR_ADC_CH0_CTRL1                          ((0x0013  << 2) + 0xfe002c00)
+#define SAR_ADC_CH0_CTRL2                          ((0x0014  << 2) + 0xfe002c00)
+#define SAR_ADC_CH0_CTRL3                          ((0x0015  << 2) + 0xfe002c00)
+#define SAR_ADC_CH1_CTRL1                          ((0x0016  << 2) + 0xfe002c00)
+#define SAR_ADC_CH1_CTRL2                          ((0x0017  << 2) + 0xfe002c00)
+#define SAR_ADC_CH1_CTRL3                          ((0x0018  << 2) + 0xfe002c00)
+#define SAR_ADC_CH2_CTRL1                          ((0x0019  << 2) + 0xfe002c00)
+#define SAR_ADC_CH2_CTRL2                          ((0x001a  << 2) + 0xfe002c00)
+#define SAR_ADC_CH2_CTRL3                          ((0x001b  << 2) + 0xfe002c00)
+#define SAR_ADC_CH3_CTRL1                          ((0x001c  << 2) + 0xfe002c00)
+#define SAR_ADC_CH3_CTRL2                          ((0x001d  << 2) + 0xfe002c00)
+#define SAR_ADC_CH3_CTRL3                          ((0x001e  << 2) + 0xfe002c00)
+#define SAR_ADC_CH4_CTRL1                          ((0x001f  << 2) + 0xfe002c00)
+#define SAR_ADC_CH4_CTRL2                          ((0x0020  << 2) + 0xfe002c00)
+#define SAR_ADC_CH4_CTRL3                          ((0x0021  << 2) + 0xfe002c00)
+#define SAR_ADC_CH5_CTRL1                          ((0x0022  << 2) + 0xfe002c00)
+#define SAR_ADC_CH5_CTRL2                          ((0x0023  << 2) + 0xfe002c00)
+#define SAR_ADC_CH5_CTRL3                          ((0x0024  << 2) + 0xfe002c00)
+#define SAR_ADC_CH6_CTRL1                          ((0x0025  << 2) + 0xfe002c00)
+#define SAR_ADC_CH6_CTRL2                          ((0x0026  << 2) + 0xfe002c00)
+#define SAR_ADC_CH6_CTRL3                          ((0x0027  << 2) + 0xfe002c00)
+#define SAR_ADC_CH7_CTRL1                          ((0x0028  << 2) + 0xfe002c00)
+#define SAR_ADC_CH7_CTRL2                          ((0x0029  << 2) + 0xfe002c00)
+#define SAR_ADC_CH7_CTRL3                          ((0x002a  << 2) + 0xfe002c00)
+#define SAR_ADC_HCIC_CTRL1                         ((0x002b  << 2) + 0xfe002c00)
+#define SAR_ADC_F1_CTRL                            ((0x002c  << 2) + 0xfe002c00)
+#define SAR_ADC_F2_CTRL                            ((0x002d  << 2) + 0xfe002c00)
+#define SAR_ADC_F3_CTRL                            ((0x002e  << 2) + 0xfe002c00)
+#define SAR_ADC_DECI_FILTER_CTRL                   ((0x002f  << 2) + 0xfe002c00)
+#define SAR_ADC_COEF_RAM_CNTL                      ((0x0030  << 2) + 0xfe002c00)
+#define SAR_ADC_COEF_RAM_DATA                      ((0x0031  << 2) + 0xfe002c00)
+#define SAR_ADC_FIFO_RD_NEW                        ((0x0032  << 2) + 0xfe002c00)
+#define SAR_ADC_RAW                                ((0x0033  << 2) + 0xfe002c00)
+#define SAR_ADC_CHNL0                              ((0x0034  << 2) + 0xfe002c00)
+#define SAR_ADC_CHNL1                              ((0x0035  << 2) + 0xfe002c00)
+#define SAR_ADC_CHNL2                              ((0x0036  << 2) + 0xfe002c00)
+#define SAR_ADC_CHNL3                              ((0x0037  << 2) + 0xfe002c00)
+#define SAR_ADC_CHNL4                              ((0x0038  << 2) + 0xfe002c00)
+#define SAR_ADC_CHNL5                              ((0x0039  << 2) + 0xfe002c00)
+#define SAR_ADC_CHNL6                              ((0x003a  << 2) + 0xfe002c00)
+#define SAR_ADC_CHNL7                              ((0x003b  << 2) + 0xfe002c00)
 //========================================================================
 //  JTAGCTRL_CTRL - Registers
 //========================================================================
@@ -3518,11 +4275,15 @@
 #define JTAGCTRL_PWD_ADDR1                         ((0x0003  << 2) + 0xfe003000)
 #define JTAGCTRL_PWD_ADDR2                         ((0x0004  << 2) + 0xfe003000)
 #define JTAGCTRL_PWD_ADDR3                         ((0x0005  << 2) + 0xfe003000)
-#define JTAGCTRL_PWD_VALUE0                        ((0x0006  << 2) + 0xfe003000)
-#define JTAGCTRL_PWD_VALUE1                        ((0x0007  << 2) + 0xfe003000)
-#define JTAGCTRL_PWD_VALUE2                        ((0x0008  << 2) + 0xfe003000)
-#define JTAGCTRL_PWD_VALUE3                        ((0x0009  << 2) + 0xfe003000)
-#define JTAGCTRL_PWD_STS                           ((0x000a  << 2) + 0xfe003000)
+#define JTEECTRL_PWD_ADDR0                         ((0x0006  << 2) + 0xfe003000)
+#define JTEECTRL_PWD_ADDR1                         ((0x0007  << 2) + 0xfe003000)
+#define JTEECTRL_PWD_ADDR2                         ((0x0008  << 2) + 0xfe003000)
+#define JTEECTRL_PWD_ADDR3                         ((0x0009  << 2) + 0xfe003000)
+#define JSECCTRL_PWD_ADDR0                         ((0x000a  << 2) + 0xfe003000)
+#define JSECCTRL_PWD_ADDR1                         ((0x000b  << 2) + 0xfe003000)
+#define JSECCTRL_PWD_ADDR2                         ((0x000c  << 2) + 0xfe003000)
+#define JSECCTRL_PWD_ADDR3                         ((0x000d  << 2) + 0xfe003000)
+#define JTAGCTRL_PWD_STS                           ((0x000e  << 2) + 0xfe003000)
 //========================================================================
 //  APB0_MSR_CLK - Registers
 //========================================================================
@@ -3691,6 +4452,17 @@
 #define OTP_REE_RD_DAT1                            ((0x0015  << 2) + 0xfe005000)
 #define OTP_REE_RD_DAT2                            ((0x0016  << 2) + 0xfe005000)
 #define OTP_REE_RD_DAT3                            ((0x0017  << 2) + 0xfe005000)
+#define OTP_SEC_RDY                                ((0x0020  << 2) + 0xfe005000)
+#define OTP_SEC_CHK                                ((0x0021  << 2) + 0xfe005000)
+#define OTP_SEC_CFG                                ((0x0022  << 2) + 0xfe005000)
+#define OTP_SEC_WR_DAT0                            ((0x0024  << 2) + 0xfe005000)
+#define OTP_SEC_WR_DAT1                            ((0x0025  << 2) + 0xfe005000)
+#define OTP_SEC_WR_DAT2                            ((0x0026  << 2) + 0xfe005000)
+#define OTP_SEC_WR_DAT3                            ((0x0027  << 2) + 0xfe005000)
+#define OTP_SEC_RD_DAT0                            ((0x0028  << 2) + 0xfe005000)
+#define OTP_SEC_RD_DAT1                            ((0x0029  << 2) + 0xfe005000)
+#define OTP_SEC_RD_DAT2                            ((0x002a  << 2) + 0xfe005000)
+#define OTP_SEC_RD_DAT3                            ((0x002b  << 2) + 0xfe005000)
 #define OTP_LIC0                                   ((0x0018  << 2) + 0xfe005000)
 #define OTP_LIC1                                   ((0x0019  << 2) + 0xfe005000)
 #define OTP_LIC2                                   ((0x001a  << 2) + 0xfe005000)
@@ -3701,6 +4473,10 @@
 #define RNG_SEC_STS                                ((0x0045  << 2) + 0xfe005000)
 #define RNG_USR_DATA                               ((0x0046  << 2) + 0xfe005000)
 #define RNG_USR_STS                                ((0x0047  << 2) + 0xfe005000)
+#define RNG_ENCLAVE_CONFIG_REG1                    ((0x0048  << 2) + 0xfe005000)
+#define RNG_ENCLAVE_CONFIG_REG2                    ((0x0049  << 2) + 0xfe005000)
+#define RNG_ENCLAVE_DATA                           ((0x004a  << 2) + 0xfe005000)
+#define RNG_ENCLAVE_STS                            ((0x004b  << 2) + 0xfe005000)
 #define KTE_SLOT0                                  ((0x0060  << 2) + 0xfe005000)
 #define KTE_SLOT1                                  ((0x0061  << 2) + 0xfe005000)
 #define KTE_SLOT2                                  ((0x0062  << 2) + 0xfe005000)
@@ -3709,6 +4485,10 @@
 #define KTE_SLOT5                                  ((0x0065  << 2) + 0xfe005000)
 #define KTE_SLOT6                                  ((0x0066  << 2) + 0xfe005000)
 #define KTE_SLOT7                                  ((0x0067  << 2) + 0xfe005000)
+#define KTE_SLOT8                                  ((0x0068  << 2) + 0xfe005000)
+#define KTE_SLOT9                                  ((0x0069  << 2) + 0xfe005000)
+#define KTE_SLOT10                                 ((0x006a  << 2) + 0xfe005000)
+#define KTE_SLOT11                                 ((0x006b  << 2) + 0xfe005000)
 #define MKL_TEE_RDY                                ((0x0080  << 2) + 0xfe005000)
 #define MKL_TEE_CHK                                ((0x0081  << 2) + 0xfe005000)
 #define MKL_TEE_CFG                                ((0x0082  << 2) + 0xfe005000)
@@ -3717,6 +4497,10 @@
 #define MKL_REE_CHK                                ((0x00a1  << 2) + 0xfe005000)
 #define MKL_REE_CFG                                ((0x00a2  << 2) + 0xfe005000)
 #define MKL_REE_EK                                 ((0x00a4  << 2) + 0xfe005000)
+#define MKL_SEC_RDY                                ((0x00c0  << 2) + 0xfe005000)
+#define MKL_SEC_CHK                                ((0x00c1  << 2) + 0xfe005000)
+#define MKL_SEC_CFG                                ((0x00c2  << 2) + 0xfe005000)
+#define MKL_SEC_EK                                 ((0x00c4  << 2) + 0xfe005000)
 //
 // Closing file:  ../crypto/crypto_reg.h
 //
@@ -3743,6 +4527,7 @@
 // -----------------------------------------------
 #define SYSCTRL_METAL_REV0                         ((0x0000  << 2) + 0xfe005800)
 #define SYSCTRL_METAL_REV1                         ((0x0001  << 2) + 0xfe005800)
+#define SYSCTRL_METAL_REV2                         ((0x0002  << 2) + 0xfe005800)
 //`define SYSCTRL_PROD_ENABLE                     8'h0a
 #define SYSCTRL_CHIP_ID                            ((0x000b  << 2) + 0xfe005800)
 #define SYSCTRL_WRITEONCE1_REG0                    ((0x0010  << 2) + 0xfe005800)
@@ -3779,7 +4564,19 @@
 #define SYSCTRL_AM2AXI_CTRL0                       ((0x0052  << 2) + 0xfe005800)
 #define SYSCTRL_AM2AXI_STS                         ((0x0053  << 2) + 0xfe005800)
 #define SYSCTRL_OSC_RING_CTRL1                     ((0x0054  << 2) + 0xfe005800)
+#define SYSCTRL_OSC_RING_CTRL2                     ((0x0055  << 2) + 0xfe005800)
 #define SYSCTRL_POC                                ((0x0060  << 2) + 0xfe005800)
+#define SYSCTRL_TOP_SPSRAM_EMA_CTL                 ((0x0070  << 2) + 0xfe005800)
+#define SYSCTRL_TOP_DP1CLK_EMA_CTL                 ((0x0071  << 2) + 0xfe005800)
+#define SYSCTRL_TOP_DP2CLK_EMA_CTL                 ((0x0072  << 2) + 0xfe005800)
+#define SYSCTRL_TOP_ROM_EMA_CTL                    ((0x0073  << 2) + 0xfe005800)
+#define SYSCTRL_CPU_SPSRAM_EMA_CTL                 ((0x0074  << 2) + 0xfe005800)
+#define SYSCTRL_CPU_DP1CLK_EMA_CTL                 ((0x0075  << 2) + 0xfe005800)
+#define SYSCTRL_CPU_DP2CLK_EMA_CTL                 ((0x0076  << 2) + 0xfe005800)
+#define SYSCTRL_NNA_SPSRAM_EMA_CTL                 ((0x0078  << 2) + 0xfe005800)
+#define SYSCTRL_NNA_DP1CLK_EMA_CTL                 ((0x0079  << 2) + 0xfe005800)
+#define SYSCTRL_NNA_DP2CLK_EMA_CTL                 ((0x007a  << 2) + 0xfe005800)
+#define SYSCTRL_DDR_TEST_CTL                       ((0x007c  << 2) + 0xfe005800)
 //`define SYSCTRL_PROD_PWD_VALUE0                 8'h80
 //`define SYSCTRL_PROD_PWD_VALUE1                 8'h81
 //`define SYSCTRL_PROD_PWD_VALUE2                 8'h82
@@ -3864,8 +4661,11 @@
 #define I2C_M_B_CNTL_DELY2                         ((0x000a  << 2) + 0xfe005c00)
 #define I2C_M_B_LOW_DELY                           ((0x000b  << 2) + 0xfe005c00)
 #define I2C_M_B_HIGH_DELY                          ((0x000c  << 2) + 0xfe005c00)
-#define I2C_M_B_FIFO_CTRL_REG                      ((0x000d  << 2) + 0xfe005c00)
-#define I2C_M_B_STATE_REG                          ((0x000e  << 2) + 0xfe005c00)
+#define I2C_M_B_FIFO_CTRL0                         ((0x000d  << 2) + 0xfe005c00)
+#define I2C_M_B_FIFO_CTRL1                         ((0x000e  << 2) + 0xfe005c00)
+#define I2C_M_B_FIFO_PENDING                       ((0x000f  << 2) + 0xfe005c00)
+#define I2C_M_B_FIFO_PENDING_MASK                  ((0x0010  << 2) + 0xfe005c00)
+#define I2C_M_B_FIFO_ST0                           ((0x0011  << 2) + 0xfe005c00)
 //========================================================================
 //  APB0_DMA - Registers
 //========================================================================
@@ -3879,27 +4679,71 @@
 // -----------------------------------------------
 // APB_BASE:  APB0_BASE_ADDR = 0xfe006400
 // -----------------------------------------------
-#define IRQCTRL_IRQOUT_MASK0                       ((0x0000  << 2) + 0xfe006400)
-#define IRQCTRL_IRQOUT_MASK1                       ((0x0001  << 2) + 0xfe006400)
-#define IRQCTRL_IRQOUT_MASK2                       ((0x0002  << 2) + 0xfe006400)
-#define IRQCTRL_IRQOUT_MASK3                       ((0x0003  << 2) + 0xfe006400)
-#define IRQCTRL_IRQOUT_MASK4                       ((0x0004  << 2) + 0xfe006400)
-#define IRQCTRL_IRQOUT_MASK5                       ((0x0005  << 2) + 0xfe006400)
-#define IRQCTRL_IRQOUT_INV0                        ((0x0010  << 2) + 0xfe006400)
-#define IRQCTRL_IRQOUT_INV1                        ((0x0011  << 2) + 0xfe006400)
-#define IRQCTRL_IRQOUT_INV2                        ((0x0012  << 2) + 0xfe006400)
-#define IRQCTRL_IRQOUT_INV3                        ((0x0013  << 2) + 0xfe006400)
-#define IRQCTRL_IRQOUT_INV4                        ((0x0014  << 2) + 0xfe006400)
-#define IRQCTRL_IRQOUT_INV5                        ((0x0015  << 2) + 0xfe006400)
-//`define APB0_IRQIN_MASK0_CLK_USB       8'h00
-//`define APB0_IRQIN_MASK0_CLK_CPU       8'h01
-//`define APB0_IRQIN_MASK0_CLK_SYS       8'h02
-//`define APB0_IRQIN_MASK1_CLK_SYS       8'h03
-//`define APB0_IRQIN_MASK0_CLK_DSPA      8'h04
-//`define APB0_IRQIN_MASK0_CLK_DSPB      8'h05
-//`define APB0_IRQIN_CLRLVL_CLK_USB      8'h10
-//`define APB0_IRQIN_CLRLVL_CLK_DSPA     8'h11
-//`define APB0_IRQIN_CLRLVL_CLK_DSPB     8'h12
+#define IRQCTRL_IRQ_INV0                           ((0x0000  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_INV1                           ((0x0001  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_INV2                           ((0x0002  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_INV3                           ((0x0003  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_INV4                           ((0x0004  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_INV5                           ((0x0005  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_INV6                           ((0x0006  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_INV7                           ((0x0007  << 2) + 0xfe006400)
+#define IRQCTRL_MASK0_GIC                          ((0x0010  << 2) + 0xfe006400)
+#define IRQCTRL_MASK1_GIC                          ((0x0011  << 2) + 0xfe006400)
+#define IRQCTRL_MASK2_GIC                          ((0x0012  << 2) + 0xfe006400)
+#define IRQCTRL_MASK3_GIC                          ((0x0013  << 2) + 0xfe006400)
+#define IRQCTRL_MASK4_GIC                          ((0x0014  << 2) + 0xfe006400)
+#define IRQCTRL_MASK5_GIC                          ((0x0015  << 2) + 0xfe006400)
+#define IRQCTRL_MASK6_GIC                          ((0x0016  << 2) + 0xfe006400)
+#define IRQCTRL_MASK7_GIC                          ((0x0017  << 2) + 0xfe006400)
+#define IRQCTRL_MASK0_DSP                          ((0x0020  << 2) + 0xfe006400)
+#define IRQCTRL_MASK1_DSP                          ((0x0021  << 2) + 0xfe006400)
+#define IRQCTRL_MASK2_DSP                          ((0x0022  << 2) + 0xfe006400)
+#define IRQCTRL_MASK3_DSP                          ((0x0023  << 2) + 0xfe006400)
+#define IRQCTRL_MASK4_DSP                          ((0x0024  << 2) + 0xfe006400)
+#define IRQCTRL_MASK5_DSP                          ((0x0025  << 2) + 0xfe006400)
+#define IRQCTRL_MASK6_DSP                          ((0x0026  << 2) + 0xfe006400)
+#define IRQCTRL_MASK7_DSP                          ((0x0027  << 2) + 0xfe006400)
+#define IRQCTRL_MASK0_PWRCTRL                      ((0x0030  << 2) + 0xfe006400)
+#define IRQCTRL_MASK1_PWRCTRL                      ((0x0031  << 2) + 0xfe006400)
+#define IRQCTRL_MASK2_PWRCTRL                      ((0x0032  << 2) + 0xfe006400)
+#define IRQCTRL_MASK3_PWRCTRL                      ((0x0033  << 2) + 0xfe006400)
+#define IRQCTRL_MASK4_PWRCTRL                      ((0x0034  << 2) + 0xfe006400)
+#define IRQCTRL_MASK5_PWRCTRL                      ((0x0035  << 2) + 0xfe006400)
+#define IRQCTRL_MASK6_PWRCTRL                      ((0x0036  << 2) + 0xfe006400)
+#define IRQCTRL_MASK7_PWRCTRL                      ((0x0037  << 2) + 0xfe006400)
+#define IRQCTRL_MASK0_AOCPU                        ((0x0040  << 2) + 0xfe006400)
+#define IRQCTRL_MASK1_AOCPU                        ((0x0041  << 2) + 0xfe006400)
+#define IRQCTRL_MASK2_AOCPU                        ((0x0042  << 2) + 0xfe006400)
+#define IRQCTRL_MASK3_AOCPU                        ((0x0043  << 2) + 0xfe006400)
+#define IRQCTRL_MASK4_AOCPU                        ((0x0044  << 2) + 0xfe006400)
+#define IRQCTRL_MASK5_AOCPU                        ((0x0045  << 2) + 0xfe006400)
+#define IRQCTRL_MASK6_AOCPU                        ((0x0046  << 2) + 0xfe006400)
+#define IRQCTRL_MASK7_AOCPU                        ((0x0047  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_MODE0                          ((0x0050  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_MODE1                          ((0x0051  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_MODE2                          ((0x0052  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_MODE3                          ((0x0053  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_MODE4                          ((0x0054  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_MODE5                          ((0x0055  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_MODE6                          ((0x0056  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_MODE7                          ((0x0057  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_LATCH0                         ((0x0060  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_LATCH1                         ((0x0061  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_LATCH2                         ((0x0062  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_LATCH3                         ((0x0063  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_LATCH4                         ((0x0064  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_LATCH5                         ((0x0065  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_LATCH6                         ((0x0066  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_LATCH7                         ((0x0067  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_LATCH_CLR0                     ((0x0070  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_LATCH_CLR1                     ((0x0071  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_LATCH_CLR2                     ((0x0072  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_LATCH_CLR3                     ((0x0073  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_LATCH_CLR4                     ((0x0074  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_LATCH_CLR5                     ((0x0075  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_LATCH_CLR6                     ((0x0076  << 2) + 0xfe006400)
+#define IRQCTRL_IRQ_LATCH_CLR7                     ((0x0077  << 2) + 0xfe006400)
+#define IRQCTRL_LOCK_BIT                           ((0x0080  << 2) + 0xfe006400)
 //========================================================================
 //  APB0_I2C_M - Registers
 //========================================================================
@@ -3919,8 +4763,11 @@
 #define I2C_M_C_CNTL_DELY2                         ((0x000a  << 2) + 0xfe006800)
 #define I2C_M_C_LOW_DELY                           ((0x000b  << 2) + 0xfe006800)
 #define I2C_M_C_HIGH_DELY                          ((0x000c  << 2) + 0xfe006800)
-#define I2C_M_C_FIFO_CTRL_REG                      ((0x000d  << 2) + 0xfe006800)
-#define I2C_M_C_STATE_REG                          ((0x000e  << 2) + 0xfe006800)
+#define I2C_M_C_FIFO_CTRL0                         ((0x000d  << 2) + 0xfe006800)
+#define I2C_M_C_FIFO_CTRL1                         ((0x000e  << 2) + 0xfe006800)
+#define I2C_M_C_FIFO_PENDING                       ((0x000f  << 2) + 0xfe006800)
+#define I2C_M_C_FIFO_PENDING_MASK                  ((0x0010  << 2) + 0xfe006800)
+#define I2C_M_C_FIFO_ST0                           ((0x0011  << 2) + 0xfe006800)
 //========================================================================
 //  APB0_I2C_M - Registers
 //========================================================================
@@ -3940,8 +4787,11 @@
 #define I2C_M_D_CNTL_DELY2                         ((0x000a  << 2) + 0xfe006c00)
 #define I2C_M_D_LOW_DELY                           ((0x000b  << 2) + 0xfe006c00)
 #define I2C_M_D_HIGH_DELY                          ((0x000c  << 2) + 0xfe006c00)
-#define I2C_M_D_FIFO_CTRL_REG                      ((0x000d  << 2) + 0xfe006c00)
-#define I2C_M_D_STATE_REG                          ((0x000e  << 2) + 0xfe006c00)
+#define I2C_M_D_FIFO_CTRL0                         ((0x000d  << 2) + 0xfe006c00)
+#define I2C_M_D_FIFO_CTRL1                         ((0x000e  << 2) + 0xfe006c00)
+#define I2C_M_D_FIFO_PENDING                       ((0x000f  << 2) + 0xfe006c00)
+#define I2C_M_D_FIFO_PENDING_MASK                  ((0x0010  << 2) + 0xfe006c00)
+#define I2C_M_D_FIFO_ST0                           ((0x0011  << 2) + 0xfe006c00)
 //========================================================================
 //  APB0_UART_C - Registers
 //========================================================================
@@ -3997,114 +4847,352 @@
 #define CPUCTRL_RESET_CTRL                         ((0x0030  << 2) + 0xfe007400)
 #define CPUCTRL_ROM_DISABLE                        ((0x0031  << 2) + 0xfe007400)
 //========================================================================
-//  APB0_PWR_CTRL - Registers
+//  APB0_CAPU - Registers
 //========================================================================
 // -----------------------------------------------
 // APB_BASE:  APB0_BASE_ADDR = 0xfe007800
 // -----------------------------------------------
-#define PWRCTRL_PWR_ACK0                           ((0x0000  << 2) + 0xfe007800)
-#define PWRCTRL_ISO_EN0                            ((0x0001  << 2) + 0xfe007800)
-#define PWRCTRL_PWR_OFF0                           ((0x0002  << 2) + 0xfe007800)
-#define PWRCTRL_SAVE_EN0                           ((0x0003  << 2) + 0xfe007800)
-#define PWRCTRL_RESTORE_EN0                        ((0x0004  << 2) + 0xfe007800)
-#define PWRCTRL_PWR_ACK1                           ((0x0005  << 2) + 0xfe007800)
-#define PWRCTRL_ISO_EN1                            ((0x0006  << 2) + 0xfe007800)
-#define PWRCTRL_PWR_OFF1                           ((0x0007  << 2) + 0xfe007800)
-#define PWRCTRL_FOCRSTN0                           ((0x0008  << 2) + 0xfe007800)
-#define PWRCTRL_FOCRSTN1                           ((0x0009  << 2) + 0xfe007800)
-#define PWRCTRL_R_ISO_EN0                          ((0x0010  << 2) + 0xfe007800)
-#define PWRCTRL_R_PWR_OFF0                         ((0x0011  << 2) + 0xfe007800)
-#define PWRCTRL_R_ISO_EN1                          ((0x0012  << 2) + 0xfe007800)
-#define PWRCTRL_R_PWR_OFF1                         ((0x0013  << 2) + 0xfe007800)
-#define PWRCTRL_R_FOCRSTN0                         ((0x0014  << 2) + 0xfe007800)
-#define PWRCTRL_R_FOCRSTN1                         ((0x0015  << 2) + 0xfe007800)
-#define PWRCTRL_MEM_PD0                            ((0x0020  << 2) + 0xfe007800)
-#define PWRCTRL_MEM_PD1                            ((0x0021  << 2) + 0xfe007800)
-#define PWRCTRL_MEM_PD2                            ((0x0022  << 2) + 0xfe007800)
-#define PWRCTRL_MEM_PD3                            ((0x0023  << 2) + 0xfe007800)
-#define PWRCTRL_MEM_PD4                            ((0x0024  << 2) + 0xfe007800)
-#define PWRCTRL_MEM_PD5                            ((0x0025  << 2) + 0xfe007800)
-#define PWRCTRL_MEM_PD6                            ((0x0026  << 2) + 0xfe007800)
-#define PWRCTRL_MEM_PD7                            ((0x0027  << 2) + 0xfe007800)
-#define PWRCTRL_MEM_PD8                            ((0x0028  << 2) + 0xfe007800)
-#define PWRCTRL_MEM_PD9                            ((0x0029  << 2) + 0xfe007800)
-#define PWRCTRL_MEM_PD10                           ((0x002a  << 2) + 0xfe007800)
-#define PWRCTRL_MEM_PD11                           ((0x002b  << 2) + 0xfe007800)
-#define PWRCTRL_MEM_PD12                           ((0x002c  << 2) + 0xfe007800)
-#define PWRCTRL_MEM_PD13                           ((0x002d  << 2) + 0xfe007800)
-#define PWRCTRL_MEM_PD14                           ((0x002e  << 2) + 0xfe007800)
-#define PWRCTRL_MEM_PD15                           ((0x002f  << 2) + 0xfe007800)
-#define PWRCTRL_R_MEM_PD0                          ((0x0030  << 2) + 0xfe007800)
-#define PWRCTRL_R_MEM_PD1                          ((0x0031  << 2) + 0xfe007800)
-#define PWRCTRL_R_MEM_PD2                          ((0x0032  << 2) + 0xfe007800)
-#define PWRCTRL_R_MEM_PD3                          ((0x0033  << 2) + 0xfe007800)
-#define PWRCTRL_R_MEM_PD4                          ((0x0034  << 2) + 0xfe007800)
-#define PWRCTRL_R_MEM_PD5                          ((0x0035  << 2) + 0xfe007800)
-#define PWRCTRL_R_MEM_PD6                          ((0x0036  << 2) + 0xfe007800)
-#define PWRCTRL_R_MEM_PD7                          ((0x0037  << 2) + 0xfe007800)
-#define PWRCTRL_R_MEM_PD8                          ((0x0038  << 2) + 0xfe007800)
-#define PWRCTRL_R_MEM_PD9                          ((0x0039  << 2) + 0xfe007800)
-#define PWRCTRL_R_MEM_PD10                         ((0x003a  << 2) + 0xfe007800)
-#define PWRCTRL_R_MEM_PD11                         ((0x003b  << 2) + 0xfe007800)
-#define PWRCTRL_R_MEM_PD12                         ((0x003c  << 2) + 0xfe007800)
-#define PWRCTRL_R_MEM_PD13                         ((0x003d  << 2) + 0xfe007800)
-#define PWRCTRL_R_MEM_PD14                         ((0x003e  << 2) + 0xfe007800)
-#define PWRCTRL_R_MEM_PD15                         ((0x003f  << 2) + 0xfe007800)
-#define PWRCTRL_AUTO_OFF_CTRL                      ((0x0040  << 2) + 0xfe007800)
-#define PWRCTRL_AUTO_OFF                           ((0x0041  << 2) + 0xfe007800)
-#define PWRCTRL_AUTO_OFF_STS                       ((0x0042  << 2) + 0xfe007800)
-#define PWRCTRL_TIMER_TH_01                        ((0x0043  << 2) + 0xfe007800)
-#define PWRCTRL_TIMER_TH_23                        ((0x0044  << 2) + 0xfe007800)
-#define PWRCTRL_TIMER_TH_45                        ((0x0045  << 2) + 0xfe007800)
-#define PWRCTRL_TIMER_TH_67                        ((0x0046  << 2) + 0xfe007800)
-#define PWRCTRL_AUTO_OFF_CTRL1                     ((0x0048  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_PWR_ACK0                      ((0x0050  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_RSTN_OFF0                     ((0x0051  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_RSTN_ON0                      ((0x0052  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_PWR_OFF0                      ((0x0053  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_PWR_ON0                       ((0x0054  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_ISO_OFF0                      ((0x0055  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_ISO_ON0                       ((0x0056  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_PWR_ACK1                      ((0x0058  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_RSTN_OFF1                     ((0x0059  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_RSTN_ON1                      ((0x005a  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_PWR_OFF1                      ((0x005b  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_PWR_ON1                       ((0x005c  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_ISO_OFF1                      ((0x005d  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_ISO_ON1                       ((0x005e  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_OFF0                      ((0x0060  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_OFF1                      ((0x0061  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_OFF2                      ((0x0062  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_OFF3                      ((0x0063  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_OFF4                      ((0x0064  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_OFF5                      ((0x0065  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_OFF6                      ((0x0066  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_OFF7                      ((0x0067  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_OFF8                      ((0x0068  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_OFF9                      ((0x0069  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_OFF10                     ((0x006a  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_OFF11                     ((0x006b  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_OFF12                     ((0x006c  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_OFF13                     ((0x006d  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_OFF14                     ((0x006e  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_OFF15                     ((0x006f  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_ON0                       ((0x0070  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_ON1                       ((0x0071  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_ON2                       ((0x0072  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_ON3                       ((0x0073  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_ON4                       ((0x0074  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_ON5                       ((0x0075  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_ON6                       ((0x0076  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_ON7                       ((0x0077  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_ON8                       ((0x0078  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_ON9                       ((0x0079  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_ON10                      ((0x007a  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_ON11                      ((0x007b  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_ON12                      ((0x007c  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_ON13                      ((0x007d  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_ON14                      ((0x007e  << 2) + 0xfe007800)
-#define PWRCTRL_MASK_MEM_ON15                      ((0x007f  << 2) + 0xfe007800)
-#define PWRCTRL_NNA_AXI_PWR_CNTL                   ((0x0080  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT00_16M                  ((0x0000  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT00_1K                   ((0x0010  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT01_1K                   ((0x0011  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT02_1K                   ((0x0012  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT03_1K                   ((0x0013  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT04_1K                   ((0x0014  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT05_1K                   ((0x0015  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT06_1K                   ((0x0016  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT07_1K                   ((0x0017  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT08_1K                   ((0x0018  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT09_1K                   ((0x0019  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT10_1K                   ((0x001a  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT11_1K                   ((0x001b  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT12_1K                   ((0x001c  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT13_1K                   ((0x001d  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT14_1K                   ((0x001e  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT15_1K                   ((0x001f  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT16_1K                   ((0x0020  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT17_1K                   ((0x0021  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT18_1K                   ((0x0022  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT19_1K                   ((0x0023  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT20_1K                   ((0x0024  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT21_1K                   ((0x0025  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT22_1K                   ((0x0026  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT23_1K                   ((0x0027  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT24_1K                   ((0x0028  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT25_1K                   ((0x0029  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT26_1K                   ((0x002a  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT27_1K                   ((0x002b  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT28_1K                   ((0x002c  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT29_1K                   ((0x002d  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT30_1K                   ((0x002e  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT31_1K                   ((0x002f  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT32_1K                   ((0x0030  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT33_1K                   ((0x0031  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT34_1K                   ((0x0032  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT35_1K                   ((0x0033  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT36_1K                   ((0x0034  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT37_1K                   ((0x0035  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT38_1K                   ((0x0036  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT39_1K                   ((0x0037  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT40_1K                   ((0x0038  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT41_1K                   ((0x0039  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT42_1K                   ((0x003a  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT43_1K                   ((0x003b  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT44_1K                   ((0x003c  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT45_1K                   ((0x003d  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT46_1K                   ((0x003e  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT47_1K                   ((0x003f  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT48_1K                   ((0x0040  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT49_1K                   ((0x0041  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT00_4K                   ((0x0050  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT01_4K                   ((0x0051  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT02_4K                   ((0x0052  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT03_4K                   ((0x0053  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT00_8K                   ((0x0054  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT01_8K                   ((0x0055  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT02_8K                   ((0x0056  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT00_64K                  ((0x0060  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT01_64K                  ((0x0061  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT02_64K                  ((0x0062  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT03_64K                  ((0x0063  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT04_64K                  ((0x0064  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_SLOT00_8M                   ((0x0070  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_AHB_ISP                     ((0x00a0  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_AHB_ETH                     ((0x00a1  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_AHB_NNA                     ((0x00a2  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_AHB_USBDEV                  ((0x00a3  << 2) + 0xfe007800)
+#define CAPU_ACCESS_EN_AHB_USBHOST                 ((0x00a4  << 2) + 0xfe007800)
+//========================================================================
+//  APB0_PWR_CTRL - Registers
+//========================================================================
+// -----------------------------------------------
+// APB_BASE:  APB0_BASE_ADDR = 0xfe013000
+// -----------------------------------------------
+#define PWRCTRL_PWR_ACK0                           ((0x0001  << 2) + 0xfe013000)
+#define PWRCTRL_PWR_ACK1                           ((0x0002  << 2) + 0xfe013000)
+#define PWRCTRL_PWR_OFF0                           ((0x0003  << 2) + 0xfe013000)
+#define PWRCTRL_PWR_OFF1                           ((0x0004  << 2) + 0xfe013000)
+#define PWRCTRL_ISO_EN0                            ((0x0005  << 2) + 0xfe013000)
+#define PWRCTRL_ISO_EN1                            ((0x0006  << 2) + 0xfe013000)
+#define PWRCTRL_MEM_PD0                            ((0x0007  << 2) + 0xfe013000)
+#define PWRCTRL_MEM_PD1                            ((0x0008  << 2) + 0xfe013000)
+#define PWRCTRL_MEM_PD2                            ((0x0009  << 2) + 0xfe013000)
+#define PWRCTRL_MEM_PD3                            ((0x000a  << 2) + 0xfe013000)
+#define PWRCTRL_MEM_PD4                            ((0x000b  << 2) + 0xfe013000)
+#define PWRCTRL_MEM_PD5                            ((0x000c  << 2) + 0xfe013000)
+#define PWRCTRL_MEM_PD6                            ((0x000d  << 2) + 0xfe013000)
+#define PWRCTRL_MEM_PD7                            ((0x000e  << 2) + 0xfe013000)
+#define PWRCTRL_MEM_PD8                            ((0x000f  << 2) + 0xfe013000)
+#define PWRCTRL_MEM_PD9                            ((0x0010  << 2) + 0xfe013000)
+#define PWRCTRL_MEM_PD10                           ((0x0011  << 2) + 0xfe013000)
+#define PWRCTRL_MEM_PD11                           ((0x0012  << 2) + 0xfe013000)
+#define PWRCTRL_MEM_PD12                           ((0x0013  << 2) + 0xfe013000)
+#define PWRCTRL_MEM_PD13                           ((0x0014  << 2) + 0xfe013000)
+#define PWRCTRL_MEM_PD14                           ((0x0015  << 2) + 0xfe013000)
+#define PWRCTRL_MEM_PD15                           ((0x0016  << 2) + 0xfe013000)
+#define PWRCTRL_FOCRST0                            ((0x0020  << 2) + 0xfe013000)
+#define PWRCTRL_FOCRST1                            ((0x0021  << 2) + 0xfe013000)
+#define PWRCTRL_DDRPHY_PWROFF_CTRL                 ((0x0030  << 2) + 0xfe013000)
+#define PWRCTRL_NNA_AXI_PWR_CNTL                   ((0x0031  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_AUTO_OFF_CTRL0                ((0x0040  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_AUTO_OFF_CTRL1                ((0x0041  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_AUTO_OFF_CTRL2                ((0x0042  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_AUTO_OFF_CTRL3                ((0x0043  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_AUTO_OFF_CTRL4                ((0x0044  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_TIMER_TH_01                   ((0x0048  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_TIMER_TH_23                   ((0x0049  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_TIMER_TH_45                   ((0x004a  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_TIMER_TH_67                   ((0x004b  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_TIMER_TH_89                   ((0x004c  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_IRQ_MASK0                     ((0x0050  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_IRQ_MASK1                     ((0x0051  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_IRQ_MASK2                     ((0x0052  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_IRQ_MASK3                     ((0x0053  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_IRQ_MASK4                     ((0x0054  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_IRQ_MASK5                     ((0x0055  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_IRQ_MASK6                     ((0x0056  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_IRQ_MASK7                     ((0x0057  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_MEMPD_INIT_SET                ((0x0060  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_MEMPD_OFF_SET                 ((0x0061  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_MEMPD_ON_A_SET                ((0x0062  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_MEMPD_ON_B_SET                ((0x0063  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_MEMPD_ON_C_SET                ((0x0064  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_MEMPD_ON_D_SET                ((0x0065  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_MEMPD_STS                     ((0x0066  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_FSM_STS0                      ((0x0067  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_FSM_STS1                      ((0x0068  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_FSM_STS2                      ((0x0069  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_FSM_START                     ((0x006e  << 2) + 0xfe013000)
+#define PWRCTRL_CPU0_FSM_JUMP                      ((0x006f  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_AUTO_OFF_CTRL0                ((0x0070  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_AUTO_OFF_CTRL1                ((0x0071  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_AUTO_OFF_CTRL2                ((0x0072  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_AUTO_OFF_CTRL3                ((0x0073  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_AUTO_OFF_CTRL4                ((0x0074  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_TIMER_TH_01                   ((0x0078  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_TIMER_TH_23                   ((0x0079  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_TIMER_TH_45                   ((0x007a  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_TIMER_TH_67                   ((0x007b  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_TIMER_TH_89                   ((0x007c  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_IRQ_MASK0                     ((0x0080  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_IRQ_MASK1                     ((0x0081  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_IRQ_MASK2                     ((0x0082  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_IRQ_MASK3                     ((0x0083  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_IRQ_MASK4                     ((0x0084  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_IRQ_MASK5                     ((0x0085  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_IRQ_MASK6                     ((0x0086  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_IRQ_MASK7                     ((0x0087  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_MEMPD_INIT_SET                ((0x0090  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_MEMPD_OFF_SET                 ((0x0091  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_MEMPD_ON_A_SET                ((0x0092  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_MEMPD_ON_B_SET                ((0x0093  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_MEMPD_ON_C_SET                ((0x0094  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_MEMPD_ON_D_SET                ((0x0095  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_MEMPD_STS                     ((0x0096  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_FSM_STS0                      ((0x0097  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_FSM_STS1                      ((0x0098  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_FSM_STS2                      ((0x0099  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_FSM_START                     ((0x009e  << 2) + 0xfe013000)
+#define PWRCTRL_CPU1_FSM_JUMP                      ((0x009f  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_AUTO_OFF_CTRL0                ((0x00a0  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_AUTO_OFF_CTRL1                ((0x00a1  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_AUTO_OFF_CTRL2                ((0x00a2  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_AUTO_OFF_CTRL3                ((0x00a3  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_AUTO_OFF_CTRL4                ((0x00a4  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_TIMER_TH_01                   ((0x00a8  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_TIMER_TH_23                   ((0x00a9  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_TIMER_TH_45                   ((0x00aa  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_TIMER_TH_67                   ((0x00ab  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_TIMER_TH_89                   ((0x00ac  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_IRQ_MASK0                     ((0x00b0  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_IRQ_MASK1                     ((0x00b1  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_IRQ_MASK2                     ((0x00b2  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_IRQ_MASK3                     ((0x00b3  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_IRQ_MASK4                     ((0x00b4  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_IRQ_MASK5                     ((0x00b5  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_IRQ_MASK6                     ((0x00b6  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_IRQ_MASK7                     ((0x00b7  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_MEMPD_INIT_SET                ((0x00c0  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_MEMPD_OFF_SET                 ((0x00c1  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_MEMPD_ON_A_SET                ((0x00c2  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_MEMPD_ON_B_SET                ((0x00c3  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_MEMPD_ON_C_SET                ((0x00c4  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_MEMPD_ON_D_SET                ((0x00c5  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_MEMPD_STS                     ((0x00c6  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_FSM_STS0                      ((0x00c7  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_FSM_STS1                      ((0x00c8  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_FSM_STS2                      ((0x00c9  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_FSM_START                     ((0x00ce  << 2) + 0xfe013000)
+#define PWRCTRL_CPU2_FSM_JUMP                      ((0x00cf  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_AUTO_OFF_CTRL0                ((0x00d0  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_AUTO_OFF_CTRL1                ((0x00d1  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_AUTO_OFF_CTRL2                ((0x00d2  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_AUTO_OFF_CTRL3                ((0x00d3  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_AUTO_OFF_CTRL4                ((0x00d4  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_TIMER_TH_01                   ((0x00d8  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_TIMER_TH_23                   ((0x00d9  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_TIMER_TH_45                   ((0x00da  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_TIMER_TH_67                   ((0x00db  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_TIMER_TH_89                   ((0x00dc  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_IRQ_MASK0                     ((0x00e0  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_IRQ_MASK1                     ((0x00e1  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_IRQ_MASK2                     ((0x00e2  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_IRQ_MASK3                     ((0x00e3  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_IRQ_MASK4                     ((0x00e4  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_IRQ_MASK5                     ((0x00e5  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_IRQ_MASK6                     ((0x00e6  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_IRQ_MASK7                     ((0x00e7  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_MEMPD_INIT_SET                ((0x00f0  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_MEMPD_OFF_SET                 ((0x00f1  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_MEMPD_ON_A_SET                ((0x00f2  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_MEMPD_ON_B_SET                ((0x00f3  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_MEMPD_ON_C_SET                ((0x00f4  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_MEMPD_ON_D_SET                ((0x00f5  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_MEMPD_STS                     ((0x00f6  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_FSM_STS0                      ((0x00f7  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_FSM_STS1                      ((0x00f8  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_FSM_STS2                      ((0x00f9  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_FSM_START                     ((0x00fe  << 2) + 0xfe013000)
+#define PWRCTRL_CPU3_FSM_JUMP                      ((0x00ff  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_AUTO_OFF_CTRL0              ((0x0100  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_AUTO_OFF_CTRL1              ((0x0101  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_AUTO_OFF_CTRL2              ((0x0102  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_AUTO_OFF_CTRL3              ((0x0103  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_AUTO_OFF_CTRL4              ((0x0104  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_TIMER_TH_01                 ((0x0108  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_TIMER_TH_23                 ((0x0109  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_TIMER_TH_45                 ((0x010a  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_TIMER_TH_67                 ((0x010b  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_TIMER_TH_89                 ((0x010c  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_IRQ_MASK0                   ((0x0110  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_IRQ_MASK1                   ((0x0111  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_IRQ_MASK2                   ((0x0112  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_IRQ_MASK3                   ((0x0113  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_IRQ_MASK4                   ((0x0114  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_IRQ_MASK5                   ((0x0115  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_IRQ_MASK6                   ((0x0116  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_IRQ_MASK7                   ((0x0117  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_MEMPD_INIT_SET              ((0x0120  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_MEMPD_OFF_SET               ((0x0121  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_MEMPD_ON_A_SET              ((0x0122  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_MEMPD_ON_B_SET              ((0x0123  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_MEMPD_ON_C_SET              ((0x0124  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_MEMPD_ON_D_SET              ((0x0125  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_MEMPD_STS                   ((0x0126  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_FSM_STS0                    ((0x0127  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_FSM_STS1                    ((0x0128  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_FSM_STS2                    ((0x0129  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_FSM_START                   ((0x012e  << 2) + 0xfe013000)
+#define PWRCTRL_CPUTOP_FSM_JUMP                    ((0x012f  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_AUTO_OFF_CTRL0                ((0x0130  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_AUTO_OFF_CTRL1                ((0x0131  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_AUTO_OFF_CTRL2                ((0x0132  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_AUTO_OFF_CTRL3                ((0x0133  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_AUTO_OFF_CTRL4                ((0x0134  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_TIMER_TH_01                   ((0x0138  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_TIMER_TH_23                   ((0x0139  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_TIMER_TH_45                   ((0x013a  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_TIMER_TH_67                   ((0x013b  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_TIMER_TH_89                   ((0x013c  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_IRQ_MASK0                     ((0x0140  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_IRQ_MASK1                     ((0x0141  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_IRQ_MASK2                     ((0x0142  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_IRQ_MASK3                     ((0x0143  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_IRQ_MASK4                     ((0x0144  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_IRQ_MASK5                     ((0x0145  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_IRQ_MASK6                     ((0x0146  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_IRQ_MASK7                     ((0x0147  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_MEMPD_INIT_SET                ((0x0150  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_MEMPD_OFF_SET                 ((0x0151  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_MEMPD_ON_A_SET                ((0x0152  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_MEMPD_ON_B_SET                ((0x0153  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_MEMPD_ON_C_SET                ((0x0154  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_MEMPD_ON_D_SET                ((0x0155  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_MEMPD_STS                     ((0x0156  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_FSM_STS0                      ((0x0157  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_FSM_STS1                      ((0x0158  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_FSM_STS2                      ((0x0159  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_FSM_START                     ((0x015e  << 2) + 0xfe013000)
+#define PWRCTRL_DSPA_FSM_JUMP                      ((0x015f  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_AUTO_OFF_CTRL0                ((0x0160  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_AUTO_OFF_CTRL1                ((0x0161  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_AUTO_OFF_CTRL2                ((0x0162  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_AUTO_OFF_CTRL3                ((0x0163  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_AUTO_OFF_CTRL4                ((0x0164  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_TIMER_TH_01                   ((0x0168  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_TIMER_TH_23                   ((0x0169  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_TIMER_TH_45                   ((0x016a  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_TIMER_TH_67                   ((0x016b  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_TIMER_TH_89                   ((0x016c  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_IRQ_MASK0                     ((0x0170  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_IRQ_MASK1                     ((0x0171  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_IRQ_MASK2                     ((0x0172  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_IRQ_MASK3                     ((0x0173  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_IRQ_MASK4                     ((0x0174  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_IRQ_MASK5                     ((0x0175  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_IRQ_MASK6                     ((0x0176  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_IRQ_MASK7                     ((0x0177  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_MEMPD_INIT_SET                ((0x0180  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_MEMPD_OFF_SET                 ((0x0181  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_MEMPD_ON_A_SET                ((0x0182  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_MEMPD_ON_B_SET                ((0x0183  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_MEMPD_ON_C_SET                ((0x0184  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_MEMPD_ON_D_SET                ((0x0185  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_MEMPD_STS                     ((0x0186  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_FSM_STS0                      ((0x0187  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_FSM_STS1                      ((0x0188  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_FSM_STS2                      ((0x0189  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_FSM_START                     ((0x018e  << 2) + 0xfe013000)
+#define PWRCTRL_DSPB_FSM_JUMP                      ((0x018f  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_AUTO_OFF_CTRL0               ((0x0190  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_AUTO_OFF_CTRL1               ((0x0191  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_AUTO_OFF_CTRL2               ((0x0192  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_AUTO_OFF_CTRL3               ((0x0193  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_AUTO_OFF_CTRL4               ((0x0194  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_TIMER_TH_01                  ((0x0198  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_TIMER_TH_23                  ((0x0199  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_TIMER_TH_45                  ((0x019a  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_TIMER_TH_67                  ((0x019b  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_TIMER_TH_89                  ((0x019c  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_IRQ_MASK0                    ((0x01a0  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_IRQ_MASK1                    ((0x01a1  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_IRQ_MASK2                    ((0x01a2  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_IRQ_MASK3                    ((0x01a3  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_IRQ_MASK4                    ((0x01a4  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_IRQ_MASK5                    ((0x01a5  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_IRQ_MASK6                    ((0x01a6  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_IRQ_MASK7                    ((0x01a7  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_MEMPD_INIT_SET               ((0x01b0  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_MEMPD_OFF_SET                ((0x01b1  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_MEMPD_ON_A_SET               ((0x01b2  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_MEMPD_ON_B_SET               ((0x01b3  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_MEMPD_ON_C_SET               ((0x01b4  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_MEMPD_ON_D_SET               ((0x01b5  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_MEMPD_STS                    ((0x01b6  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_FSM_STS0                     ((0x01b7  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_FSM_STS1                     ((0x01b8  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_FSM_STS2                     ((0x01b9  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_FSM_START                    ((0x01be  << 2) + 0xfe013000)
+#define PWRCTRL_SPTOP_FSM_JUMP                     ((0x01bf  << 2) + 0xfe013000)
 //========================================================================
 //  APB0_ANA_CTRL - Registers
 //========================================================================
@@ -4127,6 +5215,7 @@
 #define ANACTRL_GPPLL_CTRL4                        ((0x0034  << 2) + 0xfe007c00)
 #define ANACTRL_GPPLL_CTRL5                        ((0x0035  << 2) + 0xfe007c00)
 #define ANACTRL_GPPLL_STS                          ((0x0036  << 2) + 0xfe007c00)
+#define ANACTRL_GPPLL_CTRL6                        ((0x0037  << 2) + 0xfe007c00)
 #define ANACTRL_SYSPLL_CTRL0                       ((0x0040  << 2) + 0xfe007c00)
 #define ANACTRL_SYSPLL_CTRL1                       ((0x0041  << 2) + 0xfe007c00)
 #define ANACTRL_SYSPLL_CTRL2                       ((0x0042  << 2) + 0xfe007c00)
@@ -4139,12 +5228,12 @@
 #define ANACTRL_HIFIPLL_CTRL3                      ((0x0053  << 2) + 0xfe007c00)
 #define ANACTRL_HIFIPLL_CTRL4                      ((0x0054  << 2) + 0xfe007c00)
 #define ANACTRL_HIFIPLL_STS                        ((0x0055  << 2) + 0xfe007c00)
-#define ANACTRL_AUDDDS_CTRL0                       ((0x0060  << 2) + 0xfe007c00)
-#define ANACTRL_AUDDDS_CTRL1                       ((0x0061  << 2) + 0xfe007c00)
-#define ANACTRL_AUDDDS_CTRL2                       ((0x0062  << 2) + 0xfe007c00)
-#define ANACTRL_AUDDDS_CTRL3                       ((0x0063  << 2) + 0xfe007c00)
-#define ANACTRL_AUDDDS_CTRL4                       ((0x0064  << 2) + 0xfe007c00)
-#define ANACTRL_AUDDDS_STS                         ((0x0065  << 2) + 0xfe007c00)
+//`define ANACTRL_AUDDDS_CTRL0              8'h60
+//`define ANACTRL_AUDDDS_CTRL1              8'h61
+//`define ANACTRL_AUDDDS_CTRL2              8'h62
+//`define ANACTRL_AUDDDS_CTRL3              8'h63
+//`define ANACTRL_AUDDDS_CTRL4              8'h64
+//`define ANACTRL_AUDDDS_STS                8'h65
 #define ANACTRL_MISCTOP_CTRL0                      ((0x0070  << 2) + 0xfe007c00)
 #define ANACTRL_POR_CNTL                           ((0x0082  << 2) + 0xfe007c00)
 #define ANACTRL_CSI_PHY_CNTL0                      ((0x0090  << 2) + 0xfe007c00)
@@ -4264,12 +5353,33 @@
 #define I2C_M_E_CNTL_DELY2                         ((0x000a  << 2) + 0xfe00b000)
 #define I2C_M_E_LOW_DELY                           ((0x000b  << 2) + 0xfe00b000)
 #define I2C_M_E_HIGH_DELY                          ((0x000c  << 2) + 0xfe00b000)
-#define I2C_M_E_FIFO_CTRL_REG                      ((0x000d  << 2) + 0xfe00b000)
-#define I2C_M_E_STATE_REG                          ((0x000e  << 2) + 0xfe00b000)
+#define I2C_M_E_FIFO_CTRL0                         ((0x000d  << 2) + 0xfe00b000)
+#define I2C_M_E_FIFO_CTRL1                         ((0x000e  << 2) + 0xfe00b000)
+#define I2C_M_E_FIFO_PENDING                       ((0x000f  << 2) + 0xfe00b000)
+#define I2C_M_E_FIFO_PENDING_MASK                  ((0x0010  << 2) + 0xfe00b000)
+#define I2C_M_E_FIFO_ST0                           ((0x0011  << 2) + 0xfe00b000)
 // -----------------------------------------------
 // APB_BASE:  APB0_BASE_ADDR = 0xfe020000
 // -----------------------------------------------
 #define RSA_BASE                                   ((0x0000  << 2) + 0xfe020000)
+//========================================================================
+//  MAILBOX_CTRL - Registers
+//========================================================================
+// -----------------------------------------------
+// APB_BASE:  APB0_BASE_ADDR = 0xfe00c400
+// -----------------------------------------------
+#define MAILBOX_SET_0                              ((0x0000  << 2) + 0xfe00c400)
+#define MAILBOX_CLR_0                              ((0x0001  << 2) + 0xfe00c400)
+#define MAILBOX_STAT_0                             ((0x0002  << 2) + 0xfe00c400)
+#define MAILBOX_SET_1                              ((0x0004  << 2) + 0xfe00c400)
+#define MAILBOX_CLR_1                              ((0x0005  << 2) + 0xfe00c400)
+#define MAILBOX_STAT_1                             ((0x0006  << 2) + 0xfe00c400)
+#define MAILBOX_SET_2                              ((0x0008  << 2) + 0xfe00c400)
+#define MAILBOX_CLR_2                              ((0x0009  << 2) + 0xfe00c400)
+#define MAILBOX_STAT_2                             ((0x000a  << 2) + 0xfe00c400)
+#define MAILBOX_SET_3                              ((0x000c  << 2) + 0xfe00c400)
+#define MAILBOX_CLR_3                              ((0x000d  << 2) + 0xfe00c400)
+#define MAILBOX_STAT_3                             ((0x000e  << 2) + 0xfe00c400)
 //========================================================================
 //  RAMA_SEC_CTRL - Registers
 //========================================================================
@@ -4283,158 +5393,97 @@
 #define SRAM_RANGE4_STA                            ((0x0004  << 2) + 0xfe00b400)
 #define SRAM_RANGE5_STA                            ((0x0005  << 2) + 0xfe00b400)
 #define SRAM_RANGE6_STA                            ((0x0006  << 2) + 0xfe00b400)
-#define SRAM_RANGE0_EDA                            ((0x0007  << 2) + 0xfe00b400)
-#define SRAM_RANGE1_EDA                            ((0x0008  << 2) + 0xfe00b400)
-#define SRAM_RANGE2_EDA                            ((0x0009  << 2) + 0xfe00b400)
-#define SRAM_RANGE3_EDA                            ((0x000a  << 2) + 0xfe00b400)
-#define SRAM_RANGE4_EDA                            ((0x000b  << 2) + 0xfe00b400)
-#define SRAM_RANGE5_EDA                            ((0x000c  << 2) + 0xfe00b400)
-#define SRAM_RANGE6_EDA                            ((0x000d  << 2) + 0xfe00b400)
-#define SRAM_RANGE0_CTRL0                          ((0x000e  << 2) + 0xfe00b400)
-#define SRAM_RANGE0_CTRL01                         ((0x000f  << 2) + 0xfe00b400)
-#define SRAM_RANGE1_CTRL0                          ((0x0010  << 2) + 0xfe00b400)
-#define SRAM_RANGE1_CTRL01                         ((0x0011  << 2) + 0xfe00b400)
-#define SRAM_RANGE2_CTRL0                          ((0x0012  << 2) + 0xfe00b400)
-#define SRAM_RANGE2_CTRL01                         ((0x0013  << 2) + 0xfe00b400)
-#define SRAM_RANGE3_CTRL0                          ((0x0014  << 2) + 0xfe00b400)
-#define SRAM_RANGE3_CTRL01                         ((0x0015  << 2) + 0xfe00b400)
-#define SRAM_RANGE4_CTRL0                          ((0x0016  << 2) + 0xfe00b400)
-#define SRAM_RANGE4_CTRL01                         ((0x0017  << 2) + 0xfe00b400)
-#define SRAM_RANGE5_CTRL0                          ((0x0018  << 2) + 0xfe00b400)
-#define SRAM_RANGE5_CTRL01                         ((0x0019  << 2) + 0xfe00b400)
-#define SRAM_RANGE6_CTRL0                          ((0x001a  << 2) + 0xfe00b400)
-#define SRAM_RANGE6_CTRL01                         ((0x001b  << 2) + 0xfe00b400)
-#define SRAM_RANGE7_CTRL0                          ((0x001c  << 2) + 0xfe00b400)
-#define SRAM_RANGE7_CTRL01                         ((0x001d  << 2) + 0xfe00b400)
-#define SRAM_RANGE0_CTRL1                          ((0x001e  << 2) + 0xfe00b400)
-#define SRAM_RANGE0_CTRL11                         ((0x001f  << 2) + 0xfe00b400)
-#define SRAM_RANGE1_CTRL1                          ((0x0020  << 2) + 0xfe00b400)
-#define SRAM_RANGE1_CTRL11                         ((0x0021  << 2) + 0xfe00b400)
-#define SRAM_RANGE2_CTRL1                          ((0x0022  << 2) + 0xfe00b400)
-#define SRAM_RANGE2_CTRL11                         ((0x0023  << 2) + 0xfe00b400)
-#define SRAM_RANGE3_CTRL1                          ((0x0024  << 2) + 0xfe00b400)
-#define SRAM_RANGE3_CTRL11                         ((0x0025  << 2) + 0xfe00b400)
-#define SRAM_RANGE4_CTRL1                          ((0x0026  << 2) + 0xfe00b400)
-#define SRAM_RANGE4_CTRL11                         ((0x0027  << 2) + 0xfe00b400)
-#define SRAM_RANGE5_CTRL1                          ((0x0028  << 2) + 0xfe00b400)
-#define SRAM_RANGE5_CTRL11                         ((0x0029  << 2) + 0xfe00b400)
-#define SRAM_RANGE6_CTRL1                          ((0x002a  << 2) + 0xfe00b400)
-#define SRAM_RANGE6_CTRL11                         ((0x002b  << 2) + 0xfe00b400)
-#define SRAM_RANGE7_CTRL1                          ((0x002c  << 2) + 0xfe00b400)
-#define SRAM_RANGE7_CTRL11                         ((0x002d  << 2) + 0xfe00b400)
-#define SRAM_SEC_CTRL0                             ((0x002e  << 2) + 0xfe00b400)
-#define SRAM_REG_LOCK0                             ((0x002f  << 2) + 0xfe00b400)
-#define SRAM_REG_LOCK1                             ((0x0030  << 2) + 0xfe00b400)
-//========================================================================
-//  RAMB_SEC_CTRL - Registers
-//========================================================================
-// -----------------------------------------------
-// APB_BASE:  APB0_BASE_ADDR = 0xfe00b800
-// -----------------------------------------------
-#define SRAM_RANGE0_STA_B                          ((0x0000  << 2) + 0xfe00b800)
-#define SRAM_RANGE1_STA_B                          ((0x0001  << 2) + 0xfe00b800)
-#define SRAM_RANGE2_STA_B                          ((0x0002  << 2) + 0xfe00b800)
-#define SRAM_RANGE3_STA_B                          ((0x0003  << 2) + 0xfe00b800)
-#define SRAM_RANGE4_STA_B                          ((0x0004  << 2) + 0xfe00b800)
-#define SRAM_RANGE5_STA_B                          ((0x0005  << 2) + 0xfe00b800)
-#define SRAM_RANGE6_STA_B                          ((0x0006  << 2) + 0xfe00b800)
-#define SRAM_RANGE0_EDA_B                          ((0x0007  << 2) + 0xfe00b800)
-#define SRAM_RANGE1_EDA_B                          ((0x0008  << 2) + 0xfe00b800)
-#define SRAM_RANGE2_EDA_B                          ((0x0009  << 2) + 0xfe00b800)
-#define SRAM_RANGE3_EDA_B                          ((0x000a  << 2) + 0xfe00b800)
-#define SRAM_RANGE4_EDA_B                          ((0x000b  << 2) + 0xfe00b800)
-#define SRAM_RANGE5_EDA_B                          ((0x000c  << 2) + 0xfe00b800)
-#define SRAM_RANGE6_EDA_B                          ((0x000d  << 2) + 0xfe00b800)
-#define SRAM_RANGE0_CTRL0_B                        ((0x000e  << 2) + 0xfe00b800)
-#define SRAM_RANGE0_CTRL01_B                       ((0x000f  << 2) + 0xfe00b800)
-#define SRAM_RANGE1_CTRL0_B                        ((0x0010  << 2) + 0xfe00b800)
-#define SRAM_RANGE1_CTRL01_B                       ((0x0011  << 2) + 0xfe00b800)
-#define SRAM_RANGE2_CTRL0_B                        ((0x0012  << 2) + 0xfe00b800)
-#define SRAM_RANGE2_CTRL01_B                       ((0x0013  << 2) + 0xfe00b800)
-#define SRAM_RANGE3_CTRL0_B                        ((0x0014  << 2) + 0xfe00b800)
-#define SRAM_RANGE3_CTRL01_B                       ((0x0015  << 2) + 0xfe00b800)
-#define SRAM_RANGE4_CTRL0_B                        ((0x0016  << 2) + 0xfe00b800)
-#define SRAM_RANGE4_CTRL01_B                       ((0x0017  << 2) + 0xfe00b800)
-#define SRAM_RANGE5_CTRL0_B                        ((0x0018  << 2) + 0xfe00b800)
-#define SRAM_RANGE5_CTRL01_B                       ((0x0019  << 2) + 0xfe00b800)
-#define SRAM_RANGE6_CTRL0_B                        ((0x001a  << 2) + 0xfe00b800)
-#define SRAM_RANGE6_CTRL01_B                       ((0x001b  << 2) + 0xfe00b800)
-#define SRAM_RANGE7_CTRL0_B                        ((0x001c  << 2) + 0xfe00b800)
-#define SRAM_RANGE7_CTRL01_B                       ((0x001d  << 2) + 0xfe00b800)
-#define SRAM_RANGE0_CTRL1_B                        ((0x001e  << 2) + 0xfe00b800)
-#define SRAM_RANGE0_CTRL11_B                       ((0x001f  << 2) + 0xfe00b800)
-#define SRAM_RANGE1_CTRL1_B                        ((0x0020  << 2) + 0xfe00b800)
-#define SRAM_RANGE1_CTRL11_B                       ((0x0021  << 2) + 0xfe00b800)
-#define SRAM_RANGE2_CTRL1_B                        ((0x0022  << 2) + 0xfe00b800)
-#define SRAM_RANGE2_CTRL11_B                       ((0x0023  << 2) + 0xfe00b800)
-#define SRAM_RANGE3_CTRL1_B                        ((0x0024  << 2) + 0xfe00b800)
-#define SRAM_RANGE3_CTRL11_B                       ((0x0025  << 2) + 0xfe00b800)
-#define SRAM_RANGE4_CTRL1_B                        ((0x0026  << 2) + 0xfe00b800)
-#define SRAM_RANGE4_CTRL11_B                       ((0x0027  << 2) + 0xfe00b800)
-#define SRAM_RANGE5_CTRL1_B                        ((0x0028  << 2) + 0xfe00b800)
-#define SRAM_RANGE5_CTRL11_B                       ((0x0029  << 2) + 0xfe00b800)
-#define SRAM_RANGE6_CTRL1_B                        ((0x002a  << 2) + 0xfe00b800)
-#define SRAM_RANGE6_CTRL11_B                       ((0x002b  << 2) + 0xfe00b800)
-#define SRAM_RANGE7_CTRL1_B                        ((0x002c  << 2) + 0xfe00b800)
-#define SRAM_RANGE7_CTRL11_B                       ((0x002d  << 2) + 0xfe00b800)
-#define SRAM_SEC_CTRL0_B                           ((0x002e  << 2) + 0xfe00b800)
-#define SRAM_REG_LOCK0_B                           ((0x002f  << 2) + 0xfe00b800)
-#define SRAM_REG_LOCK1_B                           ((0x0030  << 2) + 0xfe00b800)
-//========================================================================
-//  RAMC_SEC_CTRL - Registers
-//========================================================================
-// -----------------------------------------------
-// APB_BASE:  APB0_BASE_ADDR = 0xfe00bc00
-// -----------------------------------------------
-#define SRAM_RANGE0_STA_C                          ((0x0000  << 2) + 0xfe00bc00)
-#define SRAM_RANGE1_STA_C                          ((0x0001  << 2) + 0xfe00bc00)
-#define SRAM_RANGE2_STA_C                          ((0x0002  << 2) + 0xfe00bc00)
-#define SRAM_RANGE3_STA_C                          ((0x0003  << 2) + 0xfe00bc00)
-#define SRAM_RANGE4_STA_C                          ((0x0004  << 2) + 0xfe00bc00)
-#define SRAM_RANGE5_STA_C                          ((0x0005  << 2) + 0xfe00bc00)
-#define SRAM_RANGE6_STA_C                          ((0x0006  << 2) + 0xfe00bc00)
-#define SRAM_RANGE0_EDA_C                          ((0x0007  << 2) + 0xfe00bc00)
-#define SRAM_RANGE1_EDA_C                          ((0x0008  << 2) + 0xfe00bc00)
-#define SRAM_RANGE2_EDA_C                          ((0x0009  << 2) + 0xfe00bc00)
-#define SRAM_RANGE3_EDA_C                          ((0x000a  << 2) + 0xfe00bc00)
-#define SRAM_RANGE4_EDA_C                          ((0x000b  << 2) + 0xfe00bc00)
-#define SRAM_RANGE5_EDA_C                          ((0x000c  << 2) + 0xfe00bc00)
-#define SRAM_RANGE6_EDA_C                          ((0x000d  << 2) + 0xfe00bc00)
-#define SRAM_RANGE0_CTRL0_C                        ((0x000e  << 2) + 0xfe00bc00)
-#define SRAM_RANGE0_CTRL01_C                       ((0x000f  << 2) + 0xfe00bc00)
-#define SRAM_RANGE1_CTRL0_C                        ((0x0010  << 2) + 0xfe00bc00)
-#define SRAM_RANGE1_CTRL01_C                       ((0x0011  << 2) + 0xfe00bc00)
-#define SRAM_RANGE2_CTRL0_C                        ((0x0012  << 2) + 0xfe00bc00)
-#define SRAM_RANGE2_CTRL01_C                       ((0x0013  << 2) + 0xfe00bc00)
-#define SRAM_RANGE3_CTRL0_C                        ((0x0014  << 2) + 0xfe00bc00)
-#define SRAM_RANGE3_CTRL01_C                       ((0x0015  << 2) + 0xfe00bc00)
-#define SRAM_RANGE4_CTRL0_C                        ((0x0016  << 2) + 0xfe00bc00)
-#define SRAM_RANGE4_CTRL01_C                       ((0x0017  << 2) + 0xfe00bc00)
-#define SRAM_RANGE5_CTRL0_C                        ((0x0018  << 2) + 0xfe00bc00)
-#define SRAM_RANGE5_CTRL01_C                       ((0x0019  << 2) + 0xfe00bc00)
-#define SRAM_RANGE6_CTRL0_C                        ((0x001a  << 2) + 0xfe00bc00)
-#define SRAM_RANGE6_CTRL01_C                       ((0x001b  << 2) + 0xfe00bc00)
-#define SRAM_RANGE7_CTRL0_C                        ((0x001c  << 2) + 0xfe00bc00)
-#define SRAM_RANGE7_CTRL01_C                       ((0x001d  << 2) + 0xfe00bc00)
-#define SRAM_RANGE0_CTRL1_C                        ((0x001e  << 2) + 0xfe00bc00)
-#define SRAM_RANGE0_CTRL11_C                       ((0x001f  << 2) + 0xfe00bc00)
-#define SRAM_RANGE1_CTRL1_C                        ((0x0020  << 2) + 0xfe00bc00)
-#define SRAM_RANGE1_CTRL11_C                       ((0x0021  << 2) + 0xfe00bc00)
-#define SRAM_RANGE2_CTRL1_C                        ((0x0022  << 2) + 0xfe00bc00)
-#define SRAM_RANGE2_CTRL11_C                       ((0x0023  << 2) + 0xfe00bc00)
-#define SRAM_RANGE3_CTRL1_C                        ((0x0024  << 2) + 0xfe00bc00)
-#define SRAM_RANGE3_CTRL11_C                       ((0x0025  << 2) + 0xfe00bc00)
-#define SRAM_RANGE4_CTRL1_C                        ((0x0026  << 2) + 0xfe00bc00)
-#define SRAM_RANGE4_CTRL11_C                       ((0x0027  << 2) + 0xfe00bc00)
-#define SRAM_RANGE5_CTRL1_C                        ((0x0028  << 2) + 0xfe00bc00)
-#define SRAM_RANGE5_CTRL11_C                       ((0x0029  << 2) + 0xfe00bc00)
-#define SRAM_RANGE6_CTRL1_C                        ((0x002a  << 2) + 0xfe00bc00)
-#define SRAM_RANGE6_CTRL11_C                       ((0x002b  << 2) + 0xfe00bc00)
-#define SRAM_RANGE7_CTRL1_C                        ((0x002c  << 2) + 0xfe00bc00)
-#define SRAM_RANGE7_CTRL11_C                       ((0x002d  << 2) + 0xfe00bc00)
-#define SRAM_SEC_CTRL0_C                           ((0x002e  << 2) + 0xfe00bc00)
-#define SRAM_REG_LOCK0_C                           ((0x002f  << 2) + 0xfe00bc00)
-#define SRAM_REG_LOCK1_C                           ((0x0030  << 2) + 0xfe00bc00)
+#define SRAM_RANGE7_STA                            ((0x0007  << 2) + 0xfe00b400)
+#define SRAM_RANGE8_STA                            ((0x0008  << 2) + 0xfe00b400)
+#define SRAM_RANGE9_STA                            ((0x0009  << 2) + 0xfe00b400)
+#define SRAM_RANGE10_STA                           ((0x000a  << 2) + 0xfe00b400)
+#define SRAM_RANGE11_STA                           ((0x000b  << 2) + 0xfe00b400)
+#define SRAM_RANGE12_STA                           ((0x000c  << 2) + 0xfe00b400)
+#define SRAM_RANGE13_STA                           ((0x000d  << 2) + 0xfe00b400)
+#define SRAM_RANGE14_STA                           ((0x000e  << 2) + 0xfe00b400)
+#define SRAM_RANGE0_EDA                            ((0x000f  << 2) + 0xfe00b400)
+#define SRAM_RANGE1_EDA                            ((0x0010  << 2) + 0xfe00b400)
+#define SRAM_RANGE2_EDA                            ((0x0011  << 2) + 0xfe00b400)
+#define SRAM_RANGE3_EDA                            ((0x0012  << 2) + 0xfe00b400)
+#define SRAM_RANGE4_EDA                            ((0x0013  << 2) + 0xfe00b400)
+#define SRAM_RANGE5_EDA                            ((0x0014  << 2) + 0xfe00b400)
+#define SRAM_RANGE6_EDA                            ((0x0015  << 2) + 0xfe00b400)
+#define SRAM_RANGE7_EDA                            ((0x0016  << 2) + 0xfe00b400)
+#define SRAM_RANGE8_EDA                            ((0x0017  << 2) + 0xfe00b400)
+#define SRAM_RANGE9_EDA                            ((0x0018  << 2) + 0xfe00b400)
+#define SRAM_RANGE10_EDA                           ((0x0019  << 2) + 0xfe00b400)
+#define SRAM_RANGE11_EDA                           ((0x001a  << 2) + 0xfe00b400)
+#define SRAM_RANGE12_EDA                           ((0x001b  << 2) + 0xfe00b400)
+#define SRAM_RANGE13_EDA                           ((0x001c  << 2) + 0xfe00b400)
+#define SRAM_RANGE14_EDA                           ((0x001d  << 2) + 0xfe00b400)
+#define SRAM_RANGE0_READ_CTRL0                     ((0x001e  << 2) + 0xfe00b400)
+#define SRAM_RANGE1_READ_CTRL0                     ((0x001f  << 2) + 0xfe00b400)
+#define SRAM_RANGE2_READ_CTRL0                     ((0x0020  << 2) + 0xfe00b400)
+#define SRAM_RANGE3_READ_CTRL0                     ((0x0021  << 2) + 0xfe00b400)
+#define SRAM_RANGE4_READ_CTRL0                     ((0x0022  << 2) + 0xfe00b400)
+#define SRAM_RANGE5_READ_CTRL0                     ((0x0023  << 2) + 0xfe00b400)
+#define SRAM_RANGE6_READ_CTRL0                     ((0x0024  << 2) + 0xfe00b400)
+#define SRAM_RANGE7_READ_CTRL0                     ((0x0025  << 2) + 0xfe00b400)
+#define SRAM_RANGE8_READ_CTRL0                     ((0x0026  << 2) + 0xfe00b400)
+#define SRAM_RANGE9_READ_CTRL0                     ((0x0027  << 2) + 0xfe00b400)
+#define SRAM_RANGE10_READ_CTRL0                    ((0x0028  << 2) + 0xfe00b400)
+#define SRAM_RANGE11_READ_CTRL0                    ((0x0029  << 2) + 0xfe00b400)
+#define SRAM_RANGE12_READ_CTRL0                    ((0x002a  << 2) + 0xfe00b400)
+#define SRAM_RANGE13_READ_CTRL0                    ((0x002b  << 2) + 0xfe00b400)
+#define SRAM_RANGE14_READ_CTRL0                    ((0x002c  << 2) + 0xfe00b400)
+#define SRAM_RANGE15_READ_CTRL0                    ((0x002d  << 2) + 0xfe00b400)
+#define SRAM_RANGE0_WRITE_CTRL0                    ((0x002e  << 2) + 0xfe00b400)
+#define SRAM_RANGE1_WRITE_CTRL0                    ((0x002f  << 2) + 0xfe00b400)
+#define SRAM_RANGE2_WRITE_CTRL0                    ((0x0030  << 2) + 0xfe00b400)
+#define SRAM_RANGE3_WRITE_CTRL0                    ((0x0031  << 2) + 0xfe00b400)
+#define SRAM_RANGE4_WRITE_CTRL0                    ((0x0032  << 2) + 0xfe00b400)
+#define SRAM_RANGE5_WRITE_CTRL0                    ((0x0033  << 2) + 0xfe00b400)
+#define SRAM_RANGE6_WRITE_CTRL0                    ((0x0034  << 2) + 0xfe00b400)
+#define SRAM_RANGE7_WRITE_CTRL0                    ((0x0035  << 2) + 0xfe00b400)
+#define SRAM_RANGE8_WRITE_CTRL0                    ((0x0036  << 2) + 0xfe00b400)
+#define SRAM_RANGE9_WRITE_CTRL0                    ((0x0037  << 2) + 0xfe00b400)
+#define SRAM_RANGE10_WRITE_CTRL0                   ((0x0038  << 2) + 0xfe00b400)
+#define SRAM_RANGE11_WRITE_CTRL0                   ((0x0039  << 2) + 0xfe00b400)
+#define SRAM_RANGE12_WRITE_CTRL0                   ((0x003a  << 2) + 0xfe00b400)
+#define SRAM_RANGE13_WRITE_CTRL0                   ((0x003b  << 2) + 0xfe00b400)
+#define SRAM_RANGE14_WRITE_CTRL0                   ((0x003c  << 2) + 0xfe00b400)
+#define SRAM_RANGE15_WRITE_CTRL0                   ((0x003d  << 2) + 0xfe00b400)
+#define SRAM_RANGE0_READ_CTRL1                     ((0x003e  << 2) + 0xfe00b400)
+#define SRAM_RANGE1_READ_CTRL1                     ((0x003f  << 2) + 0xfe00b400)
+#define SRAM_RANGE2_READ_CTRL1                     ((0x0040  << 2) + 0xfe00b400)
+#define SRAM_RANGE3_READ_CTRL1                     ((0x0041  << 2) + 0xfe00b400)
+#define SRAM_RANGE4_READ_CTRL1                     ((0x0042  << 2) + 0xfe00b400)
+#define SRAM_RANGE5_READ_CTRL1                     ((0x0043  << 2) + 0xfe00b400)
+#define SRAM_RANGE6_READ_CTRL1                     ((0x0044  << 2) + 0xfe00b400)
+#define SRAM_RANGE7_READ_CTRL1                     ((0x0045  << 2) + 0xfe00b400)
+#define SRAM_RANGE8_READ_CTRL1                     ((0x0046  << 2) + 0xfe00b400)
+#define SRAM_RANGE9_READ_CTRL1                     ((0x0047  << 2) + 0xfe00b400)
+#define SRAM_RANGE10_READ_CTRL1                    ((0x0048  << 2) + 0xfe00b400)
+#define SRAM_RANGE11_READ_CTRL1                    ((0x0049  << 2) + 0xfe00b400)
+#define SRAM_RANGE12_READ_CTRL1                    ((0x004a  << 2) + 0xfe00b400)
+#define SRAM_RANGE13_READ_CTRL1                    ((0x004b  << 2) + 0xfe00b400)
+#define SRAM_RANGE14_READ_CTRL1                    ((0x004c  << 2) + 0xfe00b400)
+#define SRAM_RANGE15_READ_CTRL1                    ((0x004d  << 2) + 0xfe00b400)
+#define SRAM_RANGE0_WRITE_CTRL1                    ((0x004e  << 2) + 0xfe00b400)
+#define SRAM_RANGE1_WRITE_CTRL1                    ((0x004f  << 2) + 0xfe00b400)
+#define SRAM_RANGE2_WRITE_CTRL1                    ((0x0050  << 2) + 0xfe00b400)
+#define SRAM_RANGE3_WRITE_CTRL1                    ((0x0051  << 2) + 0xfe00b400)
+#define SRAM_RANGE4_WRITE_CTRL1                    ((0x0052  << 2) + 0xfe00b400)
+#define SRAM_RANGE5_WRITE_CTRL1                    ((0x0053  << 2) + 0xfe00b400)
+#define SRAM_RANGE6_WRITE_CTRL1                    ((0x0054  << 2) + 0xfe00b400)
+#define SRAM_RANGE7_WRITE_CTRL1                    ((0x0055  << 2) + 0xfe00b400)
+#define SRAM_RANGE8_WRITE_CTRL1                    ((0x0056  << 2) + 0xfe00b400)
+#define SRAM_RANGE9_WRITE_CTRL1                    ((0x0057  << 2) + 0xfe00b400)
+#define SRAM_RANGE10_WRITE_CTRL1                   ((0x0058  << 2) + 0xfe00b400)
+#define SRAM_RANGE11_WRITE_CTRL1                   ((0x0059  << 2) + 0xfe00b400)
+#define SRAM_RANGE12_WRITE_CTRL1                   ((0x005a  << 2) + 0xfe00b400)
+#define SRAM_RANGE13_WRITE_CTRL1                   ((0x005b  << 2) + 0xfe00b400)
+#define SRAM_RANGE14_WRITE_CTRL1                   ((0x005c  << 2) + 0xfe00b400)
+#define SRAM_RANGE15_WRITE_CTRL1                   ((0x005d  << 2) + 0xfe00b400)
+#define SRAM_SEC_CTRL0                             ((0x005e  << 2) + 0xfe00b400)
+#define SRAM_REG_LOCK0                             ((0x005f  << 2) + 0xfe00b400)
+#define SRAM_REG_LOCK1                             ((0x0060  << 2) + 0xfe00b400)
+#define SRAM_REG_LOCK2                             ((0x0061  << 2) + 0xfe00b400)
 //
 // Reading file:  REG_LIST_DSP_RTL.h
 //
@@ -7145,6 +8194,42 @@
 #define MIPI_ISP_RDWR_ARB_STATUS                   ((0x000b  << 2) + 0xfe023800)
 #define MIPI_ISP_ARB_DBG_CTRL                      ((0x000c  << 2) + 0xfe023800)
 #define MIPI_ISP_ARB_DBG_STAT                      ((0x000d  << 2) + 0xfe023800)
+// -----------------------------------------------
+// APB_BASE:  APB0_BASE_ADDR = 0xfe023a00
+// -----------------------------------------------
+#define ISP_DMA_BUS_CNTL                           ((0x0000  << 2) + 0xfe023a00)
+#define ISP_DMA_CTL0                               ((0x0001  << 2) + 0xfe023a00)
+#define ISP_DMA_SRC_ADDR0                          ((0x0002  << 2) + 0xfe023a00)
+#define ISP_DMA_DST_ADDR0                          ((0x0003  << 2) + 0xfe023a00)
+#define ISP_DMA_CTL_TASK0                          ((0x0004  << 2) + 0xfe023a00)
+#define ISP_DMA_SRC_ADDR1                          ((0x0005  << 2) + 0xfe023a00)
+#define ISP_DMA_DST_ADDR1                          ((0x0006  << 2) + 0xfe023a00)
+#define ISP_DMA_CTL_TASK1                          ((0x0007  << 2) + 0xfe023a00)
+#define ISP_DMA_SRC_ADDR2                          ((0x0008  << 2) + 0xfe023a00)
+#define ISP_DMA_DST_ADDR2                          ((0x0009  << 2) + 0xfe023a00)
+#define ISP_DMA_CTL_TASK2                          ((0x000a  << 2) + 0xfe023a00)
+#define ISP_DMA_SRC_ADDR3                          ((0x000b  << 2) + 0xfe023a00)
+#define ISP_DMA_DST_ADDR3                          ((0x000c  << 2) + 0xfe023a00)
+#define ISP_DMA_CTL_TASK3                          ((0x000d  << 2) + 0xfe023a00)
+#define ISP_DMA_SRC_ADDR4                          ((0x000e  << 2) + 0xfe023a00)
+#define ISP_DMA_DST_ADDR4                          ((0x000f  << 2) + 0xfe023a00)
+#define ISP_DMA_CTL_TASK4                          ((0x0010  << 2) + 0xfe023a00)
+#define ISP_DMA_SRC_ADDR5                          ((0x0011  << 2) + 0xfe023a00)
+#define ISP_DMA_DST_ADDR5                          ((0x0012  << 2) + 0xfe023a00)
+#define ISP_DMA_CTL_TASK5                          ((0x0013  << 2) + 0xfe023a00)
+#define ISP_DMA_SRC_ADDR6                          ((0x0014  << 2) + 0xfe023a00)
+#define ISP_DMA_DST_ADDR6                          ((0x0015  << 2) + 0xfe023a00)
+#define ISP_DMA_CTL_TASK6                          ((0x0016  << 2) + 0xfe023a00)
+#define ISP_DMA_SRC_ADDR7                          ((0x0017  << 2) + 0xfe023a00)
+#define ISP_DMA_DST_ADDR7                          ((0x0018  << 2) + 0xfe023a00)
+#define ISP_DMA_CTL_TASK7                          ((0x0019  << 2) + 0xfe023a00)
+#define ISP_DMA_ST0                                ((0x001a  << 2) + 0xfe023a00)
+#define ISP_DMA_ST1                                ((0x001b  << 2) + 0xfe023a00)
+#define ISP_DMA_ST2                                ((0x001c  << 2) + 0xfe023a00)
+#define ISP_DMA_ST3                                ((0x001d  << 2) + 0xfe023a00)
+#define ISP_DMA_ST4                                ((0x001e  << 2) + 0xfe023a00)
+#define ISP_DMA_ST5                                ((0x001f  << 2) + 0xfe023a00)
+#define ISP_DMA_ST6                                ((0x0020  << 2) + 0xfe023a00)
 // -----------------------------------------------
 // APB_BASE:  APB0_BASE_ADDR = 0xfe023c00
 // -----------------------------------------------

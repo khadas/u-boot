@@ -617,6 +617,7 @@ static int gp_pll_test_all(void) {
 
 static int dds_pll_test(dds_pll_set_t * dds_pll) {
 	int ret=0;
+	#if 0 //2020.02.20
 	unsigned int i=0, pll_clk=0;
 	unsigned int lock_check = PLL_LOCK_CHECK_MAX;
 	unsigned int clk_msr_val = 0;
@@ -655,10 +656,13 @@ static int dds_pll_test(dds_pll_set_t * dds_pll) {
 			ret += RET_CLK_NOT_MATCH;
 		}
 	}
+	#endif
 	return ret;
 }
 
 static int dds_pll_test_all(void) {
+
+	#if 0 //2020.02.20
 	unsigned int i=0;
 	unsigned int lock_check = PLL_LOCK_CHECK_MAX;
 	unsigned int clk_msr_val = 0;
@@ -698,8 +702,10 @@ static int dds_pll_test_all(void) {
 			}
 		}
 	}
-
 	return ret;
+	#endif
+
+	return 0;
 
 }
 

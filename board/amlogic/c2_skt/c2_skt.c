@@ -52,6 +52,24 @@ int dram_init(void)
 	return 0;
 }
 
+unsigned int get_dram_size(void)
+{
+	// >>16 -> MB, <<20 -> real size, so >>16<<20 = <<4
+#if defined(CONFIG_SYS_MEM_TOP_HIDE)
+	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4) - CONFIG_SYS_MEM_TOP_HIDE;
+#else
+	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4);
+#endif /* CONFIG_SYS_MEM_TOP_HIDE */
+}
+
+
+int dram_init_banksize(void)
+{
+	gd->bd->bi_dram[0].start = 0;
+	gd->bd->bi_dram[0].size = get_dram_size();
+	return 0;
+}
+
 /* secondary_boot_func
  * this function should be write with asm, here, is is only for compiling pass
  * */
