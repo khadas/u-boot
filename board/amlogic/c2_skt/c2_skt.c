@@ -132,7 +132,9 @@ int board_init(void)
 
 int board_late_init(void)
 {
+#ifdef CONFIG_PXP_EMULATOR
 	printf("board late init\n");
+#else
 	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
 			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 	board_init_mem();
@@ -154,6 +156,9 @@ int board_late_init(void)
 	if (0x1b8ec003 == readl(SYSCTRL_SEC_STICKY_REG2))
 	{ aml_v3_factory_usb_burning(0, gd->bd); }
 #endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
+
+#endif
+
 	return 0;
 }
 

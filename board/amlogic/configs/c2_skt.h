@@ -210,10 +210,18 @@
             "setenv serial ${usid}; setenv serial# ${usid};"\
             "\0"\
 
+#ifdef CONFIG_PXP_EMULATOR
+#define CONFIG_PREBOOT "echo preboot for pxp"
+#define CONFIG_BOOTCOMMAND \
+	"setenv bootargs  console=ttyS0 earlycon=meson,0xfe002000 loglevel=9;\
+     setenv dtb_mem_addr 0x6000000;fdt addr 0x6000000;bootm 0x8000000;"
+#define CONFIG_ENV_IS_NOWHERE  1
+#else
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
             "run upgrade_check;"\
             "run storeargs;"
+#endif
 
 /* #define CONFIG_ENV_IS_NOWHERE  1 */
 #define CONFIG_ENV_SIZE   (8*1024)

@@ -608,6 +608,11 @@ static cmd_tbl_t cmd_imgread_sub[] = {
 
 static int do_image_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+
+#ifdef CONFIG_PXP_EMULATOR
+	printf("\naml log : PXP image all use preload\n");
+	return 0;
+#else
 	cmd_tbl_t *c;
 
 	/* Strip off leading 'imgread' command argument */
@@ -622,6 +627,7 @@ static int do_image_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 		cmd_usage(cmdtp);
 		return 1;
 	}
+#endif //CONFIG_PXP_EMULATOR
 }
 
 U_BOOT_CMD(
