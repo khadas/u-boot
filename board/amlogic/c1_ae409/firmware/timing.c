@@ -24,7 +24,6 @@
 #include <asm/arch/ddr_define.h>
 
 /* board clk defines */
-#define DDR_SIZE				0
 #define CPU_CLK					1512
 
 /* ddr config support multiple configs for boards which use same bootloader:
@@ -87,7 +86,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.DRAMFreq				= {912, 0, 0, 0},
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
-	.dmem_load_size			= 0x1000, //4K
+	//.dmem_load_size			= 0x1000, //4K
 
 	.DisabledDbyte			= 0xf0,
 	.Is2Ttiming				= 1,
@@ -163,13 +162,12 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.board_id				= CONFIG_BOARD_ID_MASK,
 	.version				= 1,
 	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
-	.DramType				= CONFIG_DDR_TYPE_DDR4,
-	/* DRAMFreq = 192, 256, 384, 512, 768-1536 */
-	.DRAMFreq				= {1176, 0, 0, 0},
 	.ddr_rfc_type			= DDR_RFC_TYPE_DDR4_2Gbx8,
+	.DramType				= CONFIG_DDR_TYPE_DDR4,
+	.DRAMFreq				= {1176, 0, 0, 0},
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
-	.dmem_load_size			= 0x1000, //4K
+	//.dmem_load_size			= 0x1000, //4K
 
 	.DisabledDbyte			= 0xf0,
 	.Is2Ttiming				= 1,

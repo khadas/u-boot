@@ -24,7 +24,6 @@
 #include <asm/arch/ddr_define.h>
 
 /* board clk defines */
-#define DDR_SIZE				0
 #define CPU_CLK					1512
 
 /* ddr config support multiple configs for boards which use same bootloader:
@@ -78,7 +77,88 @@
 
 ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 {
-	/* ddr3 */
+	// c1 4layer 2pcs ddr3 rank0
+	.board_id				= CONFIG_BOARD_ID_MASK,
+	.version				= 1,
+	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
+	.DramType				= CONFIG_DDR_TYPE_DDR3,
+	.DRAMFreq				= {912, 0, 0, 0},
+	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
+	.ddr_start_offset		= CFG_DDR_START_OFFSET,
+	//.dmem_load_size			= 0x1000, //4K
+
+	.DisabledDbyte			= 0xf0,
+	.Is2Ttiming				= 1,
+	.HdtCtrl				= 0xC8,
+	.dram_cs0_size_MB		= 0xffff,
+	.dram_cs1_size_MB		= 0,
+	.training_SequenceCtrl	= {0x31f,0}, //ddr3 0x21f 0x31f
+	.phy_odt_config_rank	= {0x23,0x13}, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
+	.dfi_odt_config			= 0x0d0d,  //use 0d0d compatibility with 1rank and 2rank  //0808
+	.PllBypassEn			= 0, //bit0-ps0,bit1-ps1
+	.ddr_rdbi_wr_enable		= 0,
+	.clk_drv_ohm			= 40,
+	.cs_drv_ohm				= 40,
+	.ac_drv_ohm				= 40,
+	.soc_data_drv_ohm_p		= 34,
+	.soc_data_drv_ohm_n		= 34,
+	.soc_data_odt_ohm_p		= 60, //48,
+	.soc_data_odt_ohm_n		= 0,
+	.dram_data_drv_ohm		= 34, //ddr4 sdram only 34 or 48, skt board use 34 better
+	.dram_data_odt_ohm		= 60,
+	.dram_ac_odt_ohm		= 0,
+	.soc_clk_slew_rate		= 0x300,
+	.soc_cs_slew_rate		= 0x300,
+	.soc_ac_slew_rate		= 0x300,
+	.soc_data_slew_rate		= 0x200,
+	.vref_output_permil		= 500,
+	.vref_receiver_permil	= 500, //700,
+	.vref_dram_permil		= 500, //700,
+	//.vref_reverse			= 0,
+	.ac_trace_delay			= {32,32,32,32,32,32,32,32,32,32},
+	//{00,00},
+	.ac_pinmux				= {00,00},
+#if 1
+	.ddr_dmc_remap			= {
+							[0] = ( 5 |  7 << 5 |  8 << 10 |  9 << 15 | 10 << 20 | 11 << 25 ),
+							[1] = ( 12|  0 << 5 |  0 << 10 | 14 << 15 | 15 << 20 | 16 << 25 ),
+							[2] = ( 17| 18 << 5 | 19 << 10 | 21 << 15 | 22 << 20 | 23 << 25 ),
+							[3] = ( 24| 25 << 5 | 26 << 10 | 27 << 15 | 28 << 20 | 29 << 25 ),
+							[4] = ( 30| 13 << 5 | 20 << 10 |  6 << 15 |  0 << 20 |  0 << 25 ),
+	},
+#else
+	//16bit
+	.ddr_dmc_remap			= {
+							[0] = ( 0 |  5 << 5 |  6<< 10 |  7 << 15 | 8 << 20 | 9 << 25 ),
+							[1] = ( 10|  0 << 5 |  0 << 10 | 14 << 15 | 15 << 20 | 16 << 25 ),
+							[2] = ( 17|( 18 << 5) |( 19 << 10) |( 20 << 15) |( 21 << 20) | (22 << 25 )),
+							[3] = ( 23| 24 << 5 | 25 << 10 | 26 << 15 | 27 << 20 | 28 << 25 ),
+							[4] = ( 29| 11<< 5 | 12 << 10 |  13<< 15 |  0 << 20 |  0 << 25 ),
+	},
+#endif
+	.ddr_lpddr34_ca_remap	= {00,00},
+	.ddr_lpddr34_dq_remap	= {00,00},
+	.dram_rtt_nom_wr_park	= {00,00},
+
+	/* pll ssc config:
+	 *
+	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
+	 *      ppm = strength * 500
+	 *      mode: 0=center, 1=up, 2=down
+	 *
+	 *   eg:
+	 *     1. config 1000ppm center ss. then mode=0, strength=2
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
+	 *     2. config 3000ppm down ss. then mode=2, strength=6
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
+	 */
+	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
+	.ddr_func				= DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,
+	.magic					= DRAM_CFG_MAGIC,
+	.fast_boot[0]			= 1,
+},
+{
+	// c1 4layer 2pcs ddr3 rank0 768MB
 	.board_id				= CONFIG_BOARD_ID_MASK,
 	.version				= 1,
 	.dram_rank_config		= CONFIG_DDR0_32BIT_16BIT_RANK0_CH0,//CONFIG_DDR0_16BIT_CH0,
@@ -87,7 +167,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.DRAMFreq				= {912, 0, 0, 0},
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
-	.dmem_load_size			= 0x1000, //4K
+	//.dmem_load_size			= 0x1000, //4K
 
 	.DisabledDbyte			= 0xf0,
 	.Is2Ttiming				= 1,
@@ -155,21 +235,21 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
 	 */
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func				= DDR_FUNC,
+	.ddr_func				= DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,
 	.magic					= DRAM_CFG_MAGIC,
+	.fast_boot[0]			= 1,
 },
 {
-	/* ddr4 */
+	// c1 4layer 2pcs ddr4 rank0
 	.board_id				= CONFIG_BOARD_ID_MASK,
 	.version				= 1,
 	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
-	.DramType				= CONFIG_DDR_TYPE_DDR4,
-	/* DRAMFreq = 192, 256, 384, 512, 768-1536 */
-	.DRAMFreq				= {1176, 0, 0, 0},
 	.ddr_rfc_type			= DDR_RFC_TYPE_DDR4_2Gbx8,
+	.DramType				= CONFIG_DDR_TYPE_DDR4,
+	.DRAMFreq				= {1176, 0, 0, 0},
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
-	.dmem_load_size			= 0x1000, //4K
+	//.dmem_load_size			= 0x1000, //4K
 
 	.DisabledDbyte			= 0xf0,
 	.Is2Ttiming				= 1,
@@ -225,8 +305,9 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
 	 */
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func				= DDR_FUNC,
+	.ddr_func				= DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,
 	.magic					= DRAM_CFG_MAGIC,
+	.fast_boot[0]			= 1,
 },
 };
 
