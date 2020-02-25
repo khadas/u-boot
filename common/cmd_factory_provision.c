@@ -118,11 +118,10 @@ struct keybox_header {
 };
 
 struct encryption_context {
-	char hmac_digest[SIZE_HMAC_DIGEST];
-	char epsk[SIZE_HMAC_KEY];
 	char iv[SIZE_IV];
 	char tag[SIZE_TAG];
 	char epek[SIZE_AES_KEY];
+	char rsv[64];
 };
 
 struct input_param {
@@ -468,7 +467,6 @@ static int preprocess_keybox(char *keybox, uint32_t size)
 	uint32_t res = 0;
 	struct encryption_context *enc_cxt = (struct encryption_context *)
 		(keybox + sizeof(struct keybox_header));
-	uint32_t epsk_size = sizeof(enc_cxt->epsk);
 	uint32_t epek_size = sizeof(enc_cxt->epek);
 
 	res = set_iv(
@@ -478,15 +476,6 @@ static int preprocess_keybox(char *keybox, uint32_t size)
 		LOGE("set iv failed, smc fast call ret = 0x%08X\n", res);
 		return CMD_RET_SMC_CALL_FAILED;
 	}
-
-	res = encrypt(
-		move_data_to_transfer_addr(enc_cxt->epsk,
-		sizeof(enc_cxt->epsk)), &epsk_size);
-	if (res) {
-		LOGE("encrypt epsk failed, smc fast call ret = 0x%08X\n", res);
-		return CMD_RET_SMC_CALL_FAILED;
-	}
-	get_data_from_transfer_addr(enc_cxt->epsk, epsk_size);
 
 	res = encrypt(
 		move_data_to_transfer_addr(enc_cxt->epek,
@@ -719,11 +708,15 @@ static int check_keybox(const char *keybox, uint32_t size)
 		+ sizeof(struct encryption_context);
 
 	if (hdr->magic != KEYBOX_HDR_MAGIC) {
-		LOGE("keybox header magic error\n");
+		LOGE("keybox header magic error"
+			"(expected magic: 0x%08X; wrong magic: 0x%08X)\n",
+			KEYBOX_HDR_MAGIC, hdr->magic);
 		return CMD_RET_KEYBOX_BAD_FORMAT;
 	}
 	if (hdr->version < KEYBOX_HDR_MIN_VERSION) {
-		LOGE("keybox header version error\n");
+		LOGE("keybox header version error"
+			"(min version: %d; wrong version: %d)\n",
+			KEYBOX_HDR_MIN_VERSION, hdr->version);
 		return CMD_RET_KEYBOX_BAD_FORMAT;
 	}
 	if (size > MAX_SIZE_KEYBOX || size <= hdr_cxt_size
@@ -731,9 +724,10 @@ static int check_keybox(const char *keybox, uint32_t size)
 		LOGE("keybox length error\n");
 		return CMD_RET_KEYBOX_BAD_FORMAT;
 	}
-	if (hdr->provision_type != PROVISION_TYPE_FACTORY
-			&& PROVISION_TYPE_FIELD) {
-		LOGE("keybox provision type error\n");
+	if (hdr->provision_type != PROVISION_TYPE_FACTORY) {
+		LOGE("keybox provision type error"
+			"(expected type: %d; wrong type: %d)\n",
+			PROVISION_TYPE_FACTORY, hdr->provision_type);
 		return CMD_RET_KEYBOX_BAD_FORMAT;
 	}
 	if (!get_key_type_name(hdr->key_type) &&
