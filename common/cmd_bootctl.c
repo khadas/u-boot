@@ -331,6 +331,11 @@ static int do_GetValidSlot(
         }
     }
 
+    if (dynamic_partition)
+        setenv("partiton_mode","dynamic");
+    else
+        setenv("partiton_mode","normal");
+
     return 0;
 }
 
