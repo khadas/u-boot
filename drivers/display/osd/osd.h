@@ -266,6 +266,7 @@ struct hw_para_s {
 	u32 clone[HW_OSD_COUNT];
 	u32 bot_type;
 	u32 osd_ver;
+	u32 shift_line;
 };
 
 #endif /* _OSD_H_ */
