@@ -43,6 +43,8 @@ endif
 # We don't want gcc reordering functions if possible.  This ensures that an
 # application's entry point will be the first function in the application's
 # source file.
+ccflags-y := $(filter-out $(STACK_CFLAGS),$(ccflags-y))
+ccflags-y += $(call cc-option,-fno-stack-protector)
 ccflags-y += $(call cc-option,-fno-toplevel-reorder)
 
 LDFLAGS_STANDALONE	+= -Ttext $(CONFIG_STANDALONE_LOAD_ADDR)

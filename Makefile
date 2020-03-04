@@ -618,7 +618,8 @@ else
 KBUILD_CFLAGS	+= -O2
 endif
 
-KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
+STACK_CFLAGS  := $(call cc-option,-fstack-protector-strong)
+KBUILD_CFLAGS += $(STACK_CFLAGS)
 KBUILD_CFLAGS += $(call cc-option,-fno-delete-null-pointer-checks)
 
 # change __FILE__ to the relative path from the srctree
