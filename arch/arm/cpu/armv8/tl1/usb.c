@@ -22,12 +22,17 @@
 #include <asm/arch/usb-v2.h>
 #include <asm/arch/romboot.h>
 
-#define USB2_PHY_PLL_OFFSET_10	(0x80000fff)
+
 #define USB2_PHY_PLL_OFFSET_34	(0x78000)
-#define USB2_PHY_PLL_OFFSET_38_CLEAR	(0)
-#define USB2_PHY_PLL_OFFSET_38_SET	    (0xe000c)
 #define USB2_PHY_PLL_OFFSET_50	(0xfe18)
-#define USB2_PHY_PLL_OFFSET_c	(0x3C)
+#define USB2_PHY_PLL_OFFSET_54	(0x2a)
+
+#define USB2_PHY_PLL_OFFSET_38_SET (0xe000c)
+#define USB2_PHY_PLL_OFFSET_34_TUN	(0x78000)
+
+
+
+#define USB2_PHY_PLL_OFFSET_c	(0x34)
 
 static struct amlogic_usb_config * g_usb_cfg[BOARD_USB_MODE_MAX][USB_PHY_PORT_MAX];
 
@@ -74,30 +79,41 @@ int get_usb_count(void)
 {
     return  usb_index;
 }
+static void set_pll_Calibration_default(uint32_t volatile *phy2_pll_base)
+{
+    u32 tmp;
+
+    tmp = (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x8));
+    tmp &= 0xfff;
+    tmp |= (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x10));
+    (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x10))
+     = tmp;
+}
 
 void set_usb_pll(uint32_t volatile *phy2_pll_base)
 {
 	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x40))
-        = (USB_PHY2_PLL_PARAMETER_1 | USB_PHY2_RESET | USB_PHY2_ENABLE);
-    (*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x44)) =
-        USB_PHY2_PLL_PARAMETER_2;
-    (*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x48)) =
-        USB_PHY2_PLL_PARAMETER_3;
-    udelay(100);
-    (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x40))
-        = (((USB_PHY2_PLL_PARAMETER_1) | (USB_PHY2_ENABLE))
-        & (~(USB_PHY2_RESET)));
-    (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x50))
-        = USB2_PHY_PLL_OFFSET_50;
-    (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x10))
-        = USB2_PHY_PLL_OFFSET_10;
-    (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x38))
-        = USB2_PHY_PLL_OFFSET_38_CLEAR;
-    (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x34))
-        = USB2_PHY_PLL_OFFSET_34;
+	 = (USB_PHY2_PLL_PARAMETER_1 | USB_PHY2_RESET | USB_PHY2_ENABLE);
+	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x44)) =
+	 USB_PHY2_PLL_PARAMETER_2;
+	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x48)) =
+		 USB_PHY2_PLL_PARAMETER_3;
+	udelay(100);
+	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x40))
+	 = (((USB_PHY2_PLL_PARAMETER_1) | (USB_PHY2_ENABLE))
+	 & (~(USB_PHY2_RESET)));
 
-    (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0xC))
-        = USB2_PHY_PLL_OFFSET_c;
+	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x50))
+	 = USB2_PHY_PLL_OFFSET_50;
+	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x54))
+	 = USB2_PHY_PLL_OFFSET_54;
+	set_pll_Calibration_default(phy2_pll_base);
+
+	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0xC))
+	 = USB2_PHY_PLL_OFFSET_c;
+
+	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x34))
+	 = USB2_PHY_PLL_OFFSET_34;
 }
 
 void board_usb_pll_disable(struct amlogic_usb_config *cfg)
@@ -135,10 +151,10 @@ void set_usb_phy_tuning_1(int port)
 	else
 		phy_reg_base = USB_REG_B;
 
-	(*(volatile uint32_t *)(phy_reg_base + 0x10)) = USB2_PHY_PLL_OFFSET_10;
-	(*(volatile uint32_t *)(phy_reg_base + 0x50)) = USB2_PHY_PLL_OFFSET_50;
-	(*(volatile uint32_t *)(phy_reg_base + 0x38)) = USB2_PHY_PLL_OFFSET_38_SET;
-	(*(volatile uint32_t *)(phy_reg_base + 0x34)) = USB2_PHY_PLL_OFFSET_34;
+	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy_reg_base + 0x38))
+		= USB2_PHY_PLL_OFFSET_38_SET;
+	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy_reg_base + 0x34))
+		= USB2_PHY_PLL_OFFSET_34_TUN;
 #endif
 }
 #endif
