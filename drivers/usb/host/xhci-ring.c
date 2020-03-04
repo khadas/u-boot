@@ -933,6 +933,7 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 		xhci_acknowledge_event(ctrl);
 	}
 
+	_udelay(10);
 	return (udev->status != USB_ST_NOT_PROC) ? 0 : -1;
 
 abort:

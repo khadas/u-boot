@@ -75,6 +75,17 @@ void board_usb_init(struct amlogic_usb_config * usb_cfg,int mode)
 	printf("register usb cfg[%d][%d] = %p\n",mode,(mode==BOARD_USB_MODE_HOST)?usb_index:0,usb_cfg);
 }
 
+static void set_pll_Calibration_default(uint32_t volatile *phy2_pll_base)
+{
+	u32 tmp;
+
+	tmp = (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x8));
+	tmp &= 0xfff;
+	tmp |= (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x10));
+	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x10))
+	 = tmp;
+}
+
 int get_usb_count(void)
 {
     return  usb_index;
@@ -83,15 +94,27 @@ int get_usb_count(void)
 void set_usb_pll(uint32_t volatile *phy2_pll_base)
 {
     (*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x40))
-        = (USB_PHY2_PLL_PARAMETER_1 | USB_PHY2_RESET | USB_PHY2_ENABLE);
-    (*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x44)) =
-        USB_PHY2_PLL_PARAMETER_2;
-    (*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x48)) =
-        USB_PHY2_PLL_PARAMETER_3;
+     = (USB_PHY2_PLL_PARAMETER_1 | USB_PHY2_RESET | USB_PHY2_ENABLE);
+    (*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x44))
+     =USB_PHY2_PLL_PARAMETER_2;
+    (*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x48))
+     =USB_PHY2_PLL_PARAMETER_3;
     udelay(100);
     (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x40))
-        = (((USB_PHY2_PLL_PARAMETER_1) | (USB_PHY2_ENABLE))
-        & (~(USB_PHY2_RESET)));
+     = (((USB_PHY2_PLL_PARAMETER_1) | (USB_PHY2_ENABLE))
+     & (~(USB_PHY2_RESET)));
+
+    (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x50))
+     = 0xfe18;
+    (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x54))
+     = 0x2a;
+
+    set_pll_Calibration_default(phy2_pll_base);
+
+    (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0xc))
+     = 0x34;
+    (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x34))
+     = 0x78000;
 }
 
 void board_usb_pll_disable(struct amlogic_usb_config *cfg)
@@ -124,10 +147,14 @@ void set_usb_phy_tuning_1(int port)
 	else
 		phy_reg_base = USB_REG_B;
 
-	(*(volatile uint32_t *)(phy_reg_base + 0x10)) = 0xfff;
-	(*(volatile uint32_t *)(phy_reg_base + 0x50)) = 0xfe18;
-	(*(volatile uint32_t *)(phy_reg_base + 0x38)) = 0xe0004;
-	(*(volatile uint32_t *)(phy_reg_base + 0x34)) = 0xc8000;
+	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy_reg_base + 0x10))
+		= 0xfff;
+	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy_reg_base + 0x50))
+		= 0xfe18;
+	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy_reg_base + 0x38))
+		= 0xe0004;
+	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy_reg_base + 0x34))
+		= 0xc8000;
 #endif
 }
 #endif
