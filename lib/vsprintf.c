@@ -897,3 +897,20 @@ void print_grouped_ull(unsigned long long int_val, int digits)
 		grab = 3;
 	}
 }
+
+#if 1
+#define STACK_CHECK_GUARD      0xdeadbeefdeadbeefUL
+uintptr_t __stack_chk_guard = STACK_CHECK_GUARD;
+void __attribute__ ((noreturn)) __stack_chk_fail(void)
+{
+	unsigned long pc_reg;
+
+	__asm__ volatile("mov %0, x30\n"
+				: "=r" (pc_reg)
+				:
+				: "memory");
+	/* This will not return */
+	panic("Stack-protector: stack smashing detected at caller 0x%lx !\n",
+			(pc_reg - 0x4));
+}
+#endif

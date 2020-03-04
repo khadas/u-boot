@@ -556,7 +556,8 @@ ifdef BUILD_TAG
 KBUILD_CFLAGS += -DBUILD_TAG='"$(BUILD_TAG)"'
 endif
 
-KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
+STACK_CFLAGS  := $(call cc-option,-fstack-protector-strong)
+KBUILD_CFLAGS += $(STACK_CFLAGS)
 
 KBUILD_CFLAGS	+= -g
 # $(KBUILD_AFLAGS) sets -g, which causes gcc to pass a suitable -g<format>

@@ -51,6 +51,8 @@ endif
 # source file.
 ccflags-y += $(call cc-option,-fno-toplevel-reorder)
 
+ccflags-y :=  $(filter-out $(STACK_CFLAGS),$(ccflags-y))
+ccflags-y += $(call cc-option,-fno-stack-protector)
 #########################################################################
 
 quiet_cmd_link_lib = LD      $@
