@@ -10,6 +10,7 @@ enum pm_e {
 	PM_CPU_PWR0,
 	PM_CPU_CORE0,
 	PM_CPU_CORE1,
+	PM_SPTOP = 5,
 	PM_DSP_A = 8,
 	PM_DSP_B,
 	PM_UART,
