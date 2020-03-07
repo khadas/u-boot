@@ -395,6 +395,8 @@
 			"run update;\n" \
 			"fi;fi;" \
 		"fi;\0" \
+	"ddr_fast_boot_enable_flag=1\0" \
+	"enable_ddr_check_boot_reason=1\0" \
 
 #define CONFIG_PREBOOT  \
 	"mw ff638630 0 2;"\
@@ -409,7 +411,12 @@
 	"run reset_suspend;"
 
 
-#define CONFIG_BOOTCOMMAND "run storeboot"
+#define CONFIG_BOOTCOMMAND \
+	"echo ddr_fast_boot_enable_flag = ${ddr_fast_boot_enable_flag};"\
+	"if itest ${ddr_fast_boot_enable_flag} == 1; then "\
+		"ddr_auto_fast_boot_check 6;"\
+	"fi;"\
+	"run storeboot"
 
 //#define CONFIG_ENV_IS_NOWHERE  1
 #define CONFIG_ENV_SIZE   (64*1024)
