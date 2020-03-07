@@ -35,63 +35,8 @@ extern struct hw_controller *controller;
 
 #define	SZ_1M	0x100000
 extern struct mtd_info *nand_info[CONFIG_SYS_MAX_NAND_DEVICE];
-
-/*
-* mtd nand partition table, only care the size!
-* offset will be calculated by nand driver.
-*/
-static struct mtd_partition normal_partition_info[] = {
-#ifdef CONFIG_DISCRETE_BOOTLOADER
-/* MUST NOT CHANGE this part unless u know what you are doing!
-* inherent parition for descrete bootloader to store fip
-* size is determind by TPL_SIZE_PER_COPY*TPL_COPY_NUM
-* name must be same with TPL_PART_NAME
-*/
-{
-	.name = "tpl",
-	.offset = 0,
-	.size = 0,
-},
-#endif
-{
-	.name = "logo",
-	.offset = 0,
-	.size = 2*SZ_1M,
-},
-{
-	.name = "recovery",
-	.offset = 0,
-	.size = 16*SZ_1M,
-},
-{
-	.name = "boot",
-	.offset = 0,
-	.size = 16*SZ_1M,
-},
-{
-	.name = "system",
-	.offset = 0,
-	.size = 64*SZ_1M,
-},
-/* last partition get the rest capacity */
-{
-	.name = "data",
-	.offset = MTDPART_OFS_APPEND,
-	.size = MTDPART_SIZ_FULL,
-},
-};
-
-struct mtd_partition *get_aml_mtd_partition(void)
-{
-	return normal_partition_info;
-}
-
-int get_aml_partition_count(void)
-{
-	return ARRAY_SIZE(normal_partition_info);
-}
-
-
+extern struct mtd_partition *get_aml_mtd_partition(void);
+extern int get_aml_partition_count(void);
 static struct nand_ecclayout aml_nand_uboot_oob = {
 	.eccbytes = 84,
 	.oobfree = {

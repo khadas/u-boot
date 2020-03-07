@@ -437,6 +437,18 @@ struct aml_nand_flash_dev aml_nand_flash_ids[] = {
 		0,
 		(NAND_TIMING_MODE5 | NAND_ECC_BCH8_MODE )},
 
+	{"Slc NAND 4Gib MX30LF4G28AD ",
+		{NAND_MFR_MACRONIX, 0xdc, 0x90, 0xA2, 0x57, 0x03},
+		4096,
+		512,
+		0x40000,
+		256,
+		1,
+		16,
+		15,
+		0,
+		(NAND_TIMING_MODE5 | NAND_ECC_BCH8_MODE )},
+
 	{"A revision NAND 128MB TC58NVG0S3HTA00 ",
 		{NAND_MFR_TOSHIBA, 0xf1, 0x80, 0x15, 0x72},
 		2048,
