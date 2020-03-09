@@ -466,14 +466,14 @@ int spl_load_rkfw_image(struct spl_image_info *spl_image,
 #ifdef CONFIG_SPL_KERNEL_BOOT
 
 	ret = rkfw_load_uboot(info, uboot_sector,
-			      &spl_image->entry_point_bl33, try_count);
+			      spl_image, try_count);
 	if (ret)
 		printf("Load uboot image failed! ret=%d\n", ret);
 	else
 		goto boot;
 
 	ret = rkfw_load_kernel(info, uboot_sector,
-			     &spl_image->entry_point_bl33, try_count);
+			       spl_image, try_count);
 	if (ret) {
 		printf("Load kernel image failed! ret=%d\n", ret);
 		goto out;

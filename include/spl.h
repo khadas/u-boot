@@ -40,6 +40,7 @@ struct spl_image_info {
 #if CONFIG_IS_ENABLED(FIT_ROLLBACK_PROTECT)
 	u32 rollback_index;
 #endif
+	void *fdt_addr;
 	u32 boot_device;
 	u32 next_stage;
 	u32 size;
