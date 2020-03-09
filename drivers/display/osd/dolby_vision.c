@@ -240,7 +240,8 @@ bool check_dolby_vision_on(void)
 {
 	if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) ||
 		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B) ||
-		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SM1)) {
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SM1) ||
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TM2)) {
 		if (READ_VPP_REG(DOLBY_CORE3_SWAP_CTRL0) & 0x1)
 			return true;
 	}
@@ -1080,7 +1081,7 @@ int apply_stb_core_settings(void)
 static int  enable_dolby_vision(void)
 {
 	printf("enable_dolby_vision\n");
-	if (is_meson_g12()) {
+	if (is_meson_g12() || is_meson_tm2_stbmode()) {
 		hdr_func(OSD1_HDR, HDR_OFF);
 
 		/*enable core3*/
