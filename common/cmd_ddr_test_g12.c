@@ -11163,6 +11163,9 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 				sprintf(str,"setenv initargs ${initargs} need_ddr_window_test=%d",need_ddr_window_test);
 				printf("\nstr=%s\n",str);
 				run_command(str,0);
+				sprintf(str,"setenv bootargs ${bootargs} need_ddr_window_test=%d",need_ddr_window_test);
+				printf("\nstr=%s\n",str);
+				run_command(str,0);
 				//sprintf(str,"save");
 				//printf("\nstr=%s\n",str);
 				//run_command(str,0);
@@ -11172,12 +11175,18 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 				sprintf(str,"setenv initargs ${initargs} need_ddr_window_test=%d",need_ddr_window_test);
 				printf("\nstr=%s\n",str);
 				run_command(str,0);
+				sprintf(str,"setenv bootargs ${bootargs} need_ddr_window_test=%d",need_ddr_window_test);
+				printf("\nstr=%s\n",str);
+				run_command(str,0);
 			}
 			return 1 ;
 		}
 		else
 		{
 			sprintf(str,"setenv initargs ${initargs} need_ddr_window_test=%d",need_ddr_window_test);
+			printf("\nstr=%s\n",str);
+			run_command(str,0);
+			sprintf(str,"setenv bootargs ${bootargs} need_ddr_window_test=%d",need_ddr_window_test);
 			printf("\nstr=%s\n",str);
 			run_command(str,0);
 		}
