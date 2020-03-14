@@ -59,6 +59,14 @@ config MESON_C1
 	help
 		Support Amlogic Meson C1
 
+config MESON_SC2
+	bool "SC2"
+	select ARM64
+	select DM
+	select DM_SERIAL
+	help
+		Support Amlogic Meson SC2
+
 config MESON_G12A
 	bool "G12A"
 	select ARM64
