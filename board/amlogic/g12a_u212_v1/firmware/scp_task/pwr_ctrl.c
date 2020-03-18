@@ -123,6 +123,8 @@ extern void __switch_idle_task(void);
 static unsigned int detect_key(unsigned int suspend_from)
 {
 	int exit_reason = 0;
+	int event = 0;
+	int event_flag = 0;
 	unsigned int ret;
 	unsigned *irq = (unsigned *)WAKEUP_SRC_IRQ_ADDR_BASE;
 	init_remote();
@@ -165,10 +167,21 @@ static unsigned int detect_key(unsigned int suspend_from)
 					&& (readl(PREG_PAD_GPIO2_O) & (0x01 << 17))
 					&& !(readl(PREG_PAD_GPIO2_EN_N) & (0x01 << 17)) ) {
 			#ifdef CONFIG_BT_RCU
-				if (read_event() == 1)
+			    do {
+					event = read_event();
+					if (event == 1) {
+						exit_reason = BT_WAKEUP;
+						break;
+					}
+					else if (event == 2) {
+						exit_reason = REMOTE_CUS_WAKEUP;
+						break;
+					}
+					event_flag ++;
+				} while (event_flag <= 5);
+
+				if (exit_reason == 0)
 					exit_reason = BT_WAKEUP;
-				else if(read_event() == 2)
-					exit_reason = REMOTE_CUS_WAKEUP;
 			#else
 				exit_reason = BT_WAKEUP;
 			#endif

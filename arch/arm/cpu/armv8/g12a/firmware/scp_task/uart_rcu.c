@@ -196,18 +196,20 @@ int read_event(void)
 		i++;
 	} while(i<len);
 
-	if ((buffer[14] == hci_pcf_manu_filter[0]) && (buffer[15] == hci_pcf_manu_filter[1]) && (buffer[16] == hci_pcf_manu_filter[2]) && (buffer[17] == hci_pcf_manu_filter[3]) &&
-	(buffer[18] == hci_pcf_manu_filter[4]) && (buffer[19] == hci_pcf_manu_filter[5]) && (buffer[20] == hci_pcf_manu_filter[6]) && (buffer[21] == hci_pcf_manu_filter[7]) && (buffer[22] == hci_pcf_manu_filter[8])) {
+	if (len >= 23) {
+		if ((buffer[14] == hci_pcf_manu_filter[0]) && (buffer[15] == hci_pcf_manu_filter[1]) && (buffer[16] == hci_pcf_manu_filter[2]) && (buffer[17] == hci_pcf_manu_filter[3]) &&
+			(buffer[18] == hci_pcf_manu_filter[4]) && (buffer[19] == hci_pcf_manu_filter[5]) && (buffer[20] == hci_pcf_manu_filter[6]) && (buffer[21] == hci_pcf_manu_filter[7]) && (buffer[22] == hci_pcf_manu_filter[8])) {
 
-		if (buffer[23] == 0x1) {
-			uart_puts("receive power data");
-			uart_puts("\n");
-			return 1;
-		}
-		else if (buffer[23] == 0x2) {
-			uart_puts("receive netflix data");
-			uart_puts("\n");
-			return 2;
+			if (buffer[23] == 0x1) {
+				uart_puts("receive power data");
+				uart_puts("\n");
+				return 1;
+			}
+			else if (buffer[23] == 0x2) {
+				uart_puts("receive netflix data");
+				uart_puts("\n");
+				return 2;
+			}
 		}
 	}
 
