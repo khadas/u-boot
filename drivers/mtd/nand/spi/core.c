@@ -1409,8 +1409,8 @@ static int spinand_probe(struct udevice *dev)
 
 #ifndef __UBOOT__
 	ret = mtd_device_register(mtd, NULL, 0);
-#else
-	ret = add_mtd_device(mtd);
+/*#else
+	ret = add_mtd_device(mtd);*/
 #endif
 	if (ret)
 		goto err_spinand_cleanup;
