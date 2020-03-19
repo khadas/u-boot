@@ -306,8 +306,6 @@
                 "fi;"\
                 "if keyman read oemkey ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} androidboot.oem.key1=${oemkey};"\
-                "else "\
-                    "setenv bootargs ${bootargs} androidboot.oem.key1=ATV00104319;"\
                 "fi;"\
             "fi;"\
             "factory_provision init;"\
