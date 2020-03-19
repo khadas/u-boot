@@ -33,7 +33,7 @@
  */
 #define CONFIG_PLATFORM_POWER_INIT
 #define CONFIG_VCCK_INIT_VOLTAGE	800		// VCCK power up voltage
-#define CONFIG_VDDEE_INIT_VOLTAGE	800		// VDDEE power up voltage
+#define CONFIG_VDDEE_INIT_VOLTAGE	880		// VDDEE power up voltage
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	770		// VDDEE suspend voltage
 
 /* Khadas commands */
@@ -595,7 +595,7 @@
 
 /* net */
 #define CONFIG_CMD_NET   1
-#define CONFIG_PHY_REALTEK 1
+/*#define CONFIG_PHY_REALTEK 1*/
 #if defined(CONFIG_CMD_NET)
 	#define CONFIG_DESIGNWARE_ETH 1
 	#define CONFIG_PHYLIB	1
