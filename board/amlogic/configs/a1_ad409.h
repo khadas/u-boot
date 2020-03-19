@@ -224,7 +224,7 @@
 
 /* running in sram */
 #define UBOOT_RUN_IN_SRAM
-#ifdef UBOOT_RUN_IN_SRAM
+#ifdef CONFIG_UBOOT_RUN_IN_SRAM
 #define CONFIG_SYS_INIT_SP_ADDR				(0x00200000)
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN				(256*1024)

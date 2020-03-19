@@ -150,17 +150,19 @@ phys_size_t get_dram_size(void)
 
 phys_size_t get_effective_memsize(void)
 {
-#ifdef UBOOT_RUN_IN_SRAM
+#ifdef CONFIG_UBOOT_RUN_IN_SRAM
 	return 0x180000; /* SRAM 1.5MB */
 #else
 	return get_dram_size();
-#endif /* UBOOT_RUN_IN_SRAM */
+#endif /* CONFIG_UBOOT_RUN_IN_SRAM */
 }
 
+#ifdef CONFIG_UBOOT_RUN_IN_SRAM
 ulong board_get_usable_ram_top(ulong total_size)
 {
-	return PHYS_SDRAM_1_BASE+PHYS_SDRAM_1_SIZE;
+	return (PHYS_SDRAM_1_BASE + PHYS_SDRAM_1_SIZE);
 }
+#endif
 
 int dram_init_banksize(void)
 {

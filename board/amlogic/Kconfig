@@ -35,6 +35,12 @@ config AML_CRYPTO_UBOOT
 	help
 		"Support U-boot encrypt function"
 
+config UBOOT_RUN_IN_SRAM
+	bool "Amlogic U-boot run in sram"
+	default n
+	help
+		"Support Amlogic U-boot run in SRAM"
+
 config AML_TSENSOR
 	bool "Amlogic Temp Sensor"
 	help
