@@ -739,6 +739,38 @@ static int check_keybox(const char *keybox, uint32_t size)
 	return keybox_exist(hdr->key_type, (const char *)hdr->ta_uuid);
 }
 
+static void calc_sha256(const char *data, uint32_t data_size, char *sha256)
+{
+	sha256_context sha256_cxt;
+
+	sha256_starts(&sha256_cxt);
+	sha256_update(&sha256_cxt, (const uint8_t *)data, (uint32_t)data_size);
+	sha256_finish(&sha256_cxt, (uint8_t *)sha256);
+}
+
+static int verify_written_keybox(const char *keybox_name, const char *keybox,
+		uint32_t keybox_size)
+{
+	char sha256[SHA256_SUM_LEN] = { 0 };
+	char written_sha256[SHA256_SUM_LEN] = { 0 };
+	loff_t act_read = 0;
+
+	calc_sha256(keybox, keybox_size, sha256);
+
+	memset(g_keybox, 0, sizeof(g_keybox));
+	if (fat_read_file(keybox_name, g_keybox, 0, MAX_SIZE_KEYBOX, &act_read))
+		return CMD_RET_UNKNOWN_ERROR;
+	if (keybox_size != act_read)
+		return CMD_RET_UNKNOWN_ERROR;
+
+	calc_sha256(g_keybox, act_read, written_sha256);
+
+	if (memcmp(sha256, written_sha256, SHA256_SUM_LEN))
+		return CMD_RET_UNKNOWN_ERROR;
+
+	return CMD_RET_SUCCESS;
+}
+
 static int append_keybox(const char *keybox_name, const char *keybox,
 		uint32_t keybox_size)
 {
@@ -751,6 +783,12 @@ static int append_keybox(const char *keybox_name, const char *keybox,
 	ret = dev_write(keybox_name, keybox, keybox_size);
 	if (ret)
 		return ret;
+
+	ret = verify_written_keybox(keybox_name, keybox, keybox_size);
+	if (ret) {
+		LOGE("verify written keybox '%s' failed\n", keybox_name);
+		return ret;
+	}
 
 	LOGI("write keybox '%s' success\n", keybox_name);
 
@@ -774,7 +812,6 @@ static int get_keybox_size(const char *keybox_name, uint32_t *size)
 static int get_keybox_sha256(const char *keybox_name, char *sha256)
 {
 	loff_t act_read = 0;
-	sha256_context sha256_cxt;
 	int i = 0;
 
 	if (fat_read_file(keybox_name, g_keybox, 0, MAX_SIZE_KEYBOX,
@@ -783,9 +820,7 @@ static int get_keybox_sha256(const char *keybox_name, char *sha256)
 		return CMD_RET_UNKNOWN_ERROR;
 	}
 
-	sha256_starts(&sha256_cxt);
-	sha256_update(&sha256_cxt, (uint8_t *)g_keybox, (uint32_t)act_read);
-	sha256_finish(&sha256_cxt, (uint8_t *)sha256);
+	calc_sha256(g_keybox, act_read, sha256);
 	LOGI("keybox '%s' sha256: ", keybox_name);
 	for (i = 0; i < SHA256_SUM_LEN; i++)
 		printf("%02X ", sha256[i]);
