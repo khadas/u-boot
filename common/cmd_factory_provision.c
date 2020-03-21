@@ -68,6 +68,8 @@ Description:
 #define ACTION_WRITE            (0x02)
 #define ACTION_QUERY            (0x03)
 #define ACTION_REMOVE           (0x04)
+#define ACTION_CLEAR            (0x05)
+#define ACTION_LIST             (0x06)
 
 #define DEV_NAME                "mmc"
 #define DEV_NO                  (1)
@@ -412,6 +414,10 @@ static void parse_params(int argc, char * const argv[],
 	case 2:
 		if (!memcmp(argv[1], "init", strlen("init")))
 			params->action = ACTION_INIT;
+		else if (!memcmp(argv[1], "clear", strlen("clear")))
+			params->action = ACTION_CLEAR;
+		else if (!memcmp(argv[1], "list", strlen("list")))
+			params->action = ACTION_LIST;
 		break;
 	default:
 		break;
@@ -424,6 +430,8 @@ static int check_params(const struct input_param *params)
 
 	switch (params->action) {
 	case ACTION_INIT:
+	case ACTION_CLEAR:
+	case ACTION_LIST:
 		break;
 	case ACTION_WRITE:
 		if (strlen(params->keybox_name) > MAX_SIZE_KEYBOX_NAME) {
@@ -867,6 +875,61 @@ static int remove_keybox(const char *keybox_name)
 	return CMD_RET_SUCCESS;
 }
 
+static int remove_all_keyboxes(void)
+{
+	int ret = CMD_RET_SUCCESS;
+	struct fs_dir_stream *dirs = NULL;
+	struct fs_dirent *dent = NULL;
+	char cmd[MAX_SIZE_CMD] = { 0 };
+
+	ret = init_partition();
+	if (ret)
+		return ret;
+
+	if (fat_opendir("/", &dirs)) {
+		LOGE("open '/' failed\n");
+		return CMD_RET_UNKNOWN_ERROR;
+	}
+
+	while (!fat_readdir(dirs, &dent)) {
+		if (dent->type != FS_DT_REG) // not regular file
+			continue;
+
+		sprintf(cmd, "fatrm %s 0x%X:0x%X %s", DEV_NAME, DEV_NO,
+				get_partition_num_by_name(
+					(char *)get_valid_part_name()),
+				dent->name);
+		if (run_command(cmd, 0)) {
+			ret = CMD_RET_UNKNOWN_ERROR;
+			LOGE("remove '%s' failed\n", dent->name);
+		} else {
+			LOGI("remove '%s' success\n", dent->name);
+		}
+	}
+
+	fat_closedir(dirs);
+	return ret;
+}
+
+static int list_all_keyboxes(void)
+{
+	int ret = CMD_RET_SUCCESS;
+	char cmd[MAX_SIZE_CMD] = { 0 };
+
+	ret = init_partition();
+	if (ret)
+		return ret;
+
+	sprintf(cmd, "fatls %s 0x%X:0x%X", DEV_NAME, DEV_NO,
+		get_partition_num_by_name((char *)get_valid_part_name()));
+	if (run_command(cmd, 0)) {
+		LOGE("command[%s] failed\n", cmd);
+		ret = CMD_RET_UNKNOWN_ERROR;
+	}
+
+	return ret;
+}
+
 int cmd_func(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int ret = CMD_RET_SUCCESS;
@@ -910,6 +973,16 @@ int cmd_func(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		break;
 	case ACTION_REMOVE:
 		ret = remove_keybox(params.keybox_name);
+		if (ret != CMD_RET_SUCCESS)
+			goto exit;
+		break;
+	case ACTION_CLEAR:
+		ret = remove_all_keyboxes();
+		if (ret != CMD_RET_SUCCESS)
+			goto exit;
+		break;
+	case ACTION_LIST:
+		ret = list_all_keyboxes();
 		if (ret != CMD_RET_SUCCESS)
 			goto exit;
 		break;
