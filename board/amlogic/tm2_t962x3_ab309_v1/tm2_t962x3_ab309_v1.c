@@ -719,7 +719,7 @@ int checkhw(char * name)
 				strcpy(loc_name, "tm2_t962x3_ab309\0");
 			break;
 			case 0xB:
-				strcpy(loc_name, "tm2_revb_t962x3_ab309\0");
+				strcpy(loc_name, "tm2-revb_t962x3_ab309\0");
 			break;
 			default:
 				strcpy(loc_name, "tm2_t962e2_unsupport");
