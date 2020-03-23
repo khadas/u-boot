@@ -120,8 +120,8 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.fast_boot[0]			= 1,
 },
 {
-	/// tl1 ref(x301) ddr3
-	.board_id				=CONFIG_BOARD_ID_MASK,
+	// tl1 ref(x301) 4pcs ddr3 2layer
+	.board_id				= CONFIG_BOARD_ID_MASK,
 	.version				= 1,
 	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK01_CH0,
 	.DramType				= CONFIG_DDR_TYPE_DDR3,
@@ -159,7 +159,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 //	.vref_reverse			= 0,
 //	.ac_trace_delay			= {32,32-10,32,32,32+10,32,32,32,32,32-10},
 //	.ac_trace_delay			= {32-10,32-15,32,32,32,32,32,32,32,32-10},
-	.ac_trace_delay			= {32-15,32-20,32-10,32,32,32,32,32,32-10,32-15},
+	.ac_trace_delay			= {32-15,32-10,32-10,32,32,32,32,32,32,32-15},
 	//{00,00},
 	.ac_pinmux				= {00,00},
 #if 1
@@ -186,11 +186,81 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 
 
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func				= DDR_FUNC,
+	.ddr_func				= DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,
 	.magic					= DRAM_CFG_MAGIC,
 	.fast_boot[0]			= 1,
 },
-//*/
+{
+	// tl1 (T313) 4pcs ddr4 2layer
+	.board_id				= CONFIG_BOARD_ID_MASK,
+	.version				= 1,
+	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK01_CH0,
+	.DramType				= CONFIG_DDR_TYPE_DDR4,
+	.DRAMFreq				= {1200, 0, 0, 0},
+	.ddr_rfc_type			= DDR_RFC_TYPE_DDR4_2Gbx8,
+	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
+	.ddr_start_offset		= CFG_DDR_START_OFFSET,
+	.DisabledDbyte			= 0xf0,
+	.Is2Ttiming				= 1,
+	.HdtCtrl				= 0xC8,
+	.dram_cs0_size_MB		= 0xffff,
+	.dram_cs1_size_MB		= 0xffff,
+	.training_SequenceCtrl	= {0x31f,0x61}, //ddr3 0x21f 0x31f
+	.phy_odt_config_rank	= {0x23,0x13}, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
+	.dfi_odt_config			= 0x0d0d,  //use 0d0d compatibility with 1rank and 2rank  //0808
+	.PllBypassEn			= 0, //bit0-ps0,bit1-ps1
+	.ddr_rdbi_wr_enable		= 0x1,//bit 0 read-dbi,bit 1 write dbi
+	.clk_drv_ohm 			= 60,
+	.cs_drv_ohm 			= 60,
+	.ac_drv_ohm 			= 60,
+	.soc_data_drv_ohm_p		= 40,//48,
+	.soc_data_drv_ohm_n		= 40,//48,
+	.soc_data_odt_ohm_p		= 80,//80,//96,// 80,
+	.soc_data_odt_ohm_n		= 0,
+	.dram_data_drv_ohm		= 34,//34,//48,//48, //34, //ddr4 sdram only 34 or 48, skt board use 34 better
+	.dram_data_odt_ohm		= 34,//34,//34,//48, //60,
+	.dram_ac_odt_ohm		= 0,
+	.dram_data_wr_odt_ohm	= 120,// 80,
+	.soc_clk_slew_rate		= 0x3ff,
+	.soc_cs_slew_rate		= 0x3ff,
+	.soc_ac_slew_rate		= 0x3ff,
+	.soc_data_slew_rate		= 0x2ff,
+	.vref_output_permil		= 500,
+	.vref_receiver_permil	= 750,//750,//750,//780,
+	.vref_dram_permil		= 860,
+	//.vref_reverse			= 0,
+	//.ac_trace_delay			={0x0,0x0},// {0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40},
+	.ac_trace_delay			= {22,23,32,32,32,32,32,32+15,32+15,22},
+	.ddr_dmc_remap			= {
+							[0] = ( 5 |  7 << 5 |  8 << 10 |  9 << 15 | 10 << 20 | 11 << 25 ),
+							[1] = ( 12|  0 << 5 |  0 << 10 | 14 << 15 | 15 << 20 | 16 << 25 ),
+							[2] = ( 17| 18 << 5 | 19 << 10 | 21 << 15 | 22 << 20 | 23 << 25 ),
+							[3] = ( 24| 25 << 5 | 26 << 10 | 27 << 15 | 28 << 20 | 29 << 25 ),
+							[4] = ( 30| 13 << 5 | 20 << 10 |  6 << 15 |  0 << 20 |  0 << 25 ),
+	},
+	.ddr_lpddr34_ca_remap	= {00,00},
+	.ddr_lpddr34_dq_remap	= {00,00},
+	.dram_rtt_nom_wr_park	= {00,00},
+
+	/* pll ssc config:
+	 *
+	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
+	 *      ppm = strength * 500
+	 *      mode: 0=center, 1=up, 2=down
+	 *
+	 *   eg:
+	 *     1. config 1000ppm center ss. then mode=0, strength=2
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
+	 *     2. config 3000ppm down ss. then mode=2, strength=6
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
+	 */
+	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
+	.ddr_func 				= DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,
+	.magic					= DRAM_CFG_MAGIC,
+	.slt_test_function		= {0x0,0x0},   //{0x1,0x0},enable slt 4 DRAMFreq test;{0x0,0x0},disable slt 4 DRAMFreq test;
+	.fast_boot[0]			= 1,
+	.training_offset 		= (1<<3) | (4<<0),//read dqs offset after training,bit3=0 right move,bit3=1 left move,bit[2:0] offset step
+},
 {
 	/* tl1 skt (x309) ddr4 */
 	.board_id				= CONFIG_BOARD_ID_MASK,
