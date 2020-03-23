@@ -367,8 +367,7 @@ static void usage(void)
 	"	- write keybox to key partition\n\n"
 	"factory_provision query <keybox_name> [ret_data_addr]\n"
 	"	- query whether the keybox exists by keybox name\n"
-	"	- when keybox exists, return data: "
-	"keybox_size(4bytes) + keybox_sha256(32bytes)\n\n"
+	"	- when keybox exists, return data: keybox_size(4bytes)\n\n"
 	"factory_provision remove <keybox_name>\n"
 	"	- remove the keybox by keybox name\n\n");
 }
@@ -817,26 +816,6 @@ static int get_keybox_size(const char *keybox_name, uint32_t *size)
 	}
 }
 
-static int get_keybox_sha256(const char *keybox_name, char *sha256)
-{
-	loff_t act_read = 0;
-	int i = 0;
-
-	if (fat_read_file(keybox_name, g_keybox, 0, MAX_SIZE_KEYBOX,
-				&act_read)) {
-		LOGE("read keybox '%s' failed\n", keybox_name);
-		return CMD_RET_UNKNOWN_ERROR;
-	}
-
-	calc_sha256(g_keybox, act_read, sha256);
-	LOGI("keybox '%s' sha256: ", keybox_name);
-	for (i = 0; i < SHA256_SUM_LEN; i++)
-		printf("%02X ", sha256[i]);
-	printf("\n");
-
-	return CMD_RET_SUCCESS;
-}
-
 static int query_keybox(const char *keybox_name, char *ret_data)
 {
 	int ret = CMD_RET_SUCCESS;
@@ -850,12 +829,7 @@ static int query_keybox(const char *keybox_name, char *ret_data)
 		return CMD_RET_KEYBOX_NOT_EXIST;
 	}
 	else {
-		ret = get_keybox_size(keybox_name, (uint32_t *)ret_data);
-		if (ret)
-			return ret;
-
-		return get_keybox_sha256(keybox_name,
-				ret_data + sizeof(uint32_t));
+		return get_keybox_size(keybox_name, (uint32_t *)ret_data);
 	}
 }
 
@@ -1008,8 +982,7 @@ U_BOOT_CMD(
 	"	- write keybox to key partition\n\n"
 	"query <keybox_name> [ret_data_addr]\n"
 	"	- query whether the keybox exists by keybox name\n"
-	"	- when keybox exists, return data: "
-	"keybox_size(4bytes) + keybox_sha256(32bytes)\n\n"
+	"	- when keybox exists, return data: keybox_size(4bytes)\n\n"
 	"remove <keybox_name>\n"
 	"	- remove the keybox by keybox name\n"
 );
