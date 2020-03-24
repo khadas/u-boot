@@ -728,7 +728,7 @@ int checkhw(char * name)
 	char loc_name[64] = {0};
 
 	/* add your logic code here */
-
+	strcpy(loc_name, "tm2_t962x3_t312\0");
 
 	/* set aml_dt */
 	strcpy(name, loc_name);
