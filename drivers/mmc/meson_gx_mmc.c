@@ -737,6 +737,11 @@ int meson_execute_tuning(struct udevice *dev, uint opcode)
 	int curr_win_start = -1, curr_win_size = 0;
 	u8 rx_tuning_result[25] = { 0 };
 
+	if (opcode == MMC_SD_HS_TUNING) {
+		meson_write(mmc, 0x2000, MESON_SD_EMMC_ADJUST);
+		return 0;
+	}
+
 	if (host->blk_test == NULL)
 		return -EINVAL;
 

@@ -112,6 +112,7 @@
 #define MMC_CMD_SPI_READ_OCR		58
 #define MMC_CMD_SPI_CRC_ON_OFF		59
 #define MMC_CMD_RES_MAN			62
+#define MMC_SD_HS_TUNING		70
 
 #define MMC_CMD62_ARG1			0xefac62ec
 #define MMC_CMD62_ARG2			0xcbaea7
