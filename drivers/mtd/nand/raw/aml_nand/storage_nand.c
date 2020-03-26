@@ -27,6 +27,13 @@ static inline struct storage_t *get_slc_nand_storage(void)
 int nand_pre(void)
 {
 	int ret = 0;
+	struct storage_t *slc_nand  = get_slc_nand_storage();
+
+	if (slc_nand) {
+		printf("nand-pre scan reinit\n");
+		return 0;
+	}
+
 	pre_scan->pre_scan_flag = 1;
 	pre_scan->is_nand = 0;
 	board_nand_init();
@@ -38,7 +45,6 @@ int nand_pre(void)
 		printf("scan no valid slc-nand\n");
 	}
 	pre_scan->pre_scan_flag = 0;
-	pre_scan->is_nand = 0;
 	return ret;
 }
 
@@ -91,19 +97,11 @@ int slcnand_fit_storage(void)
 	return store_register(slc_nand);
 }
 
-extern int amlmtd_init;
-extern void board_nand_init(void);
 extern int meson_nfc_probe(struct udevice *dev);
 struct udevice *nand_dev;
 int nand_probe(uint32_t init_flag)
 {
-	struct storage_t *slc_nand  = get_slc_nand_storage();
-
-	if (slc_nand) {
-		slc_nand->init_flag = init_flag;
-		printf("nand probe success1\n");
-		return 0;
-	}
+	struct storage_t *slc_nand = NULL;
 
 	meson_nfc_probe(nand_dev);
 	slc_nand = get_slc_nand_storage();

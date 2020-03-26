@@ -156,7 +156,7 @@ void nand_init(void)
 	initialized = 1;
 
 #ifdef CONFIG_SYS_NAND_SELF_INIT
-	printf("borad nand init\n");
+	printf("board nand init\n");
 	board_nand_init();
 #else
 	int i;

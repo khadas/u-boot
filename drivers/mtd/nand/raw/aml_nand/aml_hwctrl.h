@@ -21,8 +21,6 @@
 #define P_PAD_PULL_UP_REG4 (volatile uint32_t *)(0xff634400 + (0x03e << 2))
 #define P_PAD_PULL_UP_REG0 (volatile uint32_t *)(0xff634400 + (0x03a << 2))
 
-#define CONFIG_AMLOGIC_DM_FLASH
-
 #define	CE_PAD_DEFAULT	\
 	((AML_NAND_CE0) | \
 	(AML_NAND_CE1 << 4) | \
@@ -34,9 +32,7 @@
 
 /*** HW controller configuration ***/
 struct hw_controller {
-#ifdef CONFIG_AMLOGIC_DM_FLASH
 	struct udevice *device;
-#endif
 	u32 chip_selected;
 	u32 rb_received;
 	u8 chip_num;

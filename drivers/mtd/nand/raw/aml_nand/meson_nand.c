@@ -847,34 +847,11 @@ void nand_hw_init(struct aml_nand_platform *plat)
 	aml_chip->aml_nand_select_chip(aml_chip, 0);
 }
 
-
-#ifdef CONFIG_AMLOGIC_DM_FLASH
-static void meson_nfc_init_dm(void)
-{
-	struct udevice *dev;
-
-	for (uclass_first_device(UCLASS_MTD, &dev);
-	     dev;
-	     uclass_next_device(&dev));
-}
-#endif
-
-
-/******liuxj nand init-->DM(probe)*****/
-/**fixed me after use DM***/
-void board_nand_init(void)
-{
-#ifdef CONFIG_AMLOGIC_DM_FLASH
-	meson_nfc_init_dm();
-#endif
-}
-
 #ifdef CONFIG_AML_STORAGE
 	extern int slcnand_fit_storage(void);
 #endif
 
 int amlmtd_init = 0;
-#ifdef CONFIG_AMLOGIC_DM_FLASH
 extern struct udevice *nand_dev;
 int meson_nfc_probe(struct udevice *dev)
 {
@@ -1000,5 +977,17 @@ U_BOOT_DRIVER(meson_nfc) = {
 	.of_match = aml_nfc_ids,
 	.probe = meson_nfc_probe,
 };
-#endif /* CONFIG_AMLOGIC_DM_FLASH */
+
+void board_nand_init(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device_by_driver(UCLASS_MTD,
+		DM_GET_DRIVER(meson_nfc),
+		&dev);
+	if (ret && ret != -ENODEV)
+		pr_err("Failed to initialize %s. (error %d)\n", dev->name,
+		       ret);
+}
 
