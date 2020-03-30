@@ -2377,11 +2377,13 @@ int parse_model_sum(const char *file_name, char *model_name)
 		return -1;
 	}
 
+#ifdef CONFIG_AML_LCD
 	ini_value = IniGetString(model_name, "PANELINI_PATH", "null");
 	if (strcmp(ini_value, "null") != 0)
 		setenv("model_panel", ini_value);
 	else
 		ALOGE("%s, invalid PANELINI_PATH!!!\n", __func__);
+#endif
 
 	ini_value = IniGetString(model_name, "EDID_14_FILE_PATH", "null");
 	if (strcmp(ini_value, "null") != 0)
@@ -2455,7 +2457,9 @@ int handle_model_sum(void)
 	ret = parse_model_sum(get_model_sum_path(), model);
 	if (ret < 0)
 		return -1;
+#ifdef CONFIG_AML_LCD
 	ret = handle_panel_ini();
+#endif
 	return ret;
 }
 
