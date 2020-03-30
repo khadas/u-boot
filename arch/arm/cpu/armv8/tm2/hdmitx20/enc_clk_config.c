@@ -925,10 +925,24 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_36[] = {
 
 static void set_hdmitx_fe_clk(struct hdmitx_dev *hdev)
 {
-	if (is_tm2_verb()) {
-		hd_set_reg_bits(P_HHI_VID_CLK_CNTL2, 1, 9, 1);
-		hd_set_reg_bits(P_HHI_HDMI_CLK_CNTL, 0, 20, 4);
+	unsigned int tmp = 0;
+	enum hdmi_vic vic = hdev->vic;
+
+	if (!is_tm2_verb())
+		return;
+
+	hd_set_reg_bits(P_HHI_VID_CLK_CNTL2, 1, 9, 1);
+	switch (vic) {
+	case HDMI_720x480i60_16x9:
+	case HDMI_720x576i50_16x9:
+		tmp = (hd_read_reg(P_HHI_VID_CLK_DIV) >> 28) & 0xf;
+		break;
+	default:
+		tmp = (hd_read_reg(P_HHI_VID_CLK_DIV) >> 24) & 0xf;
+		break;
 	}
+
+	hd_set_reg_bits(P_HHI_HDMI_CLK_CNTL, tmp, 20, 4);
 }
 
 void hdmitx_set_clk_(struct hdmitx_dev *hdev)
@@ -997,7 +1011,6 @@ void hdmitx_set_clk_(struct hdmitx_dev *hdev)
 next:
 	set_hdmitx_sys_clk();
 	set_hpll_clk_out(p_enc[j].hpll_clk_out, hdev);
-	set_hdmitx_fe_clk(hdev);
 	if (!getenv("sspll_dis"))
 		set_hpll_sspll(hdev);
 	set_hpll_od1(p_enc[j].od1);
@@ -1009,6 +1022,7 @@ next:
 	set_hdmi_tx_pixel_div(p_enc[j].hdmi_tx_pixel_div);
 	set_encp_div(p_enc[j].encp_div);
 	set_enci_div(p_enc[j].enci_div);
+	set_hdmitx_fe_clk(hdev);
 }
 
 static int likely_frac_rate_mode(char *m)
