@@ -596,6 +596,10 @@ int board_init(void)
 #ifdef CONFIG_SYS_I2C_MESON
 	set_i2c_ao_pinmux();
 #endif
+#ifdef CONFIG_DM_I2C
+	clrbits_le32(P_PERIPHS_PIN_MUX_9, 0xFF << 20);
+	setbits_le32(P_PERIPHS_PIN_MUX_9, 0x11 << 20);
+#endif
 	return 0;
 }
 
