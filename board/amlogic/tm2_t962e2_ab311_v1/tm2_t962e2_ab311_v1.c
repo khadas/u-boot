@@ -726,8 +726,20 @@ int checkhw(char * name)
 	char loc_name[64] = {0};
 
 	/* add your logic code here */
-	strcpy(loc_name, "tm2_t962e2_ab311\0");
-
+	cpu_id_t cpu_id = get_cpu_id();
+	if (MESON_CPU_MAJOR_ID_TM2 == cpu_id.family_id) {
+		switch (cpu_id.chip_rev) {
+			case 0xA:
+				strcpy(loc_name, "tm2_t962e2_ab311\0");
+			break;
+			case 0xB:
+				strcpy(loc_name, "tm2_revb_t962e2_ab311\0");
+			break;
+			default:
+				strcpy(loc_name, "tm2_t962e2_unsupport");
+			break;
+		}
+	}
 	/* set aml_dt */
 	strcpy(name, loc_name);
 	setenv("aml_dt", loc_name);

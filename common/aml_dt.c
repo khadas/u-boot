@@ -419,6 +419,7 @@ unsigned long __attribute__((unused))
 		int i = 0;
 		char *aml_dt_buf;
 		aml_dt_buf = (char *)malloc(sizeof(char)*64);
+		printf("Multi dtb malloc aml_dt_buf addr = %p\n", aml_dt_buf);
 		memset(aml_dt_buf, 0, sizeof(aml_dt_buf));
 
 		/* update 2016.07.27, checkhw and setenv everytime,
@@ -467,8 +468,8 @@ unsigned long __attribute__((unused))
 		for (i = 0; i < AML_DT_ID_VARI_TOTAL; i++) {
 			tokens[i] = strsep(&aml_dt_buf, "_");
 		}
-		if (aml_dt_buf)
-			free(aml_dt_buf);
+		//if (aml_dt_buf)
+			//free(aml_dt_buf);
 		printf("        aml_dt soc: %s platform: %s variant: %s\n", tokens[0], tokens[1], tokens[2]);
 
 		/*match and print result*/

@@ -725,6 +725,20 @@ int checkhw(char * name)
 	unsigned int hwid = 1;
 	char loc_name[64] = {0};
 
+	cpu_id_t cpu_id = get_cpu_id();
+	if (MESON_CPU_MAJOR_ID_TM2 == cpu_id.family_id) {
+		switch (cpu_id.chip_rev) {
+			case 0xA:
+				strcpy(loc_name, "tm2_t962e2_ab319\0");
+			break;
+			case 0xB:
+				strcpy(loc_name, "tm2_revb_t962e2_ab319\0");
+			break;
+			default:
+				strcpy(loc_name, "tm2_t962e2_unsupport");
+			break;
+		}
+	}
 	/* read hwid */
 	hwid = (readl(P_AO_SEC_GP_CFG0) >> 8) & 0xFF;
 
