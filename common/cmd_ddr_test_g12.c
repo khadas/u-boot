@@ -9974,10 +9974,10 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		printf("P_PREG_STICKY_REG5 [0x%08x]\n", rd_reg(PREG_STICKY_REG5));
 		printf("P_PREG_STICKY_REG6 [0x%08x]\n", rd_reg(PREG_STICKY_REG6));
 		*/
-	printf("reset...\n");
+	printf("reboot...\n"); //reset will enter bl2 panic path
 	dcache_disable();
 	if ((p_ddr_base->sys_watchdog_base_address) == 0)
-	run_command("reset",0);
+	run_command("reboot",0);
 	ddr_test_watchdog_reset_system();
 
 	return 0;
@@ -11114,6 +11114,15 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	#if 1
 	do_read_ddr_training_data(1,ddr_set_t_p);
 	#endif
+	if (((ddr_set_t_p->fast_boot[3])&0xc0) && ((ddr_set_t_p->fast_boot[3])&0x3f))
+	{
+		enable_ddr_check_boot_reason=0;
+		if (((ddr_set_t_p->fast_boot[0])>0) && ((ddr_set_t_p->fast_boot[0])<0xff))
+		{
+			(ddr_set_t_p->fast_boot[0])=0xfe;
+			(verify_error)=0;
+		}
+	}
 	if ((ddr_set_t_p->fast_boot[0]))
 	{
 		printf("\nuboot enable auto fast boot funciton \n");
