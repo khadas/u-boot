@@ -41,6 +41,7 @@ void hd_set_reg_bits(unsigned long addr, unsigned long value, unsigned long offs
 	unsigned long len);
 void sec_reg_write(unsigned *addr, unsigned value);
 unsigned sec_reg_read(unsigned *addr);
+bool is_tm2_verb(void);
 
 #define P_PREG_PAD_GPIO6_EN_N PREG_PAD_REG_ADDR(0x08)
 #define P_PREG_PAD_GPIO6_O    PREG_PAD_REG_ADDR(0x09)
@@ -127,7 +128,7 @@ unsigned sec_reg_read(unsigned *addr);
 /* [19] -enable clk_div0 */
 /* [18:16] - cntl_clk_in_sel */
 #define P_HHI_VIID_CLK_CNTL HHI_MEM_REG_ADDR(0x4b)
-#define P_HHI_VIID_DIVIDER_CNTL HHI_MEM_REG_ADDR(0x4c)
+#define P_HHI_MEM_PD_REG4 HHI_MEM_REG_ADDR(0x4c)
 
 /*
 //========================================================================
@@ -156,13 +157,13 @@ unsigned sec_reg_read(unsigned *addr);
 #define P_RESET6_MASK CBUS_REG_ADDR(0x416)
 
 
-#define P_HHI_HDMI_PHY_CNTL0 HHI_MEM_REG_ADDR(0x05)
-#define P_HHI_HDMI_PHY_CNTL1 HHI_MEM_REG_ADDR(0x06)
-#define P_HHI_HDMI_PHY_CNTL2 HHI_MEM_REG_ADDR(0x07)
-#define P_HHI_HDMI_PHY_CNTL3 HHI_MEM_REG_ADDR(0x08)
-#define P_HHI_HDMI_PHY_CNTL4 HHI_MEM_REG_ADDR(0x09)
-#define P_HHI_HDMI_PHY_CNTL5 HHI_MEM_REG_ADDR(0x0a)
-#define P_HHI_HDMI_PHY_STATUS HHI_MEM_REG_ADDR(0x0d)
+#define P_TM2_HHI_HDMI_PHY_CNTL0 HHI_MEM_REG_ADDR(0x05)
+#define P_TM2_HHI_HDMI_PHY_CNTL1 HHI_MEM_REG_ADDR(0x06)
+#define P_TM2_HHI_HDMI_PHY_CNTL2 HHI_MEM_REG_ADDR(0x07)
+#define P_TM2_HHI_HDMI_PHY_CNTL3 HHI_MEM_REG_ADDR(0x08)
+#define P_TM2_HHI_HDMI_PHY_CNTL4 HHI_MEM_REG_ADDR(0x09)
+#define P_TM2_HHI_HDMI_PHY_CNTL5 HHI_MEM_REG_ADDR(0x0a)
+#define P_TM2_HHI_HDMI_PHY_STATUS HHI_MEM_REG_ADDR(0x0d)
 /* Gated clock enables.
  * There are 64 enables for the MPEG clocks and 32 enables for other
  * clock domains.
