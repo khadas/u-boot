@@ -55,6 +55,7 @@
 #include <linux/mtd/partitions.h>
 #include <linux/sizes.h>
 #include <asm-generic/gpio.h>
+#include "avb2_kpub.c"
 #include <dm.h>
 #ifdef CONFIG_AML_SPIFC
 #include <amlogic/spifc.h>
