@@ -104,15 +104,23 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (colorattribute)
 		printf("do_hpd_detect: colorattribute=%s\n", colorattribute);
 
+	if (hdmimode) {
+		if (strstr(hdmimode, "null")) {
+			setenv("hdmimode", "1080p60hz");
+			run_command("saveenv", 0);
+		}
+	} else {
+		setenv("hdmimode", "1080p60hz");
+		run_command("saveenv", 0);
+	}
+	hdmimode = getenv("hdmimode");
 	if (st) {
-		if (hdmimode)
-			setenv("outputmode", hdmimode);
+		setenv("outputmode", hdmimode);
 	} else {
 		cvbsmode = getenv("cvbsmode");
 		if (cvbsmode)
 			setenv("outputmode", cvbsmode);
 		setenv("hdmichecksum", "0x00000000");
-		setenv("hdmimode", "null");
 		run_command("saveenv", 0);
 	}
 	return st;
