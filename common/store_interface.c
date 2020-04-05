@@ -291,6 +291,7 @@ static int do_decrypt_dtb(char *dtbaddr) {
 		return ret;
 	}
 
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
 	flush_cache(dtImgAddr, AML_DTB_IMG_MAX_SZ);
 	ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, dtImgAddr, AML_DTB_IMG_MAX_SZ, 0);
 	if (ret) {
@@ -307,6 +308,7 @@ static int do_decrypt_dtb(char *dtbaddr) {
 
 	if (nCheckOffset)
 		memmove((char *)dtImgAddr, (char*)dtImgAddr + nCheckOffset, AML_DTB_IMG_MAX_SZ);
+#endif//#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
 
 #ifdef CONFIG_MULTI_DTB
 	extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
@@ -320,7 +322,6 @@ static int do_decrypt_dtb(char *dtbaddr) {
 
 	unsigned fdtsz    = fdt_totalsize((char*)fdtAddr);
 	memmove((char*)dtImgAddr, (char*)fdtAddr, fdtsz);
-	free((char*)fdtAddr);
 #endif// #ifdef CONFIG_MULTI_DTB
 
 	return ret;
@@ -402,6 +403,7 @@ static int do_store_dtb_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 #endif
 	   }
 
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
 	   if (!is_write && strcmp("iread", argv[2]))
 	   {
 			ulong nCheckOffset;
@@ -414,6 +416,7 @@ static int do_store_dtb_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 			if (nCheckOffset)
 				memmove((char *)dtImgAddr, (char*)dtImgAddr + nCheckOffset, AML_DTB_IMG_MAX_SZ);
 		}
+#endif//#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
 #ifdef CONFIG_MULTI_DTB
 		if (!is_write && strcmp("iread", argv[2]))
 		{

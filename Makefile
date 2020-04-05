@@ -683,6 +683,10 @@ ifneq ($(CONFIG_AVB2_KPUB_FROM_FIP),)
 PLATFORM_CPPFLAGS += -DCONFIG_AVB2_KPUB_FROM_FIP
 endif
 
+ifeq ($(CONFIG_AVB2),avb2) #Android Verified bootloader
+	PLATFORM_CPPFLAGS += -DCONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
+endif# ifeq ($(CONFIG_AVB2),avb2)
+
 # Add GCC lib
 ifeq ($(CONFIG_USE_PRIVATE_LIBGCC),y)
 PLATFORM_LIBGCC = arch/$(ARCH)/lib/lib.a
