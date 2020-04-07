@@ -1183,9 +1183,9 @@ static void set_phy_by_mode(struct hdmitx_dev *hdev, unsigned int mode)
 		hd_write_reg(P_TM2_HHI_HDMI_PHY_CNTL5, 0x0000080b);
 		break;
 	case HDMI_PHYPARA_3G: /* 2.97Gbps */
-		hd_write_reg(P_TM2_HHI_HDMI_PHY_CNTL0, 0x33eb6272);
+		hd_write_reg(P_TM2_HHI_HDMI_PHY_CNTL0, 0x31cb6262);
 		hd_write_reg(P_TM2_HHI_HDMI_PHY_CNTL3, 0x2ab0ff3b);
-		hd_write_reg(P_TM2_HHI_HDMI_PHY_CNTL5, 0x00000003);
+		hd_write_reg(P_TM2_HHI_HDMI_PHY_CNTL5, 0x00000002);
 		break;
 	case HDMI_PHYPARA_270M: /* 1.485Gbps, and below */
 	case HDMI_PHYPARA_DEF:
