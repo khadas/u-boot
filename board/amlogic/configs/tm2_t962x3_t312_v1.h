@@ -133,7 +133,7 @@
         "port_map=0x4321\0" \
         "cec_fun=0x2F\0" \
         "logic_addr=0x0\0" \
-        "cec_ac_wakeup=0\0" \
+        "cec_ac_wakeup=1\0" \
         "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
@@ -705,6 +705,7 @@
 #define CONFIG_CMD_MISC     1
 #define CONFIG_CMD_ITEST    1
 #define CONFIG_CMD_CPU_TEMP 1
+#define CONFIG_CMD_CEC      1
 #define CONFIG_CMD_HDMIRX   1
 #define CONFIG_SYS_MEM_TOP_HIDE 0x08000000 //hide 128MB for kernel reserve
 #define CONFIG_CMD_LOADB    1

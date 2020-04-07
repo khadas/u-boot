@@ -21,21 +21,22 @@
 #include <asm/arch/io.h>
 #include <asm/arch/clock.h>
 #include <amlogic/aml_cec.h>
-
-#define CEC_VERSION "tl1 cec AC suspend mode 20190715\n"
+#include <asm/arch/secure_apb.h>
 
 static void cec_init(int logic_addr, unsigned char fun_cfg)
 {
 	printf("%s :%d,%#x\n", __func__, logic_addr,fun_cfg);
-	cec_hw_init(logic_addr, fun_cfg);
+	/*cec_hw_init(logic_addr, fun_cfg);*/
+	writel(fun_cfg, P_AO_DEBUG_REG0);
+	writel(logic_addr, AO_DEBUG_REG1);
+	printf("cec func:%#x, parm:%#x\n", readl(P_AO_DEBUG_REG0),
+		readl(AO_DEBUG_REG1));
 }
 
 static int do_cec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int logic_addr = 0;
 	int fun_cfg = 0x2f;
-
-	printf(CEC_VERSION);
 
 	if (argc >=  2)
 		logic_addr = simple_strtoul(argv[1], NULL, 10);
