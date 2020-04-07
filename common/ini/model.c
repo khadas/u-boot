@@ -170,82 +170,109 @@ static int handle_tcon_path(void)
 	const char *ini_value = NULL;
 
 	ini_value = IniGetString("tcon_Path", "TCON_BIN_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
-		setenv("model_tcon", ini_value);
-	else if (model_debug_flag & DEBUG_TCON)
-		ALOGE("%s, tcon bin load file error!\n", __func__);
+	if (!strcmp(ini_value, "null")) {
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGE("%s, tcon bin load file error!\n", __func__);
+	}
+	setenv("model_tcon", ini_value);
 
 	ini_value = IniGetString("tcon_Path", "TCON_VAC_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
-		setenv("model_tcon_vac", ini_value);
-	else if (model_debug_flag & DEBUG_TCON)
-		ALOGE("%s, vac ini load file error!\n", __func__);
+	if (!strcmp(ini_value, "null")) {
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGE("%s, vac ini load file error!\n", __func__);
+	}
+	setenv("model_tcon_vac", ini_value);
 
 	ini_value = IniGetString("tcon_Path", "TCON_DEMURA_SET_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
-		setenv("model_tcon_demura_set", ini_value);
-	else if (model_debug_flag & DEBUG_TCON)
-		ALOGE("%s, demura set load file error!\n", __func__);
+	if (!strcmp(ini_value, "null")) {
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGE("%s, demura set load file error!\n", __func__);
+	}
+	setenv("model_tcon_demura_set", ini_value);
 
 	ini_value = IniGetString("tcon_Path", "TCON_DEMURA_LUT_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
-		setenv("model_tcon_demura_lut", ini_value);
-	else if (model_debug_flag & DEBUG_TCON)
-		ALOGE("%s, demura lut load file error!\n", __func__);
+	if (!strcmp(ini_value, "null")) {
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGE("%s, demura lut load file error!\n", __func__);
+	}
+	setenv("model_tcon_demura_lut", ini_value);
 
 	ini_value = IniGetString("tcon_Path", "TCON_ACC_LUT_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
-		setenv("model_tcon_acc_lut", ini_value);
-	else if (model_debug_flag & DEBUG_TCON)
-		ALOGE("%s, acc lut load file error!\n", __func__);
+	if (!strcmp(ini_value, "null")) {
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGE("%s, acc lut load file error!\n", __func__);
+	}
+	setenv("model_tcon_acc_lut", ini_value);
 
 	ini_value = IniGetString("tcon_Path", "TCON_EXT_B0_BIN_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
-		setenv("model_tcon_ext_b0", ini_value);
-	else if (model_debug_flag & DEBUG_TCON)
-		ALOGE("%s, tcon_ext_b0 bin load file error!\n", __func__);
+	if (!strcmp(ini_value, "null")) {
+		if (model_debug_flag & DEBUG_TCON) {
+			ALOGE("%s, tcon_ext_b0 bin load file error!\n",
+			      __func__);
+		}
+	}
+	setenv("model_tcon_ext_b0", ini_value);
 
 	ini_value = IniGetString("tcon_Path", "TCON_EXT_B1_BIN_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
-		setenv("model_tcon_ext_b1", ini_value);
-	else if (model_debug_flag & DEBUG_TCON)
-		ALOGE("%s, tcon_ext_b1 bin load file error!\n", __func__);
+	if (!strcmp(ini_value, "null")) {
+		if (model_debug_flag & DEBUG_TCON) {
+			ALOGE("%s, tcon_ext_b1 bin load file error!\n",
+			      __func__);
+		}
+	}
+	setenv("model_tcon_ext_b1", ini_value);
 
 	ini_value = IniGetString("tcon_Path", "TCON_EXT_B2_BIN_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
-		setenv("model_tcon_ext_b2", ini_value);
-	else if (model_debug_flag & DEBUG_TCON)
-		ALOGE("%s, tcon_ext_b2 bin load file error!\n", __func__);
+	if (!strcmp(ini_value, "null")) {
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGE("%s, tcon_ext_b2 bin load file error!\n",
+			      __func__);
+	}
+	setenv("model_tcon_ext_b2", ini_value);
 
 	ini_value = IniGetString("tcon_Path", "TCON_EXT_B3_BIN_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
-		setenv("model_tcon_ext_b3", ini_value);
-	else if (model_debug_flag & DEBUG_TCON)
-		ALOGE("%s, tcon_ext_b3 bin load file error!\n", __func__);
+	if (!strcmp(ini_value, "null")) {
+		if (model_debug_flag & DEBUG_TCON) {
+			ALOGE("%s, tcon_ext_b3 bin load file error!\n",
+			      __func__);
+		}
+	}
+	setenv("model_tcon_ext_b3", ini_value);
 
 	ini_value = IniGetString("tcon_Path", "TCON_EXT_B0_SPI_BIN_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
-		setenv("model_tcon_ext_b0_spi", ini_value);
-	else if (model_debug_flag & DEBUG_TCON)
-		ALOGE("%s, tcon_ext_b0_spi bin load file error!\n", __func__);
+	if (!strcmp(ini_value, "null")) {
+		if (model_debug_flag & DEBUG_TCON) {
+			ALOGE("%s, tcon_ext_b0_spi bin load file error!\n",
+			      __func__);
+		}
+	}
+	setenv("model_tcon_ext_b0_spi", ini_value);
 
 	ini_value = IniGetString("tcon_Path", "TCON_EXT_B1_SPI_BIN_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
-		setenv("model_tcon_ext_b1_spi", ini_value);
-	else if (model_debug_flag & DEBUG_TCON)
-		ALOGE("%s, tcon_ext_b1_spi bin load file error!\n", __func__);
+	if (!strcmp(ini_value, "null")) {
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGE("%s, tcon_ext_b1_spi bin load file error!\n",
+			      __func__);
+	}
+	setenv("model_tcon_ext_b1_spi", ini_value);
 
 	ini_value = IniGetString("tcon_Path", "TCON_EXT_B2_SPI_BIN_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
-		setenv("model_tcon_ext_b2_spi", ini_value);
-	else if (model_debug_flag & DEBUG_TCON)
-		ALOGE("%s, tcon_ext_b2_spi bin load file error!\n", __func__);
+	if (!strcmp(ini_value, "null")) {
+		if (model_debug_flag & DEBUG_TCON) {
+			ALOGE("%s, tcon_ext_b2_spi bin load file error!\n",
+			      __func__);
+		}
+	}
+	setenv("model_tcon_ext_b2_spi", ini_value);
 
 	ini_value = IniGetString("tcon_Path", "TCON_EXT_B3_SPI_BIN_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
-		setenv("model_tcon_ext_b3_spi", ini_value);
-	else if (model_debug_flag & DEBUG_TCON)
-		ALOGE("%s, tcon_ext_b3_spi bin load file error!\n", __func__);
+	if (!strcmp(ini_value, "null")) {
+		if (model_debug_flag & DEBUG_TCON) {
+			ALOGE("%s, tcon_ext_b3_spi bin load file error!\n",
+			      __func__);
+		}
+	}
+	setenv("model_tcon_ext_b3_spi", ini_value);
 
 	return 0;
 }
