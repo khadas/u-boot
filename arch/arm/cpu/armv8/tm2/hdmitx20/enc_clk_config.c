@@ -564,13 +564,13 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_24[] = {
 		{
 			HDMI_720x576p50_16x9, HDMI_720x480p60_16x9, GROUP_END
 		},
-		1, VIU_ENCP, 4324320, 4, 4, 1, CLK_UTIL_VID_PLL_DIV_5, 1, 2, 1, -1
+		1, VIU_ENCP, 4324320, 4, 4, 1, CLK_UTIL_VID_PLL_DIV_5, 1, 2, 2, -1
 	},
 	{
 		{
 			HDMI_720x576p100_16x9, HDMI_720x480p120_16x9, GROUP_END
 		},
-		1, VIU_ENCP, 4324320, 4, 2, 1, CLK_UTIL_VID_PLL_DIV_5, 1, 2, 1, -1
+		1, VIU_ENCP, 4324320, 4, 2, 1, CLK_UTIL_VID_PLL_DIV_5, 1, 2, 2, -1
 	},
 	{
 		{
@@ -777,13 +777,13 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_30[] = {
 		{
 			HDMI_720x576p50_16x9, HDMI_720x480p60_16x9, GROUP_END
 		},
-		1, VIU_ENCP, 5405400, 4, 4, 1, CLK_UTIL_VID_PLL_DIV_6p25, 1, 2, 1, -1
+		1, VIU_ENCP, 5405400, 4, 4, 1, CLK_UTIL_VID_PLL_DIV_6p25, 1, 2, 2, -1
 	},
 	{
 		{
 			HDMI_720x576p100_16x9, HDMI_720x480p120_16x9, GROUP_END
 		},
-		1, VIU_ENCP, 5405400, 4, 2, 1, CLK_UTIL_VID_PLL_DIV_6p25, 1, 2, 1, -1
+		1, VIU_ENCP, 5405400, 4, 2, 1, CLK_UTIL_VID_PLL_DIV_6p25, 1, 2, 2, -1
 	},
 	{
 		{
@@ -853,13 +853,13 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_36[] = {
 		{
 			HDMI_720x576p50_16x9, HDMI_720x480p60_16x9, GROUP_END
 		},
-		1, VIU_ENCP, 3243240, 2, 4, 1, CLK_UTIL_VID_PLL_DIV_7p5, 1, 2, 1, -1
+		1, VIU_ENCP, 3243240, 2, 4, 1, CLK_UTIL_VID_PLL_DIV_7p5, 1, 2, 2, -1
 	},
 	{
 		{
 			HDMI_720x576p100_16x9, HDMI_720x480p120_16x9, GROUP_END
 		},
-		1, VIU_ENCP, 3243240, 2, 2, 1, CLK_UTIL_VID_PLL_DIV_7p5, 1, 2, 1, -1
+		1, VIU_ENCP, 3243240, 2, 2, 1, CLK_UTIL_VID_PLL_DIV_7p5, 1, 2, 2, -1
 	},
 	{
 		{
