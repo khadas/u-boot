@@ -1069,8 +1069,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 			}
 			hdr_mtx_param.mtx_on = MTX_ON;
 			hdr_mtx_param.p_sel = HDR_BYPASS;
-		} else if (((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SM1) ||
-			(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TL1) ||
+		} else if (((get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_TL1) ||
 			(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B &&
 			 get_cpu_id().chip_rev == MESON_CPU_CHIP_REVISION_B)) &&
 			(module_sel & OSD1_HDR)) {
@@ -1148,10 +1147,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 
 	} else if (hdr_process_select & SDR_HDR) {
 		hdr_mtx_param.mtx_only = HDR_ONLY;
-		if (((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SM1) ||
-			(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TL1) ||
-			(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B) ||
-			(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A)) &&
+		if ((get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_G12A) &&
 			(module_sel & OSD1_HDR)) {
 			for (i = 0; i < 15; i++) {
 				hdr_mtx_param.mtx_in[i] = bypass_coeff[i];
@@ -1211,10 +1207,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 		hdr_mtx_param.p_sel = HLG_HDR;
 	}  else if (hdr_process_select & SDR_HLG) {
 		hdr_mtx_param.mtx_only = HDR_ONLY;
-		if (((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SM1) ||
-			(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TL1) ||
-			(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B) ||
-			(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A)) &&
+		if ((get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_G12A) &&
 			(module_sel & OSD1_HDR)) {
 			for (i = 0; i < 15; i++) {
 				hdr_mtx_param.mtx_in[i] = bypass_coeff[i];
