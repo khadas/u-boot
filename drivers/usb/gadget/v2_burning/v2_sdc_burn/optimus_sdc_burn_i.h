@@ -42,12 +42,14 @@ typedef struct _customPara{
     int         eraseFlash;
     int         rebootAfterBurn;
     int         keyOverwrite;
+    int         eraseDdrPara;
     struct{
         unsigned eraseBootloader    : 1;
         unsigned eraseFlash         : 1;
         unsigned rebootAfterBurn    : 1;
         unsigned keyOverwrite       : 1;
-        unsigned resev              : 32 - 4;
+        unsigned eraseDdrPara       : 1;
+        unsigned resev              : 32 - 5;
     }bitsMap;
 }CustomPara_t;
 
@@ -82,13 +84,17 @@ typedef struct _ConfigPara{
 //ini parser
 int _optimus_parse_buf_2_lines(char* pTextBuf, const unsigned textSz, const char* lines[],
                 unsigned* totalLineNum, const unsigned MaxLines);//parse text context to linces delimitted by (\r)\n
+
 int parse_ini_file_2_valid_lines(const char* filePath, char* iniBuf, const unsigned bufSz, char* lines[]);
+int parse_ini_buf_2_valid_lines(char* iniBuf, const unsigned bufSz, char* lines[]);
+
 int _optimus_abandon_ini_comment_lines(char* lines[], const unsigned lineNum);
 int optimus_ini_trans_lines_2_usr_params(const char* const lines[], const unsigned lineNum,
                         int (*pCheckSetUseFul)(const char* setName),
                         int (*pParseCfgVal)(const char* setName, const char* keyName, const char* keyVal));
 
 int parse_ini_cfg_file(const char* filePath);
+int parse_ini_cfg_from_item(HIMAGE hImg);
 
 int check_cfg_burn_parts(const ConfigPara_t* burnPara);
 int print_burn_parts_para(const BurnParts_t* pBurnParts);

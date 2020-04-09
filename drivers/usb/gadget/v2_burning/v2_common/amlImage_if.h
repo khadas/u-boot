@@ -142,5 +142,7 @@ u64 optimus_img_decoder_get_data_parts_size(HIMAGE hImg, int* hasBootloader);
 
 unsigned image_get_crc(HIMAGE hImg);
 
+int optimus_img_item2buf(HIMAGE hImg, const char* main, const char* sub, char* buf, int* bufsz);
+
 #endif//ifndef __AMLIMAGE_IF_H__
 

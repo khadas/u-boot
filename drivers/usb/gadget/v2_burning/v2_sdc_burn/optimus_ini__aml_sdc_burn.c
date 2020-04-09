@@ -111,6 +111,7 @@ int print_sdc_burn_para(const ConfigPara_t* pCfgPara)
         printf("erase_flash      = %d\n", pCustom->eraseFlash);
         printf("reboot           = 0x%x\n", pCustom->rebootAfterBurn);
         printf("key_overwrite    = 0x%x\n", pCustom->keyOverwrite);
+        printf("erase_ddr_para    = 0x%x\n", pCustom->eraseDdrPara);
         printf("\n");
     }
 
@@ -252,6 +253,19 @@ static int parse_set_custom_para(const char* key, const char* strVal)
             pCustome->bitsMap.keyOverwrite = 1;
         }
 
+    }
+
+    if (!strcmp(key, "erase_ddr_para"))
+    {
+        if (pCustome->bitsMap.eraseDdrPara) {
+            goto _key_dup;
+        }
+
+        if (strVal)
+        {
+            pCustome->eraseDdrPara = cfgVal;
+            pCustome->bitsMap.eraseDdrPara = 1;
+        }
     }
 
     return 0;
@@ -408,7 +422,7 @@ static int optimus_aml_sdc_burn_ini_parse_usr_cfg(const char* setName, const cha
         return ret;
 }
 
-int parse_ini_cfg_file(const char* filePath)
+static int _parse_ini_cfg_file(const char* filePath, HIMAGE hImg)
 {
     const int MaxFileSz = OPTIMUS_DOWNLOAD_SLOT_SZ;
     char* CfgFileLoadAddr = (char*)OPTIMUS_DOWNLOAD_TRANSFER_BUF_ADDR;
@@ -419,7 +433,20 @@ int parse_ini_cfg_file(const char* filePath)
 
     init_config_para(&g_sdcBurnPara);
 
-    validLineNum = parse_ini_file_2_valid_lines(filePath, CfgFileLoadAddr, MaxFileSz, lines);
+    if (hImg) {
+        DWN_MSG("try to fetch para from item aml_sdc_burn.ini\n");
+        int itemSz = MaxFileSz;
+        rcode =  optimus_img_item2buf(hImg, "ini", "aml_sdc_burn", CfgFileLoadAddr, &itemSz);
+        if (ITEM_NOT_EXIST == rcode) {
+            DWN_MSG("Item ini not existed, so use hard-coded para\n");
+            return ITEM_NOT_EXIST;
+        } else if(rcode) {
+            DWN_ERR("Err when get item ini, rcode %d\n", rcode);
+            return __LINE__;
+        } else
+            validLineNum = parse_ini_buf_2_valid_lines(CfgFileLoadAddr, itemSz, lines);
+    } else
+        validLineNum = parse_ini_file_2_valid_lines(filePath, CfgFileLoadAddr, MaxFileSz, lines);
     if (!validLineNum) {
         err("error in parse ini file\n");
         return __LINE__;
@@ -442,6 +469,16 @@ int parse_ini_cfg_file(const char* filePath)
     print_sdc_burn_para(&g_sdcBurnPara);
 
     return 0;
+}
+
+int parse_ini_cfg_file(const char* filePath)
+{
+    return _parse_ini_cfg_file(filePath, NULL);
+}
+
+int parse_ini_cfg_from_item(HIMAGE hImg)
+{
+    return _parse_ini_cfg_file(NULL, hImg);
 }
 
 #define MYDBG 0

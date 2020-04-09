@@ -624,13 +624,17 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
         }
     } else {//cfg path is valid aml pkg
         DWN_MSG("cfg %s is valid aml pkg\n", cfgFile);
-        ret = check_cfg_burn_parts(pSdcCfgPara);
-        if (ret) {
-            DWN_ERR("Fail in check burn parts.\n");
-            ret = __LINE__; goto _finish;
+
+        ret = parse_ini_cfg_from_item(hImg);
+        if (ITEM_NOT_EXIST == ret) {
+            ret = check_cfg_burn_parts(pSdcCfgPara);
+            if (ret) {
+                DWN_ERR("Fail in check burn parts.\n");
+                ret = __LINE__; goto _finish;
+            }
+            extern int print_sdc_burn_para(const ConfigPara_t* pCfgPara);
+            print_sdc_burn_para(pSdcCfgPara);
         }
-        extern int print_sdc_burn_para(const ConfigPara_t* pCfgPara);
-        print_sdc_burn_para(pSdcCfgPara);
         memcpy((void*)pkgPath, cfgFile, strnlen(cfgFile, 128));
     }
 
@@ -709,13 +713,21 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
             DWN_ERR("FAil in init flash for usb upgrade\n");
             return __LINE__;
         }
-        ret = run_command("store erase data", 0);//erase after bootloader
+        ret = run_command("store erase data", 0);//erase after bootloader for usb disk
     }
     else
         ret = optimus_storage_init(eraseFlag);
     if (ret) {
         DWN_ERR("Fail to init stoarge for sdc burn\n");
         ret = __LINE__; goto _finish;
+    }
+    if (pSdcCfgPara->custom.eraseDdrPara) {
+        extern int store_ddr_parameter_erase(void);
+        DWN_MSG("to erase ddr parameters\n");
+        if (store_ddr_parameter_erase()) {
+            DWN_ERR("Fail in erase ddr parameters\n");
+            return -__LINE__;
+        }
     }
 
     optimus_progress_ui_direct_update_progress(hUiProgress, UPGRADE_STEPS_AFTER_DISK_INIT_OK);

@@ -462,6 +462,37 @@ u64 optimus_img_decoder_get_data_parts_size(HIMAGE hImg, int* hasBootloader)
     return dataPartsSz;
 }
 
+int optimus_img_item2buf(HIMAGE hImg, const char* main, const char* sub, char* buf, int* bufsz)
+{
+    HIMAGEITEM hImgItem = NULL;
+    hImgItem = image_item_open(hImg, main, sub);
+
+    if (!hImgItem) {
+        DWN_WRN("Fail to open item [%s,%s]\n", main, sub);
+        return ITEM_NOT_EXIST;
+    }
+
+    const s64 itemSz = image_item_get_size(hImgItem);
+    if (!itemSz) {
+        DWN_ERR("Item size 0\n");
+        image_item_close(hImgItem); return __LINE__;
+    }
+    if (itemSz > *bufsz) {
+        DWN_ERR("item sz %lld > bufsz %d\n", itemSz, *bufsz);
+        image_item_close(hImgItem); return __LINE__;
+    }
+
+    int rc = image_item_read(hImg, hImgItem, buf, (unsigned)itemSz);
+    if (rc) {
+        DWN_ERR("Fail read item data, rc %d\n", rc);
+        image_item_close(hImgItem); return __LINE__;
+    }
+
+    image_item_close(hImgItem);
+    *bufsz = itemSz;
+    return 0;
+}
+
 #define MYDBG 0
 #if MYDBG
 static int test_item(HIMAGE hImg, const char* main_type, const char* sub_type, char* pBuf, const int sz)
