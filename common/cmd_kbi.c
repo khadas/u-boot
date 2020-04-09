@@ -38,6 +38,7 @@
 #define REG_ADC                 0x2a
 #define REG_MAC_SWITCH          0x2d
 #define REG_PORT_MODE           0x33
+#define REG_EXT_ETHERNET        0x39
 #define REG_PASSWD_CUSTOM       0x40
 
 #define REG_POWER_OFF           0x80
@@ -525,6 +526,27 @@ static void set_port_mode(int mode)
 	run_command(cmd, 0);
 	setenv("port_mode", mode==0 ? "0" : "1");
 }
+
+static void get_ext_ethernet(void)
+{
+	int mode;
+	mode = kbi_i2c_read(REG_EXT_ETHERNET);
+	printf("use %s ethernet\n", mode==0 ? "internal" : "m2x");
+	setenv("ext_ethernet", mode==0 ? "0" : "1");
+}
+
+static void set_ext_ethernet(int mode)
+{
+	char cmd[64];
+	if ((mode < 0) && (mode > 1)) {
+		printf("the mode is invalid, you can set 0 and 1");
+		return;
+	}
+	sprintf(cmd, "i2c mw %x %x %d 1",CHIP_ADDR, REG_EXT_ETHERNET, mode);
+	printf("set %s ethernet\n", mode==0 ? "internal" : "m2x");
+	run_command(cmd, 0);
+	setenv("ext_ethernet", mode==0 ? "0" : "1");
+}
 #endif
 
 static void get_switch_mac(void)
@@ -865,6 +887,31 @@ static int do_kbi_portmode(cmd_tbl_t * cmdtp, int flag, int argc, char * const a
 	}
 	return 0;
 }
+
+static int do_kbi_ext_ethernet(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	if (strcmp(argv[1], "w") == 0) {
+		if (argc < 3)
+			return CMD_RET_USAGE;
+
+		if (strcmp(argv[2], "0") == 0) {
+			set_ext_ethernet(0);
+		} else if (strcmp(argv[2], "1") == 0) {
+			set_ext_ethernet(1);
+		} else {
+			return CMD_RET_USAGE;
+		}
+	} else if (strcmp(argv[1], "r") == 0) {
+		get_ext_ethernet();
+	} else {
+		return CMD_RET_USAGE;
+	}
+	return 0;
+}
 #endif
 
 static int do_kbi_led(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
@@ -1100,6 +1147,7 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 #endif
 #if defined(CONFIG_KHADAS_VIM3) || defined(CONFIG_KHADAS_VIM3L)
 	U_BOOT_CMD_MKENT(portmode, 1, 1, do_kbi_portmode, "", ""),
+	U_BOOT_CMD_MKENT(ext_ethernet, 1, 1, do_kbi_ext_ethernet, "", ""),
 	U_BOOT_CMD_MKENT(lcd_reset, 1, 1, do_kbi_lcd_reset, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(forcereset, 4, 1, do_kbi_forcereset, "", ""),
@@ -1176,6 +1224,8 @@ static char kbi_help_text[] =
 #if defined(CONFIG_KHADAS_VIM3) || defined(CONFIG_KHADAS_VIM3L)
 		"kbi portmode w <0|1> - set port as usb3.0 or pcie\n"
 		"kbi portmode r - read current port mode\n"
+		"kbi ext_ethernet w <0|1> - set ethernet from internal or m2x\n"
+		"kbi ext_ethernet r - read current ethernet mode\n"
 		"\n"
 #endif
 #ifndef CONFIG_KHADAS_VIM

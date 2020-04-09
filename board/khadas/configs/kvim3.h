@@ -146,6 +146,7 @@
         "spi_state=0\0"\
         "fusb302_state=0\0"\
         "factory_mac=0\0"\
+        "ext_ethernet=0\0"\
         "reboot_mode_android=""normal""\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
@@ -306,15 +307,19 @@
             "kbi hwver;"\
             "\0"\
         "wol_init="\
-            "kbi powerstate;"\
-            "kbi trigger wol r;"\
-            "if test ${wol_enable} = 1; then "\
-            "kbi trigger wol w 1;"\
-            "fi;"\
-            "setenv bootargs ${bootargs} wol_enable=${wol_enable};"\
-            "if test ${power_state} = 1; then "\
-            "kbi trigger wol w 1;"\
-            "kbi poweroff;"\
+            "if test ${ext_ethernet} = 0; then "\
+               "kbi powerstate;"\
+               "kbi trigger wol r;"\
+               "if test ${wol_enable} = 1; then "\
+               "kbi trigger wol w 1;"\
+               "fi;"\
+               "setenv bootargs ${bootargs} wol_enable=${wol_enable};"\
+               "if test ${power_state} = 1; then "\
+               "kbi trigger wol w 1;"\
+               "kbi poweroff;"\
+               "fi;"\
+            "else "\
+               "setenv bootargs ${bootargs} wol_enable=0;"\
             "fi;"\
             "\0"\
         "spi_check="\
@@ -343,6 +348,16 @@
             "else "\
                 "fdt set /usb3phy@ffe09080 portnum <0>;"\
                 "fdt set /pcieA@fc000000 status okay;"\
+            "fi;"\
+            "\0"\
+        "ext_ethernet_change="\
+            "fdt addr ${dtb_mem_addr}; "\
+            "if test ${ext_ethernet} = 1; then "\
+                "fdt set /ethernet@ff3f0000 internal_phy <1>;"\
+                "fdt set /ethernet@ff3f0000 mc_val <0x4be04>;"\
+            "else "\
+                "fdt set /ethernet@ff3f0000 internal_phy <0>;"\
+                "fdt set /ethernet@ff3f0000 mc_val <0x1629>;"\
             "fi;"\
             "\0"\
         "cmdline_keys="\
@@ -395,6 +410,7 @@
             "run upgrade_key;"\
             "run recovery_key;"\
             "run port_mode_change;"\
+            "run ext_ethernet_change;"\
             "forceupdate;" \
             "bcb uboot-command;"\
             "run switch_bootmode;"
@@ -765,8 +781,6 @@
 
 /* Choose One of Ethernet Type */
 #undef CONFIG_ETHERNET_NONE
-#define ETHERNET_EXTERNAL_PHY
-#undef  ETHERNET_INTERNAL_PHY
 
 #define CONFIG_HIGH_TEMP_COOL 90
 #endif
