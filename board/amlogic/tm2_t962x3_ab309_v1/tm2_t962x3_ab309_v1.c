@@ -739,7 +739,6 @@ int checkhw(char * name)
 			break;
 	}
 */
-	strcpy(loc_name, "tm2_t962x3_ab309\0");
 
 	strcpy(name, loc_name);
 	setenv("aml_dt", loc_name);
