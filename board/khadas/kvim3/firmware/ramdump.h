@@ -1,5 +1,5 @@
 /*
- * board/amlogic/gxl_p212_v1/firmware/ramdump.h
+ * board/amlogic/g12b_w400_v1/firmware/ramdump.h
  *
  * Copyright (C) 2017 Amlogic, Inc. All rights reserved.
  *
@@ -20,7 +20,7 @@
 
 #include <config.h>
 #ifdef CONFIG_MDUMP_COMPRESS
-#define CONFIG_COMPRESS_SECTION		5
+#define CONFIG_COMPRESS_SECTION		4
 
 #if CONFIG_COMPRESS_SECTION > 8
 #error ---> CONFIG_COMPRESS_SECTION out of range, max should be 8
@@ -28,47 +28,40 @@
 /*
  * Full Memory lay out for RAM compress:
  *
- *                 DDR_TOP -> +--------+
- *                            |        |
- *                            |        |
- *                            |   5    |
- *                            |        |
- *                            |        |
- *                            |~~~~~~~~| <- store compressing data
- *                            |~~~~~~~~|
- *                            |~~~~~~~~|
- *                            |~~~~~~~~|
- *                            |~~~~~~~~|
- *                            |~~~~~~~~|
- *                            |~~~~~~~~|
- *                            |~~~~~~~~|
- *                            |~~~~~~~~|
- *         COMPRESSED_DATA -> +--------+
- *                            |        |
- *                            |   4    |
- *                            |        |
- *          BL2_IGNORE_END -> +--------+ -- IGNORE_SIZE
- *                            ||||||||||
- *                            ||||3|||||
- *                            ||||||||||
- *         BL2_IGNORE_ADDR -> +--------+
- *                            |        |
- *                            |   2    |
- *                            |        |
- *  CONFIG_1ST_RESERVED_END-> +--------+
- *                            |        |
- *                            |   1    |
- *                            |        |
- *     COMPRESS_START_ADDR -> +--------+
+ *              DDR_TOP -> +--------+
+ *                         |        |
+ *                         |        |
+ *                         |   4    |
+ *                         |        |
+ *                         |        |
+ *                         |~~~~~~~~| <- store compressing data
+ *                         |~~~~~~~~|
+ *                         |~~~~~~~~|
+ *                         |~~~~~~~~|
+ *                         |~~~~~~~~|
+ *                         |~~~~~~~~|
+ *                         |~~~~~~~~|
+ *                         |~~~~~~~~|
+ *                         |~~~~~~~~|
+ *      COMPRESSED_DATA -> +--------+
+ *                         |        |
+ *                         |   3    |
+ *                         |        |
+ *       BL2_IGNORE_END -> +--------+ -- IGNORE_SIZE
+ *                         ||||||||||
+ *                         ||||2|||||
+ *                         ||||||||||
+ *      BL2_IGNORE_ADDR -> +--------+
+ *                         |        |
+ *                         |   1    |
+ *                         |        |
+ *  COMPRESS_START_ADDR -> +--------+
  */
 #define CONFIG_DDR_TOTAL_SIZE		(CONFIG_DDR_SIZE << 20)
-#define CONFIG_COMPRESSED_DATA_ADDR	(0x08000000)
+#define CONFIG_COMPRESSED_DATA_ADDR	(0x10000000)
 #define CONFIG_COMPRESSED_DATA_ADDR1	(0x08000000)
 
 #define CONFIG_COMPRESS_START_ADDR	(0x00000000)
-#define CONFIG_1ST_RESERVED_SIZE	(0x00100000)
-#define CONFIG_1ST_RESERVED_END		(CONFIG_1ST_RESERVED_SIZE + \
-					 CONFIG_COMPRESS_START_ADDR)
 #define CONFIG_BL2_IGNORE_ADDR		(0x05000000)
 #define CONFIG_BL2_IGNORE_SIZE		(0x00300000)
 #define CONFIG_SEG4_ADDR		(CONFIG_BL2_IGNORE_ADDR + \
