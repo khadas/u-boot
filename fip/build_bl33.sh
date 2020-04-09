@@ -1,8 +1,35 @@
 #!/bin/bash
 
+function select_uboot() {
+	local cfg_name=$1
+
+	cd ${MAIN_FOLDER}
+
+	for file in `ls -d ${BL33_DEFCFG1}/* ${BL33_DEFCFG2}/*`; do
+		temp_file=`basename $file`
+		#echo $temp_file
+		temp_file=${temp_file%_*}
+		if [ "$cfg_name" == "$temp_file" ]; then
+			if [ "${BL33_DEFCFG1}" == "$(dirname $file)" ]; then
+				bl33_path=${UBOOT_VERSION1}
+				export CROSS_COMPILE=${BL33_TOOLCHAIN1}
+			else
+				bl33_path=${UBOOT_VERSION2}
+				export CROSS_COMPILE=${BL33_TOOLCHAIN2}
+			fi
+			echo "select bl33: ${bl33_path}"
+			BL33_BUILD_FOLDER=build/
+			SOURCE_FILE=("${BL33_BUILD_FOLDER}.config")
+			CONFIG_FILE=("${BL33_BUILD_FOLDER}include/autoconf.mk")
+			UBOOT_SRC_FOLDER=`pwd`
+			break
+		fi
+	done
+	export BL33_BUILD_FOLDER SOURCE_FILE CONFIG_FILE UBOOT_SRC_FOLDER
+}
 
 function pre_build_uboot() {
-	cd ${UBOOT_SRC_FOLDER}
+	select_uboot $1
 	echo -n "Compile config: "
 	echo "$1"
 	make distclean # &> /dev/null
@@ -30,34 +57,40 @@ function build_uboot() {
 }
 
 function uboot_config_list() {
-	folder_board="${UBOOT_SRC_FOLDER}/board/amlogic"
 	echo "      ******Amlogic Configs******"
-	for file in ${folder_board}/*; do
+	for file in `ls -d ${BL33_DEFCFG1}/* ${BL33_DEFCFG2}/*`; do
 		temp_file=`basename $file`
 		#echo "$temp_file"
-		if [ -d ${folder_board}/${temp_file} ] && [ "$temp_file" != "defconfigs" ] && [ "$temp_file" != "configs" ];then
-			echo "          ${temp_file}"
-		fi
+		temp_file=${temp_file%_*}
+		echo "          ${temp_file}"
 	done
 
-	customer_folder="${UBOOT_SRC_FOLDER}/customer/board"
-	if [ -e ${customer_folder} ]; then
+	customer_folder1="${BL33_PATH1}/customer/board/defconfigs"
+	customer_folder2="${BL33_PATH2}/customer/board/defconfigs"
+	if [ -e ${customer_folder1} ]; then
 		echo "      ******Customer Configs******"
-		for file in ${customer_folder}/*; do
+		for file in ${customer_folder1}/*; do
 			temp_file=`basename $file`
-			if [ -d ${customer_folder}/${temp_file} ] && [ "$temp_file" != "defconfigs" ] && [ "$temp_file" != "configs" ];then
-				echo "          ${temp_file}"
-			fi
+			temp_file=${temp_file%_*}
+			echo "          ${temp_file}"
 		done
 	fi
+	if [ -e ${customer_folder2} ]; then
+		for file in ${customer_folder2}/*; do
+			temp_file=`basename $file`
+			temp_file=${temp_file%_*}
+			echo "          ${temp_file}"
+		done
+	fi
+
 	echo "      ***************************"
 }
 
 function copy_bl33() {
-	cp ${UBOOT_SRC_FOLDER}/build/u-boot.bin ${FIP_BUILD_FOLDER}bl33.bin -f
+	cp ${BL33_BUILD_FOLDER}/u-boot.bin ${FIP_BUILD_FOLDER}bl33.bin -f
 
 	# remove src link to prevent android "File system loop detected" issue
-	cd ${UBOOT_SRC_FOLDER}/build/
-	rm source
+	#cd ${UBOOT_SRC_FOLDER}/build/
+	#rm source
 	cd ${MAIN_FOLDER}
 }

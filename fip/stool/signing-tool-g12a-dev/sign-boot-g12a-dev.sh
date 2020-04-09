@@ -63,6 +63,10 @@ EOF
     exit 1
 }
 
+## Globals
+readonly ALLOWED_BL30_SIZES=( 58368 64512 )
+## /Globals
+
 check_file() {
     if [ ! -f "$2" ]; then echo Error: Unable to open $1: \""$2"\"; exit 1 ; fi
 }
@@ -1006,11 +1010,22 @@ create_unsigned_bl() {
     fi
 
     local bl30_payload_size=$(wc -c < ${bl30})
-    trace "BL30 size specified $bl30size"
     trace "Input BL30 payload size $bl30_payload_size"
-    if [ $bl30size -ne $(($bl30_payload_size + 4096)) ]; then
+    bl30size=0
+    for i in "${ALLOWED_BL30_SIZES[@]}" ; do
+        if [[ $bl30_payload_size -le $(( $i - 4096 )) ]]; then
+            bl30size=$i
+            break
+        fi
+    done
+    if [[ $bl30size -eq 0 ]]; then
         echo Error: invalid bl30 payload size $bl30_payload_size
         exit 1
+    fi
+    if [[ $bl30_payload_size -lt $(( $bl30size - 4096 )) ]]; then
+        cp "$bl30" "$TMP/padded_bl30"
+        pad_file "$TMP/padded_bl30"  $(( $bl30size - 4096 ))
+        bl30="$TMP/padded_bl30"
     fi
 
     if [ -z "$output" ]; then echo Error: Missing output file option -o ; exit 1; fi

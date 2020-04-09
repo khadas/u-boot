@@ -42,12 +42,34 @@ function init_variable_early() {
 
 function init_variable_late() {
 	# after uboot build, source configs
-	source ${CONFIG_FILE} &> /dev/null # ignore warning/error
+	local CONFIG_FILE_TMP="${MAIN_FOLDER}/autoconf"
+	local STR_INVALID="option"
+	if [ ! -e ${CONFIG_FILE} ]; then
+		echo "${CONFIG_FILE} doesn't exist!"
+		cd ${MAIN_FOLDER}
+		exit -1
+	else
+		# workaround for source file error
+		while read LINE
+		do
+			#echo $LINE
+			# ignore "*(option)*" lines
+			if [[ ${LINE} =~ ${STR_INVALID} ]]; then
+				echo "ignore: $LINE"
+			else
+				#echo "LINE: ${LINE}"
+				echo "$LINE" >> "${CONFIG_FILE_TMP}"
+			fi
+		done < ${CONFIG_FILE}
+		source "${CONFIG_FILE_TMP}" &> /dev/null
+		rm ${CONFIG_FILE_TMP}
+	fi
 	if [ "y" == "${CONFIG_SUPPORT_CUSOTMER_BOARD}" ]; then
 		BOARD_DIR="customer/board/${CONFIG_SYS_BOARD}"
 	else
 		BOARD_DIR="${CONFIG_BOARDDIR}"
 	fi
+	export BOARD_DIR
 }
 
 function build_blx_src() {
@@ -57,13 +79,13 @@ function build_blx_src() {
 	local bin_folder=$3
 	local soc=$4
 	#dbg "compile - name: ${name}, src_folder: ${src_folder}, bin_folder: ${bin_folder}, soc: ${soc}"
-	if [ $name == ${BLX_NAME[0]} ]; then
+	if [ $name == ${BLX_NAME_GLB[0]} ]; then
 		# bl2
 		build_bl2 $src_folder $bin_folder $soc
-	elif [ $name == ${BLX_NAME[1]} ]; then
+	elif [ $name == ${BLX_NAME_GLB[1]} ]; then
 		# bl30
 		build_bl30 $src_folder $bin_folder $soc
-	elif [ $name == ${BLX_NAME[2]} ]; then
+	elif [ $name == ${BLX_NAME_GLB[2]} ]; then
 		# bl31
 		# some soc use v1.3
 		check_bl31_ver $soc
@@ -74,10 +96,13 @@ function build_blx_src() {
 		echo "check bl31 ver: use v1.0"
 		build_bl31 $src_folder $bin_folder $soc
 	fi
-	elif [ $name == ${BLX_NAME[3]} ]; then
-		# bl32
-		if [ "y" == "${CONFIG_NEED_BL32}" ]; then
-			build_bl32 $src_folder $bin_folder $soc
+	elif [ $name == ${BLX_NAME_GLB[3]} ]; then
+		# control flow for jenkins patchbuild
+		if [ "$BUILD_TYPE" != "AOSP" ]; then
+			# bl32
+			if [ "y" == "${CONFIG_NEED_BL32}" ]; then
+				build_bl32 $src_folder $bin_folder $soc
+			fi
 		fi
 	fi
 }
@@ -115,33 +140,35 @@ function build_blx() {
 
 copy_bootloader() {
 	mkdir -p ${BUILD_FOLDER}
-	cp ${FIP_BUILD_FOLDER}u-boot.bin ${BUILD_FOLDER}u-boot.bin
-	cp ${FIP_BUILD_FOLDER}u-boot.bin.encrypt ${BUILD_FOLDER}u-boot.bin.encrypt
-	cp ${FIP_BUILD_FOLDER}u-boot.bin.encrypt.efuse ${BUILD_FOLDER}u-boot.bin.encrypt.efuse
-	cp ${FIP_BUILD_FOLDER}u-boot.bin.encrypt.sd.bin ${BUILD_FOLDER}u-boot.bin.encrypt.sd.bin
-	cp ${FIP_BUILD_FOLDER}u-boot.bin.encrypt.usb.bl2 ${BUILD_FOLDER}u-boot.bin.encrypt.usb.bl2
-	cp ${FIP_BUILD_FOLDER}u-boot.bin.encrypt.usb.tpl ${BUILD_FOLDER}u-boot.bin.encrypt.usb.tpl
-	cp ${FIP_BUILD_FOLDER}u-boot.bin.sd.bin ${BUILD_FOLDER}u-boot.bin.sd.bin
-	cp ${FIP_BUILD_FOLDER}u-boot.bin.usb.bl2 ${BUILD_FOLDER}u-boot.bin.usb.bl2
-	cp ${FIP_BUILD_FOLDER}u-boot.bin.usb.tpl ${BUILD_FOLDER}u-boot.bin.usb.tpl
-
+	cp ${FIP_BUILD_FOLDER}u-boot.bin* ${BUILD_FOLDER}
 	if [ "y" == "${CONFIG_AML_CRYPTO_IMG}" ]; then
 		cp ${FIP_BUILD_FOLDER}boot.img.encrypt ${BUILD_FOLDER}boot.img.encrypt
 	fi
 }
 
 function update_bin_path() {
-	dbg "Update BIN_PATH[$1]=$2"
-	BIN_PATH[$1]=$2
-} 
+	for loop in ${!BLX_NAME[@]}; do
+		if [ "${BLX_NAME[$loop]}" == "${BLX_NAME_GLB[$1]}" ]; then
+			dbg "Update BIN_PATH[$1]=$2"
+			BIN_PATH[$loop]=$2
+		fi
+	done
+}
 
 function clean() {
 	echo "Clean up"
-	cd ${UBOOT_SRC_FOLDER}
-	make distclean
+	if [ -e ${BL33_PATH1} ]; then
+		cd ${MAIN_FOLDER}
+		make distclean
+	fi
+	if [ -e ${BL33_PATH2} ]; then
+		cd ${MAIN_FOLDER}
+		make distclean
+	fi
 	cd ${MAIN_FOLDER}
 	rm ${FIP_BUILD_FOLDER} -rf
 	rm ${BUILD_FOLDER}/* -rf
+	mkdir -p ${BUILD_FOLDER}
 	return
 }
 
@@ -167,16 +194,13 @@ function build() {
 
 	# update bin path, use bin.git or user defined or source code
 	bin_path_parser $@
+	#bin_path_update $@
+
+	# build bl33/bl301..etc
 	CONFIG_SYSTEM_AS_ROOT=systemroot
 	echo "export CONFIG_SYSTEM_AS_ROOT"
 	export CONFIG_SYSTEM_AS_ROOT=systemroot
 
-	#bin_path_update $@
-
-	# build bl33/bl301..etc
-	if [ ! $CONFIG_SYSTEM_AS_ROOT ]; then
-		CONFIG_SYSTEM_AS_ROOT=null
-	fi
 	if [ ! $CONFIG_AVB2 ]; then
 		CONFIG_AVB2=null
 	fi

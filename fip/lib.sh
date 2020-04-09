@@ -109,6 +109,8 @@ function get_versions() {
 				echo "Manifest: Src code only. build with --update-${BLX_NAME[$loop]}"
 				#CUR_REV[$loop]=${SRC_REV[$loop]}
 				update_bin_path $loop "source"
+				CONFIG_DDR_FW=1
+				export CONFIG_DDR_FW
 			done
 		fi
 	else
@@ -118,6 +120,8 @@ function get_versions() {
 			if [ -d ${BLX_SRC_FOLDER[$loop]} ]; then
 				echo "No-Manifest: Src code only. build with --update-${BLX_NAME[$loop]}"
 				update_bin_path $loop "source"
+				CONFIG_DDR_FW=1
+				export CONFIG_DDR_FW
 			fi
 		done
 		# loop bin folder. (this will overwrite src version if both exist)
@@ -165,11 +169,11 @@ function get_blx_bin() {
 		dbg "${CUR_REV[$index]:0:7} - ${DATA[2]:0:7}"
 		if [ "${CUR_REV[$index]:0:7}" == "${DATA[2]:0:7}" ]; then
 			BLX_READY[${index}]="true"
-			echo "blxbin:${DATA[0]} blxsrc:  ${DATA[2]}"
-			echo "blxbin:${DATA[0]} blxsrc-s:${DATA[2]:0:7}"
+			dbg "blxbin:${DATA[0]} blxsrc:  ${DATA[2]}"
+			dbg "blxbin:${DATA[0]} blxsrc-s:${DATA[2]:0:7}"
 			# reset to history version
 			#git --git-dir ${BLX_BIN_FOLDER[index]}/.git --work-tree=${BLX_BIN_FOLDER[index]} reset ${DATA[0]} --hard
-			# git_operate2 ${BLX_BIN_FOLDER[index]} reset ${DATA[0]} --hard
+			#git_operate2 ${BLX_BIN_FOLDER[index]} reset ${DATA[0]} --hard
 			# copy binary file
 			if [ "bl32" == "${BLX_NAME[$index]}" ]; then
 				# bl32 is optional
@@ -182,7 +186,6 @@ function get_blx_bin() {
 			else
 				cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_BIN_NAME[index]} ${FIP_BUILD_FOLDER} -f
 				if [ "y" == "${CONFIG_FIP_IMG_SUPPORT}" ]; then
-
 					cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_IMG_NAME[index]} ${FIP_BUILD_FOLDER} 2>/dev/null
 				fi
 				if [ -e ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/bl2.v3.bin ]; then

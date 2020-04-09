@@ -46,7 +46,7 @@ function fix_blx() {
 
 	#$7:name flag
 	if [ "$7" = "bl30" ]; then
-		blx_bin_limit=40960   # PD#132613 2016-10-31 update, 41984->40960
+		blx_bin_limit=47104   # PD#132613 2016-10-31 update, 41984->40960
 		blx01_bin_limit=13312 # PD#132613 2016-10-31 update, 12288->13312
 	elif [ "$7" = "bl2" ]; then
 		blx_bin_limit=57344
@@ -177,9 +177,10 @@ function build_fip() {
 }
 
 function copy_other_soc() {
-	cp ${UBOOT_SRC_FOLDER}/build/scp_task/bl301.bin ${BUILD_PATH} -f
+	cp ${BL33_BUILD_FOLDER}scp_task/bl301.bin ${BUILD_PATH} -f
 	#useless #cp ${UBOOT_SRC_FOLDER}/build/${BOARD_DIR}/firmware/bl21.bin ${BUILD_PATH} -f
-	cp ${UBOOT_SRC_FOLDER}/build/${BOARD_DIR}/firmware/acs.bin ${BUILD_PATH} -f
+	cp ${BL33_BUILD_FOLDER}${BOARD_DIR}/firmware/acs.bin ${BUILD_PATH} -f
+	./${FIP_FOLDER}parse ${BUILD_PATH}/acs.bin
 	# todo. cp bl40?
 }
 

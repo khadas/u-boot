@@ -8,7 +8,6 @@ declare BL31_V1_0_SRC_FOLDER="bl31/src"
 declare BL31_V1_3_BIN_FOLDER="bl31_1.3/bin"
 declare BL31_V1_0_BIN_FOLDER="bl31/bin"
 
-
 function build_bl31() {
 	echo -n "Build bl31...Please wait... "
 	# $1: src_folder, $2: bin_folder, $3: soc
@@ -19,14 +18,20 @@ function build_bl31() {
 	CONFIG_SPD="opteed"
 	#CONFIG_SPD="none"
 	local soc=$3
+	local bl2z_plat
 	if [ "$soc" == "gxtvbb" ] || [ "$soc" == "gxb" ]; then
 		soc="gxbb"
+		bl2z_plat="txl"
 	elif [ "$soc" == "txl" ]; then
 		soc="gxl"
+		bl2z_plat="txl"
+	elif [ "$soc" == "gxl" ]; then
+		soc="gxl"
+		bl2z_plat="gxl"
 	fi
 	#make PLAT=${soc} SPD=${CONFIG_SPD} realclean &> /dev/null
 	#make PLAT=${soc} SPD=${CONFIG_SPD} V=1 all &> /dev/null
-	/bin/bash mk $soc
+	/bin/bash mk $soc $bl2z_plat
 	if [ $? != 0 ]; then
 		cd ${MAIN_FOLDER}
 		echo "Error: Build bl31 failed... abort"
@@ -81,14 +86,20 @@ function check_bl31_ver() {
 # some soc need use bl31_v1.3
 function switch_bl31() {
 	# $1: soc
+	local bl31_index=0;
+	for loop in ${!BLX_NAME[@]}; do
+		if [ ${BLX_NAME[$loop]} == ${BLX_NAME_GLB[2]} ]; then
+			bl31_index=$loop
+		fi
+	done
 	check_bl31_ver $1
 	if [ $? != 0 ]; then
 		echo "check bl31 ver: use v1.3"
-		BLX_SRC_FOLDER[2]=${BL31_V1_3_SRC_FOLDER}
-		BLX_BIN_FOLDER[2]=${BL31_V1_3_BIN_FOLDER}
+		BLX_SRC_FOLDER[$bl31_index]=${BL31_V1_3_SRC_FOLDER}
+		BLX_BIN_FOLDER[$bl31_index]=${BL31_V1_3_BIN_FOLDER}
 	else
 		echo "check bl31 ver: use v1.0"
-		BLX_SRC_FOLDER[2]=${BL31_V1_0_SRC_FOLDER}
-		BLX_BIN_FOLDER[2]=${BL31_V1_0_BIN_FOLDER}
+		BLX_SRC_FOLDER[$bl31_index]=${BL31_V1_0_SRC_FOLDER}
+		BLX_BIN_FOLDER[$bl31_index]=${BL31_V1_0_BIN_FOLDER}
 	fi
 }
