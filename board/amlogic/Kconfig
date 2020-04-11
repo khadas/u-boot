@@ -200,6 +200,10 @@ config G12A_U212_V1
 	bool "Support amlogic g12a u212 v1 board"
 	default n
 
+config G12A_U215_V1
+	bool "Support amlogic g12a u215 v1 board"
+	default n
+
 config SM1_ELEKTRA_V1
 	bool "Support amlogic sm1 elektra v1 board"
 	default n
@@ -494,6 +498,10 @@ endif
 
 if G12A_U212_V1
 source "board/amlogic/g12a_u212_v1/Kconfig"
+endif
+
+if G12A_U215_V1
+source "board/amlogic/g12a_u215_v1/Kconfig"
 endif
 
 if SM1_ELEKTRA_V1
