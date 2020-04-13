@@ -856,7 +856,6 @@ int lcd_probe(void)
 #ifdef LCD_DEBUG_INFO
 	lcd_debug_print_flag = 1;
 #endif
-	char *str;
 	int ret = 0;
 
 	lcd_debug_print_flag = getenv_ulong("lcd_debug_print", 10, 0);

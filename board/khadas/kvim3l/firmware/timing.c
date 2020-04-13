@@ -285,7 +285,7 @@ ddr_set_t __ddr_setting[] = {
 	.diagnose				= CONFIG_DIAGNOSE_DISABLE,
 	.bitTimeControl_2d      = 1,
 	.fast_boot[0]           = 1,
-	.rever1                 = 0,
+	//.rever1                 = 0,
 },
 {
 	/* lpddr4 Samsumg K4F6E3D4HB-MGCJ 2 RANKs */
