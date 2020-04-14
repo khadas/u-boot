@@ -9,8 +9,39 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <asm/arch/boot_mode.h>
+#include <adc.h>
+
+#define EDGE_BOARD     0
+#define CAPTAIN_BOARD  1
+#define EDGE_V_BOARD   2
+#define CARRIER_DET_CN  0
+#define EDGE_LOW_VAL  1000
+#define EDGE_HIGH_VAL 1040
+#define CAPTAIN_LOW_VAL  150
+#define CAPTAIN_HIGH_VAL 180
 
 DECLARE_GLOBAL_DATA_PTR;
+
+
+static int getBoardType(void)
+{
+   unsigned int val;
+   int ret;
+   
+   ret = adc_channel_single_shot("saradc", 0, &val);
+   if (ret) {
+	   printf("%s adc_channel_single_shot fail! ret=%d\n", __func__, ret);
+	   return false;
+   }
+   //printf("%s val=%d\n", __func__, val);
+   if ((val <= EDGE_HIGH_VAL) && (val >= EDGE_LOW_VAL))
+	   return EDGE_BOARD;
+   
+   if ((val <= CAPTAIN_HIGH_VAL) && (val >= CAPTAIN_LOW_VAL))
+	   return CAPTAIN_BOARD;
+   
+   return EDGE_V_BOARD;
+}
 
 /*
  * Generally, we have 3 ways to get reboot mode:
@@ -162,7 +193,10 @@ fallback:
 int setup_boot_mode(void)
 {
 	char env_preboot[256] = {0};
+    int board = 0;
 
+    board = getBoardType();
+    env_set("board_type", simple_itoa(board));
 	switch (rockchip_get_boot_mode()) {
 	case BOOT_MODE_BOOTLOADER:
 		printf("enter fastboot!\n");
