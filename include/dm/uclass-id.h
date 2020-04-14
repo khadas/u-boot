@@ -104,6 +104,7 @@ enum uclass_id {
 	UCLASS_DVFS,		/* DVFS policy */
 	UCLASS_IO_DOMAIN,	/* IO domain */
 	UCLASS_CRYPTO,		/* Crypto */
+	UCLASS_KBI,
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,
 };
