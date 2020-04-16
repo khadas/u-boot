@@ -240,10 +240,14 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps* ops, const uint8_t* public
             *out_is_trusted = false;
     }
 
+#if 0
+    /* for trunk, we need to check default pub key here, because we do not have vendor key in trunk
+     * but for project, shoule provide vendor pub key, you can replace in board/amlogic/sm1_ac214_v1/avb2_kpub.c
+    */
     unsigned int isSecure = IS_FEAT_BOOT_VERIFY();
     printf("isSecure: %d\n", isSecure);
     if (isSecure == 0) {
-
+#endif
 /**
  * Allow re-verify with default AVB2 public key if really want to do.
  *
@@ -263,7 +267,9 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps* ops, const uint8_t* public
             *out_is_trusted = false;
     }
 #endif /* CONFIG_AVB2_KPUB_DEFAULT_VENDOR */
+#if 0
     }
+#endif
 #elif defined(CONFIG_AVB2_KPUB_DEFAULT)
     printf("AVB2 verify with default kpub\n");
     if (avb2_kpub_default_len != public_key_length)
