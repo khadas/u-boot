@@ -26,8 +26,6 @@
 #define CONFIG_CEC_OSD_NAME "AML_TV"
 #endif
 
-#define CEC_VERSION "cec g12a ver:2020/01/21"
-
 /* FOR AO_CECB */
 #define DWC_CECB_CTRL                0x00
 #define DWC_CECB_INTR_MASK           0x02
@@ -153,76 +151,102 @@
 #define	CEC_OC_VENDOR_REMOTE_BUTTON_DOWN 			0x8A
 #define	CEC_OC_VENDOR_REMOTE_BUTTON_UP 				0x8B
 
-/*CEC UI MASK*/
-#define CEC_FUNC_MASK                        0
-#define ONE_TOUCH_PLAY_MASK                  1
-#define ONE_TOUCH_STANDBY_MASK               2
-#define AUTO_POWER_ON_MASK                   3
 
-//#define P_HHI_GCLK_MPEG2 CBUS_REG_ADDR(HHI_GCLK_MPEG2)
-//#define P_HHI_HDMI_CLK_CNTL CBUS_REG_ADDR(HHI_HDMI_CLK_CNTL)
-#define MAX_MSG 16
-#define CEC_PLAYBACK_DEVICE_TYPE 4
-#define CEC_BROADCAST_ADDR 0xf
-#define CEC_VERSION_14A 5
+//********** CEC A related **********//
+//read/write
+#define CEC_TX_MSG_0_HEADER        0x00
+//#define CEC_TX_MSG_1_OPCODE        0x01
+//#define CEC_TX_MSG_2_OP1           0x02
+//#define CEC_TX_MSG_3_OP2           0x03
+//#define CEC_TX_MSG_4_OP3           0x04
+//#define CEC_TX_MSG_5_OP4           0x05
+//#define CEC_TX_MSG_6_OP5           0x06
+//#define CEC_TX_MSG_7_OP6           0x07
+//#define CEC_TX_MSG_8_OP7           0x08
+//#define CEC_TX_MSG_9_OP8           0x09
+//#define CEC_TX_MSG_A_OP9           0x0A
+//#define CEC_TX_MSG_B_OP10          0x0B
+//#define CEC_TX_MSG_C_OP11          0x0C
+//#define CEC_TX_MSG_D_OP12          0x0D
+//#define CEC_TX_MSG_E_OP13          0x0E
+//#define CEC_TX_MSG_F_OP14          0x0F
 
-enum _cec_log_dev_addr_e {
-    CEC_TV_ADDR = 0x00,
-    CEC_RECORDING_DEVICE_1_ADDR,
-    CEC_RECORDING_DEVICE_2_ADDR,
-    CEC_TUNER_1_ADDR,
-    CEC_PLAYBACK_DEVICE_1_ADDR,
-    CEC_AUDIO_SYSTEM_ADDR,
-    CEC_TUNER_2_ADDR,
-    CEC_TUNER_3_ADDR,
-    CEC_PLAYBACK_DEVICE_2_ADDR,
-    CEC_RECORDING_DEVICE_3_ADDR,
-    CEC_TUNER_4_ADDR,
-    CEC_PLAYBACK_DEVICE_3_ADDR,
-    CEC_RESERVED_1_ADDR,
-    CEC_RESERVED_2_ADDR,
-    CEC_FREE_USE_ADDR,
-    CEC_UNREGISTERED_ADDR
-};
+//read only
+#define CEC_TX_MSG_LENGTH          0x10
+#define CEC_TX_MSG_CMD             0x11
+#define CEC_TX_WRITE_BUF           0x12
+#define CEC_TX_CLEAR_BUF           0x13
+#define CEC_RX_MSG_CMD             0x14
+#define CEC_RX_CLEAR_BUF           0x15
+#define CEC_LOGICAL_ADDR0          0x16
+//#define CEC_LOGICAL_ADDR1          0x17
+//#define CEC_LOGICAL_ADDR2          0x18
+//#define CEC_LOGICAL_ADDR3          0x19
+//#define CEC_LOGICAL_ADDR4          0x1A
+#define CEC_CLOCK_DIV_H            0x1B
+#define CEC_CLOCK_DIV_L            0x1C
 
-typedef enum  {
-    CEC_UNRECONIZED_OPCODE = 0x0,
-    CEC_NOT_CORRECT_MODE_TO_RESPOND,
-    CEC_CANNOT_PROVIDE_SOURCE,
-    CEC_INVALID_OPERAND,
-    CEC_REFUSED,
-    CEC_UNABLE_TO_DETERMINE,
-} cec_feature_abort_e;
+//read/write
+#define CEC_RX_MSG_0_HEADER        0x80
+//#define CEC_RX_MSG_1_OPCODE        0x81
+//#define CEC_RX_MSG_2_OP1           0x82
+//#define CEC_RX_MSG_3_OP2           0x83
+//#define CEC_RX_MSG_4_OP3           0x84
+//#define CEC_RX_MSG_5_OP4           0x85
+//#define CEC_RX_MSG_6_OP5           0x86
+//#define CEC_RX_MSG_7_OP6           0x87
+//#define CEC_RX_MSG_8_OP7           0x88
+//#define CEC_RX_MSG_9_OP8           0x89
+//#define CEC_RX_MSG_A_OP9           0x8A
+//#define CEC_RX_MSG_B_OP10          0x8B
+//#define CEC_RX_MSG_C_OP11          0x8C
+//#define CEC_RX_MSG_D_OP12          0x8D
+//#define CEC_RX_MSG_E_OP13          0x8E
+//#define CEC_RX_MSG_F_OP14          0x8F
 
-typedef enum {
-    DEVICE_MENU_ACTIVE = 0,
-    DEVICE_MENU_INACTIVE,
-} cec_device_menu_state_e;
+#define AO_CEC_TXTIME_17MS_BIT7_0               0x40
+#define AO_CEC_TXTIME_17MS_BIT10_8              0x41
+#define AO_CEC_TXTIME_2BIT_BIT7_0               0x42
+#define AO_CEC_TXTIME_2BIT_BIT10_8              0x43
+#define AO_CEC_TXTIME_4BIT_BIT7_0               0x44
+#define AO_CEC_TXTIME_4BIT_BIT10_8              0x45
 
-/* cec message structure */
-typedef struct {
-    unsigned char msg[16];
-    unsigned char msg_len;
-} cec_msg_buf_t;
+//read only
+#define CEC_RX_MSG_LENGTH          0x90
+#define CEC_RX_MSG_STATUS          0x91
+#define CEC_RX_NUM_MSG             0x92
+#define CEC_TX_MSG_STATUS          0x93
+#define CEC_TX_NUM_MSG             0x94
 
-typedef struct {
-    cec_msg_buf_t buf[2];          // message memory
-    unsigned char power_status;
-    unsigned char log_addr;
-    unsigned char cec_power;
-    unsigned char rx_write_pos;
-    unsigned char rx_read_pos;
-    unsigned char rx_buf_size;
-} cec_msg_t;
+// tx_msg_cmd definition
+#define TX_NO_OP                0  // No transaction
+#define TX_REQ_CURRENT          1  // Transmit earliest message in buffer
+#define TX_ABORT                2  // Abort transmitting earliest message
+#define TX_REQ_NEXT             3  // Overwrite earliest message in buffer and transmit next message
 
-cec_msg_t cec_msg;
-unsigned char hdmi_cec_func_config;
-void cec_node_init(void);
-unsigned int cec_handler(void);
-void remote_cec_hw_reset(void);
-//void cec_give_device_power_status(void);
-extern void udelay(int i);
-int cec_power_on_check(void);
+// tx_msg_status definition
+#define TX_IDLE                 0  // No transaction
+#define TX_BUSY                 1  // Transmitter is busy
+#define TX_DONE                 2  // Message has been successfully transmitted
+#define TX_ERROR                3  // Message has been transmitted with error
+
+// rx_msg_cmd
+#define RX_NO_OP                0  // No transaction
+#define RX_ACK_CURRENT          1  // Read earliest message in buffer
+#define RX_DISABLE              2  // Disable receiving latest message
+#define RX_ACK_NEXT             3  // Clear earliest message from buffer and read next message
+
+// rx_msg_status
+#define RX_IDLE                 0  // No transaction
+#define RX_BUSY                 1  // Receiver is busy
+#define RX_DONE                 2  // Message has been received successfully
+#define RX_ERROR                3  // Message has been received with error
+
+extern unsigned char hdmi_cec_func_config;
+extern void remote_cec_hw_reset(void);
+extern void cec_node_init(void);
+extern int cec_suspend_wakeup_chk(void);
+extern int cec_suspend_handle(void);
 
 #endif  // _HDMI_RX_REG_H
 
