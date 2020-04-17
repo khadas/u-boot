@@ -227,10 +227,12 @@ exit:
 unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 {
 	unsigned long lReturn = 0; //return buffer for valid DTB;
-	p_st_dtb_hdr_t pDTBHdr = (p_st_dtb_hdr_t)fdt_addr;
 	void * gzip_buf = NULL;
+	unsigned long pInputFDT  = fdt_addr;
+	p_st_dtb_hdr_t pDTBHdr   = (p_st_dtb_hdr_t)pInputFDT;
+	unsigned long unzip_size = GUNZIP_BUF_SIZE;
 
-	printf("      Amlogic multi-DTB tool\n");
+	printf("      Amlogic Multi-DTB tool\n");
 
 	/* first check the blob header, support GZIP format */
 	if ( IS_GZIP_PACKED(pDTBHdr->nMagic))
@@ -243,8 +245,7 @@ unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 			goto exit;
 		}
 		memset(gzip_buf, 0, GUNZIP_BUF_SIZE);
-		unsigned long unzip_size = GUNZIP_BUF_SIZE;
-		if (gunzip(gzip_buf, GUNZIP_BUF_SIZE, (void *)fdt_addr, &unzip_size) < 0)
+		if (gunzip(gzip_buf, GUNZIP_BUF_SIZE, (void *)pInputFDT, &unzip_size) < 0)
 		{
 			printf("      ERROR! GUNZIP process fail...\n");
 			goto exit;
@@ -254,7 +255,9 @@ unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 			printf("      ERROR! GUNZIP overflow...\n");
 			goto exit;
 		}
-		memcpy((void*)fdt_addr,gzip_buf,unzip_size);
+		//memcpy((void*)fdt_addr,gzip_buf,unzip_size);
+		pInputFDT = (unsigned long)gzip_buf;
+		pDTBHdr   = (p_st_dtb_hdr_t)pInputFDT;
 	}
 
 
@@ -263,7 +266,11 @@ unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 	case MAGIC_DTB_SGL_ID:
 	{
 		printf("      Single DTB detected\n");
-		lReturn = fdt_addr;
+
+		if (fdt_addr != (unsigned long)pInputFDT) //in case of GZIP single DTB
+			memcpy((void*)fdt_addr,(void*)pInputFDT,unzip_size);
+
+			lReturn = fdt_addr;
 
 	}break;
 	case MAGIC_DTB_MLT_ID:
@@ -296,7 +303,7 @@ unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 			(strlen(aml_dt)>AML_MAX_DTB_NAME_SIZE?AML_MAX_DTB_NAME_SIZE:(strlen(aml_dt)+1)));
 #endif
 
-		int dtb_match_num = get_dtb_index(aml_dt_buf,fdt_addr);
+		int dtb_match_num = get_dtb_index(aml_dt_buf,(unsigned long)pInputFDT);
 
 		/*check valid dtb index*/
 		if (dtb_match_num < 0 || dtb_match_num >= pDTBHdr->nDTBCount)
@@ -311,18 +318,31 @@ unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 		{
 		case AML_MUL_DTB_VER_1:
 		{
-			p_st_dtb_v1_t pDTB_V1 = (p_st_dtb_v1_t)fdt_addr;
-			lReturn = pDTB_V1->dtb[dtb_match_num].nDTBOffset + fdt_addr;
+			p_st_dtb_v1_t pDTB_V1 = (p_st_dtb_v1_t)pInputFDT;
+			lReturn = pDTB_V1->dtb[dtb_match_num].nDTBOffset + pInputFDT;
+
+			if (pInputFDT != fdt_addr)
+			{
+				memcpy((void*)fdt_addr, (void*)lReturn,pDTB_V1->dtb[dtb_match_num].nDTBIMGSize);
+				lReturn = fdt_addr;
+			}
 
 		}break;
 		case AML_MUL_DTB_VER_2:
 		{
-			p_st_dtb_v2_t pDTB_V2 = (p_st_dtb_v2_t)fdt_addr;
-			lReturn = pDTB_V2->dtb[dtb_match_num].nDTBOffset + fdt_addr;
+			p_st_dtb_v2_t pDTB_V2 = (p_st_dtb_v2_t)pInputFDT;
+			lReturn = pDTB_V2->dtb[dtb_match_num].nDTBOffset + pInputFDT;
+
+			if (pInputFDT != fdt_addr)
+			{
+				memcpy((void*)fdt_addr, (void*)lReturn,pDTB_V2->dtb[dtb_match_num].nDTBIMGSize);
+				lReturn = fdt_addr;
+			}
+
 		}break;
 		default:
 		{
-			printf("      Invalid Multi-DTB version [%d]!\n",
+			printf("      Invalid Multi-DTB Version [%d]!\n",
 				pDTBHdr->nVersion);
 			goto exit;
 		}break;
