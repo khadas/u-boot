@@ -40,6 +40,7 @@ Description:
 #define CC_PARAM_CHECK_ERROR_NEED_UPDATE_PARAM        (-1)
 #define CC_PARAM_CHECK_ERROR_NOT_NEED_UPDATE_PARAM    (-2)
 
+#ifdef CONFIG_AML_LCD
 #define DEBUG_NORMAL        (1 << 0)
 #define DEBUG_LCD           (1 << 1)
 #define DEBUG_LCD_EXTERN    (1 << 2)
@@ -54,7 +55,9 @@ static int gLcdTconDataCnt;
 static int gLcdExtInitOnCnt, gLcdExtInitOffCnt, gLcdExtCmdSize;
 
 static int handle_tcon_ext_pmu_data(int index, int flag, unsigned char *buf);
+#endif
 
+#ifdef CONFIG_AML_LCD
 static int transBufferData(const char *data_str, unsigned int data_buf[]) {
 	int item_ind = 0;
 	char *token = NULL;
@@ -2396,6 +2399,16 @@ int handle_panel_ini(void)
 	return 0;
 }
 
+static void model_list_panel_path(void)
+{
+	char *str;
+
+	str = getenv("model_panel");
+	if (str)
+		printf("current model_panel: %s\n", str);
+}
+#endif
+
 int parse_model_sum(const char *file_name, char *model_name)
 {
 	const char *ini_value = NULL;
@@ -2457,6 +2470,9 @@ int handle_model_list(void)
 		return -1;
 	}
 	printf("current model_name: %s\n", model);
+#ifdef CONFIG_AML_LCD
+	model_list_panel_path();
+#endif
 
 	IniParserInit();
 
