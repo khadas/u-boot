@@ -260,6 +260,10 @@ config SM1_AC214_V1
          bool "Support amlogic sm1 ac214 v1 board"
          default n
 
+config SM1_AC212_V1
+         bool "Support amlogic sm1 ac212 v1 board"
+         default n
+
 config SM1_AC215_V1
          bool "Support amlogic sm1 ac215 v1 board"
          default n
@@ -566,6 +570,10 @@ endif
 
 if SM1_AC214_V1
 source "board/amlogic/sm1_ac214_v1/Kconfig"
+endif
+
+if SM1_AC212_V1
+source "board/amlogic/sm1_ac212_v1/Kconfig"
 endif
 
 if SM1_AC215_V1

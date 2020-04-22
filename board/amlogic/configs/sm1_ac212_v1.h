@@ -1,6 +1,6 @@
 
 /*
- * board/amlogic/configs/sm1_ac214_v1.h
+ * board/amlogic/configs/sm1_ac212_v1.h
  *
  * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
  *
@@ -19,8 +19,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef __SM1_AC214_V1_H__
-#define __SM1_AC214_V1_H__
+#ifndef __SM1_AC212_V1_H__
+#define __SM1_AC212_V1_H__
 
 #include <asm/arch/cpu.h>
 
@@ -562,7 +562,7 @@
 #define CONFIG_USBDOWNLOAD_GADGET 1
 #define CONFIG_SYS_CACHELINE_SIZE 64
 #define CONFIG_FASTBOOT_MAX_DOWN_SIZE	0x8000000
-#define CONFIG_DEVICE_PRODUCT	"ac214"
+#define CONFIG_DEVICE_PRODUCT	"ac212"
 
 //UBOOT Facotry usb/sdcard burning config
 #define CONFIG_AML_V2_FACTORY_BURN              1       //support facotry usb burning
