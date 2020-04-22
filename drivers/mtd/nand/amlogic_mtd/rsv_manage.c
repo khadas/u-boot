@@ -48,7 +48,10 @@ static inline void _aml_rsv_protect(void)
 }
 static inline int _aml_rsv_isprotect(void)
 {
-	return rsv_protect;
+	if ((info_disprotect & DISPROTECT_KEY) &&
+		(info_disprotect & DISPROTECT_FBBT))
+		return 0;
+	return 1;
 }
 
 //#define CONFIG_DBG_BITMAP	1
@@ -193,7 +196,8 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 				else
 					break;
 		    } else {
-				if (aml_chip->mfr_type  == NAND_MFR_SANDISK) {
+				if ((aml_chip->mfr_type  == NAND_MFR_SANDISK) ||
+					(aml_chip->mfr_type  == 0xc8)) {
 					addr = offset + read_cnt*mtd->writesize;
 				} else
 					addr = offset +
@@ -309,7 +313,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 			}
 
 	if ((aml_chip->mfr_type  == 0xC8 )) {
-		if ((col0_oob != 0xFF) || (col0_data != 0xFF)) {
+		if (col0_oob != 0xFF) {
 			printk("detect factory Bad block:%llx blk:%d chip:%d\n",
 				(uint64_t)addr, start_blk, i);
 			aml_chip->nand_bbt_info->nand_bbt[bad_blk_cnt++] =
