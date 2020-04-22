@@ -697,7 +697,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	} else if (!strcmp_l1("slot-suffixes", cmd)) {
 		s2 = getenv("slot-suffixes");
 		printf("slot-suffixes: %s\n", s2);
-		if (s2)
+		if (!strcmp(s2, "-1") == 0)
 			strncat(response, s2, chars_left);
 		else
 			strncat(response, "0", chars_left);

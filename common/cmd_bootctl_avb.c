@@ -278,6 +278,7 @@ static int do_GetValidSlot(
             setenv("active_slot","normal");
             setenv("boot_part","boot");
             setenv("recovery_part","recovery");
+            setenv("slot-suffixes","-1");
         }
         return 0;
     }
@@ -293,6 +294,7 @@ static int do_GetValidSlot(
             setenv("active_slot","normal");
             setenv("boot_part","boot");
             setenv("recovery_part","recovery");
+            setenv("slot-suffixes","-1");
         }
         return 0;
     }
