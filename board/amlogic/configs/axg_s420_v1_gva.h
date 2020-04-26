@@ -120,7 +120,7 @@
             "get_bootloaderversion;" \
             "setenv bootargs ${initargs} logo=${display_layer},loaded,androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
 	"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
-            "setenv bootargs ${bootargs} slot_suffix=${active_slot};"\
+            "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
 	    "setenv bootargs ${bootargs} defendkey=0x08300000,0x100000;"\
             "run cmdline_keys;"\
             "\0"\
