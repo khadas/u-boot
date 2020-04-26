@@ -101,6 +101,7 @@ int ini_file_parse(const char* filename, INI_HANDLER_DATA *pHandlerData) {
     if (tmp_buf != NULL) {
         strncpy(pHandlerData->mpFileName, filename, CC_MAX_INI_FILE_NAME_LEN - 1);
 
+        memset((void *)tmp_buf, '\0', (file_size * 2) * sizeof(char));
         rd_cnt = iniReadFileToBuffer(filename, 0, file_size, tmp_buf);
         if (rd_cnt > 0) {
             tmp_ret = ini_mem_parse(tmp_buf, pHandlerData);

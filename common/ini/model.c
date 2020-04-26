@@ -33,6 +33,8 @@ Description:
 #include "model.h"
 
 #define DEFAULT_MODEL_SUM_PATH "/vendor/etc/tvconfig/model/model_sum.ini"
+#define AML_START		"amlogic_start"
+#define AML_END			"amlogic_end"
 
 #define CC_PARAM_CHECK_OK                             (0)
 #define CC_PARAM_CHECK_ERROR_NEED_UPDATE_PARAM        (-1)
@@ -148,7 +150,7 @@ static int handle_integrity_flag(void)
 	ini_value = IniGetString("start", "start_tag", "null");
 	if (model_debug_flag & DEBUG_NORMAL)
 		ALOGD("%s, start_tag is (%s)\n", __func__, ini_value);
-	if (strcasecmp(ini_value, "amlogic_start")) {
+	if (strncasecmp(ini_value, AML_START, strlen(AML_START))) {
 		ALOGE("%s, start_tag (%s) is error!!!\n", __func__, ini_value);
 		return -1;
 	}
@@ -156,9 +158,8 @@ static int handle_integrity_flag(void)
 	ini_value = IniGetString("end", "end_tag", "null");
 	if (model_debug_flag & DEBUG_NORMAL)
 		ALOGD("%s, end_tag is (%s)\n", __func__, ini_value);
-	if (strcasecmp(ini_value, "amlogic_end")) {
-		if (model_debug_flag & DEBUG_NORMAL)
-			ALOGE("%s, end_tag (%s) is error!!!\n", __func__, ini_value);
+	if (strncasecmp(ini_value, AML_END, strlen(AML_END))) {
+		ALOGE("%s, end_tag (%s) is error!!!\n", __func__, ini_value);
 		return -1;
 	}
 
@@ -1587,6 +1588,7 @@ static int parse_panel_ini(const char *file_name, struct lcd_attr_s *lcd_attr,
 
 	// handle integrity flag
 	if (handle_integrity_flag() < 0) {
+		ALOGE("%s, handle_integrity_flag error!\n", __func__);
 		IniParserUninit();
 		return -1;
 	}
@@ -2331,6 +2333,8 @@ int handle_panel_ini(void)
 	}
 
 	if (parse_panel_ini(file_name, &lcd_attr, &lcd_ext_attr, &bl_attr, &misc_attr, tcon_spi) < 0) {
+		ALOGE("%s, parse_panel_ini file name \"%s\" fail.\n",
+		      __func__, file_name);
 		free(tmp_buf);
 		tmp_buf = NULL;
 		free(parse_buf);
