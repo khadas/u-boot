@@ -17,7 +17,7 @@
 #define CONFIG_CEC_OSD_NAME "AML_TV"
 #endif
 
-#define CEC_VERSION "cec a ver:2020/04/20\n"
+#define CEC_VERSION "cec a ver:2020/04/26\n"
 
 /* cec irq bit flags for AO_CEC_B */
 #define CECB_IRQ_TX_DONE		(1 << 0)
