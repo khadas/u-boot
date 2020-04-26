@@ -48,7 +48,7 @@ typedef unsigned int uint32_t;
 #define POWER_KEY_WAKEUP_SRC	(1<<6)
 #define AUTO_WAKEUP_SRC	(1<<7)
 #define CEC_WAKEUP_SRC	(1<<8)
-#define ETH_PHY_WAKEUP_SRC (1<<9)
+#define ETH_PMT_WAKEUP_SRC (1<<9)
 #define CECB_WAKEUP_SRC    (1<<10)
 #define ETH_PHY_GPIO_SRC   (1<<12)
 
