@@ -78,4 +78,7 @@
 #define CONFIG_AML_RSVD_ADDR	0x08300000
 #define CONFIG_AML_RSVD_SIZE	0x100000
 
+// config BL21 T32 state
+//#define CONFIG_BL21_T32
+
 #endif /* _CPU_H */

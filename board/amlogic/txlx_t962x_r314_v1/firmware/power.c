@@ -120,7 +120,7 @@ void _udelay_(unsigned int us)
 void pwm_init(int id)
 {
 	unsigned int reg;
-	int vol;
+	//int vol;
 
 	switch (id) {
 	case pwm_a:

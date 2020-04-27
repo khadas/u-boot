@@ -18,9 +18,14 @@ You should have received a copy of the GNU General Public License along
 Description:
 */
 
-
+#ifdef AARCH32
+OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
+OUTPUT_ARCH(arm)
+#else
 OUTPUT_FORMAT("elf64-littleaarch64")
 OUTPUT_ARCH(aarch64)
+#endif
+
 ENTRY(bl21_entrypoint)
 
 SECTIONS
