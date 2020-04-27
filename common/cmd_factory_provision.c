@@ -61,7 +61,6 @@ Description:
 #define KEYBOX_HDR_MIN_VERSION  (5)
 
 #define PROVISION_TYPE_FACTORY  (0)
-#define PROVISION_TYPE_FIELD    (1)
 
 #define ACTION_UNKNOWN          (0x00)
 #define ACTION_INIT             (0x01)
@@ -76,26 +75,6 @@ Description:
 #define PART_TYPE               "user"
 #define PART_NAME_RSV           "rsv"
 #define PART_NAME_FTY           "factory"
-
-#define PROVISION_KEY_TYPE_WIDEVINE                    0x11
-#define PROVISION_KEY_TYPE_PLAYREADY_PRIVATE           0x21
-#define PROVISION_KEY_TYPE_PLAYREADY_PUBLIC            0x22
-#define PROVISION_KEY_TYPE_HDCP_TX14                   0x31
-#define PROVISION_KEY_TYPE_HDCP_TX22                   0x32
-#define PROVISION_KEY_TYPE_HDCP_RX14                   0x33
-#define PROVISION_KEY_TYPE_HDCP_RX22                   0x34
-#define PROVISION_KEY_TYPE_HDCP_RX22_FW                0x35
-#define PROVISION_KEY_TYPE_HDCP_RX22_FW_PRIVATE        0x36
-#define PROVISION_KEY_TYPE_KEYMASTER                   0x41
-#define PROVISION_KEY_TYPE_KEYMASTER_3                 0x42
-#define PROVISION_KEY_TYPE_KEYMASTER_3_ATTEST_DEV_ID_BOX  0x43
-#define PROVISION_KEY_TYPE_EFUSE                       0x51
-#define PROVISION_KEY_TYPE_CIPLUS                      0x61
-#define PROVISION_KEY_TYPE_NAGRA_UUID                  0x71
-#define PROVISION_KEY_TYPE_NAGRA_SECRET                0x72
-#define PROVISION_KEY_TYPE_PFID                        0x81
-#define PROVISION_KEY_TYPE_PFPK                        0x82
-#define PROVISION_KEY_TYPE_INVALID                     0xFFFFFFFF
 
 #define CMD_RET_SUCCESS                                0x00000000
 #define CMD_RET_KEYBOX_NOT_EXIST                       0x00000001
@@ -138,34 +117,6 @@ struct input_param {
 struct fs_value {
 	int idx;
 	uint32_t value;
-};
-
-struct key_type_attri {
-	const char *key_type_name;
-	uint32_t key_type;
-};
-
-static struct key_type_attri g_key_type_attris[] = {
-	{ "WIDEVINE_KEY", PROVISION_KEY_TYPE_WIDEVINE },
-	{ "PLAYREADY_PRIVATE_KEY", PROVISION_KEY_TYPE_PLAYREADY_PRIVATE },
-	{ "PLAYREADY_PUBLIC_KEY", PROVISION_KEY_TYPE_PLAYREADY_PUBLIC },
-	{ "HDCP_TX14_KEY", PROVISION_KEY_TYPE_HDCP_TX14 },
-	{ "HDCP_TX22_KEY", PROVISION_KEY_TYPE_HDCP_TX22 },
-	{ "HDCP_RX14_KEY", PROVISION_KEY_TYPE_HDCP_RX14 },
-	{ "HDCP_RX22_KEY", PROVISION_KEY_TYPE_HDCP_RX22 },
-	{ "HDCP_RX22_FW", PROVISION_KEY_TYPE_HDCP_RX22_FW},
-	{ "HDCP_RX22_FW_PRIVATE", PROVISION_KEY_TYPE_HDCP_RX22_FW_PRIVATE},
-	{ "KEYMASTER_KEY", PROVISION_KEY_TYPE_KEYMASTER },
-	{ "KEYMASTER3_KEY", PROVISION_KEY_TYPE_KEYMASTER_3 },
-	{ "KEYMASTER3_ATTEST_DEV_ID_BOX",
-		PROVISION_KEY_TYPE_KEYMASTER_3_ATTEST_DEV_ID_BOX },
-	{ "EFUSE_KEY", PROVISION_KEY_TYPE_EFUSE },
-	{ "CIPLUS_KEY", PROVISION_KEY_TYPE_CIPLUS },
-	{ "NAGRA_UUID_KEY", PROVISION_KEY_TYPE_NAGRA_UUID },
-	{ "NAGRA_SECRET_KEY", PROVISION_KEY_TYPE_NAGRA_SECRET },
-	{ "PROVISION_FIELD_ID", PROVISION_KEY_TYPE_PFID },
-	{ "PROVISION_FIELD_PROTECT_KEY", PROVISION_KEY_TYPE_PFPK },
-	{ NULL, 0 },
 };
 
 static char g_keybox[MAX_SIZE_KEYBOX] = { 0 };
@@ -281,23 +232,6 @@ static struct fs_value g_fs_vals_fty[MAX_CNT_FS_VALUE] = {
 	{ 8726, 0x49 }, { 8727, 0xA2 }, { 8728, 0x4C }, { 8729, 0x50 },
 	{ 0, 0 },
 };
-
-static const char *get_key_type_name(uint32_t key_type)
-{
-	const char *ret = NULL;
-	size_t i = 0;
-	int type_cnt =
-		sizeof(g_key_type_attris) / sizeof(struct key_type_attri);
-
-	for (; i < type_cnt; i++) {
-		if (key_type == g_key_type_attris[i].key_type) {
-			ret = g_key_type_attris[i].key_type_name;
-			break;
-		}
-	}
-
-	return ret;
-}
 
 static uint32_t move_data_to_transfer_addr(const char *data, uint32_t size)
 {
@@ -659,7 +593,6 @@ void convert_to_uuid_str(const char uuid[16], char uuid_str[40])
 static int check_keybox(const char *keybox, uint32_t size)
 {
 	const struct keybox_header *hdr = (const struct keybox_header *)keybox;
-	char zero_uuid[16] = { 0 };
 	uint32_t hdr_cxt_size = sizeof(struct keybox_header)
 		+ sizeof(struct encryption_context);
 
@@ -684,11 +617,6 @@ static int check_keybox(const char *keybox, uint32_t size)
 		LOGE("keybox provision type error"
 			"(expected type: %d; wrong type: %d)\n",
 			PROVISION_TYPE_FACTORY, hdr->provision_type);
-		return CMD_RET_KEYBOX_BAD_FORMAT;
-	}
-	if (!get_key_type_name(hdr->key_type) &&
-			!memcmp(hdr->ta_uuid, zero_uuid, sizeof(zero_uuid))) {
-		LOGE("keybox key type error\n");
 		return CMD_RET_KEYBOX_BAD_FORMAT;
 	}
 
