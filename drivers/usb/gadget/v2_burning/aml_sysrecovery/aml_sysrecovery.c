@@ -22,7 +22,10 @@ Description:
 #include "../v2_sdc_burn/optimus_sdc_burn_i.h"
 #include "../v2_sdc_burn/optimus_led.h"
 
-#define CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA  1
+#ifndef CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA
+#define CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA  "data"
+#endif// #ifndef CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA
+extern int sdc_burn_aml_keys(HIMAGE hImg, const int keyOverWrite, int licenseKey, int imgKey);
 
 static int optimus_sysrec_check_whole_img_before_burn(const char* partName)
 {
@@ -30,51 +33,27 @@ static int optimus_sysrec_check_whole_img_before_burn(const char* partName)
         return 0;
 }
 
-#if CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA
+#ifdef CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA
 //clear data parts then the parts will formatted when firtsboot
 //As fill half parttition need so much time, I just clear 2M
 static int optimus_sysrec_clear_usr_data_parts(void)
 {
-        const char* const _usrDataParts[] = {"data",};
+        const char* const _usrDataParts[] = {CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA,};
         const int   dataPartsNum          = sizeof(_usrDataParts)/sizeof(const char*);
-        const unsigned    BufSz = 1U<<20;//1MB
-        unsigned char*    clearBuf= (unsigned char*)OPTIMUS_DOWNLOAD_TRANSFER_BUF_ADDR;
         int partIndex = 0;
         int ret = 0;
+        char cmdbuf[128];
 
-        memset(clearBuf, 0xff, BufSz);
         for (partIndex = 0; partIndex < dataPartsNum; ++partIndex)
         {
-                u64 partCap = 0;
-                unsigned char* thePart = (unsigned char*)_usrDataParts[partIndex];
-                int rcode = 0;
-                u64 offset = 0;
-                u64 ClearSz = 2U<<20;
-
-                DWN_MSG("To clear data part[%s]\n", thePart);
-                rcode = store_get_partititon_size(thePart, &partCap);
-                if (rcode) {
-                        DWN_ERR("Fail to get partSz for part[%s]\n", thePart);
-                        return rcode;
-                }
-                partCap <<= 9;
-                //FIXME: If there is fschk before firstboot, the 2MB to destroy the data if not enough
-                /*ClearSz = partCap>>1;*/
-                DWN_MSG("partCap 0x%llxMB, ClearSz=%llxMb\n", (partCap>>20), (ClearSz>>20));
-
-                for (; offset < ClearSz; offset += BufSz)
-                {
-                        rcode = store_write_ops(thePart, clearBuf, offset, BufSz);
-                        if (rcode) {
-                                DWN_ERR("Failed when clear data part[%s], rcode=%d\n", thePart, rcode);
-                                ret += rcode;
-                        }
-                }
+            sprintf(cmdbuf, "store erase partition %s", _usrDataParts[partIndex]);
+            ret = run_command(cmdbuf, 0);
+            if (ret) { DWN_WRN("Wrn:failed in cmd:%s\n", cmdbuf); }
         }
 
         return ret;
 }
-#endif//#if CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA
+#endif//#ifdef CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA
 
 /*
  *.partName: aml_sysrecovery
@@ -90,8 +69,6 @@ static int optimus_sysrec_burn_package_from_partition(const char* partName, cons
         int ret = 0;
         int hasBootloader = 0;
         u64 datapartsSz = 0;
-
-        ret = optimus_storage_init(0);//Init all partitions for burning
 
         if (verifyPackageBeforeBurn)
         {
@@ -113,6 +90,14 @@ static int optimus_sysrec_burn_package_from_partition(const char* partName, cons
                 ret = __LINE__; goto _finish;
         }
         show_logo_to_report_burning();
+
+        //update dtb for keyman
+        ret = optimus_sdc_burn_dtb_load(hImg);
+        if (ITEM_NOT_EXIST != ret && ret) {
+            DWN_ERR("Fail in load dtb for sdc_burn\n");
+            ret = __LINE__; goto _finish;
+        }
+        optimus_storage_init(0);
 
         hUiProgress = optimus_progress_ui_request_for_sdc_burn();
         if (!hUiProgress) {
@@ -137,24 +122,8 @@ static int optimus_sysrec_burn_package_from_partition(const char* partName, cons
                 ret = __LINE__; goto _finish;
         }
 
-#if 0
-        ret = optimus_sdc_burn_dtb_load(hImg);
-        if (ITEM_NOT_EXIST != ret && ret) {
-                DWN_ERR("Fail in load dtb for sdc_burn\n");
-                ret = __LINE__; goto _finish;
-        }
-        ret = optimus_save_loaded_dtb_to_flash();
-        if (ret) {
-                DWN_ERR("FAiled in dtb wr\n");
-                return __LINE__;
-        }
-#endif
-
         optimus_progress_ui_direct_update_progress(hUiProgress, UPGRADE_STPES_AFTER_BURN_DATA_PARTS_OK);
 
-#if CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA
-        optimus_sysrec_clear_usr_data_parts();
-#endif// #if CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA
 #if 1
         if (hasBootloader)
         {//burn bootloader
@@ -170,6 +139,17 @@ static int optimus_sysrec_burn_package_from_partition(const char* partName, cons
                 }
         }
 #endif
+#if CONFIG_SUPPORT_SDC_KEYBURN
+        ret = sdc_burn_aml_keys(hImg, 0, 0, 1);
+        if (ret) {
+            DWN_ERR("Fail in recovery keys from img\n");
+            ret = __LINE__; goto _finish;
+        }
+#endif// #if CONFIG_SUPPORT_SDC_KEYBURN
+#ifdef CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA
+        optimus_sysrec_clear_usr_data_parts();
+#endif// #ifdef CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA
+
         optimus_progress_ui_direct_update_progress(hUiProgress, UPGRADE_STEPS_AFTER_BURN_BOOTLOADER_OK);
 
 _finish:
@@ -200,6 +180,7 @@ static int do_aml_sysrecovery(cmd_tbl_t *cmdtp, int flag, int argc, char * const
     optimus_led_show_in_process_of_burning();
 
     optimus_work_mode_set(OPTIMUS_WORK_MODE_SYS_RECOVERY);
+    optimus_buf_manager_init(16*1024);
     rcode = optimus_sysrec_burn_package_from_partition(AML_SYS_RECOVERY_PART, needVerify, verifyPackageBeforeBurn);
 
     return rcode;

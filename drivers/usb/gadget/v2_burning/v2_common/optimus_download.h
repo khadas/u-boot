@@ -204,7 +204,9 @@ int optimus_work_mode_set(int workmode);
 
 //ENV for auto jump into producing
 #define _ENV_TIME_OUT_TO_AUTO_BURN "identifyWaitTime"
+#ifndef AML_SYS_RECOVERY_PART
 #define AML_SYS_RECOVERY_PART      "aml_sysrecovery"
+#endif// #ifndef AML_SYS_RECOVERY_PART
 
 #if defined(CONFIG_AML_MTD) && (defined(UBIFS_IMG) || defined(CONFIG_CMD_UBIFS))
 #define OPTIMUS_BURN_TARGET_SUPPORT_UBIFS       1

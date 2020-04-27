@@ -493,6 +493,68 @@ int optimus_img_item2buf(HIMAGE hImg, const char* main, const char* sub, char* b
     return 0;
 }
 
+//get item num which has same main_type
+int get_subtype_nr(HIMAGE hImg, const char* main_type)
+{
+    int i = 0;
+    int ret = 0;
+    int itemNum = 0;
+    const int totalItemNum = get_total_itemnr(hImg);
+
+    for (i = 0; i < totalItemNum; i++)
+    {
+        const char* mainType = NULL;
+        const char* sub_type  = NULL;
+
+        ret = get_item_name(hImg, i, &mainType, &sub_type);
+        if (ret) {
+            DWN_ERR("Exception:fail to get item name!\n");
+            return -__LINE__;
+        }
+
+        if (strcmp(main_type, mainType)) continue;
+        itemNum += 1;
+    }
+
+    return itemNum;
+}
+
+int get_subtype_nm_by_index(HIMAGE hImg, const char* main_type, const char** sub_type, const int itemIndex)
+{
+    int i = 0;
+    int ret = 0;
+    int itemNum = 0;
+    const int totalItemNum = get_total_itemnr(hImg);
+    const int nSubType     = get_subtype_nr(hImg, main_type);
+
+    if (nSubType < 1) {
+        DWN_ERR("err main type[%s]\n", main_type);
+        return -__LINE__;
+    }
+    if (nSubType <= itemIndex) {
+        DWN_ERR("item index %d > max %d for main[%s]\n", itemIndex, nSubType, main_type);
+        return -__LINE__;
+    }
+
+    for (i = 0; i < totalItemNum; i++)
+    {
+        const char* mainType = NULL;
+
+        ret = get_item_name(hImg, i, &mainType, sub_type);
+        if (ret) {
+            DWN_ERR("Exception:fail to get item name!\n");
+            return __LINE__;
+        }
+
+        if (strcmp(mainType, main_type)) continue;
+        if (itemIndex == itemNum) return OPT_DOWN_OK;
+        itemNum += 1;
+    }
+
+    return OPT_DOWN_FAIL;
+}
+
+
 #define MYDBG 0
 #if MYDBG
 static int test_item(HIMAGE hImg, const char* main_type, const char* sub_type, char* pBuf, const int sz)

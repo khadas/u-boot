@@ -157,7 +157,7 @@ int optimus_buf_manager_tplcmd_init(const char* mediaType,  const char* partName
         DWN_ERR("write back size %d < align size %d\n", writeBackUnitSz, _bufManager.transferUnitSz);
         return OPT_DOWN_FAIL;
     }
-    DWN_DBG("writeBackUnitSz = 0x%x, pktSz4BufManager = %lld\n", writeBackUnitSz, pktSz4BufManager);
+    DWN_DBG("writeBackUnitSz = 0x%x, pktSz4BufManager = 0x%llx, itemSizeNotAligned 0x%x\n", writeBackUnitSz, pktSz4BufManager, itemSizeNotAligned);
 
     _bufManager.writeBackUnitSz     = writeBackUnitSz;
     _bufManager.totalSlotNum        = 0;
@@ -242,7 +242,7 @@ int optimus_buf_manager_report_transfer_complete(const u32 transferSz, char* err
     const u8* BufBase = (OPTIMUS_MEDIA_TYPE_MEM != _bufManager.destMediaType)  ? _bufManager.transferBuf :
                         (u8*)(u64)_bufManager.partBaseOffset ;
 
-    DWN_DBG("transferSz=0x%x\n", transferSz);
+    DWN_DBG("[%d]transferSz=0x%x\n", _bufManager.totalSlotNum, transferSz);
     //state fileds to update
     _bufManager.totalSlotNum += 1;
     if (_bufManager.totalSlotNum == _bufManager.nextWriteBackSlot)

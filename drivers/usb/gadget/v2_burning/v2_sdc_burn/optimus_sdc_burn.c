@@ -276,8 +276,8 @@ int optimus_sdc_burn_partitions(ConfigPara_t* pCfgPara, HIMAGE hImg, __hdle hUiP
         DWN_DBG("Data part num %d\n", burnNum);
     }
     if (!burnNum) {
-        DWN_ERR("Data part num is 0!!\n");
-        return __LINE__;
+        DWN_WRN("Data part num is 0!!\n");
+        /*return __LINE__;*/
     }
 
     for (i = 0; i < burnNum; i++)
@@ -481,22 +481,13 @@ static int sdc_check_key_need_to_burn(const char* keyName, const int keyOverWrit
 }
 
 //burn the amlogic keys like USB_Burning_Tool
-static int sdc_burn_aml_keys(HIMAGE hImg, const int keyOverWrite)
+int sdc_burn_aml_keys(HIMAGE hImg, const int keyOverWrite, int licenseKey, int imgKey)
 {
         int rc = 0;
         const char* *keysName = NULL;
         unsigned keysNum = 0;
         const char** pCurKeysName = NULL;
         unsigned index = 0;
-
-        if (strcmp("1", getenv("usb_update")))
-            rc = run_command("aml_key_burn probe vfat sdc", 0);
-        else
-            rc = run_command("aml_key_burn probe vfat udisk", 0);
-        if (rc) {
-                DWN_ERR("Fail in probe for aml_key_burn\n");
-                return __LINE__;
-        }
 
         {
                 unsigned random32 = 0;
@@ -520,7 +511,17 @@ static int sdc_burn_aml_keys(HIMAGE hImg, const int keyOverWrite)
                 DWN_ERR("Fail to parse keys.conf, rc =%d\n", rc);
                 return __LINE__;
         }
-        DWN_MSG("keys.conf:\n");
+        if (keysNum > 0) {
+            if (strcmp("1", getenv("usb_update")))
+                rc = run_command("aml_key_burn probe vfat sdc", 0);
+            else
+                rc = run_command("aml_key_burn probe vfat udisk", 0);
+            if (rc) {
+                DWN_ERR("Fail in probe for aml_key_burn\n");
+                return __LINE__;
+            }
+            DWN_MSG("keys.conf:\n");
+        }
         for (index = 0; index < keysNum; ++index)printf("\tkey[%d]\t%s\n", index, keysName[index]) ;
 
         rc =  optimus_sdc_keysprovider_init();
@@ -574,6 +575,40 @@ static int sdc_burn_aml_keys(HIMAGE hImg, const int keyOverWrite)
                         DWN_ERR("Fail in update license for key[%s]\n", keyName);
                         return __LINE__;
                 }
+        }
+
+        const char* mainTypeKey = "AML_KEY";
+        const int nrItems = get_subtype_nr(hImg, mainTypeKey);
+        for (index = 0; index < nrItems; ++index)
+        {
+            const char* keyName = NULL;
+            if (get_subtype_nm_by_index(hImg, mainTypeKey, &keyName, index)) {
+                DWN_ERR("fail in get key[%d] subtype\n", index);
+                return -__LINE__;
+            }
+            DWN_MSG("Now burn IMG key <---- [%s] ----> %d \n", keyName, index);
+            rc = sdc_check_key_need_to_burn(keyName, keyOverWrite);
+            if (rc < 0) {
+                DWN_ERR("Fail when when check stauts for key(%s)\n", keyName);
+                /*return __LINE__;*/
+            }
+            if (!rc) continue;//not need to burn this key
+
+            //1,using cmd_keysprovider to read a key to memory
+            char* keyValue = (char*)OPTIMUS_DOWNLOAD_TRANSFER_BUF_ADDR;
+            int keySz = OPTIMUS_DOWNLOAD_SLOT_SZ;//buffer size
+            rc = optimus_img_item2buf(hImg, mainTypeKey, keyName, keyValue, &keySz);
+            if (rc) {
+                DWN_ERR("Fail to get value for key[%s]\n", keyName);
+                return __LINE__;
+            }
+
+            //3, burn the key
+            rc = optimus_keysburn_onekey(keyName, (u8*)keyValue, keySz);
+            if (rc) {
+                DWN_ERR("Fail in burn the key[%s] at addr=%p, sz=%d\n", keyName, keyValue, keySz);
+                return __LINE__;
+            }
         }
 
         rc = optimus_sdc_keysprovider_exit();
@@ -762,7 +797,7 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
     optimus_progress_ui_direct_update_progress(hUiProgress, UPGRADE_STPES_AFTER_BURN_DATA_PARTS_OK);
 
     //TO burn nandkey/securekey/efusekey
-    ret = sdc_burn_aml_keys(hImg, pSdcCfgPara->custom.keyOverwrite);
+    ret = sdc_burn_aml_keys(hImg, pSdcCfgPara->custom.keyOverwrite, 1, 1);
     if (ret) {
             DWN_ERR("Fail in sdc_burn_aml_keys\n");
             ret = __LINE__;goto _finish;
