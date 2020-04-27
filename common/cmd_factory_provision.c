@@ -656,60 +656,6 @@ void convert_to_uuid_str(const char uuid[16], char uuid_str[40])
 	}
 }
 
-static int keybox_exist(uint32_t key_type, const char *uuid)
-{
-	int ret = CMD_RET_SUCCESS;
-	struct fs_dir_stream *dirs = NULL;
-	struct fs_dirent *dent = NULL;
-	struct keybox_header hdr;
-	loff_t act_read = 0;
-	char uuid_str[40] = { 0 };
-
-	ret = init_partition();
-	if (ret)
-		return ret;
-
-	if (fat_opendir("/", &dirs)) {
-		LOGE("open '/' failed\n");
-		return CMD_RET_UNKNOWN_ERROR;
-	}
-
-	convert_to_uuid_str(uuid, uuid_str);
-	while (!fat_readdir(dirs, &dent)) {
-		if (dent->type != FS_DT_REG) // not regular file
-			continue;
-
-		memset(&hdr, 0, sizeof(hdr));
-		if (fat_read_file(dent->name, &hdr, 0, sizeof(hdr), &act_read)
-				|| act_read != sizeof(hdr)) {
-			LOGD("read keybox '%s' failed\n", dent->name);
-			continue;
-		}
-
-		if (get_key_type_name(key_type)) {
-			if (key_type == hdr.key_type) {
-				LOGE("the same type(%s) keybox exists\n",
-						get_key_type_name(key_type));
-				ret = CMD_RET_KEYBOX_BAD_FORMAT;
-				goto exit;
-			}
-		} else {
-			if (!memcmp(uuid, hdr.ta_uuid, sizeof(hdr.ta_uuid))
-					&& key_type == hdr.key_type) {
-				LOGE("the same type(uuid = %s, "
-					"key_type = 0x%02X) keybox exists\n",
-						uuid_str, key_type);
-				ret = CMD_RET_KEYBOX_BAD_FORMAT;
-				goto exit;
-			}
-		}
-	}
-
-exit:
-	fat_closedir(dirs);
-	return ret;
-}
-
 static int check_keybox(const char *keybox, uint32_t size)
 {
 	const struct keybox_header *hdr = (const struct keybox_header *)keybox;
@@ -746,7 +692,7 @@ static int check_keybox(const char *keybox, uint32_t size)
 		return CMD_RET_KEYBOX_BAD_FORMAT;
 	}
 
-	return keybox_exist(hdr->key_type, (const char *)hdr->ta_uuid);
+	return CMD_RET_SUCCESS;
 }
 
 static void calc_sha256(const char *data, uint32_t data_size, char *sha256)
@@ -907,12 +853,62 @@ static int list_all_keyboxes(void)
 	return ret;
 }
 
+static int remove_same_type_keybox(uint32_t key_type, const char *uuid)
+{
+	int ret = CMD_RET_SUCCESS;
+	struct fs_dir_stream *dirs = NULL;
+	struct fs_dirent *dent = NULL;
+	struct keybox_header hdr;
+	loff_t act_read = 0;
+	char uuid_str[40] = { 0 };
+
+	ret = init_partition();
+	if (ret)
+		return ret;
+
+	if (fat_opendir("/", &dirs)) {
+		LOGE("open '/' failed\n");
+		return CMD_RET_UNKNOWN_ERROR;
+	}
+
+	convert_to_uuid_str(uuid, uuid_str);
+	while (!fat_readdir(dirs, &dent)) {
+		if (dent->type != FS_DT_REG) // not regular file
+			continue;
+
+		memset(&hdr, 0, sizeof(hdr));
+		if (fat_read_file(dent->name, &hdr, 0, sizeof(hdr), &act_read)
+				|| act_read != sizeof(hdr)) {
+			LOGE("read keybox '%s' failed\n", dent->name);
+			ret = CMD_RET_UNKNOWN_ERROR;
+			goto exit;
+		}
+
+		if (!memcmp(uuid, hdr.ta_uuid, sizeof(hdr.ta_uuid)) &&
+				key_type == hdr.key_type) {
+			ret = remove_keybox(dent->name);
+			if (ret != CMD_RET_SUCCESS) {
+				LOGE("remove the same type"
+					"(uuid = %s, key_type = 0x%02X) "
+					"keybox '%s' failed\n",
+					uuid_str, key_type, dent->name);
+				goto exit;
+			}
+		}
+	}
+
+exit:
+	fat_closedir(dirs);
+	return ret;
+}
+
 int cmd_func(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int ret = CMD_RET_SUCCESS;
 	struct input_param params;
 	char *in_kb = NULL;
 	char *ret_data = NULL;
+	const struct keybox_header *hdr = NULL;
 
 	parse_params(argc, argv, &params);
 
@@ -928,6 +924,12 @@ int cmd_func(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		in_kb = map_sysmem(params.keybox_phy_addr, 0);
 
 		ret = check_keybox(in_kb, params.keybox_size);
+		if (ret != CMD_RET_SUCCESS)
+			goto exit;
+
+		hdr = (const struct keybox_header *)in_kb;
+		ret = remove_same_type_keybox(hdr->key_type,
+				(const char *)hdr->ta_uuid);
 		if (ret != CMD_RET_SUCCESS)
 			goto exit;
 
