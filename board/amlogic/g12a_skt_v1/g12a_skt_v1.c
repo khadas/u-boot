@@ -57,12 +57,9 @@
 #include <linux/sizes.h>
 #include <asm-generic/gpio.h>
 #include <dm.h>
-#include <partition_table.h>
 #ifdef CONFIG_AML_SPIFC
 #include <amlogic/spifc.h>
 #endif
-#include <asm/arch/timer.h>
-
 #ifdef CONFIG_AML_SPICC
 #include <amlogic/spicc.h>
 #endif
@@ -72,18 +69,6 @@ DECLARE_GLOBAL_DATA_PTR;
 //new static eth setup
 struct eth_board_socket*  eth_board_skt;
 
-static void gate_useless_clock(void)
-{
-	unsigned int mpeg0, mpeg1, mpeg2;
-
-	mpeg0 = (~0x100818);
-	mpeg1 = (~0x9000008);
-	mpeg2 = (~0x40);
-	/* close useless clk gate */
-	writel(readl(HHI_GCLK_MPEG0) & mpeg0, HHI_GCLK_MPEG0);
-	writel(readl(HHI_GCLK_MPEG1) & mpeg1, HHI_GCLK_MPEG1);
-	writel(readl(HHI_GCLK_MPEG2) & mpeg2, HHI_GCLK_MPEG2);
-}
 
 int serial_set_pin_port(unsigned long port_base)
 {
@@ -729,7 +714,6 @@ void aml_config_dtb(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
-	TE(__func__);
 		//update env before anyone using it
 		run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
 						"if test ${reboot_mode} = factory_reset; then "\
@@ -738,51 +722,20 @@ int board_late_init(void)
 						"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 		/*add board late init function here*/
 #ifndef DTB_BIND_KERNEL
-	if (has_boot_slot == 0) {
 		int ret;
 		ret = run_command("store dtb read $dtb_mem_addr", 1);
-		if (ret) {
-			printf("%s(): [store dtb read $dtb_mem_addr] fail\n", __func__);
+        if (ret) {
+				printf("%s(): [store dtb read $dtb_mem_addr] fail\n", __func__);
 #ifdef CONFIG_DTB_MEM_ADDR
-			printf("*******define CONFIG_DTB_MEM_ADDR1 ************\n");
-			char cmd[64];
-			printf("load dtb to %x\n", CONFIG_DTB_MEM_ADDR);
-			sprintf(cmd, "store dtb read %x", CONFIG_DTB_MEM_ADDR);
-			ret = run_command(cmd, 1);
-			if (ret) {
-				printf("%s(): %s fail\n", __func__, cmd);
-			}
+				char cmd[64];
+				printf("load dtb to %x\n", CONFIG_DTB_MEM_ADDR);
+				sprintf(cmd, "store dtb read %x", CONFIG_DTB_MEM_ADDR);
+				ret = run_command(cmd, 1);
+                if (ret) {
+						printf("%s(): %s fail\n", __func__, cmd);
+				}
 #endif
 		}
-	} else {
-#ifdef CONFIG_DTB_MEM_ADDR
-		char cmd[128];
-		int ret;
-		char *s1;
-		char boot_partition[32];
-		if (!getenv("dtb_mem_addr")) {
-			sprintf(cmd, "setenv dtb_mem_addr 0x%x", CONFIG_DTB_MEM_ADDR);
-			run_command(cmd, 0);
-		}
-		run_command("get_valid_slot;", 0);
-		s1 = getenv("active_slot");
-		printf("active_slot is %s\n", s1);
-		if (strcmp(s1, "normal") == 0) {
-			strcpy(boot_partition, "boot");
-		} else if (strcmp(s1, "_a") == 0) {
-			strcpy(boot_partition, "boot_a");
-		} else if (strcmp(s1, "_b") == 0) {
-			strcpy(boot_partition, "boot_b");
-		}
-
-		sprintf(cmd, "imgread dtb %s ${dtb_mem_addr}", boot_partition);
-		printf("cmd: %s\n", cmd);
-		ret = run_command(cmd, 0);
-		if (ret) {
-			printf("%s(): cmd[%s] fail, ret=%d\n", __func__, cmd, ret);
-		}
-#endif
-	}
 #elif defined(CONFIG_DTB_MEM_ADDR)
 		{
 				char cmd[128];
@@ -822,15 +775,8 @@ int board_late_init(void)
 		aml_try_factory_sdcard_burning(0, gd->bd);
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 
-    if (MESON_CPU_MAJOR_ID_SM1 == get_cpu_id().family_id) {
-		setenv("board_defined_bootup", "bootup_Y3");
-	}
-	/* close useless clk gate */
-	gate_useless_clock();
 	/**/
 	aml_config_dtb();
-
-	TE(__func__);
 	return 0;
 }
 #endif
