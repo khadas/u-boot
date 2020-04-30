@@ -63,6 +63,9 @@
 /* support ext4*/
 #define CONFIG_CMD_EXT4 1
 
+#define CONFIG_FAT_WRITE 1
+#define CONFIG_AML_FACTORY_PROVISION 1
+
 /* Bootloader Control Block function
    That is used for recovery and the bootloader to talk to each other
   */
@@ -321,6 +324,7 @@
                     "setenv bootargs ${bootargs} androidboot.oem.key1=ATV00104319;"\
                 "fi;"\
             "fi;"\
+	    "factory_provision init;"\
             "\0"\
         "bcb_cmd="\
             "get_avb_mode;"\
