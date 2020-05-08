@@ -642,7 +642,14 @@ ddr_reg_t __ddr_reg[] = {
 };
 
 #define VCCK_VAL				CONFIG_VCCK_INIT_VOLTAGE
+/*
+ * sm1 socket board share BSP code with g12a_skt_v1
+ */
+#ifdef CONFIG_SM1_SKT_V1
+#define VDDEE_VAL				CONFIG_VDDEE_INIT_VOLTAGE_SM1
+#else
 #define VDDEE_VAL				CONFIG_VDDEE_INIT_VOLTAGE
+#endif
 /* VCCK PWM table */
 #if   (VCCK_VAL == 800)
 	#define VCCK_VAL_REG	0x00150007

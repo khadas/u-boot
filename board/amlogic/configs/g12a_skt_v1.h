@@ -34,7 +34,11 @@
  */
 #define CONFIG_PLATFORM_POWER_INIT
 #define CONFIG_VCCK_INIT_VOLTAGE	800		// VCCK power up voltage
-#define CONFIG_VDDEE_INIT_VOLTAGE	800		// VDDEE power up voltage
+/*
+ * sm1 skt board share BSP code with g12a_skt_v1
+ */
+#define CONFIG_VDDEE_INIT_VOLTAGE	800		// g12a_skt_v1 VDDEE voltage setting
+#define CONFIG_VDDEE_INIT_VOLTAGE_SM1	840		// sm1 skt VDDEE voltage setting
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	770		// VDDEE suspend voltage
 
 /* configs for CEC */
