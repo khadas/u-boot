@@ -38,6 +38,7 @@ struct ddr_base_address_table{
 	unsigned	int		ddr_dmc_apd_address;
 	unsigned	int		ddr_dmc_asr_address;
 	unsigned	int		ddr_boot_reason_address;
+	unsigned	int		ddr_dmc_lpdd4_retraining_address;
 
 };
 typedef struct  ddr_base_address_table ddr_base_address_table_t;
@@ -124,6 +125,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ddr_dmc_apd_address=((0x008c  << 2) + 0xff638400),
 	.ddr_dmc_asr_address=((0x008d  << 2) + 0xff638400),
 	.ddr_boot_reason_address=(0xff800000 + (0x08f << 2)),//AO_SEC_SD_CFG15
+	.ddr_dmc_lpdd4_retraining_address=((0x0097  << 2) + 0xff638400),
 	},
 	//g12b
 	{
@@ -141,6 +143,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ddr_dmc_apd_address=((0x008c  << 2) + 0xff638400),
 	.ddr_dmc_asr_address=((0x008d  << 2) + 0xff638400),
 	.ddr_boot_reason_address=(0xff800000 + (0x08f << 2)),//AO_SEC_SD_CFG15
+	.ddr_dmc_lpdd4_retraining_address=((0x0097  << 2) + 0xff638400),
 	},
 	//tl1
 	{
@@ -158,6 +161,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ddr_dmc_apd_address=((0x008c  << 2) + 0xff638400),
 	.ddr_dmc_asr_address=((0x008d  << 2) + 0xff638400),
 	.ddr_boot_reason_address=(0xff800000 + (0x08f << 2)),//AO_SEC_SD_CFG15
+	.ddr_dmc_lpdd4_retraining_address=((0x0097  << 2) + 0xff638400),
 	},
 	//sm1
 	{
@@ -175,6 +179,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ddr_dmc_apd_address=((0x008c  << 2) + 0xff638400),
 	.ddr_dmc_asr_address=((0x008d  << 2) + 0xff638400),
 	.ddr_boot_reason_address=(0xff800000 + (0x08f << 2)),//AO_SEC_SD_CFG15
+	.ddr_dmc_lpdd4_retraining_address=((0x0097  << 2) + 0xff638400),
 	},
 	//tm2
 	{
@@ -192,6 +197,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ddr_dmc_apd_address=((0x008c  << 2) + 0xff638400),
 	.ddr_dmc_asr_address=((0x008d  << 2) + 0xff638400),
 	.ddr_boot_reason_address=(0xff800000 + (0x08f << 2)),//AO_SEC_SD_CFG15
+	.ddr_dmc_lpdd4_retraining_address=((0x0097  << 2) + 0xff638400),
 	},
 	//a1
 	{
@@ -239,6 +245,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.sys_watchdog_base_address=0,//((0x0040  << 2) + 0xfe000000),
 	.sys_watchdog_enable_value=0x03c401ff,
 	.ddr_boot_reason_address=((0x00e1  << 2) + 0xfe005800),//SYSCTRL_SEC_STICKY_REG1
+	.ddr_dmc_lpdd4_retraining_address=((0x0097  << 2) + 0xfe024400),
 	},
 	//sc2
 	{
@@ -273,6 +280,7 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.ddr_dmc_apd_address=((0x008c  << 2) + 0xff638400),
 	.ddr_dmc_asr_address=((0x008d  << 2) + 0xff638400),
 	.ddr_boot_reason_address=(0xff800000 + (0x08f << 2)),//AO_SEC_SD_CFG15
+	.ddr_dmc_lpdd4_retraining_address=((0x0097  << 2) + 0xff638400),
 	},
 };
 
@@ -8652,7 +8660,10 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 	}
 	if (!enable_ddr_fast_boot)
 		return 1;
-
+	#define DMC_PHY_RETRAINING_CTRL     ( p_ddr_base->ddr_dmc_lpdd4_retraining_address)
+	uint32_t dmc_retraining_ctrl=0;
+	dmc_retraining_ctrl=rd_reg(DMC_PHY_RETRAINING_CTRL);
+	wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl&(~(1<<31)));
 	ddr_set_t *ddr_set_t_p=NULL;
 	ddr_set_t_p=(ddr_set_t *)(ddr_set_t_p_arrary);
 	uint32_t  ddr_set_add=0;
@@ -8750,6 +8761,7 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 	}
 	serial_puts("\n");
 	#endif
+	wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl);
 	return 1;
 }
 
@@ -11135,6 +11147,10 @@ check_base_address();
 		return 1;
 	}
 	printf("lcdlr_max %d,\n",lcdlr_max);
+	#define DMC_PHY_RETRAINING_CTRL     ( p_ddr_base->ddr_dmc_lpdd4_retraining_address)
+	uint32_t dmc_retraining_ctrl=0;
+	dmc_retraining_ctrl=rd_reg(DMC_PHY_RETRAINING_CTRL);
+	wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl&(~(1<<31)));
 
 	{
 
@@ -11152,6 +11168,7 @@ check_base_address();
 
 
 #endif
+	wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl);
 	return 1;
 }
 U_BOOT_CMD(
@@ -11267,7 +11284,10 @@ int do_ddr_c2_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 {
 	check_base_address();
 	//ddr_g12_offset_data  1 0  0 0  1 3
-
+	#define DMC_PHY_RETRAINING_CTRL     ( p_ddr_base->ddr_dmc_lpdd4_retraining_address)
+	uint32_t dmc_retraining_ctrl=0;
+	dmc_retraining_ctrl=rd_reg(DMC_PHY_RETRAINING_CTRL);
+	wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl&(~(1<<31)));
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F+7*32)
 	printf("\12nm phy read write register should closd apd and asr funciton\n");
@@ -11373,6 +11393,7 @@ int do_ddr_c2_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 
 	}
 	else {
+		wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl);
 		return 1;
 	}
 	printf("lcdlr_max %d,\n",lcdlr_max);
@@ -11450,6 +11471,9 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 {
 	//ddr_g12_offset_data  1 0  0 0  1 3
 	check_base_address();
+	uint32_t dmc_retraining_ctrl=0;
+	dmc_retraining_ctrl=rd_reg(DMC_PHY_RETRAINING_CTRL);
+
 	if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2)
 	{
 		do_ddr_c2_offset_data(cmdtp,  flag,  argc, argv);
@@ -11623,6 +11647,7 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 
 
 #endif
+	wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl);
 	return 1;
 }
 
@@ -11640,6 +11665,10 @@ U_BOOT_CMD(
 int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	check_base_address();
+	#define DMC_PHY_RETRAINING_CTRL     ( p_ddr_base->ddr_dmc_lpdd4_retraining_address)
+	uint32_t dmc_retraining_ctrl=0;
+	dmc_retraining_ctrl=rd_reg(DMC_PHY_RETRAINING_CTRL);
+	wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl&(~(1<<31)));
 	//ddr_test_watchdog_init(4000);
 	//printf("\nopen watchdog %dms\n",4000);
 	printf("\n ddr test cmd version== %s\n", CMD_VER);
@@ -11831,6 +11860,7 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 
 			}
+			wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl);
 			return 1;
 
 
@@ -11903,11 +11933,13 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			}
 			break;
 		}
+		wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl);
 		return 1;//test_start_addr
 	}
 
 usage:
 	cmd_usage(cmdtp);
+	wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl);
 	return 1;
 
 }
@@ -12439,7 +12471,10 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	ddr_set_add=(uint32_t)(uint64_t)(ddr_set_t_p);
 	ddr_set_size=sizeof(ddr_set_t);
 	printf("\nddr_set_t_p==0x%08x\n",ddr_set_add);
-
+	#define DMC_PHY_RETRAINING_CTRL     ( p_ddr_base->ddr_dmc_lpdd4_retraining_address)
+	uint32_t dmc_retraining_ctrl=0;
+	dmc_retraining_ctrl=rd_reg(DMC_PHY_RETRAINING_CTRL);
+	wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl&(~(1<<31)));
 	uint32_t write_size=0;
 	write_size=((ddr_set_size+SHA256_SUM_LEN+MESON_CPU_CHIP_ID_SIZE+511)/512)*512;
 	#if 1
@@ -12464,8 +12499,10 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		}
 	}
 	else
+	{
+		wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl);
 		return 1 ;
-
+	}
 	if (enable_ddr_check_boot_reason)
 	{
 		boot_reason=0;//ddr_set_t_p->boot_reason
@@ -12519,6 +12556,7 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 				printf("\nstr=%s\n",str);
 				run_command(str,0);
 			}
+			wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl);
 			return 1 ;
 		}
 		else
@@ -12534,6 +12572,7 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	if ((ddr_set_t_p->fast_boot[0]) == 0xff)
 	{
 		printf("\nuboot  auto fast boot  auto window test is done \n");
+		wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl);
 		return 1 ;
 	}
 	if (skip_window_test_enable)
@@ -12680,10 +12719,11 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 				run_command(str,0);
 			}
 		}
+			wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl);
 			return 1;
 		}
 	}
-
+	wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl);
 	return 1;
 }
 U_BOOT_CMD(
