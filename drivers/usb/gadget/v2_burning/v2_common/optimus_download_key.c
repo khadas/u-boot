@@ -109,10 +109,10 @@ _amlHdcp22RxKeys[_HDCP22RxTypes][_HDCP22_MAX_KEY_NUM] = {
         [3] = {.keyName = "hdcp22_rprp_fw",     .itemName = "extractedKey_rxrp", .isEncrypt = 0},
     },
     {//_AML_HDCP22_RX_TA_KEY_N
-        [0] = {.keyName = "KEY_HDCP_RX22_FW_PRIVATE",   .itemName = "hdcp22_rx_private", .isEncrypt = 0},
-        [1] = {.keyName = "KEY_HDCP_RX22_FW",           .itemName = "extractedKey",      .isEncrypt = 0},
-        [2] = {.keyName = "KEY_HDCP_RX22",              .itemName = "hdcp2_rx",          .isEncrypt = 0},
-        [3] = {.keyName = "KEY_HDCP_RP22_FW",           .itemName = "extractedKey_rxrp", .isEncrypt = 0},
+        [0] = {.keyName = "KEY_PROVISION_HDCP_RX22_FW_PRIVATE",   .itemName = "hdcp22_rx_private", .isEncrypt = 0},
+        [1] = {.keyName = "KEY_PROVISION_HDCP_RX22_FW",           .itemName = "extractedKey",      .isEncrypt = 0},
+        [2] = {.keyName = "KEY_PROVISION_HDCP_RX22",              .itemName = "hdcp2_rx",          .isEncrypt = 0},
+        [3] = {.keyName = "KEY_PROVISION_HDCP_RP22_FW",           .itemName = "extractedKey_rxrp", .isEncrypt = 0},
     },
 };
 

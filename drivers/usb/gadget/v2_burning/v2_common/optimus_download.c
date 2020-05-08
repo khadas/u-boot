@@ -110,9 +110,9 @@ struct ImgBurnInfo{
     u64 partBaseOffset;//start offset of this part
 
     void* devHdle;
-    char partName[32];//
+    char partName[48];//
 
-    u8  burnInfoPrivate[IMG_BURN_INFO_SZ - 32 - sizeof(void*) - sizeof(u64) * 5];//needed private info when verify, for example when we read ext4 to sparse file
+    u8  burnInfoPrivate[IMG_BURN_INFO_SZ - 48 - sizeof(void*) - sizeof(u64) * 5];//needed private info when verify, for example when we read ext4 to sparse file
 };
 
 static struct ImgBurnInfo OptimusImgBurnInfo = {0};
