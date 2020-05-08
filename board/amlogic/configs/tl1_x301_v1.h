@@ -404,6 +404,10 @@
 	"run factory_reset_poweroff_protect;"\
 	"run upgrade_check;"\
 	/* "run init_display;"\ */\
+	"echo ddr_fast_boot_enable_flag = ${ddr_fast_boot_enable_flag};"\
+	"if itest ${ddr_fast_boot_enable_flag} == 1; then "\
+		"ddr_auto_fast_boot_check 6;"\
+	"fi;"\
 	"run check_display;"\
 	"run storeargs;"\
 	"bcb uboot-command;"\
@@ -411,12 +415,7 @@
 	"run reset_suspend;"
 
 
-#define CONFIG_BOOTCOMMAND \
-	"echo ddr_fast_boot_enable_flag = ${ddr_fast_boot_enable_flag};"\
-	"if itest ${ddr_fast_boot_enable_flag} == 1; then "\
-		"ddr_auto_fast_boot_check 6;"\
-	"fi;"\
-	"run storeboot"
+#define CONFIG_BOOTCOMMAND "run storeboot"
 
 //#define CONFIG_ENV_IS_NOWHERE  1
 #define CONFIG_ENV_SIZE   (64*1024)
