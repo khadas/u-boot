@@ -1679,7 +1679,9 @@ static const struct mode_width_tuning sd_modes_by_pref[] = {
 	{
 		.mode = SD_HS,
 		.widths = MMC_MODE_4BIT | MMC_MODE_1BIT,
+#ifdef MMC_SUPPORTS_TUNING
 		.tuning = MMC_SD_HS_TUNING
+#endif
 	},
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
 	{
@@ -1885,7 +1887,9 @@ static const struct mode_width_tuning mmc_modes_by_pref[] = {
 	{
 		.mode = MMC_HS_52,
 		.widths = MMC_MODE_8BIT | MMC_MODE_4BIT | MMC_MODE_1BIT,
+#ifdef MMC_SUPPORTS_TUNING
 		.tuning = MMC_SD_HS_TUNING
+#endif
 	},
 	{
 		.mode = MMC_HS,
