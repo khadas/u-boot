@@ -339,8 +339,7 @@ static int display_get_timing_from_dts(struct panel_state *panel_state,
 }
 
 /**
- * drm_mode_max_resolution_filter - mark modes out of modes which vopl can't
- * support from mode list
+ * drm_mode_max_resolution_filter - mark modes out of vop max resolution
  * @edid_data: structure store mode list
  * @max_output: vop max output resolution
  */
