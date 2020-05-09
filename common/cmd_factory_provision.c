@@ -40,6 +40,7 @@ Description:
 
 #define FUNCID_PROVISION_SET_IV                0xB200E030
 #define FUNCID_PROVISION_ENCRYPT               0xB200E031
+#define FUNCID_PROVISION_GET_TRANSFER_ADDR     0xB2000007
 
 #define SIZE_1K                 (1024)
 #define SIZE_1M                 (SIZE_1K * SIZE_1K)
@@ -51,7 +52,7 @@ Description:
 #define SIZE_BLOCK              (512)
 
 #define MAX_SIZE_CMD            (256)
-#define MAX_SIZE_KEYBOX_NAME    (32)
+#define MAX_SIZE_KEYBOX_NAME    (256)
 #define MAX_SIZE_PART_NAME      (32)
 #define MAX_SIZE_KEYBOX         (SIZE_1K * 16)
 
@@ -86,8 +87,6 @@ Description:
 #define CMD_RET_BAD_PARAMETER                          0x00000021
 #define CMD_RET_SMC_CALL_FAILED                        0x00000031
 #define CMD_RET_UNKNOWN_ERROR                          0x0000FFFF
-
-#define TRANSFER_ADDR                                  0x10000000
 
 struct keybox_header {
 	uint32_t magic;
@@ -233,22 +232,25 @@ static struct fs_value g_fs_vals_fty[MAX_CNT_FS_VALUE] = {
 	{ 0, 0 },
 };
 
-static uint32_t move_data_to_transfer_addr(const char *data, uint32_t size)
+static uint32_t get_transfer_phy_addr(uint32_t *transfer_phy_addr)
 {
-	char *transfer_buf = map_sysmem(TRANSFER_ADDR, 0);
+	register uint32_t x0 asm("x0") = FUNCID_PROVISION_GET_TRANSFER_ADDR;
+	register uint32_t x1 asm("x1") = 0;
 
-	memcpy(transfer_buf, data, size);
-	unmap_sysmem(transfer_buf);
+	do {
+		asm volatile(
+			__asmeq("%0", "x0")
+			__asmeq("%1", "x1")
+			__asmeq("%2", "x0")
+			"smc    #0\n"
+			: "=r"(x0), "=r"(x1)
+			: "r"(x0));
+	} while (0);
 
-	return TRANSFER_ADDR;
-}
+	if (x0 == 0)
+		*transfer_phy_addr = x1;
 
-static void get_data_from_transfer_addr(char *data, uint32_t size)
-{
-	char *transfer_buf = map_sysmem(TRANSFER_ADDR, 0);
-
-	memcpy(data, transfer_buf, size);
-	unmap_sysmem(transfer_buf);
+	return x0;
 }
 
 static uint32_t set_iv(uint32_t transfer_addr, uint32_t iv_size)
@@ -412,23 +414,34 @@ static int preprocess_keybox(char *keybox, uint32_t size)
 	struct encryption_context *enc_cxt = (struct encryption_context *)
 		(keybox + sizeof(struct keybox_header));
 	uint32_t epek_size = sizeof(enc_cxt->epek);
+	uint32_t transfer_phy_addr = 0;
+	char *transfer_buf = NULL;
 
-	res = set_iv(
-		move_data_to_transfer_addr(enc_cxt->iv, sizeof(enc_cxt->iv)),
-		sizeof(enc_cxt->iv));
+	res = get_transfer_phy_addr(&transfer_phy_addr);
+	if (res) {
+		LOGE("get transfer address failed, "
+				"smc fast call ret = 0x%08X\n", res);
+		return CMD_RET_SMC_CALL_FAILED;
+	}
+
+	transfer_buf = map_sysmem(transfer_phy_addr, 0);
+
+	memcpy(transfer_buf, enc_cxt->iv, sizeof(enc_cxt->iv));
+	res = set_iv(transfer_phy_addr, sizeof(enc_cxt->iv));
 	if (res) {
 		LOGE("set iv failed, smc fast call ret = 0x%08X\n", res);
 		return CMD_RET_SMC_CALL_FAILED;
 	}
 
-	res = encrypt(
-		move_data_to_transfer_addr(enc_cxt->epek,
-		sizeof(enc_cxt->epek)), &epek_size);
+	memcpy(transfer_buf, enc_cxt->epek, sizeof(enc_cxt->epek));
+	res = encrypt(transfer_phy_addr, &epek_size);
 	if (res) {
 		LOGE("encrypt epek failed, smc fast call ret = 0x%08X\n", res);
 		return CMD_RET_SMC_CALL_FAILED;
 	}
-	get_data_from_transfer_addr(enc_cxt->epek, epek_size);
+	memcpy(enc_cxt->epek, transfer_buf, epek_size);
+
+	unmap_sysmem(transfer_buf);
 
 	return CMD_RET_SUCCESS;
 }
