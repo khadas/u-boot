@@ -80,6 +80,12 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	char* cvbsmode;
 	char* colorattribute;
 
+	st = getenv_ulong("hdmitx_hpd_bypass", 10, 0);
+	if (st) {
+		printf("hdmitx_hpd_bypass detect\n");
+		return 0;
+	}
+
 #ifdef CONFIG_AML_LCD
 	lcd_drv = aml_lcd_get_driver();
 	if (lcd_drv) {
