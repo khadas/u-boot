@@ -926,6 +926,30 @@ void aml_lcd_reg_print(void)
 	}
 }
 
+void aml_lcd_vbyone_rst(void)
+{
+	/* force PHY to 0 */
+	lcd_hiu_setb(HHI_LVDS_TX_PHY_CNTL0, 3, 8, 2);
+	lcd_vcbus_write(VBO_SOFT_RST, 0x1ff);
+	udelay(5);
+	/* realease PHY */
+	if (lcd_vcbus_read(VBO_INSGN_CTRL) & 0x1) {
+		LCDPR("clr force lockn input\n");
+		lcd_vcbus_setb(VBO_INSGN_CTRL, 0, 0, 1);
+	}
+	lcd_hiu_setb(HHI_LVDS_TX_PHY_CNTL0, 0, 8, 2);
+	lcd_vcbus_write(VBO_SOFT_RST, 0);
+	LCDPR("vybone reset\n");
+}
+
+void aml_lcd_vbyone_cdr(void)
+{
+	/*[5:0]: vx1 fsm status*/
+	lcd_vcbus_setb(VBO_INSGN_CTRL, 7, 0, 4);
+	mdelay(100);
+	LCDPR("vx1 fsm status: 0x%08x\n", lcd_vcbus_read(VBO_STATUS_L));
+}
+
 /* **********************************
  * lcd debug match data
  * **********************************

@@ -85,6 +85,8 @@ extern void aml_lcd_mute_setting(unsigned char flag);
 extern int aml_lcd_prbs_test(unsigned int s);
 extern void aml_lcd_info_print(void);
 extern void aml_lcd_reg_print(void);
+void aml_lcd_vbyone_rst(void);
+void aml_lcd_vbyone_cdr(void);
 extern void aml_lcd_debug_probe(struct aml_lcd_drv_s *lcd_drv);
 
 /* lcd driver */
