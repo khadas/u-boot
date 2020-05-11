@@ -25,6 +25,7 @@
 #include "cvbs_regs.h"
 #include "cvbs_config.h"
 #include "cvbs.h"
+#include "vdac.h"
 
 /*----------------------------------------------------------------------------*/
 static struct cvbs_drv_s cvbs_drv = {
@@ -32,52 +33,43 @@ static struct cvbs_drv_s cvbs_drv = {
 };
 
 static struct cvbs_vdac_data_s vdac_data_default = {
-	.vdac_ctrl0_en = 0x1,
-	.vdac_ctrl0_dis = 0,
-	.vdac_ctrl1_en = 0,
-	.vdac_ctrl1_dis = 8,
+	.vref_adj = 0x0,
+	.gsw = 0x0,
 };
 
 static struct cvbs_vdac_data_s vdac_data_gxl = {
-	.vdac_ctrl0_en = 0xb0001,
-	.vdac_ctrl0_dis = 0,
-	.vdac_ctrl1_en = 0,
-	.vdac_ctrl1_dis = 8,
+	.vref_adj = 0xb,
+	.gsw = 0x0,
 };
 
 static struct cvbs_vdac_data_s vdac_data_txl = {
-	.vdac_ctrl0_en = 0x620001,
-	.vdac_ctrl0_dis = 0,
-	.vdac_ctrl1_en = 8,
-	.vdac_ctrl1_dis = 0,
+	.vref_adj = 0x2,
+	.gsw = 0x0,
 };
 
 static struct cvbs_vdac_data_s vdac_data_g12a = {
-	.vdac_ctrl0_en = 0x906001,
-	.vdac_ctrl0_dis = 0,
-	.vdac_ctrl1_en = 0,
-	.vdac_ctrl1_dis = 8,
+	.vref_adj = 0x10,
+	.gsw = 0x0,
 };
 
 static struct cvbs_vdac_data_s vdac_data_g12b = {
-	.vdac_ctrl0_en = 0x8f6001,
-	.vdac_ctrl0_dis = 0,
-	.vdac_ctrl1_en = 0,
-	.vdac_ctrl1_dis = 8,
+	.vref_adj = 0xf,
+	.gsw = 0x0,
 };
 
 static struct cvbs_vdac_data_s vdac_data_sm1 = {
-	.vdac_ctrl0_en = 0x906001,
-	.vdac_ctrl0_dis = 0,
-	.vdac_ctrl1_en = 0,
-	.vdac_ctrl1_dis = 8,
+	.vref_adj = 0xf,
+	.gsw = 0x0,
 };
 
 static struct cvbs_vdac_data_s vdac_data_tl1 = {
-	.vdac_ctrl0_en = 0x906001,
-	.vdac_ctrl0_dis = 0,
-	.vdac_ctrl1_en = 0,
-	.vdac_ctrl1_dis = 8,
+	.vref_adj = 0x10,
+	.gsw = 0x0,
+};
+
+static struct cvbs_vdac_data_s vdac_data_tm2 = {
+	.vref_adj = 0x10,
+	.gsw = 0x0,
 };
 
 unsigned int cvbs_mode = VMODE_MAX;
@@ -283,40 +275,24 @@ int cvbs_set_bist(char* bist_mode)
 }
 
 /*----------------------------------------------------------------------------*/
-// configuration for vdac pin of the soc.
-// config vdac path:
-//	0 : close
-//	1 : enci
-//	2 : atv
-//	3 : passthrough
 int cvbs_set_vdac(int status)
 {
 	switch (status) {
 	case 0:// close vdac
-		if (cvbs_drv.vdac_data) {
-			cvbs_write_hiu(HHI_VDAC_CNTL0, cvbs_drv.vdac_data->vdac_ctrl0_dis);
-			cvbs_write_hiu(HHI_VDAC_CNTL1, cvbs_drv.vdac_data->vdac_ctrl1_dis);
-		} else {
+		if (cvbs_drv.vdac_data)
+			vdac_enable(0, VDAC_MODULE_CVBS_OUT);
+		else
 			printf("cvbs ERROR:need run cvbs init.\n");
-		}
 		break;
 	case 1:// from enci to vdac
 		cvbs_set_vcbus_bits(VENC_VDAC_DACSEL0, 0, 5, 1);
 		if (cvbs_drv.vdac_data) {
-			cvbs_write_hiu(HHI_VDAC_CNTL0, cvbs_drv.vdac_data->vdac_ctrl0_en);
-			cvbs_write_hiu(HHI_VDAC_CNTL1, cvbs_drv.vdac_data->vdac_ctrl1_en);
+			vdac_vref_adj(cvbs_drv.vdac_data->vref_adj);
+			vdac_gsw_adj(cvbs_drv.vdac_data->gsw);
+			vdac_enable(1, VDAC_MODULE_CVBS_OUT);
 		} else {
 			printf("cvbs ERROR:need run cvbs init.\n");
 		}
-		break;
-	case 2:// from atv to vdac
-		cvbs_set_vcbus_bits(VENC_VDAC_DACSEL0, 1, 5, 1);
-		cvbs_write_hiu(HHI_VDAC_CNTL0, 1);
-		cvbs_write_hiu(HHI_VDAC_CNTL1, 0);
-		break;
-	case 3:// from cvbs_in passthrough to cvbs_out with vdac disabled
-		cvbs_write_hiu(HHI_VDAC_CNTL0, 0x400);
-		cvbs_write_hiu(HHI_VDAC_CNTL1, 8);
 		break;
 	default:
 		break;
@@ -759,6 +735,12 @@ static int cvbs_config_clock(void)
 	return 0;
 }
 
+static void cvbs_disable_clock(void)
+{
+	cvbs_set_hiu_bits(HHI_VID_CLK_CNTL2, 0, 4, 1);
+	cvbs_set_hiu_bits(HHI_VID_CLK_CNTL2, 0, 0, 1);
+}
+
 /*----------------------------------------------------------------------------*/
 // configuration for enci
 static void cvbs_performance_enhancement(int mode)
@@ -869,6 +851,11 @@ int cvbs_set_vmode(char* vmode_name)
 		cvbs_config_clock();
 		cvbs_set_vdac(1);
 		return 0;
+	} else if (!strncmp(vmode_name, "disable", strlen("disable"))) {
+		cvbs_set_vdac(0);
+		cvbs_write_vcbus(ENCI_VIDEO_EN, 0);
+		cvbs_disable_clock();
+		return 0;
 	} else {
 		printf("[%s] is invalid for cvbs.\n", vmode_name);
 		return -1;
@@ -901,13 +888,50 @@ void cvbs_show_valid_vmode(void)
 	return;
 }
 
+static unsigned char cvbs_get_trimming_version(unsigned int flag)
+{
+	unsigned char version = 0xff;
+
+	if ((flag & 0xf0) == 0xa0)
+		version = 5;
+	else if ((flag & 0xf0) == 0x40)
+		version = 2;
+	else if ((flag & 0xc0) == 0x80)
+		version = 1;
+	else if ((flag & 0xc0) == 0x00)
+		version = 0;
+	return version;
+}
+
+static unsigned int cvbs_config_vdac(unsigned int value)
+{
+	unsigned char version = 0;
+	unsigned int cfg_valid, gsw_cfg;
+
+	version = cvbs_get_trimming_version((value >> 8) & 0xff);
+	/* flag 1/0 for validity of vdac config */
+	if ((version == 1) || (version == 2) || (version == 5)) {
+		cfg_valid = 1;
+		gsw_cfg = value & 0x7;
+	} else {
+		cfg_valid = 0;
+		gsw_cfg = 0xffff;
+	}
+	if (cfg_valid) {
+		printf("cvbs: %s: cvbs trimming 0x%x: %d.v%d, 0x%x\n",
+			__func__, value, cfg_valid, version, gsw_cfg);
+	}
+
+	return gsw_cfg;
+}
+
 static char *cvbsout_performance_str[] = {
 	"performance", /* default for pal */
 	"performance_pal",
 	"performance_ntsc",
 };
 
-void cvbs_performance_config(void)
+static void cvbs_get_config(void)
 {
 #ifdef CONFIG_OF_LIBFDT
 	char *dt_addr = NULL;
@@ -932,6 +956,22 @@ void cvbs_performance_config(void)
 		return;
 	}
 
+	/* clk_path */
+	propdata = (char *)fdt_getprop(dt_addr, parent_offset, "clk_path", NULL);
+	if (propdata) {
+		s_enci_clk_path = be32_to_cpup((u32*)propdata);
+		printf("cvbs: find clk_path: 0x%x\n", s_enci_clk_path);
+	}
+
+	/* vdac config */
+	propdata = (char *)fdt_getprop(dt_addr, parent_offset, "vdac_config", NULL);
+	if (propdata) {
+		temp = cvbs_config_vdac(be32_to_cpup((u32*)propdata));
+		if (temp < 0xff)
+			cvbs_drv.vdac_data->gsw = temp;
+	}
+
+	/* performance */
 	str = cvbsout_performance_str[1];
 	propdata = (char *)fdt_getprop(dt_addr, parent_offset, str, NULL);
 	if (propdata == NULL) {
@@ -1039,6 +1079,9 @@ void vdac_data_config(void)
 	case MESON_CPU_MAJOR_ID_TL1:
 		cvbs_drv.vdac_data = &vdac_data_tl1;
 		break;
+	case MESON_CPU_MAJOR_ID_TM2:
+		cvbs_drv.vdac_data = &vdac_data_tm2;
+		break;
 	default:
 		cvbs_drv.vdac_data = &vdac_data_default;
 		break;
@@ -1050,7 +1093,8 @@ void vdac_data_config(void)
 void cvbs_init(void)
 {
 	vdac_data_config();
-	cvbs_performance_config();
+	vdac_ctrl_config_probe();
+	cvbs_get_config();
 
 	return;
 }

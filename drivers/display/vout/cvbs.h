@@ -40,10 +40,8 @@ enum CVBS_MODE_e
 };
 
 struct cvbs_vdac_data_s {
-	unsigned int vdac_ctrl0_en;
-	unsigned int vdac_ctrl0_dis;
-	unsigned int vdac_ctrl1_en;
-	unsigned int vdac_ctrl1_dis;
+	unsigned int vref_adj;
+	unsigned int gsw;
 };
 
 struct reg_s {
