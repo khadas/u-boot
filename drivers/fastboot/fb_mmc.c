@@ -15,6 +15,7 @@
 #include <div64.h>
 #include <linux/compat.h>
 #include <android_image.h>
+#include <amlogic/aml_mmc.h>
 
 #define FASTBOOT_MAX_BLK_WRITE 16384
 
@@ -63,21 +64,22 @@ static lbaint_t fb_mmc_blk_write(struct blk_desc *block_dev, lbaint_t start,
 	lbaint_t blks = 0;
 	int i;
 
-	for (i = 0; i < blkcnt; i += FASTBOOT_MAX_BLK_WRITE) {
-		cur_blkcnt = min((int)blkcnt - i, FASTBOOT_MAX_BLK_WRITE);
-		if (buffer) {
+	if (buffer) {
+		for (i = 0; i < blkcnt; i += FASTBOOT_MAX_BLK_WRITE) {
+			cur_blkcnt = min((int)blkcnt - i, FASTBOOT_MAX_BLK_WRITE);
 			if (fastboot_progress_callback)
 				fastboot_progress_callback("writing");
 			blks_written = blk_dwrite(block_dev, blk, cur_blkcnt,
 						  buffer + (i * block_dev->blksz));
-		} else {
-			if (fastboot_progress_callback)
-				fastboot_progress_callback("erasing");
-			blks_written = blk_derase(block_dev, blk, cur_blkcnt);
+			blk += blks_written;
+			blks += blks_written;
 		}
-		blk += blks_written;
-		blks += blks_written;
+	} else {
+		if (fastboot_progress_callback)
+			fastboot_progress_callback("erasing");
+		blks = blk_derase(block_dev, start, blkcnt);
 	}
+
 	return blks;
 }
 
@@ -322,6 +324,68 @@ int fastboot_mmc_get_part_info(char *part_name, struct blk_desc **dev_desc,
 	return r;
 }
 
+/* erase or flash, when buffer is not NULL, it's write */
+static void fb_mmc_bootloader_ops(const char *cmd,
+				  struct blk_desc *dev_desc,
+				  void *buffer, unsigned int bytes,
+				  char *response)
+{
+	char *delim = "-";
+	char *hwpart;
+	int map = 0, ret = 0;
+	char *scmd = (char *) cmd;
+	char *ops[] = {"erase", "write"};
+
+	hwpart = strchr(scmd, (int)*delim);
+
+	if (!hwpart) {
+		map = AML_BL_USER;
+	} else if (!strcmp(hwpart, "-boot0")) {
+		map = AML_BL_BOOT0;
+	} else if (!strcmp(hwpart, "-boot1")) {
+		map = AML_BL_BOOT1;
+	}
+	if (map) {
+		if (buffer)
+			ret = amlmmc_write_bootloader(CONFIG_FASTBOOT_FLASH_MMC_DEV, map,
+						      bytes, buffer);
+	else
+		ret = amlmmc_erase_bootloader(CONFIG_FASTBOOT_FLASH_MMC_DEV, map);
+		if (ret) {
+			printf("failed %s %s from device %d", (buffer? ops[1]: ops[0]),
+				cmd, dev_desc->devnum);
+			fastboot_fail("failed bootloader operating to device", response);
+			return;
+		}
+		printf("........ %s  %s\n", (buffer? ops[1]: ops[0]), cmd);
+		fastboot_okay("", response);
+	} else
+		fastboot_fail("failed opearting from device", response);
+	return;
+}
+
+/**
+ * write bootloader on user/boot0/boot1
+ * according to bootloader name.
+ */
+static void fb_mmc_write_bootloader(const char *cmd,
+				    struct blk_desc *dev_desc,
+				    void *buffer, unsigned int bytes,
+				    char *response)
+{
+	return fb_mmc_bootloader_ops(cmd, dev_desc, buffer, bytes, response);
+}
+
+/**
+ * erase bootloader on user/boot0/boot1
+ * according to bootloader name.
+ */
+static void fb_mmc_erase_bootloader(const char *cmd, struct blk_desc *dev_desc,
+				    char *response)
+{
+	return fb_mmc_bootloader_ops(cmd, dev_desc, NULL, 0, response);
+}
+
 /**
  * fastboot_mmc_flash_write() - Write image to eMMC for fastboot
  *
@@ -334,6 +398,7 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 			      u32 download_bytes, char *response)
 {
 	struct blk_desc *dev_desc;
+	int ret = 0;
 	disk_partition_t info;
 
 	dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
@@ -394,37 +459,57 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 	}
 #endif
 
-	if (part_get_info_by_name_or_alias(dev_desc, cmd, &info) < 0) {
-		pr_err("cannot find partition: '%s'\n", cmd);
-		fastboot_fail("cannot find partition", response);
+	if (strcmp(cmd, "dtb") == 0) {
+#ifndef DTB_BIND_KERNEL
+		ret = dtb_write(download_buffer);
+		if (ret)
+			fastboot_fail("fastboot write dtb fail", response);
+		else {
+			/* renew partition table @ once*/
+			if (renew_partition_tbl(download_buffer))
+				fastboot_fail("fastboot write dtb fail", response);
+			fastboot_okay("", response);
+		}
+#else
+	fastboot_fail("dtb is bind in kernel, return", response);
+#endif
+	} else if (!strncmp(cmd, "bootloader", strlen("bootloader"))) {
+		fb_mmc_write_bootloader(cmd, dev_desc, download_buffer,
+					download_bytes, response);
 		return;
-	}
-
-	if (is_sparse_image(download_buffer)) {
-		struct fb_mmc_sparse sparse_priv;
-		struct sparse_storage sparse;
-		int err;
-
-		sparse_priv.dev_desc = dev_desc;
-
-		sparse.blksz = info.blksz;
-		sparse.start = info.start;
-		sparse.size = info.size;
-		sparse.write = fb_mmc_sparse_write;
-		sparse.reserve = fb_mmc_sparse_reserve;
-		sparse.mssg = fastboot_fail;
-
-		printf("Flashing sparse image at offset " LBAFU "\n",
-		       sparse.start);
-
-		sparse.priv = &sparse_priv;
-		err = write_sparse_image(&sparse, cmd, download_buffer,
-					 response);
-		if (!err)
-			fastboot_okay(NULL, response);
 	} else {
-		write_raw_image(dev_desc, &info, cmd, download_buffer,
-				download_bytes, response);
+		if (part_get_info_by_name_or_alias(dev_desc, cmd, &info) < 0) {
+			pr_err("cannot find partition: '%s'\n", cmd);
+			fastboot_fail("cannot find partition", response);
+			return;
+		}
+
+		if (is_sparse_image(download_buffer)) {
+			struct fb_mmc_sparse sparse_priv;
+			struct sparse_storage sparse;
+			int err;
+
+			sparse_priv.dev_desc = dev_desc;
+
+			sparse.blksz = info.blksz;
+			sparse.start = info.start;
+			sparse.size = info.size;
+			sparse.write = fb_mmc_sparse_write;
+			sparse.reserve = fb_mmc_sparse_reserve;
+			sparse.mssg = fastboot_fail;
+
+			printf("Flashing sparse image at offset " LBAFU "\n",
+			       sparse.start);
+
+			sparse.priv = &sparse_priv;
+			err = write_sparse_image(&sparse, cmd, download_buffer,
+						 response);
+			if (!err)
+				fastboot_okay(NULL, response);
+		} else {
+			write_raw_image(dev_desc, &info, cmd, download_buffer,
+					download_bytes, response);
+		}
 	}
 }
 
@@ -455,34 +540,39 @@ void fastboot_mmc_erase(const char *cmd, char *response)
 		return;
 	}
 
-	ret = part_get_info_by_name_or_alias(dev_desc, cmd, &info);
-	if (ret < 0) {
-		pr_err("cannot find partition: '%s'\n", cmd);
-		fastboot_fail("cannot find partition", response);
+	if (!strncmp(cmd, "bootloader", strlen("bootloader"))) {
+		fb_mmc_erase_bootloader(cmd, dev_desc, response);
 		return;
+	} else {
+		ret = part_get_info_by_name_or_alias(dev_desc, cmd, &info);
+		if (ret < 0) {
+			pr_err("cannot find partition: '%s'\n", cmd);
+			fastboot_fail("cannot find partition", response);
+			return;
+		}
+
+		/* Align blocks to erase group size to avoid erasing other partitions */
+		grp_size = mmc->erase_grp_size;
+		blks_start = (info.start + grp_size - 1) & ~(grp_size - 1);
+		if (info.size >= grp_size)
+			blks_size = (info.size - (blks_start - info.start)) &
+					(~(grp_size - 1));
+		else
+			blks_size = 0;
+
+		printf("Erasing blocks " LBAFU " to " LBAFU " due to alignment\n",
+		       blks_start, blks_start + blks_size);
+
+		blks = fb_mmc_blk_write(dev_desc, blks_start, blks_size, NULL);
+
+		if (blks) {
+			pr_err("failed erasing from device %d\n", dev_desc->devnum);
+			fastboot_fail("failed erasing from device", response);
+			return;
+		}
+
+		printf("........ erased " LBAFU " bytes from '%s'\n",
+		       blks_size * info.blksz, cmd);
+		fastboot_okay(NULL, response);
 	}
-
-	/* Align blocks to erase group size to avoid erasing other partitions */
-	grp_size = mmc->erase_grp_size;
-	blks_start = (info.start + grp_size - 1) & ~(grp_size - 1);
-	if (info.size >= grp_size)
-		blks_size = (info.size - (blks_start - info.start)) &
-				(~(grp_size - 1));
-	else
-		blks_size = 0;
-
-	printf("Erasing blocks " LBAFU " to " LBAFU " due to alignment\n",
-	       blks_start, blks_start + blks_size);
-
-	blks = fb_mmc_blk_write(dev_desc, blks_start, blks_size, NULL);
-
-	if (blks != blks_size) {
-		pr_err("failed erasing from device %d\n", dev_desc->devnum);
-		fastboot_fail("failed erasing from device", response);
-		return;
-	}
-
-	printf("........ erased " LBAFU " bytes from '%s'\n",
-	       blks_size * info.blksz, cmd);
-	fastboot_okay(NULL, response);
 }

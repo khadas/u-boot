@@ -335,7 +335,7 @@ int amlmmc_write_bootloader(int dev, int map, unsigned int size, const void *src
 	/* erase bootloader in user/boot0/boot1 */
 	for (i = 0; i < count; i++) {
 		if (map & (0x1 << i)) {
-			if (!blk_select_hwpart(mmc->dev,i)) {
+			if (!blk_select_hwpart_devnum(IF_TYPE_MMC, 1, i)) {
 /* some customer may use boot1 higher 2M as private data. */
 #ifdef CONFIG_EMMC_BOOT1_TOUCH_REGION
 				if (2 == i && CONFIG_EMMC_BOOT1_TOUCH_REGION <= size) {
