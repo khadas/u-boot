@@ -253,7 +253,7 @@ void cec_hw_reset(void)
 	/* set up pinmux */
 	writel(readl(AO_RTI_PIN_MUX_REG) & (~(1 << 14 | 1 << 15 | 1 << 17)),
 	       AO_RTI_PIN_MUX_REG);
-	writel(readl(AO_RTI_PULL_UP_REG) & (~(1 << 7)), AO_RTI_PULL_UP_REG);
+	/* writel(readl(AO_RTI_PULL_UP_REG) & (~(1 << 7)), AO_RTI_PULL_UP_REG); */
 	writel(readl(AO_RTI_PIN_MUX_REG2) | (1 << 13), AO_RTI_PIN_MUX_REG2);
 	writel(CECB_IRQ_EN_MASK, AO_CECB_INTR_MASKN);
 }
