@@ -27,9 +27,13 @@ Description:
 
 static int is_bootloader_old(void)
 {
-    int sdc_boot = is_tpl_loaded_from_ext_sdmmc();
+    if (is_tpl_loaded_from_ext_sdmmc()) return 1;
 
-    return !sdc_boot;
+    if (OPTIMUS_WORK_MODE_UDISK_PRODUCE == optimus_work_mode_get()) {
+        return !getenv_hex("usbDiskNewBoot", 0);//default old
+    }
+
+    return 0;
 }
 
 int get_burn_parts_from_img(HIMAGE hImg, ConfigPara_t* pcfgPara)
@@ -673,31 +677,48 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
         memcpy((void*)pkgPath, cfgFile, strnlen(cfgFile, 128));
     }
 
-    if (pSdcCfgPara->custom.eraseBootloader && strcmp("1", getenv("usb_update")))
+    hImg = hImg ? hImg : image_open("mmc", "0", "1", pkgPath);
+    if (!hImg) {
+        DWN_ERR("Fail to open image %s\n", pkgPath);
+        ret = __LINE__; goto _finish;
+    }
+    const int eraseBootloader = pSdcCfgPara->custom.eraseBootloader;
+    const int usbDiskUpgrade = (OPTIMUS_WORK_MODE_UDISK_PRODUCE == optimus_work_mode_get());
+    if (eraseBootloader && is_bootloader_old())
     {
-        if (is_bootloader_old())
-        {
+        if (usbDiskUpgrade) {//upgrade new bootloader
+            if (optimus_burn_bootlader(hImg)) {
+                DWN_ERR("Fail in burn new bootloader from usb disk\n");
+                goto _finish;
+            }
+            setenv("usbDiskNewBoot", "1");
+            setenv("sdcburncfg", cfgFile);
+            setenv("usbDiskUpgrade", "run init_display; usb_burn $sdcburncfg");
+            setenv("preboot", "printenv usbDiskUpgrade; run usbDiskUpgrade");
+            run_command("saveenv", 0);
+        } else
+        {//sdc_burn
             DWN_MSG("To erase OLD bootloader !\n");
             ret = optimus_erase_bootloader("sdc");
             if (ret) {
                 DWN_ERR("Fail to erase bootloader\n");
                 ret = __LINE__; goto _finish;
             }
+        }
 
 #if defined(CONFIG_VIDEO_AMLLCD)
-            //axp to low power off LCD, no-charging
-            DWN_MSG("To close LCD\n");
-            ret = run_command("video dev disable", 0);
-            if (ret) {
-                printf("Fail to close back light\n");
-                /*return __LINE__;*/
-            }
+        //axp to low power off LCD, no-charging
+        DWN_MSG("To close LCD\n");
+        ret = run_command("video dev disable", 0);
+        if (ret) {
+            printf("Fail to close back light\n");
+            /*return __LINE__;*/
+        }
 #endif// #if defined(CONFIG_VIDEO_AMLLCD)
 
-            DWN_MSG("Reset to load NEW uboot from ext-mmc!\n");
-            optimus_reset(OPTIMUS_BURN_COMPLETE__REBOOT_SDC_BURN);
-            return __LINE__;//should never reach here!!
-        }
+        DWN_MSG("Reset to load NEW uboot from ext-mmc!\n");
+        optimus_reset(OPTIMUS_BURN_COMPLETE__REBOOT_SDC_BURN);
+        return __LINE__;//should never reach here!!
     }
 
     if (OPTIMUS_WORK_MODE_SDC_PRODUCE == optimus_work_mode_get()) //led not depend on image res, can init early
@@ -709,13 +730,6 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
         optimus_led_show_in_process_of_burning();
     }
 
-    if (!hImg) {
-        hImg = image_open("mmc", "0", "1", pkgPath);
-        if (!hImg) {
-            DWN_ERR("Fail to open image %s\n", pkgPath);
-            ret = __LINE__; goto _finish;
-        }
-    }
     //update dtb for burning drivers
     ret = optimus_sdc_burn_dtb_load(hImg);
     if (ITEM_NOT_EXIST != ret && ret) {
@@ -803,24 +817,24 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
             ret = __LINE__;goto _finish;
     }
 
-#if 1
     if (hasBootloader)
     {//burn bootloader
+        if (usbDiskUpgrade && getenv_hex("usbDiskNewBoot", 0)) {//already upgrade bootloader from pkg
+            ;
+        } else {
             ret = optimus_burn_bootlader(hImg);
             if (ret) {
-                    DWN_ERR("Fail in burn bootloader\n");
-                    goto _finish;
+                DWN_ERR("Fail in burn bootloader\n");
+                goto _finish;
             }
-            else
-            {//update bootloader ENV only when bootloader image is burned
-                    ret = optimus_set_burn_complete_flag();
-                    if (ret) {
-                            DWN_ERR("Fail in set_burn_complete_flag\n");
-                            ret = __LINE__; goto _finish;
-                    }
-            }
+        }
+        //update bootloader ENV only when bootloader image is burned
+        ret = optimus_set_burn_complete_flag();
+        if (ret) {
+            DWN_ERR("Fail in set_burn_complete_flag\n");
+            ret = __LINE__; goto _finish;
+        }
     }
-#endif
     optimus_progress_ui_direct_update_progress(hUiProgress, UPGRADE_STEPS_AFTER_BURN_BOOTLOADER_OK);
 
 _finish:

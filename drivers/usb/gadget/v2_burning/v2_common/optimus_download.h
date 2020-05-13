@@ -191,6 +191,8 @@ int platform_busy_increase_un_reported_size(const unsigned nBytes);
 #define OPTIMUS_WORK_MODE_SDC_UPDATE      (0xefe7)
 #define OPTIMUS_WORK_MODE_SDC_PRODUCE     (0xefe8)
 #define OPTIMUS_WORK_MODE_SYS_RECOVERY    (0xefe9)
+#define OPTIMUS_WORK_MODE_UDISK_UPDATE    (0xefea)
+#define OPTIMUS_WORK_MODE_UDISK_PRODUCE   (0xefeb)
 int optimus_work_mode_get(void);
 int optimus_work_mode_set(int workmode);
 

@@ -69,7 +69,7 @@ int do_usb_burn(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
         return __LINE__;
     }
 
-    optimus_work_mode_set(OPTIMUS_WORK_MODE_SDC_UPDATE);
+    optimus_work_mode_set(OPTIMUS_WORK_MODE_UDISK_PRODUCE);
     show_logo_to_report_burning();//indicate enter flow of burning! when 'run update'
     if (optimus_led_open(LED_TYPE_PWM)) {
         DWN_ERR("Fail to open led for burn\n");
