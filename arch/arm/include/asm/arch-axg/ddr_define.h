@@ -142,6 +142,18 @@
 #endif
 #define DDR_FUNC_PRINT_WINDOW				(CONFIG_DDR_FUNC_PRINT_WINDOW<<7)
 
+//mode1,PHY ODTCR rank0:0x20000,rank1:0x10000;DMC t_pctl0_dfiodtcfg=0x404
+#ifndef CONFIG_DDR_FUNC_4PCS_DDR4_ODTCFG_MODE1
+#define CONFIG_DDR_FUNC_4PCS_DDR4_ODTCFG_MODE1	0
+#endif
+#define DDR_FUNC_4PCS_DDR4_ODTCFG_MODE1			(CONFIG_DDR_FUNC_4PCS_DDR4_ODTCFG_MODE1<<10)
+
+//mode2,PHY ODTCR rank0:0x10000,rank1:0x20000;DMC t_pctl0_dfiodtcfg=0x808
+#ifndef CONFIG_DDR_FUNC_4PCS_DDR4_ODTCFG_MODE2
+#define CONFIG_DDR_FUNC_4PCS_DDR4_ODTCFG_MODE2	0
+#endif
+#define DDR_FUNC_4PCS_DDR4_ODTCFG_MODE2			(CONFIG_DDR_FUNC_4PCS_DDR4_ODTCFG_MODE2<<11)
+
 #define DDR_FUNC							(DDR_FUNC_D2PLL					| \
 											DDR_FUNC_LP						| \
 											DDR_FUNC_ZQ_PD					| \
@@ -150,5 +162,7 @@
 											DDR_FUNC_DDR_PLL_BYPASS			| \
 											DDR_FUNC_RDBI					| \
 											DDR_FUNC_PRINT_WINDOW			| \
+											DDR_FUNC_4PCS_DDR4_ODTCFG_MODE1	| \
+											DDR_FUNC_4PCS_DDR4_ODTCFG_MODE2	| \
 											(1 << 31) 						\
 											)
