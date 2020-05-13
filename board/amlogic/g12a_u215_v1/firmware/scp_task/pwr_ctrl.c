@@ -123,8 +123,10 @@ extern void __switch_idle_task(void);
 static unsigned int detect_key(unsigned int suspend_from)
 {
 	int exit_reason = 0;
+#ifdef CONFIG_BT_RCU
 	int event = 0;
 	int event_flag = 0;
+#endif
 	unsigned int ret;
 	unsigned *irq = (unsigned *)WAKEUP_SRC_IRQ_ADDR_BASE;
 	init_remote();

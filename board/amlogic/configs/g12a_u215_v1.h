@@ -43,7 +43,7 @@
 /*if use bt-wakeup,open it*/
 #define CONFIG_BT_WAKEUP
 /*if use uart rcu,open it*/
-#define CONFIG_BT_RCU
+//#define CONFIG_BT_RCU
 /* SMP Definitinos */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
