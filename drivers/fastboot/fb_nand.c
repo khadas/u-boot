@@ -13,6 +13,10 @@
 #include <linux/mtd/mtd.h>
 #include <jffs2/jffs2.h>
 #include <nand.h>
+#include <amlogic/storage.h>
+#include <amlogic/aml_mtd.h>
+#include <amlogic/aml_nand.h>
+#include <amlogic/aml_rsv.h>
 
 struct fb_nand_sparse {
 	struct mtd_info		*mtd;
@@ -45,6 +49,8 @@ static int fb_nand_lookup(const char *partname,
 		return ret;
 	}
 
+	if (strcmp(partname, "dtb") == 0)
+		return 0;
 	ret = find_dev_and_part(partname, &dev, &pnum, part);
 	if (ret) {
 		pr_err("cannot find partition: '%s'", partname);
@@ -173,12 +179,76 @@ void fastboot_nand_flash_write(const char *cmd, void *download_buffer,
 {
 	struct part_info *part;
 	struct mtd_info *mtd = NULL;
-	int ret;
+	int ret, err;
+	int copy_num = 0, i = 0;
+	u64 off = 0;
+	size_t rwsize = 0, limit = 0;
 
 	ret = fb_nand_lookup(cmd, &mtd, &part, response);
 	if (ret) {
 		pr_err("invalid NAND device");
 		fastboot_fail("invalid NAND device", response);
+		return;
+	}
+
+	if (strcmp(cmd, "bootloader") == 0) {
+		rwsize = download_bytes;
+#ifdef CONFIG_DISCRETE_BOOTLOADER
+		copy_num = CONFIG_BL2_COPY_NUM;
+		limit = mtd->size / copy_num;
+#else
+		copy_num = get_boot_num(mtd, rwsize);
+		limit = mtd->size / copy_num;
+#endif
+		for (i = 0; i < copy_num; i++) {
+			printf("off = 0x%llx,wsize = 0x%lx\n",
+				off, rwsize);
+			err = nand_write_skip_bad(mtd, off, &rwsize,
+						NULL, limit,
+						(u_char *)download_buffer, 0);
+			if (err) {
+				rwsize = download_bytes;
+				printf("bootloader write err,code = %d\n",err);
+			}
+			off += limit;
+		}
+		fastboot_okay("write bootloader", response);
+		return;
+	}
+
+#ifdef CONFIG_DISCRETE_BOOTLOADER
+	if (strcmp(cmd, "tpl") == 0) {
+		copy_num = CONFIG_TPL_COPY_NUM;
+		rwsize = download_bytes;
+		limit = CONFIG_TPL_SIZE_PER_COPY;
+		off = 1024 * mtd->writesize +
+			NAND_RSV_BLOCK_NUM * mtd->erasesize;
+
+		for (i = 0; i < copy_num; i++) {
+			printf("off = 0x%llx,wsize = 0x%lx\n", off, rwsize);
+			err = nand_write_skip_bad(mtd, off, &rwsize,
+						NULL, limit,
+						(u_char *)download_buffer, 0);
+			if (err) {
+				rwsize = download_bytes;
+				printf("tpl write err,code = %d\n",err);
+			}
+			off += CONFIG_TPL_SIZE_PER_COPY;
+		}
+		fastboot_okay("write tpl", response);
+		return;
+	}
+#endif
+
+	if (strcmp(cmd, "dtb") == 0) {
+		ret = store_rsv_write("dtb", download_bytes, (u8 *)download_buffer);
+		printf("Flashing dtb...len:0x%x\n", download_bytes);
+		if (ret) {
+			printf("write dtb fail,result code %d\n", ret);
+			fastboot_fail("write dtb", response);
+		} else {
+			fastboot_okay("write dtb", response);
+		}
 		return;
 	}
 
@@ -243,6 +313,18 @@ void fastboot_nand_erase(const char *cmd, char *response)
 	if (ret) {
 		pr_err("invalid NAND device");
 		fastboot_fail("invalid NAND device", response);
+		return;
+	}
+
+	if (strcmp(cmd, "dtb") == 0) {
+		ret = store_rsv_erase("dtb");
+		if (ret) {
+			pr_err("erase dtb fail,ret = %d\n", ret);
+			fastboot_fail("erase dtb",
+				response);
+		} else {
+			fastboot_okay("erase dtb", response);
+		}
 		return;
 	}
 
