@@ -112,7 +112,7 @@
         "osd_reverse=0\0"\
         "video_reverse=0\0"\
         "active_slot=_a\0"\
-        "lock=10001000\0"\
+        "lock=10101000\0"\
         "boot_part=boot\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\

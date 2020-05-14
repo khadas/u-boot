@@ -127,7 +127,7 @@
         "cvbs_drv=0\0"\
         "osd_reverse=0\0"\
         "video_reverse=0\0"\
-        "lock=10001000\0"\
+        "lock=10101000\0"\
         "active_slot=normal\0"\
         "boot_part=boot\0"\
         "reboot_mode_android=""normal""\0"\

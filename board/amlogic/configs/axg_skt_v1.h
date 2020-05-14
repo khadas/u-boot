@@ -108,7 +108,7 @@
         "cvbs_drv=0\0"\
         "osd_reverse=0\0"\
         "video_reverse=0\0"\
-        "lock=10001000\0"\
+        "lock=10101000\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
             "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml_uart,0xff803000 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\

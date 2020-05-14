@@ -460,6 +460,7 @@ void dump_lock_info(LockData_t* info)
 {
 	printf("info->version_major = %d\n", info->version_major);
 	printf("info->version_minor = %d\n", info->version_minor);
+	printf("info->unlock_ability = %d\n", info->unlock_ability);
 	printf("info->lock_state = %d\n", info->lock_state);
 	printf("info->lock_critical_state = %d\n", info->lock_critical_state);
 	printf("info->lock_bootloader = %d\n", info->lock_bootloader);
@@ -474,8 +475,8 @@ static int check_lock(void)
 	lock_s = getenv("lock");
 	if (!lock_s) {
 		printf("lock state is NULL \n");
-		lock_s = "10000000";
-		setenv("lock", "10000000");
+		lock_s = "10101000";
+		setenv("lock", "10101000");
 		run_command("defenv_reserv; saveenv;", 0);
 	}
 	printf("lock state: %s\n", lock_s);
@@ -485,6 +486,7 @@ static int check_lock(void)
 		memset(info,0,LOCK_DATA_SIZE);
 		info->version_major = (int)(lock_s[0] - '0');
 		info->version_minor = (int)(lock_s[1] - '0');
+		info->unlock_ability = (int)(lock_s[2] - '0');
 		info->lock_state = (int)(lock_s[4] - '0');
 		info->lock_critical_state = (int)(lock_s[5] - '0');
 		info->lock_bootloader = (int)(lock_s[6] - '0');
@@ -1110,9 +1112,9 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 	lock_s = getenv("lock");
 	if (!lock_s) {
 		printf("lock state is NULL \n");
-		strcpy(lock_d, "10000000");
-		lock_s = "10000000";
-		setenv("lock", "10000000");
+		strcpy(lock_d, "10101000");
+		lock_s = "10101000";
+		setenv("lock", "10101000");
 		run_command("defenv_reserv; saveenv;", 0);
 	} else {
 		printf("lock state: %s\n", lock_s);
@@ -1131,6 +1133,7 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 	memset(info,0,LOCK_DATA_SIZE);
 	info->version_major = (int)(lock_d[0] - '0');
 	info->version_minor = (int)(lock_d[1] - '0');
+	info->unlock_ability = (int)(lock_d[2] - '0');
 	info->lock_state = (int)(lock_d[4] - '0');
 	info->lock_critical_state = (int)(lock_d[5] - '0');
 	info->lock_bootloader = (int)(lock_d[6] - '0');
@@ -1154,7 +1157,7 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 		info->lock_critical_state = 1;
 	} else if (!strcmp_l1("get_unlock_ability", cmd)) {
 		char str_num[8];
-		sprintf(str_num, "%d", info->lock_state);
+		sprintf(str_num, "%d", info->unlock_ability);
 		strncat(response, str_num, chars_left);
 	} else if (!strcmp_l1("get_unlock_bootloader_nonce", cmd)) {
 		char str_num[8];
@@ -1165,29 +1168,35 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 	} else if (!strcmp_l1("lock_bootloader", cmd)) {
 		info->lock_bootloader = 1;
 	} else if (!strcmp_l1("unlock", cmd)) {
-		if (info->lock_state == 1 ) {
-			char *avb_s;
-			avb_s = getenv("avb2");
-			if (avb_s == NULL) {
-				run_command("get_avb_mode;", 0);
+		if (info->unlock_ability == 1 ) {
+			if (info->lock_state == 1 ) {
+				char *avb_s;
 				avb_s = getenv("avb2");
-			}
-			printf("avb2: %s\n", avb_s);
-			if (strcmp(avb_s, "1") == 0) {
+				if (avb_s == NULL) {
+					run_command("get_avb_mode;", 0);
+					avb_s = getenv("avb2");
+				}
+				printf("avb2: %s\n", avb_s);
+				if (strcmp(avb_s, "1") == 0) {
 #ifdef CONFIG_AML_ANTIROLLBACK
-				if (avb_unlock()) {
+					if (avb_unlock()) {
+						printf("unlocking device.  Erasing userdata partition!\n");
+						run_command("store erase partition data", 0);
+					} else {
+						printf("unlock failed!\n");
+					}
+#else
 					printf("unlocking device.  Erasing userdata partition!\n");
 					run_command("store erase partition data", 0);
-				} else {
-					printf("unlock failed!\n");
-				}
-#else
-				printf("unlocking device.  Erasing userdata partition!\n");
-				run_command("store erase partition data", 0);
 #endif
+				}
 			}
+			info->lock_state = 0;
+			info->lock_critical_state = 0;
+		} else {
+			printf("unlock_ability is 0, can not unlock, please set it in android setting\n");
+			strcpy(response, "FAILunlock_ability is 0, can not unlock");
 		}
-		info->lock_state = 0;
 	} else if (!strcmp_l1("lock", cmd)) {
 		if (info->lock_state == 0 ) {
 			char *avb_s;
@@ -1218,7 +1227,7 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 	}
 
 	dump_lock_info(info);
-	sprintf(lock_d, "%d%d00%d%d%d0", info->version_major, info->version_minor, info->lock_state, info->lock_critical_state, info->lock_bootloader);
+	sprintf(lock_d, "%d%d%d0%d%d%d0", info->version_major, info->version_minor, info->unlock_ability, info->lock_state, info->lock_critical_state, info->lock_bootloader);
 	printf("lock_d state: %s\n", lock_d);
 	setenv("lock", lock_d);
 	run_command("defenv_reserv; saveenv;", 0);
@@ -1372,6 +1381,7 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 	char* response = response_str;
 	char *cmd = req->buf;
 	char *slot_name;
+	char* lock_s;
 
 	printf("cmd cb_erase is %s\n", cmd);
 
@@ -1410,6 +1420,11 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 		printf("partition is %s\n", cmd);
 	}
 
+	lock_s = getenv("lock");
+	if (!lock_s) {
+		lock_s = "10101000";
+	}
+
 	//strcpy(response, "FAILno erase device defined");
 	if (is_mainstorage_emmc()) {
 #ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
@@ -1424,6 +1439,12 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 	} else {
 		printf("error: no valid fastboot device\n");
 		fastboot_fail("no vaild device\n");
+	}
+
+	if (strcmp(cmd, "env") == 0) {
+		printf("lock_d state: %s\n", lock_s);
+		setenv("lock", lock_s);
+		run_command("defenv_reserv; saveenv;", 0);
 	}
 	fastboot_tx_write_str(response);
 }

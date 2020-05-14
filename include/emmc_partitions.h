@@ -240,9 +240,10 @@ struct _mmc_device{
 typedef struct LockData {
 	uint8_t version_major;
 	uint8_t version_minor;
+	uint8_t unlock_ability;
 
 	/* Padding to eight bytes. */
-	uint8_t reserved1[2];
+	uint8_t reserved1;
 
 	/* 0: unlock    1: lock*/
 	uint8_t lock_state;
