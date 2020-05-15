@@ -58,7 +58,7 @@
  *
  */
 
-ddr_set_t __ddr_setting[] = {
+ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 {
 	/* lpddr4x SK hynix H9HCNNNCPMALHR-NEE 2 RANKs 4GB */
 	/* lpddr4x SK hynix H9HCNNNCPMMLHR-NME 2 RANKs 4GB */
