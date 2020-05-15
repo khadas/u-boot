@@ -168,7 +168,7 @@ function build_fip() {
 
 function copy_other_soc() {
 	cp ${BL33_BUILD_FOLDER}${BOARD_DIR}/firmware/acs.bin ${BUILD_PATH} -f
-	./${FIP_FOLDER}parse ${BUILD_PATH}/acs.bin
+	./${FIP_BUILD_FOLDER}/parse ${BUILD_PATH}/acs.bin
 }
 
 function package() {

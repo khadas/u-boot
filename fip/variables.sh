@@ -29,13 +29,13 @@ declare DEFCFG_FOLDER="board/amlogic/defconfigs"
 declare BL33_PATH1=""
 declare BL33_PATH2="bl33/v2019"
 
-declare BL33_TOOLCHAIN1="/opt/toolchains/gcc-linaro-aarch64-none-elf-4.9-2014.09_linux/bin/aarch64-none-elf-"
-declare BL33_TOOLCHAIN2="${BL33_TOOLCHAIN1}"
+declare BL33_TOOLCHAIN1="/opt/toolchains/gcc-linaro-aarch64-none-elf-4.8-2013.11_linux/bin/aarch64-none-elf-"
+declare BL33_TOOLCHAIN2="/opt/toolchains/gcc-linaro-7.3.1-2018.05-i686_aarch64-elf/bin/aarch64-elf-"
 
-#declare BL33_DEFCFG1="${UBOOT_FOLDER}/${UBOOT_VERSION1}/${DEFCFG_FOLDER}"
-declare BL33_DEFCFG2="board/amlogic/defconfigs"
 declare BL33_DEFCFG1="board/khadas/defconfigs"
+declare BL33_DEFCFG2="board/amlogic/defconfigs"
 
+declare FIP_DDR_PARSE="${FIP_FOLDER}/tools/ddr_parse/"
 # current branch/path/rev/name/remote in xml
 declare -a GIT_INFO=("branch", "path", "rev", "name", "remote")
 

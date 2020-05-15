@@ -109,7 +109,6 @@ function build_blx_src() {
 
 function build_blx() {
 	# build each blx
-	mkdir -p ${FIP_BUILD_FOLDER}
 
 	# switch bl31 version
 	switch_bl31 ${CUR_SOC}
@@ -189,6 +188,9 @@ function build() {
 	# but if source in sub-function, only sub-function(or sub-sub..) can use them
 	source ${FIP_FOLDER}${CUR_SOC}/variable_soc.sh
 
+	# compile fip tools for ddr_parse and map_tool
+	prepare_tools
+
 	# source soc package script
 	source ${FIP_FOLDER}${CUR_SOC}/build.sh
 
@@ -196,11 +198,15 @@ function build() {
 	bin_path_parser $@
 	#bin_path_update $@
 
-	# build bl33/bl301..etc
 	CONFIG_SYSTEM_AS_ROOT=systemroot
 	echo "export CONFIG_SYSTEM_AS_ROOT"
 	export CONFIG_SYSTEM_AS_ROOT=systemroot
 
+
+	# build bl33/bl301..etc
+	if [ ! $CONFIG_SYSTEM_AS_ROOT ]; then
+		CONFIG_SYSTEM_AS_ROOT=null
+	fi
 	if [ ! $CONFIG_AVB2 ]; then
 		CONFIG_AVB2=null
 	fi
@@ -217,6 +223,9 @@ function build() {
 
 	# cp other firmwares(soc related)
 	copy_other_soc
+
+	# make build directory
+	mkdir -p ${BUILD_FOLDER}
 
 	# package final bootloader
 	package
@@ -397,7 +406,6 @@ function main() {
 	fi
 
 	MAIN_FOLDER=`pwd`
-	UBOOT_SRC_FOLDER=`pwd`
 	parser $@
 	build $@
 }

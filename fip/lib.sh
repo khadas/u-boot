@@ -215,3 +215,25 @@ function get_blx_bin() {
 	fi
 	return 0;
 }
+
+function prepare_tools() {
+	echo "*****Compile tools*****"
+
+	mkdir -p ${FIP_BUILD_FOLDER}
+
+	if [ "${CONFIG_DDR_PARSE}" == "1" ]; then
+		if [ -d ${FIP_DDR_PARSE} ]; then
+			cd ${FIP_DDR_PARSE}
+			make clean; make
+			cd ${MAIN_FOLDER}
+
+			mv -f ${FIP_DDR_PARSE}/parse ${FIP_BUILD_FOLDER}
+		fi
+
+		if [ ! -x ${FIP_BUILD_FOLDER}/parse ]; then
+			echo "Error: no ddr_parse... abort"
+			exit -1
+		fi
+	fi
+
+}
