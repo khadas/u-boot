@@ -39,6 +39,8 @@
 #define CONFIG_CEC_WAKEUP
 /*if use bt-wakeup,open it*/
 #define CONFIG_BT_WAKEUP
+/*if use uart rcu,open it*/
+//#define CONFIG_BT_RCU_WAKEUP
 /*if use wifi-wakeup,open it*/
 //#define CONFIG_WIFI_WAKEUP
 /* SMP Definitinos */
