@@ -1232,13 +1232,23 @@ static int handle_panel_misc(struct panel_misc_s *p_misc)
 		sprintf(p_misc->version, "V%03d", tmp_val);
 	}
 
-	ini_value = IniGetString("panel_misc", "outputmode", "null");
+	ini_value = IniGetString("panel_misc", "outputmode2", "null");
 	if (model_debug_flag & DEBUG_MISC)
-		ALOGD("%s, outputmode is (%s)\n", __func__, ini_value);
-	if (strcmp(ini_value, "null") == 0)
-		strcpy(p_misc->outputmode, "1080p60hz");
-	else
+		ALOGD("%s, outputmode2 is (%s)\n", __func__, ini_value);
+	if (strcmp(ini_value, "null") == 0) {
+		ini_value = IniGetString("panel_misc", "outputmode", "null");
+		if (model_debug_flag & DEBUG_MISC)
+			ALOGD("%s, outputmode is (%s)\n", __func__, ini_value);
+		if (strcmp(ini_value, "null")) {
+			strcpy(p_misc->outputmode, ini_value);
+			sprintf(buf, "setenv outputmode %s", p_misc->outputmode);
+			run_command(buf, 0);
+		}
+	} else {
 		strcpy(p_misc->outputmode, ini_value);
+		sprintf(buf, "setenv outputmode2 %s", p_misc->outputmode);
+		run_command(buf, 0);
+	}
 
 	ini_value = IniGetString("panel_misc", "panel_reverse", "null");
 	if (model_debug_flag & DEBUG_MISC)
@@ -1253,8 +1263,6 @@ static int handle_panel_misc(struct panel_misc_s *p_misc)
 		p_misc->panel_reverse = 0;
 	}
 
-	sprintf(buf, "setenv outputmode %s", p_misc->outputmode);
-	run_command(buf, 0);
 	if (p_misc->panel_reverse) {
 		run_command("setenv panel_reverse 1", 0);
 		run_command("setenv osd_reverse all,true", 0);
