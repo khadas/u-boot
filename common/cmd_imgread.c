@@ -26,6 +26,7 @@ Description:
 #include <asm/arch/bl31_apis.h>
 #include <asm/arch/secure_apb.h>
 #include <libfdt.h>
+#include <partition_table.h>
 
 #include <amlogic/aml_efuse.h>
 #if defined(CONFIG_AML_NAND) || defined (CONFIG_AML_MTD)
@@ -263,16 +264,18 @@ static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
     unsigned long rdOffAlign = lflashReadOff;
     unsigned char* dtImgAddr = (unsigned char*)loadaddr + rdOffAlign;
 #ifdef CONFIG_AML_MTD
-    const nand_info_t * mtdPartInf = get_mtd_device_nm(partName);
-    if (IS_ERR(mtdPartInf)) {
-        errorP("device(%s) is err\n", partName);
-        return CMD_RET_FAILURE;
+    if (NAND_BOOT_FLAG == device_boot_flag) {
+        const nand_info_t * mtdPartInf = get_mtd_device_nm(partName);
+        if (IS_ERR(mtdPartInf)) {
+            errorP("device(%s) is err\n", partName);
+            return CMD_RET_FAILURE;
+        }
+        const unsigned pageShift = mtdPartInf->writesize_shift;
+        const unsigned writesz   = mtdPartInf->writesize;
+        MsgP("MTD pageShift %d, writesz 0x%x\n", pageShift, writesz);
+        rdOffAlign = (lflashReadOff >> pageShift) << pageShift;//align page for mtd nand
+        nFlashLoadLen += writesz;
     }
-    const unsigned pageShift = mtdPartInf->writesize_shift;
-    const unsigned writesz   = mtdPartInf->writesize;
-    MsgP("MTD pageShift %d, writesz 0x%x\n", pageShift, writesz);
-    rdOffAlign = (lflashReadOff >> pageShift) << pageShift;//align page for mtd nand
-    nFlashLoadLen += writesz;
 #endif//#ifdef CONFIG_AML_MTD
     nReturn = store_read_ops((unsigned char*)partName, dtImgAddr, rdOffAlign, nFlashLoadLen);
     if (nReturn) {
