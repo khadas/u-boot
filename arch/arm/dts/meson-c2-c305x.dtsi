@@ -41,43 +41,14 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/dts-v1/;
-
-#include "meson-c2-c305x-af409.dtsi"
-#include "meson-c2_skt-panel.dtsi"
+#include "meson-c2.dtsi"
+#include "meson-c2-mali.dtsi"
 
 / {
-	compatible = "amlogic,af409", "amlogic,c305x", "amlogic,meson-c2";
-	model = "Amlogic Meson C2 AF409 Socket Board";
+	compatible = "amlogic,c305x", "amlogic,meson-c2";
 };
 
-/* This UART is brought out to the DB9 connector */
-&uart_a {
-	status = "okay";
+&ethmac {
+	phy-mode = "rmii";
+	phy-handle = <&internal_phy>;
 };
-
-&uart_b {
-	status = "okay";
-};
-
-&saradc {
-	status = "okay";
-};
-
-/* demo for i2c user */
-&i2c3 {
-	status= "disabled";
-	clock-frequency = <100000>;
-	/* pinctrl-names = "default";*/
-	/* pinctrl-0 = <&i2c3_master_pins2>;*/
-};
-
-&pinctrl_periphs {
-	bl_pwm_off_pins:bl_pwm_off_pin {
-		mux {
-			groups = "GPIOH_5";
-			function = "gpio_periphs";
-			output-high;
-		};
-	};
-}; /* end of pinctrl_periphs */
