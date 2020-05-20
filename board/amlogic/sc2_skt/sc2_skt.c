@@ -109,9 +109,9 @@ int board_init(void)
 	{ aml_v3_factory_usb_burning(0, gd->bd); }
 #endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 
-	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 	active_clk();
 	#endif
+	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 	return 0;
 }
 

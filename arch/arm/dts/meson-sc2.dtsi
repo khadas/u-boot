@@ -71,6 +71,23 @@
 		status = "okay";
 		logo_addr = "0x7f800000";
 	};
+
+	pinctrl_periphs: pinctrl@fe004000 {
+		compatible = "amlogic,meson-sc2-periphs-pinctrl";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		gpio: bank@fe004000 {
+			reg = <0x0 0xfe004000 0x0 0x004c>,
+			      <0x0 0xfe0040c0 0x0 0x0220>;
+			reg-names = "mux",
+				    "gpio";
+			gpio-controller;
+			#gpio-cells = <2>;
+			gpio-ranges = <&pinctrl_periphs 0 0 87>;
+		};
+	};
 };
 
 &ethmac {
@@ -94,25 +111,6 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "snps,dwmac-mdio";
-	};
-};
-
-&cbus {
-	pinctrl_periphs: pinctrl@0400 {
-		compatible = "amlogic,meson-c1-periphs-pinctrl";
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
-
-		gpio: bank@0400 {
-			reg = <0x0 0x0400 0x0 0x0040>,
-			      <0x0 0x0480 0x0 0x01d8>;
-			reg-names = "mux",
-				    "gpio";
-			gpio-controller;
-			#gpio-cells = <2>;
-			gpio-ranges = <&pinctrl_periphs 0 0 90>;
-		};
 	};
 };
 

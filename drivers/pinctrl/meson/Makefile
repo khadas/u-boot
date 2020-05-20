@@ -10,3 +10,4 @@ obj-$(CONFIG_PINCTRL_MESON_AXG)		+= pinctrl-meson-axg.o
 obj-$(CONFIG_PINCTRL_MESON_G12A)	+= pinctrl-meson-g12a.o
 obj-$(CONFIG_PINCTRL_MESON_A1)		+= pinctrl-meson-a1.o
 obj-$(CONFIG_PINCTRL_MESON_C1)		+= pinctrl-meson-c1.o
+obj-$(CONFIG_PINCTRL_MESON_SC2)		+= pinctrl-meson-sc2.o

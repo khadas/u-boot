@@ -254,8 +254,8 @@
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&spicc0_pins1>;
-	cs-gpios = <&gpio GPIOA_8 0>,
-		   <&gpio GPIOA_9 0>;
+	//cs-gpios = <&gpio GPIOA_8 0>,
+		  // <&gpio GPIOA_9 0>;
 };
 
 &spicc1 {
