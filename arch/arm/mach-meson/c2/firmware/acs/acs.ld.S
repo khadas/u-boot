@@ -12,6 +12,7 @@ SECTIONS
         *acs_entry.o(.text*)
         *(.text*)
         *(.data*)
+		*(.ddr_settings*)
     }
 
     //ASSERT(. <= 0xFFFF7000, "timing image has exceeded its limit.")
