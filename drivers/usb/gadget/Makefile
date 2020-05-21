@@ -3,7 +3,7 @@
 # (C) Copyright 2000-2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-obj-$(CONFIG_USB_GADGET) += epautoconf.o config.o usbstring.o
+obj-$(CONFIG_USB_GADGET) += epautoconf.o config.o usbstring.o platform.o
 obj-$(CONFIG_USB_ETHER) += epautoconf.o config.o usbstring.o
 obj-$(CONFIG_FASTBOOT_DWC_PCD) += fastboot/dwc_pcd.o fastboot/dwc_pcd_irq.o
 

@@ -121,6 +121,7 @@ struct phy_ops {
 	*/
 	int	(*power_off)(struct phy *phy);
 	int (*tuning)(struct phy *phy, int port);
+	int (*getinfo)(struct phy *phy);
 };
 
 #ifdef CONFIG_PHY
@@ -223,6 +224,7 @@ int generic_phy_get_by_index(struct udevice *user, int index,
  */
 int generic_phy_get_by_name(struct udevice *user, const char *phy_name,
 			    struct phy *phy);
+int generic_phy_getinfo(struct phy *phy);
 
 #else /* CONFIG_PHY */
 

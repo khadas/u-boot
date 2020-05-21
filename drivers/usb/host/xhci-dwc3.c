@@ -137,7 +137,6 @@ void dwc3_set_fladj(struct dwc3 *dwc3_reg, u32 val)
 
 void xhci_dwc3_phy_tuning_1(struct udevice *dev, int port)
 {
-    unsigned long phy_reg_base;
     int ret, i;
     struct xhci_dwc3_platdata *plat;
     struct udevice *udev = dev;
@@ -152,7 +151,6 @@ void xhci_dwc3_phy_tuning_1(struct udevice *dev, int port)
 			return ;
 		}
 	}
-
 }
 
 static int xhci_dwc3_setup_phy(struct udevice *dev)
@@ -207,7 +205,7 @@ static int xhci_dwc3_setup_phy(struct udevice *dev)
 	}
 
 #ifdef CONFIG_AML_USB
-	int usb_type = 0;
+	unsigned int usb_type = 0;
 
 	for (i = 0; i < plat->num_phys; i++) {
 		dev_read_u32((&plat->usb_phys[i])->dev, "phy-version", &usb_type);
@@ -261,7 +259,9 @@ static int xhci_dwc3_probe(struct udevice *dev)
 	struct xhci_hccr *hccr;
 	struct dwc3 *dwc3_reg;
 	enum usb_dr_mode dr_mode;
+#ifndef CONFIG_AML_USB
 	struct xhci_dwc3_platdata *plat = dev_get_platdata(dev);
+#endif
 	int ret;
 
 #ifdef CONFIG_AML_USB

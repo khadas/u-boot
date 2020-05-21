@@ -1311,7 +1311,7 @@ static int xhci_lowlevel_init(struct xhci_ctrl *ctrl)
 		return -ENOMEM;
 
 	reg = xhci_readl(&hccr->cr_hcsparams1);
-#ifdef CONFIG_AML_USB
+#ifdef CONFIG_AML_USB2_PHY
 	descriptor.hub.bNbrPorts = usb2portnum;
 #else
 	descriptor.hub.bNbrPorts = ((reg & HCS_MAX_PORTS_MASK) >>

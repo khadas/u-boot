@@ -10,7 +10,7 @@
 #include "usb_ch9.h"
 #include "dwc_pcd.h"
 #include "dwc_pcd_irq.h"
-#include "platform.c"
+#include "../platform.h"
 
 gadget_wrapper_t gadget_wrapper;
 
@@ -125,7 +125,7 @@ int f_dwc_core_init()
 
     DBG("\ndwc_otg core init enter!\n");
 
-	f_set_usb_phy_config();
+    set_usb_phy_config(0);
 
     if (0x4F543000 != (dwc_read_reg32(DWC_REG_GSNPSID) & 0xFFFFF000)) {
         ERR("Bad value for SNPSID\n");
@@ -691,7 +691,7 @@ void dwc_otg_power_off_phy_fb(void)
 
 	if (!sof) {
 		ERR("sof timeout, reset usb phy tuning\n");
-		set_usb_phy21_tuning_fb_reset();
+		set_usb_phy21_tuning_update_reset();
 		mdelay(150);
 	}
 

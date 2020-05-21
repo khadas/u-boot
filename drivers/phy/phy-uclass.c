@@ -149,6 +149,13 @@ int generic_phy_power_off(struct phy *phy)
 	return ops->power_off ? ops->power_off(phy) : 0;
 }
 
+int generic_phy_getinfo(struct phy *phy)
+{
+	struct phy_ops const *ops = phy_dev_ops(phy->dev);
+
+	return ops->getinfo ? ops->getinfo(phy) : 0;
+}
+
 UCLASS_DRIVER(phy) = {
 	.id		= UCLASS_PHY,
 	.name		= "phy",

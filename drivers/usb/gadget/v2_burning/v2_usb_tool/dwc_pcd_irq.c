@@ -6,7 +6,7 @@
  * 2010-03-30 @ Shanghai
  *
  */
-#include "platform.h"
+#include "../../platform.h"
 #include "usb_ch9.h"
 #include "dwc_pcd.h"
 #include "dwc_pcd_irq.h"

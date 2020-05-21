@@ -1,6 +1,6 @@
 #include "../v2_burning_i.h"
 #include "usb_pcd.h"
-#include "platform.h"
+#include "../../platform.h"
 //#include <partition_table.h>
 #include <amlogic/cpu_id.h>
 

@@ -1,11 +1,12 @@
 #include <common.h>
 #include <command.h>
 
-#include "platform.h"
+#include "../../platform.h"
 #include "usb_pcd.h"
 
 #include "usb_pcd.c"
-#include "platform.c"
+//#include "../../platform.c"
+
 #include "dwc_pcd.c"
 #include "dwc_pcd_irq.c"
 

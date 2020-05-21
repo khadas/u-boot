@@ -12,31 +12,6 @@
 
 #include <asm/arch/register.h>
 
-/* A3,CS2,M3 chip, PORT_A is OTG, work as ROM Boot port */
-#ifdef __USE_PORT_B
-#define PORT_REG_OFFSET   0x80000
-#else
-#define PORT_REG_OFFSET   0
-#endif
-
-#if (defined AML_USB_V2)
-#define DWC_REG_BASE   0xff500000
-#else
-#if (defined AML_TXLX_USB)
-#if ((defined CONFIG_USB_XHCI_HCD))
-#define DWC_REG_BASE   0xff400000
-#else
-#define DWC_REG_BASE  (0xff500000 + PORT_REG_OFFSET)
-#endif
-#else
-#if ((defined CONFIG_USB_XHCI_HCD))
-#define DWC_REG_BASE   0xc9100000
-#else
-#define DWC_REG_BASE  (0xC9000000 + PORT_REG_OFFSET)
-#endif
-#endif
-#endif
-
 #define PREI_USB_PHY_A_POR      (1 << 0)
 #define PREI_USB_PHY_B_POR      (1 << 1)
 #define PREI_USB_PHY_CLK_SEL    (7 << 5)
@@ -64,10 +39,9 @@
 
 #define flush_cpu_cache()
 
-
-#define dwc_write_reg32(x, v) 	(*(volatile uint32_t *)(unsigned long)(x + DWC_REG_BASE))=v
-#define dwc_read_reg32(x) (*(volatile uint32_t*)(unsigned long)(x + DWC_REG_BASE))
-#define dwc_modify_reg32(x, c, s) 	(*(volatile uint32_t *)(x + DWC_REG_BASE))=( ((dwc_read_reg32(x)) & (~c)) | (s))
+void dwc_write_reg32(unsigned int x, unsigned int v);
+unsigned int dwc_read_reg32(unsigned int x);
+void dwc_modify_reg32(unsigned int x, unsigned int c, unsigned int s);
 
 #define get_unaligned(ptr)      (  ((unsigned long)ptr & 3) ? \
                                 (((__u8 *)ptr)[0] | (((__u8 *)ptr)[1]<<8) | (((__u8 *)ptr)[2]<<16) | (((__u8 *)ptr)[3]<<24)) : \
@@ -100,11 +74,10 @@
 #define USB_ERR(x...)	printf("USBErr:%d", __LINE__),printf(x)
 #define USB_DBG(x...)   PRINTF(x)
 
-
-void f_set_usb_phy_config(void);
-#ifdef CONFIG_USB_DEVICE_V2
-void set_usb_phy21_tuning_fb(void);
-#endif
+void set_usb_phy_config(int cfg);
+void set_usb_phy21_tuning_update(void);
+void set_usb_phy21_tuning_update_reset(void);
+void close_usb_phy_clock(int cfg);
 
 void usb_parameter_init(int timeout);
 int chip_utimer_set(int val);
