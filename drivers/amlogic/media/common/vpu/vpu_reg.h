@@ -39,9 +39,49 @@
 #define REG_ADDR_CBUS(reg)          (REG_BASE_CBUS + REG_OFFSET_CBUS(reg))
 #define REG_ADDR_VCBUS(reg)         (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg))
 
+#define REG_VPU_ADDR(reg)           (reg + 0L)
+
 /* ********************************
  * register access api
  * ********************************* */
+static inline unsigned int vpu_reg_read(unsigned int _reg)
+{
+	unsigned int val = 0;
+
+	val = *(volatile unsigned int *)(REG_VPU_ADDR(_reg));
+
+	return val;
+};
+
+static inline void vpu_reg_write(unsigned int _reg, unsigned int _value)
+{
+	*(volatile unsigned int *)REG_VPU_ADDR(_reg) = (_value);
+};
+
+static inline void vpu_reg_setb(unsigned int _reg, unsigned int _value,
+		unsigned int _start, unsigned int _len)
+{
+	vpu_reg_write(_reg, ((vpu_reg_read(_reg) &
+			~(((1L << (_len))-1) << (_start))) |
+			(((_value)&((1L<<(_len))-1)) << (_start))));
+}
+
+static inline unsigned int vpu_reg_getb(unsigned int _reg,
+		unsigned int _start, unsigned int _len)
+{
+	return (vpu_reg_read(_reg) >> (_start)) & ((1L << (_len)) - 1);
+}
+
+static inline void vpu_reg_set_mask(unsigned int _reg, unsigned int _mask)
+{
+	vpu_reg_write(_reg, (vpu_reg_read(_reg) | (_mask)));
+}
+
+static inline void vpu_reg_clr_mask(unsigned int _reg, unsigned int _mask)
+{
+	vpu_reg_write(_reg, (vpu_reg_read(_reg) & (~(_mask))));
+}
+
 static inline unsigned int vpu_hiu_read(unsigned int _reg)
 {
 	unsigned int val = 0;
@@ -83,13 +123,20 @@ static inline void vpu_hiu_clr_mask(unsigned int _reg, unsigned int _mask)
 static inline unsigned int vpu_vcbus_read(unsigned int _reg)
 {
 	unsigned int val = 0;
-	val = *(volatile unsigned int *)(REG_ADDR_VCBUS(_reg));
+
+	if (_reg > 0x10000)
+		val = vpu_reg_read(_reg);
+	else
+		val = *(volatile unsigned int *)(REG_ADDR_VCBUS(_reg));
 	return val;
 };
 
 static inline void vpu_vcbus_write(unsigned int _reg, unsigned int _value)
 {
-	*(volatile unsigned int *)REG_ADDR_VCBUS(_reg) = (_value);
+	if (_reg > 0x10000)
+		vpu_reg_write(_reg, _value);
+	else
+		*(volatile unsigned int *)REG_ADDR_VCBUS(_reg) = (_value);
 };
 
 static inline void vpu_vcbus_setb(unsigned int _reg, unsigned int _value,
@@ -103,13 +150,20 @@ static inline void vpu_vcbus_setb(unsigned int _reg, unsigned int _value,
 static inline unsigned int vpu_cbus_read(unsigned int _reg)
 {
 	unsigned int val = 0;
-	val = *(volatile unsigned int *)(REG_ADDR_CBUS(_reg));
+
+	if (_reg > 0x10000)
+		val = vpu_reg_read(_reg);
+	else
+		val = *(volatile unsigned int *)(REG_ADDR_CBUS(_reg));
 	return val;
 };
 
 static inline void vpu_cbus_write(unsigned int _reg, unsigned int _value)
 {
-	*(volatile unsigned int *)REG_ADDR_CBUS(_reg) = (_value);
+	if (_reg > 0x10000)
+		vpu_reg_write(_reg, _value);
+	else
+		*(volatile unsigned int *)REG_ADDR_CBUS(_reg) = (_value);
 };
 
 static inline void vpu_cbus_setb(unsigned int _reg, unsigned int _value,

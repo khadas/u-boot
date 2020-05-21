@@ -29,15 +29,20 @@
 enum vpu_chip_e {
 	VPU_CHIP_G12A = 0,
 	VPU_CHIP_G12B, /* 1 */
-	VPU_CHIP_TL1, /* 10 */
-	VPU_CHIP_SM1, /* 11 */
-	VPU_CHIP_TM2, /* 12 */
+	VPU_CHIP_TL1, /* 2 */
+	VPU_CHIP_SM1, /* 3 */
+	VPU_CHIP_TM2, /* 4 */
+	VPU_CHIP_SC2, /* 5 */
 	VPU_CHIP_MAX,
 };
 
+#define VPU_PWR_ON             1
+#define VPU_PWR_OFF            0
+
 #define VPU_REG_END            0xffff
 #define VPU_MEM_PD_CNT_MAX     10
-#define VPU_HDMI_ISO_CNT_MAX   5
+#define VPU_ISO_CNT_MAX        5
+#define VPU_PWR_CNT_MAX        5
 #define VPU_RESET_CNT_MAX      10
 
 struct fclk_div_s {
@@ -71,16 +76,23 @@ struct vpu_data_s {
 	unsigned char clk_level_max;
 	unsigned char gp_pll_valid;
 
+	unsigned int vpu_clk_reg;
+	unsigned int vapb_clk_reg;
+	unsigned int vid_clk_reg;
+
 	struct fclk_div_s *fclk_div_table;
 	struct vpu_clk_s  *vpu_clk_table;
 
 	struct vpu_ctrl_s *mem_pd_table;
-	struct vpu_ctrl_s *hdmi_iso_pre_table;
-	struct vpu_ctrl_s *hdmi_iso_table;
+	struct vpu_ctrl_s *power_table;
+	struct vpu_ctrl_s *iso_table;
 	struct vpu_reset_s *reset_table;
 
 	unsigned int module_init_table_cnt;
 	struct vpu_ctrl_s *module_init_table;
+
+	void (*power_on)(void);
+	void (*power_off)(void);
 };
 
 struct vpu_conf_s {
@@ -105,5 +117,7 @@ extern void vpu_module_init_config(void);
 
 extern void vpu_power_on(void);
 extern void vpu_power_off(void);
+extern void vpu_power_on_new(void);
+extern void vpu_power_off_new(void);
 
 #endif

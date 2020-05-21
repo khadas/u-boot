@@ -34,6 +34,9 @@
 #include <amlogic/aml_v3_burning.h>
 #include <amlogic/aml_v2_burning.h>
 #include <linux/mtd/partitions.h>
+#ifdef CONFIG_AML_VPU
+#include <amlogic/media/vpu/vpu.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -143,6 +146,10 @@ int board_late_init(void)
 #endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 
 	#endif
+
+#ifdef CONFIG_AML_VPU
+	vpu_probe();
+#endif
 
 	return 0;
 }

@@ -118,46 +118,28 @@ static struct vpu_ctrl_s vpu_mem_pd_tm2[] = {
 };
 
 /* ******************************************************* */
-/*              VPU_HDMI ISO pre: before reset               */
+/*              VPU_HDMI POWER               */
 /* ******************************************************* */
-static struct vpu_ctrl_s vpu_hdmi_iso_pre_gxb[] = {
+static struct vpu_ctrl_s vpu_pwr_gxb[] = {
 	/* reg,                val, bit, len */
-	{AO_RTI_GEN_PWR_SLEEP0,  1,   8,   1},
+	{AO_RTI_GEN_PWR_SLEEP0,  0,   8,   1},
 	{VPU_REG_END,            0,   0,   0},
 };
 
 /* ******************************************************* */
 /*              VPU_HDMI ISO                */
 /* ******************************************************* */
-static struct vpu_ctrl_s vpu_hdmi_iso_gxb[] = {
+static struct vpu_ctrl_s vpu_iso_gxb[] = {
 	/* reg,                val, bit, len */
-	{AO_RTI_GEN_PWR_SLEEP0,  1,   9,   1},
+	{AO_RTI_GEN_PWR_SLEEP0,  0,   9,   1},
 	{VPU_REG_END,            0,   0,   0},
 };
 
-static struct vpu_ctrl_s vpu_hdmi_iso_sm1[] = {
+static struct vpu_ctrl_s vpu_iso_sm1[] = {
 	/* reg,                val, bit, len */
-	{AO_RTI_GEN_PWR_ISO0,    1,   8,   1},
+	{AO_RTI_GEN_PWR_ISO0,    0,   8,   1},
 	{VPU_REG_END,            0,   0,   0},
 };
-
-/* ******************************************************* */
-/*                 VPU module init table                 */
-/* ******************************************************* */
-#if 0
-static struct vpu_ctrl_s vpu_module_init_txlx[] = {
-	/* reg,                     val, bit, len */
-	{DOLBY_TV_CLKGATE_CTRL,     1,   10,  2},
-	{DOLBY_TV_CLKGATE_CTRL,     1,   2,   2},
-	{DOLBY_TV_CLKGATE_CTRL,     1,   4,   2},
-	{DOLBY_CORE2A_CLKGATE_CTRL, 1,   10,  2},
-	{DOLBY_CORE2A_CLKGATE_CTRL, 1,   2,   2},
-	{DOLBY_CORE2A_CLKGATE_CTRL, 1,   4,   2},
-	{DOLBY_CORE3_CLKGATE_CTRL,  0,   1,   1},
-	{DOLBY_CORE3_CLKGATE_CTRL,  1,   2,   2},
-	{VPU_REG_END,               0,   0,   0},
-};
-#endif
 
 /* ******************************************************* */
 /*                 VPU reset table                    */
@@ -181,4 +163,22 @@ static struct vpu_reset_s vpu_reset_tl1[] = {
 	{RESET7_LEVEL, (1<<7)},
 	{VPU_REG_END,  0},
 };
+
+/* ******************************************************* */
+/*                 VPU module init table                 */
+/* ******************************************************* */
+#if 0
+static struct vpu_ctrl_s vpu_module_init_txlx[] = {
+	/* reg,                     val, bit, len */
+	{DOLBY_TV_CLKGATE_CTRL,     1,   10,  2},
+	{DOLBY_TV_CLKGATE_CTRL,     1,   2,   2},
+	{DOLBY_TV_CLKGATE_CTRL,     1,   4,   2},
+	{DOLBY_CORE2A_CLKGATE_CTRL, 1,   10,  2},
+	{DOLBY_CORE2A_CLKGATE_CTRL, 1,   2,   2},
+	{DOLBY_CORE2A_CLKGATE_CTRL, 1,   4,   2},
+	{DOLBY_CORE3_CLKGATE_CTRL,  0,   1,   1},
+	{DOLBY_CORE3_CLKGATE_CTRL,  1,   2,   2},
+	{VPU_REG_END,               0,   0,   0},
+};
+#endif
 #endif
