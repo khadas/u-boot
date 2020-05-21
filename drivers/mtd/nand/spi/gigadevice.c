@@ -167,6 +167,16 @@ static const struct spinand_info gigadevice_spinand_table[] = {
 		     SPINAND_HAS_QE_BIT,
 		     SPINAND_ECCINFO(&gd5f4gq4u_ooblayout,
 				     gd5f4gq4u_ecc_get_status)),
+
+	SPINAND_INFO("GD5F2GQ5UE 3.3v", 0x52,
+		     NAND_MEMORG(1, 2048, 128, 64, 2048, 2, 1, 1),
+		     NAND_ECCREQ(8, 512),
+		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
+					      &write_cache_variants,
+					      &update_cache_variants),
+		     SPINAND_HAS_QE_BIT,
+		     SPINAND_ECCINFO(&gd5f1gq4u_ooblayout,
+				     gd5f1gq4u_ecc_get_status)),
 };
 
 static int gigadevice_spinand_detect(struct spinand_device *spinand)
