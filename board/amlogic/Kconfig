@@ -317,13 +317,23 @@ config C2_SKT
 	bool "C2_SKT"
 	select TARGET_C2_SKT
 	help
-	  Select C2 SKT config
+	  Select C2 SKT config mainly for pxp
+
+config C2_AF409
+	bool "C2_AF409"
+	select TARGET_C2_AF409
+	help
+	  Select C2_AF409 (SKT) config
 
 endchoice
 
 config TARGET_C2_SKT
 	bool "C2 SKT board"
 	depends on C2_SKT
+
+config TARGET_C2_AF409
+	bool "C2 AF409 board"
+	depends on C2_AF409
 
 endif
 
@@ -372,6 +382,8 @@ source "board/amlogic/c1_ae409/Kconfig"
 source "board/amlogic/sc2_skt/Kconfig"
 
 source "board/amlogic/c2_skt/Kconfig"
+
+source "board/amlogic/c2_af409/Kconfig"
 
 source "board/amlogic/g12a_u200_v1/Kconfig"
 

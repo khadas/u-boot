@@ -1,3 +1,3 @@
 all:
-	@echo "BL21 no action for A1 "
+	@echo "BL21 no action for C2 "
 

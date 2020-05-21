@@ -1,3 +1,3 @@
 all:
-	echo "BL301 no action for A1"
+	@echo "BL301 no action for C2"
 
