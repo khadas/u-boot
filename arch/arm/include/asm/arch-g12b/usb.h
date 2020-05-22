@@ -25,6 +25,8 @@
 #include <asm/types.h>
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
+#include <generic-phy.h>
+#include <asm-generic/gpio.h>
 
 #define USB_PHY_PORT_MAX	1
 /* Phy register MACRO definitions */
@@ -89,6 +91,22 @@
 
 /* XHCI PHY register structure */
 #define PHY_REGISTER_SIZE	0x20
+
+struct phy_aml_usb2_priv {
+	unsigned int base_addr;
+	unsigned int reset_addr;
+	unsigned int dwc2_a_addr;
+	unsigned int u2_port_num;
+	unsigned int usbphy_reset_bit[8];
+	unsigned int usb_phy2_pll_base_addr[4];
+};
+
+struct phy_aml_usb3_priv {
+	unsigned int base_addr;
+	unsigned int usb3_port_num;
+	struct gpio_desc desc;
+};
+
 /* Register definitions */
 typedef struct u2p_aml_regs {
 	volatile uint32_t u2p_r0;
@@ -231,5 +249,13 @@ typedef union usb_r5 {
 #define USB_ID_MODE_HARDWARE    (1)
 #define USB_ID_MODE_SW_HOST     (2)
 #define USB_ID_MODE_SW_DEVICE   (3)
+int usb2_phy_tuning(uint32_t phy2_pll_base, int port);
+void set_usb_pll(uint32_t phy2_pll_base);
+int usb_save_phy_dev (unsigned int number, struct phy *phy);
+int usb2_phy_init (struct phy *phy);
+unsigned int usb_get_dwc_a_base_addr(void);
+unsigned int usb_get_device_mode_phy_base(void);
+void usb_phy_tuning_reset(void);
+void usb_device_mode_init(void);
 
 #endif
