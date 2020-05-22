@@ -117,22 +117,19 @@ static void meson_mmc_config_clock(struct meson_host *host)
 	if (mmc->clock > 12000000) {
 		clk = 1000000000;
 		clk_src = 1;
-	if (cpu_id.family_id != 0x32) {
-		clk_disable(&host->xtal);
-		clk_set_parent(&host->mux, &host->div2);
-		clk_set_rate(&host->div, clk);
+		if (cpu_id.family_id != 0x32) {
+			clk_disable(&host->xtal);
+			clk_set_parent(&host->mux, &host->div2);
+			clk_set_rate(&host->div, clk);
 		}
 	} else {
 		clk = 24000000;
 		clk_src = 0;
-	if (cpu_id.family_id != 0x32)
-		clk_enable(&host->xtal);
+		if (cpu_id.family_id != 0x32)
+			clk_enable(&host->xtal);
 	}
 	if (cpu_id.family_id == 0x32)
-	clk_div = (clk / mmc->clock) + (!!(clk % mmc->clock));
-
-	//printf("sd_emmc_clk_ctrl:0x%x\n", readl(((0x0038<<2) + 0xfe000800)));
-	//printf("sd_emmc_clk_ctrl1:0x%x\n", readl(((0x0048<<2) + 0xfe000800)));
+		clk_div = (clk / mmc->clock) + (!!(clk % mmc->clock));
 
 	clk_div = clk / mmc->clock;
 	if (clk % mmc->clock)
