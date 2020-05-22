@@ -99,7 +99,7 @@
 
 &cbus {
 	pinctrl_periphs: pinctrl@0400 {
-		compatible = "amlogic,meson-c1-periphs-pinctrl";
+		compatible = "amlogic,meson-c2-periphs-pinctrl";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
