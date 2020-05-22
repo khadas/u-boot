@@ -544,7 +544,7 @@ struct aml_lcd_drv_s {
 	void (*lcd_set_ss)(unsigned int level, unsigned int freq, unsigned int mode);
 	void (*lcd_get_ss)(void);
 	void (*lcd_test)(int num);
-	int (*lcd_prbs)(unsigned int s);
+	int (*lcd_prbs)(unsigned int s, unsigned int mode_flag);
 	void (*lcd_clk)(void);
 	void (*lcd_info)(void);
 	void (*lcd_reg)(void);

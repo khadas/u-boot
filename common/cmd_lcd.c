@@ -396,17 +396,32 @@ static int do_lcd_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 static int do_lcd_prbs(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct aml_lcd_drv_s *lcd_drv;
-	unsigned int s;
+	unsigned int s, prbs_mode_flag;
 
 	if (argc == 1) {
 		return -1;
 	}
-	s = (unsigned int)simple_strtoul(argv[1], NULL, 10);
+
+	if (strcmp(argv[1], "vx1") == 0) {
+		if (argc == 3)
+			prbs_mode_flag = LCD_PRBS_MODE_VX1;
+		else
+			return -1;
+	} else if (strcmp(argv[1], "lvds") == 0) {
+		if (argc == 3)
+			prbs_mode_flag = LCD_PRBS_MODE_LVDS;
+		else
+			return -1;
+	} else {
+		prbs_mode_flag = LCD_PRBS_MODE_LVDS | LCD_PRBS_MODE_VX1;
+	}
+
+	s = (unsigned int)simple_strtoul(argv[2], NULL, 10);
 
 	lcd_drv = aml_lcd_get_driver();
 	if (lcd_drv) {
 		if (lcd_drv->lcd_prbs)
-			lcd_drv->lcd_prbs(s);
+			lcd_drv->lcd_prbs(s, prbs_mode_flag);
 		else
 			printf("no lcd prbs\n");
 	} else {

@@ -76,6 +76,7 @@ struct lcd_clk_data_s {
 	void (*clk_set)(struct lcd_config_s *pconf);
 	void (*clk_config_init_print)(void);
 	void (*clk_config_print)(void);
+	void (*prbs_clk_config)(unsigned int lcd_prbs_mode);
 };
 
 struct lcd_clk_config_s { /* unit: kHz */
