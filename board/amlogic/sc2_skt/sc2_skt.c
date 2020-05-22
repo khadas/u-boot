@@ -37,6 +37,9 @@
 #ifdef CONFIG_AML_VPU
 #include <amlogic/media/vpu/vpu.h>
 #endif
+#ifdef CONFIG_AML_VPP
+#include <amlogic/media/vpp/vpp.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -150,7 +153,9 @@ int board_late_init(void)
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
-
+#ifdef CONFIG_AML_VPP
+	vpp_init();
+#endif
 	return 0;
 }
 

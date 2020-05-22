@@ -23,6 +23,7 @@
 #define REG_OFFSET (0x20)
 #define OSD_RELATIVE_BITS 0x33370
 
+extern int osd_get_chip_type(void);
 extern void osd_init_hw(void);
 extern void osd_set_color_key_hw(u32 index, u32 bpp, u32 colorkey);
 extern void osd_srckey_enable_hw(u32  index, u8 enable);

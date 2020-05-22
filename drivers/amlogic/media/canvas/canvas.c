@@ -34,12 +34,33 @@
 #define canvas_log(fmt, args...)
 #endif
 
-#define canvas_reg_read(reg) readl(DMC_REG_BASE + reg)
-#define canvas_reg_write(val, reg) writel(val, (DMC_REG_BASE + reg))
+#ifndef DMC_REG_BASE
+#define DMC_REG_BASE                    (0xFF638000L)
+#endif
+#define REG_CANVAS_ADDR(reg)               (reg + 0L)
 
 #define CANVAS_NUM 256
 static canvas_t canvasPool[CANVAS_NUM];
 static int canvas_inited = 0;
+
+static inline u32 canvas_reg_read(u32 reg)
+{
+	u32 val;
+
+	if (reg > 0x10000)
+		val = *(volatile unsigned int *)REG_CANVAS_ADDR(reg);
+	else
+		val = readl(DMC_REG_BASE + reg);
+	return val;
+}
+
+static inline void canvas_reg_write(const u32 val, u32 reg)
+{
+	if (reg > 0x10000)
+		*(volatile unsigned int *)REG_CANVAS_ADDR(reg) = (val);
+	else
+		writel(val, (DMC_REG_BASE + reg));
+}
 
 void canvas_init(void)
 {

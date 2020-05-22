@@ -184,6 +184,14 @@ static unsigned int *filter_table[] = {
 #define OSD_TYPE_TOP_FIELD 0
 #define OSD_TYPE_BOT_FIELD 1
 
+int osd_get_chip_type(void)
+{
+	unsigned int cpu_type;
+
+	cpu_type = get_cpu_id().family_id;
+	return cpu_type;
+}
+
 static void osd_vpu_power_on(void)
 {
 }
@@ -525,7 +533,7 @@ void osd_update_disp_axis_hw(
 	struct pandata_s disp_data;
 	struct pandata_s pan_data;
 
-	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_M8) {
+	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_M8) {
 		if (index == OSD2)
 			return;
 	}
@@ -1277,12 +1285,12 @@ void osd_set_rotate_on_hw(u32 index, u32 on_off)
 		osd_hw.dispdata[index].y_end = osd_hw.dispdata[OSD1].y_start +
 					       g_rotation_width;
 	} else {
-		if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_M8) {
+		if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_M8) {
 			osd_reg_set_mask(VPU_SW_RESET, 1 << 8);
 			osd_reg_clr_mask(VPU_SW_RESET, 1 << 8);
 		}
 		if (index == OSD1) {
-			if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_M8) {
+			if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_M8) {
 				osd_reg_set_mask(VIU_SW_RESET, 1 << 0);
 				osd_reg_clr_mask(VIU_SW_RESET, 1 << 0);
 			}
@@ -1519,7 +1527,7 @@ static void osd1_update_disp_freescale_enable(void)
 		osd_hw.free_dst_data[OSD1].x_start + 1;
 	dst_h = osd_hw.free_dst_data[OSD1].y_end -
 		osd_hw.free_dst_data[OSD1].y_start + 1;
-	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_MG9TV) {
+	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_MG9TV) {
 		/* super scaler mode */
 		if (osd_hw.free_scale_mode[OSD1] & 0x2) {
 			if (osd_hw.free_scale_enable[OSD1])
@@ -1666,7 +1674,7 @@ static void osd2_update_disp_freescale_enable(void)
 		osd_hw.free_dst_data[OSD2].x_start + 1;
 	dst_h = osd_hw.free_dst_data[OSD2].y_end -
 		osd_hw.free_dst_data[OSD2].y_start + 1;
-	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_MG9TV) {
+	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_MG9TV) {
 		/* super scaler mode */
 		if (osd_hw.free_scale_mode[OSD2] & 0x2) {
 			if (osd_hw.free_scale_enable[OSD2])
@@ -1802,7 +1810,7 @@ static   void  osd1_update_color_mode(void)
 		if (!osd_hw.rotate[OSD1].on_off)
 			data32 |= OSD_DATA_LITTLE_ENDIAN << 15;
 		data32 |= osd_hw.color_info[OSD1]->hw_colormat << 2;
-		if (get_cpu_id().family_id < MESON_CPU_MAJOR_ID_GXTVBB) {
+		if (osd_get_chip_type() < MESON_CPU_MAJOR_ID_GXTVBB) {
 			if (osd_hw.color_info[OSD1]->color_index
 				< COLOR_INDEX_YUV_422)
 				data32 |= 1 << 7; /* yuv enable */
@@ -1825,7 +1833,7 @@ static void osd2_update_color_mode(void)
 		if (!osd_hw.rotate[OSD2].on_off)
 			data32 |= OSD_DATA_LITTLE_ENDIAN << 15;
 		data32 |= osd_hw.color_info[OSD2]->hw_colormat << 2;
-		if (get_cpu_id().family_id != MESON_CPU_MAJOR_ID_GXTVBB) {
+		if (osd_get_chip_type() != MESON_CPU_MAJOR_ID_GXTVBB) {
 			if (osd_hw.color_info[OSD2]->color_index
 				< COLOR_INDEX_YUV_422)
 				data32 |= 1 << 7; /* yuv enable */
@@ -2006,7 +2014,7 @@ static void osd1_update_disp_osd_rotate(void)
 	y_start = osd_hw.rotation_pandata[OSD1].y_start;
 	y_end = osd_hw.rotation_pandata[OSD1].y_end;
 	y_len_m1 = y_end - y_start;
-	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_M8) {
+	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_M8) {
 		osd_set_prot(
 			x_rev,
 			y_rev,
@@ -2076,7 +2084,7 @@ static void osd2_update_disp_osd_rotate(void)
 	y_start = osd_hw.rotation_pandata[OSD2].y_start;
 	y_end = osd_hw.rotation_pandata[OSD2].y_end;
 	y_len_m1 = y_end - y_start;
-	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_M8) {
+	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_M8) {
 		osd_set_prot(
 			x_rev,
 			y_rev,
@@ -2250,7 +2258,7 @@ static void osd1_basic_update_disp_geometry(void)
 {
 	u32 data32;
 
-	if (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_M8) {
+	if (osd_get_chip_type() >= MESON_CPU_MAJOR_ID_M8) {
 		data32 = (osd_hw.dispdata[OSD1].x_start & 0xfff)
 			 | (osd_hw.dispdata[OSD1].x_end & 0xfff) << 16;
 		VSYNCOSD_WR_MPEG_REG(VIU_OSD1_BLK0_CFG_W3 , data32);
@@ -2344,7 +2352,7 @@ static void osd1_basic_update_disp_geometry(void)
 			 | ((osd_hw.rotation_pandata[OSD1].y_end
 			     + osd_hw.pandata[OSD1].y_start) & 0x1fff) << 16;
 		VSYNCOSD_WR_MPEG_REG(VIU_OSD1_BLK0_CFG_W2, data32);
-		if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_M8)
+		if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_M8)
 			VSYNCOSD_WR_MPEG_REG(VPU_PROT1_Y_START_END, data32);
 	} else if (osd_hw.rotate[OSD1].on_off
 		   && osd_hw.rotate[OSD1].angle > 0) {
@@ -2357,7 +2365,7 @@ static void osd1_basic_update_disp_geometry(void)
 			 | ((osd_hw.rotation_pandata[OSD1].y_end
 			     + osd_hw.pandata[OSD1].y_start) & 0x1fff) << 16;
 		VSYNCOSD_WR_MPEG_REG(VIU_OSD1_BLK0_CFG_W2, data32);
-		if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_M8)
+		if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_M8)
 			VSYNCOSD_WR_MPEG_REG(VPU_PROT1_Y_START_END, data32);
 	} else {
 		/* normal mode */
@@ -2523,8 +2531,8 @@ void osd_init_hw(void)
 		/* init osd fifo control register */
 		/* set DDR request priority to be urgent */
 		data32 = 1;
-		if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_M6TV)
-		    || (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_MTVD)) {
+		if ((osd_get_chip_type() == MESON_CPU_MAJOR_ID_M6TV)
+		    || (osd_get_chip_type() == MESON_CPU_MAJOR_ID_MTVD)) {
 			data32 |= 18 << 5;  /* hold_fifo_lines */
 		} else if (osd_hw.osd_ver == OSD_SIMPLE) {
 			data32 &= ~(0x1f << 5); /* bit[9:5] HOLD_FIFO_LINES */
@@ -2539,7 +2547,7 @@ void osd_init_hw(void)
 		} else
 			data32 |= 3  << 10;
 
-		if (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_GXBB) {
+		if (osd_get_chip_type() >= MESON_CPU_MAJOR_ID_GXBB) {
 			/*
 			 * bit 23:22, fifo_ctrl
 			 * 00 : for 1 word in 1 burst
@@ -2553,8 +2561,8 @@ void osd_init_hw(void)
 		}
 		data2 = data32;
 		/* fifo_depth_val: 32*8=256 */
-		if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TXL)
-			|| (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TXLX))
+		if ((osd_get_chip_type() == MESON_CPU_MAJOR_ID_TXL)
+			|| (osd_get_chip_type() == MESON_CPU_MAJOR_ID_TXLX))
 			data32 |= 64 << 12;
 		else
 			data32 |= 32 << 12;
@@ -2567,8 +2575,8 @@ void osd_init_hw(void)
 			osd_reg_clr_mask(VPP_MISC,
 				VPP_OSD1_POSTBLEND | VPP_OSD2_POSTBLEND | VPP_VD1_POSTBLEND);
 		/* just disable osd to avoid booting hang up */
-		if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_M6TV)
-		    || (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_MTVD)) {
+		if ((osd_get_chip_type() == MESON_CPU_MAJOR_ID_M6TV)
+		    || (osd_get_chip_type() == MESON_CPU_MAJOR_ID_MTVD)) {
 			data32 = 0x0 << 0; /* osd_blk_enable */
 		} else
 			data32 = 0x1 << 0;
@@ -2606,7 +2614,7 @@ void osd_init_hw(void)
 	osd_hw.rotation_pandata[OSD2].x_start = 0;
 	osd_hw.rotation_pandata[OSD2].y_start = 0;
 	osd_hw.antiflicker_mode = 0;
-	if (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_M8) {
+	if (osd_get_chip_type() >= MESON_CPU_MAJOR_ID_M8) {
 		osd_hw.free_scale_data[OSD1].x_start = 0;
 		osd_hw.free_scale_data[OSD1].x_end = 0;
 		osd_hw.free_scale_data[OSD1].y_start = 0;
@@ -2617,10 +2625,10 @@ void osd_init_hw(void)
 		osd_hw.free_scale_data[OSD2].y_end = 0;
 		osd_hw.free_scale_mode[OSD1] = 1;
 		osd_hw.free_scale_mode[OSD2] = 1;
-		if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXM)
-			||(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TXLX))
+		if ((osd_get_chip_type() == MESON_CPU_MAJOR_ID_GXM)
+			||(osd_get_chip_type() == MESON_CPU_MAJOR_ID_TXLX))
 			osd_reg_write(VPP_OSD_SC_DUMMY_DATA, 0x00202000);
-		else if (get_cpu_id().family_id ==
+		else if (osd_get_chip_type() ==
 			MESON_CPU_MAJOR_ID_GXTVBB)
 			osd_reg_write(VPP_OSD_SC_DUMMY_DATA, 0xff);
 		else

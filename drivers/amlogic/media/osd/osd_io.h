@@ -22,34 +22,97 @@
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
 
+#ifndef REG_BASE_VCBUS
+#define REG_BASE_VCBUS                  (0xFF900000L)
+#endif
 
-#define REG_OFFSET_CBUS(reg)            ((reg << 2))
+/* osd super scale */
+#ifndef OSDSR_HV_SIZEIN
+#define OSDSR_HV_SIZEIN              VPP_OSDSC_DITHER_CTRL
+#endif
+
+#ifndef OSDSR_CTRL_MODE
+#define OSDSR_CTRL_MODE              VPP_OSDSC_DITHER_LUT_1
+#endif
+
+#ifdef OSDSR_ABIC_HCOEF
+#define OSDSR_ABIC_HCOEF             VPP_OSDSC_DITHER_LUT_2
+#endif
+
+#ifndef OSDSR_YBIC_HCOEF
+#define OSDSR_YBIC_HCOEF             VPP_OSDSC_DITHER_LUT_3
+#endif
+
+#ifndef OSDSR_CBIC_HCOEF
+#define OSDSR_CBIC_HCOEF             VPP_OSDSC_DITHER_LUT_4
+#endif
+
+#ifndef OSDSR_ABIC_VCOEF
+#define OSDSR_ABIC_VCOEF             VPP_OSDSC_DITHER_LUT_5
+#endif
+
+#ifndef OSDSR_YBIC_VCOEF
+#define OSDSR_YBIC_VCOEF             VPP_OSDSC_DITHER_LUT_6
+#endif
+
+#ifndef OSDSR_CBIC_VCOEF
+#define OSDSR_CBIC_VCOEF             VPP_OSDSC_DITHER_LUT_7
+#endif
+
+#ifndef OSDSR_VAR_PARA
+#define OSDSR_VAR_PARA               VPP_OSDSC_DITHER_LUT_8
+#endif
+
+#ifndef OSDSR_CONST_PARA
+#define OSDSR_CONST_PARA             VPP_OSDSC_DITHER_LUT_9
+#endif
+
+#ifndef OSDSR_RKE_EXTWIN
+#define OSDSR_RKE_EXTWIN             VPP_OSDSC_DITHER_LUT_10
+#endif
+
+#ifndef OSDSR_UK_GRAD2DDIAG_TH_RATE
+#define OSDSR_UK_GRAD2DDIAG_TH_RATE  VPP_OSDSC_DITHER_LUT_11
+#endif
+
+#ifndef OSDSR_UK_GRAD2DDIAG_LIMIT
+#define OSDSR_UK_GRAD2DDIAG_LIMIT    VPP_OSDSC_DITHER_LUT_12
+#endif
+
+#ifndef OSDSR_UK_GRAD2DADJA_TH_RATE
+#define OSDSR_UK_GRAD2DADJA_TH_RATE  VPP_OSDSC_DITHER_LUT_13
+#endif
+
+#ifndef OSDSR_UK_GRAD2DADJA_LIMIT
+#define OSDSR_UK_GRAD2DADJA_LIMIT    VPP_OSDSC_DITHER_LUT_14
+#endif
+
+#ifndef OSDSR_UK_BST_GAIN
+#define OSDSR_UK_BST_GAIN            VPP_OSDSC_DITHER_LUT_15
+#endif
+
 #define REG_OFFSET_VCBUS(reg)           ((reg << 2))
-
-#define REG_ADDR_CBUS(reg)              (REG_BASE_CBUS + REG_OFFSET_CBUS(reg))
 #define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg))
-
-static inline u32 osd_cbus_read(u32 reg)
-{
-	return (*(volatile unsigned int *)REG_ADDR_CBUS(reg));
-}
-
-static inline void osd_cbus_write(u32 reg,
-				  const u32 val)
-{
-	*(volatile unsigned int *)REG_ADDR_CBUS(reg) = (val);
-}
-
+#define REG_OSD_ADDR(reg)               (reg + 0L)
 
 static inline u32 osd_reg_read(u32 reg)
 {
-	return (*(volatile unsigned int *)REG_ADDR_VCBUS(reg));
+	u32 val;
+
+	if (reg > 0x10000)
+		val = *(volatile unsigned int *)REG_OSD_ADDR(reg);
+	else
+		val = *(volatile unsigned int *)REG_ADDR_VCBUS(reg);
+	return val;
 }
 
 static inline void osd_reg_write(u32 reg,
 				 const u32 val)
 {
-	*(volatile unsigned int *)REG_ADDR_VCBUS(reg) = (val);
+	if (reg > 0x10000)
+		*(volatile unsigned int *)REG_OSD_ADDR(reg) = (val);
+	else
+		*(volatile unsigned int *)REG_ADDR_VCBUS(reg) = (val);
 }
 
 static inline void osd_reg_set_mask(u32 reg,

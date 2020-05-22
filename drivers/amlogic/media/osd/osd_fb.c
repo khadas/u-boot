@@ -276,35 +276,66 @@ static int get_dts_node(const void *dt_addr, char *dtb_node)
 
 unsigned long get_fb_addr(void)
 {
+	char *dt_addr = NULL;
 	unsigned long fb_addr = 0;
 	static int initrd_set = 0;
 	char str_fb_addr[32];
-#ifdef CONFIG_OF_LIBFDT
-	const void *dt_addr = NULL;
 	char fdt_node[32];
+#ifdef CONFIG_OF_LIBFDT
 	int parent_offset = 0;
 	char *propdata = NULL;
 #endif
 
 	fb_addr = env_strtoul("fb_addr", 16);
-
 #ifdef CONFIG_OF_LIBFDT
-	dt_addr = gd->fdt_blob;
 
-	if ((dt_addr == NULL) || (fdt_check_header(dt_addr) < 0)) {
-		osd_logi("check dts: %s, load default fb_addr parameters\n",
-			fdt_strerror(fdt_check_header(dt_addr)));
-	} else {
-		strcpy(fdt_node, "/meson-fb");
-		osd_logi("load fb addr from dts:%s\n", fdt_node);
-		parent_offset = get_dts_node(dt_addr, fdt_node);
-		if (parent_offset < 0) {
-			strcpy(fdt_node, "/drm-vpu");
+#if defined(CONFIG_AML_MINUI)
+	if (in_fastboot_mode == 1) {
+		osd_logi("in fastboot mode, load default fb_addr parameters \n");
+	} else
+#endif
+	{
+		dt_addr = gd->fdt_blob;
+		if (dt_addr == NULL)
+			osd_logi("dt_addr is null, load default parameters\n");
+		if (fdt_check_header(dt_addr) < 0) {
+			osd_logi("check dts: %s, load default fb_addr parameters\n",
+				fdt_strerror(fdt_check_header(dt_addr)));
+		} else {
+			strcpy(fdt_node, "/meson-fb");
 			osd_logi("load fb addr from dts:%s\n", fdt_node);
 			parent_offset = get_dts_node(dt_addr, fdt_node);
 			if (parent_offset < 0) {
-				osd_logi("not find node: %s\n",fdt_strerror(parent_offset));
-				osd_logi("use default fb_addr parameters\n");
+				strcpy(fdt_node, "/fb");
+				osd_logi("load fb addr from dts:%s\n", fdt_node);
+				parent_offset = get_dts_node(dt_addr, fdt_node);
+				if (parent_offset < 0) {
+					strcpy(fdt_node, "/drm-vpu");
+					osd_logi("load fb addr from dts:%s\n", fdt_node);
+					parent_offset = get_dts_node(dt_addr, fdt_node);
+					if (parent_offset < 0) {
+						osd_logi("not find node: %s\n",fdt_strerror(parent_offset));
+						osd_logi("use default fb_addr parameters\n");
+					} else {
+						/* check fb_addr */
+						propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr", NULL);
+						if (propdata == NULL) {
+							osd_logi("failed to get fb addr for logo\n");
+							osd_logi("use default fb_addr parameters\n");
+						} else {
+							fb_addr = simple_strtoul(propdata, NULL, 16);
+						}
+					}
+				} else {
+					/* check fb_addr */
+					propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr", NULL);
+					if (propdata == NULL) {
+						osd_logi("failed to get fb addr for logo\n");
+						osd_logi("use default fb_addr parameters\n");
+					} else {
+						fb_addr = simple_strtoul(propdata, NULL, 16);
+					}
+				}
 			} else {
 				/* check fb_addr */
 				propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr", NULL);
@@ -315,21 +346,12 @@ unsigned long get_fb_addr(void)
 					fb_addr = simple_strtoul(propdata, NULL, 16);
 				}
 			}
-		} else {
-			/* check fb_addr */
-			propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr", NULL);
-			if (propdata == NULL) {
-				osd_logi("failed to get fb addr for logo\n");
-				osd_logi("use default fb_addr parameters\n");
-			} else {
-				fb_addr = simple_strtoul(propdata, NULL, 16);
-			}
 		}
 	}
 #endif
-	if ((!initrd_set) && (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_AXG)) {
+	if ((!initrd_set) && (osd_get_chip_type() >= MESON_CPU_MAJOR_ID_AXG)) {
 		sprintf(str_fb_addr,"%lx",fb_addr);
-		env_set("initrd_high", str_fb_addr);
+		//setenv("initrd_high", str_fb_addr);
 		initrd_set = 1;
 		osd_logi("set initrd_high: 0x%s\n", str_fb_addr);
 	}
@@ -340,7 +362,7 @@ unsigned long get_fb_addr(void)
 
 static void get_osd_version(void)
 {
-	u32 family_id = get_cpu_id().family_id;
+	u32 family_id = osd_get_chip_type();
 
 	if (family_id == MESON_CPU_MAJOR_ID_AXG)
 		osd_hw.osd_ver = OSD_SIMPLE;
@@ -365,6 +387,17 @@ static int get_osd_layer(void)
 	}
 	return fb_index;
 }
+
+static bool is_osd_supported(int chip_id)
+{
+	if ((chip_id == MESON_CPU_MAJOR_ID_A1) ||
+		(chip_id == MESON_CPU_MAJOR_ID_C1) ||
+		(chip_id == MESON_CPU_MAJOR_ID_C2))
+		return false;
+	else
+		return true;
+}
+
 static void *osd_hw_init(void)
 {
 	int osd_index = -1;
@@ -413,8 +446,12 @@ void *video_hw_init(int display_mode)
 	u32 fb_width = 0;
 	u32 fb_height = 0;;
 
+	if (!is_osd_supported(osd_get_chip_type()))
+		return NULL;
 	get_osd_version();
+#ifdef CONFIG_AML_VOUT
 	vout_init();
+#endif
 	fb_addr = get_fb_addr();
 	switch (display_mode) {
 	case MIDDLE_MODE:
@@ -1145,8 +1182,9 @@ static int _osd_hw_init(void)
 	u32 fb_height = 0;;
 
 	get_osd_version();
-
+#ifdef CONFIG_AML_VOUT
 	vout_init();
+#endif
 	fb_addr = get_fb_addr();
 #ifdef OSD_SCALE_ENABLE
 	fb_width = env_strtoul("fb_width", 10);
@@ -1255,7 +1293,7 @@ u32 hist_max_min[3][100], hist_spl_val[3][100],
 void hist_set_golden_data(void)
 {
 	u32 i = 0;
-	u32 family_id = get_cpu_id().family_id;
+	u32 family_id = osd_get_chip_type();
 	char *str = NULL;
 	char *hist_env_key[12] = {"hist_max_min_osd0","hist_spl_val_osd0","hist_spl_pix_cnt_osd0","hist_cheoma_sum_osd0",
 	                         "hist_max_min_osd1","hist_spl_val_osd1","hist_spl_pix_cnt_osd1","hist_cheoma_sum_osd1",
@@ -1321,7 +1359,7 @@ int osd_rma_test(u32 osd_index)
 {
 	u32 i = osd_index, osd_max = 1;
 	u32 hist_result[4];
-	u32 family_id = get_cpu_id().family_id;
+	u32 family_id = osd_get_chip_type();
 
 	if (osd_hw.osd_ver == OSD_SIMPLE) {
 		osd_max = 0;

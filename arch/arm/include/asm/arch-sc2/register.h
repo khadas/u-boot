@@ -15774,47 +15774,47 @@
 // todo :
 #define VPU_422TO444_CTRL2                         ((0x274d  << 2) + 0xff000000)
 // Picture Rotate (PROT) module 1 (for OSD) registers:
-//`define VPU_PROT1_CLK_GATE          8'h50
-//`define VPU_PROT1_GEN_CNTL          8'h51
-//`define VPU_PROT1_X_START_END       8'h52
-//`define VPU_PROT1_Y_START_END       8'h53
-//`define VPU_PROT1_Y_LEN_STEP        8'h54
-//`define VPU_PROT1_RPT_LOOP          8'h55
-//`define VPU_PROT1_RPT_PAT           8'h56
-//`define VPU_PROT1_DDR               8'h57
-//`define VPU_PROT1_RBUF_ROOM         8'h58
-//`define VPU_PROT1_STAT_0            8'h59
-//`define VPU_PROT1_STAT_1            8'h5a
-//`define VPU_PROT1_STAT_2            8'h5b
-//`define VPU_PROT1_REQ_ONOFF         8'h5c
+#define VPU_PROT1_CLK_GATE                         ((0x2750  << 2) + 0xff900000)
+#define VPU_PROT1_GEN_CNTL                         ((0x2751  << 2) + 0xff900000)
+#define VPU_PROT1_X_START_END                      ((0x2752  << 2) + 0xff900000)
+#define VPU_PROT1_Y_START_END                    ((0x2753  << 2) + 0xff900000)
+#define VPU_PROT1_Y_LEN_STEP                     ((0x2754  << 2) + 0xff900000)
+#define VPU_PROT1_RPT_LOOP                       ((0x2755  << 2) + 0xff900000)
+#define VPU_PROT1_RPT_PAT                        ((0x2756  << 2) + 0xff900000)
+#define VPU_PROT1_DDR                            ((0x2757  << 2) + 0xff900000)
+#define VPU_PROT1_RBUF_ROOM                      ((0x2758  << 2) + 0xff900000)
+#define VPU_PROT1_STAT_0                         ((0x2759  << 2) + 0xff900000)
+#define VPU_PROT1_STAT_1                         ((0x275a  << 2) + 0xff900000)
+#define VPU_PROT1_STAT_2                         ((0x275b  << 2) + 0xff900000)
+#define VPU_PROT1_REQ_ONOFF                      ((0x275c  << 2) + 0xff900000)
 // Picture Rotate (PROT) module 2 (for VD) registers:
-//`define VPU_PROT2_CLK_GATE          8'h60
-//`define VPU_PROT2_GEN_CNTL          8'h61
-//`define VPU_PROT2_X_START_END       8'h62
-//`define VPU_PROT2_Y_START_END       8'h63
-//`define VPU_PROT2_Y_LEN_STEP        8'h64
-//`define VPU_PROT2_RPT_LOOP          8'h65
-//`define VPU_PROT2_RPT_PAT           8'h66
-//`define VPU_PROT2_DDR               8'h67
-//`define VPU_PROT2_RBUF_ROOM         8'h68
-//`define VPU_PROT2_STAT_0            8'h69
-//`define VPU_PROT2_STAT_1            8'h6a
-//`define VPU_PROT2_STAT_2            8'h6b
-//`define VPU_PROT2_REQ_ONOFF         8'h6c
+#define VPU_PROT2_CLK_GATE                       ((0x2760  << 2) + 0xff900000)
+#define VPU_PROT2_GEN_CNTL                       ((0x2761  << 2) + 0xff900000)
+#define VPU_PROT2_X_START_END                    ((0x2762  << 2) + 0xff900000)
+#define VPU_PROT2_Y_START_END                    ((0x2763  << 2) + 0xff900000)
+#define VPU_PROT2_Y_LEN_STEP                     ((0x2764  << 2) + 0xff900000)
+#define VPU_PROT2_RPT_LOOP                       ((0x2765  << 2) + 0xff900000)
+#define VPU_PROT2_RPT_PAT                        ((0x2766  << 2) + 0xff900000)
+#define VPU_PROT2_DDR                            ((0x2767  << 2) + 0xff900000)
+#define VPU_PROT2_RBUF_ROOM                      ((0x2768  << 2) + 0xff900000)
+#define VPU_PROT2_STAT_0                         ((0x2769  << 2) + 0xff900000)
+#define VPU_PROT2_STAT_1                         ((0x276a  << 2) + 0xff900000)
+#define VPU_PROT2_STAT_2                         ((0x276b  << 2) + 0xff900000)
+#define VPU_PROT2_REQ_ONOFF                      ((0x276c  << 2) + 0xff900000)
 // Picture Rotate (PROT) module 3 (for VD) registers:
-//`define VPU_PROT3_CLK_GATE          8'h70
-//`define VPU_PROT3_GEN_CNTL          8'h71
-//`define VPU_PROT3_X_START_END       8'h72
-//`define VPU_PROT3_Y_START_END       8'h73
-//`define VPU_PROT3_Y_LEN_STEP        8'h74
-//`define VPU_PROT3_RPT_LOOP          8'h75
-//`define VPU_PROT3_RPT_PAT           8'h76
-//`define VPU_PROT3_DDR               8'h77
-//`define VPU_PROT3_RBUF_ROOM         8'h78
-//`define VPU_PROT3_STAT_0            8'h79
-//`define VPU_PROT3_STAT_1            8'h7a
-//`define VPU_PROT3_STAT_2            8'h7b
-//`define VPU_PROT3_REQ_ONOFF         8'h7c
+#define VPU_PROT3_CLK_GATE                       ((0x2770  << 2) + 0xff900000)
+#define VPU_PROT3_GEN_CNTL                       ((0x2771  << 2) + 0xff900000)
+#define VPU_PROT3_X_START_END                    ((0x2772  << 2) + 0xff900000)
+#define VPU_PROT3_Y_START_END                    ((0x2773  << 2) + 0xff900000)
+#define VPU_PROT3_Y_LEN_STEP                     ((0x2774  << 2) + 0xff900000)
+#define VPU_PROT3_RPT_LOOP                       ((0x2775  << 2) + 0xff900000)
+#define VPU_PROT3_RPT_PAT                        ((0x2776  << 2) + 0xff900000)
+#define VPU_PROT3_DDR                            ((0x2777  << 2) + 0xff900000)
+#define VPU_PROT3_RBUF_ROOM                      ((0x2778  << 2) + 0xff900000)
+#define VPU_PROT3_STAT_0                         ((0x2779  << 2) + 0xff900000)
+#define VPU_PROT3_STAT_1                         ((0x277a  << 2) + 0xff900000)
+#define VPU_PROT3_STAT_2                         ((0x277b  << 2) + 0xff900000)
+
 //Bit 20    reg_viu2vdin0_sw_reset:   software reset
 //Bit 19:18 reg_viu2vdin0_dn_ratio:   down-scale ratio; 0: no scale; 1: 1/2;  2:1/4; 3: reserved
 //Bit 17:16 reg_viu2vdin0_flt_mode:   filter mode; 0: no filter; 1:[0 2 2 0]/4; 2:[1 1 1 1]/4; 3:[1 3 3 1]/8
@@ -20004,6 +20004,10 @@
 #define VPP_OSDSC_DITHER_LUT_10                    ((0x313a  << 2) + 0xff000000)
 #define VPP_OSDSC_DITHER_LUT_11                    ((0x313b  << 2) + 0xff000000)
 #define VPP_OSDSC_DITHER_LUT_12                    ((0x313c  << 2) + 0xff000000)
+#define VPP_OSDSC_DITHER_LUT_13                    ((0x313d  << 2) + 0xff000000)
+#define VPP_OSDSC_DITHER_LUT_14                    ((0x313e  << 2) + 0xff000000)
+#define VPP_OSDSC_DITHER_LUT_15                    ((0x313f  << 2) + 0xff000000)
+
 // synopsys translate_off
 // synopsys translate_on
 //
@@ -22996,6 +23000,20 @@
 #define VIU_OSD3_MATRIX_PRE_OFFSET0_1              ((0x3dbb  << 2) + 0xff000000)
 #define VIU_OSD3_MATRIX_PRE_OFFSET2                ((0x3dbc  << 2) + 0xff000000)
 #define VIU_OSD3_MATRIX_EN_CTRL                    ((0x3dbd  << 2) + 0xff000000)
+#define VPP_WRAP_OSD3_MATRIX_COEF00_01                  ((0x3db0  << 2) + 0xff000000)
+#define VPP_WRAP_OSD3_MATRIX_COEF02_10                  ((0x3db1  << 2) + 0xff000000)
+#define VPP_WRAP_OSD3_MATRIX_COEF11_12                  ((0x3db2  << 2) + 0xff000000)
+#define VPP_WRAP_OSD3_MATRIX_COEF20_21                  ((0x3db3  << 2) + 0xff000000)
+#define VPP_WRAP_OSD3_MATRIX_COEF22                     ((0x3db4  << 2) + 0xff000000)
+#define VPP_WRAP_OSD3_MATRIX_COEF13_14                  ((0x3db5  << 2) + 0xff000000)
+#define VPP_WRAP_OSD3_MATRIX_COEF23_24                  ((0x3db6  << 2) + 0xff000000)
+#define VPP_WRAP_OSD3_MATRIX_COEF15_25                  ((0x3db7  << 2) + 0xff000000)
+#define VPP_WRAP_OSD3_MATRIX_CLIP                       ((0x3db8  << 2) + 0xff000000)
+#define VPP_WRAP_OSD3_MATRIX_OFFSET0_1                  ((0x3db9  << 2) + 0xff000000)
+#define VPP_WRAP_OSD3_MATRIX_OFFSET2                    ((0x3dba  << 2) + 0xff000000)
+#define VPP_WRAP_OSD3_MATRIX_PRE_OFFSET0_1              ((0x3dbb  << 2) + 0xff000000)
+#define VPP_WRAP_OSD3_MATRIX_PRE_OFFSET2                ((0x3dbc  << 2) + 0xff000000)
+#define VPP_WRAP_OSD3_MATRIX_EN_CTRL                    ((0x3dbd  << 2) + 0xff000000)
 #define VIU_OSD4_CTRL_STAT                         ((0x3dc0  << 2) + 0xff000000)
 #define VIU_OSD4_CTRL_STAT2                        ((0x3dc1  << 2) + 0xff000000)
 #define VIU_OSD4_COLOR_ADDR                        ((0x3dc2  << 2) + 0xff000000)

@@ -27,11 +27,16 @@
 /* ********************************
  * register define
  * ********************************* */
+#ifndef REG_BASE_VCBUS
+#define REG_BASE_VCBUS                  (0xFF900000L)
+#endif
 /* base & offset */
 //#define REG_BASE_VCBUS                  (0xd0100000L)
 #define REG_OFFSET_VCBUS(reg)           ((reg) << 2)
 /* memory mapping */
 #define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg))
+
+#define REG_VPP_ADDR(reg)               (reg + 0L)
 
 #ifdef VPP_EOTF_CTL
 #define VIU_EOTF_CTL VPP_EOTF_CTL
@@ -239,12 +244,21 @@
 
 static inline unsigned int vpp_reg_read(unsigned int _reg)
 {
-	return (*(volatile unsigned int *)REG_ADDR_VCBUS(_reg));
+	unsigned int val;
+
+	if (_reg > 0x10000)
+		val = *(volatile unsigned int *)REG_VPP_ADDR(_reg);
+	else
+		val = *(volatile unsigned int *)REG_ADDR_VCBUS(_reg);
+	return val;
 };
 
 static inline void vpp_reg_write(unsigned int _reg, unsigned int _value)
 {
-	*(volatile unsigned int *)REG_ADDR_VCBUS(_reg) = (_value);
+	if (_reg > 0x10000)
+		*(volatile unsigned int *)REG_VPP_ADDR(_reg) = (_value);
+	else
+		*(volatile unsigned int *)REG_ADDR_VCBUS(_reg) = (_value);
 };
 
 static inline void vpp_reg_setb(unsigned int _reg, unsigned int _value,
