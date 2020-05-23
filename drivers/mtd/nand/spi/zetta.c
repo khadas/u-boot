@@ -115,13 +115,12 @@ static int zetta_spinand_detect(struct spinand_device *spinand)
 	u8 *id = spinand->id.data;
 	int ret;
 
-	/* zetta SPI NAND read ID needs 1 dummy byte */
-	if (id[1] != SPINAND_MFR_ZETTA)
+	if (id[0] != SPINAND_MFR_ZETTA)
 		return 0;
 
 	ret = spinand_match_and_init(spinand, zetta_spinand_table,
 				     ARRAY_SIZE(zetta_spinand_table),
-				     id[2]);
+				     id[1]);
 	if (ret)
 		return ret;
 

@@ -184,16 +184,12 @@ static int gigadevice_spinand_detect(struct spinand_device *spinand)
 	u8 *id = spinand->id.data;
 	int ret;
 
-	/*
-	 * Gigadevice SPI NAND read ID need a dummy byte,
-	 * so the first byte in raw_id is dummy.
-	 */
-	if (id[1] != SPINAND_MFR_GIGADEVICE)
+	if (id[0] != SPINAND_MFR_GIGADEVICE)
 		return 0;
 
 	ret = spinand_match_and_init(spinand, gigadevice_spinand_table,
 				     ARRAY_SIZE(gigadevice_spinand_table),
-				     id[2]);
+				     id[1]);
 	if (ret)
 		return ret;
 

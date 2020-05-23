@@ -91,7 +91,7 @@ struct info_page {
 	SPI_MEM_OP(SPI_MEM_OP_CMD(0x9f, 1),				\
 		   SPI_MEM_OP_ADDR(1, 0x00, 1),			\
 		   SPI_MEM_OP_DUMMY(ndummy, 1),				\
-		   SPI_MEM_OP_DATA_IN(len, buf+1, 1))
+		   SPI_MEM_OP_DATA_IN(len, buf, 1))
 #endif
 
 #define SPINAND_SET_FEATURE_OP(reg, valptr)				\

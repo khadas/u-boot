@@ -126,13 +126,12 @@ static int toshiba_spinand_detect(struct spinand_device *spinand)
 	u8 *id = spinand->id.data;
 	int ret;
 
-	/* Toshiba SPI NAND read ID needs 2 dummy byte */
-	if (id[1] != SPINAND_MFR_TOSHIBA)
+	if (id[0] != SPINAND_MFR_TOSHIBA)
 		return 0;
 
 	ret = spinand_match_and_init(spinand, toshiba_spinand_table,
 				     ARRAY_SIZE(toshiba_spinand_table),
-				     id[2]);
+				     id[1]);
 	if (ret)
 		return ret;
 
