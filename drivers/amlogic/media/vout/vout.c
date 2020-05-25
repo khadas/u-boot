@@ -37,8 +37,13 @@
 			vout_log("%s:%d\n", __func__, __LINE__); \
 	} while (0)
 
+#ifndef REG_BASE_VCBUS
+#define REG_BASE_VCBUS                  (0xff900000L)
+#endif
 #define REG_OFFSET_VCBUS(reg)           ((reg << 2))
 #define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg))
+
+#define REG_VOUT_ADDR(reg)              (reg + 0L)
 
 static int g_vmode = -1;
 
@@ -350,7 +355,10 @@ static struct vinfo_s vout_info = {
 
 static inline void vout_reg_write(u32 reg, const u32 val)
 {
-	*(volatile unsigned int *)REG_ADDR_VCBUS(reg) = (val);
+	if (reg > 0x10000)
+		*(volatile unsigned int *)REG_VOUT_ADDR(reg) = (val);
+	else
+		*(volatile unsigned int *)REG_ADDR_VCBUS(reg) = (val);
 }
 
 static int vout_find_mode_by_name(const char *name)
