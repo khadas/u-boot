@@ -76,7 +76,6 @@ static inline void menson_rsv_protect(void)
 
 }
 
-
 int meson_rsv_erase_protect(struct meson_rsv_handler_t *handler,
 			    u32 block_addr)
 {

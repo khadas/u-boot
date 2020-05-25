@@ -1957,7 +1957,9 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 				else
 					break;
 		    } else {
-				if (aml_chip->mfr_type  == NAND_MFR_SANDISK) {
+				if ((aml_chip->mfr_type == NAND_MFR_SANDISK) ||
+					(aml_chip->mfr_type == 0xc8) ||
+					(aml_chip->mfr_type == 0xc2)) {
 					addr = offset + read_cnt*mtd->writesize;
 				} else
 					addr = offset +
@@ -2068,8 +2070,9 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 				//printk("col0_oob =%x\n",col0_oob);
 			}
 
-	if ((aml_chip->mfr_type  == 0xC8 )) {
-		if ((col0_oob != 0xFF) || (col0_data != 0xFF)) {
+	if ((aml_chip->mfr_type == 0xC8 ) ||
+		(aml_chip->mfr_type == 0xC2)) {
+		if (col0_oob != 0xFF) {
 			printk("detect factory Bad block:%llx blk:%d chip:%d\n",
 				(uint64_t)addr, start_blk, i);
 			bad_blk_cnt++;
@@ -2093,15 +2096,6 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 
 	if (col0_oob != 0xFF) {
 		printk("%s:%d factory ship bbt found\n", __func__, __LINE__);
-		if (aml_chip->mfr_type  == 0xc2 ) {
-			if (col0_oob != 0xFF) {
-				printk("detect factory Bad block:%llx blk=%d chip=%d\n",
-					(uint64_t)addr, start_blk, i);
-				bad_blk_cnt++;
-				aml_chip->block_status[start_blk] = NAND_FACTORY_BAD;
-				break;
-			}
-		}
 
 		if (aml_chip->mfr_type  == NAND_MFR_DOSILICON ||
 		    aml_chip->mfr_type  == NAND_MFR_ATO ||
