@@ -33,6 +33,7 @@
 #include <libavb/avb_util.h>
 #include <libavb/avb_vbmeta_image.h>
 #include <libavb/avb_version.h>
+#include <u-boot/sha256.h>
 
 /* Maximum number of partitions that can be loaded with avb_slot_verify(). */
 #define MAX_NUMBER_OF_LOADED_PARTITIONS 32
@@ -191,6 +192,7 @@ static AvbSlotVerifyResult load_and_verify_hash_partition(
   uint8_t* image_buf = NULL;
   bool image_preloaded = false;
   uint8_t* digest;
+  uint8_t sha_digest[SHA256_SUM_LEN];
   size_t digest_len;
   const char* found;
   uint64_t image_size;
@@ -294,11 +296,20 @@ static AvbSlotVerifyResult load_and_verify_hash_partition(
   }
 
   if (avb_strcmp((const char*)hash_desc.hash_algorithm, "sha256") == 0) {
+#if 0
     AvbSHA256Ctx sha256_ctx;
     avb_sha256_init(&sha256_ctx);
     avb_sha256_update(&sha256_ctx, desc_salt, hash_desc.salt_len);
     avb_sha256_update(&sha256_ctx, image_buf, hash_desc.image_size);
     digest = avb_sha256_final(&sha256_ctx);
+#else
+    sha256_context ctx;
+    sha256_starts(&ctx);
+    sha256_update(&ctx, desc_salt, hash_desc.salt_len);
+    sha256_update(&ctx, image_buf, hash_desc.image_size);
+    sha256_finish(&ctx, sha_digest);
+    digest = sha_digest;
+#endif
     digest_len = AVB_SHA256_DIGEST_SIZE;
   } else if (avb_strcmp((const char*)hash_desc.hash_algorithm, "sha512") == 0) {
     AvbSHA512Ctx sha512_ctx;
