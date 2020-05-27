@@ -157,6 +157,14 @@ int optimus_fat_register_device(block_dev_desc_t *dev_desc, int part_no)
      defined(CONFIG_CMD_USB) || \
      defined(CONFIG_MMC) || \
      defined(CONFIG_SYSTEMACE) )
+    if (part_no < 0) {
+        int p = 1;
+        for (; p <= MAX_SEARCH_PARTITIONS; p++) {
+            if (get_partition_info(dev_desc, p, &info)) continue;
+            part_no = p;
+            break;
+        }
+    }
     /* First we assume, there is a MBR */
 	if (!get_partition_info (dev_desc, part_no, &info)) {
         part_offset = info.start;
@@ -1387,12 +1395,12 @@ s64 do_fat_get_fileSz(const char* imgItemPath)
     if (!strcmp(usb_update,"1"))
     {
         //fatexist usb host 0 imgItemPath
-        sprintf(cmdBuf, "fatsize usb 0 %s", imgItemPath);
+        sprintf(cmdBuf, "fatsize usb 0:auto %s", imgItemPath);
     }
     else
     {
         optimus_sdc_burn_switch_to_extmmc();
-        sprintf(cmdBuf, "fatsize mmc 0 %s", imgItemPath);
+        sprintf(cmdBuf, "fatsize mmc 0:auto %s", imgItemPath);
     }
     /*SDC_DBG("to run cmd [%s]\n", cmdBuf);*/
     rcode = run_command(cmdBuf, 0);
