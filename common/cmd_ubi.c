@@ -35,7 +35,6 @@
 /* Private own data */
 static struct ubi_device *ubi;
 static int curr_dev = -1;
-static int all_dev = 0;
 static char buffer[80];
 static int ubi_initialized;
 
@@ -466,6 +465,9 @@ static int ubi_dev_scan(struct mtd_info *info, char *ubidev,
 	return 0;
 }
 
+#ifdef CONFIFG_AML_MTDPART
+	extern int __initdata mtd_devs;
+#endif
 int ubi_part(char *part_name, const char *vid_header_offset)
 {
 	int err = 0;
@@ -538,8 +540,7 @@ int ubi_part(char *part_name, const char *vid_header_offset)
 		return err;
 	}
 	//ubi = ubi_devices[0];
-	all_dev++;
-	curr_dev = all_dev - 1;
+	curr_dev = mtd_devs - 1;
 	ubi = ubi_devices[curr_dev];
 	ubi_msg("current ubi device %d\n", curr_dev);
 	return 0;
@@ -557,22 +558,22 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		/* list all attached ubi device*/
 		if (argc == 2) {
 			int i = 0;
-			if (0 == all_dev) {
+			if (0 == mtd_devs) {
 				ubi_msg("no ubi device attached!\n");
 				return 0;
 			}
-			for (i = 0; i < all_dev; i++) {
+			for (i = 0; i < mtd_devs; i++) {
 					ubi_msg("device %d:\n", i);
 					display_ubi_info(ubi_devices[i]);
 			}
 			ubi_msg("\n\n %d device attached, current device %d, %s\n",
-				all_dev, curr_dev, ubi->mtd->name);
+				mtd_devs, curr_dev, ubi->mtd->name);
 			return 0;
 		}
 		/* select device if it exist */
 		if (argc == 3) {
 			int dev = (int)simple_strtoul(argv[2], NULL, 10);
-			if (dev >= all_dev) {
+			if (dev >= mtd_devs) {
 				ubi_msg("check cmd plz, current device %d, %s\n",
 						curr_dev, ubi->mtd->name);
 				return 1;

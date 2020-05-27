@@ -72,7 +72,11 @@ struct mtd_dev_param {
 };
 
 /* Numbers of elements set in the @mtd_dev_param array */
+#ifdef CONFIFG_AML_MTDPART
+int __initdata mtd_devs;
+#else
 static int __initdata mtd_devs;
+#endif
 
 /* MTD devices specification parameters */
 static struct mtd_dev_param __initdata mtd_dev_param[UBI_MAX_DEVICES];
@@ -1286,14 +1290,12 @@ int ubi_init(void)
 	if (err)
 		goto out_slab;
 
-
 	/* Attach MTD devices */
 	for (i = 0; i < mtd_devs; i++) {
 		struct mtd_dev_param *p = &mtd_dev_param[i];
 		struct mtd_info *mtd;
 
 		cond_resched();
-
 		mtd = open_mtd_device(p->name);
 		if (IS_ERR(mtd)) {
 			err = PTR_ERR(mtd);
@@ -1490,6 +1492,15 @@ int ubi_mtd_param_parse(const char *val, struct kernel_param *kp)
 		return -EINVAL;
 	}
 
+#ifdef CONFIFG_AML_MTDPART
+	for (i = 0; i < mtd_devs; i++) {
+		p = &mtd_dev_param[i];
+		if (!strcmp(&p->name[0], tokens[0])) {
+			printf("%s has attached\n", tokens[0]);
+			return 0;
+		}
+	}
+#endif
 	p = &mtd_dev_param[mtd_devs];
 	strcpy(&p->name[0], tokens[0]);
 
