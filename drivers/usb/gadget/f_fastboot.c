@@ -722,6 +722,12 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 			strncat(response, "yes", chars_left);
 		} else
 			strncat(response, "no", chars_left);
+	} else if (!strcmp_l1("has-slot:vendor_boot", cmd)) {
+		if (has_boot_slot == 1) {
+			printf("has vendor_boot slot\n");
+			strncat(response, "yes", chars_left);
+		} else
+			strncat(response, "no", chars_left);
 	} else if (!strcmp_l1("has-slot:recovery", cmd)) {
 		if (has_boot_slot == 1) {
 			printf("has recovery slot\n");
@@ -789,6 +795,10 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	} else if (!strcmp_l1("has-slot:data", cmd)) {
 		strncat(response, "no", chars_left);
 	} else if (!strcmp_l1("has-slot:misc", cmd)) {
+		strncat(response, "no", chars_left);
+	} else if (!strcmp_l1("has-slot:env", cmd)) {
+		strncat(response, "no", chars_left);
+	} else if (!strcmp_l1("has-slot:factory", cmd)) {
 		strncat(response, "no", chars_left);
 	} else if (!strcmp_l1("has-slot:odm", cmd)) {
 		if (has_boot_slot == 1) {
@@ -1033,14 +1043,12 @@ static void cb_download(struct usb_ep *ep, struct usb_request *req)
 	fastboot_tx_write_str(response);
 }
 
-typedef struct andr_img_hdr boot_img_hdr;
-
 static void do_bootm_on_complete(struct usb_ep *ep, struct usb_request *req)
 {
 	char boot_addr_start[12];
 	unsigned    kernel_size;
 	unsigned    ramdisk_size;
-	boot_img_hdr *hdr_addr = NULL;
+	boot_img_hdr_t *hdr_addr = NULL;
 	int genFmt = 0;
 	unsigned actualBootImgSz = 0;
 	unsigned dtbSz = 0;
@@ -1052,7 +1060,7 @@ static void do_bootm_on_complete(struct usb_ep *ep, struct usb_request *req)
 	printf("boot_addr_start %s\n", boot_addr_start);
 
 	loadaddr = (unsigned char*)CONFIG_USB_FASTBOOT_BUF_ADDR;
-	hdr_addr = (boot_img_hdr*)loadaddr;
+	hdr_addr = (boot_img_hdr_t*)loadaddr;
 
 	genFmt = genimg_get_format(hdr_addr);
 	if (IMAGE_FORMAT_ANDROID != genFmt) {

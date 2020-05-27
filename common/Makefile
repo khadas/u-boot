@@ -146,7 +146,11 @@ ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 obj-y += cmd_bcb.o
 obj-y += cmd_dynamic.o
 ifdef CONFIG_CMD_BOOTCTOL_AVB
+ifdef CONFIG_CMD_BOOTCTOL_R
+obj-y += cmd_bootctl_R.o
+else
 obj-y += cmd_bootctl_avb.o
+endif
 else
 obj-y += cmd_bootctl.o
 endif

@@ -108,7 +108,6 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 	const void *os_hdr;
 	bool ep_found = false;
 	int ret;
-
 	/* get kernel image header, start address and length */
 	os_hdr = boot_get_kernel(cmdtp, flag, argc, argv,
 			&images, &images.os.image_start, &images.os.image_len);
@@ -193,10 +192,12 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		images.os.os = IH_OS_LINUX;
 
-		images.os.end = android_image_get_end(os_hdr);
-		images.os.load = android_image_get_kload(os_hdr);
+	   images.os.end = android_image_get_end(os_hdr);
+	   images.os.load = android_image_get_kload(os_hdr);
+
 		if (images.os.load == 0x10008000)
 			images.os.load = 0x1080000;
+
 		images.ep = images.os.load;
 		ep_found = true;
 		break;
@@ -444,7 +445,6 @@ static int bootm_find_fdt(int flag, int argc, char * const argv[])
 	//try to do store dtb decrypt ${dtb_mem_addr}
 	//because if load dtb.img from cache/udisk maybe encrypted.
 	run_command("store dtb decrypt ${dtb_mem_addr}", 0);
-
 	if (getenv("dtb_mem_addr"))
 		dtb_mem_addr = simple_strtoul(getenv("dtb_mem_addr"), NULL, 16);
 	else
@@ -455,6 +455,7 @@ static int bootm_find_fdt(int flag, int argc, char * const argv[])
 	images.ft_addr = (char *)map_sysmem(dtb_mem_addr, 0);
 	#ifdef CONFIG_OF_LIBFDT_OVERLAY
 	fdth = (struct fdt_header *)(images.ft_addr);
+
 	if (get_fdto_totalsize(&fdto_totalsize) == 0)
 		fdth->totalsize = cpu_to_fdt32(fdt_get_header(dtb_mem_addr,
 					       totalsize)) + cpu_to_fdt32(
@@ -656,6 +657,7 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 	load_buf = map_sysmem(load, 0);
 
 	image_buf = map_sysmem(os.image_start, image_len);
+
 	err = decomp_image(os.comp, load, os.image_start, os.type, load_buf,
 			   image_buf, image_len, load_end);
 	if (err) {
@@ -1038,10 +1040,9 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 	image_header_t	*hdr;
 #endif
 	ulong		img_addr;
-	const void *buf;
+	const void      *buf;
 	const char	*fit_uname_config = NULL;
 	const char	*fit_uname_kernel = NULL;
-
 	char *avb_s;
 	avb_s = getenv("avb2");
 	if (avb_s == NULL) {
@@ -1051,7 +1052,7 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 	printf("avb2: %s\n", avb_s);
 	if (strcmp(avb_s, "1") != 0) {
 #ifdef CONFIG_AML_ANTIROLLBACK
-		struct andr_img_hdr **tmp_img_hdr = (struct andr_img_hdr **)&buf;
+		boot_img_hdr_t **tmp_img_hdr = (boot_img_hdr_t **)&buf;
 #endif
 	}
 
@@ -1135,19 +1136,21 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	case IMAGE_FORMAT_ANDROID:
 		printf("## Booting Android Image at 0x%08lx ...\n", img_addr);
+
 		if (!android_image_need_move(&img_addr, buf))
 			buf = map_sysmem(img_addr, 0);
 		else
 			return NULL;
+
 		if (android_image_get_kernel(buf, images->verify,
-					     os_data, os_len))
+			os_data, os_len))
 			return NULL;
 
 		if (strcmp(avb_s, "1") != 0) {
 #ifdef CONFIG_AML_ANTIROLLBACK
 			if (!check_antirollback((*tmp_img_hdr)->kernel_version)) {
 				*os_len = 0;
-				return NULL;
+			     return NULL;
 			}
 #endif
 		}

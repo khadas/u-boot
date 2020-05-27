@@ -75,6 +75,7 @@ extern int info_disprotect;
 extern int has_boot_slot;
 extern int has_system_slot;
 extern bool dynamic_partition;
+extern bool vendor_boot_partition;
 
 #define DISPROTECT_KEY    		1
 #define DISPROTECT_SECURE		1<<1

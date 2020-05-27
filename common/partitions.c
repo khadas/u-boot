@@ -42,6 +42,7 @@ static int parts_total_num;
 int has_boot_slot = 0;
 int has_system_slot = 0;
 bool dynamic_partition = false;
+bool vendor_boot_partition = false;
 
 
 int get_partitions_table(struct partitions **table)
@@ -123,6 +124,8 @@ int get_partition_from_dts(unsigned char *buffer)
 	}
 	dynamic_partition = false;
 	setenv("partiton_mode","normal");
+	vendor_boot_partition = false;
+	setenv("vendor_boot_mode","false");
 	for (index = 0; index < be32_to_cpup((u32*)parts_num); index++)
 	{
 		sprintf(propname,"part-%d", index);
@@ -170,6 +173,12 @@ int get_partition_from_dts(unsigned char *buffer)
 			dynamic_partition = true;
 			setenv("partiton_mode","dynamic");
 			printf("enable dynamic_partition\n");
+		}
+
+		if (strncmp(uname, "vendor_boot", 11) == 0) {
+			vendor_boot_partition = true;
+			setenv("vendor_boot_mode","true");
+			printf("enable vendor_boot\n");
 		}
 	}
 	return 0;

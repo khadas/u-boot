@@ -38,6 +38,8 @@
 #include <asm/errno.h>
 #include <asm/io.h>
 
+#include <android_image.h>
+
 #ifdef CONFIG_CMD_BDI
 extern int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 #endif
@@ -741,8 +743,8 @@ int genimg_get_format(const void *img_addr)
 #endif
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	if (android_image_check_header(img_addr) == 0)
-		return IMAGE_FORMAT_ANDROID;
-#endif
+	    return IMAGE_FORMAT_ANDROID;
+#endif /* CONFIG_ANDROID_BOOT_IMAGE */
 
 	return IMAGE_FORMAT_INVALID;
 }
@@ -1009,7 +1011,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 						IH_TYPE_MULTI)) {
 
 		/*
-		 * Now check if we have a legacy mult-component image,
+		  * Now check if we have a legacy mult-component image,
 		 * get second entry data start address and len.
 		 */
 		bootstage_mark(BOOTSTAGE_ID_RAMDISK);
@@ -1020,7 +1022,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		image_multi_getimg(images->legacy_hdr_os, 1, &rd_data, &rd_len);
 	}
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
-	else if ((genimg_get_format((void *)images->os.start)
+		else if ((genimg_get_format((void *)images->os.start)
 			== IMAGE_FORMAT_ANDROID) &&
 		 (!android_image_get_ramdisk((void *)images->os.start,
 		 &rd_data, &rd_len))) {
@@ -1034,12 +1036,11 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		bootstage_mark(BOOTSTAGE_ID_NO_RAMDISK);
 		rd_len = rd_data = 0;
 	}
-
-	if (!rd_data) {
-		debug("## No init Ramdisk\n");
+    if (!rd_data) {
+	    debug("## No init Ramdisk\n");
 	} else {
-		*rd_start = rd_data;
-		*rd_end = rd_data + rd_len;
+	    *rd_start = rd_data;
+	    *rd_end = rd_data + rd_len;
 	}
 	debug("   ramdisk start = 0x%08lx, ramdisk end = 0x%08lx\n",
 			*rd_start, *rd_end);
