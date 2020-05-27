@@ -933,7 +933,7 @@ void cec_node_init(void)
 			ping_cec_ll_tx(msg, 1);
 			cec_msg.log_addr = 0x10 | kern_log_addr;
 			_udelay(100);
-			cec_dbg_print("Set cec log_addr:0x", cec_msg.log_addr);
+			cec_dbg_print("Set cec log_addr-0:0x", cec_msg.log_addr);
 			cec_dbg_print(",ADDR0:", cec_rd_reg(CEC_LOGICAL_ADDR0));
 			uart_puts("\n");
 			probe = NULL;
@@ -970,14 +970,15 @@ void cec_node_init(void)
 	} else if (tx_stat == TX_ERROR) {
 		_udelay(100);
 		cec_msg.log_addr = probe[i];
-		cec_dbg_print("Set cec log_addr:0x", cec_msg.log_addr);
+		cec_set_log_addr(cec_msg.log_addr & 0xf);
+		cec_dbg_print("Set cec log_addr-1:0x", cec_msg.log_addr);
 		cec_dbg_print(", ADDR0:", cec_rd_reg(CEC_LOGICAL_ADDR0));
 		uart_puts("\n");
 		probe = NULL;
 		regist_devs = 0;
 		i = 0;
 		retry = 0;
-		remote_cec_ll_tx(msg, 3);
+		/*remote_cec_ll_tx(msg, 3);*/
 		return;
 	} else if (tx_stat == TX_DONE) {
 		cec_dbg_print("sombody takes cec log_addr:0x", probe[i]);

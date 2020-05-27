@@ -136,13 +136,13 @@ static unsigned int detect_key(unsigned int suspend_from)
 		#ifdef CONFIG_CEC_WAKEUP
 		if (cec_suspend_wakeup_chk())
 			exit_reason = CEC_WAKEUP;
-		if (irq[IRQ_AO_CEC] == IRQ_AO_CEC1_NUM ||
-		    irq[IRQ_AO_CECB] == IRQ_AO_CEC2_NUM) {
-			irq[IRQ_AO_CEC] = 0xFFFFFFFF;
-			irq[IRQ_AO_CECB] = 0xFFFFFFFF;
-			if (cec_suspend_handle())
-				exit_reason = CEC_WAKEUP;
-		}
+		/*if (irq[IRQ_AO_CEC] == IRQ_AO_CEC1_NUM ||*/
+		 /*   irq[IRQ_AO_CECB] == IRQ_AO_CEC2_NUM) {*/
+		irq[IRQ_AO_CEC] = 0xFFFFFFFF;
+		irq[IRQ_AO_CECB] = 0xFFFFFFFF;
+		if (cec_suspend_handle())
+			exit_reason = CEC_WAKEUP;
+		/*}*/
 		#endif
 
 		if (irq[IRQ_AO_IR_DEC] == IRQ_AO_IR_DEC_NUM) {
