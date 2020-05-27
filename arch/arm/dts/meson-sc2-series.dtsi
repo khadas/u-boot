@@ -256,6 +256,95 @@
 				status = "disabled";
 			};
 
+			pwm_ab: pwm@2400 {
+				compatible = "amlogic,a1-pwm-ab";
+				reg = <0x0 0x2400  0x0 0x20>;
+				#pwm-cells = <3>;
+				status = "disabled";
+			};
+
+			pwm_cd: pwm@2800 {
+				compatible = "amlogic,a1-pwm-cd";
+				reg = <0x0 0x2800  0x0 0x20>;
+				#pwm-cells = <3>;
+				status = "disabled";
+			};
+
+			pwm_ef: pwm@5400 {
+				compatible = "amlogic,a1-pwm-ef";
+				reg = <0x0 0x5400  0x0 0x20>;
+				#pwm-cells = <3>;
+				status = "disabled";
+			};
+
+			ir: ir@8040 {
+				compatible = "amlogic,meson-gx-ir", "amlogic,meson-gxbb-ir";
+				reg = <0x0 0x8040 0x0 0x40>;
+				interrupts = <GIC_SPI 196 IRQ_TYPE_EDGE_RISING>;
+				status = "disabled";
+			};
+
+			reset: reset-controller@1000 {
+				compatible = "amlogic,meson-gx-reset", "amlogic,meson-gxbb-reset";
+				reg = <0x0 0x01000 0x0 0x1000>;
+				#reset-cells = <1>;
+			};
+
+			uart_c: serial@22000 {
+				compatible = "amlogic,meson-uart";
+				reg = <0x0 0x22000 0x0 0x18>;
+				interrupts = <GIC_SPI 93 IRQ_TYPE_EDGE_RISING>;
+				clocks = <&xtal>;
+				status = "disabled";
+			};
+
+			spicc0: spi@3800 {
+				compatible = "amlogic,meson-g12a-spicc";
+				reg = <0x0 0x3800 0x0 0x44>;
+				interrupts = <GIC_SPI 48 IRQ_TYPE_LEVEL_HIGH>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				status = "disabled";
+			};
+
+			spifc: spi@14000 {
+				compatible = "amlogic,spifc";
+				reg = <0x0 0x14000 0x0 0x80>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				status = "disabled";
+				spi-flash@0 {
+					reg = <0>;
+					spi-tx-bus-width = <4>;
+					spi-rx-bus-width = <4>;
+					compatible = "spi-flash";
+					status = "okay";
+				};
+				spi-nand@1 {
+					reg = <1>;
+					spi-tx-bus-width = <4>;
+					spi-rx-bus-width = <4>;
+					compatible = "spi-nand";
+					status = "okay";
+				};
+			};
+
+			spicc1: spi@3c00 {
+				compatible = "amlogic,meson-g12a-spicc";
+				reg = <0x0 0x3c00 0x0 0x44>;
+				interrupts = <GIC_SPI 47 IRQ_TYPE_LEVEL_HIGH>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				status = "disabled";
+			};
+
+			watchdog@0f0d0 {
+				compatible = "amlogic,meson-a1-wdt";
+				reg = <0x0 0x0f0d0 0x0 0x10>;
+				clocks = <&xtal>;
+				clock-names = "wdt-clk";
+			};
+
 			jtag {
 				compatible = "amlogic, jtag";
 				status = "okay";

@@ -42,11 +42,11 @@
  */
 
 #include "meson-sc2-series.dtsi"
-#include <dt-bindings/gpio/meson-c1-gpio.h>
+#include <dt-bindings/gpio/meson-sc2-gpio.h>
 #include <dt-bindings/reset/amlogic,meson-gxbb-reset.h>
 
 / {
-	compatible = "amlogic,meson-c1";
+	compatible = "amlogic,meson-sc2";
 
 	vpu {
 		compatible = "amlogic, vpu-g12a";
