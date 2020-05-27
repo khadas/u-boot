@@ -40,7 +40,7 @@ int optimus_device_probe(const char* interface, const char* inPart)
 {
 	block_dev_desc_t *dev_desc=NULL;
 	int dev=0;
-	int part=1;
+	int part=-1;//-1 is auto mode
 	char *ep;
 
 	dev = (int)simple_strtoul(inPart, &ep, 16);

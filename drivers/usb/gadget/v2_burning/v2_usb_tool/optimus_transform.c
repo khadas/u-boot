@@ -23,6 +23,7 @@ Description:
 #include "platform.h"
 #include <partition_table.h>
 #include <asm/cpu_id.h>
+#include <amlogic/aml_efuse.h>
 
 #define MYDBG(fmt ...) printf("OPT]"fmt)
 
@@ -466,6 +467,10 @@ int optimus_working (const char *cmd, char* buff)
         else if(!strcmp(optCmd, "get_chipid"))
         {
                 ret = _get_chipid(buff + 7);
+        } else if(!strcmp(optCmd, "secureboot_en")) {
+                const bool secureboot = IS_FEAT_BOOT_VERIFY();
+                strncpy(buff + 7, secureboot ? "secure" : "normal", 7);
+                ret = 0;
         }
         else
         {
