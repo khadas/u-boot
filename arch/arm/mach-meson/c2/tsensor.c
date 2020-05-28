@@ -107,7 +107,9 @@ unsigned int r1p1_temptocode(unsigned long value, int tempbase)
 	printf("%s : tmp2: 0x%lx\n", __func__, tmp2);
 	signbit = ((tmp1 > tmp2) ? 0 : 1);
 	u_efuse = (tmp1 > tmp2) ? (tmp1 - tmp2) : (tmp2 - tmp1);
-	u_efuse = (signbit << 15) | u_efuse;
+	if (u_efuse > 0x3ff)
+		return 0;
+	u_efuse = (1 << 11) | (signbit << 10) | u_efuse;
 	return u_efuse;
 }
 
@@ -121,6 +123,7 @@ int r1p1_temp_trim(int tempbase, int tempver, int type)
 	switch (type) {
 		case 0:
 			index_ver = 5;
+			tempver = tempver & 0xf;
 			if (tsensor_tz_calibration(index_ver, tempver) < 0)
 				printf("version tsensor thermal_calibration send error\n");
 		break;
@@ -153,6 +156,10 @@ int r1p1_temp_trim(int tempbase, int tempver, int type)
 				return -1;
 			}
 			u_efuse = r1p1_temptocode(value_ts, tempbase);
+			if (!u_efuse) {
+				printf("ts efuse is greater than 0x3ff, not trim!\n");
+				return -1;
+			}
 			printf("ts efuse:%d\n", u_efuse);
 			printf("ts efuse:0x%x, index: %d\n", u_efuse, index_ts);
 			if (tsensor_tz_calibration(index_ts, u_efuse) < 0) {
@@ -217,19 +224,25 @@ int temp_trim_entry(int tempbase, int tempver)
 	printf("tsensor input trim tempver, tempver:0x%x\n", tempver);
 	switch (tempver) {
 		case 0x84:
-			r1p1_temp_trim(tempbase, tempver, 1);
-			r1p1_temp_trim(tempbase, tempver, 0);
-			printf("triming the thermal by bbt-sw\n");
+			ret = r1p1_temp_trim(tempbase, tempver, 1);
+			if (!ret) {
+				r1p1_temp_trim(tempbase, tempver, 0);
+				printf("triming the thermal by bbt-sw\n");
+			}
 		break;
 		case 0x85:
-			r1p1_temp_trim(tempbase, tempver, 1);
-			r1p1_temp_trim(tempbase, tempver, 0);
-			printf("triming the thermal by bbt-ops\n");
+			ret = r1p1_temp_trim(tempbase, tempver, 1);
+			if (!ret) {
+				r1p1_temp_trim(tempbase, tempver, 0);
+				printf("triming the thermal by bbt-ops\n");
+			}
 		break;
 		case 0x87:
-			r1p1_temp_trim(tempbase, tempver, 1);
-			r1p1_temp_trim(tempbase, tempver, 0);
-			printf("triming the thermal by slt\n");
+			ret = r1p1_temp_trim(tempbase, tempver, 1);
+			if (!ret) {
+				r1p1_temp_trim(tempbase, tempver, 0);
+				printf("triming the thermal by slt\n");
+			}
 		break;
 		default:
 			printf("thermal version not support!!!Please check!\n");
