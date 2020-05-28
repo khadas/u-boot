@@ -2981,6 +2981,8 @@ int mmc_ffu_op(int dev, u64 ffu_ver, void *addr, u64 cnt)
 		ffu_addr = SAMSUNG_FFU_ADDR;
 	} else if ((mmc->cid[0] >> 24) == KINGSTON_MID) {
 		ffu_addr = KINGSTON_FFU_ADDR;
+	} else if ((mmc->cid[0] >> 24) == BIWIN_MID) {
+		ffu_addr = BIWIN_FFU_ADDR;
 	} else {
 		printf("FFU update for this manufacturer not support yet\n");
 		return -1;
@@ -2998,8 +3000,13 @@ int mmc_ffu_op(int dev, u64 ffu_ver, void *addr, u64 cnt)
 
 	supported_modes = ext_csd_ffu[EXT_CSD_SUPPORTED_MODES] & 0x1;
 	fw_cfg = ext_csd_ffu[EXT_CSD_FW_CFG] & 0x1;
-	for (i = 0; i < 8; i++)
-		fw_ver |= (ext_csd_ffu[EXT_CSD_FW_VERSION + i] << (i * 8));
+	for (i = 0; i < 8; i++) {
+		fw_ver |= ext_csd_ffu[EXT_CSD_FW_VERSION + 7 - i];
+		if (i < 7)
+			fw_ver <<= 8;
+	}
+	if ((mmc->cid[0] >> 24) == BIWIN_MID)
+		fw_ver = ((fw_ver >> 16) & 0xffffffff);
 	printf("old fw_ver = %llx\n", fw_ver);
 	if (!supported_modes || fw_cfg || (fw_ver >= ffu_ver))
 		return -1;
@@ -3023,8 +3030,13 @@ int mmc_ffu_op(int dev, u64 ffu_ver, void *addr, u64 cnt)
 	if (err)
 		return err;
 
-	for (i = 0; i < 8; i++)
-		fw_ver |= (ext_csd_ffu[EXT_CSD_FW_VERSION + i] << (i * 8));
+	for (i = 0; i < 8; i++) {
+		fw_ver |= ext_csd_ffu[EXT_CSD_FW_VERSION + 7 - i];
+		if (i < 7)
+			fw_ver <<= 8;
+	}
+	if ((mmc->cid[0] >> 24) == BIWIN_MID)
+		fw_ver = ((fw_ver >> 16) & 0xffffffff);
 	printf("new fw_ver = %llx\n", fw_ver);
 	if ((mmc->cid[0] >> 24) == SAMSUNG_MID) {
 		/* Set Normal Mode */
@@ -3051,8 +3063,13 @@ int mmc_ffu_op(int dev, u64 ffu_ver, void *addr, u64 cnt)
 		return err;
 	ffu_status = ext_csd_ffu[EXT_CSD_FFU_STATUS] & 0xff;
 	fw_ver = 0;
-	for (i = 0; i < 8; i++)
-		fw_ver |= (ext_csd_ffu[EXT_CSD_FW_VERSION + i] << (i * 8));
+	for (i = 0; i < 8; i++) {
+		fw_ver |= ext_csd_ffu[EXT_CSD_FW_VERSION + 7 - i];
+		if (i < 7)
+			fw_ver <<= 8;
+	}
+	if ((mmc->cid[0] >> 24) == BIWIN_MID)
+		fw_ver = ((fw_ver >> 16) & 0xffffffff);
 	printf("new fw_ver = %llx\n", fw_ver);
 	if (ffu_status || (fw_ver != ffu_ver))
 		return ffu_status;
