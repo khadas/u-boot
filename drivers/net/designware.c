@@ -468,7 +468,7 @@ int designware_initialize(ulong base_addr, u32 interface)
 	priv->bus = miiphy_get_dev_by_name(dev->name);
 	ret = dw_phy_init(dev);
 
-#ifndef CONFIG_KHADAS_VIM
+#if !defined(CONFIG_KHADAS_VIM) && !defined(CONFIG_KHADAS_VIM2) 
 	char *s = getenv("ext_ethernet");
 	bool is_ext = false;
 	if (s != NULL) {
