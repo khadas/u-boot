@@ -60,6 +60,7 @@
 
 #define CONFIG_CMD_SARADC 1
 #define CONFIG_SARADC_CH  0
+#define CONFIG_PHY_REALTEK 1
 
 /* SMP Definitinos */
 #define CPU_RELEASE_ADDR		secondary_boot_func
@@ -535,7 +536,7 @@
   #undef CONFIG_AML_CUSTOMER_ID
   #define CONFIG_AML_CUSTOMER_ID  CONFIG_CUSTOMER_ID
 #endif
-#define CONFIG_INTERNAL_PHY
-
+//#define CONFIG_INTERNAL_PHY
+#define CONFIG_EXTERNAL_PHY
 #endif
 
