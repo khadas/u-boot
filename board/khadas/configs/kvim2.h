@@ -40,6 +40,10 @@
 #define CONFIG_VCCKA_INIT_VOLTAGE	1120		// cluster_0 Big cpu
 #define CONFIG_VCCKB_INIT_VOLTAGE	1050		// cluster_1 Little cpu
 #define CONFIG_VDDEE_INIT_VOLTAGE	1000		// voltage for power up
+/* config for khadas kbi */
+#define CONFIG_KHADAS_KBI 1
+
+
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	 850		// voltage for suspend
 
 /* configs for CEC */
