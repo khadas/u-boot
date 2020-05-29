@@ -47,7 +47,7 @@
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	 850		// voltage for suspend
 
 /* configs for CEC */
-#define CONFIG_CEC_OSD_NAME		"Mbox"
+#define CONFIG_CEC_OSD_NAME		"KVIM2"
 #define CONFIG_CEC_WAKEUP
 
 #define CONFIG_INSTABOOT
@@ -74,6 +74,7 @@
 #define CONFIG_BAUDRATE  115200
 #define CONFIG_AML_MESON_SERIAL   1
 #define CONFIG_SERIAL_MULTI		1
+#define CONFIG_USID_FROM_ETH_MAC 1
 
 //Enable ir remote wake up for bl30
 //#define CONFIG_IR_REMOTE
