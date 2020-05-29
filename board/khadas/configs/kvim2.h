@@ -117,7 +117,7 @@
         "sdc_burning=sdc_burn ${sdcburncfg}\0"\
         "wipe_data=successful\0"\
         "wipe_cache=successful\0"\
-        "EnableSelinux=enforcing\0"\
+        "EnableSelinux=permissive\0" \
         "recovery_part=recovery\0"\
         "recovery_offset=0\0"\
         "cvbs_drv=0\0"\
@@ -500,7 +500,7 @@
 #define CONFIG_CMD_ITEST    1
 #define CONFIG_CMD_CPU_TEMP 1
 #define CONFIG_SYS_MEM_TOP_HIDE 0x08000000 //hide 128MB for kernel reserve
-#define CONFIG_MULTI_DTB	1
+//#define CONFIG_MULTI_DTB	1
 
 /* debug mode defines */
 //#define CONFIG_DEBUG_MODE           1
