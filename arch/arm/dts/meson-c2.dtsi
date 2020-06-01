@@ -238,7 +238,7 @@
 			groups = "i2c_a_scl_d",
 				"i2c_a_sda_d";
 			function = "i2c_a";
-			bias-pull-up;
+			bias-disable;
 			drive-strength = <3>;
 		};
 	};
@@ -248,28 +248,18 @@
 			groups = "i2c_a_scl_e",
 				"i2c_a_sda_e";
 			function = "i2c_a";
-			bias-pull-up;
+			bias-disable;
 			drive-strength = <3>;
 		};
 	};
 
 	/* i2c1 pinmux */
-	i2c1_master_pins1:i2c1_pins1 {
-		mux {
-			groups = "i2c_b_scl_x",
-				"i2c_b_sda_x";
-			function = "i2c_b";
-			bias-pull-up;
-			drive-strength = <3>;
-		};
-	};
-
 	i2c1_master_pins2:i2c1_pins2 {
 		mux {
 			groups = "i2c_b_scl_a",
 				"i2c_b_sda_a";
 			function = "i2c_b";
-			bias-pull-up;
+			bias-disable;
 			drive-strength = <3>;
 		};
 	};
@@ -279,7 +269,7 @@
 			groups = "i2c_b_scl_m",
 				"i2c_b_sda_m";
 			function = "i2c_b";
-			bias-pull-up;
+			bias-disable;
 			drive-strength = <3>;
 		};
 	};
@@ -290,7 +280,7 @@
 			groups = "i2c_c_scl_x",
 				"i2c_c_sda_x";
 			function = "i2c_c";
-			bias-pull-up;
+			bias-disable;
 			drive-strength = <3>;
 		};
 	};
@@ -300,7 +290,7 @@
 			groups = "i2c_c_scl_m",
 				"i2c_c_sda_m";
 			function = "i2c_c";
-			bias-pull-up;
+			bias-disable;
 			drive-strength = <3>;
 		};
 	};
@@ -310,7 +300,7 @@
 			groups = "i2c_c_scl_a",
 				"i2c_c_sda_a";
 			function = "i2c_c";
-			bias-pull-up;
+			bias-disable;
 			drive-strength = <3>;
 		};
 	};
@@ -321,7 +311,7 @@
 			groups = "i2c_d_scl_x",
 				"i2c_d_sda_x";
 			function = "i2c_d";
-			bias-pull-up;
+			bias-disable;
 			drive-strength = <3>;
 		};
 	};
@@ -331,7 +321,7 @@
 			groups = "i2c_d_scl_a",
 				"i2c_d_sda_a";
 			function = "i2c_d";
-			bias-pull-up;
+			bias-disable;
 			drive-strength = <3>;
 		};
 	};
@@ -341,7 +331,7 @@
 			groups = "i2c_d_scl_m",
 				"i2c_d_sda_m";
 			function = "i2c_d";
-			bias-pull-up;
+			bias-disable;
 			drive-strength = <3>;
 		};
 	};
@@ -352,7 +342,7 @@
 			groups = "i2c_e_scl_c",
 				"i2c_e_sda_c";
 			function = "i2c_e";
-			bias-pull-up;
+			bias-disable;
 			drive-strength = <3>;
 		};
 	};
@@ -362,7 +352,7 @@
 			groups = "i2c_e_scl_m",
 				"i2c_e_sda_m";
 			function = "i2c_e";
-			bias-pull-up;
+			bias-disable;
 			drive-strength = <3>;
 		};
 	};
@@ -372,7 +362,7 @@
 			groups = "i2c_e_scl_a",
 				"i2c_e_sda_a";
 			function = "i2c_e";
-			bias-pull-up;
+			bias-disable;
 			drive-strength = <3>;
 		};
 	};
