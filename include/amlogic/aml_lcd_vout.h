@@ -518,6 +518,35 @@ struct bl_config_s {
 
 extern struct bl_config_s bl_config_dft;
 
+#define LCD_INIT_LEVEL_NORMAL         0
+#define LCD_INIT_LEVEL_PWR_OFF        1
+#define LCD_INIT_LEVEL_KERNEL_ON      2
+/*
+ *     high 12bit for debug flag
+ *bit[31:30]: lcd mode(0=normal, 1=tv; 2=tablet, 3=TBD)
+ *bit[29:28]: lcd debug para source(0=normal, 1=dts, 2=unifykey,
+ *3=bsp for uboot)
+ *bit[27:24]: lcd test pattern
+ *bit[23:20]:  lcd debug print flag
+ *
+ *     low 20bit for debug flag
+ *bit[19:18]: lcd_init_level
+ *bit[17:16]: reserved
+ *bit[15:8]: advanced flag(p2p_type when lcd_type=p2p)
+ *bit[7:4]: lcd bits
+ **bit[3:0]: lcd_type
+ */
+struct lcd_boot_ctrl_s {
+	unsigned char lcd_type;
+	unsigned char lcd_bits;
+	unsigned char lcd_init_level;
+	unsigned char lcd_advanced_flag;
+	unsigned char lcd_debug_print;
+	unsigned char lcd_debug_test;
+	unsigned char lcd_debug_para;
+	unsigned char lcd_debug_mode;
+};
+
 /* ==============lcd driver================== */
 struct aml_lcd_drv_s {
 	char version[15];

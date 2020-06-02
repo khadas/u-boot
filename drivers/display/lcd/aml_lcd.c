@@ -39,16 +39,6 @@ unsigned int lcd_debug_print_flag;
 unsigned int lcd_debug_test;
 static struct aml_lcd_drv_s aml_lcd_driver;
 static struct lcd_boot_ctrl_s boot_ctrl;
-struct lcd_boot_ctrl_s {
-	unsigned char lcd_type;
-	unsigned char lcd_bits;
-	unsigned char lcd_init_level;
-	unsigned char lcd_advanced_flag;
-	unsigned char lcd_debug_print;
-	unsigned char lcd_debug_test;
-	unsigned char lcd_debug_para;
-	unsigned char lcd_debug_mode;
-};
 
 static void lcd_chip_detect(void)
 {
@@ -310,7 +300,7 @@ static void lcd_module_enable(char *mode)
 	if ((lcd_drv->lcd_status & LCD_STATUS_ENCL_ON) == 0)
 		lcd_encl_on();
 	if ((lcd_drv->lcd_status & LCD_STATUS_IF_ON) == 0) {
-		if (!boot_ctrl.lcd_init_level) {
+		if (boot_ctrl.lcd_init_level == LCD_INIT_LEVEL_NORMAL) {
 			lcd_interface_on();
 			lcd_backlight_enable();
 		} else {
@@ -803,8 +793,8 @@ static void lcd_update_boot_ctrl_bootargs(void)
 	 *bit[3:0]: lcd_type
 	 *bit[7:4]: lcd bits
 	 *bit[15:8]: advanced flag(p2p_type when lcd_type=p2p)
-	 *bit[18:16]: reserved
-	 *bit[19]: lcd_init_level
+	 *bit[17:16]: reserved
+	 *bit[19:18]: lcd_init_level
 	 *high 12bit for debug flag
 	 *bit[23:20]:  lcd debug print flag
 	 *bit[27:24]: lcd test pattern
@@ -813,7 +803,7 @@ static void lcd_update_boot_ctrl_bootargs(void)
 	 *bit[31:30]: lcd mode(0=normal, 1=tv; 2=tablet, 3=TBD)
 	*/
 	value |= (aml_lcd_driver.lcd_config->lcd_basic.lcd_bits & 0xf) << 4;
-	value |= (boot_ctrl.lcd_init_level & 0x1) << 19;
+	value |= (boot_ctrl.lcd_init_level & 0x3) << 18;
 	value |= (lcd_debug_print_flag & 0xf) << 20;
 	value |= (lcd_debug_test & 0xf) << 24;
 	value |= (boot_ctrl.lcd_debug_para & 0x3) << 28;
