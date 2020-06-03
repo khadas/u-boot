@@ -27,6 +27,12 @@
 
 #ifdef CONFIG_DM_ETH
 #include <asm/arch/pwr_ctrl.h>
+#include <asm/arch/register.h>
+#include <dm/pinctrl.h>
+#ifdef CONFIG_DM_GPIO
+#include <asm/gpio.h>
+#endif
+struct dw_eth_dev *priv_tool = NULL;
 #endif
 
 #define ETH_PLL_CTL0 0x44
@@ -784,28 +790,62 @@ static void setup_internal_phy(struct udevice *dev)
 
 static void setup_external_phy(struct udevice *dev)
 {
-#if 0
-	u32 mc_val;
+	int mc_val = 0;
+	int analog_ver = 0;
+	int rtn = 0;
+	struct resource eth_top, eth_cfg;
+	/*reset phy*/
+	struct gpio_desc desc;
+	int ret;
 
-	/*driver strength*/
-	writel(0xaaaaaaa5, P_PAD_DS_REG4A);
+	ret = gpio_request_by_name(dev, "reset-gpios", 0, &desc, GPIOD_IS_OUT);
+	if (ret) {
+		printf("request gpio failed!\n");
+		return ret;
+	}
+	if (dm_gpio_is_valid(&desc)) {
+		dm_gpio_set_value(&desc, 1);
+		mdelay(100);
+	}
+	dm_gpio_free(dev, &desc);
 
-	/*pinmux*/
-	writel(0x11111111, P_PERIPHS_PIN_MUX_6);
-	writel(0x111111, P_PERIPHS_PIN_MUX_7);
-
-	/*top*/
 	mc_val = dev_read_u32_default(dev, "mc_val", 4);
-	debug("mc_val = 0x%x\n", mc_val);
-	setbits_le32(P_PREG_ETH_REG0, mc_val);
+	if (mc_val < 0) {
+		printf("miss mc_val\n");
+	}
+	/*set rmii pinmux*/
+	if (mc_val & 0x4) {
+		pinctrl_select_state(dev, "external_eth_rmii_pins");
+		printf("set rmii\n");
+	}
+	/*set rgmii pinmux*/
+	if (mc_val & 0x1) {
+		pinctrl_select_state(dev, "external_eth_rgmii_pins");
+		printf("set rgmii\n");
+	}
+	rtn = dev_read_resource_byname(dev, "eth_top", &eth_top);
+	if (rtn) {
+		printf("can't get eth_top resource(ret = %d)\n", rtn);
+	}
 
-	/*switch to exphy*/
-	writel(0x0, P_ETH_PHY_CNTL2);
-	/*81*/
-	setbits_le32(HHI_GCLK_MPEG1, 0x1 << 3);
-	/* power on memory */
-	clrbits_le32(HHI_MEM_PD_REG0, (1 << 3) | (1<<2));
-#endif
+	rtn = dev_read_resource_byname(dev, "eth_cfg", &eth_cfg);
+	if (rtn) {
+		printf("can't get eth_cfg resource(ret = %d)\n", rtn);
+	}
+	printf("eth_top 0x%x eth_cfg 0x%x \n", eth_top.start, eth_cfg.start);
+
+	setbits_le32(eth_top.start, mc_val);
+
+	analog_ver = dev_read_u32_default(dev, "analog_ver", 4);
+	if (mc_val < 0) {
+		printf("miss analog_ver\n");
+	}
+	if (analog_ver != 2)
+		writel(0x0, eth_cfg.start + ETH_PHY_CNTL2);
+
+	clrbits_le32(ANACTRL_PLL_GATE_DIS, (0x1 << 6));
+	clrbits_le32(ANACTRL_PLL_GATE_DIS, (0x1 << 7));
+	clrbits_le32(ANACTRL_PLL_GATE_DIS, (0x1 << 19));
 }
 
 #endif
@@ -924,6 +964,9 @@ int designware_eth_probe(struct udevice *dev)
 	ret = dw_phy_init(priv, dev);
 	debug("%s, ret=%d\n", __func__, ret);
 
+#ifdef CONFIG_DM_ETH
+	priv_tool = priv;
+#endif
 	return ret;
 
 #ifdef CONFIG_CLK
@@ -951,6 +994,63 @@ static int designware_eth_remove(struct udevice *dev)
 #endif
 }
 
+/* amlogic debug cmd start */
+/*********************ethernet debug function****************************/
+static int do_phyreg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	unsigned int reg, value;
+	unsigned char *cmd = NULL;
+	unsigned int i;
+
+	if (argc < 2) {
+		return cmd_usage(cmdtp);
+	}
+
+	if (priv_tool == NULL || priv_tool->phydev == NULL) {
+		return -1;
+	}
+
+	cmd = (unsigned char *)argv[1];
+	switch (*cmd) {
+		case 'd':
+			printf("=== ethernet phy register dump:\n");
+			for (i = 0; i < 32; i++)
+				printf("[reg_%d] 0x%x\n", i, phy_read(priv_tool->phydev, MDIO_DEVAD_NONE, i));
+			break;
+		case 'r':
+			if (argc != 3) {
+				return cmd_usage(cmdtp);
+			}
+			printf("=== ethernet phy register read:\n");
+			reg = simple_strtoul(argv[2], NULL, 10);
+			printf("[reg_%d] 0x%x\n", reg, phy_read(priv_tool->phydev, MDIO_DEVAD_NONE, reg));
+
+			break;
+		case 'w':
+			if (argc != 4) {
+				return cmd_usage(cmdtp);
+			}
+			printf("=== ethernet phy register write:\n");
+			reg = simple_strtoul(argv[2], NULL, 10);
+			value = simple_strtoul(argv[3], NULL, 16);
+			phy_write(priv_tool->phydev, MDIO_DEVAD_NONE, reg, value);
+			printf("[reg_%d] 0x%x\n", reg, phy_read(priv_tool->phydev, MDIO_DEVAD_NONE, reg));
+			break;
+
+		default:
+			return cmd_usage(cmdtp);
+	}
+
+	return 0;
+}
+
+U_BOOT_CMD(
+		phyreg, 4, 1, do_phyreg,
+		"ethernet phy register read/write/dump",
+		"d            - dump phy registers\n"
+		"       r reg        - read phy register\n"
+		"       w reg val    - write phy register"
+);
 const struct eth_ops designware_eth_ops = {
 	.start			= designware_eth_start,
 	.send			= designware_eth_send,

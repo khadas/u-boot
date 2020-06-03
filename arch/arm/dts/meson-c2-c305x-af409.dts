@@ -72,6 +72,13 @@
 	/* pinctrl-0 = <&i2c3_master_pins2>;*/
 };
 
+&ethmac {
+        status = "okay";
+        internal_phy = <0>;
+	pinctrl-0 = <&external_eth_rmii_pins>;
+	pinctrl-names = "external_eth_rmii_pins";
+        mc_val = <0x1624>;
+};
 &pinctrl_periphs {
 	bl_pwm_off_pins:bl_pwm_off_pin {
 		mux {
