@@ -1677,7 +1677,8 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 	aml_chip->bch_info = NAND_ECC_BCH60_1K;
 	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_AXG) ||
 	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_TXHD)||
-		(cpu_id.family_id == MESON_CPU_MAJOR_ID_C1))
+	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_C1) ||
+	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_C2))
 		aml_chip->bch_info = NAND_ECC_BCH8_1K;
 
 	chip->options = 0;

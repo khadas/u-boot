@@ -614,6 +614,7 @@
 				"nand_ren_wr";
 			function = "nand";
 			input-enable;
+			drive-strength = <4>;
 		};
 	};
 

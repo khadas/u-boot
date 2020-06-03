@@ -59,6 +59,7 @@ typedef struct  ddr_base_address_table ddr_base_address_table_t;
 #define MESON_CPU_MAJOR_ID_TL1		0x2E
 #define MESON_CPU_MAJOR_ID_TM2		0x2F
 #define MESON_CPU_MAJOR_ID_C1		0x30
+#define MESON_CPU_MAJOR_ID_C2		0x33
 
 #define MESON_CPU_VERSION_LVL_MAJOR	0
 #define MESON_CPU_VERSION_LVL_MINOR	1
