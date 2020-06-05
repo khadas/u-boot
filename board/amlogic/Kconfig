@@ -325,6 +325,12 @@ config C2_AF409
 	help
 	  Select C2_AF409 (SKT) config
 
+config C2_AF400
+	bool "C2_AF400"
+	select TARGET_C2_AF400
+	help
+	  Select C2_AF400 config
+
 endchoice
 
 config TARGET_C2_SKT
@@ -334,6 +340,11 @@ config TARGET_C2_SKT
 config TARGET_C2_AF409
 	bool "C2 AF409 board"
 	depends on C2_AF409
+
+
+config TARGET_C2_AF400
+	bool "C2 AF400 board"
+	depends on C2_AF400
 
 endif
 
@@ -384,6 +395,8 @@ source "board/amlogic/sc2_skt/Kconfig"
 source "board/amlogic/c2_skt/Kconfig"
 
 source "board/amlogic/c2_af409/Kconfig"
+
+source "board/amlogic/c2_af400/Kconfig"
 
 source "board/amlogic/g12a_u200_v1/Kconfig"
 
