@@ -1366,8 +1366,16 @@ static int aml_bl_config_load_from_dts(char *dt_addr, unsigned int index, struct
 		}
 		propdata = (char *)fdt_getprop(dt_addr, child_offset, "bl_pwm_en_sequence_reverse", NULL);
 		if (propdata == NULL) {
-			LCDPR("bl: don't find bl_pwm_en_sequence_reverse\n");
-			bconf->en_sequence_reverse = 0;
+			propdata = (char *)fdt_getprop(dt_addr, child_offset,
+						       "en_sequence_reverse",
+						       NULL);
+			if (!propdata) {
+				LCDPR("bl: don't find en_sequence_reverse\n");
+				bconf->en_sequence_reverse = 0;
+			} else {
+				bconf->en_sequence_reverse =
+					be32_to_cpup((u32 *)propdata);
+			}
 		} else {
 			bconf->en_sequence_reverse = be32_to_cpup((u32*)propdata);
 		}
@@ -1481,8 +1489,16 @@ static int aml_bl_config_load_from_dts(char *dt_addr, unsigned int index, struct
 		}
 		propdata = (char *)fdt_getprop(dt_addr, child_offset, "bl_pwm_en_sequence_reverse", NULL);
 		if (propdata == NULL) {
-			LCDPR("bl: don't find bl_pwm_en_sequence_reverse\n");
-			bconf->en_sequence_reverse = 0;
+			propdata = (char *)fdt_getprop(dt_addr, child_offset,
+						       "en_sequence_reverse",
+						       NULL);
+			if (!propdata) {
+				LCDPR("bl: don't find en_sequence_reverse\n");
+				bconf->en_sequence_reverse = 0;
+			} else {
+				bconf->en_sequence_reverse =
+					be32_to_cpup((u32 *)propdata);
+			}
 		} else {
 			bconf->en_sequence_reverse = be32_to_cpup((u32*)propdata);
 		}
@@ -1494,18 +1510,39 @@ static int aml_bl_config_load_from_dts(char *dt_addr, unsigned int index, struct
 		break;
 #ifdef CONFIG_AML_LOCAL_DIMMING
 	case BL_CTRL_LOCAL_DIMMING:
+		propdata = (char *)fdt_getprop(dt_addr, child_offset,
+					       "en_sequence_reverse", NULL);
+		if (!propdata) {
+			LCDPR("bl: don't find bl_pwm_en_sequence_reverse\n");
+			bconf->en_sequence_reverse = 0;
+		} else {
+			bconf->en_sequence_reverse =
+				be32_to_cpup((u32 *)propdata);
+		}
+
 		ldim_config_load_from_dts(dt_addr, child_offset);
 		aml_ldim_probe(dt_addr, 0);
 		break;
 #endif
 #ifdef CONFIG_AML_BL_EXTERN
 	case BL_CTRL_EXTERN:
+		propdata = (char *)fdt_getprop(dt_addr, child_offset,
+					       "en_sequence_reverse", NULL);
+		if (!propdata) {
+			LCDPR("bl: don't find en_sequence_reverse\n");
+			bconf->en_sequence_reverse = 0;
+		} else {
+			bconf->en_sequence_reverse =
+				be32_to_cpup((u32 *)propdata);
+		}
+
 		/* get bl_extern_index from dts */
-		propdata = (char *)fdt_getprop(dt_addr, child_offset, "bl_extern_index", NULL);
+		propdata = (char *)fdt_getprop(dt_addr, child_offset,
+					       "bl_extern_index", NULL);
 		if (propdata == NULL) {
 			LCDERR("bl: failed to get bl_extern_index\n");
 		} else {
-			bconf->bl_extern_index = be32_to_cpup((u32*)propdata);
+			bconf->bl_extern_index = be32_to_cpup((u32 *)propdata);
 			LCDPR("get bl_extern_index = %d\n", bconf->bl_extern_index);
 		}
 		aml_bl_extern_device_load(dt_addr, bconf->bl_extern_index);

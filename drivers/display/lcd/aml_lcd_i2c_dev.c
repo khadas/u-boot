@@ -27,9 +27,10 @@
 #endif
 #include <amlogic/aml_lcd.h>
 #include <amlogic/aml_lcd_extern.h>
-#include "lcd_extern.h"
-#include "../aml_lcd_common.h"
-#include "../aml_lcd_reg.h"
+#include <amlogic/aml_lcd_i2c_dev.h>
+#include "lcd_extern/lcd_extern.h"
+#include "aml_lcd_common.h"
+#include "aml_lcd_reg.h"
 
 #ifdef CONFIG_SYS_I2C_AML
 static unsigned int aml_i2c_bus_tmp = LCD_EXTERN_I2C_BUS_MAX;

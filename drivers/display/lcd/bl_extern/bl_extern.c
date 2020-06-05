@@ -20,7 +20,7 @@
 #include <libfdt.h>
 #endif
 #include <amlogic/aml_lcd.h>
-#include <amlogic/aml_bl_extern.h>
+#include <amlogic/aml_lcd_i2c_dev.h>
 #include "bl_extern.h"
 #include "../aml_lcd_common.h"
 
@@ -520,7 +520,8 @@ static int bl_extern_config_from_dts(char *dtaddr, int index)
 			bl_extern->config->i2c_bus = bl_ext_i2c_bus;
 		}
 		if (lcd_debug_print_flag)
-			aml_bl_extern_i2c_bus_print(bl_extern->config->i2c_bus);
+			aml_lcd_extern_i2c_bus_print
+				(bl_extern->config->i2c_bus);
 
 		propdata = (char *)fdt_getprop(dtaddr, child_offset, "cmd_size", NULL);
 		if (propdata == NULL) {

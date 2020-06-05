@@ -16,6 +16,7 @@
 #ifndef _LCD_EXTERN_H_
 #define _LCD_EXTERN_H_
 #include <amlogic/aml_lcd_extern.h>
+#include <amlogic/aml_lcd_i2c_dev.h>
 
 #define EXTPR(fmt, args...)     printf("lcd extern: "fmt"", ## args)
 #define EXTERR(fmt, args...)    printf("lcd extern: error: "fmt"", ## args)
@@ -32,15 +33,6 @@ extern struct aml_i2c_platform g_aml_i2c_plat;
 #endif
 extern void udelay(unsigned long usec);
 extern void mdelay(unsigned long msec);
-
-extern void aml_lcd_extern_i2c_bus_print(unsigned char i2c_bus);
-extern unsigned char aml_lcd_extern_i2c_bus_get_sys(unsigned char i2c_bus);
-extern int aml_lcd_extern_i2c_bus_change(unsigned int i2c_bus);
-extern int aml_lcd_extern_i2c_bus_recovery(void);
-extern int aml_lcd_extern_i2c_write(unsigned char i2c_bus, unsigned i2c_addr,
-		unsigned char *buff, unsigned len);
-extern int aml_lcd_extern_i2c_read(unsigned char i2c_bus, unsigned i2c_addr,
-		unsigned char *buff, unsigned int len);
 
 #ifdef CONFIG_OF_LIBFDT
 extern char *aml_lcd_extern_get_dts_prop(int nodeoffset, char *propname);

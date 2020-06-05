@@ -25,15 +25,6 @@
 extern struct aml_i2c_platform g_aml_i2c_plat;
 #endif
 
-extern void aml_bl_extern_i2c_bus_print(unsigned char i2c_bus);
-extern unsigned char aml_bl_extern_i2c_bus_get_sys(unsigned char i2c_bus);
-extern int aml_bl_extern_i2c_bus_change(unsigned int i2c_bus);
-extern int aml_bl_extern_i2c_bus_recovery(void);
-extern int aml_bl_extern_i2c_write(unsigned char i2c_bus, unsigned i2c_addr,
-		unsigned char *buff, unsigned len);
-extern int aml_bl_extern_i2c_read(unsigned char i2c_bus, unsigned i2c_addr,
-		unsigned char *buff, unsigned int len);
-
 #ifdef CONFIG_AML_BL_EXTERN_I2C_LP8556
 extern int i2c_lp8556_probe(void);
 #endif
