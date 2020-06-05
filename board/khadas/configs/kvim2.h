@@ -121,6 +121,7 @@
         "EnableSelinux=permissive\0" \
         "recovery_part=recovery\0"\
         "recovery_offset=0\0"\
+        "factory_mac=0\0"\
         "cvbs_drv=0\0"\
         "active_slot=normal\0"\
         "lock=10001000\0"\
@@ -138,7 +139,7 @@
             "\0"\
     "storeargs="\
             "get_bootloaderversion;" \
-            "setenv bootargs ${initargs} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} androidboot.selinux=${EnableSelinux} logo=${display_layer},loaded,${fb_addr},${outputmode} maxcpus=${maxcpus} vout=${outputmode},enable hdmitx=${cecconfig},${colorattribute}  hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${cecconfig} cvbsdrv=${cvbs_drv} pq=${pq} androidboot.firstboot=${firstboot} hwver=${hwver} jtag=${jtag}; "\
+            "setenv bootargs ${initargs} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} androidboot.selinux=${EnableSelinux} logo=${display_layer},loaded,${fb_addr},${outputmode} maxcpus=${maxcpus} vout=${outputmode},enable hdmitx=${cecconfig},${colorattribute}  hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${cecconfig} cvbsdrv=${cvbs_drv} pq=${pq} androidboot.firstboot=${firstboot} hwver=${hwver} factory_mac=${factory_mac} jtag=${jtag}; "\
 	"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
             "run cmdline_keys;"\
             "\0"\
@@ -309,6 +310,9 @@
             "get_avb_mode;"\
             "get_valid_slot;"\
             "\0"\
+        "burn_mac="\
+            "kbi init;"\
+            "\0"\
         "upgrade_key="\
             "if gpio input GPIOAO_2; then "\
                 "echo detect upgrade key; sleep 3;"\
@@ -318,6 +322,7 @@
 
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
+            "run burn_mac;"\
             "run factory_reset_poweroff_protect;"\
             "run upgrade_check;"\
             "run init_display;"\
