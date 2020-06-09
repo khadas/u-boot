@@ -797,14 +797,11 @@ static int lcd_tcon_data_load(void)
 
 static int lcd_tcon_enable_tl1(struct lcd_config_s *pconf)
 {
-	unsigned int n = 10;
 	int ret;
 
 	ret = lcd_tcon_valid_check();
 	if (ret)
 		return -1;
-
-	n = getenv_ulong("tcon_delay", 10, 10);
 
 	lcd_tcon_data_load();
 
@@ -816,7 +813,7 @@ static int lcd_tcon_enable_tl1(struct lcd_config_s *pconf)
 	if (pconf->lcd_basic.lcd_type == LCD_P2P) {
 		switch (pconf->lcd_control.p2p_config->p2p_type) {
 		case P2P_CHPI:
-			lcd_phy_tcon_chpi_bbc_init_tl1(n);
+			lcd_phy_tcon_chpi_bbc_init_tl1(pconf);
 			break;
 		default:
 			break;

@@ -539,12 +539,29 @@ void lcd_mipi_phy_set(struct lcd_config_s *pconf, int status)
 	}
 }
 
-void lcd_phy_tcon_chpi_bbc_init_tl1(int delay)
+void lcd_phy_tcon_chpi_bbc_init_tl1(struct lcd_config_s *pconf)
 {
 	unsigned int data32 = 0x06020602;
-	unsigned int tmp = 0;
+	unsigned int preem;
+	unsigned int size;
+	unsigned int n = 10;
+	struct p2p_config_s *p2p_conf;
+	n = getenv_ulong("tcon_delay", 10, 10);
+	p2p_conf = pconf->lcd_control.p2p_config;
+	size = sizeof(p2p_low_common_phy_preem_tl1) /
+				sizeof(unsigned int);
 
-	udelay(delay);
+	/*get tcon tx pre_emphasis*/
+	preem = p2p_conf->phy_preem & 0xf;
+
+	/*check tx pre_emphasis ok or no*/
+	if (preem >= size) {
+		LCDERR("%s: invalid preem=0x%x, use default\n",
+		       __func__, preem);
+		preem = 0x1;
+	}
+
+	udelay(n);
 	lcd_hiu_setb(HHI_DIF_CSI_PHY_CNTL1, 1, 3, 1);
 	lcd_hiu_setb(HHI_DIF_CSI_PHY_CNTL1, 1, 19, 1);
 	lcd_hiu_setb(HHI_DIF_CSI_PHY_CNTL2, 1, 3, 1);
@@ -557,26 +574,21 @@ void lcd_phy_tcon_chpi_bbc_init_tl1(int delay)
 	lcd_hiu_setb(HHI_DIF_CSI_PHY_CNTL6, 1, 19, 1);
 	lcd_hiu_setb(HHI_DIF_CSI_PHY_CNTL7, 1, 3, 1);
 	lcd_hiu_setb(HHI_DIF_CSI_PHY_CNTL7, 1, 19, 1);
-	LCDPR("%s: delay: %dus\n", __func__, delay);
+	LCDPR("%s: delay: %dus\n", __func__, n);
 
-	data32 |= ((phy_ctrl_bit_on << 16) |
-		   (phy_ctrl_bit_on << 0));
-	tmp |= ((1 << 18) | (1 << 2));
+	/*follow pre-emphasis*/
+	data32 = p2p_low_common_phy_preem_tl1[preem];
 
-	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL14, 0xff2027ef);
-	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL15, tmp);
-	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL16, 0x80000000);
-	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL8, tmp);
+	if (phy_ctrl_bit_on)
+		data32 &= ~((1 << 16) | (1 << 0));
+	else
+		data32 |= ((1 << 16) | (1 << 0));
+
 	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL1, data32);
-	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL9, tmp);
 	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL2, data32);
-	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL10, tmp);
 	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL3, data32);
-	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL11, tmp);
 	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL4, data32);
-	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL12, tmp);
 	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL6, data32);
-	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL13, tmp);
 	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL7, data32);
 }
 

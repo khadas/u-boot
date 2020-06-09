@@ -33,7 +33,8 @@
 /* 20191025: tcon chpi phy setting update*/
 /* 20191115: add lcd_tcon_load_data chk_data for tl1*/
 /* 20191227: vbyone hw filter disable support*/
-#define LCD_DRV_VERSION    "20191227"
+/* 20200610: correct P2P CHPI tx low common setting*/
+#define LCD_DRV_VERSION    "20200610"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
@@ -65,7 +66,7 @@ extern void lcd_mlvds_phy_set(struct lcd_config_s *pconf, int status);
 extern void lcd_p2p_phy_set(struct lcd_config_s *pconf, int status);
 extern void lcd_mipi_phy_set(struct lcd_config_s *pconf, int status);
 extern int lcd_phy_probe(void);
-extern void lcd_phy_tcon_chpi_bbc_init_tl1(int delay);
+extern void lcd_phy_tcon_chpi_bbc_init_tl1(struct lcd_config_s *pconf);
 
 /* lcd tcon */
 extern void lcd_tcon_info_print(void);
