@@ -8,7 +8,7 @@
 void ring_powerinit(void)
 {
 	writel(0x18000a, RING_PWM_VCCK);/*set vcck 0.8v*/
-	writel(0xc0006, RING_PWM_EE);/*set ee 0.8v*/
+	writel(0x090009, RING_PWM_EE);/*set ee 0.8v*/
 }
 
 unsigned long clk_util_ring_msr(unsigned long clk_mux)
@@ -40,23 +40,36 @@ unsigned long clk_util_ring_msr(unsigned long clk_mux)
 int ring_msr(int index)
 {
 	const char* clk_table[] = {
-			[14] = "osc_ring_clk_dos3 " ,
-			[13] = "osc_ring_clk_dos2 " ,
-			[12] = "osc_ring_clk_dos1 " ,
-			[11] = "osc_ring_clk_dos0 " ,
-			[10] = "osc_ring_clk_ramc " ,
-			[9] = "osc_ring_clk_ramb " ,
-			[8] = "osc_ring_clk_rama " ,
-			[7] = "osc_ring_clk_dspb " ,
-			[6] = "osc_ring_clk_dspa " ,
-			[5] = "osc_ring_clk_dmc " ,
-			[4] = "osc_ring_clk_ddr " ,
-			[3] = "osc_ring_clk_cpu3 " ,
-			[2] = "osc_ring_clk_cpu2 " ,
-			[1] = "osc_ring_clk_cpu1 " ,
-			[0] = "osc_ring_clk_cpu0" ,
+			[26] = "osc_ring_clk_top(14_rvt) " ,
+			[25] = "osc_ring_clk_top(16_lvt) " ,
+			[24] = "osc_ring_clk_top(16_rvt) " ,
+			[23] = "osc_ring_clk_isp(14_rvt) " ,
+			[22] = "osc_ring_clk_isp(16_lvt) " ,
+			[21] = "osc_ring_clk_isp(16_rvt) " ,
+			[20] = "osc_ring_clk_ddr(14_slvt) " ,
+			[19] = "osc_ring_clk_ddr(14_rvt) " ,
+			[18] = "osc_ring_clk_ddr(16_lvt) " ,
+			[17] = "osc_ring_clk_sram(14_lvt) " ,
+			[16] = "osc_ring_clk_sram(16_slvt) " ,
+			[15] = "osc_ring_clk_sram(16_lvt) " ,
+			[14] = "osc_ring_clk_dsp(14lvt) " ,
+			[13] = "osc_ring_clk_dsp(14rvt) " ,
+			[12] = "osc_ring_clk_dsp(16_rvt) " ,
+			[11] = "osc_ring_clk_dos(14_lvt) " ,
+			[10] = "osc_ring_clk_dos(14_rvt) " ,
+			[9] = "osc_ring_clk_dos(16_rvt) " ,
+			[8] = "osc_ring_clk_nna(14_lvt) " ,
+			[7] = "osc_ring_clk_nna(16_slvt) " ,
+			[6] = "osc_ring_clk_nna(16_lvt) " ,
+			[5] = "osc_ring_clk_cpu1(9T_14_slvt) " ,
+			[4] = "osc_ring_clk_cpu1(9T_14_lvt) " ,
+			[3] = "osc_ring_clk_cpu1(9T_16_slvt) " ,
+			[2] = "osc_ring_clk_cpu0(9T_14_slvt) " ,
+			[1] = "osc_ring_clk_cpu0(9T_14_lvt) " ,
+			[0] = "osc_ring_clk_cpu0(9T_16_slvt) " ,
 		};
-	const int tb[] = {46,47,48,49,50, 51, 54, 55, 56, 57, 58, 59, 60};
+	const int tb[] = {93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107,
+			  108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119};
 	unsigned long i;
 	uint8_t efuseinfo[4] = {0, 0, 0, 0};
 
@@ -80,7 +93,7 @@ int ring_msr(int index)
 	writel(OSCRING_CTL_DATA0, OSCRING_CTL_REG0);
 	writel(OSCRING_CTL_DATA1, OSCRING_CTL_REG1);
 
-	for (i = 0; i < 15; i++) {
+	for (i = 0; i < 27; i++) {
 		printf("%s      :",clk_table[i]);
 		printf("%ld     KHz",clk_util_ring_msr(tb[i]));
 		printf("\n");
