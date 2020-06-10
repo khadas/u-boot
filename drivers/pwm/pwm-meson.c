@@ -545,7 +545,7 @@ static const struct meson_pwm_data pwm_meson_g12a_data = {
 	.extern_clk = 0,
 };
 
-static const struct meson_pwm_data pwm_meson_a1_data = {
+static const struct meson_pwm_data pwm_meson_v2_data = {
 	.extern_clk = 1,
 };
 
@@ -561,7 +561,7 @@ static const struct pwm_ops meson_pwm_ops = {
 static const struct udevice_id meson_pwm_ids[] = {
 		{.compatible = "amlogic,g12a-ee-pwm", .data = (long)&pwm_meson_g12a_data},
 		{.compatible = "amlogic,g12a-ao-pwm", .data = (long)&pwm_meson_g12a_data},
-		{.compatible = "amlogic,a1-pwm", .data = (long)&pwm_meson_a1_data},
+		{.compatible = "amlogic,meson-v2-pwm", .data = (long)&pwm_meson_v2_data},
 		{}
 };
 
