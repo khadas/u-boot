@@ -130,6 +130,31 @@ static void defendkey_process(void)
 
 int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+	/* add reboot_mode in bootargs for kernel command line */
+	char *pbootargs = getenv("bootargs");
+	char *preboot_mode = getenv("reboot_mode");
+	if (pbootargs && preboot_mode )
+	{
+		int nlen = strlen(pbootargs) + strlen(preboot_mode) + 64;
+		char *pnewbootargs = malloc(nlen);
+		if (pnewbootargs)
+		{
+			memset((void *)pnewbootargs,0,nlen);
+			sprintf(pnewbootargs,"%s reboot_mode=%s\n",pbootargs,preboot_mode);
+			setenv("bootargs",pnewbootargs);
+			free(pnewbootargs);
+			pnewbootargs = NULL;
+		}
+		else
+		{
+			puts("Error: malloc in pnewbootargs failed!\n");
+		}
+	}
+	else
+	{
+		puts("Error: add reboot_mode in bootargs failed!\n");
+	}
+
 	int nRet;
 	char *avb_s;
 	char argv0_new[12] = {0};
