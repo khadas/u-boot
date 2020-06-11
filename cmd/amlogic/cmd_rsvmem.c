@@ -22,6 +22,16 @@
 
 #ifdef CONFIG_CMD_RSVMEM
 
+#if defined(P_AO_SEC_GP_CFG3)
+#define REG_RSVMEM_SIZE        P_AO_SEC_GP_CFG3
+#define REG_RSVMEM_BL32_START  P_AO_SEC_GP_CFG4
+#define REG_RSVMEM_BL31_START  P_AO_SEC_GP_CFG5
+#elif defined(SYSCTRL_SEC_STATUS_REG15)
+#define REG_RSVMEM_SIZE        SYSCTRL_SEC_STATUS_REG15
+#define REG_RSVMEM_BL32_START  SYSCTRL_SEC_STATUS_REG16
+#define REG_RSVMEM_BL31_START  SYSCTRL_SEC_STATUS_REG17
+#endif
+
 //#define RSVMEM_DEBUG_ENABLE
 #ifdef RSVMEM_DEBUG_ENABLE
 #define rsvmem_dbg(fmt...)	printf("[rsvmem] "fmt)
@@ -54,11 +64,11 @@ static int do_rsvmem_check(cmd_tbl_t *cmdtp, int flag, int argc,
 	unsigned int aarch32 = 0;
 
 	rsvmem_dbg("reserved memory check!\n");
-	data = readl(P_AO_SEC_GP_CFG3);
+	data = readl(REG_RSVMEM_SIZE);
 	bl31_rsvmem_size =  ((data & 0xffff0000) >> 16) << 10;
 	bl32_rsvmem_size =  (data & 0x0000ffff) << 10;
-	bl31_rsvmem_start = readl(P_AO_SEC_GP_CFG5);
-	bl32_rsvmem_start = readl(P_AO_SEC_GP_CFG4);
+	bl31_rsvmem_start = readl(REG_RSVMEM_BL31_START);
+	bl32_rsvmem_start = readl(REG_RSVMEM_BL32_START);
 
 	fdtaddr = env_get("fdtaddr");
 	if (fdtaddr == NULL) {
@@ -260,11 +270,11 @@ static int do_rsvmem_dump(cmd_tbl_t *cmdtp, int flag, int argc,
 	unsigned int bl32_rsvmem_start = 0;
 
 	rsvmem_info("reserved memory:\n");
-	data = readl(P_AO_SEC_GP_CFG3);
+	data = readl(REG_RSVMEM_SIZE);
 	bl31_rsvmem_size =  ((data & 0xffff0000) >> 16) << 10;
 	bl32_rsvmem_size =  (data & 0x0000ffff) << 10;
-	bl31_rsvmem_start = readl(P_AO_SEC_GP_CFG5);
-	bl32_rsvmem_start = readl(P_AO_SEC_GP_CFG4);
+	bl31_rsvmem_start = readl(REG_RSVMEM_BL31_START);
+	bl32_rsvmem_start = readl(REG_RSVMEM_BL32_START);
 
 	rsvmem_info("bl31 reserved memory start: 0x%08x\n", bl31_rsvmem_start);
 	rsvmem_info("bl31 reserved memory size:  0x%08x\n", bl31_rsvmem_size);
