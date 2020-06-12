@@ -739,8 +739,8 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 			memcpy(req->buf, &cdev->desc, value);
 			break;
 		case USB_DT_DEVICE_QUALIFIER:
-			if (!gadget_is_dualspeed(gadget))
-				break;
+			//if (!gadget_is_dualspeed(gadget))
+			//	break;
 			device_qual(cdev);
 			value = min_t(int, w_length,
 				      sizeof(struct usb_qualifier_descriptor));
@@ -759,6 +759,9 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 					w_index, w_value & 0xff);
 			if (value >= 0)
 				value = min(w_length, (u16) value);
+			break;
+		case USB_DT_DEBUG:
+			value = 4;
 			break;
 		default:
 			goto unknown;
