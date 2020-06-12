@@ -20,6 +20,7 @@
 #define SP			3 /* m4 */
 #define DSPA			4 /* dsp-a */
 #define	DSPB			5 /* dsp-b */
+#define	DIF			6 /* dif */
 
 /*
  * bitmap for jtag select ID:
