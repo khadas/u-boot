@@ -16,6 +16,19 @@
 
 #define ENV_SARADC_VALUE "saradc_val"
 
+struct meson_saradc_mode {
+	unsigned int sample_mode;
+	const char *mode_name;
+};
+
+static const struct meson_saradc_mode mode_table[] = {
+	{ADC_MODE_AVERAGE,		"average"},	//default mode
+	{ADC_MODE_AVERAGE,		"average"},
+	{ADC_MODE_HIGH_PRECISION,	"high precision"},
+	{ADC_MODE_HIGH_RESOLUTION,	"high resolution"},
+	{ADC_MODE_DECIM_FILTER,		"decim filter"}
+};
+
 static const char * const ch7_voltage[] = {
 	"gnd",
 	"vdd/4",
@@ -25,13 +38,24 @@ static const char * const ch7_voltage[] = {
 };
 
 static int current_channel = -1;
+static unsigned int current_mode;
 
 static int do_saradc_open(cmd_tbl_t *cmdtp, int flag, int argc,
 		char * const argv[])
 {
+	struct udevice *dev;
 	int channel;
+	int mode;
+	int ret;
+	char *endp;
+
+	ret = uclass_get_device_by_name(UCLASS_ADC, "adc", &dev);
+	if (ret)
+		return ret;
 
 	channel = simple_strtoul(argv[1], NULL, 10);
+	mode = simple_strtoul(argv[2], &endp, 10);
+
 	if ((channel < 0) || (channel >= MESON_SARADC_CH_MAX))
 	{
 		pr_err("No such channel(%d) in SARADC! open failed!\n",
@@ -39,7 +63,23 @@ static int do_saradc_open(cmd_tbl_t *cmdtp, int flag, int argc,
 		return -1;
 	}
 
+	if ((mode < 0) || (mode >= sizeof(mode_table)/sizeof(mode_table[0])) ||
+			(endp && !mode)) {
+		pr_err("No such mode(%d) in SARADC! open failed!\n", mode);
+		return -1;
+	}
+
+	ret = adc_set_mode(dev, channel, mode_table[mode].sample_mode);
+	if (ret) {
+		pr_err("current platform does not support [%s] mode\n",
+				mode_table[mode].mode_name);
+		return ret;
+	}
+
+	current_mode = mode_table[mode].sample_mode;
 	current_channel = channel;
+
+	printf("SARADC mode is %s\n", mode_table[mode].mode_name);
 
 	return 0;
 }
@@ -66,7 +106,8 @@ static int do_saradc_getval(cmd_tbl_t *cmdtp, int flag, int argc,
 		return -EINVAL;
 	};
 
-	ret = adc_channel_single_shot("adc", current_channel, &val);
+	ret = adc_channel_single_shot_mode("adc", current_mode,
+					   current_channel, &val);
 	if (ret)
 		return ret;
 
@@ -126,7 +167,8 @@ static int do_saradc_get_in_range(cmd_tbl_t *cmdtp, int flag,
 	unsigned int val;
 	int ret;
 
-	ret = adc_channel_single_shot("adc", current_channel, &val);
+	ret = adc_channel_single_shot_mode("adc", current_mode,
+					   current_channel, &val);
 	if (ret)
 		return ret;
 
@@ -151,7 +193,7 @@ static int do_saradc_get_in_range(cmd_tbl_t *cmdtp, int flag,
 }
 
 static cmd_tbl_t cmd_saradc_sub[] = {
-	U_BOOT_CMD_MKENT(open, 2, 0, do_saradc_open, "", ""),
+	U_BOOT_CMD_MKENT(open, 3, 0, do_saradc_open, "", ""),
 	U_BOOT_CMD_MKENT(close, 1, 0, do_saradc_close, "", ""),
 	U_BOOT_CMD_MKENT(getval, 1, 0, do_saradc_getval, "", ""),
 	U_BOOT_CMD_MKENT(test, 1, 0, do_saradc_test, "", ""),
@@ -178,7 +220,8 @@ static int do_saradc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	saradc,	CONFIG_SYS_MAXARGS, 0, do_saradc,
 	"saradc sub-system",
-	"saradc open <channel> - open a SARADC channel\n"
+	"saradc open <channel> <mode> - open a SARADC channel\n\
+	mode: 1:average 2:high precision 3:high resolution 4:decim filter\n"
 	"saradc close  - close the SARADC\n"
 	"saradc getval - get the value in current channel\n"
 	"saradc test   - test the SARADC by channel-7\n"
