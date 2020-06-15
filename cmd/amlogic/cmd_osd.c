@@ -6,6 +6,7 @@
 #include <splash.h>
 #include <video_fb.h>
 #include <video.h>
+#include <amlogic/fb.h>
 
 int osd_enabled = 0;
 /* Graphic Device */
@@ -17,6 +18,7 @@ extern void osd_test(void);
 extern void osd_enable_hw(u32 index, u32 enable);
 extern void osd_set_free_scale_enable_hw(u32 index, u32 enable);
 extern int osd_rma_test(u32 osd_index);
+extern int get_osd_layer(void);
 static int do_osd_open(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
@@ -32,10 +34,11 @@ static int do_osd_open(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_osd_enable(cmd_tbl_t *cmdtp, int flag, int argc,
 			char *const argv[])
 {
-	ulong index = 0;
+	int index = 0;
 
-	index = simple_strtoul(env_get("display_layer"), NULL, 0);
-	osd_enable_hw(index, 1);
+	index = get_osd_layer();
+	if (index >= 0)
+		osd_enable_hw(index, 1);
 
 	return 0;
 }
@@ -43,38 +46,59 @@ static int do_osd_enable(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_osd_close(cmd_tbl_t *cmdtp, int flag, int argc,
 			char *const argv[])
 {
+
+	uint index = 0;
+
+	index = get_osd_layer();
+
 	if (gdev == NULL)
 		return 1;
 
 	gdev = NULL;
-	osd_enable_hw(0, 0);
-	osd_enable_hw(1, 0);
-	osd_set_free_scale_enable_hw(0, 0);
-	osd_set_free_scale_enable_hw(1, 0);
+	if (index >= VIU2_OSD1) {
+		osd_enable_hw(VIU2_OSD1, 0);
+	} else {
+		osd_enable_hw(OSD1, 0);
+		osd_enable_hw(OSD2, 0);
+		osd_set_free_scale_enable_hw(OSD1, 0);
+		osd_set_free_scale_enable_hw(OSD2, 0);
+	}
+
 	osd_enabled = 0;
+
 	return 0;
 }
 
 static int do_osd_clear(cmd_tbl_t *cmdtp, int flag, int argc,
 			char *const argv[])
 {
+#ifdef OSD_SCALE_ENABLE
+	uint index = 0;
+	ulong fb_addr;
+	ulong fb_len;
+#endif
 	if (gdev == NULL) {
 		printf("Please enable osd device first!\n");
 		return 1;
 	}
 
 #ifdef OSD_SCALE_ENABLE
-	memset((void *)(long long)(gdev->frameAdrs), 0,
-	       (gdev->fb_width * gdev->fb_height)*gdev->gdfBytesPP);
-
-	flush_cache(gdev->frameAdrs,
-		    ((gdev->fb_width * gdev->fb_height)*gdev->gdfBytesPP));
+	index = get_osd_layer();
+	if (index < VIU2_OSD1) {
+		fb_addr = (ulong)gdev->frameAdrs;
+		fb_len = CANVAS_ALIGNED(gdev->fb_width * gdev->gdfBytesPP) * gdev->fb_height;
+	} else {
+		fb_addr = (ulong)(gdev->frameAdrs +
+			CANVAS_ALIGNED(gdev->fb_width * gdev->gdfBytesPP) * gdev->fb_height);
+		fb_len = CANVAS_ALIGNED(gdev->winSizeX * gdev->gdfBytesPP) * gdev->winSizeY;
+	}
+	memset((void *)fb_addr, 0, fb_len);
+	flush_cache(fb_addr, fb_len);
 #else
-	memset((void *)(long long)(gdev->frameAdrs), 0,
-	       (gdev->winSizeX * gdev->winSizeY)*gdev->gdfBytesPP);
+	fb_len = CANVAS_ALIGNED(gdev->winSizeX * gdev->gdfBytesPP) * gdev->winSizeY;
+	memset((void *)(long long)(gdev->frameAdrs), 0, fb_len);
 
-	flush_cache(gdev->frameAdrs,
-		    ((gdev->winSizeX * gdev->winSizeY)*gdev->gdfBytesPP));
+	flush_cache(gdev->frameAdrs, fb_len);
 #endif
 	return 0;
 }

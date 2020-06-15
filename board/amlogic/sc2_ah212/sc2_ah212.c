@@ -140,7 +140,6 @@ int board_late_init(void)
 {
 	printf("board late init\n");
 
-	#if 0
 	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
 			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 	board_init_mem();
@@ -153,7 +152,6 @@ int board_late_init(void)
 		run_command("if fdt addr ${dtb_mem_addr}; then else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
 	}
 #endif//#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
-	#endif
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
 	aml_try_factory_sdcard_burning(0, gd->bd);

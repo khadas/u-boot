@@ -67,7 +67,7 @@
 		/* 4: 333.3M    5: 400.0M    6: 500.0M    7: 666.7M */
 	};
 
-	meson-fb {
+	fb {
 		status = "okay";
 		logo_addr = "0x7f800000";
 	};

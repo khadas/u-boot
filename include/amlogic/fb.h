@@ -288,6 +288,13 @@ struct fb_con2fbmap {
 #define VESA_HSYNC_SUSPEND      2
 #define VESA_POWERDOWN          3
 
+#define CANVAS_ALIGNED(x)  (((x) + 63) & ~63)
+
+enum osd_index_e {
+	OSD1 = 0,
+	OSD2,
+	VIU2_OSD1
+};
 
 enum {
 	/* screen: unblanked, hsync: on,  vsync: on */
