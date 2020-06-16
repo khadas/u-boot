@@ -45,6 +45,7 @@ Description:
 #define P_EE_TIMER_E	(*((volatile unsigned *)(0xc1100000 + (0x2662 << 2))))
 #define ON 1
 #define OFF 0
+
 enum pwm_id {
 	pwm_a = 0,
 	pwm_b,
@@ -203,6 +204,11 @@ void wakeup_timer_clear(void)
 static unsigned int detect_key(unsigned int suspend_from)
 {
 	int exit_reason = 0;
+#ifdef CONFIG_BT_RCU_WAKEUP
+	int cnt = 0;
+	int flag_p = 0;
+	int flag_n = 0;
+#endif
 	unsigned int time_out = readl(AO_DEBUG_REG2);
 	unsigned time_out_ms = time_out*100;
 	unsigned int ret;
@@ -215,6 +221,7 @@ static unsigned int detect_key(unsigned int suspend_from)
 		wakeup_timer_setup();
 
 	init_remote();
+
 #ifdef CONFIG_CEC_WAKEUP
 	if (hdmi_cec_func_config & 0x1) {
 		remote_cec_hw_reset();
@@ -270,8 +277,40 @@ static unsigned int detect_key(unsigned int suspend_from)
 			irq[IRQ_GPIO1] = 0xFFFFFFFF;
 			if (!(readl(PREG_PAD_GPIO4_I) & (0x01 << 18))
 				&& (readl(PREG_PAD_GPIO4_O) & (0x01 << 17))
-				&& !(readl(PREG_PAD_GPIO4_EN_N) & (0x01 << 17)))
+				&& !(readl(PREG_PAD_GPIO4_EN_N) & (0x01 << 17))) {
+			#ifdef CONFIG_BT_RCU_WAKEUP
+				_udelay(200*1000);
+				do {
+					_udelay(20*1000);
+					if (readl(PREG_PAD_GPIO4_I) & (0x01 << 18))
+						flag_p++;
+					else if(!(readl(PREG_PAD_GPIO4_I) & (0x01 << 18)))
+						flag_n++;
+					cnt++;
+				} while (cnt < 10);
+
+				uart_puts("wakeup flag_p= 0x");
+				uart_put_hex(flag_p,16);
+				uart_puts("\n");
+
+				uart_puts("wakeup flag_n= 0x");
+				uart_put_hex(flag_n,16);
+				uart_puts("\n");
+
+				if (flag_p >= 7) {
+					uart_puts("power key");
+					uart_puts("\n");
+					exit_reason = BT_WAKEUP;
+				}
+				else if (flag_n >= 7) {
+					uart_puts("netflix key");
+					uart_puts("\n");
+					exit_reason = REMOTE_CUS_WAKEUP;
+				}
+			#else
 				exit_reason = BT_WAKEUP;
+			#endif
+			}
 		}
 #endif
 		if (irq[IRQ_ETH_PHY] == IRQ_ETH_PHY_NUM) {

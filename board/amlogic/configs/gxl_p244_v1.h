@@ -48,6 +48,8 @@
 #define CONFIG_INSTABOOT
 /* configs for dtb in boot.img */
 //#define DTB_BIND_KERNEL
+/*if use uart rcu,open it*/
+#define CONFIG_BT_RCU_WAKEUP
 
 /* SMP Definitinos */
 #define CPU_RELEASE_ADDR		secondary_boot_func
