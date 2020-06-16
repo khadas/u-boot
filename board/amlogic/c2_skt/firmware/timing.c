@@ -1,6 +1,5 @@
-
 /*
- * board/amlogic/txl_skt_v1/firmware/timing.c
+ * board/amlogic/c2_af409/firmware/timing.c
  *
  * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
  *
@@ -24,211 +23,1893 @@
 #include <asm/arch/ddr_define.h>
 
 /* board clk defines */
-#define DDR_SIZE				0
 #define CPU_CLK					1512
-
-/* ddr config support multiple configs for boards which use same bootloader:
- * config steps:
- * 1. add a new data struct in __ddr_setting[]
- * 2. config correct board_id, ddr_type, freq, etc..
- */
-
-
-/* CAUTION!! */
-/* Confirm ddr configs with hardware designer,
- * if you don't know how to config, then don't edit it
- */
-
-/* Key configs */
-/*
- * board_id: check hardware adc config
- * dram_rank_config:
- *            #define CONFIG_DDR_CHL_AUTO					0xF
- *            #define CONFIG_DDR0_16BIT_CH0				0x1
- *            #define CONFIG_DDR0_16BIT_RANK01_CH0		0x4
- *            #define CONFIG_DDR0_32BIT_RANK0_CH0			0x2
- *            #define CONFIG_DDR0_32BIT_RANK01_CH01		0x3
- *            #define CONFIG_DDR0_32BIT_16BIT_RANK0_CH0	0x5
- *            #define CONFIG_DDR0_32BIT_16BIT_RANK01_CH0	0x6
- * DramType:
- *            #define CONFIG_DDR_TYPE_DDR3				0
- *            #define CONFIG_DDR_TYPE_DDR4				1
- *            #define CONFIG_DDR_TYPE_LPDDR4				2
- *            #define CONFIG_DDR_TYPE_LPDDR3				3
- * DRAMFreq:
- *            {pstate0, pstate1, pstate2, pstate3} //more than one pstate means use dynamic freq
- *
- */
-
-
-/* ddr configs */
-#define DDR_RFC_TYPE_DDR3_512Mbx1				0
-#define DDR_RFC_TYPE_DDR3_512Mbx2				1
-#define DDR_RFC_TYPE_DDR3_512Mbx4				2
-#define DDR_RFC_TYPE_DDR3_512Mbx8				3
-#define DDR_RFC_TYPE_DDR3_512Mbx16				4
-#define DDR_RFC_TYPE_DDR4_2Gbx1					5
-#define DDR_RFC_TYPE_DDR4_2Gbx2					6
-#define DDR_RFC_TYPE_DDR4_2Gbx4					7
-#define DDR_RFC_TYPE_DDR4_2Gbx8					8
-
-#define DDR_RFC_TYPE_LPDDR4_2Gbx1				9
-#define DDR_RFC_TYPE_LPDDR4_3Gbx1				10
-#define DDR_RFC_TYPE_LPDDR4_4Gbx1				11
+#define TIMMING_MAX_CONFIG		1
 
 ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
+#if 0//af400
 {
-	/* ddr3 */
-	.board_id				= CONFIG_BOARD_ID_MASK,
-	.version				= 1,
-	.dram_rank_config		= CONFIG_DDR0_32BIT_16BIT_RANK0_CH0,//CONFIG_DDR0_16BIT_CH0,
-	.DramType				= CONFIG_DDR_TYPE_DDR3,
-	/* DRAMFreq = 192, 256, 384, 512, 768-1536 */
-	.DRAMFreq				= {912, 0, 0, 0},
-	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
-	.ddr_start_offset		= CFG_DDR_START_OFFSET,
-	.dmem_load_size			= 0x1000, //4K
+	//af400
+	.cfg_board_common_setting.	board_id					=	CONFIG_BOARD_ID_MASK,
+	.cfg_board_common_setting.	DramType					=	CONFIG_DDR_TYPE_DDR4,
+	.cfg_board_common_setting.	dram_rank_config			=	CONFIG_DDR0_32BIT_RANK0_CH0,
+	.cfg_board_common_setting.	dram_cs0_size_MB			=	CONFIG_DDR0_SIZE_1024MB,
+	.cfg_board_common_setting.	dram_cs1_size_MB			=	CONFIG_DDR1_SIZE_0MB,
+	.cfg_board_common_setting.	pll_ssc_mode				=	DDR_PLL_SSC_DISABLE,
+	.cfg_board_common_setting.	ddr_rdbi_wr_enable			=	DDR_WRITE_READ_DBI_DISABLE,
+	.cfg_board_common_setting.	dram_x4x8x16_mode			=	CONFIG_DRAM_MODE_X16,
+	.cfg_board_common_setting.	ddr_dmc_remap				=	DDR_DMC_REMAP_DDR4_32BIT,
+	.cfg_board_common_setting.	fast_boot					=	{0},
 
-	.DisabledDbyte			= 0xf0,
-	.Is2Ttiming				= 1,
-	.HdtCtrl				= 0xC8,
-	.dram_cs0_size_MB		= 768,
-	.dram_cs1_size_MB		= 0,
-	.training_SequenceCtrl	= {0x31f,0}, //ddr3 0x21f 0x31f
-	.phy_odt_config_rank	= {0x23,0x13}, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
-	.dfi_odt_config			= 0x0d0d,  //use 0d0d compatibility with 1rank and 2rank  //0808
-	.PllBypassEn			= 0, //bit0-ps0,bit1-ps1
-	.ddr_rdbi_wr_enable		= 0,
-	.clk_drv_ohm			= 40,
-	.cs_drv_ohm				= 40,
-	.ac_drv_ohm				= 40,
-	.soc_data_drv_ohm_p		= 34,
-	.soc_data_drv_ohm_n		= 34,
-	.soc_data_odt_ohm_p		= 60, //48,
-	.soc_data_odt_ohm_n		= 0,
-	.dram_data_drv_ohm		= 34, //ddr4 sdram only 34 or 48, skt board use 34 better
-	.dram_data_odt_ohm		= 60,
-	.dram_ac_odt_ohm		= 0,
-	.soc_clk_slew_rate		= 0x300,
-	.soc_cs_slew_rate		= 0x300,
-	.soc_ac_slew_rate		= 0x300,
-	.soc_data_slew_rate		= 0x200,
-	.vref_output_permil		= 500,
-	.vref_receiver_permil	= 500, //700,
-	.vref_dram_permil		= 500, //700,
-	//.vref_reverse			= 0,
-	.ac_trace_delay			= {32,32,32,32,32,32,32,32,32,32},
-	//{00,00},
-	.ac_pinmux				= {00,00},
-#if 1
-	.ddr_dmc_remap			= {
-							[0] = ( 5 |  7 << 5 |  8 << 10 |  9 << 15 | 10 << 20 | 11 << 25 ),
-							[1] = ( 12|  0 << 5 |  0 << 10 | 14 << 15 | 15 << 20 | 16 << 25 ),
-							[2] = ( 17| 18 << 5 | 19 << 10 | 21 << 15 | 22 << 20 | 23 << 25 ),
-							[3] = ( 24| 25 << 5 | 26 << 10 | 27 << 15 | 28 << 20 | 29 << 25 ),
-							[4] = ( 30| 13 << 5 | 20 << 10 |  6 << 15 |  0 << 20 |  0 << 25 ),
-	},
-#else
-	//16bit
-	.ddr_dmc_remap			= {
-							[0] = ( 0 |  5 << 5 |  6<< 10 |  7 << 15 | 8 << 20 | 9 << 25 ),
-							[1] = ( 10|  0 << 5 |  0 << 10 | 14 << 15 | 15 << 20 | 16 << 25 ),
-							[2] = ( 17|( 18 << 5) |( 19 << 10) |( 20 << 15) |( 21 << 20) | (22 << 25 )),
-							[3] = ( 23| 24 << 5 | 25 << 10 | 26 << 15 | 27 << 20 | 28 << 25 ),
-							[4] = ( 29| 11<< 5 | 12 << 10 |  13<< 15 |  0 << 20 |  0 << 25 ),
-	},
-#endif
-	.ddr_lpddr34_ca_remap	= {00,00},
-	.ddr_lpddr34_dq_remap	= {00,00},
-	.dram_rtt_nom_wr_park	= {00,00},
+	//DDR frequercy 1
+	.cfg_board_SI_setting_ps[0].DRAMFreq					=	667,
+	.cfg_board_SI_setting_ps[0].PllBypassEn					=	0,
+	.cfg_board_SI_setting_ps[0].training_SequenceCtrl		=	0,
+	.cfg_board_SI_setting_ps[0].ddr_odt_config				=	DDR_DRAM_ODT_W_CS0_ODT0,
+	.cfg_board_SI_setting_ps[0].clk_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[0].cs_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[0].ac_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_p			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_n			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_odt_ohm_p			=	DDR_SOC_DATA_DRV_ODT_48_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_odt_ohm_n			=	DDR_SOC_DATA_DRV_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_drv_ohm			=	DDR_DRAM_DDR4_DRV_48_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_odt_ohm			=	DDR_DRAM_DDR4_ODT_60_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_wr_odt_ohm		=	DDR_DRAM_DDR_WR_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[0].dram_ac_odt_ohm				=	DDR_DRAM_DDR_AC_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_drv_pull_up_calibration_ohm	=	DDR_DRAM_LPDDR4_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[0].lpddr4_dram_vout_voltage_range_setting	=	DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ,
+	.cfg_board_SI_setting_ps[0].reserve2					=	0,
+	.cfg_board_SI_setting_ps[0].vref_ac_permil 				=	0,
+	.cfg_board_SI_setting_ps[0].vref_soc_data_permil 		=	0,
+	.cfg_board_SI_setting_ps[0].vref_dram_data_permil		=	0,
+	.cfg_board_SI_setting_ps[0].max_core_timmming_frequency				=	0,
+	.cfg_board_SI_setting_ps[0].training_phase_parameter				=	{0},
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org = {
+	128,128,128,128,128,128,128,128,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,
+	},//total 36
 
-	/* pll ssc config:
-	 *
-	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
-	 *      ppm = strength * 500
-	 *      mode: 0=center, 1=up, 2=down
-	 *
-	 *   eg:
-	 *     1. config 1000ppm center ss. then mode=0, strength=2
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
-	 *     2. config 3000ppm down ss. then mode=2, strength=6
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
-	 */
-	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func				= DDR_FUNC,
-	.magic					= DRAM_CFG_MAGIC,
+	#if 1
+	.cfg_ddr_training_delay_ps[0].	ac_trace_delay = {
+	128,128,128,128,128,128,128,128,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,
+	},//total 36
+	#endif
+	//write delay line setting
+	#if 1
+	.cfg_ddr_training_delay_ps[0].	write_dqs_delay = {128,128,128,128,128,128,128,128} ,
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32} ,
+
+	.cfg_ddr_training_delay_ps[0].	write_dq_bit_delay = {
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,},
+	#endif
+	//.cfg_ddr_training_delay_ps[0].	read_dqs_gate_delay = {256,256,256,256,256,256,256,256} , //total 8
+	.cfg_ddr_training_delay_ps[0].	read_dqs_gate_delay = {0,0,0,0,0,0,0,0} , //total 8 //edge mode
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {64,64,64,64,64,64,64,64} , //total 8
+
+	.cfg_ddr_training_delay_ps[0].	read_dqs_delay = {64,64,64,64,64,64,64,64} , //total 8
+	.cfg_ddr_training_delay_ps[0].	read_dq_bit_delay = {
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0} , //total 72
+	.cfg_ddr_training_delay_ps[0].	soc_bit_vref = {
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,50,40,50,40,50,40,50},//total 44
+	.cfg_ddr_training_delay_ps[0].	dram_bit_vref = {
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32},//total 36
+	.cfg_ddr_training_delay_ps[0].	reserve_training_parameter	=	{0}	,
+	//.cfg_ddr_training_delay_ps[0].reserve_training_parameter={((1<<7)|1),},
+
+	//pinmux setting
+	#if 1  //af409
+	.cfg_board_common_setting.	ac_pinmux	= {
+	0,	0,	0,	1,	2,	3,
+	8,	27,	10,	2,	9,	21,	5,	14,	1,	0,	25,	13,	12,	4,	7,	22,	0,	0,	0,	0,	6,	3,	20,	0,	0,	15,	26,	11,
+	},
+	#endif
+	#if 0  //af419
+	.cfg_board_common_setting.	ac_pinmux	= {
+	0,	0,	0,	1,	2,	3,
+	27,	12,	21,	9,	8,	0,	14,	10,	6,	7,	20,	5,	22,	13,	15,	2,	0,	0,	0,	0,	11,	26,	4,	0,	0,	25,	3,	1,
+	},
+	#endif
+	.cfg_board_common_setting.	ddr_dqs_swap	=	0,
+
+	#if 1
+	.cfg_board_common_setting.	ddr_dq_remap	=	{
+	0,1,2,3,4,5,6,7,
+	8,9,10,11,12,13,14,15,
+	16,17,18,19,20,21,22,23,
+	24,25,26,27,28,29,30,31,
+	32,33,34,35
+	},//d0-d31 dm0 dm1 dm2 dm3
+	#endif
+
+	.cfg_board_common_setting.	timming_magic				=	0x66223333,//ddr_set_t start
+	.cfg_board_common_setting.	timming_max_valid_configs	=	TIMMING_MAX_CONFIG,//sizeof(__ddr_setting)/sizeof(ddr_set_t),
+	.cfg_board_common_setting.	timming_struct_version		=	0,
+	.cfg_board_common_setting.	timming_struct_org_size		=	sizeof(ddr_set_t),
+	.cfg_board_common_setting.	timming_struct_real_size	=	0,	//0
+	.cfg_board_common_setting.	ddr_func					=	0,
+	.cfg_board_common_setting.	DisabledDbyte				=	CONFIG_DISABLE_D32_D63,
+	.cfg_board_common_setting.	dram_cs0_base_add			=	0,
+	.cfg_board_common_setting.	dram_cs1_base_add			=	0,
+
+	.cfg_board_common_setting.	Is2Ttiming					=	CONFIG_USE_DDR_2T_MODE,
+	.cfg_board_common_setting.	log_level					=	LOG_LEVEL_BASIC,
+	.cfg_board_common_setting.	org_tdqs2dq					=	0,
+	.cfg_board_common_setting.	reserve1_test_function		=	{0},
+	.cfg_board_common_setting.	ddr_vddee_setting			=	{0},
+
+	//DDR frequercy 2
+	.cfg_board_SI_setting_ps[1].DRAMFreq					=	600,
+	.cfg_board_SI_setting_ps[1].PllBypassEn					=	0,
+	.cfg_board_SI_setting_ps[1].training_SequenceCtrl		=	0,
+	.cfg_board_SI_setting_ps[1].ddr_odt_config				=	DDR_DRAM_ODT_W_CS0_ODT0,
+	.cfg_board_SI_setting_ps[1].clk_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[1].cs_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[1].ac_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_drv_ohm_p			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_drv_ohm_n			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_odt_ohm_p			=	DDR_SOC_DATA_DRV_ODT_120_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_odt_ohm_n			=	DDR_SOC_DATA_DRV_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_drv_ohm			=	DDR_DRAM_DDR4_DRV_34_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_odt_ohm			=	DDR_DRAM_DDR4_ODT_60_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_wr_odt_ohm		=	DDR_DRAM_DDR_WR_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[1].dram_ac_odt_ohm				=	DDR_DRAM_DDR_AC_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_drv_pull_up_calibration_ohm	=	DDR_DRAM_LPDDR4_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[1].lpddr4_dram_vout_voltage_range_setting	=	DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ,
+	.cfg_board_SI_setting_ps[1].reserve2					=	0,
+	.cfg_board_SI_setting_ps[1].vref_ac_permil 				=	0,
+	.cfg_board_SI_setting_ps[1].vref_soc_data_permil 		=	0,
+	.cfg_board_SI_setting_ps[1].vref_dram_data_permil		=	0,
+	.cfg_board_SI_setting_ps[1].max_core_timmming_frequency				=	0,
+	.cfg_board_SI_setting_ps[1].training_phase_parameter				=	{0},
+	.cfg_board_SI_setting_ps[1].ac_trace_delay_org = {
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	},//total 36
+
+	#if 1
+	.cfg_ddr_training_delay_ps[1]. ac_trace_delay = {
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	},//total 36
+	#endif
+	.cfg_ddr_training_delay_ps[1]. write_dqs_delay = {0,0,0,0,0,0,0,0},
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32},
+	#if 1
+	.cfg_ddr_training_delay_ps[1]. write_dq_bit_delay = {
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,},
+	#endif
+
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {256,256,256,256,256,256,256,256},//total 8
+	.cfg_ddr_training_delay_ps[1]. read_dqs_gate_delay = {192,192,192,192,192,192,192,192},//total 8
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {64,64,64,64,64,64,64,64},//total 8
+	.cfg_ddr_training_delay_ps[1]. read_dqs_delay = {64,64,64,64,64,64,64,64},//total 8
+	.cfg_ddr_training_delay_ps[1]. read_dq_bit_delay = {
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0},//total 72
+	.cfg_ddr_training_delay_ps[1]. soc_bit_vref = {
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40},//total 44
+	.cfg_ddr_training_delay_ps[1]. dram_bit_vref = {
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32},//total 36
+
+	.cfg_ddr_training_delay_ps[1].reserve_training_parameter	=	{0,0,0,0,0,0,0,0x7788},//ddr_set_t end
 },
+#endif //end af400
+
+#if 1//af409
 {
-	/* ddr4 */
-	.board_id				= CONFIG_BOARD_ID_MASK,
-	.version				= 1,
-	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
-	.DramType				= CONFIG_DDR_TYPE_DDR4,
-	/* DRAMFreq = 192, 256, 384, 512, 768-1536 */
-	.DRAMFreq				= {1176, 0, 0, 0},
-	.ddr_rfc_type			= DDR_RFC_TYPE_DDR4_2Gbx8,
-	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
-	.ddr_start_offset		= CFG_DDR_START_OFFSET,
-	.dmem_load_size			= 0x1000, //4K
+	//af409
+	.cfg_board_common_setting.	board_id					=	CONFIG_BOARD_ID_MASK,
+	.cfg_board_common_setting.	DramType					=	CONFIG_DDR_TYPE_DDR4,
+	.cfg_board_common_setting.	dram_rank_config			=	CONFIG_DDR0_32BIT_RANK0_CH0,
+	.cfg_board_common_setting.	dram_cs0_size_MB			=	CONFIG_DDR0_SIZE_1024MB,
+	.cfg_board_common_setting.	dram_cs1_size_MB			=	CONFIG_DDR1_SIZE_0MB,
+	.cfg_board_common_setting.	pll_ssc_mode				=	DDR_PLL_SSC_DISABLE,
+	.cfg_board_common_setting.	ddr_rdbi_wr_enable			=	DDR_WRITE_READ_DBI_DISABLE,
+	.cfg_board_common_setting.	dram_x4x8x16_mode			=	CONFIG_DRAM_MODE_X16,
+	.cfg_board_common_setting.	ddr_dmc_remap				=	DDR_DMC_REMAP_DDR4_32BIT,
+	.cfg_board_common_setting.	fast_boot					=	{0},
 
-	.DisabledDbyte			= 0xf0,
-	.Is2Ttiming				= 1,
-	.HdtCtrl				= 0xC8,
-	.dram_cs0_size_MB		= 0xffff,
-	.dram_cs1_size_MB		= 0,
-	.training_SequenceCtrl	= {0x31f,0x61}, //ddr3 0x21f 0x31f
-	.phy_odt_config_rank	= {0x23,0x13}, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
-	.dfi_odt_config			= 0x0d0d,  //use 0d0d compatibility with 1rank and 2rank  //0808
-	.PllBypassEn			= 0, //bit0-ps0,bit1-ps1
-	.ddr_rdbi_wr_enable		= 0,
-	.clk_drv_ohm			= 40,
-	.cs_drv_ohm				= 40,
-	.ac_drv_ohm				= 40,
-	.soc_data_drv_ohm_p		= 40,
-	.soc_data_drv_ohm_n		= 40,
-	.soc_data_odt_ohm_p		= 60,
-	.soc_data_odt_ohm_n		= 0,
-	.dram_data_drv_ohm		= 34,//48, //34, //ddr4 sdram only 34 or 48, skt board use 34 better
-	.dram_data_odt_ohm		= 60, //60,
-	.dram_ac_odt_ohm		= 0,
-	.soc_clk_slew_rate		= 0x3ff,
-	.soc_cs_slew_rate		= 0x3ff,
-	.soc_ac_slew_rate		= 0x3ff,
-	.soc_data_slew_rate		= 0x2ff,
-	.vref_output_permil		= 500,
-	.vref_receiver_permil	= 0,//700,
-	.vref_dram_permil		= 0,//700,
-	//.vref_reverse			= 0,
-	//.ac_trace_delay		= {0x0,0x0},// {0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40},
-	.ac_trace_delay			= {16,32,32,32,32,32,32,32,32,32},
-	.ddr_dmc_remap			= {
-							[0] = ( 5 |  7 << 5 |  8 << 10 |  9 << 15 | 10 << 20 | 11 << 25 ),
-							[1] = ( 12|  0 << 5 |  0 << 10 | 14 << 15 | 15 << 20 | 16 << 25 ),
-							[2] = ( 17| 18 << 5 | 19 << 10 | 21 << 15 | 22 << 20 | 23 << 25 ),
-							[3] = ( 24| 25 << 5 | 26 << 10 | 27 << 15 | 28 << 20 | 29 << 25 ),
-							[4] = ( 30| 13 << 5 | 20 << 10 |  6 << 15 |  0 << 20 |  0 << 25 ),
+	//DDR frequercy 1
+	.cfg_board_SI_setting_ps[0].DRAMFreq					=	667,
+	.cfg_board_SI_setting_ps[0].PllBypassEn					=	0,
+	.cfg_board_SI_setting_ps[0].training_SequenceCtrl		=	0,
+	.cfg_board_SI_setting_ps[0].ddr_odt_config				=	DDR_DRAM_ODT_W_CS0_ODT0,
+	.cfg_board_SI_setting_ps[0].clk_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[0].cs_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[0].ac_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_p			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_n			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_odt_ohm_p			=	DDR_SOC_DATA_DRV_ODT_48_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_odt_ohm_n			=	DDR_SOC_DATA_DRV_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_drv_ohm			=	DDR_DRAM_DDR4_DRV_34_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_odt_ohm			=	DDR_DRAM_DDR4_ODT_60_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_wr_odt_ohm		=	DDR_DRAM_DDR_WR_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[0].dram_ac_odt_ohm				=	DDR_DRAM_DDR_AC_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_drv_pull_up_calibration_ohm	=	DDR_DRAM_LPDDR4_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[0].lpddr4_dram_vout_voltage_range_setting	=	DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ,
+	.cfg_board_SI_setting_ps[0].reserve2					=	0,
+	.cfg_board_SI_setting_ps[0].vref_ac_permil 				=	0,
+	.cfg_board_SI_setting_ps[0].vref_soc_data_permil 		=	0,
+	.cfg_board_SI_setting_ps[0].vref_dram_data_permil		=	0,
+	.cfg_board_SI_setting_ps[0].max_core_timmming_frequency				=	0,
+	.cfg_board_SI_setting_ps[0].training_phase_parameter				=	{0},
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org = {
+	128,128,100,128,128,128,128,128,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,
+	},//total 36
+
+	#if 0
+	.cfg_ddr_training_delay_ps[0].	ac_trace_delay = {
+	128,128,128,128,128,128,128,128,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,
+	},//total 36
+	#endif
+	#if 1
+	.cfg_ddr_training_delay_ps[0].	ac_trace_delay = {
+	0,0,0,0,0,0,0,0,
+	256,256,256,256,256,256,256,256,
+	256,256,256,256,256,256,256,256,
+	256,256,256,256,256,256,256,256,
+	256,256,256,256,
+	},//total 36
+	#endif
+	//write delay line setting
+	#if 0
+	.cfg_ddr_training_delay_ps[0].	write_dqs_delay = {0+256,0+256,0+256,0+256,0+256,0+256,0+256,0+256} ,
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32} ,
+
+	.cfg_ddr_training_delay_ps[0].	write_dq_bit_delay = {
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,},
+	#endif
+	#if 1
+	.cfg_ddr_training_delay_ps[0].	write_dqs_delay = {0+300,0+300,0+300,0+300,0+300,0+300,0+300,0+300} ,
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32} ,
+
+	.cfg_ddr_training_delay_ps[0].	write_dq_bit_delay = {
+	50+300,50+300,50+300,50+300,50+300,50+300,50+300,50+300,
+	50+300,50+300,50+300,50+300,50+300,50+300,50+300,50+300,
+	50+300,50+300,50+300,50+300,50+300,50+300,50+300,50+300,
+	50+300,50+300,50+300,50+300,50+300,50+300,50+300,50+300,
+	50+300,50+300,50+300,50+300,50+300,50+300,50+300,50+300,
+	50+300,50+300,50+300,50+300,50+300,50+300,50+300,50+300,
+	50+300,50+300,50+300,50+300,50+300,50+300,50+300,50+300,
+	50+300,50+300,50+300,50+300,50+300,50+300,50+300,50+300,
+	50+300,50+300,50+300,50+300,50+300,50+300,50+300,50+300,},
+	#endif
+	//.cfg_ddr_training_delay_ps[0].	read_dqs_gate_delay = {256,256,256,256,256,256,256,256} , //total 8
+	.cfg_ddr_training_delay_ps[0].	read_dqs_gate_delay = {192,192,192,192,192,192,192,192} , //total 8 //edge mode
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {64,64,64,64,64,64,64,64} , //total 8
+
+	.cfg_ddr_training_delay_ps[0].	read_dqs_delay = {64,64,64,64,64,64,64,64} , //total 8
+	.cfg_ddr_training_delay_ps[0].	read_dq_bit_delay = {
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0} , //total 72
+	.cfg_ddr_training_delay_ps[0].	soc_bit_vref = {
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40} , //total 44
+	.cfg_ddr_training_delay_ps[0].	dram_bit_vref = {
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32},//total 36
+	.cfg_ddr_training_delay_ps[0].	reserve_training_parameter	=	{0}	,
+	//.cfg_ddr_training_delay_ps[0].reserve_training_parameter={((1<<7)|1),},
+
+	//pinmux setting
+	#if 1  //af409
+	.cfg_board_common_setting.	ac_pinmux	= {
+	0,	0,	0,	1,	2,	3,
+	8,	27,	10,	2,	9,	21,	5,	14,	1,	0,	25,	13,	12,	4,	7,	22,	0,	0,	0,	0,	6,	3,	20,	0,	0,	15,	26,	11,
 	},
-	.ddr_lpddr34_ca_remap	= {00,00},
-	.ddr_lpddr34_dq_remap	= {00,00},
-	.dram_rtt_nom_wr_park	= {00,00},
+	#endif
+	#if 0  //af419
+	.cfg_board_common_setting.	ac_pinmux	= {
+	0,	0,	0,	1,	2,	3,
+	27,	12,	21,	9,	8,	0,	14,	10,	6,	7,	20,	5,	22,	13,	15,	2,	0,	0,	0,	0,	11,	26,	4,	0,	0,	25,	3,	1,
+	},
+	#endif
+	.cfg_board_common_setting.	ddr_dqs_swap	=	0,
 
-	/* pll ssc config:
-	 *
-	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
-	 *      ppm = strength * 500
-	 *      mode: 0=center, 1=up, 2=down
-	 *
-	 *   eg:
-	 *     1. config 1000ppm center ss. then mode=0, strength=2
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
-	 *     2. config 3000ppm down ss. then mode=2, strength=6
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
-	 */
-	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func				= DDR_FUNC,
-	.magic					= DRAM_CFG_MAGIC,
+	#if 1
+	.cfg_board_common_setting.	ddr_dq_remap	=	{
+	0,1,2,3,4,5,6,7,
+	8,9,10,11,12,13,14,15,
+	16,17,18,19,20,21,22,23,
+	24,25,26,27,28,29,30,31,
+	32,33,34,35
+	},//d0-d31 dm0 dm1 dm2 dm3
+	#endif
+
+	.cfg_board_common_setting.	timming_magic				=	0x66223333,//ddr_set_t start
+	.cfg_board_common_setting.	timming_max_valid_configs	=	TIMMING_MAX_CONFIG,//sizeof(__ddr_setting)/sizeof(ddr_set_t),
+	.cfg_board_common_setting.	timming_struct_version		=	0,
+	.cfg_board_common_setting.	timming_struct_org_size		=	sizeof(ddr_set_t),
+	.cfg_board_common_setting.	timming_struct_real_size	=	0,	//0
+	.cfg_board_common_setting.	ddr_func					=	0,
+	.cfg_board_common_setting.	DisabledDbyte				=	CONFIG_DISABLE_D32_D63,
+	.cfg_board_common_setting.	dram_cs0_base_add			=	0,
+	.cfg_board_common_setting.	dram_cs1_base_add			=	0,
+
+	.cfg_board_common_setting.	Is2Ttiming					=	CONFIG_USE_DDR_2T_MODE,
+	.cfg_board_common_setting.	log_level					=	LOG_LEVEL_BASIC,
+	.cfg_board_common_setting.	org_tdqs2dq					=	0,
+	.cfg_board_common_setting.	reserve1_test_function		=	{0},
+	.cfg_board_common_setting.	ddr_vddee_setting			=	{0},
+
+	//DDR frequercy 2
+	.cfg_board_SI_setting_ps[1].DRAMFreq					=	600,
+	.cfg_board_SI_setting_ps[1].PllBypassEn					=	0,
+	.cfg_board_SI_setting_ps[1].training_SequenceCtrl		=	0,
+	.cfg_board_SI_setting_ps[1].ddr_odt_config				=	DDR_DRAM_ODT_W_CS0_ODT0,
+	.cfg_board_SI_setting_ps[1].clk_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[1].cs_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[1].ac_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_drv_ohm_p			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_drv_ohm_n			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_odt_ohm_p			=	DDR_SOC_DATA_DRV_ODT_120_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_odt_ohm_n			=	DDR_SOC_DATA_DRV_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_drv_ohm			=	DDR_DRAM_DDR4_DRV_34_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_odt_ohm			=	DDR_DRAM_DDR4_ODT_60_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_wr_odt_ohm		=	DDR_DRAM_DDR_WR_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[1].dram_ac_odt_ohm				=	DDR_DRAM_DDR_AC_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_drv_pull_up_calibration_ohm	=	DDR_DRAM_LPDDR4_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[1].lpddr4_dram_vout_voltage_range_setting	=	DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ,
+	.cfg_board_SI_setting_ps[1].reserve2					=	0,
+	.cfg_board_SI_setting_ps[1].vref_ac_permil 				=	0,
+	.cfg_board_SI_setting_ps[1].vref_soc_data_permil 		=	0,
+	.cfg_board_SI_setting_ps[1].vref_dram_data_permil		=	0,
+	.cfg_board_SI_setting_ps[1].max_core_timmming_frequency				=	0,
+	.cfg_board_SI_setting_ps[1].training_phase_parameter				=	{0},
+	.cfg_board_SI_setting_ps[1].ac_trace_delay_org = {
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	},//total 36
+
+	#if 1
+	.cfg_ddr_training_delay_ps[1]. ac_trace_delay = {
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	},//total 36
+	#endif
+	.cfg_ddr_training_delay_ps[1]. write_dqs_delay = {0,0,0,0,0,0,0,0},
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32},
+	#if 1
+	.cfg_ddr_training_delay_ps[1]. write_dq_bit_delay = {
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,},
+	#endif
+
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {256,256,256,256,256,256,256,256},//total 8
+	.cfg_ddr_training_delay_ps[1]. read_dqs_gate_delay = {192,192,192,192,192,192,192,192},//total 8
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {64,64,64,64,64,64,64,64},//total 8
+	.cfg_ddr_training_delay_ps[1]. read_dqs_delay = {64,64,64,64,64,64,64,64},//total 8
+	.cfg_ddr_training_delay_ps[1]. read_dq_bit_delay = {
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0},//total 72
+	.cfg_ddr_training_delay_ps[1]. soc_bit_vref = {
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40},//total 44
+	.cfg_ddr_training_delay_ps[1]. dram_bit_vref = {
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32},//total 36
+
+	.cfg_ddr_training_delay_ps[1].reserve_training_parameter	=	{0,0,0,0,0,0,0,0x7788},//ddr_set_t end
 },
+#endif //end af409
+
+#if 0//af419
+{
+	//af419
+	.cfg_board_common_setting.	board_id					=	CONFIG_BOARD_ID_MASK,
+	.cfg_board_common_setting.	DramType					=	CONFIG_DDR_TYPE_DDR4,
+	.cfg_board_common_setting.	dram_rank_config			=	CONFIG_DDR0_32BIT_RANK0_CH0,
+	.cfg_board_common_setting.	dram_cs0_size_MB			=	CONFIG_DDR0_SIZE_1024MB,
+	.cfg_board_common_setting.	dram_cs1_size_MB			=	CONFIG_DDR1_SIZE_0MB,
+	.cfg_board_common_setting.	pll_ssc_mode				=	DDR_PLL_SSC_DISABLE,
+	.cfg_board_common_setting.	ddr_rdbi_wr_enable			=	DDR_WRITE_READ_DBI_DISABLE,
+	.cfg_board_common_setting.	dram_x4x8x16_mode			=	CONFIG_DRAM_MODE_X16,
+	.cfg_board_common_setting.	ddr_dmc_remap				=	DDR_DMC_REMAP_DDR4_32BIT,
+	.cfg_board_common_setting.	fast_boot					=	{0},
+
+	//DDR frequercy 1
+	.cfg_board_SI_setting_ps[0].DRAMFreq					=	667,
+	.cfg_board_SI_setting_ps[0].PllBypassEn					=	0,
+	.cfg_board_SI_setting_ps[0].training_SequenceCtrl		=	0,
+	.cfg_board_SI_setting_ps[0].ddr_odt_config				=	DDR_DRAM_ODT_W_CS0_ODT0,
+	.cfg_board_SI_setting_ps[0].clk_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[0].cs_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[0].ac_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_p			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_n			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_odt_ohm_p			=	DDR_SOC_DATA_DRV_ODT_60_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_odt_ohm_n			=	DDR_SOC_DATA_DRV_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_drv_ohm			=	DDR_DRAM_DDR4_DRV_34_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_odt_ohm			=	DDR_DRAM_DDR4_ODT_60_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_wr_odt_ohm		=	DDR_DRAM_DDR_WR_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[0].dram_ac_odt_ohm				=	DDR_DRAM_DDR_AC_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_drv_pull_up_calibration_ohm	=	DDR_DRAM_LPDDR4_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[0].lpddr4_dram_vout_voltage_range_setting	=	DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ,
+	.cfg_board_SI_setting_ps[0].reserve2					=	0,
+	.cfg_board_SI_setting_ps[0].vref_ac_permil 				=	0,
+	.cfg_board_SI_setting_ps[0].vref_soc_data_permil 		=	0,
+	.cfg_board_SI_setting_ps[0].vref_dram_data_permil		=	0,
+	.cfg_board_SI_setting_ps[0].max_core_timmming_frequency				=	0,
+	.cfg_board_SI_setting_ps[0].training_phase_parameter				=	{0},
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org = {
+	128,128,128,128,128,128,128,128,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,
+	},//total 36
+
+	#if 1
+	.cfg_ddr_training_delay_ps[0].	ac_trace_delay = {
+	128,128,128,128,128,128,128,128,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,
+	},//total 36
+	#endif
+	//write delay line setting
+	#if 1
+	.cfg_ddr_training_delay_ps[0].	write_dqs_delay = {0+256,0+256,0+256,0+256,0+256,0+256,0+256,0+256} ,
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32} ,
+
+	.cfg_ddr_training_delay_ps[0].	write_dq_bit_delay = {
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,},
+	#endif
+	//.cfg_ddr_training_delay_ps[0].	read_dqs_gate_delay = {256,256,256,256,256,256,256,256} , //total 8
+	.cfg_ddr_training_delay_ps[0].	read_dqs_gate_delay = {192,192,192,192,192,192,192,192} , //total 8 //edge mode
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {64,64,64,64,64,64,64,64} , //total 8
+
+	.cfg_ddr_training_delay_ps[0].	read_dqs_delay = {64,64,64,64,64,64,64,64} , //total 8
+	.cfg_ddr_training_delay_ps[0].	read_dq_bit_delay = {
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0} , //total 72
+	.cfg_ddr_training_delay_ps[0].	soc_bit_vref = {
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40} , //total 44
+	.cfg_ddr_training_delay_ps[0].	dram_bit_vref = {
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32},//total 36
+	.cfg_ddr_training_delay_ps[0].	reserve_training_parameter	=	{0}	,
+	//.cfg_ddr_training_delay_ps[0].reserve_training_parameter={((1<<7)|1),},
+
+	//pinmux setting
+	#if 0  //af409
+	.cfg_board_common_setting.	ac_pinmux	= {
+	0,	0,	0,	1,	2,	3,
+	8,	27,	10,	2,	9,	21,	5,	14,	1,	0,	25,	13,	12,	4,	7,	22,	0,	0,	0,	0,	6,	3,	20,	0,	0,	15,	26,	11,
+	},
+	#endif
+	#if 1  //af419
+	.cfg_board_common_setting.	ac_pinmux	= {
+	0,	0,	0,	1,	2,	3,
+	27,	12,	21,	9,	8,	0,	14,	10,	6,	7,	20,	5,	22,	13,	15,	2,	0,	0,	0,	0,	11,	26,	4,	0,	0,	25,	3,	1,
+	},
+	#endif
+	.cfg_board_common_setting.	ddr_dqs_swap	=	0,
+
+	#if 1
+	.cfg_board_common_setting.	ddr_dq_remap	=	{
+	0,1,2,3,4,5,6,7,
+	8,9,10,11,12,13,14,15,
+	16,17,18,19,20,21,22,23,
+	24,25,26,27,28,29,30,31,
+	32,33,34,35
+	},//d0-d31 dm0 dm1 dm2 dm3
+	#endif
+
+	.cfg_board_common_setting.	timming_magic				=	0x66223333,//ddr_set_t start
+	.cfg_board_common_setting.	timming_max_valid_configs	=	TIMMING_MAX_CONFIG,//sizeof(__ddr_setting)/sizeof(ddr_set_t),
+	.cfg_board_common_setting.	timming_struct_version		=	0,
+	.cfg_board_common_setting.	timming_struct_org_size		=	sizeof(ddr_set_t),
+	.cfg_board_common_setting.	timming_struct_real_size	=	0,	//0
+	.cfg_board_common_setting.	ddr_func					=	0,
+	.cfg_board_common_setting.	DisabledDbyte				=	CONFIG_DISABLE_D32_D63,
+	.cfg_board_common_setting.	dram_cs0_base_add			=	0,
+	.cfg_board_common_setting.	dram_cs1_base_add			=	0,
+
+	.cfg_board_common_setting.	Is2Ttiming					=	CONFIG_USE_DDR_2T_MODE,
+	.cfg_board_common_setting.	log_level					=	LOG_LEVEL_BASIC,
+	.cfg_board_common_setting.	org_tdqs2dq					=	0,
+	.cfg_board_common_setting.	reserve1_test_function		=	{0},
+	.cfg_board_common_setting.	ddr_vddee_setting			=	{0},
+
+	//DDR frequercy 2
+	.cfg_board_SI_setting_ps[1].DRAMFreq					=	600,
+	.cfg_board_SI_setting_ps[1].PllBypassEn					=	0,
+	.cfg_board_SI_setting_ps[1].training_SequenceCtrl		=	0,
+	.cfg_board_SI_setting_ps[1].ddr_odt_config				=	DDR_DRAM_ODT_W_CS0_ODT0,
+	.cfg_board_SI_setting_ps[1].clk_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[1].cs_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[1].ac_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_drv_ohm_p			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_drv_ohm_n			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_odt_ohm_p			=	DDR_SOC_DATA_DRV_ODT_120_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_odt_ohm_n			=	DDR_SOC_DATA_DRV_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_drv_ohm			=	DDR_DRAM_DDR4_DRV_34_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_odt_ohm			=	DDR_DRAM_DDR4_ODT_60_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_wr_odt_ohm		=	DDR_DRAM_DDR_WR_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[1].dram_ac_odt_ohm				=	DDR_DRAM_DDR_AC_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_drv_pull_up_calibration_ohm	=	DDR_DRAM_LPDDR4_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[1].lpddr4_dram_vout_voltage_range_setting	=	DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ,
+	.cfg_board_SI_setting_ps[1].reserve2					=	0,
+	.cfg_board_SI_setting_ps[1].vref_ac_permil 				=	0,
+	.cfg_board_SI_setting_ps[1].vref_soc_data_permil 		=	0,
+	.cfg_board_SI_setting_ps[1].vref_dram_data_permil		=	0,
+	.cfg_board_SI_setting_ps[1].max_core_timmming_frequency				=	0,
+	.cfg_board_SI_setting_ps[1].training_phase_parameter				=	{0},
+	.cfg_board_SI_setting_ps[1].ac_trace_delay_org = {
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	},//total 36
+
+	#if 1
+	.cfg_ddr_training_delay_ps[1]. ac_trace_delay = {
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	},//total 36
+	#endif
+	.cfg_ddr_training_delay_ps[1]. write_dqs_delay = {0,0,0,0,0,0,0,0},
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32},
+	#if 1
+	.cfg_ddr_training_delay_ps[1]. write_dq_bit_delay = {
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,},
+	#endif
+
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {256,256,256,256,256,256,256,256},//total 8
+	.cfg_ddr_training_delay_ps[1]. read_dqs_gate_delay = {192,192,192,192,192,192,192,192},//total 8
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {64,64,64,64,64,64,64,64},//total 8
+	.cfg_ddr_training_delay_ps[1]. read_dqs_delay = {64,64,64,64,64,64,64,64},//total 8
+	.cfg_ddr_training_delay_ps[1]. read_dq_bit_delay = {
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0},//total 72
+	.cfg_ddr_training_delay_ps[1]. soc_bit_vref = {
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40},//total 44
+	.cfg_ddr_training_delay_ps[1]. dram_bit_vref = {
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32},//total 36
+
+	.cfg_ddr_training_delay_ps[1].reserve_training_parameter	=	{0,0,0,0,0,0,0,0x7788},//ddr_set_t end
+},
+#endif //end af419
+
+#if 0//real DDR3
+{
+	//real DDR3
+	.cfg_board_common_setting.	board_id					=	CONFIG_BOARD_ID_MASK,
+	.cfg_board_common_setting.	DramType					=	CONFIG_DDR_TYPE_DDR3,
+	.cfg_board_common_setting.	dram_rank_config			=	CONFIG_DDR0_32BIT_16BIT_RANK0_CH0,
+	.cfg_board_common_setting.	dram_cs0_size_MB			=	CONFIG_DDR0_SIZE_768MB,
+	.cfg_board_common_setting.	dram_cs1_size_MB			=	CONFIG_DDR1_SIZE_0MB,
+	.cfg_board_common_setting.	pll_ssc_mode				=	DDR_PLL_SSC_DISABLE,
+	.cfg_board_common_setting.	ddr_rdbi_wr_enable			=	DDR_WRITE_READ_DBI_DISABLE,
+	.cfg_board_common_setting.	dram_x4x8x16_mode			=	CONFIG_DRAM_MODE_X16,
+	.cfg_board_common_setting.	ddr_dmc_remap				=	DDR_DMC_REMAP_DDR3_32BIT,
+	.cfg_board_common_setting.	fast_boot					=	{0},
+
+	//DDR frequercy 1
+	.cfg_board_SI_setting_ps[0].DRAMFreq					=	667,
+	.cfg_board_SI_setting_ps[0].PllBypassEn					=	0,
+	.cfg_board_SI_setting_ps[0].training_SequenceCtrl		=	0,
+	.cfg_board_SI_setting_ps[0].ddr_odt_config				=	DDR_DRAM_ODT_W_CS0_ODT0,
+	.cfg_board_SI_setting_ps[0].clk_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[0].cs_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[0].ac_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_p			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_n			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_odt_ohm_p			=	DDR_SOC_DATA_DRV_ODT_120_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_odt_ohm_n			=	DDR_SOC_DATA_DRV_ODT_120_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_drv_ohm			=	DDR_DRAM_DDR3_DRV_34_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_odt_ohm			=	DDR_DRAM_DDR3_ODT_60_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_wr_odt_ohm		=	DDR_DRAM_DDR_WR_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[0].dram_ac_odt_ohm				=	DDR_DRAM_DDR_AC_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_drv_pull_up_calibration_ohm	=	DDR_DRAM_LPDDR4_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[0].lpddr4_dram_vout_voltage_range_setting	=	DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ,
+	.cfg_board_SI_setting_ps[0].reserve2					=	0,
+	.cfg_board_SI_setting_ps[0].vref_ac_permil 				=	0,
+	.cfg_board_SI_setting_ps[0].vref_soc_data_permil 		=	0,
+	.cfg_board_SI_setting_ps[0].vref_dram_data_permil		=	0,
+	.cfg_board_SI_setting_ps[0].max_core_timmming_frequency				=	0,
+	.cfg_board_SI_setting_ps[0].training_phase_parameter				=	{0},
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org = {
+	0,0,0,0,0,0,0,0,
+	256,256,256,256,256,256,256,256,
+	256,256,256,256,256,256,256,256,
+	256,256,256,256,256,256,256,256,
+	256,256,256,256,
+	},//total 36
+
+	#if 1
+	.cfg_ddr_training_delay_ps[0].	ac_trace_delay = {
+	0,0,0,0,0,0,0,0,
+	256,256,256,256,256,256,256,256,
+	256,256,256,256,256,256,256,256,
+	256,256,256,256,256,256,256,256,
+	256,256,256,256,
+	},//total 36
+	#endif
+	//write delay line setting
+	#if 1
+	.cfg_ddr_training_delay_ps[0].	write_dqs_delay = {0,0,0,0,0,0,0,0} ,
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32} ,
+
+	.cfg_ddr_training_delay_ps[0].	write_dq_bit_delay = {
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,},
+	#endif
+	//.cfg_ddr_training_delay_ps[0].	read_dqs_gate_delay = {256,256,256,256,256,256,256,256} , //total 8
+	.cfg_ddr_training_delay_ps[0].	read_dqs_gate_delay = {896-128,896-128,896-128,896-128,896-128,896-128,896-128,896-128} , //total 8
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {64,64,64,64,64,64,64,64} , //total 8
+
+	.cfg_ddr_training_delay_ps[0].	read_dqs_delay = {64,64,64,64,64,64,64,64} , //total 8
+	.cfg_ddr_training_delay_ps[0].	read_dq_bit_delay = {
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0} , //total 72
+	.cfg_ddr_training_delay_ps[0].	soc_bit_vref = {
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,42,32,42,32,42,32,42,},//total 44
+	.cfg_ddr_training_delay_ps[0].	dram_bit_vref = {
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32},//total 36
+	.cfg_ddr_training_delay_ps[0].	reserve_training_parameter	=	{0}	,
+	//.cfg_ddr_training_delay_ps[0].reserve_training_parameter={((1<<7)|1),},
+
+	//pinmux setting
+	#if 0  //af409
+	.cfg_board_common_setting.	ac_pinmux	= {
+	0,	0,	0,	1,	2,	3,
+	8,	27,	10,	2,	9,	21,	5,	14,	1,	0,	25,	13,	12,	4,	7,	22,	0,	0,	0,	0,	6,	3,	20,	0,	0,	15,	26,	11,
+	},
+	#endif
+	#if 0  //af419
+	.cfg_board_common_setting.	ac_pinmux	= {
+	0,	0,	0,	1,	2,	3,
+	27,	12,	21,	9,	8,	0,	14,	10,	6,	7,	20,	5,	22,	13,	15,	2,	0,	0,	0,	0,	11,	26,	4,	0,	0,	25,	3,	1,
+	},
+	#endif
+	#if 1  //real DDR3
+	.cfg_board_common_setting.	ac_pinmux	= {
+	0,	0,	0,	1,	2,	3,
+	0,	1,	2,	3,	4,	5,	6,	7,	8,	9,	10,	11,	12,	13,	14,	15,	0,	0,	0,	0,	20,	21,	22,	0,	0,	25,	26,	27,	0
+	},
+	#endif
+	.cfg_board_common_setting.	ddr_dqs_swap	=	0,
+
+	#if 1
+	.cfg_board_common_setting.	ddr_dq_remap	=	{
+	0,1,2,3,4,5,6,7,
+	8,9,10,11,12,13,14,15,
+	16,17,18,19,20,21,22,23,
+	24,25,26,27,28,29,30,31,
+	32,33,34,35
+	},//d0-d31 dm0 dm1 dm2 dm3
+	#endif
+
+	.cfg_board_common_setting.	timming_magic				=	0x66223333,//ddr_set_t start
+	.cfg_board_common_setting.	timming_max_valid_configs	=	TIMMING_MAX_CONFIG,//sizeof(__ddr_setting)/sizeof(ddr_set_t),
+	.cfg_board_common_setting.	timming_struct_version		=	0,
+	.cfg_board_common_setting.	timming_struct_org_size		=	sizeof(ddr_set_t),
+	.cfg_board_common_setting.	timming_struct_real_size	=	0,	//0
+	.cfg_board_common_setting.	ddr_func					=	0,
+	.cfg_board_common_setting.	DisabledDbyte				=	CONFIG_DISABLE_D32_D63,
+	.cfg_board_common_setting.	dram_cs0_base_add			=	0,
+	.cfg_board_common_setting.	dram_cs1_base_add			=	0,
+
+	.cfg_board_common_setting.	Is2Ttiming					=	CONFIG_USE_DDR_2T_MODE,
+	.cfg_board_common_setting.	log_level					=	LOG_LEVEL_BASIC,
+	.cfg_board_common_setting.	org_tdqs2dq					=	0,
+	.cfg_board_common_setting.	reserve1_test_function		=	{0},
+	.cfg_board_common_setting.	ddr_vddee_setting			=	{0},
+
+	//DDR frequercy 2
+	.cfg_board_SI_setting_ps[1].DRAMFreq					=	600,
+	.cfg_board_SI_setting_ps[1].PllBypassEn					=	0,
+	.cfg_board_SI_setting_ps[1].training_SequenceCtrl		=	0,
+	.cfg_board_SI_setting_ps[1].ddr_odt_config				=	DDR_DRAM_ODT_W_CS0_ODT0,
+	.cfg_board_SI_setting_ps[1].clk_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[1].cs_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[1].ac_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_drv_ohm_p			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_drv_ohm_n			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_odt_ohm_p			=	DDR_SOC_DATA_DRV_ODT_120_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_odt_ohm_n			=	DDR_SOC_DATA_DRV_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_drv_ohm			=	DDR_DRAM_DDR4_DRV_34_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_odt_ohm			=	DDR_DRAM_DDR4_ODT_60_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_wr_odt_ohm		=	DDR_DRAM_DDR_WR_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[1].dram_ac_odt_ohm				=	DDR_DRAM_DDR_AC_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_drv_pull_up_calibration_ohm	=	DDR_DRAM_LPDDR4_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[1].lpddr4_dram_vout_voltage_range_setting	=	DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ,
+	.cfg_board_SI_setting_ps[1].reserve2					=	0,
+	.cfg_board_SI_setting_ps[1].vref_ac_permil 				=	0,
+	.cfg_board_SI_setting_ps[1].vref_soc_data_permil 		=	0,
+	.cfg_board_SI_setting_ps[1].vref_dram_data_permil		=	0,
+	.cfg_board_SI_setting_ps[1].max_core_timmming_frequency				=	0,
+	.cfg_board_SI_setting_ps[1].training_phase_parameter				=	{0},
+	.cfg_board_SI_setting_ps[1].ac_trace_delay_org = {
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	},//total 36
+
+	#if 1
+	.cfg_ddr_training_delay_ps[1]. ac_trace_delay = {
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	},//total 36
+	#endif
+	.cfg_ddr_training_delay_ps[1]. write_dqs_delay = {0,0,0,0,0,0,0,0},
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32},
+	#if 1
+	.cfg_ddr_training_delay_ps[1]. write_dq_bit_delay = {
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,},
+	#endif
+
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {256,256,256,256,256,256,256,256},//total 8
+	.cfg_ddr_training_delay_ps[1]. read_dqs_gate_delay = {192,192,192,192,192,192,192,192},//total 8
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {64,64,64,64,64,64,64,64},//total 8
+	.cfg_ddr_training_delay_ps[1]. read_dqs_delay = {64,64,64,64,64,64,64,64},//total 8
+	.cfg_ddr_training_delay_ps[1]. read_dq_bit_delay = {
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0},//total 72
+	.cfg_ddr_training_delay_ps[1]. soc_bit_vref = {
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40},//total 44
+	.cfg_ddr_training_delay_ps[1]. dram_bit_vref = {
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32},//total 36
+
+	.cfg_ddr_training_delay_ps[1].reserve_training_parameter	=	{0,0,0,0,0,0,0,0x7788},//ddr_set_t end
+},
+#endif //end real DDR3
+
+#if 0//af409 LPDDR4
+{
+	//af409
+	.cfg_board_common_setting.	board_id					=	CONFIG_BOARD_ID_MASK,
+	.cfg_board_common_setting.	DramType					=	CONFIG_DDR_TYPE_LPDDR4,
+	.cfg_board_common_setting.	dram_rank_config			=	CONFIG_DDR0_32BIT_RANK0_CH0,
+	.cfg_board_common_setting.	dram_cs0_size_MB			=	CONFIG_DDR0_SIZE_1024MB,
+	.cfg_board_common_setting.	dram_cs1_size_MB			=	CONFIG_DDR1_SIZE_0MB,
+	.cfg_board_common_setting.	pll_ssc_mode				=	DDR_PLL_SSC_DISABLE,
+	.cfg_board_common_setting.	ddr_rdbi_wr_enable			=	DDR_WRITE_READ_DBI_DISABLE,
+	.cfg_board_common_setting.	dram_x4x8x16_mode			=	CONFIG_DRAM_MODE_X16,
+	.cfg_board_common_setting.	ddr_dmc_remap				=	DDR_DMC_REMAP_LPDDR4_32BIT,
+	.cfg_board_common_setting.	fast_boot					=	{0},
+
+	//DDR frequercy 1
+	.cfg_board_SI_setting_ps[0].DRAMFreq					=	667,
+	.cfg_board_SI_setting_ps[0].PllBypassEn					=	0,
+	.cfg_board_SI_setting_ps[0].training_SequenceCtrl		=	0,
+	.cfg_board_SI_setting_ps[0].ddr_odt_config				=	DDR_DRAM_ODT_W_CS0_ODT0,
+	.cfg_board_SI_setting_ps[0].clk_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[0].cs_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[0].ac_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_p			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_n			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_odt_ohm_p			=	DDR_SOC_DATA_DRV_ODT_48_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_odt_ohm_n			=	DDR_SOC_DATA_DRV_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_drv_ohm			=	DDR_DRAM_LPDDR4_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_odt_ohm			=	DDR_DRAM_LPDDR4_ODT_120_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_wr_odt_ohm		=	DDR_DRAM_DDR_WR_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[0].dram_ac_odt_ohm				=	DDR_DRAM_DDR_AC_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_drv_pull_up_calibration_ohm	=	DDR_DRAM_LPDDR4_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[0].lpddr4_dram_vout_voltage_range_setting	=	DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ,
+	.cfg_board_SI_setting_ps[0].reserve2					=	0,
+	.cfg_board_SI_setting_ps[0].vref_ac_permil 				=	0,
+	.cfg_board_SI_setting_ps[0].vref_soc_data_permil 		=	0,
+	.cfg_board_SI_setting_ps[0].vref_dram_data_permil		=	0,
+	.cfg_board_SI_setting_ps[0].max_core_timmming_frequency				=	0,
+	.cfg_board_SI_setting_ps[0].training_phase_parameter				=	{0},
+	#if 0
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org = {
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,
+	},//total 36
+	#endif
+	#if 1
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org = {
+	0,0,0,0,0,0,0,0,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	},//total 36
+	#endif
+
+	#if 0
+	.cfg_ddr_training_delay_ps[0].	ac_trace_delay = {
+	128,128,128,128,128,128,128,128,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,
+	},//total 36
+	#endif
+	#if 1
+	.cfg_ddr_training_delay_ps[0].	ac_trace_delay = {
+	0,0,0,0,0,0,0,0,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	},//total 36
+	#endif
+	//write delay line setting
+	#if 0
+	.cfg_ddr_training_delay_ps[0].	write_dqs_delay = {0+256,0+256,0+256,0+256,0+256,0+256,0+256,0+256} ,
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32} ,
+
+	.cfg_ddr_training_delay_ps[0].	write_dq_bit_delay = {
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,
+	50+256,50+256,50+256,50+256,50+256,50+256,50+256,50+256,},
+	#endif
+	#if 1
+	.cfg_ddr_training_delay_ps[0].	write_dqs_delay = {0,0,0,0,0,0,0,0} ,
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32} ,
+
+	.cfg_ddr_training_delay_ps[0].	write_dq_bit_delay = {
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,},
+	#endif
+	//.cfg_ddr_training_delay_ps[0].	read_dqs_gate_delay = {256,256,256,256,256,256,256,256} , //total 8
+	.cfg_ddr_training_delay_ps[0].	read_dqs_gate_delay = {0,0,0,0,0,0,0,0} , //total 8 //edge mode
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {64,64,64,64,64,64,64,64} , //total 8
+
+	.cfg_ddr_training_delay_ps[0].	read_dqs_delay = {64,64,64,64,64,64,64,64} , //total 8
+	.cfg_ddr_training_delay_ps[0].	read_dq_bit_delay = {
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0} , //total 72
+	.cfg_ddr_training_delay_ps[0].	soc_bit_vref = {
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,40,32,40,32,40,32,40} , //total 44
+	.cfg_ddr_training_delay_ps[0].	dram_bit_vref = {
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32},//total 36
+	.cfg_ddr_training_delay_ps[0].	reserve_training_parameter	=	{0}	,
+	//.cfg_ddr_training_delay_ps[0].reserve_training_parameter={((1<<7)|1),},
+
+	//pinmux setting
+	#if 0  //af409
+	.cfg_board_common_setting.	ac_pinmux	= {
+	0,	0,	0,	1,	2,	3,
+	8,	27,	10,	2,	9,	21,	5,	14,	1,	0,	25,	13,	12,	4,	7,	22,	0,	0,	0,	0,	6,	3,	20,	0,	0,	15,	26,	11,
+	},
+	#endif
+	#if 0  //af419
+	.cfg_board_common_setting.	ac_pinmux	= {
+	0,	0,	0,	1,	2,	3,
+	27,	12,	21,	9,	8,	0,	14,	10,	6,	7,	20,	5,	22,	13,	15,	2,	0,	0,	0,	0,	11,	26,	4,	0,	0,	25,	3,	1,
+	},
+	#endif
+	#if 1  //lpddr4
+	.cfg_board_common_setting.	ac_pinmux	= {
+	0,	0,	0,	1,	0,	1,
+	0,	5,	1,	2,	0,	0,	4,	0,	5,	0,	1,	3,	3,	4,	2,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
+	},
+	#endif
+	.cfg_board_common_setting.	ddr_dqs_swap	=	0,
+
+	#if 1
+	.cfg_board_common_setting.	ddr_dq_remap	=	{
+	8,15,11,13,9,12,14,10,
+	3,0,6,4,5,7,2,1,
+	17,18,23,22,20,21,19,16,
+	28,30,27,25,26,24,29,31,
+	33,32,34,35
+	},//d0-d31 dm0 dm1 dm2 dm3
+	#endif
+
+	.cfg_board_common_setting.	timming_magic				=	0x66223333,//ddr_set_t start
+	.cfg_board_common_setting.	timming_max_valid_configs	=	TIMMING_MAX_CONFIG,//sizeof(__ddr_setting)/sizeof(ddr_set_t),
+	.cfg_board_common_setting.	timming_struct_version		=	0,
+	.cfg_board_common_setting.	timming_struct_org_size		=	sizeof(ddr_set_t),
+	.cfg_board_common_setting.	timming_struct_real_size	=	0,	//0
+	.cfg_board_common_setting.	ddr_func					=	0,
+	.cfg_board_common_setting.	DisabledDbyte				=	CONFIG_DISABLE_D32_D63,
+	.cfg_board_common_setting.	dram_cs0_base_add			=	0,
+	.cfg_board_common_setting.	dram_cs1_base_add			=	0,
+
+	.cfg_board_common_setting.	Is2Ttiming					=	CONFIG_USE_DDR_1T_MODE,
+	.cfg_board_common_setting.	log_level					=	LOG_LEVEL_BASIC,
+	.cfg_board_common_setting.	org_tdqs2dq					=	0,
+	.cfg_board_common_setting.	reserve1_test_function		=	{0},
+	.cfg_board_common_setting.	ddr_vddee_setting			=	{0},
+
+	//DDR frequercy 2
+	.cfg_board_SI_setting_ps[1].DRAMFreq					=	600,
+	.cfg_board_SI_setting_ps[1].PllBypassEn					=	0,
+	.cfg_board_SI_setting_ps[1].training_SequenceCtrl		=	0,
+	.cfg_board_SI_setting_ps[1].ddr_odt_config				=	DDR_DRAM_ODT_W_CS0_ODT0,
+	.cfg_board_SI_setting_ps[1].clk_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[1].cs_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[1].ac_drv_ohm					=	DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_drv_ohm_p			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_drv_ohm_n			=	DDR_SOC_DATA_DRV_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_odt_ohm_p			=	DDR_SOC_DATA_DRV_ODT_120_OHM,
+	.cfg_board_SI_setting_ps[1].soc_data_odt_ohm_n			=	DDR_SOC_DATA_DRV_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_drv_ohm			=	DDR_DRAM_DDR4_DRV_34_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_odt_ohm			=	DDR_DRAM_DDR4_ODT_60_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_wr_odt_ohm		=	DDR_DRAM_DDR_WR_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[1].dram_ac_odt_ohm				=	DDR_DRAM_DDR_AC_ODT_0_OHM,
+	.cfg_board_SI_setting_ps[1].dram_data_drv_pull_up_calibration_ohm	=	DDR_DRAM_LPDDR4_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[1].lpddr4_dram_vout_voltage_range_setting	=	DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ,
+	.cfg_board_SI_setting_ps[1].reserve2					=	0,
+	.cfg_board_SI_setting_ps[1].vref_ac_permil 				=	0,
+	.cfg_board_SI_setting_ps[1].vref_soc_data_permil 		=	0,
+	.cfg_board_SI_setting_ps[1].vref_dram_data_permil		=	0,
+	.cfg_board_SI_setting_ps[1].max_core_timmming_frequency				=	0,
+	.cfg_board_SI_setting_ps[1].training_phase_parameter				=	{0},
+	.cfg_board_SI_setting_ps[1].ac_trace_delay_org = {
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	},//total 36
+
+	#if 1
+	.cfg_ddr_training_delay_ps[1]. ac_trace_delay = {
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	},//total 36
+	#endif
+	.cfg_ddr_training_delay_ps[1]. write_dqs_delay = {0,0,0,0,0,0,0,0},
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32},
+	#if 1
+	.cfg_ddr_training_delay_ps[1]. write_dq_bit_delay = {
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,},
+	#endif
+
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {256,256,256,256,256,256,256,256},//total 8
+	.cfg_ddr_training_delay_ps[1]. read_dqs_gate_delay = {192,192,192,192,192,192,192,192},//total 8
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {64,64,64,64,64,64,64,64},//total 8
+	.cfg_ddr_training_delay_ps[1]. read_dqs_delay = {64,64,64,64,64,64,64,64},//total 8
+	.cfg_ddr_training_delay_ps[1]. read_dq_bit_delay = {
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0},//total 72
+	.cfg_ddr_training_delay_ps[1]. soc_bit_vref = {
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40},//total 44
+	.cfg_ddr_training_delay_ps[1]. dram_bit_vref = {
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32},//total 36
+
+	.cfg_ddr_training_delay_ps[1].reserve_training_parameter	=	{0,0,0,0,0,0,0,0x7788},//ddr_set_t end
+},
+#endif //end af409 LPDDR4
+
+#if 0  //for dd3 pxp
+//ddr_set_t  ddr_set_t_default=
+{
+	.cfg_board_common_setting.	timming_magic	=	0	,
+	.cfg_board_common_setting.	timming_max_valid_configs	=	sizeof(ddr_set_t_default)/sizeof(ddr_set_t)	,
+	.cfg_board_common_setting.	timming_struct_version	=	0	,
+	.cfg_board_common_setting.	timming_struct_org_size	=	sizeof(ddr_set_t)	,
+	.cfg_board_common_setting.	timming_struct_real_size	=	0	,	//0
+	.cfg_board_common_setting.	fast_boot	=	{0}	,
+	.cfg_board_common_setting.	ddr_func	=	0	,
+	.cfg_board_common_setting.	board_id	=	CONFIG_BOARD_ID_MASK	,
+	.cfg_board_common_setting.	DramType	=	CONFIG_DDR_TYPE_DDR3	,
+	.cfg_board_common_setting.	dram_rank_config	=	CONFIG_DDR0_32BIT_16BIT_RANK0_CH0	,
+	.cfg_board_common_setting.	DisabledDbyte	=	CONFIG_DISABLE_D32_D63	,
+	.cfg_board_common_setting.	dram_cs0_base_add	=	0	,
+	.cfg_board_common_setting.	dram_cs1_base_add	=	0	,
+	.cfg_board_common_setting.	dram_cs0_size_MB	=	CONFIG_DDR0_SIZE_768MB	,
+	.cfg_board_common_setting.	dram_cs1_size_MB	=	CONFIG_DDR1_SIZE_0MB	,
+	.cfg_board_common_setting.	dram_x4x8x16_mode	=	CONFIG_DRAM_MODE_X16	,
+	.cfg_board_common_setting.	Is2Ttiming	=	CONFIG_USE_DDR_2T_MODE	,
+	.cfg_board_common_setting.	log_level	=	LOG_LEVEL_BASIC	,
+	.cfg_board_common_setting.	ddr_rdbi_wr_enable	=	DDR_WRITE_READ_DBI_DISABLE	,
+	.cfg_board_common_setting.	pll_ssc_mode	=	DDR_PLL_SSC_DISABLE	,
+	.cfg_board_common_setting.	org_tdqs2dq	=	0	,
+	.cfg_board_common_setting.	reserve1_test_function	=	{0}	,
+	.cfg_board_common_setting.	ddr_dmc_remap	=	DDR_DMC_REMAP_DDR3_32BIT	,
+	#if 0
+	.cfg_board_common_setting.	ac_pinmux	=
+			{
+	0,	0,	0,	1,	2,	3,
+	8,	27,	10,	2,	9,	21,	5,	14,	1,	0,	25,	13,	12,	4,	7,	22,	0,	0,	0,	0,	6,	3,	20,	0,	0,	15,	26,	11,
+		}	,
+
+		//ac_group0-ac_group1
+	#endif
+	#if 1
+	.cfg_board_common_setting.	ac_pinmux	=
+	{
+	0,	0,	0,	1,	2,	3,
+	0,	1,	2,	3,	4,	5,	6,	7,	8,	9,	10,	11,	12,	13,	14,	15,	0,	0,	0,	0,	20,	21,	22,	0,	0,	25,	26,	27,	0
+	}	,
+	#endif
+	.cfg_board_common_setting.	ddr_dqs_swap	=	0	,
+	#if 0
+	.cfg_board_common_setting.	ddr_dq_remap	=	{
+	3,2,0,1,7,6,5,4,
+	14,13,12,15,8,9,11,10,
+	20,21,22,23,16,17,19,18,
+	24,25,28,26,31,30,27,29,
+	32,33,34,35
+	}	,	 //d0-d31 dm0 dm1 dm2 dm3
+	#endif
+	#if 0
+	.cfg_board_common_setting.	ddr_dq_remap	=	{
+	2,3,1,0,6,7,4,5,
+	11,10,9,8,15,14,13,12,
+	16,17,18,19,20,21,22,23,
+	24,25,26,27,28,29,30,31,
+	32,33,34,35
+	}	,	 //d0-d31 dm0 dm1 dm2 dm3
+	#endif
+	#if 0
+	.cfg_board_common_setting.	ddr_dq_remap	=	{
+	3,2,0,1,7,6,5,4,
+	8,9,10,11,12,13,14,15,
+	16,17,18,19,20,21,22,23,
+	24,25,26,27,28,29,30,31,
+	32,33,34,35
+	}	,	 //d0-d31 dm0 dm1 dm2 dm3
+	//1,0,3,2,5,4,7,6,
+	#endif
+	#if 0
+	.cfg_board_common_setting.	ddr_dq_remap	=	{
+	2,7,1,5,3,6,0,4,
+	10,11,15,13,14,9,8,12,
+	24,29,26,31,25,28,27,30,
+	23,18,21,19,22,17,20,16,
+	32,33,34,35
+	}	,	 //d0-d31 dm0 dm1 dm2 dm3
+	#endif
+
+	#if 1
+	.cfg_board_common_setting.	ddr_dq_remap	=	{
+	0,1,2,3,4,5,6,7,
+	8,9,10,11,12,13,14,15,
+	16,17,18,19,20,21,22,23,
+	24,25,26,27,28,29,30,31,
+	32,33,34,35,
+	}	,	 //d0-d31 dm0 dm1 dm2 dm3
+	#endif
+	.cfg_board_common_setting.	ddr_vddee_setting	=	{0}	,
+
+
+	.cfg_board_SI_setting_ps[0].	DRAMFreq	=	667	,
+	.cfg_board_SI_setting_ps[0].	PllBypassEn	=	0	,
+	.cfg_board_SI_setting_ps[0].	training_SequenceCtrl	=	0	,
+	.cfg_board_SI_setting_ps[0].	ddr_odt_config	=	DDR_DRAM_ODT_W_CS0_ODT0	,
+	.cfg_board_SI_setting_ps[0].	clk_drv_ohm	=	DDR_SOC_AC_DRV_40_OHM	,
+	.cfg_board_SI_setting_ps[0].	cs_drv_ohm	=	DDR_SOC_AC_DRV_40_OHM	,
+	.cfg_board_SI_setting_ps[0].	ac_drv_ohm	=	DDR_SOC_AC_DRV_40_OHM	,
+	.cfg_board_SI_setting_ps[0].	soc_data_drv_ohm_p	=	DDR_SOC_DATA_DRV_ODT_40_OHM	,
+	.cfg_board_SI_setting_ps[0].	soc_data_drv_ohm_n	=	DDR_SOC_DATA_DRV_ODT_40_OHM	,
+	.cfg_board_SI_setting_ps[0].	soc_data_odt_ohm_p	=	DDR_SOC_DATA_DRV_ODT_120_OHM	,
+	.cfg_board_SI_setting_ps[0].	soc_data_odt_ohm_n	=	DDR_SOC_DATA_DRV_ODT_120_OHM	,
+	.cfg_board_SI_setting_ps[0].	dram_data_drv_ohm	=	DDR_DRAM_DDR3_DRV_34_OHM	,
+	.cfg_board_SI_setting_ps[0].	dram_data_odt_ohm	=	DDR_DRAM_DDR3_ODT_60_OHM	,
+	.cfg_board_SI_setting_ps[0].	dram_data_wr_odt_ohm	=	DDR_DRAM_DDR_WR_ODT_0_OHM	,
+	.cfg_board_SI_setting_ps[0].	dram_ac_odt_ohm	=	DDR_DRAM_DDR_AC_ODT_0_OHM	,
+	.cfg_board_SI_setting_ps[0].	dram_data_drv_pull_up_calibration_ohm	=	DDR_DRAM_LPDDR4_ODT_40_OHM	,
+	.cfg_board_SI_setting_ps[0].	lpddr4_dram_vout_voltage_range_setting	=	DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ	,
+	.cfg_board_SI_setting_ps[0].	reserve2	=	0	,
+	.cfg_board_SI_setting_ps[0].	vref_ac_permil 	=	0	,
+	.cfg_board_SI_setting_ps[0].	vref_soc_data_permil 	=	0	,
+	.cfg_board_SI_setting_ps[0].	vref_dram_data_permil	=	0	,
+	.cfg_board_SI_setting_ps[0].	max_core_timmming_frequency	=	0	,
+	.cfg_board_SI_setting_ps[0].	training_phase_parameter	=	{0}	,
+	.cfg_board_SI_setting_ps[0]. ac_trace_delay_org = {
+	128,128,128,128,128,128,128,128,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,
+	},//total 36
+	  #if 0
+	.cfg_board_SI_setting_ps[0]. ac_trace_delay_org = {
+	123,124,125,126,127,128,128,128,
+	129,128,127,126,125,124,123,122,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	  } , //total 36
+	  #endif
+
+	#if 1
+	.cfg_ddr_training_delay_ps[0]. ac_trace_delay = {
+	128,128,128,128,128,128,128,128,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,
+	  } , //total 36
+	  #endif
+	  #if 0
+	.cfg_ddr_training_delay_ps[0]. ac_trace_delay = {
+	123,124,0,126,127,0,0,128,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,
+	  } , //total 36
+	  #endif
+	  #if 0
+	  .cfg_ddr_training_delay_ps[0]. write_dqs_delay = {0,0,0,0,0,0,0,0} ,
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32} ,
+
+	.cfg_ddr_training_delay_ps[0]. write_dq_bit_delay = {50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,} ,
+	#endif
+	  #if 0 //real board
+	.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {0,0,0,0,0,0,0,0} ,
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {128,128,128,128,128,128,128,128} ,
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {256,256,256,256,256,256,256,256} ,
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32} ,
+
+	.cfg_ddr_training_delay_ps[0]. write_dq_bit_delay = {64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,} ,
+
+
+	#endif
+
+	  #if 1 //for pxp
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {0,0,0,0,0,0,0,0} ,
+	.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {128,128,128,128,128,128,128,128} ,
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {256,256,256,256,256,256,256,256} ,
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32} ,
+
+	.cfg_ddr_training_delay_ps[0]. write_dq_bit_delay = {64+128,64+128,64+128,64+128,64+128,64+128,64+128,64+128,
+	64+128,64+128,64+128,64+128,64+128,64+128,64+128,64+128,
+	64+128,64+128,64+128,64+128,64+128,64+128,64+128,64+128,
+	64+128,64+128,64+128,64+128,64+128,64+128,64+128,64+128,
+	64+128,64+128,64+128,64+128,64+128,64+128,64+128,64+128,
+	64+128,64+128,64+128,64+128,64+128,64+128,64+128,64+128,
+	64+128,64+128,64+128,64+128,64+128,64+128,64+128,64+128,
+	64+128,64+128,64+128,64+128,64+128,64+128,64+128,64+128,
+	64+128,64+128,64+128,64+128,64+128,64+128,64+128,64+128,} ,
+	.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {128+512,128+512,128+512,128+512,128+512,128+512,128+512,128+512} , //total 8
+
+	#else
+	.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {128,128,128,128,128,128,128,128} ,
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32} ,
+
+	.cfg_ddr_training_delay_ps[0]. write_dq_bit_delay = {64+128,64+128,64+128,64+128,64+128,64+128,64+128,64+128,
+	64+128,64+128,64+128,64+128,64+128,64+128,64+128,64+128,
+	64+128,64+128,64+128,64+128,64+128,64+128,64+128,64+128,
+	64+128,64+128,64+128,64+128,64+128,64+128,64+128,64+128,
+	64+128,64+128,64+128,64+128,64+128,64+128,64+128,64+128,
+	64+128,64+128,64+128,64+128,64+128,64+128,64+128,64+128,
+	64+128,64+128,64+128,64+128,64+128,64+128,64+128,64+128,
+	64+128,64+128,64+128,64+128,64+128,64+128,64+128,64+128,
+	64+128,64+128,64+128,64+128,64+128,64+128,64+128,64+128,} ,
+
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {256,256,256,256,256,256,256,256} , //total 8
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {1094,1094,1094,1094,1094,1094,1094,1094} , //total 8
+	.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {896,896,896,896,896,896,896,896} , //total 8
+	#endif
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {64,64,64,64,64,64,64,64} , //total 8
+	.cfg_ddr_training_delay_ps[0]. read_dqs_delay = {64,64,64,64,64,64,64,64} , //total 8
+	.cfg_ddr_training_delay_ps[0]. read_dq_bit_delay = {0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0} , //total 72
+	.cfg_ddr_training_delay_ps[0]. soc_bit_vref = {42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,
+	42,42,42,42,42,42,42,42,42,42,
+	42,42,42,42,42,58,42,58,42,58,42,58,} , //total 44
+	.cfg_ddr_training_delay_ps[0]. dram_bit_vref = {32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32} , //total 36
+	.cfg_ddr_training_delay_ps[0].	reserve_training_parameter	=	{0}	,
+
+	.cfg_board_SI_setting_ps[1].	DRAMFreq	=	667	,
+	.cfg_board_SI_setting_ps[1].	PllBypassEn	=	0	,
+	.cfg_board_SI_setting_ps[1].	training_SequenceCtrl	=	0	,
+	.cfg_board_SI_setting_ps[1].	ddr_odt_config	=	DDR_DRAM_ODT_W_CS0_ODT0	,
+	.cfg_board_SI_setting_ps[1].	clk_drv_ohm	=	DDR_SOC_AC_DRV_40_OHM	,
+	.cfg_board_SI_setting_ps[1].	cs_drv_ohm	=	DDR_SOC_AC_DRV_40_OHM	,
+	.cfg_board_SI_setting_ps[1].	ac_drv_ohm	=	DDR_SOC_AC_DRV_40_OHM	,
+	.cfg_board_SI_setting_ps[1].	soc_data_drv_ohm_p	=	DDR_SOC_DATA_DRV_ODT_40_OHM	,
+	.cfg_board_SI_setting_ps[1].	soc_data_drv_ohm_n	=	DDR_SOC_DATA_DRV_ODT_40_OHM	,
+	.cfg_board_SI_setting_ps[1].	soc_data_odt_ohm_p	=	DDR_SOC_DATA_DRV_ODT_60_OHM	,
+	.cfg_board_SI_setting_ps[1].	soc_data_odt_ohm_n	=	DDR_SOC_DATA_DRV_ODT_0_OHM	,
+	.cfg_board_SI_setting_ps[1].	dram_data_drv_ohm	=	DDR_DRAM_DDR4_DRV_34_OHM	,
+	.cfg_board_SI_setting_ps[1].	dram_data_odt_ohm	=	DDR_DRAM_DDR4_ODT_60_OHM	,
+	.cfg_board_SI_setting_ps[1].	dram_data_wr_odt_ohm	=	DDR_DRAM_DDR_WR_ODT_0_OHM	,
+	.cfg_board_SI_setting_ps[1].	dram_ac_odt_ohm	=	DDR_DRAM_DDR_AC_ODT_0_OHM	,
+	.cfg_board_SI_setting_ps[1].	dram_data_drv_pull_up_calibration_ohm	=	DDR_DRAM_LPDDR4_ODT_40_OHM	,
+	.cfg_board_SI_setting_ps[1].	lpddr4_dram_vout_voltage_range_setting	=	DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ	,
+	.cfg_board_SI_setting_ps[1].	reserve2	=	0	,
+	.cfg_board_SI_setting_ps[1].	vref_ac_permil 	=	0	,
+	.cfg_board_SI_setting_ps[1].	vref_soc_data_permil 	=	0	,
+	.cfg_board_SI_setting_ps[1].	vref_dram_data_permil	=	0	,
+	.cfg_board_SI_setting_ps[1].	max_core_timmming_frequency	=	0	,
+	.cfg_board_SI_setting_ps[1].	training_phase_parameter	=	{0}	,
+	.cfg_board_SI_setting_ps[1]. ac_trace_delay_org = {
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	  } , //total 36
+	  #if 0
+	.cfg_board_SI_setting_ps[1]. ac_trace_delay_org = {
+	123,124,125,126,127,128,128,128,
+	129,128,127,126,125,124,123,122,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	  } , //total 36
+	  #endif
+
+	#if 1
+	.cfg_ddr_training_delay_ps[1]. ac_trace_delay = {
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	  } , //total 36
+	  #endif
+	  #if 0
+	.cfg_ddr_training_delay_ps[1]. ac_trace_delay = {
+	0,0,0,0,0,0,0,0, //0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,
+	  } , //total 36
+	  #endif
+	.cfg_ddr_training_delay_ps[1]. write_dqs_delay = {0,0,0,0,0,0,0,0} ,
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32} ,
+	#if 1
+	.cfg_ddr_training_delay_ps[1]. write_dq_bit_delay = {50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,} ,
+	#endif
+	#if 0
+	.cfg_ddr_training_delay_ps[1]. write_dq_bit_delay = {10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,} ,
+	#endif
+	#if 0
+	.cfg_ddr_training_delay_ps[1]. write_dq_bit_delay = {64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64} ,
+	//total 72
+	#endif
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {256,256,256,256,256,256,256,256} , //total 8
+	.cfg_ddr_training_delay_ps[1]. read_dqs_gate_delay = {192,192,192,192,192,192,192,192} , //total 8
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {64,64,64,64,64,64,64,64} , //total 8
+	.cfg_ddr_training_delay_ps[1]. read_dqs_delay = {64,64,64,64,64,64,64,64} , //total 8
+	.cfg_ddr_training_delay_ps[1]. read_dq_bit_delay = {0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0} , //total 72
+	.cfg_ddr_training_delay_ps[1]. soc_bit_vref = {40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40} , //total 44
+	.cfg_ddr_training_delay_ps[1]. dram_bit_vref = {32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32} , //total 36
+	.cfg_ddr_training_delay_ps[1].	reserve_training_parameter	=	{0}	,
+},
+#endif //end for dd3 pxp
+
+#if 0  //for ddr4 pxp remap
+//ddr_set_t  ddr_set_t_default=
+{
+	.cfg_board_common_setting.	timming_magic	=	0	,
+	.cfg_board_common_setting.	timming_max_valid_configs	=	sizeof(ddr_set_t_default)/sizeof(ddr_set_t)	,
+	.cfg_board_common_setting.	timming_struct_version	=	0	,
+	.cfg_board_common_setting.	timming_struct_org_size	=	sizeof(ddr_set_t)	,
+	.cfg_board_common_setting.	timming_struct_real_size	=	0	,	//0
+	.cfg_board_common_setting.	fast_boot	=	{0}	,
+	.cfg_board_common_setting.	ddr_func	=	0	,
+	.cfg_board_common_setting.	board_id	=	CONFIG_BOARD_ID_MASK	,
+	.cfg_board_common_setting.	DramType	=	CONFIG_DDR_TYPE_DDR4	,
+	.cfg_board_common_setting.	dram_rank_config	=	CONFIG_DDR0_32BIT_RANK0_CH0	,
+	.cfg_board_common_setting.	DisabledDbyte	=	CONFIG_DISABLE_D32_D63	,
+	.cfg_board_common_setting.	dram_cs0_base_add	=	0	,
+	.cfg_board_common_setting.	dram_cs1_base_add	=	0	,
+	.cfg_board_common_setting.	dram_cs0_size_MB	=	CONFIG_DDR0_SIZE_1024MB	,
+	.cfg_board_common_setting.	dram_cs1_size_MB	=	CONFIG_DDR1_SIZE_0MB	,
+	.cfg_board_common_setting.	dram_x4x8x16_mode	=	CONFIG_DRAM_MODE_X16	,
+	.cfg_board_common_setting.	Is2Ttiming	=	CONFIG_USE_DDR_2T_MODE	,
+	.cfg_board_common_setting.	log_level	=	LOG_LEVEL_BASIC	,
+	.cfg_board_common_setting.	ddr_rdbi_wr_enable	=	DDR_WRITE_READ_DBI_DISABLE	,
+	.cfg_board_common_setting.	pll_ssc_mode	=	DDR_PLL_SSC_DISABLE	,
+	.cfg_board_common_setting.	org_tdqs2dq	=	0	,
+	.cfg_board_common_setting.	reserve1_test_function	=	{0}	,
+	.cfg_board_common_setting.	ddr_dmc_remap	=	DDR_DMC_REMAP_DDR4_32BIT	,
+	#if 1  //af409
+	.cfg_board_common_setting.	ac_pinmux	= {
+	0,	0,	0,	1,	2,	3,
+	8,	27,	10,	2,	9,	21,	5,	14,	1,	0,	25,	13,	12,	4,	7,	22,	0,	0,	0,	0,	6,	3,	20,	0,	0,	15,	26,	11,
+	},
+	#endif
+	#if 0  //af419
+	.cfg_board_common_setting.	ac_pinmux	= {
+	0,	0,	0,	1,	2,	3,
+	27,	12,	21,	9,	8,	0,	14,	10,	6,	7,	20,	5,	22,	13,	15,	2,	0,	0,	0,	0,	11,	26,	4,	0,	0,	25,	3,	1,
+	},
+	#endif
+	#if 0
+	.cfg_board_common_setting.	ac_pinmux	=
+	{
+	0,	0,	0,	1,	2,	3,
+	0,	1,	2,	3,	4,	5,	6,	7,	8,	9,	10,	11,	12,	13,	14,	15,	0,	0,	0,	0,	20,	21,	22,	0,	0,	25,	26,	27,	0
+	}	,
+	#endif
+	.cfg_board_common_setting.	ddr_dqs_swap	=	0	,
+	#if 0
+	.cfg_board_common_setting.	ddr_dq_remap	=	{
+	3,2,0,1,7,6,5,4,
+	14,13,12,15,8,9,11,10,
+	20,21,22,23,16,17,19,18,
+	24,25,28,26,31,30,27,29,
+	32,33,34,35
+	}	,	 //d0-d31 dm0 dm1 dm2 dm3
+	#endif
+	#if 0
+	.cfg_board_common_setting.	ddr_dq_remap	=	{
+	2,3,1,0,6,7,4,5,
+	11,10,9,8,15,14,13,12,
+	16,17,18,19,20,21,22,23,
+	24,25,26,27,28,29,30,31,
+	32,33,34,35
+	}	,	 //d0-d31 dm0 dm1 dm2 dm3
+	#endif
+	#if 0
+	.cfg_board_common_setting.	ddr_dq_remap	=	{
+	3,2,0,1,7,6,5,4,
+	8,9,10,11,12,13,14,15,
+	16,17,18,19,20,21,22,23,
+	24,25,26,27,28,29,30,31,
+	32,33,34,35
+	}	,	 //d0-d31 dm0 dm1 dm2 dm3
+	//1,0,3,2,5,4,7,6,
+	#endif
+	#if 0
+	.cfg_board_common_setting.	ddr_dq_remap	=	{
+	2,7,1,5,3,6,0,4,
+	10,11,15,13,14,9,8,12,
+	24,29,26,31,25,28,27,30,
+	23,18,21,19,22,17,20,16,
+	32,33,34,35
+	}	,	 //d0-d31 dm0 dm1 dm2 dm3
+	#endif
+
+	#if 1
+	.cfg_board_common_setting.	ddr_dq_remap	=	{
+	0,1,2,3,4,5,6,7,
+	8,9,10,11,12,13,14,15,
+	16,17,18,19,20,21,22,23,
+	24,25,26,27,28,29,30,31,
+	32,33,34,35
+	}	,	 //d0-d31 dm0 dm1 dm2 dm3
+	#endif
+	.cfg_board_common_setting.	ddr_vddee_setting	=	{0}	,
+
+
+	.cfg_board_SI_setting_ps[0].	DRAMFreq	=	667	,
+	.cfg_board_SI_setting_ps[0].	PllBypassEn	=	0	,
+	.cfg_board_SI_setting_ps[0].	training_SequenceCtrl	=	0	,
+	.cfg_board_SI_setting_ps[0].	ddr_odt_config	=	DDR_DRAM_ODT_W_CS0_ODT0	,
+	.cfg_board_SI_setting_ps[0].	clk_drv_ohm	=	DDR_SOC_AC_DRV_40_OHM	,
+	.cfg_board_SI_setting_ps[0].	cs_drv_ohm	=	DDR_SOC_AC_DRV_40_OHM	,
+	.cfg_board_SI_setting_ps[0].	ac_drv_ohm	=	DDR_SOC_AC_DRV_40_OHM	,
+	.cfg_board_SI_setting_ps[0].	soc_data_drv_ohm_p	=	DDR_SOC_DATA_DRV_ODT_40_OHM	,
+	.cfg_board_SI_setting_ps[0].	soc_data_drv_ohm_n	=	DDR_SOC_DATA_DRV_ODT_40_OHM	,
+	.cfg_board_SI_setting_ps[0].	soc_data_odt_ohm_p	=	DDR_SOC_DATA_DRV_ODT_0_OHM	,
+	.cfg_board_SI_setting_ps[0].	soc_data_odt_ohm_n	=	DDR_SOC_DATA_DRV_ODT_120_OHM	, //for pxp dram weak driver model
+	.cfg_board_SI_setting_ps[0].	dram_data_drv_ohm	=	DDR_DRAM_DDR4_DRV_34_OHM	,
+	.cfg_board_SI_setting_ps[0].	dram_data_odt_ohm	=	DDR_DRAM_DDR4_ODT_60_OHM	,
+	.cfg_board_SI_setting_ps[0].	dram_data_wr_odt_ohm	=	DDR_DRAM_DDR_WR_ODT_0_OHM	,
+	.cfg_board_SI_setting_ps[0].	dram_ac_odt_ohm	=	DDR_DRAM_DDR_AC_ODT_0_OHM	,
+	.cfg_board_SI_setting_ps[0].	dram_data_drv_pull_up_calibration_ohm	=	DDR_DRAM_LPDDR4_ODT_40_OHM	,
+	.cfg_board_SI_setting_ps[0].	lpddr4_dram_vout_voltage_range_setting	=	DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ	,
+	.cfg_board_SI_setting_ps[0].	reserve2	=	0	,
+	.cfg_board_SI_setting_ps[0].	vref_ac_permil 	=	0	,
+	.cfg_board_SI_setting_ps[0].	vref_soc_data_permil 	=	0	,
+	.cfg_board_SI_setting_ps[0].	vref_dram_data_permil	=	0	,
+	.cfg_board_SI_setting_ps[0].	max_core_timmming_frequency	=	0	,
+	.cfg_board_SI_setting_ps[0].	training_phase_parameter	=	{0}	,
+	.cfg_board_SI_setting_ps[0]. ac_trace_delay_org = {
+	128,128,128,128,128,128,128,128,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,
+	  } , //total 36
+	  #if 0
+	.cfg_board_SI_setting_ps[0]. ac_trace_delay_org = {
+	123,124,125,126,127,128,128,128,
+	129,128,127,126,125,124,123,122,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	  } , //total 36
+	  #endif
+
+	#if 1
+	.cfg_ddr_training_delay_ps[0]. ac_trace_delay = {
+	128,128,128,128,128,128,128,128,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,384,384,384,384,
+	384,384,384,384,
+	  } , //total 36
+	  #endif
+	  #if 0
+	.cfg_ddr_training_delay_ps[0]. ac_trace_delay = {
+	0,0,0,0,0,0,0,0, //0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,
+	  } , //total 36
+	  #endif
+	#if 1
+	.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {128,128,128,128,128,128,128,128} ,
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32} ,
+
+	.cfg_ddr_training_delay_ps[0]. write_dq_bit_delay = {192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,
+	192,192,192,192,192,192,192,192,} ,
+	#endif
+	#if 0
+	.cfg_ddr_training_delay_ps[0]. write_dq_bit_delay = {10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,} ,
+	#endif
+	#if 0
+	.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {0,0,0,0,0,0,0,0} ,
+	.cfg_ddr_training_delay_ps[0]. write_dq_bit_delay = {64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64} ,
+	//total 72
+	#endif
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {256,256,256,256,256,256,256,256} , //total 8
+	.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {0,0,0,0,0,0,0,0} , //total 8 //edge mode
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {64,64,64,64,64,64,64,64} , //total 8
+	.cfg_ddr_training_delay_ps[0]. read_dqs_delay = {64,64,64,64,64,64,64,64} , //total 8
+	.cfg_ddr_training_delay_ps[0]. read_dq_bit_delay = {0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0} , //total 72
+	.cfg_ddr_training_delay_ps[0]. soc_bit_vref = {40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,50,40,50,40,50,40,50} , //total 44
+	.cfg_ddr_training_delay_ps[0]. dram_bit_vref = {32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32} , //total 36
+	.cfg_ddr_training_delay_ps[0].	reserve_training_parameter	=	{0}	,
+	//.cfg_ddr_training_delay_ps[0].reserve_training_parameter={((1<<7)|1),},
+
+	.cfg_board_SI_setting_ps[1].	DRAMFreq	=	667	,
+	.cfg_board_SI_setting_ps[1].	PllBypassEn	=	0	,
+	.cfg_board_SI_setting_ps[1].	training_SequenceCtrl	=	0	,
+	.cfg_board_SI_setting_ps[1].	ddr_odt_config	=	DDR_DRAM_ODT_W_CS0_ODT0	,
+	.cfg_board_SI_setting_ps[1].	clk_drv_ohm	=	DDR_SOC_AC_DRV_40_OHM	,
+	.cfg_board_SI_setting_ps[1].	cs_drv_ohm	=	DDR_SOC_AC_DRV_40_OHM	,
+	.cfg_board_SI_setting_ps[1].	ac_drv_ohm	=	DDR_SOC_AC_DRV_40_OHM	,
+	.cfg_board_SI_setting_ps[1].	soc_data_drv_ohm_p	=	DDR_SOC_DATA_DRV_ODT_40_OHM	,
+	.cfg_board_SI_setting_ps[1].	soc_data_drv_ohm_n	=	DDR_SOC_DATA_DRV_ODT_40_OHM	,
+	.cfg_board_SI_setting_ps[1].	soc_data_odt_ohm_p	=	DDR_SOC_DATA_DRV_ODT_60_OHM	,
+	.cfg_board_SI_setting_ps[1].	soc_data_odt_ohm_n	=	DDR_SOC_DATA_DRV_ODT_0_OHM	,
+	.cfg_board_SI_setting_ps[1].	dram_data_drv_ohm	=	DDR_DRAM_DDR4_DRV_34_OHM	,
+	.cfg_board_SI_setting_ps[1].	dram_data_odt_ohm	=	DDR_DRAM_DDR4_ODT_60_OHM	,
+	.cfg_board_SI_setting_ps[1].	dram_data_wr_odt_ohm	=	DDR_DRAM_DDR_WR_ODT_0_OHM	,
+	.cfg_board_SI_setting_ps[1].	dram_ac_odt_ohm	=	DDR_DRAM_DDR_AC_ODT_0_OHM	,
+	.cfg_board_SI_setting_ps[1].	dram_data_drv_pull_up_calibration_ohm	=	DDR_DRAM_LPDDR4_ODT_40_OHM	,
+	.cfg_board_SI_setting_ps[1].	lpddr4_dram_vout_voltage_range_setting	=	DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ	,
+	.cfg_board_SI_setting_ps[1].	reserve2	=	0	,
+	.cfg_board_SI_setting_ps[1].	vref_ac_permil 	=	0	,
+	.cfg_board_SI_setting_ps[1].	vref_soc_data_permil 	=	0	,
+	.cfg_board_SI_setting_ps[1].	vref_dram_data_permil	=	0	,
+	.cfg_board_SI_setting_ps[1].	max_core_timmming_frequency	=	0	,
+	.cfg_board_SI_setting_ps[1].	training_phase_parameter	=	{0}	,
+	.cfg_board_SI_setting_ps[1]. ac_trace_delay_org = {
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	  } , //total 36
+	  #if 0
+	.cfg_board_SI_setting_ps[1]. ac_trace_delay_org = {
+	123,124,125,126,127,128,128,128,
+	129,128,127,126,125,124,123,122,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	  } , //total 36
+	  #endif
+
+	#if 1
+	.cfg_ddr_training_delay_ps[1]. ac_trace_delay = {
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,128,
+	128,128,128,128,
+	  } , //total 36
+	  #endif
+	  #if 0
+	.cfg_ddr_training_delay_ps[1]. ac_trace_delay = {
+	0,0,0,0,0,0,0,0, //0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,
+	  } , //total 36
+	  #endif
+	.cfg_ddr_training_delay_ps[1]. write_dqs_delay = {0,0,0,0,0,0,0,0} ,
+	//.cfg_ddr_training_delay_ps[0]. write_dqs_delay = {32,32,32,32,32,32,32,32} ,
+	#if 1
+	.cfg_ddr_training_delay_ps[1]. write_dq_bit_delay = {50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,
+	50,50,50,50,50,50,50,50,} ,
+	#endif
+	#if 0
+	.cfg_ddr_training_delay_ps[1]. write_dq_bit_delay = {10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,
+	10,10,10,10,10,10,10,10,} ,
+	#endif
+	#if 0
+	.cfg_ddr_training_delay_ps[1]. write_dq_bit_delay = {64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64,
+	64,64,64,64,64,64,64,64} ,
+	//total 72
+	#endif
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {256,256,256,256,256,256,256,256} , //total 8
+	.cfg_ddr_training_delay_ps[1]. read_dqs_gate_delay = {192,192,192,192,192,192,192,192} , //total 8
+	//.cfg_ddr_training_delay_ps[0]. read_dqs_gate_delay = {64,64,64,64,64,64,64,64} , //total 8
+	.cfg_ddr_training_delay_ps[1]. read_dqs_delay = {64,64,64,64,64,64,64,64} , //total 8
+	.cfg_ddr_training_delay_ps[1]. read_dq_bit_delay = {0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0} , //total 72
+	.cfg_ddr_training_delay_ps[1]. soc_bit_vref = {40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40,
+	40,40,40,40,40,40,40,40,40,40,40} , //total 44
+	.cfg_ddr_training_delay_ps[1]. dram_bit_vref = {32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32,32,32,32,32,32,32,32,32,
+	32,32,32} , //total 36
+	.cfg_ddr_training_delay_ps[1].	reserve_training_parameter	=	{0}	,
+},
+#endif //end for ddr4 pxp remap
 };
+//ddr timing end
 
 pll_set_t __pll_setting = {
 	.cpu_clk				= CPU_CLK / 24 * 24,
@@ -246,6 +1927,7 @@ pll_set_t __pll_setting = {
 #else
 							  (0<<6),    /* print log buffer before run bl31 */
 #endif
+.ddr_timming_save_mode 		= 1,
 };
 
 ddr_reg_t __ddr_reg[] = {
