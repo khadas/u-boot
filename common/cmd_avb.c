@@ -37,6 +37,7 @@ Description:
 
 #define AVB_USE_TESTKEY
 #define MAX_DTB_SIZE (AML_DTB_IMG_MAX_SZ + 512)
+#define DTB_PARTITION_SIZE 258048
 #define AVB_NUM_SLOT (4)
 #define MAX_AVBKEY_LEN (8 + 1024)
 
@@ -169,7 +170,7 @@ static AvbIOResult get_size_of_partition(AvbOps* ops, const char* partition,
     int rc = 0;
 
 	if (!memcmp(partition, "dtb", strlen("dtb"))) {
-		*out_size_num_bytes = MAX_DTB_SIZE;
+		*out_size_num_bytes = DTB_PARTITION_SIZE;
     } else {
         rc = store_get_partititon_size((unsigned char *)partition, out_size_num_bytes);
         if (rc) {
