@@ -215,7 +215,6 @@ static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
     unsigned int nFlashLoadLen = 0;
     unsigned secureKernelImgSz = 0;
     const int preloadSz = 4096;
-
     if (2 < argc) {
         loadaddr = (unsigned char*)simple_strtoul(argv[2], NULL, 16);
     }
@@ -262,19 +261,20 @@ static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
         return __LINE__;
     }
     unsigned long rdOffAlign = lflashReadOff;
-    unsigned char* dtImgAddr = (unsigned char*)loadaddr + rdOffAlign;
+    unsigned char* dtImgAddr = (unsigned char*)loadaddr + lflashReadOff;
 #ifdef CONFIG_AML_MTD
     if (NAND_BOOT_FLAG == device_boot_flag) {
         const nand_info_t * mtdPartInf = get_mtd_device_nm(partName);
-        if (IS_ERR(mtdPartInf)) {
+	    if (IS_ERR(mtdPartInf)) {
             errorP("device(%s) is err\n", partName);
             return CMD_RET_FAILURE;
         }
         const unsigned pageShift = mtdPartInf->writesize_shift;
         const unsigned writesz   = mtdPartInf->writesize;
         MsgP("MTD pageShift %d, writesz 0x%x\n", pageShift, writesz);
-        rdOffAlign = (lflashReadOff >> pageShift) << pageShift;//align page for mtd nand
+        rdOffAlign = (lflashReadOff >> pageShift) << pageShift;//align 4k page for mtd nand, 512 for emmc
         nFlashLoadLen += writesz;
+        dtImgAddr = (unsigned char*)loadaddr + rdOffAlign;
     }
 #endif//#ifdef CONFIG_AML_MTD
     nReturn = store_read_ops((unsigned char*)partName, dtImgAddr, rdOffAlign, nFlashLoadLen);
@@ -282,15 +282,17 @@ static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
         errorP("Fail to read 0x%xB from part[%s] at offset 0x%x\n", nFlashLoadLen, partName, (unsigned int)lflashReadOff);
         return __LINE__;
     }
-    dtImgAddr += lflashReadOff - rdOffAlign;
 
-    if (secureKernelImgSz) {
-        //because secure boot will use DMA which need disable MMU temp
-        //here must update the cache, otherwise nand will fail (eMMC is OK)
+#ifdef CONFIG_AML_MTD
+    if (NAND_BOOT_FLAG == device_boot_flag) {
         flush_cache((unsigned long)dtImgAddr,(unsigned long)nFlashLoadLen);
+    }
+#endif
 
+    dtImgAddr = (unsigned char*)loadaddr + lflashReadOff;
+    if (secureKernelImgSz) {
 #ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
-        nReturn = aml_sec_boot_check(AML_D_P_IMG_DECRYPT,(unsigned long)loadaddr,GXB_IMG_SIZE,GXB_IMG_DEC_DTB);
+        nReturn = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, (unsigned long)loadaddr, GXB_IMG_SIZE, GXB_IMG_DEC_DTB); //GXB_IMG_DEC_DTB GXB_IMG_DEC_ALL
         if (nReturn) {
             errorP("\n[dtb]aml log : Sig Check is %d\n",nReturn);
             return __LINE__;
@@ -299,7 +301,7 @@ static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
         MsgP("Enc dtb sz 0x%x\n", nFlashLoadLen);
     }
 
-    char* dtDestAddr = (char*)loadaddr;//simple_strtoull(getenv("dtb_mem_addr"), NULL, 0);
+    char* dtDestAddr = (char*)loadaddr;  //simple_strtoull(getenv("dtb_mem_addr"), NULL, 0);
     unsigned long fdtAddr = (unsigned long)dtImgAddr;
 #ifdef CONFIG_MULTI_DTB
     extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
