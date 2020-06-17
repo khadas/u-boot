@@ -43,6 +43,8 @@
 /* config for khadas kbi */
 #define CONFIG_KHADAS_KBI 1
 
+#define CONFIG_CMDLINE_EDITING 1
+#define CONFIG_AUTO_COMPLETE 1
 
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	 850		// voltage for suspend
 
