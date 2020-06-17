@@ -738,6 +738,8 @@ static int do_unpackimg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
     loadaddr = (unsigned char*)simple_strtoul(argc > 1 ? argv[1] : getenv("loadaddr_misc"), NULL, 16);
 
     pResImgHead = (AmlResImgHead_t*)loadaddr;
+    const int totalSz = pResImgHead->imgSz;
+    unsigned char* unCompressBuf = loadaddr + totalSz;
 
     if (img_res_check_log_header(pResImgHead)) {
         errorP("Logo header err.\n");
@@ -755,12 +757,24 @@ static int do_unpackimg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
         char env_data[IH_NMLEN*2];
         unsigned long picLoadAddr = (unsigned long)loadaddr + (unsigned)pItem->start;
 
+        int itemSz = pItem->size;
+        unsigned long uncompSz = 0;
+        if ((long)unCompressBuf & 0x7U)
+            unCompressBuf = (unsigned char*)((unsigned long)(unCompressBuf + 8) & 0x7U);
+        imgread_uncomp_pic((unsigned char*)picLoadAddr, pItem->size,
+                unCompressBuf, CONFIG_MAX_PIC_LEN, &uncompSz);
+        if (uncompSz) {
+            picLoadAddr = (unsigned long)unCompressBuf;
+            itemSz      = uncompSz;
+            unCompressBuf += uncompSz;
+        }
+
         sprintf(env_name, "%s_offset", pItem->name);//be bootup_offset ,not bootup_720_offset
         sprintf(env_data, "0x%lx", picLoadAddr);
         setenv(env_name, env_data);
 
         sprintf(env_name, "%s_size", pItem->name);
-        sprintf(env_data, "0x%x", pItem->size);
+        sprintf(env_data, "0x%x", itemSz);
         setenv(env_name, env_data);
     }
 
