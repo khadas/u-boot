@@ -338,13 +338,6 @@
 				status = "disabled";
 			};
 
-			watchdog@0f0d0 {
-				compatible = "amlogic,meson-a1-wdt";
-				reg = <0x0 0x0f0d0 0x0 0x10>;
-				clocks = <&xtal>;
-				clock-names = "wdt-clk";
-			};
-
 			jtag {
 				compatible = "amlogic, jtag";
 				status = "okay";
@@ -462,6 +455,13 @@
 			#address-cells = <2>;
 			#size-cells = <2>;
 			ranges = <0x0 0x0 0x0 0xfe000000 0x0 0x1000000>;
+
+			watchdog@2100 {
+				compatible = "amlogic,meson-sc2-wdt";
+				reg = <0x0 0x2100 0x0 0x10>;
+				clocks = <&xtal>;
+				clock-names = "wdt-clk";
+			};
 
 			sd_emmc_a: sdio {
 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
