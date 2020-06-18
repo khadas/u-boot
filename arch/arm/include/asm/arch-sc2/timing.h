@@ -30,6 +30,7 @@
 #include <asm/arch/mnPmuSramMsgBlock_lpddr3.h>
 #include <asm/arch/mnPmuSramMsgBlock_lpddr4.h>
 #include <asm/arch/mnPmuSramMsgBlock_lpddr4_2d.h>
+#include <asm/arch/dev_parameter.h>
 
 #define BL2_INIT_STAGE_0			0
 #define BL2_INIT_STAGE_1			1

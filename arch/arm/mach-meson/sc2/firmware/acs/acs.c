@@ -47,8 +47,13 @@ acs_set_t __acs_set={
 
 					.sto_magic		= "store",
 					.sto_set_version= 1,
-					.sto_set_length	= 0,
-					.sto_set_addr	= 0,
+					.sto_set_length	= sizeof(__store_para),
+					.sto_set_addr	= (unsigned long)(&__store_para),
+
+					.opt_reg_magic	= "ops__",
+					.opt_reg_version= 1,
+					.opt_reg_length	= sizeof(__bl2_ops_reg),
+					.opt_reg_addr	= (unsigned long)(&__bl2_ops_reg),
 
 					.bl2_regs_magic	= "bl2r_",
 					.bl2_regs_version = 1,

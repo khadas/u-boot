@@ -45,10 +45,17 @@ typedef struct acs_setting{
 		unsigned short		pll_set_length;
 		unsigned long		pll_set_addr;
 
+		/* for all the storage parameter */
 		char				sto_magic[5];
 		unsigned char		sto_set_version;
 		unsigned short		sto_set_length;
 		unsigned long		sto_set_addr;
+
+		/* for gpio/pinmux/pwm config */
+		char				opt_reg_magic[5];
+		unsigned char		opt_reg_version;
+		unsigned short		opt_reg_length;
+		unsigned long		opt_reg_addr;
 
 		char				bl2_regs_magic[5];
 		unsigned char		bl2_regs_version;
