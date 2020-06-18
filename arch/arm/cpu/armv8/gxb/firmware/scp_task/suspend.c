@@ -107,7 +107,8 @@ void enter_suspend(unsigned int suspend_from)
 #endif
 	p_pwr_op->power_off_at_clk81();
 	p_pwr_op->power_off_at_24M();
-
+        if (p_pwr_op->power_off_at_mcu)
+            p_pwr_op->power_off_at_mcu(suspend_from);
 	switch_to_32k();
 	gxbb_com_gate_off();
 	p_pwr_op->power_off_at_32k();
