@@ -98,7 +98,7 @@ int dram_init(void)
 void secondary_boot_func(void)
 {
 }
-#ifdef  ETHERNET_INTERNAL_PHY
+
 void internalPhyConfig(struct phy_device *phydev)
 {
 }
@@ -178,9 +178,6 @@ static void setup_net_chip(void)
 	/* power on memory */
 	clrbits_le32(HHI_MEM_PD_REG0, (1 << 3) | (1<<2));
 }
-#endif
-
-#ifdef ETHERNET_EXTERNAL_PHY
 
 static int dwmac_meson_cfg_drive_strength(void)
 {
@@ -218,7 +215,7 @@ static void setup_net_chip_ext(void)
 	/* power on memory */
 	clrbits_le32(HHI_MEM_PD_REG0, (1 << 3) | (1<<2));
 }
-#endif
+
 extern struct eth_board_socket* eth_board_setup(char *name);
 extern int designware_initialize(ulong base_addr, u32 interface);
 
@@ -228,13 +225,19 @@ int board_eth_init(bd_t *bis)
 	return 0;
 #endif
 
-#ifdef ETHERNET_EXTERNAL_PHY
-	dwmac_meson_cfg_drive_strength();
-	setup_net_chip_ext();
-#endif
-#ifdef ETHERNET_INTERNAL_PHY
-	setup_net_chip();
-#endif
+	run_command("kbi ext_ethernet r", 1);
+	char *s = getenv("ext_ethernet");
+	if (s != NULL) {
+		if (strcmp(s, "0") == 0) {
+			dwmac_meson_cfg_drive_strength();
+			setup_net_chip_ext();
+		} else {
+			setup_net_chip();
+		}
+	} else {
+		dwmac_meson_cfg_drive_strength();
+		setup_net_chip_ext();
+	}
 	udelay(1000);
 	designware_initialize(ETH_BASE, PHY_INTERFACE_MODE_RMII);
 	return 0;
