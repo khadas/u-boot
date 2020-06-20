@@ -57,6 +57,12 @@
 /* support ext4*/
 #define CONFIG_CMD_EXT4 1
 
+#define CONFIG_CMD_EXT2 1
+#define CONFIG_CMD_PART 1
+#define CONFIG_CMD_UNZIP    1
+#define CONFIG_LZMA         1
+
+
 /* Bootloader Control Block function
    That is used for recovery and the bootloader to talk to each other
   */
