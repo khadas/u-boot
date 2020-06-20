@@ -42,6 +42,7 @@
 #define CONFIG_VDDEE_INIT_VOLTAGE	1000		// voltage for power up
 /* config for khadas kbi */
 #define CONFIG_KHADAS_KBI 1
+#define CONFIG_KHADAS_CFGLOAD 1
 
 #define CONFIG_CMDLINE_EDITING 1
 #define CONFIG_AUTO_COMPLETE 1
@@ -180,6 +181,7 @@
             "fi;fi;fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
+            "cfgload;"\
             "get_system_as_root_mode;"\
             "echo system_mode: ${system_mode};"\
             "if test ${system_mode} = 1; then "\
