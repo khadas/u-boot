@@ -304,6 +304,10 @@ config TM2_T962X3_T312_V1
 	bool "Support amlogic tm2 t962x3 t312 v1 board"
 	default n
 
+config TM2_V901D_T501_V1
+	bool "Support amlogic tm2 v901d t501 v1 board"
+	default n
+
 config PXP_EMULATOR
 	bool "Support pxp environment"
 	default n
@@ -620,6 +624,9 @@ if TM2_T962X3_T312_V1
 source "board/amlogic/tm2_t962x3_t312_v1/Kconfig"
 endif
 
+if TM2_V901D_T501_V1
+source "board/amlogic/tm2_v901d_t501_v1/Kconfig"
+endif
 if ODROID_C2
 source "board/hardkernel/odroidc2/Kconfig"
 endif
