@@ -1416,6 +1416,7 @@ int r1p1_trim_entry(int tempbase, int tempver)
 void r1p1_temp_cooling(void)
 {
 	int family_id, temp, temp1, temp2;
+	unsigned int  sensornum;
 
 	family_id = get_cpu_id().family_id;
 	switch (family_id) {
@@ -1437,12 +1438,16 @@ void r1p1_temp_cooling(void)
 			break;
 		case MESON_CPU_MAJOR_ID_TL1:
 		case MESON_CPU_MAJOR_ID_TM2:
+			sensornum = readl(AO_SEC_GP_CFG10);
+			sensornum = ((sensornum >> 24) & 0xf) >> 2;
 			while (1) {
 				temp1 = r1p1_temp_read(1);
 				temp2 = r1p1_temp_read(2);
 				temp = temp1 > temp2 ? temp1 : temp2;
-				temp1 = r1p1_temp_read(3);
-				temp = temp > temp1 ? temp : temp1;
+				if (sensornum == 0x3) {
+					temp1 = r1p1_temp_read(3);
+					temp = temp > temp1 ? temp : temp1;
+				}
 				if (temp <= CONFIG_HIGH_TEMP_COOL) {
 					printf("device cool done\n");
 					break;
