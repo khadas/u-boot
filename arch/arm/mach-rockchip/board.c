@@ -470,22 +470,6 @@ void arch_preboot_os(uint32_t bootm_state)
 		hotkey_run(HK_CLI_OS_PRE);
 }
 
-void board_quiesce_devices(void *images)
-{
-	hotkey_run(HK_CMDLINE);
-	hotkey_run(HK_CLI_OS_GO);
-
-#ifdef CONFIG_ROCKCHIP_PRELOADER_ATAGS
-	/* Destroy atags makes next warm boot safer */
-	atags_destroy();
-#endif
-
-#ifdef CONFIG_FIT_ROLLBACK_PROTECT
-	/* TODO */
-	printf("fit: rollback protect not implement\n");
-#endif
-}
-
 void enable_caches(void)
 {
 	icache_enable();
@@ -858,3 +842,19 @@ void board_fit_image_post_process(void **p_image, size_t *p_size)
 #endif
 }
 #endif
+
+void board_quiesce_devices(void *images)
+{
+	hotkey_run(HK_CMDLINE);
+	hotkey_run(HK_CLI_OS_GO);
+
+#ifdef CONFIG_ROCKCHIP_PRELOADER_ATAGS
+	/* Destroy atags makes next warm boot safer */
+	atags_destroy();
+#endif
+
+#ifdef CONFIG_FIT_ROLLBACK_PROTECT
+	/* TODO */
+	printf("fit: rollback protect not implement\n");
+#endif
+}
