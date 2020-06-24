@@ -542,6 +542,9 @@ static void set_ext_ethernet(int mode)
 		printf("the mode is invalid, you can set 0 and 1");
 		return;
 	}
+	if (mode == 1)
+		set_wol(false, 0);
+
 	sprintf(cmd, "i2c mw %x %x %d 1",CHIP_ADDR, REG_EXT_ETHERNET, mode);
 	printf("set %s ethernet\n", mode==0 ? "internal" : "m2x");
 	run_command(cmd, 0);
