@@ -768,13 +768,6 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 		goto exit_error;
 	}
 
-	plat->nand_flash_dev = kzalloc(sizeof(struct aml_nand_flash_dev), GFP_KERNEL);
-	if (plat->nand_flash_dev == NULL) {
-		printk("no memory for plat->nand_flash_dev\n");
-		err = -ENOMEM;
-		goto exit_error;
-	}
-
 	/* initialize mtd info data struct */
 	aml_chip->controller = controller;
 	aml_chip->platform = plat;
@@ -825,8 +818,6 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 exit_error:
 	if (aml_chip)
 		kfree(aml_chip);
-	if (plat->nand_flash_dev)
-		kfree(plat->nand_flash_dev);
 	mtd->name = NULL;
 	return err;
 }

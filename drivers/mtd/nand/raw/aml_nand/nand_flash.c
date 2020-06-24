@@ -1094,10 +1094,8 @@ static struct aml_nand_flash_dev *aml_nand_get_flash_type(struct mtd_info *mtd,
 	}
 	aml_nand_check_fbb_issue(dev_id);
 
-	/**fixme**/
-	if (plat->nand_flash_dev) {
-		plat->nand_flash_dev = type;
-	}
+	plat->nand_flash_dev = type;
+
 #ifdef CONFIG_MTD_DEVICE
 		mtd->name = type->name;
 #else
