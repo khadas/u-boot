@@ -48,10 +48,7 @@ static inline void _aml_rsv_protect(void)
 }
 static inline int _aml_rsv_isprotect(void)
 {
-	if ((info_disprotect & DISPROTECT_KEY) &&
-		(info_disprotect & DISPROTECT_FBBT))
-		return 0;
-	return 1;
+	return rsv_protect;
 }
 
 //#define CONFIG_DBG_BITMAP	1
@@ -142,8 +139,9 @@ int aml_nand_rsv_erase_protect(struct mtd_info *mtd, unsigned int block_addr)
 		}
 	if (aml_chip->aml_nandbbt_info != NULL) {
 		if (aml_chip->aml_nandbbt_info->valid)
-	if ((block_addr >= aml_chip->aml_nandbbt_info->start_block)
-		&&(block_addr < aml_chip->aml_nandbbt_info->end_block))
+	if ((!(info_disprotect & DISPROTECT_FBBT))
+		&& ((block_addr >= aml_chip->aml_nandbbt_info->start_block)
+		&&(block_addr < aml_chip->aml_nandbbt_info->end_block)))
 			return -1; /*need skip bbt blocks*/
 		}
 	return 0;
