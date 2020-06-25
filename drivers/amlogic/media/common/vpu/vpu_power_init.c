@@ -21,9 +21,6 @@
 
 #include <config.h>
 #include <linux/kernel.h>
-#ifdef CONFIG_SECURE_POWER_CONTROL
-#include <asm/arch/pwr_ctrl.h>
-#endif
 #include <amlogic/media/vpu/vpu.h>
 #include "vpu_reg.h"
 #include "vpu.h"
@@ -224,7 +221,8 @@ void vpu_power_off(void)
 void vpu_power_on_new(void)
 {
 #ifdef CONFIG_SECURE_POWER_CONTROL
-	pwr_ctrl_psci_smc(PM_VPU_HDMI, 1);
+	if (vpu_conf.data->pwrctrl_id < VPU_PWR_ID_INVALID)
+		pwr_ctrl_psci_smc(vpu_conf.data->pwrctrl_id, 1);
 	VPUPR("%s\n", __func__);
 #else
 	VPUERR("%s: no CONFIG_SECURE_POWER_CONTROL\n", __func__);
@@ -235,7 +233,8 @@ void vpu_power_off_new(void)
 {
 #ifdef CONFIG_SECURE_POWER_CONTROL
 	VPUPR("%s\n", __func__);
-	pwr_ctrl_psci_smc(PM_VPU_HDMI, 0);
+	if (vpu_conf.data->pwrctrl_id < VPU_PWR_ID_INVALID)
+		pwr_ctrl_psci_smc(vpu_conf.data->pwrctrl_id, 0);
 #else
 	VPUERR("%s: no CONFIG_SECURE_POWER_CONTROL\n", __func__);
 #endif

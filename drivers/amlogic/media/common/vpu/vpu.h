@@ -21,6 +21,9 @@
 
 #ifndef __VPU_PARA_H__
 #define __VPU_PARA_H__
+#ifdef CONFIG_SECURE_POWER_CONTROL
+#include <asm/arch/pwr_ctrl.h>
+#endif
 
 /* #define VPU_DEBUG_PRINT */
 #define VPUPR(fmt, args...)     printf("vpu: "fmt"", ## args)
@@ -38,6 +41,10 @@ enum vpu_chip_e {
 
 #define VPU_PWR_ON             1
 #define VPU_PWR_OFF            0
+#define VPU_PWR_ID_INVALID     0xffff
+#ifndef PM_VPU_HDMI
+#define PM_VPU_HDMI            5
+#endif
 
 #define VPU_REG_END            0xffff
 #define VPU_MEM_PD_CNT_MAX     10
@@ -79,6 +86,8 @@ struct vpu_data_s {
 	unsigned int vpu_clk_reg;
 	unsigned int vapb_clk_reg;
 	unsigned int vid_clk_reg;
+
+	unsigned int pwrctrl_id;
 
 	struct fclk_div_s *fclk_div_table;
 	struct vpu_clk_s  *vpu_clk_table;

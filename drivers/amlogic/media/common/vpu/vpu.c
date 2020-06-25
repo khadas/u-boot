@@ -52,6 +52,8 @@ static struct vpu_data_s vpu_data_g12a = {
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
+	.pwrctrl_id = VPU_PWR_ID_INVALID,
+
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
 
@@ -77,6 +79,8 @@ static struct vpu_data_s vpu_data_g12b = {
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
+
+	.pwrctrl_id = VPU_PWR_ID_INVALID,
 
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
@@ -104,6 +108,8 @@ static struct vpu_data_s vpu_data_tl1 = {
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
+	.pwrctrl_id = VPU_PWR_ID_INVALID,
+
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
 
@@ -129,6 +135,8 @@ static struct vpu_data_s vpu_data_tl1 = {
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
+
+	.pwrctrl_id = VPU_PWR_ID_INVALID,
 
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
@@ -157,6 +165,8 @@ static struct vpu_data_s vpu_data_tm2 = {
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
+	.pwrctrl_id = VPU_PWR_ID_INVALID,
+
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
 
@@ -182,6 +192,8 @@ static struct vpu_data_s vpu_data_sc2 = {
 	.vpu_clk_reg = CLKCTRL_VPU_CLK_CTRL,
 	.vapb_clk_reg = CLKCTRL_VAPBCLK_CTRL,
 	.vid_clk_reg = CLKCTRL_VID_CLK_CTRL2,
+
+	.pwrctrl_id = PM_VPU_HDMI,
 
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
