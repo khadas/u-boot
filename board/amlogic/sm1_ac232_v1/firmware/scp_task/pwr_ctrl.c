@@ -123,6 +123,11 @@ extern void __switch_idle_task(void);
 static unsigned int detect_key(unsigned int suspend_from)
 {
 	int exit_reason = 0;
+#ifdef CONFIG_BT_RCU_WAKEUP
+	int cnt = 0;
+	int flag_p = 0;
+	int flag_n = 0;
+#endif
 	unsigned *irq = (unsigned *)WAKEUP_SRC_IRQ_ADDR_BASE;
 	init_remote();
 #ifdef CONFIG_CEC_WAKEUP
@@ -159,8 +164,40 @@ static unsigned int detect_key(unsigned int suspend_from)
 			irq[IRQ_GPIO1] = 0xFFFFFFFF;
 			if (!(readl(PREG_PAD_GPIO2_I) & (0x01 << 18))
 					&& (readl(PREG_PAD_GPIO2_O) & (0x01 << 17))
-					&& !(readl(PREG_PAD_GPIO2_EN_N) & (0x01 << 17)))
+					&& !(readl(PREG_PAD_GPIO2_EN_N) & (0x01 << 17))) {
+			#ifdef CONFIG_BT_RCU_WAKEUP
+				_udelay(200*1000);
+				do {
+					_udelay(20*1000);
+					if (readl(PREG_PAD_GPIO2_I) & (0x01 << 18))
+						flag_p++;
+					else if(!(readl(PREG_PAD_GPIO2_I) & (0x01 << 18)))
+						flag_n++;
+					cnt++;
+				} while (cnt < 10);
+
+				uart_puts("wakeup flag_p= 0x");
+				uart_put_hex(flag_p,16);
+				uart_puts("\n");
+
+				uart_puts("wakeup flag_n= 0x");
+				uart_put_hex(flag_n,16);
+				uart_puts("\n");
+
+				if (flag_p >= 7) {
+					uart_puts("power key");
+					uart_puts("\n");
+					exit_reason = BT_WAKEUP;
+				}
+				else if (flag_n >= 7) {
+					uart_puts("netflix key");
+					uart_puts("\n");
+					exit_reason = REMOTE_CUS_WAKEUP;
+				}
+			#else
 				exit_reason = BT_WAKEUP;
+			#endif
+			}
 		}
 
 		if (irq[IRQ_ETH_PTM] == IRQ_ETH_PMT_NUM) {

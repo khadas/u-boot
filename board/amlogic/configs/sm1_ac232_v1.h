@@ -44,7 +44,8 @@
 #define CONFIG_BT_WAKEUP
 /* SMP Definitinos */
 #define CPU_RELEASE_ADDR		secondary_boot_func
-
+/*if use uart rcu,open it*/
+#define CONFIG_BT_RCU_WAKEUP
 /* config saradc*/
 #define CONFIG_CMD_SARADC 1
 
