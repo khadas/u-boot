@@ -267,7 +267,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.	fast_boot					=	{0},
 
 	//DDR frequercy 1
-	.cfg_board_SI_setting_ps[0].DRAMFreq					=	667,
+	.cfg_board_SI_setting_ps[0].DRAMFreq					=	1176,//667
 	.cfg_board_SI_setting_ps[0].PllBypassEn					=	0,
 	.cfg_board_SI_setting_ps[0].training_SequenceCtrl		=	0,
 	.cfg_board_SI_setting_ps[0].ddr_odt_config				=	DDR_DRAM_ODT_W_CS0_ODT0,
@@ -309,7 +309,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	#endif
 	#if 1
 	.cfg_ddr_training_delay_ps[0].	ac_trace_delay = {
-	0,0,0,0,0,0,0,0,
+	128,128,128,128,128,128,128,128,
 	256,256,256,256,256,256,256,256,
 	256,256,256,256,256,256,256,256,
 	256,256,256,256,256,256,256,256,
@@ -516,7 +516,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.	fast_boot					=	{0},
 
 	//DDR frequercy 1
-	.cfg_board_SI_setting_ps[0].DRAMFreq					=	667,
+	.cfg_board_SI_setting_ps[0].DRAMFreq					=	1176,//667,
 	.cfg_board_SI_setting_ps[0].PllBypassEn					=	0,
 	.cfg_board_SI_setting_ps[0].training_SequenceCtrl		=	0,
 	.cfg_board_SI_setting_ps[0].ddr_odt_config				=	DDR_DRAM_ODT_W_CS0_ODT0,
@@ -774,7 +774,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 
 	#if 1
 	.cfg_ddr_training_delay_ps[0].	ac_trace_delay = {
-	0,0,0,0,0,0,0,0,
+	128,128,128,128,128,128,128,128,
 	256,256,256,256,256,256,256,256,
 	256,256,256,256,256,256,256,256,
 	256,256,256,256,256,256,256,256,
