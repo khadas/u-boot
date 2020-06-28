@@ -59,6 +59,7 @@ typedef struct  ddr_base_address_table ddr_base_address_table_t;
 #define MESON_CPU_MAJOR_ID_TL1		0x2E
 #define MESON_CPU_MAJOR_ID_TM2		0x2F
 #define MESON_CPU_MAJOR_ID_C1		0x30
+#define MESON_CPU_MAJOR_ID_C2		0x33
 
 #define MESON_CPU_VERSION_LVL_MAJOR	0
 #define MESON_CPU_VERSION_LVL_MINOR	1
@@ -209,6 +210,22 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.soc_family_name="C1",
 	.chip_id=MESON_CPU_MAJOR_ID_C1,
 	.preg_sticky_reg0=0xfffff400,//use sram  A1,((0x00b0  << 2) + 0xfe005800),//SYSCTRL_STICKY_REG0
+	.ddr_phy_base_address=0xfd000000,
+	.ddr_pctl_timing_base_address=((0x0000  << 2) + 0xfe024400),
+	.ddr_pctl_timing_end_address=((0x00bb  << 2) + 0xfe024400),
+	.ddr_dmc_sticky0=((0x0000  << 2) + 0xfe024800),
+	.ddr_pll_base_address=((0x0000  << 2) + 0xfe024c00),
+	.ddr_dmc_apd_address=((0x008c  << 2) + 0xfe024400),
+	.ddr_dmc_asr_address=((0x008d  << 2) + 0xfe024400),
+	.sys_watchdog_base_address=0,//((0x0040  << 2) + 0xfe000000),
+	.sys_watchdog_enable_value=0x03c401ff,
+	.ddr_boot_reason_address=((0x00e1  << 2) + 0xfe005800),//SYSCTRL_SEC_STICKY_REG1
+	},
+	//c2
+	{
+	.soc_family_name="C2",
+	.chip_id=MESON_CPU_MAJOR_ID_C2,
+	.preg_sticky_reg0=((0x0000  << 2) + 0xfe024800),//use sram  A1,((0x00b0  << 2) + 0xfe005800),//SYSCTRL_STICKY_REG0
 	.ddr_phy_base_address=0xfd000000,
 	.ddr_pctl_timing_base_address=((0x0000  << 2) + 0xfe024400),
 	.ddr_pctl_timing_end_address=((0x00bb  << 2) + 0xfe024400),
@@ -9974,11 +9991,19 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		printf("P_PREG_STICKY_REG5 [0x%08x]\n", rd_reg(PREG_STICKY_REG5));
 		printf("P_PREG_STICKY_REG6 [0x%08x]\n", rd_reg(PREG_STICKY_REG6));
 		*/
-	printf("reboot...\n"); //reset will enter bl2 panic path
+	//printf("reset...\n"); //reset will enter bl2 panic path
 	dcache_disable();
-	if ((p_ddr_base->sys_watchdog_base_address) == 0)
-	run_command("reboot",0);
-	ddr_test_watchdog_reset_system();
+	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_A1) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C1) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2))
+	{
+		printf("reset...\n");
+		run_command("reset",0);
+	}
+	else
+	{//G12A/G12B/SM1/TL1/TM2
+		printf("reboot...\n"); //reset will enter bl2 panic path,so change to "reboot"
+		run_command("reboot",0);
+		ddr_test_watchdog_reset_system();
+	}
 
 	return 0;
 
