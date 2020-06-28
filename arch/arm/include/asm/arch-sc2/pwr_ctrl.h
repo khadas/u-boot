@@ -7,16 +7,16 @@
 #define PWR_OFF   0
 
 enum pm_e {
-	PM_DSP = 7,
+	PM_DSP = 0,
 	PM_DOS_HCODEC,
 	PM_DOS_HEVC,
 	PM_DOS_VDEC,
 	PM_DOS_WAVE,
 	PM_VPU_HDMI,
-	PM_USB_COMB = 14,
+	PM_USB_COMB,
 	PM_PCIE,
 	PM_GE2D,
-	PM_ETH = 23
+	PM_ETH
 };
 
 unsigned long pwr_ctrl_psci_smc(enum pm_e power_domain, bool power_control);
