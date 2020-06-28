@@ -297,11 +297,21 @@ config SC2_SKT
 	help
 	  Select SC2 SKT(XXXX) config
 
+config SC2_AH219
+	bool "SC2_AH219"
+	select TARGET_SC2_AH219
+	help
+	  Select SC2 AH219 config
+
 endchoice
 
 config TARGET_SC2_SKT
 	bool "SC2 SKT board"
 	depends on SC2_SKT
+
+config TARGET_SC2_AH219
+	bool "SC2 AH219 board"
+	depends on SC2_AH219
 
 endif
 
@@ -401,6 +411,8 @@ source "board/amlogic/c1_ae402/Kconfig"
 source "board/amlogic/c1_ae409/Kconfig"
 
 source "board/amlogic/sc2_skt/Kconfig"
+
+source "board/amlogic/sc2_ah219/Kconfig"
 
 source "board/amlogic/c2_skt/Kconfig"
 
