@@ -105,13 +105,13 @@ void board_init_mem(void) {
 int board_init(void)
 {
 	printf("board init\n");
-	#if 0
 	//Please keep try usb boot first in board_init, as other init before usb may cause burning failure
 #if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 	if ((0x1b8ec003 != readl(SYSCTRL_SEC_STICKY_REG2)) && (0x1b8ec004 != readl(SYSCTRL_SEC_STICKY_REG2)))
 	{ aml_v3_factory_usb_burning(0, gd->bd); }
 #endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 
+	#if 0
 	active_clk();
 	#endif
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
@@ -135,6 +135,7 @@ int board_late_init(void)
 		run_command("if fdt addr ${dtb_mem_addr}; then else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
 	}
 #endif//#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
+	#endif
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
 	aml_try_factory_sdcard_burning(0, gd->bd);
@@ -145,7 +146,6 @@ int board_late_init(void)
 	{ aml_v3_factory_usb_burning(0, gd->bd); }
 #endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 
-	#endif
 
 #ifdef CONFIG_AML_VPU
 	vpu_probe();

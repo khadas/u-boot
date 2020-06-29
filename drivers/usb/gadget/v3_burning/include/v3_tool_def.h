@@ -222,7 +222,7 @@ void v3tool_media_set_busy(const char* info);
 void v3tool_media_set_free(const char* info);
 int v3tool_media_is_busy(void);
 
-#ifndef P_AO_SEC_SD_CFG0
+#ifdef SYSCTRL_SEC_STATUS_REG4
 //#define P_AO_SEC_SD_CFG9 	SYSCTRL_SEC_STATUS_REG1
 #define P_AO_SEC_GP_CFG0 	SYSCTRL_SEC_STATUS_REG4
 #define P_PREG_STICKY_REG2	SYSCTRL_SEC_STICKY_REG2
