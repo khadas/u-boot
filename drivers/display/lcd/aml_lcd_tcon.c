@@ -592,6 +592,9 @@ static int lcd_tcon_demura_lut_tl1(void)
 	if (lcd_tcon_getb_byte(0x23d, 0, 1) == 0)
 		return 0;
 
+	/*disable demura when load lut data*/
+	lcd_tcon_setb_byte(0x23d, 0, 0, 1);
+
 	lcd_tcon_setb_byte(0x181, 1, 0, 1);
 	lcd_tcon_write_byte(0x182, 0x01);
 	lcd_tcon_write_byte(0x183, 0x86);
@@ -608,6 +611,9 @@ static int lcd_tcon_demura_lut_tl1(void)
 	lcd_tcon_write_byte(0x187, 0);
 	for (i = 0; i < data_cnt; i++)
 		lcd_tcon_write_byte(0x187, data_buf[i]);
+
+	/*enable demura when load lut data finished*/
+	lcd_tcon_setb_byte(0x23d, 1, 0, 1);
 
 	LCDPR("tcon demura_lut cnt %d\n", data_cnt);
 	LCDPR("tcon 0x23d = 0x%02x\n", lcd_tcon_read_byte(0x23d));
