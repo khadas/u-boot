@@ -37,11 +37,11 @@
 #endif
 
 /* for uboot envrionment use */
-#define CONFIG_DDR_SIZE					256
+#define CONFIG_DDR_SIZE					2048
 
 /* dram */
 #define PHYS_SDRAM_1_BASE					0x00000000UL
-#define PHYS_SDRAM_1_SIZE					0x10000000UL
+#define PHYS_SDRAM_1_SIZE					0x80000000UL
 #define CONFIG_SYS_SDRAM_BASE				PHYS_SDRAM_1_BASE
 
 #define CONFIG_SYS_LOAD_ADDR		(PHYS_SDRAM_1_BASE + CONFIG_SYS_TEXT_BASE)

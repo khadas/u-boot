@@ -159,9 +159,12 @@ phys_size_t get_effective_memsize(void)
 {
 	// >>16 -> MB, <<20 -> real size, so >>16<<20 = <<4
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
-	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4) - CONFIG_SYS_MEM_TOP_HIDE;
+	//return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4) - CONFIG_SYS_MEM_TOP_HIDE;
+	return (PHYS_SDRAM_1_SIZE - CONFIG_SYS_MEM_TOP_HIDE);
 #else
-	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4);
+	//return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4);
+	// FIXME: to find the right register
+	return PHYS_SDRAM_1_SIZE;
 #endif /* CONFIG_SYS_MEM_TOP_HIDE */
 
 }
