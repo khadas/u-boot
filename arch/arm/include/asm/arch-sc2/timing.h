@@ -410,12 +410,36 @@ typedef struct pll_set{
 	unsigned	char	log_ctrl;
 	unsigned	char	ddr_timming_save_mode;
 	unsigned	int		nCFGTAddr;
-	/* align 8Byte */
-
-	unsigned	int		sys_pll_cntl[8];
-	unsigned	int		ddr_pll_cntl[8];
-	unsigned	int		fix_pll_cntl[8];
 }__attribute__ ((packed)) pll_set_t;
+
+typedef struct pll_ctrl{
+	/*Enable flag: 0xa1:need set pll in bl2
+	               0xa2:need set pll in bl2x
+	               other: no need
+	*/
+	unsigned	char		flag;
+	/* Delay time for timing sequence in 10us, range [0 .. 255]*/
+	unsigned	char		delay_10u;
+	/* PLL clock
+	 * syspll	[93 .. 6000]
+	 * fixpll	[93 .. 6000]
+	 * gp0pll	[93 .. 6000]
+	 * gp1pll	[93 .. 6000]
+	 * hifipll	[375 .. 6000]
+	 */
+	unsigned	short	clkset;
+	unsigned	int		pll_para[8];
+	unsigned	int		reserve;
+} __attribute__ ((packed)) pll_ctrl_t;
+
+typedef struct chip_pll_set{
+	/*new struct for sc2*/
+	pll_ctrl_t	sys_pll_ctrl;
+	pll_ctrl_t	fix_pll_ctrl;
+	pll_ctrl_t	gp0_pll_ctrl;
+	pll_ctrl_t	gp1_pll_ctrl;
+	pll_ctrl_t	hifi_pll_ctrl;
+}__attribute__ ((packed)) chip_pll_set_t;
 
 typedef struct dmem_cfg {
 	PMU_SMB_DDR3U_1D_t ddr3u;
