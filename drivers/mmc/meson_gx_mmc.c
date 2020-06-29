@@ -17,7 +17,6 @@
 #include <dm/pinctrl.h>
 #include "mmc_private.h"
 #include <asm/arch/register.h>
-#include <amlogic/cpu_id.h>
 
 static inline void *get_regbase(const struct mmc *mmc)
 {
@@ -109,7 +108,6 @@ static void meson_mmc_config_clock(struct meson_host *host)
 	uint32_t clk = 0, clk_src = 0, clk_div = 0;
 	uint32_t co_phase = 0, tx_phase = 0;
 	uint32_t meson_mmc_clk = 0;
-	cpu_id_t cpu_id = get_cpu_id();
 
 	if (!mmc->clock)
 		return;
@@ -117,19 +115,18 @@ static void meson_mmc_config_clock(struct meson_host *host)
 	if (mmc->clock > 12000000) {
 		clk = 1000000000;
 		clk_src = 1;
-		if (cpu_id.family_id != 0x32) {
-			clk_disable(&host->xtal);
-			clk_set_parent(&host->mux, &host->div2);
-			clk_set_rate(&host->div, clk);
-		}
+		clk_disable(&host->xtal);
+		clk_set_parent(&host->mux, &host->div2);
+		clk_set_rate(&host->div, clk);
 	} else {
 		clk = 24000000;
 		clk_src = 0;
-		if (cpu_id.family_id != 0x32)
-			clk_enable(&host->xtal);
+		clk_enable(&host->xtal);
 	}
-	if (cpu_id.family_id == 0x32)
-		clk_div = (clk / mmc->clock) + (!!(clk % mmc->clock));
+	clk_div = (clk / mmc->clock) + (!!(clk % mmc->clock));
+
+	//printf("sd_emmc_clk_ctrl:0x%x\n", readl(((0x0038<<2) + 0xfe000800)));
+	//printf("sd_emmc_clk_ctrl1:0x%x\n", readl(((0x0048<<2) + 0xfe000800)));
 
 	clk_div = clk / mmc->clock;
 	if (clk % mmc->clock)
@@ -938,7 +935,6 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 	fdt_addr_t addr;
 	int ret = 0;
 	int val = 0;
-	cpu_id_t cpu_id = get_cpu_id();
 
 	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
@@ -969,36 +965,16 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 			return ret;
 	}
 
-	if (cpu_id.family_id == 0x32) {
-		#ifndef CLKCTRL_SD_EMMC_CLK_CTRL
-		#define CLKCTRL_SD_EMMC_CLK_CTRL ((0x005b  << 2) + 0xfe000000)
-		#endif
-		if (aml_card_type_non_sdio(host)) {
-			//	clksrc
-			val = readl(CLKCTRL_SD_EMMC_CLK_CTRL);
-			val &= ~(0xfff000);
-			val |= 0x800000;
-			writel(val, CLKCTRL_SD_EMMC_CLK_CTRL);
-		}
-		if (aml_card_type_mmc(host)) {
-			//	clksrc
-			val = readl(CLKCTRL_SD_EMMC_CLK_CTRL);
-			val &= ~(0xfff);
-			val |= 0x80;
-			writel(val, CLKCTRL_SD_EMMC_CLK_CTRL);
-		}
-	} else {
-		uclass_get_device_by_name(UCLASS_CLK, "amlogic,g12a-clkc", &clk_udevice);
+	uclass_get_device_by_name(UCLASS_CLK, "amlogic,g12a-clkc", &clk_udevice);
 
-		clk_get_by_name(dev, "clkin", &host->div2);
-		clk_get_by_name(dev, "xtal", &host->xtal);
-		clk_get_by_name(dev, "mux", &host->mux);
-		clk_get_by_name(dev, "div", &host->div);
-		clk_get_by_name(dev, "gate", &host->gate);
+	clk_get_by_name(dev, "clkin", &host->div2);
+	clk_get_by_name(dev, "xtal", &host->xtal);
+	clk_get_by_name(dev, "mux", &host->mux);
+	clk_get_by_name(dev, "div", &host->div);
+	clk_get_by_name(dev, "gate", &host->gate);
 
-		//clk_enable(&host->core);
-		clk_enable(&host->gate);
-	}
+	//clk_enable(&host->core);
+	clk_enable(&host->gate);
 
 	return 0;
 }
