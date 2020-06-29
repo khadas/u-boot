@@ -312,24 +312,6 @@
              "fi;" \
              "setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
              "\0" \
-        "uboot_update_check=" \
-             "get_rebootmode;" \
-             "print reboot_mode;" \
-             "if test ${reboot_mode} = uboot_updated; then "\
-                 "echo u-boot updated, pass to kernel...;" \
-                 "saveenv;" \
-             "else "\
-                 "if test -e mmc 1:5 /usr/lib/u-boot/.UBOOT-NEED-UPDATE; then " \
-                     "echo New u-boot found!Try to upgrade u-boot...;" \
-                     "if load mmc 1:5 1080000 /usr/lib/u-boot/u-boot.bin; then " \
-                         "store rom_write 1080000 0 $filesize;" \
-                         "store erase partition env;"\
-                         "echo u-boot upgrade done, reboot...;" \
-                         "reboot uboot_updated;" \
-                     "fi;"\
-                 "fi;"\
-             "fi;"\
-             "\0" \
         "updateu="\
              "tftp 1080000 u-boot.bin;"\
              "mmc dev 1;"\
@@ -343,7 +325,6 @@
             "run combine_key;" \
             "run upgrade_key;" \
             "run vim2_check;" \
-            "run uboot_update_check;" \
             "run wol_init;"\
             "forceupdate;" \
             "run switch_bootmode;"
