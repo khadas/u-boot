@@ -1,121 +1,204 @@
-/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
+/* SPDX-ed:   drivers/clk/meson/clk_meson_sc2.c
+License-Identifier: (GPL-2.0+ OR MIT) */
 /*
  * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
-#ifndef __C1_H
-#define __C1_H
+#ifndef __SC2_H
+#define __SC2_H
 
-/*
- * Clock controller register address
- * APB_BASE:  APB0_BASE_ADDR = 0xfe000800
- */
-#define C1_SYS_OSCIN_CTRL                  0x0
-#define C1_RTC_BY_OSCIN_CTRL0              0x4
-#define C1_RTC_BY_OSCIN_CTRL1              0x8
-#define C1_RTC_CTRL                        0xc
-#define C1_SYS_CLK_CTRL0                   0x10
-#define C1_AXI_CLK_CTRL0                   0x14
-#define C1_SYS_CLK_EN0                     0x18
-#define C1_SYS_CLK_EN1                     0x1c
-#define C1_SYS_CLK_EN2                     0x20
-#define C1_AXI_CLK_EN                      0x24
-#define C1_DSPA_CLK_EN                     0x28
-#define C1_DSPB_CLK_EN                     0x2c
-#define C1_DSPA_CLK_CTRL0                  0x30
-#define C1_DSPB_CLK_CTRL0                  0x34
-#define C1_CLK12_24_CTRL                   0x38
-#define C1_GEN_CLK_CTRL                    0x3c
-#define C1_TIMESTAMP_CTRL0                 0x40
-#define C1_TIMESTAMP_CTRL1                 0x44
-#define C1_TIMESTAMP_CTRL2                 0x48
-#define C1_TIMESTAMP_VAL0                  0x4c
-#define C1_TIMESTAMP_VAL1                  0x50
-#define	C1_TIMEBASE_CTRL0                  0x54
-#define C1_TIMEBASE_CTRL1                  0x58
-#define C1_SAR_ADC_CLK_CTRL                0xc0
-#define C1_PWM_CLK_AB_CTRL                 0xc4
-#define C1_PWM_CLK_CD_CTRL                 0xc8
-#define C1_PWM_CLK_EF_CTRL                 0xcc
-#define C1_SPICC_CLK_CTRL                  0xd0
-#define C1_TS_CLK_CTRL                     0xd4
-#define C1_SPIFC_CLK_CTRL                  0xd8
-#define C1_USB_BUSCLK_CTRL                 0xdc
-#define C1_SD_EMMC_CLK_CTRL                0xe0
-#define C1_CECA_CLK_CTRL0                  0xe4
-#define C1_CECA_CLK_CTRL1                  0xe8
-#define C1_CECB_CLK_CTRL0                  0xec
-#define C1_CECB_CLK_CTRL1                  0xf0
-#define C1_PSRAM_CLK_CTRL                  0xf4
-#define C1_DMC_CLK_CTRL                    0xf8
-#define C1_FCLK_DIV1_SEL			0xfc
-#define C1_TST_CTRL			0x100
-#define C1_WAVE_CLK_CTRL0			0x104
-#define C1_WAVE_CLK_CTRL1			0x108
-#define C1_JPEG_CLK_CTRL			0x10C
-#define C1_MIPI_ISP_CLK_CTRL		0x110
-#define C1_NNA_CLK_CTRL		        0x114
-#define C1_GDC_CLK_CTRL		        0x118
-#define C1_GE2D_CLK_CTRL		        0x11C
-#define C1_SD_EMMC_CLK_CTRL1               0x120
-#define C1_ETH_CLK_CTRL                    0x124
-#define C1_PWM_CLK_GH_CTRL                 0x128
-#define C1_PWM_CLK_IJ_CTRL                 0x12C
-#define C1_MBIST_ATSPEED_CTRL              0x130
+// REG_BASE:  REGISTER_BASE_ADDR = 0xfe000000
+// -----------------------------------------------
+#define SC2_CLKCTRL_OSCIN_CTRL                         (0x0001  << 2)
+#define SC2_CLKCTRL_RTC_BY_OSCIN_CTRL0                 (0x0002  << 2)
+#define SC2_CLKCTRL_RTC_BY_OSCIN_CTRL1                 (0x0003  << 2)
+#define SC2_CLKCTRL_RTC_CTRL                           (0x0004  << 2)
+#define SC2_CLKCTRL_CHECK_CLK_RESULT                   (0x0005  << 2)
+#define SC2_CLKCTRL_MBIST_ATSPEED_CTRL                 (0x0006  << 2)
+#define SC2_CLKCTRL_LOCK_BIT_REG0                      (0x0008  << 2)
+#define SC2_CLKCTRL_LOCK_BIT_REG1                      (0x0009  << 2)
+#define SC2_CLKCTRL_LOCK_BIT_REG2                      (0x000a  << 2)
+#define SC2_CLKCTRL_LOCK_BIT_REG3                      (0x000b  << 2)
+#define SC2_CLKCTRL_PROT_BIT_REG0                      (0x000c  << 2)
+#define SC2_CLKCTRL_PROT_BIT_REG1                      (0x000d  << 2)
+#define SC2_CLKCTRL_PROT_BIT_REG2                      (0x000e  << 2)
+#define SC2_CLKCTRL_PROT_BIT_REG3                      (0x000f  << 2)
+#define SC2_CLKCTRL_SYS_CLK_CTRL0                      (0x0010  << 2)
+#define SC2_CLKCTRL_SYS_CLK_EN0_REG0                   (0x0011  << 2)
+#define SC2_CLKCTRL_SYS_CLK_EN0_REG1                   (0x0012  << 2)
+#define SC2_CLKCTRL_SYS_CLK_EN0_REG2                   (0x0013  << 2)
+#define SC2_CLKCTRL_SYS_CLK_EN0_REG3                   (0x0014  << 2)
+#define SC2_CLKCTRL_SYS_CLK_EN1_REG0                   (0x0015  << 2)
+#define SC2_CLKCTRL_SYS_CLK_EN1_REG1                   (0x0016  << 2)
+#define SC2_CLKCTRL_SYS_CLK_EN1_REG2                   (0x0017  << 2)
+#define SC2_CLKCTRL_SYS_CLK_EN1_REG3                   (0x0018  << 2)
+#define SC2_CLKCTRL_SYS_CLK_VPU_EN0                    (0x0019  << 2)
+#define SC2_CLKCTRL_SYS_CLK_VPU_EN1                    (0x001a  << 2)
+#define SC2_CLKCTRL_AXI_CLK_CTRL0                      (0x001b  << 2)
+#define SC2_CLKCTRL_TST_CTRL0                          (0x0020  << 2)
+#define SC2_CLKCTRL_TST_CTRL1                          (0x0021  << 2)
+#define SC2_CLKCTRL_CECA_CTRL0                         (0x0022  << 2)
+#define SC2_CLKCTRL_CECA_CTRL1                         (0x0023  << 2)
+#define SC2_CLKCTRL_CECB_CTRL0                         (0x0024  << 2)
+#define SC2_CLKCTRL_CECB_CTRL1                         (0x0025  << 2)
+#define SC2_CLKCTRL_SC_CLK_CTRL                        (0x0026  << 2)
+#define SC2_CLKCTRL_DSPA_CLK_CTRL0                     (0x0027  << 2)
+#define SC2_CLKCTRL_DSPB_CLK_CTRL0                     (0x0028  << 2)
+#define SC2_CLKCTRL_RAMA_CLK_CTRL0                     (0x0029  << 2)
+#define SC2_CLKCTRL_CLK12_24_CTRL                      (0x002a  << 2)
+#define SC2_CLKCTRL_VID_CLK_CTRL                       (0x0030  << 2)
+#define SC2_CLKCTRL_VID_CLK_CTRL2                      (0x0031  << 2)
+#define SC2_CLKCTRL_VID_CLK_DIV                        (0x0032  << 2)
+#define SC2_CLKCTRL_VIID_CLK_DIV                       (0x0033  << 2)
+#define SC2_CLKCTRL_VIID_CLK_CTRL                      (0x0034  << 2)
+#define SC2_CLKCTRL_HDMI_CLK_CTRL                      (0x0038  << 2)
+#define SC2_CLKCTRL_VID_PLL_CLK_DIV                    (0x0039  << 2)
+#define SC2_CLKCTRL_VPU_CLK_CTRL                       (0x003a  << 2)
+#define SC2_CLKCTRL_VPU_CLKB_CTRL                      (0x003b  << 2)
+#define SC2_CLKCTRL_VPU_CLKC_CTRL                      (0x003c  << 2)
+#define SC2_CLKCTRL_VID_LOCK_CLK_CTRL                  (0x003d  << 2)
+#define SC2_CLKCTRL_VDIN_MEAS_CLK_CTRL                 (0x003e  << 2)
+#define SC2_CLKCTRL_VAPBCLK_CTRL                       (0x003f  << 2)
+#define SC2_CLKCTRL_HDCP22_CLK_CTRL                    (0x0040  << 2)
+#define SC2_CLKCTRL_MIPIDSI_PHY_CLK_CTRL               (0x0041  << 2)
+#define SC2_CLKCTRL_CDAC_CLK_CTRL                      (0x0042  << 2)
+#define SC2_CLKCTRL_MIPI_CSI_PHY_CLK_CTRL              (0x0043  << 2)
+#define SC2_CLKCTRL_CSI2_ADAPT_CLK_CTRL                (0x0044  << 2)
+#define SC2_CLKCTRL_VDEC_CLK_CTRL                      (0x0050  << 2)
+#define SC2_CLKCTRL_VDEC2_CLK_CTRL                     (0x0051  << 2)
+#define SC2_CLKCTRL_VDEC3_CLK_CTRL                     (0x0052  << 2)
+#define SC2_CLKCTRL_VDEC4_CLK_CTRL                     (0x0053  << 2)
+#define SC2_CLKCTRL_WAVE420L_CLK_CTRL                  (0x0054  << 2)
+#define SC2_CLKCTRL_WAVE420L_CLK_CTRL2                 (0x0055  << 2)
+#define SC2_CLKCTRL_TS_CLK_CTRL                        (0x0056  << 2)
+#define SC2_CLKCTRL_MALI_CLK_CTRL                      (0x0057  << 2)
+#define SC2_CLKCTRL_VIPNANOQ_CLK_CTRL                  (0x0058  << 2)
+#define SC2_CLKCTRL_ETH_CLK_CTRL                       (0x0059  << 2)
+#define SC2_CLKCTRL_NAND_CLK_CTRL                      (0x005a  << 2)
+#define SC2_CLKCTRL_SD_EMMC_CLK_CTRL                   (0x005b  << 2)
+#define SC2_CLKCTRL_BT656_CLK_CTRL                     (0x005c  << 2)
+#define SC2_CLKCTRL_SPICC_CLK_CTRL                     (0x005d  << 2)
+#define SC2_CLKCTRL_GEN_CLK_CTRL                       (0x005e  << 2)
+#define SC2_CLKCTRL_SAR_CLK_CTRL0                      (0x005f  << 2)
+#define SC2_CLKCTRL_PWM_CLK_AB_CTRL                    (0x0060  << 2)
+#define SC2_CLKCTRL_PWM_CLK_CD_CTRL                    (0x0061  << 2)
+#define SC2_CLKCTRL_PWM_CLK_EF_CTRL                    (0x0062  << 2)
+#define SC2_CLKCTRL_PWM_CLK_GH_CTRL                    (0x0063  << 2)
+#define SC2_CLKCTRL_PWM_CLK_IJ_CTRL                    (0x0064  << 2)
+#define SC2_CLKCTRL_TIMESTAMP_CTRL                     (0x0100  << 2)
+#define SC2_CLKCTRL_TIMESTAMP_CTRL1                    (0x0101  << 2)
+#define SC2_CLKCTRL_TIMESTAMP_CTRL2                    (0x0103  << 2)
+#define SC2_CLKCTRL_TIMESTAMP_RD0                      (0x0104  << 2)
+#define SC2_CLKCTRL_TIMESTAMP_RD1                      (0x0105  << 2)
+#define SC2_CLKCTRL_TIMEBASE_CTRL0                     (0x0106  << 2)
+#define SC2_CLKCTRL_TIMEBASE_CTRL1                     (0x0107  << 2)
+#define SC2_CLKCTRL_EFUSE_CPU_CFG01                    (0x0120  << 2)
+#define SC2_CLKCTRL_EFUSE_CPU_CFG2                     (0x0121  << 2)
+#define SC2_CLKCTRL_EFUSE_ENCP_CFG0                    (0x0122  << 2)
+#define SC2_CLKCTRL_EFUSE_MALI_CFG01                   (0x0123  << 2)
+#define SC2_CLKCTRL_EFUSE_HEVCB_CFG01                  (0x0124  << 2)
+#define SC2_CLKCTRL_EFUSE_HEVCB_CFG2                   (0x0125  << 2)
+#define SC2_CLKCTRL_EFUSE_LOCK                         (0x0126  << 2)
+//========================================================================
 
-/*
- * For PLl register offset
- * APB_BASE:  APB0_BASE_ADDR = 0xfe007c00
- */
-#define C1_ANACTRL_FIXPLL_GATE_DIS	   0x40 + 0x7400
-#define C1_ANACTRL_FIXPLL_CTRL0		   0x80 + 0x7400
-#define C1_ANACTRL_FIXPLL_CTRL1            0x84 + 0x7400
-#define C1_ANACTRL_FIXPLL_CTRL2            0x88 + 0x7400
-#define C1_ANACTRL_FIXPLL_CTRL3            0x8c + 0x7400
-#define C1_ANACTRL_FIXPLL_CTRL4            0x90 + 0x7400
-#define C1_ANACTRL_FIXPLL_CTRL5            0x94 + 0x7400
-#define C1_ANACTRL_FIXPLL_CTRL6            0x98 + 0x7400
-#define C1_ANACTRL_FIXPLL_STS              0x9c + 0x7400
-#define C1_ANACTRL_GPPLL_CTRL0		   0xc0 + 0x7400
-#define C1_ANACTRL_GPPLL_CTRL1             0xc4 + 0x7400
-#define C1_ANACTRL_GPPLL_CTRL2             0xc8 + 0x7400
-#define C1_ANACTRL_GPPLL_CTRL3             0xcc + 0x7400
-#define C1_ANACTRL_GPPLL_CTRL4             0xd0 + 0x7400
-#define C1_ANACTRL_GPPLL_CTRL5             0xd4 + 0x7400
-#define C1_ANACTRL_GPPLL_STS               0xd8 + 0x7400
-#define C1_ANACTRL_SYSPLL_CTRL0            0x100 + 0x7400
-#define C1_ANACTRL_SYSPLL_CTRL1            0x104 + 0x7400
-#define C1_ANACTRL_SYSPLL_CTRL2		   0x108 + 0x7400
-#define C1_ANACTRL_SYSPLL_CTRL3            0x10c + 0x7400
-#define C1_ANACTRL_SYSPLL_CTRL4            0x110 + 0x7400
-#define C1_ANACTRL_SYSPLL_STS              0x114 + 0x7400
-#define C1_ANACTRL_HIFIPLL_CTRL0           0x140 + 0x7400
-#define C1_ANACTRL_HIFIPLL_CTRL1           0x144 + 0x7400
-#define C1_ANACTRL_HIFIPLL_CTRL2           0x148 + 0x7400
-#define C1_ANACTRL_HIFIPLL_CTRL3           0x14c + 0x7400
-#define C1_ANACTRL_HIFIPLL_CTRL4           0x150 + 0x7400
-#define C1_ANACTRL_HIFIPLL_STS             0x154 + 0x7400
-#define C1_ANACTRL_AUDDDS_CTRL0            0x180 + 0x7400
-#define C1_ANACTRL_AUDDDS_CTRL1            0x184 + 0x7400
-#define C1_ANACTRL_AUDDDS_CTRL2            0x188 + 0x7400
-#define C1_ANACTRL_AUDDDS_CTRL3            0x18c + 0x7400
-#define C1_ANACTRL_AUDDDS_CTRL4            0x190 + 0x7400
-#define C1_ANACTRL_AUDDDS_STS              0x194 + 0x7400
-#define C1_ANACTRL_MISCTOP_CTRL0           0x1c0 + 0x7400
-#define C1_ANACTRL_POR_CNTL                0x208 + 0x7400
+// REG_BASE:  REGISTER_BASE_ADDR = 0xfe008000
+// -----------------------------------------------
+#define SC2_ANACTRL_SYSPLL_CTRL0                       ((0x00 << 2) + 0x8000)
+#define SC2_ANACTRL_SYSPLL_CTRL1                       ((0x01 << 2) + 0x8000)
+#define SC2_ANACTRL_SYSPLL_CTRL2                       ((0x02 << 2) + 0x8000)
+#define SC2_ANACTRL_SYSPLL_CTRL3                       ((0x03 << 2) + 0x8000)
+#define SC2_ANACTRL_SYSPLL_CTRL4                       ((0x04 << 2) + 0x8000)
+#define SC2_ANACTRL_SYSPLL_CTRL5                       ((0x05 << 2) + 0x8000)
+#define SC2_ANACTRL_SYSPLL_CTRL6                       ((0x06 << 2) + 0x8000)
+#define SC2_ANACTRL_SYSPLL_STS                         ((0x07 << 2) + 0x8000)
+#define SC2_ANACTRL_FIXPLL_CTRL0                       ((0x10 << 2) + 0x8000)
+#define SC2_ANACTRL_FIXPLL_CTRL1                       ((0x11 << 2) + 0x8000)
+#define SC2_ANACTRL_FIXPLL_CTRL2                       ((0x12 << 2) + 0x8000)
+#define SC2_ANACTRL_FIXPLL_CTRL3                       ((0x13 << 2) + 0x8000)
+#define SC2_ANACTRL_FIXPLL_CTRL4                       ((0x14 << 2) + 0x8000)
+#define SC2_ANACTRL_FIXPLL_CTRL5                       ((0x15 << 2) + 0x8000)
+#define SC2_ANACTRL_FIXPLL_CTRL6                       ((0x16 << 2) + 0x8000)
+#define SC2_ANACTRL_FIXPLL_STS                         ((0x17 << 2) + 0x8000)
+#define SC2_ANACTRL_GP0PLL_CTRL0                       ((0x20 << 2) + 0x8000)
+#define SC2_ANACTRL_GP0PLL_CTRL1                       ((0x21 << 2) + 0x8000)
+#define SC2_ANACTRL_GP0PLL_CTRL2                       ((0x22 << 2) + 0x8000)
+#define SC2_ANACTRL_GP0PLL_CTRL3                       ((0x23 << 2) + 0x8000)
+#define SC2_ANACTRL_GP0PLL_CTRL4                       ((0x24 << 2) + 0x8000)
+#define SC2_ANACTRL_GP0PLL_CTRL5                       ((0x25 << 2) + 0x8000)
+#define SC2_ANACTRL_GP0PLL_CTRL6                       ((0x26 << 2) + 0x8000)
+#define SC2_ANACTRL_GP0PLL_STS                         ((0x27 << 2) + 0x8000)
+#define SC2_ANACTRL_GP1PLL_CTRL0                       ((0x30 << 2) + 0x8000)
+#define SC2_ANACTRL_GP1PLL_CTRL1                       ((0x31 << 2) + 0x8000)
+#define SC2_ANACTRL_GP1PLL_CTRL2                       ((0x32 << 2) + 0x8000)
+#define SC2_ANACTRL_GP1PLL_CTRL3                       ((0x33 << 2) + 0x8000)
+#define SC2_ANACTRL_GP1PLL_CTRL4                       ((0x34 << 2) + 0x8000)
+#define SC2_ANACTRL_GP1PLL_CTRL5                       ((0x35 << 2) + 0x8000)
+#define SC2_ANACTRL_GP1PLL_CTRL6                       ((0x36 << 2) + 0x8000)
+#define SC2_ANACTRL_GP1PLL_STS                         ((0x37 << 2) + 0x8000)
+#define SC2_ANACTRL_HIFIPLL_CTRL0                      ((0x40 << 2) + 0x8000)
+#define SC2_ANACTRL_HIFIPLL_CTRL1                      ((0x41 << 2) + 0x8000)
+#define SC2_ANACTRL_HIFIPLL_CTRL2                      ((0x42 << 2) + 0x8000)
+#define SC2_ANACTRL_HIFIPLL_CTRL3                      ((0x43 << 2) + 0x8000)
+#define SC2_ANACTRL_HIFIPLL_CTRL4                      ((0x44 << 2) + 0x8000)
+#define SC2_ANACTRL_HIFIPLL_CTRL5                      ((0x45 << 2) + 0x8000)
+#define SC2_ANACTRL_HIFIPLL_CTRL6                      ((0x46 << 2) + 0x8000)
+#define SC2_ANACTRL_HIFIPLL_STS                        ((0x47 << 2) + 0x8000)
+#define SC2_ANACTRL_PCIEPLL_CTRL0                      ((0x50 << 2) + 0x8000)
+#define SC2_ANACTRL_PCIEPLL_CTRL1                      ((0x51 << 2) + 0x8000)
+#define SC2_ANACTRL_PCIEPLL_CTRL2                      ((0x52 << 2) + 0x8000)
+#define SC2_ANACTRL_PCIEPLL_CTRL3                      ((0x53 << 2) + 0x8000)
+#define SC2_ANACTRL_PCIEPLL_CTRL4                      ((0x54 << 2) + 0x8000)
+#define SC2_ANACTRL_PCIEPLL_CTRL5                      ((0x55 << 2) + 0x8000)
+#define SC2_ANACTRL_PCIEPLL_STS                        ((0x56 << 2) + 0x8000)
+#define SC2_ANACTRL_MPLL_CTRL0                         ((0x60 << 2) + 0x8000)
+#define SC2_ANACTRL_MPLL_CTRL1                         ((0x61 << 2) + 0x8000)
+#define SC2_ANACTRL_MPLL_CTRL2                         ((0x62 << 2) + 0x8000)
+#define SC2_ANACTRL_MPLL_CTRL3                         ((0x63 << 2) + 0x8000)
+#define SC2_ANACTRL_MPLL_CTRL4                         ((0x64 << 2) + 0x8000)
+#define SC2_ANACTRL_MPLL_CTRL5                         ((0x65 << 2) + 0x8000)
+#define SC2_ANACTRL_MPLL_CTRL6                         ((0x66 << 2) + 0x8000)
+#define SC2_ANACTRL_MPLL_CTRL7                         ((0x67 << 2) + 0x8000)
+#define SC2_ANACTRL_MPLL_CTRL8                         ((0x68 << 2) + 0x8000)
+#define SC2_ANACTRL_MPLL_STS                           ((0x69 << 2) + 0x8000)
+#define SC2_ANACTRL_HDMIPLL_CTRL0                      ((0x70 << 2) + 0x8000)
+#define SC2_ANACTRL_HDMIPLL_CTRL1                      ((0x71 << 2) + 0x8000)
+#define SC2_ANACTRL_HDMIPLL_CTRL2                      ((0x72 << 2) + 0x8000)
+#define SC2_ANACTRL_HDMIPLL_CTRL3                      ((0x73 << 2) + 0x8000)
+#define SC2_ANACTRL_HDMIPLL_CTRL4                      ((0x74 << 2) + 0x8000)
+#define SC2_ANACTRL_HDMIPLL_CTRL5                      ((0x75 << 2) + 0x8000)
+#define SC2_ANACTRL_HDMIPLL_CTRL6                      ((0x76 << 2) + 0x8000)
+#define SC2_ANACTRL_HDMIPLL_STS                        ((0x77 << 2) + 0x8000)
+#define SC2_ANACTRL_HDMIPLL_VLOCK                      ((0x79 << 2) + 0x8000)
+#define SC2_ANACTRL_HDMIPHY_CTRL0                      ((0x80 << 2) + 0x8000)
+#define SC2_ANACTRL_HDMIPHY_CTRL1                      ((0x81 << 2) + 0x8000)
+#define SC2_ANACTRL_HDMIPHY_CTRL2                      ((0x82 << 2) + 0x8000)
+#define SC2_ANACTRL_HDMIPHY_CTRL3                      ((0x83 << 2) + 0x8000)
+#define SC2_ANACTRL_HDMIPHY_CTRL4                      ((0x84 << 2) + 0x8000)
+#define SC2_ANACTRL_HDMIPHY_CTRL5                      ((0x85 << 2) + 0x8000)
+#define SC2_ANACTRL_HDMIPHY_STS                        ((0x86 << 2) + 0x8000)
+#define SC2_ANACTRL_MIPICSI_CTRL0                      ((0x90 << 2) + 0x8000)
+#define SC2_ANACTRL_MIPICSI_CTRL1                      ((0x91 << 2) + 0x8000)
+#define SC2_ANACTRL_MIPICSI_CTRL2                      ((0x92 << 2) + 0x8000)
+#define SC2_ANACTRL_MIPICSI_CTRL3                      ((0x93 << 2) + 0x8000)
+#define SC2_ANACTRL_MIPICSI_CTRL4                      ((0x94 << 2) + 0x8000)
+#define SC2_ANACTRL_MIPICSI_CTRL5                      ((0x95 << 2) + 0x8000)
+#define SC2_ANACTRL_MIPIDSI_CTRL0                      ((0xa0 << 2) + 0x8000)
+#define SC2_ANACTRL_MIPIDSI_CTRL1                      ((0xa1 << 2) + 0x8000)
+#define SC2_ANACTRL_MIPIDSI_CTRL2                      ((0xa2 << 2) + 0x8000)
+#define SC2_ANACTRL_MIPIDSI_STS                        ((0xa3 << 2) + 0x8000)
+#define SC2_ANACTRL_VDAC_CTRL0                         ((0xb0 << 2) + 0x8000)
+#define SC2_ANACTRL_VDAC_CTRL1                         ((0xb1 << 2) + 0x8000)
+#define SC2_ANACTRL_POR_CTRL                           ((0xb6 << 2) + 0x8000)
+#define SC2_ANACTRL_LOCK_BIT                           ((0xb8 << 2) + 0x8000)
+#define SC2_ANACTRL_PROT_BIT                           ((0xb9 << 2) + 0x8000)
+//========================================================================
 
 /*
  * CPU clok register offset
  * APB_BASE:  APB1_BASE_ADDR = 0xfe007400
  */
-/*
- *#define C1_CPUCTRL_CLK_CTRL0		0x0 + 0x7400
- *#define C1_CPUCTRL_CLK_CTRL1		0x4 + 0x7400
- *#define C1_CPUCTRL_CLK_CTRL5		0x14 + 0x7400
- *#define C1_CPUCTRL_CLK_CTRL6		0x18 + 0x7400
- */
 
-#include <dt-bindings/clock/c1-clkc.h>
+#include <dt-bindings/clock/sc2-clkc.h>
 #define NR_CLKS				(CLKID_END_BASE)
 
-#endif /* __C1_H */
+#endif /* __SC2_H */

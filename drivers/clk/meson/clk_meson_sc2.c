@@ -10,68 +10,61 @@
 #include <clk-uclass.h>
 #include <div64.h>
 #include <dm.h>
-#include <dt-bindings/clock/c1-clkc.h>
+#include <dt-bindings/clock/sc2-clkc.h>
 #include "clk_meson.h"
 
 /* change it later */
 #define SYS_CLK		166666666
 
-/* clk81 gates */
+/* clk81 gates, sys_clk */
 static struct meson_gate gates[] = {
-	{CLKID_SYS_SPIFC, C1_SYS_CLK_EN1, 28},
-	{CLKID_SPIFC_GATE, C1_SPIFC_CLK_CTRL, 8},
-	{CLKID_SPIFC_XTAL_GATE,	C1_SPIFC_CLK_CTRL, 15},
-	{CLKID_SAR_ADC_GATE, C1_SAR_ADC_CLK_CTRL, 8},
-	{CLKID_SPICC_A_GATE, C1_SPICC_CLK_CTRL, 8},
-	{CLKID_SPICC_B_GATE, C1_SPICC_CLK_CTRL, 24},
-	{CLKID_SD_EMMC_A_GATE, C1_SD_EMMC_CLK_CTRL, 8},
-	{CLKID_SD_EMMC_A_XTAL_GATE, C1_SD_EMMC_CLK_CTRL, 15},
-	{CLKID_SD_EMMC_B_GATE, C1_SD_EMMC_CLK_CTRL, 24},
-	{CLKID_SD_EMMC_B_XTAL_GATE, C1_SD_EMMC_CLK_CTRL, 31},
-	{CLKID_SD_EMMC_C_GATE, C1_SD_EMMC_CLK_CTRL1, 8},
-	{CLKID_SD_EMMC_C_XTAL_GATE, C1_SD_EMMC_CLK_CTRL1, 15},
+//	{CLKID_SYS_SPIFC, SC2_CLKCTRL_SYS_CLK_EN0_REG0, 29},
+	{CLKID_SPICC_A_GATE, SC2_CLKCTRL_SPICC_CLK_CTRL, 6},
+	{CLKID_SPICC_B_GATE, SC2_CLKCTRL_SPICC_CLK_CTRL, 22},
+	{CLKID_SAR_ADC_GATE, SC2_CLKCTRL_SAR_CLK_CTRL0, 8},
+	{CLKID_SD_EMMC_A_GATE, SC2_CLKCTRL_SD_EMMC_CLK_CTRL, 7},
+	{CLKID_SD_EMMC_B_GATE, SC2_CLKCTRL_SD_EMMC_CLK_CTRL, 23},
+	{CLKID_SD_EMMC_C_GATE, SC2_CLKCTRL_NAND_CLK_CTRL, 7},
 };
 
-static unsigned int spifc_parents[] = {CLKID_FCLK_DIV2, CLKID_FCLK_DIV3,
-CLKID_FCLK_DIV2P5, CLKID_UNREALIZED, CLKID_UNREALIZED,
-CLKID_FCLK_DIV4, CLKID_FCLK_DIV5, CLKID_FCLK_DIV7};
+static unsigned int spicc_parents[] = {CLKID_XTAL, CLKID_SYS_CLK,
+CLKID_FCLK_DIV4, CLKID_FCLK_DIV3, CLKID_FCLK_DIV2,
+CLKID_FCLK_DIV5, CLKID_FCLK_DIV7, CLKID_UNREALIZED};
 
 static unsigned int saradc_parents[] = {CLKID_XTAL, CLKID_SYS_CLK};
 
-static unsigned int sd_emmc_parents[] = {CLKID_FCLK_DIV2, CLKID_FCLK_DIV3,
-CLKID_FCLK_DIV2P5, CLKID_UNREALIZED, CLKID_UNREALIZED,
-CLKID_FCLK_DIV4, CLKID_FCLK_DIV5, CLKID_FCLK_DIV7};
+static unsigned int sd_emmc_parents[] = {CLKID_XTAL, CLKID_FCLK_DIV2,
+CLKID_FCLK_DIV3, CLKID_UNREALIZED, CLKID_UNREALIZED,
+CLKID_UNREALIZED, CLKID_UNREALIZED, CLKID_UNREALIZED};
 
 static struct meson_mux muxes[] = {
-		{CLKID_SPIFC_MUX, C1_SPIFC_CLK_CTRL, 9,  0x7, spifc_parents, ARRAY_SIZE(spifc_parents)},
-		{CLKID_SARADC_MUX, C1_SAR_ADC_CLK_CTRL, 9,  0x1, saradc_parents, ARRAY_SIZE(saradc_parents)},
-		{CLKID_SPICC_A_MUX, C1_SPICC_CLK_CTRL, 9,  0x7, spifc_parents, ARRAY_SIZE(spifc_parents)},
-		{CLKID_SPICC_B_MUX, C1_SPICC_CLK_CTRL, 25,  0x7, spifc_parents, ARRAY_SIZE(spifc_parents)},
-		{CLKID_SD_EMMC_A_MUX, C1_SD_EMMC_CLK_CTRL, 9, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
-		{CLKID_SD_EMMC_B_MUX, C1_SD_EMMC_CLK_CTRL, 25, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
-		{CLKID_SD_EMMC_C_MUX, C1_SD_EMMC_CLK_CTRL1, 9, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
+	{CLKID_SPICC_A_MUX, SC2_CLKCTRL_SPICC_CLK_CTRL, 7,  0x7, spicc_parents, ARRAY_SIZE(spicc_parents)},
+	{CLKID_SPICC_B_MUX, SC2_CLKCTRL_SPICC_CLK_CTRL, 23,  0x7, spicc_parents, ARRAY_SIZE(spicc_parents)},
+	{CLKID_SARADC_MUX, SC2_CLKCTRL_SAR_CLK_CTRL0, 9, 0x3, saradc_parents, ARRAY_SIZE(saradc_parents)},
+	{CLKID_SD_EMMC_A_MUX, SC2_CLKCTRL_SD_EMMC_CLK_CTRL, 9, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
+	{CLKID_SD_EMMC_B_MUX, SC2_CLKCTRL_SD_EMMC_CLK_CTRL, 25, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
+	{CLKID_SD_EMMC_C_MUX, SC2_CLKCTRL_NAND_CLK_CTRL, 9, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
 };
 
 static struct meson_div divs[] = {
-		{CLKID_SPIFC_DIV, C1_SPIFC_CLK_CTRL, 0,  8, CLKID_SPIFC_MUX},
-		{CLKID_SARADC_DIV, C1_SAR_ADC_CLK_CTRL, 0,  8, CLKID_SARADC_MUX},
-		{CLKID_SPICC_A_DIV, C1_SPICC_CLK_CTRL, 0,  8, CLKID_SPICC_A_MUX},
-		{CLKID_SPICC_B_DIV, C1_SPICC_CLK_CTRL, 16,  8, CLKID_SPICC_A_MUX},
-		{CLKID_SD_EMMC_A_DIV, C1_SD_EMMC_CLK_CTRL, 0, 8, CLKID_SD_EMMC_A_MUX},
-		{CLKID_SD_EMMC_B_DIV, C1_SD_EMMC_CLK_CTRL, 16, 8, CLKID_SD_EMMC_B_MUX},
-		{CLKID_SD_EMMC_C_DIV, C1_SD_EMMC_CLK_CTRL1, 0, 8, CLKID_SD_EMMC_C_MUX},
+	{CLKID_SPICC_A_DIV, SC2_CLKCTRL_SPICC_CLK_CTRL, 0, 6, CLKID_SPICC_A_MUX},
+	{CLKID_SPICC_B_DIV, SC2_CLKCTRL_SPICC_CLK_CTRL, 16, 6, CLKID_SPICC_A_MUX},
+	{CLKID_SARADC_DIV, SC2_CLKCTRL_SAR_CLK_CTRL0, 0, 8, CLKID_SARADC_MUX},
+	{CLKID_SD_EMMC_A_DIV, SC2_CLKCTRL_SD_EMMC_CLK_CTRL, 0, 7, CLKID_SD_EMMC_A_MUX},
+	{CLKID_SD_EMMC_B_DIV, SC2_CLKCTRL_SD_EMMC_CLK_CTRL, 16, 7, CLKID_SD_EMMC_B_MUX},
+	{CLKID_SD_EMMC_C_DIV, SC2_CLKCTRL_NAND_CLK_CTRL, 0, 7, CLKID_SD_EMMC_C_MUX},
 };
 
 static struct parm meson_fixed_pll_parm[3] = {
-	{C1_ANACTRL_FIXPLL_CTRL0, 0, 8}, /* pm */
-	{C1_ANACTRL_FIXPLL_CTRL0, 10, 5}, /* pn */
-	{C1_ANACTRL_FIXPLL_CTRL0, 16, 2}, /* pod */
+	{SC2_ANACTRL_FIXPLL_CTRL0, 0, 8}, /* pm */
+	{SC2_ANACTRL_FIXPLL_CTRL0, 10, 5}, /* pn */
+	{SC2_ANACTRL_FIXPLL_CTRL0, 16, 2}, /* pod */
 };
 
 static struct parm meson_sys_pll_parm[3] = {
-	{C1_ANACTRL_SYSPLL_CTRL0, 0, 8}, /* pm */
-	{C1_ANACTRL_SYSPLL_CTRL0, 10, 5}, /* pn */
-	{C1_ANACTRL_SYSPLL_CTRL0, 16, 2}, /* pod */
+	{SC2_ANACTRL_SYSPLL_CTRL0, 0, 8}, /* pm */
+	{SC2_ANACTRL_SYSPLL_CTRL0, 10, 5}, /* pn */
+	{SC2_ANACTRL_SYSPLL_CTRL0, 16, 3}, /* pod */
 };
 
 static int meson_clk_enable(struct clk *clk)
@@ -203,7 +196,7 @@ static struct clk_ops meson_clk_ops = {
 	.enable		= meson_clk_enable,
 	.get_rate	= meson_clk_get_rate,
 	.set_rate 	= meson_clk_set_rate,
-	.set_parent = meson_clk_set_parent,
+	.set_parent 	= meson_clk_set_parent,
 };
 
 static int meson_clk_probe(struct udevice *dev)
@@ -219,13 +212,13 @@ static int meson_clk_probe(struct udevice *dev)
 }
 
 static const struct udevice_id meson_clk_ids[] = {
-	{ .compatible = "amlogic,c1-clkc" },
+	{ .compatible = "amlogic,sc2-clkc" },
 	{ }
 };
 
 U_BOOT_DRIVER(meson_clk) = {
 	.name		= "meson-clk-sc2",
-	.id			= UCLASS_CLK,
+	.id		= UCLASS_CLK,
 	.of_match	= meson_clk_ids,
 	.priv_auto_alloc_size = sizeof(struct meson_clk),
 	.ops		= &meson_clk_ops,
