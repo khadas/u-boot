@@ -118,6 +118,7 @@ int board_init(void)
 	active_clk();
 	#endif
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
+	run_command("gpio clr GPIOH_8", 0);
 	return 0;
 }
 
