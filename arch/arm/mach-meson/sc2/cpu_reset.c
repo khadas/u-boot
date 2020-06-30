@@ -50,8 +50,6 @@ void set_pwm_to_input(void)
 
 void reset_system(void)
 {
-	//hxbao, need fine tune
-	#if 0
 	struct udevice *watchdog_devp;
 	int ret;
 
@@ -66,7 +64,6 @@ void reset_system(void)
 	}
 	wdt_start(watchdog_devp, 0, 0);
 	while (1);
-	#endif
 }
 
 /* uboot reset interface */
