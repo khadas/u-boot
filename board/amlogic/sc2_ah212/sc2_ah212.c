@@ -40,6 +40,9 @@
 #ifdef CONFIG_AML_VPP
 #include <amlogic/media/vpp/vpp.h>
 #endif
+#ifdef CONFIG_AML_HDMITX20
+#include <amlogic/media/vout/hdmitx/hdmitx_ext.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -91,6 +94,13 @@ int active_clk(void)
 	return 0;
 }
 
+#ifdef CONFIG_AML_HDMITX20
+static void hdmitx_set_hdmi_5v(void)
+{
+	/*Power on VCC_5V for HDMI_5V*/
+}
+#endif
+
 void board_init_mem(void) {
 	#if 1
 	/* config bootm low size, make sure whole dram/psram space can be used */
@@ -119,6 +129,10 @@ int board_init(void)
 	#endif
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 	run_command("gpio clr GPIOH_8", 0);
+#ifdef CONFIG_AML_HDMITX20
+	hdmitx_set_hdmi_5v();
+	hdmitx_init();
+#endif
 	return 0;
 }
 

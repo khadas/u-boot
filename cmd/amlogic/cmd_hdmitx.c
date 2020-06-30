@@ -25,7 +25,8 @@
 #include <environment.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
-#include <amlogic/media/vout/hdmitx.h>
+#include <amlogic/media/vout/hdmitx/hdmitx.h>
+
 #ifdef CONFIG_AML_LCD
 #include <amlogic/media/vout/lcd/aml_lcd.h>
 #endif
@@ -33,6 +34,7 @@
 static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	char *const argv[])
 {
+	struct hdmitx_dev *hdev = hdmitx_get_hdev();
 #ifdef CONFIG_AML_LCD
 	struct aml_lcd_drv_s *lcd_drv = NULL;
 	char *mode;
@@ -50,7 +52,7 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 #endif
 
-	st = hdmitx_device.HWOp.get_hpd_state();
+	st = hdev->hwop.get_hpd_state();
 	printf("hpd_state=%c\n", st ? '1' : '0');
 
 	if (st) {
@@ -90,6 +92,7 @@ static int do_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	unsigned int tmp_addr = 0;
 	unsigned char edid_addr = 0;
 	unsigned char st = 0;
+	struct hdmitx_dev *hdev = hdmitx_get_hdev();
 
 	memset(edid_raw_buf, 0, ARRAY_SIZE(edid_raw_buf));
 	if (argc < 2)
@@ -101,7 +104,7 @@ static int do_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		edid_addr = tmp_addr;
 		/* read edid raw data */
 		/* current only support read 1 byte edid data */
-		st = hdmitx_device.HWOp.read_edid(
+		st = hdev->hwop.read_edid(
 			&edid_raw_buf[edid_addr & 0xf8], edid_addr & 0xf8, 8);
 		printf("edid[0x%02x]: 0x%02x\n", edid_addr,
 			edid_raw_buf[edid_addr]);
@@ -117,12 +120,13 @@ static int do_rx_det(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned char edid_addr = 0xf8;     // Fixed Address
 	unsigned char st = 0;
+	struct hdmitx_dev *hdev = hdmitx_get_hdev();
 
 	memset(edid_raw_buf, 0, ARRAY_SIZE(edid_raw_buf));
 
 	// read edid raw data
 	// current only support read 1 byte edid data
-	st = hdmitx_device.HWOp.read_edid(&edid_raw_buf[edid_addr & 0xf8], edid_addr & 0xf8, 8);
+	st = hdev->hwop.read_edid(&edid_raw_buf[edid_addr & 0xf8], edid_addr & 0xf8, 8);
 	if (1)      // Debug only
 		dump_edid_raw_8bytes(&edid_raw_buf[edid_addr & 0xf8]);
 	if (st) {
@@ -200,11 +204,12 @@ static int do_rx_det(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
+	struct hdmitx_dev *hdev = hdmitx_get_hdev();
 	if (argc < 1)
 		return cmd_usage(cmdtp);
 
 	if (strcmp(argv[1], "list") == 0)
-		hdmitx_device.HWOp.list_support_modes();
+		hdev->hwop.list_support_modes();
 	else if (strcmp(argv[1], "bist") == 0) {
 		unsigned int mode = 0;
 		if (strcmp(argv[2], "off") == 0)
@@ -215,31 +220,34 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			mode = 3;
 		else
 			mode = simple_strtoul(argv[2], NULL, 10);
-		hdmitx_device.HWOp.test_bist(mode);
+		hdev->hwop.test_bist(mode);
 	} else if (strcmp(argv[1], "prbs") == 0) {
-		hdmitx_device.para->cs = HDMI_COLOR_FORMAT_RGB;
-		hdmitx_device.para->cd = HDMI_COLOR_DEPTH_24B;
-		hdmitx_device.vic = HDMI_1920x1080p60_16x9;
-		hdmi_tx_set(&hdmitx_device);
-		hdmitx_device.HWOp.test_bist(10);
+		hdev->para->cs = HDMI_COLOR_FORMAT_RGB;
+		hdev->para->cd = HDMI_COLOR_DEPTH_24B;
+		hdev->vic = HDMI_1920x1080p60_16x9;
+		hdmi_tx_set(hdev);
+		hdev->hwop.test_prbs();
 	} else if (strcmp(argv[1], "div40") == 0) {
-		hdmitx_device.HWOp.test_bist(11);
+		bool div40 = 0;
+
+		if (argv[1][5] == '1')
+			div40 = 1;
+		hdev->hwop.set_div40(div40);
 	} else { /* "output" */
-		hdmitx_device.vic = hdmi_get_fmt_vic(argv[1]);
-		hdmitx_device.para = hdmi_get_fmt_paras(hdmitx_device.vic);
-		if (hdmitx_device.vic == HDMI_unkown) {
+		hdev->vic = hdmi_get_fmt_vic(argv[1]);
+		hdev->para = hdmi_get_fmt_paras(hdev->vic);
+		if (hdev->vic == HDMI_unkown) {
 			/* Not find VIC */
 			printf("Not find '%s' mapped VIC\n", argv[1]);
 			return CMD_RET_FAILURE;
-		} else
-			printf("set hdmitx VIC = %d\n", hdmitx_device.vic);
+		}
 		if (strstr(argv[1], "hz420") != NULL)
-			hdmitx_device.para->cs = HDMI_COLOR_FORMAT_420;
+			hdev->para->cs = HDMI_COLOR_FORMAT_420;
 		if (env_get("colorattribute"))
-			hdmi_parse_attr(hdmitx_device.para, env_get("colorattribute"));
+			hdmi_parse_attr(hdev->para, env_get("colorattribute"));
 		/* For RGB444 or YCbCr444 under 6Gbps mode, no deepcolor */
 		/* Only 4k50/60 has 420 modes */
-		switch (hdmitx_device.vic) {
+		switch (hdev->vic) {
 		case HDMI_3840x2160p50_16x9:
 		case HDMI_3840x2160p60_16x9:
 		case HDMI_4096x2160p50_256x135:
@@ -252,61 +260,69 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		case HDMI_4096x2160p60_256x135_Y420:
 		case HDMI_3840x2160p50_64x27_Y420:
 		case HDMI_3840x2160p60_64x27_Y420:
-			if ((hdmitx_device.para->cs == HDMI_COLOR_FORMAT_RGB) ||
-			    (hdmitx_device.para->cs == HDMI_COLOR_FORMAT_444)) {
-				if (hdmitx_device.para->cd != HDMI_COLOR_DEPTH_24B) {
+			if ((hdev->para->cs == HDMI_COLOR_FORMAT_RGB) ||
+			    (hdev->para->cs == HDMI_COLOR_FORMAT_444)) {
+				if (hdev->para->cd != HDMI_COLOR_DEPTH_24B) {
 					printf("vic %d cs %d has no cd %d\n",
-						hdmitx_device.vic,
-						hdmitx_device.para->cs,
-						hdmitx_device.para->cd);
-					hdmitx_device.para->cd = HDMI_COLOR_DEPTH_24B;
+						hdev->vic,
+						hdev->para->cs,
+						hdev->para->cd);
+					hdev->para->cd = HDMI_COLOR_DEPTH_24B;
 					printf("set cd as %d\n", HDMI_COLOR_DEPTH_24B);
 				}
 			}
-			if (hdmitx_device.para->cs == HDMI_COLOR_FORMAT_420)
-				hdmitx_device.vic |= HDMITX_VIC420_OFFSET;
+			if (hdev->para->cs == HDMI_COLOR_FORMAT_420)
+				hdev->vic |= HDMITX_VIC420_OFFSET;
 			break;
 		default:
-			if (hdmitx_device.para->cs == HDMI_COLOR_FORMAT_420) {
-				printf("vic %d has no cs %d\n", hdmitx_device.vic,
-					hdmitx_device.para->cs);
-				hdmitx_device.para->cs = HDMI_COLOR_FORMAT_444;
+			if (hdev->para->cs == HDMI_COLOR_FORMAT_420) {
+				printf("vic %d has no cs %d\n", hdev->vic,
+					hdev->para->cs);
+				hdev->para->cs = HDMI_COLOR_FORMAT_444;
 				printf("set cs as %d\n", HDMI_COLOR_FORMAT_444);
 			}
 			break;
 		/* For VESA modes, should be RGB format */
-		if (hdmitx_device.vic >= HDMITX_VESA_OFFSET)
-			hdmitx_device.para->cs = HDMI_COLOR_FORMAT_RGB;
+		if (hdev->vic >= HDMITX_VESA_OFFSET)
+			hdev->para->cs = HDMI_COLOR_FORMAT_RGB;
 		}
-		hdmi_tx_set(&hdmitx_device);
+		printf("set hdmitx VIC = %d CS = %d CD = %d\n",
+		       hdev->vic, hdev->para->cs, hdev->para->cd);
+		hdmi_tx_set(hdev);
 	}
 	return CMD_RET_SUCCESS;
 }
 
 static int do_blank(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
+	struct hdmitx_dev *hdev = hdmitx_get_hdev();
+
 	if (argc < 1)
 		return cmd_usage(cmdtp);
 
 	if (strcmp(argv[1], "1") == 0)
-		hdmitx_device.HWOp.output_blank(1);
+		hdev->hwop.output_blank(1);
 	if (strcmp(argv[1], "0") == 0)
-		hdmitx_device.HWOp.output_blank(0);
+		hdev->hwop.output_blank(0);
 
 	return CMD_RET_SUCCESS;
 }
 
 static int do_off(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
-	hdmitx_device.vic = HDMI_unkown;
-	hdmitx_device.HWOp.turn_off();
+	struct hdmitx_dev *hdev = hdmitx_get_hdev();
+
+	hdev->vic = HDMI_unkown;
+	hdev->hwop.turn_off();
 	printf("turn off hdmitx\n");
 	return 1;
 }
 
 static int do_dump(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
-	hdmitx_device.HWOp.dump_regs();
+	struct hdmitx_dev *hdev = hdmitx_get_hdev();
+
+	hdev->hwop.dump_regs();
 	return 1;
 }
 
@@ -336,7 +352,7 @@ static int do_reg(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 static int do_info(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
-	struct hdmitx_dev *hdev = &hdmitx_device;
+	struct hdmitx_dev *hdev = hdmitx_get_hdev();
 	struct hdmi_format_para *para = hdev->para;
 
 	printf("%s %d\n", para->ext_name, hdev->vic);
@@ -348,7 +364,7 @@ static int do_info(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 static int do_get_preferred_mode(cmd_tbl_t * cmdtp, int flag, int argc,
 	char * const argv[])
 {
-	struct hdmitx_dev *hdev = &hdmitx_device;
+	struct hdmitx_dev *hdev = hdmitx_get_hdev();
 	unsigned int byte_num = 0;
 	unsigned char *edid = hdev->rawedid;
 	unsigned char blk_no = 1;
@@ -362,7 +378,7 @@ static int do_get_preferred_mode(cmd_tbl_t * cmdtp, int flag, int argc,
 
 	/* Read complete EDID data sequentially */
 	while (byte_num < 128 * blk_no) {
-		hdmitx_device.HWOp.read_edid(&edid[byte_num], byte_num & 0x7f, byte_num / 128);
+		hdev->hwop.read_edid(&edid[byte_num], byte_num & 0x7f, byte_num / 128);
 		if (byte_num == 120) {
 			blk_no = edid[126] + 1;
 			if (blk_no > 4)
@@ -432,7 +448,7 @@ static int do_hdmitx(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 U_BOOT_CMD(hdmitx, CONFIG_SYS_MAXARGS, 0, do_hdmitx,
 	   "HDMITX sub-system",
-	"hdmitx version:20181013\n"
+	"hdmitx version:20200618\n"
 	"hdmitx hpd\n"
 	"    Detect hdmi rx plug-in\n"
 	"hdmitx get_preferred_mode\n"

@@ -22,24 +22,24 @@
 #define __HDMITX_COMMON_H__
 
 #include <common.h>
-#include <amlogic/media/vout/hdmitx.h>
+#include <amlogic/media/vout/hdmitx/hdmitx.h>
 
-#define CLK_UTIL_VID_PLL_DIV_1      0
-#define CLK_UTIL_VID_PLL_DIV_2      1
-#define CLK_UTIL_VID_PLL_DIV_3      2
-#define CLK_UTIL_VID_PLL_DIV_3p5    3
-#define CLK_UTIL_VID_PLL_DIV_3p75   4
-#define CLK_UTIL_VID_PLL_DIV_4      5
-#define CLK_UTIL_VID_PLL_DIV_5      6
-#define CLK_UTIL_VID_PLL_DIV_6      7
-#define CLK_UTIL_VID_PLL_DIV_6p25   8
-#define CLK_UTIL_VID_PLL_DIV_7      9
-#define CLK_UTIL_VID_PLL_DIV_7p5    10
-#define CLK_UTIL_VID_PLL_DIV_12     11
-#define CLK_UTIL_VID_PLL_DIV_14     12
-#define CLK_UTIL_VID_PLL_DIV_15     13
-#define CLK_UTIL_VID_PLL_DIV_2p5    14
-#define CLK_UTIL_VID_PLL_DIV_3p25   15
+#define VID_PLL_DIV_1      0
+#define VID_PLL_DIV_2      1
+#define VID_PLL_DIV_3      2
+#define VID_PLL_DIV_3p5    3
+#define VID_PLL_DIV_3p75   4
+#define VID_PLL_DIV_4      5
+#define VID_PLL_DIV_5      6
+#define VID_PLL_DIV_6      7
+#define VID_PLL_DIV_6p25   8
+#define VID_PLL_DIV_7      9
+#define VID_PLL_DIV_7p5    10
+#define VID_PLL_DIV_12     11
+#define VID_PLL_DIV_14     12
+#define VID_PLL_DIV_15     13
+#define VID_PLL_DIV_2p5    14
+#define VID_PLL_DIV_3p25   15
 
 enum viu_type {
     VIU_ENCL = 0,
@@ -79,14 +79,5 @@ struct hw_enc_clk_val_group {
     unsigned encp_div;
     unsigned enci_div;
 };
-
-struct reg_t {
-	volatile unsigned int* reg;
-	unsigned int val;
-};
-
-extern void hdmitx_set_clk(struct hdmitx_dev *hdev);
-extern void set_hdmitx_clk_420(void);
-extern void set_vmode_enc_hw(enum hdmi_vic vic);
 
 #endif

@@ -4,6 +4,6 @@ obj-$(CONFIG_AML_VOUT) += vout.o
 
 obj-$(CONFIG_AML_CVBS) += cvbs/
 
-obj-$(CONFIG_AML_HDMITX) += hdmitx/
-
 obj-$(CONFIG_AML_LCD) += lcd/
+
+obj-$(CONFIG_AML_HDMITX20) += hdmitx20/

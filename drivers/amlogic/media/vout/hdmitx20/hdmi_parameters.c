@@ -1,6 +1,6 @@
 #include <common.h>
 #include <linux/stddef.h>
-#include <amlogic/media/vout/hdmitx.h>
+#include <amlogic/media/vout/hdmitx/hdmitx.h>
 
 static struct hdmi_format_para fmt_para_1920x1080p60_16x9 = {
 	.vic = HDMI_1920x1080p60_16x9,
@@ -1474,7 +1474,7 @@ static struct hdmi_format_para fmt_para_vesa_1280x1024p60_5x4 = {
 	.tmds_clk = 108000,
 	.timing = {
 		.pixel_freq = 108000,
-		.h_freq = 64080,
+		.h_freq = 63981,
 		.v_freq = 60020,
 		.vsync_polarity = 1,
 		.hsync_polarity = 1,
@@ -1753,7 +1753,7 @@ static struct hdmi_format_para fmt_para_vesa_1680x1050p60_8x5 = {
 	.tmds_clk = 146250,
 	.timing = {
 		.pixel_freq = 146250,
-		.h_freq = 65340,
+		.h_freq = 65290,
 		.v_freq = 59954,
 		.vsync_polarity = 1,
 		.hsync_polarity = 1,
@@ -1930,35 +1930,65 @@ static struct hdmi_format_para fmt_para_vesa_2560x1600p60_8x5 = {
 };
 
 static struct hdmi_format_para fmt_para_vesa_3440x1440p60_43x18 = {
-#if 0 /* TODO */
 	.vic = HDMIV_3440x1440p60hz,
 	.name = "3440x1440p60hz",
+	.sname = "3440x1440p60hz",
 	.pixel_repetition_factor = 0,
 	.progress_mode = 1,
 	.scrambler_en = 0,
 	.tmds_clk_div40 = 0,
-	.tmds_clk = 193250,
+	.tmds_clk = 319750,
 	.timing = {
-		.pixel_freq = 193250,
-		.h_freq = 74700,
-		.v_freq = 60000,
-		.vsync_polarity = 1,
-		.hsync_polarity = 1,
-		.h_active = 1920,
-		.h_total = 2592,
-		.h_blank = 672,
-		.h_front = 136,
-		.h_sync = 200,
-		.h_back = 336,
-		.v_active = 1200,
-		.v_total = 1245,
-		.v_blank = 45,
+		.pixel_freq = 319750,
+		.h_freq = 88819,
+		.v_freq = 59973,
+		.vsync_polarity = 1, /* +VSync */
+		.hsync_polarity = 1, /* +HSync */
+		.h_active = 3440,
+		.h_total = 3600,
+		.h_blank = 160,
+		.h_front = 48,
+		.h_sync = 32,
+		.h_back = 80,
+		.v_active = 1440,
+		.v_total = 1481,
+		.v_blank = 41,
 		.v_front = 3,
-		.v_sync = 6,
-		.v_back = 36,
+		.v_sync = 10,
+		.v_back = 28,
 		.v_sync_ln = 1,
 	},
-#endif
+};
+
+static struct hdmi_format_para fmt_para_vesa_2400x1200p90_2x1 = {
+	.vic = HDMIV_2400x1200p90hz,
+	.name = "2400x1200p90hz",
+	.sname = "2400x1200p90hz",
+	.pixel_repetition_factor = 0,
+	.progress_mode = 1,
+	.scrambler_en = 0,
+	.tmds_clk_div40 = 0,
+	.tmds_clk = 280000,
+	.timing = {
+		.pixel_freq = 280000,
+		.h_freq = 112812,
+		.v_freq = 90106,
+		.vsync_polarity = 1,
+		.hsync_polarity = 1,
+		.h_active = 2400,
+		.h_total = 2482,
+		.h_blank = 82,
+		.h_front = 20,
+		.h_sync = 30,
+		.h_back = 32,
+		.v_active = 1200,
+		.v_total = 1252,
+		.v_blank = 52,
+		.v_front = 17,
+		.v_sync = 5,
+		.v_back = 30,
+		.v_sync_ln = 1,
+	},
 };
 
 static struct hdmi_format_para *all_fmt_paras[] = {
@@ -2025,6 +2055,7 @@ static struct hdmi_format_para *all_fmt_paras[] = {
 	&fmt_para_vesa_2560x1440p60_16x9,
 	&fmt_para_vesa_2560x1600p60_8x5,
 	&fmt_para_vesa_3440x1440p60_43x18,
+	&fmt_para_vesa_2400x1200p90_2x1,
 	&fmt_para_non_hdmi_fmt,
 	NULL,
 };
@@ -2106,6 +2137,7 @@ void hdmi_parse_attr(struct hdmi_format_para *para, char const *name)
 enum hdmi_vic hdmi_get_fmt_vic(char const *name)
 {
 	int i;
+	unsigned int name_len;
 	char *lname;
 	enum hdmi_vic vic = HDMI_unkown;
 	struct hdmi_format_para *para = NULL;
@@ -2127,7 +2159,10 @@ enum hdmi_vic hdmi_get_fmt_vic(char const *name)
 	if ((vic != HDMI_unkown) && (all_fmt_paras[i] != NULL)) {
 		para = all_fmt_paras[i];
 		memset(&para->ext_name[0], 0, sizeof(para->ext_name));
-		memcpy(&para->ext_name[0], name, strlen(name));
+		name_len = strlen(name);
+		if (name_len > sizeof(para->ext_name) - 1)
+			name_len = sizeof(para->ext_name) - 1;
+		memcpy(&para->ext_name[0], name, name_len);
 		hdmi_parse_attr(para, name);
 	}
 	return vic;
@@ -2155,4 +2190,32 @@ struct hdmi_format_para *hdmi_match_dtd_paras(struct dtd *t)
 	}
 
 	return NULL;
+}
+
+/* 1080i still uses encp, not enci */
+bool hdmimode_is_interlaced(enum hdmi_vic vic)
+{
+	switch (vic) {
+	case HDMI_720x480i60_4x3:
+	case HDMI_720x480i60_16x9:
+	case HDMI_2880x480i60_4x3:
+	case HDMI_2880x480i60_16x9:
+	case HDMI_720x576i50_4x3:
+	case HDMI_720x576i50_16x9:
+	case HDMI_2880x576i50_4x3:
+	case HDMI_2880x576i50_16x9:
+	case HDMI_720x576i100_4x3:
+	case HDMI_720x576i100_16x9:
+	case HDMI_720x480i120_4x3:
+	case HDMI_720x480i120_16x9:
+	case HDMI_720x576i200_4x3:
+	case HDMI_720x576i200_16x9:
+	case HDMI_720x480i240_4x3:
+	case HDMI_720x480i240_16x9:
+		return 1;
+		break;
+	default:
+		return 0;
+		break;
+	}
 }

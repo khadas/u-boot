@@ -1,0 +1,9 @@
+menu "AMLOGIC HDMI TX 2.0 Drivers"
+
+config AML_HDMITX20
+	bool "Amlogic HDMITX20 drivers Support"
+	select AML_VOUT
+	help
+		HDMITX20 Output Enable
+
+endmenu
