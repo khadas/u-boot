@@ -303,6 +303,12 @@ config SC2_AH219
 	help
 	  Select SC2 AH219 config
 
+config SC2_AH212
+	bool "SC2_AH212"
+	select TARGET_SC2_AH212
+	help
+	  Select SC2 AH212 config
+
 endchoice
 
 config TARGET_SC2_SKT
@@ -313,6 +319,9 @@ config TARGET_SC2_AH219
 	bool "SC2 AH219 board"
 	depends on SC2_AH219
 
+config TARGET_SC2_AH212
+	bool "SC2 AH212 board"
+	depends on SC2_AH212
 endif
 
 if MESON_C2
@@ -413,6 +422,8 @@ source "board/amlogic/c1_ae409/Kconfig"
 source "board/amlogic/sc2_skt/Kconfig"
 
 source "board/amlogic/sc2_ah219/Kconfig"
+
+source "board/amlogic/sc2_ah212/Kconfig"
 
 source "board/amlogic/c2_skt/Kconfig"
 
