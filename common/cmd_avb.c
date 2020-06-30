@@ -73,7 +73,7 @@ static AvbIOResult read_from_partition(AvbOps* ops, const char* partition, int64
         return AVB_IO_RESULT_ERROR_RANGE_OUTSIDE_PARTITION;
 
     *out_num_read = 0;
-    if (!memcmp(partition, "dtb", strlen("dtb"))) {
+    if (!memcmp(partition, "dt", strlen("dt"))) {
         char *dtb_buf = malloc(MAX_DTB_SIZE);
 
         if (!dtb_buf)
@@ -114,7 +114,7 @@ static AvbIOResult write_to_partition(AvbOps* ops, const char* partition,
     if (part_bytes < offset)
         return AVB_IO_RESULT_ERROR_RANGE_OUTSIDE_PARTITION;
 
-    if (!memcmp(partition, "dtb", strlen("dtb"))) {
+    if (!memcmp(partition, "dt", strlen("dt"))) {
         if (offset)
             return AVB_IO_RESULT_ERROR_IO;
         rc = store_dtb_rw((void *)buffer, num_bytes, 1);
@@ -169,7 +169,7 @@ static AvbIOResult get_size_of_partition(AvbOps* ops, const char* partition,
 {
     int rc = 0;
 
-	if (!memcmp(partition, "dtb", strlen("dtb"))) {
+	if (!memcmp(partition, "dt", strlen("dt"))) {
 		*out_size_num_bytes = DTB_PARTITION_SIZE;
     } else {
         rc = store_get_partititon_size((unsigned char *)partition, out_size_num_bytes);
@@ -404,7 +404,7 @@ int avb_verify(AvbSlotVerifyData** out_data)
 {
     /* The last slot must be NULL */
     const char * requested_partitions_ab[AVB_NUM_SLOT + 1] = {"boot", NULL, NULL, NULL, NULL};
-    const char * requested_partitions[AVB_NUM_SLOT + 1] = {"boot", "dtb", NULL, NULL, NULL};
+    const char * requested_partitions[AVB_NUM_SLOT + 1] = {"boot", "dt", NULL, NULL, NULL};
     AvbSlotVerifyResult result = AVB_SLOT_VERIFY_RESULT_OK;
     char *s1;
     char *ab_suffix;
