@@ -206,7 +206,7 @@
             "setenv serial ${usid}; setenv serial# ${usid};"\
             "\0"\
 
-#if 0
+#if 1
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
             "run upgrade_check;"\
