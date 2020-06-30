@@ -24,26 +24,16 @@
 #include "timing.c"
 
 //main acs struct
-acs_set_t __chip_acs_set={
+chip_acs_set_t __chip_acs_set={
 					.acs_magic		= "acs__",
 					.chip_type		= 0x0,
 					.version 		= 1,
 					.acs_set_length	= sizeof(__chip_acs_set),
 
-					.ddr_magic		= {0},
-					.ddr_set_version= 0,
-					.ddr_set_length	= 0,
-					.ddr_set_addr	= 0,
-
-					.ddr_reg_magic	= "ddrr_",
-					.ddr_reg_version= 1,
-					.ddr_reg_length	= sizeof(__ddr_reg),
-					.ddr_reg_addr	= (unsigned long)(&__ddr_reg),
-
-					.pll_magic		= "pll__",
+					.pll_magic		= "cpll_",
 					.pll_set_version= 1,
-					.pll_set_length	= sizeof(__pll_setting),
-					.pll_set_addr	= (unsigned long)(&__pll_setting),
+					.pll_set_length	= sizeof(__chip_pll_setting),
+					.pll_set_addr	= (unsigned long)(&__chip_pll_setting),
 
 					.sto_magic		= "store",
 					.sto_set_version= 1,
@@ -59,8 +49,6 @@ acs_set_t __chip_acs_set={
 					.rsv_set_version= 1,
 					.rsv_set_length	= 0,
 					.rsv_set_addr	= 0,
-					.board_id		= {0,},
-					.ddr_struct_size = {0,},
-					.ddr_struct_org_size = 0,
+
 					.revision		= ACS_VERSION,
 };

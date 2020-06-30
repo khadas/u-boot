@@ -246,6 +246,8 @@ pll_set_t __pll_setting = {
 #endif
 };
 
+chip_pll_set_t __chip_pll_setting = { {0}, };
+
 ddr_reg_t __ddr_reg[] = {
 	/* demo, user defined override register */
 	{0xaabbccdd, 0, 0, 0, 0, 0},
