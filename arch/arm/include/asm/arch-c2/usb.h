@@ -28,6 +28,9 @@
 #include <generic-phy.h>
 #include <asm-generic/gpio.h>
 
+#define HOST_MODE	0
+#define DEVICE_MODE	1
+
 #define USB_PHY_PORT_MAX	1
 /* Phy register MACRO definitions */
 

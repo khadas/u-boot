@@ -123,10 +123,17 @@ static void usb_set_power_domain (void)
 	return;
 }
 
-static void usb_set_calibration_trim(uint32_t phy2_pll_base)
+static void usb_set_calibration_trim(uint32_t phy2_pll_base, uint8_t mode)
 {
 	uint32_t cali, value,i, tmp;
 	uint8_t cali_en;
+
+	if (mode == DEVICE_MODE) {
+		value = readl(phy2_pll_base + 0x10);
+		value |= 0xfff;
+		writel(value, phy2_pll_base + 0x10);
+		return;
+	}
 
 	cali = readl(SYSCTRL_SEC_STATUS_REG12);
 	cali_en = (cali >> 30) & 0x1;
@@ -255,7 +262,7 @@ int usb2_phy_init (struct phy *phy) {
 		/***reset1_level:  usb_enable_phy_pll ***/
 		usb_reset(priv->reset_addr, priv->usbphy_reset_bit[i]);
 
-		usb_set_calibration_trim(priv->usb_phy2_pll_base_addr[i]);
+		usb_set_calibration_trim(priv->usb_phy2_pll_base_addr[i], HOST_MODE);
 
 		udelay(50);
 
@@ -277,6 +284,7 @@ int usb2_phy_init (struct phy *phy) {
 	for (i = 0; i < priv->u2_port_num; i++) {
 		debug("------set usb pll\n");
 		set_usb_pll(priv->usb_phy2_pll_base_addr[i]);
+		writel(0xfe18, priv->usb_phy2_pll_base_addr[i] + 0x50);
 	}
 	return 0;
 
@@ -391,7 +399,7 @@ void usb_device_mode_init(void){
 	//step 6: phy21 reset
 	usb_reset(reset_addr, PHY20_RESET_LEVEL_BIT);
 	udelay(50);
-	usb_set_calibration_trim(phy_base_addr);
+	usb_set_calibration_trim(phy_base_addr, DEVICE_MODE);
 	udelay(50);
 
 	// step 6: wait for phy ready
@@ -408,6 +416,7 @@ void usb_device_mode_init(void){
 	}
 
 	set_usb_pll(phy_base_addr);
+	writel(0xbe18, phy_base_addr + 0x50);
 	//--------------------------------------------------
 
 	// ------------- usb phy21 initinal end ----------

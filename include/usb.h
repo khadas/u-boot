@@ -17,9 +17,6 @@
 #include <asm/cache.h>
 #include <part.h>
 
-#define HEHE_DEBUG(x...)   printf(x)
-//#define HEHE_DEBUG(x...)
-
 /* get from ch9.h fix compile error. start */
 struct usb_ss_ep_comp_descriptor {
 	__u8  bLength;
