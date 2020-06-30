@@ -59,6 +59,7 @@ typedef struct  ddr_base_address_table ddr_base_address_table_t;
 #define MESON_CPU_MAJOR_ID_TL1		0x2E
 #define MESON_CPU_MAJOR_ID_TM2		0x2F
 #define MESON_CPU_MAJOR_ID_C1		0x30
+#define MESON_CPU_MAJOR_ID_SC2		0x32
 #define MESON_CPU_MAJOR_ID_C2		0x33
 
 #define MESON_CPU_VERSION_LVL_MAJOR	0
@@ -236,6 +237,23 @@ ddr_base_address_table_t  __ddr_base_address_table[] = {
 	.sys_watchdog_base_address=0,//((0x0040  << 2) + 0xfe000000),
 	.sys_watchdog_enable_value=0x03c401ff,
 	.ddr_boot_reason_address=((0x00e1  << 2) + 0xfe005800),//SYSCTRL_SEC_STICKY_REG1
+	},
+	//sc2
+	{
+	.soc_family_name="SC2",
+	.chip_id=MESON_CPU_MAJOR_ID_SC2,
+	.preg_sticky_reg0=((0x0000 << 2) + 0xfe036800),//
+	.ddr_phy_base_address=0xfc000000,
+	.ddr_pctl_timing_base_address=((0x0000  << 2) + 0xfe036400),
+	.ddr_pctl_timing_end_address=((0x00bb  << 2) + 0xfe036400),
+	.ddr_dmc_sticky0=0xfe036800,
+	.sys_watchdog_base_address=((0x3c34  << 2) + 0xffd00000),//sc2 can not find
+	.ddr_pll_base_address=((0x0000  << 2) + 0xfe036c00),
+	.ee_timer_base_address=((0x3c62  << 2) + 0xffd00000),//sc2 can not find
+	.ee_pwm_base_address=((0x0001  << 2) + 0xfe05e000),//PWMGH_PWM_B
+	.ddr_dmc_apd_address=((0x008c  << 2) + 0xfe036400),
+	.ddr_dmc_asr_address=((0x008d  << 2) + 0xfe036400),
+	.ddr_boot_reason_address=0xfe036800,//sc2 can not find,SYSCTRL_STICKY_REG0
 	},
 	// force id use id mask
 	{
@@ -9993,7 +10011,7 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		*/
 	//printf("reset...\n"); //reset will enter bl2 panic path
 	dcache_disable();
-	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_A1) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C1) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2))
+	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_A1) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C1) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_SC2))
 	{
 		printf("reset...\n");
 		run_command("reset",0);
