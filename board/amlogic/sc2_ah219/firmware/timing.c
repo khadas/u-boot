@@ -246,7 +246,23 @@ pll_set_t __pll_setting = {
 #endif
 };
 
-chip_pll_set_t __chip_pll_setting = { {0}, };
+chip_pll_set_t __chip_pll_setting = {
+#if 1
+	{0},
+#else
+	/*for example*/
+	.sys_pll_ctrl = {	0xa1,
+						2,
+						1512,
+						{0x0001047e, 0x00000000, 0x00000000, 0x48681c00, 0x88770290, 0x39272000, 0x56540000},
+					},
+	.fix_pll_ctrl = {	0xa1,
+						10,
+						1992,
+						{0x000104a6, 0x03f15555, 0x00000000, 0x0a691c20, 0x33071290, 0x39270000, 0x50540000,}
+					},
+#endif
+};
 
 ddr_reg_t __ddr_reg[] = {
 	/* demo, user defined override register */
