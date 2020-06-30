@@ -11,6 +11,7 @@
  */
 #include "v2_burning_i.h"
 #include <mmc.h>
+#include <amlogic/cpu_id.h>
 
 #ifndef BOOT_DEVICE_USB
 #define BOOT_DEVICE_SD                  4
@@ -58,11 +59,25 @@ int aml_check_is_ready_for_sdc_produce(void)
 
 static unsigned _get_romcode_boot_id(void)
 {
-        DWN_DBG("P_AO_SEC_GP_CFG0=0x%p\n", P_AO_SEC_GP_CFG0);
-        const unsigned boot_id = readl(P_AO_SEC_GP_CFG0) & 0xf;
+	cpu_id_t cpuid = get_cpu_id();
 
-        DWN_DBG("boot_id()=%x\n", boot_id);
-        return boot_id;
+    unsigned boot_id = 0;
+#ifdef SYSCTRL_SEC_STATUS_REG2
+	if (MESON_CPU_MAJOR_ID_SC2 <= cpuid.family_id) {
+		boot_id = readl(SYSCTRL_SEC_STATUS_REG2);
+        DWN_DBG("boot_id 0x%x\n", boot_id);
+		boot_id = (boot_id>>4) & 0xf;
+	} else
+#elif defined(P_AO_SEC_GP_CFG0)
+    {
+		DWN_DBG("cfg0 0x%08x\n", readl(P_AO_SEC_GP_CFG0));
+		boot_id = readl(P_AO_SEC_GP_CFG0) & 0xf;
+	}
+#else
+    DWN_MSG("both P_AO_SEC_GP_CFG0 and SYSCTRL_SEC_STATUS_REG2 undefined\n");
+#endif//#ifdef SYSCTRL_SEC_STATUS_REG2
+    DWN_MSG("boot_id 1x%x\n", boot_id);
+    return boot_id;
 }
 
 //is the uboot loaded from usb otg

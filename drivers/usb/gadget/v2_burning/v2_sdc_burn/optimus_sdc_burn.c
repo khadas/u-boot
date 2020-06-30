@@ -337,11 +337,14 @@ int optimus_sdc_burn_dtb_load(HIMAGE hImg)
     unsigned char* dtbTransferBuf     = (unsigned char*)partBaseOffset;
 
     //meson1.dtb but not meson.dtb for m8 compatible
+#ifdef CONFIG_CMD_EFUSE
     if (IS_FEAT_BOOT_VERIFY()) {
         DWN_MSG("SecureEnabled, use meson1_ENC\n");
         hImgItem = image_item_open(hImg, partName, "meson1_ENC");
     }
-    else {
+    else
+#endif//#ifdef CONFIG_CMD_EFUSE
+    {
         hImgItem = image_item_open(hImg, partName, "meson1");
     }
     if (!hImgItem) {

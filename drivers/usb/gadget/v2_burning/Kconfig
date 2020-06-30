@@ -15,6 +15,7 @@ config AML_FACTORY_BURN_LOCAL_UPGRADE
 	  Say Y here if you want to support upgrade from sdcard and usb disk
 
 config SD_BURNING_SUPPORT_UI
+	depends on CMD_BMP
 	bool "AML factory sdcard and usb disk with UI progress info"
 	---help---
 	  Say Y here if you want to support sdcard and usb disk with UI progress info

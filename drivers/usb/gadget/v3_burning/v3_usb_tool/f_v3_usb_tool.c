@@ -24,7 +24,7 @@
 #include <partition_table.h>
 #include <android_image.h>
 #include <image.h>
-/*#include <emmc_partitions.h>*/
+#include <amlogic/cpu_id.h>
 #include "../include/v3_tool_def.h"
 DECLARE_GLOBAL_DATA_PTR;
 static void cb_aml_media_write(struct usb_ep *ep, struct usb_request *req);
@@ -555,7 +555,9 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		return;
 	} else if (!strcmp_l1("identify", cmd)) {
 		const int identifyLen = 8;
-		const char fwVer[] = {5, 0, 0, 16, 0, 0, 0, 0};
+		char fwVer[] = {5, 0, 0, 16, 0, 0, 0, 0};
+		cpu_id_t cpuid = get_cpu_id();
+		if (cpuid.family_id >= MESON_CPU_MAJOR_ID_SC2) fwVer[0] = 6;
 		memcpy(response + 4, fwVer, identifyLen);
 		replyLen = 4 + identifyLen;
 		adnl_identify_timeout = 0;
@@ -573,6 +575,12 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		const char* usid = get_usid_string();
 		if (usid) strncat(response, usid, chars_left);
 		else strncat(response, DEVICE_SERIAL, chars_left);
+	} else if (!strcmp_l1("soctype", cmd)) {
+		cpu_id_t cpuid = get_cpu_id();
+		*(unsigned*)(response+4) = cpuid.family_id;
+		*(unsigned*)(response+8) = cpuid.chip_rev;
+		FB_DBG("soctype 0x%08x, %08x\n", cpuid.family_id, cpuid.chip_rev);
+		replyLen = 4 + 8;
 	} else if (!strcmp_l1("product", cmd)) {
 		char* s1 = DEVICE_PRODUCT;
 		strncat(response, s1, chars_left);

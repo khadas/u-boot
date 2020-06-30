@@ -281,7 +281,7 @@ static int optimus_download_dtb_image(struct ImgBurnInfo* pDownInfo, u32 dataSzR
 {
     int ret = 0;
     DWN_MSG("%s:dataSzReceived=0x%x\n", __func__, dataSzReceived);
-    store_erase("dtb", 0, store_rsv_size("dtb"), 0);
+    store_rsv_erase("dtb");
     ret = store_rsv_write("dtb", dataSzReceived, (u8*)data);
 
     return ret ? 0 : dataSzReceived;
