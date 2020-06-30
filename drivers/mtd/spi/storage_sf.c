@@ -80,7 +80,7 @@ int spi_nor_pre(void)
 
 int spi_nor_probe(u32 init_flag)
 {
-	u32 bus = 0, cs = 0, speed = 0x40000000, mode = 0;
+	u32 bus = 0, cs = 0, speed = 0, mode = 0;
 	struct spi_flash *flash = NULL;
 	struct storage_t *spi_nor = get_snor_storage();
 
@@ -99,5 +99,7 @@ int spi_nor_probe(u32 init_flag)
 		return 1;
 	}
 	spi_nor->init_flag = init_flag;
+	printf("storage-sf mode 0x%x, speed %dHz\n", flash->spi->mode,
+		flash->spi->max_hz);
 	return 0;
 }

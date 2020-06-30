@@ -520,13 +520,13 @@
 
 	spifc_pins: spifc_pins {
 		mux {
-			groups = "spif_mo",
-				 "spif_mi",
-				 "spif_clk",
-				 "spif_cs",
-				 "spif_hold",
-				 "spif_wp_n";
-			function = "spif";
+			groups = "nor_d",
+				 "nor_q",
+				 "nor_c",
+				 //"nor_cs",
+				 "nor_hold",
+				 "nor_wp";
+			function = "nor";
 			drive-strength = <3>;
 		};
 	};

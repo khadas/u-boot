@@ -430,7 +430,7 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 }
 
 #ifndef CONFIG_AML_SPIFCV2
-static int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
+int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 		size_t len, const void *buf)
 #else
 static int _spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,

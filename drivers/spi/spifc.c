@@ -24,6 +24,9 @@
 #include <dm/util.h>
 #include <dm/pinctrl.h>
 
+
+//#define CONFIG_SPIFC_COMPATIBLE_TO_APPOLO
+
 DECLARE_GLOBAL_DATA_PTR;
 
 struct spifc_regs {
@@ -178,6 +181,9 @@ static void spifc_set_tx_op_mode(struct spifc_priv *priv,
 {
 	unsigned int val = 0;
 
+#ifdef CONFIG_SPIFC_COMPATIBLE_TO_APPOLO
+	val |= 1 << COMPATIBLE_TO_APPOLO;
+#endif
 	if (slave_mode & SPI_TX_QUAD) {
 		if (cmd == FCMD_WRITE_QUAD_OUT)
 			val |= 1 << FAST_WRITE_QUAD_OUT;
@@ -199,9 +205,12 @@ static int spifc_user_cmd(struct spifc_priv *priv,
 		     (1 << FAST_READ_QUAD_OUT) |
 		     (1 << FAST_READ_DUAL_IO) |
 		     (1 << FAST_READ_QUAD_IO));
-	writel((1 << USER_CMD_INCLUDE_CMD) |
-			((!!len) << USER_CMD_INCLUDE_ADDR),
-			&regs->user);
+	writel((1 << USER_CMD_INCLUDE_CMD)
+#ifdef CONFIG_SPIFC_COMPATIBLE_TO_APPOLO
+		 | (1 << COMPATIBLE_TO_APPOLO)
+#endif
+		 | ((!!len) << USER_CMD_INCLUDE_ADDR),
+		 &regs->user);
 	writel((7 << USER_CMD_CMD_BITS) |
 			(cmd << USER_CMD_CMD_VALUE),
 			&regs->user2);
@@ -220,7 +229,7 @@ static int spifc_user_cmd_dout(struct spifc_priv *priv,
 {
 	struct spifc_regs *regs = priv->regs;
 	unsigned int *cache;
-	u32 *p;
+	u32 val, *p;
 	int len32, i;
 
 	p = (u32 *)buf;
@@ -229,7 +238,11 @@ static int spifc_user_cmd_dout(struct spifc_priv *priv,
 	for (i = 0; i < len32; i++)
 		writel(*p++, cache++);
 
-	setbits_le32(&regs->user, 1 << USER_CMD_INCLUDE_DOUT);
+	val = 1 << USER_CMD_INCLUDE_DOUT;
+#ifdef CONFIG_SPIFC_COMPATIBLE_TO_APPOLO
+	val |= 1 << COMPATIBLE_TO_APPOLO;
+#endif
+	writel(val, &regs->user);
 	writel(0, &regs->user2);
 	writel(((len << 3) - 1) << USER_CMD_DOUT_BITS, &regs->user1);
 	writel(0, &regs->addr);
@@ -244,11 +257,15 @@ static int spifc_user_cmd_din(struct spifc_priv *priv,
 {
 	struct spifc_regs *regs = priv->regs;
 	unsigned int *cache;
-	u32 *p;
+	u32 val, *p;
 	int len32, i;
 	u8 temp_buf[SPIFC_CACHE_SIZE_IN_BYTE];
 
-	writel(1 << USER_CMD_INCLUDE_DIN, &regs->user);
+	val = 1 << USER_CMD_INCLUDE_DIN;
+#ifdef CONFIG_SPIFC_COMPATIBLE_TO_APPOLO
+	val |= 1 << COMPATIBLE_TO_APPOLO;
+#endif
+	writel(val, &regs->user);
 	writel(0, &regs->user2);
 	writel(((len << 3) - 1) << USER_CMD_DIN_BITS, &regs->user1);
 	writel(0, &regs->addr);
@@ -335,8 +352,7 @@ static int spifc_set_speed(struct udevice *bus, uint hz)
 	if (div < 2) {
 		pr_err("%s %d can not support %d speed!\n",
 			__func__, __LINE__, hz);
-		if (!plat->speed)
-			div = 2;
+		div = 2;
 		hz = SPIFC_MAX_CLK_RATE / div;
 	}
 #ifdef CONFIG_SPIFC_COMPATIBLE_TO_APPOLO
@@ -396,9 +412,9 @@ static int spifc_xfer(struct udevice *dev,
 		printf("%s: error bitlen\n", __func__);
 		return -EINVAL;
 	}
-	spifc_claim_bus(dev);
-	spifc_set_speed(bus, slave->max_hz);
-	spifc_set_mode(bus, slave->mode);
+//	spifc_claim_bus(dev);
+//	spifc_set_speed(bus, slave->max_hz);
+//	spifc_set_mode(bus, slave->mode);
 	if (flags & SPI_XFER_BEGIN) {
 		spifc_chipselect(dev, 1);
 		buf = (u8 *)dout;
@@ -448,16 +464,10 @@ static int spifc_probe(struct udevice *bus)
 
 	priv->regs = (struct spifc_regs *)plat->reg;
 #if defined(CONFIG_CLK) && (CONFIG_CLK)
-	ret = clk_get_by_name(bus, "core", &priv->core);
-	if (ret) {
-		printf("can't get clk source!\n");
-		return ret;
-	}
-	ret = clk_enable(&priv->core);
-	if (ret) {
-		printf("enable clk source fail\n");
-		return ret;
-	}
+	if (clk_get_by_name(bus, "core", &priv->core))
+		printf("%s can't get clk source!\n", __func__);
+	else if (clk_enable(&priv->core))
+		printf("%s enable clk source fail\n", __func__);
 #endif/* CONFIG_CLK */
 
 	ret = gpio_request_by_name(bus, "cs-gpios",

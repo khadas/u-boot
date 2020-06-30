@@ -224,6 +224,39 @@ int ft_board_setup(void *blob, bd_t *bd)
 	return 0;
 }
 
+/* partition table for spinor flash */
+#ifdef CONFIG_SPI_FLASH
+static const struct mtd_partition spiflash_partitions[] = {
+	{
+		.name = "env",
+		.offset = 0,
+		.size = 1 * SZ_256K,
+	},
+	{
+		.name = "dtb",
+		.offset = 0,
+		.size = 1 * SZ_256K,
+	},
+	{
+		.name = "boot",
+		.offset = 0,
+		.size = 2 * SZ_1M,
+	},
+	/* last partition get the rest capacity */
+	{
+		.name = "user",
+		.offset = MTDPART_OFS_APPEND,
+		.size = MTDPART_SIZ_FULL,
+	}
+};
+
+const struct mtd_partition *get_partition_table(int *partitions)
+{
+	*partitions = ARRAY_SIZE(spiflash_partitions);
+	return spiflash_partitions;
+}
+#endif /* CONFIG_SPI_FLASH */
+
 /* partition table */
 /* partition table for spinand flash */
 #if (defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND))

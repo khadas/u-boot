@@ -221,18 +221,11 @@
 };
 
 &spifc {
-	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&spifc_pins>;
-	max-frequency = <24000000>;
-	max-cs = <2>;
-	/* 512M */
-	clocks = <&clkc CLKID_FCLK_DIV2>,
-		 <&clkc CLKID_SPIFC_MUX>,
-		 <&clkc CLKID_SPIFC_DIV>,
-		 <&clkc CLKID_SPIFC_GATE>,
-		 <&clkc CLKID_SPIFC_XTAL_GATE>;
-	clock-names = "fclk_source", "spifc_mux", "spifc_div", "spifc_gate", "spifc_xtal_gate";
+	status = "disabled";
+	cs-gpios = <&gpio GPIOB_14 GPIO_ACTIVE_HIGH>;
+	spi-flash@0 {
+		status = "disabled";
+	};
 };
 
 &spicc0 {
