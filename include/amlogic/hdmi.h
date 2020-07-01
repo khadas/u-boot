@@ -624,7 +624,8 @@ struct hdmi_format_para *hdmi_get_fmt_paras(enum hdmi_vic vic);
 enum hdmi_vic hdmi_get_fmt_vic(char const *name);
 void hdmi_parse_attr(struct hdmi_format_para *para, char const *name);
 void hdmi_tx_set(struct hdmitx_dev *hdev);
-int hdmi_outputmode_check(char *mode);
+int hdmitx_likely_frac_rate_mode(char *mode);
+int hdmi_outputmode_check(char *mode, unsigned int frac);
 /* Parsing RAW EDID data from edid to pRXCap */
 unsigned int hdmi_edid_parsing(unsigned char *edid, struct rx_cap *pRXCap);
 struct hdmi_format_para *hdmi_match_dtd_paras(struct dtd *t);

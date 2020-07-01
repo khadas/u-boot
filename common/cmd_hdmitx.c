@@ -54,19 +54,39 @@ static int vic_priority_table[16] = {
 //vic 2 mode and mode 2 vic conversions
 static struct color_attr_to_string color_attr_lut[] =
 {
-      { COLOR_ATTR_YCBCR444_12BIT,  "444,12bit" },
-      { COLOR_ATTR_YCBCR422_12BIT,  "422,12bit" },
-      { COLOR_ATTR_YCBCR420_12BIT,  "420,12bit" },
-      { COLOR_ATTR_RGB_12BIT,       "rgb,12bit" },
-      { COLOR_ATTR_YCBCR444_10BIT,  "444,10bit" },
-      { COLOR_ATTR_YCBCR422_10BIT,  "422,10bit" },
-      { COLOR_ATTR_YCBCR420_10BIT,  "420,10bit" },
-      { COLOR_ATTR_RGB_10BIT,       "rgb,10bit" },
-      { COLOR_ATTR_YCBCR444_8BIT,   "444,8bit"  },
-      { COLOR_ATTR_YCBCR422_8BIT,   "422,8bit"  },
-      { COLOR_ATTR_YCBCR420_8BIT,   "420,8bit"  },
-      { COLOR_ATTR_RGB_8BIT,        "rgb,8bit"  },
+	{ COLOR_ATTR_YCBCR444_12BIT,  "444,12bit" },
+	{ COLOR_ATTR_YCBCR422_12BIT,  "422,12bit" },
+	{ COLOR_ATTR_YCBCR420_12BIT,  "420,12bit" },
+	{ COLOR_ATTR_RGB_12BIT,       "rgb,12bit" },
+	{ COLOR_ATTR_YCBCR444_10BIT,  "444,10bit" },
+	{ COLOR_ATTR_YCBCR422_10BIT,  "422,10bit" },
+	{ COLOR_ATTR_YCBCR420_10BIT,  "420,10bit" },
+	{ COLOR_ATTR_RGB_10BIT,       "rgb,10bit" },
+	{ COLOR_ATTR_YCBCR444_8BIT,   "444,8bit"  },
+	{ COLOR_ATTR_YCBCR422_8BIT,   "422,8bit"  },
+	{ COLOR_ATTR_YCBCR420_8BIT,   "420,8bit"  },
+	{ COLOR_ATTR_RGB_8BIT,        "rgb,8bit"  },
 };
+
+#ifdef CONFIG_AML_LCD
+static unsigned int hdmitx_parse_vout_name(char *name)
+{
+	char *p, *frac_str;
+	unsigned int frac = 0;
+
+	p = strchr(name, ',');
+	if (!p) {
+		frac = 0;
+	} else {
+		frac_str = p + 1;
+		*p = '\0';
+		if (strcmp(frac_str, "frac") == 0)
+			frac = 1;
+	}
+
+	return frac;
+}
+#endif
 
 static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	char *const argv[])
@@ -74,6 +94,7 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 #ifdef CONFIG_AML_LCD
 	struct aml_lcd_drv_s *lcd_drv = NULL;
 	char *mode;
+	unsigned int frac;
 #endif
 	int st;
 	char* hdmimode;
@@ -90,9 +111,21 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	lcd_drv = aml_lcd_get_driver();
 	if (lcd_drv) {
 		if (lcd_drv->lcd_outputmode_check) {
-			mode = getenv("outputmode");
-			if (lcd_drv->lcd_outputmode_check(mode) == 0)
-				return 0;
+			mode = (char *)malloc(64 * sizeof(char));
+			if (!mode) {
+				printf("cmd_hpd: mode malloc falied\n");
+				if (lcd_drv->lcd_outputmode_check(mode, 0) == 0)
+					return 0;
+			} else {
+				memset(mode, 0, sizeof(mode));
+				sprintf(mode, "%s", getenv("outputmode"));
+				frac = hdmitx_parse_vout_name(mode);
+				if (lcd_drv->lcd_outputmode_check(mode, frac) == 0) {
+					free(mode);
+					return 0;
+				}
+				free(mode);
+			}
 		}
 	}
 #endif

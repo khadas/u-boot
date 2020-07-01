@@ -428,7 +428,7 @@ void hdmi_tx_set(struct hdmitx_dev *hdev)
 #endif
 }
 
-int hdmi_outputmode_check(char *mode)
+int hdmi_outputmode_check(char *mode, unsigned int frac)
 {
 	int i, ret = 0xff;
 
@@ -438,10 +438,16 @@ int hdmi_outputmode_check(char *mode)
 			break;
 		}
 	}
-
 	if (ret) {
 		printf("hdmitx: outputmode[%s] is invalid\n", mode);
 		return ret;
+	}
+
+	if (frac) {
+		if (hdmitx_likely_frac_rate_mode(mode) == 0) {
+			printf("hdmitx: outputmode[%s] don't support frac\n", mode);
+			return 0xff;
+		}
 	}
 	if ((!strcmp(mode, "480i60hz")) || (!strcmp(mode, "576i50hz")))
 		ret = VIU_MUX_ENCI;

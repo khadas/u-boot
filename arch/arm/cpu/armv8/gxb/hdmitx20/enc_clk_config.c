@@ -340,6 +340,15 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_30[] = {
 		1, VIU_ENCP, 3712, 1, 1, 1, CLK_UTIL_VID_PLL_DIV_6p25, 1, 2, 1, -1},
 };
 
+int hdmitx_likely_frac_rate_mode(char *m)
+{
+	if (strstr(m, "24hz") || strstr(m, "30hz") || strstr(m, "60hz")
+		|| strstr(m, "120hz") || strstr(m, "240hz"))
+		return 1;
+	else
+		return 0;
+}
+
 void set_hdmitx_clk(enum hdmi_vic vic)
 {
 	int i = 0;

@@ -866,8 +866,13 @@ int cvbs_set_vmode(char* vmode_name)
 
 /*----------------------------------------------------------------------------*/
 // check for valid video mode
-int cvbs_outputmode_check(char *vmode_name)
+int cvbs_outputmode_check(char *vmode_name, unsigned int frac)
 {
+	if (frac) {
+		printf("cvbs: don't support frac\n");
+		return -1;
+	}
+
 	if ((!strncmp(vmode_name, "576cvbs", strlen("576cvbs"))) ||
 		(!strncmp(vmode_name, "480cvbs", strlen("480cvbs"))) ||
 		(!strncmp(vmode_name, "ntsc_m", strlen("ntsc_m"))) ||
