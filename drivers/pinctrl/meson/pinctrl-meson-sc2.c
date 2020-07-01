@@ -1212,7 +1212,7 @@ static struct meson_bank meson_sc2_periphs_banks[] = {
 	BANK("GPIOB_", GPIOB_0,    GPIOB_15,
 	     0x63,  0,  0x64,  0,  0x62, 0,  0x61, 0,  0x60, 0),
 	BANK("GPIOA_", GPIOA_14,    GPIOA_15,
-	     0x73,  0,  0x74,  0,  0x72, 0,  0x71, 0,  0x70, 0),
+	     0x73,  14,  0x74,  14,  0x72, 14,  0x71, 14,  0x70, 14),
 	BANK("GPIO_TEST_N", GPIO_TEST_N,    GPIO_TEST_N,
 	     0x83,  0,  0x84,  0,  0x82, 0,  0x81,  0, 0x80, 0),
 };
@@ -1226,7 +1226,7 @@ static struct meson_pmx_bank meson_sc2_periphs_pmx_banks[] = {
 	BANK_PMX("E",      GPIOE_0,     GPIOE_2,     0x12, 0),
 	BANK_PMX("C",      GPIOC_0,     GPIOC_7,     0x9, 0),
 	BANK_PMX("B",      GPIOB_0,     GPIOB_15,    0x0, 0),
-	BANK_PMX("A",      GPIOA_14,    GPIOA_15,    0xe, 0),
+	BANK_PMX("A",      GPIOA_14,    GPIOA_15,    0xe, 24),
 	BANK_PMX("TEST_N", GPIO_TEST_N, GPIO_TEST_N, 0xf, 0),
 };
 
@@ -1239,7 +1239,7 @@ static struct meson_drive_bank meson_sc2_periphs_drive_banks[] = {
 	BANK_DRIVE("E",     GPIOE_0,     GPIOE_2,     0x47, 0),
 	BANK_DRIVE("C",     GPIOC_0,     GPIOC_7,     0x57, 0),
 	BANK_DRIVE("B",     GPIOB_0,     GPIOB_15,    0x67, 0),
-	BANK_DRIVE("A",     GPIOA_14,    GPIOA_15,    0x77, 0),
+	BANK_DRIVE("A",     GPIOA_14,    GPIOA_15,    0x77, 28),
 	BANK_DRIVE("TESTN", GPIO_TEST_N, GPIO_TEST_N, 0x87, 0),
 };
 
