@@ -158,7 +158,7 @@
 		    <&clkc CLKID_SD_EMMC_A_DIV>,
 			<&clkc CLKID_SD_EMMC_A_GATE>,
 			<&clkc CLKID_FCLK_DIV2>,
-			<&clkc CLKID_SD_EMMC_A_XTAL_GATE>;
+			<&clkc CLKID_XTAL>;
 			clock-names = "mux", "div", "gate", "clkin", "xtal";
 };
 
@@ -167,7 +167,7 @@
 		    <&clkc CLKID_SD_EMMC_B_DIV>,
 			<&clkc CLKID_SD_EMMC_B_GATE>,
 			<&clkc CLKID_FCLK_DIV2>,
-			<&clkc CLKID_SD_EMMC_B_XTAL_GATE>;
+			<&clkc CLKID_XTAL>;
 			clock-names = "mux", "div", "gate", "clkin", "xtal";
 };
 
@@ -176,7 +176,7 @@
 			<&clkc CLKID_SD_EMMC_C_DIV>,
 			<&clkc CLKID_SD_EMMC_C_GATE>,
 			<&clkc CLKID_FCLK_DIV2>,
-			<&clkc CLKID_SD_EMMC_C_XTAL_GATE>;
+			<&clkc CLKID_XTAL>;
 			clock-names = "mux", "div", "gate", "clkin", "xtal";
 };
 

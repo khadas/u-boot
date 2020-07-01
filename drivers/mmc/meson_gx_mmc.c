@@ -122,6 +122,7 @@ static void meson_mmc_config_clock(struct meson_host *host)
 		clk = 24000000;
 		clk_src = 0;
 		clk_enable(&host->xtal);
+		clk_set_rate(&host->div, clk);
 	}
 	clk_div = (clk / mmc->clock) + (!!(clk % mmc->clock));
 
