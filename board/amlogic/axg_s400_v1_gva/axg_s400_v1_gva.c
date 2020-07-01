@@ -616,20 +616,39 @@ int board_late_init(void){
 	run_command("if itest ${upgrade_step} == 1; then "\
 				"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 	/*add board late init function here*/
+#ifndef CONFIG_DTB_MEM_ADDR
 	int ret;
 	ret = run_command("store dtb read $dtb_mem_addr", 1);
 	if (ret) {
 		printf("%s(): [store dtb read $dtb_mem_addr] fail\n", __func__);
-		#ifdef CONFIG_DTB_MEM_ADDR
-		char cmd[64];
-		printf("load dtb to %x\n", CONFIG_DTB_MEM_ADDR);
-		sprintf(cmd, "store dtb read %x", CONFIG_DTB_MEM_ADDR);
-		ret = run_command(cmd, 1);
-		if (ret) {
-			printf("%s(): %s fail\n", __func__, cmd);
-		}
-		#endif
 	}
+#else
+	char cmd[128];
+	int ret;
+	char *s1;
+	char boot_partition[32];
+	if (!getenv("dtb_mem_addr")) {
+		sprintf(cmd, "setenv dtb_mem_addr 0x%x", CONFIG_DTB_MEM_ADDR);
+		run_command(cmd, 0);
+	}
+	run_command("get_valid_slot;", 0);
+	s1 = getenv("active_slot");
+	printf("active_slot is %s\n", s1);
+	if (strcmp(s1, "normal") == 0) {
+		strcpy(boot_partition, "boot");
+	} else if (strcmp(s1, "_a") == 0) {
+		strcpy(boot_partition, "boot_a");
+	} else if (strcmp(s1, "_b") == 0) {
+		strcpy(boot_partition, "boot_b");
+	}
+
+	sprintf(cmd, "imgread dtb %s ${dtb_mem_addr}", boot_partition);
+	printf("cmd: %s\n", cmd);
+	ret = run_command(cmd, 0);
+	if (ret) {
+		printf("%s(): cmd[%s] fail, ret=%d\n", __func__, cmd, ret);
+	}
+#endif
 
 	/* load unifykey */
 	//run_command("keyunify init 0x1234", 0);
