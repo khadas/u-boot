@@ -181,8 +181,6 @@
                     "setenv fs_type ""ro rootwait skip_initramfs"";"\
                     "run storeargs;"\
             "fi;"\
-            "get_valid_slot;"\
-            "get_avb_mode;"\
             "echo active_slot: ${active_slot};"\
             "if test ${active_slot} != normal; then "\
                     "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\

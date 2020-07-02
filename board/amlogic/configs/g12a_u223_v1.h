@@ -86,10 +86,10 @@
         "jtag=disable\0"\
         "loadaddr=1080000\0"\
         "panel_type=lcd_1\0" \
-	"lcd_ctrl=0x00000000\0" \
+        "lcd_ctrl=0x00000000\0" \
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
-	"colorattribute=444,8bit\0"\
+        "colorattribute=444,8bit\0"\
         "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
@@ -179,8 +179,6 @@
             "else "\
                     "setenv bootargs ${bootargs} ${fs_type};"\
             "fi;"\
-            "get_valid_slot;"\
-            "get_avb_mode;"\
             "echo active_slot: ${active_slot};"\
             "if test ${active_slot} != normal; then "\
                     "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
