@@ -13,4 +13,6 @@ source "drivers/amlogic/storagekey/Kconfig"
 
 source "drivers/amlogic/power/Kconfig"
 
+source "drivers/amlogic/provision/Kconfig"
+
 endmenu

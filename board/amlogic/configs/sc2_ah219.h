@@ -228,6 +228,7 @@
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
             "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
             "setenv serial ${usid}; setenv serial# ${usid};"\
+	    "factory_provision init;"\
             "\0"\
 
 #if 1
@@ -410,7 +411,7 @@
 #define CONFIG_CMD_SHA2
 
 //use hardware sha2
-#define CONFIG_AML_HW_SHA2
+//#define CONFIG_AML_HW_SHA2
 
 /* #define CONFIG_MULTI_DTB    1 */
 

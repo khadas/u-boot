@@ -1,0 +1,4 @@
+config FAT_WRITE
+	bool "enable fat write"
+config AML_FACTORY_PROVISION
+	bool "enable factory provision"

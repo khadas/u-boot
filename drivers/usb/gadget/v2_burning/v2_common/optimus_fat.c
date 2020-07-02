@@ -156,15 +156,15 @@ static void get_name(dir_entry *dirent, char *s_name)
         *s_name = DELETED_FLAG;
 }
 
-static int flush_dirty_fat_buffer(fsdata *mydata);
-#if !defined(CONFIG_FAT_WRITE)
+//static int flush_dirty_fat_buffer(fsdata *mydata);
+//#if !defined(CONFIG_FAT_WRITE)
 /* Stub for read only operation */
 static int flush_dirty_fat_buffer(fsdata *mydata)
 {
     (void)(mydata);
     return 0;
 }
-#endif
+//#endif
 
 /*
  * Get the entry at index 'entry' in a FAT (12/16/32) table.
