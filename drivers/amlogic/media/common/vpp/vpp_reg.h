@@ -214,6 +214,105 @@
 #define VPP_WRAP_OSD3_MATRIX_EN_CTRL               0x3dbd
 #endif
 
+#ifndef VIU2_OSD1_MATRIX_COEF00_01
+#define VIU2_OSD1_MATRIX_COEF00_01                 0x1e70
+#endif
+#ifndef VIU2_OSD1_MATRIX_COEF02_10
+#define VIU2_OSD1_MATRIX_COEF02_10                 0x1e71
+#endif
+#ifndef VIU2_OSD1_MATRIX_COEF11_12
+#define VIU2_OSD1_MATRIX_COEF11_12                 0x1e72
+#endif
+#ifndef VIU2_OSD1_MATRIX_COEF20_21
+#define VIU2_OSD1_MATRIX_COEF20_21                 0x1e73
+#endif
+#ifndef VIU2_OSD1_MATRIX_COEF22
+#define VIU2_OSD1_MATRIX_COEF22                    0x1e74
+#endif
+#ifndef VIU2_OSD1_MATRIX_COEF13_14
+#define VIU2_OSD1_MATRIX_COEF13_14                 0x1e75
+#endif
+#ifndef VIU2_OSD1_MATRIX_COEF23_24
+#define VIU2_OSD1_MATRIX_COEF23_24                 0x1e76
+#endif
+#ifndef VIU2_OSD1_MATRIX_COEF15_25
+#define VIU2_OSD1_MATRIX_COEF15_25                 0x1e77
+#endif
+#ifndef VIU2_OSD1_MATRIX_CLIP
+#define VIU2_OSD1_MATRIX_CLIP                      0x1e78
+#endif
+#ifndef VIU2_OSD1_MATRIX_OFFSET0_1
+#define VIU2_OSD1_MATRIX_OFFSET0_1                 0x1e79
+#endif
+#ifndef VIU2_OSD1_MATRIX_OFFSET2
+#define VIU2_OSD1_MATRIX_OFFSET2                   0x1e7a
+#endif
+#ifndef VIU2_OSD1_MATRIX_PRE_OFFSET0_1
+#define VIU2_OSD1_MATRIX_PRE_OFFSET0_1             0x1e7b
+#endif
+#ifndef VIU2_OSD1_MATRIX_PRE_OFFSET2
+#define VIU2_OSD1_MATRIX_PRE_OFFSET2               0x1e7c
+#endif
+#ifndef VIU2_OSD1_MATRIX_EN_CTRL
+#define VIU2_OSD1_MATRIX_EN_CTRL                   0x1e7d
+#endif
+
+#ifndef VPP_OSD2_MATRIX_COEF00_01
+#define VPP_OSD2_MATRIX_COEF00_01           0x3920
+#endif
+
+#ifndef VPP_OSD2_MATRIX_COEF02_10
+#define VPP_OSD2_MATRIX_COEF02_10           0x3921
+#endif
+
+#ifndef VPP_OSD2_MATRIX_COEF11_12
+#define VPP_OSD2_MATRIX_COEF11_12           0x3922
+#endif
+
+#ifndef VPP_OSD2_MATRIX_COEF20_21
+#define VPP_OSD2_MATRIX_COEF20_21           0x3923
+#endif
+
+#ifndef VPP_OSD2_MATRIX_COEF22
+#define VPP_OSD2_MATRIX_COEF22              0x3924
+#endif
+
+#ifndef VPP_OSD2_MATRIX_COEF13_14
+#define VPP_OSD2_MATRIX_COEF13_14           0x3925
+#endif
+
+#ifndef VPP_OSD2_MATRIX_COEF23_24
+#define VPP_OSD2_MATRIX_COEF23_24           0x3926
+#endif
+
+#ifndef VPP_OSD2_MATRIX_COEF15_25
+#define VPP_OSD2_MATRIX_COEF15_25           0x3927
+#endif
+
+#ifndef VPP_OSD2_MATRIX_CLIP
+#define VPP_OSD2_MATRIX_CLIP                0x3928
+#endif
+
+#ifndef VPP_OSD2_MATRIX_OFFSET0_1
+#define VPP_OSD2_MATRIX_OFFSET0_1           0x3929
+#endif
+
+#ifndef VPP_OSD2_MATRIX_OFFSET2
+#define VPP_OSD2_MATRIX_OFFSET2             0x392a
+#endif
+
+#ifndef VPP_OSD2_MATRIX_PRE_OFFSET0_1
+#define VPP_OSD2_MATRIX_PRE_OFFSET0_1       0x392b
+#endif
+
+#ifndef VPP_OSD2_MATRIX_PRE_OFFSET2
+#define VPP_OSD2_MATRIX_PRE_OFFSET2         0x392c
+#endif
+
+#ifndef VPP_OSD2_MATRIX_EN_CTRL
+#define VPP_OSD2_MATRIX_EN_CTRL             0x392d
+#endif
+
 #ifndef DOLBY_PATH_CTRL
 #define DOLBY_PATH_CTRL                            0x1a0c
 #endif
