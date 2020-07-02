@@ -33,6 +33,11 @@
 #include <asm/gpio.h>
 #endif
 struct dw_eth_dev *priv_tool = NULL;
+
+#ifndef ANACTRL_PLL_GATE_DIS
+#define ANACTRL_PLL_GATE_DIS 0xffffffff
+#endif
+
 #endif
 
 #define ETH_PLL_CTL0 0x44
@@ -709,6 +714,7 @@ static void setup_internal_phy(struct udevice *dev)
 {
 	int phy_cntl1 = 0;
 	int mc_val = 0;
+	int chip_num = 0;
 	int pll_val[3] = {0};
 	int analog_val[3] = {0};
 	int rtn = 0;
@@ -723,6 +729,13 @@ static void setup_internal_phy(struct udevice *dev)
 	if (mc_val < 0) {
 		printf("miss mc_val\n");
 	}
+
+	chip_num = dev_read_u32_default(dev, "chip_num", 4);
+	if (chip_num < 0) {
+		chip_num = 0;
+		printf("use 0 as default chip num\n");
+	}
+	printf("chip num %d\n", chip_num);
 
 	rtn = dev_read_u32_array(dev, "pll_val", pll_val, ARRAY_SIZE(pll_val));
 	if (rtn < 0) {
@@ -782,10 +795,11 @@ static void setup_internal_phy(struct udevice *dev)
 	writel(phy_cntl1, eth_cfg.start + ETH_PHY_CNTL1);
 	udelay(200);
 
-
-	clrbits_le32(ANACTRL_PLL_GATE_DIS, (0x1 << 6));
-	clrbits_le32(ANACTRL_PLL_GATE_DIS, (0x1 << 7));
-	clrbits_le32(ANACTRL_PLL_GATE_DIS, (0x1 << 19));
+	if (chip_num != 3) {
+		clrbits_le32(ANACTRL_PLL_GATE_DIS, (0x1 << 6));
+		clrbits_le32(ANACTRL_PLL_GATE_DIS, (0x1 << 7));
+		clrbits_le32(ANACTRL_PLL_GATE_DIS, (0x1 << 19));
+	}
 }
 
 static void setup_external_phy(struct udevice *dev)
