@@ -21,6 +21,8 @@
 #define DSPA			4 /* dsp-a */
 #define	DSPB			5 /* dsp-b */
 #define	DIF			6 /* dif */
+#define	AOCPU			7 /* aocpu */
+#define	AUCPU			8 /* aucpu */
 
 /*
  * bitmap for jtag select ID:

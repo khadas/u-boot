@@ -48,6 +48,12 @@ static struct jtag_id_desc jtag_id_data[] = {
 
 	{JTAG_SELECT_ID(DIF, JTAG_A,  0), "dif", "jtag_a"},
 	{JTAG_SELECT_ID(DIF, JTAG_B,  0), "dif", "jtag_b"},
+
+	{JTAG_SELECT_ID(AOCPU, JTAG_A,  0), "aocpu", "jtag_a"},
+	{JTAG_SELECT_ID(AOCPU, JTAG_B,  0), "aocpu", "jtag_b"},
+
+	{JTAG_SELECT_ID(AUCPU, JTAG_A,  0), "aucpu", "jtag_a"},
+	{JTAG_SELECT_ID(AUCPU, JTAG_B,  0), "aucpu", "jtag_b"},
 };
 
 static int jtag_id_find(const char *core_type, const char *jtag_type)
@@ -161,7 +167,7 @@ U_BOOT_CMD(
 	jtagon, 4, 1, do_jtagon,
 	"enable jtag",
 	"jtagon <core_type> <jtag_type> [cluster_type]\n"
-	"core_type: [ap | scp | sp | dspa | dspb | dif]\n"
+	"core_type: [ap | scp | sp | dspa | dspb | dif | aocpu | aucpu]\n"
 	"jtag_type: [jtag_a | jtag_b | swd_a | swd_b]\n"
 	"cluster_type: [0 | 1]"
 );
