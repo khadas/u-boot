@@ -48,7 +48,7 @@ enum lcd_extern_type_e {
 #define LCD_EXTERN_NAME_LEN_MAX       30
 
 #define LCD_EXTERN_NUM_MAX            20
-
+#define EXTERN_MUL_MAX	      10
 struct lcd_extern_config_s {
 	unsigned char index;
 	char name[LCD_EXTERN_NAME_LEN_MAX];
@@ -97,17 +97,17 @@ struct lcd_extern_common_s {
 //global API
 struct aml_lcd_extern_driver_s {
 	struct lcd_extern_config_s *config;
-	struct lcd_extern_common_s *common;
 	int (*reg_read)  (unsigned char reg, unsigned char *buf);
 	int (*reg_write) (unsigned char *buf, unsigned int len);
 	int (*power_on)(void);
 	int (*power_off)(void);
-	void (*info_print)(void);
+	void (*info_print)(struct lcd_extern_config_s *econf);
 };
 
-extern struct aml_lcd_extern_driver_s *aml_lcd_extern_get_driver(void);
+struct aml_lcd_extern_driver_s *aml_lcd_extern_get_driver(int index);
 extern int aml_lcd_extern_probe(char *dtaddr, int index);
 extern int aml_lcd_extern_remove(void);
+int aml_lcd_extern_init(void);
 
 extern struct lcd_extern_config_s ext_config_dtf[LCD_EXTERN_NUM_MAX];
 extern struct lcd_extern_common_s ext_common_dft;

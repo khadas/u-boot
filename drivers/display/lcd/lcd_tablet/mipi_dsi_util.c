@@ -1830,7 +1830,7 @@ static void mipi_dsi_link_on(struct lcd_config_s *pconf)
 
 #ifdef CONFIG_AML_LCD_EXTERN
 	if (dconf->extern_init < LCD_EXTERN_INDEX_INVALID) {
-		lcd_ext = aml_lcd_extern_get_driver();
+		lcd_ext = aml_lcd_extern_get_driver(dconf->extern_init);
 		if (lcd_ext == NULL) {
 			LCDPR("no lcd_extern driver\n");
 		} else {
@@ -1881,7 +1881,7 @@ void mipi_dsi_link_off(struct lcd_config_s *pconf)
 
 #ifdef CONFIG_AML_LCD_EXTERN
 	if (dconf->extern_init < LCD_EXTERN_INDEX_INVALID) {
-		lcd_ext = aml_lcd_extern_get_driver();
+		lcd_ext = aml_lcd_extern_get_driver(dconf->extern_init);
 		if (lcd_ext == NULL) {
 			LCDPR("no lcd_extern driver\n");
 		} else {

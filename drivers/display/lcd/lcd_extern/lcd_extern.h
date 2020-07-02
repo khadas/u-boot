@@ -41,7 +41,7 @@ extern int aml_lcd_extern_get_dts_child(int index);
 
 extern int aml_lcd_extern_gpio_get(unsigned char index);
 extern int aml_lcd_extern_gpio_set(unsigned char index, int value);
-extern void aml_lcd_extern_pinmux_set(int status);
+void aml_lcd_extern_pinmux_set(struct lcd_extern_config_s *extconf, int status);
 
 extern int aml_lcd_extern_default_probe(struct aml_lcd_extern_driver_s *ext_drv);
 extern int aml_lcd_extern_mipi_default_probe(struct aml_lcd_extern_driver_s *ext_drv);

@@ -242,7 +242,7 @@ static int lcd_extern_power_on(void)
 {
 	int ret;
 
-	aml_lcd_extern_pinmux_set(1);
+	aml_lcd_extern_pinmux_set(ext_config, 1);
 	ret = lcd_extern_power_ctrl(1);
 	return ret;
 }
@@ -252,7 +252,7 @@ static int lcd_extern_power_off(void)
 	int ret;
 
 	ret = lcd_extern_power_ctrl(0);
-	aml_lcd_extern_pinmux_set(0);
+	aml_lcd_extern_pinmux_set(ext_config, 0);
 
 	return ret;
 }

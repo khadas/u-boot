@@ -603,7 +603,6 @@ struct aml_lcd_drv_s {
 	int unifykey_test_flag;
 	void (*unifykey_test)(void);
 	void (*unifykey_dump)(unsigned int);
-	void (*lcd_extern_info)(void);
 
 	/* for factory test */
 	struct lcd_power_step_s *factory_lcd_power_on_step;

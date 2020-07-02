@@ -642,10 +642,11 @@ static struct lcd_spi_flash_s lcd_pgamma_spi = {
 	.mode = CONFIG_SF_DEFAULT_MODE,
 };
 
-static int lcd_pgamma_spi_refresh(unsigned int reg, unsigned int offset, unsigned int len)
+static int lcd_pgamma_spi_refresh(unsigned int reg, unsigned int offset,
+				  unsigned int len, unsigned int index)
 {
 #ifdef CONFIG_AML_LCD_EXTERN
-	struct aml_lcd_extern_driver_s *lcd_ext = aml_lcd_extern_get_driver();
+	struct aml_lcd_extern_driver_s *lcd_ext;
 #endif
 	unsigned char *data = NULL;
 	/* unsigned char buf[2]; */
@@ -680,6 +681,13 @@ static int lcd_pgamma_spi_refresh(unsigned int reg, unsigned int offset, unsigne
 	}
 
 #ifdef CONFIG_AML_LCD_EXTERN
+	lcd_ext = aml_lcd_extern_get_driver(index);
+	if (!lcd_ext) {
+		printf("%s: lcd_ext_%d is null\n", __func__, index);
+		free(data);
+		return -1;
+	}
+
 	if (lcd_ext->reg_write) {
 		/* cs602 disable crc to write gamma data
 		 * buf[0] = 0x64;
@@ -703,11 +711,21 @@ static int do_lcd_pgamma(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	unsigned int reg, offset, len;
 	char *str;
 	int ret = 0;
+	unsigned int index;
 
 	if (argc < 1) {
 		cmd_usage(cmdtp);
 		return -1;
 	}
+
+	str = getenv("lcd_spi_flash_pgamma_index");
+	if (str) {
+		index = (unsigned int)simple_strtoul(str, NULL, 10);
+	} else {
+		printf("%s: no lcd_spi_flash_pgamma_reg\n", __func__);
+		return -1;
+	}
+
 
 	str = getenv("lcd_spi_flash_pgamma_reg");
 	if (str) {
@@ -737,7 +755,7 @@ static int do_lcd_pgamma(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 		return -1;
 	}
 
-	ret = lcd_pgamma_spi_refresh(reg, offset, len);
+	ret = lcd_pgamma_spi_refresh(reg, offset, len, index);
 	return ret;
 }
 

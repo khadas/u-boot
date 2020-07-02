@@ -568,52 +568,79 @@ static int do_lcd_key(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 static int do_lcd_ext(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct aml_lcd_drv_s *lcd_drv;
-	struct aml_lcd_extern_driver_s *lcd_ext = aml_lcd_extern_get_driver();
+	struct aml_lcd_extern_driver_s *lcd_ext;
 	unsigned char buf[2];
+	unsigned int index;
 
+	if (argc == 1)
+		return -1;
+
+	index = (unsigned int)simple_strtoul(argv[1], NULL, 10);
 	lcd_drv = aml_lcd_get_driver();
 	if (!lcd_drv) {
 		printf("no lcd driver\n");
 		return 0;
 	}
-	if (strcmp(argv[1], "info") == 0) {
-		if (lcd_drv->lcd_extern_info)
-			lcd_drv->lcd_extern_info();
+
+	lcd_ext = aml_lcd_extern_get_driver(index);
+	if (!lcd_ext) {
+		printf("no lcd_ext_%d\n", index);
+		return 0;
+	}
+
+	if (argc < 3)
+		return 0;
+
+	if (strcmp(argv[2], "info") == 0) {
+		if (lcd_ext->info_print)
+			lcd_ext->info_print(lcd_ext->config);
 		else
 			printf("no lcd lcd_extern_info\n");
-	} else if (strcmp(argv[1], "r") == 0) {
+	} else if (strcmp(argv[2], "r") == 0) {
 		if (lcd_ext->reg_read) {
-			buf[0] = (unsigned char)simple_strtoul(argv[2], NULL, 16);
+			buf[0] = (unsigned char)simple_strtoul(argv[3],
+							       NULL,
+							       16);
 			lcd_ext->reg_read(buf[0], &buf[1]);
 			printf("lcd_ext read: 0x%02x = 0x%02x\n",
-				buf[0], buf[1]);
+			       buf[0], buf[1]);
 		} else {
-			printf("%s: lcd_ext reg_read is null\n", __func__);
+			printf("%s: lcd_ext reg_read is null\n",
+			       __func__);
 		}
-	} else if (strcmp(argv[1], "w") == 0) {
+	} else if (strcmp(argv[2], "w") == 0) {
 		if (lcd_ext->reg_write) {
-			buf[0] = (unsigned char)simple_strtoul(argv[2], NULL, 16);
-			buf[1] = (unsigned char)simple_strtoul(argv[3], NULL, 16);
+			buf[0] = (unsigned char)simple_strtoul(argv[3],
+							       NULL,
+							       16);
+			buf[1] = (unsigned char)simple_strtoul(argv[4],
+							       NULL,
+							       16);
 			lcd_ext->reg_write(buf, 2);
 			printf("lcd_ext write: 0x%02x = 0x%02x\n",
-				buf[0], buf[1]);
+			       buf[0], buf[1]);
 		} else {
-			printf("%s: lcd_ext reg_write is null\n", __func__);
+			printf("%s: lcd_ext reg_write is null\n",
+			       __func__);
 		}
-	} else if (strcmp(argv[1], "power") == 0) {
-		buf[0] = (unsigned char)simple_strtoul(argv[2], NULL, 10);
+	} else if (strcmp(argv[2], "power") == 0) {
+		buf[0] = (unsigned char)simple_strtoul(argv[3],
+						       NULL, 10);
 		if (buf[0]) {
 			if (lcd_ext->power_on)
 				lcd_ext->power_on();
 			else
-				printf("%s: lcd_ext power_on is null\n", __func__);
+				printf("%s: lcd_ext power_on is null\n",
+				       __func__);
 		} else {
 			if (lcd_ext->power_off)
 				lcd_ext->power_off();
 			else
-				printf("%s: lcd_ext power_off is null\n", __func__);
+				printf("%s:lcd_ext power_off is null\n",
+				       __func__);
 		}
 	}
+
 	return 0;
 }
 #endif
@@ -635,7 +662,7 @@ static cmd_tbl_t cmd_lcd_sub[] = {
 	U_BOOT_CMD_MKENT(prbs, 2, 0, do_lcd_prbs, "", ""),
 	U_BOOT_CMD_MKENT(key,  4, 0, do_lcd_key, "", ""),
 #ifdef CONFIG_AML_LCD_EXTERN
-	U_BOOT_CMD_MKENT(ext,  2, 0, do_lcd_ext, "", ""),
+	U_BOOT_CMD_MKENT(ext,  3, 0, do_lcd_ext, "", ""),
 #endif
 };
 

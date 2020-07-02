@@ -113,13 +113,12 @@ static void lcd_power_ctrl(int status)
 	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
 	struct lcd_power_ctrl_s *lcd_power;
 	struct lcd_power_step_s *power_step;
-#ifdef CONFIG_AML_LCD_EXTERN
-	struct aml_lcd_extern_driver_s *ext_drv;
-#endif
 	char *str;
 	unsigned int i, wait, gpio;
 	int value = LCD_PMU_GPIO_NUM_MAX;
-
+#ifdef CONFIG_AML_LCD_EXTERN
+	struct aml_lcd_extern_driver_s *ext_drv;
+#endif
 	i = 0;
 	lcd_power = lcd_drv->lcd_config->lcd_power;
 	if (status) {
@@ -166,7 +165,7 @@ static void lcd_power_ctrl(int status)
 			break;
 #ifdef CONFIG_AML_LCD_EXTERN
 		case LCD_POWER_TYPE_EXTERN:
-			ext_drv = aml_lcd_extern_get_driver();
+			ext_drv = aml_lcd_extern_get_driver(power_step->index);
 			if (ext_drv) {
 				if (status) {
 					if (ext_drv->power_on)
@@ -437,7 +436,9 @@ static void lcd_vbyone_filter_env_init(struct lcd_config_s *pconf)
 static int lcd_extern_load_config(char *dt_addr, struct lcd_config_s *pconf)
 {
 	struct lcd_power_step_s *power_step;
-	int index, i;
+	int index, i = 0;
+
+	aml_lcd_extern_init();
 
 	/* mipi extern_init is special */
 	if (pconf->lcd_basic.lcd_type == LCD_MIPI) {
@@ -446,7 +447,6 @@ static int lcd_extern_load_config(char *dt_addr, struct lcd_config_s *pconf)
 			aml_lcd_extern_probe(dt_addr, index);
 	}
 
-	i = 0;
 	while (i < LCD_PWR_STEP_MAX) {
 		power_step = &pconf->lcd_power->power_on_step[i];
 		if (power_step->type >= LCD_POWER_TYPE_MAX)
@@ -1059,19 +1059,6 @@ static void aml_lcd_key_dump(unsigned int flag)
 	aml_lcd_unifykey_dump(key_flag);
 }
 
-static void aml_lcd_extern_info(void)
-{
-#ifdef CONFIG_AML_LCD_EXTERN
-	struct aml_lcd_extern_driver_s *ext_drv;
-
-	ext_drv = aml_lcd_extern_get_driver();
-	if (ext_drv)
-		ext_drv->info_print();
-#else
-	printf("lcd_extern is not support\n");
-#endif
-}
-
 static struct aml_lcd_drv_s aml_lcd_driver = {
 	.lcd_status = 0,
 	.lcd_config = &lcd_config_dft,
@@ -1111,7 +1098,6 @@ static struct aml_lcd_drv_s aml_lcd_driver = {
 	.unifykey_test_flag = 0, /* default disable unifykey test */
 	.unifykey_test = aml_lcd_key_test,
 	.unifykey_dump = aml_lcd_key_dump,
-	.lcd_extern_info = aml_lcd_extern_info,
 
 	/* for factory test */
 	.factory_lcd_power_on_step = NULL,

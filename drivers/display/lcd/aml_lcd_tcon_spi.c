@@ -214,7 +214,7 @@ static int lcd_tcon_spi_data_load(void)
 {
 	struct tcon_mem_map_table_s *mm_table = get_lcd_tcon_mm_table();
 #ifdef CONFIG_AML_LCD_EXTERN
-	struct aml_lcd_extern_driver_s *ext_drv = aml_lcd_extern_get_driver();
+	struct aml_lcd_extern_driver_s *ext_drv = aml_lcd_extern_get_driver(0);
 	unsigned int ext_need_update = 0;
 #endif
 	unsigned int i, j, size, new_size;

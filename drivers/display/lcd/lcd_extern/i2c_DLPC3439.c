@@ -54,7 +54,7 @@ static int lcd_extern_power_on(void)
 {
 	int ret = 0;
 
-	aml_lcd_extern_pinmux_set(1);
+	aml_lcd_extern_pinmux_set(ext_config, 1);
 #ifdef LCD_EXT_I2C_PORT_INIT
 	aml_lcd_extern_i2c_bus_change(ext_config->i2c_bus);
 	mdelay(10);
@@ -78,7 +78,7 @@ static int lcd_extern_power_off(void)
 {
 	int ret = 0;
 
-	aml_lcd_extern_pinmux_set(0);
+	aml_lcd_extern_pinmux_set(ext_config, 0);
 	return ret;
 }
 
