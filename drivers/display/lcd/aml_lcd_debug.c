@@ -780,11 +780,9 @@ void aml_lcd_mute_setting(unsigned char flag)
 }
 
 #define CLK_CHK_MAX    2  /*MHz*/
-static unsigned int lcd_prbs_performed;
-static unsigned long lcd_clk9_check_std = 121;
-static unsigned long lcd_clk55_check_std = 121;
-static unsigned long lcd_clk129_check_std = 42;
-static unsigned int lcd_prbs_err;
+static unsigned int lcd_prbs_performed, lcd_prbs_err;
+static unsigned long lcd_encl_clk_check_std = 121;
+static unsigned long lcd_fifo_clk_check_std = 42;
 
 static unsigned long lcd_abs(unsigned long a, unsigned long b)
 {
@@ -798,28 +796,17 @@ static unsigned long lcd_abs(unsigned long a, unsigned long b)
 	return val;
 }
 
-static int lcd_lvds_clk_check(unsigned int cnt)
+static int lcd_prbs_clk_check(unsigned long encl_clk, unsigned long fifo_clk,
+			      unsigned int cnt)
 {
 	unsigned long clk_check, temp;
 
 	clk_check = clk_util_clk_msr(9);
-	if (clk_check != lcd_clk9_check_std) {
-		temp = lcd_abs(clk_check, lcd_clk9_check_std);
+	if (clk_check != encl_clk) {
+		temp = lcd_abs(clk_check, encl_clk);
 		if (temp >= CLK_CHK_MAX) {
 			if (lcd_debug_print_flag == 6) {
-				LCDERR("lcd encl  clkmsr error %ld, cnt: %d\n",
-				       clk_check, cnt);
-			}
-			return -1;
-		}
-	}
-
-	clk_check = clk_util_clk_msr(55);
-	if (clk_check != lcd_clk55_check_std) {
-		temp = lcd_abs(clk_check, lcd_clk55_check_std);
-		if (temp >= CLK_CHK_MAX) {
-			if (lcd_debug_print_flag == 6) {
-				LCDERR("lcd vid_div clkmsr error %ld, cnt:%d\n",
+				LCDERR("encl  clkmsr error %ld, cnt: %d\n",
 				       clk_check, cnt);
 			}
 			return -1;
@@ -827,11 +814,11 @@ static int lcd_lvds_clk_check(unsigned int cnt)
 	}
 
 	clk_check = clk_util_clk_msr(129);
-	if (clk_check != lcd_clk129_check_std) {
-		temp = lcd_abs(clk_check, lcd_clk129_check_std);
+	if (clk_check != fifo_clk) {
+		temp = lcd_abs(clk_check, fifo_clk);
 		if (temp >= CLK_CHK_MAX) {
 			if (lcd_debug_print_flag == 6) {
-				LCDERR("lcd fifo clkmsr error %ld, cnt:%d\n",
+				LCDERR("fifo clkmsr error %ld, cnt:%d\n",
 				       clk_check, cnt);
 			}
 			return -1;
@@ -856,10 +843,20 @@ int aml_lcd_prbs_test(unsigned int s, unsigned int mode_flag)
 		if ((mode_flag & (1 << i)) == 0)
 			continue;
 
+		lcd_hiu_write(HHI_LVDS_TX_PHY_CNTL0, 0);
+		lcd_hiu_write(HHI_LVDS_TX_PHY_CNTL1, 0);
+
 		cnt = 0;
-		lcd_prbs_err = 0;
+		clk_err_cnt = 0;
 		lcd_prbs_mode = (1 << i);
 		LCDPR("lcd_prbs_mode: %d\n", lcd_prbs_mode);
+		if (lcd_prbs_mode == LCD_PRBS_MODE_LVDS) {
+			lcd_encl_clk_check_std = 136;
+			lcd_fifo_clk_check_std = 48;
+		} else if (lcd_prbs_mode == LCD_PRBS_MODE_VX1) {
+			lcd_encl_clk_check_std = 594;
+			lcd_fifo_clk_check_std = 297;
+		}
 		if (cconf->data->prbs_clk_config) {
 			cconf->data->prbs_clk_config(lcd_prbs_mode);
 		} else {
@@ -891,26 +888,25 @@ int aml_lcd_prbs_test(unsigned int s, unsigned int mode_flag)
 			}
 			if (ret) {
 				LCDERR(
-				"lcd prbs check error 1, val:0x%03x, cnt:%d\n",
+				"prbs check error 1, val:0x%03x, cnt:%d\n",
 				       val2, cnt);
 				goto lcd_prbs_test_err;
 			}
 			val1 = val2;
 			if (lcd_hiu_getb(HHI_LVDS_TX_PHY_CNTL1, 0, 12)) {
-				LCDERR("lcd prbs check error 2, cnt:%d\n", cnt);
+				LCDERR("prbs check error 2, cnt:%d\n", cnt);
 				goto lcd_prbs_test_err;
 			}
-			if (lcd_prbs_mode == LCD_PRBS_MODE_LVDS) {
-				if (lcd_lvds_clk_check(cnt))
-					clk_err_cnt++;
-				else
-					clk_err_cnt = 0;
-				if (clk_err_cnt >= 10) {
-					LCDERR(
-				"lcd prbs check error 3(clkmsr), cnt:%d\n",
-					       cnt);
-					goto lcd_prbs_test_err;
-				}
+			if (lcd_prbs_clk_check(lcd_encl_clk_check_std,
+					       lcd_fifo_clk_check_std,
+					       cnt))
+				clk_err_cnt++;
+			else
+				clk_err_cnt = 0;
+			if (clk_err_cnt >= 10) {
+				LCDERR("prbs check error 3(clkmsr), cnt:%d\n",
+				       cnt);
+				goto lcd_prbs_test_err;
 			}
 		}
 
@@ -920,11 +916,13 @@ int aml_lcd_prbs_test(unsigned int s, unsigned int mode_flag)
 		if (lcd_prbs_mode == LCD_PRBS_MODE_LVDS) {
 			lcd_prbs_performed |= LCD_PRBS_MODE_LVDS;
 			lcd_prbs_err &= ~(LCD_PRBS_MODE_LVDS);
-			LCDPR("lcd vx1 prbs check ok\n");
-		} else {
+			LCDPR("lvds prbs check ok\n");
+		} else if (lcd_prbs_mode == LCD_PRBS_MODE_VX1) {
 			lcd_prbs_performed |= LCD_PRBS_MODE_VX1;
 			lcd_prbs_err &= ~(LCD_PRBS_MODE_VX1);
-			LCDPR("lcd lvds prbs check ok\n");
+			LCDPR("vx1 prbs check ok\n");
+		} else {
+			LCDPR("prbs check: unsupport mode\n");
 		}
 		continue;
 
@@ -940,6 +938,14 @@ lcd_prbs_test_err:
 
 lcd_prbs_test_end:
 	lcd_hiu_setb(HHI_LVDS_TX_PHY_CNTL0, 0, 12, 2);
+
+	printf("\n[lcd prbs result]:\n");
+	printf("  lvds prbs performed: %d, error: %d\n"
+	       "  vx1 prbs performed: %d, error: %d\n",
+	       (lcd_prbs_performed & LCD_PRBS_MODE_LVDS) ? 1 : 0,
+	       (lcd_prbs_err & LCD_PRBS_MODE_LVDS) ? 1 : 0,
+	       (lcd_prbs_performed & LCD_PRBS_MODE_VX1) ? 1 : 0,
+	       (lcd_prbs_err & LCD_PRBS_MODE_VX1) ? 1 : 0);
 
 	return 0;
 }

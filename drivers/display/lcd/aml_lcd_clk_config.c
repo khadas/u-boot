@@ -757,7 +757,8 @@ static void lcd_prbs_set_pll_vx1_tl1(void)
 {
 	int cnt = 0, ret;
 
-	LCDPR("%s\n", __func__);
+	if (lcd_debug_print_flag == 6)
+		LCDPR("%s\n", __func__);
 
 lcd_prbs_retry_pll_vx1_tl1:
 	lcd_hiu_write(HHI_TCON_PLL_CNTL0, 0x000f04f7);
@@ -768,19 +769,21 @@ lcd_prbs_retry_pll_vx1_tl1:
 	udelay(10);
 	lcd_hiu_write(HHI_TCON_PLL_CNTL1, 0x10110000);
 	udelay(10);
-	lcd_hiu_write(HHI_TCON_PLL_CNTL2, 0x0000110c);
+	lcd_hiu_write(HHI_TCON_PLL_CNTL2, 0x00001108);
 	udelay(10);
 	lcd_hiu_write(HHI_TCON_PLL_CNTL3, 0x10051400);
 	udelay(10);
-	lcd_hiu_write(HHI_TCON_PLL_CNTL4, 0x000100c0);
+	lcd_hiu_write(HHI_TCON_PLL_CNTL4, 0x010100c0);
 	udelay(10);
-	lcd_hiu_write(HHI_TCON_PLL_CNTL4, 0x008300c0);
+	lcd_hiu_write(HHI_TCON_PLL_CNTL4, 0x038300c0);
 	udelay(10);
 	lcd_hiu_setb(HHI_TCON_PLL_CNTL0, 1, 26, 1);
 	udelay(10);
 	lcd_hiu_setb(HHI_TCON_PLL_CNTL0, 0, LCD_PLL_RST_TL1, 1);
 	udelay(10);
-	lcd_hiu_write(HHI_TCON_PLL_CNTL2, 0x0000300c);
+	lcd_hiu_write(HHI_TCON_PLL_CNTL2, 0x00003008);
+	udelay(10);
+	lcd_hiu_write(HHI_TCON_PLL_CNTL2, 0x00003028);
 	udelay(10);
 
 	ret = lcd_pll_wait_lock(HHI_TCON_PLL_CNTL0, HHI_TCON_PLL_CNTL1);
@@ -789,7 +792,6 @@ lcd_prbs_retry_pll_vx1_tl1:
 			goto lcd_prbs_retry_pll_vx1_tl1;
 		LCDERR("hpll lock failed\n");
 	}
-	lcd_hiu_write(HHI_TCON_PLL_CNTL2, 0x0000302c);
 
 	/* pll_div */
 	lcd_hiu_setb(HHI_VIID_CLK_CNTL, 0, VCLK2_EN, 1);
@@ -817,14 +819,15 @@ static void lcd_prbs_set_pll_lvds_tl1(void)
 {
 	int cnt = 0, ret;
 
-	LCDPR("%s\n", __func__);
+	if (lcd_debug_print_flag == 6)
+		LCDPR("%s\n", __func__);
 
 lcd_prbs_retry_pll_lvds_tl1:
-	lcd_hiu_write(HHI_TCON_PLL_CNTL0, 0x0006048d);
+	lcd_hiu_write(HHI_TCON_PLL_CNTL0, 0x008e049f);
 	udelay(10);
-	lcd_hiu_setb(HHI_TCON_PLL_CNTL0, 1, LCD_PLL_RST_TL1, 1);
+	lcd_hiu_write(HHI_TCON_PLL_CNTL0, 0x208e049f);
 	udelay(10);
-	lcd_hiu_setb(HHI_TCON_PLL_CNTL0, 1, LCD_PLL_EN_TL1, 1);
+	lcd_hiu_write(HHI_TCON_PLL_CNTL0, 0x3006049f);
 	udelay(10);
 	lcd_hiu_write(HHI_TCON_PLL_CNTL1, 0x10000000);
 	udelay(10);
@@ -836,11 +839,11 @@ lcd_prbs_retry_pll_lvds_tl1:
 	udelay(10);
 	lcd_hiu_write(HHI_TCON_PLL_CNTL4, 0x038300c0);
 	udelay(10);
-	lcd_hiu_setb(HHI_TCON_PLL_CNTL0, 1, 26, 1);
+	lcd_hiu_write(HHI_TCON_PLL_CNTL0, 0x348e049f);
 	udelay(10);
-	lcd_hiu_write(HHI_TCON_PLL_CNTL0, 0x148e048d);
+	lcd_hiu_write(HHI_TCON_PLL_CNTL0, 0x148e049f);
 	udelay(10);
-	lcd_hiu_write(HHI_TCON_PLL_CNTL2, 0x00003008);
+	lcd_hiu_write(HHI_TCON_PLL_CNTL2, 0x00003002);
 	udelay(10);
 	lcd_hiu_write(HHI_TCON_PLL_CNTL2, 0x00003022);
 	udelay(10);
@@ -909,7 +912,8 @@ void lcd_prbs_config_clk_tl1(unsigned int lcd_prbs_mode)
 	/* enable CTS_ENCL clk gate */
 	lcd_hiu_setb(HHI_VID_CLK_CNTL2, 1, ENCL_GATE_VCLK, 1);
 
-	LCDPR("%s ok\n", __func__);
+	if (lcd_debug_print_flag == 6)
+		LCDPR("%s ok\n", __func__);
 }
 
 static void lcd_set_vid_pll_div(struct lcd_clk_config_s *cConf)
