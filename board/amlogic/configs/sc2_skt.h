@@ -377,8 +377,9 @@
 
 /* other functions */
 #define CONFIG_LIBAVB		1
-/* top hide for NBG file */
-#define CONFIG_SYS_MEM_TOP_HIDE		0x00400000
+
+/* define CONFIG_SYS_MEM_TOP_HIDE 8M space for free buffer */
+#define CONFIG_SYS_MEM_TOP_HIDE		0x00800000
 
 #define CONFIG_CPU_ARMV8
 
