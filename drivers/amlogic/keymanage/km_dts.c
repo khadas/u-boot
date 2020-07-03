@@ -6,9 +6,10 @@
 #define UNIFYKEY_DATAFORMAT_HEXASCII	"hexascii"
 #define UNIFYKEY_DATAFORMAT_ALLASCII	"allascii"
 
-#define UNIFYKEY_DEVICE_EFUSEKEY	"efuse"
-#define UNIFYKEY_DEVICE_NORMAL		"normal"
-#define UNIFYKEY_DEVICE_SECURESKEY	"secure"
+#define UNIFYKEY_DEVICE_EFUSEKEY	    "efuse"
+#define UNIFYKEY_DEVICE_NORMAL		    "normal"
+#define UNIFYKEY_DEVICE_SECURESKEY	    "secure"
+#define UNIFYKEY_DEVICE_PROVISIONKEY    "provision"
 
 #define UNIFYKEY_PERMIT_READ		"read"
 #define UNIFYKEY_PERMIT_WRITE		"write"
@@ -16,6 +17,8 @@
 
 static struct key_info_t unify_key_info={.key_num =0, .key_flag = 0, .efuse_version = -1, .encrypt_type = 0};
 static struct key_item_t *unifykey_item=NULL;
+static struct key_item_t* _defProvisonItem =NULL;//keyname start with "KEY_PROVISION_" and device is "provison"
+#define _PROVSION_DEFAULT_KEY_NAME  "KEY_PROVISION_XXX"
 
 static int unifykey_item_verify_check(struct key_item_t *key_item)
 {
@@ -43,6 +46,10 @@ static struct key_item_t *unifykey_find_item_by_name(const char *name)
         if (!strcmp(pre_item->name,name)) {
             return pre_item;
         }
+    }
+
+    if (!strncmp(_PROVSION_DEFAULT_KEY_NAME, name, strlen(_PROVSION_DEFAULT_KEY_NAME) - 3)) {
+        return _defProvisonItem;
     }
 	return NULL;
 }
@@ -195,6 +202,10 @@ static int unifykey_item_dt_parse(const void* dt_addr,int nodeoffset,int id,char
     else if(strcmp(propdata,UNIFYKEY_DEVICE_NORMAL) == 0){
         temp_item->dev = KEY_M_NORAML_KEY;
     }
+    else if (!strcmp(propdata, UNIFYKEY_DEVICE_PROVISIONKEY)) {
+        temp_item->dev = KEY_M_PROVISION_KEY;
+        _defProvisonItem = temp_item;
+    }
     else{
         KM_ERR("key-device %s is unknown at key_%d\n", propdata, id);
         return __LINE__;
@@ -318,7 +329,7 @@ int keymanage_dts_parse(const void* dt_addr)
 		KM_ERR("unifykey-num is not configured\n");
         return __LINE__;
 	}
-    if (unify_key_info.key_num > 32) {
+    if (unify_key_info.key_num > 256) {
         KM_ERR("Cfg key_num is %d > 32,pls check!\n", unify_key_info.key_num);
         return __LINE__;
     }
