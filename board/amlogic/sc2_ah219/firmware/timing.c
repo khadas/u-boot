@@ -44,15 +44,15 @@
  * board_id: check hardware adc config
  * dram_rank_config:
  *            #define CONFIG_DDR_CHL_AUTO					0xF
- *            #define CONFIG_DDR0_16BIT_CH0				0x1
- *            #define CONFIG_DDR0_16BIT_RANK01_CH0		0x4
+ *            #define CONFIG_DDR0_16BIT_CH0					0x1
+ *            #define CONFIG_DDR0_16BIT_RANK01_CH0			0x4
  *            #define CONFIG_DDR0_32BIT_RANK0_CH0			0x2
- *            #define CONFIG_DDR0_32BIT_RANK01_CH01		0x3
- *            #define CONFIG_DDR0_32BIT_16BIT_RANK0_CH0	0x5
+ *            #define CONFIG_DDR0_32BIT_RANK01_CH01			0x3
+ *            #define CONFIG_DDR0_32BIT_16BIT_RANK0_CH0		0x5
  *            #define CONFIG_DDR0_32BIT_16BIT_RANK01_CH0	0x6
  * DramType:
- *            #define CONFIG_DDR_TYPE_DDR3				0
- *            #define CONFIG_DDR_TYPE_DDR4				1
+ *            #define CONFIG_DDR_TYPE_DDR3					0
+ *            #define CONFIG_DDR_TYPE_DDR4					1
  *            #define CONFIG_DDR_TYPE_LPDDR4				2
  *            #define CONFIG_DDR_TYPE_LPDDR3				3
  * DRAMFreq:
@@ -60,39 +60,23 @@
  *
  */
 
-
-/* ddr configs */
-#define DDR_RFC_TYPE_DDR3_512Mbx1				0
-#define DDR_RFC_TYPE_DDR3_512Mbx2				1
-#define DDR_RFC_TYPE_DDR3_512Mbx4				2
-#define DDR_RFC_TYPE_DDR3_512Mbx8				3
-#define DDR_RFC_TYPE_DDR3_512Mbx16				4
-#define DDR_RFC_TYPE_DDR4_2Gbx1					5
-#define DDR_RFC_TYPE_DDR4_2Gbx2					6
-#define DDR_RFC_TYPE_DDR4_2Gbx4					7
-#define DDR_RFC_TYPE_DDR4_2Gbx8					8
-
-#define DDR_RFC_TYPE_LPDDR4_2Gbx1				9
-#define DDR_RFC_TYPE_LPDDR4_3Gbx1				10
-#define DDR_RFC_TYPE_LPDDR4_4Gbx1				11
-
 ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 {
-	/* ddr3 */
+	// g12a 4layer 4pcs ddr3 rank01 (912)(U212)
 	.board_id				= CONFIG_BOARD_ID_MASK,
 	.version				= 1,
-	.dram_rank_config		= CONFIG_DDR0_32BIT_16BIT_RANK0_CH0,//CONFIG_DDR0_16BIT_CH0,
+	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK01_CH0,
 	.DramType				= CONFIG_DDR_TYPE_DDR3,
-	/* DRAMFreq = 192, 256, 384, 512, 768-1536 */
 	.DRAMFreq				= {912, 0, 0, 0},
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
+	//.imem_load_addr			= 0xFFFC0000, //sram
 	//.dmem_load_size			= 0x1000, //4K
 
 	.DisabledDbyte			= 0xf0,
 	.Is2Ttiming				= 1,
 	.HdtCtrl				= 0xC8,
-	.dram_cs0_size_MB		= 768,
+	.dram_cs0_size_MB		= 0xffff,
 	.dram_cs1_size_MB		= 0,
 	.training_SequenceCtrl	= {0x31f,0}, //ddr3 0x21f 0x31f
 	.phy_odt_config_rank	= {0x23,0x13}, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
@@ -157,17 +141,19 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
+	.fast_boot[0]			= 1,
 },
 {
-	/* ddr4 */
+	// g12a 4layer 2pcs ddr4 rank0 (1320)(U200)
 	.board_id				= CONFIG_BOARD_ID_MASK,
 	.version				= 1,
 	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
-	.ddr_rfc_type			= DDR_RFC_TYPE_DDR4_2Gbx8,
 	.DramType				= CONFIG_DDR_TYPE_DDR4,
-	.DRAMFreq				= {1176, 0, 0, 0},
+	.DRAMFreq				= {1320, 0, 0, 0},
+	.ddr_rfc_type			= DDR_RFC_TYPE_DDR4_2Gbx8,
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
+	//.imem_load_addr			= 0xFFFC0000, //sram
 	//.dmem_load_size			= 0x1000, //4K
 
 	.DisabledDbyte			= 0xf0,
@@ -199,7 +185,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.vref_dram_permil		= 0,//700,
 	//.vref_reverse			= 0,
 	//.ac_trace_delay		= {0x0,0x0},// {0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40},
-	.ac_trace_delay			= {16,32,32,32,32,32,32,32,32,32},
+	.ac_trace_delay			= {32-10,32,32,32,32,32,32,32,32,32},
 	.ddr_dmc_remap			= {
 							[0] = ( 5 |  7 << 5 |  8 << 10 |  9 << 15 | 10 << 20 | 11 << 25 ),
 							[1] = ( 12|  0 << 5 |  0 << 10 | 14 << 15 | 15 << 20 | 16 << 25 ),
@@ -226,6 +212,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
+	.fast_boot[0]			= 1,
 },
 };
 
@@ -246,6 +233,7 @@ pll_set_t __pll_setting = {
 #else
 							  (0<<6),    /* print log buffer before run bl31 */
 #endif
+	.ddr_timming_save_mode = 1,
 };
 
 chip_pll_set_t __chip_pll_setting = {
