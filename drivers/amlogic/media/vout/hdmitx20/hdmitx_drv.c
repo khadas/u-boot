@@ -1382,6 +1382,13 @@ static void hdmi_tvenc1080i_set(enum hdmi_vic vic)
 
 }
 
+static bool is_hdmi4k_420(enum hdmi_vic vic)
+{
+	if ((vic & HDMITX_VIC420_OFFSET) == HDMITX_VIC420_OFFSET)
+		return 1;
+	return 0;
+}
+
 static void hdmi_tvenc4k2k_set(enum hdmi_vic vic)
 {
 	unsigned long VFIFO2VD_TO_HDMI_LATENCY = 2;
@@ -1401,8 +1408,16 @@ static void hdmi_tvenc4k2k_set(enum hdmi_vic vic)
 	unsigned long de_v_begin_even = 0, de_v_end_even = 0;
 	unsigned long hs_begin = 0, hs_end = 0;
 	unsigned long vs_adjust = 0;
+	unsigned long vs_adjust_420 = 0;
 	unsigned long vs_bline_evn = 0, vs_eline_evn = 0;
 	unsigned long vso_begin_evn = 0;
+
+/* Due to 444->420 line buffer latency, the active line output from
+ * 444->420 conversion will be delayed by 1 line. So for 420 mode,
+ * we need to delay Vsync by 1 line as well, to meet the timing
+ */
+	if (is_hdmi4k_420(vic))
+		vs_adjust_420 = 1;
 
 	switch (vic) {
 	case HDMI_3840x2160p30_16x9:
@@ -1538,12 +1553,13 @@ static void hdmi_tvenc4k2k_set(enum hdmi_vic vic)
 	hd_write_reg(P_ENCP_DVI_HSO_END, hs_end);
 
 	/* Program Vsync timing for even field */
-	if (de_v_begin_even >= SOF_LINES + VSYNC_LINES + (1-vs_adjust))
-		vs_bline_evn = de_v_begin_even - SOF_LINES - VSYNC_LINES
-			- (1-vs_adjust);
+	if (de_v_begin_even + vs_adjust_420 >=
+		SOF_LINES + VSYNC_LINES + (1 - vs_adjust))
+		vs_bline_evn = de_v_begin_even + vs_adjust_420 - SOF_LINES -
+			VSYNC_LINES - (1 - vs_adjust);
 	else
-		vs_bline_evn = TOTAL_LINES + de_v_begin_even - SOF_LINES
-			- VSYNC_LINES - (1-vs_adjust);
+		vs_bline_evn = TOTAL_LINES + de_v_begin_even + vs_adjust_420 -
+			SOF_LINES - VSYNC_LINES - (1 - vs_adjust);
 	vs_eline_evn = modulo(vs_bline_evn + VSYNC_LINES, TOTAL_LINES);
 	hd_write_reg(P_ENCP_DVI_VSO_BLINE_EVN, vs_bline_evn);
 	hd_write_reg(P_ENCP_DVI_VSO_ELINE_EVN, vs_eline_evn);
@@ -1559,6 +1575,11 @@ static void hdmi_tvenc4k2k_set(enum hdmi_vic vic)
 		(0 << 8) |
 		(0 << 12)
 	);
+	if (is_hdmi4k_420(vic)) {
+		hd_set_reg_bits(P_VPU_HDMI_SETTING, 0, 8, 1);
+		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 20, 1);
+	}
+
 	hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);
 }
 
@@ -2320,6 +2341,10 @@ static void hdmi_tvenc_set(enum hdmi_vic vic)
 			(0 << 8) | /*[11: 8] wr_rate. 0=A write every clk1; 1=A write every 2 clk1; ...; 15=A write every 16 clk1.*/
 			(0 <<12)   /*[15:12] rd_rate. 0=A read every clk2; 1=A read every 2 clk2; ...; 15=A read every 16 clk2.*/
 		);
+		if (is_hdmi4k_420(vic)) {
+			hd_set_reg_bits(P_VPU_HDMI_SETTING, 0, 8, 1);
+			hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 20, 1);
+		}
 		/*Annie 01Sep2011: Register VENC_DVI_SETTING and VENC_DVI_SETTING_MORE are no long valid, use VPU_HDMI_SETTING instead.*/
 		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);  /*[    1] src_sel_encp: Enable ENCP output to HDMI*/
 	}
@@ -2985,7 +3010,7 @@ static void hdmitx_set_hw(struct hdmitx_dev* hdev)
 	if (hdev->para->cs == HDMI_COLOR_FORMAT_420) {
 		hd_set_reg_bits(P_VPU_HDMI_FMT_CTRL, 2, 0, 2);
 		hd_set_reg_bits(P_VPU_HDMI_SETTING, 0, 4, 4);
-		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 8, 1);
+		hd_set_reg_bits(P_VPU_HDMI_SETTING, 0, 8, 1);
 	}
 	switch (hdev->vic) {
 	case HDMI_720x480i60_16x9:
