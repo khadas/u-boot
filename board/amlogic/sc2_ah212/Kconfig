@@ -22,4 +22,9 @@ config CMD_PLLTEST
 	help
 	  support plltest command
 
+config AML_REBOOT
+	bool "reboot cmd"
+	default y
+	help
+	  support uboot reboot cmd
 endif

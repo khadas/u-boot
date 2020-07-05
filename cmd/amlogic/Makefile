@@ -14,7 +14,7 @@ obj-$(CONFIG_AML_STORE_WRAPPER) += store_wrapper.o
 obj-$(CONFIG_AML_IMG_READ) += imgread.o
 obj-$(CONFIG_AML_DEFENV) += defenv_without.o
 
-#obj-y += cmd_reboot.o
+obj-$(CONFIG_AML_REBOOT) += cmd_reboot.o
 obj-$(CONFIG_CMD_RSVMEM) += cmd_rsvmem.o
 
 ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
