@@ -93,7 +93,7 @@ int r1p1_temp_read(int type)
 			/*enable thermal2*/
 			writel(T_CONTROL_DATA, TS_DDR_CFG_REG1);
 			writel(T_TSCLK_DATA, CLKCTRL_TS_CLK_CTRL);
-			ret = readl(SYSCTRL_SEC_STATUS_REG12);/*thermal2 cali data in reg CFG12*/
+			ret = readl(SYSCTRL_SEC_STATUS_REG28);/*thermal2 cali data in reg CFG28*/
 			mdelay(5);
 			buf[0] = (ret) & 0xff;
 			buf[1] = (ret >> 8) & 0xff;
