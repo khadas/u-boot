@@ -34,6 +34,11 @@
 #define RING_PWM_VCCK 	(0xff802000 + (0x01 << 2))
 #define RING_PWM_EE	(0xff807000 + (0x01 << 2))
 
+#define T5_MSR_CLK_REG0		((0x6001 << 2) + 0xffd00000)
+#define T5_P_MSR_CLK_REG0	(volatile unsigned int *)((0x6001 << 2) + 0xffd00000)
+#define T5_MSR_CLK_REG2		((0x6003 << 2) + 0xffd00000)
+#define T5_P_MSR_CLK_REG2	(volatile unsigned int *)((0x6003 << 2) + 0xffd00000)
+
 #if 0
 __u32 get_rate_xtal(void)
 {
@@ -128,168 +133,49 @@ int clk_get_rate(unsigned clksrc)
 	return -1;
 }
 
-const char* clk_table[] = {
-	[144] = "ts_pll_clk",
-	[143] = "mainclk",
-	[142] = "demode_ts_clk",
-	[141] = "ts_ddr_clk",
-	[140] = "audio_toacodec_bclk",
-	[139] = "aud_adc_clk_g128x",
-	[138] = "dsu_pll_clk_cpu",
-	[137] = "atv_dmd_i2c_sclk",
-	[136] = "sys_pll_clk",
-	[135] = "tvfe_sample_clk",
-	[134] = "adc_extclk_in",
-	[133] = "atv_dmd_mono_clk_32",
-	[132] = "audio_toacode_mclk",
-	[131] = "ts_sar_clk",
-	[130] = "au_dac2_clk_gf128x",
-	[129] = "lvds_fifo_clk",
-	[128] = "cts_tcon_pll_clk",
-	[127] = "hdmirx_vid_clk",
-	[126] = "sar_ring_osc_clk",
-	[125] = "cts_hdmi_axi_clk",
-	[124] =	"cts_demod_core_clk",
-	[123] =	"mod_audio_pdm_dclk_o",
-	[122] =	"audio_spdifin_mst_clk",
-	[121] = "audio_spdifout_mst_clk",
-	[120] = "audio_spdifout_b_mst_clk",
-	[119] = "audio_pdm_sysclk",
-	[118] = "audio_resamplea_clk",
-	[117] = "audio_resampleb_clk",
-	[116] = "audio_tdmin_a_sclk",
-	[115] = "audio_tdmin_b_sclk",
-	[114] = "audio_tdmin_c_sclk",
-	[113] = "audio_tdmin_lb_sclk",
-	[112] = "audio_tdmout_a_sclk",
-	[111] = "audio_tdmout_b_sclk",
-	[110] = "audio_tdmout_c_sclk",
-	[109] = "o_vad_clk",
-	[108] = "acodec_i2sout_bclk",
-	[107] = "au_dac_clk_g128x",
-	[106] = "ephy_test_clk",
-	[105] = "am_ring_osc_clk_out_ee[9]",
-	[104] = "am_ring_osc_clk_out_ee[8]",
-	[103] = "am_ring_osc_clk_out_ee[7]",
-	[102] = "am_ring_osc_clk_out_ee[6]",
-	[101] = "am_ring_osc_clk_out_ee[5]",
-	[100] = "am_ring_osc_clk_out_ee[4]",
-	[99] = "am_ring_osc_clk_out_ee[3]",
-	[98] = "cts_ts_clk",
-	[97] = "cts_vpu_clkb_tmp",
-	[96] = "cts_vpu_clkb",
-	[95] = "eth_phy_plltxclk",
-	[94] = "eth_phy_exclk",
-	[93] = "sys_cpu_ring_osc_clk[3]",
-	[92] = "sys_cpu_ring_osc_clk[2]",
-	[91] = "hdmirx_audmeas_clk",
-	[90] = "am_ring_osc_clk_out_ee[11]",
-	[89] = "am_ring_osc_clk_out_ee[10]",
-	[88] = "cts_hdmirx_meter_clk",
-	[87] = "1'b0",
-	[86] = "cts_hdmirx_modet_clk",
-	[85] = "cts_hdmirx_acr_ref_clk",
-	[84] = "co_tx_cl",
-	[83] = "co_rx_clk",
-	[82] = "cts_ge2d_clk",
-	[81] = "cts_vapbclk",
-	[80] = "rng_ring_osc_clk[3]",
-	[79] = "rng_ring_osc_clk[2]",
-	[78] = "rng_ring_osc_clk[1]",
-	[77] = "rng_ring_osc_clk[0]",
-	[76] = "hdmix_aud_clk",
-	[75] = "cts_hevcf_clk",
-	[74] = "hdmirx_aud_pll_clk",
-	[73] = "cts_pwm_C_clk",
-	[72] = "cts_pwm_D_clk",
-	[71] = "cts_pwm_E_clk",
-	[70] = "cts_pwm_F_clk",
-	[69] = "cts_hdcp22_skpclk",
-	[68] = "cts_hdcp22_esmclk",
-	[67] = "hdmirx_apll_clk_audio",
-	[66] = "cts_vid_lock_clk",
-	[65] = "cts_spicc_0_clk",
-	[64] = "cts_spicc_1_clk",
-	[63] = "hdmirx_tmds_clk",
-	[62] = "cts_hevcb_clk",
-	[61] = "gpio_clk_msr",
-	[60] = "cts_hdmirx_aud_pll_clk",
-	[59] = "cts_hcodec_clk",
-	[58] = "cts_vafe_datack",
-	[57] = "cts_atv_dmd_vdac_clk",
-	[56] = "cts_atv_dmd_sys_clk",
-	[55] = "vid_pll_div_clk_out",
-	[54] = "cts_vpu_clkc",
-	[53] = "ddr_2xclk",
-	[52] = "cts_sd_emmc_clk_B",
-	[51] = "cts_sd_emmc_clk_C",
-	[50] = "mp3_clk_out",
-	[49] = "mp2_clk_out",
-	[48] = "mp1_clk_out",
-	[47] = "ddr_dpll_pt_clk",
-	[46] = "cts_vpu_clk",
-	[45] = "cts_pwm_A_clk",
-	[44] = "cts_pwm_B_clk",
-	[43] = "fclk_div5",
-	[42] = "mp0_clk_out",
-	[41] = "mac_eth_rx_clk_rmii",
-	[40] = "cts_hdmirx_cfg_clk",
-	[39] = "cts_bt656_clk0",
-	[38] = "cts_vdin_meas_clk",
-	[37] = "cts_cdac_clk_c",
-	[36] = "cts_hdmi_tx_pixel_clk",
-	[35] = "cts_mali_clk",
-	[34] = "eth_mppll_50m_ckout",
-	[33] = "sys_cpu_ring_osc_clk[1]",
-	[32] = "cts_vdec_clk",
-	[31] = "mpll_clk_test_out",
-	[30] = "hdmirx_cable_clk",
-	[29] = "hdmirx_apll_clk_out_div",
-	[28] = "cts_sar_adc_clk",
-	[27] = "co_clkin_to_mac",
-	[26] = "sc_clk_int",
-	[25] = "cts_eth_clk_rmii",
-	[24] = "cts_eth_clk125Mhz",
-	[23] = "mpll_clk_50m",
-	[22] = "mac_eth_phy_ref_clk",
-	[21] = "lcd_an_clk_ph3",
-	[20] = "rtc_osc_clk_out",
-	[19] = "lcd_an_clk_ph2",
-	[18] = "sys_cpu_clk_div16",
-	[17] = "sys_pll_div16",
-	[16] = "cts_FEC_CLK_2",
-	[15] = "cts_FEC_CLK_1",
-	[14] = "cts_FEC_CLK_0",
-	[13] = "mod_tcon_clko",
-	[12] = "hifi_pll_clk",
-	[11] = "mac_eth_tx_clk",
-	[10] = "cts_vdac_clk",
-	[9] = "cts_encl_clk",
-	[8] = "cts_encp_clk",
-	[7] = "clk81",
-	[6] = "cts_enci_clk",
-	[5] = "gp1_pll_clk",
-	[4] = "gp0_pll_clk",
-	[3] = "sys_cpu_ring_osc_clk[0]",
-	[2] = "am_ring_osc_clk_out_ee[2]",
-	[1] = "am_ring_osc_clk_out_ee[1]",
-	[0] = "am_ring_osc_clk_out_ee[0]",
-};
-
-static const char * const tm2_table[] = {
-	[171] = "pcie1_clk_inn",
-	[170] = "pcie1_clk_inp",
-	[169] = "pcie0_phy_bs_clk",
-	[168] = "pcie1_phy_bs_clk",
+static const char * const t5_table[] = {
+	[210] = "am_ring_osc_ee24",
+	[209] = "am_ring_osc_ee23",
+	[208] = "am_ring_osc_ee22",
+	[207] = "am_ring_osc_ee21",
+	[206] = "am_ring_osc_ee20",
+	[205] = "am_ring_osc_ee19",
+	[204] = "am_ring_osc_ee18",
+	[203] = "am_ring_osc_ee17",
+	[202] = "am_ring_osc_ee16",
+	[201] = "am_ring_osc_ee15",
+	[200] = "am_ring_osc_ee14",
+	[199] = "am_ring_osc_ee13",
+	[198] = "am_ring_osc_ee12",
+	[197] = "sys_cpu_ring_osc27",
+	[196] = "sys_cpu_ring_osc26",
+	[195] = "sys_cpu_ring_osc25",
+	[194] = "sys_cpu_ring_osc24",
+	[193] = "sys_cpu_ring_osc23",
+	[192] = "sys_cpu_ring_osc22",
+	[191] = "sys_cpu_ring_osc21",
+	[190] = "sys_cpu_ring_osc20",
+	[189] = "sys_cpu_ring_osc19",
+	[188] = "sys_cpu_ring_osc18",
+	[187] = "sys_cpu_ring_osc17",
+	[186] = "sys_cpu_ring_osc16",
+	[185] = "sys_cpu_ring_osc15",
+	[184] = "sys_cpu_ring_osc14",
+	[183] = "sys_cpu_ring_osc13",
+	[182] = "sys_cpu_ring_osc12",
+	[181] = "sys_cpu_ring_osc11",
+	[180] = "sys_cpu_ring_osc10",
+	[179] = "sys_cpu_ring_osc9",
+	[178] = "sys_cpu_ring_osc8",
+	[177] = "sys_cpu_ring_osc7",
+	[176] = "sys_cpu_ring_osc6",
+	[175] = "sys_cpu_ring_osc5",
+	[174] = "sys_cpu_ring_osc4",
+	[173] = "adc_lr_outrdy",
+	[172] = "atv_dmd_mono_out",
 	[167] = "au_dac1l_en_dac_clk",
 	[166] = "au_dac1r_en_dac_clk",
-	[165] = "au_dac2l_en_dac_clk",
-	[164] = "au_dac2r_en_dac_clk",
 	[163] = "hdmirx_aud_sck",
-	[162] = "audio_t0_hdmitx_bclk",
-	[161] = "audio_t0_hdmitx_spdif_clk",
-	[160] = "dspb_clk",
-	[159] = "dspa_clk",
 	[157] = "vpu_dmc_clk",
 	[156] = "p22_usb2_clkout",
 	[155] = "p21_usb2_clkout",
@@ -300,28 +186,19 @@ static const char * const tm2_table[] = {
 	[150] = "dpll_clk_a2",
 	[149] = "dpll_clk_b2",
 	[148] = "dpll_clk_b3",
-	[147] = "pcie0_clk_inp",
-	[146] = "pcie0_clk_inn",
-	[145] = "hdmitx_sys_clk",
 	[144] = "ts_pll_clk",
 	[143] = "mainclk",
 	[142] = "demode_ts_clk",
-	[141] = "ts_ddr_clk",
 	[140] = "audio_toacodec_bclk",
 	[139] = "aud_adc_clk_g128x",
-	[138] = "vipnanoq_core_clk",
 	[137] = "atv_dmd_i2c_sclk",
-	[136] = "vipnanoq_axi_clk",
 	[135] = "tvfe_sample_clk",
 	[134] = "adc_extclk_in",
 	[133] = "atv_dmd_mono_clk_32",
 	[132] = "audio_toacode_mclk",
-	[131] = "ts_sar_clk",
-	[130] = "au_dac2_clk_gf128x",
 	[129] = "lvds_fifo_clk",
 	[128] = "cts_tcon_pll_clk",
 	[127] = "hdmirx_vid_clk",
-	[126] = "sar_ring_osc_clk",
 	[125] = "cts_hdmi_axi_clk",
 	[124] =	"cts_demod_core_clk",
 	[123] =	"mod_audio_pdm_dclk_o",
@@ -360,7 +237,6 @@ static const char * const tm2_table[] = {
 	[90] = "am_ring_osc_clk_out_ee[11]",
 	[89] = "am_ring_osc_clk_out_ee[10]",
 	[88] = "cts_hdmirx_meter_clk",
-	[87] = "hdmitx_tmds_clk",
 	[86] = "cts_hdmirx_modet_clk",
 	[85] = "cts_hdmirx_acr_ref_clk",
 	[84] = "co_tx_cl",
@@ -383,19 +259,15 @@ static const char * const tm2_table[] = {
 	[67] = "hdmirx_apll_clk_audio",
 	[66] = "cts_vid_lock_clk",
 	[65] = "cts_spicc_0_clk",
-	[64] = "cts_spicc_1_clk",
 	[63] = "hdmirx_tmds_clk",
-	[62] = "cts_hevcb_clk",
 	[61] = "gpio_clk_msr",
 	[60] = "cts_hdmirx_aud_pll_clk",
-	[59] = "cts_hcodec_clk",
 	[58] = "cts_vafe_datack",
 	[57] = "cts_atv_dmd_vdac_clk",
 	[56] = "cts_atv_dmd_sys_clk",
 	[55] = "vid_pll_div_clk_out",
 	[54] = "cts_vpu_clkc",
 	[53] = "ddr_2xclk",
-	[52] = "cts_sd_emmc_clk_B",
 	[51] = "cts_sd_emmc_clk_C",
 	[50] = "mp3_clk_out",
 	[49] = "mp2_clk_out",
@@ -408,10 +280,8 @@ static const char * const tm2_table[] = {
 	[42] = "mp0_clk_out",
 	[41] = "mac_eth_rx_clk_rmii",
 	[40] = "cts_hdmirx_cfg_clk",
-	[39] = "cts_bt656_clk0",
 	[38] = "cts_vdin_meas_clk",
 	[37] = "cts_cdac_clk_c",
-	[36] = "cts_hdmi_tx_pixel_clk",
 	[35] = "cts_mali_clk",
 	[34] = "eth_mppll_50m_ckout",
 	[33] = "sys_cpu_ring_osc_clk[1]",
@@ -421,7 +291,6 @@ static const char * const tm2_table[] = {
 	[29] = "hdmirx_apll_clk_out_div",
 	[28] = "cts_sar_adc_clk",
 	[27] = "co_clkin_to_mac",
-	[26] = "sc_clk_int",
 	[25] = "cts_eth_clk_rmii",
 	[24] = "cts_eth_clk125Mhz",
 	[23] = "mpll_clk_50m",
@@ -442,7 +311,6 @@ static const char * const tm2_table[] = {
 	[8] = "cts_encp_clk",
 	[7] = "clk81",
 	[6] = "cts_enci_clk",
-	[5] = "gp1_pll_clk",
 	[4] = "gp0_pll_clk",
 	[3] = "sys_cpu_ring_osc_clk[0]",
 	[2] = "am_ring_osc_clk_out_ee[2]",
@@ -462,12 +330,48 @@ unsigned long clk_util_clk_msr(unsigned long clk_mux)
 {
 	unsigned int regval = 0;
 
+	writel(0, T5_MSR_CLK_REG0);
+	/* Set the measurement gate to 64uS */
+	clrbits_le32(T5_P_MSR_CLK_REG0, 0xffff);
+	/* 64uS is enough for measure the frequence? */
+	setbits_le32(T5_P_MSR_CLK_REG0, 64 - 1);
+	/* Disable continuous measurement */
+	/* Disable interrupts */
+	clrbits_le32(T5_P_MSR_CLK_REG0, 1 << 18 | 1 << 17);
+	clrbits_le32(T5_P_MSR_CLK_REG0, 0x7f << 20);
+	setbits_le32(T5_P_MSR_CLK_REG0, clk_mux << 20 | /*Select MUX*/
+				     1 << 19 |	     /* enable the clock */
+				     1 << 16);	     /* enable measuring */
+	/* Wait for the measurement to be done */
+	regval = readl(T5_MSR_CLK_REG0);
+	do {
+		regval = readl(T5_MSR_CLK_REG0);
+	} while (regval & (1 << 31));
+
+	/* Disable measuring */
+	clrbits_le32(T5_P_MSR_CLK_REG0, (1 << 16));
+	regval = (readl(T5_MSR_CLK_REG2) + 31) & 0x000FFFFF;
 
 	return (regval >> 6);
 }
 
 int clk_msr(int index)
 {
+	unsigned int index_total = 0;
+	int i;
+
+	index_total = sizeof(t5_table) / sizeof(char *);
+	if (index == 0xff) {
+		for (i = 0; i < index_total; i++)
+			printf("[%4d][%4ld MHz] %s\n", i, clk_util_clk_msr(i), t5_table[i]);
+	}
+	else {
+		if (index >= index_total) {
+			printf("clk msr legal range: [0-%d]\n", index_total-1);
+			return -1;
+		}
+		printf("[%4d][%4ld MHz] %s\n", index, clk_util_clk_msr(index),  t5_table[index]);
+	}
 
 	return 0;
 }
