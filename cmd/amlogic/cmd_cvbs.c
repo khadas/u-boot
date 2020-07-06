@@ -37,12 +37,9 @@ static int do_cvbs_debug(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 {
 	if ((argc != 2) && (argc != 3) && (argc != 4) && (argc != 5)) {
 		printf("cvbs debug command format as:\n"
-		"    r h/v address\n"
-		"    w value h/v address\n"
-		"    dump h/v addr_start addr_end\n"
 		"    enci\n"
 		"    clock\n"
-		"    set_clkpath 0/1/2/3\n");
+		"    clkpath 0/1/2/3\n");
 		return CMD_RET_FAILURE;
 	}
 
@@ -116,12 +113,9 @@ U_BOOT_CMD(cvbs, CONFIG_SYS_MAXARGS, 1, do_cvbs,
 	"cvbs init\n"
 	"    init of cvbs\n"
 	"cvbs debug\n"
-	"    r h/v address\n"
-	"    w value h/v address\n"
-	"    dump h/v addr_start addr_end\n"
 	"    enci\n"
 	"    clock\n"
-	"    set_clkpath 0/1/2/3\n"
+	"    clkpath 0/1/2/3\n"
 	"cvbs output [FORMAT | bist MODE]\n"
 	"    FORMAT : [576cvbs|480cvbs|ntsc_m|pal_m|pal_n]\n"
 	"    bist mode : [off|1 or colorbar|2 or thinline|3 or dotgrid|0 or fixval]\n"
