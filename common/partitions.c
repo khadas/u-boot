@@ -19,6 +19,7 @@ struct partitions *part_table = NULL;
 static int parts_total_num;
 int has_boot_slot = 0;
 int has_system_slot = 0;
+bool dynamic_partition = false;
 
 
 int get_partitions_table(struct partitions **table)
@@ -137,6 +138,8 @@ int get_partition_from_dts(unsigned char *buffer)
 		memset(part_table, 0, sizeof(struct partitions)*(be32_to_cpup((u32*)parts_num)));
 		parts_total_num = be32_to_cpup((u32*)parts_num);
 	}
+	dynamic_partition = false;
+
 	for (index = 0; index < be32_to_cpup((u32*)parts_num); index++)
 	{
 		sprintf(propname,"part-%d", index);
@@ -179,6 +182,11 @@ int get_partition_from_dts(unsigned char *buffer)
 			has_system_slot = 1;
 		else if (strcmp(uname, "system") == 0)
 			has_system_slot = 0;
+
+		if (strcmp(uname, "super") == 0) {
+			dynamic_partition = true;
+			printf("enable dynamic_partition\n");
+		}
 	}
 	return 0;
 

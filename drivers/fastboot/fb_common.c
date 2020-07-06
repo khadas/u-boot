@@ -13,6 +13,7 @@
 #include <common.h>
 #include <fastboot.h>
 #include <net/fastboot.h>
+#include <emmc_partitions.h>
 
 /**
  * fastboot_buf_addr - base address of the fastboot download buffer
@@ -63,6 +64,17 @@ void fastboot_fail(const char *reason, char *response)
 }
 
 /**
+ * fastboot_busy() - Write a INFO response of the form "INFO$reason".
+ *
+ * @reason: Pointer to returned reason string
+ * @response: Pointer to fastboot response buffer
+ */
+void fastboot_busy(const char *reason, char *response)
+{
+	fastboot_response("INFO", response, "%s", reason);
+}
+
+/**
  * fastboot_okay() - Write an OKAY response of the form "OKAY$reason".
  *
  * @reason: Pointer to returned reason string, or NULL to send a bare "OKAY"
@@ -75,6 +87,50 @@ void fastboot_okay(const char *reason, char *response)
 	else
 		fastboot_response("OKAY", response, NULL);
 }
+
+/**
+ *check lock state
+ *return 1 if locked
+ *return 0 if unlocked
+ */
+int check_lock(void)
+{
+	char *lock_s;
+	LockData_t* info;
+
+	lock_s = env_get("lock");
+	if (!lock_s) {
+		printf("lock state is NULL \n");
+		lock_s = "10101000";
+		setenv("lock", "10101000");
+		run_command("defenv_reserv; saveenv;", 0);
+	}
+	printf("lock state: %s\n", lock_s);
+
+	info = malloc(sizeof(struct LockData));
+	if (info) {
+		memset(info,0,LOCK_DATA_SIZE);
+		info->version_major = (int)(lock_s[0] - '0');
+		info->version_minor = (int)(lock_s[1] - '0');
+		info->unlock_ability = (int)(lock_s[2] - '0');
+		info->lock_state = (int)(lock_s[4] - '0');
+		info->lock_critical_state = (int)(lock_s[5] - '0');
+		info->lock_bootloader = (int)(lock_s[6] - '0');
+
+		dump_lock_info(info);
+	} else
+		return 0;
+
+	if ((info->lock_state == 1 ) || ( info->lock_critical_state == 1 )) {
+		free (info);
+		return 1;
+	}
+	else {
+		free (info);
+		return 0;
+	}
+}
+
 
 /**
  * fastboot_set_reboot_flag() - Set flag to indicate reboot-bootloader

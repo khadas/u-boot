@@ -30,6 +30,9 @@
 #define CMD_WIPE_DATA          "wipe_data"
 #define CMD_SYSTEM_CRASH    "system_crash"
 #define CMD_RUN_RECOVERY   "boot-recovery"
+#define CMD_RESIZE_DATA    "resize2fs_data"
+#define CMD_FOR_RECOVERY "recovery_"
+#define CMD_FASTBOOTD          "fastbootd"
 
 struct bootloader_message {
     char command[32];
@@ -73,6 +76,8 @@ static int do_RunBcbCommand(
     char recovery[RECOVERYBUF_SIZE] = {0};
     char miscbuf[MISCBUF_SIZE] = {0};
     char clearbuf[COMMANDBUF_SIZE+STATUSBUF_SIZE+RECOVERYBUF_SIZE] = {0};
+    char* RebootMode;
+    char* ActiveSlot;
 
     if (argc != 2) {
         return cmd_usage(cmdtp);
@@ -103,6 +108,23 @@ static int do_RunBcbCommand(
         memcpy(miscbuf, CMD_RUN_RECOVERY, sizeof(CMD_RUN_RECOVERY));
         memcpy(miscbuf+sizeof(command)+sizeof(status), "recovery\n--system_crash", sizeof("recovery\n--system_crash"));
         store_write((const char *)partition, 0, sizeof(miscbuf), (unsigned char *)miscbuf);
+    } else if (!memcmp(command_mark, CMD_RESIZE_DATA, strlen(command_mark))) {
+        printf("Start to write --resize2fs_data to %s\n", partition);
+        memcpy(miscbuf, CMD_RUN_RECOVERY, sizeof(CMD_RUN_RECOVERY));
+        memcpy(miscbuf+sizeof(command)+sizeof(status), "recovery\n--resize2fs_data", sizeof("recovery\n--resize2fs_data"));
+        store_write((const char *)partition, 0, sizeof(miscbuf), (unsigned char *)miscbuf);
+    } else if (!memcmp(command_mark, CMD_FOR_RECOVERY, strlen(CMD_FOR_RECOVERY))) {
+        memcpy(miscbuf, CMD_RUN_RECOVERY, sizeof(CMD_RUN_RECOVERY));
+        sprintf(recovery, "%s%s", "recovery\n--", command_mark);
+        memcpy(miscbuf+sizeof(command)+sizeof(status), recovery, strlen(recovery));
+        store_write((const char *)partition, 0, sizeof(miscbuf), (unsigned char *)miscbuf);
+        return 0;
+    } else if (!memcmp(command_mark, CMD_FASTBOOTD, strlen(command_mark))) {
+        printf("write cmd to enter fastbootd \n");
+        memcpy(miscbuf, CMD_RUN_RECOVERY, sizeof(CMD_RUN_RECOVERY));
+        memcpy(miscbuf+sizeof(command)+sizeof(status), "recovery\n--fastboot", sizeof("recovery\n--fastboot"));
+        store_write((const char *)partition, 0, sizeof(miscbuf), (unsigned char *)miscbuf);
+        return 0;
     }
 
     printf("Start read %s partition datas!\n", partition);
@@ -128,6 +150,23 @@ static int do_RunBcbCommand(
     printf("get bootloader message from misc partition:\n");
     printf("[commannd:%s]\n[status:%s]\n[recovery:%s]\n",
             command, status, recovery);
+
+    run_command("get_rebootmode", 0);
+    RebootMode = env_get("reboot_mode");
+    if (strstr(RebootMode, "quiescent") != NULL) {
+        printf("quiescent mode.\n");
+        run_command("run storeargs", 0);
+        run_command("setenv bootargs ${bootargs} androidboot.quiescent=1;", 0);
+    }
+
+    run_command("get_valid_slot", 0);
+    if (env_get("active_slot")) {
+        ActiveSlot = env_get("active_slot");
+        if (strstr(ActiveSlot, "normal") == NULL) {
+            printf("ab update mode\n");
+            run_command("setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};", 0);
+        }
+    }
 
     if (!memcmp(command, CMD_RUN_RECOVERY, strlen(CMD_RUN_RECOVERY))) {
         if (run_command("run recovery_from_flash", 0) < 0) {

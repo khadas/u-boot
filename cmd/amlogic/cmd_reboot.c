@@ -25,6 +25,7 @@
 #include <asm/arch/secure_apb.h>
 #include <asm/io.h>
 #include <asm/arch/bl31_apis.h>
+#include <partition_table.h>
 
 /*
 run get_rebootmode  //set reboot_mode env with current mode
@@ -128,7 +129,8 @@ int do_get_rebootmode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 			break;
 		}
 		case AMLOGIC_BOOTLOADER_REBOOT: {
-			env_set("bootdelay","-1");
+			if (dynamic_partition)
+				env_set("reboot_mode","fastboot");
 			break;
 		}
 	}
@@ -159,9 +161,14 @@ int do_reboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			reboot_mode_val = AMLOGIC_FACTORY_RESET_REBOOT;
 		else if (strcmp(mode, "update") == 0)
 			reboot_mode_val = AMLOGIC_UPDATE_REBOOT;
-		else if (strcmp(mode, "fastboot") == 0)
-			reboot_mode_val = AMLOGIC_FASTBOOT_REBOOT;
-		else if (strcmp(mode, "bootloader") == 0)
+		else if (strcmp(mode, "fastboot") == 0) {
+			if (dynamic_partition) {
+				printf("dynamic partition, enter fastbootd");
+				reboot_mode_val = AMLOGIC_FACTORY_RESET_REBOOT;
+				run_command("bcb fastbootd",0);
+			} else
+				reboot_mode_val = AMLOGIC_FASTBOOT_REBOOT;
+		} else if (strcmp(mode, "bootloader") == 0)
 			reboot_mode_val = AMLOGIC_BOOTLOADER_REBOOT;
 		else if (strcmp(mode, "suspend_off") == 0)
 			reboot_mode_val = AMLOGIC_SUSPEND_REBOOT;

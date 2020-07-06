@@ -19,6 +19,7 @@
 #include <linux/usb/composite.h>
 #include <linux/compiler.h>
 #include <g_dnl.h>
+#include <partition_table.h>
 
 #define FASTBOOT_INTERFACE_CLASS	0xff
 #define FASTBOOT_INTERFACE_SUB_CLASS	0x42
@@ -28,12 +29,16 @@
 #define RX_ENDPOINT_MAXIMUM_PACKET_SIZE_1_1  (0x0040)
 #define TX_ENDPOINT_MAXIMUM_PACKET_SIZE      (0x0040)
 
+#define DEVICE_SERIAL	"1234567890"
+
 #define EP_BUFFER_SIZE			4096
 /*
  * EP_BUFFER_SIZE must always be an integral multiple of maxpacket size
  * (64 or 512 or 1024), else we break on certain controllers like DWC3
  * that expect bulk OUT requests to be divisible by maxpacket size.
  */
+
+extern void f_dwc_otg_pullup(int is_on);
 
 struct f_fastboot {
 	struct usb_function usb_function;
@@ -140,6 +145,13 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req);
 static void fastboot_complete(struct usb_ep *ep, struct usb_request *req)
 {
 	int status = req->status;
+
+	if ( (busy_flag == 1) && fastboot_func) {
+		struct usb_ep* out_ep = fastboot_func->out_ep;
+		struct usb_request* out_req = fastboot_func->out_req;
+		rx_handler_command(out_ep, out_req);
+		return;
+	}
 	if (!status)
 		return;
 	printf("status: %d ep '%s' trans: %d\n", status, ep->name, req->actual);
@@ -185,8 +197,11 @@ static int fastboot_bind(struct usb_configuration *c, struct usb_function *f)
 	}
 
 	s = env_get("serial#");
-	if (s)
+	if (s) {
+		printf("serial num: %s\n", s);
 		g_dnl_set_serialnumber((char *)s);
+	} else
+		g_dnl_set_serialnumber(DEVICE_SERIAL);
 
 	return 0;
 }
@@ -319,18 +334,20 @@ static int  fastboot_setup(struct usb_function *f,
 
 static int fastboot_add(struct usb_configuration *c)
 {
-	struct f_fastboot *f_fb = fastboot_func;
+	struct f_fastboot *f_fb;
 	int status;
 
 	debug("%s: cdev: 0x%p\n", __func__, c->cdev);
 
-	if (!f_fb) {
+	if (fastboot_func == NULL) {
 		f_fb = memalign(CONFIG_SYS_CACHELINE_SIZE, sizeof(*f_fb));
 		if (!f_fb)
 			return -ENOMEM;
 
 		fastboot_func = f_fb;
 		memset(f_fb, 0, sizeof(*f_fb));
+	} else {
+		f_fb = fastboot_func;
 	}
 
 	f_fb->usb_function.name = "f_fastboot";
@@ -344,7 +361,7 @@ static int fastboot_add(struct usb_configuration *c)
 	status = usb_add_function(c, &f_fb->usb_function);
 	if (status) {
 		free(f_fb);
-		fastboot_func = f_fb;
+		fastboot_func = NULL;
 	}
 
 	return status;
@@ -374,8 +391,25 @@ static int fastboot_tx_write_str(const char *buffer)
 
 static void compl_do_reset(struct usb_ep *ep, struct usb_request *req)
 {
+	f_dwc_otg_pullup(0);
 	do_reset(NULL, 0, 0, NULL);
 }
+
+static void compl_do_reboot_bootloader(struct usb_ep *ep, struct usb_request *req)
+{
+	f_dwc_otg_pullup(0);
+	if (dynamic_partition)
+		run_command("reboot bootloader", 0);
+	else
+		run_command("reboot fastboot", 0);
+}
+
+static void compl_do_reboot_fastboot(struct usb_ep *ep, struct usb_request *req)
+{
+	f_dwc_otg_pullup(0);
+	run_command("reboot fastboot", 0);
+}
+
 
 static unsigned int rx_bytes_expected(struct usb_ep *ep)
 {
@@ -427,7 +461,6 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 		 */
 		req->complete = rx_handler_command;
 		req->length = EP_BUFFER_SIZE;
-
 		fastboot_tx_write_str(response);
 	} else {
 		req->length = rx_bytes_expected(ep);
@@ -450,9 +483,11 @@ static void do_bootm_on_complete(struct usb_ep *ep, struct usb_request *req)
 
 static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 {
-	char *cmdbuf = req->buf;
+	char cmdbuf[256];
 	char response[FASTBOOT_RESPONSE_LEN] = {0};
 	int cmd = -1;
+
+	strcpy(cmdbuf, req->buf);
 
 	if (req->status != 0 || req->length == 0)
 		return;
@@ -483,13 +518,20 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 			break;
 
 		case FASTBOOT_COMMAND_REBOOT:
-		case FASTBOOT_COMMAND_REBOOT_BOOTLOADER:
 			fastboot_func->in_req->complete = compl_do_reset;
+			break;
+		case FASTBOOT_COMMAND_REBOOT_BOOTLOADER:
+			fastboot_func->in_req->complete = compl_do_reboot_bootloader;
+			break;
+		case FASTBOOT_COMMAND_REBOOT_FASTBOOT:
+			fastboot_func->in_req->complete = compl_do_reboot_fastboot;
 			break;
 		}
 	}
 
-	*cmdbuf = '\0';
-	req->actual = 0;
-	usb_ep_queue(ep, req, 0);
+	if (busy_flag == 0) {
+		*cmdbuf = '\0';
+		req->actual = 0;
+		usb_ep_queue(ep, req, 0);
+	}
 }

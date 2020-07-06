@@ -246,15 +246,23 @@ static int do_GetValidSlot(
     bootable_a = slot_is_bootable(&(info.slots[0]));
     bootable_b = slot_is_bootable(&(info.slots[1]));
 
+    if (dynamic_partition)
+        env_set("partiton_mode","dynamic");
+    else
+        env_set("partiton_mode","normal");
+
     if ((slot == 0) && (bootable_a)) {
         if (has_boot_slot == 1) {
             env_set("active_slot","_a");
             env_set("boot_part","boot_a");
+            env_set("recovery_part","recovery_a");
             env_set("slot-suffixes","0");
         }
         else {
             env_set("active_slot","normal");
             env_set("boot_part","boot");
+            env_set("recovery_part","recovery");
+            env_set("slot-suffixes","-1");
         }
         return 0;
     }
@@ -263,11 +271,14 @@ static int do_GetValidSlot(
         if (has_boot_slot == 1) {
             env_set("active_slot","_b");
             env_set("boot_part","boot_b");
+            env_set("recovery_part","recovery_b");
             env_set("slot-suffixes","1");
         }
         else {
             env_set("active_slot","normal");
             env_set("boot_part","boot");
+            env_set("recovery_part","recovery");
+            env_set("slot-suffixes","-1");
         }
         return 0;
     }
@@ -306,12 +317,14 @@ static int do_SetActiveSlot(
         env_set("active_slot","_a");
         env_set("slot-suffixes","0");
         env_set("boot_part","boot_a");
+        env_set("recovery_part","recovery_a");
         printf("set active slot a \n");
         boot_info_set_active_slot(&info, 0);
     } else if (strcmp(argv[1], "b") == 0) {
         env_set("active_slot","_b");
         env_set("slot-suffixes","1");
         env_set("boot_part","boot_b");
+        env_set("recovery_part","recovery_b");
         printf("set active slot b \n");
         boot_info_set_active_slot(&info, 1);
     } else {

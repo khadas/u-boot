@@ -95,10 +95,13 @@
         "sdcburncfg=aml_sdc_burn.ini\0"\
         "EnableSelinux=enforcing\0" \
         "recovery_part=recovery\0"\
+        "lock=10101000\0"\
+        "lock_state=orange\0"\
         "recovery_offset=0\0"\
         "cvbs_drv=0\0"\
         "osd_reverse=0\0"\
         "video_reverse=0\0"\
+        "active_slot=normal\0"\
         "boot_part=boot\0"\
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
@@ -119,6 +122,7 @@
             "\0"\
         "storeargs="\
             "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} "\
+                "androidboot.verifiedbootstate=${lock_state} "\
                 "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} "\
                 "hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
                 "frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} "\
@@ -140,7 +144,7 @@
                     "run recovery_from_flash;"\
             "else if test ${reboot_mode} = cold_boot; then "\
             "else if test ${reboot_mode} = fastboot; then "\
-                "fastboot;"\
+                "fastboot 0;"\
             "fi;fi;fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
@@ -210,7 +214,9 @@
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
             "run upgrade_check;"\
-            "run storeargs;"
+            "run storeargs;"\
+            "bcb uboot-command;"\
+            "run switch_bootmode;"
 #else
 #define CONFIG_PREBOOT  "echo preboot"
 #endif

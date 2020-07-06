@@ -18,20 +18,24 @@
 #define FASTBOOT_COMMAND_LEN	(64 + 1)
 #define FASTBOOT_RESPONSE_LEN	(64 + 1)
 
+extern int busy_flag;
+
 /**
  * All known commands to fastboot
  */
 enum {
 	FASTBOOT_COMMAND_GETVAR = 0,
 	FASTBOOT_COMMAND_DOWNLOAD,
+	FASTBOOT_COMMAND_FLASHING,
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 	FASTBOOT_COMMAND_FLASH,
 	FASTBOOT_COMMAND_ERASE,
 #endif
 	FASTBOOT_COMMAND_BOOT,
 	FASTBOOT_COMMAND_CONTINUE,
-	FASTBOOT_COMMAND_REBOOT,
 	FASTBOOT_COMMAND_REBOOT_BOOTLOADER,
+	FASTBOOT_COMMAND_REBOOT_FASTBOOT,
+	FASTBOOT_COMMAND_REBOOT,
 	FASTBOOT_COMMAND_SET_ACTIVE,
 #if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_FORMAT)
 	FASTBOOT_COMMAND_OEM_FORMAT,
@@ -60,12 +64,27 @@ void fastboot_response(const char *tag, char *response,
 void fastboot_fail(const char *reason, char *response);
 
 /**
+ * fastboot_busy() - Write a INFO response of the form "INFO$reason".
+ *
+ * @reason: Pointer to returned reason string
+ * @response: Pointer to fastboot response buffer
+ */
+void fastboot_busy(const char *reason, char *response);
+
+/**
  * fastboot_okay() - Write an OKAY response of the form "OKAY$reason".
  *
  * @reason: Pointer to returned reason string, or NULL to send a bare "OKAY"
  * @response: Pointer to fastboot response buffer
  */
 void fastboot_okay(const char *reason, char *response);
+
+/**
+ *check lock state
+ *return 1 if locked
+ *return 0 if unlocked
+ */
+int check_lock(void);
 
 /**
  * fastboot_set_reboot_flag() - Set flag to indicate reboot-bootloader
