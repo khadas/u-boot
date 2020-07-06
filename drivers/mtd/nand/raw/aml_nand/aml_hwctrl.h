@@ -9,17 +9,6 @@
 #define NAND_TWB_TIME_CYCLE	10
 
 #define HHI_NAND_CLK_CNTL1 (0xff63c000 + (0x097 << 2))
-#define P_PAD_PULL_UP_EN_REG2 (volatile uint32_t *)(0xff634400 + (0x04a << 2))
-#define P_PERIPHS_PIN_MUX_7 (volatile uint32_t *)(0xff634400 + (0x0b7 << 2))
-#define P_PERIPHS_PIN_MUX_4 (volatile uint32_t *)(0xff634400 + (0x0b4 << 2))
-#define P_PERIPHS_PIN_MUX_0 (volatile uint32_t *)(0xff634400 + (0x0b0 << 2))
-#define P_PERIPHS_PIN_MUX_5 (volatile uint32_t *)(0xff634400 + (0x0b5 << 2))
-#define P_PAD_PULL_UP_EN_REG4 (volatile uint32_t *)(0xff634400 + (0x04c << 2))
-#define P_PERIPHS_PIN_MUX_1 (volatile uint32_t *)(0xff634400 + (0x0b1 << 2))
-#define P_PAD_PULL_UP_EN_REG0 (volatile uint32_t *)(0xff634400 + (0x048 << 2))
-#define P_PAD_PULL_UP_REG2 (volatile uint32_t *)(0xff634400 + (0x03c << 2))
-#define P_PAD_PULL_UP_REG4 (volatile uint32_t *)(0xff634400 + (0x03e << 2))
-#define P_PAD_PULL_UP_REG0 (volatile uint32_t *)(0xff634400 + (0x03a << 2))
 
 #define	CE_PAD_DEFAULT	\
 	((AML_NAND_CE0) | \
@@ -38,11 +27,13 @@ struct hw_controller {
 	u8 chip_num;
 	u32 ce_enable[MAX_CHIP_NUM];
 	u32 rb_enable[MAX_CHIP_NUM];
-	struct clk clk[4];
-
+        struct clk xtal;
+        struct clk fdiv2;
+        struct clk mux;
+        struct clk div;
+        struct clk gate;
 	void __iomem *reg_base;
 	void __iomem *nand_clk_reg;
-	void __iomem *nand_clk_reg1;
 	u32 irq;
 };
 

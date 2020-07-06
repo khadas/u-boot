@@ -216,86 +216,71 @@ static void m3_nand_select_chip(struct aml_nand_chip *aml_chip, int chipnr)
 
 void aml_nfc_get_clk_name(struct hw_controller *controller)
 {
-	clk_get_by_name(controller->device, "clkin", &controller->clk[0]);
-	clk_get_rate(&controller->clk[0]);
-	clk_get_by_name(controller->device, "clkin1", &controller->clk[1]);
-	clk_get_by_name(controller->device, "clkin2", &controller->clk[2]);
-	clk_get_by_name(controller->device, "clkin3", &controller->clk[3]);
+	struct udevice *clk_udevice, *dev = controller->device;
+
+	uclass_get_device_by_name(UCLASS_CLK, "amlogic,g12a-clkc", &clk_udevice);
+
+        clk_get_by_name(dev, "fdiv2", &controller->fdiv2);
+        clk_get_by_name(dev, "xtal", &controller->xtal);
+        clk_get_by_name(dev, "mux", &controller->mux);
+        clk_get_by_name(dev, "div", &controller->div);
+        clk_get_by_name(dev, "gate", &controller->gate);
+
+	clk_enable(&controller->gate);
 }
 
 void get_sys_clk_rate_mtd(struct hw_controller *controller, int *rate)
 {
-	unsigned int clk;
-	int clk_freq = *rate;
-	cpu_id_t cpu_id = get_cpu_id();
-	unsigned int always_on = 0x1 << 24;
-	/* fixme, axg clock may be the same setting with gxl/gxm */
-	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_AXG) ||
-	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_TXHD) ||
-		(cpu_id.family_id >= MESON_CPU_MAJOR_ID_G12A))
-		always_on = 0x1 << 28;
+	int bus_cycle, bus_timing;
+	unsigned int clk, clk_div, clk_src, co_phase = 2;
+	int clk_freq = *rate * 1000000;
+	unsigned int always_on = 0x1 << 28;
 
-	printk("%s() %d, clock setting %d!\n",
-		__func__, __LINE__, clk_freq);
-
-	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_GXBB) ||
-	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_GXL) ||
-	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_AXG) ||
-	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_TXHD) ||
-		(cpu_id.family_id >= MESON_CPU_MAJOR_ID_G12A)) {
-
-		switch (clk_freq) {
-			case 24:
-				clk = 0x80000201;
-			break;
-			case 112:
-				clk = 0x80000249;
-			break;
-			case 200:
-				clk = 0x80000245;
-			break;
-			case 250:
-				clk = 0x80000244;
-			break;
-			default:
-				clk = 0x80000245;
-			break;
-		}
-		clk |= always_on;
-		amlnf_write_reg32(controller->nand_clk_reg, clk);
-		return;
+	if (clk_freq <=  24) {
+		clk = 24000000;
+		clk_src = 0;
+		clk_enable(&controller->xtal); // for c1 clk arthitecture compatitable. xtal was not controlled by clk driver.
+		clk_set_rate(&controller->div, clk);
+		clk_div = 1;
+		bus_cycle = 4;
+		bus_timing = 3;
+		goto __NAND_CLK_CFG__;
 	} else {
-		BUG();
+		clk = 1000000000;
+		clk_src = 1;
+		clk_disable(&controller->xtal);
+		clk_set_parent(&controller->mux, &controller->fdiv2);
+		clk_set_rate(&controller->div, clk);
+		bus_cycle  = 6;
+		bus_timing = bus_cycle + 1;
 	}
-	return;
+	clk_div = clk /clk_freq;
+	if (clk % clk_freq)
+		clk_div++;
+__NAND_CLK_CFG__:
+	AMLNF_WRITE_REG(controller->nand_clk_reg,
+		      (clk_src << 6) | clk_div | always_on | (1 << 31) | (2 << 8));
+	printf("%s:gclock=%x\n", __func__,
+	       AMLNF_READ_REG(controller->nand_clk_reg));
+	NFC_SET_CFG(controller, 0);
+	NFC_SET_TIMING_ASYC(controller, bus_timing, (bus_cycle - 1));
+	NFC_SEND_CMD(controller, 1<<31);
+	printf("%s:P_NAND_CFG=%x\n", __func__,
+	       AMLNF_READ_REG(controller->reg_base + P_NAND_CFG));
 }
 
 static void m3_nand_hw_init(struct aml_nand_chip *aml_chip)
 {
-	int bus_cycle, bus_timing;
 	int sys_clk_rate = 200;
 
-	clk_set_parent(&controller->clk[1], &controller->clk[0]);
-	clk_set_rate(&controller->clk[2], sys_clk_rate*1000000);
-	clk_enable(&controller->clk[3]);
 	get_sys_clk_rate_mtd(controller, &sys_clk_rate);
-
-	bus_cycle  = 6;
-	bus_timing = bus_cycle + 1;
-
-	NFC_SET_CFG(controller, 0);
-	NFC_SET_TIMING_ASYC(controller, bus_timing, (bus_cycle - 1));
-	NFC_SEND_CMD(controller, 1<<31);
-
-	printf("%s:gclock=%x\n", __func__, AMLNF_READ_REG(controller->nand_clk_reg));
-	printf("%s:P_NAND_CFG=%x\n", __func__, AMLNF_READ_REG(controller->reg_base + P_NAND_CFG));
 
 	return;
 }
 
 static void m3_nand_adjust_timing(struct aml_nand_chip *aml_chip)
 {
-	int sys_clk_rate, bus_cycle, bus_timing;
+	int sys_clk_rate;
 
 	if (!aml_chip->T_REA)
 		aml_chip->T_REA = 20;
@@ -309,19 +294,7 @@ static void m3_nand_adjust_timing(struct aml_nand_chip *aml_chip)
 	else
 		sys_clk_rate = 250;
 
-	clk_set_parent(&controller->clk[1], &controller->clk[0]);
-	clk_set_rate(&controller->clk[2], sys_clk_rate*1000000);
-	clk_enable(&controller->clk[3]);
 	get_sys_clk_rate_mtd(controller, &sys_clk_rate);
-
-	bus_cycle  = 6;
-	bus_timing = bus_cycle + 1;
-	NFC_SET_CFG(controller , 0);
-	NFC_SET_TIMING_ASYC(controller, bus_timing, (bus_cycle - 1));
-	NFC_SEND_CMD(controller, 1<<31);
-
-	printf("%s:gclock=%x\n", __func__, AMLNF_READ_REG(controller->nand_clk_reg));
-	printf("%s:P_NAND_CFG=%x\n", __func__, AMLNF_READ_REG(controller->reg_base + P_NAND_CFG));
 }
 
 static int m3_nand_options_confirm(struct aml_nand_chip *aml_chip)
@@ -336,9 +309,6 @@ static int m3_nand_options_confirm(struct aml_nand_chip *aml_chip)
 	int error = 0, i, valid_chip_num = 0;
 	cpu_id_t cpu_id = get_cpu_id();
 
-	/****bootloader only support short mode
-	**ecc_supports[8] is short mode ecc
-	***/
 	if (!strncmp((char*)plat->name,
 		NAND_BOOT_NAME,
 		strlen((const char*)NAND_BOOT_NAME))) {
@@ -747,6 +717,7 @@ void register_aml_chip_contorller(struct aml_nand_chip *aml_chip)
 		aml_nand_block_bad_scrub_update_bbt;
 }
 
+extern int slcnand_fit_storage(void);
 static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 {
 	struct aml_nand_chip *aml_chip = NULL;
@@ -755,12 +726,6 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 	int err = 0, i, array_length;
 	struct nand_oobfree *oobfree;
 
-	if (!plat) {
-		printk("no platform specific information\n");
-		goto exit_error;
-	}
-
-	printf("%s %d\n", __func__, __LINE__);
 	aml_chip = kzalloc(sizeof(*aml_chip), GFP_KERNEL);
 	if (aml_chip == NULL) {
 		printk("no memory for flash info\n");
@@ -775,7 +740,7 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 	aml_chip->max_bch_mode = sizeof(m3_bch_list) / sizeof(m3_bch_list[0]);
 
 	chip = &aml_chip->chip;
-	chip->priv = aml_chip;  //chip->priv = &aml_chip->mtd;
+	chip->priv = aml_chip;
 	mtd = &chip->mtd;
 	mtd->priv = chip;
 	plat->aml_chip = aml_chip;
@@ -784,10 +749,15 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 	register_aml_chip_contorller(aml_chip);
 	aml_chip->ran_mode = plat->ran_mode;
 	aml_chip->rbpin_detect = plat->rbpin_detect;
-
 	aml_nfc_get_clk_name(controller);
+	chip->IO_ADDR_R = chip->IO_ADDR_W =
+		(void __iomem *)((volatile u32 *)(NAND_BASE_APB + P_NAND_BUF));
 
 	err = aml_nand_init(aml_chip);
+	nand_info[dev_num] = mtd;
+	mtd_store_set(nand_info[dev_num], dev_num);
+	slcnand_fit_storage();
+
 	if (err || pre_scan->pre_scan_flag)
 		goto exit_error;
 
@@ -809,10 +779,6 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 		mtd->ecclayout = chip->ecc.layout;
 	}
 
-	nand_info[dev_num] = mtd;
-	printf("%s, %d, mtd: %p, dev_num: 0x%x\n", __func__, __LINE__, mtd, dev_num);
-	mtd_store_set(nand_info[dev_num], dev_num);/*need fix*/
-	printf("mtd name: %s\n", mtd->name);/*nand name*/
 	return 0;
 
 exit_error:
@@ -826,11 +792,6 @@ void nand_hw_init(struct aml_nand_platform *plat)
 {
 	struct aml_nand_chip *aml_chip = NULL;
 
-	if (!plat) {
-		printf("no platform specific information\n");
-		return;
-	}
-
 	aml_chip = plat->aml_chip;
 
 	aml_chip->aml_nand_hw_init(aml_chip);
@@ -839,29 +800,30 @@ void nand_hw_init(struct aml_nand_platform *plat)
 	aml_chip->aml_nand_select_chip(aml_chip, 0);
 }
 
-#ifdef CONFIG_AML_STORAGE
-	extern int slcnand_fit_storage(void);
-#endif
+static void meson_nfc_init_dm(void)
+{
+	struct udevice *dev;
+
+	for (uclass_first_device(UCLASS_MTD, &dev);
+	     dev;
+	     uclass_next_device(&dev));
+}
+
+void board_nand_init(void)
+{
+	meson_nfc_init_dm();
+}
 
 int amlmtd_init = 0;
 extern struct udevice *nand_dev;
 int meson_nfc_probe(struct udevice *dev)
 {
-	struct mtd_info *mtd;
-
 	struct aml_nand_platform *plat = NULL;
 	const void *blob = gd->fdt_blob;
-	nand_dev = dev;
 	fdt_addr_t regs, clk_regs;
 	int node;
 	int i, ret = 0;
-#ifdef clk_tree_test
-	static struct udevice *clk_udvice;
-	struct clk w_clk;
-	struct clk p_clk;
-	unsigned int rate;
-#endif
-	printf("%s %d\n", __func__, __LINE__);
+
 	if (1 == amlmtd_init) {
 		ret = pinctrl_select_state(controller->device, "default");
 		if (ret) {
@@ -872,17 +834,18 @@ int meson_nfc_probe(struct udevice *dev)
 		return 0;
 	}
 
-	mtd = dev_get_uclass_priv(dev);
-	mtd->name = (char *)dev->name;
-	mtd->dev = dev;
-
 	controller = kzalloc(sizeof(struct hw_controller), GFP_KERNEL);
 	if (controller == NULL) {
 		printk("%s kzalloc controller failed\n", __func__);
 		return 1;
 	}
+	nand_dev = dev;
+	controller->device = dev;
 
-	controller->device = mtd->dev;
+	ret = pinctrl_select_state(controller->device, "default");
+	if (ret) {
+		printf("ERROR get pinmux failed\n");
+	}
 
 	controller->chip_num = 1; /* assume chip num is 1 */
 	for (i = 0; i < MAX_CHIP_NUM; i++) {
@@ -897,7 +860,6 @@ int meson_nfc_probe(struct udevice *dev)
 		printk("unable to find nfc node in device tree\n");
 		return 1;
 	}
-
 	if (!fdtdec_get_is_enabled(blob, node)) {
 		printk("nfc disabled in device tree\n");
 		return 1;
@@ -908,17 +870,7 @@ int meson_nfc_probe(struct udevice *dev)
 		printk("unabled to find nfc address in device tree\n");
 		return 1;
 	}
-
-	printk("___regs :0x%llx", regs);
 	controller->reg_base = (void *)regs;
-	printk("nand register base =%p\n", controller->reg_base);
-
-#ifdef clk_tree_test
-	uclass_get_device_by_name(UCLASS_CLK, "amlogic,g12a-clkc", &clk_udvice);
-	clk_get_by_name(dev, "clkin", &p_clk);
-	rate = clk_get_rate(&p_clk);
-	printf("fclk rate: %d\n", rate);
-#endif
 
 	clk_regs = fdtdec_get_addr(blob, node, "clk_reg");
 	if (clk_regs == FDT_ADDR_T_NONE) {
@@ -926,9 +878,6 @@ int meson_nfc_probe(struct udevice *dev)
 		return 1;
 	}
 	controller->nand_clk_reg = (void *)clk_regs;
-
-	printk("nand clk register base =%p,value:0x%x\n", controller->nand_clk_reg,
-		readl(controller->nand_clk_reg));
 
 	for (i=0; i<aml_nand_mid_device.dev_num; i++) {
 		plat = &aml_nand_mid_device.aml_nand_platform[i];
@@ -938,22 +887,17 @@ int meson_nfc_probe(struct udevice *dev)
 		}
 
 		ret = m3_nand_probe(plat, i);
-		if (pre_scan->pre_scan_flag && !i) { //Get the flash id as fastest as possible
+		if (pre_scan->pre_scan_flag && !i) {
 			free(controller);
 			return 0;
 		}
 		if (ret)
 			printk("nand init failed: %d\n", ret);
 	}
-
 	nand_curr_device = 1; //fixit
 	amlmtd_init = 1;
 	if (ret)
 		free(controller);
-#ifdef CONFIG_AML_STORAGE
-	else
-		slcnand_fit_storage();
-#endif
 
 	return 0;
 }
@@ -969,17 +913,4 @@ U_BOOT_DRIVER(meson_nfc) = {
 	.of_match = aml_nfc_ids,
 	.probe = meson_nfc_probe,
 };
-
-void board_nand_init(void)
-{
-	struct udevice *dev;
-	int ret;
-
-	ret = uclass_get_device_by_driver(UCLASS_MTD,
-		DM_GET_DRIVER(meson_nfc),
-		&dev);
-	if (ret && ret != -ENODEV)
-		pr_err("Failed to initialize %s. (error %d)\n", dev->name,
-		       ret);
-}
 

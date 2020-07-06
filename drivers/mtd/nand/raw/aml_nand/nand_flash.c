@@ -1060,9 +1060,6 @@ static struct aml_nand_flash_dev *aml_nand_get_flash_type(struct mtd_info *mtd,
 	printk("NAND device id: %x %x %x %x %x %x \n",
 	dev_id[0], dev_id[1], dev_id[2], dev_id[3], dev_id[4], dev_id[5]);
 
-#if 0
-	test_timing(mtd, chip);
-#endif
 	/* Lookup the flash id */
 	for (i = 0; aml_nand_flash_ids[i].name != NULL; i++) {
 		if (!strncmp((char*) aml_nand_flash_ids[i].id,
@@ -1070,16 +1067,6 @@ static struct aml_nand_flash_dev *aml_nand_get_flash_type(struct mtd_info *mtd,
 			type = &aml_nand_flash_ids[i];
 			break;
 		}
-	}
-
-	if (pre_scan->pre_scan_flag) {
-		if (type) {
-			/*printk(KERN_INFO "NAND device: Manufacturer ID:"
-	       " 0x%02x, Chip ID: 0x%02x (%s %s)\n", *maf_id, dev_id[0],
-	       nand_manuf_ids[maf_idx].name, type->name);*/
-			pre_scan->is_nand = 1;
-		}
-		return type;
 	}
 
 	if (!type) {
@@ -1096,6 +1083,11 @@ static struct aml_nand_flash_dev *aml_nand_get_flash_type(struct mtd_info *mtd,
 
 	plat->nand_flash_dev = type;
 
+	if (pre_scan->pre_scan_flag) {
+		if (type)
+			pre_scan->is_nand = 1;
+		return type;
+	}
 #ifdef CONFIG_MTD_DEVICE
 		mtd->name = type->name;
 #else

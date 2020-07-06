@@ -257,6 +257,69 @@ const struct mtd_partition *get_partition_table(int *partitions)
 }
 #endif /* CONFIG_SPI_FLASH */
 
+#ifdef CONFIG_MESON_NFC
+static struct mtd_partition normal_partition_info[] = {
+#ifdef CONFIG_DISCRETE_BOOTLOADER
+{
+	.name = BOOT_BL2E,
+	.offset = 0,
+	.size = 0,
+},
+{
+	.name = BOOT_BL2X,
+	.offset = 0,
+	.size = 0,
+},
+{
+	.name = BOOT_DDRFIP,
+	.offset = 0,
+	.size = 0,
+},
+{
+	.name = BOOT_DEVFIP,
+	.offset = 0,
+	.size = 0,
+},
+#endif
+{
+	.name = "logo",
+	.offset = 0,
+	.size = 2*SZ_1M,
+},
+{
+	.name = "recovery",
+	.offset = 0,
+	.size = 16*SZ_1M,
+},
+{
+	.name = "boot",
+	.offset = 0,
+	.size = 16*SZ_1M,
+},
+{
+	.name = "system",
+	.offset = 0,
+	.size = 64*SZ_1M,
+},
+/* last partition get the rest capacity */
+{
+	.name = "data",
+	.offset = MTDPART_OFS_APPEND,
+	.size = MTDPART_SIZ_FULL,
+},
+
+struct mtd_partition *get_aml_mtd_partition(void)
+{
+        return normal_partition_info;
+}
+
+int get_aml_partition_count(void)
+{
+        return ARRAY_SIZE(normal_partition_info);
+}
+
+#endif
+
 /* partition table */
 /* partition table for spinand flash */
 #if (defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND))

@@ -19,6 +19,7 @@
 #include <amlogic/storage.h>
 #include <amlogic/aml_mtd.h>
 #include <amlogic/aml_rsv.h>
+#include <amlogic/cpu_id.h>
 #include <asm/arch/cpu_config.h>
 #include <partition_table.h>
 #include <time.h>
@@ -36,6 +37,7 @@ static struct map_handler_t mtd_map;
 #endif
 static struct mtd_info *mtd_store_list[MAX_MTD_CNT];
 extern int info_disprotect;
+extern struct storage_startup_parameter g_ssp;
 
 struct mtd_info *mtd_store_get(int dev)
 {
@@ -58,21 +60,14 @@ static struct mtd_info *mtd_store_get_by_name(const char *part_name,
 					      int boot)
 {
 #ifndef CONFIG_DISCRETE_BOOTLOADER
-	if (!strcmp(part_name, BOOT_LOADER)) {
+	if (!strcmp(part_name, BOOT_LOADER))
 		return mtd_store_get(0);
 #else
 	if (!strcmp(part_name, BOOT_BL2) ||
-	    !strcmp(part_name, BOOT_SPL)) {
+	    !strcmp(part_name, BOOT_SPL) ||
+	    !strcmp(part_name, BAE_BB1ST))
 		return mtd_store_get(0);
-	} else if (!strcmp(part_name, BOOT_TPL) ||
-			   !strcmp(part_name, BOOT_FIP)) {
-		return mtd_store_get(1);
 #endif
-	} else if (boot) {
-		pr_info("%s %d invalid name: %s\n",
-			__func__, __LINE__, part_name);
-		return ERR_PTR(-ENXIO);
-	}
 	return mtd_store_get(1);
 }
 
@@ -447,50 +442,31 @@ void mtd_store_init_map(void)
 }
 #endif
 
-static int mtd_store_get_offset(const char *partname,
-				loff_t *retoff, loff_t off)
+static int mtd_store_get_offset(const char *partname, loff_t *retoff, loff_t off)
 {
 	int ret = 0;
 	loff_t offset;
 #if defined(CONFIG_CMD_MTDPARTS)
-	u8 pnum;
 	struct mtd_device *dev;
 	struct part_info *part;
+	char tmp_part_name[20] = {0};
+	u8 pnum;
 #endif
+
 	*retoff = 0;
-	if (!partname) {
+	if (!partname)
 		offset = off;
-	}
+
 #if defined(CONFIG_CMD_MTDPARTS)
 	else if (!mtdparts_init()) {
+		strncpy(tmp_part_name, partname, strlen(partname));
 #ifdef CONFIG_DISCRETE_BOOTLOADER
 		if (!strcmp(partname, BOOT_BL2) ||
-		    !strcmp(partname, BOOT_SPL)) {
-			ret = find_dev_and_part(BOOT_LOADER,
-					  &dev,
-					  &pnum,
-					  &part);
-			if (ret)
-				return ret; /* avoid operates null pointer */
-			*retoff = part->offset + off;
-			return 0;
-		}
-		if (!strcmp(partname, BOOT_TPL) ||
-		    !strcmp(partname, BOOT_FIP)) {
-			ret = find_dev_and_part(BOOT_TPL,
-					  &dev,
-					  &pnum,
-					  &part);
-			if (ret)
-				return ret;
-			*retoff = part->offset + off;
-			return 0;
-		}
+		    !strcmp(partname, BOOT_SPL) ||
+		    !strcmp(partname, BAE_BB1ST))
+			strncpy(tmp_part_name, BOOT_LOADER, strlen(BOOT_LOADER));
 #endif
-		ret = find_dev_and_part(partname,
-					&dev,
-					&pnum,
-					&part);
+		ret = find_dev_and_part(tmp_part_name, &dev, &pnum, &part);
 		if (ret) {
 			pr_info("%s %d can not find part:%s\n",
 				__func__, __LINE__, partname);
@@ -504,8 +480,10 @@ static int mtd_store_get_offset(const char *partname,
 			__func__, __LINE__);
 		offset = off;
 	}
+
 	if (!ret)
 		*retoff = offset;
+
 	return ret;
 }
 
@@ -730,19 +708,24 @@ static int mtd_store_erase(const char *part_name,
 
 static u8 mtd_store_boot_copy_num(const char *part_name)
 {
+	cpu_id_t cpu_id = get_cpu_id();
+
 	if (!part_name) {
 		pr_info("%s %d invalid name!\n",
 			__func__, __LINE__);
 		return 0;
 	}
 #ifdef CONFIG_DISCRETE_BOOTLOADER
-	if (!strcmp(part_name, BOOT_BL2) ||
-	    !strcmp(part_name, BOOT_SPL))
-		return CONFIG_BL2_COPY_NUM;
-
 	if (!strcmp(part_name, BOOT_TPL) ||
-	    !strcmp(part_name, BOOT_FIP))
+	    !strcmp(part_name, BOOT_FIP) ||
+	    !strcmp(part_name, BOOT_DEVFIP))
 		return CONFIG_TPL_COPY_NUM;
+	else {
+		if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2)
+			return g_ssp.boot_bakups;
+		else
+			return CONFIG_BL2_COPY_NUM;
+	}
 #else
 	if (!strcmp(part_name, BOOT_LOADER))
 		return boot_num_get();
@@ -776,29 +759,71 @@ int is_mtd_store_boot_area(const char *part_name)
 	return 0;
 }
 
+
+char *boot_entry_old = {BOOT_BL2, BOOT_TPL};
+char *boot_entry_sc2[] = {BOOT_BL2, BOOT_BL2E, BOOT_BL2X, BOOT_DDRFIP, BOOT_DEVFIP};
+static char **get_bootloader_entry(int *boot_count)
+{
+	cpu_id_t cpu_id = get_cpu_id();
+	char **boot_entry = boot_entry_old;
+
+	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) {
+		*boot_count = 5;
+		boot_entry = boot_entry_sc2;
+	}
+	return boot_entry;
+
+}
+
 static u64 mtd_store_boot_copy_size(const char *part_name)
 {
+	cpu_id_t cpu_id = get_cpu_id();
 	struct mtd_info *mtd = mtd_store_get(0);
-	int pages_per_copy = 0;
+	int pages_per_copy = 0, boot_count = 2 , i;
+	u64 size = 0;
+	char **boot_entry;
 
 	if (!part_name) {
-		pr_info("%s %d invalid name!\n",
-			__func__, __LINE__);
+		pr_info("%s %d invalid name!\n", __func__, __LINE__);
 		return 0;
 	}
 #ifdef CONFIG_DISCRETE_BOOTLOADER
 	if (!strcmp(part_name, BOOT_BL2) ||
-	    !strcmp(part_name, BOOT_SPL)) {
-		pages_per_copy = BOOT_TOTAL_PAGES / CONFIG_BL2_COPY_NUM;
-		return mtd->writesize * pages_per_copy;
+	    !strcmp(part_name, BOOT_SPL) ||
+	    !strcmp(part_name, BAE_BB1ST)) {
+		if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2)
+			return g_ssp.boot_entry[BOOT_AREA_BB1ST].size;
+		else {
+			pages_per_copy = BOOT_TOTAL_PAGES / CONFIG_BL2_COPY_NUM;
+			return mtd->writesize * pages_per_copy;
+		}
 	} else if (!strcmp(part_name, BOOT_TPL) ||
-			   !strcmp(part_name, BOOT_FIP)) {
-		return CONFIG_TPL_SIZE_PER_COPY;
-	}
-	return 0;
+			   !strcmp(part_name, BOOT_FIP) ||
+			   !strcmp(part_name, BOOT_DEVFIP)) {
+		if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2)
+			return g_ssp.boot_entry[BOOT_AREA_DEVFIP].size;
+		else
+			return CONFIG_TPL_SIZE_PER_COPY;
+	} else if (!strcmp(part_name, BOOT_BL2E))
+		return g_ssp.boot_entry[BOOT_AREA_BL2E].size;
+	else if (!strcmp(part_name, BOOT_BL2X))
+		return g_ssp.boot_entry[BOOT_AREA_BL2X].size;
+	else if (!strcmp(part_name, BOOT_DDRFIP))
+		return g_ssp.boot_entry[BOOT_AREA_DDRFIP].size;
+	else if (!strcmp(part_name, BOOT_LOADER)) {
+		if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) {
+			boot_entry  = get_bootloader_entry(&boot_count);
+			for (i = 0; i < boot_count; i++, boot_entry++)
+				size += g_ssp.boot_entry[i].size;
+		} else
+			size = CONFIG_TPL_SIZE_PER_COPY +
+			       (BOOT_TOTAL_PAGES / CONFIG_BL2_COPY_NUM)*mtd->writesize;
+		return size;
+
+	} else
+		return 0;
 #else
 	u8 num;
-	u64 size;
 
 	if (strcmp(part_name, BOOT_LOADER))
 		return 0;
@@ -807,7 +832,6 @@ static u64 mtd_store_boot_copy_size(const char *part_name)
 		return 0;
 	pages_per_copy = BOOT_TOTAL_PAGES / num;
 
-	/* spinor using size from table */
 	if (mtd->writesize == 1)
 		size = mtd_store_size(BOOT_LOADER);
 	else
@@ -831,7 +855,7 @@ static int mtd_store_boot_read(const char *part_name,
 			__func__, __LINE__);
 		return -ENXIO;
 	}
-	mtd = mtd_store_get_by_name(part_name, 1);/*fixed me liuxj*/
+	mtd = mtd_store_get_by_name(part_name, 1);
 	if (IS_ERR(mtd))
 		return -ENXIO;
 	ret = mtd_store_get_offset(part_name, &offset, 0);
@@ -933,10 +957,14 @@ static int mtd_store_boot_write(const char *part_name,
 	size_per_copy = mtd_store_boot_copy_size(part_name);
 	if (size_per_copy == 0)
 		return -ENXIO;
+
+	if (size > size_per_copy)
+		return -EINVAL;
+
 	if (cpy != BOOT_OPS_ALL) {
 		if (cpy >= num) {
 			pr_info("error: write cpy:0x%x >= num: 0x%x\
- please input again\n",
+					please input again\n",
 			cpy, num);
 			return -ENXIO;
 		}
@@ -1037,7 +1065,11 @@ static int _mtd_store_boot_erase(const char *part_name, u8 cpy)
 static int mtd_store_boot_erase(const char *part_name, u8 cpy)
 {
 #ifdef CONFIG_DISCRETE_BOOTLOADER
-	u8 num;
+	cpu_id_t cpu_id = get_cpu_id();
+	char *boot_entry_old[] = {"bl2", "tpl"};
+	char *boot_entry_sc2[] = {"bl2", "bl2e", "bl2x", "ddrfip", "devfip"};
+	char **boot_entry = boot_entry_old;
+	u8 num, i = 0, boot_entry_cnt = 2;
 	int ret;
 #endif
 
@@ -1047,6 +1079,10 @@ static int mtd_store_boot_erase(const char *part_name, u8 cpy)
 		return 1;
 	}
 #ifdef CONFIG_DISCRETE_BOOTLOADER
+	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) {
+		boot_entry = boot_entry_sc2;
+		boot_entry_cnt = 5;
+	}
 	if (!strcmp(part_name, BOOT_LOADER)) {
 		num = CONFIG_BL2_COPY_NUM;
 		if (num < CONFIG_TPL_COPY_NUM)
@@ -1060,15 +1096,11 @@ static int mtd_store_boot_erase(const char *part_name, u8 cpy)
 				CONFIG_TPL_COPY_NUM);
 			return 1;
 		} else {
-			//erase bl2 & tpl
-			part_name = BOOT_BL2;
-			ret = _mtd_store_boot_erase(part_name, cpy);
-			if (!ret) {
-				part_name = BOOT_TPL;
-				ret = _mtd_store_boot_erase(part_name, cpy);
+			 for (i = 0; i < boot_entry_cnt; i++, boot_entry++) {
+				ret = _mtd_store_boot_erase(*boot_entry, cpy);
+				if (ret)
+					pr_info("boot partition erase failed\n");
 			}
-			if (ret)
-				pr_info("!!!BL2 & TPL partition erase failed\n");
 		}
 		return ret;
 	}
@@ -1215,7 +1247,6 @@ static int nor_rsv_read(const char *name, size_t size, void *buf)
 	return mtd_read(mtd, offset, length, &length, buf);
 }
 
-
 static int nor_rsv_erase(const char *name)
 {
 	struct mtd_info *mtd;
@@ -1278,7 +1309,6 @@ static int nor_rsv_write(const char *name, size_t size, void *buf)
 
 	return mtd_write(mtd, offset, length, &length, buf);
 }
-
 
 static int nor_rsv_protect(const char *name, bool ops)
 {

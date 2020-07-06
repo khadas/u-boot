@@ -45,6 +45,98 @@ enum boot_type_e {
 #define DISCRETE_BOOTLOADER 1
 #define COMPACT_BOOTLOADER 0
 
+struct nand_startup_parameter {
+	int page_size;
+	int block_size;
+	int layout_reserve_size;
+	int pages_per_block;
+	int setup_data;
+	/* */
+	int page0_disable;
+};
+
+#define IS_FEAT_DIS_EMMC_USER()			(0)
+#define IS_FEAT_DIS_EMMC_BOOT_0()		(0)
+#define IS_FEAT_DIS_EMMC_BOOT_1()		(0)
+#define IS_FEAT_EN_4BL2_SNOR()			(1)
+#define IS_FEAT_DIS_NBL2_SNOR()			(0)
+#define IS_FEAT_EN_8BL2_SNAND()			(1)
+#define IS_FEAT_DIS_NBL2_SNAND()		(0)
+#define IS_FEAT_DIS_8BL2_NAND()			(0)
+#define IS_FEAT_DIS_NBL2_NAND()			(1)
+
+#define BL2E_STORAGE_PARAM_SIZE		(0x80)
+#define BOOT_FIRST_BLOB_SIZE        (254*1024)
+#define BOOT_FILLER_SIZE            (4*1024)
+#define BOOT_RESERVED_SIZE          (4*1024)
+#define BOOT_RANDOM_NONCE           (16)
+#define BOOT_BL2E_SIZE              (66672) //74864-8K
+#define BOOT_EBL2E_SIZE             (BOOT_FILLER_SIZE + BOOT_RESERVED_SIZE + BOOT_BL2E_SIZE)
+#define BOOT_BL2X_SIZE              (66672)
+#define MAX_BOOT_AREA_ENTRIES		(8)
+/* bl2 core address base */
+#define BL2_CORE_BASE_OFFSET_EMMC	(0x200000)
+/* boot area entry index */
+#define BOOT_AREA_BB1ST             (0)
+/* filler and reserved are considered part of the bl2E in storage view */
+#define BOOT_AREA_BL2E              (1)
+#define BOOT_AREA_BL2X              (2)
+#define BOOT_AREA_DDRFIP            (3)
+#define BOOT_AREA_DEVFIP            (4)
+#define BOOT_AREA_INVALID           (MAX_BOOT_AREA_ENTRIES)
+/* boot area entry name */
+#define BAE_BB1ST                   "1STBLOB"
+#define BAE_BL2E                    "BL2E"
+#define BAE_BL2X                    "BL2X"
+#define BAE_DDRFIP                  "DDRFIP"
+#define BAE_DEVFIP                  "DEVFIP"
+typedef struct boot_area_entry {
+    /* name */
+    char name[11];
+    /* index */
+    uint8_t idx;
+    uint64_t offset;
+    uint64_t size;
+} boot_area_entry_t;
+
+struct boot_layout {
+    boot_area_entry_t *boot_entry;
+};
+
+struct emmc_startup_parameter {
+	//sd_emmc_setup_t setup;
+};
+
+struct spi_nand_startup_parameter {
+	uint32_t pagesize;
+	uint32_t pages_per_eraseblock;
+	uint32_t eraseblocks_per_lun;
+	uint32_t planes_per_lun;
+	uint32_t luns_per_target;
+	uint32_t ntargets;
+	int layout_reserve_size;
+};
+
+struct storage_boot_entry {
+	uint32_t offset;
+	uint32_t size;
+};
+
+union storage_independent_parameter {
+	struct nand_startup_parameter nsp;
+	struct emmc_startup_parameter esp;
+	struct spi_nand_startup_parameter snasp;
+};
+
+struct storage_startup_parameter {
+	uint8_t boot_device;
+	uint8_t	boot_seq;
+	uint8_t	boot_bakups;
+	uint8_t reserved;
+	struct storage_boot_entry boot_entry[MAX_BOOT_AREA_ENTRIES];
+	union storage_independent_parameter sip;
+};
+
 struct storage_info_t {
 	u8 name[32];
 	u8 id[8];

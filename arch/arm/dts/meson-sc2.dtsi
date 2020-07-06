@@ -224,11 +224,12 @@
 };
 
 &nand {
-	clocks = <&clkc CLKID_FCLK_DIV2>,
-			<&clkc CLKID_SD_EMMC_C_MUX>,
+	clocks = <&clkc CLKID_SD_EMMC_C_MUX>,
 			<&clkc CLKID_SD_EMMC_C_DIV>,
-			<&clkc CLKID_SD_EMMC_C_GATE>;
-	clock-names = "clkin", "clkin1", "clkin2", "clkin3";
+			<&clkc CLKID_SD_EMMC_C_GATE>,
+			<&clkc CLKID_FCLK_DIV2>,
+			<&clkc CLKID_XTAL>;
+	clock-names = "mux", "div", "gate", "fdiv2", "xtal";
 };
 
 /*

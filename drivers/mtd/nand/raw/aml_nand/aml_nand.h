@@ -36,35 +36,41 @@ struct meson_slcnand_platdata {
 	u8 nand_ran_mode;
 };
 
-/**must same with arch/arm/include/asm/nand.h
-*ext bits:
-*      bit 26: pagelist enable flag,
-*      bit 24: a2 cmd enable flag,
-*      bit 23: no_rb,
-*      bit 22: large. large for what?
-*      bit 19: randomizer mode.
-*      bit 14-16: ecc mode
-*      bit 13: short mode
-*      bit 6-12: short page size
-*      bit 0-5: ecc pages.
-***/
+union sc2_cmdinfo {
+    uint32_t d32;
+    struct {
+        unsigned cmd:22;        //20-21b' code0/1 17b' WE_n(r/w->1/0b)
+        unsigned page_list:1;
+	unsigned reserved:1;
+        unsigned new_type:8;
+    } b;
+};
+
+typedef struct nand_setup_sc2 {
+        union sc2_cmdinfo cfg;
+    uint16_t id;
+    uint16_t max; // id:0x100 user, max:0 disable.
+} nand_setup_sc2_t;
+
+union cmdinfo {
+    uint32_t d32;
+    struct {
+        unsigned cmd:22;
+        unsigned large_page:1; // 22
+        unsigned no_rb:1;      // 23 from efuse
+        unsigned a2:1;         // 24
+        unsigned reserved25:1; // 25
+        unsigned page_list:1;  // 26
+        unsigned sync_mode:2;  // 27 from efuse
+        unsigned size:2;       // 29 from efuse
+        unsigned active:1;     // 31
+    } b;
+};
+
 typedef struct nand_setup {
-		union {
-			uint32_t d32;
-			struct {
-				unsigned cmd:22;
-				unsigned large_page:1;  //22
-				unsigned no_rb:1;       //23 from efuse
-				unsigned a2:1;          //24
-				unsigned reserved25:1;  //25
-				unsigned page_list:1;   //26
-				unsigned sync_mode:2;   //27 from efuse
-				unsigned size:2;        //29 from efuse
-				unsigned active:1;      //31
-			}b;
-		}cfg;
-		uint16_t id;
-		uint16_t max;  //id:0x100 user,max:0 disable.
+        union cmdinfo cfg;
+    uint16_t id;
+    uint16_t max; // id:0x100 user, max:0 disable.
 } nand_setup_t;
 
 typedef struct _ext_info{
@@ -91,22 +97,27 @@ typedef struct _ext_info{
  * partitions,please enable this macro.
  * #define CONFIG_NOT_SKIP_BAD_BLOCK
  */
-
 typedef struct _fip_info {
 		uint16_t version; //version
 		uint16_t mode;    //compact or discrete
 		uint32_t fip_start; //fip start,pages
 }fip_info_t;
 
- typedef struct _nand_page0 {
-		nand_setup_t nand_setup;		//8
-		unsigned char page_list[16];	//16
-		nand_cmd_t retry_usr[32];		//64(32 cmd max I/F)
-		ext_info_t ext_info;			//72
-		/*added for slc nand in mtd drivers 20170503*/
-		fip_info_t fip_info;
- }nand_page0_t;  //384 byte max.
+typedef struct _nand_page0_sc2 {
+        nand_setup_sc2_t nand_setup;
+        unsigned char page_list[32];
+        nand_cmd_t retry_usr[32];
+        ext_info_t ext_info;
+        fip_info_t fip_info;
+} nand_page0_sc2_t;
 
+ typedef struct _nand_page0 {
+		nand_setup_t nand_setup;
+		unsigned char page_list[16];
+		nand_cmd_t retry_usr[32];
+		ext_info_t ext_info;
+		fip_info_t fip_info;
+ }nand_page0_t;
 
 typedef union nand_core_clk {
 	/*raw register data*/
