@@ -26,6 +26,7 @@
 #define DISPROTECT_FBBT			BIT(2)
 #define DISPROTECT_HYNIX		BIT(3)
 
+#define PART_PROTECT_FLAG		BIT(4)
 enum boot_type_e {
 	BOOT_EMMC = 1,
 	BOOT_SD = 1 << 1,

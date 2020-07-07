@@ -60,6 +60,13 @@ static int storage_range_check(struct mmc *mmc,char const *part_name,loff_t offs
 			printf("error partition name!\n");
 			return 1;
 		}
+		if ((part_info->mask_flags & PART_PROTECT_FLAG) &&
+			!(info_disprotect & DISPROTECT_KEY)) {
+				printf("%s is protected, pls open it in Dts\n",
+				part_info->name);
+				return 1;
+		}
+
 		*off = part_info->offset+offset;
 		if (offset >= part_info->size) {
 			printf("Start address out #%s# partition'address region,(off < 0x%llx)\n",
@@ -269,22 +276,33 @@ static int storage_write_in_part(char const *part_name, loff_t off, size_t size,
 }
 
 static int storage_mmc_erase_user(struct mmc *mmc) {
-	int ret = 0;
+	int ret = 0, i;
 	struct partitions *part_info = NULL;
 
 	if (info_disprotect & DISPROTECT_KEY) {//key disprotect,erase all
 		ret = blk_derase(mmc_get_blk_desc(mmc), 0, 0);
-	} else {//key protect erase all except reserved
-		part_info = find_mmc_partition_by_name("reserved");
-		if (!part_info) {
-			printf("error partition name!\n");
-			return 1;
+	} else {//key protect partition with the protect_flag
+		for (i = 0;;i++) {
+			part_info = get_partition_info_by_num(i);
+			if (part_info == NULL)
+				break;
+			if (!strcmp("reserved", part_info->name)) {
+				printf("Part:reserved is skiped\n");
+				continue;
+			}
+			if (part_info->mask_flags & PART_PROTECT_FLAG) {
+				printf("Part:%s is protected\n", part_info->name);
+				continue;
+			}
+			ret = blk_derase(mmc_get_blk_desc(mmc),
+					part_info->offset / BLOCK_SIZE,
+					part_info->size / BLOCK_SIZE);
+			printf("Erased: %s %s\n",
+					part_info->name,
+					(ret == 0)? "OK" : "ERR");
 		}
-		ret = blk_derase(mmc_get_blk_desc(mmc), 0, part_info->offset / BLOCK_SIZE);
-		ret |= blk_derase(mmc_get_blk_desc(mmc), (part_info->offset
-				  + part_info->size) / BLOCK_SIZE, 0);
 	}
-	printf("user partition erased: %s\n", (ret == 0) ? "OK" : "ERROR");
+	printf("User partition erased: %s\n", (ret == 0) ? "OK" : "ERROR");
 	return ret;
 }
 
