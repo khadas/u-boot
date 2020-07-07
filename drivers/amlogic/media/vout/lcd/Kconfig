@@ -1,3 +1,5 @@
+menu "AMLOGIC LCD Drivers"
+
 config AML_LCD
 	bool "lcd output for video"
 	depends on AML_VOUT
@@ -12,3 +14,5 @@ source "drivers/amlogic/media/vout/lcd/lcd_extern/Kconfig"
 source "drivers/amlogic/media/vout/lcd/bl_ldim/Kconfig"
 source "drivers/amlogic/media/vout/lcd/bl_extern/Kconfig"
 endif
+
+endmenu

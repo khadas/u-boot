@@ -29,7 +29,7 @@
 #endif
 #include <amlogic/media/vout/aml_vout.h>
 #ifdef CONFIG_AML_HDMITX
-#include <amlogic/media/vout/hdmitx.h>
+#include <amlogic/media/vout/hdmitx/hdmitx.h>
 #endif
 
 #ifdef CONFIG_AML_CVBS
@@ -41,13 +41,20 @@
 
 static int do_vout_list(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
+#ifdef CONFIG_AML_HDMITX
+	struct hdmitx_dev *hdmitx_device = hdmitx_get_hdev();
+#endif
 #ifdef CONFIG_AML_LCD
 	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
 #endif
 
 #ifdef CONFIG_AML_HDMITX
-	printf("\nvalid hdmi mode:\n");
-	hdmitx_device.HWOp.list_support_modes();
+	if (!hdmitx_device) {
+		printf("\nerror: hdmitx device is null\n");
+	} else {
+		printf("\nvalid hdmi mode:\n");
+		hdmitx_device->hwop.list_support_modes();
+	}
 #endif
 
 #ifdef CONFIG_AML_CVBS

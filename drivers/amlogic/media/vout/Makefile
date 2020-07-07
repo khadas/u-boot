@@ -6,4 +6,4 @@ obj-$(CONFIG_AML_CVBS) += cvbs/
 
 obj-$(CONFIG_AML_LCD) += lcd/
 
-obj-$(CONFIG_AML_HDMITX20) += hdmitx20/
+obj-$(CONFIG_AML_HDMITX) += hdmitx/
