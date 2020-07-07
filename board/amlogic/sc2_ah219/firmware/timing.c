@@ -62,10 +62,10 @@
 
 ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 {
-	// g12a 4layer 4pcs ddr3 rank01 (912)(U212)
+	// g12a 4layer 2pcs ddr3 rank0
 	.board_id				= CONFIG_BOARD_ID_MASK,
 	.version				= 1,
-	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK01_CH0,
+	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
 	.DramType				= CONFIG_DDR_TYPE_DDR3,
 	.DRAMFreq				= {912, 0, 0, 0},
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
