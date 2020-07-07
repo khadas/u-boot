@@ -165,7 +165,8 @@ int board_late_init(void)
 	{ aml_v3_factory_usb_burning(0, gd->bd); }
 #endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 
-
+	/* reset vout init state */
+	run_command("setenv vout_init disable", 0);
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif

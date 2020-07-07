@@ -94,8 +94,10 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 #ifdef CONFIG_AML_VPP
 		vpp_matrix_update(VPP_CM_YUV);
 #endif
-		if (cvbs_set_vmode(argv[1]) == 0)
+		if (cvbs_set_vmode(argv[1]) == 0) {
+			run_command("setenv vout_init enable", 0);
 			return CMD_RET_SUCCESS;
+		}
 	}
 #endif
 
@@ -107,6 +109,7 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 		memset(mode, 0, sizeof(mode));
 		sprintf(mode, "hdmitx output %s", argv[1]);
 		run_command(mode, 0);
+		run_command("setenv vout_init enable", 0);
 		return CMD_RET_SUCCESS;
 	}
 #endif
@@ -121,6 +124,7 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 #endif
 				if (lcd_drv->lcd_enable) {
 					lcd_drv->lcd_enable(argv[1]);
+					run_command("setenv vout_init enable", 0);
 					return CMD_RET_SUCCESS;
 				} else
 					printf("no lcd enable\n");
