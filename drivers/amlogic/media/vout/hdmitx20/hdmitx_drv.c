@@ -192,7 +192,7 @@ static void ddc_init_(void)
 	static int ddc_init_flag;
 	unsigned int data32 = 0;
 
-
+	hdmitx_hw_init();
 	if (ddc_init_flag)
 		return;
 	else
