@@ -115,10 +115,10 @@
         "upgrade_check="\
             "echo recovery_status=${recovery_status};"\
             "if itest.s \"${recovery_status}\" == \"in_progress\"; then "\
-                "run storeargs; run recovery_from_flash;"\
+                "run init_display;run storeargs; run recovery_from_flash;"\
             "else fi;"\
             "echo upgrade_step=${upgrade_step}; "\
-            "if itest ${upgrade_step} == 3; then run storeargs; run update; fi;"\
+            "if itest ${upgrade_step} == 3; then run init_display;run storeargs; run update; fi;"\
             "\0"\
         "storeargs="\
             "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} "\
@@ -193,6 +193,25 @@
         "bcb_cmd="\
             "get_valid_slot;"\
             "\0"\
+        "init_display="\
+            "get_rebootmode;"\
+            "echo reboot_mode:::: ${reboot_mode};"\
+            "if test ${reboot_mode} = quiescent; then "\
+                    "setenv reboot_mode_android ""quiescent"";"\
+                    "run storeargs;"\
+                    "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
+                    "osd open;osd clear;"\
+            "else if test ${reboot_mode} = recovery_quiescent; then "\
+                    "setenv reboot_mode_android ""quiescent"";"\
+                    "run storeargs;"\
+                    "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
+                    "osd open;osd clear;"\
+            "else "\
+                "setenv reboot_mode_android ""normal"";"\
+                "run storeargs;"\
+                "hdmitx hpd;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};"\
+            "fi;fi;"\
+            "\0"\
         "cmdline_keys="\
             "setenv usid 1234567890; setenv region_code US;"\
             "if keyman init 0x1234; then "\
@@ -214,6 +233,7 @@
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
             "run upgrade_check;"\
+            "run init_display;"\
             "run storeargs;"\
             "bcb uboot-command;"\
             "run switch_bootmode;"
