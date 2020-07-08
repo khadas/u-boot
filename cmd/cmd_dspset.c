@@ -24,7 +24,7 @@
 #include <asm/arch/secure_apb.h>
 #include <asm/arch/timer.h>
 #include <asm/arch/bl31_apis.h>
-#include <asm/arch/p_register.h>
+#include <asm/arch/register.h>
 #include <serial.h>
 
 

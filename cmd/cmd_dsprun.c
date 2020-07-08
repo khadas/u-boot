@@ -24,17 +24,15 @@
 #include <asm/arch/secure_apb.h>
 #include <asm/arch/timer.h>
 #include <asm/arch/bl31_apis.h>
-#include <asm/arch/p_register.h>
+#include <asm/arch/register.h>
 #include <serial.h>
-
-
 
 void dsp_reset(uint32_t id,uint32_t reset_addr)
 {
 	uint32_t StatVectorSel;
 	uint32_t strobe = 1;
 	//address remap
-	printf("\n start_dsp \n");
+	printf("start_dsp \n");
 	//*P_DSP_REMAP2 = 0x3000fff0; //replace the highest 12bits 0xfffxxxxx with 0x300xxxxx
 
 	StatVectorSel = (reset_addr!= 0xfffa0000);
@@ -43,32 +41,32 @@ void dsp_reset(uint32_t id,uint32_t reset_addr)
 	if (id == 0) { //dspa
 		init_dsp(id,reset_addr, (0x1 | StatVectorSel<<1 | strobe<<2));
 		udelay(50);
-		printf("\n *P_DSP_CFG0 : ADDR_0X%p, value_0x%8x \n",P_DSP_CFG0,*P_DSP_CFG0);
-		*P_DSP_CFG0 = (*P_DSP_CFG0 & ~(0xffff <<0)) | (0x2018 << 0) | (1<<29) | (0<<0) ;      //irq_clken
+
+		writel(readl(DSP_CFG0) & ~(0xffff <<0) | (0x2018 << 0) | (1<<29), DSP_CFG0);
 		udelay(10);
 
-		*P_DSP_CFG0 = *P_DSP_CFG0 | (1<<31);     //Dreset deassert
+		writel(readl(DSP_CFG0) | (1<<31), DSP_CFG0); //Dreset deassert
 		udelay(10);
 
-		*P_DSP_CFG0 = *P_DSP_CFG0 & ~(1<<31);     //Dreset assert
+		writel(readl(DSP_CFG0) & ~(1<<31), DSP_CFG0); //Dreset assert
 		udelay(10);
 
-		*P_DSP_CFG0 = *P_DSP_CFG0 | (1<<30);    //Breset deassert
+		writel(readl(DSP_CFG0) | (1<<30), DSP_CFG0); //Breset deassert
 		udelay(10);
-		*P_DSP_CFG0 = *P_DSP_CFG0 & ~(1<<30);    //Breset
+
+		writel(readl(DSP_CFG0) & ~(1<<30), DSP_CFG0); //Breset
 		udelay(10);
-		printf("\n *P_DSP_CFG0 : ADDR_0X%p, value_0x%8x \n",P_DSP_CFG0,*P_DSP_CFG0);
+		printf("DSP_CFG0 : value_0x%8x \n",readl(DSP_CFG0));
 	} else {
 		init_dsp(id,reset_addr, (0x1 | StatVectorSel<<1 | strobe<<2));
 		udelay(50);
-		printf("\n *P_DSPB_CFG0 : ADDR_0X%p, value_0x%8x \n",P_DSPB_CFG0,*P_DSPB_CFG0);
-		*P_DSPB_CFG0 = (*P_DSPB_CFG0 & ~(0xffff <<0)) | (0x2019 << 0) | (1<<29) | (0<<0) ;      //irq_clken
+		writel(readl(DSPB_CFG0) & ~(0xffff <<0) | (0x2019 << 0) | (1<<29), DSPB_CFG0);
 		udelay(10);
-		*P_DSPB_CFG0 = *P_DSPB_CFG0 & ~(1<<31);     //Dreset
+		writel(readl(DSPB_CFG0) & ~(1<<31), DSPB_CFG0); //Dreset
 		udelay(10);
-		*P_DSPB_CFG0 = *P_DSPB_CFG0 & ~(1<<30);    //Breset
+		writel(readl(DSPB_CFG0) & ~(1<<30), DSPB_CFG0); //Breset
 		udelay(10);
-		printf("\n *P_DSPB_CFG0 : ADDR_0X%p, value_0x%8x \n",P_DSPB_CFG0,*P_DSPB_CFG0);
+		printf("DSPB_CFG0 : value_0x%8x \n",readl(DSPB_CFG0));
 	}
 }
 
@@ -99,7 +97,4 @@ U_BOOT_CMD(
 	"arg[1]: dspid \n"
 	"arg[2]: dspboot.bin load address!"
 );
-
-
-
 
