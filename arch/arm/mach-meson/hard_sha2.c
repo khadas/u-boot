@@ -11,7 +11,7 @@
 #include <string.h>
 #include <dma.h>
 #include <asm/arch/regs.h>
-#include <asm/arch-c1/secure_apb.h>
+#include <asm/arch/secure_apb.h>
 #include <u-boot/sha256.h>
 
 #ifndef __AP_DMA_H__
@@ -53,7 +53,7 @@ static void hw_update(const uint8_t *input, uint32_t ilen,
 		      uint8_t *hash, uint8_t last_update)
 {
 	dma_dsc_t dsc;
-	unsigned char szTempSHA2[32];
+	unsigned char szTempSHA2[64];
 
 	if (!last_update && (ilen % 64))
 	{
