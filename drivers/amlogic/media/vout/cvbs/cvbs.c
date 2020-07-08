@@ -20,6 +20,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <fdtdec.h>
+#include <dm.h>
 #include <asm/arch/cpu.h>
 #include <amlogic/cpu_id.h>
 #include <amlogic/media/vout/aml_cvbs.h>
@@ -307,6 +308,7 @@ static void cvbs_config_hdmipll_sc2(void)
 	cvbs_write_hiu(ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 	cvbs_write_hiu(ANACTRL_HDMIPLL_CTRL5, 0x39270000);
 	cvbs_write_hiu(ANACTRL_HDMIPLL_CTRL6, 0x50540000);
+	udelay(100);
 	cvbs_write_hiu(ANACTRL_HDMIPLL_CTRL0, 0x1b01047b);
 	WAIT_FOR_PLL_LOCKED(ANACTRL_HDMIPLL_CTRL0);
 }
@@ -610,6 +612,21 @@ void cvbs_show_valid_vmode(void)
 		printf("%s\n", cvbs_mode_str[i]);
 }
 
+static unsigned char cvbs_get_trimming_version(unsigned int flag)
+{
+	unsigned char version = 0xff;
+
+	if ((flag & 0xf0) == 0xa0)
+		version = 5;
+	else if ((flag & 0xf0) == 0x40)
+		version = 2;
+	else if ((flag & 0xc0) == 0x80)
+		version = 1;
+	else if ((flag & 0xc0) == 0x00)
+		version = 0;
+	return version;
+}
+
 static unsigned int cvbs_config_vdac(unsigned int value)
 {
 	unsigned char version = 0;
@@ -648,8 +665,7 @@ static void cvbs_get_config(void)
 	unsigned int i, j, temp, cnt;
 	int ret;
 
-	return;
-	//dt_blob = gd->fdt_blob;
+	dt_blob = gd->fdt_blob;
 	if (!dt_blob) {
 		printf("cvbs: error: dt_blob is null, load default setting\n");
 		return;
