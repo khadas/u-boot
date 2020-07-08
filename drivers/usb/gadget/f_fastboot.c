@@ -487,7 +487,7 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 	char response[FASTBOOT_RESPONSE_LEN] = {0};
 	int cmd = -1;
 
-	strcpy(cmdbuf, req->buf);
+	strncpy(cmdbuf, req->buf, 256);
 
 	if (req->status != 0 || req->length == 0)
 		return;

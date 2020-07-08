@@ -245,13 +245,13 @@ static void getvar_super_partition_name(char *var_parameter, char *response)
 	slot_name = env_get("slot-suffixes");
 	char name[64];
 	if (has_boot_slot == 0) {
-		strcpy(name, "super-partition-name: super");
+		strncpy(name, "super-partition-name: super", 64);
 	} else {
 		printf("slot-suffixes: %s\n", slot_name);
 		if (strcmp(slot_name, "0") == 0) {
-			strcpy(name, "super-partition-name: super_a");
+			strncpy(name, "super-partition-name: super_a", 64);
 		} else if (strcmp(slot_name, "1") == 0) {
-			strcpy(name, "super-partition-name: super_b");
+			strncpy(name, "super-partition-name: super_b", 64);
 		}
 	}
 	if (busy_flag == 1)
@@ -431,9 +431,9 @@ static void getvar_partition_size(char *part_name, char *response)
 	char name[32];
 
 	if (strcmp(part_name, "userdata") == 0)
-		strcpy(name, "data");
+		strncpy(name, "data", 4);
 	else
-		strcpy(name, part_name);
+		strncpy(name, part_name, 32);
 
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
 	struct blk_desc *dev_desc;
@@ -454,7 +454,7 @@ static void getvar_partition_size(char *part_name, char *response)
 	if (r >= 0) {
 		if (busy_flag == 1) {
 			char name[64];
-			strcpy(name, "INFOpartition-size:");
+			strncpy(name, "INFOpartition-size:", 64);
 			strcat(name, part_name);
 			strcat(name, ": ");
 			fastboot_response(name, response, "0x%016zx", size);

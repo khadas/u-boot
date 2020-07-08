@@ -238,16 +238,16 @@ static void getvar(char *cmd_parameter, char *response)
 		busy_flag = 1;
 
 		if (dynamic_partition && has_boot_slot == 1 && strlen(getvar_list_dynamic_ab[cmdIndex]) < 64) {
-			strcpy(cmd, getvar_list_dynamic_ab[cmdIndex]);
+			strncpy(cmd, getvar_list_dynamic_ab[cmdIndex], 64);
 			getvar_num = (sizeof(getvar_list_dynamic_ab) / sizeof(getvar_list_dynamic_ab[0]));
 		} else if (has_boot_slot == 1 && strlen(getvar_list_ab[cmdIndex]) < 64) {
-			strcpy(cmd, getvar_list_ab[cmdIndex]);
+			strncpy(cmd, getvar_list_ab[cmdIndex], 64);
 			getvar_num = (sizeof(getvar_list_ab) / sizeof(getvar_list_ab[0]));
 		} else if (dynamic_partition && strlen(getvar_list_dynamic[cmdIndex]) < 64) {
-			strcpy(cmd, getvar_list_dynamic[cmdIndex]);//only support no-arg cmd
+			strncpy(cmd, getvar_list_dynamic[cmdIndex], 64);//only support no-arg cmd
 			getvar_num = (sizeof(getvar_list_dynamic) / sizeof(getvar_list_dynamic[0]));
 		} else if (strlen(getvar_list[cmdIndex]) < 64) {
-			strcpy(cmd, getvar_list[cmdIndex]);//only support no-arg cmd
+			strncpy(cmd, getvar_list[cmdIndex], 64);//only support no-arg cmd
 			getvar_num = (sizeof(getvar_list) / sizeof(getvar_list[0]));
 		}
 		//printf("getvar_num: %d\n", getvar_num);
@@ -387,11 +387,11 @@ static void flash(char *cmd_parameter, char *response)
 	char name[32];
 
 	if (strcmp(cmd_parameter, "userdata") == 0)
-		strcpy(name, "data");
+		strncpy(name, "data", 4);
 	else if (strcmp(cmd_parameter, "dts") == 0)
-		strcpy(name, "dtb");
+		strncpy(name, "dtb", 3);
 	else
-		strcpy(name, cmd_parameter);
+		strncpy(name, cmd_parameter, 32);
 
 	if (check_lock()) {
 		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
@@ -423,11 +423,11 @@ static void erase(char *cmd_parameter, char *response)
 	char name[32];
 
 	if (strcmp(cmd_parameter, "userdata") == 0)
-		strcpy(name, "data");
+		strncpy(name, "data", 4);
 	else if (strcmp(cmd_parameter, "dts") == 0)
-		strcpy(name, "dtb");
+		strncpy(name, "dtb", 3);
 	else
-		strcpy(name, cmd_parameter);
+		strncpy(name, cmd_parameter, 32);
 
 	if (check_lock()) {
 		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
@@ -463,7 +463,7 @@ static void flashing(char *cmd_parameter, char *response)
 	lock_s = env_get("lock");
 	if (!lock_s) {
 		printf("lock state is NULL \n");
-		strcpy(lock_d, "10101000");
+		strncpy(lock_d, "10101000", 8);
 		lock_s = "10101000";
 		env_set("lock", "10101000");
 		run_command("defenv_reserv; saveenv;", 0);
@@ -532,13 +532,13 @@ static void flashing(char *cmd_parameter, char *response)
 #ifdef CONFIG_AML_ANTIROLLBACK
 					if (avb_unlock()) {
 						printf("unlocking device.  Erasing userdata partition!\n");
-						run_command("store erase partition data", 0);
+						run_command("store erase data 0 0", 0);
 					} else {
 						printf("unlock failed!\n");
 					}
 #else
 					printf("unlocking device.  Erasing userdata partition!\n");
-					run_command("store erase partition data", 0);
+					run_command("store erase data 0 0", 0);
 #endif
 				}
 			}
@@ -565,11 +565,11 @@ static void flashing(char *cmd_parameter, char *response)
 					printf("lock failed!\n");
 				} else {
 					printf("locking device.  Erasing userdata partition!\n");
-					run_command("store erase partition data", 0);
+					run_command("store erase data 0 0", 0);
 				}
 #else
 				printf("locking device.  Erasing userdata partition!\n");
-				run_command("store erase partition data", 0);
+				run_command("store erase data 0 0", 0);
 #endif
 			}
 		}

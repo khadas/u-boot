@@ -15,6 +15,8 @@
 #include <net/fastboot.h>
 #include <emmc_partitions.h>
 
+#define CONFIG_FASTBOOT_MAX_DOWN_SIZE        0x8000000
+
 /**
  * fastboot_buf_addr - base address of the fastboot download buffer
  */
@@ -221,5 +223,11 @@ void fastboot_init(void *buf_addr, u32 buf_size)
 	fastboot_buf_addr = buf_addr ? buf_addr :
 				       (void *)CONFIG_FASTBOOT_BUF_ADDR;
 	fastboot_buf_size = buf_size ? buf_size : CONFIG_FASTBOOT_BUF_SIZE;
+
+#if defined CONFIG_FASTBOOT_MAX_DOWN_SIZE
+	if (fastboot_buf_size > CONFIG_FASTBOOT_MAX_DOWN_SIZE)
+		fastboot_buf_size = CONFIG_FASTBOOT_MAX_DOWN_SIZE;
+#endif
+
 	fastboot_set_progress_callback(NULL);
 }
