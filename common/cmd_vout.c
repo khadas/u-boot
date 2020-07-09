@@ -122,19 +122,23 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 #endif
 
 #ifdef CONFIG_AML_HDMITX20
-	venc_sel = hdmi_outputmode_check(mode, frac);
-	if (venc_sel < VIU_MUX_MAX) {
-		vout_viu_mux(VOUT_VIU1_SEL, venc_sel);
-		vpp_matrix_update(VPP_CM_YUV);
-		if (frac)
-			setenv("frac_rate_policy", "1");
-		else
-			setenv("frac_rate_policy", "0");
-		memset(str, 0, sizeof(str));
-		sprintf(str, "hdmitx output %s", mode);
-		run_command(str, 0);
-		free(mode);
-		return CMD_RET_SUCCESS;
+	if (frac == 0) { /* remove frac support in outputmode */
+		venc_sel = hdmi_outputmode_check(mode, frac);
+		if (venc_sel < VIU_MUX_MAX) {
+			vout_viu_mux(VOUT_VIU1_SEL, venc_sel);
+			vpp_matrix_update(VPP_CM_YUV);
+			/* //remove frac support in outputmode
+			 *if (frac)
+			 *	setenv("frac_rate_policy", "1");
+			 *else
+			 *	setenv("frac_rate_policy", "0");
+			 */
+			memset(str, 0, sizeof(str));
+			sprintf(str, "hdmitx output %s", mode);
+			run_command(str, 0);
+			free(mode);
+			return CMD_RET_SUCCESS;
+		}
 	}
 #endif
 
@@ -196,17 +200,21 @@ static int do_vout2_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 #endif
 
 #ifdef CONFIG_AML_HDMITX20
-	venc_sel = hdmi_outputmode_check(mode, frac);
-	if (venc_sel < VIU_MUX_MAX) {
-		if (frac)
-			setenv("frac_rate_policy", "1");
-		else
-			setenv("frac_rate_policy", "0");
-		memset(str, 0, sizeof(str));
-		sprintf(str, "hdmitx output %s", mode);
-		run_command(str, 0);
-		free(mode);
-		return CMD_RET_SUCCESS;
+	if (frac == 0) { /* remove frac support in outputmode */
+		venc_sel = hdmi_outputmode_check(mode, frac);
+		if (venc_sel < VIU_MUX_MAX) {
+			/* //remove frac support in outputmode
+			 *if (frac)
+			 *	setenv("frac_rate_policy", "1");
+			 *else
+			 *	setenv("frac_rate_policy", "0");
+			 */
+			memset(str, 0, sizeof(str));
+			sprintf(str, "hdmitx output %s", mode);
+			run_command(str, 0);
+			free(mode);
+			return CMD_RET_SUCCESS;
+		}
 	}
 #endif
 
