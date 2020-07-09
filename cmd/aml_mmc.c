@@ -3223,6 +3223,34 @@ _out:
 	return ret;
 }
 
+int emmc_erase_rsv(struct mmc *mmc, char *rsv_part)
+{
+	u64 cnt = 0, n = 0, blk = 0;
+	struct partitions *part = NULL;
+	struct virtual_partition *vpart = NULL;
+
+	if (rsv_part == NULL)
+		return -1;
+
+	vpart = aml_get_virtual_partition_by_name(MMC_DTB_NAME);
+	part = aml_get_partition_by_name(MMC_RESERVED_NAME);
+	if (strcmp(rsv_part, "dtb") == 0) {
+		blk = (part->offset + vpart->offset) / mmc->read_bl_len;
+		cnt = (vpart->size * 2) / mmc->read_bl_len;
+		if (cnt != 0)
+			n = blk_derase(mmc_get_blk_desc(mmc), blk, cnt);
+		printf("%s is erased %s\n",
+				rsv_part, (n == 0) ? "OK" : "ERROR");
+		return (n == 0) ? 0 : 1;
+	} else if (strcmp(rsv_part, "key") == 0) {
+		n = mmc_key_erase();
+		printf("%s is erased %s\n",
+				rsv_part, (n == 0) ? "OK" : "ERROR");
+		return (n == 0) ? 0 : 1;
+	}
+	return 1;
+}
+
 int do_emmc_erase(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int dev;
