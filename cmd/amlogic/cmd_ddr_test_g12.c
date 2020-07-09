@@ -6161,22 +6161,27 @@ int ddr_clk_convert_to_pll(unsigned int ddr_clk)
 
 int get_ddr_clk(void)
 {
-	unsigned int ddr_clk=1000;
+	unsigned int ddr_clk=10;
 	unsigned int ddr_pll=0;
 	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_G12A) ||
 		(p_ddr_base->chip_id==MESON_CPU_MAJOR_ID_G12B)||
 		(p_ddr_base->chip_id==MESON_CPU_MAJOR_ID_TL1)||
 		(p_ddr_base->chip_id==MESON_CPU_MAJOR_ID_SM1)||
 		(p_ddr_base->chip_id==MESON_CPU_MAJOR_ID_TM2)||
-		(p_ddr_base->chip_id==MESON_CPU_MAJOR_ID_C1))
+		(p_ddr_base->chip_id==MESON_CPU_MAJOR_ID_C1)||
+		(p_ddr_base->chip_id==MESON_CPU_MAJOR_ID_SC2))
 	{
 		ddr_pll=rd_reg(p_ddr_base->ddr_pll_base_address);
 		ddr_pll=ddr_pll&0xfffff;
 		ddr_clk=pll_convert_to_ddr_clk_g12a(  ddr_pll);
 	}
-	if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_A1)
+	else if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_A1)
 	{
 		ddr_clk=768;
+	}
+	else
+	{
+		ddr_clk=10;
 	}
 	return ddr_clk;
 //#endif
