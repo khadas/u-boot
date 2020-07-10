@@ -42,6 +42,13 @@ long get_sharemem_info(unsigned long function_id)
 	return function_id;
 }
 
+int32_t set_boot_params(const keymaster_boot_params *boot_params)
+{
+	/* Fake function for the reason that set_boot_params is not
+	 * supported for this platform */
+	return -1;
+}
+
 #ifdef CONFIG_EFUSE
 int32_t meson_trustzone_efuse(struct efuse_hal_api_arg *arg)
 {
