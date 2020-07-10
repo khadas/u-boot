@@ -97,7 +97,6 @@
         "EnableSelinux=enforcing\0" \
         "recovery_part=recovery\0"\
         "lock=10101000\0"\
-        "lock_state=orange\0"\
         "recovery_offset=0\0"\
         "cvbs_drv=0\0"\
         "osd_reverse=0\0"\
@@ -124,7 +123,6 @@
             "\0"\
         "storeargs="\
             "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} "\
-                "androidboot.verifiedbootstate=${lock_state} "\
                 "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},${vout_init} panel_type=${panel_type} "\
                 "hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
                 "frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} "\
@@ -267,7 +265,7 @@
 #define CONFIG_SYS_MALLOC_LEN				(256*1024)
 #else
 #define CONFIG_SYS_INIT_SP_ADDR				(0x00200000)
-#define CONFIG_SYS_MALLOC_LEN				(2*16*1024*1024)
+#define CONFIG_SYS_MALLOC_LEN				(64*1024*1024)
 #endif
 
 //#define CONFIG_NR_DRAM_BANKS			1
