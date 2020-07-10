@@ -109,5 +109,15 @@ int ring_msr(int index)
 		printf("0x%x, ", efuseinfo[i]);
 	printf("\n");
 
+	/*efuse to test value*/
+	printf("osc_ring_core0(20lvt), idd_ee, idd_cpu\n");
+
+	printf("%d KHz ", (efuseinfo[1] * 20));
+
+	for (i = 2; i <=3; i++) {
+		printf("%d uA ",  (efuseinfo[i] * 400));
+	}
+	printf("\n");
+
 	return 0;
 }
