@@ -462,7 +462,7 @@ int get_aml_partition_count(void)
  * BOOT_13: NOR_CS:reg1[23:20]=3
  */
 #define SPIFC_NUM_CS 1
-static int spifc_cs_gpios[SPIFC_NUM_CS] = {GPIOEE(BOOT_13)};
+static int spifc_cs_gpios[SPIFC_NUM_CS] = {GPIOEE(GPIOB_13)};
 
 static int spifc_pinctrl_enable(void *pinctrl, bool enable)
 {
