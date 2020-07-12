@@ -27,6 +27,8 @@
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
+static unsigned int wwe_wakeup_status;
+
 static void set_vddee_voltage(unsigned int target_voltage)
 {
 	unsigned int to;
@@ -63,15 +65,19 @@ static void power_off_at_24M(unsigned int suspend_from)
 	writel(readl(AO_GPIO_O) & (~(1 << 3)), AO_GPIO_O);
 	writel(readl(AO_GPIO_O_EN_N) & (~(1 << 3)), AO_GPIO_O_EN_N);
 	writel(readl(AO_RTI_PINMUX_REG0) & (~(0xf << 12)), AO_RTI_PINMUX_REG0);
+
 	/*set gpiaoAO_2 low to power off VDDIO_3.3V*/
 	writel(readl(AO_GPIO_O) & (~(1 << 2)), AO_GPIO_O);
 	writel(readl(AO_GPIO_O_EN_N) & (~(1 << 2)), AO_GPIO_O_EN_N);
 	writel(readl(AO_RTI_PINMUX_REG0) & (~(0xf << 8)), AO_RTI_PINMUX_REG0);
-	/*set gpioE_2 low to power off VDDCPU and VAD3.3V*/
-	writel(readl(AO_GPIO_O) & (~(1 << 18)), AO_GPIO_O);
-	writel(readl(AO_GPIO_O_EN_N) & (~(1 << 18)), AO_GPIO_O_EN_N);
-	writel(readl(AO_RTI_PINMUX_REG1) & (~(0xf << 24)), AO_RTI_PINMUX_REG1);
-	_udelay(100);
+
+	if (!wwe_wakeup_status) {
+		/*set gpioE_2 low to power off VDDCPU and VAD3.3V*/
+		writel(readl(AO_GPIO_O) & (~(1 << 18)), AO_GPIO_O);
+		writel(readl(AO_GPIO_O_EN_N) & (~(1 << 18)), AO_GPIO_O_EN_N);
+		writel(readl(AO_RTI_PINMUX_REG1) & (~(0xf << 24)), AO_RTI_PINMUX_REG1);
+		_udelay(100);
+	}
 
 	/*step down ee voltage*/
 	set_vddee_voltage(CONFIG_VDDEE_SLEEP_VOLTAGE);
@@ -86,10 +92,12 @@ static void power_on_at_24M(unsigned int suspend_from)
 	/*step up ee voltage*/
 	set_vddee_voltage(CONFIG_VDDEE_INIT_VOLTAGE);
 	_udelay(100);
-	/*set gpioE_2 low to power on VDDCPU and VAD3.3V*/
-	writel(readl(AO_GPIO_O) | (1 << 18), AO_GPIO_O);
-	writel(readl(AO_GPIO_O_EN_N) & (~(1 << 18)), AO_GPIO_O_EN_N);
-	writel(readl(AO_RTI_PINMUX_REG1) & (~(0xf << 24)), AO_RTI_PINMUX_REG1);
+	if (!wwe_wakeup_status) {
+		/*set gpioE_2 low to power on VDDCPU and VAD3.3V*/
+		writel(readl(AO_GPIO_O) | (1 << 18), AO_GPIO_O);
+		writel(readl(AO_GPIO_O_EN_N) & (~(1 << 18)), AO_GPIO_O_EN_N);
+		writel(readl(AO_RTI_PINMUX_REG1) & (~(0xf << 24)), AO_RTI_PINMUX_REG1);
+	}
 	/*set gpiaoAO_2 high to power on VDDIO_3*/
 	writel(readl(AO_GPIO_O) | (1 << 2), AO_GPIO_O);
 	writel(readl(AO_GPIO_O_EN_N) & (~(1 << 2)), AO_GPIO_O_EN_N);
@@ -115,7 +123,9 @@ void get_wakeup_source(void *response, unsigned int suspend_from)
 
 	p->status = RESPONSE_OK;
 	val = (POWER_KEY_WAKEUP_SRC | AUTO_WAKEUP_SRC | REMOTE_WAKEUP_SRC |
-	       BT_WAKEUP_SRC | CECB_WAKEUP_SRC);
+	       BT_WAKEUP_SRC | CECB_WAKEUP_SRC | WWE_WAKEUP_SRC);
+	if (val & WWE_WAKEUP_SRC)
+		wwe_wakeup_status = 1;
 
 #ifdef CONFIG_WIFI_WAKEUP
 	if (suspend_from != SYS_POWEROFF)
@@ -180,6 +190,12 @@ static unsigned int detect_key(unsigned int suspend_from)
 		if (irq[IRQ_VRTC] == IRQ_VRTC_NUM) {
 			irq[IRQ_VRTC] = 0xFFFFFFFF;
 			exit_reason = RTC_WAKEUP;
+		}
+
+
+		if (irq[IRQ_WWE] == IRQ_WWE_NUM) { /*which wakeup source*/
+			irq[IRQ_WWE] = 0xFFFFFFFF;
+			exit_reason = WWE_WAKEUP;
 		}
 
 		if (irq[IRQ_AO_TIMERA] == IRQ_AO_TIMERA_NUM) {

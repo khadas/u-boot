@@ -38,6 +38,7 @@ typedef unsigned int uint32_t;
 #define ETH_PHY_WAKEUP      10
 #define CECB_WAKEUP		11
 #define ETH_PHY_GPIO    12
+#define WWE_WAKEUP      13
 /* wake up source*/
 #define UDEFINED_WAKEUP_SRC	(1<<0)
 #define CHARGING_WAKEUP_SRC (1<<1)
@@ -51,6 +52,7 @@ typedef unsigned int uint32_t;
 #define ETH_PMT_WAKEUP_SRC (1<<9)
 #define CECB_WAKEUP_SRC    (1<<10)
 #define ETH_PHY_GPIO_SRC   (1<<12)
+#define WWE_WAKEUP_SRC     (1<<13)
 
 struct pwr_op {
 	void (*power_off_at_24M)(unsigned int);
@@ -69,6 +71,7 @@ static void inline aml_update_bits(unsigned int  reg, unsigned int mask, unsigne
 }
 
 #define IRQ_VRTC_NUM		127
+#define IRQ_WWE_NUM         128
 /* GPIO trigger type*/
 #define GPIO_IRQ_LOW_LEVEL		0
 #define GPIO_IRQ_HIGH_LEVEL		1
@@ -88,6 +91,8 @@ enum {
 	IRQ_AO_TIMERA,
 	IRQ_ETH_PHY,
 	IRQ_AO_CECB,
+	IRQ_ETH_PMT,
+	IRQ_WWE,
 	IRQ_VRTC = 31,
 	WAKE_UP_MAX = 32,
 };
