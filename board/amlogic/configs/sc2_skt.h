@@ -209,12 +209,18 @@
             "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
             "setenv serial ${usid}; setenv serial# ${usid};"\
             "\0"\
+        "upgrade_key="\
+            "if gpio input GPIOD_3; then "\
+            "echo detect upgrade key; run update;"\
+            "fi;"\
+            "\0"\
 
 #if 0
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
             "run upgrade_check;"\
-            "run storeargs;"
+            "run storeargs;"\
+            "run upgrade_key;"
 #else
 #define CONFIG_PREBOOT  "echo preboot"
 #endif
