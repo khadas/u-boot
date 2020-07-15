@@ -787,7 +787,7 @@ static int do_unpackimg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
         int itemSz = pItem->size;
         unsigned long uncompSz = 0;
         if ((long)unCompressBuf & 0x7U)
-            unCompressBuf = (unsigned char*)((unsigned long)(unCompressBuf + 8) & 0x7U);
+            unCompressBuf = (unsigned char*)((((unsigned long)unCompressBuf + 8)>>3) << 3);
         imgread_uncomp_pic((unsigned char*)picLoadAddr, pItem->size,
                 unCompressBuf, CONFIG_MAX_PIC_LEN, &uncompSz);
         if (uncompSz) {
