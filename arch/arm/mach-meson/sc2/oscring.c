@@ -8,7 +8,7 @@
 void ring_powerinit(void)
 {
 	writel(0x18000a, RING_PWM_VCCK);/*set vcck 0.8v*/
-	writel(0xc0006, RING_PWM_EE);/*set ee 0.8v*/
+	writel(0x90009, RING_PWM_EE);/*set ee 0.8v*/
 }
 
 unsigned long clk_util_ring_msr(unsigned long clk_mux)
@@ -24,6 +24,7 @@ unsigned long clk_util_ring_msr(unsigned long clk_mux)
 	clrbits_le32(MSR_CLK_REG0, (1 << 17) | (1 << 18));
 	clrbits_le32(MSR_CLK_REG0, 0x7f << 20);
 	setbits_le32(MSR_CLK_REG0, (clk_mux) << 20 | (1 << 19) | (1 << 16));
+	mdelay(10);
 	/* Wait for the measurement to be done */
 	regval = readl(MSR_CLK_REG0);
 	do {
@@ -40,23 +41,27 @@ unsigned long clk_util_ring_msr(unsigned long clk_mux)
 int ring_msr(int index)
 {
 	const char* clk_table[] = {
-			[14] = "osc_ring_clk_dos3 " ,
-			[13] = "osc_ring_clk_dos2 " ,
-			[12] = "osc_ring_clk_dos1 " ,
-			[11] = "osc_ring_clk_dos0 " ,
-			[10] = "osc_ring_clk_ramc " ,
-			[9] = "osc_ring_clk_ramb " ,
-			[8] = "osc_ring_clk_rama " ,
-			[7] = "osc_ring_clk_dspb " ,
-			[6] = "osc_ring_clk_dspa " ,
-			[5] = "osc_ring_clk_dmc " ,
-			[4] = "osc_ring_clk_ddr " ,
-			[3] = "osc_ring_clk_cpu3 " ,
-			[2] = "osc_ring_clk_cpu2 " ,
-			[1] = "osc_ring_clk_cpu1 " ,
-			[0] = "osc_ring_clk_cpu0" ,
+			[17] = "dspa_osc_ring(SVT16) " ,
+			[16] = "axi_sram_osc_ring(SVT16) " ,
+			[15] = "sys_cpu_osc_ring3(LVT16) " ,
+			[14] = "sys_cpu_osc_ring2(ULVT16) " ,
+			[13] = "sys_cpu_osc_ring1(ULVT20) " ,
+			[12] = "sys_cpu_osc_ring0(ULVT16) " ,
+			[11] = "ddr_osc_ring(LVT16) " ,
+			[10] = "dos_osc_ring3(ULVT20) " ,
+			[9] = "dos_osc_ring2(LVT16) " ,
+			[8] = "dos_osc_ring1(SVT16) " ,
+			[7] = "dos_osc_ring0(SVT24) " ,
+			[6] = "vpu_osc_ring2(LVT16) " ,
+			[5] = "vpu_osc_ring1(LVT20) " ,
+			[4] = "vpu_osc_ring0(SVT24) " ,
+			[3] = "gpu_osc_ring2(SVT16) " ,
+			[2] = "gpu_osc_ring1(ULVT16) " ,
+			[1] = "gpu_osc_ring0(LVT16) " ,
+			[0] = "dmc_osc_ring(LVT16) " ,
 		};
-	const int tb[] = {46,47,48,49,50, 51, 54, 55, 56, 57, 58, 59, 60};
+	const int tb[] = {180, 181, 182, 183, 184, 185, 186, 187, 188, 189,
+			  190, 191, 192, 193, 194, 195, 196, 197};
 	unsigned long i;
 	uint8_t efuseinfo[4] = {0, 0, 0, 0};
 
@@ -80,7 +85,7 @@ int ring_msr(int index)
 	writel(OSCRING_CTL_DATA0, OSCRING_CTL_REG0);
 	writel(OSCRING_CTL_DATA1, OSCRING_CTL_REG1);
 
-	for (i = 0; i < 15; i++) {
+	for (i = 0; i < 18; i++) {
 		printf("%s      :",clk_table[i]);
 		printf("%ld     KHz",clk_util_ring_msr(tb[i]));
 		printf("\n");
@@ -94,6 +99,16 @@ int ring_msr(int index)
 	printf("osc efuse info:\n");
 	for (i = 0; i < 4; i++)
 		printf("0x%x, ", efuseinfo[i]);
+	printf("\n");
+
+	/*efuse to test value*/
+	printf("osc_ring_core0(20lvt), idd_ee, idd_cpu\n");
+
+	printf("%d KHz ", (efuseinfo[1] * 20));
+
+	for (i = 2; i <=3; i++) {
+		printf("%d uA ",  (efuseinfo[i] * 400));
+	}
 	printf("\n");
 
 	return 0;
