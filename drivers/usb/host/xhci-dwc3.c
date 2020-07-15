@@ -233,26 +233,6 @@ phys_init_err:
 	return ret;
 }
 
-static int xhci_dwc3_shutdown_phy(struct udevice *dev)
-{
-	struct xhci_dwc3_platdata *plat = dev_get_platdata(dev);
-	int i, ret;
-
-	for (i = 0; i < plat->num_phys; i++) {
-		if (!generic_phy_valid(&plat->usb_phys[i]))
-			continue;
-
-		ret = generic_phy_power_off(&plat->usb_phys[i]);
-		ret |= generic_phy_exit(&plat->usb_phys[i]);
-		if (ret) {
-			pr_err("Can't shutdown USB PHY%d for %s\n",
-			       i, dev->name);
-		}
-	}
-
-	return 0;
-}
-
 static int xhci_dwc3_probe(struct udevice *dev)
 {
 	struct xhci_hcor *hcor;

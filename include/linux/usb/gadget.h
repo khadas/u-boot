@@ -935,7 +935,8 @@ int dm_usb_gadget_handle_interrupts(struct udevice *dev);
 #include <usb.h>
 static inline int usb_gadget_initialize(int index)
 {
-	return board_usb_init(index, USB_INIT_DEVICE);
+	//return board_usb_init(index, USB_INIT_DEVICE);
+	return 0;
 }
 
 static inline int usb_gadget_release(int index)

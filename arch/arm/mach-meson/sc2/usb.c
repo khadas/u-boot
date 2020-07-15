@@ -167,12 +167,12 @@ static void set_pll_Calibration_default(uint32_t phy2_pll_base)
 }
 
 void usb_reset(unsigned int reset_addr, int bit){
-	*(volatile unsigned int *)reset_addr = (1 << bit);
+	*(volatile unsigned int *)(unsigned long)reset_addr = (1 << bit);
 }
 
 static void usb_enable_phy_pll (void)
 {
-	*(volatile uint32_t *)RESETCTRL_RESET0_LEVEL |= (3 << PHY20_RESET_LEVEL_BIT);
+	*(volatile uint32_t *)(unsigned long)RESETCTRL_RESET0_LEVEL |= (3 << PHY20_RESET_LEVEL_BIT);
 }
 
 void set_usb_pll(uint32_t phy2_pll_base)
@@ -232,7 +232,7 @@ int usb2_phy_init (struct phy *phy) {
 	//usb_set_power_domain();
 	phy_aml_usb2_check_rev();
 
-	*(volatile unsigned int *)priv->reset_addr = (1 << USB_RESET_BIT);
+	*(volatile unsigned int *)(unsigned long)priv->reset_addr = (1 << USB_RESET_BIT);
 
 	udelay(500);
 	priv->usbphy_reset_bit[0] = PHY20_RESET_LEVEL_BIT;
@@ -245,7 +245,7 @@ int usb2_phy_init (struct phy *phy) {
 		dev_u2p_r0.b.POR= 0;
 		u2p_aml_reg->u2p_r0  = dev_u2p_r0.d32;
 		udelay(10);
-		*(volatile unsigned int *)priv->reset_addr = (1 << priv->usbphy_reset_bit[i]);
+		*(volatile unsigned int *)(unsigned long)priv->reset_addr = (1 << priv->usbphy_reset_bit[i]);
 		udelay(50);
 
 		/* wait for phy ready */
@@ -274,7 +274,7 @@ int usb2_phy_init (struct phy *phy) {
 int usb2_phy_tuning(uint32_t phy2_pll_base, int port)
 {
 	unsigned long phy_reg_base;
-	unsigned int pll_set38, pll_set34, pll_set3, pll_set4;
+	unsigned int pll_set38, pll_set34;
 	unsigned int rev_type = 0;
 
 	if (port > 2)
@@ -381,8 +381,9 @@ void usb_device_mode_init(void){
 	phy_base_addr = usb2_priv->usb_phy2_pll_base_addr[1];
 	reset_addr = usb2_priv->reset_addr;
 
-	printf("PHY2=0x%08x,PHY3=0x%08x\n", u2p_aml_regs, usb_aml_regs);
-	if ((*(volatile uint32_t *)(phy_base_addr + 0x38)) != 0) {
+	//printf("PHY2=0x%08x,PHY3=0x%08x\n", u2p_aml_regs, usb_aml_regs);
+	printf("PHY2=%p,PHY3=%p\n", u2p_aml_regs, usb_aml_regs);
+	if ((*(volatile uint32_t *)(unsigned long)(phy_base_addr + 0x38)) != 0) {
 		usb_phy_tuning_reset();
 		mdelay(150);
 	}

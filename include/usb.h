@@ -17,6 +17,11 @@
 #include <asm/cache.h>
 #include <part.h>
 
+struct usb_string {
+	u8 id;
+	const char *s;
+};
+
 /* get from ch9.h fix compile error. start */
 struct usb_ss_ep_comp_descriptor {
 	__u8  bLength;

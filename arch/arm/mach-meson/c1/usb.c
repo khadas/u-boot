@@ -126,7 +126,8 @@ static void usb_set_power_domain (void)
 
 static void usb_set_clock_freq(unsigned int clock_addr)
 {
-	*(volatile unsigned int *)clock_addr = (1 << 8) | (2 << 9) | (9 << 0);
+	unsigned int val = (1 << 8) | (2 << 9) | (9 << 0);
+	writel(val, (unsigned long)clock_addr);
 	return;
 }
 
@@ -143,7 +144,7 @@ static void set_pll_Calibration_default(uint32_t phy2_pll_base)
 
 void usb_reset(unsigned int reset_addr, int bit)
 {
-	*(volatile unsigned int *)reset_addr =  (1 << bit);
+	*(volatile unsigned int *)(unsigned long)reset_addr =  (1 << bit);
 }
 
 static void usb_enable_phy_pll (void)

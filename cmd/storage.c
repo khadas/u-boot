@@ -845,7 +845,7 @@ static int do_store_write_bl2img(cmd_tbl_t *cmdtp,
 	printf("[%s] offset:0x%lx, index:%d\n", name, offset, index);
 
 	if (size_src != size)
-		printf("new img size:0x%x != img src:0x%x\n", size, size_src);
+		printf("new img size:0x%lx != img src:0x%lx\n", size, size_src);
 
 	ret = store->boot_write(name, offset, size, (u_char *)addr);
 

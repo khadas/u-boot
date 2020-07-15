@@ -165,7 +165,7 @@ static void set_pll_Calibration_default(uint32_t phy2_pll_base)
 }
 
 void usb_reset(unsigned int reset_addr, int bit){
-	*(volatile unsigned int *)reset_addr = (1 << bit);
+	*(volatile unsigned int *)(unsigned long)reset_addr = (1 << bit);
 }
 
 void set_usb_pll(uint32_t phy2_pll_base)

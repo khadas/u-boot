@@ -1059,9 +1059,5 @@ struct usb_set_sel_req {
  * If you're using usb_gadget_get_string(), use this to wrap a string
  * together with its ID.
  */
-struct usb_string {
-	u8 id;
-	const char *s;
-};
 
 #endif /* __LINUX_USB_CH9_H */

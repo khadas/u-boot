@@ -129,13 +129,13 @@ static void usb_set_calibration_trim(uint32_t phy2_pll_base, uint8_t mode)
 	uint8_t cali_en;
 
 	if (mode == DEVICE_MODE) {
-		value = readl(phy2_pll_base + 0x10);
+		value = readl((unsigned long)(phy2_pll_base + 0x10));
 		value |= 0xfff;
-		writel(value, phy2_pll_base + 0x10);
+		writel(value, (unsigned long)(phy2_pll_base + 0x10));
 		return;
 	}
 
-	cali = readl(SYSCTRL_SEC_STATUS_REG12);
+	cali = readl((unsigned long)SYSCTRL_SEC_STATUS_REG12);
 	cali_en = (cali >> 30) & 0x1;
 	tmp = cali >> 26;
 
@@ -145,24 +145,25 @@ static void usb_set_calibration_trim(uint32_t phy2_pll_base, uint8_t mode)
 		if (cali > 12)
 			cali = 12;
 
-		value = readl(phy2_pll_base + 0x10);
+		value = readl((unsigned long)(phy2_pll_base + 0x10));
 		value &= (~0xfff);
 		for (i = 0; i < cali; i++)
 			value |= (1 << i);
 
-		writel(value, phy2_pll_base + 0x10);
+		writel(value, (unsigned long)(phy2_pll_base + 0x10));
 	}
 
 }
 
 static void usb_set_clock_freq(unsigned int clock_addr)
 {
-	*(volatile unsigned int *)clock_addr = (1 << 8) | (2 << 9) | (9 << 0);
+	unsigned int val = (1 << 8) | (2 << 9) | (9 << 0);
+	writel(val, (unsigned long)clock_addr);
 	return;
 }
 
 void usb_reset(unsigned int reset_addr, int bit){
-	*(volatile unsigned int *)reset_addr = (1 << bit);
+	*(volatile unsigned int *)(unsigned long)reset_addr = (1 << bit);
 }
 
 static void usb_enable_phy_pll (void)
@@ -172,8 +173,6 @@ static void usb_enable_phy_pll (void)
 
 void set_usb_pll(uint32_t phy2_pll_base)
 {
-	unsigned int pll_offset_48;
-	unsigned int tuning_disconnect_threshold = 0x34;
 	uint32_t tmp, retry = 5;
 
 __retry:
@@ -284,7 +283,7 @@ int usb2_phy_init (struct phy *phy) {
 	for (i = 0; i < priv->u2_port_num; i++) {
 		debug("------set usb pll\n");
 		set_usb_pll(priv->usb_phy2_pll_base_addr[i]);
-		writel(0xfe18, priv->usb_phy2_pll_base_addr[i] + 0x50);
+		writel(0xfe18, (unsigned long)(priv->usb_phy2_pll_base_addr[i] + 0x50));
 	}
 	return 0;
 
@@ -416,7 +415,7 @@ void usb_device_mode_init(void){
 	}
 
 	set_usb_pll(phy_base_addr);
-	writel(0xbe18, phy_base_addr + 0x50);
+	writel(0xbe18, (unsigned long)(phy_base_addr + 0x50));
 	//--------------------------------------------------
 
 	// ------------- usb phy21 initinal end ----------

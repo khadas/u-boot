@@ -310,7 +310,6 @@ static int optimus_download_bootloader_image(struct ImgBurnInfo* pDownInfo, u32 
 {
     int ret = OPT_DOWN_OK;
     int size = dataSzReceived;
-    int iCopy = 0;
 
     if (dataSzReceived < pDownInfo->imgPktSz) {
         DWN_ERR("please write back bootloader after all data rx end.0x(%x, %x)\n", dataSzReceived, (u32)pDownInfo->imgPktSz);
@@ -336,7 +335,6 @@ static int optimus_verify_bootloader(struct ImgBurnInfo* pDownInfo, u8* genSum)
     int ret = OPT_DOWN_OK;
     unsigned char* pBuf = (unsigned char*)OPTIMUS_DOWNLOAD_TRANSFER_BUF_ADDR;
     int size = 0;
-    int iCopy = 0;
     int bootRealSz = pDownInfo->imgPktSz;
 
     size=bootRealSz;
