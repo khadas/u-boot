@@ -19,6 +19,48 @@ static const unsigned char gzip_magic[] = {
 
 static char andr_tmp_str[ANDR_BOOT_ARGS_SIZE + 1];
 
+#ifdef CONFIG_OF_LIBFDT_OVERLAY
+static int save_dtbo_idx(const char *cmdline)
+{
+	char *dtbo_chosen_idx_start = NULL;
+	char *dtbo_chosen_idx_end = NULL;
+	char *dtbo_idx = NULL;
+
+	if (!env_get("androidboot.dtbo_idx")) {
+		if (!cmdline)
+			return -1;
+
+		dtbo_chosen_idx_start = strstr(cmdline, "androidboot.dtbo_idx");
+		if (!dtbo_chosen_idx_start) {
+			printf("No androidboot.dtbo_idx configured");
+			return -1;
+		}
+
+		dtbo_chosen_idx_end = strchr(dtbo_chosen_idx_start, ' ');
+		if (dtbo_chosen_idx_end) {
+			dtbo_idx = malloc(dtbo_chosen_idx_end -
+					dtbo_chosen_idx_start + 1);
+			if (!dtbo_idx) {
+				printf("dtbo out of memory\n");
+				return -1;
+			}
+			memset(dtbo_idx, 0x00,
+			       dtbo_chosen_idx_end - dtbo_chosen_idx_start + 1);
+			strncpy(dtbo_idx, dtbo_chosen_idx_start,
+				dtbo_chosen_idx_end - dtbo_chosen_idx_start);
+		} else
+			strncpy(dtbo_idx, dtbo_chosen_idx_start,
+				strlen(dtbo_chosen_idx_start));
+
+		env_set("androidboot.dtbo_idx",
+		       dtbo_idx + strlen("androidboot.dtbo_idx="));
+	}
+
+	free(dtbo_idx);
+	return 0;
+}
+#endif
+
 static ulong android_image_get_kernel_addr(const struct andr_img_hdr *hdr)
 {
 	/*
@@ -77,6 +119,9 @@ int android_image_get_kernel(const struct andr_img_hdr *hdr, int verify,
 		len += strlen(hdr->cmdline);
 	}
 
+#ifdef CONFIG_OF_LIBFDT_OVERLAY
+	save_dtbo_idx(hdr->cmdline);
+#endif
 	char *bootargs = env_get("bootargs");
 	if (bootargs)
 		len += strlen(bootargs);
