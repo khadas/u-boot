@@ -191,7 +191,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.fast_boot[0]			= 1,
 },
 {
-	/// tl1 ref(ab301) ddr3
+	// tm2 ref(ab301) 4layer 4pcs ddr3
 	.board_id				=5,
 	.version				= 1,
 	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK01_CH0,
@@ -211,7 +211,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.ddr_rdbi_wr_enable		= 0,
 	.clk_drv_ohm			= 40,
 	.cs_drv_ohm				= 40,
-	.ac_drv_ohm				= 60,
+	.ac_drv_ohm				= 40,
 	.soc_data_drv_ohm_p		= 40,
 	.soc_data_drv_ohm_n		= 40,
 	.soc_data_odt_ohm_p		= 48,//120, //48, ddr3 will use odt_ohm_p value
