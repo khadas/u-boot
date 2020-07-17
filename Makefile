@@ -1053,12 +1053,8 @@ bl301.bin: tools prepare acs.bin bl21.bin
 	$(Q)$(MAKE) -C $(srctree)/arch/arm/mach-meson/${SOC}/firmware/scp_task
 
 .PHONY : acs.bin
-acs.bin: tools prepare u-boot.bin chip_acs.bin
+acs.bin: tools prepare u-boot.bin
 	$(Q)$(MAKE) -C $(srctree)/arch/arm/mach-meson/${SOC}/firmware/acs all FIRMWARE=$@
-
-.PHONY : chip_acs.bin
-chip_acs.bin: tools prepare u-boot.bin
-	$(Q)$(MAKE) -C $(srctree)/arch/arm/mach-meson/${SOC}/firmware/chip_acs all FIRMWARE=$@
 
 .PHONY : bl21.bin
 bl21.bin: tools prepare u-boot.bin acs.bin
