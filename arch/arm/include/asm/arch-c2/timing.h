@@ -310,7 +310,7 @@ board_phase_setting_ps_t	cfg_ddr_training_delay_ps[2];
 typedef struct pll_ctrl {
 	unsigned short 	delay_u;
 	unsigned short 	flag;
-	unsigned short 	clkset;
+	unsigned int 	clkset;
 	unsigned int	pll_para[10];
 	unsigned int 	reserve;
 
