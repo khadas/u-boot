@@ -1,6 +1,6 @@
 
 /*
- * arch/arm/include/asm/arch-txl/acs.h
+ * arch/arm/include/asm/arch-sc2/acs.h
  *
  * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
  *
@@ -22,85 +22,35 @@
 #ifndef __ACS_H
 #define __ACS_H
 
+#define CHIP_PARAM_MAGIC		0x50696863  //"chiP"
+#define DEV_PARAM_MAGIC			0x50766564  //"devP"
+
+#define CHIP_PARAM_VERSION		0x1
+#define DEV_PARAM_VERSION		0x1
+
 #ifndef __ASSEMBLY__
-typedef struct acs_setting{
-		char				acs_magic[5];	//acs setting magic word, make sure this piece of data was right.
-		unsigned char		chip_type;		//chip type
-		unsigned short		version;		//version of acs_setting struct, for PC tool use.
-		unsigned long		acs_set_length;	//length of current struct.
 
-		//ddr setting part, 16 bytes
-		char				ddr_magic[5];		//magic word to indicate that following 12 bytes was ddr setting.
-		unsigned char		ddr_set_version;	//struct version, for PC tool use.
-		unsigned short		ddr_set_length;		//length of ddr struct.
-		unsigned long		ddr_set_addr;		//address of ddr setting.
+typedef struct dev_param_hdr {
+	unsigned int		magic;
+	unsigned int		version;
 
-		char				ddr_reg_magic[5];
-		unsigned char		ddr_reg_version;
-		unsigned short		ddr_reg_length;
-		unsigned long		ddr_reg_addr;
+	char				bl2_regs_magic[6];
+	unsigned short		bl2_regs_length;
 
-		char				pll_magic[5];
-		unsigned char		pll_set_version;
-		unsigned short		pll_set_length;
-		unsigned long		pll_set_addr;
+	char				board_clk_magic[6];
+	unsigned short		board_clk_length;
 
-		/* for all the storage parameter */
-		char				sto_magic[5];
-		unsigned char		sto_set_version;
-		unsigned short		sto_set_length;
-		unsigned long		sto_set_addr;
+	char				opt_reg_magic[6];
+	unsigned short		opt_reg_length;
 
-		/* for gpio/pinmux/pwm config */
-		char				opt_reg_magic[5];
-		unsigned char		opt_reg_version;
-		unsigned short		opt_reg_length;
-		unsigned long		opt_reg_addr;
+	char				sto_set_magic[6];
+	unsigned short		sto_set_length;
 
-		char				bl2_regs_magic[5];
-		unsigned char		bl2_regs_version;
-		unsigned short		bl2_regs_length;
-		unsigned long		bl2_regs_addr;
+	char				ddr_set_magic[6];
+	unsigned short		ddr_set_length;
 
-		char				rsv_magic[5];
-		unsigned char		rsv_set_version;
-		unsigned short		rsv_set_length;
-		unsigned long		rsv_set_addr;
-		char				board_id[12];
-		unsigned short		ddr_struct_size[12];
-		unsigned long		ddr_struct_org_size;
-		char				revision[40];
-}__attribute__ ((packed)) acs_set_t;
-
-typedef struct chip_acs_setting{
-		char				acs_magic[5];	//acs setting magic word, make sure this piece of data was right.
-		unsigned char		chip_type;		//chip type
-		unsigned short		version;		//version of acs_setting struct, for PC tool use.
-		unsigned long		acs_set_length;	//length of current struct.
-
-		char				pll_magic[5];
-		unsigned char		pll_set_version;
-		unsigned short		pll_set_length;
-		unsigned long		pll_set_addr;
-
-		char				sto_magic[5];
-		unsigned char		sto_set_version;
-		unsigned short		sto_set_length;
-		unsigned long		sto_set_addr;
-
-		char				bl2_regs_magic[5];
-		unsigned char		bl2_regs_version;
-		unsigned short		bl2_regs_length;
-		unsigned long		bl2_regs_addr;
-
-		char				rsv_magic[5];
-		unsigned char		rsv_set_version;
-		unsigned short		rsv_set_length;
-		unsigned long		rsv_set_addr;
-
-		char				revision[32];
-}__attribute__ ((packed)) chip_acs_set_t;
-
+	unsigned int		RFU[4];
+} __attribute__ ((packed)) dev_param_hdr_t;
 
 #endif
 #endif

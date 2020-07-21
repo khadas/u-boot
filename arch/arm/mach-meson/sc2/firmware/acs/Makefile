@@ -192,6 +192,10 @@ CFLAGS			+= 	-Wno-unused
 LDFLAGS			+=	--fatal-warnings -O1
 LDFLAGS			+=	--gc-sections
 
+OCFLAGS		+= -j .dev_header -j .generic_param -j .clk_param \
+			   -j .misc_param -j .store_param -j .ddr_param \
+			   --gap-fill 0x0
+
 CC			:=	${CROSS_COMPILE}gcc
 CPP			:=	${CROSS_COMPILE}cpp
 AS			:=	${CROSS_COMPILE}gcc
@@ -367,11 +371,13 @@ $(ELF) : $(OBJS) $(LINKERFILE)
 
 $(DUMP) : $(ELF)
 	@echo "  OD      $$@"
-	$${Q}$${OD} -dxS $$< > $$@
+	$${Q}$${OD} -D -x $$< > $$@
 
 $(BIN) : $(ELF)
 	@echo "  BIN     $$@"
-	$$(Q)$$(OC) -O binary $$< $$@
+	$$(Q)$$(OC) $$(OCFLAGS) -O binary $$< $$@.tmp
+	@dd if=/dev/zero of=$$@ bs=4096 count=7
+	@dd if=$$@.tmp of=$$@ conv=notrunc && rm -f $$@.tmp
 	@echo
 	@echo "Built $$@ successfully"
 	@echo

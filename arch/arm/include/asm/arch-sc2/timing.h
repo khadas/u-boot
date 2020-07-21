@@ -52,15 +52,6 @@ typedef struct bl2_reg {
 	unsigned	char	rsv_0;
 }__attribute__ ((packed)) bl2_reg_t;
 
-typedef struct ddr_reg {
-	unsigned	int		reg;
-	unsigned	int		value;
-	unsigned	int		mask;
-	unsigned	short	udelay;
-	unsigned	char	flag;
-	unsigned	char	rsv_0;
-}__attribute__ ((packed)) ddr_reg_t;
-
 typedef struct training_delay_set_ps{
 	unsigned	char	ac_trace_delay[10];
 	unsigned	char	ac_trace_delay_rev[2];
@@ -397,22 +388,14 @@ typedef struct ddr_set{
 	//override read bit delay
 }__attribute__ ((packed)) ddr_set_t;
 
-typedef struct pll_set{
+typedef struct board_clk_set{
 	unsigned	short	cpu_clk;
-	unsigned	short	pxp;
-	unsigned	int		spi_ctrl;
+	unsigned 	short	dsu_clk;
 	unsigned	short	vddee;
 	unsigned	short	vcck;
-	unsigned 	short	dsu_clk;
+	unsigned	short	pxp;
 	unsigned	char	szPad[2];
-
-	unsigned	long	lCustomerID;
-	unsigned	char	debug_mode;
-	unsigned	char	log_chl;
-	unsigned	char	log_ctrl;
-	unsigned	char	ddr_timming_save_mode;
-	unsigned	int		nCFGTAddr;
-}__attribute__ ((packed)) pll_set_t;
+}__attribute__ ((packed)) board_clk_set_t;
 
 typedef struct pll_ctrl{
 	/*Enable flag: 0xa1:need set pll in bl2
@@ -434,14 +417,25 @@ typedef struct pll_ctrl{
 	unsigned	int		reserve;
 } __attribute__ ((packed)) pll_ctrl_t;
 
-typedef struct chip_pll_set{
+typedef struct pll_set{
 	/*new struct for sc2*/
 	pll_ctrl_t	sys_pll_ctrl;
 	pll_ctrl_t	fix_pll_ctrl;
 	pll_ctrl_t	gp0_pll_ctrl;
 	pll_ctrl_t	gp1_pll_ctrl;
 	pll_ctrl_t	hifi_pll_ctrl;
-}__attribute__ ((packed)) chip_pll_set_t;
+}__attribute__ ((packed)) pll_set_t;
+
+typedef struct bl2_sec_parameter{
+	/*new struct for sc2*/
+	uint32_t		version;
+	uint32_t		bl31_region_start;
+	uint32_t		bl31_region_size;
+	uint32_t		bl32_region_start;
+	uint32_t		bl32_region_size;
+
+	uint32_t		RFU[27];
+}__attribute__ ((packed)) sec_parameter_t;
 
 typedef struct dmem_cfg {
 	PMU_SMB_DDR3U_1D_t ddr3u;

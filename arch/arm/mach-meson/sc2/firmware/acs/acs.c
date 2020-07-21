@@ -23,49 +23,23 @@
 #include <asm/arch/timing.h>
 #include "timing.c"
 
-//main acs struct
-acs_set_t __acs_set={
-					.acs_magic		= "acs__",
-					.chip_type		= 0x0,
-					.version 		= 1,
-					.acs_set_length	= sizeof(__acs_set),
+dev_param_hdr_t __param_hdr __attribute__ ((section(".dev_header"))) = {
+	.magic = DEV_PARAM_MAGIC,
+	.version = DEV_PARAM_VERSION,
 
-					.ddr_magic		= "ddrs_",
-					.ddr_set_version= 1,
-					.ddr_set_length	= sizeof(__ddr_setting),
-					.ddr_set_addr	= (unsigned long)(&__ddr_setting),
+	.bl2_regs_magic = "bl2r_",
+	.bl2_regs_length = sizeof(__bl2_reg),
 
-					.ddr_reg_magic	= "ddrr_",
-					.ddr_reg_version= 1,
-					.ddr_reg_length	= sizeof(__ddr_reg),
-					.ddr_reg_addr	= (unsigned long)(&__ddr_reg),
+	.board_clk_magic = "bclk_",
+	.board_clk_length = sizeof(__board_clk_setting),
 
-					.pll_magic		= "pll__",
-					.pll_set_version= 1,
-					.pll_set_length	= sizeof(__pll_setting),
-					.pll_set_addr	= (unsigned long)(&__pll_setting),
+	.opt_reg_magic = "ops__",
+	.opt_reg_length = sizeof(__bl2_ops_reg),
 
-					.sto_magic		= "store",
-					.sto_set_version= 1,
-					.sto_set_length	= sizeof(__store_para),
-					.sto_set_addr	= (unsigned long)(&__store_para),
+	.sto_set_magic = "store",
+	.sto_set_length = sizeof(__store_para),
 
-					.opt_reg_magic	= "ops__",
-					.opt_reg_version= 1,
-					.opt_reg_length	= sizeof(__bl2_ops_reg),
-					.opt_reg_addr	= (unsigned long)(&__bl2_ops_reg),
-
-					.bl2_regs_magic	= "bl2r_",
-					.bl2_regs_version = 1,
-					.bl2_regs_length = sizeof(__bl2_reg),
-					.bl2_regs_addr	= (unsigned long)(&__bl2_reg),
-
-					.rsv_magic		= "rsv0_",
-					.rsv_set_version= 1,
-					.rsv_set_length	= 0,
-					.rsv_set_addr	= 0,
-					.board_id		= {0,},
-					.ddr_struct_size = {0,},
-					.ddr_struct_org_size = sizeof(ddr_set_t),
-					.revision		= ACS_VERSION,
+	.ddr_set_magic = "ddrs_",
+	.ddr_set_length = sizeof(__ddr_setting),
 };
+

@@ -75,7 +75,7 @@
 #define DDR_RFC_TYPE_LPDDR4_3Gbx1				10
 #define DDR_RFC_TYPE_LPDDR4_4Gbx1				11
 
-ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
+ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 {
 	/* ddr3 */
 	.board_id				= CONFIG_BOARD_ID_MASK,
@@ -228,33 +228,16 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 },
 };
 
-pll_set_t __pll_setting = {
+board_clk_set_t __board_clk_setting
+__attribute__ ((section(".clk_param"))) = {
+	/* clock settings for bl2 */
 	.cpu_clk				= CPU_CLK / 24 * 24,
 #ifdef CONFIG_PXP_EMULATOR
 	.pxp					= 1,
 #else
 	.pxp					= 0,
 #endif
-	.spi_ctrl				= 0,
-	.lCustomerID			= AML_CUSTOMER_ID,
-	.log_chl				= 0x3, /* 0x77: all channel enable. 0xFF: with stream info */
-	.log_ctrl				= (1<<7) | /* (1<<7), print bl2 log into buffer */
-#ifdef CONFIG_SILENT_CONSOLE
-							  (1<<6),    /* do not print log buffer */
-#else
-							  (0<<6),    /* print log buffer before run bl31 */
-#endif
 };
-
-chip_pll_set_t __chip_pll_setting = { {0}, };
-
-ddr_reg_t __ddr_reg[] = {
-	/* demo, user defined override register */
-	{0xaabbccdd, 0, 0, 0, 0, 0},
-	{0x11223344, 0, 0, 0, 0, 0},
-	{0, 0, 0, 0, 0, 0},
-};
-
 
 
 #define VCCK_VAL				AML_VCCK_INIT_VOLTAGE
@@ -377,13 +360,14 @@ ddr_reg_t __ddr_reg[] = {
 	#error "VDDEE val out of range\n"
 #endif
 
-bl2_reg_t __bl2_reg[] = {
+bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 	//hxbao, need fine tune
 	{0,			0,            		0xffffffff,   0, 0, 0},
 };
 
 /* gpio/pinmux/pwm init */
-register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES] = {
+register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
+__attribute__ ((section(".misc_param"))) = {
 	/* demo, user defined override register */
 	{PWMGH_PWM_B,		VDDEE_VAL_REG,  	0xffffffff,	0, 0, 0},
 	{PWMIJ_PWM_B,		VCCK_VAL_REG,  		0xffffffff,	0, 0, 0},
@@ -403,7 +387,7 @@ register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES] = {
 };
 
 /* for all the storage parameter */
-storage_parameter_t __store_para = {
+storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
 	.common				= {
 		.version = 0x01,
 		.device_fip_container_size = 0x100000,
