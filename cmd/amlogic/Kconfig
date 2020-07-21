@@ -1,8 +1,9 @@
 menu "Amlogic commands"
 
-config AML_RPMB_DISABLE
+config AML_RPMB
+	depends on OPTEE
 	bool "support RPMB set in bootargs"
-	default n
+	default y
 	help
 	  Support RPMB set in bootargs.
 

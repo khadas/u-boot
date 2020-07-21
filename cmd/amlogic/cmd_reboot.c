@@ -136,7 +136,7 @@ int do_get_rebootmode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	}
 #endif
 
-#if !defined(CONFIG_AML_RPMB_DISABLE)
+#if defined(CONFIG_AML_RPMB)
 	run_command("rpmb_state",0);
 #endif
 
