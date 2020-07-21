@@ -375,6 +375,13 @@ unsigned long aml_sec_boot_check(unsigned long nType,
 
 	AML_GET_TE(nT1);
 
+	switch (nType) {
+	case AML_D_P_W_EFUSE_AMLOGIC:
+			break;
+	default:
+			return 0;
+	}
+
 	asm __volatile__("" : : : "memory");
 
 	register uint64_t x0 asm("x0") = AML_DATA_PROCESS;
