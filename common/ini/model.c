@@ -2304,20 +2304,14 @@ int handle_panel_ini(void)
 
 	parse_buf = (unsigned char *) malloc(CC_MAX_DATA_SIZE);
 	if (parse_buf == NULL) {
-		free(tmp_buf);
-		tmp_buf = NULL;
 		ALOGE("%s, malloc buffer memory error!!!\n", __func__);
-		return -1;
+		goto handle_panel_ini_err1;
 	}
 
 	tcon_spi = (unsigned char *) malloc(CC_MAX_TCON_SPI_SIZE);
 	if (tcon_spi == NULL) {
-		free(tmp_buf);
-		tmp_buf = NULL;
-		free(parse_buf);
-		parse_buf = NULL;
 		ALOGE("%s, malloc buffer memory error!!!\n", __func__);
-		return -1;
+		goto handle_panel_ini_err2;
 	}
 
 	memset((void *)&lcd_attr, 0, sizeof(struct lcd_attr_s));
@@ -2336,21 +2330,13 @@ int handle_panel_ini(void)
 		ALOGD("%s: model_panel: %s\n", __func__, file_name);
 	if (!iniIsFileExist(file_name)) {
 		ALOGE("%s, file name \"%s\" not exist.\n", __func__, file_name);
-		free(tmp_buf);
-		tmp_buf = NULL;
-		free(parse_buf);
-		parse_buf = NULL;
-		return -1;
+		goto handle_panel_ini_err3;
 	}
 
 	if (parse_panel_ini(file_name, &lcd_attr, &lcd_ext_attr, &bl_attr, &misc_attr, tcon_spi) < 0) {
 		ALOGE("%s, parse_panel_ini file name \"%s\" fail.\n",
 		      __func__, file_name);
-		free(tmp_buf);
-		tmp_buf = NULL;
-		free(parse_buf);
-		parse_buf = NULL;
-		return -1;
+		goto handle_panel_ini_err3;
 	}
 
 	// start handle lcd param
@@ -2397,14 +2383,28 @@ int handle_panel_ini(void)
 
 	// panel misc don't saving env
 
-	free(tmp_buf);
-	tmp_buf = NULL;
+	free(tcon_spi);
+	tcon_spi = NULL;
 	free(parse_buf);
 	parse_buf = NULL;
+	free(tmp_buf);
+	tmp_buf = NULL;
 
 	handle_tcon_bin();
 
 	return 0;
+
+handle_panel_ini_err3:
+	free(tcon_spi);
+	tcon_spi = NULL;
+handle_panel_ini_err2:
+	free(parse_buf);
+	parse_buf = NULL;
+handle_panel_ini_err1:
+	free(tmp_buf);
+	tmp_buf = NULL;
+
+	return -1;
 }
 
 static void model_list_panel_path(void)
