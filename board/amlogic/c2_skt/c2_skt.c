@@ -256,7 +256,7 @@ int get_aml_partition_count(void)
 #endif
 /* partition table */
 /* partition table for spinand flash */
-#ifdef CONFIG_SPI_NAND
+#if (defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND))
 static const struct mtd_partition spinand_partitions[] = {
 	{
 		.name = "logo",
@@ -291,6 +291,33 @@ struct mtd_partition *get_partition_table(int *partitions)
 	return spinand_partitions;
 }
 #endif /* CONFIG_SPI_NAND */
+
+/* partition table for spinor flash */
+#ifdef CONFIG_SPI_FLASH
+static const struct mtd_partition spiflash_partitions[] = {
+	{
+		.name = "env",
+		.offset = 0,
+		.size = 1 * SZ_256K,
+	},
+	{
+		.name = "misc",
+		.offset = 0,
+		.size = 8 * SZ_8K,
+	},
+	/* last partition get the rest capacity */
+	{
+		.name = "user",
+		.offset = MTDPART_OFS_APPEND,
+		.size = MTDPART_SIZ_FULL,
+	}
+};
+const struct mtd_partition *get_partition_table(int *partitions)
+{
+	*partitions = ARRAY_SIZE(spiflash_partitions);
+	return spiflash_partitions;
+}
+#endif /* CONFIG_SPI_FLASH */
 
 int __attribute__((weak)) mmc_initialize(bd_t *bis){ return 0;}
 

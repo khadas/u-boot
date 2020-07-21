@@ -715,7 +715,7 @@
 				 "spif_hold",
 				 "spif_wp_n";
 			function = "spif";
-			drive-strength = <3>;
+			drive-strength = <4>;
 		};
 	};
 	external_eth_rmii_pins: external_eth_rmii_pins {
