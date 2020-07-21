@@ -104,7 +104,7 @@ gp0_pll_cfg_t gp0_pll_cfg = {
 hdmi_pll_cfg_t hdmi_pll_cfg = {
 	.hdmi_pll[0] = {
 		.pll_clk   = 5940, /* MHz */
-		.pll_cntl0 = 0x0b0004f7,
+		.pll_cntl0 = 0x0b3004f7,
 		.pll_cntl1 = 0x00010000,
 		.pll_cntl2 = 0x00000000,
 		.pll_cntl3 = 0x6a28dc00,
@@ -124,7 +124,7 @@ hdmi_pll_cfg_t hdmi_pll_cfg = {
 	},
 	.hdmi_pll[2] = {
 		.pll_clk   = 5934,
-		.pll_cntl0 = 0x0b0004f7,
+		.pll_cntl0 = 0x0b1004f7,
 		.pll_cntl1 = 0x00008147,
 		.pll_cntl2 = 0x00000000,
 		.pll_cntl3 = 0x6a685c00,
@@ -481,7 +481,7 @@ static int hdmi_pll_test_all(hdmi_pll_cfg_t * hdmi_pll_cfg)
 
 static int hdmi_pll_test(hdmi_pll_set_t * hdmi_pll_set)
 {
-	unsigned int pll_clk = 0;
+	unsigned int pll_clk = 0 , od = 0;
 	unsigned int pll_clk_div = 0;
 	unsigned int clk_msr_val = 0;
 	unsigned int clk_msr_reg = 0;
@@ -520,8 +520,9 @@ static int hdmi_pll_test(hdmi_pll_set_t * hdmi_pll_set)
 	if (ret) {
 		printf("HDMI pll lock Failed! - %4d MHz\n", pll_clk);
 	} else {
-		pll_clk_div = pll_clk/14;
-		printf("HDMI pll lock OK! - %4d MHz. Div14 - %4d MHz. ", pll_clk, pll_clk_div);
+		od = (hdmi_pll_set->pll_cntl0 >> 20) & 0x3;
+		pll_clk_div = (pll_clk >>od) / 14;
+		printf("HDMI pll lock OK! - %4d MHz>>%d and Div14 - %4d MHz. ", pll_clk, od, pll_clk_div);
 		/* get [  55][1485 MHz] vid_pll_div_clk_out */
 		clk_msr_val = clk_util_clk_msr(55);
 		printf("CLKMSR(55) - %4d MHz ", clk_msr_val);
