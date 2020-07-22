@@ -59,19 +59,6 @@
 #define HHI_VPU_MEM_PD_REG4                        (0xff63c000 + (0x4c << 2))
 #endif
 
-#ifndef DOLBY_TV_CLKGATE_CTRL
-#define DOLBY_TV_CLKGATE_CTRL                      (0x33f1)
-#endif
-#ifndef DOLBY_CORE1_CLKGATE_CTRL
-#define DOLBY_CORE1_CLKGATE_CTRL                   (0x33f2)
-#endif
-#ifndef DOLBY_CORE2A_CLKGATE_CTRL
-#define DOLBY_CORE2A_CLKGATE_CTRL                  (0x3432)
-#endif
-#ifndef DOLBY_CORE3_CLKGATE_CTRL
-#define DOLBY_CORE3_CLKGATE_CTRL                   (0x36f0)
-#endif
-
 #ifndef VENC_VDAC_TST_VAL
 #define VENC_VDAC_TST_VAL                          (0x1b7f)
 #endif

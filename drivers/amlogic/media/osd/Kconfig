@@ -1,0 +1,4 @@
+config AML_DOLBY
+  bool "AML DOLBY driver support"
+  help
+    Enable support for the Amlogic DOLBY driver.

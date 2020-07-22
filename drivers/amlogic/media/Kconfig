@@ -19,6 +19,8 @@ config AML_CANVAS
 	help
 	  Enable support for amlogic canvas driver.
 
+source "drivers/amlogic/media/osd/Kconfig"
+
 source "drivers/amlogic/media/common/Kconfig"
 
 source "drivers/amlogic/media/vout/Kconfig"

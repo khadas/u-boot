@@ -43,6 +43,7 @@
 #include "osd_hw_def.h"
 
 #include "vpp.h"
+#include <amlogic/media/dv/dolby_vision.h>
 
 static bool vsync_hit;
 static bool osd_vf_need_update;
@@ -856,11 +857,11 @@ void osd_setting_default_hwc(u32 index, struct pandata_s *disp_data)
 	osd_reg_write(VIU_OSD_BLEND_BLEND1_SIZE,
 		height  << 16 |
 		width);
-	osd_reg_set_bits(DOLBY_PATH_CTRL,
-		0x3, 2, 2);
-
 	osd_reg_write(VPP_OSD1_IN_SIZE,
 		height << 16 | width);
+	if (!is_dolby_enable())
+		osd_reg_set_bits(DOLBY_PATH_CTRL,
+			0x3, 2, 2);
 
 	/* setting blend scope */
 	osd_reg_write(VPP_OSD1_BLD_H_SCOPE,

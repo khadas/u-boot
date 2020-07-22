@@ -90,6 +90,9 @@
         "fb_addr=0x00300000\0" \
         "fb_width=1920\0" \
         "fb_height=1080\0" \
+        "hdmichecksum=0x00000000\0" \
+        "dolby_status=0\0" \
+        "dolby_vision_on=0\0" \
         "frac_rate_policy=1\0" \
         "usb_burning=adnl 1000\0" \
         "fdt_high=0x20000000\0"\
@@ -124,6 +127,7 @@
             "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} "\
                 "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},${vout_init} panel_type=${panel_type} "\
                 "hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
+                "hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} " \
                 "frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
                 "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
@@ -212,7 +216,7 @@
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
-                "hdmitx hpd;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};"\
+                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};dovi set;dovi pkg;"\
             "fi;fi;"\
             "\0"\
         "cmdline_keys="\
