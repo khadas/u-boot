@@ -196,6 +196,7 @@ int write_sparse_image(
 				    __func__);
 				fastboot_fail(
 				    "Request would exceed partition size!");
+				free(fill_buf);
 				return -1;
 			}
 
