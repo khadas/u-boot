@@ -35,7 +35,7 @@ cpu_id_t get_cpu_id(void)
 {
 	cpu_id_t cpu_id;
 	unsigned int cpu_id_reg = readl(P_AO_SEC_SD_CFG8);
-
+	cpu_id.reserve = 0;
 	cpu_id.family_id = (cpu_id_reg >> 24) & (0XFF);
 	cpu_id.package_id = (cpu_id_reg >> 16) & (0XF0);
 	cpu_id.chip_rev = (cpu_id_reg >> 8) & (0XFF);
