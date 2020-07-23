@@ -25,20 +25,22 @@ static unsigned _get_romcode_boot_id(void)
 	cpu_id_t cpuid = get_cpu_id();
 
     unsigned boot_id = 0;
+    FB_DBG("cpuid.family_id 0x%x\n", cpuid.family_id);
 #ifdef SYSCTRL_SEC_STATUS_REG2
 	if (MESON_CPU_MAJOR_ID_SC2 <= cpuid.family_id) {
 		boot_id = readl(SYSCTRL_SEC_STATUS_REG2);
         FB_DBG("boot_id 0x%x\n", boot_id);
 		boot_id = (boot_id>>4) & 0xf;
-	} else 
-#elif defined(P_AO_SEC_GP_CFG0)
-    {
+	}
+#endif// #ifdef SYSCTRL_SEC_STATUS_REG2
+
+#if defined(P_AO_SEC_GP_CFG0)
+    if (MESON_CPU_MAJOR_ID_SC2 > cpuid.family_id) {
 		FB_DBG("cfg0 0x%08x\n", readl(P_AO_SEC_GP_CFG0));
 		boot_id = readl(P_AO_SEC_GP_CFG0) & 0xf;
 	}
-#else
-    FB_MSG("both P_AO_SEC_GP_CFG0 and SYSCTRL_SEC_STATUS_REG2 undefined\n");
-#endif//#ifdef SYSCTRL_SEC_STATUS_REG2
+#endif// #if defined(P_AO_SEC_GP_CFG0)
+
     FB_MSG("boot_id 1x%x\n", boot_id);
     return boot_id;
 }
