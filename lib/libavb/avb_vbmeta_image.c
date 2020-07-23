@@ -44,6 +44,8 @@ AvbVBMetaVerifyResult avb_vbmeta_image_verify(
   const uint8_t* authentication_block;
   const uint8_t* auxiliary_block;
   int verification_result;
+  uint64_t block_total = 0;
+  uintptr_t data_ptr = 0;
 
   ret = AVB_VBMETA_VERIFY_RESULT_INVALID_VBMETA_HEADER;
 
@@ -92,7 +94,7 @@ AvbVBMetaVerifyResult avb_vbmeta_image_verify(
   }
 
   /* Ensure block sizes all add up to at most |length|. */
-  uint64_t block_total = sizeof(AvbVBMetaImageHeader);
+  block_total = sizeof(AvbVBMetaImageHeader);
   if (!avb_safe_add_to(&block_total, h.authentication_data_block_size) ||
       !avb_safe_add_to(&block_total, h.auxiliary_data_block_size)) {
     avb_error("Overflow while computing size of boot image.\n");
@@ -103,7 +105,7 @@ AvbVBMetaVerifyResult avb_vbmeta_image_verify(
     goto out;
   }
 
-  uintptr_t data_ptr = (uintptr_t)data;
+  data_ptr = (uintptr_t)data;
   /* Ensure passed in memory doesn't wrap. */
   if (!avb_safe_add(NULL, (uint64_t)data_ptr, length)) {
     avb_error("Boot image location and length mismatch.\n");
