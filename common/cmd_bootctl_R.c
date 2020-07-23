@@ -237,6 +237,7 @@ void boot_info_reset(bootloader_control* boot_ctrl)
 
 void dump_boot_info(bootloader_control* boot_ctrl)
 {
+#if 0
     int slot;
     printf("boot_ctrl->slot_suffix = %s\n", boot_ctrl->slot_suffix);
     printf("boot_ctrl->magic = 0x%x\n", boot_ctrl->magic);
@@ -248,6 +249,7 @@ void dump_boot_info(bootloader_control* boot_ctrl)
         printf("boot_ctrl->slot_info[%d].successful_boot = %d\n", slot, boot_ctrl->slot_info[slot].successful_boot);
     }
     printf("boot_ctrl->recovery_tries_remaining = %d\n", boot_ctrl->recovery_tries_remaining);
+#endif
 }
 
 static bool slot_is_bootable(slot_metadata* slot) {

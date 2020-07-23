@@ -686,6 +686,7 @@ int board_late_init(void)
 						"defenv_reserv;save; fi;", 0);
 		run_command("if itest ${upgrade_step} == 1; then "\
 						"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
+		run_command("run bcb_cmd", 0);
 		/*add board late init function here*/
 #ifndef DTB_BIND_KERNEL
 		int ret;
