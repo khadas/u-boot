@@ -260,7 +260,7 @@ ddr_base_address_table_t * p_ddr_base={0};
 
 
 
-#ifdef DISABLE_ENV
+#ifdef CONFIG_ENV_IS_NOWHERE
 
 int setenv(const char *varname, const char *varvalue)
 {
@@ -272,7 +272,8 @@ char *getenv(const char *name)
 	return NULL;
 }
 
-#endif
+#endif //CONFIG_ENV_IS_NOWHERE
+
 #define DWC_AC_PINMUX_TOTAL						28
 #define DWC_DFI_PINMUX_TOTAL					26
 
