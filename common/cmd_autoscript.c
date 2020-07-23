@@ -54,6 +54,8 @@ autoscript (ulong addr, const char *fit_uname)
 	char		*cmd;
 	int		rcode = 0;
 	int		verify;
+	ulong original_data = 0;
+	ulong count = 0;
 #if defined(CONFIG_FIT)
 	const void*	fit_hdr;
 	int		noffset;
@@ -90,8 +92,8 @@ autoscript (ulong addr, const char *fit_uname)
 		}
 
 		/* get length of script */
-		ulong original_data = image_get_data(hdr);
-        ulong count = image_multi_count(hdr);
+		original_data = image_get_data(hdr);
+		count = image_multi_count(hdr);
 		data = (ulong *)(original_data + (count + 1) * sizeof(uint32_t));
 		if ((len = uimage_to_cpu (*((ulong *)original_data))) == 0) {
 			puts ("Empty Script\n");
