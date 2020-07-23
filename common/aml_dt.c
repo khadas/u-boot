@@ -117,7 +117,7 @@ static int get_dtb_index(const char aml_dt_buf[128],unsigned long fdt_addr)
 	char sz_temp[AML_MAX_DTB_NAME_SIZE+4];
 	memset(tokens,0,sizeof(tokens));
 	memset(sz_temp,0,sizeof(sz_temp));
-	strcpy(sz_temp,aml_dt_buf);
+	strncpy(sz_temp,aml_dt_buf,128);
 	int i,j;
 	int nLen = strlen(sz_temp);
 	sz_temp[nLen]='_';
