@@ -24,7 +24,8 @@ Description:
 
 //#define  USE_FOR_NEWMAN
 //#define USE_FOR_UBOOT_2018
-#ifdef USE_FOR_NEWMAN
+
+#ifdef CONFIG_ENV_IS_NOWHERE
 
 int setenv(const char *varname, const char *varvalue)
 {
@@ -36,7 +37,7 @@ char *getenv(const char *name)
 	return NULL;
 }
 
-#endif
+#endif //CONFIG_ENV_IS_NOWHERE
 #define DWC_AC_PINMUX_TOTAL						28
 #define DWC_DFI_PINMUX_TOTAL					26
 
