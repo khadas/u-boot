@@ -146,9 +146,9 @@ static void storage_boot_layout_debug_info(
 
 	printf("boot area list: \n");
 	for (i = 0; i < MAX_BOOT_AREA_ENTRIES && boot_entry[i].size; i++) {
-		printf("%010s    ", boot_entry[i].name);
-		printf("%010x    ", boot_entry[i].offset);
-		printf("%010x\n", boot_entry[i].size);
+		printf("%10s    ", boot_entry[i].name);
+		printf("%10llx    ", boot_entry[i].offset);
+		printf("%10llx\n", boot_entry[i].size);
 	}
 }
 
@@ -181,20 +181,12 @@ int storage_boot_layout_general_setting(
 	}
 	STORAGE_ROUND_UP_IF_UNALIGN(boot_entry[0].size, align_size);
 	ssp->boot_entry[0].size = boot_entry[0].size;
-	printf("ssp->boot_entry[0] offset:0x%lx, size:0x%lx\n",
-			ssp->boot_entry[0].offset, ssp->boot_entry[0].size);
-	printf("cal_copy:0x%x\n", cal_copy);
-	printf("align_size:0x%x\n", align_size);
-	printf("reserved_size:0x%x\n", reserved_size);
-
 	if ((ssp->boot_device == BOOT_NAND_NFTL) ||
 		(ssp->boot_device == BOOT_NAND_MTD))
 		align_size = ssp->sip.nsp.block_size;
 	else if (ssp->boot_device == BOOT_SNAND)
 		align_size = ssp->sip.snasp.pagesize *
 			     ssp->sip.snasp.pages_per_eraseblock;
-	printf("align_size2:%lu\n", align_size);
-
 	for (i = 1; i < MAX_BOOT_AREA_ENTRIES && boot_entry[i - 1].size; i++) {
 		STORAGE_ROUND_UP_IF_UNALIGN(boot_entry[i].size, align_size);
 		boot_entry[i].offset = boot_entry[i-1].offset +
@@ -825,7 +817,7 @@ static int do_store_write_bl2img(cmd_tbl_t *cmdtp,
 			  int flag, int argc, char * const argv[])
 {
 	struct storage_t *store = store_get_current();
-	unsigned long offset, addr, time;
+	unsigned long offset, addr;
 	size_t size, size_src;
 	char *name = NULL;
 	int ret = -1, index;
@@ -844,7 +836,7 @@ static int do_store_write_bl2img(cmd_tbl_t *cmdtp,
 	index = name2index(&general_boot_layout, name);
 	offset = boot_layout->boot_entry[index].offset;
 	size_src = boot_layout->boot_entry[index].size;
-	printf("[%s] offset:0x%x, index:%d\n", name, offset, index);
+	printf("[%s] offset:0x%lx, index:%d\n", name, offset, index);
 
 	if (size_src != size)
 		printf("new img size:0x%x != img src:0x%x\n", size, size_src);
@@ -871,10 +863,10 @@ int store_write_bl2img(void* addr, const char *name, size_t size)
 	index = name2index(&general_boot_layout, name);
 	offset = boot_layout->boot_entry[index].offset;
 	size_src = boot_layout->boot_entry[index].size;
-	printf("[%s] offset:0x%x, index:%d\n", name, offset, index);
+	printf("[%s] offset:0x%lx, index:%d\n", name, offset, index);
 
 	if (size_src != size)
-		printf("new img size:0x%x != img src:0x%x\n", size, size_src);
+		printf("new img size:0x%zx != img src:0x%zx\n", size, size_src);
 
 	ret = store->boot_write(name, offset, size, (u_char *)addr);
 	if (size != 0)

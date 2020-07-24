@@ -30,13 +30,7 @@ int nand_pre(void)
 	pre_scan->pre_scan_flag = 1;
 	pre_scan->is_nand = 0;
 	board_nand_init();
-	if (pre_scan->is_nand) {
-		printf("scan valid slc-nand\n");
-		ret = 0;
-	} else {
-		ret = 1;
-		printf("scan no valid slc-nand\n");
-	}
+	ret = (pre_scan->is_nand)? 0:1;
 	pre_scan->pre_scan_flag = 0;
 	return ret;
 }

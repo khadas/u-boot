@@ -232,7 +232,7 @@ void aml_nfc_get_clk_name(struct hw_controller *controller)
 void get_sys_clk_rate_mtd(struct hw_controller *controller, int *rate)
 {
 	int bus_cycle, bus_timing;
-	unsigned int clk, clk_div, clk_src, co_phase = 2;
+	unsigned int clk, clk_div, clk_src;
 	int clk_freq = *rate * 1000000;
 	unsigned int always_on = 0x1 << 28;
 
@@ -754,10 +754,11 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 		(void __iomem *)((volatile u32 *)(NAND_BASE_APB + P_NAND_BUF));
 
 	err = aml_nand_init(aml_chip);
-	nand_info[dev_num] = mtd;
-	mtd_store_set(nand_info[dev_num], dev_num);
-	slcnand_fit_storage();
-
+	if (!err) {
+		nand_info[dev_num] = mtd;
+		mtd_store_set(nand_info[dev_num], dev_num);
+		slcnand_fit_storage();
+	}
 	if (err || pre_scan->pre_scan_flag)
 		goto exit_error;
 

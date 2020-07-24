@@ -760,7 +760,7 @@ int is_mtd_store_boot_area(const char *part_name)
 }
 
 
-char *boot_entry_old = {BOOT_BL2, BOOT_TPL};
+char *boot_entry_old[] = {BOOT_BL2, BOOT_TPL};
 char *boot_entry_sc2[] = {BOOT_BL2, BOOT_BL2E, BOOT_BL2X, BOOT_DDRFIP, BOOT_DEVFIP};
 static char **get_bootloader_entry(int *boot_count)
 {
