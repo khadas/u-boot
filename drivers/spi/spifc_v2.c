@@ -206,10 +206,20 @@ static int spifc_user_cmd_din(struct spifc_priv *priv,
 
 static int spifc_claim_bus(struct udevice *dev)
 {
-	return 0;
+	struct udevice *bus = dev->parent;
+	int ret = 0;
+
+	/* In consideration of compatibility with other storage media,
+	 * reset pinmux to spifc here.
+	 */
+	ret = pinctrl_select_state(bus, "default");
+	if (ret)
+		pr_err("select state %s failed\n", "default");
+
+	return ret;
 }
 
-static int spifc_release_bus(struct udevice *bus)
+static int spifc_release_bus(struct udevice *dev)
 {
 	return 0;
 }
@@ -289,7 +299,8 @@ static int spifc_xfer(struct udevice *dev,
 		return -EINVAL;
 	}
 
-	spifc_claim_bus(dev);
+	/* spi core will call back, No need to call repeatedly */
+	//spifc_claim_bus(dev);
 	spifc_set_speed(bus, slave->max_hz);
 	spifc_set_mode(bus, slave->mode);
 	if (flags & SPI_XFER_BEGIN) {

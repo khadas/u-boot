@@ -241,8 +241,10 @@ static int storage_get_and_parse_ssp(void)
 	case BOOT_SNOR:
 		if (IS_FEAT_EN_4BL2_SNOR())
 			ssp->boot_bakups = 4;
-		if (IS_FEAT_DIS_NBL2_SNOR())
+		else if (IS_FEAT_DIS_NBL2_SNOR())
 			ssp->boot_bakups = 1;
+		else
+			ssp->boot_bakups = 2;
 		break;
 	case BOOT_SNAND:
 		if (IS_FEAT_EN_8BL2_SNAND())

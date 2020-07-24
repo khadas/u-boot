@@ -146,4 +146,14 @@ config SPI_FLASH_MTD
 
 	  If unsure, say N
 
+config SPI_FLASH_AML_ADVANCED
+	bool "SPI Flash meson advanced support"
+	depends on SPI_FLASH && DM_SPI_FLASH
+	default n
+	help
+	  SC2 needs to support a new burning mode (ADVANCED), we implement
+	  it based on the original discrete modem. If say Y enabled ADVANCED
+	  mode, spinor will use DISCRETE mode to burning.
+	  If unsure, say N
+
 endmenu # menu "SPI Flash Support"

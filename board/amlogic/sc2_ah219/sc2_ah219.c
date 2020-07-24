@@ -240,7 +240,7 @@ static const struct mtd_partition spiflash_partitions[] = {
 	{
 		.name = "boot",
 		.offset = 0,
-		.size = 2 * SZ_1M,
+		.size = 1 * SZ_1M,
 	},
 	/* last partition get the rest capacity */
 	{
@@ -254,6 +254,11 @@ const struct mtd_partition *get_partition_table(int *partitions)
 {
 	*partitions = ARRAY_SIZE(spiflash_partitions);
 	return spiflash_partitions;
+}
+
+uint64_t spiflash_bootloader_size(void)
+{
+	return 3 * SZ_1M;
 }
 #endif /* CONFIG_SPI_FLASH */
 

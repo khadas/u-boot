@@ -58,7 +58,7 @@ struct nand_startup_parameter {
 #define IS_FEAT_DIS_EMMC_USER()			(0)
 #define IS_FEAT_DIS_EMMC_BOOT_0()		(0)
 #define IS_FEAT_DIS_EMMC_BOOT_1()		(0)
-#define IS_FEAT_EN_4BL2_SNOR()			(1)
+#define IS_FEAT_EN_4BL2_SNOR()			(0)
 #define IS_FEAT_DIS_NBL2_SNOR()			(0)
 #define IS_FEAT_EN_8BL2_SNAND()			(1)
 #define IS_FEAT_DIS_NBL2_SNAND()		(0)

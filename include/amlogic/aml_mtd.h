@@ -16,6 +16,11 @@
 #define CONFIG_DISCRETE_BOOTLOADER
 #endif
 
+/* spinor adds discrete modem base on advanced burning */
+#ifdef CONFIG_SPI_FLASH_AML_ADVANCED
+#define CONFIG_DISCRETE_BOOTLOADER
+#endif
+
 #if (defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND)) && !defined(CONFIG_DISCRETE_BOOTLOADER)
 #error SPI NAND only support discrete boot mode!
 #endif
@@ -23,8 +28,12 @@
 #ifdef CONFIG_DISCRETE_BOOTLOADER
 #define CONFIG_BL2_COPY_NUM			8
 #define CONFIG_TPL_SIZE_PER_COPY	0x200000
+#ifdef CONFIG_SPI_FLASH
+#define CONFIG_TPL_COPY_NUM			1
+#else
 #define CONFIG_TPL_COPY_NUM			4
-#endif/* CONFIG_DISCRETE_BOOTLOADER */
+#endif
+#endif
 
 /* Mapping conversion between phyAddr and logicAddr,do not open it temporarily */
 //#define CONFIG_MTD_LOGIC_MAP

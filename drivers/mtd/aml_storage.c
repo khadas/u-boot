@@ -469,7 +469,7 @@ static int mtd_store_get_offset(const char *partname, loff_t *retoff, loff_t off
 		ret = find_dev_and_part(tmp_part_name, &dev, &pnum, &part);
 		if (ret) {
 			pr_info("%s %d can not find part:%s\n",
-				__func__, __LINE__, partname);
+				__func__, __LINE__, tmp_part_name);
 			ret = -EINVAL;
 		}
 		offset = part->offset + off;
@@ -1293,7 +1293,7 @@ static int nor_rsv_write(const char *name, size_t size, void *buf)
 	if (ret)
 		return ret;
 	/* special path for erase */
-	if (!strcmp(name, RSV_ENV)) {
+	if (!strcmp(name, RSV_ENV) || !strcmp(name, RSV_DTB) || !strcmp(name, RSV_KEY)) {
 		erase.mtd = mtd;
 		erase.addr = offset;
 		erase.callback = NULL;

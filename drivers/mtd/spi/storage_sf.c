@@ -18,6 +18,8 @@
 #include "sf_internal.h"
 
 struct storage_t *snor_storage;
+static struct spi_flash *spi_flash;
+
 
 extern const struct spi_flash_info *spi_flash_read_id(struct spi_flash *flash);
 #ifdef CONFIG_MTD_LOGIC_MAP
@@ -35,6 +37,16 @@ inline void set_snor_storage(struct storage_t *snor)
 inline struct storage_t *get_snor_storage(void)
 {
 	return snor_storage;
+}
+
+inline void set_spi_flash(struct spi_flash *snor)
+{
+	spi_flash = snor;
+}
+
+inline struct storage_t *get_spi_flash(void)
+{
+	return spi_flash;
 }
 
 int spi_flash_fit_storage(struct spi_flash *flash)
@@ -75,31 +87,57 @@ int spi_flash_fit_storage(struct spi_flash *flash)
 
 int spi_nor_pre(void)
 {
-	return 0;
-}
-
-int spi_nor_probe(u32 init_flag)
-{
 	u32 bus = 0, cs = 0, speed = 0, mode = 0;
-	struct spi_flash *flash = NULL;
 	struct storage_t *spi_nor = get_snor_storage();
+	struct spi_flash *flash = NULL;
 
-	if (spi_nor) {
-		spi_nor->init_flag = init_flag;
+	if (spi_nor)
 		return 0;
-	}
+
 	flash = spi_flash_probe(bus, cs, speed, mode);
 	if (!flash) {
 		debug("spi flash probe fail!\n");
 		return 1;
 	}
-	spi_nor = get_snor_storage();
-	if (!spi_nor) {
-		debug("can not get spi nor!\n");
-		return 1;
-	}
-	spi_nor->init_flag = init_flag;
+
+	set_spi_flash(flash);
+
 	printf("storage-sf mode 0x%x, speed %dHz\n", flash->spi->mode,
 		flash->spi->max_hz);
+
+	return 0;
+}
+
+int spi_nor_probe(u32 init_flag)
+{
+	static int probe_flag;
+	struct storage_t *spi_nor = NULL;
+	struct spi_flash *flash = NULL;
+	int ret;
+
+	if (probe_flag)
+		return 0;
+
+	flash = get_spi_flash();
+	if (!flash) {
+		printf("get spi flash fail!\n");
+		return 1;
+	}
+
+	ret = spi_flash_mtd_register(flash);
+	if (ret) {
+		printf("spi flash mtd register fail!\n");
+		return 1;
+	}
+
+	spi_nor = get_snor_storage();
+	if (!spi_nor) {
+		printf("can not get spi nor!\n");
+		return 1;
+	}
+
+	spi_nor->init_flag = init_flag;
+	probe_flag = 1;
+
 	return 0;
 }
