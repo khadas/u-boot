@@ -338,7 +338,6 @@ static int read_fdto_partition(void)
 				run_command(cmd, 0);
 			}
 		}
-		free(dtbo_mem_addr);
 	}
 	return 0;
 }
@@ -351,13 +350,12 @@ static int get_fdto_totalsize(u32 *tz)
 
 	unsigned long long dtbo_mem_addr = NULL;
 	int ret;
-	char *tmp = getenv("dtbo_mem_addr");
 
 	ret = read_fdto_partition();
 	if (ret != 0)
 		return ret;
 
-	dtbo_mem_addr = simple_strtoul(tmp, NULL, 16);
+	dtbo_mem_addr = simple_strtoul(getenv("dtbo_mem_addr"), NULL, 16);
 	*tz = android_dt_get_totalsize(dtbo_mem_addr);
 
 	TE(__func__);
