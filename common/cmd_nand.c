@@ -60,6 +60,8 @@ static int nand_dump(nand_info_t *nand, ulong off, int only_oob, int repeat)
 	u_char *datbuf, *oobbuf, *p;
 	static loff_t last;
 	int ret = 0;
+	loff_t addr;
+	struct mtd_oob_ops ops;
 
 	if (repeat)
 		off = last + nand->writesize;
@@ -79,8 +81,7 @@ static int nand_dump(nand_info_t *nand, ulong off, int only_oob, int repeat)
 		goto free_dat;
 	}
 	off &= ~(nand->writesize - 1);
-	loff_t addr = (loff_t) off;
-	struct mtd_oob_ops ops;
+	addr = (loff_t) off;
 	memset(&ops, 0, sizeof(ops));
 	ops.datbuf = datbuf;
 	ops.oobbuf = oobbuf;

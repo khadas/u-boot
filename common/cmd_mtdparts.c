@@ -261,7 +261,7 @@ static void index_partitions(void)
  */
 static void current_save(void)
 {
-	char buf[16];
+	char buf[PARTITION_MAXLEN];
 
 	debug("--- current_save ---\n");
 
@@ -270,7 +270,7 @@ static void current_save(void)
 					current_mtd_dev->id->num, current_mtd_partnum);
 
 		setenv("partition", buf);
-		strncpy(last_partition, buf, 16);
+		strncpy(last_partition, buf, PARTITION_MAXLEN - 1);
 
 		debug("=> partition %s\n", buf);
 	} else {
@@ -914,12 +914,6 @@ static int device_parse(const char *const mtd_dev, const char **ret, struct mtd_
 	}
 	if (err == 1) {
 		part_delall(&tmp_list);
-		return 1;
-	}
-
-	if (num_parts == 0) {
-		printf("no partitions for device %s%d (%s)\n",
-				MTD_DEV_TYPE(id->type), id->num, id->mtd_id);
 		return 1;
 	}
 
@@ -1627,8 +1621,11 @@ static int __attribute__((unused))parse_mtdparts(const char *const mtdparts)
 		list_add_tail(&dev->link, &devices);
 		err = 0;
 	}
+
 	if (err == 1) {
 		device_delall(&devices);
+		if (dev)
+			free(dev);
 		return 1;
 	}
 
