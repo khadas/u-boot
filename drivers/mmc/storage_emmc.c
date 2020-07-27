@@ -439,7 +439,7 @@ int mmc_storage_erase(const char *part_name, loff_t off, size_t size, int scrub_
 		return 1;
 
 	if (!part_name) {//the operating object is the device,the unit of operation is block.
-		ret = storage_mmc_erase_user(mmc);
+		ret = storage_mmc_erase(ERASE_ALL, mmc);
 		return (ret == 0) ? 0 : 1;
 	} else {//the opering object is partition,the unit of operation is byte.
 		ret = storage_erase_in_part(part_name, off, size);
