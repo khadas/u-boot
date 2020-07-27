@@ -288,7 +288,8 @@ static int handle_lcd_basic(struct lcd_attr_s *p_attr)
 	ini_value = IniGetString("lcd_Attr", "model_name", "null");
 	if (model_debug_flag & DEBUG_LCD)
 		ALOGD("%s, model_name is (%s)\n", __func__, ini_value);
-	strncpy(p_attr->basic.model_name, ini_value, CC_LCD_NAME_LEN_MAX);
+	strncpy(p_attr->basic.model_name, ini_value, CC_LCD_NAME_LEN_MAX - 1);
+	p_attr->basic.model_name[CC_LCD_NAME_LEN_MAX - 1] = '\0';
 
 	ini_value = IniGetString("lcd_Attr", "interface", "null");
 	if (model_debug_flag & DEBUG_LCD)
@@ -594,7 +595,8 @@ static int handle_lcd_ext_basic(struct lcd_ext_attr_s *p_attr)
 	ini_value = IniGetString("lcd_ext_Attr", "ext_name", "null");
 	if (model_debug_flag & DEBUG_LCD_EXTERN)
 		ALOGD("%s, ext_name is (%s)\n", __func__, ini_value);
-	strncpy(p_attr->basic.ext_name, ini_value, CC_LCD_EXT_NAME_LEN_MAX);
+	strncpy(p_attr->basic.ext_name, ini_value, CC_LCD_EXT_NAME_LEN_MAX - 1);
+	p_attr->basic.ext_name[CC_LCD_EXT_NAME_LEN_MAX - 1] = '\0';
 
 	ini_value = IniGetString("lcd_ext_Attr", "ext_index", "0xff");
 	if (model_debug_flag & DEBUG_LCD_EXTERN)
@@ -881,7 +883,8 @@ static int handle_bl_basic(struct bl_attr_s *p_attr)
 	ini_value = IniGetString("Backlight_Attr", "bl_name", "null");
 	if (model_debug_flag & DEBUG_BACKLIGHT)
 		ALOGD("%s, bl_name is (%s)\n", __func__, ini_value);
-	strncpy(p_attr->basic.bl_name, ini_value, CC_BL_NAME_LEN_MAX);
+	strncpy(p_attr->basic.bl_name, ini_value, CC_BL_NAME_LEN_MAX - 1);
+	p_attr->basic.bl_name[CC_BL_NAME_LEN_MAX - 1] = '\0';
 
 	return 0;
 }
@@ -1240,7 +1243,10 @@ static int handle_panel_misc(struct panel_misc_s *p_misc)
 		if (model_debug_flag & DEBUG_MISC)
 			ALOGD("%s, outputmode is (%s)\n", __func__, ini_value);
 		if (strcmp(ini_value, "null")) {
-			strcpy(p_misc->outputmode, ini_value);
+			strncpy(p_misc->outputmode, ini_value,
+				sizeof(p_misc->outputmode) - 1);
+			p_misc->outputmode[sizeof(p_misc->outputmode) - 1]
+				= '\0';
 			sprintf(buf, "setenv outputmode %s", p_misc->outputmode);
 			run_command(buf, 0);
 		}
@@ -1645,7 +1651,7 @@ static int parse_panel_ini(const char *file_name, struct lcd_attr_s *lcd_attr,
 
 static int read_bin_file(const char *file_name, unsigned long int max_buf_len)
 {
-	unsigned long int size;
+	int size;
 
 	BinFileInit();
 
@@ -1671,12 +1677,13 @@ static int handle_tcon_bin(void)
 	unsigned long int bin_size = 0;
 	unsigned char *tmp_buf = NULL;
 	unsigned char *tcon_buf = NULL;
-	char *file_name, *tmp;
+	char *file_name;
 	unsigned int bypass;
+	int tmp;
 
-	tmp = getenv("model_tcon_bypass");
-	if (tmp) {
-		bypass = (unsigned int)simple_strtoul(tmp, NULL, 10);
+	tmp = getenv_ulong("model_tcon_bypass", 10, 0xffff);
+	if (tmp != 0xffff) {
+		bypass = tmp;
 		if (bypass) {
 			ALOGI("model_tcon_bypass\n");
 			return 0;
@@ -2282,12 +2289,13 @@ int handle_panel_ini(void)
 	struct bl_attr_s bl_attr;
 	struct panel_misc_s misc_attr;
 	unsigned char *tcon_spi;
-	char *file_name, *str;
+	char *file_name;
+	int print_flag;
 
-	str = getenv("model_debug_print");
-	if (str) {
-		model_debug_flag = simple_strtoul(str, NULL, 16);
-		ALOGD("model_debug_flag: 0x%x\n", model_debug_flag);
+	print_flag = getenv_ulong("model_debug_print", 10, 0xffff);
+	if (print_flag != 0xffff) {
+		model_debug_flag = print_flag;
+		ALOGD("model_debug_flag: %d\n", model_debug_flag);
 	}
 
 	file_name = getenv("model_panel");

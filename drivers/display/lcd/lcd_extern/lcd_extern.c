@@ -26,7 +26,7 @@
 #include "../aml_lcd_reg.h"
 
 
-static char *dt_addr = NULL;
+static char *dt_addr;
 
 static struct aml_lcd_extern_driver_s *lcd_ext_driver;
 
@@ -1269,9 +1269,9 @@ static int aml_lcd_extern_get_config_unifykey(int index,
 
 	/* basic: 33byte */
 	p = para;
-	*(p + LCD_UKEY_EXT_NAME - 1) = '\0'; /* ensure string ending */
 	str = (const char *)(p + LCD_UKEY_HEAD_SIZE);
-	strcpy(extconf->name, str);
+	strncpy(extconf->name, str, sizeof(extconf->name) - 1);
+	extconf->name[sizeof(extconf->name) - 1] = '\0';
 	extconf->index = *(p + LCD_UKEY_EXT_INDEX);
 	extconf->type = *(p + LCD_UKEY_EXT_TYPE);
 	extconf->status = *(p + LCD_UKEY_EXT_STATUS);
@@ -1702,7 +1702,7 @@ int aml_lcd_extern_probe(char *dtaddr, int index)
 	struct lcd_extern_common_s *ext_common;
 	int ret, load_id = 0;
 
-	if (index >= LCD_EXTERN_INDEX_INVALID) {
+	if (index >= LCD_EXTERN_NUM_MAX) {
 		EXTERR("invalid index, %s exit\n", __func__);
 		return -1;
 	}
@@ -1712,13 +1712,14 @@ int aml_lcd_extern_probe(char *dtaddr, int index)
 
 	/* check dts config */
 #ifdef CONFIG_OF_LIBFDT
-	if (dtaddr)
+	if (dtaddr) {
 		dt_addr = dtaddr;
-	if (fdt_check_header(dtaddr) < 0) {
-		EXTERR("check dts: %s, use default parameters\n",
-			fdt_strerror(fdt_check_header(dt_addr)));
-	} else {
-		load_id = 1;
+		if (fdt_check_header(dt_addr) < 0) {
+			EXTERR("check dts: %s, use default parameters\n",
+			       fdt_strerror(fdt_check_header(dt_addr)));
+		} else {
+			load_id = 1;
+		}
 	}
 #endif
 

@@ -333,8 +333,10 @@ static INI_LINE* newLine(const char* name, const char* value) {
     pLine = (INI_LINE*) malloc(sizeof(INI_LINE));
     if (pLine != NULL) {
         pLine->pNext = NULL;
-        strcpy(pLine->Name, name);
-        strcpy(pLine->Value, value);
+	strncpy(pLine->Name, name, sizeof(pLine->Name) - 1);
+	pLine->Name[sizeof(pLine->Name) - 1] = '\0';
+	strncpy(pLine->Value, value, sizeof(pLine->Value) - 1);
+	pLine->Value[sizeof(pLine->Value) - 1] = '\0';
 
 #if CC_MEMORY_ALLOC_FREE_TRACE == 1
         alloc_mem(__FUNCTION__, "pLine", pLine);
@@ -351,7 +353,8 @@ static INI_SECTION* newSection(const char* section, INI_LINE* pLine) {
     if (pSec != NULL) {
         pSec->pLine = pLine;
         pSec->pNext = NULL;
-        strcpy(pSec->Name, section);
+	strncpy(pSec->Name, section, sizeof(pSec->Name) - 1);
+	pSec->Name[sizeof(pSec->Name) - 1] = '\0';
 
 #if CC_MEMORY_ALLOC_FREE_TRACE == 1
         alloc_mem(__FUNCTION__, "pSec", pSec);
@@ -446,19 +449,32 @@ static memnd gMemFreeItems[CC_MEM_RECORD_CNT];
 static int gMemFreeInd = 0;
 
 static void alloc_mem(const char *fun_name, const char *var_name, void *ptr) {
-    strcpy(gMemAllocItems[gMemAllocInd].fun_name, fun_name);
-    strcpy(gMemAllocItems[gMemAllocInd].var_name, var_name);
-    gMemAllocItems[gMemAllocInd].ptr = ptr;
+	strncpy(gMemAllocItems[gMemAllocInd].fun_name, fun_name,
+		sizeof(gMemAllocItems[gMemAllocInd].fun_name) - 1);
+	gMemAllocItems[gMemAllocInd].fun_name[sizeof(gMemAllocItems[gMemAllocInd].fun_name) - 1]
+		= '\0';
+	strncpy(gMemAllocItems[gMemAllocInd].var_name, var_name,
+	       sizeof(gMemAllocItems[gMemAllocInd].var_name) - 1);
+	gMemAllocItems[gMemAllocInd].var_name[sizeof(gMemAllocItems[gMemAllocInd].var_name) - 1]
+		= '\0';
+	gMemAllocItems[gMemAllocInd].ptr = ptr;
 
-    gMemAllocInd += 1;
+	gMemAllocInd += 1;
 }
 
 static void free_mem(const char *fun_name, const char *var_name, void *ptr) {
-    strcpy(gMemFreeItems[gMemFreeInd].fun_name, fun_name);
-    strcpy(gMemFreeItems[gMemFreeInd].var_name, var_name);
-    gMemFreeItems[gMemFreeInd].ptr = ptr;
+	strncpy(gMemFreeItems[gMemFreeInd].fun_name, fun_name,
+		sizeof(gMemFreeItems[gMemFreeInd].fun_name) - 1);
+	gMemFreeItems[gMemFreeInd].fun_name[sizeof(gMemFreeItems[gMemFreeInd].fun_name) - 1]
+		= '\0';
+	strncpy(gMemFreeItems[gMemFreeInd].var_name, var_name,
+		sizeof(gMemFreeItems[gMemFreeInd].var_name) - 1);
+	gMemFreeItems[gMemFreeInd].var_name[sizeof(gMemFreeItems[gMemFreeInd].var_name) - 1]
+		= '\0';
 
-    gMemFreeInd += 1;
+	gMemFreeItems[gMemFreeInd].ptr = ptr;
+
+	gMemFreeInd += 1;
 }
 
 static void printMemND(const char *fun_name, memnd *tmp_nd, int tmp_cnt) {

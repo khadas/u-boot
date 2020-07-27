@@ -47,6 +47,9 @@ static struct bl_config_s *bl_check_valid(void)
 #endif
 
 	bconf = lcd_drv->bl_config;
+	if (!bconf)
+		return bconf;
+
 	switch (bconf->method) {
 	case BL_CTRL_PWM:
 		if (bconf->bl_pwm == NULL) {
@@ -1166,11 +1169,11 @@ void aml_bl_config_print(void)
 				LCDPR("bl: pwm_combo1_pre_div  = %u\n",
 				      bl_pwm->pwm_pre_div);
 				if (bl_pwm->pwm_duty_max > 100)
-					LCDPR("bl: pwm_combo1_duty = %d%% %d\n",
+					LCDPR("bl: pwm_combo1_duty = %d%%(%d)\n",
 					      bl_pwm->pwm_duty * 100 / 255,
 					      bl_pwm->pwm_duty);
 				else
-					LCDPR("bl: pwm_combo1_duty = %d%% %d\n",
+					LCDPR("bl: pwm_combo1_duty = %d%%(%d)\n",
 					      bl_pwm->pwm_duty,
 					      bl_pwm->pwm_duty);
 
@@ -1580,7 +1583,7 @@ static int aml_bl_config_load_from_bsp(struct bl_config_s *bconf)
 		return -1;
 	}
 
-	strncpy(bconf->name, panel_type, sizeof(bconf->name));
+	strncpy(bconf->name, panel_type, sizeof(bconf->name) - 1);
 	bconf->name[sizeof(bconf->name) - 1] = '\0';
 
 	bconf->level_default     = ext_lcd->level_default;
@@ -1760,9 +1763,9 @@ static int aml_bl_config_load_from_unifykey(char *dt_addr, struct bl_config_s *b
 
 	/* basic: 30byte */
 	p = para;
-	*(p + LCD_UKEY_BL_NAME - 1) = '\0'; /* ensure string ending */
 	str = (const char *)(p + LCD_UKEY_HEAD_SIZE);
-	strcpy(bconf->name, str);
+	strncpy(bconf->name, str, sizeof(bconf->name) - 1);
+	bconf->name[sizeof(bconf->name) - 1] = '\0';
 
 	/* level: 12byte */
 	bconf->level_default = (*(p + LCD_UKEY_BL_LEVEL_UBOOT) |

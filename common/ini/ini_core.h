@@ -67,7 +67,7 @@ int ini_parse_mem(const char* buf,
 
 /* Maximum line length for any line in INI file. */
 #ifndef INI_MAX_LINE
-#define INI_MAX_LINE 20000
+#define INI_MAX_LINE 10000
 #endif
 
 #ifdef __cplusplus

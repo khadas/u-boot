@@ -307,6 +307,10 @@ static int lcd_config_load_from_dts(char *dt_addr, struct lcd_config_s *pconf)
 	}
 	LCDPR("use panel_type=%s\n", panel_type);
 
+	if (strlen(panel_type) > 25) {
+		LCDERR("panel_type len is too long\n");
+		return -1;
+	}
 	sprintf(propname, "/lcd/%s", panel_type);
 	child_offset = fdt_path_offset(dt_addr, propname);
 	if (child_offset < 0) {
@@ -318,10 +322,14 @@ static int lcd_config_load_from_dts(char *dt_addr, struct lcd_config_s *pconf)
 	propdata = (char *)fdt_getprop(dt_addr, child_offset, "model_name", NULL);
 	if (propdata == NULL) {
 		LCDERR("failed to get model_name\n");
-		strcpy(pconf->lcd_basic.model_name, panel_type);
+		strncpy(pconf->lcd_basic.model_name, panel_type,
+			sizeof(pconf->lcd_basic.model_name) - 1);
 	} else {
-		strcpy(pconf->lcd_basic.model_name, propdata);
+		strncpy(pconf->lcd_basic.model_name, propdata,
+			sizeof(pconf->lcd_basic.model_name) - 1);
 	}
+	pconf->lcd_basic.model_name[sizeof(pconf->lcd_basic.model_name) - 1]
+		= '\0';
 
 	propdata = (char *)fdt_getprop(dt_addr, child_offset, "interface", NULL);
 	if (propdata == NULL) {
@@ -682,7 +690,10 @@ static int lcd_config_load_from_bsp(struct lcd_config_s *pconf)
 	}
 	LCDPR("use panel_type=%s\n", panel_type);
 
-	strcpy(pconf->lcd_basic.model_name, panel_type);
+	strncpy(pconf->lcd_basic.model_name, panel_type,
+		sizeof(pconf->lcd_basic.model_name) - 1);
+	pconf->lcd_basic.model_name[sizeof(pconf->lcd_basic.model_name) - 1]
+		= '\0';
 	pconf->lcd_basic.lcd_type = ext_lcd->lcd_type;
 	pconf->lcd_basic.lcd_bits = ext_lcd->lcd_bits;
 
@@ -935,9 +946,11 @@ static int lcd_config_load_from_unifykey(struct lcd_config_s *pconf)
 
 	/* basic: 36byte */
 	p = para;
-	*(p + LCD_UKEY_MODEL_NAME - 1) = '\0'; /* ensure string ending */
 	str = (const char *)(p + LCD_UKEY_HEAD_SIZE);
-	strcpy(pconf->lcd_basic.model_name, str);
+	strncpy(pconf->lcd_basic.model_name, str,
+		sizeof(pconf->lcd_basic.model_name) - 1);
+	pconf->lcd_basic.model_name[sizeof(pconf->lcd_basic.model_name) - 1]
+		= '\0';
 	pconf->lcd_basic.lcd_type = *(p + LCD_UKEY_INTERFACE);
 	pconf->lcd_basic.lcd_bits = *(p + LCD_UKEY_LCD_BITS);
 	pconf->lcd_basic.screen_width = (*(p + LCD_UKEY_SCREEN_WIDTH) |
