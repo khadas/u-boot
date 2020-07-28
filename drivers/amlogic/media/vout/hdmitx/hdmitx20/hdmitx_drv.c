@@ -72,12 +72,17 @@ static void dump_regs(void)
 	unsigned int ladr;
 
 	for (reg_adr = 0x0000; reg_adr < 0x0100; reg_adr++) {
-                ladr = PERIPHS_REG_ADDR(0x0) + (reg_adr << 2);
+		ladr = PERIPHS_REG_ADDR(0x0) + (reg_adr << 2);
 		reg_val = hd_read_reg(ladr);
 		printk("[0x%08x] = 0x%X\n", hd_get_paddr(ladr), reg_val);
 	}
 	for (reg_adr = 0x0000; reg_adr < 0x0100; reg_adr++) {
-                ladr = HHI_REG_ADDR(0x0) + (reg_adr << 2);
+		ladr = HHI_REG_ADDR(0x0) + (reg_adr << 2);
+		reg_val = hd_read_reg(ladr);
+		printk("[0x%08x] = 0x%X\n", hd_get_paddr(ladr), reg_val);
+	}
+	for (reg_adr = 0x0000; reg_adr < 0x0100; reg_adr++) {
+		ladr = ANACTRL_REG_ADDR(0x0) + (reg_adr << 2);
 		reg_val = hd_read_reg(ladr);
 		printk("[0x%08x] = 0x%X\n", hd_get_paddr(ladr), reg_val);
 	}
@@ -2962,9 +2967,9 @@ static void hdmitx_set_phy(struct hdmitx_dev *hdev)
 	case HDMI_4096x2160p30_256x135:
 		if ((hdev->para->cs == HDMI_COLOR_FORMAT_422)
 			|| (hdev->para->cd == HDMI_COLOR_DEPTH_24B))
-			hdmitx_set_phypara(HDMI_PHYPARA_4p5G);
-		else
 			hdmitx_set_phypara(HDMI_PHYPARA_3G);
+		else
+			hdmitx_set_phypara(HDMI_PHYPARA_4p5G);
 		break;
 	case HDMI_1920x1080p60_16x9:
 	case HDMI_1920x1080p50_16x9:

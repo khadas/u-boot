@@ -308,7 +308,6 @@ void set_hpll_clk_out(unsigned int clk)
 	}
 }
 
-/* HERE MUST BE BIT OPERATION!!! */
 static void set_hpll_sspll(struct hdmitx_dev *hdev)
 {
 	enum hdmi_vic vic = hdev->vic;
@@ -316,28 +315,24 @@ static void set_hpll_sspll(struct hdmitx_dev *hdev)
 	switch (vic) {
 	case HDMI_1920x1080p60_16x9:
 	case HDMI_1920x1080p50_16x9:
-		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL2, 0x868b48c4, 0, 30);
-		break;
 	case HDMI_1280x720p60_16x9:
 	case HDMI_1280x720p50_16x9:
 	case HDMI_1920x1080i60_16x9:
 	case HDMI_1920x1080i50_16x9:
-		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL2, 0x864348c4, 0, 30);
-		break;
-	case HDMI_3840x2160p50_16x9:
-	case HDMI_3840x2160p60_16x9:
-	case HDMI_4096x2160p50_256x135:
-	case HDMI_4096x2160p60_256x135:
-		if (hdev->para->cs == HDMI_COLOR_FORMAT_420)
-			hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL2, 0x862b44c4, 0, 30);
-		break;
-	case HDMI_3840x2160p30_16x9:
-	case HDMI_3840x2160p25_16x9:
-	case HDMI_3840x2160p24_16x9:
-	case HDMI_4096x2160p30_256x135:
-	case HDMI_4096x2160p25_256x135:
-	case HDMI_4096x2160p24_256x135:
-		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL2, 0x860730c4, 0, 30);
+		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL0, 1, 29, 1);
+		/* bit[22:20] hdmi_dpll_fref_sel
+		 * bit[8] hdmi_dpll_ssc_en
+		 * bit[7:4] hdmi_dpll_ssc_dep_sel
+		 */
+		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL2, 1, 20, 3);
+		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL2, 1, 8, 1);
+		/* 2: 1000ppm  1: 500ppm */
+		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL2, 2, 4, 4);
+		if (hdev->dongle_mode)
+			hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL2, 4, 4, 4);
+		/* bit[15] hdmi_dpll_sdmnc_en */
+		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL3, 0, 15, 1);
+		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL0, 0, 29, 1);
 		break;
 	default:
 		break;
