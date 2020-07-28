@@ -326,10 +326,16 @@ static const struct mtd_partition spiflash_partitions[] = {
 		.size = MTDPART_SIZ_FULL,
 	}
 };
+
 const struct mtd_partition *get_partition_table(int *partitions)
 {
 	*partitions = ARRAY_SIZE(spiflash_partitions);
 	return spiflash_partitions;
+}
+
+uint64_t spiflash_bootloader_size(void)
+{
+	return 1 * SZ_1M;
 }
 #endif /* CONFIG_SPI_FLASH */
 

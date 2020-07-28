@@ -186,6 +186,40 @@ int ft_board_setup(void *blob, bd_t *bd)
 	/* eg: bl31/32 rsv */
 	return 0;
 }
+
+/* partition table for spinor flash */
+#ifdef CONFIG_SPI_FLASH
+static const struct mtd_partition spiflash_partitions[] = {
+	{
+		.name = "env",
+		.offset = 0,
+		.size = 1 * SZ_256K,
+	},
+	{
+		.name = "dtb",
+		.offset = 0,
+		.size = 1 * SZ_256K,
+	},
+	{
+		.name = "boot",
+		.offset = 0,
+		.size = 1 * SZ_1M,
+	},
+	/* last partition get the rest capacity */
+	{
+		.name = "user",
+		.offset = MTDPART_OFS_APPEND,
+		.size = MTDPART_SIZ_FULL,
+	}
+};
+
+const struct mtd_partition *get_partition_table(int *partitions)
+{
+	*partitions = ARRAY_SIZE(spiflash_partitions);
+	return spiflash_partitions;
+}
+#endif /* CONFIG_SPI_FLASH */
+
 #ifdef CONFIG_MESON_NFC
 static struct mtd_partition normal_partition_info[] = {
 /* MUST NOT CHANGE this part unless u know what you are doing!
