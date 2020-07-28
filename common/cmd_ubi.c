@@ -609,9 +609,6 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return 0;
 		}
 
-		if (argc < 3)
-			return CMD_RET_USAGE;
-
 		if (argc > 3)
 			vid_header_offset = argv[3];
 
