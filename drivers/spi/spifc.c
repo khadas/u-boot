@@ -159,6 +159,12 @@ static void spifc_set_rx_op_mode(struct spifc_priv *priv,
 {
 	unsigned int val;
 
+	val = 1 << USER_CMD_INCLUDE_DIN;
+#ifdef CONFIG_SPIFC_COMPATIBLE_TO_APPOLO
+	val |= 1 << COMPATIBLE_TO_APPOLO;
+#endif
+	writel(val, &priv->regs->user);
+
 	val = readl(&priv->regs->ctrl);
 	val &= ~((1 << FAST_READ_DUAL_OUT) |
 			(1 << FAST_READ_QUAD_OUT) |
@@ -179,8 +185,9 @@ static void spifc_set_rx_op_mode(struct spifc_priv *priv,
 static void spifc_set_tx_op_mode(struct spifc_priv *priv,
 				 unsigned int slave_mode, unsigned char cmd)
 {
-	unsigned int val = 0;
+	unsigned int val;
 
+	val = 1 << USER_CMD_INCLUDE_DOUT;
 #ifdef CONFIG_SPIFC_COMPATIBLE_TO_APPOLO
 	val |= 1 << COMPATIBLE_TO_APPOLO;
 #endif
@@ -216,9 +223,7 @@ static int spifc_user_cmd(struct spifc_priv *priv,
 			&regs->user2);
 	writel(bits << USER_CMD_ADDR_BITS, &regs->user1);
 	writel(addr << SPI_FLASH_ADDR_START, &regs->addr);
-	writel((1 << SPI_FLASH_USR) |
-			(cmd << SPI_FLASH_USR_CMD),
-			&regs->cmd);
+	writel(1 << SPI_FLASH_USR, &regs->cmd);
 	while ((readl(&regs->cmd) >> SPI_FLASH_USR) & 1)
 		;
 	return 0;
@@ -229,7 +234,7 @@ static int spifc_user_cmd_dout(struct spifc_priv *priv,
 {
 	struct spifc_regs *regs = priv->regs;
 	unsigned int *cache;
-	u32 val, *p;
+	u32 *p;
 	int len32, i;
 
 	p = (u32 *)buf;
@@ -238,14 +243,7 @@ static int spifc_user_cmd_dout(struct spifc_priv *priv,
 	for (i = 0; i < len32; i++)
 		writel(*p++, cache++);
 
-	val = 1 << USER_CMD_INCLUDE_DOUT;
-#ifdef CONFIG_SPIFC_COMPATIBLE_TO_APPOLO
-	val |= 1 << COMPATIBLE_TO_APPOLO;
-#endif
-	writel(val, &regs->user);
-	writel(0, &regs->user2);
 	writel(((len << 3) - 1) << USER_CMD_DOUT_BITS, &regs->user1);
-	writel(0, &regs->addr);
 	writel(1 << SPI_FLASH_USR, &regs->cmd);
 	while ((readl(&regs->cmd) >> SPI_FLASH_USR) & 1)
 		;
@@ -257,18 +255,11 @@ static int spifc_user_cmd_din(struct spifc_priv *priv,
 {
 	struct spifc_regs *regs = priv->regs;
 	unsigned int *cache;
-	u32 val, *p;
+	u32 *p;
 	int len32, i;
 	u8 temp_buf[SPIFC_CACHE_SIZE_IN_BYTE];
 
-	val = 1 << USER_CMD_INCLUDE_DIN;
-#ifdef CONFIG_SPIFC_COMPATIBLE_TO_APPOLO
-	val |= 1 << COMPATIBLE_TO_APPOLO;
-#endif
-	writel(val, &regs->user);
-	writel(0, &regs->user2);
 	writel(((len << 3) - 1) << USER_CMD_DIN_BITS, &regs->user1);
-	writel(0, &regs->addr);
 	writel(1 << SPI_FLASH_USR, &regs->cmd);
 	while ((readl(&regs->cmd) >> SPI_FLASH_USR) & 1)
 		;
@@ -311,7 +302,7 @@ static int spifc_claim_bus(struct udevice *dev)
 	return ret;
 }
 
-static int spifc_release_bus(struct udevice *bus)
+static int spifc_release_bus(struct udevice *dev)
 {
 	return 0;
 }
