@@ -218,7 +218,6 @@ int get_disk_guid(block_dev_desc_t *dev_desc, char *guid)
 
 void print_part_efi(block_dev_desc_t * dev_desc)
 {
-	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
 	gpt_entry *gpt_pte = NULL;
 	int i = 0;
 	char uuid[37];
@@ -228,6 +227,8 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 		printf("%s: Invalid Argument(s)\n", __func__);
 		return;
 	}
+
+	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
 	/* This function validates AND fills in the GPT header and PTE */
 	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
 			 gpt_head, &gpt_pte) != 1) {
@@ -276,7 +277,6 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 				disk_partition_t * info)
 {
-	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
 	gpt_entry *gpt_pte = NULL;
 
 	/* "part" argument must be at least 1 */
@@ -285,6 +285,7 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 		return -1;
 	}
 
+	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
 	/* This function validates AND fills in the GPT header and PTE */
 	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
 			gpt_head, &gpt_pte) != 1) {
