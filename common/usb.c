@@ -132,6 +132,7 @@ int usb_init(void)
 
 /* Support MTK BT device. */
 #ifdef CONFIG_MTK_BT_USB
+			if(dev) {
                for (i = 0; i < max_mtk_wifi_id; i++) {
                        if ((dev->descriptor.idVendor == (pmtk_wifi+i)->vid) && (dev->descriptor.idProduct == (pmtk_wifi+i)->pid)) {
 							   printf("Found USB WIFI [%s] in usb port %d\n", (pmtk_wifi+i)->name, dev->portnr);
@@ -141,6 +142,7 @@ int usb_init(void)
 						*/
 					   }
 			   }
+			}
 #endif
 
 		if (start_index == dev_index)
