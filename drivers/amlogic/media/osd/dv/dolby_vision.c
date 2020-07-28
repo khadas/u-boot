@@ -288,7 +288,8 @@ bool check_dolby_vision_on(void)
 	if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) ||
 		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B) ||
 		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SM1) ||
-		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TM2)) {
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TM2) ||
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SC2)) {
 		if (READ_VPP_REG(DOLBY_CORE3_SWAP_CTRL0) & 0x1)
 			return true;
 	}

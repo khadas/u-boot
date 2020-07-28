@@ -76,10 +76,16 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	struct aml_lcd_drv_s *lcd_drv = NULL;
 	char *mode;
 #endif
-	int st;
+	char* st;
 	char* hdmimode;
 	char* cvbsmode;
 	char* colorattribute;
+
+	st = env_get("hdmitx_hpd_bypass");
+	if (st && (strcmp(st[0], "1") == 0)) {
+		printf("hdmitx_hpd_bypass detect\n");
+		return 0;
+	}
 
 #ifdef CONFIG_AML_LCD
 	lcd_drv = aml_lcd_get_driver();
@@ -349,6 +355,7 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		/* For VESA modes, should be RGB format */
 		if (hdev->vic >= HDMITX_VESA_OFFSET)
 			hdev->para->cs = HDMI_COLOR_FORMAT_RGB;
+			hdev->para->cd = HDMI_COLOR_DEPTH_24B;
 		}
 		printf("set hdmitx VIC = %d CS = %d CD = %d\n",
 		       hdev->vic, hdev->para->cs, hdev->para->cd);
@@ -927,12 +934,17 @@ static int do_get_preferred_mode(cmd_tbl_t * cmdtp, int flag, int argc,
 	char * const argv[])
 {
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
-	unsigned int byte_num = 0;
+
 	unsigned char *edid = hdev->rawedid;
-	unsigned char blk_no = 1;
+
 	struct hdmi_format_para *para;
 	char pref_mode[64];
 	char color_attr[64];
+	char *hdmi_read_edid;
+
+	hdmi_read_edid = env_get("hdmi_read_edid");
+	if (hdmi_read_edid && (hdmi_read_edid[0] == '0'))
+		return 0;
 
 	memset(edid, 0, EDID_BLK_SIZE * EDID_BLK_NO);
 	memset(pref_mode, 0, sizeof(pref_mode));
@@ -1040,3 +1052,10 @@ U_BOOT_CMD(hdmitx, CONFIG_SYS_MAXARGS, 0, do_hdmitx,
 	"hdmitx rx_det\n"
 	"    Auto detect if RX is FBC and set outputmode\n"
 );
+
+struct hdr_info *hdmitx_get_rx_hdr_info(void)
+{
+	struct hdmitx_dev *hdev = hdmitx_get_hdev();
+
+	return &hdev->RXCap.hdr_info;
+}
