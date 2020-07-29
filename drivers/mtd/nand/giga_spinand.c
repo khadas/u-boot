@@ -1679,6 +1679,11 @@ static struct nand_flash_dev *spinand_get_flash_type(struct mtd_info *mtd,
   chip->badblockpos = NAND_LARGE_BADBLOCK_POS;
   chip->bbt_options |= NAND_BBT_SCAN2NDPAGE;
 
+  if (!ffs(mtd->writesize)) {
+	printk("%s, %d bit shift is zero\n",
+	       __func__,__LINE__);
+	return NULL;
+  }
   /* Calculate the address shift from the page size */
   chip->page_shift = ffs(mtd->writesize) - 1;
   /* Convert chipsize to number of pages per chip -1 */
