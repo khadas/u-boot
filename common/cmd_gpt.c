@@ -423,8 +423,10 @@ static int set_gpt_info(struct block_dev_desc *dev_desc,
 	if (!val) {
 #ifdef CONFIG_RANDOM_UUID
 		*str_disk_guid = malloc(UUID_STR_LEN + 1);
-		if (*str_disk_guid == NULL)
+		if (*str_disk_guid == NULL) {
+			free(str);
 			return -ENOMEM;
+		}
 		gen_rand_uuid_str(*str_disk_guid, UUID_STR_FORMAT_STD);
 #else
 		free(str);
@@ -443,8 +445,10 @@ static int set_gpt_info(struct block_dev_desc *dev_desc,
 		printf("Error: is the partitions string NULL-terminated?\n");
 		return -EINVAL;
 	}
-	if (strnlen(s, max_str_part) == 0)
+	if (strnlen(s, max_str_part) == 0) {
+		free(str);
 		return -3;
+	}
 
 	i = strnlen(s, max_str_part) - 1;
 	if (s[i] == ';')
@@ -460,8 +464,10 @@ static int set_gpt_info(struct block_dev_desc *dev_desc,
 
 	/* allocate memory for partitions */
 	parts = calloc(sizeof(disk_partition_t), p_count);
-	if (parts == NULL)
+	if (parts == NULL) {
+		free(str);
 		return -ENOMEM;
+	}
 
 	/* retrieve partitions data from string */
 	for (i = 0; i < p_count; i++) {
@@ -565,6 +571,7 @@ static int set_gpt_info(struct block_dev_desc *dev_desc,
 
 	return 0;
 err:
+	free(val);
 	free(str);
 	free(*str_disk_guid);
 	free(parts);
@@ -589,6 +596,7 @@ static int gpt_default(struct block_dev_desc *blk_dev_desc,
 			printf("Missing disk guid\n");
 		if ((ret == -3) || (ret == -4))
 			printf("Partition list incomplete\n");
+		free(str_disk_guid);
 		return -1;
 	}
 	/* save partitions layout to disk */
@@ -617,12 +625,15 @@ static int gpt_verify(struct block_dev_desc *blk_dev_desc, const char *str_part)
 			printf("No partition list provided-only basic check\n");
 			ret = gpt_verify_headers(blk_dev_desc, gpt_head,
 						 &gpt_pte);
+			free(str_disk_guid);
 			goto out;
 		}
 		if (ret == -2)
 			printf("Missing disk guid\n");
 		if ((ret == -3) || (ret == -4))
 			printf("Partition list incomplete\n");
+
+		free(str_disk_guid);
 		return -1;
 	}
 
