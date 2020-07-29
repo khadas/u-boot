@@ -375,7 +375,29 @@ __attribute__ ((section(".misc_param"))) = {
 	{PADCTRL_PIN_MUX_REGI,	(0x3 << 4),		(0xf << 4),	0, 0, 0},
 };
 
-/* for all the storage parameter */
+
+#ifdef CONFIG_MTD_SPI_NAND
+/* for spinand storage parameter */
+storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
+	.common				= {
+		.version = 0x01,
+		.device_fip_container_size = 0x300000,
+		.device_fip_container_copies = 4,
+	},
+	.nand				= {
+		.version = 0x01,
+		.bbt_pages = 1, // TODO: BL2E BBT
+		.bbt_start_block = 20,
+		.discrete_mode = 1,
+		.setup_data.spi_nand_page_size = 2048,
+		.reserved.spi_nand_planes_per_lun = 1,
+		.reserved_area_blk_cnt = 48,
+		.page_per_block = 64,
+		.use_param_page_list = 0,
+	},
+};
+#else
+/* for slcnand storage parameter */
 storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
 	.common				= {
 		.version = 0x01,
@@ -399,3 +421,4 @@ storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
 		.use_param_page_list = 0,
 	},
 };
+#endif

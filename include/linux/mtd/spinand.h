@@ -26,8 +26,13 @@
 #define NAND_BLOCK_BAD		1
 #define NAND_FACTORY_BAD	2
 
-#define SPINAND_MESON_RSV			1
+#define SPINAND_MESON_RSV		1
+#ifdef CONFIG_SPI_NAND_AML_ADVANCED
+/* Use dev parameters to send parameters in advanced mode */
+#define SPINAND_MESON_INFO_PAGE		0
+#else
 #define SPINAND_MESON_INFO_PAGE		1
+#endif
 
 
 #if SPINAND_MESON_INFO_PAGE

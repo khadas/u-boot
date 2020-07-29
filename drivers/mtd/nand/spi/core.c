@@ -31,6 +31,7 @@
 #include <amlogic/aml_mtd.h>
 #include <linux/log2.h>
 #include <asm/arch/cpu_config.h>
+#include <amlogic/storage.h>
 #endif
 
 /* SPI NAND index visible in MTD names */
@@ -1241,15 +1242,21 @@ static void spinand_cleanup(struct spinand_device *spinand)
 }
 
 #ifdef CONFIG_AML_MTDPART
-static int spinand_add_partitions(struct mtd_info *mtd,
+/* The size of the partition must be block aligned */
+int spinand_add_partitions(struct mtd_info *mtd,
 				  const struct mtd_partition *parts,
 				  int nbparts)
 {
 	int part_num = 0, i = 0;
 	struct mtd_partition *temp, *parts_nm;
 	loff_t off;
+
 #ifdef CONFIG_DISCRETE_BOOTLOADER
+#ifdef CONFIG_SPI_NAND_AML_ADVANCED
+	part_num = nbparts + 5;
+#else
 	part_num = nbparts + 2;
+#endif/* CONFIG_SPI_NAND_AML_ADVANCED */
 #else
 	part_num = nbparts + 1;
 #endif/* CONFIG_DISCRETE_BOOTLOADER */
@@ -1262,6 +1269,34 @@ static int spinand_add_partitions(struct mtd_info *mtd,
 		WARN_ON(1);
 	off = temp[0].size + NAND_RSV_BLOCK_NUM * mtd->erasesize;
 #ifdef CONFIG_DISCRETE_BOOTLOADER
+#ifdef CONFIG_SPI_NAND_AML_ADVANCED
+	extern struct storage_startup_parameter g_ssp;
+	temp[BOOT_AREA_BL2E].name = BOOT_BL2E;
+	temp[BOOT_AREA_BL2E].offset = g_ssp.boot_entry[BOOT_AREA_BL2E].offset;
+	temp[BOOT_AREA_BL2E].size = g_ssp.boot_entry[BOOT_AREA_BL2E].size * g_ssp.boot_bakups;
+	if (temp[0].size % mtd->erasesize)
+		WARN_ON(1);
+
+	temp[BOOT_AREA_BL2X].name = BOOT_BL2X;
+	temp[BOOT_AREA_BL2X].offset = g_ssp.boot_entry[BOOT_AREA_BL2X].offset;
+	temp[BOOT_AREA_BL2X].size = g_ssp.boot_entry[BOOT_AREA_BL2X].size * g_ssp.boot_bakups;
+	if (temp[0].size % mtd->erasesize)
+		WARN_ON(1);
+
+	temp[BOOT_AREA_DDRFIP].name = BOOT_DDRFIP;
+	temp[BOOT_AREA_DDRFIP].offset = g_ssp.boot_entry[BOOT_AREA_DDRFIP].offset;
+	temp[BOOT_AREA_DDRFIP].size = g_ssp.boot_entry[BOOT_AREA_DDRFIP].size * g_ssp.boot_bakups;
+	if (temp[0].size % mtd->erasesize)
+		WARN_ON(1);
+
+	temp[BOOT_AREA_DEVFIP].name = BOOT_DEVFIP;
+	temp[BOOT_AREA_DEVFIP].offset = g_ssp.boot_entry[BOOT_AREA_DEVFIP].offset;
+	temp[BOOT_AREA_DEVFIP].size = g_ssp.boot_entry[BOOT_AREA_DEVFIP].size * CONFIG_TPL_COPY_NUM;
+	if (temp[0].size % mtd->erasesize)
+		WARN_ON(1);
+	off = temp[BOOT_AREA_DEVFIP].offset + temp[BOOT_AREA_DEVFIP].size;
+	parts_nm = &temp[5];
+#else
 	temp[1].name = BOOT_TPL;
 	temp[1].offset = off;
 	temp[1].size = CONFIG_TPL_SIZE_PER_COPY * CONFIG_TPL_COPY_NUM;
@@ -1269,6 +1304,7 @@ static int spinand_add_partitions(struct mtd_info *mtd,
 		WARN_ON(1);
 	parts_nm = &temp[2];
 	off += temp[1].size;
+#endif/*CONFIG_SPI_NAND_AML_ADVANCED*/
 #else
 	parts_nm = &temp[1];
 #endif/* CONFIG_DISCRETE_BOOTLOADER */
@@ -1344,10 +1380,6 @@ static int spinand_probe(struct udevice *dev)
 	struct spi_slave *slave = dev_get_parent_priv(dev);
 	struct mtd_info *mtd = dev_get_uclass_priv(dev);
 	struct nand_device *nand = spinand_to_nand(spinand);
-#ifdef CONFIG_AML_MTDPART
-	const struct mtd_partition *spinand_partitions;
-	int partition_count;
-#endif
 	int ret;
 
 #ifndef __UBOOT__
@@ -1416,17 +1448,10 @@ static int spinand_probe(struct udevice *dev)
 		goto err_spinand_cleanup;
 
 #ifdef CONFIG_AML_STORAGE
-	spinand_fit_storage(mtd, mtd->name, spinand->id.data);
+	ret = spinand_fit_storage(mtd, mtd->name, spinand->id.data);
 #endif
 
-#ifdef CONFIG_AML_MTDPART
-	extern const struct mtd_partition *get_partition_table(int *partitions);
-	spinand_partitions = get_partition_table(&partition_count);
-	WARN_ON(spinand_add_partitions(mtd, spinand_partitions,
-						partition_count));
-#endif
-
-	return 0;
+	return ret;
 
 err_spinand_cleanup:
 	spinand_cleanup(spinand);

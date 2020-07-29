@@ -249,8 +249,11 @@ static int storage_get_and_parse_ssp(void)
 	case BOOT_SNAND:
 		if (IS_FEAT_EN_8BL2_SNAND())
 			ssp->boot_bakups = 8;
-		if (IS_FEAT_DIS_NBL2_SNAND())
+		else if (IS_FEAT_DIS_NBL2_SNAND())
 			ssp->boot_bakups = 1;
+		else
+			ssp->boot_bakups = 4;
+
 		sip->snasp.pagesize = 2048;
 		sip->snasp.pages_per_eraseblock = 64;
 		sip->snasp.eraseblocks_per_lun = 1024;
@@ -258,7 +261,8 @@ static int storage_get_and_parse_ssp(void)
 		sip->snasp.luns_per_target = 1;
 		sip->snasp.ntargets = 1;
 		/* TODO caculate it by reserve filed from startup parameter */
-		sip->snasp.layout_reserve_size = 0;
+		sip->snasp.layout_reserve_size = NAND_RSV_BLOCK_NUM * sip->snasp.pagesize
+						* sip->snasp.pages_per_eraseblock;
 		break;
 	case BOOT_NAND_NFTL:
 	case BOOT_NAND_MTD:
