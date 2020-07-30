@@ -34,6 +34,7 @@
 #include <amlogic/aml_v3_burning.h>
 #include <amlogic/aml_v2_burning.h>
 #include <linux/mtd/partitions.h>
+#include <asm/arch/bl31_apis.h>
 #ifdef CONFIG_AML_VPU
 #include <amlogic/media/vpu/vpu.h>
 #endif
@@ -121,6 +122,7 @@ void board_init_mem(void) {
 int board_init(void)
 {
 	printf("board init\n");
+	aml_clr_bootsequence();
 	//Please keep try usb boot first in board_init, as other init before usb may cause burning failure
 #if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 	if ((0x1b8ec003 != readl(SYSCTRL_SEC_STICKY_REG2)) && (0x1b8ec004 != readl(SYSCTRL_SEC_STICKY_REG2)))

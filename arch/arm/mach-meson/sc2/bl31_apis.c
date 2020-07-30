@@ -339,6 +339,19 @@ unsigned aml_reboot(uint64_t function_id, uint64_t arg0, uint64_t arg1, uint64_t
 	return function_id;
 }
 
+/* clear boot sequence related registers */
+void aml_clr_bootsequence(void)
+{
+	register uint64_t x0 asm("x0") = CLR_STORAGE_BOOTSEQUENCE;
+
+	asm volatile(
+			__asmeq("%0", "x0")
+			"smc #0\n"
+			:"+r"(x0));
+
+	return;
+}
+
 void aml_set_reboot_reason(uint64_t function_id, uint64_t arg0, uint64_t arg1, uint64_t arg2)
 {
 	register long x0 asm("x0") = function_id;

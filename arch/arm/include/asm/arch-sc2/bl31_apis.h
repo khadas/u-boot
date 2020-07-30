@@ -40,14 +40,15 @@
 
 #define GET_SHARE_MEM_INPUT_BASE		0x82000020
 #define GET_SHARE_MEM_OUTPUT_BASE		0x82000021
-#define GET_REBOOT_REASON		0x82000022
+#define GET_REBOOT_REASON				0x82000022
 #define GET_SHARE_STORAGE_IN_BASE		0x82000023
 #define GET_SHARE_STORAGE_OUT_BASE		0x82000024
 #define GET_SHARE_STORAGE_BLOCK_BASE	0x82000025
 #define GET_SHARE_STORAGE_MESSAGE_BASE	0x82000026
-#define GET_SHARE_STORAGE_BLOCK_SIZE		0x82000027
-#define SET_STORAGE_INFO		0x82000028
-#define SET_REBOOT_REASON		0x82000049
+#define GET_SHARE_STORAGE_BLOCK_SIZE	0x82000027
+#define SET_STORAGE_INFO				0x82000028
+#define CLR_STORAGE_BOOTSEQUENCE		0x82000029
+#define SET_REBOOT_REASON				0x82000049
 
 /* Set Reboot Reason then Reboot*/
 #define PSCI_SYS_REBOOT		0x84000009
@@ -165,6 +166,7 @@ struct sram_hal_api_arg {
 void aml_set_jtag_state(unsigned state, unsigned select);
 unsigned aml_get_reboot_reason(void);
 unsigned aml_reboot(uint64_t function_id, uint64_t arg0, uint64_t arg1, uint64_t arg2);
+void aml_clr_bootsequence(void);
 void aml_set_reboot_reason(uint64_t function_id, uint64_t arg0, uint64_t arg1, uint64_t arg2);
 unsigned long aml_sec_boot_check(unsigned long ,unsigned long ,unsigned long,unsigned long );
 long get_sharemem_info(unsigned long);
