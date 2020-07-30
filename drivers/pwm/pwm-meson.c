@@ -117,7 +117,7 @@ static void pwm_meson_config(struct udevice *dev, unsigned channel)
 	struct meson_pwm_priv *priv = dev_get_priv(dev);
 	struct meson_pwm_reg *regs = priv->regs;
 	struct meson_pwm_state *pwm_state = priv->pwm_state;
-	u32 clk_addr = priv->extern_clk_addr;
+	fdt_addr_t clk_addr = priv->extern_clk_addr;
 
 	switch (channel) {
 		case MESON_PWM0:
@@ -282,7 +282,7 @@ static void meson_pwm_meson_enable(struct udevice *dev, unsigned channel)
 	struct meson_pwm_priv *priv = dev_get_priv(dev);
 	struct meson_pwm_reg *regs = priv->regs;
 	struct meson_pwm_state *pwm_state = priv->pwm_state;
-	u32 clk_addr = priv->extern_clk_addr;
+	fdt_addr_t clk_addr = priv->extern_clk_addr;
 	unsigned int val, val_clk, orig;
 
 	switch (channel) {
@@ -323,7 +323,7 @@ static void meson_pwm_meson_disable(struct udevice *dev, unsigned channel)
 	struct meson_pwm_priv *priv = dev_get_priv(dev);
 	struct meson_pwm_reg *regs = priv->regs;
 	struct meson_pwm_state *pwm_state = priv->pwm_state;
-	u32 clk_addr = priv->extern_clk_addr;
+	fdt_addr_t clk_addr = priv->extern_clk_addr;
 	unsigned int val, val_clk, orig;
 
 	switch (channel) {
@@ -514,18 +514,19 @@ static int meson_pwm_probe(struct udevice *dev)
 
 	priv->pwm_data = (struct meson_pwm_data *)dev_get_driver_data(dev);
 	priv->regs = (struct meson_pwm_reg *)dev_read_addr_index(dev, 0);
-	if (priv->regs == FDT_ADDR_T_NONE) {
+	if (priv->regs == (void *)FDT_ADDR_T_NONE) {
 		pr_err("Coun't get pwm base regs addr\n");
 		return -1;
 	}
 
 	/* If you use external clk, get clk regs addr */
-	if (priv->pwm_data->extern_clk)
+	if (priv->pwm_data->extern_clk) {
 		priv->extern_clk_addr = dev_read_addr_index(dev, 1);
-		if (priv->regs == FDT_ADDR_T_NONE) {
+		if (priv->extern_clk_addr == FDT_ADDR_T_NONE) {
 			pr_err("Coun't get pwm clk regs addr\n");
 			return -1;
 		}
+	}
 
 	priv->pwm_state = (struct meson_pwm_state *)calloc(4, sizeof(struct meson_pwm_state));
 
