@@ -47,9 +47,9 @@ typedef struct bl2_reg {
 	unsigned	int		reg;
 	unsigned	int		value;
 	unsigned	int		mask;
+	unsigned	int		flag;
 	unsigned	short	udelay;
-	unsigned	char	flag;
-	unsigned	char	rsv_0;
+	unsigned	short	rsv_0;
 }__attribute__ ((packed)) bl2_reg_t;
 
 typedef struct training_delay_set_ps{
