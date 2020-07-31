@@ -27,7 +27,9 @@
 /* 20181106: init version */
 #define LCD_DRV_VERSION    "20181106"
 
-#define VPP_OUT_SATURATE            (1 << 0)
+#define LCD_STATUS_IF_ON      (1 << 0)
+#define LCD_STATUS_ENCL_ON    (1 << 1)
+#define VPP_OUT_SATURATE      (1 << 0)
 
 /* -------------------------- */
 /* lvsd phy parameters define */

@@ -22,6 +22,8 @@
 #include <common.h>
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
+#include <amlogic/cpu_id.h>
+#include <amlogic/media/vpp/vpp.h>
 #include <amlogic/media/vout/aml_vmode.h>
 #include <amlogic/media/vout/aml_vout.h>
 #ifdef CONFIG_AML_LCD
@@ -43,6 +45,7 @@
 #define REG_OFFSET_VCBUS(reg)           ((reg << 2))
 #define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg))
 
+#define REG_CLK_ADDR(reg)               (reg + 0L)
 #define REG_VOUT_ADDR(reg)              (reg + 0L)
 
 static int g_vmode = -1;
@@ -53,6 +56,8 @@ typedef struct vout_set_s {
 	ulong width;
 	ulong height;
 	ulong field_height;
+	int viu_color_fmt;
+	enum viu_mux_e viu_mux;
 } vout_set_t;
 
 
@@ -63,6 +68,8 @@ static const vout_set_t vout_sets[] = {
 		.width             = 720,
 		.height            = 480,
 		.field_height      = 240,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCI,
 	},
 	{ /* VMODE_480CVBS*/
 		.name              = "480cvbs",
@@ -70,6 +77,8 @@ static const vout_set_t vout_sets[] = {
 		.width             = 720,
 		.height            = 480,
 		.field_height      = 240,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCI,
 	},
 	{ /* VMODE_480P */
 		.name              = "480p",
@@ -77,6 +86,8 @@ static const vout_set_t vout_sets[] = {
 		.width             = 720,
 		.height            = 480,
 		.field_height      = 480,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_576I */
 		.name              = "576i",
@@ -84,6 +95,8 @@ static const vout_set_t vout_sets[] = {
 		.width             = 720,
 		.height            = 576,
 		.field_height      = 288,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCI,
 	},
 	{ /* VMODE_576I */
 		.name              = "576cvbs",
@@ -91,6 +104,8 @@ static const vout_set_t vout_sets[] = {
 		.width             = 720,
 		.height            = 576,
 		.field_height      = 288,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCI,
 	},
 	{ /* VMODE_576P */
 		.name              = "576p",
@@ -98,6 +113,8 @@ static const vout_set_t vout_sets[] = {
 		.width             = 720,
 		.height            = 576,
 		.field_height      = 576,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_720P */
 		.name              = "720p",
@@ -105,6 +122,8 @@ static const vout_set_t vout_sets[] = {
 		.width             = 1280,
 		.height            = 720,
 		.field_height      = 720,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_768P */
 		.name              = "768p",
@@ -112,6 +131,8 @@ static const vout_set_t vout_sets[] = {
 		.width             = 1366,
 		.height            = 768,
 		.field_height      = 768,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1080I */
 		.name              = "1080i",
@@ -119,6 +140,8 @@ static const vout_set_t vout_sets[] = {
 		.width             = 1920,
 		.height            = 1080,
 		.field_height      = 540,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1080P */
 		.name              = "1080p",
@@ -126,6 +149,8 @@ static const vout_set_t vout_sets[] = {
 		.width             = 1920,
 		.height            = 1080,
 		.field_height      = 1080,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_4K2K_60HZ */
 		.name              = "2160p",
@@ -133,6 +158,8 @@ static const vout_set_t vout_sets[] = {
 		.width             = 3840,
 		.height            = 2160,
 		.field_height      = 2160,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_4K2K_SMPTE */
 		.name              = "smpte",
@@ -140,6 +167,8 @@ static const vout_set_t vout_sets[] = {
 		.width             = 4096,
 		.height            = 2160,
 		.field_height      = 2160,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_vga */
 		.name              = "vga",
@@ -147,6 +176,8 @@ static const vout_set_t vout_sets[] = {
 		.width             = 640,
 		.height            = 480,
 		.field_height      = 480,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_SVGA */
 		.name              = "svga",
@@ -154,6 +185,8 @@ static const vout_set_t vout_sets[] = {
 		.width             = 800,
 		.height            = 600,
 		.field_height      = 600,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_XGA */
 		.name              = "xga",
@@ -161,6 +194,8 @@ static const vout_set_t vout_sets[] = {
 		.width             = 1024,
 		.height            = 768,
 		.field_height      = 768,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_sxga */
 		.name              = "sxga",
@@ -168,6 +203,8 @@ static const vout_set_t vout_sets[] = {
 		.width             = 1280,
 		.height            = 1024,
 		.field_height      = 1024,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_wsxga */
 		.name              = "wsxga",
@@ -175,6 +212,8 @@ static const vout_set_t vout_sets[] = {
 		.width             = 1440,
 		.height            = 900,
 		.field_height      = 900,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_fhdvga */
 		.name              = "fhdvga",
@@ -182,6 +221,8 @@ static const vout_set_t vout_sets[] = {
 		.width             = 1920,
 		.height            = 1080,
 		.field_height      = 1080,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_LCD */
 		.name              = "panel",
@@ -189,150 +230,200 @@ static const vout_set_t vout_sets[] = {
 		.width             = 1920,
 		.height            = 1080,
 		.field_height      = 1080,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_640x480p60hz */
 		.name              = "640x480p60hz",
 		.mode              = VMODE_640x480p60hz,
 		.width             = 640,
 		.height            = 480,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_800x480p60hz */
 		.name              = "800x480p60hz",
 		.mode              = VMODE_800x480p60hz,
 		.width             = 800,
 		.height            = 480,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_800x600p60hz */
 		.name              = "800x600p60hz",
 		.mode              = VMODE_800x600p60hz,
 		.width             = 800,
 		.height            = 600,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_852x480p60hz */
 		.name              = "852x480p60hz",
 		.mode              = VMODE_852x480p60hz,
 		.width             = 852,
 		.height            = 480,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_854x480p60hz */
 		.name              = "854x480p60hz",
 		.mode              = VMODE_854x480p60hz,
 		.width             = 854,
 		.height            = 480,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1024x768p60hz */
 		.name              = "1024x768p60hz",
 		.mode              = VMODE_1024x768p60hz,
 		.width             = 1024,
 		.height            = 768,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1152x864p75hz */
 		.name              = "1152x864p75hz",
 		.mode              = VMODE_1152x864p75hz,
 		.width             = 1152,
 		.height            = 864,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1280x600p60hz */
 		.name              = "1280x600p60hz",
 		.mode              = VMODE_1280x600p60hz,
 		.width             = 1280,
 		.height            = 600,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1280x768p60hz */
 		.name              = "1280x768p60hz",
 		.mode              = VMODE_1280x768p60hz,
 		.width             = 1280,
 		.height            = 768,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1280x800p60hz */
 		.name              = "1280x800p60hz",
 		.mode              = VMODE_1280x800p60hz,
 		.width             = 1280,
 		.height            = 800,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1280x960p60hz */
 		.name              = "1280x960p60hz",
 		.mode              = VMODE_1280x960p60hz,
 		.width             = 1280,
 		.height            = 960,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1280x1024p60hz */
 		.name              = "1280x1024p60hz",
 		.mode              = VMODE_1280x1024p60hz,
 		.width             = 1280,
 		.height            = 1024,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1360x768p60hz */
 		.name              = "1360x768p60hz",
 		.mode              = VMODE_1360x768p60hz,
 		.width             = 1360,
 		.height            = 768,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1366x768p60hz */
 		.name              = "1366x768p60hz",
 		.mode              = VMODE_1366x768p60hz,
 		.width             = 1366,
 		.height            = 768,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1400x1050p60hz */
 		.name              = "1400x1050p60hz",
 		.mode              = VMODE_1400x1050p60hz,
 		.width             = 1400,
 		.height            = 1050,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1440x900p60hz */
 		.name              = "1440x900p60hz",
 		.mode              = VMODE_1440x900p60hz,
 		.width             = 1440,
 		.height            = 900,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1440x2560p60hz */
 		.name              = "1440x2560p60hz",
 		.mode              = VMODE_1440x2560p60hz,
 		.width             = 1440,
 		.height            = 2560,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1440x2560p70hz */
 		.name              = "1440x2560p70hz",
 		.mode              = VMODE_1440x2560p70hz,
 		.width             = 1440,
 		.height            = 2560,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1600x900p60hz */
 		.name              = "1600x900p60hz",
 		.mode              = VMODE_1600x900p60hz,
 		.width             = 1600,
 		.height            = 900,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1600x1200p60hz */
 		.name              = "1600x1200p60hz",
 		.mode              = VMODE_1600x1200p60hz,
 		.width             = 1600,
 		.height            = 1200,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1680x1050p60hz */
 		.name              = "1680x1050p60hz",
 		.mode              = VMODE_1680x1050p60hz,
 		.width             = 1680,
 		.height            = 1050,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_1920x1200p60hz */
 		.name              = "1920x1200p60hz",
 		.mode              = VMODE_1920x1200p60hz,
 		.width             = 1920,
 		.height            = 1200,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_2160x1200p90hz */
 		.name			= "2160x1200p90hz",
 		.mode	 		= VMODE_2160x1200p90hz,
 		.width	 		= 2160,
 		.height 		= 1200,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 	{ /* VMODE_2560x1080p60hz */
 		.name              = "2560x1080p60hz",
 		.mode              = VMODE_2560x1080p60hz,
 		.width             = 2560,
 		.height            = 1080,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	},
 };
 
@@ -353,12 +444,60 @@ static struct vinfo_s vout_info = {
 	.priv = NULL,                /* Pointer to driver-specific data */
 };
 
+#ifndef HHI_VPU_CLKC_CNTL
+#define HHI_VPU_CLKC_CNTL                          (0xff63c000 + (0x06d << 2))
+#endif
+#ifndef CLKCTRL_VPU_CLKC_CTRL
+#define CLKCTRL_VPU_CLKC_CTRL                      ((0x003c  << 2) + 0xfe000000)
+#endif
+#ifndef VPU_VENCX_CLK_CTRL
+#define VPU_VENCX_CLK_CTRL                         0x2785
+#endif
+
+static inline unsigned int vout_reg_read(u32 reg)
+{
+	unsigned int val;
+
+	if (reg > 0x10000)
+		val = *(volatile unsigned int *)REG_VOUT_ADDR(reg);
+	else
+		val = (*(volatile unsigned int *)REG_ADDR_VCBUS(reg));
+
+	return val;
+}
+
 static inline void vout_reg_write(u32 reg, const u32 val)
 {
 	if (reg > 0x10000)
 		*(volatile unsigned int *)REG_VOUT_ADDR(reg) = (val);
 	else
 		*(volatile unsigned int *)REG_ADDR_VCBUS(reg) = (val);
+}
+
+static inline void vout_reg_setb(unsigned int reg, unsigned int val,
+		unsigned int start, unsigned int len)
+{
+	vout_reg_write(reg, ((vout_reg_read(reg) &
+			~(((1L << (len))-1) << (start))) |
+			(((val)&((1L<<(len))-1)) << (start))));
+}
+
+static inline unsigned int vout_clk_read(u32 reg)
+{
+	return *(volatile unsigned int *)(REG_CLK_ADDR(reg));
+}
+
+static inline void vout_clk_write(u32 reg, const u32 val)
+{
+	*(volatile unsigned int *)REG_CLK_ADDR(reg) = (val);
+}
+
+static inline void vout_clk_setb(unsigned int reg, unsigned int val,
+		unsigned int start, unsigned int len)
+{
+	vout_clk_write(reg, ((vout_clk_read(reg) &
+			~(((1L << (len))-1) << (start))) |
+			(((val)&((1L<<(len))-1)) << (start))));
 }
 
 static int vout_find_mode_by_name(const char *name)
@@ -422,15 +561,20 @@ static int vout_find_field_height_by_name(const char* name)
 	return height;
 }
 
+static unsigned int vout_env2uint(const char *name, int base)
+{
+	return (unsigned int)env_get_ulong(name, base, 0);
+}
+
 static void vout_vinfo_init(ulong width, ulong height, ulong field_height)
 {
 	vout_info.width = width;
 	vout_info.height = height;
 	vout_info.field_height = field_height;
 	vout_info.vd_base = (void *)get_fb_addr();
-	vout_info.vl_bpix = simple_strtoul(env_get("display_bpp"), NULL, 10);
-	vout_info.vd_color_fg = simple_strtoul(env_get("display_color_fg"), NULL, 0);
-	vout_info.vd_color_bg = simple_strtoul(env_get("display_color_bg"), NULL, 0);
+	vout_info.vl_bpix = (unsigned char)vout_env2uint("display_bpp", 10);
+	vout_info.vd_color_fg = vout_env2uint("display_color_fg", 0);
+	vout_info.vd_color_bg = vout_env2uint("display_color_bg", 0);
 }
 
 static void vout_axis_init(ulong w, ulong h)
@@ -620,6 +764,73 @@ void vout_vinfo_dump(void)
 	vout_log("vinfo.vl_bpix: %d\n", info->vl_bpix);
 	vout_log("vinfo.vd_color_fg: %d\n", info->vd_color_fg);
 	vout_log("vinfo.vd_color_bg: %d\n", info->vd_color_bg);
+}
+
+static unsigned int vout_viu1_mux = VIU_MUX_MAX;
+static unsigned int vout_viu2_mux = VIU_MUX_MAX;
+void vout_viu_mux(int viu_sel, int venc_sel)
+{
+	unsigned int clk_bit = 0xff, clk_sel = 0;
+	unsigned int viu2_valid = 0;
+	unsigned int vout_viu_sel = 0xf;
+
+	switch (get_cpu_id().family_id) {
+	case MESON_CPU_MAJOR_ID_G12A:
+	case MESON_CPU_MAJOR_ID_G12B:
+	case MESON_CPU_MAJOR_ID_TL1:
+	case MESON_CPU_MAJOR_ID_TM2:
+	case MESON_CPU_MAJOR_ID_SM1:
+		viu2_valid = 1;
+		break;
+	default:
+		break;
+	}
+
+	switch (viu_sel) {
+	case VOUT_VIU2_SEL:
+		if (viu2_valid) {
+			/* set cts_vpu_clkc to 200MHz*/
+			vout_clk_setb(HHI_VPU_CLKC_CNTL, 2, 9, 3);
+			vout_clk_setb(HHI_VPU_CLKC_CNTL, 1, 0, 1);
+			vout_clk_setb(HHI_VPU_CLKC_CNTL, 1, 8, 3);
+			clk_sel = 1;
+		}
+		if (venc_sel == vout_viu1_mux)
+			vout_viu1_mux = VIU_MUX_MAX;
+		vout_viu2_mux = venc_sel;
+		break;
+	case VOUT_VIU1_SEL:
+		if (viu2_valid)
+			vout_clk_setb(HHI_VPU_CLKC_CNTL, 0, 8, 1);
+		clk_sel = 0;
+		if (venc_sel == vout_viu2_mux)
+			vout_viu2_mux = VIU_MUX_MAX;
+		vout_viu1_mux = venc_sel;
+		break;
+	default:
+		break;
+	}
+	vout_viu_sel = (vout_viu1_mux | (vout_viu2_mux << 2));
+
+	switch (venc_sel) {
+	case VIU_MUX_ENCL:
+		clk_bit = 1;
+		break;
+	case VIU_MUX_ENCI:
+		clk_bit = 2;
+		break;
+	case VIU_MUX_ENCP:
+		clk_bit = 0;
+		break;
+	default:
+		break;
+	}
+
+	vout_reg_setb(VPU_VIU_VENC_MUX_CTRL, vout_viu_sel, 0, 4);
+	if (viu2_valid) {
+		if (clk_bit < 0xff)
+			vout_reg_setb(VPU_VENCX_CLK_CTRL, clk_sel, clk_bit, 1);
+	}
 }
 
 void vout_init(void)

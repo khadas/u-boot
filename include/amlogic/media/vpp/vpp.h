@@ -18,6 +18,7 @@ extern void vpp_load_gamma_table(unsigned short *data, unsigned int len, enum vp
 extern void vpp_init_lcd_gamma_table(void);
 
 extern void vpp_matrix_update(int type);
+extern void vpp_viu2_matrix_update(int type);
 extern void hdr_tx_pkt_cb(void);
 
 #endif
