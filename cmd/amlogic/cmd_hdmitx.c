@@ -297,7 +297,7 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		hdev->vic = HDMI_1920x1080p60_16x9;
 		hdmi_tx_set(hdev);
 		hdev->hwop.test_prbs();
-	} else if (strcmp(argv[1], "div40") == 0) {
+	} else if (strncmp(argv[1], "div40", 5) == 0) {
 		bool div40 = 0;
 
 		if (argv[1][5] == '1')
@@ -310,11 +310,12 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			/* Not find VIC */
 			printf("Not find '%s' mapped VIC\n", argv[1]);
 			return CMD_RET_FAILURE;
-		}
-		if (strstr(argv[1], "hz420") != NULL)
-			hdev->para->cs = HDMI_COLOR_FORMAT_420;
+		} else
+			printf("set hdmitx VIC = %d\n", hdev->vic);
 		if (env_get("colorattribute"))
 			hdmi_parse_attr(hdev->para, env_get("colorattribute"));
+		if (strstr(argv[1], "hz420") != NULL)
+			hdev->para->cs = HDMI_COLOR_FORMAT_420;
 		/* For RGB444 or YCbCr444 under 6Gbps mode, no deepcolor */
 		/* Only 4k50/60 has 420 modes */
 		switch (hdev->vic) {
@@ -729,8 +730,8 @@ static int selectBestMode(struct rx_cap *pRXCap, bool isAuto, int manualMode)
 			continue;
 		}
 		for (j = 0; j < pRXCap->VIC_count; j++) {
-			/*printf("selectBestMode: vic_priority_table[%d]=%d, bestVIC=%d, pRXCap->VIC[%d]=%d\n",
-				i, vic_priority_table[i], bestVIC, j, pRXCap->VIC[j]);*/
+			printf("selectBestMode: vic_priority_table[%d]=%d, bestVIC=%d, pRXCap->VIC[%d]=%d\n",
+				i, vic_priority_table[i], bestVIC, j, pRXCap->VIC[j]);
 			if (bestVIC == pRXCap->VIC[j]) {
 				printf("selectBestMode: bestVIC=%d\n", bestVIC);
 				return bestVIC;

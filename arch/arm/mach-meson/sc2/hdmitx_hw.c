@@ -8,7 +8,7 @@
 
 static struct reg_map reg_maps[] = {
 	[CBUS_REG_IDX] = { /* CBUS */
-		.base_addr = 0xfe004000,
+		.base_addr = 0xfe001000,
 	},
 	[PERIPHS_REG_IDX] = { /* PERIPHS */
 		.base_addr = 0xfe004000,

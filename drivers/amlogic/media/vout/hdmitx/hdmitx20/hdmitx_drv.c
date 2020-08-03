@@ -102,9 +102,9 @@ static void dump_regs(void)
 		reg_val = hd_read_reg(ladr);
 		printk("[0x%08x] = 0x%X\n", hd_get_paddr(ladr), reg_val);
 	}
-	for (reg_adr = HDMITX_TOP_SW_RESET; reg_adr < HDMITX_TOP_STAT0 + 1; reg_adr++) {
+	for (reg_adr = HDMITX_TOP_SW_RESET; reg_adr < HDMITX_TOP_DONT_TOUCH1 + 1; reg_adr++) {
 		reg_val = hdmitx_rd_reg(reg_adr);
-		printk("hdmitx: [0x%x]: 0x%x\n", reg_adr, reg_val);
+		printk("TOP[0x%x]: 0x%x\n", reg_adr, reg_val);
 	}
 	for (reg_adr = HDMITX_DWC_DESIGN_ID; reg_adr < HDMITX_DWC_I2CM_SCDC_UPDATE1 + 1; reg_adr++) {
 		if ((reg_adr > (DWC_OFFSET_MASK + 0x5016)) && (reg_adr < (DWC_OFFSET_MASK + 0x7800)))
@@ -180,11 +180,11 @@ static int read_edid_8bytes(unsigned char *rx_edid, unsigned char addr,
 	else
 		hdmitx_wr_reg(HDMITX_DWC_I2CM_OPERATION, 1 << 3);
 	timeout = 0;
-	while ((!(hdmitx_rd_reg(HDMITX_DWC_IH_I2CM_STAT0) & (1 << 1))) && (timeout < 3)) {
-		mdelay(2);
+	while ((!(hdmitx_rd_reg(HDMITX_DWC_IH_I2CM_STAT0) & (1 << 1))) && (timeout < 5)) {
+		mdelay(1);
 		timeout ++;
 	}
-	if (timeout == 3) {
+	if (timeout == 5) {
 		printk("ddc timeout\n");
 		return 0;
 	}
@@ -292,17 +292,15 @@ static struct hdmi_support_mode gxbb_modes[] = {
 	{HDMI_3840x2160p30_16x9, "2160p30hz", 0},
 	{HDMI_3840x2160p25_16x9, "2160p25hz", 0},
 	{HDMI_3840x2160p24_16x9, "2160p24hz", 0},
-	{HDMI_4096x2160p24_256x135, "smpte24hz", 0},
-#if 0
 	{HDMI_4096x2160p60_256x135, "smpte60hz", 0},
 	{HDMI_4096x2160p50_256x135, "smpte50hz", 0},
 	{HDMI_4096x2160p30_256x135, "smpte30hz", 0},
 	{HDMI_4096x2160p25_256x135, "smpte25hz", 0},
+	{HDMI_4096x2160p24_256x135, "smpte24hz", 0},
 	{HDMI_3840x2160p60_16x9, "2160p60hz420", 1},
 	{HDMI_3840x2160p50_16x9, "2160p50hz420", 1},
 	{HDMI_4096x2160p50_256x135, "smpte50hz420", 1},
 	{HDMI_4096x2160p60_256x135, "smpte60hz420", 1},
-#endif
 	{HDMI_1920x1080p60_16x9, "1080p60hz", 0},
 	{HDMI_1920x1080p50_16x9, "1080p50hz", 0},
 	{HDMI_1920x1080p30_16x9, "1080p30hz", 0},
@@ -314,10 +312,13 @@ static struct hdmi_support_mode gxbb_modes[] = {
 	{HDMI_1280x720p50_16x9, "720p50hz", 0},
 	{HDMI_720x576p50_16x9, "576p50hz", 0},
 	{HDMI_720x480p60_16x9, "480p60hz", 0},
-#if 0
 	{HDMI_720x576i50_16x9, "576i50hz", 0},
 	{HDMI_720x480i60_16x9, "480i60hz", 0},
-#endif
+	{HDMIV_1440x2560p60hz, "1440x2560p60hz", 0},
+	{HDMIV_3440x1440p60hz, "3440x1440p60hz", 0},
+	{HDMIV_2400x1200p90hz, "2400x1200p90hz", 0},
+	{HDMIV_1280x1024p60hz, "1280x1024p60hz", 0},
+	{HDMIV_1680x1050p60hz, "1680x1050p60hz", 0},
 };
 
 static void hdmitx_list_support_modes(void)
@@ -363,7 +364,11 @@ void hdmitx_set_div40(bool div40)
 void hdmitx_init(void)
 {
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
+	char *dongle_mode = NULL;
 
+	dongle_mode = env_get("dongle_mode");
+	if (dongle_mode && (dongle_mode[0] == '1'))
+		hdev->dongle_mode = 1;
 	hdev->hwop.get_hpd_state = hdmitx_get_hpd_state;
 	hdev->hwop.read_edid = hdmitx_read_edid;
 	hdev->hwop.turn_off = hdmitx_turnoff;

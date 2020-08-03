@@ -155,6 +155,7 @@ static bool set_hpll_hclk_v3(unsigned int m, unsigned int frac_val)
 
 void set_hpll_clk_out(unsigned int clk)
 {
+	pr_info("config HPLL = %d frac_rate = %d\n", clk, frac_rate);
 	switch (clk) {
 	case 5940000:
 		if (set_hpll_hclk_v1(0xf7, frac_rate ? 0x8148 : 0x10000))
@@ -163,6 +164,18 @@ void set_hpll_clk_out(unsigned int clk)
 			break;
 		if (set_hpll_hclk_v3(0xf7, 0x10000))
 			break;
+		break;
+	case 5850000:
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b0004f3);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00018000);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270000);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
+		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL0, 0x0, 29, 1);
+		WAIT_FOR_PLL_LOCKED(P_ANACTRL_HDMIPLL_CTRL0);
+		pr_info("HPLL: 0x%x\n", hd_read_reg(P_ANACTRL_HDMIPLL_CTRL0));
 		break;
 	case 5600000:
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b0004e9);
@@ -386,6 +399,7 @@ static void set_hpll_od3(unsigned div)
 		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL0, 2, 20, 2);
 		break;
 	default:
+		printf("Err %s[%d]\n", __func__, __LINE__);
 		break;
 	}
 }
@@ -428,6 +442,7 @@ static void set_hpll_od3_clk_div(int div_sel)
 	case VID_PLL_DIV_14:     shift_val = 0x3f80; shift_sel = 1; break;
 	case VID_PLL_DIV_15:     shift_val = 0x7f80; shift_sel = 2; break;
 	case VID_PLL_DIV_2p5:    shift_val = 0x5294; shift_sel = 2; break;
+	case VID_PLL_DIV_3p25:   shift_val = 0x66cc; shift_sel = 2; break;
 	default:
 		debug("Error: clocks_set_vid_clk_div:  Invalid parameter\n");
 		break;
@@ -608,6 +623,18 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_24[] = {
 	{{HDMIV_2560x1600p60hz,
 	  GROUP_END},
 		1, VIU_ENCP, 3485000, 1, 1, 1, VID_PLL_DIV_5, 2, 1, 1, -1},
+	{
+		{
+			HDMIV_3440x1440p60hz, GROUP_END
+		},
+		1, VIU_ENCP, 3197500, 1, 1, 1, VID_PLL_DIV_5, 2, 1, 1, -1
+	},
+	{
+		{
+			HDMIV_2400x1200p90hz, GROUP_END
+		},
+		1, VIU_ENCP, 5600000, 2, 1, 1, VID_PLL_DIV_5, 2, 1, 1, -1
+	},
 };
 
 /* For colordepth 10bits */
@@ -713,7 +740,7 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_36[] = {
 	  HDMI_3840x2160p60_16x9_Y420,
 	  HDMI_3840x2160p50_16x9_Y420,
 	  GROUP_END},
-		1, VIU_ENCP, 4455000, 1, 1, 1, VID_PLL_DIV_7p5, 1, 2, 1, -1},
+		1, VIU_ENCP, 4455000, 1, 1, 2, VID_PLL_DIV_3p25, 1, 2, 1, -1},
 	{{HDMI_3840x2160p24_16x9,
 	  HDMI_3840x2160p25_16x9,
 	  HDMI_3840x2160p30_16x9,
@@ -749,6 +776,7 @@ static void set_hdmitx_clk_(struct hdmitx_dev *hdev, enum hdmi_color_depth cd)
 	int j = 0;
 	struct hw_enc_clk_val_group *p_enc = NULL;
 	enum hdmi_vic vic = hdev->vic;
+	char *sspll_dis = NULL;
 
 	if (cd == HDMI_COLOR_DEPTH_24B) {
 		p_enc = &setting_enc_clk_val_24[0];
@@ -776,16 +804,14 @@ static void set_hdmitx_clk_(struct hdmitx_dev *hdev, enum hdmi_color_depth cd)
 		}
 	} else if (cd == HDMI_COLOR_DEPTH_36B) {
 		p_enc = &setting_enc_clk_val_36[0];
-		for (j = 0; j < sizeof(setting_enc_clk_val_36)
-			/ sizeof(struct hw_enc_clk_val_group); j++) {
+		for (j = 0; j < ARRAY_SIZE(setting_enc_clk_val_36); j++) {
 			for (i = 0; ((i < GROUP_MAX) && (p_enc[j].group[i]
 				!= GROUP_END)); i++) {
 				if (vic == p_enc[j].group[i])
 					goto next;
 			}
 		}
-		if (j == sizeof(setting_enc_clk_val_36) /
-			sizeof(struct hw_enc_clk_val_group)) {
+		if (j == ARRAY_SIZE(setting_enc_clk_val_36)) {
 			printf("Not find VIC = %d for hpll setting\n", vic);
 			return;
 		}
@@ -796,7 +822,9 @@ static void set_hdmitx_clk_(struct hdmitx_dev *hdev, enum hdmi_color_depth cd)
 next:
 	set_hdmitx_sys_clk();
 	set_hpll_clk_out(p_enc[j].hpll_clk_out);
-	if (!env_get("sspll_dis"))
+	sspll_dis = env_get("sspll_dis");
+	if ((!sspll_dis || !strcmp(sspll_dis, "0")) &&
+		(cd == HDMI_COLOR_DEPTH_24B))
 		set_hpll_sspll(hdev);
 	set_hpll_od1(p_enc[j].od1);
 	set_hpll_od2(p_enc[j].od2);
