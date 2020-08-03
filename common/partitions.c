@@ -101,6 +101,8 @@ int get_partition_from_dts(unsigned char *buffer)
 		goto _err;
 	}
 	parts_num = (int *)fdt_getprop(dt_addr, nodeoffset, "parts", NULL);
+	if (!parts_num)
+		goto _err;
 	printf("parts: %d\n",be32_to_cpup((u32*)parts_num));
 
 	if (parts_num > 0)
