@@ -2311,8 +2311,7 @@ static void ddr_read_full(void *buff,  unsigned int  m_length,unsigned int  star
 			printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i),
 					(start_pattern+pattern_offset*i));
 		}
-		break;
-
+		//break;
 		i++;
 	}
 }
@@ -2357,7 +2356,7 @@ static void ddr_test_copy(void *addr_dest,void *addr_src,unsigned int memcpy_siz
 int do_ddr_test_copy(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	check_base_address();
-	char *endp;
+	char *endp = NULL;
 	unsigned long   loop = 1;
 	unsigned int   print_flag =1;
 	// unsigned int  start_addr = DDR_TEST_START_ADDR;
