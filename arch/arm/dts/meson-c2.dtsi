@@ -581,14 +581,14 @@
 			function = "emmc";
 			bias-pull-up;
 			input-enable;
-			drive-strength = <4>;
+			drive-strength = <3>;
 		};
 		mux1 {
 			groups = "emmc_nand_ds";
 			function = "emmc";
 			input-enable;
 			bias-pull-down;
-			drive-strength = <4>;
+			drive-strength = <3>;
 		};
 	};
 
@@ -597,7 +597,7 @@
 			groups = "emmc_clk";
 			function = "emmc";
 			bias-pull-down;
-			drive-strength = <4>;
+			drive-strength = <3>;
 		};
 	};
 
