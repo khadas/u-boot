@@ -92,6 +92,7 @@ int ring_msr(int index)
 	/*RING_OSCILLATOR       0x7f: set slow ring*/
 	writel(OSCRING_CTL_DATA0, OSCRING_CTL_REG0);
 	writel(OSCRING_CTL_DATA1, OSCRING_CTL_REG1);
+	writel(OSCRING_CTL_DATA2, OSCRING_CTL_REG2);
 
 	for (i = 0; i < 27; i++) {
 		printf("%s      :",clk_table[i]);
@@ -110,9 +111,9 @@ int ring_msr(int index)
 	printf("\n");
 
 	/*efuse to test value*/
-	printf("osc_ring_core0(20lvt), idd_ee, idd_cpu\n");
+	printf("A35_core0(2) (14SLVT), idd_ee, idd_cpu\n");
 
-	printf("%d KHz ", (efuseinfo[1] * 20));
+	printf("%d KHz ", (efuseinfo[1] * 50));
 
 	for (i = 2; i <=3; i++) {
 		printf("%d uA ",  (efuseinfo[i] * 400));
