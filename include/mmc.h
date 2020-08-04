@@ -309,6 +309,8 @@
 #define MMC_HIGH_DDR_MAX_DTR	52000000
 #define MMC_HS200_MAX_DTR	200000000
 
+#define     MMC_KEY_SIZE                    (256*1024)
+#define     EMMC_KEY_DEV                    (1)
 //#define MMC_CMD23
 //#define MMC_HS200_MODE
 //#define MMC_HS400_MODE
@@ -408,6 +410,7 @@ struct mmc {
 	ushort rca;
 	char part_config;
 	char part_num;
+	char key_stamp;
 	uint tran_speed;
 	u8 part_support;
 	u8 part_attr;
@@ -453,6 +456,12 @@ enum mmc_hwpart_conf_mode {
 	MMC_HWPART_CONF_CHECK,
 	MMC_HWPART_CONF_SET,
 	MMC_HWPART_CONF_COMPLETE,
+};
+
+struct aml_key_info {
+	u64 checksum;
+	u32 stamp;
+	u32 magic;
 };
 
 int emmc_eyetest_log(struct mmc *mmc, u32 line);
