@@ -208,7 +208,6 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 			internal_part_count = 4;
 		} else {
 			fip_part_size = CONFIG_TPL_SIZE_PER_COPY * CONFIG_TPL_COPY_NUM;
-			adjust_offset += fip_part_size;
 			internal_part_count = 1;
 		}
 
@@ -220,6 +219,7 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 			} else {
 				temp_parts->offset = adjust_offset;
 				temp_parts->size = fip_part_size;
+				adjust_offset += fip_part_size;
 			}
 		}
 #endif
