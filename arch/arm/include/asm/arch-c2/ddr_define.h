@@ -332,13 +332,6 @@
 #define DDR_RFC_TYPE_LPDDR4_6Gbx1				12
 #define DDR_RFC_TYPE_LPDDR4_8Gbx1				13
 
-//#define DDR_ENABLE_FINE_TUNE_FLAG_AC_DELAY				1<<0
-//#define DDR_ENABLE_FINE_TUNE_FLAG_WRITE_DQS				1<<1
-//#define DDR_ENABLE_FINE_TUNE_FLAG_READ_DQS				1<<2
-//#define DDR_ENABLE_FINE_TUNE_FLAG_WRITE_DQ				1<<3
-//#define DDR_ENABLE_FINE_TUNE_FLAG_READ_DQ				1<<4
-
-
 
 #define 		CONFIG_BOARD_ID_DISABLE		0
 #define 		CONFIG_BOARD_ID_MASK		0xFF
@@ -389,25 +382,25 @@
 #define		CONFIG_DDR1_SIZE_4096MB		4096
 #define		CONFIG_DDR1_SIZE_AUTO_SIZE		0xffff
 
-#define		CONFIG_DRAM_MODE_X4		0
+#define		CONFIG_DRAM_MODE_X4		1
 #define		CONFIG_DRAM_MODE_X8		1
-#define		CONFIG_DRAM_MODE_X16		2
+#define		CONFIG_DRAM_MODE_X16		0
 
 #define		CONFIG_USE_DDR_1T_MODE		0
 #define		CONFIG_USE_DDR_2T_MODE		1
 
-#define		LOG_CHL_0		0
-#define		LOG_CHL_1		1
-#define		LOG_CHL_2		2
-#define		LOG_CHL_3		3
-#define		LOG_CHL_4		4
-#define		LOG_CHL_5		5
-#define		LOG_CHL_6		6
-#define		LOG_CHL_7		7
+#define		eLOG_CHL_0		0
+#define		eLOG_CHL_1		1
+#define		eLOG_CHL_2		2
+#define		eLOG_CHL_3		3
+#define		eLOG_CHL_4		4
+#define		eLOG_CHL_5		5
+#define		eLOG_CHL_6		6
+#define		eLOG_CHL_7		7
 
-#define		LOG_LEVEL_BASIC		(1<<LOG_CHL_0)
-#define		LOG_LEVEL_FULL		(1<<LOG_CHL_0)|(1<<LOG_CHL_1)|(1<<LOG_CHL_2)|(1<<LOG_CHL_3)|(1<<LOG_CHL_4)|(1<<LOG_CHL_5)|(1<<LOG_CHL_6)
-#define		LOG_LEVEL_DEBUG		(1<<LOG_CHL_0)|(1<<LOG_CHL_1)|(1<<LOG_CHL_2)|(1<<LOG_CHL_3)|(1<<LOG_CHL_4)|(1<<LOG_CHL_5)|(1<<LOG_CHL_6)|(1<<LOG_CHL_7)
+#define		LOG_LEVEL_BASIC		(1<<eLOG_CHL_0)
+#define		LOG_LEVEL_FULL		(1<<eLOG_CHL_0)|(1<<eLOG_CHL_1)|(1<<eLOG_CHL_2)|(1<<eLOG_CHL_3)|(1<<eLOG_CHL_4)|(1<<eLOG_CHL_5)|(1<<eLOG_CHL_6)
+#define		LOG_LEVEL_DEBUG		(1<<eLOG_CHL_0)|(1<<eLOG_CHL_1)|(1<<eLOG_CHL_2)|(1<<eLOG_CHL_3)|(1<<eLOG_CHL_4)|(1<<eLOG_CHL_5)|(1<<eLOG_CHL_6)|(1<<eLOG_CHL_7)
 
 #define		DDR_WRITE_READ_DBI_DISABLE		0
 #define		DDR_READ_DBI_ENABLE		1
@@ -434,7 +427,7 @@
 				[1] = ( 12|  0 << 5 |  0 << 10 | 14 << 15 | 15 << 20 | 16 << 25 ),\
 				[2] = ( 17| 18 << 5 | 19 << 10 | 21 << 15 | 22 << 20 | 23 << 25 ),\
 				[3] = ( 24| 25 << 5 | 26 << 10 | 27 << 15 | 28 << 20 | 29 << 25 ),\
-				[4] = ( 30| 13 << 5 | 20 << 10 |  6 << 15 |  0 << 20 |  0 << 25 ),\
+				[4] = ( 30| 13 << 5 | 20 << 10 |  6 << 15 |  0 << 20 |  31 << 25 ),\
 				}
 
 
@@ -451,9 +444,23 @@
 				[1] = ( 10|  0 << 5 |  0 << 10 | 14 << 15 | 15 << 20 | 16 << 25 ),\
 				[2] = ( 17|( 18 << 5) |( 19 << 10) |( 20 << 15) |( 21 << 20) | (22 << 25 )),\
 				[3] = ( 23| 24 << 5 | 25 << 10 | 26 << 15 | 27 << 20 | 28 << 25 ),\
+				[4] = ( 29| 11<< 5 | 12 << 10 |  13<< 15 |  0 << 20 |  30 << 25 ),\
+				}
+#define		DDR_DMC_REMAP_LPDDR4_16BIT		{\
+				[0] = ( 0 |  5 << 5 |  6<< 10 |  7 << 15 | 8 << 20 | 9 << 25 ),\
+				[1] = ( 10|  0 << 5 |  0 << 10 | 14 << 15 | 15 << 20 | 16 << 25 ),\
+				[2] = ( 17|( 18 << 5) |( 19 << 10) |( 20 << 15) |( 21 << 20) | (22 << 25 )),\
+				[3] = ( 23| 24 << 5 | 25 << 10 | 26 << 15 | 27 << 20 | 28 << 25 ),\
 				[4] = ( 29| 11<< 5 | 12 << 10 |  13<< 15 |  0 << 20 |  0 << 25 ),\
 				}
 
+#define		DDR_DMC_REMAP_LPDDR4_32BIT		{\
+				[0] = ( 5 |  6 << 5 |  7 << 10 |  8 << 15 |  9 << 20 | 10 << 25 ),\
+				[1] = ( 11|  0 << 5 |  0 << 10 | 12 << 15 | 14 << 20 | 15 << 25 ),\
+				[2] = ( 17| 18 << 5 | 19 << 10 | 21 << 15 | 22 << 20 | 23 << 25 ),\
+				[3] = ( 24| 25 << 5 | 26 << 10 | 27 << 15 | 28 << 20 | 29 << 25 ),\
+				[4] = ( 0 | 13 << 5 | 16 << 10 | 20 << 15 |  0 << 20 |  0 << 25 ),\
+				}
 				//cs0 write bit0-1,cs0 read bit4-5,cs1 write bit 8-9,cs1 read bit 12-13
 #define		DDR_DRAM_ODT_DISABLE		0
 #define		DDR_DRAM_ODT_W_CS0_ODT0		0x1
@@ -541,3 +548,46 @@
 #define		DDR_DRAM_LPDDR4_OUTPUT_2_5_VDDQ		0
 #define		DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ		1
 
+#define		DDR_SOC_READ_DQS_GATE_MODE_WINDOW_MODE_0_DDR3		1
+#define		DDR_SOC_READ_DQS_GATE_MODE_WINDOW_MODE_1_DDR4		2
+#define		DDR_SOC_READ_DQS_GATE_MODE_WINDOW_MODE_2_DDR4		3
+#define		DDR_SOC_READ_DQS_GATE_MODE_WINDOW_MODE_3_LPDDR4		4
+
+#define		DDR_SOC_READ_DQS_GATE_MODE_EDGE_MODE_1_DDR3		5
+#define		DDR_SOC_READ_DQS_GATE_MODE_EDGE_MODE_1_DDR4		6
+#define		DDR_SOC_READ_DQS_GATE_MODE_EDGE_MODE_1_LPDDR4		7
+#define		DDR_SOC_READ_DQS_GATE_MODE_EDGE_MODE_3_LPDDR4		8
+
+#define		DDR_SOC_READ_DQS_GATE_MODE_WIDE_MODE_RPULL_0_DDR3		9
+#define		DDR_SOC_READ_DQS_GATE_MODE_WIDE_MODE_RPULL_1_LPDDR4		10
+
+#if 0
+#define		DDR_SOC_READ_DQS_GATE_MODE_RPULL_WIDE_WINDOW		1
+
+#define		DDR_SOC_READ_DQS_GATE_MODE_DDR3_WINDOW_MODE_0		2
+#define		DDR_SOC_READ_DQS_GATE_MODE_DDR3_WINDOW_MODE_1	3
+#define		DDR_SOC_READ_DQS_GATE_MODE_DDR3_WINDOW_MODE_2	4
+#define		DDR_SOC_READ_DQS_GATE_MODE_DDR3_WINDOW_MODE_3	5
+#define		DDR_SOC_READ_DQS_GATE_MODE_DDR3_EDGE_MODE_0		6
+#define		DDR_SOC_READ_DQS_GATE_MODE_DDR3_EDGE_MODE_1	7
+#define		DDR_SOC_READ_DQS_GATE_MODE_DDR3_EDGE_MODE_2	8
+#define		DDR_SOC_READ_DQS_GATE_MODE_DDR3_EDGE_MODE_3	9
+
+#define		DDR_SOC_READ_DQS_GATE_MODE_DDR4_WINDOW_MODE_0		10
+#define		DDR_SOC_READ_DQS_GATE_MODE_DDR4_WINDOW_MODE_1	11
+#define		DDR_SOC_READ_DQS_GATE_MODE_DDR4_WINDOW_MODE_2	12
+#define		DDR_SOC_READ_DQS_GATE_MODE_DDR4_WINDOW_MODE_3	13
+#define		DDR_SOC_READ_DQS_GATE_MODE_DDR4_EDGE_MODE_0		14
+#define		DDR_SOC_READ_DQS_GATE_MODE_DDR4_EDGE_MODE_1	15
+#define		DDR_SOC_READ_DQS_GATE_MODE_DDR4_EDGE_MODE_2	16
+#define		DDR_SOC_READ_DQS_GATE_MODE_DDR4_EDGE_MODE_3	17
+
+#define		DDR_SOC_READ_DQS_GATE_MODE_LPDDR4_WINDOW_MODE_0		18
+#define		DDR_SOC_READ_DQS_GATE_MODE_LPDDR4_WINDOW_MODE_1	19
+#define		DDR_SOC_READ_DQS_GATE_MODE_LPDDR4_WINDOW_MODE_2	20
+#define		DDR_SOC_READ_DQS_GATE_MODE_LPDDR4_WINDOW_MODE_3	21
+#define		DDR_SOC_READ_DQS_GATE_MODE_LPDDR4_EDGE_MODE_0		22
+#define		DDR_SOC_READ_DQS_GATE_MODE_LPDDR4_EDGE_MODE_1	23
+#define		DDR_SOC_READ_DQS_GATE_MODE_LPDDR4_EDGE_MODE_2	24
+#define		DDR_SOC_READ_DQS_GATE_MODE_LPDDR4_EDGE_MODE_3	25
+#endif
