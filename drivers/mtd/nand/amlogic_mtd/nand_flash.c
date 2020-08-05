@@ -377,6 +377,18 @@ struct aml_nand_flash_dev aml_nand_flash_ids[] = {
 		0,
 		(NAND_TIMING_MODE5 | NAND_ECC_BCH8_MODE )},
 
+	{"SkyHigh Slc NAND 4Gib S34ML04G3",
+		{NAND_MFR_AMD, 0xdc, 0x0, 0x1a, 0x0},
+		4096,
+		512,
+		0x40000,
+		256,
+		1,
+		16,
+		15,
+		0,
+		(NAND_TIMING_MODE5 | NAND_ECC_BCH8_MODE )},
+
 	{"A revision NAND 1Gib W29N01HV ",
 		{NAND_ID_WINBOND, 0xf1, 0x00, 0x95, 0x00, 0x00},
 		2048,
