@@ -20,6 +20,8 @@
 #include <asm/cpu_id.h>
 #endif
 
+uint32_t  do_read_c2_ddr_bdlr_steps(void);
+
 struct ddr_base_address_table{
 	char			 soc_family_name[16];
 	unsigned	int		chip_id;
@@ -322,9 +324,8 @@ char *getenv(const char *name)
 #define CONFIG_DDR0_32BIT_16BIT_RANK01_CH0	0x6
 #define CONFIG_DDR0_32BIT_RANK01_CH0		0x7
 #define CONFIG_DDR0_32BIT_RANK0_CH01		0x8
-#define	DDR_PRINT_DISABLE	0
-#define	DDR_PRINT_ENABLE	1
-
+#define	DDR_PRINT_DISABLE					0
+#define	DDR_PRINT_ENABLE					1
 
 typedef struct board_common_setting
 {
@@ -402,7 +403,6 @@ board_SI_setting_ps_t	cfg_board_SI_setting_ps[2]	;
 board_phase_setting_ps_t	cfg_ddr_training_delay_ps[2]	;
 }__attribute__ ((packed)) ddr_set_t_c2;
 
-
 static uint32_t ddr_rd_8_16bit_on_32reg(uint32_t base_addr,uint32_t size,uint32_t offset_index)
 {
 	uint32_t read_value=0;
@@ -445,6 +445,27 @@ static uint32_t ddr_wr_8_16bit_on_32reg(uint32_t base_addr,uint32_t size,uint32_
 	*(volatile uint32_t *)(( unsigned long )(addr_t))=write_value;
 	return write_value;
 }
+
+uint32_t ddr_min(uint32_t a,uint32_t b)
+{
+	uint32_t min=a;
+	if (a<b)
+		min= a;
+	else
+		min=b;
+	return min;
+}
+
+uint32_t ddr_max(uint32_t a,uint32_t b)
+{
+	uint32_t max=a;
+	if (a<b)
+		max= b;
+	else
+		max=a;
+	return max;
+}
+
 typedef struct training_delay_set_ps{
 	unsigned	char	ac_trace_delay[10];
 	unsigned	char	ac_trace_delay_rev[2];
@@ -1005,7 +1026,6 @@ typedef struct ddr_sha_s {
 ddr_sha_t ddr_sha = {{0}};
 ddr_set_t *ddr_set_t_p_arrary = &ddr_sha.ddrs;
 
-
 typedef struct ddr_sha_s_c2 {
 	unsigned char sha2[SHA256_SUM_LEN];
 	ddr_set_t_c2 ddrs;
@@ -1014,9 +1034,11 @@ typedef struct ddr_sha_s_c2 {
 
 ddr_sha_t_c2 ddr_sha_c2 = {{0}};
 ddr_set_t_c2 *ddr_set_t_p_arrary_c2 = &ddr_sha_c2.ddrs;
+ddr_set_t_c2 *ddr_set_t_p=NULL;
 
 int check_base_address(void)
 {
+	ddr_set_t_p=(ddr_set_t_c2 *)(ddr_set_t_p_arrary_c2);
 	unsigned	int table_max=(sizeof(__ddr_base_address_table))/(sizeof(ddr_base_address_table_t));
 	unsigned	int table_index=0;
 	char chip_id=0;
@@ -1469,7 +1491,6 @@ unsigned int  pre_fetch_enable=0;
 //#define dwc_ddrphy_apb_wr(addr, dat)   *(volatile uint16_t *)(int_convter_p(((addr) << 1)+(p_ddr_base->ddr_phy_base_address)))=((uint16_t)dat)
 //#define dwc_ddrphy_apb_rd(addr)   *(volatile uint16_t *)(int_convter_p(((addr) << 1)+(p_ddr_base->ddr_phy_base_address)))
 #define ACX_MAX                              0x80
-
 
 //OVERRIDE_OPTION
 #define DMC_TEST_WINDOW_INDEX_ATXDLY 1
@@ -2328,8 +2349,7 @@ static void ddr_read_full(void *buff,  unsigned int  m_length,unsigned int  star
 			printf("Error data [0x%08x] at offset 0x%08x[0x%08x]\n", *(p+i), p_convter_int(p + i),
 					(start_pattern+pattern_offset*i));
 		}
-		break;
-
+		//break;
 		i++;
 	}
 }
@@ -2374,7 +2394,7 @@ static void ddr_test_copy(void *addr_dest,void *addr_src,unsigned int memcpy_siz
 int do_ddr_test_copy(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	check_base_address();
-	char *endp;
+	char *endp = NULL;
 	unsigned long   loop = 1;
 	unsigned int   print_flag =1;
 	// unsigned int  start_addr = DDR_TEST_START_ADDR;
@@ -6313,6 +6333,12 @@ int get_ddr_clk(void)
 	{
 		ddr_clk=768;
 	}
+	else if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2)
+	{
+		//uint32_t DRAMFreq=0;
+		uint32_t stick_store_sticky_f0_reg_base_t=(0xfd000000+0x0128);
+		ddr_clk = rd_reg(stick_store_sticky_f0_reg_base_t);
+	}
 	else
 	{
 		ddr_clk=10;
@@ -6846,13 +6872,21 @@ unsigned int read_ee_voltage(void)
 	to=reg_value&0xff;
 	return pwm_voltage_table_ee[to][1];
 }
+
 uint32_t get_bdlr_100step(uint32_t ddr_frequency)
 {
 	uint32_t bdlr_100step=0;
-	//uint32_t ps=0;
-	//ps=(rd_reg(DMC_DRAM_FREQ_CTRL))&1;
-	dwc_ddrphy_apb_wr(((((0<<20)|(2<<16)|(0<<12)|(0xe3)))),0xc00);
-	bdlr_100step=(100000000/(2*ddr_frequency))/((dwc_ddrphy_apb_rd((((0<<20)|(2<<16)|(0<<12)|(0xe4)))))&0x3ff);
+	if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2)
+	{
+		bdlr_100step=do_read_c2_ddr_bdlr_steps();
+	}
+	else
+	{
+		//uint32_t ps=0;
+		//ps=(rd_reg(DMC_DRAM_FREQ_CTRL))&1;
+		dwc_ddrphy_apb_wr(((((0<<20)|(2<<16)|(0<<12)|(0xe3)))),0xc00);
+		bdlr_100step=(100000000/(2*ddr_frequency))/((dwc_ddrphy_apb_rd((((0<<20)|(2<<16)|(0<<12)|(0xe4)))))&0x3ff);
+	}
 	return bdlr_100step;
 }
 
@@ -7709,14 +7743,15 @@ uint32_t ddr_cacl_phy_over_ride_back_reg_c2(char test_index,uint32_t value) {
 }
 
 uint32_t  ddr_disable_update_delay_line_c2(void) {
-//config phy update use register change and ctrl update req and condition,power on default is or condition
-//disable ctrl update req
-return 1;
+	//config phy update use register change and ctrl update req and condition,power on default is or condition
+	//disable ctrl update req
+	return 1;
 }
+
 uint32_t  ddr_enable_update_delay_line_c2(void) {
-//config phy update use register change and ctrl update req and condition,power on default is or condition
-//enable ctrl update req
-return 1;
+	//config phy update use register change and ctrl update req and condition,power on default is or condition
+	//enable ctrl update req
+	return 1;
 }
 
 uint32_t ddr_phy_training_reg_read_write(ddr_set_t_c2 *p_ddrs ,char index,
@@ -7731,7 +7766,7 @@ uint32_t ddr_phy_training_reg_read_write(ddr_set_t_c2 *p_ddrs ,char index,
 	uint32_t reg_add_coarse_bit_mask=0;
 	uint64_t reg_add_fine=0;
 	uint32_t reg_add_fine_bit_mask=0;
-	uint64_t	add_base = (p_ddr_base->ddr_phy_base_address);
+	uint64_t add_base = (p_ddr_base->ddr_phy_base_address);
 	uint32_t reg_offset=0;
 	#define 	DDR_X32_F0_A800  (0x800)
 	#define 	DDR_X32_F0_A804  (0x804)
@@ -7779,52 +7814,52 @@ uint32_t ddr_phy_training_reg_read_write(ddr_set_t_c2 *p_ddrs ,char index,
 		{
 			switch	(sub_index)
 			{
-			case		0:	//cke0
-				reg_add_coarse=(add_base+DDR_X32_F0_A808+reg_offset);
-				reg_add_fine=(add_base+DDR_X32_F0_A82C+reg_offset);
-				reg_add_coarse_bit_mask=(~(3<<4));
-				reg_add_fine_bit_mask=(~(0x7f<<16));
-				break;
-			case		1:	//cke1
-				reg_add_coarse=(add_base+DDR_X32_F0_AC08+reg_offset);
-				reg_add_fine=(add_base+DDR_X32_F0_AC2C+reg_offset);
-				reg_add_coarse_bit_mask=(~(3<<4));
-				reg_add_fine_bit_mask=(~(0x7f<<16));
-				break;
-			case		2:	//cs0
-				reg_add_coarse=(add_base+DDR_X32_F0_A808+reg_offset);
-				reg_add_fine=(add_base+DDR_X32_F0_A82C+reg_offset);
-				reg_add_coarse_bit_mask=(~(3<<2));
-				reg_add_fine_bit_mask=(~(0x7f<<8));
-				break;
-			case		3:	//cs1
-				reg_add_coarse=(add_base+DDR_X32_F0_AC08+reg_offset);
-				reg_add_fine=(add_base+DDR_X32_F0_AC2C+reg_offset);
-				reg_add_coarse_bit_mask=(~(3<<2));
-				reg_add_fine_bit_mask=(~(0x7f<<8));
-				break;
-			case		4:	//odt0
-				reg_add_coarse=(add_base+DDR_X32_F0_A808+reg_offset);
-				reg_add_fine=(add_base+DDR_X32_F0_A82C+reg_offset);
-				reg_add_coarse_bit_mask=(~(3<<0));
-				reg_add_fine_bit_mask=(~(0x7f<<0));
-				break;
-			case		5:	//odt1
-				reg_add_coarse=(add_base+DDR_X32_F0_AC08+reg_offset);
-				reg_add_fine=(add_base+DDR_X32_F0_AC2C+reg_offset);
-				reg_add_coarse_bit_mask=(~(3<<0));
-				reg_add_fine_bit_mask=(~(0x7f<<0));
-				break;
-			case		6:	//clk
-				reg_add_coarse=(add_base+DDR_X32_F0_A804+reg_offset);
-				reg_add_fine=(add_base+DDR_X32_F0_A828+reg_offset);
-				reg_add_coarse_bit_mask=(~(1<<18));
-				reg_add_fine_bit_mask=(~(0x7f<<8));
-				break;
-			case		7:
-				reg_add_coarse=0;
-				reg_add_fine=0;
-				break;
+				case		0:	//cke0
+					reg_add_coarse=(add_base+DDR_X32_F0_A808+reg_offset);
+					reg_add_fine=(add_base+DDR_X32_F0_A82C+reg_offset);
+					reg_add_coarse_bit_mask=(~(3<<4));
+					reg_add_fine_bit_mask=(~(0x7f<<16));
+					break;
+				case		1:	//cke1
+					reg_add_coarse=(add_base+DDR_X32_F0_AC08+reg_offset);
+					reg_add_fine=(add_base+DDR_X32_F0_AC2C+reg_offset);
+					reg_add_coarse_bit_mask=(~(3<<4));
+					reg_add_fine_bit_mask=(~(0x7f<<16));
+					break;
+				case		2:	//cs0
+					reg_add_coarse=(add_base+DDR_X32_F0_A808+reg_offset);
+					reg_add_fine=(add_base+DDR_X32_F0_A82C+reg_offset);
+					reg_add_coarse_bit_mask=(~(3<<2));
+					reg_add_fine_bit_mask=(~(0x7f<<8));
+					break;
+				case		3:	//cs1
+					reg_add_coarse=(add_base+DDR_X32_F0_AC08+reg_offset);
+					reg_add_fine=(add_base+DDR_X32_F0_AC2C+reg_offset);
+					reg_add_coarse_bit_mask=(~(3<<2));
+					reg_add_fine_bit_mask=(~(0x7f<<8));
+					break;
+				case		4:	//odt0
+					reg_add_coarse=(add_base+DDR_X32_F0_A808+reg_offset);
+					reg_add_fine=(add_base+DDR_X32_F0_A82C+reg_offset);
+					reg_add_coarse_bit_mask=(~(3<<0));
+					reg_add_fine_bit_mask=(~(0x7f<<0));
+					break;
+				case		5:	//odt1
+					reg_add_coarse=(add_base+DDR_X32_F0_AC08+reg_offset);
+					reg_add_fine=(add_base+DDR_X32_F0_AC2C+reg_offset);
+					reg_add_coarse_bit_mask=(~(3<<0));
+					reg_add_fine_bit_mask=(~(0x7f<<0));
+					break;
+				case		6:	//clk
+					reg_add_coarse=(add_base+DDR_X32_F0_A804+reg_offset);
+					reg_add_fine=(add_base+DDR_X32_F0_A828+reg_offset);
+					reg_add_coarse_bit_mask=(~(1<<18));
+					reg_add_fine_bit_mask=(~(0x7f<<8));
+					break;
+				case		7:
+					reg_add_coarse=0;
+					reg_add_fine=0;
+					break;
 			}
 		}
 		else if	(sub_index<(8+16))////ac group 1
@@ -7865,7 +7900,6 @@ uint32_t ddr_phy_training_reg_read_write(ddr_set_t_c2 *p_ddrs ,char index,
 		}
 		//delay_old_value=dwc_ddrphy_apb_rd(reg_add);
 	}
-	//
 	else	if (index == DMC_TEST_WINDOW_INDEX_TXDQSDLY)
 	{
 		reg_add_coarse=(add_base+DDR_X32_F0_A8D4+(sub_index/4)*(
@@ -7902,7 +7936,6 @@ uint32_t ddr_phy_training_reg_read_write(ddr_set_t_c2 *p_ddrs ,char index,
 		reg_add_coarse_bit_mask=0;
 		reg_add_fine_bit_mask=(~(0xff<<(((((sub_index)%9)%4)<<3))));
 	}
-
 	else	if (index == DMC_TEST_WINDOW_INDEX_RXENDLY)
 	{
 		reg_add_coarse=(add_base+DDR_X32_F0_A840+(sub_index/4)*(DDR_X32_F0_AC40
@@ -7945,15 +7978,14 @@ uint32_t ddr_phy_training_reg_read_write(ddr_set_t_c2 *p_ddrs ,char index,
 	{
 		if	(sub_index == 1)	//DDR_X32_F0_AD30	DDR_X32_F0_A930
 		{
-		//	if (read_write_enable == REGISTER_READ)
-		//	read_write_value=ddr_get_dqs_gate_mode();
-		//	if(read_write_enable==REGISTER_WRITE)
-		//		ddr_set_dqs_gate_mode(read_write_value);
+			//if (read_write_enable == REGISTER_READ)
+			//read_write_value=ddr_get_dqs_gate_mode();
+			//if(read_write_enable==REGISTER_WRITE)
+			//	ddr_set_dqs_gate_mode(read_write_value);
 		}
 
 		return	read_write_value;
 	}
-
 	//if(read_write_enable==REGISTER_READ)
 	{
 		if (reg_add_coarse)
@@ -7975,8 +8007,9 @@ uint32_t ddr_phy_training_reg_read_write(ddr_set_t_c2 *p_ddrs ,char index,
 	{
 		delay_new_value=read_write_value;
 		delay_new_value=ddr_cacl_phy_over_ride_back_reg_c2(index,delay_new_value);
-
-		wr_reg(0xfd002440 ,1);//detect should update delay when controller update arrive
+		//#define DMC_DRAM_REFR_CTRL                              ((0x0092  << 2) + 0xfe024400)
+		wr_reg( ((0x0092  << 2) + 0xfe024400) ,0x21);
+		wr_reg(0xfd002440 ,0);//detect should update delay when controller update arrive
 		if (reg_add_coarse)
 		{
 			wr_reg(reg_add_coarse,((rd_reg(reg_add_coarse))&(reg_add_coarse_bit_mask))
@@ -7987,8 +8020,9 @@ uint32_t ddr_phy_training_reg_read_write(ddr_set_t_c2 *p_ddrs ,char index,
 			wr_reg(reg_add_fine,((rd_reg(reg_add_fine))&(reg_add_fine_bit_mask))
 			|((delay_new_value&0xffff)<<(ddr_mask_convert_offset(reg_add_fine_bit_mask))));
 		}
-		wr_reg(0xfd002440 ,0);//detect should update delay when controller update arrive
+		//wr_reg(0xfd002440 ,0);//detect should update delay when controller update arrive
 		wr_reg(0xfd002440 ,1);//detect should update delay when controller update arrive
+		wr_reg( ((0x0092  << 2) + 0xfe024400) ,0x31);
 	}
 	#if 0
 	//if (index == DMC_TEST_WINDOW_INDEX_SOC_VREF)
@@ -8002,6 +8036,17 @@ uint32_t ddr_phy_training_reg_read_write(ddr_set_t_c2 *p_ddrs ,char index,
 		ddr_log_info(LOG_CHL_0, "DDR debug 1 %s ,%d,reg_add_fine,%08x,delay_new_value,%08x,%08x,%08x\n", __FILE__,__LINE__,reg_add_fine,delay_new_value,rd_reg(reg_add_fine),sub_index);
 	}
 	#endif
+	#if 0
+	{
+	if (reg_add_coarse)
+		printf( "DDR debug 1 %s ,%d,reg_add_coarse,%08x,%08x,%08x,%08x\n", __FILE__,__LINE__,reg_add_coarse,delay_reg_coarse_value,rd_reg(reg_add_coarse),sub_index);
+	if (reg_add_fine)
+		printf( "DDR debug 1 %s ,%d,reg_add_fine,%08x,delay_new_value,%08x,%08x,%08x\n", __FILE__,__LINE__,reg_add_fine,delay_new_value,rd_reg(reg_add_fine),sub_index);
+	}
+	printf( "DDR debug 1 %s ,%d,delay_old_value,%08x,delay_new_value,%08x,index,%08x,sub_index,%08x\n", __FILE__,__LINE__,delay_old_value,delay_new_value,index,sub_index);
+	#endif
+	printf( "delay_old_value,%08x,read_write_value,%08x,index,%08x,sub_index,%08x\n", delay_old_value,read_write_value,index,sub_index);
+
 	return	read_write_value;
 	//ddr_dmc_update_delay_register_after();
 }
@@ -8157,26 +8202,100 @@ void ddr_read_write_training_all_delay_value  (ddr_set_t_c2 *p_ddrs ,char read_w
 	}
 }
 
+uint32_t ddr_get_c2_bdlr_100step_min(void)
+{
+	uint32_t bdlr_100step=0;
+	//uint32_t ps=0;
+	uint32_t DRAMFreq=0;
+	uint32_t stick_store_sticky_f0_reg_base_t=(0xfd000000+0x0128);
+	DRAMFreq = rd_reg(stick_store_sticky_f0_reg_base_t);
+	uint32_t dll_counter=0;
+	uint32_t dll_counter_max=0;
+	//dll_counter=rd_reg(0xfd003128);
+	//dll_counter=(((dll_counter&0xff)+((dll_counter>>8)&0xff)+((dll_counter>>16)&0xff)+((dll_counter>>24)&0xff))>>2);
+
+	dll_counter=(((rd_reg(0xfd003130))));
+	dll_counter_max=ddr_max((dll_counter&0xff),((dll_counter>>8)&0xff));
+	dll_counter_max=ddr_max(dll_counter_max,((dll_counter>>16)&0xff));
+	dll_counter_max=ddr_max(dll_counter_max,((dll_counter>>24)&0xff));
+	dll_counter_max=dll_counter_max?dll_counter_max:1;
+	bdlr_100step=(100000000/(2*(DRAMFreq))) / (dll_counter_max);
+	return bdlr_100step;
+}
+
+uint32_t ddr_get_c2_bdlr_100step_max(void)
+{
+	uint32_t bdlr_100step=0;
+	//uint32_t ps=0;
+	uint32_t DRAMFreq=0;
+	uint32_t stick_store_sticky_f0_reg_base_t=(0xfd000000+0x0128);
+	DRAMFreq = rd_reg(stick_store_sticky_f0_reg_base_t);
+	uint32_t dll_counter=0;
+	uint32_t dll_counter_min=0;
+	//dll_counter=rd_reg(0xfd003128);
+	//dll_counter=(((dll_counter&0xff)+((dll_counter>>8)&0xff)+((dll_counter>>16)&0xff)+((dll_counter>>24)&0xff))>>2);
+
+	dll_counter=(((rd_reg(0xfd00312c))));
+	dll_counter_min=ddr_min((dll_counter&0xff),((dll_counter>>8)&0xff));
+	dll_counter_min=ddr_min(dll_counter_min,((dll_counter>>16)&0xff));
+	dll_counter_min=ddr_min(dll_counter_min,((dll_counter>>24)&0xff));
+	dll_counter_min=dll_counter_min?dll_counter_min:1;
+	bdlr_100step=(100000000/(2*(DRAMFreq))) / (dll_counter_min);
+	return bdlr_100step;
+}
+
 uint32_t ddr_get_c2_bdlr_100step(void)
 {
 	uint32_t bdlr_100step=0;
 	//uint32_t ps=0;
+	uint32_t DRAMFreq=0;
 	//uint32_t	cur_pstate=0;//(rd_reg(DMC_DRAM_FREQ_CTRL))&1;
 	uint32_t dll_counter=0;
-	uint32_t DRAMFreq=0;
-	DRAMFreq=rd_reg(0xfd000208);
+	uint32_t stick_store_sticky_f0_reg_base_t=(0xfd000000+0x0128);
+	DRAMFreq = rd_reg(stick_store_sticky_f0_reg_base_t);
 	dll_counter=rd_reg(0xfd003128);
 	dll_counter=(((dll_counter&0xff)+((dll_counter>>8)&0xff)+((dll_counter>>16)&0xff)+((dll_counter>>24)&0xff))>>2);
 	//dwc_ddrphy_apb_wr(((((0<<20)|(2<<16)|(0<<12)|(0xe3)))),0xc00);
-	bdlr_100step=(100000000/(2*DRAMFreq))/	(dll_counter+1);
+	bdlr_100step=(100000000/(2*DRAMFreq)) / (dll_counter+1);
+	return bdlr_100step;
+}
+
+uint32_t ddr_get_c2_bdlr_100step_cur(void)
+{
+	uint32_t bdlr_100step=0;
+	//uint32_t ps=0;
+	uint32_t DRAMFreq=0;
+	//uint32_t	cur_pstate=0;//(rd_reg(DMC_DRAM_FREQ_CTRL))&1;
+	uint32_t dll_counter=0;
+	uint32_t	stick_store_sticky_f0_reg_base_t=(0xfd000000+0x0128);
+	DRAMFreq=rd_reg(stick_store_sticky_f0_reg_base_t);
+	dll_counter=rd_reg(0xfd003100);
+	dll_counter=(((dll_counter>>1)&0xff));
+	//dwc_ddrphy_apb_wr(((((0<<20)|(2<<16)|(0<<12)|(0xe3)))),0xc00);
+	bdlr_100step=(100000000/(2*DRAMFreq)) /	(dll_counter+1);
 	return bdlr_100step;
 }
 
 uint32_t ddr_get_ui_1_128_100step(void)
 {
 	uint32_t DRAMFreq=0;
-	DRAMFreq=rd_reg(0xfd000208);
-	return ((1000000*100/(2*128))/((DRAMFreq)));
+	//DRAMFreq=rd_reg(0xfd000208);
+	uint32_t stick_store_sticky_f0_reg_base_t=(0xfd000000+0x0128);
+	DRAMFreq = rd_reg(stick_store_sticky_f0_reg_base_t);
+	return ((1000000*100/(2*128)) / ((DRAMFreq)));
+}
+
+uint32_t  do_read_c2_ddr_bdlr_steps(void)
+{
+	uint32_t DRAMFreq=0;
+	//uint32_t	stick_store_sticky_f0_reg_base_t=(0xfd000000+0x0128);
+	//DRAMFreq=rd_reg(stick_store_sticky_f0_reg_base_t);
+	DRAMFreq=get_ddr_clk();
+	printf("\rc2_chip_DRAMFreq=%d MHz,100min_bdlr=%d ps,100max_bdlr=%d ps,ave_100_bdlr=%d ps,cur_100_bdlr=%d ps,bdlr_var=%d thousand\n",
+	 DRAMFreq,ddr_get_c2_bdlr_100step_min(),ddr_get_c2_bdlr_100step_max(),ddr_get_c2_bdlr_100step(),
+	 2000*(ddr_get_c2_bdlr_100step_max()-ddr_get_c2_bdlr_100step_min())/(ddr_get_c2_bdlr_100step_max()+ddr_get_c2_bdlr_100step_min()),ddr_get_c2_bdlr_100step_cur());
+
+	return ddr_get_c2_bdlr_100step();
 }
 
 int do_read_c2_ddr_training_data(char log_level,ddr_set_t_c2 *ddr_set_t_p)
@@ -8224,8 +8343,7 @@ int do_ddr_display_c2_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, char
 	printf("\nargc== 0x%08x\n", argc);
 	for (i = 0;i<argc;i++)
 		printf("\nargv[%d]=%s\n",i,argv[i]);
-	ddr_set_t_c2 *ddr_set_t_p=NULL;
-	ddr_set_t_p=(ddr_set_t_c2 *)(ddr_set_t_p_arrary_c2);
+
 	do_read_c2_ddr_training_data(0,ddr_set_t_p);
 
 	{
@@ -8233,7 +8351,6 @@ int do_ddr_display_c2_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, char
 		uint32_t  reg_add_offset=0;
 		//uint16_t  reg_value=0;
 		//ddr_log_serial_puts("\npctl timming:\n",p_dev->ddr_gloabl_message.stick_ddr_log_level);
-
 		printf("\n PCTL timming: 0x");
 
 		for (count=0;count<((p_ddr_base->ddr_pctl_timing_end_address)-(p_ddr_base->ddr_pctl_timing_base_address));) {
@@ -10716,6 +10833,8 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		//stick_test_ddr_window_delay_override_value=(window_test_stick_value&0xff);
 	}
 	/* need at least two arguments */
+	if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2)
+		do_read_c2_ddr_bdlr_steps();
 	if (argc < 2)
 		goto usage;
 
@@ -11039,11 +11158,114 @@ U_BOOT_CMD(
 	"ddr_g12_override_data  1 0  0 0  1 3",
 	"ddr_g12_override_data  test_index  dq_index ovrride_value   \n"
 );
-int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-check_base_address();
-	//ddr_g12_offset_data  1 0  0 0  1 3
 
+void ddr_window_reg_after_training_update_increas_sub_c2(char over_ride_index,uint32_t over_ride_sub_index,uint32_t over_ride_increase_decrease,uint32_t step) {
+	uint32_t delay_old_value=0;
+	uint32_t delay_reg_value=0;
+	uint32_t ps=0;
+	if (!over_ride_index) {
+		return;
+	}
+	if (over_ride_index< DMC_TEST_WINDOW_INDEX_EE_VOLTAGE)
+	{
+		delay_old_value=ddr_phy_training_reg_read_write(ddr_set_t_p,over_ride_index,over_ride_sub_index,delay_old_value,REGISTER_READ,ps);
+		//delay_old_value=ddr_phy_training_reg_read_write_c2(p_dev,over_ride_index,over_ride_sub_index,delay_old_value, REGISTER_READ,
+		//	(p_dev->p_ddr_fw_inter_message->p_ddr_common_message->cur_pstate));
+		if (over_ride_increase_decrease == 0)
+			delay_reg_value=delay_old_value+step;
+		if (over_ride_increase_decrease != 0)
+		{
+			if (delay_old_value>step)
+				delay_reg_value=delay_old_value-step;
+			else
+				delay_reg_value=0;
+		}
+
+		ddr_phy_training_reg_read_write(ddr_set_t_p,over_ride_index,over_ride_sub_index,delay_reg_value, REGISTER_WRITE,
+			ps);
+	}
+	//ddr_dmc_update_delay_register_after();
+}
+
+void dwc_window_reg_after_training_update_increas_c2(char over_ride_index,uint32_t over_ride_sub_index,uint32_t over_ride_increase_decrease,
+	uint32_t offset_value)
+{
+	//uint32_t delay_old_value=0;
+	uint32_t temp_count_3=0;
+	//uint64_t reg_add=0;
+	if (!over_ride_index) {
+		return;
+	}
+
+	//delay_reg_value=ddr_cacl_phy_over_ride_back_reg(over_ride_index, over_ride_value);
+	if (over_ride_index == DMC_TEST_WINDOW_INDEX_ATXDLY) {
+		for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
+		{
+			ddr_window_reg_after_training_update_increas_sub_c2(over_ride_index
+			,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
+		}
+	}
+
+	if (over_ride_index == DMC_TEST_WINDOW_INDEX_TXDQSDLY)
+	{
+
+		for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
+		{
+			ddr_window_reg_after_training_update_increas_sub_c2(over_ride_index
+			,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
+		}
+	}
+	if (over_ride_index == DMC_TEST_WINDOW_INDEX_RXCLKDLY)
+	{
+
+		for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
+		{
+			ddr_window_reg_after_training_update_increas_sub_c2(over_ride_index
+			,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
+		}
+
+	}
+	if (over_ride_index == DMC_TEST_WINDOW_INDEX_TXDQDLY)
+	{
+
+		for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
+		{
+			ddr_window_reg_after_training_update_increas_sub_c2(over_ride_index
+			,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
+		}
+	}
+	if (over_ride_index == DMC_TEST_WINDOW_INDEX_RXPBDLY)
+	{
+		for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
+		{
+			ddr_window_reg_after_training_update_increas_sub_c2(over_ride_index
+			,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
+		}
+	}
+
+	if (over_ride_index == DMC_TEST_WINDOW_INDEX_RXENDLY)
+	{
+		for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
+		{
+			ddr_window_reg_after_training_update_increas_sub_c2(over_ride_index
+			,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
+		}
+	}
+
+	if (over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF)
+	{
+		for ( temp_count_3=0;temp_count_3<offset_value;temp_count_3++)
+		{
+			ddr_window_reg_after_training_update_increas_sub_c2(over_ride_index
+			,((over_ride_sub_index)),		over_ride_increase_decrease,1) ;
+		}
+	}
+}
+
+int do_ddr_c2_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	check_base_address();
+	//ddr_g12_offset_data  1 0  0 0  1 3
 
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F+7*32)
@@ -11159,14 +11381,188 @@ check_base_address();
 		printf("offset left --left_right_flag %d,\n",left_right_flag);
 
 	if (test_index == DMC_TEST_WINDOW_INDEX_ATXDLY) {
-		count_max=10;
+		count_max=36;
+		lcdlr_max=4*128-1;//0x3ff;
+	}
+	if (test_index == DMC_TEST_WINDOW_INDEX_TXDQSDLY) {
+		count_max=8;
+		lcdlr_max=4*128-1;//0x3ff;
+	}
+	if (test_index == DMC_TEST_WINDOW_INDEX_RXCLKDLY) {
+		count_max=8;
+		lcdlr_max=255;//0x3f;
+	}
+	if (test_index == DMC_TEST_WINDOW_INDEX_TXDQDLY) {
+		count_max=36*2;
+		lcdlr_max=8*128-1;;//0x1ff;
+	}
+	if (test_index == DMC_TEST_WINDOW_INDEX_RXPBDLY) {
+		count_max=36*2;
+		lcdlr_max=255;
+	}
+	if (test_index == DMC_TEST_WINDOW_INDEX_SOC_VREF) {
+		count_max=36*1;
+		lcdlr_max=0x3f;
+		printf(" soc vref rank0 and rank1 share vref dac\n");
+	}
 
+	count=0;
+	for (;count<count_max;count++) {
+		if ((count<32)) {
+			if (test_dq_mask_1&(1<<(count%32))) {
+				continue;
+			}
+		}
+		if ((count>31) && (count<63)) {
+			if (test_dq_mask_2&(1<<(count%32))) {
+				continue;
+			}
+		}
+		if ((count>63)) {
+			if (test_dq_mask_3&(1<<(count%32))) {
+				continue;
+			}
+		}
+
+		//	for (count1=0;count1<offset_value;count1++)
+		{
+			if (left_right_flag == DDR_PARAMETER_RIGHT)
+			{
+				dwc_window_reg_after_training_update_increas_c2(test_index,
+						count,
+						0,offset_value);
+			}
+			if (left_right_flag == DDR_PARAMETER_LEFT)
+			{
+				dwc_window_reg_after_training_update_increas_c2(test_index,
+						count,
+						1,offset_value);
+			}
+		}
+	}
+
+#endif
+	return 1;
+}
+
+int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	//ddr_g12_offset_data  1 0  0 0  1 3
+	check_base_address();
+	if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2)
+	{
+		do_ddr_c2_offset_data(cmdtp,  flag,  argc, argv);
+		return 1;
+	}
+#define  G12_DATA_READ_OFFSET_MAX   (0X3F)
+#define  G12_DATA_WRITE_OFFSET_MAX   (0X3F+7*32)
+	printf("\12nm phy read write register should closd apd and asr funciton\n");
+	writel((0), p_ddr_base->ddr_dmc_apd_address);
+	writel((0), p_ddr_base->ddr_dmc_asr_address);
+#if 1
+	//   if(!argc)
+	//    goto DDR_TUNE_DQS_START;
+	int i=0;
+	printf("\nargc== 0x%08x\n", argc);
+	for (i = 0;i<argc;i++)
+	{
+		printf("\nargv[%d]=%s\n",i,argv[i]);
+	}
+	char *endp;
+	//rank_index  dq_index  write_read left/right  offset_value
+	unsigned int test_index=0; // 1 ac ,0x2, write dqs ,0x4,read dqs,0x8,write dq,0x10 read dq
+	//unsigned int dq_index=0;  //0-8 rank0 lane0 ,rank0 9-17 lane1,rank0 18-26 lane2, rank0 27-35 lane3,  36+0-8 rank1 lane0 ,rank1  36+9-17 lane1,rank1  36+18-26 lane2, rank1  36+27-35 lane3
+	unsigned int test_dq_mask_1=0; //each bit mask corresspond with dq_index
+	unsigned int test_dq_mask_2=0; //each bit mask corresspond with dq_index
+	unsigned int test_dq_mask_3=0; //each bit mask corresspond with dq_index
+	//unsigned int write_read_flag=0;// 2 write ,1 read #define 	DDR_PARAMETER_READ	1      #define 	DDR_PARAMETER_WRITE		2
+	unsigned int left_right_flag=0;//  1 left ,2 right   #define  DDR_PARAMETER_LEFT		1     #define 	DDR_PARAMETER_RIGHT		2
+	unsigned int offset_value=0;//
+
+	//unsigned int offset_enable=0;//
+	//unsigned int temp_value=0;//
+	unsigned int count=0;
+	//unsigned int count1=0;
+	unsigned int count_max=0;
+	unsigned int lcdlr_max=0;
+	//unsigned int reg_add=0;
+	//unsigned int reg_value=0;
+
+	global_ddr_clk=get_ddr_clk();
+	bdlr_100step=get_bdlr_100step(global_ddr_clk);
+	//global_ddr_clk=768;
+	ui_1_32_100step=(1000000*100/(global_ddr_clk*2*32));
+
+	if (argc == 1)
+	{
+		printf("\nplease read help\n");
+	}
+	else if  (argc >6)
+	{//offset_enable=1;
+		{
+			count=0;
+			test_index= simple_strtoull_ddr(argv[count+1], &endp, 0);
+			if (*argv[count+1] == 0 || *endp != 0)
+			{
+				test_index = 0;
+			}
+		}
+		{
+			count++;
+			test_dq_mask_1= simple_strtoull_ddr(argv[count+1], &endp, 0);
+			if (*argv[count+1] == 0 || *endp != 0)
+			{
+				test_dq_mask_1 = 0;
+			}
+		}
+		{
+			count++;
+			test_dq_mask_2= simple_strtoull_ddr(argv[count+1], &endp, 0);
+			if (*argv[count+1] == 0 || *endp != 0)
+			{
+				test_dq_mask_2 = 0;
+			}
+		}
+		{
+			count++;
+			test_dq_mask_3= simple_strtoull_ddr(argv[count+1], &endp, 0);
+			if (*argv[count+1] == 0 || *endp != 0)
+			{
+				test_dq_mask_3 = 0;
+			}
+		}
+		{
+			count++;
+			left_right_flag= simple_strtoull_ddr(argv[count+1], &endp, 0);
+			if (*argv[count+1] == 0 || *endp != 0)
+			{
+				left_right_flag = 0;
+			}
+		}
+		{
+			count++;
+			offset_value= simple_strtoull_ddr(argv[count+1], &endp, 0);
+			if (*argv[count+1] == 0 || *endp != 0)
+			{
+				offset_value = 0;
+			}
+		}
+	}
+	else {
+		return 1;
+	}
+	printf("lcdlr_max %d,\n",lcdlr_max);
+	if (left_right_flag == DDR_PARAMETER_RIGHT)
+		printf("offset right ++  left_right_flag %d,\n",left_right_flag);
+	if (left_right_flag == DDR_PARAMETER_LEFT)
+		printf("offset left --left_right_flag %d,\n",left_right_flag);
+	if (test_index == DMC_TEST_WINDOW_INDEX_ATXDLY) {
+		count_max=10;
 		lcdlr_max=3*32;//0x3ff;
 	}
 
 	if (test_index == DMC_TEST_WINDOW_INDEX_TXDQSDLY) {
 		count_max=16;
-
 		lcdlr_max=16*32;//0x3ff;
 	}
 	if (test_index == DMC_TEST_WINDOW_INDEX_RXCLKDLY) {
