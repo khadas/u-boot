@@ -390,6 +390,7 @@ unsigned long aml_sec_boot_check(unsigned long nType,
 
 	switch (nType) {
 	case AML_D_P_W_EFUSE_AMLOGIC:
+	case AML_D_P_W_EFUSE_SECURE_BOOT:
 			break;
 	default:
 			return 0;
