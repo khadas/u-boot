@@ -141,10 +141,9 @@ int aml_lcd_extern_i2c_write(unsigned char i2c_bus, unsigned i2c_addr,
 	msg.buf = buff;
 
 	if (lcd_debug_print_flag) {
-		printf("%s:", __func__);
+		printf("%s: [addr 0x%02x]\n", __func__, i2c_addr);
 		for (i = 0; i < len; i++)
 			printf(" 0x%02x", buff[i]);
-		printf(" [addr 0x%02x]\n", i2c_addr);
 	}
 
 	ret = aml_i2c_xfer(&msg, 1);
@@ -158,7 +157,7 @@ int aml_lcd_extern_i2c_read(unsigned char i2c_bus, unsigned i2c_addr,
 		unsigned char *buff, unsigned int len)
 {
 	struct i2c_msg msgs[2];
-	int ret = 0;
+	int ret = 0 ,i;
 
 	msgs[0].addr = i2c_addr;
 	msgs[0].flags = 0;
@@ -170,8 +169,15 @@ int aml_lcd_extern_i2c_read(unsigned char i2c_bus, unsigned i2c_addr,
 	msgs[1].buf = buff;
 
 	ret = aml_i2c_xfer(msgs, 2);
-	if (ret < 0)
+	if (ret < 0) {
 		EXTERR("i2c read failed [addr 0x%02x]\n", i2c_addr);
+	} else {
+		if (lcd_debug_print_flag) {
+			printf("%s: [addr 0x%02x]\n", __func__, i2c_addr);
+			for (i = 0; i < len; i++)
+				printf(" 0x%02x", buff[i]);
+		}
+	}
 
 	return ret;
 }
@@ -221,7 +227,7 @@ int aml_lcd_extern_i2c_read(unsigned char i2c_bus, unsigned i2c_addr,
 {
 	unsigned char aml_i2c_bus;
 	struct udevice *i2c_dev;
-	int ret = 0;
+	int ret = 0, i;
 
 	aml_i2c_bus = aml_lcd_extern_i2c_bus_get_sys(i2c_bus);
 	ret = i2c_get_chip_for_busnum(aml_i2c_bus, i2c_addr, &i2c_dev);
@@ -246,6 +252,13 @@ int aml_lcd_extern_i2c_read(unsigned char i2c_bus, unsigned i2c_addr,
 	if (ret) {
 		EXTERR("i2c read failed [addr 0x%02x]\n", i2c_addr);
 		return ret;
+	} else {
+		if (lcd_debug_print_flag) {
+			printf("%s:", __func__);
+			for (i = 0; i < len; i++)
+				printf(" 0x%02x", buff[i]);
+			printf(" [addr 0x%02x]\n", i2c_addr);
+		}
 	}
 
 	return 0;

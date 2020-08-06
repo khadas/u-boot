@@ -31,6 +31,12 @@
 
 static struct lcd_extern_config_s *ext_config;
 
+static unsigned char check_state[4] = {0, 0, 0, 0};
+static unsigned char check_flag;
+static unsigned char check_offset;
+static unsigned char check_len;
+
+
 static void set_lcd_csb(unsigned int v)
 {
 	aml_lcd_extern_gpio_set(ext_config->spi_gpio_cs, v);
@@ -177,11 +183,66 @@ static int lcd_extern_reg_write(unsigned char *buf, unsigned int len)
 	return ret;
 }
 
+static void lcd_extern_init_reg_check(unsigned char i2c_bus,
+				      unsigned char i2c_addr,
+				      unsigned char type,
+				      unsigned char *raw_table,
+				      unsigned char data_len)
+{
+	unsigned char *chk_table, *chk_buf, *raw_buf;
+	unsigned char index;
+	unsigned char temp_flag = check_flag;
+	int ret = 0;
+
+	/* if not need to check return */
+	if (check_flag == 0)
+		return;
+
+	index = type & 0x0f;
+	if ((index >= 4) || (data_len < 1) || (!raw_table))
+		goto parameter_err0;
+	check_state[index] = 0;
+	check_flag = 0;
+	chk_table = malloc(data_len * sizeof(unsigned char));
+	if (!chk_table)
+		goto parameter_err0;
+	memset(chk_table, 0, data_len);
+	if (((type & 0xf0) == LCD_EXT_CMD_TYPE_CMD) ||
+	    ((type & 0xf0) == LCD_EXT_CMD_TYPE_CMD_BIN)) {
+		if (data_len < 2)
+			goto parameter_err1;
+		chk_table[0] = raw_table[0];
+		data_len--;
+		raw_table++;
+	}
+	ret = aml_lcd_extern_i2c_read(i2c_bus, i2c_addr, chk_table, data_len);
+	if (!check_len || (check_len > data_len))
+		check_len = data_len;
+	if (check_offset > data_len)
+		check_offset = 0;
+	if ((ret) || (check_offset + check_len) > data_len)
+		goto parameter_err1;
+	chk_buf = chk_table + check_offset;
+	raw_buf = raw_table + check_offset;
+	ret = memcmp(chk_buf, raw_buf, check_len);
+	if (ret == 0)
+		check_state[index] = temp_flag;
+	if (lcd_debug_print_flag)
+		EXTERR("%s: ret : %d\n", __func__, ret);
+	free(chk_table);
+	return;
+parameter_err1:
+	free(chk_table);
+parameter_err0:
+	EXTERR("%s: error parameters\n", __func__);
+}
+
 static int lcd_extern_power_cmd_dynamic_size(unsigned char *table, int flag)
 {
 	int i = 0, j = 0, max_len = 0, step = 0;
-	unsigned char type, size;
+	unsigned char type, size, i2c_bus, i2c_addr;
 	int delay_ms, ret = 0;
+	i2c_bus = ext_config->i2c_bus;
 
 	if (flag)
 		max_len = ext_config->table_init_on_cnt;
@@ -223,30 +284,78 @@ static int lcd_extern_power_cmd_dynamic_size(unsigned char *table, int flag)
 					delay_ms += table[i+2+j];
 				if (delay_ms > 0)
 					mdelay(delay_ms);
+			} else if (type == LCD_EXT_CMD_TYPE_CHECK) {
+				if (size == 1) {
+					check_flag = table[i + 2];
+					check_offset = 0;
+					check_len = 0;
+				} else if (size == 3) {
+					check_flag = table[i + 2];
+					check_offset = table[i + 3];
+					check_len = table[i + 4];
+				} else {
+					check_flag = 0;
+				}
 			} else if ((type == LCD_EXT_CMD_TYPE_CMD) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD_BIN) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD_BIN_DATA)) {
-				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
-					ext_config->i2c_addr,
-					&table[i+2], size);
+				i2c_addr = ext_config->i2c_addr;
+				lcd_extern_init_reg_check(i2c_bus,
+							  i2c_addr,
+							  type,
+							  &table[i + 2],
+							  size);
+				if (check_state[0] == 1)
+					goto power_cmd_dynamic_i2c_next;
+				ret = aml_lcd_extern_i2c_write(i2c_bus,
+							       i2c_addr,
+							       &table[i + 2],
+							       size);
 			} else if ((type == LCD_EXT_CMD_TYPE_CMD2) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD2_BIN) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD2_BIN_DATA)) {
-				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
-					ext_config->i2c_addr2,
-					&table[i+2], size);
+				i2c_addr = ext_config->i2c_addr2;
+				lcd_extern_init_reg_check(i2c_bus,
+							  i2c_addr,
+							  type,
+							  &table[i + 2],
+							  size);
+				if (check_state[1] == 1)
+					goto power_cmd_dynamic_i2c_next;
+				ret = aml_lcd_extern_i2c_write(i2c_bus,
+							       i2c_addr,
+							       &table[i + 2],
+							       size);
 			} else if ((type == LCD_EXT_CMD_TYPE_CMD3) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD3_BIN) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD3_BIN_DATA)) {
-				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
-					ext_config->i2c_addr3,
-					&table[i+2], size);
+				i2c_addr = ext_config->i2c_addr3;
+				lcd_extern_init_reg_check(i2c_bus,
+							  i2c_addr,
+							  type,
+							  &table[i + 2],
+							  size);
+				if (check_state[2] == 1)
+					goto power_cmd_dynamic_i2c_next;
+				ret = aml_lcd_extern_i2c_write(i2c_bus,
+							       i2c_addr,
+							       &table[i + 2],
+							       size);
 			} else if ((type == LCD_EXT_CMD_TYPE_CMD4) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD4_BIN) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD4_BIN_DATA)) {
-				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
-					ext_config->i2c_addr4,
-					&table[i+2], size);
+				i2c_addr = ext_config->i2c_addr4;
+				lcd_extern_init_reg_check(i2c_bus,
+							  i2c_addr,
+							  type,
+							  &table[i + 2],
+							  size);
+				if (check_state[3] == 1)
+					goto power_cmd_dynamic_i2c_next;
+				ret = aml_lcd_extern_i2c_write(i2c_bus,
+							       i2c_addr,
+							       &table[i + 2],
+							       size);
 			} else if (type == LCD_EXT_CMD_TYPE_CMD_DELAY) {
 				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
 					ext_config->i2c_addr,
