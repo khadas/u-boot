@@ -116,6 +116,18 @@
 			gpio-ranges = <&pinctrl_periphs 0 0 90>;
 		};
 	};
+
+	i2c_gpio_0: i2c-gpio-0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		compatible = "i2c-gpio";
+		status = "okay";
+		gpios = <&gpio GPIOM_12 GPIO_ACTIVE_HIGH>, /* SDA */
+			<&gpio GPIOM_13 GPIO_ACTIVE_HIGH>; /* CLK */
+
+		i2c-gpio,delay-us = <5>;
+	};
 };
 
 &periphs {

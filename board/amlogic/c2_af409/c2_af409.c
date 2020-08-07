@@ -85,6 +85,7 @@ int board_eth_init(bd_t *bis)
 int active_clk(void)
 {
 	struct udevice *clk = NULL;
+	struct udevice *i2c = NULL;
 	int err;
 
 	err = uclass_get_device_by_name(UCLASS_CLK,
@@ -97,6 +98,14 @@ int active_clk(void)
 			"clock-controller@0", &clk);
 	if (err) {
 		pr_err("Can't find clock-controller@0 clock (%d)\n", err);
+		return err;
+	}
+
+	/*active gpio i2c */
+	err = uclass_get_device_by_name(UCLASS_I2C,
+			"i2c-gpio-0", &i2c);
+	if (err) {
+		pr_err("Can't find i2c-gpio-0 (%d)\n", err);
 		return err;
 	}
 
