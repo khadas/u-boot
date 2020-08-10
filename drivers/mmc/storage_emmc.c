@@ -851,6 +851,41 @@ int mmc_protect_rsv(const char *rsv_name, bool ops) {
 
 }
 
+void config_storage_dev_func(struct storage_t *dev, struct mmc* mmc)
+{
+	/******basic info*******/
+	dev->type = BOOT_EMMC;
+	printf("store flag: %d, types: %d\n", dev->init_flag, dev->type);
+	/*dev->info.name = mmc->cid[0] & 0xff,
+		(mmc->cid[1] >> 24), (mmc->cid[1] >> 16) & 0xff,
+		(mmc->cid[1] >> 8) & 0xff, mmc->cid[1] & 0xff;
+	dev->info.id = mmc->cid[0] >> 24;*/
+	dev->info.read_unit = mmc->read_bl_len;
+	dev->info.write_unit = mmc->write_bl_len;
+	dev->info.erase_unit = mmc->erase_grp_size;
+	dev->info.caps = mmc->capacity_user;
+	dev->info.mode = COMPACT_BOOTLOADER;
+
+	dev->get_part_size = mmc_storage_get_part_size;
+	dev->read = mmc_storage_read;
+	dev->write = mmc_storage_write;
+	dev->erase = mmc_storage_erase;
+
+	dev->get_copies = mmc_storage_get_copies;
+	dev->get_copy_size = mmc_get_copy_size;
+	dev->boot_read = mmc_boot_read;
+	dev->boot_write = mmc_boot_write;
+	dev->boot_erase = mmc_boot_erase;
+
+	dev->get_rsv_size = mmc_get_rsv_size;
+	dev->read_rsv = mmc_read_rsv;
+	dev->write_rsv = mmc_write_rsv;
+	dev->erase_rsv = mmc_erase_rsv;
+	dev->protect_rsv = mmc_protect_rsv;
+
+	return;
+}
+
 DECLARE_GLOBAL_DATA_PTR;
 int sdcard_pre(void)
 {
@@ -867,14 +902,25 @@ int emmc_pre(void)
 {
 	char ret = 1;
 	struct mmc *mmc;
+	static struct storage_t *storage_dev = NULL;
+
 	mmc_initialize(gd->bd);
 	mmc = find_mmc_device(STORAGE_EMMC);
 	mmc->has_init = 0;
 	ret = mmc_start_init(mmc);
-	if (ret == 0)
-			printf("emmc init success!\n");
-	else
-			printf("emmc init fail!\n");
+	if (ret == 0) {
+	/*struct store_operation *storage_opera = NULL;*/
+		storage_dev = kzalloc(sizeof(struct storage_t), GFP_KERNEL);
+		if (storage_dev == NULL) {
+			printf("malloc failed for storage_dev\n");
+			ret = -1;
+			return ret;
+		}
+		config_storage_dev_func(storage_dev, mmc);
+		store_register(storage_dev);
+		printf("emmc init success!\n");
+	} else
+		printf("emmc init fail!\n");
 	return ret;
 }
 
@@ -883,52 +929,13 @@ int emmc_probe(uint32_t init_flag)
 {
 	char ret = 0;
 	struct mmc *mmc;
-	static struct storage_t *storage_dev = NULL;
-	/*struct store_operation *storage_opera = NULL;*/
-	storage_dev = kzalloc(sizeof(struct storage_t), GFP_KERNEL);
-	if (storage_dev == NULL) {
-		printf("malloc failed for storage_dev\n");
-		ret = -1;
-		goto exit_error;
-	}
+
 	mmc = find_mmc_device(STORAGE_EMMC);
 	ret = mmc_storage_init(init_flag); /*flag 0*/
 	if (ret) {
 		printf("mmc init failed ret:%x\n", ret);
 		goto exit_error;
 	}
-	/******basic info*******/
-	storage_dev->init_flag = init_flag;
-	storage_dev->type = BOOT_EMMC;
-
-	printf("store flag: %d, types: %d\n",storage_dev->init_flag,storage_dev->type);
-	/*storage_dev->info.name = mmc->cid[0] & 0xff,
-		(mmc->cid[1] >> 24), (mmc->cid[1] >> 16) & 0xff,
-		(mmc->cid[1] >> 8) & 0xff, mmc->cid[1] & 0xff;
-	storage_dev->info.id = mmc->cid[0] >> 24;*/
-	storage_dev->info.read_unit = mmc->read_bl_len;
-	storage_dev->info.write_unit = mmc->write_bl_len;
-	storage_dev->info.erase_unit = mmc->erase_grp_size;
-	storage_dev->info.caps = mmc->capacity_user;
-	storage_dev->info.mode = COMPACT_BOOTLOADER;
-
-	storage_dev->get_part_size = mmc_storage_get_part_size;
-	storage_dev->read = mmc_storage_read;
-	storage_dev->write = mmc_storage_write;
-	storage_dev->erase = mmc_storage_erase;
-
-	storage_dev->get_copies = mmc_storage_get_copies;
-	storage_dev->get_copy_size = mmc_get_copy_size;
-	storage_dev->boot_read = mmc_boot_read;
-	storage_dev->boot_write = mmc_boot_write;
-	storage_dev->boot_erase = mmc_boot_erase;
-
-	storage_dev->get_rsv_size = mmc_get_rsv_size;
-	storage_dev->read_rsv = mmc_read_rsv;
-	storage_dev->write_rsv = mmc_write_rsv;
-	storage_dev->erase_rsv = mmc_erase_rsv;
-	storage_dev->protect_rsv = mmc_protect_rsv;
-	store_register(storage_dev);
 	printf("emmc probe success\n");
 
 exit_error:

@@ -75,7 +75,7 @@ struct nand_startup_parameter {
 #define BOOT_BL2X_SIZE              (66672)
 #define MAX_BOOT_AREA_ENTRIES		(8)
 /* bl2 core address base */
-#define BL2_CORE_BASE_OFFSET_EMMC	(0x200000)
+#define BL2_CORE_BASE_OFFSET_EMMC	(0x200)
 /* boot area entry index */
 #define BOOT_AREA_BB1ST             (0)
 /* filler and reserved are considered part of the bl2E in storage view */
