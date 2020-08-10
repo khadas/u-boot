@@ -26,6 +26,7 @@
 #include <libfdt.h>
 #include <asm/cpu_id.h>
 #include <asm/arch/secure_apb.h>
+#include <amlogic/gpio_i2c.h>
 #ifdef CONFIG_SYS_I2C_MESON
 #include <amlogic/i2c.h>
 #endif
@@ -519,7 +520,10 @@ U_BOOT_DEVICE(spicc0) = {
 
 extern void aml_pwm_cal_init(int mode);
 
-#ifdef CONFIG_SYS_I2C_MESON
+static const struct meson_gpio_i2c_platdata gpio_i2c_data[] = {
+	{ "gpioh_20", "gpioh_19", 100000},
+};
+
 static const struct meson_i2c_platdata i2c_data[] = {
 	{ 0, 0xffd1f000, 166666666, 3, 15, 100000 },
 	{ 1, 0xffd1e000, 166666666, 3, 15, 100000 },
@@ -528,25 +532,46 @@ static const struct meson_i2c_platdata i2c_data[] = {
 	{ 4, 0xff805000, 166666666, 3, 15, 100000 },
 };
 
+/* i2c index
+ * i2c0  0
+ * i2c1  1
+ * i2c2  2
+ * i2c3  3
+ * i2cAO 4
+ * i2c-gpio 5
+ */
 U_BOOT_DEVICES(meson_i2cs) = {
 	{ "i2c_meson", &i2c_data[0] },
 	{ "i2c_meson", &i2c_data[1] },
 	{ "i2c_meson", &i2c_data[2] },
 	{ "i2c_meson", &i2c_data[3] },
 	{ "i2c_meson", &i2c_data[4] },
+	{ "i2c-gpio", &gpio_i2c_data[0] },
 };
 
 /*
- *GPIOAO_10//I2C_SDA_AO
- *GPIOAO_11//I2C_SCK_AO
+ *gpioh_19 gpioh_20  I2C2
+ *pin mux to i2cm2
  *pinmux configuration seperated with i2c controller configuration
  * config it when you use
+ * i2c pinmux demo
+ *	//set pinmux
+ *	clrbits_le32(PERIPHS_PIN_MUX_9, 0xff << 12);
+ *	setbits_le32(PERIPHS_PIN_MUX_9, 0x3 << 12 | 0x3 << 16);
+ *
+ *	//pull up en disable
+ *	clrbits_le32(PAD_PULL_UP_EN_REG2, 0x3 << 19);
+
+ *	//ds =3
+ *	clrbits_le32(PAD_DS_REG2B, 0xf << 6);
+ *	setbits_le32(PAD_DS_REG2B, 0x3 << 6 | 0x3 << 8);
  */
+#ifdef CONFIG_SYS_I2C_MESON
 void set_i2c_ao_pinmux(void)
 {
 	return;
 }
-#endif /*end CONFIG_SYS_I2C_MESON*/
+#endif
 
 #ifdef CONFIG_PWM_MESON
 static const struct meson_pwm_platdata pwm_data[] = {
