@@ -11464,6 +11464,7 @@ int do_ddr_c2_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 	}
 
 #endif
+	wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl);
 	return 1;
 }
 
@@ -11471,14 +11472,15 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 {
 	//ddr_g12_offset_data  1 0  0 0  1 3
 	check_base_address();
-	uint32_t dmc_retraining_ctrl=0;
-	dmc_retraining_ctrl=rd_reg(DMC_PHY_RETRAINING_CTRL);
-
 	if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2)
 	{
 		do_ddr_c2_offset_data(cmdtp,  flag,  argc, argv);
 		return 1;
 	}
+	#define DMC_PHY_RETRAINING_CTRL     ( p_ddr_base->ddr_dmc_lpdd4_retraining_address)
+	uint32_t dmc_retraining_ctrl=0;
+	dmc_retraining_ctrl=rd_reg(DMC_PHY_RETRAINING_CTRL);
+	wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl&(~(1<<31)));
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F+7*32)
 	printf("\12nm phy read write register should closd apd and asr funciton\n");
@@ -11574,6 +11576,7 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 		}
 	}
 	else {
+		wr_reg(DMC_PHY_RETRAINING_CTRL,dmc_retraining_ctrl);
 		return 1;
 	}
 	printf("lcdlr_max %d,\n",lcdlr_max);
