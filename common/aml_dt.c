@@ -1,3 +1,22 @@
+/*
+* Copyright (C) 2017 Amlogic, Inc. All rights reserved.
+* *
+This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+* *
+This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+* *
+You should have received a copy of the GNU General Public License along
+* with this program; if not, write to the Free Software Foundation, Inc.,
+* 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+* *
+Description:
+*/
 #include <common.h>
 #include <bootm.h>
 #include <command.h>
@@ -5,6 +24,7 @@
 #include <malloc.h>
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
+#include <partition_table.h>
 
 //#define AML_DT_DEBUG
 #ifdef AML_DT_DEBUG
@@ -12,6 +32,333 @@
 #else
 #define dbg_printf(...) ((void)0)
 #endif
+
+#define  AML_MULTI_DTB_API_NEW
+//#define AML_MULTI_DTB_CHECK_CMD //command for multi-dtb test
+
+#ifdef AML_MULTI_DTB_API_NEW
+
+/*for multi-dtb gzip buffer*/
+#define GUNZIP_BUF_SIZE         (1<<20)     /*1MB  is enough?*/
+
+/*magic for multi-dtb*/
+#define MAGIC_GZIP_MASK         (0x0000FFFF)
+#define MAGIC_GZIP_ID           (0x00008B1F)
+#define IS_GZIP_PACKED(nMagic)  (MAGIC_GZIP_ID == (MAGIC_GZIP_MASK & nMagic))
+#define MAGIC_DTB_SGL_ID        (0xedfe0dd0)
+#define MAGIC_DTB_MLT_ID        (0x5f4c4d41)
+
+/*amlogic multi-dtb version*/
+#define AML_MUL_DTB_VER_1       (1)
+#define AML_MUL_DTB_VER_2       (2)
+
+/*max char for dtb name, fixed to soc_package_board format*/
+#define AML_MAX_DTB_NAME_SIZE   (128)
+#define AML_DTB_TOKEN_MAX_COUNT (AML_MAX_DTB_NAME_SIZE>>1)
+
+typedef struct{
+	unsigned int nMagic;
+	unsigned int nVersion;
+	unsigned int nDTBCount;
+}st_dtb_hdr_t,*p_st_dtb_hdr_t;
+
+/*v1,v2 multi-dtb only support max to 3 tokens for each DTB name*/
+#define MULTI_DTB_TOKEN_MAX_COUNT      (3)
+#define MULTI_DTB_TOKEN_UNIT_SIZE_V1   (4)      //v1 support 4bytes for each token
+#define MULTI_DTB_TOKEN_UNIT_SIZE_V2   (16)     //v2 support 16bytes for each token
+
+/*v1 multi-dtb*/
+typedef struct{
+	unsigned char     szToken[MULTI_DTB_TOKEN_MAX_COUNT][MULTI_DTB_TOKEN_UNIT_SIZE_V1];
+	int               nDTBOffset;
+	int               nDTBIMGSize;
+}st_dtb_token_v1_t,*p_st_dtb_token_v1_t;
+
+typedef struct{
+	st_dtb_hdr_t      hdr;
+	st_dtb_token_v1_t dtb[1];
+}st_dtb_v1_t,*p_st_dtb_v1_t;
+
+
+/*v2 multi-dtb*/
+typedef struct{
+	unsigned char     szToken[MULTI_DTB_TOKEN_MAX_COUNT][MULTI_DTB_TOKEN_UNIT_SIZE_V2];
+	int               nDTBOffset;
+	int               nDTBIMGSize;
+}st_dtb_token_v2_t,*p_st_dtb_token_v2_t;
+
+typedef struct{
+	st_dtb_hdr_t      hdr;
+	st_dtb_token_v2_t dtb[1];
+}st_dtb_v2_t,*p_st_dtb_v2_t;
+
+
+/*to get the valid DTB index with matched DTB name*/
+static int get_dtb_index(const char aml_dt_buf[128],unsigned long fdt_addr)
+{
+	int nReturn = -1;
+
+	if (!aml_dt_buf)
+		goto exit;
+
+	p_st_dtb_hdr_t pDTBHdr = (p_st_dtb_hdr_t)fdt_addr;
+	char sz_aml_dt_msb[10][MULTI_DTB_TOKEN_UNIT_SIZE_V2];
+	memset(sz_aml_dt_msb,0,sizeof(sz_aml_dt_msb));
+
+	/* split aml_dt with token '_',  e.g "tm2-revb_t962x3_ab301" */
+	//printf("		aml_dt : %s\n",aml_dt_buf);
+
+	char *tokens[AML_DTB_TOKEN_MAX_COUNT];
+	char sz_temp[AML_MAX_DTB_NAME_SIZE+4];
+	memset(tokens,0,sizeof(tokens));
+	memset(sz_temp,0,sizeof(sz_temp));
+	strncpy(sz_temp,aml_dt_buf,128);
+	int i,j;
+	int nLen = strlen(sz_temp);
+	sz_temp[nLen]='_';
+	sz_temp[nLen+1]='\0';
+	nLen +=1;
+	tokens[0]=sz_temp;
+	for (i = 1; i < sizeof(tokens)/sizeof(tokens[0]); i++)
+	{
+		tokens[i] = strstr(tokens[i-1],"_");
+		if (!tokens[i])
+			break;
+
+		*tokens[i]='\0';
+
+		tokens[i]=tokens[i]+1;
+
+		if (!(*tokens[i]))
+		{
+			tokens[i] = 0;
+			break;
+		}
+	}
+
+	//for (i=0;i<10 && tokens[i];++i)
+	//	printf("token-%d:%s\n",i,tokens[i]);
+
+	int nTokenLen = 0;
+
+	switch (pDTBHdr->nVersion)
+	{
+	case AML_MUL_DTB_VER_1:
+	{
+		nTokenLen = MULTI_DTB_TOKEN_UNIT_SIZE_V1;
+	}break;
+	case AML_MUL_DTB_VER_2:
+	{
+		nTokenLen = MULTI_DTB_TOKEN_UNIT_SIZE_V2;
+	}break;
+	default: goto exit; break;
+	}
+
+
+	for (i = 0;i<MULTI_DTB_TOKEN_MAX_COUNT;++i)
+	{
+		if (tokens[i])
+		{
+			char *pbyswap = (char*)sz_aml_dt_msb+(nTokenLen*i);
+			strcpy(pbyswap,tokens[i]);
+			unsigned int nValSwap;
+			for (j = 0;j< nTokenLen;j+=4)
+			{
+				int m;
+				/*swap byte order with unit@4bytes*/
+				nValSwap = *(unsigned int *)(pbyswap+j);
+				for (m=0;m<4;m++)
+					pbyswap[j+m] = (nValSwap >> ((3-m)<<3)) & 0xFF;
+
+				/*replace 0 with 0x20*/
+				for (m=0;m<MULTI_DTB_TOKEN_UNIT_SIZE_V2;++m)
+					if (0 == pbyswap[m])
+						pbyswap[m]=0x20;
+			}
+		}
+		else
+			break;
+	}
+
+	switch (pDTBHdr->nVersion)
+	{
+	case AML_MUL_DTB_VER_1:
+	{
+		p_st_dtb_v1_t pDTB_V1 = (p_st_dtb_v1_t)fdt_addr;
+		for (i=0;i< pDTB_V1->hdr.nDTBCount;++i)
+		{
+			if (!memcmp(pDTB_V1->dtb[i].szToken,sz_aml_dt_msb,
+				MULTI_DTB_TOKEN_MAX_COUNT*nTokenLen))
+			{
+				nReturn = i;
+				break;
+			}
+		}
+
+	}break;
+	case AML_MUL_DTB_VER_2:
+	{
+		p_st_dtb_v2_t pDTB_V2 = (p_st_dtb_v2_t)fdt_addr;
+		for (i=0;i< pDTB_V2->hdr.nDTBCount;++i)
+		{
+			if (!memcmp(pDTB_V2->dtb[i].szToken,sz_aml_dt_msb,
+				MULTI_DTB_TOKEN_MAX_COUNT*nTokenLen))
+			{
+				nReturn = i;
+				break;
+			}
+		}
+
+	}break;
+	default: goto exit; break;
+	}
+
+exit:
+
+	return nReturn;
+
+}
+
+unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
+{
+	unsigned long lReturn = 0; //return buffer for valid DTB;
+	void * gzip_buf = NULL;
+	unsigned long pInputFDT  = fdt_addr;
+	p_st_dtb_hdr_t pDTBHdr   = (p_st_dtb_hdr_t)pInputFDT;
+	unsigned long unzip_size = GUNZIP_BUF_SIZE;
+
+	printf("      Amlogic Multi-DTB tool\n");
+
+	/* first check the blob header, support GZIP format */
+	if ( IS_GZIP_PACKED(pDTBHdr->nMagic))
+	{
+		printf("      GZIP format, decompress...\n");
+		gzip_buf = malloc(GUNZIP_BUF_SIZE);
+		if (!gzip_buf)
+		{
+			printf("      ERROR! fail to allocate memory for GUNZIP...\n");
+			goto exit;
+		}
+		memset(gzip_buf, 0, GUNZIP_BUF_SIZE);
+		if (gunzip(gzip_buf, GUNZIP_BUF_SIZE, (void *)pInputFDT, &unzip_size) < 0)
+		{
+			printf("      ERROR! GUNZIP process fail...\n");
+			goto exit;
+		}
+		if (unzip_size > GUNZIP_BUF_SIZE)
+		{
+			printf("      ERROR! GUNZIP overflow...\n");
+			goto exit;
+		}
+		//memcpy((void*)fdt_addr,gzip_buf,unzip_size);
+		pInputFDT = (unsigned long)gzip_buf;
+		pDTBHdr   = (p_st_dtb_hdr_t)pInputFDT;
+	}
+
+
+	switch (pDTBHdr->nMagic)
+	{
+	case MAGIC_DTB_SGL_ID:
+	{
+		printf("      Single DTB detected\n");
+
+		if (fdt_addr != (unsigned long)pInputFDT) //in case of GZIP single DTB
+			memcpy((void*)fdt_addr,(void*)pInputFDT,unzip_size);
+
+			lReturn = fdt_addr;
+
+	}break;
+	case MAGIC_DTB_MLT_ID:
+	{
+		printf("      Multi DTB detected.\n");
+		printf("      Multi DTB tool version: v%d.\n", pDTBHdr->nVersion);
+		printf("      Support %d DTBS.\n", pDTBHdr->nDTBCount);
+
+
+		/* check and set aml_dt */
+		char aml_dt_buf[AML_MAX_DTB_NAME_SIZE+4];
+		memset(aml_dt_buf, 0, sizeof(aml_dt_buf));
+
+		/* update 2016.07.27, checkhw and setenv everytime,
+		or else aml_dt will set only once if it is reserved */
+		extern int checkhw(char * name);
+#if 1
+		if (checkhw(aml_dt_buf) < 0 || strlen(aml_dt_buf) <= 0)
+		{
+			printf("      Get env aml_dt failed!\n");
+			goto exit;
+		}
+#else
+		char *aml_dt = getenv(AML_DT_UBOOT_ENV);
+		/* if aml_dt not exist or env not ready, get correct dtb by name */
+		if (NULL == aml_dt)
+			checkhw(aml_dt_buf);
+		else
+			memcpy(aml_dt_buf, aml_dt,
+			(strlen(aml_dt)>AML_MAX_DTB_NAME_SIZE?AML_MAX_DTB_NAME_SIZE:(strlen(aml_dt)+1)));
+#endif
+
+		int dtb_match_num = get_dtb_index(aml_dt_buf,(unsigned long)pInputFDT);
+
+		/*check valid dtb index*/
+		if (dtb_match_num < 0 || dtb_match_num >= pDTBHdr->nDTBCount)
+		{
+			printf("      NOT found matched DTB for \"%s\"\n",aml_dt_buf);
+			goto exit;
+		}
+
+		printf("      Found DTB for \"%s\"\n",aml_dt_buf);
+
+		switch (pDTBHdr->nVersion)
+		{
+		case AML_MUL_DTB_VER_1:
+		{
+			p_st_dtb_v1_t pDTB_V1 = (p_st_dtb_v1_t)pInputFDT;
+			lReturn = pDTB_V1->dtb[dtb_match_num].nDTBOffset + pInputFDT;
+
+			if (pInputFDT != fdt_addr)
+			{
+				memcpy((void*)fdt_addr, (void*)lReturn,pDTB_V1->dtb[dtb_match_num].nDTBIMGSize);
+				lReturn = fdt_addr;
+			}
+
+		}break;
+		case AML_MUL_DTB_VER_2:
+		{
+			p_st_dtb_v2_t pDTB_V2 = (p_st_dtb_v2_t)pInputFDT;
+			lReturn = pDTB_V2->dtb[dtb_match_num].nDTBOffset + pInputFDT;
+
+			if (pInputFDT != fdt_addr)
+			{
+				memcpy((void*)fdt_addr, (void*)lReturn,pDTB_V2->dtb[dtb_match_num].nDTBIMGSize);
+				lReturn = fdt_addr;
+			}
+
+		}break;
+		default:
+		{
+			printf("      Invalid Multi-DTB Version [%d]!\n",
+				pDTBHdr->nVersion);
+			goto exit;
+		}break;
+		}
+
+	}break;
+	default: goto exit; break;
+	}
+
+exit:
+
+	if (gzip_buf)
+	{
+		free(gzip_buf);
+		gzip_buf = 0;
+	}
+
+	return lReturn;
+}
+
+#else //#ifdef AML_MULTI_DTB_API_NEW
 
 #define AML_DT_IND_LENGTH_V1		4	/*fixed*/
 #define AML_DT_IND_LENGTH_V2		16	/*fixed*/
@@ -35,7 +382,7 @@
 
 #define IS_GZIP_FORMAT(data)		((data & (0x0000FFFF)) == (0x00008B1F))
 #define GUNZIP_BUF_SIZE				(0x500000) /* 5MB */
-#define DTB_MAX_SIZE				(0x40000) /* 256KB */
+#define DTB_MAX_SIZE				(AML_DTB_IMG_MAX_SZ)
 
 //#define readl(addr) (*(volatile unsigned int*)(addr))
 extern int checkhw(char * name);
@@ -69,7 +416,6 @@ unsigned long __attribute__((unused))
 
 	dbg_printf("      DBG: fdt_addr: 0x%x\n", (unsigned int)fdt_addr);
 	dbg_printf("      DBG: dt_magic: 0x%x\n", (unsigned int)dt_magic);
-	dbg_printf("      DBG: gzip_format: %d\n", gzip_format);
 
 	/*printf("      Process device tree. dt magic: %x\n", dt_magic);*/
 	if (dt_magic == DT_HEADER_MAGIC) {/*normal dtb*/
@@ -88,6 +434,7 @@ unsigned long __attribute__((unused))
 		int i = 0;
 		char *aml_dt_buf;
 		aml_dt_buf = (char *)malloc(sizeof(char)*64);
+		printf("Multi dtb malloc aml_dt_buf addr = %p\n", aml_dt_buf);
 		memset(aml_dt_buf, 0, sizeof(aml_dt_buf));
 
 		/* update 2016.07.27, checkhw and setenv everytime,
@@ -108,6 +455,8 @@ unsigned long __attribute__((unused))
 			printf("      Get env aml_dt failed!\n");
 			if (aml_dt_buf)
 				free(aml_dt_buf);
+			if (gzip_buf)
+				free(gzip_buf);
 			return fdt_addr;
 		}
 
@@ -134,8 +483,8 @@ unsigned long __attribute__((unused))
 		for (i = 0; i < AML_DT_ID_VARI_TOTAL; i++) {
 			tokens[i] = strsep(&aml_dt_buf, "_");
 		}
-		if (aml_dt_buf)
-			free(aml_dt_buf);
+		//if (aml_dt_buf)
+			//free(aml_dt_buf);
 		printf("        aml_dt soc: %s platform: %s variant: %s\n", tokens[0], tokens[1], tokens[2]);
 
 		/*match and print result*/
@@ -217,7 +566,34 @@ unsigned long __attribute__((unused))
 	}
 	else {
 		printf("      Cannot find legal dtb!\n");
+		if (gzip_buf)
+			free(gzip_buf);
 		return fdt_addr;
 	}
+}
+#endif //#ifdef AML_MULTI_DTB_API_NEW
+
+extern int check_valid_dts(unsigned char *buffer);
+#ifdef 	AML_MULTI_DTB_CHECK_CMD
+static int do_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	unsigned long loadaddr = 0x1080000;
+
+	if (argc > 1)
+		loadaddr = simple_strtoul(argv[1],NULL,16);
+
+	check_valid_dts((void*)loadaddr);
+
 	return 0;
 }
+
+U_BOOT_CMD(
+   dtb_chk,           //command name
+   2,                 //maxargs
+   0,                 //repeatable
+   do_test,           //command function
+   "multi-dtb check command",             //description
+   "    argv: dtb_chk <dtbLoadaddr> \n"   //usage
+   "    do dtb check, which already loaded at <dtbLoadaddr>.\n"
+);
+#endif //#ifdef 	AML_MULTI_DTB_CHECK_CMD
