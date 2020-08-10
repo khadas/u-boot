@@ -36,9 +36,11 @@
 #define REG_LED_SYSTEM_OFF_MODE 0x29
 #define REG_ADC                 0x2a
 #define REG_MAC_SWITCH          0x2d
+#define REG_IR_CODE1            0x2f
 #if defined(CONFIG_KHADAS_VIM3) || defined(CONFIG_KHADAS_VIM3L)
 #define REG_PORT_MODE           0x33
 #endif
+#define REG_IR_CODE2            0x34
 #define REG_PASSWD_CUSTOM       0x40
 
 #define REG_POWER_OFF           0x80
@@ -832,6 +834,71 @@ static int do_kbi_led(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]
 	return ret;
 }
 
+static int get_ircode(char reg)
+{
+	int ircode[4] = {0};
+
+	if (REG_IR_CODE1 != reg && REG_IR_CODE2 != reg)
+		return -1;
+
+	kbi_i2c_read_block(reg, 4, ircode);
+	debug("IRCODE: 0x%02x: 0x%02x\n", reg, ircode[0]);
+	debug("IRCODE: 0x%02x: 0x%02x\n", reg + 1, ircode[1]);
+	debug("IRCODE: 0x%02x: 0x%02x\n", reg + 2, ircode[2]);
+	debug("IRCODE: 0x%02x: 0x%02x\n", reg + 3, ircode[3]);
+
+	return (((ircode[0] & 0xff) << 24) | ((ircode[1] & 0xff) << 16) | ((ircode[2] & 0xff) << 8) | (ircode[3] & 0xff));
+}
+
+static void set_ircode(char reg, int ircode)
+{
+	char cmd[64] = {0};
+	if (REG_IR_CODE1 != reg && REG_IR_CODE2 != reg)
+		return;
+
+	sprintf(cmd, "i2c mw %x %x %x 1",CHIP_ADDR, reg, (ircode >> 24) & 0xff);
+	run_command(cmd, 0);
+	sprintf(cmd, "i2c mw %x %x %x 1",CHIP_ADDR, reg + 1, (ircode >> 16) & 0xff);
+	run_command(cmd, 0);
+	sprintf(cmd, "i2c mw %x %x %x 1",CHIP_ADDR, reg + 2, (ircode >> 8) & 0xff);
+	run_command(cmd, 0);
+	sprintf(cmd, "i2c mw %x %x %x 1",CHIP_ADDR, reg + 3, (ircode >> 0) & 0xff);
+	run_command(cmd, 0);
+}
+
+static int do_kbi_ircode(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	int ret = 0;
+	int ircode = 0;
+	if (argc < 3)
+		return CMD_RET_USAGE;
+
+	if (strcmp(argv[1], "customer1") ==0) {
+			if (strcmp(argv[2], "r") == 0) {
+				ircode = get_ircode(REG_IR_CODE1);
+				printf("ircode1: 0x%08x\n", ircode);
+			} else if (strcmp(argv[2], "w") == 0) {
+				if (argc < 4)
+					return CMD_RET_USAGE;
+			ircode = simple_strtoul(argv[3], NULL, 16);
+			set_ircode(REG_IR_CODE1, ircode);
+		}
+	} else if (strcmp(argv[1], "customer2") ==0) {
+		if (strcmp(argv[2], "r") == 0) {
+			ircode = get_ircode(REG_IR_CODE2);
+			printf("ircode2: 0x%08x\n", ircode);
+		} else if (strcmp(argv[2], "w") == 0) {
+			if (argc <4)
+				return CMD_RET_USAGE;
+			ircode = simple_strtoul(argv[3], NULL, 16);
+			set_ircode(REG_IR_CODE2, ircode);
+		}
+	} else {
+			return CMD_RET_USAGE;
+	}
+	return ret;
+}
+
 static int do_kbi_forcereset(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	int ret = 0;
@@ -1006,6 +1073,7 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 	U_BOOT_CMD_MKENT(poweroff, 1, 1, do_kbi_poweroff, "", ""),
 	U_BOOT_CMD_MKENT(switchmac, 3, 1, do_kbi_switchmac, "", ""),
 	U_BOOT_CMD_MKENT(led, 4, 1, do_kbi_led, "", ""),
+	U_BOOT_CMD_MKENT(ircode, 4, 1, do_kbi_ircode, "", ""),
 	U_BOOT_CMD_MKENT(trigger, 4, 1, do_kbi_trigger, "", ""),
 	U_BOOT_CMD_MKENT(bootmode, 3, 1, do_kbi_bootmode, "", ""),
 #if defined(CONFIG_KHADAS_VIM3) || defined(CONFIG_KHADAS_VIM3L)
@@ -1084,6 +1152,8 @@ static char kbi_help_text[] =
 		"kbi portmode r - read current port mode\n"
 		"\n"
 #endif
+		"kbi ircode [customer1|customer2] w <ircode>\n"
+		"kbi ircode [customer1|customer2] r\n"
 		"kbi trigger [wol|rtc|ir|dcin|key|gpio] w <0|1> - disable/enable boot trigger\n"
 		"kbi trigger [wol|rtc|ir|dcin|key|gpio] r - read mode of a boot trigger";
 
