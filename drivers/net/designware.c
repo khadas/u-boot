@@ -40,18 +40,18 @@ struct dw_eth_dev *priv_tool = NULL;
 
 #endif
 
-#define ETH_PLL_CTL0 0x44
-#define ETH_PLL_CTL1 0x48
-#define ETH_PLL_CTL2 0x4C
-#define ETH_PLL_CTL3 0x50
-#define ETH_PLL_CTL4 0x54
-#define ETH_PLL_CTL5 0x58
-#define ETH_PLL_CTL6 0x5C
-#define ETH_PLL_CTL7 0x60
+#define AML_ETH_PLL_CTL0 0x44
+#define AML_ETH_PLL_CTL1 0x48
+#define AML_ETH_PLL_CTL2 0x4C
+#define AML_ETH_PLL_CTL3 0x50
+#define AML_ETH_PLL_CTL4 0x54
+#define AML_ETH_PLL_CTL5 0x58
+#define AML_ETH_PLL_CTL6 0x5C
+#define AML_ETH_PLL_CTL7 0x60
 
-#define ETH_PHY_CNTL0 0x80
-#define ETH_PHY_CNTL1 0x84
-#define ETH_PHY_CNTL2 0x88
+#define AML_ETH_PHY_CNTL0 0x80
+#define AML_ETH_PHY_CNTL1 0x84
+#define AML_ETH_PHY_CNTL2 0x88
 
 static int dw_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
@@ -715,8 +715,8 @@ static void setup_internal_phy(struct udevice *dev)
 	int phy_cntl1 = 0;
 	int mc_val = 0;
 	int chip_num = 0;
-	int pll_val[3] = {0};
-	int analog_val[3] = {0};
+	unsigned int pll_val[3] = {0};
+	unsigned int analog_val[3] = {0};
 	int rtn = 0;
 	struct resource eth_top, eth_cfg;
 
@@ -764,35 +764,35 @@ static void setup_internal_phy(struct udevice *dev)
 	if (rtn) {
 		printf("can't get eth_cfg resource(ret = %d)\n", rtn);
 	}
-	printf("wzh eth_top 0x%x eth_cfg 0x%x \n", eth_top.start, eth_cfg.start);
+//	printf("wzh eth_top 0x%x eth_cfg 0x%x \n", eth_top.start, eth_cfg.start);
 
 	setup_tx_amp(dev);
 	/*top*/
 //	setbits_le32(ETHTOP_CNTL0, mc_val);
 	setbits_le32(eth_top.start, mc_val);
 	/*pll*/
-	writel(pll_val[0] | 0x30000000, eth_cfg.start + ETH_PLL_CTL0);
-	writel(pll_val[1], eth_cfg.start + ETH_PLL_CTL1);
-	writel(pll_val[2], eth_cfg.start + ETH_PLL_CTL2);
-	writel(0x00000000, eth_cfg.start + ETH_PLL_CTL3);
+	writel(pll_val[0] | 0x30000000, eth_cfg.start + AML_ETH_PLL_CTL0);
+	writel(pll_val[1], eth_cfg.start + AML_ETH_PLL_CTL1);
+	writel(pll_val[2], eth_cfg.start + AML_ETH_PLL_CTL2);
+	writel(0x00000000, eth_cfg.start + AML_ETH_PLL_CTL3);
 	udelay(200);
-	writel(pll_val[0] | 0x10000000, eth_cfg.start + ETH_PLL_CTL0);
+	writel(pll_val[0] | 0x10000000, eth_cfg.start + AML_ETH_PLL_CTL0);
 
 	/*analog*/
-	writel(analog_val[0], eth_cfg.start + ETH_PLL_CTL5);
-	writel(analog_val[1], eth_cfg.start + ETH_PLL_CTL6);
-	writel(analog_val[2], eth_cfg.start + ETH_PLL_CTL7);
+	writel(analog_val[0], eth_cfg.start + AML_ETH_PLL_CTL5);
+	writel(analog_val[1], eth_cfg.start + AML_ETH_PLL_CTL6);
+	writel(analog_val[2], eth_cfg.start + AML_ETH_PLL_CTL7);
 
 	/*ctrl*/
 	/*config phyid should between  a 0~0xffffffff*/
 	/*please don't use 44000181, this has been used by internal phy*/
-	writel(0x33000180, eth_cfg.start + ETH_PHY_CNTL0);
+	writel(0x33000180, eth_cfg.start + AML_ETH_PHY_CNTL0);
 
 	/*use_phy_smi | use_phy_ip | co_clkin from eth_phy_top*/
-	writel(0x260, eth_cfg.start + ETH_PHY_CNTL2);
-	writel(phy_cntl1, eth_cfg.start + ETH_PHY_CNTL1);
-	writel(phy_cntl1 & (~0x40000), eth_cfg.start + ETH_PHY_CNTL1);
-	writel(phy_cntl1, eth_cfg.start + ETH_PHY_CNTL1);
+	writel(0x260, eth_cfg.start + AML_ETH_PHY_CNTL2);
+	writel(phy_cntl1, eth_cfg.start + AML_ETH_PHY_CNTL1);
+	writel(phy_cntl1 & (~0x40000), eth_cfg.start + AML_ETH_PHY_CNTL1);
+	writel(phy_cntl1, eth_cfg.start + AML_ETH_PHY_CNTL1);
 	udelay(200);
 
 	if (chip_num != 3) {
@@ -815,7 +815,7 @@ static void setup_external_phy(struct udevice *dev)
 	ret = gpio_request_by_name(dev, "reset-gpios", 0, &desc, GPIOD_IS_OUT);
 	if (ret) {
 		printf("request gpio failed!\n");
-		return ret;
+	//	return ret;
 	}
 	if (dm_gpio_is_valid(&desc)) {
 		dm_gpio_set_value(&desc, 1);
@@ -846,7 +846,7 @@ static void setup_external_phy(struct udevice *dev)
 	if (rtn) {
 		printf("can't get eth_cfg resource(ret = %d)\n", rtn);
 	}
-	printf("eth_top 0x%x eth_cfg 0x%x \n", eth_top.start, eth_cfg.start);
+//	printf("eth_top 0x%x eth_cfg 0x%x \n", eth_top.start, eth_cfg.start);
 
 	setbits_le32(eth_top.start, mc_val);
 
@@ -855,7 +855,7 @@ static void setup_external_phy(struct udevice *dev)
 		printf("miss analog_ver\n");
 	}
 	if (analog_ver != 2)
-		writel(0x0, eth_cfg.start + ETH_PHY_CNTL2);
+		writel(0x0, eth_cfg.start + AML_ETH_PHY_CNTL2);
 
 	clrbits_le32(ANACTRL_PLL_GATE_DIS, (0x1 << 6));
 	clrbits_le32(ANACTRL_PLL_GATE_DIS, (0x1 << 7));
@@ -881,6 +881,7 @@ static void __iomem *DM_network_interface_setup(struct udevice *dev)
 		setup_external_phy(dev);
 	}
 	udelay(1000);
+	return 0;
 }
 #endif
 /*parse dts end*/
