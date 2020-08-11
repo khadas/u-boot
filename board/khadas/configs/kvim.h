@@ -62,10 +62,6 @@
 #define CONFIG_KHADAS_CFGLOAD 1
 #define CONFIG_KHADAS_SCRIPT 1
 
-#ifdef CONFIG_OF_LIBFDT_OVERLAY
-#undef CONFIG_OF_LIBFDT_OVERLAY
-#endif
-
 /* support ext4*/
 #define CONFIG_CMD_EXT4 1
 
