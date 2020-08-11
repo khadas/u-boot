@@ -52,6 +52,7 @@ static int fix_pll_test(void);
 static int ddr_pll_test(void);
 static int gp_pll_test(gp_pll_set_t * gp_pll);
 static int gp_pll_test_all(void);
+extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
 #if 0
 static unsigned int pll_range[PLL_ENUM][2] = {
@@ -741,7 +742,6 @@ static int usbphy_pll_test(usbphy_pll_set_t * usbphy_pll) {
 }
 
 static int usbphy_pll_test_all(void) {
-	unsigned int i=0;
 	unsigned int lock_check = PLL_LOCK_CHECK_MAX;
 	int ret=0;
 	unsigned long usbphy_base_cfg = 0xFE004000;

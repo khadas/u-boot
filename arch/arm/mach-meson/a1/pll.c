@@ -12,7 +12,6 @@
 #include <amlogic/cpu_id.h>
 #include <malloc.h>
 #include <asm/io.h>
-#include <asm/arch/clk_measure.h>
 #include <asm/arch/secure_apb.h>
 #include <asm/arch/timer.h>
 #include <asm/arch/pll.h>
@@ -46,6 +45,8 @@ static int sys_pll_test(sys_pll_set_t * sys_pll_set);
 static int sys_pll_test_all(sys_pll_cfg_t * sys_pll_cfg);
 static int fix_pll_test(void);
 static int ddr_pll_test(void);
+extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
+
 #if 0
 static int hdmi_pll_init(hdmi_pll_set_t * hdmi_pll_set);
 static int hdmi_pll_test(hdmi_pll_set_t * hdmi_pll_set);
