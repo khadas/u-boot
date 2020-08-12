@@ -32,11 +32,11 @@ static unsigned _get_romcode_boot_id(void)
         FB_DBG("boot_id 0x%x\n", boot_id);
 		boot_id = (boot_id>>4) & 0xf;
 	}
-	FB_MSG("boot_id 1x%x\n", boot_id);
+	FB_DBG("boot_id 1x%x\n", boot_id);
 #endif// #ifdef SYSCTRL_SEC_STATUS_REG2
 
 #if defined(P_AO_SEC_GP_CFG0)
-    if (MESON_CPU_MAJOR_ID_C2 >= familyId && 
+    if (MESON_CPU_MAJOR_ID_C2 >= familyId &&
 			MESON_CPU_MAJOR_ID_SC2 != familyId) {
 		FB_DBG("cfg0 0x%08x\n", readl(P_AO_SEC_GP_CFG0));
 		boot_id = readl(P_AO_SEC_GP_CFG0) & 0xf;
