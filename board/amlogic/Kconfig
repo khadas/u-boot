@@ -288,6 +288,10 @@ if MESON_SC2
 config SYS_SOC
 	default "sc2"
 
+config DDRFW_TYPE
+	string "SC2 DDR FW Type"
+	default "ddr4"
+
 choice
 	prompt "SC2 Board"
 
