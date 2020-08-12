@@ -491,7 +491,7 @@ static int check_lock(void)
 		info->lock_critical_state = (int)(lock_s[5] - '0');
 		info->lock_bootloader = (int)(lock_s[6] - '0');
 
-		dump_lock_info(info);
+		//dump_lock_info(info);
 	} else
 		return 0;
 
@@ -1149,24 +1149,31 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 
 	strcpy(response, "OKAY");
 	chars_left = sizeof(response_str) - strlen(response) - 1;
-	cmd = req->buf;
-	strsep(&cmd, " ");
-	printf("cb_flashing: %s\n", cmd);
+	cmd = strchr(req->buf, ' ');
 	if (!cmd) {
 		error("missing variable\n");
 		fastboot_tx_write_str("FAILmissing var");
 		free(info);
 		return;
 	}
+	cmd += 1;
+	printf("cb_flashing: %s\n", cmd);
 
 	if (!strcmp_l1("unlock_critical", cmd)) {
 		info->lock_critical_state = 0;
 	} else if (!strcmp_l1("lock_critical", cmd)) {
 		info->lock_critical_state = 1;
 	} else if (!strcmp_l1("get_unlock_ability", cmd)) {
-		char str_num[8];
-		sprintf(str_num, "%d", info->unlock_ability);
-		strncat(response, str_num, chars_left);
+		char str[32];
+		static bool is_unlock_ability_sent = false;
+		if (is_unlock_ability_sent) {
+			is_unlock_ability_sent = false;
+		} else {
+			sprintf(str, "get_unlock_ability: %d",
+				info->unlock_ability);
+			fastboot_busy(str);
+			is_unlock_ability_sent = true;
+		}
 	} else if (!strcmp_l1("get_unlock_bootloader_nonce", cmd)) {
 		char str_num[8];
 		sprintf(str_num, "%d", info->lock_critical_state);
@@ -1389,7 +1396,6 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 	char* response = response_str;
 	char *cmd = req->buf;
 	char *slot_name;
-	char* lock_s;
 
 	printf("cmd cb_erase is %s\n", cmd);
 
@@ -1428,11 +1434,6 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 		printf("partition is %s\n", cmd);
 	}
 
-	lock_s = getenv("lock");
-	if (!lock_s) {
-		lock_s = "10101000";
-	}
-
 	//strcpy(response, "FAILno erase device defined");
 	if (is_mainstorage_emmc()) {
 #ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
@@ -1447,12 +1448,6 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 	} else {
 		printf("error: no valid fastboot device\n");
 		fastboot_fail("no vaild device\n");
-	}
-
-	if (strcmp(cmd, "env") == 0) {
-		printf("lock_d state: %s\n", lock_s);
-		setenv("lock", lock_s);
-		run_command("defenv_reserv; saveenv;", 0);
 	}
 	fastboot_tx_write_str(response);
 }
