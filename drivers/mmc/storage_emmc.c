@@ -795,13 +795,12 @@ int mmc_write_rsv(const char *rsv_name, size_t size, void *buf) {
 		ret |= renew_partition_tbl(buf);
 	}
 
-	if (!strcmp("key", rsv_name))
+	if (!strcmp("key", rsv_name)) {
 		info_disprotect |= DISPROTECT_KEY;
-	ret = storage_byte_write(mmc, off, size, buf);
-	if (!strcmp("key", rsv_name))
+		ret = storage_byte_write(mmc, off, size, buf);
 		info_disprotect &= ~DISPROTECT_KEY;
-	if (ret != 0) {
-		printf("write resv failed\n");
+		if (ret != 0)
+			printf("write key failed\n");
 	}
 
 	return ret;
