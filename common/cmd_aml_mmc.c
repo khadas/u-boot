@@ -3645,7 +3645,7 @@ int dtb_write(void *addr)
 	return ret;
 }
 
-extern int check_valid_dts(unsigned char *buffer);
+extern int check_valid_dts(unsigned char *buffer, unsigned char **dts);
 int renew_partition_tbl(unsigned char *buffer)
 {
 	int ret = 0;
@@ -3658,7 +3658,7 @@ int renew_partition_tbl(unsigned char *buffer)
 		return 1;
 	memcpy(temp, buffer, AML_DTB_IMG_MAX_SZ);
 	/* todo, check new dts imcoming.... */
-	ret = check_valid_dts(temp);
+	ret = check_valid_dts(temp, NULL);
 	free(temp);
 
 	/* only the dts new is valid */
