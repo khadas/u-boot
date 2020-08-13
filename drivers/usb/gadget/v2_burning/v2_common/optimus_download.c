@@ -783,8 +783,8 @@ int optimus_storage_init(int toErase)
     else{
 #ifdef CONFIG_AML_MTD
         if ( NAND_BOOT_FLAG == device_boot_flag ) {
-            extern int check_valid_dts(unsigned char *buffer);
-            ret =  check_valid_dts(dtbLoadedAddr);
+            extern int check_valid_dts(unsigned char *buffer, unsigned char **dts);
+            ret =  check_valid_dts(dtbLoadedAddr, NULL);
         } else
 #endif // #ifdef CONFIG_AML_MTD
         ret = get_partition_from_dts(dtbLoadedAddr);

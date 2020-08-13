@@ -254,10 +254,10 @@ unsigned long __attribute__((unused))
   return 0 if dts is valid
   other value are falure.
 */
-int check_valid_dts(unsigned char *buffer)
+int check_valid_dts(unsigned char *buffer, unsigned char **dts)
 {
 	int ret = -__LINE__;
-	char *dt_addr;
+	unsigned char *dt_addr;
 	/* fixme, a work around way */
 	unsigned char *sbuffer = (unsigned char *)getenv_hex("loadaddr", CONFIG_DTB_MEM_ADDR + 0x100000);
 	/* g12a merge to trunk, use trunk code */
@@ -284,10 +284,12 @@ int check_valid_dts(unsigned char *buffer)
 
 	}
 #ifdef CONFIG_MULTI_DTB
-	dt_addr = (char *)get_multi_dt_entry((unsigned long)buffer);
+	dt_addr = (unsigned char *)get_multi_dt_entry((unsigned long)buffer);
 #else
-	dt_addr = (char *)buffer;
+	dt_addr = (unsigned char *)buffer;
 #endif
+	if (*dts)
+		*dts = dt_addr;
 	printf("start dts,buffer=%p,dt_addr=%p\n", buffer, dt_addr);
 	ret = fdt_check_header(dt_addr);
 	if ( ret < 0 )

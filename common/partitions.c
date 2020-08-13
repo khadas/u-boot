@@ -27,7 +27,7 @@ Description:
 #include <asm/arch/secure_apb.h>
 
 extern int is_dtb_encrypt(unsigned char *buffer);
-extern int check_valid_dts(unsigned char *buffer);
+extern int check_valid_dts(unsigned char *buffer, unsigned char **dts);
 #ifdef CONFIG_MULTI_DTB
 	extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
 #endif
@@ -74,7 +74,7 @@ void free_partitions(void)
 
 int get_partition_from_dts(unsigned char *buffer)
 {
-	char *dt_addr;
+	unsigned char *dt_addr = buffer;
 	int nodeoffset,poffset=0;
 	int *parts_num;
 	char propname[8];
@@ -88,18 +88,11 @@ int get_partition_from_dts(unsigned char *buffer)
 	if ( buffer == NULL)
 		goto _err;
 
-	ret = check_valid_dts(buffer);
+	ret = check_valid_dts(buffer, &dt_addr);
 	printf("%s() %d: ret %d\n",__func__, __LINE__, ret);
 	if ( ret < 0 )
-	{
-		printf("%s() %d: ret %d\n",__func__, __LINE__, ret);
 		goto _err;
-	}
-#ifdef CONFIG_MULTI_DTB
-	dt_addr = (char *)get_multi_dt_entry((unsigned long)buffer);
-#else
-	dt_addr = (char *)buffer;
-#endif
+
 	nodeoffset = fdt_path_offset(dt_addr, "/partitions");
 	if (nodeoffset < 0)
 	{
