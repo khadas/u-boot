@@ -489,8 +489,6 @@ static void flashing(char *cmd_parameter, char *response)
 	info->lock_critical_state = (int)(lock_d[5] - '0');
 	info->lock_bootloader = (int)(lock_d[6] - '0');
 
-	dump_lock_info(info);
-
 	printf("cb_flashing cmd_parameter: %s\n", cmd_parameter);
 	cmd = cmd_parameter;
 	strsep(&cmd, " ");
@@ -509,9 +507,21 @@ static void flashing(char *cmd_parameter, char *response)
 		info->lock_critical_state = 1;
 		fastboot_okay(NULL, response);
 	} else if (!strcmp_l1("get_unlock_ability", cmd)) {
-		char str_num[8];
-		sprintf(str_num, "%d", info->unlock_ability);
-		fastboot_response("OKAY", response, "%s", str_num);
+		char str[32];
+		static bool is_unlock_ability_sent = false;
+		if (is_unlock_ability_sent) {
+			is_unlock_ability_sent = false;
+			fastboot_okay(NULL, response);
+			busy_flag = 0;
+		} else {
+			sprintf(str, "get_unlock_ability: %d",
+				info->unlock_ability);
+			fastboot_response("INFO", response, "%s", str);
+			is_unlock_ability_sent = true;
+			busy_flag = 1;
+		}
+		free(info);
+		return;
 	} else if (!strcmp_l1("get_unlock_bootloader_nonce", cmd)) {
 		char str_num[8];
 		sprintf(str_num, "%d", info->lock_critical_state);
@@ -581,7 +591,6 @@ static void flashing(char *cmd_parameter, char *response)
 		fastboot_response("FAIL", response, "%s", "Variable not implemented");
 	}
 
-	dump_lock_info(info);
 	sprintf(lock_d, "%d%d%d0%d%d%d0", info->version_major, info->version_minor, info->unlock_ability, info->lock_state, info->lock_critical_state, info->lock_bootloader);
 	printf("lock_d state: %s\n", lock_d);
 	env_set("lock", lock_d);
