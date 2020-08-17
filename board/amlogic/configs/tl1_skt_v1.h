@@ -83,7 +83,7 @@
         "firstboot=1\0"\
         "upgrade_step=0\0"\
         "jtag=disable\0"\
-        "loadaddr=1080000\0"\
+        "loadaddr=3080000\0"\
         "panel_type=lvds_0\0" \
 	"lcd_ctrl=0x00000000\0" \
         "outputmode=1080p60hz\0" \
