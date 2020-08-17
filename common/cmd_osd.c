@@ -36,13 +36,14 @@ int osd_enabled = 0;
 /* Graphic Device */
 static GraphicDevice *gdev = NULL;
 
-extern void osd_debug(void);
-extern void osd_set_log_level(int);
-extern void osd_test(void);
-extern void osd_enable_hw(u32 index, u32 enable);
-extern void osd_set_free_scale_enable_hw(u32 index, u32 enable);
-extern int osd_rma_test(u32 osd_index);
-extern int get_osd_layer(void);
+void osd_debug(void);
+void osd_set_log_level(int);
+void osd_test(void);
+void osd_enable_hw(u32 index, u32 enable);
+void osd_set_free_scale_enable_hw(u32 index, u32 enable);
+int osd_rma_test(u32 osd_index);
+int get_osd_layer(void);
+void osd_set_4k2k_fb_mode_hw(u32 fb_for_4k2k);
 
 #ifdef CONFIG_AML_HDMITX20
 extern struct hdmitx_dev hdmitx_device;
@@ -51,6 +52,16 @@ extern struct hdmitx_dev hdmitx_device;
 static int do_osd_open(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
+	char *s;
+	uint fb_for_4k2k= 0;
+
+	s = getenv("fb_for_4k2k");
+	if (s != NULL) {
+		fb_for_4k2k = simple_strtoul(s, NULL, 10) ? 1 : 0;
+		printf("[OSD]using fb_for_4k2k %d\n", fb_for_4k2k);
+	}
+	osd_set_4k2k_fb_mode_hw(fb_for_4k2k);
+
 	gdev = video_hw_init(RECT_MODE);
 	if (gdev == NULL) {
 		printf("Initialize video device failed!\n");

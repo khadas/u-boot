@@ -498,7 +498,10 @@ int osd_set_scan_mode(u32 index)
 	vmode = vout_get_current_vmode();
 #endif
 	osd_hw.scan_mode = SCAN_MODE_PROGRESSIVE;
-	osd_hw.scale_workaround = 0;
+	if (osd_hw.fb_for_4k2k) {
+		if (osd_hw.free_scale_enable[index])
+			osd_hw.scale_workaround = 1;
+	}
 	switch (vmode) {
 	/* case VMODE_LCD: */
 	case VMODE_480I:
@@ -1687,7 +1690,7 @@ static void osd_super_scale_disable(void)
 
 static void osd1_update_disp_freescale_enable(void)
 {
-	int hf_phase_step, vf_phase_step;
+	u64 hf_phase_step, vf_phase_step;
 	int src_w, src_h, dst_w, dst_h;
 	int bot_ini_phase;
 	int vsc_ini_rcv_num, vsc_ini_rpt_p0_num;
@@ -1747,9 +1750,10 @@ static void osd1_update_disp_freescale_enable(void)
 		/* disable osd scaler path */
 		VSYNCOSD_WR_MPEG_REG(VPP_OSD_SC_CTRL0, 0);
 	}
-	hf_phase_step = (src_w << 18) / dst_w;
-	hf_phase_step = (hf_phase_step << 6);
-	vf_phase_step = (src_h << 20) / dst_h;
+
+	hf_phase_step = ((u64)src_w << 24) / dst_w;
+	vf_phase_step = ((u64)src_h << 20) / dst_h;
+
 	if (osd_hw.field_out_en)   /* interlace output */
 		bot_ini_phase = ((vf_phase_step / 2) >> 4);
 	else
@@ -1852,7 +1856,7 @@ static void osd1_update_coef(void)
 
 static void osd2_update_disp_freescale_enable(void)
 {
-	int hf_phase_step, vf_phase_step;
+	u64 hf_phase_step, vf_phase_step;
 	int src_w, src_h, dst_w, dst_h;
 	int bot_ini_phase;
 	int vsc_ini_rcv_num, vsc_ini_rpt_p0_num;
@@ -1901,9 +1905,10 @@ static void osd2_update_disp_freescale_enable(void)
 		/* disable osd scaler path */
 		VSYNCOSD_WR_MPEG_REG(VPP_OSD_SC_CTRL0, 0);
 	}
-	hf_phase_step = (src_w << 18) / dst_w;
-	hf_phase_step = (hf_phase_step << 6);
-	vf_phase_step = (src_h << 20) / dst_h;
+
+	hf_phase_step = ((u64)src_w << 24) / dst_w;
+	vf_phase_step = ((u64)src_h << 20) / dst_h;
+
 	if (osd_hw.field_out_en)   /* interlace output */
 		bot_ini_phase = ((vf_phase_step / 2) >> 4);
 	else
