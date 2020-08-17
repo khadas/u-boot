@@ -2310,6 +2310,7 @@ static int mmc_startup(struct mmc *mmc)
 	}
 #endif
 
+#ifdef CONFIG_MMC_FBOOT
 	if (emmc_boot_chk(mmc)) {
 		mmc_switch_part(mmc, 0);
 
@@ -2335,6 +2336,7 @@ static int mmc_startup(struct mmc *mmc)
 
 		memcpy(mmc->cid, cmd.response, 16);
 	} else {
+#endif
 		/* Put the Card in Identify Mode */
 		cmd.cmdidx = mmc_host_is_spi(mmc) ? MMC_CMD_SEND_CID :
 			MMC_CMD_ALL_SEND_CID; /* cmd not supported in spi */
@@ -2381,7 +2383,9 @@ static int mmc_startup(struct mmc *mmc)
 			if (IS_SD(mmc))
 				mmc->rca = (cmd.response[0] >> 16) & 0xffff;
 		}
+#ifdef CONFIG_MMC_FBOOT
 	}
+#endif
 
 	/* Get the Card-Specific Data */
 	cmd.cmdidx = MMC_CMD_SEND_CSD;
@@ -2797,11 +2801,13 @@ int mmc_start_init(struct mmc *mmc)
 		return -ENOMEDIUM;
 	}
 
+#ifdef CONFIG_MMC_FBOOT
 	if (emmc_boot_chk(mmc)) {
 		mmc->high_capacity = 1;
 		mmc->rca = 1;
 		mmc->version = MMC_VERSION_UNKNOWN;
 	} else
+#endif
 		err = mmc_get_op_cond(mmc);
 
 	if (!err)

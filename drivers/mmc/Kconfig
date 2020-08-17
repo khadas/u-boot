@@ -18,6 +18,12 @@ config MMC_WRITE
 	help
 	  Enable write access to MMC and SD Cards
 
+config MMC_FBOOT
+	bool "support for MMC fast boot"
+	default n
+	help
+	  Enable MMC fast boot
+
 config MMC_BROKEN_CD
 	bool "Poll for broken card detection case"
 	help
