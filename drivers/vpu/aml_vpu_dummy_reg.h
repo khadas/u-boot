@@ -70,5 +70,73 @@
 #define DOLBY_CORE1_1_CLKGATE_CTRL                 (0x44f2)
 #endif
 
+#ifndef VENC_VDAC_TST_VAL
+#define VENC_VDAC_TST_VAL                          (0x1b7f)
+#endif
+#ifndef ENCP_DVI_HSO_BEGIN
+#define ENCP_DVI_HSO_BEGIN                         (0x1c30)
+#endif
+#ifndef VPP_DUMMY_DATA
+#define VPP_DUMMY_DATA                             (0x1d00)
+#endif
+#ifndef VPU_VPU_PWM_V0
+#define VPU_VPU_PWM_V0                             (0x2730)
+#endif
+
+#ifndef HHI_VPU_CLK_CNTL
+#define HHI_VPU_CLK_CNTL                           (0xc883c000 + (0x6f << 2))
+#endif
+
+#ifndef HHI_VAPBCLK_CNTL
+#define HHI_VAPBCLK_CNTL                           (0xc883c000 + (0x7d << 2))
+#endif
+
+#ifndef HHI_VID_CLK_CNTL2
+#define HHI_VID_CLK_CNTL2                          (0xff63c000 + (0x065 << 2))
+#endif
+
+#ifndef AO_RTI_GEN_PWR_SLEEP0
+#define AO_RTI_GEN_PWR_SLEEP0                      (0xff800000 + (0x03a << 2))
+#endif
+
+#ifndef AO_RTI_GEN_PWR_ISO0
+#define AO_RTI_GEN_PWR_ISO0                        (0xff800000 + (0x03b << 2))
+#endif
+
+#ifndef HHI_VPU_MEM_PD_REG0
+#define HHI_VPU_MEM_PD_REG0                        (0xff63c000 + (0x041 << 2))
+#endif
+
+#ifndef HHI_VPU_MEM_PD_REG1
+#define HHI_VPU_MEM_PD_REG1                        (0xff63c000 + (0x042 << 2))
+#endif
+
+#ifndef HHI_VPU_MEM_PD_REG2
+#define HHI_VPU_MEM_PD_REG2                        (0xff63c000 + (0x04d << 2))
+#endif
+
+#ifndef HHI_VPU_MEM_PD_REG3
+#define HHI_VPU_MEM_PD_REG3                        (0xff63c000 + (0x043 << 2))
+#endif
+
+#ifndef HHI_VPU_MEM_PD_REG4
+#define HHI_VPU_MEM_PD_REG4                        (0xff63c000 + (0x044 << 2))
+#endif
+
+#ifndef RESET0_LEVEL
+#define RESET0_LEVEL                               (0x0420)
+#endif
+#ifndef RESET1_LEVEL
+#define RESET1_LEVEL                               (0x0421)
+#endif
+#ifndef RESET2_LEVEL
+#define RESET2_LEVEL                               (0x0422)
+#endif
+#ifndef RESET4_LEVEL
+#define RESET4_LEVEL                               (0x0424)
+#endif
+#ifndef RESET7_LEVEL
+#define RESET7_LEVEL                               (0x0427)
+#endif
 
 #endif

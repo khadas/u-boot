@@ -548,9 +548,9 @@
 #endif
 
 /* vpu */
-//#define CONFIG_AML_VPU 1
-//#define CONFIG_VPU_CLK_LEVEL_DFT 7
-
+#define CONFIG_AML_VPU 1
+#define CONFIG_VPU_CLK_LEVEL_DFT 7
+#ifdef CONFIG_AML_VPU
 /* DISPLAY & HDMITX */
 //#define CONFIG_AML_HDMITX20 1
 //#define CONFIG_AML_CANVAS 1
@@ -570,6 +570,7 @@
 
 //#define CONFIG_AML_LOCAL_DIMMING
 //#define CONFIG_AML_LOCAL_DIMMING_GLOBAL
+#endif
 
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard
