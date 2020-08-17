@@ -32,6 +32,7 @@
 #endif
 #include <partition_table.h>
 #include <android_image.h>
+#include <android_vab.h>
 #include <image.h>
 #ifdef CONFIG_AML_ANTIROLLBACK
 #include <anti-rollback.h>
@@ -59,6 +60,13 @@ DECLARE_GLOBAL_DATA_PTR;
 #define FB_HERE()    printf("f(%s)L%d\n", __func__, __LINE__)
 
 extern void f_dwc_otg_pullup(int is_on);
+
+extern int store_read_ops(
+    unsigned char *partition_name,
+    unsigned char * buf, uint64_t off, uint64_t size);
+extern int store_write_ops(
+    unsigned char *partition_name,
+    unsigned char * buf, uint64_t off, uint64_t size);
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 extern int is_partition_logical(char* parition_name);
@@ -456,14 +464,68 @@ static int strcmp_l1(const char *s1, const char *s2)
 	return strncmp(s1, s2, strlen(s1));
 }
 
+int get_mergestatus(struct misc_virtual_ab_message *message)
+{
+	char *partition = "misc";
+	char vab_buf[1024] = {0};
+
+	if (store_read_ops((unsigned char *)partition,
+		(unsigned char *)vab_buf, SYSTEM_SPACE_OFFSET_IN_MISC, 1024) < 0) {
+		printf("failed to store read %s.\n", partition);
+		return -1;
+	}
+
+	run_command("get_valid_slot", 0);
+	int current_slot = 0;
+	char *slot;
+	slot = getenv("slot-suffixes");
+	if (strcmp(slot, "0") == 0) {
+		current_slot = 0;
+	} else if (strcmp(slot, "1") == 0) {
+		current_slot = 1;
+	}
+
+	memcpy(message, vab_buf, sizeof(struct misc_virtual_ab_message));
+	printf("message.merge_status: %d\n", message->merge_status);
+	printf("message.source_slot: %d\n", message->source_slot);
+	if (message->merge_status == SNAPSHOTTED && current_slot == message->source_slot) {
+		message->merge_status = NONE;
+		printf("set message.merge_status NONE\n");
+	}
+	return 0;
+}
+
+int set_mergestatus_cancel(struct misc_virtual_ab_message *message)
+{
+	char *partition = "misc";
+	char vab_buf[1024] = {0};
+
+	if (store_read_ops((unsigned char *)partition,
+		(unsigned char *)vab_buf, SYSTEM_SPACE_OFFSET_IN_MISC, 1024) < 0) {
+		printf("failed to store read %s.\n", partition);
+		return -1;
+	}
+
+	memcpy(message, vab_buf, sizeof(struct misc_virtual_ab_message));
+	printf("message.merge_status: %d\n", message->merge_status);
+	if (message->merge_status == SNAPSHOTTED || message->merge_status == MERGING) {
+		message->merge_status = CANCELLED;
+		printf("set message.merge_status CANCELLED\n");
+	}
+	store_write_ops((unsigned char *)partition, (unsigned char *)vab_buf, SYSTEM_SPACE_OFFSET_IN_MISC, 1024);
+	return 0;
+}
+
 void dump_lock_info(LockData_t* info)
 {
+#if 0
 	printf("info->version_major = %d\n", info->version_major);
 	printf("info->version_minor = %d\n", info->version_minor);
 	printf("info->unlock_ability = %d\n", info->unlock_ability);
 	printf("info->lock_state = %d\n", info->lock_state);
 	printf("info->lock_critical_state = %d\n", info->lock_critical_state);
 	printf("info->lock_bootloader = %d\n", info->lock_bootloader);
+#endif
 }
 
 
@@ -892,6 +954,22 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 			strncat(response, "no", chars_left);
 		} else {
 			strncat(response, "yes", chars_left);
+		}
+	} else if (!strcmp_l1("snapshot-update-status", cmd)) {
+		if (has_boot_slot == 1) {
+			struct misc_virtual_ab_message message;
+			get_mergestatus(&message);
+			switch (message.merge_status) {
+				case SNAPSHOTTED:
+					strncat(response, "snapshotted", chars_left);
+					break;
+				case MERGING:
+					strncat(response, "merging", chars_left);
+					break;
+				default:
+					strncat(response, "none", chars_left);
+					break;
+			}
 		}
 	} else if (!strcmp_l1("slot-successful", cmd)) {
 		char str[128];
@@ -1348,6 +1426,13 @@ static void cb_set_active(struct usb_ep *ep, struct usb_request *req)
 		return;
 	}
 
+	struct misc_virtual_ab_message message;
+	get_mergestatus(&message);
+	if (message.merge_status == MERGING) {
+		fastboot_tx_write_str("FAILin merge state, cannot set active");
+		return;
+	}
+
 	sprintf(str, "set_active_slot %s", cmd);
 	printf("command:    %s\n", str);
 	ret = run_command(str, 0);
@@ -1412,8 +1497,15 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 		return;
 	}
 
+	struct misc_virtual_ab_message message;
+	get_mergestatus(&message);
+
 	printf("partition is %s\n", cmd);
 	if ((has_boot_slot == 1) && (strcmp(cmd, "metadata") == 0)) {
+		if (message.merge_status == SNAPSHOTTED || message.merge_status == MERGING) {
+			fastboot_tx_write_str("FAILin merge state, cannot erase");
+			return;
+		}
 		slot_name = getenv("slot-suffixes");
 		if (strcmp(slot_name, "0") == 0) {
 			printf("set partiton metadata_a\n");
@@ -1427,6 +1519,10 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 	if (strcmp(cmd, "userdata") == 0) {
 		strcpy(cmd, "data");
 		printf("partition is %s\n", cmd);
+		if (message.merge_status == SNAPSHOTTED || message.merge_status == MERGING) {
+			fastboot_tx_write_str("FAILin merge state, cannot erase");
+			return;
+		}
 	}
 
 	if (strcmp(cmd, "dts") == 0) {
@@ -1462,6 +1558,32 @@ static void cb_devices(struct usb_ep *ep, struct usb_request *req)
 	strcpy(response, "AMLOGIC");
 
 	fastboot_tx_write_str(response);
+}
+
+static void cb_snapshot_update_cmd(struct usb_ep *ep, struct usb_request *req)
+{
+	char *cmd;
+
+	cmd = req->buf;
+	strsep(&cmd, ":");
+	printf("snapshot-update: %s\n", cmd);
+	if (!cmd) {
+		error("missing variable\n");
+		fastboot_tx_write_str("FAILmissing var");
+		return;
+	}
+
+	if (check_lock()) {
+		error("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
+		fastboot_tx_write_str("FAILlocked device");
+		return;
+	}
+
+	if (!strcmp_l1("cancel", cmd)) {
+		struct misc_virtual_ab_message message;
+		set_mergestatus_cancel(&message);
+	}
+	fastboot_tx_write_str("OKAY");
 }
 
 static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
@@ -1546,6 +1668,10 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 	{
 		.cmd = "oem",
 		.cb  = cb_oem_cmd,
+	},
+	{
+		.cmd = "snapshot-update",
+		.cb  = cb_snapshot_update_cmd,
 	}
 };
 
