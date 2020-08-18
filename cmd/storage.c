@@ -9,6 +9,9 @@
 #include <div64.h>
 #include <linux/math64.h>
 #include <amlogic/cpu_id.h>
+#include <asm/arch/register.h>
+
+#include <asm/arch/secure_apb.h>
 
 #undef pr_info
 #define pr_info       printf
@@ -460,6 +463,43 @@ u8 store_boot_copy_num(const char *name)
 		return 1;
 	}
 	return store->get_copies(name);
+}
+
+
+#ifndef  SYSCTRL_SEC_STATUS_REG2
+static u32 fake_reg = 0;
+#define SYSCTRL_SEC_STATUS_REG2		(&fake_reg)
+#endif
+
+u8 store_bootup_bootidx(const char *name)
+{
+	cpu_id_t cpu_id = get_cpu_id();
+	u8 bl2_idx = 0, fip_idx = 0;
+	u32 val = 0;
+
+	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) {
+			bl2_idx = readl(SYSCTRL_SEC_STATUS_REG2) & 0xF;
+			//TODO: fixme after robust devfip is finished.
+			fip_idx = bl2_idx;
+	} else {
+		/* accroding to the:
+			commit 975b4acbcfa686601999d56843471d98e9c0a2cd
+			storage: robust boot: record bootlog in SEC_AO_SEC_GP_CFG2 [1/2]
+			PD#SWPL-4850
+			...
+			record the bootup bl2/fip into SEC_AO_SEC_GP_CFG2
+			bit[27-25] bl2
+			bit[24-22] fip
+		*/
+		val = readl(SEC_AO_SEC_GP_CFG2);
+		bl2_idx = (val >> 25) & 0x7;
+		fip_idx = (val >> 22) & 0x7;
+	}
+	if (!strncmp(name, "bl2", sizeof("bl2")) ||
+			!strncmp(name, "spl", sizeof("spl")))
+		return bl2_idx;
+	else
+		return fip_idx;
 }
 
 u64 store_boot_copy_size(const char *name)

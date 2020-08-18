@@ -342,6 +342,16 @@ u64 store_part_size(const char *name);
 u8 store_boot_copy_num(const char *name);
 
 /**
+ * @usage: get the bootup index of [name]
+ *
+ * @name: do not care discrete mode or compact mode
+ * 		"bl2" "spl" could be used as the one romboot loaded
+ * 		"fip" "devfip" "tpl" or "bootloader" would be the main u-boot.
+ * @return: the copy number of the "bootloader" or "tpl"
+ */
+u8 store_bootup_bootidx(const char *name);
+
+/**
  * @usage: get the copy size of [name]
  *
  * @name: name: only can be "bl2" or "tpl"/"fip" in discrete mode
