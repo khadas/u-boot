@@ -390,6 +390,15 @@ const struct mtd_partition *get_partition_table(int *partitions)
 }
 #endif /* CONFIG_SPI_NAND */
 
+#ifdef CONFIG_MULTI_DTB
+int checkhw(char * name)
+{
+    strcpy(name, "sc2_s905x4_ah212\0");
+    setenv("aml_dt", "sc2_s905x4_ah212\0");
+    return 0;
+}
+#endif
+
 const char * const _env_args_reserve_[] =
 {
 	"lock",
