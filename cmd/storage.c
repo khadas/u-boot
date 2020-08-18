@@ -203,24 +203,32 @@ int storage_boot_layout_general_setting(
 	return 0;
 }
 
- int storage_get_emmc_boot_seqs(void)
-{
-	int backups;
-	uint8_t ebcfg = 0;
-	uint8_t emmc_boot_seqs_tbl[8][2] = {
+uint8_t emmc_boot_seqs_tbl[8][2] = {
 		{0, 3}, {0, 2}, {0, 3}, {0, 1},
 		{1, 2}, {1, 1}, {2, 1}, {0, 0}
 	};
 
+static int _get_emmc_boot_seqs(void)
+{
+	uint8_t ebcfg = 0;
 	if (IS_FEAT_DIS_EMMC_USER())
 		ebcfg |= (1<<2);
 	if (IS_FEAT_DIS_EMMC_BOOT_0())
 		ebcfg |= (1<<1);
 	if (IS_FEAT_DIS_EMMC_BOOT_1())
 		ebcfg |= (1<<0);
-	backups = emmc_boot_seqs_tbl[ebcfg][1];
 
-	return backups;
+	return ebcfg;
+}
+
+static int storage_get_emmc_boot_seqs(void)
+{
+	return emmc_boot_seqs_tbl[_get_emmc_boot_seqs()][1];;
+}
+
+static int storage_get_emmc_boot_start(void)
+{
+	return emmc_boot_seqs_tbl[_get_emmc_boot_seqs()][0];;
 }
 
 #define NAND_RSV_BLOCK_NUM 48
@@ -471,6 +479,22 @@ u8 store_boot_copy_num(const char *name)
 static u32 fake_reg = 0;
 #define SYSCTRL_SEC_STATUS_REG2		(&fake_reg)
 #endif
+u8 store_boot_copy_start(void)
+{
+	struct storage_t *store = store_get_current();
+	cpu_id_t cpu_id = get_cpu_id();
+
+	if (!store) {
+		pr_info("%s %d please init storage device first\n",
+			__func__, __LINE__);
+		return 0;
+	}
+	if (store->type != BOOT_EMMC)
+		return 0;
+	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2)
+		return storage_get_emmc_boot_start();
+	return 0;
+}
 
 u8 store_bootup_bootidx(const char *name)
 {

@@ -342,6 +342,12 @@ u64 store_part_size(const char *name);
 u8 store_boot_copy_num(const char *name);
 
 /**
+ * @usage: get the 1st boot copy nubmer of current device.
+ * for eMMC: 0 -> user partition; 1 -> boot0; 2 -> boot1
+ */
+u8 store_boot_copy_start(void);
+
+/**
  * @usage: get the bootup index of [name]
  *
  * @name: do not care discrete mode or compact mode
@@ -353,7 +359,6 @@ u8 store_bootup_bootidx(const char *name);
 
 /**
  * @usage: restore the bootidx/bootdev etc.
- *
  */
 void store_restore_bootidx(void);
 
