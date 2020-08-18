@@ -73,4 +73,11 @@ config CMD_OS_IDENT
 	help
 	  Ident OS type
 
+config AML_ROBUST
+	bool "envs for robust upgrade"
+	depends on AML_STORAGE
+	default y
+	help
+		"envs for robust upgrade like defendkey"
+
 endmenu
