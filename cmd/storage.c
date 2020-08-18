@@ -10,6 +10,7 @@
 #include <linux/math64.h>
 #include <amlogic/cpu_id.h>
 #include <asm/arch/register.h>
+#include <asm/arch/bl31_apis.h>
 
 #include <asm/arch/secure_apb.h>
 
@@ -500,6 +501,14 @@ u8 store_bootup_bootidx(const char *name)
 		return bl2_idx;
 	else
 		return fip_idx;
+}
+
+void store_restore_bootidx(void)
+{
+	cpu_id_t cpu_id = get_cpu_id();
+	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2)
+		aml_set_bootsequence(0x55);
+	return;
 }
 
 u64 store_boot_copy_size(const char *name)

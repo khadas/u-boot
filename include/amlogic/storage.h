@@ -352,6 +352,12 @@ u8 store_boot_copy_num(const char *name);
 u8 store_bootup_bootidx(const char *name);
 
 /**
+ * @usage: restore the bootidx/bootdev etc.
+ *
+ */
+void store_restore_bootidx(void);
+
+/**
  * @usage: get the copy size of [name]
  *
  * @name: name: only can be "bl2" or "tpl"/"fip" in discrete mode

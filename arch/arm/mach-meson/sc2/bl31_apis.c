@@ -340,14 +340,16 @@ unsigned aml_reboot(uint64_t function_id, uint64_t arg0, uint64_t arg1, uint64_t
 }
 
 /* clear boot sequence related registers */
-void aml_clr_bootsequence(void)
+void aml_set_bootsequence(uint32_t val)
 {
-	register uint64_t x0 asm("x0") = CLR_STORAGE_BOOTSEQUENCE;
-
+	register long x0 asm("x0") = SET_STORAGE_BOOTSEQUENCE;
+	register long x1 asm("x1") = val;
 	asm volatile(
 			__asmeq("%0", "x0")
+			__asmeq("%1", "x1")
 			"smc #0\n"
-			:"+r"(x0));
+			:"+r"(x0)
+			: "r" (x1));
 
 	return;
 }

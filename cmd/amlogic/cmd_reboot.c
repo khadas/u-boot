@@ -26,7 +26,7 @@
 #include <asm/io.h>
 #include <asm/arch/bl31_apis.h>
 #include <partition_table.h>
-
+#include <amlogic/storage.h>
 /*
 run get_rebootmode  //set reboot_mode env with current mode
 */
@@ -153,7 +153,10 @@ int do_reboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		printf("reboot mode: %s\n", argv[1]);
 		char * mode = argv[1];
 
-		if (strcmp(mode, "cold_boot") == 0)
+		if (strcmp(mode, "next") == 0) {
+			store_restore_bootidx();
+			reboot_mode_val = AMLOGIC_COLD_BOOT;
+		} else if (strcmp(mode, "cold_boot") == 0)
 			reboot_mode_val = AMLOGIC_COLD_BOOT;
 		else if (strcmp(mode, "normal") == 0)
 			reboot_mode_val = AMLOGIC_NORMAL_BOOT;
@@ -241,6 +244,7 @@ U_BOOT_CMD(
 	"    bootloader\n"
 	"    suspend_off\n"
 	"    hibernate\n"
+	"    next <ONLY work for SC2>\n"
 	"    crash_dump\n"
 );
 
