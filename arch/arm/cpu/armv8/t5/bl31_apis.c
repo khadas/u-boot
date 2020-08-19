@@ -480,3 +480,20 @@ int32_t get_avbkey_from_fip(uint8_t *buf, uint32_t buflen)
 
 	return ret;
 }
+
+void aml_set_power_domain(uint64_t function_id, uint64_t arg0, uint64_t arg1)
+{
+	register long x0 asm("x0") = function_id;
+	register long x1 asm("x1") = arg0;
+	register long x2 asm("x2") = arg1;
+
+	asm volatile(
+			__asmeq("%0", "x0")
+			__asmeq("%1", "x1")
+			__asmeq("%2", "x2")
+			"smc	#0\n"
+			: "+r" (x0)
+			: "r" (x1), "r" (x2));
+
+	return ;
+}

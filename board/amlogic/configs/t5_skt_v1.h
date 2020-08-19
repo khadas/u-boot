@@ -649,6 +649,9 @@
 
 #define CONFIG_EFUSE 1
 
+#define CONFIG_SECURE_POWER_CONTROL 1
+#define CONFIG_ARM_SMCCC	1
+
 /* commands */
 #define CONFIG_CMD_CACHE 1
 #define CONFIG_CMD_BOOTI 1

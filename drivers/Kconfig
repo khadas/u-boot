@@ -51,4 +51,6 @@ source "drivers/crypto/Kconfig"
 source "drivers/vpu/Kconfig"
 
 source "drivers/nand/Kconfig"
+
+source "drivers/powerdomain/Kconfig"
 endmenu

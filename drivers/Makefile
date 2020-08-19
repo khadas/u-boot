@@ -34,3 +34,4 @@ obj-$(CONFIG_SECURE_STORAGE) += storagekey/
 obj-$(CONFIG_CMD_SARADC) += adc/
 obj-$(CONFIG_CMD_IRBLASTER) += irblaster/
 obj-$(CONFIG_CMD_JTAG) += jtag/
+obj-$(CONFIG_SECURE_POWER_CONTROL) += powerdomain/
