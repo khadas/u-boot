@@ -292,6 +292,10 @@ config DDRFW_TYPE
 	string "SC2 DDR FW Type"
 	default "ddr4"
 
+config BL30_SELECT
+	string "SC2 BL30 board config"
+	default "sc2_ah219"
+
 choice
 	prompt "SC2 Board"
 
@@ -313,6 +317,12 @@ config SC2_AH212
 	help
 	  Select SC2 AH212 config
 
+config SC2_AH212_DDR3
+	bool "SC2_AH212_DDR3"
+	select TARGET_SC2_AH212_DDR3
+	help
+	  Select SC2 AH212 DDR3 config
+
 endchoice
 
 config TARGET_SC2_SKT
@@ -326,6 +336,11 @@ config TARGET_SC2_AH219
 config TARGET_SC2_AH212
 	bool "SC2 AH212 board"
 	depends on SC2_AH212
+
+config TARGET_SC2_AH212_DDR3
+	bool "SC2 AH212 ddr3 board"
+	depends on SC2_AH212_DDR3
+
 endif
 
 if MESON_C2
@@ -428,6 +443,8 @@ source "board/amlogic/sc2_skt/Kconfig"
 source "board/amlogic/sc2_ah219/Kconfig"
 
 source "board/amlogic/sc2_ah212/Kconfig"
+
+source "board/amlogic/sc2_ah212_ddr3/Kconfig"
 
 source "board/amlogic/c2_skt/Kconfig"
 
