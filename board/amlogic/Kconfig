@@ -323,6 +323,18 @@ config SC2_AH212_DDR3
 	help
 	  Select SC2 AH212 DDR3 config
 
+config SC2_AH212_LPDDR3
+	bool "SC2_AH212_LPDDR3"
+	select TARGET_SC2_AH212_LPDDR3
+	help
+	  Select SC2 AH212 LPDDR3 config
+
+config SC2_AH212_LPDDR4
+	bool "SC2_AH212_LPDDR4"
+	select TARGET_SC2_AH212_LPDDR4
+	help
+	  Select SC2 AH212 LPDDR4 config
+
 endchoice
 
 config TARGET_SC2_SKT
@@ -340,6 +352,14 @@ config TARGET_SC2_AH212
 config TARGET_SC2_AH212_DDR3
 	bool "SC2 AH212 ddr3 board"
 	depends on SC2_AH212_DDR3
+
+config TARGET_SC2_AH212_LPDDR3
+	bool "SC2 AH212 lpddr3 board"
+	depends on SC2_AH212_LPDDR3
+
+config TARGET_SC2_AH212_LPDDR4
+	bool "SC2 AH212 lpddr4 board"
+	depends on SC2_AH212_LPDDR4
 
 endif
 
@@ -445,6 +465,10 @@ source "board/amlogic/sc2_ah219/Kconfig"
 source "board/amlogic/sc2_ah212/Kconfig"
 
 source "board/amlogic/sc2_ah212_ddr3/Kconfig"
+
+source "board/amlogic/sc2_ah212_lpddr3/Kconfig"
+
+source "board/amlogic/sc2_ah212_lpddr4/Kconfig"
 
 source "board/amlogic/c2_skt/Kconfig"
 
