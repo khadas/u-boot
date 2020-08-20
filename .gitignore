@@ -92,3 +92,5 @@ GTAGS
 *.orig
 *~
 \#*#
+
+fip/_tmp/

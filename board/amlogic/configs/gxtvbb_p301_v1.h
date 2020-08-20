@@ -104,6 +104,7 @@
 	"upgrade_step=0\0"\
 	"loadaddr=1080000\0"\
 	"panel_type=lvds_2\0" \
+	"lcd_ctrl=0x00000000\0" \
 	"outputmode=1080p60hz\0" \
 	"hdmiuart_mode=close\0"\
 	"panel_reverse=0\0" \
@@ -147,7 +148,7 @@
 		"androidboot.selinux=${EnableSelinux} "\
 		"logo=${display_layer},loaded,${fb_addr} "\
 		"vout=${outputmode},enable "\
-		"panel_type=${panel_type} hdmitx= "\
+		"panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} hdmitx= "\
 		"osd_reverse=${osd_reverse} video_reverse=${video_reverse} "\
 		"bl_off=${bl_off} "\
 		"jtag=${jtag} "\

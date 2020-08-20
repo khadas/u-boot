@@ -33,7 +33,7 @@
  */
 #define CONFIG_PLATFORM_POWER_INIT
 #define CONFIG_VCCK_INIT_VOLTAGE	800		// VCCK power up voltage
-#define CONFIG_VDDEE_INIT_VOLTAGE	800		// VDDEE power up voltage
+#define CONFIG_VDDEE_INIT_VOLTAGE	880		// VDDEE power up voltage
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	770		// VDDEE suspend voltage
 
 /* Khadas commands */
@@ -41,12 +41,12 @@
 #define CONFIG_KHADAS_CFGLOAD 1
 #define CONFIG_KHADAS_SCRIPT 1
 
-#define CONFIG_TCA6408 1
+#define CONFIG_PCA953X 1
+#define CONFIG_SYS_I2C_PCA953X_ADDR 0x20
+#define CONFIG_SYS_I2C_PCA953X_WIDTH { {0x20, 8} }
+#define CONFIG_CMD_PCA953X 1
+#define CONFIG_CMD_PCA953X_INFO 1
 #define CONFIG_POWER_FUSB302 1
-
-#ifdef CONFIG_OF_LIBFDT_OVERLAY
-#undef CONFIG_OF_LIBFDT_OVERLAY
-#endif
 
 /* configs for CEC */
 #define CONFIG_CEC_OSD_NAME		"KVIM3"
@@ -97,14 +97,14 @@
         "port_mode=0\0"\
         "loadaddr=1080000\0"\
         "panel_type=lcd_0\0" \
-        "outputmode=1080p60hz\0" \
+        "outputmode=panel\0" \
         "hdmimode=1080p60hz\0" \
 	"colorattribute=444,8bit\0"\
         "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
-        "display_bpp=16\0" \
-        "display_color_index=16\0" \
+        "display_bpp=24\0" \
+        "display_color_index=24\0" \
         "display_layer=osd0\0" \
         "display_color_fg=0xffff\0" \
         "display_color_bg=0\0" \
@@ -178,6 +178,7 @@
             "cfgload;" \
             "if load mmc 0:1 1020000 s905_autoscript || load mmc 1:1 1020000 s905_autoscript || load mmc 1:5 1020000 /boot/s905_autoscript; then autoscr 1020000; fi;"\
             "ext4load mmc 1:5 1080000 zImage;ext4load mmc 1:5 10000000 uInitrd;ext4load mmc 1:5 20000000 dtb.img;booti 1080000 10000000 20000000;"\
+            "for p in 1 2 3 4 5 6 7 8 9 A B C D E F 10 11 12 13 14 15 16 17 18; do if fatload mmc 1:${p} ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi; done;"\
             "run update;"\
             "\0"\
         "factory_reset_poweroff_protect="\
@@ -250,17 +251,19 @@
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
-                "hdmitx hpd;"\
                 "hdmitx get_preferred_mode;"\
+                "hdmitx edid;"\
+                "hdmitx hpd;"\
                 "if test ${lcd_exist} = 1 && test ${outputmode} = panel; then "\
                     "setenv fb_width 1088;"\
                     "setenv fb_height 1920;"\
                 "fi;"\
                 "osd open;"\
                 "osd clear;"\
-                "imgread pic logo bootup $loadaddr;"\
-                "bmp display $bootup_offset;"\
-                "bmp scale;"\
+                "if load mmc 0:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:5 ${loadaddr} /usr/share/fenix/logo/logo.bmp; then "\
+                    "bmp display ${loadaddr};"\
+                    "bmp scale;"\
+                "fi;"\
                 "vout output ${outputmode};"\
                 "vpp hdrpkt;"\
             "fi;"\
@@ -340,25 +343,6 @@
         "fan_stop=" \
             "i2c mw 0x18 0x88 0" \
             "\0"\
-        "uboot_update_check=" \
-            "get_rebootmode;" \
-            "print reboot_mode;" \
-            "if test ${reboot_mode} = uboot_updated; then "\
-                "echo u-boot updated, pass to kernel...;" \
-                "env default -a;" \
-                "saveenv;" \
-            "else "\
-                "if test -e mmc 1:5 /usr/lib/u-boot/.UBOOT-NEED-UPDATE; then " \
-                    "echo New u-boot found!Try to upgrade u-boot...;" \
-                    "if load mmc 1:5 1080000 /usr/lib/u-boot/u-boot.bin; then " \
-                        "store rom_write 1080000 0 $filesize;" \
-                        "store erase partition env;"\
-                        "echo u-boot upgrade done, reboot...;" \
-                        "reboot uboot_updated;" \
-                    "fi;"\
-                "fi;"\
-             "fi;"\
-            "\0"
 
 #define CONFIG_PREBOOT  \
             "run upgrade_check;"\
@@ -366,7 +350,6 @@
             "run storeargs;"\
             "run upgrade_key;"\
             "run vim3_check;" \
-            "run uboot_update_check;"\
             "run wol_init;"\
             "run port_mode_change;"\
             "forceupdate;" \
@@ -589,7 +572,7 @@
 
 /* net */
 #define CONFIG_CMD_NET   1
-#define CONFIG_PHY_REALTEK 1
+/*#define CONFIG_PHY_REALTEK 1*/
 #if defined(CONFIG_CMD_NET)
 	#define CONFIG_DESIGNWARE_ETH 1
 	#define CONFIG_PHYLIB	1
@@ -653,6 +636,8 @@
 #define CONFIG_LZO 1
 #define CONFIG_CMD_UNZIP    1
 #define CONFIG_LZMA         1
+#define CONFIG_FAT_WRITE	1
+#define CONFIG_CMD_EXT4_WRITE	1
 
 /* Cache Definitions */
 //#define CONFIG_SYS_DCACHE_OFF

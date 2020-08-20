@@ -53,10 +53,6 @@
 #define CONFIG_KHADAS_CFGLOAD 1
 #define CONFIG_KHADAS_SCRIPT 1
 
-#ifdef CONFIG_OF_LIBFDT_OVERLAY
-#undef CONFIG_OF_LIBFDT_OVERLAY
-#endif
-
 /* support ext4*/
 #define CONFIG_CMD_EXT4 1
 
@@ -106,8 +102,8 @@
         "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
-        "display_bpp=16\0" \
-        "display_color_index=16\0" \
+        "display_bpp=24\0" \
+        "display_color_index=24\0" \
         "display_layer=osd1\0" \
         "display_color_fg=0xffff\0" \
         "display_color_bg=0\0" \
@@ -241,7 +237,15 @@
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
-                "osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale; "\
+                "hdmitx get_preferred_mode;"\
+                "hdmitx edid;"\
+                "hdmitx hpd;"\
+                "osd open;"\
+                "osd clear;"\
+                "if load mmc 0:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:5 ${loadaddr} /usr/share/fenix/logo/logo.bmp; then "\
+                    "bmp display ${loadaddr};"\
+                    "bmp scale; "\
+                "fi;"\
             "fi;fi;"\
             "\0"\
         "cmdline_keys="\
@@ -304,25 +308,6 @@
              "fi;" \
              "setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
              "\0" \
-        "uboot_update_check=" \
-             "get_rebootmode;" \
-             "print reboot_mode;" \
-             "if test ${reboot_mode} = uboot_updated; then "\
-                 "echo u-boot updated, pass to kernel...;" \
-                 "env default -a;" \
-                 "saveenv;" \
-             "else "\
-                 "if test -e mmc 1:5 /usr/lib/u-boot/.UBOOT-NEED-UPDATE; then " \
-                     "echo New u-boot found!Try to upgrade u-boot...;" \
-                     "if load mmc 1:5 1080000 /usr/lib/u-boot/u-boot.bin; then " \
-                         "store rom_write 1080000 0 $filesize;" \
-                         "store erase partition env;"\
-                         "echo u-boot upgrade done, reboot...;" \
-                         "reboot uboot_updated;" \
-                     "fi;"\
-                 "fi;"\
-             "fi;"\
-             "\0" \
         "updateu="\
              "tftp 1080000 u-boot.bin;"\
              "mmc dev 1;"\
@@ -336,7 +321,6 @@
             "run combine_key;" \
             "run upgrade_key;" \
             "run vim2_check;" \
-            "run uboot_update_check;" \
             "run wol_init;"\
             "forceupdate;" \
             "run switch_bootmode;"

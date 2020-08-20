@@ -139,8 +139,6 @@ static int do_vout2_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 
 #ifdef CONFIG_AML_CVBS
 	if (cvbs_outputmode_check(argv[1]) == 0) {
-		vout_viu_mux(VOUT_VIU2_SEL, VIU_MUX_ENCI);
-		vpp_viu2_matrix_update(VPP_CM_YUV);
 		if (cvbs_set_vmode(argv[1]) == 0)
 			return CMD_RET_SUCCESS;
 	}
@@ -149,8 +147,6 @@ static int do_vout2_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 #ifdef CONFIG_AML_HDMITX20
 	venc_sel = hdmi_outputmode_check(argv[1]);
 	if (venc_sel < VIU_MUX_MAX) {
-		vout_viu_mux(VOUT_VIU2_SEL, venc_sel);
-		vpp_viu2_matrix_update(VPP_CM_YUV);
 		memset(mode, 0, sizeof(mode));
 		sprintf(mode, "hdmitx output %s", argv[1]);
 		run_command(mode, 0);
@@ -163,10 +159,59 @@ static int do_vout2_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	if (lcd_drv) {
 		if (lcd_drv->lcd_outputmode_check) {
 			if (lcd_drv->lcd_outputmode_check(argv[1]) == 0) {
-				vout_viu_mux(VOUT_VIU2_SEL, VIU_MUX_ENCL);
-				vpp_viu2_matrix_update(VPP_CM_RGB);
 				if (lcd_drv->lcd_enable) {
 					lcd_drv->lcd_enable(argv[1]);
+					return CMD_RET_SUCCESS;
+				} else
+					printf("no lcd enable\n");
+			}
+		}
+	} else {
+		printf("no lcd driver\n");
+	}
+#endif
+
+	return CMD_RET_FAILURE;
+}
+
+static int do_vout2_prepare(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+#ifdef CONFIG_AML_HDMITX20
+	int venc_sel;
+#endif
+#ifdef CONFIG_AML_LCD
+	struct aml_lcd_drv_s *lcd_drv = NULL;
+#endif
+
+	if (argc != 2)
+		return CMD_RET_FAILURE;
+
+#ifdef CONFIG_AML_CVBS
+	if (cvbs_outputmode_check(argv[1]) == 0) {
+		vout_viu_mux(VOUT_VIU2_SEL, VIU_MUX_ENCI);
+		vpp_viu2_matrix_update(VPP_CM_YUV);
+		return CMD_RET_SUCCESS;
+	}
+#endif
+
+#ifdef CONFIG_AML_HDMITX20
+	venc_sel = hdmi_outputmode_check(argv[1]);
+	if (venc_sel < VIU_MUX_MAX) {
+		vout_viu_mux(VOUT_VIU2_SEL, venc_sel);
+		vpp_viu2_matrix_update(VPP_CM_YUV);
+		return CMD_RET_SUCCESS;
+	}
+#endif
+
+#ifdef CONFIG_AML_LCD
+	lcd_drv = aml_lcd_get_driver();
+	if (lcd_drv) {
+		if (lcd_drv->lcd_outputmode_check) {
+			if (lcd_drv->lcd_outputmode_check(argv[1]) == 0) {
+				vout_viu_mux(VOUT_VIU2_SEL, VIU_MUX_ENCL);
+				vpp_viu2_matrix_update(VPP_CM_RGB);
+				if (lcd_drv->lcd_prepare) {
+					lcd_drv->lcd_prepare(argv[1]);
 					return CMD_RET_SUCCESS;
 				} else
 					printf("no lcd enable\n");
@@ -221,6 +266,7 @@ U_BOOT_CMD(vout, CONFIG_SYS_MAXARGS, 1, do_vout,
 
 static cmd_tbl_t cmd_vout2_sub[] = {
 	U_BOOT_CMD_MKENT(list, 1, 1, do_vout_list, "", ""),
+	U_BOOT_CMD_MKENT(prepare, 3, 1, do_vout2_prepare, "", ""),
 	U_BOOT_CMD_MKENT(output, 3, 1, do_vout2_output, "", ""),
 	U_BOOT_CMD_MKENT(info, 1, 1, do_vout_info, "", ""),
 };
@@ -245,7 +291,7 @@ static int do_vout2(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 U_BOOT_CMD(vout2, CONFIG_SYS_MAXARGS, 1, do_vout2,
 	"VOUT2 sub-system",
-	"vout2 [list | output format | info]\n"
+	"vout2 [list | prepare format | output format | info]\n"
 	"    list : list for valid video mode names.\n"
 	"    format : perfered output video mode\n"
 	"    info : dump vinfo\n"

@@ -73,6 +73,7 @@
 	"dtb_mem_addr=0x1000000\0" \
 	"fdt_high=0x20000000\0" \
 	"panel_type=lvds_0\0" \
+	"lcd_ctrl=0x00000000\0" \
 	"outputmode=1080p60hz\0" \
 	"panel_reverse=0\0" \
 	"osd_reverse=n\0" \
@@ -117,7 +118,7 @@
 		"androidboot.selinux=disabled "\
 		"logo=${display_layer},loaded,${fb_addr} "\
 		"vout=${outputmode},enable "\
-		"panel_type=${panel_type} hdmitx= "\
+		"panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} hdmitx= "\
 		"osd_reverse=${osd_reverse} video_reverse=${video_reverse} "\
 		"jtag=${jtag} "\
 		"ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\

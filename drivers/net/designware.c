@@ -19,6 +19,7 @@
 #include "designware.h"
 #include <asm/arch/secure_apb.h>
 #include <amlogic/keyunify.h>
+#include <version.h>
 
 #if !defined(CONFIG_PHYLIB)
 # error "DesignWare Ether MAC requires PHYLIB - missing CONFIG_PHYLIB"
@@ -516,11 +517,11 @@ static int do_phyreg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			if (argc != 4) {
 				return cmd_usage(cmdtp);
 			}
-//			printf("=== ethernet phy register write:\n");
+			printf("=== ethernet phy register write:\n");
 			reg = simple_strtoul(argv[2], NULL, 10);
 			value = simple_strtoul(argv[3], NULL, 16);
 			phy_write(priv->phydev, MDIO_DEVAD_NONE, reg, value);
-//			printf("[reg_%d] 0x%x\n", reg, phy_read(priv->phydev, MDIO_DEVAD_NONE, reg));
+			printf("[reg_%d] 0x%x\n", reg, phy_read(priv->phydev, MDIO_DEVAD_NONE, reg));
 			break;
 
 		default:
@@ -625,6 +626,7 @@ struct unify_eth_info {
 	char magic[6];
 	char index;
 	char chk;
+	char ver[24];
 };
 
 int check_eth_para(void)
@@ -640,6 +642,9 @@ int check_eth_para(void)
 		return -1;
 
 	if (unify_eth.index + unify_eth.chk !=0xff)
+		return -1;
+
+	if (strcmp(unify_eth.ver, PLAIN_VERSION) != 0)
 		return -1;
 
 	bestwindow = unify_eth.index;
@@ -737,8 +742,14 @@ static int do_autocali(cmd_tbl_t *cmdtp, int flag, int argc,
 		printf("----------normal----------\n");
 
 	phy_write(priv->phydev, MDIO_DEVAD_NONE,31, 0xd08);
+	reg = phy_read(priv->phydev, MDIO_DEVAD_NONE,0x11);
+	reg = phy_write(priv->phydev, MDIO_DEVAD_NONE, 0x11, reg & (~0x100));
 	reg = phy_read(priv->phydev, MDIO_DEVAD_NONE,0x15);
+#if defined(CONFIG_KHADAS_VIM3) || defined(CONFIG_KHADAS_VIM3L)
+	reg = phy_write(priv->phydev, MDIO_DEVAD_NONE, 0x15, reg & (~0x108));
+#else
 	reg = phy_write(priv->phydev, MDIO_DEVAD_NONE, 0x15, reg & (~0x8));
+#endif
 	phy_write(priv->phydev, MDIO_DEVAD_NONE, 31, 0x0);
 	writel(0x1621, 0xff634540);
 	for (i = 0; i < 16; i++) {
@@ -847,6 +858,7 @@ static int do_autocali(cmd_tbl_t *cmdtp, int flag, int argc,
 	strncpy(unify_eth.magic, ETH_MAGIC, 6);
 	unify_eth.index = cali_window;
 	unify_eth.chk = 0xff - unify_eth.index;
+	strcpy(unify_eth.ver, PLAIN_VERSION);
 
 	key_unify_write("eth_exphy_para", &unify_eth, sizeof(struct unify_eth_info));
 	bestwindow = unify_eth.index;

@@ -152,6 +152,17 @@ static struct vpu_ctrl_s vpu_mem_pd_g12a[] = {
 	{VPU_REG_END,         0,   0,    0},
 };
 
+static struct vpu_ctrl_s vpu_mem_pd_g12b[] = {
+	/* reg,               val, bit, len */
+	{HHI_VPU_MEM_PD_REG0, 1,   0,   32},
+	{HHI_VPU_MEM_PD_REG1, 1,   0,   32},
+	{HHI_VPU_MEM_PD_REG2, 1,   0,    2},
+	{HHI_VPU_MEM_PD_REG2, 1,   4,   14},
+	{HHI_VPU_MEM_PD_REG2, 1,  22,    2},
+	{HHI_VPU_MEM_PD_REG2, 1,  30,    2},
+	{VPU_REG_END,         0,   0,    0},
+};
+
 static struct vpu_ctrl_s vpu_mem_pd_tl1[] = {
 	/* reg,               val, bit, len */
 	{HHI_VPU_MEM_PD_REG0, 1,   0,   32},

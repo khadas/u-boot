@@ -20,6 +20,9 @@
 #include <amlogic/aml_lcd.h>
 #include "aml_lcd_reg.h"
 #include "aml_lcd_common.h"
+#ifdef CONFIG_PCA953X
+#include <pca953x.h>
+#endif
 
 int aml_lcd_gpio_name_map_num(const char *name)
 {
@@ -108,8 +111,7 @@ int aml_lcd_expander_gpio_name_map_num(const char *name)
 	return gpio;
 }
 
-extern int tca6408_output_set_value(u8 value, u8 mask);
-extern int tca6408_output_get_value(u8 *value);
+#ifdef CONFIG_PCA953X
 int expander_gpio_direction_output(u8 index, u8 value)
 {
 	u8 val = 0, mask = 0;
@@ -121,7 +123,8 @@ int expander_gpio_direction_output(u8 index, u8 value)
 	else
 		val = mask;
 
-	return tca6408_output_set_value(val, mask);
+	pca953x_set_dir(0x20, mask, PCA953X_DIR_OUT);
+	return pca953x_set_val(0x20, mask, val);
 }
 
 int aml_lcd_expander_gpio_set(int gpio, int value)
@@ -144,4 +147,4 @@ int aml_lcd_expander_gpio_set(int gpio, int value)
 
 	return 0;
 }
-
+#endif

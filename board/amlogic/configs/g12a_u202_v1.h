@@ -85,6 +85,7 @@
         "jtag=disable\0"\
         "loadaddr=1080000\0"\
         "panel_type=lcd_7\0" \
+        "lcd_ctrl=0x00000000\0" \
         "outputmode=panel\0" \
         "hdmimode=1080p60hz\0" \
         "colorattribute=444,8bit\0"\
@@ -133,7 +134,7 @@
             "else fi;"\
             "\0"\
         "storeargs="\
-            "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
+            "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} vout2=${outputmode2}, vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
 	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
@@ -264,7 +265,7 @@
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
-                "hdmitx hpd;hdmitx get_preferred_mode;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};vpp hdrpkt;"\
+                "hdmitx hpd;hdmitx get_preferred_mode;osd dual_logo;vpp hdrpkt;"\
             "fi;fi;"\
             "\0"\
         "cmdline_keys="\
@@ -308,7 +309,6 @@
 			"fi;fi;" \
 		"fi;\0" \
 
-
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
             "run factory_reset_poweroff_protect;"\
@@ -321,6 +321,25 @@
             "run switch_bootmode;"
 
 #define CONFIG_BOOTCOMMAND "run storeboot"
+
+/*
+ * logo image path: device/amlogic/$(proj_name)/logo_img_files/
+ *
+ * dual logo config macro
+ * logo1: bootup.bmp (or find env "board_defined_bootup" first in uboot)
+ * logo2: bootup_secondary.bmp
+ */
+#define CONFIG_DUAL_LOGO \
+	"setenv outputmode $hdmimode;setenv display_layer osd0;"\
+	"vout output $hdmimode;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
+	"setenv outputmode2 panel;setenv display_layer viu2_osd0;"\
+	"vout2 prepare panel;osd open;osd clear;imgread pic logo bootup_secondary $loadaddr;bmp display $bootup_secondary_offset;bmp scale;vout2 output panel;"\
+	"\0"\
+
+#define CONFIG_SINGLE_LOGO \
+	"setenv outputmode panel;setenv display_layer osd0;"\
+	"vout output panel;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
+	"\0"\
 
 //#define CONFIG_ENV_IS_NOWHERE  1
 #define CONFIG_ENV_SIZE   (64*1024)

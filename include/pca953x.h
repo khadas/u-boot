@@ -31,6 +31,7 @@
 #define PCA953X_DIR_OUT		0
 #define PCA953X_DIR_IN		1
 
+void pca953x_init(void);
 int pca953x_set_val(u8 chip, uint mask, uint data);
 int pca953x_set_pol(u8 chip, uint mask, uint data);
 int pca953x_set_dir(u8 chip, uint mask, uint data);
