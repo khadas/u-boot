@@ -22,7 +22,7 @@
 #include <gpio.h>
 #include "pwm_ctrl.h"
 #ifdef CONFIG_CEC_WAKEUP
-#include <cec_tx_reg.h>
+#include <hdmi_cec_arc.h>
 #endif
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
@@ -154,10 +154,7 @@ static unsigned int detect_key(unsigned int suspend_from)
 	init_remote();
 
 #ifdef CONFIG_CEC_WAKEUP
-	if (hdmi_cec_func_config & 0x1) {
-		remote_cec_hw_reset();
-		cec_node_init();
-	}
+	cec_start_config();
 #endif
 
 	do {

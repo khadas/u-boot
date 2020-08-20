@@ -23,7 +23,7 @@
 #include "pwm_ctrl.h"
 
 #ifdef CONFIG_CEC_WAKEUP
-#include <cec_tx_reg.h>
+#include <hdmi_cec_arc.h>
 #endif
 #define ON 1
 #define OFF 0
@@ -108,10 +108,7 @@ static unsigned int detect_key(unsigned int suspend_from)
 	unsigned *irq = (unsigned *)WAKEUP_SRC_IRQ_ADDR_BASE;
 	init_remote();
 #ifdef CONFIG_CEC_WAKEUP
-		if (hdmi_cec_func_config & 0x1) {
-			remote_cec_hw_reset();
-			cec_node_init();
-		}
+	cec_start_config();
 #endif
 
 	do {

@@ -243,7 +243,7 @@
 #define RX_ERROR                3  // Message has been received with error
 
 extern unsigned char hdmi_cec_func_config;
-extern void remote_cec_hw_reset(void);
+extern void cec_hw_reset(void);
 extern void cec_node_init(void);
 extern int cec_suspend_wakeup_chk(void);
 extern int cec_suspend_handle(void);

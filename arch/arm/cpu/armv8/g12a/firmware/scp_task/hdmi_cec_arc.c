@@ -39,14 +39,24 @@ cec_msg_t cec_msg;
 unsigned char hdmi_cec_func_config;
 cec_wakeup_t cec_wakup;
 static unsigned int cec_wait_addr;
+struct st_cec_mailbox_data cec_mailbox;
+
 
 #ifdef CEC_DBG_PRINT
 static void cec_dbg_print(char *s, int v)
 {
 	uart_puts(s);
-	uart_put_hex(v, 8);
+	uart_put_hex(v,8);
 	_udelay(100);
 }
+
+static void cec_dbg_print32(char *s, int v)
+{
+	uart_puts(s);
+	uart_put_hex(v,32);
+	_udelay(100);
+}
+
 static void cec_dbg_prints(char *s)
 {
 	uart_puts(s);
@@ -62,9 +72,10 @@ static void cec_print_reg(char *s, int v, int l)
 }
 #endif
 #else
-#define cec_dbg_print(s, v)
-#define cec_dbg_prints(s)
-#define cec_print_reg(s, v, l)
+	#define cec_dbg_print(s,v)
+	#define cec_dbg_print32(s,v)
+	#define cec_dbg_prints(s)
+	#define cec_print_reg(s, v, l)
 #endif
 
 static void cec_reset_addr(void);
@@ -88,7 +99,7 @@ struct cec_tx_msg cec_tx_msgs = {};
 
 static int cec_strlen(char *p)
 {
-	int i = 0;
+	int i=0;
 
 	while (*p++)
 		i++;
@@ -105,6 +116,47 @@ static void *cec_memcpy(void *memto, const void *memfrom, unsigned int size)
 	while (size -- > 0)
 		*tempto++ = *tempfrom++;
 	return memto;
+}
+
+void cec_update_config_data(void *data, unsigned int size)
+{
+	unsigned int i;
+
+	memcpy((void *)&cec_mailbox, data, size);
+
+	if (cec_mailbox.cec_config & CEC_CFG_DBG_EN) {
+		cec_dbg_print32("size:", size);
+		cec_dbg_prints("\n");
+		cec_dbg_print32("cec_config:", cec_mailbox.cec_config);
+		cec_dbg_prints("\n");
+		cec_dbg_print32("phy_addr:", cec_mailbox.phy_addr);
+		cec_dbg_prints("\n");
+		cec_dbg_print32("vendor_id:", cec_mailbox.vendor_id);
+		cec_dbg_prints("\n");
+		cec_dbg_prints("osd_name:");
+		for (i = 0; i < 16; i++) {
+			cec_dbg_print(" ", cec_mailbox.osd_name[i]);
+		}
+		cec_dbg_prints("\n");
+	}
+}
+
+void cec_update_phyaddress(unsigned int phyaddr)
+{
+	cec_mailbox.phy_addr = cec_mailbox.phy_addr & 0xffff0000;
+	cec_mailbox.phy_addr |= phyaddr & 0xffff;
+	cec_dbg_print32("update phyaddr:", phyaddr);
+	cec_dbg_prints("\n");
+}
+
+void cec_update_func_cfg(unsigned int cfg)
+{
+	cec_mailbox.cec_config = cfg;
+
+	if (hdmi_cec_func_config & CEC_CFG_DBG_EN) {
+		cec_dbg_print("cec_config:", cfg);
+		cec_dbg_prints("\n");
+	}
 }
 
 static void waiting_aocec_free(void) {
@@ -210,11 +262,11 @@ static void cec_hw_buf_clear(void)
 	cec_wr_reg(CEC_TX_MSG_CMD, TX_NO_OP);
 }
 
-void remote_cec_hw_reset(void)
+void cec_hw_reset(void)
 {
 	unsigned int reg;
 
-	cec_dbg_prints("g12a cec a reset\n");
+	/*cec_dbg_prints("g12a cec a reset\n");*/
 
 	reg = (0 << 31) |
 		(0 << 30) |
@@ -445,13 +497,13 @@ static unsigned char log_addr_to_devtye(unsigned int addr)
 static void cec_report_physical_address(void)
 {
 	unsigned char msg[5];
-	unsigned char phy_addr_ab = (readl(P_AO_DEBUG_REG1) >> 8) & 0xff;
-	unsigned char phy_addr_cd = readl(P_AO_DEBUG_REG1) & 0xff;
+	/*unsigned char phy_addr_ab = (readl(AO_DEBUG_REG1) >> 8) & 0xff;*/
+	/*unsigned char phy_addr_cd = readl(AO_DEBUG_REG1) & 0xff;*/
 
-	msg[0] = ((cec_msg.log_addr & 0xf) << 4) | CEC_BROADCAST_ADDR;
+	msg[0] = ((cec_msg.log_addr & 0xf) << 4)| CEC_BROADCAST_ADDR;
 	msg[1] = CEC_OC_REPORT_PHYSICAL_ADDRESS;
-	msg[2] = phy_addr_ab;
-	msg[3] = phy_addr_cd;
+	msg[2] = (cec_mailbox.phy_addr >> 8) & 0xff;
+	msg[3] = cec_mailbox.phy_addr & 0xff;
 	msg[4] = log_addr_to_devtye(cec_msg.log_addr);
 
 	remote_cec_ll_tx(msg, 5);
@@ -470,8 +522,8 @@ static void cec_report_device_power_status(int dst)
 
 static void cec_set_stream_path(void)
 {
-	unsigned char phy_addr_ab = (readl(P_AO_DEBUG_REG1) >> 8) & 0xff;
-	unsigned char phy_addr_cd = readl(P_AO_DEBUG_REG1) & 0xff;
+	unsigned char phy_addr_ab = (cec_mailbox.phy_addr >> 8) & 0xff;
+	unsigned char phy_addr_cd = cec_mailbox.phy_addr & 0xff;
 
 	if ((hdmi_cec_func_config >> CEC_FUNC_MASK) & 0x1) {
 		if ((hdmi_cec_func_config >> AUTO_POWER_ON_MASK) & 0x1) {
@@ -486,8 +538,8 @@ static void cec_set_stream_path(void)
 
 void cec_routing_change(void)
 {
-	unsigned char phy_addr_ab = (readl(P_AO_DEBUG_REG1) >> 8) & 0xff;
-	unsigned char phy_addr_cd = readl(P_AO_DEBUG_REG1) & 0xff;
+	unsigned char phy_addr_ab = (cec_mailbox.phy_addr >> 8) & 0xff;
+	unsigned char phy_addr_cd = cec_mailbox.phy_addr & 0xff;
 
 	if ((hdmi_cec_func_config >> CEC_FUNC_MASK) & 0x1) {
 		if ((hdmi_cec_func_config >> AUTO_POWER_ON_MASK) & 0x1) {
@@ -502,12 +554,13 @@ void cec_routing_change(void)
 static void cec_device_vendor_id(void)
 {
 	unsigned char msg[5];
+	unsigned int vendor_id = cec_mailbox.vendor_id;
 
-	msg[0] = ((cec_msg.log_addr & 0xf) << 4) | CEC_BROADCAST_ADDR;
+	msg[0] = ((cec_msg.log_addr & 0xf) << 4)| CEC_BROADCAST_ADDR;
 	msg[1] = CEC_OC_DEVICE_VENDOR_ID;
-	msg[2] = 0x00;
-	msg[3] = 0x00;
-	msg[4] = 0x00;
+	msg[2] = (vendor_id >> 16) & 0xff;
+	msg[3] = (vendor_id >> 8) & 0xff;
+	msg[4] = (vendor_id >> 0) & 0xff;
 
 	remote_cec_ll_tx(msg, 5);
 }
@@ -547,11 +600,16 @@ static void cec_give_deck_status(int dst)
 static void cec_set_osd_name(int dst)
 {
 	unsigned char msg[16];
-	unsigned char osd_len = cec_strlen(CONFIG_CEC_OSD_NAME);
+	unsigned char osd_len = cec_mailbox.osd_name[15];
 
 	msg[0] = ((cec_msg.log_addr & 0xf) << 4) | (dst & 0xf);
 	msg[1] = CEC_OC_SET_OSD_NAME;
-	cec_memcpy(&msg[2], CONFIG_CEC_OSD_NAME, osd_len);
+	if (osd_len > 0 && osd_len <= 14) {
+		cec_memcpy(&msg[2], cec_mailbox.osd_name, osd_len);
+	} else {
+		osd_len = cec_strlen(CONFIG_CEC_OSD_NAME);
+		cec_memcpy(&msg[2], CONFIG_CEC_OSD_NAME, osd_len);
+	}
 
 	remote_cec_ll_tx(msg, osd_len + 2);
 }
@@ -571,7 +629,7 @@ static void cec_get_version(int dst)
 
 static int check_addr(int phy_addr)
 {
-	unsigned int local_addr = (readl(P_AO_DEBUG_REG1)) & 0xffff;
+	unsigned int local_addr = (cec_mailbox.phy_addr) & 0xffff;
 	unsigned int i, mask = 0xf000, a, b;
 
 	for (i = 0; i < 4; i++) {
@@ -763,7 +821,7 @@ unsigned int cec_get_log_addr(void)
 
 static void cec_reset_addr(void)
 {
-	remote_cec_hw_reset();
+	cec_hw_reset();
 	cec_wr_reg(CEC_LOGICAL_ADDR0, 0);
 	cec_hw_buf_clear();
 	cec_set_log_addr(cec_msg.log_addr & 0x0f);
@@ -895,7 +953,6 @@ void cec_node_init(void)
 		 {CEC_PLAYBACK_DEVICE_3_ADDR, CEC_PLAYBACK_DEVICE_1_ADDR, CEC_PLAYBACK_DEVICE_2_ADDR}};
 
 	cec_wait_addr = 0;
-	uart_puts(CEC_VERSION);
 	if (retry >= 12) {  /* retry all device addr */
 		cec_msg.log_addr = 0x0f;
 		uart_puts("failed on retried all possible address\n");
@@ -920,11 +977,6 @@ void cec_node_init(void)
 		 * use kernel cec logic address to detect which logic address is the
 		 * started one to allocate.
 		 */
-		uart_puts("CEC REG0:0x");
-		uart_put_hex(readl(P_AO_DEBUG_REG0), 32);
-		uart_puts("\n");
-		uart_puts("CEC REG1:0x");
-		uart_put_hex(readl(P_AO_DEBUG_REG1), 32);
 		uart_puts("\n");
 		/* we don't need probe TV address */
 		if (!is_playback_dev(kern_log_addr)) {
@@ -933,8 +985,8 @@ void cec_node_init(void)
 			ping_cec_ll_tx(msg, 1);
 			cec_msg.log_addr = 0x10 | kern_log_addr;
 			_udelay(100);
-			cec_dbg_print("Set cec log_addr-0:0x", cec_msg.log_addr);
-			cec_dbg_print(",ADDR0:", cec_rd_reg(CEC_LOGICAL_ADDR0));
+			cec_dbg_print("log_addr:0x", cec_msg.log_addr);
+			cec_dbg_print("regAddr:", cec_rd_reg(CEC_LOGICAL_ADDR0));
 			uart_puts("\n");
 			probe = NULL;
 			regist_devs = 0;
@@ -960,7 +1012,7 @@ void cec_node_init(void)
 	tx_stat = ping_cec_ll_tx(msg, 1);
 	if (tx_stat == TX_BUSY) {   /* can't get cec bus */
 		retry++;
-		remote_cec_hw_reset();
+		cec_hw_reset();
 		if (!(retry & 0x03)) {
 			cec_dbg_print("retry too much, log_addr:0x", probe[i]);
 			uart_puts("\n");
@@ -971,8 +1023,8 @@ void cec_node_init(void)
 		_udelay(100);
 		cec_msg.log_addr = probe[i];
 		cec_set_log_addr(cec_msg.log_addr & 0xf);
-		cec_dbg_print("Set cec log_addr-1:0x", cec_msg.log_addr);
-		cec_dbg_print(", ADDR0:", cec_rd_reg(CEC_LOGICAL_ADDR0));
+		cec_dbg_print("log_addr:0x", cec_msg.log_addr);
+		cec_dbg_print("reg-addr:", cec_rd_reg(CEC_LOGICAL_ADDR0));
 		uart_puts("\n");
 		probe = NULL;
 		regist_devs = 0;
@@ -1063,4 +1115,26 @@ int cec_suspend_handle(void)
 		return 0;
 }
 
+void cec_start_config(void)
+{
+	hdmi_cec_func_config = readl(P_AO_DEBUG_REG0);
+
+	if (cec_mailbox.cec_config & CEC_CFG_DBG_EN) {
+		uart_puts(CEC_VERSION);
+		uart_puts("cfg0:0x");
+		uart_put_hex(hdmi_cec_func_config, 32);
+		uart_puts("\n");
+		uart_puts("cfg1:0x");
+		uart_put_hex(readl(P_AO_DEBUG_REG1), 32);
+		uart_puts("\n");
+	}
+
+	cec_mailbox.phy_addr = readl(P_AO_DEBUG_REG1);
+
+	/*cec is enable*/
+	if (hdmi_cec_func_config & CEC_CFG_FUNC_EN) {
+		cec_hw_reset();
+		cec_node_init();
+	}
+}
 #endif
