@@ -507,10 +507,8 @@ static int hdmi_pll_test(hdmi_pll_set_t * hdmi_pll_set)
 
 	/* test pll */
 	if (hdmi_pll_set->pll_clk == 0)
-		pll_clk = (((24 * (hdmi_pll_set->pll_cntl0 & 0xff)) /
-			  ((hdmi_pll_set->pll_cntl0 >> 10) & 0x1f)) >>
-			  ((hdmi_pll_set->pll_cntl0 >> 16) & 0xf)) >>
-			  ((hdmi_pll_set->pll_cntl0 >> 20) & 0x3);
+		pll_clk = ((24 * (hdmi_pll_set->pll_cntl0 & 0xff)) /
+			  ((hdmi_pll_set->pll_cntl0 >> 10) & 0x1f));
 	else
 		pll_clk = hdmi_pll_set->pll_clk;
 
