@@ -183,7 +183,7 @@ int board_late_init(void)
 #ifdef CONFIG_AML_CVBS
 	cvbs_init();
 #endif
-
+	run_command("amlsecurecheck", 0);
 	return 0;
 }
 

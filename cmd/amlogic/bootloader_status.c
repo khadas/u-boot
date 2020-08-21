@@ -114,11 +114,167 @@ static int do_get_bootloader_status(cmd_tbl_t *cmdtp, int flag, int argc, char *
 	return CMD_RET_SUCCESS;
 }
 
+void run_recovery_from_flash() {
+	run_command("run init_display", 0);
+	run_command("run storeargs", 0);
+	run_command("run recovery_from_flash", 0);
+}
+
+void run_recovery_from_cache() {
+
+	char *loadaddr_kernel = env_get("loadaddr_kernel");
+	if (loadaddr_kernel != NULL) {
+		env_set("loadaddr",loadaddr_kernel);
+	} else {
+		env_set("loadaddr","0x01080000");
+	}
+	run_command("run init_display", 0);
+	run_command("run storeargs", 0);
+	run_command("if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;", 0);
+	run_command("if ext4load mmc 1:2 ${loadaddr} /recovery/recovery.img; then echo cache recovery.img loaded; fi;", 0);
+
+	env_set("check_result","recovery_succ");
+	run_command("bootm ${loadaddr}", 0);
+	env_set("check_result","recovery_fail");
+	env_set("reboot_status","reboot_recovery");
+	run_command("saveenv", 0);
+	run_command("reboot", 0);//need reboot old bootloader
+}
+
+static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]) {
+	int code_boot = 0;
+	int match_flag = 0;
+	char *rebootstatus = NULL;
+	char *checkresult = NULL;
+	char *bootloaderindex = NULL;
+	char *expect_index = NULL;
+	char *robustota = NULL;
+	char *mode = NULL;
+
+	//check_result init
+	checkresult = env_get("check_result");
+	if (checkresult == NULL) {
+		env_set("check_result","succ");
+	}
+
+	//reboot_status init
+	rebootstatus = env_get("reboot_status");
+	if (rebootstatus == NULL) {
+		env_set("reboot_status","reboot_init");
+	}
+
+	//no secure check need
+	if (!strcmp(rebootstatus, "reboot_init")) {
+		return -1;
+	}
+
+	//check reboot_end
+	if (!strcmp(rebootstatus, "reboot_end")) {
+		env_set("reboot_status","reboot_init");
+		run_command("saveenv", 0);
+	}
+
+	//get reboot_mode
+	mode = env_get("reboot_mode");
+	if (mode == NULL) {
+		wrnP("can not get reboot mode, so skip secure check\n");
+		return -1;
+	}
+
+	wrnP("secure check reboot_mode:%s\n", mode);
+	code_boot = strcmp(mode, "cold_boot");
+	if (code_boot == 0) {
+		wrnP("not support code_boot for check\n");
+		//env_set("reboot_status","reboot_init");
+		//run_command("saveenv", 0);
+		//return -1;
+	}
+
+	//get boot status
+	run_command("amlbootsta -p -s", 0);
+
+	//get forUpgrade_robustOta and check if support robustota
+	robustota = env_get("forUpgrade_robustOta");
+	if ((robustota == NULL) || !strcmp(robustota, "false")) {
+		return -1;
+	}
+
+	//get bootloader index
+	bootloaderindex = env_get("forUpgrade_bootloaderIndex");
+	if (bootloaderindex == NULL) {
+		wrnP("can not get bootloader index, so skip secure check\n");
+		return -1;
+	}
+
+	//get expect index
+	expect_index = env_get("expect_index");
+	if (expect_index == NULL) {
+		wrnP("can not get expect index, so skip secure check\n");
+		return -1;
+	}
+
+	match_flag = strcmp(bootloaderindex, expect_index);
+
+	//first reboot, command from recovery, need reboot next
+	if (!strcmp(rebootstatus,"reboot_next")) {
+		wrnP("--secure check reboot_next---\n");
+		//bootloader index, expect == current, no need reboot next
+		if (match_flag == 0) {
+			wrnP("current index is expect, no need reboot next, run ceche recovery\n");
+			run_recovery_from_cache();
+			return 0;
+		} else {
+			wrnP("now ready start reboot next\n");
+			env_set("reboot_status","reboot_finish");
+			run_command("saveenv", 0);
+			run_command("reboot next", 0);
+			return 0;
+		}
+	} else if (!strcmp(rebootstatus,"reboot_finish")) {//second reboot, reboot next from uboot
+		wrnP("--secure check reboot_finish---\n");
+		env_set("reboot_status","reboot_end");
+		run_command("saveenv", 0);
+
+		if (match_flag == 0) {
+			wrnP("reboot next succ, bootloader secure check pass......\n");
+			run_recovery_from_cache();
+			return 0;
+		} else {
+			//bootloader check failed, run recovery show error
+			wrnP("reboot next fail, bootloader secure check fail(curr:%s, expect:%s)......\n",bootloaderindex, expect_index);
+			env_set("check_result","bootloader_fail");
+			run_command("saveenv", 0);
+			run_recovery_from_flash();
+			return 0;
+		}
+	} else if (!strcmp(rebootstatus,"reboot_recovery")) {
+			//recovery check failed, run recovery show error
+			wrnP("--secure check reboot_recovery---\n");
+			env_set("reboot_status","reboot_end");
+			run_command("saveenv", 0);
+			run_recovery_from_flash();
+			return 0;
+	} else {
+		env_set("check_result","succ");
+	}
+
+	return 0;
+}
+
+
 U_BOOT_CMD_COMPLETE(
 	amlbootsta, 3, 0,	do_get_bootloader_status,
 	"get bootloader status in env",
 	"[-p] print bootloader status\n"
 	"[-s] saveenv after generate bootloader status\n",
+	var_complete
+);
+
+U_BOOT_CMD_COMPLETE(
+	amlsecurecheck, 1, 0,	do_secureboot_check,
+	"try bootloader/dtb/recovery secure check",
+	""
+	"",
 	var_complete
 );
 

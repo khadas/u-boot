@@ -90,6 +90,24 @@ static int do_bootm_subcommand(cmd_tbl_t *cmdtp, int flag, int argc,
 	return ret;
 }
 
+static void recovery_mode_process(void)
+{
+	char *reboot_mode_s = NULL;
+	char *upgrade_step_s = NULL;
+
+	reboot_mode_s = env_get("reboot_mode");
+	upgrade_step_s = env_get("upgrade_step");
+	if ((!reboot_mode_s) || (!upgrade_step_s))
+		return;
+
+	if ((!strcmp(reboot_mode_s, "recovery")) || (!strcmp(reboot_mode_s, "update"))
+		|| (!strcmp(reboot_mode_s, "factory_reset")) || (!strcmp(upgrade_step_s, "3")))
+	{
+		run_command("amlbootsta -p -s",0);
+	}
+}
+
+
 /*******************************************************************/
 /* bootm - boot application image from image in memory */
 /*******************************************************************/
@@ -232,6 +250,8 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 	}
 #endif//CONFIG_CMD_BOOTCTOL_AVB
+
+	recovery_mode_process();
 	return do_bootm_states(cmdtp, flag, argc, argv, BOOTM_STATE_START |
 		BOOTM_STATE_FINDOS | BOOTM_STATE_FINDOTHER |
 		BOOTM_STATE_LOADOS |
