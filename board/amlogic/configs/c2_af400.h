@@ -95,6 +95,7 @@
         "fb_height=1080\0" \
         "frac_rate_policy=1\0" \
         "usb_burning=adnl 1000\0" \
+        "usb_force_upgrade=0\0" \
         "fdt_high=0x20000000\0"\
         "sdcburncfg=aml_sdc_burn.ini\0"\
         "EnableSelinux=enforcing\0" \
@@ -114,6 +115,7 @@
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
+            "if test ${usb_force_upgrade} = 1; then adnl; fi;"\
             "echo recovery_status=${recovery_status};"\
             "if itest.s \"${recovery_status}\" == \"in_progress\"; then "\
                 "run storeargs; run recovery_from_flash;"\
