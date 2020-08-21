@@ -23,6 +23,7 @@
 #include "data.h"
 #include "registers.h"
 #include "task_apis.h"
+#include "suspend.h"
 
 #define TASK_ID_IDLE 0
 #define TASK_ID_LOW_MB	3
@@ -36,6 +37,9 @@ enum scpi_client_id {
 	SCPI_CL_POWER,
 	SCPI_CL_THERMAL,
 	SCPI_CL_REMOTE,
+	SCPI_CL_LED_TIMER,
+	SCPI_CL_SET_CEC_DATA,
+	SCPI_CL_UPDATE_PHYADDR,
 	SCPI_MAX,
 };
 
@@ -103,6 +107,10 @@ void secure_task(void)
 				*response = RESPONSE_SUSPEND_LEAVE;
 				presume = (struct resume_param *)(response+1);
 				presume->method = resume_data.method;
+				if (presume->method == CEC_WAKEUP) {
+					presume->date1 = resume_data.date1;
+					presume->date2 = resume_data.date2;
+				}
 			}
 	}
 		__switch_back_securemb();
@@ -158,17 +166,24 @@ void high_task(void)
 }
 
 extern unsigned int usr_pwr_key;
+extern void cec_update_config_data(void *data, unsigned int size);
+extern void cec_update_phyaddress(unsigned int phyaddr);
 void process_low_task(unsigned command)
 {
 	unsigned *pcommand =
 	    (unsigned *)(&(low_task_share_mem[TASK_COMMAND_OFFSET]));
 	/*unsigned *response =
 	    (unsigned *)(&(low_task_share_mem[TASK_RESPONSE_OFFSET]));*/
-
+	unsigned int cl_id = (command >> 16);
+	unsigned int size = *(pcommand + 1);
 	if ((command & 0xffff) == LOW_TASK_USR_DATA) {/*0-15bit: comd; 16-31bit: client_id*/
 		if ((command >> 16) == SCPI_CL_REMOTE) {
 			usr_pwr_key = *(pcommand + 2);/*tx_size locates at *(pcommand + 1)*/
 			dbg_print("pwr_key=",usr_pwr_key);
+		} else if (cl_id == SCPI_CL_SET_CEC_DATA) {
+			cec_update_config_data((pcommand + 2), size);
+		} else if (cl_id == SCPI_CL_UPDATE_PHYADDR) {
+			cec_update_phyaddress(*(pcommand + 2));
 		}
 	}
 }
