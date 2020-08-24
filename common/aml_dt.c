@@ -288,7 +288,7 @@ int check_valid_dts(unsigned char *buffer, unsigned char **dts)
 #else
 	dt_addr = (unsigned char *)buffer;
 #endif
-	if (*dts)
+	if (dts && *dts)
 		*dts = dt_addr;
 	printf("start dts,buffer=%p,dt_addr=%p\n", buffer, dt_addr);
 	ret = fdt_check_header(dt_addr);
