@@ -988,7 +988,8 @@ static int mtd_store_boot_write(const char *part_name,
 		 * block skiped or not.
 		 */
 		if (!strcmp(part_name, BOOT_BL2) ||
-		    !strcmp(part_name, BOOT_SPL)) {
+		    !strcmp(part_name, BOOT_SPL) ||
+		    !strcmp(part_name, BAE_BB1ST)) {
 			int i, write_cnt;
 			loff_t off = offset;
 			size_t sz_write = SZ_2K;
