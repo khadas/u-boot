@@ -28,6 +28,7 @@ Description:
 #include <libfdt.h>
 #include <partition_table.h>
 #include <malloc.h>
+#include <emmc_partitions.h>
 
 #include <amlogic/aml_efuse.h>
 #if defined(CONFIG_AML_NAND) || defined (CONFIG_AML_MTD)
@@ -950,4 +951,77 @@ U_BOOT_CMD(
    "    argv: unpackimg <imgLoadaddr> \n"   //usage
    "    un pack the logo image, which already loaded at <imgLoadaddr>.\n"
 );
+
+#if defined(CONFIG_CMD_EXT4)
+/*"if ext4load mmc 1:x ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;"\*/
+static int do_load_logo_from_ext4(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+    if (3 > argc) {
+        errorP("argc(%d) < 3 illegle\n", argc);
+        return CMD_RET_USAGE;
+    }
+    int iRet = 0;
+    const char* ext4Part = argv[1];
+    void* loadaddr = (void*)simple_strtoul(argv[2], NULL, 16);
+    if (argc > 3) {
+        setenv("ext4LogoPath", argv[3]);
+    } else {
+        setenv("ext4LogoPath", "/logo_files/bootup.bmp");
+    }
+
+    if (!loadaddr) {
+        errorP("illgle loadaddr %s\n", argv[2]);
+        return CMD_RET_FAILURE;
+    }
+
+    const int partIndex = get_partition_num_by_name((char*)ext4Part);
+    if (partIndex < 0) {
+        errorP("invalid partition name(%s)\n", ext4Part);
+    }
+    setenv_hex("logoPart", partIndex);
+    setenv_hex("logoLoadAddr", (ulong)loadaddr);
+    setenv("ext4logoLoadCmd", "ext4load mmc 1:${logoPart} ${logoLoadAddr} ${ext4LogoPath}");
+    iRet = run_command("printenv ext4logoLoadCmd; run ext4logoLoadCmd", 0);
+    if (iRet) {
+        errorP("Fail in load logo cmd\n"); return CMD_RET_FAILURE;
+    }
+    MsgP("load bmp from ext4 part okay\n");
+    run_command("setenv ext4LogoSz ${filesize}", 0);
+    const int bmpSz = getenv_hex("filesize", 0);
+    if (bmpSz <= 0) {
+        errorP("err bmp sz\n"); return CMD_RET_FAILURE;
+    }
+
+#if defined(CONFIG_GZIP)
+    if (memcmp(loadaddr, gzip_magic, sizeof(gzip_magic))) {
+        return CMD_RET_SUCCESS;
+    }
+    MsgP("gunzip bmp logo\n");
+    void* uncompress = (char*)loadaddr + (((bmpSz + 0xf)>>4)<<4);
+    unsigned long uncompSz = 0;
+    iRet = imgread_uncomp_pic((unsigned char*)loadaddr, bmpSz, (unsigned char*)uncompress,
+            CONFIG_MAX_PIC_LEN, (unsigned long*)&uncompSz);
+    if (iRet) {
+        errorP("Fail in uncomp pic,rc[%d]\n", iRet); return __LINE__;
+    }
+    if (uncompSz <= 0) {
+        errorP("Fail uncompress logo bmp\n"); return CMD_RET_FAILURE;
+    }
+    memmove(loadaddr, uncompress, uncompSz);
+    setenv_hex("ext4LogoSz", uncompSz);
+#endif//#if defined(CONFIG_GZIP)
+
+    return CMD_RET_SUCCESS;
+}
+
+U_BOOT_CMD(
+   rdext4pic,                   //read ext4 picture
+   4,                           //maxargs
+   0,                           //repeatable
+   do_load_logo_from_ext4,      //command function
+   "read logo bmp from ext4 part",           //description
+   "    argv: rdext4pic <partName> <memAddr> <logoPath>\n"   //usage
+   "    load bmp picture from <logoPath> of <partName> to <memAddr>.\n"
+);
+#endif// #if defined(CONFIG_CMD_EXT4)
 

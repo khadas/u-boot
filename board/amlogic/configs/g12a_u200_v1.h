@@ -279,6 +279,10 @@
                 "fi;"\
             "fi;"\
             "\0"\
+        "display_bmp_logo="\
+            "if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; "\
+            "else echo try ext4 logo; rdext4pic vendor $loadaddr; bmp display $logoLoadAddr;fi;"\
+            "\0"\
         "init_display="\
             "get_rebootmode;"\
             "echo reboot_mode:::: ${reboot_mode};"\
@@ -295,7 +299,8 @@
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
-                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};dovi set;dovi pkg;vpp hdrpkt;"\
+                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;osd open;osd clear;"\
+                "run display_bmp_logo;bmp scale;vout output ${outputmode};dovi set;dovi pkg;vpp hdrpkt;"\
             "fi;fi;"\
             "\0"\
         "cmdline_keys="\
