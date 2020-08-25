@@ -119,6 +119,11 @@ void board_init_mem(void) {
 int board_init(void)
 {
 	printf("board init\n");
+
+	/* The non-secure watchdog is enabled in BL2 TEE, disable it */
+	run_command("watchdog off", 0);
+	printf("watchdog disable\n");
+
 	aml_clr_bootsequence();
 	#if 0
 	//Please keep try usb boot first in board_init, as other init before usb may cause burning failure
