@@ -72,16 +72,15 @@ int cpu_sd_emmc_init(unsigned port)
 		break;
 	case SDIO_PORT_C:
 		/* set driver strength */
-		writel(0xFFFFFFFF, P_PAD_DS_REG0A);
-
+		writel(0xABAAAA, P_PAD_DS_REG0A);
 		/* pull up data by default */
-		setbits_le32(P_PAD_PULL_UP_EN_REG0, 0x3fff);
-		setbits_le32(P_PAD_PULL_UP_REG0, 0x3fff);
+		setbits_le32(P_PAD_PULL_UP_EN_REG0, 0xfff);
+		setbits_le32(P_PAD_PULL_UP_REG0, 0xfff);
 
 		/* set pinmux */
 		writel(0x11111111, P_PERIPHS_PIN_MUX_0);
 		clrsetbits_le32(P_PERIPHS_PIN_MUX_1,
-						((0xFFFFF) | (0xF << 20)),
+						(0xFFFF),
 						((0x1 << 12) | (0x1 << 8) | 0x1));
 		/* hardware reset with pull boot9 */
 		clrbits_le32(P_PREG_PAD_GPIO0_EN_N, 1<<9);
