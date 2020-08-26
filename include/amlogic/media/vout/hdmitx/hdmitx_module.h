@@ -54,6 +54,7 @@ void hdmitx_test_prbs(void);
 void hdmitx_set_div40(bool div40);
 
 extern void hdmitx_set_drm_pkt(struct master_display_info_s *data);
+bool hdmitx_find_vendor(struct hdmitx_dev *hdev);
 #ifndef CONFIG_AML_HDMITX20
 void __attribute__((weak))hdmitx_set_drm_pkt(struct master_display_info_s *data)
 {
