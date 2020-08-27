@@ -30,9 +30,8 @@
 #ifdef CONFIG_SYS_I2C_AML
 #include <aml_i2c.h>
 #endif
-#ifdef CONFIG_SYS_I2C_MESON
 #include <amlogic/i2c.h>
-#endif
+#include <amlogic/gpio_i2c.h>
 #ifdef CONFIG_PWM_MESON
 #include <pwm.h>
 #include <amlogic/pwm.h>
@@ -552,7 +551,6 @@ U_BOOT_DEVICE(spifc) = {
 
 extern void aml_pwm_cal_init(int mode);
 
-#ifdef CONFIG_SYS_I2C_MESON
 static const struct meson_i2c_platdata i2c_data[] = {
 	{ 0, 0xffd1f000, 166666666, 3, 15, 100000 },
 	{ 1, 0xffd1e000, 166666666, 3, 15, 100000 },
@@ -561,12 +559,17 @@ static const struct meson_i2c_platdata i2c_data[] = {
 	{ 4, 0xff805000, 166666666, 3, 15, 100000 },
 };
 
+static const struct meson_gpio_i2c_platdata gpio_i2c_data[] = {
+	{ "gpioh_0", "gpioh_1", 100000, 1},
+};
+
 U_BOOT_DEVICES(meson_i2cs) = {
 	{ "i2c_meson", &i2c_data[0] },
 	{ "i2c_meson", &i2c_data[1] },
 	{ "i2c_meson", &i2c_data[2] },
 	{ "i2c_meson", &i2c_data[3] },
 	{ "i2c_meson", &i2c_data[4] },
+	{ "i2c-gpio", &gpio_i2c_data[0] },
 };
 
 /*
@@ -579,7 +582,6 @@ void set_i2c_ao_pinmux(void)
 {
 	return;
 }
-#endif /*end CONFIG_SYS_I2C_MESON*/
 
 #ifdef CONFIG_PWM_MESON
 static const struct meson_pwm_platdata pwm_data[] = {

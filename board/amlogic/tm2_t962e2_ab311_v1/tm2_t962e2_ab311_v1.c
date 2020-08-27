@@ -521,7 +521,8 @@ U_BOOT_DEVICE(spicc0) = {
 extern void aml_pwm_cal_init(int mode);
 
 static const struct meson_gpio_i2c_platdata gpio_i2c_data[] = {
-	{ "gpioh_20", "gpioh_19", 100000},
+	{ "gpiow_2", "gpiow_3", 100000, 1},
+	{ "gpioh_20", "gpioh_19", 100000, 0},
 };
 
 static const struct meson_i2c_platdata i2c_data[] = {
@@ -547,6 +548,7 @@ U_BOOT_DEVICES(meson_i2cs) = {
 	{ "i2c_meson", &i2c_data[3] },
 	{ "i2c_meson", &i2c_data[4] },
 	{ "i2c-gpio", &gpio_i2c_data[0] },
+	{ "i2c-gpio", &gpio_i2c_data[1] },
 };
 
 /*

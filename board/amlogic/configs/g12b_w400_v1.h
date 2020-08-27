@@ -622,7 +622,8 @@
 
 /* other devices */
 /* I2C DM driver*/
-//#define CONFIG_DM_I2C
+#define CONFIG_DM_I2C
+#define CONFIG_DM_I2C_GPIO		1
 #if defined(CONFIG_DM_I2C)
 #define CONFIG_SYS_I2C_MESON		1
 #else

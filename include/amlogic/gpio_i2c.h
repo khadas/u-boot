@@ -23,6 +23,7 @@ struct meson_gpio_i2c_platdata {
 	const char sda[10];
 	const char scl[10];
 	unsigned int clock_rate;
+	char is_odpin;
 };
 
 #endif /* __GPIO_I2C_H__ */

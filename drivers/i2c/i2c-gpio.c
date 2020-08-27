@@ -30,6 +30,8 @@ struct i2c_gpio_bus {
 	unsigned int scl;
 };
 
+static char is_odpin;
+
 static int i2c_gpio_sda_get(unsigned sda)
 {
 	return gpio_get_value(sda);
@@ -45,10 +47,18 @@ static void i2c_gpio_sda_set(unsigned sda, int bit)
 
 static void i2c_gpio_scl_set(unsigned scl, int bit)
 {
-	if (bit)
-		gpio_direction_output(scl, bit);
-	else
-		gpio_direction_output(scl, bit);
+	if (is_odpin) {
+		if (bit)
+			gpio_direction_input(scl);/* set scl high */
+		else
+			gpio_direction_output(scl, bit);
+
+	} else {
+		if (bit)
+			gpio_direction_output(scl, bit);
+		else
+			gpio_direction_output(scl, bit);
+	}
 }
 
 static void i2c_gpio_write_bit(unsigned scl, unsigned sda,
@@ -206,6 +216,7 @@ static int i2c_gpio_write_data(struct i2c_gpio_bus *bus, uchar chip,
 
 	if (i2c_send_slave_addr(bus->scl, bus->sda, delay, chip << 1)) {
 		debug("i2c_write, no chip responded %02X\n", chip);
+		printf("i2c_write, no chip responded %02X\n", chip);
 		return -EIO;
 	}
 
@@ -319,6 +330,7 @@ static int meson_gpio_i2c_probe(struct udevice *bus)
 		printf("failed to request scl pin\n");
 
 	i2c->udelay = 1000000 / (plat->clock_rate << 2);
+	is_odpin = plat->is_odpin;
 
 	return 0;
 }
