@@ -195,6 +195,12 @@ int key_unify_init(const char* seedStr, const char* dtbLoadaddr)
         KM_ERR("Seed is 0 err\n");
         return __LINE__;
     }
+
+    if (amlkey_if_init(dtbLoadaddr)) {
+        KM_ERR("amlkey interface init fail\n");
+        return __LINE__;
+    }
+
     for (i=0; i < _KM_DEVCNT; i++)
     {
         KmDevKeyOps* theDevOps = _km_devKeyOpsArr[i];

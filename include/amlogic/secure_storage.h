@@ -10,8 +10,6 @@
 #define RET_EUND	-1
 #define SMC_UNK		0xffffffff
 
-/* Attribute*/
-#define OBJ_ATTR_SECURE	(1<<0)
 
 #ifdef CONFIG_SECURE_STORAGE
 /* funtion name: secure_storage_write
