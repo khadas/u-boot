@@ -648,7 +648,7 @@ void hdmitx_set_hdr10plus_pkt(unsigned int flag,
 void hdmi_tx_init(void);
 
 extern struct hdmitx_dev hdmitx_device;
-
+bool hdmitx_find_vendor(struct hdmitx_dev *hdev);
 #ifndef printk
 #define printk printf
 #endif
