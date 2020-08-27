@@ -173,7 +173,7 @@ static unsigned int detect_key(unsigned int suspend_from)
 					_udelay(20*1000);
 					if (readl(PREG_PAD_GPIO2_I) & (0x01 << 18))
 						flag_p++;
-					else if(!(readl(PREG_PAD_GPIO2_I) & (0x01 << 18)))
+					else if (!(readl(PREG_PAD_GPIO2_I) & (0x01 << 18)))
 						flag_n++;
 					cnt++;
 				} while (cnt < 10);
@@ -192,9 +192,14 @@ static unsigned int detect_key(unsigned int suspend_from)
 					exit_reason = BT_WAKEUP;
 				}
 				else if (flag_n >= 7) {
-					uart_puts("netflix key");
-					uart_puts("\n");
-					exit_reason = REMOTE_CUS_WAKEUP;
+					_udelay(120*1000);
+					if (!(readl(PREG_PAD_GPIO2_I) & (0x01 << 18)))
+						exit_reason = BT_WAKEUP;
+					else {
+						uart_puts("netflix key");
+						uart_puts("\n");
+						exit_reason = REMOTE_CUS_WAKEUP;
+					}
 				}
 			#else
 				exit_reason = BT_WAKEUP;
