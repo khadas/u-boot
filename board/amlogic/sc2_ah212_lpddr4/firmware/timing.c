@@ -298,43 +298,43 @@ __attribute__ ((section(".clk_param"))) = {
 #endif
 
 /* VDDEE_VAL_REG */
-#if    (VDDEE_VAL == 711)
+#if    (VDDEE_VAL == 700)
 	#define VDDEE_VAL_REG	0x120000
-#elif (VDDEE_VAL == 721)
+#elif (VDDEE_VAL == 710)
 	#define VDDEE_VAL_REG	0x110001
-#elif (VDDEE_VAL == 731)
+#elif (VDDEE_VAL == 720)
 	#define VDDEE_VAL_REG	0x100002
-#elif (VDDEE_VAL == 741)
+#elif (VDDEE_VAL == 730)
 	#define VDDEE_VAL_REG	0xf0003
-#elif (VDDEE_VAL == 751)
+#elif (VDDEE_VAL == 740)
 	#define VDDEE_VAL_REG	0xe0004
-#elif (VDDEE_VAL == 761)
+#elif (VDDEE_VAL == 750)
 	#define VDDEE_VAL_REG	0xd0005
-#elif (VDDEE_VAL == 771)
+#elif (VDDEE_VAL == 760)
 	#define VDDEE_VAL_REG	0xc0006
-#elif (VDDEE_VAL == 781)
+#elif (VDDEE_VAL == 770)
 	#define VDDEE_VAL_REG	0xb0007
-#elif (VDDEE_VAL == 791)
+#elif (VDDEE_VAL == 780)
 	#define VDDEE_VAL_REG	0xa0008
-#elif (VDDEE_VAL == 801)
+#elif (VDDEE_VAL == 790)
 	#define VDDEE_VAL_REG	0x90009
-#elif (VDDEE_VAL == 811)
+#elif (VDDEE_VAL == 800)
 	#define VDDEE_VAL_REG	0x8000a
-#elif (VDDEE_VAL == 821)
+#elif (VDDEE_VAL == 810)
 	#define VDDEE_VAL_REG	0x7000b
-#elif (VDDEE_VAL == 831)
+#elif (VDDEE_VAL == 820)
 	#define VDDEE_VAL_REG	0x6000c
-#elif (VDDEE_VAL == 841)
+#elif (VDDEE_VAL == 830)
 	#define VDDEE_VAL_REG	0x5000d
-#elif (VDDEE_VAL == 851)
+#elif (VDDEE_VAL == 840)
 	#define VDDEE_VAL_REG	0x4000e
-#elif (VDDEE_VAL == 861)
+#elif (VDDEE_VAL == 850)
 	#define VDDEE_VAL_REG	0x3000f
-#elif (VDDEE_VAL == 871)
+#elif (VDDEE_VAL == 860)
 	#define VDDEE_VAL_REG	0x20010
-#elif (VDDEE_VAL == 881)
+#elif (VDDEE_VAL == 870)
 	#define VDDEE_VAL_REG	0x10011
-#elif (VDDEE_VAL == 891)
+#elif (VDDEE_VAL == 880)
 	#define VDDEE_VAL_REG	0x12
 #else
 	#error "VDDEE val out of range\n"
