@@ -153,6 +153,7 @@ void lcd_lvds_phy_set(struct lcd_config_s *pconf, int status)
 		switch (lcd_drv->chip_type) {
 		case LCD_CHIP_TL1:
 		case LCD_CHIP_TM2:
+	//	case LCD_CHIP_T5:
 			size = sizeof(lvds_vx1_p2p_phy_preem_tl1) /
 				sizeof(unsigned int);
 			if (preem >= size) {
@@ -223,6 +224,7 @@ void lcd_lvds_phy_set(struct lcd_config_s *pconf, int status)
 		switch (lcd_drv->chip_type) {
 		case LCD_CHIP_TL1:
 		case LCD_CHIP_TM2:
+		//case LCD_CHIP_T5:
 			lcd_phy_cntl_set_tl1(status, data32, 0, 0);
 			break;
 		default:
@@ -258,6 +260,7 @@ void lcd_vbyone_phy_set(struct lcd_config_s *pconf, int status)
 		switch (lcd_drv->chip_type) {
 		case LCD_CHIP_TL1:
 		case LCD_CHIP_TM2:
+		//case LCD_CHIP_T5:
 			size = sizeof(lvds_vx1_p2p_phy_preem_tl1) /
 				sizeof(unsigned int);
 			if (preem >= size) {
@@ -304,6 +307,7 @@ void lcd_vbyone_phy_set(struct lcd_config_s *pconf, int status)
 		switch (lcd_drv->chip_type) {
 		case LCD_CHIP_TL1:
 		case LCD_CHIP_TM2:
+		//case LCD_CHIP_T5:
 			lcd_phy_cntl_set_tl1(status, data32, 1, 0);
 			break;
 		default:
@@ -335,6 +339,7 @@ void lcd_mlvds_phy_set(struct lcd_config_s *pconf, int status)
 		switch (lcd_drv->chip_type) {
 		case LCD_CHIP_TL1:
 		case LCD_CHIP_TM2:
+		//case LCD_CHIP_T5:
 			size = sizeof(lvds_vx1_p2p_phy_preem_tl1) /
 				sizeof(unsigned int);
 			if (preem >= size) {
@@ -378,6 +383,7 @@ void lcd_mlvds_phy_set(struct lcd_config_s *pconf, int status)
 		switch (lcd_drv->chip_type) {
 		case LCD_CHIP_TL1:
 		case LCD_CHIP_TM2:
+		//case LCD_CHIP_T5:
 			lcd_phy_cntl_set_tl1(status, data32, 0, 0);
 			break;
 		case LCD_CHIP_TXHD:
@@ -604,6 +610,7 @@ int lcd_phy_probe(void)
 			phy_ctrl_bit_on = 0;
 		break;
 	case LCD_CHIP_TM2:
+	//case LCD_CHIP_T5:
 		if (lcd_drv->rev_type == 0xB)
 			phy_ctrl_bit_on = 1;
 		else

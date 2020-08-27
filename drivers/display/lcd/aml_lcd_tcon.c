@@ -1509,6 +1509,7 @@ static int lcd_tcon_core_flag(struct aml_lcd_drv_s *lcd_drv)
 	switch (lcd_drv->chip_type) {
 	case LCD_CHIP_TL1:
 	case LCD_CHIP_TM2:
+	//case LCD_CHIP_T5:
 		ret = (readl(TCON_CORE_FLAG_LIC2) >> 17) & 0x1;
 		break;
 	default:
@@ -2099,6 +2100,7 @@ int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *lcd_drv, int load_id)
 		break;
 	case LCD_CHIP_TL1:
 	case LCD_CHIP_TM2:
+	case LCD_CHIP_T5:
 		switch (pconf->lcd_basic.lcd_type) {
 		case LCD_MLVDS:
 		case LCD_P2P:

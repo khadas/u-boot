@@ -35,7 +35,8 @@
 /* 20191227: vbyone hw filter disable support*/
 /* 20200610: correct P2P CHPI tx low common setting*/
 /* 20200710: tconless new data format*/
-#define LCD_DRV_VERSION    "20200710"
+/* 20200827: add lcd driver support for T5 chip*/
+#define LCD_DRV_VERSION    "20200827"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
