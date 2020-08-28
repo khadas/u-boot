@@ -214,7 +214,8 @@ static int lcd_tcon_spi_data_load(void)
 {
 	struct tcon_mem_map_table_s *mm_table = get_lcd_tcon_mm_table();
 #ifdef CONFIG_AML_LCD_EXTERN
-	struct aml_lcd_extern_driver_s *ext_drv = aml_lcd_extern_get_driver(0);
+	struct aml_lcd_extern_driver_s *ext_drv = NULL;
+	unsigned int ext_index;
 	unsigned int ext_need_update = 0;
 #endif
 	unsigned int i, j, size, new_size;
@@ -240,14 +241,7 @@ static int lcd_tcon_spi_data_load(void)
 		return -1;
 	}
 
-#ifdef CONFIG_AML_LCD_EXTERN
-	if (ext_drv) {
-		tcon_spi.ext_init_on_cnt = ext_drv->config->table_init_on_cnt;
-		tcon_spi.ext_init_off_cnt = ext_drv->config->table_init_off_cnt;
-	}
-#endif
 	for (i = 0; i < tcon_spi.block_cnt; i++) {
-		j = tcon_spi.spi_block[i]->data_index;
 		switch (tcon_spi.spi_block[i]->data_type) {
 		case LCD_TCON_DATA_BLOCK_TYPE_DEMURA_LUT:
 		case LCD_TCON_DATA_BLOCK_TYPE_ACC_LUT:
@@ -258,6 +252,8 @@ static int lcd_tcon_spi_data_load(void)
 			ret = tcon_spi.data_read(tcon_spi.spi_block[i]);
 			if (ret)
 				continue;
+
+			j = tcon_spi.spi_block[i]->data_index;
 
 			/* update tcon data buf */
 			if (!mm_table->data_mem_vaddr[j]) {
@@ -316,9 +312,22 @@ static int lcd_tcon_spi_data_load(void)
 #ifdef CONFIG_AML_LCD_EXTERN
 			if (!tcon_spi.ext_buf)
 				break;
-			if (!ext_drv)
-				break;
+			ext_index = (tcon_spi.spi_block[i]->data_index >> 8) & 0xff;
+			if (ext_drv) {
+				if (ext_drv->config->index != ext_index) {
+					LCDERR("%s: don't support multi ext device for tcon data\n",
+					       __func__);
+					continue;
+				}
+			} else {
+				ext_drv = aml_lcd_extern_get_driver(ext_index);
+				if (!ext_drv)
+					break;
+			}
+			tcon_spi.ext_init_on_cnt = ext_drv->config->table_init_on_cnt;
+			tcon_spi.ext_init_off_cnt = ext_drv->config->table_init_off_cnt;
 
+			j = tcon_spi.spi_block[i]->data_index & 0xff;
 			ret = tcon_spi.data_read(tcon_spi.spi_block[i]);
 			if (ret)
 				continue;
