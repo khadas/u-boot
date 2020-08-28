@@ -62,8 +62,8 @@
 #ifdef CONFIG_AML_SPICC
 #include <amlogic/spicc.h>
 #endif
-#ifdef CONFIG_PCA953X
-#include <pca953x.h>
+#ifdef CONFIG_TCA6408
+#include <khadas_tca6408.h>
 #endif
 #ifdef CONFIG_POWER_FUSB302
 #include <fusb302.h>
@@ -627,21 +627,21 @@ U_BOOT_DEVICES(meson_pwm) = {
 };
 #endif /*end CONFIG_PWM_MESON*/
 
-#if (defined (CONFIG_AML_LCD) && defined(CONFIG_PCA953X))
+#if (defined (CONFIG_AML_LCD) && defined(CONFIG_TCA6408))
 // detect whether the LCD is exist
 void board_lcd_detect(void)
 {
 	u8 mask = 0, value = 0;
+	int ret = 0;
 
 	// detect RESET pin
 	// if the LCD is connected, the RESET pin will be plll high
 	// if the LCD is not connected, the RESET pin will be low
-	mask = 1 << 0;
+	mask = TCA_LCD_RESET_MASK;
 
-	pca953x_set_dir(0x20, mask, mask);
-	value = pca953x_get_val(0x20) & mask ? 1 : 0;
-	if (value < 0) {
-		printf("%s: failed to read LCD_RESET status! error: %d\n", __func__, value);
+	ret = tca6408_get_value(&value, mask);
+	if (ret) {
+		printf("%s: failed to read LCD_RESET status! error: %d\n", __func__, ret);
 
 		return;
 	}
@@ -680,8 +680,8 @@ int board_init(void)
 #ifdef CONFIG_SYS_I2C_AML
 	board_i2c_init();
 #endif
-#ifdef CONFIG_PCA953X
-	pca953x_init();
+#ifdef CONFIG_TCA6408
+	tca6408_gpio_init();
 #endif
 
 	/* power on GPIOZ_5 : CMD_VDD_EN */
