@@ -8558,7 +8558,7 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	} else { //G12A/G12B/SM1/TL1/TM2
 		printf("reboot...\n"); //reset will enter bl2 panic path,so change to "reboot"
 		run_command("reboot", 0);
-		ddr_test_watchdog_reset_system();
+		//ddr_test_watchdog_reset_system();
 	}
 
 	return 0;
@@ -9826,4 +9826,3 @@ U_BOOT_CMD(
 	"ddr_fastboot_config cmd arg1 arg2 arg3...",
 	"ddr_fastboot_config cmd arg1 arg2 arg3... \n dcache off ? \n"
 	);
-
