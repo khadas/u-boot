@@ -1843,6 +1843,69 @@ static int do_i2c_bus_num(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 #endif  /* defined(CONFIG_SYS_I2C) */
 
+#if defined(CONFIG_DM_I2C)
+static int do_i2c_boot(cmd_tbl_t *cmdtp, int flag, int argc,
+				char * const argv[])
+{
+	uint8_t buf[5];
+	const uint8_t buf_sdc[] = {0x53, 0x44, 0x43};
+	const uint8_t buf_usb[] = {0x55, 0x53, 0x42};
+	struct udevice *dev;
+	int ret, i, bus_no;
+
+	/*
+	 * The gpio i2c bum is 5 as default.
+	 * It depends on the Meson i2c controller number.
+	 * It is 5 for the current SoCs, May it be 4 in the future.
+	 * If gpio bus number is not 5, run: i2c dev x first.
+	 */
+	if (!i2c_get_cur_bus(&dev))
+		bus_no = dev->seq;
+	else {
+		bus_no = 5;
+		printf("Using the default BUS: 5. ");
+	}
+
+	ret = i2c_get_chip_for_busnum(bus_no, 0x52, 1, &dev);
+		if (ret) {
+			printf("Cannot find i2c chip 0: %d\n", ret);
+		return 0;
+	}
+
+	if (argc == 1) {
+		/* read fd/fe/ff */
+		ret = dm_i2c_read(dev, 0xfd, &buf[0], 1);
+		ret = dm_i2c_read(dev, 0xfe, &buf[1], 1);
+		ret = dm_i2c_read(dev, 0xff, &buf[2], 1);
+		if (ret) {
+			printf("HDMI NO POWER or gpio wrong config");
+			return ret;
+		}
+		buf[3] = '\0';
+		printf("Current BOOT is %s\n", buf);
+	} else {
+		if (!strcmp(argv[1], "usb"))
+			strcpy((char *)buf, (const char *)buf_usb);
+		else if (!strcmp(argv[1], "sdc"))
+			strcpy((char *)buf, (const char *)buf_sdc);
+		else {
+			printf("Not support boot\n");
+			return 0;
+		}
+
+		printf("Setting BOOT to %s\n", argv[1]);
+		for (i = 0; i < 3; i++) {
+			ret = dm_i2c_write(dev, 0xfd + i, &buf[i], 1);
+			if (ret)
+				return ret;
+			udelay(1000);/* Waiting for write in*/
+		}
+	}
+
+	return ret;
+}
+#endif
+
 /**
  * do_i2c_bus_speed() - Handle the "i2c speed" command-line command
  * @cmdtp:	Command data struct pointer
@@ -1965,6 +2028,7 @@ static cmd_tbl_t cmd_i2c_sub[] = {
 	U_BOOT_CMD_MKENT(read, 5, 1, do_i2c_read, "", ""),
 	U_BOOT_CMD_MKENT(write, 6, 0, do_i2c_write, "", ""),
 #ifdef CONFIG_DM_I2C
+	U_BOOT_CMD_MKENT(boot, 1, 1, do_i2c_boot, "", ""),
 	U_BOOT_CMD_MKENT(flags, 2, 1, do_i2c_flags, "", ""),
 	U_BOOT_CMD_MKENT(olen, 2, 1, do_i2c_olen, "", ""),
 #endif
@@ -2043,6 +2107,7 @@ static char i2c_help_text[] =
 	"i2c write memaddress chip address[.0, .1, .2] length [-s] - write memory\n"
 	"          to I2C; the -s option selects bulk write in a single transaction\n"
 #ifdef CONFIG_DM_I2C
+	"i2c boot [usb/sdc] - show or set current BOOT\n"
 	"i2c flags chip [flags] - set or get chip flags\n"
 	"i2c olen chip [offset_length] - set or get chip offset length\n"
 #endif

@@ -91,6 +91,19 @@
 		};
 	};
 
+	i2c_gpio_0: i2c-gpio-0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		compatible = "i2c-gpio";
+		status = "okay";
+		gpios = <&gpio GPIOH_0 GPIO_ACTIVE_HIGH>, /* SDA */
+			<&gpio GPIOH_1 GPIO_ACTIVE_HIGH>; /* CLK */
+
+		i2c-gpio,delay-us = <5>;
+		is_odpin = <1>;
+	};
+
 	pwm_ab: pwm@fe058000 {
 		compatible = "amlogic,meson-v2-pwm";
 		reg = <0x0 0xfe058000  0x0 0x20>,

@@ -24,6 +24,8 @@ enum {
 	PIN_COUNT,
 };
 
+static unsigned int is_odpin;
+
 struct i2c_gpio_bus {
 	/**
 	  * udelay - delay [us] between GPIO toggle operations,
@@ -50,6 +52,15 @@ static void i2c_gpio_sda_set(struct gpio_desc *sda, int bit)
 static void i2c_gpio_scl_set(struct gpio_desc *scl, int bit)
 {
 	ulong flags = GPIOD_IS_OUT;
+
+	if (is_odpin) {
+		if (bit)
+			dm_gpio_set_dir_flags(scl, GPIOD_IS_IN);
+		else
+			dm_gpio_set_dir_flags(scl, flags | GPIOD_IS_OUT_ACTIVE);
+
+		return;
+	}
 
 	if (bit)
 		flags |= GPIOD_IS_OUT_ACTIVE;
@@ -319,6 +330,8 @@ static int i2c_gpio_ofdata_to_platdata(struct udevice *dev)
 
 	bus->udelay = fdtdec_get_int(blob, node, "i2c-gpio,delay-us",
 				     DEFAULT_UDELAY);
+
+	is_odpin = fdtdec_get_int(blob, node, "is_odpin", 0);
 
 	return 0;
 error:
