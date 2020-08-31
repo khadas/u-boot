@@ -1335,6 +1335,7 @@ static struct vic_tvregs_set tvregsTab[] = {
 	{HDMI_1280x720p60_16x9, tvregs_720p},
 	{HDMI_1920x1080i60_16x9, tvregs_1080i},
 	{HDMI_1920x1080p60_16x9, tvregs_1080p},
+	{HDMI_1920x1080p120_16x9, tvregs_1080p},
 	{HDMI_1280x720p50_16x9, tvregs_720p_50hz},
 	{HDMI_1920x1080i50_16x9, tvregs_1080i_50hz},
 	{HDMI_1920x1080p50_16x9, tvregs_1080p_50hz},
