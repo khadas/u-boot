@@ -58,7 +58,8 @@ static int gLcdTconDataCnt, gLcdTconSpi_cnt;
 static unsigned int g_lcd_tcon_bin_block_cnt;
 static unsigned char *g_lcd_tcon_bin_path_mem;
 
-static int handle_tcon_ext_pmu_data(int index, int flag, unsigned char *buf);
+static int handle_tcon_ext_pmu_data(int index, int flag, unsigned char *buf,
+				    unsigned int offset, unsigned int data_len);
 #endif
 #endif
 
@@ -806,7 +807,8 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 	unsigned char *data_buf = NULL;
 	unsigned int data_size = 0;
 #ifdef CONFIG_AML_LCD_TCON
-	unsigned int n, flag;
+	unsigned int n, flag = 0;
+	unsigned int offset = 0, data_len = 0;
 #endif
 
 	/* orignal data in ini */
@@ -839,16 +841,31 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 					break;
 				}
 				if ((((p_attr->cmd_data[j] >> 4) & 0xf) == 0xb) ||
-					(((p_attr->cmd_data[j] >> 4) & 0xf) == 0xd)) {
+				    (((p_attr->cmd_data[j] >> 4) & 0xf)
+				     == 0xd) ||
+				    (((p_attr->cmd_data[j] >> 4) & 0xf)
+				      == 0xa)) {
 #ifdef CONFIG_AML_LCD_TCON
 					n = p_attr->cmd_data[j] & 0xf;
-					if (((p_attr->cmd_data[j] >> 4) & 0xf) == 0xb)
+					if (((p_attr->cmd_data[j] >> 4) & 0xf)
+					    == 0xa) {
+						flag = 2;
+						data_len = tmp_buf[i + 1];
+						offset = tmp_buf[i + 2];
+					} else if (((p_attr->cmd_data[j] >> 4)
+						   & 0xf) == 0xb) {
 						flag = 1;
-					else
+					} else if (((p_attr->cmd_data[j] >> 4)
+						   & 0xf) == 0xd) {
 						flag = 0;
+					}
 					memset(data_buf, 0, LCD_EXTERN_INIT_ON_MAX);
-					handle_tcon_ext_pmu_data(n, flag, data_buf);
-					if (data_buf[0]) { /* bin data size valid */
+					handle_tcon_ext_pmu_data(n, flag,
+								 data_buf,
+								 offset,
+								 data_len);
+					/* bin data size valid */
+					if (data_buf[0]) {
 						data_size = data_buf[0];
 						p_attr->cmd_data[j + 1] = data_size;
 						memcpy(&p_attr->cmd_data[j + 2],
@@ -858,7 +875,7 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 						p_attr->cmd_data[j + 1] = data_size;
 						for (k = 0; k < data_size; k++) {
 							p_attr->cmd_data[j + 2 + k] =
-								(unsigned char)tmp_buf[i + 2 +k];
+								(unsigned char)tmp_buf[i + 2 + k];
 						}
 					}
 #endif
@@ -867,7 +884,7 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 					p_attr->cmd_data[j + 1] = data_size;
 					for (k = 0; k < data_size; k++) {
 						p_attr->cmd_data[j + 2 + k] =
-							(unsigned char)tmp_buf[i + 2 +k];
+							(unsigned char)tmp_buf[i + 2 + k];
 					}
 				}
 				j += data_size + 2;
@@ -1848,10 +1865,12 @@ static int handle_tcon_bin(void)
 	return 0;
 }
 
-static int handle_tcon_ext_pmu_data(int index, int flag, unsigned char *buf)
+static int handle_tcon_ext_pmu_data(int index, int flag, unsigned char *buf,
+				    unsigned int offset, unsigned int data_len)
 {
 	char *file_name, str[2][30];
 	unsigned int data_size = 0, i, file_find = 0;
+	unsigned char *bin_buf = NULL;
 
 	if (!buf) {
 		ALOGE("%s, buf is null\n", __func__);
@@ -1900,13 +1919,37 @@ static int handle_tcon_ext_pmu_data(int index, int flag, unsigned char *buf)
 		return -1;
 	}
 
-	if (flag) { /* data with reg addr auto fill */
+	switch (flag) {
+	case 0:
+		buf[0] = data_size;
+		GetBinData(&buf[1], data_size);
+		break;
+	case 1: /* data with reg addr auto fill */
 		buf[0] = (data_size + 1); /* data size include reg start */
 		buf[1] = 0x00;            /* reg start */
 		GetBinData(&buf[2], data_size);
-	} else {
-		buf[0] = data_size;
-		GetBinData(&buf[1], data_size);
+		break;
+	case 2:
+		if (data_size < (offset + data_len - 1)) {
+			ALOGE("%s, %s suspend size %d out of data_size(%d)!\n",
+			      __func__, str[i], (offset + data_len - 1),
+			      data_size);
+			return -1;
+		}
+
+		bin_buf = (unsigned char *)malloc(data_size);
+		if (bin_buf == NULL) {
+			ALOGE("%s, malloc buffer memory error!!!\n", __func__);
+			return -1;
+		}
+		buf[0] = data_len;
+		buf[1] = offset;
+		GetBinData(bin_buf, data_size);
+		memcpy(&buf[2], &bin_buf[offset], data_len - 1);
+		free(bin_buf);
+		break;
+	default:
+		break;
 	}
 
 	if (model_debug_flag & DEBUG_LCD_EXTERN) {

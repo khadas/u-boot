@@ -112,6 +112,24 @@ static int lcd_tcon_spi_ext_update(struct aml_lcd_extern_driver_s *ext_drv)
 	return 0;
 }
 
+static int lcd_tcon_spi_update_data(struct lcd_tcon_spi_block_s *spi_block,
+				    unsigned char *cmp_buf, int flag, int i,
+				    unsigned int offset, unsigned int data_len)
+{
+	if (flag) {
+		if (spi_block->data_new_size > offset + data_len) {
+			memcpy(&cmp_buf[i + 2], &spi_block->new_buf[offset],
+			       data_len - 1);
+			spi_block->new_buf[0] = data_len;
+		}
+	} else {
+		memcpy(&cmp_buf[i + 1], spi_block->new_buf,
+		       spi_block->data_new_size);
+	}
+
+	return 0;
+}
+
 /* for ext_data, need udpate cmd table when compare */
 static int lcd_tcon_spi_ext_cmp(unsigned char index,
 				struct lcd_tcon_spi_block_s *spi_block)
@@ -119,7 +137,9 @@ static int lcd_tcon_spi_ext_cmp(unsigned char index,
 	unsigned char *cmp_buf, *tmp_buf;
 	unsigned int cmp_buf_size, ext_size;
 	unsigned char type, cnt;
-	int i = 0, j, k;
+	int i = 0, j = 0, k;
+	unsigned int offset = 0, data_len = 0;
+	int flag = 0;
 
 	if (!spi_block->new_buf) {
 		LCDERR("%s: new_buf is null\n", __func__);
@@ -148,19 +168,28 @@ static int lcd_tcon_spi_ext_cmp(unsigned char index,
 		if ((i + 2 + cnt) > cmp_buf_size)
 			break;
 		if ((((type >> 4) & 0xf) == 0xb) ||
-			(((type >> 4) & 0xf) == 0xd)) {
+		    (((type >> 4) & 0xf) == 0xd) ||
+		    (((type >> 4) & 0xf) == 0xa)) {
 			if (index != (type & 0xf))
 				goto lcd_tcon_spi_ext_cmp_next;
-			j = i + cnt + 2;
+			if (((type >> 4) & 0xf) == 0xa) {
+				flag = 1;
+				data_len = cmp_buf[i + 1];
+				offset = cmp_buf[i + 2];
+			} else {
+				j = i + cnt + 2;
+			}
+
 			k = cmp_buf_size - j + tcon_spi.ext_init_off_cnt;
 			if (cnt == 0) {
 				if (spi_block->new_buf[0]) { /* new cnt */
 					/* save data behind */
 					memcpy(tmp_buf, &cmp_buf[j], k);
 					/* update current data */
-					memcpy(&cmp_buf[i + 1],
-						spi_block->new_buf,
-						spi_block->data_new_size);
+					lcd_tcon_spi_update_data(spi_block,
+								 cmp_buf, flag,
+								 i, offset,
+								 data_len);
 					/* recover data behind */
 					j = i + spi_block->new_buf[0] + 2;
 					memcpy(&cmp_buf[j], tmp_buf, k);
@@ -173,8 +202,10 @@ static int lcd_tcon_spi_ext_cmp(unsigned char index,
 				/* save data behind */
 				memcpy(tmp_buf, &cmp_buf[j], k);
 				/* update current data */
-				memcpy(&cmp_buf[i + 1],
-					spi_block->new_buf, spi_block->data_new_size);
+				lcd_tcon_spi_update_data(spi_block,
+							 cmp_buf, flag,
+							 i, offset,
+							 data_len);
 				/* recover data behind */
 				j = i + spi_block->new_buf[0] + 2;
 				memcpy(&cmp_buf[j], tmp_buf, k);
