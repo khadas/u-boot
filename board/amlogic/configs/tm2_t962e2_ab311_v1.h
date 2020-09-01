@@ -336,7 +336,10 @@
             "fi;"\
             "\0"\
         "init_display="\
-            "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};dovi set;dovi pkg;vpp hdrpkt;"\
+            "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;osd open;osd clear;"\
+            "if rdext4pic vendor $loadaddr; then bmp display $logoLoadAddr;"\
+            "else echo logo part bootup; imgread pic logo bootup $loadaddr; bmp display $bootup_offset;fi;"\
+            "bmp scale;vout output ${outputmode};dovi set;dovi pkg;vpp hdrpkt;"\
             "\0"\
         "check_display="\
             "if test ${reboot_mode} = cold_boot; then "\

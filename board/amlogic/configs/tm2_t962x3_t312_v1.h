@@ -328,7 +328,10 @@
             "fi;"\
             "\0"\
         "init_display="\
-		"osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode}"\
+		"osd open;osd clear;"\
+        "if rdext4pic vendor $loadaddr; then bmp display $logoLoadAddr;"\
+        "else echo logo part bootup; imgread pic logo bootup $loadaddr; bmp display $bootup_offset;fi;"\
+        "bmp scale;vout output ${outputmode}"\
             "\0"\
         "check_display="\
             "if test ${reboot_mode} = cold_boot; then "\
