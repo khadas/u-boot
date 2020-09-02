@@ -5,59 +5,6 @@
 
 #ifdef ROM_FIXME
 
-/*AO*/
-#define AO_METAL_REVISION                (SYSCTRL_STICKY_REG0)
-
-#define SEC_AO_RTI_STATUS_REG3           (SYSCTRL_STICKY_REG0)
-
-#define P_AO_SEC_SD_CFG0                 (SYSCTRL_STICKY_REG0)
-#define P_AO_SEC_GP_CFG0                 (SYSCTRL_STICKY_REG0)
-#define AO_RTI_STATUS_REG3               (SYSCTRL_STICKY_REG0)
-
-#define SEC_AO_SEC_SD_CFG15              (SYSCTRL_STICKY_REG0)
-
-#define SEC_AO_SEC_GP_CFG0               (SYSCTRL_STICKY_REG0)
-#define SEC_AO_SEC_GP_CFG1               (SYSCTRL_STICKY_REG0)
-#define SEC_AO_SEC_GP_CFG2               (SYSCTRL_STICKY_REG0)
-#define SEC_AO_SEC_GP_CFG3               (SYSCTRL_STICKY_REG0)
-#define SEC_AO_SEC_GP_CFG4               (SYSCTRL_STICKY_REG0)
-#define SEC_AO_SEC_GP_CFG5               (SYSCTRL_STICKY_REG0)
-#define SEC_AO_SEC_GP_CFG6               (SYSCTRL_STICKY_REG0)
-#define SEC_AO_SEC_GP_CFG7               (SYSCTRL_STICKY_REG0)
-
-#define AO_SEC_SD_CFG0                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_SD_CFG1                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_SD_CFG2                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_SD_CFG3                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_SD_CFG4                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_SD_CFG5                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_SD_CFG6                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_SD_CFG7                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_SD_CFG8                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_SD_CFG9                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_SD_CFG10                  (SYSCTRL_STICKY_REG0)
-#define AO_SEC_SD_CFG11                  (SYSCTRL_STICKY_REG0)
-#define AO_SEC_SD_CFG12                  (SYSCTRL_STICKY_REG0)
-#define AO_SEC_SD_CFG13                  (SYSCTRL_STICKY_REG0)
-#define AO_SEC_SD_CFG14                  (SYSCTRL_STICKY_REG0)
-
-
-#define AO_SEC_GP_CFG0                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_GP_CFG1                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_GP_CFG2                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_GP_CFG3                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_GP_CFG4                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_GP_CFG5                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_GP_CFG6                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_GP_CFG7                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_GP_CFG8                   (SYSCTRL_STICKY_REG0)
-#define AO_SEC_GP_CFG9                   (SYSCTRL_STICKY_REG0)
-
-/*maibox*/
-#define SEC_HIU_MAILBOX_SET_0            (SYSCTRL_STICKY_REG0)
-#define SEC_HIU_MAILBOX_STAT_0           (SYSCTRL_STICKY_REG0)
-#define SEC_HIU_MAILBOX_CLR_0            (SYSCTRL_STICKY_REG0)
-
 /*WDC*/
 #define WATCHDOG_CNTL                    (SYSCTRL_STICKY_REG0)
 #define WATCHDOG_CNTL1                   (SYSCTRL_STICKY_REG0)
@@ -158,10 +105,6 @@
 /*UART*/
 #define P_AO_TIMEBASE_CNTL1              (SYSCTRL_STICKY_REG0)
 #define P_AO_RTI_PINMUX_REG0             (SYSCTRL_STICKY_REG0)
-
-/*for SC2 DSP compatible*/
-#define CLKTREE_DSPA_CLK_CTRL0 CLKCTRL_DSPA_CLK_CTRL0
-#define CLKTREE_DSPB_CLK_CTRL0 CLKCTRL_DSPB_CLK_CTRL0
 
 #endif
 

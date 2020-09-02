@@ -28531,5 +28531,6 @@
 // Closing file:  ./parser_regs.h
 //
 #include "fixme.h"
+#include "soc_def.h"
 #endif // REGISTER_H
 
