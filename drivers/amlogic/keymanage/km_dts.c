@@ -202,10 +202,6 @@ static int unifykey_item_dt_parse(const void* dt_addr,int nodeoffset,int id,char
     else if(strcmp(propdata,UNIFYKEY_DEVICE_NORMAL) == 0){
         temp_item->dev = KEY_M_NORAML_KEY;
     }
-    else if (!strcmp(propdata, UNIFYKEY_DEVICE_PROVISIONKEY)) {
-        temp_item->dev = KEY_M_PROVISION_KEY;
-        _defProvisonItem = temp_item;
-    }
     else{
         KM_ERR("key-device %s is unknown at key_%d\n", propdata, id);
         return __LINE__;
@@ -225,14 +221,6 @@ static int unifykey_item_dt_parse(const void* dt_addr,int nodeoffset,int id,char
         }
         strcpy(temp_item->keyType, propdata);
     }
-
-#if 0
-	propdata = (char*)fdt_getprop((const void *)dt_addr, nodeoffset, "key-dataformat",NULL);
-	if (!propdata) {
-		KM_ERR("%s get key-dataformat fail at key_%d\n",item_path, id);
-        return __LINE__;
-	}
-#endif
 
 	prop = (struct fdt_property*)fdt_get_property((const void *)dt_addr,nodeoffset,"key-permit",NULL) ;
 	if (!prop) {
@@ -292,7 +280,8 @@ int keymanage_dts_parse(const void* dt_addr)
 {
     int ret = 0;
 	int child;
-	int nodeoffset;
+	int nodeoffset, provisionOffset;
+	int unifykeyNum = 0, provisionNum = 0;
 	char *punifykey_num, *encrypt_type;
 
 	if (fdt_check_header(dt_addr)!= 0) {
@@ -315,8 +304,16 @@ int keymanage_dts_parse(const void* dt_addr)
 
 	unify_key_info.key_num = 0;
 	fdt_for_each_subnode(child, dt_addr, nodeoffset) {
-		unify_key_info.key_num++;
+		unifykeyNum++;
 	}
+
+	provisionOffset = fdt_path_offset(dt_addr, "/provisionkey");
+	if (provisionOffset >= 0) {
+		fdt_for_each_subnode(child, dt_addr, provisionOffset) {
+			provisionNum++;
+		}
+	}
+	unify_key_info.key_num = unifykeyNum + provisionNum;
 	KM_MSG("key_num: %d\n", unify_key_info.key_num);
 
 	unify_key_info.encrypt_type = -1;
@@ -341,8 +338,54 @@ int keymanage_dts_parse(const void* dt_addr)
     unifykey_item = (struct key_item_t*)malloc(keyInfBufLen);
     memset(unifykey_item, 0 , keyInfBufLen);
 
-    ret = unifykey_item_create(dt_addr,unify_key_info.key_num);
+    ret = unifykey_item_create(dt_addr,unifykeyNum);
     unify_key_info.key_flag = ret ? 0 : 1;
+
+    if (provisionOffset >= 0)
+    {
+        KM_DBG("dts: in find /provisionkey.\n");
+
+        int defPermits = 0;
+        const struct fdt_property *prop = fdt_get_property(dt_addr, provisionOffset,"key-permit-default",NULL) ;
+        if (prop) {
+            const int propLen = prop->len > 512 ? strnlen(prop->data, 512) : prop->len;
+            if (fdt_stringlist_contains(prop->data, propLen, UNIFYKEY_PERMIT_READ)) {
+                defPermits |= KEY_M_PERMIT_READ;
+            }
+            if (fdt_stringlist_contains(prop->data, propLen, UNIFYKEY_PERMIT_WRITE)) {
+                defPermits |= KEY_M_PERMIT_WRITE;
+            }
+            if (fdt_stringlist_contains(prop->data, propLen, UNIFYKEY_PERMIT_DEL)) {
+                defPermits |= KEY_M_PERMIT_DEL;
+            }
+        }
+
+        int node = 0;
+        int id = unifykeyNum;
+        int szlen = 0;
+        fdt_for_each_subnode(node, dt_addr, provisionOffset) {
+            int len = 0;
+            const char* keyName = fdt_get_name(dt_addr, node, &len);
+            KM_DBG("provisionkey[%s] len %d\n", keyName, len);
+
+            struct key_item_t *pItem= unifykey_item + id;
+
+            szlen = strnlen(keyName, KEY_UNIFY_NAME_LEN - 1);
+            memcpy(pItem->name, keyName, szlen);
+            if (szlen < KEY_UNIFY_NAME_LEN) pItem->name[szlen] = '\0';
+
+            strcpy(pItem->keyType, "raw");
+            pItem->dev = KEY_M_PROVISION_KEY;
+            pItem->permit = defPermits;
+            pItem->id      = id++;
+            if (!strcmp(_PROVSION_DEFAULT_KEY_NAME, keyName)) _defProvisonItem = pItem;
+        }
+
+        if ((node < 0) && (node != -FDT_ERR_NOTFOUND)) {
+            KM_ERR("in parse /provisionkey, err(%s)\n", fdt_strerror(node));
+            return __LINE__;
+        }
+    }
 
 	return ret;
 }
