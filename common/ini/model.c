@@ -32,7 +32,7 @@ Description:
 #include "ini_io.h"
 #include "model.h"
 
-#define DEFAULT_MODEL_SUM_PATH "/vendor/etc/tvconfig/model/model_sum.ini"
+#define DEFAULT_MODEL_SUM_PATH "/odm/etc/tvconfig/model/model_sum.ini"
 #define AML_START		"amlogic_start"
 #define AML_END			"amlogic_end"
 

@@ -131,8 +131,8 @@
         "powermode=on\0"\
         "ffv_wake=off\0"\
         "ffv_freeze=off\0"\
-        "edid_14_dir=/vendor/etc/tvconfig/hdmi/port_14.bin\0" \
-        "edid_20_dir=/vendor/etc/tvconfig/hdmi/port_20.bin\0" \
+        "edid_14_dir=/odm/etc/tvconfig/hdmi/port_14.bin\0" \
+        "edid_20_dir=/odm/etc/tvconfig/hdmi/port_20.bin\0" \
         "edid_select=0\0" \
         "port_map=0x4321\0" \
         "cec_fun=0x2F\0" \
