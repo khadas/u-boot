@@ -570,7 +570,7 @@ int keymange_efuse_exit(void) {return -EINVAL;}
 int keymanage_efuse_write(const char *keyname, const void* keydata, unsigned int datalen) { return -EINVAL; }
 int keymanage_efuse_exist(const char* keyname) { return -EINVAL; }
 ssize_t keymanage_efuse_size(const char* keyname) { return 0; }
-int keymanage_efuse_query_can_read(const char* keyname){ return 0; }
+//int keymanage_efuse_query_can_read(const char* keyname){ return 0; }
 int keymanage_efuse_read(const char *keyname, void* dataBuf, const unsigned bufsz) { return -EINVAL; }
 int keymanage_efuse_query_is_burned(const char* keyname) { return -EINVAL; }
 int keymanage_efuse_query_can_read(const char* keyname) { return -EINVAL; }

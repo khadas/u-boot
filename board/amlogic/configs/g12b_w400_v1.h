@@ -405,7 +405,7 @@
 /* axg only support slc nand */
 /* swither for mtd nand which is for slc only. */
 /* support for mtd */
-#define CONFIG_AML_MTD 1
+//#define CONFIG_AML_MTD 1
 /* support for nftl */
 //#define CONFIG_AML_NAND	1
 
@@ -530,7 +530,7 @@
 #define CONFIG_CMD_BMP 1
 
 #if defined(CONFIG_AML_VOUT)
-#define CONFIG_AML_CVBS 1
+//#define CONFIG_AML_CVBS 1
 #endif
 
 #define CONFIG_AML_LCD    1
@@ -620,12 +620,12 @@
 #define CONFIG_DM_PWM
 #define CONFIG_PWM_MESON
 
-#define CONFIG_EFUSE 1
+//#define CONFIG_EFUSE 1
 
 /* commands */
 #define CONFIG_CMD_CACHE 1
 #define CONFIG_CMD_BOOTI 1
-#define CONFIG_CMD_EFUSE 1
+//#define CONFIG_CMD_EFUSE 1
 #define CONFIG_CMD_I2C 1
 #define CONFIG_CMD_MEMORY 1
 #define CONFIG_CMD_FAT 1

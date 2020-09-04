@@ -84,7 +84,12 @@ Description:
 //Unify EFUSE license query API
 //all following functions are defined with "weak" for customization of each SoC
 //EFUSE_LICX	--> AO_SEC_SD_CFG10/9 --> EFUSE mirror
+#if !defined(CONFIG_EFUSE)
+#define IS_FEAT_BOOT_VERIFY() 0
+#define IS_FEAT_BOOT_ENCRYPT() 0
+#else
 int IS_FEAT_BOOT_VERIFY(void);
 int IS_FEAT_BOOT_ENCRYPT(void);
+#endif
 
 #endif /* __BL2_EFUSE_H__ */
