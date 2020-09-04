@@ -35,6 +35,7 @@
 #include <amlogic/aml_v2_burning.h>
 #include <linux/mtd/partitions.h>
 #include <asm/arch/bl31_apis.h>
+#include <amlogic/aml_mtd.h>
 
 #ifdef CONFIG_AML_VPU
 #include <amlogic/media/vpu/vpu.h>
@@ -319,7 +320,8 @@ static struct mtd_partition normal_partition_info[] = {
 	.name = "data",
 	.offset = MTDPART_OFS_APPEND,
 	.size = MTDPART_SIZ_FULL,
-},
+}
+};
 
 struct mtd_partition *get_aml_mtd_partition(void)
 {

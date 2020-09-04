@@ -1077,7 +1077,7 @@ static struct aml_nand_flash_dev *aml_nand_get_flash_type(struct mtd_info *mtd,
 		}
 
 		if (!type)
-			return ERR_PTR(-ENODEV);
+			return type;
 	}
 	aml_nand_check_fbb_issue(dev_id);
 

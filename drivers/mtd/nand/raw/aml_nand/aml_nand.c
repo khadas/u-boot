@@ -185,7 +185,6 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 
 	phys_erase_shift = fls(mtd->erasesize) - 1;
 #endif
-
 	if (!strncmp((char*)plat->name, NAND_BOOT_NAME, strlen((const char*)NAND_BOOT_NAME))) {
 		/* boot partition must be set as this because of romboot restrict */
 		parts = kzalloc(sizeof(struct mtd_partition),
@@ -1663,7 +1662,6 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 
 	err = aml_nand_scan(mtd, controller->chip_num);
 	if (err || (pre_scan->pre_scan_flag)) {
-		err = -ENXIO;
 		goto exit_error;
 	}
 
@@ -1782,7 +1780,6 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 	for (i = 0; oobfree[i].length && i < ARRAY_SIZE(oobfree); i++)
 		chip->ecc.layout->oobavail += oobfree[i].length;
 	printk("oob avail size %d\n", chip->ecc.layout->oobavail);
-
 	mtd->oobavail = chip->ecc.layout->oobavail;
 	mtd->ecclayout = chip->ecc.layout;
 
@@ -1856,6 +1853,7 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 		meson_rsv_check(aml_chip->rsv->key);
 		meson_rsv_check(aml_chip->rsv->dtb);
 	}
+
 	if (aml_nand_add_partition(aml_chip) != 0) {
 		err = -ENXIO;
 		goto exit_error;
