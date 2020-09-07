@@ -1996,8 +1996,6 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 		return -ENOTSUPP;
 	}
 
-	mmc_set_clock(mmc, mmc->legacy_speed, MMC_CLK_ENABLE);
-
 	for_each_mmc_mode_by_pref(card_caps, mwt) {
 		for_each_supported_width(card_caps & mwt->widths,
 					 mmc_is_mode_ddr(mwt->mode), ecbw) {
