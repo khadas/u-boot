@@ -57,6 +57,9 @@ int aml_check_is_ready_for_sdc_produce(void)
     return 1;//is ready for sdcard producing
 }
 
+#ifdef CONFIG_AML_V3_FACTORY_BURN
+extern unsigned _get_romcode_boot_id(void);
+#else
 static unsigned _get_romcode_boot_id(void)
 {
 	cpu_id_t cpuid = get_cpu_id();
@@ -79,6 +82,7 @@ static unsigned _get_romcode_boot_id(void)
     DWN_MSG("boot_id 1x%x\n", boot_id);
     return boot_id;
 }
+#endif
 
 //is the uboot loaded from usb otg
 int is_tpl_loaded_from_usb(void)

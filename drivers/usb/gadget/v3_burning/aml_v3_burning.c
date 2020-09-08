@@ -20,7 +20,7 @@ extern void serial_initialize(void);
 
 extern void board_init_mem(void);
 
-static unsigned _get_romcode_boot_id(void)
+unsigned _get_romcode_boot_id(void)
 {
 	const cpu_id_t cpuid = get_cpu_id();
 	const int familyId	 = cpuid.family_id;
