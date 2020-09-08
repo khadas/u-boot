@@ -383,6 +383,21 @@
 #define VIU2_OSD1_MATRIX_EN_CTRL                   0x1e7d
 #endif
 
+#define VPP_OSD1_MATRIX_COEF00_01           0x3910
+#define VPP_OSD1_MATRIX_COEF02_10           0x3911
+#define VPP_OSD1_MATRIX_COEF11_12           0x3912
+#define VPP_OSD1_MATRIX_COEF20_21           0x3913
+#define VPP_OSD1_MATRIX_COEF22              0x3914
+#define VPP_OSD1_MATRIX_COEF13_14           0x3915
+#define VPP_OSD1_MATRIX_COEF23_24           0x3916
+#define VPP_OSD1_MATRIX_COEF15_25           0x3917
+#define VPP_OSD1_MATRIX_CLIP                0x3918
+#define VPP_OSD1_MATRIX_OFFSET0_1           0x3919
+#define VPP_OSD1_MATRIX_OFFSET2             0x391a
+#define VPP_OSD1_MATRIX_PRE_OFFSET0_1       0x391b
+#define VPP_OSD1_MATRIX_PRE_OFFSET2         0x391c
+#define VPP_OSD1_MATRIX_EN_CTRL             0x391d
+
 #define VPP_OSD2_MATRIX_COEF00_01           0x3920
 #define VPP_OSD2_MATRIX_COEF02_10           0x3921
 #define VPP_OSD2_MATRIX_COEF11_12           0x3922
