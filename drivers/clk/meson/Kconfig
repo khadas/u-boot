@@ -22,7 +22,7 @@ config CLK_MESON_SC2
         bool "Support SC2 Clock"
         depends on CLK
         help
-          This option is used to enable the meson c1 clock
+          This option is used to enable the meson sc2 clock
           driver
 
 config CLK_MESON_C2
@@ -31,3 +31,12 @@ config CLK_MESON_C2
         help
           This option is used to enable the meson c2 clock
           driver.
+
+config CLK_MESON_T7
+        bool "Support T7 Clock"
+        depends on CLK
+        help
+          This option is used to enable the meson t7 clock
+          driver
+
+

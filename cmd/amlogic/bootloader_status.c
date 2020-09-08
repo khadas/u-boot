@@ -204,11 +204,13 @@ static void aml_recovery() {
 		}
 	}
 
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 	ret = boot_info_open_partition(miscbuf);
 	if (ret != 0) {
 		wrnP("open misc partition failed, so skip recovery check");
 		return;
 	}
+#endif
 
 	//if run recovery, need disable dolby
 	memcpy(command, miscbuf, 32);

@@ -375,6 +375,36 @@ config TARGET_SC2_AH212_LPDDR4
 
 endif
 
+if MESON_T7
+
+config SYS_SOC
+	default "t7"
+
+config DDRFW_TYPE
+	string "T7 DDR FW Type"
+	default "ddr4"
+
+config BL30_SELECT
+	string "T7 BL30 board config"
+	default "sc2_ah219"
+
+choice
+	prompt "T7 Board"
+
+config T7_SKT
+	bool "T7_SKT"
+	select TARGET_T7_SKT
+	help
+	  Select T7 SKT(XXXX) config
+
+endchoice
+
+config TARGET_T7_SKT
+	bool "T7 SKT board"
+	depends on T7_SKT
+
+endif
+
 if MESON_C2
 
 config SYS_SOC
@@ -507,3 +537,5 @@ source "board/amlogic/g12a_u200_v1/Kconfig"
 source "board/amlogic/g12b_w400_v1/Kconfig"
 
 source "board/amlogic/sm1_ac200_v1/Kconfig"
+
+source "board/amlogic/t7_skt/Kconfig"
