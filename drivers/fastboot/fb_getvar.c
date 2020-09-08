@@ -117,7 +117,7 @@ static const struct {
 	}, {
 		.variable = "has_slot",
 		.dispatch = getvar_has_slot
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
+#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 	}, {
 		.variable = "partition-type",
 		.dispatch = getvar_partition_type

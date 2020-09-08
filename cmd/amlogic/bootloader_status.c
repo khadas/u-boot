@@ -114,13 +114,13 @@ static int do_get_bootloader_status(cmd_tbl_t *cmdtp, int flag, int argc, char *
 	return CMD_RET_SUCCESS;
 }
 
-void run_recovery_from_flash() {
+static void run_recovery_from_flash(void) {
 	run_command("run init_display", 0);
 	run_command("run storeargs", 0);
 	run_command("run recovery_from_flash", 0);
 }
 
-void run_recovery_from_cache() {
+static void run_recovery_from_cache(void) {
 
 	char *loadaddr_kernel = env_get("loadaddr_kernel");
 	if (loadaddr_kernel != NULL) {

@@ -26,12 +26,6 @@ static unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigne
     FB_ERR("burn key not supported as CONFIG_UNIFY_KEY_MANAGE undef!!");
     return -1;
 }
-
-static int v2_key_command(const int argc, char * const argv[], char *info)
-{
-    FB_ERR("burn key not supported as CONFIG_UNIFY_KEY_MANAGE undef!!");
-    return -1;
-}
 #define key_manage_query_size(a,b) 1
 #endif// //#ifdef CONFIG_V3_KEY_BURNING_SUPPORT
 

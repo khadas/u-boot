@@ -116,7 +116,6 @@ static int _bl2x_mode_check_header(p_payload_info_t pInfo)
 	printf("\tversion : %d\n",hdr->byVersion);
 	printf("\tItemNum : %d\n",nItemNum);
 	printf("\tSize    : %d(0x%x)\n",    hdr->nSize, hdr->nSize);
-	int nIndex;
 	if (nItemNum > 8 || nItemNum < 3) { FBS_EXIT(_ACK, "illegal nitem num %d\n", nItemNum); }
 
 	const int nsz = sizeof(payload_info_hdr_t) + nItemNum * sizeof(payload_info_item_t) - SHA256_SUM_LEN;
@@ -161,7 +160,6 @@ static int _discrete_bootloader_write(u8* dataBuf, unsigned off, unsigned binSz)
 			p_payload_info_hdr_t hdr    = &pInfo->hdr;
 			p_payload_info_item_t pItem = pInfo->arrItems;
 
-			const char* payload = NULL;
 			int offPayload = 0, szPayload = 0;
 
 			memset(name, 0, 8);
@@ -248,7 +246,6 @@ static int _discrete_bootloader_read(u8* dataBuf, unsigned off, unsigned binSz)
 		p_payload_info_hdr_t hdr    = &pInfo->hdr;
 		p_payload_info_item_t pItem = pInfo->arrItems;
 
-		const char* payload = NULL;
 		int offPayload = 0, szPayload = 0;
 
 		memset(name, 0, 8);

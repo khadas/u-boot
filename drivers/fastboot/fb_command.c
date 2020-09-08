@@ -232,7 +232,6 @@ static void getvar(char *cmd_parameter, char *response)
 	if (!strncmp(cmd_parameter, "all", 3)) {
 		static int cmdIndex = 0;
 		int getvar_num = 0;
-		int i=0;
 		char* cmd=cmd_parameter;
 
 		busy_flag = 1;

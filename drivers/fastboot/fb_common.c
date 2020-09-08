@@ -104,7 +104,7 @@ int check_lock(void)
 	if (!lock_s) {
 		printf("lock state is NULL \n");
 		lock_s = "10101000";
-		setenv("lock", "10101000");
+		env_set("lock", "10101000");
 		run_command("defenv_reserv; saveenv;", 0);
 	}
 	printf("lock state: %s\n", lock_s);
