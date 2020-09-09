@@ -615,7 +615,7 @@
 #define CONFIG_DM_PWM
 #define CONFIG_PWM_MESON
 
-//#define CONFIG_EFUSE 1
+#define CONFIG_EFUSE 1
 
 /* commands */
 #define CONFIG_CMD_CACHE 1
