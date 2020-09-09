@@ -310,7 +310,7 @@
                 "if test ${lcd_exist} = 0; then "\
                     "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};vpp hdrpkt;"\
                 "else "\
-                    "hdmitx hpd;hdmitx get_preferred_mode;osd dual_logo;vpp hdrpkt;"\
+                    "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;osd dual_logo;vpp hdrpkt;"\
                 "fi;"\
             "fi;fi;"\
             "\0"\
@@ -348,10 +348,8 @@
             "if test ${lcd_exist} = 0; then "\
                 "fdt set /lcd status disable;"\
                 "fdt set /backlight status disable;"\
-            "else "\
                 "if test ${nativeui} = enable; then "\
                    "setenv nativeui disable;"\
-                   "saveenv;"\
                 "fi;"\
             "fi;"\
             "\0"\
