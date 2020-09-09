@@ -352,6 +352,24 @@ static struct hdmi_support_mode gxbb_modes[] = {
 	{HDMI_720x576i50_16x9, "576i50hz", 0},
 	{HDMI_720x480i60_16x9, "480i60hz", 0},
 	{HDMIV_1440x2560p60hz, "1440x2560p60hz", 0},
+	{HDMIV_1024x768p60hz, "1024x768p60hz", 0},
+	{HDMIV_1440x900p60hz, "1440x900p60hz", 0},
+	{HDMIV_640x480p60hz, "640x480p60hz", 0},
+	{HDMIV_1280x1024p60hz, "1280x1024p60hz", 0},
+	{HDMIV_800x600p60hz, "800x600p60hz", 0},
+	{HDMIV_1680x1050p60hz, "1680x1050p60hz", 0},
+	{HDMIV_1024x600p60hz, "1024x600p60hz", 0},
+	{HDMIV_2560x1600p60hz, "2560x1600p60hz", 0},
+	{HDMIV_2560x1440p60hz, "2560x1440p60hz", 0},
+	{HDMIV_2560x1080p60hz, "2560x1080p60hz", 0},
+	{HDMIV_1920x1200p60hz, "1920x1200p60hz", 0},
+	{HDMIV_1600x1200p60hz, "1600x1200p60hz", 0},
+	{HDMIV_1600x900p60hz, "1600x900p60hz", 0},
+	{HDMIV_1360x768p60hz, "1360x768p60hz", 0},
+	{HDMIV_1280x800p60hz, "1280x800p60hz", 0},
+	{HDMIV_480x320p60hz,  "480x320p60hz", 0},
+	{HDMIV_800x480p60hz,  "800x480p60hz", 0},
+	{HDMIV_1280x480p60hz,  "1280x480p60hz", 0},
 };
 
 static void hdmitx_list_support_modes(void)
@@ -459,7 +477,6 @@ void hdmi_tx_set(struct hdmitx_dev *hdev)
 int hdmi_outputmode_check(char *mode)
 {
 	int i, ret = 0xff;
-
 	for (i = 0; i < ARRAY_SIZE(gxbb_modes); i++) {
 		if (!strcmp(mode, gxbb_modes[i].sname)) {
 			ret = 0;
@@ -2293,7 +2310,6 @@ static void hdmi_tvenc_vesa_set(enum hdmi_vic vic)
 	unsigned long vso_begin_evn = 0, vso_begin_odd = 0;
 	struct hdmi_format_para *vpara = NULL;
 	struct hdmi_cea_timing *vtiming = NULL;
-
 	vpara = hdmi_get_fmt_paras(vic);
 	if (vpara == NULL) {
 		pr_info("hdmitx: don't find Paras for VESA %d\n", vic);
@@ -2410,11 +2426,13 @@ static void hdmi_tvenc_vesa_set(enum hdmi_vic vic)
 		);
 		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);
 	}
+
 	hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);
 }
 static void hdmi_tvenc_set(enum hdmi_vic vic)
 {
-	if ((vic & HDMITX_VESA_OFFSET) == HDMITX_VESA_OFFSET) {
+	//if ((vic & HDMITX_VESA_OFFSET) == HDMITX_VESA_OFFSET) {
+	if(vic >= HDMITX_VESA_OFFSET) {
 		/* VESA modes setting */
 		hdmi_tvenc_vesa_set(vic);
 		return;
@@ -3151,6 +3169,7 @@ static void save_hdmitx_format(enum hdmi_vic vic, int y420)
 	data32 |= (hdmitx_rd_reg(HDMITX_DWC_FC_VSDPAYLOAD1) & 0x7) << 8;
 	data32 |= (!!y420) << 11;
 	hd_write_reg(P_ISA_DEBUG_REG0, data32);
+
 }
 
 static void hdmitx_set_vdac(unsigned int enable)
