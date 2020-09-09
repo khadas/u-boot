@@ -115,6 +115,7 @@ static int do_get_bootloader_status(cmd_tbl_t *cmdtp, int flag, int argc, char *
 }
 
 static void run_recovery_from_flash(void) {
+	env_set("dolby_status","0");
 	run_command("run init_display", 0);
 	run_command("run storeargs", 0);
 	run_command("run recovery_from_flash", 0);
@@ -128,6 +129,7 @@ static void run_recovery_from_cache(void) {
 	} else {
 		env_set("loadaddr","0x01080000");
 	}
+	env_set("dolby_status","0");
 	run_command("run init_display", 0);
 	run_command("run storeargs", 0);
 	run_command("if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;", 0);
@@ -141,6 +143,38 @@ static void run_recovery_from_cache(void) {
 	run_command("reboot", 0);//need reboot old bootloader
 }
 
+void dv_disable() {
+	int ret = 0;
+	char *mode = NULL;
+	char command[32];
+	char miscbuf[4096] = {0};
+
+	run_command("get_rebootmode", 0);
+
+	//get reboot_mode
+	mode = env_get("reboot_mode");
+	if (mode == NULL) {
+		wrnP("can not get reboot mode, so skip recovery check\n");
+	} else {
+		if ((!strcmp(mode, "factory_reset")) || (!strcmp(mode, "update"))) {
+			env_set("dolby_status","0");
+			return;
+		}
+	}
+
+	ret = boot_info_open_partition(miscbuf);
+	if (ret != 0) {
+		wrnP("open misc partition failed, so skip recovery check");
+		return;
+	}
+
+	memcpy(command, miscbuf, 32);
+	if (!memcmp(command, "boot-recovery", strlen("boot-recovery"))) {
+		env_set("dolby_status","0");
+		return;
+	}
+}
+
 static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]) {
 	int code_boot = 0;
 	int match_flag = 0;
@@ -150,6 +184,9 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	char *expect_index = NULL;
 	char *robustota = NULL;
 	char *mode = NULL;
+
+	//if recovery mode, need disable dv
+	dv_disable();
 
 	//check_result init
 	checkresult = env_get("check_result");
