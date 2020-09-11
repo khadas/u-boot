@@ -279,7 +279,7 @@ static int get_dts_node(char *dt_addr, char *dtb_node)
 
 unsigned long get_fb_addr(void)
 {
-	char *dt_addr = NULL;
+	void *dt_addr = NULL;
 	unsigned long fb_addr = 0;
 	static int initrd_set = 0;
 	char str_fb_addr[32];
@@ -291,11 +291,6 @@ unsigned long get_fb_addr(void)
 
 	fb_addr = env_strtoul("fb_addr", 16);
 #ifdef CONFIG_OF_LIBFDT
-#ifdef CONFIG_DTB_MEM_ADDR
-	dt_addr = (char *)CONFIG_DTB_MEM_ADDR;
-#else
-	dt_addr = (char *)0x01000000;
-#endif
 
 #if defined(CONFIG_AML_MINUI)
 	if (in_fastboot_mode == 1) {
@@ -303,6 +298,7 @@ unsigned long get_fb_addr(void)
 	} else
 #endif
 	{
+		dt_addr = (void*)env_strtoul("dtb_mem_addr", 10);
 		if (fdt_check_header(dt_addr) < 0) {
 			osd_logi("check dts: %s, load default fb_addr parameters\n",
 				fdt_strerror(fdt_check_header(dt_addr)));
