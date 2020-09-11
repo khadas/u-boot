@@ -477,16 +477,16 @@ struct aml_lcd_drv_s {
 	struct lcd_config_s *lcd_config;
 	struct bl_config_s *bl_config;
 
-	int  (*outputmode_check)(char *mode);
-	int  (*config_check)(char *mode);
+	int  (*outputmode_check)(char *mode, unsigned int frac);
+	int  (*config_check)(char *mode, unsigned int frac);
 	void (*driver_init_pre)(void);
 	int  (*driver_init)(void);
 	void (*driver_disable)(void);
 	void (*list_support_mode)(void);
 	int  (*lcd_probe)(void);
-	int  (*lcd_outputmode_check)(char *mode);
-	void (*lcd_prepare)(char *mode);
-	void (*lcd_enable)(char *mode);
+	int  (*lcd_outputmode_check)(char *mode, unsigned int frac);
+	void (*lcd_prepare)(char *mode, unsigned int frac);
+	void (*lcd_enable)(char *mode, unsigned int frac);
 	void (*lcd_disable)(void);
 	void (*lcd_set_ss)(int level);
 	char *(*lcd_get_ss)(void);

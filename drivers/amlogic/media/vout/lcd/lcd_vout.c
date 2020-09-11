@@ -196,25 +196,25 @@ static void lcd_backlight_enable(void)
 	bl_power_ctrl(1);
 }
 
-static void lcd_module_enable(char *mode)
+static void lcd_module_enable(char *mode, unsigned int frac)
 {
 	unsigned int sync_duration;
 	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
 	struct lcd_config_s *pconf = lcd_drv->lcd_config;
 	int ret;
 
-	ret = lcd_drv->config_check(mode);
+	ret = lcd_drv->config_check(mode, frac);
 	if (ret) {
 		LCDERR("init exit\n");
 		return;
 	}
 
 	sync_duration = pconf->lcd_timing.sync_duration_num;
-	sync_duration = (sync_duration * 10 / pconf->lcd_timing.sync_duration_den);
-	LCDPR("enable: %s, %s, %ux%u@%u.%uHz\n", pconf->lcd_basic.model_name,
+	sync_duration = (sync_duration * 100 / pconf->lcd_timing.sync_duration_den);
+	LCDPR("enable: %s, %s, %ux%u@%u.%2uHz\n", pconf->lcd_basic.model_name,
 		lcd_type_type_to_str(pconf->lcd_basic.lcd_type),
 		pconf->lcd_basic.h_active, pconf->lcd_basic.v_active,
-		(sync_duration / 10), (sync_duration % 10));
+		(sync_duration / 100), (sync_duration % 100));
 
 	if ((lcd_drv->lcd_status & LCD_STATUS_ENCL_ON) == 0)
 		lcd_encl_on();
@@ -250,12 +250,12 @@ static void lcd_module_disable(void)
 	lcd_drv->lcd_status = 0;
 }
 
-static void lcd_module_prepare(char *mode)
+static void lcd_module_prepare(char *mode, unsigned int frac)
 {
 	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
 	int ret;
 
-	ret = lcd_drv->config_check(mode);
+	ret = lcd_drv->config_check(mode, frac);
 	if (ret) {
 		LCDERR("prepare exit\n");
 		return;
@@ -689,33 +689,33 @@ void lcd_wait_vsync(void)
 /* ********************************************** *
   lcd driver API
  * ********************************************** */
-static int lcd_outputmode_check(char *mode)
+static int lcd_outputmode_check(char *mode, unsigned int frac)
 {
 	if (aml_lcd_driver.outputmode_check)
-		return aml_lcd_driver.outputmode_check(mode);
+		return aml_lcd_driver.outputmode_check(mode, frac);
 
 	LCDERR("invalid lcd config\n");
 	return -1;
 }
 
-static void lcd_prepare(char *mode)
+static void lcd_prepare(char *mode, unsigned int frac)
 {
 	if (lcd_check_valid())
 		return;
 	if (aml_lcd_driver.lcd_status & LCD_STATUS_ENCL_ON)
 		LCDPR("already enabled\n");
 	else
-		lcd_module_prepare(mode);
+		lcd_module_prepare(mode, frac);
 }
 
-static void lcd_enable(char *mode)
+static void lcd_enable(char *mode, unsigned int frac)
 {
 	if (lcd_check_valid())
 		return;
 	if (aml_lcd_driver.lcd_status & LCD_STATUS_IF_ON)
 		LCDPR("already enabled\n");
 	else
-		lcd_module_enable(mode);
+		lcd_module_enable(mode, frac);
 }
 
 static void lcd_disable(void)

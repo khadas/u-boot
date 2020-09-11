@@ -203,11 +203,11 @@ static void cvbs_dump_clock_regs(void)
 
 int cvbs_reg_debug(int argc, char* const argv[])
 {
-	unsigned int addr, start, end, value;
+	unsigned int value;
 
 	if (!cvbs_drv.data) {
 		printf("cvbs: error: %s: no cvbs data\n", __func__);
-		return;
+		return -1;
 	}
 
 	if (!strcmp(argv[1], "clock")) {
@@ -414,7 +414,7 @@ static int cvbs_config_clock(void)
 {
 	if (!cvbs_drv.data) {
 		printf("cvbs: error: %s: no cvbs data\n", __func__);
-		return;
+		return -1;
 	}
 
 	/* pll output 1485M */
@@ -590,9 +590,14 @@ static char *cvbs_mode_str[CVBS_MODE_CNT] = {
 };
 
 // check for valid video mode
-int cvbs_outputmode_check(char *vmode_name)
+int cvbs_outputmode_check(char *vmode_name, unsigned int frac)
 {
 	unsigned int i;
+
+	if (frac) {
+		printf("cvbs: don't support frac\n");
+		return -1;
+	}
 
 	for (i = 0; i < CVBS_MODE_CNT; i++) {
 		if (!strncmp(vmode_name, cvbs_mode_str[i], strlen(cvbs_mode_str[i])))

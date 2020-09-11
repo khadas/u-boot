@@ -28,8 +28,13 @@
 #include "lcd_tablet.h"
 #include "mipi_dsi_util.h"
 
-static int check_lcd_output_mode(char *mode)
+static int check_lcd_output_mode(char *mode, unsigned int frac)
 {
+	if (frac) {
+		LCDERR("don't support frac\n");
+		return -1;
+	}
+
 	if (strcmp(mode, "panel") != 0) {
 		LCDERR("outputmode[%s] is not support\n", mode);
 		return -1;
@@ -835,11 +840,11 @@ static void lcd_config_init(struct lcd_config_s *pconf)
 	lcd_clk_generate_parameter(pconf);
 }
 
-static int lcd_config_check(char *mode)
+static int lcd_config_check(char *mode, unsigned int frac)
 {
 	int ret;
 
-	ret = check_lcd_output_mode(mode);
+	ret = check_lcd_output_mode(mode, frac);
 	if (ret)
 		return -1;
 

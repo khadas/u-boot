@@ -850,7 +850,7 @@ next:
 	set_hdmitx_fe_clk(hdev);
 }
 
-static int likely_frac_rate_mode(char *m)
+int hdmitx_likely_frac_rate_mode(char *m)
 {
 	if (strstr(m, "24hz") || strstr(m, "30hz") || strstr(m, "60hz")
 		|| strstr(m, "120hz") || strstr(m, "240hz"))
@@ -866,7 +866,7 @@ void hdmitx_set_clk(struct hdmitx_dev *hdev)
 	frac_rate_str = env_get("frac_rate_policy");
 	if (frac_rate_str && (frac_rate_str[0] == '0'))
 		frac_rate = 0;
-	else if (likely_frac_rate_mode(hdev->para->ext_name))
+	else if (hdmitx_likely_frac_rate_mode(hdev->para->ext_name))
 		frac_rate = 1;
 	hdev->frac_rate_policy = frac_rate;
 

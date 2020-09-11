@@ -1,6 +1,25 @@
 #include <common.h>
 #include <command.h>
+#include <malloc.h>
 #include <amlogic/media/vout/lcd/aml_lcd.h>
+
+static unsigned int lcd_parse_vout_name(char *name)
+{
+	char *p, *frac_str;
+	unsigned int frac = 0;
+
+	p = strchr(name, ',');
+	if (!p) {
+		frac = 0;
+	} else {
+		frac_str = p + 1;
+		*p = '\0';
+		if (strcmp(frac_str, "frac") == 0)
+			frac = 1;
+	}
+
+	return frac;
+}
 
 static int do_lcd_probe(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -21,18 +40,35 @@ static int do_lcd_probe(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 static int do_lcd_enable(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
-	char *mode;
+	char *mode, *str;
+	unsigned int frac;
 
 	if (lcd_drv == NULL) {
 		printf("no lcd driver\n");
 		return 0;
 	}
 
-	mode = env_get("outputmode");
+	str = getenv("outputmode");
+	if (!str) {
+		printf("no outputmode\n");
+		return -1;
+	}
+
+	mode = (char *)malloc(64);
+	if (!mode) {
+		printf("%s: create mode failed\n", __func__);
+		return -1;
+	}
+	memset(mode, 0, sizeof(mode));
+	sprintf(mode, "%s", str);
+	frac = lcd_parse_vout_name(mode);
+
 	if (lcd_drv->lcd_enable)
-		lcd_drv->lcd_enable(mode);
+		lcd_drv->lcd_enable(mode, frac);
 	else
 		printf("no lcd enable\n");
+
+	free(mode);
 	return 0;
 }
 
