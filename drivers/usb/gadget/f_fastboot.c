@@ -1172,6 +1172,7 @@ static void cb_continue(struct usb_ep *ep, struct usb_request *req)
 	fastboot_tx_write_str("OKAY");
 }
 
+#ifndef CONFIG_NO_FASTBOOT_FLASHING
 static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd;
@@ -1318,7 +1319,7 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 	free(info);
 	fastboot_tx_write_str(response);
 }
-
+#endif
 
 #ifdef CONFIG_FASTBOOT_FLASH
 static void cb_flash(struct usb_ep *ep, struct usb_request *req)
@@ -1590,10 +1591,13 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 	}, {
 		.cmd = "continue",
 		.cb = cb_continue,
-	}, {
+	},
+#ifndef CONFIG_NO_FASTBOOT_FLASHING
+	{
 		.cmd = "flashing",
 		.cb = cb_flashing,
 	},
+#endif
 #ifdef CONFIG_FASTBOOT_FLASH
 	{
 		.cmd = "flash",
