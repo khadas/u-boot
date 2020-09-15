@@ -577,7 +577,7 @@
  * Enable CONFIG_MUSB_UDD for Device functionalities.
  */
 /* #define CONFIG_MUSB_UDC		1 */
-//#define CONFIG_CMD_USB 1
+#define CONFIG_CMD_USB 1
 #if defined(CONFIG_CMD_USB)
 	#define CONFIG_GXL_XHCI_BASE            0xff500000
 	#define CONFIG_GXL_USB_PHY2_BASE        0xffe09000
@@ -587,7 +587,8 @@
 	#define CONFIG_USB_PHY_22				0xff658000
 	#define CONFIG_USB_STORAGE      1
 	#define CONFIG_USB_XHCI		1
-	#define CONFIG_USB_XHCI_AMLOGIC_V2 1
+	//#define CONFIG_USB_XHCI_AMLOGIC_V2 1
+	#define CONFIG_USB_XHCI_CRG_AMLOGIC 1
 	#define CONFIG_USB_GPIO_PWR  			GPIOEE(GPIOH_6)
 	#define CONFIG_USB_GPIO_PWR_NAME		"GPIOH_6"
 	#define CONFIG_USB_AMLOGIC_PHY_V2		1
@@ -596,8 +597,8 @@
 	//#define CONFIG_USB_XHCI_AMLOGIC_USB3_V2		1
 #endif //#if defined(CONFIG_CMD_USB)
 
-//#define CONFIG_TXLX_USB        1
-//#define CONFIG_USB_DEVICE_V2    1
+#define CONFIG_TXLX_USB        1
+#define CONFIG_USB_DEVICE_V2    1
 #define USB_PHY2_PLL_PARAMETER_1	0x09400414
 #define USB_PHY2_PLL_PARAMETER_2	0x927e0000
 #define USB_PHY2_PLL_PARAMETER_3	0xAC5F69E5

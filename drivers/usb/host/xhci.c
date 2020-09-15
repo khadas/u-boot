@@ -1080,7 +1080,7 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 		return -ENOMEM;
 
 	reg = xhci_readl(&hccr->cr_hcsparams1);
-#ifdef CONFIG_USB_XHCI_AMLOGIC_V2
+#if defined(CONFIG_USB_XHCI_AMLOGIC_V2) || defined(CONFIG_USB_XHCI_CRG_AMLOGIC)
 #ifdef CONFIG_USB_U2_PORT_NUM
 	descriptor.hub.bNbrPorts = CONFIG_USB_U2_PORT_NUM;
 #else

@@ -344,16 +344,13 @@ int board_early_init_f(void){
 }
 #endif
 
-#ifdef CONFIG_USB_XHCI_AMLOGIC_V2
+#ifdef CONFIG_USB_XHCI_CRG_AMLOGIC
 #include <asm/arch/usb-v2.h>
 #include <asm/arch/gpio.h>
 #define CONFIG_GXL_USB_U2_PORT_NUM	CONFIG_USB_U2_PORT_NUM
 
-#ifdef CONFIG_USB_XHCI_AMLOGIC_USB3_V2
-#define CONFIG_GXL_USB_U3_PORT_NUM	1
-#else
 #define CONFIG_GXL_USB_U3_PORT_NUM	0
-#endif
+
 #if 0
 static void gpio_set_vbus_power(char is_power_on)
 {
@@ -568,6 +565,10 @@ U_BOOT_DEVICES(meson_pwm) = {
 
 int board_init(void)
 {
+#ifdef CONFIG_USB_XHCI_CRG_AMLOGIC
+	board_usb_pll_disable(&g_usb_config_GXL_skt);
+	board_usb_init(&g_usb_config_GXL_skt,BOARD_USB_MODE_HOST);
+#endif /*CONFIG_USB_XHCI_AMLOGIC*/
 	return 0;
 }
 
