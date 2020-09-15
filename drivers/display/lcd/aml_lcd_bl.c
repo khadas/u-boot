@@ -2548,7 +2548,7 @@ int aml_bl_config_load(char *dt_addr, int load_id)
 		}
 #ifdef CONFIG_OF_LIBFDT
 		if (ret == 0)
-			aml_bl_init_load_from_dts(dt_addr, lcd_drv->bl_config);
+			ret = aml_bl_init_load_from_dts(dt_addr, lcd_drv->bl_config);
 #endif
 	} else { /* bsp */
 		if (load_id & 0x10) { /* unifykey */
@@ -2561,7 +2561,7 @@ int aml_bl_config_load(char *dt_addr, int load_id)
 			ret = aml_bl_config_load_from_bsp(lcd_drv->bl_config);
 		}
 		if (ret == 0)
-			aml_bl_init_load_from_bsp(lcd_drv->bl_config);
+			ret = aml_bl_init_load_from_bsp(lcd_drv->bl_config);
 	}
 	if (ret) {
 		lcd_drv->bl_config->method = BL_CTRL_MAX;
