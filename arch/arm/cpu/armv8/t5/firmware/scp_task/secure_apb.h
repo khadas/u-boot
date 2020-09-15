@@ -20,63 +20,826 @@
 // synopsys translate_off
 // synopsys translate_on
 //========================================================================
-// MIPI_DSI_PHY
+// PWR_CTRL
 //========================================================================
 //  APB4_DECODER_NON_SECURE_BASE     32'hFF644000
 //  APB4_DECODER_SECURE_BASE         32'hFF644000
-//`define MIPI_DSI_PHY_START      8'h00
-//`define MIPI_DSI_PHY_END        16'hffff
-#define     MIPI_DSI_PHY_CTRL                                  (0xff644000 + (0x000 << 2))
-#define SEC_MIPI_DSI_PHY_CTRL                                  (0xff644000 + (0x000 << 2))
-#define   P_MIPI_DSI_PHY_CTRL                                  (volatile uint32_t *)(0xff644000 + (0x000 << 2))
-#define     MIPI_DSI_CHAN_CTRL                                 (0xff644000 + (0x001 << 2))
-#define SEC_MIPI_DSI_CHAN_CTRL                                 (0xff644000 + (0x001 << 2))
-#define   P_MIPI_DSI_CHAN_CTRL                                 (volatile uint32_t *)(0xff644000 + (0x001 << 2))
-#define     MIPI_DSI_CHAN_STS                                  (0xff644000 + (0x002 << 2))
-#define SEC_MIPI_DSI_CHAN_STS                                  (0xff644000 + (0x002 << 2))
-#define   P_MIPI_DSI_CHAN_STS                                  (volatile uint32_t *)(0xff644000 + (0x002 << 2))
-#define     MIPI_DSI_CLK_TIM                                   (0xff644000 + (0x003 << 2))
-#define SEC_MIPI_DSI_CLK_TIM                                   (0xff644000 + (0x003 << 2))
-#define   P_MIPI_DSI_CLK_TIM                                   (volatile uint32_t *)(0xff644000 + (0x003 << 2))
-#define     MIPI_DSI_HS_TIM                                    (0xff644000 + (0x004 << 2))
-#define SEC_MIPI_DSI_HS_TIM                                    (0xff644000 + (0x004 << 2))
-#define   P_MIPI_DSI_HS_TIM                                    (volatile uint32_t *)(0xff644000 + (0x004 << 2))
-#define     MIPI_DSI_LP_TIM                                    (0xff644000 + (0x005 << 2))
-#define SEC_MIPI_DSI_LP_TIM                                    (0xff644000 + (0x005 << 2))
-#define   P_MIPI_DSI_LP_TIM                                    (volatile uint32_t *)(0xff644000 + (0x005 << 2))
-#define     MIPI_DSI_ANA_UP_TIM                                (0xff644000 + (0x006 << 2))
-#define SEC_MIPI_DSI_ANA_UP_TIM                                (0xff644000 + (0x006 << 2))
-#define   P_MIPI_DSI_ANA_UP_TIM                                (volatile uint32_t *)(0xff644000 + (0x006 << 2))
-#define     MIPI_DSI_INIT_TIM                                  (0xff644000 + (0x007 << 2))
-#define SEC_MIPI_DSI_INIT_TIM                                  (0xff644000 + (0x007 << 2))
-#define   P_MIPI_DSI_INIT_TIM                                  (volatile uint32_t *)(0xff644000 + (0x007 << 2))
-#define     MIPI_DSI_WAKEUP_TIM                                (0xff644000 + (0x008 << 2))
-#define SEC_MIPI_DSI_WAKEUP_TIM                                (0xff644000 + (0x008 << 2))
-#define   P_MIPI_DSI_WAKEUP_TIM                                (volatile uint32_t *)(0xff644000 + (0x008 << 2))
-#define     MIPI_DSI_LPOK_TIM                                  (0xff644000 + (0x009 << 2))
-#define SEC_MIPI_DSI_LPOK_TIM                                  (0xff644000 + (0x009 << 2))
-#define   P_MIPI_DSI_LPOK_TIM                                  (volatile uint32_t *)(0xff644000 + (0x009 << 2))
-#define     MIPI_DSI_LP_WCHDOG                                 (0xff644000 + (0x00a << 2))
-#define SEC_MIPI_DSI_LP_WCHDOG                                 (0xff644000 + (0x00a << 2))
-#define   P_MIPI_DSI_LP_WCHDOG                                 (volatile uint32_t *)(0xff644000 + (0x00a << 2))
-#define     MIPI_DSI_ANA_CTRL                                  (0xff644000 + (0x00b << 2))
-#define SEC_MIPI_DSI_ANA_CTRL                                  (0xff644000 + (0x00b << 2))
-#define   P_MIPI_DSI_ANA_CTRL                                  (volatile uint32_t *)(0xff644000 + (0x00b << 2))
-#define     MIPI_DSI_CLK_TIM1                                  (0xff644000 + (0x00c << 2))
-#define SEC_MIPI_DSI_CLK_TIM1                                  (0xff644000 + (0x00c << 2))
-#define   P_MIPI_DSI_CLK_TIM1                                  (volatile uint32_t *)(0xff644000 + (0x00c << 2))
-#define     MIPI_DSI_TURN_WCHDOG                               (0xff644000 + (0x00d << 2))
-#define SEC_MIPI_DSI_TURN_WCHDOG                               (0xff644000 + (0x00d << 2))
-#define   P_MIPI_DSI_TURN_WCHDOG                               (volatile uint32_t *)(0xff644000 + (0x00d << 2))
-#define     MIPI_DSI_ULPS_CHECK                                (0xff644000 + (0x00e << 2))
-#define SEC_MIPI_DSI_ULPS_CHECK                                (0xff644000 + (0x00e << 2))
-#define   P_MIPI_DSI_ULPS_CHECK                                (volatile uint32_t *)(0xff644000 + (0x00e << 2))
-#define     MIPI_DSI_TEST_CTRL0                                (0xff644000 + (0x00f << 2))
-#define SEC_MIPI_DSI_TEST_CTRL0                                (0xff644000 + (0x00f << 2))
-#define   P_MIPI_DSI_TEST_CTRL0                                (volatile uint32_t *)(0xff644000 + (0x00f << 2))
-#define     MIPI_DSI_TEST_CTRL1                                (0xff644000 + (0x010 << 2))
-#define SEC_MIPI_DSI_TEST_CTRL1                                (0xff644000 + (0x010 << 2))
-#define   P_MIPI_DSI_TEST_CTRL1                                (volatile uint32_t *)(0xff644000 + (0x010 << 2))
+#define     PWRCTRL_PWR_ACK0                                   (0xff644000 + (0x001 << 2))
+#define SEC_PWRCTRL_PWR_ACK0                                   (0xff644000 + (0x001 << 2))
+#define   P_PWRCTRL_PWR_ACK0                                   (volatile uint32_t *)(0xff644000 + (0x001 << 2))
+#define     PWRCTRL_PWR_ACK1                                   (0xff644000 + (0x002 << 2))
+#define SEC_PWRCTRL_PWR_ACK1                                   (0xff644000 + (0x002 << 2))
+#define   P_PWRCTRL_PWR_ACK1                                   (volatile uint32_t *)(0xff644000 + (0x002 << 2))
+#define     PWRCTRL_PWR_OFF0                                   (0xff644000 + (0x003 << 2))
+#define SEC_PWRCTRL_PWR_OFF0                                   (0xff644000 + (0x003 << 2))
+#define   P_PWRCTRL_PWR_OFF0                                   (volatile uint32_t *)(0xff644000 + (0x003 << 2))
+#define     PWRCTRL_PWR_OFF1                                   (0xff644000 + (0x004 << 2))
+#define SEC_PWRCTRL_PWR_OFF1                                   (0xff644000 + (0x004 << 2))
+#define   P_PWRCTRL_PWR_OFF1                                   (volatile uint32_t *)(0xff644000 + (0x004 << 2))
+#define     PWRCTRL_ISO_EN0                                    (0xff644000 + (0x005 << 2))
+#define SEC_PWRCTRL_ISO_EN0                                    (0xff644000 + (0x005 << 2))
+#define   P_PWRCTRL_ISO_EN0                                    (volatile uint32_t *)(0xff644000 + (0x005 << 2))
+#define     PWRCTRL_ISO_EN1                                    (0xff644000 + (0x006 << 2))
+#define SEC_PWRCTRL_ISO_EN1                                    (0xff644000 + (0x006 << 2))
+#define   P_PWRCTRL_ISO_EN1                                    (volatile uint32_t *)(0xff644000 + (0x006 << 2))
+#define     PWRCTRL_MEM_PD0                                    (0xff644000 + (0x007 << 2))
+#define SEC_PWRCTRL_MEM_PD0                                    (0xff644000 + (0x007 << 2))
+#define   P_PWRCTRL_MEM_PD0                                    (volatile uint32_t *)(0xff644000 + (0x007 << 2))
+#define     PWRCTRL_MEM_PD1                                    (0xff644000 + (0x008 << 2))
+#define SEC_PWRCTRL_MEM_PD1                                    (0xff644000 + (0x008 << 2))
+#define   P_PWRCTRL_MEM_PD1                                    (volatile uint32_t *)(0xff644000 + (0x008 << 2))
+#define     PWRCTRL_MEM_PD2                                    (0xff644000 + (0x009 << 2))
+#define SEC_PWRCTRL_MEM_PD2                                    (0xff644000 + (0x009 << 2))
+#define   P_PWRCTRL_MEM_PD2                                    (volatile uint32_t *)(0xff644000 + (0x009 << 2))
+#define     PWRCTRL_MEM_PD3                                    (0xff644000 + (0x00a << 2))
+#define SEC_PWRCTRL_MEM_PD3                                    (0xff644000 + (0x00a << 2))
+#define   P_PWRCTRL_MEM_PD3                                    (volatile uint32_t *)(0xff644000 + (0x00a << 2))
+#define     PWRCTRL_MEM_PD4                                    (0xff644000 + (0x00b << 2))
+#define SEC_PWRCTRL_MEM_PD4                                    (0xff644000 + (0x00b << 2))
+#define   P_PWRCTRL_MEM_PD4                                    (volatile uint32_t *)(0xff644000 + (0x00b << 2))
+#define     PWRCTRL_MEM_PD5                                    (0xff644000 + (0x00c << 2))
+#define SEC_PWRCTRL_MEM_PD5                                    (0xff644000 + (0x00c << 2))
+#define   P_PWRCTRL_MEM_PD5                                    (volatile uint32_t *)(0xff644000 + (0x00c << 2))
+#define     PWRCTRL_MEM_PD6                                    (0xff644000 + (0x00d << 2))
+#define SEC_PWRCTRL_MEM_PD6                                    (0xff644000 + (0x00d << 2))
+#define   P_PWRCTRL_MEM_PD6                                    (volatile uint32_t *)(0xff644000 + (0x00d << 2))
+#define     PWRCTRL_MEM_PD7                                    (0xff644000 + (0x00e << 2))
+#define SEC_PWRCTRL_MEM_PD7                                    (0xff644000 + (0x00e << 2))
+#define   P_PWRCTRL_MEM_PD7                                    (volatile uint32_t *)(0xff644000 + (0x00e << 2))
+#define     PWRCTRL_MEM_PD8                                    (0xff644000 + (0x00f << 2))
+#define SEC_PWRCTRL_MEM_PD8                                    (0xff644000 + (0x00f << 2))
+#define   P_PWRCTRL_MEM_PD8                                    (volatile uint32_t *)(0xff644000 + (0x00f << 2))
+#define     PWRCTRL_MEM_PD9                                    (0xff644000 + (0x010 << 2))
+#define SEC_PWRCTRL_MEM_PD9                                    (0xff644000 + (0x010 << 2))
+#define   P_PWRCTRL_MEM_PD9                                    (volatile uint32_t *)(0xff644000 + (0x010 << 2))
+#define     PWRCTRL_MEM_PD10                                   (0xff644000 + (0x011 << 2))
+#define SEC_PWRCTRL_MEM_PD10                                   (0xff644000 + (0x011 << 2))
+#define   P_PWRCTRL_MEM_PD10                                   (volatile uint32_t *)(0xff644000 + (0x011 << 2))
+#define     PWRCTRL_MEM_PD11                                   (0xff644000 + (0x012 << 2))
+#define SEC_PWRCTRL_MEM_PD11                                   (0xff644000 + (0x012 << 2))
+#define   P_PWRCTRL_MEM_PD11                                   (volatile uint32_t *)(0xff644000 + (0x012 << 2))
+#define     PWRCTRL_MEM_PD12                                   (0xff644000 + (0x013 << 2))
+#define SEC_PWRCTRL_MEM_PD12                                   (0xff644000 + (0x013 << 2))
+#define   P_PWRCTRL_MEM_PD12                                   (volatile uint32_t *)(0xff644000 + (0x013 << 2))
+#define     PWRCTRL_MEM_PD13                                   (0xff644000 + (0x014 << 2))
+#define SEC_PWRCTRL_MEM_PD13                                   (0xff644000 + (0x014 << 2))
+#define   P_PWRCTRL_MEM_PD13                                   (volatile uint32_t *)(0xff644000 + (0x014 << 2))
+#define     PWRCTRL_MEM_PD14                                   (0xff644000 + (0x015 << 2))
+#define SEC_PWRCTRL_MEM_PD14                                   (0xff644000 + (0x015 << 2))
+#define   P_PWRCTRL_MEM_PD14                                   (volatile uint32_t *)(0xff644000 + (0x015 << 2))
+#define     PWRCTRL_MEM_PD15                                   (0xff644000 + (0x016 << 2))
+#define SEC_PWRCTRL_MEM_PD15                                   (0xff644000 + (0x016 << 2))
+#define   P_PWRCTRL_MEM_PD15                                   (volatile uint32_t *)(0xff644000 + (0x016 << 2))
+#define     PWRCTRL_FOCRST0                                    (0xff644000 + (0x020 << 2))
+#define SEC_PWRCTRL_FOCRST0                                    (0xff644000 + (0x020 << 2))
+#define   P_PWRCTRL_FOCRST0                                    (volatile uint32_t *)(0xff644000 + (0x020 << 2))
+#define     PWRCTRL_FOCRST1                                    (0xff644000 + (0x021 << 2))
+#define SEC_PWRCTRL_FOCRST1                                    (0xff644000 + (0x021 << 2))
+#define   P_PWRCTRL_FOCRST1                                    (volatile uint32_t *)(0xff644000 + (0x021 << 2))
+#define     PWRCTRL_DDRPHY_PWROFF_CTRL                         (0xff644000 + (0x030 << 2))
+#define SEC_PWRCTRL_DDRPHY_PWROFF_CTRL                         (0xff644000 + (0x030 << 2))
+#define   P_PWRCTRL_DDRPHY_PWROFF_CTRL                         (volatile uint32_t *)(0xff644000 + (0x030 << 2))
+#define     PWRCTRL_NNA_AXI_PWR_CNTL                           (0xff644000 + (0x031 << 2))
+#define SEC_PWRCTRL_NNA_AXI_PWR_CNTL                           (0xff644000 + (0x031 << 2))
+#define   P_PWRCTRL_NNA_AXI_PWR_CNTL                           (volatile uint32_t *)(0xff644000 + (0x031 << 2))
+#define     PWRCTRL_CPU0_AUTO_OFF_CTRL0                        (0xff644000 + (0x040 << 2))
+#define SEC_PWRCTRL_CPU0_AUTO_OFF_CTRL0                        (0xff644000 + (0x040 << 2))
+#define   P_PWRCTRL_CPU0_AUTO_OFF_CTRL0                        (volatile uint32_t *)(0xff644000 + (0x040 << 2))
+#define     PWRCTRL_CPU0_AUTO_OFF_CTRL1                        (0xff644000 + (0x041 << 2))
+#define SEC_PWRCTRL_CPU0_AUTO_OFF_CTRL1                        (0xff644000 + (0x041 << 2))
+#define   P_PWRCTRL_CPU0_AUTO_OFF_CTRL1                        (volatile uint32_t *)(0xff644000 + (0x041 << 2))
+#define     PWRCTRL_CPU0_AUTO_OFF_CTRL2                        (0xff644000 + (0x042 << 2))
+#define SEC_PWRCTRL_CPU0_AUTO_OFF_CTRL2                        (0xff644000 + (0x042 << 2))
+#define   P_PWRCTRL_CPU0_AUTO_OFF_CTRL2                        (volatile uint32_t *)(0xff644000 + (0x042 << 2))
+#define     PWRCTRL_CPU0_AUTO_OFF_CTRL3                        (0xff644000 + (0x043 << 2))
+#define SEC_PWRCTRL_CPU0_AUTO_OFF_CTRL3                        (0xff644000 + (0x043 << 2))
+#define   P_PWRCTRL_CPU0_AUTO_OFF_CTRL3                        (volatile uint32_t *)(0xff644000 + (0x043 << 2))
+#define     PWRCTRL_CPU0_AUTO_OFF_CTRL4                        (0xff644000 + (0x044 << 2))
+#define SEC_PWRCTRL_CPU0_AUTO_OFF_CTRL4                        (0xff644000 + (0x044 << 2))
+#define   P_PWRCTRL_CPU0_AUTO_OFF_CTRL4                        (volatile uint32_t *)(0xff644000 + (0x044 << 2))
+#define     PWRCTRL_CPU0_TIMER_TH_01                           (0xff644000 + (0x048 << 2))
+#define SEC_PWRCTRL_CPU0_TIMER_TH_01                           (0xff644000 + (0x048 << 2))
+#define   P_PWRCTRL_CPU0_TIMER_TH_01                           (volatile uint32_t *)(0xff644000 + (0x048 << 2))
+#define     PWRCTRL_CPU0_TIMER_TH_23                           (0xff644000 + (0x049 << 2))
+#define SEC_PWRCTRL_CPU0_TIMER_TH_23                           (0xff644000 + (0x049 << 2))
+#define   P_PWRCTRL_CPU0_TIMER_TH_23                           (volatile uint32_t *)(0xff644000 + (0x049 << 2))
+#define     PWRCTRL_CPU0_TIMER_TH_45                           (0xff644000 + (0x04a << 2))
+#define SEC_PWRCTRL_CPU0_TIMER_TH_45                           (0xff644000 + (0x04a << 2))
+#define   P_PWRCTRL_CPU0_TIMER_TH_45                           (volatile uint32_t *)(0xff644000 + (0x04a << 2))
+#define     PWRCTRL_CPU0_TIMER_TH_67                           (0xff644000 + (0x04b << 2))
+#define SEC_PWRCTRL_CPU0_TIMER_TH_67                           (0xff644000 + (0x04b << 2))
+#define   P_PWRCTRL_CPU0_TIMER_TH_67                           (volatile uint32_t *)(0xff644000 + (0x04b << 2))
+#define     PWRCTRL_CPU0_TIMER_TH_89                           (0xff644000 + (0x04c << 2))
+#define SEC_PWRCTRL_CPU0_TIMER_TH_89                           (0xff644000 + (0x04c << 2))
+#define   P_PWRCTRL_CPU0_TIMER_TH_89                           (volatile uint32_t *)(0xff644000 + (0x04c << 2))
+#define     PWRCTRL_CPU0_IRQ_MASK0                             (0xff644000 + (0x050 << 2))
+#define SEC_PWRCTRL_CPU0_IRQ_MASK0                             (0xff644000 + (0x050 << 2))
+#define   P_PWRCTRL_CPU0_IRQ_MASK0                             (volatile uint32_t *)(0xff644000 + (0x050 << 2))
+#define     PWRCTRL_CPU0_IRQ_MASK1                             (0xff644000 + (0x051 << 2))
+#define SEC_PWRCTRL_CPU0_IRQ_MASK1                             (0xff644000 + (0x051 << 2))
+#define   P_PWRCTRL_CPU0_IRQ_MASK1                             (volatile uint32_t *)(0xff644000 + (0x051 << 2))
+#define     PWRCTRL_CPU0_IRQ_MASK2                             (0xff644000 + (0x052 << 2))
+#define SEC_PWRCTRL_CPU0_IRQ_MASK2                             (0xff644000 + (0x052 << 2))
+#define   P_PWRCTRL_CPU0_IRQ_MASK2                             (volatile uint32_t *)(0xff644000 + (0x052 << 2))
+#define     PWRCTRL_CPU0_IRQ_MASK3                             (0xff644000 + (0x053 << 2))
+#define SEC_PWRCTRL_CPU0_IRQ_MASK3                             (0xff644000 + (0x053 << 2))
+#define   P_PWRCTRL_CPU0_IRQ_MASK3                             (volatile uint32_t *)(0xff644000 + (0x053 << 2))
+#define     PWRCTRL_CPU0_IRQ_MASK4                             (0xff644000 + (0x054 << 2))
+#define SEC_PWRCTRL_CPU0_IRQ_MASK4                             (0xff644000 + (0x054 << 2))
+#define   P_PWRCTRL_CPU0_IRQ_MASK4                             (volatile uint32_t *)(0xff644000 + (0x054 << 2))
+#define     PWRCTRL_CPU0_IRQ_MASK5                             (0xff644000 + (0x055 << 2))
+#define SEC_PWRCTRL_CPU0_IRQ_MASK5                             (0xff644000 + (0x055 << 2))
+#define   P_PWRCTRL_CPU0_IRQ_MASK5                             (volatile uint32_t *)(0xff644000 + (0x055 << 2))
+#define     PWRCTRL_CPU0_IRQ_MASK6                             (0xff644000 + (0x056 << 2))
+#define SEC_PWRCTRL_CPU0_IRQ_MASK6                             (0xff644000 + (0x056 << 2))
+#define   P_PWRCTRL_CPU0_IRQ_MASK6                             (volatile uint32_t *)(0xff644000 + (0x056 << 2))
+#define     PWRCTRL_CPU0_IRQ_MASK7                             (0xff644000 + (0x057 << 2))
+#define SEC_PWRCTRL_CPU0_IRQ_MASK7                             (0xff644000 + (0x057 << 2))
+#define   P_PWRCTRL_CPU0_IRQ_MASK7                             (volatile uint32_t *)(0xff644000 + (0x057 << 2))
+#define     PWRCTRL_CPU0_MEMPD_INIT_SET                        (0xff644000 + (0x060 << 2))
+#define SEC_PWRCTRL_CPU0_MEMPD_INIT_SET                        (0xff644000 + (0x060 << 2))
+#define   P_PWRCTRL_CPU0_MEMPD_INIT_SET                        (volatile uint32_t *)(0xff644000 + (0x060 << 2))
+#define     PWRCTRL_CPU0_MEMPD_OFF_SET                         (0xff644000 + (0x061 << 2))
+#define SEC_PWRCTRL_CPU0_MEMPD_OFF_SET                         (0xff644000 + (0x061 << 2))
+#define   P_PWRCTRL_CPU0_MEMPD_OFF_SET                         (volatile uint32_t *)(0xff644000 + (0x061 << 2))
+#define     PWRCTRL_CPU0_MEMPD_ON_A_SET                        (0xff644000 + (0x062 << 2))
+#define SEC_PWRCTRL_CPU0_MEMPD_ON_A_SET                        (0xff644000 + (0x062 << 2))
+#define   P_PWRCTRL_CPU0_MEMPD_ON_A_SET                        (volatile uint32_t *)(0xff644000 + (0x062 << 2))
+#define     PWRCTRL_CPU0_MEMPD_ON_B_SET                        (0xff644000 + (0x063 << 2))
+#define SEC_PWRCTRL_CPU0_MEMPD_ON_B_SET                        (0xff644000 + (0x063 << 2))
+#define   P_PWRCTRL_CPU0_MEMPD_ON_B_SET                        (volatile uint32_t *)(0xff644000 + (0x063 << 2))
+#define     PWRCTRL_CPU0_MEMPD_ON_C_SET                        (0xff644000 + (0x064 << 2))
+#define SEC_PWRCTRL_CPU0_MEMPD_ON_C_SET                        (0xff644000 + (0x064 << 2))
+#define   P_PWRCTRL_CPU0_MEMPD_ON_C_SET                        (volatile uint32_t *)(0xff644000 + (0x064 << 2))
+#define     PWRCTRL_CPU0_MEMPD_ON_D_SET                        (0xff644000 + (0x065 << 2))
+#define SEC_PWRCTRL_CPU0_MEMPD_ON_D_SET                        (0xff644000 + (0x065 << 2))
+#define   P_PWRCTRL_CPU0_MEMPD_ON_D_SET                        (volatile uint32_t *)(0xff644000 + (0x065 << 2))
+#define     PWRCTRL_CPU0_MEMPD_STS                             (0xff644000 + (0x066 << 2))
+#define SEC_PWRCTRL_CPU0_MEMPD_STS                             (0xff644000 + (0x066 << 2))
+#define   P_PWRCTRL_CPU0_MEMPD_STS                             (volatile uint32_t *)(0xff644000 + (0x066 << 2))
+#define     PWRCTRL_CPU0_FSM_STS0                              (0xff644000 + (0x067 << 2))
+#define SEC_PWRCTRL_CPU0_FSM_STS0                              (0xff644000 + (0x067 << 2))
+#define   P_PWRCTRL_CPU0_FSM_STS0                              (volatile uint32_t *)(0xff644000 + (0x067 << 2))
+#define     PWRCTRL_CPU0_FSM_STS1                              (0xff644000 + (0x068 << 2))
+#define SEC_PWRCTRL_CPU0_FSM_STS1                              (0xff644000 + (0x068 << 2))
+#define   P_PWRCTRL_CPU0_FSM_STS1                              (volatile uint32_t *)(0xff644000 + (0x068 << 2))
+#define     PWRCTRL_CPU0_FSM_STS2                              (0xff644000 + (0x069 << 2))
+#define SEC_PWRCTRL_CPU0_FSM_STS2                              (0xff644000 + (0x069 << 2))
+#define   P_PWRCTRL_CPU0_FSM_STS2                              (volatile uint32_t *)(0xff644000 + (0x069 << 2))
+#define     PWRCTRL_CPU0_FSM_START_OFF                         (0xff644000 + (0x06d << 2))
+#define SEC_PWRCTRL_CPU0_FSM_START_OFF                         (0xff644000 + (0x06d << 2))
+#define   P_PWRCTRL_CPU0_FSM_START_OFF                         (volatile uint32_t *)(0xff644000 + (0x06d << 2))
+#define     PWRCTRL_CPU0_FSM_START_ON                          (0xff644000 + (0x06e << 2))
+#define SEC_PWRCTRL_CPU0_FSM_START_ON                          (0xff644000 + (0x06e << 2))
+#define   P_PWRCTRL_CPU0_FSM_START_ON                          (volatile uint32_t *)(0xff644000 + (0x06e << 2))
+#define     PWRCTRL_CPU0_FSM_JUMP                              (0xff644000 + (0x06f << 2))
+#define SEC_PWRCTRL_CPU0_FSM_JUMP                              (0xff644000 + (0x06f << 2))
+#define   P_PWRCTRL_CPU0_FSM_JUMP                              (volatile uint32_t *)(0xff644000 + (0x06f << 2))
+#define     PWRCTRL_CPU1_AUTO_OFF_CTRL0                        (0xff644000 + (0x070 << 2))
+#define SEC_PWRCTRL_CPU1_AUTO_OFF_CTRL0                        (0xff644000 + (0x070 << 2))
+#define   P_PWRCTRL_CPU1_AUTO_OFF_CTRL0                        (volatile uint32_t *)(0xff644000 + (0x070 << 2))
+#define     PWRCTRL_CPU1_AUTO_OFF_CTRL1                        (0xff644000 + (0x071 << 2))
+#define SEC_PWRCTRL_CPU1_AUTO_OFF_CTRL1                        (0xff644000 + (0x071 << 2))
+#define   P_PWRCTRL_CPU1_AUTO_OFF_CTRL1                        (volatile uint32_t *)(0xff644000 + (0x071 << 2))
+#define     PWRCTRL_CPU1_AUTO_OFF_CTRL2                        (0xff644000 + (0x072 << 2))
+#define SEC_PWRCTRL_CPU1_AUTO_OFF_CTRL2                        (0xff644000 + (0x072 << 2))
+#define   P_PWRCTRL_CPU1_AUTO_OFF_CTRL2                        (volatile uint32_t *)(0xff644000 + (0x072 << 2))
+#define     PWRCTRL_CPU1_AUTO_OFF_CTRL3                        (0xff644000 + (0x073 << 2))
+#define SEC_PWRCTRL_CPU1_AUTO_OFF_CTRL3                        (0xff644000 + (0x073 << 2))
+#define   P_PWRCTRL_CPU1_AUTO_OFF_CTRL3                        (volatile uint32_t *)(0xff644000 + (0x073 << 2))
+#define     PWRCTRL_CPU1_AUTO_OFF_CTRL4                        (0xff644000 + (0x074 << 2))
+#define SEC_PWRCTRL_CPU1_AUTO_OFF_CTRL4                        (0xff644000 + (0x074 << 2))
+#define   P_PWRCTRL_CPU1_AUTO_OFF_CTRL4                        (volatile uint32_t *)(0xff644000 + (0x074 << 2))
+#define     PWRCTRL_CPU1_TIMER_TH_01                           (0xff644000 + (0x078 << 2))
+#define SEC_PWRCTRL_CPU1_TIMER_TH_01                           (0xff644000 + (0x078 << 2))
+#define   P_PWRCTRL_CPU1_TIMER_TH_01                           (volatile uint32_t *)(0xff644000 + (0x078 << 2))
+#define     PWRCTRL_CPU1_TIMER_TH_23                           (0xff644000 + (0x079 << 2))
+#define SEC_PWRCTRL_CPU1_TIMER_TH_23                           (0xff644000 + (0x079 << 2))
+#define   P_PWRCTRL_CPU1_TIMER_TH_23                           (volatile uint32_t *)(0xff644000 + (0x079 << 2))
+#define     PWRCTRL_CPU1_TIMER_TH_45                           (0xff644000 + (0x07a << 2))
+#define SEC_PWRCTRL_CPU1_TIMER_TH_45                           (0xff644000 + (0x07a << 2))
+#define   P_PWRCTRL_CPU1_TIMER_TH_45                           (volatile uint32_t *)(0xff644000 + (0x07a << 2))
+#define     PWRCTRL_CPU1_TIMER_TH_67                           (0xff644000 + (0x07b << 2))
+#define SEC_PWRCTRL_CPU1_TIMER_TH_67                           (0xff644000 + (0x07b << 2))
+#define   P_PWRCTRL_CPU1_TIMER_TH_67                           (volatile uint32_t *)(0xff644000 + (0x07b << 2))
+#define     PWRCTRL_CPU1_TIMER_TH_89                           (0xff644000 + (0x07c << 2))
+#define SEC_PWRCTRL_CPU1_TIMER_TH_89                           (0xff644000 + (0x07c << 2))
+#define   P_PWRCTRL_CPU1_TIMER_TH_89                           (volatile uint32_t *)(0xff644000 + (0x07c << 2))
+#define     PWRCTRL_CPU1_IRQ_MASK0                             (0xff644000 + (0x080 << 2))
+#define SEC_PWRCTRL_CPU1_IRQ_MASK0                             (0xff644000 + (0x080 << 2))
+#define   P_PWRCTRL_CPU1_IRQ_MASK0                             (volatile uint32_t *)(0xff644000 + (0x080 << 2))
+#define     PWRCTRL_CPU1_IRQ_MASK1                             (0xff644000 + (0x081 << 2))
+#define SEC_PWRCTRL_CPU1_IRQ_MASK1                             (0xff644000 + (0x081 << 2))
+#define   P_PWRCTRL_CPU1_IRQ_MASK1                             (volatile uint32_t *)(0xff644000 + (0x081 << 2))
+#define     PWRCTRL_CPU1_IRQ_MASK2                             (0xff644000 + (0x082 << 2))
+#define SEC_PWRCTRL_CPU1_IRQ_MASK2                             (0xff644000 + (0x082 << 2))
+#define   P_PWRCTRL_CPU1_IRQ_MASK2                             (volatile uint32_t *)(0xff644000 + (0x082 << 2))
+#define     PWRCTRL_CPU1_IRQ_MASK3                             (0xff644000 + (0x083 << 2))
+#define SEC_PWRCTRL_CPU1_IRQ_MASK3                             (0xff644000 + (0x083 << 2))
+#define   P_PWRCTRL_CPU1_IRQ_MASK3                             (volatile uint32_t *)(0xff644000 + (0x083 << 2))
+#define     PWRCTRL_CPU1_IRQ_MASK4                             (0xff644000 + (0x084 << 2))
+#define SEC_PWRCTRL_CPU1_IRQ_MASK4                             (0xff644000 + (0x084 << 2))
+#define   P_PWRCTRL_CPU1_IRQ_MASK4                             (volatile uint32_t *)(0xff644000 + (0x084 << 2))
+#define     PWRCTRL_CPU1_IRQ_MASK5                             (0xff644000 + (0x085 << 2))
+#define SEC_PWRCTRL_CPU1_IRQ_MASK5                             (0xff644000 + (0x085 << 2))
+#define   P_PWRCTRL_CPU1_IRQ_MASK5                             (volatile uint32_t *)(0xff644000 + (0x085 << 2))
+#define     PWRCTRL_CPU1_IRQ_MASK6                             (0xff644000 + (0x086 << 2))
+#define SEC_PWRCTRL_CPU1_IRQ_MASK6                             (0xff644000 + (0x086 << 2))
+#define   P_PWRCTRL_CPU1_IRQ_MASK6                             (volatile uint32_t *)(0xff644000 + (0x086 << 2))
+#define     PWRCTRL_CPU1_IRQ_MASK7                             (0xff644000 + (0x087 << 2))
+#define SEC_PWRCTRL_CPU1_IRQ_MASK7                             (0xff644000 + (0x087 << 2))
+#define   P_PWRCTRL_CPU1_IRQ_MASK7                             (volatile uint32_t *)(0xff644000 + (0x087 << 2))
+#define     PWRCTRL_CPU1_MEMPD_INIT_SET                        (0xff644000 + (0x090 << 2))
+#define SEC_PWRCTRL_CPU1_MEMPD_INIT_SET                        (0xff644000 + (0x090 << 2))
+#define   P_PWRCTRL_CPU1_MEMPD_INIT_SET                        (volatile uint32_t *)(0xff644000 + (0x090 << 2))
+#define     PWRCTRL_CPU1_MEMPD_OFF_SET                         (0xff644000 + (0x091 << 2))
+#define SEC_PWRCTRL_CPU1_MEMPD_OFF_SET                         (0xff644000 + (0x091 << 2))
+#define   P_PWRCTRL_CPU1_MEMPD_OFF_SET                         (volatile uint32_t *)(0xff644000 + (0x091 << 2))
+#define     PWRCTRL_CPU1_MEMPD_ON_A_SET                        (0xff644000 + (0x092 << 2))
+#define SEC_PWRCTRL_CPU1_MEMPD_ON_A_SET                        (0xff644000 + (0x092 << 2))
+#define   P_PWRCTRL_CPU1_MEMPD_ON_A_SET                        (volatile uint32_t *)(0xff644000 + (0x092 << 2))
+#define     PWRCTRL_CPU1_MEMPD_ON_B_SET                        (0xff644000 + (0x093 << 2))
+#define SEC_PWRCTRL_CPU1_MEMPD_ON_B_SET                        (0xff644000 + (0x093 << 2))
+#define   P_PWRCTRL_CPU1_MEMPD_ON_B_SET                        (volatile uint32_t *)(0xff644000 + (0x093 << 2))
+#define     PWRCTRL_CPU1_MEMPD_ON_C_SET                        (0xff644000 + (0x094 << 2))
+#define SEC_PWRCTRL_CPU1_MEMPD_ON_C_SET                        (0xff644000 + (0x094 << 2))
+#define   P_PWRCTRL_CPU1_MEMPD_ON_C_SET                        (volatile uint32_t *)(0xff644000 + (0x094 << 2))
+#define     PWRCTRL_CPU1_MEMPD_ON_D_SET                        (0xff644000 + (0x095 << 2))
+#define SEC_PWRCTRL_CPU1_MEMPD_ON_D_SET                        (0xff644000 + (0x095 << 2))
+#define   P_PWRCTRL_CPU1_MEMPD_ON_D_SET                        (volatile uint32_t *)(0xff644000 + (0x095 << 2))
+#define     PWRCTRL_CPU1_MEMPD_STS                             (0xff644000 + (0x096 << 2))
+#define SEC_PWRCTRL_CPU1_MEMPD_STS                             (0xff644000 + (0x096 << 2))
+#define   P_PWRCTRL_CPU1_MEMPD_STS                             (volatile uint32_t *)(0xff644000 + (0x096 << 2))
+#define     PWRCTRL_CPU1_FSM_STS0                              (0xff644000 + (0x097 << 2))
+#define SEC_PWRCTRL_CPU1_FSM_STS0                              (0xff644000 + (0x097 << 2))
+#define   P_PWRCTRL_CPU1_FSM_STS0                              (volatile uint32_t *)(0xff644000 + (0x097 << 2))
+#define     PWRCTRL_CPU1_FSM_STS1                              (0xff644000 + (0x098 << 2))
+#define SEC_PWRCTRL_CPU1_FSM_STS1                              (0xff644000 + (0x098 << 2))
+#define   P_PWRCTRL_CPU1_FSM_STS1                              (volatile uint32_t *)(0xff644000 + (0x098 << 2))
+#define     PWRCTRL_CPU1_FSM_STS2                              (0xff644000 + (0x099 << 2))
+#define SEC_PWRCTRL_CPU1_FSM_STS2                              (0xff644000 + (0x099 << 2))
+#define   P_PWRCTRL_CPU1_FSM_STS2                              (volatile uint32_t *)(0xff644000 + (0x099 << 2))
+#define     PWRCTRL_CPU1_FSM_START_OFF                         (0xff644000 + (0x09d << 2))
+#define SEC_PWRCTRL_CPU1_FSM_START_OFF                         (0xff644000 + (0x09d << 2))
+#define   P_PWRCTRL_CPU1_FSM_START_OFF                         (volatile uint32_t *)(0xff644000 + (0x09d << 2))
+#define     PWRCTRL_CPU1_FSM_START_ON                          (0xff644000 + (0x09e << 2))
+#define SEC_PWRCTRL_CPU1_FSM_START_ON                          (0xff644000 + (0x09e << 2))
+#define   P_PWRCTRL_CPU1_FSM_START_ON                          (volatile uint32_t *)(0xff644000 + (0x09e << 2))
+#define     PWRCTRL_CPU1_FSM_JUMP                              (0xff644000 + (0x09f << 2))
+#define SEC_PWRCTRL_CPU1_FSM_JUMP                              (0xff644000 + (0x09f << 2))
+#define   P_PWRCTRL_CPU1_FSM_JUMP                              (volatile uint32_t *)(0xff644000 + (0x09f << 2))
+#define     PWRCTRL_CPU2_AUTO_OFF_CTRL0                        (0xff644000 + (0x0a0 << 2))
+#define SEC_PWRCTRL_CPU2_AUTO_OFF_CTRL0                        (0xff644000 + (0x0a0 << 2))
+#define   P_PWRCTRL_CPU2_AUTO_OFF_CTRL0                        (volatile uint32_t *)(0xff644000 + (0x0a0 << 2))
+#define     PWRCTRL_CPU2_AUTO_OFF_CTRL1                        (0xff644000 + (0x0a1 << 2))
+#define SEC_PWRCTRL_CPU2_AUTO_OFF_CTRL1                        (0xff644000 + (0x0a1 << 2))
+#define   P_PWRCTRL_CPU2_AUTO_OFF_CTRL1                        (volatile uint32_t *)(0xff644000 + (0x0a1 << 2))
+#define     PWRCTRL_CPU2_AUTO_OFF_CTRL2                        (0xff644000 + (0x0a2 << 2))
+#define SEC_PWRCTRL_CPU2_AUTO_OFF_CTRL2                        (0xff644000 + (0x0a2 << 2))
+#define   P_PWRCTRL_CPU2_AUTO_OFF_CTRL2                        (volatile uint32_t *)(0xff644000 + (0x0a2 << 2))
+#define     PWRCTRL_CPU2_AUTO_OFF_CTRL3                        (0xff644000 + (0x0a3 << 2))
+#define SEC_PWRCTRL_CPU2_AUTO_OFF_CTRL3                        (0xff644000 + (0x0a3 << 2))
+#define   P_PWRCTRL_CPU2_AUTO_OFF_CTRL3                        (volatile uint32_t *)(0xff644000 + (0x0a3 << 2))
+#define     PWRCTRL_CPU2_AUTO_OFF_CTRL4                        (0xff644000 + (0x0a4 << 2))
+#define SEC_PWRCTRL_CPU2_AUTO_OFF_CTRL4                        (0xff644000 + (0x0a4 << 2))
+#define   P_PWRCTRL_CPU2_AUTO_OFF_CTRL4                        (volatile uint32_t *)(0xff644000 + (0x0a4 << 2))
+#define     PWRCTRL_CPU2_TIMER_TH_01                           (0xff644000 + (0x0a8 << 2))
+#define SEC_PWRCTRL_CPU2_TIMER_TH_01                           (0xff644000 + (0x0a8 << 2))
+#define   P_PWRCTRL_CPU2_TIMER_TH_01                           (volatile uint32_t *)(0xff644000 + (0x0a8 << 2))
+#define     PWRCTRL_CPU2_TIMER_TH_23                           (0xff644000 + (0x0a9 << 2))
+#define SEC_PWRCTRL_CPU2_TIMER_TH_23                           (0xff644000 + (0x0a9 << 2))
+#define   P_PWRCTRL_CPU2_TIMER_TH_23                           (volatile uint32_t *)(0xff644000 + (0x0a9 << 2))
+#define     PWRCTRL_CPU2_TIMER_TH_45                           (0xff644000 + (0x0aa << 2))
+#define SEC_PWRCTRL_CPU2_TIMER_TH_45                           (0xff644000 + (0x0aa << 2))
+#define   P_PWRCTRL_CPU2_TIMER_TH_45                           (volatile uint32_t *)(0xff644000 + (0x0aa << 2))
+#define     PWRCTRL_CPU2_TIMER_TH_67                           (0xff644000 + (0x0ab << 2))
+#define SEC_PWRCTRL_CPU2_TIMER_TH_67                           (0xff644000 + (0x0ab << 2))
+#define   P_PWRCTRL_CPU2_TIMER_TH_67                           (volatile uint32_t *)(0xff644000 + (0x0ab << 2))
+#define     PWRCTRL_CPU2_TIMER_TH_89                           (0xff644000 + (0x0ac << 2))
+#define SEC_PWRCTRL_CPU2_TIMER_TH_89                           (0xff644000 + (0x0ac << 2))
+#define   P_PWRCTRL_CPU2_TIMER_TH_89                           (volatile uint32_t *)(0xff644000 + (0x0ac << 2))
+#define     PWRCTRL_CPU2_IRQ_MASK0                             (0xff644000 + (0x0b0 << 2))
+#define SEC_PWRCTRL_CPU2_IRQ_MASK0                             (0xff644000 + (0x0b0 << 2))
+#define   P_PWRCTRL_CPU2_IRQ_MASK0                             (volatile uint32_t *)(0xff644000 + (0x0b0 << 2))
+#define     PWRCTRL_CPU2_IRQ_MASK1                             (0xff644000 + (0x0b1 << 2))
+#define SEC_PWRCTRL_CPU2_IRQ_MASK1                             (0xff644000 + (0x0b1 << 2))
+#define   P_PWRCTRL_CPU2_IRQ_MASK1                             (volatile uint32_t *)(0xff644000 + (0x0b1 << 2))
+#define     PWRCTRL_CPU2_IRQ_MASK2                             (0xff644000 + (0x0b2 << 2))
+#define SEC_PWRCTRL_CPU2_IRQ_MASK2                             (0xff644000 + (0x0b2 << 2))
+#define   P_PWRCTRL_CPU2_IRQ_MASK2                             (volatile uint32_t *)(0xff644000 + (0x0b2 << 2))
+#define     PWRCTRL_CPU2_IRQ_MASK3                             (0xff644000 + (0x0b3 << 2))
+#define SEC_PWRCTRL_CPU2_IRQ_MASK3                             (0xff644000 + (0x0b3 << 2))
+#define   P_PWRCTRL_CPU2_IRQ_MASK3                             (volatile uint32_t *)(0xff644000 + (0x0b3 << 2))
+#define     PWRCTRL_CPU2_IRQ_MASK4                             (0xff644000 + (0x0b4 << 2))
+#define SEC_PWRCTRL_CPU2_IRQ_MASK4                             (0xff644000 + (0x0b4 << 2))
+#define   P_PWRCTRL_CPU2_IRQ_MASK4                             (volatile uint32_t *)(0xff644000 + (0x0b4 << 2))
+#define     PWRCTRL_CPU2_IRQ_MASK5                             (0xff644000 + (0x0b5 << 2))
+#define SEC_PWRCTRL_CPU2_IRQ_MASK5                             (0xff644000 + (0x0b5 << 2))
+#define   P_PWRCTRL_CPU2_IRQ_MASK5                             (volatile uint32_t *)(0xff644000 + (0x0b5 << 2))
+#define     PWRCTRL_CPU2_IRQ_MASK6                             (0xff644000 + (0x0b6 << 2))
+#define SEC_PWRCTRL_CPU2_IRQ_MASK6                             (0xff644000 + (0x0b6 << 2))
+#define   P_PWRCTRL_CPU2_IRQ_MASK6                             (volatile uint32_t *)(0xff644000 + (0x0b6 << 2))
+#define     PWRCTRL_CPU2_IRQ_MASK7                             (0xff644000 + (0x0b7 << 2))
+#define SEC_PWRCTRL_CPU2_IRQ_MASK7                             (0xff644000 + (0x0b7 << 2))
+#define   P_PWRCTRL_CPU2_IRQ_MASK7                             (volatile uint32_t *)(0xff644000 + (0x0b7 << 2))
+#define     PWRCTRL_CPU2_MEMPD_INIT_SET                        (0xff644000 + (0x0c0 << 2))
+#define SEC_PWRCTRL_CPU2_MEMPD_INIT_SET                        (0xff644000 + (0x0c0 << 2))
+#define   P_PWRCTRL_CPU2_MEMPD_INIT_SET                        (volatile uint32_t *)(0xff644000 + (0x0c0 << 2))
+#define     PWRCTRL_CPU2_MEMPD_OFF_SET                         (0xff644000 + (0x0c1 << 2))
+#define SEC_PWRCTRL_CPU2_MEMPD_OFF_SET                         (0xff644000 + (0x0c1 << 2))
+#define   P_PWRCTRL_CPU2_MEMPD_OFF_SET                         (volatile uint32_t *)(0xff644000 + (0x0c1 << 2))
+#define     PWRCTRL_CPU2_MEMPD_ON_A_SET                        (0xff644000 + (0x0c2 << 2))
+#define SEC_PWRCTRL_CPU2_MEMPD_ON_A_SET                        (0xff644000 + (0x0c2 << 2))
+#define   P_PWRCTRL_CPU2_MEMPD_ON_A_SET                        (volatile uint32_t *)(0xff644000 + (0x0c2 << 2))
+#define     PWRCTRL_CPU2_MEMPD_ON_B_SET                        (0xff644000 + (0x0c3 << 2))
+#define SEC_PWRCTRL_CPU2_MEMPD_ON_B_SET                        (0xff644000 + (0x0c3 << 2))
+#define   P_PWRCTRL_CPU2_MEMPD_ON_B_SET                        (volatile uint32_t *)(0xff644000 + (0x0c3 << 2))
+#define     PWRCTRL_CPU2_MEMPD_ON_C_SET                        (0xff644000 + (0x0c4 << 2))
+#define SEC_PWRCTRL_CPU2_MEMPD_ON_C_SET                        (0xff644000 + (0x0c4 << 2))
+#define   P_PWRCTRL_CPU2_MEMPD_ON_C_SET                        (volatile uint32_t *)(0xff644000 + (0x0c4 << 2))
+#define     PWRCTRL_CPU2_MEMPD_ON_D_SET                        (0xff644000 + (0x0c5 << 2))
+#define SEC_PWRCTRL_CPU2_MEMPD_ON_D_SET                        (0xff644000 + (0x0c5 << 2))
+#define   P_PWRCTRL_CPU2_MEMPD_ON_D_SET                        (volatile uint32_t *)(0xff644000 + (0x0c5 << 2))
+#define     PWRCTRL_CPU2_MEMPD_STS                             (0xff644000 + (0x0c6 << 2))
+#define SEC_PWRCTRL_CPU2_MEMPD_STS                             (0xff644000 + (0x0c6 << 2))
+#define   P_PWRCTRL_CPU2_MEMPD_STS                             (volatile uint32_t *)(0xff644000 + (0x0c6 << 2))
+#define     PWRCTRL_CPU2_FSM_STS0                              (0xff644000 + (0x0c7 << 2))
+#define SEC_PWRCTRL_CPU2_FSM_STS0                              (0xff644000 + (0x0c7 << 2))
+#define   P_PWRCTRL_CPU2_FSM_STS0                              (volatile uint32_t *)(0xff644000 + (0x0c7 << 2))
+#define     PWRCTRL_CPU2_FSM_STS1                              (0xff644000 + (0x0c8 << 2))
+#define SEC_PWRCTRL_CPU2_FSM_STS1                              (0xff644000 + (0x0c8 << 2))
+#define   P_PWRCTRL_CPU2_FSM_STS1                              (volatile uint32_t *)(0xff644000 + (0x0c8 << 2))
+#define     PWRCTRL_CPU2_FSM_STS2                              (0xff644000 + (0x0c9 << 2))
+#define SEC_PWRCTRL_CPU2_FSM_STS2                              (0xff644000 + (0x0c9 << 2))
+#define   P_PWRCTRL_CPU2_FSM_STS2                              (volatile uint32_t *)(0xff644000 + (0x0c9 << 2))
+#define     PWRCTRL_CPU2_FSM_START_OFF                         (0xff644000 + (0x0cd << 2))
+#define SEC_PWRCTRL_CPU2_FSM_START_OFF                         (0xff644000 + (0x0cd << 2))
+#define   P_PWRCTRL_CPU2_FSM_START_OFF                         (volatile uint32_t *)(0xff644000 + (0x0cd << 2))
+#define     PWRCTRL_CPU2_FSM_START_ON                          (0xff644000 + (0x0ce << 2))
+#define SEC_PWRCTRL_CPU2_FSM_START_ON                          (0xff644000 + (0x0ce << 2))
+#define   P_PWRCTRL_CPU2_FSM_START_ON                          (volatile uint32_t *)(0xff644000 + (0x0ce << 2))
+#define     PWRCTRL_CPU2_FSM_JUMP                              (0xff644000 + (0x0cf << 2))
+#define SEC_PWRCTRL_CPU2_FSM_JUMP                              (0xff644000 + (0x0cf << 2))
+#define   P_PWRCTRL_CPU2_FSM_JUMP                              (volatile uint32_t *)(0xff644000 + (0x0cf << 2))
+#define     PWRCTRL_CPU3_AUTO_OFF_CTRL0                        (0xff644000 + (0x0d0 << 2))
+#define SEC_PWRCTRL_CPU3_AUTO_OFF_CTRL0                        (0xff644000 + (0x0d0 << 2))
+#define   P_PWRCTRL_CPU3_AUTO_OFF_CTRL0                        (volatile uint32_t *)(0xff644000 + (0x0d0 << 2))
+#define     PWRCTRL_CPU3_AUTO_OFF_CTRL1                        (0xff644000 + (0x0d1 << 2))
+#define SEC_PWRCTRL_CPU3_AUTO_OFF_CTRL1                        (0xff644000 + (0x0d1 << 2))
+#define   P_PWRCTRL_CPU3_AUTO_OFF_CTRL1                        (volatile uint32_t *)(0xff644000 + (0x0d1 << 2))
+#define     PWRCTRL_CPU3_AUTO_OFF_CTRL2                        (0xff644000 + (0x0d2 << 2))
+#define SEC_PWRCTRL_CPU3_AUTO_OFF_CTRL2                        (0xff644000 + (0x0d2 << 2))
+#define   P_PWRCTRL_CPU3_AUTO_OFF_CTRL2                        (volatile uint32_t *)(0xff644000 + (0x0d2 << 2))
+#define     PWRCTRL_CPU3_AUTO_OFF_CTRL3                        (0xff644000 + (0x0d3 << 2))
+#define SEC_PWRCTRL_CPU3_AUTO_OFF_CTRL3                        (0xff644000 + (0x0d3 << 2))
+#define   P_PWRCTRL_CPU3_AUTO_OFF_CTRL3                        (volatile uint32_t *)(0xff644000 + (0x0d3 << 2))
+#define     PWRCTRL_CPU3_AUTO_OFF_CTRL4                        (0xff644000 + (0x0d4 << 2))
+#define SEC_PWRCTRL_CPU3_AUTO_OFF_CTRL4                        (0xff644000 + (0x0d4 << 2))
+#define   P_PWRCTRL_CPU3_AUTO_OFF_CTRL4                        (volatile uint32_t *)(0xff644000 + (0x0d4 << 2))
+#define     PWRCTRL_CPU3_TIMER_TH_01                           (0xff644000 + (0x0d8 << 2))
+#define SEC_PWRCTRL_CPU3_TIMER_TH_01                           (0xff644000 + (0x0d8 << 2))
+#define   P_PWRCTRL_CPU3_TIMER_TH_01                           (volatile uint32_t *)(0xff644000 + (0x0d8 << 2))
+#define     PWRCTRL_CPU3_TIMER_TH_23                           (0xff644000 + (0x0d9 << 2))
+#define SEC_PWRCTRL_CPU3_TIMER_TH_23                           (0xff644000 + (0x0d9 << 2))
+#define   P_PWRCTRL_CPU3_TIMER_TH_23                           (volatile uint32_t *)(0xff644000 + (0x0d9 << 2))
+#define     PWRCTRL_CPU3_TIMER_TH_45                           (0xff644000 + (0x0da << 2))
+#define SEC_PWRCTRL_CPU3_TIMER_TH_45                           (0xff644000 + (0x0da << 2))
+#define   P_PWRCTRL_CPU3_TIMER_TH_45                           (volatile uint32_t *)(0xff644000 + (0x0da << 2))
+#define     PWRCTRL_CPU3_TIMER_TH_67                           (0xff644000 + (0x0db << 2))
+#define SEC_PWRCTRL_CPU3_TIMER_TH_67                           (0xff644000 + (0x0db << 2))
+#define   P_PWRCTRL_CPU3_TIMER_TH_67                           (volatile uint32_t *)(0xff644000 + (0x0db << 2))
+#define     PWRCTRL_CPU3_TIMER_TH_89                           (0xff644000 + (0x0dc << 2))
+#define SEC_PWRCTRL_CPU3_TIMER_TH_89                           (0xff644000 + (0x0dc << 2))
+#define   P_PWRCTRL_CPU3_TIMER_TH_89                           (volatile uint32_t *)(0xff644000 + (0x0dc << 2))
+#define     PWRCTRL_CPU3_IRQ_MASK0                             (0xff644000 + (0x0e0 << 2))
+#define SEC_PWRCTRL_CPU3_IRQ_MASK0                             (0xff644000 + (0x0e0 << 2))
+#define   P_PWRCTRL_CPU3_IRQ_MASK0                             (volatile uint32_t *)(0xff644000 + (0x0e0 << 2))
+#define     PWRCTRL_CPU3_IRQ_MASK1                             (0xff644000 + (0x0e1 << 2))
+#define SEC_PWRCTRL_CPU3_IRQ_MASK1                             (0xff644000 + (0x0e1 << 2))
+#define   P_PWRCTRL_CPU3_IRQ_MASK1                             (volatile uint32_t *)(0xff644000 + (0x0e1 << 2))
+#define     PWRCTRL_CPU3_IRQ_MASK2                             (0xff644000 + (0x0e2 << 2))
+#define SEC_PWRCTRL_CPU3_IRQ_MASK2                             (0xff644000 + (0x0e2 << 2))
+#define   P_PWRCTRL_CPU3_IRQ_MASK2                             (volatile uint32_t *)(0xff644000 + (0x0e2 << 2))
+#define     PWRCTRL_CPU3_IRQ_MASK3                             (0xff644000 + (0x0e3 << 2))
+#define SEC_PWRCTRL_CPU3_IRQ_MASK3                             (0xff644000 + (0x0e3 << 2))
+#define   P_PWRCTRL_CPU3_IRQ_MASK3                             (volatile uint32_t *)(0xff644000 + (0x0e3 << 2))
+#define     PWRCTRL_CPU3_IRQ_MASK4                             (0xff644000 + (0x0e4 << 2))
+#define SEC_PWRCTRL_CPU3_IRQ_MASK4                             (0xff644000 + (0x0e4 << 2))
+#define   P_PWRCTRL_CPU3_IRQ_MASK4                             (volatile uint32_t *)(0xff644000 + (0x0e4 << 2))
+#define     PWRCTRL_CPU3_IRQ_MASK5                             (0xff644000 + (0x0e5 << 2))
+#define SEC_PWRCTRL_CPU3_IRQ_MASK5                             (0xff644000 + (0x0e5 << 2))
+#define   P_PWRCTRL_CPU3_IRQ_MASK5                             (volatile uint32_t *)(0xff644000 + (0x0e5 << 2))
+#define     PWRCTRL_CPU3_IRQ_MASK6                             (0xff644000 + (0x0e6 << 2))
+#define SEC_PWRCTRL_CPU3_IRQ_MASK6                             (0xff644000 + (0x0e6 << 2))
+#define   P_PWRCTRL_CPU3_IRQ_MASK6                             (volatile uint32_t *)(0xff644000 + (0x0e6 << 2))
+#define     PWRCTRL_CPU3_IRQ_MASK7                             (0xff644000 + (0x0e7 << 2))
+#define SEC_PWRCTRL_CPU3_IRQ_MASK7                             (0xff644000 + (0x0e7 << 2))
+#define   P_PWRCTRL_CPU3_IRQ_MASK7                             (volatile uint32_t *)(0xff644000 + (0x0e7 << 2))
+#define     PWRCTRL_CPU3_MEMPD_INIT_SET                        (0xff644000 + (0x0f0 << 2))
+#define SEC_PWRCTRL_CPU3_MEMPD_INIT_SET                        (0xff644000 + (0x0f0 << 2))
+#define   P_PWRCTRL_CPU3_MEMPD_INIT_SET                        (volatile uint32_t *)(0xff644000 + (0x0f0 << 2))
+#define     PWRCTRL_CPU3_MEMPD_OFF_SET                         (0xff644000 + (0x0f1 << 2))
+#define SEC_PWRCTRL_CPU3_MEMPD_OFF_SET                         (0xff644000 + (0x0f1 << 2))
+#define   P_PWRCTRL_CPU3_MEMPD_OFF_SET                         (volatile uint32_t *)(0xff644000 + (0x0f1 << 2))
+#define     PWRCTRL_CPU3_MEMPD_ON_A_SET                        (0xff644000 + (0x0f2 << 2))
+#define SEC_PWRCTRL_CPU3_MEMPD_ON_A_SET                        (0xff644000 + (0x0f2 << 2))
+#define   P_PWRCTRL_CPU3_MEMPD_ON_A_SET                        (volatile uint32_t *)(0xff644000 + (0x0f2 << 2))
+#define     PWRCTRL_CPU3_MEMPD_ON_B_SET                        (0xff644000 + (0x0f3 << 2))
+#define SEC_PWRCTRL_CPU3_MEMPD_ON_B_SET                        (0xff644000 + (0x0f3 << 2))
+#define   P_PWRCTRL_CPU3_MEMPD_ON_B_SET                        (volatile uint32_t *)(0xff644000 + (0x0f3 << 2))
+#define     PWRCTRL_CPU3_MEMPD_ON_C_SET                        (0xff644000 + (0x0f4 << 2))
+#define SEC_PWRCTRL_CPU3_MEMPD_ON_C_SET                        (0xff644000 + (0x0f4 << 2))
+#define   P_PWRCTRL_CPU3_MEMPD_ON_C_SET                        (volatile uint32_t *)(0xff644000 + (0x0f4 << 2))
+#define     PWRCTRL_CPU3_MEMPD_ON_D_SET                        (0xff644000 + (0x0f5 << 2))
+#define SEC_PWRCTRL_CPU3_MEMPD_ON_D_SET                        (0xff644000 + (0x0f5 << 2))
+#define   P_PWRCTRL_CPU3_MEMPD_ON_D_SET                        (volatile uint32_t *)(0xff644000 + (0x0f5 << 2))
+#define     PWRCTRL_CPU3_MEMPD_STS                             (0xff644000 + (0x0f6 << 2))
+#define SEC_PWRCTRL_CPU3_MEMPD_STS                             (0xff644000 + (0x0f6 << 2))
+#define   P_PWRCTRL_CPU3_MEMPD_STS                             (volatile uint32_t *)(0xff644000 + (0x0f6 << 2))
+#define     PWRCTRL_CPU3_FSM_STS0                              (0xff644000 + (0x0f7 << 2))
+#define SEC_PWRCTRL_CPU3_FSM_STS0                              (0xff644000 + (0x0f7 << 2))
+#define   P_PWRCTRL_CPU3_FSM_STS0                              (volatile uint32_t *)(0xff644000 + (0x0f7 << 2))
+#define     PWRCTRL_CPU3_FSM_STS1                              (0xff644000 + (0x0f8 << 2))
+#define SEC_PWRCTRL_CPU3_FSM_STS1                              (0xff644000 + (0x0f8 << 2))
+#define   P_PWRCTRL_CPU3_FSM_STS1                              (volatile uint32_t *)(0xff644000 + (0x0f8 << 2))
+#define     PWRCTRL_CPU3_FSM_STS2                              (0xff644000 + (0x0f9 << 2))
+#define SEC_PWRCTRL_CPU3_FSM_STS2                              (0xff644000 + (0x0f9 << 2))
+#define   P_PWRCTRL_CPU3_FSM_STS2                              (volatile uint32_t *)(0xff644000 + (0x0f9 << 2))
+#define     PWRCTRL_CPU3_FSM_START_OFF                         (0xff644000 + (0x0fd << 2))
+#define SEC_PWRCTRL_CPU3_FSM_START_OFF                         (0xff644000 + (0x0fd << 2))
+#define   P_PWRCTRL_CPU3_FSM_START_OFF                         (volatile uint32_t *)(0xff644000 + (0x0fd << 2))
+#define     PWRCTRL_CPU3_FSM_START_ON                          (0xff644000 + (0x0fe << 2))
+#define SEC_PWRCTRL_CPU3_FSM_START_ON                          (0xff644000 + (0x0fe << 2))
+#define   P_PWRCTRL_CPU3_FSM_START_ON                          (volatile uint32_t *)(0xff644000 + (0x0fe << 2))
+#define     PWRCTRL_CPU3_FSM_JUMP                              (0xff644000 + (0x0ff << 2))
+#define SEC_PWRCTRL_CPU3_FSM_JUMP                              (0xff644000 + (0x0ff << 2))
+#define   P_PWRCTRL_CPU3_FSM_JUMP                              (volatile uint32_t *)(0xff644000 + (0x0ff << 2))
+#define     PWRCTRL_CPUTOP_AUTO_OFF_CTRL0                      (0xff644000 + (0x100 << 2))
+#define SEC_PWRCTRL_CPUTOP_AUTO_OFF_CTRL0                      (0xff644000 + (0x100 << 2))
+#define   P_PWRCTRL_CPUTOP_AUTO_OFF_CTRL0                      (volatile uint32_t *)(0xff644000 + (0x100 << 2))
+#define     PWRCTRL_CPUTOP_AUTO_OFF_CTRL1                      (0xff644000 + (0x101 << 2))
+#define SEC_PWRCTRL_CPUTOP_AUTO_OFF_CTRL1                      (0xff644000 + (0x101 << 2))
+#define   P_PWRCTRL_CPUTOP_AUTO_OFF_CTRL1                      (volatile uint32_t *)(0xff644000 + (0x101 << 2))
+#define     PWRCTRL_CPUTOP_AUTO_OFF_CTRL2                      (0xff644000 + (0x102 << 2))
+#define SEC_PWRCTRL_CPUTOP_AUTO_OFF_CTRL2                      (0xff644000 + (0x102 << 2))
+#define   P_PWRCTRL_CPUTOP_AUTO_OFF_CTRL2                      (volatile uint32_t *)(0xff644000 + (0x102 << 2))
+#define     PWRCTRL_CPUTOP_AUTO_OFF_CTRL3                      (0xff644000 + (0x103 << 2))
+#define SEC_PWRCTRL_CPUTOP_AUTO_OFF_CTRL3                      (0xff644000 + (0x103 << 2))
+#define   P_PWRCTRL_CPUTOP_AUTO_OFF_CTRL3                      (volatile uint32_t *)(0xff644000 + (0x103 << 2))
+#define     PWRCTRL_CPUTOP_AUTO_OFF_CTRL4                      (0xff644000 + (0x104 << 2))
+#define SEC_PWRCTRL_CPUTOP_AUTO_OFF_CTRL4                      (0xff644000 + (0x104 << 2))
+#define   P_PWRCTRL_CPUTOP_AUTO_OFF_CTRL4                      (volatile uint32_t *)(0xff644000 + (0x104 << 2))
+#define     PWRCTRL_CPUTOP_TIMER_TH_01                         (0xff644000 + (0x108 << 2))
+#define SEC_PWRCTRL_CPUTOP_TIMER_TH_01                         (0xff644000 + (0x108 << 2))
+#define   P_PWRCTRL_CPUTOP_TIMER_TH_01                         (volatile uint32_t *)(0xff644000 + (0x108 << 2))
+#define     PWRCTRL_CPUTOP_TIMER_TH_23                         (0xff644000 + (0x109 << 2))
+#define SEC_PWRCTRL_CPUTOP_TIMER_TH_23                         (0xff644000 + (0x109 << 2))
+#define   P_PWRCTRL_CPUTOP_TIMER_TH_23                         (volatile uint32_t *)(0xff644000 + (0x109 << 2))
+#define     PWRCTRL_CPUTOP_TIMER_TH_45                         (0xff644000 + (0x10a << 2))
+#define SEC_PWRCTRL_CPUTOP_TIMER_TH_45                         (0xff644000 + (0x10a << 2))
+#define   P_PWRCTRL_CPUTOP_TIMER_TH_45                         (volatile uint32_t *)(0xff644000 + (0x10a << 2))
+#define     PWRCTRL_CPUTOP_TIMER_TH_67                         (0xff644000 + (0x10b << 2))
+#define SEC_PWRCTRL_CPUTOP_TIMER_TH_67                         (0xff644000 + (0x10b << 2))
+#define   P_PWRCTRL_CPUTOP_TIMER_TH_67                         (volatile uint32_t *)(0xff644000 + (0x10b << 2))
+#define     PWRCTRL_CPUTOP_TIMER_TH_89                         (0xff644000 + (0x10c << 2))
+#define SEC_PWRCTRL_CPUTOP_TIMER_TH_89                         (0xff644000 + (0x10c << 2))
+#define   P_PWRCTRL_CPUTOP_TIMER_TH_89                         (volatile uint32_t *)(0xff644000 + (0x10c << 2))
+#define     PWRCTRL_CPUTOP_IRQ_MASK0                           (0xff644000 + (0x110 << 2))
+#define SEC_PWRCTRL_CPUTOP_IRQ_MASK0                           (0xff644000 + (0x110 << 2))
+#define   P_PWRCTRL_CPUTOP_IRQ_MASK0                           (volatile uint32_t *)(0xff644000 + (0x110 << 2))
+#define     PWRCTRL_CPUTOP_IRQ_MASK1                           (0xff644000 + (0x111 << 2))
+#define SEC_PWRCTRL_CPUTOP_IRQ_MASK1                           (0xff644000 + (0x111 << 2))
+#define   P_PWRCTRL_CPUTOP_IRQ_MASK1                           (volatile uint32_t *)(0xff644000 + (0x111 << 2))
+#define     PWRCTRL_CPUTOP_IRQ_MASK2                           (0xff644000 + (0x112 << 2))
+#define SEC_PWRCTRL_CPUTOP_IRQ_MASK2                           (0xff644000 + (0x112 << 2))
+#define   P_PWRCTRL_CPUTOP_IRQ_MASK2                           (volatile uint32_t *)(0xff644000 + (0x112 << 2))
+#define     PWRCTRL_CPUTOP_IRQ_MASK3                           (0xff644000 + (0x113 << 2))
+#define SEC_PWRCTRL_CPUTOP_IRQ_MASK3                           (0xff644000 + (0x113 << 2))
+#define   P_PWRCTRL_CPUTOP_IRQ_MASK3                           (volatile uint32_t *)(0xff644000 + (0x113 << 2))
+#define     PWRCTRL_CPUTOP_IRQ_MASK4                           (0xff644000 + (0x114 << 2))
+#define SEC_PWRCTRL_CPUTOP_IRQ_MASK4                           (0xff644000 + (0x114 << 2))
+#define   P_PWRCTRL_CPUTOP_IRQ_MASK4                           (volatile uint32_t *)(0xff644000 + (0x114 << 2))
+#define     PWRCTRL_CPUTOP_IRQ_MASK5                           (0xff644000 + (0x115 << 2))
+#define SEC_PWRCTRL_CPUTOP_IRQ_MASK5                           (0xff644000 + (0x115 << 2))
+#define   P_PWRCTRL_CPUTOP_IRQ_MASK5                           (volatile uint32_t *)(0xff644000 + (0x115 << 2))
+#define     PWRCTRL_CPUTOP_IRQ_MASK6                           (0xff644000 + (0x116 << 2))
+#define SEC_PWRCTRL_CPUTOP_IRQ_MASK6                           (0xff644000 + (0x116 << 2))
+#define   P_PWRCTRL_CPUTOP_IRQ_MASK6                           (volatile uint32_t *)(0xff644000 + (0x116 << 2))
+#define     PWRCTRL_CPUTOP_IRQ_MASK7                           (0xff644000 + (0x117 << 2))
+#define SEC_PWRCTRL_CPUTOP_IRQ_MASK7                           (0xff644000 + (0x117 << 2))
+#define   P_PWRCTRL_CPUTOP_IRQ_MASK7                           (volatile uint32_t *)(0xff644000 + (0x117 << 2))
+#define     PWRCTRL_CPUTOP_MEMPD_INIT_SET                      (0xff644000 + (0x120 << 2))
+#define SEC_PWRCTRL_CPUTOP_MEMPD_INIT_SET                      (0xff644000 + (0x120 << 2))
+#define   P_PWRCTRL_CPUTOP_MEMPD_INIT_SET                      (volatile uint32_t *)(0xff644000 + (0x120 << 2))
+#define     PWRCTRL_CPUTOP_MEMPD_OFF_SET                       (0xff644000 + (0x121 << 2))
+#define SEC_PWRCTRL_CPUTOP_MEMPD_OFF_SET                       (0xff644000 + (0x121 << 2))
+#define   P_PWRCTRL_CPUTOP_MEMPD_OFF_SET                       (volatile uint32_t *)(0xff644000 + (0x121 << 2))
+#define     PWRCTRL_CPUTOP_MEMPD_ON_A_SET                      (0xff644000 + (0x122 << 2))
+#define SEC_PWRCTRL_CPUTOP_MEMPD_ON_A_SET                      (0xff644000 + (0x122 << 2))
+#define   P_PWRCTRL_CPUTOP_MEMPD_ON_A_SET                      (volatile uint32_t *)(0xff644000 + (0x122 << 2))
+#define     PWRCTRL_CPUTOP_MEMPD_ON_B_SET                      (0xff644000 + (0x123 << 2))
+#define SEC_PWRCTRL_CPUTOP_MEMPD_ON_B_SET                      (0xff644000 + (0x123 << 2))
+#define   P_PWRCTRL_CPUTOP_MEMPD_ON_B_SET                      (volatile uint32_t *)(0xff644000 + (0x123 << 2))
+#define     PWRCTRL_CPUTOP_MEMPD_ON_C_SET                      (0xff644000 + (0x124 << 2))
+#define SEC_PWRCTRL_CPUTOP_MEMPD_ON_C_SET                      (0xff644000 + (0x124 << 2))
+#define   P_PWRCTRL_CPUTOP_MEMPD_ON_C_SET                      (volatile uint32_t *)(0xff644000 + (0x124 << 2))
+#define     PWRCTRL_CPUTOP_MEMPD_ON_D_SET                      (0xff644000 + (0x125 << 2))
+#define SEC_PWRCTRL_CPUTOP_MEMPD_ON_D_SET                      (0xff644000 + (0x125 << 2))
+#define   P_PWRCTRL_CPUTOP_MEMPD_ON_D_SET                      (volatile uint32_t *)(0xff644000 + (0x125 << 2))
+#define     PWRCTRL_CPUTOP_MEMPD_STS                           (0xff644000 + (0x126 << 2))
+#define SEC_PWRCTRL_CPUTOP_MEMPD_STS                           (0xff644000 + (0x126 << 2))
+#define   P_PWRCTRL_CPUTOP_MEMPD_STS                           (volatile uint32_t *)(0xff644000 + (0x126 << 2))
+#define     PWRCTRL_CPUTOP_FSM_STS0                            (0xff644000 + (0x127 << 2))
+#define SEC_PWRCTRL_CPUTOP_FSM_STS0                            (0xff644000 + (0x127 << 2))
+#define   P_PWRCTRL_CPUTOP_FSM_STS0                            (volatile uint32_t *)(0xff644000 + (0x127 << 2))
+#define     PWRCTRL_CPUTOP_FSM_STS1                            (0xff644000 + (0x128 << 2))
+#define SEC_PWRCTRL_CPUTOP_FSM_STS1                            (0xff644000 + (0x128 << 2))
+#define   P_PWRCTRL_CPUTOP_FSM_STS1                            (volatile uint32_t *)(0xff644000 + (0x128 << 2))
+#define     PWRCTRL_CPUTOP_FSM_STS2                            (0xff644000 + (0x129 << 2))
+#define SEC_PWRCTRL_CPUTOP_FSM_STS2                            (0xff644000 + (0x129 << 2))
+#define   P_PWRCTRL_CPUTOP_FSM_STS2                            (volatile uint32_t *)(0xff644000 + (0x129 << 2))
+#define     PWRCTRL_CPUTOP_FSM_START_OFF                       (0xff644000 + (0x12d << 2))
+#define SEC_PWRCTRL_CPUTOP_FSM_START_OFF                       (0xff644000 + (0x12d << 2))
+#define   P_PWRCTRL_CPUTOP_FSM_START_OFF                       (volatile uint32_t *)(0xff644000 + (0x12d << 2))
+#define     PWRCTRL_CPUTOP_FSM_START_ON                        (0xff644000 + (0x12e << 2))
+#define SEC_PWRCTRL_CPUTOP_FSM_START_ON                        (0xff644000 + (0x12e << 2))
+#define   P_PWRCTRL_CPUTOP_FSM_START_ON                        (volatile uint32_t *)(0xff644000 + (0x12e << 2))
+#define     PWRCTRL_CPUTOP_FSM_JUMP                            (0xff644000 + (0x12f << 2))
+#define SEC_PWRCTRL_CPUTOP_FSM_JUMP                            (0xff644000 + (0x12f << 2))
+#define   P_PWRCTRL_CPUTOP_FSM_JUMP                            (volatile uint32_t *)(0xff644000 + (0x12f << 2))
+#define     PWRCTRL_DSPA_AUTO_OFF_CTRL0                        (0xff644000 + (0x130 << 2))
+#define SEC_PWRCTRL_DSPA_AUTO_OFF_CTRL0                        (0xff644000 + (0x130 << 2))
+#define   P_PWRCTRL_DSPA_AUTO_OFF_CTRL0                        (volatile uint32_t *)(0xff644000 + (0x130 << 2))
+#define     PWRCTRL_DSPA_AUTO_OFF_CTRL1                        (0xff644000 + (0x131 << 2))
+#define SEC_PWRCTRL_DSPA_AUTO_OFF_CTRL1                        (0xff644000 + (0x131 << 2))
+#define   P_PWRCTRL_DSPA_AUTO_OFF_CTRL1                        (volatile uint32_t *)(0xff644000 + (0x131 << 2))
+#define     PWRCTRL_DSPA_AUTO_OFF_CTRL2                        (0xff644000 + (0x132 << 2))
+#define SEC_PWRCTRL_DSPA_AUTO_OFF_CTRL2                        (0xff644000 + (0x132 << 2))
+#define   P_PWRCTRL_DSPA_AUTO_OFF_CTRL2                        (volatile uint32_t *)(0xff644000 + (0x132 << 2))
+#define     PWRCTRL_DSPA_AUTO_OFF_CTRL3                        (0xff644000 + (0x133 << 2))
+#define SEC_PWRCTRL_DSPA_AUTO_OFF_CTRL3                        (0xff644000 + (0x133 << 2))
+#define   P_PWRCTRL_DSPA_AUTO_OFF_CTRL3                        (volatile uint32_t *)(0xff644000 + (0x133 << 2))
+#define     PWRCTRL_DSPA_AUTO_OFF_CTRL4                        (0xff644000 + (0x134 << 2))
+#define SEC_PWRCTRL_DSPA_AUTO_OFF_CTRL4                        (0xff644000 + (0x134 << 2))
+#define   P_PWRCTRL_DSPA_AUTO_OFF_CTRL4                        (volatile uint32_t *)(0xff644000 + (0x134 << 2))
+#define     PWRCTRL_DSPA_TIMER_TH_01                           (0xff644000 + (0x138 << 2))
+#define SEC_PWRCTRL_DSPA_TIMER_TH_01                           (0xff644000 + (0x138 << 2))
+#define   P_PWRCTRL_DSPA_TIMER_TH_01                           (volatile uint32_t *)(0xff644000 + (0x138 << 2))
+#define     PWRCTRL_DSPA_TIMER_TH_23                           (0xff644000 + (0x139 << 2))
+#define SEC_PWRCTRL_DSPA_TIMER_TH_23                           (0xff644000 + (0x139 << 2))
+#define   P_PWRCTRL_DSPA_TIMER_TH_23                           (volatile uint32_t *)(0xff644000 + (0x139 << 2))
+#define     PWRCTRL_DSPA_TIMER_TH_45                           (0xff644000 + (0x13a << 2))
+#define SEC_PWRCTRL_DSPA_TIMER_TH_45                           (0xff644000 + (0x13a << 2))
+#define   P_PWRCTRL_DSPA_TIMER_TH_45                           (volatile uint32_t *)(0xff644000 + (0x13a << 2))
+#define     PWRCTRL_DSPA_TIMER_TH_67                           (0xff644000 + (0x13b << 2))
+#define SEC_PWRCTRL_DSPA_TIMER_TH_67                           (0xff644000 + (0x13b << 2))
+#define   P_PWRCTRL_DSPA_TIMER_TH_67                           (volatile uint32_t *)(0xff644000 + (0x13b << 2))
+#define     PWRCTRL_DSPA_TIMER_TH_89                           (0xff644000 + (0x13c << 2))
+#define SEC_PWRCTRL_DSPA_TIMER_TH_89                           (0xff644000 + (0x13c << 2))
+#define   P_PWRCTRL_DSPA_TIMER_TH_89                           (volatile uint32_t *)(0xff644000 + (0x13c << 2))
+#define     PWRCTRL_DSPA_IRQ_MASK0                             (0xff644000 + (0x140 << 2))
+#define SEC_PWRCTRL_DSPA_IRQ_MASK0                             (0xff644000 + (0x140 << 2))
+#define   P_PWRCTRL_DSPA_IRQ_MASK0                             (volatile uint32_t *)(0xff644000 + (0x140 << 2))
+#define     PWRCTRL_DSPA_IRQ_MASK1                             (0xff644000 + (0x141 << 2))
+#define SEC_PWRCTRL_DSPA_IRQ_MASK1                             (0xff644000 + (0x141 << 2))
+#define   P_PWRCTRL_DSPA_IRQ_MASK1                             (volatile uint32_t *)(0xff644000 + (0x141 << 2))
+#define     PWRCTRL_DSPA_IRQ_MASK2                             (0xff644000 + (0x142 << 2))
+#define SEC_PWRCTRL_DSPA_IRQ_MASK2                             (0xff644000 + (0x142 << 2))
+#define   P_PWRCTRL_DSPA_IRQ_MASK2                             (volatile uint32_t *)(0xff644000 + (0x142 << 2))
+#define     PWRCTRL_DSPA_IRQ_MASK3                             (0xff644000 + (0x143 << 2))
+#define SEC_PWRCTRL_DSPA_IRQ_MASK3                             (0xff644000 + (0x143 << 2))
+#define   P_PWRCTRL_DSPA_IRQ_MASK3                             (volatile uint32_t *)(0xff644000 + (0x143 << 2))
+#define     PWRCTRL_DSPA_IRQ_MASK4                             (0xff644000 + (0x144 << 2))
+#define SEC_PWRCTRL_DSPA_IRQ_MASK4                             (0xff644000 + (0x144 << 2))
+#define   P_PWRCTRL_DSPA_IRQ_MASK4                             (volatile uint32_t *)(0xff644000 + (0x144 << 2))
+#define     PWRCTRL_DSPA_IRQ_MASK5                             (0xff644000 + (0x145 << 2))
+#define SEC_PWRCTRL_DSPA_IRQ_MASK5                             (0xff644000 + (0x145 << 2))
+#define   P_PWRCTRL_DSPA_IRQ_MASK5                             (volatile uint32_t *)(0xff644000 + (0x145 << 2))
+#define     PWRCTRL_DSPA_IRQ_MASK6                             (0xff644000 + (0x146 << 2))
+#define SEC_PWRCTRL_DSPA_IRQ_MASK6                             (0xff644000 + (0x146 << 2))
+#define   P_PWRCTRL_DSPA_IRQ_MASK6                             (volatile uint32_t *)(0xff644000 + (0x146 << 2))
+#define     PWRCTRL_DSPA_IRQ_MASK7                             (0xff644000 + (0x147 << 2))
+#define SEC_PWRCTRL_DSPA_IRQ_MASK7                             (0xff644000 + (0x147 << 2))
+#define   P_PWRCTRL_DSPA_IRQ_MASK7                             (volatile uint32_t *)(0xff644000 + (0x147 << 2))
+#define     PWRCTRL_DSPA_MEMPD_INIT_SET                        (0xff644000 + (0x150 << 2))
+#define SEC_PWRCTRL_DSPA_MEMPD_INIT_SET                        (0xff644000 + (0x150 << 2))
+#define   P_PWRCTRL_DSPA_MEMPD_INIT_SET                        (volatile uint32_t *)(0xff644000 + (0x150 << 2))
+#define     PWRCTRL_DSPA_MEMPD_OFF_SET                         (0xff644000 + (0x151 << 2))
+#define SEC_PWRCTRL_DSPA_MEMPD_OFF_SET                         (0xff644000 + (0x151 << 2))
+#define   P_PWRCTRL_DSPA_MEMPD_OFF_SET                         (volatile uint32_t *)(0xff644000 + (0x151 << 2))
+#define     PWRCTRL_DSPA_MEMPD_ON_A_SET                        (0xff644000 + (0x152 << 2))
+#define SEC_PWRCTRL_DSPA_MEMPD_ON_A_SET                        (0xff644000 + (0x152 << 2))
+#define   P_PWRCTRL_DSPA_MEMPD_ON_A_SET                        (volatile uint32_t *)(0xff644000 + (0x152 << 2))
+#define     PWRCTRL_DSPA_MEMPD_ON_B_SET                        (0xff644000 + (0x153 << 2))
+#define SEC_PWRCTRL_DSPA_MEMPD_ON_B_SET                        (0xff644000 + (0x153 << 2))
+#define   P_PWRCTRL_DSPA_MEMPD_ON_B_SET                        (volatile uint32_t *)(0xff644000 + (0x153 << 2))
+#define     PWRCTRL_DSPA_MEMPD_ON_C_SET                        (0xff644000 + (0x154 << 2))
+#define SEC_PWRCTRL_DSPA_MEMPD_ON_C_SET                        (0xff644000 + (0x154 << 2))
+#define   P_PWRCTRL_DSPA_MEMPD_ON_C_SET                        (volatile uint32_t *)(0xff644000 + (0x154 << 2))
+#define     PWRCTRL_DSPA_MEMPD_ON_D_SET                        (0xff644000 + (0x155 << 2))
+#define SEC_PWRCTRL_DSPA_MEMPD_ON_D_SET                        (0xff644000 + (0x155 << 2))
+#define   P_PWRCTRL_DSPA_MEMPD_ON_D_SET                        (volatile uint32_t *)(0xff644000 + (0x155 << 2))
+#define     PWRCTRL_DSPA_MEMPD_STS                             (0xff644000 + (0x156 << 2))
+#define SEC_PWRCTRL_DSPA_MEMPD_STS                             (0xff644000 + (0x156 << 2))
+#define   P_PWRCTRL_DSPA_MEMPD_STS                             (volatile uint32_t *)(0xff644000 + (0x156 << 2))
+#define     PWRCTRL_DSPA_FSM_STS0                              (0xff644000 + (0x157 << 2))
+#define SEC_PWRCTRL_DSPA_FSM_STS0                              (0xff644000 + (0x157 << 2))
+#define   P_PWRCTRL_DSPA_FSM_STS0                              (volatile uint32_t *)(0xff644000 + (0x157 << 2))
+#define     PWRCTRL_DSPA_FSM_STS1                              (0xff644000 + (0x158 << 2))
+#define SEC_PWRCTRL_DSPA_FSM_STS1                              (0xff644000 + (0x158 << 2))
+#define   P_PWRCTRL_DSPA_FSM_STS1                              (volatile uint32_t *)(0xff644000 + (0x158 << 2))
+#define     PWRCTRL_DSPA_FSM_STS2                              (0xff644000 + (0x159 << 2))
+#define SEC_PWRCTRL_DSPA_FSM_STS2                              (0xff644000 + (0x159 << 2))
+#define   P_PWRCTRL_DSPA_FSM_STS2                              (volatile uint32_t *)(0xff644000 + (0x159 << 2))
+#define     PWRCTRL_DSPA_FSM_START                             (0xff644000 + (0x15e << 2))
+#define SEC_PWRCTRL_DSPA_FSM_START                             (0xff644000 + (0x15e << 2))
+#define   P_PWRCTRL_DSPA_FSM_START                             (volatile uint32_t *)(0xff644000 + (0x15e << 2))
+#define     PWRCTRL_DSPA_FSM_JUMP                              (0xff644000 + (0x15f << 2))
+#define SEC_PWRCTRL_DSPA_FSM_JUMP                              (0xff644000 + (0x15f << 2))
+#define   P_PWRCTRL_DSPA_FSM_JUMP                              (volatile uint32_t *)(0xff644000 + (0x15f << 2))
+#define     PWRCTRL_DSPB_AUTO_OFF_CTRL0                        (0xff644000 + (0x160 << 2))
+#define SEC_PWRCTRL_DSPB_AUTO_OFF_CTRL0                        (0xff644000 + (0x160 << 2))
+#define   P_PWRCTRL_DSPB_AUTO_OFF_CTRL0                        (volatile uint32_t *)(0xff644000 + (0x160 << 2))
+#define     PWRCTRL_DSPB_AUTO_OFF_CTRL1                        (0xff644000 + (0x161 << 2))
+#define SEC_PWRCTRL_DSPB_AUTO_OFF_CTRL1                        (0xff644000 + (0x161 << 2))
+#define   P_PWRCTRL_DSPB_AUTO_OFF_CTRL1                        (volatile uint32_t *)(0xff644000 + (0x161 << 2))
+#define     PWRCTRL_DSPB_AUTO_OFF_CTRL2                        (0xff644000 + (0x162 << 2))
+#define SEC_PWRCTRL_DSPB_AUTO_OFF_CTRL2                        (0xff644000 + (0x162 << 2))
+#define   P_PWRCTRL_DSPB_AUTO_OFF_CTRL2                        (volatile uint32_t *)(0xff644000 + (0x162 << 2))
+#define     PWRCTRL_DSPB_AUTO_OFF_CTRL3                        (0xff644000 + (0x163 << 2))
+#define SEC_PWRCTRL_DSPB_AUTO_OFF_CTRL3                        (0xff644000 + (0x163 << 2))
+#define   P_PWRCTRL_DSPB_AUTO_OFF_CTRL3                        (volatile uint32_t *)(0xff644000 + (0x163 << 2))
+#define     PWRCTRL_DSPB_AUTO_OFF_CTRL4                        (0xff644000 + (0x164 << 2))
+#define SEC_PWRCTRL_DSPB_AUTO_OFF_CTRL4                        (0xff644000 + (0x164 << 2))
+#define   P_PWRCTRL_DSPB_AUTO_OFF_CTRL4                        (volatile uint32_t *)(0xff644000 + (0x164 << 2))
+#define     PWRCTRL_DSPB_TIMER_TH_01                           (0xff644000 + (0x168 << 2))
+#define SEC_PWRCTRL_DSPB_TIMER_TH_01                           (0xff644000 + (0x168 << 2))
+#define   P_PWRCTRL_DSPB_TIMER_TH_01                           (volatile uint32_t *)(0xff644000 + (0x168 << 2))
+#define     PWRCTRL_DSPB_TIMER_TH_23                           (0xff644000 + (0x169 << 2))
+#define SEC_PWRCTRL_DSPB_TIMER_TH_23                           (0xff644000 + (0x169 << 2))
+#define   P_PWRCTRL_DSPB_TIMER_TH_23                           (volatile uint32_t *)(0xff644000 + (0x169 << 2))
+#define     PWRCTRL_DSPB_TIMER_TH_45                           (0xff644000 + (0x16a << 2))
+#define SEC_PWRCTRL_DSPB_TIMER_TH_45                           (0xff644000 + (0x16a << 2))
+#define   P_PWRCTRL_DSPB_TIMER_TH_45                           (volatile uint32_t *)(0xff644000 + (0x16a << 2))
+#define     PWRCTRL_DSPB_TIMER_TH_67                           (0xff644000 + (0x16b << 2))
+#define SEC_PWRCTRL_DSPB_TIMER_TH_67                           (0xff644000 + (0x16b << 2))
+#define   P_PWRCTRL_DSPB_TIMER_TH_67                           (volatile uint32_t *)(0xff644000 + (0x16b << 2))
+#define     PWRCTRL_DSPB_TIMER_TH_89                           (0xff644000 + (0x16c << 2))
+#define SEC_PWRCTRL_DSPB_TIMER_TH_89                           (0xff644000 + (0x16c << 2))
+#define   P_PWRCTRL_DSPB_TIMER_TH_89                           (volatile uint32_t *)(0xff644000 + (0x16c << 2))
+#define     PWRCTRL_DSPB_IRQ_MASK0                             (0xff644000 + (0x170 << 2))
+#define SEC_PWRCTRL_DSPB_IRQ_MASK0                             (0xff644000 + (0x170 << 2))
+#define   P_PWRCTRL_DSPB_IRQ_MASK0                             (volatile uint32_t *)(0xff644000 + (0x170 << 2))
+#define     PWRCTRL_DSPB_IRQ_MASK1                             (0xff644000 + (0x171 << 2))
+#define SEC_PWRCTRL_DSPB_IRQ_MASK1                             (0xff644000 + (0x171 << 2))
+#define   P_PWRCTRL_DSPB_IRQ_MASK1                             (volatile uint32_t *)(0xff644000 + (0x171 << 2))
+#define     PWRCTRL_DSPB_IRQ_MASK2                             (0xff644000 + (0x172 << 2))
+#define SEC_PWRCTRL_DSPB_IRQ_MASK2                             (0xff644000 + (0x172 << 2))
+#define   P_PWRCTRL_DSPB_IRQ_MASK2                             (volatile uint32_t *)(0xff644000 + (0x172 << 2))
+#define     PWRCTRL_DSPB_IRQ_MASK3                             (0xff644000 + (0x173 << 2))
+#define SEC_PWRCTRL_DSPB_IRQ_MASK3                             (0xff644000 + (0x173 << 2))
+#define   P_PWRCTRL_DSPB_IRQ_MASK3                             (volatile uint32_t *)(0xff644000 + (0x173 << 2))
+#define     PWRCTRL_DSPB_IRQ_MASK4                             (0xff644000 + (0x174 << 2))
+#define SEC_PWRCTRL_DSPB_IRQ_MASK4                             (0xff644000 + (0x174 << 2))
+#define   P_PWRCTRL_DSPB_IRQ_MASK4                             (volatile uint32_t *)(0xff644000 + (0x174 << 2))
+#define     PWRCTRL_DSPB_IRQ_MASK5                             (0xff644000 + (0x175 << 2))
+#define SEC_PWRCTRL_DSPB_IRQ_MASK5                             (0xff644000 + (0x175 << 2))
+#define   P_PWRCTRL_DSPB_IRQ_MASK5                             (volatile uint32_t *)(0xff644000 + (0x175 << 2))
+#define     PWRCTRL_DSPB_IRQ_MASK6                             (0xff644000 + (0x176 << 2))
+#define SEC_PWRCTRL_DSPB_IRQ_MASK6                             (0xff644000 + (0x176 << 2))
+#define   P_PWRCTRL_DSPB_IRQ_MASK6                             (volatile uint32_t *)(0xff644000 + (0x176 << 2))
+#define     PWRCTRL_DSPB_IRQ_MASK7                             (0xff644000 + (0x177 << 2))
+#define SEC_PWRCTRL_DSPB_IRQ_MASK7                             (0xff644000 + (0x177 << 2))
+#define   P_PWRCTRL_DSPB_IRQ_MASK7                             (volatile uint32_t *)(0xff644000 + (0x177 << 2))
+#define     PWRCTRL_DSPB_MEMPD_INIT_SET                        (0xff644000 + (0x180 << 2))
+#define SEC_PWRCTRL_DSPB_MEMPD_INIT_SET                        (0xff644000 + (0x180 << 2))
+#define   P_PWRCTRL_DSPB_MEMPD_INIT_SET                        (volatile uint32_t *)(0xff644000 + (0x180 << 2))
+#define     PWRCTRL_DSPB_MEMPD_OFF_SET                         (0xff644000 + (0x181 << 2))
+#define SEC_PWRCTRL_DSPB_MEMPD_OFF_SET                         (0xff644000 + (0x181 << 2))
+#define   P_PWRCTRL_DSPB_MEMPD_OFF_SET                         (volatile uint32_t *)(0xff644000 + (0x181 << 2))
+#define     PWRCTRL_DSPB_MEMPD_ON_A_SET                        (0xff644000 + (0x182 << 2))
+#define SEC_PWRCTRL_DSPB_MEMPD_ON_A_SET                        (0xff644000 + (0x182 << 2))
+#define   P_PWRCTRL_DSPB_MEMPD_ON_A_SET                        (volatile uint32_t *)(0xff644000 + (0x182 << 2))
+#define     PWRCTRL_DSPB_MEMPD_ON_B_SET                        (0xff644000 + (0x183 << 2))
+#define SEC_PWRCTRL_DSPB_MEMPD_ON_B_SET                        (0xff644000 + (0x183 << 2))
+#define   P_PWRCTRL_DSPB_MEMPD_ON_B_SET                        (volatile uint32_t *)(0xff644000 + (0x183 << 2))
+#define     PWRCTRL_DSPB_MEMPD_ON_C_SET                        (0xff644000 + (0x184 << 2))
+#define SEC_PWRCTRL_DSPB_MEMPD_ON_C_SET                        (0xff644000 + (0x184 << 2))
+#define   P_PWRCTRL_DSPB_MEMPD_ON_C_SET                        (volatile uint32_t *)(0xff644000 + (0x184 << 2))
+#define     PWRCTRL_DSPB_MEMPD_ON_D_SET                        (0xff644000 + (0x185 << 2))
+#define SEC_PWRCTRL_DSPB_MEMPD_ON_D_SET                        (0xff644000 + (0x185 << 2))
+#define   P_PWRCTRL_DSPB_MEMPD_ON_D_SET                        (volatile uint32_t *)(0xff644000 + (0x185 << 2))
+#define     PWRCTRL_DSPB_MEMPD_STS                             (0xff644000 + (0x186 << 2))
+#define SEC_PWRCTRL_DSPB_MEMPD_STS                             (0xff644000 + (0x186 << 2))
+#define   P_PWRCTRL_DSPB_MEMPD_STS                             (volatile uint32_t *)(0xff644000 + (0x186 << 2))
+#define     PWRCTRL_DSPB_FSM_STS0                              (0xff644000 + (0x187 << 2))
+#define SEC_PWRCTRL_DSPB_FSM_STS0                              (0xff644000 + (0x187 << 2))
+#define   P_PWRCTRL_DSPB_FSM_STS0                              (volatile uint32_t *)(0xff644000 + (0x187 << 2))
+#define     PWRCTRL_DSPB_FSM_STS1                              (0xff644000 + (0x188 << 2))
+#define SEC_PWRCTRL_DSPB_FSM_STS1                              (0xff644000 + (0x188 << 2))
+#define   P_PWRCTRL_DSPB_FSM_STS1                              (volatile uint32_t *)(0xff644000 + (0x188 << 2))
+#define     PWRCTRL_DSPB_FSM_STS2                              (0xff644000 + (0x189 << 2))
+#define SEC_PWRCTRL_DSPB_FSM_STS2                              (0xff644000 + (0x189 << 2))
+#define   P_PWRCTRL_DSPB_FSM_STS2                              (volatile uint32_t *)(0xff644000 + (0x189 << 2))
+#define     PWRCTRL_DSPB_FSM_START                             (0xff644000 + (0x18e << 2))
+#define SEC_PWRCTRL_DSPB_FSM_START                             (0xff644000 + (0x18e << 2))
+#define   P_PWRCTRL_DSPB_FSM_START                             (volatile uint32_t *)(0xff644000 + (0x18e << 2))
+#define     PWRCTRL_DSPB_FSM_JUMP                              (0xff644000 + (0x18f << 2))
+#define SEC_PWRCTRL_DSPB_FSM_JUMP                              (0xff644000 + (0x18f << 2))
+#define   P_PWRCTRL_DSPB_FSM_JUMP                              (volatile uint32_t *)(0xff644000 + (0x18f << 2))
+#define     PWRCTRL_SPTOP_AUTO_OFF_CTRL0                       (0xff644000 + (0x190 << 2))
+#define SEC_PWRCTRL_SPTOP_AUTO_OFF_CTRL0                       (0xff644000 + (0x190 << 2))
+#define   P_PWRCTRL_SPTOP_AUTO_OFF_CTRL0                       (volatile uint32_t *)(0xff644000 + (0x190 << 2))
+#define     PWRCTRL_SPTOP_AUTO_OFF_CTRL1                       (0xff644000 + (0x191 << 2))
+#define SEC_PWRCTRL_SPTOP_AUTO_OFF_CTRL1                       (0xff644000 + (0x191 << 2))
+#define   P_PWRCTRL_SPTOP_AUTO_OFF_CTRL1                       (volatile uint32_t *)(0xff644000 + (0x191 << 2))
+#define     PWRCTRL_SPTOP_AUTO_OFF_CTRL2                       (0xff644000 + (0x192 << 2))
+#define SEC_PWRCTRL_SPTOP_AUTO_OFF_CTRL2                       (0xff644000 + (0x192 << 2))
+#define   P_PWRCTRL_SPTOP_AUTO_OFF_CTRL2                       (volatile uint32_t *)(0xff644000 + (0x192 << 2))
+#define     PWRCTRL_SPTOP_AUTO_OFF_CTRL3                       (0xff644000 + (0x193 << 2))
+#define SEC_PWRCTRL_SPTOP_AUTO_OFF_CTRL3                       (0xff644000 + (0x193 << 2))
+#define   P_PWRCTRL_SPTOP_AUTO_OFF_CTRL3                       (volatile uint32_t *)(0xff644000 + (0x193 << 2))
+#define     PWRCTRL_SPTOP_AUTO_OFF_CTRL4                       (0xff644000 + (0x194 << 2))
+#define SEC_PWRCTRL_SPTOP_AUTO_OFF_CTRL4                       (0xff644000 + (0x194 << 2))
+#define   P_PWRCTRL_SPTOP_AUTO_OFF_CTRL4                       (volatile uint32_t *)(0xff644000 + (0x194 << 2))
+#define     PWRCTRL_SPTOP_TIMER_TH_01                          (0xff644000 + (0x198 << 2))
+#define SEC_PWRCTRL_SPTOP_TIMER_TH_01                          (0xff644000 + (0x198 << 2))
+#define   P_PWRCTRL_SPTOP_TIMER_TH_01                          (volatile uint32_t *)(0xff644000 + (0x198 << 2))
+#define     PWRCTRL_SPTOP_TIMER_TH_23                          (0xff644000 + (0x199 << 2))
+#define SEC_PWRCTRL_SPTOP_TIMER_TH_23                          (0xff644000 + (0x199 << 2))
+#define   P_PWRCTRL_SPTOP_TIMER_TH_23                          (volatile uint32_t *)(0xff644000 + (0x199 << 2))
+#define     PWRCTRL_SPTOP_TIMER_TH_45                          (0xff644000 + (0x19a << 2))
+#define SEC_PWRCTRL_SPTOP_TIMER_TH_45                          (0xff644000 + (0x19a << 2))
+#define   P_PWRCTRL_SPTOP_TIMER_TH_45                          (volatile uint32_t *)(0xff644000 + (0x19a << 2))
+#define     PWRCTRL_SPTOP_TIMER_TH_67                          (0xff644000 + (0x19b << 2))
+#define SEC_PWRCTRL_SPTOP_TIMER_TH_67                          (0xff644000 + (0x19b << 2))
+#define   P_PWRCTRL_SPTOP_TIMER_TH_67                          (volatile uint32_t *)(0xff644000 + (0x19b << 2))
+#define     PWRCTRL_SPTOP_TIMER_TH_89                          (0xff644000 + (0x19c << 2))
+#define SEC_PWRCTRL_SPTOP_TIMER_TH_89                          (0xff644000 + (0x19c << 2))
+#define   P_PWRCTRL_SPTOP_TIMER_TH_89                          (volatile uint32_t *)(0xff644000 + (0x19c << 2))
+#define     PWRCTRL_SPTOP_IRQ_MASK0                            (0xff644000 + (0x1a0 << 2))
+#define SEC_PWRCTRL_SPTOP_IRQ_MASK0                            (0xff644000 + (0x1a0 << 2))
+#define   P_PWRCTRL_SPTOP_IRQ_MASK0                            (volatile uint32_t *)(0xff644000 + (0x1a0 << 2))
+#define     PWRCTRL_SPTOP_IRQ_MASK1                            (0xff644000 + (0x1a1 << 2))
+#define SEC_PWRCTRL_SPTOP_IRQ_MASK1                            (0xff644000 + (0x1a1 << 2))
+#define   P_PWRCTRL_SPTOP_IRQ_MASK1                            (volatile uint32_t *)(0xff644000 + (0x1a1 << 2))
+#define     PWRCTRL_SPTOP_IRQ_MASK2                            (0xff644000 + (0x1a2 << 2))
+#define SEC_PWRCTRL_SPTOP_IRQ_MASK2                            (0xff644000 + (0x1a2 << 2))
+#define   P_PWRCTRL_SPTOP_IRQ_MASK2                            (volatile uint32_t *)(0xff644000 + (0x1a2 << 2))
+#define     PWRCTRL_SPTOP_IRQ_MASK3                            (0xff644000 + (0x1a3 << 2))
+#define SEC_PWRCTRL_SPTOP_IRQ_MASK3                            (0xff644000 + (0x1a3 << 2))
+#define   P_PWRCTRL_SPTOP_IRQ_MASK3                            (volatile uint32_t *)(0xff644000 + (0x1a3 << 2))
+#define     PWRCTRL_SPTOP_IRQ_MASK4                            (0xff644000 + (0x1a4 << 2))
+#define SEC_PWRCTRL_SPTOP_IRQ_MASK4                            (0xff644000 + (0x1a4 << 2))
+#define   P_PWRCTRL_SPTOP_IRQ_MASK4                            (volatile uint32_t *)(0xff644000 + (0x1a4 << 2))
+#define     PWRCTRL_SPTOP_IRQ_MASK5                            (0xff644000 + (0x1a5 << 2))
+#define SEC_PWRCTRL_SPTOP_IRQ_MASK5                            (0xff644000 + (0x1a5 << 2))
+#define   P_PWRCTRL_SPTOP_IRQ_MASK5                            (volatile uint32_t *)(0xff644000 + (0x1a5 << 2))
+#define     PWRCTRL_SPTOP_IRQ_MASK6                            (0xff644000 + (0x1a6 << 2))
+#define SEC_PWRCTRL_SPTOP_IRQ_MASK6                            (0xff644000 + (0x1a6 << 2))
+#define   P_PWRCTRL_SPTOP_IRQ_MASK6                            (volatile uint32_t *)(0xff644000 + (0x1a6 << 2))
+#define     PWRCTRL_SPTOP_IRQ_MASK7                            (0xff644000 + (0x1a7 << 2))
+#define SEC_PWRCTRL_SPTOP_IRQ_MASK7                            (0xff644000 + (0x1a7 << 2))
+#define   P_PWRCTRL_SPTOP_IRQ_MASK7                            (volatile uint32_t *)(0xff644000 + (0x1a7 << 2))
+#define     PWRCTRL_SPTOP_MEMPD_INIT_SET                       (0xff644000 + (0x1b0 << 2))
+#define SEC_PWRCTRL_SPTOP_MEMPD_INIT_SET                       (0xff644000 + (0x1b0 << 2))
+#define   P_PWRCTRL_SPTOP_MEMPD_INIT_SET                       (volatile uint32_t *)(0xff644000 + (0x1b0 << 2))
+#define     PWRCTRL_SPTOP_MEMPD_OFF_SET                        (0xff644000 + (0x1b1 << 2))
+#define SEC_PWRCTRL_SPTOP_MEMPD_OFF_SET                        (0xff644000 + (0x1b1 << 2))
+#define   P_PWRCTRL_SPTOP_MEMPD_OFF_SET                        (volatile uint32_t *)(0xff644000 + (0x1b1 << 2))
+#define     PWRCTRL_SPTOP_MEMPD_ON_A_SET                       (0xff644000 + (0x1b2 << 2))
+#define SEC_PWRCTRL_SPTOP_MEMPD_ON_A_SET                       (0xff644000 + (0x1b2 << 2))
+#define   P_PWRCTRL_SPTOP_MEMPD_ON_A_SET                       (volatile uint32_t *)(0xff644000 + (0x1b2 << 2))
+#define     PWRCTRL_SPTOP_MEMPD_ON_B_SET                       (0xff644000 + (0x1b3 << 2))
+#define SEC_PWRCTRL_SPTOP_MEMPD_ON_B_SET                       (0xff644000 + (0x1b3 << 2))
+#define   P_PWRCTRL_SPTOP_MEMPD_ON_B_SET                       (volatile uint32_t *)(0xff644000 + (0x1b3 << 2))
+#define     PWRCTRL_SPTOP_MEMPD_ON_C_SET                       (0xff644000 + (0x1b4 << 2))
+#define SEC_PWRCTRL_SPTOP_MEMPD_ON_C_SET                       (0xff644000 + (0x1b4 << 2))
+#define   P_PWRCTRL_SPTOP_MEMPD_ON_C_SET                       (volatile uint32_t *)(0xff644000 + (0x1b4 << 2))
+#define     PWRCTRL_SPTOP_MEMPD_ON_D_SET                       (0xff644000 + (0x1b5 << 2))
+#define SEC_PWRCTRL_SPTOP_MEMPD_ON_D_SET                       (0xff644000 + (0x1b5 << 2))
+#define   P_PWRCTRL_SPTOP_MEMPD_ON_D_SET                       (volatile uint32_t *)(0xff644000 + (0x1b5 << 2))
+#define     PWRCTRL_SPTOP_MEMPD_STS                            (0xff644000 + (0x1b6 << 2))
+#define SEC_PWRCTRL_SPTOP_MEMPD_STS                            (0xff644000 + (0x1b6 << 2))
+#define   P_PWRCTRL_SPTOP_MEMPD_STS                            (volatile uint32_t *)(0xff644000 + (0x1b6 << 2))
+#define     PWRCTRL_SPTOP_FSM_STS0                             (0xff644000 + (0x1b7 << 2))
+#define SEC_PWRCTRL_SPTOP_FSM_STS0                             (0xff644000 + (0x1b7 << 2))
+#define   P_PWRCTRL_SPTOP_FSM_STS0                             (volatile uint32_t *)(0xff644000 + (0x1b7 << 2))
+#define     PWRCTRL_SPTOP_FSM_STS1                             (0xff644000 + (0x1b8 << 2))
+#define SEC_PWRCTRL_SPTOP_FSM_STS1                             (0xff644000 + (0x1b8 << 2))
+#define   P_PWRCTRL_SPTOP_FSM_STS1                             (volatile uint32_t *)(0xff644000 + (0x1b8 << 2))
+#define     PWRCTRL_SPTOP_FSM_STS2                             (0xff644000 + (0x1b9 << 2))
+#define SEC_PWRCTRL_SPTOP_FSM_STS2                             (0xff644000 + (0x1b9 << 2))
+#define   P_PWRCTRL_SPTOP_FSM_STS2                             (volatile uint32_t *)(0xff644000 + (0x1b9 << 2))
+#define     PWRCTRL_SPTOP_FSM_START                            (0xff644000 + (0x1be << 2))
+#define SEC_PWRCTRL_SPTOP_FSM_START                            (0xff644000 + (0x1be << 2))
+#define   P_PWRCTRL_SPTOP_FSM_START                            (volatile uint32_t *)(0xff644000 + (0x1be << 2))
+#define     PWRCTRL_SPTOP_FSM_JUMP                             (0xff644000 + (0x1bf << 2))
+#define SEC_PWRCTRL_SPTOP_FSM_JUMP                             (0xff644000 + (0x1bf << 2))
+#define   P_PWRCTRL_SPTOP_FSM_JUMP                             (volatile uint32_t *)(0xff644000 + (0x1bf << 2))
+#define     PWRCTRL_ACCESS_CTRL                                (0xff644000 + (0x1c0 << 2))
+#define SEC_PWRCTRL_ACCESS_CTRL                                (0xff644000 + (0x1c0 << 2))
+#define   P_PWRCTRL_ACCESS_CTRL                                (volatile uint32_t *)(0xff644000 + (0x1c0 << 2))
 //========================================================================
 //  Temp sensor PLL
 //========================================================================
@@ -657,26 +1420,20 @@
 #define SEC_PREG_PAD_GPIO3_I                                   (0xff634400 + (0x01b << 2))
 #define   P_PREG_PAD_GPIO3_I                                   (volatile uint32_t *)(0xff634400 + (0x01b << 2))
 // ----------------------------
-#define     PREG_PAD_GPIO4_EN_N                                (0xff634400 + (0x01c << 2))
-#define SEC_PREG_PAD_GPIO4_EN_N                                (0xff634400 + (0x01c << 2))
-#define   P_PREG_PAD_GPIO4_EN_N                                (volatile uint32_t *)(0xff634400 + (0x01c << 2))
-#define     PREG_PAD_GPIO4_O                                   (0xff634400 + (0x01d << 2))
-#define SEC_PREG_PAD_GPIO4_O                                   (0xff634400 + (0x01d << 2))
-#define   P_PREG_PAD_GPIO4_O                                   (volatile uint32_t *)(0xff634400 + (0x01d << 2))
-#define     PREG_PAD_GPIO4_I                                   (0xff634400 + (0x01e << 2))
-#define SEC_PREG_PAD_GPIO4_I                                   (0xff634400 + (0x01e << 2))
-#define   P_PREG_PAD_GPIO4_I                                   (volatile uint32_t *)(0xff634400 + (0x01e << 2))
+//`define PREG_PAD_GPIO4_EN_N                     8'h1c
+//`define PREG_PAD_GPIO4_O                        8'h1d
+//`define PREG_PAD_GPIO4_I                        8'h1e
 // ----------------------------
-#define     PREG_PAD_GPIO5_EN_N                                (0xff634400 + (0x020 << 2))
-#define SEC_PREG_PAD_GPIO5_EN_N                                (0xff634400 + (0x020 << 2))
-#define   P_PREG_PAD_GPIO5_EN_N                                (volatile uint32_t *)(0xff634400 + (0x020 << 2))
-#define     PREG_PAD_GPIO5_O                                   (0xff634400 + (0x021 << 2))
-#define SEC_PREG_PAD_GPIO5_O                                   (0xff634400 + (0x021 << 2))
-#define   P_PREG_PAD_GPIO5_O                                   (volatile uint32_t *)(0xff634400 + (0x021 << 2))
-#define     PREG_PAD_GPIO5_I                                   (0xff634400 + (0x022 << 2))
-#define SEC_PREG_PAD_GPIO5_I                                   (0xff634400 + (0x022 << 2))
-#define   P_PREG_PAD_GPIO5_I                                   (volatile uint32_t *)(0xff634400 + (0x022 << 2))
+//`define PREG_PAD_GPIO5_EN_N                     8'h20
+//`define PREG_PAD_GPIO5_O                        8'h21
+//`define PREG_PAD_GPIO5_I                        8'h22
 // ----------------------------
+#define     PREG_PAD_ANALOG_EN                                 (0xff634400 + (0x023 << 2))
+#define SEC_PREG_PAD_ANALOG_EN                                 (0xff634400 + (0x023 << 2))
+#define   P_PREG_PAD_ANALOG_EN                                 (volatile uint32_t *)(0xff634400 + (0x023 << 2))
+#define     PREG_PAD_ANALOG_I                                  (0xff634400 + (0x024 << 2))
+#define SEC_PREG_PAD_ANALOG_I                                  (0xff634400 + (0x024 << 2))
+#define   P_PREG_PAD_ANALOG_I                                  (volatile uint32_t *)(0xff634400 + (0x024 << 2))
 // ----------------------------
 // Pad conntrols
 // ----------------------------
@@ -764,9 +1521,18 @@
 #define     PREG_ETH_REG3                                      (0xff634400 + (0x057 << 2))
 #define SEC_PREG_ETH_REG3                                      (0xff634400 + (0x057 << 2))
 #define   P_PREG_ETH_REG3                                      (volatile uint32_t *)(0xff634400 + (0x057 << 2))
-#define     PREG_ETH_REG4                                      (0xff634400 + (0x058 << 2))
-#define SEC_PREG_ETH_REG4                                      (0xff634400 + (0x058 << 2))
-#define   P_PREG_ETH_REG4                                      (volatile uint32_t *)(0xff634400 + (0x058 << 2))
+#define     PREG_ETH_STS0                                      (0xff634400 + (0x058 << 2))
+#define SEC_PREG_ETH_STS0                                      (0xff634400 + (0x058 << 2))
+#define   P_PREG_ETH_STS0                                      (volatile uint32_t *)(0xff634400 + (0x058 << 2))
+#define     PREG_ETH_STS1                                      (0xff634400 + (0x059 << 2))
+#define SEC_PREG_ETH_STS1                                      (0xff634400 + (0x059 << 2))
+#define   P_PREG_ETH_STS1                                      (volatile uint32_t *)(0xff634400 + (0x059 << 2))
+#define     PREG_ETH_STS2                                      (0xff634400 + (0x05a << 2))
+#define SEC_PREG_ETH_STS2                                      (0xff634400 + (0x05a << 2))
+#define   P_PREG_ETH_STS2                                      (volatile uint32_t *)(0xff634400 + (0x05a << 2))
+#define     PREG_ETH_STS3                                      (0xff634400 + (0x05b << 2))
+#define SEC_PREG_ETH_STS3                                      (0xff634400 + (0x05b << 2))
+#define   P_PREG_ETH_STS3                                      (volatile uint32_t *)(0xff634400 + (0x05b << 2))
 // ---------------------------
 // Generic production test
 // ----------------------------
@@ -1177,6 +1943,119 @@
 #define SEC_RESET2_SEC_MASK                                    (0xff64e000 + (0x022 << 2))
 #define   P_RESET2_SEC_MASK                                    (volatile uint32_t *)(0xff64e000 + (0x022 << 2))
 //========================================================================
+//  CLOCK TREE - Registers
+//========================================================================
+//  APB4_DECODER_NON_SECURE_BASE     32'hFF646000
+//  APB4_DECODER_SECURE_BASE         32'hFF646000
+#define     HHI_CHECK_CLK_RESULT                               (0xff646000 + (0x004 << 2))
+#define SEC_HHI_CHECK_CLK_RESULT                               (0xff646000 + (0x004 << 2))
+#define   P_HHI_CHECK_CLK_RESULT                               (volatile uint32_t *)(0xff646000 + (0x004 << 2))
+#define     HHI_VIID_CLK_DIV                                   (0xff646000 + (0x04a << 2))
+#define SEC_HHI_VIID_CLK_DIV                                   (0xff646000 + (0x04a << 2))
+#define   P_HHI_VIID_CLK_DIV                                   (volatile uint32_t *)(0xff646000 + (0x04a << 2))
+#define     HHI_VIID_CLK_CNTL                                  (0xff646000 + (0x04b << 2))
+#define SEC_HHI_VIID_CLK_CNTL                                  (0xff646000 + (0x04b << 2))
+#define   P_HHI_VIID_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x04b << 2))
+#define     HHI_VID_CLK_DIV                                    (0xff646000 + (0x059 << 2))
+#define SEC_HHI_VID_CLK_DIV                                    (0xff646000 + (0x059 << 2))
+#define   P_HHI_VID_CLK_DIV                                    (volatile uint32_t *)(0xff646000 + (0x059 << 2))
+#define     HHI_MPEG_CLK_CNTL                                  (0xff646000 + (0x05d << 2))
+#define SEC_HHI_MPEG_CLK_CNTL                                  (0xff646000 + (0x05d << 2))
+#define   P_HHI_MPEG_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x05d << 2))
+#define     HHI_VID_CLK_CNTL                                   (0xff646000 + (0x05f << 2))
+#define SEC_HHI_VID_CLK_CNTL                                   (0xff646000 + (0x05f << 2))
+#define   P_HHI_VID_CLK_CNTL                                   (volatile uint32_t *)(0xff646000 + (0x05f << 2))
+#define     HHI_TS_CLK_CNTL                                    (0xff646000 + (0x064 << 2))
+#define SEC_HHI_TS_CLK_CNTL                                    (0xff646000 + (0x064 << 2))
+#define   P_HHI_TS_CLK_CNTL                                    (volatile uint32_t *)(0xff646000 + (0x064 << 2))
+#define     HHI_VID_CLK_CNTL2                                  (0xff646000 + (0x065 << 2))
+#define SEC_HHI_VID_CLK_CNTL2                                  (0xff646000 + (0x065 << 2))
+#define   P_HHI_VID_CLK_CNTL2                                  (volatile uint32_t *)(0xff646000 + (0x065 << 2))
+#define     HHI_MALI_CLK_CNTL                                  (0xff646000 + (0x06c << 2))
+#define SEC_HHI_MALI_CLK_CNTL                                  (0xff646000 + (0x06c << 2))
+#define   P_HHI_MALI_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x06c << 2))
+#define     HHI_VPU_CLKC_CNTL                                  (0xff646000 + (0x06d << 2))
+#define SEC_HHI_VPU_CLKC_CNTL                                  (0xff646000 + (0x06d << 2))
+#define   P_HHI_VPU_CLKC_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x06d << 2))
+#define     HHI_VPU_CLK_CNTL                                   (0xff646000 + (0x06f << 2))
+#define SEC_HHI_VPU_CLK_CNTL                                   (0xff646000 + (0x06f << 2))
+#define   P_HHI_VPU_CLK_CNTL                                   (volatile uint32_t *)(0xff646000 + (0x06f << 2))
+#define     HHI_HDMI_CLK_CNTL                                  (0xff646000 + (0x073 << 2))
+#define SEC_HHI_HDMI_CLK_CNTL                                  (0xff646000 + (0x073 << 2))
+#define   P_HHI_HDMI_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x073 << 2))
+#define     HHI_DEMOD_CLK_CNTL                                 (0xff646000 + (0x074 << 2))
+#define SEC_HHI_DEMOD_CLK_CNTL                                 (0xff646000 + (0x074 << 2))
+#define   P_HHI_DEMOD_CLK_CNTL                                 (volatile uint32_t *)(0xff646000 + (0x074 << 2))
+#define     HHI_ETH_CLK_CNTL                                   (0xff646000 + (0x076 << 2))
+#define SEC_HHI_ETH_CLK_CNTL                                   (0xff646000 + (0x076 << 2))
+#define   P_HHI_ETH_CLK_CNTL                                   (volatile uint32_t *)(0xff646000 + (0x076 << 2))
+#define     HHI_VDEC_CLK_CNTL                                  (0xff646000 + (0x078 << 2))
+#define SEC_HHI_VDEC_CLK_CNTL                                  (0xff646000 + (0x078 << 2))
+#define   P_HHI_VDEC_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x078 << 2))
+#define     HHI_VDEC2_CLK_CNTL                                 (0xff646000 + (0x079 << 2))
+#define SEC_HHI_VDEC2_CLK_CNTL                                 (0xff646000 + (0x079 << 2))
+#define   P_HHI_VDEC2_CLK_CNTL                                 (volatile uint32_t *)(0xff646000 + (0x079 << 2))
+#define     HHI_VDEC3_CLK_CNTL                                 (0xff646000 + (0x07a << 2))
+#define SEC_HHI_VDEC3_CLK_CNTL                                 (0xff646000 + (0x07a << 2))
+#define   P_HHI_VDEC3_CLK_CNTL                                 (volatile uint32_t *)(0xff646000 + (0x07a << 2))
+#define     HHI_VDEC4_CLK_CNTL                                 (0xff646000 + (0x07b << 2))
+#define SEC_HHI_VDEC4_CLK_CNTL                                 (0xff646000 + (0x07b << 2))
+#define   P_HHI_VDEC4_CLK_CNTL                                 (volatile uint32_t *)(0xff646000 + (0x07b << 2))
+#define     HHI_HDCP22_CLK_CNTL                                (0xff646000 + (0x07c << 2))
+#define SEC_HHI_HDCP22_CLK_CNTL                                (0xff646000 + (0x07c << 2))
+#define   P_HHI_HDCP22_CLK_CNTL                                (volatile uint32_t *)(0xff646000 + (0x07c << 2))
+#define     HHI_VAPBCLK_CNTL                                   (0xff646000 + (0x07d << 2))
+#define SEC_HHI_VAPBCLK_CNTL                                   (0xff646000 + (0x07d << 2))
+#define   P_HHI_VAPBCLK_CNTL                                   (volatile uint32_t *)(0xff646000 + (0x07d << 2))
+#define     HHI_HDMIRX_CLK_CNTL                                (0xff646000 + (0x080 << 2))
+#define SEC_HHI_HDMIRX_CLK_CNTL                                (0xff646000 + (0x080 << 2))
+#define   P_HHI_HDMIRX_CLK_CNTL                                (volatile uint32_t *)(0xff646000 + (0x080 << 2))
+#define     HHI_HDMIRX_AUD_CLK_CNTL                            (0xff646000 + (0x081 << 2))
+#define SEC_HHI_HDMIRX_AUD_CLK_CNTL                            (0xff646000 + (0x081 << 2))
+#define   P_HHI_HDMIRX_AUD_CLK_CNTL                            (volatile uint32_t *)(0xff646000 + (0x081 << 2))
+#define     HHI_VPU_CLKB_CNTL                                  (0xff646000 + (0x083 << 2))
+#define SEC_HHI_VPU_CLKB_CNTL                                  (0xff646000 + (0x083 << 2))
+#define   P_HHI_VPU_CLKB_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x083 << 2))
+#define     HHI_GEN_CLK_CNTL                                   (0xff646000 + (0x08a << 2))
+#define SEC_HHI_GEN_CLK_CNTL                                   (0xff646000 + (0x08a << 2))
+#define   P_HHI_GEN_CLK_CNTL                                   (volatile uint32_t *)(0xff646000 + (0x08a << 2))
+#define     HHI_AUDPLL_CLK_OUT_CNTL                            (0xff646000 + (0x08c << 2))
+#define SEC_HHI_AUDPLL_CLK_OUT_CNTL                            (0xff646000 + (0x08c << 2))
+#define   P_HHI_AUDPLL_CLK_OUT_CNTL                            (volatile uint32_t *)(0xff646000 + (0x08c << 2))
+#define     HHI_HDMIRX_METER_CLK_CNTL                          (0xff646000 + (0x08d << 2))
+#define SEC_HHI_HDMIRX_METER_CLK_CNTL                          (0xff646000 + (0x08d << 2))
+#define   P_HHI_HDMIRX_METER_CLK_CNTL                          (volatile uint32_t *)(0xff646000 + (0x08d << 2))
+#define     HHI_VDIN_MEAS_CLK_CNTL                             (0xff646000 + (0x094 << 2))
+#define SEC_HHI_VDIN_MEAS_CLK_CNTL                             (0xff646000 + (0x094 << 2))
+#define   P_HHI_VDIN_MEAS_CLK_CNTL                             (volatile uint32_t *)(0xff646000 + (0x094 << 2))
+#define     HHI_NAND_CLK_CNTL                                  (0xff646000 + (0x097 << 2))
+#define SEC_HHI_NAND_CLK_CNTL                                  (0xff646000 + (0x097 << 2))
+#define   P_HHI_NAND_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x097 << 2))
+#define     HHI_SD_EMMC_CLK_CNTL                               (0xff646000 + (0x099 << 2))
+#define SEC_HHI_SD_EMMC_CLK_CNTL                               (0xff646000 + (0x099 << 2))
+#define   P_HHI_SD_EMMC_CLK_CNTL                               (volatile uint32_t *)(0xff646000 + (0x099 << 2))
+#define     HHI_TCON_CLK_CNTL                                  (0xff646000 + (0x09c << 2))
+#define SEC_HHI_TCON_CLK_CNTL                                  (0xff646000 + (0x09c << 2))
+#define   P_HHI_TCON_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x09c << 2))
+#define     HHI_HDMI_AXI_CLK_CNTL                              (0xff646000 + (0x0b8 << 2))
+#define SEC_HHI_HDMI_AXI_CLK_CNTL                              (0xff646000 + (0x0b8 << 2))
+#define   P_HHI_HDMI_AXI_CLK_CNTL                              (volatile uint32_t *)(0xff646000 + (0x0b8 << 2))
+#define     HHI_VID_LOCK_CLK_CNTL                              (0xff646000 + (0x0f2 << 2))
+#define SEC_HHI_VID_LOCK_CLK_CNTL                              (0xff646000 + (0x0f2 << 2))
+#define   P_HHI_VID_LOCK_CLK_CNTL                              (volatile uint32_t *)(0xff646000 + (0x0f2 << 2))
+#define     HHI_ATV_DMD_SYS_CLK_CNTL                           (0xff646000 + (0x0f3 << 2))
+#define SEC_HHI_ATV_DMD_SYS_CLK_CNTL                           (0xff646000 + (0x0f3 << 2))
+#define   P_HHI_ATV_DMD_SYS_CLK_CNTL                           (volatile uint32_t *)(0xff646000 + (0x0f3 << 2))
+#define     HHI_BT656_CLK_CNTL                                 (0xff646000 + (0x0f5 << 2))
+#define SEC_HHI_BT656_CLK_CNTL                                 (0xff646000 + (0x0f5 << 2))
+#define   P_HHI_BT656_CLK_CNTL                                 (volatile uint32_t *)(0xff646000 + (0x0f5 << 2))
+#define     HHI_CDAC_CLK_CNTL                                  (0xff646000 + (0x0f6 << 2))
+#define SEC_HHI_CDAC_CLK_CNTL                                  (0xff646000 + (0x0f6 << 2))
+#define   P_HHI_CDAC_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x0f6 << 2))
+#define     HHI_SPICC_CLK_CNTL                                 (0xff646000 + (0x0f7 << 2))
+#define SEC_HHI_SPICC_CLK_CNTL                                 (0xff646000 + (0x0f7 << 2))
+#define   P_HHI_SPICC_CLK_CNTL                                 (volatile uint32_t *)(0xff646000 + (0x0f7 << 2))
+//========================================================================
 //  HIU - Registers
 //========================================================================
 // APB4_DECODER_NON_SECURE_BASE     32'hFF63C000
@@ -1185,9 +2064,6 @@
 //`define HHI_MIPI_CNTL1        8'h01
 //`define HHI_MIPI_CNTL2        8'h02
 //`define HHI_MIPI_STS          8'h03
-#define     HHI_CHECK_CLK_RESULT                               (0xff63c000 + (0x004 << 2))
-#define SEC_HHI_CHECK_CLK_RESULT                               (0xff63c000 + (0x004 << 2))
-#define   P_HHI_CHECK_CLK_RESULT                               (volatile uint32_t *)(0xff63c000 + (0x004 << 2))
 #define     HHI_HDMI_PHY_CNTL0                                 (0xff63c000 + (0x005 << 2))
 #define SEC_HHI_HDMI_PHY_CNTL0                                 (0xff63c000 + (0x005 << 2))
 #define   P_HHI_HDMI_PHY_CNTL0                                 (volatile uint32_t *)(0xff63c000 + (0x005 << 2))
@@ -1333,9 +2209,7 @@
 #define SEC_HHI_GCLK2_OTHER                                    (0xff63c000 + (0x034 << 2))
 #define   P_HHI_GCLK2_OTHER                                    (volatile uint32_t *)(0xff63c000 + (0x034 << 2))
 //`define HHI_GCLK2_AO           8'h35
-#define     HHI_MEM_PD_REG1                                    (0xff63c000 + (0x035 << 2))
-#define SEC_HHI_MEM_PD_REG1                                    (0xff63c000 + (0x035 << 2))
-#define   P_HHI_MEM_PD_REG1                                    (volatile uint32_t *)(0xff63c000 + (0x035 << 2))
+//`define HHI_MEM_PD_REG1         8'h35
 #define     HHI_HIFI_PLL_CNTL0                                 (0xff63c000 + (0x036 << 2))
 #define SEC_HHI_HIFI_PLL_CNTL0                                 (0xff63c000 + (0x036 << 2))
 #define   P_HHI_HIFI_PLL_CNTL0                                 (volatile uint32_t *)(0xff63c000 + (0x036 << 2))
@@ -1383,9 +2257,7 @@
 //bit 5:4   mem_pd_vi_vd1,    2'b00: vd1 memory power on, 2'b11: power down
 //bit 3:2   mem_pd_vi_osd2,   2'b00: osd2 memory power on, 2'b11: power down
 //bit 1:0   mem_pd_vi_osd1,   2'b00: osd1 memory power on, 2'b11: power down
-#define     HHI_VPU_MEM_PD_REG0                                (0xff63c000 + (0x041 << 2))
-#define SEC_HHI_VPU_MEM_PD_REG0                                (0xff63c000 + (0x041 << 2))
-#define   P_HHI_VPU_MEM_PD_REG0                                (volatile uint32_t *)(0xff63c000 + (0x041 << 2))
+//`define HHI_VPU_MEM_PD_REG0     8'h41
 //bit 29:28 mem_pd_atv_dmd,   2'b00: ATV DMD memory power on, 2'b11: power down
 //bit 29:28 mem_pd_cvd2,      2'b00: CVD2 memory power on, 2'b11: power down
 //bit 27:26 mem_pd_isp,       2'b00: ISP memory power on, 2'b11: power down
@@ -1399,46 +2271,26 @@
 //bit 5:4   mem_pd_vi2_vd1,   2'b00: viu2 vd1 memory power on, 2'b11: power down
 //bit 3:2   mem_pd_vi2_osd2,  2'b00: viu2 osd2 memory power on, 2'b11: power down
 //bit 1:0   mem_pd_vi2_osd1,  2'b00: viu2 osd1 memory power on, 2'b11: power down
-#define     HHI_VPU_MEM_PD_REG1                                (0xff63c000 + (0x042 << 2))
-#define SEC_HHI_VPU_MEM_PD_REG1                                (0xff63c000 + (0x042 << 2))
-#define   P_HHI_VPU_MEM_PD_REG1                                (volatile uint32_t *)(0xff63c000 + (0x042 << 2))
-#define     HHI_DEMOD_MEM_PD_REG                               (0xff63c000 + (0x043 << 2))
-#define SEC_HHI_DEMOD_MEM_PD_REG                               (0xff63c000 + (0x043 << 2))
-#define   P_HHI_DEMOD_MEM_PD_REG                               (volatile uint32_t *)(0xff63c000 + (0x043 << 2))
-#define     HHI_DSP_MEM_PD_REG0                                (0xff63c000 + (0x044 << 2))
-#define SEC_HHI_DSP_MEM_PD_REG0                                (0xff63c000 + (0x044 << 2))
-#define   P_HHI_DSP_MEM_PD_REG0                                (volatile uint32_t *)(0xff63c000 + (0x044 << 2))
+//`define HHI_VPU_MEM_PD_REG1     8'h42
+//`define HHI_DEMOD_MEM_PD_REG     8'h43
+//`define HHI_DSP_MEM_PD_REG0    8'h44
 //`define HHI_AUD_DAC_CTRL          8'h44
-#define     HHI_AUDIO_MEM_PD_REG0                              (0xff63c000 + (0x045 << 2))
-#define SEC_HHI_AUDIO_MEM_PD_REG0                              (0xff63c000 + (0x045 << 2))
-#define   P_HHI_AUDIO_MEM_PD_REG0                              (volatile uint32_t *)(0xff63c000 + (0x045 << 2))
-#define     HHI_NANOQ_MEM_PD_REG0                              (0xff63c000 + (0x046 << 2))
-#define SEC_HHI_NANOQ_MEM_PD_REG0                              (0xff63c000 + (0x046 << 2))
-#define   P_HHI_NANOQ_MEM_PD_REG0                              (volatile uint32_t *)(0xff63c000 + (0x046 << 2))
-#define     HHI_NANOQ_MEM_PD_REG1                              (0xff63c000 + (0x047 << 2))
-#define SEC_HHI_NANOQ_MEM_PD_REG1                              (0xff63c000 + (0x047 << 2))
-#define   P_HHI_NANOQ_MEM_PD_REG1                              (volatile uint32_t *)(0xff63c000 + (0x047 << 2))
+//`define HHI_AUDIO_MEM_PD_REG0         8'h45
+//`define HHI_NANOQ_MEM_PD_REG0   8'h46
+//`define HHI_NANOQ_MEM_PD_REG1   8'h47
 // `define HHI_VIID_PLL_CNTL4      8'h46 // video PLL read back
 // `define HHI_VIID_PLL_CNTL       8'h47 // Video PLL control, word 1
 // `define HHI_VIID_PLL_CNTL2      8'h48 // Video PLL control, word 2
 // `define HHI_VIID_PLL_CNTL3      8'h49 // Video PLL control, word 3
-#define     HHI_VIID_CLK_DIV                                   (0xff63c000 + (0x04a << 2))
-#define SEC_HHI_VIID_CLK_DIV                                   (0xff63c000 + (0x04a << 2))
-#define   P_HHI_VIID_CLK_DIV                                   (volatile uint32_t *)(0xff63c000 + (0x04a << 2))
-#define     HHI_VIID_CLK_CNTL                                  (0xff63c000 + (0x04b << 2))
-#define SEC_HHI_VIID_CLK_CNTL                                  (0xff63c000 + (0x04b << 2))
-#define   P_HHI_VIID_CLK_CNTL                                  (volatile uint32_t *)(0xff63c000 + (0x04b << 2))
+//`define HHI_VIID_CLK_DIV        8'h4a // video clock control
+//`define HHI_VIID_CLK_CNTL       8'h4b // video clock control
 //`define HHI_VIID_DIVIDER_CNTL   8'h4c
 //bit 1:0   mem_pd_vi_wm,  2'b00: viu1 wm memory power on, 2'b11: power down
-#define     HHI_VPU_MEM_PD_REG4                                (0xff63c000 + (0x04c << 2))
-#define SEC_HHI_VPU_MEM_PD_REG4                                (0xff63c000 + (0x04c << 2))
-#define   P_HHI_VPU_MEM_PD_REG4                                (volatile uint32_t *)(0xff63c000 + (0x04c << 2))
+//`define HHI_VPU_MEM_PD_REG4     8'h4c
 #define     HHI_VPU_MEM_PD_REG2                                (0xff63c000 + (0x04d << 2))
 #define SEC_HHI_VPU_MEM_PD_REG2                                (0xff63c000 + (0x04d << 2))
 #define   P_HHI_VPU_MEM_PD_REG2                                (volatile uint32_t *)(0xff63c000 + (0x04d << 2))
-#define     HHI_VPU_MEM_PD_REG3                                (0xff63c000 + (0x04e << 2))
-#define SEC_HHI_VPU_MEM_PD_REG3                                (0xff63c000 + (0x04e << 2))
-#define   P_HHI_VPU_MEM_PD_REG3                                (volatile uint32_t *)(0xff63c000 + (0x04e << 2))
+//`define HHI_VPU_MEM_PD_REG3     8'h4e
 // Gated clock enables.  There are 64 enables for the MPEG clocks and 32 enables for other clock domains
 #define     HHI_GCLK_LOCK                                      (0xff63c000 + (0x04f << 2))
 #define SEC_HHI_GCLK_LOCK                                      (0xff63c000 + (0x04f << 2))
@@ -1466,9 +2318,7 @@
 #define SEC_HHI_SYS_CPU_RESET_CNTL                             (0xff63c000 + (0x058 << 2))
 #define   P_HHI_SYS_CPU_RESET_CNTL                             (volatile uint32_t *)(0xff63c000 + (0x058 << 2))
 // PLL Controls
-#define     HHI_VID_CLK_DIV                                    (0xff63c000 + (0x059 << 2))
-#define SEC_HHI_VID_CLK_DIV                                    (0xff63c000 + (0x059 << 2))
-#define   P_HHI_VID_CLK_DIV                                    (volatile uint32_t *)(0xff63c000 + (0x059 << 2))
+//`define HHI_VID_CLK_DIV         8'h59 // video clock control
 #define     HHI_PCIE0_PLL_CNTL4                                (0xff63c000 + (0x05a << 2))
 #define SEC_HHI_PCIE0_PLL_CNTL4                                (0xff63c000 + (0x05a << 2))
 #define   P_HHI_PCIE0_PLL_CNTL4                                (volatile uint32_t *)(0xff63c000 + (0x05a << 2))
@@ -1478,22 +2328,14 @@
 #define     HHI_PCIE0_PLL_STS                                  (0xff63c000 + (0x05c << 2))
 #define SEC_HHI_PCIE0_PLL_STS                                  (0xff63c000 + (0x05c << 2))
 #define   P_HHI_PCIE0_PLL_STS                                  (volatile uint32_t *)(0xff63c000 + (0x05c << 2))
-#define     HHI_MPEG_CLK_CNTL                                  (0xff63c000 + (0x05d << 2))
-#define SEC_HHI_MPEG_CLK_CNTL                                  (0xff63c000 + (0x05d << 2))
-#define   P_HHI_MPEG_CLK_CNTL                                  (volatile uint32_t *)(0xff63c000 + (0x05d << 2))
-#define     HHI_VID_CLK_CNTL                                   (0xff63c000 + (0x05f << 2))
-#define SEC_HHI_VID_CLK_CNTL                                   (0xff63c000 + (0x05f << 2))
-#define   P_HHI_VID_CLK_CNTL                                   (volatile uint32_t *)(0xff63c000 + (0x05f << 2))
+//`define HHI_MPEG_CLK_CNTL       8'h5d // MPEG clock control
+//`define HHI_VID_CLK_CNTL        8'h5f // video clock control
 //`define HHI_WIFI_CLK_CNTL       8'h60 // MPEG clock control
 //`define HHI_WIFI_PLL_CNTL       8'h61 // WIFI PLL control, word 1
 //`define HHI_WIFI_PLL_CNTL2      8'h62 // WIFI PLL control, word 2
 //`define HHI_WIFI_PLL_CNTL3      8'h63 // WIFI PLL control, word 3
-#define     HHI_TS_CLK_CNTL                                    (0xff63c000 + (0x064 << 2))
-#define SEC_HHI_TS_CLK_CNTL                                    (0xff63c000 + (0x064 << 2))
-#define   P_HHI_TS_CLK_CNTL                                    (volatile uint32_t *)(0xff63c000 + (0x064 << 2))
-#define     HHI_VID_CLK_CNTL2                                  (0xff63c000 + (0x065 << 2))
-#define SEC_HHI_VID_CLK_CNTL2                                  (0xff63c000 + (0x065 << 2))
-#define   P_HHI_VID_CLK_CNTL2                                  (volatile uint32_t *)(0xff63c000 + (0x065 << 2))
+//`define HHI_TS_CLK_CNTL         8'h64
+//`define HHI_VID_CLK_CNTL2       8'h65 // video clock control
 //`define HHI_VID_DIVIDER_CNTL    8'h66
 #define     HHI_SYS_CPU_CLK_CNTL                               (0xff63c000 + (0x067 << 2))
 #define SEC_HHI_SYS_CPU_CLK_CNTL                               (0xff63c000 + (0x067 << 2))
@@ -1501,27 +2343,17 @@
 #define     HHI_VID_PLL_CLK_DIV                                (0xff63c000 + (0x068 << 2))
 #define SEC_HHI_VID_PLL_CLK_DIV                                (0xff63c000 + (0x068 << 2))
 #define   P_HHI_VID_PLL_CLK_DIV                                (volatile uint32_t *)(0xff63c000 + (0x068 << 2))
-#define     HHI_HDMIRX_EARCTX_CNTL0                            (0xff63c000 + (0x069 << 2))
-#define SEC_HHI_HDMIRX_EARCTX_CNTL0                            (0xff63c000 + (0x069 << 2))
-#define   P_HHI_HDMIRX_EARCTX_CNTL0                            (volatile uint32_t *)(0xff63c000 + (0x069 << 2))
-#define     HHI_HDMIRX_EARCTX_CNTL1                            (0xff63c000 + (0x06a << 2))
-#define SEC_HHI_HDMIRX_EARCTX_CNTL1                            (0xff63c000 + (0x06a << 2))
-#define   P_HHI_HDMIRX_EARCTX_CNTL1                            (volatile uint32_t *)(0xff63c000 + (0x06a << 2))
+//`define HHI_HDMIRX_EARCTX_CNTL0     8'h69
+//`define HHI_HDMIRX_EARCTX_CNTL1     8'h6a
 // Moved to Martin's domain `define HHI_DDR_PLL_CNTL        8'h68 // DDR PLL control, word 1
 // Moved to Martin's domain `define HHI_DDR_PLL_CNTL2       8'h69 // DDR PLL control, word 2
 // Moved to Martin's domain `define HHI_DDR_PLL_CNTL3       8'h6a // DDR PLL control, word 3
 // Moved to Martin's domain `define HHI_DDR_PLL_CNTL4       8'h6b // DDR PLL control, word 3
 //`define HHI_DSP_CLK_CNTL        8'h6b
-#define     HHI_MALI_CLK_CNTL                                  (0xff63c000 + (0x06c << 2))
-#define SEC_HHI_MALI_CLK_CNTL                                  (0xff63c000 + (0x06c << 2))
-#define   P_HHI_MALI_CLK_CNTL                                  (volatile uint32_t *)(0xff63c000 + (0x06c << 2))
-#define     HHI_VPU_CLKC_CNTL                                  (0xff63c000 + (0x06d << 2))
-#define SEC_HHI_VPU_CLKC_CNTL                                  (0xff63c000 + (0x06d << 2))
-#define   P_HHI_VPU_CLKC_CNTL                                  (volatile uint32_t *)(0xff63c000 + (0x06d << 2))
+//`define HHI_MALI_CLK_CNTL       8'h6c
+//`define HHI_VPU_CLKC_CNTL       8'h6d
 //`define HHI_MIPI_PHY_CLK_CNTL   8'h6e
-#define     HHI_VPU_CLK_CNTL                                   (0xff63c000 + (0x06f << 2))
-#define SEC_HHI_VPU_CLK_CNTL                                   (0xff63c000 + (0x06f << 2))
-#define   P_HHI_VPU_CLK_CNTL                                   (volatile uint32_t *)(0xff63c000 + (0x06f << 2))
+//`define HHI_VPU_CLK_CNTL        8'h6f
 #define     HHI_VIPNANOQ_CNTL                                  (0xff63c000 + (0x071 << 2))
 #define SEC_HHI_VIPNANOQ_CNTL                                  (0xff63c000 + (0x071 << 2))
 #define   P_HHI_VIPNANOQ_CNTL                                  (volatile uint32_t *)(0xff63c000 + (0x071 << 2))
@@ -1531,51 +2363,27 @@
 //`define HHI_OTHER_PLL_CNTL      8'h70 // OTHER PLL control, word 1
 //`define HHI_OTHER_PLL_CNTL2     8'h71 // OTHER PLL control, word 2
 //`define HHI_OTHER_PLL_CNTL3     8'h72 // OTHER PLL control, word 3
-#define     HHI_HDMI_CLK_CNTL                                  (0xff63c000 + (0x073 << 2))
-#define SEC_HHI_HDMI_CLK_CNTL                                  (0xff63c000 + (0x073 << 2))
-#define   P_HHI_HDMI_CLK_CNTL                                  (volatile uint32_t *)(0xff63c000 + (0x073 << 2))
-#define     HHI_DEMOD_CLK_CNTL                                 (0xff63c000 + (0x074 << 2))
-#define SEC_HHI_DEMOD_CLK_CNTL                                 (0xff63c000 + (0x074 << 2))
-#define   P_HHI_DEMOD_CLK_CNTL                                 (volatile uint32_t *)(0xff63c000 + (0x074 << 2))
+//`define HHI_HDMI_CLK_CNTL       8'h73 // HDMI clock control
+//`define HHI_DEMOD_CLK_CNTL      8'h74 // DEMOD clock control
 //`define HHI_SATA_CLK_CNTL       8'h75 // SATA clock control
-#define     HHI_ETH_CLK_CNTL                                   (0xff63c000 + (0x076 << 2))
-#define SEC_HHI_ETH_CLK_CNTL                                   (0xff63c000 + (0x076 << 2))
-#define   P_HHI_ETH_CLK_CNTL                                   (volatile uint32_t *)(0xff63c000 + (0x076 << 2))
+//`define HHI_ETH_CLK_CNTL        8'h76 // Ethernet clock control
 //`define HHI_CLK_DOUBLE_CNTL     8'h77 // Ethernet clock control
-#define     HHI_VDEC_CLK_CNTL                                  (0xff63c000 + (0x078 << 2))
-#define SEC_HHI_VDEC_CLK_CNTL                                  (0xff63c000 + (0x078 << 2))
-#define   P_HHI_VDEC_CLK_CNTL                                  (volatile uint32_t *)(0xff63c000 + (0x078 << 2))
-#define     HHI_VDEC2_CLK_CNTL                                 (0xff63c000 + (0x079 << 2))
-#define SEC_HHI_VDEC2_CLK_CNTL                                 (0xff63c000 + (0x079 << 2))
-#define   P_HHI_VDEC2_CLK_CNTL                                 (volatile uint32_t *)(0xff63c000 + (0x079 << 2))
-#define     HHI_VDEC3_CLK_CNTL                                 (0xff63c000 + (0x07a << 2))
-#define SEC_HHI_VDEC3_CLK_CNTL                                 (0xff63c000 + (0x07a << 2))
-#define   P_HHI_VDEC3_CLK_CNTL                                 (volatile uint32_t *)(0xff63c000 + (0x07a << 2))
-#define     HHI_VDEC4_CLK_CNTL                                 (0xff63c000 + (0x07b << 2))
-#define SEC_HHI_VDEC4_CLK_CNTL                                 (0xff63c000 + (0x07b << 2))
-#define   P_HHI_VDEC4_CLK_CNTL                                 (volatile uint32_t *)(0xff63c000 + (0x07b << 2))
-#define     HHI_HDCP22_CLK_CNTL                                (0xff63c000 + (0x07c << 2))
-#define SEC_HHI_HDCP22_CLK_CNTL                                (0xff63c000 + (0x07c << 2))
-#define   P_HHI_HDCP22_CLK_CNTL                                (volatile uint32_t *)(0xff63c000 + (0x07c << 2))
-#define     HHI_VAPBCLK_CNTL                                   (0xff63c000 + (0x07d << 2))
-#define SEC_HHI_VAPBCLK_CNTL                                   (0xff63c000 + (0x07d << 2))
-#define   P_HHI_VAPBCLK_CNTL                                   (volatile uint32_t *)(0xff63c000 + (0x07d << 2))
+//`define HHI_VDEC_CLK_CNTL       8'h78
+//`define HHI_VDEC2_CLK_CNTL      8'h79
+//`define HHI_VDEC3_CLK_CNTL      8'h7a
+//`define HHI_VDEC4_CLK_CNTL      8'h7b
+//`define HHI_HDCP22_CLK_CNTL     8'h7c // HDMI HDCP2.2 clock control
+//`define HHI_VAPBCLK_CNTL        8'h7d
 //`define HHI_VP9DEC_CLK_CNTL     8'h7e
 // `define HHI_SYS_CPU_AUTO_CLK0        8'h78   never used
 // `define HHI_SYS_CPU_AUTO_CLK1        8'h79   never used
 // `define HHI_MEDIA_CPU_AUTO_CLK0    8'h7a     never used
 // `define HHI_MEDIA_CPU_AUTO_CLK1    8'h7b     never used
 //`define HHI_HDMI_AFC_CNTL       8'h7f
-#define     HHI_HDMIRX_CLK_CNTL                                (0xff63c000 + (0x080 << 2))
-#define SEC_HHI_HDMIRX_CLK_CNTL                                (0xff63c000 + (0x080 << 2))
-#define   P_HHI_HDMIRX_CLK_CNTL                                (volatile uint32_t *)(0xff63c000 + (0x080 << 2))
-#define     HHI_HDMIRX_AUD_CLK_CNTL                            (0xff63c000 + (0x081 << 2))
-#define SEC_HHI_HDMIRX_AUD_CLK_CNTL                            (0xff63c000 + (0x081 << 2))
-#define   P_HHI_HDMIRX_AUD_CLK_CNTL                            (volatile uint32_t *)(0xff63c000 + (0x081 << 2))
+//`define HHI_HDMIRX_CLK_CNTL     8'h80
+//`define HHI_HDMIRX_AUD_CLK_CNTL 8'h81
 //`define HHI_EDP_APB_CLK_CNTL    8'h82
-#define     HHI_VPU_CLKB_CNTL                                  (0xff63c000 + (0x083 << 2))
-#define SEC_HHI_VPU_CLKB_CNTL                                  (0xff63c000 + (0x083 << 2))
-#define   P_HHI_VPU_CLKB_CNTL                                  (volatile uint32_t *)(0xff63c000 + (0x083 << 2))
+//`define HHI_VPU_CLKB_CNTL       8'h83
 #define     HHI_SYS_CPU_CLK_CNTL2                              (0xff63c000 + (0x084 << 2))
 #define SEC_HHI_SYS_CPU_CLK_CNTL2                              (0xff63c000 + (0x084 << 2))
 #define   P_HHI_SYS_CPU_CLK_CNTL2                              (volatile uint32_t *)(0xff63c000 + (0x084 << 2))
@@ -1597,16 +2405,10 @@
 //`define HHI_VID_PLL_MOD_NOM_TCNT    8'h87
 // Removed `define HHI_DDR_CLK_CNTL            8'h88
 //`define HHI_32K_CLK_CNTL            8'h89
-#define     HHI_GEN_CLK_CNTL                                   (0xff63c000 + (0x08a << 2))
-#define SEC_HHI_GEN_CLK_CNTL                                   (0xff63c000 + (0x08a << 2))
-#define   P_HHI_GEN_CLK_CNTL                                   (volatile uint32_t *)(0xff63c000 + (0x08a << 2))
+//`define HHI_GEN_CLK_CNTL            8'h8a
 //`define HHI_GEN_CLK_CNTL2           8'h8b
-#define     HHI_AUDPLL_CLK_OUT_CNTL                            (0xff63c000 + (0x08c << 2))
-#define SEC_HHI_AUDPLL_CLK_OUT_CNTL                            (0xff63c000 + (0x08c << 2))
-#define   P_HHI_AUDPLL_CLK_OUT_CNTL                            (volatile uint32_t *)(0xff63c000 + (0x08c << 2))
-#define     HHI_HDMIRX_METER_CLK_CNTL                          (0xff63c000 + (0x08d << 2))
-#define SEC_HHI_HDMIRX_METER_CLK_CNTL                          (0xff63c000 + (0x08d << 2))
-#define   P_HHI_HDMIRX_METER_CLK_CNTL                          (volatile uint32_t *)(0xff63c000 + (0x08d << 2))
+//`define HHI_AUDPLL_CLK_OUT_CNTL     8'h8c
+//`define HHI_HDMIRX_METER_CLK_CNTL   8'h8d
 #define     HHI_DIF_CSI_PHY_CNTL10                             (0xff63c000 + (0x08e << 2))
 #define SEC_HHI_DIF_CSI_PHY_CNTL10                             (0xff63c000 + (0x08e << 2))
 #define   P_HHI_DIF_CSI_PHY_CNTL10                             (volatile uint32_t *)(0xff63c000 + (0x08e << 2))
@@ -1631,26 +2433,18 @@
 //`define HHI_VAFE_CLKIN_CNTL	        8'h91
 //`define HHI_TVFE_AUTOMODE_CLK_CNTL	8'h92
 //`define HHI_VAFE_CLKPI_CNTL      	8'h93
-#define     HHI_VDIN_MEAS_CLK_CNTL                             (0xff63c000 + (0x094 << 2))
-#define SEC_HHI_VDIN_MEAS_CLK_CNTL                             (0xff63c000 + (0x094 << 2))
-#define   P_HHI_VDIN_MEAS_CLK_CNTL                             (volatile uint32_t *)(0xff63c000 + (0x094 << 2))
+//`define HHI_VDIN_MEAS_CLK_CNTL     	8'h94
 //`define HHI_MIPIDSI_PHY_CLK_CNTL    8'h95
-#define     HHI_NAND_CLK_CNTL                                  (0xff63c000 + (0x097 << 2))
-#define SEC_HHI_NAND_CLK_CNTL                                  (0xff63c000 + (0x097 << 2))
-#define   P_HHI_NAND_CLK_CNTL                                  (volatile uint32_t *)(0xff63c000 + (0x097 << 2))
+//`define HHI_NAND_CLK_CNTL           8'h97
 //`define HHI_ISP_LED_CLK_CNTL        8'h98
-#define     HHI_SD_EMMC_CLK_CNTL                               (0xff63c000 + (0x099 << 2))
-#define SEC_HHI_SD_EMMC_CLK_CNTL                               (0xff63c000 + (0x099 << 2))
-#define   P_HHI_SD_EMMC_CLK_CNTL                               (volatile uint32_t *)(0xff63c000 + (0x099 << 2))
+//`define HHI_SD_EMMC_CLK_CNTL        8'h99
 #define     HHI_LVDS_TX_PHY_CNTL0                              (0xff63c000 + (0x09a << 2))
 #define SEC_HHI_LVDS_TX_PHY_CNTL0                              (0xff63c000 + (0x09a << 2))
 #define   P_HHI_LVDS_TX_PHY_CNTL0                              (volatile uint32_t *)(0xff63c000 + (0x09a << 2))
 #define     HHI_LVDS_TX_PHY_CNTL1                              (0xff63c000 + (0x09b << 2))
 #define SEC_HHI_LVDS_TX_PHY_CNTL1                              (0xff63c000 + (0x09b << 2))
 #define   P_HHI_LVDS_TX_PHY_CNTL1                              (volatile uint32_t *)(0xff63c000 + (0x09b << 2))
-#define     HHI_TCON_CLK_CNTL                                  (0xff63c000 + (0x09c << 2))
-#define SEC_HHI_TCON_CLK_CNTL                                  (0xff63c000 + (0x09c << 2))
-#define   P_HHI_TCON_CLK_CNTL                                  (volatile uint32_t *)(0xff63c000 + (0x09c << 2))
+//`define HHI_TCON_CLK_CNTL           8'h9c
 //`define HHI_WAVE420L_CLK_CNTL       8'h9a
 //`define HHI_WAVE420L_CLK_CNTL2      8'h9b
 //`define HHI_EDP_TX_PHY_CNTL0        8'h9c
@@ -1748,9 +2542,7 @@
 //`define HHI_AUDCLK_PLL_CNTL5        8'hb4
 //`define HHI_AUDCLK_PLL_CNTL6        8'hb5
 //`define HHI_L2_DDR_CLK_CNTL         8'hb6
-#define     HHI_HDMI_AXI_CLK_CNTL                              (0xff63c000 + (0x0b8 << 2))
-#define SEC_HHI_HDMI_AXI_CLK_CNTL                              (0xff63c000 + (0x0b8 << 2))
-#define   P_HHI_HDMI_AXI_CLK_CNTL                              (volatile uint32_t *)(0xff63c000 + (0x0b8 << 2))
+//`define HHI_HDMI_AXI_CLK_CNTL       8'hb8
 //`define HHI_PLL_TOP_MISC            8'hba
 #define     HHI_VDAC_CNTL0                                     (0xff63c000 + (0x0bb << 2))
 #define SEC_HHI_VDAC_CNTL0                                     (0xff63c000 + (0x0bb << 2))
@@ -1782,6 +2574,9 @@
 #define     HHI_SYS_PLL_STS                                    (0xff63c000 + (0x0c4 << 2))
 #define SEC_HHI_SYS_PLL_STS                                    (0xff63c000 + (0x0c4 << 2))
 #define   P_HHI_SYS_PLL_STS                                    (volatile uint32_t *)(0xff63c000 + (0x0c4 << 2))
+//`define HHI_HDMIRX_PHY_DCHA_CNTL3   8'hc5
+//`define HHI_HDMIRX_PHY_DCHD_CNTL3   8'hc6
+//`define HHI_HDMIRX_PHY_DCHD_CNTL4   8'hc7
 #define     HHI_HDMI_PLL_CNTL0                                 (0xff63c000 + (0x0c8 << 2))
 #define SEC_HHI_HDMI_PLL_CNTL0                                 (0xff63c000 + (0x0c8 << 2))
 #define   P_HHI_HDMI_PLL_CNTL0                                 (volatile uint32_t *)(0xff63c000 + (0x0c8 << 2))
@@ -1809,27 +2604,13 @@
 #define     HHI_HDMI_PLL_VLOCK_CNTL                            (0xff63c000 + (0x0d1 << 2))
 #define SEC_HHI_HDMI_PLL_VLOCK_CNTL                            (0xff63c000 + (0x0d1 << 2))
 #define   P_HHI_HDMI_PLL_VLOCK_CNTL                            (volatile uint32_t *)(0xff63c000 + (0x0d1 << 2))
-#define     HHI_HDMIRX_APLL_CNTL0                              (0xff63c000 + (0x0d2 << 2))
-#define SEC_HHI_HDMIRX_APLL_CNTL0                              (0xff63c000 + (0x0d2 << 2))
-#define   P_HHI_HDMIRX_APLL_CNTL0                              (volatile uint32_t *)(0xff63c000 + (0x0d2 << 2))
-#define     HHI_HDMIRX_APLL_CNTL1                              (0xff63c000 + (0x0d3 << 2))
-#define SEC_HHI_HDMIRX_APLL_CNTL1                              (0xff63c000 + (0x0d3 << 2))
-#define   P_HHI_HDMIRX_APLL_CNTL1                              (volatile uint32_t *)(0xff63c000 + (0x0d3 << 2))
-#define     HHI_HDMIRX_APLL_CNTL2                              (0xff63c000 + (0x0d4 << 2))
-#define SEC_HHI_HDMIRX_APLL_CNTL2                              (0xff63c000 + (0x0d4 << 2))
-#define   P_HHI_HDMIRX_APLL_CNTL2                              (volatile uint32_t *)(0xff63c000 + (0x0d4 << 2))
-#define     HHI_HDMIRX_APLL_CNTL3                              (0xff63c000 + (0x0d5 << 2))
-#define SEC_HHI_HDMIRX_APLL_CNTL3                              (0xff63c000 + (0x0d5 << 2))
-#define   P_HHI_HDMIRX_APLL_CNTL3                              (volatile uint32_t *)(0xff63c000 + (0x0d5 << 2))
-#define     HHI_HDMIRX_APLL_CNTL4                              (0xff63c000 + (0x0d6 << 2))
-#define SEC_HHI_HDMIRX_APLL_CNTL4                              (0xff63c000 + (0x0d6 << 2))
-#define   P_HHI_HDMIRX_APLL_CNTL4                              (volatile uint32_t *)(0xff63c000 + (0x0d6 << 2))
-#define     HHI_HDMIRX_PHY_MISC0                               (0xff63c000 + (0x0d7 << 2))
-#define SEC_HHI_HDMIRX_PHY_MISC0                               (0xff63c000 + (0x0d7 << 2))
-#define   P_HHI_HDMIRX_PHY_MISC0                               (volatile uint32_t *)(0xff63c000 + (0x0d7 << 2))
-#define     HHI_HDMIRX_PHY_MISC1                               (0xff63c000 + (0x0d8 << 2))
-#define SEC_HHI_HDMIRX_PHY_MISC1                               (0xff63c000 + (0x0d8 << 2))
-#define   P_HHI_HDMIRX_PHY_MISC1                               (volatile uint32_t *)(0xff63c000 + (0x0d8 << 2))
+//`define HHI_HDMIRX_APLL_CNTL0       8'hd2
+//`define HHI_HDMIRX_APLL_CNTL1       8'hd3
+//`define HHI_HDMIRX_APLL_CNTL2       8'hd4
+//`define HHI_HDMIRX_APLL_CNTL3       8'hd5
+//`define HHI_HDMIRX_APLL_CNTL4       8'hd6
+//`define HHI_HDMIRX_PHY_MISC0        8'hd7
+//`define HHI_HDMIRX_PHY_MISC1        8'hd8
 #define     HHI_DIF_CSI_PHY_CNTL1                              (0xff63c000 + (0x0d9 << 2))
 #define SEC_HHI_DIF_CSI_PHY_CNTL1                              (0xff63c000 + (0x0d9 << 2))
 #define   P_HHI_DIF_CSI_PHY_CNTL1                              (volatile uint32_t *)(0xff63c000 + (0x0d9 << 2))
@@ -1848,30 +2629,14 @@
 #define     HHI_TCON_PLL_CNTL4                                 (0xff63c000 + (0x0df << 2))
 #define SEC_HHI_TCON_PLL_CNTL4                                 (0xff63c000 + (0x0df << 2))
 #define   P_HHI_TCON_PLL_CNTL4                                 (volatile uint32_t *)(0xff63c000 + (0x0df << 2))
-#define     HHI_HDMIRX_PHY_MISC2                               (0xff63c000 + (0x0e0 << 2))
-#define SEC_HHI_HDMIRX_PHY_MISC2                               (0xff63c000 + (0x0e0 << 2))
-#define   P_HHI_HDMIRX_PHY_MISC2                               (volatile uint32_t *)(0xff63c000 + (0x0e0 << 2))
-#define     HHI_HDMIRX_PHY_MISC3                               (0xff63c000 + (0x0e1 << 2))
-#define SEC_HHI_HDMIRX_PHY_MISC3                               (0xff63c000 + (0x0e1 << 2))
-#define   P_HHI_HDMIRX_PHY_MISC3                               (volatile uint32_t *)(0xff63c000 + (0x0e1 << 2))
-#define     HHI_HDMIRX_PHY_DCHA_CNTL0                          (0xff63c000 + (0x0e2 << 2))
-#define SEC_HHI_HDMIRX_PHY_DCHA_CNTL0                          (0xff63c000 + (0x0e2 << 2))
-#define   P_HHI_HDMIRX_PHY_DCHA_CNTL0                          (volatile uint32_t *)(0xff63c000 + (0x0e2 << 2))
-#define     HHI_HDMIRX_PHY_DCHA_CNTL1                          (0xff63c000 + (0x0e3 << 2))
-#define SEC_HHI_HDMIRX_PHY_DCHA_CNTL1                          (0xff63c000 + (0x0e3 << 2))
-#define   P_HHI_HDMIRX_PHY_DCHA_CNTL1                          (volatile uint32_t *)(0xff63c000 + (0x0e3 << 2))
-#define     HHI_HDMIRX_PHY_DCHA_CNTL2                          (0xff63c000 + (0x0e4 << 2))
-#define SEC_HHI_HDMIRX_PHY_DCHA_CNTL2                          (0xff63c000 + (0x0e4 << 2))
-#define   P_HHI_HDMIRX_PHY_DCHA_CNTL2                          (volatile uint32_t *)(0xff63c000 + (0x0e4 << 2))
-#define     HHI_HDMIRX_PHY_DCHD_CNTL0                          (0xff63c000 + (0x0e5 << 2))
-#define SEC_HHI_HDMIRX_PHY_DCHD_CNTL0                          (0xff63c000 + (0x0e5 << 2))
-#define   P_HHI_HDMIRX_PHY_DCHD_CNTL0                          (volatile uint32_t *)(0xff63c000 + (0x0e5 << 2))
-#define     HHI_HDMIRX_PHY_DCHD_CNTL1                          (0xff63c000 + (0x0e6 << 2))
-#define SEC_HHI_HDMIRX_PHY_DCHD_CNTL1                          (0xff63c000 + (0x0e6 << 2))
-#define   P_HHI_HDMIRX_PHY_DCHD_CNTL1                          (volatile uint32_t *)(0xff63c000 + (0x0e6 << 2))
-#define     HHI_HDMIRX_PHY_DCHD_CNTL2                          (0xff63c000 + (0x0e7 << 2))
-#define SEC_HHI_HDMIRX_PHY_DCHD_CNTL2                          (0xff63c000 + (0x0e7 << 2))
-#define   P_HHI_HDMIRX_PHY_DCHD_CNTL2                          (volatile uint32_t *)(0xff63c000 + (0x0e7 << 2))
+//`define HHI_HDMIRX_PHY_MISC2        8'he0
+//`define HHI_HDMIRX_PHY_MISC3        8'he1
+//`define HHI_HDMIRX_PHY_DCHA_CNTL0   8'he2
+//`define HHI_HDMIRX_PHY_DCHA_CNTL1   8'he3
+//`define HHI_HDMIRX_PHY_DCHA_CNTL2   8'he4
+//`define HHI_HDMIRX_PHY_DCHD_CNTL0   8'he5
+//`define HHI_HDMIRX_PHY_DCHD_CNTL1   8'he6
+//`define HHI_HDMIRX_PHY_DCHD_CNTL2   8'he7
 #define     HHI_HDMIRX_ARC_CNTL                                (0xff63c000 + (0x0e8 << 2))
 #define SEC_HHI_HDMIRX_ARC_CNTL                                (0xff63c000 + (0x0e8 << 2))
 #define   P_HHI_HDMIRX_ARC_CNTL                                (volatile uint32_t *)(0xff63c000 + (0x0e8 << 2))
@@ -1890,34 +2655,20 @@
 #define     HHI_DIF_CSI_PHY_CNTL9                              (0xff63c000 + (0x0ed << 2))
 #define SEC_HHI_DIF_CSI_PHY_CNTL9                              (0xff63c000 + (0x0ed << 2))
 #define   P_HHI_DIF_CSI_PHY_CNTL9                              (volatile uint32_t *)(0xff63c000 + (0x0ed << 2))
-#define     HHI_HDMIRX_PHY_MISC_STAT                           (0xff63c000 + (0x0ee << 2))
-#define SEC_HHI_HDMIRX_PHY_MISC_STAT                           (0xff63c000 + (0x0ee << 2))
-#define   P_HHI_HDMIRX_PHY_MISC_STAT                           (volatile uint32_t *)(0xff63c000 + (0x0ee << 2))
-#define     HHI_HDMIRX_PHY_DCHD_STAT                           (0xff63c000 + (0x0ef << 2))
-#define SEC_HHI_HDMIRX_PHY_DCHD_STAT                           (0xff63c000 + (0x0ef << 2))
-#define   P_HHI_HDMIRX_PHY_DCHD_STAT                           (volatile uint32_t *)(0xff63c000 + (0x0ef << 2))
+//`define HHI_HDMIRX_PHY_MISC_STAT    8'hee
+//`define HHI_HDMIRX_PHY_DCHD_STAT    8'hef
 #define     HHI_AXI_PIPEL_CNTL2                                (0xff63c000 + (0x0f0 << 2))
 #define SEC_HHI_AXI_PIPEL_CNTL2                                (0xff63c000 + (0x0f0 << 2))
 #define   P_HHI_AXI_PIPEL_CNTL2                                (volatile uint32_t *)(0xff63c000 + (0x0f0 << 2))
 //`define HHI_ADEC_SYS_CLK_CNTL       8'hf1
-#define     HHI_VID_LOCK_CLK_CNTL                              (0xff63c000 + (0x0f2 << 2))
-#define SEC_HHI_VID_LOCK_CLK_CNTL                              (0xff63c000 + (0x0f2 << 2))
-#define   P_HHI_VID_LOCK_CLK_CNTL                              (volatile uint32_t *)(0xff63c000 + (0x0f2 << 2))
-#define     HHI_ATV_DMD_SYS_CLK_CNTL                           (0xff63c000 + (0x0f3 << 2))
-#define SEC_HHI_ATV_DMD_SYS_CLK_CNTL                           (0xff63c000 + (0x0f3 << 2))
-#define   P_HHI_ATV_DMD_SYS_CLK_CNTL                           (volatile uint32_t *)(0xff63c000 + (0x0f3 << 2))
+//`define HHI_VID_LOCK_CLK_CNTL       8'hf2
+//`define HHI_ATV_DMD_SYS_CLK_CNTL    8'hf3
 #define     HHI_AXI_PIPEL_CNTL                                 (0xff63c000 + (0x0f4 << 2))
 #define SEC_HHI_AXI_PIPEL_CNTL                                 (0xff63c000 + (0x0f4 << 2))
 #define   P_HHI_AXI_PIPEL_CNTL                                 (volatile uint32_t *)(0xff63c000 + (0x0f4 << 2))
-#define     HHI_BT656_CLK_CNTL                                 (0xff63c000 + (0x0f5 << 2))
-#define SEC_HHI_BT656_CLK_CNTL                                 (0xff63c000 + (0x0f5 << 2))
-#define   P_HHI_BT656_CLK_CNTL                                 (volatile uint32_t *)(0xff63c000 + (0x0f5 << 2))
-#define     HHI_CDAC_CLK_CNTL                                  (0xff63c000 + (0x0f6 << 2))
-#define SEC_HHI_CDAC_CLK_CNTL                                  (0xff63c000 + (0x0f6 << 2))
-#define   P_HHI_CDAC_CLK_CNTL                                  (volatile uint32_t *)(0xff63c000 + (0x0f6 << 2))
-#define     HHI_SPICC_CLK_CNTL                                 (0xff63c000 + (0x0f7 << 2))
-#define SEC_HHI_SPICC_CLK_CNTL                                 (0xff63c000 + (0x0f7 << 2))
-#define   P_HHI_SPICC_CLK_CNTL                                 (volatile uint32_t *)(0xff63c000 + (0x0f7 << 2))
+//`define HHI_BT656_CLK_CNTL          8'hf5
+//`define HHI_CDAC_CLK_CNTL           8'hf6
+//`define HHI_SPICC_CLK_CNTL          8'hf7
 #define     HHI_HDMIRX_AUD_PLL_CNTL                            (0xff63c000 + (0x0f8 << 2))
 #define SEC_HHI_HDMIRX_AUD_PLL_CNTL                            (0xff63c000 + (0x0f8 << 2))
 #define   P_HHI_HDMIRX_AUD_PLL_CNTL                            (volatile uint32_t *)(0xff63c000 + (0x0f8 << 2))
@@ -2188,6 +2939,9 @@
 #define     ETH_PHY_CNTL2                                      (0xff64c000 + (0x022 << 2))
 #define SEC_ETH_PHY_CNTL2                                      (0xff64c000 + (0x022 << 2))
 #define   P_ETH_PHY_CNTL2                                      (volatile uint32_t *)(0xff64c000 + (0x022 << 2))
+#define     ETH_PHY_CNTL3                                      (0xff64c000 + (0x023 << 2))
+#define SEC_ETH_PHY_CNTL3                                      (0xff64c000 + (0x023 << 2))
+#define   P_ETH_PHY_CNTL3                                      (volatile uint32_t *)(0xff64c000 + (0x023 << 2))
 #define     ETH_PHY_STS0                                       (0xff64c000 + (0x025 << 2))
 #define SEC_ETH_PHY_STS0                                       (0xff64c000 + (0x025 << 2))
 #define   P_ETH_PHY_STS0                                       (volatile uint32_t *)(0xff64c000 + (0x025 << 2))
@@ -2200,6 +2954,77 @@
 #define     ETH_PHY_DBG_REG                                    (0xff64c000 + (0x028 << 2))
 #define SEC_ETH_PHY_DBG_REG                                    (0xff64c000 + (0x028 << 2))
 #define   P_ETH_PHY_DBG_REG                                    (volatile uint32_t *)(0xff64c000 + (0x028 << 2))
+//========================================================================
+//  HDMIRX_PHY - Registers
+//========================================================================
+// APB4_DECODER_NON_SECURE_BASE     32'hFF61C000
+// APB4_DECODER_SECURE_BASE         32'hFF61C000
+#define     HDMIRX_APLL_CNTL0                                  (0xff61c000 + (0x000 << 2))
+#define SEC_HDMIRX_APLL_CNTL0                                  (0xff61c000 + (0x000 << 2))
+#define   P_HDMIRX_APLL_CNTL0                                  (volatile uint32_t *)(0xff61c000 + (0x000 << 2))
+#define     HDMIRX_APLL_CNTL1                                  (0xff61c000 + (0x001 << 2))
+#define SEC_HDMIRX_APLL_CNTL1                                  (0xff61c000 + (0x001 << 2))
+#define   P_HDMIRX_APLL_CNTL1                                  (volatile uint32_t *)(0xff61c000 + (0x001 << 2))
+#define     HDMIRX_APLL_CNTL2                                  (0xff61c000 + (0x002 << 2))
+#define SEC_HDMIRX_APLL_CNTL2                                  (0xff61c000 + (0x002 << 2))
+#define   P_HDMIRX_APLL_CNTL2                                  (volatile uint32_t *)(0xff61c000 + (0x002 << 2))
+#define     HDMIRX_APLL_CNTL3                                  (0xff61c000 + (0x003 << 2))
+#define SEC_HDMIRX_APLL_CNTL3                                  (0xff61c000 + (0x003 << 2))
+#define   P_HDMIRX_APLL_CNTL3                                  (volatile uint32_t *)(0xff61c000 + (0x003 << 2))
+#define     HDMIRX_APLL_CNTL4                                  (0xff61c000 + (0x004 << 2))
+#define SEC_HDMIRX_APLL_CNTL4                                  (0xff61c000 + (0x004 << 2))
+#define   P_HDMIRX_APLL_CNTL4                                  (volatile uint32_t *)(0xff61c000 + (0x004 << 2))
+#define     HDMIRX_PHY_MISC0                                   (0xff61c000 + (0x005 << 2))
+#define SEC_HDMIRX_PHY_MISC0                                   (0xff61c000 + (0x005 << 2))
+#define   P_HDMIRX_PHY_MISC0                                   (volatile uint32_t *)(0xff61c000 + (0x005 << 2))
+#define     HDMIRX_PHY_MISC1                                   (0xff61c000 + (0x006 << 2))
+#define SEC_HDMIRX_PHY_MISC1                                   (0xff61c000 + (0x006 << 2))
+#define   P_HDMIRX_PHY_MISC1                                   (volatile uint32_t *)(0xff61c000 + (0x006 << 2))
+#define     HDMIRX_PHY_MISC2                                   (0xff61c000 + (0x007 << 2))
+#define SEC_HDMIRX_PHY_MISC2                                   (0xff61c000 + (0x007 << 2))
+#define   P_HDMIRX_PHY_MISC2                                   (volatile uint32_t *)(0xff61c000 + (0x007 << 2))
+#define     HDMIRX_PHY_MISC3                                   (0xff61c000 + (0x008 << 2))
+#define SEC_HDMIRX_PHY_MISC3                                   (0xff61c000 + (0x008 << 2))
+#define   P_HDMIRX_PHY_MISC3                                   (volatile uint32_t *)(0xff61c000 + (0x008 << 2))
+#define     HDMIRX_PHY_DCHA_CNTL0                              (0xff61c000 + (0x009 << 2))
+#define SEC_HDMIRX_PHY_DCHA_CNTL0                              (0xff61c000 + (0x009 << 2))
+#define   P_HDMIRX_PHY_DCHA_CNTL0                              (volatile uint32_t *)(0xff61c000 + (0x009 << 2))
+#define     HDMIRX_PHY_DCHA_CNTL1                              (0xff61c000 + (0x00a << 2))
+#define SEC_HDMIRX_PHY_DCHA_CNTL1                              (0xff61c000 + (0x00a << 2))
+#define   P_HDMIRX_PHY_DCHA_CNTL1                              (volatile uint32_t *)(0xff61c000 + (0x00a << 2))
+#define     HDMIRX_PHY_DCHA_CNTL2                              (0xff61c000 + (0x00b << 2))
+#define SEC_HDMIRX_PHY_DCHA_CNTL2                              (0xff61c000 + (0x00b << 2))
+#define   P_HDMIRX_PHY_DCHA_CNTL2                              (volatile uint32_t *)(0xff61c000 + (0x00b << 2))
+#define     HDMIRX_PHY_DCHA_CNTL3                              (0xff61c000 + (0x00c << 2))
+#define SEC_HDMIRX_PHY_DCHA_CNTL3                              (0xff61c000 + (0x00c << 2))
+#define   P_HDMIRX_PHY_DCHA_CNTL3                              (volatile uint32_t *)(0xff61c000 + (0x00c << 2))
+#define     HDMIRX_PHY_DCHD_CNTL0                              (0xff61c000 + (0x00d << 2))
+#define SEC_HDMIRX_PHY_DCHD_CNTL0                              (0xff61c000 + (0x00d << 2))
+#define   P_HDMIRX_PHY_DCHD_CNTL0                              (volatile uint32_t *)(0xff61c000 + (0x00d << 2))
+#define     HDMIRX_PHY_DCHD_CNTL1                              (0xff61c000 + (0x00e << 2))
+#define SEC_HDMIRX_PHY_DCHD_CNTL1                              (0xff61c000 + (0x00e << 2))
+#define   P_HDMIRX_PHY_DCHD_CNTL1                              (volatile uint32_t *)(0xff61c000 + (0x00e << 2))
+#define     HDMIRX_PHY_DCHD_CNTL2                              (0xff61c000 + (0x00f << 2))
+#define SEC_HDMIRX_PHY_DCHD_CNTL2                              (0xff61c000 + (0x00f << 2))
+#define   P_HDMIRX_PHY_DCHD_CNTL2                              (volatile uint32_t *)(0xff61c000 + (0x00f << 2))
+#define     HDMIRX_PHY_DCHD_CNTL3                              (0xff61c000 + (0x010 << 2))
+#define SEC_HDMIRX_PHY_DCHD_CNTL3                              (0xff61c000 + (0x010 << 2))
+#define   P_HDMIRX_PHY_DCHD_CNTL3                              (volatile uint32_t *)(0xff61c000 + (0x010 << 2))
+#define     HDMIRX_PHY_DCHD_CNTL4                              (0xff61c000 + (0x011 << 2))
+#define SEC_HDMIRX_PHY_DCHD_CNTL4                              (0xff61c000 + (0x011 << 2))
+#define   P_HDMIRX_PHY_DCHD_CNTL4                              (volatile uint32_t *)(0xff61c000 + (0x011 << 2))
+#define     HDMIRX_PHY_MISC_STAT                               (0xff61c000 + (0x012 << 2))
+#define SEC_HDMIRX_PHY_MISC_STAT                               (0xff61c000 + (0x012 << 2))
+#define   P_HDMIRX_PHY_MISC_STAT                               (volatile uint32_t *)(0xff61c000 + (0x012 << 2))
+#define     HDMIRX_PHY_DCHD_STAT                               (0xff61c000 + (0x013 << 2))
+#define SEC_HDMIRX_PHY_DCHD_STAT                               (0xff61c000 + (0x013 << 2))
+#define   P_HDMIRX_PHY_DCHD_STAT                               (volatile uint32_t *)(0xff61c000 + (0x013 << 2))
+#define     HDMIRX_PHY_PROD_TEST0                              (0xff61c000 + (0x030 << 2))
+#define SEC_HDMIRX_PHY_PROD_TEST0                              (0xff61c000 + (0x030 << 2))
+#define   P_HDMIRX_PHY_PROD_TEST0                              (volatile uint32_t *)(0xff61c000 + (0x030 << 2))
+#define     HDMIRX_PHY_PROD_TEST1                              (0xff61c000 + (0x031 << 2))
+#define SEC_HDMIRX_PHY_PROD_TEST1                              (0xff61c000 + (0x031 << 2))
+#define   P_HDMIRX_PHY_PROD_TEST1                              (volatile uint32_t *)(0xff61c000 + (0x031 << 2))
 //========================================================================
 //  PDM
 //========================================================================
@@ -2236,12 +3061,6 @@
 #define     EE_AUDIO_MCLK_F_CTRL                               (0xff600000 + (0x007 << 2))
 #define SEC_EE_AUDIO_MCLK_F_CTRL                               (0xff600000 + (0x007 << 2))
 #define   P_EE_AUDIO_MCLK_F_CTRL                               (volatile uint32_t *)(0xff600000 + (0x007 << 2))
-#define     EE_AUDIO_PAD_CTRL0                                 (0xff600000 + (0x008 << 2))
-#define SEC_EE_AUDIO_PAD_CTRL0                                 (0xff600000 + (0x008 << 2))
-#define   P_EE_AUDIO_PAD_CTRL0                                 (volatile uint32_t *)(0xff600000 + (0x008 << 2))
-#define     EE_AUDIO_PAD_CTRL1                                 (0xff600000 + (0x009 << 2))
-#define SEC_EE_AUDIO_PAD_CTRL1                                 (0xff600000 + (0x009 << 2))
-#define   P_EE_AUDIO_PAD_CTRL1                                 (volatile uint32_t *)(0xff600000 + (0x009 << 2))
 #define     EE_AUDIO_SW_RESET0                                 (0xff600000 + (0x00a << 2))
 #define SEC_EE_AUDIO_SW_RESET0                                 (0xff600000 + (0x00a << 2))
 #define   P_EE_AUDIO_SW_RESET0                                 (volatile uint32_t *)(0xff600000 + (0x00a << 2))
@@ -2563,9 +3382,15 @@
 #define     EE_AUDIO_FRDDR_C_CTRL2                             (0xff600000 + (0x09a << 2))
 #define SEC_EE_AUDIO_FRDDR_C_CTRL2                             (0xff600000 + (0x09a << 2))
 #define   P_EE_AUDIO_FRDDR_C_CTRL2                             (volatile uint32_t *)(0xff600000 + (0x09a << 2))
-#define     EE_AUDIO_ARB_CTRL                                  (0xff600000 + (0x0a0 << 2))
-#define SEC_EE_AUDIO_ARB_CTRL                                  (0xff600000 + (0x0a0 << 2))
-#define   P_EE_AUDIO_ARB_CTRL                                  (volatile uint32_t *)(0xff600000 + (0x0a0 << 2))
+#define     EE_AUDIO_ARB_CTRL0                                 (0xff600000 + (0x0a0 << 2))
+#define SEC_EE_AUDIO_ARB_CTRL0                                 (0xff600000 + (0x0a0 << 2))
+#define   P_EE_AUDIO_ARB_CTRL0                                 (volatile uint32_t *)(0xff600000 + (0x0a0 << 2))
+#define     EE_AUDIO_ARB_CTRL1                                 (0xff600000 + (0x0a1 << 2))
+#define SEC_EE_AUDIO_ARB_CTRL1                                 (0xff600000 + (0x0a1 << 2))
+#define   P_EE_AUDIO_ARB_CTRL1                                 (volatile uint32_t *)(0xff600000 + (0x0a1 << 2))
+#define     EE_AUDIO_ARB_STS                                   (0xff600000 + (0x0a8 << 2))
+#define SEC_EE_AUDIO_ARB_STS                                   (0xff600000 + (0x0a8 << 2))
+#define   P_EE_AUDIO_ARB_STS                                   (volatile uint32_t *)(0xff600000 + (0x0a8 << 2))
 #define     EE_AUDIO_LB_A_CTRL0                                (0xff600000 + (0x0b0 << 2))
 #define SEC_EE_AUDIO_LB_A_CTRL0                                (0xff600000 + (0x0b0 << 2))
 #define   P_EE_AUDIO_LB_A_CTRL0                                (volatile uint32_t *)(0xff600000 + (0x0b0 << 2))
@@ -2605,6 +3430,12 @@
 #define     EE_AUDIO_LB_A_STS                                  (0xff600000 + (0x0bc << 2))
 #define SEC_EE_AUDIO_LB_A_STS                                  (0xff600000 + (0x0bc << 2))
 #define   P_EE_AUDIO_LB_A_STS                                  (volatile uint32_t *)(0xff600000 + (0x0bc << 2))
+#define     EE_AUDIO_LB_A_CHSYNC_CTRL_INSERT                   (0xff600000 + (0x0bd << 2))
+#define SEC_EE_AUDIO_LB_A_CHSYNC_CTRL_INSERT                   (0xff600000 + (0x0bd << 2))
+#define   P_EE_AUDIO_LB_A_CHSYNC_CTRL_INSERT                   (volatile uint32_t *)(0xff600000 + (0x0bd << 2))
+#define     EE_AUDIO_LB_A_CHSYNC_CTRL_ORIG                     (0xff600000 + (0x0be << 2))
+#define SEC_EE_AUDIO_LB_A_CHSYNC_CTRL_ORIG                     (0xff600000 + (0x0be << 2))
+#define   P_EE_AUDIO_LB_A_CHSYNC_CTRL_ORIG                     (volatile uint32_t *)(0xff600000 + (0x0be << 2))
 #define     EE_AUDIO_TDMIN_A_CTRL                              (0xff600000 + (0x0c0 << 2))
 #define SEC_EE_AUDIO_TDMIN_A_CTRL                              (0xff600000 + (0x0c0 << 2))
 #define   P_EE_AUDIO_TDMIN_A_CTRL                              (volatile uint32_t *)(0xff600000 + (0x0c0 << 2))
@@ -2782,6 +3613,9 @@
 #define     EE_AUDIO_SPDIFIN_MUTE_VAL                          (0xff600000 + (0x10a << 2))
 #define SEC_EE_AUDIO_SPDIFIN_MUTE_VAL                          (0xff600000 + (0x10a << 2))
 #define   P_EE_AUDIO_SPDIFIN_MUTE_VAL                          (volatile uint32_t *)(0xff600000 + (0x10a << 2))
+#define     EE_AUDIO_SPDIFIN_CTRL7                             (0xff600000 + (0x10b << 2))
+#define SEC_EE_AUDIO_SPDIFIN_CTRL7                             (0xff600000 + (0x10b << 2))
+#define   P_EE_AUDIO_SPDIFIN_CTRL7                             (volatile uint32_t *)(0xff600000 + (0x10b << 2))
 #define     EE_AUDIO_RESAMPLEA_CTRL0                           (0xff600000 + (0x110 << 2))
 #define SEC_EE_AUDIO_RESAMPLEA_CTRL0                           (0xff600000 + (0x110 << 2))
 #define   P_EE_AUDIO_RESAMPLEA_CTRL0                           (volatile uint32_t *)(0xff600000 + (0x110 << 2))
@@ -2872,6 +3706,18 @@
 #define     EE_AUDIO_SPDIFOUT_MUTE_VAL                         (0xff600000 + (0x133 << 2))
 #define SEC_EE_AUDIO_SPDIFOUT_MUTE_VAL                         (0xff600000 + (0x133 << 2))
 #define   P_EE_AUDIO_SPDIFOUT_MUTE_VAL                         (volatile uint32_t *)(0xff600000 + (0x133 << 2))
+#define     EE_AUDIO_SPDIFOUT_GAIN2                            (0xff600000 + (0x134 << 2))
+#define SEC_EE_AUDIO_SPDIFOUT_GAIN2                            (0xff600000 + (0x134 << 2))
+#define   P_EE_AUDIO_SPDIFOUT_GAIN2                            (volatile uint32_t *)(0xff600000 + (0x134 << 2))
+#define     EE_AUDIO_SPDIFOUT_GAIN3                            (0xff600000 + (0x135 << 2))
+#define SEC_EE_AUDIO_SPDIFOUT_GAIN3                            (0xff600000 + (0x135 << 2))
+#define   P_EE_AUDIO_SPDIFOUT_GAIN3                            (volatile uint32_t *)(0xff600000 + (0x135 << 2))
+#define     EE_AUDIO_SPDIFOUT_GAIN_EN                          (0xff600000 + (0x136 << 2))
+#define SEC_EE_AUDIO_SPDIFOUT_GAIN_EN                          (0xff600000 + (0x136 << 2))
+#define   P_EE_AUDIO_SPDIFOUT_GAIN_EN                          (volatile uint32_t *)(0xff600000 + (0x136 << 2))
+#define     EE_AUDIO_SPDIFOUT_GAIN_CTRL                        (0xff600000 + (0x137 << 2))
+#define SEC_EE_AUDIO_SPDIFOUT_GAIN_CTRL                        (0xff600000 + (0x137 << 2))
+#define   P_EE_AUDIO_SPDIFOUT_GAIN_CTRL                        (volatile uint32_t *)(0xff600000 + (0x137 << 2))
 #define     EE_AUDIO_TDMOUT_A_CTRL0                            (0xff600000 + (0x140 << 2))
 #define SEC_EE_AUDIO_TDMOUT_A_CTRL0                            (0xff600000 + (0x140 << 2))
 #define   P_EE_AUDIO_TDMOUT_A_CTRL0                            (volatile uint32_t *)(0xff600000 + (0x140 << 2))
@@ -3027,6 +3873,9 @@
 #define     EE_AUDIO_SECURITY_CTRL1                            (0xff600000 + (0x191 << 2))
 #define SEC_EE_AUDIO_SECURITY_CTRL1                            (0xff600000 + (0x191 << 2))
 #define   P_EE_AUDIO_SECURITY_CTRL1                            (volatile uint32_t *)(0xff600000 + (0x191 << 2))
+#define     EE_AUDIO_SECURITY_CTRL2                            (0xff600000 + (0x192 << 2))
+#define SEC_EE_AUDIO_SECURITY_CTRL2                            (0xff600000 + (0x192 << 2))
+#define   P_EE_AUDIO_SECURITY_CTRL2                            (volatile uint32_t *)(0xff600000 + (0x192 << 2))
 #define     EE_AUDIO_SPDIFOUT_B_STAT                           (0xff600000 + (0x1a0 << 2))
 #define SEC_EE_AUDIO_SPDIFOUT_B_STAT                           (0xff600000 + (0x1a0 << 2))
 #define   P_EE_AUDIO_SPDIFOUT_B_STAT                           (volatile uint32_t *)(0xff600000 + (0x1a0 << 2))
@@ -3087,6 +3936,18 @@
 #define     EE_AUDIO_SPDIFOUT_B_MUTE_VAL                       (0xff600000 + (0x1b3 << 2))
 #define SEC_EE_AUDIO_SPDIFOUT_B_MUTE_VAL                       (0xff600000 + (0x1b3 << 2))
 #define   P_EE_AUDIO_SPDIFOUT_B_MUTE_VAL                       (volatile uint32_t *)(0xff600000 + (0x1b3 << 2))
+#define     EE_AUDIO_SPDIFOUT_B_GAIN2                          (0xff600000 + (0x1b4 << 2))
+#define SEC_EE_AUDIO_SPDIFOUT_B_GAIN2                          (0xff600000 + (0x1b4 << 2))
+#define   P_EE_AUDIO_SPDIFOUT_B_GAIN2                          (volatile uint32_t *)(0xff600000 + (0x1b4 << 2))
+#define     EE_AUDIO_SPDIFOUT_B_GAIN3                          (0xff600000 + (0x1b5 << 2))
+#define SEC_EE_AUDIO_SPDIFOUT_B_GAIN3                          (0xff600000 + (0x1b5 << 2))
+#define   P_EE_AUDIO_SPDIFOUT_B_GAIN3                          (volatile uint32_t *)(0xff600000 + (0x1b5 << 2))
+#define     EE_AUDIO_SPDIFOUT_B_GAIN_EN                        (0xff600000 + (0x1b6 << 2))
+#define SEC_EE_AUDIO_SPDIFOUT_B_GAIN_EN                        (0xff600000 + (0x1b6 << 2))
+#define   P_EE_AUDIO_SPDIFOUT_B_GAIN_EN                        (volatile uint32_t *)(0xff600000 + (0x1b6 << 2))
+#define     EE_AUDIO_SPDIFOUT_B_GAIN_CTRL                      (0xff600000 + (0x1b7 << 2))
+#define SEC_EE_AUDIO_SPDIFOUT_B_GAIN_CTRL                      (0xff600000 + (0x1b7 << 2))
+#define   P_EE_AUDIO_SPDIFOUT_B_GAIN_CTRL                      (volatile uint32_t *)(0xff600000 + (0x1b7 << 2))
 #define     EE_AUDIO_TORAM_CTRL0                               (0xff600000 + (0x1c0 << 2))
 #define SEC_EE_AUDIO_TORAM_CTRL0                               (0xff600000 + (0x1c0 << 2))
 #define   P_EE_AUDIO_TORAM_CTRL0                               (volatile uint32_t *)(0xff600000 + (0x1c0 << 2))
@@ -3189,6 +4050,12 @@
 #define     EE_AUDIO_FRHDMIRX_CTRL5                            (0xff600000 + (0x205 << 2))
 #define SEC_EE_AUDIO_FRHDMIRX_CTRL5                            (0xff600000 + (0x205 << 2))
 #define   P_EE_AUDIO_FRHDMIRX_CTRL5                            (volatile uint32_t *)(0xff600000 + (0x205 << 2))
+#define     EE_AUDIO_FRHDMIRX_CTRL6                            (0xff600000 + (0x206 << 2))
+#define SEC_EE_AUDIO_FRHDMIRX_CTRL6                            (0xff600000 + (0x206 << 2))
+#define   P_EE_AUDIO_FRHDMIRX_CTRL6                            (volatile uint32_t *)(0xff600000 + (0x206 << 2))
+#define     EE_AUDIO_FRHDMIRX_CTRL7                            (0xff600000 + (0x207 << 2))
+#define SEC_EE_AUDIO_FRHDMIRX_CTRL7                            (0xff600000 + (0x207 << 2))
+#define   P_EE_AUDIO_FRHDMIRX_CTRL7                            (volatile uint32_t *)(0xff600000 + (0x207 << 2))
 #define     EE_AUDIO_FRHDMIRX_STAT0                            (0xff600000 + (0x20a << 2))
 #define SEC_EE_AUDIO_FRHDMIRX_STAT0                            (0xff600000 + (0x20a << 2))
 #define   P_EE_AUDIO_FRHDMIRX_STAT0                            (volatile uint32_t *)(0xff600000 + (0x20a << 2))
@@ -3300,6 +4167,12 @@
 #define     EE_AUDIO_LB_B_STS                                  (0xff600000 + (0x23c << 2))
 #define SEC_EE_AUDIO_LB_B_STS                                  (0xff600000 + (0x23c << 2))
 #define   P_EE_AUDIO_LB_B_STS                                  (volatile uint32_t *)(0xff600000 + (0x23c << 2))
+#define     EE_AUDIO_LB_B_CHSYNC_CTRL_INSERT                   (0xff600000 + (0x23d << 2))
+#define SEC_EE_AUDIO_LB_B_CHSYNC_CTRL_INSERT                   (0xff600000 + (0x23d << 2))
+#define   P_EE_AUDIO_LB_B_CHSYNC_CTRL_INSERT                   (volatile uint32_t *)(0xff600000 + (0x23d << 2))
+#define     EE_AUDIO_LB_B_CHSYNC_CTRL_ORIG                     (0xff600000 + (0x23e << 2))
+#define SEC_EE_AUDIO_LB_B_CHSYNC_CTRL_ORIG                     (0xff600000 + (0x23e << 2))
+#define   P_EE_AUDIO_LB_B_CHSYNC_CTRL_ORIG                     (volatile uint32_t *)(0xff600000 + (0x23e << 2))
 #define     EE_AUDIO_TODDR_E_CTRL0                             (0xff600000 + (0x240 << 2))
 #define SEC_EE_AUDIO_TODDR_E_CTRL0                             (0xff600000 + (0x240 << 2))
 #define   P_EE_AUDIO_TODDR_E_CTRL0                             (volatile uint32_t *)(0xff600000 + (0x240 << 2))
@@ -3510,6 +4383,12 @@
 #define     EE_AUDIO_TDMOUT_A_MUTE7                            (0xff600000 + (0x2ab << 2))
 #define SEC_EE_AUDIO_TDMOUT_A_MUTE7                            (0xff600000 + (0x2ab << 2))
 #define   P_EE_AUDIO_TDMOUT_A_MUTE7                            (volatile uint32_t *)(0xff600000 + (0x2ab << 2))
+#define     EE_AUDIO_TDMOUT_A_GAIN_EN                          (0xff600000 + (0x2ac << 2))
+#define SEC_EE_AUDIO_TDMOUT_A_GAIN_EN                          (0xff600000 + (0x2ac << 2))
+#define   P_EE_AUDIO_TDMOUT_A_GAIN_EN                          (volatile uint32_t *)(0xff600000 + (0x2ac << 2))
+#define     EE_AUDIO_TDMOUT_A_GAIN_CTRL                        (0xff600000 + (0x2ad << 2))
+#define SEC_EE_AUDIO_TDMOUT_A_GAIN_CTRL                        (0xff600000 + (0x2ad << 2))
+#define   P_EE_AUDIO_TDMOUT_A_GAIN_CTRL                        (volatile uint32_t *)(0xff600000 + (0x2ad << 2))
 #define     EE_AUDIO_TDMOUT_B_CTRL2                            (0xff600000 + (0x2b0 << 2))
 #define SEC_EE_AUDIO_TDMOUT_B_CTRL2                            (0xff600000 + (0x2b0 << 2))
 #define   P_EE_AUDIO_TDMOUT_B_CTRL2                            (volatile uint32_t *)(0xff600000 + (0x2b0 << 2))
@@ -3546,6 +4425,12 @@
 #define     EE_AUDIO_TDMOUT_B_MUTE7                            (0xff600000 + (0x2bb << 2))
 #define SEC_EE_AUDIO_TDMOUT_B_MUTE7                            (0xff600000 + (0x2bb << 2))
 #define   P_EE_AUDIO_TDMOUT_B_MUTE7                            (volatile uint32_t *)(0xff600000 + (0x2bb << 2))
+#define     EE_AUDIO_TDMOUT_B_GAIN_EN                          (0xff600000 + (0x2bc << 2))
+#define SEC_EE_AUDIO_TDMOUT_B_GAIN_EN                          (0xff600000 + (0x2bc << 2))
+#define   P_EE_AUDIO_TDMOUT_B_GAIN_EN                          (volatile uint32_t *)(0xff600000 + (0x2bc << 2))
+#define     EE_AUDIO_TDMOUT_B_GAIN_CTRL                        (0xff600000 + (0x2bd << 2))
+#define SEC_EE_AUDIO_TDMOUT_B_GAIN_CTRL                        (0xff600000 + (0x2bd << 2))
+#define   P_EE_AUDIO_TDMOUT_B_GAIN_CTRL                        (volatile uint32_t *)(0xff600000 + (0x2bd << 2))
 #define     EE_AUDIO_TDMOUT_C_CTRL2                            (0xff600000 + (0x2c0 << 2))
 #define SEC_EE_AUDIO_TDMOUT_C_CTRL2                            (0xff600000 + (0x2c0 << 2))
 #define   P_EE_AUDIO_TDMOUT_C_CTRL2                            (volatile uint32_t *)(0xff600000 + (0x2c0 << 2))
@@ -3582,6 +4467,321 @@
 #define     EE_AUDIO_TDMOUT_C_MUTE7                            (0xff600000 + (0x2cb << 2))
 #define SEC_EE_AUDIO_TDMOUT_C_MUTE7                            (0xff600000 + (0x2cb << 2))
 #define   P_EE_AUDIO_TDMOUT_C_MUTE7                            (volatile uint32_t *)(0xff600000 + (0x2cb << 2))
+#define     EE_AUDIO_TDMOUT_C_GAIN_EN                          (0xff600000 + (0x2cc << 2))
+#define SEC_EE_AUDIO_TDMOUT_C_GAIN_EN                          (0xff600000 + (0x2cc << 2))
+#define   P_EE_AUDIO_TDMOUT_C_GAIN_EN                          (volatile uint32_t *)(0xff600000 + (0x2cc << 2))
+#define     EE_AUDIO_TDMOUT_C_GAIN_CTRL                        (0xff600000 + (0x2cd << 2))
+#define SEC_EE_AUDIO_TDMOUT_C_GAIN_CTRL                        (0xff600000 + (0x2cd << 2))
+#define   P_EE_AUDIO_TDMOUT_C_GAIN_CTRL                        (volatile uint32_t *)(0xff600000 + (0x2cd << 2))
+#define     EE_AUDIO_TODDR_A_CHNUM_ID0                         (0xff600000 + (0x300 << 2))
+#define SEC_EE_AUDIO_TODDR_A_CHNUM_ID0                         (0xff600000 + (0x300 << 2))
+#define   P_EE_AUDIO_TODDR_A_CHNUM_ID0                         (volatile uint32_t *)(0xff600000 + (0x300 << 2))
+#define     EE_AUDIO_TODDR_A_CHNUM_ID1                         (0xff600000 + (0x301 << 2))
+#define SEC_EE_AUDIO_TODDR_A_CHNUM_ID1                         (0xff600000 + (0x301 << 2))
+#define   P_EE_AUDIO_TODDR_A_CHNUM_ID1                         (volatile uint32_t *)(0xff600000 + (0x301 << 2))
+#define     EE_AUDIO_TODDR_A_CHNUM_ID2                         (0xff600000 + (0x302 << 2))
+#define SEC_EE_AUDIO_TODDR_A_CHNUM_ID2                         (0xff600000 + (0x302 << 2))
+#define   P_EE_AUDIO_TODDR_A_CHNUM_ID2                         (volatile uint32_t *)(0xff600000 + (0x302 << 2))
+#define     EE_AUDIO_TODDR_A_CHNUM_ID3                         (0xff600000 + (0x303 << 2))
+#define SEC_EE_AUDIO_TODDR_A_CHNUM_ID3                         (0xff600000 + (0x303 << 2))
+#define   P_EE_AUDIO_TODDR_A_CHNUM_ID3                         (volatile uint32_t *)(0xff600000 + (0x303 << 2))
+#define     EE_AUDIO_TODDR_A_CHNUM_ID4                         (0xff600000 + (0x304 << 2))
+#define SEC_EE_AUDIO_TODDR_A_CHNUM_ID4                         (0xff600000 + (0x304 << 2))
+#define   P_EE_AUDIO_TODDR_A_CHNUM_ID4                         (volatile uint32_t *)(0xff600000 + (0x304 << 2))
+#define     EE_AUDIO_TODDR_A_CHNUM_ID5                         (0xff600000 + (0x305 << 2))
+#define SEC_EE_AUDIO_TODDR_A_CHNUM_ID5                         (0xff600000 + (0x305 << 2))
+#define   P_EE_AUDIO_TODDR_A_CHNUM_ID5                         (volatile uint32_t *)(0xff600000 + (0x305 << 2))
+#define     EE_AUDIO_TODDR_A_CHNUM_ID6                         (0xff600000 + (0x306 << 2))
+#define SEC_EE_AUDIO_TODDR_A_CHNUM_ID6                         (0xff600000 + (0x306 << 2))
+#define   P_EE_AUDIO_TODDR_A_CHNUM_ID6                         (volatile uint32_t *)(0xff600000 + (0x306 << 2))
+#define     EE_AUDIO_TODDR_A_CHNUM_ID7                         (0xff600000 + (0x307 << 2))
+#define SEC_EE_AUDIO_TODDR_A_CHNUM_ID7                         (0xff600000 + (0x307 << 2))
+#define   P_EE_AUDIO_TODDR_A_CHNUM_ID7                         (volatile uint32_t *)(0xff600000 + (0x307 << 2))
+#define     EE_AUDIO_TODDR_A_CHSYNC_CTRL                       (0xff600000 + (0x30f << 2))
+#define SEC_EE_AUDIO_TODDR_A_CHSYNC_CTRL                       (0xff600000 + (0x30f << 2))
+#define   P_EE_AUDIO_TODDR_A_CHSYNC_CTRL                       (volatile uint32_t *)(0xff600000 + (0x30f << 2))
+#define     EE_AUDIO_TODDR_B_CHNUM_ID0                         (0xff600000 + (0x310 << 2))
+#define SEC_EE_AUDIO_TODDR_B_CHNUM_ID0                         (0xff600000 + (0x310 << 2))
+#define   P_EE_AUDIO_TODDR_B_CHNUM_ID0                         (volatile uint32_t *)(0xff600000 + (0x310 << 2))
+#define     EE_AUDIO_TODDR_B_CHNUM_ID1                         (0xff600000 + (0x311 << 2))
+#define SEC_EE_AUDIO_TODDR_B_CHNUM_ID1                         (0xff600000 + (0x311 << 2))
+#define   P_EE_AUDIO_TODDR_B_CHNUM_ID1                         (volatile uint32_t *)(0xff600000 + (0x311 << 2))
+#define     EE_AUDIO_TODDR_B_CHNUM_ID2                         (0xff600000 + (0x312 << 2))
+#define SEC_EE_AUDIO_TODDR_B_CHNUM_ID2                         (0xff600000 + (0x312 << 2))
+#define   P_EE_AUDIO_TODDR_B_CHNUM_ID2                         (volatile uint32_t *)(0xff600000 + (0x312 << 2))
+#define     EE_AUDIO_TODDR_B_CHNUM_ID3                         (0xff600000 + (0x313 << 2))
+#define SEC_EE_AUDIO_TODDR_B_CHNUM_ID3                         (0xff600000 + (0x313 << 2))
+#define   P_EE_AUDIO_TODDR_B_CHNUM_ID3                         (volatile uint32_t *)(0xff600000 + (0x313 << 2))
+#define     EE_AUDIO_TODDR_B_CHNUM_ID4                         (0xff600000 + (0x314 << 2))
+#define SEC_EE_AUDIO_TODDR_B_CHNUM_ID4                         (0xff600000 + (0x314 << 2))
+#define   P_EE_AUDIO_TODDR_B_CHNUM_ID4                         (volatile uint32_t *)(0xff600000 + (0x314 << 2))
+#define     EE_AUDIO_TODDR_B_CHNUM_ID5                         (0xff600000 + (0x315 << 2))
+#define SEC_EE_AUDIO_TODDR_B_CHNUM_ID5                         (0xff600000 + (0x315 << 2))
+#define   P_EE_AUDIO_TODDR_B_CHNUM_ID5                         (volatile uint32_t *)(0xff600000 + (0x315 << 2))
+#define     EE_AUDIO_TODDR_B_CHNUM_ID6                         (0xff600000 + (0x316 << 2))
+#define SEC_EE_AUDIO_TODDR_B_CHNUM_ID6                         (0xff600000 + (0x316 << 2))
+#define   P_EE_AUDIO_TODDR_B_CHNUM_ID6                         (volatile uint32_t *)(0xff600000 + (0x316 << 2))
+#define     EE_AUDIO_TODDR_B_CHNUM_ID7                         (0xff600000 + (0x317 << 2))
+#define SEC_EE_AUDIO_TODDR_B_CHNUM_ID7                         (0xff600000 + (0x317 << 2))
+#define   P_EE_AUDIO_TODDR_B_CHNUM_ID7                         (volatile uint32_t *)(0xff600000 + (0x317 << 2))
+#define     EE_AUDIO_TODDR_B_CHSYNC_CTRL                       (0xff600000 + (0x31f << 2))
+#define SEC_EE_AUDIO_TODDR_B_CHSYNC_CTRL                       (0xff600000 + (0x31f << 2))
+#define   P_EE_AUDIO_TODDR_B_CHSYNC_CTRL                       (volatile uint32_t *)(0xff600000 + (0x31f << 2))
+#define     EE_AUDIO_TODDR_C_CHNUM_ID0                         (0xff600000 + (0x320 << 2))
+#define SEC_EE_AUDIO_TODDR_C_CHNUM_ID0                         (0xff600000 + (0x320 << 2))
+#define   P_EE_AUDIO_TODDR_C_CHNUM_ID0                         (volatile uint32_t *)(0xff600000 + (0x320 << 2))
+#define     EE_AUDIO_TODDR_C_CHNUM_ID1                         (0xff600000 + (0x321 << 2))
+#define SEC_EE_AUDIO_TODDR_C_CHNUM_ID1                         (0xff600000 + (0x321 << 2))
+#define   P_EE_AUDIO_TODDR_C_CHNUM_ID1                         (volatile uint32_t *)(0xff600000 + (0x321 << 2))
+#define     EE_AUDIO_TODDR_C_CHNUM_ID2                         (0xff600000 + (0x322 << 2))
+#define SEC_EE_AUDIO_TODDR_C_CHNUM_ID2                         (0xff600000 + (0x322 << 2))
+#define   P_EE_AUDIO_TODDR_C_CHNUM_ID2                         (volatile uint32_t *)(0xff600000 + (0x322 << 2))
+#define     EE_AUDIO_TODDR_C_CHNUM_ID3                         (0xff600000 + (0x323 << 2))
+#define SEC_EE_AUDIO_TODDR_C_CHNUM_ID3                         (0xff600000 + (0x323 << 2))
+#define   P_EE_AUDIO_TODDR_C_CHNUM_ID3                         (volatile uint32_t *)(0xff600000 + (0x323 << 2))
+#define     EE_AUDIO_TODDR_C_CHNUM_ID4                         (0xff600000 + (0x324 << 2))
+#define SEC_EE_AUDIO_TODDR_C_CHNUM_ID4                         (0xff600000 + (0x324 << 2))
+#define   P_EE_AUDIO_TODDR_C_CHNUM_ID4                         (volatile uint32_t *)(0xff600000 + (0x324 << 2))
+#define     EE_AUDIO_TODDR_C_CHNUM_ID5                         (0xff600000 + (0x325 << 2))
+#define SEC_EE_AUDIO_TODDR_C_CHNUM_ID5                         (0xff600000 + (0x325 << 2))
+#define   P_EE_AUDIO_TODDR_C_CHNUM_ID5                         (volatile uint32_t *)(0xff600000 + (0x325 << 2))
+#define     EE_AUDIO_TODDR_C_CHNUM_ID6                         (0xff600000 + (0x326 << 2))
+#define SEC_EE_AUDIO_TODDR_C_CHNUM_ID6                         (0xff600000 + (0x326 << 2))
+#define   P_EE_AUDIO_TODDR_C_CHNUM_ID6                         (volatile uint32_t *)(0xff600000 + (0x326 << 2))
+#define     EE_AUDIO_TODDR_C_CHNUM_ID7                         (0xff600000 + (0x327 << 2))
+#define SEC_EE_AUDIO_TODDR_C_CHNUM_ID7                         (0xff600000 + (0x327 << 2))
+#define   P_EE_AUDIO_TODDR_C_CHNUM_ID7                         (volatile uint32_t *)(0xff600000 + (0x327 << 2))
+#define     EE_AUDIO_TODDR_C_CHSYNC_CTRL                       (0xff600000 + (0x32f << 2))
+#define SEC_EE_AUDIO_TODDR_C_CHSYNC_CTRL                       (0xff600000 + (0x32f << 2))
+#define   P_EE_AUDIO_TODDR_C_CHSYNC_CTRL                       (volatile uint32_t *)(0xff600000 + (0x32f << 2))
+#define     EE_AUDIO_TODDR_D_CHNUM_ID0                         (0xff600000 + (0x330 << 2))
+#define SEC_EE_AUDIO_TODDR_D_CHNUM_ID0                         (0xff600000 + (0x330 << 2))
+#define   P_EE_AUDIO_TODDR_D_CHNUM_ID0                         (volatile uint32_t *)(0xff600000 + (0x330 << 2))
+#define     EE_AUDIO_TODDR_D_CHNUM_ID1                         (0xff600000 + (0x331 << 2))
+#define SEC_EE_AUDIO_TODDR_D_CHNUM_ID1                         (0xff600000 + (0x331 << 2))
+#define   P_EE_AUDIO_TODDR_D_CHNUM_ID1                         (volatile uint32_t *)(0xff600000 + (0x331 << 2))
+#define     EE_AUDIO_TODDR_D_CHNUM_ID2                         (0xff600000 + (0x332 << 2))
+#define SEC_EE_AUDIO_TODDR_D_CHNUM_ID2                         (0xff600000 + (0x332 << 2))
+#define   P_EE_AUDIO_TODDR_D_CHNUM_ID2                         (volatile uint32_t *)(0xff600000 + (0x332 << 2))
+#define     EE_AUDIO_TODDR_D_CHNUM_ID3                         (0xff600000 + (0x333 << 2))
+#define SEC_EE_AUDIO_TODDR_D_CHNUM_ID3                         (0xff600000 + (0x333 << 2))
+#define   P_EE_AUDIO_TODDR_D_CHNUM_ID3                         (volatile uint32_t *)(0xff600000 + (0x333 << 2))
+#define     EE_AUDIO_TODDR_D_CHNUM_ID4                         (0xff600000 + (0x334 << 2))
+#define SEC_EE_AUDIO_TODDR_D_CHNUM_ID4                         (0xff600000 + (0x334 << 2))
+#define   P_EE_AUDIO_TODDR_D_CHNUM_ID4                         (volatile uint32_t *)(0xff600000 + (0x334 << 2))
+#define     EE_AUDIO_TODDR_D_CHNUM_ID5                         (0xff600000 + (0x335 << 2))
+#define SEC_EE_AUDIO_TODDR_D_CHNUM_ID5                         (0xff600000 + (0x335 << 2))
+#define   P_EE_AUDIO_TODDR_D_CHNUM_ID5                         (volatile uint32_t *)(0xff600000 + (0x335 << 2))
+#define     EE_AUDIO_TODDR_D_CHNUM_ID6                         (0xff600000 + (0x336 << 2))
+#define SEC_EE_AUDIO_TODDR_D_CHNUM_ID6                         (0xff600000 + (0x336 << 2))
+#define   P_EE_AUDIO_TODDR_D_CHNUM_ID6                         (volatile uint32_t *)(0xff600000 + (0x336 << 2))
+#define     EE_AUDIO_TODDR_D_CHNUM_ID7                         (0xff600000 + (0x337 << 2))
+#define SEC_EE_AUDIO_TODDR_D_CHNUM_ID7                         (0xff600000 + (0x337 << 2))
+#define   P_EE_AUDIO_TODDR_D_CHNUM_ID7                         (volatile uint32_t *)(0xff600000 + (0x337 << 2))
+#define     EE_AUDIO_TODDR_D_CHSYNC_CTRL                       (0xff600000 + (0x33f << 2))
+#define SEC_EE_AUDIO_TODDR_D_CHSYNC_CTRL                       (0xff600000 + (0x33f << 2))
+#define   P_EE_AUDIO_TODDR_D_CHSYNC_CTRL                       (volatile uint32_t *)(0xff600000 + (0x33f << 2))
+#define     EE_AUDIO_TODDR_E_CHNUM_ID0                         (0xff600000 + (0x340 << 2))
+#define SEC_EE_AUDIO_TODDR_E_CHNUM_ID0                         (0xff600000 + (0x340 << 2))
+#define   P_EE_AUDIO_TODDR_E_CHNUM_ID0                         (volatile uint32_t *)(0xff600000 + (0x340 << 2))
+#define     EE_AUDIO_TODDR_E_CHNUM_ID1                         (0xff600000 + (0x341 << 2))
+#define SEC_EE_AUDIO_TODDR_E_CHNUM_ID1                         (0xff600000 + (0x341 << 2))
+#define   P_EE_AUDIO_TODDR_E_CHNUM_ID1                         (volatile uint32_t *)(0xff600000 + (0x341 << 2))
+#define     EE_AUDIO_TODDR_E_CHNUM_ID2                         (0xff600000 + (0x342 << 2))
+#define SEC_EE_AUDIO_TODDR_E_CHNUM_ID2                         (0xff600000 + (0x342 << 2))
+#define   P_EE_AUDIO_TODDR_E_CHNUM_ID2                         (volatile uint32_t *)(0xff600000 + (0x342 << 2))
+#define     EE_AUDIO_TODDR_E_CHNUM_ID3                         (0xff600000 + (0x343 << 2))
+#define SEC_EE_AUDIO_TODDR_E_CHNUM_ID3                         (0xff600000 + (0x343 << 2))
+#define   P_EE_AUDIO_TODDR_E_CHNUM_ID3                         (volatile uint32_t *)(0xff600000 + (0x343 << 2))
+#define     EE_AUDIO_TODDR_E_CHNUM_ID4                         (0xff600000 + (0x344 << 2))
+#define SEC_EE_AUDIO_TODDR_E_CHNUM_ID4                         (0xff600000 + (0x344 << 2))
+#define   P_EE_AUDIO_TODDR_E_CHNUM_ID4                         (volatile uint32_t *)(0xff600000 + (0x344 << 2))
+#define     EE_AUDIO_TODDR_E_CHNUM_ID5                         (0xff600000 + (0x345 << 2))
+#define SEC_EE_AUDIO_TODDR_E_CHNUM_ID5                         (0xff600000 + (0x345 << 2))
+#define   P_EE_AUDIO_TODDR_E_CHNUM_ID5                         (volatile uint32_t *)(0xff600000 + (0x345 << 2))
+#define     EE_AUDIO_TODDR_E_CHNUM_ID6                         (0xff600000 + (0x346 << 2))
+#define SEC_EE_AUDIO_TODDR_E_CHNUM_ID6                         (0xff600000 + (0x346 << 2))
+#define   P_EE_AUDIO_TODDR_E_CHNUM_ID6                         (volatile uint32_t *)(0xff600000 + (0x346 << 2))
+#define     EE_AUDIO_TODDR_E_CHNUM_ID7                         (0xff600000 + (0x347 << 2))
+#define SEC_EE_AUDIO_TODDR_E_CHNUM_ID7                         (0xff600000 + (0x347 << 2))
+#define   P_EE_AUDIO_TODDR_E_CHNUM_ID7                         (volatile uint32_t *)(0xff600000 + (0x347 << 2))
+#define     EE_AUDIO_TODDR_E_CHSYNC_CTRL                       (0xff600000 + (0x34f << 2))
+#define SEC_EE_AUDIO_TODDR_E_CHSYNC_CTRL                       (0xff600000 + (0x34f << 2))
+#define   P_EE_AUDIO_TODDR_E_CHSYNC_CTRL                       (volatile uint32_t *)(0xff600000 + (0x34f << 2))
+#define     EE_AUDIO_RSAMP_A_CHNUM_ID0                         (0xff600000 + (0x350 << 2))
+#define SEC_EE_AUDIO_RSAMP_A_CHNUM_ID0                         (0xff600000 + (0x350 << 2))
+#define   P_EE_AUDIO_RSAMP_A_CHNUM_ID0                         (volatile uint32_t *)(0xff600000 + (0x350 << 2))
+#define     EE_AUDIO_RSAMP_A_CHNUM_ID1                         (0xff600000 + (0x351 << 2))
+#define SEC_EE_AUDIO_RSAMP_A_CHNUM_ID1                         (0xff600000 + (0x351 << 2))
+#define   P_EE_AUDIO_RSAMP_A_CHNUM_ID1                         (volatile uint32_t *)(0xff600000 + (0x351 << 2))
+#define     EE_AUDIO_RSAMP_A_CHNUM_ID2                         (0xff600000 + (0x352 << 2))
+#define SEC_EE_AUDIO_RSAMP_A_CHNUM_ID2                         (0xff600000 + (0x352 << 2))
+#define   P_EE_AUDIO_RSAMP_A_CHNUM_ID2                         (volatile uint32_t *)(0xff600000 + (0x352 << 2))
+#define     EE_AUDIO_RSAMP_A_CHNUM_ID3                         (0xff600000 + (0x353 << 2))
+#define SEC_EE_AUDIO_RSAMP_A_CHNUM_ID3                         (0xff600000 + (0x353 << 2))
+#define   P_EE_AUDIO_RSAMP_A_CHNUM_ID3                         (volatile uint32_t *)(0xff600000 + (0x353 << 2))
+#define     EE_AUDIO_RSAMP_A_CHNUM_ID4                         (0xff600000 + (0x354 << 2))
+#define SEC_EE_AUDIO_RSAMP_A_CHNUM_ID4                         (0xff600000 + (0x354 << 2))
+#define   P_EE_AUDIO_RSAMP_A_CHNUM_ID4                         (volatile uint32_t *)(0xff600000 + (0x354 << 2))
+#define     EE_AUDIO_RSAMP_A_CHNUM_ID5                         (0xff600000 + (0x355 << 2))
+#define SEC_EE_AUDIO_RSAMP_A_CHNUM_ID5                         (0xff600000 + (0x355 << 2))
+#define   P_EE_AUDIO_RSAMP_A_CHNUM_ID5                         (volatile uint32_t *)(0xff600000 + (0x355 << 2))
+#define     EE_AUDIO_RSAMP_A_CHNUM_ID6                         (0xff600000 + (0x356 << 2))
+#define SEC_EE_AUDIO_RSAMP_A_CHNUM_ID6                         (0xff600000 + (0x356 << 2))
+#define   P_EE_AUDIO_RSAMP_A_CHNUM_ID6                         (volatile uint32_t *)(0xff600000 + (0x356 << 2))
+#define     EE_AUDIO_RSAMP_A_CHNUM_ID7                         (0xff600000 + (0x357 << 2))
+#define SEC_EE_AUDIO_RSAMP_A_CHNUM_ID7                         (0xff600000 + (0x357 << 2))
+#define   P_EE_AUDIO_RSAMP_A_CHNUM_ID7                         (volatile uint32_t *)(0xff600000 + (0x357 << 2))
+#define     EE_AUDIO_RSAMP_CHSYNC_MASK                         (0xff600000 + (0x35e << 2))
+#define SEC_EE_AUDIO_RSAMP_CHSYNC_MASK                         (0xff600000 + (0x35e << 2))
+#define   P_EE_AUDIO_RSAMP_CHSYNC_MASK                         (volatile uint32_t *)(0xff600000 + (0x35e << 2))
+#define     EE_AUDIO_RSAMP_A_CHSYNC_CTRL                       (0xff600000 + (0x35f << 2))
+#define SEC_EE_AUDIO_RSAMP_A_CHSYNC_CTRL                       (0xff600000 + (0x35f << 2))
+#define   P_EE_AUDIO_RSAMP_A_CHSYNC_CTRL                       (volatile uint32_t *)(0xff600000 + (0x35f << 2))
+#define     EE_AUDIO_RSAMP_B_CHNUM_ID0                         (0xff600000 + (0x360 << 2))
+#define SEC_EE_AUDIO_RSAMP_B_CHNUM_ID0                         (0xff600000 + (0x360 << 2))
+#define   P_EE_AUDIO_RSAMP_B_CHNUM_ID0                         (volatile uint32_t *)(0xff600000 + (0x360 << 2))
+#define     EE_AUDIO_RSAMP_B_CHNUM_ID1                         (0xff600000 + (0x361 << 2))
+#define SEC_EE_AUDIO_RSAMP_B_CHNUM_ID1                         (0xff600000 + (0x361 << 2))
+#define   P_EE_AUDIO_RSAMP_B_CHNUM_ID1                         (volatile uint32_t *)(0xff600000 + (0x361 << 2))
+#define     EE_AUDIO_RSAMP_B_CHNUM_ID2                         (0xff600000 + (0x362 << 2))
+#define SEC_EE_AUDIO_RSAMP_B_CHNUM_ID2                         (0xff600000 + (0x362 << 2))
+#define   P_EE_AUDIO_RSAMP_B_CHNUM_ID2                         (volatile uint32_t *)(0xff600000 + (0x362 << 2))
+#define     EE_AUDIO_RSAMP_B_CHNUM_ID3                         (0xff600000 + (0x363 << 2))
+#define SEC_EE_AUDIO_RSAMP_B_CHNUM_ID3                         (0xff600000 + (0x363 << 2))
+#define   P_EE_AUDIO_RSAMP_B_CHNUM_ID3                         (volatile uint32_t *)(0xff600000 + (0x363 << 2))
+#define     EE_AUDIO_RSAMP_B_CHNUM_ID4                         (0xff600000 + (0x364 << 2))
+#define SEC_EE_AUDIO_RSAMP_B_CHNUM_ID4                         (0xff600000 + (0x364 << 2))
+#define   P_EE_AUDIO_RSAMP_B_CHNUM_ID4                         (volatile uint32_t *)(0xff600000 + (0x364 << 2))
+#define     EE_AUDIO_RSAMP_B_CHNUM_ID5                         (0xff600000 + (0x365 << 2))
+#define SEC_EE_AUDIO_RSAMP_B_CHNUM_ID5                         (0xff600000 + (0x365 << 2))
+#define   P_EE_AUDIO_RSAMP_B_CHNUM_ID5                         (volatile uint32_t *)(0xff600000 + (0x365 << 2))
+#define     EE_AUDIO_RSAMP_B_CHNUM_ID6                         (0xff600000 + (0x366 << 2))
+#define SEC_EE_AUDIO_RSAMP_B_CHNUM_ID6                         (0xff600000 + (0x366 << 2))
+#define   P_EE_AUDIO_RSAMP_B_CHNUM_ID6                         (volatile uint32_t *)(0xff600000 + (0x366 << 2))
+#define     EE_AUDIO_RSAMP_B_CHNUM_ID7                         (0xff600000 + (0x367 << 2))
+#define SEC_EE_AUDIO_RSAMP_B_CHNUM_ID7                         (0xff600000 + (0x367 << 2))
+#define   P_EE_AUDIO_RSAMP_B_CHNUM_ID7                         (volatile uint32_t *)(0xff600000 + (0x367 << 2))
+#define     EE_AUDIO_RSAMP_B_CHSYNC_CTRL                       (0xff600000 + (0x36f << 2))
+#define SEC_EE_AUDIO_RSAMP_B_CHSYNC_CTRL                       (0xff600000 + (0x36f << 2))
+#define   P_EE_AUDIO_RSAMP_B_CHSYNC_CTRL                       (volatile uint32_t *)(0xff600000 + (0x36f << 2))
+#define     EE_AUDIO_RSAMP_C_CHNUM_ID0                         (0xff600000 + (0x370 << 2))
+#define SEC_EE_AUDIO_RSAMP_C_CHNUM_ID0                         (0xff600000 + (0x370 << 2))
+#define   P_EE_AUDIO_RSAMP_C_CHNUM_ID0                         (volatile uint32_t *)(0xff600000 + (0x370 << 2))
+#define     EE_AUDIO_RSAMP_C_CHNUM_ID1                         (0xff600000 + (0x371 << 2))
+#define SEC_EE_AUDIO_RSAMP_C_CHNUM_ID1                         (0xff600000 + (0x371 << 2))
+#define   P_EE_AUDIO_RSAMP_C_CHNUM_ID1                         (volatile uint32_t *)(0xff600000 + (0x371 << 2))
+#define     EE_AUDIO_RSAMP_C_CHNUM_ID2                         (0xff600000 + (0x372 << 2))
+#define SEC_EE_AUDIO_RSAMP_C_CHNUM_ID2                         (0xff600000 + (0x372 << 2))
+#define   P_EE_AUDIO_RSAMP_C_CHNUM_ID2                         (volatile uint32_t *)(0xff600000 + (0x372 << 2))
+#define     EE_AUDIO_RSAMP_C_CHNUM_ID3                         (0xff600000 + (0x373 << 2))
+#define SEC_EE_AUDIO_RSAMP_C_CHNUM_ID3                         (0xff600000 + (0x373 << 2))
+#define   P_EE_AUDIO_RSAMP_C_CHNUM_ID3                         (volatile uint32_t *)(0xff600000 + (0x373 << 2))
+#define     EE_AUDIO_RSAMP_C_CHNUM_ID4                         (0xff600000 + (0x374 << 2))
+#define SEC_EE_AUDIO_RSAMP_C_CHNUM_ID4                         (0xff600000 + (0x374 << 2))
+#define   P_EE_AUDIO_RSAMP_C_CHNUM_ID4                         (volatile uint32_t *)(0xff600000 + (0x374 << 2))
+#define     EE_AUDIO_RSAMP_C_CHNUM_ID5                         (0xff600000 + (0x375 << 2))
+#define SEC_EE_AUDIO_RSAMP_C_CHNUM_ID5                         (0xff600000 + (0x375 << 2))
+#define   P_EE_AUDIO_RSAMP_C_CHNUM_ID5                         (volatile uint32_t *)(0xff600000 + (0x375 << 2))
+#define     EE_AUDIO_RSAMP_C_CHNUM_ID6                         (0xff600000 + (0x376 << 2))
+#define SEC_EE_AUDIO_RSAMP_C_CHNUM_ID6                         (0xff600000 + (0x376 << 2))
+#define   P_EE_AUDIO_RSAMP_C_CHNUM_ID6                         (volatile uint32_t *)(0xff600000 + (0x376 << 2))
+#define     EE_AUDIO_RSAMP_C_CHNUM_ID7                         (0xff600000 + (0x377 << 2))
+#define SEC_EE_AUDIO_RSAMP_C_CHNUM_ID7                         (0xff600000 + (0x377 << 2))
+#define   P_EE_AUDIO_RSAMP_C_CHNUM_ID7                         (volatile uint32_t *)(0xff600000 + (0x377 << 2))
+#define     EE_AUDIO_RSAMP_C_CHSYNC_CTRL                       (0xff600000 + (0x37f << 2))
+#define SEC_EE_AUDIO_RSAMP_C_CHSYNC_CTRL                       (0xff600000 + (0x37f << 2))
+#define   P_EE_AUDIO_RSAMP_C_CHSYNC_CTRL                       (volatile uint32_t *)(0xff600000 + (0x37f << 2))
+#define     EE_AUDIO_EXCEPTION_IRQ_STS0                        (0xff600000 + (0x380 << 2))
+#define SEC_EE_AUDIO_EXCEPTION_IRQ_STS0                        (0xff600000 + (0x380 << 2))
+#define   P_EE_AUDIO_EXCEPTION_IRQ_STS0                        (volatile uint32_t *)(0xff600000 + (0x380 << 2))
+#define     EE_AUDIO_EXCEPTION_IRQ_STS1                        (0xff600000 + (0x381 << 2))
+#define SEC_EE_AUDIO_EXCEPTION_IRQ_STS1                        (0xff600000 + (0x381 << 2))
+#define   P_EE_AUDIO_EXCEPTION_IRQ_STS1                        (volatile uint32_t *)(0xff600000 + (0x381 << 2))
+#define     EE_AUDIO_EXCEPTION_IRQ_MASK0                       (0xff600000 + (0x382 << 2))
+#define SEC_EE_AUDIO_EXCEPTION_IRQ_MASK0                       (0xff600000 + (0x382 << 2))
+#define   P_EE_AUDIO_EXCEPTION_IRQ_MASK0                       (volatile uint32_t *)(0xff600000 + (0x382 << 2))
+#define     EE_AUDIO_EXCEPTION_IRQ_MASK1                       (0xff600000 + (0x383 << 2))
+#define SEC_EE_AUDIO_EXCEPTION_IRQ_MASK1                       (0xff600000 + (0x383 << 2))
+#define   P_EE_AUDIO_EXCEPTION_IRQ_MASK1                       (volatile uint32_t *)(0xff600000 + (0x383 << 2))
+#define     EE_AUDIO_EXCEPTION_IRQ_MODE0                       (0xff600000 + (0x384 << 2))
+#define SEC_EE_AUDIO_EXCEPTION_IRQ_MODE0                       (0xff600000 + (0x384 << 2))
+#define   P_EE_AUDIO_EXCEPTION_IRQ_MODE0                       (volatile uint32_t *)(0xff600000 + (0x384 << 2))
+#define     EE_AUDIO_EXCEPTION_IRQ_MODE1                       (0xff600000 + (0x385 << 2))
+#define SEC_EE_AUDIO_EXCEPTION_IRQ_MODE1                       (0xff600000 + (0x385 << 2))
+#define   P_EE_AUDIO_EXCEPTION_IRQ_MODE1                       (volatile uint32_t *)(0xff600000 + (0x385 << 2))
+#define     EE_AUDIO_EXCEPTION_IRQ_CLR0                        (0xff600000 + (0x386 << 2))
+#define SEC_EE_AUDIO_EXCEPTION_IRQ_CLR0                        (0xff600000 + (0x386 << 2))
+#define   P_EE_AUDIO_EXCEPTION_IRQ_CLR0                        (volatile uint32_t *)(0xff600000 + (0x386 << 2))
+#define     EE_AUDIO_EXCEPTION_IRQ_CLR1                        (0xff600000 + (0x387 << 2))
+#define SEC_EE_AUDIO_EXCEPTION_IRQ_CLR1                        (0xff600000 + (0x387 << 2))
+#define   P_EE_AUDIO_EXCEPTION_IRQ_CLR1                        (volatile uint32_t *)(0xff600000 + (0x387 << 2))
+#define     EE_AUDIO_EXCEPTION_IRQ_INV0                        (0xff600000 + (0x388 << 2))
+#define SEC_EE_AUDIO_EXCEPTION_IRQ_INV0                        (0xff600000 + (0x388 << 2))
+#define   P_EE_AUDIO_EXCEPTION_IRQ_INV0                        (volatile uint32_t *)(0xff600000 + (0x388 << 2))
+#define     EE_AUDIO_EXCEPTION_IRQ_INV1                        (0xff600000 + (0x389 << 2))
+#define SEC_EE_AUDIO_EXCEPTION_IRQ_INV1                        (0xff600000 + (0x389 << 2))
+#define   P_EE_AUDIO_EXCEPTION_IRQ_INV1                        (volatile uint32_t *)(0xff600000 + (0x389 << 2))
+#define     EE_AUDIO_DAT_PAD_CTRL0                             (0xff600000 + (0x390 << 2))
+#define SEC_EE_AUDIO_DAT_PAD_CTRL0                             (0xff600000 + (0x390 << 2))
+#define   P_EE_AUDIO_DAT_PAD_CTRL0                             (volatile uint32_t *)(0xff600000 + (0x390 << 2))
+#define     EE_AUDIO_DAT_PAD_CTRL1                             (0xff600000 + (0x391 << 2))
+#define SEC_EE_AUDIO_DAT_PAD_CTRL1                             (0xff600000 + (0x391 << 2))
+#define   P_EE_AUDIO_DAT_PAD_CTRL1                             (volatile uint32_t *)(0xff600000 + (0x391 << 2))
+#define     EE_AUDIO_DAT_PAD_CTRL2                             (0xff600000 + (0x392 << 2))
+#define SEC_EE_AUDIO_DAT_PAD_CTRL2                             (0xff600000 + (0x392 << 2))
+#define   P_EE_AUDIO_DAT_PAD_CTRL2                             (volatile uint32_t *)(0xff600000 + (0x392 << 2))
+#define     EE_AUDIO_DAT_PAD_CTRL3                             (0xff600000 + (0x393 << 2))
+#define SEC_EE_AUDIO_DAT_PAD_CTRL3                             (0xff600000 + (0x393 << 2))
+#define   P_EE_AUDIO_DAT_PAD_CTRL3                             (volatile uint32_t *)(0xff600000 + (0x393 << 2))
+#define     EE_AUDIO_DAT_PAD_CTRL4                             (0xff600000 + (0x394 << 2))
+#define SEC_EE_AUDIO_DAT_PAD_CTRL4                             (0xff600000 + (0x394 << 2))
+#define   P_EE_AUDIO_DAT_PAD_CTRL4                             (volatile uint32_t *)(0xff600000 + (0x394 << 2))
+#define     EE_AUDIO_DAT_PAD_CTRL5                             (0xff600000 + (0x395 << 2))
+#define SEC_EE_AUDIO_DAT_PAD_CTRL5                             (0xff600000 + (0x395 << 2))
+#define   P_EE_AUDIO_DAT_PAD_CTRL5                             (volatile uint32_t *)(0xff600000 + (0x395 << 2))
+#define     EE_AUDIO_DAT_PAD_CTRL6                             (0xff600000 + (0x396 << 2))
+#define SEC_EE_AUDIO_DAT_PAD_CTRL6                             (0xff600000 + (0x396 << 2))
+#define   P_EE_AUDIO_DAT_PAD_CTRL6                             (volatile uint32_t *)(0xff600000 + (0x396 << 2))
+#define     EE_AUDIO_DAT_PAD_CTRL7                             (0xff600000 + (0x397 << 2))
+#define SEC_EE_AUDIO_DAT_PAD_CTRL7                             (0xff600000 + (0x397 << 2))
+#define   P_EE_AUDIO_DAT_PAD_CTRL7                             (volatile uint32_t *)(0xff600000 + (0x397 << 2))
+#define     EE_AUDIO_DAT_PAD_CTRL8                             (0xff600000 + (0x398 << 2))
+#define SEC_EE_AUDIO_DAT_PAD_CTRL8                             (0xff600000 + (0x398 << 2))
+#define   P_EE_AUDIO_DAT_PAD_CTRL8                             (volatile uint32_t *)(0xff600000 + (0x398 << 2))
+#define     EE_AUDIO_DAT_PAD_CTRL9                             (0xff600000 + (0x399 << 2))
+#define SEC_EE_AUDIO_DAT_PAD_CTRL9                             (0xff600000 + (0x399 << 2))
+#define   P_EE_AUDIO_DAT_PAD_CTRL9                             (volatile uint32_t *)(0xff600000 + (0x399 << 2))
+#define     EE_AUDIO_DAT_PAD_CTRLA                             (0xff600000 + (0x39a << 2))
+#define SEC_EE_AUDIO_DAT_PAD_CTRLA                             (0xff600000 + (0x39a << 2))
+#define   P_EE_AUDIO_DAT_PAD_CTRLA                             (volatile uint32_t *)(0xff600000 + (0x39a << 2))
+#define     EE_AUDIO_DAT_PAD_CTRLB                             (0xff600000 + (0x39b << 2))
+#define SEC_EE_AUDIO_DAT_PAD_CTRLB                             (0xff600000 + (0x39b << 2))
+#define   P_EE_AUDIO_DAT_PAD_CTRLB                             (volatile uint32_t *)(0xff600000 + (0x39b << 2))
+#define     EE_AUDIO_DAT_PAD_CTRLC                             (0xff600000 + (0x39c << 2))
+#define SEC_EE_AUDIO_DAT_PAD_CTRLC                             (0xff600000 + (0x39c << 2))
+#define   P_EE_AUDIO_DAT_PAD_CTRLC                             (volatile uint32_t *)(0xff600000 + (0x39c << 2))
+#define     EE_AUDIO_DAT_PAD_CTRLD                             (0xff600000 + (0x39d << 2))
+#define SEC_EE_AUDIO_DAT_PAD_CTRLD                             (0xff600000 + (0x39d << 2))
+#define   P_EE_AUDIO_DAT_PAD_CTRLD                             (volatile uint32_t *)(0xff600000 + (0x39d << 2))
+#define     EE_AUDIO_DAT_PAD_CTRLE                             (0xff600000 + (0x39e << 2))
+#define SEC_EE_AUDIO_DAT_PAD_CTRLE                             (0xff600000 + (0x39e << 2))
+#define   P_EE_AUDIO_DAT_PAD_CTRLE                             (volatile uint32_t *)(0xff600000 + (0x39e << 2))
+#define     EE_AUDIO_DAT_PAD_CTRLF                             (0xff600000 + (0x39f << 2))
+#define SEC_EE_AUDIO_DAT_PAD_CTRLF                             (0xff600000 + (0x39f << 2))
+#define   P_EE_AUDIO_DAT_PAD_CTRLF                             (volatile uint32_t *)(0xff600000 + (0x39f << 2))
+#define     EE_AUDIO_MCLK_PAD_CTRL0                            (0xff600000 + (0x3a0 << 2))
+#define SEC_EE_AUDIO_MCLK_PAD_CTRL0                            (0xff600000 + (0x3a0 << 2))
+#define   P_EE_AUDIO_MCLK_PAD_CTRL0                            (volatile uint32_t *)(0xff600000 + (0x3a0 << 2))
+#define     EE_AUDIO_MCLK_PAD_CTRL1                            (0xff600000 + (0x3a1 << 2))
+#define SEC_EE_AUDIO_MCLK_PAD_CTRL1                            (0xff600000 + (0x3a1 << 2))
+#define   P_EE_AUDIO_MCLK_PAD_CTRL1                            (volatile uint32_t *)(0xff600000 + (0x3a1 << 2))
+#define     EE_AUDIO_SCLK_PAD_CTRL0                            (0xff600000 + (0x3a2 << 2))
+#define SEC_EE_AUDIO_SCLK_PAD_CTRL0                            (0xff600000 + (0x3a2 << 2))
+#define   P_EE_AUDIO_SCLK_PAD_CTRL0                            (volatile uint32_t *)(0xff600000 + (0x3a2 << 2))
+#define     EE_AUDIO_LRCLK_PAD_CTRL0                           (0xff600000 + (0x3a3 << 2))
+#define SEC_EE_AUDIO_LRCLK_PAD_CTRL0                           (0xff600000 + (0x3a3 << 2))
+#define   P_EE_AUDIO_LRCLK_PAD_CTRL0                           (volatile uint32_t *)(0xff600000 + (0x3a3 << 2))
 //========================================================================
 //  PDM - Registers
 //========================================================================
@@ -3634,6 +4834,9 @@
 #define     PDM_MASK_NUM                                       (0xff601000 + (0x00e << 2))
 #define SEC_PDM_MASK_NUM                                       (0xff601000 + (0x00e << 2))
 #define   P_PDM_MASK_NUM                                       (volatile uint32_t *)(0xff601000 + (0x00e << 2))
+#define     PDM_CHAN_CTRL2                                     (0xff601000 + (0x00f << 2))
+#define SEC_PDM_CHAN_CTRL2                                     (0xff601000 + (0x00f << 2))
+#define   P_PDM_CHAN_CTRL2                                     (volatile uint32_t *)(0xff601000 + (0x00f << 2))
 //========================================================================
 //  EQ DRC - Registers
 //========================================================================
@@ -4041,6 +5244,88 @@
 #define     AED_TOP_CTL2                                       (0xff602000 + (0x085 << 2))
 #define SEC_AED_TOP_CTL2                                       (0xff602000 + (0x085 << 2))
 #define   P_AED_TOP_CTL2                                       (volatile uint32_t *)(0xff602000 + (0x085 << 2))
+#define     AED_TOP_ST                                         (0xff602000 + (0x086 << 2))
+#define SEC_AED_TOP_ST                                         (0xff602000 + (0x086 << 2))
+#define   P_AED_TOP_ST                                         (volatile uint32_t *)(0xff602000 + (0x086 << 2))
+//`define   AED_EQDRC_DYNAMIC_CNTL           10'h90
+//`define   AED_COEF_RAM_CNTL_B              10'h91
+//`define   AED_COEF_RAM_DATA_B              10'h92
+//`define   AED_DRC_RMS_COEF0_B              10'h93
+//`define   AED_DRC_RMS_COEF1_B              10'h94
+//`define   AED_DRC_THD0_B                   10'h95
+//`define   AED_DRC_THD1_B                   10'h96
+//`define   AED_DRC_THD2_B                   10'h97
+//`define   AED_DRC_THD3_B                   10'h98
+//`define   AED_DRC_THD4_B                   10'h99
+//`define   AED_DRC_K0_B                     10'h9a
+//`define   AED_DRC_K1_B                     10'h9b
+//`define   AED_DRC_K2_B                     10'h9c
+//`define   AED_DRC_K3_B                     10'h9d
+//`define   AED_DRC_K4_B                     10'h9e
+//`define   AED_DRC_K5_B                     10'h9f
+//`define   AED_DRC_THD_OUT0_B               10'ha0
+//`define   AED_DRC_THD_OUT1_B               10'ha1
+//`define   AED_DRC_THD_OUT2_B               10'ha2
+//`define   AED_DRC_THD_OUT3_B               10'ha3
+//`define   AED_DRC_OFFSET_B                 10'ha4
+//`define   AED_DRC_RELEASE_COEF00_B         10'ha5
+//`define   AED_DRC_RELEASE_COEF01_B         10'ha6
+//`define   AED_DRC_RELEASE_COEF10_B         10'ha7
+//`define   AED_DRC_RELEASE_COEF11_B         10'ha8
+//`define   AED_DRC_RELEASE_COEF20_B         10'ha9
+//`define   AED_DRC_RELEASE_COEF21_B         10'haa
+//`define   AED_DRC_RELEASE_COEF30_B         10'hab
+//`define   AED_DRC_RELEASE_COEF31_B         10'hac
+//`define   AED_DRC_RELEASE_COEF40_B         10'had
+//`define   AED_DRC_RELEASE_COEF41_B         10'hae
+//`define   AED_DRC_RELEASE_COEF50_B         10'haf
+//`define   AED_DRC_RELEASE_COEF51_B         10'hb0
+//`define   AED_DRC_ATTACK_COEF00_B          10'hb1
+//`define   AED_DRC_ATTACK_COEF01_B          10'hb2
+//`define   AED_DRC_ATTACK_COEF10_B          10'hb3
+//`define   AED_DRC_ATTACK_COEF11_B          10'hb4
+//`define   AED_DRC_ATTACK_COEF20_B          10'hb5
+//`define   AED_DRC_ATTACK_COEF21_B          10'hb6
+//`define   AED_DRC_ATTACK_COEF30_B          10'hb7
+//`define   AED_DRC_ATTACK_COEF31_B          10'hb8
+//`define   AED_DRC_ATTACK_COEF40_B          10'hb9
+//`define   AED_DRC_ATTACK_COEF41_B          10'hba
+//`define   AED_DRC_ATTACK_COEF50_B          10'hbb
+//`define   AED_DRC_ATTACK_COEF51_B          10'hbc
+//`define   AED_MDRC_RMS_COEF00_B            10'hbd
+//`define   AED_MDRC_RMS_COEF01_B            10'hbe
+//`define   AED_MDRC_RMS_COEF10_B            10'hbf
+//`define   AED_MDRC_RMS_COEF11_B            10'hc0
+//`define   AED_MDRC_RMS_COEF20_B            10'hc1
+//`define   AED_MDRC_RMS_COEF21_B            10'hc2
+//`define   AED_MDRC_RELEASE_COEF00_B        10'hc3
+//`define   AED_MDRC_RELEASE_COEF01_B        10'hc4
+//`define   AED_MDRC_RELEASE_COEF10_B        10'hc5
+//`define   AED_MDRC_RELEASE_COEF11_B        10'hc6
+//`define   AED_MDRC_RELEASE_COEF20_B        10'hc7
+//`define   AED_MDRC_RELEASE_COEF21_B        10'hc8
+//`define   AED_MDRC_ATTACK_COEF00_B         10'hc9
+//`define   AED_MDRC_ATTACK_COEF01_B         10'hca
+//`define   AED_MDRC_ATTACK_COEF10_B         10'hcb
+//`define   AED_MDRC_ATTACK_COEF11_B         10'hcc
+//`define   AED_MDRC_ATTACK_COEF20_B         10'hcd
+//`define   AED_MDRC_ATTACK_COEF21_B         10'hce
+//`define   AED_MDRC_THD0_B                  10'hcf
+//`define   AED_MDRC_THD1_B                  10'hd0
+//`define   AED_MDRC_THD2_B                  10'hd1
+//`define   AED_MDRC_K0_B                    10'hd2
+//`define   AED_MDRC_K1_B                    10'hd3
+//`define   AED_MDRC_K2_B                    10'hd4
+//`define   AED_MDRC_OFFSET0_B               10'hd5
+//`define   AED_MDRC_OFFSET1_B               10'hd6
+//`define   AED_MDRC_OFFSET2_B               10'hd7
+//`define   AED_MDRC_LOW_GAIN_B              10'hd8
+//`define   AED_MDRC_MID_GAIN_B              10'hd9
+//`define   AED_MDRC_HIGH_GAIN_B             10'hda
+//`define   AED_DRC_CNTL_B                   10'hdb
+//`define   AED_DRC_LOOPBACK_CNTL_B          10'hdc
+//`define   AED_MDRC_CNTL_B                  10'hdd
+//`define   AED_STATUS_REG                   10'hde
 //========================================================================
 //  AUDIO locker - Registers
 //========================================================================
@@ -4365,6 +5650,33 @@
 #define     VAD_TO_DDR                                         (0xff601800 + (0x031 << 2))
 #define SEC_VAD_TO_DDR                                         (0xff601800 + (0x031 << 2))
 #define   P_VAD_TO_DDR                                         (volatile uint32_t *)(0xff601800 + (0x031 << 2))
+#define     VAD_SYNC_CTRL0                                     (0xff601800 + (0x032 << 2))
+#define SEC_VAD_SYNC_CTRL0                                     (0xff601800 + (0x032 << 2))
+#define   P_VAD_SYNC_CTRL0                                     (volatile uint32_t *)(0xff601800 + (0x032 << 2))
+#define     VAD_SYNC_CHNUM_ID0                                 (0xff601800 + (0x033 << 2))
+#define SEC_VAD_SYNC_CHNUM_ID0                                 (0xff601800 + (0x033 << 2))
+#define   P_VAD_SYNC_CHNUM_ID0                                 (volatile uint32_t *)(0xff601800 + (0x033 << 2))
+#define     VAD_SYNC_CHNUM_ID1                                 (0xff601800 + (0x034 << 2))
+#define SEC_VAD_SYNC_CHNUM_ID1                                 (0xff601800 + (0x034 << 2))
+#define   P_VAD_SYNC_CHNUM_ID1                                 (volatile uint32_t *)(0xff601800 + (0x034 << 2))
+#define     VAD_SYNC_CHNUM_ID2                                 (0xff601800 + (0x035 << 2))
+#define SEC_VAD_SYNC_CHNUM_ID2                                 (0xff601800 + (0x035 << 2))
+#define   P_VAD_SYNC_CHNUM_ID2                                 (volatile uint32_t *)(0xff601800 + (0x035 << 2))
+#define     VAD_SYNC_CHNUM_ID3                                 (0xff601800 + (0x036 << 2))
+#define SEC_VAD_SYNC_CHNUM_ID3                                 (0xff601800 + (0x036 << 2))
+#define   P_VAD_SYNC_CHNUM_ID3                                 (volatile uint32_t *)(0xff601800 + (0x036 << 2))
+#define     VAD_SYNC_CHNUM_ID4                                 (0xff601800 + (0x037 << 2))
+#define SEC_VAD_SYNC_CHNUM_ID4                                 (0xff601800 + (0x037 << 2))
+#define   P_VAD_SYNC_CHNUM_ID4                                 (volatile uint32_t *)(0xff601800 + (0x037 << 2))
+#define     VAD_SYNC_CHNUM_ID5                                 (0xff601800 + (0x038 << 2))
+#define SEC_VAD_SYNC_CHNUM_ID5                                 (0xff601800 + (0x038 << 2))
+#define   P_VAD_SYNC_CHNUM_ID5                                 (volatile uint32_t *)(0xff601800 + (0x038 << 2))
+#define     VAD_SYNC_CHNUM_ID6                                 (0xff601800 + (0x039 << 2))
+#define SEC_VAD_SYNC_CHNUM_ID6                                 (0xff601800 + (0x039 << 2))
+#define   P_VAD_SYNC_CHNUM_ID6                                 (volatile uint32_t *)(0xff601800 + (0x039 << 2))
+#define     VAD_SYNC_CHNUM_ID7                                 (0xff601800 + (0x03a << 2))
+#define SEC_VAD_SYNC_CHNUM_ID7                                 (0xff601800 + (0x03a << 2))
+#define   P_VAD_SYNC_CHNUM_ID7                                 (volatile uint32_t *)(0xff601800 + (0x03a << 2))
 //
 // Closing file:  VAD_REG.h
 //
@@ -4386,7 +5698,8 @@
 #define     AUDIO_RSAMP_CTRL1                                  (0xff601c00 + (0x001 << 2))
 #define SEC_AUDIO_RSAMP_CTRL1                                  (0xff601c00 + (0x001 << 2))
 #define   P_AUDIO_RSAMP_CTRL1                                  (volatile uint32_t *)(0xff601c00 + (0x001 << 2))
-//Bit   31:26      reserved          //unsigned  , default =0;
+//Bit   31:27      reg_in_lsb        //unsigned  , default =0;
+//Bit   26         reg_watchdog_en   //unsigned  , default =0;
 //Bit   25         reg_rsamp_rst_sel //unsigned  , default =0;
 //Bit   24         reg_module_bypas  //unsigned  , default =0;
 //Bit   23:18      reg_gclk_ctrl     //unsigned  , default =0;
@@ -4396,8 +5709,8 @@
 //Bit   10         reg_filt_en       //unsigned  , default =0;
 //Bit   9          reg_post_en       //unsigned  , default =0;
 //Bit   8          reg_inp_mux_mode  //unsigned  , default =0;
-//Bit   7:4        reserved          //unsigned  , default =2;
-//Bit   3:0        reg_inp_mux       //unsigned  , default =0;
+//Bit   7:5        reserved          //unsigned  , default =2;
+//Bit   4:0        reg_inp_mux       //unsigned  , default =0;
 #define     AUDIO_RSAMP_CTRL2                                  (0xff601c00 + (0x002 << 2))
 #define SEC_AUDIO_RSAMP_CTRL2                                  (0xff601c00 + (0x002 << 2))
 #define   P_AUDIO_RSAMP_CTRL2                                  (volatile uint32_t *)(0xff601c00 + (0x002 << 2))
@@ -4427,7 +5740,11 @@
 #define     AUDIO_RSAMP_ADJ_CTRL0                              (0xff601c00 + (0x006 << 2))
 #define SEC_AUDIO_RSAMP_ADJ_CTRL0                              (0xff601c00 + (0x006 << 2))
 #define   P_AUDIO_RSAMP_ADJ_CTRL0                              (volatile uint32_t *)(0xff601c00 + (0x006 << 2))
-//Bit   31:3        reserved                //unsigned
+//Bit   31:7        reserved                //unsigned
+//Bit   6           reg_lock_vld_sel        //unsigned , default = 0;
+//Bit   5           reg_loop_dif_clr_en     //unsigned , default = 0;
+//Bit   4           reg_aout_force_en       //unsigned , default = 0;
+//Bit   3           reserved                //unsigned
 //Bit   2           reg_rsamp_adj_out_inv   //unsigned , default = 0;
 //Bit   1           reg_rsamp_adj_force_en  //unsigned , default = 0;
 //Bit   0           reg_rsamp_adj_en        //unsigned , default = 0;
@@ -4460,6 +5777,32 @@
 #define SEC_AUDIO_RSAMP_ADJ_KI_FORCE                           (0xff601c00 + (0x00b << 2))
 #define   P_AUDIO_RSAMP_ADJ_KI_FORCE                           (volatile uint32_t *)(0xff601c00 + (0x00b << 2))
 //Bit   31:0       reg_rsamp_adj_ki_force //signed , default = 0;
+#define     AUDIO_RSAMP_WATCHDOG_THRD                          (0xff601c00 + (0x00c << 2))
+#define SEC_AUDIO_RSAMP_WATCHDOG_THRD                          (0xff601c00 + (0x00c << 2))
+#define   P_AUDIO_RSAMP_WATCHDOG_THRD                          (volatile uint32_t *)(0xff601c00 + (0x00c << 2))
+//Bit   31:0       reg_watchdog_thrd      //signed , default = 32'h1000;
+#define     AUDIO_RSAMP_DBG_INFO                               (0xff601c00 + (0x00d << 2))
+#define SEC_AUDIO_RSAMP_DBG_INFO                               (0xff601c00 + (0x00d << 2))
+#define   P_AUDIO_RSAMP_DBG_INFO                               (volatile uint32_t *)(0xff601c00 + (0x00d << 2))
+//Bit   31:16      reg_aout_force_hi        //unsigned , default = 0;
+//Bit   15:7       reserved                 //unsigned , default = 0;
+//Bit   6          reg_rsamp_dbgcnt_clr     //unsigned , default = 0;
+//Bit   5          reg_rsamp_dbgcnt_vldsel  //unsigned , default = 0;
+//Bit   4          reg_rsamp_dbgcnt_en      //unsigned , default = 0;
+//Bit   3          reserved                 //unsigned , default = 0;
+//Bit   2:0        reg_watchdog_rstsel      //unsigned , default = 4;
+#define     AUDIO_RSAMP_AOUT_FORCE                             (0xff601c00 + (0x00e << 2))
+#define SEC_AUDIO_RSAMP_AOUT_FORCE                             (0xff601c00 + (0x00e << 2))
+#define   P_AUDIO_RSAMP_AOUT_FORCE                             (volatile uint32_t *)(0xff601c00 + (0x00e << 2))
+//Bit   31:0       reg_aout_force_lo        //unsigned , default = 0;
+#define     AUDIO_RSAMP_IRQ_CTRL                               (0xff601c00 + (0x00f << 2))
+#define SEC_AUDIO_RSAMP_IRQ_CTRL                               (0xff601c00 + (0x00f << 2))
+#define   P_AUDIO_RSAMP_IRQ_CTRL                               (volatile uint32_t *)(0xff601c00 + (0x00f << 2))
+//Bit   31:16      reg_irq_thrd             //unsigned , default = 0;
+//Bit   15:12      reserved                 //unsigned , default = 0;
+//Bit   11:8       reg_irq_sel              //unsigned , default = 0;
+//Bit   7:4        reg_irq_clr              //unsigned , default = 0;
+//Bit   3:0        reg_irq_en               //unsigned , default = 0;
 #define     AUDIO_RSAMP_RO_STATUS                              (0xff601c00 + (0x010 << 2))
 #define SEC_AUDIO_RSAMP_RO_STATUS                              (0xff601c00 + (0x010 << 2))
 #define   P_AUDIO_RSAMP_RO_STATUS                              (volatile uint32_t *)(0xff601c00 + (0x010 << 2))
@@ -4492,6 +5835,10 @@
 #define SEC_AUDIO_RSAMP_RO_OUT_CNT                             (0xff601c00 + (0x017 << 2))
 #define   P_AUDIO_RSAMP_RO_OUT_CNT                             (volatile uint32_t *)(0xff601c00 + (0x017 << 2))
 //Bit   31:0       ro_rsamp_out_cnt
+#define     AUDIO_RSAMP_RO_ADJ_PHS_ERR_VAR                     (0xff601c00 + (0x018 << 2))
+#define SEC_AUDIO_RSAMP_RO_ADJ_PHS_ERR_VAR                     (0xff601c00 + (0x018 << 2))
+#define   P_AUDIO_RSAMP_RO_ADJ_PHS_ERR_VAR                     (volatile uint32_t *)(0xff601c00 + (0x018 << 2))
+//Bit   31:0       ro_det_phase_err_var
 #define     AUDIO_RSAMP_POST_COEF0                             (0xff601c00 + (0x020 << 2))
 #define SEC_AUDIO_RSAMP_POST_COEF0                             (0xff601c00 + (0x020 << 2))
 #define   P_AUDIO_RSAMP_POST_COEF0                             (volatile uint32_t *)(0xff601c00 + (0x020 << 2))
@@ -4963,13 +6310,13 @@
 //Bit 17,     reg_valid_set       ,default = 0,biphase encode valid Bit value
 //Bit 16,     reg_mute_hold_init_en  ,default = 0,when c_mute_hold_last_err_corrt valid,clear work enable, initial biphase encode
 //Bit 15:12,  reserved
-//Bit 11:4,   reg_mask            ,default = 0,11:10 mask lane3 L/R,9:8 mask lane2 L/R,7:6 mask lane1 L/R,5:4 mask lane0 L/R
-//Bit 3:0,    reg_parity_mask     ,default = 0,Bit 0 is initial parity value
+//Bit 0,      reg_parity_mask     ,default = 0,Bit 0 is initial parity value
 #define     EARCTX_SPDIFOUT_CTRL1                              (0xff603400 + (0x005 << 2))
 #define SEC_EARCTX_SPDIFOUT_CTRL1                              (0xff603400 + (0x005 << 2))
 #define   P_EARCTX_SPDIFOUT_CTRL1                              (volatile uint32_t *)(0xff603400 + (0x005 << 2))
 //Bit 31,     reg_eq_drc_sel      ,default = 0,set 1 select eq_drc data
-//Bit 30:28,  reserved
+//Bit 30,     reg_keep_req_ddr_init ,default = 0,reg_keep_req_ddr_init
+//Bit 29:28,  reserved
 //Bit 27,     reg_gain_en         ,default = 0,gain enable
 //Bit 26:24,  reg_frddr_sel       ,default = 0,from ddr selet
 //Bit 23:16,  reg_wait_cnt        ,default = 0,wait some time when enalble set to 1
@@ -4988,15 +6335,15 @@
 //Bit 23:16,  reg_premable_X_value    ,default = 0
 //Bit 15:8,   reg_premable_Y_value    ,default = 0
 //Bit 7:0,    reg_premable_Z_value    ,default = 0
-#define     EARCTX_SPDIFOUT_SWAP                               (0xff603400 + (0x024 << 2))
-#define SEC_EARCTX_SPDIFOUT_SWAP                               (0xff603400 + (0x024 << 2))
-#define   P_EARCTX_SPDIFOUT_SWAP                               (volatile uint32_t *)(0xff603400 + (0x024 << 2))
+#define     EARCTX_SPDIFOUT_SWAP                               (0xff603400 + (0x007 << 2))
+#define SEC_EARCTX_SPDIFOUT_SWAP                               (0xff603400 + (0x007 << 2))
+#define   P_EARCTX_SPDIFOUT_SWAP                               (volatile uint32_t *)(0xff603400 + (0x007 << 2))
 //Bit 31:16,  reg_hold_cnt        ,default = 0,hold start cnt ,valid when reg_hold_for_tdm set 1
 //Bit 15,     reg_init_send_en    ,default = 0,send 01 squence some times after intial done from frddr set
 //Bit 14:0,   reg_init_send_cnt   ,default = 0,send 01 squence time ,valid when reg_init_send_en set 1
-#define     EARCTX_ERR_CORRT_CTRL0                             (0xff603400 + (0x007 << 2))
-#define SEC_EARCTX_ERR_CORRT_CTRL0                             (0xff603400 + (0x007 << 2))
-#define   P_EARCTX_ERR_CORRT_CTRL0                             (volatile uint32_t *)(0xff603400 + (0x007 << 2))
+#define     EARCTX_ERR_CORRT_CTRL0                             (0xff603400 + (0x008 << 2))
+#define SEC_EARCTX_ERR_CORRT_CTRL0                             (0xff603400 + (0x008 << 2))
+#define   P_EARCTX_ERR_CORRT_CTRL0                             (volatile uint32_t *)(0xff603400 + (0x008 << 2))
 //Bit 31:24,  reserved
 //Bit 23,     reg_bch_in_reverse       ,default = 0,bch input data generate in 24it data reverse
 //Bit 22,     reg_bch_out_ecc_reverse  ,default = 0,bch output ecc  reverse
@@ -5011,9 +6358,9 @@
 //Bit 7,      reserved
 //Bit 6:4,    reg_spdifout_l_sel  ,default = 0,l channel select
 //Bit 3:0,    reg_iu_interval     ,default = 0,iu transmit interval
-#define     EARCTX_ERR_CORRT_CTRL1                             (0xff603400 + (0x008 << 2))
-#define SEC_EARCTX_ERR_CORRT_CTRL1                             (0xff603400 + (0x008 << 2))
-#define   P_EARCTX_ERR_CORRT_CTRL1                             (volatile uint32_t *)(0xff603400 + (0x008 << 2))
+#define     EARCTX_ERR_CORRT_CTRL1                             (0xff603400 + (0x009 << 2))
+#define SEC_EARCTX_ERR_CORRT_CTRL1                             (0xff603400 + (0x009 << 2))
+#define   P_EARCTX_ERR_CORRT_CTRL1                             (volatile uint32_t *)(0xff603400 + (0x009 << 2))
 //Bit 31,     reg_ubit_fifo_wr    ,default = 0,iu data write enable,pluse,auto clr in reg.v
 //Bit 30:8,   reserved
 //Bit 7:0,    reg_ubit_fifo_wdata ,default = 0,iu data
@@ -5121,6 +6468,29 @@
 #define SEC_EARCTX_SPDIFOUT_STAT                               (0xff603400 + (0x01c << 2))
 #define   P_EARCTX_SPDIFOUT_STAT                               (volatile uint32_t *)(0xff603400 + (0x01c << 2))
 //Bit 31:0,  ro_spdifout_stat     ,default = 0,
+#define     EARCTX_SPDIFOUT_CTRL2                              (0xff603400 + (0x01d << 2))
+#define SEC_EARCTX_SPDIFOUT_CTRL2                              (0xff603400 + (0x01d << 2))
+#define   P_EARCTX_SPDIFOUT_CTRL2                              (volatile uint32_t *)(0xff603400 + (0x01d << 2))
+//Bit 31:28,  reserved
+//Bit 27:16,  reg_clr_by_init      ,default = 0,reg_clr_by_init
+//Bit 15:0 ,  reg_mask             ,default = 0,reg_mask
+#define     EARCTX_SPDIFOUT_GAIN2                              (0xff603400 + (0x01e << 2))
+#define SEC_EARCTX_SPDIFOUT_GAIN2                              (0xff603400 + (0x01e << 2))
+#define   P_EARCTX_SPDIFOUT_GAIN2                              (volatile uint32_t *)(0xff603400 + (0x01e << 2))
+//Bit 31:0,  spdifout_gain2        ,default = 0,spdifout gain2
+#define     EARCTX_SPDIFOUT_GAIN3                              (0xff603400 + (0x01f << 2))
+#define SEC_EARCTX_SPDIFOUT_GAIN3                              (0xff603400 + (0x01f << 2))
+#define   P_EARCTX_SPDIFOUT_GAIN3                              (volatile uint32_t *)(0xff603400 + (0x01f << 2))
+//Bit 31:0,  spdifout_gain3        ,default = 0,spdifout gain3
+#define     EARCTX_SPDIFOUT_GAIN4                              (0xff603400 + (0x020 << 2))
+#define SEC_EARCTX_SPDIFOUT_GAIN4                              (0xff603400 + (0x020 << 2))
+#define   P_EARCTX_SPDIFOUT_GAIN4                              (volatile uint32_t *)(0xff603400 + (0x020 << 2))
+//Bit 31:0,  spdifout_gain4        ,default = 0,spdifout gain4
+#define     EARCTX_SPDIFOUT_GAIN5                              (0xff603400 + (0x021 << 2))
+#define SEC_EARCTX_SPDIFOUT_GAIN5                              (0xff603400 + (0x021 << 2))
+#define   P_EARCTX_SPDIFOUT_GAIN5                              (volatile uint32_t *)(0xff603400 + (0x021 << 2))
+//Bit 31:0,  spdifout_gain5        ,default = 0,spdifout gain5
+//
 //
 // Closing file:  earctx_dmac.h
 //
@@ -5745,7 +7115,8 @@
 //Bit   30,     reserved
 //Bit   29,     reg_rst_afifo_out_n           unsigned, default = 0, reset afifo out side
 //Bit   28,     reg_rst_afifo_in_n            unsigned, default = 0, reset afifo in side
-//Bit   27:7,   reserved
+//Bit   27,     reg_lr_check                  unsigned, default = 0, enable lr_check
+//Bit   26:7,   reserved
 //Bit   6,      reg_bchout_data_ml            unsigned, default = 0, bch output 16bit data msb is 27 or 19
 //Bit   5,      reg_bchout_data_rsv           unsigned, default = 0, bch output data revers
 //Bit   4,      reg_bchin_ecc_ml              unsigned, default = 0, bch input ecc msb/lsb
@@ -5778,6 +7149,47 @@
 //Bit   14:12,  reg_dmacrx_sqout_filter_sel   unsigned, default = 0, filter select
 //Bit   11:9,   reg_dmacrx_sqout_tick_sel     unsigned, default = 0, filter tick sel
 //Bit   8:0,    reg_dmacrx_sqout_time         unsigned, default = 0, filter tick time
+#define     EARCRX_SPDIFIN_CTRL4                               (0xff603c00 + (0x020 << 2))
+#define SEC_EARCRX_SPDIFIN_CTRL4                               (0xff603c00 + (0x020 << 2))
+#define   P_EARCRX_SPDIFIN_CTRL4                               (volatile uint32_t *)(0xff603c00 + (0x020 << 2))
+//Bit   31,     reserved
+//Bit   30,     reg_add_ch_r                        unsigned, default = 0, reg_add_ch_r
+//Bit   30,     reg_bc_val0_en                      unsigned, default = 0, reg_bc_val0_en
+//Bit   28:20,  reg_stable_mask                     unsigned, default = 0, reg_stable_mask
+//Bit   19:16,  reg_stable_zcnt                     unsigned, default = 0, reg_stable_zcnt
+//Bit   15:0 ,  reserved
+#define     EARCRX_SPDIFIN_CTRL5                               (0xff603c00 + (0x021 << 2))
+#define SEC_EARCRX_SPDIFIN_CTRL5                               (0xff603c00 + (0x021 << 2))
+#define   P_EARCRX_SPDIFIN_CTRL5                               (volatile uint32_t *)(0xff603c00 + (0x021 << 2))
+//Bit   31,     reg_st_timeout_sts_clr              unsigned, default = 0, reg_st_timeout_sts_clr
+//Bit   30:28,  reserved
+//Bit   27:16,  reg_st_timeout_check_thd            unsigned, default = 0, reg_st_timeout_check_thd
+//Bit   15,     reserved
+//Bit   14:12,  reg_st_timeout_check_tick_sel       unsigned, default = 0, reg_st_timeout_check_tick_sel
+//Bit   11,     reg_st_timeout_check_en             unsigned, default = 0, reg_st_timeout_check_en
+//Bit   8:0,    reg_stable_int_mask                 unsigned, default = 0, reg_stable_int_mask
+#define     EARCRX_SPDIFIN_CTRL6                               (0xff603c00 + (0x022 << 2))
+#define SEC_EARCRX_SPDIFIN_CTRL6                               (0xff603c00 + (0x022 << 2))
+#define   P_EARCRX_SPDIFIN_CTRL6                               (volatile uint32_t *)(0xff603c00 + (0x022 << 2))
+//Bit   31:17,  reserved
+//Bit   16,     reg_check_time_en                   unsigned, default = 0, reg_check_time_en
+//Bit   15:0,   reg_check_time_thd                  unsigned, default = 0, reg_check_time_thd
+#define     EARCRX_DMAC_SYNC_CTRL1                             (0xff603c00 + (0x023 << 2))
+#define SEC_EARCRX_DMAC_SYNC_CTRL1                             (0xff603c00 + (0x023 << 2))
+#define   P_EARCRX_DMAC_SYNC_CTRL1                             (volatile uint32_t *)(0xff603c00 + (0x023 << 2))
+//Bit   31:19,  reserved
+//Bit   18,     reg_auto_neg_int_en                 unsigned, default = 0, reg_auto_neg_int_en
+//Bit   17,     reg_auto_stable_clr                 unsigned, default = 0, reg_auto_stable_clr
+//Bit   16,     reg_auto_stable_en                  unsigned, default = 0, reg_auto_stable_en
+//Bit   15:0,   reg_auto_stable_thd                 unsigned, default = 0, reg_auto_stable_thd
+#define     EARCRX_SPDIFIN_SAMPLE_CTRL6                        (0xff603c00 + (0x024 << 2))
+#define SEC_EARCRX_SPDIFIN_SAMPLE_CTRL6                        (0xff603c00 + (0x024 << 2))
+#define   P_EARCRX_SPDIFIN_SAMPLE_CTRL6                        (volatile uint32_t *)(0xff603c00 + (0x024 << 2))
+//Bit   31:18,  reserved
+//Bit   17,     reg_hold_tri_sample                 unsigned, default = 0, reg_hold_tri_sample
+//Bit   16,     reg_sample_mode_filter_en           unsigned, default = 0, reg_sample_mode_filter_en
+//Bit   15:8,   reg_stable_cyc_min                  unsigned, default = 0, reg_stable_cyc_min
+//Bit   7:0,    reg_stable_cyc_max                  unsigned, default = 0, reg_stable_cyc_max
 //
 // Closing file:  earcrx_dmac.h
 //
@@ -5805,13 +7217,13 @@
 #define     EARCRX_DMAC_INT_MASK                               (0xff603e00 + (0x001 << 2))
 #define SEC_EARCRX_DMAC_INT_MASK                               (0xff603e00 + (0x001 << 2))
 #define   P_EARCRX_DMAC_INT_MASK                               (volatile uint32_t *)(0xff603e00 + (0x001 << 2))
-//Bit   31:18,  reserved
-//Bit   17:0,   reg_dmac_int_mask             unsigned, default = 0, dmac int mask
+//Bit   31:30,  reserved
+//Bit   29:0,   reg_dmac_int_mask             unsigned, default = 0, dmac int mask
 #define     EARCRX_DMAC_INT_PENDING                            (0xff603e00 + (0x002 << 2))
 #define SEC_EARCRX_DMAC_INT_PENDING                            (0xff603e00 + (0x002 << 2))
 #define   P_EARCRX_DMAC_INT_PENDING                            (volatile uint32_t *)(0xff603e00 + (0x002 << 2))
-//Bit   31:18,  reserved
-//Bit   17:0,   reg_dmac_int_mask             unsigned, default = 0, dmac int pending,read only
+//Bit   31:30,  reserved
+//Bit   29:0,   reg_dmac_int_mask             unsigned, default = 0, dmac int pending,read only
 #define     EARCRX_CMDC_INT_MASK                               (0xff603e00 + (0x003 << 2))
 #define SEC_EARCRX_CMDC_INT_MASK                               (0xff603e00 + (0x003 << 2))
 #define   P_EARCRX_CMDC_INT_MASK                               (volatile uint32_t *)(0xff603e00 + (0x003 << 2))
@@ -5875,7 +7287,9 @@
 #define     AUDIO_RSAMPB_CTRL1                                 (0xff604000 + (0x001 << 2))
 #define SEC_AUDIO_RSAMPB_CTRL1                                 (0xff604000 + (0x001 << 2))
 #define   P_AUDIO_RSAMPB_CTRL1                                 (volatile uint32_t *)(0xff604000 + (0x001 << 2))
-//Bit   31:25      reserved          //unsigned  , default =0;
+//Bit   31:27      reg_in_lsb        //unsigned  , default =0;
+//Bit   26         reg_watchdog_en   //unsigned  , default =0;
+//Bit   25         reg_rsamp_rst_sel //unsigned  , default =0;
 //Bit   24         reg_module_bypas  //unsigned  , default =0;
 //Bit   23:18      reg_gclk_ctrl     //unsigned  , default =0;
 //Bit   17:13      reg_in_msb        //unsigned  , default =23;
@@ -5884,14 +7298,17 @@
 //Bit   10         reg_filt_en       //unsigned  , default =0;
 //Bit   9          reg_post_en       //unsigned  , default =0;
 //Bit   8          reg_inp_mux_mode  //unsigned  , default =0;
-//Bit   7:4        reg_chx_size      //unsigned  , default =2;
-//Bit   3:0        reg_inp_mux       //unsigned  , default =0;
+//Bit   7:5        reserved          //unsigned  , default =2;
+//Bit   4:0        reg_inp_mux       //unsigned  , default =0;
 #define     AUDIO_RSAMPB_CTRL2                                 (0xff604000 + (0x002 << 2))
 #define SEC_AUDIO_RSAMPB_CTRL2                                 (0xff604000 + (0x002 << 2))
 #define   P_AUDIO_RSAMPB_CTRL2                                 (volatile uint32_t *)(0xff604000 + (0x002 << 2))
-//Bit 17:16    reg_scl_step          //unsigned , default =0; 0: 1/1  1: 1/2  2: 1/4
-//Bit 15:8     reg_filt_tap          //unsigned , default =63;
-//Bit 7:0      reg_intp_tap          //unsigned , default =63;
+//Bit 31:30    reserved              //unsigned  , default =0;
+//Bit 29:24    reg_chx_size          //unsigned  , default =2;
+//Bit 23:18    reserved              //unsigned  , default =0;
+//Bit 17:16    reg_scl_step          //unsigned  , default =0; 0: 1/1  1: 1/2  2: 1/4
+//Bit 15:8     reg_filt_tap          //unsigned  , default =63;
+//Bit 7:0      reg_intp_tap          //unsigned  , default =63;
 #define     AUDIO_RSAMPB_PHSINIT                               (0xff604000 + (0x003 << 2))
 #define SEC_AUDIO_RSAMPB_PHSINIT                               (0xff604000 + (0x003 << 2))
 #define   P_AUDIO_RSAMPB_PHSINIT                               (volatile uint32_t *)(0xff604000 + (0x003 << 2))
@@ -5912,7 +7329,11 @@
 #define     AUDIO_RSAMPB_ADJ_CTRL0                             (0xff604000 + (0x006 << 2))
 #define SEC_AUDIO_RSAMPB_ADJ_CTRL0                             (0xff604000 + (0x006 << 2))
 #define   P_AUDIO_RSAMPB_ADJ_CTRL0                             (volatile uint32_t *)(0xff604000 + (0x006 << 2))
-//Bit   31:3        reserved                //unsigned
+//Bit   31:7        reserved                //unsigned
+//Bit   6           reg_lock_vld_sel        //unsigned , default = 0;
+//Bit   5           reg_loop_dif_clr_en     //unsigned , default = 0;
+//Bit   4           reg_aout_force_en       //unsigned , default = 0;
+//Bit   3           reserved                //unsigned
 //Bit   2           reg_rsamp_adj_out_inv   //unsigned , default = 0;
 //Bit   1           reg_rsamp_adj_force_en  //unsigned , default = 0;
 //Bit   0           reg_rsamp_adj_en        //unsigned , default = 0;
@@ -5931,8 +7352,8 @@
 //Bit   20:16       reg_rsamp_adj_kp        //unsigned , default = 1;
 //Bit   15:13       reserved                //unsigned , default = 0;
 //Bit   12:8        reg_rsamp_adj_ki_sft    //unsigned , default = 6;
-//Bit   7:5         reserved                //unsigned , default = 0;
-//Bit   4:0         reg_rsamp_adj_out_sft   //unsigned , default = 12;
+//Bit   7:6         reserved                //unsigned , default = 0;
+//Bit   5:0         reg_rsamp_adj_out_sft   //unsigned , default = 12;
 #define     AUDIO_RSAMPB_ADJ_IDET_LEN                          (0xff604000 + (0x009 << 2))
 #define SEC_AUDIO_RSAMPB_ADJ_IDET_LEN                          (0xff604000 + (0x009 << 2))
 #define   P_AUDIO_RSAMPB_ADJ_IDET_LEN                          (volatile uint32_t *)(0xff604000 + (0x009 << 2))
@@ -5945,6 +7366,32 @@
 #define SEC_AUDIO_RSAMPB_ADJ_KI_FORCE                          (0xff604000 + (0x00b << 2))
 #define   P_AUDIO_RSAMPB_ADJ_KI_FORCE                          (volatile uint32_t *)(0xff604000 + (0x00b << 2))
 //Bit   31:0       reg_rsamp_adj_ki_force //signed , default = 0;
+#define     AUDIO_RSAMPB_WATCHDOG_THRD                         (0xff604000 + (0x00c << 2))
+#define SEC_AUDIO_RSAMPB_WATCHDOG_THRD                         (0xff604000 + (0x00c << 2))
+#define   P_AUDIO_RSAMPB_WATCHDOG_THRD                         (volatile uint32_t *)(0xff604000 + (0x00c << 2))
+//Bit   31:0       reg_watchdog_thrd      //signed , default = 32'h1000;
+#define     AUDIO_RSAMPB_DBG_INFO                              (0xff604000 + (0x00d << 2))
+#define SEC_AUDIO_RSAMPB_DBG_INFO                              (0xff604000 + (0x00d << 2))
+#define   P_AUDIO_RSAMPB_DBG_INFO                              (volatile uint32_t *)(0xff604000 + (0x00d << 2))
+//Bit   31:16      reg_aout_force_hi        //unsigned , default = 0;
+//Bit   15:7       reserved                 //unsigned , default = 0;
+//Bit   6          reg_rsamp_dbgcnt_clr     //unsigned , default = 0;
+//Bit   5          reg_rsamp_dbgcnt_vldsel  //unsigned , default = 0;
+//Bit   4          reg_rsamp_dbgcnt_en      //unsigned , default = 0;
+//Bit   3          reserved                 //unsigned , default = 0;
+//Bit   2:0        reg_watchdog_rstsel      //unsigned , default = 4;
+#define     AUDIO_RSAMPB_AOUT_FORCE                            (0xff604000 + (0x00e << 2))
+#define SEC_AUDIO_RSAMPB_AOUT_FORCE                            (0xff604000 + (0x00e << 2))
+#define   P_AUDIO_RSAMPB_AOUT_FORCE                            (volatile uint32_t *)(0xff604000 + (0x00e << 2))
+//Bit   31:0       reg_aout_force_lo        //unsigned , default = 0;
+#define     AUDIO_RSAMPB_IRQ_CTRL                              (0xff604000 + (0x00f << 2))
+#define SEC_AUDIO_RSAMPB_IRQ_CTRL                              (0xff604000 + (0x00f << 2))
+#define   P_AUDIO_RSAMPB_IRQ_CTRL                              (volatile uint32_t *)(0xff604000 + (0x00f << 2))
+//Bit   31:16      reg_irq_thrd             //unsigned , default = 0;
+//Bit   15:12      reserved                 //unsigned , default = 0;
+//Bit   11:8       reg_irq_sel              //unsigned , default = 0;
+//Bit   7:4        reg_irq_clr              //unsigned , default = 0;
+//Bit   3:0        reg_irq_en               //unsigned , default = 0;
 #define     AUDIO_RSAMPB_RO_STATUS                             (0xff604000 + (0x010 << 2))
 #define SEC_AUDIO_RSAMPB_RO_STATUS                             (0xff604000 + (0x010 << 2))
 #define   P_AUDIO_RSAMPB_RO_STATUS                             (volatile uint32_t *)(0xff604000 + (0x010 << 2))
@@ -5977,6 +7424,10 @@
 #define SEC_AUDIO_RSAMPB_RO_OUT_CNT                            (0xff604000 + (0x017 << 2))
 #define   P_AUDIO_RSAMPB_RO_OUT_CNT                            (volatile uint32_t *)(0xff604000 + (0x017 << 2))
 //Bit   31:0       ro_rsamp_out_cnt
+#define     AUDIO_RSAMPB_RO_ADJ_PHS_ERR_VAR                    (0xff604000 + (0x018 << 2))
+#define SEC_AUDIO_RSAMPB_RO_ADJ_PHS_ERR_VAR                    (0xff604000 + (0x018 << 2))
+#define   P_AUDIO_RSAMPB_RO_ADJ_PHS_ERR_VAR                    (volatile uint32_t *)(0xff604000 + (0x018 << 2))
+//Bit   31:0       ro_det_phase_err_var
 #define     AUDIO_RSAMPB_POST_COEF0                            (0xff604000 + (0x020 << 2))
 #define SEC_AUDIO_RSAMPB_POST_COEF0                            (0xff604000 + (0x020 << 2))
 #define   P_AUDIO_RSAMPB_POST_COEF0                            (volatile uint32_t *)(0xff604000 + (0x020 << 2))
@@ -6074,9 +7525,12 @@
 #define     DSP_IRQ_CTRL7                                      (0xff680000 + (0x017 << 2))
 #define SEC_DSP_IRQ_CTRL7                                      (0xff680000 + (0x017 << 2))
 #define   P_DSP_IRQ_CTRL7                                      (volatile uint32_t *)(0xff680000 + (0x017 << 2))
-#define     DSP_IRQ_STS                                        (0xff680000 + (0x018 << 2))
-#define SEC_DSP_IRQ_STS                                        (0xff680000 + (0x018 << 2))
-#define   P_DSP_IRQ_STS                                        (volatile uint32_t *)(0xff680000 + (0x018 << 2))
+#define     DSP_IRQ_CTRL8                                      (0xff680000 + (0x018 << 2))
+#define SEC_DSP_IRQ_CTRL8                                      (0xff680000 + (0x018 << 2))
+#define   P_DSP_IRQ_CTRL8                                      (volatile uint32_t *)(0xff680000 + (0x018 << 2))
+#define     DSP_IRQ_STS                                        (0xff680000 + (0x01f << 2))
+#define SEC_DSP_IRQ_STS                                        (0xff680000 + (0x01f << 2))
+#define   P_DSP_IRQ_STS                                        (volatile uint32_t *)(0xff680000 + (0x01f << 2))
 #define     DSP_REMAP0                                         (0xff680000 + (0x020 << 2))
 #define SEC_DSP_REMAP0                                         (0xff680000 + (0x020 << 2))
 #define   P_DSP_REMAP0                                         (volatile uint32_t *)(0xff680000 + (0x020 << 2))
@@ -6286,9 +7740,12 @@
 #define     DSPB_IRQ_CTRL7                                     (0xff690000 + (0x017 << 2))
 #define SEC_DSPB_IRQ_CTRL7                                     (0xff690000 + (0x017 << 2))
 #define   P_DSPB_IRQ_CTRL7                                     (volatile uint32_t *)(0xff690000 + (0x017 << 2))
-#define     DSPB_IRQ_STS                                       (0xff690000 + (0x018 << 2))
-#define SEC_DSPB_IRQ_STS                                       (0xff690000 + (0x018 << 2))
-#define   P_DSPB_IRQ_STS                                       (volatile uint32_t *)(0xff690000 + (0x018 << 2))
+#define     DSPB_IRQ_CTRL8                                     (0xff690000 + (0x018 << 2))
+#define SEC_DSPB_IRQ_CTRL8                                     (0xff690000 + (0x018 << 2))
+#define   P_DSPB_IRQ_CTRL8                                     (volatile uint32_t *)(0xff690000 + (0x018 << 2))
+#define     DSPB_IRQ_STS                                       (0xff690000 + (0x01f << 2))
+#define SEC_DSPB_IRQ_STS                                       (0xff690000 + (0x01f << 2))
+#define   P_DSPB_IRQ_STS                                       (volatile uint32_t *)(0xff690000 + (0x01f << 2))
 #define     DSPB_REMAP0                                        (0xff690000 + (0x020 << 2))
 #define SEC_DSPB_REMAP0                                        (0xff690000 + (0x020 << 2))
 #define   P_DSPB_REMAP0                                        (volatile uint32_t *)(0xff690000 + (0x020 << 2))
@@ -6553,9 +8010,7 @@
 #define     AO_RTI_POR_CNTL                                    (0xff800000 + (0x01b << 2))
 #define SEC_AO_RTI_POR_CNTL                                    (0xff800000 + (0x01b << 2))
 #define   P_AO_RTI_POR_CNTL                                    (volatile uint32_t *)(0xff800000 + (0x01b << 2))
-#define     SP_SEC_CFG                                         (0xff800000 + (0x01c << 2))
-#define SEC_SP_SEC_CFG                                         (0xff800000 + (0x01c << 2))
-#define   P_SP_SEC_CFG                                         (volatile uint32_t *)(0xff800000 + (0x01c << 2))
+//`define SP_SEC_CFG                  8'h1c
 //`define AO_RTI_INTER_OSC_CTL0       8'h1b
 //`define AO_RTI_INTER_OSC_CTL1       8'h1c
 #define     AO_CEC_CLK_CNTL_REG0                               (0xff800000 + (0x01d << 2))
@@ -6567,19 +8022,16 @@
 #define     AO_METAL_REVISION                                  (0xff800000 + (0x01f << 2))
 #define SEC_AO_METAL_REVISION                                  (0xff800000 + (0x01f << 2))
 #define   P_AO_METAL_REVISION                                  (volatile uint32_t *)(0xff800000 + (0x01f << 2))
-#define     AO_RTI_PWR_SYS_CPU_MEM_PD2                         (0xff800000 + (0x020 << 2))
-#define SEC_AO_RTI_PWR_SYS_CPU_MEM_PD2                         (0xff800000 + (0x020 << 2))
-#define   P_AO_RTI_PWR_SYS_CPU_MEM_PD2                         (volatile uint32_t *)(0xff800000 + (0x020 << 2))
+#define     AO_METAL_REVISION_2                                (0xff800000 + (0x020 << 2))
+#define SEC_AO_METAL_REVISION_2                                (0xff800000 + (0x020 << 2))
+#define   P_AO_METAL_REVISION_2                                (volatile uint32_t *)(0xff800000 + (0x020 << 2))
+//`define AO_RTI_PWR_SYS_CPU_MEM_PD2  8'h20
 //`define AO_IRQ_MASK_FIQ_SEL         8'h20
 #define     AO_IRQ_GPIO_REG                                    (0xff800000 + (0x021 << 2))
 #define SEC_AO_IRQ_GPIO_REG                                    (0xff800000 + (0x021 << 2))
 #define   P_AO_IRQ_GPIO_REG                                    (volatile uint32_t *)(0xff800000 + (0x021 << 2))
-#define     SCP_SEC_CFG                                        (0xff800000 + (0x022 << 2))
-#define SEC_SCP_SEC_CFG                                        (0xff800000 + (0x022 << 2))
-#define   P_SCP_SEC_CFG                                        (volatile uint32_t *)(0xff800000 + (0x022 << 2))
-#define     AP_SEC_CFG                                         (0xff800000 + (0x023 << 2))
-#define SEC_AP_SEC_CFG                                         (0xff800000 + (0x023 << 2))
-#define   P_AP_SEC_CFG                                         (volatile uint32_t *)(0xff800000 + (0x023 << 2))
+//`define SCP_SEC_CFG                 8'h22
+//`define AP_SEC_CFG                  8'h23
 #define     AO_SAR_CLK                                         (0xff800000 + (0x024 << 2))
 #define SEC_AO_SAR_CLK                                         (0xff800000 + (0x024 << 2))
 #define   P_AO_SAR_CLK                                         (volatile uint32_t *)(0xff800000 + (0x024 << 2))
@@ -6640,28 +8092,24 @@
 #define     AO_CPU_CNTL3                                       (0xff800000 + (0x037 << 2))
 #define SEC_AO_CPU_CNTL3                                       (0xff800000 + (0x037 << 2))
 #define   P_AO_CPU_CNTL3                                       (volatile uint32_t *)(0xff800000 + (0x037 << 2))
+//AO cpu control
+#define     AO_CPU_BOOT_ADDR                                   (0xff800000 + (0x038 << 2))
+#define SEC_AO_CPU_BOOT_ADDR                                   (0xff800000 + (0x038 << 2))
+#define   P_AO_CPU_BOOT_ADDR                                   (volatile uint32_t *)(0xff800000 + (0x038 << 2))
+#define     AO_CPU_SYS_CNTL                                    (0xff800000 + (0x039 << 2))
+#define SEC_AO_CPU_SYS_CNTL                                    (0xff800000 + (0x039 << 2))
+#define   P_AO_CPU_SYS_CNTL                                    (volatile uint32_t *)(0xff800000 + (0x039 << 2))
+#define     AO_SYS_CPU_HW_PWROFF_EN                            (0xff800000 + (0x03a << 2))
+#define SEC_AO_SYS_CPU_HW_PWROFF_EN                            (0xff800000 + (0x03a << 2))
+#define   P_AO_SYS_CPU_HW_PWROFF_EN                            (volatile uint32_t *)(0xff800000 + (0x03a << 2))
 // general Power control
-#define     AO_RTI_PWR_SYS_CPU_CNTL0                           (0xff800000 + (0x038 << 2))
-#define SEC_AO_RTI_PWR_SYS_CPU_CNTL0                           (0xff800000 + (0x038 << 2))
-#define   P_AO_RTI_PWR_SYS_CPU_CNTL0                           (volatile uint32_t *)(0xff800000 + (0x038 << 2))
-#define     AO_RTI_PWR_SYS_CPU_CNTL1                           (0xff800000 + (0x039 << 2))
-#define SEC_AO_RTI_PWR_SYS_CPU_CNTL1                           (0xff800000 + (0x039 << 2))
-#define   P_AO_RTI_PWR_SYS_CPU_CNTL1                           (volatile uint32_t *)(0xff800000 + (0x039 << 2))
-#define     AO_RTI_GEN_PWR_SLEEP0                              (0xff800000 + (0x03a << 2))
-#define SEC_AO_RTI_GEN_PWR_SLEEP0                              (0xff800000 + (0x03a << 2))
-#define   P_AO_RTI_GEN_PWR_SLEEP0                              (volatile uint32_t *)(0xff800000 + (0x03a << 2))
-#define     AO_RTI_GEN_PWR_ISO0                                (0xff800000 + (0x03b << 2))
-#define SEC_AO_RTI_GEN_PWR_ISO0                                (0xff800000 + (0x03b << 2))
-#define   P_AO_RTI_GEN_PWR_ISO0                                (volatile uint32_t *)(0xff800000 + (0x03b << 2))
-#define     AO_RTI_GEN_PWR_ACK0                                (0xff800000 + (0x03c << 2))
-#define SEC_AO_RTI_GEN_PWR_ACK0                                (0xff800000 + (0x03c << 2))
-#define   P_AO_RTI_GEN_PWR_ACK0                                (volatile uint32_t *)(0xff800000 + (0x03c << 2))
-#define     AO_RTI_PWR_SYS_CPU_MEM_PD0                         (0xff800000 + (0x03d << 2))
-#define SEC_AO_RTI_PWR_SYS_CPU_MEM_PD0                         (0xff800000 + (0x03d << 2))
-#define   P_AO_RTI_PWR_SYS_CPU_MEM_PD0                         (volatile uint32_t *)(0xff800000 + (0x03d << 2))
-#define     AO_RTI_PWR_SYS_CPU_MEM_PD1                         (0xff800000 + (0x03e << 2))
-#define SEC_AO_RTI_PWR_SYS_CPU_MEM_PD1                         (0xff800000 + (0x03e << 2))
-#define   P_AO_RTI_PWR_SYS_CPU_MEM_PD1                         (volatile uint32_t *)(0xff800000 + (0x03e << 2))
+//`define AO_RTI_PWR_SYS_CPU_CNTL0    8'h38
+//`define AO_RTI_PWR_SYS_CPU_CNTL1    8'h39
+//`define AO_RTI_GEN_PWR_SLEEP0       8'h3a
+//`define AO_RTI_GEN_PWR_ISO0         8'h3b
+//`define AO_RTI_GEN_PWR_ACK0         8'h3c
+//`define AO_RTI_PWR_SYS_CPU_MEM_PD0  8'h3d
+//`define AO_RTI_PWR_SYS_CPU_MEM_PD1  8'h3e
 #define     AO_CPU_CNTL4                                       (0xff800000 + (0x03f << 2))
 #define SEC_AO_CPU_CNTL4                                       (0xff800000 + (0x03f << 2))
 #define   P_AO_CPU_CNTL4                                       (volatile uint32_t *)(0xff800000 + (0x03f << 2))
@@ -6717,6 +8165,7 @@
 #define SEC_AO_SEC_REG0                                        (0xff800000 + (0x050 << 2))
 #define   P_AO_SEC_REG0                                        (volatile uint32_t *)(0xff800000 + (0x050 << 2))
 //`define AO_SEC_REG1                     8'h51
+//`define AO_RTI_PWR_SYS_CPU_MEM_PD3  8'h52
 #define     AO_IR_BLASTER_ADDR0                                (0xff800000 + (0x053 << 2))
 #define SEC_AO_IR_BLASTER_ADDR0                                (0xff800000 + (0x053 << 2))
 #define   P_AO_IR_BLASTER_ADDR0                                (volatile uint32_t *)(0xff800000 + (0x053 << 2))
@@ -6777,9 +8226,7 @@
 #define     AO_SEC_SHARED_AHB_SRAM_REG0_2                      (0xff800000 + (0x066 << 2))
 #define SEC_AO_SEC_SHARED_AHB_SRAM_REG0_2                      (0xff800000 + (0x066 << 2))
 #define   P_AO_SEC_SHARED_AHB_SRAM_REG0_2                      (volatile uint32_t *)(0xff800000 + (0x066 << 2))
-#define     AO_SEC_SHARED_AHB_SRAM_REG0_3                      (0xff800000 + (0x067 << 2))
-#define SEC_AO_SEC_SHARED_AHB_SRAM_REG0_3                      (0xff800000 + (0x067 << 2))
-#define   P_AO_SEC_SHARED_AHB_SRAM_REG0_3                      (volatile uint32_t *)(0xff800000 + (0x067 << 2))
+//`define AO_SEC_SHARED_AHB_SRAM_REG0_3   8'h67
 #define     AO_SEC_SHARED_AHB_SRAM_REG1_0                      (0xff800000 + (0x068 << 2))
 #define SEC_AO_SEC_SHARED_AHB_SRAM_REG1_0                      (0xff800000 + (0x068 << 2))
 #define   P_AO_SEC_SHARED_AHB_SRAM_REG1_0                      (volatile uint32_t *)(0xff800000 + (0x068 << 2))
@@ -6789,21 +8236,11 @@
 #define     AO_SEC_SHARED_AHB_SRAM_REG1_2                      (0xff800000 + (0x06a << 2))
 #define SEC_AO_SEC_SHARED_AHB_SRAM_REG1_2                      (0xff800000 + (0x06a << 2))
 #define   P_AO_SEC_SHARED_AHB_SRAM_REG1_2                      (volatile uint32_t *)(0xff800000 + (0x06a << 2))
-#define     AO_SEC_SHARED_AHB_SRAM_REG1_3                      (0xff800000 + (0x06b << 2))
-#define SEC_AO_SEC_SHARED_AHB_SRAM_REG1_3                      (0xff800000 + (0x06b << 2))
-#define   P_AO_SEC_SHARED_AHB_SRAM_REG1_3                      (volatile uint32_t *)(0xff800000 + (0x06b << 2))
-#define     AO_SEC_SHARED_AHB_SRAM_REG2_0                      (0xff800000 + (0x06c << 2))
-#define SEC_AO_SEC_SHARED_AHB_SRAM_REG2_0                      (0xff800000 + (0x06c << 2))
-#define   P_AO_SEC_SHARED_AHB_SRAM_REG2_0                      (volatile uint32_t *)(0xff800000 + (0x06c << 2))
-#define     AO_SEC_SHARED_AHB_SRAM_REG2_1                      (0xff800000 + (0x06d << 2))
-#define SEC_AO_SEC_SHARED_AHB_SRAM_REG2_1                      (0xff800000 + (0x06d << 2))
-#define   P_AO_SEC_SHARED_AHB_SRAM_REG2_1                      (volatile uint32_t *)(0xff800000 + (0x06d << 2))
-#define     AO_SEC_SHARED_AHB_SRAM_REG2_2                      (0xff800000 + (0x06e << 2))
-#define SEC_AO_SEC_SHARED_AHB_SRAM_REG2_2                      (0xff800000 + (0x06e << 2))
-#define   P_AO_SEC_SHARED_AHB_SRAM_REG2_2                      (volatile uint32_t *)(0xff800000 + (0x06e << 2))
-#define     AO_SEC_SHARED_AHB_SRAM_REG2_3                      (0xff800000 + (0x06f << 2))
-#define SEC_AO_SEC_SHARED_AHB_SRAM_REG2_3                      (0xff800000 + (0x06f << 2))
-#define   P_AO_SEC_SHARED_AHB_SRAM_REG2_3                      (volatile uint32_t *)(0xff800000 + (0x06f << 2))
+//`define AO_SEC_SHARED_AHB_SRAM_REG1_3   8'h6b
+//`define AO_SEC_SHARED_AHB_SRAM_REG2_0   8'h6c
+//`define AO_SEC_SHARED_AHB_SRAM_REG2_1   8'h6d
+//`define AO_SEC_SHARED_AHB_SRAM_REG2_2   8'h6e
+//`define AO_SEC_SHARED_AHB_SRAM_REG2_3   8'h6f
 #define     AO_SEC_SHARED_AHB_SRAM_REG3_0                      (0xff800000 + (0x070 << 2))
 #define SEC_AO_SEC_SHARED_AHB_SRAM_REG3_0                      (0xff800000 + (0x070 << 2))
 #define   P_AO_SEC_SHARED_AHB_SRAM_REG3_0                      (volatile uint32_t *)(0xff800000 + (0x070 << 2))
@@ -6813,33 +8250,15 @@
 #define     AO_SEC_SHARED_AHB_SRAM_REG3_2                      (0xff800000 + (0x072 << 2))
 #define SEC_AO_SEC_SHARED_AHB_SRAM_REG3_2                      (0xff800000 + (0x072 << 2))
 #define   P_AO_SEC_SHARED_AHB_SRAM_REG3_2                      (volatile uint32_t *)(0xff800000 + (0x072 << 2))
-#define     AO_SEC_SHARED_AHB_SRAM_REG3_3                      (0xff800000 + (0x073 << 2))
-#define SEC_AO_SEC_SHARED_AHB_SRAM_REG3_3                      (0xff800000 + (0x073 << 2))
-#define   P_AO_SEC_SHARED_AHB_SRAM_REG3_3                      (volatile uint32_t *)(0xff800000 + (0x073 << 2))
-#define     AO_SEC_SHARED_AHB_SRAM_REG4_0                      (0xff800000 + (0x074 << 2))
-#define SEC_AO_SEC_SHARED_AHB_SRAM_REG4_0                      (0xff800000 + (0x074 << 2))
-#define   P_AO_SEC_SHARED_AHB_SRAM_REG4_0                      (volatile uint32_t *)(0xff800000 + (0x074 << 2))
-#define     AO_SEC_SHARED_AHB_SRAM_REG4_1                      (0xff800000 + (0x075 << 2))
-#define SEC_AO_SEC_SHARED_AHB_SRAM_REG4_1                      (0xff800000 + (0x075 << 2))
-#define   P_AO_SEC_SHARED_AHB_SRAM_REG4_1                      (volatile uint32_t *)(0xff800000 + (0x075 << 2))
-#define     AO_SEC_SHARED_AHB_SRAM_REG4_2                      (0xff800000 + (0x076 << 2))
-#define SEC_AO_SEC_SHARED_AHB_SRAM_REG4_2                      (0xff800000 + (0x076 << 2))
-#define   P_AO_SEC_SHARED_AHB_SRAM_REG4_2                      (volatile uint32_t *)(0xff800000 + (0x076 << 2))
-#define     AO_SEC_SHARED_AHB_SRAM_REG4_3                      (0xff800000 + (0x077 << 2))
-#define SEC_AO_SEC_SHARED_AHB_SRAM_REG4_3                      (0xff800000 + (0x077 << 2))
-#define   P_AO_SEC_SHARED_AHB_SRAM_REG4_3                      (volatile uint32_t *)(0xff800000 + (0x077 << 2))
-#define     AO_SEC_SHARED_AHB_SRAM_REG5_0                      (0xff800000 + (0x078 << 2))
-#define SEC_AO_SEC_SHARED_AHB_SRAM_REG5_0                      (0xff800000 + (0x078 << 2))
-#define   P_AO_SEC_SHARED_AHB_SRAM_REG5_0                      (volatile uint32_t *)(0xff800000 + (0x078 << 2))
-#define     AO_SEC_SHARED_AHB_SRAM_REG5_1                      (0xff800000 + (0x079 << 2))
-#define SEC_AO_SEC_SHARED_AHB_SRAM_REG5_1                      (0xff800000 + (0x079 << 2))
-#define   P_AO_SEC_SHARED_AHB_SRAM_REG5_1                      (volatile uint32_t *)(0xff800000 + (0x079 << 2))
-#define     AO_SEC_SHARED_AHB_SRAM_REG5_2                      (0xff800000 + (0x07a << 2))
-#define SEC_AO_SEC_SHARED_AHB_SRAM_REG5_2                      (0xff800000 + (0x07a << 2))
-#define   P_AO_SEC_SHARED_AHB_SRAM_REG5_2                      (volatile uint32_t *)(0xff800000 + (0x07a << 2))
-#define     AO_SEC_SHARED_AHB_SRAM_REG5_3                      (0xff800000 + (0x07b << 2))
-#define SEC_AO_SEC_SHARED_AHB_SRAM_REG5_3                      (0xff800000 + (0x07b << 2))
-#define   P_AO_SEC_SHARED_AHB_SRAM_REG5_3                      (volatile uint32_t *)(0xff800000 + (0x07b << 2))
+//`define AO_SEC_SHARED_AHB_SRAM_REG3_3   8'h73
+//`define AO_SEC_SHARED_AHB_SRAM_REG4_0   8'h74
+//`define AO_SEC_SHARED_AHB_SRAM_REG4_1   8'h75
+//`define AO_SEC_SHARED_AHB_SRAM_REG4_2   8'h76
+//`define AO_SEC_SHARED_AHB_SRAM_REG4_3   8'h77
+//`define AO_SEC_SHARED_AHB_SRAM_REG5_0   8'h78
+//`define AO_SEC_SHARED_AHB_SRAM_REG5_1   8'h79
+//`define AO_SEC_SHARED_AHB_SRAM_REG5_2   8'h7a
+//`define AO_SEC_SHARED_AHB_SRAM_REG5_3   8'h7b
 #define     AO_SEC_SD_CFG0                                     (0xff800000 + (0x080 << 2))
 #define SEC_AO_SEC_SD_CFG0                                     (0xff800000 + (0x080 << 2))
 #define   P_AO_SEC_SD_CFG0                                     (volatile uint32_t *)(0xff800000 + (0x080 << 2))
@@ -7027,24 +8446,12 @@
 #define     AO_SEC_JTAG_PWD_SCP_ADDR3                          (0xff800000 + (0x0bf << 2))
 #define SEC_AO_SEC_JTAG_PWD_SCP_ADDR3                          (0xff800000 + (0x0bf << 2))
 #define   P_AO_SEC_JTAG_PWD_SCP_ADDR3                          (volatile uint32_t *)(0xff800000 + (0x0bf << 2))
-#define     AO_SEC_AO_CPU_SRAM_REG0_0                          (0xff800000 + (0x0c0 << 2))
-#define SEC_AO_SEC_AO_CPU_SRAM_REG0_0                          (0xff800000 + (0x0c0 << 2))
-#define   P_AO_SEC_AO_CPU_SRAM_REG0_0                          (volatile uint32_t *)(0xff800000 + (0x0c0 << 2))
-#define     AO_SEC_AO_CPU_SRAM_REG0_1                          (0xff800000 + (0x0c1 << 2))
-#define SEC_AO_SEC_AO_CPU_SRAM_REG0_1                          (0xff800000 + (0x0c1 << 2))
-#define   P_AO_SEC_AO_CPU_SRAM_REG0_1                          (volatile uint32_t *)(0xff800000 + (0x0c1 << 2))
-#define     AO_SEC_AO_CPU_SRAM_REG0_2                          (0xff800000 + (0x0c2 << 2))
-#define SEC_AO_SEC_AO_CPU_SRAM_REG0_2                          (0xff800000 + (0x0c2 << 2))
-#define   P_AO_SEC_AO_CPU_SRAM_REG0_2                          (volatile uint32_t *)(0xff800000 + (0x0c2 << 2))
-#define     AO_SEC_AO_CPU_SRAM_REG1_0                          (0xff800000 + (0x0c3 << 2))
-#define SEC_AO_SEC_AO_CPU_SRAM_REG1_0                          (0xff800000 + (0x0c3 << 2))
-#define   P_AO_SEC_AO_CPU_SRAM_REG1_0                          (volatile uint32_t *)(0xff800000 + (0x0c3 << 2))
-#define     AO_SEC_AO_CPU_SRAM_REG1_1                          (0xff800000 + (0x0c4 << 2))
-#define SEC_AO_SEC_AO_CPU_SRAM_REG1_1                          (0xff800000 + (0x0c4 << 2))
-#define   P_AO_SEC_AO_CPU_SRAM_REG1_1                          (volatile uint32_t *)(0xff800000 + (0x0c4 << 2))
-#define     AO_SEC_AO_CPU_SRAM_REG1_2                          (0xff800000 + (0x0c5 << 2))
-#define SEC_AO_SEC_AO_CPU_SRAM_REG1_2                          (0xff800000 + (0x0c5 << 2))
-#define   P_AO_SEC_AO_CPU_SRAM_REG1_2                          (volatile uint32_t *)(0xff800000 + (0x0c5 << 2))
+//`define AO_SEC_AO_CPU_SRAM_REG0_0       8'hc0
+//`define AO_SEC_AO_CPU_SRAM_REG0_1       8'hc1
+//`define AO_SEC_AO_CPU_SRAM_REG0_2       8'hc2
+//`define AO_SEC_AO_CPU_SRAM_REG1_0       8'hc3
+//`define AO_SEC_AO_CPU_SRAM_REG1_1       8'hc4
+//`define AO_SEC_AO_CPU_SRAM_REG1_2       8'hc5
 //`define M4_CPU_CNTL                     8'hc0
 //`define M4_CPU_CNTL_NS                  8'hc1
 //`define M4_CPU_CNTL2                    8'hc2
@@ -7082,27 +8489,13 @@
 #define     AO_GPIO_TEST_N                                     (0xff800000 + (0x0d7 << 2))
 #define SEC_AO_GPIO_TEST_N                                     (0xff800000 + (0x0d7 << 2))
 #define   P_AO_GPIO_TEST_N                                     (volatile uint32_t *)(0xff800000 + (0x0d7 << 2))
-#define     AO_RTI_PINMUX_REG2                                 (0xff800000 + (0x0d8 << 2))
-#define SEC_AO_RTI_PINMUX_REG2                                 (0xff800000 + (0x0d8 << 2))
-#define   P_AO_RTI_PINMUX_REG2                                 (volatile uint32_t *)(0xff800000 + (0x0d8 << 2))
-#define     AO_RTI_PINMUX_REG3                                 (0xff800000 + (0x0d9 << 2))
-#define SEC_AO_RTI_PINMUX_REG3                                 (0xff800000 + (0x0d9 << 2))
-#define   P_AO_RTI_PINMUX_REG3                                 (volatile uint32_t *)(0xff800000 + (0x0d9 << 2))
-#define     AO_GPIO1_O_EN_N                                    (0xff800000 + (0x0da << 2))
-#define SEC_AO_GPIO1_O_EN_N                                    (0xff800000 + (0x0da << 2))
-#define   P_AO_GPIO1_O_EN_N                                    (volatile uint32_t *)(0xff800000 + (0x0da << 2))
-#define     AO_GPIO1_I                                         (0xff800000 + (0x0db << 2))
-#define SEC_AO_GPIO1_I                                         (0xff800000 + (0x0db << 2))
-#define   P_AO_GPIO1_I                                         (volatile uint32_t *)(0xff800000 + (0x0db << 2))
-#define     AO_GPIO1_O                                         (0xff800000 + (0x0dc << 2))
-#define SEC_AO_GPIO1_O                                         (0xff800000 + (0x0dc << 2))
-#define   P_AO_GPIO1_O                                         (volatile uint32_t *)(0xff800000 + (0x0dc << 2))
-#define     AO_RTI_PULL_UP_REG1                                (0xff800000 + (0x0dd << 2))
-#define SEC_AO_RTI_PULL_UP_REG1                                (0xff800000 + (0x0dd << 2))
-#define   P_AO_RTI_PULL_UP_REG1                                (volatile uint32_t *)(0xff800000 + (0x0dd << 2))
-#define     AO_RTI_PULL_UP_EN_REG1                             (0xff800000 + (0x0de << 2))
-#define SEC_AO_RTI_PULL_UP_EN_REG1                             (0xff800000 + (0x0de << 2))
-#define   P_AO_RTI_PULL_UP_EN_REG1                             (volatile uint32_t *)(0xff800000 + (0x0de << 2))
+//`define AO_RTI_PINMUX_REG2              8'hd8
+//`define AO_RTI_PINMUX_REG3              8'hd9
+//`define AO_GPIO1_O_EN_N                 8'hda
+//`define AO_GPIO1_I                      8'hdb
+//`define AO_GPIO1_O                      8'hdc
+//`define AO_RTI_PULL_UP_REG1             8'hdd
+//`define AO_RTI_PULL_UP_EN_REG1          8'hde
 #define     AO_GPIO_CNTL_SEL                                   (0xff800000 + (0x0df << 2))
 #define SEC_AO_GPIO_CNTL_SEL                                   (0xff800000 + (0x0df << 2))
 #define   P_AO_GPIO_CNTL_SEL                                   (volatile uint32_t *)(0xff800000 + (0x0df << 2))

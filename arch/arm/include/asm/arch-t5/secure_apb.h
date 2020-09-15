@@ -14,6 +14,8 @@
 #else
 #define SECURE_APB_H
 
+#include "fixme.h"
+
 //
 // Reading file:  ./secure_apb4_ee.h
 //
@@ -1420,26 +1422,20 @@
 #define SEC_PREG_PAD_GPIO3_I                                   (0xff634400 + (0x01b << 2))
 #define   P_PREG_PAD_GPIO3_I                                   (volatile uint32_t *)(0xff634400 + (0x01b << 2))
 // ----------------------------
-#define     PREG_PAD_GPIO4_EN_N                                (0xff634400 + (0x01c << 2))
-#define SEC_PREG_PAD_GPIO4_EN_N                                (0xff634400 + (0x01c << 2))
-#define   P_PREG_PAD_GPIO4_EN_N                                (volatile uint32_t *)(0xff634400 + (0x01c << 2))
-#define     PREG_PAD_GPIO4_O                                   (0xff634400 + (0x01d << 2))
-#define SEC_PREG_PAD_GPIO4_O                                   (0xff634400 + (0x01d << 2))
-#define   P_PREG_PAD_GPIO4_O                                   (volatile uint32_t *)(0xff634400 + (0x01d << 2))
-#define     PREG_PAD_GPIO4_I                                   (0xff634400 + (0x01e << 2))
-#define SEC_PREG_PAD_GPIO4_I                                   (0xff634400 + (0x01e << 2))
-#define   P_PREG_PAD_GPIO4_I                                   (volatile uint32_t *)(0xff634400 + (0x01e << 2))
+//`define PREG_PAD_GPIO4_EN_N                     8'h1c
+//`define PREG_PAD_GPIO4_O                        8'h1d
+//`define PREG_PAD_GPIO4_I                        8'h1e
 // ----------------------------
-#define     PREG_PAD_GPIO5_EN_N                                (0xff634400 + (0x020 << 2))
-#define SEC_PREG_PAD_GPIO5_EN_N                                (0xff634400 + (0x020 << 2))
-#define   P_PREG_PAD_GPIO5_EN_N                                (volatile uint32_t *)(0xff634400 + (0x020 << 2))
-#define     PREG_PAD_GPIO5_O                                   (0xff634400 + (0x021 << 2))
-#define SEC_PREG_PAD_GPIO5_O                                   (0xff634400 + (0x021 << 2))
-#define   P_PREG_PAD_GPIO5_O                                   (volatile uint32_t *)(0xff634400 + (0x021 << 2))
-#define     PREG_PAD_GPIO5_I                                   (0xff634400 + (0x022 << 2))
-#define SEC_PREG_PAD_GPIO5_I                                   (0xff634400 + (0x022 << 2))
-#define   P_PREG_PAD_GPIO5_I                                   (volatile uint32_t *)(0xff634400 + (0x022 << 2))
+//`define PREG_PAD_GPIO5_EN_N                     8'h20
+//`define PREG_PAD_GPIO5_O                        8'h21
+//`define PREG_PAD_GPIO5_I                        8'h22
 // ----------------------------
+#define     PREG_PAD_ANALOG_EN                                 (0xff634400 + (0x023 << 2))
+#define SEC_PREG_PAD_ANALOG_EN                                 (0xff634400 + (0x023 << 2))
+#define   P_PREG_PAD_ANALOG_EN                                 (volatile uint32_t *)(0xff634400 + (0x023 << 2))
+#define     PREG_PAD_ANALOG_I                                  (0xff634400 + (0x024 << 2))
+#define SEC_PREG_PAD_ANALOG_I                                  (0xff634400 + (0x024 << 2))
+#define   P_PREG_PAD_ANALOG_I                                  (volatile uint32_t *)(0xff634400 + (0x024 << 2))
 // ----------------------------
 // Pad conntrols
 // ----------------------------
@@ -1953,27 +1949,48 @@
 //========================================================================
 //  APB4_DECODER_NON_SECURE_BASE     32'hFF646000
 //  APB4_DECODER_SECURE_BASE         32'hFF646000
-#define     HHI_MPEG_CLK_CNTL                                  (0xff646000 + (0x05d << 2))
-#define SEC_HHI_MPEG_CLK_CNTL                                  (0xff646000 + (0x05d << 2))
-#define   P_HHI_MPEG_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x05d << 2))
-#define     HHI_VID_CLK_CNTL                                   (0xff646000 + (0x05f << 2))
-#define SEC_HHI_VID_CLK_CNTL                                   (0xff646000 + (0x05f << 2))
-#define   P_HHI_VID_CLK_CNTL                                   (volatile uint32_t *)(0xff646000 + (0x05f << 2))
-#define     HHI_VID_CLK_CNTL2                                  (0xff646000 + (0x065 << 2))
-#define SEC_HHI_VID_CLK_CNTL2                                  (0xff646000 + (0x065 << 2))
-#define   P_HHI_VID_CLK_CNTL2                                  (volatile uint32_t *)(0xff646000 + (0x065 << 2))
-#define     HHI_VID_CLK_DIV                                    (0xff646000 + (0x059 << 2))
-#define SEC_HHI_VID_CLK_DIV                                    (0xff646000 + (0x059 << 2))
-#define   P_HHI_VID_CLK_DIV                                    (volatile uint32_t *)(0xff646000 + (0x059 << 2))
+#define     HHI_CHECK_CLK_RESULT                               (0xff646000 + (0x004 << 2))
+#define SEC_HHI_CHECK_CLK_RESULT                               (0xff646000 + (0x004 << 2))
+#define   P_HHI_CHECK_CLK_RESULT                               (volatile uint32_t *)(0xff646000 + (0x004 << 2))
 #define     HHI_VIID_CLK_DIV                                   (0xff646000 + (0x04a << 2))
 #define SEC_HHI_VIID_CLK_DIV                                   (0xff646000 + (0x04a << 2))
 #define   P_HHI_VIID_CLK_DIV                                   (volatile uint32_t *)(0xff646000 + (0x04a << 2))
 #define     HHI_VIID_CLK_CNTL                                  (0xff646000 + (0x04b << 2))
 #define SEC_HHI_VIID_CLK_CNTL                                  (0xff646000 + (0x04b << 2))
 #define   P_HHI_VIID_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x04b << 2))
+#define     HHI_VID_CLK_DIV                                    (0xff646000 + (0x059 << 2))
+#define SEC_HHI_VID_CLK_DIV                                    (0xff646000 + (0x059 << 2))
+#define   P_HHI_VID_CLK_DIV                                    (volatile uint32_t *)(0xff646000 + (0x059 << 2))
+#define     HHI_MPEG_CLK_CNTL                                  (0xff646000 + (0x05d << 2))
+#define SEC_HHI_MPEG_CLK_CNTL                                  (0xff646000 + (0x05d << 2))
+#define   P_HHI_MPEG_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x05d << 2))
+#define     HHI_VID_CLK_CNTL                                   (0xff646000 + (0x05f << 2))
+#define SEC_HHI_VID_CLK_CNTL                                   (0xff646000 + (0x05f << 2))
+#define   P_HHI_VID_CLK_CNTL                                   (volatile uint32_t *)(0xff646000 + (0x05f << 2))
+#define     HHI_TS_CLK_CNTL                                    (0xff646000 + (0x064 << 2))
+#define SEC_HHI_TS_CLK_CNTL                                    (0xff646000 + (0x064 << 2))
+#define   P_HHI_TS_CLK_CNTL                                    (volatile uint32_t *)(0xff646000 + (0x064 << 2))
+#define     HHI_VID_CLK_CNTL2                                  (0xff646000 + (0x065 << 2))
+#define SEC_HHI_VID_CLK_CNTL2                                  (0xff646000 + (0x065 << 2))
+#define   P_HHI_VID_CLK_CNTL2                                  (volatile uint32_t *)(0xff646000 + (0x065 << 2))
 #define     HHI_MALI_CLK_CNTL                                  (0xff646000 + (0x06c << 2))
 #define SEC_HHI_MALI_CLK_CNTL                                  (0xff646000 + (0x06c << 2))
 #define   P_HHI_MALI_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x06c << 2))
+#define     HHI_VPU_CLKC_CNTL                                  (0xff646000 + (0x06d << 2))
+#define SEC_HHI_VPU_CLKC_CNTL                                  (0xff646000 + (0x06d << 2))
+#define   P_HHI_VPU_CLKC_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x06d << 2))
+#define     HHI_VPU_CLK_CNTL                                   (0xff646000 + (0x06f << 2))
+#define SEC_HHI_VPU_CLK_CNTL                                   (0xff646000 + (0x06f << 2))
+#define   P_HHI_VPU_CLK_CNTL                                   (volatile uint32_t *)(0xff646000 + (0x06f << 2))
+#define     HHI_HDMI_CLK_CNTL                                  (0xff646000 + (0x073 << 2))
+#define SEC_HHI_HDMI_CLK_CNTL                                  (0xff646000 + (0x073 << 2))
+#define   P_HHI_HDMI_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x073 << 2))
+#define     HHI_DEMOD_CLK_CNTL                                 (0xff646000 + (0x074 << 2))
+#define SEC_HHI_DEMOD_CLK_CNTL                                 (0xff646000 + (0x074 << 2))
+#define   P_HHI_DEMOD_CLK_CNTL                                 (volatile uint32_t *)(0xff646000 + (0x074 << 2))
+#define     HHI_ETH_CLK_CNTL                                   (0xff646000 + (0x076 << 2))
+#define SEC_HHI_ETH_CLK_CNTL                                   (0xff646000 + (0x076 << 2))
+#define   P_HHI_ETH_CLK_CNTL                                   (volatile uint32_t *)(0xff646000 + (0x076 << 2))
 #define     HHI_VDEC_CLK_CNTL                                  (0xff646000 + (0x078 << 2))
 #define SEC_HHI_VDEC_CLK_CNTL                                  (0xff646000 + (0x078 << 2))
 #define   P_HHI_VDEC_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x078 << 2))
@@ -1986,48 +2003,42 @@
 #define     HHI_VDEC4_CLK_CNTL                                 (0xff646000 + (0x07b << 2))
 #define SEC_HHI_VDEC4_CLK_CNTL                                 (0xff646000 + (0x07b << 2))
 #define   P_HHI_VDEC4_CLK_CNTL                                 (volatile uint32_t *)(0xff646000 + (0x07b << 2))
-#define     HHI_VPU_CLK_CNTL                                   (0xff646000 + (0x06f << 2))
-#define SEC_HHI_VPU_CLK_CNTL                                   (0xff646000 + (0x06f << 2))
-#define   P_HHI_VPU_CLK_CNTL                                   (volatile uint32_t *)(0xff646000 + (0x06f << 2))
-#define     HHI_VPU_CLKC_CNTL                                  (0xff646000 + (0x06d << 2))
-#define SEC_HHI_VPU_CLKC_CNTL                                  (0xff646000 + (0x06d << 2))
-#define   P_HHI_VPU_CLKC_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x06d << 2))
-#define     HHI_VAPBCLK_CNTL                                   (0xff646000 + (0x07d << 2))
-#define SEC_HHI_VAPBCLK_CNTL                                   (0xff646000 + (0x07d << 2))
-#define   P_HHI_VAPBCLK_CNTL                                   (volatile uint32_t *)(0xff646000 + (0x07d << 2))
-#define     HHI_GEN_CLK_CNTL                                   (0xff646000 + (0x08a << 2))
-#define SEC_HHI_GEN_CLK_CNTL                                   (0xff646000 + (0x08a << 2))
-#define   P_HHI_GEN_CLK_CNTL                                   (volatile uint32_t *)(0xff646000 + (0x08a << 2))
-#define     HHI_AUDPLL_CLK_OUT_CNTL                            (0xff646000 + (0x08c << 2))
-#define SEC_HHI_AUDPLL_CLK_OUT_CNTL                            (0xff646000 + (0x08c << 2))
-#define   P_HHI_AUDPLL_CLK_OUT_CNTL                            (volatile uint32_t *)(0xff646000 + (0x08c << 2))
-#define     HHI_DEMOD_CLK_CNTL                                 (0xff646000 + (0x074 << 2))
-#define SEC_HHI_DEMOD_CLK_CNTL                                 (0xff646000 + (0x074 << 2))
-#define   P_HHI_DEMOD_CLK_CNTL                                 (volatile uint32_t *)(0xff646000 + (0x074 << 2))
-#define     HHI_NAND_CLK_CNTL                                  (0xff646000 + (0x097 << 2))
-#define SEC_HHI_NAND_CLK_CNTL                                  (0xff646000 + (0x097 << 2))
-#define   P_HHI_NAND_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x097 << 2))
-#define     HHI_SD_EMMC_CLK_CNTL                               (0xff646000 + (0x099 << 2))
-#define SEC_HHI_SD_EMMC_CLK_CNTL                               (0xff646000 + (0x099 << 2))
-#define   P_HHI_SD_EMMC_CLK_CNTL                               (volatile uint32_t *)(0xff646000 + (0x099 << 2))
-#define     HHI_VPU_CLKB_CNTL                                  (0xff646000 + (0x083 << 2))
-#define SEC_HHI_VPU_CLKB_CNTL                                  (0xff646000 + (0x083 << 2))
-#define   P_HHI_VPU_CLKB_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x083 << 2))
-#define     HHI_HDMI_CLK_CNTL                                  (0xff646000 + (0x073 << 2))
-#define SEC_HHI_HDMI_CLK_CNTL                                  (0xff646000 + (0x073 << 2))
-#define   P_HHI_HDMI_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x073 << 2))
 #define     HHI_HDCP22_CLK_CNTL                                (0xff646000 + (0x07c << 2))
 #define SEC_HHI_HDCP22_CLK_CNTL                                (0xff646000 + (0x07c << 2))
 #define   P_HHI_HDCP22_CLK_CNTL                                (volatile uint32_t *)(0xff646000 + (0x07c << 2))
+#define     HHI_VAPBCLK_CNTL                                   (0xff646000 + (0x07d << 2))
+#define SEC_HHI_VAPBCLK_CNTL                                   (0xff646000 + (0x07d << 2))
+#define   P_HHI_VAPBCLK_CNTL                                   (volatile uint32_t *)(0xff646000 + (0x07d << 2))
 #define     HHI_HDMIRX_CLK_CNTL                                (0xff646000 + (0x080 << 2))
 #define SEC_HHI_HDMIRX_CLK_CNTL                                (0xff646000 + (0x080 << 2))
 #define   P_HHI_HDMIRX_CLK_CNTL                                (volatile uint32_t *)(0xff646000 + (0x080 << 2))
 #define     HHI_HDMIRX_AUD_CLK_CNTL                            (0xff646000 + (0x081 << 2))
 #define SEC_HHI_HDMIRX_AUD_CLK_CNTL                            (0xff646000 + (0x081 << 2))
 #define   P_HHI_HDMIRX_AUD_CLK_CNTL                            (volatile uint32_t *)(0xff646000 + (0x081 << 2))
+#define     HHI_VPU_CLKB_CNTL                                  (0xff646000 + (0x083 << 2))
+#define SEC_HHI_VPU_CLKB_CNTL                                  (0xff646000 + (0x083 << 2))
+#define   P_HHI_VPU_CLKB_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x083 << 2))
+#define     HHI_GEN_CLK_CNTL                                   (0xff646000 + (0x08a << 2))
+#define SEC_HHI_GEN_CLK_CNTL                                   (0xff646000 + (0x08a << 2))
+#define   P_HHI_GEN_CLK_CNTL                                   (volatile uint32_t *)(0xff646000 + (0x08a << 2))
+#define     HHI_AUDPLL_CLK_OUT_CNTL                            (0xff646000 + (0x08c << 2))
+#define SEC_HHI_AUDPLL_CLK_OUT_CNTL                            (0xff646000 + (0x08c << 2))
+#define   P_HHI_AUDPLL_CLK_OUT_CNTL                            (volatile uint32_t *)(0xff646000 + (0x08c << 2))
 #define     HHI_HDMIRX_METER_CLK_CNTL                          (0xff646000 + (0x08d << 2))
 #define SEC_HHI_HDMIRX_METER_CLK_CNTL                          (0xff646000 + (0x08d << 2))
 #define   P_HHI_HDMIRX_METER_CLK_CNTL                          (volatile uint32_t *)(0xff646000 + (0x08d << 2))
+#define     HHI_VDIN_MEAS_CLK_CNTL                             (0xff646000 + (0x094 << 2))
+#define SEC_HHI_VDIN_MEAS_CLK_CNTL                             (0xff646000 + (0x094 << 2))
+#define   P_HHI_VDIN_MEAS_CLK_CNTL                             (volatile uint32_t *)(0xff646000 + (0x094 << 2))
+#define     HHI_NAND_CLK_CNTL                                  (0xff646000 + (0x097 << 2))
+#define SEC_HHI_NAND_CLK_CNTL                                  (0xff646000 + (0x097 << 2))
+#define   P_HHI_NAND_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x097 << 2))
+#define     HHI_SD_EMMC_CLK_CNTL                               (0xff646000 + (0x099 << 2))
+#define SEC_HHI_SD_EMMC_CLK_CNTL                               (0xff646000 + (0x099 << 2))
+#define   P_HHI_SD_EMMC_CLK_CNTL                               (volatile uint32_t *)(0xff646000 + (0x099 << 2))
+#define     HHI_TCON_CLK_CNTL                                  (0xff646000 + (0x09c << 2))
+#define SEC_HHI_TCON_CLK_CNTL                                  (0xff646000 + (0x09c << 2))
+#define   P_HHI_TCON_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x09c << 2))
 #define     HHI_HDMI_AXI_CLK_CNTL                              (0xff646000 + (0x0b8 << 2))
 #define SEC_HHI_HDMI_AXI_CLK_CNTL                              (0xff646000 + (0x0b8 << 2))
 #define   P_HHI_HDMI_AXI_CLK_CNTL                              (volatile uint32_t *)(0xff646000 + (0x0b8 << 2))
@@ -2037,9 +2048,6 @@
 #define     HHI_ATV_DMD_SYS_CLK_CNTL                           (0xff646000 + (0x0f3 << 2))
 #define SEC_HHI_ATV_DMD_SYS_CLK_CNTL                           (0xff646000 + (0x0f3 << 2))
 #define   P_HHI_ATV_DMD_SYS_CLK_CNTL                           (volatile uint32_t *)(0xff646000 + (0x0f3 << 2))
-#define     HHI_TCON_CLK_CNTL                                  (0xff646000 + (0x09c << 2))
-#define SEC_HHI_TCON_CLK_CNTL                                  (0xff646000 + (0x09c << 2))
-#define   P_HHI_TCON_CLK_CNTL                                  (volatile uint32_t *)(0xff646000 + (0x09c << 2))
 #define     HHI_BT656_CLK_CNTL                                 (0xff646000 + (0x0f5 << 2))
 #define SEC_HHI_BT656_CLK_CNTL                                 (0xff646000 + (0x0f5 << 2))
 #define   P_HHI_BT656_CLK_CNTL                                 (volatile uint32_t *)(0xff646000 + (0x0f5 << 2))
@@ -2049,15 +2057,6 @@
 #define     HHI_SPICC_CLK_CNTL                                 (0xff646000 + (0x0f7 << 2))
 #define SEC_HHI_SPICC_CLK_CNTL                                 (0xff646000 + (0x0f7 << 2))
 #define   P_HHI_SPICC_CLK_CNTL                                 (volatile uint32_t *)(0xff646000 + (0x0f7 << 2))
-#define     HHI_ETH_CLK_CNTL                                   (0xff646000 + (0x076 << 2))
-#define SEC_HHI_ETH_CLK_CNTL                                   (0xff646000 + (0x076 << 2))
-#define   P_HHI_ETH_CLK_CNTL                                   (volatile uint32_t *)(0xff646000 + (0x076 << 2))
-#define     HHI_VDIN_MEAS_CLK_CNTL                             (0xff646000 + (0x094 << 2))
-#define SEC_HHI_VDIN_MEAS_CLK_CNTL                             (0xff646000 + (0x094 << 2))
-#define   P_HHI_VDIN_MEAS_CLK_CNTL                             (volatile uint32_t *)(0xff646000 + (0x094 << 2))
-#define     HHI_TS_CLK_CNTL                                    (0xff646000 + (0x064 << 2))
-#define SEC_HHI_TS_CLK_CNTL                                    (0xff646000 + (0x064 << 2))
-#define   P_HHI_TS_CLK_CNTL                                    (volatile uint32_t *)(0xff646000 + (0x064 << 2))
 //========================================================================
 //  HIU - Registers
 //========================================================================
@@ -2067,9 +2066,6 @@
 //`define HHI_MIPI_CNTL1        8'h01
 //`define HHI_MIPI_CNTL2        8'h02
 //`define HHI_MIPI_STS          8'h03
-#define     HHI_CHECK_CLK_RESULT                               (0xff63c000 + (0x004 << 2))
-#define SEC_HHI_CHECK_CLK_RESULT                               (0xff63c000 + (0x004 << 2))
-#define   P_HHI_CHECK_CLK_RESULT                               (volatile uint32_t *)(0xff63c000 + (0x004 << 2))
 #define     HHI_HDMI_PHY_CNTL0                                 (0xff63c000 + (0x005 << 2))
 #define SEC_HHI_HDMI_PHY_CNTL0                                 (0xff63c000 + (0x005 << 2))
 #define   P_HHI_HDMI_PHY_CNTL0                                 (volatile uint32_t *)(0xff63c000 + (0x005 << 2))
@@ -8455,12 +8451,8 @@
 //`define AO_SEC_AO_CPU_SRAM_REG0_0       8'hc0
 //`define AO_SEC_AO_CPU_SRAM_REG0_1       8'hc1
 //`define AO_SEC_AO_CPU_SRAM_REG0_2       8'hc2
-#define     AO_SEC_AO_CPU_SRAM_REG1_0                          (0xff800000 + (0x0c3 << 2))
-#define SEC_AO_SEC_AO_CPU_SRAM_REG1_0                          (0xff800000 + (0x0c3 << 2))
-#define   P_AO_SEC_AO_CPU_SRAM_REG1_0                          (volatile uint32_t *)(0xff800000 + (0x0c3 << 2))
-#define     AO_SEC_AO_CPU_SRAM_REG1_1                          (0xff800000 + (0x0c4 << 2))
-#define SEC_AO_SEC_AO_CPU_SRAM_REG1_1                          (0xff800000 + (0x0c4 << 2))
-#define   P_AO_SEC_AO_CPU_SRAM_REG1_1                          (volatile uint32_t *)(0xff800000 + (0x0c4 << 2))
+//`define AO_SEC_AO_CPU_SRAM_REG1_0       8'hc3
+//`define AO_SEC_AO_CPU_SRAM_REG1_1       8'hc4
 //`define AO_SEC_AO_CPU_SRAM_REG1_2       8'hc5
 //`define M4_CPU_CNTL                     8'hc0
 //`define M4_CPU_CNTL_NS                  8'hc1
@@ -9004,14 +8996,6 @@
 //
 // Closing file:  ./ao_rti_reg.h
 //
-
-/*from T6 ucode t5_ucode_0612.tar*/
-#define RSA_BASE                                   ((0x0000  << 2) + 0xff640000)
-#define P_RSA_BASE            (volatile uint32_t *)((0x0000  << 2) + 0xff640000)
-
-#include "fixme.h"
-
-#include <asm/arch/regs.h>
 
 #endif // SECURE_APB_H
 
