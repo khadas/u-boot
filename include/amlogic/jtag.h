@@ -29,6 +29,8 @@
 #define	AOCPU			7 /* aocpu */
 #define	AUCPU			8 /* aucpu */
 #define	SOCBRG			9 /* SOC Bridge */
+#define	DEMOD			10/* demod */
+#define	SECPU			11/* secpu */
 
 /*
  * bitmap for jtag select ID:
