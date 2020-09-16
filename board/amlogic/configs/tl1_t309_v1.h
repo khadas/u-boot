@@ -101,6 +101,7 @@
         "fb_addr=0x3d800000\0" \
         "fb_width=1920\0" \
         "fb_height=1080\0" \
+        "board_logo_part=odm\0" \
         "frac_rate_policy=1\0" \
         "usb_burning=update 1000\0" \
         "otg_device=1\0"\
@@ -329,9 +330,9 @@
             "\0"\
         "init_display="\
             "osd open;osd clear;"\
-            "if rdext4pic vendor $loadaddr; then bmp display $logoLoadAddr;"\
-            "else echo logo part bootup; imgread pic logo bootup $loadaddr; bmp display $bootup_offset;fi;"\
-            "bmp scale;vout output ${outputmode}"\
+            "if rdext4pic $board_logo_part $loadaddr; then echo $board_logo_part logo; "\
+            "else rdext4pic odm $loadaddr;fi;"\
+            "bmp display $logoLoadAddr;bmp scale;vout output ${outputmode}"\
             "\0"\
         "check_display="\
             "if test ${reboot_mode} = cold_boot; then "\

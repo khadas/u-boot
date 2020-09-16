@@ -108,6 +108,7 @@
         "fb_addr=0x3d800000\0" \
         "fb_width=1920\0" \
         "fb_height=1080\0" \
+        "board_logo_part=odm\0" \
         "frac_rate_policy=1\0" \
         "hdr_policy=0\0" \
 		"hdmi_read_edid=1\0" \
@@ -337,8 +338,8 @@
             "\0"\
         "init_display="\
             "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;osd open;osd clear;"\
-            "if rdext4pic vendor $loadaddr; then bmp display $logoLoadAddr;"\
-            "else echo logo part bootup; imgread pic logo bootup $loadaddr; bmp display $bootup_offset;fi;"\
+            "if rdext4pic $board_logo_part $loadaddr; then echo $board_logo_part logo; "\
+            "else rdext4pic odm $loadaddr;fi;bmp display $logoLoadAddr;"\
             "bmp scale;vout output ${outputmode};dovi set;dovi pkg;vpp hdrpkt;"\
             "\0"\
         "check_display="\
