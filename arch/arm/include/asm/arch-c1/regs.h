@@ -14,12 +14,12 @@
  * ISA_TIMERE use SYSCTRL_TIMERE
  * WATCHDOG_CNTL use RESETCTRL_WATCHDOG_CTRL0
  * WATCHDOG_TCNT use RESETCTRL_WATCHDOG_CNT
- * WATCHDOG_RESET use RESETCTRL_WATCHDOG_CLR
+ * WATCHDOG_RST use RESETCTRL_WATCHDOG_CLR
  */
 #define ISA_TIMERE			((0x0041  << 2) + 0xfe005800)
 #define WATCHDOG_CNTL			((0x0040  << 2) + 0xfe000000)
 #define WATCHDOG_TCNT			((0x0042  << 2) + 0xfe000000)
-#define WATCHDOG_RESET			((0x0043  << 2) + 0xfe000000)
+#define WATCHDOG_RST			((0x0043  << 2) + 0xfe000000)
 
 /*
  * SEC_AO_SEC_GP_CFG0 use SYSCTRL_SEC_STATUS_REG4
@@ -54,7 +54,7 @@
  */
 #define P_WATCHDOG_CNTL			(volatile uint32_t *)(WATCHDOG_CNTL)
 #define P_WATCHDOG_TCNT			(volatile uint32_t *)(WATCHDOG_TCNT)
-#define P_WATCHDOG_RESET		(volatile uint32_t *)(WATCHDOG_RESET)
+#define P_WATCHDOG_RST			(volatile uint32_t *)(WATCHDOG_RST)
 #define P_ISA_TIMERE			(volatile uint32_t *)(ISA_TIMERE)
 
 #endif /* __AML_REG_H__ */

@@ -13318,8 +13318,8 @@
 #define P_WATCHDOG_CNTL1                           (volatile unsigned int *)((0x3c35  << 2) + 0xffd00000)
 #define   WATCHDOG_TCNT                            (0x3c36)
 #define P_WATCHDOG_TCNT                            (volatile unsigned int *)((0x3c36  << 2) + 0xffd00000)
-#define   WATCHDOG_RESET                           (0x3c37)
-#define P_WATCHDOG_RESET                           (volatile unsigned int *)((0x3c37  << 2) + 0xffd00000)
+#define   WATCHDOG_RST                             (0x3c37)
+#define P_WATCHDOG_RST                             (volatile unsigned int *)((0x3c37  << 2) + 0xffd00000)
 // -----------------------------------------------------------
 #define   AHB_ARBITER_REG                          (0x3c42)
 #define P_AHB_ARBITER_REG                          (volatile unsigned int *)((0x3c42  << 2) + 0xffd00000)

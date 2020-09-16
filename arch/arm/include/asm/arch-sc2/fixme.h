@@ -5,16 +5,6 @@
 
 #ifdef ROM_FIXME
 
-/*WDC*/
-#define WATCHDOG_CNTL                    (SYSCTRL_STICKY_REG0)
-#define WATCHDOG_CNTL1                   (SYSCTRL_STICKY_REG0)
-#define WATCHDOG_TCNT                    (SYSCTRL_STICKY_REG0)
-#define WATCHDOG_RESET                   (SYSCTRL_STICKY_REG0)
-#define P_WATCHDOG_CNTL                  (volatile uint32_t *)(WATCHDOG_CNTL)
-#define P_WATCHDOG_TCNT                  (volatile uint32_t *)(WATCHDOG_TCNT)
-#define P_WATCHDOG_RESET                 (volatile uint32_t *)(WATCHDOG_RESET)
-
-
 /*OTP*/
 #define OTP_LIC0                         (SYSCTRL_STICKY_REG0)
 #define OTP_LIC1                         (SYSCTRL_STICKY_REG0)
