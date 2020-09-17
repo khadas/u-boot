@@ -582,43 +582,43 @@ ddr_reg_t __ddr_reg[] = {
 #endif
 
 /* VDDEE PWM table */
-#if    (VDDEE_VAL == 740)
+#if   (VDDEE_VAL == 750)
 	#define VDDEE_VAL_REG	0x00120000
-#elif (VDDEE_VAL == 750)
-	#define VDDEE_VAL_REG	0x00110001
 #elif (VDDEE_VAL == 760)
-	#define VDDEE_VAL_REG	0x00100002
+	#define VDDEE_VAL_REG	0x00110001
 #elif (VDDEE_VAL == 770)
-	#define VDDEE_VAL_REG	0x000f0003
+	#define VDDEE_VAL_REG	0x00100002
 #elif (VDDEE_VAL == 780)
-	#define VDDEE_VAL_REG	0x000e0004
+	#define VDDEE_VAL_REG	0x000f0003
 #elif (VDDEE_VAL == 790)
-	#define VDDEE_VAL_REG	0x000d0005
+	#define VDDEE_VAL_REG	0x000e0004
 #elif (VDDEE_VAL == 800)
-	#define VDDEE_VAL_REG	0x000c0006
+	#define VDDEE_VAL_REG	0x000d0005
 #elif (VDDEE_VAL == 810)
-	#define VDDEE_VAL_REG	0x000b0007
+	#define VDDEE_VAL_REG	0x000c0006
 #elif (VDDEE_VAL == 820)
-	#define VDDEE_VAL_REG	0x000a0008
+	#define VDDEE_VAL_REG	0x000b0007
 #elif (VDDEE_VAL == 830)
-	#define VDDEE_VAL_REG	0x00090009
+	#define VDDEE_VAL_REG	0x000a0008
 #elif (VDDEE_VAL == 840)
-	#define VDDEE_VAL_REG	0x0008000a
+	#define VDDEE_VAL_REG	0x00090009
 #elif (VDDEE_VAL == 850)
-	#define VDDEE_VAL_REG	0x0007000b
+	#define VDDEE_VAL_REG	0x0008000a
 #elif (VDDEE_VAL == 860)
-	#define VDDEE_VAL_REG	0x0006000c
+	#define VDDEE_VAL_REG	0x0007000b
 #elif (VDDEE_VAL == 870)
-	#define VDDEE_VAL_REG	0x0005000d
+	#define VDDEE_VAL_REG	0x0006000c
 #elif (VDDEE_VAL == 880)
-	#define VDDEE_VAL_REG	0x0004000e
+	#define VDDEE_VAL_REG	0x0005000d
 #elif (VDDEE_VAL == 890)
-	#define VDDEE_VAL_REG	0x0003000f
+	#define VDDEE_VAL_REG	0x0004000e
 #elif (VDDEE_VAL == 900)
-	#define VDDEE_VAL_REG	0x00020010
+	#define VDDEE_VAL_REG	0x0003000f
 #elif (VDDEE_VAL == 910)
-	#define VDDEE_VAL_REG	0x00010011
+	#define VDDEE_VAL_REG	0x00020010
 #elif (VDDEE_VAL == 920)
+	#define VDDEE_VAL_REG	0x00010011
+#elif (VDDEE_VAL == 930)
 	#define VDDEE_VAL_REG	0x00000012
 #else
 	#error "VDDEE val out of range\n"
@@ -626,32 +626,30 @@ ddr_reg_t __ddr_reg[] = {
 
 /* for PWM use */
 /* PWM driver check http://scgit.amlogic.com:8080/#/c/38093/ */
-#define GPIO_O_EN_N_REG3	((0xff634400 + (0x19 << 2)))
-#define GPIO_O_REG3		((0xff634400 + (0x1a << 2)))
-#define GPIO_I_REG3		((0xff634400 + (0x1b << 2)))
-#define AO_PIN_MUX_REG0	((0xff800000 + (0x05 << 2)))
-#define AO_PIN_MUX_REG1	((0xff800000 + (0x06 << 2)))
+#define PWMAB_PWM_A			((0x0000 << 2) + 0xffd1b000)
+#define PWMAB_PWM_B			((0x0001 << 2) + 0xffd1b000)
+#define PWMAB_MISC_REG_AB	((0x0002 << 2) + 0xffd1b000)
 
 bl2_reg_t __bl2_reg[] = {
 	/* demo, user defined override register */
-	/* eg: PWM init */
 	{(0xff634400 + (0x048 << 2)),0x20f8, 0xffffffff,   0, BL2_INIT_STAGE_1, 0},
-	/* PWM_AO_D */
-	/* VCCK_VAL_REG: check PWM table */
-	//{AO_PWM_PWM_D,        VCCK_VAL_REG,            0xffffffff,   0, BL2_INIT_STAGE_1, 0},
-	//{AO_PWM_MISC_REG_CD,  ((1 << 23) | (1 << 1)),  (0x7f << 16), 0, BL2_INIT_STAGE_1, 0},
-	//{AO_PIN_MUX_REG1,     (3 << 20),               (0xF << 20),  0, BL2_INIT_STAGE_1, 0},
-	/* PWM_AO_B */
-	/* VDDEE_VAL_REG: check PWM table */
-	//{AO_PWM_PWM_B,        VDDEE_VAL_REG,           0xffffffff,   0, BL2_INIT_STAGE_1, 0},
-	//{AO_PWM_MISC_REG_AB,  ((1 << 23) | (1 << 1)),  (0x7f << 16), 0, BL2_INIT_STAGE_1, 0},
-	//{AO_PIN_MUX_REG1,     (3 << 16),               (0xF << 16),  0, BL2_INIT_STAGE_1, 0},
+	/* eg: PWM init */
+	/* PWM_A VDDEE_VAL_REG */
+	{PWMAB_PWM_A,		VDDEE_VAL_REG,	0xffffffff,	0,	BL2_INIT_STAGE_1, 0},
+	/* PWM_B VCCK_VAL_REG */
+	{PWMAB_PWM_B,		VCCK_VAL_REG,	0xffffffff,	0,	BL2_INIT_STAGE_1, 0},
+	{PWMAB_MISC_REG_AB,	((3 << 0) | (1 << 15) | (1 << 23)),  0xffffffff, 0, BL2_INIT_STAGE_1, 0},
+	/* SET GPIOE_0 GPIOE_1 DS to 3 */
+	{AO_PAD_DS_B,		(0xF << 0), (0xF << 0),		0,	BL2_INIT_STAGE_1, 0},
+	/* MUX GPIOE_0 to PWM_A GPIOE_1 to PWM_B */
+	{AO_RTI_PINMUX_REG1,	((1 << 16) | (1 << 20)), (0xFF << 16), 0, BL2_INIT_STAGE_1, 0},
+	/* Enable VCCK SET GPIOD_10 HIGH */
+	{AO_RTI_PINMUX_REG1,	(0 << 8),	(0xF << 8), 	0, BL2_INIT_STAGE_1, 0},
+	{AO_GPIO_O_EN_N,	(0 << 10),	(1 << 10),	0, BL2_INIT_STAGE_1, 0},
+	{AO_GPIO_O,		(1 << 10),	(1 << 10),	0, BL2_INIT_STAGE_1, 0},
 	/* Enable 5V_EN ,set gpioao_3 low --> several millisecond--set high in board_init*/
 	//{AO_GPIO_O_EN_N,    (0 << 3),                (1 << 3),     0, BL2_INIT_STAGE_1, 0},
 	///{AO_GPIO_O,         (0 << 3),                (1 << 3),   0, BL2_INIT_STAGE_1, 0},
-	/* Enable VCCK GPIOAO_2*/
-	//{AO_GPIO_O_EN_N,      (0 << 2),                (1 << 2),  	 0, BL2_INIT_STAGE_1, 0},
-	//{AO_GPIO_O,           (1 << 2),                (1 << 2),  	 0, BL2_INIT_STAGE_1, 0},
 	/* GPIOH_12 pull high */
 	//{PREG_PAD_GPIO2_O,     (1 << 12),               (1 << 12),   0, BL2_INIT_STAGE_1, 0},
 	//{PREG_PAD_GPIO2_EN_N,  (0 << 12),               (1 << 12),   0, BL2_INIT_STAGE_1, 0},
