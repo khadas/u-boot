@@ -72,7 +72,7 @@
         "loadaddr=0x00020000\0"\
         "os_ident_addr=0x00500000\0"\
         "loadaddr_rtos=0x00001000\0"\
-        "loadaddr_kernel=0x01080000\0"\
+        "loadaddr_kernel=0x03080000\0"\
         "otg_device=1\0" \
         "panel_type=lcd_1\0" \
         "outputmode=1080p60hz\0" \
@@ -196,7 +196,7 @@
             "\0"\
         "recovery_from_flash="\
             "setenv loadaddr ${loadaddr_kernel};"\
-            "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
+            "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset} androidboot.slot_suffix=${active_slot};"\
             "if imgread dtb recovery ${dtb_mem_addr}; then "\
                 "else echo restore dtb; run common_dtb_load;"\
             "fi;"\
@@ -321,6 +321,10 @@
 
 #if defined(CONFIG_AML_NAND) && defined(CONFIG_MESON_NFC)
 #error CONFIG_AML_NAND/CONFIG_MESON_NFC can not support at the sametime;
+#endif
+
+#if (defined(CONFIG_AML_NAND) || defined(CONFIG_MESON_NFC)) && defined(CONFIG_MESON_FBOOT)
+#error CONFIG_AML_NAND/CONFIG_MESON_NFC CONFIG _MESON_FBOOT can not support at the sametime;
 #endif
 
 #if defined(CONFIG_SPI_NAND) && defined(CONFIG_MTD_SPI_NAND) && defined(CONFIG_MESON_NFC)
