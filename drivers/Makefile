@@ -28,6 +28,7 @@ obj-y += thermal/
 obj-$(CONFIG_EFUSE) += efuse/
 obj-$(CONFIG_UNIFY_KEY_MANAGE) += keymanage/
 obj-$(CONFIG_AML_V2_FACTORY_BURN)	+= usb/gadget/v2_burning/
+obj-$(CONFIG_AML_V3_FACTORY_BURN)	+= usb/gadget/v3_burning/
 obj-y += display/
 obj-$(CONFIG_SECURE_STORAGE) += securestorage/
 obj-$(CONFIG_SECURE_STORAGE) += storagekey/

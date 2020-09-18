@@ -230,6 +230,7 @@ void init_dsp_jtag(unsigned int id)
 	mb_message_end(HIGH_PRIORITY);
 }
 
+#if 0
 void set_boot_first_timeout(unsigned int command)
 {
 	mb_message_start(LOW_PRIORITY);
@@ -238,6 +239,7 @@ void set_boot_first_timeout(unsigned int command)
 	mb_message_wait(LOW_PRIORITY);
 	mb_message_end(LOW_PRIORITY);
 }
+#endif
 
 #ifdef CONFIG_RING
 int efuse_get_value(unsigned char *efuseinfo)

@@ -95,6 +95,9 @@
 /*viu probe en*/
 #define VIU_PREOBE_EN		0x82000080
 
+/*set boot first timeout*/
+#define SET_BOOT_FIRST		0x82000087
+
 /* KEYMASTER */
 #define SET_BOOT_PARAMS		0x82000072
 #define SHA256_DIGEST_SIZE  32
@@ -158,6 +161,7 @@ unsigned long aml_sec_boot_check(unsigned long ,unsigned long ,unsigned long,uns
 long get_sharemem_info(unsigned long);
 void set_usb_boot_function(unsigned long command);
 void aml_system_off(void);
+void set_boot_first_timeout(uint64_t arg0);
 
 void bl31_get_chipid(unsigned int *, unsigned int *,
 	unsigned int *, unsigned int *);

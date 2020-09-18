@@ -38,9 +38,8 @@
 #include <vpu.h>
 #endif
 #include <vpp.h>
-#ifdef CONFIG_AML_V2_FACTORY_BURN
 #include <amlogic/aml_v2_burning.h>
-#endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
+#include <amlogic/aml_v3_burning.h>
 #ifdef CONFIG_AML_HDMITX20
 #include <amlogic/hdmi.h>
 #endif
@@ -647,11 +646,13 @@ int board_late_init(void)
 	lcd_probe();
 #endif
 
-#ifdef CONFIG_AML_V2_FACTORY_BURN
+#ifdef CONFIG_AML_V3_FACTORY_BURN
 	if (0x1b8ec003 == readl(P_PREG_STICKY_REG2))
-		aml_try_factory_usb_burning(1, gd->bd);
-		aml_try_factory_sdcard_burning(0, gd->bd);
-#endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
+		aml_v3_factory_usb_burning(1, gd->bd);
+#endif// #ifdef CONFIG_AML_V3_FACTORY_BURN
+#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
+	aml_try_factory_sdcard_burning(0, gd->bd);
+#endif//#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE
 
 	TE(__func__);
 	strcpy(outputModeCur,getenv("outputmode"));

@@ -149,3 +149,48 @@ unsigned add_sum(const void* pBuf, const unsigned size)
     return sum;
 }
 
+#ifndef SCPI_CMD_USB_BOOT
+#define SCPI_CMD_USB_BOOT 		0xB0	//skip to wait pc with timeout
+#define SCPI_CMD_USB_UNBOOT 	0xB1	//skip to wait pc forever
+#define SCPI_CMD_SDCARD_BOOT 	0xB2
+#define SCPI_CMD_CLEAR_BOOT 	0xB3
+static void _erase_bootloader(uint64_t arg0)
+{
+    if (SCPI_CMD_CLEAR_BOOT == arg0) return;//dummy as not supported
+
+    store_erase_ops((u8*)"boot", 0, 0, 0);
+}
+extern void set_boot_first_timeout(uint64_t arg0) __attribute__((weak, alias("_erase_bootloader")));
+
+#include <asm/arch/bl31_apis.h>
+#include <asm/cpu_id.h>
+#endif//#ifndef SCPI_CMD_USB_BOOT
+//I assume that store_inited yet when "bootloader_is_old"!!!!
+int optimus_erase_bootloader(const char* extBootDev)
+{
+    if (!strcmp("usb", extBootDev))
+    {
+        set_boot_first_timeout(SCPI_CMD_USB_UNBOOT);
+        return 0;
+    }
+
+    if (!strcmp("sdc", extBootDev))
+    {
+#ifdef MESON_CPU_MAJOR_ID_C1
+        cpu_id_t cpuid = get_cpu_id();
+        if (MESON_CPU_MAJOR_ID_C1 == cpuid.family_id && MESON_CPU_CHIP_REVISION_A == cpuid.chip_rev)
+            _erase_bootloader(SCPI_CMD_SDCARD_BOOT);
+        else
+#endif//#ifdef MESON_CPU_MAJOR_ID_C1
+            set_boot_first_timeout(SCPI_CMD_SDCARD_BOOT);
+        return 0;
+    }
+
+    return 0;
+}
+
+void optimus_clear_ovd_register(void)
+{
+    set_boot_first_timeout(SCPI_CMD_CLEAR_BOOT);
+}
+

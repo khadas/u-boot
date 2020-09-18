@@ -1403,49 +1403,6 @@ int optimus_burn_complete(const int choice)
     return rc;
 }
 
-static int optimus_enable_romboot_skip_boot(const char* extBootDev)
-{
-    if (!strcmp("usb", extBootDev))
-    {
-#if ROM_BOOT_SKIP_BOOT_ENABLED_4_USB
-#if SCPI_CMD_USB_UNBOOT
-        set_boot_first_timeout(SCPI_CMD_USB_UNBOOT);
-#else
-        set_usb_boot_function(FORCE_USB_BOOT);
-#endif// #if SCPI_CMD_USB_UNBOOT
-#endif// #if ROM_BOOT_SKIP_BOOT_ENABLED_4_USB
-    }
-
-    if (!strcmp("sdc", extBootDev))
-    {
-#if ROM_BOOT_SKIP_BOOT_ENABLED_4_SDC
-        set_boot_first_timeout(SCPI_CMD_SDCARD_BOOT);
-#endif// #if ROM_BOOT_SKIP_BOOT_ENABLED_4_SDC
-    }
-
-    return 0;
-}
-
-//I assume that store_inited yet when "bootloader_is_old"!!!!
-int optimus_erase_bootloader(const char* extBootDev)
-{
-    if (!strcmp("usb", extBootDev))
-    {
-#if ROM_BOOT_SKIP_BOOT_ENABLED_4_USB
-    return optimus_enable_romboot_skip_boot("usb");
-#endif// #if ROM_BOOT_SKIP_BOOT_ENABLED_4_USB
-    }
-
-    if (!strcmp("sdc", extBootDev))
-    {
-#if ROM_BOOT_SKIP_BOOT_ENABLED_4_SDC
-    return optimus_enable_romboot_skip_boot("sdc");
-#endif// #if ROM_BOOT_SKIP_BOOT_ENABLED_4_SDC
-    }
-
-    return store_erase_ops((u8*)"boot", 0, 0, 0);
-}
-
 //getenv wrapper to avoid coverity tained string error
 const char* getenv_optimus(const char* name)
 {

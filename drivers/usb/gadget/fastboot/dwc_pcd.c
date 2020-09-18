@@ -644,8 +644,8 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 }
 
 #if (defined CONFIG_USB_DEVICE_V2)
-unsigned int fb_sofintr;
-unsigned fb_curTime_sof;
+extern unsigned int fb_sofintr;
+extern unsigned fb_curTime_sof;
 
 void dwc_otg_power_off_phy_fb(void)
 {

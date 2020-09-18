@@ -607,8 +607,8 @@
 //#define CONFIG_CMD_FASTBOOT 1
 //#define CONFIG_FASTBOOT_FLASH_MMC_DEV 1
 //#define CONFIG_FASTBOOT_FLASH 1
-//#define CONFIG_USB_GADGET 1
-//#define CONFIG_USBDOWNLOAD_GADGET 1
+#define CONFIG_USB_GADGET 1
+#define CONFIG_USBDOWNLOAD_GADGET 1
 #define CONFIG_SYS_CACHELINE_SIZE 64
 //#define CONFIG_FASTBOOT_MAX_DOWN_SIZE	0x8000000
 //#define CONFIG_DEVICE_PRODUCT	"t962x3_ab301"
@@ -619,6 +619,8 @@
 //#define CONFIG_POWER_KEY_NOT_SUPPORTED_FOR_BURN 1       //There isn't power-key for factory sdcard burning
 //#define CONFIG_SD_BURNING_SUPPORT_UI            1       //Displaying upgrading progress bar when sdcard/udisk burning
 
+#define CONFIG_AML_V3_FACTORY_BURN              1       //support facotry usb burning
+#define CONFIG_AML_V3_USB_TOOl                  1
 //#define CONFIG_AML_SECURITY_KEY                 1
 //#define CONFIG_UNIFY_KEY_MANAGE                 1
 
