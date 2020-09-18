@@ -901,9 +901,8 @@ void hdr_func(enum hdr_module_sel module_sel,
 	/*lut parameters*/
 	if (hdr_process_select & (HDR_BYPASS | RGB_BYPASS)) {
 		/*for g12a/g12b osd blend shift rtl bug*/
-		if (((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) ||
-			(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B)) &&
-			(module_sel & OSD1_HDR)) {
+		if ((get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_G12A) &&
+			(module_sel & (OSD1_HDR | VD1_HDR))) {
 			for (i = 0; i < HDR2_OETF_LUT_SIZE; i++) {
 				hdr_lut_param.oetf_lut[i]  = oe_y_lut_bypass[i];
 				hdr_lut_param.ogain_lut[i] = oo_y_lut_bypass[i];
@@ -1069,9 +1068,12 @@ void hdr_func(enum hdr_module_sel module_sel,
 		} else if (((get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_SM1) ||
 			(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B &&
 			 get_cpu_id().chip_rev == MESON_CPU_CHIP_REVISION_B)) &&
-			(module_sel & OSD1_HDR)) {
+			(module_sel & (OSD1_HDR | VD1_HDR))) {
 			for (i = 0; i < 15; i++) {
-				hdr_mtx_param.mtx_in[i] = rgb2ycbcr_709[i];
+				if (module_sel & OSD1_HDR)
+					hdr_mtx_param.mtx_in[i] = rgb2ycbcr_709[i];
+				else
+					hdr_mtx_param.mtx_in[i] = bypass_coeff[i];
 				hdr_mtx_param.mtx_cgain[i] = bypass_coeff[i];
 				hdr_mtx_param.mtx_ogain[i] = bypass_coeff[i];
 				hdr_mtx_param.mtx_out[i] = bypass_coeff[i];
@@ -1079,19 +1081,32 @@ void hdr_func(enum hdr_module_sel module_sel,
 					hdr_mtx_param.mtx_gamut[i] =
 						bypass_coeff[i];
 				if (i < 3) {
-					hdr_mtx_param.mtxi_pre_offset[i] =
+					if (module_sel & OSD1_HDR) {
+						hdr_mtx_param.mtxi_pre_offset[i] =
 						rgb2yuvpre[i];
-					hdr_mtx_param.mtxi_pos_offset[i] =
+						hdr_mtx_param.mtxi_pos_offset[i] =
 						rgb2yuvpos[i];
+					} else {
+						hdr_mtx_param.mtxi_pre_offset[i] =
+						bypass_pre[i];
+						hdr_mtx_param.mtxi_pos_offset[i] =
+						bypass_pos[i];
+					}
 					hdr_mtx_param.mtxo_pre_offset[i] =
 						bypass_pre[i];
 					hdr_mtx_param.mtxo_pos_offset[i] =
 						bypass_pos[i];
 				}
 			}
-			hdr_mtx_param.mtx_on = MTX_OFF;
-			hdr_mtx_param.p_sel = HDR_BYPASS;
-			hdr_mtx_param.mtx_only = MTX_ONLY;
+			if (module_sel & OSD1_HDR) {
+				hdr_mtx_param.mtx_on = MTX_OFF;
+				hdr_mtx_param.p_sel = HDR_BYPASS;
+				hdr_mtx_param.mtx_only = MTX_ONLY;
+			} else {
+				hdr_mtx_param.mtx_on = MTX_ON;
+				hdr_mtx_param.p_sel = HDR_BYPASS;
+				hdr_mtx_param.mtx_only = HDR_ONLY;
+			}
 		} else {
 			for (i = 0; i < 15; i++) {
 				hdr_mtx_param.mtx_in[i] = bypass_coeff[i];

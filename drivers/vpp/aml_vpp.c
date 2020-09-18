@@ -1696,9 +1696,10 @@ void vpp_init(void)
 
 		/* set vpp data path to u12 */
 		set_vpp_bitdepth();
-		if ((get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_G12A) &&
-			(get_cpu_id().family_id != MESON_CPU_MAJOR_ID_T5))
+		if (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_G12A) {
 			hdr_func(OSD1_HDR, HDR_BYPASS);
+			hdr_func(VD1_HDR, HDR_BYPASS);
+		}
 	} else {
 		/* set dummy data default YUV black */
 		vpp_reg_write(VPP_DUMMY_DATA1, 0x108080);
