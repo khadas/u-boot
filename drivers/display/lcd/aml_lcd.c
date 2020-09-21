@@ -92,8 +92,7 @@ static void lcd_chip_detect(void)
 		aml_lcd_driver.rev_type = rev_type;
 		break;
 	default:
-		//aml_lcd_driver.chip_type = LCD_CHIP_MAX;
-		aml_lcd_driver.chip_type = LCD_CHIP_T5;
+		aml_lcd_driver.chip_type = LCD_CHIP_MAX;
 		break;
 	}
 #else

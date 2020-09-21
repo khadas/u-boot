@@ -687,8 +687,6 @@ static void lcd_set_pll_ss_advance_tl1(unsigned int freq, unsigned int mode)
 
 static void lcd_set_pll_tl1(struct lcd_clk_config_s *cConf)
 {
-	return;
-
 	unsigned int pll_ctrl, pll_ctrl1;
 	unsigned int tcon_div[5][3] = {
 		/* div_mux, div2/4_sel, div4_bypass */
@@ -967,7 +965,7 @@ static void lcd_set_vclk_crt(int lcd_type, struct lcd_clk_config_s *cConf)
 		LCDPR("%s\n", __func__);
 
 	/* setup the XD divider value */
-	lcd_hiu_setb(HHI_VIID_CLK_DIV, cConf->xd, VCLK2_XD, 8);
+	lcd_hiu_setb(HHI_VIID_CLK_DIV, (cConf->xd - 1), VCLK2_XD, 8);
 	udelay(5);
 
 	/* select vid_pll_clk */
@@ -3310,7 +3308,7 @@ static struct lcd_clk_data_s lcd_clk_data_tm2 = {
 	.xd_out_fmax = ENCL_CLK_IN_MAX_TL1,
 
 	.clk_path_valid = 0,
-	.vclk_sel = 7,
+	.vclk_sel = 0,
 	.pll_ctrl_table = pll_ctrl_table_tl1,
 
 	.ss_level_max = sizeof(lcd_ss_level_table_tl1) / sizeof(char *),

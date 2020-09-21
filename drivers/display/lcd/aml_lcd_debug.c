@@ -379,6 +379,7 @@ static void lcd_reg_print_lvds(void)
 	case LCD_CHIP_TXHD:
 	case LCD_CHIP_TL1:
 	case LCD_CHIP_TM2:
+	case LCD_CHIP_T5:
 		reg = LVDS_CH_SWAP0;
 		printf("LVDS_CH_SWAP0       [0x%04x] = 0x%08x\n",
 			reg, lcd_vcbus_read(reg));
@@ -424,6 +425,8 @@ static void lcd_reg_print_vbyone(void)
 	case LCD_CHIP_TXL:
 	case LCD_CHIP_TXLX:
 	case LCD_CHIP_TL1:
+	case LCD_CHIP_TM2:
+	case LCD_CHIP_T5:
 		reg = VBO_INSGN_CTRL;
 		printf("VBO_INSGN_CTRL      [0x%04x] = 0x%08x\n",
 			reg, lcd_vcbus_read(reg));
@@ -434,6 +437,8 @@ static void lcd_reg_print_vbyone(void)
 
 	switch (lcd_drv->chip_type) {
 	case LCD_CHIP_TL1:
+	case LCD_CHIP_TM2:
+	case LCD_CHIP_T5:
 		reg = LVDS_CH_SWAP0;
 		printf("LVDS_CH_SWAP0       [0x%04x] = 0x%08x\n",
 			reg, lcd_vcbus_read(reg));
@@ -1193,6 +1198,7 @@ void aml_lcd_debug_probe(struct aml_lcd_drv_s *lcd_drv)
 	switch (lcd_drv->chip_type) {
 	case LCD_CHIP_TL1:
 	case LCD_CHIP_TM2:
+	case LCD_CHIP_T5:
 		lcd_debug_info_reg = &lcd_debug_info_reg_tl1;
 		lcd_debug_info_if_lvds.reg_dump_phy =
 			lcd_reg_print_phy_analog_tl1;
