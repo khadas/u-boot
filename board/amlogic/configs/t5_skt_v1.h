@@ -401,7 +401,7 @@
 #define CONFIG_SYS_BOOTM_LEN (64<<20) /* Increase max gunzip size*/
 
 /* cpu */
-#define CONFIG_CPU_CLK					1200 //MHz. Range: 360-2000, should be multiple of 24
+#define CONFIG_CPU_CLK					1512 //MHz. Range: 360-2000, should be multiple of 24
 
 /* ATTENTION */
 /* DDR configs move to board/amlogic/[board]/firmware/timing.c */
