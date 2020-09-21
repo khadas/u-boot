@@ -72,7 +72,7 @@ static void set_pll_Calibration_default(uint32_t volatile *phy2_pll_base)
 {
 	u32 tmp;
 
-	tmp = 7f;
+	tmp = 0x7f;
 	tmp &= 0xfff;
 	tmp |= (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x10));
 	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x10))
