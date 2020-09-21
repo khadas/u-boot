@@ -530,8 +530,10 @@ u8 store_bootup_bootidx(const char *name)
 void store_restore_bootidx(void)
 {
 	cpu_id_t cpu_id = get_cpu_id();
-	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2)
+	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) {
+		extern void aml_set_bootsequence(uint32_t val);
 		aml_set_bootsequence(0x55);
+	}
 	return;
 }
 

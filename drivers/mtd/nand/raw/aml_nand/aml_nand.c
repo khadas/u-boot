@@ -162,6 +162,7 @@ int aml_nand_block_bad_scrub_update_bbt(struct mtd_info *mtd)
 	return 0;
 }
 
+extern struct mtd_partition *get_aml_mtd_partition(void);
 extern int get_aml_partition_count(void);
 extern struct storage_startup_parameter g_ssp;
 static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)

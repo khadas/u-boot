@@ -935,7 +935,6 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 	struct udevice *clk_udevice;
 	fdt_addr_t addr;
 	int ret = 0;
-	int val = 0;
 
 	addr = devfdt_get_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)

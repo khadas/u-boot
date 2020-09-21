@@ -928,9 +928,7 @@ int emmc_pre(void)
 int emmc_probe(uint32_t init_flag)
 {
 	char ret = 0;
-	struct mmc *mmc;
 
-	mmc = find_mmc_device(STORAGE_EMMC);
 	ret = mmc_storage_init(init_flag); /*flag 0*/
 	if (ret) {
 		printf("mmc init failed ret:%x\n", ret);
