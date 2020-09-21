@@ -23,6 +23,9 @@
 #define __VPP_REG_H__
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
+#ifdef CONFIG_AML_VPU_REG_NEW
+#include <asm/arch/vpu_regs.h>
+#endif
 
 /* ********************************
  * register define

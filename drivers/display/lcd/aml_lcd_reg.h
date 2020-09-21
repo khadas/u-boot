@@ -20,6 +20,9 @@
 #define __AML_LCD_REG_H__
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
+#ifdef CONFIG_AML_VPU_REG_NEW
+#include <asm/arch/vpu_regs.h>
+#endif
 #include <asm/arch/cpu.h>
 #include "aml_lcd_dummy_reg.h"
 
@@ -61,12 +64,6 @@
 #define HHI_HPLL_CNTL5                          HHI_HDMI_PLL_CNTL4
 #define HHI_HPLL_CNTL6                          HHI_HDMI_PLL_CNTL5
 #endif
-
-#define LVDS_CH_SWAP0                           LVDS_PHY_CNTL0
-#define LVDS_CH_SWAP1                           LVDS_PHY_CNTL1
-#define LVDS_CH_SWAP2                           LVDS_PHY_CNTL2
-
-
 
 /*#define HHI_VIID_CLK_DIV     	0x4a*/
 #define DAC0_CLK_SEL           28

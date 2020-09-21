@@ -25,7 +25,7 @@
 #include <asm/arch/pwr_ctrl.h>
 #endif
 
-#define VPU_DEBUG_PRINT
+//#define VPU_DEBUG_PRINT
 #define VPUPR(fmt, args...)     printf("vpu: "fmt"", ## args)
 #define VPUERR(fmt, args...)    printf("vpu: error: "fmt"", ## args)
 

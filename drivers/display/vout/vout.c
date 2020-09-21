@@ -22,6 +22,9 @@
 #include <vpp.h>
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
+#ifdef CONFIG_AML_VPU_REG_NEW
+#include <asm/arch/vpu_regs.h>
+#endif
 #include <amlogic/vmode.h>
 #include <amlogic/vout.h>
 #ifdef CONFIG_AML_LCD

@@ -447,7 +447,6 @@ static void vpu_chip_detect(void)
 	unsigned int cpu_type;
 
 	cpu_type = get_cpu_id().family_id;
-	printf("%s: 0x%x\n", __func__, cpu_type);
 	switch (cpu_type) {
 	case MESON_CPU_MAJOR_ID_GXBB:
 		vpu_conf.data = &vpu_data_gxb;
@@ -492,7 +491,7 @@ static void vpu_chip_detect(void)
 		vpu_conf.data = &vpu_data_t5;
 		break;
 	default:
-		vpu_conf.data = &vpu_data_t5;
+		vpu_conf.data = NULL;
 		break;
 	}
 

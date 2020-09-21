@@ -24,8 +24,8 @@
 #include <common.h>
 #include <malloc.h>
 #include <vpp.h>
-#include "aml_vpp_reg.h"
 #include <asm/arch/cpu.h>
+#include "aml_vpp_reg.h"
 #include "aml_vpp.h"
 #include "hdr2.h"
 #include <amlogic/hdmi.h>

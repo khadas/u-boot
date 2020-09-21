@@ -344,6 +344,16 @@ Description:
 #define P2P_CH_SWAP1                               0x4201
 #endif
 
+#ifndef LVDS_CH_SWAP0
+#define LVDS_CH_SWAP0                              0x14e1
+#endif
+#ifndef LVDS_CH_SWAP1
+#define LVDS_CH_SWAP1                              0x14e2
+#endif
+#ifndef LVDS_CH_SWAP2
+#define LVDS_CH_SWAP2                              0x14e3
+#endif
+
 #ifndef HHI_DIF_TCON_CNTL0
 #define HHI_DIF_TCON_CNTL0                         (0xff63c000 + (0x3c << 2))
 #endif

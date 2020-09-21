@@ -86,4 +86,6 @@
 /* bl33 boot time */
 //#define BL33_BOOT_TIME_PROBE
 
+#define CONFIG_AML_VPU_REG_NEW 1
+
 #endif /* _CPU_H */
