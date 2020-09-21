@@ -612,10 +612,10 @@
 //#define CONFIG_DEVICE_PRODUCT	"t962x3_ab301"
 
 //UBOOT Facotry usb/sdcard burning config
-//#define CONFIG_AML_V2_FACTORY_BURN              1       //support facotry usb burning
-//#define CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE   1       //support factory sdcard burning
-//#define CONFIG_POWER_KEY_NOT_SUPPORTED_FOR_BURN 1       //There isn't power-key for factory sdcard burning
-//#define CONFIG_SD_BURNING_SUPPORT_UI            1       //Displaying upgrading progress bar when sdcard/udisk burning
+#define CONFIG_AML_V2_FACTORY_BURN              1       //support facotry usb burning
+#define CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE   1       //support factory sdcard burning
+#define CONFIG_POWER_KEY_NOT_SUPPORTED_FOR_BURN 1       //There isn't power-key for factory sdcard burning
+#define CONFIG_SD_BURNING_SUPPORT_UI            1       //Displaying upgrading progress bar when sdcard/udisk burning
 
 #define CONFIG_AML_V3_FACTORY_BURN              1       //support facotry usb burning
 #define CONFIG_AML_V3_USB_TOOl                  1

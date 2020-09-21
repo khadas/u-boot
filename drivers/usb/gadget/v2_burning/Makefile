@@ -21,11 +21,15 @@
 # MA 02111-1307 USA
 #
 EXTRA_CFLAGS = -I./v2_common -I./v2_usb_tool -I./v2_sdc_burn
+ifndef CONFIG_AML_V3_USB_TOOl
+EXTRA_CFLAGS = -DCONFIG_V2_USB_TOOL
+CONFIG_V2_USB_TOOL = y
+endif #ifdef CONFIG_AML_V3_USB_TOOl
 
 obj-$(CONFIG_AML_V2_FACTORY_BURN) += aml_v2_burn.o
 
 aml_v2_burn-y = aml_v2_burning.o
-aml_v2_burn-y += v2_usb_tool/optimus_core.o v2_usb_tool/optimus_transform.o
+aml_v2_burn-$(CONFIG_V2_USB_TOOL) += v2_usb_tool/optimus_core.o v2_usb_tool/optimus_transform.o
 aml_v2_burn-y += v2_common/optimus_download.o v2_common/optimus_buffer_manager.o v2_common/optimus_simg2img.o
 aml_v2_burn-y += v2_common/optimus_progress.o
 ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE

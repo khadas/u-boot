@@ -357,7 +357,7 @@ int v3tool_simg2img_write_img(const UsbDownInf* downInf, const ImgDownloadPara* 
                 sperr("DONT_CARE trunk sz %x err, should be 0\n", dataSize);
                 return -__LINE__;
             }
-            FB_DBG("donnot care: off/sz 0x%08llx flashWrLen", _spPacketStates.nextFlashAddr, chunkFlashSpace);
+            FB_DBG("donnot care: off/sz 0x%08llx flashWrLen 0x%x", _spPacketStates.nextFlashAddr, chunkFlashSpace);
             _spPacketStates.nextFlashAddr += chunkFlashSpace;
         } else {
             sperr("chunk(%x) should not be here", chunkType);

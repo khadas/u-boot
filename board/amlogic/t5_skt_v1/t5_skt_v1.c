@@ -564,6 +564,12 @@ U_BOOT_DEVICES(meson_pwm) = {
 
 int board_init(void)
 {
+	//keep usb tool at first place of board_init
+#ifdef CONFIG_AML_V3_FACTORY_BURN
+	if ((0x1b8ec003 != readl(P_PREG_STICKY_REG2)) && (0x1b8ec004 != readl(P_PREG_STICKY_REG2)))
+	{ aml_v3_factory_usb_burning(0, gd->bd); }
+#endif// #ifdef CONFIG_AML_V3_FACTORY_BURN
+
 #ifdef CONFIG_USB_XHCI_CRG_AMLOGIC
 	board_usb_pll_disable(&g_usb_config_GXL_skt);
 	board_usb_init(&g_usb_config_GXL_skt,BOARD_USB_MODE_HOST);

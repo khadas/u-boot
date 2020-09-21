@@ -505,7 +505,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		strncat(response, U_BOOT_VERSION, chars_left);
 	} else if (!strcmp_l1("burnsteps", cmd)) {
 		unsigned* steps = (unsigned*)(response + 4);
-		FB_DBG("SYSCTRL_STICKY_REG2 addr 0x%x\n", P_PREG_STICKY_REG2);
+		FB_DBG("SYSCTRL_STICKY_REG2 addr 0x%p\n", P_PREG_STICKY_REG2);
 		*steps = readl(P_PREG_STICKY_REG2);
 		fastboot_tx_write(response, 4 + sizeof(unsigned));
 		return;

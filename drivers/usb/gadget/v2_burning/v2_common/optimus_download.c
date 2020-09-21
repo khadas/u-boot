@@ -69,6 +69,10 @@ store_read_ops_(unsigned char *partition_name,unsigned char * buf, uint64_t off,
 #define store_read_ops_ store_read_ops
 #endif//#if SUM_FUNC_TIME_COST
 
+#ifndef CONFIG_V2_USB_TOOL
+#define platform_busy_increase_un_reported_size(sz)
+#endif//#ifndef CONFIG_V2_USB_TOOL
+
 static unsigned long _dtb_is_loaded = 0;
 
 
