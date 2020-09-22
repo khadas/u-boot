@@ -68,15 +68,31 @@ void board_usb_init(struct amlogic_usb_config * usb_cfg,int mode)
 	printf("register usb cfg[%d][%d] = %p\n",mode,(mode==BOARD_USB_MODE_HOST)?usb_index:0,usb_cfg);
 }
 
-static void set_pll_Calibration_default(uint32_t volatile *phy2_pll_base)
+static void usb_set_calibration_trim(uint32_t volatile *phy2_pll_base)
 {
-	u32 tmp;
+	uint32_t cali, value,i;
+	uint8_t cali_en;
 
-	tmp = 0x7f;
-	tmp &= 0xfff;
-	tmp |= (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x10));
+	cali = readl(AO_SEC_GP_CFG12);
+	//printf("AO_SEC_GP_CFG12=0x%08x\n", cali);
+	/*****if cali_en ==0, set 0x10 to the default value: 0x1700****/
+	cali_en = (cali >> 12) & 0x1;
+	cali = cali >> 8;
+	if (cali_en) {
+		cali =cali & 0xf;
+		if (cali > 12)
+			cali = 12;
+	} else {
+		cali = 0x7;
+	}
+	value = (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x10));
+	value &= (~0xfff);
+	for (i = 0; i < cali; i++)
+		value |= (1 << i);
+
 	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x10))
-	 = tmp;
+		= value;
+	printf("0x10 trim value=0x%08x\n", value);;
 }
 
 int get_usb_count(void)
@@ -98,12 +114,10 @@ void set_usb_pll(uint32_t volatile *phy2_pll_base)
      & (~(USB_PHY2_RESET)));
 
     (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x50))
-     = 0xfe18;
+     = 0xbe18;
     (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x54))
      = 0x2a;
-
-    set_pll_Calibration_default(phy2_pll_base);
-
+    usb_set_calibration_trim(phy2_pll_base);
     (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0xc))
      = 0x34;
     (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x34))
