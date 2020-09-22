@@ -1,4 +1,3 @@
-
 /*
  * common/cmd_cpu_temp.c
  *
@@ -27,6 +26,7 @@
 #include <asm/arch/mailbox.h>
 #include <asm/arch/thermal.h>
 #include <asm/cpu_id.h>
+#include <asm/arch/bl31_apis.h>
 
 #ifdef CONFIG_AML_MESON_TXHD
 #define NEW_THERMAL_MODE 1
@@ -893,6 +893,7 @@ static int do_temp_triming(cmd_tbl_t *cmdtp, int flag1,
 			case MESON_CPU_MAJOR_ID_TL1:
 			case MESON_CPU_MAJOR_ID_SM1:
 			case MESON_CPU_MAJOR_ID_TM2:
+			case MESON_CPU_MAJOR_ID_T5:
 				if (argc <3) {
 					printf("too little args for txhd temp triming!!\n");
 					return CMD_RET_USAGE;
@@ -919,6 +920,35 @@ static int do_temp_triming(cmd_tbl_t *cmdtp, int flag1,
 #ifndef TS_SAR_STAT0
 #define TS_SAR_STAT0		TS_DDR_STAT0
 #endif
+
+/* for sending tsensor calibration data to bl31 */
+#define TSENSOR_CALI_SET       0x8200004C
+
+int tsensor_tz_calibration(unsigned int type, unsigned int data)
+{
+	int ret;
+
+	register long x0 asm("x0") = TSENSOR_CALI_SET;
+	register long x1 asm("x1") = type;
+	register long x2 asm("x2") = data;
+	register long x3 asm("x3") = 0;
+	do {
+		asm volatile(
+			__asmeq("%0", "x0")
+			__asmeq("%1", "x1")
+			__asmeq("%2", "x2")
+			__asmeq("%3", "x3")
+			"smc    #0\n"
+			: "+r" (x0)
+			: "r" (x1), "r" (x2), "r" (x3));
+	} while (0);
+	ret = x0;
+
+	if (!ret)
+		return -1;
+	else
+		return 0;
+}
 
 int r1p1_codetotemp(unsigned long value, unsigned int u_efuse,
 			int ts_b, int ts_a, int ts_m, int ts_n)
@@ -952,6 +982,7 @@ int r1p1_temp_read(int type)
 		case MESON_CPU_MAJOR_ID_TL1:
 		case MESON_CPU_MAJOR_ID_SM1:
 		case MESON_CPU_MAJOR_ID_TM2:
+		case MESON_CPU_MAJOR_ID_T5:
 			ts_b = 3159;
 			ts_a = 9411;
 			ts_m = 424;
@@ -1151,6 +1182,16 @@ int r1p1_read_entry(void)
 					return -1;
 				}
 			break;
+			case MESON_CPU_MAJOR_ID_T5:
+			ret = readl(AO_SEC_GP_CFG10);
+			ver = (ret >> 24) & 0xff;
+			if ((ver & 0x80) == 0) {
+				printf("tsensor no trimmed, ver:0x%x\n", ver);
+				return -1;
+			}
+			r1p1_temp_read(1);
+			printf("read the thermal1\n");
+			break;
 		default:
 			printf("chip major id not support!!!Please check!\n");
 			return -1;
@@ -1171,6 +1212,7 @@ unsigned int r1p1_temptocode(unsigned long value, int tempbase,
 	printf("%s : tmp2: 0x%lx\n", __func__, tmp2);
 	signbit = ((tmp1 > tmp2) ? 0 : 1);
 	u_efuse = (tmp1 > tmp2) ? (tmp1 - tmp2) : (tmp2 - tmp1);
+	u_efuse = u_efuse & 0x7fff;/*efuse size supports 15bits*/
 	u_efuse = (signbit << 15) | u_efuse;
 	return u_efuse;
 }
@@ -1319,6 +1361,74 @@ int r1p1_temp_trim(int tempbase, int tempver, int type)
 					return -1;
 				break;
 			}
+			break;
+		case MESON_CPU_MAJOR_ID_T5:
+			ts_b = 3159;
+			ts_a = 9411;
+			ts_m = 424;
+			ts_n = 324;
+			switch (type) {
+				case 0:
+					index_ver = 5;
+					tempver = tempver & 0xf;
+					if (tsensor_tz_calibration(index_ver, tempver) < 0)
+						printf("version tsensor thermal_calibration send error\n");
+				break;
+				case 1:
+					value_ts = 0;
+					value_all_ts = 0;
+					index_ts = 6;
+					cnt = 0;
+
+					/*enable thermal1*/
+					regdata = 0x62b;/*enable control*/
+					writel(regdata, TS_PLL_CFG_REG1);
+					regdata = 0x130;/*enable tsclk*/
+					writel(regdata, HHI_TS_CLK_CNTL);
+					for (i = 0; i <= 10; i ++) {
+						udelay(50);
+						value_ts = readl(TS_PLL_STAT0) & 0xffff;
+					}
+					for (i = 0; i <= NUM; i ++) {
+						udelay(5000);
+						value_ts = readl(TS_PLL_STAT0) & 0xffff;
+						printf("pll tsensor read: 0x%x\n", value_ts);
+						if ((value_ts >= 0x1500) && (value_ts <= 0x3500)) {
+							value_all_ts += value_ts;
+							cnt ++;
+						}
+					}
+					value_ts =  value_all_ts / cnt;
+					printf("pll tsensor avg: 0x%x\n", value_ts);
+					if (value_ts == 0) {
+						printf("pll tsensor read temp is zero\n");
+						return -1;
+					}
+					u_efuse = r1p1_temptocode(value_ts, tempbase, ts_b, ts_a, ts_m, ts_n);
+					if (u_efuse & 0x8000) {
+						u_efuse = u_efuse & 0x3fff;/*t5 efuse size supports 14bits*/
+						u_efuse = u_efuse | 0xc000;
+					}else{
+						u_efuse = u_efuse & 0x3fff;/*t5 efuse size supports 14bits*/
+						u_efuse = u_efuse | 0x8000;
+					}
+					printf("pll ts efuse:%d\n", u_efuse);
+					printf("pll ts efuse:0x%x, index: %d\n", u_efuse, index_ts);
+					if (tsensor_tz_calibration(index_ts, u_efuse) < 0) {
+						printf("pll tsensor thermal_calibration send error\n");
+						return -1;
+						}
+					break;
+				default:
+					printf("r1p1 tsensor trim type not support\n");
+					return -1;
+				break;
+			}
+			break;
+			default:
+				printf("r1p1 tsensor family_id not support\n");
+				return -1;
+			break;
 	}
 	return 0;
 }
@@ -1404,6 +1514,36 @@ int r1p1_trim_entry(int tempbase, int tempver)
 					return -1;
 				}
 			break;
+		case MESON_CPU_MAJOR_ID_T5:
+			ret = readl(AO_SEC_GP_CFG10);
+			ver = (ret >> 24) & 0xff;
+			if (ver & 0x80) {
+				printf("tsensor has trimmed, ver:0x%x\n", ver);
+				printf("tsensor cali data: 0x%x\n", readl(AO_SEC_GP_CFG10));
+				return -1;
+			}
+			printf("tsensor input trim tempver, tempver:0x%x\n", tempver);
+			switch (tempver) {
+				case 0x80:
+					r1p1_temp_trim(tempbase, tempver, 1);
+					r1p1_temp_trim(tempbase, tempver, 0);
+					printf("triming the thermal by sw-bbt\n");
+				break;
+				case 0x81:
+					r1p1_temp_trim(tempbase, tempver, 1);
+					r1p1_temp_trim(tempbase, tempver, 0);
+					printf("triming the thermal by ops-bbt\n");
+				break;
+				case 0x83:
+					r1p1_temp_trim(tempbase, tempver, 1);
+					r1p1_temp_trim(tempbase, tempver, 0);
+					printf("triming the thermal by slt\n");
+				break;
+				default:
+					printf("thermal version not support!!!Please check!\n");
+					return -1;
+				}
+			break;
 		default:
 			printf("chip major id not support!!! Please check!\n");
 			break;
@@ -1448,6 +1588,18 @@ void r1p1_temp_cooling(void)
 					temp1 = r1p1_temp_read(3);
 					temp = temp > temp1 ? temp : temp1;
 				}
+				if (temp <= CONFIG_HIGH_TEMP_COOL) {
+					printf("device cool done\n");
+					break;
+				}
+				mdelay(2000);
+				printf("warning: temp %d over %d, cooling\n", temp,
+					CONFIG_HIGH_TEMP_COOL);
+			}
+			break;
+		case MESON_CPU_MAJOR_ID_T5:
+			while (1) {
+				temp = r1p1_temp_read(1);
 				if (temp <= CONFIG_HIGH_TEMP_COOL) {
 					printf("device cool done\n");
 					break;
