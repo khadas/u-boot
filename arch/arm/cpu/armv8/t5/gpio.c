@@ -149,14 +149,14 @@ static struct meson_bank mesont5_banks[] = {
 	3,  0, 2,  0,  0,  0,  4,  0, 1,  0),
 	AOBANK("GPIOE_", GPIOAO(GPIOE_0), GPIOAO(GPIOE_2),
 	3,  16, 2,  16,  0,  16,  4,  16, 1,  16),
-	BANK("GPIOB_", GPIOEE(GPIOB_0), GPIOEE(GPIOB_13),
-	0, 0,  0,  0,  0,  0,  1, 0,  2, 0),
-	BANK("GPIOW_", GPIOEE(GPIOW_0), GPIOEE(GPIOW_12),
-	3, 0,  3,  0,  9,  0,  10, 0,  11, 0),
-	BANK("GPIOZ_", GPIOEE(GPIOZ_0), GPIOEE(GPIOZ_6),
-	1, 0,  1,  0,  3,  0,  4, 0,  5, 0),
 	BANK("GPIOH_", GPIOEE(GPIOH_0), GPIOEE(GPIOH_21),
 	2, 0,  2,  0,  6,  0, 7, 0, 8, 0),
+	BANK("GPIOB_", GPIOEE(GPIOB_0), GPIOEE(GPIOB_13),
+	0, 0,  0,  0,  0,  0,  1, 0,  2, 0),
+	BANK("GPIOZ_", GPIOEE(GPIOZ_0), GPIOEE(GPIOZ_6),
+	1, 0,  1,  0,  3,  0,  4, 0,  5, 0),
+	BANK("GPIOW_", GPIOEE(GPIOW_0), GPIOEE(GPIOW_12),
+	3, 0,  3,  0,  9,  0,  10, 0,  11, 0),
 };
 
 U_BOOT_DEVICES(t5_gpios) = {

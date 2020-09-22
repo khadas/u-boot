@@ -449,14 +449,7 @@ int get_aml_partition_count(void)
 #endif /* CONFIG_AML_MTD */
 
 #ifdef CONFIG_AML_SPIFC
-/*
- * BOOT_3: NOR_HOLDn:reg0[15:12]=3
- * BOOT_4: NOR_D:reg0[19:16]=3
- * BOOT_5: NOR_Q:reg0[23:20]=3
- * BOOT_6: NOR_C:reg0[27:24]=3
- * BOOT_7: NOR_WPn:reg0[31:28]=3
- * BOOT_13: NOR_CS:reg1[23:20]=3
- */
+#include <asm/arch/gpio.h>
 #define SPIFC_NUM_CS 1
 static int spifc_cs_gpios[SPIFC_NUM_CS] = {GPIOEE(GPIOB_13)};
 
@@ -464,15 +457,22 @@ static int spifc_pinctrl_enable(void *pinctrl, bool enable)
 {
 	unsigned int val;
 
+	/* mux gpiob_3?бщ4?бщ5?бщ6?бщ7 to spifc */
 	val = readl(P_PERIPHS_PIN_MUX_0);
 	val &= ~(0xfffff << 12);
 	if (enable)
 		val |= 0x33333 << 12;
 	writel(val, P_PERIPHS_PIN_MUX_0);
 
+	/* mux gpiob_13 to gpio */
 	val = readl(P_PERIPHS_PIN_MUX_1);
 	val &= ~(0xf << 20);
 	writel(val, P_PERIPHS_PIN_MUX_1);
+
+	/* set ds to 3 */
+	val = readl(P_PAD_DS_REG0A);
+	val |= ((0x3ff << 6) | (0x3 << 26));
+	writel(val, P_PAD_DS_REG0A);
 	return 0;
 }
 
