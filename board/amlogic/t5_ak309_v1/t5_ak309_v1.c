@@ -716,10 +716,10 @@ int checkhw(char * name)
 	if (MESON_CPU_MAJOR_ID_T5 == cpu_id.family_id) {
 		switch (cpu_id.chip_rev) {
 			case 0xA:
-				strcpy(loc_name, "t5_t963_ak329\0");
+				strcpy(loc_name, "t5_t963_ak309\0");
 			break;
 			case 0xB:
-				strcpy(loc_name, "t5_t963_ak329\0");
+				strcpy(loc_name, "t5_t963_ak309\0");
 			break;
 			default:
 				strcpy(loc_name, "t5_t963_unsupport");
