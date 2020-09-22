@@ -15,9 +15,6 @@
 
 #include <common.h>
 #include <amlogic/aml_lcd.h>
-#ifdef CONFIG_AML_LOCAL_DIMMING
-#include <amlogic/aml_ldim.h>
-#endif
 
 static char lcd_cpu_gpio[LCD_CPU_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
 	"GPIOH_7",
@@ -48,20 +45,8 @@ static struct lcd_power_step_s lcd_power_off_step_p2p[] = {
 };
 
 static char lcd_bl_gpio[BL_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
-	"GPIOH_11",
-	"GPIOH_10",
-	"GPIOH_13",
 	"invalid", /* ending flag */
 };
-
-#ifdef CONFIG_AML_LOCAL_DIMMING
-static char lcd_bl_ldim_gpio[BL_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
-	"GPIOH_14", /* LD_EN */
-	"GPIOH_10",  /* DIMMING_PWM */
-	"GPIOH_13",  /* LD_EN2 */
-	"invalid",  /* ending flag */
-};
-#endif
 
 struct ext_lcd_config_s ext_lcd_config[LCD_NUM_MAX] = {
 	{/* normal*/
@@ -249,24 +234,24 @@ struct ext_lcd_config_s ext_lcd_config[LCD_NUM_MAX] = {
 
 static struct lcd_pinmux_ctrl_s lcd_pinmux_ctrl[LCD_PINMX_MAX] = {
 	{
-		.name = "lcd_vbyone_pin", //GPIOH_15/16
-		.pinmux_set = {{8, 0x30000000}, {9, 0x00000003}, {LCD_PINMUX_END, 0x0}},
-		.pinmux_clr = {{8, 0xf0000000}, {9, 0x0000000f}, {LCD_PINMUX_END, 0x0}},
+		.name = "lcd_vbyone_pin", //GPIOH_0/8
+		.pinmux_set = {{5, 0x00000004}, {6, 0x00000004}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{5, 0x0000000f}, {6, 0x0000000f}, {LCD_PINMUX_END, 0x0}},
 	},
 	{
-		.name = "lcd_minilvds_pin", //GPIOH_0~15
-		.pinmux_set = {{7, 0x11111111}, {8, 0x11111111}, {LCD_PINMUX_END, 0x0}},
-		.pinmux_clr = {{7, 0xffffffff}, {8, 0xffffffff}, {LCD_PINMUX_END, 0x0}},
+		.name = "lcd_minilvds_pin", //GPIOH_0~8,12~15
+		.pinmux_set = {{5, 0x11111111}, {6, 0x11110001}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{5, 0xffffffff}, {6, 0xffff000f}, {LCD_PINMUX_END, 0x0}},
 	},
 	{
-		.name = "lcd_p2p_pin", //GPIOH_0~19
-		.pinmux_set = {{7, 0x11111111}, {8, 0x11111111}, {9, 0x1}, {LCD_PINMUX_END, 0x0}},
-		.pinmux_clr = {{7, 0xffffffff}, {8, 0xffffffff}, {9, 0xfffff}, {LCD_PINMUX_END, 0x0}},
+		.name = "lcd_p2p_pin", //GPIOH_0~8,12~15
+		.pinmux_set = {{5, 0x11111111}, {6, 0x11110001}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{5, 0xffffffff}, {6, 0xffff000f}, {LCD_PINMUX_END, 0x0}},
 	},
 	{
-		.name = "lcd_p2p_usit_pin", //GPIOH_0~19
-		.pinmux_set = {{7, 0x11111111}, {8, 0x11111111}, {9, 0x2}, {LCD_PINMUX_END, 0x0}},
-		.pinmux_clr = {{7, 0xffffffff}, {8, 0xffffffff}, {9, 0xfffff}, {LCD_PINMUX_END, 0x0}},
+		.name = "lcd_p2p_usit_pin", //GPIOH_0~8,12~15
+		.pinmux_set = {{5, 0x11111111}, {6, 0x11110001}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{5, 0xffffffff}, {6, 0xffff000f}, {LCD_PINMUX_END, 0x0}},
 	},
 	{
 		.name = "invalid",
