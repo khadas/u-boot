@@ -106,10 +106,10 @@
         "fb_width=1920\0" \
         "fb_height=1080\0" \
         "frac_rate_policy=1\0" \
-        "usb_burning=update 1000\0" \
+        "usb_burning=adnl 2000\0" \
         "otg_device=1\0"\
         "fdt_high=0x20000000\0"\
-        "try_auto_burn=update 700 750;\0"\
+        "try_auto_burn=adnl 1000 1500;\0"\
         "sdcburncfg=aml_sdc_burn.ini\0"\
         "sdc_burning=sdc_burn ${sdcburncfg}\0"\
         "wipe_data=successful\0"\
@@ -137,7 +137,7 @@
         "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-            "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xff803000 printk.devkmsg=on ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
+            "init=/init console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xffd23000 loglevel=9 nosmp printk.devkmsg=on ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
             "echo upgrade_step=${upgrade_step}; "\
@@ -388,11 +388,13 @@
 			"fi;fi;" \
 		"fi;\0" \
 
-#define CONFIG_PREBOOT  "echo preboot"
+#define CONFIG_PREBOOT  \
+	"run storeargs;"\
+	"bcb uboot-command;"
 
-#define CONFIG_BOOTCOMMAND "echo bootcmd"
+#define CONFIG_BOOTCOMMAND "run storeboot"
 
-#define CONFIG_ENV_IS_NOWHERE  1
+//#define CONFIG_ENV_IS_NOWHERE  1
 #define CONFIG_ENV_SIZE   (64*1024)
 #define CONFIG_FIT 1
 #define CONFIG_OF_LIBFDT 1
@@ -421,8 +423,8 @@
 
 /* storage: emmc/nand/sd */
 #define		CONFIG_STORE_COMPATIBLE 1
-//#define 	CONFIG_ENV_OVERWRITE
-//#define 	CONFIG_CMD_SAVEENV
+#define 	CONFIG_ENV_OVERWRITE
+#define 	CONFIG_CMD_SAVEENV
 /* fixme, need fix*/
 
 #if (defined(CONFIG_ENV_IS_IN_AMLNAND) || defined(CONFIG_ENV_IS_IN_MMC)) && defined(CONFIG_STORE_COMPATIBLE)
@@ -694,7 +696,7 @@
 //#define CONFIG_NEED_BL32	1
 #define CONFIG_CMD_RSVMEM	1
 #define CONFIG_FIP_IMG_SUPPORT	1
-#define CONFIG_BOOTDELAY	0 //delay 1s
+#define CONFIG_BOOTDELAY	1 //delay 1s
 #define CONFIG_SYS_LONGHELP 1
 #define CONFIG_CMD_MISC     1
 #define CONFIG_CMD_ITEST    1

@@ -60,6 +60,7 @@ static int is_boot_device_usb(void)
     return BOOT_DEVICE_USB == _get_romcode_boot_id();
 }
 
+#if 0
 static int is_bl1_usb_protocol_DNL(void)
 {
 #ifdef SYSCTRL_SEC_STATUS_REG1
@@ -72,14 +73,11 @@ static int is_bl1_usb_protocol_DNL(void)
     return cfg9 & (1U<<15);
 #endif// #ifdef SYSCTRL_SEC_STATUS_REG1
 }
+#endif
 
 int aml_v3_factory_usb_burning(int flag, bd_t* bis)
 {
     if (!is_boot_device_usb()) return 1;
-	if (!is_bl1_usb_protocol_DNL()) {
-		puts("usb boot mode but protocol not DNL\n");
-		/*return 1;*/
-	}
 
     bis = bis;//avoid compiling warnning
     if ( !flag ) {
@@ -99,7 +97,7 @@ int aml_v3_factory_usb_burning(int flag, bd_t* bis)
     udelay(2*1000*1000);
 
     v3tool_work_mode_set(V3TOOL_WORK_MODE_USB_PRODUCE);
-    set_usb_boot_function(CLEAR_USB_BOOT);
+    optimus_clear_ovd_register();
     return run_command("adnl", 0);
 }
 
