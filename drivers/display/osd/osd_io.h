@@ -22,13 +22,14 @@
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
 
+#define REG_INDEX_VCBUS(reg)  (u32)((reg) & REG_BASE_VCBUS ? ((reg - REG_BASE_VCBUS) >> 2) : reg)
 
-#define REG_OFFSET_CBUS(reg)            ((reg << 2))
-#define REG_OFFSET_VCBUS(reg)           ((reg << 2))
+#define REG_OFFSET_CBUS(reg)  ((reg) << 2)
+#define REG_OFFSET_VCBUS(reg) ((reg) << 2)
 
-#define REG_ADDR_CBUS(reg)              (REG_BASE_CBUS + REG_OFFSET_CBUS(reg))
-#define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg))
-#define REG_ADDR_HIU(reg)               (reg + 0L)
+#define REG_ADDR_CBUS(reg)    ((reg) & REG_BASE_CBUS ? reg + 0L : REG_BASE_CBUS + REG_OFFSET_CBUS(reg))
+#define REG_ADDR_VCBUS(reg)   ((reg) & REG_BASE_VCBUS ? reg + 0L : REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg))
+#define REG_ADDR_HIU(reg)     (reg + 0L)
 
 static inline unsigned int osd_hiu_read(unsigned int _reg)
 {

@@ -126,3 +126,14 @@
 #define P_RESET1_REGISTER                          (volatile unsigned int *)((0x0402  << 2) + 0xffd00000)
 #define P_RESET1_LEVEL                             (volatile uint32_t *)((0x0421  << 2) + 0xffd00000)
 
+/* canvas */
+#define DC_CAV_LUT_DATAL                           (0x0012 << 2)
+#define P_DC_CAV_LUT_DATAL                         (volatile unsigned int *)((0x0012  << 2) + 0xff638000)
+#define DC_CAV_LUT_DATAH                           (0x0013 << 2)
+#define P_DC_CAV_LUT_DATAH                         (volatile unsigned int *)((0x0013  << 2) + 0xff638000)
+#define DC_CAV_LUT_ADDR                            (0x0014 << 2)
+#define P_DC_CAV_LUT_ADDR                          (volatile unsigned int *)((0x0014  << 2) + 0xff638000)
+#define DC_CAV_LUT_RDATAL                          (0x0015 << 2)
+#define P_DC_CAV_LUT_RDATAL                        (volatile unsigned int *)((0x0015  << 2) + 0xff638000)
+#define DC_CAV_LUT_RDATAH                          (0x0016 << 2)
+#define P_DC_CAV_LUT_RDATAH                        (volatile unsigned int *)((0x0016  << 2) + 0xff638000)

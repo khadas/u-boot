@@ -20,7 +20,12 @@
 
 #include "osd.h"
 
+#ifdef CONFIG_AML_VPU_REG_NEW
+#define REG_OFFSET (0x20 << 2)
+#else
 #define REG_OFFSET (0x20)
+#endif
+
 #define OSD_RELATIVE_BITS 0x33370
 
 extern void osd_init_hw(void);
@@ -114,6 +119,26 @@ extern void osd_hist_enable(u32 osd_index);
 extern int osd_get_hist_stat(u32 *hist_result);
 #ifdef CONFIG_AML_MESON_G12A
 extern void osd_init_hw_viu2(void);
+#endif
+
+/*******  dummy registers *********/
+#ifndef OSDSR_HV_SIZEIN
+#define OSDSR_HV_SIZEIN              0x3130
+#endif
+#ifndef OSDSR_CTRL_MODE
+#define OSDSR_CTRL_MODE              0x3131
+#endif
+#ifndef OSDSR_UK_GRAD2DDIAG_LIMIT
+#define OSDSR_UK_GRAD2DDIAG_LIMIT    0x313c
+#endif
+#ifndef OSDSR_UK_GRAD2DADJA_LIMIT
+#define OSDSR_UK_GRAD2DADJA_LIMIT    0x313e
+#endif
+#ifndef OSDSR_UK_BST_GAIN
+#define OSDSR_UK_BST_GAIN            0x313f
+#endif
+#ifndef VPU_PROT1_Y_START_END
+#define VPU_PROT1_Y_START_END        0x2753
 #endif
 
 #endif

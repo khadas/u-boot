@@ -34,7 +34,7 @@
 //#define REG_BASE_VCBUS                  (0xd0100000L)
 #define REG_OFFSET_VCBUS(reg)           ((reg) << 2)
 /* memory mapping */
-#define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg))
+#define REG_ADDR_VCBUS(reg)             (reg & REG_BASE_VCBUS ? reg + 0L : REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg))
 
 #ifdef VPP_EOTF_CTL
 #define VIU_EOTF_CTL VPP_EOTF_CTL

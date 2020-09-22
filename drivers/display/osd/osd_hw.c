@@ -32,6 +32,9 @@
 #ifdef CONFIG_AML_VOUT
 #include <amlogic/vout.h>
 #endif
+#ifdef CONFIG_AML_VPU_REG_NEW
+#include <asm/arch/regs.h>
+#endif
 #include <amlogic/fb.h>
 #include <video_fb.h>
 
@@ -768,7 +771,11 @@ void osd_setting_default_hwc(u32 index, struct pandata_s *disp_data)
 	u32 din_reoder_sel = 0x1;
 	u32 postbld_src3_sel = 3, postbld_src4_sel = 0;
 	u32 postbld_osd1_premult = 0, postbld_osd2_premult = 0;
+	#ifdef CONFIG_AML_VPU_REG_NEW
+	u32 reg_offset = 2 << 2;
+	#else
 	u32 reg_offset = 2;
+	#endif
 	u32 shift_line = osd_hw.shift_line;
 
 	if (index == OSD1)
