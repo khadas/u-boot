@@ -127,8 +127,8 @@
         "powermode=standby\0"\
         "ffv_wake=off\0"\
         "ffv_freeze=off\0"\
-        "edid_14_dir=/vendor/etc/tvconfig/hdmi/port_14.bin\0" \
-        "edid_20_dir=/vendor/etc/tvconfig/hdmi/port_20.bin\0" \
+        "edid_14_dir=/odm/etc/tvconfig/hdmi/port_14.bin\0" \
+        "edid_20_dir=/odm/etc/tvconfig/hdmi/port_20.bin\0" \
         "edid_select=0\0" \
         "port_map=0x4321\0" \
         "cec_fun=0x2F\0" \
@@ -137,7 +137,7 @@
         "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-            "init=/init console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xffd23000 loglevel=9 nosmp printk.devkmsg=on ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
+            "init=/init console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xffd23000 printk.devkmsg=on ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
             "echo upgrade_step=${upgrade_step}; "\
@@ -621,8 +621,9 @@
 
 #define CONFIG_AML_V3_FACTORY_BURN              1       //support facotry usb burning
 #define CONFIG_AML_V3_USB_TOOl                  1
-//#define CONFIG_AML_SECURITY_KEY                 1
-//#define CONFIG_UNIFY_KEY_MANAGE                 1
+#define CONFIG_V3_KEY_BURNING_SUPPORT           1
+#define CONFIG_AML_SECURITY_KEY                 1
+#define CONFIG_UNIFY_KEY_MANAGE                 1
 
 /* net */
 #define CONFIG_CMD_NET   1
@@ -671,7 +672,7 @@
 #define CONFIG_CMD_AUTOSCRIPT 1
 #define CONFIG_CMD_MISC 1
 //#define CONFIG_CMD_PLLTEST 1
-//#define CONFIG_CMD_INI 1
+#define CONFIG_CMD_INI 1
 
 /*file system*/
 #define CONFIG_DOS_PARTITION 1
@@ -684,7 +685,7 @@
 
 //#define CONFIG_MDUMP_COMPRESS 1
 //#define CONFIG_EXT4_WRITE 1
-//#define CONFIG_CMD_EXT4 1
+#define CONFIG_CMD_EXT4 1
 //#define CONFIG_CMD_EXT4_WRITE 1
 
 /* Cache Definitions */
