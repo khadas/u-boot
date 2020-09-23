@@ -302,7 +302,6 @@
                     "osd open;osd clear;"\
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
-                "run storeargs;"\
                 "if test ${lcd_exist} = 0; then "\
                     "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};vpp hdrpkt;"\
                 "else "\
