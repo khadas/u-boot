@@ -43,7 +43,7 @@
 	} while (0)
 
 #define REG_OFFSET_VCBUS(reg)           ((reg << 2))
-#define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg))
+#define REG_ADDR_VCBUS(reg)             (((reg) & REG_BASE_VCBUS) ? (reg + 0L) : (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg)))
 #define REG_ADDR_HIU(reg)               (reg + 0L)
 
 static int g_vmode = -1;

@@ -389,6 +389,7 @@
 		"fi;\0" \
 
 #define CONFIG_PREBOOT  \
+	"run init_display;"\
 	"run storeargs;"\
 	"bcb uboot-command;"
 
