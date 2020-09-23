@@ -61,6 +61,8 @@ int cpu_sd_emmc_init(unsigned port)
 						0xFFFFFF, 0x111111);
 		break;
 	case SDIO_PORT_B:
+		/*treat port b as port c on t5*/
+		break;
 		clrsetbits_le32(P_PAD_DS_REG3A, 0xFFFF, 0x5555);
 		setbits_le32(P_PAD_PULL_UP_EN_REG3, 0x3F);
 		setbits_le32(P_PAD_PULL_UP_REG3, 0x3F);
@@ -108,6 +110,8 @@ __weak int  sd_emmc_detect(unsigned port)
 	case SDIO_PORT_A:
 		break;
 	case SDIO_PORT_B:
+		/*tread port b as port c on t5*/
+		break;
 		pinmux_4 = readl(P_PERIPHS_PIN_MUX_4);
 		pinmux_5 = readl(P_PERIPHS_PIN_MUX_5);
 		clrbits_le32(P_PERIPHS_PIN_MUX_5, 0xF << 8);
@@ -144,7 +148,7 @@ __weak void sd_emmc_para_config(struct sd_emmc_global_regs *reg,
 {
 	unsigned int clk = reg->gclock;
 
-	if (port == SDIO_PORT_C) {
+	if (port == SDIO_PORT_C || port == SDIO_PORT_B) {
 		clk &= ~(3 << Cfg_co_phase);
 		clk |= (3 << Cfg_co_phase);
 	}

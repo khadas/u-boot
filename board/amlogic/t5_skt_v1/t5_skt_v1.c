@@ -238,8 +238,8 @@ static int  sd_emmc_init(unsigned port)
 		case SDIO_PORT_A:
 			break;
 		case SDIO_PORT_B:
-			//todo add card detect
-			/* check card detect */
+			/*treat port b as port c on t5*/
+			break;
 			clrbits_le32(P_PERIPHS_PIN_MUX_9, 0xF << 24);
 			setbits_le32(P_PREG_PAD_GPIO1_EN_N, 1 << 6);
 			setbits_le32(P_PAD_PULL_UP_EN_REG1, 1 << 6);
