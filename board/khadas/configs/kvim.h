@@ -110,7 +110,7 @@
         "firstboot=0\0"\
         "upgrade_step=0\0"\
         "jtag=disable\0"\
-        "loadaddr=1080000\0"\
+        "loadaddr=3080000\0"\
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
