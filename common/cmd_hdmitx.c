@@ -274,6 +274,7 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		case HDMI_4096x2160p60_256x135_Y420:
 		case HDMI_3840x2160p50_64x27_Y420:
 		case HDMI_3840x2160p60_64x27_Y420:
+        case HDMIV_1024x768p60hz:
 			if ((hdmitx_device.para->cs == HDMI_COLOR_FORMAT_RGB) ||
 			    (hdmitx_device.para->cs == HDMI_COLOR_FORMAT_444)) {
 				if (hdmitx_device.para->cd != HDMI_COLOR_DEPTH_24B) {
@@ -396,6 +397,7 @@ static int do_get_preferred_mode(cmd_tbl_t * cmdtp, int flag, int argc,
 		sprintf(pref_mode, "setenv hdmimode %s", para->sname);
 		sprintf(color_attr, "setenv colorattribute %s", "444,8bit");
 	}
+
 	printk("edid preferred_mode is %s[%d]\n", para->sname, hdev->RXCap.preferred_mode);
 
 /* save to ENV */
