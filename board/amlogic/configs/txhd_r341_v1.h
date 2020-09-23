@@ -45,14 +45,19 @@
 /* SMP Definitinos */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
-/* config saradc*/
-#define CONFIG_CMD_SARADC 1
+/* support ext4*/
+#define CONFIG_CMD_EXT4 1
 
 /* Bootloader Control Block function
    That is used for recovery and the bootloader to talk to each other
   */
 #define CONFIG_BOOTLOADER_CONTROL_BLOCK
 
+/*a/b update */
+#define CONFIG_CMD_BOOTCTOL_AVB
+
+/* config saradc*/
+#define CONFIG_CMD_SARADC 1
 
 /* Serial config */
 #define CONFIG_CONS_INDEX 2
@@ -125,8 +130,11 @@
         "cec_fun=0x2F\0" \
         "logic_addr=0x0\0" \
         "cec_ac_wakeup=0\0" \
+        "Irq_check_en=0\0"\
+        "reboot_mode_android=""normal""\0"\
+        "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-            "rootfstype=ramfs init=/init console=ttyS0,115200 no_console_suspend earlyprintk=aml-uart,0xff803000 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
+            "init=/init console=ttyS0,115200 no_console_suspend earlyprintk=aml-uart,0xc81004c0 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
             "echo upgrade_step=${upgrade_step}; "\
@@ -135,17 +143,34 @@
             "else fi;"\
             "\0"\
         "storeargs="\
-            "setenv bootargs ${initargs} logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} osd_reverse=${osd_reverse} video_reverse=${video_reverse} androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
-	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
+            "get_bootloaderversion;" \
+            "setenv bootargs ${initargs} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} osd_reverse=${osd_reverse} video_reverse=${video_reverse} androidboot.selinux=${EnableSelinux} irq_check_en=${Irq_check_en} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
+            "setenv bootargs ${bootargs} page_trace=${page_trace};" \
+	"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
             "run cmdline_keys;"\
             "\0"\
         "switch_bootmode="\
             "get_rebootmode;"\
             "if test ${reboot_mode} = factory_reset; then "\
+                    "setenv reboot_mode_android ""normal"";"\
+                    "run storeargs;"\
                     "run recovery_from_flash;"\
             "else if test ${reboot_mode} = update; then "\
+                    "setenv reboot_mode_android ""normal"";"\
+                    "run storeargs;"\
                     "run update;"\
+            "else if test ${reboot_mode} = quiescent; then "\
+                    "setenv reboot_mode_android ""quiescent"";"\
+                    "run storeargs;"\
+                    "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
+            "else if test ${reboot_mode} = recovery_quiescent; then "\
+                    "setenv reboot_mode_android ""quiescent"";"\
+                    "run storeargs;"\
+                    "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
+                    "run recovery_from_flash;"\
             "else if test ${reboot_mode} = cold_boot; then "\
+                    "setenv reboot_mode_android ""normal"";"\
+                    "run storeargs;"\
 		"if test ${cec_ac_wakeup} = 1; then "\
 			"cec ${logic_addr} ${cec_fun}; "\
 			"if test ${edid_select} = 1111; then "\
@@ -155,14 +180,36 @@
 			"fi;fi;"\
 			"systemoff; "\
 		"fi;"\
-                /*"run try_auto_burn; "*/\
+		/*"run try_auto_burn; "*/\
             "else if test ${reboot_mode} = fastboot; then "\
+                "setenv reboot_mode_android ""normal"";"\
+                "run storeargs;"\
                 "fastboot;"\
-            "fi;fi;fi;fi;"\
+            "fi;fi;fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
+            "get_system_as_root_mode;"\
+            "echo system_mode: ${system_mode};"\
+            "if test ${system_mode} = 1; then "\
+                    "setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
+            "else "\
+                    "setenv bootargs ${bootargs} ${fs_type};"\
+            "fi;"\
+            "get_valid_slot;"\
+            "get_avb_mode;"\
+            "echo active_slot: ${active_slot};"\
+            "if test ${active_slot} != normal; then "\
+                    "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
+            "fi;"\
+            "if test ${avb2} = 0; then "\
+                "if test ${active_slot} = _a; then "\
+                    "setenv bootargs ${bootargs} root=/dev/mmcblk0p23;"\
+                "else if test ${active_slot} = _b; then "\
+                    "setenv bootargs ${bootargs} root=/dev/mmcblk0p24;"\
+                "fi;fi;"\
+            "fi;"\
             "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
-            "run update;"\
+            "run storeargs; run update;"\
             "\0"\
         "factory_reset_poweroff_protect="\
             "echo wipe_data=${wipe_data}; echo wipe_cache=${wipe_cache};"\
@@ -203,6 +250,7 @@
             "if fatload mmc 0 ${loadaddr} recovery.img; then "\
                     "if fatload mmc 0 ${dtb_mem_addr} dtb.img; then echo sd dtb.img loaded; fi;"\
                     "wipeisb; "\
+                    "setenv bootargs ${bootargs} ${fs_type};"\
                     "bootm ${loadaddr};fi;"\
             "\0"\
         "recovery_from_udisk="\
@@ -210,14 +258,42 @@
             "if fatload usb 0 ${loadaddr} recovery.img; then "\
                 "if fatload usb 0 ${dtb_mem_addr} dtb.img; then echo udisk dtb.img loaded; fi;"\
                 "wipeisb; "\
+                "setenv bootargs ${bootargs} ${fs_type};"\
                 "bootm ${loadaddr};fi;"\
             "\0"\
         "recovery_from_flash="\
-            "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
-            "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi"\
+            "get_valid_slot;"\
+            "echo active_slot: ${active_slot};"\
+            "if test ${active_slot} = normal; then "\
+                "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
+                "if itest ${upgrade_step} == 3; then "\
+                    "if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;"\
+                    "if ext4load mmc 1:2 ${loadaddr} /recovery/recovery.img; then echo cache recovery.img loaded; wipeisb; bootm ${loadaddr}; fi;"\
+                "else fi;"\
+                "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
+            "else "\
+                "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
+                "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
+            "fi;"\
             "\0"\
         "init_display="\
-            "osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode}"\
+            "get_rebootmode;"\
+            "echo reboot_mode:::: ${reboot_mode};"\
+            "if test ${reboot_mode} = quiescent; then "\
+                    "setenv reboot_mode_android ""quiescent"";"\
+                    "run storeargs;"\
+                    "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
+                    "osd open;osd clear;"\
+            "else if test ${reboot_mode} = recovery_quiescent; then "\
+                    "setenv reboot_mode_android ""quiescent"";"\
+                    "run storeargs;"\
+                    "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
+                    "osd open;osd clear;"\
+            "else "\
+                "setenv reboot_mode_android ""normal"";"\
+                "run storeargs;"\
+                "osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};"\
+            "fi;fi;"\
             "\0"\
         "cmdline_keys="\
             "if keyman init 0x1234; then "\
@@ -233,6 +309,11 @@
                 "fi;"\
                 "if keyman read deviceid ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
+                "fi;"\
+                "if keyman read oemkey ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} androidboot.oem.key1=${oemkey};"\
+                "else "\
+                    "setenv bootargs ${bootargs} androidboot.oem.key1=ATV00104319;"\
                 "fi;"\
             "fi;"\
             "\0"\
@@ -262,8 +343,8 @@
             "run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
+            "bcb uboot-command;"\
             "run switch_bootmode;"
-
 #define CONFIG_BOOTCOMMAND "run storeboot"
 
 //#define CONFIG_ENV_IS_NOWHERE  1
@@ -437,6 +518,9 @@
 #define CONFIG_LZO 1
 
 #define CONFIG_MDUMP_COMPRESS 1
+#define CONFIG_EXT4_WRITE 1
+#define CONFIG_CMD_EXT4 1
+#define CONFIG_CMD_EXT4_WRITE 1
 
 /* Cache Definitions */
 //#define CONFIG_SYS_DCACHE_OFF
