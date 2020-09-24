@@ -46,6 +46,12 @@
 /* config saradc*/
 #define CONFIG_CMD_SARADC 1
 
+/*if disable uboot console, enable it*/
+//#define CONFIG_SILENT_CONSOLE
+#ifdef CONFIG_SILENT_CONSOLE
+#undef CONFIG_SILENT_CONSOLE_UPDATE_ON_RELOC
+#endif
+
 /* Bootloader Control Block function
    That is used for recovery and the bootloader to talk to each other
   */

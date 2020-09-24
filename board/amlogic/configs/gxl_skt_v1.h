@@ -48,6 +48,12 @@
 /* config saradc*/
 #define CONFIG_CMD_SARADC 1
 
+/*if disable uboot console, enable it*/
+//#define CONFIG_SILENT_CONSOLE
+#ifdef CONFIG_SILENT_CONSOLE
+#undef CONFIG_SILENT_CONSOLE_UPDATE_ON_RELOC
+#endif
+
 /* support ext4*/
 #define CONFIG_CMD_EXT4 1
 
