@@ -312,9 +312,9 @@
 				status = "disabled";
 			};
 
-			spicc0: spi@13000 {
+			spicc0: spi@3800 {
 				compatible = "amlogic,meson-g12a-spicc";
-				reg = <0x0 0x13000 0x0 0x44>;
+				reg = <0x0 0x3800 0x0 0x44>;
 				interrupts = <GIC_SPI 81 IRQ_TYPE_LEVEL_HIGH>;
 				#address-cells = <1>;
 				#size-cells = <0>;
@@ -341,15 +341,6 @@
 						compatible = "spi-nand";
 						status = "okay";
 					};
-			};
-
-			spicc1: spi@15000 {
-				compatible = "amlogic,meson-g12a-spicc";
-				reg = <0x0 0x15000 0x0 0x44>;
-				interrupts = <GIC_SPI 90 IRQ_TYPE_LEVEL_HIGH>;
-				#address-cells = <1>;
-				#size-cells = <0>;
-				status = "disabled";
 			};
 
 			watchdog@0f0d0 {

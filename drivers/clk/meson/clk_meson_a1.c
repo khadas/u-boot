@@ -20,6 +20,7 @@
 static struct meson_gate gates[] = {
 	{CLKID_SPIFC_XTAL_GATE,	A1_SPIFC_CLK_CTRL, 15},
 	{CLKID_SPIFC_GATE, A1_SPIFC_CLK_CTRL, 8},
+	{CLKID_SPICC_A_GATE, A1_SPICC_CLK_CTRL, 8},
 	{CLKID_SAR_ADC_GATE, A1_SAR_ADC_CLK_CTRL, 8},
 	{CLKID_SD_EMMC_XTAL_GATE, A1_SD_EMMC_CLK_CTRL, 15},
 	{CLKID_SD_EMMC_GATE, A1_SD_EMMC_CLK_CTRL, 8},
@@ -38,12 +39,14 @@ CLKID_FCLK_DIV5, CLKID_UNREALIZED};
 
 static struct meson_mux muxes[] = {
 		{CLKID_SPIFC_MUX, A1_SPIFC_CLK_CTRL, 9,  0x3, spifc_parents, ARRAY_SIZE(spifc_parents)},
+		{CLKID_SPICC_A_MUX, A1_SPICC_CLK_CTRL, 9,  0x7, spifc_parents, ARRAY_SIZE(spifc_parents)},
 		{CLKID_SARADC_MUX, A1_SAR_ADC_CLK_CTRL, 9,  0x1, saradc_parents, ARRAY_SIZE(saradc_parents)},
 		{CLKID_SD_EMMC_MUX, A1_SD_EMMC_CLK_CTRL, 9,  0x3, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
 };
 
 static struct meson_div divs[] = {
 		{CLKID_SPIFC_DIV, A1_SPIFC_CLK_CTRL, 0,  8, CLKID_SPIFC_MUX},
+		{CLKID_SPICC_A_DIV, A1_SPICC_CLK_CTRL, 0,  8, CLKID_SPICC_A_MUX},
 		{CLKID_SARADC_DIV, A1_SAR_ADC_CLK_CTRL, 0,  8, CLKID_SARADC_MUX},
 		{CLKID_SD_EMMC_DIV, A1_SD_EMMC_CLK_CTRL, 0, 8, CLKID_SD_EMMC_MUX},
 };
@@ -138,8 +141,7 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, ulong id)
 		rate = SYS_CLK;
 		break;
 	default:
-		pr_err("Unknown clock, Can not get its rate\n");
-		rate = 0;
+		rate = priv->actual_rate;
 		break;
 	}
 
@@ -170,6 +172,7 @@ static ulong meson_clk_set_rate(struct clk *clk, ulong rate)
 
 	div_val = DIV_ROUND_CLOSEST(parent_rate, rate) - 1;
 
+	priv->actual_rate = DIV_ROUND_CLOSEST(parent_rate, div_val + 1);
 	meson_clk_set_div(priv, div, div_val);
 
 	return 0;

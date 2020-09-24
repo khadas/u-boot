@@ -56,7 +56,7 @@ static struct meson_div divs[] = {
 		{CLKID_SPIFC_DIV, C2_SPIFC_CLK_CTRL, 0,  8, CLKID_SPIFC_MUX},
 		{CLKID_SARADC_DIV, C2_SAR_ADC_CLK_CTRL, 0,  8, CLKID_SARADC_MUX},
 		{CLKID_SPICC_A_DIV, C2_SPICC_CLK_CTRL, 0,  8, CLKID_SPICC_A_MUX},
-		{CLKID_SPICC_B_DIV, C2_SPICC_CLK_CTRL, 16,  8, CLKID_SPICC_A_MUX},
+		{CLKID_SPICC_B_DIV, C2_SPICC_CLK_CTRL, 16,  8, CLKID_SPICC_B_MUX},
 		{CLKID_SD_EMMC_A_DIV, C2_SD_EMMC_CLK_CTRL, 0, 8, CLKID_SD_EMMC_A_MUX},
 		{CLKID_SD_EMMC_B_DIV, C2_SD_EMMC_CLK_CTRL, 16, 8, CLKID_SD_EMMC_B_MUX},
 		{CLKID_SD_EMMC_C_DIV, C2_SD_EMMC_CLK_CTRL1, 0, 8, CLKID_SD_EMMC_C_MUX},
@@ -117,7 +117,7 @@ static ulong meson_pll_get_rate(struct clk *clk, unsigned long id)
 	 reg = readl(priv->addr + pod->reg_off);
 	od = PARM_GET(pod->width, pod->shift, reg);
 
-	return ((parent_rate_mhz * m / n) >> od) * 1000000;
+	return ((parent_rate_mhz * m * 2 / n) >> od) * 1000000;
 }
 
 static ulong meson_clk_get_rate_by_id(struct clk *clk, ulong id)
@@ -156,8 +156,7 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, ulong id)
 		rate = SYS_CLK;
 		break;
 	default:
-		pr_err("Unknown clock, Can not get its rate\n");
-		rate = 0;
+		rate = priv->actual_rate;
 		break;
 	}
 
@@ -188,6 +187,7 @@ static ulong meson_clk_set_rate(struct clk *clk, ulong rate)
 
 	div_val = DIV_ROUND_CLOSEST(parent_rate, rate) - 1;
 
+	priv->actual_rate = DIV_ROUND_CLOSEST(parent_rate, div_val + 1);
 	meson_clk_set_div(priv, div, div_val);
 
 	return 0;

@@ -190,19 +190,15 @@
 	/*amlogic,mmc-syscon = <&sd_emmc_c>;*/
 };
 
-/*
 &spicc0 {
-	clocks = <&clkc CLKID_SPICC0>,
-		 <&clkc CLKID_SPICC0_COMP>;
-	clock-names = "core", "comp";
+	clocks = <&clkc CLKID_SPICC_A_DIV>, <&clkc CLKID_SPICC_A_GATE>;
+	clock-names = "async", "async-gate";
+	assigned-clocks = <&clkc CLKID_SPICC_A_MUX>, <&clkc CLKID_SPICC_A_DIV>;
+	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
+	assigned-clock-rates = <0>, <200000000>;
+	/* =PM_SPICC, no set for power on already */
+	/* pm-id = <22>; */
 };
-
-&spicc1 {
-	clocks = <&clkc CLKID_SPICC1>,
-		 <&clkc CLKID_SPICC1_COMP>;
-	clock-names = "core", "comp";
- };
-*/
 
 &pinctrl_periphs {
 	jtag_a_pins:jtag_a_pin {
@@ -333,6 +329,16 @@
 				 "spif_wp_n";
 			function = "spif";
 			drive-strength = <3>;
+		};
+	};
+
+	spicc0_pins_a: spicc0_pins_a {
+		mux {
+			groups = "spi_a_mosi_a",
+				 "spi_a_miso_a",
+				 "spi_a_sclk_a";
+			function = "spi_a";
+			drive-strength = <2>;
 		};
 	};
 

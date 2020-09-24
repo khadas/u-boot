@@ -48,7 +48,7 @@ static struct meson_mux muxes[] = {
 
 static struct meson_div divs[] = {
 	{CLKID_SPICC_A_DIV, SC2_CLKCTRL_SPICC_CLK_CTRL, 0, 6, CLKID_SPICC_A_MUX},
-	{CLKID_SPICC_B_DIV, SC2_CLKCTRL_SPICC_CLK_CTRL, 16, 6, CLKID_SPICC_A_MUX},
+	{CLKID_SPICC_B_DIV, SC2_CLKCTRL_SPICC_CLK_CTRL, 16, 6, CLKID_SPICC_B_MUX},
 	{CLKID_SARADC_DIV, SC2_CLKCTRL_SAR_CLK_CTRL0, 0, 8, CLKID_SARADC_MUX},
 	{CLKID_SD_EMMC_A_DIV, SC2_CLKCTRL_SD_EMMC_CLK_CTRL, 0, 7, CLKID_SD_EMMC_A_MUX},
 	{CLKID_SD_EMMC_B_DIV, SC2_CLKCTRL_SD_EMMC_CLK_CTRL, 16, 7, CLKID_SD_EMMC_B_MUX},
@@ -149,8 +149,7 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, ulong id)
 		rate = SYS_CLK;
 		break;
 	default:
-		pr_err("Unknown clock, Can not get its rate\n");
-		rate = 0;
+		rate = priv->actual_rate;
 		break;
 	}
 
@@ -181,6 +180,7 @@ static ulong meson_clk_set_rate(struct clk *clk, ulong rate)
 
 	div_val = DIV_ROUND_CLOSEST(parent_rate, rate) - 1;
 
+	priv->actual_rate = DIV_ROUND_CLOSEST(parent_rate, div_val + 1);
 	meson_clk_set_div(priv, div, div_val);
 
 	return 0;
