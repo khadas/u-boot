@@ -37,7 +37,7 @@
 /*
  * sm1 ac200 board share BSP code with g12a_u200_v1
  */
-#define CONFIG_VDDEE_INIT_VOLTAGE	800		// g12a_u200_v1 VDDEE voltage setting
+#define CONFIG_VDDEE_INIT_VOLTAGE	840		// g12a_u200_v1 VDDEE voltage setting
 #define CONFIG_VDDEE_INIT_VOLTAGE_SM1	840		// sm1 ac200 VDDEE voltage setting
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	770		// VDDEE suspend voltage
 
