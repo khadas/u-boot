@@ -423,6 +423,14 @@ static const vout_set_t vout_sets[] = {
 		.viu_color_fmt     = VPP_CM_YUV,
 		.viu_mux           = VIU_MUX_ENCP,
 	},
+	{ /* VMODE_1024x600p60hz */
+		.name              = "1024x600p60hz",
+		.mode              = VMODE_1024x600p60hz,
+		.width             = 1024,
+		.height            = 600,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
+	},	
 };
 
 static struct vinfo_s vout_info = {
