@@ -546,7 +546,7 @@ void set_i2c_b_pinmux(void)
 	setbits_le32(PERIPHS_PIN_MUX_7, 0x1 << 16 | 0x1 << 20);
 	return;
 }
-#endf
+#endif
 #endif /*end CONFIG_SYS_I2C_MESON*/
 
 #ifdef CONFIG_PWM_MESON
