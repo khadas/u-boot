@@ -534,7 +534,7 @@ U_BOOT_DEVICES(meson_i2cs) = {
  *pinmux configuration seperated with i2c controller configuration
  * config it when you use
  */
-#if 0 /* i2c pinmux demo */
+#if 1 /* i2c pinmux demo */
 void set_i2c_b_pinmux(void)
 {
 	/*ds =3 */
@@ -579,6 +579,10 @@ int board_init(void)
 	board_usb_pll_disable(&g_usb_config_GXL_skt);
 	board_usb_init(&g_usb_config_GXL_skt,BOARD_USB_MODE_HOST);
 #endif /*CONFIG_USB_XHCI_AMLOGIC*/
+
+#ifdef CONFIG_SYS_I2C_MESON
+	set_i2c_b_pinmux();
+#endif
 	return 0;
 }
 

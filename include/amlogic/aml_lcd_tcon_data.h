@@ -33,6 +33,7 @@
 
 /* for tconless data block part type */
 #define LCD_TCON_DATA_PART_TYPE_WR_N            0xd0
+#define LCD_TCON_DATA_PART_TYPE_WR_DDR          0xdd
 #define LCD_TCON_DATA_PART_TYPE_WR_MASK         0xb0
 #define LCD_TCON_DATA_PART_TYPE_RD_MASK         0xab
 #define LCD_TCON_DATA_PART_TYPE_CHK_WR_MASK     0xcb
@@ -50,6 +51,19 @@
 #define LCD_TCON_DATA_BLOCK_HEADER_SIZE         64
 #define LCD_TCON_DATA_BLOCK_NAME_SIZE           36
 #define LCD_TCON_DATA_PART_NAME_SIZE            48
+
+struct lcd_tcon_init_block_header_s {
+	unsigned int crc32;
+	unsigned int reserved;
+	unsigned int block_size;
+	unsigned short header_size;
+	unsigned short reserved1;
+	unsigned int block_type;
+	unsigned char reserved2[5];
+	unsigned char data_byte_width;
+	unsigned short chipid;
+	unsigned char name[LCD_TCON_DATA_BLOCK_NAME_SIZE];
+};
 
 struct lcd_tcon_data_block_header_s {
 	unsigned char checksum;
@@ -82,6 +96,17 @@ struct lcd_tcon_data_part_wr_n_s {
 	unsigned char reg_data_byte;
 	unsigned char reg_inc;
 	unsigned char reg_cnt;
+	unsigned int data_cnt;
+};
+
+#define LCD_TCON_DATA_PART_WR_DDR_SIZE_PRE  (LCD_TCON_DATA_PART_NAME_SIZE + 12)
+struct lcd_tcon_data_part_wr_ddr_s {
+	char name[LCD_TCON_DATA_PART_NAME_SIZE];
+	unsigned short part_id;
+	unsigned char tuning_flag;
+	unsigned char part_type;
+	unsigned short axi_buf_id;
+	unsigned short data_byte;
 	unsigned int data_cnt;
 };
 
@@ -148,6 +173,7 @@ struct lcd_tcon_data_part_param_s {
 
 union lcd_tcon_data_part_u {
 	struct lcd_tcon_data_part_wr_n_s *wr_n;
+	struct lcd_tcon_data_part_wr_ddr_s *wr_ddr;
 	struct lcd_tcon_data_part_wr_mask_s *wr_mask;
 	struct lcd_tcon_data_part_rd_mask_s *rd_mask;
 	struct lcd_tcon_data_part_chk_wr_mask_s *chk_wr_mask;

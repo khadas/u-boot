@@ -240,18 +240,18 @@ static struct lcd_pinmux_ctrl_s lcd_pinmux_ctrl[LCD_PINMX_MAX] = {
 	},
 	{
 		.name = "lcd_minilvds_pin", //GPIOH_0~8,12~15
-		.pinmux_set = {{5, 0x11111111}, {6, 0x11110001}, {LCD_PINMUX_END, 0x0}},
-		.pinmux_clr = {{5, 0xffffffff}, {6, 0xffff000f}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_set = {{5, 0x01111111}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{5, 0x0fffffff}, {LCD_PINMUX_END, 0x0}},
 	},
 	{
 		.name = "lcd_p2p_pin", //GPIOH_0~8,12~15
-		.pinmux_set = {{5, 0x11111111}, {6, 0x11110001}, {LCD_PINMUX_END, 0x0}},
-		.pinmux_clr = {{5, 0xffffffff}, {6, 0xffff000f}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_set = {{5, 0x01111112}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{5, 0x0fffffff}, {LCD_PINMUX_END, 0x0}},
 	},
 	{
 		.name = "lcd_p2p_usit_pin", //GPIOH_0~8,12~15
-		.pinmux_set = {{5, 0x11111111}, {6, 0x11110001}, {LCD_PINMUX_END, 0x0}},
-		.pinmux_clr = {{5, 0xffffffff}, {6, 0xffff000f}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_set = {{5, 0x01111113}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{5, 0x0fffffff}, {LCD_PINMUX_END, 0x0}},
 	},
 	{
 		.name = "invalid",

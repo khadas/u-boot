@@ -97,6 +97,7 @@ static void lcd_venc_set(struct lcd_config_s *pconf)
 {
 	unsigned int h_active, v_active;
 	unsigned int video_on_pixel, video_on_line;
+	unsigned int pre_de_vs = 0, pre_de_ve = 0, pre_de_hs = 0, pre_de_he = 0;
 	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
 
 	if (lcd_debug_print_flag)
@@ -120,16 +121,28 @@ static void lcd_venc_set(struct lcd_config_s *pconf)
 	lcd_vcbus_write(ENCL_VIDEO_HAVON_END,   h_active - 1 + video_on_pixel);
 	lcd_vcbus_write(ENCL_VIDEO_VAVON_BLINE, video_on_line);
 	lcd_vcbus_write(ENCL_VIDEO_VAVON_ELINE, v_active - 1  + video_on_line);
-	switch (pconf->lcd_basic.lcd_type) {
-	case LCD_P2P:
-	case LCD_MLVDS:
-		lcd_vcbus_write(ENCL_VIDEO_V_PRE_DE_BLINE, video_on_line - 1 - 4);
-		lcd_vcbus_write(ENCL_VIDEO_V_PRE_DE_ELINE, video_on_line - 1);
-		lcd_vcbus_write(ENCL_VIDEO_H_PRE_DE_BEGIN, video_on_pixel + PRE_DE_DELAY);
-		lcd_vcbus_write(ENCL_VIDEO_H_PRE_DE_END, h_active - 1 + video_on_pixel + PRE_DE_DELAY);
-		break;
-	default:
-		break;
+	if ((pconf->lcd_basic.lcd_type == LCD_P2P) ||
+	    (pconf->lcd_basic.lcd_type == LCD_MLVDS)) {
+		switch (lcd_drv->chip_type) {
+		case LCD_CHIP_TXHD:
+		case LCD_CHIP_TL1:
+		case LCD_CHIP_TM2:
+			pre_de_vs = video_on_line - 1 - 4;
+			pre_de_ve = video_on_line - 1;
+			pre_de_hs = video_on_pixel + PRE_DE_DELAY;
+			pre_de_he = h_active - 1 + pre_de_hs;
+			break;
+		default:
+			pre_de_vs = video_on_line - 8;
+			pre_de_ve = v_active + pre_de_vs;
+			pre_de_hs = video_on_pixel + PRE_DE_DELAY;
+			pre_de_he = h_active - 1 + pre_de_hs;
+			break;
+		}
+		lcd_vcbus_write(ENCL_VIDEO_V_PRE_DE_BLINE, pre_de_vs);
+		lcd_vcbus_write(ENCL_VIDEO_V_PRE_DE_ELINE, pre_de_ve);
+		lcd_vcbus_write(ENCL_VIDEO_H_PRE_DE_BEGIN, pre_de_hs);
+		lcd_vcbus_write(ENCL_VIDEO_H_PRE_DE_END, pre_de_he);
 	}
 
 	lcd_vcbus_write(ENCL_VIDEO_HSO_BEGIN, pconf->lcd_timing.hs_hs_addr);

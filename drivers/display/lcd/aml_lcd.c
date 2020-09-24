@@ -721,10 +721,7 @@ static int lcd_mode_probe(char *dt_addr, int load_id)
 	if (aml_lcd_driver.lcd_config->lcd_basic.lcd_type == LCD_VBYONE)
 		lcd_vbyone_filter_env_init(aml_lcd_driver.lcd_config);
 #ifdef CONFIG_AML_LCD_TCON
-	if ((aml_lcd_driver.chip_type == LCD_CHIP_TXHD) ||
-		(aml_lcd_driver.chip_type == LCD_CHIP_TL1) ||
-		(aml_lcd_driver.chip_type == LCD_CHIP_TM2))
-		lcd_tcon_probe(dt_addr, &aml_lcd_driver, load_id);
+	lcd_tcon_probe(dt_addr, &aml_lcd_driver, load_id);
 #endif
 
 #ifdef CONFIG_AML_LCD_EXTERN

@@ -146,7 +146,7 @@ void lcd_phy_cntl_set_t5(int status, unsigned int chreg, int bypass,
 			   (phy_ctrl_bit_on << 0));
 		if (bypass)
 			tmp |= ((1 << 18) | (1 << 2));
-		cntl15 = 0x00070000;
+		cntl15 = 0x000e0000;
 		cntl16 = ckdi | 0x80000000;
 	} else {
 		if (phy_ctrl_bit_on)

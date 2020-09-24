@@ -241,6 +241,14 @@ static int handle_tcon_path(void)
 	const char *ini_value = NULL;
 	unsigned int temp, i, n, version, block_cnt, data_size;
 
+	/* version */
+	ini_value = IniGetString("tcon_Path", "version", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, version is (%s)\n", __func__, ini_value);
+	version = strtoul(ini_value, NULL, 0);
+	snprintf(str, 30, "%d", version);
+	setenv("model_tcon_version", str);
+
 	/* tcon regs bin */
 	ini_value = IniGetString("tcon_Path", "TCON_BIN_PATH", "null");
 	if (!strcmp(ini_value, "null")) {
@@ -259,10 +267,6 @@ static int handle_tcon_path(void)
 	buf = g_lcd_tcon_bin_path_mem;
 
 	/* version */
-	ini_value = IniGetString("tcon_Path", "version", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, version is (%s)\n", __func__, ini_value);
-	version = strtoul(ini_value, NULL, 0);
 	buf[8] = version & 0xff;
 	buf[9] = (version >> 8) & 0xff;
 	buf[10] = (version >> 16) & 0xff;
@@ -1788,7 +1792,7 @@ static int handle_tcon_bin(void)
 	unsigned char *tmp_buf = NULL;
 	unsigned char *tcon_buf = NULL;
 	char *file_name;
-	unsigned int bypass;
+	unsigned int bypass, version, data_size;
 	int tmp;
 
 	tmp = getenv_ulong("model_tcon_bypass", 10, 0xffff);
@@ -1800,36 +1804,28 @@ static int handle_tcon_bin(void)
 		}
 	}
 
+	version = getenv_ulong("model_tcon_version", 10, 0);
+
 	file_name = getenv("model_tcon");
-	if (file_name == NULL) {
-		if (model_debug_flag & DEBUG_NORMAL)
+	if (!file_name) {
+		if (model_debug_flag & DEBUG_TCON)
 			ALOGD("%s, no model_tcon path\n", __func__);
 		return 0;
 	}
 
 	tmp_buf = (unsigned char *)malloc(CC_MAX_TCON_BIN_SIZE);
-	if (tmp_buf == NULL) {
-		ALOGE("%s, malloc buffer memory error!!!\n", __func__);
-		return -1;
-	}
-
-	tcon_buf = (unsigned char *)malloc(CC_MAX_TCON_BIN_SIZE);
-	if (tcon_buf == NULL) {
-		free(tmp_buf);
-		tmp_buf = NULL;
+	if (!tmp_buf) {
 		ALOGE("%s, malloc buffer memory error!!!\n", __func__);
 		return -1;
 	}
 
 	// start handle tcon bin name
-	if (model_debug_flag & DEBUG_NORMAL)
+	if (model_debug_flag & DEBUG_TCON)
 		ALOGD("%s: model_tcon: %s\n", __func__, file_name);
 	if (!iniIsFileExist(file_name)) {
 		ALOGE("%s, file name \"%s\" not exist.\n", __func__, file_name);
 		free(tmp_buf);
 		tmp_buf = NULL;
-		free(tcon_buf);
-		tcon_buf = NULL;
 		return -1;
 	}
 
@@ -1837,13 +1833,38 @@ static int handle_tcon_bin(void)
 	if (!bin_size) {
 		free(tmp_buf);
 		tmp_buf = NULL;
-		free(tcon_buf);
-		tcon_buf = NULL;
 		return -1;
 	}
 
-	gLcdTconDataCnt = bin_size;
-	GetBinData(tcon_buf, bin_size);
+	GetBinData(tmp_buf, bin_size);
+	if (version) {
+		data_size = tmp_buf[8] | (tmp_buf[9] << 8) |
+			(tmp_buf[10] << 16) | (tmp_buf[11] << 24);
+		if (data_size > bin_size) {
+			free(tmp_buf);
+			tmp_buf = NULL;
+			ALOGE("%s, tcon bin size error!!!\n", __func__);
+			return -1;
+		}
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGD("%s: load tcon bin with new version\n", __func__);
+	} else {
+		data_size = bin_size;
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGD("%s: load tcon bin with old version\n", __func__);
+	}
+
+	gLcdTconDataCnt = data_size;
+	tcon_buf = (unsigned char *)malloc(data_size);
+	if (!tcon_buf) {
+		free(tmp_buf);
+		tmp_buf = NULL;
+		ALOGE("%s, malloc buffer memory error!!!\n", __func__);
+		return -1;
+	}
+	memcpy(tcon_buf, tmp_buf, data_size);
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s: bin_size=0x%lx, data_size=0x%x\n", __func__, bin_size, data_size);
 
 	BinFileUninit();
 
@@ -1851,8 +1872,10 @@ static int handle_tcon_bin(void)
 	memset((void *)tmp_buf, 0, CC_MAX_TCON_BIN_SIZE);
 	tmp_len = ReadTconBinParam(tmp_buf);
 	//ALOGD("%s, start check lcd_tcon param data (0x%x).\n", __func__, tmp_len);
-	if (check_param_valid(1, gLcdTconDataCnt, tcon_buf, tmp_len, tmp_buf) == CC_PARAM_CHECK_ERROR_NEED_UPDATE_PARAM) {
-		ALOGD("%s, check tcon bin data error (0x%x), save tcon bin data.\n", __func__, tmp_len);
+	if (check_param_valid(1, gLcdTconDataCnt, tcon_buf, tmp_len, tmp_buf) ==
+		CC_PARAM_CHECK_ERROR_NEED_UPDATE_PARAM) {
+		ALOGD("%s, check tcon bin data error (0x%x), save tcon bin data.\n",
+			__func__, tmp_len);
 		SaveTconBinParam(gLcdTconDataCnt, tcon_buf);
 	}
 	// end handle lcd_tcon param

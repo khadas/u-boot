@@ -300,26 +300,26 @@
 #define PWM_MISC_REG_EF                            0x6402
 
 /*tcon*/
-#define REG_TCON_APB_BASE                          (0xFF600000L)
+#define REG_TCON_APB_BASE                          (0xFF660000L)
 #define TCON_CORE_REG_START                        0x0000
 #define TCON_CTRL_TIMING_BASE                      0x01b0
-#define TCON_TOP_CTRL                              0x1000
-#define TCON_RGB_IN_MUX                            0x1001
-#define TCON_OUT_CH_SEL0                           0x1002
-#define TCON_OUT_CH_SEL1                           0x1003
-#define TCON_I2C_DEGLITCH_CNTL                     0x1004
-#define TCON_STATUS0                               0x1008 /* read only */
-#define TCON_PLLLOCK_CNTL                          0x1009
-#define TCON_PLLLCK_RST_CNT                        0x100a
-#define TCON_RST_CTRL                              0x100b
-#define TCON_AXI_OFST                              0x100c
-#define TCON_DDRIF_CTRL0                           0x100d
-#define TCON_CLK_CTRL                              0x100e
-#define TCON_DDRIF_CTRL1                           0x100f
-#define TCON_STATUS1                               0x1010 /* read only */
-#define TCON_DDRIF_CTRL2                           0x1011
-#define TCON_INTR_MASKN                            0x1022
-#define TCON_INTR                                  0x1023 /* read only */
+#define TCON_TOP_CTRL                              0x2000
+#define TCON_RGB_IN_MUX                            0x2001
+#define TCON_OUT_CH_SEL0                           0x2002
+#define TCON_OUT_CH_SEL1                           0x2003
+#define TCON_I2C_DEGLITCH_CNTL                     0x2004
+#define TCON_STATUS0                               0x2008 /* read only */
+#define TCON_PLLLOCK_CNTL                          0x2009
+#define TCON_PLLLCK_RST_CNT                        0x200a
+#define TCON_RST_CTRL                              0x200b
+#define TCON_AXI_OFST                              0x200c
+#define TCON_DDRIF_CTRL0                           0x200d
+#define TCON_CLK_CTRL                              0x200e
+#define TCON_DDRIF_CTRL1                           0x200f
+#define TCON_STATUS1                               0x2010 /* read only */
+#define TCON_DDRIF_CTRL2                           0x2011
+#define TCON_INTR_MASKN                            0x2022
+#define TCON_INTR                                  0x2023 /* read only */
 
 #endif
 

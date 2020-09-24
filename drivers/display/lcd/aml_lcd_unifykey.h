@@ -18,6 +18,7 @@
 
 #ifndef __AML_LCD_UNIFYKEY_H__
 #define __AML_LCD_UNIFYKEY_H__
+#include <amlogic/aml_lcd_tcon_data.h>
 
 #define LCD_UKEY_RETRY_CNT_MAX   5
 
@@ -267,16 +268,18 @@ struct aml_lcd_tcon_spi_unifykey_header_s {
 /* ********************************
  * API
  * ********************************* */
-extern int aml_lcd_unifykey_len_check(int key_len, int len);
-extern int aml_lcd_unifykey_header_check(unsigned char *buf, struct aml_lcd_unifykey_header_s *header);
-extern int aml_lcd_unifykey_check(const char *key_name);
-extern int aml_lcd_unifykey_get(const char *key_name, unsigned char *buf, int *len);
-extern int aml_lcd_unifykey_check_no_header(const char *key_name);
-extern int aml_lcd_unifykey_get_no_header(const char *key_name, unsigned char *buf, int *len);
-extern int aml_lcd_unifykey_write(const char *key_name, unsigned char *buf, int len);
+int aml_lcd_unifykey_len_check(int key_len, int len);
+int aml_lcd_unifykey_header_check(unsigned char *buf,
+				  struct aml_lcd_unifykey_header_s *header);
+int aml_lcd_unifykey_check(const char *key_name);
+int aml_lcd_unifykey_get(const char *key_name, unsigned char *buf, int *len);
+int aml_lcd_unifykey_get_tcon(const char *key_name, unsigned char *buf, int *len);
+int aml_lcd_unifykey_check_no_header(const char *key_name);
+int aml_lcd_unifykey_get_no_header(const char *key_name, unsigned char *buf, int *len);
+int aml_lcd_unifykey_write(const char *key_name, unsigned char *buf, int len);
 
-extern void aml_lcd_unifykey_test(void);
-extern void aml_lcd_unifykey_tcon_test(int n);
-extern void aml_lcd_unifykey_dump(unsigned int flag);
+void aml_lcd_unifykey_test(void);
+void aml_lcd_unifykey_tcon_test(int n);
+void aml_lcd_unifykey_dump(unsigned int flag);
 
 #endif

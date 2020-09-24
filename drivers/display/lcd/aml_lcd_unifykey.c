@@ -120,6 +120,7 @@ lcd_unifykey_read:
 		}
 		if (retry_cnt < LCD_UKEY_RETRY_CNT_MAX) {
 			retry_cnt++;
+			memset(buf, 0, key_len);
 			goto lcd_unifykey_read;
 		} else {
 			LCDUKEYERR("%s: load unifykey failed\n", key_name);
@@ -135,6 +136,7 @@ lcd_unifykey_read:
 		}
 		if (retry_cnt < LCD_UKEY_RETRY_CNT_MAX) {
 			retry_cnt++;
+			memset(buf, 0, key_len);
 			goto lcd_unifykey_read;
 		} else {
 			LCDUKEYERR("%s: load unifykey failed\n", key_name);
@@ -142,7 +144,116 @@ lcd_unifykey_read:
 		}
 	}
 
+	free(buf);
 	return 0;
+}
+
+static int aml_lcd_unifykey_check_tcon(const char *key_name)
+{
+	ssize_t key_size;
+	int key_exist, isSecure, key_len, data_size;
+	unsigned char *buf;
+	int retry_cnt = 0;
+	uint32_t key_crc;
+	unsigned int key_crc32, raw_crc32;
+	int ret;
+
+	key_size = 0;
+	key_exist = 0;
+	ret = key_unify_query_exist(key_name, &key_exist);
+	if (ret) {
+		if (lcd_debug_print_flag)
+			LCDUKEYERR("%s query exist error\n", key_name);
+		return -1;
+	}
+	if (key_exist == 0) {
+		if (lcd_debug_print_flag)
+			LCDUKEYERR("%s is not exist\n", key_name);
+		return -1;
+	}
+	ret = key_unify_query_secure(key_name, &isSecure);
+	if (ret) {
+		LCDUKEYERR("%s query secure error\n", key_name);
+		return -1;
+	}
+	if (isSecure) {
+		LCDUKEYERR("%s is secure key\n", key_name);
+		return -1;
+	}
+	ret = key_unify_query_size(key_name, &key_size);
+	if (ret) {
+		LCDUKEYERR("%s query size error\n", key_name);
+		return -1;
+	}
+	key_len = (int)key_size;
+	if (key_len == 0) {
+		if (lcd_debug_print_flag)
+			LCDUKEY("%s size is zero\n", key_name);
+		return -1;
+	}
+	if (lcd_debug_print_flag)
+		LCDUKEY("%s size: %d\n", key_name, key_len);
+
+	buf = (unsigned char *)malloc(sizeof(unsigned char) * key_len);
+	if (!buf) {
+		LCDERR("%s: Not enough memory\n", __func__);
+		return -1;
+	}
+
+lcd_unifykey_tcon_read:
+	ret = key_unify_read(key_name, buf, key_len);
+	if (ret) {
+		LCDUKEYERR("%s unify read error\n", key_name);
+		goto lcd_unifykey_tcon_err;
+	}
+
+	/* check header */
+	if (key_len <= LCD_TCON_DATA_BLOCK_HEADER_SIZE) {
+		LCDUKEYERR("%s unify key_len %d error\n", key_name, key_len);
+		goto lcd_unifykey_tcon_err;
+	}
+	data_size = (buf[8] | (buf[9] << 8) |
+		     (buf[10] << 16) | (buf[11] << 24));
+	if (key_len != data_size) {  //length check
+		if (lcd_debug_print_flag) {
+			LCDUKEYERR("data_len %d is not match key_len %d\n",
+				   data_size, key_len);
+		}
+		if (retry_cnt < LCD_UKEY_RETRY_CNT_MAX) {
+			retry_cnt++;
+			memset(buf, 0, key_len);
+			goto lcd_unifykey_tcon_read;
+		}
+		LCDUKEYERR("%s: load unifykey failed\n", key_name);
+		goto lcd_unifykey_tcon_err;
+	}
+	raw_crc32 = (buf[0] | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24));
+	key_crc = crc32(0, &buf[4], (key_len - 4)); //except crc32
+	key_crc32 = (unsigned int)key_crc;
+	if (lcd_debug_print_flag) {
+		LCDUKEY("crc32: 0x%08x, header_crc32: 0x%08x\n",
+			key_crc32, raw_crc32);
+	}
+	if (key_crc32 != raw_crc32) {  //crc32 check
+		if (lcd_debug_print_flag) {
+			LCDUKEYERR("crc32 0x%08x is not match 0x%08x\n",
+				   raw_crc32, key_crc32);
+		}
+		if (retry_cnt < LCD_UKEY_RETRY_CNT_MAX) {
+			retry_cnt++;
+			memset(buf, 0, key_len);
+			goto lcd_unifykey_tcon_read;
+		}
+		LCDUKEYERR("%s: load unifykey failed\n", key_name);
+		goto lcd_unifykey_tcon_err;
+	}
+
+	free(buf);
+	return 0;
+
+lcd_unifykey_tcon_err:
+	free(buf);
+	return -1;
 }
 
 int aml_lcd_unifykey_get(const char *key_name, unsigned char *buf, int *len)
@@ -159,6 +270,33 @@ int aml_lcd_unifykey_get(const char *key_name, unsigned char *buf, int *len)
 	key_len = (int)key_size;
 	if (key_len > *len) {
 		LCDUKEYERR("%s size(%d) is bigger than buf_size(%d)\n",
+			key_name, key_len, *len);
+		return -1;
+	}
+	*len = key_len;
+
+	ret = key_unify_read(key_name, buf, key_len);
+	if (ret) {
+		LCDUKEYERR("%s unify read error\n", key_name);
+		return -1;
+	}
+	return 0;
+}
+
+int aml_lcd_unifykey_get_tcon(const char *key_name, unsigned char *buf, int *len)
+{
+	ssize_t key_size;
+	int key_len;
+	int ret;
+
+	key_size = 0;
+	ret = aml_lcd_unifykey_check_tcon(key_name);
+	if (ret)
+		return -1;
+	ret = key_unify_query_size(key_name, &key_size);
+	key_len = (int)key_size;
+	if (key_len > *len) {
+		LCDUKEYERR("%s size(0x%x) is bigger than buf_size(0x%x)\n",
 			key_name, key_len, *len);
 		return -1;
 	}
@@ -910,6 +1048,12 @@ int aml_lcd_unifykey_check(const char *key_name)
 }
 
 int aml_lcd_unifykey_get(const char *key_name, unsigned char *buf, int *len)
+{
+	LCDUKEYERR("Don't support unifykey\n");
+	return -1;
+}
+
+int aml_lcd_unifykey_get_tcon(const char *key_name, unsigned char *buf, int *len)
 {
 	LCDUKEYERR("Don't support unifykey\n");
 	return -1;

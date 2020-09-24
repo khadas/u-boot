@@ -32,7 +32,7 @@ Description:
 #define CC_MAX_INI_FILE_SIZE             (0x400000)
 
 #define CC_MAX_DATA_SIZE                 (0x300000)
-#define CC_MAX_TCON_BIN_SIZE             (0x5dc0)  /* max:24000 */
+#define CC_MAX_TCON_BIN_SIZE             (0xf000)  /* max:24000 */
 #define CC_MAX_TCON_VAC_SIZE             (0x1000)
 #define CC_MAX_TCON_DEMURA_SET_SIZE      (0x1000)
 #define CC_MAX_TCON_DEMURA_LUT_SIZE      (0x120000)
