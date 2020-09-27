@@ -1,6 +1,5 @@
-
 /*
- * arch/arm/include/asm/arch-txl/timing.h
+ * plat/t5/include/timing.h
  *
  * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
  *
@@ -21,15 +20,8 @@
 
 #ifndef __AML_TIMING_H_
 #define __AML_TIMING_H_
-
 #include <asm/arch/ddr_define.h>
-#include <asm/arch/types.h>
-#include <asm/arch/mnPmuSramMsgBlock_ddr3.h>
-#include <asm/arch/mnPmuSramMsgBlock_ddr4.h>
-#include <asm/arch/mnPmuSramMsgBlock_ddr4_2d.h>
-#include <asm/arch/mnPmuSramMsgBlock_lpddr3.h>
-#include <asm/arch/mnPmuSramMsgBlock_lpddr4.h>
-#include <asm/arch/mnPmuSramMsgBlock_lpddr4_2d.h>
+
 
 #define BL2_INIT_STAGE_0			0
 #define BL2_INIT_STAGE_1			1
@@ -41,6 +33,11 @@
 #define BL2_INIT_STAGE_7			7
 #define BL2_INIT_STAGE_8			8
 #define BL2_INIT_STAGE_9			9
+
+#define BL2_INIT_STAGE_PWM_PRE_INIT		0x81
+#define BL2_INIT_STAGE_PWM_CHK_HW		0x82
+#define BL2_INIT_STAGE_PWM_CFG_GROUP	0x83
+#define BL2_INIT_STAGE_PWM_INIT			0xC0
 
 typedef struct bl2_reg {
 	unsigned	int		reg;
@@ -181,220 +178,151 @@ typedef struct ddr_timing{
 	#endif
 }__attribute__ ((packed)) ddr_timing_t;
 
-typedef struct ddr_phy_common_extra_set{
-	unsigned	short	csr_pllctrl3;
-	unsigned	short	csr_pptctlstatic[4];
-	unsigned	short	csr_trainingincdecdtsmen[4];
-	unsigned	short	csr_tsmbyte0[4];
-	unsigned	short	csr_hwtcamode;
-	unsigned	short	csr_hwtlpcsena;
-	unsigned	short	csr_hwtlpcsenb;
-	unsigned	short	csr_acsmctrl13;
-	unsigned	short	csr_acsmctrl23;
-	unsigned	char	csr_soc_vref_dac1_dfe[36];
-}__attribute__ ((packed)) ddr_phy_common_extra_set_t;
-
-typedef struct retraining_set{
-	ddr_phy_common_extra_set_t cfg_ddr_phy_common_extra_set_t;
-	training_delay_set_ps_t	cfg_ddr_training_delay_ps;
-}__attribute__ ((packed)) retraining_set_t;
-
-typedef struct ddr_set{
-	unsigned	int		magic;
-	unsigned	char	fast_boot[4];// 0   fastboot enable  1 window test margin  2 auto offset after window test 3 auto window test
-	//unsigned	int		rsv_int0;
+typedef struct board_common_setting
+{
+	unsigned	int		timming_magic;
+	unsigned	short	timming_max_valid_configs;
+	unsigned	short	timming_struct_version;
+	unsigned	short	timming_struct_org_size;
+	unsigned	short	timming_struct_real_size;
+	unsigned	char	fast_boot[4];// 0   fastboot enable  1 window test margin  2 auto offset after window test 3 auto window test enable
 	unsigned	int		ddr_func;
 	unsigned	char	board_id;
-	//board id reserve,,do not modify
-	unsigned	char	version;
-	// firmware reserve version,,do not modify
 	unsigned	char	DramType;
-	//support DramType should confirm with amlogic
-	//#define CONFIG_DDR_TYPE_DDR3				0
-	//#define CONFIG_DDR_TYPE_DDR4				1
-	//#define CONFIG_DDR_TYPE_LPDDR4				2
-	//#define CONFIG_DDR_TYPE_LPDDR3				3
-	//#define CONFIG_DDR_TYPE_LPDDR2				4
-	unsigned	char	DisabledDbyte;
-	//use for dram bus 16bit or 32bit,if use 16bit mode ,should disable bit 2,3
-	//bit 0 ---use byte 0 ,1 disable byte 0,
-	//bit 1 ---use byte 1 ,1 disable byte 1,
-	//bit 2 ---use byte 2 ,1 disable byte 2,
-	//bit 3 ---use byte 3 ,1 disable byte 3,
-	unsigned	char	Is2Ttiming;
-	//ddr3/ddr3 use 2t timing,now only support 2t timming
-	unsigned	char	HdtCtrl;
-	//training information control,do not modify
 	unsigned	char	dram_rank_config;
-	//support Dram connection type should confirm with amlogic
-	//#define CONFIG_DDR0_16BIT_CH0				0x1  //dram total bus width 16bit only use cs0
-	//#define CONFIG_DDR0_16BIT_RANK01_CH0		0x4  //dram total bus width 16bit  use cs0 cs1
-	//#define CONFIG_DDR0_32BIT_RANK0_CH0			0x2  //dram total bus width 32bit  use cs0
-	//#define CONFIG_DDR0_32BIT_RANK01_CH01		0x3    //only for lpddr4,dram total bus width 32bit  use chanel a cs0 cs1 chanel b cs0 cs1
-	//#define CONFIG_DDR0_32BIT_16BIT_RANK0_CH0		0x5    //dram total bus width 32bit only use cs0,but high address use 16bit mode
-	//#define CONFIG_DDR0_32BIT_16BIT_RANK01_CH0	0x6   //dram total bus width 32bit  use cs0 cs1,but cs1 use 16bit mode ,current phy not support reserve
-	//#define CONFIG_DDR0_32BIT_RANK01_CH0		0x7       //dram total bus width 32bit  use cs0 cs1
-	//#define CONFIG_DDR0_32BIT_RANK0_CH01		0x8     //only for lpddr4,dram total bus width 32bit  use chanel a cs0  chanel b cs0
-
-	/* rsv_char0. update for diagnose type define */
-	unsigned	char	diagnose;
-
-	unsigned	short	soc_data_drv_ohm_ps1;
-	unsigned	short	dram_data_drv_ohm_ps1;
-	unsigned	short	soc_data_odt_ohm_ps1;
-	unsigned	short	dram_data_odt_ohm_ps1;
-	unsigned	short	dram_data_wr_odt_ohm_ps1;
-	#if 0
-	/* imem/dmem define */
-	unsigned	int		imem_load_addr;
-	//system reserve,do not modify
-	unsigned	int		dmem_load_addr;
-	//system reserve,do not modify
-	unsigned	short	imem_load_size;
-	#endif
-	//system reserve,do not modify
-	unsigned	short	dmem_load_size;
-	//system reserve,do not modify
-	unsigned	int		ddr_base_addr;
-	//system reserve,do not modify
-	unsigned	int		ddr_start_offset;
-	//system reserve,do not modify
-
+	unsigned	char	DisabledDbyte;
+	unsigned	int		dram_cs0_base_add;
+	unsigned	int		dram_cs1_base_add;
 	unsigned	short	dram_cs0_size_MB;
-	//config cs0 dram size ,like 1G DRAM ,setting 1024
 	unsigned	short	dram_cs1_size_MB;
-	//config cs1 dram size,like 512M DRAM ,setting 512
-	/* align8 */
-
-	unsigned	short	training_SequenceCtrl[2];
-	//system reserve,do not modify
-	unsigned	char	phy_odt_config_rank[2];
-	//unsigned	char	 rever1;
-	//unsigned	char	 rever2;
-	unsigned	short	rank1_ca_vref_permil;
-	//training odt config ,only use for training
-	// [0]Odt pattern for accesses targeting rank 0. [3:0] is used for write ODT [7:4] is used for read ODT
-	// [1]Odt pattern for accesses targeting rank 1. [3:0] is used for write ODT [7:4] is used for read ODT
-	unsigned	int		dfi_odt_config;
-	//normal go status od config,use for normal status
-	//bit 12.  rank1 ODT default. default vulue for ODT[1] pins if theres no read/write activity.
-	//bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
-	//bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
-	//bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
-	//bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occure in rank0.
-	//bit 4.   rank0 ODT default.    default vulue for ODT[0] pins if theres no read/write activity.
-	//bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
-	//bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
-	//bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
-	//bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occure in rank1.
-	unsigned	short	DRAMFreq[4];
-	//config dram frequency,use DRAMFreq[0],ohter reserve
-	unsigned	char	PllBypassEn;
-	//system reserve,do not modify
+	unsigned	char	dram_x4x8x16_mode;
+	unsigned	char	Is2Ttiming;
+	unsigned	char	log_level;
 	unsigned	char	ddr_rdbi_wr_enable;
-	//system reserve,do not modify
-	unsigned	char	ddr_rfc_type;
-	//config dram rfc type,according dram type,also can use same dram type max config
-	//#define DDR_RFC_TYPE_DDR3_512Mbx1				0
-	//#define DDR_RFC_TYPE_DDR3_512Mbx2				1
-	//#define DDR_RFC_TYPE_DDR3_512Mbx4				2
-	//#define DDR_RFC_TYPE_DDR3_512Mbx8				3
-	//#define DDR_RFC_TYPE_DDR3_512Mbx16				4
-	//#define DDR_RFC_TYPE_DDR4_2Gbx1					5
-	//#define DDR_RFC_TYPE_DDR4_2Gbx2					6
-	//#define DDR_RFC_TYPE_DDR4_2Gbx4					7
-	//#define DDR_RFC_TYPE_DDR4_2Gbx8					8
-	//#define DDR_RFC_TYPE_LPDDR4_2Gbx1				9
-	//#define DDR_RFC_TYPE_LPDDR4_3Gbx1				10
-	//#define DDR_RFC_TYPE_LPDDR4_4Gbx1				11
-	unsigned	char	enable_lpddr4x_mode;
-	//system reserve,do not modify
-	/* align8 */
-
 	unsigned	int		pll_ssc_mode;
-	//
-	/* pll ssc config:
-	 *
-	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
-	 *      ppm = strength * 500
-	 *      mode: 0=center, 1=up, 2=down
-	 *
-	 *   eg:
-	 *     1. config 1000ppm center ss. then mode=0, strength=2
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
-	 *     2. config 3000ppm down ss. then mode=2, strength=6
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
-	 */
-	unsigned	short	clk_drv_ohm;
-	//config soc clk pin signal driver stength ,select 20,30,40,60ohm
-	unsigned	short	cs_drv_ohm;
-	//config soc cs0 cs1 pin signal driver stength ,select 20,30,40,60ohm
-	unsigned	short	ac_drv_ohm;
-	//config soc  normal address command pin driver stength ,select 20,30,40,60ohm
-	unsigned	short	soc_data_drv_ohm_p;
-	//config soc data pin pull up driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
-	unsigned	short	soc_data_drv_ohm_n;
-	//config soc data pin pull down driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
-	unsigned	short	soc_data_odt_ohm_p;
-	//config soc data pin odt pull up stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
-	unsigned	short	soc_data_odt_ohm_n;
-	//config soc data pin odt pull down stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
-	unsigned	short	dram_data_drv_ohm;
-	//config dram data pin pull up pull down driver stength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
-	unsigned	short	dram_data_odt_ohm;
-	//config dram data pin odt pull up down stength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
-	unsigned	short	dram_ac_odt_ohm;
-	//config dram ac pin odt pull up down stength,use for lpddr4, select 40,48,60,80,120,240ohm
-	unsigned	short	soc_clk_slew_rate;
-	//system reserve,do not modify
-	unsigned	short	soc_cs_slew_rate;
-	//system reserve,do not modify
-	unsigned	short	soc_ac_slew_rate;
-	//system reserve,do not modify
-	unsigned	short	soc_data_slew_rate;
-	//system reserve,do not modify
-	unsigned	short	vref_output_permil; //phy
-	//setting same with vref_dram_permil
-	unsigned	short	vref_receiver_permil; //soc
-	//soc init SOC receiver vref ,config like 500 means 0.5VDDQ,take care ,please follow SI
-	unsigned	short	vref_dram_permil;
-	//soc init DRAM receiver vref ,config like 500 means 0.5VDDQ,take care ,please follow SI
-	unsigned	short	max_core_timmming_frequency;
-	//use for limited ddr speed core timmming parameter,for some old dram maybe have no over speed register
-	/* align8 */
-
-	unsigned	char	ac_trace_delay[10];
-	unsigned	char	lpddr4_dram_vout_voltage_1_3_2_5_setting;
-	//use for lpddr4 read vout voltage  setting 0 --->2/5VDDQ ,1--->1/3VDDQ
-	unsigned	char	lpddr4_x8_mode;
-	unsigned	char	slt_test_function[2];  //[0] slt test function enable,bit 0 enable 4 frequency scan,bit 1 enable force delay line offset ,bit 7 enable skip training function
-	//[1],slt test parameter ,use for force delay line offset
-	//system reserve,do not modify
-	unsigned	short	tdqs2dq;
-	unsigned	char	dram_data_wr_odt_ohm;
-	unsigned	char	bitTimeControl_2d;
-	//system reserve,do not modify
-	/* align8 */
-    unsigned	char	char_rev1;
-	unsigned	char	training_offset;//char_rev2;
+	unsigned	short	org_tdqs2dq;
+	unsigned	char	reserve1_test_function[2];
 	unsigned	int		ddr_dmc_remap[5];
-	unsigned	int		dram_rtt_nom_wr_park[2];
-	//system reserve,do not modify
-	/* align8 */
-	unsigned	char	ddr_lpddr34_ca_remap[4];
-	////use for lpddr3 /lpddr4 ca training data byte lane remap
-	unsigned	char	ddr_lpddr34_dq_remap[32];
-	////use for lpddr3 /lpddr4 ca pinmux remap
-	unsigned	char	ac_pinmux[DWC_AC_PINMUX_TOTAL];
-	//use for lpddr3 /lpddr4 ca pinmux remap
-	unsigned	char	dfi_pinmux[DWC_DFI_PINMUX_TOTAL];
-	unsigned	char	char_rev3;
-	unsigned	char	char_rev4;
-	ddr_phy_common_extra_set_t cfg_ddr_phy_common_extra_set_t;
-	training_delay_set_ps_t	cfg_ddr_training_delay_ps[2];
+	unsigned	char	ac_pinmux[35];
+	unsigned	char	ddr_dqs_swap;
+	unsigned	char	ddr_dq_remap[36];
+	unsigned	int		ddr_vddee_setting[4];//add,default-value,default-voltage,step
+}__attribute__ ((packed)) board_common_setting_t;
 
-	//override read bit delay
+typedef struct board_SI_setting_ps
+{
+	unsigned	short	DRAMFreq;
+	unsigned	char	PllBypassEn;
+	unsigned	char	training_SequenceCtrl;
+	unsigned	short	ddr_odt_config;
+	unsigned	char	clk_drv_ohm;
+	unsigned	char	cs_drv_ohm;
+	unsigned	char	ac_drv_ohm;
+	unsigned	char	soc_data_drv_ohm_p;
+	unsigned	char	soc_data_drv_ohm_n;
+	unsigned	char	soc_data_odt_ohm_p;
+	unsigned	char	soc_data_odt_ohm_n;
+	unsigned	char	dram_data_drv_ohm;
+	unsigned	char	dram_data_odt_ohm;
+	unsigned	char	dram_data_wr_odt_ohm;
+	unsigned	char	dram_ac_odt_ohm;
+	unsigned	char	dram_data_drv_pull_up_calibration_ohm;
+	unsigned	char	lpddr4_dram_vout_voltage_range_setting;
+	unsigned	char	reserve2;
+	unsigned	short	vref_ac_permil; //phy
+	unsigned	short	vref_soc_data_permil; //soc
+	unsigned	short	vref_dram_data_permil;
+	unsigned	short	max_core_timmming_frequency;
+	unsigned	short	training_phase_parameter[2];
+	unsigned	short	ac_trace_delay_org[36];
+}__attribute__ ((packed)) board_SI_setting_ps_t;
+
+typedef struct board_phase_setting_ps
+{
+	unsigned	short	ac_trace_delay[36];
+	unsigned	short	write_dqs_delay[8];
+	unsigned	short	write_dq_bit_delay[72];
+	unsigned	short	read_dqs_gate_delay[8];
+	unsigned	char	read_dqs_delay[8];
+	unsigned	char	read_dq_bit_delay[72];
+	unsigned	char	soc_bit_vref[44];
+	unsigned	char	dram_bit_vref[36];
+	unsigned	char	reserve_training_parameter[16];//0-7 read dqs offset,8-15 write dqs offset,MSB bit 7 use 0 mean right offset
+}__attribute__ ((packed)) board_phase_setting_ps_t;
+
+typedef struct ddr_set
+{
+	board_common_setting_t		cfg_board_common_setting	;
+	board_SI_setting_ps_t		cfg_board_SI_setting_ps[2]	;
+	board_phase_setting_ps_t	cfg_ddr_training_delay_ps[2]	;
 }__attribute__ ((packed)) ddr_set_t;
+
+#define DDR_FW_TOTAL_OFFSET		0
+#define DDR_FW_TOTAL_SIZE		2
+#define DDR_FW_TOTAL_VERSION		3
+#define DDR_FW_BIN_OFFSET		4
+#define DDR_FW_BIN_SIZE		6
+#define DDR_FW_VERSION	7
+#define DDR_ACS_BIN_OFFSET		8
+#define DDR_ACS_BIN_SIZE		10
+#define DDR_ACS_VERSION		11
+#define DDR_FAST_BOOT_DATA_OFFSET		12
+#define DDR_FAST_BOOT_DATA_SIZE		14
+#define DDR_FAST_BOOT_DATA_VERSION		15
+#define DDR_STICKY_REG_ADD_OFFSET		16
+#define DDR_STICKY_REG_SIZE_OFFSET		18
+#define DDR_STICKY_REG_VERSION_OFFSET		19
+
+//#define DDR_FW_HEAD_SIZE		(32<<2)//>96
+//#define DDR_BL2_DDR_FW_HEAD_SIZE					256
+typedef struct ddr_fw_head_struct{
+
+	unsigned int 	ddr_all_fw_add;
+	unsigned int 	ddr_all_fw_size;
+	unsigned int 	ddr_all_fw_version;
+
+	unsigned int 	ddr_fw_add;
+	unsigned int 	ddr_fw_size;
+	unsigned int 	ddr_fw_version;
+
+	unsigned int 	ddr_acs_bin_add;
+	unsigned int 	ddr_acs_bin_size;
+	unsigned int 	ddr_acs_bin_version;
+
+	unsigned int 	ddr_fast_boot_data_add;
+	unsigned int 	ddr_fast_boot_data_size;
+	unsigned int 	ddr_fast_boot_data_version;
+
+	unsigned int 	ddr_sticky_add;
+	unsigned int 	ddr_sticky_size;
+	unsigned int 	ddr_sticky_version;
+
+	//void (*log_info)(log_chl chl,const char *fmt, ...);
+	int (*serial_puts)(const char *s);
+	void (*serial_put_hex)(unsigned long data, int bitlen);
+	void (*ddr_init_return)(void);
+
+	unsigned int	 ddr_bl2_ddr_fw_mail_message[12];
+
+} ddr_fw_head_struct_t;
+
+typedef struct pll_ctrl {
+	unsigned short 	delay_u;
+	unsigned short 	flag;
+	unsigned int 	clkset;
+	unsigned int	pll_para[10];
+	unsigned int 	reserve;
+
+}__attribute__ ((packed)) pll_ctrl_t;
+
+typedef struct pll_set_new {
+	pll_ctrl_t		sys_pll_ctrl;
+	pll_ctrl_t		fix_pll_cntl;
+	pll_ctrl_t		gp0_pll_cntl;
+	pll_ctrl_t		gp1_pll_cntl;
+	pll_ctrl_t		hifi_pll_cntl;
+
+}__attribute__ ((packed)) pll_set_t_new;
 
 typedef struct pll_set{
 	unsigned	short	cpu_clk;
@@ -404,12 +332,12 @@ typedef struct pll_set{
 	unsigned	short	vcck;
 	unsigned	char	szPad[4];
 
-	unsigned	long	lCustomerID;
-	unsigned	char	debug_mode;
-	unsigned	char	log_chl;
-	unsigned	char	log_ctrl;
-	unsigned	char	ddr_timming_save_mode;
-	unsigned	int		nCFGTAddr;
+	unsigned	long long	lCustomerID;
+	unsigned	char		debug_mode;
+	unsigned	char		log_chl;
+	unsigned	char		log_ctrl;
+	unsigned	char		ddr_timming_save_mode;
+	unsigned	int			nCFGTAddr;
 	/* align 8Byte */
 
 	unsigned	int		sys_pll_cntl[8];
@@ -417,13 +345,9 @@ typedef struct pll_set{
 	unsigned	int		fix_pll_cntl[8];
 }__attribute__ ((packed)) pll_set_t;
 
-typedef struct dmem_cfg {
-	PMU_SMB_DDR3U_1D_t ddr3u;
-	PMU_SMB_DDR4U_1D_t ddr4u;
-	PMU_SMB_DDR4U_2D_t ddr4u_2d;
-	PMU_SMB_LPDDR3_1D_t lpddr3u;
-	PMU_SMB_LPDDR4_1D_t lpddr4u;
-	PMU_SMB_LPDDR4_2D_t lpddr4u_2d;
-} dmem_cfg_t;
+typedef struct dwc_apb {
+	unsigned int      addr;
+	unsigned short    val;
+} dwc_apb_t;
 
 #endif //__AML_TIMING_H_
