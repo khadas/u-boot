@@ -41,6 +41,7 @@ enum hdr_process_sel {
 	SDR_HLG = 0X40,
 	HDRPLUS_SDR = 0x80,
 	HDR_OFF = 0x100,
+	RGB_BYPASS = 0x200,
 	HDR_p_MAX
 };
 
