@@ -515,13 +515,11 @@ static void set_enci_div(unsigned div)
  */
 /* For colordepth 8bits */
 static struct hw_enc_clk_val_group setting_enc_clk_val_24[] = {
-	{{HDMI_720x480i60_16x9,
-	  HDMI_720x576i50_16x9,
-	  GROUP_END},
+	{{HDMI_720x480i60_4x3, HDMI_720x480i60_16x9,
+	  HDMI_720x576i50_4x3, HDMI_720x576i50_16x9, GROUP_END},
 		1, VIU_ENCI, 4324320, 4, 4, 1, VID_PLL_DIV_5, 1, 2, -1, 2},
-	{{HDMI_720x576p50_16x9,
-	  HDMI_720x480p60_16x9,
-	  GROUP_END},
+	{{HDMI_720x576p50_4x3, HDMI_720x576p50_16x9,
+	  HDMI_720x480p60_4x3, HDMI_720x480p60_16x9, GROUP_END},
 		1, VIU_ENCP, 4324320, 4, 4, 1, VID_PLL_DIV_5, 1, 2, 2, -1},
 	{{HDMI_720x576p100_16x9,
 	  HDMI_720x480p120_16x9,
@@ -651,13 +649,11 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_24[] = {
 
 /* For colordepth 10bits */
 static struct hw_enc_clk_val_group setting_enc_clk_val_30[] = {
-	{{HDMI_720x480i60_16x9,
-	  HDMI_720x576i50_16x9,
-	  GROUP_END},
+	{{HDMI_720x480i60_4x3, HDMI_720x480i60_16x9,
+	  HDMI_720x576i50_4x3, HDMI_720x576i50_16x9, GROUP_END},
 		1, VIU_ENCI, 5405400, 4, 4, 1, VID_PLL_DIV_6p25, 1, 2, -1, 2},
-	{{HDMI_720x576p50_16x9,
-	  HDMI_720x480p60_16x9,
-	  GROUP_END},
+	{{HDMI_720x576p50_4x3, HDMI_720x576p50_16x9,
+	  HDMI_720x480p60_4x3, HDMI_720x480p60_16x9, GROUP_END},
 		1, VIU_ENCP, 5405400, 4, 4, 1, VID_PLL_DIV_6p25, 1, 2, 2, -1},
 	{{HDMI_720x576p100_16x9,
 	  HDMI_720x480p120_16x9,
@@ -708,13 +704,11 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_30[] = {
 
 /* For colordepth 12bits */
 static struct hw_enc_clk_val_group setting_enc_clk_val_36[] = {
-	{{HDMI_720x480i60_16x9,
-	  HDMI_720x576i50_16x9,
-	  GROUP_END},
+	{{HDMI_720x480i60_4x3, HDMI_720x480i60_16x9,
+	  HDMI_720x576i50_4x3, HDMI_720x576i50_16x9, GROUP_END},
 		1, VIU_ENCI, 3243240, 2, 4, 1, VID_PLL_DIV_7p5, 1, 2, -1, 2},
-	{{HDMI_720x576p50_16x9,
-	  HDMI_720x480p60_16x9,
-	  GROUP_END},
+	{{HDMI_720x576p50_4x3, HDMI_720x576p50_16x9,
+	  HDMI_720x480p60_4x3, HDMI_720x480p60_16x9, GROUP_END},
 		1, VIU_ENCP, 3243240, 2, 4, 1, VID_PLL_DIV_7p5, 1, 2, 2, -1},
 	{{HDMI_720x576p100_16x9,
 	  HDMI_720x480p120_16x9,
@@ -772,6 +766,8 @@ static void set_hdmitx_fe_clk(struct hdmitx_dev *hdev)
 	switch (vic) {
 	case HDMI_720x480i60_16x9:
 	case HDMI_720x576i50_16x9:
+	case HDMI_720x480i60_4x3:
+	case HDMI_720x576i50_4x3:
 		tmp = (hd_read_reg(P_CLKCTRL_VID_CLK_DIV) >> 28) & 0xf;
 		break;
 	default:

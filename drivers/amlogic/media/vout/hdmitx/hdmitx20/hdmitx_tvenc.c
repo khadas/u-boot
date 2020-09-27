@@ -1321,12 +1321,16 @@ struct vic_tvregs_set {
 /* Using HDMI VIC as index */
 static struct vic_tvregs_set tvregsTab[] = {
 	{HDMI_720x480i60_16x9, tvregs_480i},
+	{HDMI_720x480i60_4x3, tvregs_480i},
 	{HDMI_2880x480i60_16x9, tvregs_480i},
 	{HDMI_720x480p60_16x9, tvregs_480p},
+	{HDMI_720x480p60_4x3, tvregs_480p},
 	{HDMI_2880x240p60_16x9, tvregs_480p},
 	{HDMI_720x576i50_16x9, tvregs_576i},
+	{HDMI_720x576i50_4x3, tvregs_576i},
 	{HDMI_2880x576i50_16x9, tvregs_576i},
 	{HDMI_720x576p50_16x9, tvregs_576p},
+	{HDMI_720x576p50_4x3, tvregs_576p},
 	{HDMI_2880x576p50_16x9, tvregs_576p},
 	{HDMI_1280x720p60_16x9, tvregs_720p},
 	{HDMI_1920x1080i60_16x9, tvregs_1080i},
