@@ -21,6 +21,6 @@ config SYS_CONFIG_NAME
 
 config BL30_SELECT
 	string "T5 BL30 board config"
-	default "t5_skt"
+	default "t5_ak301_v1"
 
 endif
