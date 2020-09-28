@@ -89,8 +89,9 @@
         "upgrade_step=0\0"\
         "jtag=disable\0"\
         "loadaddr=1080000\0"\
-        "model_name=FHD\0" \
+        "model_name=FHD2HDMI\0" \
         "panel_type=lvds_1\0" \
+        "lcd_ctrl=0x00000000\0" \
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
@@ -124,7 +125,7 @@
         "active_slot=normal\0"\
         "boot_part=boot\0"\
         "suspend=off\0"\
-        "powermode=standby\0"\
+        "powermode=on\0"\
         "ffv_wake=off\0"\
         "ffv_freeze=off\0"\
         "edid_14_dir=/odm/etc/tvconfig/hdmi/port_14.bin\0" \
@@ -231,7 +232,11 @@
             "fi;"\
             "\0" \
         "storeboot="\
-            "boot_cooling;"\
+            "if test ${reboot_mode} = normal; then "\
+            "else if test ${reboot_mode} = cold_boot; then "\
+            "else "\
+                "boot_cooling;"\
+            "fi;fi;"\
             "get_system_as_root_mode;"\
             "echo system_mode: ${system_mode};"\
             "if test ${system_mode} = 1; then "\
@@ -367,6 +372,9 @@
                 "if keyman read deviceid ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
                 "fi;"\
+                "if keyman read oemkey ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} androidboot.oem.key1=${oemkey};"\
+                "fi;"\
             "fi;"\
             "\0"\
         "bcb_cmd="\
@@ -389,9 +397,16 @@
 		"fi;\0" \
 
 #define CONFIG_PREBOOT  \
-	"run init_display;"\
+	"run bcb_cmd; "\
+	"run factory_reset_poweroff_protect;"\
+	"run upgrade_check;"\
+	/* "run init_display;"\ */\
+	"run check_display;"\
 	"run storeargs;"\
-	"bcb uboot-command;"
+	"bcb uboot-command;"\
+	"run switch_bootmode;"\
+	"run reset_suspend;"
+
 
 #define CONFIG_BOOTCOMMAND "run storeboot"
 
@@ -604,14 +619,14 @@
 #define USB_PHY2_PLL_PARAMETER_3	0xAC5F69E5
 
 //UBOOT fastboot config
-//#define CONFIG_CMD_FASTBOOT 1
-//#define CONFIG_FASTBOOT_FLASH_MMC_DEV 1
-//#define CONFIG_FASTBOOT_FLASH 1
+#define CONFIG_CMD_FASTBOOT 1
+#define CONFIG_FASTBOOT_FLASH_MMC_DEV 1
+#define CONFIG_FASTBOOT_FLASH 1
 #define CONFIG_USB_GADGET 1
 #define CONFIG_USBDOWNLOAD_GADGET 1
 #define CONFIG_SYS_CACHELINE_SIZE 64
-//#define CONFIG_FASTBOOT_MAX_DOWN_SIZE	0x8000000
-//#define CONFIG_DEVICE_PRODUCT	"t962x3_ab301"
+#define CONFIG_FASTBOOT_MAX_DOWN_SIZE	0x8000000
+#define CONFIG_DEVICE_PRODUCT	"t9623_ak329"
 
 //UBOOT Facotry usb/sdcard burning config
 #define CONFIG_AML_V2_FACTORY_BURN              1       //support facotry usb burning
