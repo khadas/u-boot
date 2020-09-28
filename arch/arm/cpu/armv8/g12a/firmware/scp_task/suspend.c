@@ -51,9 +51,19 @@ void suspend_get_wakeup_source(void *response, unsigned int suspend_from)
  * 1: suspend
  * 0: power off
 */
+extern void yk618_power_off(void);
 void enter_suspend(unsigned int suspend_from)
 {
 	int exit_reason = UDEFINED_WAKEUP;
+
+	if (suspend_from == 0)
+	{
+		uart_puts("power down");
+		uart_puts("\n");
+		yk618_power_off();
+		return;
+	}
+
 	#ifdef CONFIG_CEC_WAKEUP
 		hdmi_cec_func_config = readl(P_AO_DEBUG_REG0) & 0xff;
 		uart_puts(CEC_VERSION);

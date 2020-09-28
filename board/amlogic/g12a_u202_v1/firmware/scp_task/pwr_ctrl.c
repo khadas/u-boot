@@ -27,6 +27,7 @@
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
+#ifndef CONFIG_SYS_I2C_YK618
 static void set_vddee_voltage(unsigned int target_voltage)
 {
 	unsigned int to, pwm_size = 0;
@@ -60,6 +61,7 @@ static void set_vddee_voltage(unsigned int target_voltage)
 
 	writel(*(*(pwm_voltage_ee + to)), AO_PWM_PWM_B);
 }
+#endif
 
 static void power_off_at_24M(unsigned int suspend_from)
 {
@@ -72,15 +74,29 @@ static void power_off_at_24M(unsigned int suspend_from)
 	writel(readl(AO_GPIO_O_EN_N) & (~(1 << 31)), AO_GPIO_O_EN_N);
 	writel(readl(AO_RTI_PIN_MUX_REG1) & (~(0xf << 28)), AO_RTI_PIN_MUX_REG1);
 
+	#ifdef CONFIG_SYS_I2C_YK618
+	_udelay(1000);
+	yk618_set_dcdc3_volt(CONFIG_DCDC3_SLEEP_VOLTAGE);
+	_udelay(1000);
+	yk618_enable_dcdc_x(2, 0);
+	#else
 	/*step down ee voltage*/
 	set_vddee_voltage(CONFIG_VDDEE_SLEEP_VOLTAGE);
+	#endif
 }
 
 static void power_on_at_24M(unsigned int suspend_from)
 {
+	#ifdef CONFIG_SYS_I2C_YK618
+	_udelay(1000);
+	yk618_enable_dcdc_x(2, 1);
+	_udelay(1000);
+	yk618_set_dcdc3_volt(CONFIG_DCDC3_INIT_VOLTAGE);
+	_udelay(1000);
+	#else
 	/*step up ee voltage*/
 	set_vddee_voltage(CONFIG_VDDEE_INIT_VOLTAGE);
-
+	#endif
 	/*set test_n low to power on vcck & vcc 3.3v*/
 	writel(readl(AO_GPIO_O) | (1 << 31), AO_GPIO_O);
 	writel(readl(AO_GPIO_O_EN_N) & (~(1 << 31)), AO_GPIO_O_EN_N);
@@ -145,7 +161,8 @@ static unsigned int detect_key(unsigned int suspend_from)
 {
 	int exit_reason = 0;
 	unsigned *irq = (unsigned *)WAKEUP_SRC_IRQ_ADDR_BASE;
-	init_remote();
+
+//	init_remote();
 #ifdef CONFIG_CEC_WAKEUP
 		if (hdmi_cec_func_config & 0x1) {
 			remote_cec_hw_reset();
@@ -161,16 +178,16 @@ static unsigned int detect_key(unsigned int suspend_from)
 				exit_reason = CEC_WAKEUP;
 		}
 		#endif
-		if (irq[IRQ_AO_IR_DEC] == IRQ_AO_IR_DEC_NUM) {
+/*		if (irq[IRQ_AO_IR_DEC] == IRQ_AO_IR_DEC_NUM) {
 			irq[IRQ_AO_IR_DEC] = 0xFFFFFFFF;
 			if (remote_detect_key())
 				exit_reason = REMOTE_WAKEUP;
 		}
-
-		if (irq[IRQ_VRTC] == IRQ_VRTC_NUM) {
+*/
+	/*	if (irq[IRQ_VRTC] == IRQ_VRTC_NUM) {
 			irq[IRQ_VRTC] = 0xFFFFFFFF;
 			exit_reason = RTC_WAKEUP;
-		}
+		}*/
 
 		if (irq[IRQ_AO_GPIO0] == IRQ_AO_GPIO0_NUM) {
 			irq[IRQ_AO_GPIO0] = 0xFFFFFFFF;
@@ -209,6 +226,9 @@ static unsigned int detect_key(unsigned int suspend_from)
 
 static void pwr_op_init(struct pwr_op *pwr_op)
 {
+	#ifdef CONFIG_SYS_I2C_YK618
+	hard_i2c_init();
+	#endif
 	pwr_op->power_off_at_24M = power_off_at_24M;
 	pwr_op->power_on_at_24M = power_on_at_24M;
 	pwr_op->detect_key = detect_key;

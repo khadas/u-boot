@@ -42,7 +42,7 @@ typedef struct remote_pwrkeys {
 
 remote_pwrkeys_t pwr_keys_list;
 unsigned int usr_pwr_key = 0xffffffff;
-
+#if 0
 //24M
 static const reg_remote RDECODEMODE_NEC[] = {
 	{AO_MF_IR_DEC_LDR_ACTIVE, 500 << 16 | 400 << 0},
@@ -358,3 +358,4 @@ static int remote_detect_key(void)
 	return 0;
 
 }
+#endif

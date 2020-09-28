@@ -59,6 +59,7 @@
 #ifdef CONFIG_AML_SPIFC
 #include <amlogic/spifc.h>
 #endif
+#include <yk618.h>
 #include <asm/arch/timer.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -363,32 +364,45 @@ static void board_i2c_set_pinmux(void){
 	udelay(10);
 };
 #endif
+#define MESON_I2C_MASTER_AO_PIN_MUX_REG1	((volatile uint32_t *)(0xff800000 + (0x06 << 2)))
+#define MESON_I2C_MASTER_AO_SCL_PIN_BIT		(1<<18)
+#define MESON_I2C_MASTER_AO_SDA_PIN_BIT		(1<<22)
+
 struct aml_i2c_platform g_aml_i2c_plat = {
-	.wait_count         = 1000000,
-	.wait_ack_interval  = 5,
-	.wait_read_interval = 5,
-	.wait_xfer_interval = 5,
-	.master_no          = AML_I2C_MASTER_AO,
-	.use_pio            = 0,
-	.master_i2c_speed   = AML_I2C_SPPED_400K,
-	.master_ao_pinmux = {
-		.scl_reg    = (unsigned long)MESON_I2C_MASTER_AO_GPIOAO_4_REG,
-		.scl_bit    = MESON_I2C_MASTER_AO_GPIOAO_4_BIT,
-		.sda_reg    = (unsigned long)MESON_I2C_MASTER_AO_GPIOAO_5_REG,
-		.sda_bit    = MESON_I2C_MASTER_AO_GPIOAO_5_BIT,
-	}
+		.wait_count         = 1000000,
+		.wait_ack_interval  = 5,
+		.wait_read_interval = 5,
+		.wait_xfer_interval = 5,
+		.master_no          = AML_I2C_MASTER_AO,
+		.use_pio            = 0,
+		.master_i2c_speed   = AML_I2C_SPPED_400K,
+		.master_ao_pinmux = {
+			.scl_reg    = (unsigned long)MESON_I2C_MASTER_AO_PIN_MUX_REG1,
+			.scl_bit    = MESON_I2C_MASTER_AO_SCL_PIN_BIT,
+			.sda_reg    = (unsigned long)MESON_I2C_MASTER_AO_PIN_MUX_REG1,
+			.sda_bit    = MESON_I2C_MASTER_AO_SDA_PIN_BIT,
+		}
 };
-#if 0
+
 static void board_i2c_init(void)
 {
-	//set I2C pinmux with PCB board layout
-	board_i2c_set_pinmux();
-
+	extern void aml_i2c_set_ports(struct aml_i2c_platform *i2c_plat);
 	//Amlogic I2C controller initialized
 	//note: it must be call before any I2C operation
-	aml_i2c_init();
+	aml_i2c_set_ports(&g_aml_i2c_plat);
 
 	udelay(10);
+}
+
+static void board_pmu_init(void)
+{
+	g_aml_pmu_driver.pmu_init();
+}
+
+#ifdef CONFIG_SYS_CHARGER_UI
+static int board_get_extern_power_status(void)
+{
+	return g_aml_pmu_driver.pmu_get_extern_power_status();
 }
 #endif
 #endif
@@ -601,7 +615,7 @@ U_BOOT_DEVICES(meson_pwm) = {
 
 int board_init(void)
 {
-	sys_led_init();
+	//sys_led_init();
     //Please keep CONFIG_AML_V2_FACTORY_BURN at first place of board_init
     //As NOT NEED other board init If USB BOOT MODE
 #ifdef CONFIG_AML_V2_FACTORY_BURN
@@ -622,10 +636,16 @@ int board_init(void)
 	extern int amlnf_init(unsigned char flag);
 	amlnf_init(0);
 #endif
+#ifdef CONFIG_SYS_I2C_AML
+		board_i2c_init();
+		//led_extern_change_i2c_bus(g_aml_i2c_ports[0].master_no);
+#endif	
 #ifdef CONFIG_SYS_I2C_MESON
 	set_i2c_ao_pinmux();
 #endif
-
+#ifdef CONFIG_SYS_I2C_AML
+	board_pmu_init();
+#endif	
 	return 0;
 }
 
@@ -745,6 +765,13 @@ int board_late_init(void)
 		aml_try_factory_usb_burning(1, gd->bd);
 		aml_try_factory_sdcard_burning(0, gd->bd);
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
+#ifdef CONFIG_SYS_CHARGER_UI
+	char * reboot_mode = getenv("reboot_mode");
+	if (board_get_extern_power_status() && !strcmp("cold_boot", reboot_mode))
+		setenv("boot_mode", "charger");
+	else
+		setenv("boot_mode", "none");
+#endif
 
     if (MESON_CPU_MAJOR_ID_SM1 == get_cpu_id().family_id) {
 		setenv("board_defined_bootup", "bootup_D3");

@@ -18,6 +18,7 @@
 #ifndef __PWM_CTRL_H__
 #define __PWM_CTRL_H__
 
+#ifndef CONFIG_SYS_I2C_YK618
 static int pwm_voltage_table_ee[][2] = {
 	{ 0x1c0000,  681},
 	{ 0x1b0001,  691},
@@ -69,5 +70,12 @@ static int pwm_voltage_table_ee_new[][2] = {
 	{ 0x020010,  860},
 	{ 0x010011,  870},
 	{ 0x000012,  880},
-};
+#else
+extern void hard_i2c_init(void);
+extern void yk618_set_dcdc2_volt(int volt);
+extern void yk618_set_dcdc3_volt(int volt);
+extern void yk618_enable_dcdc_x(int dcdcx,int enable);
+extern void yk618_power_off(void);
+extern int rtc_read_irq(void);
+#endif
 #endif //__PWM_CTRL_H__

@@ -361,6 +361,7 @@ obj-$(CONFIG_AML_ANTIROLLBACK) += anti-rollback.o
 obj-$(CONFIG_AML_SUPPORT_TLV) += aml_tlv.o
 obj-y += cmd_tee_log_level.o
 obj-y += cmd_avb.o
+obj-y += cmd_yk618.o
 
 # khadas commands
 obj-$(CONFIG_KHADAS_KBI) += cmd_kbi.o
