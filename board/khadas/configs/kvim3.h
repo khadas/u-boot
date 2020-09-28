@@ -349,6 +349,7 @@
             "if test ${lcd_exist} = 0; then "\
                 "fdt set /lcd status disable;"\
                 "fdt set /backlight status disable;"\
+            "else "\
                 "if test ${nativeui} = enable; then "\
                    "setenv nativeui disable;"\
                 "fi;"\
