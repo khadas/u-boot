@@ -26,13 +26,14 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/mailbox.h>
 #include <asm/cpu_id.h>
+#include <asm/arch/bl31_apis.h>
 
 /*  !!must use nonzero value as default value. Otherwise it linked to bss segment,
     but this segment not cleared to zero while running "board_init_f" */
 #define CLK_UNKNOWN (0xffffffff)
 
-#define RING_PWM_VCCK 	(0xff802000 + (0x01 << 2))
-#define RING_PWM_EE	(0xff807000 + (0x01 << 2))
+#define RING_PWM_VCCK 	(0xffd1b000 + (0x0001 << 2))
+#define RING_PWM_EE	(0xffd1b000 + (0x0000 << 2))
 
 #define T5_MSR_CLK_REG0		((0x6001 << 2) + 0xffd00000)
 #define T5_P_MSR_CLK_REG0	(volatile unsigned int *)((0x6001 << 2) + 0xffd00000)
@@ -322,6 +323,27 @@ unsigned long clk_util_ring_msr(unsigned long clk_mux)
 {
 	unsigned int regval = 0;
 
+	writel(0, T5_MSR_CLK_REG0);
+	/* Set the measurement gate to 64uS */
+	clrbits_le32(T5_P_MSR_CLK_REG0, 0xffff);
+	/* 64uS is enough for measure the frequence? */
+	setbits_le32(T5_P_MSR_CLK_REG0, 10000 - 1);
+	/* Disable continuous measurement */
+	/* Disable interrupts */
+	clrbits_le32(T5_P_MSR_CLK_REG0, 1 << 18 | 1 << 17);
+	clrbits_le32(T5_P_MSR_CLK_REG0, 0x7f << 20);
+	setbits_le32(T5_P_MSR_CLK_REG0, clk_mux << 20 | /*Select MUX*/
+				     1 << 19 |	     /* enable the clock */
+				     1 << 16);	     /* enable measuring */
+	/* Wait for the measurement to be done */
+	regval = readl(T5_MSR_CLK_REG0);
+	do {
+		regval = readl(T5_MSR_CLK_REG0);
+	} while (regval & (1 << 31));
+
+	/* Disable measuring */
+	clrbits_le32(T5_P_MSR_CLK_REG0, (1 << 16));
+	regval = (readl(T5_MSR_CLK_REG2) + 31) & 0x000FFFFF;
 
 	return (regval / 10);
 }
@@ -378,35 +400,81 @@ int clk_msr(int index)
 
 void ring_powerinit(void)
 {
+	writel(0x0018000A, RING_PWM_VCCK);/*set vcck 0.8v*/
+	writel(0x000d0005, RING_PWM_EE);/*set ee 0.8v*/
 }
 
 #ifdef CONFIG_RING
 int ring_msr(int index)
 {
 	const char* clk_table[] = {
-			[15] = "cpu[3]_A55_LVT16 " ,
-			[14] = "cpu[2]_A55_ULVT16 " ,
-			[13] = "cpu[1]_A55_ULVT20 " ,
-			[12] = "cpu[0]_A55_ULVT16 " ,
-			[11] = "ee[11]_ddrtop_LVT16 " ,
-			[10] = "ee[10]_dos_ULVT20 " ,
-			[9] = "ee[9]_dos_LVT16 " ,
-			[8] = "ee[8]_dos_SVT16 " ,
-			[7] = "ee[7]_dos_SVT24 " ,
-			[6] = "ee[6]_vpu_LVT16 " ,
-			[5] = "ee[5]_vpu_ULVT20 " ,
-			[4] = "ee[4]_vpu_SVT24 " ,
-			[3] = "ee[3]_mali_SVT16 " ,
-			[2] = "ee[2]_mali_ULVT16 " ,
-			[1] = "ee[1]_mali_LVT16 " ,
-			[0] = "ee[0]_dmctop_LVT16 " ,
+			[56] = "am_ring_osc_clk_out_ee[24] " ,
+			[55] = "am_ring_osc_clk_out_ee[23] " ,
+			[54] = "am_ring_osc_clk_out_ee[22] " ,
+			[53] = "am_ring_osc_clk_out_ee[21] " ,
+			[52] = "am_ring_osc_clk_out_ee[20] " ,
+			[51] = "am_ring_osc_clk_out_ee[19] " ,
+			[50] = "am_ring_osc_clk_out_ee[18] " ,
+			[49] = "am_ring_osc_clk_out_ee[17] " ,
+			[48] = "am_ring_osc_clk_out_ee[16] " ,
+			[47] = "am_ring_osc_clk_out_ee[15] " ,
+			[46] = "am_ring_osc_clk_out_ee[14] " ,
+			[45] = "am_ring_osc_clk_out_ee[13] " ,
+			[44] = "am_ring_osc_clk_out_ee[12] " ,
+			[43] = "sys_cpu_ring_osc_clk[27] " ,
+			[42] = "sys_cpu_ring_osc_clk[26] " ,
+			[41] = "sys_cpu_ring_osc_clk[25] " ,
+			[40] = "sys_cpu_ring_osc_clk[24] " ,
+			[39] = "sys_cpu_ring_osc_clk[23] " ,
+			[38] = "sys_cpu_ring_osc_clk[22] " ,
+			[37] = "sys_cpu_ring_osc_clk[21] " ,
+			[36] = "sys_cpu_ring_osc_clk[20] " ,
+			[35] = "sys_cpu_ring_osc_clk[19] " ,
+			[34] = "sys_cpu_ring_osc_clk[18] " ,
+			[33] = "sys_cpu_ring_osc_clk[17] " ,
+			[32] = "sys_cpu_ring_osc_clk[16] " ,
+			[31] = "sys_cpu_ring_osc_clk[15] " ,
+			[30] = "sys_cpu_ring_osc_clk[14] " ,
+			[29] = "sys_cpu_ring_osc_clk[13] " ,
+			[28] = "sys_cpu_ring_osc_clk[12] " ,
+			[27] = "sys_cpu_ring_osc_clk[11] " ,
+			[26] = "sys_cpu_ring_osc_clk[10] " ,
+			[25] = "sys_cpu_ring_osc_clk[9] " ,
+			[24] = "sys_cpu_ring_osc_clk[8] " ,
+			[23] = "sys_cpu_ring_osc_clk[7] " ,
+			[22] = "sys_cpu_ring_osc_clk[6] " ,
+			[21] = "sys_cpu_ring_osc_clk[5] " ,
+			[20] = "sys_cpu_ring_osc_clk[4] " ,
+			[19] = "am_ring_osc_clk_out_ee[9] " ,
+			[18] = "am_ring_osc_clk_out_ee[8] " ,
+			[17] = "am_ring_osc_clk_out_ee[7] " ,
+			[16] = "am_ring_osc_clk_out_ee[6] " ,
+			[15] = "am_ring_osc_clk_out_ee[5] " ,
+			[14] = "am_ring_osc_clk_out_ee[4] " ,
+			[13] = "am_ring_osc_clk_out_ee[3] " ,
+			[12] = "sys_cpu_ring_osc_clk[3] " ,
+			[11] = "sys_cpu_ring_osc_clk[2] " ,
+			[10] = "am_ring_osc_clk_out_ee[11] " ,
+			[9] = "am_ring_osc_clk_out_ee[10] " ,
+			[8] = "rng_ring_osc_clk[3] " ,
+			[7] = "rng_ring_osc_clk[2] " ,
+			[6] = "rng_ring_osc_clk[1] " ,
+			[5] = "rng_ring_osc_clk[0] " ,
+			[4] = "sys_cpu_ring_osc_clk[1] " ,
+			[3] = "sys_cpu_ring_osc_clk[0] " ,
+			[2] = "am_ring_osc_clk_out_ee[2] " ,
+			[1] = "am_ring_osc_clk_out_ee[1] " ,
+			[0] = "am_ring_osc_clk_out_ee[0] " ,
 		};
-	const int tb[] = {0, 1, 2, 99, 100, 101, 102, 103, 104, 105, 89, 90, 3, 33, 92, 93};
+	const int tb[] = {0, 1, 2, 3, 33, 77, 78, 79, 80, 89, 90, 92, 93, 99, 100, 101, 102, 103,
+			  104,105, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 184,
+			  186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199,
+			  200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210};
 	unsigned long i;
 	unsigned char efuseinfo[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 	if ((index != 0xff) && (index != 0)) {
-		if (efuse_get_value(efuseinfo) != 0) {
+		if (bl31_get_cornerinfo(efuseinfo, sizeof(efuseinfo) / sizeof(uint8_t)) != 0) {
 			printf("fail get efuse info\n");
 			return 0;
 		}
@@ -423,35 +491,30 @@ int ring_msr(int index)
 	}
 	ring_powerinit();
 	/*RING_OSCILLATOR       0x7f: set slow ring*/
-	writel(0x51555555, 0xff6345fc);
-	for (i = 0; i < 16; i++) {
+	writel(0x155, 0xff6345fc);
+	writel(0x01555555, 0xff634600);
+	for (i = 0; i < 57; i++) {
 		printf("%s      :",clk_table[i]);
 		printf("%ld     KHz",clk_util_ring_msr(tb[i]));
 		printf("\n");
 	}
 
-	if (efuse_get_value(efuseinfo) != 0) {
+	if (bl31_get_cornerinfo(efuseinfo, sizeof(efuseinfo) / sizeof(uint8_t)) != 0) {
 		printf("fail get osc ring efuse info\n");
 		return 0;
 	}
 
 	printf("osc ring efuse info:\n");
-	for (i = 0; i <= 11; i++)
+	for (i = 0; i <= 3; i++)
 		printf("0x%x, ", efuseinfo[i]);
 	printf("\n");
 
 	/*efuse to test value*/
 
-	printf("cpu[0]_A55_ring0, ee[2]_mail_ring1, ee[0]_dmc_ring, cpu[0]_A55_ring2, iddee, reserve, iddcpu_A55, sltver, fta53, fta73, slt\n");
-	for (i = 1; i <= 4; i++)
-		printf("%d KHz, ", (efuseinfo[i] * 20));
-
-	printf("%d uA, ", (efuseinfo[5] * 400));
-	printf("%d, ", efuseinfo[6]);
-	printf("%d uA, ", (efuseinfo[7] * 400));
-
-	for (i = 8; i <= 11; i++)
-		printf("%d,  ", efuseinfo[i]);
+	printf("sys_cpu_osc_ring0(ULVT16)(KHz), IDD CPU(uA), IDD EE(uA)\n");
+	printf("%d KHz, ", (efuseinfo[1] * 20));
+	printf("%d uA, ", (efuseinfo[2] * 400));
+	printf("%d uA, ", (efuseinfo[3] * 400));
 
 	printf("\n");
 

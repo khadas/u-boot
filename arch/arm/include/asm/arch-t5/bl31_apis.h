@@ -77,6 +77,8 @@
 	#define PANIC_DUMP_USB_BOOT	4
 
 #define GET_CHIP_ID			0x82000044
+#define OSCRING_EFUSE_GET		0x8200004D
+
 /* Security Key*/
 #define SECURITY_KEY_QUERY	0x82000060
 #define SECURITY_KEY_READ	0x82000061
@@ -168,4 +170,5 @@ void bl31_get_chipid(unsigned int *, unsigned int *,
 void set_viu_probe_enable(void);
 int32_t set_boot_params(const keymaster_boot_params*);
 void aml_set_power_domain(uint64_t function_id, uint64_t arg0, uint64_t arg1);
+int bl31_get_cornerinfo(uint8_t *outbuf, int size);
 #endif
