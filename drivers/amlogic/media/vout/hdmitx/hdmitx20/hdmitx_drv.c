@@ -2444,36 +2444,6 @@ static void hdmitx_set_dith(struct hdmitx_dev* hdev)
 		break;
 	}
 }
-static void mode420_half_horizontal_para(void)
-{
-	unsigned int hactive = 0;
-	unsigned int hblank = 0;
-	unsigned int hfront = 0;
-	unsigned int hsync = 0;
-
-	hactive  =  hdmitx_rd_reg(HDMITX_DWC_FC_INHACTV0);
-	hactive += (hdmitx_rd_reg(HDMITX_DWC_FC_INHACTV1) & 0x3f) << 8;
-	hblank  =  hdmitx_rd_reg(HDMITX_DWC_FC_INHBLANK0);
-	hblank += (hdmitx_rd_reg(HDMITX_DWC_FC_INHBLANK1) & 0x1f) << 8;
-	hfront  =  hdmitx_rd_reg(HDMITX_DWC_FC_HSYNCINDELAY0);
-	hfront += (hdmitx_rd_reg(HDMITX_DWC_FC_HSYNCINDELAY1) & 0x1f) << 8;
-	hsync  =  hdmitx_rd_reg(HDMITX_DWC_FC_HSYNCINWIDTH0);
-	hsync += (hdmitx_rd_reg(HDMITX_DWC_FC_HSYNCINWIDTH1) & 0x3) << 8;
-
-	hactive = hactive / 2;
-	hblank = hblank / 2;
-	hfront = hfront / 2;
-	hsync = hsync / 2;
-
-	hdmitx_wr_reg(HDMITX_DWC_FC_INHACTV0, (hactive & 0xff));
-	hdmitx_wr_reg(HDMITX_DWC_FC_INHACTV1, ((hactive >> 8) & 0x3f));
-	hdmitx_wr_reg(HDMITX_DWC_FC_INHBLANK0, (hblank  & 0xff));
-	hdmitx_wr_reg(HDMITX_DWC_FC_INHBLANK1, ((hblank >> 8) & 0x1f));
-	hdmitx_wr_reg(HDMITX_DWC_FC_HSYNCINDELAY0, (hfront & 0xff));
-	hdmitx_wr_reg(HDMITX_DWC_FC_HSYNCINDELAY1, ((hfront >> 8) & 0x1f));
-	hdmitx_wr_reg(HDMITX_DWC_FC_HSYNCINWIDTH0, (hsync & 0xff));
-	hdmitx_wr_reg(HDMITX_DWC_FC_HSYNCINWIDTH1, ((hsync >> 8) & 0x3));
-}
 
 static void set_tmds_clk_div40(unsigned int div40)
 {
@@ -3086,9 +3056,6 @@ static void hdmitx_set_hw(struct hdmitx_dev* hdev)
 		enc_vpu_bridge_reset(1);
 		break;
 	}
-
-	if (hdev->para->cs == HDMI_COLOR_FORMAT_420)
-		mode420_half_horizontal_para();
 
 	switch (hdev->vic) {
 	case HDMI_3840x2160p50_16x9:
