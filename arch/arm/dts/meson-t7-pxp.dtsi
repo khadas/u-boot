@@ -222,7 +222,7 @@
 
 &spifc {
 	status = "disabled";
-	cs-gpios = <&gpio GPIOB_14 GPIO_ACTIVE_HIGH>;
+	//cs-gpios = <&gpio GPIOB_14 GPIO_ACTIVE_HIGH>;
 	spi-flash@0 {
 		status = "disabled";
 	};
@@ -240,5 +240,5 @@
 	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&spicc1_pins1>;
-	cs-gpios = <&gpio GPIOA_14 0>;
+	//cs-gpios = <&gpio GPIOA_14 0>;
 };
