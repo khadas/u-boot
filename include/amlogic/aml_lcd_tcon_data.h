@@ -20,6 +20,9 @@
 #define LCD_TCON_DATA_VALID_VAC       (1 << 0)
 #define LCD_TCON_DATA_VALID_DEMURA    (1 << 1)
 #define LCD_TCON_DATA_VALID_ACC       (1 << 2)
+#define LCD_TCON_DATA_VALID_DITHER    (1 << 3)
+#define LCD_TCON_DATA_VALID_OD        (1 << 4)
+#define LCD_TCON_DATA_VALID_LOD       (1 << 5)
 
 /* for tconless data format */
 /* for tconless data block type */
@@ -27,6 +30,9 @@
 #define LCD_TCON_DATA_BLOCK_TYPE_DEMURA_SET     0x01
 #define LCD_TCON_DATA_BLOCK_TYPE_DEMURA_LUT     0x02
 #define LCD_TCON_DATA_BLOCK_TYPE_ACC_LUT        0x03
+#define LCD_TCON_DATA_BLOCK_TYPE_DITHER_LUT     0x04
+#define LCD_TCON_DATA_BLOCK_TYPE_OD_LUT         0x05
+#define LCD_TCON_DATA_BLOCK_TYPE_LOD_LUT        0x06
 #define LCD_TCON_DATA_BLOCK_TYPE_VAC            0x11
 #define LCD_TCON_DATA_BLOCK_TYPE_EXT            0xe0 /* pmu */
 #define LCD_TCON_DATA_BLOCK_TYPE_MAX            0xff
