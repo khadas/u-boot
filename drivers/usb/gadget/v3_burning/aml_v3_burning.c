@@ -12,6 +12,8 @@
 #include "include/v3_tool_def.h"
 #include <mmc.h>
 #include <asm/cpu_id.h>
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifndef BOOT_DEVICE_USB
 #define BOOT_DEVICE_SD                  4
 #define BOOT_DEVICE_USB                 5

@@ -185,7 +185,7 @@ static int check_chunk_info(const chunk_header_t* chunk, unsigned* pDataLen, uns
                     return -__LINE__;
                 }
                 const int fillFieldLen = 4;
-                *fillVal = *(unsigned*)(chunk+1);
+                if (fillVal) *fillVal = *(unsigned*)(chunk+1) ;
                 chunkDataLen = fillFieldLen;
             }break;
         case CHUNK_TYPE_CRC32:
@@ -371,7 +371,7 @@ int v3tool_simg2img_write_img(const UsbDownInf* downInf, const ImgDownloadPara* 
         nextDownInf = (chunk_header_t*)(dataBuf + dataSize);
         _spPacketStates.chunkInfo = _spPacketStates.chunkInfoBackAddr;
         memcpy(_spPacketStates.chunkInfoBackAddr++, nextDownInf, CHUNK_HEAD_SIZE);
-        //spmsg("back chunkInfo 0x%p, next %p, %x\n", _spPacketStates.chunkInfo, nextDownInf, _spPacketStates.chunkInfo->chunk_type);
+        FB_DBG("back chunkInfo 0x%p, next %p, %x\n", _spPacketStates.chunkInfo, nextDownInf, _spPacketStates.chunkInfo->chunk_type);
 
         unsigned chunkDataLen = 0;
         if (check_chunk_info(nextDownInf, &chunkDataLen, NULL, NULL)) {
@@ -382,7 +382,7 @@ int v3tool_simg2img_write_img(const UsbDownInf* downInf, const ImgDownloadPara* 
         if (_spPacketStates.fileOffset + chunkDataLen < _spPacketStates.imgTotalLen) {
             _spPacketStates.leftTransLen += CHUNK_HEAD_SIZE;
         }
-        //spmsg("update leftTransLen 0x%llx\n", _spPacketStates.leftTransLen);
+        FB_DBG("update leftTransLen 0x%llx\n", _spPacketStates.leftTransLen);
     }
 
     return 0;
