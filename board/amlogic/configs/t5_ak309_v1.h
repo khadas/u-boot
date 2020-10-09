@@ -526,13 +526,17 @@
 /* meson SPI */
 //#define CONFIG_AML_SPIFC
 //#define CONFIG_AML_SPICC
+#ifdef CONFIG_AML_SPICC
+#define CONFIG_SPICC_SPINOR
+#endif
+
 #if defined CONFIG_AML_SPIFC || defined CONFIG_AML_SPICC
 	#define CONFIG_OF_SPI
 	#define CONFIG_DM_SPI
 	#define CONFIG_CMD_SPI
 #endif
 /* SPI flash config */
-#ifdef CONFIG_AML_SPIFC
+#if defined CONFIG_AML_SPIFC || defined CONFIG_SPICC_SPINOR
 	#define CONFIG_SPI_FLASH
 	#define CONFIG_DM_SPI_FLASH
 	#define CONFIG_CMD_SF
@@ -549,8 +553,8 @@
 	#define CONFIG_SPI_M95XXX
 	#define CONFIG_SPI_FLASH_ESMT
 	/* SPI nand flash support */
-	#define CONFIG_SPI_NAND
-	#define CONFIG_BL2_SIZE (64 * 1024)
+//	#define CONFIG_SPI_NAND
+//	#define CONFIG_BL2_SIZE (64 * 1024)
 #endif
 
 #if defined CONFIG_AML_MTD || defined CONFIG_SPI_NAND

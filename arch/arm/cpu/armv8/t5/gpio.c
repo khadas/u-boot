@@ -187,19 +187,19 @@ int clear_pinmux(unsigned int pin)
 #include <asm/arch/secure_apb.h>
 /* generic pins control for spicc0.
  * if deleted, you have to add it into all t5 board files as necessary.
- * GPIOH_17: MISO:reg9[7:4]  =2
- * GPIOH_18: MOSI:reg9[11:8] =2
- * GPIOH_19: CLK: reg9[15:12]=2
+ * GPIOH_9:  MISO:reg6[7:4]  =2
+ * GPIOH_10: MOSI:reg6[11:8] =2
+ * GPIOH_11: CLK: reg6[15:12]=2
  */
 int spicc0_pinctrl_enable(bool enable)
 {
 	unsigned int val;
 
-	val = readl(P_PERIPHS_PIN_MUX_9);
+	val = readl(P_PERIPHS_PIN_MUX_6);
 	val &= ~(0xfff << 4);
 	if (enable)
 		val |= 0x222 << 4;
-	writel(val, P_PERIPHS_PIN_MUX_9);
+	writel(val, P_PERIPHS_PIN_MUX_6);
 	return 0;
 }
 #endif /* CONFIG_AML_SPICC */

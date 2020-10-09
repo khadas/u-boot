@@ -504,7 +504,7 @@ static const struct spicc_platdata spicc0_platdata = {
 	.clk_enable = spicc0_clk_enable,
 	.pinctrl_enable = spicc0_pinctrl_enable,
 	/* case one slave without cs: {"no_cs", 0} */
-	.cs_gpio_names = {"GPIOH_20", 0},
+	.cs_gpio_names = {"GPIOH_8", 0},
 };
 
 U_BOOT_DEVICE(spicc0) = {
