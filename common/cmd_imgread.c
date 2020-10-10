@@ -974,6 +974,8 @@ static int do_load_logo_from_ext4(cmd_tbl_t *cmdtp, int flag, int argc, char * c
         return CMD_RET_FAILURE;
     }
 
+    if (EMMC_BOOT_FLAG != device_boot_flag) return CMD_RET_FAILURE;
+
     const int partIndex = get_partition_num_by_name((char*)ext4Part);
     if (partIndex < 0) {
         errorP("invalid partition name(%s)\n", ext4Part);
