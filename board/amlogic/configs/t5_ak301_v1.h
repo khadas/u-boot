@@ -787,5 +787,7 @@
 //DDR address to contain info from BL2 to BL3X
 //#define  AML_BL2_TMASTER_DDR_ADDR  (0x3000000)
 #define CONFIG_HIGH_TEMP_COOL  100
+
+#define CONFIG_MDUMP_COMPRESS 1
 #endif
 
