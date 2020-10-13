@@ -912,7 +912,7 @@ void aml_bl_power_ctrl(int status, int delay_flag)
 			bl_power_en_ctrl(bconf, 0);
 			break;
 		case BL_CTRL_PWM:
-			if (bconf->en_sequence_reverse) {
+			if (bconf->en_sequence_reverse == 1) {
 				/* step 1: power off pwm */
 				bl_pwm_pinmux_ctrl(bconf, 0);
 				bl_pwm_ctrl(bconf->bl_pwm, 0);
@@ -931,7 +931,7 @@ void aml_bl_power_ctrl(int status, int delay_flag)
 			}
 			break;
 		case BL_CTRL_PWM_COMBO:
-			if (bconf->en_sequence_reverse) {
+			if (bconf->en_sequence_reverse == 1) {
 				/* step 1: power off pwm_combo */
 				bl_pwm_pinmux_ctrl(bconf, 0);
 				bl_pwm_ctrl(bconf->bl_pwm_combo0, 0);
@@ -954,7 +954,7 @@ void aml_bl_power_ctrl(int status, int delay_flag)
 #ifdef CONFIG_AML_LOCAL_DIMMING
 		case BL_CTRL_LOCAL_DIMMING:
 			ldim_drv = aml_ldim_get_driver();
-			if (bconf->en_sequence_reverse) {
+			if (bconf->en_sequence_reverse == 1) {
 				/* step 1: power off ldim */
 				if (ldim_drv->power_off)
 					ldim_drv->power_off();
@@ -976,7 +976,7 @@ void aml_bl_power_ctrl(int status, int delay_flag)
 #ifdef CONFIG_AML_BL_EXTERN
 		case BL_CTRL_EXTERN:
 			bl_ext = aml_bl_extern_get_driver();
-			if (bconf->en_sequence_reverse) {
+			if (bconf->en_sequence_reverse == 1) {
 				/* step 1: power off bl_extern */
 				if (bl_ext->power_off)
 					bl_ext->power_off();
