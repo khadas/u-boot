@@ -320,6 +320,10 @@ config T5_AK309_V1
 	bool "Support amlogic t5 ak309 v1 board"
 	default n
 
+config T5D_SKT_V1
+	bool "Support amlogic t5d skt v1 board"
+	default n
+
 config PXP_EMULATOR
 	bool "Support pxp environment"
 	default n
@@ -655,4 +659,7 @@ if T5_AK309_V1
 source "board/amlogic/t5_ak309_v1/Kconfig"
 endif
 
+if T5D_SKT_V1
+source "board/amlogic/t5d_skt_v1/Kconfig"
+endif
 

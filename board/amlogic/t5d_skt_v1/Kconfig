@@ -1,0 +1,26 @@
+if TARGET_MESON_T5D
+
+config SYS_CPU
+	string
+	default "armv8"
+
+config SYS_BOARD
+	string
+	default "t5d_skt_v1"
+
+config SYS_VENDOR
+	string
+	default "amlogic"
+
+config SYS_SOC
+	string
+	default "t5d"
+
+config SYS_CONFIG_NAME
+	default "t5d_skt_v1"
+
+config BL30_SELECT
+	string "T5D BL30 board config"
+	default "t5_ak329_v1"
+
+endif
