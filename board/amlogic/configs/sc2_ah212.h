@@ -430,6 +430,9 @@
 /* define CONFIG_SYS_MEM_TOP_HIDE 8M space for free buffer */
 #define CONFIG_SYS_MEM_TOP_HIDE		0x00800000
 
+/* define CONFIG_UPDATE_MMU_TABLE for need update mmu */
+//#define CONFIG_UPDATE_MMU_TABLE
+
 #define CONFIG_CPU_ARMV8
 
 //use sha2 command

@@ -207,9 +207,9 @@ static struct mm_region bd_mem_map[] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.virt = 0x80000000UL,
-		.phys = 0x80000000UL,
-		.size = 0x80000000UL,
+		.virt = 0xf1000000UL,
+		.phys = 0xf1000000UL,
+		.size = 0x0f000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
@@ -222,6 +222,23 @@ static struct mm_region bd_mem_map[] = {
 struct mm_region *mem_map = bd_mem_map;
 
 int mach_cpu_init(void) {
+	/* update mmu table from bl2 ddr auto detect size */
+#ifdef CONFIG_UPDATE_MMU_TABLE
+	unsigned int nddrSize = ((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4;
+	switch (nddrSize)
+	{
+		case (CONFIG_1G_SIZE):
+		case (CONFIG_2G_SIZE):
+		case (CONFIG_3G_SIZE):
+		case (CONFIG_DDR_MAX_SIZE):
+			bd_mem_map[0].size = nddrSize;
+			break;
+		default :
+			printf("aml log : ERROR DDR detect size not match MMU !");
+			break;
+	}
+#endif
+
 	//printf("\nmach_cpu_init\n");
 	return 0;
 }

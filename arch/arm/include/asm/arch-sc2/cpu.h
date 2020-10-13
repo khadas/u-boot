@@ -46,6 +46,12 @@
 
 #define CONFIG_SYS_LOAD_ADDR		(PHYS_SDRAM_1_BASE + CONFIG_SYS_TEXT_BASE)
 
+/* define size */
+#define CONFIG_1G_SIZE			(1<<30)    	/* 1G */
+#define CONFIG_2G_SIZE			(2<<30)		/* 2G */
+#define CONFIG_3G_SIZE			(3<<30)		/* 3G */
+#define CONFIG_DDR_MAX_SIZE		(0XF1<<24)	/* sc2 ddr max use interval [0~0xf1000000) */
+
 /* console/print buffer */
 #define CONFIG_SYS_CBSIZE		512
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
