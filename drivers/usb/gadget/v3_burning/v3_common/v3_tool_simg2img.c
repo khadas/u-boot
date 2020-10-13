@@ -185,7 +185,7 @@ static int check_chunk_info(const chunk_header_t* chunk, unsigned* pDataLen, uns
                     return -__LINE__;
                 }
                 const int fillFieldLen = 4;
-                *fillVal = *(unsigned*)(chunk+1);
+                if (fillVal) *fillVal = *(unsigned*)(chunk+1);
                 chunkDataLen = fillFieldLen;
             }break;
         case CHUNK_TYPE_CRC32:

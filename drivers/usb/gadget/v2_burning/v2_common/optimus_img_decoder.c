@@ -1,14 +1,23 @@
 /*
- * \file        optimus_img_decoder.c
- * \brief
- *
- * \version     1.0.0
- * \date        2013-7-8
- * \author      Sam.Wu <yihui.wu@amlogic.com>
- *
- * Copyright (c) 2013 Amlogic. All Rights Reserved.
- *
- */
+* Copyright (C) 2017 Amlogic, Inc. All rights reserved.
+* *
+This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+* *
+This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+* *
+You should have received a copy of the GNU General Public License along
+* with this program; if not, write to the Free Software Foundation, Inc.,
+* 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+* *
+Description:
+*/
+
 #include "../v2_sdc_burn/optimus_sdc_burn_i.h"
 
 //FIMXE:
@@ -117,6 +126,12 @@ HIMAGE image_open(const char* interface, const char* device, const char* part, c
     return hImg;
 _err:
     return NULL;
+}
+
+unsigned image_get_crc(HIMAGE hImg)
+{
+    ImgInfo_t* imgInfo = (ImgInfo_t*)hImg;
+    return imgInfo->imgHead.crc;
 }
 
 
@@ -446,6 +461,99 @@ u64 optimus_img_decoder_get_data_parts_size(HIMAGE hImg, int* hasBootloader)
 
     return dataPartsSz;
 }
+
+int optimus_img_item2buf(HIMAGE hImg, const char* main, const char* sub, char* buf, int* bufsz)
+{
+    HIMAGEITEM hImgItem = NULL;
+    hImgItem = image_item_open(hImg, main, sub);
+
+    if (!hImgItem) {
+        DWN_WRN("Fail to open item [%s,%s]\n", main, sub);
+        return ITEM_NOT_EXIST;
+    }
+
+    const s64 itemSz = image_item_get_size(hImgItem);
+    if (!itemSz) {
+        DWN_ERR("Item size 0\n");
+        image_item_close(hImgItem); return __LINE__;
+    }
+    if (itemSz > *bufsz) {
+        DWN_ERR("item sz %lld > bufsz %d\n", itemSz, *bufsz);
+        image_item_close(hImgItem); return __LINE__;
+    }
+
+    int rc = image_item_read(hImg, hImgItem, buf, (unsigned)itemSz);
+    if (rc) {
+        DWN_ERR("Fail read item data, rc %d\n", rc);
+        image_item_close(hImgItem); return __LINE__;
+    }
+
+    image_item_close(hImgItem);
+    *bufsz = itemSz;
+    return 0;
+}
+
+//get item num which has same main_type
+int get_subtype_nr(HIMAGE hImg, const char* main_type)
+{
+    int i = 0;
+    int ret = 0;
+    int itemNum = 0;
+    const int totalItemNum = get_total_itemnr(hImg);
+
+    for (i = 0; i < totalItemNum; i++)
+    {
+        const char* mainType = NULL;
+        const char* sub_type  = NULL;
+
+        ret = get_item_name(hImg, i, &mainType, &sub_type);
+        if (ret) {
+            DWN_ERR("Exception:fail to get item name!\n");
+            return -__LINE__;
+        }
+
+        if (strcmp(main_type, mainType)) continue;
+        itemNum += 1;
+    }
+
+    return itemNum;
+}
+
+int get_subtype_nm_by_index(HIMAGE hImg, const char* main_type, const char** sub_type, const int itemIndex)
+{
+    int i = 0;
+    int ret = 0;
+    int itemNum = 0;
+    const int totalItemNum = get_total_itemnr(hImg);
+    const int nSubType     = get_subtype_nr(hImg, main_type);
+
+    if (nSubType < 1) {
+        DWN_ERR("err main type[%s]\n", main_type);
+        return -__LINE__;
+    }
+    if (nSubType <= itemIndex) {
+        DWN_ERR("item index %d > max %d for main[%s]\n", itemIndex, nSubType, main_type);
+        return -__LINE__;
+    }
+
+    for (i = 0; i < totalItemNum; i++)
+    {
+        const char* mainType = NULL;
+
+        ret = get_item_name(hImg, i, &mainType, sub_type);
+        if (ret) {
+            DWN_ERR("Exception:fail to get item name!\n");
+            return __LINE__;
+        }
+
+        if (strcmp(mainType, main_type)) continue;
+        if (itemIndex == itemNum) return OPT_DOWN_OK;
+        itemNum += 1;
+    }
+
+    return OPT_DOWN_FAIL;
+}
+
 
 #define MYDBG 0
 #if MYDBG

@@ -74,6 +74,10 @@ int optimus_buf_manager_init(const unsigned mediaAlignSz)
         return OPT_DOWN_FAIL;
     }
     _bufManager.mediaAlignSz = mediaAlignSz;
+    *(u32*)(&_bufManager.transferUnitSz) = (OPTIMUS_WORK_MODE_USB_PRODUCE >= optimus_work_mode_get())
+                                                ? OPTIMUS_DOWNLOAD_SLOT_SZ : OPTIMUS_LOCAL_UPGRADE_SLOT_SZ;
+    _bufManager.writeBackUnitSz = _bufManager.transferUnitSz;
+
 
     DWN_DBG("transfer=0x%p, transferBufSz=0x%x, transferUnitSz=0x%x, writeBackUnitSz=0x%x, totalSlotNum=%d\n", _bufManager.transferBuf,
             _bufManager.transferBufSz,  _bufManager.transferUnitSz,     _bufManager.writeBackUnitSz,        _bufManager.totalSlotNum);
@@ -122,6 +126,7 @@ int optimus_buf_manager_tplcmd_init(const char* mediaType,  const char* partName
 
     _bufManager.destMediaType   = !strcmp("mem", mediaType) ? OPTIMUS_MEDIA_TYPE_MEM : OPTIMUS_MEDIA_TYPE_STORE ;
     if ( !cacheAll2Mem ) cacheAll2Mem = !strcmp("mem", mediaType) ;
+    if ( !cacheAll2Mem ) cacheAll2Mem = (pktSz4BufManager <= _bufManager.transferUnitSz);
     if (cacheAll2Mem)
     {
             writeBackUnitSz             = pktSz4BufManager + _bufManager.transferUnitSz - 1;
@@ -140,10 +145,10 @@ int optimus_buf_manager_tplcmd_init(const char* mediaType,  const char* partName
         return OPT_DOWN_FAIL;
     }
     if (_bufManager.transferUnitSz > writeBackUnitSz) {
-        DWN_ERR("write back size %d < align size %d\n", writeBackUnitSz, _bufManager.mediaAlignSz);
+        DWN_ERR("write back size %d < align size %d\n", writeBackUnitSz, _bufManager.transferUnitSz);
         return OPT_DOWN_FAIL;
     }
-    DWN_DBG("writeBackUnitSz = 0x%x, pktSz4BufManager = %lld\n", writeBackUnitSz, pktSz4BufManager);
+    DWN_DBG("writeBackUnitSz = 0x%x, pktSz4BufManager = 0x%llx, itemSizeNotAligned 0x%x\n", writeBackUnitSz, pktSz4BufManager, itemSizeNotAligned);
 
     _bufManager.writeBackUnitSz     = writeBackUnitSz;
     _bufManager.totalSlotNum        = 0;
@@ -188,7 +193,7 @@ int optimus_buf_manager_get_buf_for_bulk_transfer(char** pBuf, const unsigned wa
                         (u8*)(u64)_bufManager.partBaseOffset ;
 
     if (wantSz < _bufManager.transferUnitSz && !isLastTransfer) {
-        DWN_ERR("only last transfer can less 64K, this index %d at size 0x%u illegle\n", totalSlotNum + 1, wantSz);
+        DWN_ERR("only last transfer can less 64K, this index %d at size 0x%x illegle\n", totalSlotNum + 1, wantSz);
         return OPT_DOWN_FAIL;
     }
 
@@ -228,7 +233,7 @@ int optimus_buf_manager_report_transfer_complete(const u32 transferSz, char* err
     const u8* BufBase = (OPTIMUS_MEDIA_TYPE_MEM != _bufManager.destMediaType)  ? _bufManager.transferBuf :
                         (u8*)(u64)_bufManager.partBaseOffset ;
 
-    DWN_DBG("transferSz=0x%x\n", transferSz);
+    DWN_DBG("[%d]transferSz=0x%x\n", _bufManager.totalSlotNum, transferSz);
     //state fileds to update
     _bufManager.totalSlotNum += 1;
     if (_bufManager.totalSlotNum == _bufManager.nextWriteBackSlot)
@@ -317,7 +322,7 @@ int optimus_buf_manager_get_command_data_for_upload_transfer(u8* cmdDataBuf, con
 
     DWN_DBG("thisTransDataLen 0x%x, left 0x%x, total 0x%x\n", thisTransDataLen, (u32)leftPktSz, (u32)totalTransferSz);
     DWN_DBG("totalSlotNum %d, totalTransferSz 0x%x\n", totalSlotNum, (u32)totalTransferSz);
-    memset(cmdDataBuf, bufLen, 0);
+    memset(cmdDataBuf, 0, bufLen);
     *(unsigned*)(cmdDataBuf + 0) = 0xefe8;
     *(unsigned*)(cmdDataBuf + 4) = thisTransDataLen;//Fill transfer data length of this bulk transfer
 

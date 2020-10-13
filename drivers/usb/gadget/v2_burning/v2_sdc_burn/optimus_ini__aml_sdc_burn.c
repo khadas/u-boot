@@ -1,14 +1,23 @@
 /*
- * \file        optimus_ini__aml_sdc_burn.c
- * \brief       parse the aml_sdc_burn.ini
- *
- * \version     1.0.0
- * \date        2015/2/3
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2015 Amlogic. All Rights Reserved.
- *
- */
+* Copyright (C) 2017 Amlogic, Inc. All rights reserved.
+* *
+This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+* *
+This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+* *
+You should have received a copy of the GNU General Public License along
+* with this program; if not, write to the Free Software Foundation, Inc.,
+* 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+* *
+Description:
+*/
+
 #include "optimus_sdc_burn_i.h"
 
 #define dbg(fmt ...)  //printf("[INI_SDC]"fmt)
@@ -31,8 +40,8 @@ static const char* _iniSets[] = {
 
 ConfigPara_t g_sdcBurnPara = {
     .setsBitMap.burnParts   = 0,
-    .setsBitMap.custom      = 0,
-    .setsBitMap.burnEx      = 0,
+    .setsBitMap.custom      = 1,
+    .setsBitMap.burnEx      = 1,
 
     .burnParts      = {
         .burn_num           = 0,
@@ -40,14 +49,14 @@ ConfigPara_t g_sdcBurnPara = {
     },
 
     .custom         = {
-        .eraseBootloader    = 1,//default to erase bootloader!
-        .eraseFlash         = 0,
-        .bitsMap.eraseBootloader    = 0,
-        .bitsMap.eraseFlash         = 0,
+        .eraseBootloader    = 1,//default to erase bootloader! no effect for usb_upgrade
+        .eraseFlash         = 1,//default erase flash for all cases
+        .bitsMap.eraseBootloader    = 1,
+        .bitsMap.eraseFlash         = 1,
     },
 
     .burnEx         = {
-        .bitsMap.pkgPath    = 0,
+        .bitsMap.pkgPath    = 1,
         .bitsMap.mediaPath  = 0,
     },
 };
@@ -90,7 +99,7 @@ int print_burn_parts_para(const BurnParts_t* pBurnParts)
     return 0;
 }
 
-static int print_sdc_burn_para(const ConfigPara_t* pCfgPara)
+int print_sdc_burn_para(const ConfigPara_t* pCfgPara)
 {
     printf("\n=========sdc_burn_paras=====>>>\n");
 
@@ -136,7 +145,7 @@ static int parse_set_burnEx(const char* key, const char* strVal)
             return __LINE__;
         }
 
-        strcpy(pBurnEx->pkgPath, strVal);
+        strncpy(pBurnEx->pkgPath, strVal, sizeof pBurnEx->pkgPath - 1);
         pBurnEx->bitsMap.pkgPath = 1;
 
         return 0;
@@ -150,7 +159,7 @@ static int parse_set_burnEx(const char* key, const char* strVal)
         }
         if (strVal)
         {
-            strcpy(pBurnEx->mediaPath, strVal);
+            strncpy(pBurnEx->mediaPath, strVal, sizeof pBurnEx->mediaPath - 1);
             pBurnEx->bitsMap.mediaPath = 1;
         }
 
@@ -245,6 +254,19 @@ static int parse_set_custom_para(const char* key, const char* strVal)
 
     }
 
+    if (!strcmp(key, "erase_ddr_para"))
+    {
+        if (pCustome->bitsMap.eraseDdrPara) {
+            goto _key_dup;
+        }
+
+        if (strVal)
+        {
+            pCustome->eraseDdrPara = cfgVal;
+            pCustome->bitsMap.eraseDdrPara = 1;
+        }
+    }
+
     return 0;
 
 _key_dup:
@@ -323,7 +345,7 @@ static int parse_burn_parts(const char* key, const char* strVal)
             return __LINE__;
         }
 
-        strcpy(partName, strVal);
+        strncpy(partName, strVal, PART_NAME_LEN_MAX - 1);
     }
 
     return 0;
@@ -399,7 +421,7 @@ static int optimus_aml_sdc_burn_ini_parse_usr_cfg(const char* setName, const cha
         return ret;
 }
 
-int parse_ini_cfg_file(const char* filePath)
+static int _parse_ini_cfg_file(const char* filePath, HIMAGE hImg)
 {
     const int MaxFileSz = OPTIMUS_DOWNLOAD_SLOT_SZ;
     char* CfgFileLoadAddr = (char*)OPTIMUS_DOWNLOAD_TRANSFER_BUF_ADDR;
@@ -410,7 +432,20 @@ int parse_ini_cfg_file(const char* filePath)
 
     init_config_para(&g_sdcBurnPara);
 
-    validLineNum = parse_ini_file_2_valid_lines(filePath, CfgFileLoadAddr, MaxFileSz, lines);
+    if (hImg) {
+        DWN_MSG("try to fetch para from item aml_sdc_burn.ini\n");
+        int itemSz = MaxFileSz;
+        rcode =  optimus_img_item2buf(hImg, "ini", "aml_sdc_burn", CfgFileLoadAddr, &itemSz);
+        if (ITEM_NOT_EXIST == rcode) {
+            DWN_MSG("Item ini not existed, so use hard-coded para\n");
+            return ITEM_NOT_EXIST;
+        } else if(rcode) {
+            DWN_ERR("Err when get item ini, rcode %d\n", rcode);
+            return __LINE__;
+        } else
+            validLineNum = parse_ini_buf_2_valid_lines(CfgFileLoadAddr, itemSz, lines);
+    } else
+        validLineNum = parse_ini_file_2_valid_lines(filePath, CfgFileLoadAddr, MaxFileSz, lines);
     if (!validLineNum) {
         err("error in parse ini file\n");
         return __LINE__;
@@ -433,6 +468,16 @@ int parse_ini_cfg_file(const char* filePath)
     print_sdc_burn_para(&g_sdcBurnPara);
 
     return 0;
+}
+
+int parse_ini_cfg_file(const char* filePath)
+{
+    return _parse_ini_cfg_file(filePath, NULL);
+}
+
+int parse_ini_cfg_from_item(HIMAGE hImg)
+{
+    return _parse_ini_cfg_file(NULL, hImg);
 }
 
 #define MYDBG 0

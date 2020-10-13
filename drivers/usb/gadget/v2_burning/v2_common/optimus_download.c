@@ -1,14 +1,23 @@
 /*
- * \file        optimu_download.c
- * \brief
- *
- * \version     1.0.0
- * \date        2013/4/25
- * \author      Sam.Wu <yihui.wu@amlogic.com>
- *
- * Copyright (c) 2013 Amlogic Inc. All Rights Reserved.
- *
- */
+* Copyright (C) 2017 Amlogic, Inc. All rights reserved.
+* *
+This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+* *
+This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+* *
+You should have received a copy of the GNU General Public License along
+* with this program; if not, write to the Free Software Foundation, Inc.,
+* 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+* *
+Description:
+*/
+
 #include "../v2_burning_i.h"
 #include <linux/libfdt.h>
 #include <partition_table.h>
@@ -251,8 +260,9 @@ static int _assert_logic_partition_cap(const char* thePartName, const uint64_t n
 
     int partIndex                   = 0;
     struct partitions * thePart     = NULL;
-    if (NULL == part_table)
-        return 0;
+    if (NULL == part_table) return 0;
+    if (!strcmp("1", thePartName)) return 0;
+
     for (thePart = part_table; partIndex < 36; ++thePart, ++partIndex)
     {
         if (memcmp(thePartName, thePart->name, strnlen(thePartName, MAX_PART_NAME_LEN))) continue;

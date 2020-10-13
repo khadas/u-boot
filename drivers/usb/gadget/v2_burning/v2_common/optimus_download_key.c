@@ -1,20 +1,23 @@
 /*
- * =====================================================================================
- *
- *       Filename:  v2_download_key.c
- *
- *        Version:  1.0
- *        Created:  2013/9/4 14:10:07
- *       Compiler:  gcc
- *
- *         Author:  Sam Wu (yihui.wu@amlogic.com)
- *   Organization:  Amlogic Inc.
- *
- *       Revision:  none
- *    Description:  Funcitions and command to burn keys with key_unify driver
- *
- * =====================================================================================
- */
+* Copyright (C) 2017 Amlogic, Inc. All rights reserved.
+* *
+This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+* *
+This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+* *
+You should have received a copy of the GNU General Public License along
+* with this program; if not, write to the Free Software Foundation, Inc.,
+* 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+* *
+Description:
+*/
+
 #include "../v2_burning_i.h"
 #include <amlogic/keyunify.h>
 
@@ -77,14 +80,40 @@ typedef struct {
 #endif//#ifndef __HDCP22_HEY_H__
 
 #define _AML_HDCP22_RX_KEY_NAME     "aml_hdcp_key2.2"
-static struct {
+#define _AML_HDCP22_RP_KEY_NAME     "aml_hdcp_key2.2rp"
+#define _AML_HDCP22_RX_TA_KEY_N     "aml_hdcp_key2.2.ta"
+#define _HDCP22RxTypes 3//sizeof(_hdcprx22Keys)/sizeof(_hdcprx22Keys[0])
+#define _HDCP22_MAX_KEY_NUM 4
+
+static const char* _hdcprx22Keys[_HDCP22RxTypes] = {
+	_AML_HDCP22_RX_KEY_NAME,
+	_AML_HDCP22_RP_KEY_NAME,
+	_AML_HDCP22_RX_TA_KEY_N,
+};
+static struct AmlHdcp22RxKey{
     const char* keyName;
+    const char* itemName;
     int         isEncrypt;
 }
-_amlHdcp22RxKeys[] = {
-    [0] = {.keyName = "hdcp22_rx_private",  .isEncrypt = 1},
-    [1] = {.keyName = "hdcp22_rx_fw",       .isEncrypt = 0},
-    [2] = {.keyName = "hdcp2_rx",           .isEncrypt = 0},
+_amlHdcp22RxKeys[_HDCP22RxTypes][_HDCP22_MAX_KEY_NUM] = {
+    {//_AML_HDCP22_RX_KEY_NAME
+        [0] = {.keyName = "hdcp22_rx_private",  .itemName = "hdcp22_rx_private", .isEncrypt = 1},
+        [1] = {.keyName = "hdcp22_rx_fw",       .itemName = "extractedKey",      .isEncrypt = 0},
+        [2] = {.keyName = "hdcp2_rx",           .itemName = "hdcp2_rx",          .isEncrypt = 0},
+        [3] = {.keyName = "hdcp22_rprx_fw",     .itemName = "extractedKey_rxrp", .isEncrypt = 0},
+    },
+    {//_AML_HDCP22_RP_KEY_NAME
+        [0] = {.keyName = "hdcp22_rp_private",  .itemName = "hdcp22_rx_private", .isEncrypt = 1},
+        [1] = {.keyName = "hdcp22_rprx_fw",     .itemName = "extractedKey",      .isEncrypt = 0},
+        [2] = {.keyName = "hdcp2_rx",           .itemName = "hdcp2_rx",          .isEncrypt = 0},
+        [3] = {.keyName = "hdcp22_rprp_fw",     .itemName = "extractedKey_rxrp", .isEncrypt = 0},
+    },
+    {//_AML_HDCP22_RX_TA_KEY_N
+        [0] = {.keyName = "KEY_PROVISION_HDCP_RX22_FW_PRIVATE",   .itemName = "hdcp22_rx_private", .isEncrypt = 0},
+        [1] = {.keyName = "KEY_PROVISION_HDCP_RX22_FW",           .itemName = "extractedKey",      .isEncrypt = 0},
+        [2] = {.keyName = "KEY_PROVISION_HDCP_RX22",              .itemName = "hdcp2_rx",          .isEncrypt = 0},
+        [3] = {.keyName = "KEY_PROVISION_HDCP_RP22_FW",           .itemName = "extractedKey_rxrp", .isEncrypt = 0},
+    },
 };
 
 static char generalDataChange(const char input)
@@ -123,11 +152,18 @@ unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyVa
     int ret = 0;
     unsigned writtenLen = 0;
 
+    int hdcprx22KeyIndex = 0;
+    for (; hdcprx22KeyIndex < _HDCP22RxTypes; ++hdcprx22KeyIndex) {
+        const char* tmpKeyN = _hdcprx22Keys[hdcprx22KeyIndex];
+        if (!strcmp(keyName, tmpKeyN)) break;
+    }
+
     DWN_DBG("to write key[%s] in len=%d\n", keyName, keyValLen);
-    if (!strcmp(keyName, _AML_HDCP22_RX_KEY_NAME))
+    if (hdcprx22KeyIndex < _HDCP22RxTypes)
     {
         const AmlResImgHead_t*  packedImgHead = (AmlResImgHead_t*)keyVal;
         const AmlResItemHead_t* packedImgItem = (AmlResItemHead_t*)(packedImgHead + 1);
+        const struct AmlHdcp22RxKey* _amlHdcp22RxKey = _amlHdcp22RxKeys[hdcprx22KeyIndex];
         int i = 0;
 
         const unsigned gensum = add_sum(keyVal + 4, keyValLen - 4);
@@ -139,18 +175,29 @@ unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyVa
         for (i = 0; i < packedImgHead->imgItemNum; ++i)
         {
             const AmlResItemHead_t* pItem = packedImgItem + i;
-            const char* itemN = _amlHdcp22RxKeys[i].keyName;
+            const char* itemN = pItem->name;
             u8*         itembuf = (u8*)keyVal + pItem->dataOffset;
             int       itemSz  = pItem->dataSz;
+            int k = 0;
 
-            if (_amlHdcp22RxKeys[i].isEncrypt) {
+            for (; k < _HDCP22_MAX_KEY_NUM;++k) {
+                    ret = strcmp(_amlHdcp22RxKey[k].itemName, itemN);
+                    if (ret) continue;
+                    break;
+            }
+            if ( _HDCP22_MAX_KEY_NUM == k ) {
+                    DWN_ERR("Err, cannot find keyname for item[%d] %s\n", i, itemN);
+                    return 0;
+            }
+            if (_amlHdcp22RxKey[k].isEncrypt) {
                 DWN_MSG("key[%s] at[%d] isEncrypted\n", itemN, i);
                 hdcp2DataDecryption(itemSz, (char*)itembuf, (char*)itembuf);
             }
-            DWN_MSG("burnkey[%s] at sz[%d]\n", itemN, itemSz);
-            ret = key_manage_write(itemN, itembuf, itemSz);
-            if (ret) {
-                DWN_ERR("Fail to write key[%s] in len=%d\n", itemN, itemSz);
+            const char* keyN = _amlHdcp22RxKey[k].keyName;
+            DWN_MSG("burnkey[%s] at sz[%d]\n", keyN, itemSz);
+            ret = key_manage_write(keyN, itembuf, itemSz);
+            if (ret != 0) {
+                DWN_ERR("Fail to write key[[%s] in len=%d\n", keyN, itemSz);
                 return 0;
             }
         }
@@ -158,7 +205,7 @@ unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyVa
     else
     {
         ret = key_manage_write(keyName, keyVal, keyValLen);
-        if (ret) {
+        if (ret != 0) {
             DWN_ERR("Fail to write key[%s] in len=%d\n", keyName, keyValLen);
             return 0;
         }
@@ -235,7 +282,14 @@ int v2_key_command(const int argc, char * const argv[], char *info)
         const char* queryKey = subCmd_argv[1];
         int keyIsBurned = 0;
 
-        if (!strcmp(_AML_HDCP22_RX_KEY_NAME, queryKey)) queryKey = _amlHdcp22RxKeys[0].keyName;
+        int hdcprx22KeyIndex = 0;
+        for (; hdcprx22KeyIndex < _HDCP22RxTypes; ++hdcprx22KeyIndex) {
+            const char* tmpKeyN = _hdcprx22Keys[hdcprx22KeyIndex];
+            if (!strcmp(queryKey, tmpKeyN)) {
+                queryKey = _amlHdcp22RxKeys[hdcprx22KeyIndex][0].keyName;
+                break;
+            }
+        }
 
         rcode = key_manage_query_exist(queryKey, &keyIsBurned);
         if (rcode) {
@@ -258,7 +312,14 @@ int v2_key_command(const int argc, char * const argv[], char *info)
         int exist = 0;
         int canOverWrite = 0;
 
-        if (!strcmp(_AML_HDCP22_RX_KEY_NAME, queryKey)) queryKey = _amlHdcp22RxKeys[0].keyName;
+        int hdcprx22KeyIndex = 0;
+        for (; hdcprx22KeyIndex < _HDCP22RxTypes; ++hdcprx22KeyIndex) {
+            const char* tmpKeyN = _hdcprx22Keys[hdcprx22KeyIndex];
+            if (!strcmp(queryKey, tmpKeyN)) {
+                queryKey = _amlHdcp22RxKeys[hdcprx22KeyIndex][0].keyName;
+                break;
+            }
+        }
 
         rcode = key_manage_query_canOverWrite(queryKey, &canOverWrite);
         if (rcode) {

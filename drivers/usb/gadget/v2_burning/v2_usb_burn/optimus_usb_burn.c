@@ -61,7 +61,7 @@ int do_usb_burn(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
         return __LINE__;
     }
 
-    optimus_work_mode_set(OPTIMUS_WORK_MODE_SDC_UPDATE);
+    optimus_work_mode_set(OPTIMUS_WORK_MODE_UDISK_PRODUCE);
     show_logo_to_report_burning();//indicate enter flow of burning! when 'run update'
     if (optimus_led_open(LED_TYPE_PWM)) {
         DWN_ERR("Fail to open led for burn\n");
@@ -77,7 +77,7 @@ int do_usb_burn(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 // added by scy
 U_BOOT_CMD(
    usb_burn,      //command name
-   2,               //maxargs
+   5,               //maxargs
    0,               //repeatable
    do_usb_burn,   //command function
    "Burning with amlogic format package in usb ",           //description

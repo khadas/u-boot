@@ -1,14 +1,22 @@
 /*
- * \file        optimus_download.h
- * \brief       common included files for optimus_*.c
- *
- * \version     1.0.0
- * \date        2013/5/3
- * \author      Sam.Wu <yihui.wu@Amlogic.com>
- *
- * Copyright (c) 2013 Amlogic Inc.. All Rights Reserved.
- *
- */
+* Copyright (C) 2017 Amlogic, Inc. All rights reserved.
+* *
+This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+* *
+This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+* *
+You should have received a copy of the GNU General Public License along
+* with this program; if not, write to the Free Software Foundation, Inc.,
+* 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+* *
+Description:
+*/
 
 #ifndef __OPTIMUS_DOWNLOAD_H__
 #define __OPTIMUS_DOWNLOAD_H__
@@ -83,6 +91,7 @@ unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyVa
 #define OPTIMUS_DOWNLOAD_TRANSFER_BUF_ADDR      (OPTIMUS_SPARSE_IMG_LEFT_DATA_ADDR_LOW + OPTIMUS_SPARSE_IMG_LEFT_DATA_MAX_SZ)
 
 #define OPTIMUS_DOWNLOAD_SLOT_SZ                (64<<10)    //64K
+#define OPTIMUS_LOCAL_UPGRADE_SLOT_SZ           (OPTIMUS_DOWNLOAD_SLOT_SZ * 16) //1M per time for fatload
 #define OPTIMUS_DOWNLOAD_SLOT_SZ_SHIFT_BITS     (16)    //64K
 #define OPTIMUS_DOWNLOAD_SLOT_NUM               (OPTIMUS_DOWNLOAD_TRANSFER_BUF_TOTALSZ/OPTIMUS_DOWNLOAD_SLOT_SZ)
 
@@ -180,6 +189,8 @@ int platform_busy_increase_un_reported_size(const unsigned nBytes);
 #define OPTIMUS_WORK_MODE_SDC_UPDATE      (0xefe7)
 #define OPTIMUS_WORK_MODE_SDC_PRODUCE     (0xefe8)
 #define OPTIMUS_WORK_MODE_SYS_RECOVERY    (0xefe9)
+#define OPTIMUS_WORK_MODE_UDISK_UPDATE    (0xefea)
+#define OPTIMUS_WORK_MODE_UDISK_PRODUCE   (0xefeb)
 int optimus_work_mode_get(void);
 int optimus_work_mode_set(int workmode);
 
@@ -193,7 +204,9 @@ int optimus_work_mode_set(int workmode);
 
 //ENV for auto jump into producing
 #define _ENV_TIME_OUT_TO_AUTO_BURN "identifyWaitTime"
+#ifndef AML_SYS_RECOVERY_PART
 #define AML_SYS_RECOVERY_PART      "aml_sysrecovery"
+#endif// #ifndef AML_SYS_RECOVERY_PART
 
 #if defined(CONFIG_AML_MTD) && (defined(UBIFS_IMG) || defined(CONFIG_CMD_UBIFS))
 #define OPTIMUS_BURN_TARGET_SUPPORT_UBIFS       1
