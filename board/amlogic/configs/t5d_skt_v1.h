@@ -396,6 +396,7 @@
 			"fi;fi;" \
 		"fi;\0" \
 
+#ifndef CONFIG_PXP_EMULATOR
 #define CONFIG_PREBOOT  \
 	"run bcb_cmd; "\
 	"run factory_reset_poweroff_protect;"\
@@ -406,11 +407,15 @@
 	"bcb uboot-command;"\
 	"run switch_bootmode;"\
 	"run reset_suspend;"
-
-
 #define CONFIG_BOOTCOMMAND "run storeboot"
+#else
+#define CONFIG_PREBOOT  "echo preboot"
+#define CONFIG_BOOTCOMMAND "echo bootcomand"
+#endif //CONFIG_PXP_EMULATOR
 
-//#define CONFIG_ENV_IS_NOWHERE  1
+#ifndef CONFIG_PXP_EMULATOR
+#define CONFIG_ENV_IS_NOWHERE  1
+#endif //CONFIG_PXP_EMULATOR
 #define CONFIG_ENV_SIZE   (64*1024)
 #define CONFIG_FIT 1
 #define CONFIG_OF_LIBFDT 1
@@ -429,7 +434,9 @@
 //#define CONFIG_DDR_FULL_TEST			0 //0:disable, 1:enable. ddr full test
 //#define CONFIG_CMD_DDR_D2PLL			0 //0:disable, 1:enable. d2pll cmd
 //#define CONFIG_CMD_DDR_TEST				0 //0:disable, 1:enable. ddrtest cmd
+#ifndef CONFIG_PXP_EMULATOR
 #define CONFIG_CMD_DDR_TEST_G12			1 //0:disable, 1:enable. G12 ddrtest cmd
+#endif //CONFIG_PXP_EMULATOR
 //#define CONFIG_DDR_LOW_POWER			0 //0:disable, 1:enable. ddr clk gate for lp
 //#define CONFIG_DDR_ZQ_PD				0 //0:disable, 1:enable. ddr zq power down
 //#define CONFIG_DDR_USE_EXT_VREF			0 //0:disable, 1:enable. ddr use external vref
@@ -439,8 +446,10 @@
 
 /* storage: emmc/nand/sd */
 #define		CONFIG_STORE_COMPATIBLE 1
+#ifndef CONFIG_PXP_EMULATOR
 #define 	CONFIG_ENV_OVERWRITE
 #define 	CONFIG_CMD_SAVEENV
+#endif //CONFIG_PXP_EMULATOR
 /* fixme, need fix*/
 
 #if (defined(CONFIG_ENV_IS_IN_AMLNAND) || defined(CONFIG_ENV_IS_IN_MMC)) && defined(CONFIG_STORE_COMPATIBLE)
@@ -564,9 +573,13 @@
 	#define CONFIG_SYS_NAND_BASE_LIST   {0}
 #endif
 
+#ifndef CONFIG_PXP_EMULATOR
+/* VPP */
+#define CONFIG_AML_VPP
 /* vpu */
 #define CONFIG_AML_VPU 1
 #define CONFIG_VPU_CLK_LEVEL_DFT 7
+#endif //CONFIG_PXP_EMULATOR
 #ifdef CONFIG_AML_VPU
 /* DISPLAY & HDMITX */
 //#define CONFIG_AML_HDMITX20 1
@@ -593,7 +606,9 @@
  * Enable CONFIG_MUSB_UDD for Device functionalities.
  */
 /* #define CONFIG_MUSB_UDC		1 */
+#ifndef CONFIG_PXP_EMULATOR
 #define CONFIG_CMD_USB 1
+#endif //CONFIG_PXP_EMULATOR
 #if defined(CONFIG_CMD_USB)
 	#define CONFIG_GXL_XHCI_BASE            0xff500000
 	#define CONFIG_GXL_USB_PHY2_BASE        0xffe09000
@@ -613,18 +628,22 @@
 	//#define CONFIG_USB_XHCI_AMLOGIC_USB3_V2		1
 #endif //#if defined(CONFIG_CMD_USB)
 
+#ifndef CONFIG_PXP_EMULATOR
 #define CONFIG_TXLX_USB        1
 #define CONFIG_USB_DEVICE_V2    1
+#endif //CONFIG_PXP_EMULATOR
 #define USB_PHY2_PLL_PARAMETER_1	0x09400414
 #define USB_PHY2_PLL_PARAMETER_2	0x927e0000
 #define USB_PHY2_PLL_PARAMETER_3	0xAC5F69E5
 
 //UBOOT fastboot config
+#ifndef CONFIG_PXP_EMULATOR
 #define CONFIG_CMD_FASTBOOT 1
 #define CONFIG_FASTBOOT_FLASH_MMC_DEV 1
 #define CONFIG_FASTBOOT_FLASH 1
 #define CONFIG_USB_GADGET 1
 #define CONFIG_USBDOWNLOAD_GADGET 1
+
 #define CONFIG_SYS_CACHELINE_SIZE 64
 #define CONFIG_FASTBOOT_MAX_DOWN_SIZE	0x8000000
 #define CONFIG_DEVICE_PRODUCT	"t9623_ak329"
@@ -640,9 +659,12 @@
 #define CONFIG_V3_KEY_BURNING_SUPPORT           1
 #define CONFIG_AML_SECURITY_KEY                 1
 #define CONFIG_UNIFY_KEY_MANAGE                 1
+#endif //CONFIG_PXP_EMULATOR
 
 /* net */
+#ifndef CONFIG_PXP_EMULATOR
 #define CONFIG_CMD_NET   1
+#endif //CONFIG_PXP_EMULATOR
 #if defined(CONFIG_CMD_NET)
 	#define CONFIG_DESIGNWARE_ETH 1
 	#define CONFIG_PHYLIB	1
@@ -688,7 +710,9 @@
 #define CONFIG_CMD_AUTOSCRIPT 1
 #define CONFIG_CMD_MISC 1
 //#define CONFIG_CMD_PLLTEST 1
+#ifndef CONFIG_PXP_EMULATOR
 #define CONFIG_CMD_INI 1
+#endif //CONFIG_PXP_EMULATOR
 
 /*file system*/
 #define CONFIG_DOS_PARTITION 1
@@ -701,7 +725,9 @@
 
 //#define CONFIG_MDUMP_COMPRESS 1
 //#define CONFIG_EXT4_WRITE 1
+#ifndef CONFIG_PXP_EMULATOR
 #define CONFIG_CMD_EXT4 1
+#endif //CONFIG_PXP_EMULATOR
 //#define CONFIG_CMD_EXT4_WRITE 1
 
 /* Cache Definitions */
@@ -710,10 +736,16 @@
 
 /* other functions */
 #define CONFIG_NEED_BL301	1
+#ifndef CONFIG_PXP_EMULATOR
 #define CONFIG_NEED_BL32	1
+#endif //CONFIG_PXP_EMULATOR
 #define CONFIG_CMD_RSVMEM	1
 #define CONFIG_FIP_IMG_SUPPORT	1
+#ifdef CONFIG_PXP_EMULATOR
+#define CONFIG_BOOTDELAY	0 //delay 0s
+#else
 #define CONFIG_BOOTDELAY	1 //delay 1s
+#endif //CONFIG_PXP_EMULATOR
 #define CONFIG_SYS_LONGHELP 1
 #define CONFIG_CMD_MISC     1
 #define CONFIG_CMD_ITEST    1

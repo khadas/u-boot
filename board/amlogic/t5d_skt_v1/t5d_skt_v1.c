@@ -644,7 +644,9 @@ int board_late_init(void)
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
+#ifdef CONFIG_AML_VPP
 	vpp_init();
+#endif
 
 	run_command("ini_model", 0);
 #ifdef CONFIG_AML_HDMITX20
