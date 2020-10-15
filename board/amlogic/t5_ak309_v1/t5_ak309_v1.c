@@ -710,21 +710,48 @@ phys_size_t get_effective_memsize(void)
 int checkhw(char * name)
 {
 	char loc_name[64] = {0};
+	unsigned int ddr_size=0;
 
-	/* add your logic code here */
-	cpu_id_t cpu_id = get_cpu_id();
-	if (MESON_CPU_MAJOR_ID_T5 == cpu_id.family_id) {
-		switch (cpu_id.chip_rev) {
-			case 0xA:
-				strcpy(loc_name, "t5_t963_ak309\0");
+	int i;
+	for (i=0; i<CONFIG_NR_DRAM_BANKS; i++) {
+		ddr_size += gd->bd->bi_dram[i].size;
+	}
+#if defined(CONFIG_SYS_MEM_TOP_HIDE)
+	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
+#endif
+
+//	/* add your logic code here */
+//	cpu_id_t cpu_id = get_cpu_id();
+//	if (MESON_CPU_MAJOR_ID_T5 == cpu_id.family_id) {
+//		switch (cpu_id.chip_rev) {
+//			case 0xA:
+//				strcpy(loc_name, "t5_t963_ak309\0");
+//			break;
+//			case 0xB:
+//				strcpy(loc_name, "t5_t963_ak309\0");
+//			break;
+//			default:
+//				strcpy(loc_name, "t5_t963_unsupport");
+//			break;
+//		}
+//	}
+	switch (ddr_size) {
+		case 0x80000000:
+			strcpy(loc_name, "t5_t963_ak309-2g\0");
 			break;
-			case 0xB:
-				strcpy(loc_name, "t5_t963_ak309\0");
+		case 0x60000000:
+			strcpy(loc_name, "t5_t963_ak309-1.5g\0");
 			break;
-			default:
-				strcpy(loc_name, "t5_t963_unsupport");
+		case 0x40000000:
+			strcpy(loc_name, "t5_t963_ak309-1g\0");
 			break;
-		}
+		case 0x2000000:
+			strcpy(loc_name, "t5_t963_ak309_512m\0");
+			break;
+		default:
+			//printf("DDR size: 0x%x, multi-dt doesn't support\n", ddr_size);
+			strcpy(loc_name, "t5_t963_unsupport");
+			break;
 	}
 	/* set aml_dt */
 	strcpy(name, loc_name);

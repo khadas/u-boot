@@ -457,7 +457,7 @@ static int spifc_pinctrl_enable(void *pinctrl, bool enable)
 {
 	unsigned int val;
 
-	/* mux gpiob_3?¡é4?¡é5?¡é6?¡é7 to spifc */
+	/* mux gpiob_3?Ð±Ñ‰4?Ð±Ñ‰5?Ð±Ñ‰6?Ð±Ñ‰7 to spifc */
 	val = readl(P_PERIPHS_PIN_MUX_0);
 	val &= ~(0xfffff << 12);
 	if (enable)
@@ -714,22 +714,50 @@ phys_size_t get_effective_memsize(void)
 int checkhw(char * name)
 {
 	char loc_name[64] = {0};
+	unsigned int ddr_size=0;
 
-	/* add your logic code here */
-	cpu_id_t cpu_id = get_cpu_id();
-	if (MESON_CPU_MAJOR_ID_T5 == cpu_id.family_id) {
-		switch (cpu_id.chip_rev) {
-			case 0xA:
-				strcpy(loc_name, "t5_t963_ak301\0");
-			break;
-			case 0xB:
-				strcpy(loc_name, "t5_t963_ak301\0");
-			break;
-			default:
-				strcpy(loc_name, "t5_t963_unsupport");
-			break;
-		}
+	int i;
+	for (i=0; i<CONFIG_NR_DRAM_BANKS; i++) {
+		ddr_size += gd->bd->bi_dram[i].size;
 	}
+#if defined(CONFIG_SYS_MEM_TOP_HIDE)
+	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
+#endif
+	/* add your logic code here */
+//	cpu_id_t cpu_id = get_cpu_id();
+//	if (MESON_CPU_MAJOR_ID_T5 == cpu_id.family_id) {
+//		switch (cpu_id.chip_rev) {
+//			case 0xA:
+//				strcpy(loc_name, "t5_t963_ak301\0");
+//			break;
+//			case 0xB:
+//				strcpy(loc_name, "t5_t963_ak301\0");
+//			break;
+//			default:
+//				strcpy(loc_name, "t5_t963_unsupport");
+//			break;
+//		}
+//	}
+
+	switch (ddr_size) {
+		case 0x80000000:
+			strcpy(loc_name, "t5_t963_ak301-2g\0");
+			break;
+		case 0x60000000:
+			strcpy(loc_name, "t5_t963_ak301-1.5g\0");
+			break;
+		case 0x40000000:
+			strcpy(loc_name, "t5_t963_ak301-1g\0");
+			break;
+		case 0x2000000:
+			strcpy(loc_name, "t5_t963_ak301_512m\0");
+			break;
+		default:
+			//printf("DDR size: 0x%x, multi-dt doesn't support\n", ddr_size);
+			strcpy(loc_name, "t5_t963_unsupport");
+			break;
+	}
+
 	/* set aml_dt */
 	strcpy(name, loc_name);
 	setenv("aml_dt", loc_name);
