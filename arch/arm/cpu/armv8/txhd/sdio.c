@@ -86,5 +86,12 @@ int cpu_sd_emmc_init(unsigned port)
 __weak void sd_emmc_para_config(struct sd_emmc_global_regs *reg,
 		unsigned int clock, unsigned int port)
 {
+	unsigned int clk = reg->gclock;
+
+	if (port == SDIO_PORT_C) {
+		clk &= ~(3 << Cfg_co_phase);
+		clk |= (3 << Cfg_co_phase);
+	}
+	reg->gclock = clk;
 	return;
 }
