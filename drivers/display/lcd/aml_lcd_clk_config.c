@@ -2055,8 +2055,8 @@ static void lcd_clk_generate_txhd(struct lcd_config_s *pconf)
 		od1 = od_table[cConf->pll_od1_sel];
 		od2 = od_table[cConf->pll_od2_sel];
 		od3 = od_table[cConf->pll_od3_sel];
-		for (tcon_div_sel = 0; tcon_div_sel < 5; tcon_div_sel++) {
-			if (tcon_div_table[tcon_div_sel] == phy_div * od1 * od2 * od3) {
+		for (tcon_div_sel = 0; tcon_div_sel < 2; tcon_div_sel++) {
+			if (tcon_div_table_txhd[tcon_div_sel] == phy_div * od1 * od2 * od3) {
 				cConf->pll_tcon_div_sel = tcon_div_sel;
 				done = 1;
 				break;
@@ -2066,8 +2066,8 @@ static void lcd_clk_generate_txhd(struct lcd_config_s *pconf)
 	case LCD_MLVDS:
 		bit_rate = pconf->lcd_timing.bit_rate / 1000;
 		/* must go through div4 for clk phase */
-		for (tcon_div_sel = 1; tcon_div_sel < 3; tcon_div_sel++) {
-			pll_fvco = bit_rate * tcon_div_table[tcon_div_sel] * 4;
+		for (tcon_div_sel = 0; tcon_div_sel < 2; tcon_div_sel++) {
+			pll_fvco = bit_rate * tcon_div_table_txhd[tcon_div_sel] * 4;
 			done = check_pll_vco(cConf, pll_fvco);
 			if (done) {
 				clk_div_sel = CLK_DIV_SEL_1;

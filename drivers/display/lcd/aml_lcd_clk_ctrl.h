@@ -533,6 +533,7 @@ static const unsigned int od_fb_table[2] = {1, 2};
 
 static const unsigned int od_table[6] = {1, 2, 4, 8, 16, 32};
 
+static const unsigned int tcon_div_table_txhd[2] = {8, 16};
 static const unsigned int tcon_div_table[5] = {1, 2, 4, 8, 16};
 
 static char *lcd_clk_div_sel_table[] = {
