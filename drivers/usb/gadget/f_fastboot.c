@@ -843,11 +843,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 				strncat(response, "no", chars_left);
 		}
 	} else if (!strcmp_l1("has-slot:metadata", cmd)) {
-		if (has_boot_slot == 1) {
-			printf("has metadata slot\n");
-			strncat(response, "yes", chars_left);
-		} else
-			strncat(response, "no", chars_left);
+		strncat(response, "no", chars_left);
 	} else if (!strcmp_l1("has-slot:dtbo", cmd)) {
 		if (has_boot_slot == 1) {
 			printf("has dtbo slot\n");
@@ -872,23 +868,13 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		char str_num[20];
 		struct partitions *pPartition;
 		uint64_t sz;
-		char *slot_name;
 		strsep(&cmd, ":");
 		printf("partition is %s\n", cmd);
 		if (strcmp(cmd, "userdata") == 0) {
 			strcpy(cmd, "data");
 			printf("partition is %s\n", cmd);
 		}
-		if ((has_boot_slot == 1) && (strcmp(cmd, "metadata") == 0)) {
-			slot_name = getenv("slot-suffixes");
-			if (strcmp(slot_name, "0") == 0) {
-				printf("set partiton metadata_a\n");
-				strcpy(cmd, "metadata_a");
-			} else if (strcmp(slot_name, "1") == 0) {
-				printf("set partiton metadata_b\n");
-				strcpy(cmd, "metadata_b");
-			}
-		}
+
 		if (!strncmp("mbr", cmd, strlen("mbr"))) {
 			strcpy(response, "FAILVariable not implemented");
 		} else {
@@ -1275,12 +1261,14 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 					if (avb_unlock()) {
 						printf("unlocking device.  Erasing userdata partition!\n");
 						run_command("store erase partition data", 0);
+						run_command("store erase partition metadata", 0);
 					} else {
 						printf("unlock failed!\n");
 					}
 #else
 					printf("unlocking device.  Erasing userdata partition!\n");
 					run_command("store erase partition data", 0);
+					run_command("store erase partition metadata", 0);
 #endif
 				}
 			}
@@ -1306,10 +1294,12 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 				} else {
 					printf("locking device.  Erasing userdata partition!\n");
 					run_command("store erase partition data", 0);
+					run_command("store erase partition metadata", 0);
 				}
 #else
 				printf("locking device.  Erasing userdata partition!\n");
 				run_command("store erase partition data", 0);
+				run_command("store erase partition metadata", 0);
 #endif
 			}
 		}
@@ -1335,7 +1325,6 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
 	char* response = response_str;
-	char *slot_name;
 
 	printf("cmd cb_flash is %s\n", cmd);
 
@@ -1361,17 +1350,6 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 		}
 	}
 #endif
-
-	if ((has_boot_slot == 1) && (strcmp(cmd, "metadata") == 0)) {
-		slot_name = getenv("slot-suffixes");
-		if (strcmp(slot_name, "0") == 0) {
-			printf("set partiton metadata_a\n");
-			strcpy(cmd, "metadata_a");
-		} else if (strcmp(slot_name, "1") == 0) {
-			printf("set partiton metadata_b\n");
-			strcpy(cmd, "metadata_b");
-		}
-	}
 
 	printf("partition is %s\n", cmd);
 	if (strcmp(cmd, "userdata") == 0) {
@@ -1480,7 +1458,6 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 {
 	char* response = response_str;
 	char *cmd = req->buf;
-	char *slot_name;
 
 	printf("cmd cb_erase is %s\n", cmd);
 
@@ -1501,20 +1478,6 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 	get_mergestatus(&message);
 
 	printf("partition is %s\n", cmd);
-	if ((has_boot_slot == 1) && (strcmp(cmd, "metadata") == 0)) {
-		if (message.merge_status == SNAPSHOTTED || message.merge_status == MERGING) {
-			fastboot_tx_write_str("FAILin merge state, cannot erase");
-			return;
-		}
-		slot_name = getenv("slot-suffixes");
-		if (strcmp(slot_name, "0") == 0) {
-			printf("set partiton metadata_a\n");
-			strcpy(cmd, "metadata_a");
-		} else if (strcmp(slot_name, "1") == 0) {
-			printf("set partiton metadata_b\n");
-			strcpy(cmd, "metadata_b");
-		}
-	}
 
 	if (strcmp(cmd, "userdata") == 0) {
 		strcpy(cmd, "data");
