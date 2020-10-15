@@ -476,49 +476,71 @@ ddr_reg_t __ddr_reg[] = {
 #define VDDEE_VAL				CONFIG_VDDEE_INIT_VOLTAGE
 /* VCCK PWM table */
 #if   (VCCK_VAL == 800)
-	#define VCCK_VAL_REG	0x00150007
+	#define VCCK_VAL_REG0	0x00150007
+	#define VCCK_VAL_REG1	0x0018000A
 #elif (VCCK_VAL == 810)
-	#define VCCK_VAL_REG	0x00140008
+	#define VCCK_VAL_REG0	0x00140008
+	#define VCCK_VAL_REG1	0x0017000B
 #elif (VCCK_VAL == 820)
-	#define VCCK_VAL_REG	0x00130009
+	#define VCCK_VAL_REG0	0x00130009
+	#define VCCK_VAL_REG1	0x0016000C
 #elif (VCCK_VAL == 830)
-	#define VCCK_VAL_REG	0x0012000a
+	#define VCCK_VAL_REG0	0x0012000a
+	#define VCCK_VAL_REG1	0x0015000D
 #elif (VCCK_VAL == 840)
-	#define VCCK_VAL_REG	0x0011000b
+	#define VCCK_VAL_REG0	0x0011000b
+	#define VCCK_VAL_REG1	0x0014000E
 #elif (VCCK_VAL == 850)
-	#define VCCK_VAL_REG	0x0010000c
+	#define VCCK_VAL_REG0	0x0010000c
+	#define VCCK_VAL_REG1	0X0013000F
 #elif (VCCK_VAL == 860)
-	#define VCCK_VAL_REG	0x000f000d
+	#define VCCK_VAL_REG0	0x000f000d
+	#define VCCK_VAL_REG1	0x00120010
 #elif (VCCK_VAL == 870)
-	#define VCCK_VAL_REG	0x000e000e
+	#define VCCK_VAL_REG0	0x000e000e
+	#define VCCK_VAL_REG1	0X00110011
 #elif (VCCK_VAL == 880)
-	#define VCCK_VAL_REG	0x000d000f
+	#define VCCK_VAL_REG0	0x000d000f
+	#define VCCK_VAL_REG1	0x00100012
 #elif (VCCK_VAL == 890)
-	#define VCCK_VAL_REG	0x000c0010
+	#define VCCK_VAL_REG0	0x000c0010
+	#define	VCCK_VAL_REG1	0x000F0013
 #elif (VCCK_VAL == 900)
-	#define VCCK_VAL_REG	0x000b0011
+	#define VCCK_VAL_REG0	0x000b0011
+	#define VCCK_VAL_REG1	0x000E0014
 #elif (VCCK_VAL == 910)
-	#define VCCK_VAL_REG	0x000a0012
+	#define VCCK_VAL_REG0	0x000a0012
+	#define VCCK_VAL_REG1	0X000D0015
 #elif (VCCK_VAL == 920)
-	#define VCCK_VAL_REG	0x00090013
+	#define VCCK_VAL_REG0	0x00090013
+	#define VCCK_VAL_REG1	0x000C0016
 #elif (VCCK_VAL == 930)
-	#define VCCK_VAL_REG	0x00080014
+	#define VCCK_VAL_REG0	0x00080014
+	#define VCCK_VAL_REG1	0x000B0017
 #elif (VCCK_VAL == 940)
-	#define VCCK_VAL_REG	0x00070015
+	#define VCCK_VAL_REG0	0x00070015
+	#define VCCK_VAL_REG1	0x000A0018
 #elif (VCCK_VAL == 950)
-	#define VCCK_VAL_REG	0x00060016
+	#define VCCK_VAL_REG0	0x00060016
+	#define VCCK_VAL_REG1	0x00090019
 #elif (VCCK_VAL == 960)
-	#define VCCK_VAL_REG	0x00050017
+	#define VCCK_VAL_REG0	0x00050017
+	#define VCCK_VAL_REG1	0x0008001A
 #elif (VCCK_VAL == 970)
-	#define VCCK_VAL_REG	0x00040018
+	#define VCCK_VAL_REG0	0x00040018
+	#define VCCK_VAL_REG1	0x0007001B
 #elif (VCCK_VAL == 980)
-	#define VCCK_VAL_REG	0x00030019
+	#define VCCK_VAL_REG0	0x00030019
+	#define VCCK_VAL_REG1	0x0006001C
 #elif (VCCK_VAL == 990)
-	#define VCCK_VAL_REG	0x0002001a
+	#define VCCK_VAL_REG0	0x0002001a
+	#define VCCK_VAL_REG1	0x0005001D
 #elif (VCCK_VAL == 1000)
-	#define VCCK_VAL_REG	0x0001001b
+	#define VCCK_VAL_REG0	0x0001001b
+	#define VCCK_VAL_REG1	0x0004001E
 #elif (VCCK_VAL == 1010)
-	#define VCCK_VAL_REG	0x0000001c
+	#define VCCK_VAL_REG0	0x0000001c
+	#define VCCK_VAL_REG1	0x0003001F
 #else
 	#error "VCCK val out of range\n"
 #endif
@@ -570,7 +592,10 @@ bl2_reg_t __bl2_reg[] = {
 
 	/* PWM_AO_D */
 	/* VCCK_VAL_REG: check PWM table */
-	{AO_PWM_PWM_D,        VCCK_VAL_REG,            0xffffffff,   0, BL2_INIT_STAGE_1, 0},
+	/*g12b is divided into two versions, revA and revB,revA uses 30-step vcck voltage. revB uses 36 steps of vcck voltage.
+	There are two voltmeters in the kernel,and only one voltmeter under uboot.Cause vcck voltage buzhunque*/
+	{AO_PWM_PWM_D,        VCCK_VAL_REG0,            0xffffffff,   0, BL2_INIT_STAGE_10, 0},
+	{AO_PWM_PWM_D,        VCCK_VAL_REG1,            0xffffffff,   0, BL2_INIT_STAGE_11, 0},
 	{AO_PWM_MISC_REG_CD,  ((1 << 23) | (1 << 1)),  (0x7f << 16), 0, BL2_INIT_STAGE_1, 0},
 	{AO_PIN_MUX_REG1,     (3 << 20),               (0xF << 20),  0, BL2_INIT_STAGE_1, 0},
 

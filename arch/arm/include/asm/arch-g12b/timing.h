@@ -41,6 +41,8 @@
 #define BL2_INIT_STAGE_7			7
 #define BL2_INIT_STAGE_8			8
 #define BL2_INIT_STAGE_9			9
+#define BL2_INIT_STAGE_10			10
+#define BL2_INIT_STAGE_11			11
 
 #define BL2_INIT_STAGE_PWM_PRE_INIT		0x81
 #define BL2_INIT_STAGE_PWM_CHK_HW		0x82
