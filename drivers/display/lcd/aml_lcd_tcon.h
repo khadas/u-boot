@@ -47,6 +47,7 @@ struct lcd_tcon_config_s {
 	unsigned int demura_lut_size;
 	unsigned int acc_lut_size;
 
+	unsigned int *axi_reg;
 	void (*tcon_axi_mem_config)(void);
 	int (*tcon_enable)(struct lcd_config_s *pconf);
 };

@@ -239,7 +239,7 @@ static int handle_tcon_path(void)
 	unsigned char *buf;
 	char str[30], env_str[30];
 	const char *ini_value = NULL;
-	unsigned int temp, i, n, version, block_cnt, data_size;
+	unsigned int temp, i, n, version, block_cnt, data_size, crc32;
 
 	/* version */
 	ini_value = IniGetString("tcon_Path", "version", "0");
@@ -361,10 +361,11 @@ static int handle_tcon_path(void)
 	buf[7] = (data_size >> 24) & 0xff;
 
 	/* data check */
-	buf[0] = model_data_checksum(&buf[4], (data_size - 4));
-	buf[1] = model_data_lrc(&buf[4], (data_size - 4));
-	buf[2] = 0x55;
-	buf[3] = 0xaa;
+	crc32 = CalCRC32(0, &buf[4], (data_size - 4));
+	buf[0] = crc32 & 0xff;
+	buf[1] = (crc32 >> 8) & 0xff;
+	buf[2] = (crc32 >> 16) & 0xff;
+	buf[3] = (crc32 >> 24) & 0xff;
 
 	/* pmu bin */
 	for (i = 0; i < 4; i++) {
@@ -2428,7 +2429,7 @@ int handle_tcon_data_load(unsigned char **buf, unsigned int index)
 	unsigned char *data_buf;
 	unsigned long int bin_size, new_size;
 	unsigned int data_size;
-	unsigned char data_checksum, data_lrc, temp_checksum, temp_lrc;
+	unsigned int data_crc32, temp_crc32;
 	char *file_name;
 
 	if (!buf) {
@@ -2459,8 +2460,12 @@ int handle_tcon_data_load(unsigned char **buf, unsigned int index)
 			(data_buf[9] << 8) |
 			(data_buf[10] << 16) |
 			(data_buf[11] << 24);
-		if (data_size >= bin_size)
+		if (data_size >= bin_size) {
+			memset(data_buf, 0, data_size);
 			goto handle_tcon_data_load_next;
+		}
+		free(data_buf);
+		buf[index] = NULL;
 	}
 	/* note: all the tcon data buf size must align to 32byte */
 	new_size = handle_tcon_char_data_size_align(bin_size);
@@ -2482,35 +2487,25 @@ handle_tcon_data_load_next:
 		ALOGE("%s: data_size 0x%x invalid, bin_size 0x%lx\n",
 			__func__, data_size, bin_size);
 		free(data_buf);
+		buf[index] = NULL;
 		return -1;
 	}
 
-	/* update init_priority */
-	data_buf[24] = index & 0xff;
-	data_buf[25] = (index >> 8) & 0xff;
+	/* data check */
+	data_crc32 = data_buf[0] |
+		(data_buf[1] << 8) |
+		(data_buf[2] << 16) |
+		(data_buf[3] << 24);
+	temp_crc32 = CalCRC32(0, &data_buf[4], (data_size - 4));
 
-	data_checksum = data_buf[0];
-	data_lrc = data_buf[1];
-	temp_checksum = model_data_checksum(&data_buf[4], (data_size - 4));
-	temp_lrc = model_data_lrc(&data_buf[4], (data_size - 4));
 	if (model_debug_flag & DEBUG_TCON) {
-		ALOGD("%s: tcon_data[%d] checksum=0x%02x(0x%02x), lrc=0x%02x(0x%02x)\n",
-			 __func__, index, temp_checksum, data_checksum,
-			 temp_lrc, data_lrc);
+		ALOGD("%s: tcon_data[%d] crc32=0x%08x(0x%02x)\n",
+			 __func__, index, temp_crc32, data_crc32);
 	}
-	if (data_checksum != temp_checksum) {
-		ALOGE("%s: tcon_data[%d] checksum error\n", __func__, index);
+	if (data_crc32 != temp_crc32) {
+		ALOGE("%s: tcon_data[%d] crc32 check error\n", __func__, index);
 		free(data_buf);
-		return -1;
-	}
-	if (data_lrc != temp_lrc) {
-		ALOGE("%s: tcon_data[%d] lrc error\n", __func__, index);
-		free(data_buf);
-		return -1;
-	}
-	if ((data_buf[2] != 0x55) || (data_buf[3] != 0xaa)) {
-		ALOGE("%s: tcon_data[%d] pattern error\n", __func__, index);
-		free(data_buf);
+		buf[index] = NULL;
 		return -1;
 	}
 

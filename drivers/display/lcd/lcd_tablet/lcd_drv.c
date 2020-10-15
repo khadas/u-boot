@@ -355,7 +355,6 @@ static void lcd_lvds_control_set(struct lcd_config_s *pconf)
 		break;
 	case LCD_CHIP_TL1:
 	case LCD_CHIP_TM2:
-	case LCD_CHIP_T5:
 		/* lvds channel:    //tx 12 channels
 		 *    0: d0_a
 		 *    1: d1_a
@@ -384,6 +383,38 @@ static void lcd_lvds_control_set(struct lcd_config_s *pconf)
 			} else {
 				lcd_vcbus_write(P2P_CH_SWAP0, 0x76543210);
 				lcd_vcbus_write(P2P_CH_SWAP1, 0xba98);
+			}
+		}
+		break;
+	case LCD_CHIP_T5:
+		/* lvds channel:    //tx 12 channels
+		 *    0: d0_a
+		 *    1: d1_a
+		 *    2: d2_a
+		 *    3: clk_a
+		 *    4: d3_a
+		 *    5: d4_a
+		 *    6: d0_b
+		 *    7: d1_b
+		 *    8: d2_b
+		 *    9: clk_b
+		 *    a: d3_b
+		 *    b: d4_b */
+		if (port_swap) {
+			if (lane_reverse) {
+				lcd_vcbus_write(P2P_CH_SWAP0, 0x345789ab);
+				lcd_vcbus_write(P2P_CH_SWAP1, 0x0612);
+			} else {
+				lcd_vcbus_write(P2P_CH_SWAP0, 0x210a9876);
+				lcd_vcbus_write(P2P_CH_SWAP1, 0x5b43);
+			}
+		} else {
+			if (lane_reverse) {
+				lcd_vcbus_write(P2P_CH_SWAP0, 0xab12345);
+				lcd_vcbus_write(P2P_CH_SWAP1, 0x60789);
+			} else {
+				lcd_vcbus_write(P2P_CH_SWAP0, 0x87643210);
+				lcd_vcbus_write(P2P_CH_SWAP1, 0xb5a9);
 			}
 		}
 		break;

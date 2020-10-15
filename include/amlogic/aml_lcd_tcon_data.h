@@ -72,16 +72,14 @@ struct lcd_tcon_init_block_header_s {
 };
 
 struct lcd_tcon_data_block_header_s {
-	unsigned char checksum;
-	unsigned char lrc;
-	unsigned short chk_reserved; /* dummy for memcpy */
+	unsigned int crc32;
 	unsigned int raw_data_check;/* crc */
 	unsigned int block_size;
 	unsigned short header_size;
 	unsigned short ext_header_size;
 	unsigned int block_type;
 	unsigned int block_flag;
-	unsigned short init_priority;
+	unsigned short init_priority; /*invalid*/
 	unsigned short chipid;
 	unsigned char name[LCD_TCON_DATA_BLOCK_NAME_SIZE];
 };
