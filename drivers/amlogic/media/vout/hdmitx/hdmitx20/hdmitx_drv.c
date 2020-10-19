@@ -22,6 +22,7 @@
 #include <asm/io.h>
 #include <amlogic/media/vout/aml_vout.h>
 #include <amlogic/media/vout/hdmitx/hdmitx.h>
+#include <amlogic/auge_sound.h>
 #include "hdmitx_drv.h"
 
 /* TODO */
@@ -389,12 +390,12 @@ void hdmi_tx_set(struct hdmitx_dev *hdev)
 {
 	unsigned char checksum[11];
 	char *p_tmp;
-	/* aml_audio_init(); */ /* TODO Init audio hw firstly */
+	aml_audio_init();  /* Init audio hw firstly */
 	hdmitx_hw_init();
 	ddc_init_();
 	hdmitx_set_hw(hdev);
-	if (0) /* TODO add audio */
-		hdmitx_set_audmode(hdev);
+	/* add audio */
+	hdmitx_set_audmode(hdev);
 	//kernel will determine output mode on its own
 	p_tmp = env_get("outputmode");
 	if (NULL != p_tmp)
