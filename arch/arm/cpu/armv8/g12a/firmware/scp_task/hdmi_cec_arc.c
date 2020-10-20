@@ -143,8 +143,13 @@ void cec_update_config_data(void *data, unsigned int size)
 
 void cec_update_phyaddress(unsigned int phyaddr)
 {
+	unsigned int data;
+
 	cec_mailbox.phy_addr = cec_mailbox.phy_addr & 0xffff0000;
 	cec_mailbox.phy_addr |= phyaddr & 0xffff;
+
+	data = (readl(P_AO_DEBUG_REG1) & 0xffff0000) | (phyaddr & 0xffff);
+	writel(data, P_AO_DEBUG_REG1);
 	cec_dbg_print32("update phyaddr:", phyaddr);
 	cec_dbg_prints("\n");
 }
