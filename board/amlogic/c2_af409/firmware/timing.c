@@ -297,8 +297,12 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	32,32,32,32,32,32,32,32,32,32,32,
 	32,32,32,32,32,32,32,32,32,32,32,
 	32,32,32},//total 36
-	.cfg_ddr_training_delay_ps[0].	reserve_training_parameter	=	{0}	,
-	//.cfg_ddr_training_delay_ps[0].reserve_training_parameter={((1<<7)|1),},
+	.cfg_ddr_training_delay_ps[0].reserve_training_parameter = {
+		(0 << 7) | 6, (0 << 7) | 16, (0 << 7) | 10, (0 << 7) | 3,
+		(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+		(0 << 7) | 2, (0 << 7) | 4, (0 << 7) | 4, (0 << 7) | 10,
+		(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+	},
 
 	//pinmux setting
 	#if 1  //af409
@@ -422,7 +426,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	32,32,32,32,32,32,32,32,32,32,32,
 	32,32,32},//total 36
 
-	.cfg_ddr_training_delay_ps[1].reserve_training_parameter	=	{0,0,0,0,0,0,0,0x7788},//ddr_set_t end
+	.cfg_ddr_training_delay_ps[1].reserve_training_parameter	=	{0},//ddr_set_t end
 },
 #endif //end af400
 
@@ -671,7 +675,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	32,32,32,32,32,32,32,32,32,32,32,
 	32,32,32},//total 36
 
-	.cfg_ddr_training_delay_ps[1].reserve_training_parameter	=	{0,0,0,0,0,0,0,0x7788},//ddr_set_t end
+	.cfg_ddr_training_delay_ps[1].reserve_training_parameter	=	{0},//ddr_set_t end
 },
 #endif //end af409
 
@@ -980,7 +984,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	32,32,32,32,32,32,32,32,32,32,32,
 	32,32,32},//total 36
 
-	.cfg_ddr_training_delay_ps[1].reserve_training_parameter	=	{0,0,0,0,0,0,0,0x7788},//ddr_set_t end
+	.cfg_ddr_training_delay_ps[1].reserve_training_parameter	=	{0},//ddr_set_t end
 },
 #endif //end af419
 
@@ -1388,7 +1392,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	32,32,32,32,32,32,32,32,32,32,32,
 	32,32,32},//total 36
 
-	.cfg_ddr_training_delay_ps[1].reserve_training_parameter	=	{0,0,0,0,0,0,0,0x7788},//ddr_set_t end
+	.cfg_ddr_training_delay_ps[1].reserve_training_parameter	=	{0},//ddr_set_t end
 },
 #endif //end real DDR3
 
@@ -1888,17 +1892,17 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	0,0,0,0,0,0,0,0,
 	0,0,0,0,0,0,0,0},//total 72
 	.cfg_ddr_training_delay_ps[1]. soc_bit_vref = {
-	40,40,40,40,40,40,40,40,40,40,40,
+	0,40,40,40,40,40,40,40,40,40,40,
 	40,40,40,40,40,40,40,40,40,40,40,
 	40,40,40,40,40,40,40,40,40,40,40,
 	40,40,40,40,40,40,40,40,40,40,40},//total 44
 	.cfg_ddr_training_delay_ps[1]. dram_bit_vref = {
-	32,32,32,32,32,32,32,32,32,32,32,
+	0,32,32,32,32,32,32,32,32,32,32,
 	32,32,32,32,32,32,32,32,32,32,32,
 	32,32,32,32,32,32,32,32,32,32,32,
 	32,32,32},//total 36
 
-	.cfg_ddr_training_delay_ps[1].reserve_training_parameter	=	{0,0,0,0,0,0,0,0x7788},//ddr_set_t end
+	.cfg_ddr_training_delay_ps[1].reserve_training_parameter	=	{0},//ddr_set_t end
 },
 #endif //end af409 LPDDR4
 

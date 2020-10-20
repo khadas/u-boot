@@ -247,7 +247,7 @@ unsigned	char	read_dqs_delay[8];
 unsigned	char	read_dq_bit_delay[72];
 unsigned	char	soc_bit_vref[44];
 unsigned	char	dram_bit_vref[36];
-unsigned	short	reserve_training_parameter[8];
+unsigned	char	reserve_training_parameter[16];//0-7 read dqs offset,8-15 write dqs offset,MSB bit 7 use 0 mean right offset
 }__attribute__ ((packed)) board_phase_setting_ps_t;
 typedef struct ddr_set
 {
