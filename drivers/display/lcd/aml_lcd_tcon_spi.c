@@ -422,6 +422,10 @@ static int lcd_tcon_spi_data_parse(void)
 	if (tcon_spi.init_flag) /* already parsed */
 		return 0;
 
+	ret = aml_lcd_unifykey_check_exist("lcd_tcon_spi");
+	if (ret)
+		return -1;
+
 	para = (unsigned char *)malloc(sizeof(unsigned char) * LCD_UKEY_TCON_SPI_SIZE);
 	if (!para) {
 		LCDERR("%s: Not enough memory\n", __func__);

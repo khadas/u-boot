@@ -48,6 +48,31 @@ int aml_lcd_unifykey_header_check(unsigned char *buf, struct aml_lcd_unifykey_he
 	return 0;
 }
 
+int aml_lcd_unifykey_check_exist(const char *key_name)
+{
+	int key_exist = 0;
+	int ret;
+
+	if (!key_name) {
+		LCDUKEYERR("%s: key_name is null\n", __func__);
+		return -1;
+	}
+
+	ret = key_unify_query_exist(key_name, &key_exist);
+	if (ret) {
+		if (lcd_debug_print_flag)
+			LCDUKEYERR("%s query exist error\n", key_name);
+		return -1;
+	}
+	if (key_exist == 0) {
+		if (lcd_debug_print_flag)
+			LCDUKEYERR("%s is not exist\n", key_name);
+		return -1;
+	}
+
+	return 0;
+}
+
 int aml_lcd_unifykey_check(const char *key_name)
 {
 	ssize_t key_size;

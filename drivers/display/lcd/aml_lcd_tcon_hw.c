@@ -82,11 +82,18 @@ static void lcd_tcon_core_reg_update(struct lcd_tcon_config_s *tcon_conf,
 		for (i = offset; i < len; i++)
 			lcd_tcon_write_byte(i, table8[i]);
 	} else {
-		table32 = (unsigned int *)mm_table->core_reg_table;
-		len /= 4;
-		lcd_tcon_od_check(tcon_conf, table32);
-		for (i = offset; i < len; i++)
-			lcd_tcon_write(i, table32[i]);
+		if (tcon_conf->reg_table_width == 32) {
+			len /= 4;
+			table32 = (unsigned int *)mm_table->core_reg_table;
+			lcd_tcon_od_check(tcon_conf, table32);
+			for (i = offset; i < len; i++)
+				lcd_tcon_write(i, table32[i]);
+		} else {
+			table8 = mm_table->core_reg_table;
+			lcd_tcon_od_check_byte(tcon_conf, table8);
+			for (i = offset; i < len; i++)
+				lcd_tcon_write(i, table8[i]);
+		}
 	}
 	LCDPR("tcon core regs update\n");
 }

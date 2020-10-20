@@ -372,6 +372,29 @@ static void lcd_reg_print_lvds(void)
 		reg, lcd_vcbus_read(reg));
 }
 
+static void lcd_reg_print_lvds_txhd(void)
+{
+	unsigned int reg;
+
+	printf("\nlvds registers:\n");
+	reg = LVDS_PACK_CNTL_ADDR;
+	printf("LVDS_PACK_CNTL      [0x%04x] = 0x%08x\n",
+		reg, lcd_vcbus_read(reg));
+	reg = LVDS_GEN_CNTL;
+	printf("LVDS_GEN_CNTL       [0x%04x] = 0x%08x\n",
+		reg, lcd_vcbus_read(reg));
+
+	reg = LVDS_CH_SWAP0;
+	printf("LVDS_CH_SWAP0       [0x%04x] = 0x%08x\n",
+		reg, lcd_vcbus_read(reg));
+	reg = LVDS_CH_SWAP1;
+	printf("LVDS_CH_SWAP1       [0x%04x] = 0x%08x\n",
+		reg, lcd_vcbus_read(reg));
+	reg = LVDS_CH_SWAP2;
+	printf("LVDS_CH_SWAP2       [0x%04x] = 0x%08x\n",
+		reg, lcd_vcbus_read(reg));
+}
+
 static void lcd_reg_print_lvds_tl1(void)
 {
 	unsigned int reg;
@@ -1213,6 +1236,8 @@ void aml_lcd_debug_probe(struct aml_lcd_drv_s *lcd_drv)
 		break;
 	case LCD_CHIP_TXHD:
 		lcd_debug_info_reg = &lcd_debug_info_reg_txhd;
+		lcd_debug_info_if_lvds.reg_dump_interface =
+			lcd_reg_print_lvds_txhd;
 		break;
 	case LCD_CHIP_TXLX:
 		lcd_debug_info_reg = &lcd_debug_info_reg_txlx;

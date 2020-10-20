@@ -1421,6 +1421,7 @@ static int handle_tcon_spi_v0(unsigned char *buff)
 {
 	const char *ini_value = NULL;
 	char str[30];
+	unsigned int null_cnt = 0, block_cnt = 4;
 	unsigned int temp, i, j, n;
 
 	/* header */
@@ -1431,33 +1432,27 @@ static int handle_tcon_spi_v0(unsigned char *buff)
 	buff[10] = (temp >> 16) & 0xff;
 	buff[11] = (temp >> 24) & 0xff;
 
-	/* block cnt */
-	temp = 4;
-	buff[12] = temp & 0xff;
-	buff[13] = (temp >> 8) & 0xff;
-	buff[14] = (temp >> 16) & 0xff;
-	buff[15] = (temp >> 24) & 0xff;
-
-	/* data size */
-	gLcdTconSpi_cnt = (16 + 32 * 4);
-	buff[4] = gLcdTconSpi_cnt & 0xff;
-	buff[5] = (gLcdTconSpi_cnt >> 8) & 0xff;
-	buff[6] = (gLcdTconSpi_cnt >> 16) & 0xff;
-	buff[7] = (gLcdTconSpi_cnt >> 24) & 0xff;
-
 	/* block 0: demura_lut */
 	n = 16;
-	ini_value = IniGetString("tcon_spi_Attr", "demura_lut_offset", "0");
+	ini_value = IniGetString("tcon_spi_Attr", "demura_lut_offset", "null");
 	if (model_debug_flag & DEBUG_TCON)
 		ALOGD("%s, demura_lut_offset is (%s)\n", __func__, ini_value);
+	if (strcmp(ini_value, "null") == 0) {
+		null_cnt++;
+		goto handle_tcon_spi_v0_block_1;
+	}
 	temp = strtoul(ini_value, NULL, 0);
 	for (i = 0; i < 4; i++)
 		buff[n + i] = (temp >> (i * 8)) & 0xff;
 	n += 4;
 
-	ini_value = IniGetString("tcon_spi_Attr", "demura_lut_size", "0");
+	ini_value = IniGetString("tcon_spi_Attr", "demura_lut_size", "null");
 	if (model_debug_flag & DEBUG_TCON)
 		ALOGD("%s, demura_lut_size is (%s)\n", __func__, ini_value);
+	if (strcmp(ini_value, "null") == 0) {
+		null_cnt++;
+		goto handle_tcon_spi_v0_block_1;
+	}
 	temp = strtoul(ini_value, NULL, 0);
 	for (i = 0; i < 4; i++)
 		buff[n + i] = (temp >> (i * 8)) & 0xff;
@@ -1474,18 +1469,27 @@ static int handle_tcon_spi_v0(unsigned char *buff)
 		n += 4;
 	}
 
+handle_tcon_spi_v0_block_1:
 	/* block 1: p_gamma */
-	ini_value = IniGetString("tcon_spi_Attr", "p_gamma_offset", "0");
+	ini_value = IniGetString("tcon_spi_Attr", "p_gamma_offset", "null");
 	if (model_debug_flag & DEBUG_TCON)
 		ALOGD("%s, p_gamma_offset is (%s)\n", __func__, ini_value);
+	if (strcmp(ini_value, "null") == 0) {
+		null_cnt++;
+		goto handle_tcon_spi_v0_block_2;
+	}
 	temp = strtoul(ini_value, NULL, 0);
 	for (i = 0; i < 4; i++)
 		buff[n + i] = (temp >> (i * 8)) & 0xff;
 	n += 4;
 
-	ini_value = IniGetString("tcon_spi_Attr", "p_gamma_size", "0");
+	ini_value = IniGetString("tcon_spi_Attr", "p_gamma_size", "null");
 	if (model_debug_flag & DEBUG_TCON)
 		ALOGD("%s, p_gamma_size is (%s)\n", __func__, ini_value);
+	if (strcmp(ini_value, "null") == 0) {
+		null_cnt++;
+		goto handle_tcon_spi_v0_block_2;
+	}
 	temp = strtoul(ini_value, NULL, 0);
 	for (i = 0; i < 4; i++)
 		buff[n + i] = (temp >> (i * 8)) & 0xff;
@@ -1502,18 +1506,27 @@ static int handle_tcon_spi_v0(unsigned char *buff)
 		n += 4;
 	}
 
+handle_tcon_spi_v0_block_2:
 	/* block 2: acc_lut */
-	ini_value = IniGetString("tcon_spi_Attr", "acc_lut_offset", "0");
+	ini_value = IniGetString("tcon_spi_Attr", "acc_lut_offset", "null");
 	if (model_debug_flag & DEBUG_TCON)
 		ALOGD("%s, acc_lut_offset is (%s)\n", __func__, ini_value);
+	if (strcmp(ini_value, "null") == 0) {
+		null_cnt++;
+		goto handle_tcon_spi_v0_block_3;
+	}
 	temp = strtoul(ini_value, NULL, 0);
 	for (i = 0; i < 4; i++)
 		buff[n + i] = (temp >> (i * 8)) & 0xff;
 	n += 4;
 
-	ini_value = IniGetString("tcon_spi_Attr", "acc_lut_size", "0");
+	ini_value = IniGetString("tcon_spi_Attr", "acc_lut_size", "null");
 	if (model_debug_flag & DEBUG_TCON)
 		ALOGD("%s, acc_lut_size is (%s)\n", __func__, ini_value);
+	if (strcmp(ini_value, "null") == 0) {
+		null_cnt++;
+		goto handle_tcon_spi_v0_block_3;
+	}
 	temp = strtoul(ini_value, NULL, 0);
 	for (i = 0; i < 4; i++)
 		buff[n + i] = (temp >> (i * 8)) & 0xff;
@@ -1530,18 +1543,27 @@ static int handle_tcon_spi_v0(unsigned char *buff)
 		n += 4;
 	}
 
+handle_tcon_spi_v0_block_3:
 	/* block 3: auto_flicker */
-	ini_value = IniGetString("tcon_spi_Attr", "auto_flicker_offset", "0");
+	ini_value = IniGetString("tcon_spi_Attr", "auto_flicker_offset", "null");
 	if (model_debug_flag & DEBUG_TCON)
 		ALOGD("%s, auto_flicker_offset is (%s)\n", __func__, ini_value);
+	if (strcmp(ini_value, "null") == 0) {
+		null_cnt++;
+		goto handle_tcon_spi_v0_next;
+	}
 	temp = strtoul(ini_value, NULL, 0);
 	for (i = 0; i < 4; i++)
 		buff[n + i] = (temp >> (i * 8)) & 0xff;
 	n += 4;
 
-	ini_value = IniGetString("tcon_spi_Attr", "auto_flicker_size", "0");
+	ini_value = IniGetString("tcon_spi_Attr", "auto_flicker_size", "null");
 	if (model_debug_flag & DEBUG_TCON)
 		ALOGD("%s, auto_flicker_size is (%s)\n", __func__, ini_value);
+	if (strcmp(ini_value, "null") == 0) {
+		null_cnt++;
+		goto handle_tcon_spi_v0_next;
+	}
 	temp = strtoul(ini_value, NULL, 0);
 	for (i = 0; i < 4; i++)
 		buff[n + i] = (temp >> (i * 8)) & 0xff;
@@ -1557,6 +1579,27 @@ static int handle_tcon_spi_v0(unsigned char *buff)
 			buff[n + i] = (temp >> (i * 8)) & 0xff;
 		n += 4;
 	}
+
+handle_tcon_spi_v0_next:
+	if (null_cnt >= 4) {
+		block_cnt = 0;
+		gLcdTconSpi_cnt = 0;
+	} else {
+		block_cnt = 4;
+		gLcdTconSpi_cnt = (16 + 32 * block_cnt);
+	}
+
+	/* block cnt */
+	buff[12] = block_cnt & 0xff;
+	buff[13] = (block_cnt >> 8) & 0xff;
+	buff[14] = (block_cnt >> 16) & 0xff;
+	buff[15] = (block_cnt >> 24) & 0xff;
+
+	/* data size */
+	buff[4] = gLcdTconSpi_cnt & 0xff;
+	buff[5] = (gLcdTconSpi_cnt >> 8) & 0xff;
+	buff[6] = (gLcdTconSpi_cnt >> 16) & 0xff;
+	buff[7] = (gLcdTconSpi_cnt >> 24) & 0xff;
 
 	/* crc */
 	temp = CalCRC32(0, (buff + 4), gLcdTconSpi_cnt - 4);

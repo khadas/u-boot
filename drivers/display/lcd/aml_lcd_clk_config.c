@@ -2067,7 +2067,7 @@ static void lcd_clk_generate_txhd(struct lcd_config_s *pconf)
 		bit_rate = pconf->lcd_timing.bit_rate / 1000;
 		/* must go through div4 for clk phase */
 		for (tcon_div_sel = 0; tcon_div_sel < 2; tcon_div_sel++) {
-			pll_fvco = bit_rate * tcon_div_table_txhd[tcon_div_sel] * 4;
+			pll_fvco = bit_rate * tcon_div_table_txhd[tcon_div_sel];
 			done = check_pll_vco(cConf, pll_fvco);
 			if (done) {
 				clk_div_sel = CLK_DIV_SEL_1;

@@ -24,6 +24,7 @@ struct lcd_tcon_config_s {
 
 	unsigned int core_reg_ver;
 	unsigned int core_reg_width;
+	unsigned int reg_table_width;
 	unsigned int reg_table_len;
 	unsigned int core_reg_start;
 
@@ -98,6 +99,7 @@ struct tcon_mem_map_table_s {
  * ********************************** */
 /* TXHD */
 #define LCD_TCON_CORE_REG_WIDTH_TXHD     32
+#define LCD_TCON_TABLE_WIDTH_TXHD        8
 #define LCD_TCON_TABLE_LEN_TXHD          4096
 #define LCD_TCON_AXI_BANK_TXHD           1
 
@@ -113,6 +115,7 @@ struct tcon_mem_map_table_s {
 
 /* TL1 */
 #define LCD_TCON_CORE_REG_WIDTH_TL1      8
+#define LCD_TCON_TABLE_WIDTH_TL1         8
 #define LCD_TCON_TABLE_LEN_TL1           24000
 #define LCD_TCON_AXI_BANK_TL1            3
 
@@ -127,6 +130,7 @@ struct tcon_mem_map_table_s {
 
 /* T5 */
 #define LCD_TCON_CORE_REG_WIDTH_T5       32
+#define LCD_TCON_TABLE_WIDTH_T5          32
 #define LCD_TCON_TABLE_LEN_T5            0x18d4 /* 0x635*4 */
 #define LCD_TCON_AXI_BANK_T5             2
 

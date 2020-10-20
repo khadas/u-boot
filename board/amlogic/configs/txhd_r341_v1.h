@@ -90,7 +90,8 @@
         "upgrade_step=0\0"\
         "jtag=disable\0"\
         "loadaddr=1080000\0"\
-        "panel_type=lvds_0\0" \
+        "model_name=FHD2HDMI\0" \
+        "panel_type=lvds_1\0" \
 	"lcd_ctrl=0x00000000\0" \
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
@@ -428,11 +429,12 @@
 #endif
 
 #define CONFIG_AML_LCD    1
+#if defined(CONFIG_AML_LCD)
 #define CONFIG_AML_LCD_TCON 1
 #define CONFIG_AML_LCD_TV 1
 #define CONFIG_AML_LCD_TABLET 1
 #define CONFIG_AML_LCD_EXTERN 1
-#define CONFIG_AML_LCD_EXTERN_I2C_RT6947 1
+#endif
 
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard

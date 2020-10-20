@@ -38,7 +38,8 @@
 /* 20200827: add lcd driver support for T5 chip*/
 /* 20200927: add tcon support for T5 chip*/
 /* 20201019: optimize tcon axi reserved memory config and data crc32*/
-#define LCD_DRV_VERSION    "20201019"
+/* 20201027: add tcon support for txhd*/
+#define LCD_DRV_VERSION    "20201027"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
