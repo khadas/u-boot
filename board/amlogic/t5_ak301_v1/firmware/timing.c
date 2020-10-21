@@ -112,7 +112,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_SI_setting_ps[0].ddr_odt_config = DDR_DRAM_ODT_W_CS0_ODT01_CS1_ODT01__R_CS0_ODT1_CS1_ODT0, //DDR_DRAM_ODT_W_CS0_ODT0,//DDR_DRAM_ODT_W_CS0_ODT0_CS1_ODT1,//DDR_DRAM_ODT_W_CS0_ODT0,
 	.cfg_board_SI_setting_ps[0].clk_drv_ohm = DDR_SOC_AC_DRV_40_OHM,
 	.cfg_board_SI_setting_ps[0].cs_drv_ohm = DDR_SOC_AC_DRV_40_OHM,
-	.cfg_board_SI_setting_ps[0].ac_drv_ohm = DDR_SOC_AC_DRV_40_OHM,
+	.cfg_board_SI_setting_ps[0].ac_drv_ohm = DDR_SOC_AC_DRV_60_OHM,
 	.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_p = DDR_SOC_DATA_DRV_ODT_40_OHM,
 	.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_n = DDR_SOC_DATA_DRV_ODT_40_OHM,
 	.cfg_board_SI_setting_ps[0].soc_data_odt_ohm_p = DDR_SOC_DATA_DRV_ODT_120_OHM,
@@ -138,10 +138,10 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	}, //total 36
 	.cfg_ddr_training_delay_ps[0].ac_trace_delay = {
 		128, 128, 128, 128, 128, 128, 128, 128,
+		256, 256, 256, 256, 256, 256+100, 256, 256,
 		256, 256, 256, 256, 256, 256, 256, 256,
-		256, 256, 256, 256, 256, 256, 256, 256,
-		256, 256, 256, 256, 256, 256, 256, 256,
-		256, 256, 256, 256,
+		256, 256, 256, 256, 256+30, 256, 256, 256,
+		256, 256, 256+100, 256,
 	}, //total 36
 #if 0
 	.cfg_ddr_training_delay_ps[0].write_dqs_delay = {
