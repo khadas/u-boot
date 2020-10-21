@@ -41,6 +41,12 @@
 #define CONFIG_CONS_INDEX 2
 #define CONFIG_BAUDRATE  115200
 
+/*if disable uboot console, enable it*/
+//#define CONFIG_SILENT_CONSOLE
+#ifdef CONFIG_SILENT_CONSOLE
+#undef CONFIG_SILENT_CONSOLE_UPDATE_ON_RELOC
+#endif
+
 /* Enable ir remote wake up for bl30 */
 #define AML_IR_REMOTE_POWER_UP_KEY_VAL1 0xef10fe01 //amlogic tv ir --- power
 #define AML_IR_REMOTE_POWER_UP_KEY_VAL2 0XBB44FB04 //amlogic tv ir --- ch+
