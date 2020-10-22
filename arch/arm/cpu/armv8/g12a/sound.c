@@ -97,8 +97,8 @@ static void aml_spdif_fifo_ctrl(void)
 
 	/* mask lane0 L/R, lsb first,  insert data from 31bits */
 	audiobus_update_bits(EE_AUDIO_SPDIFOUT_CTRL0,
-			     0x1<<20 | 0x1<<19 | 0xff << 4,
-			     0x0<<20 | 0x0<<19 | 0x3 << 4);
+			     0x1<<22 | 0x1<<21 | 0x1<<20 | 0x1<<19 | 0xff << 4,
+			     0x1<<22 | 0x1<<21 | 0x0<<20 | 0x0<<19 | 0x3 << 4);
 
 	/* split 64bits ddr data to 2 sample */
 	/* msb position of data */
