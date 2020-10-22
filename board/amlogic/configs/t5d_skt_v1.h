@@ -573,31 +573,30 @@
 	#define CONFIG_SYS_NAND_BASE_LIST   {0}
 #endif
 
-#ifndef CONFIG_PXP_EMULATOR
-/* VPP */
-#define CONFIG_AML_VPP
 /* vpu */
 #define CONFIG_AML_VPU 1
-#define CONFIG_VPU_CLK_LEVEL_DFT 7
-#endif //CONFIG_PXP_EMULATOR
+#define CONFIG_VPU_CLK_LEVEL_DFT 5
+
 #ifdef CONFIG_AML_VPU
-/* DISPLAY & HDMITX */
+/* VPP */
+//#define CONFIG_AML_VPP
+
+/* DISPLAY */
+//#define CONFIG_AML_VOUT 1
+
+//#define CONFIG_AML_CANVAS 1
+//#define CONFIG_AML_OSD 1
+//#define CONFIG_OSD_SCALE_ENABLE 1
+//#define CONFIG_CMD_BMP 1
+
 //#define CONFIG_AML_HDMITX20 1
-#define CONFIG_AML_CANVAS 1
-#define CONFIG_AML_VOUT 1
-#define CONFIG_AML_OSD 1
-#define CONFIG_OSD_SCALE_ENABLE 1
-#define CONFIG_CMD_BMP 1
-
-#if defined(CONFIG_AML_VOUT)
 //#define CONFIG_AML_CVBS 1
-#endif
 
-#define CONFIG_AML_LCD    1
-#define CONFIG_AML_LCD_TABLET 1
-#define CONFIG_AML_LCD_TV 1
-#define CONFIG_AML_LCD_TCON 1
-#define CONFIG_AML_LCD_EXTERN 1
+//#define CONFIG_AML_LCD    1
+//#define CONFIG_AML_LCD_TABLET 1
+//#define CONFIG_AML_LCD_TV 1
+//#define CONFIG_AML_LCD_TCON 1
+//#define CONFIG_AML_LCD_EXTERN 1
 
 #endif
 

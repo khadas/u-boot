@@ -782,6 +782,8 @@ void vout_viu_mux(int viu_sel, int venc_sel)
 	case MESON_CPU_MAJOR_ID_TL1:
 	case MESON_CPU_MAJOR_ID_TM2:
 	case MESON_CPU_MAJOR_ID_SM1:
+	case MESON_CPU_MAJOR_ID_T5:
+	case MESON_CPU_MAJOR_ID_T5D:
 		viu2_valid = 1;
 		break;
 	default:
