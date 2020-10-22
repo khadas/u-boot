@@ -582,7 +582,7 @@
 //#define CONFIG_AML_VPP
 
 /* DISPLAY */
-//#define CONFIG_AML_VOUT 1
+#define CONFIG_AML_VOUT 1
 
 //#define CONFIG_AML_CANVAS 1
 //#define CONFIG_AML_OSD 1
@@ -592,11 +592,12 @@
 //#define CONFIG_AML_HDMITX20 1
 //#define CONFIG_AML_CVBS 1
 
-//#define CONFIG_AML_LCD    1
-//#define CONFIG_AML_LCD_TABLET 1
-//#define CONFIG_AML_LCD_TV 1
-//#define CONFIG_AML_LCD_TCON 1
-//#define CONFIG_AML_LCD_EXTERN 1
+#define CONFIG_AML_LCD_PXP    1
+#define CONFIG_AML_LCD    1
+#define CONFIG_AML_LCD_TABLET 1
+#define CONFIG_AML_LCD_TV 1
+#define CONFIG_AML_LCD_TCON 1
+#define CONFIG_AML_LCD_EXTERN 1
 
 #endif
 

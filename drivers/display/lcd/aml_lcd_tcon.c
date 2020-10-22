@@ -1642,6 +1642,7 @@ int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *lcd_drv, int load_id)
 			lcd_tcon_conf = &tcon_data_tl1;
 		break;
 	case LCD_CHIP_T5:
+	case LCD_CHIP_T5D:
 		lcd_tcon_conf = &tcon_data_t5;
 		break;
 	default:

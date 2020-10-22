@@ -1203,6 +1203,7 @@ void aml_lcd_debug_probe(struct aml_lcd_drv_s *lcd_drv)
 	case LCD_CHIP_TL1:
 	case LCD_CHIP_TM2:
 	case LCD_CHIP_T5:
+	case LCD_CHIP_T5D:
 		lcd_debug_info_reg = &lcd_debug_info_reg_tl1;
 		lcd_debug_info_if_lvds.reg_dump_interface =
 			lcd_reg_print_lvds_tl1;

@@ -218,6 +218,7 @@ void lcd_lvds_phy_set(struct lcd_config_s *pconf, int status)
 			lcd_phy_cntl_set_tl1(status, data32, 0, 0);
 			break;
 		case LCD_CHIP_T5:
+		case LCD_CHIP_T5D:
 			size = sizeof(lvds_vx1_p2p_phy_preem_tl1) /
 				sizeof(unsigned int);
 			if (preem >= size) {
@@ -291,6 +292,7 @@ void lcd_lvds_phy_set(struct lcd_config_s *pconf, int status)
 			lcd_phy_cntl_set_tl1(status, data32, 0, 0);
 			break;
 		case LCD_CHIP_T5:
+		case LCD_CHIP_T5D:
 			lcd_phy_cntl_set_t5(status, data32, 0, 0, 0);
 			break;
 		default:
@@ -344,6 +346,7 @@ void lcd_vbyone_phy_set(struct lcd_config_s *pconf, int status)
 			lcd_phy_cntl_set_tl1(status, data32, 1, 0);
 			break;
 		case LCD_CHIP_T5:
+		case LCD_CHIP_T5D:
 			size = sizeof(lvds_vx1_p2p_phy_preem_tl1) /
 				sizeof(unsigned int);
 			if (preem >= size) {
@@ -393,6 +396,7 @@ void lcd_vbyone_phy_set(struct lcd_config_s *pconf, int status)
 			lcd_phy_cntl_set_tl1(status, data32, 1, 0);
 			break;
 		case LCD_CHIP_T5:
+		case LCD_CHIP_T5D:
 			lcd_phy_cntl_set_t5(status, data32, 1, 0, 0);
 			break;
 		default:
@@ -438,6 +442,7 @@ void lcd_mlvds_phy_set(struct lcd_config_s *pconf, int status)
 			lcd_phy_cntl_set_tl1(status, data32, 0, ckdi);
 			break;
 		case LCD_CHIP_T5:
+		case LCD_CHIP_T5D:
 			size = sizeof(lvds_vx1_p2p_phy_preem_tl1) /
 				sizeof(unsigned int);
 			if (preem >= size) {
@@ -484,6 +489,7 @@ void lcd_mlvds_phy_set(struct lcd_config_s *pconf, int status)
 			lcd_phy_cntl_set_tl1(status, data32, 0, 0);
 			break;
 		case LCD_CHIP_T5:
+		case LCD_CHIP_T5D:
 			lcd_phy_cntl_set_t5(status, data32, 0, 0, 0);
 			break;
 		case LCD_CHIP_TXHD:
@@ -736,6 +742,7 @@ int lcd_phy_probe(void)
 			phy_ctrl_bit_on = 1;
 		break;
 	case LCD_CHIP_T5:
+	case LCD_CHIP_T5D:
 		phy_ctrl_bit_on = 1;
 		break;
 	default:
