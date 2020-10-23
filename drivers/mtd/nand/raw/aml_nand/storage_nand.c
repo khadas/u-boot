@@ -14,21 +14,11 @@ extern void mtd_store_init_map(void);
 extern void mtd_store_mount_ops(struct storage_t* store);
 struct aml_pre_scan *pre_scan;
 
-static inline void set_slc_nand_storage(struct storage_t *slc_nand)
-{
-	slcnand_storage = slc_nand;
-}
-
-static inline struct storage_t *get_slc_nand_storage(void)
-{
-	return slcnand_storage;
-}
-
 int nand_pre(void)
 {
 	int ret = 0;
+
 	pre_scan->pre_scan_flag = 1;
-	pre_scan->is_nand = 0;
 	board_nand_init();
 	ret = (pre_scan->is_nand)? 0:1;
 	pre_scan->pre_scan_flag = 0;
@@ -42,9 +32,6 @@ int slcnand_fit_storage(void)
 
 	struct aml_nand_chip *aml_chip = mtd_to_nand_chip(nand_info[0]);
 	struct aml_nand_flash_dev *type = NULL;
-
-	if (get_slc_nand_storage())
-		return 0;
 
 	type = aml_chip->platform->nand_flash_dev;
 
@@ -74,8 +61,6 @@ int slcnand_fit_storage(void)
 #else
 	slc_nand->info.mode = 0;
 #endif
-
-	set_slc_nand_storage(slc_nand);
 	mtd_store_mount_ops(slc_nand);
 
 #ifdef CONFIG_MTD_LOGIC_MAP
