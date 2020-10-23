@@ -71,7 +71,7 @@ int ring_msr(int index)
 	const int tb[] = {93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107,
 			  108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119};
 	unsigned long i;
-	uint8_t efuseinfo[4] = {0, 0, 0, 0};
+	uint8_t efuseinfo[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 	if ((index != 0xff) && (index != 0)) {
 		if (bl31_get_cornerinfo(efuseinfo, sizeof(efuseinfo) / sizeof(uint8_t)) != 0) {
@@ -106,7 +106,7 @@ int ring_msr(int index)
 	}
 
 	printf("osc efuse info:\n");
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < sizeof(efuseinfo) / sizeof(uint8_t); i++)
 		printf("0x%x, ", efuseinfo[i]);
 	printf("\n");
 

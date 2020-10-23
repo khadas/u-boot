@@ -97,7 +97,7 @@ int ring_msr(int index)
 	}
 
 	printf("osc efuse info:\n");
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < sizeof(efuseinfo) / sizeof(uint8_t); i++)
 		printf("0x%x, ", efuseinfo[i]);
 	printf("\n");
 
