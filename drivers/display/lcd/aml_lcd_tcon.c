@@ -535,7 +535,7 @@ static void lcd_tcon_data_print(unsigned char index)
 
 void lcd_tcon_info_print(void)
 {
-	unsigned int size, cnt;
+	unsigned int size, cnt, file_size, n;
 	char *str;
 	int i, ret;
 
@@ -627,8 +627,13 @@ void lcd_tcon_info_print(void)
 			return;
 		printf("\n");
 		for (i = 0; i < cnt; i++) {
-			str = (char *)&tcon_rmem.bin_path_rmem.mem_vaddr[32 + 256 * i];
-			printf("tcon_path %d: %s\n", i, str);
+			n = 32 + 256 * i;
+			file_size = tcon_rmem.bin_path_rmem.mem_vaddr[n] |
+				(tcon_rmem.bin_path_rmem.mem_vaddr[n + 1] << 8) |
+				(tcon_rmem.bin_path_rmem.mem_vaddr[n + 2] << 16) |
+				(tcon_rmem.bin_path_rmem.mem_vaddr[n + 3] << 24);
+			str = (char *)&tcon_rmem.bin_path_rmem.mem_vaddr[n + 4];
+			printf("tcon_path[%d]: size: 0x%x, %s\n", i, file_size, str);
 		}
 	}
 	printf("\n");
@@ -638,7 +643,7 @@ void lcd_tcon_info_print(void)
 static int lcd_tcon_bin_path_resv_mem_set(void)
 {
 	unsigned char *buf, *mem_vaddr;
-	unsigned int data_size;
+	unsigned int data_size, block_size, temp_crc, n, i;
 
 	if (tcon_rmem.flag == 0)
 		return 0;
@@ -648,9 +653,30 @@ static int lcd_tcon_bin_path_resv_mem_set(void)
 		LCDERR("%s: bin_path buf invalid\n", __func__);
 		return -1;
 	}
+
+	data_size = buf[4] | (buf[5] << 8) | (buf[6] << 16) | (buf[7] << 24);
+
+	if (tcon_mm_table.data_size) {
+		for (i = 0; i < tcon_mm_table.block_cnt; i++) {
+			block_size = tcon_mm_table.data_size[i];
+			if (block_size == 0)
+				continue;
+			n = 32 + (i * 256);
+			buf[n] = block_size & 0xff;
+			buf[n + 1] = (block_size >> 8) & 0xff;
+			buf[n + 2] = (block_size >> 16) & 0xff;
+			buf[n + 3] = (block_size >> 24) & 0xff;
+		}
+
+		/* update data check */
+		temp_crc = crc32(0, &buf[4], (data_size - 4));
+		buf[0] = temp_crc & 0xff;
+		buf[1] = (temp_crc >> 8) & 0xff;
+		buf[2] = (temp_crc >> 16) & 0xff;
+		buf[3] = (temp_crc >> 24) & 0xff;
+	}
+
 	mem_vaddr = (unsigned char *)(unsigned long)(tcon_rmem.bin_path_rmem.mem_paddr);
-	data_size = buf[4] | (buf[5] << 8) |
-		(buf[6] << 16) | (buf[7] << 24);
 	memcpy(mem_vaddr, buf, data_size);
 
 	return 0;
@@ -981,6 +1007,10 @@ static int lcd_tcon_data_load(void)
 			LCDERR("%s: data_priority error\n", __func__);
 			return -1;
 		}
+		if (!tcon_mm_table.data_size) {
+			LCDERR("%s: data_size error\n", __func__);
+			return -1;
+		}
 #ifdef CONFIG_CMD_INI
 		data_prio = tcon_mm_table.data_priority;
 		for (i = 0; i < tcon_mm_table.block_cnt; i++) {
@@ -1019,6 +1049,7 @@ static int lcd_tcon_data_load(void)
 				data_prio[j + 1].index = i;
 				data_prio[j + 1].priority = priority;
 			}
+			tcon_mm_table.data_size[i] = block_header.block_size;
 
 			if (lcd_debug_print_flag) {
 				LCDPR("%s %d: block_size=0x%x, block_type=0x%02x, name=%s, init_priority=%d\n",
@@ -1196,6 +1227,15 @@ static int lcd_tcon_mm_table_config_v1(void)
 	}
 	memset(tcon_mm_table.data_priority, 0xff,
 		tcon_mm_table.block_cnt * sizeof(struct tcon_data_priority_s));
+
+	tcon_mm_table.data_size = (unsigned int *)malloc(
+		tcon_mm_table.block_cnt * sizeof(unsigned int));
+	if (!tcon_mm_table.data_size) {
+		LCDERR("%s: Not enough memory\n", __func__);
+		return -1;
+	}
+	memset(tcon_mm_table.data_size, 0,
+		tcon_mm_table.block_cnt * sizeof(unsigned int));
 
 	return 0;
 }

@@ -91,6 +91,7 @@ struct tcon_mem_map_table_s {
 	unsigned char *core_reg_table;
 
 	struct tcon_data_priority_s *data_priority;
+	unsigned int *data_size;
 	unsigned char **data_mem_vaddr;
 };
 

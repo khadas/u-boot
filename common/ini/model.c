@@ -229,7 +229,7 @@ static char *handle_tcon_path_file_name_get(unsigned int index)
 		return NULL;
 	}
 
-	n = 32 + (index * 256);
+	n = 32 + (index * 256) + 4;
 	str = (char *)&g_lcd_tcon_bin_path_mem[n];
 	return str;
 }
@@ -298,7 +298,7 @@ static int handle_tcon_path(void)
 				ALOGD("%s, no vac ini file\n", __func__);
 		}
 		setenv("model_tcon_vac", ini_value);
-		strncpy((char *)&buf[n], ini_value, 256);
+		strncpy((char *)&buf[n + 4], ini_value, 256);
 		n += 256;
 
 		ini_value = IniGetString("tcon_Path", "TCON_DEMURA_SET_PATH", "null");
@@ -307,7 +307,7 @@ static int handle_tcon_path(void)
 				ALOGD("%s, no demura_set file\n", __func__);
 		}
 		setenv("model_tcon_demura_set", ini_value);
-		strncpy((char *)&buf[n], ini_value, 256);
+		strncpy((char *)&buf[n + 4], ini_value, 256);
 		n += 256;
 
 		ini_value = IniGetString("tcon_Path", "TCON_DEMURA_LUT_PATH", "null");
@@ -316,7 +316,7 @@ static int handle_tcon_path(void)
 				ALOGD("%s, no demura_lut file\n", __func__);
 		}
 		setenv("model_tcon_demura_lut", ini_value);
-		strncpy((char *)&buf[n], ini_value, 256);
+		strncpy((char *)&buf[n + 4], ini_value, 256);
 		n += 256;
 
 		ini_value = IniGetString("tcon_Path", "TCON_ACC_LUT_PATH", "null");
@@ -325,7 +325,7 @@ static int handle_tcon_path(void)
 				ALOGD("%s, no acc_lut file\n", __func__);
 		}
 		setenv("model_tcon_acc_lut", ini_value);
-		strncpy((char *)&buf[n], ini_value, 256);
+		strncpy((char *)&buf[n + 4], ini_value, 256);
 
 		/* block cnt */
 		block_cnt = 4;
@@ -344,7 +344,7 @@ static int handle_tcon_path(void)
 				ALOGD("%s, tcon_path %d is (%s)\n",
 					__func__, i, ini_value);
 			}
-			strncpy((char *)&buf[n], ini_value, 256);
+			strncpy((char *)&buf[n + 4], ini_value, 252);
 			block_cnt++;
 			n += 256;
 		}
