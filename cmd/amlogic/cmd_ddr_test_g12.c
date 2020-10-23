@@ -8618,10 +8618,14 @@ U_BOOT_CMD(
 int do_ddr_g12_override_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	check_base_address();
-
+#define DMC_PHY_RETRAINING_CTRL     (p_ddr_base->ddr_dmc_lpdd4_retraining_address)
+	uint32_t dmc_retraining_ctrl = 0;
+	dmc_retraining_ctrl = rd_reg(DMC_PHY_RETRAINING_CTRL);
+	unsigned int ddr_dmc_apd_temp_save, ddr_dmc_asr_temp_save;
+	ddr_dmc_apd_temp_save = readl((p_ddr_base->ddr_dmc_apd_address));
+	ddr_dmc_asr_temp_save = readl((p_ddr_base->ddr_dmc_asr_address));
 	printf("\12nm phy read write register should closd apd and asr funciton\n");
-	writel((0), p_ddr_base->ddr_dmc_apd_address);
-	writel((0), p_ddr_base->ddr_dmc_asr_address);
+
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F + 7 * 32)
 
@@ -8665,17 +8669,18 @@ int do_ddr_g12_override_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 		return 1;
 	}
 	printf("lcdlr_max %d,\n", lcdlr_max);
-	#define DMC_PHY_RETRAINING_CTRL     (p_ddr_base->ddr_dmc_lpdd4_retraining_address)
-	uint32_t dmc_retraining_ctrl = 0;
-	dmc_retraining_ctrl = rd_reg(DMC_PHY_RETRAINING_CTRL);
-	wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl & (~(1 << 31)));
 
+	wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl & (~(1 << 31)));
+	writel((0), p_ddr_base->ddr_dmc_apd_address);
+	writel((0), p_ddr_base->ddr_dmc_asr_address);
 	{
 		dwc_window_reg_after_training_update(test_index, dq_index, ovrride_value);
 	}
 
 #endif
 	wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl);
+	writel(ddr_dmc_apd_temp_save, p_ddr_base->ddr_dmc_apd_address);
+	writel(ddr_dmc_asr_temp_save, p_ddr_base->ddr_dmc_asr_address);
 	return 1;
 }
 U_BOOT_CMD(
@@ -8764,11 +8769,12 @@ int do_ddr_c2_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 	uint32_t dmc_retraining_ctrl = 0;
 	dmc_retraining_ctrl = rd_reg(DMC_PHY_RETRAINING_CTRL);
 	wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl & (~(1 << 31)));
+	unsigned int ddr_dmc_apd_temp_save, ddr_dmc_asr_temp_save;
+	ddr_dmc_apd_temp_save = readl(p_ddr_base->ddr_dmc_apd_address);
+	ddr_dmc_asr_temp_save = readl(p_ddr_base->ddr_dmc_asr_address);
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F + 7 * 32)
 	printf("\12nm phy read write register should closd apd and asr funciton\n");
-	writel((0), p_ddr_base->ddr_dmc_apd_address);
-	writel((0), p_ddr_base->ddr_dmc_asr_address);
 	int i = 0;
 
 	printf("\nargc== 0x%08x\n", argc);
@@ -8866,6 +8872,8 @@ int do_ddr_c2_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 	}
 
 	count = 0;
+	writel((0), p_ddr_base->ddr_dmc_apd_address);
+	writel((0), p_ddr_base->ddr_dmc_asr_address);
 	for (; count < count_max; count++) {
 		if ((count < 32)) {
 			if (test_dq_mask_1 & (1 << (count % 32)))
@@ -8893,6 +8901,8 @@ int do_ddr_c2_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 			}
 		}
 	}
+	writel(ddr_dmc_apd_temp_save, p_ddr_base->ddr_dmc_apd_address);
+	writel(ddr_dmc_asr_temp_save, p_ddr_base->ddr_dmc_asr_address);
 	wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl);
 	return 1;
 }
@@ -8910,11 +8920,12 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	uint32_t dmc_retraining_ctrl = 0;
 	dmc_retraining_ctrl = rd_reg(DMC_PHY_RETRAINING_CTRL);
 	wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl & (~(1 << 31)));
+	unsigned int ddr_dmc_apd_temp_save, ddr_dmc_asr_temp_save;
+	ddr_dmc_apd_temp_save = readl(p_ddr_base->ddr_dmc_apd_address);
+	ddr_dmc_asr_temp_save = readl(p_ddr_base->ddr_dmc_asr_address);
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F + 7 * 32)
 	printf("\12nm phy read write register should closd apd and asr funciton\n");
-	writel((0), p_ddr_base->ddr_dmc_apd_address);
-	writel((0), p_ddr_base->ddr_dmc_asr_address);
 
 	int i = 0;
 	printf("\nargc== 0x%08x\n", argc);
@@ -9012,6 +9023,8 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	}
 
 	count = 0;
+	writel((0), p_ddr_base->ddr_dmc_apd_address);
+	writel((0), p_ddr_base->ddr_dmc_asr_address);
 	for (; count < count_max; count++) {
 		if ((count < 32)) {
 			if (test_dq_mask_1 & (1 << (count % 32)))
@@ -9040,6 +9053,8 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 		}
 	}
 
+	writel(ddr_dmc_apd_temp_save, p_ddr_base->ddr_dmc_apd_address);
+	writel(ddr_dmc_asr_temp_save, p_ddr_base->ddr_dmc_asr_address);
 	wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl);
 	return 1;
 }
@@ -9058,7 +9073,10 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	#define DMC_PHY_RETRAINING_CTRL     (p_ddr_base->ddr_dmc_lpdd4_retraining_address)
 	uint32_t dmc_retraining_ctrl = 0;
 	dmc_retraining_ctrl = rd_reg(DMC_PHY_RETRAINING_CTRL);
-	wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl & (~(1 << 31)));
+	unsigned int ddr_dmc_apd_temp_save, ddr_dmc_asr_temp_save;
+	ddr_dmc_apd_temp_save = readl(p_ddr_base->ddr_dmc_apd_address);
+	ddr_dmc_asr_temp_save = readl(p_ddr_base->ddr_dmc_asr_address);
+
 	printf("\n ddr test cmd version== %s\n", CMD_VER);
 	printf("\nargc== 0x%08x\n", argc);
 	int i;
@@ -9072,10 +9090,6 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		goto usage;
 
 	printf("\12nm phy read write register should closd apd and asr funciton\n");
-
-	writel((0), p_ddr_base->ddr_dmc_apd_address);
-	writel((0), p_ddr_base->ddr_dmc_asr_address);
-
 
 	global_ddr_clk = get_ddr_clk();
 	printf("\nddr_clk== %dMHz\n", global_ddr_clk);
@@ -9147,6 +9161,9 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	for (i = 1; i < (argc); i++)
 		argv2[i - 1] = argv[i];
 	{
+		wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl & (~(1 << 31)));
+		writel((0), p_ddr_base->ddr_dmc_apd_address);
+		writel((0), p_ddr_base->ddr_dmc_asr_address);
 		run_command("dcache off", 0);
 		run_command("dcache on", 0);
 		printf("\n cache off on");
@@ -9203,7 +9220,8 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			printf("\n  0x28  sweep dram clk use d2pll_sticky     ddr_test_cmd 0x28  test_size start_freq end_freq test_loops  ddr_test_cmd 0x28 0x8000000 800 1500 1");
 		}
 			wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl);
-			return 1;
+			//return 1;
+			break;
 
 
 		case (DDR_TEST_CMD__DDR_TEST):
@@ -9265,13 +9283,15 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		}
 		break;
 		}
+		writel(ddr_dmc_apd_temp_save, p_ddr_base->ddr_dmc_apd_address);
+		writel(ddr_dmc_asr_temp_save, p_ddr_base->ddr_dmc_asr_address);
 		wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl);
 		return 1; //test_start_addr
 	}
 
 usage:
 	cmd_usage(cmdtp);
-	wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl);
+	//wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl);
 	return 1;
 }
 
