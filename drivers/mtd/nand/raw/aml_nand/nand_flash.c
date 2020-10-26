@@ -1076,8 +1076,10 @@ static struct aml_nand_flash_dev *aml_nand_get_flash_type(struct mtd_info *mtd,
 				type = plat->nand_flash_dev;
 		}
 
-		if (!type)
+		if (!type) {
+			pre_scan->is_nand = 0;
 			return type;
+		}
 	}
 	aml_nand_check_fbb_issue(dev_id);
 
