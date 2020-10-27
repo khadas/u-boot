@@ -724,16 +724,16 @@ int lcd_phy_probe(void)
 
 	switch (lcd_drv->chip_type) {
 	case LCD_CHIP_TL1:
-		if (lcd_drv->rev_type == 0xC)
-			phy_ctrl_bit_on = 1;
-		else
+		if (lcd_drv->rev_type == 0xA || lcd_drv->rev_type == 0xB)
 			phy_ctrl_bit_on = 0;
+		else
+			phy_ctrl_bit_on = 1;
 		break;
 	case LCD_CHIP_TM2:
-		if (lcd_drv->rev_type == 0xB)
-			phy_ctrl_bit_on = 1;
-		else
+		if (lcd_drv->rev_type == 0xA)
 			phy_ctrl_bit_on = 0;
+		else
+			phy_ctrl_bit_on = 1;
 		break;
 	case LCD_CHIP_T5:
 		phy_ctrl_bit_on = 1;
