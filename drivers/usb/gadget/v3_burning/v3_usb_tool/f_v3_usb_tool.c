@@ -1130,7 +1130,7 @@ static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 }
 
 const char* _imgFmt[] = {"normal", "sparse", "ubifs"};
-const char* _mediatype[] = {"store", "mem", "key"};
+const char* _mediatype[] = {"store", "mem", "key", "mmc"};
 
 static int _verify_partition_img(const int argc, char* argv[], char* ack)
 {
@@ -1233,9 +1233,8 @@ static int _mwrite_cmd_parser(const int argc, char* argv[], char* ack)
 				FB_MSG("mem base %llx\n", commonInf->partStartOff);
 			} break;
 		case V3TOOL_MEDIA_TYPE_STORE:
-			{
-				//TODO: add part sz check (assert imgsz <= part cap)
-			}break;
+		case V3TOOL_MEDIA_TYPE_MMC:
+			{ }break;
 		case V3TOOL_MEDIA_TYPE_UNIFYKEY:
 			{
 				if ( imgSize >= _UNIFYKEY_MAX_SZ ) {
@@ -1252,7 +1251,7 @@ static int _mwrite_cmd_parser(const int argc, char* argv[], char* ack)
 		FB_ERR("Fail in buffman init, ret %d\n", ret);
 		return -__LINE__;
 	}
-	printf("Flash 0x%08llx Bytes %s img to %s:%s\n", imgSize, imgFmt, media, partition);
+	printf("Flash 0x%08llx Bytes %s img to %s:%s at off 0x%llx\n", imgSize, imgFmt, media, partition, partOff);
 
 	return ret;
 }
@@ -1311,6 +1310,7 @@ static int _mread_cmd_parser(const int argc, char* argv[], char* ack)
 			} break;
 		case V3TOOL_MEDIA_TYPE_STORE:
 		case V3TOOL_MEDIA_TYPE_UNIFYKEY:
+		case V3TOOL_MEDIA_TYPE_MMC:
 			{
 				strncpy(commonInf->partName, partition,V3_PART_NAME_LEN);
 			}break;

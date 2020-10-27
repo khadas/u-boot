@@ -327,7 +327,7 @@ int v3tool_simg2img_write_img(const UsbDownInf* downInf, const ImgDownloadPara* 
     {
         const chunk_header_t* pChunk = _spPacketStates.chunkInfo;//this download info
         const char* part = downPara->commonInf.partName;
-        int64_t flashAddr = _spPacketStates.nextFlashAddr;
+        int64_t flashAddr = _spPacketStates.nextFlashAddr + downPara->commonInf.partStartOff;
         unsigned flashWrLen = dataSize;
         const unsigned chunkFlashSpace = pChunk->chunk_sz * _spPacketStates.sparseBlkSz;;
 
@@ -347,7 +347,7 @@ int v3tool_simg2img_write_img(const UsbDownInf* downInf, const ImgDownloadPara* 
             }
             const unsigned* fillVal = (unsigned*)dataBuf;
             FB_DBG("fill wr: off/sz 0x%08llx flashWrLen %x\n", _spPacketStates.nextFlashAddr, chunkFlashSpace);
-            if (simg2img_fill_chunk_write((char*)part, chunkFlashSpace, fillVal, _spPacketStates.nextFlashAddr)) {
+            if (simg2img_fill_chunk_write((char*)part, chunkFlashSpace, fillVal, flashAddr)) {
                 sperr("Fail in fill fill-chunk\n");
                 return -__LINE__;
             }

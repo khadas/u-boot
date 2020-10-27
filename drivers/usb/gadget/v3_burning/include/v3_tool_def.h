@@ -102,6 +102,7 @@ enum {
     V3TOOL_MEDIA_TYPE_STORE     = 0xefee,
     V3TOOL_MEDIA_TYPE_MEM               ,
     V3TOOL_MEDIA_TYPE_UNIFYKEY          ,
+    V3TOOL_MEDIA_TYPE_MMC               ,//1-->emmc, 0-->sdcard
 };
 
 #define V3_PART_NAME_LEN   32

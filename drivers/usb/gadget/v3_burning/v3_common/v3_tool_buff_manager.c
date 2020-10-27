@@ -10,6 +10,7 @@
  *
  */
 #include "../include/v3_tool_def.h"
+#include <mmc.h>
 
 int v3tool_simg2img_init(const ImgDownloadPara* downPara);
 int v3tool_simg2img_get_img(UsbDownInf* downInf);
@@ -134,6 +135,46 @@ int v3tool_buffman_img_verify_sha1sum(unsigned char* vrySum)
     return 0;
 }
 
+static int _buffman_img_init_mmc(const char* partName, const int isDownload, const int64_t imgSize, const int64_t partStartOff)
+{
+#if CONFIG_IS_ENABLED(MMC_WRITE)
+    int dev = -1;
+
+    if (strcmp("1", partName) && strcmp("0", partName)) {
+        FBS_ERR(_ACK, "mmc part[%s] invalid\n", partName); return -__LINE__;
+    }
+    env_set("mmc_dev_id", partName);
+    env_set("mmc_select_dev", "mmc dev ${mmc_dev_id}");
+    if (run_command("printenv mmc_select_dev; run mmc_select_dev", 0)) {
+        FBS_ERR(_ACK, "Fail in init mmc dev %s\n", partName); return -__LINE__;
+    }
+
+    dev = partName[0] - '0';
+    struct mmc* mmc = find_mmc_device(dev);
+    if (!mmc) {
+        FBS_ERR(_ACK, "no mmc device at slot %x\n", dev); return -__LINE__;
+    }
+    if (mmc_init(mmc)) {
+        FBS_ERR(_ACK, "fail in init mmc %d\n", dev); return -__LINE__;
+    }
+    const int64_t capacity = mmc->capacity_user;
+    if (capacity < partStartOff + imgSize) {
+        FBS_ERR(_ACK, "capacity < partStartOff + imgSize 0x:%llx %llx %llx\n", capacity, partStartOff, imgSize);
+        return -__LINE__;
+    }
+    if (mmc_getwp(mmc) == 1) {
+        FBS_ERR(_ACK, "Error: mmc(%s) is write protected!\n", partName);
+        return -__LINE__;
+    }
+    run_command("store rsv protect key off", 0);//disprotect key for write/dump all emmc
+
+    return 0;
+#else
+    FBS_ERR(_ACK, "CONFIG_MMC_WRITE not enabled\n");
+    return -__LINE__;
+#endif//#if CONFIG_IS_ENABLED(MMC_WRITE)
+}
+
 //@imgPara:
 //@isDownload: 1 if download, 0 if upload
 //@needVerify: 1 if need verify, if need verify, will save some info while downloading
@@ -148,6 +189,8 @@ int v3tool_buffman_img_init(ImgTransPara* imgPara, const int isDownload)
     _imgTransferInfo.inited     = 1;
     ImgCommonPara*   commonInf = &imgPara->commonInf;
     const int64_t imgSize = commonInf->imgSzTotal;
+    const int64_t partStartOff = commonInf->partStartOff;
+    const char* partName       = commonInf->partName;
     int ret = 0;
 
     switch (commonInf->mediaType)
@@ -160,7 +203,7 @@ int v3tool_buffman_img_init(ImgTransPara* imgPara, const int isDownload)
             } break;
         case V3TOOL_MEDIA_TYPE_STORE:
             {
-                ret = v3tool_media_check_image_size(imgSize, commonInf->partName);
+                ret = v3tool_media_check_image_size(imgSize + partStartOff, partName);
                 if ( ret ) {
                     FB_EXIT("Fail in check img sz\n");
                 }
@@ -178,6 +221,11 @@ int v3tool_buffman_img_init(ImgTransPara* imgPara, const int isDownload)
                         FB_EXIT("key[%s] sz %zd != cmd key sz %lld\n", queryKey, keySz, imgSize);
                     }
                 }
+            } break;
+        case V3TOOL_MEDIA_TYPE_MMC:
+            {
+                ret = _buffman_img_init_mmc(partName, isDownload, imgSize, partStartOff);
+                if (ret) FB_EXIT("Fail in init mmc %s\n", partName);
             } break;
         default:
             FB_EXIT("Exception, err media type 0x%x\n", commonInf->mediaType);
@@ -209,6 +257,7 @@ static int _v3tool_buffman_next_download_info_rawimg(ImgDownloadPara* imgPara)
                 _usbDownInf.dataBuf    = _imgTransferInfo.dataBuf + _rawImgFileOffset;
                 FB_DBG("dataBuf %p, dataSize %x\n", _usbDownInf.dataBuf, _usbDownInf.dataSize);
             }break;
+        case V3TOOL_MEDIA_TYPE_MMC:
         case V3TOOL_MEDIA_TYPE_STORE:
             {
                 _usbDownInf.fileOffset = _rawImgFileOffset;
@@ -280,6 +329,29 @@ int v3tool_buffman_next_download_info(UsbDownInf** downloadInf)
     return ret;
 }
 
+static int _v3tool_mmc_rw(const char* partName, const int write, const int thisTransferLen, loff_t partOffset, void* dataBuf)
+{
+#if CONFIG_IS_ENABLED(MMC_WRITE)
+    int dev = *partName - '0';
+    struct mmc *mmc = find_mmc_device(dev);
+    if (!mmc) {
+        FBS_ERR(_ACK, "no mmc device at slot %x\n", dev); return -__LINE__;
+    }
+    if (mmc_init(mmc)) {
+        FBS_ERR(_ACK, "fail mmc_init[%s]", partName); return -__LINE__;
+    }
+    u32 cnt = (thisTransferLen + 511) >> 9;
+    u32 blk = partOffset>>9;
+    u32 n = 0;
+    if (write) n = blk_dwrite(mmc_get_blk_desc(mmc), blk, cnt, dataBuf);
+    else n = blk_dread(mmc_get_blk_desc(mmc), blk, cnt, dataBuf);
+    return (n == cnt) ? 0 : -__LINE__;
+#else
+    FBS_ERR(_ACK, "CONFIG_MMC_WRITE not enabled\n");
+    return -__LINE__;
+#endif//#if CONFIG_IS_ENABLED(MMC_WRITE)
+}
+
 int v3tool_buffman_data_complete_download(const UsbDownInf* downloadInf)
 {
     ImgCommonPara* cmnInf = &_imgTransferInfo.imgTransPara.commonInf;
@@ -291,6 +363,7 @@ int v3tool_buffman_data_complete_download(const UsbDownInf* downloadInf)
     int ret = 0;
     const int thisTransferLen = downloadInf->dataSize;
     u8* dataBuf = (u8*)downloadInf->dataBuf;
+    loff_t partOffset = downloadInf->fileOffset + cmnInf->partStartOff;
 
     switch ( imgFmt ) {
         case V3TOOL_PART_IMG_FMT_RAW:
@@ -304,7 +377,7 @@ int v3tool_buffman_data_complete_download(const UsbDownInf* downloadInf)
                                 ret = store_dtb_rw(dataBuf, thisTransferLen, 1);
                             }
                             else {
-                                ret = store_logic_write(partName, downloadInf->fileOffset, thisTransferLen, dataBuf);
+                                ret = store_logic_write(partName, partOffset, thisTransferLen, dataBuf);
                             }
                         } break;
                     case V3TOOL_MEDIA_TYPE_MEM:
@@ -316,6 +389,10 @@ int v3tool_buffman_data_complete_download(const UsbDownInf* downloadInf)
                             ret = -__LINE__;
                         } else ret = 0;
                         break;
+                    case V3TOOL_MEDIA_TYPE_MMC:
+                        {
+                            ret = _v3tool_mmc_rw(partName, 1, thisTransferLen, partOffset, dataBuf);
+                        } break;
                     default:
                         FBS_ERR(fb_response_str, "err media type %d for raw img", mediaType);
                         break;
@@ -367,6 +444,7 @@ int v3tool_buffman_next_upload_info(UsbUpInf** uploadInfo)
     _usbUpInf.dataBuf    = (char*)V3_DOWNLOAD_MEM_BASE;
     u8* dataBuf = (u8*)_usbUpInf.dataBuf;
     unsigned dataSize = _usbUpInf.dataSize;
+    loff_t partOffset = _rawImgFileOffset + cmnInf->partStartOff;
     switch (cmnInf->mediaType) {
         case V3TOOL_MEDIA_TYPE_MEM:
             {
@@ -384,7 +462,7 @@ int v3tool_buffman_next_upload_info(UsbUpInf** uploadInfo)
                     ret = store_dtb_rw(dataBuf, dataSize, 2);
                 }
                 else  {
-                    ret = store_logic_read(partName, _rawImgFileOffset, dataSize, dataBuf);
+                    ret = store_logic_read(partName, _rawImgFileOffset + cmnInf->partStartOff, dataSize, dataBuf);
                 }
                 if (ret) {
                     FB_ERR("Fail in read store at offset %llx\n", _rawImgFileOffset);
@@ -401,6 +479,10 @@ int v3tool_buffman_next_upload_info(UsbUpInf** uploadInfo)
                     return -__LINE__;
                 }
             }break;
+        case V3TOOL_MEDIA_TYPE_MMC:
+            {
+                ret = _v3tool_mmc_rw(partName, 0, dataSize, partOffset, dataBuf);
+            } break;
         default:
             FB_ERR("unsupported media %d\n", cmnInf->mediaType);
             break;
