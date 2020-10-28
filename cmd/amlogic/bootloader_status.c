@@ -143,9 +143,10 @@ static void run_recovery_from_cache(void) {
 	run_command("reboot", 0);//need reboot old bootloader
 }
 
-void dv_disable() {
+static void aml_recovery() {
 	int ret = 0;
 	char *mode = NULL;
+	char recovery[768] = {0};
 	char command[32];
 	char miscbuf[4096] = {0};
 
@@ -158,7 +159,6 @@ void dv_disable() {
 	} else {
 		if ((!strcmp(mode, "factory_reset")) || (!strcmp(mode, "update"))) {
 			env_set("dolby_status","0");
-			return;
 		}
 	}
 
@@ -168,6 +168,17 @@ void dv_disable() {
 		return;
 	}
 
+	char *default_env = env_get("default_env");
+	//if factoryreset, need default uboot env
+	if (default_env != NULL) {
+		if (strstr(default_env, "1")) {
+			printf("factory reset, need default all uboot env.\n");
+			run_command("env default -a;saveenv;", 0);
+			return;
+		}
+	}
+
+	//if run recovery, need disable dolby
 	memcpy(command, miscbuf, 32);
 	if (!memcmp(command, "boot-recovery", strlen("boot-recovery"))) {
 		env_set("dolby_status","0");
@@ -185,8 +196,8 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	char *robustota = NULL;
 	char *mode = NULL;
 
-	//if recovery mode, need disable dv
-	dv_disable();
+	//if recovery mode, need disable dv, if factoryreset, need default uboot env
+	aml_recovery();
 
 	//check_result init
 	checkresult = env_get("check_result");
