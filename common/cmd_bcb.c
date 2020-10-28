@@ -113,6 +113,14 @@ static int do_RunBcbCommand(
         goto ERR;
     }
 
+    if (getenv("default_env")) {
+        char *default_env = getenv("default_env");
+        if (strstr(default_env, "1")) {
+            printf("factory reset, need default all uboot env\n");
+            run_command("env default -a;save;reset;", 0);
+        }
+    }
+
     if (!memcmp(command_mark, CMD_WIPE_DATA, strlen(command_mark))) {
         printf("Start to write --wipe_data to %s\n", partition);
         memcpy(miscbuf, CMD_RUN_RECOVERY, sizeof(CMD_RUN_RECOVERY));
@@ -216,6 +224,67 @@ static int do_RunBcbCommand(
  ERR:
     return -1;
 }
+
+static int do_RunAmlBcbCommand(
+    cmd_tbl_t * cmdtp,
+    int flag,
+    int argc,
+    char * const argv[]) {
+    if (argc != 1) {
+        return cmd_usage(cmdtp);
+    }
+
+    static int status = 0;
+    char *partition = "misc";
+    char recovery[RECOVERYBUF_SIZE] = {0};
+    char miscbuf[MISCBUF_SIZE] = {0};
+    unsigned long long cmdaddr =  -1;
+
+    if (status == 1) {
+        setenv("reboot_mode","update");
+        return 0;
+    }
+
+    printf("Start read %s partition datas!\n", partition);
+    if (store_read_ops((unsigned char *)partition,
+        (unsigned char *)miscbuf, 0, sizeof(miscbuf)) < 0) {
+        printf("failed to store read %s.\n", partition);
+        return 0;
+    }
+
+    // judge misc partition whether has datas
+    char tmpbuf[MISCBUF_SIZE];
+    memset(tmpbuf, 0, sizeof(tmpbuf));
+    if (!memcmp(tmpbuf, miscbuf, strlen(miscbuf))) {
+        printf("BCB hasn't any datas,exit!\n");
+    } else {
+        memcpy(recovery, miscbuf+COMMANDBUF_SIZE+STATUSBUF_SIZE, sizeof(recovery));
+        if (strstr(recovery, CMD_WIPE_DATA)) {
+            return 0;
+        }
+    }
+
+    char tmpb[256] = {0};
+    setenv_hex("cmdaddr", (ulong)tmpb[0]);
+    int ret = run_command("ext4load mmc 1:2 ${cmdaddr} /recovery/command 100", 1);
+    if (ret != 0) {
+        ret = run_command("ext4load mmc 1:2 ${cmdaddr} /recovery/command", 1);
+    }
+
+    if (ret == 0) {
+        cmdaddr = simple_strtoul(getenv("cmdaddr"), NULL, 16);
+        char *command = (char *)map_sysmem(cmdaddr, 0);
+        if (strstr(command, CMD_WIPE_DATA)) {
+            return 0;
+        }
+    }
+
+    printf("run recovery, but not factory reset.\n");
+    setenv("reboot_mode","update");
+    status = 1;
+    // Do-Nothing!
+    return 0;
+}
 #else
 static int do_RunBcbCommand(
     cmd_tbl_t * cmdtp,
@@ -223,6 +292,19 @@ static int do_RunBcbCommand(
     int argc,
     char * const argv[]) {
     if (argc != 2) {
+        return cmd_usage(cmdtp);
+    }
+
+    // Do-Nothing!
+    return 0;
+}
+
+static int do_RunAmlBcbCommand(
+    cmd_tbl_t * cmdtp,
+    int flag,
+    int argc,
+    char * const argv[]) {
+    if (argc != 1) {
         return cmd_usage(cmdtp);
     }
 
@@ -246,4 +328,11 @@ U_BOOT_CMD(
     "  N/A\n"
     "  setenv aa 11;setenv bb 22;setenv cc 33;saveenv;\n"   // command
     "So you can execute command: bcb uboot-command"
+);
+
+U_BOOT_CMD(
+    aml_bcb, 1, 0, do_RunAmlBcbCommand,
+    "aml_bcb",
+    "\nThis command will change reboot_mode from factory_reset\n"
+    "to update if not contain wipe_data !"
 );

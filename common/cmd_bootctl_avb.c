@@ -249,6 +249,13 @@ static int do_GetValidSlot(
         return cmd_usage(cmdtp);
     }
 
+    //recovery mode, need disable dolby
+    run_command("get_rebootmode", 0);
+    char *rebootmode = getenv("reboot_mode");
+    if ((!strstr(rebootmode, "factory_reset")) || (!strstr(rebootmode, "update"))) {
+        setenv("dolby_status","0");
+    }
+
     boot_info_open_partition(miscbuf);
     boot_info_load(&info, miscbuf);
 
@@ -256,6 +263,12 @@ static int do_GetValidSlot(
         printf("boot-info is invalid. Resetting.\n");
         boot_info_reset(&info);
         boot_info_save(&info, miscbuf);
+    }
+
+    //if recovery mode, need disable dolby
+    if (!memcmp(miscbuf, "boot-recovery", strlen("boot-recovery"))) {
+        printf("recovery mode, need disable dolby\n");
+        setenv("dolby_status","0");
     }
 
     slot = get_active_slot(&info);

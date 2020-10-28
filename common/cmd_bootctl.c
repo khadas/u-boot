@@ -253,6 +253,13 @@ static int do_GetValidSlot(
         return cmd_usage(cmdtp);
     }
 
+    //recovery mode, need disable dolby
+    run_command("get_rebootmode", 0);
+    char *rebootmode = getenv("reboot_mode");
+    if ((!strstr(rebootmode, "factory_reset")) || (!strstr(rebootmode, "update"))) {
+        setenv("dolby_status","0");
+    }
+
     ret = boot_info_open_partition(miscbuf);
     if (ret != 0) {
         return -1;
@@ -263,6 +270,7 @@ static int do_GetValidSlot(
     char command[32];
     memcpy(command, miscbuf, 32);
     if (!memcmp(command, "boot-recovery", strlen("boot-recovery"))) {
+        setenv("dolby_status","0");
         run_command("run init_display", 0);
         run_command("run storeargs", 0);
         if (run_command("run recovery_from_flash", 0) < 0) {
