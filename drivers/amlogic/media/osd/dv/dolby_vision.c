@@ -1143,7 +1143,7 @@ static int  enable_dolby_vision(void)
 {
 	printf("enable_dolby_vision\n");
 	if (is_meson_g12() || is_meson_tm2_stbmode() || is_meson_sc2()) {
-		hdr_func(OSD1_HDR, HDR_OFF);
+		hdr_func(OSD1_HDR, RGB_BYPASS);
 
 		/*enable core3*/
 		WRITE_VPP_REG_BITS(VPP_DOLBY_CTRL, 1, 3, 1);
