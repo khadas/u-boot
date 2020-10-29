@@ -103,7 +103,7 @@
         "display_color_fg=0xffff\0" \
         "display_color_bg=0\0" \
         "dtb_mem_addr=0x1000000\0" \
-        "fb_addr=0x3d800000\0" \
+        "fb_addr=0x1f800000\0" \
         "fb_width=1920\0" \
         "fb_height=1080\0" \
         "frac_rate_policy=1\0" \
@@ -579,15 +579,15 @@
 
 #ifdef CONFIG_AML_VPU
 /* VPP */
-//#define CONFIG_AML_VPP
+#define CONFIG_AML_VPP
 
 /* DISPLAY */
 #define CONFIG_AML_VOUT 1
 
-//#define CONFIG_AML_CANVAS 1
-//#define CONFIG_AML_OSD 1
-//#define CONFIG_OSD_SCALE_ENABLE 1
-//#define CONFIG_CMD_BMP 1
+#define CONFIG_AML_CANVAS 1
+#define CONFIG_AML_OSD 1
+#define CONFIG_OSD_SCALE_ENABLE 1
+#define CONFIG_CMD_BMP 1
 
 //#define CONFIG_AML_HDMITX20 1
 //#define CONFIG_AML_CVBS 1

@@ -2981,6 +2981,7 @@ void osd_init_hw(void)
 {
 	u32 group, idx, data32, data2;
 	char *osd_reverse;
+	u32 ofifo_size = 0xfff;
 
 	osd_reverse = getenv("osd_reverse");
 	for (group = 0; group < HW_OSD_COUNT; group++)
@@ -2999,8 +3000,10 @@ void osd_init_hw(void)
 		osd_logi("VPP_OFIFO_SIZE:0x%x\n", data32);
 		if (osd_hw.osd_ver == OSD_HIGH_ONE) {
 			data32 &= ~((0xfff << 20) | 0x3fff);
-			data32 |= (0xfff << 20);
-			data32 |= (0xfff + 1);
+			if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_T5D)
+				ofifo_size = 0x77f;
+			data32 |= (ofifo_size << 20);
+			data32 |= (ofifo_size + 1);
 			osd_reg_write(VPP_OFIFO_SIZE, data32);
 		}
 
