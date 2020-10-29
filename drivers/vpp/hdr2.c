@@ -587,8 +587,7 @@ void set_hdr_matrix(
 			gmut_coef[i/3][i%3] =
 				hdr_mtx_param->mtx_gamut[i];
 		/*for g12a/g12b osd blend shift rtl bug*/
-		if (((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) ||
-			(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B)) &&
+		if ((get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_G12A) &&
 			(hdr_mtx_param->p_sel & HDR_BYPASS) &&
 			(module_sel & OSD1_HDR))
 			gmut_shift = 10;
@@ -601,8 +600,7 @@ void set_hdr_matrix(
 		/*0, nolinear input, 1, max linear, 2, adpscl mode*/
 		adpscl_mode = 1;
 		for (i = 0; i < 3; i++) {
-			if (((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) ||
-				(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B)) &&
+			if ((get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_G12A) &&
 				(hdr_mtx_param->p_sel & HDR_BYPASS) &&
 				(module_sel & OSD1_HDR))
 				adpscl_enable[i] = 1;
