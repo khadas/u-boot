@@ -190,6 +190,10 @@ void lcd_lvds_phy_set(struct lcd_config_s *pconf, int status)
 	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
 	struct lvds_config_s *lvds_conf;
 
+#ifdef CONFIG_AML_LCD_PXP
+	return;
+#endif
+
 	if (lcd_debug_print_flag)
 		LCDPR("%s: %d\n", __func__, status);
 
