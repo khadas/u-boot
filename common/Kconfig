@@ -55,7 +55,7 @@ config CMD_BOOTM
 
 config CMD_GO
 	bool "go"
-	default y
+	default n
 	help
 	  Start an application at a given address.
 

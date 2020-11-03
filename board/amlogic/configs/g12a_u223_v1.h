@@ -46,6 +46,21 @@
 /* config saradc*/
 #define CONFIG_CMD_SARADC 1
 
+//#define CONFIG_AML_PRODUCT_MODE 1 //
+#ifdef CONFIG_AML_PRODUCT_MODE
+#define CONFIG_SILENT_CONSOLE
+#define CONFIG_NO_FASTBOOT_FLASHING
+#define CONFIG_USB_TOOL_ENTRY   "echo product mode"
+#define CONFIG_KNL_LOG_LEVEL    "loglevel=1"
+#else
+#define CONFIG_USB_TOOL_ENTRY   "update 1500"
+#define CONFIG_KNL_LOG_LEVEL    ""
+#define CONFIG_CMD_BOOTI        1
+#define CONFIG_CMD_MEMORY       1
+#define CONFIG_CMD_JTAG	        1
+#define CONFIG_CMD_AUTOSCRIPT   1
+#endif
+
 /*if disable uboot console, enable it*/
 //#define CONFIG_SILENT_CONSOLE
 #ifdef CONFIG_SILENT_CONSOLE
@@ -114,7 +129,7 @@
         "hdmichecksum=0x00000000\0" \
         "dolby_status=0\0" \
         "dolby_vision_on=0\0" \
-        "usb_burning=update 1000\0" \
+        "usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
         "otg_device=1\0"\
         "fdt_high=0x20000000\0"\
         "try_auto_burn=update 700 750;\0"\
@@ -134,7 +149,7 @@
         "reboot_mode_android=""normal""\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-            "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xff803000 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
+            "init=/init " CONFIG_KNL_LOG_LEVEL " console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xff803000 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
             "echo upgrade_step=${upgrade_step}; "\
@@ -612,17 +627,13 @@
 
 /* commands */
 #define CONFIG_CMD_CACHE 1
-#define CONFIG_CMD_BOOTI 1
 #define CONFIG_CMD_EFUSE 1
 #define CONFIG_CMD_I2C 1
-#define CONFIG_CMD_MEMORY 1
 #define CONFIG_CMD_FAT 1
 #define CONFIG_CMD_GPIO 1
 #define CONFIG_CMD_RUN
 #define CONFIG_CMD_REBOOT 1
 #define CONFIG_CMD_ECHO 1
-#define CONFIG_CMD_JTAG	1
-#define CONFIG_CMD_AUTOSCRIPT 1
 #define CONFIG_CMD_MISC 1
 
 /*file system*/
