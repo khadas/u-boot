@@ -722,7 +722,7 @@ int checkhw(char * name)
 	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
 #endif
 	switch (ddr_size) {
-             case 0x80000000:
+		case 0x80000000:
 			strcpy(dtb_name, "t5d_am319_2g\0");
 			break;
 		case 0x40000000:
