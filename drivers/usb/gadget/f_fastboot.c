@@ -1552,22 +1552,27 @@ static void cb_snapshot_update_cmd(struct usb_ep *ep, struct usb_request *req)
 
 static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 {
-	char response[RESPONSE_LEN/2 + 1];
 	char* cmd = req->buf;
+	int i = 0, len = 0, j = 0;
+	char cmd_str[RESPONSE_LEN];
 	printf("oem cmd[%s]\n", cmd);
-	static int i = 0;
 
-	memcpy(response, cmd, strnlen(cmd, RESPONSE_LEN/2)+1);//+1 to terminate str
-	cmd = response;
 	strsep(&cmd, " ");
-	FB_MSG("To run cmd[%s]\n", cmd);
-	run_command(cmd, 0);
+	printf("To run cmd[%s]\n", cmd);
 
-    if (++i > 3) i = 0;
+	len = strlen(cmd);
+	for (i = 0; i < len; i++) {
+		if (cmd[i] != '\'') {
+			cmd_str[j++] = cmd[i];
+		}
+	}
+	cmd_str[j] = '\0';
+	printf("cmd_str2: %s\n", cmd_str);
 
-	i ? fastboot_busy("AMLOGIC") : fastboot_okay(response);
-	fastboot_tx_write_str(response_str);
-	return ;
+	run_command(cmd_str, 0);
+
+	fastboot_tx_write_str("OKAY");
+	return;
 }
 
 struct cmd_dispatch_info {
