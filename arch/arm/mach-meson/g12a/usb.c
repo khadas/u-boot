@@ -126,7 +126,7 @@ int get_usbphy_baseinfo(struct phy *usb_phys)
 	return 0;
 }
 
-void usb_aml_detect_operation(int argc, char * const argv[])
+int usb_aml_detect_operation(int argc, char * const argv[])
 {
 	struct phy_aml_usb2_priv *usb2_priv;
 	struct phy_aml_usb3_priv *usb3_priv;
@@ -135,7 +135,7 @@ void usb_aml_detect_operation(int argc, char * const argv[])
 	ret = get_usbphy_baseinfo(usb_phys);
 	if (ret) {
 		printf("get usb dts failed\n");
-		return;
+		return 0;
 	}
 	usb2_priv = dev_get_priv(usb_phys[0].dev);
 	usb3_priv = dev_get_priv(usb_phys[1].dev);
@@ -155,6 +155,7 @@ void usb_aml_detect_operation(int argc, char * const argv[])
 	}
 	phy_aml_usb2_check_rev();
 	printf("PHY version is 0x%02x\n", Rev_flag);
+	return 0;
 }
 
 static void usb_set_power_domain (void)

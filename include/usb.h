@@ -1115,6 +1115,6 @@ int usb_hub_port_reset(struct usb_device *dev, int port,
 			      unsigned short *portstat);
 
 int usb_tuning_port(struct usb_device *udev, int port);
-void usb_aml_detect_operation(int argc, char * const argv[]);
+int usb_aml_detect_operation(int argc, char * const argv[]);
 
 #endif /*_USB_H_ */

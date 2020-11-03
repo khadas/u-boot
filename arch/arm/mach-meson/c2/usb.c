@@ -81,36 +81,6 @@ int get_usbphy_baseinfo(struct phy *usb_phys)
 	return 0;
 }
 
-void usb_aml_detect_operation(int argc, char * const argv[])
-{
-	struct phy_aml_usb2_priv *usb2_priv;
-	struct phy_aml_usb3_priv *usb3_priv;
-	int ret;
-
-	ret = get_usbphy_baseinfo(usb_phys);
-	if (ret) {
-		printf("get usb dts failed\n");
-		return;
-	}
-	usb2_priv = dev_get_priv(usb_phys[0].dev);
-	usb3_priv = dev_get_priv(usb_phys[1].dev);
-
-	if (usb3_priv) {
-		printf("priv->usb3 port num = %d, config addr=0x%08x\n",
-			usb3_priv->usb3_port_num, usb3_priv->base_addr);
-		//dm_gpio_set_value(&priv->desc, 1);
-	}
-	if (usb2_priv) {
-		printf("usb2 phy: config addr = 0x%08x, reset addr=0x%08x\n",
-			usb2_priv->base_addr, usb2_priv->reset_addr);
-
-		printf("usb2 phy: portnum=%d, phy-addr1= 0x%08x, phy-addr2= 0x%08x\n",
-		usb2_priv->u2_port_num, usb2_priv->usb_phy2_pll_base_addr[0],
-		usb2_priv->usb_phy2_pll_base_addr[1]);
-		printf("dwc2_a base addr: 0x%08x\n", usb2_priv->dwc2_a_addr);
-	}
-}
-
 static void usb_set_power_domain (void)
 {
 	writel((readl(P_AO_RTI_GEN_PWR_SLEEP0) & (~(0x1 << U2_CTRL_SLEEP_SHIFT))),
@@ -169,6 +139,11 @@ void usb_reset(unsigned int reset_addr, int bit){
 static void usb_enable_phy_pll (void)
 {
 	*(volatile uint32_t *)RESETCTRL_RESET1_LEVEL |= (1 << PHY20_RESET_LEVEL_BIT);
+}
+
+static void usb_disable_phy_pll (void)
+{
+	*(volatile uint32_t *)RESETCTRL_RESET1_LEVEL &= ~(1 << PHY20_RESET_LEVEL_BIT);
 }
 
 void set_usb_pll(uint32_t phy2_pll_base)
@@ -424,3 +399,57 @@ void usb_device_mode_init(void){
 
 }
 
+static void usb_disable_phy(uint32_t phy2_pll_base)
+{
+	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x40))=
+		((USB2_PHY_PLL_OFFSET_40 | USB_PHY2_RESET) & (~USB_PHY2_ENABLE));
+	udelay(5);
+}
+
+static void usb_print_usb_baseinfo
+	(struct phy_aml_usb2_priv *usb2_priv, struct phy_aml_usb3_priv *usb3_priv)
+{
+	if (usb3_priv) {
+		printf("priv->usb3 port num = %d, config addr=0x%08x\n",
+			usb3_priv->usb3_port_num, usb3_priv->base_addr);
+	}
+	if (usb2_priv) {
+		printf("usb2 phy: config addr = 0x%08x, reset addr=0x%08x\n",
+			usb2_priv->base_addr, usb2_priv->reset_addr);
+
+		printf("usb2 phy: portnum=%d, phy-addr1= 0x%08x, phy-addr2= 0x%08x\n",
+			usb2_priv->u2_port_num, usb2_priv->usb_phy2_pll_base_addr[0],
+			usb2_priv->usb_phy2_pll_base_addr[1]);
+		printf("dwc2_a base addr: 0x%08x\n", usb2_priv->dwc2_a_addr);
+	}
+}
+
+int usb_aml_detect_operation(int argc, char * const argv[])
+{
+	struct phy_aml_usb2_priv *usb2_priv;
+	struct phy_aml_usb3_priv *usb3_priv;
+	int ret;
+
+	ret = get_usbphy_baseinfo(usb_phys);
+	if (ret) {
+		printf("get usb dts failed\n");
+		return 0;
+	}
+	usb2_priv = dev_get_priv(usb_phys[0].dev);
+	usb3_priv = dev_get_priv(usb_phys[1].dev);
+
+	if (argc >= 2) {
+		if (strncmp(argv[1], "disable", 7) == 0) {
+			usb_disable_phy_pll();
+			usb_disable_phy(usb2_priv->usb_phy2_pll_base_addr[0]);
+			printf("disable USB phy\n");
+			return 0;
+		}
+
+		if (strncmp(argv[1], "info", 4) == 0) {
+			usb_print_usb_baseinfo(usb2_priv, usb3_priv);
+			return 0;
+		}
+	}
+	return CMD_RET_USAGE;
+}

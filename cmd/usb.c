@@ -732,14 +732,19 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int do_usb_detect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	usb_aml_detect_operation(argc, argv);
+	if (argc < 2)
+		return CMD_RET_USAGE;
+	if (argc >= 2) {
+		return usb_aml_detect_operation(argc, argv);
+	}
 	return 0;
 }
 
 U_BOOT_CMD(
-	usbgetinfo,	5,	1,	do_usb_detect,
+	musb,	5,	1,	do_usb_detect,
 	"using for get USB information",
-	"usbdetect:default operation to get dts information\n"
+	"info ----default operation to get dts information\n"
+	"musb disable ----disable USB PHY\n"
 );
 
 
