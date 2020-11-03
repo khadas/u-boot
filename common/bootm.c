@@ -167,6 +167,11 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		images.os.end = fit_get_end(images.fit_hdr_os);
 
+		if (images.os.arch == IH_ARCH_ARM) {
+			setenv("initrd_high", "0A000000");
+			setenv("fdt_high", "0A000000");
+		}
+
 		if (fit_image_get_load(images.fit_hdr_os, images.fit_noffset_os,
 				       &images.os.load)) {
 			puts("Can't get image load address!\n");
@@ -644,6 +649,10 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 	ulong load = os.load;
 	ulong blob_start = os.start;
 	ulong blob_end = os.end;
+#if defined(CONFIG_FIT)
+	if (os.arch == IH_ARCH_ARM && (images->fit_uname_cfg != NULL))
+		os.image_start += 0x40;
+#endif
 	ulong image_start = os.image_start;
 	ulong image_len = os.image_len;
 	bool no_overlap;

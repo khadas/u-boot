@@ -115,9 +115,15 @@ config FIT_VERBOSE
 	bool "Display verbose messages on FIT boot"
 	depends on FIT
 
+config RSA
+	bool "Enable RSA algorithm for signing"
+	help
+	  This option enable the RSA algorithm for signing.
+
 config FIT_SIGNATURE
 	bool "Enabel signature verification of FIT uImages"
 	depends on FIT
+	depends on RSA
 	help
 	  This option enables signature verification of FIT uImages,
 	  using a hash signed and verified using RSA.

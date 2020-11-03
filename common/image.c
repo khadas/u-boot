@@ -1256,6 +1256,10 @@ int image_setup_linux(bootm_headers_t *images)
 		}
 	}
 	if (IMAGE_ENABLE_RAMDISK_HIGH) {
+#if defined(CONFIG_FIT)
+		if (images->os.arch == IH_ARCH_ARM && (images->fit_uname_cfg != NULL))
+			images->rd_start += 0x40;
+#endif
 		rd_len = images->rd_end - images->rd_start;
 		ret = boot_ramdisk_high(lmb, images->rd_start, rd_len,
 				initrd_start, initrd_end);
