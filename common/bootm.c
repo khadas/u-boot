@@ -1067,7 +1067,7 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 	printf("avb2: %s\n", avb_s);
 	if (strcmp(avb_s, "1") != 0) {
 #ifdef CONFIG_AML_ANTIROLLBACK
-		struct andr_img_hdr **tmp_img_hdr = (struct andr_img_hdr **)&buf;
+		boot_img_hdr_t **tmp_img_hdr = (boot_img_hdr_t **)&buf;
 #endif
 	}
 

@@ -23,7 +23,11 @@ ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 obj-y += cmd_bcb.o
 obj-y += get_bcb_boot_part.o
 ifdef CONFIG_CMD_BOOTCTOL_AVB
+ifdef CONFIG_CMD_BOOTCTOL_VAB
+obj-y += cmd_bootctl_vab.o
+else
 obj-y += cmd_bootctl_avb.o
+endif
 else
 obj-y += cmd_bootctl.o
 endif

@@ -18,14 +18,13 @@
 #include <asm/arch/secure_apb.h>
 #include <amlogic/store_wrapper.h>
 #include <amlogic/aml_efuse.h>
+#include <malloc.h>
 
 #ifndef IS_FEAT_BOOT_VERIFY
 #define IS_FEAT_BOOT_VERIFY() 0
 #endif// #ifndef IS_FEAT_BOOT_VERIFY
 int __attribute__((weak)) store_logic_read(const char *name, loff_t off, size_t size, void *buf)
 { return store_read(name, off, size, buf);}
-
-typedef struct andr_img_hdr boot_img_hdr;
 
 #define debugP(fmt...) //printf("[Dbg imgread]L%d:", __LINE__),printf(fmt)
 #define errorP(fmt...) printf("Err imgread(L%d):", __LINE__),printf(fmt)
@@ -87,19 +86,21 @@ COMPILE_TYPE_ASSERT(2048 >= sizeof(AmlSecureBootImgHeader), _cc);
 
 static int is_andr_9_image(void* pBuffer)
 {
+
     int nReturn = 0;
 
     if (!pBuffer)
         goto exit;
 
-    struct andr_img_hdr *pAHdr = (struct andr_img_hdr*)(unsigned long)pBuffer;
+    boot_img_hdr_t *pAHdr = (boot_img_hdr_t*)(unsigned long)pBuffer;
 
-    if (pAHdr->unused)
+    if (pAHdr->header_version)
         nReturn = 1;
 
 exit:
 
     return nReturn;
+
 }
 
 static int _aml_get_secure_boot_kernel_size(const void* pLoadaddr, unsigned* pTotalEncKernelSz)
@@ -161,7 +162,7 @@ static int do_image_read_dtb_from_knl(const char* partName, unsigned char* loada
     unsigned int nFlashLoadLen = 0;
     unsigned secureKernelImgSz = 0;
     const int preloadSz = 4096;
-    boot_img_hdr *hdr_addr = (boot_img_hdr*)loadaddr;
+    boot_img_hdr_t *hdr_addr = (boot_img_hdr_t*)loadaddr;
 
     nFlashLoadLen = preloadSz;//head info is one page size == 2k
     debugP("sizeof preloadSz=%u\n", nFlashLoadLen);
@@ -292,7 +293,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 {
     unsigned    kernel_size;
     unsigned    ramdisk_size;
-    boot_img_hdr *hdr_addr = NULL;
+    boot_img_hdr_t *hdr_addr = NULL;
     int genFmt = 0;
     unsigned actualBootImgSz = 0;
     unsigned dtbSz = 0;
@@ -308,7 +309,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
     else{
         loadaddr = (unsigned char*)simple_strtoul(env_get("loadaddr"), NULL, 16);
     }
-    hdr_addr = (boot_img_hdr*)loadaddr;
+    hdr_addr = (boot_img_hdr_t*)loadaddr;
 
     if (3 < argc) flashReadOff = simple_strtoull(argv[3], NULL, 0) ;
 
@@ -319,51 +320,180 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
     }
     flashReadOff += IMG_PRELOAD_SZ;
 
-    genFmt = genimg_get_format(hdr_addr);
-    if (IMAGE_FORMAT_ANDROID != genFmt) {
-        errorP("Fmt unsupported!genFmt 0x%x != 0x%x\n", genFmt, IMAGE_FORMAT_ANDROID);
-        return __LINE__;
-    }
+    if (!is_android_r_image((void *) hdr_addr)) {
 
-    //Check if encrypted image
-    rc = _aml_get_secure_boot_kernel_size(loadaddr, &secureKernelImgSz);
-    if (rc) {
-            errorP("Fail in _aml_get_secure_boot_kernel_size, rc=%d\n", rc);
-            return __LINE__;
-    }
-    if (secureKernelImgSz)
-    {
-        actualBootImgSz = secureKernelImgSz;
-        MsgP("secureKernelImgSz=0x%x\n", actualBootImgSz);
-    }
-    else
-    {
-        kernel_size     =(hdr_addr->kernel_size + (hdr_addr->page_size-1)+hdr_addr->page_size)&(~(hdr_addr->page_size -1));
-        ramdisk_size    =(hdr_addr->ramdisk_size + (hdr_addr->page_size-1))&(~(hdr_addr->page_size -1));
-        dtbSz           = hdr_addr->second_size;
-        actualBootImgSz = kernel_size + ramdisk_size + dtbSz;
-        debugP("kernel_size 0x%x, page_size 0x%x, totalSz 0x%x\n", hdr_addr->kernel_size, hdr_addr->page_size, kernel_size);
-        debugP("ramdisk_size 0x%x, totalSz 0x%x\n", hdr_addr->ramdisk_size, ramdisk_size);
-        debugP("dtbSz 0x%x, Total actualBootImgSz 0x%x\n", dtbSz, actualBootImgSz);
-    }
+        extern p_vendor_boot_img_t p_vender_boot_img;
 
-    if (actualBootImgSz > IMG_PRELOAD_SZ)
-    {
-        const unsigned leftSz = actualBootImgSz - IMG_PRELOAD_SZ;
-
-        debugP("Left sz 0x%x\n", leftSz);
-        rc = store_logic_read(partName, flashReadOff, leftSz, loadaddr + IMG_PRELOAD_SZ);
-        if (rc) {
-            errorP("Fail to read 0x%xB from part[%s] at offset 0x%x\n", leftSz, partName, IMG_PRELOAD_SZ);
+        /*free vendor buffer first*/
+       if (p_vender_boot_img) {
+            free(p_vender_boot_img);
+            p_vender_boot_img = 0;
+        }
+        genFmt = genimg_get_format(hdr_addr);
+        if (IMAGE_FORMAT_ANDROID != genFmt) {
+            errorP("Fmt unsupported!genFmt 0x%x != 0x%x\n", genFmt, IMAGE_FORMAT_ANDROID);
             return __LINE__;
         }
+
+        //Check if encrypted image
+        rc = _aml_get_secure_boot_kernel_size(loadaddr, &secureKernelImgSz);
+        if (rc) {
+            errorP("Fail in _aml_get_secure_boot_kernel_size, rc=%d\n", rc);
+            return __LINE__;
+        }
+        if (secureKernelImgSz) {
+            actualBootImgSz = secureKernelImgSz;
+            MsgP("secureKernelImgSz=0x%x\n", actualBootImgSz);
+        }
+        else {
+            kernel_size     =(hdr_addr->kernel_size + (hdr_addr->page_size-1)+hdr_addr->page_size)&(~(hdr_addr->page_size -1));
+            ramdisk_size    =(hdr_addr->ramdisk_size + (hdr_addr->page_size-1))&(~(hdr_addr->page_size -1));
+            dtbSz           = hdr_addr->second_size;
+            actualBootImgSz = kernel_size + ramdisk_size + dtbSz;
+            debugP("kernel_size 0x%x, page_size 0x%x, totalSz 0x%x\n", hdr_addr->kernel_size, hdr_addr->page_size, kernel_size);
+            debugP("ramdisk_size 0x%x, totalSz 0x%x\n", hdr_addr->ramdisk_size, ramdisk_size);
+            debugP("dtbSz 0x%x, Total actualBootImgSz 0x%x\n", dtbSz, actualBootImgSz);
+        }
+
+	 if (actualBootImgSz > IMG_PRELOAD_SZ) {
+            const unsigned leftSz = actualBootImgSz - IMG_PRELOAD_SZ;
+
+            debugP("Left sz 0x%x\n", leftSz);
+            rc = store_logic_read(partName, flashReadOff, leftSz, loadaddr + IMG_PRELOAD_SZ);
+			if (rc) {
+                errorP("Fail to read 0x%xB from part[%s] at offset 0x%x\n", leftSz, partName, IMG_PRELOAD_SZ);
+                return __LINE__;
+            }
+        }
+            debugP("totalSz=0x%x\n", actualBootImgSz);
+
+            //because secure boot will use DMA which need disable MMU temp
+            //here must update the cache, otherwise nand will fail (eMMC is OK)
+            flush_cache((unsigned long)loadaddr,(unsigned long)actualBootImgSz);
+
+        return 0;
     }
-    debugP("totalSz=0x%x\n", actualBootImgSz);
+    else {
+        extern p_vendor_boot_img_t p_vender_boot_img;
 
-    //because secure boot will use DMA which need disable MMU temp
-    //here must update the cache, otherwise nand will fail (eMMC is OK)
-    flush_cache((unsigned long)loadaddr,(unsigned long)actualBootImgSz);
+        /*free vendor buffer first*/
+	 if (p_vender_boot_img) {
+            free(p_vender_boot_img);
+            p_vender_boot_img = 0;
+        }
 
+        genFmt = genimg_get_format(hdr_addr);
+	 if (IMAGE_FORMAT_ANDROID != genFmt) {
+            errorP("Fmt unsupported!genFmt 0x%x != 0x%x\n", genFmt, IMAGE_FORMAT_ANDROID);
+            return __LINE__;
+        }
+
+        //Check if encrypted image
+        rc = _aml_get_secure_boot_kernel_size(loadaddr, &secureKernelImgSz);
+	 if (rc) {
+            errorP("Fail in _aml_get_secure_boot_kernel_size, rc=%d\n", rc);
+            return __LINE__;
+        }
+	 if (secureKernelImgSz) {
+            actualBootImgSz = secureKernelImgSz;
+            MsgP("secureKernelImgSz=0x%x\n", actualBootImgSz);
+        }
+        else {
+            p_boot_img_hdr_v3_t hdr_addr_v3 = NULL;
+            hdr_addr_v3 = (p_boot_img_hdr_v3_t)hdr_addr;
+            kernel_size    = ALIGN(hdr_addr_v3->kernel_size,0x1000);
+            ramdisk_size   = ALIGN(hdr_addr_v3->ramdisk_size,0x1000);
+            debugP("kernel_size 0x%x, totalSz 0x%x\n", hdr_addr_v3->kernel_size, kernel_size);
+            debugP("ramdisk_size 0x%x, totalSz 0x%x\n", hdr_addr_v3->ramdisk_size, ramdisk_size);
+
+            actualBootImgSz = kernel_size + ramdisk_size + 0x1000;
+
+	     if (actualBootImgSz > IMG_PRELOAD_SZ) {
+                const unsigned leftSz = actualBootImgSz - IMG_PRELOAD_SZ;
+
+                debugP("Left sz 0x%x\n", leftSz);
+                rc = store_logic_read((unsigned char*)partName, flashReadOff, leftSz,loadaddr + IMG_PRELOAD_SZ);
+		   if (rc) {
+                    errorP("Fail to read 0x%xB from part[%s] at offset 0x%x\n", leftSz, partName, IMG_PRELOAD_SZ);
+                    return __LINE__;
+                }
+            }
+            debugP("totalSz=0x%x\n", actualBootImgSz);
+            /*
+                because secure boot will use DMA which need disable MMU temp
+                here must update the cache, otherwise nand will fail (eMMC is OK)
+            */
+            flush_cache((unsigned long)loadaddr,(unsigned long)actualBootImgSz);
+
+            /*
+                Android R need read vendor_boot partition
+                define Android R variable add suffix xxx_r
+            */
+            const char* const partName_r = "vendor_boot_a";
+            int nReturn_r = __LINE__;
+            uint64_t lflashReadOff_r = 0;
+            unsigned int nFlashLoadLen_r = 0;
+            const int preloadSz_r = 0x1000;
+            unsigned char * pBuffPreload = 0;
+            int rc_r = 0;
+
+            nFlashLoadLen_r = preloadSz_r;		//head info is one page size == 4k
+            debugP("sizeof preloadSz=%u\n", nFlashLoadLen_r);
+
+            pBuffPreload = malloc(preloadSz_r);
+
+	     if (!pBuffPreload) {
+                printf("aml log : system error! Fail to allocate memory for %s!\n",partName_r);
+                return __LINE__;
+            }
+            nReturn_r = store_logic_read((unsigned char*)partName_r,lflashReadOff_r, nFlashLoadLen_r, pBuffPreload);
+
+	     if (nReturn_r) {
+                errorP("Fail to read 0x%xB from part[%s] at offset 0\n", nFlashLoadLen_r, partName_r);
+                free(pBuffPreload);
+                pBuffPreload = 0;
+                return __LINE__;
+            }
+            p_vendor_boot_img_hdr_t pVendorIMGHDR = (p_vendor_boot_img_hdr_t)pBuffPreload;
+
+            rc_r = vendor_boot_image_check_header(pVendorIMGHDR);
+	     if (!rc_r) {
+                unsigned long ramdisk_size_r,dtb_size_r;
+                const int pageSz_r = pVendorIMGHDR->page_size;
+
+                /* Android R's vendor_boot partition include ramdisk and dtb */
+                ramdisk_size_r    = ALIGN(pVendorIMGHDR->vendor_ramdisk_size, pageSz_r);
+                dtb_size_r	      = ALIGN(pVendorIMGHDR->dtb_size, pageSz_r);
+                nFlashLoadLen_r   = ramdisk_size_r + dtb_size_r + 0x1000;
+                debugP("ramdisk_size_r 0x%x, totalSz 0x%x\n", pVendorIMGHDR->vendor_ramdisk_size, ramdisk_size_r);
+                debugP("dtb_size_r 0x%x, totalSz 0x%x\n", pVendorIMGHDR->dtb_size, dtb_size_r);
+
+		   if (nFlashLoadLen_r > preloadSz_r) {
+                    free(pBuffPreload);
+                    pBuffPreload=malloc(nFlashLoadLen_r);
+			if (!pBuffPreload)
+                        return __LINE__;
+                    rc_r = store_logic_read((unsigned char*)partName_r, lflashReadOff_r, nFlashLoadLen_r, pBuffPreload);
+			if (rc_r) {
+                        errorP("Fail to read 0x%xB from part[%s] at offset 0x%x\n",
+                            (unsigned int)nFlashLoadLen_r, partName_r, (unsigned int)lflashReadOff_r);
+                        free(pBuffPreload);
+                        pBuffPreload = 0;
+                        return __LINE__;
+                    }
+                }
+
+                debugP("totalSz=0x%x\n", nFlashLoadLen_r);
+                flush_cache((unsigned long)pBuffPreload,nFlashLoadLen_r);
+
+                p_vender_boot_img = (p_vendor_boot_img_t)pBuffPreload;
+            }
+            else {
+                free(pBuffPreload);
+                pBuffPreload=0;
+            }
+        } /*ANDROID R*/
+    }
     return 0;
 }
 

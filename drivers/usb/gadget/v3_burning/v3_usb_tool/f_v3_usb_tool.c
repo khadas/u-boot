@@ -692,7 +692,7 @@ static void cb_download(struct usb_ep *ep, struct usb_request *req)
 	fastboot_tx_write_str(response);
 }
 
-typedef struct andr_img_hdr boot_img_hdr;
+typedef boot_img_hdr_t boot_img_hdr;
 
 static void do_bootm_on_complete(struct usb_ep *ep, struct usb_request *req)
 {

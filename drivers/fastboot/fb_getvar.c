@@ -115,7 +115,7 @@ static const struct {
 		.variable = "slot-suffixes",
 		.dispatch = getvar_slot_suffixes
 	}, {
-		.variable = "has_slot",
+		.variable = "has-slot",
 		.dispatch = getvar_has_slot
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 	}, {
@@ -347,19 +347,41 @@ static void getvar_product(char *var_parameter, char *response)
 
 static void getvar_current_slot(char *var_parameter, char *response)
 {
+	char *slot;
+	slot = env_get("slot-suffixes");
+	printf("slot-suffixes: %s\n", slot);
 	/* A/B not implemented, for now always return _a */
-	if (busy_flag == 1)
-		fastboot_busy("current-slot: _a", response);
-	else
-		fastboot_okay("_a", response);
+	if (busy_flag == 1) {
+		if (strcmp(slot, "0") == 0)
+			fastboot_busy("current-slot: a", response);
+		else if (strcmp(slot, "1") == 0)
+			fastboot_busy("current-slot: b", response);
+	}
+	else {
+		if (strcmp(slot, "0") == 0)
+			fastboot_okay("a", response);
+		else if (strcmp(slot, "1") == 0)
+			fastboot_okay("b", response);
+	}
 }
 
 static void getvar_slot_suffixes(char *var_parameter, char *response)
 {
-	if (busy_flag == 1)
-		fastboot_busy("slot-suffixes: _a,_b", response);
-	else
-		fastboot_okay("_a,_b", response);
+	char *s;
+	s = env_get("slot-suffixes");
+	printf("slot-suffixes: %s\n", s);
+	if (busy_flag == 1) {
+		if (!strcmp(s, "-1") == 0)
+			fastboot_response("INFOslot-suffixes:", response, "%s", s);
+		else
+			fastboot_busy("slot-suffixes: 0", response);
+	}
+	else {
+		if (!strcmp(s, "-1") == 0)
+			fastboot_okay(s, response);
+		else
+			fastboot_okay("0", response);
+	}
 }
 
 static void getvar_has_slot(char *part_name, char *response)
@@ -373,7 +395,8 @@ static void getvar_has_slot(char *part_name, char *response)
 		if ((strcmp(part_name, "system") == 0) || (strcmp(part_name, "vendor") == 0)
 			|| (strcmp(part_name, "odm") == 0) || (strcmp(part_name, "product") == 0)
 			|| (strcmp(part_name, "system_ext") == 0) || (strcmp(part_name, "dtbo") == 0)
-			|| (strcmp(part_name, "metadata") == 0) || (strcmp(part_name, "vbmeta") == 0)){
+			|| (strcmp(part_name, "boot") == 0) || (strcmp(part_name, "recovery") == 0)
+			|| (strcmp(part_name, "vendor_boot") == 0) || (strcmp(part_name, "vbmeta") == 0)){
 			if (busy_flag == 1)
 				fastboot_response("INFOhas-slot:", response, "%s: yes", part_name);
 			else
@@ -414,12 +437,18 @@ static void getvar_partition_type(char *part_name, char *response)
 			|| (strcmp(part_name, "odm") == 0) || (strcmp(part_name, "product") == 0)
 			|| (strcmp(part_name, "system_ext") == 0) || (strcmp(part_name, "dtbo") == 0)
 			|| (strcmp(part_name, "metadata") == 0) || (strcmp(part_name, "vbmeta") == 0)
-			|| (strcmp(part_name, "data") == 0) || (strcmp(part_name, "userdata") == 0)
-			|| (strcmp(part_name, "cache") == 0)){
+			|| (strcmp(part_name, "data") == 0) || (strcmp(part_name, "userdata") == 0)){
 		if (busy_flag == 1)
 			fastboot_response("INFOpartition-type:", response, "%s: ext4", part_name);
 		else
 			fastboot_okay("ext4", response);
+	} else if (strcmp(part_name, "cache") == 0) {
+		if (has_boot_slot == 0) {
+			if (busy_flag == 1)
+				fastboot_response("INFOpartition-type:", response, "%s: ext4", part_name);
+			else
+				fastboot_okay("ext4", response);
+		}
 	} else {
 		if (busy_flag == 1)
 			fastboot_response("INFOpartition-type:", response, "%s: raw", part_name);
@@ -500,6 +529,8 @@ void fastboot_getvar(char *cmd_parameter, char *response)
 			fastboot_response("OKAY", response, "%s", s);
 			return;
 		}
+
+		printf("fastboot_getvar cmd_parameter: %s\n", cmd_parameter);
 
 		strsep(&var_parameter, ":");
 		for (i = 0; i < ARRAY_SIZE(getvar_dispatch); ++i) {

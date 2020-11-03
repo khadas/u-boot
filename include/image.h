@@ -1302,19 +1302,22 @@ static inline int fit_image_check_target_arch(const void *fdt, int node)
 #endif /* CONFIG_FIT */
 
 #if defined(CONFIG_ANDROID_BOOT_IMAGE)
-struct andr_img_hdr;
-int android_image_check_header(const struct andr_img_hdr *hdr);
-int android_image_get_kernel(const struct andr_img_hdr *hdr, int verify,
-			     ulong *os_data, ulong *os_len);
-int android_image_get_ramdisk(const struct andr_img_hdr *hdr,
-			      ulong *rd_data, ulong *rd_len);
-int android_image_get_second(const struct andr_img_hdr *hdr,
+#include <android_image.h>
+int android_image_check_header(const boot_img_hdr_t *hdr);
+int android_image_get_kernel(const  boot_img_hdr_t *hdr,int verify,ulong *os_data, ulong *os_len);
+int android_image_get_ramdisk(const boot_img_hdr_t *hdr,ulong *rd_data, ulong *rd_len);
+ulong android_image_get_end(const boot_img_hdr_t *hdr);
+ulong android_image_get_kload(const boot_img_hdr_t *hdr);
+ulong android_image_get_comp(const boot_img_hdr_t *hdr);
+int android_image_need_move(ulong *img_addr,const boot_img_hdr_t *hdr);
+int android_image_get_second(const  boot_img_hdr_t *hdr,
 			      ulong *second_data, ulong *second_len);
-ulong android_image_get_end(const struct andr_img_hdr *hdr);
-ulong android_image_get_kload(const struct andr_img_hdr *hdr);
-void android_print_contents(const struct andr_img_hdr *hdr);
-ulong android_image_get_comp(const struct andr_img_hdr *hdr);
-int android_image_need_move(ulong *img_addr,const struct andr_img_hdr *hdr);
+void android_print_contents(const  boot_img_hdr_t *hdr);
+int is_android_r_image(void *img_addr);
+
+/*android R*/
+int android_image_get_ramdisk_v3(const boot_img_hdr_v3_t *hdr, ulong *rd_data, ulong *rd_len);
+int vendor_boot_image_check_header(const vendor_boot_img_hdr_t * hdr);
 
 #endif /* CONFIG_ANDROID_BOOT_IMAGE */
 

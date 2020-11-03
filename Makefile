@@ -1620,6 +1620,7 @@ define filechk_version.h
 	echo \#define U_BOOT_VERSION \"U-Boot \" PLAIN_VERSION; \
 	echo \#define CONFIG_SYSTEM_AS_ROOT \"${SYSTEMMODE}\"; \
 	echo \#define CONFIG_AVB2 \"${AVBMODE}\"; \
+	echo \#define CONFIG_CMD_BOOTCTOL_VAB \"${BOOTCTRLMODE}\"; \
 	echo \#define CC_VERSION_STRING \"$$(LC_ALL=C $(CC) --version | head -n 1)\"; \
 	echo \#define LD_VERSION_STRING \"$$(LC_ALL=C $(LD) --version | head -n 1)\"; )
 endef

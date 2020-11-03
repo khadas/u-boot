@@ -11,16 +11,35 @@
 #ifndef _ANDROID_IMAGE_H_
 #define _ANDROID_IMAGE_H_
 
-typedef struct andr_img_hdr andr_img_hdr;
+#define _BA1_(cond, line) \
+	extern int __build_assertion_ ## line[1 - 2*!(cond)] \
+	__attribute__ ((unused))
+#define _BA0_(c, x) _BA1_(c, x)
+#define BUILD_ASSERT(cond) _BA0_(cond, __LINE__)
 
-#define ANDR_BOOT_MAGIC "ANDROID!"
-#define ANDR_BOOT_MAGIC_SIZE 8
-#define ANDR_BOOT_NAME_SIZE 16
-#define ANDR_BOOT_ARGS_SIZE 512
-#define ANDR_BOOT_EXTRA_ARGS_SIZE 1024
+#define BOOT_IMG_HDR_SIZE         (0x800)
+#define BOOT_IMG_V3_HDR_SIZE      (0x1000)
+#define VENDOR_BOOT_IMG_HDR_SIZE  (0x1000)
 
-struct andr_img_hdr {
-	char magic[ANDR_BOOT_MAGIC_SIZE];
+#define ANDR_BOOT_MAGIC            "ANDROID!"
+#define ANDR_BOOT_MAGIC_SIZE      (8)
+#define ANDR_BOOT_NAME_SIZE       (16)
+#define ANDR_BOOT_ARGS_SIZE       (512)
+
+#define BOOT_MAGIC                "ANDROID!"
+#define BOOT_MAGIC_SIZE           (8)
+#define BOOT_NAME_SIZE            (16)
+#define BOOT_ARGS_SIZE            (512)
+#define BOOT_EXTRA_ARGS_SIZE      (1024)
+
+#define VENDOR_BOOT_MAGIC         "VNDRBOOT"
+#define VENDOR_BOOT_MAGIC_SIZE    (8)
+#define VENDOR_BOOT_ARGS_SIZE     (2048)
+#define VENDOR_BOOT_NAME_SIZE     (16)
+
+/* Before android R boot.img header structure */
+typedef struct {
+	char magic[BOOT_MAGIC_SIZE]; /*"ANDROID!"*/
 
 	u32 kernel_size;	/* size in bytes */
 	u32 kernel_addr;	/* physical load addr */
@@ -33,27 +52,43 @@ struct andr_img_hdr {
 
 	u32 tags_addr;		/* physical addr for kernel tags */
 	u32 page_size;		/* flash page size we assume */
-	u32 unused;		/* reserved for future expansion: MUST be 0 */
+
+	u32 header_version;	/* highest byte: 1 = boot, 2 = recovery;
+				   low three bytes: kernel version */
 
 	/* operating system version and security patch level; for
-	 * version "A.B.C" and patch level "Y-M-D":
-	 * ver = A << 14 | B << 7 | C         (7 bits for each of A, B, C)
-	 * lvl = ((Y - 2000) & 127) << 4 | M  (7 bits for Y, 4 bits for M)
-	 * os_version = ver << 11 | lvl */
-	u32 os_version;
+	   * version "A.B.C" and patch level "Y-M-D":
+	   * ver = A << 14 | B << 7 | C         (7 bits for each of A, B, C)
+	   * lvl = ((Y - 2000) & 127) << 4 | M  (7 bits for Y, 4 bits for M)
+	   * os_version = ver << 11 | lvl */
+	uint32_t os_version;
 
-	char name[ANDR_BOOT_NAME_SIZE]; /* asciiz product name */
+	char     name[BOOT_NAME_SIZE]; /* asciiz product name */
 
-	char cmdline[ANDR_BOOT_ARGS_SIZE];
+	char     cmdline[BOOT_ARGS_SIZE];
 
-	u32 id[8]; /* timestamp / checksum / sha1 / etc */
+	u32      id[8]; /* timestamp / checksum / sha1 / etc */
 
 	/* Supplemental command line data; kept here to maintain
-	 * binary compatibility with older versions of mkbootimg */
-	char extra_cmdline[ANDR_BOOT_EXTRA_ARGS_SIZE];
-} __attribute__((packed));
+	     binary compatibility with older versions of mkbootimg.
+	  */
+	uint8_t       extra_cmdline[BOOT_EXTRA_ARGS_SIZE];
+	unsigned char szReserved[BOOT_IMG_HDR_SIZE - 1632];       /*align to 2KB header,1632 is size before this*/
+}boot_img_hdr_t, *p_boot_img_hdr_t;
 
-/*
+/*compile check*/
+BUILD_ASSERT(sizeof(boot_img_hdr_t) == BOOT_IMG_HDR_SIZE);
+
+
+typedef struct {
+	boot_img_hdr_t hdr;
+	unsigned char  szData[1];
+}boot_img_t, * p_boot_img_t;
+
+
+/* When the boot image header has a version of 3, the structure of the boot
+ * image is as follows:
+ *
  * +-----------------+
  * | boot header     | 1 page
  * +-----------------+
@@ -79,4 +114,115 @@ struct andr_img_hdr {
  * 6. if second_size != 0: jump to second_addr
  *    else: jump to kernel_addr
  */
+
+
+#define ANDROID_R_IMG_VER  (3)
+/* Android R boot.img and vendor_boot.img structure */
+typedef struct {
+	char 	magic[ANDR_BOOT_MAGIC_SIZE]; /*"ANDROID!"*/
+
+	u32 	kernel_size;	/* size in bytes */
+	u32 	ramdisk_size;	/* size in bytes */
+
+    /* Operating system version and security patch level.
+       For version "A.B.C" and patch level "Y-M-D":
+       (7 bits for each of A, B, C; 7 bits for (Y-2000), 4 bits for M)
+       os_version = A[31:25] B[24:18] C[17:11] (Y-2000)[10:4] M[3:0]
+       */
+
+	uint32_t os_version;
+	uint32_t header_size;
+	uint32_t reserved[4];
+
+	uint32_t header_version;   /* Version of the boot image header */
+	char     cmdline[BOOT_ARGS_SIZE + BOOT_EXTRA_ARGS_SIZE];
+	unsigned char szReserved[BOOT_IMG_V3_HDR_SIZE - 1580];       /*align to 4KB header,1580 is size before this*/
+}boot_img_hdr_v3_t, * p_boot_img_hdr_v3_t;
+
+
+/*compile check*/
+BUILD_ASSERT(sizeof(boot_img_hdr_v3_t) == BOOT_IMG_V3_HDR_SIZE);
+
+typedef struct {
+	boot_img_hdr_v3_t hdr;
+	unsigned char     szData[1];
+}boot_img_v3_t, * p_boot_img_v3_t;
+
+
+/* When the boot image header has a version of 3, the structure of the boot
+ * image is as follows:
+ *
+ * +---------------------+
+ * | boot header         | 4096 bytes
+ * +---------------------+
+ * | kernel              | m pages
+ * +---------------------+
+ * | ramdisk             | n pages
+ * +---------------------+
+ *
+ * m = (kernel_size + 4096 - 1) / 4096
+ * n = (ramdisk_size + 4096 - 1) / 4096
+ *
+ * Note that in version 3 of the boot image header, page size is fixed at 4096 bytes.
+ *
+ * The structure of the vendor boot image (introduced with version 3 and
+ * required to be present when a v3 boot image is used) is as follows:
+ *
+ * +---------------------+
+ * | vendor boot header  | o pages
+ * +---------------------+
+ * | vendor ramdisk      | p pages
+ * +---------------------+
+ * | dtb                 | q pages
+ * +---------------------+
+ * o = (2112 + page_size - 1) / page_size
+ * p = (vendor_ramdisk_size + page_size - 1) / page_size
+ * q = (dtb_size + page_size - 1) / page_size
+ *
+ * 0. all entities in the boot image are 4096-byte aligned in flash, all
+ *    entities in the vendor boot image are page_size (determined by the vendor
+ *    and specified in the vendor boot image header) aligned in flash
+ * 1. kernel, ramdisk, vendor ramdisk, and DTB are required (size != 0)
+ * 2. load the kernel and DTB at the specified physical address (kernel_addr,
+ *    dtb_addr) * 3. load the vendor ramdisk at ramdisk_addr
+ * 4. load the generic ramdisk immediately following the vendor ramdisk in
+ *    memory
+ * 5. set up registers for kernel entry as required by your architecture
+ * 6. if the platform has a second stage bootloader jump to it (must be
+ *    contained outside boot and vendor boot partitions), otherwise
+ *    jump to kernel_addr
+ */
+
+typedef struct {
+	char     magic[VENDOR_BOOT_MAGIC_SIZE];  /*"VNDRBOOT"*/
+
+	uint32_t header_version;   				 /*Version of the vendor boot image header*/
+	uint32_t page_size;		 				 /* flash page size we assume */
+
+	uint32_t kernel_addr; 					 /* physical load addr */
+	uint32_t ramdisk_addr; 					 /* physical load addr */
+
+	uint32_t vendor_ramdisk_size; 			 /* size in bytes */
+
+	char     cmdline[VENDOR_BOOT_ARGS_SIZE]; /*2048B*/
+
+	uint32_t tags_addr; 					 /* physical addr for kernel tags (if required) */
+	uint8_t  name[VENDOR_BOOT_NAME_SIZE]; 	 /* 16B asciiz product name */
+
+	uint32_t header_size;
+
+	uint32_t dtb_size; 						 /* size in bytes for DTB image */
+	uint64_t dtb_addr;						 /* physical load address for DTB image */
+	unsigned char szReserved[VENDOR_BOOT_IMG_HDR_SIZE - 2112];       /*align to 4KB header,2112 is size before this*/
+}vendor_boot_img_hdr_t, * p_vendor_boot_img_hdr_t;
+
+
+/*compile check*/
+BUILD_ASSERT((sizeof(vendor_boot_img_hdr_t) == VENDOR_BOOT_IMG_HDR_SIZE));
+
+typedef struct {
+	vendor_boot_img_hdr_t hdr;
+	unsigned char         szData[1];
+}vendor_boot_img_t, * p_vendor_boot_img_t;
+
 #endif

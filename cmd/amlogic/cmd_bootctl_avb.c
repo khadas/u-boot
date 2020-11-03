@@ -134,6 +134,7 @@ void boot_info_reset(AvbABData* info)
 
 void dump_boot_info(AvbABData* info)
 {
+#if 0
     printf("info->magic = %s\n", info->magic);
     printf("info->version_major = %d\n", info->version_major);
     printf("info->version_minor = %d\n", info->version_minor);
@@ -145,6 +146,7 @@ void dump_boot_info(AvbABData* info)
     printf("info->slots[1].successful_boot = %d\n", info->slots[1].successful_boot);
 
     printf("info->crc32 = %d\n", info->crc32);
+#endif
 }
 
 static bool slot_is_bootable(AvbABSlotData* slot) {
@@ -250,6 +252,15 @@ static int do_GetValidSlot(
         env_set("partiton_mode","dynamic");
     else
         env_set("partiton_mode","normal");
+
+    if (vendor_boot_partition) {
+        env_set("vendor_boot_mode","true");
+        printf("set vendor_boot_mode true\n");
+    }
+    else {
+        env_set("vendor_boot_mode","false");
+        printf("set vendor_boot_mode false\n");
+    }
 
     if ((slot == 0) && (bootable_a)) {
         if (has_boot_slot == 1) {

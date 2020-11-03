@@ -192,7 +192,7 @@ static const char* getvar_list_dynamic[] = {
 
 static const char* getvar_list_dynamic_ab[] = {
 	"hw-revision", "battery-voltage", "is-userspace", "is-logical:data",
-	"is-logical:metadata_a", "is-logical:metadata_b", "is-logical:misc", "is-logical:super",
+	"is-logical:misc", "is-logical:super",
 	"is-logical:boot_a", "is-logical:boot_b", "is-logical:system_a", "is-logical:system_b",
 	"is-logical:vendor_a", "is-logical:vendor_b", "is-logical:product_a", "is-logical:product_b",
 	"is-logical:odm_a", "is-logical:odm_b",
@@ -200,7 +200,7 @@ static const char* getvar_list_dynamic_ab[] = {
 	"has-slot:metadata", "has-slot:misc", "has-slot:super", "has-slot:boot",
 	"has-slot:system", "has-slot:vendor", "has-slot:product", "has-slot:odm", "current-slot",
 	"secure", "super-partition-name", "version-baseband", "version-bootloader",
-	"partition-size:super", "partition-size:metadata_a", "partition-size:metadata_b",
+	"partition-size:super",
 	"partition-size:boot_a", "partition-size:boot_b", "partition-size:misc",
 	"partition-size:data", "version",
 };
@@ -229,6 +229,7 @@ static const char* getvar_list_ab[] = {
  */
 static void getvar(char *cmd_parameter, char *response)
 {
+	run_command("get_valid_slot", 0);
 	if (!strncmp(cmd_parameter, "all", 3)) {
 		static int cmdIndex = 0;
 		int getvar_num = 0;
