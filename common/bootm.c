@@ -422,7 +422,6 @@ int bootm_find_images(int flag, int argc, char * const argv[])
 {
 	int ret;
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
-	struct fdt_header *fdth = NULL;
 	u32 fdto_totalsize = 0;
 #endif
 
@@ -481,12 +480,10 @@ int bootm_find_images(int flag, int argc, char * const argv[])
 	set_working_fdt_addr(map_to_sysmem(images.ft_addr));
 
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
-	fdth = (struct fdt_header *)(images.ft_addr);
 	if (get_fdto_totalsize(&fdto_totalsize) == 0)
-		fdth->totalsize = cpu_to_fdt32(fdt_get_header(dtb_mem_addr,
-					       totalsize)) + cpu_to_fdt32(
-					       fdto_totalsize);
-	images.ft_len = fdt_get_header(fdth, totalsize);
+		fdt_set_totalsize(images.ft_addr, fdt_get_header(images.ft_addr,
+				  totalsize) + fdto_totalsize);
+	images.ft_len = fdt_get_header(images.ft_addr, totalsize);
 	do_fdt_overlay();
 #endif
 #endif
