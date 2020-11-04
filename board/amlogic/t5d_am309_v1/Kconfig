@@ -21,6 +21,6 @@ config SYS_CONFIG_NAME
 
 config BL30_SELECT
 	string "T5D BL30 board config"
-	default "t5_ak329_v1"
+	default "t5d_am309_v1"
 
 endif
