@@ -239,15 +239,21 @@ static int handle_tcon_path(void)
 	unsigned char *buf;
 	char str[30], env_str[30];
 	const char *ini_value = NULL;
-	unsigned int temp, i, n, version, block_cnt, data_size, crc32;
+	unsigned int temp, i, n, version, header, block_cnt, data_size, crc32;
 
 	/* version */
 	ini_value = IniGetString("tcon_Path", "version", "0");
 	if (model_debug_flag & DEBUG_TCON)
 		ALOGD("%s, version is (%s)\n", __func__, ini_value);
 	version = strtoul(ini_value, NULL, 0);
-	snprintf(str, 30, "%d", version);
-	setenv("model_tcon_version", str);
+
+	/* tcon_bin_header */
+	ini_value = IniGetString("tcon_Path", "header", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, header is (%s)\n", __func__, ini_value);
+	header = strtoul(ini_value, NULL, 0);
+	snprintf(str, 30, "%d", header);
+	setenv("model_tcon_bin_header", str);
 
 	/* tcon regs bin */
 	ini_value = IniGetString("tcon_Path", "TCON_BIN_PATH", "null");
@@ -1829,14 +1835,45 @@ static int read_bin_file(const char *file_name, unsigned long int max_buf_len)
 	return size;
 }
 
+static int read_bin_file_with_header(const char *file_name, unsigned long int max_buf_len)
+{
+	unsigned char buf[16];
+	int bin_size, data_size = 0;
+
+	BinFileInit();
+
+	bin_size = ReadBinFile(file_name);
+	if (bin_size < 64) {
+		ALOGE("%s, load bin file error!\n", __func__);
+		BinFileUninit();
+		return 0;
+	}
+
+	GetBinData(buf, 16);
+	data_size = (buf[8] | (buf[9] << 8) |
+		     (buf[10] << 16) | (buf[11] << 24));
+	if ((data_size > bin_size) || (data_size < 64)) {
+		ALOGE("%s, bin file size less than expectation!\n", __func__);
+		BinFileUninit();
+		return 0;
+	}
+	if (data_size > max_buf_len) {
+		ALOGE("%s, bin file size out of support!\n", __func__);
+		BinFileUninit();
+		return 0;
+	}
+
+	return data_size;
+}
+
 static int handle_tcon_bin(void)
 {
 	int tmp_len = 0;
-	unsigned long int bin_size = 0;
+	unsigned int size = 0;
 	unsigned char *tmp_buf = NULL;
 	unsigned char *tcon_buf = NULL;
 	char *file_name;
-	unsigned int bypass, version, data_size;
+	unsigned int bypass, header, data_crc32, temp_crc32;
 	int tmp;
 
 	tmp = getenv_ulong("model_tcon_bypass", 10, 0xffff);
@@ -1848,7 +1885,7 @@ static int handle_tcon_bin(void)
 		}
 	}
 
-	version = getenv_ulong("model_tcon_version", 10, 0);
+	header = getenv_ulong("model_tcon_bin_header", 10, 0);
 
 	file_name = getenv("model_tcon");
 	if (!file_name) {
@@ -1873,42 +1910,50 @@ static int handle_tcon_bin(void)
 		return -1;
 	}
 
-	bin_size = read_bin_file(file_name, CC_MAX_TCON_BIN_SIZE);
-	if (!bin_size) {
+	if (header)
+		size = read_bin_file_with_header(file_name, CC_MAX_TCON_BIN_SIZE);
+	else
+		size = read_bin_file(file_name, CC_MAX_TCON_BIN_SIZE);
+	if (size == 0) {
 		free(tmp_buf);
 		tmp_buf = NULL;
 		return -1;
 	}
 
-	GetBinData(tmp_buf, bin_size);
-	if (version) {
-		data_size = tmp_buf[8] | (tmp_buf[9] << 8) |
-			(tmp_buf[10] << 16) | (tmp_buf[11] << 24);
-		if (data_size > bin_size) {
+	GetBinData(tmp_buf, size);
+	if (header) {
+		data_crc32 = tmp_buf[0] | (tmp_buf[1] << 8) |
+			(tmp_buf[2] << 16) | (tmp_buf[3] << 24);
+		temp_crc32 = CalCRC32(0, &tmp_buf[4], (size - 4));
+		if (data_crc32 != temp_crc32) {
 			free(tmp_buf);
 			tmp_buf = NULL;
-			ALOGE("%s, tcon bin size error!!!\n", __func__);
+			if (model_debug_flag & DEBUG_TCON) {
+				ALOGE("%s, tcon bin crc error! raw:0x%08x, temp:0x%08x\n",
+					__func__, data_crc32, temp_crc32);
+			} else {
+				ALOGE("%s, tcon bin crc error!!!\n", __func__);
+			}
 			return -1;
 		}
 		if (model_debug_flag & DEBUG_TCON)
-			ALOGD("%s: load tcon bin with new version\n", __func__);
+			ALOGD("%s: load tcon bin with header\n", __func__);
 	} else {
-		data_size = bin_size;
 		if (model_debug_flag & DEBUG_TCON)
-			ALOGD("%s: load tcon bin with old version\n", __func__);
+			ALOGD("%s: load tcon bin\n", __func__);
 	}
 
-	gLcdTconDataCnt = data_size;
-	tcon_buf = (unsigned char *)malloc(data_size);
+	gLcdTconDataCnt = size;
+	tcon_buf = (unsigned char *)malloc(size);
 	if (!tcon_buf) {
 		free(tmp_buf);
 		tmp_buf = NULL;
 		ALOGE("%s, malloc buffer memory error!!!\n", __func__);
 		return -1;
 	}
-	memcpy(tcon_buf, tmp_buf, data_size);
+	memcpy(tcon_buf, tmp_buf, size);
 	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s: bin_size=0x%lx, data_size=0x%x\n", __func__, bin_size, data_size);
+		ALOGD("%s: bin_size=0x%x\n", __func__, size);
 
 	BinFileUninit();
 
