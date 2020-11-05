@@ -25,6 +25,7 @@ Description:
 #include <emmc_partitions.h>
 #include <stdlib.h>
 #include <mapmem.h>
+#include <amlogic/storage.h>
 
 #define CMD_DEBUG         (0)
 #define CMD_LOG_TAG       "[FACTORY-PROVISION] "
@@ -845,6 +846,41 @@ exit:
 	return ret;
 }
 
+int is_storage_medium_supported(void)
+{
+	int ret = CMD_RET_SUCCESS;
+	int medium_type = store_get_type();
+	char type_str[64] = { 0 };
+
+	if (medium_type != BOOT_EMMC) {
+		switch (medium_type) {
+		case BOOT_SD:
+			strcpy(type_str, "SD");
+			break;
+		case BOOT_NAND_NFTL:
+			strcpy(type_str, "NAND_NFTL");
+			break;
+		case BOOT_NAND_MTD:
+			strcpy(type_str, "NAND_MTD");
+			break;
+		case BOOT_SNAND:
+			strcpy(type_str, "SNAND");
+			break;
+		case BOOT_SNOR:
+			strcpy(type_str, "SNOR");
+			break;
+		default:
+			strcpy(type_str, "Unknown Storage Medium");
+			break;
+		}
+
+		LOGE("Provision function is not supported on '%s' storage medium", type_str);
+		ret = CMD_RET_DEVICE_NOT_AVAILABLE;
+	}
+
+	return ret;
+}
+
 int cmd_func(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int ret = CMD_RET_SUCCESS;
@@ -852,6 +888,10 @@ int cmd_func(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *in_kb = NULL;
 	char *ret_data = NULL;
 	const struct keybox_header *hdr = NULL;
+
+	ret = is_storage_medium_supported();
+	if (ret != CMD_RET_SUCCESS)
+		goto exit;
 
 	parse_params(argc, argv, &params);
 
