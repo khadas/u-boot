@@ -636,6 +636,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	chars_left = sizeof(response_str) - strlen(response) - 1;
 
 	memcpy(cmdBuf, cmd, strnlen(cmd, RESPONSE_LEN-1)+1);
+	cmdBuf[RESPONSE_LEN - 1] = 0;
 	cmd = cmdBuf;
 	strsep(&cmd, ":");
 	printf("cb_getvar: %s\n", cmd);
@@ -964,7 +965,13 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		int ret;
 		if (has_boot_slot == 1) {
 			printf("has boot slot\n");
-			sprintf(str, "get_slot_state %s successful", cmd);
+			if (strcmp(cmd, "a") && strcmp(cmd, "b")) {
+				printf("we only have a/b slot now, variable error\n");
+				strcpy(response, "FAILVariable error, only have a/b slot now");
+				goto exit;
+			}
+
+			sprintf(str, "get_slot_state %s suc_stete", cmd);
 			printf("command:    %s\n", str);
 			ret = run_command(str, 0);
 			printf("ret = %d\n", ret);
@@ -981,7 +988,12 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		int ret;
 		if (has_boot_slot == 1) {
 			printf("has boot slot\n");
-			sprintf(str, "get_slot_state %s unbootable", cmd);
+			if (strcmp(cmd, "a") && strcmp(cmd, "b")) {
+				printf("we only have a/b slot now, variable error\n");
+				strcpy(response, "FAILVariable error, only have a/b slot now");
+				goto exit;
+			}
+			sprintf(str, "get_slot_state %s boot_state", cmd);
 			printf("command:    %s\n", str);
 			ret = run_command(str, 0);
 			printf("ret = %d\n", ret);
@@ -992,19 +1004,25 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		} else
 			strcpy(response, "FAILVariable not implemented in non ab mode");
 	} else if (!strcmp_l1("slot-retry-count", cmd)) {
-		char str[128];
 		strsep(&cmd, ":");
 		printf("cmd is %s\n", cmd);
-		int ret;
 		if (has_boot_slot == 1) {
-			char str_num[12];
+			char *str_num = NULL;
 			printf("has boot slot\n");
-			sprintf(str, "get_slot_state %s retry-count", cmd);
-			printf("command:    %s\n", str);
-			ret = run_command(str, 0);
-			printf("ret = %d\n", ret);
-			sprintf(str_num, "%d", ret);
-			strncat(response, str_num, chars_left);
+			if (strcmp(cmd, "a") && strcmp(cmd, "b")) {
+				printf("we only have a/b slot now, variable error\n");
+				strcpy(response, "FAILVariable error, only have a/b slot now");
+				goto exit;
+			}
+			if (strcmp(cmd, "a") == 0) {
+				str_num = getenv("retry-count_a");
+			}else if (strcmp(cmd, "b") == 0) {
+				str_num = getenv("retry-count_b");
+			}
+			if (str_num)
+				strncat(response, str_num, chars_left);
+			else
+				strcpy(response, "FAILGet retry-count error");
 		} else
 			strcpy(response, "FAILVariable not implemented in non ab mode");
 	} else {
@@ -1012,6 +1030,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		strcpy(response, "FAILVariable not implemented");
 	}
 
+exit:
 	fastboot_tx_write_str(response);
 }
 

@@ -248,6 +248,7 @@ static int do_GetValidSlot(
     int attemp_times;
     int slot;
     int ret = 0;
+    char str_count[16];
 
     if (argc != 1) {
         return cmd_usage(cmdtp);
@@ -298,6 +299,13 @@ static int do_GetValidSlot(
     //slot = boot_info_get_online_slot(&info);
     slot = info.active_slot;
     printf("active slot = %d \n", slot);
+
+    if (has_boot_slot == 1) {
+        attemp_times = boot_info_get_attemp_times(&info);
+        sprintf(str_count, "%d", attemp_times);
+        setenv("retry-count_a", str_count);
+        setenv("retry-count_b", str_count);
+    }
 
 #ifdef CONFIG_AML_MTD
     //check if boot_a/b on nand
@@ -404,6 +412,66 @@ static int do_SetActiveSlot(
     return 0;
 }
 
+static int do_Get_slot_state(
+    cmd_tbl_t * cmdtp,
+    int flag,
+    int argc,
+    char * const argv[])
+{
+    char miscbuf[4096] = {0};
+    BrilloBootInfo info;
+
+    if (argc != 3) {
+        return cmd_usage(cmdtp);
+    }
+
+    if (has_boot_slot == 0) {
+        printf("device is not ab mode\n");
+        return -1;
+    }
+
+    boot_info_open_partition(miscbuf);
+    boot_info_load(&info, miscbuf);
+
+    if (!boot_info_validate(&info)) {
+        printf("boot-info is invalid. Resetting.\n");
+        boot_info_reset(&info);
+        boot_info_save(&info, miscbuf);
+    }
+
+    if (strcmp(argv[2], "suc_stete") == 0) {
+        if (strcmp(argv[1], "a") == 0) {
+            if (info.slot_info[0].bootable == 1)
+                return 1;
+            else
+                return 0;
+        }
+        if (strcmp(argv[1], "b") == 0) {
+            if (info.slot_info[1].bootable == 1)
+                return 1;
+            else
+                return 0;
+        }
+    }
+
+    if (strcmp(argv[2], "boot_state") == 0) {
+        if (strcmp(argv[1], "a") == 0) {
+            if (info.slot_info[0].bootable == 1)
+                return 1;
+            else
+                return 0;
+        }
+        if (strcmp(argv[1], "b") == 0) {
+            if (info.slot_info[1].bootable == 1)
+                return 1;
+            else
+                return 0;
+        }
+    }
+
+    return -1;
+}
+
 int do_GetSystemMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     char* system;
@@ -448,6 +516,14 @@ U_BOOT_CMD(
     "\nThis command will set active slot\n"
     "So you can execute command: set_active_slot a"
 );
+
+U_BOOT_CMD(
+    get_slot_state, 3, 2, do_Get_slot_state,
+    "get_slot_state a suc_stete",
+    "\nThis command will get slot state\n"
+    "you can run: get_slot_state a suc_stete/boot_state"
+);
+
 
 U_BOOT_CMD(
     get_system_as_root_mode, 1,	0, do_GetSystemMode,

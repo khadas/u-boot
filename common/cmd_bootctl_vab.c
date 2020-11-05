@@ -346,6 +346,7 @@ static int do_GetValidSlot(
     bootloader_control boot_ctrl;
     int slot;
     bool bootable_a, bootable_b;
+    char str_count[16];
 
     if (argc != 1) {
         return cmd_usage(cmdtp);
@@ -378,6 +379,13 @@ static int do_GetValidSlot(
 
     bootable_a = slot_is_bootable(&(boot_ctrl.slot_info[0]));
     bootable_b = slot_is_bootable(&(boot_ctrl.slot_info[1]));
+
+    if (has_boot_slot == 1) {
+        sprintf(str_count, "%d", boot_ctrl.slot_info[0].tries_remaining);
+        setenv("retry-count_a", str_count);
+        sprintf(str_count, "%d", boot_ctrl.slot_info[1].tries_remaining);
+        setenv("retry-count_b", str_count);
+    }
 
     if (dynamic_partition)
         setenv("partiton_mode","dynamic");
@@ -479,6 +487,66 @@ static int do_SetActiveSlot(
     return 0;
 }
 
+static int do_Get_slot_state(
+    cmd_tbl_t * cmdtp,
+    int flag,
+    int argc,
+    char * const argv[])
+{
+    char miscbuf[MISCBUF_SIZE] = {0};
+    bootloader_control info;
+
+    if (argc != 3) {
+        return cmd_usage(cmdtp);
+    }
+
+    if (has_boot_slot == 0) {
+        printf("device is not ab mode\n");
+        return -1;
+    }
+
+    boot_info_open_partition(miscbuf);
+    boot_info_load(&info, miscbuf);
+
+    if (!boot_info_validate(&info)) {
+        printf("boot-info is invalid. Resetting.\n");
+        boot_info_reset(&info);
+        boot_info_save(&info, miscbuf);
+    }
+
+    if (strcmp(argv[2], "suc_stete") == 0) {
+        if (strcmp(argv[1], "a") == 0) {
+            if (info.slot_info[0].successful_boot == 1)
+                return 1;
+            else
+                return 0;
+        }
+        if (strcmp(argv[1], "b") == 0) {
+            if (info.slot_info[1].successful_boot == 1)
+                return 1;
+            else
+                return 0;
+        }
+    }
+
+    if (strcmp(argv[2], "boot_state") == 0) {
+        if (strcmp(argv[1], "a") == 0) {
+            if (slot_is_bootable(&(info.slot_info[0])))
+                return 1;
+            else
+                return 0;
+        }
+        if (strcmp(argv[1], "b") == 0) {
+            if (slot_is_bootable(&(info.slot_info[1])))
+                return 1;
+            else
+                return 0;
+        }
+    }
+
+    return -1;
+}
+
 int do_GetSystemMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     char* system;
@@ -536,6 +604,14 @@ U_BOOT_CMD(
     "\nThis command will set active slot\n"
     "So you can execute command: set_active_slot a"
 );
+
+U_BOOT_CMD(
+    get_slot_state, 3, 2, do_Get_slot_state,
+    "get_slot_state a suc_stete",
+    "\nThis command will get slot state\n"
+    "you can run: get_slot_state a suc_stete/boot_state"
+);
+
 
 U_BOOT_CMD(
     get_system_as_root_mode, 1,	0, do_GetSystemMode,
