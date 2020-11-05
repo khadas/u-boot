@@ -723,13 +723,13 @@ int checkhw(char * name)
 #endif
 	switch (ddr_size) {
 		case 0x80000000:
-			strcpy(dtb_name, "t5d_am311_2g\0");
+			strcpy(dtb_name, "t5d_t950x4_am311-2g\0");
 			break;
 		case 0x40000000:
-			strcpy(dtb_name, "t5d_am311_1g\0");
+			strcpy(dtb_name, "t5d_t950x4_am311-1g\0");
 			break;
 		case 0x20000000:
-			strcpy(dtb_name, "t5d_am311_512m\0");
+			strcpy(dtb_name, "t5d_t950x4_am311-512m\0");
 			break;
 		default:
 			strcpy(dtb_name, "t5d_am311_unsupport");

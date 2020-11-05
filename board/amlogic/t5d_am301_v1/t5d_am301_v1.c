@@ -722,14 +722,17 @@ int checkhw(char * name)
 	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
 #endif
 	switch (ddr_size) {
-        case 0x80000000:
-			strcpy(dtb_name, "t5d_am301_2g\0");
+		case 0x80000000:
+			strcpy(dtb_name, "t5d_t950d4_am301-2g\0");
 			break;
 		case 0x40000000:
-			strcpy(dtb_name, "t5d_am301_1g\0");
+			strcpy(dtb_name, "t5d_t950d4_am301-1g\0");
 			break;
 		case 0x20000000:
-			strcpy(dtb_name, "t5d_am301_512m\0");
+			strcpy(dtb_name, "t5d_t950d4_am301-512m\0");
+			break;
+		case 0x60000000:
+			strcpy(dtb_name, "t5d_t950d4_am301-1.5g\0");
 			break;
 		default:
 			strcpy(dtb_name, "t5d_am301_unsupport");
