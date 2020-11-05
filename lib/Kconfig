@@ -32,4 +32,10 @@ config SYS_HZ
 	  get_timer() must operate in milliseconds and this option must be
 	  set to 1000.
 
+config SYS_VSNPRINTF
+    bool "printf like function support buffer size"
+    default y
+    help
+        "safe versions of the printf() functions"
+
 endmenu
