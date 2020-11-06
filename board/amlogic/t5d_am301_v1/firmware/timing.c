@@ -521,17 +521,36 @@ pll_set_t __pll_setting = {
 #define DDR_TIMMING_OFFSET_SIZE(X)  sizeof(((ddr_set_t *)(0))->X)
 #define DDR_TIMMING_TUNE(DDR_ID, PARA, VALUE) { DDR_ID, DDR_TIMMING_OFFSET(PARA), VALUE, DDR_TIMMING_OFFSET_SIZE(PARA), 0, 1 }
 
-#define T5_DDR_ID_NTC_1G5       0x2c1a
+#define T963_H8_NTC_EID 0xC0A
+#define T963_H8_SUM_EID 0xC4A
+#define T963_H35_NTC_EID 0x2C1A
+#define T963_H35_SUM_EID 0x2C5A
+#define T963_H9_NTC_EID 0x6C2A
+#define T963_H9_SUM_EID 0x6C6A
+#define T963_H_NA_EID 0x1400
+
+#define T963S_H8_NTC_EID 0xC8A
+#define T963S_H8_SUM_EID 0xCCA
+#define T963S_H35_SUM_EID 0x2CDA
+#define T950D4_H5_NTC_EID 0x409
+#define T950D4_H6_NTC_EID 0x809
+#define T950D4_H8_NTC_EID 0xC0A
+#define T950D4_H8_SUM_EID 0xC4A
+#define T950D4_H35_NTC_EID 0x2C1A
+#define T950D4_H35_SUM_EID 0x2C5A
+#define T950X4_H5_NTC_EID 0xD09
+#define T950X4_H8_NTC_EID 0xC8A
+#define T950X4_H8_SUM_EID 0xCCA
+#define T950X4_H35_SUM_EID 0x2CDA
 
 ddr_reg_t __ddr_reg[] = {
 	/* demo, user defined override register */
 // reg value mask udelay flag rsv_0
 // efuse_ID offset value size stage parameter_id
-	DDR_TIMMING_TUNE(T5_DDR_ID_NTC_1G5, cfg_board_SI_setting_ps[0].DRAMFreq, 1176),
-
-	//{0x2c1a, DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps[0].DRAMFreq), 1176, DDR_TIMMING_OFFSET_SIZE(cfg_board_SI_setting_ps[0].DRAMFreq), 0,1},
-	//{0x2c1a, DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps[0].DRAMFreq), 1176, DDR_TIMMING_OFFSET_SIZE(cfg_board_SI_setting_ps[0].DRAMFreq), 0,1},
-
+	//T950D4_H35_SUM_EID
+	DDR_TIMMING_TUNE(T950D4_H35_SUM_EID, cfg_board_SI_setting_ps[0].DRAMFreq, 1008),
+	DDR_TIMMING_TUNE(T950D4_H35_SUM_EID, cfg_ddr_training_delay_ps[0].ac_trace_delay[3], 108),
+	DDR_TIMMING_TUNE(T950D4_H35_SUM_EID, cfg_ddr_training_delay_ps[0].ac_trace_delay[15], 242),
 
 	//{0x2c1a, (unsigned int)(unsigned long)(&(((ddr_set_t *)(0))->cfg_board_SI_setting_ps[0].DRAMFreq)), 1176, sizeof(((ddr_set_t *)(0))->cfg_board_SI_setting_ps[0].DRAMFreq), 0,1},
 	//{0x2c1a, &(__ddr_setting[0].cfg_board_SI_setting_ps[0].DRAMFreq)-&(__ddr_setting[0]), 1176, 2, 0,1},
