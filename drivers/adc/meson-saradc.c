@@ -275,13 +275,6 @@ static int meson_saradc_set_mode(struct udevice *dev, int ch, unsigned int mode)
 	if (ret < 0)
 		return ret;
 
-	/* Because of the drive capability of channel 7 internal input is
-	 * too weak, it needs to slow down saradc clock to 1.2MHz when
-	 * sampling channel 7 internal input.
-	 */
-	if (priv->data->dops->tuning_clock)
-		priv->data->dops->tuning_clock(priv, ch);
-
 	if (mode & ADC_CAPACITY_AVERAGE) {
 		clrsetbits_le32(priv->base + SARADC_AVG_CNTL,
 			SARADC_AVG_CNTL_NUM_SAMPLES_MASK(ch),

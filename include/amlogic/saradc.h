@@ -52,7 +52,6 @@ struct meson_saradc_diff_ops {
 	int (*get_fifo_channel)(int val);
 	int (*get_fifo_data)(struct meson_saradc *priv,
 			     struct adc_uclass_platdata *uc_pdata, int val);
-	int (*tuning_clock)(struct meson_saradc *priv, int ch);
 };
 
 /*

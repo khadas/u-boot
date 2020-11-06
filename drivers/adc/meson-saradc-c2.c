@@ -33,8 +33,6 @@
 #define SARADC_C2_CH0_CTRL2				0x50
 #define SARADC_C2_CH0_CTRL3				0x54
 
-#define SARADC_C2_CH7_CLOCK				1200000
-
 /*
  * bit[19] = 0 default; 0=vref_buf, 1=avdd
  * bit[18] = 0 default; 0=vref_buf, 1=vcm_0p9
@@ -124,34 +122,12 @@ static int meson_c2_get_fifo_data(struct meson_saradc *priv,
 	return data;
 }
 
-static int meson_c2_tuning_clock(struct meson_saradc *priv, int ch)
-{
-	int ret = 0;
-	static bool is_slowdown = false;
-
-	if (ch == priv->data->self_test_channel && !is_slowdown) {
-		ret = clk_set_rate(&priv->adc_div, SARADC_C2_CH7_CLOCK);
-		is_slowdown = true;
-	} else if (ch != priv->data->self_test_channel && is_slowdown) {
-		ret = clk_set_rate(&priv->adc_div, priv->data->clock_rate);
-		is_slowdown = false;
-	}
-
-	if (ret) {
-		pr_err("saradc: failed to set rate\n");
-		return ret;
-	}
-
-	return 0;
-}
-
 static struct meson_saradc_diff_ops meson_c2_diff_ops = {
 	.enable_decim_filter	= meson_c2_enable_decim_filter,
 	.set_ref_voltage	= meson_c2_set_ref_voltage,
 	.get_fifo_channel	= meson_c2_get_fifo_channel,
 	.set_ch7_mux		= meson_c2_set_ch7_mux,
 	.get_fifo_data		= meson_c2_get_fifo_data,
-	.tuning_clock		= meson_c2_tuning_clock,
 };
 
 struct meson_saradc_data meson_saradc_c2_data = {
@@ -163,7 +139,14 @@ struct meson_saradc_data meson_saradc_c2_data = {
 	.capacity		   = ADC_CAPACITY_AVERAGE |
 				     ADC_CAPACITY_HIGH_PRECISION_VREF |
 				     ADC_CAPACITY_DECIM_FILTER,
-	.clock_rate		   = 20000000,
+	/* There are 2 reasons for showing down saradc clock in C2:
+	 * 1. To save cost, there is no input buffer before saradc.
+	 * The value of inside resister of input source can not be too high.
+	 * And resister value which can be tolerant is inversely of
+	 * frequency of saradc clock.
+	 * 2. The drive capability of channel 7 internal input is too weak.
+	 */
+	.clock_rate		   = 600000,
 };
 
 static const struct udevice_id meson_c2_saradc_ids[] = {
