@@ -548,9 +548,9 @@ ddr_reg_t __ddr_reg[] = {
 // reg value mask udelay flag rsv_0
 // efuse_ID offset value size stage parameter_id
 	//T950D4_H35_SUM_EID
-	DDR_TIMMING_TUNE(T950D4_H35_SUM_EID, cfg_board_SI_setting_ps[0].DRAMFreq, 1008),
-	DDR_TIMMING_TUNE(T950D4_H35_SUM_EID, cfg_ddr_training_delay_ps[0].ac_trace_delay[3], 108),
-	DDR_TIMMING_TUNE(T950D4_H35_SUM_EID, cfg_ddr_training_delay_ps[0].ac_trace_delay[15], 242),
+	//DDR_TIMMING_TUNE(T950D4_H35_SUM_EID, cfg_board_SI_setting_ps[0].DRAMFreq, 1008),
+	//DDR_TIMMING_TUNE(T950D4_H35_SUM_EID, cfg_ddr_training_delay_ps[0].ac_trace_delay[3], 108),
+	//DDR_TIMMING_TUNE(T950D4_H35_SUM_EID, cfg_ddr_training_delay_ps[0].ac_trace_delay[15], 242),
 
 	//{0x2c1a, (unsigned int)(unsigned long)(&(((ddr_set_t *)(0))->cfg_board_SI_setting_ps[0].DRAMFreq)), 1176, sizeof(((ddr_set_t *)(0))->cfg_board_SI_setting_ps[0].DRAMFreq), 0,1},
 	//{0x2c1a, &(__ddr_setting[0].cfg_board_SI_setting_ps[0].DRAMFreq)-&(__ddr_setting[0]), 1176, 2, 0,1},
