@@ -659,7 +659,6 @@ ddr_reg_t __ddr_reg[] = {
 
 bl2_reg_t __bl2_reg[] = {
 	/* demo, user defined override register */
-	{ (0xff634400 + (0x048 << 2)), 0x20f8,				   0xffffffff,	 0, BL2_INIT_STAGE_1, 0 },
 	/* eg: PWM init */
 	/* PWM_A VDDEE_VAL_REG */
 	{ PWMAB_PWM_A,		       VDDEE_VAL_REG,			   0xffffffff,	 0, BL2_INIT_STAGE_1, 0 },
