@@ -212,7 +212,8 @@ void pinmux_select_chip_mtd(unsigned ce_enable, unsigned rb_enable)
 			AMLNF_SET_REG_MASK(P_PERIPHS_PIN_MUX_1, 2);
 	} else if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_TXHD)
 		|| (cpu_id.family_id == MESON_CPU_MAJOR_ID_TL1) ||
-		(cpu_id.family_id == MESON_CPU_MAJOR_ID_TM2)) {
+		(cpu_id.family_id == MESON_CPU_MAJOR_ID_TM2) ||
+		(cpu_id.family_id == MESON_CPU_MAJOR_ID_T5D)) {
 		if (!((ce_enable >> 10) & 1))
 			AMLNF_SET_REG_MASK(P_PERIPHS_PIN_MUX_1, (2 << 16));
 	} else if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_GXBB) ||
@@ -403,7 +404,6 @@ static void m3_nand_adjust_timing(struct aml_nand_chip *aml_chip)
 
 	NFC_SET_CFG(controller , 0);
 	NFC_SET_TIMING_ASYC(controller, bus_timing, (bus_cycle - 1));
-
 	NFC_SEND_CMD(controller, 1<<31);
 }
 
@@ -476,7 +476,8 @@ static int m3_nand_options_confirm(struct aml_nand_chip *aml_chip)
 	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_AXG) ||
 	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_TXHD) ||
 		(cpu_id.family_id == MESON_CPU_MAJOR_ID_TL1) ||
-		(cpu_id.family_id == MESON_CPU_MAJOR_ID_TM2))
+		(cpu_id.family_id == MESON_CPU_MAJOR_ID_TM2) ||
+		(cpu_id.family_id == MESON_CPU_MAJOR_ID_T5D))
 		options_support = NAND_ECC_BCH8_MODE;
 
 	switch (options_support) {

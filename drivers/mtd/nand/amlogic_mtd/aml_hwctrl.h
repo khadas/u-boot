@@ -356,6 +356,9 @@ static inline void amlnf_clr_reg32_mask(volatile uint32_t *_reg,
 	AMLNF_READ_REG((host)->reg_base + P_NAND_BUF)
 #define NFC_SET_CFG(host, val) \
 	(AMLNF_WRITE_REG((host)->reg_base + P_NAND_CFG, (u32)val))
+#define NFC_GET_CFG(host) \
+	AMLNF_READ_REG((host)->reg_base + P_NAND_CFG)
+
 
 /*
    Common Nand Read Flow

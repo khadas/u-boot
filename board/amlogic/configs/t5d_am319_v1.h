@@ -468,7 +468,7 @@
 /* axg only support slc nand */
 /* swither for mtd nand which is for slc only. */
 /* support for mtd */
-//#define CONFIG_AML_MTD 1
+#define CONFIG_AML_MTD 1
 /* support for nftl */
 //#define CONFIG_AML_NAND	1
 
@@ -491,13 +491,13 @@
 #define CONFIG_TPL_COPY_NUM               4
 #define CONFIG_TPL_PART_NAME              "tpl"
 /* for bl2, restricted by romboot */
-#define CONFIG_BL2_COPY_NUM               8
+#define CONFIG_BL2_COPY_NUM               4
 #endif /* CONFIG_DISCRETE_BOOTLOADER */
 
-//#define CONFIG_CMD_NAND 1
-//#define CONFIG_MTD_DEVICE y
+#define CONFIG_CMD_NAND 1
+#define CONFIG_MTD_DEVICE y
 /* mtd parts of ourown.*/
-//#define CONFIFG_AML_MTDPART	1
+#define CONFIFG_AML_MTDPART	1
 /* mtd parts by env default way.*/
 /*
 #define MTDIDS_NAME_STR		"aml_nand.0"
@@ -639,6 +639,9 @@
 #ifndef CONFIG_PXP_EMULATOR
 #define CONFIG_CMD_FASTBOOT 1
 #define CONFIG_FASTBOOT_FLASH_MMC_DEV 1
+#ifdef CONFIG_AML_MTD
+#define CONFIG_FASTBOOT_FLASH_NAND_DEV 1
+#endif
 #define CONFIG_FASTBOOT_FLASH 1
 #define CONFIG_USB_GADGET 1
 #define CONFIG_USBDOWNLOAD_GADGET 1
