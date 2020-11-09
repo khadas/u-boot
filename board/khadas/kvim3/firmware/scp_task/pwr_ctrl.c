@@ -27,16 +27,6 @@
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
-static int is_tp_exist(void)
-{
-	static int state = 0;
-	if ((readl(PREG_PAD_GPIO5_I) & (0x01 << 5))) {
-		state = 1;
-	}
-	return state;
-
-}
-
 static void set_vddee_voltage(unsigned int target_voltage)
 {
 	unsigned int to, pwm_size = 0;
@@ -81,13 +71,11 @@ static void power_off_at_24M(unsigned int suspend_from)
 	writel(readl(AO_GPIO_O) & (~(1 << 4)), AO_GPIO_O);
 	writel(readl(AO_GPIO_O_EN_N) & (~(1 << 4)), AO_GPIO_O_EN_N);
 	writel(readl(AO_RTI_PIN_MUX_REG) & (~(0xf << 16)), AO_RTI_PIN_MUX_REG);
+	/*set test_n low to power off vcck_b & vcc 3.3v*/
+	writel(readl(AO_GPIO_O) & (~(1 << 31)), AO_GPIO_O);
+	writel(readl(AO_GPIO_O_EN_N) & (~(1 << 31)), AO_GPIO_O_EN_N);
+	writel(readl(AO_RTI_PIN_MUX_REG1) & (~(0xf << 28)), AO_RTI_PIN_MUX_REG1);
 
-	if (!is_tp_exist()) {
-		/*set test_n low to power off vcck_b & vcc 3.3v*/
-		writel(readl(AO_GPIO_O) & (~(1 << 31)), AO_GPIO_O);
-		writel(readl(AO_GPIO_O_EN_N) & (~(1 << 31)), AO_GPIO_O_EN_N);
-		writel(readl(AO_RTI_PIN_MUX_REG1) & (~(0xf << 28)), AO_RTI_PIN_MUX_REG1);
-	}
 	/*step down ee voltage*/
 	set_vddee_voltage(CONFIG_VDDEE_SLEEP_VOLTAGE);
 }
@@ -244,7 +232,6 @@ extern void __switch_idle_task(void);
 static unsigned int detect_key(unsigned int suspend_from)
 {
 	int exit_reason = 0;
-	int has_tp = 0;
 	unsigned *irq = (unsigned *)WAKEUP_SRC_IRQ_ADDR_BASE;
 	init_remote();
 #ifdef CONFIG_CEC_WAKEUP
@@ -295,12 +282,6 @@ static unsigned int detect_key(unsigned int suspend_from)
 		if (suspend_from) {
 			if (!(readl(PREG_PAD_GPIO4_I) & (0x01 << 14))) {
 				exit_reason = WOL_WAKEUP;
-			}
-			has_tp = is_tp_exist();
-			if (!(readl(PREG_PAD_GPIO5_I) & (0x01 << 5))) {
-				if (has_tp) {
-					exit_reason = TP_WAKEUP;
-				}
 			}
 		}
 
