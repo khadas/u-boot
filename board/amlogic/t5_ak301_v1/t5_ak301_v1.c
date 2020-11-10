@@ -748,6 +748,7 @@ int checkhw(char * name)
 			break;
 		case 0x40000000:
 			strcpy(loc_name, "t5_t963_ak301-1g\0");
+			setenv("mem_size", "1g");
 			break;
 		case 0x2000000:
 			strcpy(loc_name, "t5_t963_ak301_512m\0");
