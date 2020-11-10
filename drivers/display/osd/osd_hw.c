@@ -2973,7 +2973,9 @@ static void set_vpp_super_position(void)
 		 (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SM1))
 		osd_reg_set_mask(VPP_MISC, PREBLD_SR0_VD1_SCALER);
 	else if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TL1) ||
-		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TM2))
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TM2) ||
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_T5) ||
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_T5D))
 		osd_reg_set_mask(VPP_MISC, DNLP_SR1_CM);
 }
 
