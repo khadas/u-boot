@@ -322,6 +322,20 @@ static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
     return nReturn;
 }
 
+#if defined(CONFIG_FIT)
+static int _fit_img_get_img_sz(void* hdr, unsigned* imgSz)
+{
+    debugP("hdr 0x%p\n", hdr);
+    if (fdt_path_offset(hdr, FIT_IMAGES_PATH) < 0) {
+        errorP("Wrong FIT format: no images parent node\n");
+        return 0;
+    }
+    *imgSz = fdt_totalsize(hdr);
+    MsgP("fit img sz 0x%x\n", *imgSz);
+
+    return 0;
+}
+#endif//#if defined(CONFIG_FIT)
 
 static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -346,6 +360,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
         loadaddr = (unsigned char*)simple_strtoul(getenv("loadaddr"), NULL, 16);
     }
 
+
     ulong nCheckOffset = 0;
 #ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
     nCheckOffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,GXB_IMG_LOAD_ADDR,GXB_EFUSE_PATTERN_SIZE,GXB_IMG_DEC_ALL);
@@ -355,6 +370,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
     else
         nCheckOffset = 0;
 
+    debugP("nCheckOffset 0x%lx\n", nCheckOffset);
     hdr_addr = (boot_img_hdr_t*)(loadaddr + nCheckOffset);
 
     if (3 < argc) flashReadOff = simple_strtoull(argv[3], NULL, 0);
@@ -364,6 +380,17 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
         return __LINE__;
     }
     flashReadOff += IMG_PRELOAD_SZ;
+
+    genFmt = genimg_get_format(hdr_addr);
+#if defined(CONFIG_FIT)
+    if (IMAGE_FORMAT_FIT == genFmt) {
+        rc = _fit_img_get_img_sz(hdr_addr, &actualBootImgSz);
+        if (rc) {
+            errorP("Fail in check fit image header\n"); return -1;
+        }
+        goto load_left;
+    }
+#endif//#if defined(CONFIG_FIT)
 
     if (is_android_r_image((void *) hdr_addr)) {
 
@@ -378,7 +405,6 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 
 #if defined(CONFIG_IMAGE_FORMAT_LEGACY)
         //check image format for rtos
-        genFmt = genimg_get_format(loadaddr);
         hdr = (image_header_t *)loadaddr;
         if (genFmt == IMAGE_FORMAT_LEGACY
             && image_check_type(hdr, IH_TYPE_STANDALONE) ) {
@@ -387,7 +413,6 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
         }
 #endif /* CONFIG_IMAGE_FORMAT_LEGACY */
         if (!nCheckOffset) {
-            genFmt = genimg_get_format(hdr_addr);
             if (IMAGE_FORMAT_ANDROID != genFmt) {
                 errorP("Fmt unsupported!genFmt 0x%x != 0x%x\n", genFmt, IMAGE_FORMAT_ANDROID);
                 return __LINE__;
@@ -467,8 +492,8 @@ load_left_r:
             ramdisk_size_r    = ALIGN(pVendorIMGHDR->vendor_ramdisk_size, pageSz_r);
             dtb_size_r	      = ALIGN(pVendorIMGHDR->dtb_size, pageSz_r);
             nFlashLoadLen_r   = ramdisk_size_r + dtb_size_r + 0x1000;
-            debugP("ramdisk_size_r 0x%x, totalSz 0x%x\n", pVendorIMGHDR->vendor_ramdisk_size, ramdisk_size_r);
-            debugP("dtb_size_r 0x%x, totalSz 0x%x\n", pVendorIMGHDR->dtb_size, dtb_size_r);
+            debugP("ramdisk_size_r 0x%x, totalSz 0x%lx\n", pVendorIMGHDR->vendor_ramdisk_size, ramdisk_size_r);
+            debugP("dtb_size_r 0x%x, totalSz 0x%lx\n", pVendorIMGHDR->dtb_size, dtb_size_r);
 
             if (nFlashLoadLen_r > preloadSz_r)
             {
@@ -544,7 +569,7 @@ load_left_r:
             debugP("dtbSz 0x%x, Total actualBootImgSz 0x%x\n", dtbSz, actualBootImgSz);
         }
 
-#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY) || defined(CONFIG_FIT)
 load_left:
 #endif
         if (actualBootImgSz > IMG_PRELOAD_SZ)
@@ -563,7 +588,17 @@ load_left:
         //because secure boot will use DMA which need disable MMU temp
         //here must update the cache, otherwise nand will fail (eMMC is OK)
         flush_cache((unsigned long)loadaddr,(unsigned long)actualBootImgSz);
+
+   }
+#if defined(CONFIG_FIT)
+    if (IMAGE_FORMAT_FIT == genFmt) {
+        //fit_print_contents(hdr_addr);
+        if (!fit_all_image_verify(hdr_addr)) {
+            errorP("Bad hash in FIT image!\n");
+            return -__LINE__;
+        }
     }
+#endif// #if defined(CONFIG_FIT)
     return 0;
 }
 
