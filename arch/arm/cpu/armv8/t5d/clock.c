@@ -459,3 +459,64 @@ int ring_msr(int index)
 }
 #endif
 
+#ifdef CONFIG_AML_SPICC
+/* generic clock control for spicc1.
+ * if deleted, you have to add it into all t5 board files as necessary.
+ */
+static int spicc_clk_rate[] = {
+	24000000,	/* XTAL */
+	166666666,	/* CLK81 */
+	500000000,	/* FCLK_DIV4 */
+	666666666,	/* FCLK_DIV3 */
+	1000000000,	/* FCLK_DIV2 */
+	400000000,	/* FCLK_DIV5 */
+	285700000	/* FCLK_DIV7 */
+};
+
+static int spicc_clk_set_rate(int id, int rate)
+{
+	u32 regv;
+	u8 mux, div = 0;
+	u8 shift = (id == 0) ? 0 : 16;
+
+	for (mux = 0; mux < ARRAY_SIZE(spicc_clk_rate); mux++)
+		if (rate == spicc_clk_rate[mux])
+			break;
+	if (mux == ARRAY_SIZE(spicc_clk_rate))
+		return -EINVAL;
+
+	regv = readl(P_HHI_SPICC_CLK_CNTL);
+	regv &= ~ (0x3ff << shift);
+	regv |= div << (0 + shift);
+	regv |= 1 << (6 + shift);
+	regv |= mux << (7 + shift);
+	writel(regv, P_HHI_SPICC_CLK_CNTL);
+
+	return 0;
+}
+
+int spicc0_clk_set_rate(int rate)
+{
+	return spicc_clk_set_rate(0, rate);
+}
+
+static int spicc_clk_enable(int id, bool enable)
+{
+	u32 regv;
+	u8 shift = (id == 0) ? 8: 14;
+
+	regv = readl(P_HHI_GCLK_MPEG0);
+	if (enable)
+		regv |= 1 << shift;
+	else
+		regv &= ~(1 << shift);
+	writel(regv, P_HHI_GCLK_MPEG0);
+
+	return 0;
+}
+
+int spicc0_clk_enable(bool enable)
+{
+	return spicc_clk_enable(0, enable);
+}
+#endif /* CONFIG_AML_SPICC */
