@@ -625,13 +625,14 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 	uchar *fb;
 	bmp_image_t *bmp = (bmp_image_t *)bmp_image;
 	uchar *bmap;
-	ushort padded_line;
 	unsigned long width, height;
 	unsigned long pheight;
 	unsigned long pwidth;
 	unsigned colors, bpix, bmp_bpix;
 	uint lcd_line_length;
 	int osd_index = -1;
+	int bmp_line_bytes;
+	int bmp_line_align_offset;
 
 	osd_index = get_osd_layer();
 	if (osd_index < 0) {
@@ -713,7 +714,11 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 	 * their own ways, so make the converting to be MCC200
 	 * specific.
 	 */
-	padded_line = (width & 0x3) ? ((width & ~0x3) + 4) : (width);
+	bmp_line_bytes = width * bmp_bpix / 8;
+	bmp_line_bytes = (bmp_line_bytes & 0x3) ?
+		((bmp_line_bytes & ~0x3) + 4) : (bmp_line_bytes);
+
+	bmp_line_align_offset = bmp_line_bytes - width * bmp_bpix / 8;
 
 	if ((x + width) > pwidth)
 		width = pwidth - x;
@@ -724,8 +729,9 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 	fb   = (uchar *)(osd_hw.fb_gem[osd_index].addr +
 			 (y + height - 1) * lcd_line_length + x * fb_gdev.gdfBytesPP);
 
-	osd_logd("fb=0x%p; bmap=0x%p, width=%ld, height= %ld, lcd_line_length=%d, padded_line=%d, fb_gdev.fb_width=%d, fb_gdev.fb_height=%d \n",
-		 fb, bmap, width, height, lcd_line_length, padded_line,fb_gdev.fb_width,fb_gdev.fb_height);
+	osd_logd("fb=0x%p; bmap=0x%p, width=%ld, height= %ld, lcd_line_length=%d, bmp_line_bytes=%d, fb_gdev.fb_width=%d, fb_gdev.fb_height=%d \n",
+		 fb, bmap, width, height, lcd_line_length, bmp_line_bytes,
+		 fb_gdev.fb_width, fb_gdev.fb_height);
 
 	if (bmp_bpix == 8) {
 		/* decode of RLE8 */
@@ -762,7 +768,7 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 				}
 				*/
 			}
-			buffer_rgb += (padded_line - width);
+			buffer_rgb += bmp_line_align_offset;
 			fb -= (byte_width * 4 + lcd_line_length);
 		}
 		buffer_rgb -= width*height*4;
@@ -775,7 +781,7 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 				*(fb++) = *(bmap++);
 				*(fb++) = *(bmap++);
 			}
-			bmap += (padded_line - width) * 2;
+			bmap += bmp_line_align_offset;
 			fb   -= (width * 2 + lcd_line_length);
 		}
 		break;
@@ -789,7 +795,7 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 					*(fb++) = *(bmap++);
 					*(fb++) = 0xff;
 				}
-				bmap += (padded_line - width);
+				bmap += bmp_line_align_offset;
 				fb   -= (width * 4 + lcd_line_length);
 			}
 		} else {
@@ -800,7 +806,7 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 					*(fb++) = *(bmap++);
 					*(fb++) = *(bmap++);
 				}
-				bmap += (padded_line - width);
+				bmap += bmp_line_align_offset;
 				fb   -= (width * 3 + lcd_line_length);
 			}
 		}
@@ -814,7 +820,7 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 				*(fb++) = *(bmap++);
 				*(fb++) = *(bmap++);
 			}
-			bmap += (padded_line - width);
+			bmap += bmp_line_align_offset;
 			fb   -= (width * 4 + lcd_line_length);
 		}
 		break;
