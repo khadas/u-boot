@@ -894,6 +894,7 @@ static int do_temp_triming(cmd_tbl_t *cmdtp, int flag1,
 			case MESON_CPU_MAJOR_ID_SM1:
 			case MESON_CPU_MAJOR_ID_TM2:
 			case MESON_CPU_MAJOR_ID_T5:
+			case MESON_CPU_MAJOR_ID_T5D:
 				if (argc <3) {
 					printf("too little args for txhd temp triming!!\n");
 					return CMD_RET_USAGE;
@@ -983,6 +984,7 @@ int r1p1_temp_read(int type)
 		case MESON_CPU_MAJOR_ID_SM1:
 		case MESON_CPU_MAJOR_ID_TM2:
 		case MESON_CPU_MAJOR_ID_T5:
+		case MESON_CPU_MAJOR_ID_T5D:
 			ts_b = 3159;
 			ts_a = 9411;
 			ts_m = 424;
@@ -1183,6 +1185,7 @@ int r1p1_read_entry(void)
 				}
 			break;
 			case MESON_CPU_MAJOR_ID_T5:
+			case MESON_CPU_MAJOR_ID_T5D:
 			ret = readl(AO_SEC_GP_CFG10);
 			ver = (ret >> 24) & 0xff;
 			if ((ver & 0x80) == 0) {
@@ -1363,6 +1366,7 @@ int r1p1_temp_trim(int tempbase, int tempver, int type)
 			}
 			break;
 		case MESON_CPU_MAJOR_ID_T5:
+		case MESON_CPU_MAJOR_ID_T5D:
 			ts_b = 3159;
 			ts_a = 9411;
 			ts_m = 424;
@@ -1515,6 +1519,7 @@ int r1p1_trim_entry(int tempbase, int tempver)
 				}
 			break;
 		case MESON_CPU_MAJOR_ID_T5:
+		case MESON_CPU_MAJOR_ID_T5D:
 			ret = readl(AO_SEC_GP_CFG10);
 			ver = (ret >> 24) & 0xff;
 			if (ver & 0x80) {
@@ -1598,6 +1603,7 @@ void r1p1_temp_cooling(void)
 			}
 			break;
 		case MESON_CPU_MAJOR_ID_T5:
+		case MESON_CPU_MAJOR_ID_T5D:
 			while (1) {
 				temp = r1p1_temp_read(1);
 				if (temp <= CONFIG_HIGH_TEMP_COOL) {
