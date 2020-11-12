@@ -543,12 +543,16 @@ static void flashing(char *cmd_parameter, char *response)
 					if (avb_unlock()) {
 						printf("unlocking device.  Erasing userdata partition!\n");
 						run_command("store erase data 0 0", 0);
+						printf("unlocking device.  Erasing metadata partition!\n");
+						run_command("store erase metadata 0 0", 0);
 					} else {
 						printf("unlock failed!\n");
 					}
 #else
 					printf("unlocking device.  Erasing userdata partition!\n");
 					run_command("store erase data 0 0", 0);
+					printf("unlocking device.  Erasing metadata partition!\n");
+					run_command("store erase metadata 0 0", 0);
 #endif
 				}
 			}
@@ -576,10 +580,15 @@ static void flashing(char *cmd_parameter, char *response)
 				} else {
 					printf("locking device.  Erasing userdata partition!\n");
 					run_command("store erase data 0 0", 0);
+					printf("unlocking device.  Erasing metadata partition!\n");
+					run_command("store erase metadata 0 0", 0);
 				}
 #else
 				printf("locking device.  Erasing userdata partition!\n");
 				run_command("store erase data 0 0", 0);
+				printf("unlocking device.  Erasing metadata partition!\n");
+				run_command("store erase metadata 0 0", 0);
+
 #endif
 			}
 		}
