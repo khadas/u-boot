@@ -30,7 +30,7 @@
  * platform power init config
  */
 #define CONFIG_PLATFORM_POWER_INIT
-#define CONFIG_VCCK_INIT_VOLTAGE	960		// VCCK power up voltage
+#define CONFIG_VCCK_INIT_VOLTAGE	1040		// VCCK power up voltage
 #define CONFIG_VDDEE_INIT_VOLTAGE	840		// VDDEE power up voltage
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	770		// VDDEE suspend voltage
 
@@ -419,7 +419,7 @@
 #define CONFIG_SYS_BOOTM_LEN (64<<20) /* Increase max gunzip size*/
 
 /* cpu */
-#define CONFIG_CPU_CLK					1512 //MHz. Range: 360-2000, should be multiple of 24
+#define CONFIG_CPU_CLK					2004 //MHz. Range: 360-2000, should be multiple of 24
 
 /* ATTENTION */
 /* DDR configs move to board/amlogic/[board]/firmware/timing.c */
