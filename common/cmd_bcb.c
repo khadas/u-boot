@@ -117,7 +117,11 @@ static int do_RunBcbCommand(
         char *default_env = getenv("default_env");
         if (strstr(default_env, "1")) {
             printf("factory reset, need default all uboot env\n");
-            run_command("env default -a;save;reset;", 0);
+            if (getenv("reset_cmd")) {
+                run_command("run reset_cmd;setenv upgrade_step 2; saveenv;reset;", 0);
+            } else {
+                run_command("env default -a;setenv upgrade_step 2; saveenv;reset;", 0);
+            }
         }
     }
 

@@ -517,8 +517,7 @@ int board_late_init(void)
 
 	//update env before anyone using it
 	run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
-			"if test ${reboot_mode} = factory_reset; then "\
-			"defenv_reserv;save; fi;", 0);
+			"setenv reset_cmd defenv_reserv;", 0);
 	run_command("if itest ${upgrade_step} == 1; then "\
 				"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 	/*add board late init function here*/
