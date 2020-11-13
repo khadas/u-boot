@@ -292,6 +292,18 @@ config DDRFW_TYPE
 	string "SC2 DDR FW Type"
 	default "ddr4"
 
+config CHIPSET_NAME
+	string "SC2 CHIPSET NAME"
+	default "S905X4"
+
+config CHIPSET_VARIANT
+	string "SC2 CHIPSET VARIANT"
+	default ""
+
+config AMLOGIC_KEY_TYPE
+	string "SC2 AMLOGIC KEY TYPE"
+	default "dev-keys"
+
 config BL30_SELECT
 	string "SC2 BL30 board config"
 	default "sc2_ah219"
