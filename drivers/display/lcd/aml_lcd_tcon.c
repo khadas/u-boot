@@ -1666,6 +1666,38 @@ static struct lcd_tcon_config_s tcon_data_t5 = {
 	.tcon_enable = lcd_tcon_enable_t5,
 };
 
+static struct lcd_tcon_config_s tcon_data_t5d = {
+	.tcon_valid = 0,
+
+	.core_reg_ver = 1, /* new version with header */
+	.core_reg_width = LCD_TCON_CORE_REG_WIDTH_T5,
+	.reg_table_len = LCD_TCON_TABLE_LEN_T5,
+	.core_reg_start = TCON_CORE_REG_START_T5,
+
+	.reg_top_ctrl = REG_LCD_TCON_MAX,
+	.bit_en = BIT_TOP_EN_T5,
+
+	.reg_core_od = REG_LCD_TCON_MAX,
+	.bit_od_en = BIT_OD_EN_T5,
+
+	.reg_ctrl_timing_base = REG_LCD_TCON_MAX,
+	.ctrl_timing_offset = CTRL_TIMING_OFFSET_T5,
+	.ctrl_timing_cnt = CTRL_TIMING_CNT_T5,
+
+	.axi_bank = LCD_TCON_AXI_BANK_T5,
+
+	.rsv_mem_size    = 0x00c00000, /* 12M */
+	.axi_size        = 0x00a00000, /* 10M */
+	.bin_path_size   = 0x00002800, /* 10K */
+	.vac_size        = 0,
+	.demura_set_size = 0,
+	.demura_lut_size = 0,
+	.acc_lut_size    = 0,
+
+	.tcon_axi_mem_config = lcd_tcon_axi_mem_config_t5,
+	.tcon_enable = lcd_tcon_enable_t5,
+};
+
 int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *lcd_drv, int load_id)
 {
 	int ret = 0;
@@ -1682,8 +1714,10 @@ int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *lcd_drv, int load_id)
 			lcd_tcon_conf = &tcon_data_tl1;
 		break;
 	case LCD_CHIP_T5:
-	case LCD_CHIP_T5D:
 		lcd_tcon_conf = &tcon_data_t5;
+		break;
+	case LCD_CHIP_T5D:
+		lcd_tcon_conf = &tcon_data_t5d;
 		break;
 	default:
 		break;
@@ -1696,7 +1730,8 @@ int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *lcd_drv, int load_id)
 		lcd_tcon_conf->tcon_valid = 1;
 		break;
 	case LCD_P2P:
-		if (lcd_drv->chip_type == LCD_CHIP_TXHD)
+		if ((lcd_drv->chip_type == LCD_CHIP_TXHD) ||
+		    (lcd_drv->chip_type == LCD_CHIP_T5D))
 			lcd_tcon_conf->tcon_valid = 0;
 		else
 			lcd_tcon_conf->tcon_valid = 1;
