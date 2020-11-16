@@ -40,7 +40,8 @@
 /* 20201019: optimize tcon axi reserved memory config and data crc32*/
 /* 20201027: add tcon support for txhd*/
 /* 20201105: optimize big size tcon bin parse in tvconfig*/
-#define LCD_DRV_VERSION    "20201105"
+/* 20201116: optimize phy ctrl compatibility*/
+#define LCD_DRV_VERSION    "20201116"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
