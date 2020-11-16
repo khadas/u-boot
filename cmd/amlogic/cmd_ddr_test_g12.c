@@ -718,8 +718,8 @@ typedef struct ddr_set {
 
 ddr_set_t p_ddr_set_t;
 
-#ifndef _SHA256_H
-#define _SHA256_H
+#ifndef _SHA256_H_DDR
+#define _SHA256_H_DDR
 
 #define SHA256_SUM_LEN  32
 #define SHA256_DER_LEN  19
@@ -731,7 +731,7 @@ typedef struct {
 	uint32_t	total[2];
 	uint32_t	state[8];
 	uint8_t		buffer[64];
-}sha256_context;
+}sha256_context_ddr;
 
 const uint8_t sha256_der_prefix_ddr[SHA256_DER_LEN] = {
 	0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86,
@@ -759,7 +759,7 @@ const uint8_t sha256_der_prefix_ddr[SHA256_DER_LEN] = {
 }
 #endif
 
-void sha256_starts_internal(sha256_context *ctx)
+void sha256_starts_internal(sha256_context_ddr *ctx)
 {
 	ctx->total[0] = 0;
 	ctx->total[1] = 0;
@@ -774,7 +774,7 @@ void sha256_starts_internal(sha256_context *ctx)
 	ctx->state[7] = 0x5BE0CD19;
 }
 
-static void sha256_process_internal(sha256_context *ctx, const uint8_t data[64])
+static void sha256_process_internal(sha256_context_ddr *ctx, const uint8_t data[64])
 {
 	uint32_t temp1, temp2;
 	uint32_t W[64];
@@ -905,7 +905,7 @@ static void sha256_process_internal(sha256_context *ctx, const uint8_t data[64])
 	ctx->state[7] += H;
 }
 
-void sha256_update_internal(sha256_context *ctx, const uint8_t *input, uint32_t length)
+void sha256_update_internal(sha256_context_ddr *ctx, const uint8_t *input, uint32_t length)
 {
 	uint32_t left, fill;
 
@@ -946,7 +946,7 @@ static uint8_t sha256_padding[64] = {
 	0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-void sha256_finish_internal(sha256_context *ctx, uint8_t digest[32])
+void sha256_finish_internal(sha256_context_ddr *ctx, uint8_t digest[32])
 {
 	uint32_t last, padn;
 	uint32_t high, low;
@@ -982,7 +982,7 @@ void sha256_finish_internal(sha256_context *ctx, uint8_t digest[32])
 void sha256_csum_wd_internal(const unsigned char *input, unsigned int ilen,
 			     unsigned char *output, unsigned int chunk_sz)
 {
-	sha256_context ctx;
+	sha256_context_ddr ctx;
 	sha256_starts_internal(&ctx);
 	sha256_update_internal(&ctx, input, ilen);
 	sha256_finish_internal(&ctx, output);
