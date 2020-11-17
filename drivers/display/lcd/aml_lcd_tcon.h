@@ -144,6 +144,21 @@ struct tcon_mem_map_table_s {
 #define CTRL_TIMING_OFFSET_T5            12
 #define CTRL_TIMING_CNT_T5               0
 
+/* T5D */
+#define LCD_TCON_CORE_REG_WIDTH_T5D       32
+#define LCD_TCON_TABLE_WIDTH_T5D          32
+#define LCD_TCON_TABLE_LEN_T5D            0x102c /* 0x40b*4 */
+#define LCD_TCON_AXI_BANK_T5D             2
+
+#define BIT_TOP_EN_T5D                    4
+
+#define TCON_CORE_REG_START_T5D           0x0100
+#define REG_CORE_OD_T5D                   0x247
+#define BIT_OD_EN_T5D                     0
+#define REG_CTRL_TIMING_BASE_T5D          0x1b
+#define CTRL_TIMING_OFFSET_T5D            12
+#define CTRL_TIMING_CNT_T5D               0
+
 #ifdef CONFIG_CMD_INI
 extern void *handle_lcd_ext_buf_get(void);
 extern void *handle_tcon_path_mem_get(unsigned int size);

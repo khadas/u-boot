@@ -32,18 +32,6 @@ static struct lcd_power_step_s lcd_power_off_step[] = {
 	{LCD_POWER_TYPE_MAX,   0,0,0,},   /* ending flag */
 };
 
-static struct lcd_power_step_s lcd_power_on_step_p2p[] = {
-	{LCD_POWER_TYPE_CPU,   0,1,20,}, /* panel vcc */
-	{LCD_POWER_TYPE_EXTERN,0,0,100,}, /* init external voltage */
-	{LCD_POWER_TYPE_SIGNAL,0,0,0,},
-	{LCD_POWER_TYPE_MAX,   0,0,0,},  /* ending flag */
-};
-static struct lcd_power_step_s lcd_power_off_step_p2p[] = {
-	{LCD_POWER_TYPE_SIGNAL,0,0,0,},
-	{LCD_POWER_TYPE_CPU,   0,0,200,}, /* panel vcc */
-	{LCD_POWER_TYPE_MAX,   0,0,0,},   /* ending flag */
-};
-
 static char lcd_bl_gpio[BL_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
 	"invalid", /* ending flag */
 };
@@ -77,114 +65,6 @@ struct ext_lcd_config_s ext_lcd_config[LCD_NUM_MAX] = {
 	1,1,0,0,0,0xf,0x0,Rsv_val,Rsv_val,Rsv_val,
 	/* power step */
 	lcd_power_on_step, lcd_power_off_step,
-	/* backlight */
-	60,255,10,128,128,
-	BL_CTRL_MAX,0,1,0,200,200,
-	BL_PWM_POSITIVE,BL_PWM_C,180,100,25,1,0,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	10,10,Rsv_val},
-
-	{/*public 2-region vx1 : 3840x2160@60hz 8lane */
-	"vbyone_0",LCD_VBYONE,10,
-	/* basic timing */
-	3840,2160,4400,2250,33,477,0,6,81,0,
-	/* clk_attr */
-	2,0,1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	/* vbyone_attr */
-	8,2,4,4,0xf,0x1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	/* power step */
-	lcd_power_on_step, lcd_power_off_step,
-	/* backlight */
-	60,255,10,128,128,
-	BL_CTRL_PWM,0,1,0,200,200,
-	BL_PWM_POSITIVE,BL_PWM_C,180,100,25,1,0,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	10,10,Rsv_val},
-
-	{/*public 1-region vx1 : 3840x2160@60hz 8lane */
-	"vbyone_1",LCD_VBYONE,10,
-	/* basic timing */
-	3840,2160,4400,2250,33,477,0,6,81,0,
-	/* clk_attr */
-	2,0,1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	/* vbyone_attr */
-	8,1,4,4,0xf,0x1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	/* power step */
-	lcd_power_on_step, lcd_power_off_step,
-	/* backlight */
-	60,255,10,128,128,
-	BL_CTRL_PWM,0,1,0,200,200,
-	BL_PWM_POSITIVE,BL_PWM_C,180,100,25,1,0,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	10,10,Rsv_val},
-
-	{/*public p2p ceds : 3840x2160@60hz 12lane */
-	"p2p_0",LCD_P2P,8,
-	/* basic timing */
-	3840,2160,5000,2250,16,29,0,6,81,0,
-	/* clk_attr */
-	2,0,1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	/* p2p attr */
-	0x0,12,0x76543210,0xba98,0,0,0xf,0x1,Rsv_val,Rsv_val,
-	/* power step */
-	lcd_power_on_step_p2p, lcd_power_off_step_p2p,
-	/* backlight */
-	60,255,10,128,128,
-	BL_CTRL_MAX,0,1,0,200,200,
-	BL_PWM_POSITIVE,BL_PWM_C,180,100,25,1,0,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	10,10,Rsv_val},
-
-	{/*public p2p ceds : 3840x2160@60hz 6lane */
-	"p2p_1",LCD_P2P,8,
-	/* basic timing */
-	3840,2160,5000,2250,16,29,0,6,81,0,
-	/* clk_attr */
-	2,0,1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	/* p2p attr */
-	0x0,6,0x76543210,0xba98,0,0,0xf,0x1,Rsv_val,Rsv_val,
-	/* power step */
-	lcd_power_on_step_p2p, lcd_power_off_step_p2p,
-	/* backlight */
-	60,255,10,128,128,
-	BL_CTRL_MAX,0,1,0,200,200,
-	BL_PWM_POSITIVE,BL_PWM_C,180,100,25,1,0,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	10,10,Rsv_val},
-
-	{/*public p2p chpi : 3840x2160@60hz 6lane */
-	"p2p_2",LCD_P2P,8,
-	/* basic timing */
-	3840,2160,4400,2250,16,29,0,6,81,0,
-	/* clk_attr */
-	2,0,1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	/* p2p attr */
-	0x10,6,0x76543210,0xba98,0,0,0xf,0x1,Rsv_val,Rsv_val,
-	/* power step */
-	lcd_power_on_step_p2p, lcd_power_off_step_p2p,
-	/* backlight */
-	60,255,10,128,128,
-	BL_CTRL_MAX,0,1,0,200,200,
-	BL_PWM_POSITIVE,BL_PWM_C,180,100,25,1,0,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	10,10,Rsv_val},
-
-	{/*public p2p chpi : 3840x2160@60hz 12lane */
-	"p2p_3",LCD_P2P,8,
-	/* basic timing */
-	3840,2160,4400,2250,16,29,0,6,81,0,
-	/* clk_attr */
-	2,0,1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	/* p2p attr */
-	0x10,12,0x76543210,0xba98,0,0,0xf,0x1,Rsv_val,Rsv_val,
-	/* power step */
-	lcd_power_on_step_p2p, lcd_power_off_step_p2p,
 	/* backlight */
 	60,255,10,128,128,
 	BL_CTRL_MAX,0,1,0,200,200,
@@ -234,24 +114,9 @@ struct ext_lcd_config_s ext_lcd_config[LCD_NUM_MAX] = {
 
 static struct lcd_pinmux_ctrl_s lcd_pinmux_ctrl[LCD_PINMX_MAX] = {
 	{
-		.name = "lcd_vbyone_pin", //GPIOH_0/8
-		.pinmux_set = {{5, 0x00000004}, {6, 0x00000004}, {LCD_PINMUX_END, 0x0}},
-		.pinmux_clr = {{5, 0x0000000f}, {6, 0x0000000f}, {LCD_PINMUX_END, 0x0}},
-	},
-	{
 		.name = "lcd_minilvds_pin", //GPIOH_0~8,12~15
-		.pinmux_set = {{5, 0x01111111}, {6, 0x11111111}, {LCD_PINMUX_END, 0x0}},
-		.pinmux_clr = {{5, 0x0fffffff}, {6, 0xffffffff}, {LCD_PINMUX_END, 0x0}},
-	},
-	{
-		.name = "lcd_p2p_pin", //GPIOH_0~8,12~15
-		.pinmux_set = {{5, 0x01111112}, {6, 0x11111111}, {LCD_PINMUX_END, 0x0}},
-		.pinmux_clr = {{5, 0x0fffffff}, {6, 0xffffffff}, {LCD_PINMUX_END, 0x0}},
-	},
-	{
-		.name = "lcd_p2p_usit_pin", //GPIOH_0~8,12~15
-		.pinmux_set = {{5, 0x01111113}, {6, 0x11111111}, {LCD_PINMUX_END, 0x0}},
-		.pinmux_clr = {{5, 0x0fffffff}, {6, 0xffffffff}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_set = {{5, 0x01111111}, {6, 0x00001111}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{5, 0x0fffffff}, {6, 0x0000ffff}, {LCD_PINMUX_END, 0x0}},
 	},
 	{
 		.name = "invalid",
@@ -260,19 +125,34 @@ static struct lcd_pinmux_ctrl_s lcd_pinmux_ctrl[LCD_PINMX_MAX] = {
 
 static struct lcd_pinmux_ctrl_s bl_pinmux_ctrl[BL_PINMUX_MAX] = {
 	{
-		.name = "bl_pwm_vs_on_pin", /*GPIOH_10*/
-		.pinmux_set = {{8, 0x00000600}, {LCD_PINMUX_END, 0x0} },
-		.pinmux_clr = {{8, 0x00000f00}, {LCD_PINMUX_END, 0x0} },
+		.name = "bl_pwm_on_pin", /*GPIOH_12*/
+		.pinmux_set = {{6, 0x00040000}, {LCD_PINMUX_END, 0x0} },
+		.pinmux_clr = {{6, 0x000f0000}, {LCD_PINMUX_END, 0x0} },
+	},
+	{
+		.name = "bl_pwm_vs_on_pin", /*GPIOH_12*/
+		.pinmux_set = {{6, 0x00030000}, {LCD_PINMUX_END, 0x0} },
+		.pinmux_clr = {{6, 0x000f0000}, {LCD_PINMUX_END, 0x0} },
+	},
+	{
+		.name = "bl_pwm_combo_0_on_pin", /*GPIOH_12*/
+		.pinmux_set = {{6, 0x00040000}, {LCD_PINMUX_END, 0x0} },
+		.pinmux_clr = {{6, 0x000f0000}, {LCD_PINMUX_END, 0x0} },
 	},
 	{
 		.name = "bl_pwm_combo_1_on_pin", /*GPIOH_13*/
-		.pinmux_set = {{8, 0x00400000}, {LCD_PINMUX_END, 0x0} },
-		.pinmux_clr = {{8, 0x00f00000}, {LCD_PINMUX_END, 0x0} },
+		.pinmux_set = {{6, 0x00400000}, {LCD_PINMUX_END, 0x0} },
+		.pinmux_clr = {{6, 0x00f00000}, {LCD_PINMUX_END, 0x0} },
 	},
 	{
-		.name = "bl_pwm_combo_0_vs_on_pin", /*GPIOH_10*/
-		.pinmux_set = {{8, 0x00000600}, {LCD_PINMUX_END, 0x0} },
-		.pinmux_clr = {{8, 0x00000f00}, {LCD_PINMUX_END, 0x0} },
+		.name = "bl_pwm_combo_0_vs_on_pin", /*GPIOH_12*/
+		.pinmux_set = {{6, 0x00030000}, {LCD_PINMUX_END, 0x0} },
+		.pinmux_clr = {{6, 0x000f0000}, {LCD_PINMUX_END, 0x0} },
+	},
+	{
+		.name = "bl_pwm_combo_1_vs_on_pin", /*GPIOH_13*/
+		.pinmux_set = {{6, 0x00300000}, {LCD_PINMUX_END, 0x0} },
+		.pinmux_clr = {{6, 0x00f00000}, {LCD_PINMUX_END, 0x0} },
 	},
 	{
 		.name = "invalid",
