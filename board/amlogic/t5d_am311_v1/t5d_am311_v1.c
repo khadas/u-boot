@@ -727,6 +727,7 @@ int checkhw(char * name)
 			break;
 		case 0x40000000:
 			strcpy(dtb_name, "t5d_t950x4_am311-1g\0");
+			setenv("mem_size", "1g");
 			break;
 		case 0x20000000:
 			strcpy(dtb_name, "t5d_t950x4_am311-512m\0");
