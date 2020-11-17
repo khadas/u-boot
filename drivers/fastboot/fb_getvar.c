@@ -463,7 +463,7 @@ static void getvar_partition_size(char *part_name, char *response)
 	size_t size;
 	char name[32];
 
-	if (strcmp(part_name, "userdata") == 0)
+	if (strcmp(part_name, "userdata") == 0 && !vendor_boot_partition)
 		strncpy(name, "data", 4);
 	else
 		strncpy(name, part_name, 32);

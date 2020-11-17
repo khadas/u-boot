@@ -386,7 +386,7 @@ static void flash(char *cmd_parameter, char *response)
 {
 	char name[32];
 
-	if (strcmp(cmd_parameter, "userdata") == 0)
+	if (strcmp(cmd_parameter, "userdata") == 0 && !vendor_boot_partition)
 		strncpy(name, "data", 4);
 	else if (strcmp(cmd_parameter, "dts") == 0)
 		strncpy(name, "dtb", 3);
@@ -422,7 +422,7 @@ static void erase(char *cmd_parameter, char *response)
 {
 	char name[32];
 
-	if (strcmp(cmd_parameter, "userdata") == 0)
+	if (strcmp(cmd_parameter, "userdata") == 0 && !vendor_boot_partition)
 		strncpy(name, "data", 4);
 	else if (strcmp(cmd_parameter, "dts") == 0)
 		strncpy(name, "dtb", 3);
@@ -542,7 +542,10 @@ static void flashing(char *cmd_parameter, char *response)
 #ifdef CONFIG_AML_ANTIROLLBACK
 					if (avb_unlock()) {
 						printf("unlocking device.  Erasing userdata partition!\n");
-						run_command("store erase data 0 0", 0);
+						if (vendor_boot_partition)
+							run_command("store erase userdata 0 0", 0);
+						else
+							run_command("store erase data 0 0", 0);
 						printf("unlocking device.  Erasing metadata partition!\n");
 						run_command("store erase metadata 0 0", 0);
 					} else {
@@ -550,7 +553,10 @@ static void flashing(char *cmd_parameter, char *response)
 					}
 #else
 					printf("unlocking device.  Erasing userdata partition!\n");
-					run_command("store erase data 0 0", 0);
+					if (vendor_boot_partition)
+						run_command("store erase userdata 0 0", 0);
+					else
+						run_command("store erase data 0 0", 0);
 					printf("unlocking device.  Erasing metadata partition!\n");
 					run_command("store erase metadata 0 0", 0);
 #endif
@@ -579,13 +585,19 @@ static void flashing(char *cmd_parameter, char *response)
 					printf("lock failed!\n");
 				} else {
 					printf("locking device.  Erasing userdata partition!\n");
-					run_command("store erase data 0 0", 0);
+					if (vendor_boot_partition)
+						run_command("store erase userdata 0 0", 0);
+					else
+						run_command("store erase data 0 0", 0);
 					printf("unlocking device.  Erasing metadata partition!\n");
 					run_command("store erase metadata 0 0", 0);
 				}
 #else
 				printf("locking device.  Erasing userdata partition!\n");
-				run_command("store erase data 0 0", 0);
+				if (vendor_boot_partition)
+					run_command("store erase userdata 0 0", 0);
+				else
+					run_command("store erase data 0 0", 0);
 				printf("unlocking device.  Erasing metadata partition!\n");
 				run_command("store erase metadata 0 0", 0);
 
