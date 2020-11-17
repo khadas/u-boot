@@ -399,9 +399,10 @@ PHONY += scripts_basic
 scripts_basic:
 	$(Q)$(MAKE) $(build)=scripts/basic
 	$(Q)rm -f .tmp_quiet_recordmcount
-	$(Q)mkdir -p $(srctree)/.git/hooks
-	$(Q)cp $(srctree)/scripts/amlogic/coding_style/pre-commit $(srctree)/.git/hooks/
-	$(Q)chmod +x $(srctree)/.git/hooks/pre-commit
+	$(Q)if [ -d $(srctree)/.git/hooks ]; then \
+		cp $(srctree)/scripts/amlogic/coding_style/pre-commit $(srctree)/.git/hooks/; \
+		chmod +x $(srctree)/.git/hooks/pre-commit; \
+	fi
 
 # To avoid any implicit rule to kick in, define an empty command.
 scripts/basic/%: scripts_basic ;
