@@ -870,7 +870,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		uint64_t sz;
 		strsep(&cmd, ":");
 		printf("partition is %s\n", cmd);
-		if (strcmp(cmd, "userdata") == 0) {
+		if (strcmp(cmd, "userdata") == 0 && !vendor_boot_partition) {
 			strcpy(cmd, "data");
 			printf("partition is %s\n", cmd);
 		}
@@ -1261,14 +1261,20 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 #ifdef CONFIG_AML_ANTIROLLBACK
 					if (avb_unlock()) {
 						printf("unlocking device.  Erasing userdata partition!\n");
-						run_command("store erase partition data", 0);
+						if (vendor_boot_partition)
+							run_command("store erase partition userdata", 0);
+						else
+							run_command("store erase partition data", 0);
 						run_command("store erase partition metadata", 0);
 					} else {
 						printf("unlock failed!\n");
 					}
 #else
 					printf("unlocking device.  Erasing userdata partition!\n");
-					run_command("store erase partition data", 0);
+					if (vendor_boot_partition)
+						run_command("store erase partition userdata", 0);
+					else
+						run_command("store erase partition data", 0);
 					run_command("store erase partition metadata", 0);
 #endif
 				}
@@ -1294,12 +1300,18 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 					printf("lock failed!\n");
 				} else {
 					printf("locking device.  Erasing userdata partition!\n");
-					run_command("store erase partition data", 0);
+					if (vendor_boot_partition)
+						run_command("store erase partition userdata", 0);
+					else
+						run_command("store erase partition data", 0);
 					run_command("store erase partition metadata", 0);
 				}
 #else
 				printf("locking device.  Erasing userdata partition!\n");
-				run_command("store erase partition data", 0);
+				if (vendor_boot_partition)
+					run_command("store erase partition userdata", 0);
+				else
+					run_command("store erase partition data", 0);
 				run_command("store erase partition metadata", 0);
 #endif
 			}
@@ -1353,7 +1365,7 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 #endif
 
 	printf("partition is %s\n", cmd);
-	if (strcmp(cmd, "userdata") == 0) {
+	if (strcmp(cmd, "userdata") == 0 && !vendor_boot_partition) {
 		strcpy(cmd, "data");
 		printf("partition is %s\n", cmd);
 	}
@@ -1480,7 +1492,7 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 
 	printf("partition is %s\n", cmd);
 
-	if (strcmp(cmd, "userdata") == 0) {
+	if (strcmp(cmd, "userdata") == 0 && !vendor_boot_partition) {
 		strcpy(cmd, "data");
 		printf("partition is %s\n", cmd);
 		if (message.merge_status == SNAPSHOTTED || message.merge_status == MERGING) {
