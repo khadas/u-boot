@@ -154,6 +154,9 @@
 	phy_cntl1 = <0x41054147>;
 	internal_phy = <1>;
 	mc_val = <0x4be04>;
+	cali_val = <0x80000>;
+	reset-gpios = <&gpio GPIOZ_15 GPIO_ACTIVE_HIGH>;
+	analog_ver = <1>; /*1:c1; 2:c2*/
 	pll_val = <0x9c0040a 0x927e0000 0xac5f49e5>;
 	analog_val = <0x20200000 0x0000c000 0x00000023>;
 	chip_num = <3>;
@@ -776,6 +779,41 @@
 		mux {
 			groups = "pwm_g_hiz";
 			function = "pwm_g_hiz";
+		};
+	};
+	external_eth_rmii_pins: external_eth_rmii_pins {
+		mux {
+			groups = "eth_mdio",
+				"eth_mdc",
+				"eth_rgmii_rx_clk",
+				"eth_rx_dv",
+				"eth_rxd0",
+				"eth_rxd1",
+				"eth_txen",
+				"eth_txd0",
+				"eth_txd1";
+			function = "eth";
+			drive-strength = <3>;
+		};
+	};
+	external_eth_rgmii_pins: external_eth_rgmii_pins {
+		mux {
+			groups = "eth_mdio",
+				"eth_mdc",
+				"eth_rgmii_rx_clk",
+				"eth_rx_dv",
+				"eth_rxd0",
+				"eth_rxd1",
+				"eth_rxd2_rgmii",
+				"eth_rxd3_rgmii",
+				"eth_rgmii_tx_clk",
+				"eth_txen",
+				"eth_txd0",
+				"eth_txd1",
+				"eth_txd2_rgmii",
+				"eth_txd3_rgmii";
+			function = "eth";
+			drive-strength = <3>;
 		};
 	};
 };
