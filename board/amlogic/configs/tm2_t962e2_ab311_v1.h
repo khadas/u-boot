@@ -111,10 +111,10 @@
         "board_logo_part=odm\0" \
         "frac_rate_policy=1\0" \
         "hdr_policy=0\0" \
-		"hdmi_read_edid=1\0" \
-		"hdmichecksum=0x00000000\0" \
-		"dolby_status=0\0" \
-		"dolby_vision_on=0\0" \
+        "hdmi_read_edid=1\0" \
+        "hdmichecksum=0x00000000\0" \
+        "dolby_status=0\0" \
+        "dolby_vision_on=0\0" \
         "usb_burning=update 1000\0" \
         "otg_device=1\0"\
         "fdt_high=0x20000000\0"\
@@ -132,6 +132,7 @@
         "video_reverse=0\0"\
         "active_slot=normal\0"\
         "boot_part=boot\0"\
+        "vendor_boot_part=vendor_boot\0"\
         "suspend=off\0"\
         "powermode=on\0"\
         "ffv_wake=off\0"\
@@ -247,14 +248,19 @@
             "fi;fi;"\
             "get_system_as_root_mode;"\
             "echo system_mode: ${system_mode};"\
-            "if test ${system_mode} = 1; then "\
-                "setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
-            "else "\
-                "setenv bootargs ${bootargs} $(fs_type);"\
-            "fi;"\
             "get_valid_slot;"\
             "get_avb_mode;"\
-            "echo active_slot: ${active_slot} avb2: ${avb2};"\
+            "echo active_slot: ${active_slot};"\
+            "if test ${system_mode} = 1; then "\
+                    "setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
+            "else "\
+                "if test ${vendor_boot_mode} = true; then "\
+                    "echo come to vendor_boot true;"\
+                    "setenv bootargs ${bootargs} androidboot.force_normal_boot=1;"\
+                "else "\
+                    "setenv bootargs ${bootargs} ${fs_type};"\
+                "fi;"\
+            "fi;"\
             "if test ${active_slot} != normal; then "\
                     "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
             "fi;"\
@@ -331,8 +337,13 @@
                     "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
                     "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                 "else "\
-                    "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
-                    "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
+                    "if test ${vendor_boot_mode} = true; then "\
+                        "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
+                        "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
+                    "else "\
+                        "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
+                        "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
+                    "fi;"\
                 "fi;"\
             "fi;"\
             "\0"\
@@ -391,6 +402,10 @@
         "bcb_cmd="\
             "get_rebootmode;"\
             "get_valid_slot;"\
+            "if test ${vendor_boot_mode} = true; then "\
+                "setenv loadaddr 2080000;"\
+                "setenv dtb_mem_addr 0x1f00000;"\
+            "fi;"\
             "\0"\
         "upgrade_key="\
             "if gpio input GPIOAO_3; then "\

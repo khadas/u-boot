@@ -640,15 +640,20 @@ void reset_mt7668(void)
 int board_late_init(void)
 {
 	TE(__func__);
-	char outputModePre[30];
-	char outputModeCur[30];
-	strcpy(outputModePre,getenv("outputmode"));
+	char outputModePre[32] = {};
+	char outputModeCur[32] = {};
+	char *buf;
+
+	buf = getenv("outputmode");
+	if (buf)
+		strcpy(outputModePre, getenv("outputmode"));
 
 		//update env before anyone using it
 		run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
 						"setenv reset_cmd defenv_reserv;", 0);
 		run_command("if itest ${upgrade_step} == 1; then "\
 						"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
+		run_command("run bcb_cmd", 0);
 		/*add board late init function here*/
 #ifndef DTB_BIND_KERNEL
 		int ret;
@@ -707,7 +712,9 @@ int board_late_init(void)
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 
 	TE(__func__);
-	strcpy(outputModeCur,getenv("outputmode"));
+	buf = getenv("outputmode");
+	if (buf)
+		strcpy(outputModeCur, getenv("outputmode"));
 	if (strcmp(outputModeCur,outputModePre)) {
 		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
 		run_command("saveenv", 0);
