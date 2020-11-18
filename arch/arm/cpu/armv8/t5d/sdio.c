@@ -111,6 +111,7 @@ __weak int  sd_emmc_detect(unsigned port)
 		break;
 	case SDIO_PORT_B:
 		/*tread port b as port c on t5*/
+		ret=1;
 		break;
 		pinmux_4 = readl(P_PERIPHS_PIN_MUX_4);
 		pinmux_5 = readl(P_PERIPHS_PIN_MUX_5);
