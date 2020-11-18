@@ -30,7 +30,8 @@
 /* v20181009: init version */
 /* v20190313: add sm1 support */
 /* v20200521: add sc2 support */
-#define VPU_VERION	"v20200521"
+/* v20201118: add t7 support */
+#define VPU_VERION	"v20201118"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -210,9 +211,92 @@ static struct vpu_data_s vpu_data_sc2 = {
 	.power_off = vpu_power_off_new,
 };
 
+static struct vpu_data_s vpu_data_t5 = {
+	.chip_type = VPU_CHIP_T5,
+	.chip_name = "t5",
+	.clk_level_dft = CLK_LEVEL_DFT_G12A,
+	.clk_level_max = CLK_LEVEL_MAX_G12A,
+	.gp_pll_valid = 0,
+
+	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
+	.vid_clk_reg = HHI_VID_CLK_CNTL2,
+
+	.pwrctrl_id = PM_VPU_HDMI,
+
+	.fclk_div_table = fclk_div_table_g12a,
+	.vpu_clk_table = vpu_clk_table,
+
+	.mem_pd_table = vpu_mem_pd_tm2,
+	.power_table = vpu_pwr_gxb,
+	.iso_table = vpu_iso_sm1,
+	.reset_table = vpu_reset_tl1,
+
+	.module_init_table_cnt = 0,
+	.module_init_table = NULL,
+
+	.power_on = vpu_power_on_new,
+	.power_off = vpu_power_off_new,
+};
+
+static struct vpu_data_s vpu_data_t5d = {
+	.chip_type = VPU_CHIP_T5D,
+	.chip_name = "t5d",
+	.clk_level_dft = CLK_LEVEL_DFT_T5D,
+	.clk_level_max = CLK_LEVEL_MAX_T5D,
+	.gp_pll_valid = 0,
+
+	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
+	.vid_clk_reg = HHI_VID_CLK_CNTL2,
+
+	.pwrctrl_id = PM_VPU_HDMI,
+
+	.fclk_div_table = fclk_div_table_g12a,
+	.vpu_clk_table = vpu_clk_table,
+
+	.mem_pd_table = NULL,
+	.power_table = NULL,
+	.iso_table = NULL,
+	.reset_table = NULL,
+
+	.module_init_table_cnt = 0,
+	.module_init_table = NULL,
+
+	.power_on = vpu_power_on_new,
+	.power_off = vpu_power_off_new,
+};
+
+static struct vpu_data_s vpu_data_t7 = {
+	.chip_type = VPU_CHIP_T7,
+	.chip_name = "t7",
+	.clk_level_dft = CLK_LEVEL_DFT_G12A,
+	.clk_level_max = CLK_LEVEL_MAX_G12A,
+	.gp_pll_valid = 0,
+
+	.vpu_clk_reg = CLKCTRL_VPU_CLK_CTRL,
+	.vapb_clk_reg = CLKCTRL_VAPBCLK_CTRL,
+	.vid_clk_reg = CLKCTRL_VID_CLK0_CTRL2,
+
+	.pwrctrl_id = PM_VPU_HDMI,
+
+	.fclk_div_table = fclk_div_table_g12a,
+	.vpu_clk_table = vpu_clk_table,
+
+	.mem_pd_table = NULL,
+	.power_table = NULL,
+	.iso_table = NULL,
+	.reset_table = NULL,
+
+	.module_init_table_cnt = 0,
+	.module_init_table = NULL,
+
+	.power_on = vpu_power_on_new,
+	.power_off = vpu_power_off_new,
+};
+
 static void vpu_chip_detect(void)
 {
-#if 1
 	unsigned int cpu_type;
 
 	cpu_type = get_cpu_id().family_id;
@@ -235,15 +319,27 @@ static void vpu_chip_detect(void)
 	case MESON_CPU_MAJOR_ID_SC2:
 		vpu_conf.data = &vpu_data_sc2;
 		break;
+	case MESON_CPU_MAJOR_ID_T5:
+		vpu_conf.data = &vpu_data_t5;
+		break;
+	case MESON_CPU_MAJOR_ID_T5D:
+		vpu_conf.data = &vpu_data_t5d;
+		break;
+	case MESON_CPU_MAJOR_ID_T7:
+		vpu_conf.data = &vpu_data_t7;
+		break;
 	default:
-		vpu_conf.data = &vpu_data_sc2;
+		//vpu_conf.data = NULL;
+		vpu_conf.data = &vpu_data_t7;
 		break;
 	}
-#else
-	vpu_conf.data = &vpu_data_g12a;
-#endif
 
 	strcpy(vpu_conf.drv_version, VPU_VERION);
+	if (!vpu_conf.data) {
+		VPUERR("invalid chip: 0x%x\n", cpu_type);
+		return;
+	}
+
 #ifdef AML_VPU_CLK_LEVEL_DFT
 	vpu_conf.data->clk_level_dft = AML_VPU_CLK_LEVEL_DFT;
 	VPUPR("find AML_VPU_CLK_LEVEL_DFT: %d\n", AML_VPU_CLK_LEVEL_DFT);
@@ -264,7 +360,7 @@ static int vpu_check(void)
 {
 	int ret = -1;
 
-	if (vpu_conf.data == NULL) {
+	if (!vpu_conf.data) {
 		VPUERR("invalid vpu\n");
 		return -1;
 	}
@@ -276,6 +372,9 @@ static int vpu_check(void)
 	case VPU_CHIP_SM1:
 	case VPU_CHIP_TM2:
 	case VPU_CHIP_SC2:
+	case VPU_CHIP_T5:
+	case VPU_CHIP_T5D:
+	case VPU_CHIP_T7:
 		ret = 0;
 		break;
 	default:

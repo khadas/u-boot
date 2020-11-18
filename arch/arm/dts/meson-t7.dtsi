@@ -51,7 +51,7 @@
 	compatible = "amlogic,meson-t7";
 
 	vpu {
-		compatible = "amlogic, vpu-g12a";
+		compatible = "amlogic, vpu-t7";
 		status = "okay";
 		/*clocks = <&clkc CLKID_VAPB_MUX>,
 		 *	<&clkc CLKID_VPU_INTR>,

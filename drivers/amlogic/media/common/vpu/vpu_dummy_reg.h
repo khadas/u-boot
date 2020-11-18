@@ -112,6 +112,10 @@
 #define HHI_VPU_MEM_PD_REG4                        (0xff63c000 + (0x044 << 2))
 #endif
 
+#ifndef HHI_MEM_PD_REG0
+#define HHI_MEM_PD_REG0                            (0xff63c000 + (0x040 << 2))
+#endif
+
 #ifndef RESET0_LEVEL
 #define RESET0_LEVEL                               (0x0420)
 #endif
@@ -139,6 +143,10 @@
 
 #ifndef CLKCTRL_VID_CLK_CTRL2
 #define CLKCTRL_VID_CLK_CTRL2                      ((0x0031  << 2) + 0xfe000000)
+#endif
+
+#ifndef CLKCTRL_VID_CLK0_CTRL2
+#define CLKCTRL_VID_CLK0_CTRL2                     ((0x0031  << 2) + 0xfe000000)
 #endif
 
 #ifndef PWRCTRL_PWR_ACK0
