@@ -111,6 +111,9 @@ int board_init(void)
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 	active_clk();
 
+	run_command("gpio c GPIOA_10", 0);
+	run_command("gpio c GPIOA_12", 0);
+
 	return 0;
 }
 
