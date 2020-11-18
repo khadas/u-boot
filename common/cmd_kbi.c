@@ -697,8 +697,19 @@ static int do_kbi_version(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 {
 	get_version();
 	return 0;
-
 }
+
+#if defined(CONFIG_KHADAS_VIM3) || defined(CONFIG_KHADAS_VIM3L)
+extern int tca6408_output_set_value(u8 value, u8 mask);
+static int do_kbi_lcd_reset(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	tca6408_output_set_value(0<<0, 1<<0);
+	udelay(100);
+	tca6408_output_set_value(1<<0, 1<<0);
+	return 0;
+}
+#endif
+
 
 static int do_kbi_usid(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
@@ -1078,6 +1089,7 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 	U_BOOT_CMD_MKENT(bootmode, 3, 1, do_kbi_bootmode, "", ""),
 #if defined(CONFIG_KHADAS_VIM3) || defined(CONFIG_KHADAS_VIM3L)
 	U_BOOT_CMD_MKENT(portmode, 1, 1, do_kbi_portmode, "", ""),
+	U_BOOT_CMD_MKENT(lcd_reset, 1, 1, do_kbi_lcd_reset, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(forcereset, 4, 1, do_kbi_forcereset, "", ""),
 };
