@@ -509,3 +509,40 @@ void aml_set_power_domain(uint64_t function_id, uint64_t arg0, uint64_t arg1)
 
 	return ;
 }
+
+int bl31_get_cornerinfo(uint8_t *outbuf, int size)
+{
+	int buff_len = 0;
+
+	if (outbuf == NULL) {
+		printf("BL33: corner efuse info storebuf is NULL\n");
+		return -1;
+	}
+
+	if (!sharemem_output_base)
+		sharemem_output_base =
+			get_sharemem_info(GET_SHARE_MEM_OUTPUT_BASE);
+
+	if (sharemem_output_base) {
+		register long x0 asm("x0") = OSCRING_EFUSE_GET;
+		register long x1 asm("x1") = size;
+
+		do {
+			asm volatile(
+				__asmeq("%0", "x0")
+				__asmeq("%1", "x1")
+				"smc    #0\n"
+				: "+r" (x0)
+				: "r" (x1));
+		} while(0);
+		buff_len = x0;
+		if (buff_len <= size) {
+			memcpy(outbuf, (void *)sharemem_output_base, buff_len);
+			return 0;
+		} else {
+			printf("BL33: corner efuse info buf len %d over storebuf size %d\n", buff_len, size);
+			return -1;
+		}
+	}
+	return -1;
+}
