@@ -128,7 +128,6 @@ int cvbs_set_vdac(int status)
 		cvbs_set_vcbus_bits(VENC_VDAC_DACSEL0, 0, 5, 1);
 		if (cvbs_drv.data) {
 			vdac_ctrl_vref_adj(cvbs_drv.data->vdac_vref_adj);
-			vdac_ctrl_gsw_adj(cvbs_drv.data->vdac_gsw);
 			vdac_enable(1, VDAC_MODULE_CVBS_OUT);
 		} else {
 			printf("cvbs ERROR:need run cvbs init.\n");
@@ -617,43 +616,6 @@ void cvbs_show_valid_vmode(void)
 		printf("%s\n", cvbs_mode_str[i]);
 }
 
-static unsigned char cvbs_get_trimming_version(unsigned int flag)
-{
-	unsigned char version = 0xff;
-
-	if ((flag & 0xf0) == 0xa0)
-		version = 5;
-	else if ((flag & 0xf0) == 0x40)
-		version = 2;
-	else if ((flag & 0xc0) == 0x80)
-		version = 1;
-	else if ((flag & 0xc0) == 0x00)
-		version = 0;
-	return version;
-}
-
-static unsigned int cvbs_config_vdac(unsigned int value)
-{
-	unsigned char version = 0;
-	unsigned int cfg_valid, gsw_cfg;
-
-	version = cvbs_get_trimming_version((value >> 8) & 0xff);
-	/* flag 1/0 for validity of vdac config */
-	if ((version == 1) || (version == 2) || (version == 5)) {
-		cfg_valid = 1;
-		gsw_cfg = value & 0x7;
-	} else {
-		cfg_valid = 0;
-		gsw_cfg = 0xffff;
-	}
-	if (cfg_valid) {
-		printf("cvbs: %s: cvbs trimming 0x%x: %d.v%d, 0x%x\n",
-			__func__, value, cfg_valid, version, gsw_cfg);
-	}
-
-	return gsw_cfg;
-}
-
 static char *cvbsout_performance_str[] = {
 	"performance", /* default for pal */
 	"performance_pal",
@@ -695,14 +657,6 @@ static void cvbs_get_config(void)
 	if (propdata) {
 		s_enci_clk_path = be32_to_cpup((u32*)propdata);
 		printf("cvbs: find clk_path: 0x%x\n", s_enci_clk_path);
-	}
-
-	/* vdac config */
-	propdata = (char *)fdt_getprop(dt_blob, node, "vdac_config", NULL);
-	if (propdata) {
-		temp = cvbs_config_vdac(be32_to_cpup((u32*)propdata));
-		if (temp < 0xff)
-			cvbs_drv.data->vdac_gsw = temp;
 	}
 
 	/* performance */

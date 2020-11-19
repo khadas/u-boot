@@ -44,7 +44,6 @@ struct vdac_data_s {
 
 void vdac_enable(bool on, unsigned int module_sel);
 int vdac_ctrl_vref_adj(unsigned int value);
-int vdac_ctrl_gsw_adj(unsigned int value);
 void vdac_ctrl_config_probe(void);
 
 #endif
