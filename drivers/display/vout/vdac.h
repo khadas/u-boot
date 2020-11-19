@@ -38,7 +38,6 @@ struct meson_vdac_ctrl_s {
 
 void vdac_enable(bool on, unsigned int module_sel);
 int vdac_vref_adj(unsigned int value);
-int vdac_gsw_adj(unsigned int value);
 void vdac_ctrl_config_probe(void);
 
 #endif
