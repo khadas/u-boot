@@ -617,7 +617,7 @@ ddr_set_t __ddr_setting = {
 #else // ddr3 and auto
 //4layer ddr3
 	.t_pub_acbdlr0			= 0,
-	.t_pub_aclcdlr			= 0,//0x18,   ///1t  ,if 2t can add some value
+	.t_pub_aclcdlr			= 0x30,//0x18,   ///1t  ,if 2t can add some value
 	.t_pub_acbdlr3			= 0,//0xa,  //cs
 #endif
 	.t_pub_soc_vref_dram_vref =((((CONFIG_SOC_VREF<45)?(0):((((CONFIG_SOC_VREF*1000-44070)/698)>0X3F)?(0X3F):(((CONFIG_SOC_VREF*1000-44070)/698))))<<8)|(
