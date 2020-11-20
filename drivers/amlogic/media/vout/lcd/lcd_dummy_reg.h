@@ -173,6 +173,105 @@
 #define HHI_LVDS_TX_PHY_CNTL1                              (0xff63c000 + (0xdf << 2))
 #endif
 
+#ifndef HHI_DIF_CSI_PHY_CNTL10
+#define HHI_DIF_CSI_PHY_CNTL10			(0xff63c000 + (0x8e << 2))
+#endif
+#ifndef HHI_DIF_CSI_PHY_CNTL11
+#define HHI_DIF_CSI_PHY_CNTL11			(0xff63c000 + (0x8f << 2))
+#endif
+#ifndef HHI_DIF_CSI_PHY_CNTL12
+#define HHI_DIF_CSI_PHY_CNTL12			(0xff63c000 + (0x90 << 2))
+#endif
+#ifndef HHI_DIF_CSI_PHY_CNTL13
+#define HHI_DIF_CSI_PHY_CNTL13			(0xff63c000 + (0x91 << 2))
+#endif
+#ifndef HHI_DIF_CSI_PHY_CNTL14
+#define HHI_DIF_CSI_PHY_CNTL14			(0xff63c000 + (0x92 << 2))
+#endif
+#ifndef HHI_DIF_CSI_PHY_CNTL15
+#define HHI_DIF_CSI_PHY_CNTL15			(0xff63c000 + (0x93 << 2))
+#endif
+#ifndef HHI_DIF_CSI_PHY_CNTL16
+#define HHI_DIF_CSI_PHY_CNTL16			(0xff63c000 + (0xde << 2))
+#endif
+#ifndef HHI_DIF_CSI_PHY_CNTL6
+#define HHI_DIF_CSI_PHY_CNTL6			(0xff63c000 + (0xea << 2))
+#endif
+#ifndef HHI_DIF_CSI_PHY_CNTL7
+#define HHI_DIF_CSI_PHY_CNTL7			(0xff63c000 + (0xeb << 2))
+#endif
+#ifndef HHI_DIF_CSI_PHY_CNTL8
+#define HHI_DIF_CSI_PHY_CNTL8			(0xff63c000 + (0xec << 2))
+#endif
+#ifndef HHI_DIF_CSI_PHY_CNTL9
+#define HHI_DIF_CSI_PHY_CNTL9			(0xff63c000 + (0xed << 2))
+#endif
+
+#ifndef HHI_TCON_PLL_CNTL0
+#define HHI_TCON_PLL_CNTL0			(0xff63c000 + (0x020 << 2))
+#endif
+#ifndef HHI_TCON_PLL_CNTL1
+#define HHI_TCON_PLL_CNTL1			(0xff63c000 + (0x021 << 2))
+#endif
+#ifndef HHI_TCON_PLL_CNTL2
+#define HHI_TCON_PLL_CNTL2			(0xff63c000 + (0x022 << 2))
+#endif
+#ifndef HHI_TCON_PLL_CNTL3
+#define HHI_TCON_PLL_CNTL3			(0xff63c000 + (0x023 << 2))
+#endif
+#ifndef HHI_TCON_PLL_CNTL4
+#define HHI_TCON_PLL_CNTL4			(0xff63c000 + (0x0df << 2))
+#endif
+
+#ifndef COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0
+#define COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0	(0xfe018000 + (0x0006 << 2))
+#endif
+
+#ifndef COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1
+#define COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1	(0xfe018000 + (0x0009 << 2))
+#endif
+
+#ifndef ENCL_VIDEO_H_PRE_DE_END
+#define ENCL_VIDEO_H_PRE_DE_END                    0x1ccf
+#endif
+#ifndef ENCL_VIDEO_H_PRE_DE_BEGIN
+#define ENCL_VIDEO_H_PRE_DE_BEGIN                  0x1cd0
+#endif
+#ifndef ENCL_VIDEO_V_PRE_DE_ELINE
+#define ENCL_VIDEO_V_PRE_DE_ELINE                  0x1cd1
+#endif
+#ifndef ENCL_VIDEO_V_PRE_DE_BLINE
+#define ENCL_VIDEO_V_PRE_DE_BLINE                  0x1cd2
+#endif
+#ifndef ENCL_INBUF_CNTL0
+#define ENCL_INBUF_CNTL0                           0x1cd3
+#endif
+#ifndef ENCL_INBUF_CNTL1
+#define ENCL_INBUF_CNTL1                           0x1cd4
+#endif
+#ifndef ENCL_INBUF_CNT
+#define ENCL_INBUF_CNT                             0x1cd5
+#endif
+
+#ifndef VPU_VENC_CTRL
+#define VPU_VENC_CTRL                              ((0x1cef  << 2) + 0xff000000)
+#endif
+#ifndef VPU_DISP_VIU0_CTRL
+#define VPU_DISP_VIU0_CTRL                         ((0x2786  << 2) + 0xff000000)
+#endif
+
+#ifndef VBO_INFILTER_CTRL
+#define VBO_INFILTER_CTRL                          0x14f9
+#endif
+#ifndef VBO_INFILTER_TICK_PERIOD_L
+#define VBO_INFILTER_TICK_PERIOD_L                 0x14f9
+#endif
+#ifndef VBO_INFILTER_TICK_PERIOD_H
+#define VBO_INFILTER_TICK_PERIOD_H                 0x1477
+#endif
+
+#define TCON_CORE_FLAG_LIC2			(0xff630000L + (0x00e << 2))
+
 #ifndef REG_TCON_APB_BASE
 #define REG_TCON_APB_BASE                          (0xFF600000L)
 #define TCON_CORE_REG_START                        0x0000
@@ -194,14 +293,60 @@
 #define TCON_DDRIF_CTRL2                           0x1011
 #define TCON_INTR_MASKN                            0x1022
 #define TCON_INTR                                  0x1023 /* read only */
+#endif
 
+#ifndef TCON_AXI_OFST
+#define TCON_AXI_OFST                              0x100c
+#endif
+#ifndef TCON_AXI_OFST0
 #define TCON_AXI_OFST0                             0x200c
+#endif
+#ifndef TCON_STATUS2
 #define TCON_STATUS2                               0x2012
+#endif
+#ifndef TCON_AXI_OFST1
 #define TCON_AXI_OFST1                             0x2013
+#endif
+#ifndef TCON_AXI_OFST2
 #define TCON_AXI_OFST2                             0x2014
+#endif
+#ifndef TCON_GPO_CTRL0
 #define TCON_GPO_CTRL0                             0x2015
+#endif
+#ifndef TCON_GPO_CTRL1
 #define TCON_GPO_CTRL1                             0x2016
+#endif
+#ifndef TCON_GPO_CTRL2
 #define TCON_GPO_CTRL2                             0x2017
+#endif
+#ifndef TCON_INTR_WR
+#define TCON_INTR_WR                               0x2020
+#endif
+#ifndef TCON_INTR_CLR
+#define TCON_INTR_CLR                              0x2021
+#endif
+#ifndef TCON_INTR_MASKN
+#define TCON_INTR_MASKN                            0x2022
+#endif
+#ifndef TCON_INTR_RO
+#define TCON_INTR_RO                               0x2023
+#endif
+
+#ifndef P2P_CH_SWAP0
+#define P2P_CH_SWAP0                               0x4200
+#endif
+#ifndef P2P_CH_SWAP1
+#define P2P_CH_SWAP1                               0x4201
+#endif
+
+#ifndef LVDS_CH_SWAP0
+#define LVDS_CH_SWAP0                              0x14e1
+#endif
+#ifndef LVDS_CH_SWAP1
+#define LVDS_CH_SWAP1                              0x14e2
+#endif
+#ifndef LVDS_CH_SWAP2
+#define LVDS_CH_SWAP2                              0x14e3
 #endif
 
 #ifndef HHI_DIF_TCON_CNTL0
@@ -227,3 +372,110 @@
 #define PWM_MISC_REG_EF                            ((0x6402 << 2) + 0xffd00000)
 #endif
 
+#ifndef REG_BASE_CBUS
+#define REG_BASE_CBUS 0x1
+#endif
+
+#ifndef REG_BASE_VCBUS
+#define REG_BASE_VCBUS 0x2
+#endif
+
+#ifndef REG_BASE_DSI_HOST
+#define REG_BASE_DSI_HOST 0x3
+#endif
+
+#ifndef HHI_GP0_PLL_CNTL2
+#define HHI_GP0_PLL_CNTL2 0x4
+#endif
+
+#ifndef HHI_GP0_PLL_CNTL3
+#define HHI_GP0_PLL_CNTL3 0x4
+#endif
+
+#ifndef HHI_GP0_PLL_CNTL4
+#define HHI_GP0_PLL_CNTL4 0x4
+#endif
+
+#ifndef HHI_GP0_PLL_CNTL5
+#define HHI_GP0_PLL_CNTL5 0x4
+#endif
+
+#ifndef HHI_VIID_CLK_CNTL
+#define HHI_VIID_CLK_CNTL 0x4
+#endif
+
+#ifndef HHI_VIID_CLK_DIV
+#define HHI_VIID_CLK_DIV 0x4
+#endif
+
+#ifndef HHI_VID_PLL_CLK_DIV
+#define HHI_VID_PLL_CLK_DIV 0x4
+#endif
+
+#ifndef HHI_VID_CLK_CNTL2
+#define HHI_VID_CLK_CNTL2 0x4
+#endif
+
+#ifndef HHI_MIPI_CNTL0
+#define HHI_MIPI_CNTL0 0x4
+#endif
+
+#ifndef HHI_MIPI_CNTL1
+#define HHI_MIPI_CNTL1 0x4
+#endif
+
+#ifndef HHI_MIPI_CNTL2
+#define HHI_MIPI_CNTL2 0x4
+#endif
+
+#ifndef HHI_VDIN_MEAS_CLK_CNTL
+#define HHI_VDIN_MEAS_CLK_CNTL 0x4
+#endif
+
+#ifndef PWM_MISC_REG_AB
+#define PWM_MISC_REG_AB PWMAB_MISC_REG_AB
+#endif
+
+#ifndef PWM_MISC_REG_CD
+#define PWM_MISC_REG_CD PWMCD_MISC_REG_AB
+#endif
+
+#ifndef PWM_MISC_REG_EF
+#define PWM_MISC_REG_EF PWMEF_MISC_REG_AB
+#endif
+
+#ifndef PWM_PWM_A
+#define PWM_PWM_A PWMCD_PWM_A
+#endif
+
+#ifndef PWM_PWM_B
+#define PWM_PWM_B PWMCD_PWM_B
+#endif
+
+#ifndef PWM_PWM_C
+#define PWM_PWM_C PWMCD_PWM_A
+#endif
+
+#ifndef PWM_PWM_D
+#define PWM_PWM_D PWMCD_PWM_B
+#endif
+
+#ifndef PWM_PWM_E
+#define PWM_PWM_E PWMEF_PWM_A
+#endif
+
+#ifndef PWM_PWM_F
+#define PWM_PWM_F PWMEF_PWM_B
+#endif
+
+#ifndef PERIPHS_PIN_MUX_7
+#define PERIPHS_PIN_MUX_7 0x5
+#endif
+
+#ifndef PERIPHS_PIN_MUX_8
+#define PERIPHS_PIN_MUX_8 0x5
+#endif
+
+#ifndef PERIPHS_PIN_MUX_9
+#define PERIPHS_PIN_MUX_9 0x5
+#endif

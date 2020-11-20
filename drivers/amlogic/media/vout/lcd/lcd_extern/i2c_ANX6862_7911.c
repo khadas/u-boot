@@ -372,7 +372,11 @@ static int lcd_extern_power_on(void)
 {
 	int ret = 0;
 
-	lcd_extern_pinmux_set(1);
+	lcd_extern_pinmux_set(ext_config, 1);
+#ifdef LCD_EXT_I2C_PORT_INIT
+	lcd_extern_i2c_bus_change(ext_config->i2c_bus);
+	mdelay(10);
+#endif
 
 	/* check voltage is init or not */
 	/* step1: ANX6862 */
@@ -397,13 +401,17 @@ static int lcd_extern_power_on(void)
 			ANX7911_NVM_wr, 2);
 	}
 
+#ifdef LCD_EXT_I2C_PORT_INIT
+	lcd_extern_i2c_bus_recovery();
+#endif
+
 	EXTPR("%s\n", __func__);
 	return ret;
 }
 
 static int lcd_extern_power_off(void)
 {
-	lcd_extern_pinmux_set(0);
+	lcd_extern_pinmux_set(ext_config, 0);
 	return 0;
 }
 

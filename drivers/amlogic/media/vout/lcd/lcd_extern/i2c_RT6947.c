@@ -98,10 +98,12 @@ static int lcd_extern_power_cmd_dynamic_size(unsigned char *table)
 				delay_ms += table[i+2+j];
 			if (delay_ms > 0)
 				mdelay(delay_ms);
-		} else if (type == LCD_EXT_CMD_TYPE_CMD) {
+		} else if ((type == LCD_EXT_CMD_TYPE_CMD) ||
+			   (type == LCD_EXT_CMD_TYPE_CMD_BIN)) {
 			ret = lcd_extern_i2c_write(ext_config->i2c_bus,
 				ext_config->i2c_addr, &table[i+2], cmd_size);
-		} else if (type == LCD_EXT_CMD_TYPE_CMD2) {
+		} else if ((type == LCD_EXT_CMD_TYPE_CMD2) ||
+			   (type == LCD_EXT_CMD_TYPE_CMD2_BIN)) {
 			ret = lcd_extern_i2c_write(ext_config->i2c_bus,
 				ext_config->i2c_addr2, &table[i+2], cmd_size);
 		} else if (type == LCD_EXT_CMD_TYPE_CMD_DELAY) {
@@ -162,10 +164,12 @@ static int lcd_extern_power_cmd_fixed_size(unsigned char *table)
 				delay_ms += table[i+1+j];
 			if (delay_ms > 0)
 				mdelay(delay_ms);
-		} else if (type == LCD_EXT_CMD_TYPE_CMD) {
+		} else if ((type == LCD_EXT_CMD_TYPE_CMD) ||
+			   (type == LCD_EXT_CMD_TYPE_CMD_BIN)) {
 			ret = lcd_extern_i2c_write(ext_config->i2c_bus,
 				ext_config->i2c_addr, &table[i+1], (cmd_size-1));
-		} else if (type == LCD_EXT_CMD_TYPE_CMD2) {
+		} else if ((type == LCD_EXT_CMD_TYPE_CMD2) ||
+			   (type == LCD_EXT_CMD_TYPE_CMD2_BIN)) {
 			ret = lcd_extern_i2c_write(ext_config->i2c_bus,
 				ext_config->i2c_addr2, &table[i+1], (cmd_size-1));
 		} else if (type == LCD_EXT_CMD_TYPE_CMD_DELAY) {
@@ -244,7 +248,11 @@ static int lcd_extern_power_on(void)
 	int len;
 #endif
 
-	lcd_extern_pinmux_set(1);
+	lcd_extern_pinmux_set(ext_config, 1);
+#ifdef LCD_EXT_I2C_PORT_INIT
+	lcd_extern_i2c_bus_change(ext_config->i2c_bus);
+	mdelay(10);
+#endif
 
 #ifdef GAMMA_EEPROM_WRITE
 	len = ext_config->table_init_on[1] - 2;
@@ -264,6 +272,10 @@ static int lcd_extern_power_on(void)
 	lcd_extern_power_cmd(ext_config->table_init_on);
 #endif
 
+#ifdef LCD_EXT_I2C_PORT_INIT
+	lcd_extern_i2c_bus_recovery();
+#endif
+
 	EXTPR("%s\n", __func__);
 	return ret;
 }
@@ -272,7 +284,7 @@ static int lcd_extern_power_off(void)
 {
 	int ret = 0;
 
-	lcd_extern_pinmux_set(0);
+	lcd_extern_pinmux_set(ext_config, 0);
 	return ret;
 }
 

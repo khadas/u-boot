@@ -594,7 +594,7 @@ static void vout_vmode_init(void)
 	ulong height = 0;
 	ulong field_height = 0;
 #ifdef CONFIG_AML_LCD
-	struct aml_lcd_drv_s *lcd_drv;
+	struct lcd_drv_s *lcd_drv;
 #endif
 
 	outputmode = env_get("outputmode");
@@ -603,7 +603,7 @@ static void vout_vmode_init(void)
 	switch (vmode) {
 #ifdef CONFIG_AML_LCD
 	case VMODE_LCD:
-		lcd_drv = aml_lcd_get_driver();
+		lcd_drv = lcd_get_driver();
 		width = lcd_drv->lcd_config->lcd_basic.h_active;
 		height = lcd_drv->lcd_config->lcd_basic.v_active;
 		field_height = lcd_drv->lcd_config->lcd_basic.v_active;

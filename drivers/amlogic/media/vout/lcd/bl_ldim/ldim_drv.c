@@ -99,8 +99,8 @@ static int ldim_set_level(unsigned int level)
 	level = ((level - level_min) * (LD_DATA_MAX - LD_DATA_MIN)) /
 		(level_max - level_min) + LD_DATA_MIN;
 	level &= 0xfff;
-	ldim_brightness_update(level);
 
+	ldim_brightness_update(level);
 	return ret;
 }
 
@@ -143,6 +143,7 @@ struct aml_ldim_driver_s *aml_ldim_get_driver(void)
 	return &ldim_driver;
 }
 
+#ifdef CONFIG_OF_LIBFDT
 int ldim_config_load_from_dts(char *dt_addr, int child_offset)
 {
 	char *propdata;
@@ -176,6 +177,7 @@ int ldim_config_load_from_dts(char *dt_addr, int child_offset)
 
 	return 0;
 }
+#endif
 
 int ldim_config_load_from_unifykey(unsigned char *para)
 {
@@ -194,7 +196,8 @@ int ldim_config_load_from_unifykey(unsigned char *para)
 	ldim_blk_col = *(p + LCD_UKEY_BL_LDIM_COL);
 	ldim_config.row = ldim_blk_row;
 	ldim_config.col = ldim_blk_col;
-	LDIMPR("get region row = %d, col = %d\n", ldim_blk_row, ldim_blk_col);
+	LDIMPR("get region row = %d, col = %d\n",
+	       ldim_blk_row, ldim_blk_col);
 
 	/* get ldim_dev_index 1byte*/
 	ldim_driver.dev_index = *(p + LCD_UKEY_BL_LDIM_DEV_INDEX);
@@ -214,11 +217,13 @@ int aml_ldim_probe(char *dt_addr, int flag)
 	switch (flag) {
 	case 0: /* dts */
 	case 2: /* unifykey */
+#ifdef CONFIG_OF_LIBFDT
 		if (dt_addr) {
 			if (lcd_debug_print_flag)
 				LDIMPR("load ldim_dev_config from dts\n");
 			ret = aml_ldim_device_probe(dt_addr);
 		}
+#endif
 		break;
 	case 1: /* bsp */
 		LDIMPR("%s: not support bsp config\n", __func__);

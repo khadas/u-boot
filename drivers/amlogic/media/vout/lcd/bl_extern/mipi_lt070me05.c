@@ -61,10 +61,10 @@ static int mipi_lt070me05_set_level(unsigned int level)
 
 static int mipi_lt070me05_update(void)
 {
-	struct aml_bl_extern_driver_s *bl_extern = aml_bl_extern_get_driver();
+	struct bl_extern_driver_s *bl_extern = bl_extern_get_driver();
 
 	if (bl_extern == NULL) {
-		BLEXTERR("%s driver is null\n", BL_EXTERN_NAME);
+		BLEXERR("%s driver is null\n", BL_EXTERN_NAME);
 		return -1;
 	}
 
@@ -81,7 +81,7 @@ int mipi_lt070me05_probe(void)
 
 	ret = mipi_lt070me05_update();
 
-	BLEXT("%s: %d\n", __func__, ret);
+	BLEX("%s: %d\n", __func__, ret);
 
 	return ret;
 }

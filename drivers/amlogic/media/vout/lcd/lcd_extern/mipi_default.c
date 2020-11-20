@@ -59,7 +59,7 @@ static unsigned char mipi_init_off_table[] = {
 	0xff, 0,       /* ending */
 };
 
-static int lcd_extern_driver_update(struct aml_lcd_extern_driver_s *ext_drv)
+static int lcd_extern_driver_update(struct lcd_extern_driver_s *ext_drv)
 {
 	if (ext_drv == NULL) {
 		EXTERR("%s driver is null\n", LCD_EXTERN_NAME);
@@ -78,7 +78,7 @@ static int lcd_extern_driver_update(struct aml_lcd_extern_driver_s *ext_drv)
 	return 0;
 }
 
-int lcd_extern_mipi_default_probe(struct aml_lcd_extern_driver_s *ext_drv)
+int lcd_extern_mipi_default_probe(struct lcd_extern_driver_s *ext_drv)
 {
 	int ret = 0;
 

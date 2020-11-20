@@ -262,8 +262,10 @@ static int iw7027_hw_init_on(void)
 
 	/* step 1: system power_on */
 	LDIMPR("%s: iw7027 system power_on\n", __func__);
-	ldim_gpio_set(ldim_drv->ldev_conf->en_gpio, ldim_drv->ldev_conf->en_gpio_on);
-	ldim_set_duty_pwm(&(ldim_drv->ldev_conf->pwm_config));
+	ldim_set_gpio(ldim_drv->ldev_conf->en_gpio,
+		      ldim_drv->ldev_conf->en_gpio_on);
+	ldim_set_duty_pwm(&ldim_drv->ldev_conf->ldim_pwm_config);
+	ldim_set_duty_pwm(&ldim_drv->ldev_conf->analog_pwm_config);
 
 	/* step 2: delay for internal logic stable */
 	mdelay(10);
@@ -317,7 +319,8 @@ static int iw7027_hw_init_off(void)
 	struct aml_ldim_driver_s *ldim_drv = aml_ldim_get_driver();
 
 	ldim_drv->pinmux_ctrl(0);
-	ldim_gpio_set(ldim_drv->ldev_conf->en_gpio, ldim_drv->ldev_conf->en_gpio_off);
+	ldim_set_gpio(ldim_drv->ldev_conf->en_gpio,
+		      ldim_drv->ldev_conf->en_gpio_off);
 
 	return 0;
 }

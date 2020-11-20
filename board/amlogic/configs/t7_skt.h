@@ -78,7 +78,7 @@
         "loadaddr_rtos=0x00001000\0"\
         "loadaddr_kernel=0x03080000\0"\
         "otg_device=1\0" \
-        "panel_type=lcd_1\0" \
+	"panel_type=lvds_1\0" \
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
@@ -312,6 +312,9 @@
 
 /* vpu */
 #define AML_VPU_CLK_LEVEL_DFT 7
+
+/* LCD */
+#define CONFIG_AML_LCD_PXP	1
 
 /* osd */
 #define OSD_SCALE_ENABLE

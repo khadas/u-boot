@@ -77,8 +77,8 @@ struct aml_bl_extern_driver_s {
 	struct bl_extern_config_s *config;
 };
 
-extern struct aml_bl_extern_driver_s *aml_bl_extern_get_driver(void);
-extern int aml_bl_extern_device_load(const void *dt_blob, int index);
+struct bl_extern_driver_s *bl_extern_get_driver(void);
+int bl_extern_device_load(char *dtaddr, int index);
 extern struct bl_extern_config_s bl_extern_config_dtf;
 #ifdef CONFIG_AML_LCD_TABLET
 extern int dsi_write_cmd(unsigned char *payload);

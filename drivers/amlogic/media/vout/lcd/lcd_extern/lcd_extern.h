@@ -21,6 +21,7 @@
 #ifndef _LCD_EXTERN_H_
 #define _LCD_EXTERN_H_
 #include <amlogic/media/vout/lcd/lcd_extern.h>
+#include <amlogic/media/vout/lcd/lcd_i2c_dev.h>
 
 #define EXTPR(fmt, args...)     printf("lcd extern: "fmt"", ## args)
 #define EXTERR(fmt, args...)    printf("lcd extern: error: "fmt"", ## args)
@@ -32,53 +33,65 @@ struct aml_lcd_extern_pinmux_s {
 	unsigned mux;
 };
 
+#ifdef CONFIG_SYS_I2C_AML
+extern struct i2c_platform g_aml_i2c_plat;
+#endif
 extern void udelay(unsigned long usec);
 extern void mdelay(unsigned long msec);
 
-extern void lcd_extern_i2c_bus_print(unsigned char i2c_bus);
-extern int lcd_extern_i2c_write(unsigned char i2c_bus, unsigned i2c_addr,
-		unsigned char *buff, unsigned len);
-extern int lcd_extern_i2c_read(unsigned char i2c_bus, unsigned i2c_addr,
-		unsigned char *buff, unsigned int len);
-
-extern char *lcd_extern_get_dts_prop(int nodeoffset, char *propname);
-extern int lcd_extern_get_dts_child(int index);
+#ifdef CONFIG_OF_LIBFDT
+char *aml_lcd_extern_get_dts_prop(int nodeoffset, char *propname);
+int aml_lcd_extern_get_dts_child(int index);
+#endif
 
 extern int lcd_ext_gpio_set(unsigned char index, int value);
 extern unsigned int lcd_ext_gpio_input_get(unsigned char index);
-extern void lcd_extern_pinmux_set(int status);
+void lcd_extern_pinmux_set(struct lcd_extern_config_s *extconf, int status);
 
-extern int lcd_extern_default_probe(struct aml_lcd_extern_driver_s *ext_drv);
-extern int lcd_extern_mipi_default_probe(struct aml_lcd_extern_driver_s *ext_drv);
+int lcd_extern_default_probe(struct lcd_extern_driver_s *ext_drv);
+int lcd_extern_mipi_default_probe(struct lcd_extern_driver_s *ext_drv);
 
 #ifdef CONFIG_AML_LCD_EXTERN_I2C_T5800Q
-extern int lcd_extern_i2c_T5800Q_probe(struct aml_lcd_extern_driver_s *ext_drv);
+int lcd_extern_i2c_T5800Q_probe(struct lcd_extern_driver_s *ext_drv);
+#endif
+#ifdef CONFIG_AML_LCD_EXTERN_I2C_ANX6345
+int lcd_extern_i2c_anx6345_probe(struct lcd_extern_driver_s *ext_drv);
 #endif
 #ifdef CONFIG_AML_LCD_EXTERN_I2C_DLPC3439
-extern int lcd_extern_i2c_DLPC3439_probe(struct aml_lcd_extern_driver_s *ext_drv);
+int lcd_extern_i2c_DLPC3439_probe(struct lcd_extern_driver_s *ext_drv);
 #endif
 #ifdef CONFIG_AML_LCD_EXTERN_I2C_RT6947
-extern int lcd_extern_i2c_RT6947_probe(struct aml_lcd_extern_driver_s *ext_drv);
+int lcd_extern_i2c_RT6947_probe(struct lcd_extern_driver_s *ext_drv);
+#endif
+#ifdef CONFIG_AML_LCD_EXTERN_I2C_CS602
+int lcd_extern_i2c_CS602_probe(struct lcd_extern_driver_s *ext_drv);
 #endif
 #ifdef CONFIG_AML_LCD_EXTERN_I2C_ANX6862_7911
-extern int lcd_extern_i2c_ANX6862_7911_probe(struct aml_lcd_extern_driver_s *ext_drv);
+int lcd_extern_i2c_ANX6862_7911_probe(struct lcd_extern_driver_s *ext_drv);
 #endif
 
 #ifdef CONFIG_AML_LCD_EXTERN_SPI_LD070WS2
-extern int lcd_extern_spi_LD070WS2_probe(struct aml_lcd_extern_driver_s *ext_drv);
+int lcd_extern_spi_LD070WS2_probe(struct lcd_extern_driver_s *ext_drv);
 #endif
 
 #ifdef CONFIG_AML_LCD_EXTERN_MIPI_TV070WSM
-extern int lcd_extern_mipi_TV070WSM_probe(struct aml_lcd_extern_driver_s *ext_drv);
+int lcd_extern_mipi_TV070WSM_probe(struct lcd_extern_driver_s *ext_drv);
+#endif
+#ifdef CONFIG_AML_LCD_EXTERN_MIPI_KD080D13
+int lcd_extern_mipi_KD080D13_probe(struct lcd_extern_driver_s *ext_drv);
+#endif
+#ifdef CONFIG_AML_LCD_EXTERN_MIPI_TV070WSM
+int aml_lcd_extern_mipi_TV070WSM_probe(struct lcd_extern_driver_s *ext_drv);
+#endif
+
+#ifdef CONFIG_AML_LCD_EXTERN_MIPI_ST7701
+int lcd_extern_mipi_st7701_probe(struct lcd_extern_driver_s *ext_drv);
 #endif
 #ifdef CONFIG_AML_LCD_EXTERN_MIPI_P070ACB
-extern int lcd_extern_mipi_p070acb_probe(struct aml_lcd_extern_driver_s *ext_drv);
-#endif
-#ifdef CONFIG_AML_LCD_EXTERN_MIPI_ST7701
-extern int lcd_extern_mipi_st7701_probe(struct aml_lcd_extern_driver_s *ext_drv);
+int lcd_extern_mipi_p070acb_probe(struct lcd_extern_driver_s *ext_drv);
 #endif
 #ifdef CONFIG_AML_LCD_EXTERN_MIPI_TL050FHV02CT
-extern int lcd_extern_mipi_tl050fhv02ct_probe(struct aml_lcd_extern_driver_s *ext_drv);
+int lcd_extern_mipi_tl050fhv02ct_probe(struct lcd_extern_driver_s *ext_drv);
 #endif
 
 #endif

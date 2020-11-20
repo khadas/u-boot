@@ -44,6 +44,9 @@
 #ifdef CONFIG_AML_HDMITX20
 #include <amlogic/media/vout/hdmitx/hdmitx_module.h>
 #endif
+#ifdef CONFIG_AML_LCD
+#include <amlogic/media/vout/lcd/lcd_vout.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -178,6 +181,9 @@ int board_late_init(void)
 #endif
 #ifdef CONFIG_AML_VPP
 	vpp_init();
+#endif
+#ifdef CONFIG_AML_LCD
+	lcd_probe();
 #endif
 	return 0;
 }

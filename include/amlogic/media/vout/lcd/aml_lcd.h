@@ -31,54 +31,64 @@
 #include <amlogic/media/vout/lcd/bl_extern.h>
 #endif
 
-#define LCD_GPIO_MAX                  0xff
-#define LCD_GPIO_OUTPUT_LOW           0
-#define LCD_GPIO_OUTPUT_HIGH          1
-#define LCD_GPIO_INPUT                2
+#ifdef CONFIG_SYS_I2C_AML
+#define LCD_EXT_I2C_BUS_0     1  //A
+#define LCD_EXT_I2C_BUS_1     2  //B
+#define LCD_EXT_I2C_BUS_2     3  //C
+#define LCD_EXT_I2C_BUS_3     4  //D
+#define LCD_EXT_I2C_BUS_4     0  //AO
+#define LCD_EXT_I2C_BUS_MAX   0xff
 
+#else
+#define LCD_EXT_I2C_BUS_0     0  //A
+#define LCD_EXT_I2C_BUS_1     1  //B
+#define LCD_EXT_I2C_BUS_2     2  //C
+#define LCD_EXT_I2C_BUS_3     3  //D
+#define LCD_EXT_I2C_BUS_4     4  //AO
+#define LCD_EXT_I2C_BUS_MAX   0xff
 
-#define LCD_EXT_I2C_BUS_0             0  //A
-#define LCD_EXT_I2C_BUS_1             1  //B
-#define LCD_EXT_I2C_BUS_2             2  //C
-#define LCD_EXT_I2C_BUS_3             3  //D
-#define LCD_EXT_I2C_BUS_4             4  //AO
-#define LCD_EXT_I2C_BUS_MAX           0xff
+#endif
 
+#define LCD_EXT_I2C_BUS_INVALID        0xff
+#define LCD_EXT_I2C_ADDR_INVALID       0xff
+#define LCD_EXT_GPIO_INVALID           0xff
 
-#define LCD_EXT_I2C_BUS_INVALID       0xff
-#define LCD_EXT_I2C_ADDR_INVALID      0xff
-#define LCD_EXT_GPIO_INVALID          0xff
+#define LCD_EXT_SPI_CLK_FREQ_DFT       10 /* unit: KHz */
 
-#define LCD_EXT_SPI_CLK_FREQ_DFT      10 /* unit: KHz */
+#define LCD_EXT_CMD_TYPE_CMD_DELAY     0x00
+#define LCD_EXT_CMD_TYPE_CMD2_DELAY    0x01  /* for i2c device 2nd addr */
+#define LCD_EXT_CMD_TYPE_CMD3_DELAY    0x02  /* for i2c device 3rd addr */
+#define LCD_EXT_CMD_TYPE_CMD4_DELAY    0x03  /* for i2c device 4th addr */
+#define LCD_EXT_CMD_TYPE_NONE          0x10
+#define LCD_EXT_CMD_TYPE_CMD_BIN2      0xa0  /* with data offset and data_len */
+#define LCD_EXT_CMD_TYPE_CMD2_BIN2     0xa1  /* for i2c device 2nd addr */
+#define LCD_EXT_CMD_TYPE_CMD3_BIN2     0xa2  /* for i2c device 3rd addr */
+#define LCD_EXT_CMD_TYPE_CMD4_BIN2     0xa3  /* for i2c device 4th addr */
+#define LCD_EXT_CMD_TYPE_CMD_BIN       0xb0
+#define LCD_EXT_CMD_TYPE_CMD2_BIN      0xb1  /* for i2c device 2nd addr */
+#define LCD_EXT_CMD_TYPE_CMD3_BIN      0xb2  /* for i2c device 3rd addr */
+#define LCD_EXT_CMD_TYPE_CMD4_BIN      0xb3  /* for i2c device 4th addr */
+#define LCD_EXT_CMD_TYPE_CMD           0xc0
+#define LCD_EXT_CMD_TYPE_CMD2          0xc1  /* for i2c device 2nd addr */
+#define LCD_EXT_CMD_TYPE_CMD3          0xc2  /* for i2c device 3rd addr */
+#define LCD_EXT_CMD_TYPE_CMD4          0xc3  /* for i2c device 4th addr */
+#define LCD_EXT_CMD_TYPE_CMD_BIN_DATA  0xd0 /* without auto fill reg addr 0x0 */
+#define LCD_EXT_CMD_TYPE_CMD2_BIN_DATA 0xd1 /* for i2c device 2nd addr */
+#define LCD_EXT_CMD_TYPE_CMD3_BIN_DATA 0xd2 /* for i2c device 3rd addr */
+#define LCD_EXT_CMD_TYPE_CMD4_BIN_DATA 0xd3 /* for i2c device 4th addr */
+#define LCD_EXT_CMD_TYPE_GPIO          0xf0
+#define LCD_EXT_CMD_TYPE_CHECK         0xfc
+#define LCD_EXT_CMD_TYPE_DELAY         0xfd
+#define LCD_EXT_CMD_TYPE_END           0xff
 
-
-#define LCD_EXT_CMD_TYPE_CMD_DELAY    0x00
-#define LCD_EXT_CMD_TYPE_CMD2_DELAY   0x01  /* for i2c device 2nd addr */
-#define LCD_EXT_CMD_TYPE_NONE         0x10
-#define LCD_EXT_CMD_TYPE_CMD          0xc0
-#define LCD_EXT_CMD_TYPE_CMD2         0xc1  /* for i2c device 2nd addr */
-#define LCD_EXT_CMD_TYPE_GPIO         0xf0
-#define LCD_EXT_CMD_TYPE_CHECK        0xfc
-#define LCD_EXT_CMD_TYPE_DELAY        0xfd
-#define LCD_EXT_CMD_TYPE_END          0xff
-
-#define LCD_EXT_CMD_SIZE_DYNAMIC      0xff
-#define LCD_EXT_DYNAMIC_SIZE_INDEX    1
-
-
-#define LCD_GPIO_NAME_MAX             15
-struct lcd_cpu_gpio_s {
-	char name[LCD_GPIO_NAME_MAX];
-	struct gpio_desc gpio;
-	int probe_flag;
-	int register_flag;
-};
+#define LCD_EXT_CMD_SIZE_DYNAMIC       0xff
+#define LCD_EXT_DYNAMIC_SIZE_INDEX     1
 
 
 #define Rsv_val 0xffffffff
 struct ext_lcd_config_s {
-	const char panel_type[20];
-	int lcd_type;
+	const char panel_type[15];
+	unsigned int lcd_type; // LCD_TTL /LCD_LVDS/LCD_VBYONE
 	unsigned char lcd_bits;
 
 	unsigned short h_active;
@@ -103,19 +113,17 @@ struct ext_lcd_config_s {
 	unsigned int customer_val_8;
 	unsigned int customer_val_9;
 
-	unsigned int if_attr_val0;
-	unsigned int if_attr_val1;
-	unsigned int if_attr_val2;
-	unsigned int if_attr_val3;
-	unsigned int if_attr_val4;
-	unsigned int if_attr_val5;
-	unsigned int if_attr_val6;
-	unsigned int if_attr_val7;
-	unsigned int if_attr_val8;
-	unsigned int if_attr_val9;
+	unsigned int lcd_spc_val0;
+	unsigned int lcd_spc_val1;
+	unsigned int lcd_spc_val2;
+	unsigned int lcd_spc_val3;
+	unsigned int lcd_spc_val4;
+	unsigned int lcd_spc_val5;
+	unsigned int lcd_spc_val6;
+	unsigned int lcd_spc_val7;
+	unsigned int lcd_spc_val8;
+	unsigned int lcd_spc_val9;
 
-	unsigned char *cmd_init_on;
-	unsigned char *cmd_init_off;
 	struct lcd_power_step_s *power_on_step;
 	struct lcd_power_step_s *power_off_step;
 
@@ -161,7 +169,10 @@ struct ext_lcd_config_s {
 	unsigned int bl_ext_index;
 };
 
-#define LCD_NUM_MAX         10
+#define LCD_NUM_MAX         20
+#define LCD_PRBS_MODE_LVDS    BIT(0)
+#define LCD_PRBS_MODE_VX1     BIT(1)
+#define LCD_PRBS_MODE_MAX     2
 
 extern struct ext_lcd_config_s ext_lcd_config[LCD_NUM_MAX];
 

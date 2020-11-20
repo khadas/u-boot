@@ -55,13 +55,21 @@ static int lcd_extern_power_on(void)
 {
 	int ret = 0;
 
-	lcd_extern_pinmux_set(1);
+	lcd_extern_pinmux_set(ext_config, 1);
+#ifdef LCD_EXT_I2C_PORT_INIT
+	lcd_extern_i2c_bus_change(ext_config->i2c_bus);
+	mdelay(10);
+#endif
 
 	lcd_extern_i2c_write(ext_config->i2c_bus, ext_config->i2c_addr, data_1, 9);
 	lcd_extern_i2c_write(ext_config->i2c_bus, ext_config->i2c_addr, data_2, 5);
 	lcd_extern_i2c_write(ext_config->i2c_bus, ext_config->i2c_addr, data_3, 5);
 	lcd_extern_i2c_write(ext_config->i2c_bus, ext_config->i2c_addr, data_4, 2);
 	lcd_extern_i2c_write(ext_config->i2c_bus, ext_config->i2c_addr, data_5, 2);
+
+#ifdef LCD_EXT_I2C_PORT_INIT
+	lcd_extern_i2c_bus_recovery();
+#endif
 
 	EXTPR("%s\n", __func__);
 	return ret;
@@ -71,7 +79,7 @@ static int lcd_extern_power_off(void)
 {
 	int ret = 0;
 
-	lcd_extern_pinmux_set(0);
+	lcd_extern_pinmux_set(ext_config, 0);
 	return ret;
 }
 

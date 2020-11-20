@@ -21,9 +21,10 @@
 
 #ifndef __AML_LCD_REG_H__
 #define __AML_LCD_REG_H__
+#include <asm/arch/cpu.h>
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
-#include <asm/arch/cpu.h>
+
 #include "lcd_dummy_reg.h"
 
 /* ********************************
@@ -39,14 +40,23 @@
 /* memory mapping */
 #define REG_ADDR_AOBUS(reg)             (reg + 0L)
 #define REG_ADDR_PERIPHS(reg)           (reg + 0L)
-#define REG_ADDR_CBUS(reg)              (REG_BASE_CBUS + REG_OFFSET_CBUS(reg))
+#define REG_ADDR_CBUS(reg)              ((reg > 0x10000) ? (reg + 0L) : \
+					(REG_BASE_CBUS + REG_OFFSET_CBUS(reg)))
 #define REG_ADDR_HIU(reg)               (reg + 0L)
-#define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg))
-#define REG_ADDR_DSI_HOST(reg)          (REG_BASE_DSI_HOST + REG_OFFSET_DSI_HOST(reg))
+#define REG_ADDR_COMBO(reg)		(reg + 0L)
+#define REG_ADDR_VCBUS(reg)             ((reg > 0x10000) ? (reg + 0L) : \
+				(REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg)))
+#define REG_ADDR_DSI_HOST(reg)          ((reg > 0x10000) ? (reg + 0L) : \
+				(REG_BASE_DSI_HOST + REG_OFFSET_DSI_HOST(reg)))
 #define REG_ADDR_DSI_PHY(reg)           (reg + 0L)
-#define REG_ADDR_TCON_APB(reg)          (REG_TCON_APB_BASE + REG_OFFSET_TCON_APB(reg))
-#define REG_ADDR_TCON_APB_BYTE(reg)     (REG_TCON_APB_BASE + REG_OFFSET_TCON_APB_BYTE(reg))
+#define REG_ADDR_TCON_APB(reg)          ((reg + 0x10000) ? (reg + 0L) : \
+				(REG_TCON_APB_BASE + REG_OFFSET_TCON_APB(reg)))
+#define REG_ADDR_TCON_APB_BYTE(reg)     ((reg + 0x10000) ? (reg + 0L) : \
+			(REG_TCON_APB_BASE + REG_OFFSET_TCON_APB_BYTE(reg)))
 
+#ifndef PERIPHS_PIN_MUX_0
+#define PERIPHS_PIN_MUX_0 PADCTRL_PIN_MUX_REG0
+#endif
 
 #if (defined(CONFIG_CHIP_AML_GXB) || \
 		defined(CONFIG_AML_MESON_GXTVBB))
@@ -64,12 +74,6 @@
 #define HHI_HPLL_CNTL5                          HHI_HDMI_PLL_CNTL4
 #define HHI_HPLL_CNTL6                          HHI_HDMI_PLL_CNTL5
 #endif
-
-#define LVDS_CH_SWAP0                           LVDS_PHY_CNTL0
-#define LVDS_CH_SWAP1                           LVDS_PHY_CNTL1
-#define LVDS_CH_SWAP2                           LVDS_PHY_CNTL2
-
-
 
 /*#define HHI_VIID_CLK_DIV     	0x4a*/
 #define DAC0_CLK_SEL           28
@@ -121,10 +125,50 @@
 #define ENCT_GATE_VCLK           1
 #define ENCI_GATE_VCLK           0
 
+#define LCD_REG_DEBUG		1
+
 /* ********************************
  * register access api
  * ********************************* */
 /* use offset address */
+static inline unsigned int lcd_combo_read(unsigned int _reg)
+{
+	return *(volatile unsigned int *)(REG_ADDR_COMBO(_reg));
+};
+
+static inline void lcd_combo_write(unsigned int _reg, unsigned int _value)
+{
+#ifdef LCD_REG_DEBUG
+	printf("combo_reg_addr[0x%08x]\n", _reg);
+#endif
+	*(volatile unsigned int *)REG_ADDR_COMBO(_reg) = (_value);
+};
+
+static inline void lcd_combo_setb(unsigned int _reg, unsigned int _value,
+				   unsigned int _start, unsigned int _len)
+{
+	lcd_combo_write(_reg, ((lcd_combo_read(_reg) &
+			~(((1L << (_len))-1) << (_start))) |
+			(((_value)&((1L<<(_len))-1)) << (_start))));
+}
+
+static inline unsigned int lcd_combo_getb(unsigned int _reg,
+					   unsigned int _start,
+					   unsigned int _len)
+{
+	return (lcd_combo_read(_reg) >> (_start)) & ((1L << (_len)) - 1);
+}
+
+static inline void lcd_combo_set_mask(unsigned int _reg, unsigned int _mask)
+{
+	lcd_combo_write(_reg, (lcd_combo_read(_reg) | (_mask)));
+}
+
+static inline void lcd_combo_clr_mask(unsigned int _reg, unsigned int _mask)
+{
+	lcd_combo_write(_reg, (lcd_combo_read(_reg) & (~(_mask))));
+}
+
 static inline unsigned int lcd_hiu_read(unsigned int _reg)
 {
 	return *(volatile unsigned int *)(REG_ADDR_HIU(_reg));
@@ -132,6 +176,9 @@ static inline unsigned int lcd_hiu_read(unsigned int _reg)
 
 static inline void lcd_hiu_write(unsigned int _reg, unsigned int _value)
 {
+#ifdef LCD_REG_DEBUG
+	printf("hiu_reg_addr[0x%08x]\n", _reg);
+#endif
 	*(volatile unsigned int *)REG_ADDR_HIU(_reg) = (_value);
 };
 
@@ -166,6 +213,9 @@ static inline unsigned int lcd_cbus_read(unsigned int _reg)
 
 static inline void lcd_cbus_write(unsigned int _reg, unsigned int _value)
 {
+#ifdef LCD_REG_DEBUG
+	printf("cbus_reg_addr[0x%08x]\n", _reg);
+#endif
 	*(volatile unsigned int *)REG_ADDR_CBUS(_reg) = (_value);
 };
 
@@ -196,12 +246,15 @@ static inline void lcd_cbus_clr_mask(unsigned int _reg, unsigned int _mask)
 static inline unsigned int lcd_vcbus_read(unsigned int _reg)
 {
 	return (*(volatile unsigned int *)REG_ADDR_VCBUS(_reg));
-};
+}
 
 static inline void lcd_vcbus_write(unsigned int _reg, unsigned int _value)
 {
-	*(volatile unsigned int *)REG_ADDR_VCBUS(_reg) = (_value);
-};
+#ifdef LCD_REG_DEBUG
+	printf("vcbus_reg_addr[0x%08x]\n", _reg);
+#endif
+	(*(volatile unsigned int *)REG_ADDR_VCBUS(_reg)) = (_value);
+}
 
 static inline void lcd_vcbus_setb(unsigned int _reg, unsigned int _value,
 		unsigned int _start, unsigned int _len)
@@ -258,6 +311,9 @@ static inline unsigned int lcd_periphs_read(unsigned int _reg)
 
 static inline void lcd_periphs_write(unsigned int _reg, unsigned int _value)
 {
+#ifdef LCD_REG_DEBUG
+	printf("periphs_reg_addr[0x%08x]\n", _reg);
+#endif
 	*(volatile unsigned int *)REG_ADDR_PERIPHS(_reg) = (_value);
 };
 
@@ -300,12 +356,15 @@ static inline void lcd_pinmux_clr_mask(unsigned int n, unsigned int _mask)
 static inline unsigned int dsi_host_read(unsigned int _reg)
 {
 	return *(volatile unsigned int *)(REG_ADDR_DSI_HOST(_reg));
-};
+}
 
 static inline void dsi_host_write(unsigned int _reg, unsigned int _value)
 {
+#ifdef LCD_REG_DEBUG
+	printf("dsi_reg_addr[0x%08x]\n", _reg);
+#endif
 	*(volatile unsigned int *)REG_ADDR_DSI_HOST(_reg) = (_value);
-};
+}
 
 static inline void dsi_host_setb(unsigned int _reg, unsigned int _value,
 		unsigned int _start, unsigned int _len)
@@ -338,6 +397,9 @@ static inline unsigned int dsi_phy_read(unsigned int _reg)
 
 static inline void dsi_phy_write(unsigned int _reg, unsigned int _value)
 {
+#ifdef LCD_REG_DEBUG
+	printf("dsi_phy_reg_addr[0x%08x]\n", _reg);
+#endif
 	*(volatile unsigned int *)REG_ADDR_DSI_PHY(_reg) = (_value);
 };
 
@@ -372,6 +434,9 @@ static inline unsigned int lcd_tcon_read(unsigned int _reg)
 
 static inline void lcd_tcon_write(unsigned int _reg, unsigned int _value)
 {
+#ifdef LCD_REG_DEBUG
+	printf("tcon_reg_addr[0x%08x]\n", _reg);
+#endif
 	*(volatile unsigned int *)REG_ADDR_TCON_APB(_reg) = (_value);
 };
 
@@ -399,6 +464,31 @@ static inline void lcd_tcon_clr_mask(unsigned int _reg, unsigned int _mask)
 	lcd_tcon_write(_reg, (lcd_tcon_read(_reg) & (~(_mask))));
 }
 
+static inline void lcd_tcon_update_bits(unsigned int reg,
+					unsigned int mask,
+					unsigned int value)
+{
+	if (mask == 0xffffffff) {
+		lcd_tcon_write(reg, value);
+	} else {
+		lcd_tcon_write(reg, (lcd_tcon_read(reg) & (~(mask))) |
+			       (value & mask));
+	}
+}
+
+static inline int lcd_tcon_check_bits(unsigned int reg,
+				      unsigned int mask,
+				      unsigned int value)
+{
+	unsigned int temp;
+
+	temp = lcd_tcon_read(reg) & mask;
+	if (value != temp)
+		return -1;
+
+	return 0;
+}
+
 static inline unsigned char lcd_tcon_read_byte(unsigned int _reg)
 {
 	return *(volatile unsigned char *)(REG_ADDR_TCON_APB_BYTE(_reg));
@@ -410,7 +500,7 @@ static inline void lcd_tcon_write_byte(unsigned int _reg, unsigned char _value)
 };
 
 static inline void lcd_tcon_setb_byte(unsigned int _reg, unsigned char _value,
-		unsigned int _start, unsigned int _len)
+				      unsigned int _start, unsigned int _len)
 {
 	lcd_tcon_write_byte(_reg, ((lcd_tcon_read_byte(_reg) &
 			~(((1L << (_len))-1) << (_start))) |
@@ -418,9 +508,35 @@ static inline void lcd_tcon_setb_byte(unsigned int _reg, unsigned char _value,
 }
 
 static inline unsigned char lcd_tcon_getb_byte(unsigned int _reg,
-		unsigned int _start, unsigned int _len)
+					       unsigned int _start,
+					       unsigned int _len)
 {
 	return (lcd_tcon_read_byte(_reg) >> (_start)) & ((1L << (_len)) - 1);
+}
+
+static inline void lcd_tcon_update_bits_byte(unsigned int reg,
+					     unsigned char mask,
+					     unsigned char value)
+{
+	if (mask == 0xff) {
+		lcd_tcon_write_byte(reg, value);
+	} else {
+		lcd_tcon_write_byte(reg, (lcd_tcon_read_byte(reg) & (~(mask))) |
+				    (value & mask));
+	}
+}
+
+static inline int lcd_tcon_check_bits_byte(unsigned int reg,
+					   unsigned char mask,
+					   unsigned char value)
+{
+	unsigned char temp;
+
+	temp = lcd_tcon_read_byte(reg) & mask;
+	if ((value & mask) != temp)
+		return -1;
+
+	return 0;
 }
 
 #endif

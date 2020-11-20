@@ -38,7 +38,7 @@
 #define LCD_UKEY_HEAD_VERSION     2
 #define LCD_UKEY_HEAD_RESERVED    2
 
-struct aml_lcd_unifykey_header_s {
+struct lcd_unifykey_header_s {
 	unsigned int crc32;
 	unsigned short data_len;
 	unsigned short version;
@@ -240,25 +240,50 @@ struct aml_lcd_unifykey_header_s {
 #define LCD_UKEY_TCON_SIZE          4096
 #define LCD_UKEY_TCON_SIZE_NEW      24000
 
+#define LCD_UKEY_TCON_SPI_SIZE      1552  /* 16+48*32 */
+
+#define LCD_UKEY_TCON_SPI_HEAD_SIZE               16
+#define LCD_UKEY_TCON_SPI_HEAD_CRC32              4
+#define LCD_UKEY_TCON_SPI_HEAD_DATA_LEN           4
+#define LCD_UKEY_TCON_SPI_HEAD_VERSION            2
+#define LCD_UKEY_TCON_SPI_HEAD_DATA_LOAD_LEVEL    2
+#define LCD_UKEY_TCON_SPI_HEAD_BLOCK_CNT          2
+
+#define LCD_UKEY_TCON_SPI_BLOCK_CNT_MAX           32
+
+struct lcd_tcon_spi_unifykey_header_s {
+	unsigned int crc32;
+	unsigned int data_size;
+	unsigned short version;
+	unsigned short load_level;
+	unsigned short reserved;
+	unsigned short block_cnt;
+};
 
 /* ********************************
  * debug flag
  * ********************************* */
-#define LCD_UKEY_DEBUG_NORMAL          (1 << 0)
-#define LCD_UKEY_DEBUG_TCON            (1 << 1)
+#define LCD_UKEY_DEBUG_TCON_LEN_MASK   (0xffffff)
+#define LCD_UKEY_DEBUG_NORMAL          BIT(24)
+#define LCD_UKEY_DEBUG_TCON            BIT(25)
 
 /* ********************************
  * API
  * ********************************* */
-extern int aml_lcd_unifykey_len_check(int key_len, int len);
-extern int aml_lcd_unifykey_header_check(unsigned char *buf, struct aml_lcd_unifykey_header_s *header);
-extern int aml_lcd_unifykey_check(const char *key_name);
-extern int aml_lcd_unifykey_get(const char *key_name, unsigned char *buf, int *len);
-extern int aml_lcd_unifykey_check_no_header(const char *key_name);
-extern int aml_lcd_unifykey_get_no_header(const char *key_name, unsigned char *buf, int *len);
+int lcd_unifykey_len_check(int key_len, int len);
+int lcd_unifykey_header_check(unsigned char *buf,
+			      struct lcd_unifykey_header_s *header);
+int lcd_unifykey_check_exist(const char *key_name);
+int lcd_unifykey_check(const char *key_name);
+int lcd_unifykey_get(const char *key_name, unsigned char *buf, int *len);
+int lcd_unifykey_get_tcon(const char *key_name, unsigned char *buf, int *len);
+int lcd_unifykey_check_no_header(const char *key_name);
+int lcd_unifykey_get_no_header(const char *key_name, unsigned char *buf,
+			       int *len);
+int lcd_unifykey_write(const char *key_name, unsigned char *buf, int len);
 
-extern void aml_lcd_unifykey_test(void);
-extern void aml_lcd_unifykey_tcon_test(int n);
-extern void aml_lcd_unifykey_dump(int flag);
+void lcd_unifykey_test(void);
+void lcd_unifykey_tcon_test(int n);
+void lcd_unifykey_dump(unsigned int flag);
 
 #endif

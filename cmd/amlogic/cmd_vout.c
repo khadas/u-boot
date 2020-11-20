@@ -63,7 +63,7 @@ static int do_vout_list(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv
 	struct hdmitx_dev *hdmitx_device = hdmitx_get_hdev();
 #endif
 #ifdef CONFIG_AML_LCD
-	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
+	struct lcd_drv_s *lcd_drv = lcd_get_driver();
 #endif
 
 #ifdef CONFIG_AML_HDMITX
@@ -104,7 +104,7 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 	int venc_sel;
 #endif
 #ifdef CONFIG_AML_LCD
-	struct aml_lcd_drv_s *lcd_drv = NULL;
+	struct lcd_drv_s *lcd_drv = NULL;
 #endif
 
 	if (argc != 2)
@@ -158,7 +158,7 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 #endif
 
 #ifdef CONFIG_AML_LCD
-	lcd_drv = aml_lcd_get_driver();
+	lcd_drv = lcd_get_driver();
 	if (lcd_drv) {
 		if (lcd_drv->lcd_outputmode_check) {
 			if (lcd_drv->lcd_outputmode_check(mode, frac) == 0) {
@@ -193,7 +193,7 @@ static int do_vout2_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	int venc_sel;
 #endif
 #ifdef CONFIG_AML_LCD
-	struct aml_lcd_drv_s *lcd_drv = NULL;
+	struct lcd_drv_s *lcd_drv = NULL;
 #endif
 
 	if (argc != 2)
@@ -237,7 +237,7 @@ static int do_vout2_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 #endif
 
 #ifdef CONFIG_AML_LCD
-	lcd_drv = aml_lcd_get_driver();
+	lcd_drv = lcd_get_driver();
 	if (lcd_drv) {
 		if (lcd_drv->lcd_outputmode_check) {
 			if (lcd_drv->lcd_outputmode_check(mode, frac) == 0) {
@@ -266,7 +266,7 @@ static int do_vout2_prepare(cmd_tbl_t *cmdtp, int flag, int argc, char *const ar
 	int venc_sel;
 #endif
 #ifdef CONFIG_AML_LCD
-	struct aml_lcd_drv_s *lcd_drv = NULL;
+	struct lcd_drv_s *lcd_drv = NULL;
 #endif
 
 	if (argc != 2)
@@ -305,7 +305,7 @@ static int do_vout2_prepare(cmd_tbl_t *cmdtp, int flag, int argc, char *const ar
 #endif
 
 #ifdef CONFIG_AML_LCD
-	lcd_drv = aml_lcd_get_driver();
+	lcd_drv = lcd_get_driver();
 	if (lcd_drv) {
 		if (lcd_drv->lcd_outputmode_check) {
 			if (lcd_drv->lcd_outputmode_check(mode, frac) == 0) {

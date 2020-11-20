@@ -543,8 +543,8 @@ extern void mipi_dsi_print_info(struct lcd_config_s *pconf);
 extern void lcd_mipi_dsi_config_set(struct lcd_config_s *pConf);
 extern void mipi_dsi_link_off(struct lcd_config_s *pConf);
 extern void lcd_mipi_control_set(struct lcd_config_s *pConf, int status);
-extern int lcd_mipi_dsi_init_table_detect(const void *dt_blob, int child_offset,
-		struct dsi_config_s *dconf, int flag);
+int lcd_mipi_dsi_init_table_detect(char *dt_addr, int child_offset,
+				   struct dsi_config_s *dconf, int flag);
 extern int lcd_mipi_dsi_init_table_check_bsp(struct dsi_config_s *dconf, int flag);
 
 #endif

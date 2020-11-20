@@ -60,7 +60,7 @@ static int lcd_extern_reg_read(unsigned char reg, unsigned char *buf)
 	return ret;
 }
 
-static int lcd_extern_reg_write(unsigned char reg, unsigned char value)
+static int lcd_extern_reg_write(unsigned char *buf, unsigned int len)
 {
 	int ret = 0;
 
@@ -195,8 +195,14 @@ static int lcd_extern_power_ctrl(int flag)
 {
 	unsigned char *table;
 	unsigned char cmd_size;
-	int ret = -1;
+	int ret = 0;
 
+	/* step 1: power prepare */
+#ifdef LCD_EXT_I2C_PORT_INIT
+	lcd_extern_i2c_bus_change(ext_config->i2c_bus);
+#endif
+
+	/* step 2: power cmd */
 	cmd_size = ext_config->cmd_size;
 	if (flag)
 		table = ext_config->table_init_on;
@@ -204,10 +210,12 @@ static int lcd_extern_power_ctrl(int flag)
 		table = ext_config->table_init_off;
 	if (cmd_size < 1) {
 		EXTERR("%s: cmd_size %d is invalid\n", __func__, cmd_size);
+		ret = -1;
 		goto power_ctrl_next;
 	}
 	if (table == NULL) {
 		EXTERR("%s: init_table %d is NULL\n", __func__, flag);
+		ret = -1;
 		goto power_ctrl_next;
 	}
 	if (cmd_size == LCD_EXT_CMD_SIZE_DYNAMIC)
@@ -216,6 +224,11 @@ static int lcd_extern_power_ctrl(int flag)
 		ret = lcd_extern_power_cmd_fixed_size(table, flag);
 
 power_ctrl_next:
+	/* step 3: power finish */
+#ifdef LCD_EXT_I2C_PORT_INIT
+	lcd_extern_i2c_bus_recovery();
+#endif
+
 	if (ret) {
 		EXTERR("%s: %s(%d): %d\n", __func__, ext_config->name,
 			ext_config->index, flag);
@@ -230,7 +243,7 @@ static int lcd_extern_power_on(void)
 {
 	int ret;
 
-	lcd_extern_pinmux_set(1);
+	lcd_extern_pinmux_set(ext_config, 1);
 	ret = lcd_extern_power_ctrl(1);
 	return ret;
 }
@@ -240,7 +253,7 @@ static int lcd_extern_power_off(void)
 	int ret;
 
 	ret = lcd_extern_power_ctrl(0);
-	lcd_extern_pinmux_set(0);
+	lcd_extern_pinmux_set(ext_config, 0);
 
 	return ret;
 }
