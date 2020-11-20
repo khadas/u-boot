@@ -1317,11 +1317,25 @@ static void hdmitx_set_pll(struct hdmitx_dev *hdev)
 	hdmitx_set_clk(hdev);
 }
 
+static unsigned int g12_phy_array[] = {
+	0x37eb76d4,
+	0x37eb76e4,
+	0xf7eb84fa,
+};
+
 static void set_phy_by_mode(struct hdmitx_dev *hdev, unsigned int mode)
 {
+	char *s_phyidx = NULL;
+	int idx = 0;
+
+	/* get the envoriment variable */
+	s_phyidx = getenv("phy_idx");
+	if (s_phyidx[0] == '1' || s_phyidx[0] == '2')
+		idx = s_phyidx[0] - '0';
+
 	switch (mode) {
 	case 1: /* 5.94Gbps */
-		hd_write_reg(P_HHI_HDMI_PHY_CNTL0, 0x37eb76d4);
+		hd_write_reg(P_HHI_HDMI_PHY_CNTL0, g12_phy_array[idx]);
 		hd_write_reg(P_HHI_HDMI_PHY_CNTL3, 0x2ab0ff3b);
 		hd_write_reg(P_HHI_HDMI_PHY_CNTL5, 0x0000080b);
 		break;
