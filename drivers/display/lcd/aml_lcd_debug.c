@@ -577,6 +577,13 @@ static void lcd_reg_print_tcon_tl1(void)
 	reg = TCON_DDRIF_CTRL2;
 	printf("TCON_DDRIF_CTRL2    [0x%04x] = 0x%08x\n",
 		reg, lcd_tcon_read(reg));
+
+	reg = P2P_CH_SWAP0;
+	printf("P2P_CH_SWAP0        [0x%04x] = 0x%08x\n",
+		reg, lcd_vcbus_read(reg));
+	reg = P2P_CH_SWAP1;
+	printf("P2P_CH_SWAP1        [0x%04x] = 0x%08x\n",
+		reg, lcd_vcbus_read(reg));
 }
 #endif
 

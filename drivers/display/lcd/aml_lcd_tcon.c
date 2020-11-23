@@ -31,6 +31,7 @@
 static struct lcd_tcon_config_s *lcd_tcon_conf;
 static struct tcon_rmem_s tcon_rmem;
 static struct tcon_mem_map_table_s tcon_mm_table;
+static struct lcd_tcon_local_cfg_s tcon_local_cfg;
 
 int lcd_tcon_valid_check(void)
 {
@@ -546,11 +547,13 @@ void lcd_tcon_info_print(void)
 	LCDPR("%s:\n", __func__);
 	printf("core_reg_width:       %d\n"
 		"reg_table_len:        %d\n"
+		"tcon_bin_ver:         %s\n"
 		"tcon_rmem_flag:       %d\n"
 		"rsv_mem addr:         0x%08x\n"
 		"rsv_mem size:         0x%08x\n\n",
 		lcd_tcon_conf->core_reg_width,
 		lcd_tcon_conf->reg_table_len,
+		tcon_local_cfg.bin_ver,
 		tcon_rmem.flag,
 		tcon_rmem.rsv_mem_paddr,
 		tcon_rmem.rsv_mem_size);
@@ -624,6 +627,8 @@ void lcd_tcon_info_print(void)
 			(tcon_rmem.bin_path_rmem.mem_vaddr[18] << 16) |
 			(tcon_rmem.bin_path_rmem.mem_vaddr[19] << 24);
 		if (size < (32 + 256 * cnt))
+			return;
+		if (cnt > 32)
 			return;
 		printf("\n");
 		for (i = 0; i < cnt; i++) {
@@ -1083,7 +1088,7 @@ static int lcd_tcon_bin_path_update(unsigned int size)
 {
 #ifdef CONFIG_CMD_INI
 	unsigned char *mem_vaddr;
-	unsigned int data_size;
+	unsigned int data_size, block_cnt;
 	unsigned int data_crc32, temp_crc32;
 
 	/* notice: different with kernel flow: mem_vaddr is not mapping to mem_paddr */
@@ -1097,8 +1102,16 @@ static int lcd_tcon_bin_path_update(unsigned int size)
 		(mem_vaddr[5] << 8) |
 		(mem_vaddr[6] << 16) |
 		(mem_vaddr[7] << 24);
-	if (data_size < 4) {
+	if (data_size < 32) { /* header size */
 		LCDERR("%s: tcon_bin_path data_size error\n", __func__);
+		return -1;
+	}
+	block_cnt = mem_vaddr[16] |
+		(mem_vaddr[17] << 8) |
+		(mem_vaddr[18] << 16) |
+		(mem_vaddr[19] << 24);
+	if (block_cnt > 32) {
+		LCDERR("%s: tcon_bin_path block_cnt error\n", __func__);
 		return -1;
 	}
 	data_crc32 = mem_vaddr[0] |
@@ -1119,10 +1132,7 @@ static int lcd_tcon_bin_path_update(unsigned int size)
 		(mem_vaddr[13] << 8) |
 		(mem_vaddr[14] << 16) |
 		(mem_vaddr[15] << 24);
-	tcon_mm_table.block_cnt = mem_vaddr[16] |
-		(mem_vaddr[17] << 8) |
-		(mem_vaddr[18] << 16) |
-		(mem_vaddr[19] << 24);
+	tcon_mm_table.block_cnt = block_cnt;
 #endif
 
 	return 0;
@@ -1333,6 +1343,40 @@ static void lcd_tcon_axi_mem_config_t5(void)
 	}
 }
 
+static void lcd_tcon_axi_mem_config_t5d(void)
+{
+	unsigned int size = 0x00300000;
+	unsigned int reg = 0x261;
+	unsigned int temp_size = 0;
+
+	if (size > tcon_rmem.axi_mem_size) {
+		LCDERR("%s: tcon axi_mem size 0x%x is not enough, need 0x%x\n",
+			__func__, tcon_rmem.axi_mem_size, size);
+		return;
+	}
+
+	temp_size = sizeof(struct tcon_rmem_config_s);
+	tcon_rmem.axi_rmem = (struct tcon_rmem_config_s *)malloc(temp_size);
+	if (!tcon_rmem.axi_rmem)
+		return;
+	memset(tcon_rmem.axi_rmem, 0, temp_size);
+
+	temp_size = sizeof(unsigned int);
+	lcd_tcon_conf->axi_reg = (unsigned int *)malloc(temp_size);
+	if (!lcd_tcon_conf->axi_reg) {
+		free(tcon_rmem.axi_rmem);
+		return;
+	}
+	memset(lcd_tcon_conf->axi_reg, 0, temp_size);
+
+	tcon_rmem.axi_rmem->mem_paddr = tcon_rmem.axi_mem_paddr;
+	tcon_rmem.axi_rmem->mem_vaddr =
+		(unsigned char *)(unsigned long)tcon_rmem.axi_rmem->mem_paddr;
+	tcon_rmem.axi_rmem->mem_size = size;
+
+	*lcd_tcon_conf->axi_reg = reg;
+}
+
 static int lcd_tcon_mem_config(void)
 {
 	unsigned char *mem_vaddr;
@@ -1414,6 +1458,7 @@ static int lcd_tcon_load_init_data_from_unifykey(void)
 	if (key_len != data_len)
 		goto lcd_tcon_load_init_data_err;
 
+	memset(tcon_local_cfg.bin_ver, 0, TCON_BIN_VER_LEN);
 	LCDPR("tcon: load init data len: %d\n", data_len);
 	return 0;
 
@@ -1452,6 +1497,9 @@ static int lcd_tcon_load_init_data_from_unifykey_new(void)
 		LCDPR("chipid            = %d\n", data_header->chipid);
 		LCDPR("name              = %s\n", data_header->name);
 	}
+	memcpy(tcon_local_cfg.bin_ver, data_header->version,
+	       LCD_TCON_INIT_BIN_VERSION_SIZE);
+	tcon_local_cfg.bin_ver[TCON_BIN_VER_LEN - 1] = '\0';
 
 	data_len = tcon_mm_table.core_reg_table_size;
 	if (!tcon_mm_table.core_reg_table) {
@@ -1465,7 +1513,8 @@ static int lcd_tcon_load_init_data_from_unifykey_new(void)
 	memcpy(tcon_mm_table.core_reg_table, p, data_len);
 	free(buf);
 
-	LCDPR("tcon: load init data len: %d\n", data_len);
+	LCDPR("tcon: load init data len: %d, ver: %s\n",
+	      data_len, tcon_local_cfg.bin_ver);
 	return 0;
 
 lcd_tcon_load_init_data_new_err:
@@ -1687,8 +1736,8 @@ static struct lcd_tcon_config_s tcon_data_t5d = {
 
 	.axi_bank = LCD_TCON_AXI_BANK_T5D,
 
-	.rsv_mem_size    = 0x00c00000, /* 12M */
-	.axi_size        = 0x00a00000, /* 10M */
+	.rsv_mem_size    = 0x00400000, /* 4M */
+	.axi_size        = 0x00300000, /* 3M */
 	.bin_path_size   = 0x00002800, /* 10K */
 	.vac_size        = 0,
 	.demura_set_size = 0,
@@ -1696,7 +1745,7 @@ static struct lcd_tcon_config_s tcon_data_t5d = {
 	.acc_lut_size    = 0,
 
 	.axi_reg = NULL,
-	.tcon_axi_mem_config = lcd_tcon_axi_mem_config_t5,
+	.tcon_axi_mem_config = lcd_tcon_axi_mem_config_t5d,
 	.tcon_enable = lcd_tcon_enable_t5,
 };
 

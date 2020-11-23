@@ -95,6 +95,11 @@ struct tcon_mem_map_table_s {
 	unsigned char **data_mem_vaddr;
 };
 
+#define TCON_BIN_VER_LEN    9
+struct lcd_tcon_local_cfg_s {
+	char bin_ver[TCON_BIN_VER_LEN];
+};
+
 /* **********************************
  * tcon config
  * ********************************** */
@@ -148,7 +153,7 @@ struct tcon_mem_map_table_s {
 #define LCD_TCON_CORE_REG_WIDTH_T5D       32
 #define LCD_TCON_TABLE_WIDTH_T5D          32
 #define LCD_TCON_TABLE_LEN_T5D            0x102c /* 0x40b*4 */
-#define LCD_TCON_AXI_BANK_T5D             2
+#define LCD_TCON_AXI_BANK_T5D             1
 
 #define BIT_TOP_EN_T5D                    4
 
