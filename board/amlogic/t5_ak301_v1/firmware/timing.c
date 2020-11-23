@@ -32,6 +32,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.timming_struct_org_size						= sizeof(ddr_set_t),
 	.cfg_board_common_setting.timming_struct_real_size						= 0,                                      //0
 	.cfg_board_common_setting.fast_boot								= { 0 },
+	//.cfg_board_common_setting.fast_boot[3]=0x86,
 	.cfg_board_common_setting.ddr_func								= 0,
 	.cfg_board_common_setting.board_id								= CONFIG_BOARD_ID_MASK,
 	.cfg_board_common_setting.DramType								= CONFIG_DDR_TYPE_DDR4,
@@ -137,7 +138,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 		384, 384, 384, 384,
 	}, //total 36
 	.cfg_ddr_training_delay_ps[0].ac_trace_delay = {
-		128, 128, 128, 128, 128, 128, 128, 128,
+		128, 128, 128, 128, 128, 128, 128, 256,
 		256, 256, 256, 256, 256, 256+100, 256, 256,
 		256, 256, 256, 256, 256, 256, 256, 256,
 		256, 256, 256, 256, 256+30, 256, 256, 256,
