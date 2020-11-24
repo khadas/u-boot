@@ -793,15 +793,16 @@ int mmc_write_rsv(const char *rsv_name, size_t size, void *buf) {
 	if (!strcmp("dtb", rsv_name)) {
 		ret = dtb_write(buf);
 		ret |= renew_partition_tbl(buf);
+	} else {
+		if (!strcmp("key", rsv_name))
+			info_disprotect |= DISPROTECT_KEY;
+		ret = storage_byte_write(mmc, off, size, buf);
+		if (!strcmp("key", rsv_name))
+			info_disprotect &= ~DISPROTECT_KEY;
 	}
 
-	if (!strcmp("key", rsv_name)) {
-		info_disprotect |= DISPROTECT_KEY;
-		ret = storage_byte_write(mmc, off, size, buf);
-		info_disprotect &= ~DISPROTECT_KEY;
-		if (ret != 0)
-			printf("write key failed\n");
-	}
+	if (ret != 0)
+		printf("write rsv failed\n");
 
 	return ret;
 }
