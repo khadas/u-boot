@@ -53,6 +53,7 @@ static int gLcdDataCnt, gLcdExtDataCnt, gBlDataCnt;
 static int g_lcd_pwr_on_seq_cnt, g_lcd_pwr_off_seq_cnt;
 static int gLcdExtInitOnCnt, gLcdExtInitOffCnt, gLcdExtCmdSize;
 static struct lcd_ext_attr_s *lcd_ext_attr;
+static unsigned int g_lcd_tcon_valid;
 #ifdef CONFIG_AML_LCD_TCON
 static int gLcdTconDataCnt, gLcdTconSpi_cnt;
 static unsigned int g_lcd_tcon_bin_block_cnt;
@@ -1769,11 +1770,6 @@ static int parse_panel_ini(const char *file_name, struct lcd_attr_s *lcd_attr,
 		return -1;
 	}
 
-#ifdef CONFIG_AML_LCD_TCON
-	/*should ready tcon path here, for lcd_ext usage */
-	handle_tcon_path();
-#endif
-
 	/* handle lcd attr */
 	handle_lcd_basic(lcd_attr);
 	handle_lcd_timming(lcd_attr);
@@ -1781,6 +1777,18 @@ static int parse_panel_ini(const char *file_name, struct lcd_attr_s *lcd_attr,
 	handle_lcd_interface(lcd_attr);
 	handle_lcd_pwr(lcd_attr);
 	handle_lcd_header(lcd_attr);
+
+	if (((lcd_attr->basic.lcd_type) == LCD_MLVDS) ||
+	    ((lcd_attr->basic.lcd_type) == LCD_P2P))
+		g_lcd_tcon_valid = 1;
+	else
+		g_lcd_tcon_valid = 0;
+
+#ifdef CONFIG_AML_LCD_TCON
+	/*should ready tcon path here, for lcd_ext usage */
+	if (g_lcd_tcon_valid)
+		handle_tcon_path();
+#endif
 
 	// handle lcd extern attr
 	handle_lcd_ext_basic(ext_attr);
@@ -1800,8 +1808,7 @@ static int parse_panel_ini(const char *file_name, struct lcd_attr_s *lcd_attr,
 	handle_panel_misc(misc_attr);
 
 #ifdef CONFIG_AML_LCD_TCON
-	if (((lcd_attr->basic.lcd_type) == LCD_MLVDS) ||
-	    ((lcd_attr->basic.lcd_type) == LCD_P2P))
+	if (g_lcd_tcon_valid)
 		handle_tcon_spi(tcon_spi_buf);
 	else
 		gLcdTconSpi_cnt = 0;
@@ -2731,7 +2738,8 @@ int handle_panel_ini(void)
 	tmp_buf = NULL;
 
 #ifdef CONFIG_AML_LCD_TCON
-	handle_tcon_bin();
+	if (g_lcd_tcon_valid)
+		handle_tcon_bin();
 #endif
 
 	return 0;
