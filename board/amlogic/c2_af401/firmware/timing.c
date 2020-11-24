@@ -74,8 +74,8 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	},//total 36
 
 	#if 1
-	.cfg_ddr_training_delay_ps[0].	ac_trace_delay = {
-	128,128,128-20,128,128,128,128,128,
+	.cfg_ddr_training_delay_ps[0].ac_trace_delay = {
+	128,128,128-20,128,128,128,128,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
@@ -469,7 +469,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_SI_setting_ps[0].max_core_timmming_frequency				=	0,
 	.cfg_board_SI_setting_ps[0].training_phase_parameter				=	{0},
 	.cfg_board_SI_setting_ps[0].ac_trace_delay_org = {
-	128,128,90,128,128,128,128,128,
+	128,128,90,128,128,128,128,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
@@ -478,7 +478,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 
 	#if 0
 	.cfg_ddr_training_delay_ps[0].	ac_trace_delay = {
-	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
@@ -487,7 +487,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	#endif
 	#if 1
 	.cfg_ddr_training_delay_ps[0].	ac_trace_delay = {
-	128,128,90,128,128,128,128,128,
+	128,128,90,128,128,128,128,256,
 	256,256,256,256,256,256,256,256,
 	256,256,256,256,256,256,256,256,
 	256,256,256,256,256,256,256,256,
@@ -727,7 +727,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 
 	#if 1
 	.cfg_ddr_training_delay_ps[0].	ac_trace_delay = {
-	128,128,128-40,128,128,128,128,128,
+	128,128,128-40,128,128,128,128,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
@@ -1027,7 +1027,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_SI_setting_ps[0].max_core_timmming_frequency				=	0,
 	.cfg_board_SI_setting_ps[0].training_phase_parameter				=	{0},
 	.cfg_board_SI_setting_ps[0].ac_trace_delay_org = {
-	128,128,128-20,128,128,128,128,128,
+	128,128,128-20,128,128,128,128,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
@@ -1036,7 +1036,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 
 	#if 1
 	.cfg_ddr_training_delay_ps[0].	ac_trace_delay = {
-	128,128,128-20,128,128,128,128,128,
+	128,128,128-20,128,128,128,128,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
@@ -1357,7 +1357,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_SI_setting_ps[0].max_core_timmming_frequency				=	0,
 	.cfg_board_SI_setting_ps[0].training_phase_parameter				=	{0},
 	.cfg_board_SI_setting_ps[0].ac_trace_delay_org = {
-	128,128,128-20,128,128,128,128,128,
+	128,128,128-20,128,128,128,128,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
@@ -1366,7 +1366,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 
 	#if 1
 	.cfg_ddr_training_delay_ps[0].	ac_trace_delay = {
-	128,128,128-20,128,128,128,128,128,
+	128,128,128-20,128,128,128,128,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
@@ -2034,7 +2034,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 
 	#if 0
 	.cfg_ddr_training_delay_ps[0].	ac_trace_delay = {
-	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
@@ -2376,7 +2376,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 
 	#if 1
 	.cfg_ddr_training_delay_ps[0]. ac_trace_delay = {
-	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
@@ -2385,7 +2385,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	  #endif
 	  #if 0
 	.cfg_ddr_training_delay_ps[0]. ac_trace_delay = {
-	123,124,0,126,127,0,0,128,
+	123,124,0,126,127,0,0,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
@@ -2734,7 +2734,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 
 	#if 1
 	.cfg_ddr_training_delay_ps[0]. ac_trace_delay = {
-	128,128,128,128,128,128,128,128,
+	128,128,128,128,128,128,128,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
 	384,384,384,384,384,384,384,384,
