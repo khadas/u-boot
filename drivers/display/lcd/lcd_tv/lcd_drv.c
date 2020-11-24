@@ -1232,8 +1232,6 @@ static void lcd_mlvds_config_set(struct lcd_config_s *pconf)
 		break;
 	case LCD_CHIP_TL1:
 	case LCD_CHIP_TM2:
-	case LCD_CHIP_T5:
-	case LCD_CHIP_T5D:
 		/* mlvds channel:    //tx 12 channels
 		 *    0: clk_a
 		 *    1: d0_a
@@ -1255,6 +1253,29 @@ static void lcd_mlvds_config_set(struct lcd_config_s *pconf)
 		for (i = 0; i < 4; i++) {
 			temp = (channel_sel1 >> (i*4)) & 0xf;
 			if ((temp == 0) || (temp == 6))
+				pi_clk_sel |= (1 << (i + 8));
+		}
+		break;
+	case LCD_CHIP_T5:
+	case LCD_CHIP_T5D:
+		/* mlvds channel:    //tx 8 channels
+		 *    0: d0_a
+		 *    1: d1_a
+		 *    2: d2_a
+		 *    3: clk_a
+		 *    4: d0_b
+		 *    5: d1_b
+		 *    6: d2_b
+		 *    7: clk_b
+		 */
+		for (i = 0; i < 8; i++) {
+			temp = (channel_sel0 >> (i*4)) & 0xf;
+			if ((temp == 3) || (temp == 7))
+				pi_clk_sel |= (1 << i);
+		}
+		for (i = 0; i < 4; i++) {
+			temp = (channel_sel1 >> (i*4)) & 0xf;
+			if ((temp == 3) || (temp == 7))
 				pi_clk_sel |= (1 << (i + 8));
 		}
 		break;
