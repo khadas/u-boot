@@ -257,7 +257,7 @@ static int do_GetValidSlot(
     //recovery mode, need disable dolby
     run_command("get_rebootmode", 0);
     char *rebootmode = getenv("reboot_mode");
-    if ((!strstr(rebootmode, "factory_reset")) || (!strstr(rebootmode, "update"))) {
+    if ((!strcmp(rebootmode, "factory_reset")) || (!strcmp(rebootmode, "update"))) {
         setenv("dolby_status","0");
     }
 
