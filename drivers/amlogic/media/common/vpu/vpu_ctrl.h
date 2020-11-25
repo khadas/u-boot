@@ -169,6 +169,21 @@ static struct vpu_reset_s vpu_reset_tl1[] = {
 };
 
 /* ******************************************************* */
+/*                 VPU pwrctrl id table                 */
+/* ******************************************************* */
+static unsigned int vpu_pwrctrl_id_table[] = {
+	PM_VPU_HDMI,
+	VPU_PWR_ID_END
+};
+
+static unsigned int vpu_pwrctrl_id_table_t7[] = {
+	PM_VPU_HDMI,
+	PM_VI_CLK1,
+	PM_VI_CLK2,
+	VPU_PWR_ID_END
+};
+
+/* ******************************************************* */
 /*                 VPU module init table                 */
 /* ******************************************************* */
 #if 0

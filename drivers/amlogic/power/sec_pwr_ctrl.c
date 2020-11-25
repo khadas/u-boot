@@ -6,7 +6,7 @@
 #include <linux/arm-smccc.h>
 #include <asm/arch/pwr_ctrl.h>
 
-unsigned long pwr_ctrl_psci_smc(enum pm_e power_domain, bool power_control)
+unsigned long pwr_ctrl_psci_smc(unsigned int power_domain, bool power_control)
 {
 	struct arm_smccc_res res;
 
@@ -15,7 +15,7 @@ unsigned long pwr_ctrl_psci_smc(enum pm_e power_domain, bool power_control)
 	return res.a0;
 }
 
-unsigned long pwr_ctrl_status_psci_smc(enum pm_e power_domain)
+unsigned long pwr_ctrl_status_psci_smc(unsigned int power_domain)
 {
 	struct arm_smccc_res res;
 

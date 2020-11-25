@@ -229,8 +229,22 @@ void vpu_power_off(void)
 void vpu_power_on_new(void)
 {
 #ifdef CONFIG_SECURE_POWER_CONTROL
-	if (vpu_conf.data->pwrctrl_id < VPU_PWR_ID_INVALID)
-		pwr_ctrl_psci_smc(vpu_conf.data->pwrctrl_id, 1);
+	unsigned int pwr_id;
+	int i = 0;
+
+	if (!vpu_conf.data->pwrctrl_id_table)
+		return;
+
+	while (i < VPU_PWR_ID_MAX) {
+		pwr_id = vpu_conf.data->pwrctrl_id_table[i];
+		if (pwr_id == VPU_PWR_ID_END)
+			break;
+#ifdef VPU_DEBUG_PRINT
+		VPUPR("%s: pwr_id=%d\n", __func__, pwr_id);
+#endif
+		pwr_ctrl_psci_smc(pwr_id, 1);
+		i++;
+	}
 	VPUPR("%s\n", __func__);
 #else
 	VPUERR("%s: no CONFIG_SECURE_POWER_CONTROL\n", __func__);
@@ -240,9 +254,23 @@ void vpu_power_on_new(void)
 void vpu_power_off_new(void)
 {
 #ifdef CONFIG_SECURE_POWER_CONTROL
+	unsigned int pwr_id;
+	int i = 0;
+
 	VPUPR("%s\n", __func__);
-	if (vpu_conf.data->pwrctrl_id < VPU_PWR_ID_INVALID)
-		pwr_ctrl_psci_smc(vpu_conf.data->pwrctrl_id, 0);
+	if (!vpu_conf.data->pwrctrl_id_table)
+		return;
+
+	while (i < VPU_PWR_ID_MAX) {
+		pwr_id = vpu_conf.data->pwrctrl_id_table[i];
+		if (pwr_id == VPU_PWR_ID_END)
+			break;
+#ifdef VPU_DEBUG_PRINT
+		VPUPR("%s: pwr_id=%d\n", __func__, pwr_id);
+#endif
+		pwr_ctrl_psci_smc(pwr_id, 0);
+		i++;
+	}
 #else
 	VPUERR("%s: no CONFIG_SECURE_POWER_CONTROL\n", __func__);
 #endif

@@ -32,4 +32,4 @@ enum pm_e {
 	PM_RSA
 };
 
-unsigned long pwr_ctrl_psci_smc(enum pm_e power_domain, bool power_control);
+unsigned long pwr_ctrl_psci_smc(unsigned int power_domain, bool power_control);
