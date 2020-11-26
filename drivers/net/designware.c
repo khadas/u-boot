@@ -1413,7 +1413,7 @@ int check_eth_para(void)
 	if (unify_eth.index + unify_eth.chk !=0xff)
 		return -1;
 
-	if (strcmp(unify_eth.ver, PLAIN_VERSION) != 0)
+	if (strncmp(unify_eth.ver, PLAIN_VERSION, 24) != 0)
 		return -1;
 
 	bestwindow = unify_eth.index;
@@ -1623,7 +1623,7 @@ static int do_autocali(cmd_tbl_t *cmdtp, int flag, int argc,
 	strncpy(unify_eth.magic, ETH_MAGIC, 6);
 	unify_eth.index = cali_window;
 	unify_eth.chk = 0xff - unify_eth.index;
-	strcpy(unify_eth.ver, PLAIN_VERSION);
+	strncpy(unify_eth.ver, PLAIN_VERSION, 24);
 
 	key_unify_write("eth_exphy_para", &unify_eth, sizeof(struct unify_eth_info));
 	bestwindow = unify_eth.index;
