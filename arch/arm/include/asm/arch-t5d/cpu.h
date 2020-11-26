@@ -32,7 +32,7 @@
 #define CONFIG_CMD_VIU_PROBE    1
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(64*1024*1024)
+#define CONFIG_SYS_MALLOC_LEN		(96*1024*1024)
 
 /* for uboot envrionment use */
 #define CONFIG_DDR_SIZE					1024
