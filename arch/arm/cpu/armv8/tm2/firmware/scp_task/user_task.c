@@ -24,6 +24,7 @@
 #include "registers.h"
 #include "task_apis.h"
 #include "suspend.h"
+#include "ring_buffer.h"
 
 #define TASK_ID_IDLE 0
 #define TASK_ID_LOW_MB	3
@@ -82,6 +83,7 @@ void secure_task(void)
 
 	/*init bss */
 	bss_init();
+	init_ring_buffer_bl301();
 	uart_puts("secure task start!\n");
 
 	/* suspend pwr ops init*/

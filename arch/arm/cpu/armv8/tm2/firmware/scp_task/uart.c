@@ -22,6 +22,7 @@
 #include "registers.h"
 #include <stdint.h>
 #include "task_apis.h"
+#include "ring_buffer.h"
 
 /* #define P_AO_UART_WFIFO                 (0xc81004c0) */
 /* #define P_AO_RTI_PIN_MUX_REG          (0xc8100014) */
@@ -61,6 +62,8 @@
 #define P_UART_CTRL(uart_base)		P_UART(uart_base, UART_CTRL)
 #define P_UART_STATUS(uart_base)	P_UART(uart_base, UART_STATUS)
 
+struct ring_buffer *bl301_rbuf;
+
 static int uart_tx_isfull(void)
 {
 	return readl(P_UART_STATUS(UART_PORT_CONS)) &
@@ -90,12 +93,16 @@ void uart_tx_flush(void)
 		UART_STAT_MASK_TFIFO_EMPTY))
 		;
 }
+void init_ring_buffer_bl301(void)
+{
+	bl301_rbuf = (struct ring_buffer *)BL301MSG_BUF_BASE;
+}
 
 int uart_putc(int c)
 {
 	if (c == '\n')
 		uart_putc('\r');
-
+	write_ring_buffer_char(bl301_rbuf, c);
 	/* Wait until TX is not full */
 	while (uart_tx_isfull())
 		;
