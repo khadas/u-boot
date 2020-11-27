@@ -16,14 +16,11 @@
 #include <config.h>
 #include <asm/arch/io.h>
 #include <emmc_partitions.h>
+#include <partition_table.h>
+#include <version.h>
+#include <amlogic/storage.h>
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
-extern int store_read_ops(
-    unsigned char *partition_name,
-    unsigned char * buf, uint64_t off, uint64_t size);
-extern int store_write_ops(
-    unsigned char *partition_name,
-    unsigned char * buf, uint64_t off, uint64_t size);
 
 /* Magic signature for LpMetadataGeometry. */
 #define LP_METADATA_GEOMETRY_MAGIC 0x616c4467
@@ -40,7 +37,8 @@ extern int store_write_ops(
 
 /* Current metadata version. */
 #define LP_METADATA_MAJOR_VERSION 10
-#define LP_METADATA_MINOR_VERSION 0
+#define LP_METADATA_MINOR_VERSION_MIN 0
+#define LP_METADATA_MINOR_VERSION_MAX 2
 
 /* Attributes for the LpMetadataPartition::attributes field.
  *
@@ -447,7 +445,7 @@ static int ValidateMetadataHeader(LpMetadataHeader* header) {
     }
     // Check that the version is compatible.
     if (header->major_version != LP_METADATA_MAJOR_VERSION ||
-        header->minor_version > LP_METADATA_MINOR_VERSION) {
+        header->minor_version > LP_METADATA_MINOR_VERSION_MAX) {
         printf("Logical partition metadata has incompatible version.\n");
         return -1;
     }
@@ -484,6 +482,8 @@ int ReadMetadataHeader(char *superbuf, LpMetadataHeader* header,
     PartitionList* node = NULL ;
     int ishead = 0;
     int i;
+    int index = 0;
+    char* flag;
 
     printf("metaoffset: %d\n", GetPrimaryMetadataOffset(geometry, slot_number));
 
@@ -499,10 +499,20 @@ int ReadMetadataHeader(char *superbuf, LpMetadataHeader* header,
         return -1;
     }
 
-    memcpy(buffer, superbuf + GetPrimaryMetadataOffset(geometry, slot_number) + sizeof(LpMetadataHeader), header->tables_size);
-    cursor = GetPrimaryMetadataOffset(geometry, slot_number) + sizeof(LpMetadataHeader) + header->partitions.offset;
+    index = GetPrimaryMetadataOffset(geometry, slot_number) + sizeof(LpMetadataHeader);
+#ifdef CONFIG_CMD_BOOTCTOL_VAB
+    flag = CONFIG_CMD_BOOTCTOL_VAB;
+    strcpy(flag, CONFIG_CMD_BOOTCTOL_VAB);
+    printf("CONFIG_CMD_BOOTCTOL_VAB: %s \n", CONFIG_CMD_BOOTCTOL_VAB);
+    if ((strcmp(flag, "1") == 0) && (has_boot_slot == 1)) {
+        index = index + 128;
+    }
+#endif
 
-    printf("header->partitions.offset: %d\n", header->partitions.offset);
+    memcpy(buffer, superbuf + index, header->tables_size);
+    cursor = index + header->partitions.offset;
+
+    printf("index: %d\n", index);
     printf("cursor: %d\n", cursor);
 
     // ValidateTableSize ensured that |cursor| is valid for the number of
@@ -595,8 +605,8 @@ int do_ReadMetadata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
     }
 
     if (dynamic_partition) {
-        if (store_read_ops((unsigned char *)partition,
-            (unsigned char *)superbuf, 0, SUPERBUF_SIZE) < 0) {
+        if (store_read((unsigned char *)partition,
+        0, SUPERBUF_SIZE, (unsigned char *)superbuf) < 0) {
             printf("failed to store read %s.\n", partition);
             goto ERR;
         }

@@ -14,6 +14,7 @@
 #include <fastboot.h>
 #include <net/fastboot.h>
 #include <emmc_partitions.h>
+#include <amlogic/storage.h>
 
 #define CONFIG_FASTBOOT_MAX_DOWN_SIZE        0x8000000
 
@@ -133,6 +134,63 @@ int check_lock(void)
 	}
 }
 
+/**
+ *get merge status
+*/
+int get_mergestatus(struct misc_virtual_ab_message *message)
+{
+	char *partition = "misc";
+	char vab_buf[1024] = {0};
+
+	if (store_read((unsigned char *)partition,
+		SYSTEM_SPACE_OFFSET_IN_MISC, 1024, (unsigned char *)vab_buf) < 0) {
+		printf("failed to store read %s.\n", partition);
+		return -1;
+	}
+
+	run_command("get_valid_slot", 0);
+	int current_slot = 0;
+	char *slot;
+	slot = getenv("slot-suffixes");
+	if (strcmp(slot, "0") == 0) {
+		current_slot = 0;
+	} else if (strcmp(slot, "1") == 0) {
+		current_slot = 1;
+	}
+
+	memcpy(message, vab_buf, sizeof(struct misc_virtual_ab_message));
+	printf("message.merge_status: %d\n", message->merge_status);
+	printf("message.source_slot: %d\n", message->source_slot);
+	if (message->merge_status == SNAPSHOTTED && current_slot == message->source_slot) {
+		message->merge_status = NONE;
+		printf("set message.merge_status NONE\n");
+	}
+	return 0;
+}
+
+/**
+ *set merge status
+*/
+int set_mergestatus_cancel(struct misc_virtual_ab_message *message)
+{
+	char *partition = "misc";
+	char vab_buf[1024] = {0};
+
+	if (store_read((unsigned char *)partition,
+		SYSTEM_SPACE_OFFSET_IN_MISC, 1024, (unsigned char *)vab_buf) < 0) {
+		printf("failed to store read %s.\n", partition);
+		return -1;
+	}
+
+	memcpy(message, vab_buf, sizeof(struct misc_virtual_ab_message));
+	printf("message.merge_status: %d\n", message->merge_status);
+	if (message->merge_status == SNAPSHOTTED || message->merge_status == MERGING) {
+		message->merge_status = CANCELLED;
+		printf("set message.merge_status CANCELLED\n");
+	}
+	store_write((unsigned char *)partition, SYSTEM_SPACE_OFFSET_IN_MISC, 1024, (unsigned char *)vab_buf);
+	return 0;
+}
 
 /**
  * fastboot_set_reboot_flag() - Set flag to indicate reboot-bootloader

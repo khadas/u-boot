@@ -12,6 +12,8 @@
 #ifndef _FASTBOOT_H_
 #define _FASTBOOT_H_
 
+#include <android_vab.h>
+
 #define FASTBOOT_VERSION	"0.4"
 
 /* The 64 defined bytes plus \0 */
@@ -37,10 +39,11 @@ enum {
 	FASTBOOT_COMMAND_REBOOT_FASTBOOT,
 	FASTBOOT_COMMAND_REBOOT,
 	FASTBOOT_COMMAND_SET_ACTIVE,
+	FASTBOOT_COMMAND_SNAOSHOT_UPDATE,
 #if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_FORMAT)
 	FASTBOOT_COMMAND_OEM_FORMAT,
 #endif
-
+	FASTBOOT_COMMAND_OEM,
 	FASTBOOT_COMMAND_COUNT
 };
 
@@ -85,6 +88,16 @@ void fastboot_okay(const char *reason, char *response);
  *return 0 if unlocked
  */
 int check_lock(void);
+
+/**
+ *get merge status
+*/
+int get_mergestatus(struct misc_virtual_ab_message *message);
+
+/**
+ *set merge status
+*/
+int set_mergestatus_cancel(struct misc_virtual_ab_message *message);
 
 /**
  * fastboot_set_reboot_flag() - Set flag to indicate reboot-bootloader

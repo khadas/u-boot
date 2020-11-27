@@ -42,6 +42,13 @@ static void reboot_fastboot(char *, char *);
 #if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_FORMAT)
 static void oem_format(char *, char *);
 #endif
+static void oem_cmd(char *, char *);
+static void set_active_cmd(char *, char *);
+static void snapshot_update_cmd(char *, char *);
+
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+extern int is_partition_logical(char* parition_name);
+#endif
 
 static const struct {
 	const char *command;
@@ -91,7 +98,11 @@ static const struct {
 	},
 	[FASTBOOT_COMMAND_SET_ACTIVE] =  {
 		.command = "set_active",
-		.dispatch = okay
+		.dispatch = set_active_cmd
+	},
+	[FASTBOOT_COMMAND_SNAOSHOT_UPDATE] =  {
+		.command = "snapshot-update",
+		.dispatch = snapshot_update_cmd
 	},
 #if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_FORMAT)
 	[FASTBOOT_COMMAND_OEM_FORMAT] = {
@@ -99,6 +110,10 @@ static const struct {
 		.dispatch = oem_format,
 	},
 #endif
+	[FASTBOOT_COMMAND_OEM] = {
+		.command = "oem",
+		.dispatch = oem_cmd,
+	},
 };
 
 static int strcmp_l1(const char *s1, const char *s2)
@@ -399,6 +414,16 @@ static void flash(char *cmd_parameter, char *response)
 		return;
 	}
 
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+	if (dynamic_partition) {
+		if (is_partition_logical(name) == 0) {
+			printf("%s is logic partition, can not write here.......\n", name);
+			fastboot_fail("logic partition", response);
+			return;
+		}
+	}
+#endif
+
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
 	fastboot_mmc_flash_write(name, fastboot_buf_addr, image_size,
 				 response);
@@ -422,18 +447,35 @@ static void erase(char *cmd_parameter, char *response)
 {
 	char name[32];
 
-	if (strcmp(cmd_parameter, "userdata") == 0 && !vendor_boot_partition)
-		strncpy(name, "data", 4);
-	else if (strcmp(cmd_parameter, "dts") == 0)
-		strncpy(name, "dtb", 3);
-	else
-		strncpy(name, cmd_parameter, 32);
-
 	if (check_lock()) {
 		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
 		fastboot_fail("locked device", response);
 		return;
 	}
+
+	struct misc_virtual_ab_message message;
+	get_mergestatus(&message);
+
+	if (strcmp(cmd_parameter, "userdata") == 0 && !vendor_boot_partition) {
+		strncpy(name, "data", 4);
+		if (message.merge_status == SNAPSHOTTED || message.merge_status == MERGING) {
+			fastboot_fail("in merge state, cannot erase data", response);
+			return;
+		}
+	} else if (strcmp(cmd_parameter, "dts") == 0)
+		strncpy(name, "dtb", 3);
+	else
+		strncpy(name, cmd_parameter, 32);
+
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+		if (dynamic_partition) {
+			if (is_partition_logical(name) == 0) {
+				printf("%s is logic partition, can not erase here.......\n", name);
+				fastboot_fail("logic partition", response);
+				return;
+			}
+		}
+#endif
 
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
 	fastboot_mmc_erase(name, response);
@@ -443,6 +485,60 @@ static void erase(char *cmd_parameter, char *response)
 #endif
 }
 #endif
+
+static void set_active_cmd(char *cmd_parameter, char *response)
+{
+	char *cmd;
+	int ret = 0;
+	char str[128];
+
+	printf("cmd cb_set_active is %s\n", cmd_parameter);
+	cmd = cmd_parameter;
+
+	if (check_lock()) {
+		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
+		fastboot_fail("locked device", response);
+		return;
+	}
+
+	struct misc_virtual_ab_message message;
+	get_mergestatus(&message);
+	if (message.merge_status == MERGING) {
+		fastboot_fail("in merge state, cannot set active", response);
+		return;
+	}
+
+	sprintf(str, "set_active_slot %s", cmd);
+	printf("command:    %s\n", str);
+	ret = run_command(str, 0);
+	printf("ret = %d\n", ret);
+	if (ret == 0)
+		fastboot_okay(NULL, response);
+	else
+		fastboot_fail("set slot error", response);
+}
+
+static void snapshot_update_cmd(char *cmd_parameter, char *response)
+{
+	char *cmd;
+	int ret = 0;
+	char str[128];
+
+	printf("cmd snapshot_update_cmd is %s\n", cmd_parameter);
+	cmd = cmd_parameter;
+
+	if (check_lock()) {
+		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
+		fastboot_fail("locked device", response);
+		return;
+	}
+
+	if (!strcmp_l1("cancel", cmd)) {
+		struct misc_virtual_ab_message message;
+		set_mergestatus_cancel(&message);
+	}
+	fastboot_okay(NULL, response);
+}
 
 /**
  * flashing() - lock/unlock.
@@ -641,6 +737,32 @@ static void reboot_fastboot(char *cmd_parameter, char *response)
 {
 	fastboot_okay(NULL, response);
 }
+
+static void oem_cmd(char *cmd_parameter, char *response)
+{
+	char *cmd;
+	int i = 0, len = 0, j = 0;
+	char cmd_str[FASTBOOT_RESPONSE_LEN];
+	printf("oem cmd_parameter: %s\n", cmd_parameter);
+	cmd = cmd_parameter;
+	strsep(&cmd, " ");
+	printf("To run cmd[%s]\n", cmd);
+
+	len = strlen(cmd);
+	for (i = 0; i < len; i++) {
+		if (cmd[i] != '\'') {
+			cmd_str[j++] = cmd[i];
+		}
+	}
+	cmd_str[j] = '\0';
+	printf("cmd_str2: %s\n", cmd_str);
+
+	run_command(cmd_str, 0);
+
+	fastboot_okay(NULL, response);
+	return;
+}
+
 
 #if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_FORMAT)
 /**

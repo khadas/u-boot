@@ -29,8 +29,7 @@ static void getvar_is_userspace(char *var_parameter, char *response);
 static void getvar_is_logical(char *var_parameter, char *response);
 static void getvar_slot_count(char *var_parameter, char *response);
 static void getvar_super_partition_name(char *var_parameter, char *response);
-
-
+static void getvar_snapshot_update_status(char *var_parameter, char *response);
 
 static void getvar_product(char *var_parameter, char *response);
 static void getvar_current_slot(char *var_parameter, char *response);
@@ -40,6 +39,11 @@ static void getvar_has_slot(char *var_parameter, char *response);
 static void getvar_partition_type(char *part_name, char *response);
 static void getvar_partition_size(char *part_name, char *response);
 #endif
+
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+extern int is_partition_logical(char* parition_name);
+#endif
+
 
 static const struct {
 	const char *variable;
@@ -114,6 +118,9 @@ static const struct {
 	}, {
 		.variable = "slot-suffixes",
 		.dispatch = getvar_slot_suffixes
+	}, {
+		.variable = "snapshot-update-status",
+		.dispatch = getvar_snapshot_update_status
 	}, {
 		.variable = "has-slot",
 		.dispatch = getvar_has_slot
@@ -266,16 +273,55 @@ static void getvar_super_partition_name(char *var_parameter, char *response)
 
 static void getvar_is_logical(char *var_parameter, char *response)
 {
+	char name[64] = {0};
+	strncpy(name, var_parameter, strnlen(var_parameter, 64));
+	name[63] = 0;
+	if (has_boot_slot == 1) {
+		char *slot_name;
+		slot_name = env_get("slot-suffixes");
+		if ((strcmp(var_parameter, "system") == 0) || (strcmp(var_parameter, "vendor") == 0)
+			|| (strcmp(var_parameter, "odm") == 0) || (strcmp(var_parameter, "product") == 0)
+			|| (strcmp(var_parameter, "system_ext") == 0) || (strcmp(var_parameter, "dtbo") == 0)
+			|| (strcmp(var_parameter, "boot") == 0) || (strcmp(var_parameter, "recovery") == 0)
+			|| (strcmp(var_parameter, "vendor_boot") == 0) || (strcmp(var_parameter, "vbmeta") == 0)) {
+			if (strcmp(slot_name, "0") == 0) {
+				strcat(name, "_a");
+			} else if (strcmp(slot_name, "1") == 0) {
+				strcat(name, "_b");
+			}
+		}
+	}
+	printf("partition name is %s\n", name);
+
 	if (!dynamic_partition) {
 		if (busy_flag == 1)
 			fastboot_response("INFOis_logical:", response, "%s: no", var_parameter);
 		else
 			fastboot_okay("no", response);
 	} else {
-		if (busy_flag == 1)
-			fastboot_response("INFOis_logical:", response, "%s: yes", var_parameter);
-		else
-			fastboot_fail("yes", response);
+		if (busy_flag == 1) {
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+			if (is_partition_logical(name) == 0) {
+				printf("%s is logic partition\n", name);
+				fastboot_response("INFOis_logical:", response, "%s: yes", name);
+			} else {
+				fastboot_response("INFOis_logical:", response, "%s: no", name);
+			}
+#else
+			fastboot_response("INFOis_logical:", response, "%s: no", name);
+#endif
+		} else {
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+				if (is_partition_logical(name) == 0) {
+					printf("%s is logic partition\n", name);
+					fastboot_okay("yes", response);
+				} else {
+					fastboot_okay("no", response);
+				}
+#else
+				fastboot_okay("no", response);
+#endif
+		}
 	}
 }
 
@@ -362,6 +408,44 @@ static void getvar_current_slot(char *var_parameter, char *response)
 			fastboot_okay("a", response);
 		else if (strcmp(slot, "1") == 0)
 			fastboot_okay("b", response);
+	}
+}
+
+static void getvar_snapshot_update_status(char *var_parameter, char *response)
+{
+	struct misc_virtual_ab_message message;
+	get_mergestatus(&message);
+	if (busy_flag == 1) {
+		if (has_boot_slot == 1) {
+			switch (message.merge_status) {
+				case SNAPSHOTTED:
+					fastboot_busy("snapshotted", response);
+					break;
+				case MERGING:
+					fastboot_busy("merging", response);
+					break;
+				default:
+					fastboot_busy("none", response);
+					break;
+			}
+		} else
+			fastboot_busy("none", response);
+	}
+	else {
+		if (has_boot_slot == 1) {
+			switch (message.merge_status) {
+				case SNAPSHOTTED:
+					fastboot_okay("snapshotted", response);
+					break;
+				case MERGING:
+					fastboot_okay("merging", response);
+					break;
+				default:
+					fastboot_okay("none", response);
+					break;
+			}
+		} else
+			fastboot_fail("not ab mode", response);
 	}
 }
 
@@ -465,6 +549,8 @@ static void getvar_partition_size(char *part_name, char *response)
 
 	if (strcmp(part_name, "userdata") == 0 && !vendor_boot_partition)
 		strncpy(name, "data", 4);
+	else if (strcmp(part_name, "data") == 0 && vendor_boot_partition)
+		strncpy(name, "userdata", 8);
 	else
 		strncpy(name, part_name, 32);
 
