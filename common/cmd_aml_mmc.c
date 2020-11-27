@@ -2167,6 +2167,7 @@ static int do_amlmmc_write_protect(cmd_tbl_t *cmdtp, int flag, int argc, char *c
 
 	if (argc > 5 || argc < 4)
 		return ret;
+
 	if (argc == 4) {
 		name = argv[2];
 		wp_type_str = argv[3];
@@ -2199,7 +2200,7 @@ static int do_amlmmc_write_protect(cmd_tbl_t *cmdtp, int flag, int argc, char *c
 
 	if (strcmp(wp_type_str, "temporary") == 0)
 		write_protect_type = WP_TEMPORARY_TYPE;
-	else if (strcmp(wp_type_str, "power_on") == 0 )
+	else if (strcmp(wp_type_str, "power_on") == 0)
 		write_protect_type = WP_POWER_ON_TYPE;
 	else if (strcmp(wp_type_str, "permanent") == 0)
 		write_protect_type = WP_PERMANENT_TYPE;
@@ -2210,6 +2211,123 @@ static int do_amlmmc_write_protect(cmd_tbl_t *cmdtp, int flag, int argc, char *c
 		ret = set_part_write_protect(mmc, write_protect_type, name);
 	else
 		ret = set_add_write_protect(mmc, write_protect_type, start, cnt);
+
+	return ret;
+}
+
+
+static int do_amlmmc_boot_wp(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	int ret = CMD_RET_USAGE;
+	u8 ext_csd[512] = {0};
+	char *name = NULL;
+	char *type = NULL;
+	struct mmc *mmc;
+	int dev = 1;
+	u8 boot_wp;
+
+	if (argc != 4)
+		return ret;
+
+	name = argv[2];
+	type = argv[3];
+	mmc = find_mmc_device(dev);
+	if (!mmc)
+		return 1;
+
+	if (IS_SD(mmc)) {
+		mmc = find_mmc_device(~dev);
+		if (!mmc)
+			return 1;
+		if (IS_SD(mmc)) {
+			printf("SD card can not be write protect\n");
+			return 1;
+		}
+	}
+
+	mmc_init(mmc);
+
+	ret = mmc_get_ext_csd(mmc, ext_csd);
+	if (ret) {
+		printf("get ext_csd failed\n");
+	}
+	boot_wp = ext_csd[EXT_CSD_BOOT_WP];
+
+	if (!strcmp(name, "both"))
+		boot_wp &= 0x7f;
+	else if (!strcmp(name, "boot0")) {
+		boot_wp |= 0x80;
+		boot_wp &= 0xf5;
+	} else if (!strcmp(name, "boot1"))
+		boot_wp |= 0x8a;
+	else
+		return -1;
+
+	if (!strcmp(type, "poweron")) {
+		boot_wp |= 0x1;
+		boot_wp &= 0xbf;
+	} else if (!strcmp(type,  "permanent")) {
+		boot_wp |= 0x4;
+		boot_wp &= 0xef;
+	} else
+		return -1;
+
+	printf("boot_wp is 0x%x\n", boot_wp);
+
+	ret = mmc_set_ext_csd(mmc, EXT_CSD_BOOT_WP, boot_wp);
+	if (ret) {
+		printf("set ext_csd boot_wp field failed\n");
+		return ret;
+	}
+
+	return ret;
+}
+
+static int do_amlmmc_boot_wp_status(cmd_tbl_t *cmdtp,
+		int flag, int argc, char *const argv[])
+{
+	int ret = CMD_RET_USAGE;
+	u8 ext_csd[512] = {0};
+	u8 boot_wp_status;
+	struct mmc *mmc;
+	int dev = 1;
+
+	if (argc != 2)
+		return ret;
+
+	mmc = find_mmc_device(dev);
+	if (!mmc)
+		return ret;
+
+	if (IS_SD(mmc)) {
+		mmc = find_mmc_device(~dev);
+		if (!mmc)
+			return ret;
+		if (IS_SD(mmc)) {
+			printf("SD card can not be write protect\n");
+			return 1;
+		}
+	}
+
+	mmc_init(mmc);
+	ret = mmc_get_ext_csd(mmc, ext_csd);
+	if (ret)
+		printf("get ext_csd failed\n");
+	boot_wp_status =  ext_csd[EXT_CSD_BOOT_WP_STATUS];
+
+	if ((boot_wp_status & 0x3) == 0)
+		printf("boot0 is not protected\n");
+	else if ((boot_wp_status & 0x3) == 1)
+		printf("boot0 is power on protected\n");
+	else if ((boot_wp_status & 0x3) == 2)
+		printf("boot0 is permanently protected\n");
+
+	if ((boot_wp_status & 0xc) == 0)
+		printf("boot1 is not protected\n");
+	else if ((boot_wp_status & 0xc) == 4)
+		printf("boot1 is power on protected\n");
+	else if ((boot_wp_status & 0xc) == 8)
+		printf("boot1 is permanently protected\n");
 
 	return ret;
 }
@@ -3245,10 +3363,12 @@ static cmd_tbl_t cmd_amlmmc[] = {
 	U_BOOT_CMD_MKENT(controller,    3, 0, do_amlmmc_controller,    "", ""),
 	U_BOOT_CMD_MKENT(size,          4, 0, do_amlmmc_size,          "", ""),
 	U_BOOT_CMD_MKENT(env,           2, 0, do_amlmmc_env,           "", ""),
-	U_BOOT_CMD_MKENT(write_protect, 5, 0, do_amlmmc_write_protect,  "", ""),
+	U_BOOT_CMD_MKENT(write_protect, 5, 0, do_amlmmc_write_protect,   "", ""),
 	U_BOOT_CMD_MKENT(send_wp_status, 4, 0, do_amlmmc_send_wp_status, "", ""),
-	U_BOOT_CMD_MKENT(send_wp_type,   4, 0, do_amlmmc_send_wp_type, "", ""),
-	U_BOOT_CMD_MKENT(clear_wp,      4, 0, do_amlmmc_clear_wp,      "", ""),
+	U_BOOT_CMD_MKENT(send_wp_type,   4, 0, do_amlmmc_send_wp_type,   "", ""),
+	U_BOOT_CMD_MKENT(clear_wp,       4, 0, do_amlmmc_clear_wp,       "", ""),
+	U_BOOT_CMD_MKENT(boot_wp,        4, 0, do_amlmmc_boot_wp,        "", ""),
+	U_BOOT_CMD_MKENT(boot_wp_status, 2, 0, do_amlmmc_boot_wp_status, "", ""),
 	U_BOOT_CMD_MKENT(ds,            4, 0, do_amlmmc_driver_strength, "", ""),
 #ifdef CONFIG_SECURITYKEY
 	U_BOOT_CMD_MKENT(key,           2, 0, do_amlmmc_key,           "", ""),
@@ -3309,6 +3429,8 @@ U_BOOT_CMD(
 	"amlmmc send_wp_type <addr_base16> <cnt_base10> send protect type on specified address\n"
 	"amlmmc clear_wp <partition_name> clear write protect of partition\n"
 	"amlmmc clear_wp <addr_base16> <cnt_base10> clear write protect on specified addresst\n"
+	"amlmmc boot_wp <boot number> <write protect type> boot0/boot1/both, /poweron/permanent\n"
+	"amlmmc boot_wp_status send boot write protect status\n"
 	"amlmmc ds <dev_num> <val> set driver strength\n"
 #ifdef CONFIG_SECURITYKEY
 	"amlmmc key - disprotect key partition\n"
