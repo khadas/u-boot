@@ -868,8 +868,15 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	} else if (!strncmp("partition-size", cmd, strlen("partition-size"))) {
 		char str_num[20];
 		struct partitions *pPartition;
-		uint64_t sz;
+		uint64_t sz = 0;
+		int ret = -1;
 		strsep(&cmd, ":");
+		if ((cmd == NULL) || (strcmp(cmd, "") == 0)) {
+			printf("partition name is NULL\n");
+			strcpy(response, "FAILpartition name is NULL");
+			fastboot_tx_write_str(response);
+			return;
+		}
 		printf("partition is %s\n", cmd);
 		if (strcmp(cmd, "userdata") == 0 && !vendor_boot_partition) {
 			strcpy(cmd, "data");
@@ -881,9 +888,15 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		} else {
 			if (!strncmp("bootloader-", cmd, strlen("bootloader-"))) {
 				strsep(&cmd, "-");
-				mmc_boot_size(cmd, &sz);
-				printf("size:%016llx\n", sz);
-				sprintf(str_num, "%016llx", sz);
+				ret = mmc_boot_size(cmd, &sz);
+				printf("ret = %d\n", ret);
+				if (ret == 0) {
+					printf("size:%016llx\n", sz);
+					sprintf(str_num, "%016llx", sz);
+				} else {
+					printf("get partitize error\n");
+					sprintf(str_num, "FAILget partitize error");
+				}
 			} else {
 				pPartition = find_mmc_partition_by_name(cmd);
 				if (pPartition) {
@@ -898,7 +911,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 					}
 				} else {
 					printf("find_mmc_partition_by_name fail\n");
-					sprintf(str_num, "get fail");
+					sprintf(str_num, "FAILget fail");
 				}
 			}
 			strncat(response, str_num, chars_left);
