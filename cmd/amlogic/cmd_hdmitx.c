@@ -31,43 +31,6 @@
 #include <amlogic/media/vout/lcd/aml_lcd.h>
 #endif
 
-
-static int vic_priority_table[16] = {
-	HDMI_3840x2160p60_16x9_Y420,
-	HDMI_3840x2160p60_16x9,
-	HDMI_3840x2160p50_16x9_Y420,
-	HDMI_3840x2160p50_16x9,
-	HDMI_1920x1080p60_16x9,
-	HDMI_1920x1080p50_16x9,
-	HDMI_1280x720p60_16x9,
-	HDMI_1280x720p50_16x9,
-	HDMI_3840x2160p30_16x9,
-	HDMI_3840x2160p25_16x9,
-	HDMI_3840x2160p24_16x9,
-	HDMI_1920x1080p30_16x9,
-	HDMI_1920x1080p25_16x9,
-	HDMI_1920x1080p24_16x9,
-	HDMI_720x480p60_16x9,
-	HDMI_720x576p50_16x9,
-};
-
-//vic 2 mode and mode 2 vic conversions
-static struct color_attr_to_string color_attr_lut[] =
-{
-	{ COLOR_ATTR_YCBCR444_12BIT,  "444,12bit" },
-	{ COLOR_ATTR_YCBCR422_12BIT,  "422,12bit" },
-	{ COLOR_ATTR_YCBCR420_12BIT,  "420,12bit" },
-	{ COLOR_ATTR_RGB_12BIT,       "rgb,12bit" },
-	{ COLOR_ATTR_YCBCR444_10BIT,  "444,10bit" },
-	{ COLOR_ATTR_YCBCR422_10BIT,  "422,10bit" },
-	{ COLOR_ATTR_YCBCR420_10BIT,  "420,10bit" },
-	{ COLOR_ATTR_RGB_10BIT,       "rgb,10bit" },
-	{ COLOR_ATTR_YCBCR444_8BIT,   "444,8bit"  },
-	{ COLOR_ATTR_YCBCR422_8BIT,   "422,8bit"  },
-	{ COLOR_ATTR_YCBCR420_8BIT,   "420,8bit"  },
-	{ COLOR_ATTR_RGB_8BIT,        "rgb,8bit"  },
-};
-
 #ifdef CONFIG_AML_LCD
 static unsigned int hdmitx_parse_vout_name(char *name)
 {
@@ -351,6 +314,19 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			div40 = 1;
 		hdev->hwop.set_div40(div40);
 	} else { /* "output" */
+		if (!edid_parsing_ok(hdev)) {
+			/* SWPL-34712: if EDID parsing error case, not save env,
+			 * only forcely output default mode(480p,RGB,8bit).
+			 */
+			printf("edid parsing ng, forcely output 480p, rgb,8bit\n");
+			hdev->vic = HDMI_720x480p60_16x9;
+			hdev->para =
+				hdmi_get_fmt_paras(hdev->vic);
+			hdev->para->cs = HDMI_COLOR_FORMAT_RGB;
+			hdev->para->cd = HDMI_COLOR_DEPTH_24B;
+			hdmi_tx_set(hdev);
+			return CMD_RET_SUCCESS;
+		}
 		hdev->vic = hdmi_get_fmt_vic(argv[1]);
 		hdev->para = hdmi_get_fmt_paras(hdev->vic);
 		if (hdev->vic == HDMI_unkown) {
@@ -399,11 +375,12 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 				hdev->para->cs = HDMI_COLOR_FORMAT_444;
 				printf("set cs as %d\n", HDMI_COLOR_FORMAT_444);
 			}
+			/* For VESA modes, should be RGB format */
+			if (hdev->vic >= HDMITX_VESA_OFFSET) {
+				hdev->para->cs = HDMI_COLOR_FORMAT_RGB;
+				hdev->para->cd = HDMI_COLOR_DEPTH_24B;
+			}
 			break;
-		/* For VESA modes, should be RGB format */
-		if (hdev->vic >= HDMITX_VESA_OFFSET)
-			hdev->para->cs = HDMI_COLOR_FORMAT_RGB;
-			hdev->para->cd = HDMI_COLOR_DEPTH_24B;
 		}
 		printf("set hdmitx VIC = %d CS = %d CD = %d\n",
 		       hdev->vic, hdev->para->cs, hdev->para->cd);
@@ -480,7 +457,7 @@ static int do_info(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	return 1;
 }
 
-static int xtochar(int num, unsigned char* checksum)
+static int xtochar(int num, char* checksum)
 {
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
 
@@ -495,298 +472,6 @@ static int xtochar(int num, unsigned char* checksum)
 		checksum[1] = (hdev->rawedid[num] & 0xf) -10 + 'a';
 
 	return 0;
-}
-
-static int getBestHdmiColorAttributes(struct rx_cap *pRXCap,
-				      int resolution,
-				      int inColorSpace,
-				      int inColorDepth)
-{
-	int maxTMDSRate = 0;
-	//determine maximum bandwidth available
-	if (pRXCap->Max_TMDS_Clock2 != 0) {
-		maxTMDSRate = pRXCap->Max_TMDS_Clock2 * 5;
-		printf("getBestHdmiColorAttributes: maxTMDSRate1 = %d\n", maxTMDSRate);
-	} else {
-		if (pRXCap->Max_TMDS_Clock1 < 0xf)
-			pRXCap->Max_TMDS_Clock1 = 0x1e;
-		maxTMDSRate = pRXCap->Max_TMDS_Clock1 * 5;
-		printf("getBestHdmiColorAttributes: maxTMDSRate2 = %d\n", maxTMDSRate);
-	}
-
-	/* check 4k50/60 modes first */
-	if (resolution == HDMI_3840x2160p60_16x9_Y420 ||
-	    resolution == HDMI_3840x2160p60_16x9      ||
-	    resolution == HDMI_3840x2160p50_16x9_Y420 ||
-	    resolution == HDMI_3840x2160p50_16x9) {
-		//4k50 dovi
-		if ((pRXCap->dv_info.ieeeoui == 0x00d046) &&
-		    (maxTMDSRate >= 594) && (pRXCap->dv_info.sup_2160p60hz)) {
-			//std dovi vs LL dovi
-			//1.LL only
-			if ((pRXCap->dv_info.ver == 2) &&
-			    ((pRXCap->dv_info.Interface == 0) ||
-			     (pRXCap->dv_info.Interface == 1))) {
-				printf("getBestHdmiColorAttributes: 4k LL dovi, COLOR_ATTR_YCBCR422_12BIT\n");
-				return COLOR_ATTR_YCBCR422_12BIT;
-			//2.user request LL mdoe && sink support LL mode
-			} else if (request_ll_mode() && (pRXCap->dv_info.ver == 1) &&
-				(pRXCap->dv_info.length == 0xB) && pRXCap->dv_info.low_latency == 1) {
-				printf("getBestHdmiColorAttributes: 4k LL dovi, COLOR_ATTR_YCBCR422_12BIT\n");
-				return COLOR_ATTR_YCBCR422_12BIT;
-			}
-			//std dovi
-			printf("getBestHdmiColorAttributes: 4k std dovi, COLOR_ATTR_YCBCR444_8BIT\n");
-			return COLOR_ATTR_YCBCR444_8BIT;
-		}
-		if ((resolution == HDMI_3840x2160p60_16x9_Y420) ||
-		    (resolution == HDMI_3840x2160p50_16x9_Y420)) {
-			//rate needed = 594/2 * 12/8 Mcsc
-			if ((inColorDepth == HDMI_COLOR_DEPTH_36B) &&
-			    (pRXCap->dc_36bit_420) &&
-			   ((maxTMDSRate * 8) >= (297 * 12))) {
-				printf("getBestHdmiColorAttributes: 4k420, COLOR_ATTR_YCBCR420_12BIT\n");
-				return COLOR_ATTR_YCBCR420_12BIT;
-			}
-			//rate needed = 594/2 * 10/8 Mcsc
-			if (((inColorDepth == HDMI_COLOR_DEPTH_36B) ||
-			     (inColorDepth == HDMI_COLOR_DEPTH_30B)) &&
-			    (pRXCap->dc_30bit_420) &&
-			   ((maxTMDSRate * 8) >= (297 * 10))) {
-				printf("getBestHdmiColorAttributes: 4k420, COLOR_ATTR_YCBCR420_10BIT\n");
-				return COLOR_ATTR_YCBCR420_10BIT;
-			}
-			printf("getBestHdmiColorAttributes: 4k420, COLOR_ATTR_YCBCR420_8BIT\n");
-			return COLOR_ATTR_YCBCR420_8BIT;
-		}
-		//non 420 mode */
-		if (inColorSpace == HDMI_COLOR_FORMAT_444) {
-			if ((pRXCap->support_ycbcr444_flag) || (pRXCap->dc_y444)) {
-				printf("getBestHdmiColorAttributes: pure 4k, COLOR_ATTR_YCBCR444_8BIT\n");
-				return COLOR_ATTR_YCBCR444_8BIT;
-			}
-			if (pRXCap->support_ycbcr422_flag) {
-				printf("getBestHdmiColorAttributes: pure 4k, COLOR_ATTR_YCBCR422_8BIT\n");
-				return COLOR_ATTR_YCBCR422_8BIT;
-			}
-		}
-		printf("getBestHdmiColorAttributes: pure 4k, default: COLOR_ATTR_RGB_8BIT\n");
-		return COLOR_ATTR_RGB_8BIT;
-	}
-	//non 4k60 dovi
-	if (pRXCap->dv_info.ieeeoui == 0x00d046) {
-		//std dovi vs LL dovi
-		//1.LL only
-		if ((pRXCap->dv_info.ver == 2) &&
-		    ((pRXCap->dv_info.Interface == 0) ||
-		     (pRXCap->dv_info.Interface == 1))) {
-			printf("getBestHdmiColorAttributes: non-4k LL dovi, COLOR_ATTR_YCBCR422_12BIT\n");
-			return COLOR_ATTR_YCBCR422_12BIT;
-		//2.user request LL mdoe && sink support LL mode
-		} else if (request_ll_mode() && (pRXCap->dv_info.ver == 1) &&
-			(pRXCap->dv_info.length == 0xB) && pRXCap->dv_info.low_latency == 1) {
-			printf("getBestHdmiColorAttributes: non-4k LL dovi, COLOR_ATTR_YCBCR422_12BIT\n");
-			return COLOR_ATTR_YCBCR422_12BIT;
-		}
-		//std dovi
-		printf("getBestHdmiColorAttributes: non-4k std dovi, COLOR_ATTR_YCBCR444_8BIT\n");
-		return COLOR_ATTR_YCBCR444_8BIT;
-	}
-	//find the best color attributes starting with preferred/supplied values
-	//assuming no 4k30 modes as uboot should never be in that mode
-	switch (inColorDepth)
-	{
-	case HDMI_COLOR_DEPTH_36B:
-		if (inColorSpace == HDMI_COLOR_FORMAT_444) {
-			if ((pRXCap->dc_y444) && (pRXCap->dc_36bit)) {
-				printf("getBestHdmiColorAttributes: COLOR_ATTR_YCBCR444_12BIT\n");
-				return COLOR_ATTR_YCBCR444_12BIT;
-			}
-			if (pRXCap->dc_36bit_420) {
-				printf("getBestHdmiColorAttributes: COLOR_ATTR_YCBCR444_12BIT\n");
-				return COLOR_ATTR_YCBCR420_12BIT;
-			}
-		}
-		if ((inColorSpace == HDMI_COLOR_FORMAT_RGB) &&
-		    (pRXCap->dc_36bit)) {
-			printf("getBestHdmiColorAttributes: COLOR_ATTR_RGB_12BIT\n");
-			return COLOR_ATTR_RGB_12BIT;
-		}
-		break;
-	case HDMI_COLOR_DEPTH_30B:
-		if (inColorSpace == HDMI_COLOR_FORMAT_444) {
-			if ((pRXCap->dc_y444) && (pRXCap->dc_30bit)) {
-				printf("getBestHdmiColorAttributes: COLOR_ATTR_YCBCR444_10BIT\n");
-				return COLOR_ATTR_YCBCR444_10BIT;
-			}
-			if (pRXCap->dc_30bit_420) {
-				printf("getBestHdmiColorAttributes: COLOR_ATTR_YCBCR420_10BIT\n");
-				return COLOR_ATTR_YCBCR420_10BIT;
-			}
-		}
-		if ((inColorSpace == HDMI_COLOR_FORMAT_RGB) &&
-		    (pRXCap->dc_30bit)) {
-			printf("getBestHdmiColorAttributes: COLOR_ATTR_RGB_10BIT\n");
-			return COLOR_ATTR_RGB_10BIT;
-		};
-		break;
-	default:
-		if (inColorSpace == HDMI_COLOR_FORMAT_444) {
-			if (pRXCap->support_ycbcr444_flag) {
-				printf("getBestHdmiColorAttributes: COLOR_ATTR_YCBCR444_8BIT\n");
-				return COLOR_ATTR_YCBCR444_8BIT;
-			}
-			if (pRXCap->support_ycbcr422_flag) {
-				printf("getBestHdmiColorAttributes: COLOR_ATTR_YCBCR422_8BIT\n");
-				return COLOR_ATTR_YCBCR422_8BIT;
-			}
-			if (pRXCap->dc_y420) {
-				printf("getBestHdmiColorAttributes: COLOR_ATTR_YCBCR420_8BIT\n");
-				return COLOR_ATTR_YCBCR420_8BIT;
-			}
-		}
-	}
-	//default to rgb,8 bits always
-	printf("getBestHdmiColorAttributes: COLOR_ATTR_RGB_8BIT\n");
-	return COLOR_ATTR_RGB_8BIT;
-}
-
-bool isYuv4kSink(struct rx_cap *pRXCap)
-{
-	int maxTMDSRate = 0;
-	int i = 0;
-	int VIC = -1;
-
-	//determine maximum bandwidth available
-	if (pRXCap->Max_TMDS_Clock2 != 0) {
-		maxTMDSRate = pRXCap->Max_TMDS_Clock2 * 5;
-	} else {
-		if (pRXCap->Max_TMDS_Clock1 < 0xf)
-			pRXCap->Max_TMDS_Clock1 = 0x1e;
-		maxTMDSRate = pRXCap->Max_TMDS_Clock1 * 5;
-	}
-
-	for (i = 0; i < pRXCap->VIC_count; i++) {
-		VIC = pRXCap->VIC[i];
-		if ((VIC == HDMI_3840x2160p60_16x9_Y420 ||
-			VIC == HDMI_3840x2160p50_16x9_Y420) &&
-			maxTMDSRate >= 297) {
-			printf("isYuv4kSink: true, maxTMDSRate=%d\n", maxTMDSRate);
-			return true;
-		}
-		if  ((VIC == HDMI_3840x2160p60_16x9  ||
-			VIC == HDMI_3840x2160p50_16x9) &&
-			maxTMDSRate > 594) {
-			printf("isYuv4kSink: true, maxTMDSRate=%d\n", maxTMDSRate);
-			return true;
-		}
-	}
-	printf("isYuv4kSink: false, maxTMDSRate=%d\n",maxTMDSRate);
-	return false;
-}
-
-static int selectBestMode(struct rx_cap *pRXCap, bool isAuto, int manualMode)
-{
-	int maxTMDSRate = 0;
-	bool is4k60Dovi = false;
-	bool isDoviSink = false;
-	int bestVIC = -1;
-	int i = 0, j = 0;
-
-	//determine maximum bandwidth available
-	if (pRXCap->Max_TMDS_Clock2 != 0) {
-		maxTMDSRate = pRXCap->Max_TMDS_Clock2 * 5;
-		printf("selectBestMode: maxTMDSRate1 = %d\n", maxTMDSRate);
-	} else {
-		if (pRXCap->Max_TMDS_Clock1 < 0xf)
-			pRXCap->Max_TMDS_Clock1 = 0x1e;
-		maxTMDSRate = pRXCap->Max_TMDS_Clock1 * 5;
-		printf("selectBestMode: maxTMDSRate2 = %d\n", maxTMDSRate);
-	}
-	//dovi 4k60 or not
-	if (pRXCap->dv_info.ieeeoui == 0x00d046 && is_dolby_enable()) {
-		isDoviSink = true;
-		if ((maxTMDSRate >= 594) && (pRXCap->dv_info.sup_2160p60hz)) {
-			printf("selectBestMode: is4k60Dovi=true, maxTMDSRate = %d\n", maxTMDSRate);
-			is4k60Dovi = true;
-		}
-	}
-	printf("isDoviSink %d, is4k60Dovi %d, manualMode %d\n", isDoviSink, is4k60Dovi, manualMode);
-
-	//check if it was user selected manual mode or auto mode
-	if (!isAuto) {
-		/* update preferred vic for manuam mode if 4k60dovi sink or not */
-		if (is4k60Dovi) {
-			if (manualMode == HDMI_3840x2160p60_16x9_Y420)
-				manualMode = HDMI_3840x2160p60_16x9;
-			if (manualMode == HDMI_3840x2160p50_16x9_Y420)
-				manualMode = HDMI_3840x2160p50_16x9;
-		} else {
-			if (manualMode == HDMI_3840x2160p60_16x9)
-				manualMode = HDMI_3840x2160p60_16x9_Y420;
-			if (manualMode == HDMI_3840x2160p50_16x9)
-				manualMode = HDMI_3840x2160p50_16x9_Y420;
-		}
-		for (i = 0; i < pRXCap->VIC_count; i++) {
-			if ((pRXCap->VIC[i] == HDMI_3840x2160p60_16x9_Y420  ||
-			     pRXCap->VIC[i] == HDMI_3840x2160p50_16x9_Y420) &&
-			     maxTMDSRate < 297) {
-			     printf("selectBestMode: 4k420 vic, maxTMDSRate = %d, skipping\n", maxTMDSRate);
-			     continue;
-			}
-			if ((pRXCap->VIC[i] == HDMI_3840x2160p60_16x9  ||
-			     pRXCap->VIC[i] == HDMI_3840x2160p50_16x9) &&
-			     maxTMDSRate < 340) {
-			     printf("selectBestMode: 4k vic, maxTMDSRate = %d, skipping\n", maxTMDSRate);
-			     continue;
-			}
-			if (manualMode == pRXCap->VIC[i]) {
-				printf("selectBestMode: found manualMode=%d, maxTMDSRate = %d\n", manualMode, maxTMDSRate);
-				return manualMode;
-			}
-		}
-	}
-
-	//if we are here, we need to choose best auto mode as per the priority table
-	for (i = 0; i < sizeof(vic_priority_table)/sizeof(vic_priority_table[0]); i++) {
-		bestVIC = vic_priority_table[i];
-		if ((is4k60Dovi) &&
-		    (bestVIC == HDMI_3840x2160p60_16x9_Y420  ||
-		     bestVIC == HDMI_3840x2160p50_16x9_Y420)) {
-			printf("selectBestMode: is4k60Dovi=true, 4k420 vic, skipping\n");
-			continue;
-		}
-		if (isDoviSink && !is4k60Dovi &&
-		    (bestVIC == HDMI_3840x2160p60_16x9_Y420 ||
-		     bestVIC == HDMI_3840x2160p60_16x9      ||
-		     bestVIC == HDMI_3840x2160p50_16x9_Y420 ||
-		     bestVIC == HDMI_3840x2160p50_16x9)) {
-			printf("selectBestMode: is4k30Dovi=true, 4k vic, skipping\n");
-			continue;
-		}
-		if ((bestVIC == HDMI_3840x2160p60_16x9_Y420  ||
-		     bestVIC == HDMI_3840x2160p50_16x9_Y420) &&
-		     maxTMDSRate < 297) {
-			printf("selectBestMode: 4k420 vic, maxTMDSRate = %d, skipping\n", maxTMDSRate);
-			continue;
-		}
-		if ((bestVIC == HDMI_3840x2160p60_16x9  ||
-		     bestVIC == HDMI_3840x2160p50_16x9) &&
-		     maxTMDSRate < 340) {
-			printf("selectBestMode: 4k vic, maxTMDSRate = %d, skipping\n", maxTMDSRate);
-			continue;
-		}
-		for (j = 0; j < pRXCap->VIC_count; j++) {
-			printf("selectBestMode: vic_priority_table[%d]=%d, bestVIC=%d, pRXCap->VIC[%d]=%d\n",
-				i, vic_priority_table[i], bestVIC, j, pRXCap->VIC[j]);
-			if (bestVIC == pRXCap->VIC[j]) {
-				printf("selectBestMode: bestVIC=%d\n", bestVIC);
-				return bestVIC;
-			}
-		}
-	}
-	printf("selectBestMode: return default 1080p as bestVIC=%d\n", bestVIC);
-	return HDMI_1920x1080p60_16x9; //default
 }
 
 static void get_parse_edid_data(struct hdmitx_dev *hdev)
@@ -820,6 +505,43 @@ static void get_parse_edid_data(struct hdmitx_dev *hdev)
 	}
 }
 
+/* policy process: to find the output mode/attr/dv_type */
+void scene_process(struct hdmitx_dev *hdev,
+	scene_output_info_t *scene_output_info)
+{
+	hdmi_data_t hdmidata;
+
+	if (!hdev || !scene_output_info)
+		return;
+	/* 1.read dolby vision mode from prop(maybe need to env) */
+	memset(&hdmidata, 0, sizeof(hdmi_data_t));
+	get_hdmi_data(hdev, &hdmidata);
+
+	/* 2. dolby vision scene process */
+	/* only for tv support dv and box enable dv */
+	if (is_dolby_enabled() && is_tv_support_dv(hdev)) {
+		dolbyvision_scene_process(&hdmidata, scene_output_info);
+	} else if (is_dolby_enabled()) {
+		/* for enable dolby vision core when
+		 * first boot connecting non dv tv
+		 * NOTE: let systemcontrol to enable DV core
+		 */
+		/* scene_output_info->final_dv_type = DOLBY_VISION_ENABLE; */
+	} else {
+		/* for UI disable dolby vision core and boot keep the status
+		 * NOTE: TBD if need to disable DV here
+		 */
+		/* scene_output_info->final_dv_type = DOLBY_VISION_DISABLE; */
+	}
+	/* 3.sdr scene process */
+	/* decide final display mode and deepcolor */
+	if (is_dolby_enabled() && is_tv_support_dv(hdev)) {
+		/* do nothing */
+	} else {
+		sdr_scene_process(&hdmidata, scene_output_info);
+	}
+}
+
 static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 	char * const argv[])
 {
@@ -831,73 +553,28 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 	unsigned int checkvalue[4];
 	unsigned int checkvalue1;
 	unsigned int checkvalue2;
-	unsigned char checksum[11];
-	struct hdmi_format_para *para;
+	char checksum[11];
 	char* hdmimode;
 	char* colorattribute;
-	char* colorspace;
-	char* colordepth;
-	int manualMode = -1, bestMode = -1, autoMode = -1;
-	int inColorSpace = -1, inColorDepth = -1;
-	int bestColorAttributes = -1;
+	char dv_type[2] = {0};
+	scene_output_info_t scene_output_info;
+
+	if (!hdev->hwop.get_hpd_state()) {
+		printf("HDMI HPD low, no need parse EDID\n");
+		return 1;
+	}
+	memset(&scene_output_info, 0, sizeof(scene_output_info_t));
 
 	get_parse_edid_data(hdev);
 
-	/*check if the tv has changed or anything wrong*/
-
+	/* check if the tv has changed or anything wrong */
 	store_checkvalue = (unsigned char*)env_get("hdmichecksum");
-
 	colorattribute = env_get("colorattribute");
-
-	printf("do_get_parse_edid read hdmichecksum %s, colorattribute %s\n", store_checkvalue, colorattribute);
-
-	/* read the input params used by systemcontrol to determine
-	 * mode and use the same params to determine the uboot mode
-	 * independently.
-	 */
-
 	hdmimode = env_get("hdmimode");
-	colorspace = env_get("hdmi_colorspace");
-	colordepth = env_get("hdmi_colordepth");
-	printf("read hdmimode %s, colorspace %s, colordepth %s\n", hdmimode, colorspace, colordepth);
 
-	if (hdmimode && strcmp(hdmimode, "auto")) {
-		manualMode = hdmi_get_fmt_vic(hdmimode);
-		printf("do_get_parse_edid: autoMode = false, manualMode=%d\n", manualMode);
-		autoMode = false;
-	} else {
-		printf("do_get_parse_edid: autoMode = true, manualMode=%d\n", manualMode);
-		autoMode = true;
-	}
+	printf("read hdmichecksum: %s, hdmimode: %s, colorattribute: %s\n",
+	       store_checkvalue, hdmimode, colorattribute);
 
-	if (colorspace && (!strcmp(colorspace, "rgb"))) {
-		inColorSpace = HDMI_COLOR_FORMAT_RGB;
-		printf("do_get_parse_edid: inColorSpace: HDMI_COLOR_FORMAT_RGB\n");
-	} else if (colorspace && (!strcmp(colorspace, "ycbcr"))) {
-		inColorSpace = HDMI_COLOR_FORMAT_444;
-		printf("do_get_parse_edid: inColorSpace: HDMI_COLOR_FORMAT_444\n");
-	} else {
-		/* no logoparam or garbage value or auto */
-		if (isYuv4kSink(&hdev->RXCap)) {
-			inColorSpace = HDMI_COLOR_FORMAT_444;
-			printf("do_get_parse_edid: yuv4k sink: inColorSpace: HDMI_COLOR_FORMAT_444\n");
-		} else {
-			inColorSpace = HDMI_COLOR_FORMAT_RGB;
-			printf("do_get_parse_edid: non-yuv4k sink: inColorSpace: HDMI_COLOR_FORMAT_RGB\n");
-		}
-	}
-
-	if (colordepth && (!strcmp(colordepth, "12"))) {
-		inColorDepth = HDMI_COLOR_DEPTH_36B;
-		printf("do_get_parse_edid: inColorDepth: HDMI_COLOR_DEPTH_36B\n");
-	} else if (colordepth && (!strcmp(colordepth, "10"))) {
-		inColorDepth = HDMI_COLOR_DEPTH_30B;
-		printf("do_get_parse_edid: inColorDepth: HDMI_COLOR_DEPTH_30B\n");
-	} else {
-		/* no logoparam or garbage value */
-		inColorDepth = HDMI_COLOR_DEPTH_24B;
-		printf("do_get_parse_edid: default inColorDepth: HDMI_COLOR_DEPTH_24B\n");
-	}
 	for (i = 0; i < 4; i++) {
 		if (('0' <= store_checkvalue[i * 2 + 2]) && (store_checkvalue[i * 2 + 2] <= '9'))
 			checkvalue1 = store_checkvalue[i * 2 + 2] -'0';
@@ -922,59 +599,52 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 			xtochar(0x80 * i + 0x7f, &checksum[2* i + 2]);
 		checksum[10] = '\0';
 		memcpy(hdev->RXCap.checksum, checksum, 10);
-		printf("TV has changed, initial mode is: %s  attr: %s crc is :%s\n",
+		printf("TV has changed, initial mode: %s  attr: %s now crc: %s\n",
 			env_get("outputmode"), env_get("colorattribute"), checksum);
 	} else {
 		memcpy(hdev->RXCap.checksum, store_checkvalue, 10);
-		printf("TV is same, initial mode is: %s attr: %s\n",
-			env_get("outputmode"), env_get("colorattribute"));
+		printf("TV is same, initial mode is: %s attr: %s, checksum: %s\n",
+			env_get("outputmode"), env_get("colorattribute"),
+			hdev->RXCap.checksum);
 	}
 
-	if (!is_dolby_enable())
-		return 0;
-
-	if (hdev->RXCap.edid_changed && strncmp("0x00000000", (const char*)(hdev->RXCap.checksum), 10)) {
-		/* find best mode if edid available */
-		bestMode = selectBestMode(&hdev->RXCap, autoMode, manualMode);
-		hdev->RXCap.preferred_mode = bestMode;
-		printf("do_get_parse_edid: bestMode = %d\n", bestMode);
-
-		para = hdmi_get_fmt_paras(bestMode);
-		if (para) {
-			if (!strcmp(para->sname, "2160p50hz420"))
-				env_set("outputmode", "2160p50hz");
-			else if (!strcmp(para->sname, "2160p60hz420"))
-				env_set("outputmode", "2160p60hz");
-			else
-				env_set("outputmode", para->sname);
-		}
-		else
-			env_set("outputmode", "1080p60hz");
-		printf("update outputmode: %s\n", env_get("outputmode"));
-
-		/*find best color attributes for the selected hdmi mode */
-		bestColorAttributes = getBestHdmiColorAttributes(&hdev->RXCap,
-								  bestMode,
-								  inColorSpace,
-								  inColorDepth);
-		printf("do_get_parse_edid: bestColorAttributes = %d\n", bestColorAttributes);
-
-		if (bestColorAttributes >=0 && bestColorAttributes < COLOR_ATTR_RESERVED) {
-			for (i = 0; i < sizeof(color_attr_lut) / sizeof(color_attr_lut[0]); i++) {
-				if (bestColorAttributes == color_attr_lut[i].color_attr) {
-					/* set the colorattribute string from the LUT match */
-					env_set("colorattribute", color_attr_lut[i].color_attr_string);
-					printf("do_get_parse_edid: setenv colorattribute = %s\n",
-								color_attr_lut[i].color_attr_string);
-					break;
-				}
+	if (hdev->RXCap.edid_changed) {
+		/* find proper mode if EDID changed */
+		scene_process(hdev, &scene_output_info);
+		env_set("hdmichecksum", hdev->RXCap.checksum);
+		if (edid_parsing_ok(hdev)) {
+			/* SWPL-34712: if EDID parsing error case, not save env,
+			 * only output default mode(480p,RGB,8bit). after
+			 * EDID read OK, systemcontrol will recover the hdmi
+			 * mode from env, to avoid keep the default hdmi output
+			 */
+			env_set("hdmimode", scene_output_info.final_displaymode);
+			env_set("outputmode",
+			       scene_output_info.final_displaymode);
+			env_set("colorattribute",
+			       scene_output_info.final_deepcolor);
+			/* if change from DV TV to HDR/SDR TV, don't change
+			 * DV status to disabled, as DV core need to be enabled.
+			 */
+			if ((scene_output_info.final_dv_type !=
+			    get_ubootenv_dv_type()) &&
+			    (scene_output_info.final_dv_type !=
+			     DOLBY_VISION_DISABLE)) {
+				sprintf(dv_type, "%d", scene_output_info.final_dv_type);
+				env_set("dolby_status", dv_type);
+				/* according to the policy of systemcontrol,
+				 * if current DV mode is not supported by TV
+				 * EDID, DV type maybe changed to one witch
+				 * TV support, and need VPP/DV module to
+				 * update new DV output mode.
+				 */
+				printf("update dv_type: %d\n",
+				       scene_output_info.final_dv_type);
 			}
-		} else
-			env_set("colorattribute", "rgb,8bit");
+		}
+		printf("update outputmode: %s\n", env_get("outputmode"));
 		printf("update colorattribute: %s\n", env_get("colorattribute"));
-	} else {
-		printf("Tv not changed or null checksum: outputmode: %s attr: %s, checksum %s\n",
-			env_get("outputmode"), env_get("colorattribute"), hdev->RXCap.checksum);
+		printf("update hdmichecksum: %s\n", env_get("hdmichecksum"));
 	}
 	return 0;
 }

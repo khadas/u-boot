@@ -36,6 +36,26 @@ struct hdmitx_dev *hdmitx_get_hdev(void);
 struct hdmi_format_para *hdmi_get_fmt_paras(enum hdmi_vic vic);
 enum hdmi_vic hdmi_get_fmt_vic(char const *name);
 void hdmi_parse_attr(struct hdmi_format_para *para, char const *name);
+int hdmitx_edid_VIC_support(enum hdmi_vic vic);
+enum hdmi_vic hdmitx_edid_vic_tab_map_vic(const char *disp_mode);
+const char *hdmitx_edid_vic_tab_map_string(enum hdmi_vic vic);
+const char *hdmitx_edid_vic_to_string(enum hdmi_vic vic);
+bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
+	struct hdmi_format_para *para);
+enum hdmi_vic hdmitx_edid_get_VIC(struct hdmitx_dev *hdev,
+	const char *disp_mode, char force_flag);
+bool edid_parsing_ok(struct hdmitx_dev *hdev);
+bool is_dolby_enabled(void);
+bool is_tv_support_dv(struct hdmitx_dev *hdev);
+void dolbyvision_scene_process(hdmi_data_t *hdmi_data,
+	scene_output_info_t *output_info);
+void sdr_scene_process(hdmi_data_t *hdmi_data,
+	scene_output_info_t *output_info);
+void get_hdmi_data(struct hdmitx_dev *hdev, hdmi_data_t *data);
+bool pre_process_str(char *name);
+struct hdmi_format_para *hdmi_tst_fmt_name(char const *name, char const *attr);
+bool is_supported_mode_attr(hdmi_data_t *hdmi_data, char *mode_attr);
+int get_ubootenv_dv_type(void);
 void hdmi_tx_set(struct hdmitx_dev *hdev);
 /* Parsing RAW EDID data from edid to pRXCap */
 unsigned int hdmi_edid_parsing(unsigned char *edid, struct rx_cap *pRXCap);

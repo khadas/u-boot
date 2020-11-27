@@ -2347,3 +2347,89 @@ bool hdmimode_is_interlaced(enum hdmi_vic vic)
 		break;
 	}
 }
+
+static struct hdmi_format_para tst_para;
+static inline void copy_para(struct hdmi_format_para *des,
+	struct hdmi_format_para *src)
+{
+	if (!des || !src)
+		return;
+	memcpy(des, src, sizeof(struct hdmi_format_para));
+}
+
+bool pre_process_str(char *name)
+{
+	int i;
+	unsigned int flag = 0;
+	char *color_format[4] = {"444", "422", "420", "rgb"};
+
+	for (i = 0 ; i < 4 ; i++) {
+		if (strstr(name, color_format[i]) != NULL)
+			flag++;
+	}
+	if (flag >= 2)
+		return false;
+	else
+		return true;
+}
+
+struct hdmi_format_para *hdmi_tst_fmt_name(char const *name, char const *attr)
+{
+	int i;
+	char *lname;
+	enum hdmi_vic vic = HDMI_unkown;
+	unsigned int copy_len;
+
+	copy_para(&tst_para, &fmt_para_non_hdmi_fmt);
+	if (!name)
+		return &tst_para;
+
+	for (i = 0; all_fmt_paras[i]; i++) {
+		lname = all_fmt_paras[i]->name;
+		if (lname && (strncmp(name, lname, strlen(lname)) == 0)) {
+			vic = all_fmt_paras[i]->vic;
+			break;
+		}
+		lname = all_fmt_paras[i]->sname;
+		if (lname && (strncmp(name, lname, strlen(lname)) == 0)) {
+			vic = all_fmt_paras[i]->vic;
+			break;
+		}
+	}
+	if ((vic != HDMI_unkown) && (i != sizeof(all_fmt_paras) /
+		sizeof(struct hdmi_format_para *))) {
+		copy_para(&tst_para, all_fmt_paras[i]);
+		memset(&tst_para.ext_name[0], 0, sizeof(tst_para.ext_name));
+		copy_len = strlen(name);
+		if (copy_len >= sizeof(tst_para.ext_name))
+			copy_len = sizeof(tst_para.ext_name) - 1;
+		memcpy(&tst_para.ext_name[0], name, copy_len);
+		hdmi_parse_attr(&tst_para, name);
+		hdmi_parse_attr(&tst_para, attr);
+	} else {
+		copy_para(&tst_para, &fmt_para_non_hdmi_fmt);
+		hdmi_parse_attr(&tst_para, name);
+		hdmi_parse_attr(&tst_para, attr);
+	}
+	if (strstr(name, "420"))
+		tst_para.cs = HDMI_COLOR_FORMAT_420;
+
+	/* only 2160p60/50hz smpte60/50hz have Y420 mode */
+	if (tst_para.cs == HDMI_COLOR_FORMAT_420) {
+		switch ((tst_para.vic) & 0xff) {
+		case HDMI_3840x2160p50_16x9:
+		case HDMI_3840x2160p60_16x9:
+		case HDMI_4096x2160p50_256x135:
+		case HDMI_4096x2160p60_256x135:
+		case HDMI_3840x2160p50_64x27:
+		case HDMI_3840x2160p60_64x27:
+			break;
+		default:
+			copy_para(&tst_para, &fmt_para_non_hdmi_fmt);
+			break;
+		}
+	}
+
+	return &tst_para;
+}
+

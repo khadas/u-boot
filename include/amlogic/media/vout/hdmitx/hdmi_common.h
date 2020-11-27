@@ -193,6 +193,41 @@ enum hdmi_vic {
 	HDMIV_2400x1200p90hz,
 };
 
+/* Compliance with old definitions */
+#define HDMI_640x480p60         HDMI_640x480p60_4x3
+#define HDMI_480p60             HDMI_720x480p60_4x3
+#define HDMI_480p60_16x9        HDMI_720x480p60_16x9
+#define HDMI_720p60             HDMI_1280x720p60_16x9
+#define HDMI_1080i60            HDMI_1920x1080i60_16x9
+#define HDMI_480i60             HDMI_720x480i60_4x3
+#define HDMI_480i60_16x9        HDMI_720x480i60_16x9
+#define HDMI_480i60_16x9_rpt    HDMI_2880x480i60_16x9
+#define HDMI_1440x480p60        HDMI_1440x480p60_4x3
+#define HDMI_1440x480p60_16x9   HDMI_1440x480p60_16x9
+#define HDMI_1080p60            HDMI_1920x1080p60_16x9
+#define HDMI_576p50             HDMI_720x576p50_4x3
+#define HDMI_576p50_16x9        HDMI_720x576p50_16x9
+#define HDMI_720p50             HDMI_1280x720p50_16x9
+#define HDMI_1080i50            HDMI_1920x1080i50_16x9
+#define HDMI_576i50             HDMI_720x576i50_4x3
+#define HDMI_576i50_16x9        HDMI_720x576i50_16x9
+#define HDMI_576i50_16x9_rpt    HDMI_2880x576i50_16x9
+#define HDMI_1080p50            HDMI_1920x1080p50_16x9
+#define HDMI_1080p24            HDMI_1920x1080p24_16x9
+#define HDMI_1080p25            HDMI_1920x1080p25_16x9
+#define HDMI_1080p30            HDMI_1920x1080p30_16x9
+#define HDMI_1080p120           HDMI_1920x1080p120_16x9
+#define HDMI_480p60_16x9_rpt    HDMI_2880x480p60_16x9
+#define HDMI_576p50_16x9_rpt    HDMI_2880x576p50_16x9
+#define HDMI_4k2k_24            HDMI_3840x2160p24_16x9
+#define HDMI_4k2k_25            HDMI_3840x2160p25_16x9
+#define HDMI_4k2k_30            HDMI_3840x2160p30_16x9
+#define HDMI_4k2k_50            HDMI_3840x2160p50_16x9
+#define HDMI_4k2k_60            HDMI_3840x2160p60_16x9
+#define HDMI_4k2k_smpte_24      HDMI_4096x2160p24_256x135
+#define HDMI_4k2k_smpte_50      HDMI_4096x2160p50_256x135
+#define HDMI_4k2k_smpte_60      HDMI_4096x2160p60_256x135
+
 /* CEA TIMING STRUCT DEFINITION */
 struct hdmi_cea_timing {
 	unsigned int pixel_freq; /* Unit: 1000 */
@@ -240,6 +275,7 @@ enum block_type {
 	ERROR_NULL = 0,
 	ERROR_LENGTH,
 	ERROR_OUI,
+	ERROR_VER,
 	CORRECT,
 };
 
@@ -377,6 +413,10 @@ struct dv_info {
 	uint8_t backlt_min_luma;/*only ver2*/
 	uint8_t Interface;/*only ver2*/
 	uint8_t sup_10b_12b_444;/*only ver2*/
+	uint8_t support_DV_RGB_444_8BIT;
+	uint8_t support_LL_YCbCr_422_12BIT;
+	uint8_t support_LL_RGB_444_10BIT;
+	uint8_t support_LL_RGB_444_12BIT;
 };
 
 enum eotf_type {
@@ -464,7 +504,7 @@ struct rx_cap {
 	/*blk0 check sum*/
 	unsigned char chksum;
 	/*blk0-3 check sum*/
-	unsigned char checksum[10];
+	char checksum[10];
 	unsigned char edid_changed;
 	/* for total = 32*8 = 256 VICs */
 	/* for Y420CMDB bitmap */
@@ -575,6 +615,41 @@ struct hdmi_support_mode {
 	char y420;
 };
 
+#define DOLBY_VISION_LL_RGB             3
+#define DOLBY_VISION_LL_YUV             2
+#define DOLBY_VISION_STD_ENABLE         1
+#define DOLBY_VISION_DISABLE            0
+#define DOLBY_VISION_ENABLE	1
+
+#define HDMI_IEEEOUI 0x000C03
+#define MODE_LEN	32
+#define VESA_MAX_TIMING 64
+
+typedef struct input_hdmi_data {
+	char ubootenv_hdmimode[MODE_LEN];
+	char ubootenv_colorattribute[MODE_LEN];
+	int ubootenv_dv_type;
+	#if 0
+	bool isbestpolicy;
+	bool isSupport4K30Hz;
+	bool isSupport4K;
+	bool isDeepColor;
+	bool isframeratepriority;
+	bool isLowPowerMode;
+	#endif
+	struct rx_cap *pRXCap;
+} hdmi_data_t;
+
+typedef struct scene_output_info {
+	char final_displaymode[MODE_LEN];
+	char final_deepcolor[MODE_LEN];
+	int final_dv_type;
+} scene_output_info_t;
+
+struct dispmode_vic {
+	const char *disp_mode;
+	enum hdmi_vic VIC;
+};
 
 #endif
 

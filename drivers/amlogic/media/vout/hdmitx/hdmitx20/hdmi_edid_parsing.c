@@ -43,6 +43,72 @@
 #define TAG_ESTABLISHED_TIMING_III 0xF7
 #define TAG_DUMMY_DES 0x10
 
+static struct dispmode_vic dispmode_vic_tab[] = {
+	{"480i60hz_4x3", HDMI_720x480i60_4x3},
+	{"480p60hz_4x3", HDMI_720x480p60_4x3},
+	{"576i50hz_4x3", HDMI_720x576i50_4x3},
+	{"576p50hz_4x3", HDMI_720x576p50_4x3},
+	{"480i60hz", HDMI_720x480i60_16x9},
+	{"480p60hz", HDMI_720x480p60_16x9},
+	{"576i50hz", HDMI_720x576i50_16x9},
+	{"576p50hz", HDMI_720x576p50_16x9},
+	{"720p50hz", HDMI_720p50},
+	{"720p60hz", HDMI_720p60},
+	{"1080i50hz", HDMI_1080i50},
+	{"1080i60hz", HDMI_1080i60},
+	{"1080p50hz", HDMI_1080p50},
+	{"1080p30hz", HDMI_1080p30},
+	{"1080p25hz", HDMI_1080p25},
+	{"1080p24hz", HDMI_1080p24},
+	{"1080p60hz", HDMI_1080p60},
+	{"1080p120hz", HDMI_1080p120},
+	{"2560x1080p50hz", HDMI_2560x1080p50_64x27},
+	{"2560x1080p60hz", HDMI_2560x1080p60_64x27},
+	{"2160p30hz", HDMI_4k2k_30},
+	{"2160p25hz", HDMI_4k2k_25},
+	{"2160p24hz", HDMI_4k2k_24},
+	{"smpte24hz", HDMI_4k2k_smpte_24},
+	{"smpte25hz", HDMI_4096x2160p25_256x135},
+	{"smpte30hz", HDMI_4096x2160p30_256x135},
+	{"smpte50hz420", HDMI_4096x2160p50_256x135_Y420},
+	{"smpte60hz420", HDMI_4096x2160p60_256x135_Y420},
+	{"2160p60hz420", HDMI_3840x2160p60_16x9_Y420},
+	{"2160p50hz420", HDMI_3840x2160p50_16x9_Y420},
+	{"smpte50hz", HDMI_4096x2160p50_256x135},
+	{"smpte60hz", HDMI_4096x2160p60_256x135},
+	{"2160p60hz", HDMI_4k2k_60},
+	{"2160p50hz", HDMI_4k2k_50},
+	{"640x480p60hz", HDMIV_640x480p60hz},
+	{"800x480p60hz", HDMIV_800x480p60hz},
+	{"800x600p60hz", HDMIV_800x600p60hz},
+	{"852x480p60hz", HDMIV_852x480p60hz},
+	{"854x480p60hz", HDMIV_854x480p60hz},
+	{"1024x600p60hz", HDMIV_1024x600p60hz},
+	{"1024x768p60hz", HDMIV_1024x768p60hz},
+	{"1152x864p75hz", HDMIV_1152x864p75hz},
+	{"1280x600p60hz", HDMIV_1280x600p60hz},
+	{"1280x768p60hz", HDMIV_1280x768p60hz},
+	{"1280x800p60hz", HDMIV_1280x800p60hz},
+	{"1280x960p60hz", HDMIV_1280x960p60hz},
+	{"1280x1024p60hz", HDMIV_1280x1024p60hz},
+	{"1280x1024", HDMIV_1280x1024p60hz}, /* alias of "1280x1024p60hz" */
+	{"1360x768p60hz", HDMIV_1360x768p60hz},
+	{"1366x768p60hz", HDMIV_1366x768p60hz},
+	{"1400x1050p60hz", HDMIV_1400x1050p60hz},
+	{"1440x900p60hz", HDMIV_1440x900p60hz},
+	{"1440x2560p60hz", HDMIV_1440x2560p60hz},
+	{"1600x900p60hz", HDMIV_1600x900p60hz},
+	{"1600x1200p60hz", HDMIV_1600x1200p60hz},
+	{"1680x1050p60hz", HDMIV_1680x1050p60hz},
+	{"1920x1200p60hz", HDMIV_1920x1200p60hz},
+	{"2160x1200p90hz", HDMIV_2160x1200p90hz},
+	{"2560x1080p60hz", HDMIV_2560x1080p60hz},
+	{"2560x1440p60hz", HDMIV_2560x1440p60hz},
+	{"2560x1600p60hz", HDMIV_2560x1600p60hz},
+	{"3440x1440p60hz", HDMIV_3440x1440p60hz},
+	{"2400x1200p90hz", HDMIV_2400x1200p90hz}
+};
+
 #if 0
 /* retrun 1 valid edid */
 static int check_dvi_hdmi_edid_valid(unsigned char *buf)
@@ -165,14 +231,9 @@ static void Edid_ParsingVendSpec(struct rx_cap *pRXCap,
 	unsigned char *dat = buf;
 	unsigned char pos = 0;
 	unsigned int ieeeoui = 0;
+	u8 length = 0;
 
-	memset(dv, 0, sizeof(struct dv_info));
-	memset(hdr10_plus, 0, sizeof(struct hdr10_plus_info));
-
-	dv->block_flag = CORRECT;
-	dv->length = dat[pos] & 0x1f;
-	hdr10_plus->length = dat[pos] & 0x1f;
-	memcpy(dv->rawdata, dat, dv->length + 1);
+	length = dat[pos] & 0x1f;
 	pos++;
 
 	if (dat[pos] != 1) {
@@ -185,9 +246,12 @@ static void Edid_ParsingVendSpec(struct rx_cap *pRXCap,
 	ieeeoui = dat[pos++];
 	ieeeoui += dat[pos++] << 8;
 	ieeeoui += dat[pos++] << 16;
+	printf("Edid_ParsingVendSpec:ieeeoui=0x%x,len=%u\n", ieeeoui, length);
 
 	/*HDR10+ use vsvdb*/
 	if (ieeeoui == HDR10_PLUS_IEEE_OUI) {
+		memset(hdr10_plus, 0, sizeof(struct hdr10_plus_info));
+		hdr10_plus->length = length;
 		hdr10_plus->ieeeoui = ieeeoui;
 		hdr10_plus->application_version = dat[pos] & 0x3;
 		pos++;
@@ -195,12 +259,20 @@ static void Edid_ParsingVendSpec(struct rx_cap *pRXCap,
 	}
 
 	if (ieeeoui != DV_IEEE_OUI) {
-		dv->block_flag = ERROR_LENGTH;
+		dv->block_flag = ERROR_OUI;
 		return;
 	}
+	/* it is a Dovi block*/
+	memset(dv, 0, sizeof(struct dv_info));
+	dv->block_flag = CORRECT;
+	dv->length = length;
+	memcpy(dv->rawdata, dat, dv->length + 1);
 	dv->ieeeoui = ieeeoui;
-
 	dv->ver = (dat[pos] >> 5) & 0x7;
+	if ((dv->ver) > 2) {
+		dv->block_flag = ERROR_VER;
+		return;
+	}
 	/* Refer to DV 2.9 Page 27 */
 	if (dv->ver == 0) {
 		if (dv->length == 0x19) {
@@ -236,6 +308,7 @@ static void Edid_ParsingVendSpec(struct rx_cap *pRXCap,
 			dv->dm_major_ver = dat[pos] >> 4;
 			dv->dm_minor_ver = dat[pos] & 0xf;
 			pos++;
+			dv->support_DV_RGB_444_8BIT = 1;
 			printf("v0 VSVDB: len=%d, sup_2160p60hz=%d\n",
 				 dv->length, dv->sup_2160p60hz);
 		} else
@@ -267,6 +340,9 @@ static void Edid_ParsingVendSpec(struct rx_cap *pRXCap,
 			pos++;
 			dv->Rx = 0xA0 | (dat[pos] >> 3);
 			pos++;
+			dv->support_DV_RGB_444_8BIT = 1;
+			if (dv->low_latency == 0x01)
+				dv->support_LL_YCbCr_422_12BIT = 1;
 			printf("v1 VSVDB: len=%d, sup_2160p60hz=%d, low_latency=%d\n",
 			dv->length, dv->sup_2160p60hz, dv->low_latency);
 		} else if (dv->length == 0x0E) {
@@ -286,6 +362,7 @@ static void Edid_ParsingVendSpec(struct rx_cap *pRXCap,
 			dv->Gy = dat[pos++];
 			dv->Bx = dat[pos++];
 			dv->By = dat[pos++];
+			dv->support_DV_RGB_444_8BIT = 1;
 			printf("v1 VSVDB: len=%d, sup_2160p60hz=%d\n",
 				 dv->length, dv->sup_2160p60hz);
 		} else
@@ -322,13 +399,25 @@ static void Edid_ParsingVendSpec(struct rx_cap *pRXCap,
 			dv->Ry = 0x40  | (dat[pos] >> 3);
 			dv->By = 0x08  | (dat[pos] & 0x7);
 			pos++;
+			if ((dv->Interface != 0x00) &&
+			    (dv->Interface != 0x01))
+				dv->support_DV_RGB_444_8BIT = 1;
+
+			dv->support_LL_YCbCr_422_12BIT = 1;
+			if ((dv->Interface == 0x01) ||
+			    (dv->Interface == 0x03)) {
+				if (dv->sup_10b_12b_444 == 0x1)
+					dv->support_LL_RGB_444_10BIT = 1;
+				if (dv->sup_10b_12b_444 == 0x2)
+					dv->support_LL_RGB_444_12BIT = 1;
+			}
 			printf("v2 VSVDB: len=%d, sup_2160p60hz=%d, Interface=%d\n",
 				 dv->length, dv->sup_2160p60hz, dv->Interface);
 		} else
 			dv->block_flag = ERROR_LENGTH;
 	}
 
-	if (pos > dv->length)
+	if (pos > dv->length + 1)
 		printf("hdmitx: edid: maybe invalid dv%d data\n", dv->ver);
 }
 
@@ -773,6 +862,81 @@ void Edid_MonitorCapable861(struct rx_cap *pRXCap,
 	pRXCap->support_ycbcr444_flag, pRXCap->support_ycbcr422_flag);
 }
 
+static bool is_4k60_supported(struct rx_cap *prxcap)
+{
+	int i = 0;
+
+	if (!prxcap)
+		return false;
+
+	for (i = 0; (i < prxcap->VIC_count) && (i < VIC_MAX_NUM); i++) {
+		if (((prxcap->VIC[i] & 0xff) == HDMI_3840x2160p50_16x9) ||
+		    ((prxcap->VIC[i] & 0xff) == HDMI_3840x2160p60_16x9)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+static void check_dv_truly_support(struct rx_cap *prxcap, struct dv_info *dv)
+{
+	unsigned int max_tmds_clk = 0;
+
+	if (!prxcap || !dv)
+		return;
+	if ((dv->ieeeoui == DV_IEEE_OUI) && (dv->ver <= 2)) {
+		/* check max tmds rate to determine if 4k60 DV can truly be
+		 * supported.
+		 */
+		if (prxcap->Max_TMDS_Clock2) {
+			max_tmds_clk = prxcap->Max_TMDS_Clock2 * 5;
+		} else {
+			/* Default min is 74.25 / 5 */
+			if (prxcap->Max_TMDS_Clock1 < 0xf)
+				prxcap->Max_TMDS_Clock1 = 0x1e;
+			max_tmds_clk = prxcap->Max_TMDS_Clock1 * 5;
+		}
+		if (dv->ver == 0)
+			dv->sup_2160p60hz = dv->sup_2160p60hz &&
+						(max_tmds_clk >= 594);
+
+		if ((dv->ver == 1) && (dv->length == 0xB)) {
+			if (dv->low_latency == 0x00) {
+				/*standard mode */
+				dv->sup_2160p60hz = dv->sup_2160p60hz &&
+							(max_tmds_clk >= 594);
+			} else if (dv->low_latency == 0x01) {
+				/* both standard and LL are supported. 4k60 LL
+				 * DV support should/can be determined using
+				 * video formats supported inthe E-EDID as flag
+				 * sup_2160p60hz might not be set.
+				 */
+				if ((dv->sup_2160p60hz ||
+				     is_4k60_supported(prxcap)) &&
+				     (max_tmds_clk >= 594))
+					dv->sup_2160p60hz = 1;
+				else
+					dv->sup_2160p60hz = 0;
+			}
+		}
+
+		if ((dv->ver == 1) && (dv->length == 0xE))
+			dv->sup_2160p60hz = dv->sup_2160p60hz &&
+						(max_tmds_clk >= 594);
+
+		if (dv->ver == 2) {
+			/* 4k60 DV support should be determined using video
+			 * formats supported in the EEDID as flag sup_2160p60hz
+			 * is not applicable for VSVDB V2.
+			 */
+			if (is_4k60_supported(prxcap) && (max_tmds_clk >= 594))
+				dv->sup_2160p60hz = 1;
+			else
+				dv->sup_2160p60hz = 0;
+		}
+	}
+}
+
 /*
  * Parsing RAW EDID data from edid to pRXCap
  */
@@ -782,6 +946,7 @@ unsigned int hdmi_edid_parsing(unsigned char *EDID_buf, struct rx_cap *pRXCap)
 	int BlockCount = EDID_buf[126];
 	int idx[4];
 	unsigned char CheckSum;
+	struct dv_info *dv = &pRXCap->dv_info;
 
 	/* Clear all parsing data */
 	memset(pRXCap, 0, sizeof(struct rx_cap));
@@ -822,7 +987,7 @@ unsigned int hdmi_edid_parsing(unsigned char *EDID_buf, struct rx_cap *pRXCap)
 		if (EDID_buf[i*128+0] == 0x2)
 			hdmitx_edid_block_parse(pRXCap, &(EDID_buf[i*128]));
 	}
-
+	check_dv_truly_support(pRXCap, dv);
 /*
  * Because DTDs are not able to represent some Video Formats, which can be
  * represented as SVDs and might be preferred by Sinks, the first DTD in the
@@ -840,3 +1005,388 @@ unsigned int hdmi_edid_parsing(unsigned char *EDID_buf, struct rx_cap *pRXCap)
 
 	return 1;
 }
+
+int hdmitx_edid_VIC_support(enum hdmi_vic vic)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(dispmode_vic_tab); i++) {
+		if (vic == dispmode_vic_tab[i].VIC)
+			return 1;
+	}
+
+	return 0;
+}
+
+enum hdmi_vic hdmitx_edid_vic_tab_map_vic(const char *disp_mode)
+{
+	enum hdmi_vic vic = HDMI_unkown;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(dispmode_vic_tab); i++) {
+		if (strncmp(disp_mode, dispmode_vic_tab[i].disp_mode,
+			    strlen(dispmode_vic_tab[i].disp_mode)) == 0) {
+			vic = dispmode_vic_tab[i].VIC;
+			break;
+		}
+	}
+
+	if (vic == HDMI_unkown)
+		printf("not find mapped vic\n");
+
+	return vic;
+}
+
+const char *hdmitx_edid_vic_tab_map_string(enum hdmi_vic vic)
+{
+	int i;
+	const char *disp_str = NULL;
+
+	for (i = 0; i < ARRAY_SIZE(dispmode_vic_tab); i++) {
+		if (vic == dispmode_vic_tab[i].VIC) {
+			disp_str = dispmode_vic_tab[i].disp_mode;
+			break;
+		}
+	}
+
+	return disp_str;
+}
+
+const char *hdmitx_edid_vic_to_string(enum hdmi_vic vic)
+{
+	int i;
+	const char *disp_str = NULL;
+
+	for (i = 0; i < ARRAY_SIZE(dispmode_vic_tab); i++) {
+		if (vic == dispmode_vic_tab[i].VIC) {
+			disp_str = dispmode_vic_tab[i].disp_mode;
+			break;
+		}
+	}
+
+	return disp_str;
+}
+
+static bool is_rx_support_y420(struct hdmitx_dev *hdev)
+{
+	enum hdmi_vic vic = HDMI_unkown;
+
+	vic = hdmitx_edid_get_VIC(hdev, "2160p60hz420", 0);
+	if (vic != HDMI_unkown)
+		return 1;
+
+	vic = hdmitx_edid_get_VIC(hdev, "2160p50hz420", 0);
+	if (vic != HDMI_unkown)
+		return 1;
+
+	vic = hdmitx_edid_get_VIC(hdev, "smpte60hz420", 0);
+	if (vic != HDMI_unkown)
+		return 1;
+
+	vic = hdmitx_edid_get_VIC(hdev, "smpte50hz420", 0);
+	if (vic != HDMI_unkown)
+		return 1;
+
+	return 0;
+}
+
+/* For some TV's EDID, there maybe exist some information ambiguous.
+ * Such as EDID declears support 2160p60hz(Y444 8bit), but no valid
+ * Max_TMDS_Clock2 to indicate that it can support 5.94G signal.
+ */
+bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
+	struct hdmi_format_para *para)
+{
+	bool valid = 0;
+	struct rx_cap *prxcap = NULL;
+	struct dv_info *dv = &hdev->RXCap.dv_info;
+	unsigned int rx_max_tmds_clk = 0;
+	unsigned int calc_tmds_clk = 0;
+	int i = 0;
+	int svd_flag = 0;
+	/* Default max color depth is 24 bit */
+	enum hdmi_color_depth rx_y444_max_dc = HDMI_COLOR_DEPTH_24B;
+	enum hdmi_color_depth rx_y422_max_dc = HDMI_COLOR_DEPTH_24B;
+	enum hdmi_color_depth rx_y420_max_dc = HDMI_COLOR_DEPTH_24B;
+	enum hdmi_color_depth rx_rgb_max_dc = HDMI_COLOR_DEPTH_24B;
+
+	if (!hdev || !para)
+		return 0;
+
+	if (strcmp(para->sname, "invalid") == 0)
+		return 0;
+	/* exclude such as: 2160p60hz YCbCr444 10bit */
+	switch (para->vic) {
+	case HDMI_3840x2160p50_16x9:
+	case HDMI_3840x2160p60_16x9:
+	case HDMI_4096x2160p50_256x135:
+	case HDMI_4096x2160p60_256x135:
+	case HDMI_3840x2160p50_64x27:
+	case HDMI_3840x2160p60_64x27:
+		if ((para->cs == HDMI_COLOR_FORMAT_RGB) ||
+		    (para->cs == HDMI_COLOR_FORMAT_444))
+			if (para->cd != HDMI_COLOR_DEPTH_24B)
+				return 0;
+		break;
+	default:
+		break;
+	}
+
+	prxcap = &hdev->RXCap;
+
+	/* DVI case, only 8bit */
+	if (prxcap->IEEEOUI != HDMI_IEEEOUI) {
+		if (para->cd != HDMI_COLOR_DEPTH_24B)
+			return 0;
+	}
+
+	/* target mode is not contained at RX SVD */
+	for (i = 0; (i < prxcap->VIC_count) && (i < VIC_MAX_NUM); i++) {
+		if ((para->vic & 0xff) == (prxcap->VIC[i] & 0xff))
+			svd_flag = 1;
+	}
+	if (svd_flag == 0)
+		return 0;
+
+	/* Get RX Max_TMDS_Clock */
+	if (prxcap->Max_TMDS_Clock2) {
+		rx_max_tmds_clk = prxcap->Max_TMDS_Clock2 * 5;
+	} else {
+		/* Default min is 74.25 / 5 */
+		if (prxcap->Max_TMDS_Clock1 < 0xf)
+			prxcap->Max_TMDS_Clock1 = 0x1e;
+		rx_max_tmds_clk = prxcap->Max_TMDS_Clock1 * 5;
+	}
+
+	calc_tmds_clk = para->tmds_clk;
+	if (para->cs == HDMI_COLOR_FORMAT_420)
+		calc_tmds_clk = calc_tmds_clk / 2;
+	if (para->cs != HDMI_COLOR_FORMAT_422) {
+		switch (para->cd) {
+		case HDMI_COLOR_DEPTH_30B:
+			calc_tmds_clk = calc_tmds_clk * 5 / 4;
+			break;
+		case HDMI_COLOR_DEPTH_36B:
+			calc_tmds_clk = calc_tmds_clk * 3 / 2;
+			break;
+		case HDMI_COLOR_DEPTH_48B:
+			calc_tmds_clk = calc_tmds_clk * 2;
+			break;
+		case HDMI_COLOR_DEPTH_24B:
+		default:
+			calc_tmds_clk = calc_tmds_clk * 1;
+			break;
+		}
+	}
+	calc_tmds_clk = calc_tmds_clk / 1000;
+	printf("RX tmds clk: %d   Calc clk: %d\n",
+	       rx_max_tmds_clk, calc_tmds_clk);
+	if (calc_tmds_clk < rx_max_tmds_clk)
+		valid = 1;
+	else
+		return 0;
+
+	if (para->cs == HDMI_COLOR_FORMAT_444) {
+		/* Rx may not support Y444 */
+		if (!(prxcap->native_Mode & (1 << 5)))
+			return 0;
+		if ((prxcap->dc_y444 && prxcap->dc_30bit) ||
+		    (dv->sup_10b_12b_444 == 0x1))
+			rx_y444_max_dc = HDMI_COLOR_DEPTH_30B;
+		if ((prxcap->dc_y444 && prxcap->dc_36bit) ||
+		    (dv->sup_10b_12b_444 == 0x2))
+			rx_y444_max_dc = HDMI_COLOR_DEPTH_36B;
+		if (para->cd <= rx_y444_max_dc)
+			valid = 1;
+		else
+			valid = 0;
+		return valid;
+	}
+	if (para->cs == HDMI_COLOR_FORMAT_422) {
+		/* Rx may not support Y422 */
+		if (!(prxcap->native_Mode & (1 << 4)))
+			return 0;
+		if (prxcap->dc_y444 && prxcap->dc_30bit)
+			rx_y422_max_dc = HDMI_COLOR_DEPTH_30B;
+		if ((prxcap->dc_y444 && prxcap->dc_36bit) ||
+		    (dv->sup_yuv422_12bit))
+			rx_y422_max_dc = HDMI_COLOR_DEPTH_36B;
+		if (para->cd <= rx_y422_max_dc)
+			valid = 1;
+		else
+			valid = 0;
+		return valid;
+	}
+	if (para->cs == HDMI_COLOR_FORMAT_RGB) {
+		/* Always assume RX supports RGB444 */
+		if ((prxcap->dc_30bit) || (dv->sup_10b_12b_444 == 0x1))
+			rx_rgb_max_dc = HDMI_COLOR_DEPTH_30B;
+		if ((prxcap->dc_36bit) || (dv->sup_10b_12b_444 == 0x2))
+			rx_rgb_max_dc = HDMI_COLOR_DEPTH_36B;
+		if (para->cd <= rx_rgb_max_dc)
+			valid = 1;
+		else
+			valid = 0;
+		return valid;
+	}
+	if (para->cs == HDMI_COLOR_FORMAT_420) {
+		if (!is_rx_support_y420(hdev))
+			return 0;
+		if (prxcap->dc_30bit_420)
+			rx_y420_max_dc = HDMI_COLOR_DEPTH_30B;
+		if (prxcap->dc_36bit_420)
+			rx_y420_max_dc = HDMI_COLOR_DEPTH_36B;
+		if (para->cd <= rx_y420_max_dc)
+			valid = 1;
+		else
+			valid = 0;
+		return valid;
+	}
+
+	return valid;
+}
+
+bool is_supported_mode_attr(hdmi_data_t *hdmi_data, char *mode_attr)
+{
+	struct hdmi_format_para *para = NULL;
+	struct hdmitx_dev *hdev = NULL;
+
+	if (!hdmi_data || !mode_attr)
+		return false;
+	hdev = container_of(hdmi_data->pRXCap,
+			struct hdmitx_dev, RXCap);
+
+	if (mode_attr[0]) {
+		if (!pre_process_str(mode_attr))
+			return false;
+		para = hdmi_tst_fmt_name(mode_attr, mode_attr);
+	}
+	if (para) {
+		printf("sname = %s\n", para->sname);
+		printf("char_clk = %d\n", para->tmds_clk);
+		printf("cd = %d\n", para->cd);
+		printf("cs = %d\n", para->cs);
+	}
+
+	return hdmitx_edid_check_valid_mode(hdev, para);
+}
+
+/* force_flag: 0 means check with RX's edid */
+/* 1 means no check wich RX's edid */
+enum hdmi_vic hdmitx_edid_get_VIC(struct hdmitx_dev *hdev,
+	const char *disp_mode, char force_flag)
+{
+	struct rx_cap *prxcap = &hdev->RXCap;
+	int j;
+	enum hdmi_vic vic = hdmitx_edid_vic_tab_map_vic(disp_mode);
+	#if 0
+	struct hdmi_format_para *para = NULL;
+	enum hdmi_vic *vesa_t = &hdev->RXCap.vesa_timing[0];
+	enum hdmi_vic vesa_vic;
+
+	if (vic >= HDMITX_VESA_OFFSET)
+		vesa_vic = vic;
+	else
+		vesa_vic = HDMI_unkown;
+	#endif
+	if (vic != HDMI_unkown) {
+		if (force_flag == 0) {
+			for (j = 0 ; j < prxcap->VIC_count ; j++) {
+				if (prxcap->VIC[j] == vic)
+					break;
+			}
+			if (j >= prxcap->VIC_count)
+				vic = HDMI_unkown;
+		}
+	}
+	#if 0
+	if ((vic == HDMI_unkown) &&
+	    (vesa_vic != HDMI_unkown)) {
+		for (j = 0; vesa_t[j] && j < VESA_MAX_TIMING; j++) {
+			para = hdmi_get_fmt_paras(vesa_t[j]);
+			if (para) {
+				if ((para->vic >= HDMITX_VESA_OFFSET) &&
+				    (vesa_vic == para->vic)) {
+					vic = para->vic;
+					break;
+				}
+			}
+		}
+	}
+	#endif
+	return vic;
+}
+
+#define EDID_MAX_BLOCK 4
+static bool hdmitx_check_edid_all_zeros(unsigned char *buf)
+{
+	unsigned int i = 0, j = 0;
+	unsigned int chksum = 0;
+
+	for (j = 0; j < EDID_MAX_BLOCK; j++) {
+		chksum = 0;
+		for (i = 0; i < 128; i++)
+			chksum += buf[i + j * 128];
+		if (chksum != 0)
+			return false;
+	}
+	return true;
+}
+
+static bool hdmitx_edid_header_invalid(unsigned char *buf)
+{
+	bool base_blk_invalid = false;
+	bool ext_blk_invalid = false;
+	bool ret = false;
+	int i = 0;
+
+	if ((buf[0] != 0) || (buf[7] != 0)) {
+		base_blk_invalid = true;
+	} else {
+		for (i = 1; i < 7; i++) {
+			if (buf[i] != 0xff) {
+				base_blk_invalid = true;
+				break;
+			}
+		}
+	}
+	/* judge header strickly, only if both header invalid */
+	if (buf[0x7e] > 0) {
+		if ((buf[0x80] != 0x2) && (buf[0x80] != 0xf0))
+			ext_blk_invalid = true;
+		ret = base_blk_invalid && ext_blk_invalid;
+	} else {
+		ret = base_blk_invalid;
+	}
+
+	return ret;
+}
+
+static bool hdmitx_edid_notify_ng(unsigned char *buf)
+{
+	if (!buf)
+		return true;
+	/* notify EDID NG to systemcontrol */
+	if (hdmitx_check_edid_all_zeros(buf)) {
+		printf("ERR: edid all zero\n");
+		return true;
+	} else if ((buf[0x7e] > 3) &&
+		hdmitx_edid_header_invalid(buf)) {
+		printf("ERR: edid header invalid\n");
+		return true;
+	}
+	/* may extend NG case here */
+
+	return false;
+}
+
+bool edid_parsing_ok(struct hdmitx_dev *hdev)
+{
+	if (!hdev)
+		return false;
+
+	if (hdmitx_edid_notify_ng(hdev->rawedid))
+		return false;
+	return true;
+}
+
