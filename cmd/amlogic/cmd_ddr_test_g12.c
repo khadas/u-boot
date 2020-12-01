@@ -82,10 +82,10 @@ int ddr_get_chip_id(void)
 	get_chip_id(chipid, 16);
 #endif
 	int count = 0;
-	for (count = 0; count < 16; count++) {
+	for (count = 0; count < 16; count++)
 		if (count > 3)
 			global_chip_id[16 - 1 - count] = chipid[count];
-	}
+
 	return soc_family_id;
 }
 
@@ -258,7 +258,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xff638800),
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xff638c00),           //AM_DDR_PLL_CNTL0
-		.ddr_boot_reason_address = (0xff634400 + (0x070 << 2)),         //SYSCTRL_SEC_STICKY_REG1
+		.ddr_boot_reason_address = (0xff800000 + (0x003 << 2)),     //#define SEC_AO_RTI_STATUS_REG3
 		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_base_address = 0,
@@ -279,7 +279,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xff638800),
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xff638c00),           //AM_DDR_PLL_CNTL0
-		.ddr_boot_reason_address = (0xff634400 + (0x070 << 2)),         //SYSCTRL_SEC_STICKY_REG1
+		.ddr_boot_reason_address = (0xff800000 + (0x003 << 2)),     //#define SEC_AO_RTI_STATUS_REG3
 		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_base_address = 0,
@@ -2102,10 +2102,11 @@ int do_ddr_test_copy(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		src_addr = DDR_TEST_START_ADDR;
 		loop = 1;
 	}
-	if (argc > 2) {
+
+	if (argc > 2)
 		if (*argv[2] == 0 || *endp != 0)
 			src_addr = DDR_TEST_START_ADDR;
-	}
+
 	if (argc > 3) {
 		src_addr = simple_strtoull_ddr(argv[1], &endp, 16);
 		dec_addr = simple_strtoull_ddr(argv[2], &endp, 16);
@@ -5735,10 +5736,10 @@ uint32_t find_vddee_voltage_index(unsigned int target_voltage)
 {
 	unsigned int to;
 
-	for (to = 0; to < ARRAY_SIZE(pwm_voltage_table_ee); to++) {
+	for (to = 0; to < ARRAY_SIZE(pwm_voltage_table_ee); to++)
 		if (pwm_voltage_table_ee[to][1] >= target_voltage)
 			break;
-	}
+
 	if (to >= ARRAY_SIZE(pwm_voltage_table_ee))
 		to = ARRAY_SIZE(pwm_voltage_table_ee) - 1;
 	return to;
@@ -5748,10 +5749,10 @@ void set_ee_voltage(uint32_t ee_over_ride_voltage)
 {
 	unsigned int to;
 
-	for (to = (ARRAY_SIZE(pwm_voltage_table_ee)); (to > 0); to--) {
+	for (to = (ARRAY_SIZE(pwm_voltage_table_ee)); (to > 0); to--)
 		if ((pwm_voltage_table_ee[to - 1][1] < ee_over_ride_voltage) && (pwm_voltage_table_ee[to][1] >= ee_over_ride_voltage))
 			break;
-	}
+
 	if (ee_over_ride_voltage) {
 		writel(pwm_voltage_table_ee[to][0], (p_ddr_base->ee_pwm_base_address));
 		printf("\nDDR_overide_EE_voltage ==%d mv /n", pwm_voltage_table_ee[to - 1][1]);
@@ -8959,19 +8960,19 @@ int do_ddr_c2_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 	count = 0;
 	writel((0), p_ddr_base->ddr_dmc_apd_address);
 	writel((0), p_ddr_base->ddr_dmc_asr_address);
+
 	for (; count < count_max; count++) {
-		if ((count < 32)) {
+		if ((count < 32))
 			if (test_dq_mask_1 & (1 << (count % 32)))
 				continue;
-		}
-		if ((count > 31) && (count < 63)) {
+
+		if ((count > 31) && (count < 63))
 			if (test_dq_mask_2 & (1 << (count % 32)))
 				continue;
-		}
-		if ((count > 63)) {
+
+		if ((count > 63))
 			if (test_dq_mask_3 & (1 << (count % 32)))
 				continue;
-		}
 
 		{
 			if (left_right_flag == DDR_PARAMETER_RIGHT) {
@@ -9112,20 +9113,19 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	count = 0;
 	writel((0), p_ddr_base->ddr_dmc_apd_address);
 	writel((0), p_ddr_base->ddr_dmc_asr_address);
+
 	for (; count < count_max; count++) {
-		if ((count < 32)) {
+		if ((count < 32))
 			if (test_dq_mask_1 & (1 << (count % 32)))
 				continue;
-		}
-		if ((count > 31) && (count < 63)) {
+
+		if ((count > 31) && (count < 63))
 			if (test_dq_mask_2 & (1 << (count % 32)))
 				continue;
-		}
-		if ((count > 63)) {
+
+		if ((count > 63))
 			if (test_dq_mask_3 & (1 << (count % 32)))
 				continue;
-		}
-
 		{
 			if (left_right_flag == DDR_PARAMETER_RIGHT) {
 				dwc_window_reg_after_training_update_increas(test_index,
@@ -9625,10 +9625,9 @@ int do_ddr_auto_scan_drv(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 	}
 	printf("\nglobal_boot_times== %d %s", global_boot_times, string_print_flag);
 
-	if (loop) {
+	if (loop)
 		if (((global_boot_times - 1) / 2) > max_counter_total)
 			return 1;
-	}
 	printf("\nmax_counter=%d  %d %s", max_counter_total, max_counter_total * 2, string_print_flag);
 	printf("\nsoc_data_drv_ohm_p=%d %s", soc_data_drv_ohm_p, string_print_flag);
 	printf("\nsoc_data_drv_ohm_n=%d %s", soc_data_drv_ohm_n, string_print_flag);
@@ -9694,50 +9693,304 @@ int do_verify_flash_ddr_parameter(char log_level)
 {
 	unsigned count = 0;
 	unsigned error = 0;
+
+	if ((p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_C2) && (p_ddr_base->chip_id <= MESON_CPU_MAJOR_ID_T5D)) {
+		char temp_buf[((sizeof(ddr_sha_t_c2) + 511) / 512) * 512] = { 0 };
+
+#ifdef USE_FOR_UBOOT_2018
+		extern int store_rsv_read(const char *name, size_t size, void *buf);
+
+		store_rsv_read("ddr-parameter", ((sizeof(ddr_sha_t_c2) + 511) / 512) * 512, (uint8_t *)(temp_buf));
+
+#else
+		extern int store_ddr_parameter_read(uint8_t *buffer, uint32_t length);
+
+		store_ddr_parameter_read((uint8_t *)(temp_buf), ((sizeof(ddr_sha_t_c2) + 511) / 512) * 512);
+#endif
+		char *s = temp_buf;
+		char *d = (char *)(&ddr_sha_c2);
+
+		for (count = 0; count < sizeof(ddr_sha_t_c2); count++) {
+			*d = *s;
+			s++;
+			d++;
+		}
+
+		for (count = 0; count < SHA256_SUM_LEN; count++)
+			((temp_sha2[count]) = (ddr_sha_c2.sha2[count]));
+
+		sha256_csum_wd_internal((uint8_t *)(&(ddr_sha_c2.ddrs)), sizeof(ddr_set_t_c2), ddr_sha_c2.sha2, 0);
+
+		for (count = 0; count < SHA256_SUM_LEN; count++) {
+			if ((temp_sha2[count]) != (ddr_sha_c2.sha2[count]))
+				error++;
+
+			if (log_level == 0)
+				printf("\nread sha[%08x] %08x,calu %08x", count, (ddr_sha_c2.sha2[count]), (temp_sha2[count]));
+		}
+
+#define DDR_FUNC_FAST_BOOT_CHECK_CHIP_ID    (1 << 30)
+		//	if ((ddr_sha_c2.ddrs.cfg_board_common_setting.ddr_func) & DDR_FUNC_FAST_BOOT_CHECK_CHIP_ID)
+		{
+			for (count = 0; count < MESON_CPU_CHIP_ID_SIZE; count++) {
+				if ((ddr_sha_c2.sha_chip_id[count]) != (global_chip_id[count]))
+					error++;
+
+				if (log_level == 0)
+					printf("\nglobal_chip_id[%08x] %08x,read %08x", count, (global_chip_id[count]), (ddr_sha_c2.sha_chip_id[count]));
+			}
+		}
+
+		return error;
+	}
 	char temp_buf[((sizeof(ddr_sha_t) + 511) / 512) * 512] = { 0 };
 
 #ifdef USE_FOR_UBOOT_2018
 	extern int store_rsv_read(const char *name, size_t size, void *buf);
+
 	store_rsv_read("ddr-parameter", ((sizeof(ddr_sha_t) + 511) / 512) * 512, (uint8_t *)(temp_buf));
 
 #else
 	extern int store_ddr_parameter_read(uint8_t *buffer, uint32_t length);
+
 	store_ddr_parameter_read((uint8_t *)(temp_buf), ((sizeof(ddr_sha_t) + 511) / 512) * 512);
 #endif
 	char *s = temp_buf;
 	char *d = (char *)(&ddr_sha);
+
 	for (count = 0; count < sizeof(ddr_sha_t); count++) {
 		*d = *s;
 		s++;
 		d++;
 	}
+
 	for (count = 0; count < SHA256_SUM_LEN; count++)
 		((temp_sha2[count]) = (ddr_sha.sha2[count]));
+
 	sha256_csum_wd_internal((uint8_t *)(&(ddr_sha.ddrs)), sizeof(ddr_set_t), ddr_sha.sha2, 0);
 
 	for (count = 0; count < SHA256_SUM_LEN; count++) {
 		if ((temp_sha2[count]) != (ddr_sha.sha2[count]))
 			error++;
+
 		if (log_level == 0)
 			printf("\nread sha[%08x] %08x,calu %08x", count, (ddr_sha.sha2[count]), (temp_sha2[count]));
 	}
-#define DDR_FUNC_FAST_BOOT_CHECK_CHIP_ID        (1 << 30)
+
+#define DDR_FUNC_FAST_BOOT_CHECK_CHIP_ID    (1 << 30)
+
 	if ((ddr_sha.ddrs.ddr_func) & DDR_FUNC_FAST_BOOT_CHECK_CHIP_ID) {
 		for (count = 0; count < MESON_CPU_CHIP_ID_SIZE; count++) {
 			if ((ddr_sha.sha_chip_id[count]) != (global_chip_id[count]))
 				error++;
+
 			if (log_level == 0)
 				printf("\nglobal_chip_id[%08x] %08x,read %08x", count, (global_chip_id[count]), (ddr_sha.sha_chip_id[count]));
 		}
 	}
 	return error;
-}
+} /* do_verify_flash_ddr_parameter */
 
 uint32_t enable_ddr_check_boot_reason = 0;
 uint32_t boot_reason = 0;
-#define HOT_BOOT_MAGIC   0x99887766
-#define HOT_BOOT_STICKY_ADD   (p_ddr_base->preg_sticky_reg0 + (6 << 2))
-#define AMLOGIC_COLD_BOOT                               0
+#define HOT_BOOT_MAGIC         0x99887766
+#define HOT_BOOT_STICKY_ADD    (p_ddr_base->preg_sticky_reg0 + (6 << 2))
+#define AMLOGIC_COLD_BOOT      0
+int do_ddr_auto_fastboot_check_c2(char auto_window_test_enable_item, uint32_t auto_window_test_dq_size, char pattern_dis_scramble, uint32_t stick_dmc_ddr_window_test_read_vref_offset_value, uint32_t skip_window_test_enable)
+{
+	uint32_t ddr_set_size = 0;
+	uint32_t need_ddr_window_test = 0;
+	char str[1024] = "";
+	int verify_error = 0;
+
+	verify_error = do_verify_flash_ddr_parameter(1);
+
+	if ((verify_error) == 0) {
+		if ((ddr_sha_c2.ddrs.cfg_board_common_setting.fast_boot[0]) == 0xff) {
+			printf("\nuboot  auto fast boot check flash data is ok return \n");
+			return 1;
+		}
+	}
+	enable_ddr_check_boot_reason = 0;
+	enable_ddr_check_boot_reason = env_to_a_num("enable_ddr_check_boot_reason");
+	printf("\nenable_ddr_check_boot_reason==%d \n", enable_ddr_check_boot_reason);
+	printf("\nddr_fast_boot_enable_flag==%d \n", env_to_a_num("ddr_fast_boot_enable_flag"));
+	ddr_set_t_c2 *ddr_set_t_p = NULL;
+	ddr_set_t_p = (ddr_set_t_c2 *)(ddr_set_t_p_arrary_c2);
+	uint32_t ddr_set_add = 0;
+
+	ddr_set_add = (uint32_t)(uint64_t)(ddr_set_t_p);
+	ddr_set_size = sizeof(ddr_set_t_c2);
+	printf("\nddr_set_t_p==0x%08x\n", ddr_set_add);
+#define DMC_PHY_RETRAINING_CTRL    (p_ddr_base->ddr_dmc_lpdd4_retraining_address)
+	uint32_t dmc_retraining_ctrl = 0;
+	dmc_retraining_ctrl = rd_reg(DMC_PHY_RETRAINING_CTRL);
+	wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl & (~(1 << 31)));
+	uint32_t write_size = 0;
+	write_size = ((ddr_set_size + SHA256_SUM_LEN + MESON_CPU_CHIP_ID_SIZE + 511) / 512) * 512;
+	do_read_c2_ddr_training_data(1, ddr_set_t_p);
+
+	if (((ddr_set_t_p->cfg_board_common_setting.fast_boot[3]) & 0xc0) && ((ddr_set_t_p->cfg_board_common_setting.fast_boot[3]) & 0x3f)) {
+		enable_ddr_check_boot_reason = 0;
+
+		if (((ddr_set_t_p->cfg_board_common_setting.fast_boot[0]) > 0) && ((ddr_set_t_p->cfg_board_common_setting.fast_boot[0]) < 0xff)) {
+			(ddr_set_t_p->cfg_board_common_setting.fast_boot[0]) = 0xfe;
+			(verify_error) = 0;
+		}
+	}
+
+	if ((ddr_set_t_p->cfg_board_common_setting.fast_boot[0])) {
+		printf("\nuboot enable auto fast boot funciton \n");
+
+		if ((verify_error)) {
+			printf("\nuboot  auto fast boot check verify data happen wrong \n");
+			(ddr_set_t_p->cfg_board_common_setting.fast_boot[0]) = 1;
+		}
+	} else {
+		wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl);
+		return 1;
+	}
+
+	if (enable_ddr_check_boot_reason) {
+		boot_reason = 0;         //ddr_set_t_p->boot_reason
+		{
+			if ((((readl(p_ddr_base->ddr_boot_reason_address) >> 0) & 0xf) == AMLOGIC_COLD_BOOT) && ((rd_reg(HOT_BOOT_STICKY_ADD)) == HOT_BOOT_MAGIC))
+				boot_reason = 1;
+
+			if (ddr_set_t_p->cfg_board_common_setting.fast_boot[0] == 0xfe)
+				boot_reason = 2;
+		}
+		printf("\nboot_reason=%08x \n", (boot_reason));
+		printf("\nHOT_BOOT_STICKY_ADD=%08x \n", (rd_reg(HOT_BOOT_STICKY_ADD)));
+		wr_reg(HOT_BOOT_STICKY_ADD, HOT_BOOT_MAGIC);
+		printf("\nHOT_BOOT_STICKY_ADD=%08x \n", (rd_reg(HOT_BOOT_STICKY_ADD)));
+
+		if (boot_reason == 0) {
+			if ((ddr_set_t_p->cfg_board_common_setting.fast_boot[0]) < 0xfe) {
+				need_ddr_window_test = 1;
+				sprintf(str, "setenv initargs ${initargs} need_ddr_window_test=%d", need_ddr_window_test);
+				printf("\nstr=%s\n", str);
+				run_command(str, 0);
+				sprintf(str, "setenv bootargs ${bootargs} need_ddr_window_test=%d", need_ddr_window_test);
+				printf("\nstr=%s\n", str);
+				run_command(str, 0);
+			} else {
+				sprintf(str, "setenv initargs ${initargs} need_ddr_window_test=%d", need_ddr_window_test);
+				printf("\nstr=%s\n", str);
+				run_command(str, 0);
+				sprintf(str, "setenv bootargs ${bootargs} need_ddr_window_test=%d", need_ddr_window_test);
+				printf("\nstr=%s\n", str);
+				run_command(str, 0);
+			}
+			wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl);
+			return 1;
+		} else {
+			sprintf(str, "setenv initargs ${initargs} need_ddr_window_test=%d", need_ddr_window_test);
+			printf("\nstr=%s\n", str);
+			run_command(str, 0);
+			sprintf(str, "setenv bootargs ${bootargs} need_ddr_window_test=%d", need_ddr_window_test);
+			printf("\nstr=%s\n", str);
+			run_command(str, 0);
+		}
+	}
+
+	if ((ddr_set_t_p->cfg_board_common_setting.fast_boot[0]) == 0xff) {
+		printf("\nuboot  auto fast boot  auto window test is done \n");
+		wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl);
+		return 1;
+	}
+
+	if (skip_window_test_enable) {
+		printf("enable skip window test fast boot mode! \n");
+		ddr_set_t_p->cfg_board_common_setting.fast_boot[0] = 0xfe;
+	}
+	printf("\n(ddr_set_t_p->cfg_board_common_setting.fast_boot[0])==0x%08x\n", (ddr_set_t_p->cfg_board_common_setting.fast_boot[0]));
+
+	if ((ddr_set_t_p->cfg_board_common_setting.fast_boot[0]) < 0xfe) {
+		printf("\nuboot  auto fast boot  auto window test begin \n");
+		{
+			ddr_set_t_p->cfg_board_common_setting.fast_boot[0] = 0xfd;             //0xfd for check unexcept power off status
+			sha256_csum_wd_internal((unsigned char *)(uint64_t)ddr_set_add, sizeof(ddr_set_t_c2), ddr_sha_c2.sha2, 0);
+			write_size = ((ddr_set_size + SHA256_SUM_LEN + MESON_CPU_CHIP_ID_SIZE + 511) / 512) * 512;
+			{
+				ddr_do_store_ddr_parameter_ops((uint8_t *)(unsigned long)(ddr_set_add - SHA256_SUM_LEN), write_size);
+			}
+			sprintf(str, "g12_d2pll %d 0x11 %d 0 0 0 0 %d 0x%08x  0 %d", ddr_set_t_p->cfg_board_SI_setting_ps[0].DRAMFreq, auto_window_test_enable_item, stick_dmc_ddr_window_test_read_vref_offset_value, auto_window_test_dq_size, pattern_dis_scramble);
+			printf("\nstr=%s\n", str);
+
+			run_command(str, 0);
+		}
+		return 1;
+	}
+
+	if ((ddr_set_t_p->cfg_board_common_setting.fast_boot[0]) == 0xfe) {
+#if 0
+		char dmc_test_worst_window_rx = 0;
+		char dmc_test_worst_window_tx = 0;
+
+		{
+			dwc_ddrphy_apb_wr((0 << 20) | (0xd << 16) | (0 << 12) | (0x0), 0);             // DWC_DDRPHYA_APBONLY0_MicroContMuxSel
+
+			dmc_test_worst_window_tx = dwc_ddrphy_apb_rd((0 << 20) | (1 << 16) | (0 << 12) | (0x0c2));
+			dmc_test_worst_window_rx = dwc_ddrphy_apb_rd((0 << 20) | (1 << 16) | (0 << 12) | (0x0c3));
+			printf("\ndmc_test_worst_window_tx =%d \n", dmc_test_worst_window_tx);
+			printf("\ndmc_test_worst_window_rx=%d \n", dmc_test_worst_window_rx);
+
+			if (dmc_test_worst_window_tx > 30)
+				dmc_test_worst_window_tx = 30;
+
+			if (dmc_test_worst_window_rx > 30)
+				dmc_test_worst_window_rx = 30;
+			ddr_set_t_p->fast_boot[1] = (((dmc_test_worst_window_tx / 2) << 4)) | (((dmc_test_worst_window_rx / 2)));
+		}
+#endif
+		ddr_set_t_p->cfg_board_common_setting.fast_boot[0] = 0xff;
+		{
+			printf("\nuboot  auto fast boot  auto window test finish \n");
+
+			if (ddr_set_t_p->cfg_board_common_setting.fast_boot[2]) {
+				if ((ddr_set_t_p->cfg_board_common_setting.fast_boot[2]) & 0x7) {
+					if (((ddr_set_t_p->cfg_board_common_setting.fast_boot[2]) & 0x8))
+						sprintf(str, "ddr_g12_offset_data 3 0x0  0 0 1 %d ", (ddr_set_t_p->cfg_board_common_setting.fast_boot[2]) & 0x7);
+					else
+						sprintf(str, "ddr_g12_offset_data 3 0x0  0 0 2 %d ", (ddr_set_t_p->cfg_board_common_setting.fast_boot[2]) & 0x7);
+					printf("\nstr=%s\n", str);
+
+					run_command(str, 0);
+				}
+
+				if ((ddr_set_t_p->cfg_board_common_setting.fast_boot[2]) & 0x70) {
+					if (((ddr_set_t_p->cfg_board_common_setting.fast_boot[2]) & 0x80))
+						sprintf(str, "ddr_g12_offset_data 2 0x0  0 0 1 %d ", ((ddr_set_t_p->cfg_board_common_setting.fast_boot[2]) >> 4) & 0x7);
+					else
+						sprintf(str, "ddr_g12_offset_data 2 0x0  0 0 2 %d ", ((ddr_set_t_p->cfg_board_common_setting.fast_boot[2]) >> 4) & 0x7);
+					printf("\nstr=%s\n", str);
+
+					run_command(str, 0);
+				}
+				sprintf(str, "ddr_fast_boot 1 ");
+				printf("\nstr=%s\n", str);
+				run_command(str, 0);
+			} else {
+				sha256_csum_wd_internal((unsigned char *)(uint64_t)ddr_set_add, sizeof(ddr_set_t_c2), ddr_sha_c2.sha2, 0);
+				ddr_do_store_ddr_parameter_ops((uint8_t *)(unsigned long)(ddr_set_add - SHA256_SUM_LEN), write_size);
+			}
+
+			if ((enable_ddr_check_boot_reason)) {
+				if (boot_reason) {
+					sprintf(str, "systemoff");
+					printf("\nstr=%s\n", str);
+					run_command(str, 0);
+				}
+			}
+			wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl);
+			return 1;
+		}
+	}
+	wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl);
+	return 1;
+} /* do_ddr_auto_fastboot_check_c2 */
+
 int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	check_base_address();
@@ -9776,6 +10029,10 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char *const
 		if (*argv[5] == 0 || *endp != 0)
 			skip_window_test_enable = 0;
 	}
+	if ((p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_C2) && (p_ddr_base->chip_id <= MESON_CPU_MAJOR_ID_T5D)) {
+	do_ddr_auto_fastboot_check_c2(auto_window_test_enable_item,auto_window_test_dq_size,pattern_dis_scramble,stick_dmc_ddr_window_test_read_vref_offset_value,skip_window_test_enable);
+	return 1;
+		}
 	char str[1024] = "";
 	int verify_error = 0;
 	verify_error = do_verify_flash_ddr_parameter(1);
