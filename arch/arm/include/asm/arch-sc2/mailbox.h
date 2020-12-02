@@ -1,6 +1,5 @@
-
 /*
- * arch/arm/include/asm/arch-txl/mailbox.h
+ * arch/arm/include/asm/arch-sc2/mailbox.h
  *
  * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
  *
@@ -27,61 +26,57 @@
  *
  */
 
-#ifndef __GXBB_MAILBOX_H_
-#define __GXBB_MAILBOX_H_
+#ifndef __MAILBOX_H__
+#define __MAILBOX_H__
+#include <asm/arch/secure_apb.h>
 
-#define SCPI_CMD_SENSOR_VALUE 0x1C
-#define SCPI_CMD_SET_USR_DATA 0x20
-#define SCPI_CMD_OPEN_SCP_LOG 0xC4
-#define SCPI_CMD_THERMAL_CALIB 0xC5
+#define REE2AO_SET_ADDR		MAILBOX_SET_MBOX03
+#define REE2AO_STS_ADDR		MAILBOX_STS_MBOX03
+#define REE2AO_CLR_ADDR		MAILBOX_CLR_MBOX03
+#define REE2AO_WR_ADDR		MAILBOX_WR_MBOX03
+#define REE2AO_RD_ADDR		MAILBOX_RD_MBOX03
+#define REE2AO_IRQCLR_ADDR	MAILBOX_IRQA_CLR
 
-#define SCPI_CMD_USB_BOOT 0xB0
-#define SCPI_CMD_USB_UNBOOT 0xB1
-#define SCPI_CMD_SDCARD_BOOT 0xB2
-#define SCPI_CMD_CLEAR_BOOT 0xB3
+#define MAILBOX_USER_DATA_SIZE	96
 
-#define SCPI_CMD_REV_PWM_DELT 0x42
+#define MHU_SYNC		(1 << 26)
+#define MHU_CMD_BUILD(command, size) \
+	(((command) & 0xffff) | (((size) & 0x1ff) << 16) | MHU_SYNC)
+#define MHU_ACK_MASK(mbox)	(1 << ((mbox)*2 + 1))
 
-#define LOW_PRIORITY	0
-#define HIGH_PRIORITY 1
+#define MHU_PAYLOAD_SIZE	0x80
+#define MHU_DATA_OFFSET		0x1c
+#define REE2AO_MBOX_ID		0x3
+/* ...Message composition with module(6bits), function(10bits) */
+#define __MBX_COMPOSE_MSG(mod, func)    (((mod) << 10) | ((func) & 0x3FF))
 
-#define P_SHARE_SRAM_BASE	0xfffa0000
-#define SRAM_SIZE		0x48000
-#define MHU_HIGH_SCP_TO_AP_PAYLOAD		(SRAM_SIZE - 0xc00)
-#define MHU_HIGH_AP_TO_SCP_PAYLOAD		(MHU_HIGH_SCP_TO_AP_PAYLOAD + 0x200)
-#define MHU_LOW_SCP_TO_AP_PAYLOAD		(SRAM_SIZE - 0x1000)
-#define MHU_LOW_AP_TO_SCP_PAYLOAD		(MHU_LOW_SCP_TO_AP_PAYLOAD + 0x200)
+/*******************************************************************************
+ * Define moudle type here, 6bits valid
+ ******************************************************************************/
+#define MBX_SYSTEM              0x0
 
-enum scpi_client_id {
-	SCPI_CL_NONE,
-	SCPI_CL_CLOCKS,
-	SCPI_CL_DVFS,
-	SCPI_CL_POWER,
-	SCPI_CL_THERMAL,
-	SCPI_CL_REMOTE,
-	SCPI_CL_LED_TIMER,
-	SCPI_MAX = 0xff,
+/*******************************************************************************
+ * Define function here, 10bits valid
+ ******************************************************************************/
+         /*SYSTEM*/
+#define CMD_UNDEFINE            0x0
+#define CMD_TEST		0x6
+
+/*******************************************************************************
+ * Mssage Comopsition
+ ******************************************************************************/
+#define MBX_CMD_TEST    __MBX_COMPOSE_MSG(MBX_SYSTEM, CMD_TEST)
+enum {
+        HIFIA_REE_CHANNEL = 0,
+        HIFIB_REE_CHANNEL = 1,
+        SECPU_REE_CHANNEL = 2,
+        AOCPU_REE_CHANNEL = 3,
 };
 
-enum scpi_error_codes {
-	SCPI_SUCCESS = 0, /* Success */
-	SCPI_ERR_PARAM = 1, /* Invalid parameter(s) */
-	SCPI_ERR_ALIGN = 2, /* Invalid alignment */
-	SCPI_ERR_SIZE = 3, /* Invalid size */
-	SCPI_ERR_HANDLER = 4, /* Invalid handler/callback */
-	SCPI_ERR_ACCESS = 5, /* Invalid access/permission denied */
-	SCPI_ERR_RANGE = 6, /* Value out of range */
-	SCPI_ERR_TIMEOUT = 7, /* Timeout has occurred */
-	SCPI_ERR_NOMEM = 8, /* Invalid memory area or pointer */
-	SCPI_ERR_PWRSTATE = 9, /* Invalid power state */
-	SCPI_ERR_SUPPORT = 10, /* Not supported or disabled */
-	SCPI_ERR_DEVICE = 11, /* Device error */
-	SCPI_ERR_MAX
-};
+void mhu_init(void);
+/*message max size MAILBOX_USER_DATA_SIZE 96 byte*/
+int scpi_send_data(uint32_t chan, uint32_t command,
+		   void *sendmessage, uint32_t sendsize,
+		   void *revmessage, uint32_t revsize);
+#endif	/* __SCPI_FIFO_H__ */
 
-void open_scp_log(unsigned int channel);
-int thermal_calibration(unsigned int type, unsigned int data);
-int thermal_get_value(unsigned int sensor_id, unsigned int *value);
-int send_usr_data(unsigned int clinet_id, unsigned int *val, unsigned int size);
-void send_pwm_delt(int32_t vcck_delt, int32_t ee_delt);
- #endif
