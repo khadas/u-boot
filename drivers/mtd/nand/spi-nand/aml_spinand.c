@@ -2713,8 +2713,8 @@ static int spinand_probe(struct udevice *dev)
 	 */
 	nand_register(0, mtd);
 #ifdef __UBOOT__
-	extern struct mtd_partition *get_partition_table(int *partitions);
-	spinand_partitions = get_partition_table(&partition_count);
+	extern struct mtd_partition *get_spinand_partition_table(int *partitions);
+	spinand_partitions = get_spinand_partition_table(&partition_count);
 	WARN_ON(spinand_add_partitions(mtd, spinand_partitions,
 					partition_count));
 #elif defined CONFIG_OF

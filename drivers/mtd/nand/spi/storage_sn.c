@@ -110,9 +110,9 @@ int spi_nand_probe(u32 init_flag)
 		return 0;
 
 #ifdef CONFIG_AML_MTDPART
-	extern const struct mtd_partition *get_partition_table(int *partitions);
+	extern const struct mtd_partition *get_spinand_partition_table(int *partitions);
 	extern struct mtd_info *mtd_store_get(int dev);
-	spinand_partitions = get_partition_table(&partition_count);
+	spinand_partitions = get_spinand_partition_table(&partition_count);
 	mtd = mtd_store_get(0);
 	ret = spinand_add_partitions(mtd, spinand_partitions,
 						partition_count);

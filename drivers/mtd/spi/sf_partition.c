@@ -119,13 +119,13 @@ static int _spinor_add_partitions(struct mtd_info *mtd,
 	return add_mtd_partitions(mtd, temp, part_num);
 }
 
-extern struct mtd_partition *get_partition_table(int *partitions);
+extern struct mtd_partition *get_spiflash_partition_table(int *partitions);
 int spinor_add_partitions(struct mtd_info *mtd)
 {
 	struct mtd_partition *spiflash_partitions;
 	int partition_count;
 
-	spiflash_partitions = get_partition_table(&partition_count);
+	spiflash_partitions = get_spiflash_partition_table(&partition_count);
 
 	return _spinor_add_partitions(mtd, spiflash_partitions,
 			       partition_count);

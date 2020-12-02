@@ -276,7 +276,7 @@ static const struct mtd_partition spiflash_partitions[] = {
 	}
 };
 
-const struct mtd_partition *get_partition_table(int *partitions)
+const struct mtd_partition *get_spiflash_partition_table(int *partitions)
 {
 	*partitions = ARRAY_SIZE(spiflash_partitions);
 	return spiflash_partitions;
@@ -379,7 +379,7 @@ static const struct mtd_partition spinand_partitions[] = {
 		.size = MTDPART_SIZ_FULL,
 	}
 };
-const struct mtd_partition *get_partition_table(int *partitions)
+const struct mtd_partition *get_spinand_partition_table(int *partitions)
 {
 	*partitions = ARRAY_SIZE(spinand_partitions);
 	return spinand_partitions;
