@@ -490,4 +490,17 @@ int store_rsv_erase(const char *name);
  *          other = fail
  */
 int store_rsv_protect(const char *name, bool ops);
+
+/**
+ * @usage: get bootloader mode for current storage
+ *
+ * @return: result of the operation
+ *          0 = COMPACT_BOOTLOADER
+ *          1 = DISCRETE_BOOTLOADER
+ */
+int store_get_device_bootloader_mode(void);
+
+int sheader_need(void);
+void sheader_load(void *addr);
+
 #endif/* __STORAGE_H__ */

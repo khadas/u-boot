@@ -40,8 +40,6 @@ struct partitions *get_partitions(void)
 	return part_table;
 }
 
-
-
 void free_partitions(void)
 {
 	if (part_table)

@@ -9,10 +9,18 @@
 #include <div64.h>
 #include <linux/math64.h>
 #include <amlogic/cpu_id.h>
+#include <amlogic/store_wrapper.h>
 #include <asm/arch/register.h>
 #include <asm/arch/bl31_apis.h>
 #include <amlogic/aml_efuse.h>
+#include <asm/arch/cpu_config.h>
+#include <asm/arch/romboot.h>
 #include <asm/arch/secure_apb.h>
+#include <amlogic/store_wrapper.h>
+#include <amlogic/blxx2bl33_param.h>
+#include <amlogic/aml_mtd.h>
+#include <asm/arch/cpu_config.h>
+#include <u-boot/sha256.h>
 
 #undef pr_info
 #define pr_info       printf
@@ -130,6 +138,37 @@ void store_unregister(struct storage_t *store_dev)
 	}
 }
 
+int sheader_need(void)
+{
+	const cpu_id_t cpuid = get_cpu_id();
+	const int familyId = cpuid.family_id;
+
+	return (MESON_CPU_MAJOR_ID_SC2 == familyId);
+}
+
+unsigned char *ubootdata = NULL;
+void sheader_load(void *addr)
+{
+	ubootdata = addr;
+}
+
+/*
+ * storage header which size is 512B
+ * is bind into the tail of bl2.bin.
+ * @addr: uboot address.
+ */
+static int parse_uboot_sheader(void *addr)
+{
+	p_payload_info_t pInfo = (p_payload_info_t)(addr + BL2_SIZE);
+
+	if (AML_MAGIC_HDR_L == pInfo->hdr.nMagicL &&
+	    AML_MAGIC_HDR_R == pInfo->hdr.nMagicR) {
+		printf("aml log : bootloader blxx mode!\n");
+		return pInfo;
+	}
+	return NULL;
+}
+
 boot_area_entry_t general_boot_part_entry[MAX_BOOT_AREA_ENTRIES] = {
 	{BAE_BB1ST, BOOT_AREA_BB1ST, 0, BOOT_FIRST_BLOB_SIZE},
 	{BAE_BL2E, BOOT_AREA_BL2E, 0, 0x40000},
@@ -160,21 +199,21 @@ static void storage_boot_layout_debug_info(
 #define STORAGE_ROUND_UP_IF_UNALIGN(x, y) ((x) = (((x) + (y) - 1) & (~(y - 1))))
 #define NAND_RSV_OFFSET	1024
 #define ALIGN_SIZE	(4096)
-int storage_boot_layout_general_setting(
-	struct boot_layout *boot_layout)
+static int storage_boot_layout_rebuild(struct boot_layout *boot_layout,
+				       unsigned int bl2e_size,
+				       unsigned int bl2x_size)
 {
 	struct storage_startup_parameter *ssp = &g_ssp;
-	boot_area_entry_t *boot_entry = NULL;
+	boot_area_entry_t *boot_entry = boot_layout->boot_entry;
 	uint64_t align_size, reserved_size = 0;
 	uint8_t i, cal_copy = ssp->boot_bakups;
-
-	boot_entry = boot_layout->boot_entry;
 
 	align_size = ALIGN_SIZE;
 	if ((ssp->boot_device == BOOT_NAND_NFTL) ||
 		(ssp->boot_device == BOOT_NAND_MTD)) {
 		reserved_size = ssp->sip.nsp.layout_reserve_size;
 		align_size = ((NAND_RSV_OFFSET / cal_copy) * ssp->sip.nsp.page_size);
+		printf("reserved_size:0x%x 0x%x\n", reserved_size, align_size);
 	} else if (ssp->boot_device == BOOT_SNAND) {
 		reserved_size = ssp->sip.snasp.layout_reserve_size;
 		align_size = ((NAND_RSV_OFFSET / cal_copy) * ssp->sip.snasp.pagesize);
@@ -185,12 +224,22 @@ int storage_boot_layout_general_setting(
 	}
 	STORAGE_ROUND_UP_IF_UNALIGN(boot_entry[0].size, align_size);
 	ssp->boot_entry[0].size = boot_entry[0].size;
+	printf("ssp->boot_entry[0] offset:0x%lx, size:0x%lx\n",
+			ssp->boot_entry[0].offset, ssp->boot_entry[0].size);
+	printf("cal_copy:0x%x\n", cal_copy);
+	printf("align_size:0x%x\n", align_size);
+	printf("reserved_size:0x%x\n", reserved_size);
 	if ((ssp->boot_device == BOOT_NAND_NFTL) ||
 		(ssp->boot_device == BOOT_NAND_MTD))
 		align_size = ssp->sip.nsp.block_size;
 	else if (ssp->boot_device == BOOT_SNAND)
 		align_size = ssp->sip.snasp.pagesize *
 			     ssp->sip.snasp.pages_per_eraseblock;
+	printf("align_size2:%lu\n", align_size);
+
+	boot_entry[BOOT_AREA_BL2E].size = bl2e_size;
+	boot_entry[BOOT_AREA_BL2X].size = bl2x_size;
+
 	for (i = 1; i < MAX_BOOT_AREA_ENTRIES && boot_entry[i - 1].size; i++) {
 		STORAGE_ROUND_UP_IF_UNALIGN(boot_entry[i].size, align_size);
 		boot_entry[i].offset = boot_entry[i-1].offset +
@@ -198,6 +247,61 @@ int storage_boot_layout_general_setting(
 		reserved_size = 0;
 		ssp->boot_entry[i].size = boot_entry[i].size;
 		ssp->boot_entry[i].offset = boot_entry[i].offset;
+	}
+
+	return 0;
+}
+
+/* use STORAGE_ROUND_UP, y must be power of 2 */
+#define STORAGE_ROUND_UP_IF_UNALIGN(x, y) ((x) = (((x) + (y) - 1) & (~(y - 1))))
+#define NAND_RSV_OFFSET	1024
+#define ALIGN_SIZE	(4096)
+static int storage_boot_layout_general_setting(struct boot_layout *boot_layout,
+					       int need_build)
+{
+	struct storage_startup_parameter *ssp = &g_ssp;
+	boot_area_entry_t *boot_entry = boot_layout->boot_entry;
+	struct storage_boot_entry *sbentry = g_ssp.boot_entry;
+	p_payload_info_t pInfo = parse_uboot_sheader(ubootdata);;
+	p_payload_info_hdr_t hdr = &pInfo->hdr;
+	p_payload_info_item_t pItem = pInfo->arrItems;
+	int offPayload = 0, szPayload = 0;
+	unsigned int bl2e_size, bl2x_size;
+	char name[8] = {0};
+	int nIndex = 0;
+
+	if (need_build == BOOT_ID_USB) {
+		for (nIndex = 1, pItem += 1;
+		     nIndex < hdr->byItemNum; ++nIndex, ++pItem) {
+			memcpy(name, &pItem->nMagic, sizeof(unsigned int));
+			offPayload = pItem->nOffset;
+			if (nIndex == BOOT_AREA_BL2E)
+				bl2e_size = pItem->nPayLoadSize;
+			if (nIndex == BOOT_AREA_BL2X)
+				bl2x_size = pItem->nPayLoadSize;
+			szPayload = pItem->nPayLoadSize;
+			printf("Item[%d]%4s offset 0x%08x sz 0x%x\n",
+			       nIndex, name, offPayload, szPayload);
+		}
+		storage_boot_layout_rebuild(boot_layout, bl2e_size, bl2x_size);
+	} else {
+		/* may be sdcard boot and also have to rebuild layout */
+		if (need_build == BOOT_ID_SDCARD) {
+			bl2e_size = sbentry[BOOT_AREA_BL2E].size;
+			bl2x_size = sbentry[BOOT_AREA_BL2X].size;
+			printf("bl2e_size=%x bl2x_size=%x current->type=%d\n",
+				bl2e_size, bl2x_size, current->type);
+			storage_boot_layout_rebuild(boot_layout,
+						    bl2e_size, bl2x_size);
+			return 0;
+		}
+		/* normal boot */
+		for (nIndex = 0;
+		     nIndex < MAX_BOOT_AREA_ENTRIES && sbentry->size;
+		     nIndex++, sbentry++) {
+			boot_entry[nIndex].size = sbentry->size;
+			boot_entry[nIndex].offset = sbentry->offset;
+		}
 	}
 
 	return 0;
@@ -233,80 +337,86 @@ static int storage_get_emmc_boot_start(void)
 
 #define NAND_RSV_BLOCK_NUM 48
 #define NSP_PAGE0_DISABLE 1
-static int storage_get_and_parse_ssp(void)
+extern unsigned char *ubootdata;
+static int storage_get_and_parse_ssp(int *need_build) // boot_device:
 {
-	struct storage_startup_parameter *ssp;
+	struct storage_startup_parameter *ssp = &g_ssp;
 	union storage_independent_parameter *sip;
+	static struct param_e *storage_param_e;
+	int usb_boot = *need_build;
 
-	ssp = &g_ssp;
-	memset(ssp, 0, BL2E_STORAGE_PARAM_SIZE);
-	sip = &ssp->sip;
-
-	ssp->boot_device = current->type;
-	//ssp->boot_seq = get_bootcopy();
-
-	switch (ssp->boot_device) {
-	case BOOT_EMMC:
-		//ssp->sip.esp.setup.d32 = readl(SYSCTRL_SEC_STATUS_REG5);
-		ssp->boot_bakups = storage_get_emmc_boot_seqs();
-		break;
-	case BOOT_SNOR:
-		if (IS_FEAT_EN_4BL2_SNOR())
-			ssp->boot_bakups = 4;
-		else if (IS_FEAT_DIS_NBL2_SNOR())
-			ssp->boot_bakups = 1;
-		else
-			ssp->boot_bakups = 2;
-		break;
-	case BOOT_SNAND:
-		if (IS_FEAT_EN_8BL2_SNAND())
-			ssp->boot_bakups = 8;
-		else if (IS_FEAT_DIS_NBL2_SNAND())
-			ssp->boot_bakups = 1;
-		else
-			ssp->boot_bakups = 4;
-
-		sip->snasp.pagesize = 2048;
-		sip->snasp.pages_per_eraseblock = 64;
-		sip->snasp.eraseblocks_per_lun = 1024;
-		sip->snasp.planes_per_lun = 1;
-		sip->snasp.luns_per_target = 1;
-		sip->snasp.ntargets = 1;
-		/* TODO caculate it by reserve filed from startup parameter */
-		sip->snasp.layout_reserve_size = NAND_RSV_BLOCK_NUM * sip->snasp.pagesize
-						* sip->snasp.pages_per_eraseblock;
-		break;
-	case BOOT_NAND_NFTL:
-	case BOOT_NAND_MTD:
-		if (IS_FEAT_DIS_8BL2_NAND())
-			ssp->boot_bakups = 4;
-		if (IS_FEAT_DIS_NBL2_NAND())
-			ssp->boot_bakups = 1;
-		ssp->boot_bakups = 8; //FIXIT?? efuse do not work now.
-		sip->nsp.page_size =  0x1000; /*TODO get it from startup parameter */
-		sip->nsp.block_size =  0x80000;
-		sip->nsp.pages_per_block = 64;
-		sip->nsp.layout_reserve_size = NAND_RSV_BLOCK_NUM * sip->nsp.block_size; /*TODO caculate it by reserve filed from startup parameter */
-		/*TODO get it from startup parameter */
-		sip->nsp.setup_data =  	(2 << 20) |			\
-					(0 << 19) |			\
-					(1 << 17) |			\
-					(1 << 14) |			\
-					(0 << 13) |			\
-					(64 << 6) |			\
-					(8 << 0);
-		sip->nsp.page0_disable =  NSP_PAGE0_DISABLE;
-		break;
-	default:
-		/* do nothing. */
-		break;
+	memset(ssp, 0, sizeof(struct storage_startup_parameter));
+	if (!usb_boot) {
+		storage_param_e = param_of(STORAGE_PARAM_TPYE);
+		if (!storage_param_e)
+			return -1;
+		memcpy(ssp, storage_param_e->data,
+			sizeof(struct storage_startup_parameter));
+		/* may be sdcard boot and also have to rebuild layout */
+		if (ssp->boot_device == BOOT_ID_SDCARD ||
+		    ssp->boot_device == BOOT_ID_USB) {
+			/* need change the storage base here */
+			*need_build = ssp->boot_device;
+		}
 	}
-	if (ssp->boot_seq >= ssp->boot_bakups)
-		return -1;
+
+	if (*need_build) {
+		sip = &ssp->sip;
+		ssp->boot_device = current->type;
+		switch (ssp->boot_device) {
+		case BOOT_EMMC:
+			ssp->boot_bakups = storage_get_emmc_boot_seqs();
+			break;
+		case BOOT_SNOR:
+			if (IS_FEAT_EN_4BL2_SNOR())
+				ssp->boot_bakups = 4;
+			if (IS_FEAT_DIS_NBL2_SNOR())
+				ssp->boot_bakups = 1;
+			break;
+		case BOOT_SNAND:
+			if (IS_FEAT_EN_8BL2_SNAND())
+				ssp->boot_bakups = 8;
+			if (IS_FEAT_DIS_NBL2_SNAND())
+				ssp->boot_bakups = 1;
+			sip->snasp.pagesize = current->info.write_unit;
+			sip->snasp.pages_per_eraseblock =
+			current->info.erase_unit / current->info.write_unit;
+			sip->snasp.eraseblocks_per_lun =
+			(current->info.caps >> 20) / current->info.erase_unit;
+			sip->snasp.planes_per_lun = 1;
+			sip->snasp.luns_per_target = 1;
+			sip->snasp.ntargets = 1;
+			sip->snasp.layout_reserve_size =
+				NAND_RSV_BLOCK_NUM * current->info.erase_unit;
+			break;
+		case BOOT_NAND_NFTL:
+		case BOOT_NAND_MTD:
+			if (IS_FEAT_DIS_8BL2_NAND())
+				ssp->boot_bakups = 4;
+			if (IS_FEAT_DIS_NBL2_NAND())
+				ssp->boot_bakups = 1;
+			ssp->boot_bakups = 8; //FIXIT?? efuse do not work now.
+			sip->nsp.page_size =  current->info.write_unit;
+			sip->nsp.block_size = current->info.erase_unit;
+			sip->nsp.pages_per_block =
+			current->info.erase_unit / current->info.write_unit;
+			sip->nsp.layout_reserve_size =
+				NAND_RSV_BLOCK_NUM * sip->nsp.block_size;
+			sip->nsp.page0_disable =  NSP_PAGE0_DISABLE;
+			break;
+		default:
+			/* do nothing. */
+			break;
+		}
+
+	}
+
+	/* sanity check */
 
 	printf("boot_device:%d\n", ssp->boot_device);
 	printf("boot_seq:%d\n", ssp->boot_seq);
 	printf("boot_bakups:%d\n", ssp->boot_bakups);
+	printf("rebuid_id :%d\n", *need_build);
 
 	return 0;
 }
@@ -314,11 +424,12 @@ static int storage_get_and_parse_ssp(void)
 int storage_post_init(void)
 {
 	int ret = -1;
+	int need_build = 0;
 
-	ret = storage_get_and_parse_ssp();
+	ret = storage_get_and_parse_ssp(&need_build);
 	if (ret < 0)
 		return -1;
-	storage_boot_layout_general_setting(&general_boot_layout);
+	storage_boot_layout_general_setting(&general_boot_layout, need_build);
 	storage_boot_layout_debug_info(&general_boot_layout);
 
 	return ret;

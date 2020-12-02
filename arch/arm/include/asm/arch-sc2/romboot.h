@@ -49,5 +49,7 @@
 #define BOOT_ID_SPI		3
 #define BOOT_ID_SDCARD		4
 #define BOOT_ID_USB		5
+#define BOOT_ID_SPI_NAND	(6)
+#define BOOT_ID_MAX		(7)
 
 #endif /* __BOOT_ROM_H_ */
