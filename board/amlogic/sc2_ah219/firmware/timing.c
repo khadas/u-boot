@@ -412,12 +412,12 @@ storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
 		.setup_data.nand_setup_data = (2 << 20) |               \
 					(0 << 19) |                     \
 					(1 << 17) |                     \
-					(4 << 14) |                     \
+					(1 << 14) |                     \
 					(0 << 13) |                     \
 					(64 << 6) |                     \
 					(4 << 0),
 		.reserved_area_blk_cnt = 48,
-		.page_per_block = 128,
+		.page_per_block = 64,
 		.use_param_page_list = 0,
 	},
 };

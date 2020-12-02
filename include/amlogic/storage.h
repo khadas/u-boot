@@ -74,12 +74,7 @@ struct nand_startup_parameter {
 #define BOOT_AREA_DDRFIP            (3)
 #define BOOT_AREA_DEVFIP            (4)
 #define BOOT_AREA_INVALID           (MAX_BOOT_AREA_ENTRIES)
-/* boot area entry name */
-#define BAE_BB1ST                   "1STBLOB"
-#define BAE_BL2E                    "BL2E"
-#define BAE_BL2X                    "BL2X"
-#define BAE_DDRFIP                  "DDRFIP"
-#define BAE_DEVFIP                  "DEVFIP"
+
 typedef struct boot_area_entry {
     /* name */
     char name[11];

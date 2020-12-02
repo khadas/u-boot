@@ -60,8 +60,7 @@ static struct mtd_info *mtd_store_get_by_name(const char *part_name,
 {
 	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
 		if (!strcmp(part_name, BOOT_BL2) ||
-		    !strcmp(part_name, BOOT_SPL) ||
-		    !strcmp(part_name, BAE_BB1ST))
+		    !strcmp(part_name, BOOT_SPL))
 			return mtd_store_get(0);
 	} else {
 		if (!strcmp(part_name, BOOT_LOADER))
@@ -409,8 +408,7 @@ static int mtd_store_get_offset(const char *partname, loff_t *retoff, loff_t off
 		strncpy(tmp_part_name, partname, strlen(partname));
 		if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
 			if (!strcmp(partname, BOOT_BL2) ||
-			    !strcmp(partname, BOOT_SPL) ||
-			    !strcmp(partname, BAE_BB1ST))
+			    !strcmp(partname, BOOT_SPL))
 				strncpy(tmp_part_name, BOOT_LOADER, strlen(BOOT_LOADER));
 		}
 		ret = find_dev_and_part(tmp_part_name, &dev, &pnum, &part);
@@ -457,23 +455,29 @@ static int mtd_store_name(int idx, char *partname)
 static u64 mtd_store_size(const char *part_name)
 {
 	struct mtd_info *mtd = mtd_store_get(1);
-
-	if (!part_name)
-		return mtd->size;
-
+	char tmp_part_name[20] = {0};
 	u8 pnum;
 	struct mtd_device *dev;
 	struct part_info *part;
 	int ret;
 
+	if (!part_name)
+		return mtd->size;
+
 	if (!mtdparts_init()) {
-		ret = find_dev_and_part(part_name,
+		strncpy(tmp_part_name, part_name, strlen(part_name));
+		if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
+			if (!strcmp(part_name, BOOT_BL2) ||
+			    !strcmp(part_name, BOOT_SPL))
+				strncpy(tmp_part_name, BOOT_LOADER, strlen(BOOT_LOADER));
+		}
+		ret = find_dev_and_part(tmp_part_name,
 					&dev,
 					&pnum,
 					&part);
 		if (ret) {
 			pr_info("%s %d can not find part:%s\n",
-				__func__, __LINE__, part_name);
+				__func__, __LINE__, tmp_part_name);
 			return 0;
 		}
 		return mtd_store_logic_part_size(mtd, part);
@@ -708,7 +712,6 @@ int is_mtd_store_boot_area(const char *part_name)
 	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
 		if (!strcmp(part_name, BOOT_BL2) ||
 		    !strcmp(part_name, BOOT_SPL) ||
-		    !strcmp(part_name, BAE_BB1ST) ||
 		    !strcmp(part_name, BOOT_TPL) ||
 		    !strcmp(part_name, BOOT_FIP) ||
 		    !strcmp(part_name, BOOT_BL2E) ||
@@ -752,8 +755,7 @@ static u64 mtd_store_boot_copy_size(const char *part_name)
 	}
 	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
 		if (!strcmp(part_name, BOOT_BL2) ||
-		    !strcmp(part_name, BOOT_SPL) ||
-		    !strcmp(part_name, BAE_BB1ST)) {
+		    !strcmp(part_name, BOOT_SPL)) {
 			if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2)
 				return g_ssp.boot_entry[BOOT_AREA_BB1ST].size;
 			else {
@@ -956,8 +958,7 @@ static int mtd_store_boot_write(const char *part_name,
 			 * block skiped or not.
 			 */
 			if (!strcmp(part_name, BOOT_BL2) ||
-			    !strcmp(part_name, BOOT_SPL) ||
-			    !strcmp(part_name, BAE_BB1ST)) {
+			    !strcmp(part_name, BOOT_SPL)) {
 				int i, write_cnt;
 				loff_t off = offset;
 				size_t sz_write = SZ_2K;

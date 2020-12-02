@@ -16,11 +16,8 @@
 #include <asm/arch/cpu_config.h>
 #include <asm/arch/romboot.h>
 #include <asm/arch/secure_apb.h>
-#include <amlogic/store_wrapper.h>
 #include <amlogic/blxx2bl33_param.h>
 #include <amlogic/aml_mtd.h>
-#include <asm/arch/cpu_config.h>
-#include <u-boot/sha256.h>
 
 #undef pr_info
 #define pr_info       printf
@@ -170,11 +167,11 @@ static int parse_uboot_sheader(void *addr)
 }
 
 boot_area_entry_t general_boot_part_entry[MAX_BOOT_AREA_ENTRIES] = {
-	{BAE_BB1ST, BOOT_AREA_BB1ST, 0, BOOT_FIRST_BLOB_SIZE},
-	{BAE_BL2E, BOOT_AREA_BL2E, 0, 0x40000},
-	{BAE_BL2X, BOOT_AREA_BL2X, 0, 0x40000},
-	{BAE_DDRFIP, BOOT_AREA_DDRFIP, 0, 0x40000},
-	{BAE_DEVFIP, BOOT_AREA_DEVFIP, 0, 0x300000},
+	{BOOT_BL2, BOOT_AREA_BB1ST, 0, BOOT_FIRST_BLOB_SIZE},
+	{BOOT_BL2E, BOOT_AREA_BL2E, 0, 0x40000},
+	{BOOT_BL2X, BOOT_AREA_BL2X, 0, 0x40000},
+	{BOOT_DDRFIP, BOOT_AREA_DDRFIP, 0, 0x40000},
+	{BOOT_DEVFIP, BOOT_AREA_DEVFIP, 0, 0x300000},
 };
 
 struct boot_layout general_boot_layout = {.boot_entry = general_boot_part_entry};
@@ -280,7 +277,7 @@ static int storage_boot_layout_general_setting(struct boot_layout *boot_layout,
 			if (nIndex == BOOT_AREA_BL2X)
 				bl2x_size = pItem->nPayLoadSize;
 			szPayload = pItem->nPayLoadSize;
-			printf("Item[%d]%4s offset 0x%08x sz 0x%x\n",
+			pr_info("Item[%d]%4s offset 0x%08x sz 0x%x\n",
 			       nIndex, name, offPayload, szPayload);
 		}
 		storage_boot_layout_rebuild(boot_layout, bl2e_size, bl2x_size);
@@ -1153,6 +1150,142 @@ static int do_store_boot_read(cmd_tbl_t *cmdtp,
 	return store->boot_read(name, cpy, size, (u_char *)addr);
 }
 
+static int bl2x_mode_check_header(p_payload_info_t pInfo)
+{
+	p_payload_info_hdr_t hdr    = &pInfo->hdr;
+	const int nItemNum = hdr->byItemNum;
+	p_payload_info_item_t pItem = pInfo->arrItems;
+	u8 i = 0;
+	int sz_payload = 0;
+	uint64_t align_size = 1;
+	struct storage_startup_parameter *ssp = &g_ssp;
+	u8 cal_copy = ssp->boot_bakups;
+
+	printf("\naml log : info parse...\n");
+	printf("\tsztimes : %s\n",hdr->szTimeStamp);
+	printf("\tversion : %d\n",hdr->byVersion);
+	printf("\tItemNum : %d\n",nItemNum);
+	printf("\tSize    : %d(0x%x)\n",    hdr->nSize, hdr->nSize);
+	if (nItemNum > 8 || nItemNum < 3) {
+		pr_info("illegal nitem num %d\n", nItemNum);
+		return __LINE__;
+	}
+	if (ssp->boot_device == BOOT_NAND_MTD)
+		align_size = ((NAND_RSV_OFFSET / cal_copy) * ssp->sip.nsp.page_size);
+	else if (ssp->boot_device == BOOT_SNAND)
+		align_size = ((NAND_RSV_OFFSET / cal_copy) * ssp->sip.snasp.pagesize);
+
+	sz_payload = pItem->nPayLoadSize;
+	STORAGE_ROUND_UP_IF_UNALIGN(sz_payload, align_size);
+	if (sz_payload > ssp->boot_entry[0].size)
+		return __LINE__;
+	if (ssp->boot_device == BOOT_NAND_MTD)
+		align_size = ssp->sip.nsp.block_size;
+	else if (ssp->boot_device == BOOT_SNAND)
+		align_size = ssp->sip.snasp.pagesize *
+		ssp->sip.snasp.pages_per_eraseblock;
+	++pItem;
+
+	for (i = 1; i < nItemNum; i++, ++pItem) {
+		sz_payload = pItem->nPayLoadSize;
+		STORAGE_ROUND_UP_IF_UNALIGN(sz_payload, align_size);
+		if (sz_payload > ssp->boot_entry[i].size)
+			return __LINE__;
+	}
+
+	return 0;
+}
+
+static int _store_boot_write(const char *part_name, u8 cpy, size_t size, void *addr)
+{
+	cpu_id_t cpu_id = get_cpu_id();
+	enum boot_type_e medium_type = store_get_type();
+	struct storage_startup_parameter *ssp = &g_ssp;
+	struct storage_boot_entry *boot_entry = ssp->boot_entry;
+	u8 i;
+	int ret = 0;
+	struct storage_t *store = store_get_current();
+	int bl2_size = BL2_SIZE;
+	int bl2_cpynum = 0;
+	int tpl_per_size = CONFIG_TPL_SIZE_PER_COPY;
+	int tpl_cpynum = 0;
+	int bootloader_maxsize = 0;
+
+	if (store_get_device_bootloader_mode() != DISCRETE_BOOTLOADER)
+		return store->boot_write(part_name, cpy, size, (u_char *)addr);
+
+	if (BOOT_NAND_MTD == medium_type ||  BOOT_SNAND == medium_type)
+		tpl_cpynum = CONFIG_NAND_TPL_COPY_NUM;
+	else if (medium_type == BOOT_SNOR)
+		tpl_cpynum = CONFIG_NOR_TPL_COPY_NUM;
+
+	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) {
+		bl2_cpynum = ssp->boot_bakups;
+	} else	{
+		bootloader_maxsize = bl2_size + tpl_per_size;
+		bl2_cpynum = CONFIG_BL2_COPY_NUM;
+		if (size > bootloader_maxsize) {
+			pr_info("bootloader sz 0x%lx too large,max sz 0x%x\n",
+				size, bootloader_maxsize);
+			return CMD_RET_FAILURE;
+		}
+	}
+
+	if ((cpy >= tpl_cpynum || cpy >= bl2_cpynum) && (cpy != BOOT_OPS_ALL)) {
+		pr_info("update copy %d invalid, must < min(%d, %d)\n",
+			cpy, tpl_cpynum, bl2_cpynum);
+		return CMD_RET_FAILURE;
+	}
+
+	p_payload_info_t pinfo = parse_uboot_sheader((u8 *)addr);
+
+	if (!pinfo) {
+		ret = store->boot_write("tpl", cpy, size - bl2_size, (u_char *)(addr +bl2_size));
+		if (ret) {
+			pr_info("failed update tpl\n");
+			return CMD_RET_FAILURE;
+		}
+	} else {
+		if (bl2x_mode_check_header(pinfo)) {
+			pr_info("!!!warning bl2xx size is bigger than bl2x layout size\n");
+			pr_info("plase check bl2x,or erase flash and turn off\n");
+			pr_info("then turn on, and update uboot again\n");
+			return CMD_RET_FAILURE;
+		}
+
+		char name[8];
+		int nindex = 0;
+		p_payload_info_hdr_t hdr    = &pinfo->hdr;
+		p_payload_info_item_t pitem = pinfo->arrItems;
+		int off_payload = 0;
+		int sz_payload = 0;
+
+		memset(name, 0, 8);
+		for (nindex = 1, pitem +=1; nindex < hdr->byItemNum; ++nindex, ++pitem) {
+			memcpy(name, &pitem->nMagic, sizeof(unsigned int));
+			off_payload = pitem->nOffset;
+			sz_payload = pitem->nPayLoadSize;
+			pr_info("item[%d]%4s offset 0x%08x sz 0x%x\n",
+				nindex, name, off_payload, sz_payload);
+			if (!sz_payload)
+				continue;
+			ret = store->boot_write(general_boot_part_entry[nindex].name, cpy, sz_payload, (u_char *)(addr + off_payload));
+			if (ret) {
+				pr_info("Fail in flash payload %s\n",name);
+				return CMD_RET_FAILURE;
+			}
+		}
+	}
+
+	ret =  store->boot_write("bl2", cpy, bl2_size, (u_char *)addr);
+	if (ret) {
+		pr_info("Fail in flash payload bl2\n");
+		return CMD_RET_FAILURE;
+	}
+	return ret;
+
+}
+
 static int do_store_boot_write(cmd_tbl_t *cmdtp,
 			       int flag, int argc, char * const argv[])
 {
@@ -1176,6 +1309,10 @@ static int do_store_boot_write(cmd_tbl_t *cmdtp,
 	size = (size_t)simple_strtoul(argv[argc - 1], NULL, 16);
 	if (argc == 6)
 		cpy = (u8)simple_strtoul(argv[4], NULL, 16);
+
+	if (strcmp(name, "bootloader") == 0) {
+		return _store_boot_write(name, cpy, size, (u_char *)addr);
+	}
 
 	return store->boot_write(name, cpy, size, (u_char *)addr);
 }
@@ -1284,7 +1421,7 @@ static int do_store(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 U_BOOT_CMD(store, CONFIG_SYS_MAXARGS, 1, do_store,
-	   "STORE sub-system",
+	"STORE sub-system:",
 	"store init [flag]\n"
 	"	init storage device\n"
 	"store device [name]\n"
@@ -1334,7 +1471,11 @@ U_BOOT_CMD(store, CONFIG_SYS_MAXARGS, 1, do_store,
 	"	'addr' of memory. when the optional 'copy'\n"
 	"	is null, it will writes to all copies\n"
 	"	name:\n"
-	"	in discrete mode: 'bl2'/'tpl'(fip)\n"
+	"	in discrete mode:\n"
+	"	'bl2/bl2e/bl2x/ddrfip/tpl(fip), only update part\n"
+	"	'bootloader', update whole uboot.bin, in this case\n"
+	"	@copy:if used, must < min(tplCpyNum, Bl2CpyNum), update only the specified copy\n"
+	"	if not used, update all the copies of bl2 bl2e bl2x ddrfip tpl!\n"
 	"	in compact mode: 'bootloader'\n"
 	"store boot_erase name [copy]\n"
 	"	erase the name info from 'copy'th backup\n"

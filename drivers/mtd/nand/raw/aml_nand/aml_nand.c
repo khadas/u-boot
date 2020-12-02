@@ -215,7 +215,10 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 			temp_parts = parts + i;
 			if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) {
 				temp_parts->offset = g_ssp.boot_entry[i + 1].offset;
-				temp_parts->size = g_ssp.boot_entry[i + 1].size * g_ssp.boot_bakups;
+				if (i == internal_part_count -1)
+					temp_parts->size = fip_part_size;
+				else
+					temp_parts->size = g_ssp.boot_entry[i + 1].size * g_ssp.boot_bakups;
 			} else {
 				temp_parts->offset = adjust_offset;
 				temp_parts->size = fip_part_size;
