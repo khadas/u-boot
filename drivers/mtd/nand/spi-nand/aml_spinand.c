@@ -1209,13 +1209,13 @@ static int spinand_set_infopage(struct mtd_info *mtd,
 	page_per_blk = mtd->erasesize / mtd->writesize;
 	memcpy(info_page->magic, SPINAND_MAGIC, strlen(SPINAND_MAGIC));
 	info_page->version = SPINAND_INFO_VER;
-#ifdef CONFIG_DISCRETE_BOOTLOADER
-	info_page->mode = 1;
-#else
-	info_page->mode = 0;
-#endif
+	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER)
+		info_page->mode = 1;
+	else
+		info_page->mode = 0;
+
 	info_page->bl2_num = CONFIG_BL2_COPY_NUM;
-	info_page->fip_num = CONFIG_TPL_COPY_NUM;
+	info_page->fip_num = CONFIG_NAND_TPL_COPY_NUM;
 	switch (spinand->read_cmd) {
 	case SPINAND_CMD_QUAD_READ:
 		if (spinand->id[0] != NAND_MFR_GIGA)
@@ -2197,11 +2197,8 @@ static int spinand_add_partitions(struct mtd_info *mtd,
 	int part_num = 0, i = 0;
 	struct mtd_partition *temp, *parts_nm;
 	loff_t off;
-#ifdef CONFIG_DISCRETE_BOOTLOADER
 	part_num = nbparts + 2;
-#else
-	part_num = nbparts + 1;
-#endif/* CONFIG_DISCRETE_BOOTLOADER */
+
 	temp = kzalloc(sizeof(*temp) * part_num, GFP_KERNEL);
 	memset(temp, 0, sizeof(*temp) * part_num);
 	temp[0].name = BOOT_LOADER;
@@ -2210,17 +2207,15 @@ static int spinand_add_partitions(struct mtd_info *mtd,
 	if (temp[0].size % mtd->erasesize)
 		WARN_ON(1);
 	off = temp[0].size + NAND_RSV_BLOCK_NUM * mtd->erasesize;
-#ifdef CONFIG_DISCRETE_BOOTLOADER
+
 	temp[1].name = BOOT_TPL;
 	temp[1].offset = off;
-	temp[1].size = CONFIG_TPL_SIZE_PER_COPY * CONFIG_TPL_COPY_NUM;
+	temp[1].size = CONFIG_TPL_SIZE_PER_COPY * CONFIG_NAND_TPL_COPY_NUM;
 	if (temp[1].size % mtd->erasesize)
 		WARN_ON(1);
 	parts_nm = &temp[2];
 	off += temp[1].size;
-#else
-	parts_nm = &temp[1];
-#endif/* CONFIG_DISCRETE_BOOTLOADER */
+
 	for (; i < nbparts; i++) {
 		if (!parts[i].name) {
 			pr_err("name can't be null! ");

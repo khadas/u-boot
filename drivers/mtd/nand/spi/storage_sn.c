@@ -20,9 +20,6 @@
 
 
 static struct storage_t *snand_storage;
-#ifdef CONFIG_MTD_LOGIC_MAP
-extern void mtd_store_init_map(void);
-#endif
 extern void mtd_store_set(struct mtd_info *mtd, int dev);
 extern void mtd_store_mount_ops(struct storage_t *store);
 extern int spinand_add_partitions(struct mtd_info *mtd,
@@ -61,6 +58,7 @@ int spinand_fit_storage(struct mtd_info *info, char *name, u8 *id)
 {
 	struct storage_t *spi_nand = NULL;
 	struct mtd_info *mtd = info;
+	int ret = 0;
 
 	if (get_snand_storage())
 		return 0;
@@ -79,18 +77,15 @@ int spinand_fit_storage(struct mtd_info *info, char *name, u8 *id)
 	spi_nand->info.write_unit = mtd->writesize;
 	spi_nand->info.erase_unit = mtd->erasesize;
 	spi_nand->info.caps = mtd->size;
-#ifdef CONFIG_DISCRETE_BOOTLOADER
 	spi_nand->info.mode = 1;
-#else
-	spi_nand->info.mode = 0;
-#endif
+
 	set_snand_storage(spi_nand);
 	mtd_store_mount_ops(spi_nand);
+	ret = store_register(spi_nand);
+	if (ret)
+		return ret;
 	mtd_store_set(mtd, 0);
-#ifdef CONFIG_MTD_LOGIC_MAP
-	mtd_store_init_map();
-#endif
-	return store_register(spi_nand);
+	return ret;
 }
 
 int spi_nand_pre(void)

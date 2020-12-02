@@ -587,6 +587,7 @@ int meson_rsv_init(struct mtd_info *mtd,
 {
 	int i, ret = 0;
 	u32 pages_per_blk_shift, start, vernier;
+	enum boot_type_e medium_type = store_get_type();
 
 	pages_per_blk_shift = mtd->erasesize_shift - mtd->writesize_shift;
 	start = BOOT_TOTAL_PAGES >> pages_per_blk_shift;
@@ -693,14 +694,14 @@ int meson_rsv_init(struct mtd_info *mtd,
 		/* reduce memory usage in sram */
 		handler->dtb->size = mtd->erasesize >> 1;
 	} else {
-		#ifdef CONFIG_MTD_SPI_NAND
-		/* Reduce space use, malloc may fail */
-		handler->key->size = mtd->erasesize >> 2;
-		handler->dtb->size = mtd->erasesize >> 1;
-		#else
-		handler->key->size = 0x40000;
-		handler->dtb->size = 0x40000;
-		#endif
+		if (BOOT_SNAND == medium_type) {
+			/* Reduce space use, malloc may fail */
+			handler->key->size = mtd->erasesize >> 2;
+			handler->dtb->size = mtd->erasesize >> 1;
+		} else {
+			handler->key->size = 0x40000;
+			handler->dtb->size = 0x40000;
+		}
 	}
 
 	if ((vernier - start) > NAND_RSV_BLOCK_NUM) {

@@ -525,6 +525,18 @@ int store_get_device_info(struct storage_info_t *info)
 	return 0;
 }
 
+int store_get_device_bootloader_mode(void)
+{
+	struct storage_t *store = store_get_current();
+
+	if (!store) {
+		pr_info("%s %d please init storage device first\n",
+			__func__, __LINE__);
+		return -1;
+	}
+	return store->info.mode;
+}
+
 int store_read(const char *name, loff_t off, size_t size, void *buf)
 {
 	struct storage_t *store = store_get_current();

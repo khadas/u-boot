@@ -32,6 +32,7 @@
 #include <linux/log2.h>
 #include <asm/arch/cpu_config.h>
 #include <amlogic/storage.h>
+#include <amlogic/cpu_id.h>
 #endif
 
 /* SPI NAND index visible in MTD names */
@@ -645,7 +646,7 @@ int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 	/* DISCRETE only */
 	info_page->mode = 1;
 	info_page->bl2_num = CONFIG_BL2_COPY_NUM;
-	info_page->fip_num = CONFIG_TPL_COPY_NUM;
+	info_page->fip_num = CONFIG_NAND_TPL_COPY_NUM;
 	info_page->dev.s.rd_max = 2;
 	info_page->dev.s.fip_start =
 		BOOT_TOTAL_PAGES + NAND_RSV_BLOCK_NUM * page_per_blk;
@@ -1250,16 +1251,16 @@ int spinand_add_partitions(struct mtd_info *mtd,
 	int part_num = 0, i = 0;
 	struct mtd_partition *temp, *parts_nm;
 	loff_t off;
+	cpu_id_t cpu_id = get_cpu_id();
 
-#ifdef CONFIG_DISCRETE_BOOTLOADER
-#ifdef CONFIG_SPI_NAND_AML_ADVANCED
-	part_num = nbparts + 5;
-#else
-	part_num = nbparts + 2;
-#endif/* CONFIG_SPI_NAND_AML_ADVANCED */
-#else
-	part_num = nbparts + 1;
-#endif/* CONFIG_DISCRETE_BOOTLOADER */
+	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
+	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2)
+		part_num = nbparts + 5;
+	else
+		part_num = nbparts + 2;
+	} else
+		part_num = nbparts + 1;
+
 	temp = kzalloc(sizeof(*temp) * part_num, GFP_KERNEL);
 	memset(temp, 0, sizeof(*temp) * part_num);
 	temp[0].name = BOOT_LOADER;
@@ -1268,46 +1269,55 @@ int spinand_add_partitions(struct mtd_info *mtd,
 	if (temp[0].size % mtd->erasesize)
 		WARN_ON(1);
 	off = temp[0].size + NAND_RSV_BLOCK_NUM * mtd->erasesize;
-#ifdef CONFIG_DISCRETE_BOOTLOADER
-#ifdef CONFIG_SPI_NAND_AML_ADVANCED
-	extern struct storage_startup_parameter g_ssp;
-	temp[BOOT_AREA_BL2E].name = BOOT_BL2E;
-	temp[BOOT_AREA_BL2E].offset = g_ssp.boot_entry[BOOT_AREA_BL2E].offset;
-	temp[BOOT_AREA_BL2E].size = g_ssp.boot_entry[BOOT_AREA_BL2E].size * g_ssp.boot_bakups;
-	if (temp[0].size % mtd->erasesize)
-		WARN_ON(1);
 
-	temp[BOOT_AREA_BL2X].name = BOOT_BL2X;
-	temp[BOOT_AREA_BL2X].offset = g_ssp.boot_entry[BOOT_AREA_BL2X].offset;
-	temp[BOOT_AREA_BL2X].size = g_ssp.boot_entry[BOOT_AREA_BL2X].size * g_ssp.boot_bakups;
-	if (temp[0].size % mtd->erasesize)
-		WARN_ON(1);
+	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
+		if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) {
+			extern struct storage_startup_parameter g_ssp;
+			temp[BOOT_AREA_BL2E].name = BOOT_BL2E;
+			temp[BOOT_AREA_BL2E].offset =
+				g_ssp.boot_entry[BOOT_AREA_BL2E].offset;
+			temp[BOOT_AREA_BL2E].size =
+				g_ssp.boot_entry[BOOT_AREA_BL2E].size * g_ssp.boot_bakups;
+			if (temp[0].size % mtd->erasesize)
+				WARN_ON(1);
 
-	temp[BOOT_AREA_DDRFIP].name = BOOT_DDRFIP;
-	temp[BOOT_AREA_DDRFIP].offset = g_ssp.boot_entry[BOOT_AREA_DDRFIP].offset;
-	temp[BOOT_AREA_DDRFIP].size = g_ssp.boot_entry[BOOT_AREA_DDRFIP].size * g_ssp.boot_bakups;
-	if (temp[0].size % mtd->erasesize)
-		WARN_ON(1);
+			temp[BOOT_AREA_BL2X].name = BOOT_BL2X;
+			temp[BOOT_AREA_BL2X].offset =
+				g_ssp.boot_entry[BOOT_AREA_BL2X].offset;
+			temp[BOOT_AREA_BL2X].size =
+				g_ssp.boot_entry[BOOT_AREA_BL2X].size * g_ssp.boot_bakups;
+			if (temp[0].size % mtd->erasesize)
+				WARN_ON(1);
 
-	temp[BOOT_AREA_DEVFIP].name = BOOT_DEVFIP;
-	temp[BOOT_AREA_DEVFIP].offset = g_ssp.boot_entry[BOOT_AREA_DEVFIP].offset;
-	temp[BOOT_AREA_DEVFIP].size = g_ssp.boot_entry[BOOT_AREA_DEVFIP].size * CONFIG_TPL_COPY_NUM;
-	if (temp[0].size % mtd->erasesize)
-		WARN_ON(1);
-	off = temp[BOOT_AREA_DEVFIP].offset + temp[BOOT_AREA_DEVFIP].size;
-	parts_nm = &temp[5];
-#else
-	temp[1].name = BOOT_TPL;
-	temp[1].offset = off;
-	temp[1].size = CONFIG_TPL_SIZE_PER_COPY * CONFIG_TPL_COPY_NUM;
-	if (temp[1].size % mtd->erasesize)
-		WARN_ON(1);
-	parts_nm = &temp[2];
-	off += temp[1].size;
-#endif/*CONFIG_SPI_NAND_AML_ADVANCED*/
-#else
-	parts_nm = &temp[1];
-#endif/* CONFIG_DISCRETE_BOOTLOADER */
+			temp[BOOT_AREA_DDRFIP].name = BOOT_DDRFIP;
+			temp[BOOT_AREA_DDRFIP].offset =
+				g_ssp.boot_entry[BOOT_AREA_DDRFIP].offset;
+			temp[BOOT_AREA_DDRFIP].size =
+				g_ssp.boot_entry[BOOT_AREA_DDRFIP].size * g_ssp.boot_bakups;
+			if (temp[0].size % mtd->erasesize)
+				WARN_ON(1);
+
+			temp[BOOT_AREA_DEVFIP].name = BOOT_DEVFIP;
+			temp[BOOT_AREA_DEVFIP].offset =
+				g_ssp.boot_entry[BOOT_AREA_DEVFIP].offset;
+			temp[BOOT_AREA_DEVFIP].size =
+				g_ssp.boot_entry[BOOT_AREA_DEVFIP].size * CONFIG_NAND_TPL_COPY_NUM;
+			if (temp[0].size % mtd->erasesize)
+				WARN_ON(1);
+			off = temp[BOOT_AREA_DEVFIP].offset + temp[BOOT_AREA_DEVFIP].size;
+			parts_nm = &temp[5];
+		} else {
+			temp[1].name = BOOT_TPL;
+			temp[1].offset = off;
+			temp[1].size = CONFIG_TPL_SIZE_PER_COPY * CONFIG_NAND_TPL_COPY_NUM;
+			if (temp[1].size % mtd->erasesize)
+				WARN_ON(1);
+			parts_nm = &temp[2];
+			off += temp[1].size;
+		}
+	} else
+		parts_nm = &temp[1];
+
 	for (; i < nbparts; i++) {
 		//printf("add_partitions ==== name = %s\n",parts[i].name);
 		if (!parts[i].name) {

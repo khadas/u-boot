@@ -32,6 +32,7 @@
 #ifdef CONFIG_AML_MTDPART
 #include <jffs2/load_kernel.h>
 #include <amlogic/aml_mtd.h>
+#include <amlogic/storage.h>
 #endif
 
 #ifndef __UBOOT__
@@ -1056,13 +1057,16 @@ int mtdparts_init(void)
 	struct mtd_info *mtd = NULL;
 	u8 i = 0;
 	u8 cnt = 0;
+	enum boot_type_e medium_type = store_get_type();
 
-#ifdef CONFIG_MESON_NFC
-	cnt = MAX_MTD_CNT;
-#endif
-#if defined(CONFIG_SPI_FLASH) || defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND)
-	cnt = MAX_MTD_CNT - 1;
-#endif
+	if (BOOT_NAND_MTD == medium_type)
+		cnt = MAX_MTD_CNT;
+	else if ((BOOT_SNAND == medium_type) || (BOOT_SNOR == medium_type))
+		cnt = MAX_MTD_CNT - 1;
+	else {
+		printf("no valid storage device\n");
+		return 1;
+	}
 
 	if (init_flag) {
 		debug("%s %d part already init\n", __func__, __LINE__);
@@ -1085,10 +1089,8 @@ int mtdparts_init(void)
 				dev->id->type = 0;
 			dev->id->size = part->size;
 			dev->id->num = 0;
-#ifdef CONFIG_MESON_NFC
-		if (strcmp(part->name, "bootloader"))
+		if ((BOOT_NAND_MTD == medium_type) && strcmp(part->name, "bootloader"))
 			dev->id->num = 1;
-#endif
 		temp = kzalloc(sizeof(*temp), GFP_KERNEL);
 		temp->name = part->name;
 

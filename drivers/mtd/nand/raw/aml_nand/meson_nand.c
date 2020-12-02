@@ -756,8 +756,8 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 	err = aml_nand_init(aml_chip);
 	if (!err) {
 		nand_info[dev_num] = mtd;
-		mtd_store_set(nand_info[dev_num], dev_num);
 		slcnand_fit_storage();
+		mtd_store_set(nand_info[dev_num], dev_num);
 	}
 	if (err || pre_scan->pre_scan_flag)
 		goto exit_error;
