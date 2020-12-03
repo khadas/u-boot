@@ -74,4 +74,10 @@ static int pwm_voltage_table_ee_new[][2] = {
 	{ 0x010011,  870},
 	{ 0x000012,  880},
 };
+
+#ifdef CONFIG_BT_RCU
+extern int read_event(void);
+extern void host_init_uart(void);
+#endif
+
 #endif //__PWM_CTRL_H__

@@ -123,6 +123,7 @@ extern void __switch_idle_task(void);
 static unsigned int detect_key(unsigned int suspend_from)
 {
 	int exit_reason = 0;
+	unsigned int ret;
 #ifdef CONFIG_BT_RCU_WAKEUP
 	int cnt = 0;
 	int flag_p = 0;
@@ -130,6 +131,7 @@ static unsigned int detect_key(unsigned int suspend_from)
 #endif
 	unsigned *irq = (unsigned *)WAKEUP_SRC_IRQ_ADDR_BASE;
 	init_remote();
+
 #ifdef CONFIG_CEC_WAKEUP
 	cec_start_config();
 #endif
@@ -148,8 +150,11 @@ static unsigned int detect_key(unsigned int suspend_from)
 		#endif
 		if (irq[IRQ_AO_IR_DEC] == IRQ_AO_IR_DEC_NUM) {
 			irq[IRQ_AO_IR_DEC] = 0xFFFFFFFF;
-			if (remote_detect_key())
+			ret = remote_detect_key();
+			if (ret == 1)
 				exit_reason = REMOTE_WAKEUP;
+			if (ret == 2)
+				exit_reason = REMOTE_CUS_WAKEUP;
 		}
 
 		if (irq[IRQ_VRTC] == IRQ_VRTC_NUM) {
