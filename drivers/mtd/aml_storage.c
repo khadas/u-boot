@@ -55,6 +55,32 @@ static u8 boot_num_get(void)
 	return 1;
 }
 
+int get_meson_mtd_partition_table(struct mtd_partition *partitions)
+{
+	enum boot_type_e medium_type = store_get_type();
+	int mtdParts = -1;
+
+#ifdef CONFIG_MESON_NFC
+	extern struct mtd_partition *get_aml_mtd_partition(void);
+	extern int get_aml_partition_count(void);
+	if (BOOT_NAND_MTD == medium_type) {
+		mtdParts = get_aml_partition_count();
+		partitions = get_aml_mtd_partition();
+	}
+#endif
+#if defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND)
+	extern const struct mtd_partition *get_spinand_partition_table(int *partitions);
+	if (BOOT_SNAND == medium_type)
+		partitions = get_spinand_partition_table(&mtdParts);
+#endif
+#ifdef CONFIG_SPI_FLASH
+	extern const struct mtd_partition *get_spiflash_partition_table(int *partitions);
+	if (medium_type == BOOT_SNOR)
+		partitions = get_spiflash_partition_table(&mtdParts);
+#endif
+	return mtdParts;
+}
+
 static struct mtd_info *mtd_store_get_by_name(const char *part_name,
 					      int boot)
 {
