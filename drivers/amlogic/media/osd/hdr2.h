@@ -28,6 +28,7 @@ enum hdr_module_sel {
 	VDIN0_HDR = 0x8,
 	VDIN1_HDR = 0x10,
 	DI_HDR = 0x20,
+	OSD3_HDR = 0x40,
 	HDR_MAX
 };
 

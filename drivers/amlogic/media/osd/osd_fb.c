@@ -364,6 +364,7 @@ unsigned long get_fb_addr(void)
 		}
 	}
 #endif
+
 	if ((!initrd_set) && (osd_get_chip_type() >= MESON_CPU_MAJOR_ID_AXG)) {
 		sprintf(str_fb_addr,"%lx",fb_addr);
 		env_set("initrd_high", str_fb_addr);

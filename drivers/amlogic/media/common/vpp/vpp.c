@@ -1072,6 +1072,44 @@ static void set_osd3_rgb2yuv(bool on)
 	}
 }
 
+ /*
+for T7, set osd4 matrix(10bit) RGB2YUV
+ */
+static void set_osd4_rgb2yuv(bool on)
+{
+	int *m = NULL;
+
+	if (is_osd_high_version()) {
+		/* RGB -> 709 limit */
+		m = RGB709_to_YUV709l_coeff;
+
+		/* VPP WRAP OSD3 matrix */
+		vpp_reg_write(VIU_OSD4_MATRIX_PRE_OFFSET0_1,
+			((m[0] & 0xfff) << 16) | (m[1] & 0xfff));
+		vpp_reg_write(VIU_OSD4_MATRIX_PRE_OFFSET2,
+			m[2] & 0xfff);
+		vpp_reg_write(VIU_OSD4_MATRIX_COEF00_01,
+			((m[3] & 0x1fff) << 16) | (m[4] & 0x1fff));
+		vpp_reg_write(VIU_OSD4_MATRIX_COEF02_10,
+			((m[5]  & 0x1fff) << 16) | (m[6] & 0x1fff));
+		vpp_reg_write(VIU_OSD4_MATRIX_COEF11_12,
+			((m[7] & 0x1fff) << 16) | (m[8] & 0x1fff));
+		vpp_reg_write(VIU_OSD4_MATRIX_COEF20_21,
+			((m[9] & 0x1fff) << 16) | (m[10] & 0x1fff));
+		vpp_reg_write(VIU_OSD4_MATRIX_COEF22,
+			m[11] & 0x1fff);
+
+		vpp_reg_write(VIU_OSD4_MATRIX_OFFSET0_1,
+			((m[18] & 0xfff) << 16) | (m[19] & 0xfff));
+		vpp_reg_write(VIU_OSD4_MATRIX_OFFSET2,
+			m[20] & 0xfff);
+
+		vpp_reg_setb(VIU_OSD4_MATRIX_EN_CTRL, on, 0, 1);
+
+		VPP_PR("T7 osd4 matrix rgb2yuv..............\n");
+	}
+}
+
 static void set_viu2_osd_matrix_rgb2yuv(bool on)
 {
 	int *m = RGB709_to_YUV709l_coeff;
@@ -1138,9 +1176,26 @@ for txlx, set vpp default data path to u10
  */
 static void set_vpp_bitdepth(void)
 {
+	u32 chip_id = get_cpu_id().family_id;
+
 	if (is_osd_high_version()) {
 		/*after this step vd1 output data is U12,*/
-		vpp_reg_write(DOLBY_PATH_CTRL, 0xf);
+		if (chip_id == MESON_CPU_MAJOR_ID_T7) {
+			/* osd dolby bypass en */
+			vpp_reg_setb(MALI_AFBCD_TOP_CTRL, 1, 14, 1);
+			vpp_reg_setb(MALI_AFBCD_TOP_CTRL, 1, 19, 1);
+			/* osd_din_ext 12bit */
+			vpp_reg_setb(MALI_AFBCD_TOP_CTRL, 0, 15, 1);
+			vpp_reg_setb(MALI_AFBCD_TOP_CTRL, 0, 20, 1);
+
+			vpp_reg_setb(MALI_AFBCD1_TOP_CTRL, 1, 19, 1);
+			vpp_reg_setb(MALI_AFBCD1_TOP_CTRL, 0, 20, 1);
+
+			vpp_reg_setb(MALI_AFBCD2_TOP_CTRL, 1, 19, 1);
+			vpp_reg_setb(MALI_AFBCD2_TOP_CTRL, 0, 20, 1);
+		} else {
+			vpp_reg_write(DOLBY_PATH_CTRL, 0xf);
+		}
 	}
 }
 
@@ -1499,7 +1554,7 @@ void vpp_init(void)
 	int chip_id;
 
 	chip_id = vpp_get_chip_type();
-	//VPP_PR("%s, chip_id=%d\n", __func__, chip_id);
+	VPP_PR("%s, chip_id=%d\n", __func__, chip_id);
 	if (!is_vpp_supported(chip_id)) {
 		VPP_PR("%s, vpp not supported\n", __func__);
 		return;
@@ -1517,11 +1572,14 @@ void vpp_init(void)
 		set_osd2_rgb2yuv(0);
 		if (chip_id != MESON_CPU_MAJOR_ID_TL1)
 			set_osd3_rgb2yuv(0);
-		set_vpp_osd2_rgb2yuv(1);
-
+		if (chip_id != MESON_CPU_MAJOR_ID_T7)
+			set_vpp_osd2_rgb2yuv(1);
+		else
+			set_osd4_rgb2yuv(0);
 		/* set vpp data path to u12 */
 		set_vpp_bitdepth();
 		hdr_func(OSD1_HDR, HDR_BYPASS);
+		hdr_func(OSD3_HDR, HDR_BYPASS);
 		hdr_func(VD1_HDR, HDR_BYPASS);
 		hdr_func(VD2_HDR, HDR_BYPASS);
 	} else {
