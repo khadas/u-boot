@@ -29,6 +29,7 @@
 
 #define HDMIRX_DWC_BASE_OFFSET	0xff610000
 #define HHI_BASE_ADDR	0xff63c000
+#define CLK_CTRL_ADDR	0xff646000
 
 #define diff(a, b)	((a > b) ? (a - b) : (b - a))
 

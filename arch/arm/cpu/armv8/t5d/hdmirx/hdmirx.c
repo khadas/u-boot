@@ -169,6 +169,18 @@ void wr_reg_hhi(unsigned long offset, unsigned int val)
 	rx_wr_reg(addr, val);
 }
 
+unsigned int rd_reg_clk_ctl(unsigned int offset)
+{
+	unsigned long addr = offset + CLK_CTRL_ADDR;
+	return rx_rd_reg(addr);
+}
+
+void wr_reg_clk_ctl(unsigned int offset, unsigned int val)
+{
+	unsigned long addr = offset + CLK_CTRL_ADDR;
+	rx_wr_reg(addr, val);
+}
+
 bool hdmirx_repeat_support(void)
 {
 	return hdmirx_data.repeater;
@@ -548,30 +560,30 @@ void rx_clk_init(void)
 	/* Enable APB3 fail on error */
 	/* APB3 to HDMIRX-TOP err_en */
 	/* default 0x3ff, | bit15 = 1 | bit12 = 1 */
-	/* no need for chip from TL1 */
-	/* hdmirx_wr_ctl_port(0, 0x93ff); */
-	/* hdmirx_wr_ctl_port(0x10, 0x93ff); */
+
+	/*hdmirx_wr_ctl_port(0, 0x93ff);*/
+	/*hdmirx_wr_ctl_port(0x10, 0x93ff);*/
 
 	/* turn on clocks: md, cfg... */
 	/* G9 clk tree */
 	/* fclk_div5 400M ----- mux sel = 3 */
 	/* fclk_div3 850M ----- mux sel = 2 */
 	/* fclk_div4 637M ----- mux sel = 1 */
-	/* XTAL		24M  ----- mux sel = 0 */
+	/* XTAL 	24M  ----- mux sel = 0 */
 	/* [26:25] HDMIRX mode detection clock mux select: osc_clk */
 	/* [24]    HDMIRX mode detection clock enable */
 	/* [22:16] HDMIRX mode detection clock divider */
 	/* [10: 9] HDMIRX config clock mux select: */
-	/* [    8] HDMIRX config clock enable */
+	/* [	8] HDMIRX config clock enable */
 	/* [ 6: 0] HDMIRX config clock divider: */
-	data32  = 0;
+	data32	= 0;
 	data32 |= 0 << 25;
 	data32 |= 1 << 24;
 	data32 |= 0 << 16;
 	data32 |= 3 << 9;
 	data32 |= 1 << 8;
 	data32 |= 2 << 0;
-	wr_reg_hhi(HHI_HDMIRX_CLK_CNTL, data32);
+	wr_reg_clk_ctl(HHI_HDMIRX_CLK_CNTL, data32);
 
 	data32 = 0;
 	data32 |= 2	<< 25;
@@ -580,7 +592,7 @@ void rx_clk_init(void)
 	data32 |= 2	<< 9;
 	data32 |= 1	<< 8;
 	data32 |= 2	<< 0;
-	wr_reg_hhi(HHI_HDMIRX_AUD_CLK_CNTL, data32);
+	wr_reg_clk_ctl(HHI_HDMIRX_AUD_CLK_CNTL, data32);
 	/* [15] hdmirx_aud_pll4x_en override enable */
 	/* [14] hdmirx_aud_pll4x_en override value */
 	/* [6:5] clk_sel for cts_hdmirx_aud_pll_clk: */
@@ -593,9 +605,9 @@ void rx_clk_init(void)
 	data32 |= (0 << 5);
 	data32 |= (0 << 4);
 	data32 |= (0 << 0);
-	wr_reg_hhi(HHI_AUDPLL_CLK_OUT_CNTL, data32);
+	wr_reg_clk_ctl(HHI_AUDPLL_CLK_OUT_CNTL, data32);
 	data32 |= (1 << 4);
-	wr_reg_hhi(HHI_AUDPLL_CLK_OUT_CNTL, data32);
+	wr_reg_clk_ctl(HHI_AUDPLL_CLK_OUT_CNTL, data32);
 
 	data32 = hdmirx_rd_top(TOP_CLK_CNTL);
 	data32 |= 0 << 31;  /* [31]     disable clkgating */
