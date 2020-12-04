@@ -1053,6 +1053,7 @@ static int v3tool_bl33_setvar(const int argc, char* const argv[])
 static int _mwrite_cmd_parser(const int argc, char* argv[], char* ack);
 static int _verify_partition_img(const int argc, char* argv[], char* ack);
 static int _mread_cmd_parser(const int argc, char* argv[], char* ack);
+int __attribute__((weak)) sheader_need(void) { FB_WRN("sheader_need undefined\n"); return 0;}
 
 static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 {
@@ -1108,6 +1109,8 @@ static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 #endif//#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
 	} else if( !strcmp("setvar", argv[0]) ){
 		ret = v3tool_bl33_setvar(argc, argv);
+	} else if( !strcmp("sheader_need", argv[0]) ){
+		ret = sheader_need() ? 0 : ret;
 	} else if( !strcmp("test", argv[0]) ){
 		static int i = 0;
 		if ( ++i < 20 ) {
@@ -1119,7 +1122,7 @@ static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 		strsep(&cmd, " ");
 		ret = run_command(cmd, 0);
 		if ( ret ) {
-			FBS_ERR(ack,"fail in cmd[%s]", cmd);
+			FBS_ERR(ack,"fail in cmd,ret %d", ret);
 		}
 	}
 
@@ -1223,12 +1226,14 @@ static int _mwrite_cmd_parser(const int argc, char* argv[], char* ack)
 	{
 		case V3TOOL_MEDIA_TYPE_MEM:
 			{
-				if (strcmp("dtb", partition)) {
-					commonInf->partStartOff += simple_strtoull(partition, NULL, 0);
-				} else {
+				if (!strcmp("dtb", partition)) {
 					commonInf->partStartOff += V3_DTB_LOAD_ADDR;
 					_memDtbImg.hadDown  = 0x1b8e;
 					_memDtbImg.imgSize  = imgSize;
+				} else if (!strcmp("sheader", partition)) {
+					commonInf->partStartOff += V3_PAYLOAD_LOAD_ADDR;
+				} else {
+					commonInf->partStartOff += simple_strtoull(partition, NULL, 0);
 				}
 				FB_MSG("mem base %llx\n", commonInf->partStartOff);
 			} break;

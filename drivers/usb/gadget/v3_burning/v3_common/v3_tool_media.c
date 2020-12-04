@@ -393,6 +393,9 @@ static int initr_env(void)
 struct mtd_partition* __attribute__((weak)) get_partition_table(int *partitions)
 { FB_WRN("get_partition_table undefined\n"); return NULL;}
 
+int __attribute__((weak)) sheader_need(void) { FB_WRN("sheader_need undefined\n"); return 0;}
+void __attribute__((weak)) sheader_load(void *addr) { FB_WRN("sheader_load undefined\n"); return;}
+
 #ifdef CONFIG_BACKUP_PART_NORMAL_ERASE
 const char* BackupPart = (const char*)(CONFIG_BACKUP_PART_NORMAL_ERASE);
 char* BackupPartAddr = (char*)(V3_DOWNLOAD_MEM_BASE);
@@ -422,6 +425,8 @@ int v3tool_storage_init(const int eraseFlash, unsigned dtbImgSz)
 		if (ret) FBS_EXIT(_ACK, "Failed at check dts\n");
 		dtb_valid = 1;
 	}
+
+    if (sheader_need()) sheader_load((void*)V3_PAYLOAD_LOAD_ADDR);
 
 	ret = store_init(1);
 	if (ret <= 0)

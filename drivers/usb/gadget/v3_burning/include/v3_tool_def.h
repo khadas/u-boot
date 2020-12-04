@@ -92,6 +92,8 @@ enum {
 #define _RAW_IMG_TRANSFER_LEN (128<<10)	//each mwrite size for raw image
 #define _UNIFYKEY_MAX_SZ       (256<<10)
 
+#define V3_PAYLOAD_LOAD_ADDR    (CONFIG_DTB_MEM_ADDR + 0x100000) //sheader for sc2 nand
+
 enum {
     V3TOOL_PART_IMG_FMT_RAW     = 0xabcd,
     V3TOOL_PART_IMG_FMT_SPARSE          ,
