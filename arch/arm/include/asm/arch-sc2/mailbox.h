@@ -29,6 +29,7 @@
 #ifndef __MAILBOX_H__
 #define __MAILBOX_H__
 #include <asm/arch/secure_apb.h>
+#include <common.h>
 
 #define REE2AO_SET_ADDR		MAILBOX_SET_MBOX03
 #define REE2AO_STS_ADDR		MAILBOX_STS_MBOX03
@@ -61,6 +62,7 @@
          /*SYSTEM*/
 #define CMD_UNDEFINE            0x0
 #define CMD_TEST		0x6
+#define CMD_LED_INFO            0xF7
 
 /*******************************************************************************
  * Mssage Comopsition
@@ -79,4 +81,3 @@ int scpi_send_data(uint32_t chan, uint32_t command,
 		   void *sendmessage, uint32_t sendsize,
 		   void *revmessage, uint32_t revsize);
 #endif	/* __SCPI_FIFO_H__ */
-

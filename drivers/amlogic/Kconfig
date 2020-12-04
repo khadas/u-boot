@@ -15,4 +15,6 @@ source "drivers/amlogic/power/Kconfig"
 
 source "drivers/amlogic/provision/Kconfig"
 
+source "drivers/amlogic/leds/Kconfig"
+
 endmenu
