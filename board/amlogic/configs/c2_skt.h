@@ -148,6 +148,7 @@
             "fi;fi;fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
+			"ddr_auto_fast_boot_check 6;"\
             "run get_os_type;"\
             "if test ${os_type} = rtos; then "\
                 "setenv loadaddr ${loadaddr_rtos};"\
