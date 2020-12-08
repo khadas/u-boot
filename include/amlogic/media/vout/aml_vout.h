@@ -5,6 +5,7 @@
 
 #define VOUT_VIU1_SEL    1
 #define VOUT_VIU2_SEL    2
+#define VOUT_VIU3_SEL    3
 
 enum viu_mux_e {
 	VIU_MUX_ENCL = 0,
@@ -21,5 +22,7 @@ void vout_set_current_vmode(int mode);
 struct vinfo_s *vout_get_current_vinfo(void);
 void vout_viu_mux(int viu_sel, int venc_sel);
 extern unsigned long get_fb_addr(void);
+
+void vout_probe(void);
 #endif
 

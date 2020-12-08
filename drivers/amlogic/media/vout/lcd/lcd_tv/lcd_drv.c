@@ -179,7 +179,6 @@ static void lcd_venc_set(struct lcd_config_s *pconf)
 
 	lcd_vcbus_write(ENCL_VIDEO_EN, 1);
 	if (lcd_drv->chip_type == LCD_CHIP_T7) {
-		lcd_vcbus_write(VPU_VENC_CTRL, 2);  // sel encl timming
 		/*
 		 * bit31: lvds enable
 		 * bit30: vx1 enable

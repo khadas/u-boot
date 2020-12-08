@@ -92,39 +92,6 @@ static void lcd_encl_tcon_set(struct lcd_config_s *pconf)
 		break;
 	}
 
-	/* DE signal for TTL m8,m8m2 */
-	lcd_vcbus_write(L_OEH_HS_ADDR, tcon_adr->de_hs_addr);
-	lcd_vcbus_write(L_OEH_HE_ADDR, tcon_adr->de_he_addr);
-	lcd_vcbus_write(L_OEH_VS_ADDR, tcon_adr->de_vs_addr);
-	lcd_vcbus_write(L_OEH_VE_ADDR, tcon_adr->de_ve_addr);
-	/* DE signal for TTL m8b */
-	lcd_vcbus_write(L_OEV1_HS_ADDR,  tcon_adr->de_hs_addr);
-	lcd_vcbus_write(L_OEV1_HE_ADDR,  tcon_adr->de_he_addr);
-	lcd_vcbus_write(L_OEV1_VS_ADDR,  tcon_adr->de_vs_addr);
-	lcd_vcbus_write(L_OEV1_VE_ADDR,  tcon_adr->de_ve_addr);
-
-	/* Hsync signal for TTL m8,m8m2 */
-	if (tcon_adr->hsync_pol == 0) {
-		lcd_vcbus_write(L_STH1_HS_ADDR, tcon_adr->hs_he_addr);
-		lcd_vcbus_write(L_STH1_HE_ADDR, tcon_adr->hs_hs_addr);
-	} else {
-		lcd_vcbus_write(L_STH1_HS_ADDR, tcon_adr->hs_hs_addr);
-		lcd_vcbus_write(L_STH1_HE_ADDR, tcon_adr->hs_he_addr);
-	}
-	lcd_vcbus_write(L_STH1_VS_ADDR, tcon_adr->hs_vs_addr);
-	lcd_vcbus_write(L_STH1_VE_ADDR, tcon_adr->hs_ve_addr);
-
-	/* Vsync signal for TTL m8,m8m2 */
-	lcd_vcbus_write(L_STV1_HS_ADDR, tcon_adr->vs_hs_addr);
-	lcd_vcbus_write(L_STV1_HE_ADDR, tcon_adr->vs_he_addr);
-	if (tcon_adr->vsync_pol == 0) {
-		lcd_vcbus_write(L_STV1_VS_ADDR, tcon_adr->vs_ve_addr);
-		lcd_vcbus_write(L_STV1_VE_ADDR, tcon_adr->vs_vs_addr);
-	} else {
-		lcd_vcbus_write(L_STV1_VS_ADDR, tcon_adr->vs_vs_addr);
-		lcd_vcbus_write(L_STV1_VE_ADDR, tcon_adr->vs_ve_addr);
-	}
-
 	/* DE signal */
 	lcd_vcbus_write(L_DE_HS_ADDR,    tcon_adr->de_hs_addr);
 	lcd_vcbus_write(L_DE_HE_ADDR,    tcon_adr->de_he_addr);
@@ -208,7 +175,6 @@ static void lcd_venc_set(struct lcd_config_s *pconf)
 
 	lcd_vcbus_write(ENCL_VIDEO_EN, 1);
 	if (lcd_drv->chip_type == LCD_CHIP_T7) {
-		lcd_vcbus_write(VPU_VENC_CTRL, 2);  // sel encl timming
 		/*
 		 * bit31: lvds enable
 		 * bit30: vx1 enable
