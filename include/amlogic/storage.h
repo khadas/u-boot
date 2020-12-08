@@ -41,6 +41,7 @@ enum boot_type_e {
 #define RSV_ENV "env"
 #define RSV_DTB "dtb"
 #define RSV_BBT "bbt"
+#define RSV_DDR_PARA "ddr_para"
 
 #define DISCRETE_BOOTLOADER 1
 #define COMPACT_BOOTLOADER 0

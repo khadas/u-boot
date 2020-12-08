@@ -18,17 +18,19 @@
 #define NAND_ENV_BLOCK_NUM 8
 #define NAND_KEY_BLOCK_NUM 8
 #define NAND_DTB_BLOCK_NUM 4
+#define NAND_DDR_BLOCK_NUM 2
 
 #define BBT_NAND_MAGIC	"nbbt"
 #define ENV_NAND_MAGIC	"nenv"
 #define KEY_NAND_MAGIC	"nkey"
 #define SEC_NAND_MAGIC	"nsec"
 #define DTB_NAND_MAGIC	"ndtb"
+#define DDR_NAND_MAGIC	"nddr"
 
 /*define abnormal state for reserved area*/
 #define POWER_ABNORMAL_FLAG	0x01
 #define ECC_ABNORMAL_FLAG	0x02
-
+#define DDR_PARA_SIZE 2048
 
 struct meson_rsv_info_t {
 	struct mtd_info *mtd;
@@ -76,6 +78,7 @@ struct meson_rsv_handler_t {
 #endif
 	struct meson_rsv_info_t *key;
 	struct meson_rsv_info_t *dtb;
+	struct meson_rsv_info_t *ddr_para;
 	void *priv;
 };
 
@@ -83,18 +86,22 @@ int meson_rsv_bbt_read(u_char *dest, size_t size);
 int meson_rsv_key_read(u_char *dest, size_t size);
 int meson_rsv_env_read(u_char *dest, size_t size);
 int meson_rsv_dtb_read(u_char *dest, size_t size);
+int meson_rsv_ddr_para_read(u_char *dest, size_t size);
 /* do not provide bbt write operates */
 int meson_rsv_key_write(u_char *source, size_t size);
 int meson_rsv_env_write(u_char *source, size_t size);
 int meson_rsv_dtb_write(u_char *source, size_t size);
+int meson_rsv_ddr_para_write(u_char *source, size_t size);
 uint32_t meson_rsv_bbt_size(void);
 uint32_t meson_rsv_key_size(void);
 uint32_t meson_rsv_env_size(void);
 uint32_t meson_rsv_dtb_size(void);
+u32 meson_rsv_ddr_para_size(void);
 /* do not provide bbt erase operates */
 int meson_rsv_key_erase(void);
 int meson_rsv_env_erase(void);
 int meson_rsv_dtb_erase(void);
+int meson_rsv_ddr_para_erase(void);
 int meson_rsv_check(struct meson_rsv_info_t *rsv_info);
 int meson_rsv_init(struct mtd_info *mtd, struct meson_rsv_handler_t *handler);
 int meson_rsv_scan(struct meson_rsv_info_t *rsv_info);

@@ -1126,6 +1126,8 @@ static u32 mtd_store_rsv_size(const char *rsv_name)
 		return meson_rsv_env_size();
 	else if (!strcmp(rsv_name, RSV_DTB))
 		return meson_rsv_dtb_size();
+	else if (!strcmp(rsv_name, RSV_DDR_PARA))
+		return meson_rsv_ddr_para_size();
 	pr_info("%s %d invalid rsv info name: %s\n",
 		__func__, __LINE__, rsv_name);
 	return 0;
@@ -1146,6 +1148,8 @@ static int mtd_store_rsv_read(const char *rsv_name, size_t size, void *dest)
 		return meson_rsv_env_read((u_char *)dest, size);
 	else if (!strcmp(rsv_name, RSV_DTB))
 		return meson_rsv_dtb_read((u_char *)dest, size);
+	else if (!strcmp(rsv_name, RSV_DDR_PARA))
+		return meson_rsv_ddr_para_read((u_char *)dest, size);
 	pr_info("%s %d invalid rsv info name: %s\n",
 		__func__, __LINE__, rsv_name);
 	return 1;
@@ -1167,7 +1171,8 @@ static int mtd_store_rsv_write(const char *rsv_name, size_t size, void *source)
 		return meson_rsv_env_write((u_char *)source, size);
 	else if (!strcmp(rsv_name, RSV_DTB))
 		return meson_rsv_dtb_write((u_char *)source, size);
-
+	else if (!strcmp(rsv_name, RSV_DDR_PARA))
+		return meson_rsv_ddr_para_write((u_char *)source, size);
 	pr_info("%s %d invalid rsv info name: %s\n",
 		__func__, __LINE__, rsv_name);
 	return 1;
@@ -1189,6 +1194,8 @@ static int mtd_store_rsv_erase(const char *rsv_name)
 		return meson_rsv_env_erase();
 	else if (!strcmp(rsv_name, RSV_DTB))
 		return meson_rsv_dtb_erase();
+	else if (!strcmp(rsv_name, RSV_DDR_PARA))
+		return meson_rsv_ddr_para_erase();
 	pr_info("%s %d invalid rsv info name: %s\n",
 		__func__, __LINE__, rsv_name);
 	return 1;

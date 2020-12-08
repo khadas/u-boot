@@ -1856,6 +1856,7 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 #endif
 		meson_rsv_check(aml_chip->rsv->key);
 		meson_rsv_check(aml_chip->rsv->dtb);
+		meson_rsv_check(aml_chip->rsv->ddr_para);
 	}
 
 	if (aml_nand_add_partition(aml_chip) != 0) {

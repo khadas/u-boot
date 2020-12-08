@@ -117,6 +117,7 @@ typedef struct _nand_page0_sc2 {
 		nand_cmd_t retry_usr[32];
 		ext_info_t ext_info;
 		fip_info_t fip_info;
+		uint32_t ddrp_start_page;
  }nand_page0_t;
 
 typedef union nand_core_clk {

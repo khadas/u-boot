@@ -88,6 +88,7 @@ void nand_info_page_prepare(struct aml_nand_chip *aml_chip, u8 *page0_buf)
 	int each_boot_pages, boot_num, bbt_pages;
 	unsigned int pages_per_blk_shift ,bbt_size;
 	fip_info_t *p_fip_info = NULL;
+	uint32_t ddrp_start_block = 0;
 
 	pages_per_blk_shift = (chip->phys_erase_shift - chip->page_shift);
 	bbt_size = aml_chip_normal->rsv->bbt->size;
@@ -140,6 +141,11 @@ void nand_info_page_prepare(struct aml_nand_chip *aml_chip, u8 *page0_buf)
 	/* in pages, fixme, should it stored in amlchip? */
 	p_fip_info->fip_start =
 		1024 + NAND_RSV_BLOCK_NUM * p_ext_info->page_per_blk;
+	ddrp_start_block = aml_chip_normal->rsv->ddr_para->nvalid->blk_addr;
+	p_nand_page0->ddrp_start_page = (ddrp_start_block << pages_per_blk_shift) +
+		aml_chip_normal->rsv->ddr_para->nvalid->page_addr;
+	printk("ddrp_start_page = 0x%x ddr_start_block = 0x%x\n",
+		p_nand_page0->ddrp_start_page, ddrp_start_block);
 	printk("bl: version %d, mode %d, start 0x%x\n",
 		p_fip_info->version, p_fip_info->mode, p_fip_info->fip_start);
 	}

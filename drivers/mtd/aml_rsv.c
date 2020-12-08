@@ -599,7 +599,7 @@ int meson_rsv_init(struct mtd_info *mtd,
 			kzalloc(sizeof(struct free_node_t), GFP_KERNEL);
 		if (!handler->free_node[i]) {
 			ret = -ENOMEM;
-			goto error;
+			goto error0;
 		}
 		memset(handler->free_node[i], 0, sizeof(struct free_node_t));
 		handler->free_node[i]->index = i;
@@ -609,13 +609,13 @@ int meson_rsv_init(struct mtd_info *mtd,
 		kzalloc(sizeof(*handler->bbt), GFP_KERNEL);
 	if (!handler->bbt) {
 		ret = -ENOMEM;
-		goto error;
+		goto error0;
 	}
 	handler->bbt->nvalid =
 		kzalloc(sizeof(*handler->bbt->nvalid), GFP_KERNEL);
 	if (!handler->bbt->nvalid) {
 		ret = -ENOMEM;
-		goto error;
+		goto error1;
 	}
 	handler->bbt->mtd = mtd;
 	handler->bbt->start = vernier;
@@ -630,13 +630,13 @@ int meson_rsv_init(struct mtd_info *mtd,
 		kzalloc(sizeof(*handler->env), GFP_KERNEL);
 	if (!handler->env) {
 		ret = -ENOMEM;
-		goto error;
+		goto error2;
 	}
 	handler->env->nvalid =
 		kzalloc(sizeof(*handler->env->nvalid), GFP_KERNEL);
 	if (!handler->env->nvalid) {
 		ret = -ENOMEM;
-		goto error;
+		goto error3;
 	}
 	handler->env->mtd = mtd;
 	handler->env->start = vernier;
@@ -651,13 +651,13 @@ int meson_rsv_init(struct mtd_info *mtd,
 		kzalloc(sizeof(*handler->key), GFP_KERNEL);
 	if (!handler->key) {
 		ret = -ENOMEM;
-		goto error;
+		goto error4;
 	}
 	handler->key->nvalid =
 		kzalloc(sizeof(*handler->key->nvalid), GFP_KERNEL);
 	if (!handler->key->nvalid) {
 		ret = -ENOMEM;
-		goto error;
+		goto error5;
 	}
 	handler->key->mtd = mtd;
 	handler->key->start = vernier;
@@ -672,13 +672,13 @@ int meson_rsv_init(struct mtd_info *mtd,
 		kzalloc(sizeof(*handler->dtb), GFP_KERNEL);
 	if (!handler->dtb) {
 		ret = -ENOMEM;
-		goto error;
+		goto error6;
 	}
 	handler->dtb->nvalid =
 		kzalloc(sizeof(*handler->dtb->nvalid), GFP_KERNEL);
 	if (!handler->dtb->nvalid) {
 		ret = -ENOMEM;
-		goto error;
+		goto error7;
 	}
 	handler->dtb->mtd = mtd;
 	handler->dtb->start = vernier;
@@ -688,6 +688,27 @@ int meson_rsv_init(struct mtd_info *mtd,
 	handler->dtb->handler = handler;
 	memcpy(handler->dtb->name, DTB_NAND_MAGIC, 4);
 	vernier += NAND_DTB_BLOCK_NUM;
+
+	handler->ddr_para =
+		kzalloc(sizeof(*handler->ddr_para), GFP_KERNEL);
+	if (!handler->ddr_para) {
+		ret = -ENOMEM;
+		goto error8;
+	}
+	handler->ddr_para->nvalid =
+		kzalloc(sizeof(*handler->ddr_para->nvalid), GFP_KERNEL);
+	if (!handler->ddr_para->nvalid) {
+		ret = -ENOMEM;
+		goto error9;
+	}
+	handler->ddr_para->mtd = mtd;
+	handler->ddr_para->start = vernier;
+	handler->ddr_para->end = vernier + NAND_DDR_BLOCK_NUM;
+	handler->ddr_para->nvalid->blk_addr = -1;
+	handler->ddr_para->size = DDR_PARA_SIZE;
+	handler->ddr_para->handler = handler;
+	memcpy(handler->ddr_para->name, DDR_NAND_MAGIC, 4);
+	vernier += NAND_DDR_BLOCK_NUM;
 
 	if (mtd->erasesize < 0x40000) {
 		handler->key->size = mtd->erasesize >> 2;
@@ -707,7 +728,7 @@ int meson_rsv_init(struct mtd_info *mtd,
 	if ((vernier - start) > NAND_RSV_BLOCK_NUM) {
 		pr_info("ERROR: total blk number is over the limit\n");
 		ret = -ENOMEM;
-		goto error;
+		goto error10;
 	}
 	rsv_handler = handler;
 
@@ -717,26 +738,50 @@ int meson_rsv_init(struct mtd_info *mtd,
 #endif
 	printf("key_start=%d, size:0x%x\n", handler->key->start,handler->key->size);
 	printf("dtb_start=%d, size:0x%x\n", handler->dtb->start,handler->dtb->size);
-	printf("\n");
+	printf("ddr_start=%d, size:0x%x\n", handler->ddr_para->start,
+		handler->ddr_para->size);
 
 	return ret;
-error:
+
+error10:
+	free(handler->ddr_para->nvalid);
+	handler->ddr_para->nvalid = NULL;
+error9:
+	free(handler->ddr_para);
+	handler->ddr_para = NULL;
+error8:
+	free(handler->dtb->nvalid);
+	handler->dtb->nvalid = NULL;
+error7:
+	free(handler->dtb);
+	handler->dtb = NULL;
+error6:
+	free(handler->key->nvalid);
+	handler->key->nvalid = NULL;
+error5:
+	free(handler->key);
+	handler->key = NULL;
+#ifndef CONFIG_ENV_IS_IN_NAND
+error4:
+	free(handler->env->nvalid);
+	handler->env->nvalid = NULL;
+error3:
+	free(handler->env);
+	handler->env = NULL;
+#endif
+error2:
+	free(handler->bbt->nvalid);
+	handler->bbt->nvalid = NULL;
+error1:
+	free(handler->bbt);
+	handler->bbt = NULL;
+
+error0:
 	for (i = 0; i < NAND_RSV_BLOCK_NUM; i++) {
 		free(handler->free_node[i]);
 		handler->free_node[i] = NULL;
 	}
-	free(handler->bbt->nvalid);
-	free(handler->bbt);
-	handler->bbt = NULL;
-	free(handler->env->nvalid);
-	free(handler->env);
-	handler->env = NULL;
-	free(handler->key->nvalid);
-	free(handler->key);
-	handler->key = NULL;
-	free(handler->dtb->nvalid);
-	free(handler->dtb);
-	handler->dtb = NULL;
+
 	return ret;
 }
 
@@ -817,6 +862,47 @@ int meson_rsv_key_read(u_char *dest, size_t size)
 	ret = meson_rsv_read(rsv_handler->key, temp);
 	memcpy(dest, temp, len > size ? size : len);
 	pr_info("%s %d read 0x%lx bytes from key, ret %d\n",
+		__func__, __LINE__, len > size ? size : len, ret);
+	free(temp);
+	return ret;
+}
+
+int meson_rsv_ddr_para_read(u_char *dest, size_t size)
+{
+	u_char *temp;
+	size_t len;
+	int ret;
+
+	if (!rsv_handler ||
+	    !rsv_handler->ddr_para) {
+		pr_info("%s %d %s not inited yet!\n",
+			__func__, __LINE__,
+			rsv_handler->ddr_para->name);
+		return 1;
+	}
+
+	if (!rsv_handler->ddr_para->valid) {
+		pr_info("%s, %d, %s invalid!, read exit!\n",
+			__func__, __LINE__,
+			rsv_handler->ddr_para->name);
+		return RSV_UNVAIL;
+	}
+	if (!dest || size == 0) {
+		pr_info("%s %d parameter error %p %ld\n",
+			__func__, __LINE__, dest, size);
+		return 1;
+	}
+	len = rsv_handler->ddr_para->size;
+	temp = kzalloc(len, GFP_KERNEL);
+	if (!temp) {
+		pr_err("%s %d kzalloc fail size = 0x%lx\n",
+			__func__, __LINE__, len);
+		return -ENOMEM;
+	}
+	memset(temp, 0, len);
+	ret = meson_rsv_read(rsv_handler->ddr_para, temp);
+	memcpy(dest, temp, len > size ? size : len);
+	pr_info("%s %d read 0x%lx bytes from ddr_para, ret %d\n",
 		__func__, __LINE__, len > size ? size : len, ret);
 	free(temp);
 	return ret;
@@ -969,6 +1055,40 @@ int meson_rsv_key_write(u_char *source, size_t size)
 	return ret;
 }
 
+int meson_rsv_ddr_para_write(u_char *source, size_t size)
+{
+	u_char *temp;
+	size_t len;
+	int ret;
+
+	if (!rsv_handler ||
+	    !rsv_handler->ddr_para) {
+		pr_info("%s %d rsv info not inited yet!\n",
+			__func__, __LINE__);
+		return 1;
+	}
+	if (!source || size == 0) {
+		pr_info("%s %d parameter error %p %ld\n",
+			__func__, __LINE__, source, size);
+		return 1;
+	}
+	len = rsv_handler->ddr_para->size;
+	temp = kzalloc(len, GFP_KERNEL);
+	if (!temp) {
+		pr_err("%s %d kzalloc fail size = 0x%lx\n",
+			__func__, __LINE__, len);
+		return -ENOMEM;
+	}
+	memset(temp, 0, len);
+	memcpy(temp, source, len > size ? size : len);
+	ret = meson_rsv_save(rsv_handler->ddr_para, temp);
+	pr_info("%s %d write 0x%lx bytes to key, ret %d\n",
+		__func__, __LINE__, len > size ? size : len, ret);
+	free(temp);
+	return ret;
+}
+
+
 int meson_rsv_env_write(u_char *source, size_t size)
 {
 	u_char *temp;
@@ -1057,6 +1177,18 @@ u32 meson_rsv_key_size(void)
 	return rsv_handler->key->size;
 }
 
+u32 meson_rsv_ddr_para_size(void)
+{
+	if (!rsv_handler ||
+	    !rsv_handler->ddr_para) {
+		pr_info("%s %d rsv info has not inited yet!\n",
+			__func__, __LINE__);
+		return 0;
+	}
+	return rsv_handler->ddr_para->size;
+}
+
+
 u32 meson_rsv_env_size(void)
 {
 	if (!rsv_handler ||
@@ -1107,6 +1239,21 @@ int meson_rsv_key_erase(void)
 	}
 	return 0;
 }
+
+int meson_rsv_ddr_para_erase(void)
+{
+	if (!rsv_handler ||
+	    !rsv_handler->ddr_para) {
+		pr_info("%s %d rsv info has not inited yet!\n",
+			__func__, __LINE__);
+		return 1;
+	}
+	if (rsv_handler->ddr_para->valid) {
+		return meson_rsv_erase(rsv_handler->ddr_para);
+	}
+	return 0;
+}
+
 
 int meson_rsv_env_erase(void)
 {
