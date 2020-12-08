@@ -57,6 +57,7 @@
 #define PM_EDP0          48
 #define PM_EDP1          49
 #define PM_MIPI_DSI1     50
+#define PM_AUDIO         51
 
 unsigned long pwr_ctrl_psci_smc(unsigned int power_domain, bool power_control);
 unsigned long pwr_ctrl_status_psci_smc(unsigned int power_domain);
