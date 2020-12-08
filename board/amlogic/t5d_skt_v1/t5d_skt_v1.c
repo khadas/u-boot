@@ -209,9 +209,16 @@ static void setup_net_chip_ext(void)
 #endif
 extern struct eth_board_socket* eth_board_setup(char *name);
 extern int designware_initialize(ulong base_addr, u32 interface);
-
+extern struct phy_device * p_phydev;
+unsigned int cts_setting[16] = {0xA7E00000, 0x87E00000, 0x8BE00000, 0x93E00000,
+				0x8FE00000, 0x97E00000,	0x9BE00000, 0xA7E00000,
+				0xABE00000, 0xB3E00000, 0xAFE00000, 0xB7E00000,
+				0xE7E00000, 0xEFE00000, 0xFBE00000, 0xFFE00000};
 int board_eth_init(bd_t *bis)
 {
+	unsigned int tx_amp_bl2 = 0;
+	unsigned int cts_valid = 0;
+	unsigned int cts_amp = 0;
 #ifdef CONFIG_ETHERNET_NONE
 	return 0;
 #endif
@@ -225,6 +232,26 @@ int board_eth_init(bd_t *bis)
 #endif
 	udelay(1000);
 	designware_initialize(ETH_BASE, PHY_INTERFACE_MODE_RMII);
+/*tx_amp*/
+#ifdef ETHERNET_INTERNAL_PHY
+//	tx_amp_bl2 = readl(0xff800270);
+	tx_amp_bl2 = readl(AO_SEC_GP_CFG12);
+	printf("wzh AO_SEC_GP_CFG12 0x%x\n", readl(AO_SEC_GP_CFG12));
+
+	cts_valid =  (tx_amp_bl2 >> 4) & 0x3;
+
+	if (cts_valid)
+		cts_amp  = tx_amp_bl2 & 0xf;
+	/*invalid will set cts_setting[0] 0xA7E00000*/
+	writel(cts_setting[cts_amp], P_ETH_PLL_CTL3);
+
+	phy_write(p_phydev, MDIO_DEVAD_NONE, 0x14, 0x0000);
+	phy_write(p_phydev, MDIO_DEVAD_NONE, 0x14, 0x0400);
+	phy_write(p_phydev, MDIO_DEVAD_NONE, 0x14, 0x0000);
+	phy_write(p_phydev, MDIO_DEVAD_NONE, 0x14, 0x0400);
+	phy_write(p_phydev, MDIO_DEVAD_NONE, 0x17, 0x0005);
+	phy_write(p_phydev, MDIO_DEVAD_NONE, 0x14, 0x4418);
+#endif
 	return 0;
 }
 
