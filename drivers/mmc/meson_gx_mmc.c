@@ -107,7 +107,7 @@ static void meson_mmc_config_clock(struct meson_host *host)
 	struct mmc *mmc = host->mmc;
 	uint32_t clk = 0, clk_src = 0, clk_div = 0;
 	uint32_t co_phase = 0, tx_phase = 0;
-	uint32_t meson_mmc_clk = 0;
+	uint32_t meson_mmc_clk = 0, cfg = 0;
 
 	if (!mmc->clock)
 		return;
@@ -118,6 +118,9 @@ static void meson_mmc_config_clock(struct meson_host *host)
 		clk_disable(&host->xtal);
 		clk_set_parent(&host->mux, &host->div2);
 		clk_set_rate(&host->div, clk);
+		cfg = meson_read(mmc, MESON_SD_EMMC_CFG);
+		cfg |= CFG_AUTO_CLK;
+		meson_write(mmc, cfg, MESON_SD_EMMC_CFG);
 	} else {
 		clk = 24000000;
 		clk_src = 0;
@@ -540,6 +543,12 @@ static int meson_dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 void meson_hw_reset(struct udevice *dev)
 {
 	struct meson_host *host = dev_get_priv(dev);
+	u32 cfg = 0;
+
+	/* send the initialization stream: 74 clock cycles */
+	cfg = meson_read(host->mmc, MESON_SD_EMMC_CFG);
+	cfg &= ~CFG_AUTO_CLK;
+	meson_write(host->mmc, cfg, MESON_SD_EMMC_CFG);
 
 	if (aml_card_type_mmc(host)) {
 		dm_gpio_set_value(&host->gpio_reset, 0);
@@ -1052,7 +1061,7 @@ static int meson_mmc_probe(struct udevice *dev)
 	val &= ~CFG_RC_CC_MASK;
 	val |= CFG_RC_CC_16;
 	meson_write(mmc, val, MESON_SD_EMMC_CFG);
-	printf("[%s]%s: probe success!\n", __func__, mmc->cfg->name);
+	printf("[%s]%s: Controller probe success!\n", __func__, mmc->cfg->name);
 
 	return 0;
 err:
