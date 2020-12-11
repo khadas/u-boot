@@ -113,18 +113,6 @@ static int do_RunBcbCommand(
         goto ERR;
     }
 
-    if (getenv("default_env")) {
-        char *default_env = getenv("default_env");
-        if (strstr(default_env, "1")) {
-            printf("factory reset, need default all uboot env\n");
-            if (getenv("reset_cmd")) {
-                run_command("run reset_cmd;setenv upgrade_step 2; saveenv;reset;", 0);
-            } else {
-                run_command("env default -a;setenv upgrade_step 2; saveenv;reset;", 0);
-            }
-        }
-    }
-
     if (!memcmp(command_mark, CMD_WIPE_DATA, strlen(command_mark))) {
         printf("Start to write --wipe_data to %s\n", partition);
         memcpy(miscbuf, CMD_RUN_RECOVERY, sizeof(CMD_RUN_RECOVERY));

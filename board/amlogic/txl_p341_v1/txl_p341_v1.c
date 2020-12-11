@@ -515,9 +515,13 @@ int board_late_init(void)
 		run_command("setenv fb_addr 0x6000000; setenv fb_width 1280; setenv fb_height 720;", 0);
 	}
 
+	if (getenv("default_env")) {
+		printf("factory reset, need default all uboot env\n");
+		run_command("defenv_reserv;setenv upgrade_step 2; saveenv; reboot", 0);
+	}
+
 	//update env before anyone using it
-	run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
-			"setenv reset_cmd defenv_reserv;", 0);
+	run_command("get_rebootmode; echo reboot_mode=${reboot_mode};", 0);
 	run_command("if itest ${upgrade_step} == 1; then "\
 				"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 	/*add board late init function here*/
