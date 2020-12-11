@@ -1701,7 +1701,6 @@ void vpp_init(void)
 		if (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_G12A) {
 			hdr_func(OSD1_HDR, HDR_BYPASS);
 			hdr_func(VD1_HDR, HDR_BYPASS);
-			hdr_func(VD2_HDR, HDR_BYPASS);
 		}
 	} else {
 		/* set dummy data default YUV black */
