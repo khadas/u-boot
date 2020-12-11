@@ -164,7 +164,7 @@ void nand_info_page_prepare(struct aml_nand_chip *aml_chip, u8 *page0_buf)
 	p_ext_info->bbt_occupy_pages = bbt_pages;
 	p_ext_info->bbt_start_block =
 		(BOOT_TOTAL_PAGES >> pages_per_blk_shift) + NAND_GAP_BLOCK_NUM;
-	ddrp_start_block = aml_chip_normal->aml_nandddr_info->start_block;
+	ddrp_start_block = aml_chip_normal->aml_nandddr_info->valid_node->phy_blk_addr;
 	p_nand_page0->ddrp_start_page = (ddrp_start_block << pages_per_blk_shift)
 		+ aml_chip_normal->aml_nandddr_info->valid_node->phy_page_addr;
 	printk("ddrp_start_page = 0x%x ddr_start_block = 0x%x\n",
