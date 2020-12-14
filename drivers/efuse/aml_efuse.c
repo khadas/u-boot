@@ -76,3 +76,48 @@ int  __attribute__((weak)) IS_FEAT_BOOT_ENCRYPT(void)
 	#undef ADDR_IS_FEAT_BOOT_ENCRYPT
 	#undef OSET_IS_FEAT_BOOT_ENCRYPT
 }
+
+int  __attribute__((weak)) IS_FEAT_DIS_EMMC_USER(void)
+{
+	return 0;
+}
+
+int  __attribute__((weak)) IS_FEAT_DIS_EMMC_BOOT_0(void)
+{
+	return 0;
+}
+
+int  __attribute__((weak)) IS_FEAT_DIS_EMMC_BOOT_1(void)
+{
+	return 0;
+}
+
+int  __attribute__((weak)) IS_FEAT_EN_4BL2_SNOR(void)
+{
+	return 0;
+}
+
+int  __attribute__((weak)) IS_FEAT_DIS_NBL2_SNOR(void)
+{
+	return 0;
+}
+
+int  __attribute__((weak)) IS_FEAT_EN_8BL2_SNAND(void)
+{
+	return 0;
+}
+
+int  __attribute__((weak)) IS_FEAT_DIS_NBL2_SNAND(void)
+{
+	return 0;
+}
+
+int  __attribute__((weak)) IS_FEAT_DIS_8BL2_NAND(void)
+{
+	return 0;
+}
+
+int  __attribute__((weak)) IS_FEAT_DIS_NBL2_NAND(void)
+{
+	return 1;
+}

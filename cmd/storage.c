@@ -11,7 +11,7 @@
 #include <amlogic/cpu_id.h>
 #include <asm/arch/register.h>
 #include <asm/arch/bl31_apis.h>
-
+#include <amlogic/aml_efuse.h>
 #include <asm/arch/secure_apb.h>
 
 #undef pr_info

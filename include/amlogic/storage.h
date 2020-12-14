@@ -55,16 +55,6 @@ struct nand_startup_parameter {
 	int page0_disable;
 };
 
-#define IS_FEAT_DIS_EMMC_USER()			(0)
-#define IS_FEAT_DIS_EMMC_BOOT_0()		(0)
-#define IS_FEAT_DIS_EMMC_BOOT_1()		(0)
-#define IS_FEAT_EN_4BL2_SNOR()			(0)
-#define IS_FEAT_DIS_NBL2_SNOR()			(0)
-#define IS_FEAT_EN_8BL2_SNAND()			(0)
-#define IS_FEAT_DIS_NBL2_SNAND()		(0)
-#define IS_FEAT_DIS_8BL2_NAND()			(0)
-#define IS_FEAT_DIS_NBL2_NAND()			(1)
-
 #define BL2E_STORAGE_PARAM_SIZE		(0x80)
 #define BOOT_FIRST_BLOB_SIZE        (254*1024)
 #define BOOT_FILLER_SIZE            (4*1024)

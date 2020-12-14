@@ -66,5 +66,14 @@
 //EFUSE_LICX	--> AO_SEC_SD_CFG10/9 --> EFUSE mirror
 int IS_FEAT_BOOT_VERIFY(void);
 int IS_FEAT_BOOT_ENCRYPT(void);
+int IS_FEAT_DIS_EMMC_USER(void);
+int IS_FEAT_DIS_EMMC_BOOT_0(void);
+int IS_FEAT_DIS_EMMC_BOOT_1(void);
+int IS_FEAT_EN_4BL2_SNOR(void);
+int IS_FEAT_DIS_NBL2_SNOR(void);
+int IS_FEAT_EN_8BL2_SNAND(void);
+int IS_FEAT_DIS_NBL2_SNAND(void);
+int IS_FEAT_DIS_8BL2_NAND(void);
+int IS_FEAT_DIS_NBL2_NAND(void);
 
 #endif /* __BL2_EFUSE_H__ */
