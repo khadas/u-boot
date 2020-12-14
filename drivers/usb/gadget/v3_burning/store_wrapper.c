@@ -163,6 +163,7 @@ int store_rsv_protect(const char *name, bool on)
     }
     char cmd[128];
     snprintf(cmd, 128, "store %s %s", on ? "protect" : "disprotect", name);
+    MsgP("runcmd:%s\n", cmd);
     return run_command(cmd, 0);
 }
 

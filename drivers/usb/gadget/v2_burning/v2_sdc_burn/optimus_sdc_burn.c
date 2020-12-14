@@ -396,6 +396,20 @@ int optimus_sdc_burn_dtb_load(HIMAGE hImg)
         wrLen = optimus_download_img_data(dtbTransferBuf, (unsigned)itemSz, errInfo);
         rc = (wrLen == itemSz) ? 0 : __LINE__;
     }
+    if (!rc) {
+        extern int check_valid_dts(unsigned char *buffer);
+        rc =  check_valid_dts(dtbTransferBuf);
+        DWN_MSG("check dts: rc %d\n", rc);
+        if (!rc) {
+#ifdef CONFIG_MULTI_DTB
+            extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
+            dtbTransferBuf = (unsigned char *)get_multi_dt_entry((unsigned long)dtbTransferBuf);
+#endif
+            unsigned fdtsz    = fdt_totalsize((char*)dtbTransferBuf);
+            DWN_MSG("local upgrade dts/sz 0x%p/0x%x\n", (char*)OPTIMUS_DTB_LOAD_ADDR, fdtsz);
+            memmove((char*)OPTIMUS_DTB_LOAD_ADDR, dtbTransferBuf, fdtsz);
+        }
+    }
 
     return rc;
 }

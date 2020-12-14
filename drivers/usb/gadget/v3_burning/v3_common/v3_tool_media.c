@@ -205,6 +205,8 @@ int v3tool_storage_init(const int eraseFlash, unsigned dtbImgSz)
 			break;
 
 		case 3://erase all(with key)
+			FB_MSG("disprotect key before store init 3\n");
+			store_rsv_protect("key", false);
 		case 1://normal erase, store init 3
 			initFlag = 3;
 			break;
