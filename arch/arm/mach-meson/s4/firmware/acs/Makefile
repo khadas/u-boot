@@ -376,7 +376,7 @@ $(DUMP) : $(ELF)
 $(BIN) : $(ELF)
 	@echo "  BIN     $$@"
 	$$(Q)$$(OC) $$(OCFLAGS) -O binary $$< $$@.tmp
-	@dd if=/dev/zero of=$$@ bs=4096 count=7
+	@dd if=/dev/zero of=$$@ bs=4096 count=1
 	@dd if=$$@.tmp of=$$@ conv=notrunc && rm -f $$@.tmp
 	@echo
 	@echo "Built $$@ successfully"
