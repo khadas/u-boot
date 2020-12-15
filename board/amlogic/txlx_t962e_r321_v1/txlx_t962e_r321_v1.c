@@ -409,7 +409,7 @@ int board_late_init(void)
 
 	if (getenv("default_env")) {
 		printf("factory reset, need default all uboot env\n");
-		run_command("defenv_reserv;setenv upgrade_step 2; saveenv; reboot", 0);
+		run_command("defenv_reserv;setenv upgrade_step 2; saveenv;", 0);
 	}
 
 	//update env before anyone using it

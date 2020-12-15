@@ -644,19 +644,20 @@ int board_late_init(void)
 	char outputModeCur[32] = {};
 	char *buf;
 
+	if (getenv("default_env")) {
+		printf("factory reset, need default all uboot env\n");
+		run_command("defenv_reserv;setenv upgrade_step 2; saveenv;", 0);
+	}
+
+	//update env before anyone using it
+	run_command("get_rebootmode; echo reboot_mode=${reboot_mode};", 0);
+	run_command("if itest ${upgrade_step} == 1; then "\
+					"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
+
 	buf = getenv("outputmode");
 	if (buf)
 		strcpy(outputModePre, getenv("outputmode"));
 
-	if (getenv("default_env")) {
-		printf("factory reset, need default all uboot env\n");
-		run_command("defenv_reserv;setenv upgrade_step 2; saveenv; reboot", 0);
-	}
-
-		//update env before anyone using it
-		run_command("get_rebootmode; echo reboot_mode=${reboot_mode};", 0);
-		run_command("if itest ${upgrade_step} == 1; then "\
-						"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 		run_command("run bcb_cmd", 0);
 		/*add board late init function here*/
 #ifndef DTB_BIND_KERNEL
