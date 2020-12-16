@@ -168,16 +168,6 @@ static void aml_recovery() {
 		return;
 	}
 
-	char *default_env = env_get("default_env");
-	//if factoryreset, need default uboot env
-	if (default_env != NULL) {
-		if (strstr(default_env, "1")) {
-			printf("factory reset, need default all uboot env.\n");
-			run_command("env default -a;saveenv;", 0);
-			return;
-		}
-	}
-
 	//if run recovery, need disable dolby
 	memcpy(command, miscbuf, 32);
 	if (!memcmp(command, "boot-recovery", strlen("boot-recovery"))) {
