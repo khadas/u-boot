@@ -5,6 +5,32 @@ config PXP_EMULATOR
 	help
 		Support PXP environment
 
+config PXP_DDR
+	bool "Amlogic Pxp ddr flag"
+	help
+		Support PXP ddr environment
+		If this config is open, then DDR is running under PXP/PTM mode,
+		Which is simulation by software. The behavivor is not same
+		as real SOC. This config must be closed if running on real
+		chips.
+
+config PXP_STO
+	bool "Amlogic Pxp storage flag"
+	help
+		Support PxP storage preload mode.
+		When it's enabled, data were load to ram background.
+		When it's disabled, data were load to the storage media
+		module which makes the routine works much more like the
+		silicon chip.
+
+config PXP_SCS
+	bool "Amlogic Pxp scs flag"
+	help
+		Support PXP scs environment
+		If this option is open, then SCS check may be disabled for
+		fast PXP bring up. This config should be closed if SCS feature
+		is ready.
+
 config AML_BL33_COMPRESS_ENABLE
 	bool "Amlogic U-boot compress"
 	help
