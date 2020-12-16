@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * Copyright (c) 2015 Amlogic, Inc. All rights reserved.
+ * arch/arm/include/asm/arch-gxl/nand.h
  *
- * This source code is subject to the terms and conditions defined in the
- * file 'LICENSE' which is part of this source code package.
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
- * NAND controller register define
  */
 
 #ifndef __NAND_H__

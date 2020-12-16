@@ -1,8 +1,9 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * Copyright (c) 2017 Amlogic, Inc. All rights reserved.
- * Author: Xingyu Chen <xingyu.chen@amlogic.com>
+ * arch/arm/include/asm/arch-g12b/gpio.h
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
+ *
  */
 
 #ifndef _MESON_G12A_GPIO_H

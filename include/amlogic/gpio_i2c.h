@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * Amlogic I2C controller Diver
+ * include/amlogic/gpio_i2c.h
  *
- * Copyright (C) 2018 Amlogic Corporation
- *
- * Licensed under the GPL-2 or later.
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
  */
 

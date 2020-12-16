@@ -1,14 +1,11 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * \file        aml_v3_burning.c
- * \brief       v3 burning producing case entry
+ * drivers/usb/gadget/v3_burning/aml_v3_burning.c
  *
- * \version     1.0.0
- * \date        2018年12月20日
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2018 Amlogic. All Rights Reserved.
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
  */
+
 #include "include/v3_tool_def.h"
 #include <mmc.h>
 #include <asm/cpu_id.h>

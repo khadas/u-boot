@@ -1,9 +1,10 @@
-
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * plat/t5/include/ddr_define.h
+ * arch/arm/include/asm/arch-t5d/ddr_define.h
  *
- * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
-*/
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
+ *
+ */
 
 /* board id */
 #define CONFIG_BOARD_ID_MASK					0xFF

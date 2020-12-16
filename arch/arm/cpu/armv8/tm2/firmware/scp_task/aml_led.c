@@ -1,9 +1,10 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * uboot/aml_led.c
+ * arch/arm/cpu/armv8/tm2/firmware/scp_task/aml_led.c
  *
- * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
-*/
+ */
 
 #include <amlogic/aml_led.h>
 

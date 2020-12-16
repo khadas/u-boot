@@ -1,11 +1,11 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * Copyright (c) 2014 Amlogic, Inc. All rights reserved.
+ * arch/arm/cpu/armv8/gxb/firmware/scp_task/registers.h
  *
- * This source code is subject to the terms and conditions defined in the
- * file 'LICENSE' which is part of this source code package.
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
- * Reigsters definitions
  */
+
 #ifndef _SCP_REGISTER_DEFINES_
 #define _SCP_REGISTER_DEFINES_
 #include "secure_apb.h"

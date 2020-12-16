@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * Pwm controller driver for Amlogic Meson SOC
+ * drivers/pwm/pwm-meson.c
  *
- * Copyright (c) 2018 Amlogic, Inc. All rights reserved.
- * Auther: Bichao Zheng <bichao.zheng@amlogic.com>
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
- * SPDX-License-Identifier: (GPL-2.0+ or MIT)
  */
 
 #include <common.h>

@@ -1,9 +1,9 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * Copyright (C) 2014-2017 Amlogic, Inc. All rights reserved.
+ * common/cmd_chipid.c
  *
- * Command to display Amlogic GX-family SoC Chip ID
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

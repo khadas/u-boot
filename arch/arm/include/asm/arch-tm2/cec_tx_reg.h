@@ -1,14 +1,10 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * arch/arm/include/asm/arch-txlx/cec_tx_reg.h
+ * arch/arm/include/asm/arch-tm2/cec_tx_reg.h
  *
- * Copyright (C) 2012 AMLOGIC, INC. All Rights Reserved.
- * Author: hongmin hua <hongmin hua@amlogic.com>
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the smems of the GNU General Public License as published by
- * the Free Software Foundation; version 2 of the License.
  */
-
 
 #ifndef _CEC_TX_REG_H
 #define _CEC_TX_REG_H

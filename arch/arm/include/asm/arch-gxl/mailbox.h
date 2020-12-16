@@ -1,20 +1,11 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- *  Copyright (C) 2002 ARM Ltd.
- *  All Rights Reserved
- *  Copyright (c) 2010, Code Aurora Forum. All rights reserved.
+ * arch/arm/include/asm/arch-gxl/mailbox.h
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
+ *
  */
 
- /*
-  *
- * Copyright (C) 2012 Amlogic, Inc.
- *
- * Author: Platform-SH@amlogic.com
- *
- */
 
 #ifndef __GXBB_MAILBOX_H_
 #define __GXBB_MAILBOX_H_

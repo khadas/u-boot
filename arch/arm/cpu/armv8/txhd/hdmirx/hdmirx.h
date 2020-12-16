@@ -1,14 +1,10 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * arch/arm/cpu/armv8/txlx/hdmirx/hdmirx.h
+ * arch/arm/cpu/armv8/txhd/hdmirx/hdmirx.h
  *
- * Copyright (C) 2012 AMLOGIC, INC. All Rights Reserved.
- * Author: hongmin hua <hongmin hua@amlogic.com>
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the smems of the GNU General Public License as published by
- * the Free Software Foundation; version 2 of the License.
  */
-
 
 #ifndef _HDMIRX_H
 #define _HDMIRX_H

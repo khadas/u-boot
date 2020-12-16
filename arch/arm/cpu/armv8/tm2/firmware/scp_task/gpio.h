@@ -1,8 +1,9 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * Copyright (c) 2017 Amlogic, Inc. All rights reserved.
- * Author: Xingyu Chen <xingyu.chen@amlogic.com>
+ * arch/arm/cpu/armv8/tm2/firmware/scp_task/gpio.h
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
+ *
  */
 
 #ifndef _MESON_TM2_GPIO_H

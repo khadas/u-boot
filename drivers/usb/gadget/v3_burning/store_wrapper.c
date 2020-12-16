@@ -1,14 +1,11 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * \file        store_wrapper.c
- * \brief       wrapper for storage.c
+ * drivers/usb/gadget/v3_burning/store_wrapper.c
  *
- * \version     1.0.0
- * \date        2019/5/30
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2019 Amlogic. All Rights Reserved.
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
  */
+
 #include <common.h>
 #include <storage.h>
 #include <amlogic/storage_if.h>

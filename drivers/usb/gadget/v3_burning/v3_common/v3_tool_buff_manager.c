@@ -1,14 +1,11 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * \file        v3_tool_buff_manager.c
- * \brief       buffer manager for partition image
+ * drivers/usb/gadget/v3_burning/v3_common/v3_tool_buff_manager.c
  *
- * \version     1.0.0
- * \date        2018/04/11
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2018 Amlogic. All Rights Reserved.
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
  */
+
 #include "../include/v3_tool_def.h"
 
 int v3tool_simg2img_init(const ImgDownloadPara* downPara);

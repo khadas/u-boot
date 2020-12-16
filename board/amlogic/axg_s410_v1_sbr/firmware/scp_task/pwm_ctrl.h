@@ -1,7 +1,11 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
-*board/amlogic/txl_p321_v1/firmware/scp_task/pwm_vol_tab.h
-*table for Dynamic Voltage/Frequency Scaling
-*/
+ * board/amlogic/axg_s410_v1_sbr/firmware/scp_task/pwm_ctrl.h
+ *
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
+ *
+ */
+
 #ifndef __PWM_CTRL_H__
 #define __PWM_CTRL_H__
 

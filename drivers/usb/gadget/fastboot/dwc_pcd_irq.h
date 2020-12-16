@@ -1,11 +1,11 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * Copyright (c) 2015 Amlogic, Inc. All rights reserved.
+ * drivers/usb/gadget/fastboot/dwc_pcd_irq.h
  *
- * This source code is subject to the terms and conditions defined in the
- * file 'LICENSE' which is part of this source code package.
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
- * USB low level irq defines
  */
+
 #ifndef __DWC_PCD_IRQ_H__
 #define __DWC_PCD_IRQ_H__
 

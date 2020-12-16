@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * Copyright 2016, Amlogic Inc
- * yonghui.yu
+ * drivers/mmc/aml_emmc_partition.c
  *
- * Based vaguely on the Linux code
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

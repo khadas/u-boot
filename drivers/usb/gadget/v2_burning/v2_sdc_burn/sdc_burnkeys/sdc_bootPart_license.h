@@ -1,14 +1,11 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * \file        sdc_bootPart_license.h
- * \brief       Interfaces to read/update license in boot part
+ * sdc_bootPart_license.h
  *
- * \version     1.0.0
- * \date        2015/3/10
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2015 Amlogic. All Rights Reserved.
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
  */
+
 #ifndef __V2_SDC_BURN_SDC_BOOTPART_LICENSE_H__
 #define __V2_SDC_BURN_SDC_BOOTPART_LICENSE_H__
 

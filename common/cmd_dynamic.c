@@ -1,13 +1,11 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * (C) Copyright 2013 Amlogic, Inc
+ * common/cmd_dynamic.c
  *
- * This file is used to get metadata from super partition
- * More detail to check the command "run readMetadata" usage
- *
- * xindong.xu@amlogic.com,
- * 2018-08-15 @ ShangHai
+ * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
  */
+
 #include <common.h>
 #include <command.h>
 #include <environment.h>
