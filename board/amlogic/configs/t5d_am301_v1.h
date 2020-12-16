@@ -683,8 +683,8 @@
 #define CONFIG_SYS_I2C_MESON		1
 
 /* PWM DM driver*/
-//#define CONFIG_DM_PWM
-//#define CONFIG_PWM_MESON
+#define CONFIG_DM_PWM
+#define CONFIG_PWM_MESON
 
 #define CONFIG_EFUSE 1
 
