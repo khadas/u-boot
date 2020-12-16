@@ -34,8 +34,9 @@ static int mtd_find_phy_off_by_lgc_off(const char* partName, const loff_t logicA
 		*phyAddr = logicAddr;
 		return 0;
 	}
-
+#ifndef CONFIG_USB_GADGET_CRG
 	mtdPartInf = get_mtd_device_nm(partName);
+#endif
 	if (IS_ERR(mtdPartInf)) {
 		errorP("device(%s) is err\n", partName);
 		return CMD_RET_FAILURE;
@@ -61,6 +62,7 @@ static int mtd_find_phy_off_by_lgc_off(const char* partName, const loff_t logicA
 		off = _map4SpeedUp.lastblkPhyOff;
 	}
 	for (; off < mtdPartInf->size; off += eraseSz, _map4SpeedUp.lastblkPhyOff += eraseSz) {
+#ifndef CONFIG_USB_GADGET_CRG
 		if (mtd_block_isbad(mtdPartInf, off)) {
 			MsgP("bad blk at  %08llx\n", (unsigned long long)off);
 		} else {
@@ -71,6 +73,7 @@ static int mtd_find_phy_off_by_lgc_off(const char* partName, const loff_t logicA
 			}
 			_map4SpeedUp.lastblkLgcOff += eraseSz;
 		}
+#endif
 	}
 
 	return __LINE__;

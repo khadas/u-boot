@@ -11,6 +11,7 @@
 #include <asm/arch/secure_apb.h>
 #include <asm/arch/usb.h>
 
+#ifndef CONFIG_USB_GADGET_CRG
 void dwc_write_reg32(unsigned int x, unsigned int v)
 {
 	unsigned int addr;
@@ -71,4 +72,4 @@ void close_usb_phy_clock(int cfg)
 
     return;
 }
-
+#endif

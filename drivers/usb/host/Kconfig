@@ -15,6 +15,12 @@ config USB_XHCI_HCD
 
 if USB_XHCI_HCD
 
+config USB_XHCI_CRG
+        bool "Corgine USB3 DRD Core Support"
+        help
+          Say Y or if your system has a Dual Role SuperSpeed
+          USB controller based on the Corgine USB3 IP Core.
+
 config USB_XHCI_DWC3
 	bool "DesignWare USB3 DRD Core Support"
 	help

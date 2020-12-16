@@ -5,7 +5,11 @@
 
 obj-$(CONFIG_USB_GADGET) += epautoconf.o config.o usbstring.o platform.o
 obj-$(CONFIG_USB_ETHER) += epautoconf.o config.o usbstring.o
+ifndef CONFIG_USB_GADGET_CRG
 obj-$(CONFIG_FASTBOOT_DWC_PCD) += fastboot/dwc_pcd.o fastboot/dwc_pcd_irq.o
+else
+obj-$(CONFIG_USB_GADGET_CRG) += crg_udc.o
+endif
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_USB_GADGET) += g_dnl.o

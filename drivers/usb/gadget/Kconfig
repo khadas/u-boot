@@ -130,6 +130,9 @@ config FASTBOOT_DWC_PCD
 	bool "fastboot usb driver support"
 	select USB_DEVICE_V2
 
+config USB_GADGET_CRG
+        bool "fastboot corgine usb driver support"
+
 config USB_GADGET_DOWNLOAD
 	bool "Enable USB download gadget"
 	help

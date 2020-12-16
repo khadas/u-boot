@@ -16,6 +16,11 @@
 #include <emmc_partitions.h>
 #include <amlogic/storage.h>
 
+#ifndef getenv
+#define getenv env_get
+#define setenv env_set
+#endif//#ifndef getenv
+
 #define CONFIG_FASTBOOT_MAX_DOWN_SIZE        0x8000000
 
 /**

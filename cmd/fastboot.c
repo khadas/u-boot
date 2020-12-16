@@ -32,6 +32,10 @@ static int do_fastboot_udp(int argc, char *const argv[],
 #endif
 }
 
+#ifdef  CONFIG_USB_GADGET_CRG
+extern int phy_num;
+#endif
+
 static int do_fastboot_usb(int argc, char *const argv[],
 			   uintptr_t buf_addr, size_t buf_size)
 {
@@ -51,6 +55,9 @@ static int do_fastboot_usb(int argc, char *const argv[],
 		return CMD_RET_FAILURE;
 	}
 
+#ifdef  CONFIG_USB_GADGET_CRG
+	phy_num = controller_index;
+#endif
 	/* ret = usb_gadget_initialize(controller_index); */
 	ret = 0;
 	if (ret) {
