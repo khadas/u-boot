@@ -43,6 +43,11 @@
 #define	SD_EMMC_RESP_TIMEOUT_ERROR		1<<4
 #define	SD_EMMC_DESC_TIMEOUT_ERROR		1<<5
 
+//#define MMC_CMD23
+//#define MMC_HS400_MODE
+//#define MMC_SET_TUNING_PARA             //set tuning para directly without tuning
+//#define MMC_WRITE_TUNING_PARA           //write tuning para in 0x14400
+
 struct sd_emmc_global_regs {
     volatile uint32_t gclock;     // 0x00
     volatile uint32_t gdelay;     // 0x04

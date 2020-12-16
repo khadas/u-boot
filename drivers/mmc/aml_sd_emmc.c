@@ -158,6 +158,7 @@ void aml_sd_cfg_swth(struct mmc *mmc)
 	}
 #endif
 
+
 	sd_emmc_clkc =((0 << Cfg_irq_sdio_sleep_ds) |
 						(0 << Cfg_irq_sdio_sleep) |
 						(1 << Cfg_always_on) |
@@ -382,7 +383,7 @@ int aml_sd_send_cmd_ffu(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *d
 
 		des_cmd_cur->resp_num = 0;
 		desc_cur->resp_addr = resp_buffer;
-	}else
+	} else
 		des_cmd_cur->no_resp = 1;
 
 	if (data) {
@@ -454,6 +455,7 @@ int aml_sd_send_cmd_ffu(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *d
 		if (status_irq_reg->end_of_chain)
 			break;
 	}
+
 	if (status_irq_reg->rxd_err) {
 		ret |= SD_EMMC_RXD_ERROR;
 		if (!mmc->refix)
@@ -636,7 +638,7 @@ int aml_sd_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	sd_emmc_reg->gcmd_arg = desc_cur->cmd_arg;
 #endif
 	//waiting end of chain
-	//mmc->refix = 0;
+//	mmc->refix = 0;
 	while (1) {
 		status_irq = sd_emmc_reg->gstatus;
 		if (status_irq_reg->end_of_chain)
@@ -881,7 +883,7 @@ int aml_sd_retry_refix(struct mmc *mmc)
 	struct sd_emmc_adjust *gadjust = (struct sd_emmc_adjust *)&adjust;
 	int err = 0, ret = 0, adj_delay = 0;
 	char *blk_test = NULL;
-#ifdef MMC_HS200_MODE
+#ifdef MMC_HS400_MODE
 	int pre_status = 0;
 	int start = 0;
 #endif
@@ -1012,7 +1014,7 @@ int aml_sd_retry_refix(struct mmc *mmc)
 	emmc_debug("%s [%d]: adj_delay = %d\n", __func__, __LINE__, adj_delay);
 	free(blk_test);
 
-#ifdef MMC_HS200_MODE
+#ifdef MMC_HS400_MODE
 	for (n = 0; n < clkc->div; n++) {
 		if (n == clkc->div - 1) {
 			if (rx_tuning_result[n] == ntries && pre_status == 1)
@@ -1107,11 +1109,7 @@ void sd_emmc_register(struct aml_card_sd_info * aml_priv)
 				 MMC_MODE_HC;
 #endif
 	cfg->f_min = 400000;
-#ifdef MMC_HS200_MODE
-	cfg->f_max = 198000000;
-#else
 	cfg->f_max = 40000000;
-#endif
 	/**
 	 * For blank emmc, part-type should be unknown.
 	 * But fastboot will not happy about this when

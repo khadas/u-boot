@@ -17,6 +17,9 @@
 #include <linux/list.h>
 #include <div64.h>
 #include "mmc_private.h"
+#include <asm/cpu_id.h>
+#include <asm/arch/cpu_sdio.h>
+#include <asm/arch/sd_emmc.h>
 
 #include <emmc_partitions.h>
 #ifdef CONFIG_STORE_COMPATIBLE
@@ -167,7 +170,7 @@ int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 			break;
 	}
 #else
-	ret = mmc->cfg->ops->send_cmd(mmc, cmd, data);
+		ret = mmc->cfg->ops->send_cmd(mmc, cmd, data);
 #endif
 	return ret;
 }
@@ -243,7 +246,6 @@ struct mmc *find_mmc_device(int dev_num)
 
 	list_for_each(entry, &mmc_devices) {
 		m = list_entry(entry, struct mmc, link);
-
 		if (m->block_dev.dev == dev_num)
 			return m;
 	}
@@ -269,11 +271,11 @@ __RETRY:
 		cmd.cmdarg = blkcnt & 0xFFFF;
 		cmd.resp_type = MMC_RSP_R1;
 		err = mmc_send_cmd(mmc, &cmd, NULL);
-		if (err) {
+		if (err)
 			printf("mmc set blkcnt failed\n");
-		}
 	}
 #endif
+
 	if (blkcnt > 1)
 		cmd.cmdidx = MMC_CMD_READ_MULTIPLE_BLOCK;
 	else
@@ -305,6 +307,9 @@ __RETRY:
 		}
 	}
 #endif
+	if ((ret || err) && mmc->refix == 1)
+		return 0;
+
 	if (ret || err) {
 		if (err_flag == 0) {
 			err_flag = 1;
@@ -806,10 +811,6 @@ int mmc_hwpart_config(struct mmc *mmc,
 
 	return 0;
 }
-
-
-
-
 
 u8 ext_csd_w[] = {191, 187, 185, 183, 179, 178, 177, 175,
 					173, 171, 169, 167, 165, 164, 163, 162,
@@ -1877,17 +1878,260 @@ static int mmc_complete_init(struct mmc *mmc)
 	return err;
 }
 
+#ifdef MMC_HS400_MODE
+void reset_all_reg(struct mmc *mmc) {
+	struct aml_card_sd_info *aml_priv = mmc->priv;
+	struct sd_emmc_global_regs *sd_emmc_regs = aml_priv->sd_emmc_reg;
+	void* buf;
+	unsigned long  addr;
+	int size;
+	u64 writeval;
+	unsigned long byte;
+
+	if (aml_priv->sd_emmc_port != 2)
+		return;
+	sd_emmc_regs->gcfg = 0x4791;
+	sd_emmc_regs->gclock = 0x1000204;
+	sd_emmc_regs->gadjust = 0;
+	sd_emmc_regs->gdelay = 0;
+	sd_emmc_regs->gdelay1 = 0;
+	sd_emmc_regs->gintf3 = 0;
+
+	aml_priv->cfg.f_max = 40000000;
+
+	size = 4;
+	byte = size;
+	addr = CLKSRC_BASE + 0x25c;
+	writeval = 0x080;
+	buf = map_sysmem(addr, byte);
+	*((u32 *)buf) = (u32)writeval;
+	unmap_sysmem(buf);
+	return;
+}
+
+/* 1. read board chip_id
+ * 2. read chip_id writed on emmc
+ * 3. compare two chip_id
+ * 4. compare vddee
+ *	if same return
+ *	else write chip_id or vddee on emmc
+ */
+int aml_write_chip_id(struct mmc *mmc)
+{
+	struct aml_card_sd_info *aml_priv = mmc->priv;
+	struct tuning_para *parameter = aml_priv->para;
+	struct tuning_para *para;
+	uint8_t chip_id[16];
+	void *buf;
+	int same_para = 1;
+	int i, blk, off;
+	int n;
+	int para_size;
+	int size;
+	unsigned int vddee = CONFIG_VDDEE_INIT_VOLTAGE;
+
+	para_size = sizeof(struct tuning_para);
+	blk = (para_size - 1) / 512 + 1;
+	size = blk * 512;
+
+	buf = (void *)malloc(size);
+	if (!buf) {
+		printf("buffer malloc failed\n");
+		return 1;
+	}
+	memset(buf, 0, size);
+
+	if (get_chip_id(&chip_id[0], sizeof(chip_id)) != 0) {
+		printf("get chip id error\n");
+		free(buf);
+		return 1;
+	}
+
+	off = MMC_TUNING_OFFSET;
+	n = mmc->block_dev.block_read(1, off, blk, buf);
+	if (n == blk) {
+		para = (struct tuning_para *)buf;
+		for (i = 0; i < sizeof(chip_id); i++) {
+			if (para->chip_id[i] != chip_id[i]) {
+				same_para = 0;
+				break;
+			}
+		}
+
+		if (vddee != para->vddee)
+			same_para = 0;
+
+		if (same_para == 0) {
+			printf("chip_id is 0x:");
+			memset(para, 0, para_size);
+			para->vddee = vddee;
+			for (i = 0; i < sizeof(chip_id); i++) {
+				para->chip_id[i] = chip_id[i];
+				printf("%02x ", para->chip_id[i]);
+			}
+			printf("\n");
+			mmc->block_dev.block_write(1, off, blk, buf);
+		}
+	}
+	memcpy(parameter, buf, para_size);
+	free(buf);
+	return 0;
+}
+
+static long long para_checksum_calc(struct tuning_para *para)
+{
+	int i = 0;
+	int size = sizeof(struct tuning_para) - 6 * sizeof(unsigned int);
+	unsigned int *buffer;
+	long long checksum = 0;
+
+	size = size >> 2;
+	buffer = (unsigned int *)para;
+	while (i < size)
+		checksum += buffer[i++];
+
+	return checksum;
+}
+
+static int mmc_read_single_block(struct mmc *mmc, void *dst, lbaint_t start)
+{
+	struct mmc_cmd cmd;
+	struct mmc_data data;
+	int ret = 0;
+
+	cmd.cmdidx = MMC_CMD_READ_SINGLE_BLOCK;
+
+	if (mmc->high_capacity)
+		cmd.cmdarg = start;
+	else
+		cmd.cmdarg = start * mmc->read_bl_len;
+
+	cmd.resp_type = MMC_RSP_R1;
+
+	data.dest = dst;
+	data.blocks = 1;
+	data.blocksize = mmc->read_bl_len;
+	data.flags = MMC_DATA_READ;
+
+	ret = mmc_send_cmd(mmc, &cmd, &data);
+	return ret;
+}
+
+/*
+ * check if tuning parameter is exist
+ * check if temperature is in the 0~69
+ * check if the parameter has been tuning
+ *		under the current temperature
+ * check if the data had been broken by  checksum
+ *
+ * if all four condition above is yes, the tuning parameter
+ *		could be use directly
+ * otherwise retunning and save parameter
+ */
+int aml_para_is_exist(struct mmc *mmc)
+{
+	int temperature;
+	int temp_index;
+	long long checksum;
+	struct aml_card_sd_info *aml_priv = mmc->priv;
+	struct tuning_para *para = aml_priv->para;
+
+	para->update = 1;
+	temperature = r1p1_temp_read(1);
+	if (temperature == -1) {
+		para->update = 0;
+		printf("get temperature failed\n");
+		return 0;
+	}
+
+	checksum = para_checksum_calc(para);
+	if (checksum != para->checksum) {
+		printf("warning: checksum is not match\n");
+		return 0;
+	}
+
+	if (para->magic != TUNED_MAGIC) {
+		printf("[%s] magic is not match\n", __func__);
+		return 0;
+	}
+
+	if (para->version != TUNED_VERSION) {
+		printf("[%s] VERSION is not match\n", __func__);
+		return 0;
+	}
+
+	printf("current temperature is %d\n", temperature);
+	temp_index = temperature  / 10;
+	para->temperature = temperature;
+	/* temperature range is 0 ~ 69 */
+	if (temp_index < 0 || temp_index > 6) {
+		printf("temperature is out of normal range\n");
+		return 0;
+	}
+
+	if (para->hs4[temp_index].flag != TUNED_FLAG) {
+		printf("current temperature %d degree not tuning yet\n",
+			temperature / 10);
+		return 0;
+	}
+
+	printf("the hs400 parameter is useful\n");
+	para->update = 0;
+	return 1;
+}
+
+/*
+ * read tuning para from reserved partition
+ * and copy it to pdata->para
+ */
+int aml_read_tuning_para(struct mmc *mmc)
+{
+	struct aml_card_sd_info *aml_priv = mmc->priv;
+	struct tuning_para *para = aml_priv->para;
+	int offset, blk;
+	int ret;
+	int para_size;
+	void *addr;
+
+	para_size = sizeof(struct tuning_para);
+
+	blk = (para_size - 1) / 512 + 1;
+	offset = MMC_TUNING_OFFSET;
+	addr = malloc(blk * 512);
+	if (!addr)
+		return -1;
+
+	memset(addr, 0, blk * 512);
+
+	if (blk == 1)
+		ret = mmc_read_single_block(mmc, addr, offset);
+	else
+		ret = mmc_bread(1, offset, blk, addr);
+	if (ret) {
+		printf("read tuning parameter failed\n");
+		free(addr);
+		return ret;
+	}
+	memcpy(para, addr, para_size);
+	free(addr);
+	return ret;
+}
+#endif
+
 int mmc_init(struct mmc *mmc)
 {
+#ifdef MMC_HS400_MODE
+	struct aml_card_sd_info *aml_priv = mmc->priv;
+#endif
 	int err = IN_PROGRESS, i;
 	unsigned start;
 
 	if (mmc->has_init)
 		return 0;
-
-#ifdef MMC_HS200_MODE
+#ifdef MMC_HS400_MODE
 	reset_all_reg(mmc);
 #endif
+
 	start = get_timer(0);
 
 	if (!mmc->init_in_progress)
@@ -1917,13 +2161,38 @@ int mmc_init(struct mmc *mmc)
 		}
 	}
 	info_disprotect &= ~DISPROTECT_KEY;
+
 #endif
-#ifdef MMC_HS200_MODE
-	mmc_set_hs200_mode(mmc);
+
 #ifdef MMC_HS400_MODE
-	mmc_set_hs400_mode(mmc);
+	if (aml_priv->sd_emmc_port != 2)
+		return err;
+
+	err = aml_write_chip_id(mmc);
+	if (err)
+		printf("write chip id and vddee failed\n");
+
+	err = aml_read_tuning_para(mmc);
+	if (err)
+		printf("read tuning parameter failed\n");
+
+#ifdef MMC_SET_TUNING_PARA
+	if (aml_para_is_exist(mmc) == 0)
+		return err;
 #endif
+
+	err = mmc_set_hs200_mode(mmc);
+	if (err) {
+		printf("set hs200 mode failed\n");
+		return err;
+	}
+	err = mmc_set_hs400_mode(mmc);
+	if (err) {
+		printf("set hs400 mode failed\n");
+		return err;
+	}
 #endif
+
 	return err;
 }
 

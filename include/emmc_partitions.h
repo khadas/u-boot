@@ -125,7 +125,7 @@
  * |<------DTB1------->|<------DTB2------>|
  */
 #define MMC_DTB_NAME		"dtb"
-#define DTB_OFFSET		(SZ_1M * 4)
+#define DTB_OFFSET          (SZ_1M * 4)
 #define DTB_BLK_SIZE		(512)
 #define DTB_BLK_CNT			(512)
 #define DTB_SIZE			(DTB_BLK_CNT * DTB_BLK_SIZE)
@@ -150,6 +150,13 @@ struct aml_pattern {
 	char name[MAX_MMC_PART_NAME_LEN];
 	unsigned int pattern;
 };
+
+/*
+ * tuning parameter offset
+ */
+
+#define MMC_TUNING_OFFSET     0X14400
+
 #define AML_PATTERN_ELEMENT(na, pa) {.name = na, .pattern = pa,}
 
 #ifdef AML_MMC_DBG

@@ -35,9 +35,13 @@ extern ulong mmc_bwrite(int dev_num, lbaint_t start, lbaint_t blkcnt,
 
 extern void print_all_reg(struct mmc *mmc);
 
+extern int aml_read_tuning_para(struct mmc *mmc);
+
 extern int mmc_set_hs200_mode(struct mmc *mmc);
 
 extern uint32_t mmc_set_hs400_mode(struct mmc *mmc);
+
+extern int r1p1_temp_read(int type);
 
 extern void reset_all_reg(struct mmc *mmc);
 #else /* CONFIG_SPL_BUILD */

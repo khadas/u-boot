@@ -12,6 +12,7 @@
 #include <part.h>
 #include "mmc_private.h"
 #include <malloc.h>
+#include <asm/arch/cpu_sdio.h>
 
 extern bool emmckey_is_access_range_legal(struct mmc *mmc,
 		ulong start, lbaint_t blkcnt);

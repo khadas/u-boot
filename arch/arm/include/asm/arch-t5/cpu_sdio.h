@@ -33,8 +33,8 @@
 #define MMC_DDR_COPHASE			2
 #define MMC_HS2_COPHASE         2
 #define MMC_HS4_COPHASE         0
-#define MMC_HS400_TXDELAY		16
-#define CLKSRC_BASE            0Xff63c000
+#define MMC_HS400_TXDELAY		17
+#define CLKSRC_BASE            0Xff646000
 
 #define	SD_EMMC_RXD_ERROR				1
 #define	SD_EMMC_TXD_ERROR				1<<1
@@ -42,6 +42,11 @@
 #define	SD_EMMC_RESP_CRC_ERROR			1<<3
 #define	SD_EMMC_RESP_TIMEOUT_ERROR		1<<4
 #define	SD_EMMC_DESC_TIMEOUT_ERROR		1<<5
+
+#define MMC_CMD23
+#define MMC_HS400_MODE
+#define MMC_SET_TUNING_PARA             //set tuning para directly without tuning
+//#define MMC_WRITE_TUNING_PARA
 
 struct sd_emmc_global_regs {
     volatile uint32_t gclock;     // 0x00

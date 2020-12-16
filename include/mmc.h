@@ -313,9 +313,46 @@
 
 #define     MMC_KEY_SIZE                    (256*1024)
 #define     EMMC_KEY_DEV                    (1)
+
 //#define MMC_CMD23
 //#define MMC_HS200_MODE
 //#define MMC_HS400_MODE
+
+struct hs400_para {
+	unsigned int delay1;
+	unsigned int delay2;
+	unsigned int intf3;
+	unsigned int flag;
+};
+
+struct hs200_para {
+	unsigned int adjust;
+};
+
+struct hs_para {
+	unsigned int adjust;
+};
+
+struct tuning_para {
+	uint8_t chip_id[16];
+	unsigned int magic;
+	unsigned int vddee;
+	struct hs400_para hs4[7];
+	struct hs200_para hs2;
+	struct hs_para hs;
+	unsigned int version;
+	unsigned int bus_Mode;
+	unsigned int update;
+	int temperature;
+	long long checksum;
+};
+
+/* flag is "@ML" */
+#define TUNED_FLAG            0x004C4D40
+/* version is "V1" */
+#define TUNED_VERSION         0x00003156
+/* magic is 0x00487e44 */
+#define TUNED_MAGIC           0x00487e44
 
 struct mmc_cid {
 	unsigned long psn;
@@ -437,6 +474,7 @@ struct mmc {
 	unsigned char calout[20][20];
 	int refix;
 	int fixdiv;
+	int save_para;
 	uint hc_wp_grp_size;	/* in 512-byte sectors */
 };
 struct mmc_hwpart_conf {

@@ -37,7 +37,7 @@
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #define SD_EMMC_VDDEE_REG (*((volatile unsigned *)(0xff807000 + (0x01 << 2))))
-#ifdef MMC_HS200_MODE
+#ifdef MMC_HS400_MODE
 //#define MMC_NO_BOOT_PARTITION
 /*tl1*/
 static int pwm_voltage_table_ee[][2] = {
@@ -2902,7 +2902,7 @@ static int do_amlmmc_driver_strength(cmd_tbl_t *cmdtp,
 	return ret;
 }
 
-#ifdef MMC_HS200_MODE
+#ifdef MMC_HS400_MODE
 static int do_amlmmc_reset_delay(cmd_tbl_t *cmdtp, int flag,
 		int argc, char * const argv[])
 {
@@ -3373,7 +3373,7 @@ static cmd_tbl_t cmd_amlmmc[] = {
 #ifdef CONFIG_SECURITYKEY
 	U_BOOT_CMD_MKENT(key,           2, 0, do_amlmmc_key,           "", ""),
 #endif
-#ifdef MMC_HS200_MODE
+#ifdef MMC_HS400_MODE
 	U_BOOT_CMD_MKENT(clktest,    3, 0, do_amlmmc_clktest,    "", ""),
 	U_BOOT_CMD_MKENT(refix,    3, 0, do_amlmmc_refix,    "", ""),
 	U_BOOT_CMD_MKENT(move_all, 4, 0, do_amlmmc_move_all_delay, "", ""),
@@ -3435,7 +3435,7 @@ U_BOOT_CMD(
 #ifdef CONFIG_SECURITYKEY
 	"amlmmc key - disprotect key partition\n"
 #endif
-#ifdef MMC_HS200_MODE
+#ifdef MMC_HS400_MODE
 	"amlmmc clktest <dev> - display info of delaycell and count\n"
 	"amlmmc reset_dly <dev> - reset all delay register\n"
 	"amlmmc set_rxdly <dev> <0xdelay1> <0xdelay2> - manually set rx delay value\n"

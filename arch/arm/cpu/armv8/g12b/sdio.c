@@ -149,9 +149,12 @@ __weak void sd_emmc_para_config(struct sd_emmc_global_regs *reg,
 		if (clock <= 400000) {
 			clk &= ~(3 << Cfg_co_phase);
 			clk |= (3 << Cfg_co_phase);
-		} else if (clock >= 25000000) {
+		} else if (clock >= 25000000 && clock <= 52000000) {
 			clk &= ~(3 << Cfg_co_phase);
 			clk |= (1 << Cfg_co_phase);
+		} else if (clock >= 198000000) {
+			clk &= ~(3 << Cfg_co_phase);
+			clk |= (0 << Cfg_co_phase);
 		}
 		reg->gclock = clk;
 	}
