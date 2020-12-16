@@ -384,9 +384,9 @@ static int check_tv_support_dv(struct hdmitx_dev *hdmitx_device)
 	if (strstr(outputmode, "2160p60hz") || strstr(outputmode, "2160p50hz")) {
 		if ((dovi_mode.sup_2160p60hz) && (maxTMDSRate >= 594)) {
 			//safety check for yuv420 - shudn't be the case
-			if (!strcmp(outputmode, "2160p60hz420"))
+			if (strstr(outputmode, "2160p60hz420"))
 				env_set("outputmode", "2160p60hz");
-			if (!strcmp(outputmode, "2160p50hz420"))
+			if (strstr(outputmode, "2160p50hz420"))
 				env_set("outputmode", "2160p50hz");
 			printf("check_tv_support_dv: 4k60 dovi supported\n");
 			return 1;
@@ -496,18 +496,18 @@ static bool is_attr_match(void)
 	/*2.user request LL mode but sink not support LL mode*/
 	if (dovi_mode.dv_rgb_444_8bit &&
 		(!request_ll_mode() || dovi_mode.ll_ycbcr_422_12bit == 0)) { /*STD*/
-		if (strcmp(attr, "444,8bit")) {
+		if (!strstr(attr, "444,8bit")) {
 			printf("expect output DV, but attr is %s\n", attr);
 			return false;
 		}
 	} else if (dovi_mode.ll_ycbcr_422_12bit) { /*LL YUV*/
-		if (strcmp(attr, "422,12bit")) {
+		if (!strstr(attr, "422,12bit")) {
 			printf("expect output LL YUV, but attr is %s\n", attr);
 			dovi_setting.dst_format = FORMAT_SDR;
 			return false;
 		}
 	} else if (dovi_mode.ll_rgb_444_10bit) {  /*LL RGB*/
-		if (strcmp(attr, "444,10bit")) {
+		if (!strstr(attr, "444,10bit")) {
 			printf("expect output LL RGB, but attr is %s\n", attr);
 			dovi_setting.dst_format = FORMAT_SDR;
 			return false;
