@@ -388,11 +388,11 @@ static int storage_get_and_parse_ssp(int *need_build) // boot_device:
 			break;
 		case BOOT_NAND_NFTL:
 		case BOOT_NAND_MTD:
+			ssp->boot_bakups = 8;
 			if (IS_FEAT_DIS_8BL2_NAND())
 				ssp->boot_bakups = 4;
 			if (IS_FEAT_DIS_NBL2_NAND())
 				ssp->boot_bakups = 1;
-			ssp->boot_bakups = 8; //FIXIT?? efuse do not work now.
 			sip->nsp.page_size =  current->info.write_unit;
 			sip->nsp.block_size = current->info.erase_unit;
 			sip->nsp.pages_per_block =
