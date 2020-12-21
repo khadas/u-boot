@@ -60,17 +60,21 @@ static int do_aml_DNL(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		if (adnl_enum_timeout) {
 			unsigned curTime	= get_timer(adnl_enum_timeout);
 			if (curTime > time_out_wait_sof && _sofintr_not_occur) {
-				printf("noSof\n");
+				printf("no sof when timeout %d\n", time_out_wait_sof);
 				dwc_otg_power_off_phy_fb();
 				aml_dnl_unregister();
 				return 2;
 			}
-			if (curTime > time_out_val) {
+			if (!_sofintr_not_occur && curTime > time_out_val) {
 				dwc_otg_power_off_phy_fb();
 				aml_dnl_unregister();
-				printf("Try connect time out %u, %u, %u\n",
+				printf("get sof but timeout: cur %u > %u + %u\n",
 						curTime, time_out_val, adnl_enum_timeout);
 				return 2;
+			}
+			if (!_sofintr_not_occur) {
+				adnl_enum_timeout = 0;//sof int already, not need checked from now on
+				adnl_identify_timeout = get_timer(0);
 			}
 		}
 
@@ -78,8 +82,6 @@ static int do_aml_DNL(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			const unsigned waitIdentifyTime = get_timer(adnl_identify_timeout);
 			if (waitIdentifyTime > pcToolWaitTime) {
 				printf("waitIdentifyTime(%u) > timeout(%u)\n", waitIdentifyTime, pcToolWaitTime);
-				pcToolWaitTime = 0;//don't re-enter even plug-out and plug-in
-				adnl_identify_timeout = 0;
 				aml_dnl_unregister();
 				return __LINE__;
 			}
