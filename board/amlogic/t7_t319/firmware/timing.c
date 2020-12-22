@@ -524,6 +524,14 @@ __attribute__ ((section(".misc_param"))) = {
 	/*set vddcpub voltage*/
 	{BD71837_REG_BUCK3_VOLT_RUN, VCCK_VAL_REG, 0x3f, 0,  \
 		(I2C_BUS << 4) | (I2C_AO_A), I2C_DEV_ADDR},
+
+	/* make watchdog send reset signal, !!Please dont't copy below to other board
+	 * which have no pmic or reset will not work
+	 */
+	{PADCTRL_PIN_MUX_REGB, (0x1 << 16), (0xf << 16), 0, 0, 0},
+	{RESETCTRL_WATCHDOG_CTRL1,	(0x3ffff << 0), (0x3ffff << 0),	0, 0, 0},
+	{RESETCTRL_SEC_WATCHDOG_CTRL1,	(0x3ffff << 0), (0x3ffff << 0),	0, 0, 0},
+	{PADCTRL_WD_RSTO_CTRL,	(1 << 0), (1 << 0),	0, 0, 0},
 };
 
 /* for all the storage parameter */
