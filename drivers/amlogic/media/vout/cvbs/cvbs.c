@@ -624,32 +624,36 @@ static char *cvbsout_performance_str[] = {
 
 static void cvbs_get_config(void)
 {
-#ifdef CONFIG_OF_LIBFDT
-	char *dt_addr = NULL;
-	int parent_offset;
+	const void *dt_blob = NULL;
+	int node;
 	char *propdata;
 	const char *str;
 	struct reg_s *s;
 	unsigned int i, j, temp, cnt;
+	int ret;
 
-#ifdef CONFIG_DTB_MEM_ADDR
-	dt_addr = (char *)CONFIG_DTB_MEM_ADDR;
-#else
-	dt_addr = (char *)0x01000000;
-#endif
-	if (fdt_check_header(dt_addr) < 0)
+	dt_blob = gd->fdt_blob;
+	if (!dt_blob) {
+		printf("cvbs: error: dt_blob is null, load default setting\n");
 		return;
+	}
 
-	parent_offset = fdt_path_offset(dt_addr, "/cvbsout");
-	if (parent_offset < 0) {
+	ret = fdt_check_header(dt_blob);
+	if (ret < 0) {
+		printf("cvbs: error: check dts: %s, load default setting\n",
+			fdt_strerror(ret));
+		return;
+	}
+
+	node = fdt_path_offset(dt_blob, "/cvbsout");
+	if (node < 0) {
 		printf("not find /cvbsout node: %s\n",
-			fdt_strerror(parent_offset));
+			fdt_strerror(node));
 		return;
 	}
 
 	/* clk_path */
-	propdata = (char *)fdt_getprop(dt_addr, parent_offset,
-					"clk_path", NULL);
+	propdata = (char *)fdt_getprop(dt_blob, node, "clk_path", NULL);
 	if (propdata) {
 		s_enci_clk_path = be32_to_cpup((u32*)propdata);
 		printf("cvbs: find clk_path: 0x%x\n", s_enci_clk_path);
@@ -657,11 +661,10 @@ static void cvbs_get_config(void)
 
 	/* performance */
 	str = cvbsout_performance_str[1];
-	propdata = (char *)fdt_getprop(dt_addr, parent_offset, str, NULL);
+	propdata = (char *)fdt_getprop(dt_blob, node, str, NULL);
 	if (!propdata) {
 		str = cvbsout_performance_str[0];
-		propdata = (char *)fdt_getprop(dt_addr, parent_offset,
-						str, NULL);
+		propdata = (char *)fdt_getprop(dt_blob, node, str, NULL);
 		if (!propdata)
 			goto cvbs_performance_config_ntsc;
 	}
@@ -700,7 +703,7 @@ static void cvbs_get_config(void)
 
 cvbs_performance_config_ntsc:
 	str = cvbsout_performance_str[2];
-	propdata = (char *)fdt_getprop(dt_addr, parent_offset, str, NULL);
+	propdata = (char *)fdt_getprop(dt_blob, node, str, NULL);
 	if (!propdata)
 		return;
 	cnt = 0;
@@ -735,7 +738,6 @@ cvbs_performance_config_ntsc:
 			i++;
 		}
 	}
-#endif
 }
 
 void vdac_data_config(void)
