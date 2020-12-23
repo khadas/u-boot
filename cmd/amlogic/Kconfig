@@ -80,4 +80,42 @@ config AML_ROBUST
 	help
 		"envs for robust upgrade like defendkey"
 
+#prduct mode start---->
+config NO_FASTBOOT_FLASHING
+	depends on FASTBOOT
+	bool "support fastboot lock/unlock"
+	default n
+
+config DISABLE_AML_SERIAL
+	bool "disable debug serial tx/rx"
+	depends on MESON_SERIAL
+	select SILENT_CONSOLE
+	default n
+
+config USB_TOOL_ENTRY
+	string "support usb burn tool in run update"
+	default "echo productmode" if AML_PRODUCT_MODE
+	default "adnl 1200" if !AML_PRODUCT_MODE
+
+config KNL_LOG_LEVEL
+	string "restrict kernel log level"
+	default " loglevel=1 " if AML_PRODUCT_MODE
+	default " " if !AML_PRODUCT_MODE
+
+config AML_DISABLE_DEV_CMDS
+	bool "disable unsafe developing commands"
+	default n
+	help
+	"Disable un-safe developing commands for product mode"
+
+config AML_PRODUCT_MODE
+	bool "amlogic product/security mode"
+	default n
+	imply NO_FASTBOOT_FLASHING
+	imply DISABLE_AML_SERIAL
+	imply AML_DISABLE_DEV_CMDS
+	help
+		recommend enable when product is ready for producing
+#prduct mode end<----
+
 endmenu

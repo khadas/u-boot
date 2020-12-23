@@ -70,8 +70,8 @@ config DISTRO_DEFAULTS
 	bool "Select defaults suitable for booting general purpose Linux distributions"
 	select AUTO_COMPLETE
 	select CMDLINE_EDITING
-	select CMD_BOOTI if ARM64
-	select CMD_BOOTZ if ARM && !ARM64
+	select CMD_BOOTI if ARM64 && !AML_DISABLE_DEV_CMDS
+	select CMD_BOOTZ if ARM && !ARM64 && !AML_DISABLE_DEV_CMDS
 	select CMD_DHCP if CMD_NET
 	select CMD_ENV_EXISTS
 	select CMD_EXT2

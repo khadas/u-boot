@@ -62,10 +62,12 @@ static const struct {
 		.command = "download",
 		.dispatch = download
 	},
+#if !CONFIG_IS_ENABLED(NO_FASTBOOT_FLASHING)
 	[FASTBOOT_COMMAND_FLASHING] =  {
 		.command = "flashing",
 		.dispatch = flashing
 	},
+#endif// #if !CONFIG_IS_ENABLED(NO_FASTBOOT_FLASHING)
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 	[FASTBOOT_COMMAND_FLASH] =  {
 		.command = "flash",
@@ -540,6 +542,7 @@ static void snapshot_update_cmd(char *cmd_parameter, char *response)
 	fastboot_okay(NULL, response);
 }
 
+#if !CONFIG_IS_ENABLED(NO_FASTBOOT_FLASHING)
 /**
  * flashing() - lock/unlock.
  *
@@ -715,6 +718,7 @@ static void flashing(char *cmd_parameter, char *response)
 	free(info);
 	return;
 }
+#endif// #if !CONFIG_IS_ENABLED(NO_FASTBOOT_FLASHING)
 
 /**
  * reboot_bootloader() - Sets reboot bootloader flag.

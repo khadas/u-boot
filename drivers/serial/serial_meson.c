@@ -66,7 +66,7 @@ static int meson_serial_probe(struct udevice *dev)
 
 static int meson_serial_getc(struct udevice *dev)
 {
-#ifndef CONFIG_SILENT_CONSOLE
+#ifndef CONFIG_DISABLE_AML_SERIAL
 	struct meson_serial_platdata *plat = dev->platdata;
 	struct meson_uart *const uart = plat->reg;
 
@@ -81,7 +81,7 @@ static int meson_serial_getc(struct udevice *dev)
 
 static int meson_serial_putc(struct udevice *dev, const char ch)
 {
-#ifndef CONFIG_SILENT_CONSOLE
+#ifndef CONFIG_DISABLE_AML_SERIAL
 	struct meson_serial_platdata *plat = dev->platdata;
 	struct meson_uart *const uart = plat->reg;
 
