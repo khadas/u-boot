@@ -15,6 +15,8 @@
 #include <amlogic/aml_efuse.h>
 #include <amlogic/cpu_id.h>
 #include <amlogic/storage.h>
+#include <partition_table.h>
+#include <fastboot.h>
 
 #ifndef IS_FEAT_BOOT_VERIFY
 #define IS_FEAT_BOOT_VERIFY() 0
@@ -143,6 +145,46 @@ static void run_recovery_from_cache(void) {
 	run_command("reboot", 0);//need reboot old bootloader
 }
 
+int write_bootloader_back(const char* bootloaderindex) {
+	int iRet = 0;
+	int copy = 0;
+	int ret = -1;
+	unsigned char* buffer = NULL;
+	if (strcmp(bootloaderindex, "1") == 0) {
+		copy = 1;
+	} else if (strcmp(bootloaderindex, "2") == 0) {
+		copy = 2;
+	}
+
+	buffer = (char *)malloc(0x2000 * 512);
+	if (!buffer)
+	{
+		printf("ERROR! fail to allocate memory ...\n");
+		goto exit;
+	}
+	memset(buffer, 0, 0x2000 * 512);
+	iRet = store_boot_read("bootloader", copy, 0, buffer);
+	if (iRet) {
+		errorP("Fail read bootloader from rsv with sz\n");
+		goto exit;
+	}
+	iRet = store_boot_write("bootloader", 0, 0, buffer);
+	if (iRet) {
+		printf("Failed to write bootloader\n");
+		goto exit;
+	} else {
+		ret = 0;
+	}
+
+exit:
+	if (buffer)
+	{
+		free(buffer);
+		buffer = NULL;
+	}
+	return ret;
+}
+
 static void aml_recovery() {
 	int ret = 0;
 	char *mode = NULL;
@@ -185,6 +227,7 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	char *expect_index = NULL;
 	char *robustota = NULL;
 	char *mode = NULL;
+	char *update_env = NULL;
 
 	//if recovery mode, need disable dv, if factoryreset, need default uboot env
 	aml_recovery();
@@ -203,6 +246,7 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 
 	//no secure check need
 	if (!strcmp(rebootstatus, "reboot_init")) {
+		printf("rebootstatus is reboot_init, skip check\n");
 		return -1;
 	}
 
@@ -219,7 +263,6 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		return -1;
 	}
 
-	wrnP("secure check reboot_mode:%s\n", mode);
 	code_boot = strcmp(mode, "cold_boot");
 	if (code_boot == 0) {
 		wrnP("not support code_boot for check\n");
@@ -259,13 +302,43 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		//bootloader index, expect == current, no need reboot next
 		if (match_flag == 0) {
 			wrnP("current index is expect, no need reboot next, run ceche recovery\n");
-			run_recovery_from_cache();
-			return 0;
+			if (has_boot_slot == 1) {
+				wrnP("ab mode\n");
+				update_env = env_get("update_env");
+				if (strcmp(update_env, "1") == 0) {
+					printf("ab mode, default all uboot env\n");
+					run_command("env default -a;saveenv;", 0);
+					env_set("update_env","0");
+				}
+			} else {
+				run_recovery_from_cache();
+				return 0;
+			}
 		} else {
 			wrnP("now ready start reboot next\n");
-			env_set("reboot_status","reboot_finish");
-			run_command("saveenv", 0);
-			run_command("reboot next", 0);
+			if (has_boot_slot == 1) {
+				write_bootloader_back(bootloaderindex);
+#ifdef CONFIG_FASTBOOT
+				struct misc_virtual_ab_message message;
+				set_mergestatus_cancel(&message);
+#endif
+				if (strcmp(bootloaderindex, "1") == 0) {
+					wrnP("back to slot a\n");
+					run_command("set_active_slot a", 0);
+				} else if (strcmp(bootloaderindex, "2") == 0) {
+					wrnP("back to slot b\n");
+					run_command("set_active_slot b", 0);
+				}
+				env_set("update_env","1");
+				env_set("reboot_status","reboot_next");
+				env_set("expect_index","0");
+				run_command("saveenv", 0);
+				run_command("reset", 0);
+			} else {
+				env_set("reboot_status","reboot_finish");
+				run_command("saveenv", 0);
+				run_command("reboot next", 0);
+			}
 			return 0;
 		}
 	} else if (!strcmp(rebootstatus,"reboot_finish")) {//second reboot, reboot next from uboot
@@ -275,15 +348,25 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 
 		if (match_flag == 0) {
 			wrnP("reboot next succ, bootloader secure check pass......\n");
-			run_recovery_from_cache();
-			return 0;
+			if (has_boot_slot == 1) {
+				printf("ab mode, default all uboot env\n");
+				run_command("env default -a;saveenv;", 0);
+			} else {
+				run_recovery_from_cache();
+				return 0;
+			}
 		} else {
 			//bootloader check failed, run recovery show error
 			wrnP("reboot next fail, bootloader secure check fail(curr:%s, expect:%s)......\n",bootloaderindex, expect_index);
 			env_set("check_result","bootloader_fail");
 			run_command("saveenv", 0);
-			run_recovery_from_flash();
-			return 0;
+			if (has_boot_slot == 1) {
+				wrnP("ab mode\n");
+				run_command("adnl", 0);
+			} else {
+				run_recovery_from_flash();
+				return 0;
+			}
 		}
 	} else if (!strcmp(rebootstatus,"reboot_recovery")) {
 			//recovery check failed, run recovery show error
