@@ -429,6 +429,12 @@ config T7_AN408_LPDDR4X
 	help
 	  Select T7 AN408 LPDDR4X config
 
+config T7_AN409_DDR4
+	bool "T7_AN409_DDR4"
+	select TARGET_T7_AN409_DDR4
+	help
+	  Select T7 AN409 DDR4 config
+
 endchoice
 
 config TARGET_T7_SKT
@@ -438,6 +444,10 @@ config TARGET_T7_SKT
 config TARGET_T7_AN408_LPDDR4X
 	bool "T7 AN408 lpddr4x board"
 	depends on T7_AN408_LPDDR4X
+
+config TARGET_T7_AN409_DDR4
+	bool "T7 AN409 ddr4 board"
+	depends on T7_AN409_DDR4
 
 endif
 
@@ -577,3 +587,5 @@ source "board/amlogic/sm1_ac200_v1/Kconfig"
 source "board/amlogic/t7_skt/Kconfig"
 
 source "board/amlogic/t7_an408_lpddr4x/Kconfig"
+
+source "board/amlogic/t7_an409_ddr4/Kconfig"
