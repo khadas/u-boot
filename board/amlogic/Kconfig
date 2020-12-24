@@ -423,11 +423,21 @@ config T7_SKT
 	help
 	  Select T7 SKT(XXXX) config
 
+config T7_AN408_LPDDR4X
+	bool "T7_AN408_LPDDR4X"
+	select TARGET_T7_AN408_LPDDR4X
+	help
+	  Select T7 AN408 LPDDR4X config
+
 endchoice
 
 config TARGET_T7_SKT
 	bool "T7 SKT board"
 	depends on T7_SKT
+
+config TARGET_T7_AN408_LPDDR4X
+	bool "T7 AN408 lpddr4x board"
+	depends on T7_AN408_LPDDR4X
 
 endif
 
@@ -565,3 +575,5 @@ source "board/amlogic/g12b_w400_v1/Kconfig"
 source "board/amlogic/sm1_ac200_v1/Kconfig"
 
 source "board/amlogic/t7_skt/Kconfig"
+
+source "board/amlogic/t7_an408_lpddr4x/Kconfig"
