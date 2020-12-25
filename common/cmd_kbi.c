@@ -187,14 +187,18 @@ static void set_wol(bool is_shutdown, int enable)
 	if ((enable&0x01) != 0) {
 
 	int mac_addr[MAC_LENGHT] = {0};
-	if (is_shutdown)
+	if (is_shutdown) {
+		run_command("phyreg w 31 0", 0);
 		run_command("phyreg w 0 0", 0);
-	else
+	}
+	else {
+		run_command("phyreg w 31 0", 0);
 		run_command("phyreg w 0 0x1040", 0);
+	}
 
-	run_command("phyreg w 31 0xd40", 0);
-	run_command("phyreg w 22 0x20", 0);
-	run_command("phyreg w 31 0", 0);
+//	run_command("phyreg w 31 0xd40", 0);
+//	run_command("phyreg w 22 0x20", 0);
+//	run_command("phyreg w 31 0", 0);
 
 	mode = kbi_i2c_read(REG_MAC_SWITCH);
 	if (mode == 1) {
@@ -223,33 +227,43 @@ static void set_wol(bool is_shutdown, int enable)
 	run_command("phyreg w 31 0", 0);
 
 	run_command("phyreg w 31 0xd8a", 0);
+	run_command("phyreg w 16 0x1000", 0);
 	run_command("phyreg w 17 0x9fff", 0);
 	run_command("phyreg w 31 0", 0);
 
+//	run_command("phyreg w 31 0xd8a", 0);
+//	run_command("phyreg w 16 0x1000", 0);
+//	run_command("phyreg w 31 0", 0);
+
+//	run_command("phyreg w 31 0xd80", 0);
+//	run_command("phyreg w 16 0x3000", 0);
+//	run_command("phyreg w 17 0x0020", 0);
+//	run_command("phyreg w 18 0x03c0", 0);
+//	run_command("phyreg w 19 0x0000", 0);
+//	run_command("phyreg w 20 0x0000", 0);
+//	run_command("phyreg w 21 0x0000", 0);
+//	run_command("phyreg w 22 0x0000", 0);
+//	run_command("phyreg w 23 0x0000", 0);
+//	run_command("phyreg w 31 0", 0);
+
 	run_command("phyreg w 31 0xd8a", 0);
-	run_command("phyreg w 16 0x1000", 0);
+	run_command("phyreg w 19 0x8002", 0);
 	run_command("phyreg w 31 0", 0);
 
-	run_command("phyreg w 31 0xd80", 0);
-	run_command("phyreg w 16 0x3000", 0);
-	run_command("phyreg w 17 0x0020", 0);
-	run_command("phyreg w 18 0x03c0", 0);
-	run_command("phyreg w 19 0x0000", 0);
-	run_command("phyreg w 20 0x0000", 0);
-	run_command("phyreg w 21 0x0000", 0);
-	run_command("phyreg w 22 0x0000", 0);
-	run_command("phyreg w 23 0x0000", 0);
+	run_command("phyreg w 31 0xd40", 0);
+	run_command("phyreg w 22 0x20", 0);
 	run_command("phyreg w 31 0", 0);
-
-	run_command("phyreg w 31 0xd8a", 0);
-	run_command("phyreg w 19 0x1002", 0);
-	run_command("phyreg w 31 0", 0);
-
   } else {
 	run_command("phyreg w 31 0xd8a", 0);
 	run_command("phyreg w 16 0", 0);
 	run_command("phyreg w 17 0x7fff", 0);
+	run_command("phyreg w 19 0", 0);
 	run_command("phyreg w 31 0", 0);
+
+	run_command("phyreg w 31 0xd40", 0);
+	run_command("phyreg w 22 0", 0);
+	run_command("phyreg w 31 0", 0);
+
   }
 
 	sprintf(cmd, "i2c mw %x %x %d 1", CHIP_ADDR, REG_BOOT_EN_WOL, enable);
@@ -676,9 +690,9 @@ static int set_blue_led_mode(int type, int mode)
 
 static int do_kbi_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
-	int enable = get_wol(false);
-	if ((enable&0x01) != 0)
-		set_wol(false, enable);
+//	int enable = get_wol(false);
+//	if ((enable&0x01) != 0)
+//		set_wol(false, enable);
 	return 0;
 }
 
@@ -965,6 +979,21 @@ static int do_kbi_forcebootsd(cmd_tbl_t * cmdtp, int flag, int argc, char * cons
 	return 0;
 }
 
+static int do_kbi_wolreset(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	run_command("phyreg w 31 0xd8a", 0);
+	run_command("phyreg w 16 0", 0);
+	run_command("phyreg w 17 0x7fff", 0);
+	run_command("phyreg w 19 0", 0);
+	run_command("phyreg w 31 0", 0);
+
+	run_command("phyreg w 31 0xd40", 0);
+	run_command("phyreg w 22 0", 0);
+	run_command("phyreg w 31 0", 0);
+
+	return 0;
+}
+
 static int do_kbi_poweroff(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	char cmd[64];
@@ -1106,6 +1135,7 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 #endif
 	U_BOOT_CMD_MKENT(forcereset, 4, 1, do_kbi_forcereset, "", ""),
 	U_BOOT_CMD_MKENT(forcebootsd, 1, 1, do_kbi_forcebootsd, "", ""),
+	U_BOOT_CMD_MKENT(wolreset, 1, 1, do_kbi_wolreset, "", ""),
 };
 
 static int do_kbi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
@@ -1179,6 +1209,7 @@ static char kbi_help_text[] =
 		"\n"
 #endif
 		"kbi forcebootsd\n"
+		"kbi wolreset\n"
 		"\n"
 		"kbi ircode [customer1|customer2] w <ircode>\n"
 		"kbi ircode [customer1|customer2] r\n"
