@@ -458,24 +458,22 @@ int ring_msr(int index)
 			  186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199,
 			  200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210};
 	unsigned long i;
-	unsigned char efuseinfo[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	unsigned char efuseinfo[4] = {0, 0, 0, 0};
 
 	if ((index != 0xff) && (index != 0)) {
 		if (bl31_get_cornerinfo(efuseinfo, sizeof(efuseinfo) / sizeof(uint8_t)) != 0) {
 			printf("fail get efuse info\n");
 			return 0;
 		}
-		if ((index >= 1) && (index <= 4))
+		if (index == 1)
 			printf("%d\n", (efuseinfo[index] * 20));
-		printf("%d\n", (efuseinfo[5] * 400));
-		printf("%d\n", efuseinfo[6]);
-		printf("%d\n", (efuseinfo[7] * 400));
-		if ((index >= 8) && (index <= 11))
-			printf("%d\n", efuseinfo[index]);
-		if ((index < 0) || (index >= 12))
+		if ((index >= 2) && (index <= 3))
+			printf("%d\n", efuseinfo[index] * 400);
+		if ((index < 0) || (index >= 4))
 			printf("input data not support!\n");
 		return 0;
 	}
+
 	ring_powerinit();
 	/*RING_OSCILLATOR       0x7f: set slow ring*/
 	writel(0x155, 0xff6345fc);
