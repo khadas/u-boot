@@ -611,8 +611,8 @@ int board_late_init(void)
 {
 	TE(__func__);
 
-	char outputModePre[30];
-	char outputModeCur[30];
+	char outputModePre[32] = {};
+	char outputModeCur[32] = {};
 
 	if (getenv("default_env")) {
 		printf("factory reset, need default all uboot env\n");
@@ -626,6 +626,7 @@ int board_late_init(void)
 
 	if (getenv("outputmode")) {
 		strcpy(outputModePre,getenv("outputmode"));
+		run_command("run bcb_cmd", 0);
 	}
 
 		/*add board late init function here*/
@@ -690,7 +691,8 @@ int board_late_init(void)
 #endif//#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE
 
 	TE(__func__);
-	strcpy(outputModeCur,getenv("outputmode"));
+    if (getenv("outputmode"))
+	    strcpy(outputModeCur,getenv("outputmode"));
 	if (strcmp(outputModeCur,outputModePre)) {
 		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
 		run_command("saveenv", 0);
