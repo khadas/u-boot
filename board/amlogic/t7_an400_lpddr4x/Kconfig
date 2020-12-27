@@ -1,4 +1,4 @@
-if TARGET_T7_SKT
+if TARGET_T7_AN400_LPDDR4X
 
 config SYS_SOC
 	default "t7"
