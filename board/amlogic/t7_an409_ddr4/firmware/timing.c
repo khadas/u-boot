@@ -239,125 +239,333 @@ __attribute__ ((section(".clk_param"))) = {
 #endif
 };
 
-
-#define VCCK_VAL				AML_VCCK_INIT_VOLTAGE
+#define VCCK_A_VAL				AML_VCCK_A_INIT_VOLTAGE
+#define VCCK_B_VAL				AML_VCCK_B_INIT_VOLTAGE
 #define VDDEE_VAL				AML_VDDEE_INIT_VOLTAGE
-/* VCCK PWM table */
-#if   (VCCK_VAL == 1039)
-	#define VCCK_VAL_REG	0x00000022
-#elif (VCCK_VAL == 1029)
-	#define VCCK_VAL_REG	0x00010021
-#elif (VCCK_VAL == 1019)
-	#define VCCK_VAL_REG	0x00020020
-#elif (VCCK_VAL == 1009)
-	#define VCCK_VAL_REG	0x0003001f
-#elif (VCCK_VAL == 999)
-	#define VCCK_VAL_REG	0x0004001e
-#elif (VCCK_VAL == 989)
-	#define VCCK_VAL_REG	0x0005001d
-#elif (VCCK_VAL == 979)
-	#define VCCK_VAL_REG	0x0006001c
-#elif (VCCK_VAL == 969)
-	#define VCCK_VAL_REG	0x0007001b
-#elif (VCCK_VAL == 959)
-	#define VCCK_VAL_REG	0x0008001a
-#elif (VCCK_VAL == 949)
-	#define VCCK_VAL_REG	0x00090019
-#elif (VCCK_VAL == 939)
-	#define VCCK_VAL_REG	0x000a0018
-#elif (VCCK_VAL == 929)
-	#define VCCK_VAL_REG	0x000b0017
-#elif (VCCK_VAL == 919)
-	#define VCCK_VAL_REG	0x000c0016
-#elif (VCCK_VAL == 909)
-	#define VCCK_VAL_REG	0x000d0015
-#elif (VCCK_VAL == 899)
-	#define VCCK_VAL_REG	0x000e0014
-#elif (VCCK_VAL == 889)
-	#define VCCK_VAL_REG	0x000f0013
-#elif (VCCK_VAL == 879)
-	#define VCCK_VAL_REG	0x00100012
-#elif (VCCK_VAL == 869)
-	#define VCCK_VAL_REG	0x00110011
-#elif (VCCK_VAL == 859)
-	#define VCCK_VAL_REG	0x00120010
-#elif (VCCK_VAL == 849)
-	#define VCCK_VAL_REG	0x0013000f
-#elif (VCCK_VAL == 839)
-	#define VCCK_VAL_REG	0x0014000e
-#elif (VCCK_VAL == 829)
-	#define VCCK_VAL_REG	0x0015000d
-#elif (VCCK_VAL == 819)
-	#define VCCK_VAL_REG	0x0016000c
-#elif (VCCK_VAL == 809)
-	#define VCCK_VAL_REG	0x0017000b
-#elif (VCCK_VAL == 799)
-	#define VCCK_VAL_REG	0x0018000a
-#elif (VCCK_VAL == 789)
-	#define VCCK_VAL_REG	0x00190009
-#elif (VCCK_VAL == 779)
-	#define VCCK_VAL_REG	0x001a0008
-#elif (VCCK_VAL == 769)
-	#define VCCK_VAL_REG	0x001b0007
-#elif (VCCK_VAL == 759)
-	#define VCCK_VAL_REG	0x001c0006
-#elif (VCCK_VAL == 749)
-	#define VCCK_VAL_REG	0x001d0005
-#elif (VCCK_VAL == 739)
-	#define VCCK_VAL_REG	0x001e0004
-#elif (VCCK_VAL == 729)
-	#define VCCK_VAL_REG	0x001f0003
-#elif (VCCK_VAL == 719)
-	#define VCCK_VAL_REG	0x00200002
-#elif (VCCK_VAL == 709)
-	#define VCCK_VAL_REG	0x00210001
-#elif (VCCK_VAL == 699)
-	#define VCCK_VAL_REG	0x00220000
+#define VDD_GPU_VAL				AML_VDDGPU_INIT_VOLTAGE
+#define VDD_NPU_VAL				AML_VDDNPU_INIT_VOLTAGE
+#define VDD_DDR_VAL				AML_VDDDDR_INIT_VOLTAGE
+
+/* VCCK_A PWM table */
+#if   (VCCK_A_VAL == 1039)
+	#define VCCK_A_VAL_REG	0x00000022
+#elif (VCCK_A_VAL == 1029)
+	#define VCCK_A_VAL_REG	0x00010021
+#elif (VCCK_A_VAL == 1019)
+	#define VCCK_A_VAL_REG	0x00020020
+#elif (VCCK_A_VAL == 1009)
+	#define VCCK_A_VAL_REG	0x0003001f
+#elif (VCCK_A_VAL == 999)
+	#define VCCK_A_VAL_REG	0x0004001e
+#elif (VCCK_A_VAL == 989)
+	#define VCCK_A_VAL_REG	0x0005001d
+#elif (VCCK_A_VAL == 979)
+	#define VCCK_A_VAL_REG	0x0006001c
+#elif (VCCK_A_VAL == 969)
+	#define VCCK_A_VAL_REG	0x0007001b
+#elif (VCCK_A_VAL == 959)
+	#define VCCK_A_VAL_REG	0x0008001a
+#elif (VCCK_A_VAL == 949)
+	#define VCCK_A_VAL_REG	0x00090019
+#elif (VCCK_A_VAL == 939)
+	#define VCCK_A_VAL_REG	0x000a0018
+#elif (VCCK_A_VAL == 929)
+	#define VCCK_A_VAL_REG	0x000b0017
+#elif (VCCK_A_VAL == 919)
+	#define VCCK_A_VAL_REG	0x000c0016
+#elif (VCCK_A_VAL == 909)
+	#define VCCK_A_VAL_REG	0x000d0015
+#elif (VCCK_A_VAL == 899)
+	#define VCCK_A_VAL_REG	0x000e0014
+#elif (VCCK_A_VAL == 889)
+	#define VCCK_A_VAL_REG	0x000f0013
+#elif (VCCK_A_VAL == 879)
+	#define VCCK_A_VAL_REG	0x00100012
+#elif (VCCK_A_VAL == 869)
+	#define VCCK_A_VAL_REG	0x00110011
+#elif (VCCK_A_VAL == 859)
+	#define VCCK_A_VAL_REG	0x00120010
+#elif (VCCK_A_VAL == 849)
+	#define VCCK_A_VAL_REG	0x0013000f
+#elif (VCCK_A_VAL == 839)
+	#define VCCK_A_VAL_REG	0x0014000e
+#elif (VCCK_A_VAL == 829)
+	#define VCCK_A_VAL_REG	0x0015000d
+#elif (VCCK_A_VAL == 819)
+	#define VCCK_A_VAL_REG	0x0016000c
+#elif (VCCK_A_VAL == 809)
+	#define VCCK_A_VAL_REG	0x0017000b
+#elif (VCCK_A_VAL == 799)
+	#define VCCK_A_VAL_REG	0x0018000a
+#elif (VCCK_A_VAL == 789)
+	#define VCCK_A_VAL_REG	0x00190009
+#elif (VCCK_A_VAL == 779)
+	#define VCCK_A_VAL_REG	0x001a0008
+#elif (VCCK_A_VAL == 769)
+	#define VCCK_A_VAL_REG	0x001b0007
+#elif (VCCK_A_VAL == 759)
+	#define VCCK_A_VAL_REG	0x001c0006
+#elif (VCCK_A_VAL == 749)
+	#define VCCK_A_VAL_REG	0x001d0005
+#elif (VCCK_A_VAL == 739)
+	#define VCCK_A_VAL_REG	0x001e0004
+#elif (VCCK_A_VAL == 729)
+	#define VCCK_A_VAL_REG	0x001f0003
+#elif (VCCK_A_VAL == 719)
+	#define VCCK_A_VAL_REG	0x00200002
+#elif (VCCK_A_VAL == 709)
+	#define VCCK_A_VAL_REG	0x00210001
+#elif (VCCK_A_VAL == 699)
+	#define VCCK_A_VAL_REG	0x00220000
 #else
-	#error "VCCK val out of range\n"
+	#error "VCCK_A val out of range\n"
+#endif
+
+/* VCCK_B PWM table */
+#if   (VCCK_B_VAL == 1039)
+	#define VCCK_B_VAL_REG	0x00000022
+#elif (VCCK_B_VAL == 1029)
+	#define VCCK_B_VAL_REG	0x00010021
+#elif (VCCK_B_VAL == 1019)
+	#define VCCK_B_VAL_REG	0x00020020
+#elif (VCCK_B_VAL == 1009)
+	#define VCCK_B_VAL_REG	0x0003001f
+#elif (VCCK_B_VAL == 999)
+	#define VCCK_B_VAL_REG	0x0004001e
+#elif (VCCK_B_VAL == 989)
+	#define VCCK_B_VAL_REG	0x0005001d
+#elif (VCCK_B_VAL == 979)
+	#define VCCK_B_VAL_REG	0x0006001c
+#elif (VCCK_B_VAL == 969)
+	#define VCCK_B_VAL_REG	0x0007001b
+#elif (VCCK_B_VAL == 959)
+	#define VCCK_B_VAL_REG	0x0008001a
+#elif (VCCK_B_VAL == 949)
+	#define VCCK_B_VAL_REG	0x00090019
+#elif (VCCK_B_VAL == 939)
+	#define VCCK_B_VAL_REG	0x000a0018
+#elif (VCCK_B_VAL == 929)
+	#define VCCK_B_VAL_REG	0x000b0017
+#elif (VCCK_B_VAL == 919)
+	#define VCCK_B_VAL_REG	0x000c0016
+#elif (VCCK_B_VAL == 909)
+	#define VCCK_B_VAL_REG	0x000d0015
+#elif (VCCK_B_VAL == 899)
+	#define VCCK_B_VAL_REG	0x000e0014
+#elif (VCCK_B_VAL == 889)
+	#define VCCK_B_VAL_REG	0x000f0013
+#elif (VCCK_B_VAL == 879)
+	#define VCCK_B_VAL_REG	0x00100012
+#elif (VCCK_B_VAL == 869)
+	#define VCCK_B_VAL_REG	0x00110011
+#elif (VCCK_B_VAL == 859)
+	#define VCCK_B_VAL_REG	0x00120010
+#elif (VCCK_B_VAL == 849)
+	#define VCCK_B_VAL_REG	0x0013000f
+#elif (VCCK_B_VAL == 839)
+	#define VCCK_B_VAL_REG	0x0014000e
+#elif (VCCK_B_VAL == 829)
+	#define VCCK_B_VAL_REG	0x0015000d
+#elif (VCCK_B_VAL == 819)
+	#define VCCK_B_VAL_REG	0x0016000c
+#elif (VCCK_B_VAL == 809)
+	#define VCCK_B_VAL_REG	0x0017000b
+#elif (VCCK_B_VAL == 799)
+	#define VCCK_B_VAL_REG	0x0018000a
+#elif (VCCK_B_VAL == 789)
+	#define VCCK_B_VAL_REG	0x00190009
+#elif (VCCK_B_VAL == 779)
+	#define VCCK_B_VAL_REG	0x001a0008
+#elif (VCCK_B_VAL == 769)
+	#define VCCK_B_VAL_REG	0x001b0007
+#elif (VCCK_B_VAL == 759)
+	#define VCCK_B_VAL_REG	0x001c0006
+#elif (VCCK_B_VAL == 749)
+	#define VCCK_B_VAL_REG	0x001d0005
+#elif (VCCK_B_VAL == 739)
+	#define VCCK_B_VAL_REG	0x001e0004
+#elif (VCCK_B_VAL == 729)
+	#define VCCK_B_VAL_REG	0x001f0003
+#elif (VCCK_B_VAL == 719)
+	#define VCCK_B_VAL_REG	0x00200002
+#elif (VCCK_B_VAL == 709)
+	#define VCCK_B_VAL_REG	0x00210001
+#elif (VCCK_B_VAL == 699)
+	#define VCCK_B_VAL_REG	0x00220000
+#else
+	#error "VCCK_B val out of range\n"
 #endif
 
 /* VDDEE_VAL_REG */
-#if    (VDDEE_VAL == 700)
+#if   (VDDEE_VAL == 711)
 	#define VDDEE_VAL_REG	0x120000
-#elif (VDDEE_VAL == 710)
+#elif (VDDEE_VAL == 721)
 	#define VDDEE_VAL_REG	0x110001
-#elif (VDDEE_VAL == 720)
+#elif (VDDEE_VAL == 731)
 	#define VDDEE_VAL_REG	0x100002
-#elif (VDDEE_VAL == 730)
+#elif (VDDEE_VAL == 741)
 	#define VDDEE_VAL_REG	0xf0003
-#elif (VDDEE_VAL == 740)
+#elif (VDDEE_VAL == 751)
 	#define VDDEE_VAL_REG	0xe0004
-#elif (VDDEE_VAL == 750)
+#elif (VDDEE_VAL == 761)
 	#define VDDEE_VAL_REG	0xd0005
-#elif (VDDEE_VAL == 760)
+#elif (VDDEE_VAL == 771)
 	#define VDDEE_VAL_REG	0xc0006
-#elif (VDDEE_VAL == 770)
+#elif (VDDEE_VAL == 781)
 	#define VDDEE_VAL_REG	0xb0007
-#elif (VDDEE_VAL == 780)
+#elif (VDDEE_VAL == 791)
 	#define VDDEE_VAL_REG	0xa0008
-#elif (VDDEE_VAL == 790)
+#elif (VDDEE_VAL == 801)
 	#define VDDEE_VAL_REG	0x90009
-#elif (VDDEE_VAL == 800)
+#elif (VDDEE_VAL == 811)
 	#define VDDEE_VAL_REG	0x8000a
-#elif (VDDEE_VAL == 810)
+#elif (VDDEE_VAL == 821)
 	#define VDDEE_VAL_REG	0x7000b
-#elif (VDDEE_VAL == 820)
+#elif (VDDEE_VAL == 831)
 	#define VDDEE_VAL_REG	0x6000c
-#elif (VDDEE_VAL == 830)
+#elif (VDDEE_VAL == 841)
 	#define VDDEE_VAL_REG	0x5000d
-#elif (VDDEE_VAL == 840)
+#elif (VDDEE_VAL == 851)
 	#define VDDEE_VAL_REG	0x4000e
-#elif (VDDEE_VAL == 850)
+#elif (VDDEE_VAL == 861)
 	#define VDDEE_VAL_REG	0x3000f
-#elif (VDDEE_VAL == 860)
+#elif (VDDEE_VAL == 871)
 	#define VDDEE_VAL_REG	0x20010
-#elif (VDDEE_VAL == 870)
+#elif (VDDEE_VAL == 881)
 	#define VDDEE_VAL_REG	0x10011
-#elif (VDDEE_VAL == 880)
+#elif (VDDEE_VAL == 891)
 	#define VDDEE_VAL_REG	0x12
 #else
 	#error "VDDEE val out of range\n"
+#endif
+
+/* VDD_GPU PWM table */
+#if   (VDD_GPU_VAL == 711)
+	#define VDD_GPU_VAL_REG	0x120000
+#elif (VDD_GPU_VAL == 721)
+	#define VDD_GPU_VAL_REG	0x110001
+#elif (VDD_GPU_VAL == 731)
+	#define VDD_GPU_VAL_REG	0x100002
+#elif (VDD_GPU_VAL == 741)
+	#define VDD_GPU_VAL_REG	0xf0003
+#elif (VDD_GPU_VAL == 751)
+	#define VDD_GPU_VAL_REG	0xe0004
+#elif (VDD_GPU_VAL == 761)
+	#define VDD_GPU_VAL_REG	0xd0005
+#elif (VDD_GPU_VAL == 771)
+	#define VDD_GPU_VAL_REG	0xc0006
+#elif (VDD_GPU_VAL == 781)
+	#define VDD_GPU_VAL_REG	0xb0007
+#elif (VDD_GPU_VAL == 791)
+	#define VDD_GPU_VAL_REG	0xa0008
+#elif (VDD_GPU_VAL == 801)
+	#define VDD_GPU_VAL_REG	0x90009
+#elif (VDD_GPU_VAL == 811)
+	#define VDD_GPU_VAL_REG	0x8000a
+#elif (VDD_GPU_VAL == 821)
+	#define VDD_GPU_VAL_REG	0x7000b
+#elif (VDD_GPU_VAL == 831)
+	#define VDD_GPU_VAL_REG	0x6000c
+#elif (VDD_GPU_VAL == 841)
+	#define VDD_GPU_VAL_REG	0x5000d
+#elif (VDD_GPU_VAL == 851)
+	#define VDD_GPU_VAL_REG	0x4000e
+#elif (VDD_GPU_VAL == 861)
+	#define VDD_GPU_VAL_REG	0x3000f
+#elif (VDD_GPU_VAL == 871)
+	#define VDD_GPU_VAL_REG	0x20010
+#elif (VDD_GPU_VAL == 881)
+	#define VDD_GPU_VAL_REG	0x10011
+#elif (VDD_GPU_VAL == 891)
+	#define VDD_GPU_VAL_REG	0x12
+#else
+	#error "VDD_GPU val out of range\n"
+#endif
+
+/* VDD_NPU PWM table */
+#if   (VDD_NPU_VAL == 711)
+	#define VDD_NPU_VAL_REG	0x120000
+#elif (VDD_NPU_VAL == 721)
+	#define VDD_NPU_VAL_REG	0x110001
+#elif (VDD_NPU_VAL == 731)
+	#define VDD_NPU_VAL_REG	0x100002
+#elif (VDD_NPU_VAL == 741)
+	#define VDD_NPU_VAL_REG	0xf0003
+#elif (VDD_NPU_VAL == 751)
+	#define VDD_NPU_VAL_REG	0xe0004
+#elif (VDD_NPU_VAL == 761)
+	#define VDD_NPU_VAL_REG	0xd0005
+#elif (VDD_NPU_VAL == 771)
+	#define VDD_NPU_VAL_REG	0xc0006
+#elif (VDD_NPU_VAL == 781)
+	#define VDD_NPU_VAL_REG	0xb0007
+#elif (VDD_NPU_VAL == 791)
+	#define VDD_NPU_VAL_REG	0xa0008
+#elif (VDD_NPU_VAL == 801)
+	#define VDD_NPU_VAL_REG	0x90009
+#elif (VDD_NPU_VAL == 811)
+	#define VDD_NPU_VAL_REG	0x8000a
+#elif (VDD_NPU_VAL == 821)
+	#define VDD_NPU_VAL_REG	0x7000b
+#elif (VDD_NPU_VAL == 831)
+	#define VDD_NPU_VAL_REG	0x6000c
+#elif (VDD_NPU_VAL == 841)
+	#define VDD_NPU_VAL_REG	0x5000d
+#elif (VDD_NPU_VAL == 851)
+	#define VDD_NPU_VAL_REG	0x4000e
+#elif (VDD_NPU_VAL == 861)
+	#define VDD_NPU_VAL_REG	0x3000f
+#elif (VDD_NPU_VAL == 871)
+	#define VDD_NPU_VAL_REG	0x20010
+#elif (VDD_NPU_VAL == 881)
+	#define VDD_NPU_VAL_REG	0x10011
+#elif (VDD_NPU_VAL == 891)
+	#define VDD_NPU_VAL_REG	0x12
+#else
+	#error "VDD_NPU val out of range\n"
+#endif
+
+/* VDD_DDR PWM table */
+#if   (VDD_DDR_VAL == 711)
+	#define VDD_DDR_VAL_REG	0x120000
+#elif (VDD_DDR_VAL == 721)
+	#define VDD_DDR_VAL_REG	0x110001
+#elif (VDD_DDR_VAL == 731)
+	#define VDD_DDR_VAL_REG	0x100002
+#elif (VDD_DDR_VAL == 741)
+	#define VDD_DDR_VAL_REG	0xf0003
+#elif (VDD_DDR_VAL == 751)
+	#define VDD_DDR_VAL_REG	0xe0004
+#elif (VDD_DDR_VAL == 761)
+	#define VDD_DDR_VAL_REG	0xd0005
+#elif (VDD_DDR_VAL == 771)
+	#define VDD_DDR_VAL_REG	0xc0006
+#elif (VDD_DDR_VAL == 781)
+	#define VDD_DDR_VAL_REG	0xb0007
+#elif (VDD_DDR_VAL == 791)
+	#define VDD_DDR_VAL_REG	0xa0008
+#elif (VDD_DDR_VAL == 801)
+	#define VDD_DDR_VAL_REG	0x90009
+#elif (VDD_DDR_VAL == 811)
+	#define VDD_DDR_VAL_REG	0x8000a
+#elif (VDD_DDR_VAL == 821)
+	#define VDD_DDR_VAL_REG	0x7000b
+#elif (VDD_DDR_VAL == 831)
+	#define VDD_DDR_VAL_REG	0x6000c
+#elif (VDD_DDR_VAL == 841)
+	#define VDD_DDR_VAL_REG	0x5000d
+#elif (VDD_DDR_VAL == 851)
+	#define VDD_DDR_VAL_REG	0x4000e
+#elif (VDD_DDR_VAL == 861)
+	#define VDD_DDR_VAL_REG	0x3000f
+#elif (VDD_DDR_VAL == 871)
+	#define VDD_DDR_VAL_REG	0x20010
+#elif (VDD_DDR_VAL == 881)
+	#define VDD_DDR_VAL_REG	0x10011
+#elif (VDD_DDR_VAL == 891)
+	#define VDD_DDR_VAL_REG	0x12
+#else
+	#error "VDD_DDR val out of range\n"
 #endif
 
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
@@ -365,23 +573,86 @@ bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 	{0,			0,            		0xffffffff,   0, 0, 0},
 };
 
+/* for PWM use */
+/*
+ * GPIOE_0   PWMAO_A    VDDEE
+ * GPIOE_1   PWMAO_B    VCCK_B
+ * GPIOE_3   PWMAO_D    VCCK_A
+ * GPIOE_4   PWMAO_E    VDDGPU
+ * GPIOE_5   PWMAO_F    VDDNPU
+ * GPIOE_6   PWMAO_G    VDDDDR
+ */
 /* gpio/pinmux/pwm init */
 register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
 __attribute__ ((section(".misc_param"))) = {
-
 	/* demo, user defined override register */
+	/* config vddee pwm - pwmao_a */
+	{PWM_AO_AB_PWM_A,		VDDEE_VAL_REG,  		0xffffffff,	0, 0, 0},
+	{PWM_AO_AB_MISC_REG_AB,	(0x1 << 0), 		(0x1 << 0), 0, 0, 0},
+	{CLKCTRL_PWM_CLK_AO_AB_CTRL,	(0x1 << 8), 		(0x7FF << 0), 0, 0, 0},
+	/* config vcck a pwm - pwmao_d */
+	{PWM_AO_CD_PWM_B,		VCCK_A_VAL_REG,  	0xffffffff,	0, 0, 0},
+	{PWM_AO_CD_MISC_REG_AB,	(0x1 << 1), 		(0x1 << 1), 0, 0, 0},
+	{CLKCTRL_PWM_CLK_AO_CD_CTRL,	(0x1 << 24), 		(0x7FF << 16), 0, 0, 0},
+	/* config vcck b pwm - pwmao_b */
+	{PWM_AO_AB_PWM_B,		VCCK_B_VAL_REG,  		0xffffffff,	0, 0, 0},
+	{PWM_AO_AB_MISC_REG_AB,	(0x1 << 1), 		(0x1 << 1), 0, 0, 0},
+	{CLKCTRL_PWM_CLK_AO_AB_CTRL,	(0x1 << 24), 		(0x7FF << 16), 0, 0, 0},
+	/* config vddgpu pwm - pwmao_e */
+	{PWM_AO_EF_PWM_A,		VDD_GPU_VAL_REG,		0xffffffff, 0, 0, 0},
+	{PWM_AO_EF_MISC_REG_AB, (0x1 << 0), 		(0x1 << 0), 0, 0, 0},
+	{CLKCTRL_PWM_CLK_AO_EF_CTRL,	(0x1 << 8), 		(0x7FF << 0), 0, 0, 0},
+	/* config vddnpu pwm - pwmao_f */
+	{PWM_AO_EF_PWM_B,		VDD_NPU_VAL_REG,		0xffffffff, 0, 0, 0},
+	{PWM_AO_EF_MISC_REG_AB, (0x1 << 1), 		(0x1 << 1), 0, 0, 0},
+	{CLKCTRL_PWM_CLK_AO_EF_CTRL,	(0x1 << 24), 		(0x7FF << 16), 0, 0, 0},
+	/* config vddddr pwm - pwmao_g */
+	{PWM_AO_GH_PWM_A,		VDD_DDR_VAL_REG,		0xffffffff, 0, 0, 0},
+	{PWM_AO_GH_MISC_REG_AB, (0x1 << 0), 		(0x1 << 0), 0, 0, 0},
+	{CLKCTRL_PWM_CLK_AO_GH_CTRL,	(0x1 << 8), 		(0x7FF << 0), 0, 0, 0},
 
-	/* enable vddcpu dc-dc, set TEST_N to high */
-	{PADCTRL_TESTN_O,	(0x1 << 0), 		(0x1 << 0),	0, 0, 0},
-	{PADCTRL_TESTN_OEN,	(0x0 << 0), 		(0x1 << 0), 0, 0, 0},
+	/* enable vddee */
+	/* set gpioe_0 ds to max */
+	{PADCTRL_GPIOE_DS,	(0x3 << 0), 		(0x3 << 0),	0, 0, 0},
+	/* mux gpioe_0 to pwmao_a */
+	{PADCTRL_PIN_MUX_REGC,	(0x1 << 0), 		(0xf << 0),	0, 0, 0},
 
-	/* set pwm h and pwm j clock rate to 24M, enable them */
+	/* enable vddgpu */
+	/* set gpioe_4 ds to max */
+	{PADCTRL_GPIOE_DS,	(0x3 << 8), 		(0x3 << 8),	0, 0, 0},
+	/* mux gpioe_4 to pwmao_e */
+	{PADCTRL_PIN_MUX_REGC,	(0x1 << 16), 		(0xf << 16),	0, 0, 0},
+	/* set TEST_N to high(defualt high) */
+	//{PADCTRL_TESTN_O,	(0x1 << 0), 		(0x1 << 0),	0, 0, 0},
+	//{PADCTRL_TESTN_OEN,	(0x0 << 0), 		(0x1 << 0),	0, 0, 0},
 
-	/* set GPIOE_0 GPIOE_1 drive strength to 3 */
-	{PADCTRL_GPIOE_DS,	0xf, 	0xf,		0, 0, 0},
-	/* set GPIOE_0 GPIOE_1 mux to pwmh pwmj */
-	{PADCTRL_PIN_MUX_REGI,	(0x3 << 0),		(0xf << 0),	0, 0, 0},
-	{PADCTRL_PIN_MUX_REGI,	(0x3 << 4),		(0xf << 4),	0, 0, 0},
+	/* enable vddnpu */
+	/* set gpioe_5 ds to max */
+	{PADCTRL_GPIOE_DS,	(0x3 << 10), 		(0x3 << 10),	0, 0, 0},
+	/* mux gpioe_5 to pwmao_F */
+	{PADCTRL_PIN_MUX_REGC,	(0x1 << 20), 		(0xf << 20), 0, 0, 0},
+
+	/* enable vcck b */
+	/* set gpioe_1 ds to max */
+	{PADCTRL_GPIOE_DS,	(0x3 << 2), 		(0x3 << 2),	0, 0, 0},
+	/* mux gpioe_1 to pwmao_b */
+	{PADCTRL_PIN_MUX_REGC,	(0x1 << 4), 		(0xf << 4), 0, 0, 0},
+
+	/* enable vcck a */
+	/* set gpioe_3 ds to max */
+	{PADCTRL_GPIOE_DS,	(0x3 << 6), 		(0x3 << 6),	0, 0, 0},
+	/* mux gpioe_3 to pwmao_d */
+	{PADCTRL_PIN_MUX_REGC,	(0x1 << 12), 		(0xf << 12), 0, 0, 0},
+	/* set gpiod_2 to high(defualt high) */
+	//{PADCTRL_GPIOD_O,	(0x1 << 2), 		(0x1 << 2), 0, 0, 0},
+	//{PADCTRL_GPIOD_OEN, (0x0 << 2), 		(0x1 << 2), 0, 0, 0},
+	//{PADCTRL_PIN_MUX_REGA,	(0x0 << 8), 		(0xf << 8), 0, 0, 0},
+
+	/* enable vddddr */
+	/* set gpioe_6 ds to max */
+	{PADCTRL_GPIOE_DS,	(0x3 << 12), 		(0x3 << 12),	0, 0, 0},
+	/* mux gpioe_6 to pwmao_g */
+	{PADCTRL_PIN_MUX_REGC,	(0x1 << 24), 		(0xf << 24), 0, 0, 0},
 };
 
 /* for all the storage parameter */

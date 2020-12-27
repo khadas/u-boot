@@ -378,10 +378,10 @@ __attribute__ ((section(".misc_param"))) = {
 	/* set pwm h and pwm j clock rate to 24M, enable them */
 
 	/* set GPIOE_0 GPIOE_1 drive strength to 3 */
-	{PADCTRL_GPIOE_DS,	0xf, 	0xf,		0, 0, 0},
+	//{PADCTRL_GPIOE_DS,	0xf, 	0xf,		0, 0, 0},
 	/* set GPIOE_0 GPIOE_1 mux to pwmh pwmj */
-	{PADCTRL_PIN_MUX_REGI,	(0x3 << 0),		(0xf << 0),	0, 0, 0},
-	{PADCTRL_PIN_MUX_REGI,	(0x3 << 4),		(0xf << 4),	0, 0, 0},
+	//{PADCTRL_PIN_MUX_REGI,	(0x3 << 0),		(0xf << 0),	0, 0, 0},
+	//{PADCTRL_PIN_MUX_REGI,	(0x3 << 4),		(0xf << 4),	0, 0, 0},
 };
 
 /* for all the storage parameter */
