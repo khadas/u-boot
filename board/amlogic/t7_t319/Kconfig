@@ -1,16 +1,16 @@
-if TARGET_AN40A1
+if TARGET_T7_T319
 
 config SYS_SOC
 	default "t7"
 
 config SYS_BOARD
-	default "an40a1"
+	default "t7_t319"
 
 config SYS_VENDOR
 	default "amlogic"
 
 config SYS_CONFIG_NAME
-	default "an40a1"
+	default "t7_t319"
 
 config DTB_BIND_KERNEL
     bool "load dtb from boot part but not flash rsv"

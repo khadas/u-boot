@@ -43,11 +43,11 @@
 
 /dts-v1/;
 
-#include "meson-an40a1.dtsi"
+#include "meson-t7-an40a1.dtsi"
 #include "meson-t7_skt-panel.dtsi"
 
 / {
-	compatible = "amlogic,an40a1", "amlogic,t7-txxx", "amlogic,meson-t7";
+	compatible = "amlogic,t7-an40a1", "amlogic,t7-txxx", "amlogic,meson-t7";
 	model = "Amlogic Meson T7 PXP Board";
 };
 
