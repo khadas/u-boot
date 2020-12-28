@@ -465,6 +465,12 @@ config AN40A1
 	help
 	  Select AN40A1 config
 
+config T7_AN400P_LPDDR4X
+	bool "T7_AN400P_LPDDR4X"
+	select TARGET_T7_AN400P_LPDDR4X
+	help
+	  Select T7 AN400P LPDDR4X config
+
 endchoice
 
 config TARGET_T7_SKT
@@ -490,6 +496,10 @@ config TARGET_T319
 config TARGET_AN40A1
 	bool "AN40A1 board"
 	depends on AN40A1
+
+config TARGET_T7_AN400P_LPDDR4X
+	bool "T7 AN400P lpddr4x board"
+	depends on T7_AN400P_LPDDR4X
 
 endif
 
@@ -637,3 +647,5 @@ source "board/amlogic/t7_an400_lpddr4x/Kconfig"
 source "board/amlogic/t319/Kconfig"
 
 source "board/amlogic/an40a1/Kconfig"
+
+source "board/amlogic/t7_an400p_lpddr4x/Kconfig"
