@@ -171,7 +171,7 @@ boot_area_entry_t general_boot_part_entry[MAX_BOOT_AREA_ENTRIES] = {
 	{BOOT_BL2E, BOOT_AREA_BL2E, 0, 0x40000},
 	{BOOT_BL2X, BOOT_AREA_BL2X, 0, 0x40000},
 	{BOOT_DDRFIP, BOOT_AREA_DDRFIP, 0, 0x40000},
-	{BOOT_DEVFIP, BOOT_AREA_DEVFIP, 0, 0x300000},
+	{BOOT_DEVFIP, BOOT_AREA_DEVFIP, 0, 0x380000},
 };
 
 struct boot_layout general_boot_layout = {.boot_entry = general_boot_part_entry};
@@ -1391,6 +1391,41 @@ static int do_store_rsv_ops(cmd_tbl_t *cmdtp,
 	return CMD_RET_USAGE;
 }
 
+static int do_store_param_ops(cmd_tbl_t *cmdtp,
+			    int flag, int argc, char * const argv[])
+{
+	boot_area_entry_t *boot_entry = general_boot_layout.boot_entry;
+	cpu_id_t cpu_id = get_cpu_id();
+	char bufvir[64];
+	int lenvir, i, re;
+	u32 bl2e_size, bl2x_size;
+	char *p = bufvir;
+
+	if (cpu_id.family_id != MESON_CPU_MAJOR_ID_SC2) return 0;
+	bl2e_size = boot_entry[BOOT_AREA_BL2E].size;
+	bl2x_size = boot_entry[BOOT_AREA_BL2X].size;
+	lenvir = snprintf(bufvir, sizeof(bufvir), "%s", "mtdbootparts=aml-nand:");
+	p += lenvir;
+	re = sizeof(bufvir) - lenvir;
+	for (i = 0; i < 2; i++) {		/* bl2e and bl2x */
+		if (i == 0)
+			lenvir = snprintf(p, re, "%dk(%s),",
+					 (int)(bl2e_size / 1024),
+					 "bl2e");
+		else
+			lenvir = snprintf(p, re, "%dk(%s),",
+					 (int)(bl2x_size / 1024),
+					 "bl2x");
+		re -= lenvir;
+		p += lenvir;
+	}
+	p = bufvir;
+	bufvir[strlen(p) - 1] = 0;	/* delete the last comma */
+	env_set("mtdbootparts", p);
+
+	return 0;
+}
+
 static cmd_tbl_t cmd_store_sub[] = {
 	U_BOOT_CMD_MKENT(init, 4, 0, do_store_init, "", ""),
 	U_BOOT_CMD_MKENT(device, 4, 0, do_store_device, "", ""),
@@ -1404,6 +1439,7 @@ static cmd_tbl_t cmd_store_sub[] = {
 	U_BOOT_CMD_MKENT(boot_write, 6, 0, do_store_boot_write, "", ""),
 	U_BOOT_CMD_MKENT(boot_erase, 4, 0, do_store_boot_erase, "", ""),
 	U_BOOT_CMD_MKENT(rsv, 6, 0, do_store_rsv_ops, "", ""),
+	U_BOOT_CMD_MKENT(param, 2, 0, do_store_param_ops, "", ""),
 };
 
 static int do_store(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -1499,4 +1535,6 @@ U_BOOT_CMD(store, CONFIG_SYS_MAXARGS, 1, do_store,
 	"store rsv protect name on/off\n"
 	"	turn on/off the rsv info protection\n"
 	"	name must't null\n"
+	"store param\n"
+	"	transfer bl2e/x size to kernel in such case like sc2"
 );

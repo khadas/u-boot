@@ -201,7 +201,10 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 		parts = get_aml_mtd_partition();
 		nr = get_aml_partition_count();
 		adjust_offset = 1024 * mtd->writesize + reserved_part_blk_num * mtd->erasesize;
-		if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
+
+		if (store_get_device_bootloader_mode() != DISCRETE_BOOTLOADER)
+			goto _COMPAT_BOOTLOADER;
+
 		if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) {
 			fip_part_size = g_ssp.boot_entry[BOOT_AREA_DEVFIP].size * CONFIG_NAND_TPL_COPY_NUM;
 			adjust_offset = g_ssp.boot_entry[BOOT_AREA_DEVFIP].offset + fip_part_size;
@@ -225,7 +228,8 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 				adjust_offset += fip_part_size;
 			}
 		}
-		}
+
+_COMPAT_BOOTLOADER:
 		for (i = internal_part_count; i < nr; i++) {
 			temp_parts = parts + i;
 			if (mtd->size < adjust_offset) {
