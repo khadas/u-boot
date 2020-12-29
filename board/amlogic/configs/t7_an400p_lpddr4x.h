@@ -24,9 +24,9 @@
 
 /*
  * platform power init config
+ * voltage range define in board/amlogic/t7_an400p_lpddr4x/firmware/timing.c
  */
-
-#define AML_VCCK_INIT_VOLTAGE	  939	    //VCCK power up voltage
+#define AML_VCCK_INIT_VOLTAGE	  940	    //VCCK power up voltage
 #define AML_VDDEE_INIT_VOLTAGE    800       // VDDEE power up voltage
 
 /* SMP Definitinos */
