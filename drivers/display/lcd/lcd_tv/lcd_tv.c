@@ -330,6 +330,15 @@ static int lcd_config_load_from_dts(char *dt_addr, struct lcd_config_s *pconf)
 		pconf->lcd_basic.lcd_type = lcd_type_str_to_type(propdata);
 	}
 
+	propdata = (char *)fdt_getprop(dt_addr, child_offset, "customer_pinmux", NULL);
+	if (propdata == NULL) {
+		LCDERR("failed to get customer_pinmux\n");
+		pconf->customer_pinmux = 0;
+	} else {
+		pconf->customer_pinmux = (unsigned char)(be32_to_cpup((u32*)propdata));
+	}
+	LCDPR("customer_pinmux: %d\n", pconf->customer_pinmux);
+
 	propdata = (char *)fdt_getprop(dt_addr, child_offset, "basic_setting", NULL);
 	if (propdata == NULL) {
 		LCDERR("failed to get basic_setting\n");
@@ -993,6 +1002,7 @@ static int lcd_config_load_from_unifykey(struct lcd_config_s *pconf)
 		((*(p + LCD_UKEY_PCLK_MAX + 1)) << 8) |
 		((*(p + LCD_UKEY_PCLK_MAX + 2)) << 16) |
 		((*(p + LCD_UKEY_PCLK_MAX + 3)) << 24));
+	pconf->customer_pinmux = (*(p + LCD_UKEY_CUST_VAL_9) & 0x1);
 
 	/* interface: 20byte */
 	if (pconf->lcd_basic.lcd_type == LCD_VBYONE) {

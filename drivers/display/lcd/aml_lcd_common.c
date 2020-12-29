@@ -712,6 +712,46 @@ static int lcd_pinmux_load_from_bsp(struct lcd_config_s *pconf)
 		break;
 	}
 
+	if (pconf->customer_pinmux) {
+		sprintf(propname, "%s", pconf->lcd_basic.model_name);
+		pinmux = pconf->lcd_pinmux;
+		for (i = 0; i < LCD_PINMX_MAX; i++) {
+			if (pinmux == NULL)
+				return 0;
+			if (pinmux->name == NULL)
+				return 0;
+			if (strncmp(pinmux->name, "invalid", 7) == 0)
+				return 0;
+			if (strncmp(pinmux->name, propname, strlen(propname)) == 0) {
+				for (j = 0; j < LCD_PINMUX_NUM; j++ ) {
+					if (pinmux->pinmux_set[j][0] == LCD_PINMUX_END)
+						return 0;
+					pconf->pinmux_set[j][0] = pinmux->pinmux_set[j][0];
+					pconf->pinmux_set[j][1] = pinmux->pinmux_set[j][1];
+					set_cnt++;
+				}
+				for (j = 0; j < LCD_PINMUX_NUM; j++ ) {
+					if (pinmux->pinmux_clr[j][0] == LCD_PINMUX_END)
+						return 0;
+					pconf->pinmux_clr[j][0] = pinmux->pinmux_clr[j][0];
+					pconf->pinmux_clr[j][1] = pinmux->pinmux_clr[j][1];
+					clr_cnt++;
+				}
+				return 0;
+			}
+			pinmux++;
+		}
+		if (set_cnt < LCD_PINMUX_NUM) {
+			pconf->pinmux_set[set_cnt][0] = LCD_PINMUX_END;
+			pconf->pinmux_set[set_cnt][1] = 0x0;
+		}
+		if (clr_cnt < LCD_PINMUX_NUM) {
+			pconf->pinmux_clr[clr_cnt][0] = LCD_PINMUX_END;
+			pconf->pinmux_clr[clr_cnt][1] = 0x0;
+		}
+		return 0;
+	}
+
 	return 0;
 }
 

@@ -402,6 +402,7 @@ struct lcd_config_s {
 	struct lcd_ctrl_config_s lcd_control;
 	struct lcd_power_ctrl_s *lcd_power;
 	unsigned char pinctrl_ver;
+	unsigned char customer_pinmux;
 	struct lcd_pinmux_ctrl_s *lcd_pinmux;
 	unsigned int pinmux_set[LCD_PINMUX_NUM][2];
 	unsigned int pinmux_clr[LCD_PINMUX_NUM][2];
