@@ -82,9 +82,11 @@ int ddr_get_chip_id(void)
 	get_chip_id(chipid, 16);
 #endif
 	int count = 0;
-	for (count = 0; count < 16; count++)
+
+	for (count = 0; count < 16; count++) {
 		if (count > 3)
 			global_chip_id[16 - 1 - count] = chipid[count];
+	}
 
 	return soc_family_id;
 }
@@ -196,6 +198,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.sys_watchdog_base_address = 0,                                 //((0x0040  << 2) + 0xfe000000),
 		.sys_watchdog_enable_value = 0x03c401ff,
 		.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe005800),        //SYSCTRL_SEC_STICKY_REG1
+		.ee_timer_base_address = ((0x0041 << 2) + 0xfe005800),
 	},
 	//c1
 	{
@@ -212,6 +215,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.sys_watchdog_base_address = 0,                                 //((0x0040  << 2) + 0xfe000000),
 		.sys_watchdog_enable_value = 0x03c401ff,
 		.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe005800),        //SYSCTRL_SEC_STICKY_REG1
+		.ee_timer_base_address = ((0x0041 << 2) + 0xfe005800),
 	},
 	//c2
 	{
@@ -230,6 +234,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe005800),        //SYSCTRL_SEC_STICKY_REG1
 		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xfe024400),   //DMC_DRAM_REFR_CTRL
+		.ee_timer_base_address = ((0x0041 << 2) + 0xfe005800),
 	},
 	//sc2
 	{
@@ -242,7 +247,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ddr_dmc_sticky0 = 0xfe036800,
 		.sys_watchdog_base_address = ((0x3c34 << 2) + 0xffd00000),      //sc2 can not find
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xfe036c00),
-		.ee_timer_base_address = ((0x3c62 << 2) + 0xffd00000),          //sc2 can not find
+		.ee_timer_base_address = ((0x003b << 2) + 0xfe010000),                  //sc2 can not find
 		.ee_pwm_base_address = ((0x0001 << 2) + 0xfe05e000),            //PWMGH_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),
@@ -263,7 +268,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 
 		.sys_watchdog_base_address = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
-		//.ee_timer_base_address = ((0x3c62 << 2) + 0xffd00000),          //sc2 can not find
+		.ee_timer_base_address = 0xffd0f188,                            //#define P_EE_TIMER_E		(volatile uint32_t *)0xffd0f188
 		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),            //AO_PWM_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xff638400),
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xff638400),
@@ -284,7 +289,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 
 		.sys_watchdog_base_address = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
-		//.ee_timer_base_address = ((0x3c62 << 2) + 0xffd00000),          //sc2 can not find
+		.ee_timer_base_address = 0xffd0f188,                            //#define P_EE_TIMER_E		(volatile uint32_t *)0xffd0f188
 		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),            //AO_PWM_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xff638400),
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xff638400),
@@ -1459,10 +1464,14 @@ void ddr_udelay(unsigned int us)
 
 void ddr_udelay_dummy(volatile unsigned int us)
 {
-	if (us == 0)
-		us = 10000;
+	if ((p_ddr_base->ee_timer_base_address)) {
+		ddr_udelay(us);
+	} else {
+		if (us == 0)
+			us = 10000;
 
-	while (us--) {
+		while (us--) {
+		}
 	}
 }
 #define DDR_PARAMETER_SOURCE_FROM_DMC_STICKY    1
@@ -2103,9 +2112,10 @@ int do_ddr_test_copy(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		loop = 1;
 	}
 
-	if (argc > 2)
+	if (argc > 2) {
 		if (*argv[2] == 0 || *endp != 0)
 			src_addr = DDR_TEST_START_ADDR;
+	}
 
 	if (argc > 3) {
 		src_addr = simple_strtoull_ddr(argv[1], &endp, 16);
@@ -5736,9 +5746,10 @@ uint32_t find_vddee_voltage_index(unsigned int target_voltage)
 {
 	unsigned int to;
 
-	for (to = 0; to < ARRAY_SIZE(pwm_voltage_table_ee); to++)
+	for (to = 0; to < ARRAY_SIZE(pwm_voltage_table_ee); to++) {
 		if (pwm_voltage_table_ee[to][1] >= target_voltage)
 			break;
+	}
 
 	if (to >= ARRAY_SIZE(pwm_voltage_table_ee))
 		to = ARRAY_SIZE(pwm_voltage_table_ee) - 1;
@@ -5749,9 +5760,10 @@ void set_ee_voltage(uint32_t ee_over_ride_voltage)
 {
 	unsigned int to;
 
-	for (to = (ARRAY_SIZE(pwm_voltage_table_ee)); (to > 0); to--)
+	for (to = (ARRAY_SIZE(pwm_voltage_table_ee)); (to > 0); to--) {
 		if ((pwm_voltage_table_ee[to - 1][1] < ee_over_ride_voltage) && (pwm_voltage_table_ee[to][1] >= ee_over_ride_voltage))
 			break;
+	}
 
 	if (ee_over_ride_voltage) {
 		writel(pwm_voltage_table_ee[to][0], (p_ddr_base->ee_pwm_base_address));
@@ -6741,14 +6753,16 @@ uint32_t ddr_phy_training_reg_read_write(ddr_set_t_c2 *p_ddrs, char index,
 			       | ((delay_new_value & 0xffff) << (ddr_mask_convert_offset(reg_add_fine_bit_mask))));
 		ddr_udelay_dummy(1);
 		//wr_reg(p_ddr_base->ddr_phy_base_address + 0x2440, 1); //no need force release ,because maybe have glitch when ddr read/write ,must upadate on the rfc stage
-		wr_reg(p_ddr_base->ddr_phy_base_address + 0x2440, 2);
-		ddr_udelay_dummy(1);
-		wr_reg(p_ddr_base->ddr_phy_base_address + 0x2440, 0);
-		ddr_udelay_dummy(1);
+		//wr_reg(p_ddr_base->ddr_phy_base_address + 0x2440, 2);
+		//ddr_udelay_dummy(1);
+		//wr_reg(p_ddr_base->ddr_phy_base_address + 0x2440, 0);
+		//ddr_udelay_dummy(1);
 		wr_reg((p_ddr_base->ddr_dmc_refresh_ctrl_address), (temp_save & (~((1 << 22) | (1 << 4)))));
+		ddr_udelay_dummy(1);
 		wr_reg((p_ddr_base->ddr_dmc_refresh_ctrl_address), (temp_save & (~((1 << 22)))) | (1 << 4));
-		//ddr_udelay_dummy(1000);//must over 7.8us make sure a update command send out ,then maybe fail
+		ddr_udelay_dummy(40);        //since we are use 3 refresh time ,so shuld  over 4*7.8us make sure a update command send out ,then maybe fail
 		wr_reg((p_ddr_base->ddr_dmc_refresh_ctrl_address), (temp_save & (~((1 << 22)))) | (1 << 4));
+		ddr_udelay_dummy(1);
 		wr_reg((p_ddr_base->ddr_dmc_refresh_ctrl_address), (temp_save));
 	}
 	printf("delay_old_value,%08x,read_write_value,%08x,index,%08x,sub_index,%08x\n", delay_old_value, read_write_value, index, sub_index);
@@ -8962,18 +8976,20 @@ int do_ddr_c2_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 	writel((0), p_ddr_base->ddr_dmc_asr_address);
 
 	for (; count < count_max; count++) {
-		if ((count < 32))
+		if ((count < 32)) {
 			if (test_dq_mask_1 & (1 << (count % 32)))
 				continue;
+		}
 
-		if ((count > 31) && (count < 63))
+		if ((count > 31) && (count < 63)) {
 			if (test_dq_mask_2 & (1 << (count % 32)))
 				continue;
+		}
 
-		if ((count > 63))
+		if ((count > 63)) {
 			if (test_dq_mask_3 & (1 << (count % 32)))
 				continue;
-
+		}
 		{
 			if (left_right_flag == DDR_PARAMETER_RIGHT) {
 				dwc_window_reg_after_training_update_increas_c2(test_index,
@@ -9115,17 +9131,20 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	writel((0), p_ddr_base->ddr_dmc_asr_address);
 
 	for (; count < count_max; count++) {
-		if ((count < 32))
+		if ((count < 32)) {
 			if (test_dq_mask_1 & (1 << (count % 32)))
 				continue;
+		}
 
-		if ((count > 31) && (count < 63))
+		if ((count > 31) && (count < 63)) {
 			if (test_dq_mask_2 & (1 << (count % 32)))
 				continue;
+		}
 
-		if ((count > 63))
+		if ((count > 63)) {
 			if (test_dq_mask_3 & (1 << (count % 32)))
 				continue;
+		}
 		{
 			if (left_right_flag == DDR_PARAMETER_RIGHT) {
 				dwc_window_reg_after_training_update_increas(test_index,
@@ -9625,9 +9644,10 @@ int do_ddr_auto_scan_drv(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 	}
 	printf("\nglobal_boot_times== %d %s", global_boot_times, string_print_flag);
 
-	if (loop)
+	if (loop) {
 		if (((global_boot_times - 1) / 2) > max_counter_total)
 			return 1;
+	}
 	printf("\nmax_counter=%d  %d %s", max_counter_total, max_counter_total * 2, string_print_flag);
 	printf("\nsoc_data_drv_ohm_p=%d %s", soc_data_drv_ohm_p, string_print_flag);
 	printf("\nsoc_data_drv_ohm_n=%d %s", soc_data_drv_ohm_n, string_print_flag);
