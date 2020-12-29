@@ -23,6 +23,7 @@
 #define	DIF			6 /* dif */
 #define	AOCPU			7 /* aocpu */
 #define	AUCPU			8 /* aucpu */
+#define	SOCBRG			9 /* SOC Bridge */
 
 /*
  * bitmap for jtag select ID:
