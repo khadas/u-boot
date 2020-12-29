@@ -128,7 +128,7 @@
             "if itest ${upgrade_step} == 3; then run init_display;run storeargs; run update; fi;"\
             "\0"\
         "storeargs="\
-            "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} "\
+            "setenv bootargs ${initargs} otg_device=${otg_device} "\
                 "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},${vout_init} panel_type=${panel_type} "\
                 "hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
                 "hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} " \
@@ -198,6 +198,7 @@
             "if fatload ${fatload_dev} 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;"\
             "if fatload ${fatload_dev} 0 ${loadaddr} recovery.img; then "\
                 "if fatload ${fatload_dev} 0 ${dtb_mem_addr} dtb.img; then echo ${fatload_dev} dtb.img loaded; fi;"\
+                "setenv bootargs ${bootargs} ${fs_type};"\
                 "bootm ${loadaddr};fi;"\
             "\0"\
         "recovery_from_udisk="\
@@ -213,9 +214,14 @@
             "echo active_slot: ${active_slot};"\
             "setenv loadaddr ${loadaddr_kernel};"\
             "if test ${active_slot} = normal; then "\
-                "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
-                "if imgread dtb recovery ${dtb_mem_addr}; then "\
-                    "else echo restore dtb; run common_dtb_load;"\
+                "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
+                "if test ${upgrade_step} == 3; then "\
+                    "if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;"\
+                    "if ext4load mmc 1:2 ${loadaddr} /recovery/recovery.img; then echo cache recovery.img loaded; wipeisb; bootm ${loadaddr}; fi;"\
+                "else "\
+                    "if imgread dtb recovery ${dtb_mem_addr}; then "\
+                        "else echo restore dtb; run common_dtb_load;"\
+                    "fi;"\
                 "fi;"\
                 "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
             "else "\
