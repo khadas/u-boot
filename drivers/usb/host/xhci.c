@@ -665,12 +665,12 @@ static int xhci_enable_device(struct usb_device *udev, int port)
 	switch (GET_COMP_CODE(le32_to_cpu(event->event_cmd.status))) {
 	case COMP_CTX_STATE:
 	case COMP_EBADSLT:
-		printf("Setup ERROR: address device command for slot %d.\n",
+		debug("Setup ERROR: address device command for slot %d.\n",
 								slot_id);
 		ret = -EINVAL;
 		break;
 	case COMP_TX_ERR:
-		puts("Device not responding to set address.\n");
+		debug("Device not responding to set address.\n");
 		ret = -EPROTO;
 		break;
 	case COMP_DEV_ERR:
@@ -748,12 +748,12 @@ static int xhci_address_device(struct usb_device *udev, int root_portnr)
 	switch (GET_COMP_CODE(le32_to_cpu(event->event_cmd.status))) {
 	case COMP_CTX_STATE:
 	case COMP_EBADSLT:
-		printf("Setup ERROR: address device command for slot %d.\n",
+		debug("Setup ERROR: address device command for slot %d.\n",
 								slot_id);
 		ret = -EINVAL;
 		break;
 	case COMP_TX_ERR:
-		puts("Device not responding to set address.\n");
+		debug("Device not responding to set address.\n");
 		ret = -EPROTO;
 		break;
 	case COMP_DEV_ERR:

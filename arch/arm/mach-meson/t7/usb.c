@@ -236,6 +236,24 @@ int usb_save_phy_dev (unsigned int number, struct phy *phy)
 	return 0;
 }
 
+void power_down_usb3(void)
+{
+	u32 val;
+#define USB_PHY30_BASE 0xFE062000
+
+	val = readl(USB_PHY30_BASE);
+	val &= (~(3 << 5));
+	val |= 0x1;
+	writel(val, USB_PHY30_BASE);
+	udelay(12);
+
+	val = readl(USB_PHY30_BASE + 0x18);
+	val &= (~(0x3 << 17));
+	val |= (0x1 << 17);
+	writel(val, USB_PHY30_BASE + 0x18);
+	udelay(12);
+}
+
 int usb2_phy_init (struct phy *phy) {
 	struct phy_aml_usb2_priv *priv = dev_get_priv(phy->dev);
 	struct u2p_aml_regs *u2p_aml_reg;
@@ -243,17 +261,18 @@ int usb2_phy_init (struct phy *phy) {
 	u2p_r1_t dev_u2p_r1;
 	int i,cnt;
 
+	power_down_usb3();
 	usb_save_phy_dev(0, phy);
 	usb_enable_phy_pll(priv->base_addr);
 	//usb_set_power_domain();
 	phy_aml_usb2_check_rev();
 
-	if (priv->base_addr == PHY_20_BASE) {
+	if (priv->usb_phy2_pll_base_addr[0] == PHY_20_BASE) {
 		*(volatile unsigned int *)(unsigned long)priv->reset_addr = (1 << 6);
 
 		udelay(500);
 		priv->usbphy_reset_bit[0] = PHY20_RESET_LEVEL_BIT;
-	} else if (priv->base_addr == PHY_21_BASE) {
+	} else if (priv->usb_phy2_pll_base_addr[0] == PHY_21_BASE) {
 		*(volatile unsigned int *)(unsigned long)priv->reset_addr = (1 << 5);
 
 		udelay(500);

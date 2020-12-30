@@ -27,9 +27,15 @@ struct xhci_crg_platdata {
 unsigned int usb2portnum;
 #endif
 
-void crg_set_mode(u32 mode)
+void crg_set_mode(struct xhci_hccr *hccr, u32 mode)
 {
-	//to do
+	u64 tmp;
+
+	if (mode == USB_DR_MODE_HOST) {
+		/* set controller host role*/
+		tmp = readl(hccr + 0x20FC) & ~0x1;
+		writel(tmp, hccr + 0x20FC);
+	}
 }
 
 
@@ -153,7 +159,7 @@ static int xhci_crg_probe(struct udevice *dev)
 		/* by default set dual role mode to HOST */
 		dr_mode = USB_DR_MODE_HOST;
 
-	crg_set_mode(dr_mode);
+	crg_set_mode(hccr, dr_mode);
 
 	return xhci_register(dev, hccr, hcor);
 }
