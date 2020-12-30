@@ -26,6 +26,8 @@ source "drivers/spi/Kconfig"
 
 source "drivers/gpio/Kconfig"
 
+source "drivers/led/Kconfig"
+
 source "drivers/power/Kconfig"
 
 source "drivers/hwmon/Kconfig"

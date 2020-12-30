@@ -353,6 +353,7 @@ obj-$(CONFIG_AML_DOLBY) += cmd_dolbyvision.o
 obj-$(CONFIG_AML_CVBS) += cmd_cvbs.o
 obj-$(CONFIG_AML_VOUT) += cmd_vout.o
 obj-$(CONFIG_AML_LCD) += cmd_lcd.o
+obj-$(CONFIG_MESON_LEDS_STATE_CONTROL) += cmd_leds_state.o
 obj-$(CONFIG_CMD_RSVMEM) += cmd_rsvmem.o
 obj-$(CONFIG_CMD_CHIPID) += cmd_chipid.o
 obj-$(CONFIG_CMD_WATCHDOG) += cmd_watchdog.o
