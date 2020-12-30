@@ -716,22 +716,27 @@ static unsigned int lcd_enc_tst[][7] = {
 void aml_lcd_debug_test(unsigned int num)
 {
 	struct lcd_drv_s *lcd_drv = lcd_get_driver();
-	unsigned int start, width;
+	unsigned int start, width, offset;
+
+	if (lcd_drv->chip_type == LCD_CHIP_T7)
+		offset = (0x800 << 2);
+	else
+		offset = 0;
 
 	start = lcd_drv->lcd_config->lcd_timing.video_on_pixel;
 	width = lcd_drv->lcd_config->lcd_basic.h_active / 9;
 	num = (num >= TV_LCD_ENC_TST_NUM_MAX) ? 0 : num;
 
 	lcd_wait_vsync();
-	lcd_vcbus_write(ENCL_VIDEO_RGBIN_CTRL, lcd_enc_tst[num][6]);
-	lcd_vcbus_write(ENCL_TST_MDSEL, lcd_enc_tst[num][0]);
-	lcd_vcbus_write(ENCL_TST_Y, lcd_enc_tst[num][1]);
-	lcd_vcbus_write(ENCL_TST_CB, lcd_enc_tst[num][2]);
-	lcd_vcbus_write(ENCL_TST_CR, lcd_enc_tst[num][3]);
-	lcd_vcbus_write(ENCL_TST_CLRBAR_STRT, start);
-	lcd_vcbus_write(ENCL_TST_CLRBAR_WIDTH, width);
-	lcd_vcbus_write(ENCL_TST_EN, lcd_enc_tst[num][4]);
-	lcd_vcbus_setb(ENCL_VIDEO_MODE_ADV, lcd_enc_tst[num][5], 3, 1);
+	lcd_vcbus_write(ENCL_VIDEO_RGBIN_CTRL + offset, lcd_enc_tst[num][6]);
+	lcd_vcbus_write(ENCL_TST_MDSEL + offset, lcd_enc_tst[num][0]);
+	lcd_vcbus_write(ENCL_TST_Y + offset, lcd_enc_tst[num][1]);
+	lcd_vcbus_write(ENCL_TST_CB + offset, lcd_enc_tst[num][2]);
+	lcd_vcbus_write(ENCL_TST_CR + offset, lcd_enc_tst[num][3]);
+	lcd_vcbus_write(ENCL_TST_CLRBAR_STRT + offset, start);
+	lcd_vcbus_write(ENCL_TST_CLRBAR_WIDTH + offset, width);
+	lcd_vcbus_write(ENCL_TST_EN + offset, lcd_enc_tst[num][4]);
+	lcd_vcbus_setb(ENCL_VIDEO_MODE_ADV + offset, lcd_enc_tst[num][5], 3, 1);
 	if (num > 0) {
 		LCDPR("show test pattern: %s\n", lcd_enc_tst_str[num]);
 	} else {

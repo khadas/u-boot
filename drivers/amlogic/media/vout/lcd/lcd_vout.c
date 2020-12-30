@@ -775,6 +775,9 @@ void lcd_wait_vsync(void)
 	int line_cnt, line_cnt_previous;
 	int i = 0;
 
+	if (lcd_driver.chip_type == LCD_CHIP_T7)
+		return;
+
 	line_cnt = 0x1fff;
 	line_cnt_previous = lcd_vcbus_getb(ENCL_INFO_READ, 16, 13);
 	while (i++ < LCD_WAIT_VSYNC_TIMEOUT) {
@@ -816,6 +819,13 @@ static void lcd_enable(char *mode, unsigned int frac)
 {
 	if (lcd_check_valid())
 		return;
+
+	if (lcd_driver.chip_type == LCD_CHIP_T7) {
+		lcd_display_init_test();
+		lcd_driver.lcd_status |= LCD_STATUS_ENCL_ON;
+		lcd_driver.lcd_status |= LCD_STATUS_IF_ON;
+		return;
+	}
 	if (lcd_driver.lcd_status & LCD_STATUS_IF_ON)
 		LCDPR("already enabled\n");
 	else
@@ -878,6 +888,10 @@ static void aml_lcd_get_ss(void)
 
 static void lcd_test(int num)
 {
+	if (num >= 10) {
+		lcd_display_init_test();
+		return;
+	}
 	if (lcd_check_valid())
 		return;
 	if (lcd_driver.lcd_status)

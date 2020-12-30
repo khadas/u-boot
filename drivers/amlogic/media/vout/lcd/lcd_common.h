@@ -34,6 +34,7 @@
 
 extern void mdelay(unsigned long n);
 extern unsigned int lcd_debug_test;
+void lcd_display_init_test(void);
 
 /* lcd common */
 extern int lcd_type_str_to_type(const char *str);

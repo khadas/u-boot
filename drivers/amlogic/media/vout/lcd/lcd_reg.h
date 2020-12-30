@@ -125,7 +125,7 @@
 #define ENCT_GATE_VCLK           1
 #define ENCI_GATE_VCLK           0
 
-#define LCD_REG_DEBUG		1
+//#define LCD_REG_DEBUG		1
 
 /* ********************************
  * register access api
