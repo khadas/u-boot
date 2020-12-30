@@ -43,6 +43,37 @@
 #define CONFIG_DDR0_32BIT_RANK01_CH0		0x7
 #define CONFIG_DDR0_32BIT_RANK0_CH01		0x8
 
+//CONFIG_CH0_CS0_BYTE_01_SIZE_256 0 mean disable ,1 mean 256M 2 mean 512M 3 mean 768M,...0xf mean auto size det
+#define CONFIG_CH0_CS0_BYTE_01_SIZE_256_ID_OFFSET                 0
+#define CONFIG_CH0_CS0_BYTE_23_SIZE_256_ID_OFFSET                 4
+#define CONFIG_CH0_CS1_BYTE_01_SIZE_256_ID_OFFSET                 8
+#define CONFIG_CH0_CS1_BYTE_23_SIZE_256_ID_OFFSET                 12
+#define CONFIG_CH1_CS0_BYTE_01_SIZE_256_ID_OFFSET                 16
+#define CONFIG_CH1_CS0_BYTE_23_SIZE_256_ID_OFFSET                 20
+#define CONFIG_CH1_CS1_BYTE_01_SIZE_256_ID_OFFSET                 24
+#define CONFIG_CH1_CS1_BYTE_23_SIZE_256_ID_OFFSET                 28
+#define CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET                     0
+#define CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET                     4
+#define CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET                     8
+#define CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET                     12
+
+#define DRAM_SIZE_ID_256MBX0                                      0
+#define DRAM_SIZE_ID_256MBX1                                      1
+#define DRAM_SIZE_ID_256MBX2                                      2
+#define DRAM_SIZE_ID_256MBX3                                      3
+#define DRAM_SIZE_ID_256MBX4                                      4
+#define DRAM_SIZE_ID_256MBX5                                      5
+#define DRAM_SIZE_ID_256MBX6                                      6
+#define DRAM_SIZE_ID_256MBX7                                      7
+#define DRAM_SIZE_ID_256MBX8                                      8
+#define DRAM_SIZE_ID_256MBX9                                      9
+#define DRAM_SIZE_ID_256MBX10                                     10
+#define DRAM_SIZE_ID_256MBX11                                     11
+#define DRAM_SIZE_ID_256MBX12                                     12
+#define DRAM_SIZE_ID_256MBX13                                     13
+#define DRAM_SIZE_ID_256MBX14                                     14
+#define DRAM_SIZE_ID_256MBXAUTO                                   15
+
 #define CFG_DDR_BASE_ADDR					0X0
 #define CFG_DDR_START_OFFSET				0X00000000 //TXLX SKIP 0MB
 

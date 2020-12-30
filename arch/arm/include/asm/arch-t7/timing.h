@@ -207,17 +207,22 @@ typedef struct ddr_set{
 	//#define CONFIG_DDR_TYPE_LPDDR4				2
 	//#define CONFIG_DDR_TYPE_LPDDR3				3
 	//#define CONFIG_DDR_TYPE_LPDDR2				4
-	unsigned	char	DisabledDbyte;
+	//#define CONFIG_DDR_TYPE_LPDDR4x				5
+	unsigned char DisabledDbyte[2];              //ch0 and ch1
 	//use for dram bus 16bit or 32bit,if use 16bit mode ,should disable bit 2,3
-	//bit 0 ---use byte 0 ,1 disable byte 0,
-	//bit 1 ---use byte 1 ,1 disable byte 1,
-	//bit 2 ---use byte 2 ,1 disable byte 2,
-	//bit 3 ---use byte 3 ,1 disable byte 3,
-	unsigned	char	Is2Ttiming;
+	//bit 0 ---cs0 use byte 0 ,1 disable byte 0,
+	//bit 1 ---cs0 use byte 1 ,1 disable byte 1,
+	//bit 2 ---cs0 use byte 2 ,1 disable byte 2,
+	//bit 3 ---cs0 use byte 3 ,1 disable byte 3,
+	//bit 4 ---cs1 use byte 0 ,1 disable byte 0,
+	//bit 5 ---cs1 use byte 1 ,1 disable byte 1,
+	//bit 6 ---cs1 use byte 2 ,1 disable byte 2,
+	//bit 7 ---cs1 use byte 3 ,1 disable byte 3,
+	unsigned char	Is2Ttiming;
 	//ddr3/ddr3 use 2t timing,now only support 2t timming
-	unsigned	char	HdtCtrl;
+	unsigned char	HdtCtrl;
 	//training information control,do not modify
-	unsigned	char	dram_rank_config;
+	unsigned char	dram_rank_config;
 	//support Dram connection type should confirm with amlogic
 	//#define CONFIG_DDR0_16BIT_CH0				0x1  //dram total bus width 16bit only use cs0
 	//#define CONFIG_DDR0_16BIT_RANK01_CH0		0x4  //dram total bus width 16bit  use cs0 cs1
@@ -229,45 +234,45 @@ typedef struct ddr_set{
 	//#define CONFIG_DDR0_32BIT_RANK0_CH01		0x8     //only for lpddr4,dram total bus width 32bit  use chanel a cs0  chanel b cs0
 
 	/* rsv_char0. update for diagnose type define */
-	unsigned	char	diagnose;
+	//unsigned	char	diagnose;
 
-	unsigned	short	soc_data_drv_ohm_ps1;
-	unsigned	short	dram_data_drv_ohm_ps1;
-	unsigned	short	soc_data_odt_ohm_ps1;
-	unsigned	short	dram_data_odt_ohm_ps1;
-	unsigned	short	dram_data_wr_odt_ohm_ps1;
-	#if 0
+	unsigned short	soc_data_drv_ohm_ps1;
+	unsigned short	dram_data_drv_ohm_ps1;
+	unsigned short	soc_data_odt_ohm_ps1;
+	unsigned short	dram_data_odt_ohm_ps1;
+	unsigned short	dram_data_wr_odt_ohm_ps1;
+#if 0
 	/* imem/dmem define */
-	unsigned	int		imem_load_addr;
+	unsigned int	imem_load_addr;
 	//system reserve,do not modify
-	unsigned	int		dmem_load_addr;
+	unsigned int	dmem_load_addr;
 	//system reserve,do not modify
-	unsigned	short	imem_load_size;
-	#endif
+	unsigned short	imem_load_size;
+#endif
 	//system reserve,do not modify
-	unsigned	short	dmem_load_size;
+	unsigned short	soc_data_drv_ohm_ffe;            //dmem_load_size;
 	//system reserve,do not modify
-	unsigned	int		ddr_base_addr;
+	unsigned int	ddr_base_addr;
 	//system reserve,do not modify
-	unsigned	int		ddr_start_offset;
+	unsigned int	ddr_start_offset;
 	//system reserve,do not modify
 
-	unsigned	short	dram_cs0_size_MB;
+	unsigned short	dram_ch0_size_MB;
 	//config cs0 dram size ,like 1G DRAM ,setting 1024
-	unsigned	short	dram_cs1_size_MB;
+	unsigned short	dram_ch1_size_MB;
 	//config cs1 dram size,like 512M DRAM ,setting 512
 	/* align8 */
 
-	unsigned	short	training_SequenceCtrl[2];
+	unsigned short	training_SequenceCtrl[2];
 	//system reserve,do not modify
-	unsigned	char	phy_odt_config_rank[2];
+	unsigned char	phy_odt_config_rank[2];
 	//unsigned	char	 rever1;
 	//unsigned	char	 rever2;
-	unsigned	short	rank1_ca_vref_permil;
+	unsigned short	rank1_ca_vref_permil;
 	//training odt config ,only use for training
 	// [0]Odt pattern for accesses targeting rank 0. [3:0] is used for write ODT [7:4] is used for read ODT
 	// [1]Odt pattern for accesses targeting rank 1. [3:0] is used for write ODT [7:4] is used for read ODT
-	unsigned	int		dfi_odt_config;
+	unsigned int	dfi_odt_config;
 	//normal go status od config,use for normal status
 	//bit 12.  rank1 ODT default. default vulue for ODT[1] pins if theres no read/write activity.
 	//bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
@@ -279,9 +284,9 @@ typedef struct ddr_set{
 	//bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
 	//bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
 	//bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occure in rank1.
-	unsigned	short	DRAMFreq[4];
+	unsigned short	DRAMFreq[4];
 	//config dram frequency,use DRAMFreq[0],ohter reserve
-	unsigned	char	PllBypassEn;
+	unsigned char	PllBypassEn;
 	//system reserve,do not modify
 	unsigned	char	ddr_rdbi_wr_enable;
 	//system reserve,do not modify
