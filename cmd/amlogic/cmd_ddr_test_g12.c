@@ -59,6 +59,7 @@ typedef struct  ddr_base_address_table ddr_base_address_table_t;
 #define MESON_CPU_MAJOR_ID_C2           0x33
 #define MESON_CPU_MAJOR_ID_T5           0x34
 #define MESON_CPU_MAJOR_ID_T5D          0x35
+#define MESON_CPU_MAJOR_ID_T7			0x36
 
 #define MESON_CPU_VERSION_LVL_MAJOR     0
 #define MESON_CPU_VERSION_LVL_MINOR     1
@@ -294,6 +295,23 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xff638400),
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xff638400),
 		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xff638400), // DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
+	},
+	//T7
+	{
+		.soc_family_name = "T7",
+		.chip_id = MESON_CPU_MAJOR_ID_T7,
+		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800), //
+		.ddr_phy_base_address = 0xfc000000,
+		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),
+		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),
+		.ddr_dmc_sticky0 = ((0x200 << 2) + 0xfe036000),
+		.sys_watchdog_base_address = ((0x3c34 << 2) + 0xffd00000),      //sc2 can not find
+		.ddr_pll_base_address = ((0x0000 << 2) + 0xfe036c00),
+		.ee_timer_base_address = ((0x003b << 2) + 0xfe010000),                  //sc2 can not find
+		.ee_pwm_base_address = ((0x0001 << 2) + 0xfe05e000),            //PWMGH_PWM_B
+		.ddr_dmc_apd_address = ((0x018c << 2) + 0xfe036000),
+		.ddr_dmc_asr_address = ((0x018d << 2) + 0xfe036000),
+		.ddr_boot_reason_address = 0xfe036800, //sc2 can not find,SYSCTRL_STICKY_REG0
 	},
 	// force id use id mask
 	{
@@ -5369,7 +5387,8 @@ int get_ddr_clk(void)
 	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_SM1)
 	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_TM2)
 	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C1)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_SC2)) {
+	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_SC2)
+		|| (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)) {
 		ddr_pll = rd_reg(p_ddr_base->ddr_pll_base_address);
 		ddr_pll = ddr_pll & 0xfffff;
 		ddr_clk = pll_convert_to_ddr_clk_g12a(ddr_pll);
@@ -7253,7 +7272,32 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 		if (enable_ddr_fast_boot == 2)
 		ddr_set_t_p->fast_boot[0] = 0;
 	}
+	if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) {
+		ddr_set_add = (uint32_t)(uint64_t)(ddr_set_t_p);
+		ddr_set_size = sizeof(ddr_set_t);
+		out_sha2 = (char *)ddr_sha.sha2;
+		dwc_ddrphy_apb_wr(0xd0000, 0x0);
+		do_read_ddr_training_data(1, ddr_set_t_p);
+		char dmc_test_worst_window_rx = 0;
+		char dmc_test_worst_window_tx = 0;
 
+		{
+			dwc_ddrphy_apb_wr((0 << 20) | (0xd << 16) | (0 << 12) | (0x0), 0); // DWC_DDRPHYA_APBONLY0_MicroContMuxSel
+
+			dmc_test_worst_window_tx = dwc_ddrphy_apb_rd((0 << 20) | (1 << 16) | (0 << 12) | (0x0c2));
+			dmc_test_worst_window_rx = dwc_ddrphy_apb_rd((0 << 20) | (1 << 16) | (0 << 12) | (0x0c3));
+			if (dmc_test_worst_window_tx > 30)
+				dmc_test_worst_window_tx = 30;
+			if (dmc_test_worst_window_rx > 30)
+				dmc_test_worst_window_rx = 30;
+			ddr_set_t_p->fast_boot[1] = (((dmc_test_worst_window_tx / 2) << 4)) | (((dmc_test_worst_window_rx / 2)));
+		}
+		if (enable_ddr_fast_boot == 1)
+		ddr_set_t_p->fast_boot[0] = 0xff;
+
+		if (enable_ddr_fast_boot == 2)
+		ddr_set_t_p->fast_boot[0] = 0;
+	}
 
 	write_size = ((ddr_set_size + SHA256_SUM_LEN + MESON_CPU_CHIP_ID_SIZE + 511) / 512) * 512;
 
@@ -8685,7 +8729,7 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	}
 	dcache_disable();
 	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_A1) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C1) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2)
-	|| (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_SC2)
+	|| (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_SC2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)
 	//|| (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D)
 	) {
 		printf("reset...\n");
