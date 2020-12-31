@@ -25,6 +25,7 @@
 	#define SARADC_REG11_VREF_EN			BIT(5)
 	#define SARADC_REG11_CMV_SEL			BIT(6)
 	#define SARADC_REG11_BANDGAP_EN			BIT(13)
+	#define SARADC_REG11_TEMP_SEL			BIT(21)
 
 #define SARADC_REG13					0x34
 	#define SARADC_REG13_CALIB_FACTOR_MASK		GENMASK(13, 8)
@@ -43,6 +44,9 @@ static void meson_g12a_extra_init(struct meson_saradc *priv)
 			(priv->data->reg11_eoc ?
 				SARADC_REG11_EOC : 0) |
 			SARADC_REG11_BANDGAP_EN);
+
+	/* select channel 6 input from temp sensor to external input */
+	clrsetbits_le32(priv->base + SARADC_REG11, SARADC_REG11_TEMP_SEL, 0);
 }
 
 static void meson_g12a_set_ref_voltage(struct meson_saradc *priv,
