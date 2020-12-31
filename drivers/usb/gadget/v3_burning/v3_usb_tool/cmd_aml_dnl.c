@@ -48,6 +48,7 @@ static void usb_parameter_init(int time_out)
 }
 
 #ifdef  CONFIG_USB_GADGET_CRG
+#define ADNL_PHY_NUM 1
 extern int phy_num;
 #endif
 
@@ -58,24 +59,10 @@ static int do_aml_DNL(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	unsigned pcToolWaitTime	= (3 <= argc) ? simple_strtoul(argv[2], NULL, 0) : 0;
 
 #ifdef  CONFIG_USB_GADGET_CRG
-	int controller_index;
-	char *usb_controller;
-	char *endp;
-
-	if (argc < 2)
-		return CMD_RET_USAGE;
-
-	usb_controller = argv[1];
-	controller_index = simple_strtoul(usb_controller, &endp, 0);
-	if (*endp != '\0') {
-		pr_err("Error: Wrong USB controller index format\n");
-		return CMD_RET_FAILURE;
-	}
-
-	phy_num = 1;
+		phy_num = ADNL_PHY_NUM;
 #endif
 
-	usb_parameter_init(1);
+	usb_parameter_init(timeout);
 
 	ret = aml_dnl_register("usb_dnl_amlogic");
 	if (ret)

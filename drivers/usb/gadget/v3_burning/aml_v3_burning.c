@@ -85,7 +85,7 @@ int aml_v3_factory_usb_burning(int flag, bd_t* bis)
 #endif
     //pull down and sleep in bl2-->tpl,
     //to improve pc compatibility
-    f_dwc_otg_pullup(0);
+    /*f_dwc_otg_pullup(0);*/
     udelay(2*1000*1000);
 
     v3tool_work_mode_set(V3TOOL_WORK_MODE_USB_PRODUCE);
