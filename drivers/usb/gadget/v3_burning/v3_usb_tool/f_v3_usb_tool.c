@@ -931,8 +931,10 @@ static void rx_handler_mwrite(struct usb_ep *ep, struct usb_request *req)
     }else if (_mwriteInfo.transferredBytes >= _mwriteInfo.totalBytes) {
         fastboot_okay(NULL);
         response_str[4] = 0;
+#ifndef  CONFIG_USB_GADGET_CRG
         //forward to hold on long-time wait and not need use driver api directly
         fastboot_tx_write_str(response_str);//response_str will update following
+#endif//#ifndef  CONFIG_USB_GADGET_CRG
         if (MWRITE_DATA_CHECK_ALG_ADDSUM == _mwriteInfo.dataCheckAlg) {
             const unsigned dataLen = _mwriteInfo.totalBytes;
             const unsigned gensum = add_sum(dataBuf, dataLen);

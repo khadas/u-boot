@@ -72,10 +72,10 @@ static int do_aml_DNL(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		return CMD_RET_FAILURE;
 	}
 
-	phy_num = controller_index;
+	phy_num = 1;
 #endif
 
-	usb_parameter_init(timeout);
+	usb_parameter_init(1);
 
 	ret = aml_dnl_register("usb_dnl_amlogic");
 	if (ret)
