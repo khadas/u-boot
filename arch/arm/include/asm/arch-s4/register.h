@@ -9545,6 +9545,30 @@
 #define OTP_REE_CFG                                ((0x0042  << 2) + 0xfe440000)
 #define OTP_MRK_CHKNUM                             ((0x0043  << 2) + 0xfe440000)
 #define OTP_REE_RD_DAT                             ((0x0048  << 2) + 0xfe440000)
+
+
+#define OTP_LIC00                                  (OTP_LIC + 0x00)
+#define OTP_LIC01                                  (OTP_LIC + 0x04)
+#define OTP_LIC02                                  (OTP_LIC + 0x08)
+#define OTP_LIC03                                  (OTP_LIC + 0x0C)
+
+#define OTP_LIC10                                  (OTP_LIC + 0x10)
+#define OTP_LIC11                                  (OTP_LIC + 0x14)
+#define OTP_LIC12                                  (OTP_LIC + 0x18)
+#define OTP_LIC13                                  (OTP_LIC + 0x1C)
+
+#define OTP_LIC20                                  (OTP_LIC + 0x20)
+#define OTP_LIC21                                  (OTP_LIC + 0x24)
+#define OTP_LIC22                                  (OTP_LIC + 0x28)
+#define OTP_LIC23                                  (OTP_LIC + 0x2C)
+
+#define OTP_LIC30                                  (OTP_LIC + 0x30)
+#define OTP_LIC31                                  (OTP_LIC + 0x34)
+#define OTP_LIC32                                  (OTP_LIC + 0x38)
+#define OTP_LIC33                                  (OTP_LIC + 0x3C)
+
+#define OTP_LIC0                                   (OTP_LIC00)
+
 //========================================================================
 // KL REG - Registers
 //========================================================================
