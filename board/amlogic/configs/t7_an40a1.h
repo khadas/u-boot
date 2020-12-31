@@ -99,11 +99,14 @@
         "sdcburncfg=aml_sdc_burn.ini\0"\
         "EnableSelinux=enforcing\0" \
         "recovery_part=recovery\0"\
+        "lock=10101000\0"\
         "recovery_offset=0\0"\
         "cvbs_drv=0\0"\
         "osd_reverse=0\0"\
         "video_reverse=0\0"\
+        "active_slot=normal\0"\
         "boot_part=boot\0"\
+        "vendor_boot_part=vendor_boot\0"\
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
         "get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
@@ -144,7 +147,7 @@
                     "run recovery_from_flash;"\
             "else if test ${reboot_mode} = cold_boot; then "\
             "else if test ${reboot_mode} = fastboot; then "\
-                "fastboot;"\
+                "fastboot 1;"\
             "fi;fi;fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
@@ -154,6 +157,24 @@
                 "store read ${loadaddr} ${boot_part} 0 0x400000;"\
                 "bootm ${loadaddr};"\
             "else if test ${os_type} = kernel; then "\
+                "get_system_as_root_mode;"\
+                "echo system_mode in storeboot: ${system_mode};"\
+                "get_valid_slot;"\
+                "get_avb_mode;"\
+                "echo active_slot in storeboot: ${active_slot};"\
+                "if test ${system_mode} = 1; then "\
+                    "setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
+                "else "\
+                    "if test ${vendor_boot_mode} = true; then "\
+                        "echo come to vendor_boot true;"\
+                        "setenv bootargs ${bootargs} androidboot.force_normal_boot=1;"\
+                    "else "\
+                        "setenv bootargs ${bootargs} ${fs_type};"\
+                    "fi;"\
+                "fi;"\
+                "if test ${active_slot} != normal; then "\
+                    "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
+                "fi;"\
                 "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
                 "setenv loadaddr ${loadaddr_kernel};"\
                 "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
@@ -183,12 +204,30 @@
             "if mmcinfo; then run recovery_from_fat_dev; fi;"\
             "\0"\
         "recovery_from_flash="\
+            "get_valid_slot;"\
+            "echo active_slot: ${active_slot};"\
             "setenv loadaddr ${loadaddr_kernel};"\
-            "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
-            "if imgread dtb recovery ${dtb_mem_addr}; then "\
-                "else echo restore dtb; run common_dtb_load;"\
+            "if test ${active_slot} = normal; then "\
+                "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
+                "if imgread dtb recovery ${dtb_mem_addr}; then "\
+                    "else echo restore dtb; run common_dtb_load;"\
+                "fi;"\
+                "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
+            "else "\
+                "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
+                "if test ${partiton_mode} = normal; then "\
+                    "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
+                    "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
+                "else "\
+                    "if test ${vendor_boot_mode} = true; then "\
+                        "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
+                        "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
+                    "else "\
+                        "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
+                        "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
+                    "fi;"\
+                "fi;"\
             "fi;"\
-            "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
             "\0"\
         "bcb_cmd="\
             "get_valid_slot;"\

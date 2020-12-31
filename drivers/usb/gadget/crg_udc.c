@@ -1848,6 +1848,16 @@ crg_udc_ep_queue(struct usb_ep *_ep, struct usb_request *_req, gfp_t gfp_flags)
 	return status;
 }
 
+static int
+crg_udc_ep_dequeue(struct usb_ep *_ep, struct usb_request *_req)
+{
+	if (!_ep || !_req) {
+		printf("bad argument\n");
+		return -EINVAL;
+	}
+	return 0;
+}
+
 static int crg_udc_ep_set_halt(struct usb_ep *_ep, int value)
 {
 	struct crg_udc_ep *udc_ep_ptr;
@@ -1871,6 +1881,7 @@ static struct usb_ep_ops crg_udc_ep_ops = {
 	.alloc_request = crg_udc_alloc_request,
 	.free_request = crg_udc_free_request,
 	.queue = crg_udc_ep_queue,
+	.dequeue = crg_udc_ep_dequeue,
 	.set_halt = crg_udc_ep_set_halt,
 };
 
