@@ -75,7 +75,7 @@ int spi_flash_fit_storage(struct spi_flash *flash)
 	spi_nor->info.write_unit = flash->page_size;
 	spi_nor->info.erase_unit = flash->erase_size;
 	spi_nor->info.caps = flash->size;
-	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2)
+	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) || (cpu_id.family_id == MESON_CPU_MAJOR_ID_T7))
 		spi_nor->info.mode = 1;
 	else
 		spi_nor->info.mode = 0;

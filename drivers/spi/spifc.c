@@ -274,32 +274,10 @@ static int spifc_user_cmd_din(struct spifc_priv *priv,
 
 static int spifc_claim_bus(struct udevice *dev)
 {
-	struct udevice *bus = dev->parent;
-	struct spifc_priv *priv = dev_get_priv(bus);
-	int ret;
-
-	ret = pinctrl_select_state(bus, "default");
-	if (ret) {
-		pr_err("%s %d ret %d\n", __func__, __LINE__, ret);
-		return ret;
-	}
-
-	dm_gpio_free(bus, &priv->cs_gpios);
-	ret = gpio_request_by_name(bus, "cs-gpios",
-				   0, &priv->cs_gpios, 0);
-	if (ret) {
-		pr_err("%s %d request gpio error!\n", __func__, __LINE__);
-		return ret;
-	}
-	if (!dm_gpio_is_valid(&priv->cs_gpios)) {
-		pr_err("%s %d cs pin gpio invalid!\n", __func__, __LINE__);
-		return 1;
-	}
-	ret = dm_gpio_set_dir_flags(&priv->cs_gpios, GPIOD_IS_OUT);
-	if (ret)
-		pr_err("%s %d set dir error!\n", __func__, __LINE__);
-
-	return ret;
+	/* Deleted invalid gpio operations, otherwise it
+	 * will seriously reduce the read and write speed
+	 */
+	return 0;
 }
 
 static int spifc_release_bus(struct udevice *dev)

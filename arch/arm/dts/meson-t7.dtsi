@@ -584,7 +584,6 @@
 			groups = "nor_d",
 				 "nor_q",
 				 "nor_c",
-				 //"nor_cs",
 				 "nor_hold",
 				 "nor_wp";
 			function = "nor";

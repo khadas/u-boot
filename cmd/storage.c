@@ -140,7 +140,7 @@ int sheader_need(void)
 	const cpu_id_t cpuid = get_cpu_id();
 	const int familyId = cpuid.family_id;
 
-	return (MESON_CPU_MAJOR_ID_SC2 == familyId);
+	return ((MESON_CPU_MAJOR_ID_SC2 == familyId) || (MESON_CPU_MAJOR_ID_T7 == familyId));
 }
 
 unsigned char *ubootdata = NULL;
@@ -367,8 +367,10 @@ static int storage_get_and_parse_ssp(int *need_build) // boot_device:
 		case BOOT_SNOR:
 			if (IS_FEAT_EN_4BL2_SNOR())
 				ssp->boot_bakups = 4;
-			if (IS_FEAT_DIS_NBL2_SNOR())
+			else if (IS_FEAT_DIS_NBL2_SNOR())
 				ssp->boot_bakups = 1;
+			else
+				ssp->boot_bakups = 2; /* Default 2 backup, consistent with rom */
 			break;
 		case BOOT_SNAND:
 			if (IS_FEAT_EN_8BL2_SNAND())
@@ -450,7 +452,7 @@ int store_init(u32 init_flag)
 		return record;
 	}
 
-	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2)
+	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) || (cpu_id.family_id == MESON_CPU_MAJOR_ID_T7))
 		storage_post_init();
 
 	/*2. Enter the probe of the valid device*/
@@ -1219,7 +1221,7 @@ static int _store_boot_write(const char *part_name, u8 cpy, size_t size, void *a
 	else if (medium_type == BOOT_SNOR)
 		tpl_cpynum = CONFIG_NOR_TPL_COPY_NUM;
 
-	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) {
+	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) || (cpu_id.family_id == MESON_CPU_MAJOR_ID_T7)) {
 		bl2_cpynum = ssp->boot_bakups;
 	} else	{
 		bootloader_maxsize = bl2_size + tpl_per_size;
