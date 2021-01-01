@@ -24,6 +24,7 @@
 //#define DEBUG
 //#define debug printf
 //#define printf
+
 //#define XFER_DEBUG
 #ifdef XFER_DEBUG
 #define xdebug(fmt, args...)	printf(fmt, ##args)
@@ -401,6 +402,27 @@ static int get_ep_state(struct crg_gadget_dev *crg_udc, int DCI)
 
 }
 
+
+#define CACHELINE_SIZE		CONFIG_SYS_CACHELINE_SIZE
+
+void crg_flush_cache(uintptr_t addr, u32 len)
+{
+	BUG_ON((void *)addr == NULL || len == 0);
+
+	flush_dcache_range(addr & ~(CACHELINE_SIZE - 1),
+				ALIGN(addr + len, CACHELINE_SIZE));
+}
+
+void crg_inval_cache(uintptr_t addr, u32 len)
+{
+	BUG_ON((void *)addr == NULL || len == 0);
+
+	invalidate_dcache_range(addr & ~(CACHELINE_SIZE - 1),
+				ALIGN(addr + len, CACHELINE_SIZE));
+}
+
+
+
 /************command related ops**************************/
 static int crg_issue_command(struct crg_gadget_dev *crg_udc,
 			enum crg_cmd_type type, u32 param0, u32 param1)
@@ -474,6 +496,7 @@ static void setup_link_trb(struct transfer_trb_s *link_trb,
 		SETF_VAR(TRB_LINK_TOGGLE_CYCLE, dw, 0);
 
 	link_trb->dw3 = cpu_to_le32(dw);
+	crg_flush_cache((uintptr_t)link_trb, sizeof(struct transfer_trb_s));
 }
 
 static dma_addr_t tran_trb_virt_to_dma(struct crg_udc_ep *udc_ep,
@@ -661,6 +684,7 @@ static void crg_udc_epcx_setup(struct crg_udc_ep *udc_ep)
 	dw = upper_32_bits(udc_ep->tran_ring_info.dma);
 	epcx->dw3 = cpu_to_le32(dw);
 
+	crg_flush_cache((uintptr_t)epcx, sizeof(struct ep_cx_s));
 }
 
 
@@ -692,6 +716,8 @@ static void crg_udc_epcx_update_dqptr(struct crg_udc_ep *udc_ep)
 	epcx->dw3 = cpu_to_le32(dw);
 
 	cmd_param0 = (0x1 << udc_ep->DCI);
+
+	crg_flush_cache((uintptr_t)epcx, sizeof(struct ep_cx_s));
 
 	crg_issue_command(crg_udc, CRG_CMD_SET_TR_DQPTR, cmd_param0, 0);
 
@@ -732,6 +758,8 @@ void setup_status_trb(struct crg_gadget_dev *crg_udc,
 	SETF_VAR(STATUS_STAGE_TRB_SET_ADDR, tmp, set_addr);
 
 	p_trb->dw3 = tmp;
+
+	crg_flush_cache((uintptr_t)p_trb, sizeof(struct transfer_trb_s));
 	//debug("trb_dword2 = 0x%x, trb_dword3 = 0x%x\n",
 	//		p_trb->dw2, p_trb->dw3);
 
@@ -786,6 +814,7 @@ void setup_datastage_trb(struct crg_gadget_dev *crg_udc,
 
 	p_trb->dw3 = tmp;
 
+	crg_flush_cache((uintptr_t)p_trb, sizeof(struct transfer_trb_s));
 	debug("trb_dword2 = 0x%x, trb_dword3 = 0x%x\n",
 			p_trb->dw2, p_trb->dw3);
 
@@ -826,6 +855,7 @@ void setup_trb(struct crg_gadget_dev *crg_udc, struct transfer_trb_s *p_trb,
 		SETF_VAR(DATA_STAGE_TRB_DIR, tmp, usb_dir);
 
 	p_trb->dw3 = tmp;
+	crg_flush_cache((uintptr_t)p_trb, sizeof(struct transfer_trb_s));
 	//debug("trb_dword2 = 0x%.8x, trb_dword3 = 0x%.8x\n",
 	//	p_trb->dw2, p_trb->dw3);
 }
@@ -966,7 +996,7 @@ int crg_udc_queue_trbs(struct crg_udc_ep *udc_ep_ptr,
 				SETF_VAR(TRB_CYCLE_BIT,
 					enq_pt->dw3, udc_ep_ptr->pcs);
 				udc_ep_ptr->pcs ^= 0x1;
-
+				crg_flush_cache((uintptr_t)enq_pt, sizeof(struct transfer_trb_s));
 				enq_pt = udc_ep_ptr->first_trb;
 			}
 		}
@@ -1084,7 +1114,7 @@ int crg_udc_queue_ctrl(struct crg_udc_ep *udc_ep_ptr,
 							udc_ep_ptr->pcs);
 						udc_ep_ptr->pcs ^= 0x1;
 					}
-
+					crg_flush_cache((uintptr_t)enq_pt, sizeof(struct transfer_trb_s));
 					enq_pt = udc_ep_ptr->first_trb;
 				}
 			}
@@ -1151,6 +1181,7 @@ void build_ep0_status(struct crg_udc_ep *udc_ep_ptr,
 		if (GETF(TRB_LINK_TOGGLE_CYCLE, enq_pt->dw3)) {
 			SETF_VAR(TRB_CYCLE_BIT, enq_pt->dw3, udc_ep_ptr->pcs);
 			udc_ep_ptr->pcs ^= 0x1;
+			crg_flush_cache((uintptr_t)enq_pt, sizeof(struct transfer_trb_s));
 		}
 		enq_pt = udc_ep_ptr->first_trb;
 	}
@@ -1231,6 +1262,8 @@ void handle_cmpl_code_success(struct crg_gadget_dev *crg_udc,
 					trb_transfer_length;
 		//debug("Actual data xfer = 0x%x, tx_len = 0x%x\n",
 		//	udc_req_ptr->usb_req.actual, trb_transfer_length);
+		if (udc_req_ptr->usb_req.actual != 0)
+			crg_inval_cache(udc_req_ptr->usb_req.buf, udc_req_ptr->usb_req.actual);
 		req_done(udc_ep_ptr, udc_req_ptr, 0);
 
 		if (!udc_ep_ptr->desc) {
@@ -1695,6 +1728,7 @@ static int crg_udc_ep_enable(struct usb_ep *ep,
 			udc_ep->last_trb = udc_ep->first_trb + ring_size - 1;
 		}
 		memset(udc_ep->first_trb, 0, udc_ep->tran_ring_info.len);
+		crg_flush_cache(udc_ep->first_trb, udc_ep->tran_ring_info.len);
 
 		setup_link_trb(udc_ep->last_trb, true,
 					udc_ep->tran_ring_info.dma);
@@ -1787,6 +1821,9 @@ crg_udc_ep_queue(struct usb_ep *_ep, struct usb_request *_req, gfp_t gfp_flags)
 		debug("udc_ep_ptr->Desc is null\n");
 		return -EINVAL;
 	}
+
+	if (udc_req_ptr->usb_req.length != 0)
+		crg_flush_cache(udc_req_ptr->usb_req.buf, udc_req_ptr->usb_req.length);
 
 	/* Clearing the Values of the UDC_REQUEST container */
 	clear_req_container(udc_req_ptr);
@@ -2108,11 +2145,13 @@ static int init_event_ring(struct crg_gadget_dev *crg_udc, int index)
 		upper_32_bits(udc_event->event_ring.dma);
 	udc_event->p_erst->seg_size = cpu_to_le32(CRG_EVENT_RING_SIZE);
 	udc_event->p_erst->rsvd = 0;
+	crg_flush_cache((uintptr_t)udc_event->p_erst, sizeof(struct erst_s));
 
 	/*clear the event ring, to avoid hw unexpected ops
 	 *because of dirty data
 	 */
 	memset(udc_event->event_ring.vaddr, 0, buff_length);
+	crg_flush_cache((uintptr_t)udc_event->event_ring.vaddr, buff_length);
 
 	/*hw related ops ERSTBA && ERSTSZ && ERDP*/
 
@@ -2144,6 +2183,7 @@ static int init_device_context(struct crg_gadget_dev *crg_udc)
 		crg_udc->ep_cx.vaddr =
 			dma_alloc_coherent(buff_length, &mapping);
 		memset(crg_udc->ep_cx.vaddr, 0, buff_length);
+		crg_flush_cache((uintptr_t)crg_udc->ep_cx.vaddr, buff_length);
 	} else {
 		mapping = crg_udc->ep_cx.dma;
 	}
@@ -2182,8 +2222,8 @@ static int reset_data_struct(struct crg_gadget_dev *crg_udc)
 	reg_write(&uccr->config0, tmp);
 	debug("config0[0x%p]=0x%x\n", &uccr->config0, reg_read(&uccr->config0));
 
-	for (i = 0; i < CRG_RING_NUM; i++)
-		init_event_ring(crg_udc, i);
+	//for (i = 0; i < CRG_RING_NUM; i++)
+	init_event_ring(crg_udc, 0);
 
 	init_device_context(crg_udc);
 
@@ -2223,6 +2263,7 @@ static int init_ep0(struct crg_gadget_dev *crg_udc)
 	}
 
 	memset(udc_ep_ptr->first_trb, 0, udc_ep_ptr->tran_ring_info.len);
+	crg_flush_cache((uintptr_t)udc_ep_ptr->first_trb, udc_ep_ptr->tran_ring_info.len);
 	udc_ep_ptr->enq_pt = udc_ep_ptr->first_trb;
 	udc_ep_ptr->deq_pt = udc_ep_ptr->first_trb;
 	udc_ep_ptr->pcs = 1;
@@ -2945,6 +2986,8 @@ int crg_handle_xfer_event(struct crg_gadget_dev *crg_udc,
 			udc_req_ptr->usb_req.actual =
 				udc_req_ptr->usb_req.length -
 				trb_transfer_length;
+			if (udc_req_ptr->usb_req.actual != 0)
+				crg_inval_cache(udc_req_ptr->usb_req.buf, udc_req_ptr->usb_req.actual);
 
 			if (udc_req_ptr->usb_req.actual != 512 &&
 				udc_req_ptr->usb_req.actual != 31) {
@@ -3096,10 +3139,6 @@ queue_more_trbs:
 
 }
 
-#define WR_REG 0x1300097c
-#define VSR12_REG 0x13000934
-#define VSR16_REG 0x13000988
-#define VSR17_REG 0x1300098c
 
 /* workround, use high speed termination to help wakeup asmedia host*/
 unsigned int hs_term_wakeup;
@@ -3135,12 +3174,6 @@ int g_dnl_board_usb_cable_connected(void)
 				u32 tmp_wr;
 
 				debug("%s wr hs term on start\n", __func__);
-
-				tmp_wr = reg_read(WR_REG);
-				tmp_wr &= (~0x3ffffe);
-				tmp_wr |= 0x7ffe;
-				reg_write(WR_REG, tmp_wr);
-				//reg_write(WR_REG, 0x00c07fff);
 				hs_term_wakeup = 0;
 			}
 
@@ -3368,9 +3401,9 @@ int process_event_ring(struct crg_gadget_dev *crg_udc, int index)
 
 	setbits_le32(&uicr->iman, CRG_U3DC_IMAN_INT_PEND);
 
-
 	udc_event = &crg_udc->udc_event[index];
 	while (udc_event->evt_dq_pt) {
+		crg_inval_cache((uintptr_t)udc_event->evt_dq_pt, sizeof(struct event_trb_s));
 		event = (struct event_trb_s *)udc_event->evt_dq_pt;
 
 		if (GETF(EVE_TRB_CYCLE_BIT, event->dw3) !=
@@ -3394,8 +3427,8 @@ int process_event_ring(struct crg_gadget_dev *crg_udc, int index)
 	}
 
 	/* update dequeue pointer */
-	erdp = event_trb_virt_to_dma(udc_event, udc_event->evt_dq_pt);
-	//erdp = (dma_addr_t)(u64)udc_event->evt_dq_pt;
+	//erdp = event_trb_virt_to_dma(udc_event, udc_event->evt_dq_pt);
+	erdp = (dma_addr_t)(u64)udc_event->evt_dq_pt;
 	tmp =  upper_32_bits(erdp);
 	reg_write(&uicr->erdphi, tmp);
 	tmp = lower_32_bits(erdp);
@@ -3425,8 +3458,8 @@ int crg_gadget_handle_interrupt(struct crg_gadget_dev *crg_udc)
 		reg_write(&uccr->status, CRG_U3DC_STATUS_EINT);
 
 		/*process event rings*/
-		for (i = 0; i < CRG_RING_NUM; i++)
-			process_event_ring(crg_udc, i);
+		//for (i = 0; i < CRG_RING_NUM; i++)
+		process_event_ring(crg_udc, 0);
 
 	}
 
@@ -3462,7 +3495,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *drive)
 	int i;
 	struct crg_gadget_dev *crg_udc;
 
-	dcache_disable();
+	//dcache_disable();
 
 	crg_udc = &crg_udc_dev;
 
@@ -3497,6 +3530,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *drive)
 	crg_udc->gadget.quirk_ep_out_aligned_size = true;
 	crg_udc->connected = 0;
 	crg_udc->dev_addr = 0;
+	memset(crg_udc->udc_event, 0, sizeof(struct crg_udc_event));
 
 	crg_udc_reset(crg_udc);
 
