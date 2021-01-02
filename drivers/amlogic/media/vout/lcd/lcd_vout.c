@@ -821,6 +821,7 @@ static void lcd_enable(char *mode, unsigned int frac)
 		return;
 
 	if (lcd_driver.chip_type == LCD_CHIP_T7) {
+		writel(0x6, VPU_VIU_VENC_MUX_CTRL);
 		lcd_display_init_test();
 		lcd_driver.lcd_status |= LCD_STATUS_ENCL_ON;
 		lcd_driver.lcd_status |= LCD_STATUS_IF_ON;
