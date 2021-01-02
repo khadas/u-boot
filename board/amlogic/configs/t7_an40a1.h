@@ -76,9 +76,9 @@
         "loadaddr=0x00020000\0"\
         "os_ident_addr=0x00500000\0"\
         "loadaddr_rtos=0x00001000\0"\
-        "loadaddr_kernel=0x03080000\0"\
+        "loadaddr_kernel=0x01080000\0"\
         "otg_device=1\0" \
-	"panel_type=lvds_1\0" \
+        "panel_type=lvds_1\0" \
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
@@ -97,7 +97,7 @@
         "usb_burning=adnl 1000\0" \
         "fdt_high=0x20000000\0"\
         "sdcburncfg=aml_sdc_burn.ini\0"\
-        "EnableSelinux=enforcing\0" \
+        "EnableSelinux=permissive\0" \
         "recovery_part=recovery\0"\
         "lock=10101000\0"\
         "recovery_offset=0\0"\
@@ -113,29 +113,28 @@
         "fatload_dev=usb\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-            "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xfe002000"\
+            "init=/init console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe078000 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
             "echo recovery_status=${recovery_status};"\
             "if itest.s \"${recovery_status}\" == \"in_progress\"; then "\
-                "run storeargs; run recovery_from_flash;"\
+                "run init_display;run storeargs; run recovery_from_flash;"\
             "else fi;"\
             "echo upgrade_step=${upgrade_step}; "\
-            "if itest ${upgrade_step} == 3; then run storeargs; run update; fi;"\
+            "if itest ${upgrade_step} == 3; then run init_display;run storeargs; run update; fi;"\
             "\0"\
         "storeargs="\
-            "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} "\
+            "setenv bootargs ${initargs} otg_device=${otg_device} "\
                 "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} "\
-                "hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
-                "frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} "\
+                "hdmimode=${hdmimode} outputmode=${outputmode}"\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
                 "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
             "setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
-            "run cmdline_keys;"\
             "\0"\
         "switch_bootmode="\
             "get_rebootmode;"\
+            "echo reboot_mode : ${reboot_mode};"\
             "if test ${reboot_mode} = factory_reset; then "\
                     "run recovery_from_flash;"\
             "else if test ${reboot_mode} = update; then "\
@@ -193,6 +192,7 @@
             "if fatload ${fatload_dev} 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;"\
             "if fatload ${fatload_dev} 0 ${loadaddr} recovery.img; then "\
                 "if fatload ${fatload_dev} 0 ${dtb_mem_addr} dtb.img; then echo ${fatload_dev} dtb.img loaded; fi;"\
+                "setenv bootargs ${bootargs} ${fs_type};"\
                 "bootm ${loadaddr};fi;"\
             "\0"\
         "recovery_from_udisk="\
@@ -208,7 +208,7 @@
             "echo active_slot: ${active_slot};"\
             "setenv loadaddr ${loadaddr_kernel};"\
             "if test ${active_slot} = normal; then "\
-                "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
+                "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
                 "if imgread dtb recovery ${dtb_mem_addr}; then "\
                     "else echo restore dtb; run common_dtb_load;"\
                 "fi;"\
@@ -220,7 +220,7 @@
                     "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                 "else "\
                     "if test ${vendor_boot_mode} = true; then "\
-                        "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
+                        "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
                         "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                     "else "\
                         "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
@@ -230,7 +230,15 @@
             "fi;"\
             "\0"\
         "bcb_cmd="\
+            "get_avb_mode;"\
             "get_valid_slot;"\
+            "if test ${vendor_boot_mode} = true; then "\
+                "setenv loadaddr_kernel 0x2080000;"\
+                "setenv dtb_mem_addr 0x1f00000;"\
+            "fi;"\
+            "\0"\
+        "init_display="\
+            "osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode}"\
             "\0"\
         "cmdline_keys="\
             "setenv usid 1234567890; setenv region_code US;"\
@@ -254,15 +262,15 @@
             "fi;"\
             "\0"\
 
-#if 0
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
             "run upgrade_check;"\
+            "run init_display;"\
             "run storeargs;"\
-            "run upgrade_key;"
-#else
-#define CONFIG_PREBOOT  "echo preboot"
-#endif
+            "run upgrade_key;" \
+            "bcb uboot-command;" \
+            "run switch_bootmode;"
+
 /* #define CONFIG_ENV_IS_NOWHERE  1 */
 #define CONFIG_ENV_SIZE   (64*1024)
 #define CONFIG_FIT 1
