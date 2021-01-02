@@ -493,6 +493,7 @@ bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 #define BD71837_REG_BUCK2_VOLT_RUN      0x10
 #define BD71837_REG_BUCK3_VOLT_RUN      0x12
 #define BD71837_REG_REGLOCK     0x2f
+#define BD71837_REG_MUXSW_EN     0x30
 
 /* gpio/pinmux/pwm init */
 register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
@@ -523,6 +524,8 @@ __attribute__ ((section(".misc_param"))) = {
 		(I2C_BUS << 4) | (I2C_AO_A), I2C_DEV_ADDR},
 	/*set vddcpub voltage*/
 	{BD71837_REG_BUCK3_VOLT_RUN, VCCK_VAL_REG, 0x3f, 0,  \
+		(I2C_BUS << 4) | (I2C_AO_A), I2C_DEV_ADDR},
+	{BD71837_REG_MUXSW_EN, 1, 1, 0,  \
 		(I2C_BUS << 4) | (I2C_AO_A), I2C_DEV_ADDR},
 
 	/* make watchdog send reset signal, !!Please dont't copy below to other board
