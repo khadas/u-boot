@@ -48,9 +48,17 @@ static int do_hdr_packet(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 	return CMD_RET_SUCCESS;
 }
 
+static int do_vpp_init(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	vpp_init();
+	return CMD_RET_SUCCESS;
+
+}
+
 static cmd_tbl_t cmd_vpp_sub[] = {
 	U_BOOT_CMD_MKENT(pq, 5, 1, do_vpp_pq, "", ""),
 	U_BOOT_CMD_MKENT(hdrpkt, 1, 1, do_hdr_packet, "", ""),
+	U_BOOT_CMD_MKENT(init, 2, 0, do_vpp_init, "", ""),
 };
 
 static int do_vpp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -74,4 +82,5 @@ static int do_vpp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(vpp, CONFIG_SYS_MAXARGS, 0, do_vpp,
 	"vpp sub-system",
 	"osd+video pq value  brightness/contrast/saturation/hue parameters\n"
+	"vpp init     - init vpp\n"
 );
