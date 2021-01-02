@@ -168,6 +168,7 @@ obj-$(CONFIG_CMD_GPT) += gpt.o
 obj-$(CONFIG_CMD_ETHSW) += ethsw.o
 obj-$(CONFIG_CMD_AXI) += axi.o
 obj-$(CONFIG_CMD_SARADC) += saradc.o
+obj-$(CONFIG_CMD_STARTDSP) += cmd_startdsp.o
 
 # Power
 obj-$(CONFIG_CMD_PMIC) += pmic.o
