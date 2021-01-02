@@ -223,12 +223,149 @@
 #define HHI_TCON_PLL_CNTL4			(0xff63c000 + (0x0df << 2))
 #endif
 
-#ifndef COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0
-#define COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0	(0xfe018000 + (0x0006 << 2))
+#ifndef ANACTRL_TCON_PLL0_CNTL0
+#define ANACTRL_TCON_PLL0_CNTL0			((0x00e0  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_TCON_PLL0_CNTL1
+#define ANACTRL_TCON_PLL0_CNTL1			((0x00e1  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_TCON_PLL0_CNTL2
+#define ANACTRL_TCON_PLL0_CNTL2			((0x00e2  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_TCON_PLL0_CNTL3
+#define ANACTRL_TCON_PLL0_CNTL3			((0x00e3  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_TCON_PLL0_CNTL4
+#define ANACTRL_TCON_PLL0_CNTL4			((0x00e4  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_TCON_PLL0_STS
+#define ANACTRL_TCON_PLL0_STS			((0x00ef  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_TCON_PLL1_STS
+#define ANACTRL_TCON_PLL1_STS			((0x00f0  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_TCON_PLL2_STS
+#define ANACTRL_TCON_PLL2_STS			((0x00f1  << 2) + 0xfe008000)
 #endif
 
+#ifndef COMBO_DPHY_CNTL0
+#define COMBO_DPHY_CNTL0			((0x0000  << 2) + 0xfe018000)
+#endif
+#ifndef COMBO_DPHY_CNTL1
+#define COMBO_DPHY_CNTL1			((0x0001  << 2) + 0xfe018000)
+#endif
+#ifndef COMBO_DPHY_VID_PLL0_DIV
+#define COMBO_DPHY_VID_PLL0_DIV			((0x0002  << 2) + 0xfe018000)
+#endif
+#ifndef COMBO_DPHY_VID_PLL1_DIV
+#define COMBO_DPHY_VID_PLL1_DIV			((0x0003  << 2) + 0xfe018000)
+#endif
+#ifndef COMBO_DPHY_VID_PLL2_DIV
+#define COMBO_DPHY_VID_PLL2_DIV			((0x0004  << 2) + 0xfe018000)
+#endif
+#ifndef COMBO_DPHY_EDP_PIXEL_CLK_DIV
+#define COMBO_DPHY_EDP_PIXEL_CLK_DIV		((0x0005  << 2) + 0xfe018000)
+#endif
+#ifndef COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0
+#define COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0	((0x0006  << 2) + 0xfe018000)
+#endif
 #ifndef COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1
-#define COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1	(0xfe018000 + (0x0009 << 2))
+#define COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1	((0x0009  << 2) + 0xfe018000)
+#endif
+
+#ifndef ANACTRL_DIF_PHY_CNTL1
+#define ANACTRL_DIF_PHY_CNTL1			((0x00c8  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL2
+#define ANACTRL_DIF_PHY_CNTL2			((0x00c9  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL3
+#define ANACTRL_DIF_PHY_CNTL3			((0x00ca  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL4
+#define ANACTRL_DIF_PHY_CNTL4			((0x00cb  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL5
+#define ANACTRL_DIF_PHY_CNTL5			((0x00cc  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL6
+#define ANACTRL_DIF_PHY_CNTL6			((0x00cd  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL7
+#define ANACTRL_DIF_PHY_CNTL7			((0x00ce  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL8
+#define ANACTRL_DIF_PHY_CNTL8			((0x00cf  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL9
+#define ANACTRL_DIF_PHY_CNTL9			((0x00d0  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL10
+#define ANACTRL_DIF_PHY_CNTL10			((0x00d1  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL11
+#define ANACTRL_DIF_PHY_CNTL11			((0x00d2  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL12
+#define ANACTRL_DIF_PHY_CNTL12			((0x00d3  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL13
+#define ANACTRL_DIF_PHY_CNTL13			((0x00d4  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL14
+#define ANACTRL_DIF_PHY_CNTL14			((0x00d5  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL15
+#define ANACTRL_DIF_PHY_CNTL15			((0x00d6  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL16
+#define ANACTRL_DIF_PHY_CNTL16			((0x00d7  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL17
+#define ANACTRL_DIF_PHY_CNTL17			((0x00d8  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL18
+#define ANACTRL_DIF_PHY_CNTL18			((0x00d9  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL19
+#define ANACTRL_DIF_PHY_CNTL19			((0x00da  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL20
+#define ANACTRL_DIF_PHY_CNTL20			((0x00db  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_DIF_PHY_CNTL21
+#define ANACTRL_DIF_PHY_CNTL21			((0x00dc  << 2) + 0xfe008000)
+#endif
+
+#ifndef CLKCTRL_VIID_CLK0_DIV
+#define CLKCTRL_VIID_CLK0_DIV			((0x0033  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_VIID_CLK0_CTRL
+#define CLKCTRL_VIID_CLK0_CTRL			((0x0034  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_VID_CLK0_CTRL2
+#define CLKCTRL_VID_CLK0_CTRL2			((0x0031  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_VIID_CLK1_DIV
+#define CLKCTRL_VIID_CLK1_DIV			((0x0076  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_VIID_CLK1_CTRL
+#define CLKCTRL_VIID_CLK1_CTRL			((0x0077  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_VID_CLK1_CTRL2
+#define CLKCTRL_VID_CLK1_CTRL2			((0x0074  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_VIID_CLK2_DIV
+#define CLKCTRL_VIID_CLK2_DIV			((0x007b  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_VIID_CLK2_CTRL
+#define CLKCTRL_VIID_CLK2_CTRL			((0x007c  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_VID_CLK2_CTRL2
+#define CLKCTRL_VID_CLK2_CTRL2			((0x0079  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_VID_PLL_CLK0_DIV
+#define CLKCTRL_VID_PLL_CLK0_DIV		((0x0039  << 2) + 0xfe000000)
 #endif
 
 #ifndef ENCL_VIDEO_H_PRE_DE_END
@@ -258,6 +395,12 @@
 #endif
 #ifndef VPU_DISP_VIU0_CTRL
 #define VPU_DISP_VIU0_CTRL                         ((0x2786  << 2) + 0xff000000)
+#endif
+#ifndef VPU_DISP_VIU1_CTRL
+#define VPU_DISP_VIU1_CTRL                         ((0x2787  << 2) + 0xff000000)
+#endif
+#ifndef VPU_DISP_VIU2_CTRL
+#define VPU_DISP_VIU2_CTRL                         ((0x2788  << 2) + 0xff000000)
 #endif
 
 #ifndef VBO_INFILTER_CTRL
@@ -337,6 +480,9 @@
 #endif
 #ifndef P2P_CH_SWAP1
 #define P2P_CH_SWAP1                               0x4201
+#endif
+#ifndef P2P_BIT_REV
+#define P2P_BIT_REV                               ((0x1950  << 2) + 0xff000000)
 #endif
 
 #ifndef LVDS_CH_SWAP0

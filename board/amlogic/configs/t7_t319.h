@@ -78,8 +78,10 @@
         "loadaddr_rtos=0x00001000\0"\
         "loadaddr_kernel=0x01080000\0"\
         "otg_device=1\0" \
-        "panel_type=lvds_1\0" \
-        "outputmode=1080p60hz\0" \
+        "panel_type=edp_0\0" \
+        "lcd_debug_para=3\0" \
+        "lcd_ctrl=0x00000000\0" \
+        "outputmode=panel\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \

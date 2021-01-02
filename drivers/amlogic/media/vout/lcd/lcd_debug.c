@@ -718,10 +718,14 @@ void aml_lcd_debug_test(unsigned int num)
 	struct lcd_drv_s *lcd_drv = lcd_get_driver();
 	unsigned int start, width, offset;
 
-	if (lcd_drv->chip_type == LCD_CHIP_T7)
-		offset = (0x800 << 2);
-	else
+	if (lcd_drv->chip_type == LCD_CHIP_T7) {
+		if (lcd_drv->lcd_config->lcd_basic.lcd_type == LCD_LVDS)
+			offset = (0x800 << 2);
+		else
+			offset = 0;
+	} else {
 		offset = 0;
+	}
 
 	start = lcd_drv->lcd_config->lcd_timing.video_on_pixel;
 	width = lcd_drv->lcd_config->lcd_basic.h_active / 9;

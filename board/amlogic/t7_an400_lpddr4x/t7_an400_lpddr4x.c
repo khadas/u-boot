@@ -188,6 +188,8 @@ int board_late_init(void)
 #endif
 #ifdef CONFIG_AML_LCD
 	lcd_probe();
+	run_command("gpio set GPIOY_0", 0);
+	run_command("gpio set GPIOY_14", 0);
 #endif
 	return 0;
 }

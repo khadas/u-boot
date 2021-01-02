@@ -821,7 +821,6 @@ static void lcd_enable(char *mode, unsigned int frac)
 		return;
 
 	if (lcd_driver.chip_type == LCD_CHIP_T7) {
-		writel(0x6, VPU_VIU_VENC_MUX_CTRL);
 		lcd_display_init_test();
 		lcd_driver.lcd_status |= LCD_STATUS_ENCL_ON;
 		lcd_driver.lcd_status |= LCD_STATUS_IF_ON;
@@ -889,8 +888,12 @@ static void aml_lcd_get_ss(void)
 
 static void lcd_test(int num)
 {
-	if (num >= 10) {
+	if (num == 10) {
 		lcd_display_init_test();
+		return;
+	}
+	if (num == 11) {
+		lcd_edp_debug();
 		return;
 	}
 	if (lcd_check_valid())
@@ -917,6 +920,10 @@ static void lcd_info(void)
 
 static void lcd_reg_info(void)
 {
+	if (lcd_driver.chip_type == LCD_CHIP_T7) {
+		lcd_display_init_reg_dump();
+		return;
+	}
 	if (lcd_check_valid())
 		return;
 	lcd_reg_print();

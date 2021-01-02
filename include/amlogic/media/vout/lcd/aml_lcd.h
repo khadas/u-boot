@@ -124,6 +124,8 @@ struct ext_lcd_config_s {
 	unsigned int lcd_spc_val8;
 	unsigned int lcd_spc_val9;
 
+	unsigned char *init_on;
+	unsigned char *init_off;
 	struct lcd_power_step_s *power_on_step;
 	struct lcd_power_step_s *power_off_step;
 
