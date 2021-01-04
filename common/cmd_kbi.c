@@ -53,6 +53,8 @@
 #define REG_PASSWD_CHECK_CUSTOM 0x83
 #define REG_POWER_STATE    0x86
 
+#define TST_STATUS         0x90
+
 #define BOOT_EN_WOL         0
 #define BOOT_EN_RTC         1
 #define BOOT_EN_IR          2
@@ -726,6 +728,26 @@ static int do_kbi_lcd_reset(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 	tca6408_output_set_value(1<<0, 1<<0);
 	return 0;
 }
+
+static int do_kbi_tststatus(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	u8 tst_status = 0;
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	if (strcmp(argv[1], "r") == 0) {
+		tst_status = kbi_i2c_read(TST_STATUS);
+		setenv("tst_status", tst_status & 0x01 ? "1" : "0");
+		printf("tst_status: %d\n", tst_status & 0x01);
+	} else if (strcmp(argv[1], "clear") == 0) {
+		run_command("i2c mw 0x18 0x90 0 1", 0);
+	} else {
+		return CMD_RET_USAGE;
+	}
+
+	return 0;
+}
+
 #endif
 
 
@@ -1132,6 +1154,7 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 #if defined(CONFIG_KHADAS_VIM3) || defined(CONFIG_KHADAS_VIM3L)
 	U_BOOT_CMD_MKENT(portmode, 1, 1, do_kbi_portmode, "", ""),
 	U_BOOT_CMD_MKENT(lcd_reset, 1, 1, do_kbi_lcd_reset, "", ""),
+	U_BOOT_CMD_MKENT(tststatus, 1, 1, do_kbi_tststatus, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(forcereset, 4, 1, do_kbi_forcereset, "", ""),
 	U_BOOT_CMD_MKENT(forcebootsd, 1, 1, do_kbi_forcebootsd, "", ""),
@@ -1206,6 +1229,8 @@ static char kbi_help_text[] =
 #if defined(CONFIG_KHADAS_VIM3) || defined(CONFIG_KHADAS_VIM3L)
 		"kbi portmode w <0|1> - set port as usb3.0 or pcie\n"
 		"kbi portmode r - read current port mode\n"
+		"kbi tststatus r - read TST status\n"
+		"kbi tststatus clear - clear TST status\n"
 		"\n"
 #endif
 		"kbi forcebootsd\n"
