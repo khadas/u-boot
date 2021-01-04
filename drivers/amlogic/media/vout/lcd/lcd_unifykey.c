@@ -180,6 +180,7 @@ lcd_unifykey_read:
 	return 0;
 }
 
+#ifdef CONFIG_AML_LCD_TCON
 static int lcd_unifykey_check_tcon(const char *key_name)
 {
 	ssize_t key_size;
@@ -287,6 +288,7 @@ lcd_unifykey_tcon_err:
 	free(buf);
 	return -1;
 }
+#endif
 
 int lcd_unifykey_get(const char *key_name, unsigned char *buf, int *len)
 {
@@ -317,6 +319,7 @@ int lcd_unifykey_get(const char *key_name, unsigned char *buf, int *len)
 
 int lcd_unifykey_get_tcon(const char *key_name, unsigned char *buf, int *len)
 {
+#ifdef CONFIG_AML_LCD_TCON
 	ssize_t key_size;
 	int key_len;
 	int ret;
@@ -340,6 +343,10 @@ int lcd_unifykey_get_tcon(const char *key_name, unsigned char *buf, int *len)
 		return -1;
 	}
 	return 0;
+#else
+	LCDUKEYERR("Don't support tcon\n");
+	return -1;
+#endif
 }
 
 int lcd_unifykey_check_no_header(const char *key_name)
