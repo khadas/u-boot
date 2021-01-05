@@ -331,6 +331,7 @@ void usb_device_mode_init(int phy_num) {
 	usb_aml_regs_t *usb_aml_regs;
 	unsigned int phy_base_addr, reset_addr;
 
+	phy_aml_usb2_check_rev();
 	if (phy_num == 1) {
 		u2p_aml_regs = (u2p_aml_regs_t * )((unsigned long)(PHY_COMP_BASE + PHY_REGISTER_SIZE));
 		usb_aml_regs = (usb_aml_regs_t * )((ulong)(PHY_COMP_BASE + 0x80));

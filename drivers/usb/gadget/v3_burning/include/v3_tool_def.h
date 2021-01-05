@@ -163,8 +163,12 @@ int v3tool_buffman_data_complete_upload(const UsbUpInf* uploadInf);
 
 //for usb
 #ifndef USE_FULL_SPEED
-#define BULK_EP_MPS	(512)		//full speed
+#define BULK_EP_MPS	(512)
+#ifndef  CONFIG_USB_GADGET_CRG
 #define DWC_BLK_MAX_LEN         (8*BULK_EP_MPS)
+#else
+#define DWC_BLK_MAX_LEN         (2*64*BULK_EP_MPS)//one DMA block is 16K, one burst <=64k
+#endif//#ifndef  CONFIG_USB_GADGET_CRG
 #else
 #define BULK_EP_MPS	(64)		//full speed
 #define DWC_BLK_MAX_LEN         (6*BULK_EP_MPS)

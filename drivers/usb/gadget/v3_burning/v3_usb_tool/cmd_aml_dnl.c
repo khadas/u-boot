@@ -13,12 +13,13 @@
 #include <command.h>
 #include <console.h>
 #include <g_dnl.h>
+#include <asm/io.h>
+#include <asm/arch/register.h>
 
 extern int aml_dnl_register(const char *name);
 extern void aml_dnl_unregister(void);
 #define SOF_WAIT_TIME_MIN	500 //400ms for wait sof, need more than wcp
 
-#ifndef  CONFIG_USB_GADGET_CRG
 extern unsigned int _sofintr_not_occur;
 unsigned int adnl_enum_timeout;
 static unsigned int time_out_val;
@@ -28,11 +29,9 @@ static unsigned int time_out_wait_sof;
 extern unsigned int _sofintr;
 extern unsigned curTime_sof;
 #endif
-#endif
 
 static void usb_parameter_init(int time_out)
 {
-#ifndef  CONFIG_USB_GADGET_CRG
 	adnl_enum_timeout = adnl_identify_timeout = 0;//clear every time
 
 	if (time_out) {
@@ -43,12 +42,10 @@ static void usb_parameter_init(int time_out)
 	time_out_wait_sof   =
 		(SOF_WAIT_TIME_MIN * 2 > time_out_val) ? SOF_WAIT_TIME_MIN : (time_out_val >> 1);
 	_sofintr_not_occur  = 1;
-#endif
 	return;
 }
 
 #ifdef  CONFIG_USB_GADGET_CRG
-#define ADNL_PHY_NUM 1
 extern int phy_num;
 #endif
 
@@ -59,9 +56,9 @@ static int do_aml_DNL(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	unsigned pcToolWaitTime	= (3 <= argc) ? simple_strtoul(argv[2], NULL, 0) : 0;
 
 #ifdef  CONFIG_USB_GADGET_CRG
-		phy_num = ADNL_PHY_NUM;
+	//printf("poc:0x%x\n", readl(SYSCTRL_POC));
+	phy_num = (readl(SYSCTRL_POC)>>1) & 0x1U;
 #endif
-
 	usb_parameter_init(timeout);
 
 	ret = aml_dnl_register("usb_dnl_amlogic");
@@ -70,16 +67,16 @@ static int do_aml_DNL(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 #ifdef  CONFIG_USB_GADGET_CRG
 	if (!g_dnl_board_usb_cable_connected()) {
-			puts("\rUSB cable not detected.\n" \
-				 "Command exit.\n");
-			ret = CMD_RET_FAILURE;
-			return ret;
+		puts("\rUSB cable not detected.\n" \
+				"Command exit.\n");
+		ret = CMD_RET_FAILURE;
+		return ret;
 	}
 #endif
 
 	while (1) {
 		if (ctrlc()) break;
-#ifndef  CONFIG_USB_GADGET_CRG
+
 		if (adnl_enum_timeout) {
 			unsigned curTime	= get_timer(adnl_enum_timeout);
 			if (curTime > time_out_wait_sof && _sofintr_not_occur) {
@@ -108,13 +105,12 @@ static int do_aml_DNL(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			}
 		}
 
-#if (defined CONFIG_USB_DEVICE_V2)
+#if (defined CONFIG_USB_DEVICE_V2) && !defined(CONFIG_USB_GADGET_CRG)
 		if ((get_timer(curTime_sof) > 0x200) && (_sofintr)) {
 			_sofintr = 0;
 			dwc_otg_power_off_phy_fb();
 		}
-#endif
-#endif
+#endif// #if (defined CONFIG_USB_DEVICE_V2) && !defined(CONFIG_USB_GADGET_CRG)
 		usb_gadget_handle_interrupts(0);
 	}
 

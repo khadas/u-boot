@@ -301,10 +301,10 @@ static struct usb_request *fastboot_start_ep(struct usb_ep *ep)
 	memset(req->buf, 0, req->length);
 	return req;
 }
-#ifndef  CONFIG_USB_GADGET_CRG
+
 extern unsigned int adnl_enum_timeout;
 extern unsigned int adnl_identify_timeout;
-#endif
+
 static int fastboot_set_alt(struct usb_function *f,
 			    unsigned interface, unsigned alt)
 {
@@ -351,10 +351,10 @@ static int fastboot_set_alt(struct usb_function *f,
 	ret = usb_ep_queue(f_fb->out_ep, f_fb->out_req, 0);
 	if (ret)
 		goto err;
-#ifndef  CONFIG_USB_GADGET_CRG
+
 	adnl_enum_timeout = 0;
 	adnl_identify_timeout = get_timer(0);
-#endif
+
 	return 0;
 err:
 	fastboot_disable(f);
@@ -505,9 +505,6 @@ static const char* getvar_list_ab[] = {
 	"version", "serialno", "product", "erase-block-size",
 	"secure", "slot-count", "slot-suffixes","current-slot",
 };
-#ifndef  CONFIG_USB_GADGET_CRG
-extern unsigned int adnl_identify_timeout;
-#endif
 static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
@@ -564,9 +561,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		if (cpuid.family_id >= MESON_CPU_MAJOR_ID_SC2) fwVer[0] = 6;
 		memcpy(response + 4, fwVer, identifyLen);
 		replyLen = 4 + identifyLen;
-#ifndef  CONFIG_USB_GADGET_CRG
 		adnl_identify_timeout = 0;
-#endif
 	} else if (!strcmp_l1("secureboot", cmd)) {
 		unsigned securebootEnable = 0;
 #ifdef CONFIG_EFUSE
@@ -867,7 +862,7 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 	}
 
 	if (!func_cb) {
-		FB_ERR("unknown command: %s\n", cmdbuf);
+		FB_MSG("unknown command: %s,%d\n", cmdbuf, strlen(cmdbuf));
 		fastboot_tx_write_str("FAILunknown command");
 	} else {
 		if (req->actual < req->length) {

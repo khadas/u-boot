@@ -3209,6 +3209,8 @@ int g_dnl_board_usb_cable_connected(void)
 }
 
 
+unsigned int _sofintr_not_occur;
+
 int crg_handle_port_status(struct crg_gadget_dev *crg_udc)
 {
 	struct crg_uccr *uccr = crg_udc->uccr;
@@ -3240,6 +3242,10 @@ int crg_handle_port_status(struct crg_gadget_dev *crg_udc)
 			}
 
 			crg_udc_reinit(crg_udc);
+			if (_sofintr_not_occur) {
+				printf("crg cn\n");
+				_sofintr_not_occur = 0;
+			}
 
 			crg_udc->gadget.speed = USB_SPEED_HIGH;
 			pdebug("gadget speed = 0x%x\n", crg_udc->gadget.speed);
@@ -3269,6 +3275,10 @@ int crg_handle_port_status(struct crg_gadget_dev *crg_udc)
 				return 0;
 			}
 
+			if (_sofintr_not_occur) {
+				printf("CRG CN\n");
+				_sofintr_not_occur = 0;
+			}
 			crg_udc->gadget.speed = USB_SPEED_HIGH;
 
 			update_ep0_maxpacketsize(crg_udc);
@@ -3587,4 +3597,10 @@ int crg_gadget_remove(struct crg_gadget_dev *crg_udc)
 int usb_gadget_handle_interrupts(int index)
 {
 	return crg_gadget_handle_interrupt(&crg_udc_dev);
+}
+
+
+void dwc_otg_power_off_phy_fb(void)
+{
+	return;
 }
