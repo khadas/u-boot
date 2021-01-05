@@ -39,11 +39,11 @@ static int mx35lfxge4ab_ooblayout_ecc(struct mtd_info *mtd, int section,
 static int mx35lfxge4ab_ooblayout_free(struct mtd_info *mtd, int section,
 				       struct mtd_oob_region *region)
 {
-	if (section)
+	if (section > 3)
 		return -ERANGE;
 
-	region->offset = 2;
-	region->length = mtd->oobsize - 2;
+	region->offset = (16 * section) + 2;
+	region->length = 14;
 
 	return 0;
 }
@@ -108,7 +108,9 @@ static int mx35lf1ge4ab_ecc_get_status(struct spinand_device *spinand,
 		if (mx35lf1ge4ab_get_eccsr(spinand, &eccsr))
 			return nand->eccreq.strength;
 
+		eccsr &= MACRONIX_CURRENT_ECCSR_MASK;
 		if (WARN_ON(eccsr > nand->eccreq.strength || !eccsr)) {
+			pr_err("spinand eccsr error!  %d\n", eccsr);
 			return nand->eccreq.strength;
 		}
 
