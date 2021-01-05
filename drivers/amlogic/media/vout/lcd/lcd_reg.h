@@ -54,27 +54,6 @@
 #define REG_ADDR_TCON_APB_BYTE(reg)     ((reg + 0x10000) ? (reg + 0L) : \
 			(REG_TCON_APB_BASE + REG_OFFSET_TCON_APB_BYTE(reg)))
 
-#ifndef PERIPHS_PIN_MUX_0
-#define PERIPHS_PIN_MUX_0 PADCTRL_PIN_MUX_REG0
-#endif
-
-#if (defined(CONFIG_CHIP_AML_GXB) || \
-		defined(CONFIG_AML_MESON_GXTVBB))
-#define HHI_HPLL_CNTL                           HHI_HDMI_PLL_CNTL
-#define HHI_HPLL_CNTL2                          HHI_HDMI_PLL_CNTL2
-#define HHI_HPLL_CNTL3                          HHI_HDMI_PLL_CNTL3
-#define HHI_HPLL_CNTL4                          HHI_HDMI_PLL_CNTL4
-#define HHI_HPLL_CNTL5                          HHI_HDMI_PLL_CNTL5
-#define HHI_HPLL_CNTL6                          HHI_HDMI_PLL_CNTL6
-#else
-#define HHI_HPLL_CNTL                           HHI_HDMI_PLL_CNTL
-#define HHI_HPLL_CNTL2                          HHI_HDMI_PLL_CNTL1
-#define HHI_HPLL_CNTL3                          HHI_HDMI_PLL_CNTL2
-#define HHI_HPLL_CNTL4                          HHI_HDMI_PLL_CNTL3
-#define HHI_HPLL_CNTL5                          HHI_HDMI_PLL_CNTL4
-#define HHI_HPLL_CNTL6                          HHI_HDMI_PLL_CNTL5
-#endif
-
 /*#define HHI_VIID_CLK_DIV     	0x4a*/
 #define DAC0_CLK_SEL           28
 #define DAC1_CLK_SEL           24

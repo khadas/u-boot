@@ -48,10 +48,6 @@ static struct lcd_power_step_s lcd1_power_off_step[] = {
 };
 
 static unsigned char mipi_init_on_table_TL070WSH27[DSI_INIT_ON_MAX] = {//table size < 100
-	0xfd, 1, 10,
-	0xf0, 3, 0, 1, 30, /* reset high, delay 30ms */
-	0xf0, 3, 0, 0, 10, /* reset low, delay 10ms */
-	0xf0, 3, 0, 1, 30, /* reset high, delay 30ms */
 	0x05, 1, 0x11,
 	0xfd, 1, 100,
 	0x05, 1, 0x29,

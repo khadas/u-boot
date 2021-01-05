@@ -368,6 +368,13 @@
 #define CLKCTRL_VID_PLL_CLK0_DIV		((0x0039  << 2) + 0xfe000000)
 #endif
 
+#ifndef CLKCTRL_MIPIDSI_PHY_CLK_CTRL
+#define CLKCTRL_MIPIDSI_PHY_CLK_CTRL		((0x0041  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_MIPI_DSI_MEAS_CLK_CTRL
+#define CLKCTRL_MIPI_DSI_MEAS_CLK_CTRL		((0x0080  << 2) + 0xfe000000)
+#endif
+
 #ifndef ENCL_VIDEO_H_PRE_DE_END
 #define ENCL_VIDEO_H_PRE_DE_END                    0x1ccf
 #endif
@@ -612,6 +619,10 @@
 
 #ifndef PWM_PWM_F
 #define PWM_PWM_F PWMEF_PWM_B
+#endif
+
+#ifndef PERIPHS_PIN_MUX_0
+#define PERIPHS_PIN_MUX_0 PADCTRL_PIN_MUX_REG0
 #endif
 
 #ifndef PERIPHS_PIN_MUX_7

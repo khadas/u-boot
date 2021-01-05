@@ -668,6 +668,248 @@ static void lcd_venc_set_edp(void)
 	LCDPR(" lcd venc init\n");
 }
 
+static void mipi_dsi_power_init(void)
+{
+//#define PM_EDP0          48
+//#define PM_EDP1          49
+//#define PM_MIPI_DSI1     50
+//#define PM_MIPI_DSI0     41
+	pwr_ctrl_psci_smc(PM_MIPI_DSI0, 1);
+	pwr_ctrl_psci_smc(PM_MIPI_DSI1, 1);
+
+	LCDPR(" mipi-dsi power domain on\n");
+}
+
+static void mipi_dsi_reset(void)
+{
+	unsigned int data32;
+
+	// Level reset mail
+	data32 = readl(RESETCTRL_RESET1_MASK);
+	data32 &= ~((0x1 << 30) | (1 <<29));
+	writel(data32, RESETCTRL_RESET1_MASK);
+	data32 = readl(RESETCTRL_RESET1_LEVEL);
+	data32 &= ~((0x1 << 30) | (1 <<29));
+	writel(data32, RESETCTRL_RESET1_LEVEL);
+	udelay(1);
+	data32 |= ((0x1 << 30) | (1 <<29));
+	writel(data32, RESETCTRL_RESET1_LEVEL);
+}
+
+void lcd_mipi_control_set(struct lcd_config_s *pConf, int status);
+static void mipi_dsi_tx_init(void)
+{
+	struct lcd_drv_s *lcd_drv = lcd_get_driver();
+
+	mipi_dsi_reset();
+
+	lcd_drv->lcd_config->lcd_timing.bit_rate = 283500000; //378000000;
+	lcd_drv->lcd_config->lcd_control.mipi_config->clk_factor = 6;//8;
+	lcd_mipi_control_set(lcd_drv->lcd_config, 1);
+}
+
+static void lcd_init_pre_mipi_dsi(void)
+{
+	unsigned int data32;
+	int cnt = 0, i;
+
+	//1.config pll
+set_pll_retry_edp:
+	writel(0x00b704bd, ANACTRL_TCON_PLL0_CNTL0);
+	udelay(10);
+	writel(0x20b704bd, ANACTRL_TCON_PLL0_CNTL0);
+	udelay(10);
+	writel(0x30b704bd, ANACTRL_TCON_PLL0_CNTL0);
+	udelay(10);
+	writel(0x10000000, ANACTRL_TCON_PLL0_CNTL1);
+	udelay(10);
+	writel(0x0000110c, ANACTRL_TCON_PLL0_CNTL2);
+	udelay(10);
+	writel(0x10051400, ANACTRL_TCON_PLL0_CNTL3);
+	udelay(10);
+	writel(0x000100c0, ANACTRL_TCON_PLL0_CNTL4);
+	udelay(10);
+	writel(0x008300c0, ANACTRL_TCON_PLL0_CNTL4);
+	udelay(10);
+	writel(0x34b704bd, ANACTRL_TCON_PLL0_CNTL0);
+	udelay(10);
+	writel(0x14b704bd, ANACTRL_TCON_PLL0_CNTL0);
+	udelay(10);
+	writel(0x0000300c, ANACTRL_TCON_PLL0_CNTL2);
+	udelay(100);
+	i = 0;
+	while (i++ < 200) {
+		udelay(50);
+		if (readl(ANACTRL_TCON_PLL0_STS) & 0x80000000)
+			break;
+	}
+	if (!(readl(ANACTRL_TCON_PLL0_STS) & 0x80000000)) {
+		if (cnt++ < 20)
+			goto set_pll_retry_edp;
+		else
+			LCDPR(" pll lock failed!!!\n");
+	}
+
+	//2.config divider
+	data32 = readl(CLKCTRL_VIID_CLK0_CTRL);
+	//cntrl_clk_en0 disable
+	data32 &= ~(1 << 19);
+	writel(data32, CLKCTRL_VIID_CLK0_CTRL);
+	/* Disable the div output clock */
+	data32 = readl(COMBO_DPHY_VID_PLL0_DIV);
+	//clk_final_en disable ?
+	data32 &= ~(1 << 19);
+	writel(data32, COMBO_DPHY_VID_PLL0_DIV);
+	//set_preset disable ?
+	data32 &= ~(1 << 15);
+	writel(data32, COMBO_DPHY_VID_PLL0_DIV);
+
+	data32 = readl(COMBO_DPHY_VID_PLL0_DIV);  //used COMBO not VID
+	data32 |= (1 << 18);
+	writel(data32, COMBO_DPHY_VID_PLL0_DIV);
+	data32 |= (1 << 19);
+	writel(data32, COMBO_DPHY_VID_PLL0_DIV);
+
+	//3.config vclk
+	writel(0x00000000, CLKCTRL_VIID_CLK0_DIV);
+	writel(0x00000005, CLKCTRL_VIID_CLK0_DIV);
+	udelay(5);
+	writel(0x00080000, CLKCTRL_VIID_CLK0_CTRL);
+	udelay(5);
+	writel(0x00008005, CLKCTRL_VIID_CLK0_DIV);
+	writel(0x00018005, CLKCTRL_VIID_CLK0_DIV);
+	udelay(5);
+	writel(0x00080001, CLKCTRL_VIID_CLK0_CTRL);
+	writel(0x00088001, CLKCTRL_VIID_CLK0_CTRL);
+	udelay(10);
+	writel(0x00080001, CLKCTRL_VIID_CLK0_CTRL);
+	udelay(5);
+	writel(0x00000008, CLKCTRL_VID_CLK0_CTRL2);
+
+	//mipi-dsi phy clk
+	writel(0x00000000, CLKCTRL_MIPIDSI_PHY_CLK_CTRL);
+	writel(0x00000100, CLKCTRL_MIPIDSI_PHY_CLK_CTRL);
+	//mipi-dsi meas clk
+	writel(0x00000007, CLKCTRL_MIPI_DSI_MEAS_CLK_CTRL);
+	writel(0x00000107, CLKCTRL_MIPI_DSI_MEAS_CLK_CTRL);
+
+	//4. reset phy
+	data32 = readl(RESETCTRL_RESET1_MASK);
+	data32 &= ~((0x1 << 20) | (0x1 << 19) | (0x1 << 7));
+	writel(data32, RESETCTRL_RESET1_MASK);
+	data32 = readl(RESETCTRL_RESET1_LEVEL);
+	data32 &= ~((0x1 << 20) | (0x1 << 19) | (0x1 << 7));
+	writel(data32, RESETCTRL_RESET1_LEVEL);
+	udelay(1);
+	data32 |= (0x1 << 20) | (0x1 << 19) | (0x1 << 7);
+	writel(data32, RESETCTRL_RESET1_LEVEL);
+	udelay(10);
+
+	//5.select mipi-dsi
+	writel(0x0, COMBO_DPHY_CNTL1);
+
+	//6. config phy
+	writel(0x822a0028, ANACTRL_DIF_PHY_CNTL1);
+	writel(0x0000ffff, ANACTRL_DIF_PHY_CNTL2); //0x0100ffff
+	writel(0xc22a0028, ANACTRL_DIF_PHY_CNTL3);
+	writel(0xc22a0028, ANACTRL_DIF_PHY_CNTL4);
+	writel(0xc22a0028, ANACTRL_DIF_PHY_CNTL5);
+	writel(0xc22a0028, ANACTRL_DIF_PHY_CNTL6);
+	writel(0x822a0028, ANACTRL_DIF_PHY_CNTL10);
+	writel(0x0000ffff, ANACTRL_DIF_PHY_CNTL11);
+	writel(0xc22a0028, ANACTRL_DIF_PHY_CNTL12);
+	writel(0xc22a0028, ANACTRL_DIF_PHY_CNTL13);
+	writel(0xc22a0028, ANACTRL_DIF_PHY_CNTL14);
+	writel(0xc22a0028, ANACTRL_DIF_PHY_CNTL15);
+	writel(0x1e406243, ANACTRL_DIF_PHY_CNTL19);
+	writel(0x0, ANACTRL_DIF_PHY_CNTL20);
+	writel(0x0, ANACTRL_DIF_PHY_CNTL21);
+
+	LCDPR(" lcd init pre\n");
+}
+
+static void lcd_venc_set_mipi_dsi(void)
+{
+	unsigned int hactive = 1024;
+	unsigned int vactive = 600;
+	unsigned int htotal = 1250;
+	unsigned int vtotal = 630;
+	unsigned int hsw = 80;
+	unsigned int hbp = 100;
+	unsigned int vsw = 5;
+	unsigned int vbp = 20;
+	//unsigned int pclk = 147840000;
+	unsigned int data32;
+
+	writel(0, ENCL_VIDEO_EN);
+
+	writel(0x8000, ENCL_VIDEO_MODE);/*bit[15] shadown en*/
+	writel(0x0418, ENCL_VIDEO_MODE_ADV); /* Sampling rate: 1 */
+
+	writel(0x1000, ENCL_VIDEO_FILT_CTRL); /* bypass filter */
+	writel(htotal - 1, ENCL_VIDEO_MAX_PXCNT);
+	writel(vtotal - 1, ENCL_VIDEO_MAX_LNCNT);
+	writel(hsw + hbp, ENCL_VIDEO_HAVON_BEGIN);
+	writel(hactive - 1 + hsw + hbp, ENCL_VIDEO_HAVON_END);
+	writel(vsw + vbp, ENCL_VIDEO_VAVON_BLINE);
+	writel(vactive - 1 + vsw + vbp, ENCL_VIDEO_VAVON_ELINE);
+
+	writel(0, ENCL_VIDEO_HSO_BEGIN);
+	writel(hsw, ENCL_VIDEO_HSO_END);
+	writel(0, ENCL_VIDEO_VSO_BEGIN);
+	writel(0, ENCL_VIDEO_VSO_END);
+	writel(0, ENCL_VIDEO_VSO_BLINE);
+	writel(vsw, ENCL_VIDEO_VSO_ELINE);
+	writel(3, ENCL_VIDEO_RGBIN_CTRL); //yuv: 1, rgb: 3
+
+	writel((5 << 13) | (hactive - 1), ENCL_INBUF_CNTL1);
+	writel(0x200, ENCL_INBUF_CNTL0);
+
+	/* default colorbar pattern */
+	writel(1, ENCL_TST_MDSEL);
+	writel(0x200, ENCL_TST_Y);
+	writel(0x200, ENCL_TST_CB);
+	writel(0x200, ENCL_TST_CR);
+	writel(hsw + hbp, ENCL_TST_CLRBAR_STRT);
+	writel(240, ENCL_TST_CLRBAR_WIDTH);
+	writel(1, ENCL_TST_EN);
+	//writel(0x0410, ENCL_VIDEO_MODE_ADV);
+
+	writel(1, ENCL_VIDEO_EN);
+
+	//select venc to mipi-dsi
+	data32 = (0 << 31) | (0 << 30) | (0 << 29) | (1 << 28);
+	writel(data32, VPU_DISP_VIU0_CTRL);
+
+	//config venc_tcon
+	writel(0x0, LCD_RGB_BASE_ADDR);
+	writel(0x400, LCD_RGB_COEFF_ADDR);
+	//writel((1 << 0), LCD_POL_CNTL_ADDR);
+
+	/* DE signal */
+	writel(hsw + hbp, DE_HS_ADDR);
+	writel(hsw + hbp + hactive, DE_HE_ADDR);
+	writel(vsw + vbp, DE_VS_ADDR);
+	writel(vsw + vbp + vactive - 1, DE_VE_ADDR);
+
+	/* Hsync signal */
+	writel(0, HSYNC_HS_ADDR);
+	writel(hsw, HSYNC_HE_ADDR);
+	writel(0, HSYNC_VS_ADDR);
+	writel(vtotal - 1, HSYNC_VE_ADDR);
+
+	/* Vsync signal */
+	writel(0, VSYNC_HS_ADDR);
+	writel(0, VSYNC_HE_ADDR);
+	writel(0, VSYNC_VS_ADDR);
+	writel(vsw, VSYNC_VE_ADDR);
+
+	//select encl
+	writel(2, VPU_VENC_CTRL);
+
+	LCDPR(" lcd venc init\n");
+}
+
 static void lcd_init_pre_lvds(void)
 {
 	unsigned int data32;
@@ -945,6 +1187,14 @@ void lcd_display_init_test(void)
 		edp_power_init();
 		edp_tx_init();
 		LCDPR("edp init test done\n");
+	} else if (lcd_drv->lcd_config->lcd_basic.lcd_type == LCD_MIPI) {
+		writel(0x24, VPU_VIU_VENC_MUX_CTRL);
+		lcd_init_pre_mipi_dsi();
+		lcd_venc_set_mipi_dsi();
+		mdelay(20);
+		mipi_dsi_power_init();
+		mipi_dsi_tx_init();
+		LCDPR("mipi_dsi init test done\n");
 	}
 }
 
@@ -1358,8 +1608,317 @@ void lcd_display_init_reg_dump(void)
 			readl(ENCL_INBUF_CNTL1),
 			ENCL_INBUF_CNTL0,
 			readl(ENCL_INBUF_CNTL0),
-			VPU_DISP_VIU2_CTRL,
-			readl(VPU_DISP_VIU2_CTRL),
+			VPU_DISP_VIU0_CTRL,
+			readl(VPU_DISP_VIU0_CTRL),
+			VPU_VENC_CTRL,
+			readl(VPU_VENC_CTRL));
+	} else if (lcd_drv->lcd_config->lcd_basic.lcd_type == LCD_MIPI) {
+		printf("pll regs:\n");
+		printf("0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n",
+			ANACTRL_TCON_PLL0_CNTL0,
+			readl(ANACTRL_TCON_PLL0_CNTL0),
+			ANACTRL_TCON_PLL0_CNTL1,
+			readl(ANACTRL_TCON_PLL0_CNTL1),
+			ANACTRL_TCON_PLL0_CNTL2,
+			readl(ANACTRL_TCON_PLL0_CNTL2),
+			ANACTRL_TCON_PLL0_CNTL3,
+			readl(ANACTRL_TCON_PLL0_CNTL3),
+			ANACTRL_TCON_PLL0_CNTL4,
+			readl(ANACTRL_TCON_PLL0_CNTL4),
+			ANACTRL_TCON_PLL0_STS,
+			readl(ANACTRL_TCON_PLL0_STS));
+
+		printf("clk regs:\n");
+		printf("0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n",
+			CLKCTRL_MIPIDSI_PHY_CLK_CTRL,
+			readl(CLKCTRL_MIPIDSI_PHY_CLK_CTRL),
+			CLKCTRL_MIPI_DSI_MEAS_CLK_CTRL,
+			readl(CLKCTRL_MIPI_DSI_MEAS_CLK_CTRL),
+			COMBO_DPHY_VID_PLL0_DIV,
+			readl(COMBO_DPHY_VID_PLL0_DIV),
+			CLKCTRL_VIID_CLK0_DIV,
+			readl(CLKCTRL_VIID_CLK0_DIV),
+			CLKCTRL_VIID_CLK0_CTRL,
+			readl(CLKCTRL_VIID_CLK0_CTRL),
+			CLKCTRL_VID_CLK0_CTRL2,
+			readl(CLKCTRL_VID_CLK0_CTRL2));
+
+		printf("phy regs:\n");
+		printf("0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n",
+			ANACTRL_DIF_PHY_CNTL1,
+			readl(ANACTRL_DIF_PHY_CNTL1),
+			ANACTRL_DIF_PHY_CNTL2,
+			readl(ANACTRL_DIF_PHY_CNTL2),
+			ANACTRL_DIF_PHY_CNTL3,
+			readl(ANACTRL_DIF_PHY_CNTL3),
+			ANACTRL_DIF_PHY_CNTL4,
+			readl(ANACTRL_DIF_PHY_CNTL4),
+			ANACTRL_DIF_PHY_CNTL5,
+			readl(ANACTRL_DIF_PHY_CNTL5),
+			ANACTRL_DIF_PHY_CNTL6,
+			readl(ANACTRL_DIF_PHY_CNTL6),
+			ANACTRL_DIF_PHY_CNTL7,
+			readl(ANACTRL_DIF_PHY_CNTL7),
+			ANACTRL_DIF_PHY_CNTL8,
+			readl(ANACTRL_DIF_PHY_CNTL8),
+			ANACTRL_DIF_PHY_CNTL9,
+			readl(ANACTRL_DIF_PHY_CNTL9),
+			ANACTRL_DIF_PHY_CNTL10,
+			readl(ANACTRL_DIF_PHY_CNTL10),
+			ANACTRL_DIF_PHY_CNTL11,
+			readl(ANACTRL_DIF_PHY_CNTL11),
+			ANACTRL_DIF_PHY_CNTL12,
+			readl(ANACTRL_DIF_PHY_CNTL12),
+			ANACTRL_DIF_PHY_CNTL13,
+			readl(ANACTRL_DIF_PHY_CNTL13),
+			ANACTRL_DIF_PHY_CNTL14,
+			readl(ANACTRL_DIF_PHY_CNTL14),
+			ANACTRL_DIF_PHY_CNTL15,
+			readl(ANACTRL_DIF_PHY_CNTL15),
+			ANACTRL_DIF_PHY_CNTL16,
+			readl(ANACTRL_DIF_PHY_CNTL16),
+			ANACTRL_DIF_PHY_CNTL17,
+			readl(ANACTRL_DIF_PHY_CNTL17),
+			ANACTRL_DIF_PHY_CNTL18,
+			readl(ANACTRL_DIF_PHY_CNTL18),
+			ANACTRL_DIF_PHY_CNTL19,
+			readl(ANACTRL_DIF_PHY_CNTL19),
+			ANACTRL_DIF_PHY_CNTL20,
+			readl(ANACTRL_DIF_PHY_CNTL20),
+			ANACTRL_DIF_PHY_CNTL21,
+			readl(ANACTRL_DIF_PHY_CNTL21));
+
+		printf("mipi-dsi host regs:\n");
+		printf("0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n",
+			MIPI_DSI_TOP_CNTL,
+			readl(MIPI_DSI_TOP_CNTL),
+			MIPI_DSI_TOP_SW_RESET,
+			readl(MIPI_DSI_TOP_SW_RESET),
+			MIPI_DSI_TOP_CLK_CNTL,
+			readl(MIPI_DSI_TOP_CLK_CNTL),
+			MIPI_DSI_TOP_MEM_PD,
+			readl(MIPI_DSI_TOP_MEM_PD),
+			MIPI_DSI_TOP_INTR_CNTL_STAT,
+			readl(MIPI_DSI_TOP_INTR_CNTL_STAT),
+			MIPI_DSI_TOP_MEAS_CNTL,
+			readl(MIPI_DSI_TOP_MEAS_CNTL));
+		printf("0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n",
+			MIPI_DSI_DWC_PHY_TST_CTRL0_OS,
+			readl(MIPI_DSI_DWC_PHY_TST_CTRL0_OS),
+			MIPI_DSI_DWC_PHY_TST_CTRL1_OS,
+			readl(MIPI_DSI_DWC_PHY_TST_CTRL1_OS),
+			MIPI_DSI_DWC_PHY_RSTZ_OS,
+			readl(MIPI_DSI_DWC_PHY_RSTZ_OS),
+			MIPI_DSI_DWC_PHY_IF_CFG_OS,
+			readl(MIPI_DSI_DWC_PHY_IF_CFG_OS),
+			MIPI_DSI_DWC_PHY_TMR_CFG_OS,
+			readl(MIPI_DSI_DWC_PHY_TMR_CFG_OS),
+			MIPI_DSI_DWC_PHY_TMR_LPCLK_CFG_OS,
+			readl(MIPI_DSI_DWC_PHY_TMR_LPCLK_CFG_OS),
+			MIPI_DSI_DWC_CMD_MODE_CFG_OS,
+			readl(MIPI_DSI_DWC_CMD_MODE_CFG_OS),
+			MIPI_DSI_DWC_PCKHDL_CFG_OS,
+			readl(MIPI_DSI_DWC_PCKHDL_CFG_OS),
+			MIPI_DSI_DWC_DPI_COLOR_CODING_OS,
+			readl(MIPI_DSI_DWC_DPI_COLOR_CODING_OS),
+			MIPI_DSI_DWC_DPI_CFG_POL_OS,
+			readl(MIPI_DSI_DWC_DPI_CFG_POL_OS),
+			MIPI_DSI_DWC_VID_MODE_CFG_OS,
+			readl(MIPI_DSI_DWC_VID_MODE_CFG_OS),
+			MIPI_DSI_DWC_DPI_LP_CMD_TIM_OS,
+			readl(MIPI_DSI_DWC_DPI_LP_CMD_TIM_OS),
+			MIPI_DSI_DWC_CLKMGR_CFG_OS,
+			readl(MIPI_DSI_DWC_CLKMGR_CFG_OS),
+			MIPI_DSI_DWC_MODE_CFG_OS,
+			readl(MIPI_DSI_DWC_MODE_CFG_OS));
+		printf("0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n",
+			MIPI_DSI_DWC_VID_PKT_SIZE_OS,
+			readl(MIPI_DSI_DWC_VID_PKT_SIZE_OS),
+			MIPI_DSI_DWC_VID_NUM_CHUNKS_OS,
+			readl(MIPI_DSI_DWC_VID_NUM_CHUNKS_OS),
+			MIPI_DSI_DWC_VID_NULL_SIZE_OS,
+			readl(MIPI_DSI_DWC_VID_NULL_SIZE_OS),
+			MIPI_DSI_DWC_VID_HLINE_TIME_OS,
+			readl(MIPI_DSI_DWC_VID_HLINE_TIME_OS),
+			MIPI_DSI_DWC_VID_HSA_TIME_OS,
+			readl(MIPI_DSI_DWC_VID_HSA_TIME_OS),
+			MIPI_DSI_DWC_VID_HBP_TIME_OS,
+			readl(MIPI_DSI_DWC_VID_HBP_TIME_OS),
+			MIPI_DSI_DWC_VID_VSA_LINES_OS,
+			readl(MIPI_DSI_DWC_VID_VSA_LINES_OS),
+			MIPI_DSI_DWC_VID_VBP_LINES_OS,
+			readl(MIPI_DSI_DWC_VID_VBP_LINES_OS),
+			MIPI_DSI_DWC_VID_VFP_LINES_OS,
+			readl(MIPI_DSI_DWC_VID_VFP_LINES_OS),
+			MIPI_DSI_DWC_VID_VACTIVE_LINES_OS,
+			readl(MIPI_DSI_DWC_VID_VACTIVE_LINES_OS));
+
+		printf("mipi-dsi phy regs:\n");
+		printf("0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n",
+			MIPI_DSI_PHY_CTRL,
+			readl(MIPI_DSI_PHY_CTRL),
+			MIPI_DSI_CLK_TIM,
+			readl(MIPI_DSI_CLK_TIM),
+			MIPI_DSI_CLK_TIM1,
+			readl(MIPI_DSI_CLK_TIM1),
+			MIPI_DSI_HS_TIM,
+			readl(MIPI_DSI_HS_TIM),
+			MIPI_DSI_LP_TIM,
+			readl(MIPI_DSI_LP_TIM),
+			MIPI_DSI_ANA_UP_TIM,
+			readl(MIPI_DSI_ANA_UP_TIM),
+			MIPI_DSI_INIT_TIM,
+			readl(MIPI_DSI_INIT_TIM),
+			MIPI_DSI_WAKEUP_TIM,
+			readl(MIPI_DSI_WAKEUP_TIM),
+			MIPI_DSI_LPOK_TIM,
+			readl(MIPI_DSI_LPOK_TIM),
+			MIPI_DSI_ULPS_CHECK,
+			readl(MIPI_DSI_ULPS_CHECK),
+			MIPI_DSI_LP_WCHDOG,
+			readl(MIPI_DSI_LP_WCHDOG),
+			MIPI_DSI_TURN_WCHDOG,
+			readl(MIPI_DSI_TURN_WCHDOG),
+			MIPI_DSI_CHAN_CTRL,
+			readl(MIPI_DSI_CHAN_CTRL),
+			MIPI_DSI_PHY_CTRL,
+			readl(MIPI_DSI_PHY_CTRL),
+			MIPI_DSI_LP_WCHDOG,
+			readl(MIPI_DSI_LP_WCHDOG));
+
+		printf("venc regs:\n");
+		printf("0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n",
+			ENCL_VIDEO_EN,
+			readl(ENCL_VIDEO_EN),
+			ENCL_VIDEO_MODE,
+			readl(ENCL_VIDEO_MODE),
+			ENCL_VIDEO_MODE_ADV,
+			readl(ENCL_VIDEO_MODE_ADV),
+			ENCL_VIDEO_FILT_CTRL,
+			readl(ENCL_VIDEO_FILT_CTRL),
+			ENCL_VIDEO_MAX_PXCNT,
+			readl(ENCL_VIDEO_MAX_PXCNT),
+			ENCL_VIDEO_MAX_LNCNT,
+			readl(ENCL_VIDEO_MAX_LNCNT),
+			ENCL_VIDEO_HAVON_BEGIN,
+			readl(ENCL_VIDEO_HAVON_BEGIN),
+			ENCL_VIDEO_HAVON_END,
+			readl(ENCL_VIDEO_HAVON_END),
+			ENCL_VIDEO_VAVON_BLINE,
+			readl(ENCL_VIDEO_VAVON_BLINE),
+			ENCL_VIDEO_VAVON_ELINE,
+			readl(ENCL_VIDEO_VAVON_ELINE),
+			ENCL_VIDEO_HSO_BEGIN,
+			readl(ENCL_VIDEO_HSO_BEGIN),
+			ENCL_VIDEO_HSO_END,
+			readl(ENCL_VIDEO_HSO_END),
+			ENCL_VIDEO_VSO_BEGIN,
+			readl(ENCL_VIDEO_VSO_BEGIN),
+			ENCL_VIDEO_VSO_END,
+			readl(ENCL_VIDEO_VSO_END),
+			ENCL_VIDEO_VSO_BLINE,
+			readl(ENCL_VIDEO_VSO_BLINE),
+			ENCL_VIDEO_VSO_ELINE,
+			readl(ENCL_VIDEO_VSO_ELINE),
+			ENCL_VIDEO_RGBIN_CTRL,
+			readl(ENCL_VIDEO_RGBIN_CTRL),
+			ENCL_INBUF_CNTL1,
+			readl(ENCL_INBUF_CNTL1),
+			ENCL_INBUF_CNTL0,
+			readl(ENCL_INBUF_CNTL0),
+			VPU_DISP_VIU0_CTRL,
+			readl(VPU_DISP_VIU0_CTRL),
 			VPU_VENC_CTRL,
 			readl(VPU_VENC_CTRL));
 	}
