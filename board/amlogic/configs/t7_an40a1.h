@@ -79,7 +79,7 @@
         "loadaddr_kernel=0x01080000\0"\
         "otg_device=1\0" \
         "panel_type=lvds_1\0" \
-        "outputmode=1080p60hz\0" \
+        "outputmode=panel\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \

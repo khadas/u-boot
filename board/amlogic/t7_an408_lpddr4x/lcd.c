@@ -202,7 +202,7 @@ static struct lcd_power_ctrl_s lcd_power_ctrl = {
 };
 
 struct lcd_config_s lcd_config_dft = {
-	.lcd_mode = LCD_MODE_TV,
+	.lcd_mode = LCD_MODE_TABLET,
 	.lcd_key_valid = 0,
 	.lcd_basic = {
 		.model_name = "default",
