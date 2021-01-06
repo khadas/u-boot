@@ -50,6 +50,7 @@
 #ifdef CONFIG_AML_LCD
 #include <amlogic/media/vout/lcd/lcd_vout.h>
 #endif
+#include <asm/arch/pmic_bd71837.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -129,6 +130,8 @@ int board_init(void)
 	/* The non-secure watchdog is enabled in BL2 TEE, disable it */
 	run_command("watchdog off", 0);
 	printf("watchdog disable\n");
+
+	pmic_bd71837_init();
 
 	aml_set_bootsequence(0);
 	//Please keep try usb boot first in board_init, as other init before usb may cause burning failure

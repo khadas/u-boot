@@ -1,2 +1,5 @@
 config SECURE_POWER_CONTROL
     bool "Amlogic device MEM_PD control"
+
+config PMIC_BD71837
+    bool "Amlogic device bd71837"

@@ -362,6 +362,9 @@
 /* vpu */
 #define AML_VPU_CLK_LEVEL_DFT 7
 
+/*pmic bd71837*/
+#define CONFIG_PMIC_BD71837    1
+
 /* LCD */
 #define CONFIG_AML_LCD_PXP	1
 
