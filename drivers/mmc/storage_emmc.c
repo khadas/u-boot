@@ -290,6 +290,10 @@ static int storage_mmc_erase_user(struct mmc *mmc) {
 				printf("Part:reserved is skiped\n");
 				continue;
 			}
+			if (part_info->size == 0) {
+				printf("Part:%s size is 0\n", part_info->name);
+				continue;
+			}
 			if (part_info->mask_flags & PART_PROTECT_FLAG) {
 				printf("Part:%s is protected\n", part_info->name);
 				continue;
