@@ -688,7 +688,15 @@ static int hdmitx_edid_block_parse(struct rx_cap *pRXCap,
 	int i, tmp, idx;
 	unsigned char *vfpdb_offset = NULL;
 
-	if (BlockBuf[0] != 0x02)
+	/* CEA-861 implementations are required to use Tag = 0x02
+	 * for the CEA Extension Tag and Sources should ignore
+	 * Tags that are not understood. but for Samsung LA32D400E1
+	 * its extension tag is 0x0 while other bytes normal,
+	 * so continue parse as other sources do
+	 */
+	if (BlockBuf[0] == 0x0)
+		printf("unkonw Extension Tag detected, continue\n");
+	else if (BlockBuf[0] != 0x02)
 		return -1; /* not a CEA BLOCK. */
 	End = BlockBuf[2]; /* CEA description. */
 	pRXCap->native_Mode = BlockBuf[3];
@@ -984,8 +992,7 @@ unsigned int hdmi_edid_parsing(unsigned char *EDID_buf, struct rx_cap *pRXCap)
 					EDID_buf[i * 128 + 3]);
 			}
 		}
-		if (EDID_buf[i*128+0] == 0x2)
-			hdmitx_edid_block_parse(pRXCap, &(EDID_buf[i*128]));
+		hdmitx_edid_block_parse(pRXCap, &(EDID_buf[i*128]));
 	}
 	check_dv_truly_support(pRXCap, dv);
 /*
