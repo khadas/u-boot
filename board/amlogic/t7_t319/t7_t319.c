@@ -190,6 +190,9 @@ int board_late_init(void)
 #ifdef CONFIG_AML_LCD
 	lcd_probe();
 #endif
+
+	run_command("gpio c gpio_test_n0", 0);
+	bd71837_set_muxsw_switch(1);
 	return 0;
 }
 
