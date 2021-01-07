@@ -313,6 +313,74 @@
 #define VPP_OSD2_MATRIX_EN_CTRL             0x392d
 #endif
 
+#ifndef VIU_OSD4_MATRIX_COEF00_01
+#define VIU_OSD4_MATRIX_COEF00_01                  0x3df0
+#endif
+
+#ifndef VIU_OSD4_MATRIX_COEF02_10
+#define VIU_OSD4_MATRIX_COEF02_10                  0x3df1
+#endif
+
+#ifndef VIU_OSD4_MATRIX_COEF11_12
+#define VIU_OSD4_MATRIX_COEF11_12                  0x3df2
+#endif
+
+#ifndef VIU_OSD4_MATRIX_COEF20_21
+#define VIU_OSD4_MATRIX_COEF20_21                  0x3df3
+#endif
+
+#ifndef VIU_OSD4_MATRIX_COEF22
+#define VIU_OSD4_MATRIX_COEF22                     0x3df4
+#endif
+
+#ifndef VIU_OSD4_MATRIX_COEF13_14
+#define VIU_OSD4_MATRIX_COEF13_14                  0x3df5
+#endif
+
+#ifndef VIU_OSD4_MATRIX_COEF23_24
+#define VIU_OSD4_MATRIX_COEF23_24                  0x3df6
+#endif
+
+#ifndef VIU_OSD4_MATRIX_COEF15_25
+#define VIU_OSD4_MATRIX_COEF15_25                  0x3df7
+#endif
+
+#ifndef VIU_OSD4_MATRIX_CLIP
+#define VIU_OSD4_MATRIX_CLIP                       0x3df8
+#endif
+
+#ifndef VIU_OSD4_MATRIX_OFFSET0_1
+#define VIU_OSD4_MATRIX_OFFSET0_1                  0x3df9
+#endif
+
+#ifndef VIU_OSD4_MATRIX_OFFSET2
+#define VIU_OSD4_MATRIX_OFFSET2                    0x3dfa
+#endif
+
+#ifndef VIU_OSD4_MATRIX_PRE_OFFSET0_1
+#define VIU_OSD4_MATRIX_PRE_OFFSET0_1              0x3dfb
+#endif
+
+#ifndef VIU_OSD4_MATRIX_PRE_OFFSET2
+#define VIU_OSD4_MATRIX_PRE_OFFSET2                0x3dfc
+#endif
+
+#ifndef VIU_OSD4_MATRIX_EN_CTRL
+#define VIU_OSD4_MATRIX_EN_CTRL                    0x3dfd
+#endif
+
+#ifndef MALI_AFBCD_TOP_CTRL
+#define MALI_AFBCD_TOP_CTRL                        0x1a0f
+#endif
+
+#ifndef MALI_AFBCD1_TOP_CTRL
+#define MALI_AFBCD1_TOP_CTRL                       0x1a55
+#endif
+
+#ifndef MALI_AFBCD2_TOP_CTRL
+#define MALI_AFBCD2_TOP_CTRL                       0x1a56
+#endif
+
 #ifndef DOLBY_PATH_CTRL
 #define DOLBY_PATH_CTRL                            0x1a0c
 #endif

@@ -3115,16 +3115,12 @@ static void set_vpp_super_position(void)
 
 static void fix_vpu_clk2_default_regs(void)
 {
-#define VPP_OSD1_SCALE_CTRL                        0x1a73
-#define VPP_OSD2_SCALE_CTRL                        0x1a74
-#define VPP_OSD3_SCALE_CTRL                        0x1a75
-#define VPP_OSD4_SCALE_CTRL                        0x1a76
 	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7) {
 		 /* default: osd byp osd_blend */
-		osd_reg_set_bits(VPP_OSD1_SCALE_CTRL, 0x6, 0, 3);
-		osd_reg_set_bits(VPP_OSD2_SCALE_CTRL, 0x7, 0, 3);
-		osd_reg_set_bits(VPP_OSD3_SCALE_CTRL, 0x7, 0, 3);
-		osd_reg_set_bits(VPP_OSD4_SCALE_CTRL, 0x7, 0, 3);
+		osd_reg_set_bits(VPP_OSD1_SCALE_CTRL, 0x2, 0, 3);
+		osd_reg_set_bits(VPP_OSD2_SCALE_CTRL, 0x3, 0, 3);
+		osd_reg_set_bits(VPP_OSD3_SCALE_CTRL, 0x3, 0, 3);
+		osd_reg_set_bits(VPP_OSD4_SCALE_CTRL, 0x3, 0, 3);
 
 		/* default: osd byp dolby */
 		osd_reg_set_bits(VPP_VD1_DSC_CTRL, 0x1, 4, 1);

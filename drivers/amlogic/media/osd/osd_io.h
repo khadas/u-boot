@@ -91,6 +91,50 @@
 #define OSDSR_UK_BST_GAIN            VPP_OSDSC_DITHER_LUT_15
 #endif
 
+#ifndef VPP_OSD1_SCALE_CTRL
+#define VPP_OSD1_SCALE_CTRL                        0x1a73
+#endif
+
+#ifndef VPP_OSD2_SCALE_CTRL
+#define VPP_OSD2_SCALE_CTRL                        0x1a74
+#endif
+
+#ifndef VPP_OSD3_SCALE_CTRL
+#define VPP_OSD3_SCALE_CTRL                        0x1a75
+#endif
+
+#ifndef VPP_OSD4_SCALE_CTRL
+#define VPP_OSD4_SCALE_CTRL                        0x1a76
+#endif
+
+#ifndef MALI_AFBCD1_TOP_CTRL
+#define MALI_AFBCD1_TOP_CTRL                       0x1a55
+#endif
+
+#ifndef VPP_VD1_DSC_CTRL
+#define VPP_VD1_DSC_CTRL                           0x1a83
+#endif
+
+#ifndef VPP_VD2_DSC_CTRL
+#define VPP_VD2_DSC_CTRL                           0x1a84
+#endif
+
+#ifndef VPP_VD3_DSC_CTRL
+#define VPP_VD3_DSC_CTRL                           0x1a85
+#endif
+
+#ifndef VIU_OSD3_BLK1_CFG_W4
+#define VIU_OSD3_BLK1_CFG_W4                       0x3d99
+#endif
+
+#ifndef VIU_OSD3_BLK2_CFG_W4
+#define VIU_OSD3_BLK2_CFG_W4                       0x3d9a
+#endif
+
+#ifndef VIU_OSD3_CTRL_STAT
+#define VIU_OSD3_CTRL_STAT                         0x3d80
+#endif
+
 #define REG_OFFSET_VCBUS(reg)           ((reg << 2))
 #define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg))
 #define REG_OSD_ADDR(reg)               (reg + 0L)
