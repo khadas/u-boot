@@ -238,6 +238,36 @@
 #ifndef ANACTRL_TCON_PLL0_CNTL4
 #define ANACTRL_TCON_PLL0_CNTL4			((0x00e4  << 2) + 0xfe008000)
 #endif
+#ifndef ANACTRL_TCON_PLL0_CNTL0
+#define ANACTRL_TCON_PLL0_CNTL0			((0x00e5  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_TCON_PLL1_CNTL1
+#define ANACTRL_TCON_PLL1_CNTL1			((0x00e6  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_TCON_PLL1_CNTL2
+#define ANACTRL_TCON_PLL1_CNTL2			((0x00e7  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_TCON_PLL1_CNTL3
+#define ANACTRL_TCON_PLL1_CNTL3			((0x00e8  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_TCON_PLL1_CNTL4
+#define ANACTRL_TCON_PLL1_CNTL4			((0x00e9  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_TCON_PLL2_CNTL0
+#define ANACTRL_TCON_PLL2_CNTL0			((0x00ea  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_TCON_PLL2_CNTL1
+#define ANACTRL_TCON_PLL2_CNTL1			((0x00eb  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_TCON_PLL2_CNTL2
+#define ANACTRL_TCON_PLL2_CNTL2			((0x00ec  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_TCON_PLL2_CNTL3
+#define ANACTRL_TCON_PLL2_CNTL3			((0x00ed  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_TCON_PLL2_CNTL4
+#define ANACTRL_TCON_PLL2_CNTL4			((0x00ee  << 2) + 0xfe008000)
+#endif
 #ifndef ANACTRL_TCON_PLL0_STS
 #define ANACTRL_TCON_PLL0_STS			((0x00ef  << 2) + 0xfe008000)
 #endif
@@ -269,8 +299,20 @@
 #ifndef COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0
 #define COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0	((0x0006  << 2) + 0xfe018000)
 #endif
+#ifndef COMBO_DPHY_EDP_LVDS_TX_PHY1_CNTL0
+#define COMBO_DPHY_EDP_LVDS_TX_PHY1_CNTL0	((0x0007  << 2) + 0xfe018000)
+#endif
+#ifndef COMBO_DPHY_EDP_LVDS_TX_PHY2_CNTL0
+#define COMBO_DPHY_EDP_LVDS_TX_PHY2_CNTL0	((0x0008  << 2) + 0xfe018000)
+#endif
 #ifndef COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1
 #define COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1	((0x0009  << 2) + 0xfe018000)
+#endif
+#ifndef COMBO_DPHY_EDP_LVDS_TX_PHY1_CNTL1
+#define COMBO_DPHY_EDP_LVDS_TX_PHY1_CNTL1	((0x000a  << 2) + 0xfe018000)
+#endif
+#ifndef COMBO_DPHY_EDP_LVDS_TX_PHY2_CNTL1
+#define COMBO_DPHY_EDP_LVDS_TX_PHY2_CNTL1	((0x000b  << 2) + 0xfe018000)
 #endif
 
 #ifndef ANACTRL_DIF_PHY_CNTL1
@@ -408,6 +450,19 @@
 #endif
 #ifndef VPU_DISP_VIU2_CTRL
 #define VPU_DISP_VIU2_CTRL                         ((0x2788  << 2) + 0xff000000)
+#endif
+
+#ifndef LCD_RGB_BASE_ADDR
+#define LCD_RGB_BASE_ADDR                          ((0x14a5  << 2) + 0xff000000)
+#endif
+#ifndef LCD_RGB_COEFF_ADDR
+#define LCD_RGB_COEFF_ADDR                         ((0x14a6  << 2) + 0xff000000)
+#endif
+#ifndef LCD_POL_CNTL_ADDR
+#define LCD_POL_CNTL_ADDR                          ((0x14a7  << 2) + 0xff000000)
+#endif
+#ifndef LCD_DITH_CNTL_ADDR
+#define LCD_DITH_CNTL_ADDR                         ((0x14a8  << 2) + 0xff000000)
 #endif
 
 #ifndef VBO_INFILTER_CTRL
@@ -635,4 +690,136 @@
 
 #ifndef PERIPHS_PIN_MUX_9
 #define PERIPHS_PIN_MUX_9 0x5
+#endif
+
+#ifndef PADCTRL_PIN_MUX_REG0
+#define PADCTRL_PIN_MUX_REG0                       ((0x0000  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REG1
+#define PADCTRL_PIN_MUX_REG1                       ((0x0001  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REG2
+#define PADCTRL_PIN_MUX_REG2                       ((0x0002  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REG3
+#define PADCTRL_PIN_MUX_REG3                       ((0x0003  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REG4
+#define PADCTRL_PIN_MUX_REG4                       ((0x0004  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REG5
+#define PADCTRL_PIN_MUX_REG5                       ((0x0005  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REG6
+#define PADCTRL_PIN_MUX_REG6                       ((0x0006  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REG7
+#define PADCTRL_PIN_MUX_REG7                       ((0x0007  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REG8
+#define PADCTRL_PIN_MUX_REG8                       ((0x0008  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REG9
+#define PADCTRL_PIN_MUX_REG9                       ((0x0009  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REGA
+#define PADCTRL_PIN_MUX_REGA                       ((0x000a  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REGB
+#define PADCTRL_PIN_MUX_REGB                       ((0x000b  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REGC
+#define PADCTRL_PIN_MUX_REGC                       ((0x000c  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REGD
+#define PADCTRL_PIN_MUX_REGD                       ((0x000d  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REGE
+#define PADCTRL_PIN_MUX_REGE                       ((0x000e  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REGF
+#define PADCTRL_PIN_MUX_REGF                       ((0x000f  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REGG
+#define PADCTRL_PIN_MUX_REGG                       ((0x0010  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REGH
+#define PADCTRL_PIN_MUX_REGH                       ((0x0011  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REGI
+#define PADCTRL_PIN_MUX_REGI                       ((0x0012  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REGJ
+#define PADCTRL_PIN_MUX_REGJ                       ((0x0013  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REGK
+#define PADCTRL_PIN_MUX_REGK                       ((0x0014  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REGL
+#define PADCTRL_PIN_MUX_REGL                       ((0x0015  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REGM
+#define PADCTRL_PIN_MUX_REGM                       ((0x0016  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REGN
+#define PADCTRL_PIN_MUX_REGN                       ((0x0017  << 2) + 0xfe004000)
+#endif
+#ifndef PADCTRL_PIN_MUX_REGO
+#define PADCTRL_PIN_MUX_REGO                       ((0x0018  << 2) + 0xfe004000)
+#endif
+
+#ifndef RESETCTRL_RESET0_LEVEL
+#define RESETCTRL_RESET0_LEVEL                     ((0x0010  << 2) + 0xfe002000)
+#endif
+#ifndef RESETCTRL_RESET1_LEVEL
+#define RESETCTRL_RESET1_LEVEL                     ((0x0011  << 2) + 0xfe002000)
+#endif
+#ifndef RESETCTRL_RESET2_LEVEL
+#define RESETCTRL_RESET2_LEVEL                     ((0x0012  << 2) + 0xfe002000)
+#endif
+#ifndef RESETCTRL_RESET3_LEVEL
+#define RESETCTRL_RESET3_LEVEL                     ((0x0013  << 2) + 0xfe002000)
+#endif
+#ifndef RESETCTRL_RESET4_LEVEL
+#define RESETCTRL_RESET4_LEVEL                     ((0x0014  << 2) + 0xfe002000)
+#endif
+#ifndef RESETCTRL_RESET5_LEVEL
+#define RESETCTRL_RESET5_LEVEL                     ((0x0015  << 2) + 0xfe002000)
+#endif
+#ifndef RESETCTRL_RESET6_LEVEL
+#define RESETCTRL_RESET6_LEVEL                     ((0x0016  << 2) + 0xfe002000)
+#endif
+#ifndef RESETCTRL_RESET0_MASK
+#define RESETCTRL_RESET0_MASK                      ((0x0020  << 2) + 0xfe002000)
+#endif
+#ifndef RESETCTRL_RESET1_MASK
+#define RESETCTRL_RESET1_MASK                      ((0x0021  << 2) + 0xfe002000)
+#endif
+#ifndef RESETCTRL_RESET2_MASK
+#define RESETCTRL_RESET2_MASK                      ((0x0022  << 2) + 0xfe002000)
+#endif
+#ifndef RESETCTRL_RESET3_MASK
+#define RESETCTRL_RESET3_MASK                      ((0x0023  << 2) + 0xfe002000)
+#endif
+#ifndef RESETCTRL_RESET4_MASK
+#define RESETCTRL_RESET4_MASK                      ((0x0024  << 2) + 0xfe002000)
+#endif
+#ifndef RESETCTRL_RESET5_MASK
+#define RESETCTRL_RESET5_MASK                      ((0x0025  << 2) + 0xfe002000)
+#endif
+#ifndef RESETCTRL_RESET6_MASK
+#define RESETCTRL_RESET6_MASK                      ((0x0026  << 2) + 0xfe002000)
+#endif
+
+#ifndef PM_MIPI_DSI0
+#define PM_MIPI_DSI0 0xff
+#endif
+#ifndef PM_MIPI_DSI1
+#define PM_MIPI_DSI1 0xff
+#endif
+#ifndef PM_EDP0
+#define PM_EDP0 0xff
+#endif
+#ifndef PM_EDP1
+#define PM_EDP1 0xff
 #endif

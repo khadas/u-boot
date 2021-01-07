@@ -31,23 +31,12 @@
 #include <amlogic/media/vout/lcd/bl_extern.h>
 #endif
 
-#ifdef CONFIG_SYS_I2C_AML
-#define LCD_EXT_I2C_BUS_0     1  //A
-#define LCD_EXT_I2C_BUS_1     2  //B
-#define LCD_EXT_I2C_BUS_2     3  //C
-#define LCD_EXT_I2C_BUS_3     4  //D
-#define LCD_EXT_I2C_BUS_4     0  //AO
-#define LCD_EXT_I2C_BUS_MAX   0xff
-
-#else
 #define LCD_EXT_I2C_BUS_0     0  //A
 #define LCD_EXT_I2C_BUS_1     1  //B
 #define LCD_EXT_I2C_BUS_2     2  //C
 #define LCD_EXT_I2C_BUS_3     3  //D
 #define LCD_EXT_I2C_BUS_4     4  //AO
 #define LCD_EXT_I2C_BUS_MAX   0xff
-
-#endif
 
 #define LCD_EXT_I2C_BUS_INVALID        0xff
 #define LCD_EXT_I2C_ADDR_INVALID       0xff

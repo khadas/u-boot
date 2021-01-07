@@ -382,7 +382,6 @@ static int dptx_wait_phy_ready(void)
 {
 	unsigned int data = 0;
 	unsigned int done = 100;
-	int ret;
 
 	do {
 		data = dptx_reg_read(EDP_TX_PHY_STATUS);
@@ -461,13 +460,14 @@ static void edp_tx_init(void)
 
 static void edp_power_init(void)
 {
+#ifdef CONFIG_SECURE_POWER_CONTROL
 //#define PM_EDP0          48
 //#define PM_EDP1          49
 //#define PM_MIPI_DSI1     50
 //#define PM_MIPI_DSI0     41
 	pwr_ctrl_psci_smc(PM_EDP0, 1);
 	pwr_ctrl_psci_smc(PM_EDP1, 1);
-
+#endif
 	LCDPR(" edp power domain on\n");
 }
 
@@ -670,13 +670,14 @@ static void lcd_venc_set_edp(void)
 
 static void mipi_dsi_power_init(void)
 {
+#ifdef CONFIG_SECURE_POWER_CONTROL
 //#define PM_EDP0          48
 //#define PM_EDP1          49
 //#define PM_MIPI_DSI1     50
 //#define PM_MIPI_DSI0     41
 	pwr_ctrl_psci_smc(PM_MIPI_DSI0, 1);
 	pwr_ctrl_psci_smc(PM_MIPI_DSI1, 1);
-
+#endif
 	LCDPR(" mipi-dsi power domain on\n");
 }
 
@@ -980,15 +981,6 @@ set_pll_retry_lvds:
 	writel(data32, COMBO_DPHY_VID_PLL2_DIV);
 
 	//3.config vclk
-	writel(0x00000000, CLKCTRL_VIID_CLK2_CTRL);
-	udelay(5);
-	writel(0x00000000, CLKCTRL_VID_PLL_CLK2_DIV);
-	writel(0x00010000, CLKCTRL_VID_PLL_CLK2_DIV);
-	writel(0x00018000, CLKCTRL_VID_PLL_CLK2_DIV);
-	writel(0x0001bc78, CLKCTRL_VID_PLL_CLK2_DIV);
-	writel(0x00013c78, CLKCTRL_VID_PLL_CLK2_DIV);
-	writel(0x00093c78, CLKCTRL_VID_PLL_CLK2_DIV);
-
 	writel(0x00000000, CLKCTRL_VIID_CLK2_DIV);
 	udelay(5);
 	writel(0x00080000, CLKCTRL_VIID_CLK2_CTRL);
@@ -1048,15 +1040,15 @@ set_pll_retry_lvds:
 static void lvds_init(void)
 {
 	/* set fifo_clk_sel: div 7 */
-	lcd_combo_write(COMBO_DPHY_EDP_LVDS_TX_PHY2_CNTL0, (1 << 5));
+	lcd_combo_dphy_write(COMBO_DPHY_EDP_LVDS_TX_PHY2_CNTL0, (1 << 5));
 	/* set cntl_ser_en:  8-channel to 1 */
-	lcd_combo_setb(COMBO_DPHY_EDP_LVDS_TX_PHY2_CNTL0, 0x3ff, 16, 10);
+	lcd_combo_dphy_setb(COMBO_DPHY_EDP_LVDS_TX_PHY2_CNTL0, 0x3ff, 16, 10);
 
 	/* decoupling fifo enable, gated clock enable */
-	lcd_combo_write(COMBO_DPHY_EDP_LVDS_TX_PHY2_CNTL1,
+	lcd_combo_dphy_write(COMBO_DPHY_EDP_LVDS_TX_PHY2_CNTL1,
 			(1 << 6) | (1 << 0));
 	/* decoupling fifo write enable after fifo enable */
-	lcd_combo_setb(COMBO_DPHY_EDP_LVDS_TX_PHY2_CNTL1, 1, 7, 1);
+	lcd_combo_dphy_setb(COMBO_DPHY_EDP_LVDS_TX_PHY2_CNTL1, 1, 7, 1);
 
 	lcd_vcbus_write(LVDS_SER_EN + (0x600 << 2), 0xfff );
 	lcd_vcbus_write(LVDS_PACK_CNTL_ADDR + (0x600 << 2),

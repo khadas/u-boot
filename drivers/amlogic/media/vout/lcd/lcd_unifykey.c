@@ -26,9 +26,6 @@
 #include <amlogic/media/vout/lcd/aml_lcd.h>
 #include "lcd_reg.h"
 #include "lcd_common.h"
-#ifdef CONFIG_UNIFY_KEY_MANAGE
-#include "lcd_tcon_ref.h"
-#endif
 
 #define LCD_UNIFYKEY_TEST
 #define LCDUKEY(fmt, args...)     printf("lcd ukey: "fmt"", ## args)

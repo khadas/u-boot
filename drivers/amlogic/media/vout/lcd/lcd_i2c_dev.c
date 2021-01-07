@@ -17,169 +17,45 @@
 #include <common.h>
 #include <malloc.h>
 #include <asm/arch/gpio.h>
-#include <linux/libfdt.h>
+#include <fdtdec.h>
 #include <i2c.h>
-#include <dm/device.h>
+#include <dm.h>
 #include <amlogic/media/vout/lcd/aml_lcd.h>
-#include <amlogic/media/vout/lcd/lcd_extern.h>
 #include <amlogic/media/vout/lcd/lcd_i2c_dev.h>
-#include "lcd_extern/lcd_extern.h"
 #include "lcd_common.h"
-#include "lcd_reg.h"
 
-#ifdef CONFIG_SYS_I2C_AML
-static unsigned int i2c_bus_tmp = LCD_EXTERN_I2C_BUS_MAX;
-#endif
+#define LCDI2C_PR(fmt, args...)     printf("lcd_i2c: "fmt"", ## args)
+#define LCDI2C_ERR(fmt, args...)    printf("lcd_i2c: error: "fmt"", ## args)
 
-struct lcd_extern_i2c_match_s {
+struct lcd_i2c_match_s {
 	unsigned char bus_id;
-	unsigned char bus_sys;
 	char *bus_str;
 };
 
-static struct lcd_extern_i2c_match_s lcd_extern_i2c_match_table[] = {
-	{LCD_EXTERN_I2C_BUS_0,   LCD_EXT_I2C_BUS_0,   "i2c_0/a"},
-	{LCD_EXTERN_I2C_BUS_1,   LCD_EXT_I2C_BUS_1,   "i2c_1/b"},
-	{LCD_EXTERN_I2C_BUS_2,   LCD_EXT_I2C_BUS_2,   "i2c_2/c"},
-	{LCD_EXTERN_I2C_BUS_3,   LCD_EXT_I2C_BUS_3,   "i2c_3/d"},
-	{LCD_EXTERN_I2C_BUS_4,   LCD_EXT_I2C_BUS_4,   "i2c_4/ao"},
-	{LCD_EXTERN_I2C_BUS_MAX, LCD_EXT_I2C_BUS_MAX, "i2c_invalid"},
+static struct lcd_i2c_match_s lcd_i2c_match_table[] = {
+	{LCD_EXT_I2C_BUS_0,   "i2c_0/a"},
+	{LCD_EXT_I2C_BUS_1,   "i2c_1/b"},
+	{LCD_EXT_I2C_BUS_2,   "i2c_2/c"},
+	{LCD_EXT_I2C_BUS_3,   "i2c_3/d"},
+	{LCD_EXT_I2C_BUS_4,   "i2c_4/ao"},
+	{LCD_EXT_I2C_BUS_MAX, "i2c_invalid"},
 };
 
-void lcd_extern_i2c_bus_print(unsigned char i2c_bus)
+void aml_lcd_i2c_bus_print(unsigned char i2c_bus)
 {
-	int i, temp = ARRAY_SIZE(lcd_extern_i2c_match_table) - 1;
+	int i, temp = ARRAY_SIZE(lcd_i2c_match_table) - 1;
 
-	for (i = 0; i < ARRAY_SIZE(lcd_extern_i2c_match_table); i++) {
-		if (lcd_extern_i2c_match_table[i].bus_id == i2c_bus) {
+	for (i = 0; i < ARRAY_SIZE(lcd_i2c_match_table); i++) {
+		if (lcd_i2c_match_table[i].bus_id == i2c_bus) {
 			temp = i;
 			break;
 		}
 	}
 
-	EXTPR("i2c_bus = %s(%d)\n",
-	      lcd_extern_i2c_match_table[temp].bus_str, temp);
+	LCDI2C_PR("i2c_bus = %s(%d)\n", lcd_i2c_match_table[temp].bus_str, temp);
 }
 
-unsigned char lcd_extern_i2c_bus_get_sys(unsigned char i2c_bus)
-{
-	int i, ret = LCD_EXT_I2C_BUS_MAX;
-
-	for (i = 0; i < ARRAY_SIZE(lcd_extern_i2c_match_table); i++) {
-		if (lcd_extern_i2c_match_table[i].bus_id == i2c_bus) {
-			ret = lcd_extern_i2c_match_table[i].bus_sys;
-			break;
-		}
-	}
-
-	if (lcd_debug_print_flag)
-		EXTPR("%s: %d->%d\n", __func__, i2c_bus, ret);
-	return ret;
-}
-
-#ifdef CONFIG_SYS_I2C_AML
-int lcd_extern_i2c_bus_change(unsigned int i2c_bus)
-{
-	unsigned char aml_i2c_bus;
-	int ret = 0;
-
-	aml_i2c_bus_tmp = g_aml_i2c_plat.master_no;
-	aml_i2c_bus = lcd_extern_i2c_bus_get_sys(i2c_bus);
-
-	if (aml_i2c_bus == LCD_EXT_I2C_BUS_MAX) {
-		EXTERR("%s: invalid sys aml_i2c_bus %d\n",
-		       __func__, aml_i2c_bus);
-		return -1;
-	}
-	g_aml_i2c_plat.master_no = aml_i2c_bus;
-	ret = i2c_init();
-
-	return ret;
-}
-
-int lcd_extern_i2c_bus_recovery(void)
-{
-	int ret = 0;
-
-	g_aml_i2c_plat.master_no = i2c_bus_tmp;
-	ret = i2c_init();
-
-	return ret;
-}
-
-#else
-int lcd_extern_i2c_bus_change(unsigned int i2c_bus)
-{
-	return 0;
-}
-
-int lcd_extern_i2c_bus_recovery(void)
-{
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_SYS_I2C_AML
-int lcd_extern_i2c_write(unsigned char i2c_bus, unsigned int i2c_addr,
-			 unsigned char *buff, unsigned int len)
-{
-	struct i2c_msg msg;
-	int i, ret = 0;
-
-	if (!len) {
-		EXTERR("%s: invalid len\n", __func__);
-		return -1;
-	}
-
-	msg.addr = i2c_addr;
-	msg.flags = 0;
-	msg.len = len;
-	msg.buf = buff;
-
-	if (lcd_debug_print_flag) {
-		printf("%s: [addr 0x%02x]\n", __func__, i2c_addr);
-		for (i = 0; i < len; i++)
-			printf(" 0x%02x", buff[i]);
-	}
-
-	ret = aml_i2c_xfer(&msg, 1);
-	if (ret < 0)
-		EXTERR("i2c write failed [addr 0x%02x]\n", i2c_addr);
-
-	return ret;
-}
-
-int lcd_extern_i2c_read(unsigned char i2c_bus, unsigned int i2c_addr,
-			unsigned char *buff, unsigned int len)
-{
-	struct i2c_msg msgs[2];
-	int ret = 0, i;
-
-	msgs[0].addr = i2c_addr;
-	msgs[0].flags = 0;
-	msgs[0].len = 1;
-	msgs[0].buf = buff;
-	msgs[1].addr = i2c_addr;
-	msgs[1].flags = I2C_M_RD;
-	msgs[1].len = len;
-	msgs[1].buf = buff;
-
-	ret = aml_i2c_xfer(msgs, 2);
-	if (ret < 0) {
-		EXTERR("i2c read failed [addr 0x%02x]\n", i2c_addr);
-	} else {
-		if (lcd_debug_print_flag) {
-			printf("%s: [addr 0x%02x]\n", __func__, i2c_addr);
-			for (i = 0; i < len; i++)
-				printf(" 0x%02x", buff[i]);
-		}
-	}
-
-	return ret;
-}
-
-#else
-int lcd_extern_i2c_write(unsigned char i2c_bus, unsigned int i2c_addr,
+int aml_lcd_i2c_write(unsigned char i2c_bus, unsigned int i2c_addr,
 			 unsigned char *buff, unsigned int len)
 {
 	unsigned char aml_i2c_bus;
@@ -187,10 +63,10 @@ int lcd_extern_i2c_write(unsigned char i2c_bus, unsigned int i2c_addr,
 	int i, ret = 0;
 	unsigned char data = 0;
 
-	aml_i2c_bus = lcd_extern_i2c_bus_get_sys(i2c_bus);
+	aml_i2c_bus = i2c_bus;
 	ret = i2c_get_chip_for_busnum(aml_i2c_bus, i2c_addr, 1, &i2c_dev);
 	if (ret) {
-		EXTERR("no sys aml_i2c_bus %d find\n", aml_i2c_bus);
+		LCDI2C_ERR("no sys aml_i2c_bus %d find\n", aml_i2c_bus);
 		return ret;
 	}
 
@@ -202,51 +78,51 @@ int lcd_extern_i2c_write(unsigned char i2c_bus, unsigned int i2c_addr,
 	}
 
 	if (len < 1) {
-		EXTERR("invailed len %d\n", len);
+		LCDI2C_ERR("invailed len %d\n", len);
 		return -1;
 	}
 	if (len == 1)
-		ret = i2c_write(i2c_dev, buff[0], &data, len);
+		ret = dm_i2c_write(i2c_dev, buff[0], &data, len);
 	else if (len > 1)
-		ret = i2c_write(i2c_dev, buff[0], &buff[1], len - 1);
+		ret = dm_i2c_write(i2c_dev, buff[0], &buff[1], len - 1);
 
 	if (ret) {
-		EXTERR("i2c write failed [addr 0x%02x]\n", i2c_addr);
+		LCDI2C_ERR("i2c write failed [addr 0x%02x]\n", i2c_addr);
 		return ret;
 	}
 
 	return 0;
 }
 
-int lcd_extern_i2c_read(unsigned char i2c_bus, unsigned int i2c_addr,
+int aml_lcd_i2c_read(unsigned char i2c_bus, unsigned int i2c_addr,
 			unsigned char *buff, unsigned int len)
 {
 	unsigned char aml_i2c_bus;
 	struct udevice *i2c_dev;
 	int ret = 0, i;
 
-	aml_i2c_bus = lcd_extern_i2c_bus_get_sys(i2c_bus);
+	aml_i2c_bus = i2c_bus;
 	ret = i2c_get_chip_for_busnum(aml_i2c_bus, i2c_addr, 1, &i2c_dev);
 	if (ret) {
-		EXTERR("no sys aml_i2c_bus %d find\n", aml_i2c_bus);
+		LCDI2C_ERR("no sys aml_i2c_bus %d find\n", aml_i2c_bus);
 		return ret;
 	}
 
 #if 0
 	ret = i2c_write(i2c_dev, buff[0], &buff[1], 1);
 	if (ret) {
-		EXTERR("i2c write failed [addr 0x%02x]\n", i2c_addr);
+		LCDI2C_ERR("i2c write failed [addr 0x%02x]\n", i2c_addr);
 		return ret;
 	}
 #endif
 	if (len < 1) {
-		EXTERR("invalied len %d\n", len);
+		LCDI2C_ERR("invalied len %d\n", len);
 		return -1;
 	}
 
-	ret = i2c_read(i2c_dev, buff[0], buff, len);
+	ret = dm_i2c_read(i2c_dev, buff[0], buff, len);
 	if (ret) {
-		EXTERR("i2c read failed [addr 0x%02x]\n", i2c_addr);
+		LCDI2C_ERR("i2c read failed [addr 0x%02x]\n", i2c_addr);
 		return ret;
 	}
 	if (lcd_debug_print_flag) {
@@ -258,4 +134,4 @@ int lcd_extern_i2c_read(unsigned char i2c_bus, unsigned int i2c_addr,
 
 	return 0;
 }
-#endif
+

@@ -56,20 +56,12 @@ static int lcd_extern_power_on(void)
 	int ret = 0;
 
 	lcd_extern_pinmux_set(ext_config, 1);
-#ifdef LCD_EXT_I2C_PORT_INIT
-	lcd_extern_i2c_bus_change(ext_config->i2c_bus);
-	mdelay(10);
-#endif
 
-	lcd_extern_i2c_write(ext_config->i2c_bus, ext_config->i2c_addr, data_1, 9);
-	lcd_extern_i2c_write(ext_config->i2c_bus, ext_config->i2c_addr, data_2, 5);
-	lcd_extern_i2c_write(ext_config->i2c_bus, ext_config->i2c_addr, data_3, 5);
-	lcd_extern_i2c_write(ext_config->i2c_bus, ext_config->i2c_addr, data_4, 2);
-	lcd_extern_i2c_write(ext_config->i2c_bus, ext_config->i2c_addr, data_5, 2);
-
-#ifdef LCD_EXT_I2C_PORT_INIT
-	lcd_extern_i2c_bus_recovery();
-#endif
+	aml_lcd_i2c_write(ext_config->i2c_bus, ext_config->i2c_addr, data_1, 9);
+	aml_lcd_i2c_write(ext_config->i2c_bus, ext_config->i2c_addr, data_2, 5);
+	aml_lcd_i2c_write(ext_config->i2c_bus, ext_config->i2c_addr, data_3, 5);
+	aml_lcd_i2c_write(ext_config->i2c_bus, ext_config->i2c_addr, data_4, 2);
+	aml_lcd_i2c_write(ext_config->i2c_bus, ext_config->i2c_addr, data_5, 2);
 
 	EXTPR("%s\n", __func__);
 	return ret;

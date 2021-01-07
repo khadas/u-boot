@@ -931,7 +931,7 @@ static int lcd_extern_get_config_dts(char *dtaddr, int index,
 		}
 		extconf->i2c_bus = extcommon->i2c_bus;
 		if (lcd_debug_print_flag)
-			lcd_extern_i2c_bus_print(extconf->i2c_bus);
+			aml_lcd_i2c_bus_print(extconf->i2c_bus);
 		if (extcommon->i2c_sck_gpio < LCD_EXTERN_GPIO_NUM_MAX ||
 		    extcommon->i2c_sda_gpio < LCD_EXTERN_GPIO_NUM_MAX)
 			EXTPR("%s: find i2c_gpio_off config\n", extconf->name);
@@ -1394,7 +1394,7 @@ static int lcd_extern_get_config_unifykey(int index,
 			extcommon->i2c_bus = *(p + LCD_UKEY_EXT_TYPE_VAL_2);
 		extconf->i2c_bus = extcommon->i2c_bus;
 		if (lcd_debug_print_flag)
-			lcd_extern_i2c_bus_print(extconf->i2c_bus);
+			aml_lcd_i2c_bus_print(extconf->i2c_bus);
 		if (extcommon->i2c_sck_gpio < LCD_EXTERN_GPIO_NUM_MAX ||
 		    extcommon->i2c_sda_gpio < LCD_EXTERN_GPIO_NUM_MAX)
 			EXTPR("find i2c_gpio_off config\n");

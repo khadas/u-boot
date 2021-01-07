@@ -31,11 +31,11 @@
 static unsigned int bl_extern_status;
 static unsigned int bl_extern_level;
 
-static struct bl_extern_driver_s bl_extern_driver;
+static struct aml_bl_extern_driver_s bl_extern_driver;
 
 static int bl_extern_set_level(unsigned int level)
 {
-	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
+	struct lcd_drv_s *lcd_drv = lcd_get_driver();
 	struct aml_bl_extern_driver_s *bl_extern = aml_bl_extern_get_driver();
 	unsigned int level_max, level_min;
 	unsigned int dim_max, dim_min;
@@ -64,7 +64,7 @@ static int bl_extern_power_on(void)
 {
 	int ret = 0;
 
-	BLEXT("%s\n", __func__);
+	BLEX("%s\n", __func__);
 
 	if (bl_extern_driver.device_power_on) {
 		bl_extern_driver.device_power_on();
@@ -90,7 +90,7 @@ static int bl_extern_power_off(void)
 	return ret;
 }
 
-static struct bl_extern_driver_s bl_extern_driver = {
+static struct aml_bl_extern_driver_s bl_extern_driver = {
 	.power_on = bl_extern_power_on,
 	.power_off = bl_extern_power_off,
 	.set_level = bl_extern_set_level,
@@ -101,7 +101,7 @@ static struct bl_extern_driver_s bl_extern_driver = {
 	.config = NULL,
 };
 
-struct aml_bl_extern_driver_s *bl_extern_get_driver(void)
+struct aml_bl_extern_driver_s *aml_bl_extern_get_driver(void)
 {
 	return &bl_extern_driver;
 }
@@ -536,7 +536,7 @@ static int bl_extern_config_from_dts(char *dtaddr, int index)
 			bl_extern->config->i2c_bus = bl_ext_i2c_bus;
 		}
 		if (lcd_debug_print_flag)
-			bl_extern_i2c_bus_print(bl_extern->config->i2c_bus);
+			aml_lcd_i2c_bus_print(bl_extern->config->i2c_bus);
 
 		propdata = (char *)fdt_getprop(dtaddr, child_offset,
 					       "cmd_size", NULL);

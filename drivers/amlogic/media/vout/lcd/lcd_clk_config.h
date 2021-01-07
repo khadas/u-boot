@@ -22,6 +22,7 @@
 #define _LCD_CLK_CONFIG_H
 
 #include <linux/types.h>
+#include <asm/arch/clk_measure.h>
 #include <amlogic/media/vout/lcd/aml_lcd.h>
 
 /* **********************************
@@ -130,7 +131,5 @@ extern void lcd_clk_disable(void);
 
 extern void lcd_clk_generate_parameter(struct lcd_config_s *pconf);
 extern void lcd_clk_config_probe(void);
-
-unsigned long clk_util_clk_msr(int index);
 
 #endif

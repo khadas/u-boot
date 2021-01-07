@@ -110,12 +110,12 @@
  * register access api
  * ********************************* */
 /* use offset address */
-static inline unsigned int lcd_combo_read(unsigned int _reg)
+static inline unsigned int lcd_combo_dphy_read(unsigned int _reg)
 {
 	return *(volatile unsigned int *)(REG_ADDR_COMBO(_reg));
 };
 
-static inline void lcd_combo_write(unsigned int _reg, unsigned int _value)
+static inline void lcd_combo_dphy_write(unsigned int _reg, unsigned int _value)
 {
 #ifdef LCD_REG_DEBUG
 	printf("combo_reg_addr[0x%08x]\n", _reg);
@@ -123,29 +123,29 @@ static inline void lcd_combo_write(unsigned int _reg, unsigned int _value)
 	*(volatile unsigned int *)REG_ADDR_COMBO(_reg) = (_value);
 };
 
-static inline void lcd_combo_setb(unsigned int _reg, unsigned int _value,
+static inline void lcd_combo_dphy_setb(unsigned int _reg, unsigned int _value,
 				   unsigned int _start, unsigned int _len)
 {
-	lcd_combo_write(_reg, ((lcd_combo_read(_reg) &
+	lcd_combo_dphy_write(_reg, ((lcd_combo_dphy_read(_reg) &
 			~(((1L << (_len))-1) << (_start))) |
 			(((_value)&((1L<<(_len))-1)) << (_start))));
 }
 
-static inline unsigned int lcd_combo_getb(unsigned int _reg,
+static inline unsigned int lcd_combo_dphy_getb(unsigned int _reg,
 					   unsigned int _start,
 					   unsigned int _len)
 {
-	return (lcd_combo_read(_reg) >> (_start)) & ((1L << (_len)) - 1);
+	return (lcd_combo_dphy_read(_reg) >> (_start)) & ((1L << (_len)) - 1);
 }
 
-static inline void lcd_combo_set_mask(unsigned int _reg, unsigned int _mask)
+static inline void lcd_combo_dphy_set_mask(unsigned int _reg, unsigned int _mask)
 {
-	lcd_combo_write(_reg, (lcd_combo_read(_reg) | (_mask)));
+	lcd_combo_dphy_write(_reg, (lcd_combo_dphy_read(_reg) | (_mask)));
 }
 
-static inline void lcd_combo_clr_mask(unsigned int _reg, unsigned int _mask)
+static inline void lcd_combo_dphy_clr_mask(unsigned int _reg, unsigned int _mask)
 {
-	lcd_combo_write(_reg, (lcd_combo_read(_reg) & (~(_mask))));
+	lcd_combo_dphy_write(_reg, (lcd_combo_dphy_read(_reg) & (~(_mask))));
 }
 
 static inline unsigned int lcd_hiu_read(unsigned int _reg)

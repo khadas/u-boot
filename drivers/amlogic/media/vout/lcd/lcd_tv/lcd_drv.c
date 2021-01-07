@@ -222,9 +222,9 @@ static void lcd_lvds_clk_util_set(struct lcd_config_s *pconf)
 
 	if (lcd_drv->chip_type == LCD_CHIP_T7) {
 		/* set fifo_clk_sel: div 7 */
-		lcd_combo_write(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, (1 << 5));
+		lcd_combo_dphy_write(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, (1 << 5));
 		/* set cntl_ser_en:  8-channel to 1 */
-		lcd_combo_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, 0xff, 16, 8);
+		lcd_combo_dphy_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, 0xff, 16, 8);
 	} else {
 		/* set fifo_clk_sel: div 7 */
 		lcd_hiu_write(HHI_LVDS_TX_PHY_CNTL0, (1 << 6));
@@ -240,7 +240,7 @@ static void lcd_lvds_clk_util_set(struct lcd_config_s *pconf)
 		lcd_hiu_setb(HHI_LVDS_TX_PHY_CNTL0, 1, 2, 1);
 		break;
 	case LCD_CHIP_T7:
-		lcd_combo_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, 1, 2, 1);
+		lcd_combo_dphy_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, 1, 2, 1);
 		break;
 	default:
 		break;
@@ -248,10 +248,10 @@ static void lcd_lvds_clk_util_set(struct lcd_config_s *pconf)
 
 	if (lcd_drv->chip_type == LCD_CHIP_T7) {
 		/* decoupling fifo enable, gated clock enable */
-		lcd_combo_write(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1,
+		lcd_combo_dphy_write(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1,
 				(1 << 6) | (1 << 0));
 		/* decoupling fifo write enable after fifo enable */
-		lcd_combo_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1, 1, 7, 1);
+		lcd_combo_dphy_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1, 1, 7, 1);
 	} else {
 		/* decoupling fifo enable, gated clock enable */
 		lcd_hiu_write(HHI_LVDS_TX_PHY_CNTL1,
@@ -500,10 +500,10 @@ static void lcd_vbyone_clk_util_set(struct lcd_config_s *pconf)
 
 	if (lcd_drv->chip_type == LCD_CHIP_T7) {
 		/* set fifo_clk_sel*/
-		lcd_combo_write(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0,
+		lcd_combo_dphy_write(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0,
 				(div_sel << 5));
 		/* set cntl_ser_en:  8-channel to 1 */
-		lcd_combo_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, 0xff, 16, 8);
+		lcd_combo_dphy_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, 0xff, 16, 8);
 	} else {
 		/* set fifo_clk_sel*/
 		lcd_hiu_write(HHI_LVDS_TX_PHY_CNTL0, (div_sel << 6));
@@ -519,7 +519,7 @@ static void lcd_vbyone_clk_util_set(struct lcd_config_s *pconf)
 		lcd_hiu_setb(HHI_LVDS_TX_PHY_CNTL0, 1, 2, 1);
 		break;
 	case LCD_CHIP_T7:
-		lcd_combo_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, 1, 2, 1);
+		lcd_combo_dphy_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, 1, 2, 1);
 		break;
 	default:
 		break;
@@ -527,10 +527,10 @@ static void lcd_vbyone_clk_util_set(struct lcd_config_s *pconf)
 
 	if (lcd_drv->chip_type == LCD_CHIP_T7) {
 		/* decoupling fifo enable, gated clock enable */
-		lcd_combo_write(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1,
+		lcd_combo_dphy_write(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1,
 				(1 << 6) | (1 << 0));
 		/* decoupling fifo write enable after fifo enable */
-		lcd_combo_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1, 1, 7, 1);
+		lcd_combo_dphy_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1, 1, 7, 1);
 	} else {
 		/* decoupling fifo enable, gated clock enable */
 		lcd_hiu_write(HHI_LVDS_TX_PHY_CNTL1,
@@ -719,14 +719,14 @@ static void lcd_vbyone_sw_reset(void)
 
 	/* force PHY to 0 */
 	if (lcd_drv->chip_type == LCD_CHIP_T7)
-		lcd_combo_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, 3, 8, 2);
+		lcd_combo_dphy_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, 3, 8, 2);
 	else
 		lcd_hiu_setb(HHI_LVDS_TX_PHY_CNTL0, 3, 8, 2);
 	lcd_vcbus_write(VBO_SOFT_RST, 0x1ff);
 	udelay(5);
 	/* realease PHY */
 	if (lcd_drv->chip_type == LCD_CHIP_T7)
-		lcd_combo_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, 0, 8, 2);
+		lcd_combo_dphy_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, 0, 8, 2);
 	else
 		lcd_hiu_setb(HHI_LVDS_TX_PHY_CNTL0, 0, 8, 2);
 	lcd_vcbus_write(VBO_SOFT_RST, 0);

@@ -44,7 +44,7 @@ static struct bl_config_s *bl_check_valid(void)
 	struct bl_config_s *bconf;
 	unsigned int bconf_flag = 1;
 #ifdef CONFIG_AML_BL_EXTERN
-	struct bl_extern_driver_s *bl_ext;
+	struct aml_bl_extern_driver_s *bl_ext;
 #endif
 #ifdef CONFIG_AML_LOCAL_DIMMING
 	struct ldim_driver_s *ldim_drv;
@@ -84,7 +84,7 @@ static struct bl_config_s *bl_check_valid(void)
 #endif
 #ifdef CONFIG_AML_BL_EXTERN
 	case BL_CTRL_EXTERN:
-		bl_ext = bl_extern_get_driver();
+		bl_ext = aml_bl_extern_get_driver();
 		if (bl_ext == NULL) {
 			LCDERR("bl: no bl_extern driver\n");
 			bconf_flag = 0;
@@ -656,7 +656,7 @@ void bl_set_level(unsigned int level)
 	struct bl_config_s *bconf;
 	struct bl_pwm_config_s *pwm0, *pwm1;
 #ifdef CONFIG_AML_BL_EXTERN
-	struct bl_extern_driver_s *bl_ext;
+	struct aml_bl_extern_driver_s *bl_ext;
 #endif
 #ifdef CONFIG_AML_LOCAL_DIMMING
 	struct ldim_driver_s *ldim_drv;
@@ -715,7 +715,7 @@ void bl_set_level(unsigned int level)
 #endif
 #ifdef CONFIG_AML_BL_EXTERN
 	case BL_CTRL_EXTERN:
-		bl_ext = bl_extern_get_driver();
+		bl_ext = aml_bl_extern_get_driver();
 		if (bl_ext->set_level)
 			bl_ext->set_level(level);
 		else
@@ -816,7 +816,7 @@ void bl_power_ctrl(int status, int delay_flag)
 	struct lcd_drv_s *lcd_drv = lcd_get_driver();
 	struct bl_config_s *bconf;
 #ifdef CONFIG_AML_BL_EXTERN
-	struct bl_extern_driver_s *bl_ext;
+	struct aml_bl_extern_driver_s *bl_ext;
 #endif
 #ifdef CONFIG_AML_LOCAL_DIMMING
 	struct ldim_driver_s *ldim_drv;
@@ -919,7 +919,7 @@ void bl_power_ctrl(int status, int delay_flag)
 #endif
 #ifdef CONFIG_AML_BL_EXTERN
 		case BL_CTRL_EXTERN:
-			bl_ext = bl_extern_get_driver();
+			bl_ext = aml_bl_extern_get_driver();
 			if (bconf->en_sequence_reverse) {
 				/* step 1: power on enable */
 				bl_power_en_ctrl(bconf, 1);
@@ -1014,7 +1014,7 @@ void bl_power_ctrl(int status, int delay_flag)
 #endif
 #ifdef CONFIG_AML_BL_EXTERN
 		case BL_CTRL_EXTERN:
-			bl_ext = bl_extern_get_driver();
+			bl_ext = aml_bl_extern_get_driver();
 			if (bconf->en_sequence_reverse == 1) {
 				/* step 1: power off bl_extern */
 				if (bl_ext->power_off)
@@ -1080,7 +1080,7 @@ void bl_config_print(void)
 	struct ldim_driver_s *ldim_drv = ldim_get_driver();
 #endif
 #ifdef CONFIG_AML_BL_EXTERN
-	struct bl_extern_driver_s *bl_extern = bl_extern_get_driver();
+	struct aml_bl_extern_driver_s *bl_extern = aml_bl_extern_get_driver();
 #endif
 
 	bconf = lcd_drv->bl_config;

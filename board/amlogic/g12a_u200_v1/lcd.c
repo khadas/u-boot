@@ -16,10 +16,10 @@
 #include <common.h>
 #include <amlogic/media/vout/lcd/aml_lcd.h>
 #ifdef CONFIG_AML_LCD_EXTERN
-#include "lcd_extern.h"
+//#include "lcd_extern.h"
 #endif
 
-static char lcd_cpu_gpio[LCD_CPU_GPIO_NUM_MAX][LCD_GPIO_NAME_MAX] = {
+static char lcd_cpu_gpio[LCD_CPU_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
 	"GPIOZ_9", /* panel rst */
 	"GPIOZ_8", /* panel power */
 	"invalid", /* ending flag */
@@ -129,7 +129,7 @@ static unsigned char mipi_init_off_table_TL070WSH27[DSI_INIT_OFF_MAX] = {//table
 	0xff, 0,   //ending
 };
 
-static char lcd_bl_gpio[BL_GPIO_NUM_MAX][LCD_GPIO_NAME_MAX] = {
+static char lcd_bl_gpio[BL_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
 	"GPIOH_4", /* BL_EN */
 	"GPIOH_5", /* BL_PWM */
 	"invalid", /* ending flag */
@@ -327,31 +327,56 @@ struct lcd_config_s lcd_config_dft = {
 };
 
 #ifdef CONFIG_AML_LCD_EXTERN
-struct lcd_extern_common_s ext_common_dft = {
-	.lcd_ext_key_valid = 0,
-	.i2c_bus = LCD_EXTERN_I2C_BUS_0, /* LCD_EXTERN_I2C_BUS_0/1/2/3/4 */
-	.i2c_gpio_sck = LCD_EXT_I2C_GPIO_SCK,
-	.i2c_gpio_sda = LCD_EXT_I2C_GPIO_SDA,
-	.spi_gpio_cs = LCD_EXT_SPI_GPIO_CS,
-	.spi_gpio_clk = LCD_EXT_SPI_GPIO_CLK,
-	.spi_gpio_data = LCD_EXT_SPI_GPIO_DATA,
-
-	.lcd_ext_pinmux = lcd_ext_pinmux_ctrl,
-	.pinmux_set = {{LCD_PINMUX_END, 0x0}},
-	.pinmux_clr = {{LCD_PINMUX_END, 0x0}},
-	.pinmux_gpio_off = LCD_EXT_PINMUX_GPIO_OFF,
+static char lcd_ext_gpio[LCD_EXTERN_GPIO_NUM_MAX][LCD_EXTERN_GPIO_LEN_MAX] = {
+	"invalid", /* ending flag */
 };
 
-struct lcd_extern_config_s ext_config_dtf = {
-	.index = 0,
-	.name = "ext_default",
-	.type = LCD_EXTERN_MAX, /* LCD_EXTERN_I2C, LCD_EXTERN_SPI, LCD_EXTERN_MIPI, LCD_EXTERN_MAX */
-	.status = 0, /* 0=disable, 1=enable */
-	.cmd_size = LCD_EXT_CMD_SIZE_DYNAMIC,
-	.table_init_on = ext_init_on_table,
-	.table_init_on_cnt = sizeof(ext_init_on_table),
-	.table_init_off = ext_init_off_table,
-	.table_init_off_cnt = sizeof(ext_init_off_table),
+static unsigned char init_on_table[LCD_EXTERN_INIT_ON_MAX] = {
+	0xc0, 2, 0x01, 0x2b,
+	0xc0, 2, 0x02, 0x05,
+	0xc0, 2, 0x03, 0x00,
+	0xc0, 2, 0x04, 0x00,
+	0xc0, 2, 0x05, 0x0c,
+	0xc0, 2, 0x06, 0x04,
+	0xc0, 2, 0x07, 0x21,
+	0xc0, 2, 0x08, 0x0f,
+	0xc0, 2, 0x09, 0x04,
+	0xc0, 2, 0x0a, 0x00,
+	0xc0, 2, 0x0b, 0x04,
+	0xc0, 2, 0xff, 0x00,
+	0xfd, 1, 100, /* delay 100ms */
+	0xff, 0, /* ending */
+};
+
+static unsigned char init_off_table[LCD_EXTERN_INIT_OFF_MAX] = {
+	0xff, 0,  /* ending */
+};
+
+struct lcd_extern_common_s ext_common_dft = {
+	.lcd_ext_key_valid = 0,
+	.lcd_ext_num = 1,
+	.pinmux_set = {{LCD_PINMUX_END, 0x0} },
+	.pinmux_clr = {{LCD_PINMUX_END, 0x0} },
+};
+
+struct lcd_extern_config_s ext_config_dtf[LCD_EXTERN_NUM_MAX] = {
+	{
+		.index = 0,
+		.name = "invalid",
+		/* LCD_EXTERN_I2C, LCD_EXTERN_SPI, LCD_EXTERN_MAX */
+		.type = LCD_EXTERN_MAX,
+		.status = 0, /* 0=disable, 1=enable */
+		.i2c_addr = 0x20, /* 7bit i2c address */
+		.i2c_addr2 = 0x74, /* 7bit i2c address, 0xff for none */
+		/* LCD_EXTERN_I2C_BUS_0/1/2/3/4 */
+		.i2c_bus = LCD_EXTERN_I2C_BUS_1,
+		.cmd_size = 0xff,
+		.table_init_on = init_on_table,
+		.table_init_off = init_off_table,
+	},
+	{
+		.index = LCD_EXTERN_INDEX_INVALID,
+	},
 };
 #endif
 
@@ -411,8 +436,6 @@ struct bl_extern_config_s bl_extern_config_dtf = {
 void lcd_config_bsp_init(void)
 {
 	int i, j;
-	char *str;
-	struct ext_lcd_config_s *ext_lcd = NULL;
 
 	/* init config, usually no need modify */
 	for (i = 0; i < LCD_CPU_GPIO_NUM_MAX; i++) {
@@ -431,6 +454,12 @@ void lcd_config_bsp_init(void)
 		strcpy(bl_config_dft.gpio_name[j], "invalid");
 
 #ifdef CONFIG_AML_LCD_EXTERN
+	for (i = 0; i < LCD_EXTERN_NUM_MAX; i++) {
+		if (ext_config_dtf[i].index == LCD_EXTERN_INDEX_INVALID)
+			break;
+	}
+	ext_common_dft.lcd_ext_num = i;
+
 	for (i = 0; i < LCD_EXTERN_GPIO_NUM_MAX; i++) {
 		if (strcmp(lcd_ext_gpio[i], "invalid") == 0)
 			break;
@@ -439,22 +468,4 @@ void lcd_config_bsp_init(void)
 	for (j = i; j < LCD_EXTERN_GPIO_NUM_MAX; j++)
 		strcpy(ext_common_dft.gpio_name[j], "invalid");
 #endif
-
-	/* select special config */
-	str = env_get("panel_type");
-	if (str == NULL)
-		return;
-	for (i = 0 ; i < LCD_NUM_MAX ; i++) {
-		ext_lcd = &ext_lcd_config[i];
-		if (strcmp(ext_lcd->panel_type, str) == 0) {
-#ifdef CONFIG_AML_LCD_EXTERN
-			j = ext_lcd->if_attr_val9; /* mipi extern_index */
-			if (j < sizeof(ext_config)/sizeof(struct lcd_extern_config_s)) {
-				memcpy(&ext_config_dtf, &ext_config[j],
-					sizeof(struct lcd_extern_config_s));
-			}
-#endif
-			break;
-		}
-	}
 }

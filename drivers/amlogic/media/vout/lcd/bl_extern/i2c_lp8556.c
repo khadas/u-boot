@@ -55,7 +55,7 @@ static unsigned char init_off_table[] = {
 
 static int bl_extern_power_cmd_dynamic_size(unsigned char *table, int flag)
 {
-	struct bl_extern_driver_s *bl_extern = bl_extern_get_driver();
+	struct aml_bl_extern_get_driver *bl_extern = aml_bl_extern_get_driver();
 	int i = 0, j = 0, max_len = 0, step = 0;
 	unsigned char type, cmd_size;
 	int delay_ms, ret = 0;
@@ -114,7 +114,7 @@ power_cmd_dynamic_next:
 
 static int bl_extern_power_cmd_fixed_size(unsigned char *table, int flag)
 {
-	struct bl_extern_driver_s *bl_extern = bl_extern_get_driver();
+	struct aml_bl_extern_get_driver *bl_extern = aml_bl_extern_get_driver();
 	int i = 0, j, max_len, step = 0;
 	unsigned char type, cmd_size;
 	int delay_ms, ret = 0;
@@ -230,7 +230,7 @@ static int i2c_lp8556_power_off(void)
 
 static int i2c_lp8556_set_level(unsigned int level)
 {
-	struct bl_extern_driver_s *bl_extern = bl_extern_get_driver();
+	struct aml_bl_extern_get_driver *bl_extern = aml_bl_extern_get_driver();
 	unsigned char t_data[5];
 	int ret = 0;
 
@@ -255,7 +255,7 @@ static int i2c_lp8556_set_level(unsigned int level)
 
 static int i2c_lp8556_update(void)
 {
-	struct bl_extern_driver_s *bl_extern = bl_extern_get_driver();
+	struct aml_bl_extern_get_driver *bl_extern = aml_bl_extern_get_driver();
 
 	if (bl_extern == NULL) {
 		BLEXERR("%s driver is null\n", BL_EXTERN_NAME);
