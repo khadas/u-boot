@@ -8325,6 +8325,29 @@
 #define OTP_REE_CFG                                ((0x0042  << 2) + 0xfe440000)
 #define OTP_MRK_CHKNUM                             ((0x0043  << 2) + 0xfe440000)
 #define OTP_REE_RD_DAT                             ((0x0048  << 2) + 0xfe440000)
+
+#define OTP_LIC00                                  (OTP_LIC + 0x00)
+#define OTP_LIC01                                  (OTP_LIC + 0x04)
+#define OTP_LIC02                                  (OTP_LIC + 0x08)
+#define OTP_LIC03                                  (OTP_LIC + 0x0C)
+
+#define OTP_LIC10                                  (OTP_LIC + 0x10)
+#define OTP_LIC11                                  (OTP_LIC + 0x14)
+#define OTP_LIC12                                  (OTP_LIC + 0x18)
+#define OTP_LIC13                                  (OTP_LIC + 0x1C)
+
+#define OTP_LIC20                                  (OTP_LIC + 0x20)
+#define OTP_LIC21                                  (OTP_LIC + 0x24)
+#define OTP_LIC22                                  (OTP_LIC + 0x28)
+#define OTP_LIC23                                  (OTP_LIC + 0x2C)
+
+#define OTP_LIC30                                  (OTP_LIC + 0x30)
+#define OTP_LIC31                                  (OTP_LIC + 0x34)
+#define OTP_LIC32                                  (OTP_LIC + 0x38)
+#define OTP_LIC33                                  (OTP_LIC + 0x3C)
+
+#define OTP_LIC0                                   (OTP_LIC00)
+
 //========================================================================
 // KL REG - Registers               
 //========================================================================
@@ -22471,8 +22494,8 @@
 //                               2'b0x: whole line is left or right;                           
 //                               2'b10: d2p_lar=1(D2P_PARAM_1), rlrlrlrl inteleave in one line,
 //                                      d2p_lar=0(D2P_PARAM_1), lrlrlrlr inteleave in one line,      
-//                               2'b11: d2p_lar=1(D2P_PARAM_1), rrrrr­lllll, half line is right, another half is left,
-//                                      d2p_lar=0(D2P_PARAM_1), lllll­rrrrr, half line is left, another half is right,
+//                               2'b11: d2p_lar=1(D2P_PARAM_1), rrrrr-lllll, half line is right, another half is left,
+//                                      d2p_lar=0(D2P_PARAM_1), lllll-rrrrr, half line is left, another half is right,
 #define D2D3_DBR_DDD_CTRL                          ((0x2b2c  << 2) + 0xff000000)
 // Bit 31:0  RW, ddd_dbg_ctrl,   no use
 #define D2D3_DBR_DDD_DBG                           ((0x2b2d  << 2) + 0xff000000)

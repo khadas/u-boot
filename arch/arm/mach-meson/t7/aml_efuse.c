@@ -50,8 +50,6 @@
 #define FEAT_DISABLE_NBL2_NAND                   (384+57)
 #define FEAT_DISABLE_8BL2_NAND                   (384+58)
 
-
-#define OTP_LIC00	(OTP_LIC + 0x00)
 //function for EFUSE license query
 int  IS_FEAT_BOOT_VERIFY(void)
 {
