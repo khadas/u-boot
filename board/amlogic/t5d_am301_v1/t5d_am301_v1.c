@@ -741,19 +741,26 @@ int checkhw(char * name)
 	for (i=0; i<CONFIG_NR_DRAM_BANKS; i++) {
 		ddr_size += gd->bd->bi_dram[i].size;
 	}
+	cpu_id_t  cpu_id = get_cpu_id();
+
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
 	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
 #endif
 	switch (ddr_size) {
-		case 0x80000000:
-			strcpy(dtb_name, "t5d_t950d4_am301-2g\0");
-			break;
 		case 0x40000000:
-			strcpy(dtb_name, "t5d_t950d4_am301-1g\0");
+			if (MESON_CPU_PACKAGE_ID_T950X4 == cpu_id.package_id) {
+				strcpy(dtb_name, "t5d_t950x4_am311-1g\0");
+			} else {
+				strcpy(dtb_name, "t5d_t950d4_am301-1g\0");
+			}
 			setenv("mem_size", "1g");
 			break;
 		case 0x20000000:
-			strcpy(dtb_name, "t5d_t950d4_am301-512m\0");
+			if (MESON_CPU_PACKAGE_ID_T950X4 == cpu_id.package_id) {
+				strcpy(dtb_name, "t5d_t950x4_am311-512m\0");
+			} else {
+				strcpy(dtb_name, "t5d_t950d4_am301-512m\0");
+			}
 			break;
 		case 0x60000000:
 			strcpy(dtb_name, "t5d_t950d4_am301-1.5g\0");
