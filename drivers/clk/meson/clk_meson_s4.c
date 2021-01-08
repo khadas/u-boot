@@ -18,13 +18,11 @@
 
 /* clk81 gates, sys_clk */
 static struct meson_gate gates[] = {
-//	{CLKID_SYS_SPIFC, SC2_CLKCTRL_SYS_CLK_EN0_REG0, 29},
-	{CLKID_SPICC_A_GATE, SC2_CLKCTRL_SPICC_CLK_CTRL, 6},
-	{CLKID_SPICC_B_GATE, SC2_CLKCTRL_SPICC_CLK_CTRL, 22},
-	{CLKID_SAR_ADC_GATE, SC2_CLKCTRL_SAR_CLK_CTRL0, 8},
-	{CLKID_SD_EMMC_A_GATE, SC2_CLKCTRL_SD_EMMC_CLK_CTRL, 7},
-	{CLKID_SD_EMMC_B_GATE, SC2_CLKCTRL_SD_EMMC_CLK_CTRL, 23},
-	{CLKID_SD_EMMC_C_GATE, SC2_CLKCTRL_NAND_CLK_CTRL, 7},
+	{CLKID_SPICC_A_GATE, S4_CLKCTRL_SPICC_CLK_CTRL, 6},
+	{CLKID_SAR_ADC_GATE, S4_CLKCTRL_SAR_CLK_CTRL, 8},
+	{CLKID_SD_EMMC_A_GATE, S4_CLKCTRL_SD_EMMC_CLK_CTRL, 7},
+	{CLKID_SD_EMMC_B_GATE, S4_CLKCTRL_SD_EMMC_CLK_CTRL, 23},
+	{CLKID_SD_EMMC_C_GATE, S4_CLKCTRL_NAND_CLK_CTRL, 7},
 };
 
 static unsigned int spicc_parents[] = {CLKID_XTAL, CLKID_SYS_CLK,
@@ -38,33 +36,31 @@ CLKID_FCLK_DIV3, CLKID_UNREALIZED, CLKID_UNREALIZED,
 CLKID_UNREALIZED, CLKID_UNREALIZED, CLKID_UNREALIZED};
 
 static struct meson_mux muxes[] = {
-	{CLKID_SPICC_A_MUX, SC2_CLKCTRL_SPICC_CLK_CTRL, 7,  0x7, spicc_parents, ARRAY_SIZE(spicc_parents)},
-	{CLKID_SPICC_B_MUX, SC2_CLKCTRL_SPICC_CLK_CTRL, 23,  0x7, spicc_parents, ARRAY_SIZE(spicc_parents)},
-	{CLKID_SARADC_MUX, SC2_CLKCTRL_SAR_CLK_CTRL0, 9, 0x3, saradc_parents, ARRAY_SIZE(saradc_parents)},
-	{CLKID_SD_EMMC_A_MUX, SC2_CLKCTRL_SD_EMMC_CLK_CTRL, 9, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
-	{CLKID_SD_EMMC_B_MUX, SC2_CLKCTRL_SD_EMMC_CLK_CTRL, 25, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
-	{CLKID_SD_EMMC_C_MUX, SC2_CLKCTRL_NAND_CLK_CTRL, 9, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
+	{CLKID_SPICC_A_MUX, S4_CLKCTRL_SPICC_CLK_CTRL, 7,  0x7, spicc_parents, ARRAY_SIZE(spicc_parents)},
+	{CLKID_SARADC_MUX, S4_CLKCTRL_SAR_CLK_CTRL, 9, 0x3, saradc_parents, ARRAY_SIZE(saradc_parents)},
+	{CLKID_SD_EMMC_A_MUX, S4_CLKCTRL_SD_EMMC_CLK_CTRL, 9, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
+	{CLKID_SD_EMMC_B_MUX, S4_CLKCTRL_SD_EMMC_CLK_CTRL, 25, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
+	{CLKID_SD_EMMC_C_MUX, S4_CLKCTRL_NAND_CLK_CTRL, 9, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
 };
 
 static struct meson_div divs[] = {
-	{CLKID_SPICC_A_DIV, SC2_CLKCTRL_SPICC_CLK_CTRL, 0, 6, CLKID_SPICC_A_MUX},
-	{CLKID_SPICC_B_DIV, SC2_CLKCTRL_SPICC_CLK_CTRL, 16, 6, CLKID_SPICC_A_MUX},
-	{CLKID_SARADC_DIV, SC2_CLKCTRL_SAR_CLK_CTRL0, 0, 8, CLKID_SARADC_MUX},
-	{CLKID_SD_EMMC_A_DIV, SC2_CLKCTRL_SD_EMMC_CLK_CTRL, 0, 7, CLKID_SD_EMMC_A_MUX},
-	{CLKID_SD_EMMC_B_DIV, SC2_CLKCTRL_SD_EMMC_CLK_CTRL, 16, 7, CLKID_SD_EMMC_B_MUX},
-	{CLKID_SD_EMMC_C_DIV, SC2_CLKCTRL_NAND_CLK_CTRL, 0, 7, CLKID_SD_EMMC_C_MUX},
+	{CLKID_SPICC_A_DIV, S4_CLKCTRL_SPICC_CLK_CTRL, 0, 6, CLKID_SPICC_A_MUX},
+	{CLKID_SARADC_DIV, S4_CLKCTRL_SAR_CLK_CTRL, 0, 8, CLKID_SARADC_MUX},
+	{CLKID_SD_EMMC_A_DIV, S4_CLKCTRL_SD_EMMC_CLK_CTRL, 0, 7, CLKID_SD_EMMC_A_MUX},
+	{CLKID_SD_EMMC_B_DIV, S4_CLKCTRL_SD_EMMC_CLK_CTRL, 16, 7, CLKID_SD_EMMC_B_MUX},
+	{CLKID_SD_EMMC_C_DIV, S4_CLKCTRL_NAND_CLK_CTRL, 0, 7, CLKID_SD_EMMC_C_MUX},
 };
 
 static struct parm meson_fixed_pll_parm[3] = {
-	{SC2_ANACTRL_FIXPLL_CTRL0, 0, 8}, /* pm */
-	{SC2_ANACTRL_FIXPLL_CTRL0, 10, 5}, /* pn */
-	{SC2_ANACTRL_FIXPLL_CTRL0, 16, 2}, /* pod */
+	{S4_ANACTRL_FIXPLL_CTRL0, 0, 8}, /* pm */
+	{S4_ANACTRL_FIXPLL_CTRL0, 10, 5}, /* pn */
+	{S4_ANACTRL_FIXPLL_CTRL0, 16, 2}, /* pod */
 };
 
 static struct parm meson_sys_pll_parm[3] = {
-	{SC2_ANACTRL_SYSPLL_CTRL0, 0, 8}, /* pm */
-	{SC2_ANACTRL_SYSPLL_CTRL0, 10, 5}, /* pn */
-	{SC2_ANACTRL_SYSPLL_CTRL0, 16, 3}, /* pod */
+	{S4_ANACTRL_SYSPLL_CTRL0, 0, 8}, /* pm */
+	{S4_ANACTRL_SYSPLL_CTRL0, 10, 5}, /* pn */
+	{S4_ANACTRL_SYSPLL_CTRL0, 16, 3}, /* pod */
 };
 
 static int meson_clk_enable(struct clk *clk)
@@ -212,12 +208,12 @@ static int meson_clk_probe(struct udevice *dev)
 }
 
 static const struct udevice_id meson_clk_ids[] = {
-	{ .compatible = "amlogic,sc2-clkc" },
+	{ .compatible = "amlogic,s4-clkc" },
 	{ }
 };
 
 U_BOOT_DRIVER(meson_clk) = {
-	.name		= "meson-clk-sc2",
+	.name		= "meson-clk-s4",
 	.id		= UCLASS_CLK,
 	.of_match	= meson_clk_ids,
 	.priv_auto_alloc_size = sizeof(struct meson_clk),

@@ -1,5 +1,5 @@
 /*
- * include/dt-bindings/clock/sc2-clkc.h
+ * include/dt-bindings/clock/s4-clkc.h
  *
  * Copyright (C) 2018 Amlogic, Inc. All rights reserved.
  *
