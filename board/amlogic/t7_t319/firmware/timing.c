@@ -588,6 +588,14 @@ __attribute__ ((section(".misc_param"))) = {
 	/* mux gpioe_3 to pwmao_d */
 	{PADCTRL_PIN_MUX_REGC,	(0x1 << 12),		(0xf << 12), 0, 0, 0},
 
+	/* pull low gpioy_5  make tp rst low*/
+	{PADCTRL_PIN_MUX_REGA,	(0 << 20),	(0xf << 20),	0, 0, 0},
+	{PADCTRL_GPIOY_O,  (0 << 5), 		(1 << 5), 	0, 0, 0},
+	{PADCTRL_GPIOY_OEN, (0 << 5),           (1 << 5),       0, 0, 0},
+
+	/* disable tp int bias */
+	{PADCTRL_GPIOM_PULL_EN, (0 << 5),       (1 << 5),       0, 0, 0},
+
 	/*set pinmux GPIOD_2(I2CM_AO_A_SCL) and GPIOD_3(I2CM_AO_A_SDA) for pmic*/
 	{PADCTRL_GPIOD_DS,	(0xf << 4), 	(0xf << 4),		0, 0, 0},
 	{PADCTRL_GPIOD_PULL_EN,	(0x3 << 2), 	(0x3 << 2),		0, 0, 0},
