@@ -435,7 +435,7 @@
 			};
 		};
 
-		ethmac: ethernet@ff3f0000 {
+		ethmac: ethernet@fdc00000 {
 			compatible = "amlogic,g12a-eth-dwmac";
 			phy_cntl1 = <0x41054147>;
 			pll_val = <0x9c0040a 0x927e0000 0xac5f49e5>;

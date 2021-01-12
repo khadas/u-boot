@@ -401,7 +401,7 @@
 /* UBOOT Facotry usb/sdcard burning config */
 
 /* net */
-/* #define CONFIG_CMD_NET   1 */
+#define CONFIG_CMD_NET   1
 #define CONFIG_ETH_DESIGNWARE
 #if defined(CONFIG_CMD_NET)
 	#define CONFIG_DESIGNWARE_ETH 1
