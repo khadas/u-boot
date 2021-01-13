@@ -322,6 +322,36 @@ config TARGET_C1_AE402
 
 endif
 
+if MESON_S4
+
+config SYS_SOC
+	default "s4"
+
+config DDRFW_TYPE
+	string "S4 DDR FW Type"
+	default "ddr4"
+
+config BL30_SELECT
+	string "S4 BL30 board config"
+	default "sc2_ah219"
+
+choice
+	prompt "S4 Board"
+
+config S4_SKT
+	bool "S4_SKT"
+	select TARGET_S4_SKT
+	help
+		Select S4 SKT(XXXX) config
+
+endchoice
+
+config TARGET_S4_SKT
+	bool "S4 SKT board"
+	depends on S4_SKT
+
+endif
+
 if MESON_SC2
 
 config SYS_SOC
@@ -620,6 +650,8 @@ source "board/amlogic/c1_ae401/Kconfig"
 source "board/amlogic/c1_ae402/Kconfig"
 
 source "board/amlogic/c1_ae409/Kconfig"
+
+source "board/amlogic/s4_skt/Kconfig"
 
 source "board/amlogic/sc2_skt/Kconfig"
 
