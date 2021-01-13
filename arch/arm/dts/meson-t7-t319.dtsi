@@ -19,6 +19,10 @@
 		spi0 = &spifc;
 		spi1 = &spicc0;
 		spi2 = &spicc1;
+		spi3 = &spicc2;
+		spi4 = &spicc3;
+		spi5 = &spicc4;
+		spi6 = &spicc5;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
@@ -251,14 +255,41 @@
 &spicc0 {
 	status = "disabled";
 	pinctrl-names = "default";
-	pinctrl-0 = <&spicc0_pins1>;
-	//cs-gpios = <&gpio GPIOA_8 0>,
-		  // <&gpio GPIOA_9 0>;
+	pinctrl-0 = <&spicc0_pins>;
+	cs-gpios = <&gpio GPIOT_21 0>;
 };
 
 &spicc1 {
 	status = "disabled";
 	pinctrl-names = "default";
-	pinctrl-0 = <&spicc1_pins1>;
-	//cs-gpios = <&gpio GPIOA_14 0>;
+	pinctrl-0 = <&spicc1_pins_1>;
+	cs-gpios = <&gpio GPIOC_3 0>;
+};
+
+&spicc2 {
+	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&spicc2_pins>;
+	cs-gpios = <&gpio GPIOY_3 0>;
+};
+
+&spicc3 {
+	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&spicc3_pins>;
+	cs-gpios = <&gpio GPIOT_9 0>;
+};
+
+&spicc4 {
+	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&spicc4_pins>;
+	cs-gpios = <&gpio GPIOZ_3 0>;
+};
+
+&spicc5 {
+	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&spicc5_pins>;
+	cs-gpios = <&gpio GPIOZ_7 0>;
 };
