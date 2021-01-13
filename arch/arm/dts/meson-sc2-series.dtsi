@@ -52,6 +52,7 @@
 #include <dt-bindings/pwm/pwm.h>
 #include <dt-bindings/pwm/meson.h>
 #include <dt-bindings/clock/sc2-clkc.h>
+#include <dt-bindings/input/meson_rc.h>
 
 / {
 	interrupt-parent = <&gic>;
@@ -253,13 +254,6 @@
 				compatible = "amlogic,meson-uart";
 				reg = <0x0 0xa000 0x0 0x18>;
 				clocks = <&xtal>;
-				status = "disabled";
-			};
-
-			ir: ir@8040 {
-				compatible = "amlogic,meson-gx-ir", "amlogic,meson-gxbb-ir";
-				reg = <0x0 0x8040 0x0 0x40>;
-				interrupts = <GIC_SPI 196 IRQ_TYPE_EDGE_RISING>;
 				status = "disabled";
 			};
 
@@ -507,5 +501,13 @@
                         usb2-phy-reg-size = <0x80>;
                         #phy-cells = <0>;
                 };
+
+		ir: meson-ir {
+			compatible = "amlogic, meson-ir";
+			reg = <0x0 0xfe084040 0x44 0x0>, /*Multi-format IR controller*/
+			      <0x0 0xfe084000 0x20 0x0>; /*Legacy IR controller*/
+			protocol = <REMOTE_TYPE_NEC>;
+			status = "disabled";
+	       };
 	};
 };

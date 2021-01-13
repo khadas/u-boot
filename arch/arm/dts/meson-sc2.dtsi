@@ -816,4 +816,11 @@
 			drive-strength = <3>;
 		};
 	};
+
+        remote_pins: remote_pin {
+		mux {
+			groups = "remote_input_d5";
+			function = "remote_input";
+		};
+	};
 };

@@ -96,12 +96,6 @@
 	/*mc_val = <0x1621>;*/
 };
 
-&ir {
-	status = "disabled";
-	/* pinctrl-0 = <&remote_input_ao_pins>; */
-	/* pinctrl-names = "default"; */
-};
-
 &saradc {
 	status = "okay";
 	vref-supply = <&vddio_ao18>;

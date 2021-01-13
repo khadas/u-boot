@@ -52,3 +52,9 @@
 	phy-mode = "rmii";
 	phy-handle = <&internal_phy>;
 };
+
+&ir {
+	status= "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&remote_pins>;
+};
