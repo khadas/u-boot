@@ -380,6 +380,22 @@ static void lcd_set_pll_ss_level_txhd(unsigned int level)
 	LCDPR("set pll spread spectrum: %s\n", lcd_ss_level_table_txhd[level]);
 }
 
+static void lcd_set_pll_ss_advance_txhd(unsigned int freq, unsigned int mode)
+{
+	unsigned int pll_ctrl4, pll_ctrl6;
+
+	pll_ctrl4 = lcd_hiu_read(HHI_HDMI_PLL_CNTL4);
+	pll_ctrl6 = lcd_hiu_read(HHI_HDMI_PLL_CNTL6);
+	pll_ctrl6 &= ~(0x7 << 0); /* ss_freq */
+	pll_ctrl6 |= (freq << 0);
+	pll_ctrl4 &= ~(0x3 << 30); /* ss_mode */
+	pll_ctrl4 |= (mode << 30);
+	lcd_hiu_write(HHI_HDMI_PLL_CNTL4, pll_ctrl4);
+	lcd_hiu_write(HHI_HDMI_PLL_CNTL6, pll_ctrl6);
+
+	LCDPR("set pll spread spectrum freq=%d, mode=%d\n", freq, mode);
+}
+
 static void lcd_set_pll_txhd(struct lcd_clk_config_s *cConf)
 {
 	unsigned int pll_ctrl, pll_ctrl2, pll_ctrl3, pll_ctrl6;
@@ -418,8 +434,10 @@ set_pll_retry_txhd:
 		LCDERR("hpll lock failed\n");
 	}
 
-	if (cConf->ss_level > 0)
+	if (cConf->ss_level > 0) {
 		lcd_set_pll_ss_level_txhd(cConf->ss_level);
+		lcd_set_pll_ss_advance_txhd(cConf->ss_freq, cConf->ss_mode);
+	}
 }
 
 static void lcd_set_pll_axg(struct lcd_clk_config_s *cConf)
@@ -3073,16 +3091,16 @@ static struct lcd_clk_data_s lcd_clk_data_txhd = {
 	.pll_ctrl_table = pll_ctrl_table_txhd,
 
 	.ss_level_max = sizeof(lcd_ss_level_table_txhd) / sizeof(char *),
-	.ss_freq_max = 0,
-	.ss_mode_max = 0,
+	.ss_freq_max = sizeof(lcd_ss_freq_table_tl1) / sizeof(char *),
+	.ss_mode_max = sizeof(lcd_ss_mode_table_tl1) / sizeof(char *),
 	.ss_level_table = lcd_ss_level_table_txhd,
-	.ss_freq_table = NULL,
-	.ss_mode_table = NULL,
+	.ss_freq_table = lcd_ss_freq_table_tl1,
+	.ss_mode_table = lcd_ss_mode_table_tl1,
 
 	.clk_generate_parameter = lcd_clk_generate_txhd,
 	.pll_frac_generate = lcd_pll_frac_generate_txl,
 	.set_ss_level = lcd_set_pll_ss_level_txhd,
-	.set_ss_advance = NULL,
+	.set_ss_advance = lcd_set_pll_ss_advance_txhd,
 	.clk_set = lcd_clk_set_txhd,
 	.clk_config_init_print = lcd_clk_config_init_print_dft,
 	.clk_config_print = lcd_clk_config_print_dft,
