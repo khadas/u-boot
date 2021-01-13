@@ -1121,6 +1121,10 @@ config CMD_SARADC
 	help
 	  SARADC support.
 
+config CMD_IR
+	bool "ir"
+	help
+	  IR support.
 endmenu
 
 
