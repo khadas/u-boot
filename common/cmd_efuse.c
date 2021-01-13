@@ -14,9 +14,11 @@
 #include <asm/arch/efuse.h>
 #include <asm/arch/bl31_apis.h>
 #include <asm/cpu_id.h>
+#include <amlogic/aml_efuse.h>
 
 #define CMD_EFUSE_WRITE            0
 #define CMD_EFUSE_READ             1
+#define CMD_EFUSE_READ_CALI        2
 #define CMD_EFUSE_SECURE_BOOT_SET  6
 #define CMD_EFUSE_PASSWORD_SET     7
 #define CMD_EFUSE_CUSTOMER_ID_SET  8
@@ -28,7 +30,7 @@ int cmd_efuse(int argc, char * const argv[], char *buf)
 {
 	int i, action = -1;
 	loff_t offset;
-	uint32_t size, max_size;
+	uint32_t size = 0, max_size;
 	char *end;
 	char *s;
 	int ret;
@@ -38,6 +40,8 @@ int cmd_efuse(int argc, char * const argv[], char *buf)
 		action = CMD_EFUSE_READ;
 	} else if (strncmp(argv[1], "write", 5) == 0) {
 		action = CMD_EFUSE_WRITE;
+	} else if (strncmp(argv[1], "cali_read", 9) == 0) {
+		action = CMD_EFUSE_READ_CALI;
 	} else if (strncmp(argv[1], "secure_boot_set", 15) == 0) {
 		action = CMD_EFUSE_SECURE_BOOT_SET;
 		goto efuse_action;
@@ -122,6 +126,24 @@ efuse_action:
 		} else {
 			printf("%s written done.\n", __func__);
 		}
+	} else if (action == CMD_EFUSE_READ_CALI) {
+		memset(buf, 0, size);
+		ret = efuse_read_cali(buf, size, offset);
+		if (ret == -1) {
+			printf("ERROR: efuse read cali data fail!\n");
+			return -1;
+		}
+
+		if (ret != size)
+			printf("ERROR: read %d byte(s) not %d byte(s) data\n",
+			       ret, size);
+		printf("efuse read cali data");
+		for (i = 0; i < size; i++) {
+			if (i%16 == 0)
+				printf("\n");
+			printf(":%02x", buf[i]);
+		}
+		printf("\n");
 	} else if (CMD_EFUSE_SECURE_BOOT_SET == action) {
 		/*efuse secure_boot_set*/
 

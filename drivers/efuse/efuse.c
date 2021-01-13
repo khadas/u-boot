@@ -136,3 +136,46 @@ uint32_t efuse_obj_read(uint32_t obj_id, uint8_t *buff, uint32_t *size)
 	return meson_efuse_obj_read(obj_id, buff, size);
 }
 #endif /* CONFIG_EFUSE_OBJ_API */
+
+int efuse_read_cali(char *buf, size_t count, uint32_t offset)
+{
+#ifdef EFUSE_HAL_API_READ_CALI
+	char data[EFUSE_BYTES];
+	struct efuse_hal_api_arg arg;
+	unsigned int retcnt;
+	int ret;
+
+	memset(data, 0, count);
+
+	arg.cmd = EFUSE_HAL_API_READ_CALI;
+	arg.offset = offset;
+	arg.size = count;
+	arg.buffer_phy = (unsigned long)data;
+	arg.retcnt_phy = (unsigned long)&retcnt;
+	ret = meson_trustzone_efuse(&arg);
+	if (ret == 0) {
+		memcpy(buf, data, count);
+		return retcnt;
+	} else{
+		return ret;
+	}
+
+	return ret;
+#else
+	return -1;
+#endif
+}
+
+int efuse_get_cali_cvbs(void)
+{
+#ifdef EFUSE_CALI_CVBS
+	efuse_cali_t cali_data;
+	int ret;
+
+	ret = efuse_read_cali((char *)&(cali_data), EFUSE_CALI_SIZE, 0x00);
+	if (ret == EFUSE_CALI_SIZE && cali_data.cvbs_flag)
+		return cali_data.cvbs_data;;
+#endif
+	return -1;
+}
+
