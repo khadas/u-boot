@@ -65,8 +65,14 @@ static int do_rsvmem_check(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	rsvmem_dbg("reserved memory check!\n");
 	data = readl(REG_RSVMEM_SIZE);
-	bl31_rsvmem_size =  ((data & 0xffff0000) >> 16) << 10;
-	bl32_rsvmem_size =  (data & 0x0000ffff) << 10;
+	/* workaround for bl3x size */
+	if ((data >> 16) & 0xf0) {
+		bl31_rsvmem_size =  ((data & 0xffff0000) >> 16) << 16;
+		bl32_rsvmem_size =  (data & 0x0000ffff) << 16;
+	} else {
+		bl31_rsvmem_size =  ((data & 0xffff0000) >> 16) << 10;
+		bl32_rsvmem_size =  (data & 0x0000ffff) << 10;
+	}
 	bl31_rsvmem_start = readl(REG_RSVMEM_BL31_START);
 	bl32_rsvmem_start = readl(REG_RSVMEM_BL32_START);
 
@@ -241,6 +247,23 @@ static int do_rsvmem_check(cmd_tbl_t *cmdtp, int flag, int argc,
 				}
 
 				memset(cmdbuf, 0, sizeof(cmdbuf));
+				if (aarch32)
+					sprintf(cmdbuf, "fdt set /reserved-memory/ramoops reg <0x%x 0x%x>;",
+							((bl31_rsvmem_start + bl31_rsvmem_size + bl32_rsvmem_size + 0x400000 - 1) / 0x400000)*0x400000,
+							0x100000);
+				else
+					sprintf(cmdbuf, "fdt set /reserved-memory/ramoops reg <0x0 0x%x 0x0 0x%x>;",
+							((bl31_rsvmem_start + bl31_rsvmem_size + bl32_rsvmem_size + 0x400000 - 1) / 0x400000)*0x400000,
+							0x100000);
+
+				rsvmem_dbg("CMD: %s\n", cmdbuf);
+				ret = run_command(cmdbuf, 0);
+				if (ret != 0 ) {
+					rsvmem_err("fdt set /reserved-memory/ramoops reg  error.\n");
+					return -3;
+				}
+
+				memset(cmdbuf, 0, sizeof(cmdbuf));
 				sprintf(cmdbuf, "fdt get value secmon_clear_range /secmon clear_range;");
 				if (run_command(cmdbuf, 0) == 0) {
 					memset(cmdbuf, 0, sizeof(cmdbuf));
@@ -271,8 +294,14 @@ static int do_rsvmem_dump(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	rsvmem_info("reserved memory:\n");
 	data = readl(REG_RSVMEM_SIZE);
-	bl31_rsvmem_size =  ((data & 0xffff0000) >> 16) << 10;
-	bl32_rsvmem_size =  (data & 0x0000ffff) << 10;
+	/* workaround for bl3x size */
+	if ((data >> 16) & 0xf0) {
+		bl31_rsvmem_size =  ((data & 0xffff0000) >> 16) << 16;
+		bl32_rsvmem_size =  (data & 0x0000ffff) << 16;
+	} else {
+		bl31_rsvmem_size =  ((data & 0xffff0000) >> 16) << 10;
+		bl32_rsvmem_size =  (data & 0x0000ffff) << 10;
+	}
 	bl31_rsvmem_start = readl(REG_RSVMEM_BL31_START);
 	bl32_rsvmem_start = readl(REG_RSVMEM_BL32_START);
 
