@@ -774,6 +774,12 @@ static int _amlmmc_erase_single_part(int dev, struct mmc *mmc, char *name)
 		cnt = mmc->boot_size >> blk_shift;
 	else
 		cnt = part_info->size >> blk_shift;
+
+	if (cnt == 0) {
+		printf("%-10s partition size is 0\n", name);
+		return 0;
+	}
+
 	n = mmc->block_dev.block_erase(dev, blk, cnt);
 
 	return (n == 0) ? 0 : 1;
