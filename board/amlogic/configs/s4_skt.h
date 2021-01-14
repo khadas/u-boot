@@ -99,7 +99,10 @@
         "cvbs_drv=0\0"\
         "osd_reverse=0\0"\
         "video_reverse=0\0"\
+        "active_slot=normal\0"\
         "boot_part=boot\0"\
+        "vendor_boot_part=vendor_boot\0"\
+        "board=ohm\0"\
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
         "get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
@@ -150,6 +153,24 @@
                 "store read ${loadaddr} ${boot_part} 0 0x400000;"\
                 "bootm ${loadaddr};"\
             "else if test ${os_type} = kernel; then "\
+                "get_system_as_root_mode;"\
+                "echo system_mode in storeboot: ${system_mode};"\
+                "get_valid_slot;"\
+                "get_avb_mode;"\
+                "echo active_slot in storeboot: ${active_slot};"\
+                "if test ${system_mode} = 1; then "\
+                    "setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
+                "else "\
+                    "if test ${vendor_boot_mode} = true; then "\
+                        "echo come to vendor_boot true;"\
+                        "setenv bootargs ${bootargs} androidboot.force_normal_boot=1;"\
+                    "else "\
+                        "setenv bootargs ${bootargs} ${fs_type};"\
+                    "fi;"\
+                "fi;"\
+                "if test ${active_slot} != normal; then "\
+                    "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
+                "fi;"\
                 "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
                 "setenv loadaddr ${loadaddr_kernel};"\
                 "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
@@ -168,6 +189,7 @@
             "if fatload ${fatload_dev} 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;"\
             "if fatload ${fatload_dev} 0 ${loadaddr} recovery.img; then "\
                 "if fatload ${fatload_dev} 0 ${dtb_mem_addr} dtb.img; then echo ${fatload_dev} dtb.img loaded; fi;"\
+                "setenv bootargs ${bootargs} ${fs_type};"\
                 "bootm ${loadaddr};fi;"\
             "\0"\
         "recovery_from_udisk="\
@@ -179,15 +201,70 @@
             "if mmcinfo; then run recovery_from_fat_dev; fi;"\
             "\0"\
         "recovery_from_flash="\
+            "get_valid_slot;"\
+            "echo active_slot: ${active_slot};"\
             "setenv loadaddr ${loadaddr_kernel};"\
-            "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
+            "if test ${active_slot} = normal; then "\
+                "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
+                "if test ${upgrade_step} == 3; then "\
+                    "if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;"\
+                    "if ext4load mmc 1:2 ${loadaddr} /recovery/recovery.img; then echo cache recovery.img loaded; wipeisb; bootm ${loadaddr}; fi;"\
+                "else "\
             "if imgread dtb recovery ${dtb_mem_addr}; then "\
                 "else echo restore dtb; run common_dtb_load;"\
             "fi;"\
+                "fi;"\
             "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
+            "else "\
+                "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
+                "if test ${partiton_mode} = normal; then "\
+                    "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
+                    "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
+                "else "\
+                    "if test ${vendor_boot_mode} = true; then "\
+                        "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
+                        "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
+                    "else "\
+                        "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
+                        "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
+                    "fi;"\
+                "fi;"\
+            "fi;"\
             "\0"\
         "bcb_cmd="\
+            "get_avb_mode;"\
             "get_valid_slot;"\
+            "if test ${vendor_boot_mode} = true; then "\
+                "setenv loadaddr_kernel 0x2080000;"\
+                "setenv dtb_mem_addr 0x1f00000;"\
+            "fi;"\
+            "\0"\
+        "init_display="\
+            "get_rebootmode;"\
+            "echo reboot_mode:::: ${reboot_mode};"\
+            "if test ${reboot_mode} = quiescent; then "\
+                    "setenv reboot_mode_android ""quiescent"";"\
+                    "setenv dolby_status 0;"\
+                    "setenv dolby_vision_on 0;"\
+                    "run storeargs;"\
+                    "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
+                    "osd open;osd clear;"\
+            "else if test ${reboot_mode} = recovery_quiescent; then "\
+                    "setenv reboot_mode_android ""quiescent"";"\
+                    "setenv dolby_status 0;"\
+                    "setenv dolby_vision_on 0;"\
+                    "run storeargs;"\
+                    "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
+                    "osd open;osd clear;"\
+            "else "\
+                "setenv reboot_mode_android ""normal"";"\
+                "run storeargs;"\
+                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};dovi set;dovi pkg;vpp hdrpkt;"\
+            "fi;fi;"\
+            "\0"\
+	"storage_param="\
+	    "store param;"\
+	    "setenv bootargs ${bootargs} ${mtdbootparts}; "\
             "\0"\
         "cmdline_keys="\
             "setenv usid 1234567890; setenv region_code US;"\
@@ -204,6 +281,7 @@
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
             "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
             "setenv serial ${usid}; setenv serial# ${usid};"\
+	    "factory_provision init;"\
             "\0"\
         "upgrade_key="\
             "if gpio input GPIOD_3; then "\
@@ -215,8 +293,11 @@
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
             "run upgrade_check;"\
+            "run init_display;"\
             "run storeargs;"\
-            "run upgrade_key;"
+            "run upgrade_key;" \
+            "bcb uboot-command;"\
+            "run switch_bootmode;"
 #else
 #define CONFIG_PREBOOT  "echo preboot"
 #endif
