@@ -162,6 +162,7 @@ static int do_image_read_dtb_from_knl(const char* partName, unsigned char* loada
     unsigned int nFlashLoadLen = 0;
     unsigned secureKernelImgSz = 0;
     const int preloadSz = 4096;
+    int pageSz = 0;
     boot_img_hdr_t *hdr_addr = (boot_img_hdr_t*)loadaddr;
 
     nFlashLoadLen = preloadSz;//head info is one page size == 2k
@@ -177,17 +178,62 @@ static int do_image_read_dtb_from_knl(const char* partName, unsigned char* loada
         return __LINE__;
     }
 
-    nReturn = _aml_get_secure_boot_kernel_size(loadaddr, &secureKernelImgSz);
-    if (nReturn) {
-        errorP("Fail in _aml_get_secure_boot_kernel_size, rc=%d\n", nReturn);
-        return __LINE__;
-    }
+    if (is_android_r_image((void *) hdr_addr)) {
+        const int preloadSz_r = 0x1000;
+        int rc_r = 0;
+        char *slot_name;
 
-    const int pageSz = hdr_addr->page_size;
-    lflashReadOff += pageSz;
-    lflashReadOff += ALIGN(hdr_addr->kernel_size, pageSz);
-    lflashReadOff += ALIGN(hdr_addr->ramdisk_size, pageSz);
-    nFlashLoadLen  = ALIGN(hdr_addr->second_size, pageSz);
+        slot_name = env_get("slot-suffixes");
+        if (strcmp(slot_name, "0") == 0) {
+            strcpy(partName, "vendor_boot_a");
+        } else if (strcmp(slot_name, "1") == 0) {
+            strcpy(partName, "vendor_boot_b");
+        }
+        MsgP("partName = %s \n", partName);
+
+        nFlashLoadLen = preloadSz_r;//head info is one page size == 4k
+        debugP("sizeof preloadSz=%u\n", nFlashLoadLen);
+
+        nReturn = store_logic_read((unsigned char*)partName,lflashReadOff, nFlashLoadLen, loadaddr);
+        if (nReturn) {
+            errorP("Fail to read 0x%xB from part[%s] at offset 0\n", nFlashLoadLen, partName);
+            return __LINE__;
+        }
+
+        p_vendor_boot_img_hdr_t pVendorIMGHDR = (p_vendor_boot_img_hdr_t)loadaddr;
+
+        rc_r = vendor_boot_image_check_header(pVendorIMGHDR);
+        if (!rc_r) {
+            unsigned long ramdisk_size_r,dtb_size_r;
+            pageSz = pVendorIMGHDR->page_size;
+
+            /* Android R's vendor_boot partition include ramdisk and dtb */
+            ramdisk_size_r = ALIGN(pVendorIMGHDR->vendor_ramdisk_size, pageSz);
+            dtb_size_r = ALIGN(pVendorIMGHDR->dtb_size, pageSz);
+            nFlashLoadLen = dtb_size_r;
+            lflashReadOff = ramdisk_size_r + 0x1000;
+            debugP("ramdisk_size_r 0x%x, totalSz 0x%lx\n", pVendorIMGHDR->vendor_ramdisk_size, ramdisk_size_r);
+            debugP("dtb_size_r 0x%x, totalSz 0x%lx\n", pVendorIMGHDR->dtb_size, dtb_size_r);
+            debugP("lflashReadOff=0x%llx\n", lflashReadOff);
+            debugP("nFlashLoadLen=0x%x\n", nFlashLoadLen);
+        }else {
+            errorP("check vendor_boot header error\n");
+            return __LINE__;
+        }
+
+    } else {
+        nReturn = _aml_get_secure_boot_kernel_size(loadaddr, &secureKernelImgSz);
+        if (nReturn) {
+            errorP("Fail in _aml_get_secure_boot_kernel_size, rc=%d\n", nReturn);
+            return __LINE__;
+        }
+
+        pageSz = hdr_addr->page_size;
+        lflashReadOff += pageSz;
+        lflashReadOff += ALIGN(hdr_addr->kernel_size, pageSz);
+        lflashReadOff += ALIGN(hdr_addr->ramdisk_size, pageSz);
+        nFlashLoadLen  = ALIGN(hdr_addr->second_size, pageSz);
+    }
 
     debugP("lflashReadOff=0x%llx, nFlashLoadLen=0x%x\n", lflashReadOff, nFlashLoadLen);
     debugP("page sz %u\n", hdr_addr->page_size);
@@ -429,13 +475,23 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
                 Android R need read vendor_boot partition
                 define Android R variable add suffix xxx_r
             */
-            const char* const partName_r = "vendor_boot_a";
+            char partName_r[32] = {0};
             int nReturn_r = __LINE__;
             uint64_t lflashReadOff_r = 0;
             unsigned int nFlashLoadLen_r = 0;
             const int preloadSz_r = 0x1000;
             unsigned char * pBuffPreload = 0;
             int rc_r = 0;
+            char *slot_name;
+
+            slot_name = env_get("slot-suffixes");
+            if (strcmp(slot_name, "0") == 0) {
+                strcpy(partName_r, "vendor_boot_a");
+            }
+            else if (strcmp(slot_name, "1") == 0) {
+                strcpy(partName_r, "vendor_boot_b");
+            }
+            MsgP("partName_r = %s\n", partName_r);
 
             nFlashLoadLen_r = preloadSz_r;		//head info is one page size == 4k
             debugP("sizeof preloadSz=%u\n", nFlashLoadLen_r);
