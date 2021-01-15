@@ -33,6 +33,15 @@ struct ddr_base_address_table {
 	unsigned int	ddr_boot_reason_address;
 	unsigned int	ddr_dmc_lpdd4_retraining_address;
 	unsigned int	ddr_dmc_refresh_ctrl_address;
+
+	unsigned int	ddr_dmc_sticky0_1;
+	unsigned int	ddr_phy_base_address_1;
+	unsigned int	ddr_pctl_timing_base_address_1;
+	unsigned int	ddr_pctl_timing_end_address_1;
+	unsigned int	ddr_dmc_apd_address_1;
+	unsigned int	ddr_dmc_asr_address_1;
+	unsigned int	ddr_dmc_lpdd4_retraining_address_1;
+	unsigned int	ddr_dmc_refresh_ctrl_address_1;
 };
 typedef struct  ddr_base_address_table ddr_base_address_table_t;
 
@@ -59,7 +68,7 @@ typedef struct  ddr_base_address_table ddr_base_address_table_t;
 #define MESON_CPU_MAJOR_ID_C2           0x33
 #define MESON_CPU_MAJOR_ID_T5           0x34
 #define MESON_CPU_MAJOR_ID_T5D          0x35
-#define MESON_CPU_MAJOR_ID_T7			0x36
+#define MESON_CPU_MAJOR_ID_T7                   0x36
 
 #define MESON_CPU_VERSION_LVL_MAJOR     0
 #define MESON_CPU_VERSION_LVL_MINOR     1
@@ -84,10 +93,9 @@ int ddr_get_chip_id(void)
 #endif
 	int count = 0;
 
-	for (count = 0; count < 16; count++) {
+	for (count = 0; count < 16; count++)
 		if (count > 3)
 			global_chip_id[16 - 1 - count] = chipid[count];
-	}
 
 	return soc_family_id;
 }
@@ -248,7 +256,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ddr_dmc_sticky0 = 0xfe036800,
 		.sys_watchdog_base_address = ((0x3c34 << 2) + 0xffd00000),      //sc2 can not find
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xfe036c00),
-		.ee_timer_base_address = ((0x003b << 2) + 0xfe010000),                  //sc2 can not find
+		.ee_timer_base_address = ((0x003b << 2) + 0xfe010000),          //sc2 can not find
 		.ee_pwm_base_address = ((0x0001 << 2) + 0xfe05e000),            //PWMGH_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),
@@ -264,13 +272,13 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xff638800),
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xff638c00),           //AM_DDR_PLL_CNTL0
-		.ddr_boot_reason_address = (0xff800000 + (0x003 << 2)),     //#define SEC_AO_RTI_STATUS_REG3
+		.ddr_boot_reason_address = (0xff800000 + (0x003 << 2)),         //#define SEC_AO_RTI_STATUS_REG3
 		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_base_address = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
 		.ee_timer_base_address = 0xffd0f188,                            //#define P_EE_TIMER_E		(volatile uint32_t *)0xffd0f188
-		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),            //AO_PWM_PWM_B
+		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),             //AO_PWM_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xff638400),
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xff638400),
 		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xff638400), // DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
@@ -285,13 +293,13 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xff638800),
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xff638c00),           //AM_DDR_PLL_CNTL0
-		.ddr_boot_reason_address = (0xff800000 + (0x003 << 2)),     //#define SEC_AO_RTI_STATUS_REG3
+		.ddr_boot_reason_address = (0xff800000 + (0x003 << 2)),         //#define SEC_AO_RTI_STATUS_REG3
 		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_base_address = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
 		.ee_timer_base_address = 0xffd0f188,                            //#define P_EE_TIMER_E		(volatile uint32_t *)0xffd0f188
-		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),            //AO_PWM_PWM_B
+		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),             //AO_PWM_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xff638400),
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xff638400),
 		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xff638400), // DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
@@ -307,11 +315,24 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ddr_dmc_sticky0 = ((0x200 << 2) + 0xfe036000),
 		.sys_watchdog_base_address = ((0x3c34 << 2) + 0xffd00000),      //sc2 can not find
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xfe036c00),
-		.ee_timer_base_address = ((0x003b << 2) + 0xfe010000),                  //sc2 can not find
+		.ee_timer_base_address = ((0x003b << 2) + 0xfe010000),          //sc2 can not find
 		.ee_pwm_base_address = ((0x0001 << 2) + 0xfe05e000),            //PWMGH_PWM_B
 		.ddr_dmc_apd_address = ((0x018c << 2) + 0xfe036000),
 		.ddr_dmc_asr_address = ((0x018d << 2) + 0xfe036000),
 		.ddr_boot_reason_address = 0xfe036800, //sc2 can not find,SYSCTRL_STICKY_REG0
+
+		.ddr_dmc_lpdd4_retraining_address = ((0x0197 << 2) + 0xfe036000),
+		.ddr_dmc_refresh_ctrl_address = ((0x0192 << 2) + 0xfe036000),
+
+		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
+		.ddr_phy_base_address_1 = 0xfb000000,
+		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
+		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe034400),
+		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe034000),
+		.ddr_dmc_asr_address_1 = ((0x018d << 2) + 0xfe034000),
+		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe034000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe034000),
 	},
 	// force id use id mask
 	{
@@ -447,7 +468,7 @@ typedef struct board_phase_setting_ps {
 	unsigned char	read_dq_bit_delay[72];
 	unsigned char	soc_bit_vref[44];
 	unsigned char	dram_bit_vref[36];
-	unsigned char	reserve_training_parameter[16];//0-7 write dqs offset,8-15 read dqs offset,MSB bit 7 use 0 mean right offset
+	unsigned char	reserve_training_parameter[16]; //0-7 write dqs offset,8-15 read dqs offset,MSB bit 7 use 0 mean right offset
 }__attribute__ ((packed)) board_phase_setting_ps_t;
 
 typedef struct ddr_set_c2 {
@@ -763,6 +784,214 @@ typedef struct ddr_set {
 }ddr_set_t;
 
 ddr_set_t p_ddr_set_t;
+
+
+
+typedef struct ddr_set_t7 {
+	unsigned int	magic;
+	unsigned char	fast_boot[4];        // 0   fastboot enable  1 window test margin  2 auto offset after window test 3 auto window test
+	//unsigned	int		rsv_int0;
+	unsigned int	ddr_func;
+	unsigned char	board_id;
+	//board id reserve,,do not modify
+	unsigned char	version;
+	// firmware reserve version,,do not modify
+	unsigned char	DramType;
+	//support DramType should confirm with amlogic
+	//#define CONFIG_DDR_TYPE_DDR3				0
+	//#define CONFIG_DDR_TYPE_DDR4				1
+	//#define CONFIG_DDR_TYPE_LPDDR4				2
+	//#define CONFIG_DDR_TYPE_LPDDR3				3
+	//#define CONFIG_DDR_TYPE_LPDDR2				4
+	//#define CONFIG_DDR_TYPE_LPDDR4x				5
+	unsigned char DisabledDbyte[2];              //ch0 and ch1
+	//use for dram bus 16bit or 32bit,if use 16bit mode ,should disable bit 2,3
+	//bit 0 ---cs0 use byte 0 ,1 disable byte 0,
+	//bit 1 ---cs0 use byte 1 ,1 disable byte 1,
+	//bit 2 ---cs0 use byte 2 ,1 disable byte 2,
+	//bit 3 ---cs0 use byte 3 ,1 disable byte 3,
+	//bit 4 ---cs1 use byte 0 ,1 disable byte 0,
+	//bit 5 ---cs1 use byte 1 ,1 disable byte 1,
+	//bit 6 ---cs1 use byte 2 ,1 disable byte 2,
+	//bit 7 ---cs1 use byte 3 ,1 disable byte 3,
+	unsigned char	Is2Ttiming;
+	//ddr3/ddr3 use 2t timing,now only support 2t timming
+	unsigned char	HdtCtrl;
+	//training information control,do not modify
+	unsigned char	dram_rank_config;
+	//support Dram connection type should confirm with amlogic
+	//#define CONFIG_DDR0_16BIT_CH0				0x1  //dram total bus width 16bit only use cs0
+	//#define CONFIG_DDR0_16BIT_RANK01_CH0		0x4  //dram total bus width 16bit  use cs0 cs1
+	//#define CONFIG_DDR0_32BIT_RANK0_CH0			0x2  //dram total bus width 32bit  use cs0
+	//#define CONFIG_DDR0_32BIT_RANK01_CH01		0x3    //only for lpddr4,dram total bus width 32bit  use chanel a cs0 cs1 chanel b cs0 cs1
+	//#define CONFIG_DDR0_32BIT_16BIT_RANK0_CH0		0x5    //dram total bus width 32bit only use cs0,but high address use 16bit mode
+	//#define CONFIG_DDR0_32BIT_16BIT_RANK01_CH0	0x6   //dram total bus width 32bit  use cs0 cs1,but cs1 use 16bit mode ,current phy not support reserve
+	//#define CONFIG_DDR0_32BIT_RANK01_CH0		0x7       //dram total bus width 32bit  use cs0 cs1
+	//#define CONFIG_DDR0_32BIT_RANK0_CH01		0x8     //only for lpddr4,dram total bus width 32bit  use chanel a cs0  chanel b cs0
+
+	/* rsv_char0. update for diagnose type define */
+	//unsigned	char	diagnose;
+
+	unsigned short	soc_data_drv_ohm_ps1;
+	unsigned short	dram_data_drv_ohm_ps1;
+	unsigned short	soc_data_odt_ohm_ps1;
+	unsigned short	dram_data_odt_ohm_ps1;
+	unsigned short	dram_data_wr_odt_ohm_ps1;
+#if 0
+	/* imem/dmem define */
+	unsigned int	imem_load_addr;
+	//system reserve,do not modify
+	unsigned int	dmem_load_addr;
+	//system reserve,do not modify
+	unsigned short	imem_load_size;
+#endif
+	//system reserve,do not modify
+	unsigned short	soc_data_drv_ohm_ffe;            //dmem_load_size;
+	//system reserve,do not modify
+	unsigned int	ddr_base_addr;
+	//system reserve,do not modify
+	unsigned int	ddr_start_offset;
+	//system reserve,do not modify
+
+	unsigned short	dram_ch0_size_MB;
+	//config cs0 dram size ,like 1G DRAM ,setting 1024
+	unsigned short	dram_ch1_size_MB;
+	//config cs1 dram size,like 512M DRAM ,setting 512
+	/* align8 */
+
+	unsigned short	training_SequenceCtrl[2];
+	//system reserve,do not modify
+	unsigned char	phy_odt_config_rank[2];
+	//unsigned	char	 rever1;
+	//unsigned	char	 rever2;
+	unsigned short	rank1_ca_vref_permil;
+	//training odt config ,only use for training
+	// [0]Odt pattern for accesses targeting rank 0. [3:0] is used for write ODT [7:4] is used for read ODT
+	// [1]Odt pattern for accesses targeting rank 1. [3:0] is used for write ODT [7:4] is used for read ODT
+	unsigned int	dfi_odt_config;
+	//normal go status od config,use for normal status
+	//bit 12.  rank1 ODT default. default vulue for ODT[1] pins if theres no read/write activity.
+	//bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
+	//bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
+	//bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
+	//bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occure in rank0.
+	//bit 4.   rank0 ODT default.    default vulue for ODT[0] pins if theres no read/write activity.
+	//bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
+	//bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
+	//bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
+	//bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occure in rank1.
+	unsigned short	DRAMFreq[4];
+	//config dram frequency,use DRAMFreq[0],ohter reserve
+	unsigned char	PllBypassEn;
+	//system reserve,do not modify
+	unsigned char	ddr_rdbi_wr_enable;
+	//system reserve,do not modify
+	unsigned char	ddr_rfc_type;
+	//config dram rfc type,according dram type,also can use same dram type max config
+	//#define DDR_RFC_TYPE_DDR3_512Mbx1				0
+	//#define DDR_RFC_TYPE_DDR3_512Mbx2				1
+	//#define DDR_RFC_TYPE_DDR3_512Mbx4				2
+	//#define DDR_RFC_TYPE_DDR3_512Mbx8				3
+	//#define DDR_RFC_TYPE_DDR3_512Mbx16				4
+	//#define DDR_RFC_TYPE_DDR4_2Gbx1					5
+	//#define DDR_RFC_TYPE_DDR4_2Gbx2					6
+	//#define DDR_RFC_TYPE_DDR4_2Gbx4					7
+	//#define DDR_RFC_TYPE_DDR4_2Gbx8					8
+	//#define DDR_RFC_TYPE_LPDDR4_2Gbx1				9
+	//#define DDR_RFC_TYPE_LPDDR4_3Gbx1				10
+	//#define DDR_RFC_TYPE_LPDDR4_4Gbx1				11
+	unsigned char	enable_lpddr4x_mode;
+	//system reserve,do not modify
+	/* align8 */
+
+	unsigned int	pll_ssc_mode;
+	//
+	/* pll ssc config:
+	 *
+	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
+	 *      ppm = strength * 500
+	 *      mode: 0=center, 1=up, 2=down
+	 *
+	 *   eg:
+	 *     1. config 1000ppm center ss. then mode=0, strength=2
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
+	 *     2. config 3000ppm down ss. then mode=2, strength=6
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
+	 */
+	unsigned short			clk_drv_ohm;
+	//config soc clk pin signal driver stength ,select 20,30,40,60ohm
+	unsigned short			cs_drv_ohm;
+	//config soc cs0 cs1 pin signal driver stength ,select 20,30,40,60ohm
+	unsigned short			ac_drv_ohm;
+	//config soc  normal address command pin driver stength ,select 20,30,40,60ohm
+	unsigned short			soc_data_drv_ohm_p;
+	//config soc data pin pull up driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	unsigned short			soc_data_drv_ohm_n;
+	//config soc data pin pull down driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	unsigned short			soc_data_odt_ohm_p;
+	//config soc data pin odt pull up stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	unsigned short			soc_data_odt_ohm_n;
+	//config soc data pin odt pull down stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	unsigned short			dram_data_drv_ohm;
+	//config dram data pin pull up pull down driver stength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
+	unsigned short			dram_data_odt_ohm;
+	//config dram data pin odt pull up down stength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
+	unsigned short			dram_ac_odt_ohm;
+	//config dram ac pin odt pull up down stength,use for lpddr4, select 40,48,60,80,120,240ohm
+	unsigned short			soc_clk_slew_rate;
+	//system reserve,do not modify
+	unsigned short			soc_cs_slew_rate;
+	//system reserve,do not modify
+	unsigned short			soc_ac_slew_rate;
+	//system reserve,do not modify
+	unsigned short			soc_data_slew_rate;
+	//system reserve,do not modify
+	unsigned short			vref_output_permil;     //phy
+	//setting same with vref_dram_permil
+	unsigned short			vref_receiver_permil;   //soc
+	//soc init SOC receiver vref ,config like 500 means 0.5VDDQ,take care ,please follow SI
+	unsigned short			vref_dram_permil;
+	//soc init DRAM receiver vref ,config like 500 means 0.5VDDQ,take care ,please follow SI
+	unsigned short			max_core_timmming_frequency;
+	//use for limited ddr speed core timmming parameter,for some old dram maybe have no over speed register
+	/* align8 */
+
+	unsigned char			ac_trace_delay[10];
+	unsigned char			lpddr4_dram_vout_voltage_1_3_2_5_setting;
+	//use for lpddr4 read vout voltage  setting 0 --->2/5VDDQ ,1--->1/3VDDQ
+	unsigned char			lpddr4_x8_mode;
+	unsigned char			slt_test_function[2]; //[0] slt test function enable,bit 0 enable 4 frequency scan,bit 1 enable force delay line offset ,bit 7 enable skip training function
+	//[1],slt test parameter ,use for force delay line offset
+	//system reserve,do not modify
+	unsigned short			tdqs2dq;
+	unsigned char			dram_data_wr_odt_ohm;
+	unsigned char			bitTimeControl_2d;
+	//system reserve,do not modify
+	/* align8 */
+	unsigned char			char_rev1;
+	unsigned char			training_offset; //char_rev2;
+	unsigned int			ddr_dmc_remap[5];
+	unsigned int			dram_rtt_nom_wr_park[2];
+	//system reserve,do not modify
+	/* align8 */
+	unsigned char			ddr_lpddr34_ca_remap[4];
+	////use for lpddr3 /lpddr4 ca training data byte lane remap
+	unsigned char			ddr_lpddr34_dq_remap[32];
+	////use for lpddr3 /lpddr4 ca pinmux remap
+	unsigned char			ac_pinmux[DWC_AC_PINMUX_TOTAL];
+	//use for lpddr3 /lpddr4 ca pinmux remap
+	unsigned char			dfi_pinmux[DWC_DFI_PINMUX_TOTAL];
+	unsigned char			char_rev3;
+	unsigned char			char_rev4;
+	ddr_phy_common_extra_set_t	cfg_ddr_phy_common_extra_set_t;
+	training_delay_set_ps_t		cfg_ddr_training_delay_ps[2];
+
+	//override read bit delay
+}ddr_set_t7;
+
+ddr_set_t7 p_ddr_set_t7;
+
+
 
 #ifndef _SHA256_H_DDR
 #define _SHA256_H_DDR
@@ -2130,10 +2359,9 @@ int do_ddr_test_copy(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		loop = 1;
 	}
 
-	if (argc > 2) {
+	if (argc > 2)
 		if (*argv[2] == 0 || *endp != 0)
 			src_addr = DDR_TEST_START_ADDR;
-	}
 
 	if (argc > 3) {
 		src_addr = simple_strtoull_ddr(argv[1], &endp, 16);
@@ -5388,7 +5616,7 @@ int get_ddr_clk(void)
 	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_TM2)
 	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C1)
 	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_SC2)
-		|| (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)) {
+	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)) {
 		ddr_pll = rd_reg(p_ddr_base->ddr_pll_base_address);
 		ddr_pll = ddr_pll & 0xfffff;
 		ddr_clk = pll_convert_to_ddr_clk_g12a(ddr_pll);
@@ -5765,10 +5993,9 @@ uint32_t find_vddee_voltage_index(unsigned int target_voltage)
 {
 	unsigned int to;
 
-	for (to = 0; to < ARRAY_SIZE(pwm_voltage_table_ee); to++) {
+	for (to = 0; to < ARRAY_SIZE(pwm_voltage_table_ee); to++)
 		if (pwm_voltage_table_ee[to][1] >= target_voltage)
 			break;
-	}
 
 	if (to >= ARRAY_SIZE(pwm_voltage_table_ee))
 		to = ARRAY_SIZE(pwm_voltage_table_ee) - 1;
@@ -5779,10 +6006,9 @@ void set_ee_voltage(uint32_t ee_over_ride_voltage)
 {
 	unsigned int to;
 
-	for (to = (ARRAY_SIZE(pwm_voltage_table_ee)); (to > 0); to--) {
+	for (to = (ARRAY_SIZE(pwm_voltage_table_ee)); (to > 0); to--)
 		if ((pwm_voltage_table_ee[to - 1][1] < ee_over_ride_voltage) && (pwm_voltage_table_ee[to][1] >= ee_over_ride_voltage))
 			break;
-	}
 
 	if (ee_over_ride_voltage) {
 		writel(pwm_voltage_table_ee[to][0], (p_ddr_base->ee_pwm_base_address));
@@ -6201,6 +6427,7 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 		printf("\nargv[%d]=%s\n", i, argv[i]);
 	ddr_set_t *ddr_set_t_p = NULL;
 	ddr_set_t_p = (ddr_set_t *)(ddr_set_t_p_arrary);
+	ddr_set_t7 *ddr_set_t_p_t7 = (ddr_set_t7 *)ddr_set_t_p;
 	do_read_ddr_training_data(0, ddr_set_t_p);
 
 	{
@@ -6218,8 +6445,8 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 		printf("\n mrs register: ");
 		printf("\n mrs register: base (0x54000<<1)+DDR_PHY_BASE,%08x  byte offset\n", (0x54000 << 1) + (p_ddr_base->ddr_phy_base_address));
 		for (count = 0; count < 0x80; ) {
-			reg_add_offset = 0x54000 + count; //dwc_ddrphy_apb_wr(0x54008,0x1001);
-			reg_value = ((*(volatile uint16_t *)((uint64_t)(((0x54000 + (count >> 1))) << 1) + (p_ddr_base->ddr_phy_base_address))) >> (((count) % 2) ? 8 : 0)); //dwc_ddrphy_apb_rd(0x54000+add_offset+1);
+			reg_add_offset = 0x54000 + count;                                                                                                                       //dwc_ddrphy_apb_wr(0x54008,0x1001);
+			reg_value = ((*(volatile uint16_t *)((uint64_t)(((0x54000 + (count >> 1))) << 1) + (p_ddr_base->ddr_phy_base_address))) >> (((count) % 2) ? 8 : 0));    //dwc_ddrphy_apb_rd(0x54000+add_offset+1);
 			reg_value = reg_value & 0xff;
 			printf("\n reg_add_offset: %08x %08x %08x", reg_add_offset, reg_value, ((((0x54000 + (count >> 1))) << 1) + (p_ddr_base->ddr_phy_base_address)));
 			count = count + 1;
@@ -6256,22 +6483,37 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 		printf("\n.board_id=0x%08x,// %d", ddr_set_t_p->board_id, ddr_set_t_p->board_id);
 		printf("\n.version=0x%08x,// %d", ddr_set_t_p->version, ddr_set_t_p->version);
 		printf("\n.DramType=0x%08x,// %d", ddr_set_t_p->DramType, ddr_set_t_p->DramType);
-		printf("\n.DisabledDbyte=0x%08x,// %d", ddr_set_t_p->DisabledDbyte, ddr_set_t_p->DisabledDbyte);
-		printf("\n.Is2Ttiming=0x%08x,// %d", ddr_set_t_p->Is2Ttiming, ddr_set_t_p->Is2Ttiming);
-		printf("\n.HdtCtrl=0x%08x,// %d", ddr_set_t_p->HdtCtrl, ddr_set_t_p->HdtCtrl);
-		printf("\n.dram_rank_config=0x%08x,// %d", ddr_set_t_p->dram_rank_config, ddr_set_t_p->dram_rank_config);
-		printf("\n.diagnose=0x%08x,// %d", ddr_set_t_p->diagnose, ddr_set_t_p->diagnose);
+		if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)) {
+			printf("\n.DisabledDbyte[0]=0x%08x,// %d", ddr_set_t_p_t7->DisabledDbyte[0], ddr_set_t_p_t7->DisabledDbyte[0]);
+			printf("\n.DisabledDbyte[1]=0x%08x,// %d", ddr_set_t_p_t7->DisabledDbyte[1], ddr_set_t_p_t7->DisabledDbyte[1]);
+			printf("\n.Is2Ttiming=0x%08x,// %d", ddr_set_t_p_t7->Is2Ttiming, ddr_set_t_p_t7->Is2Ttiming);
+			printf("\n.HdtCtrl=0x%08x,// %d", ddr_set_t_p_t7->HdtCtrl, ddr_set_t_p_t7->HdtCtrl);
+			printf("\n.dram_rank_config=0x%08x,// %d", ddr_set_t_p_t7->dram_rank_config, ddr_set_t_p_t7->dram_rank_config);
+		} else {
+			printf("\n.DisabledDbyte=0x%08x,// %d", ddr_set_t_p->DisabledDbyte, ddr_set_t_p->DisabledDbyte);
+			printf("\n.Is2Ttiming=0x%08x,// %d", ddr_set_t_p->Is2Ttiming, ddr_set_t_p->Is2Ttiming);
+			printf("\n.HdtCtrl=0x%08x,// %d", ddr_set_t_p->HdtCtrl, ddr_set_t_p->HdtCtrl);
+			printf("\n.dram_rank_config=0x%08x,// %d", ddr_set_t_p->dram_rank_config, ddr_set_t_p->dram_rank_config);
+			printf("\n.diagnose=0x%08x,// %d", ddr_set_t_p->diagnose, ddr_set_t_p->diagnose);
+		}
 		printf("\n.soc_data_drv_ohm_ps1=0x%08x,// %d", ddr_set_t_p->soc_data_drv_ohm_ps1, ddr_set_t_p->soc_data_drv_ohm_ps1);
 		printf("\n.dram_data_drv_ohm_ps1=0x%08x,// %d", ddr_set_t_p->dram_data_drv_ohm_ps1, ddr_set_t_p->dram_data_drv_ohm_ps1);
 		printf("\n.soc_data_odt_ohm_ps1=0x%08x,// %d", ddr_set_t_p->soc_data_odt_ohm_ps1, ddr_set_t_p->soc_data_odt_ohm_ps1);
 		printf("\n.dram_data_odt_ohm_ps1=0x%08x,// %d", ddr_set_t_p->dram_data_odt_ohm_ps1, ddr_set_t_p->dram_data_odt_ohm_ps1);
 		printf("\n.dram_data_wr_odt_ohm_ps1=0x%08x,// %d", ddr_set_t_p->dram_data_wr_odt_ohm_ps1, ddr_set_t_p->dram_data_wr_odt_ohm_ps1);
-
-		printf("\n.dmem_load_size=0x%08x,// %d", ddr_set_t_p->dmem_load_size, ddr_set_t_p->dmem_load_size);
-		printf("\n.ddr_base_addr=0x%08x,// %d", ddr_set_t_p->ddr_base_addr, ddr_set_t_p->ddr_base_addr);
-		printf("\n.ddr_start_offset=0x%08x,// %d", ddr_set_t_p->ddr_start_offset, ddr_set_t_p->ddr_start_offset);
-		printf("\n.dram_cs0_size_MB=0x%08x,// %d", ddr_set_t_p->dram_cs0_size_MB, ddr_set_t_p->dram_cs0_size_MB);
-		printf("\n.dram_cs1_size_MB=0x%08x,// %d", ddr_set_t_p->dram_cs1_size_MB, ddr_set_t_p->dram_cs1_size_MB);
+		if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)) {
+			printf("\n.soc_data_drv_ohm_ffe=0x%08x,// %d", ddr_set_t_p_t7->soc_data_drv_ohm_ffe, ddr_set_t_p_t7->soc_data_drv_ohm_ffe);
+			printf("\n.ddr_base_addr=0x%08x,// %d", ddr_set_t_p->ddr_base_addr, ddr_set_t_p->ddr_base_addr);
+			printf("\n.ddr_start_offset=0x%08x,// %d", ddr_set_t_p->ddr_start_offset, ddr_set_t_p->ddr_start_offset);
+			printf("\n.dram_ch0_size_MB=0x%08x,// %d", ddr_set_t_p_t7->dram_ch0_size_MB, ddr_set_t_p_t7->dram_ch0_size_MB);
+			printf("\n.dram_ch1_size_MB=0x%08x,// %d", ddr_set_t_p_t7->dram_ch1_size_MB, ddr_set_t_p_t7->dram_ch1_size_MB);
+		} else {
+			printf("\n.dmem_load_size=0x%08x,// %d", ddr_set_t_p->dmem_load_size, ddr_set_t_p->dmem_load_size);
+			printf("\n.ddr_base_addr=0x%08x,// %d", ddr_set_t_p->ddr_base_addr, ddr_set_t_p->ddr_base_addr);
+			printf("\n.ddr_start_offset=0x%08x,// %d", ddr_set_t_p->ddr_start_offset, ddr_set_t_p->ddr_start_offset);
+			printf("\n.dram_cs0_size_MB=0x%08x,// %d", ddr_set_t_p->dram_cs0_size_MB, ddr_set_t_p->dram_cs0_size_MB);
+			printf("\n.dram_cs1_size_MB=0x%08x,// %d", ddr_set_t_p->dram_cs1_size_MB, ddr_set_t_p->dram_cs1_size_MB);
+		}
 		printf("\n.training_SequenceCtrl[0]=0x%08x,// %d", ddr_set_t_p->training_SequenceCtrl[0], ddr_set_t_p->training_SequenceCtrl[0]);
 		printf("\n.training_SequenceCtrl[1]=0x%08x,// %d", ddr_set_t_p->training_SequenceCtrl[1], ddr_set_t_p->training_SequenceCtrl[1]);
 		printf("\n.phy_odt_config_rank[0]=0x%08x,// %d", ddr_set_t_p->phy_odt_config_rank[0], ddr_set_t_p->phy_odt_config_rank[0]);
@@ -6377,6 +6619,9 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 		printf("\n.tdqs2dq=0x%08x,// %d", ddr_set_t_p->tdqs2dq, ddr_set_t_p->tdqs2dq);
 		printf("\n.dram_data_wr_odt_ohm=0x%08x,// %d", ddr_set_t_p->dram_data_wr_odt_ohm, ddr_set_t_p->dram_data_wr_odt_ohm);
 		printf("\n.bitTimeControl_2d=0x%08x,// %d", ddr_set_t_p->bitTimeControl_2d, ddr_set_t_p->bitTimeControl_2d);
+		if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7))
+			printf("\n.training_offset=0x%08x,// %d", ddr_set_t_p_t7->training_offset, ddr_set_t_p_t7->training_offset);
+
 		printf("\n.ddr_dmc_remap[0]=0x%08x,// %d", ddr_set_t_p->ddr_dmc_remap[0], ddr_set_t_p->ddr_dmc_remap[0]);
 		printf("\n.ddr_dmc_remap[1]=0x%08x,// %d", ddr_set_t_p->ddr_dmc_remap[1], ddr_set_t_p->ddr_dmc_remap[1]);
 		printf("\n.ddr_dmc_remap[2]=0x%08x,// %d", ddr_set_t_p->ddr_dmc_remap[2], ddr_set_t_p->ddr_dmc_remap[2]);
@@ -6594,9 +6839,9 @@ uint32_t ddr_phy_training_reg_read_write(ddr_set_t_c2 *p_ddrs, char index,
 		return read_write_value;
 	//ac group0 then ac group1
 	if (index == DMC_TEST_WINDOW_INDEX_ATXDLY) {
-		if (sub_index < 8) { //ac group 0
+		if (sub_index < 8) {            //ac group 0
 			switch (sub_index) {
-			case            0:              //cke0
+			case            0:      //cke0
 				reg_add_coarse = (add_base + DDR_X32_F0_A808 + reg_offset);
 				reg_add_fine = (add_base + DDR_X32_F0_A82C + reg_offset);
 				reg_add_coarse_bit_mask = (~(3 << 4));
@@ -6656,18 +6901,18 @@ uint32_t ddr_phy_training_reg_read_write(ddr_set_t_c2 *p_ddrs, char index,
 		} else if (sub_index < (8 + 16 + 4)) {
 			reg_add_coarse = 0;
 			reg_add_fine = 0;
-		} else if (sub_index < (8 + 16 + 4 + 3+2)) {
+		} else if (sub_index < (8 + 16 + 4 + 3 + 2)) {
 			reg_add_coarse = (add_base + DDR_X32_F0_A800 + (((sub_index - 8 - 4) / 16) << 2) + reg_offset);
 			reg_add_fine = (add_base + DDR_X32_F0_A810 + (((sub_index - 8 - 4) / 4) << 2) + reg_offset);
 			reg_add_coarse_bit_mask = (~(3 << (((sub_index - 8 - 4) % 16) << 1)));
 			reg_add_fine_bit_mask = (~(0x7f << (((sub_index - 8 - 4) % 4) * 8)));
 		}
-		#if 0
+#if 0
 		else if (sub_index < (8 + 16 + 4 + 3 + 2)) {
 			reg_add_coarse = 0;
 			reg_add_fine = 0;
 		}
-		#endif
+#endif
 		else if (sub_index < (8 + 28)) {
 			reg_add_coarse = (add_base + DDR_X32_F0_A800 + (((sub_index - 8 - 4 - 2 + 2) / 16) << 2) + reg_offset);
 			reg_add_fine = (add_base + DDR_X32_F0_A810 + (((sub_index - 8 - 4 - 2 + 2) / 4) << 2) + reg_offset);
@@ -6841,8 +7086,8 @@ void ddr_read_write_training_value(ddr_set_t_c2 *p_ddrs, char over_ride_index,
 					if (t_count > 35)
 						read_skip = 1;
 					else    //ro training no vref value
-						if ((t_count % 9) == 8)
-							read_skip = 1;
+					if ((t_count % 9) == 8)
+						read_skip = 1;
 				}
 				t_count_value = ddr_phy_training_reg_read_write(p_ddrs,
 										over_ride_index, t_count, t_count_value, read_write, ps);
@@ -7267,10 +7512,10 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 			ddr_set_t_p->fast_boot[1] = (((dmc_test_worst_window_tx / 2) << 4)) | (((dmc_test_worst_window_rx / 2)));
 		}
 		if (enable_ddr_fast_boot == 1)
-		ddr_set_t_p->fast_boot[0] = 0xff;
+			ddr_set_t_p->fast_boot[0] = 0xff;
 
 		if (enable_ddr_fast_boot == 2)
-		ddr_set_t_p->fast_boot[0] = 0;
+			ddr_set_t_p->fast_boot[0] = 0;
 	}
 	if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) {
 		ddr_set_add = (uint32_t)(uint64_t)(ddr_set_t_p);
@@ -7293,10 +7538,10 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 			ddr_set_t_p->fast_boot[1] = (((dmc_test_worst_window_tx / 2) << 4)) | (((dmc_test_worst_window_rx / 2)));
 		}
 		if (enable_ddr_fast_boot == 1)
-		ddr_set_t_p->fast_boot[0] = 0xff;
+			ddr_set_t_p->fast_boot[0] = 0xff;
 
 		if (enable_ddr_fast_boot == 2)
-		ddr_set_t_p->fast_boot[0] = 0;
+			ddr_set_t_p->fast_boot[0] = 0;
 	}
 
 	write_size = ((ddr_set_size + SHA256_SUM_LEN + MESON_CPU_CHIP_ID_SIZE + 511) / 512) * 512;
@@ -7306,7 +7551,7 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 		printf("&ddr_sha.sha2 : 0x%x\n", (uint32_t)(uint64_t)out_sha2);
 		printf("ddr_set_add : 0x%x   sizeof(ddr_set_t):0x%x\n ", (uint32_t)(uint64_t)ddr_set_add, (uint32_t)(uint64_t)ddr_set_size);
 		printf("ddr_set_add_chip_id : 0x%x\n", (uint32_t)(uint64_t)(ddr_set_add + ddr_set_size));
-		sha256_csum_wd_internal((unsigned char *)(uint64_t)ddr_set_add, ddr_set_size,(unsigned char *) out_sha2, 0);
+		sha256_csum_wd_internal((unsigned char *)(uint64_t)ddr_set_add, ddr_set_size, (unsigned char *)out_sha2, 0);
 		printf("print sha\n");
 		ddr_do_store_ddr_parameter_ops((uint8_t *)(unsigned long)(ddr_set_add - SHA256_SUM_LEN), write_size);
 	}
@@ -8729,12 +8974,12 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	}
 	dcache_disable();
 	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_A1) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C1) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2)
-	|| (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_SC2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)
-	//|| (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D)
-	) {
+	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_SC2)
+	    //|| (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D)
+	    ) {
 		printf("reset...\n");
 		run_command("reset", 0);
-	} else {                        //G12A/G12B/SM1/TL1/TM2
+	} else {                        //G12A/G12B/SM1/TL1/TM2 //(p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)
 		printf("reboot...\n");  //reset will enter bl2 panic path,so change to "reboot"
 		run_command("reboot", 0);
 		//ddr_test_watchdog_reset_system();
@@ -8839,7 +9084,7 @@ void ddr_window_reg_after_training_update_increas_sub_c2(char over_ride_index, u
 
 	if (!over_ride_index)
 		return;
-	if (over_ride_index <=DMC_TEST_WINDOW_INDEX_DRAM_VREF) {
+	if (over_ride_index <= DMC_TEST_WINDOW_INDEX_DRAM_VREF) {
 		delay_old_value = ddr_phy_training_reg_read_write(ddr_set_t_p, over_ride_index, over_ride_sub_index, delay_old_value, REGISTER_READ, ps);
 		if (over_ride_increase_decrease == 0)
 			delay_reg_value = delay_old_value + step;
@@ -8907,7 +9152,7 @@ int do_ddr_c2_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 {
 	check_base_address();
 
-	#define DMC_PHY_RETRAINING_CTRL     (p_ddr_base->ddr_dmc_lpdd4_retraining_address)
+#define DMC_PHY_RETRAINING_CTRL     (p_ddr_base->ddr_dmc_lpdd4_retraining_address)
 	uint32_t dmc_retraining_ctrl = 0;
 	dmc_retraining_ctrl = rd_reg(DMC_PHY_RETRAINING_CTRL);
 	wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl & (~(1 << 31)));
@@ -9020,20 +9265,17 @@ int do_ddr_c2_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 	writel((0), p_ddr_base->ddr_dmc_asr_address);
 
 	for (; count < count_max; count++) {
-		if ((count < 32)) {
+		if ((count < 32))
 			if (test_dq_mask_1 & (1 << (count % 32)))
 				continue;
-		}
 
-		if ((count > 31) && (count < 63)) {
+		if ((count > 31) && (count < 63))
 			if (test_dq_mask_2 & (1 << (count % 32)))
 				continue;
-		}
 
-		if ((count > 63)) {
+		if ((count > 63))
 			if (test_dq_mask_3 & (1 << (count % 32)))
 				continue;
-		}
 		{
 			if (left_right_flag == DDR_PARAMETER_RIGHT) {
 				dwc_window_reg_after_training_update_increas_c2(test_index,
@@ -9175,20 +9417,17 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	writel((0), p_ddr_base->ddr_dmc_asr_address);
 
 	for (; count < count_max; count++) {
-		if ((count < 32)) {
+		if ((count < 32))
 			if (test_dq_mask_1 & (1 << (count % 32)))
 				continue;
-		}
 
-		if ((count > 31) && (count < 63)) {
+		if ((count > 31) && (count < 63))
 			if (test_dq_mask_2 & (1 << (count % 32)))
 				continue;
-		}
 
-		if ((count > 63)) {
+		if ((count > 63))
 			if (test_dq_mask_3 & (1 << (count % 32)))
 				continue;
-		}
 		{
 			if (left_right_flag == DDR_PARAMETER_RIGHT) {
 				dwc_window_reg_after_training_update_increas(test_index,
@@ -9220,7 +9459,7 @@ U_BOOT_CMD(
 int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	check_base_address();
-	#define DMC_PHY_RETRAINING_CTRL     (p_ddr_base->ddr_dmc_lpdd4_retraining_address)
+#define DMC_PHY_RETRAINING_CTRL     (p_ddr_base->ddr_dmc_lpdd4_retraining_address)
 	uint32_t dmc_retraining_ctrl = 0;
 	dmc_retraining_ctrl = rd_reg(DMC_PHY_RETRAINING_CTRL);
 	unsigned int ddr_dmc_apd_temp_save, ddr_dmc_asr_temp_save;
@@ -9306,6 +9545,9 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 	int argc2;
 	char *argv2[30];
+
+	unsigned int phy_base_add[2] = { 0, 0, };
+	unsigned int ddr_dmc_sticky[2] = { 0, 0, };
 
 	argc2 = argc - 1;
 	for (i = 1; i < (argc); i++)
@@ -9416,10 +9658,26 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		case (DDR_TEST_CMD__DISPLAY_G12_DDR_INFORMATION):
 		{
 			printf("\nshow g12 ddr information\n");
-			if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5)|| (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D))
+			if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D)) {
 				do_ddr_display_c2_ddr_information((cmd_tbl_t *)cmdtp, (int)flag, (int)argc2, (argv2));
-			else
+			} else if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)) {
+				phy_base_add[0] = p_ddr_base->ddr_phy_base_address;
+				phy_base_add[1] = p_ddr_base->ddr_phy_base_address_1;
+				ddr_dmc_sticky[0] = p_ddr_base->ddr_dmc_sticky0;
+				ddr_dmc_sticky[1] = p_ddr_base->ddr_dmc_sticky0_1;
+				p_ddr_base->ddr_phy_base_address = phy_base_add[0];
+				p_ddr_base->ddr_dmc_sticky0 = ddr_dmc_sticky[0];
 				do_ddr_display_g12_ddr_information((cmd_tbl_t *)cmdtp, (int)flag, (int)argc2, (argv2));
+				p_ddr_base->ddr_phy_base_address = phy_base_add[1];
+				p_ddr_base->ddr_dmc_sticky0 = ddr_dmc_sticky[1];
+				do_ddr_display_g12_ddr_information((cmd_tbl_t *)cmdtp, (int)flag, (int)argc2, (argv2));
+				p_ddr_base->ddr_phy_base_address = phy_base_add[0];
+				p_ddr_base->ddr_phy_base_address_1 = phy_base_add[1];
+				p_ddr_base->ddr_dmc_sticky0 = ddr_dmc_sticky[0];
+				p_ddr_base->ddr_dmc_sticky0_1 = ddr_dmc_sticky[1];
+			} else {
+				do_ddr_display_g12_ddr_information((cmd_tbl_t *)cmdtp, (int)flag, (int)argc2, (argv2));
+			}
 		}
 		break;
 
@@ -9688,10 +9946,9 @@ int do_ddr_auto_scan_drv(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 	}
 	printf("\nglobal_boot_times== %d %s", global_boot_times, string_print_flag);
 
-	if (loop) {
+	if (loop)
 		if (((global_boot_times - 1) / 2) > max_counter_total)
 			return 1;
-	}
 	printf("\nmax_counter=%d  %d %s", max_counter_total, max_counter_total * 2, string_print_flag);
 	printf("\nsoc_data_drv_ohm_p=%d %s", soc_data_drv_ohm_p, string_print_flag);
 	printf("\nsoc_data_drv_ohm_n=%d %s", soc_data_drv_ohm_n, string_print_flag);
@@ -10094,9 +10351,9 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char *const
 			skip_window_test_enable = 0;
 	}
 	if ((p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_C2) && (p_ddr_base->chip_id <= MESON_CPU_MAJOR_ID_T5D)) {
-	do_ddr_auto_fastboot_check_c2(auto_window_test_enable_item,auto_window_test_dq_size,pattern_dis_scramble,stick_dmc_ddr_window_test_read_vref_offset_value,skip_window_test_enable);
-	return 1;
-		}
+		do_ddr_auto_fastboot_check_c2(auto_window_test_enable_item, auto_window_test_dq_size, pattern_dis_scramble, stick_dmc_ddr_window_test_read_vref_offset_value, skip_window_test_enable);
+		return 1;
+	}
 	char str[1024] = "";
 	int verify_error = 0;
 	verify_error = do_verify_flash_ddr_parameter(1);
@@ -10117,7 +10374,7 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char *const
 	ddr_set_add = (uint32_t)(uint64_t)(ddr_set_t_p);
 	ddr_set_size = sizeof(ddr_set_t);
 	printf("\nddr_set_t_p==0x%08x\n", ddr_set_add);
-	#define DMC_PHY_RETRAINING_CTRL     (p_ddr_base->ddr_dmc_lpdd4_retraining_address)
+#define DMC_PHY_RETRAINING_CTRL     (p_ddr_base->ddr_dmc_lpdd4_retraining_address)
 	uint32_t dmc_retraining_ctrl = 0;
 	dmc_retraining_ctrl = rd_reg(DMC_PHY_RETRAINING_CTRL);
 	wr_reg(DMC_PHY_RETRAINING_CTRL, dmc_retraining_ctrl & (~(1 << 31)));
