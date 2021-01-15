@@ -1181,6 +1181,9 @@ static int flash_write(int fd_current, int fd_target, int dev_target)
 		DEVOFFSET(dev_target), DEVNAME(dev_target));
 #endif
 
+	/* Amlogic Add */
+	DEVTYPE(dev_target) = MTD_ABSENT;
+
 	if (IS_UBI(dev_target)) {
 		if (ubi_update_start(fd_target, CUR_ENVSIZE) < 0)
 			return 0;
@@ -1216,6 +1219,17 @@ static int flash_read(int fd)
 
 		return ubi_read(fd, environment.image, CUR_ENVSIZE);
 	}
+
+	/*
+	 * Never use mtd part as env in amlogic case;
+	 * For Nand/Emmc base, we use chardev '/dev/nand_env',
+	 * and /dev/block/env.
+	 */
+	struct mtd_info_user mtdinfo;
+	memset(&mtdinfo, 0, sizeof(mtdinfo));
+	mtdinfo.type = MTD_ABSENT;
+
+	DEVTYPE(dev_current) = mtdinfo.type;
 
 	rc = flash_read_buf(dev_current, fd, environment.image, CUR_ENVSIZE,
 			    DEVOFFSET(dev_current));
@@ -1621,14 +1635,14 @@ static int check_device_config(int dev)
 				DEVNAME(dev));
 			goto err;
 		}
-		if (mtdinfo.type != MTD_NORFLASH &&
+/*		if (mtdinfo.type != MTD_NORFLASH &&
 		    mtdinfo.type != MTD_NANDFLASH &&
 		    mtdinfo.type != MTD_DATAFLASH &&
 		    mtdinfo.type != MTD_UBIVOLUME) {
 			fprintf(stderr, "Unsupported flash type %u on %s\n",
 				mtdinfo.type, DEVNAME(dev));
 			goto err;
-		}
+		}*/
 		DEVTYPE(dev) = mtdinfo.type;
 		if (DEVESIZE(dev) == 0)
 			/* Assume the erase size is the same as the env-size */
