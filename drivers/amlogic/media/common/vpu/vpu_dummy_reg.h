@@ -92,6 +92,10 @@
 #define AO_RTI_GEN_PWR_ISO0                        (0xff800000 + (0x03b << 2))
 #endif
 
+#ifndef HHI_MEM_PD_REG0
+#define HHI_MEM_PD_REG0                            (0xff63c000 + (0x040 << 2))
+#endif
+
 #ifndef HHI_VPU_MEM_PD_REG0
 #define HHI_VPU_MEM_PD_REG0                        (0xff63c000 + (0x041 << 2))
 #endif

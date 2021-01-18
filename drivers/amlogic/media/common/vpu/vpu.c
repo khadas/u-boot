@@ -31,7 +31,8 @@
 /* v20190313: add sm1 support */
 /* v20200521: add sc2 support */
 /* v20201118: add t7 support */
-#define VPU_VERION	"v20201118"
+/* v20210114: add s4 support */
+#define VPU_VERION	"v20210114"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -295,6 +296,34 @@ static struct vpu_data_s vpu_data_t7 = {
 	.power_off = vpu_power_off_new,
 };
 
+static struct vpu_data_s vpu_data_s4 = {
+	.chip_type = VPU_CHIP_S4,
+	.chip_name = "s4",
+	.clk_level_dft = CLK_LEVEL_DFT_S4,
+	.clk_level_max = CLK_LEVEL_MAX_S4,
+	.gp_pll_valid = 0,
+
+	.vpu_clk_reg = CLKCTRL_VPU_CLK_CTRL,
+	.vapb_clk_reg = CLKCTRL_VAPBCLK_CTRL,
+	.vid_clk_reg = CLKCTRL_VID_CLK_CTRL2,
+
+	.pwrctrl_id_table = vpu_pwrctrl_id_table,
+
+	.fclk_div_table = fclk_div_table_g12a,
+	.vpu_clk_table = vpu_clk_table,
+
+	.mem_pd_table = NULL,
+	.power_table = NULL,
+	.iso_table = NULL,
+	.reset_table = NULL,
+
+	.module_init_table_cnt = 0,
+	.module_init_table = NULL,
+
+	.power_on = vpu_power_on_new,
+	.power_off = vpu_power_off_new,
+};
+
 static void vpu_chip_detect(void)
 {
 	unsigned int cpu_type;
@@ -328,9 +357,12 @@ static void vpu_chip_detect(void)
 	case MESON_CPU_MAJOR_ID_T7:
 		vpu_conf.data = &vpu_data_t7;
 		break;
+	case MESON_CPU_MAJOR_ID_S4:
+		vpu_conf.data = &vpu_data_s4;
+		break;
 	default:
 		//vpu_conf.data = NULL;
-		vpu_conf.data = &vpu_data_t7;
+		vpu_conf.data = &vpu_data_s4;
 		break;
 	}
 
@@ -375,6 +407,7 @@ static int vpu_check(void)
 	case VPU_CHIP_T5:
 	case VPU_CHIP_T5D:
 	case VPU_CHIP_T7:
+	case VPU_CHIP_S4:
 		ret = 0;
 		break;
 	default:
