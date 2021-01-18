@@ -298,44 +298,53 @@ static int unifykey_item_create(const void* dt_addr,int num)
 int keymanage_dts_parse(const void* dt_addr)
 {
     int ret = 0;
-	int nodeoffset;
-	char *punifykey_num, *encrypt_type;
+    int nodeoffset, provisionOffset, provisionNum = 0;
+    char *punifykey_num, *encrypt_type;
+    int child, unifykeyNum = 0;
 
-	if (fdt_check_header(dt_addr)!= 0) {
+    if (fdt_check_header(dt_addr)!= 0) {
         KM_ERR("not a fdt at 0x%p\n", dt_addr);
         return __LINE__;
     }
 
-	nodeoffset = fdt_path_offset(dt_addr, "/unifykey");
-	if (nodeoffset < 0) {
-		KM_ERR("dts: err(%s) in find /unifykey.\n",fdt_strerror(nodeoffset));
-		return __LINE__;
-	}
-
-	unify_key_info.efuse_version = -1;
-	punifykey_num = (char*)fdt_getprop((const void *)dt_addr, nodeoffset, "efuse-version",NULL);
-	if (punifykey_num) {
-		unify_key_info.efuse_version = be32_to_cpup((unsigned int*)punifykey_num);
-		KM_MSG("efuse-version config is %x\n",unify_key_info.efuse_version);
-	}
-
-	unify_key_info.key_num = 0;
-	punifykey_num = (char*)fdt_getprop((const void *)dt_addr, nodeoffset, "unifykey-num",NULL);
-	if (punifykey_num) {
-//		printf("unifykey-num config is %x\n",be32_to_cpup((unsigned int*)punifykey_num));
-		unify_key_info.key_num = be32_to_cpup((unsigned int*)punifykey_num);
-	}
-
-	unify_key_info.encrypt_type = -1;
-	encrypt_type = (char*)fdt_getprop((const void *)dt_addr, nodeoffset, "unifykey-encrypt",NULL);
-	if (encrypt_type) {
-		unify_key_info.encrypt_type = be32_to_cpup((unsigned int*)encrypt_type);
-	}
-
-	if (unify_key_info.key_num <= 0) {
-		KM_ERR("unifykey-num is not configured\n");
+    nodeoffset = fdt_path_offset(dt_addr, "/unifykey");
+    if (nodeoffset < 0) {
+        KM_ERR("dts: err(%s) in find /unifykey.\n",fdt_strerror(nodeoffset));
         return __LINE__;
-	}
+    }
+
+    unify_key_info.efuse_version = -1;
+    punifykey_num = (char*)fdt_getprop((const void *)dt_addr, nodeoffset, "efuse-version",NULL);
+    if (punifykey_num) {
+        unify_key_info.efuse_version = be32_to_cpup((unsigned int*)punifykey_num);
+        KM_MSG("efuse-version config is %x\n",unify_key_info.efuse_version);
+    }
+
+    unify_key_info.key_num = 0;
+    punifykey_num = (char*)fdt_getprop((const void *)dt_addr, nodeoffset, "unifykey-num",NULL);
+    if (punifykey_num) {
+        //		printf("unifykey-num config is %x\n",be32_to_cpup((unsigned int*)punifykey_num));
+        unifykeyNum = unify_key_info.key_num = be32_to_cpup((unsigned int*)punifykey_num);
+    }
+
+    provisionOffset = fdt_path_offset(dt_addr, "/provisionkey");
+    if (provisionOffset >= 0) {
+        fdt_for_each_subnode(dt_addr, child, provisionOffset) {
+            provisionNum++;
+        }
+    }
+    unify_key_info.key_num += provisionNum;
+
+    unify_key_info.encrypt_type = -1;
+    encrypt_type = (char*)fdt_getprop((const void *)dt_addr, nodeoffset, "unifykey-encrypt",NULL);
+    if (encrypt_type) {
+        unify_key_info.encrypt_type = be32_to_cpup((unsigned int*)encrypt_type);
+    }
+
+    if (unify_key_info.key_num <= 0) {
+        KM_ERR("unifykey-num is not configured\n");
+        return __LINE__;
+    }
     if (unify_key_info.key_num > 256) {
         KM_ERR("Cfg key_num is %d > 32,pls check!\n", unify_key_info.key_num);
         return __LINE__;
@@ -348,9 +357,58 @@ int keymanage_dts_parse(const void* dt_addr)
     unifykey_item = (struct key_item_t*)malloc(keyInfBufLen);
     memset(unifykey_item, 0 , keyInfBufLen);
 
-    ret = unifykey_item_create(dt_addr,unify_key_info.key_num);
-    unify_key_info.key_flag = ret ? 0 : 1;
+    ret = unifykey_item_create(dt_addr,unify_key_info.key_num - provisionNum);
+    if (ret) {
+        KM_ERR("fail in unifykey_item_create\n");
+        return -__LINE__;
+    }
+    if (provisionOffset >= 0)
+    {
+        KM_DBG("dts: in find /provisionkey.\n");
 
-	return ret;
+        int defPermits = 0;
+        const struct fdt_property *prop = fdt_get_property(dt_addr, provisionOffset,"key-permit-default",NULL) ;
+        if (prop) {
+            const int propLen = prop->len > 512 ? strnlen(prop->data, 512) : prop->len;
+            if (fdt_stringlist_contains(prop->data, propLen, UNIFYKEY_PERMIT_READ)) {
+                defPermits |= KEY_M_PERMIT_READ;
+            }
+            if (fdt_stringlist_contains(prop->data, propLen, UNIFYKEY_PERMIT_WRITE)) {
+                defPermits |= KEY_M_PERMIT_WRITE;
+            }
+            if (fdt_stringlist_contains(prop->data, propLen, UNIFYKEY_PERMIT_DEL)) {
+                defPermits |= KEY_M_PERMIT_DEL;
+            }
+        }
+
+        int node = 0;
+        int id = unifykeyNum;
+        int szlen = 0;
+        fdt_for_each_subnode(dt_addr, node, provisionOffset) {
+            int len = 0;
+            const char* keyName = fdt_get_name(dt_addr, node, &len);
+            KM_DBG("provisionkey[%s] len %d\n", keyName, len);
+
+            struct key_item_t *pItem= unifykey_item + id;
+
+            szlen = strnlen(keyName, KEY_UNIFY_NAME_LEN - 1);
+            memcpy(pItem->name, keyName, szlen);
+            if (szlen < KEY_UNIFY_NAME_LEN) pItem->name[szlen] = '\0';
+
+            strcpy(pItem->keyType, "raw");
+            pItem->dev = KEY_M_PROVISION_KEY;
+            pItem->permit = defPermits;
+            pItem->id      = id++;
+            if (!strcmp(_PROVSION_DEFAULT_KEY_NAME, keyName)) _defProvisonItem = pItem;
+        }
+
+        if ((node < 0) && (node != -FDT_ERR_NOTFOUND)) {
+            KM_ERR("in parse /provisionkey, err(%s)\n", fdt_strerror(node));
+            return __LINE__;
+        }
+    }
+
+    unify_key_info.key_flag = 1;
+    return 0;
 }
 
