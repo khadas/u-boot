@@ -278,6 +278,14 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&spicc3_pins>;
 	cs-gpios = <&gpio GPIOT_9 0>;
+	spi-flash@0 {
+		compatible = "spi-flash";
+		reg = <0>;
+		spi-max-frequency = <16000000>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <1>;
+		status = "disabled";
+        };
 };
 
 &spicc4 {
