@@ -318,7 +318,8 @@ typedef struct pll_set{
 	unsigned	int		spi_ctrl;
 	unsigned	short	vddee;
 	unsigned	short	vcck;
-	unsigned	char	szPad[4];
+	unsigned	char	low_console_baud;
+	unsigned	char	szPad[3];
 
 	unsigned	long long	lCustomerID;
 	unsigned	char		debug_mode;

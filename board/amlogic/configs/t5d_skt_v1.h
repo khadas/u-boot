@@ -416,6 +416,9 @@
 /* cpu */
 #define CONFIG_CPU_CLK					1512 //MHz. Range: 360-2000, should be multiple of 24
 
+/*low console baudrate*/
+#define CONFIG_LOW_CONSOLE_BAUD			0
+
 /* ATTENTION */
 /* DDR configs move to board/amlogic/[board]/firmware/timing.c */
 

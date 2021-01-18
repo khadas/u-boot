@@ -504,6 +504,7 @@ pll_set_t __pll_setting = {
 #ifdef CONFIG_AML_SUPPORT_TLV
 	.nCFGTAddr	= AML_BL2_TMASTER_DDR_ADDR,
 #endif
+	.low_console_baud		= CONFIG_LOW_CONSOLE_BAUD,
 };
 
 

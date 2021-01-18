@@ -507,6 +507,7 @@ pll_set_t __pll_setting = {
 	.nCFGTAddr              = AML_BL2_TMASTER_DDR_ADDR,
 #endif
 
+	.low_console_baud		= CONFIG_LOW_CONSOLE_BAUD,
 };
 
 ddr_reg_t __ddr_reg[] = {
