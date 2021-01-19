@@ -9,17 +9,16 @@
 #include <common.h>
 #include <command.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch-t7/secure_apb.h>
-#include <asm/arch-t7/timer.h>
-#include <asm/arch-t7/mailbox.h>
-#include <asm/arch-t7/bl31_apis.h>
+#include <asm/arch/secure_apb.h>
+#include <asm/arch/timer.h>
+#include <asm/arch/bl31_apis.h>
 
 #include <serial.h>
 
 
 /*
  * clk_util_set_dsp_clk
- * freq_sel: 0:286MHz  fclk_7
+ * freq_sel: 0:800MHz  fclk_7
  *           1:400MHz  fclk_5
  *           2:500MHz  fclk_2/2
  *           4:333MHz  fclk_3/2
@@ -110,10 +109,10 @@ static int do_startdsp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 U_BOOT_CMD(
 	startdsp, 4, 1, do_startdsp,
 	"load dspboot.bin from address",
-	"\n arg[0]: cmd\n"
+	"\narg[0]: cmd\n"
 	"arg[1]: dspid \n"
 	"arg[2]: dspboot.bin load address!\n"
-	"arg[3]: dsp clk set 1:400M 2:500M 4:333M 5:250M 6:200M 7:100M 8 :24M"
+	"arg[3]: dsp clk set 0:800M 1:400M 2:500M 4:333M 5:250M 6:200M 7:100M 8 :24M"
 );
 
 
