@@ -143,8 +143,8 @@ struct lcd_tcon_local_cfg_s {
 #define BIT_TOP_EN_T5                    4
 
 #define TCON_CORE_REG_START_T5           0x0100
-#define REG_CORE_OD_T5                   0x247
-#define BIT_OD_EN_T5                     0
+#define REG_CORE_OD_T5                   0x263
+#define BIT_OD_EN_T5                     31
 #define REG_CTRL_TIMING_BASE_T5          0x1b
 #define CTRL_TIMING_OFFSET_T5            12
 #define CTRL_TIMING_CNT_T5               0
@@ -158,8 +158,8 @@ struct lcd_tcon_local_cfg_s {
 #define BIT_TOP_EN_T5D                    4
 
 #define TCON_CORE_REG_START_T5D           0x0100
-#define REG_CORE_OD_T5D                   0x247
-#define BIT_OD_EN_T5D                     0
+#define REG_CORE_OD_T5D                   0x263
+#define BIT_OD_EN_T5D                     31
 #define REG_CTRL_TIMING_BASE_T5D          0x1b
 #define CTRL_TIMING_OFFSET_T5D            12
 #define CTRL_TIMING_CNT_T5D               0

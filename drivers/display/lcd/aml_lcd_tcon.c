@@ -1693,7 +1693,7 @@ static struct lcd_tcon_config_s tcon_data_t5 = {
 	.reg_top_ctrl = REG_LCD_TCON_MAX,
 	.bit_en = BIT_TOP_EN_T5,
 
-	.reg_core_od = REG_LCD_TCON_MAX,
+	.reg_core_od = REG_CORE_OD_T5,
 	.bit_od_en = BIT_OD_EN_T5,
 
 	.reg_ctrl_timing_base = REG_LCD_TCON_MAX,
@@ -1727,7 +1727,7 @@ static struct lcd_tcon_config_s tcon_data_t5d = {
 	.reg_top_ctrl = REG_LCD_TCON_MAX,
 	.bit_en = BIT_TOP_EN_T5D,
 
-	.reg_core_od = REG_LCD_TCON_MAX,
+	.reg_core_od = REG_CORE_OD_T5D,
 	.bit_od_en = BIT_OD_EN_T5D,
 
 	.reg_ctrl_timing_base = REG_LCD_TCON_MAX,
