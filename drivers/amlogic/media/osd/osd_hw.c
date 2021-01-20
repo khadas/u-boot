@@ -3146,6 +3146,7 @@ void osd_init_hw(void)
 {
 	u32 group, idx, data32, data2;
 	char *osd_reverse;
+	struct vinfo_s *info = NULL;
 
 	osd_reverse = env_get("osd_reverse");
 	for (group = 0; group < HW_OSD_COUNT; group++)
@@ -3155,6 +3156,10 @@ void osd_init_hw(void)
 	osd_hw.updated[OSD1] = 0;
 	osd_hw.updated[OSD2] = 0;
 
+	/* set display output resolution */
+	info = vout_get_current_vinfo();
+	if (info != NULL)
+		osd_reg_write(VPP_POSTBLEND_H_SIZE, info->width);
 	osd_vpu_power_on();
 
 	fix_vpu_clk2_default_regs();
