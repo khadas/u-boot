@@ -195,6 +195,8 @@ static void setup_net_chip_ext(void)
 	clrbits_le32(HHI_MEM_PD_REG0, (1 << 3) | (1<<2));
 }
 #endif
+
+int eth_board_id = 0;   // 0  external trim    1 internal trim
 extern struct eth_board_socket* eth_board_setup(char *name);
 extern int designware_initialize(ulong base_addr, u32 interface);
 extern struct phy_device * p_phydev;
@@ -226,18 +228,31 @@ int board_eth_init(bd_t *bis)
 	tx_amp_bl2 = readl(AO_SEC_GP_CFG12);
 	printf("wzh AO_SEC_GP_CFG12 0x%x\n", readl(AO_SEC_GP_CFG12));
 
-	cts_valid =  (tx_amp_bl2 >> 4) & 0x3;
+	if (eth_board_id == 0) {
+		cts_valid =  (tx_amp_bl2 >> 5) & 0x1;
 
-	if (cts_valid)
-		cts_amp  = tx_amp_bl2 & 0xf;
-	/*invalid will set cts_setting[0] 0xA7E00000*/
-	writel(cts_setting[cts_amp], P_ETH_PLL_CTL3);
+		if (cts_valid)
+			cts_amp  = tx_amp_bl2 & 0xf;
+		else
+			cts_amp = 1;
+	} else if (eth_board_id == 1) {
+		cts_valid =  (tx_amp_bl2 >> 4) & 0x1;
+
+		if (cts_valid)
+			cts_amp  = tx_amp_bl2 & 0xf;
+		else
+			cts_amp = 0;
+		/*invalid will set cts_setting[0] 0xA7E00000*/
+		writel(cts_setting[cts_amp], P_ETH_PLL_CTL3);
+
+		cts_amp = 5;
+	}
 
 	phy_write(p_phydev, MDIO_DEVAD_NONE, 0x14, 0x0000);
 	phy_write(p_phydev, MDIO_DEVAD_NONE, 0x14, 0x0400);
 	phy_write(p_phydev, MDIO_DEVAD_NONE, 0x14, 0x0000);
 	phy_write(p_phydev, MDIO_DEVAD_NONE, 0x14, 0x0400);
-	phy_write(p_phydev, MDIO_DEVAD_NONE, 0x17, 0x0005);
+	phy_write(p_phydev, MDIO_DEVAD_NONE, 0x17, cts_amp);
 	phy_write(p_phydev, MDIO_DEVAD_NONE, 0x14, 0x4418);
 #endif
 	return 0;
