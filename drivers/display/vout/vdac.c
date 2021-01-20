@@ -12,6 +12,7 @@
 #include <asm/arch/secure_apb.h>
 #include <asm/arch/cpu.h>
 #include <asm/cpu_id.h>
+#include <amlogic/aml_efuse.h>
 #include "vdac.h"
 
 static struct meson_vdac_ctrl_s *vdac_ctrl;
@@ -153,6 +154,40 @@ int vdac_vref_adj(unsigned int value)
 	return ret;
 }
 
+static void vdac_gsw_init(void)
+{
+	unsigned int reg = HHI_VDAC_CNTL1;
+	unsigned int bit = 0;
+	int i = 0;
+	int ret;
+
+	if (!vdac_ctrl) {
+		//printf("%s: vdac_ctrl data is NULL\n", __func__);
+		return;
+	}
+
+	ret = efuse_get_cali_cvbs();
+	if (ret == -1)
+		return;
+
+	printf("%s: 0x%x\n", __func__, ret);
+	while (i < VDAC_CTRL_MAX) {
+		if (vdac_ctrl[i].reg == VDAC_REG_MAX)
+			break;
+		if ((vdac_ctrl[i].reg == reg) && (vdac_ctrl[i].bit == bit)) {
+			vdac_set_hiu_bits(reg, ret, bit, vdac_ctrl[i].len);
+			//if (vdac_debug_print) {
+			//	printf("vdac: reg=0x%x set bit%d=0x%x, readback=0x%08x\n",
+			//		reg, bit, ret, vdac_hiu_reg_read(reg));
+			//}
+			break;
+		}
+		i++;
+	}
+
+	return;
+}
+
 static struct meson_vdac_ctrl_s vdac_ctrl_enable_gxl[] = {
 	{HHI_VDAC_CNTL0, 0, 9, 1},
 	{HHI_VDAC_CNTL0, 1, 10, 1},
@@ -232,6 +267,8 @@ void vdac_ctrl_config_probe(void)
 	default:
 		break;
 	}
+
+	vdac_gsw_init();
 
 	return;
 }
