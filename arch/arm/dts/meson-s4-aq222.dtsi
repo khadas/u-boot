@@ -189,7 +189,7 @@
 	pinctrl-1 = <&nand_cs_pins>;
 };
 
-&dwc3 {
+&crg {
         status = "okay";
         dr_mode = "host";
 };
