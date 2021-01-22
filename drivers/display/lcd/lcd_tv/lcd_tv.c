@@ -332,12 +332,13 @@ static int lcd_config_load_from_dts(char *dt_addr, struct lcd_config_s *pconf)
 
 	propdata = (char *)fdt_getprop(dt_addr, child_offset, "customer_pinmux", NULL);
 	if (propdata == NULL) {
-		LCDERR("failed to get customer_pinmux\n");
+		if (lcd_debug_print_flag)
+			LCDPR("failed to get customer_pinmux\n");
 		pconf->customer_pinmux = 0;
 	} else {
 		pconf->customer_pinmux = (unsigned char)(be32_to_cpup((u32*)propdata));
+		LCDPR("customer_pinmux: %d\n", pconf->customer_pinmux);
 	}
-	LCDPR("customer_pinmux: %d\n", pconf->customer_pinmux);
 
 	propdata = (char *)fdt_getprop(dt_addr, child_offset, "basic_setting", NULL);
 	if (propdata == NULL) {

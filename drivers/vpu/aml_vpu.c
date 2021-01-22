@@ -6,6 +6,7 @@
  *
  */
 
+#include <common.h>
 #include <asm/cpu_id.h>
 #include <config.h>
 #include <linux/kernel.h>
@@ -26,9 +27,6 @@
 /* v20201022: add t5d support */
 #define VPU_VERION	"v20201022"
 
-#ifdef CONFIG_OF_LIBFDT
-static char *dt_addr;
-#endif
 static int dts_ready = 0;
 
 struct vpu_conf_s vpu_conf = {
@@ -819,7 +817,7 @@ static int set_vpu_clk(unsigned int vclk)
 	return ret;
 }
 
-static int get_vpu_config(void)
+static int get_vpu_config(char *dt_addr)
 {
 #ifdef CONFIG_OF_LIBFDT
 	int nodeoffset;
@@ -857,21 +855,30 @@ static int get_vpu_config(void)
 
 int vpu_probe(void)
 {
+	unsigned long dtb_mem;
+	char *dt_addr;
 	int ret;
 
 	dts_ready = 0;
-#ifdef CONFIG_OF_LIBFDT
-#ifdef CONFIG_DTB_MEM_ADDR
-	dt_addr = (char *)CONFIG_DTB_MEM_ADDR;
-#else
-	dt_addr = (char *)0x01000000;
-#endif
-	ret = fdt_check_header((const void *)dt_addr);
-	if (ret < 0) {
-		VPUERR("vpu: check dts: %s, load default parameters\n",
-			fdt_strerror(ret));
+
+	dtb_mem = getenv_ulong("dtb_mem_addr", 16, 0);
+	if (dtb_mem) {
+		dt_addr = (char *)dtb_mem;
 	} else {
-		dts_ready = 1;
+		VPUPR("no dtb_mem_addr\n");
+#ifdef CONFIG_DTB_MEM_ADDR
+		dt_addr = (char *)CONFIG_DTB_MEM_ADDR;
+#endif
+	}
+#ifdef CONFIG_OF_LIBFDT
+	if (dt_addr) {
+		ret = fdt_check_header((const void *)dt_addr);
+		if (ret < 0) {
+			VPUERR("vpu: check dts: %s, load default parameters\n",
+				fdt_strerror(ret));
+		} else {
+			dts_ready = 1;
+		}
 	}
 #endif
 
@@ -879,7 +886,7 @@ int vpu_probe(void)
 	if (vpu_check())
 		return -1;
 
-	ret = get_vpu_config();
+	ret = get_vpu_config(dt_addr);
 	if (vpu_conf.data->power_on)
 		vpu_conf.data->power_on();
 	set_vpu_clk(vpu_conf.clk_level);

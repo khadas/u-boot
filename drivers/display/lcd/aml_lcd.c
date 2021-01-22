@@ -600,26 +600,29 @@ static int lcd_init_load_from_bsp(void)
 
 	return 0;
 }
-static int lcd_config_load_id_check(char *dt_addr, int load_id)
+static int lcd_config_load_id_check(char *dt_addr)
 {
-	int ret;
+	int load_id = 0, ret;
 
 #ifdef CONFIG_OF_LIBFDT
 	int parent_offset;
-	if (fdt_check_header(dt_addr) < 0) {
-		LCDERR(
-		"check dts: %s, load default lcd parameters\n",
-		fdt_strerror(fdt_check_header(dt_addr)));
-	} else {
-		parent_offset = fdt_path_offset(dt_addr, "/lcd");
-		if (parent_offset < 0) {
-			LCDERR(
-				"not find /lcd node: %s\n",
-				fdt_strerror(parent_offset));
-			load_id = 0x0;
+
+	if (dt_addr) {
+		if (fdt_check_header(dt_addr) < 0) {
+			LCDERR("check dts: %s, load default lcd parameters\n",
+			       fdt_strerror(fdt_check_header(dt_addr)));
 		} else {
-			load_id = 0x1;
+			parent_offset = fdt_path_offset(dt_addr, "/lcd");
+			if (parent_offset < 0) {
+				LCDERR("not find /lcd node: %s\n",
+				       fdt_strerror(parent_offset));
+				load_id = 0x0;
+			} else {
+				load_id = 0x1;
+			}
 		}
+	} else {
+		load_id = 0x0;
 	}
 #endif
 
@@ -758,16 +761,19 @@ static int lcd_config_probe(void)
 {
 	int load_id = 0;
 	char *dt_addr;
-	dt_addr = NULL;
-#ifdef CONFIG_OF_LIBFDT
-	#ifdef CONFIG_DTB_MEM_ADDR
-		dt_addr = (char *)CONFIG_DTB_MEM_ADDR;
-	#else
-		dt_addr = (char *)0x01000000;
-	#endif
-#endif
+	unsigned long dtb_mem;
 
-	load_id = lcd_config_load_id_check(dt_addr, load_id);
+	dtb_mem = getenv_ulong("dtb_mem_addr", 16, 0);
+	if (dtb_mem) {
+		dt_addr = (char *)dtb_mem;
+	} else {
+		LCDPR("no dtb_mem_addr\n");
+#ifdef CONFIG_DTB_MEM_ADDR
+		dt_addr = (char *)CONFIG_DTB_MEM_ADDR;
+#endif
+	}
+
+	load_id = lcd_config_load_id_check(dt_addr);
 	/* default setting */
 	aml_lcd_driver.lcd_config->retry_enable_flag = 0;
 	aml_lcd_driver.lcd_config->retry_enable_cnt = 0;
