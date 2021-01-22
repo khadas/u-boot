@@ -117,6 +117,8 @@
         "ffv_freeze=off\0"\
         "edid_14_dir=/odm/etc/tvconfig/hdmi/port_14.bin\0" \
         "edid_20_dir=/odm/etc/tvconfig/hdmi/port_20.bin\0" \
+        "edid_14_dir_dynamic=/odm_ext/etc/tvconfig/hdmi/port_14.bin\0" \
+        "edid_20_dir_dynamic=/odm_ext/etc/tvconfig/hdmi/port_20.bin\0" \
         "edid_select=0\0" \
         "port_map=0x4321\0" \
         "cec_fun=0x2F\0" \
@@ -124,16 +126,23 @@
         "cec_ac_wakeup=1\0" \
         "cec_init= "\
             "echo cec_ac_wakeup=${cec_ac_wakeup}; "\
-            "echo port_map=${port_map}; "\
-            "echo cec_fun=${cec_fun}; "\
+            "get_valid_slot;"\
             "if test ${cec_ac_wakeup} = 1; then "\
                 "cec ${logic_addr} ${cec_fun}; "\
                 "if test ${edid_select} = 1111; then "\
-                    "hdmirx init ${port_map} ${edid_20_dir}; "\
-                "else"\
-                    "hdmirx init ${port_map} ${edid_14_dir}; "\
-                "fi; "\
-            "fi; "\
+                    "if test ${partiton_mode} = dynamic; then " \
+                        "hdmirx init ${port_map} ${edid_20_dir_dynamic}; "\
+                    "else "\
+                        "hdmirx init ${port_map} ${edid_20_dir}; "\
+                    "fi;"\
+                "else "\
+                    "if test ${vendor_boot_mode} = true; then " \
+                        "hdmirx init ${port_map} ${edid_14_dir_dynamic}; "\
+                    "else "\
+                        "hdmirx init ${port_map} ${edid_14_dir}; "\
+                    "fi;"\
+                "fi;"\
+            "fi;"\
         "\0"\
         "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\

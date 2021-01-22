@@ -18,8 +18,10 @@
 #include "ini_platform.h"
 #include "ini_io.h"
 #include "model.h"
+#include <partition_table.h>
 
-#define DEFAULT_MODEL_SUM_PATH "/odm/etc/tvconfig/model/model_sum.ini"
+#define DEFAULT_MODEL_SUM_PATH1 "/odm/etc/tvconfig/model/model_sum.ini"
+#define DEFAULT_MODEL_SUM_PATH2 "/odm_ext/etc/tvconfig/model/model_sum.ini"
 #define AML_START		"amlogic_start"
 #define AML_END			"amlogic_end"
 
@@ -2795,8 +2797,13 @@ const char *get_model_sum_path(void)
 	char *model_path;
 
 	model_path = getenv("model_path");
-	if (model_path == NULL)
-		return DEFAULT_MODEL_SUM_PATH;
+	if (model_path == NULL) {
+		if (dynamic_partition) {
+			return DEFAULT_MODEL_SUM_PATH2;
+		} else {
+			return DEFAULT_MODEL_SUM_PATH1;
+		}
+	}
 
 	printf("%s: %s\n", __func__, model_path);
 	return model_path;

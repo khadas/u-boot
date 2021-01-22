@@ -56,15 +56,17 @@ static int splitFilePath(const char *file_path, char part_name[], char file_name
     //ALOGD("%s, partition name is %s\n", __FUNCTION__, part_name);
 
     if (has_boot_slot == 1) {
-        run_command("get_valid_slot", 0);
         slot_name = getenv("slot-suffixes");
-        printf("slot-suffixes: %s\n", slot_name);
+        if (slot_name == NULL) {
+            run_command("get_valid_slot", 0);
+            slot_name = getenv("slot-suffixes");
+        }
         if (strcmp(slot_name, "0") == 0) {
             strcat(part_name, "_a");
         } else if (strcmp(slot_name, "1") == 0) {
             strcat(part_name, "_b");
         }
-        ALOGD("%s, partition name is %s\n", __FUNCTION__, part_name);
+        //ALOGD("%s, partition name is %s\n", __FUNCTION__, part_name);
     }
 
     tmp_start_ptr = tmp_end_ptr;
