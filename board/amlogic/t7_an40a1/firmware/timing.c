@@ -619,6 +619,7 @@ __attribute__ ((section(".clk_param"))) = {
 #else
 	.pxp		= 0,
 #endif
+	.low_console_baud = CONFIG_LOW_CONSOLE_BAUD,
 };
 
 #define VCCK_A_VAL                              AML_VCCK_A_INIT_VOLTAGE
