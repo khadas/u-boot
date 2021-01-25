@@ -13,5 +13,20 @@
 #define PM_GE2D			4
 #define PM_ETH			5
 #define PM_DEMOD		6
+#define PM_AUDIO		7
+
+static int pm_max = 8;
+
+static char* domain_name[] =
+{
+	"PM_DOS_HEVC",
+	"PM_DOS_VDEC",
+	"PM_VPU_HDMI",
+	"PM_USB_COMB",
+	"PM_GE2D",
+	"PM_ETH",
+	"PM_DEMOD",
+	"PM_AUDIO",
+};
 
 unsigned long pwr_ctrl_psci_smc(unsigned int power_domain, bool power_control);
