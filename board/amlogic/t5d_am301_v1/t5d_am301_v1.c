@@ -779,6 +779,8 @@ int checkhw(char * name)
 			break;
 		case 0x60000000:
 			strcpy(dtb_name, "t5d_t950d4_am301-1.5g\0");
+			setenv("force_dtvkit_source", "true");
+			saveenv();
 			break;
 		default:
 			strcpy(dtb_name, "t5d_am301_unsupport");
