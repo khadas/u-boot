@@ -228,6 +228,11 @@ int board_eth_init(bd_t *bis)
 	tx_amp_bl2 = readl(AO_SEC_GP_CFG12);
 	printf("wzh AO_SEC_GP_CFG12 0x%x\n", readl(AO_SEC_GP_CFG12));
 
+	if (((readl(P_AO_SEC_GP_CFG0) >> 8) & 0xff) == 2) {
+		eth_board_id = 1;
+		printf("ak301 v2 need internal eth trim\n");
+	}
+
 	if (eth_board_id == 0) {
 		cts_valid =  (tx_amp_bl2 >> 5) & 0x1;
 
@@ -675,6 +680,15 @@ int board_late_init(void)
 				}
 		}
 #endif// #ifndef DTB_BIND_KERNEL
+
+#ifdef ETHERNET_INTERNAL_PHY
+		if (((readl(P_AO_SEC_GP_CFG0) >> 8) & 0xff) == 2) {
+			ret = run_command("fdt addr 1000000", 1);
+			ret = run_command("fdt set /ethernet@ff3f0000 enet_type <0x00000004>", 1);
+			if (ret)
+				printf("%s(): set enet_type dts fail\n", __func__);
+		}
+#endif
 
 		/* load unifykey */
 		run_command("keyunify init 0x1234", 0);
