@@ -208,6 +208,8 @@ int board_late_init(void)
 		mdelay(100);
 		run_command("gpio set GPIOY_4", 0);
 		mdelay(20);
+	} else if (lcd_drv->lcd_config->lcd_basic.lcd_type == LCD_VBYONE) {
+		run_command("gpio set GPIOY_0", 0);
 	}
 #endif
 	return 0;

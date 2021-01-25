@@ -405,6 +405,8 @@ static void edp_tx_init(void)
 	unsigned char edptx_auxdata[2];
 	int ret;
 
+	writel(0, ENCL_VIDEO_EN);
+
 	dptx_reset();
 	dptx_init();  // initialize aux-channel clk_div
 
@@ -451,6 +453,7 @@ static void edp_tx_init(void)
 	//dptx_dpcd_dump();
 
 	dptx_set_msa();
+	writel(1, ENCL_VIDEO_EN);
 
 	LCDPR("edp enabling the main stream video\n");
 	dptx_reg_write(EDP_TX_MAIN_STREAM_ENABLE, 0x1); // Enable main-link
@@ -709,13 +712,52 @@ static void mipi_dsi_tx_init(void)
 	lcd_mipi_control_set(lcd_drv->lcd_config, 1);
 }
 
+#define MIPI_DSI_1G_TEST    0
 static void lcd_init_pre_mipi_dsi(void)
 {
 	unsigned int data32;
 	int cnt = 0, i;
+#if (MIPI_DSI_1G_TEST == 1)
+	/*1.config pll: 3984M*/
+set_pll_retry_mipi:
+	writel(0x002f04a6, ANACTRL_TCON_PLL0_CNTL0);
+	udelay(10);
+	writel(0x202f04a6, ANACTRL_TCON_PLL0_CNTL0);
+	udelay(10);
+	writel(0x302f04a6, ANACTRL_TCON_PLL0_CNTL0);
+	udelay(10);
+	writel(0x10000000, ANACTRL_TCON_PLL0_CNTL1);
+	udelay(10);
+	writel(0x0000110c, ANACTRL_TCON_PLL0_CNTL2);
+	udelay(10);
+	writel(0x10051400, ANACTRL_TCON_PLL0_CNTL3);
+	udelay(10);
+	writel(0x000100c0, ANACTRL_TCON_PLL0_CNTL4);
+	udelay(10);
+	writel(0x008300c0, ANACTRL_TCON_PLL0_CNTL4);
+	udelay(10);
+	writel(0x342f04a6, ANACTRL_TCON_PLL0_CNTL0);
+	udelay(10);
+	writel(0x142f04a6, ANACTRL_TCON_PLL0_CNTL0);
+	udelay(10);
+	writel(0x0000300c, ANACTRL_TCON_PLL0_CNTL2);
+	udelay(100);
+	i = 0;
+	while (i++ < 200) {
+		udelay(50);
+		if (readl(ANACTRL_TCON_PLL0_STS) & 0x80000000)
+			break;
+	}
+	if (!(readl(ANACTRL_TCON_PLL0_STS) & 0x80000000)) {
+		if (cnt++ < 20)
+			goto set_pll_retry_mipi;
+		else
+			LCDPR(" pll lock failed!!!\n");
+	}
 
+#else
 	//1.config pll
-set_pll_retry_edp:
+set_pll_retry_mipi:
 	writel(0x00b704bd, ANACTRL_TCON_PLL0_CNTL0);
 	udelay(10);
 	writel(0x20b704bd, ANACTRL_TCON_PLL0_CNTL0);
@@ -746,11 +788,11 @@ set_pll_retry_edp:
 	}
 	if (!(readl(ANACTRL_TCON_PLL0_STS) & 0x80000000)) {
 		if (cnt++ < 20)
-			goto set_pll_retry_edp;
+			goto set_pll_retry_mipi;
 		else
 			LCDPR(" pll lock failed!!!\n");
 	}
-
+#endif
 	//2.config divider
 	data32 = readl(CLKCTRL_VIID_CLK0_CTRL);
 	//cntrl_clk_en0 disable
@@ -810,21 +852,21 @@ set_pll_retry_edp:
 	writel(0x0, COMBO_DPHY_CNTL1);
 
 	//6. config phy
-	writel(0x822a0028, ANACTRL_DIF_PHY_CNTL1);
-	writel(0x0000ffff, ANACTRL_DIF_PHY_CNTL2); //0x0100ffff
-	writel(0xc22a0028, ANACTRL_DIF_PHY_CNTL3);
-	writel(0xc22a0028, ANACTRL_DIF_PHY_CNTL4);
-	writel(0xc22a0028, ANACTRL_DIF_PHY_CNTL5);
-	writel(0xc22a0028, ANACTRL_DIF_PHY_CNTL6);
-	writel(0x822a0028, ANACTRL_DIF_PHY_CNTL10);
-	writel(0x0000ffff, ANACTRL_DIF_PHY_CNTL11);
-	writel(0xc22a0028, ANACTRL_DIF_PHY_CNTL12);
-	writel(0xc22a0028, ANACTRL_DIF_PHY_CNTL13);
-	writel(0xc22a0028, ANACTRL_DIF_PHY_CNTL14);
-	writel(0xc22a0028, ANACTRL_DIF_PHY_CNTL15);
-	writel(0x1e406243, ANACTRL_DIF_PHY_CNTL19);
+	writel(0x022a0028, ANACTRL_DIF_PHY_CNTL1);
+	writel(0x0000ffcf, ANACTRL_DIF_PHY_CNTL2);
+	writel(0x022a0028, ANACTRL_DIF_PHY_CNTL3);
+	writel(0x822a0028, ANACTRL_DIF_PHY_CNTL4); //clk
+	writel(0x022a0028, ANACTRL_DIF_PHY_CNTL5);
+	writel(0x022a0028, ANACTRL_DIF_PHY_CNTL6);
+	writel(0x0, ANACTRL_DIF_PHY_CNTL10);
+	writel(0x0, ANACTRL_DIF_PHY_CNTL11);
+	writel(0x0, ANACTRL_DIF_PHY_CNTL12);
+	writel(0x0, ANACTRL_DIF_PHY_CNTL13);
+	writel(0x0, ANACTRL_DIF_PHY_CNTL14);
+	writel(0x0, ANACTRL_DIF_PHY_CNTL15);
+	writel(0x1e406253, ANACTRL_DIF_PHY_CNTL19);
 	writel(0xffff0000, ANACTRL_DIF_PHY_CNTL20);
-	writel(0xffff, ANACTRL_DIF_PHY_CNTL21);
+	writel(0x0, ANACTRL_DIF_PHY_CNTL21);
 
 	LCDPR(" lcd init pre\n");
 }
@@ -880,6 +922,422 @@ static void lcd_venc_set_mipi_dsi(void)
 
 	//select venc to mipi-dsi
 	data32 = (0 << 31) | (0 << 30) | (0 << 29) | (1 << 28);
+	writel(data32, VPU_DISP_VIU0_CTRL);
+
+	//config venc_tcon
+	writel(0x0, LCD_RGB_BASE_ADDR);
+	writel(0x400, LCD_RGB_COEFF_ADDR);
+	//writel((1 << 0), LCD_POL_CNTL_ADDR);
+
+	/* DE signal */
+	writel(hsw + hbp, DE_HS_ADDR);
+	writel(hsw + hbp + hactive, DE_HE_ADDR);
+	writel(vsw + vbp, DE_VS_ADDR);
+	writel(vsw + vbp + vactive - 1, DE_VE_ADDR);
+
+	/* Hsync signal */
+	writel(0, HSYNC_HS_ADDR);
+	writel(hsw, HSYNC_HE_ADDR);
+	writel(0, HSYNC_VS_ADDR);
+	writel(vtotal - 1, HSYNC_VE_ADDR);
+
+	/* Vsync signal */
+	writel(0, VSYNC_HS_ADDR);
+	writel(0, VSYNC_HE_ADDR);
+	writel(0, VSYNC_VS_ADDR);
+	writel(vsw, VSYNC_VE_ADDR);
+
+	//select encl
+	writel(2, VPU_VENC_CTRL);
+
+	LCDPR(" lcd venc init\n");
+}
+
+static void vx1_sw_reset(void)
+{
+	/* force PHY to 0 */
+	lcd_combo_dphy_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, 3, 8, 2);
+	lcd_vcbus_write(VBO_SOFT_RST, 0x1ff);
+	udelay(5);
+	/* realease PHY */
+	lcd_combo_dphy_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, 0, 8, 2);
+	lcd_vcbus_write(VBO_SOFT_RST, 0);
+}
+
+#define VX1_HPD_WAIT_TIMEOUT    5000 /* 500ms */
+static void vx1_wait_hpd(void)
+{
+	int i = 0;
+	int ret = 1;
+
+	LCDPR("%s:", __func__);
+	while (i++ < VX1_HPD_WAIT_TIMEOUT) {
+		ret = (lcd_vcbus_read(VBO_STATUS_L) >> 6) & 1;
+		if (ret == 0)
+			break;
+		udelay(100);
+	}
+
+	if (ret)
+		printf("hpd=%d\n", ((lcd_vcbus_read(VBO_STATUS_L) >> 6) & 1));
+	else
+		printf("hpd=%d, i=%d\n", ((lcd_vcbus_read(VBO_STATUS_L) >> 6) & 1), i);
+
+	mdelay(10); /* add 10ms delay for compatibility */
+}
+
+#define VX1_LOCKN_WAIT_TIMEOUT    500 /* 500ms */
+static void vx1_wait_stable(void)
+{
+	int i = 0;
+	int ret = 1;
+
+	while (i++ < VX1_LOCKN_WAIT_TIMEOUT) {
+		ret = lcd_vcbus_read(VBO_STATUS_L) & 0x3f;
+		if (ret == 0x20)
+			break;
+		mdelay(1);
+	}
+	LCDPR("%s status: 0x%x, i=%d\n", __func__,
+	      lcd_vcbus_read(VBO_STATUS_L), i);
+}
+
+static void vx1_clk_util_set(void)
+{
+	/* set fifo_clk_sel*/
+	lcd_combo_dphy_write(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, (3 << 5));
+	/* set cntl_ser_en:  8-channel to 1 */
+	lcd_combo_dphy_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, 0xfff, 16, 8);
+
+	/* decoupling fifo enable, gated clock enable */
+	lcd_combo_dphy_write(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1,
+			(1 << 6) | (1 << 0));
+	/* decoupling fifo write enable after fifo enable */
+	lcd_combo_dphy_setb(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1, 1, 7, 1);
+}
+
+static int vx1_lanes_set(void)
+{
+	unsigned int sublane_num, tmp;
+	unsigned int region_size[4];
+
+	sublane_num = 8 / 2; /* lane num in each region */
+	lcd_vcbus_setb(VBO_LANES, (8 - 1), 0, 3);
+	lcd_vcbus_setb(VBO_LANES, (2 - 1), 4, 2);
+	lcd_vcbus_setb(VBO_LANES, (sublane_num - 1), 8, 3);
+	lcd_vcbus_setb(VBO_LANES, (4 - 1), 11, 2);
+
+	region_size[3] = (3840 / 8) * sublane_num;
+	tmp = (3840 % 8);
+	region_size[0] = region_size[3] + (((tmp / sublane_num) > 0) ?
+		sublane_num : (tmp % sublane_num));
+	region_size[1] = region_size[3] + (((tmp / sublane_num) > 1) ?
+		sublane_num : (tmp % sublane_num));
+	region_size[2] = region_size[3] + (((tmp / sublane_num) > 2) ?
+		sublane_num : (tmp % sublane_num));
+	lcd_vcbus_write(VBO_REGION_00, region_size[0]);
+	lcd_vcbus_write(VBO_REGION_01, region_size[1]);
+	lcd_vcbus_write(VBO_REGION_02, region_size[2]);
+	lcd_vcbus_write(VBO_REGION_03, region_size[3]);
+
+	lcd_vcbus_write(VBO_ACT_VSIZE, 2160);
+	/* different from FBC code!!! */
+	/* lcd_vcbus_setb(VBO_CTRL_H,0x80,11,5); */
+	/* different from simulation code!!! */
+	lcd_vcbus_setb(VBO_CTRL_H, 0x0, 0, 4);
+	lcd_vcbus_setb(VBO_CTRL_H, 0x1, 9, 1);
+	/* lcd_vcbus_setb(VBO_CTRL_L,enable,0,1); */
+
+	return 0;
+}
+
+static void vx1_sync_pol(int hsync_pol, int vsync_pol)
+{
+	lcd_vcbus_setb(VBO_VIN_CTRL, hsync_pol, 4, 1);
+	lcd_vcbus_setb(VBO_VIN_CTRL, vsync_pol, 5, 1);
+
+	lcd_vcbus_setb(VBO_VIN_CTRL, hsync_pol, 6, 1);
+	lcd_vcbus_setb(VBO_VIN_CTRL, vsync_pol, 7, 1);
+}
+
+static void vx1_wait_timing_stable(void)
+{
+	unsigned int timing_state;
+	int i = 200;
+
+	timing_state = lcd_vcbus_read(VBO_INTR_STATE) & 0x1ff;
+	while ((timing_state) && (i > 0)) {
+		/* clear video timing error intr */
+		lcd_vcbus_setb(VBO_INTR_STATE_CTRL, 0x7, 0, 3);
+		lcd_vcbus_setb(VBO_INTR_STATE_CTRL, 0, 0, 3);
+		mdelay(2);
+		timing_state = lcd_vcbus_read(VBO_INTR_STATE) & 0x1ff;
+		i--;
+	};
+
+	LCDPR("vbyone timing state: 0x%03x, i=%d\n",
+		timing_state, (200 - i));
+
+	mdelay(2);
+}
+
+static void vx1_control_set(void)
+{
+	int lane_count, byte_mode, region_num, hsize, vsize;
+	/* int color_fmt; */
+	int vin_color, vin_bpp;
+
+	LCDPR("%s\n", __func__);
+
+	hsize = 3840;
+	vsize = 2160;
+	lane_count = 8;
+	region_num = 2;
+	byte_mode = 4;
+
+	vx1_clk_util_set();
+
+	vin_color = 4; /* fixed RGB */
+	vin_bpp   = 0; /* fixed 30bbp 4:4:4 */
+
+
+	/* set Vbyone vin color format */
+	lcd_vcbus_setb(VBO_VIN_CTRL, vin_color, 8, 3);
+	lcd_vcbus_setb(VBO_VIN_CTRL, vin_bpp, 11, 2);
+
+	vx1_lanes_set();
+	/*set hsync/vsync polarity to let the polarity is low active
+	inside the VbyOne */
+	vx1_sync_pol(0, 0);
+
+	/* below line copy from simulation */
+	/* gate the input when vsync asserted */
+	lcd_vcbus_setb(VBO_VIN_CTRL, 1, 0, 2);
+	/* lcd_vcbus_write(VBO_VBK_CTRL_0,0x13);
+	//lcd_vcbus_write(VBO_VBK_CTRL_1,0x56);
+	//lcd_vcbus_write(VBO_HBK_CTRL,0x3478);
+	//lcd_vcbus_setb(VBO_PXL_CTRL,0x2,0,4);
+	//lcd_vcbus_setb(VBO_PXL_CTRL,0x3,VBO_PXL_CTR1_BIT,VBO_PXL_CTR1_WID);
+	//set_vbyone_ctlbits(1,0,0); */
+	/* VBO_RGN_GEN clk always on */
+	lcd_vcbus_setb(VBO_GCLK_MAIN, 2, 2, 2);
+
+	/* PAD select: */
+	if ((lane_count == 1) || (lane_count == 2))
+		lcd_vcbus_setb(LCD_PORT_SWAP, 1, 9, 2);
+	else if (lane_count == 4)
+		lcd_vcbus_setb(LCD_PORT_SWAP, 2, 9, 2);
+	else
+		lcd_vcbus_setb(LCD_PORT_SWAP, 0, 9, 2);
+	/* lcd_vcbus_setb(LCD_PORT_SWAP, 1, 8, 1);//reverse lane output order */
+
+	/* Mux pads in combo-phy: 0 for dsi; 1 for lvds or vbyone; 2 for edp */
+	//lcd_hiu_write(HHI_DSI_LVDS_EDP_CNTL0, 0x1);
+
+	lcd_vcbus_setb(VBO_INSGN_CTRL, 0, 2, 2);
+
+	lcd_vcbus_setb(VBO_CTRL_L, 1, 0, 1);
+
+	/*force vencl clk enable, otherwise, it might auto turn off by mipi DSI
+	//lcd_vcbus_setb(VPU_MISC_CTRL, 1, 0, 1); */
+
+	vx1_wait_timing_stable();
+	vx1_sw_reset();
+}
+
+static void vx1_tx_init(void)
+{
+	unsigned int data32;
+
+	//Hot-plug GPIO
+	data32 = readl(PADCTRL_PIN_MUX_REGK);
+	data32 &= (~((0xf << 8) | (0xf << 16)));
+	data32 |= ((0x3 << 8) | (0x3 << 16));
+	writel(data32, PADCTRL_PIN_MUX_REGK);
+
+	vx1_control_set();
+	vx1_wait_hpd();
+	vx1_wait_stable();
+
+	LCDPR(" vx1 tx finish\n");
+}
+
+static void lcd_init_pre_vx1(void)
+{
+	unsigned int data32;
+	int cnt = 0, i;
+
+	//1.config pll
+set_pll_retry_vx1:
+	writel(0x000f04f7, ANACTRL_TCON_PLL0_CNTL0);//ok
+	udelay(10);
+	writel(0x200f04f7, ANACTRL_TCON_PLL0_CNTL0);//ok
+	udelay(10);
+	writel(0x300f04f7, ANACTRL_TCON_PLL0_CNTL0);//ok
+	udelay(10);
+	writel(0x10110000, ANACTRL_TCON_PLL0_CNTL1);//ok
+	udelay(10);
+	writel(0x00001108, ANACTRL_TCON_PLL0_CNTL2);//ok
+	udelay(10);
+	writel(0x10051400, ANACTRL_TCON_PLL0_CNTL3);//ok
+	udelay(10);
+	writel(0x010100c0, ANACTRL_TCON_PLL0_CNTL4);//ok
+	udelay(10);
+	writel(0x038300c0, ANACTRL_TCON_PLL0_CNTL4);//ok
+	udelay(10);
+	writel(0x340f04f7, ANACTRL_TCON_PLL0_CNTL0);//ok
+	udelay(10);
+	writel(0x140f04f7, ANACTRL_TCON_PLL0_CNTL0);//ok
+	udelay(10);
+	writel(0x0000300c, ANACTRL_TCON_PLL0_CNTL2);//ok
+	udelay(100);
+	i = 0;
+	while (i++ < 200) {
+		udelay(50);
+		if (readl(ANACTRL_TCON_PLL0_STS) & 0x80000000)
+			break;
+	}
+	if (!(readl(ANACTRL_TCON_PLL0_STS) & 0x80000000)) {
+		if (cnt++ < 20)
+			goto set_pll_retry_vx1;
+		else
+			LCDPR(" pll lock failed!!!\n");
+	}
+
+	//2.config divider
+	data32 = readl(CLKCTRL_VIID_CLK0_CTRL);
+	//cntrl_clk_en0 disable
+	data32 &= ~(1 << 19);
+	writel(data32, CLKCTRL_VIID_CLK0_CTRL);
+	/* Disable the div output clock */
+	data32 = readl(COMBO_DPHY_VID_PLL0_DIV);
+	//clk_final_en disable ?
+	data32 &= ~(1 << 19);
+	writel(data32, COMBO_DPHY_VID_PLL0_DIV);
+	//set_preset disable ?
+	data32 &= ~(1 << 15);
+	writel(data32, COMBO_DPHY_VID_PLL0_DIV);
+
+	lcd_hiu_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 18, 1);
+	lcd_hiu_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 16, 2);
+	lcd_hiu_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 15, 1);
+	lcd_hiu_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 0, 14);
+
+	lcd_hiu_setb(COMBO_DPHY_VID_PLL0_DIV, 2, 16, 2);
+	lcd_hiu_setb(COMBO_DPHY_VID_PLL0_DIV, 1, 15, 1);
+	lcd_hiu_setb(COMBO_DPHY_VID_PLL0_DIV, 0x739c, 0, 15);
+	lcd_hiu_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 15, 1);
+	data32 = readl(COMBO_DPHY_VID_PLL0_DIV);
+
+	data32 = readl(COMBO_DPHY_VID_PLL0_DIV);  //used COMBO not VID
+	data32 |= (1 << 19);
+	writel(data32, COMBO_DPHY_VID_PLL0_DIV);
+
+	//3.config vclk
+	writel(0x00000000, CLKCTRL_VIID_CLK0_DIV);
+	udelay(5);
+	writel(0x00080000, CLKCTRL_VIID_CLK0_CTRL);
+	udelay(5);
+	writel(0x00008000, CLKCTRL_VIID_CLK0_DIV);
+	writel(0x00018000, CLKCTRL_VIID_CLK0_DIV);
+	udelay(5);
+	writel(0x00080001, CLKCTRL_VIID_CLK0_CTRL);
+	writel(0x00088001, CLKCTRL_VIID_CLK0_CTRL);
+	udelay(10);
+	writel(0x00080001, CLKCTRL_VIID_CLK0_CTRL);
+	udelay(5);
+	writel(0x00000008, CLKCTRL_VID_CLK0_CTRL2);
+
+	//4. reset phy
+	data32 = readl(RESETCTRL_RESET1_MASK);
+	data32 &= ~((0x1 << 20) | (0x1 << 19) | (0x1 << 7));
+	writel(data32, RESETCTRL_RESET1_MASK);
+	data32 = readl(RESETCTRL_RESET1_LEVEL);
+	data32 &= ~((0x1 << 20) | (0x1 << 19) | (0x1 << 7));
+	writel(data32, RESETCTRL_RESET1_LEVEL);
+	udelay(1);
+	data32 |= (0x1 << 20) | (0x1 << 19) | (0x1 << 7);
+	writel(data32, RESETCTRL_RESET1_LEVEL);
+	udelay(10);
+
+	//5.select vx1
+	//to analog 8 lane  0=mipi(venc0/1);1=vx1/lvds/edp(venc0/1);2=lvds(only venc2)
+	writel(0x15, COMBO_DPHY_CNTL0);
+	writel(0x55555555, COMBO_DPHY_CNTL1);
+
+	//6. config phy
+	writel(0x26430028, ANACTRL_DIF_PHY_CNTL1);
+	writel(0x0000ffff, ANACTRL_DIF_PHY_CNTL2);
+	writel(0x26530028, ANACTRL_DIF_PHY_CNTL3);
+	writel(0x26530028, ANACTRL_DIF_PHY_CNTL4);
+	writel(0x26530028, ANACTRL_DIF_PHY_CNTL5);
+	writel(0x26530028, ANACTRL_DIF_PHY_CNTL6);
+	writel(0x26530028, ANACTRL_DIF_PHY_CNTL7);
+	writel(0x26530028, ANACTRL_DIF_PHY_CNTL8);
+	writel(0x26530028, ANACTRL_DIF_PHY_CNTL9);
+	writel(0x0, ANACTRL_DIF_PHY_CNTL10);
+	writel(0x0, ANACTRL_DIF_PHY_CNTL11);
+	writel(0x0, ANACTRL_DIF_PHY_CNTL12);
+	writel(0x0, ANACTRL_DIF_PHY_CNTL13);
+	writel(0x0, ANACTRL_DIF_PHY_CNTL14);
+	writel(0x0, ANACTRL_DIF_PHY_CNTL15);
+	writel(0x00401648, ANACTRL_DIF_PHY_CNTL19);
+	writel(0x0, ANACTRL_DIF_PHY_CNTL20);
+	writel(0x0, ANACTRL_DIF_PHY_CNTL21);
+
+	LCDPR(" vx1 init pre\n");
+}
+
+static void lcd_venc_set_vx1(void)
+{
+	unsigned int hactive = 3840;
+	unsigned int vactive = 2160;
+	unsigned int htotal = 4400;
+	unsigned int vtotal = 2250;
+	unsigned int hsw = 33;
+	unsigned int hbp = 477;
+	unsigned int vsw = 6;
+	unsigned int vbp = 65;
+	unsigned int data32;
+
+	writel(0, ENCL_VIDEO_EN);
+
+	writel(0x8000, ENCL_VIDEO_MODE);/*bit[15] shadown en*/
+	writel(0x0418, ENCL_VIDEO_MODE_ADV); /* Sampling rate: 1 */
+
+	writel(0x1000, ENCL_VIDEO_FILT_CTRL); /* bypass filter */
+	writel(htotal - 1, ENCL_VIDEO_MAX_PXCNT);
+	writel(vtotal - 1, ENCL_VIDEO_MAX_LNCNT);
+	writel(hsw + hbp, ENCL_VIDEO_HAVON_BEGIN);
+	writel(hactive - 1 + hsw + hbp, ENCL_VIDEO_HAVON_END);
+	writel(vsw + vbp, ENCL_VIDEO_VAVON_BLINE);
+	writel(vactive - 1 + vsw + vbp, ENCL_VIDEO_VAVON_ELINE);
+
+	writel(0, ENCL_VIDEO_HSO_BEGIN);
+	writel(hsw, ENCL_VIDEO_HSO_END);
+	writel(0, ENCL_VIDEO_VSO_BEGIN);
+	writel(0, ENCL_VIDEO_VSO_END);
+	writel(0, ENCL_VIDEO_VSO_BLINE);
+	writel(vsw, ENCL_VIDEO_VSO_ELINE);
+	writel(3, ENCL_VIDEO_RGBIN_CTRL); //yuv: 1, rgb: 3
+
+	writel((5 << 13) | (hactive - 1), ENCL_INBUF_CNTL1);
+	writel(0x200, ENCL_INBUF_CNTL0);
+
+	/* default colorbar pattern */
+	writel(1, ENCL_TST_MDSEL);
+	writel(0x200, ENCL_TST_Y);
+	writel(0x200, ENCL_TST_CB);
+	writel(0x200, ENCL_TST_CR);
+	writel(hsw + hbp, ENCL_TST_CLRBAR_STRT);
+	writel(240, ENCL_TST_CLRBAR_WIDTH);
+	writel(1, ENCL_TST_EN);
+	//writel(0x0410, ENCL_VIDEO_MODE_ADV);
+
+	writel(1, ENCL_VIDEO_EN);
+
+	//select venc to vx1
+	data32 = (0 << 31) | (1 << 30) | (0 << 29) | (0 << 28);
 	writel(data32, VPU_DISP_VIU0_CTRL);
 
 	//config venc_tcon
@@ -1187,6 +1645,13 @@ void lcd_display_init_test(void)
 		mipi_dsi_power_init();
 		mipi_dsi_tx_init();
 		LCDPR("mipi_dsi init test done\n");
+	} else if (lcd_drv->lcd_config->lcd_basic.lcd_type == LCD_VBYONE) {
+		writel(0x24, VPU_VIU_VENC_MUX_CTRL);
+		lcd_init_pre_vx1();
+		lcd_venc_set_vx1();
+		mdelay(20);
+		vx1_tx_init();
+		LCDPR("vx1 init test done\n");
 	}
 }
 
@@ -1228,71 +1693,6 @@ void lcd_display_init_reg_dump(void)
 			readl(CLKCTRL_VIID_CLK2_CTRL),
 			CLKCTRL_VID_CLK2_CTRL2,
 			readl(CLKCTRL_VID_CLK2_CTRL2));
-
-		printf("phy regs:\n");
-		printf("0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n",
-			ANACTRL_DIF_PHY_CNTL1,
-			readl(ANACTRL_DIF_PHY_CNTL1),
-			ANACTRL_DIF_PHY_CNTL2,
-			readl(ANACTRL_DIF_PHY_CNTL2),
-			ANACTRL_DIF_PHY_CNTL3,
-			readl(ANACTRL_DIF_PHY_CNTL3),
-			ANACTRL_DIF_PHY_CNTL4,
-			readl(ANACTRL_DIF_PHY_CNTL4),
-			ANACTRL_DIF_PHY_CNTL5,
-			readl(ANACTRL_DIF_PHY_CNTL5),
-			ANACTRL_DIF_PHY_CNTL6,
-			readl(ANACTRL_DIF_PHY_CNTL6),
-			ANACTRL_DIF_PHY_CNTL7,
-			readl(ANACTRL_DIF_PHY_CNTL7),
-			ANACTRL_DIF_PHY_CNTL8,
-			readl(ANACTRL_DIF_PHY_CNTL8),
-			ANACTRL_DIF_PHY_CNTL9,
-			readl(ANACTRL_DIF_PHY_CNTL9),
-			ANACTRL_DIF_PHY_CNTL10,
-			readl(ANACTRL_DIF_PHY_CNTL10),
-			ANACTRL_DIF_PHY_CNTL11,
-			readl(ANACTRL_DIF_PHY_CNTL11),
-			ANACTRL_DIF_PHY_CNTL12,
-			readl(ANACTRL_DIF_PHY_CNTL12),
-			ANACTRL_DIF_PHY_CNTL13,
-			readl(ANACTRL_DIF_PHY_CNTL13),
-			ANACTRL_DIF_PHY_CNTL14,
-			readl(ANACTRL_DIF_PHY_CNTL14),
-			ANACTRL_DIF_PHY_CNTL15,
-			readl(ANACTRL_DIF_PHY_CNTL15),
-			ANACTRL_DIF_PHY_CNTL16,
-			readl(ANACTRL_DIF_PHY_CNTL16),
-			ANACTRL_DIF_PHY_CNTL17,
-			readl(ANACTRL_DIF_PHY_CNTL17),
-			ANACTRL_DIF_PHY_CNTL18,
-			readl(ANACTRL_DIF_PHY_CNTL18),
-			ANACTRL_DIF_PHY_CNTL19,
-			readl(ANACTRL_DIF_PHY_CNTL19),
-			ANACTRL_DIF_PHY_CNTL20,
-			readl(ANACTRL_DIF_PHY_CNTL20),
-			ANACTRL_DIF_PHY_CNTL21,
-			readl(ANACTRL_DIF_PHY_CNTL21));
 
 		printf("lvds regs:\n");
 		printf("0x%08x: 0x%08x\n"
@@ -1421,71 +1821,6 @@ void lcd_display_init_reg_dump(void)
 			readl(CLKCTRL_VIID_CLK0_CTRL),
 			CLKCTRL_VID_CLK0_CTRL2,
 			readl(CLKCTRL_VID_CLK0_CTRL2));
-
-		printf("phy regs:\n");
-		printf("0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n",
-			ANACTRL_DIF_PHY_CNTL1,
-			readl(ANACTRL_DIF_PHY_CNTL1),
-			ANACTRL_DIF_PHY_CNTL2,
-			readl(ANACTRL_DIF_PHY_CNTL2),
-			ANACTRL_DIF_PHY_CNTL3,
-			readl(ANACTRL_DIF_PHY_CNTL3),
-			ANACTRL_DIF_PHY_CNTL4,
-			readl(ANACTRL_DIF_PHY_CNTL4),
-			ANACTRL_DIF_PHY_CNTL5,
-			readl(ANACTRL_DIF_PHY_CNTL5),
-			ANACTRL_DIF_PHY_CNTL6,
-			readl(ANACTRL_DIF_PHY_CNTL6),
-			ANACTRL_DIF_PHY_CNTL7,
-			readl(ANACTRL_DIF_PHY_CNTL7),
-			ANACTRL_DIF_PHY_CNTL8,
-			readl(ANACTRL_DIF_PHY_CNTL8),
-			ANACTRL_DIF_PHY_CNTL9,
-			readl(ANACTRL_DIF_PHY_CNTL9),
-			ANACTRL_DIF_PHY_CNTL10,
-			readl(ANACTRL_DIF_PHY_CNTL10),
-			ANACTRL_DIF_PHY_CNTL11,
-			readl(ANACTRL_DIF_PHY_CNTL11),
-			ANACTRL_DIF_PHY_CNTL12,
-			readl(ANACTRL_DIF_PHY_CNTL12),
-			ANACTRL_DIF_PHY_CNTL13,
-			readl(ANACTRL_DIF_PHY_CNTL13),
-			ANACTRL_DIF_PHY_CNTL14,
-			readl(ANACTRL_DIF_PHY_CNTL14),
-			ANACTRL_DIF_PHY_CNTL15,
-			readl(ANACTRL_DIF_PHY_CNTL15),
-			ANACTRL_DIF_PHY_CNTL16,
-			readl(ANACTRL_DIF_PHY_CNTL16),
-			ANACTRL_DIF_PHY_CNTL17,
-			readl(ANACTRL_DIF_PHY_CNTL17),
-			ANACTRL_DIF_PHY_CNTL18,
-			readl(ANACTRL_DIF_PHY_CNTL18),
-			ANACTRL_DIF_PHY_CNTL19,
-			readl(ANACTRL_DIF_PHY_CNTL19),
-			ANACTRL_DIF_PHY_CNTL20,
-			readl(ANACTRL_DIF_PHY_CNTL20),
-			ANACTRL_DIF_PHY_CNTL21,
-			readl(ANACTRL_DIF_PHY_CNTL21));
 
 		printf("edp regs:\n");
 		printf("0x%08x: 0x%08x\n"
@@ -1644,71 +1979,6 @@ void lcd_display_init_reg_dump(void)
 			readl(CLKCTRL_VIID_CLK0_CTRL),
 			CLKCTRL_VID_CLK0_CTRL2,
 			readl(CLKCTRL_VID_CLK0_CTRL2));
-
-		printf("phy regs:\n");
-		printf("0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n"
-			"0x%08x: 0x%08x\n",
-			ANACTRL_DIF_PHY_CNTL1,
-			readl(ANACTRL_DIF_PHY_CNTL1),
-			ANACTRL_DIF_PHY_CNTL2,
-			readl(ANACTRL_DIF_PHY_CNTL2),
-			ANACTRL_DIF_PHY_CNTL3,
-			readl(ANACTRL_DIF_PHY_CNTL3),
-			ANACTRL_DIF_PHY_CNTL4,
-			readl(ANACTRL_DIF_PHY_CNTL4),
-			ANACTRL_DIF_PHY_CNTL5,
-			readl(ANACTRL_DIF_PHY_CNTL5),
-			ANACTRL_DIF_PHY_CNTL6,
-			readl(ANACTRL_DIF_PHY_CNTL6),
-			ANACTRL_DIF_PHY_CNTL7,
-			readl(ANACTRL_DIF_PHY_CNTL7),
-			ANACTRL_DIF_PHY_CNTL8,
-			readl(ANACTRL_DIF_PHY_CNTL8),
-			ANACTRL_DIF_PHY_CNTL9,
-			readl(ANACTRL_DIF_PHY_CNTL9),
-			ANACTRL_DIF_PHY_CNTL10,
-			readl(ANACTRL_DIF_PHY_CNTL10),
-			ANACTRL_DIF_PHY_CNTL11,
-			readl(ANACTRL_DIF_PHY_CNTL11),
-			ANACTRL_DIF_PHY_CNTL12,
-			readl(ANACTRL_DIF_PHY_CNTL12),
-			ANACTRL_DIF_PHY_CNTL13,
-			readl(ANACTRL_DIF_PHY_CNTL13),
-			ANACTRL_DIF_PHY_CNTL14,
-			readl(ANACTRL_DIF_PHY_CNTL14),
-			ANACTRL_DIF_PHY_CNTL15,
-			readl(ANACTRL_DIF_PHY_CNTL15),
-			ANACTRL_DIF_PHY_CNTL16,
-			readl(ANACTRL_DIF_PHY_CNTL16),
-			ANACTRL_DIF_PHY_CNTL17,
-			readl(ANACTRL_DIF_PHY_CNTL17),
-			ANACTRL_DIF_PHY_CNTL18,
-			readl(ANACTRL_DIF_PHY_CNTL18),
-			ANACTRL_DIF_PHY_CNTL19,
-			readl(ANACTRL_DIF_PHY_CNTL19),
-			ANACTRL_DIF_PHY_CNTL20,
-			readl(ANACTRL_DIF_PHY_CNTL20),
-			ANACTRL_DIF_PHY_CNTL21,
-			readl(ANACTRL_DIF_PHY_CNTL21));
 
 		printf("mipi-dsi host regs:\n");
 		printf("0x%08x: 0x%08x\n"
@@ -1913,10 +2183,218 @@ void lcd_display_init_reg_dump(void)
 			readl(VPU_DISP_VIU0_CTRL),
 			VPU_VENC_CTRL,
 			readl(VPU_VENC_CTRL));
+	} else if (lcd_drv->lcd_config->lcd_basic.lcd_type == LCD_VBYONE) {
+		printf("pll regs:\n");
+		printf("0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n",
+			ANACTRL_TCON_PLL0_CNTL0,
+			readl(ANACTRL_TCON_PLL0_CNTL0),
+			ANACTRL_TCON_PLL0_CNTL1,
+			readl(ANACTRL_TCON_PLL0_CNTL1),
+			ANACTRL_TCON_PLL0_CNTL2,
+			readl(ANACTRL_TCON_PLL0_CNTL2),
+			ANACTRL_TCON_PLL0_CNTL3,
+			readl(ANACTRL_TCON_PLL0_CNTL3),
+			ANACTRL_TCON_PLL0_CNTL4,
+			readl(ANACTRL_TCON_PLL0_CNTL4),
+			ANACTRL_TCON_PLL0_STS,
+			readl(ANACTRL_TCON_PLL0_STS));
+
+		printf("clk regs:\n");
+		printf("0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n",
+			COMBO_DPHY_VID_PLL0_DIV,
+			readl(COMBO_DPHY_VID_PLL0_DIV),
+			CLKCTRL_VIID_CLK0_DIV,
+			readl(CLKCTRL_VIID_CLK0_DIV),
+			CLKCTRL_VIID_CLK0_CTRL,
+			readl(CLKCTRL_VIID_CLK0_CTRL),
+			CLKCTRL_VID_CLK0_CTRL2,
+			readl(CLKCTRL_VID_CLK0_CTRL2));
+
+		printf("vx1 regs:\n");
+		printf("0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%04x: 0x%08x\n"
+			"0x%04x: 0x%08x\n"
+			"0x%04x: 0x%08x\n"
+			"0x%04x: 0x%08x\n"
+			"0x%04x: 0x%08x\n"
+			"0x%04x: 0x%08x\n"
+			"0x%04x: 0x%08x\n"
+			"0x%04x: 0x%08x\n"
+			"0x%04x: 0x%08x\n"
+			"0x%04x: 0x%08x\n"
+			"0x%04x: 0x%08x\n"
+			"0x%04x: 0x%08x\n",
+			VBO_VIN_CTRL,
+			readl(VBO_VIN_CTRL),
+			VBO_STATUS_L,
+			readl(VBO_STATUS_L),
+			VBO_LANES,
+			readl(VBO_LANES),
+			VBO_REGION_00,
+			readl(VBO_REGION_00),
+			VBO_REGION_01,
+			readl(VBO_REGION_01),
+			VBO_REGION_02,
+			readl(VBO_REGION_02),
+			VBO_REGION_03,
+			readl(VBO_REGION_03),
+			VBO_ACT_VSIZE,
+			readl(VBO_ACT_VSIZE),
+			VBO_CTRL_H,
+			readl(VBO_CTRL_H),
+			VBO_INTR_STATE_CTRL,
+			readl(VBO_INTR_STATE_CTRL),
+			VBO_INTR_STATE,
+			readl(VBO_INTR_STATE),
+			VBO_GCLK_MAIN,
+			readl(VBO_GCLK_MAIN),
+			VBO_INSGN_CTRL,
+			readl(VBO_INSGN_CTRL),
+			VBO_CTRL_L,
+			readl(VBO_CTRL_L));
+
+		printf("venc regs:\n");
+		printf("0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n"
+			"0x%08x: 0x%08x\n",
+			ENCL_VIDEO_EN,
+			readl(ENCL_VIDEO_EN),
+			ENCL_VIDEO_MODE,
+			readl(ENCL_VIDEO_MODE),
+			ENCL_VIDEO_MODE_ADV,
+			readl(ENCL_VIDEO_MODE_ADV),
+			ENCL_VIDEO_FILT_CTRL,
+			readl(ENCL_VIDEO_FILT_CTRL),
+			ENCL_VIDEO_MAX_PXCNT,
+			readl(ENCL_VIDEO_MAX_PXCNT),
+			ENCL_VIDEO_MAX_LNCNT,
+			readl(ENCL_VIDEO_MAX_LNCNT),
+			ENCL_VIDEO_HAVON_BEGIN,
+			readl(ENCL_VIDEO_HAVON_BEGIN),
+			ENCL_VIDEO_HAVON_END,
+			readl(ENCL_VIDEO_HAVON_END),
+			ENCL_VIDEO_VAVON_BLINE,
+			readl(ENCL_VIDEO_VAVON_BLINE),
+			ENCL_VIDEO_VAVON_ELINE,
+			readl(ENCL_VIDEO_VAVON_ELINE),
+			ENCL_VIDEO_HSO_BEGIN,
+			readl(ENCL_VIDEO_HSO_BEGIN),
+			ENCL_VIDEO_HSO_END,
+			readl(ENCL_VIDEO_HSO_END),
+			ENCL_VIDEO_VSO_BEGIN,
+			readl(ENCL_VIDEO_VSO_BEGIN),
+			ENCL_VIDEO_VSO_END,
+			readl(ENCL_VIDEO_VSO_END),
+			ENCL_VIDEO_VSO_BLINE,
+			readl(ENCL_VIDEO_VSO_BLINE),
+			ENCL_VIDEO_VSO_ELINE,
+			readl(ENCL_VIDEO_VSO_ELINE),
+			ENCL_VIDEO_RGBIN_CTRL,
+			readl(ENCL_VIDEO_RGBIN_CTRL),
+			ENCL_INBUF_CNTL1,
+			readl(ENCL_INBUF_CNTL1),
+			ENCL_INBUF_CNTL0,
+			readl(ENCL_INBUF_CNTL0),
+			VPU_DISP_VIU0_CTRL,
+			readl(VPU_DISP_VIU0_CTRL),
+			VPU_VENC_CTRL,
+			readl(VPU_VENC_CTRL));
 	}
 	printf("0x%08x: 0x%08x\n",
 		VPU_VIU_VENC_MUX_CTRL,
 		readl(VPU_VIU_VENC_MUX_CTRL));
+
+	printf("phy regs:\n");
+	printf("0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n"
+		"0x%08x: 0x%08x\n",
+		ANACTRL_DIF_PHY_CNTL1,
+		readl(ANACTRL_DIF_PHY_CNTL1),
+		ANACTRL_DIF_PHY_CNTL2,
+		readl(ANACTRL_DIF_PHY_CNTL2),
+		ANACTRL_DIF_PHY_CNTL3,
+		readl(ANACTRL_DIF_PHY_CNTL3),
+		ANACTRL_DIF_PHY_CNTL4,
+		readl(ANACTRL_DIF_PHY_CNTL4),
+		ANACTRL_DIF_PHY_CNTL5,
+		readl(ANACTRL_DIF_PHY_CNTL5),
+		ANACTRL_DIF_PHY_CNTL6,
+		readl(ANACTRL_DIF_PHY_CNTL6),
+		ANACTRL_DIF_PHY_CNTL7,
+		readl(ANACTRL_DIF_PHY_CNTL7),
+		ANACTRL_DIF_PHY_CNTL8,
+		readl(ANACTRL_DIF_PHY_CNTL8),
+		ANACTRL_DIF_PHY_CNTL9,
+		readl(ANACTRL_DIF_PHY_CNTL9),
+		ANACTRL_DIF_PHY_CNTL10,
+		readl(ANACTRL_DIF_PHY_CNTL10),
+		ANACTRL_DIF_PHY_CNTL11,
+		readl(ANACTRL_DIF_PHY_CNTL11),
+		ANACTRL_DIF_PHY_CNTL12,
+		readl(ANACTRL_DIF_PHY_CNTL12),
+		ANACTRL_DIF_PHY_CNTL13,
+		readl(ANACTRL_DIF_PHY_CNTL13),
+		ANACTRL_DIF_PHY_CNTL14,
+		readl(ANACTRL_DIF_PHY_CNTL14),
+		ANACTRL_DIF_PHY_CNTL15,
+		readl(ANACTRL_DIF_PHY_CNTL15),
+		ANACTRL_DIF_PHY_CNTL16,
+		readl(ANACTRL_DIF_PHY_CNTL16),
+		ANACTRL_DIF_PHY_CNTL17,
+		readl(ANACTRL_DIF_PHY_CNTL17),
+		ANACTRL_DIF_PHY_CNTL18,
+		readl(ANACTRL_DIF_PHY_CNTL18),
+		ANACTRL_DIF_PHY_CNTL19,
+		readl(ANACTRL_DIF_PHY_CNTL19),
+		ANACTRL_DIF_PHY_CNTL20,
+		readl(ANACTRL_DIF_PHY_CNTL20),
+		ANACTRL_DIF_PHY_CNTL21,
+		readl(ANACTRL_DIF_PHY_CNTL21));
 }
 
 void lcd_edp_debug(void)
