@@ -559,7 +559,7 @@ int board_late_init(void){
 	vpp_init();
 #ifndef CONFIG_AML_IRDETECT_EARLY
 	/* after  */
-	run_command("cvbs init;hdmitx hpd", 0);
+	run_command("cvbs init;hdmitx hpd;hdmitx get_parse_edid", 0);
 	run_command("vout output $outputmode", 0);
 #endif
 

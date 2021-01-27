@@ -63,6 +63,8 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	char* hdmimode;
 	char* cvbsmode;
 	char* colorattribute;
+	int hpd_st = 0;
+	int loop = 10;
 
 	st = getenv_ulong("hdmitx_hpd_bypass", 10, 0);
 	if (st) {
@@ -93,8 +95,19 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 #endif
 
-	st = hdmitx_device.HWOp.get_hpd_state();
-	printf("hpd_state=%c\n", st ? '1' : '0');
+	hpd_st = hdmitx_device.HWOp.get_hpd_state();
+	if (!hpd_st) {
+		/* For some TV, they cost extra time to pullup HPD after 5V */
+		while (loop--) {
+			mdelay(100);
+			hpd_st = hdmitx_device.HWOp.get_hpd_state();
+			if (hpd_st) {
+				printf("hpd delay %d ms\n", (10 - loop) * 100);
+				break;
+			}
+		}
+	}
+	printf("hpd_state=%d\n", hpd_st);
 
 	/*get hdmi mode and colorattribute from env */
 	hdmimode = getenv("hdmimode");
@@ -116,7 +129,7 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 		run_command("saveenv", 0);
 	}
 	hdmimode = getenv("hdmimode");
-	if (st) {
+	if (hpd_st) {
 		setenv("outputmode", hdmimode);
 	} else {
 		cvbsmode = getenv("cvbsmode");
@@ -125,7 +138,7 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 		setenv("hdmichecksum", "0x00000000");
 		run_command("saveenv", 0);
 	}
-	return st;
+	return hpd_st;
 }
 
 static unsigned char edid_raw_buf[256] = {0};
