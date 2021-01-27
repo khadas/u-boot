@@ -16,6 +16,10 @@
 #include <asm/u-boot.h>
 #include <asm/saradc.h>
 
+#include <asm/arch/bl31_apis.h>
+#include <asm/io.h>
+#include <asm/arch/mailbox.h>
+
 #define CHIP_ADDR              0x18
 #define CHIP_ADDR_CHAR         "0x18"
 #define I2C_SPEED              100000
@@ -1077,6 +1081,14 @@ static int do_kbi_forcereset(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 	return ret;
 }
 
+static int do_kbi_forcebootsd(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	set_boot_first_timeout(SCPI_CMD_SDCARD_BOOT);
+	run_command("reboot", 0);
+	return 0;
+
+}
+
 static int do_kbi_poweroff(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	char cmd[64];
@@ -1222,6 +1234,7 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 	U_BOOT_CMD_MKENT(ext_ethernet, 1, 1, do_kbi_ext_ethernet, "", ""),
 	U_BOOT_CMD_MKENT(lcd_reset, 1, 1, do_kbi_lcd_reset, "", ""),
 #endif
+	U_BOOT_CMD_MKENT(forcebootsd, 1, 1, do_kbi_forcebootsd, "", ""),
 	U_BOOT_CMD_MKENT(forcereset, 4, 1, do_kbi_forcereset, "", ""),
 	U_BOOT_CMD_MKENT(factorytest, 1, 1, do_kbi_factorytest, "", ""),
 };
@@ -1300,6 +1313,8 @@ static char kbi_help_text[] =
 		"kbi ext_ethernet r - read current ethernet mode\n"
 		"\n"
 #endif
+		"kbi forcebootsd\n"
+		"\n"
 		"kbi ircode [customer1|customer2] w <ircode>\n"
 		"kbi ircode [customer1|customer2] r\n"
 #ifndef CONFIG_KHADAS_VIM
