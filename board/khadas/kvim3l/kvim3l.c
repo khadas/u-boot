@@ -619,6 +619,43 @@ void board_lcd_detect(void)
     setenv_ulong("lcd_exist", value);
 }
 #endif /* CONFIG_AML_LCD */
+
+extern int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len);
+static int check_forcebootsd(void)
+{
+	unsigned char tst_status = 0;
+	unsigned char mcu_version[2] = {0};
+	int retval;
+
+	retval = i2c_read(0x18, 0x12, 1, mcu_version, 1);
+	retval |= i2c_read(0x18, 0x13, 1, mcu_version + 1, 1);
+
+	if (retval < 0) {
+		printf("%s i2c_read failed!\n", __func__);
+		return -1;
+	}
+
+	printf("MCU version: 0x%02x 0x%02x\n", mcu_version[0], mcu_version[1]);
+
+	if (mcu_version[1] < 0x04) {
+		printf("MCU version is to low! Doesn't support froce boot from SD card.\n");
+		return -1;
+	}
+
+	retval = i2c_read(0x18, 0x90, 1, &tst_status, 1);
+	if (retval < 0) {
+		printf("%s i2c_read failed!\n", __func__);
+		return -1;
+	}
+
+	if (1 == tst_status) {
+		printf("Force boot from SD.\n");
+		run_command("kbi tststatus clear", 0);
+		run_command("kbi forcebootsd", 0);
+	}
+
+	return 0;
+}
 int board_init(void)
 {
 	sys_led_init();
@@ -647,6 +684,7 @@ int board_init(void)
 #endif
 #ifdef CONFIG_SYS_I2C_AML
 	board_i2c_init();
+	check_forcebootsd();
 #endif
 #ifdef CONFIG_TCA6408
 	tca6408_gpio_init();
