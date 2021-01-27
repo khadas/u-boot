@@ -1421,6 +1421,18 @@ static int spinand_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
+#ifndef __UBOOT__
+	ret = mtd_device_register(mtd, NULL, 0);
+/*#else
+	ret = add_mtd_device(mtd);*/
+#endif
+	if (ret)
+		goto err_spinand_cleanup;
+
+#ifdef CONFIG_AML_STORAGE
+	ret = spinand_fit_storage(mtd, mtd->name, spinand->id.data);
+#endif
+
 #if SPINAND_MESON_RSV /* add for meson rsv management */
 	if (is_power_of_2(mtd->erasesize))
 		mtd->erasesize_shift = ffs(mtd->erasesize) - 1;
@@ -1447,18 +1459,6 @@ static int spinand_probe(struct udevice *dev)
 	meson_rsv_check(spinand->rsv->env);
 	meson_rsv_check(spinand->rsv->key);
 	meson_rsv_check(spinand->rsv->dtb);
-#endif
-
-#ifndef __UBOOT__
-	ret = mtd_device_register(mtd, NULL, 0);
-/*#else
-	ret = add_mtd_device(mtd);*/
-#endif
-	if (ret)
-		goto err_spinand_cleanup;
-
-#ifdef CONFIG_AML_STORAGE
-	ret = spinand_fit_storage(mtd, mtd->name, spinand->id.data);
 #endif
 
 	return ret;
