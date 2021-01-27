@@ -331,6 +331,18 @@ config DDRFW_TYPE
 	string "S4 DDR FW Type"
 	default "ddr4"
 
+config CHIPSET_NAME
+        string "T7 CHIPSET NAME"
+        default "s905y4"
+
+config CHIPSET_VARIANT
+        string "T7 CHIPSET VARIANT"
+        default ""
+
+config AMLOGIC_KEY_TYPE
+        string "T7 AMLOGIC KEY TYPE"
+        default "dev-keys"
+
 config BL30_SELECT
 	string "S4 BL30 board config"
 	default "sc2_ah219"
