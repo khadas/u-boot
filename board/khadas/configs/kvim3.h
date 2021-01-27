@@ -327,8 +327,9 @@
                "fi;"\
                "setenv bootargs ${bootargs} wol_enable=${wol_enable};"\
                "if test ${power_state} = 1; then "\
-               "kbi trigger wol w 1;"\
-               "kbi poweroff;"\
+                   "kbi poweroff;"\
+               "else "\
+                   "kbi wolreset;"\
                "fi;"\
             "else "\
                "setenv bootargs ${bootargs} wol_enable=0;"\
