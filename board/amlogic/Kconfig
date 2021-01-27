@@ -344,11 +344,21 @@ config S4_SKT
 	help
 		Select S4 SKT(XXXX) config
 
+config S4_AP222
+	bool "S4_AP222"
+	select TARGET_S4_AP222
+	help
+		Select S4 AP222(XXXX) config
+
 endchoice
 
 config TARGET_S4_SKT
 	bool "S4 SKT board"
 	depends on S4_SKT
+
+config TARGET_S4_AP222
+	bool "S4 AP222 board"
+	depends on S4_AP222
 
 endif
 
@@ -652,6 +662,8 @@ source "board/amlogic/c1_ae402/Kconfig"
 source "board/amlogic/c1_ae409/Kconfig"
 
 source "board/amlogic/s4_skt/Kconfig"
+
+source "board/amlogic/s4_ap222/Kconfig"
 
 source "board/amlogic/sc2_skt/Kconfig"
 
