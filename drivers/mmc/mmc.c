@@ -1589,7 +1589,7 @@ static int mmc_startup(struct mmc *mmc)
 
 	mmc_set_clock(mmc, mmc->tran_speed);
 
-	if (mmc->card_caps & MMC_MODE_HS_52MHz) {
+	if (mmc->card_caps & MMC_MODE_HS) {
 		err = aml_emmc_refix(mmc);
 		if (err)
 			return err;
