@@ -135,10 +135,12 @@ int board_init(void)
 
 	active_clk();
 	#endif
+#endif
+	run_command("gpio set GPIOH_7", 0);
 #ifdef CONFIG_AML_HDMITX20
 	hdmitx_set_hdmi_5v();
 	hdmitx_init();
-#endif
+
 #endif
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 	return 0;
