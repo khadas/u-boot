@@ -332,15 +332,15 @@ config DDRFW_TYPE
 	default "ddr4"
 
 config CHIPSET_NAME
-        string "T7 CHIPSET NAME"
+        string "S4 CHIPSET NAME"
         default "s905y4"
 
 config CHIPSET_VARIANT
-        string "T7 CHIPSET VARIANT"
+        string "S4 CHIPSET VARIANT"
         default ""
 
 config AMLOGIC_KEY_TYPE
-        string "T7 AMLOGIC KEY TYPE"
+        string "S4 AMLOGIC KEY TYPE"
         default "dev-keys"
 
 config BL30_SELECT
