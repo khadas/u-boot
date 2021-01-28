@@ -937,6 +937,11 @@ static void osd_update_mif_linear_addr(u32 index)
 		osd_blk2_cfg_w4 = VIU_OSD3_BLK2_CFG_W4;
 		osd_ctrl_stat = VIU_OSD3_CTRL_STAT;
 		break;
+	default:
+		osd_blk1_cfg_w4 = VIU_OSD1_BLK1_CFG_W4;
+		osd_blk2_cfg_w4 = VIU_OSD1_BLK2_CFG_W4;
+		osd_ctrl_stat = VIU_OSD1_CTRL_STAT;
+		break;
 	}
 	if (osd_hw.color_info[index])
 		fmt_mode =
@@ -3241,6 +3246,10 @@ void osd_init_hw(void)
 		osd_reg_clr_mask(VPP_MISC, VPP_POST_FG_OSD2 | VPP_PRE_FG_OSD2);
 	else if (osd_hw.osd_ver > OSD_NORMAL)
 		set_vpp_super_position();
+
+	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_S4)
+		osd_reg_clr_mask(VPP_MISC, VPP_WATER_MARK_10BIT);
+
 	osd_hw.order = OSD_ORDER_01;
 	osd_hw.enable[OSD2] = osd_hw.enable[OSD1] = DISABLE;
 	osd_hw.fb_gem[OSD1].canvas_idx = OSD1_CANVAS_INDEX;

@@ -1570,8 +1570,10 @@ void vpp_init(void)
 		/* >= g12a: osd out is rgb */
 		set_osd1_rgb2yuv(0);
 		set_osd2_rgb2yuv(0);
-		if (chip_id != MESON_CPU_MAJOR_ID_TL1)
+		if (chip_id != MESON_CPU_MAJOR_ID_TL1 ||
+		    chip_id != MESON_CPU_MAJOR_ID_S4)
 			set_osd3_rgb2yuv(0);
+
 		if (chip_id != MESON_CPU_MAJOR_ID_T7)
 			set_vpp_osd2_rgb2yuv(1);
 		else

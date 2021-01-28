@@ -30948,6 +30948,8 @@
 // Closing file:  ./parser_regs.h
 //
 
+#define REG_BASE_VCBUS                             (0xff000000L)
+
 #include "soc_def.h"
 #endif // REGISTER_H
 
