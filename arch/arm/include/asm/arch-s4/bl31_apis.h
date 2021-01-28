@@ -81,6 +81,7 @@
 
 /* tsensor calibration data */
 #define TSENSOR_CALI_SET       0x8200004C
+#define TSENSOR_CALI_READ       0x82000047
 
 /*oscring efuse value get */
 #define OSCRING_EFUSE_GET       0x8200004D
