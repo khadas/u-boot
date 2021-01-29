@@ -1,7 +1,5 @@
 
 /*
- * arch/arm/cpu/armv8/txl/mailbox.c
- *
  * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,7 +16,6 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
-
 #include <config.h>
 #include <common.h>
 #include <asm/arch/io.h>
@@ -27,184 +24,143 @@
 #include <asm/arch/mailbox.h>
 #include <asm/arch/secure_apb.h>
 
-/* Bit position for size value in MHU header */
-#define SIZE_SHIFT	20
-/* Mask to extract size value in MHU header*/
-#define SIZE_MASK	0x1ff
+#define aml_writel32(value, reg)	writel(value, reg)
+#define aml_readl32(reg)		readl(reg)
 
-static unsigned int *ap_mb_stat[] = {
-	(unsigned int *)HIU_MAILBOX_STAT_4,
-	(unsigned int *)HIU_MAILBOX_STAT_5,
-};
-static unsigned int *ap_mb_set[] = {
-	(unsigned int *)HIU_MAILBOX_SET_4,
-	(unsigned int *)HIU_MAILBOX_SET_5,
-};
-static unsigned int *ap_mb_clear[] = {
-	(unsigned int *)HIU_MAILBOX_CLR_4,
-	(unsigned int *)HIU_MAILBOX_CLR_5,
-};
-static unsigned int *ap_mb_payload[] = {
-	(unsigned int *)(P_SHARE_SRAM_BASE + MHU_LOW_AP_TO_SCP_PAYLOAD),
-	(unsigned int *)(P_SHARE_SRAM_BASE + MHU_HIGH_AP_TO_SCP_PAYLOAD),
-};
-static unsigned int *scp_mb_stat[] = {
-	(unsigned int *)HIU_MAILBOX_STAT_1,
-	(unsigned int *)HIU_MAILBOX_STAT_2,
-};
-/*
-static unsigned int *scp_mb_set[] = {
-	(unsigned int *)HIU_MAILBOX_SET_1,
-	(unsigned int *)HIU_MAILBOX_SET_2,
-};
-*/
-static unsigned int *scp_mb_clear[] = {
-	(unsigned int *)HIU_MAILBOX_CLR_1,
-	(unsigned int *)HIU_MAILBOX_CLR_2,
-};
-static unsigned int *scp_mb_payload[] = {
-	(unsigned int *)(P_SHARE_SRAM_BASE + MHU_LOW_SCP_TO_AP_PAYLOAD),
-	(unsigned int *)(P_SHARE_SRAM_BASE + MHU_HIGH_SCP_TO_AP_PAYLOAD),
-};
 
-static void mb_message_start(unsigned int priority)
+static inline void mbwrite(uint32_t to, void *from, long count)
 {
-	while (readl(ap_mb_stat[priority]) != 0)
-		;
+	int i = 0;
+	int len = count / 4 + (count % 4);
+	uint32_t *p = from;
+
+	while (len > 0) {
+		aml_writel32(p[i], to + (4 * i));
+		len--;
+		i++;
+	}
 }
-static void mb_message_send(unsigned int command, unsigned int priority)
+
+static inline void mbclean(uint32_t to, long count)
 {
-	writel(command, ap_mb_set[priority]);
-	while (readl(ap_mb_stat[priority]) != 0)
-		;
+	int i = 0;
+	int len = count / 4 + (count % 4);
+
+	while (len > 0) {
+		aml_writel32(0, to + (4 * i));
+		len--;
+		i++;
+	}
 }
-static unsigned int mb_message_wait(unsigned int priority)
+
+int mhu_get_addr(uint32_t chan, uint32_t *mboxset, uint32_t *mboxsts,
+		 uintptr_t *mboxpl, uint32_t *mboxwr, uint32_t *mboxrd,
+		 uint32_t *mboxirqclr, uint32_t *mboxid)
 {
-	unsigned int response;
-	while (!(response = readl(scp_mb_stat[priority])))
-		;
+	int ret = 0;
+
+	switch (chan) {
+	case AOCPU_REE_CHANNEL:
+		*mboxset = REE2AO_SET_ADDR;
+		*mboxsts = REE2AO_STS_ADDR;
+		*mboxwr = REE2AO_WR_ADDR;
+		*mboxrd = REE2AO_RD_ADDR;
+		*mboxirqclr = REE2AO_IRQCLR_ADDR;
+		*mboxid = REE2AO_MBOX_ID;
+		break;
+	default:
+		printf("[BL33]: no support chan 0x%x\n", chan);
+		ret = -1;
+		break;
+	};
+	return ret;
+}
+
+void mhu_message_start(uint32_t mboxsts)
+{
+	/* Make sure any previous command has finished */
+	while (aml_readl32(mboxsts) != 0);
+}
+
+void mhu_build_payload(uintptr_t mboxpl, uint32_t mboxwr, void *message, uint32_t size)
+{
+	if (size > (MHU_PAYLOAD_SIZE - MHU_DATA_OFFSET)) {
+		printf("bl33: scpi send input size error\n");
+		return;
+	}
+	if (size == 0)
+		return;
+	mbwrite(mboxwr + MHU_DATA_OFFSET, message, size);
+}
+
+void mhu_get_payload(uintptr_t mboxpl, uint32_t mboxwr, void *message, uint32_t size)
+{
+	if (size > (MHU_PAYLOAD_SIZE - MHU_DATA_OFFSET)) {
+		printf("bl33: scpi send input size error\n");
+		return;
+	}
+	if (size == 0)
+		return;
+	printf("bl33: scpi no support get revmessage\n");
+}
+
+void mhu_message_send(uint32_t mboxset, uint32_t command, uint32_t size)
+{
+	uint32_t mbox_cmd;
+	mbox_cmd = MHU_CMD_BUILD(command, size + MHU_DATA_OFFSET);
+	aml_writel32(mbox_cmd, mboxset);
+}
+
+uint32_t mhu_message_wait(uint32_t mboxsts)
+{
+	/* Wait for response from HIFI */
+	uint32_t response;
+
+	while ((response = aml_readl32(mboxsts)));
+
 	return response;
 }
-static void mb_message_end(unsigned int priority)
-{
-	writel(0xffffffff, scp_mb_clear[priority]);
-}
-static unsigned int mb_message_receive(
-					void **message_out,
-					unsigned int *size_out,
-					unsigned int priority)
-{
-	unsigned int response = mb_message_wait(priority);
-	unsigned int size = (response >> SIZE_SHIFT) & SIZE_MASK;
 
-	response &= ~(SIZE_MASK << SIZE_SHIFT);
-
-	if (size_out)
-		*size_out = size;
-	if (message_out)
-		*message_out = (void *)(scp_mb_payload[priority]);
-
-	return response;
-}
-static void mb_init(unsigned int priority)
+void mhu_message_end(uintptr_t mboxpl, uint32_t mboxwr, uint32_t mboxirqclr, uint32_t mboxid)
 {
-	writel(0xffffffff, ap_mb_clear[priority]);
+	mbclean(mboxwr, MHU_PAYLOAD_SIZE);
+	/* Clear any response we got by writing all ones to the CLEAR register */
+	aml_writel32(MHU_ACK_MASK(mboxid), mboxirqclr);
 }
 
-static void scpi_send32(unsigned int command,
-			unsigned int message, unsigned int priority)
+void mhu_init(void)
 {
-	mb_init(priority);
-	mb_message_start(priority);
-	writel(message, ap_mb_payload[priority]);
-	mb_message_send(command, priority);
-	mb_message_wait(priority);
-	mb_message_end(priority);
+	aml_writel32(0xffffffffu, REE2AO_CLR_ADDR);
+	printf("[BL33] mhu init done -v2\n");
 }
-
-static void scpi_send_block(unsigned int command,
-			unsigned int *message, unsigned int message_size, unsigned int priority)
+int  scpi_send_data(uint32_t chan, uint32_t command,
+		    void *sendmessage, uint32_t sendsize,
+		    void *revmessage, uint32_t revsize)
 {
-	mb_init(priority);
-	mb_message_start(priority);
-	memcpy(ap_mb_payload[priority], message, message_size);
-	mb_message_send(command, priority);
-	mb_message_wait(priority);
-	mb_message_end(priority);
-}
+	uint32_t mboxset = 0;
+	uint32_t mboxsts = 0;
+	uintptr_t mboxpl = 0;
+	uint32_t mboxwr = 0;
+	uint32_t mboxrd = 0;
+	uint32_t mboxirq = 0;
+	uint32_t mboxid = 0;
+	int ret = 0;
 
-void open_scp_log(unsigned int channel)
-{
-	scpi_send32(SCPI_CMD_OPEN_SCP_LOG, channel, LOW_PRIORITY);
-}
-
-int send_usr_data(unsigned int clinet_id, unsigned int *val, unsigned int size)
-{
-	unsigned long command;
-
-	if (size > 0x1fd)
-		return -1;
-
-	command = ((unsigned int)SCPI_CMD_SET_USR_DATA & 0xff) | ((clinet_id & 0xff) << 8) | ((size & 0x1ff) << 20);
-	scpi_send_block(command,val,size,0);
-
-	return 0;
-}
-
-/*
-*  type:
-*		0: data; 1: version
-*/
-int thermal_calibration(unsigned int type, unsigned int data)
-{
-	unsigned int *appayload = ap_mb_payload[LOW_PRIORITY];
-	unsigned int *response;
-	unsigned int size;
-
-	mb_message_start(LOW_PRIORITY);
-	writel(type, appayload);
-	writel(data, appayload+1);
-	mb_message_send(
-				((0x8 << SIZE_SHIFT) | SCPI_CMD_THERMAL_CALIB),
-				LOW_PRIORITY);
-	mb_message_receive((void *)&response, &size, LOW_PRIORITY);
-	mb_message_end(LOW_PRIORITY);
-
-	if (*response != SCPI_SUCCESS)
-		return -1;
-	else
-		return 0;
-}
-
-int thermal_get_value(unsigned int sensor_id, unsigned int *value)
-{
-	unsigned int *response;
-	unsigned int size;
-
-	mb_message_start(LOW_PRIORITY);
-	writel(sensor_id, ap_mb_payload[LOW_PRIORITY]);
-	mb_message_send(
-				((0x4 << SIZE_SHIFT) | SCPI_CMD_SENSOR_VALUE),
-				LOW_PRIORITY);
-	mb_message_receive((void *)&response, &size, LOW_PRIORITY);
-	mb_message_end(LOW_PRIORITY);
-
-	*value = *(response+1);
-	if (*response != SCPI_SUCCESS)
-		return -1;
-	else
-		return 0;
-}
-
-
-void send_pwm_delt(int32_t vcck_delt, int32_t ee_delt)
-{
-	unsigned int *appayload = ap_mb_payload[LOW_PRIORITY];
-	mb_message_start(LOW_PRIORITY);
-	writel(vcck_delt, appayload);
-	writel(ee_delt, appayload+1);
-	mb_message_send(SCPI_CMD_REV_PWM_DELT, LOW_PRIORITY);
-	mb_message_wait(LOW_PRIORITY);
-	mb_message_end(LOW_PRIORITY);
+	ret = mhu_get_addr(chan, &mboxset, &mboxsts,
+			   &mboxpl, &mboxwr, &mboxrd,
+			   &mboxirq, &mboxid);
+	if (ret) {
+		printf("bl33: mhu get addr fail\n");
+		return ret;
+	}
+	mhu_message_start(mboxsts);
+	if (sendmessage != NULL && sendsize != 0)
+		mhu_build_payload(mboxpl, mboxwr, sendmessage, sendsize);
+	mhu_message_send(mboxset, command, sendsize);
+	mhu_message_wait(mboxsts);
+	if (revmessage != NULL && revsize != 0)
+		mhu_get_payload(mboxpl, mboxrd, revmessage, revsize);
+	mhu_message_end(mboxpl, mboxwr, mboxirq, mboxid);
+	return ret;
 }
 
