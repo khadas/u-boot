@@ -69,6 +69,7 @@ typedef struct  ddr_base_address_table ddr_base_address_table_t;
 #define MESON_CPU_MAJOR_ID_T5           0x34
 #define MESON_CPU_MAJOR_ID_T5D          0x35
 #define MESON_CPU_MAJOR_ID_T7			0x36
+#define MESON_CPU_MAJOR_ID_S4			0x37
 
 #define MESON_CPU_VERSION_LVL_MAJOR     0
 #define MESON_CPU_VERSION_LVL_MINOR     1
@@ -261,7 +262,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ee_pwm_base_address = ((0x0001 << 2) + 0xfe05e000),            //PWMGH_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),
-		.ddr_boot_reason_address = 0xfe036800, //sc2 can not find,SYSCTRL_STICKY_REG0
+		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000), //SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384,zhiguang confirm
 	},
 	//T5
 	{
@@ -320,7 +321,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ee_pwm_base_address = ((0x0001 << 2) + 0xfe05e000),            //PWMGH_PWM_B
 		.ddr_dmc_apd_address = ((0x018c << 2) + 0xfe036000),
 		.ddr_dmc_asr_address = ((0x018d << 2) + 0xfe036000),
-		.ddr_boot_reason_address = 0xfe036800, //sc2 can not find,SYSCTRL_STICKY_REG0
+		//.ddr_boot_reason_address = ((0x00c1 << 2) + 0xfe010000), //SYSCTRL_SEC_STATUS_REG1,20210204,0xfe010304,zhiguang confirm
 
 		.ddr_dmc_lpdd4_retraining_address = ((0x0197 << 2) + 0xfe036000),
 		.ddr_dmc_refresh_ctrl_address = ((0x0192 << 2) + 0xfe036000),
@@ -334,6 +335,27 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ddr_dmc_asr_address_1 = ((0x018d << 2) + 0xfe034000),
 		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe034000),
 		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe034000),
+	},
+	//S4
+	{
+		.soc_family_name = "S4",
+		.chip_id = MESON_CPU_MAJOR_ID_S4,
+		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
+		.ddr_phy_base_address = 0xfc000000,
+		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),//DMC_DRAM_TRFC
+		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),//DMC_DRAM_DFI
+		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
+		.ddr_pll_base_address = ((0x0000 << 2) + 0xfe036c00),           //AM_DDR_PLL_CNTL0//
+		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000), //SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384,zhiguang confirm
+		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+
+		.sys_watchdog_base_address = 0,
+		.sys_watchdog_enable_value = 0x03c401ff,
+		.ee_timer_base_address = 0xffd0f188,                            //#define P_EE_TIMER_E		(volatile uint32_t *)0xffd0f188
+		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),             //AO_PWM_PWM_B
+		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),//DMC_DRAM_APD_CTRL
+		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),//DMC_DRAM_ASR_CTRL
+		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xfe036400), // DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
 	},
 	// force id use id mask
 	{
@@ -5650,7 +5672,7 @@ int get_ddr_clk(void)
 		ddr_clk = pll_convert_to_ddr_clk_g12a(ddr_pll);
 	} else if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_A1) {
 		ddr_clk = 768;
-	} else if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D)) {
+	} else if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)) {
 		uint32_t stick_store_sticky_f0_reg_base_t = (p_ddr_base->ddr_phy_base_address + 0x0128);
 		ddr_clk = rd_reg(stick_store_sticky_f0_reg_base_t);
 	} else {
@@ -6060,7 +6082,7 @@ uint32_t get_bdlr_100step(uint32_t ddr_frequency)
 {
 	uint32_t bdlr_100step = 0;
 
-	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D)) {
+	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)) {
 		bdlr_100step = do_read_c2_ddr_bdlr_steps();
 	} else {
 		dwc_ddrphy_apb_wr(((((0 << 20) | (2 << 16) | (0 << 12) | (0xe3)))), 0xc00);
@@ -8945,7 +8967,7 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	unsigned int pll;
 	unsigned int window_test_stick_cmd_value = 0;
 	/* need at least two arguments */
-	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D))
+	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4))
 		do_read_c2_ddr_bdlr_steps();
 	if (argc < 2)
 		goto usage;
@@ -8992,7 +9014,7 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	}
 	dcache_disable();
 	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_A1) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C1) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_SC2)
+	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_SC2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)
 	    //|| (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D)
 	    ) {
 		printf("reset...\n");
@@ -9322,7 +9344,8 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 
 	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2)
 	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D)) {
+	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D)
+		|| (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)) {
 		do_ddr_c2_offset_data(cmdtp, flag, argc, argv);
 		return 1;
 	}
@@ -9705,7 +9728,7 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		case (DDR_TEST_CMD__DISPLAY_G12_DDR_INFORMATION):
 		{
 			printf("\nshow g12 ddr information\n");
-			if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D)) {
+			if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)) {
 				do_ddr_display_c2_ddr_information((cmd_tbl_t *)cmdtp, (int)flag, (int)argc2, (argv2));
 			} else if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)) {
 				dmc_ddr_config_channel_id=0;
