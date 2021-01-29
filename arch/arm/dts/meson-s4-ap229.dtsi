@@ -83,6 +83,10 @@
 	};
 };
 
+&vpu {
+	clk_level = <7>;
+};
+
 &ethmac {
 	status = "okay";
 	internal_phy = <1>;

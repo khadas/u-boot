@@ -299,8 +299,8 @@ static struct vpu_data_s vpu_data_t7 = {
 static struct vpu_data_s vpu_data_s4 = {
 	.chip_type = VPU_CHIP_S4,
 	.chip_name = "s4",
-	.clk_level_dft = CLK_LEVEL_DFT_S4,
-	.clk_level_max = CLK_LEVEL_MAX_S4,
+	.clk_level_dft = CLK_LEVEL_DFT_G12A,
+	.clk_level_max = CLK_LEVEL_MAX_G12A,
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = CLKCTRL_VPU_CLK_CTRL,

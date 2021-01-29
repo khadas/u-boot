@@ -50,8 +50,8 @@
 / {
 	compatible = "amlogic,meson-s4";
 
-	vpu {
-		compatible = "amlogic, vpu-g12a";
+	vpu: vpu {
+		compatible = "amlogic, vpu-s4";
 		status = "okay";
 		/*clocks = <&clkc CLKID_VAPB_MUX>,
 		 *	<&clkc CLKID_VPU_INTR>,
