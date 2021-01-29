@@ -34,6 +34,9 @@ static int mtd_find_phy_off_by_lgc_off(const char* partName, const loff_t logicA
 		*phyAddr = logicAddr;
 		return 0;
 	}
+#ifndef CONFIG_CMD_MTD
+	MsgP("Exception, boottype is MTD or snand, BUT CMD_MTD not defined\n");
+#else
 #ifndef CONFIG_USB_GADGET_CRG
 	mtdPartInf = get_mtd_device_nm(partName);
 #endif
@@ -75,7 +78,7 @@ static int mtd_find_phy_off_by_lgc_off(const char* partName, const loff_t logicA
 		}
 #endif
 	}
-
+#endif// #ifndef CONFIG_CMD_MTD
 	return __LINE__;
 }
 
@@ -105,6 +108,11 @@ u64 store_logic_cap(const char* partName)
 	if (!(BOOT_NAND_MTD == store_get_type() || BOOT_SNAND == store_get_type())) {
 		return store_part_size(partName);
 	}
+
+#ifndef CONFIG_CMD_MTD
+	MsgP("Exception, boottype is MTD or snand, BUT CMD_MTD not defined\n");
+	return 0;
+#else
 	//get mtd part logic size (i.e, not including the bad blocks)
 	struct mtd_info * mtdPartInf = NULL;
 	uint64_t partSzLgc = 0;
@@ -125,5 +133,6 @@ u64 store_logic_cap(const char* partName)
 		}
 	}
 	return partSzLgc;
+#endif// #ifndef CONFIG_CMD_MTD
 }
 
