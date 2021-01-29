@@ -120,6 +120,33 @@ static void set_pll_Calibration_default(uint32_t phy2_pll_base)
      = tmp;
 }
 
+static void usb_set_calibration_trim(uint32_t volatile *phy2_pll_base)
+{
+	uint32_t cali, value, i;
+	uint8_t cali_en;
+
+	cali = readl(SYSCTRL_SEC_STATUS_REG12);
+	//printf("SYSCTRL_SEC_STATUS_REG12=0x%08x\n", cali);
+	/*****if cali_en ==0, set 0x10 to the default value: 0x1700****/
+	cali_en = (cali >> 12) & 0x1;
+	cali = cali >> 8;
+	if (cali_en) {
+		cali =cali & 0xf;
+		if (cali > 12)
+			cali = 12;
+	} else {
+		cali = 0x7;
+	}
+	value = (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x10));
+	value &= (~0xfff);
+	for (i = 0; i < cali; i++)
+		value |= (1 << i);
+
+	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x10))
+		= value;
+	printf("0x10 trim value=0x%08x\n", value);;
+}
+
 void usb_reset(unsigned int reset_addr, int bit){
 	*(volatile unsigned int *)(unsigned long)reset_addr = (1 << bit);
 }
@@ -149,8 +176,7 @@ void set_usb_pll(uint32_t phy2_pll_base)
 		= USB2_PHY_PLL_OFFSET_50;
 	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x54))
 		= USB2_PHY_PLL_OFFSET_54;
-	set_pll_Calibration_default(phy2_pll_base);
-
+	usb_set_calibration_trim(phy2_pll_base);
 
 	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0xc)) =
 		TUNING_DISCONNECT_THRESHOLD;
