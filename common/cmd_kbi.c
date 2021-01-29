@@ -16,6 +16,10 @@
 #include <asm/u-boot.h>
 #include <asm/saradc.h>
 
+#include <asm/arch/bl31_apis.h>
+#include <asm/io.h>
+#include <asm/arch/mailbox.h>
+
 #define CHIP_ADDR              0x18
 #define CHIP_ADDR_CHAR         "0x18"
 #define I2C_SPEED              100000
@@ -48,6 +52,8 @@
 #define REG_PASSWD_CHECK_VENDOR 0x82
 #define REG_PASSWD_CHECK_CUSTOM 0x83
 #define REG_POWER_STATE    0x86
+
+#define TST_STATUS         0x90
 
 #define BOOT_EN_WOL         0
 #define BOOT_EN_RTC         1
@@ -183,14 +189,18 @@ static void set_wol(bool is_shutdown, int enable)
 	if ((enable&0x01) != 0) {
 
 	int mac_addr[MAC_LENGHT] = {0};
-	if (is_shutdown)
+	if (is_shutdown) {
+		run_command("phyreg w 31 0", 0);
 		run_command("phyreg w 0 0", 0);
-	else
+	}
+	else {
+		run_command("phyreg w 31 0", 0);
 		run_command("phyreg w 0 0x1040", 0);
+	}
 
-	run_command("phyreg w 31 0xd40", 0);
-	run_command("phyreg w 22 0x20", 0);
-	run_command("phyreg w 31 0", 0);
+//	run_command("phyreg w 31 0xd40", 0);
+//	run_command("phyreg w 22 0x20", 0);
+//	run_command("phyreg w 31 0", 0);
 
 	mode = kbi_i2c_read(REG_MAC_SWITCH);
 	if (mode == 1) {
@@ -219,33 +229,43 @@ static void set_wol(bool is_shutdown, int enable)
 	run_command("phyreg w 31 0", 0);
 
 	run_command("phyreg w 31 0xd8a", 0);
+	run_command("phyreg w 16 0x1000", 0);
 	run_command("phyreg w 17 0x9fff", 0);
 	run_command("phyreg w 31 0", 0);
 
+//	run_command("phyreg w 31 0xd8a", 0);
+//	run_command("phyreg w 16 0x1000", 0);
+//	run_command("phyreg w 31 0", 0);
+
+//	run_command("phyreg w 31 0xd80", 0);
+//	run_command("phyreg w 16 0x3000", 0);
+//	run_command("phyreg w 17 0x0020", 0);
+//	run_command("phyreg w 18 0x03c0", 0);
+//	run_command("phyreg w 19 0x0000", 0);
+//	run_command("phyreg w 20 0x0000", 0);
+//	run_command("phyreg w 21 0x0000", 0);
+//	run_command("phyreg w 22 0x0000", 0);
+//	run_command("phyreg w 23 0x0000", 0);
+//	run_command("phyreg w 31 0", 0);
+
 	run_command("phyreg w 31 0xd8a", 0);
-	run_command("phyreg w 16 0x1000", 0);
+	run_command("phyreg w 19 0x8002", 0);
 	run_command("phyreg w 31 0", 0);
 
-	run_command("phyreg w 31 0xd80", 0);
-	run_command("phyreg w 16 0x3000", 0);
-	run_command("phyreg w 17 0x0020", 0);
-	run_command("phyreg w 18 0x03c0", 0);
-	run_command("phyreg w 19 0x0000", 0);
-	run_command("phyreg w 20 0x0000", 0);
-	run_command("phyreg w 21 0x0000", 0);
-	run_command("phyreg w 22 0x0000", 0);
-	run_command("phyreg w 23 0x0000", 0);
+	run_command("phyreg w 31 0xd40", 0);
+	run_command("phyreg w 22 0x20", 0);
 	run_command("phyreg w 31 0", 0);
-
-	run_command("phyreg w 31 0xd8a", 0);
-	run_command("phyreg w 19 0x1002", 0);
-	run_command("phyreg w 31 0", 0);
-
   } else {
 	run_command("phyreg w 31 0xd8a", 0);
 	run_command("phyreg w 16 0", 0);
 	run_command("phyreg w 17 0x7fff", 0);
+	run_command("phyreg w 19 0", 0);
 	run_command("phyreg w 31 0", 0);
+
+	run_command("phyreg w 31 0xd40", 0);
+	run_command("phyreg w 22 0", 0);
+	run_command("phyreg w 31 0", 0);
+
   }
 
 	sprintf(cmd, "i2c mw %x %x %d 1", CHIP_ADDR, REG_BOOT_EN_WOL, enable);
@@ -672,9 +692,9 @@ static int set_blue_led_mode(int type, int mode)
 
 static int do_kbi_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
-	int enable = get_wol(false);
-	if ((enable&0x01) != 0)
-		set_wol(false, enable);
+//	int enable = get_wol(false);
+//	if ((enable&0x01) != 0)
+//		set_wol(false, enable);
 	return 0;
 }
 
@@ -708,6 +728,26 @@ static int do_kbi_lcd_reset(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 	tca6408_output_set_value(1<<0, 1<<0);
 	return 0;
 }
+
+static int do_kbi_tststatus(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	u8 tst_status = 0;
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	if (strcmp(argv[1], "r") == 0) {
+		tst_status = kbi_i2c_read(TST_STATUS);
+		setenv("tst_status", tst_status & 0x01 ? "1" : "0");
+		printf("tst_status: %d\n", tst_status & 0x01);
+	} else if (strcmp(argv[1], "clear") == 0) {
+		run_command("i2c mw 0x18 0x90 0 1", 0);
+	} else {
+		return CMD_RET_USAGE;
+	}
+
+	return 0;
+}
+
 #endif
 
 
@@ -952,6 +992,30 @@ static int do_kbi_forcereset(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 	return ret;
 }
 
+static int do_kbi_forcebootsd(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	set_boot_first_timeout(SCPI_CMD_SDCARD_BOOT);
+
+	run_command("reboot", 0);
+
+	return 0;
+}
+
+static int do_kbi_wolreset(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	run_command("phyreg w 31 0xd8a", 0);
+	run_command("phyreg w 16 0", 0);
+	run_command("phyreg w 17 0x7fff", 0);
+	run_command("phyreg w 19 0", 0);
+	run_command("phyreg w 31 0", 0);
+
+	run_command("phyreg w 31 0xd40", 0);
+	run_command("phyreg w 22 0", 0);
+	run_command("phyreg w 31 0", 0);
+
+	return 0;
+}
+
 static int do_kbi_poweroff(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	char cmd[64];
@@ -1090,8 +1154,11 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 #if defined(CONFIG_KHADAS_VIM3) || defined(CONFIG_KHADAS_VIM3L)
 	U_BOOT_CMD_MKENT(portmode, 1, 1, do_kbi_portmode, "", ""),
 	U_BOOT_CMD_MKENT(lcd_reset, 1, 1, do_kbi_lcd_reset, "", ""),
+	U_BOOT_CMD_MKENT(tststatus, 1, 1, do_kbi_tststatus, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(forcereset, 4, 1, do_kbi_forcereset, "", ""),
+	U_BOOT_CMD_MKENT(forcebootsd, 1, 1, do_kbi_forcebootsd, "", ""),
+	U_BOOT_CMD_MKENT(wolreset, 1, 1, do_kbi_wolreset, "", ""),
 };
 
 static int do_kbi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
@@ -1162,8 +1229,13 @@ static char kbi_help_text[] =
 #if defined(CONFIG_KHADAS_VIM3) || defined(CONFIG_KHADAS_VIM3L)
 		"kbi portmode w <0|1> - set port as usb3.0 or pcie\n"
 		"kbi portmode r - read current port mode\n"
+		"kbi tststatus r - read TST status\n"
+		"kbi tststatus clear - clear TST status\n"
 		"\n"
 #endif
+		"kbi forcebootsd\n"
+		"kbi wolreset\n"
+		"\n"
 		"kbi ircode [customer1|customer2] w <ircode>\n"
 		"kbi ircode [customer1|customer2] r\n"
 		"kbi trigger [wol|rtc|ir|dcin|key|gpio] w <0|1> - disable/enable boot trigger\n"
