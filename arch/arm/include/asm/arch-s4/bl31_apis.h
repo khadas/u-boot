@@ -153,7 +153,7 @@ struct sram_hal_api_arg {
 	#define AML_D_P_IMG_DECRYPT          (0x40)
 	#define AML_D_P_UPGRADE_CHECK        (0x80)
 
-#define GXB_EFUSE_PATTERN_SIZE      (0x5 << 9)
+#define GXB_EFUSE_PATTERN_SIZE      (0x2 << 9)
 #define GXB_IMG_SIZE                (24<<20)
 #define GXB_IMG_LOAD_ADDR           (0x1080000)
 	#define GXB_IMG_DEC_KNL   (1<<0)
