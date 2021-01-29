@@ -394,7 +394,8 @@ typedef struct board_clk_set{
 	unsigned	short	vddee;
 	unsigned	short	vcck;
 	unsigned	short	pxp;
-	unsigned	char	szPad[2];
+	unsigned    char    low_console_baud;
+	unsigned	char	szPad[1];
 }__attribute__ ((packed)) board_clk_set_t;
 
 typedef struct pll_ctrl{
