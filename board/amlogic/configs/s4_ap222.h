@@ -57,7 +57,9 @@
 /* Bootloader Control Block function
    That is used for recovery and the bootloader to talk to each other
   */
-//#define CONFIG_BOOTLOADER_CONTROL_BLOCK
+#ifndef CONFIG_PXP_DDR
+#define CONFIG_BOOTLOADER_CONTROL_BLOCK
+#endif// #ifndef CONFIG_PXP_DDR
 
 #ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
 #define CONFIG_DTB_LOAD  "imgread dtb boot ${dtb_mem_addr}"
@@ -113,7 +115,7 @@
         "fatload_dev=usb\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-            "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xfe002000"\
+            "init=/init loglevel=9 console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe07a000 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
@@ -293,13 +295,12 @@
             "fi;"\
             "\0"\
 
-#if 0
+#ifndef CONFIG_PXP_DDR
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
             "run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
-            "run upgrade_key;" \
             "bcb uboot-command;"\
             "run switch_bootmode;"
 #else

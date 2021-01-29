@@ -124,7 +124,7 @@ int board_init(void)
 	run_command("watchdog off", 0);
 	printf("watchdog disable\n");
 
-#if !defined(CONFIG_PXP_EMULATOR) //bypass below operations for pxp
+#if !defined(CONFIG_PXP_DDR) //bypass below operations for pxp
 	aml_set_bootsequence(0);
 	//Please keep try usb boot first in board_init, as other init before usb may cause burning failure
 #if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
@@ -149,7 +149,7 @@ int board_late_init(void)
 {
 	printf("board late init\n");
 
-#if !defined(CONFIG_PXP_EMULATOR) //bypass below operations for pxp
+#if !defined(CONFIG_PXP_DDR) //bypass below operations for pxp
 	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
 			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 	board_init_mem();
@@ -173,7 +173,7 @@ int board_late_init(void)
 	{ aml_v3_factory_usb_burning(0, gd->bd); }
 #endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 
-#endif// #if !defined(CONFIG_PXP_EMULATOR) //bypass below operations for pxp
+#endif// #if !defined(CONFIG_PXP_DDR) //bypass below operations for pxp
 
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
