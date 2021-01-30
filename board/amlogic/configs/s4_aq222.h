@@ -98,6 +98,7 @@
         "sdcburncfg=aml_sdc_burn.ini\0"\
         "EnableSelinux=enforcing\0" \
         "recovery_part=recovery\0"\
+        "lock=10101000\0"\
         "recovery_offset=0\0"\
         "cvbs_drv=0\0"\
         "osd_reverse=0\0"\
@@ -146,7 +147,7 @@
                     "run recovery_from_flash;"\
             "else if test ${reboot_mode} = cold_boot; then "\
             "else if test ${reboot_mode} = fastboot; then "\
-                "fastboot;"\
+                "fastboot 0;"\
             "fi;fi;fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
@@ -322,7 +323,7 @@
 #define CONFIG_SYS_MALLOC_LEN				(256*1024)
 #else
 #define CONFIG_SYS_INIT_SP_ADDR				(0x00200000)
-#define CONFIG_SYS_MALLOC_LEN				(64*1024*1024)
+#define CONFIG_SYS_MALLOC_LEN				(96*1024*1024)
 #endif
 
 //#define CONFIG_NR_DRAM_BANKS			1
