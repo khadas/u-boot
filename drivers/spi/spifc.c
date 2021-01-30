@@ -454,7 +454,7 @@ static int spifc_probe(struct udevice *bus)
 	if (ret)
 		pr_err("%s %d set dir error!\n", __func__, __LINE__);
 
-	return ret;
+	return dm_gpio_set_value(&priv->cs_gpios, 1);
 }
 
 static int spifc_ofdata_to_platdata(struct udevice *bus)

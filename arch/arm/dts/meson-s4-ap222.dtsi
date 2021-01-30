@@ -221,10 +221,10 @@
 };
 
 &spifc {
-	status = "disabled";
-	//cs-gpios = <&gpio GPIOB_14 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+	cs-gpios = <&gpio GPIOB_13 GPIO_ACTIVE_HIGH>;
 	spi-flash@0 {
-		status = "disabled";
+		status = "okay";
 	};
 };
 

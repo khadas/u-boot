@@ -140,7 +140,8 @@ int sheader_need(void)
 	const cpu_id_t cpuid = get_cpu_id();
 	const int familyId = cpuid.family_id;
 
-	return ((MESON_CPU_MAJOR_ID_SC2 == familyId) || (MESON_CPU_MAJOR_ID_T7 == familyId));
+	return ((MESON_CPU_MAJOR_ID_SC2 == familyId) || (MESON_CPU_MAJOR_ID_T7 == familyId)
+		|| (MESON_CPU_MAJOR_ID_S4 == familyId));
 }
 
 unsigned char *ubootdata = NULL;
@@ -452,7 +453,8 @@ int store_init(u32 init_flag)
 		return record;
 	}
 
-	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) || (cpu_id.family_id == MESON_CPU_MAJOR_ID_T7))
+	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) || (cpu_id.family_id == MESON_CPU_MAJOR_ID_T7)
+	    || (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4))
 		storage_post_init();
 
 	/*2. Enter the probe of the valid device*/
@@ -1221,7 +1223,8 @@ static int _store_boot_write(const char *part_name, u8 cpy, size_t size, void *a
 	else if (medium_type == BOOT_SNOR)
 		tpl_cpynum = CONFIG_NOR_TPL_COPY_NUM;
 
-	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) || (cpu_id.family_id == MESON_CPU_MAJOR_ID_T7)) {
+	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) || (cpu_id.family_id == MESON_CPU_MAJOR_ID_T7)
+	    || (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4)) {
 		bl2_cpynum = ssp->boot_bakups;
 	} else	{
 		bootloader_maxsize = bl2_size + tpl_per_size;

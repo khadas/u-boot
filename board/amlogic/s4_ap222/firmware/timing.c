@@ -389,7 +389,7 @@ __attribute__ ((section(".misc_param"))) = {
 storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
 	.common				= {
 		.version = 0x01,
-		.device_fip_container_size = 0x280000,
+		.device_fip_container_size = 0x380000,
 		.device_fip_container_copies = 4,
 	},
 	.nand				= {
