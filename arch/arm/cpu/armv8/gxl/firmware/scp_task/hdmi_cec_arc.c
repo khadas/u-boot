@@ -10,7 +10,7 @@
  *           HDMI CEC uboot code                  *
  *                                                *
  **************************************************/
-#ifdef CONFIG_CEC_WAKEUP
+#if 1//def CONFIG_CEC_WAKEUP
 #include "secure_apb.h"
 #include "cec_tx_reg.h"
 #ifndef NULL
@@ -191,17 +191,24 @@ void remote_cec_hw_reset(void)
 	reg |=  (0x04 << 10);   /* XTAL generate 32k */
 	writel(reg, P_AO_RTI_PWR_CNTL_REG0);
 
-	/* set up pinmux */
-	writel(readl(P_AO_RTI_PIN_MUX_REG) & (~((1 << 14) | (1 << 17))), P_AO_RTI_PIN_MUX_REG);
-	writel(readl(P_AO_RTI_PIN_MUX_REG2) & (~(1 << 0)), P_AO_RTI_PIN_MUX_REG2);
-	writel(readl(P_AO_RTI_PIN_MUX_REG) | (1 << 15), P_AO_RTI_PIN_MUX_REG);
-	// Assert SW reset AO_CEC
-	writel(0x1, P_AO_CEC_GEN_CNTL);
-	// Enable gated clock (Normal mode).
-	writel(readl(P_AO_CEC_GEN_CNTL) | (1<<1), P_AO_CEC_GEN_CNTL);
-	_udelay(100);
-	// Release SW reset
-	writel(readl(P_AO_CEC_GEN_CNTL) & ~(1<<0), P_AO_CEC_GEN_CNTL);
+	if (hdmi_cec_func_config & 0x1) {
+		/* set up pinmux */
+		writel(readl(P_AO_RTI_PIN_MUX_REG) & (~((1 << 14) | (1 << 17))), P_AO_RTI_PIN_MUX_REG);
+		writel(readl(P_AO_RTI_PIN_MUX_REG2) & (~(1 << 0)), P_AO_RTI_PIN_MUX_REG2);
+		writel(readl(P_AO_RTI_PIN_MUX_REG) | (1 << 15), P_AO_RTI_PIN_MUX_REG);
+		// Assert SW reset AO_CEC
+		writel(0x1, P_AO_CEC_GEN_CNTL);
+		// Enable gated clock (Normal mode).
+		writel(readl(P_AO_CEC_GEN_CNTL) | (1<<1), P_AO_CEC_GEN_CNTL);
+		_udelay(100);
+		// Release SW reset
+		writel(readl(P_AO_CEC_GEN_CNTL) & ~(1<<0), P_AO_CEC_GEN_CNTL);
+	} else {
+		cec_dbg_prints("disable cec\n");
+		writel(0x1, P_AO_CEC_GEN_CNTL);
+	}
+	/*clear all address*/
+	cec_wr_reg(CEC_LOGICAL_ADDR0, 0);
 
 	cec_arbit_bit_time_set(3, 0x118);
 	cec_arbit_bit_time_set(5, 0x000);

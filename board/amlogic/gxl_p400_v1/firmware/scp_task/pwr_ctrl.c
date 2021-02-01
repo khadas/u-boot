@@ -210,9 +210,12 @@ static unsigned int detect_key(unsigned int suspend_from)
 		wakeup_timer_setup();
 
 	init_remote();
+#ifndef CONFIG_CEC_WAKEUP
+	hdmi_cec_func_config = 0;
+#endif
+	remote_cec_hw_reset();
 #ifdef CONFIG_CEC_WAKEUP
 	if (hdmi_cec_func_config & 0x1) {
-		remote_cec_hw_reset();
 		cec_node_init();
 	}
 #endif
