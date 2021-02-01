@@ -417,5 +417,7 @@
 
 #define CONFIG_FIP_IMG_SUPPORT  1
 
+#define BL32_SHARE_MEM_SIZE  0x100000
+
 #endif
 
