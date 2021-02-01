@@ -41,27 +41,55 @@ unsigned long clk_util_ring_msr(unsigned long clk_mux)
 int ring_msr(int index)
 {
 	const char* clk_table[] = {
-			[17] = "dspa_osc_ring(SVT16) " ,
-			[16] = "axi_sram_osc_ring(SVT16) " ,
-			[15] = "sys_cpu_osc_ring3(LVT16) " ,
-			[14] = "sys_cpu_osc_ring2(ULVT16) " ,
-			[13] = "sys_cpu_osc_ring1(ULVT20) " ,
-			[12] = "sys_cpu_osc_ring0(ULVT16) " ,
-			[11] = "ddr_osc_ring(LVT16) " ,
-			[10] = "dos_osc_ring3(ULVT20) " ,
-			[9] = "dos_osc_ring2(LVT16) " ,
-			[8] = "dos_osc_ring1(SVT16) " ,
-			[7] = "dos_osc_ring0(SVT24) " ,
-			[6] = "vpu_osc_ring2(LVT16) " ,
-			[5] = "vpu_osc_ring1(LVT20) " ,
-			[4] = "vpu_osc_ring0(SVT24) " ,
-			[3] = "gpu_osc_ring2(SVT16) " ,
-			[2] = "gpu_osc_ring1(ULVT16) " ,
-			[1] = "gpu_osc_ring0(LVT16) " ,
-			[0] = "dmc_osc_ring(LVT16) " ,
+			[41] = "top[3] (LVT16) " ,
+			[40] = "top[2] (LVT16) " ,
+			[39] = "top[1] (ULVT16) " ,
+			[38] = "top[0] (ULVT16) " ,
+			[37] = "core3[5] (LVT16) " ,
+			[36] = "core3[4] (LVT16) " ,
+			[35] = "core3[3] (LVT16)" ,
+			[34] = "core3[2] (ULVT16) " ,
+			[33] = "core3[1] (ULVT16) " ,
+			[32] = "core3[0] (ULVT16) " ,
+			[31] = "core2[5] (LVT16) " ,
+			[30] = "core2[4] (LVT16) " ,
+			[29] = "core2[3] (LVT16)" ,
+			[28] = "core2[2] (ULVT16) " ,
+			[27] = "core2[1] (ULVT16) " ,
+			[26] = "core2[0] (ULVT16) " ,
+			[25] = "core1[5] (LVT16) " ,
+			[24] = "core1[4] (LVT16) " ,
+			[23] = "core1[3] (LVT16)" ,
+			[22] = "core1[2] (ULVT16) " ,
+			[21] = "core1[1] (ULVT16) " ,
+			[20] = "core1[0] (ULVT16) " ,
+			[19] = "core0[5] (LVT16) " ,
+			[18] = "core0[4] (LVT16) " ,
+			[17] = "core0[3] (LVT16)" ,
+			[16] = "core0[2] (ULVT16) " ,
+			[15] = "core0[1] (ULVT16) " ,
+			[14] = "core0[0] (ULVT16) " ,
+			[13] = "demod[1] (LVT16) " ,
+			[12] = "demod[0] (SVT24) " ,
+			[11] = "ram (SVT16) " ,
+			[10] = "dos (ULVT20) " ,
+			[9] = "dos (LVT16) " ,
+			[8] = "dos (SVT16) " ,
+			[7] = "dos (SVT24) " ,
+			[6] = "vpu (LVT16) " ,
+			[5] = "vpu (LVT20) " ,
+			[4] = "vpu (SVT24) " ,
+			[3] = "mali (SVT16) " ,
+			[2] = "mali (ULVT16) " ,
+			[1] = "mali (LVT16) " ,
+			[0] = "dmc_top (LVT16) " ,
 		};
 	const int tb[] = {180, 181, 182, 183, 184, 185, 186, 187, 188, 189,
-			  190, 191, 192, 193, 194, 195, 196, 197};
+			  190, 192, 193, 194, 196, 197, 198, 199, 200, 201,
+			  202, 203, 204, 205, 206, 207, 208, 209, 210, 211,
+			  212, 213, 214, 215, 216, 217, 218, 219, 220, 221,
+			  222, 223, 224, 225, 226, 227, 228, 229, 230, 231,
+			  232};
 	unsigned long i;
 	uint8_t efuseinfo[4] = {0, 0, 0, 0};
 
@@ -85,7 +113,7 @@ int ring_msr(int index)
 	writel(OSCRING_CTL_DATA0, OSCRING_CTL_REG0);
 	writel(OSCRING_CTL_DATA1, OSCRING_CTL_REG1);
 
-	for (i = 0; i < 18; i++) {
+	for (i = 0; i < 42; i++) {
 		printf("%s      :",clk_table[i]);
 		printf("%ld     KHz",clk_util_ring_msr(tb[i]));
 		printf("\n");
@@ -102,7 +130,7 @@ int ring_msr(int index)
 	printf("\n");
 
 	/*efuse to test value*/
-	printf("osc_ring_core0(20lvt), idd_ee, idd_cpu\n");
+	printf("sys_cpu_osc_ring0(ulvt16), idd_cpu, idd_ee\n");
 
 	printf("%d KHz ", (efuseinfo[1] * 20));
 
