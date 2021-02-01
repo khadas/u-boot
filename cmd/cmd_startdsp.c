@@ -82,10 +82,15 @@ void set_dsp_clk(uint32_t id, uint32_t freq_sel)
 
 static int do_startdsp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	unsigned long addr;
-	unsigned int dspid;
+	uint32_t addr;
+	uint32_t dspid;
 	uint32_t freq_sel;
+	uint32_t cfg0;
+	uint32_t StatVectorSel;
+	uint32_t strobe = 1;
+
 	int ret=0;
+
 	if (argc <= 1) {
 		printf("plese input dsp boot args:id, addrss, clk!\n");
 		return CMD_RET_USAGE;
@@ -93,14 +98,19 @@ static int do_startdsp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	dspid = simple_strtoul(argv[1], NULL, 16);
 	addr = simple_strtoul(argv[2], NULL, 16);
 	freq_sel = simple_strtoul(argv[3], NULL, 16);
+
 	printf("dsp%d boot \n",dspid);
 	printf("dspboot start address:0x%lx\n",addr);
 	printf("dsp clk num:%d\n",freq_sel);
+
+	StatVectorSel = (addr != 0xfffa0000);
+	cfg0 = 0x1 |  StatVectorSel << 1 | strobe << 2;
+
 	power_set_dsp(dspid,1);
 	udelay(100);
 	set_dsp_clk(dspid,freq_sel);
 	udelay(100);
-	init_dsp(dspid, addr, freq_sel);
+	init_dsp(dspid, addr, cfg0);
 	printf("dsp init over! \n");
 	return ret;
 }
