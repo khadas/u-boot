@@ -32,7 +32,7 @@ CONFIG_CMD_USB=y
 # CONFIG_CMD_NET is not set
 CONFIG_CMD_BMP=y
 # CONFIG_CMD_MISC is not set
-# CONFIG_CMD_RSVMEM is not set
+CONFIG_CMD_RSVMEM=y
 # CONFIG_CMD_DDR_TEST is not set
 # CONFIG_CMD_OS_IDENT is not set
 # CONFIG_AML_ROBUST is not set
