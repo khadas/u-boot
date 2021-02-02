@@ -1,6 +1,6 @@
 
 /*
- * arch/arm/include/asm/arch-txl/ddr.h
+ * arch/arm/include/asm/arch-s4/ddr.h
  *
  * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
  *
