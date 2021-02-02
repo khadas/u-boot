@@ -952,12 +952,17 @@ void hdr_func(enum hdr_module_sel module_sel,
 	memset(&hdr_mtx_param, 0, sizeof(struct hdr_proc_mtx_param_s));
 	memset(&hdr_lut_param, 0, sizeof(struct hdr_proc_lut_param_s));
 
-	if (module_sel & (VD1_HDR | VD2_HDR | OSD1_HDR))
-		bit_depth = 12;
-	else if (module_sel & (VDIN0_HDR | VDIN1_HDR | DI_HDR))
+	if (module_sel & (VD1_HDR | VD2_HDR | OSD1_HDR)) {
+		if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_S4)
+			bit_depth = 10;
+		else
+			bit_depth = 12;
+	} else if (module_sel & (VDIN0_HDR | VDIN1_HDR | DI_HDR)) {
 		bit_depth = 10;
-	else
+	} else {
 		return;
+	}
+
 	/*lut parameters*/
 	if (hdr_process_select & (HDR_BYPASS | RGB_BYPASS)) {
 		/*for g12a/g12b osd blend shift rtl bug*/
