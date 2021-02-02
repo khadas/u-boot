@@ -97,6 +97,12 @@ config NEED_BL32
 	help
 		"Support bl32 function"
 
+config RAMDISK_MEM_ADDR
+	hex
+	default 0x0a000000
+	help
+		"select ramdisk load address"
+
 config DTB_MEM_ADDR
 	hex
 	default 0x01000000
