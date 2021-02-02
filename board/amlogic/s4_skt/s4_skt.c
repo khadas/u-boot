@@ -364,6 +364,15 @@ const struct mtd_partition *get_spinand_partition_table(int *partitions)
 }
 #endif /* CONFIG_SPI_NAND */
 
+const char * const _env_args_reserve_[] =
+{
+	"lock",
+	"upgrade_step",
+	"bootloader_version",
+
+	NULL//Keep NULL be last to tell END
+};
+
 int __attribute__((weak)) mmc_initialize(bd_t *bis){ return 0;}
 
 int __attribute__((weak)) do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]){ return 0;}
