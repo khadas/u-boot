@@ -42,6 +42,8 @@
 #define CONFIG_CMD_STARTDSP 1
 #define CONFIG_CMD_DSPJTAGRESET 1
 
+#define CONFIG_FAT_WRITE 1
+#define CONFIG_AML_FACTORY_PROVISION 1
 
 /* Bootloader Control Block function
    That is used for recovery and the bootloader to talk to each other
@@ -388,6 +390,7 @@
                     "setenv bootargs ${bootargs} androidboot.oem.key1=${oemkey};"\
                 "fi;"\
             "fi;"\
+	    "factory_provision init;"\
             "\0"\
         "bcb_cmd="\
             "get_rebootmode;"\

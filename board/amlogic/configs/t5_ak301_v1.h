@@ -377,6 +377,7 @@
                     "setenv bootargs ${bootargs} androidboot.oem.key1=${oemkey};"\
                 "fi;"\
             "fi;"\
+	    "factory_provision init;"\
             "\0"\
         "bcb_cmd="\
             "get_rebootmode;"\
@@ -714,6 +715,9 @@
 //#define CONFIG_EXT4_WRITE 1
 #define CONFIG_CMD_EXT4 1
 //#define CONFIG_CMD_EXT4_WRITE 1
+
+#define CONFIG_FAT_WRITE 1
+#define CONFIG_AML_FACTORY_PROVISION 1
 
 /* Cache Definitions */
 //#define CONFIG_SYS_DCACHE_OFF

@@ -40,6 +40,9 @@
 #define CONFIG_CMD_SARADC 1
 #define CONFIG_SARADC_CH  2
 
+#define CONFIG_FAT_WRITE 1
+#define CONFIG_AML_FACTORY_PROVISION 1
+
 /*dsp boot*/
 #define CONFIG_CMD_STARTDSP 1
 #define CONFIG_CMD_DSPJTAGRESET 1
@@ -405,6 +408,7 @@
                     "setenv bootargs ${bootargs} androidboot.oem.key1=${oemkey};"\
                 "fi;"\
             "fi;"\
+	    "factory_provision init;"\
             "\0"\
         "bcb_cmd="\
             "get_rebootmode;"\
