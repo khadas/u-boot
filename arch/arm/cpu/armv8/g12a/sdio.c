@@ -52,7 +52,7 @@ int cpu_sd_emmc_init(unsigned port)
 	case SDIO_PORT_B:
 		if (cpuid.chip_rev == 0xA)
 			clrsetbits_le32(P_PAD_DS_REG1A, 0xFFFF, 0x5555);
-		else if (cpuid.chip_rev == 0xB) {
+		else if (cpuid.chip_rev >= 0xB) {
 			clrsetbits_le32(P_PAD_DS_REG1A, 0xFFFF, 0x5555);
 			//setbits_le32(P_PAD_DS_REG1A, 0xFFFF);
 			/* pullup & pullupen */
@@ -72,7 +72,7 @@ int cpu_sd_emmc_init(unsigned port)
 		/* set driver strength */
 		if (cpuid.chip_rev == 0xA)
 			writel(0x55555555, P_PAD_DS_REG0A);
-		else if (cpuid.chip_rev == 0xB)
+		else if (cpuid.chip_rev >= 0xB)
 			writel(0xFFFFFFFF, P_PAD_DS_REG0A);
 		/* pull up data by default */
 		setbits_le32(P_PAD_PULL_UP_EN_REG0, 0x35ff);
@@ -150,7 +150,7 @@ __weak void sd_emmc_para_config(struct sd_emmc_global_regs *reg,
 	unsigned int clk = reg->gclock;
 	cpu_id_t cpuid = get_cpu_id();
 
-	if (((cpuid.chip_rev == 0xB)
+	if (((cpuid.chip_rev >= 0xB)
 		|| (cpuid.family_id == MESON_CPU_MAJOR_ID_SM1))
 		&& (port == SDIO_PORT_C)) {
 		clk &= ~(3 << Cfg_co_phase);

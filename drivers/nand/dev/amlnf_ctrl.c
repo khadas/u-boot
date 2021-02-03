@@ -366,7 +366,7 @@ void nand_get_chip(void *chip)
 		if(cpu_id.family_id == MESON_CPU_MAJOR_ID_G12A) {
 			if (cpu_id.chip_rev == 0xA) {
 				writel(0x55555555, P_PAD_DS_REG0A);
-			} else if (cpu_id.chip_rev == 0xB) {
+			} else if (cpu_id.chip_rev >= 0xB) {
 				writel(0xFFFFFFFF, P_PAD_DS_REG0A);
 			}	
 		} else
