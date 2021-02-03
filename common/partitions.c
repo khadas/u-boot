@@ -21,6 +21,7 @@ int has_boot_slot = 0;
 int has_system_slot = 0;
 bool dynamic_partition = false;
 bool vendor_boot_partition = false;
+bool is_partition_checked = false;
 
 int get_partitions_table(struct partitions **table)
 {
@@ -195,6 +196,8 @@ int get_partition_from_dts(unsigned char *buffer)
 			printf("enable vendor_boot\n");
 		}
 	}
+	/*enable mmc_device_init when dtb is update from ddr*/
+	is_partition_checked = false;
 	return 0;
 
 _err:

@@ -98,7 +98,7 @@ struct _iptbl {
 };
 
 unsigned device_boot_flag = 0xff;
-bool is_partition_checked = false;
+extern bool is_partition_checked;
 
 #ifndef CONFIG_AML_MMC_INHERENT_PART
 /* fixme, name should be changed as aml_inherent_ptbl */
