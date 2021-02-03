@@ -49,6 +49,26 @@
 / {
 	compatible = "amlogic,sc2-s905x4-ah219", "amlogic,s905x4", "amlogic,meson-sc2";
 	model = "Amlogic Meson SC2 S905X4 AH219 Board";
+
+	cvbsout {
+		compatible = "amlogic, cvbsout-sc2";
+		status = "okay";
+
+		/* performance: reg_address, reg_value */
+		/* sc2 */
+		performance_pal = <0xff006fc0  0x3 /* 0x1bf0 << 2 + 0xff000000 */
+			0xff006c48  0x8180 /* 0x1b12 */
+			0xff006c14  0xf0 /* 0x1b05 */
+			0xff006d58  0x333 /* 0x1b56 */
+			0xff007164  0xed66 /* 0x1c59 */
+			0xffff  0x0>; /* ending flag */
+		performance_ntsc = <0xff006fc0  0x3 /* 0x1bf0 << 2 + 0xff000000 */
+			0xff006c48  0x8180 /* 0x1b12 */
+			0xff006c14  0xf0 /* 0x1b05 */
+			0xff006d58  0x333 /* 0x1b56 */
+			0xff007164  0xed66 /* 0x1c59 */
+			0xffff  0x0>; /* ending flag */
+	};
 };
 
 /* This UART is brought out to the DB9 connector */
