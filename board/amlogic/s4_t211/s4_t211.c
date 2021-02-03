@@ -35,6 +35,8 @@
 #include <amlogic/aml_v2_burning.h>
 #include <linux/mtd/partitions.h>
 #include <asm/arch/bl31_apis.h>
+#include <amlogic/aml_mtd.h>
+
 #ifdef CONFIG_AML_VPU
 #include <amlogic/media/vpu/vpu.h>
 #endif
@@ -254,7 +256,7 @@ static const struct mtd_partition spiflash_partitions[] = {
 	}
 };
 
-const struct mtd_partition *get_partition_table(int *partitions)
+const struct mtd_partition *get_spiflash_partition_table(int *partitions)
 {
 	*partitions = ARRAY_SIZE(spiflash_partitions);
 	return spiflash_partitions;
@@ -263,7 +265,6 @@ const struct mtd_partition *get_partition_table(int *partitions)
 
 #ifdef CONFIG_MESON_NFC
 static struct mtd_partition normal_partition_info[] = {
-#ifdef CONFIG_DISCRETE_BOOTLOADER
 {
 	.name = BOOT_BL2E,
 	.offset = 0,
@@ -284,7 +285,6 @@ static struct mtd_partition normal_partition_info[] = {
 	.offset = 0,
 	.size = 0,
 },
-#endif
 {
 	.name = "logo",
 	.offset = 0,
@@ -356,7 +356,7 @@ static const struct mtd_partition spinand_partitions[] = {
 		.size = MTDPART_SIZ_FULL,
 	}
 };
-const struct mtd_partition *get_partition_table(int *partitions)
+const struct mtd_partition *get_spinand_partition_table(int *partitions)
 {
 	*partitions = ARRAY_SIZE(spinand_partitions);
 	return spinand_partitions;

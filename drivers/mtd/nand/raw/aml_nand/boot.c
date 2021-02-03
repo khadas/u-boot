@@ -109,7 +109,8 @@ void nand_info_page_prepare(struct aml_nand_chip *aml_chip, u8 *page0_buf)
 			chip->ecc.steps);
 
 	memset(p_nand_page0, 0x0, sizeof(nand_page0_t));
-	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) {
+	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) ||
+	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4)) {
 		p_nand_page0_sc2 = (nand_page0_sc2_t *) page0_buf;
 		p_nand_setup_sc2 = &p_nand_page0_sc2->nand_setup;
 		p_ext_info = &p_nand_page0_sc2->ext_info;

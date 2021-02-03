@@ -803,23 +803,23 @@ __attribute__ ((section(".misc_param"))) = {
 storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
 	.common				= {
 		.version = 0x01,
-		.device_fip_container_size = 0x38000,
+		.device_fip_container_size = 0x380000,
 		.device_fip_container_copies = 4,
 	},
 	.nand				= {
 		.version = 0x01,
 		.bbt_pages = 0x1,
-		.bbt_start_block = 0x20,
+		.bbt_start_block = 20,
 		.discrete_mode = 1,
 		.setup_data.nand_setup_data = (2 << 20) |		\
 					(0 << 19) |                     \
 					(1 << 17) |                     \
-					(4 << 14) |                     \
+					(1 << 14) |                     \
 					(0 << 13) |                     \
 					(64 << 6) |                     \
 					(4 << 0),
 		.reserved_area_blk_cnt = 48,
-		.page_per_block = 128,
+		.page_per_block = 64,
 		.use_param_page_list = 0,
 	},
 };

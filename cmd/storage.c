@@ -1406,7 +1406,8 @@ static int do_store_param_ops(cmd_tbl_t *cmdtp,
 	u32 bl2e_size, bl2x_size;
 	char *p = bufvir;
 
-	if (cpu_id.family_id != MESON_CPU_MAJOR_ID_SC2) return 0;
+	if ((cpu_id.family_id != MESON_CPU_MAJOR_ID_SC2) &&
+	    (cpu_id.family_id != MESON_CPU_MAJOR_ID_S4)) return 0;
 	bl2e_size = boot_entry[BOOT_AREA_BL2E].size;
 	bl2x_size = boot_entry[BOOT_AREA_BL2X].size;
 	lenvir = snprintf(bufvir, sizeof(bufvir), "%s", "mtdbootparts=aml-nand:");

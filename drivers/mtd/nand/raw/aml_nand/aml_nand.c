@@ -205,7 +205,8 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 		if (store_get_device_bootloader_mode() != DISCRETE_BOOTLOADER)
 			goto _COMPAT_BOOTLOADER;
 
-		if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) {
+		if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) ||
+		    (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4)) {
 			fip_part_size = g_ssp.boot_entry[BOOT_AREA_DEVFIP].size * CONFIG_NAND_TPL_COPY_NUM;
 			adjust_offset = g_ssp.boot_entry[BOOT_AREA_DEVFIP].offset + fip_part_size;
 			internal_part_count = 4;
@@ -216,7 +217,8 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 
 		for (i = 0; i < internal_part_count; i++) {
 			temp_parts = parts + i;
-			if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) {
+			if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) ||
+			    (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4)) {
 				temp_parts->offset = g_ssp.boot_entry[i + 1].offset;
 				if (i == internal_part_count -1)
 					temp_parts->size = fip_part_size;
@@ -1661,7 +1663,8 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_AXG) ||
 	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_TXHD)||
 	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_C1) ||
-	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_C2))
+	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_C2) ||
+	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4))
 		aml_chip->bch_info = NAND_ECC_BCH8_1K;
 
 	chip->options = 0;
