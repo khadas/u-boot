@@ -17,6 +17,8 @@
 #include <linux/mtd/partitions.h>
 #include <amlogic/storage.h>
 #include <amlogic/aml_mtd.h>
+#include <linux/mtd/spinand.h>
+#include <dm/pinctrl.h>
 
 
 static struct storage_t *snand_storage;
@@ -100,6 +102,7 @@ int spi_nand_pre(void)
 
 int spi_nand_probe(u32 init_flag)
 {
+	struct spinand_device *spinand_dev;
 	struct storage_t *spi_nand = get_snand_storage();
 	const struct mtd_partition *spinand_partitions;
 	struct mtd_info *mtd;
@@ -114,6 +117,12 @@ int spi_nand_probe(u32 init_flag)
 	extern struct mtd_info *mtd_store_get(int dev);
 	spinand_partitions = get_spinand_partition_table(&partition_count);
 	mtd = mtd_store_get(0);
+
+	/* Maybe pinmux be modified by emmc, set again here */
+	spinand_dev = mtd_to_spinand(mtd);
+	//dm_spi_claim_bus(spinand_dev->slave->dev);
+	pinctrl_select_state(spinand_dev->slave->dev->parent, "default");
+
 	ret = spinand_add_partitions(mtd, spinand_partitions,
 						partition_count);
 	if (ret) {
