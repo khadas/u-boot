@@ -181,6 +181,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		const char *bootstate_o = "androidboot.verifiedbootstate=orange";
 		const char *bootstate_g = "androidboot.verifiedbootstate=green";
 		const char *bootstate = NULL;
+		uint8_t vbmeta_digest[AVB_SHA256_DIGEST_SIZE];
 		nRet = avb_verify(&out_data);
 		printf("avb verification: locked = %d, result = %d\n", !is_device_unlocked(), nRet);
 		if (is_device_unlocked()) {
@@ -228,9 +229,12 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				bootstate = bootstate_g;
 				boot_params.verified_boot_state = 0;
 			}
-			memcpy(boot_params.verified_boot_key, out_data->boot_key_hash,
+			memcpy(boot_params.verified_boot_key, boot_key_hash,
 					sizeof(boot_params.verified_boot_key));
-			memcpy(boot_params.verified_boot_hash, out_data->vbmeta_digest,
+
+			avb_slot_verify_data_calculate_vbmeta_digest(
+				out_data, AVB_DIGEST_TYPE_SHA256, vbmeta_digest);
+			memcpy(boot_params.verified_boot_hash, vbmeta_digest,
 					sizeof(boot_params.verified_boot_hash));
 
 			if (set_boot_params(&boot_params) < 0) {

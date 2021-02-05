@@ -225,12 +225,12 @@ static void getvar_unlocked(char *var_parameter, char *response)
 {
 	if (check_lock()) {
 		if (busy_flag == 1)
-			fastboot_busy("secure: no", response);
+			fastboot_busy("unlocked: no", response);
 		else
 			fastboot_okay("no", response);
 	} else {
 		if (busy_flag == 1)
-			fastboot_busy("secure: yes", response);
+			fastboot_busy("unlocked: yes", response);
 		else
 			fastboot_okay("yes", response);
 	}
@@ -284,6 +284,7 @@ static void getvar_is_logical(char *var_parameter, char *response)
 			|| (strcmp(var_parameter, "odm") == 0) || (strcmp(var_parameter, "product") == 0)
 			|| (strcmp(var_parameter, "system_ext") == 0) || (strcmp(var_parameter, "dtbo") == 0)
 			|| (strcmp(var_parameter, "boot") == 0) || (strcmp(var_parameter, "recovery") == 0)
+			|| (strcmp(var_parameter, "oem") == 0)
 			|| (strcmp(var_parameter, "vendor_boot") == 0) || (strcmp(var_parameter, "vbmeta") == 0)) {
 			if (strcmp(slot_name, "0") == 0) {
 				strcat(name, "_a");
@@ -482,7 +483,7 @@ static void getvar_has_slot(char *part_name, char *response)
 			|| (strcmp(part_name, "system_ext") == 0) || (strcmp(part_name, "dtbo") == 0)
 			|| (strcmp(part_name, "boot") == 0) || (strcmp(part_name, "recovery") == 0)
 			|| (strcmp(part_name, "vendor_boot") == 0) || (strcmp(part_name, "vbmeta") == 0)
-			|| (strcmp(part_name, "odm_ext") == 0)){
+			|| (strcmp(part_name, "odm_ext") == 0) || (strcmp(part_name, "oem") == 0)){
 			if (busy_flag == 1)
 				fastboot_response("INFOhas-slot:", response, "%s: yes", part_name);
 			else
@@ -524,7 +525,7 @@ static void getvar_partition_type(char *part_name, char *response)
 			|| (strcmp(part_name, "system_ext") == 0) || (strcmp(part_name, "dtbo") == 0)
 			|| (strcmp(part_name, "metadata") == 0) || (strcmp(part_name, "vbmeta") == 0)
 			|| (strcmp(part_name, "data") == 0) || (strcmp(part_name, "userdata") == 0)
-			|| (strcmp(part_name, "odm_ext") == 0)){
+			|| (strcmp(part_name, "odm_ext") == 0) || (strcmp(part_name, "oem") == 0)){
 		if (busy_flag == 1)
 			fastboot_response("INFOpartition-type:", response, "%s: ext4", part_name);
 		else
