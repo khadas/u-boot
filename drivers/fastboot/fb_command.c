@@ -11,6 +11,7 @@
 #include <part.h>
 #include <stdlib.h>
 #include <emmc_partitions.h>
+#include <amlogic/storage.h>
 
 /**
  * image_size - final fastboot image size
@@ -401,14 +402,20 @@ void fastboot_data_complete(char *response)
  */
 static void flash(char *cmd_parameter, char *response)
 {
-	char name[32];
+	char name[32] = {0};
+	u64 rc = 0;
 
-	if (strcmp(cmd_parameter, "userdata") == 0 && !vendor_boot_partition)
-		strncpy(name, "data", 4);
-	else if (strcmp(cmd_parameter, "dts") == 0)
+	if (strcmp(cmd_parameter, "userdata") == 0 || strcmp(cmd_parameter, "data") == 0) {
+		rc = store_part_size("userdata");
+		if (-1 == rc)
+			strncpy(name, "data", 4);
+		else
+			strncpy(name, "userdata", 8);
+	} else if (strcmp(cmd_parameter, "dts") == 0) {
 		strncpy(name, "dtb", 3);
-	else
+	} else {
 		strncpy(name, cmd_parameter, 32);
+	}
 
 	if (check_lock()) {
 		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
@@ -447,7 +454,8 @@ static void flash(char *cmd_parameter, char *response)
  */
 static void erase(char *cmd_parameter, char *response)
 {
-	char name[32];
+	char name[32] = {0};
+	u64 rc = 0;
 
 	if (check_lock()) {
 		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
@@ -458,16 +466,21 @@ static void erase(char *cmd_parameter, char *response)
 	struct misc_virtual_ab_message message;
 	get_mergestatus(&message);
 
-	if (strcmp(cmd_parameter, "userdata") == 0 && !vendor_boot_partition) {
-		strncpy(name, "data", 4);
+	if (strcmp(cmd_parameter, "userdata") == 0 || strcmp(cmd_parameter, "data") == 0) {
+		rc = store_part_size("userdata");
+		if (-1 == rc)
+			strncpy(name, "data", 4);
+		else
+			strncpy(name, "userdata", 8);
 		if (message.merge_status == SNAPSHOTTED || message.merge_status == MERGING) {
 			fastboot_fail("in merge state, cannot erase data", response);
 			return;
 		}
-	} else if (strcmp(cmd_parameter, "dts") == 0)
+	} else if (strcmp(cmd_parameter, "dts") == 0) {
 		strncpy(name, "dtb", 3);
-	else
+	} else {
 		strncpy(name, cmd_parameter, 32);
+	}
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 		if (dynamic_partition) {
@@ -558,6 +571,7 @@ static void flashing(char *cmd_parameter, char *response)
 	char* lock_s;
 	LockData_t* info;
 	char lock_d[LOCK_DATA_SIZE];
+	u64 rc;
 
 	lock_s = env_get("lock");
 	if (!lock_s) {
@@ -598,6 +612,8 @@ static void flashing(char *cmd_parameter, char *response)
 		free(info);
 		return;
 	}
+
+	rc = store_part_size("userdata");
 
 	if (!strcmp_l1("unlock_critical", cmd)) {
 		info->lock_critical_state = 0;
@@ -640,22 +656,26 @@ static void flashing(char *cmd_parameter, char *response)
 				if (strcmp(avb_s, "1") == 0) {
 #ifdef CONFIG_AML_ANTIROLLBACK
 					if (avb_unlock()) {
-						printf("unlocking device.  Erasing userdata partition!\n");
-						if (vendor_boot_partition)
-							run_command("store erase userdata 0 0", 0);
-						else
+						if (-1 == rc) {
+							printf("unlocking device.  Erasing data partition!\n");
 							run_command("store erase data 0 0", 0);
+						} else {
+							printf("unlocking device.  Erasing userdata partition!\n");
+							run_command("store erase userdata 0 0", 0);
+						}
 						printf("unlocking device.  Erasing metadata partition!\n");
 						run_command("store erase metadata 0 0", 0);
 					} else {
 						printf("unlock failed!\n");
 					}
 #else
-					printf("unlocking device.  Erasing userdata partition!\n");
-					if (vendor_boot_partition)
-						run_command("store erase userdata 0 0", 0);
-					else
+					if (-1 == rc) {
+						printf("unlocking device.  Erasing data partition!\n");
 						run_command("store erase data 0 0", 0);
+					} else {
+						printf("unlocking device.  Erasing userdata partition!\n");
+						run_command("store erase userdata 0 0", 0);
+					}
 					printf("unlocking device.  Erasing metadata partition!\n");
 					run_command("store erase metadata 0 0", 0);
 #endif
@@ -683,20 +703,24 @@ static void flashing(char *cmd_parameter, char *response)
 				if (avb_lock()) {
 					printf("lock failed!\n");
 				} else {
-					printf("locking device.  Erasing userdata partition!\n");
-					if (vendor_boot_partition)
-						run_command("store erase userdata 0 0", 0);
-					else
+					if (-1 == rc) {
+						printf("locking device.  Erasing data partition!\n");
 						run_command("store erase data 0 0", 0);
+					} else {
+						printf("locking device.  Erasing userdata partition!\n");
+						run_command("store erase userdata 0 0", 0);
+					}
 					printf("unlocking device.  Erasing metadata partition!\n");
 					run_command("store erase metadata 0 0", 0);
 				}
 #else
-				printf("locking device.  Erasing userdata partition!\n");
-				if (vendor_boot_partition)
-					run_command("store erase userdata 0 0", 0);
-				else
+				if (-1 == rc) {
+					printf("locking device.  Erasing data partition!\n");
 					run_command("store erase data 0 0", 0);
+				} else {
+					printf("locking device.  Erasing userdata partition!\n");
+					run_command("store erase userdata 0 0", 0);
+				}
 				printf("unlocking device.  Erasing metadata partition!\n");
 				run_command("store erase metadata 0 0", 0);
 

@@ -11,6 +11,7 @@
 #include <fs.h>
 #include <version.h>
 #include <partition_table.h>
+#include <amlogic/storage.h>
 
 static void getvar_version(char *var_parameter, char *response);
 static void getvar_bootloader_version(char *var_parameter, char *response);
@@ -547,14 +548,18 @@ static void getvar_partition_size(char *part_name, char *response)
 {
 	int r;
 	size_t size;
-	char name[32];
+	char name[32] = {0};
+	u64 rc = 0;
 
-	if (strcmp(part_name, "userdata") == 0 && !vendor_boot_partition)
-		strncpy(name, "data", 4);
-	else if (strcmp(part_name, "data") == 0 && vendor_boot_partition)
-		strncpy(name, "userdata", 8);
-	else
+	if (strcmp(part_name, "userdata") == 0 || strcmp(part_name, "data") == 0) {
+		rc = store_part_size("userdata");
+		if (-1 == rc)
+			strncpy(name, "data", 4);
+		else
+			strncpy(name, "userdata", 8);
+	} else {
 		strncpy(name, part_name, 32);
+	}
 
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
 	struct blk_desc *dev_desc;
@@ -574,11 +579,11 @@ static void getvar_partition_size(char *part_name, char *response)
 #endif
 	if (r >= 0) {
 		if (busy_flag == 1) {
-			char name[64];
-			strncpy(name, "INFOpartition-size:", 64);
-			strcat(name, part_name);
-			strcat(name, ": ");
-			fastboot_response(name, response, "0x%016zx", size);
+			char all_name[64];
+			strncpy(all_name, "INFOpartition-size:", 64);
+			strcat(all_name, name);
+			strcat(all_name, ": ");
+			fastboot_response(all_name, response, "0x%016zx", size);
 		}
 		else
 			fastboot_response("OKAY", response, "0x%016zx", size);
