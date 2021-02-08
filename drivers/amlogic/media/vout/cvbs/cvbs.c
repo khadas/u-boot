@@ -76,6 +76,20 @@ static struct cvbs_data_s cvbs_data_sc2 = {
 	.vdac_gsw = 0x0,
 };
 
+static struct cvbs_data_s cvbs_data_s4 = {
+	.chip_type = CVBS_CHIP_S4,
+
+	.reg_vid_pll_clk_div = CLKCTRL_VID_PLL_CLK_DIV,
+	.reg_vid_clk_div = CLKCTRL_VID_CLK_DIV,
+	.reg_vid_clk_ctrl = CLKCTRL_VID_CLK_CTRL,
+	.reg_vid2_clk_div = CLKCTRL_VIID_CLK_DIV,
+	.reg_vid2_clk_ctrl = CLKCTRL_VIID_CLK_CTRL,
+	.reg_vid_clk_ctrl2 = CLKCTRL_VID_CLK_CTRL2,
+
+	.vdac_vref_adj = 0x10,
+	.vdac_gsw = 0x0,
+};
+
 unsigned int cvbs_mode = VMODE_MAX;
 /*bit[0]: 0=vid_pll, 1=gp0_pll*/
 /*bit[1]: 0=vid2_clk, 1=vid1_clk*/
@@ -430,6 +444,7 @@ static int cvbs_config_clock(void)
 			cvbs_set_vid2_clk(s_enci_clk_path & 0x1);
 		break;
 	case CVBS_CHIP_SC2:
+	case CVBS_CHIP_S4:
 		cvbs_config_hdmipll_sc2();
 		cvbs_set_vid2_clk(0);
 		break;
@@ -753,7 +768,11 @@ void vdac_data_config(void)
 	case MESON_CPU_MAJOR_ID_SC2:
 		cvbs_drv.data = &cvbs_data_sc2;
 		break;
+	case MESON_CPU_MAJOR_ID_S4:
+		cvbs_drv.data = &cvbs_data_s4;
+		break;
 	default:
+		cvbs_drv.data = &cvbs_data_s4;
 		break;
 	}
 }

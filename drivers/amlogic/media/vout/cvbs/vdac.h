@@ -29,6 +29,13 @@
 
 #define VDAC_REG_MAX          0xffff
 
+enum vdac_cpu_type {
+	VDAC_CPU_G12AB = 0,
+	VDAC_CPU_SC2 = 1,
+	VDAC_CPU_S4   = 2,
+	VDAC_CPU_MAX,
+};
+
 struct meson_vdac_ctrl_s {
 	unsigned int reg;
 	unsigned int val;
@@ -37,6 +44,7 @@ struct meson_vdac_ctrl_s {
 };
 
 struct vdac_data_s {
+	enum vdac_cpu_type cpu_id;
 	unsigned int reg_ctrl0;
 	unsigned int reg_ctrl1;
 	struct meson_vdac_ctrl_s *vdac_ctrl;

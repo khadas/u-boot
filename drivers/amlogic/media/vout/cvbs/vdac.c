@@ -46,6 +46,16 @@ static void vdac_set_reg_bits(unsigned int addr, unsigned int val,
 			(((val)&((1L<<(len))-1)) << (start))));
 }
 
+static inline unsigned int vdac_get_reg_bits(unsigned int reg,
+		unsigned int start, unsigned int len)
+{
+	unsigned int val;
+
+	val = ((vdac_read_reg(reg) >> (start)) & ((1L << (len)) - 1));
+
+	return val;
+}
+
 static int vdac_ctrl_config(bool on, unsigned int reg, unsigned int bit)
 {
 	struct meson_vdac_ctrl_s *vdac_ctrl;
@@ -86,6 +96,15 @@ static int vdac_ctrl_config(bool on, unsigned int reg, unsigned int bit)
 	return ret;
 }
 
+static void vdac_enable_dac_input(unsigned int reg_cntl0)
+{
+	vdac_set_reg_bits(reg_cntl0, 0x2, 0, 3);
+	vdac_set_reg_bits(reg_cntl0, 0x1, 4, 1);
+	vdac_set_reg_bits(reg_cntl0, 0x1, 6, 1);
+	vdac_set_reg_bits(reg_cntl0, 0x3, 13, 3);
+	vdac_set_reg_bits(reg_cntl0, 0x10, 18, 5);
+}
+
 static void vdac_enable_cvbs_out(bool on)
 {
 	unsigned int reg_cntl0;
@@ -100,14 +119,24 @@ static void vdac_enable_cvbs_out(bool on)
 	reg_cntl1 = vdac_data->reg_ctrl1;
 
 	if (on) {
-		vdac_set_reg_bits(reg_cntl0, 0x6, 12, 4);
-		vdac_ctrl_config(1, reg_cntl1, 3);
-		vdac_ctrl_config(1, reg_cntl0, 0);
-		vdac_ctrl_config(1, reg_cntl0, 9);
+		if (vdac_data->cpu_id == VDAC_CPU_S4) {
+			vdac_enable_dac_input(reg_cntl0);
+			vdac_ctrl_config(1, reg_cntl1, 7);
+		} else {
+			vdac_set_reg_bits(reg_cntl0, 0x6, 12, 4);
+			vdac_ctrl_config(1, reg_cntl1, 3);
+			vdac_ctrl_config(1, reg_cntl0, 0);
+			vdac_ctrl_config(1, reg_cntl0, 9);
+		}
 	} else {
-		vdac_ctrl_config(0, reg_cntl0, 9);
-		vdac_ctrl_config(0, reg_cntl0, 0);
-		vdac_ctrl_config(0, reg_cntl1, 3);
+		if (vdac_data->cpu_id == VDAC_CPU_S4) {
+			vdac_set_reg_bits(reg_cntl0, 0x0, 4, 1);
+			vdac_ctrl_config(0, reg_cntl1, 7);
+		} else {
+			vdac_ctrl_config(0, reg_cntl0, 9);
+			vdac_ctrl_config(0, reg_cntl0, 0);
+			vdac_ctrl_config(0, reg_cntl1, 3);
+		}
 	}
 }
 
@@ -134,6 +163,11 @@ void vdac_enable(bool on, unsigned int module_sel)
 		printf("%s:module_sel: 0x%x wrong module index !! ",
 			__func__, module_sel);
 		break;
+	}
+
+	if (vdac_data->cpu_id == VDAC_CPU_S4) {
+		if (!vdac_get_reg_bits(vdac_data->reg_ctrl0, 11, 1))
+			vdac_set_reg_bits(vdac_data->reg_ctrl0, 1, 11, 1);
 	}
 }
 
@@ -194,16 +228,32 @@ static struct meson_vdac_ctrl_s vdac_ctrl_enable_sc2[] = {
 	{VDAC_REG_MAX, 0, 0, 0},
 };
 
+static struct meson_vdac_ctrl_s vdac_ctrl_enable_s4[] = {
+	{ANACTRL_VDAC_CTRL0, 0, 9, 1},
+	{ANACTRL_VDAC_CTRL0, 1, 0, 1},
+	{ANACTRL_VDAC_CTRL1, 1, 7, 1}, /* cdac_pwd */
+	{VDAC_REG_MAX, 0, 0, 0},
+};
+
 struct vdac_data_s vdac_data_g12ab = {
+	.cpu_id = VDAC_CPU_G12AB,
 	.reg_ctrl0 = HHI_VDAC_CNTL0,
 	.reg_ctrl1 = HHI_VDAC_CNTL1,
 	.vdac_ctrl = vdac_ctrl_enable_g12ab,
 };
 
 struct vdac_data_s vdac_data_sc2 = {
+	.cpu_id = VDAC_CPU_SC2,
 	.reg_ctrl0 = ANACTRL_VDAC_CTRL0,
 	.reg_ctrl1 = ANACTRL_VDAC_CTRL1,
 	.vdac_ctrl = vdac_ctrl_enable_sc2,
+};
+
+struct vdac_data_s vdac_data_s4 = {
+	.cpu_id = VDAC_CPU_S4,
+	.reg_ctrl0 = ANACTRL_VDAC_CTRL0,
+	.reg_ctrl1 = ANACTRL_VDAC_CTRL1,
+	.vdac_ctrl = vdac_ctrl_enable_s4,
 };
 
 void vdac_ctrl_config_probe(void)
@@ -218,7 +268,10 @@ void vdac_ctrl_config_probe(void)
 	case MESON_CPU_MAJOR_ID_SC2:
 		vdac_data = &vdac_data_sc2;
 		break;
+	case MESON_CPU_MAJOR_ID_S4:
+		vdac_data = &vdac_data_s4;
 	default:
+		vdac_data = &vdac_data_s4;
 		break;
 	}
 
