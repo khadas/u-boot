@@ -2764,7 +2764,7 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
     set_head_size(newp, nb);
     set_head(remainder, remainder_size | PREV_INUSE);
     set_inuse_bit_at_offset(remainder, remainder_size);
-    fREe(chunk2mem(remainder)); /* let free() deal with it */
+    //fREe(chunk2mem(remainder)); /* let free() deal with it */
   }
   else
   {
