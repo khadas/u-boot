@@ -57,7 +57,7 @@ struct nand_startup_parameter {
 };
 
 #define BL2E_STORAGE_PARAM_SIZE		(0x80)
-#define BOOT_FIRST_BLOB_SIZE        (166*1024)
+//#define BOOT_FIRST_BLOB_SIZE        (166*1024)
 #define BOOT_FILLER_SIZE            (4*1024)
 #define BOOT_RESERVED_SIZE          (4*1024)
 #define BOOT_RANDOM_NONCE           (16)

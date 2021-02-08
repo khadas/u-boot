@@ -168,11 +168,11 @@ static int parse_uboot_sheader(void *addr)
 }
 
 boot_area_entry_t general_boot_part_entry[MAX_BOOT_AREA_ENTRIES] = {
-	{BOOT_BL2, BOOT_AREA_BB1ST, 0, BOOT_FIRST_BLOB_SIZE},
-	{BOOT_BL2E, BOOT_AREA_BL2E, 0, 0x40000},
-	{BOOT_BL2X, BOOT_AREA_BL2X, 0, 0x40000},
-	{BOOT_DDRFIP, BOOT_AREA_DDRFIP, 0, 0x40000},
-	{BOOT_DEVFIP, BOOT_AREA_DEVFIP, 0, 0x380000},
+	{BOOT_BL2, BOOT_AREA_BB1ST, 0, 0},
+	{BOOT_BL2E, BOOT_AREA_BL2E, 0, 0},
+	{BOOT_BL2X, BOOT_AREA_BL2X, 0, 0},
+	{BOOT_DDRFIP, BOOT_AREA_DDRFIP, 0, 0},
+	{BOOT_DEVFIP, BOOT_AREA_DEVFIP, 0, 0},
 };
 
 struct boot_layout general_boot_layout = {.boot_entry = general_boot_part_entry};
@@ -281,6 +281,9 @@ static int storage_boot_layout_general_setting(struct boot_layout *boot_layout,
 			pr_info("Item[%d]%4s offset 0x%08x sz 0x%x\n",
 			       nIndex, name, offPayload, szPayload);
 		}
+		boot_entry[BOOT_AREA_BB1ST].size = g_ssp.boot_entry[BOOT_AREA_BB1ST].size;
+		boot_entry[BOOT_AREA_DDRFIP].size = g_ssp.boot_entry[BOOT_AREA_DDRFIP].size;
+		boot_entry[BOOT_AREA_DEVFIP].size = g_ssp.boot_entry[BOOT_AREA_DEVFIP].size;
 		storage_boot_layout_rebuild(boot_layout, bl2e_size, bl2x_size);
 	} else {
 		/* may be sdcard boot and also have to rebuild layout */
@@ -289,6 +292,12 @@ static int storage_boot_layout_general_setting(struct boot_layout *boot_layout,
 			bl2x_size = sbentry[BOOT_AREA_BL2X].size;
 			printf("bl2e_size=%x bl2x_size=%x current->type=%d\n",
 				bl2e_size, bl2x_size, current->type);
+			boot_entry[BOOT_AREA_BB1ST].size =
+				g_ssp.boot_entry[BOOT_AREA_BB1ST].size;
+			boot_entry[BOOT_AREA_DDRFIP].size =
+				g_ssp.boot_entry[BOOT_AREA_DDRFIP].size;
+			boot_entry[BOOT_AREA_DEVFIP].size =
+				g_ssp.boot_entry[BOOT_AREA_DEVFIP].size;
 			storage_boot_layout_rebuild(boot_layout,
 						    bl2e_size, bl2x_size);
 			return 0;

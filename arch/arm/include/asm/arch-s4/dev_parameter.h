@@ -50,7 +50,10 @@ typedef struct common_storage_parameter {
     uint32_t device_fip_container_size;
     /* fip copies */
     uint32_t device_fip_container_copies;
-    uint8_t reserved[20];
+    /*ddrfip size*/
+    uint32_t ddr_fip_container_size;
+
+    uint8_t reserved[16];
 }__attribute__ ((packed)) common_storage_parameter_t;
 
 

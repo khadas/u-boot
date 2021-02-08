@@ -375,12 +375,15 @@ __attribute__ ((section(".misc_param"))) = {
 	{PADCTRL_PIN_MUX_REGI,	(0x3 << 4),		(0xf << 4),	0, 0, 0},
 };
 
+#define DEV_FIP_SIZE 0x300000
+#define DDR_FIP_SIZE 0x40000
 /* for all the storage parameter */
 storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
 	.common				= {
 		.version = 0x01,
-		.device_fip_container_size = 0x380000,
+		.device_fip_container_size = DEV_FIP_SIZE,
 		.device_fip_container_copies = 4,
+		.ddr_fip_container_size = DDR_FIP_SIZE,
 	},
 	.nand				= {
 		.version = 0x01,
