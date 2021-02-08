@@ -143,6 +143,42 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 			return 1;
 		}
 
+		char *uname;
+		int confs_noffset;
+		int noffset;
+		const char *p;
+		/* Indent string is defined in header image.h */
+		p = IMAGE_INDENT_STRING;
+
+		/* Find configurations parent node offset */
+		confs_noffset = fdt_path_offset(os_hdr, FIT_CONFS_PATH);
+		if (confs_noffset < 0) {
+			debug("Can't get configurations parent node '%s' (%s)\n",
+					FIT_CONFS_PATH, fdt_strerror(confs_noffset));
+			return 1;
+		}
+
+		/* Process its subnodes, print out configurations details */
+		noffset = fdt_first_subnode(os_hdr, confs_noffset);
+		if (noffset >= 0) {
+			uname = (char *)fdt_getprop(os_hdr, noffset, "args", NULL);
+			if (uname) {
+				printf("%s  args:          %s\n", p, uname);
+				char *pbootargs = getenv("bootargs");
+				if (pbootargs) {
+					int nlen = strlen(pbootargs) + strlen(uname) + 1;
+					char *pnewbootargs = malloc(nlen);
+					if (pnewbootargs) {
+						memset((void *)pnewbootargs, 0, nlen);
+						sprintf(pnewbootargs,"%s %s\n",uname, pbootargs);
+						setenv("bootargs", pnewbootargs);
+						free(pnewbootargs);
+						pnewbootargs = NULL;
+					}
+				}
+			}
+		}
+
 		if (fit_image_get_comp(images.fit_hdr_os,
 				       images.fit_noffset_os,
 				       &images.os.comp)) {
