@@ -284,6 +284,6 @@ int lcd_unifykey_write(const char *key_name, unsigned char *buf, int len);
 
 void lcd_unifykey_test(void);
 void lcd_unifykey_tcon_test(int n);
-void lcd_unifykey_dump(unsigned int flag);
+void lcd_unifykey_dump(int index, unsigned int flag);
 
 #endif

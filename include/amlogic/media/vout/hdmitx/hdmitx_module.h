@@ -73,13 +73,9 @@ void hdmitx_set_phypara(enum hdmi_phy_para mode);
 void hdmitx_test_prbs(void);
 void hdmitx_set_div40(bool div40);
 
-extern void hdmitx_set_drm_pkt(struct master_display_info_s *data);
+struct hdr_info *hdmitx_get_rx_hdr_info(void);
+void hdmitx_set_drm_pkt(struct master_display_info_s *data);
 bool hdmitx_find_vendor(struct hdmitx_dev *hdev);
-#ifndef CONFIG_AML_HDMITX20
-void __attribute__((weak))hdmitx_set_drm_pkt(struct master_display_info_s *data)
-{
-}
-#endif
 
 void hdmitx_set_vsif_pkt(enum eotf_type type, enum mode_type tunnel_mode,
 	struct dv_vsif_para *data);
@@ -94,13 +90,5 @@ void hdmitx_set_hdr10plus_pkt(unsigned int flag,
 #endif
 
 #define hdmitx_debug() /* printf("hd: %s[%d]\n", __func__, __LINE__) */
-
-extern struct hdr_info *hdmitx_get_rx_hdr_info(void);
-#ifndef CONFIG_AML_HDMITX20
-struct hdr_info * __attribute__((weak))hdmitx_get_rx_hdr_info(void)
-{
-	return NULL;
-}
-#endif
 
 #endif

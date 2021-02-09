@@ -1312,7 +1312,9 @@ void send_hdmi_pkt(void)
 	} else if (dovi_setting.dst_format == FORMAT_HDR10) {
 		memset(&drmif, 0, sizeof(drmif));
 		prepare_drm_pkt(&drmif, &dovi_setting, hdev);
+#ifdef CONFIG_AML_HDMITX20
 		hdmitx_set_drm_pkt(&drmif);
+#endif
 	} else
 		return;
 }

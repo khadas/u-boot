@@ -70,7 +70,7 @@ int aml_lcd_i2c_write(unsigned char i2c_bus, unsigned int i2c_addr,
 		return ret;
 	}
 
-	if (lcd_debug_print_flag) {
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 		printf("%s:", __func__);
 		for (i = 0; i < len; i++)
 			printf(" 0x%02x", buff[i]);
@@ -125,7 +125,7 @@ int aml_lcd_i2c_read(unsigned char i2c_bus, unsigned int i2c_addr,
 		LCDI2C_ERR("i2c read failed [addr 0x%02x]\n", i2c_addr);
 		return ret;
 	}
-	if (lcd_debug_print_flag) {
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 		printf("%s:", __func__);
 		for (i = 0; i < len; i++)
 			printf(" 0x%02x", buff[i]);

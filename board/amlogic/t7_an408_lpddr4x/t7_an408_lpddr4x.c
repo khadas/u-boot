@@ -188,27 +188,6 @@ int board_late_init(void)
 #endif
 #ifdef CONFIG_AML_LCD
 	lcd_probe();
-
-	struct lcd_drv_s *lcd_drv = lcd_get_driver();
-
-	if (lcd_drv->lcd_config->lcd_basic.lcd_type == LCD_LVDS) {
-		run_command("gpio set GPIOY_14", 0);
-	} else if (lcd_drv->lcd_config->lcd_basic.lcd_type == LCD_EDP) {
-		run_command("gpio set GPIOY_0", 0);
-	} else if (lcd_drv->lcd_config->lcd_basic.lcd_type == LCD_MIPI) {
-		run_command("gpio clear GPIOY_1", 0); //bl_pwm
-		run_command("gpio set GPIOY_12", 0); //bl_en
-
-		run_command("gpio clear GPIOY_4", 0);
-		run_command("gpio clear GPIOY_0", 0);
-		mdelay(500);
-		run_command("gpio set GPIOY_0", 0);
-		mdelay(100);
-		run_command("gpio set GPIOY_4", 0);
-		mdelay(20);
-	} else if (lcd_drv->lcd_config->lcd_basic.lcd_type == LCD_VBYONE) {
-		run_command("gpio set GPIOY_0", 0);
-	}
 #endif
 	return 0;
 }

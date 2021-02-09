@@ -23,6 +23,7 @@
 
 #include "lcd_reg.h"
 #include "lcd_clk_config.h"
+
 /* **********************************
  * COMMON
  * **********************************
@@ -33,7 +34,6 @@
 #define PLL_N_MAX                   1
 #define PLL_FREF_MIN                (5 * 1000)
 #define PLL_FREF_MAX                (25 * 1000)
-
 
 /* G12A */
 /* ******** register bit ******** */
@@ -94,7 +94,7 @@
 
 /* ******** frequency limit (unit: kHz) ******** */
 #define PLL_OD_FB_TL1                0
-#define PLL_FRAC_RANGE_TL1           BIT(17)
+#define PLL_FRAC_RANGE_TL1           (1 << 17)
 #define PLL_FRAC_SIGN_BIT_TL1        18
 #define PLL_OD_SEL_MAX_TL1           3
 #define PLL_VCO_MIN_TL1              (3384 * 1000)
@@ -116,7 +116,19 @@
  * T5D
  * **********************************
  */
-#define ENCL_CLK_IN_MAX_T5D	      (400 * 1000)
+/* video */
+#define CLK_DIV_IN_MAX_T5D          (3100 * 1000)
+#define CRT_VID_CLK_IN_MAX_T5D      (3100 * 1000)
+#define ENCL_CLK_IN_MAX_T5D	        (400 * 1000)
+
+/* **********************************
+ * T7
+ * **********************************
+ */
+#define LCD_PLL_OD3_T7               23
+#define LCD_PLL_OD2_T7               21
+#define LCD_PLL_OD1_T7               19
+#define LCD_PLL_LOCK_T7              31
 
 /* **********************************
  * Spread Spectrum
@@ -208,6 +220,7 @@ static unsigned int pll_ss_reg_tl1[][2] = {
 	{ 11,        10}, /* 29: +/-2.75% */
 	{ 12,        10}, /* 30: +/-3.0% */
 };
+
 /* **********************************
  * pll control
  * **********************************
@@ -234,6 +247,14 @@ struct lcd_clk_ctrl_s pll_ctrl_table_tl1[] = {
 	{LCD_CLK_CTRL_END,  LCD_CLK_REG_END,                  0,  0},
 };
 
+struct lcd_clk_ctrl_s pll_ctrl_table_t7[] = {
+	/* flag             reg                      bit              len*/
+	{LCD_CLK_CTRL_EN,   ANACTRL_TCON_PLL0_CNTL0, LCD_PLL_EN_TL1,   1},
+	{LCD_CLK_CTRL_RST,  ANACTRL_TCON_PLL0_CNTL0, LCD_PLL_RST_TL1,  1},
+	{LCD_CLK_CTRL_FRAC, ANACTRL_TCON_PLL0_CNTL1,               0, 17},
+	{LCD_CLK_CTRL_END,  LCD_CLK_REG_END,                       0,  0},
+};
+
 /* **********************************
  * pll & clk parameter
  * ********************************** */
@@ -253,11 +274,23 @@ struct lcd_clk_ctrl_s pll_ctrl_table_tl1[] = {
 #define EDP_DIV1_SEL_MAX            8
 
 static const unsigned int od_fb_table[2] = {1, 2};
-
 static const unsigned int od_table[6] = {1, 2, 4, 8, 16, 32};
-
-static const unsigned int tcon_div_table_txhd[2] = {8, 16};
 static const unsigned int tcon_div_table[5] = {1, 2, 4, 8, 16};
+static unsigned int tcon_div[5][3] = {
+	/* div_mux, div2/4_sel, div4_bypass */
+	{1, 0, 1},  /* div1 */
+	{0, 0, 1},  /* div2 */
+	{0, 1, 1},  /* div4 */
+	{0, 0, 0},  /* div8 */
+	{0, 1, 0},  /* div16 */
+};
+
+static unsigned int edp_div0_table[15] = {
+	1, 2, 3, 4, 5, 7, 8, 9, 11, 13, 17, 19, 23, 29, 31
+};
+static unsigned int edp_div1_table[10] = {
+	1, 2, 3, 4, 5, 6, 7, 8, 9, 13
+};
 
 static char *lcd_clk_div_sel_table[] = {
 	"1",
@@ -275,6 +308,7 @@ static char *lcd_clk_div_sel_table[] = {
 	"14",
 	"15",
 	"2.5",
+	"4.67",
 	"invalid",
 };
 

@@ -7,12 +7,9 @@ config AML_LCD
 	  Support for lcd video output
 
 
-if AML_LCD
 source "drivers/amlogic/media/vout/lcd/lcd_tv/Kconfig"
 source "drivers/amlogic/media/vout/lcd/lcd_tablet/Kconfig"
 source "drivers/amlogic/media/vout/lcd/lcd_extern/Kconfig"
-source "drivers/amlogic/media/vout/lcd/bl_ldim/Kconfig"
-source "drivers/amlogic/media/vout/lcd/bl_extern/Kconfig"
-endif
+source "drivers/amlogic/media/vout/lcd/backlight/Kconfig"
 
 endmenu

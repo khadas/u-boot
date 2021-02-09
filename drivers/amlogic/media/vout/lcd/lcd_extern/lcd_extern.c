@@ -35,6 +35,9 @@ static int lcd_extern_index_lut[EXTERN_MUL_MAX];
 static struct lcd_extern_common_s *ext_common;
 static struct lcd_extern_driver_s *lcd_ext_driver[EXTERN_MUL_MAX];
 
+struct lcd_extern_config_s ext_config_dtf[LCD_EXTERN_NUM_MAX];
+struct lcd_extern_common_s ext_common_dft;
+
 struct lcd_extern_driver_s *lcd_extern_get_driver(int index)
 {
 	int i = 0;
@@ -1783,7 +1786,7 @@ add_driver_default_end:
 
 int lcd_extern_probe(char *dtaddr, int index)
 {
-	struct lcd_drv_s *lcd_drv = lcd_get_driver();
+	struct aml_lcd_drv_s *lcd_drv = lcd_get_driver(0);
 	struct lcd_extern_config_s *ext_config;
 	int ret, i, load_id = 0;
 
@@ -1831,10 +1834,6 @@ int lcd_extern_probe(char *dtaddr, int index)
 		ext_config->table_init_loaded = 0;
 
 		lcd_extern_get_init_dts(dtaddr, ext_common);
-		if (lcd_drv->unifykey_test_flag) {
-			ext_common->lcd_ext_key_valid = 1;
-			LCDPR("force lcd_ext_key_valid to 1\n");
-		}
 		/* check unifykey config */
 		if (ext_common->lcd_ext_key_valid) {
 			ret = lcd_unifykey_check("lcd_extern");
@@ -1862,10 +1861,6 @@ int lcd_extern_probe(char *dtaddr, int index)
 		ext_config->table_init_loaded = 0;
 		ext_config->i2c_bus = ext_common->i2c_bus;
 
-		if (lcd_drv->unifykey_test_flag) {
-			ext_common->lcd_ext_key_valid = 1;
-			LCDPR("force lcd_ext_key_valid to 1\n");
-		}
 		if (ext_common->lcd_ext_key_valid) {
 			ret = lcd_unifykey_check("lcd_extern");
 			if (ret == 0) {
@@ -1913,10 +1908,12 @@ int lcd_extern_init(void)
 {
 	int i;
 
-	for (i = 0; i < EXTERN_MUL_MAX; i++)
+	for (i = 0; i < EXTERN_MUL_MAX; i++) {
+		if (lcd_ext_driver[i])
+			free(lcd_ext_driver[i]);
+		lcd_ext_driver[i] = NULL;
 		lcd_extern_index_lut[i] = LCD_EXTERN_INDEX_INVALID;
-
-	ext_common = &ext_common_dft;
+	}
 
 	return 0;
 }

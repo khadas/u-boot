@@ -43,7 +43,7 @@ int lcd_gpio_name_map_num(const char *name)
 		return LCD_GPIO_MAX;
 	}
 #endif
-	if (lcd_debug_print_flag)
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("gpio: %s, %d\n", name, gpio);
 	return gpio;
 }
@@ -54,7 +54,7 @@ int lcd_gpio_set(int gpio, int value)
 
 	if (gpio >= LCD_GPIO_MAX)
 		return -1;
-	if (lcd_debug_print_flag)
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("gpio: %d, value: %d\n", gpio, value);
 	/* grab the pin before we tweak it */
 	ret = gpio_request(gpio, "aml_lcd_gpio");

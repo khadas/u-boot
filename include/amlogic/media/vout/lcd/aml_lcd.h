@@ -24,6 +24,7 @@
 #include <common.h>
 #include <linux/list.h>
 #include <amlogic/media/vout/lcd/lcd_vout.h>
+#include <amlogic/media/vout/lcd/aml_bl.h>
 #ifdef CONFIG_AML_LCD_EXTERN
 #include <amlogic/media/vout/lcd/lcd_extern.h>
 #endif

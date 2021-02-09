@@ -64,12 +64,12 @@ int lcd_unifykey_check_exist(const char *key_name)
 
 	ret = key_unify_query_exist(key_name, &key_exist);
 	if (ret) {
-		if (lcd_debug_print_flag)
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 			LCDUKEYERR("%s query exist error\n", key_name);
 		return -1;
 	}
 	if (key_exist == 0) {
-		if (lcd_debug_print_flag)
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 			LCDUKEYERR("%s is not exist\n", key_name);
 		return -1;
 	}
@@ -92,12 +92,12 @@ int lcd_unifykey_check(const char *key_name)
 	key_exist = 0;
 	ret = key_unify_query_exist(key_name, &key_exist);
 	if (ret) {
-		if (lcd_debug_print_flag)
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 			LCDUKEYERR("%s query exist error\n", key_name);
 		return -1;
 	}
 	if (key_exist == 0) {
-		if (lcd_debug_print_flag)
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 			LCDUKEYERR("%s is not exist\n", key_name);
 		return -1;
 	}
@@ -117,11 +117,11 @@ int lcd_unifykey_check(const char *key_name)
 	}
 	key_len = (int)key_size;
 	if (key_len == 0) {
-		if (lcd_debug_print_flag)
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 			LCDUKEY("%s size is zero\n", key_name);
 		return -1;
 	}
-	if (lcd_debug_print_flag)
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDUKEY("%s size: %d\n", key_name, key_len);
 
 lcd_unifykey_read:
@@ -143,7 +143,7 @@ lcd_unifykey_read:
 	}
 	lcd_unifykey_header_check(buf, &key_header);
 	if (key_len != key_header.data_len) {  //length check
-		if (lcd_debug_print_flag) {
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 			LCDUKEYERR("data_len %d is not match key_len %d\n",
 				key_header.data_len, key_len);
 		}
@@ -159,7 +159,7 @@ lcd_unifykey_read:
 	key_crc = crc32(0, &buf[4], (key_len - 4)); //except crc32
 	key_crc32 = (unsigned int)key_crc;
 	if (key_crc32 != key_header.crc32) {  //crc32 check
-		if (lcd_debug_print_flag) {
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 			LCDUKEYERR("crc32 0x%08x is not match 0x%08x\n",
 				key_header.crc32, key_crc32);
 		}
@@ -192,12 +192,12 @@ static int lcd_unifykey_check_tcon(const char *key_name)
 	key_exist = 0;
 	ret = key_unify_query_exist(key_name, &key_exist);
 	if (ret) {
-		if (lcd_debug_print_flag)
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 			LCDUKEYERR("%s query exist error\n", key_name);
 		return -1;
 	}
 	if (key_exist == 0) {
-		if (lcd_debug_print_flag)
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 			LCDUKEYERR("%s is not exist\n", key_name);
 		return -1;
 	}
@@ -217,11 +217,11 @@ static int lcd_unifykey_check_tcon(const char *key_name)
 	}
 	key_len = (int)key_size;
 	if (key_len == 0) {
-		if (lcd_debug_print_flag)
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 			LCDUKEY("%s size is zero\n", key_name);
 		return -1;
 	}
-	if (lcd_debug_print_flag)
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDUKEY("%s size: %d\n", key_name, key_len);
 
 	buf = (unsigned char *)malloc(sizeof(unsigned char) * key_len);
@@ -245,7 +245,7 @@ lcd_unifykey_tcon_read:
 	data_size = (buf[8] | (buf[9] << 8) |
 		     (buf[10] << 16) | (buf[11] << 24));
 	if (key_len != data_size) {  //length check
-		if (lcd_debug_print_flag) {
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 			LCDUKEYERR("data_len %d is not match key_len %d\n",
 				   data_size, key_len);
 		}
@@ -260,12 +260,12 @@ lcd_unifykey_tcon_read:
 	raw_crc32 = (buf[0] | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24));
 	key_crc = crc32(0, &buf[4], (key_len - 4)); //except crc32
 	key_crc32 = (unsigned int)key_crc;
-	if (lcd_debug_print_flag) {
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 		LCDUKEY("crc32: 0x%08x, header_crc32: 0x%08x\n",
 			key_crc32, raw_crc32);
 	}
 	if (key_crc32 != raw_crc32) {  //crc32 check
-		if (lcd_debug_print_flag) {
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 			LCDUKEYERR("crc32 0x%08x is not match 0x%08x\n",
 				   raw_crc32, key_crc32);
 		}
@@ -356,12 +356,12 @@ int lcd_unifykey_check_no_header(const char *key_name)
 	key_exist = 0;
 	ret = key_unify_query_exist(key_name, &key_exist);
 	if (ret) {
-		if (lcd_debug_print_flag)
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 			LCDUKEYERR("%s query exist error\n", key_name);
 		return -1;
 	}
 	if (key_exist == 0) {
-		if (lcd_debug_print_flag)
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 			LCDUKEYERR("%s is not exist\n", key_name);
 		return -1;
 	}
@@ -381,11 +381,11 @@ int lcd_unifykey_check_no_header(const char *key_name)
 	}
 	key_len = (int)key_size;
 	if (key_len == 0) {
-		if (lcd_debug_print_flag)
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 			LCDUKEY("%s size is zero\n", key_name);
 		return -1;
 	}
-	if (lcd_debug_print_flag)
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDUKEY("%s size: %d\n", key_name, key_len);
 
 	return 0;
@@ -939,10 +939,11 @@ void lcd_unifykey_test(void)
 #endif
 }
 
-void lcd_unifykey_dump(unsigned int flag)
+void lcd_unifykey_dump(int index, unsigned int flag)
 {
 	unsigned char *para;
 	int key_len;
+	char str[20];
 #ifdef CONFIG_AML_LCD_TCON
 	int tcon_len;
 #endif
@@ -964,9 +965,13 @@ void lcd_unifykey_dump(unsigned int flag)
 	}
 	key_len = LCD_UKEY_LCD_SIZE;
 	memset(para, 0, (sizeof(unsigned char) * key_len));
-	ret = lcd_unifykey_get("lcd", para, &key_len);
+	if (index > 0)
+		sprintf(str, "lcd%d", index);
+	else
+		sprintf(str, "lcd");
+	ret = lcd_unifykey_get(str, para, &key_len);
 	if (ret == 0) {
-		printf("unifykey: lcd:");
+		printf("unifykey: %s:", str);
 		for (i = 0; i < key_len; i++) {
 			if ((i % 16) == 0)
 				printf("\n%03x0:", (i / 16));
@@ -984,9 +989,13 @@ void lcd_unifykey_dump(unsigned int flag)
 	}
 	key_len = LCD_UKEY_LCD_EXT_SIZE;
 	memset(para, 0, (sizeof(unsigned char) * key_len));
-	ret = lcd_unifykey_get("lcd_extern", para, &key_len);
+	if (index > 0)
+		sprintf(str, "lcd%d_extern", index);
+	else
+		sprintf(str, "lcd_extern");
+	ret = lcd_unifykey_get(str, para, &key_len);
 	if (ret == 0) {
-		printf("unifykey: lcd_extern:");
+		printf("unifykey: %s:", str);
 		for (i = 0; i < key_len; i++) {
 			if ((i % 16) == 0)
 				printf("\n%03x0:", (i / 16));
@@ -1004,9 +1013,13 @@ void lcd_unifykey_dump(unsigned int flag)
 	}
 	key_len = LCD_UKEY_BL_SIZE;
 	memset(para, 0, (sizeof(unsigned char) * key_len));
-	ret = lcd_unifykey_get("backlight", para, &key_len);
+	if (index > 0)
+		sprintf(str, "backlight%d", index);
+	else
+		sprintf(str, "backlight");
+	ret = lcd_unifykey_get(str, para, &key_len);
 	if (ret == 0) {
-		printf("unifykey: backlight:");
+		printf("unifykey: %s:", str);
 		for (i = 0; i < key_len; i++) {
 			if ((i % 16) == 0)
 				printf("\n%03x0:", (i / 16));
@@ -1030,9 +1043,13 @@ lcd_unifykey_dump_tcon:
 	}
 	key_len = tcon_len;
 	memset(para, 0, (sizeof(unsigned char) * key_len));
-	ret = lcd_unifykey_get_no_header("lcd_tcon", para, &key_len);
+	if (index > 0)
+		sprintf(str, "lcd%d_tcon", index);
+	else
+		sprintf(str, "lcd_tcon");
+	ret = lcd_unifykey_get_no_header(str, para, &key_len);
 	if (ret == 0) {
-		printf("unifykey: lcd_tcon:");
+		printf("unifykey: %s:", str);
 		for (i = 0; i < key_len; i++) {
 			if ((i % 16) == 0)
 				printf("\n%03x0:", (i / 16));
@@ -1051,9 +1068,13 @@ lcd_unifykey_dump_tcon:
 	}
 	key_len = LCD_UKEY_TCON_SPI_SIZE;
 	memset(para, 0, (sizeof(unsigned char) * key_len));
-	ret = lcd_unifykey_get("lcd_tcon_spi", para, &key_len);
+	if (index > 0)
+		sprintf(str, "lcd%d_tcon_spi", index);
+	else
+		sprintf(str, "lcd_tcon_spi");
+	ret = lcd_unifykey_get(str, para, &key_len);
 	if (ret == 0) {
-		printf("unifykey: lcd_tcon_spi:");
+		printf("unifykey: %s:", str);
 		for (i = 0; i < key_len; i++) {
 			if ((i % 16) == 0)
 				printf("\n%03x0:", (i / 16));
@@ -1122,7 +1143,7 @@ void lcd_unifykey_test(void)
 	LCDUKEYERR("Don't support unifykey\n");
 }
 
-void lcd_unifykey_dump(unsigned int flag)
+void lcd_unifykey_dump(int index, unsigned int flag)
 {
 	LCDUKEYERR("Don't support unifykey\n");
 }

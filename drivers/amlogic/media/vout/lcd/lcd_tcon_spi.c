@@ -296,16 +296,13 @@ static int lcd_tcon_spi_data_load(void)
 				if (ret)
 					continue;
 				if (!tcon_spi.spi_block[i]->new_buf) {
-					LCDERR
-					("%s: spi_block[%d] new_buf is null\n",
-					 __func__, i);
+					LCDERR("%s: spi_block[%d] new_buf is null\n",
+					       __func__, i);
 					continue;
 				}
 				/* note: all the tcon data buf size must align to 32byte */
-				new_size = lcd_tcon_data_size_align
-				(tcon_spi.spi_block[i]->data_new_size);
-				mm_table->data_mem_vaddr[j] = (unsigned char *)
-						malloc(new_size);
+				new_size = lcd_tcon_data_size_align(tcon_spi.spi_block[i]->data_new_size);
+				mm_table->data_mem_vaddr[j] = (unsigned char *)malloc(new_size);
 				if (!mm_table->data_mem_vaddr[j]) {
 					LCDERR("%s: Not enough memory\n",
 					       __func__);
@@ -330,25 +327,21 @@ static int lcd_tcon_spi_data_load(void)
 					continue;
 				}
 				if (!tcon_spi.spi_block[i]->new_buf) {
-					LCDERR
-					("%s: spi_block[%d] new_buf is null\n",
-					 __func__, i);
+					LCDERR("%s: spi_block[%d] new_buf is null\n",
+					       __func__, i);
 					continue;
 				}
 				size = mm_table->data_mem_vaddr[j][8] |
 				       (mm_table->data_mem_vaddr[j][9] << 8) |
 				       (mm_table->data_mem_vaddr[j][10] << 16) |
 				       (mm_table->data_mem_vaddr[j][11] << 24);
-				if (tcon_spi.spi_block[i]->data_new_size >
-				    size) {
-					LCDERR
-				("%s: block_data[%d] size is not match\n",
-				 __func__, i);
+				if (tcon_spi.spi_block[i]->data_new_size > size) {
+					LCDERR("%s: block_data[%d] size is not match\n",
+					       __func__, i);
 					continue;
 				}
 				new_size = lcd_tcon_data_size_align(size);
-				memset(mm_table->data_mem_vaddr[j], 0,
-				       new_size);
+				memset(mm_table->data_mem_vaddr[j], 0, new_size);
 				memcpy(mm_table->data_mem_vaddr[j],
 				       tcon_spi.spi_block[i]->new_buf,
 				       tcon_spi.spi_block[i]->data_new_size);
@@ -468,7 +461,7 @@ static int lcd_tcon_spi_data_parse(void)
 
 	/* header: 16byte */
 	memcpy(&spi_header, para, LCD_UKEY_TCON_SPI_HEAD_SIZE);
-	if (lcd_debug_print_flag) {
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 		LCDPR("lcd_tcon_spi unifykey header:\n");
 		LCDPR("crc32             = 0x%08x\n", spi_header.crc32);
 		LCDPR("data_size         = %d\n", spi_header.data_size);
@@ -487,11 +480,10 @@ static int lcd_tcon_spi_data_parse(void)
 		return 0;
 	}
 	if (tcon_spi.block_cnt > LCD_UKEY_TCON_SPI_BLOCK_CNT_MAX) {
-		LCDERR
-	("%s: lcd_tcon_spi block_cnt %d out of support(max %d), limit to %d\n",
-	 __func__, tcon_spi.block_cnt,
-	 LCD_UKEY_TCON_SPI_BLOCK_CNT_MAX,
-	 LCD_UKEY_TCON_SPI_BLOCK_CNT_MAX);
+		LCDERR("%s: lcd_tcon_spi block_cnt %d out of support(max %d), limit to %d\n",
+		       __func__, tcon_spi.block_cnt,
+		       LCD_UKEY_TCON_SPI_BLOCK_CNT_MAX,
+		       LCD_UKEY_TCON_SPI_BLOCK_CNT_MAX);
 		tcon_spi.block_cnt = LCD_UKEY_TCON_SPI_BLOCK_CNT_MAX;
 	}
 
@@ -532,7 +524,7 @@ static int lcd_tcon_spi_data_parse(void)
 		       sizeof(struct lcd_tcon_spi_block_s));
 		memcpy(tcon_spi.spi_block[i], p,
 		       LCD_UKEY_TCON_SPI_BLOCK_SIZE_PRE);
-		if (lcd_debug_print_flag) {
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 			LCDPR("lcd_tcon_spi block %d:\n", i);
 			LCDPR("  data_type         = 0x%02x\n",
 			      tcon_spi.spi_block[i]->data_type);
@@ -559,10 +551,9 @@ static int lcd_tcon_spi_data_parse(void)
 
 		if (tcon_spi.spi_block[i]->param_cnt > 0) {
 			tcon_spi.spi_block[i]->param = (unsigned int *)malloc
-		(tcon_spi.spi_block[i]->param_cnt * sizeof(unsigned int));
+				(tcon_spi.spi_block[i]->param_cnt * sizeof(unsigned int));
 			if (!tcon_spi.spi_block[i]->param) {
-				LCDERR("failed to alloc spi_block[%d] param\n",
-				       i);
+				LCDERR("failed to alloc spi_block[%d] param\n", i);
 				for (j = 0; j <= i; j++) {
 					free(tcon_spi.spi_block[j]);
 					tcon_spi.spi_block[j] = NULL;
@@ -570,8 +561,7 @@ static int lcd_tcon_spi_data_parse(void)
 				goto lcd_tcon_spi_data_parse_err1;
 			}
 			memset(tcon_spi.spi_block[i]->param, 0,
-			       tcon_spi.spi_block[i]->param_cnt *
-			       sizeof(unsigned int));
+			       tcon_spi.spi_block[i]->param_cnt * sizeof(unsigned int));
 			n = LCD_UKEY_TCON_SPI_BLOCK_SIZE_PRE;
 			for (j = 0; j < tcon_spi.spi_block[i]->param_cnt; j++) {
 				tcon_spi.spi_block[i]->param[j] = p[n] |
@@ -583,11 +573,10 @@ static int lcd_tcon_spi_data_parse(void)
 		}
 
 #ifdef CONFIG_AML_LCD_EXTERN
-		if (tcon_spi.spi_block[i]->data_type ==
-		    LCD_TCON_DATA_BLOCK_TYPE_EXT &&
+		if (tcon_spi.spi_block[i]->data_type == LCD_TCON_DATA_BLOCK_TYPE_EXT &&
 		    !tcon_spi.ext_buf) {
 			tcon_spi.ext_buf = (unsigned char *)malloc
-			((ext_size * sizeof(unsigned char)));
+				((ext_size * sizeof(unsigned char)));
 			if (!tcon_spi.ext_buf) {
 				LCDERR("failed to alloc ext_buf\n");
 				for (j = 0; j <= i; j++) {
@@ -595,8 +584,7 @@ static int lcd_tcon_spi_data_parse(void)
 					tcon_spi.spi_block[j]->raw_buf = NULL;
 					if (tcon_spi.spi_block[j]->param) {
 						free(tcon_spi.spi_block[j]->param);
-						tcon_spi.spi_block[j]->param =
-									NULL;
+						tcon_spi.spi_block[j]->param = NULL;
 					}
 					free(tcon_spi.spi_block[j]);
 					tcon_spi.spi_block[j] = NULL;

@@ -23,10 +23,9 @@
 
 struct vout_conf_s {
 	unsigned int viu_valid[3];
-	unsigned int offset[3];
-	unsigned int venc_mux_reg;
+	unsigned int viu_mux_reg;
 
-	void (*viu_mux)(int viu_sel, int venc_sel);
+	void (*viu_mux)(int index, unsigned int mux_sel);
 	void (*reg_dump)(void);
 };
 
@@ -37,7 +36,7 @@ struct vout_set_s {
 	ulong height;
 	ulong field_height;
 	int viu_color_fmt;
-	enum viu_mux_e viu_mux;
+	unsigned int viu_mux;
 };
 
 #endif

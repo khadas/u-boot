@@ -47,7 +47,7 @@ enum lcd_extern_type_e {
 #define LCD_EXTERN_INIT_OFF_MAX       100
 
 #define LCD_EXTERN_GPIO_NUM_MAX       6
-#define LCD_EXTERN_GPIO_LEN_MAX       10
+#define LCD_EXTERN_GPIO_LEN_MAX       LCD_CPU_GPIO_NAME_MAX
 #define LCD_EXTERN_INDEX_INVALID      0xff
 #define LCD_EXTERN_NAME_LEN_MAX       30
 
@@ -86,7 +86,7 @@ struct lcd_extern_config_s {
 
 struct lcd_extern_common_s {
 	unsigned char lcd_ext_key_valid;
-	char gpio_name[LCD_EXTERN_GPIO_NUM_MAX][LCD_EXTERN_GPIO_LEN_MAX];
+	char gpio_name[LCD_EXTERN_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX];
 	unsigned int lcd_ext_num;
 
 	unsigned char i2c_bus;

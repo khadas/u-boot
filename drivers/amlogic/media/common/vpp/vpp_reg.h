@@ -385,6 +385,16 @@
 #define DOLBY_PATH_CTRL                            0x1a0c
 #endif
 
+#ifndef LCD_GAMMA_CNTL_PORT0
+#define LCD_GAMMA_CNTL_PORT0                       ((0x14b4  << 2) + 0xff000000)
+#endif
+#ifndef LCD_GAMMA_DATA_PORT0
+#define LCD_GAMMA_DATA_PORT0                       ((0x14b5  << 2) + 0xff000000)
+#endif
+#ifndef LCD_GAMMA_ADDR_PORT0
+#define LCD_GAMMA_ADDR_PORT0                       ((0x14b6  << 2) + 0xff000000)
+#endif
+
 //#define GAMMA_CNTL_PORT                            0x1400
 #define  GAMMA_VCOM_POL    7     /* RW */
 #define  GAMMA_RVS_OUT     6     /* RW */

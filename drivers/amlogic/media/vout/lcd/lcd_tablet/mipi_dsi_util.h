@@ -455,8 +455,6 @@ enum tv_enc_lcd_type_e {
 #define DCS_CMD_CODE_SOFT_RESET           0xc
 
 /* DPHY standard timing */
-/* unit: MHz */
-#define MIPI_PHY_CLK_MAX            1000
 
 /* **** DPHY timing parameter       Value (unit: 0.01ns) **** */
 /* >100ns (4M) */
@@ -538,13 +536,5 @@ struct dsi_vid_s {
 
 #define DSI_CMD_SIZE_MAX		3000
 #define DSI_CMD_READ_VALID
-
-extern void mipi_dsi_print_info(struct lcd_config_s *pconf);
-extern void lcd_mipi_dsi_config_set(struct lcd_config_s *pConf);
-extern void mipi_dsi_link_off(struct lcd_config_s *pConf);
-extern void lcd_mipi_control_set(struct lcd_config_s *pConf, int status);
-int lcd_mipi_dsi_init_table_detect(char *dt_addr, int child_offset,
-				   struct dsi_config_s *dconf, int flag);
-extern int lcd_mipi_dsi_init_table_check_bsp(struct dsi_config_s *dconf, int flag);
 
 #endif

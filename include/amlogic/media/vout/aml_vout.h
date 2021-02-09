@@ -20,7 +20,7 @@ int vout_get_current_vmode(void);
 int vout_get_current_axis(int *axis);
 void vout_set_current_vmode(int mode);
 struct vinfo_s *vout_get_current_vinfo(void);
-void vout_viu_mux(int viu_sel, int venc_sel);
+void vout_viu_mux(int index, unsigned int mux_sel);
 extern unsigned long get_fb_addr(void);
 
 void vout_probe(void);

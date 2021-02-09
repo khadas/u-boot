@@ -424,7 +424,12 @@ void hdmi_tx_set(struct hdmitx_dev *hdev)
 #endif
 }
 
-int hdmi_outputmode_check(char *mode, unsigned int frac)
+/***********************************************
+ * parameters:  mode, such as 720p60hz, 1080p50hz...
+ *              frac, 1=59.94/29.97hz.
+ * return:      viu_mux
+ ************************************************/
+unsigned int hdmi_outputmode_check(char *mode, unsigned int frac)
 {
 	int i, ret = 0xff;
 
@@ -436,14 +441,14 @@ int hdmi_outputmode_check(char *mode, unsigned int frac)
 	}
 
 	if (ret) {
-		printf("hdmitx: outputmode[%s] is invalid\n", mode);
-		return ret;
+		//printf("hdmitx: outputmode[%s] is invalid\n", mode);
+		return VIU_MUX_MAX;
 	}
 
 	if (frac) {
 		if (hdmitx_likely_frac_rate_mode(mode) == 0) {
 			printf("hdmitx: outputmode[%s] don't support frac\n", mode);
-			return ret;
+			return VIU_MUX_MAX;
 		}
 	}
 

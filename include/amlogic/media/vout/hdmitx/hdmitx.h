@@ -6,6 +6,6 @@
 #include "mach_reg.h"
 
 int hdmitx_likely_frac_rate_mode(char *m);
-int hdmi_outputmode_check(char *mode, unsigned int frac);
+unsigned int hdmi_outputmode_check(char *mode, unsigned int frac);
 
 #endif

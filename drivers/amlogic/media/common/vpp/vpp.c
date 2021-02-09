@@ -1415,68 +1415,134 @@ void vpp_load_gamma_table(unsigned short *data, unsigned int len, enum vpp_gamma
 	VPP_PR("%s: successful\n", __func__);
 }
 
-void vpp_enable_lcd_gamma_table(void)
+void vpp_enable_lcd_gamma_table(int index)
 {
-	vpp_reg_setb(L_GAMMA_CNTL_PORT, 1, GAMMA_EN, 1);
+	unsigned int reg;
+
+	if (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_T7) {
+		switch (index) {
+		case 1:
+			reg = LCD_GAMMA_CNTL_PORT0 + (0x100 << 2);
+			break;
+		case 2:
+			reg = LCD_GAMMA_CNTL_PORT0 + (0x200 << 2);
+			break;
+		case 0:
+		default:
+			reg = LCD_GAMMA_CNTL_PORT0;
+			break;
+		}
+	} else {
+		reg = L_GAMMA_CNTL_PORT;
+	}
+
+	vpp_reg_setb(reg, 1, GAMMA_EN, 1);
 }
 
-void vpp_disable_lcd_gamma_table(void)
+void vpp_disable_lcd_gamma_table(int index)
 {
-	vpp_reg_setb(L_GAMMA_CNTL_PORT, 0, GAMMA_EN, 1);
+	unsigned int reg;
+
+	if (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_T7) {
+		switch (index) {
+		case 1:
+			reg = LCD_GAMMA_CNTL_PORT0 + (0x100 << 2);
+			break;
+		case 2:
+			reg = LCD_GAMMA_CNTL_PORT0 + (0x200 << 2);
+			break;
+		case 0:
+		default:
+			reg = LCD_GAMMA_CNTL_PORT0;
+			break;
+		}
+	} else {
+		reg = L_GAMMA_CNTL_PORT;
+	}
+	vpp_reg_setb(reg, 0, GAMMA_EN, 1);
 }
 
 #define GAMMA_RETRY        1000
-static void vpp_set_lcd_gamma_table(u16 *data, u32 rgb_mask)
+static void vpp_set_lcd_gamma_table(int index, u16 *data, u32 rgb_mask)
 {
+	unsigned int reg_encl_en, reg_cntl_port, reg_data_port, reg_addr_port;
 	int i;
 	int cnt = 0;
 
-	if (!(vpp_reg_read(ENCL_VIDEO_EN) & 0x1))
+	if (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_T7) {
+		switch (index) {
+		case 1:
+			reg_encl_en = ENCL_VIDEO_EN + (0x600 << 2);
+			reg_cntl_port = LCD_GAMMA_CNTL_PORT0 + (0x100 << 2);
+			reg_data_port = LCD_GAMMA_DATA_PORT0 + (0x100 << 2);
+			reg_addr_port = LCD_GAMMA_ADDR_PORT0 + (0x100 << 2);
+			break;
+		case 2:
+			reg_encl_en = ENCL_VIDEO_EN + (0x800 << 2);
+			reg_cntl_port = LCD_GAMMA_CNTL_PORT0 + (0x200 << 2);
+			reg_data_port = LCD_GAMMA_DATA_PORT0 + (0x200 << 2);
+			reg_addr_port = LCD_GAMMA_ADDR_PORT0 + (0x200 << 2);
+			break;
+		case 0:
+		default:
+			reg_encl_en = ENCL_VIDEO_EN;
+			reg_cntl_port = LCD_GAMMA_CNTL_PORT0;
+			reg_data_port = LCD_GAMMA_DATA_PORT0;
+			reg_addr_port = LCD_GAMMA_ADDR_PORT0;
+			break;
+		}
+	} else {
+		reg_encl_en = ENCL_VIDEO_EN;
+		reg_cntl_port = L_GAMMA_CNTL_PORT;
+		reg_data_port = L_GAMMA_DATA_PORT;
+		reg_addr_port = L_GAMMA_ADDR_PORT;
+	}
+
+	if (!(vpp_reg_read(reg_encl_en) & 0x1))
 		return;
 
-	vpp_reg_setb(L_GAMMA_CNTL_PORT,
-		     0, GAMMA_EN, 1);
+	vpp_reg_setb(reg_cntl_port, 0, GAMMA_EN, 1);
 
-	while (!(vpp_reg_read(L_GAMMA_CNTL_PORT) & (0x1 << ADR_RDY))) {
+	while (!(vpp_reg_read(reg_cntl_port) & (0x1 << ADR_RDY))) {
 		udelay(10);
 		if (cnt++ > GAMMA_RETRY)
 			break;
 	}
 	cnt = 0;
-	vpp_reg_write(L_GAMMA_ADDR_PORT, (0x1 << H_AUTO_INC) |
+	vpp_reg_write(reg_addr_port, (0x1 << H_AUTO_INC) |
 				    (0x1 << rgb_mask)   |
 				    (0x0 << HADR));
 	for (i = 0; i < 256; i++) {
-		while (!(vpp_reg_read(L_GAMMA_CNTL_PORT) & (0x1 << WR_RDY))) {
+		while (!(vpp_reg_read(reg_cntl_port) & (0x1 << WR_RDY))) {
 			udelay(10);
 			if (cnt++ > GAMMA_RETRY)
 				break;
 		}
 		cnt = 0;
-		vpp_reg_write(L_GAMMA_DATA_PORT, data[i]);
+		vpp_reg_write(reg_data_port, data[i]);
 	}
-	while (!(vpp_reg_read(L_GAMMA_CNTL_PORT) & (0x1 << ADR_RDY))) {
+	while (!(vpp_reg_read(reg_cntl_port) & (0x1 << ADR_RDY))) {
 		udelay(10);
 		if (cnt++ > GAMMA_RETRY)
 			break;
 	}
-	vpp_reg_write(L_GAMMA_ADDR_PORT, (0x1 << H_AUTO_INC) |
+	vpp_reg_write(reg_addr_port, (0x1 << H_AUTO_INC) |
 				    (0x1 << rgb_mask)   |
 				    (0x23 << HADR));
 
 }
 
-void vpp_init_lcd_gamma_table(void)
+void vpp_init_lcd_gamma_table(int index)
 {
 	VPP_PR("%s\n", __func__);
 
-	vpp_disable_lcd_gamma_table();
+	vpp_disable_lcd_gamma_table(index);
 
-	vpp_set_lcd_gamma_table(gamma_table_r, H_SEL_R);
-	vpp_set_lcd_gamma_table(gamma_table_g, H_SEL_G);
-	vpp_set_lcd_gamma_table(gamma_table_b, H_SEL_B);
+	vpp_set_lcd_gamma_table(index, gamma_table_r, H_SEL_R);
+	vpp_set_lcd_gamma_table(index, gamma_table_g, H_SEL_G);
+	vpp_set_lcd_gamma_table(index, gamma_table_b, H_SEL_B);
 
-	vpp_enable_lcd_gamma_table();
+	vpp_enable_lcd_gamma_table(index);
 }
 
 void vpp_matrix_update(int type)
@@ -1569,14 +1635,16 @@ void hdr_tx_pkt_cb(void)
 {
 	int hdr_policy = 0;
 	struct master_display_info_s hdr_data;
-	struct hdr_info *hdrinfo;
+	struct hdr_info *hdrinfo = NULL;
 	const char *hdr_policy_env = env_get("hdr_policy");
 
 	if (!hdr_policy_env)
 		return;
 
 	hdr_policy = simple_strtoul(hdr_policy_env, NULL, 10);
+#ifdef CONFIG_AML_HDMITX20
 	hdrinfo = hdmitx_get_rx_hdr_info();
+#endif
 
 	if ((hdrinfo && hdrinfo->hdr_sup_eotf_smpte_st_2084) &&
 	    hdr_policy == 0) {
@@ -1584,7 +1652,9 @@ void hdr_tx_pkt_cb(void)
 		hdr_func(OSD2_HDR, SDR_HDR);
 		hdr_func(VD1_HDR, SDR_HDR);
 		amvecm_cp_hdr_info(&hdr_data);
+#ifdef CONFIG_AML_HDMITX20
 		hdmitx_set_drm_pkt(&hdr_data);
+#endif
 	}
 
 	VPP_PR("hdr_policy = %d\n", hdr_policy);

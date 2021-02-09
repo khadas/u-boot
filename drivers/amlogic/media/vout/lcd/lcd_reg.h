@@ -24,7 +24,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
-
+#include "edp_tx_reg.h"
 #include "lcd_dummy_reg.h"
 
 /* ********************************
@@ -33,7 +33,8 @@
 /* base & offset */
 #define REG_OFFSET_CBUS(reg)            ((reg) << 2)
 #define REG_OFFSET_VCBUS(reg)           ((reg) << 2)
-#define REG_OFFSET_DSI_HOST(reg)        ((reg) << 2)
+#define REG_OFFSET_DSI_HOST(reg)        ((reg > 0x10000) ? (reg & 0xfff) : ((reg & 0xff) << 2))
+#define REG_OFFSET_DSI_PHY(reg)         (reg & 0xfff)
 #define REG_OFFSET_TCON_APB(reg)        ((reg) << 2)
 #define REG_OFFSET_TCON_APB_BYTE(reg)   (reg)
 
@@ -42,17 +43,17 @@
 #define REG_ADDR_PERIPHS(reg)           (reg + 0L)
 #define REG_ADDR_CBUS(reg)              ((reg > 0x10000) ? (reg + 0L) : \
 					(REG_BASE_CBUS + REG_OFFSET_CBUS(reg)))
+#define REG_ADDR_RESET(reg)             (reg + 0L)
 #define REG_ADDR_HIU(reg)               (reg + 0L)
 #define REG_ADDR_COMBO(reg)		(reg + 0L)
 #define REG_ADDR_VCBUS(reg)             ((reg > 0x10000) ? (reg + 0L) : \
 				(REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg)))
-#define REG_ADDR_DSI_HOST(reg)          ((reg > 0x10000) ? (reg + 0L) : \
-				(REG_BASE_DSI_HOST + REG_OFFSET_DSI_HOST(reg)))
-#define REG_ADDR_DSI_PHY(reg)           (reg + 0L)
-#define REG_ADDR_TCON_APB(reg)          ((reg + 0x10000) ? (reg + 0L) : \
-				(REG_TCON_APB_BASE + REG_OFFSET_TCON_APB(reg)))
-#define REG_ADDR_TCON_APB_BYTE(reg)     ((reg + 0x10000) ? (reg + 0L) : \
-			(REG_TCON_APB_BASE + REG_OFFSET_TCON_APB_BYTE(reg)))
+#define REG_ADDR_DSI_HOST(reg)          (MIPI_DSI_BASE + REG_OFFSET_DSI_HOST(reg))
+#define REG_ADDR_DSI_PHY(reg)           (MIPI_DSI_PHY_BASE + REG_OFFSET_DSI_PHY(reg))
+#define REG_ADDR_DSI_B_HOST(reg)        (MIPI_DSI_B_BASE + REG_OFFSET_DSI_HOST(reg))
+#define REG_ADDR_DSI_B_PHY(reg)         (MIPI_DSI_B_PHY_BASE + REG_OFFSET_DSI_PHY(reg))
+#define REG_ADDR_TCON_APB(reg)          (REG_TCON_APB_BASE + REG_OFFSET_TCON_APB(reg))
+#define REG_ADDR_TCON_APB_BYTE(reg)     (REG_TCON_APB_BASE + REG_OFFSET_TCON_APB_BYTE(reg))
 
 /*#define HHI_VIID_CLK_DIV     	0x4a*/
 #define DAC0_CLK_SEL           28
@@ -110,337 +111,469 @@
  * register access api
  * ********************************* */
 /* use offset address */
-static inline unsigned int lcd_combo_dphy_read(unsigned int _reg)
+static inline unsigned int lcd_combo_dphy_read(unsigned int reg)
 {
-	return *(volatile unsigned int *)(REG_ADDR_COMBO(_reg));
+	unsigned int val;
+
+	val = *(volatile unsigned int *)(REG_ADDR_COMBO(reg));
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%08x\n", __func__, reg, val);
+
+	return val;
 };
 
-static inline void lcd_combo_dphy_write(unsigned int _reg, unsigned int _value)
+static inline void lcd_combo_dphy_write(unsigned int reg, unsigned int val)
 {
-#ifdef LCD_REG_DEBUG
-	printf("combo_reg_addr[0x%08x]\n", _reg);
-#endif
-	*(volatile unsigned int *)REG_ADDR_COMBO(_reg) = (_value);
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%08x\n", __func__, reg, val);
+	*(volatile unsigned int *)REG_ADDR_COMBO(reg) = (val);
 };
 
-static inline void lcd_combo_dphy_setb(unsigned int _reg, unsigned int _value,
-				   unsigned int _start, unsigned int _len)
+static inline void lcd_combo_dphy_setb(unsigned int reg, unsigned int val,
+				   unsigned int start, unsigned int len)
 {
-	lcd_combo_dphy_write(_reg, ((lcd_combo_dphy_read(_reg) &
-			~(((1L << (_len))-1) << (_start))) |
-			(((_value)&((1L<<(_len))-1)) << (_start))));
+	lcd_combo_dphy_write(reg, ((lcd_combo_dphy_read(reg) &
+			~(((1L << (len))-1) << (start))) |
+			(((val)&((1L<<(len))-1)) << (start))));
 }
 
-static inline unsigned int lcd_combo_dphy_getb(unsigned int _reg,
-					   unsigned int _start,
-					   unsigned int _len)
+static inline unsigned int lcd_combo_dphy_getb(unsigned int reg,
+					   unsigned int start,
+					   unsigned int len)
 {
-	return (lcd_combo_dphy_read(_reg) >> (_start)) & ((1L << (_len)) - 1);
+	return (lcd_combo_dphy_read(reg) >> (start)) & ((1L << (len)) - 1);
 }
 
-static inline void lcd_combo_dphy_set_mask(unsigned int _reg, unsigned int _mask)
+static inline void lcd_combo_dphy_set_mask(unsigned int reg, unsigned int _mask)
 {
-	lcd_combo_dphy_write(_reg, (lcd_combo_dphy_read(_reg) | (_mask)));
+	lcd_combo_dphy_write(reg, (lcd_combo_dphy_read(reg) | (_mask)));
 }
 
-static inline void lcd_combo_dphy_clr_mask(unsigned int _reg, unsigned int _mask)
+static inline void lcd_combo_dphy_clr_mask(unsigned int reg, unsigned int _mask)
 {
-	lcd_combo_dphy_write(_reg, (lcd_combo_dphy_read(_reg) & (~(_mask))));
+	lcd_combo_dphy_write(reg, (lcd_combo_dphy_read(reg) & (~(_mask))));
 }
 
-static inline unsigned int lcd_hiu_read(unsigned int _reg)
+static inline unsigned int lcd_clk_read(unsigned int reg)
 {
-	return *(volatile unsigned int *)(REG_ADDR_HIU(_reg));
+	unsigned int val;
+
+	val = *(volatile unsigned int *)(REG_ADDR_HIU(reg));
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%08x\n", __func__, reg, val);
+
+	return val;
 };
 
-static inline void lcd_hiu_write(unsigned int _reg, unsigned int _value)
+static inline void lcd_clk_write(unsigned int reg, unsigned int val)
 {
-#ifdef LCD_REG_DEBUG
-	printf("hiu_reg_addr[0x%08x]\n", _reg);
-#endif
-	*(volatile unsigned int *)REG_ADDR_HIU(_reg) = (_value);
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%08x\n", __func__, reg, val);
+	*(volatile unsigned int *)REG_ADDR_HIU(reg) = (val);
 };
 
-static inline void lcd_hiu_setb(unsigned int _reg, unsigned int _value,
-		unsigned int _start, unsigned int _len)
+static inline void lcd_clk_setb(unsigned int reg, unsigned int val,
+		unsigned int start, unsigned int len)
 {
-	lcd_hiu_write(_reg, ((lcd_hiu_read(_reg) &
-			~(((1L << (_len))-1) << (_start))) |
-			(((_value)&((1L<<(_len))-1)) << (_start))));
+	lcd_clk_write(reg, ((lcd_clk_read(reg) &
+			~(((1L << (len))-1) << (start))) |
+			(((val)&((1L<<(len))-1)) << (start))));
 }
 
-static inline unsigned int lcd_hiu_getb(unsigned int _reg,
-		unsigned int _start, unsigned int _len)
+static inline unsigned int lcd_clk_getb(unsigned int reg,
+		unsigned int start, unsigned int len)
 {
-	return (lcd_hiu_read(_reg) >> (_start)) & ((1L << (_len)) - 1);
+	return (lcd_clk_read(reg) >> (start)) & ((1L << (len)) - 1);
 }
 
-static inline void lcd_hiu_set_mask(unsigned int _reg, unsigned int _mask)
+static inline void lcd_clk_set_mask(unsigned int reg, unsigned int _mask)
 {
-	lcd_hiu_write(_reg, (lcd_hiu_read(_reg) | (_mask)));
+	lcd_clk_write(reg, (lcd_clk_read(reg) | (_mask)));
 }
 
-static inline void lcd_hiu_clr_mask(unsigned int _reg, unsigned int _mask)
+static inline void lcd_clk_clr_mask(unsigned int reg, unsigned int _mask)
 {
-	lcd_hiu_write(_reg, (lcd_hiu_read(_reg) & (~(_mask))));
+	lcd_clk_write(reg, (lcd_clk_read(reg) & (~(_mask))));
 }
 
-static inline unsigned int lcd_cbus_read(unsigned int _reg)
+static inline unsigned int lcd_ana_read(unsigned int reg)
 {
-	return (*(volatile unsigned int *)REG_ADDR_CBUS(_reg));
+	unsigned int val;
+
+	val = *(volatile unsigned int *)(REG_ADDR_HIU(reg));
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%08x\n", __func__, reg, val);
+
+	return val;
 };
 
-static inline void lcd_cbus_write(unsigned int _reg, unsigned int _value)
+static inline void lcd_ana_write(unsigned int reg, unsigned int val)
 {
-#ifdef LCD_REG_DEBUG
-	printf("cbus_reg_addr[0x%08x]\n", _reg);
-#endif
-	*(volatile unsigned int *)REG_ADDR_CBUS(_reg) = (_value);
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%08x\n", __func__, reg, val);
+	*(volatile unsigned int *)REG_ADDR_HIU(reg) = (val);
 };
 
-static inline void lcd_cbus_setb(unsigned int _reg, unsigned int _value,
-		unsigned int _start, unsigned int _len)
+static inline void lcd_ana_setb(unsigned int reg, unsigned int val,
+		unsigned int start, unsigned int len)
 {
-	lcd_cbus_write(_reg, ((lcd_cbus_read(_reg) &
-			~(((1L << (_len))-1) << (_start))) |
-			(((_value)&((1L<<(_len))-1)) << (_start))));
+	lcd_ana_write(reg, ((lcd_ana_read(reg) &
+			~(((1L << (len))-1) << (start))) |
+			(((val)&((1L<<(len))-1)) << (start))));
 }
 
-static inline unsigned int lcd_cbus_getb(unsigned int _reg,
-		unsigned int _start, unsigned int _len)
+static inline unsigned int lcd_ana_getb(unsigned int reg,
+		unsigned int start, unsigned int len)
 {
-	return (lcd_cbus_read(_reg) >> (_start)) & ((1L << (_len)) - 1);
+	return (lcd_ana_read(reg) >> (start)) & ((1L << (len)) - 1);
 }
 
-static inline void lcd_cbus_set_mask(unsigned int _reg, unsigned int _mask)
+static inline void lcd_ana_set_mask(unsigned int reg, unsigned int _mask)
 {
-	lcd_cbus_write(_reg, (lcd_cbus_read(_reg) | (_mask)));
+	lcd_ana_write(reg, (lcd_ana_read(reg) | (_mask)));
 }
 
-static inline void lcd_cbus_clr_mask(unsigned int _reg, unsigned int _mask)
+static inline void lcd_ana_clr_mask(unsigned int reg, unsigned int _mask)
 {
-	lcd_cbus_write(_reg, (lcd_cbus_read(_reg) & (~(_mask))));
+	lcd_ana_write(reg, (lcd_ana_read(reg) & (~(_mask))));
 }
 
-static inline unsigned int lcd_vcbus_read(unsigned int _reg)
+static inline unsigned int lcd_cbus_read(unsigned int reg)
 {
-	return (*(volatile unsigned int *)REG_ADDR_VCBUS(_reg));
-}
+	unsigned int val;
 
-static inline void lcd_vcbus_write(unsigned int _reg, unsigned int _value)
-{
-#ifdef LCD_REG_DEBUG
-	printf("vcbus_reg_addr[0x%08x]\n", _reg);
-#endif
-	(*(volatile unsigned int *)REG_ADDR_VCBUS(_reg)) = (_value);
-}
+	val = (*(volatile unsigned int *)REG_ADDR_CBUS(reg));
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%08x\n", __func__, reg, val);
 
-static inline void lcd_vcbus_setb(unsigned int _reg, unsigned int _value,
-		unsigned int _start, unsigned int _len)
-{
-	lcd_vcbus_write(_reg, ((lcd_vcbus_read(_reg) &
-			~(((1L << (_len))-1) << (_start))) |
-			(((_value)&((1L<<(_len))-1)) << (_start))));
-}
-
-static inline unsigned int lcd_vcbus_getb(unsigned int _reg,
-		unsigned int _start, unsigned int _len)
-{
-	return (lcd_vcbus_read(_reg) >> (_start)) & ((1L << (_len)) - 1);
-}
-
-static inline void lcd_vcbus_set_mask(unsigned int _reg, unsigned int _mask)
-{
-	lcd_vcbus_write(_reg, (lcd_vcbus_read(_reg) | (_mask)));
-}
-
-static inline void lcd_vcbus_clr_mask(unsigned int _reg, unsigned int _mask)
-{
-	lcd_vcbus_write(_reg, (lcd_vcbus_read(_reg) & (~(_mask))));
-}
-
-static inline unsigned int lcd_aobus_read(unsigned int _reg)
-{
-	return (*(volatile unsigned int *)REG_ADDR_AOBUS(_reg));
+	return val;
 };
 
-static inline void lcd_aobus_write(unsigned int _reg, unsigned int _value)
+static inline void lcd_cbus_write(unsigned int reg, unsigned int val)
 {
-	*(volatile unsigned int *)REG_ADDR_AOBUS(_reg) = (_value);
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%08x\n", __func__, reg, val);
+	*(volatile unsigned int *)REG_ADDR_CBUS(reg) = (val);
 };
 
-static inline void lcd_aobus_setb(unsigned int _reg, unsigned int _value,
-		unsigned int _start, unsigned int _len)
+static inline void lcd_cbus_setb(unsigned int reg, unsigned int val,
+		unsigned int start, unsigned int len)
 {
-	lcd_aobus_write(_reg, ((lcd_aobus_read(_reg) &
-			~(((1L << (_len))-1) << (_start))) |
-			(((_value)&((1L<<(_len))-1)) << (_start))));
+	lcd_cbus_write(reg, ((lcd_cbus_read(reg) &
+			~(((1L << (len))-1) << (start))) |
+			(((val)&((1L<<(len))-1)) << (start))));
 }
 
-static inline unsigned int lcd_aobus_getb(unsigned int _reg,
-		unsigned int _start, unsigned int _len)
+static inline unsigned int lcd_cbus_getb(unsigned int reg,
+		unsigned int start, unsigned int len)
 {
-	return (lcd_aobus_read(_reg) & (((1L << (_len)) - 1) << (_start)));
+	return (lcd_cbus_read(reg) >> (start)) & ((1L << (len)) - 1);
 }
 
-static inline unsigned int lcd_periphs_read(unsigned int _reg)
+static inline void lcd_cbus_set_mask(unsigned int reg, unsigned int _mask)
 {
-	return (*(volatile unsigned int *)REG_ADDR_PERIPHS(_reg));
+	lcd_cbus_write(reg, (lcd_cbus_read(reg) | (_mask)));
+}
+
+static inline void lcd_cbus_clr_mask(unsigned int reg, unsigned int _mask)
+{
+	lcd_cbus_write(reg, (lcd_cbus_read(reg) & (~(_mask))));
+}
+
+static inline unsigned int lcd_reset_read(unsigned int reg)
+{
+	unsigned int val;
+
+	val = (*(volatile unsigned int *)REG_ADDR_RESET(reg));
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%08x\n", __func__, reg, val);
+
+	return val;
 };
 
-static inline void lcd_periphs_write(unsigned int _reg, unsigned int _value)
+static inline void lcd_reset_write(unsigned int reg, unsigned int val)
 {
-#ifdef LCD_REG_DEBUG
-	printf("periphs_reg_addr[0x%08x]\n", _reg);
-#endif
-	*(volatile unsigned int *)REG_ADDR_PERIPHS(_reg) = (_value);
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%08x\n", __func__, reg, val);
+	*(volatile unsigned int *)REG_ADDR_RESET(reg) = (val);
 };
 
-static inline void lcd_periphs_setb(unsigned int _reg, unsigned int _value,
-		unsigned int _start, unsigned int _len)
+static inline void lcd_reset_setb(unsigned int reg, unsigned int val,
+		unsigned int start, unsigned int len)
 {
-	lcd_periphs_write(_reg, ((lcd_periphs_read(_reg) &
-			~(((1L << (_len))-1) << (_start))) |
-			(((_value)&((1L<<(_len))-1)) << (_start))));
+	lcd_reset_write(reg, ((lcd_reset_read(reg) &
+			~(((1L << (len))-1) << (start))) |
+			(((val)&((1L<<(len))-1)) << (start))));
 }
 
-static inline unsigned int lcd_periphs_getb(unsigned int _reg,
-		unsigned int _start, unsigned int _len)
+static inline unsigned int lcd_vcbus_read(unsigned int reg)
 {
-	return (lcd_periphs_read(_reg) & (((1L << (_len)) - 1) << (_start)));
+	unsigned int val;
+
+	val = (*(volatile unsigned int *)REG_ADDR_VCBUS(reg));
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%08x\n", __func__, reg, val);
+
+	return val;
+}
+
+static inline void lcd_vcbus_write(unsigned int reg, unsigned int val)
+{
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%08x\n", __func__, reg, val);
+	(*(volatile unsigned int *)REG_ADDR_VCBUS(reg)) = (val);
+}
+
+static inline void lcd_vcbus_setb(unsigned int reg, unsigned int val,
+		unsigned int start, unsigned int len)
+{
+	lcd_vcbus_write(reg, ((lcd_vcbus_read(reg) &
+			~(((1L << (len))-1) << (start))) |
+			(((val)&((1L<<(len))-1)) << (start))));
+}
+
+static inline unsigned int lcd_vcbus_getb(unsigned int reg,
+		unsigned int start, unsigned int len)
+{
+	return (lcd_vcbus_read(reg) >> (start)) & ((1L << (len)) - 1);
+}
+
+static inline void lcd_vcbus_set_mask(unsigned int reg, unsigned int _mask)
+{
+	lcd_vcbus_write(reg, (lcd_vcbus_read(reg) | (_mask)));
+}
+
+static inline void lcd_vcbus_clr_mask(unsigned int reg, unsigned int _mask)
+{
+	lcd_vcbus_write(reg, (lcd_vcbus_read(reg) & (~(_mask))));
+}
+
+static inline unsigned int lcd_aobus_read(unsigned int reg)
+{
+	unsigned int val;
+
+	val = (*(volatile unsigned int *)REG_ADDR_AOBUS(reg));
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%08x\n", __func__, reg, val);
+
+	return val;
+};
+
+static inline void lcd_aobus_write(unsigned int reg, unsigned int val)
+{
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%08x\n", __func__, reg, val);
+	*(volatile unsigned int *)REG_ADDR_AOBUS(reg) = (val);
+};
+
+static inline void lcd_aobus_setb(unsigned int reg, unsigned int val,
+		unsigned int start, unsigned int len)
+{
+	lcd_aobus_write(reg, ((lcd_aobus_read(reg) &
+			~(((1L << (len))-1) << (start))) |
+			(((val)&((1L<<(len))-1)) << (start))));
+}
+
+static inline unsigned int lcd_aobus_getb(unsigned int reg,
+		unsigned int start, unsigned int len)
+{
+	return (lcd_aobus_read(reg) & (((1L << (len)) - 1) << (start)));
+}
+
+static inline unsigned int lcd_periphs_read(unsigned int reg)
+{
+	unsigned int val;
+
+	val = (*(volatile unsigned int *)REG_ADDR_PERIPHS(reg));
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%08x\n", __func__, reg, val);
+
+	return val;
+};
+
+static inline void lcd_periphs_write(unsigned int reg, unsigned int val)
+{
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%08x\n", __func__, reg, val);
+	*(volatile unsigned int *)REG_ADDR_PERIPHS(reg) = (val);
+};
+
+static inline void lcd_periphs_setb(unsigned int reg, unsigned int val,
+		unsigned int start, unsigned int len)
+{
+	lcd_periphs_write(reg, ((lcd_periphs_read(reg) &
+			~(((1L << (len))-1) << (start))) |
+			(((val)&((1L<<(len))-1)) << (start))));
+}
+
+static inline unsigned int lcd_periphs_getb(unsigned int reg,
+		unsigned int start, unsigned int len)
+{
+	return (lcd_periphs_read(reg) & (((1L << (len)) - 1) << (start)));
 }
 
 static inline void lcd_pinmux_set_mask(unsigned int n, unsigned int _mask)
 {
-	unsigned int _reg = PERIPHS_PIN_MUX_0;
+	unsigned int reg = PERIPHS_PIN_MUX_0;
 
-	if (n > 15)
-		return;
-
-	_reg += (n << 2);
-	lcd_periphs_write(_reg, (lcd_periphs_read(_reg) | (_mask)));
+	reg += (n << 2);
+	lcd_periphs_write(reg, (lcd_periphs_read(reg) | (_mask)));
 }
 
 static inline void lcd_pinmux_clr_mask(unsigned int n, unsigned int _mask)
 {
-	unsigned int _reg = PERIPHS_PIN_MUX_0;
+	unsigned int reg = PERIPHS_PIN_MUX_0;
 
-	if (n > 15)
-		return;
-
-	_reg += (n << 2);
-	lcd_periphs_write(_reg, (lcd_periphs_read(_reg) & (~(_mask))));
+	reg += (n << 2);
+	lcd_periphs_write(reg, (lcd_periphs_read(reg) & (~(_mask))));
 }
 
-static inline unsigned int dsi_host_read(unsigned int _reg)
+static inline unsigned int dsi_host_read(int index, unsigned int reg)
 {
-	return *(volatile unsigned int *)(REG_ADDR_DSI_HOST(_reg));
+	unsigned long paddr;
+	unsigned int val;
+
+	if (index)
+		paddr = (REG_ADDR_DSI_B_HOST(reg));
+	else
+		paddr = (REG_ADDR_DSI_HOST(reg));
+	val = *(volatile unsigned int *)paddr;
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08lx]=0x%08x\n", __func__, paddr, val);
+
+	return val;
 }
 
-static inline void dsi_host_write(unsigned int _reg, unsigned int _value)
+static inline void dsi_host_write(int index, unsigned int reg, unsigned int val)
 {
-#ifdef LCD_REG_DEBUG
-	printf("dsi_reg_addr[0x%08x]\n", _reg);
-#endif
-	*(volatile unsigned int *)REG_ADDR_DSI_HOST(_reg) = (_value);
+	unsigned long paddr;
+
+	if (index)
+		paddr = REG_ADDR_DSI_B_HOST(reg);
+	else
+		paddr = REG_ADDR_DSI_HOST(reg);
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08lx]=0x%08x\n", __func__, paddr, val);
+	*(volatile unsigned int *)paddr = (val);
 }
 
-static inline void dsi_host_setb(unsigned int _reg, unsigned int _value,
-		unsigned int _start, unsigned int _len)
+static inline void dsi_host_setb(int index, unsigned int reg, unsigned int val,
+		unsigned int start, unsigned int len)
 {
-	dsi_host_write(_reg, ((dsi_host_read(_reg) &
-			~(((1L << (_len))-1) << (_start))) |
-			(((_value)&((1L<<(_len))-1)) << (_start))));
+	dsi_host_write(index, reg, ((dsi_host_read(index, reg) &
+			~(((1L << (len)) - 1) << (start))) |
+			(((val) & ((1L << (len)) - 1)) << (start))));
 }
 
-static inline unsigned int dsi_host_getb(unsigned int _reg,
-		unsigned int _start, unsigned int _len)
+static inline unsigned int dsi_host_getb(int index, unsigned int reg,
+		unsigned int start, unsigned int len)
 {
-	return (dsi_host_read(_reg) >> (_start)) & ((1L << (_len)) - 1);
+	return (dsi_host_read(index, reg) >> (start)) & ((1L << (len)) - 1);
 }
 
-static inline void dsi_host_set_mask(unsigned int _reg, unsigned int _mask)
+static inline void dsi_host_set_mask(int index, unsigned int reg, unsigned int _mask)
 {
-	dsi_host_write(_reg, (dsi_host_read(_reg) | (_mask)));
+	dsi_host_write(index, reg, (dsi_host_read(index, reg) | (_mask)));
 }
 
-static inline void dsi_host_clr_mask(unsigned int _reg, unsigned int _mask)
+static inline void dsi_host_clr_mask(int index, unsigned int reg, unsigned int _mask)
 {
-	dsi_host_write(_reg, (dsi_host_read(_reg) & (~(_mask))));
+	dsi_host_write(index, reg, (dsi_host_read(index, reg) & (~(_mask))));
 }
 
-static inline unsigned int dsi_phy_read(unsigned int _reg)
+static inline unsigned int dsi_phy_read(int index, unsigned int reg)
 {
-	return *(volatile unsigned int *)(REG_ADDR_DSI_PHY(_reg));
+	unsigned long paddr;
+	unsigned int val;
+
+	if (index)
+		paddr = (REG_ADDR_DSI_B_PHY(reg));
+	else
+		paddr = (REG_ADDR_DSI_PHY(reg));
+	val = *(volatile unsigned int *)paddr;
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08lx]=0x%08x\n", __func__, paddr, val);
+
+	return val;
 };
 
-static inline void dsi_phy_write(unsigned int _reg, unsigned int _value)
+static inline void dsi_phy_write(int index, unsigned int reg, unsigned int val)
 {
-#ifdef LCD_REG_DEBUG
-	printf("dsi_phy_reg_addr[0x%08x]\n", _reg);
-#endif
-	*(volatile unsigned int *)REG_ADDR_DSI_PHY(_reg) = (_value);
+	unsigned long paddr;
+
+	if (index)
+		paddr = REG_ADDR_DSI_B_PHY(reg);
+	else
+		paddr = REG_ADDR_DSI_PHY(reg);
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08lx]=0x%08x\n", __func__, paddr, val);
+	*(volatile unsigned int *)paddr = (val);
 };
 
-static inline void dsi_phy_setb(unsigned int _reg, unsigned int _value,
-		unsigned int _start, unsigned int _len)
+static inline void dsi_phy_setb(int index, unsigned int reg, unsigned int val,
+		unsigned int start, unsigned int len)
 {
-	dsi_phy_write(_reg, ((dsi_phy_read(_reg) &
-			~(((1L << (_len))-1) << (_start))) |
-			(((_value)&((1L<<(_len))-1)) << (_start))));
+	dsi_phy_write(index, reg, ((dsi_phy_read(index, reg) &
+			~(((1L << (len)) - 1) << (start))) |
+			(((val) & ((1L << (len)) - 1)) << (start))));
 }
 
-static inline unsigned int dsi_phy_getb(unsigned int _reg,
-		unsigned int _start, unsigned int _len)
+static inline unsigned int dsi_phy_getb(int index, unsigned int reg,
+		unsigned int start, unsigned int len)
 {
-	return (dsi_phy_read(_reg) >> (_start)) & ((1L << (_len)) - 1);
+	return (dsi_phy_read(index, reg) >> (start)) & ((1L << (len)) - 1);
 }
 
-static inline void dsi_phy_set_mask(unsigned int _reg, unsigned int _mask)
+static inline void dsi_phy_set_mask(int index, unsigned int reg, unsigned int _mask)
 {
-	dsi_phy_write(_reg, (dsi_phy_read(_reg) | (_mask)));
+	dsi_phy_write(index, reg, (dsi_phy_read(index, reg) | (_mask)));
 }
 
-static inline void dsi_phy_clr_mask(unsigned int _reg, unsigned int _mask)
+static inline void dsi_phy_clr_mask(int index, unsigned int reg, unsigned int _mask)
 {
-	dsi_phy_write(_reg, (dsi_phy_read(_reg) & (~(_mask))));
+	dsi_phy_write(index, reg, (dsi_phy_read(index, reg) & (~(_mask))));
 }
 
-static inline unsigned int lcd_tcon_read(unsigned int _reg)
+static inline unsigned int lcd_tcon_read(unsigned int reg)
 {
-	return *(volatile unsigned int *)(REG_ADDR_TCON_APB(_reg));
+	unsigned int val;
+
+	val = *(volatile unsigned int *)(REG_ADDR_TCON_APB(reg));
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%08x\n", __func__, reg, val);
+
+	return val;
 };
 
-static inline void lcd_tcon_write(unsigned int _reg, unsigned int _value)
+static inline void lcd_tcon_write(unsigned int reg, unsigned int val)
 {
-#ifdef LCD_REG_DEBUG
-	printf("tcon_reg_addr[0x%08x]\n", _reg);
-#endif
-	*(volatile unsigned int *)REG_ADDR_TCON_APB(_reg) = (_value);
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%08x\n", __func__, reg, val);
+	*(volatile unsigned int *)REG_ADDR_TCON_APB(reg) = (val);
 };
 
-static inline void lcd_tcon_setb(unsigned int _reg, unsigned int _value,
-		unsigned int _start, unsigned int _len)
+static inline void lcd_tcon_setb(unsigned int reg, unsigned int val,
+		unsigned int start, unsigned int len)
 {
-	lcd_tcon_write(_reg, ((lcd_tcon_read(_reg) &
-			~(((1L << (_len))-1) << (_start))) |
-			(((_value)&((1L<<(_len))-1)) << (_start))));
+	lcd_tcon_write(reg, ((lcd_tcon_read(reg) &
+			~(((1L << (len))-1) << (start))) |
+			(((val)&((1L<<(len))-1)) << (start))));
 }
 
-static inline unsigned int lcd_tcon_getb(unsigned int _reg,
-		unsigned int _start, unsigned int _len)
+static inline unsigned int lcd_tcon_getb(unsigned int reg,
+		unsigned int start, unsigned int len)
 {
-	return (lcd_tcon_read(_reg) >> (_start)) & ((1L << (_len)) - 1);
+	return (lcd_tcon_read(reg) >> (start)) & ((1L << (len)) - 1);
 }
 
-static inline void lcd_tcon_set_mask(unsigned int _reg, unsigned int _mask)
+static inline void lcd_tcon_set_mask(unsigned int reg, unsigned int _mask)
 {
-	lcd_tcon_write(_reg, (lcd_tcon_read(_reg) | (_mask)));
+	lcd_tcon_write(reg, (lcd_tcon_read(reg) | (_mask)));
 }
 
-static inline void lcd_tcon_clr_mask(unsigned int _reg, unsigned int _mask)
+static inline void lcd_tcon_clr_mask(unsigned int reg, unsigned int _mask)
 {
-	lcd_tcon_write(_reg, (lcd_tcon_read(_reg) & (~(_mask))));
+	lcd_tcon_write(reg, (lcd_tcon_read(reg) & (~(_mask))));
 }
 
 static inline void lcd_tcon_update_bits(unsigned int reg,
@@ -468,29 +601,37 @@ static inline int lcd_tcon_check_bits(unsigned int reg,
 	return 0;
 }
 
-static inline unsigned char lcd_tcon_read_byte(unsigned int _reg)
+static inline unsigned char lcd_tcon_read_byte(unsigned int reg)
 {
-	return *(volatile unsigned char *)(REG_ADDR_TCON_APB_BYTE(_reg));
+	unsigned int val;
+
+	val = *(volatile unsigned char *)(REG_ADDR_TCON_APB_BYTE(reg));
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%02x\n", __func__, reg, val);
+
+	return (unsigned char)val;
 };
 
-static inline void lcd_tcon_write_byte(unsigned int _reg, unsigned char _value)
+static inline void lcd_tcon_write_byte(unsigned int reg, unsigned char val)
 {
-	*(volatile unsigned char *)REG_ADDR_TCON_APB_BYTE(_reg) = (_value);
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [0x%08x]=0x%02x\n", __func__, reg, val);
+	*(volatile unsigned char *)REG_ADDR_TCON_APB_BYTE(reg) = (val);
 };
 
-static inline void lcd_tcon_setb_byte(unsigned int _reg, unsigned char _value,
-				      unsigned int _start, unsigned int _len)
+static inline void lcd_tcon_setb_byte(unsigned int reg, unsigned char val,
+				      unsigned int start, unsigned int len)
 {
-	lcd_tcon_write_byte(_reg, ((lcd_tcon_read_byte(_reg) &
-			~(((1L << (_len))-1) << (_start))) |
-			(((_value)&((1L<<(_len))-1)) << (_start))));
+	lcd_tcon_write_byte(reg, ((lcd_tcon_read_byte(reg) &
+			~(((1L << (len))-1) << (start))) |
+			(((val)&((1L<<(len))-1)) << (start))));
 }
 
-static inline unsigned char lcd_tcon_getb_byte(unsigned int _reg,
-					       unsigned int _start,
-					       unsigned int _len)
+static inline unsigned char lcd_tcon_getb_byte(unsigned int reg,
+					       unsigned int start,
+					       unsigned int len)
 {
-	return (lcd_tcon_read_byte(_reg) >> (_start)) & ((1L << (_len)) - 1);
+	return (lcd_tcon_read_byte(reg) >> (start)) & ((1L << (len)) - 1);
 }
 
 static inline void lcd_tcon_update_bits_byte(unsigned int reg,
@@ -516,6 +657,49 @@ static inline int lcd_tcon_check_bits_byte(unsigned int reg,
 		return -1;
 
 	return 0;
+}
+
+static inline unsigned int dptx_reg_read(int index, unsigned int reg)
+{
+	unsigned long paddr;
+	unsigned int val;
+
+	if (index)
+		paddr = EDPTX1_BASE + reg;
+	else
+		paddr = EDPTX0_BASE + reg;
+	val = *(volatile unsigned int *)paddr;
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [%d][0x%04x]=0x%08x\n", __func__, index, reg, val);
+
+	return val;
+}
+
+static inline void dptx_reg_write(int index, unsigned int reg, unsigned int val)
+{
+	unsigned long paddr;
+
+	if (index)
+		paddr = EDPTX1_BASE + reg;
+	else
+		paddr = EDPTX0_BASE + reg;
+	*(volatile unsigned int *)paddr = (val);
+	if (lcd_debug_print_flag & LCD_DBG_PR_REG)
+		printf("%s: [%d][0x%04x]=0x%08x\n", __func__, index, reg, val);
+}
+
+static inline void dptx_reg_setb(int index, unsigned int reg,
+		unsigned int val, unsigned int start, unsigned int len)
+{
+	dptx_reg_write(index, reg,
+		((dptx_reg_read(index, reg) & ~(((1L << (len)) - 1) << (start))) |
+		(((val) & ((1L << (len)) - 1)) << (start))));
+}
+
+static inline unsigned int dptx_reg_getb(int index, unsigned int reg,
+		unsigned int start, unsigned int len)
+{
+	return (dptx_reg_read(index, reg) >> (start)) & ((1L << (len)) - 1);
 }
 
 #endif

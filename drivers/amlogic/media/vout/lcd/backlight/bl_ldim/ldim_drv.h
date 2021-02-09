@@ -30,12 +30,12 @@
 #define LD_DATA_DEPTH   12
 #define LD_DATA_MAX     0xfff
 
-extern void bl_pwm_ctrl(struct bl_pwm_config_s *bl_pwm, int status);
+void bl_pwm_ctrl(struct bl_pwm_config_s *bl_pwm, int status);
 #ifdef CONFIG_OF_LIBFDT
-extern enum bl_pwm_port_e bl_pwm_str_to_pwm(const char *str);
+enum bl_pwm_port_e bl_pwm_str_to_pwm(const char *str);
 #endif
 
 /* ldim device probe function */
-extern int aml_ldim_device_probe(char *dt_addr);
+int aml_ldim_device_probe(char *dt_addr);
 
 #endif

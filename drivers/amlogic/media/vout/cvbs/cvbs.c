@@ -23,6 +23,7 @@
 #include <dm.h>
 #include <asm/arch/cpu.h>
 #include <amlogic/cpu_id.h>
+#include <amlogic/media/vout/aml_vout.h>
 #include <amlogic/media/vout/aml_cvbs.h>
 #include "cvbs_reg.h"
 #include "cvbs_config.h"
@@ -237,8 +238,8 @@ int cvbs_reg_debug(int argc, char* const argv[])
 		if (argc != 3)
 			goto fail_cmd;
 		value = simple_strtoul(argv[2], NULL, 0);
-		if ((cvbs_drv.data->chip_type = CVBS_CHIP_G12A) ||
-		    (cvbs_drv.data->chip_type = CVBS_CHIP_G12B)) {
+		if ((cvbs_drv.data->chip_type == CVBS_CHIP_G12A) ||
+		    (cvbs_drv.data->chip_type == CVBS_CHIP_G12B)) {
 			if (value == 1 || value == 2 ||
 				value == 3 || value == 0) {
 				s_enci_clk_path = value;
@@ -252,8 +253,9 @@ int cvbs_reg_debug(int argc, char* const argv[])
 				printf("bit[0]: 0=vid_pll, 1=gp0_pll\n");
 				printf("bit[1]: 0=vid2_clk, 1=vid1_clk\n");
 			}
-		} else
-			printf("only support G12A chip");
+		} else {
+			printf("don't support for current chip\n");
+		}
 	}
 
 	return 0;
@@ -603,23 +605,27 @@ static char *cvbs_mode_str[CVBS_MODE_CNT] = {
 	"pal_n",
 };
 
-// check for valid video mode
-int cvbs_outputmode_check(char *vmode_name, unsigned int frac)
+/***********************************************
+ * parameters:  vmode_name, such as 576cvbs, 480cvbs...
+ *              frac, cvbs alway 0. don't support.
+ * return:      viu_mux
+ ************************************************/
+unsigned int cvbs_outputmode_check(char *vmode_name, unsigned int frac)
 {
 	unsigned int i;
 
 	if (frac) {
 		printf("cvbs: don't support frac\n");
-		return -1;
+		return VIU_MUX_MAX;
 	}
 
 	for (i = 0; i < CVBS_MODE_CNT; i++) {
 		if (!strncmp(vmode_name, cvbs_mode_str[i], strlen(cvbs_mode_str[i])))
-			return 0;
+			return VIU_MUX_ENCI;
 	}
 
-	printf("cvbs: outputmode[%s] is invalid\n", vmode_name);
-	return -1;
+	//printf("cvbs: outputmode[%s] is invalid\n", vmode_name);
+	return VIU_MUX_MAX;
 }
 
 // list for valid video mode

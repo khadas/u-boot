@@ -45,7 +45,36 @@ static struct vout_conf_s *vout_conf;
 static int vout_conf_check(void);
 #include "vout_reg.h"
 
-static const struct vout_set_s vout_sets[] = {
+static const struct vout_set_s vout_sets_lcd[] = {
+	{ /* VMODE_LCD */
+		.name              = "panel",
+		.mode              = VMODE_LCD,
+		.width             = 1920,
+		.height            = 1080,
+		.field_height      = 1080,
+		.viu_color_fmt     = VPP_CM_RGB,
+		.viu_mux           = VIU_MUX_ENCL,
+	},
+	{ /* VMODE_LCD */
+		.name              = "panel1",
+		.mode              = VMODE_LCD,
+		.width             = 1920,
+		.height            = 1080,
+		.field_height      = 1080,
+		.viu_color_fmt     = VPP_CM_RGB,
+		.viu_mux           = (1 << 4) | VIU_MUX_ENCL,
+	},{ /* VMODE_LCD */
+		.name              = "panel2",
+		.mode              = VMODE_LCD,
+		.width             = 1920,
+		.height            = 1080,
+		.field_height      = 1080,
+		.viu_color_fmt     = VPP_CM_RGB,
+		.viu_mux           = (2 << 4) | VIU_MUX_ENCL,
+	}
+};
+
+static const struct vout_set_s vout_sets_dft[] = {
 	{ /* VMODE_480I */
 		.name              = "480i",
 		.mode              = VMODE_480I,
@@ -202,15 +231,6 @@ static const struct vout_set_s vout_sets[] = {
 	{ /* VMODE_fhdvga */
 		.name              = "fhdvga",
 		.mode              = VMODE_FHDVGA,
-		.width             = 1920,
-		.height            = 1080,
-		.field_height      = 1080,
-		.viu_color_fmt     = VPP_CM_YUV,
-		.viu_mux           = VIU_MUX_ENCP,
-	},
-	{ /* VMODE_LCD */
-		.name              = "panel",
-		.mode              = VMODE_LCD,
 		.width             = 1920,
 		.height            = 1080,
 		.field_height      = 1080,
@@ -408,7 +428,7 @@ static const struct vout_set_s vout_sets[] = {
 		.height            = 1080,
 		.viu_color_fmt     = VPP_CM_YUV,
 		.viu_mux           = VIU_MUX_ENCP,
-	},
+	}
 };
 
 static struct vinfo_s vout_info = {
@@ -442,65 +462,27 @@ static int vout_conf_check(void)
 	return 0;
 }
 
-static int vout_find_mode_by_name(const char *name)
+static const struct vout_set_s *vout_find_mode_by_name(const char *name)
 {
-	int mode = -1;
+	const struct vout_set_s *vset = NULL;
 	int i = 0;
 
-	for (i = 0; i < sizeof(vout_sets) / sizeof(struct vout_set_s); i++) {
-		if (strncmp(name, vout_sets[i].name, strlen(vout_sets[i].name)) == 0) {
-			mode = vout_sets[i].mode;
-			return mode;
-		}
+	vset = vout_sets_dft;
+	for (i = 0; i < sizeof(vout_sets_dft) / sizeof(struct vout_set_s); i++) {
+		if (strncmp(name, vset->name, strlen(vset->name)) == 0)
+			return vset;
+		vset++;
+	}
+
+	vset = vout_sets_lcd;
+	for (i = 0; i < sizeof(vout_sets_lcd) / sizeof(struct vout_set_s); i++) {
+		if (strcmp(name, vset->name) == 0)
+			return vset;
+		vset++;
 	}
 
 	vout_log("mode: %s not found\n", name);
-	return -1;
-}
-
-static int vout_find_width_by_name(const char* name)
-{
-	int i = 0;
-	ulong width = 0;
-
-	for (i = 0; i < sizeof(vout_sets) / sizeof(struct vout_set_s); i++) {
-		if (strncmp(name, vout_sets[i].name, strlen(vout_sets[i].name)) == 0) {
-			width = vout_sets[i].width;
-			return width;
-		}
-	}
-
-	return width;
-}
-
-static int vout_find_height_by_name(const char* name)
-{
-	int height = 0;
-	int i = 0;
-
-	for (i = 0; i < sizeof(vout_sets) / sizeof(struct vout_set_s); i++) {
-		if (strncmp(name, vout_sets[i].name, strlen(vout_sets[i].name)) == 0) {
-			height = vout_sets[i].height;
-			return height;
-		}
-	}
-
-	return height;
-}
-
-static int vout_find_field_height_by_name(const char* name)
-{
-	int height = 0;
-	int i = 0;
-
-	for (i = 0; i < sizeof(vout_sets) / sizeof(struct vout_set_s); i++) {
-		if (strncmp(name, vout_sets[i].name, strlen(vout_sets[i].name)) == 0) {
-			height = vout_sets[i].field_height;
-			return height;
-		}
-	}
-
-	return height;
+	return NULL;
 }
 
 static unsigned int vout_env2uint(const char *name, int base)
@@ -531,30 +513,37 @@ static void vout_axis_init(ulong w, ulong h)
 static void vout_vmode_init(void)
 {
 	char *outputmode = NULL;
+	const struct vout_set_s *vset = NULL;
 	int vmode = -1;
 	ulong width = 0;
 	ulong height = 0;
 	ulong field_height = 0;
 #ifdef CONFIG_AML_LCD
-	struct lcd_drv_s *lcd_drv;
+	struct aml_lcd_drv_s *pdrv;
+	unsigned int venc_index;
 #endif
 
 	outputmode = env_get("outputmode");
-	vmode = vout_find_mode_by_name(outputmode);
+	vset = vout_find_mode_by_name(outputmode);
+	if (!vset)
+		return;
+
+	vmode = vset->mode;
 	vout_set_current_vmode(vmode);
 	switch (vmode) {
 #ifdef CONFIG_AML_LCD
 	case VMODE_LCD:
-		lcd_drv = lcd_get_driver();
-		width = lcd_drv->lcd_config->lcd_basic.h_active;
-		height = lcd_drv->lcd_config->lcd_basic.v_active;
-		field_height = lcd_drv->lcd_config->lcd_basic.v_active;
+		venc_index = (vset->viu_mux >> 4) & 0xf;
+		pdrv = aml_lcd_get_driver(venc_index);
+		width = pdrv->config.basic.h_active;
+		height = pdrv->config.basic.v_active;
+		field_height = pdrv->config.basic.v_active;
 		break;
 #endif
 	default:
-		width = vout_find_width_by_name(outputmode);
-		height = vout_find_height_by_name(outputmode);
-		field_height = vout_find_field_height_by_name(outputmode);
+		width = vset->width;
+		height = vset->height;
+		field_height = vset->field_height;
 		break;
 	}
 	vout_axis_init(width, height);
@@ -714,30 +703,24 @@ void vout_vinfo_dump(void)
 
 static void vout_reg_dump(void)
 {
-	vout_log("venc_mux: 0x%x = 0x%08x\n",
-		 vout_conf->venc_mux_reg,
-		 vout_reg_read(0, vout_conf->venc_mux_reg));
-}
+	unsigned int reg;
 
-static void vout_reg_dump_t7(void)
-{
-	unsigned int i;
+	if (vout_conf_check())
+		return;
 
-	for (i = 0; i < 3; i++) {
-		vout_log("venc_mux: 0x%08x = 0x%08x\n",
-			 vout_conf->venc_mux_reg + vout_conf->offset[i],
-			 vout_reg_read(i, vout_conf->venc_mux_reg));
-	}
+	reg = vout_conf->viu_mux_reg;
+	vout_log("viu_mux: 0x%x = 0x%08x\n", reg, vout_reg_read(reg));
 }
 
 static unsigned int vout_viu1_mux = VIU_MUX_MAX;
 static unsigned int vout_viu2_mux = VIU_MUX_MAX;
-static void vout_viu_mux_default(int viu_sel, int venc_sel)
+static void vout_viu_mux_default(int index, unsigned int mux_sel)
 {
 	unsigned int clk_bit = 0xff, clk_sel = 0;
 	unsigned int vout_viu_sel = 0xf;
+	unsigned int venc_sel = mux_sel;
 
-	switch (viu_sel) {
+	switch (index) {
 	case VOUT_VIU2_SEL:
 		if (vout_conf->viu_valid[1]) {
 			/* set cts_vpu_clkc to 200MHz*/
@@ -778,59 +761,44 @@ static void vout_viu_mux_default(int viu_sel, int venc_sel)
 		break;
 	}
 
-	vout_reg_setb(0, VPU_VIU_VENC_MUX_CTRL, vout_viu_sel, 0, 4);
+	vout_reg_setb(VPU_VIU_VENC_MUX_CTRL, vout_viu_sel, 0, 4);
 	if (vout_conf->viu_valid[1]) {
 		if (clk_bit < 0xff)
-			vout_reg_setb(0, VPU_VENCX_CLK_CTRL, clk_sel, clk_bit, 1);
+			vout_reg_setb(VPU_VENCX_CLK_CTRL, clk_sel, clk_bit, 1);
 	}
 }
 
-static void vout_viu_mux_t7(int viu_sel, int venc_sel)
+static void vout_viu_mux_t7(int index, unsigned int mux_sel)
 {
-	unsigned int index = 3, mux_val = 3;
+	unsigned int viu_bit = 0xff, venc_idx;
 
-	switch (viu_sel) {
-	case VOUT_VIU3_SEL:
-		index = 2;
+	switch (index) {
+	case VOUT_VIU1_SEL:
+		viu_bit = 0;
 		break;
 	case VOUT_VIU2_SEL:
-		index = 1;
+		viu_bit = 2;
 		break;
-	case VOUT_VIU1_SEL:
-		index = 0;
+	case VOUT_VIU3_SEL:
+		viu_bit = 4;
 		break;
 	default:
-		break;
-	}
-	if (index > 2) {
 		vout_log("error: %s: invalid index %d\n", __func__, index);
 		return;
 	}
+	venc_idx = (mux_sel >> 4) & 0xf;
 
-	switch (venc_sel) {
-	case VIU_MUX_ENCL:
-		mux_val = 2;
-		break;
-	case VIU_MUX_ENCI:
-		mux_val = 0;
-		break;
-	case VIU_MUX_ENCP:
-		mux_val = 1;
-		break;
-	default:
-		break;
-	}
-
-	vout_reg_write(index, VPU_VENC_CTRL, mux_val);
+	/* viu_mux: viu0_sel: 0=venc0, 1=venc1, 2=venc2, 3=invalid */
+	vout_reg_setb(VPU_VIU_VENC_MUX_CTRL, venc_idx, viu_bit, 2);
 }
 
-void vout_viu_mux(int viu_sel, int venc_sel)
+void vout_viu_mux(int index, unsigned int mux_sel)
 {
 	if (vout_conf_check())
 		return;
 
 	if (vout_conf->viu_mux)
-		vout_conf->viu_mux(viu_sel, venc_sel);
+		vout_conf->viu_mux(index, mux_sel);
 }
 
 void vout_init(void)
@@ -848,11 +816,7 @@ static struct vout_conf_s vout_config_single = {
 	.viu_valid[1] = 0,
 	.viu_valid[2] = 0,
 
-	.offset[0] = 0,
-	.offset[1] = 0,
-	.offset[2] = 0,
-
-	.venc_mux_reg = VPU_VIU_VENC_MUX_CTRL,
+	.viu_mux_reg = VPU_VIU_VENC_MUX_CTRL,
 
 	.viu_mux = vout_viu_mux_default,
 	.reg_dump = vout_reg_dump,
@@ -863,11 +827,7 @@ static struct vout_conf_s vout_config_dual = {
 	.viu_valid[1] = 1,
 	.viu_valid[2] = 0,
 
-	.offset[0] = 0,
-	.offset[1] = 0,
-	.offset[2] = 0,
-
-	.venc_mux_reg = VPU_VIU_VENC_MUX_CTRL,
+	.viu_mux_reg = VPU_VIU_VENC_MUX_CTRL,
 
 	.viu_mux = vout_viu_mux_default,
 	.reg_dump = vout_reg_dump,
@@ -878,14 +838,10 @@ static struct vout_conf_s vout_config_triple = {
 	.viu_valid[1] = 1,
 	.viu_valid[2] = 1,
 
-	.offset[0] = 0x0,
-	.offset[1] = 0x600,
-	.offset[2] = 0x800,
-
-	.venc_mux_reg = VPU_VENC_CTRL,
+	.viu_mux_reg = VPU_VENC_CTRL,
 
 	.viu_mux = vout_viu_mux_t7,
-	.reg_dump = vout_reg_dump_t7,
+	.reg_dump = vout_reg_dump,
 };
 
 void vout_probe(void)
@@ -902,6 +858,7 @@ void vout_probe(void)
 		break;
 	case MESON_CPU_MAJOR_ID_T7:
 		vout_conf = &vout_config_triple;
+		vout_reg_write(VPU_VIU_VENC_MUX_CTRL, 0x3f);
 		break;
 	default:
 		vout_conf = &vout_config_single;

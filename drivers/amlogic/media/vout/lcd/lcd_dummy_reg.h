@@ -238,8 +238,8 @@
 #ifndef ANACTRL_TCON_PLL0_CNTL4
 #define ANACTRL_TCON_PLL0_CNTL4			((0x00e4  << 2) + 0xfe008000)
 #endif
-#ifndef ANACTRL_TCON_PLL0_CNTL0
-#define ANACTRL_TCON_PLL0_CNTL0			((0x00e5  << 2) + 0xfe008000)
+#ifndef ANACTRL_TCON_PLL1_CNTL0
+#define ANACTRL_TCON_PLL1_CNTL0			((0x00e5  << 2) + 0xfe008000)
 #endif
 #ifndef ANACTRL_TCON_PLL1_CNTL1
 #define ANACTRL_TCON_PLL1_CNTL1			((0x00e6  << 2) + 0xfe008000)
@@ -313,6 +313,15 @@
 #endif
 #ifndef COMBO_DPHY_EDP_LVDS_TX_PHY2_CNTL1
 #define COMBO_DPHY_EDP_LVDS_TX_PHY2_CNTL1	((0x000b  << 2) + 0xfe018000)
+#endif
+#ifndef COMBO_DPHY_RO_EDP_LVDS_TX_PHY0_CNTL1
+#define COMBO_DPHY_RO_EDP_LVDS_TX_PHY0_CNTL1	((0x0000  << 2) + 0xfe018000)
+#endif
+#ifndef COMBO_DPHY_RO_EDP_LVDS_TX_PHY1_CNTL1
+#define COMBO_DPHY_RO_EDP_LVDS_TX_PHY1_CNTL1	((0x0011  << 2) + 0xfe018000)
+#endif
+#ifndef COMBO_DPHY_RO_EDP_LVDS_TX_PHY2_CNTL1
+#define COMBO_DPHY_RO_EDP_LVDS_TX_PHY2_CNTL1	((0x0012  << 2) + 0xfe018000)
 #endif
 
 #ifndef ANACTRL_DIF_PHY_CNTL1
@@ -452,6 +461,16 @@
 #define VPU_DISP_VIU2_CTRL                         ((0x2788  << 2) + 0xff000000)
 #endif
 
+#ifndef VPU_VENCI_STAT
+#define VPU_VENCI_STAT                             ((0x1ceb  << 2) + 0xff000000)
+#endif
+#ifndef VPU_VENCP_STAT
+#define VPU_VENCP_STAT                             ((0x1cec  << 2) + 0xff000000)
+#endif
+#ifndef VPU_VENCL_STAT
+#define VPU_VENCL_STAT                             ((0x1ced  << 2) + 0xff000000)
+#endif
+
 #ifndef LCD_RGB_BASE_ADDR
 #define LCD_RGB_BASE_ADDR                          ((0x14a5  << 2) + 0xff000000)
 #endif
@@ -473,6 +492,16 @@
 #endif
 #ifndef VBO_INFILTER_TICK_PERIOD_H
 #define VBO_INFILTER_TICK_PERIOD_H                 0x1477
+#endif
+
+#ifndef LCD_GAMMA_CNTL_PORT0
+#define LCD_GAMMA_CNTL_PORT0                       ((0x14b4  << 2) + 0xff000000)
+#endif
+#ifndef LCD_GAMMA_DATA_PORT0
+#define LCD_GAMMA_DATA_PORT0                       ((0x14b5  << 2) + 0xff000000)
+#endif
+#ifndef LCD_GAMMA_ADDR_PORT0
+#define LCD_GAMMA_ADDR_PORT0                       ((0x14b6  << 2) + 0xff000000)
 #endif
 
 #define TCON_CORE_FLAG_LIC2			(0xff630000L + (0x00e << 2))
@@ -592,6 +621,25 @@
 #define REG_BASE_DSI_HOST 0x3
 #endif
 
+#ifndef MIPI_DSI_BASE
+#define MIPI_DSI_BASE        0xfe074000L
+#endif
+#ifndef MIPI_DSI_B_BASE
+#define MIPI_DSI_B_BASE      0xfe072000L
+#endif
+#ifndef MIPI_DSI_PHY_BASE
+#define MIPI_DSI_PHY_BASE    0xfe014000L
+#endif
+#ifndef MIPI_DSI_B_PHY_BASE
+#define MIPI_DSI_B_PHY_BASE  0xfe016000L
+#endif
+#ifndef EDPTX0_BASE
+#define EDPTX0_BASE    0xfe0b0000L
+#endif
+#ifndef EDPTX1_BASE
+#define EDPTX1_BASE    0xfe0b2000L
+#endif
+
 #ifndef HHI_GP0_PLL_CNTL2
 #define HHI_GP0_PLL_CNTL2 0x4
 #endif
@@ -641,39 +689,135 @@
 #endif
 
 #ifndef PWM_MISC_REG_AB
-#define PWM_MISC_REG_AB PWMAB_MISC_REG_AB
+#define PWM_MISC_REG_AB                            0x6c02
 #endif
 
 #ifndef PWM_MISC_REG_CD
-#define PWM_MISC_REG_CD PWMCD_MISC_REG_AB
+#define PWM_MISC_REG_CD                            0x6802
 #endif
 
 #ifndef PWM_MISC_REG_EF
-#define PWM_MISC_REG_EF PWMEF_MISC_REG_AB
+#define PWM_MISC_REG_EF                            0x6402
 #endif
 
 #ifndef PWM_PWM_A
-#define PWM_PWM_A PWMCD_PWM_A
+#define PWM_PWM_A                                  0x6c00
 #endif
 
 #ifndef PWM_PWM_B
-#define PWM_PWM_B PWMCD_PWM_B
+#define PWM_PWM_B                                  0x6c01
 #endif
 
 #ifndef PWM_PWM_C
-#define PWM_PWM_C PWMCD_PWM_A
+#define PWM_PWM_C                                  0x6800
 #endif
 
 #ifndef PWM_PWM_D
-#define PWM_PWM_D PWMCD_PWM_B
+#define PWM_PWM_D                                  0x6801
 #endif
 
 #ifndef PWM_PWM_E
-#define PWM_PWM_E PWMEF_PWM_A
+#define PWM_PWM_E                                  0x6400
 #endif
 
 #ifndef PWM_PWM_F
-#define PWM_PWM_F PWMEF_PWM_B
+#define PWM_PWM_F                                  0x6401
+#endif
+
+#ifndef AO_PWM_PWM_A
+#define AO_PWM_PWM_A                               (0xff807000 + (0x000 << 2))
+#endif
+#ifndef AO_PWM_PWM_B
+#define AO_PWM_PWM_B                               (0xff807000 + (0x001 << 2))
+#endif
+#ifndef AO_PWM_MISC_REG_AB
+#define AO_PWM_MISC_REG_AB                         (0xff807000 + (0x002 << 2))
+#endif
+
+#ifndef PWMAB_PWM_A
+#define PWMAB_PWM_A                                ((0x0000  << 2) + 0xfe058000)
+#endif
+#ifndef PWMAB_PWM_B
+#define PWMAB_PWM_B                                ((0x0001  << 2) + 0xfe058000)
+#endif
+#ifndef PWMAB_MISC_REG_AB
+#define PWMAB_MISC_REG_AB                          ((0x0002  << 2) + 0xfe058000)
+#endif
+#ifndef PWMCD_PWM_A
+#define PWMCD_PWM_A                                ((0x0000  << 2) + 0xfe05a000)
+#endif
+#ifndef PWMCD_PWM_B
+#define PWMCD_PWM_B                                ((0x0001  << 2) + 0xfe05a000)
+#endif
+#ifndef PWMCD_MISC_REG_AB
+#define PWMCD_MISC_REG_AB                          ((0x0002  << 2) + 0xfe05a000)
+#endif
+#ifndef PWMEF_PWM_A
+#define PWMEF_PWM_A                                ((0x0000  << 2) + 0xfe05c000)
+#endif
+#ifndef PWMEF_PWM_B
+#define PWMEF_PWM_B                                ((0x0001  << 2) + 0xfe05c000)
+#endif
+#ifndef PWMEF_MISC_REG_AB
+#define PWMEF_MISC_REG_AB                          ((0x0002  << 2) + 0xfe05c000)
+#endif
+
+#ifndef PWM_AO_AB_PWM_A
+#define PWM_AO_AB_PWM_A                            ((0x0000  << 2) + 0xfe05e000)
+#endif
+#ifndef PWM_AO_AB_PWM_B
+#define PWM_AO_AB_PWM_B                            ((0x0001  << 2) + 0xfe05e000)
+#endif
+#ifndef PWM_AO_AB_MISC_REG_AB
+#define PWM_AO_AB_MISC_REG_AB                      ((0x0002  << 2) + 0xfe05e000)
+#endif
+#ifndef PWM_AO_CD_PWM_A
+#define PWM_AO_CD_PWM_A                            ((0x0000  << 2) + 0xfe060000)
+#endif
+#ifndef PWM_AO_CD_PWM_B
+#define PWM_AO_CD_PWM_B                            ((0x0001  << 2) + 0xfe060000)
+#endif
+#ifndef PWM_AO_CD_MISC_REG_AB
+#define PWM_AO_CD_MISC_REG_AB                      ((0x0002  << 2) + 0xfe060000)
+#endif
+#ifndef PWM_AO_EF_PWM_A
+#define PWM_AO_EF_PWM_A                            ((0x0000  << 2) + 0xfe030000)
+#endif
+#ifndef PWM_AO_EF_PWM_B
+#define PWM_AO_EF_PWM_B                            ((0x0001  << 2) + 0xfe030000)
+#endif
+#ifndef PWM_AO_EF_MISC_REG_AB
+#define PWM_AO_EF_MISC_REG_AB                      ((0x0002  << 2) + 0xfe030000)
+#endif
+#ifndef PWM_AO_GH_PWM_A
+#define PWM_AO_GH_PWM_A                            ((0x0000  << 2) + 0xfe032000)
+#endif
+#ifndef PWM_AO_GH_PWM_B
+#define PWM_AO_GH_PWM_B                            ((0x0001  << 2) + 0xfe032000)
+#endif
+#ifndef PWM_AO_GH_MISC_REG_AB
+#define PWM_AO_GH_MISC_REG_AB                      ((0x0002  << 2) + 0xfe032000)
+#endif
+#ifndef CLKCTRL_PWM_CLK_AB_CTRL
+#define CLKCTRL_PWM_CLK_AB_CTRL                    ((0x0060  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_PWM_CLK_CD_CTRL
+#define CLKCTRL_PWM_CLK_CD_CTRL                    ((0x0061  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_PWM_CLK_EF_CTRL
+#define CLKCTRL_PWM_CLK_EF_CTRL                    ((0x0062  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_PWM_CLK_AO_AB_CTRL
+#define CLKCTRL_PWM_CLK_AO_AB_CTRL                 ((0x0068  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_PWM_CLK_AO_CD_CTRL
+#define CLKCTRL_PWM_CLK_AO_CD_CTRL                 ((0x0069  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_PWM_CLK_AO_EF_CTRL
+#define CLKCTRL_PWM_CLK_AO_EF_CTRL                 ((0x006a  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_PWM_CLK_AO_GH_CTRL
+#define CLKCTRL_PWM_CLK_AO_GH_CTRL                 ((0x006b  << 2) + 0xfe000000)
 #endif
 
 #ifndef PERIPHS_PIN_MUX_0

@@ -55,7 +55,8 @@ struct lcd_tcon_config_s {
 
 	unsigned int *axi_reg;
 	void (*tcon_axi_mem_config)(void);
-	int (*tcon_enable)(struct lcd_config_s *pconf);
+	int (*tcon_enable)(struct aml_lcd_drv_s *pdrv);
+	int (*tcon_disable)(struct aml_lcd_drv_s *pdrv);
 };
 
 struct tcon_rmem_config_s {
@@ -157,8 +158,8 @@ struct lcd_tcon_config_s *get_lcd_tcon_config(void);
 struct tcon_rmem_s *get_lcd_tcon_rmem(void);
 struct tcon_mem_map_table_s *get_lcd_tcon_mm_table(void);
 
-int lcd_tcon_enable_tl1(struct lcd_config_s *pconf);
-int lcd_tcon_enable_t5(struct lcd_config_s *pconf);
+int lcd_tcon_enable_tl1(struct aml_lcd_drv_s *pdrv);
+int lcd_tcon_enable_t5(struct aml_lcd_drv_s *pdrv);
 
 #endif
 

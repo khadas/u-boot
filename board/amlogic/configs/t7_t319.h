@@ -85,6 +85,7 @@
         "panel_type=edp_0\0" \
         "lcd_debug_para=3\0" \
         "lcd_ctrl=0x00000000\0" \
+        "lcd_debug=0x00000000\0" \
         "outputmode=panel\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
@@ -132,7 +133,8 @@
             "\0"\
         "storeargs="\
             "setenv bootargs ${initargs} otg_device=${otg_device} "\
-                "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} "\
+                "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable "\
+                "panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
                 "hdmimode=${hdmimode} outputmode=${outputmode} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
                 "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
@@ -361,12 +363,10 @@
 
 /* vpu */
 #define AML_VPU_CLK_LEVEL_DFT 7
+/* LCD */
 
 /*pmic bd71837*/
 #define CONFIG_PMIC_BD71837    1
-
-/* LCD */
-#define CONFIG_AML_LCD_PXP	1
 
 /* osd */
 #define OSD_SCALE_ENABLE

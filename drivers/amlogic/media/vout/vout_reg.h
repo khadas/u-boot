@@ -46,44 +46,30 @@
 #define VPU_VENC_CTRL                              ((0x1cef << 2) + 0xff000000L)
 #endif
 
-static inline unsigned int vout_reg_read(unsigned int idx, u32 reg)
+static inline unsigned int vout_reg_read(u32 reg)
 {
-	unsigned int temp, val;
+	unsigned int val;
 
-	if (vout_conf_check())
-		return 0;
-
-	if (reg > 0x10000) {
-		temp = reg + (vout_conf->offset[idx] << 2);
-		val = *(volatile unsigned int *)REG_VOUT_ADDR(temp);
-	} else {
-		temp = reg + vout_conf->offset[idx];
-		val = *(volatile unsigned int *)REG_ADDR_VCBUS(temp);
-	}
+	if (reg > 0x10000)
+		val = *(volatile unsigned int *)REG_VOUT_ADDR(reg);
+	else
+		val = *(volatile unsigned int *)REG_ADDR_VCBUS(reg);
 
 	return val;
 }
 
-static inline void vout_reg_write(unsigned int idx, u32 reg, const u32 val)
+static inline void vout_reg_write(u32 reg, const u32 val)
 {
-	unsigned int temp;
-
-	if (vout_conf_check())
-		return;
-
-	if (reg > 0x10000) {
-		temp = reg + (vout_conf->offset[idx] << 2);
-		*(volatile unsigned int *)REG_VOUT_ADDR(temp) = (val);
-	} else {
-		temp = reg + vout_conf->offset[idx];
-		*(volatile unsigned int *)REG_ADDR_VCBUS(temp) = (val);
-	}
+	if (reg > 0x10000)
+		*(volatile unsigned int *)REG_VOUT_ADDR(reg) = (val);
+	else
+		*(volatile unsigned int *)REG_ADDR_VCBUS(reg) = (val);
 }
 
-static inline void vout_reg_setb(unsigned int idx, unsigned int reg, unsigned int val,
+static inline void vout_reg_setb(unsigned int reg, unsigned int val,
 		unsigned int start, unsigned int len)
 {
-	vout_reg_write(idx, reg, ((vout_reg_read(idx, reg) &
+	vout_reg_write(reg, ((vout_reg_read(reg) &
 			~(((1L << (len))-1) << (start))) |
 			(((val)&((1L<<(len))-1)) << (start))));
 }
