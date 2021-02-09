@@ -115,6 +115,10 @@ static void meson_mmc_config_clock(struct meson_host *host)
 	if (mmc->clock > 12000000) {
 		clk = 1000000000;
 		clk_src = 1;
+		if (host->src_clk != 0) {
+			clk = host->src_clk;
+			clk_src = 0;
+		}
 		clk_disable(&host->xtal);
 		clk_set_parent(&host->mux, &host->div2);
 		clk_set_rate(&host->div, clk);
@@ -127,14 +131,11 @@ static void meson_mmc_config_clock(struct meson_host *host)
 		clk_enable(&host->xtal);
 		clk_set_rate(&host->div, clk);
 	}
-	clk_div = (clk / mmc->clock) + (!!(clk % mmc->clock));
-
-	//printf("sd_emmc_clk_ctrl:0x%x\n", readl(((0x0038<<2) + 0xfe000800)));
-	//printf("sd_emmc_clk_ctrl1:0x%x\n", readl(((0x0048<<2) + 0xfe000800)));
 
 	clk_div = clk / mmc->clock;
 	if (clk % mmc->clock)
 		clk_div++;
+	mmc->clock = clk / clk_div;
 	if (mmc->ddr_mode) {
 		clk_div /= 2;
 		pr_info("DDR: \n");
@@ -954,6 +955,8 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 	ret = mmc_of_parse(dev, cfg);
 	if (ret)
 		return ret;
+
+	host->src_clk = dev_read_u32_default(dev, "source-clock", 0);
 
 	dev->name = dev_read_string(dev, "pinname");
 	if (dev_read_bool(dev, "non-removable"))

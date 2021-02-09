@@ -51,6 +51,7 @@ struct meson_host {
 	uint is_sduart;
 	uint is_tuning;
 	uint card_type;
+	uint src_clk;
 	struct clk core;
 	struct clk xtal;
 	struct clk div2;
