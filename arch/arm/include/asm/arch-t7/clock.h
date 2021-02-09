@@ -36,6 +36,7 @@ License-Identifier: (GPL-2.0+ OR MIT) */
 #define T7_ANACTRL_FIXPLL_CTRL5                       ((0x15 << 2) + 0x8000)
 #define T7_ANACTRL_FIXPLL_CTRL6                       ((0x16 << 2) + 0x8000)
 #define T7_ANACTRL_FIXPLL_STS                         ((0x17 << 2) + 0x8000)
+#define T7_ANACTRL_GP0PLL_CTRL0                       ((0x20 << 2) + 0x8000)
 //========================================================================
 
 /*

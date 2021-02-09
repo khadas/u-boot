@@ -38,7 +38,7 @@ static unsigned int saradc_parents[] = {CLKID_XTAL, CLKID_SYS_CLK};
 
 static unsigned int sd_emmc_parents[] = {CLKID_XTAL, CLKID_FCLK_DIV2,
 CLKID_FCLK_DIV3, CLKID_UNREALIZED, CLKID_UNREALIZED,
-CLKID_UNREALIZED, CLKID_UNREALIZED, CLKID_UNREALIZED};
+CLKID_UNREALIZED, CLKID_UNREALIZED, CLKID_GP0_PLL};
 
 static struct meson_mux muxes[] = {
 	{CLKID_SPICC_A_MUX, T7_CLKCTRL_SPICC_CLK_CTRL, 7,  0x7, spicc_parents, ARRAY_SIZE(spicc_parents)},
@@ -78,6 +78,12 @@ static struct parm meson_sys_pll_parm[3] = {
 	{T7_ANACTRL_SYSPLL_CTRL0, 16, 3}, /* pod */
 };
 
+static struct parm meson_gp0_pll_parm[3] = {
+	{T7_ANACTRL_GP0PLL_CTRL0, 0, 8}, /* pm */
+	{T7_ANACTRL_GP0PLL_CTRL0, 10, 5}, /* pn */
+	{T7_ANACTRL_GP0PLL_CTRL0, 16, 3}, /* pod */
+};
+
 static int meson_clk_enable(struct clk *clk)
 {
 	return meson_set_gate_by_id(clk, gates, ARRAY_SIZE(gates), true);
@@ -107,6 +113,11 @@ static ulong meson_pll_get_rate(struct clk *clk, unsigned long id)
 		pn = &meson_sys_pll_parm[1];
 		pod = &meson_sys_pll_parm[2];
 		break;
+	case CLKID_GP0_PLL:
+		pm = &meson_gp0_pll_parm[0];
+		pn = &meson_gp0_pll_parm[1];
+		pod = &meson_gp0_pll_parm[2];
+		break;
 	default:
 		return -ENOENT;
 	}
@@ -135,6 +146,7 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, ulong id)
 		break;
 	case CLKID_FIXED_PLL:
 	case CLKID_SYS_PLL:
+	case CLKID_GP0_PLL:
 		rate = meson_pll_get_rate(clk, id);
 		break;
 	case CLKID_FCLK_DIV2:
