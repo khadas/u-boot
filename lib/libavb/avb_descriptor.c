@@ -1,25 +1,6 @@
+// SPDX-License-Identifier: MIT
 /*
  * Copyright (C) 2016 The Android Open Source Project
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
- * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
- * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
  */
 
 #include <libavb/avb_descriptor.h>
@@ -91,7 +72,11 @@ bool avb_descriptor_foreach(const uint8_t* image_data,
     const AvbDescriptor* dh = (const AvbDescriptor*)p;
     avb_assert_aligned(dh);
     uint64_t nb_following = avb_be64toh(dh->num_bytes_following);
-    uint64_t nb_total = sizeof(AvbDescriptor) + nb_following;
+    uint64_t nb_total = 0;
+    if (!avb_safe_add(&nb_total, sizeof(AvbDescriptor), nb_following)) {
+      avb_error("Invalid descriptor length.\n");
+      goto out;
+    }
 
     if ((nb_total & 7) != 0) {
       avb_error("Invalid descriptor length.\n");
@@ -107,7 +92,10 @@ bool avb_descriptor_foreach(const uint8_t* image_data,
       goto out;
     }
 
-    p += nb_total;
+    if (!avb_safe_add_to((uint64_t*)(&p), nb_total)) {
+      avb_error("Invalid descriptor length.\n");
+      goto out;
+    }
   }
 
   ret = true;

@@ -1,25 +1,6 @@
+// SPDX-License-Identifier: MIT
 /*
  * Copyright (C) 2016 The Android Open Source Project
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
- * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
- * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
  */
 
 #include <libavb/avb_vbmeta_image.h>
@@ -44,8 +25,6 @@ AvbVBMetaVerifyResult avb_vbmeta_image_verify(
   const uint8_t* authentication_block;
   const uint8_t* auxiliary_block;
   int verification_result;
-  uint64_t block_total = 0;
-  uintptr_t data_ptr = 0;
 
   ret = AVB_VBMETA_VERIFY_RESULT_INVALID_VBMETA_HEADER;
 
@@ -56,17 +35,18 @@ AvbVBMetaVerifyResult avb_vbmeta_image_verify(
     *out_public_key_length = 0;
   }
 
+  /* Before we byteswap or compare Magic, ensure length is long enough. */
+  if (length < sizeof(AvbVBMetaImageHeader)) {
+    avb_error("Length is smaller than header.\n");
+    goto out;
+  }
+
   /* Ensure magic is correct. */
   if (avb_safe_memcmp(data, AVB_MAGIC, AVB_MAGIC_LEN) != 0) {
     avb_error("Magic is incorrect.\n");
     goto out;
   }
 
-  /* Before we byteswap, ensure length is long enough. */
-  if (length < sizeof(AvbVBMetaImageHeader)) {
-    avb_error("Length is smaller than header.\n");
-    goto out;
-  }
   avb_vbmeta_image_header_to_host_byte_order((const AvbVBMetaImageHeader*)data,
                                              &h);
 
@@ -94,7 +74,7 @@ AvbVBMetaVerifyResult avb_vbmeta_image_verify(
   }
 
   /* Ensure block sizes all add up to at most |length|. */
-  block_total = sizeof(AvbVBMetaImageHeader);
+  uint64_t block_total = sizeof(AvbVBMetaImageHeader);
   if (!avb_safe_add_to(&block_total, h.authentication_data_block_size) ||
       !avb_safe_add_to(&block_total, h.auxiliary_data_block_size)) {
     avb_error("Overflow while computing size of boot image.\n");
@@ -105,7 +85,7 @@ AvbVBMetaVerifyResult avb_vbmeta_image_verify(
     goto out;
   }
 
-  data_ptr = (uintptr_t)data;
+  uintptr_t data_ptr = (uintptr_t)data;
   /* Ensure passed in memory doesn't wrap. */
   if (!avb_safe_add(NULL, (uint64_t)data_ptr, length)) {
     avb_error("Boot image location and length mismatch.\n");

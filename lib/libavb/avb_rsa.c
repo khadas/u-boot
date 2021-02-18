@@ -1,30 +1,6 @@
+// SPDX-License-Identifier: MIT OR BSD-3-Clause
 /*
  * Copyright (C) 2016 The Android Open Source Project
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
- * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
- * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
- * Use of this source code is governed by a BSD-style license that can be
- * found in the LICENSE file.
  */
 
 /* Implementation of RSA signature verification which uses a pre-processed
@@ -97,6 +73,9 @@ static IAvbKey* iavb_parse_key_data(const uint8_t* data, size_t length) {
   return key;
 
 fail:
+  if (key != NULL) {
+    avb_free(key);
+  }
   return NULL;
 }
 
@@ -173,12 +152,11 @@ static void modpowF4(const IAvbKey* key, uint8_t* inout) {
   uint32_t* a = (uint32_t*)avb_malloc(key->len * sizeof(uint32_t));
   uint32_t* aR = (uint32_t*)avb_malloc(key->len * sizeof(uint32_t));
   uint32_t* aaR = (uint32_t*)avb_malloc(key->len * sizeof(uint32_t));
-  uint32_t* aaa = NULL;
   if (a == NULL || aR == NULL || aaR == NULL) {
     goto out;
   }
 
-  aaa = aaR; /* Re-use location. */
+  uint32_t* aaa = aaR; /* Re-use location. */
   int i;
 
   /* Convert from big endian byte array to little endian word array. */

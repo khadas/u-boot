@@ -791,6 +791,12 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 			strncat(response, "yes", chars_left);
 		} else
 			strncat(response, "no", chars_left);
+	} else if (!strcmp_l1("has-slot:oem", cmd)) {
+		if (has_boot_slot == 1) {
+			printf("has odm_ext slot\n");
+			strncat(response, "yes", chars_left);
+		} else
+			strncat(response, "no", chars_left);
 	} else if (!strcmp_l1("has-slot:vendor_boot", cmd)) {
 		if (has_boot_slot == 1) {
 			printf("has vendor_boot slot\n");
@@ -935,6 +941,8 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	} else if (!strcmp_l1("partition-type:vendor", cmd)) {
 		strncat(response, "ext4", chars_left);
 	} else if (!strcmp_l1("partition-type:odm", cmd)) {
+		strncat(response, "ext4", chars_left);
+	} else if (!strcmp_l1("partition-type:oem", cmd)) {
 		strncat(response, "ext4", chars_left);
 	} else if (!strcmp_l1("partition-type:odm_ext", cmd)) {
 		strncat(response, "ext4", chars_left);

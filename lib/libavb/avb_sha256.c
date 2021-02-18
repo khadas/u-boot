@@ -1,38 +1,11 @@
-/* SHA-256 and SHA-512 implementation based on code by Oliver Gay
- * <olivier.gay@a3.epfl.ch> under a BSD-style license. See below.
- */
-
+// SPDX-License-Identifier: BSD-3-Clause
 /*
- * FIPS 180-2 SHA-224/256/384/512 implementation
- * Last update: 02/02/2007
- * Issue date:  04/30/2005
- *
  * Copyright (C) 2005, 2007 Olivier Gay <olivier.gay@a3.epfl.ch>
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the project nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE PROJECT AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
+ * FIPS 180-2 SHA-224/256/384/512 implementation
+ * Last update: 02/02/2007
+ * Issue date:  04/30/2005
  */
 
 #include "avb_sha.h"
@@ -54,6 +27,18 @@
     *((str) + 2) = (uint8_t)((x) >> 8);  \
     *((str) + 1) = (uint8_t)((x) >> 16); \
     *((str) + 0) = (uint8_t)((x) >> 24); \
+  }
+
+#define UNPACK64(x, str)                         \
+  {                                              \
+    *((str) + 7) = (uint8_t)x;                   \
+    *((str) + 6) = (uint8_t)((uint64_t)x >> 8);  \
+    *((str) + 5) = (uint8_t)((uint64_t)x >> 16); \
+    *((str) + 4) = (uint8_t)((uint64_t)x >> 24); \
+    *((str) + 3) = (uint8_t)((uint64_t)x >> 32); \
+    *((str) + 2) = (uint8_t)((uint64_t)x >> 40); \
+    *((str) + 1) = (uint8_t)((uint64_t)x >> 48); \
+    *((str) + 0) = (uint8_t)((uint64_t)x >> 56); \
   }
 
 #define PACK32(str, x)                                                    \
@@ -123,18 +108,18 @@ void avb_sha256_init(AvbSHA256Ctx* ctx) {
 
 static void SHA256_transform(AvbSHA256Ctx* ctx,
                              const uint8_t* message,
-                             unsigned int block_nb) {
+                             size_t block_nb) {
   uint32_t w[64];
   uint32_t wv[8];
   uint32_t t1, t2;
   const unsigned char* sub_block;
-  int i;
+  size_t i;
 
 #ifndef UNROLL_LOOPS
-  int j;
+  size_t j;
 #endif
 
-  for (i = 0; i < (int)block_nb; i++) {
+  for (i = 0; i < block_nb; i++) {
     sub_block = message + (i << 6);
 
 #ifndef UNROLL_LOOPS
@@ -320,9 +305,9 @@ static void SHA256_transform(AvbSHA256Ctx* ctx,
   }
 }
 
-void avb_sha256_update(AvbSHA256Ctx* ctx, const uint8_t* data, uint32_t len) {
-  unsigned int block_nb;
-  unsigned int new_len, rem_len, tmp_len;
+void avb_sha256_update(AvbSHA256Ctx* ctx, const uint8_t* data, size_t len) {
+  size_t block_nb;
+  size_t new_len, rem_len, tmp_len;
   const uint8_t* shifted_data;
 
   tmp_len = AVB_SHA256_BLOCK_SIZE - ctx->len;
@@ -352,11 +337,11 @@ void avb_sha256_update(AvbSHA256Ctx* ctx, const uint8_t* data, uint32_t len) {
 }
 
 uint8_t* avb_sha256_final(AvbSHA256Ctx* ctx) {
-  unsigned int block_nb;
-  unsigned int pm_len;
-  unsigned int len_b;
+  size_t block_nb;
+  size_t pm_len;
+  uint64_t len_b;
 #ifndef UNROLL_LOOPS
-  int i;
+  size_t i;
 #endif
 
   block_nb =
@@ -367,7 +352,7 @@ uint8_t* avb_sha256_final(AvbSHA256Ctx* ctx) {
 
   avb_memset(ctx->block + ctx->len, 0, pm_len - ctx->len);
   ctx->block[ctx->len] = 0x80;
-  UNPACK32(len_b, ctx->block + pm_len - 4);
+  UNPACK64(len_b, ctx->block + pm_len - 8);
 
   SHA256_transform(ctx, ctx->block, block_nb);
 
