@@ -36,6 +36,11 @@
 /*load license bit [0...127...255...511]*/
 #define OTP_BIT_LOAD(feat) (readl(OTP_LIC00 + (((feat)/32)<<2)) & (1<<((feat)%32)))
 
+#define FEAT_ENABLE_DEVICE_SCS_SIG_0             (10)
+#define FEAT_ENABLE_DEVICE_SCS_SIG_1             (11)
+#define IS_FEAT_EN_DEVICE_SCS_SIG()			        \
+	((OTP_BIT_LOAD(FEAT_ENABLE_DEVICE_SCS_SIG_0) ||		\
+	  OTP_BIT_LOAD(FEAT_ENABLE_DEVICE_SCS_SIG_1)) ? 1 : 0)
 /*check license bit*/
 #define OTP_BIT_CHECK(feat) (OTP_BIT_LOAD((feat)) ? 1 : 0)
 
@@ -53,14 +58,7 @@
 //function for EFUSE license query
 int  IS_FEAT_BOOT_VERIFY(void)
 {
-	uint32_t lic_val;
-
-	lic_val = readl(OTP_LIC00);
-
-	if (((lic_val>>8) & 0x3ff0c) == 0x3ff0c)
-		return 1;
-
-	return 0;
+	return IS_FEAT_EN_DEVICE_SCS_SIG();
 }
 
 int IS_FEAT_DIS_EMMC_USER(void)
