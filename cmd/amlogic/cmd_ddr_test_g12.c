@@ -1717,7 +1717,8 @@ unsigned int pre_fetch_enable = 0;
 
 #define DMC_TEST_WINDOW_INDEX_EE_VOLTAGE  0x11
 #define DMC_TEST_WINDOW_INDEX_SOC_VREF  0x12
-#define DMC_TEST_WINDOW_INDEX_DRAM_VREF    0x13
+#define DMC_TEST_WINDOW_INDEX_SOC_VREF_DAC1  0x13
+#define DMC_TEST_WINDOW_INDEX_DRAM_VREF    0x14
 
 #define DMC_TEST_WINDOW_INDEX_DDR3_WRITE_VREF_RANG0 0x21
 #define DMC_TEST_WINDOW_INDEX_DDR3_WRITE_VREF_RANG1 0x22
@@ -6809,7 +6810,8 @@ uint32_t ddr_cacl_phy_over_ride_back_reg_c2(char test_index, uint32_t value)
 		if (value > (31 * 128 + 127))
 			value = (31 * 128 + 127);
 		result = (value % 128) + ((value / 128) << 16);
-	} else if ((test_index == DMC_TEST_WINDOW_INDEX_SOC_VREF)) {
+	} else if ((test_index == DMC_TEST_WINDOW_INDEX_SOC_VREF)||
+	(test_index ==DMC_TEST_WINDOW_INDEX_SOC_VREF_DAC1)) {
 		if (value > (63))
 			value = (63);
 		result = value;
@@ -7094,6 +7096,7 @@ void ddr_read_write_training_value(ddr_set_t_c2 *p_ddrs, char over_ride_index,
 		    || (over_ride_index == DMC_TEST_WINDOW_INDEX_RXCLKDLY)
 		    || (over_ride_index == DMC_TEST_WINDOW_INDEX_TXDQDLY)
 		    || (over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF)
+			|| (over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DAC1)
 		    ) {
 			if (over_ride_index == DMC_TEST_WINDOW_INDEX_ATXDLY) {
 				p_size = 2;
@@ -7634,7 +7637,7 @@ int do_ddr_set_watchdog_value(cmd_tbl_t *cmdtp, int flag, int argc, char *const 
 
 #define DMC_TEST_WINDOW_INDEX_EE_VOLTAGE  0x11
 #define DMC_TEST_WINDOW_INDEX_SOC_VREF  0x12
-#define DMC_TEST_WINDOW_INDEX_DRAM_VREF    0x13
+#define DMC_TEST_WINDOW_INDEX_DRAM_VREF    0x14
 
 typedef struct training_delay_information {
 	uint16_t	ac_delay[10];
@@ -8540,7 +8543,7 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char *co
 
 #define DMC_TEST_WINDOW_INDEX_EE_VOLTAGE  0x11
 #define DMC_TEST_WINDOW_INDEX_SOC_VREF  0x12
-#define DMC_TEST_WINDOW_INDEX_DRAM_VREF    0x13
+#define DMC_TEST_WINDOW_INDEX_DRAM_VREF    0x14
 
 uint32_t  ddr_cacl_phy_delay_all_step(char test_index, uint32_t value)
 {
@@ -8676,6 +8679,8 @@ void dwc_window_reg_after_training_update(char over_ride_index, uint32_t over_ri
 	}
 	if (over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF)
 		dwc_ddrphy_apb_wr((0 << 20) | (1 << 16) | (((over_ride_sub_index % 36) / 9) << 12) | (((over_ride_sub_index % 36) % 9) << 8) | (0x40), over_ride_value);
+	if (over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DAC1)
+		dwc_ddrphy_apb_wr((0 << 20) | (1 << 16) | (((over_ride_sub_index % 36) / 9) << 12) | (((over_ride_sub_index % 36) % 9) << 8) | (0x30), over_ride_value);
 
 	printf("reg_add %08x old_value %08x update_to %08x dec %d to %d \n", ((unsigned int)(((reg_add) << 1) + (p_ddr_base->ddr_phy_base_address))),
 	       delay_old_value, dwc_ddrphy_apb_rd(reg_add), ddr_cacl_phy_delay_all_step(over_ride_index, delay_old_value),
@@ -8796,8 +8801,10 @@ void dwc_window_reg_after_training_update_increas_sub(char over_ride_index, uint
 		}
 	}
 
-	if (over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF) {
+	if ((over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF) || (over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DAC1)) {
 		reg_add = ((0 << 20) | (1 << 16) | (((over_ride_sub_index % 36) / 9) << 12) | (((over_ride_sub_index % 36) % 9) << 8) | (0x40));
+		if (over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DAC1)
+			reg_add = ((0 << 20) | (1 << 16) | (((over_ride_sub_index % 36) / 9) << 12) | (((over_ride_sub_index % 36) % 9) << 8) | (0x30));
 		delay_old_value = dwc_ddrphy_apb_rd(reg_add);
 		delay_reg_value = delay_old_value;
 		if (over_ride_increase_decrease == 0) {
@@ -8873,8 +8880,10 @@ void dwc_window_reg_after_training_update_increas(char over_ride_index, uint32_t
 									 , ((over_ride_sub_index)), over_ride_increase_decrease, 1);
 	}
 
-	if (over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF) {
+	if ((over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF) || (over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DAC1)) {
 		reg_add = ((0 << 20) | (1 << 16) | (((over_ride_sub_index % 36) / 9) << 12) | (((over_ride_sub_index % 36) % 9) << 8) | (0x40));
+		if (over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DAC1)
+			reg_add = ((0 << 20) | (1 << 16) | (((over_ride_sub_index % 36) / 9) << 12) | (((over_ride_sub_index % 36) % 9) << 8) | (0x30));
 		delay_old_value = dwc_ddrphy_apb_rd(reg_add);
 		for (temp_count_3 = 0; temp_count_3 < offset_value; temp_count_3++)
 			dwc_window_reg_after_training_update_increas_sub(over_ride_index
@@ -9298,7 +9307,11 @@ int do_ddr_c2_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 		lcdlr_max = 0x3f;
 		printf(" soc vref rank0 and rank1 share vref dac\n");
 	}
-
+	if (test_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DAC1) {
+		count_max = 36 * 1;
+		lcdlr_max = 0x3f;
+		printf(" soc vref rank0 and rank1 share vref dac\n");
+	}
 	count = 0;
 	writel((0), p_ddr_base->ddr_dmc_apd_address);
 	writel((0), p_ddr_base->ddr_dmc_asr_address);
@@ -9472,6 +9485,11 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 		lcdlr_max = 0x3f;
 	}
 	if (test_index == DMC_TEST_WINDOW_INDEX_SOC_VREF) {
+		count_max = 36 * 1;
+		lcdlr_max = 0x3f;
+		printf(" soc vref rank0 and rank1 share vref dac\n");
+	}
+	if (test_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DAC1) {
 		count_max = 36 * 1;
 		lcdlr_max = 0x3f;
 		printf(" soc vref rank0 and rank1 share vref dac\n");

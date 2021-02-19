@@ -58,25 +58,7 @@
  *
  */
 
-
-/* ddr configs */
-#define DDR_RFC_TYPE_DDR3_512Mbx1                               0
-#define DDR_RFC_TYPE_DDR3_512Mbx2                               1
-#define DDR_RFC_TYPE_DDR3_512Mbx4                               2
-#define DDR_RFC_TYPE_DDR3_512Mbx8                               3
-#define DDR_RFC_TYPE_DDR3_512Mbx16                              4
-#define DDR_RFC_TYPE_DDR4_2Gbx1                                 5
-#define DDR_RFC_TYPE_DDR4_2Gbx2                                 6
-#define DDR_RFC_TYPE_DDR4_2Gbx4                                 7
-#define DDR_RFC_TYPE_DDR4_2Gbx8                                 8
-
-#define DDR_RFC_TYPE_LPDDR4_2Gbx1                               9
-#define DDR_RFC_TYPE_LPDDR4_3Gbx1                               10
-#define DDR_RFC_TYPE_LPDDR4_4Gbx1                               11
-
-#define ENABLE_LPDDR4X_MODE 1
-
-#define DDR_FUNC_COPY_CHANNEL_CFG                                       (1 << 0)
+#define 		ENABLE_LPDDR4X_MODE 			1
 
 #define         AN_408_DDR0_1G_DDR1_0G          0
 #define         AN_408_DDR0_2G_DDR1_0G          1
@@ -284,7 +266,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		//.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
 		.DramType = CONFIG_DDR_TYPE_LPDDR4,
 		.enable_lpddr4x_mode = ENABLE_LPDDR4X_MODE,
-		.DRAMFreq ={ 1848,		       0,	0,	 0	 },
+		.DRAMFreq ={ 2016,		       0,	0,	 0	 },
 		.ddr_rfc_type = DDR_RFC_TYPE_LPDDR4_8Gbx1,
 		.ddr_base_addr = CFG_DDR_BASE_ADDR,
 		.ddr_start_offset = CFG_DDR_START_OFFSET,
@@ -351,28 +333,28 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
 #endif
 		.training_SequenceCtrl ={ 0x131f,		    0x61 },     //ddr3 0x21f 0x31f
-		.phy_odt_config_rank ={ 0x23,			  0x13 }, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
+		.phy_odt_config_rank ={ 0,			  0 }, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
 		.dfi_odt_config = 0x0d0d,               //use 0d0d compatibility with 1rank and 2rank  //0808
 		.PllBypassEn = 0,                       //bit0-ps0,bit1-ps1
-		.ddr_rdbi_wr_enable = 0x0,              //bit 0 read-dbi,bit 1 write dbi
+		.ddr_rdbi_wr_enable = 0x3,              //bit 0 read-dbi,bit 1 write dbi
 		.clk_drv_ohm = 40,
 		.cs_drv_ohm = 40,
 		.ac_drv_ohm = 40,
 		.soc_data_drv_ohm_p = 40,
 		.soc_data_drv_ohm_n = 40,
-		.soc_data_odt_ohm_p = 40,
-		.soc_data_odt_ohm_n = 40,
+		.soc_data_odt_ohm_p = 60,
+		.soc_data_odt_ohm_n = 60,
 		.dram_data_drv_ohm = 40,                //48, //34, //ddr4 sdram only 34 or 48, skt board use 34 better
-		.dram_data_odt_ohm = 40,                //60,
+		.dram_data_odt_ohm = 60,                //60,
 		.dram_ac_odt_ohm = 240,
 		.soc_clk_slew_rate = 0x1ff,
 		.soc_cs_slew_rate = 0x1ff,
 		.soc_ac_slew_rate = 0x1ff,
 		.soc_data_slew_rate = 0x5ff,
-		.vref_output_permil = 000, //300
+		.vref_output_permil = 629, //300
 		.vref_receiver_permil = 0,
-		.vref_dram_permil = 250,
-		.lpddr4_dram_vout_voltage_1_3_2_5_setting=1,
+		.vref_dram_permil = 300,
+		.lpddr4_dram_vout_voltage_1_3_2_5_setting=0,
 		//.vref_reverse			= 0,
 		//.ac_trace_delay			={0x0,0x0},// {0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40},
 		.ac_trace_delay ={ 32 + 10,		     32,      0,       0, 0, 32 + 10, 32, 0, 0, 0},
@@ -452,7 +434,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		//.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
 		.DramType = CONFIG_DDR_TYPE_LPDDR4,
 		.enable_lpddr4x_mode = ENABLE_LPDDR4X_MODE,
-		.DRAMFreq ={ 1848,		       0,	0,	 0	 },
+		.DRAMFreq ={ 2016,		       0,	0,	 0	 },
 		.ddr_rfc_type = DDR_RFC_TYPE_LPDDR4_8Gbx1,
 		.ddr_base_addr = CFG_DDR_BASE_ADDR,
 		.ddr_start_offset = CFG_DDR_START_OFFSET,
@@ -519,28 +501,28 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
 #endif
 		.training_SequenceCtrl ={ 0x131f,		    0x61 },     //ddr3 0x21f 0x31f
-		.phy_odt_config_rank ={ 0x23,			  0x13 }, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
+		.phy_odt_config_rank ={ 0,			  0 }, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
 		.dfi_odt_config = 0x0d0d,               //use 0d0d compatibility with 1rank and 2rank  //0808
 		.PllBypassEn = 0,                       //bit0-ps0,bit1-ps1
-		.ddr_rdbi_wr_enable = 0x0,              //bit 0 read-dbi,bit 1 write dbi
+		.ddr_rdbi_wr_enable = 0x3,              //bit 0 read-dbi,bit 1 write dbi
 		.clk_drv_ohm = 40,
 		.cs_drv_ohm = 40,
 		.ac_drv_ohm = 40,
 		.soc_data_drv_ohm_p = 40,
 		.soc_data_drv_ohm_n = 40,
-		.soc_data_odt_ohm_p = 40,
-		.soc_data_odt_ohm_n = 40,
+		.soc_data_odt_ohm_p = 60,
+		.soc_data_odt_ohm_n = 60,
 		.dram_data_drv_ohm = 40,                //48, //34, //ddr4 sdram only 34 or 48, skt board use 34 better
-		.dram_data_odt_ohm = 40,                //60,
+		.dram_data_odt_ohm = 60,                //60,
 		.dram_ac_odt_ohm = 240,
 		.soc_clk_slew_rate = 0x1ff,
 		.soc_cs_slew_rate = 0x1ff,
 		.soc_ac_slew_rate = 0x1ff,
 		.soc_data_slew_rate = 0x5ff,
-		.vref_output_permil = 000,
+		.vref_output_permil = 629,
 		.vref_receiver_permil = 0,
-		.vref_dram_permil = 250,
-		.lpddr4_dram_vout_voltage_1_3_2_5_setting=1,
+		.vref_dram_permil = 300,
+		.lpddr4_dram_vout_voltage_1_3_2_5_setting=0,
 		//.vref_reverse			= 0,
 		//.ac_trace_delay			={0x0,0x0},// {0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40},
 		//.ac_trace_delay ={ 32 + 10,		     32 + 0, 32 + 2, 32 + 2, 32, 32 + 10, 32 + 0, 32 + 2, 32 + 2, 32 + 0},

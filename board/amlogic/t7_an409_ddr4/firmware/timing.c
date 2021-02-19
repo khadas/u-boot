@@ -58,23 +58,7 @@
  *
  */
 
-
-/* ddr configs */
-#define DDR_RFC_TYPE_DDR3_512Mbx1                               0
-#define DDR_RFC_TYPE_DDR3_512Mbx2                               1
-#define DDR_RFC_TYPE_DDR3_512Mbx4                               2
-#define DDR_RFC_TYPE_DDR3_512Mbx8                               3
-#define DDR_RFC_TYPE_DDR3_512Mbx16                              4
-#define DDR_RFC_TYPE_DDR4_2Gbx1                                 5
-#define DDR_RFC_TYPE_DDR4_2Gbx2                                 6
-#define DDR_RFC_TYPE_DDR4_2Gbx4                                 7
-#define DDR_RFC_TYPE_DDR4_2Gbx8                                 8
-
-#define DDR_RFC_TYPE_LPDDR4_2Gbx1                               9
-#define DDR_RFC_TYPE_LPDDR4_3Gbx1                               10
-#define DDR_RFC_TYPE_LPDDR4_4Gbx1                               11
-#define ENABLE_LPDDR4X_MODE 1
-#define DDR_FUNC_COPY_CHANNEL_CFG                                       (1 << 0)
+#define 		ENABLE_LPDDR4X_MODE 			1
 
 #define         AN_408_DDR0_1G_DDR1_0G          0
 #define         AN_408_DDR0_2G_DDR1_0G          1
@@ -295,7 +279,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.DramType = CONFIG_DDR_TYPE_LPDDR4,
 		.enable_lpddr4x_mode = ENABLE_LPDDR4X_MODE,
 		.DRAMFreq ={ 1200,		       0,	0,	 0	 },
-		.ddr_rfc_type = DDR_RFC_TYPE_LPDDR4_8Gbx1,
+		.ddr_rfc_type = DDR_RFC_TYPE_DDR4_2Gbx8,
 		.ddr_base_addr = CFG_DDR_BASE_ADDR,
 		.ddr_start_offset = CFG_DDR_START_OFFSET,
 		.DisabledDbyte[0] = 0xf0,                       //bit 0 -3 ch0 cs0 ,bit 4-7 ch0 cs1,
