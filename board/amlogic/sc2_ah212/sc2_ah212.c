@@ -48,6 +48,8 @@
 #include <amlogic/media/vout/aml_cvbs.h>
 #endif
 
+#include "avb2_kpub.c"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 void sys_led_init(void)
