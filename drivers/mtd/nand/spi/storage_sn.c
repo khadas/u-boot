@@ -109,20 +109,23 @@ int spi_nand_probe(u32 init_flag)
 	int partition_count, ret;
 	static int probe_flag;
 
+	/* Maybe pinmux be modified by emmc, set again here */
+	extern struct mtd_info *mtd_store_get(int dev);
+	mtd = mtd_store_get(0);
+	spinand_dev = mtd_to_spinand(mtd);
+	//dm_spi_claim_bus(spinand_dev->slave->dev);
+	ret = pinctrl_select_state(spinand_dev->slave->dev->parent, "default");
+	if (ret) {
+		pr_err("select state %s failed\n", "default");
+		return 1;
+	}
+
 	if (probe_flag)
 		return 0;
 
 #ifdef CONFIG_AML_MTDPART
 	extern const struct mtd_partition *get_spinand_partition_table(int *partitions);
-	extern struct mtd_info *mtd_store_get(int dev);
 	spinand_partitions = get_spinand_partition_table(&partition_count);
-	mtd = mtd_store_get(0);
-
-	/* Maybe pinmux be modified by emmc, set again here */
-	spinand_dev = mtd_to_spinand(mtd);
-	//dm_spi_claim_bus(spinand_dev->slave->dev);
-	pinctrl_select_state(spinand_dev->slave->dev->parent, "default");
-
 	ret = spinand_add_partitions(mtd, spinand_partitions,
 						partition_count);
 	if (ret) {

@@ -119,14 +119,21 @@ int spi_nor_probe(u32 init_flag)
 	struct spi_flash *flash = NULL;
 	int ret;
 
-	if (probe_flag)
-		return 0;
-
 	flash = get_spi_flash();
 	if (!flash) {
 		printf("get spi flash fail!\n");
 		return 1;
 	}
+
+	/* Maybe pinmux be modified by emmc, set again here */
+	ret = pinctrl_select_state(flash->spi->dev->parent, "default");
+	if (ret) {
+		pr_err("select state %s failed\n", "default");
+		return 1;
+	}
+
+	if (probe_flag)
+		return 0;
 
 	ret = spi_flash_mtd_register(flash);
 	if (ret) {
