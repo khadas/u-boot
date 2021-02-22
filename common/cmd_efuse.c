@@ -248,6 +248,91 @@ U_BOOT_CMD(
 	"efuse commands", efuse_help_text
 );
 
+#ifdef CONFIG_EFUSE_OBJ_API
+int do_efuse_obj(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	uint32_t rc = CMD_RET_FAILURE;
+	uint8_t set = 0;
+	uint32_t obj_id = 0;
+	uint8_t buff[32];
+	uint32_t bufflen = sizeof(buff);
+	uint32_t size = 0;
+
+	if (argc < 3 || argc > 4) {
+		printf("Invalid number of arguments %d\n", argc);
+		return CMD_RET_USAGE;
+	}
+
+	memset(&buff[0], 0, sizeof(buff));
+
+	if (strcasecmp(argv[1], "set") == 0) {
+		set = 1;
+	}
+	else if (strcasecmp(argv[1], "get") == 0) {
+		set = 0;
+	}
+	else {
+		printf("Unknown command\n");
+		return CMD_RET_USAGE;
+	}
+
+	if (strcasecmp(argv[2], "usb-boot-disable") == 0) {
+		obj_id = EFUSE_OBJ_LICENSE_DISABLE_USB_BOOT;
+	}
+	else if (strcasecmp(argv[2], "usb-password-protect") == 0) {
+		obj_id = EFUSE_OBJ_LICENSE_ENABLE_USB_BOOT_PASSWORD;
+	}
+	else if (strcasecmp(argv[2], "jtag-disable") == 0) {
+		obj_id = EFUSE_OBJ_LICENSE_DISABLE_JTAG_ALL;
+	}
+	else {
+		printf("Unknown object ID\n");
+		return CMD_RET_USAGE;
+	}
+
+	if (set) {
+		rc = efuse_obj_write(obj_id, (size ? &buff[0] : NULL), size);
+
+		if (rc == EFUSE_OBJ_SUCCESS)
+			rc = CMD_RET_SUCCESS;
+		else {
+			printf("Error setting eFUSE object: %d\n", rc);
+			rc = CMD_RET_FAILURE;
+		}
+	}
+	else {
+		rc = efuse_obj_read(obj_id, &buff[0], &bufflen);
+		if (rc == EFUSE_OBJ_SUCCESS) {
+			int i;
+
+			for (i = 0; i < bufflen; i++) {
+				printf("%02x%s", buff[i], ((i && i % 16 == 15) || (i == bufflen - 1) ? "\n" : " "));
+			}
+			rc = CMD_RET_SUCCESS;
+		}
+		else {
+			printf("Error getting eFUSE object: %d\n", rc);
+			rc = CMD_RET_FAILURE;
+		}
+	}
+
+	return rc;
+}
+
+static char efuse_obj_help_text[] =
+	"[set | get] <object-id> {<object-value-hexdump-string>}\n"
+	"\n"
+	"  usb-boot-disable      : Permanently disable USB boot\n"
+	"  usb-password-protect  : Enable USB boot password protection\n"
+	"  jtag-disable          : Permanently disable JTAG\n"
+	"\n";
+
+U_BOOT_CMD(
+	efuse_obj,	4,	0,	do_efuse_obj,
+	"eFUSE object program commands", efuse_obj_help_text
+);
+#endif /* CONFIG_EFUSE_OBJ_API */
+
 #include <asm/arch/secure_apb.h>
 
 static int do_query(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])

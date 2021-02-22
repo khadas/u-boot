@@ -124,3 +124,15 @@ uint32_t efuse_get_max(void)
 		return ret;
 	}
 }
+
+#ifdef CONFIG_EFUSE_OBJ_API
+uint32_t efuse_obj_write(uint32_t obj_id, uint8_t *buff, uint32_t size)
+{
+	return meson_efuse_obj_write(obj_id, buff, size);
+}
+
+uint32_t efuse_obj_read(uint32_t obj_id, uint8_t *buff, uint32_t *size)
+{
+	return meson_efuse_obj_read(obj_id, buff, size);
+}
+#endif /* CONFIG_EFUSE_OBJ_API */
