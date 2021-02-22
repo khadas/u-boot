@@ -466,6 +466,9 @@
 
 #define CONFIG_MULTI_DTB    1
 
+/* define CONFIG_UPDATE_MMU_TABLE for need update mmu */
+#define	CONFIG_UPDATE_MMU_TABLE
+
 /* support secure boot */
 #define CONFIG_AML_SECURE_UBOOT   1
 

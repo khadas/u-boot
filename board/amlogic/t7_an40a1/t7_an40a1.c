@@ -116,7 +116,7 @@ void board_init_mem(void) {
 	char *env_tmp;
 	env_tmp = env_get("bootm_size");
 	if (!env_tmp) {
-		ram_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4);
+		ram_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFFFFFF0000) << 4);
 		env_set_hex("bootm_low", 0);
 		env_set_hex("bootm_size", ram_size);
 	}
@@ -198,9 +198,9 @@ phys_size_t get_effective_memsize(void)
 {
 	// >>16 -> MB, <<20 -> real size, so >>16<<20 = <<4
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
-	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4) - CONFIG_SYS_MEM_TOP_HIDE;
+	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFFFFFF0000) << 4) - CONFIG_SYS_MEM_TOP_HIDE;
 #else
-	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4);
+	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFFFFFF0000) << 4);
 #endif /* CONFIG_SYS_MEM_TOP_HIDE */
 
 }
@@ -209,13 +209,19 @@ static struct mm_region bd_mem_map[] = {
 	{
 		.virt = 0x00000000UL,
 		.phys = 0x00000000UL,
-		.size = 0xf1000000UL,
+		.size = 0xe0000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.virt = 0xf1000000UL,
-		.phys = 0xf1000000UL,
-		.size = 0x0f000000UL,
+		.virt = 0x100000000UL,
+		.phys = 0x100000000UL,
+		.size = 0x120000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.virt = 0xe0000000UL,
+		.phys = 0xe0000000UL,
+		.size = 0x20000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
@@ -229,6 +235,16 @@ struct mm_region *mem_map = bd_mem_map;
 
 int mach_cpu_init(void) {
 	//printf("\nmach_cpu_init\n");
+#ifdef 	CONFIG_UPDATE_MMU_TABLE
+	unsigned long nddrSize = ((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFFFFFF0000) << 4;
+	if ( nddrSize <= 0xe0000000 )
+	{
+		bd_mem_map[0].size = nddrSize;
+		bd_mem_map[1].virt = 0;
+		bd_mem_map[1].phys = 0;
+		bd_mem_map[1].size = 0;
+	}
+#endif
 	return 0;
 }
 
