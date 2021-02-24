@@ -36,6 +36,12 @@
 #define CONFIG_CONS_INDEX 2
 #define CONFIG_BAUDRATE  115200
 
+/*if disable uboot console, enable it*/
+//#define CONFIG_SILENT_CONSOLE
+#ifdef CONFIG_SILENT_CONSOLE
+#undef CONFIG_SILENT_CONSOLE_UPDATE_ON_RELOC
+#endif
+
 /*low console baudrate*/
 #define CONFIG_LOW_CONSOLE_BAUD			0
 
@@ -100,6 +106,7 @@
         "sdcburncfg=aml_sdc_burn.ini\0"\
         "EnableSelinux=enforcing\0" \
         "recovery_part=recovery\0"\
+        "loglevel=8\0" \
         "lock=10101000\0"\
         "recovery_offset=0\0"\
         "cvbs_drv=0\0"\
@@ -115,7 +122,7 @@
         "fatload_dev=usb\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-            "init=/init loglevel=9 console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe07a000 "\
+            "init=/init console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe07a000 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
@@ -127,7 +134,7 @@
             "if itest ${upgrade_step} == 3; then run storeargs; run update; fi;"\
             "\0"\
         "storeargs="\
-            "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} "\
+            "setenv bootargs ${initargs} loglevel=${loglevel} ${fs_type} otg_device=${otg_device} "\
                 "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} "\
                 "hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
                 "frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} "\
