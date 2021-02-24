@@ -7520,7 +7520,7 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 
 	uint32_t write_size = 0;
 
-	if ((p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_C2) && (p_ddr_base->chip_id <= MESON_CPU_MAJOR_ID_T5D)) {
+	if (((p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_C2) && (p_ddr_base->chip_id <= MESON_CPU_MAJOR_ID_T5D)) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)) {
 		ddr_set_add = (uint32_t)(uint64_t)(ddr_set_t_p_c2);
 		ddr_set_size = sizeof(ddr_set_t_c2);
 		out_sha2 = (char *)ddr_sha_c2.sha2;
@@ -10098,7 +10098,7 @@ int do_verify_flash_ddr_parameter(char log_level)
 	unsigned count = 0;
 	unsigned error = 0;
 
-	if ((p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_C2) && (p_ddr_base->chip_id <= MESON_CPU_MAJOR_ID_T5D)) {
+	if (((p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_C2) && (p_ddr_base->chip_id <= MESON_CPU_MAJOR_ID_T5D)) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)) {
 		char temp_buf[((sizeof(ddr_sha_t_c2) + 511) / 512) * 512] = { 0 };
 
 #ifdef USE_FOR_UBOOT_2018
@@ -10433,7 +10433,7 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char *const
 		if (*argv[5] == 0 || *endp != 0)
 			skip_window_test_enable = 0;
 	}
-	if ((p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_C2) && (p_ddr_base->chip_id <= MESON_CPU_MAJOR_ID_T5D)) {
+	if (((p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_C2) && (p_ddr_base->chip_id <= MESON_CPU_MAJOR_ID_T5D)) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)) {
 		do_ddr_auto_fastboot_check_c2(auto_window_test_enable_item, auto_window_test_dq_size, pattern_dis_scramble, stick_dmc_ddr_window_test_read_vref_offset_value, skip_window_test_enable);
 		return 1;
 	}
