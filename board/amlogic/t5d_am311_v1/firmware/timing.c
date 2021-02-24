@@ -587,44 +587,50 @@ ddr_reg_t __ddr_reg[] = {
 #endif
 
 /* VDDEE PWM table */
-#if   (VDDEE_VAL == 750)
+#if   (VDDEE_VAL == 730)
+#define PWM_CONSTANT_OUT
+#define VDDEE_VAL_REG	0x00140000
+#elif (VDDEE_VAL == 740)
 #define VDDEE_VAL_REG   0x00120000
-#elif (VDDEE_VAL == 760)
+#elif (VDDEE_VAL == 750)
 #define VDDEE_VAL_REG   0x00110001
-#elif (VDDEE_VAL == 770)
+#elif (VDDEE_VAL == 760)
 #define VDDEE_VAL_REG   0x00100002
-#elif (VDDEE_VAL == 780)
+#elif (VDDEE_VAL == 770)
 #define VDDEE_VAL_REG   0x000f0003
-#elif (VDDEE_VAL == 790)
+#elif (VDDEE_VAL == 780)
 #define VDDEE_VAL_REG   0x000e0004
-#elif (VDDEE_VAL == 800)
+#elif (VDDEE_VAL == 790)
 #define VDDEE_VAL_REG   0x000d0005
-#elif (VDDEE_VAL == 810)
+#elif (VDDEE_VAL == 800)
 #define VDDEE_VAL_REG   0x000c0006
-#elif (VDDEE_VAL == 820)
+#elif (VDDEE_VAL == 810)
 #define VDDEE_VAL_REG   0x000b0007
-#elif (VDDEE_VAL == 830)
+#elif (VDDEE_VAL == 820)
 #define VDDEE_VAL_REG   0x000a0008
-#elif (VDDEE_VAL == 840)
+#elif (VDDEE_VAL == 830)
 #define VDDEE_VAL_REG   0x00090009
-#elif (VDDEE_VAL == 850)
+#elif (VDDEE_VAL == 840)
 #define VDDEE_VAL_REG   0x0008000a
-#elif (VDDEE_VAL == 860)
+#elif (VDDEE_VAL == 850)
 #define VDDEE_VAL_REG   0x0007000b
-#elif (VDDEE_VAL == 870)
+#elif (VDDEE_VAL == 860)
 #define VDDEE_VAL_REG   0x0006000c
-#elif (VDDEE_VAL == 880)
+#elif (VDDEE_VAL == 870)
 #define VDDEE_VAL_REG   0x0005000d
-#elif (VDDEE_VAL == 890)
+#elif (VDDEE_VAL == 880)
 #define VDDEE_VAL_REG   0x0004000e
-#elif (VDDEE_VAL == 900)
+#elif (VDDEE_VAL == 890)
 #define VDDEE_VAL_REG   0x0003000f
-#elif (VDDEE_VAL == 910)
+#elif (VDDEE_VAL == 900)
 #define VDDEE_VAL_REG   0x00020010
-#elif (VDDEE_VAL == 920)
+#elif (VDDEE_VAL == 910)
 #define VDDEE_VAL_REG   0x00010011
-#elif (VDDEE_VAL == 930)
+#elif (VDDEE_VAL == 920)
 #define VDDEE_VAL_REG   0x00000012
+#elif (VDDEE_VAL == 930)
+#define PWM_CONSTANT_OUT
+#define VDDEE_VAL_REG	0x00000014
 #else
 #error "VDDEE val out of range\n"
 #endif
@@ -642,7 +648,12 @@ bl2_reg_t __bl2_reg[] = {
 	{ PWMAB_PWM_A,		       VDDEE_VAL_REG,			   0xffffffff,	 0, BL2_INIT_STAGE_1, 0 },
 	/* PWM_B VCCK_VAL_REG */
 	{ PWMAB_PWM_B,		       VCCK_VAL_REG,			   0xffffffff,	 0, BL2_INIT_STAGE_1, 0 },
-	{ PWMAB_MISC_REG_AB,	       ((3 << 0) | (1 << 15) | (1 << 23)), 0xffffffff,	 0, BL2_INIT_STAGE_1, 0 },
+	/*pwm needs to support full-height or full-low output*/
+#ifdef PWM_CONSTANT_OUT
+	{PWMAB_MISC_REG_AB,	((3 << 0) | (1 << 15) | (1 << 23) | (1 << 28)),  0xffffffff, 0, BL2_INIT_STAGE_1, 0},
+#else
+	{PWMAB_MISC_REG_AB,	((3 << 0) | (1 << 15) | (1 << 23)), 0xffffffff, 0, BL2_INIT_STAGE_1, 0},
+#endif
 	/* SET GPIOE_0 GPIOE_1 DS to 3 */
 	{ AO_PAD_DS_B,		       (0xF << 0),			   (0xF << 0),	 0, BL2_INIT_STAGE_1, 0 },
 	/* MUX GPIOE_0 to PWM_A GPIOE_1 to PWM_B */
