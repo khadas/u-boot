@@ -118,6 +118,10 @@
 #include "wol.h"
 #endif
 
+#define ETHLOOP_LEN		256
+static void EthLoopStart(void);
+static void EthLoopHandler (uchar * pkt, unsigned dest, struct in_addr sip, unsigned src, unsigned len);
+
 /** BOOTP EXTENTIONS **/
 
 /* Our subnet mask (0=unknown) */
@@ -154,6 +158,7 @@ static unsigned	net_ip_id;
 /* Ethernet bcast address */
 const u8 net_bcast_ethaddr[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 const u8 net_null_ethaddr[6];
+u8 EtherPacket[ETHLOOP_LEN];	/* buffer for loopback test frame */
 #if defined(CONFIG_API) || defined(CONFIG_EFI_LOADER)
 void (*push_packet)(void *, int len) = 0;
 #endif
@@ -484,6 +489,9 @@ restart:
 			bootp_request();
 			break;
 
+		case ETHLOOP:
+			EthLoopStart();
+			break;
 #if defined(CONFIG_CMD_RARP)
 		case RARP:
 			rarp_try = 0;
@@ -1174,6 +1182,9 @@ void net_process_received_packet(uchar *in_packet, int len)
 	}
 
 	switch (eth_proto) {
+	case PROT_TEST:
+		EthLoopHandler((uchar *)net_rx_packet, 0, net_ip, 0, net_rx_packet_len);
+		break;
 	case PROT_ARP:
 		arp_receive(et, ip, len);
 		break;
@@ -1386,6 +1397,7 @@ common:
 #ifdef CONFIG_CMD_RARP
 	case RARP:
 #endif
+	case ETHLOOP:
 	case BOOTP:
 	case CDP:
 	case DHCP:
@@ -1476,6 +1488,48 @@ int net_update_ether(struct ethernet_hdr *et, uchar *addr, uint prot)
 		et802->et_prot = htons(prot);
 		return E802_HDR_SIZE;
 	}
+}
+
+
+int EthLoopSend(void)
+{
+	int i;
+	uchar *pkt;
+
+	for (i=0 ; i<ETHLOOP_LEN ; i++) {
+		EtherPacket[i] = i;
+	}
+	pkt = (uchar *)EtherPacket;
+	pkt += net_set_ether(pkt, net_ethaddr, PROT_TEST); /* set our MAC address as destination address */
+	(void) eth_send(EtherPacket, ETHLOOP_LEN);
+
+	return 1;	/* waiting */
+}
+
+static void EthLoopTimeout (void)
+{
+	eth_halt();
+	net_set_state(NETLOOP_FAIL);	/* we did not get the reply */
+}
+
+static void EthLoopHandler (uchar * pkt, unsigned dest, struct in_addr sip, unsigned src, unsigned len)
+{
+	int i;
+
+	net_set_state(NETLOOP_SUCCESS);
+	len -= 4;
+	for (i=0 ; i<len ; i++) {
+		if (EtherPacket[i] != pkt[i]) {
+			net_set_state(NETLOOP_FAIL);
+			break;
+		}
+	}
+}
+
+static void EthLoopStart(void)
+{
+	net_set_timeout_handler(10000UL, EthLoopTimeout);
+	EthLoopSend();
 }
 
 void net_set_ip_header(uchar *pkt, struct in_addr dest, struct in_addr source,

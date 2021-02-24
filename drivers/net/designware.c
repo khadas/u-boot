@@ -1562,7 +1562,7 @@ static int eqos_start(struct udevice *dev)
 
 err_shutdown_phy:
 	phy_shutdown(eqos->phydev);
-	eqos->phydev = NULL;
+//	eqos->phydev = NULL;
 	printf("eth init FAILED\n");
 	return ret;
 }
@@ -1837,9 +1837,11 @@ static int do_phyreg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return cmd_usage(cmdtp);
 	}
 
-	if (priv_tool == NULL || priv_tool->phydev == NULL) {
-		return -1;
-	}
+	if (p_phydev != NULL)
+		priv_tool->phydev = p_phydev;
+//	if (priv_tool == NULL || priv_tool->phydev == NULL) {
+//		return -1;
+//	}
 
 	cmd = (unsigned char *)argv[1];
 	switch (*cmd) {
