@@ -648,7 +648,6 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
       ret = AVB_SLOT_VERIFY_RESULT_ERROR_IO;
       goto out;
     }
-    avb_assert(footer_num_read == AVB_FOOTER_SIZE);
 
     if (!avb_footer_validate_and_byteswap((const AvbFooter*)footer_buf,
                                           &footer)) {

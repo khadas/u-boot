@@ -174,12 +174,7 @@
                 "if test ${system_mode} = 1; then "\
                     "setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
                 "else "\
-                    "if test ${vendor_boot_mode} = true; then "\
-                        "echo come to vendor_boot true;"\
-                        "setenv bootargs ${bootargs} androidboot.force_normal_boot=1;"\
-                    "else "\
-                        "setenv bootargs ${bootargs} ${fs_type};"\
-                    "fi;"\
+                    "setenv bootargs ${bootargs} androidboot.force_normal_boot=1;"\
                 "fi;"\
                 "if test ${active_slot} != normal; then "\
                     "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
