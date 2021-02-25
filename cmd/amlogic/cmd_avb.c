@@ -31,10 +31,9 @@ extern const char avb2_kpub_vendor[];
 extern const int avb2_kpub_vendor_len;
 #endif /* CONFIG_AVB_KPUB_VENDOR */
 
-#ifdef CONFIG_AVB2_KPUB_DEFAULT_VENDOR
 extern const char avb2_kpub_default[];
 extern const int avb2_kpub_default_len;
-#endif
+
 AvbOps avb_ops_;
 
 static AvbIOResult read_from_partition(AvbOps* ops, const char* partition, int64_t offset,
@@ -178,15 +177,6 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps* ops, const uint8_t* public
 {
     *out_is_trusted = false;
 
-/**
- * Instead of forbidding it, just print out a warning to let the user
- * know this is not something they should be doing unless they really
- * know what they are doing.
- */
-//#if defined(CONFIG_AVB2_KPUB_VENDOR) && defined(CONFIG_AVB2_KPUB_DEFAULT_VENDOR)
-//  #pragma message("Both vendor and default AVB2 public keys are enabled")
-//#endif /* CONFIG_AVB2_KPUB_VENDOR && CONFIG_AVB2_KPUB_DEFAULT_VENDOR */
-
 #if defined(CONFIG_AVB2_KPUB_VENDOR)
     printf("AVB2 verify with vendor kpub size:%d, vbmeta kpub size:%d\n", avb2_kpub_vendor_len, public_key_length);
     if ((avb2_kpub_vendor_len == public_key_length)
@@ -199,22 +189,18 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps* ops, const uint8_t* public
     //unsigned int isSecure = IS_FEAT_BOOT_VERIFY();
     //printf("isSecure: %d\n", isSecure);
 
-/**
- * Allow re-verify with default AVB2 public key if really want to do.
- *
- * Use of this is *NOT* typical and you should really know what you are
- * doing if want to enable this.
- */
-#if defined(CONFIG_AVB2_KPUB_DEFAULT_VENDOR)
+    /**
+     * When the custom key is set and the device is in the LOCKED state
+     * it will boot images signed with both the built-in key as well as the custom key
+     */
     printf("AVB2 verify with default kpub size:%d, vbmeta kpub size:%d\n", avb2_kpub_default_len, public_key_length);
     if ((avb2_kpub_default_len == public_key_length)
         && !avb_safe_memcmp(public_key_data, avb2_kpub_default, public_key_length)) {
         *out_is_trusted = true;
         return AVB_IO_RESULT_OK;
     }
-#endif /* CONFIG_AVB2_KPUB_DEFAULT_VENDOR */
 
-    printf("AVB2 key in system does not match with the key in vbmeta\n");
+    printf("AVB2 key in bootloader does not match with the key in vbmeta\n");
     return AVB_IO_RESULT_ERROR_IO;
 }
 
