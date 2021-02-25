@@ -41,6 +41,10 @@ Description:
 
 #define __asmeq(x, y) ".ifnc " x "," y " ; .err ; .endif\n\t"
 
+#ifndef getenv
+#define getenv env_get
+#endif
+
 #define FUNCID_PROVISION_SET_IV                0xB200E030
 #define FUNCID_PROVISION_ENCRYPT               0xB200E031
 #define FUNCID_PROVISION_GET_TRANSFER_ADDR     0xB2000007
