@@ -590,57 +590,83 @@ ddr_reg_t __ddr_reg[] = {
 #define VCCK_VAL				CONFIG_VCCK_INIT_VOLTAGE
 #define VDDEE_VAL				CONFIG_VDDEE_INIT_VOLTAGE
 /* VCCK PWM table */
-#if   (VCCK_VAL == 800)
-	#define VCCK_VAL_REG	0x00150007
+#if   (VCCK_VAL == 700)
+	#define VCCK_VAL_REG	0x00220000
+#elif (VCCK_VAL == 710)
+	#define VCCK_VAL_REG	0x00210001
+#elif (VCCK_VAL == 720)
+	#define VCCK_VAL_REG	0x00200002
+#elif (VCCK_VAL == 730)
+	#define VCCK_VAL_REG	0x001f0003
+#elif (VCCK_VAL == 740)
+	#define VCCK_VAL_REG	0x001e0004
+#elif (VCCK_VAL == 750)
+	#define VCCK_VAL_REG	0x001d0005
+#elif (VCCK_VAL == 760)
+	#define VCCK_VAL_REG	0x001c0006
+#elif (VCCK_VAL == 770)
+	#define VCCK_VAL_REG	0x001b0007
+#elif (VCCK_VAL == 780)
+	#define VCCK_VAL_REG	0x001a0008
+#elif (VCCK_VAL == 790)
+	#define VCCK_VAL_REG	0x00190009
+#elif (VCCK_VAL == 800)
+	#define VCCK_VAL_REG	0x0018000A
 #elif (VCCK_VAL == 810)
-	#define VCCK_VAL_REG	0x00140008
+	#define VCCK_VAL_REG	0x0017000B
 #elif (VCCK_VAL == 820)
-	#define VCCK_VAL_REG	0x00130009
+	#define VCCK_VAL_REG	0x0016000C
 #elif (VCCK_VAL == 830)
-	#define VCCK_VAL_REG	0x0012000a
+	#define VCCK_VAL_REG	0x0015000D
 #elif (VCCK_VAL == 840)
-	#define VCCK_VAL_REG	0x0011000b
+	#define VCCK_VAL_REG	0x0014000E
 #elif (VCCK_VAL == 850)
-	#define VCCK_VAL_REG	0x0010000c
+	#define VCCK_VAL_REG	0x0013000F
 #elif (VCCK_VAL == 860)
-	#define VCCK_VAL_REG	0x000f000d
+	#define VCCK_VAL_REG	0x00120010
 #elif (VCCK_VAL == 870)
-	#define VCCK_VAL_REG	0x000e000e
+	#define VCCK_VAL_REG	0x00110011
 #elif (VCCK_VAL == 880)
-	#define VCCK_VAL_REG	0x000d000f
+	#define VCCK_VAL_REG	0x00100012
 #elif (VCCK_VAL == 890)
-	#define VCCK_VAL_REG	0x000c0010
+	#define VCCK_VAL_REG	0x000F0013
 #elif (VCCK_VAL == 900)
-	#define VCCK_VAL_REG	0x000b0011
+	#define VCCK_VAL_REG	0x000E0014
 #elif (VCCK_VAL == 910)
-	#define VCCK_VAL_REG	0x000a0012
+	#define VCCK_VAL_REG	0x000D0015
 #elif (VCCK_VAL == 920)
-	#define VCCK_VAL_REG	0x00090013
+	#define VCCK_VAL_REG	0x000C0016
 #elif (VCCK_VAL == 930)
-	#define VCCK_VAL_REG	0x00080014
+	#define VCCK_VAL_REG	0x000B0017
 #elif (VCCK_VAL == 940)
-	#define VCCK_VAL_REG	0x00070015
+	#define VCCK_VAL_REG	0x000A0018
 #elif (VCCK_VAL == 950)
-	#define VCCK_VAL_REG	0x00060016
+	#define VCCK_VAL_REG	0x00090019
 #elif (VCCK_VAL == 960)
-	#define VCCK_VAL_REG	0x00050017
+	#define VCCK_VAL_REG	0x0008001A
 #elif (VCCK_VAL == 970)
-	#define VCCK_VAL_REG	0x00040018
+	#define VCCK_VAL_REG	0x0007001B
 #elif (VCCK_VAL == 980)
-	#define VCCK_VAL_REG	0x00030019
+	#define VCCK_VAL_REG	0x0006001C
 #elif (VCCK_VAL == 990)
-	#define VCCK_VAL_REG	0x0002001a
+	#define VCCK_VAL_REG	0x0005001D
 #elif (VCCK_VAL == 1000)
-	#define VCCK_VAL_REG	0x0001001b
+	#define VCCK_VAL_REG	0x0004001E
 #elif (VCCK_VAL == 1010)
-	#define VCCK_VAL_REG	0x0000001c
+	#define VCCK_VAL_REG	0x0003001F
+#elif (VCCK_VAL == 1020)
+	#define VCCK_VAL_REG	0x00020020
+#elif (VCCK_VAL == 1030)
+	#define VCCK_VAL_REG	0x00010021
+#elif (VCCK_VAL == 1040)
+	#define VCCK_VAL_REG	0x00000022
 #else
 	#error "VCCK val out of range\n"
 #endif
 
 /* VDDEE_VAL_REG0: VDDEE PWM table  0.67v-0.97v*/
 /* VDDEE_VAL_REG1: VDDEE PWM table  0.69v-0.89v*/
-#if    (VDDEE_VAL == 800)
+#if   (VDDEE_VAL == 800)
 	#define VDDEE_VAL_REG0	0x0010000c
 	#define VDDEE_VAL_REG1	0x0008000a
 #elif (VDDEE_VAL == 810)
