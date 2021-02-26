@@ -414,12 +414,12 @@ int v3tool_storage_init(const int eraseFlash, unsigned dtbImgSz)
 
 	if (dtbImgSz) {
 #if defined(CONFIG_MTD) && defined(CONFIG_AML_MTDPART)
-		extern int get_meson_mtd_partition_table(struct mtd_partition *partitions);
+		extern int get_meson_mtd_partition_table(struct mtd_partition **partitions);
 		int mtdParts = -1;
 		struct mtd_partition *partitions;
 
-		mtdParts = get_meson_mtd_partition_table(partitions);
-		if (partitions) {//
+		mtdParts = get_meson_mtd_partition_table(&partitions);
+		if (partitions && (mtdParts > 0)) {//
 			extern int check_valid_dts(unsigned char *buffer);
 			ret = check_valid_dts(dtbLoadedAddr);
 		} else
