@@ -36,11 +36,11 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_board_common_setting.ddr_func					= 0,
 	.cfg_board_common_setting.board_id					= CONFIG_BOARD_ID_MASK,
 	.cfg_board_common_setting.DramType					= CONFIG_DDR_TYPE_DDR4,
-	.cfg_board_common_setting.dram_rank_config				= CONFIG_DDR0_32BIT_RANK0_CH0,
+	.cfg_board_common_setting.dram_rank_config				= CONFIG_DDR0_32BIT_16BIT_RANK0_CH0,
 	.cfg_board_common_setting.DisabledDbyte					= CONFIG_DISABLE_D32_D63,
 	.cfg_board_common_setting.dram_cs0_base_add				= 0,
 	.cfg_board_common_setting.dram_cs1_base_add				= 0,
-	.cfg_board_common_setting.dram_cs0_size_MB				= CONFIG_DDR0_SIZE_1024MB,
+	.cfg_board_common_setting.dram_cs0_size_MB				= CONFIG_DDR0_SIZE_1536MB,
 	.cfg_board_common_setting.dram_cs1_size_MB				= CONFIG_DDR1_SIZE_0MB,
 	.cfg_board_common_setting.dram_x4x8x16_mode				= CONFIG_DRAM_MODE_X16,
 	.cfg_board_common_setting.Is2Ttiming					= CONFIG_USE_DDR_2T_MODE,
@@ -77,7 +77,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		32, 33, 34, 35
 	},                                                           //d0-d31 dm0 dm1 dm2 dm3
 	.cfg_board_common_setting.ddr_vddee_setting				= { 0 },
-	.cfg_board_SI_setting_ps[0].DRAMFreq = 912,
+	.cfg_board_SI_setting_ps[0].DRAMFreq = 1320,
 	.cfg_board_SI_setting_ps[0].PllBypassEn = 0,
 	.cfg_board_SI_setting_ps[0].training_SequenceCtrl = 0,
 	.cfg_board_SI_setting_ps[0].ddr_odt_config = DDR_DRAM_ODT_W_CS0_ODT0,
@@ -237,7 +237,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		32, 32, 32, 32, 32, 32, 32, 32,
 		32, 32, 32, 32
 	},                                                     //total 36
-	.cfg_ddr_training_delay_ps[0].reserve_training_parameter = { 0 },
+	.cfg_ddr_training_delay_ps[0].reserve_training_parameter = { 0xa, 0x5, 0xa, 0x7 },
 
 	.cfg_board_SI_setting_ps[1].DRAMFreq = 667,
 	.cfg_board_SI_setting_ps[1].PllBypassEn = 0,
