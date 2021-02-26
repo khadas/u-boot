@@ -475,7 +475,7 @@ static int lcd_pinmux_load_from_bsp(struct lcd_config_s *pconf)
 {
 	char propname[50];
 	struct lcd_pinmux_ctrl_s *pinmux;
-	unsigned int i, j;
+	unsigned int i, j, p2p_type;
 	int pinmux_index = 0, set_cnt = 0, clr_cnt = 0;
 
 	if (lcd_debug_print_flag)
@@ -661,7 +661,8 @@ static int lcd_pinmux_load_from_bsp(struct lcd_config_s *pconf)
 		}
 		break;
 	case LCD_P2P:
-		if (pconf->lcd_control.p2p_config->p2p_type == P2P_USIT)
+		p2p_type = pconf->lcd_control.p2p_config->p2p_type & 0x1f;
+		if (p2p_type == P2P_USIT)
 			sprintf(propname, "lcd_p2p_usit_pin");
 		else
 			sprintf(propname, "lcd_p2p_pin");

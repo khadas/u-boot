@@ -770,7 +770,7 @@ static int lcd_tcon_top_set_tl1(struct lcd_config_s *pconf)
 {
 	struct tcon_rmem_s *tcon_rmem = get_lcd_tcon_rmem();
 	unsigned int axi_reg[3] = {0x200c, 0x2013, 0x2014};
-	unsigned int paddr;
+	unsigned int paddr, p2p_type;
 	int i;
 
 	if (lcd_debug_print_flag)
@@ -791,7 +791,8 @@ static int lcd_tcon_top_set_tl1(struct lcd_config_s *pconf)
 
 	lcd_tcon_write(TCON_CLK_CTRL, 0x001f);
 	if (pconf->lcd_basic.lcd_type == LCD_P2P) {
-		switch (pconf->lcd_control.p2p_config->p2p_type) {
+		p2p_type = pconf->lcd_control.p2p_config->p2p_type & 0x1f;
+		switch (p2p_type) {
 		case P2P_CHPI:
 		case P2P_USIT:
 			lcd_tcon_write(TCON_TOP_CTRL, 0x8199);
@@ -814,12 +815,15 @@ static int lcd_tcon_top_set_tl1(struct lcd_config_s *pconf)
 
 static int lcd_tcon_top_set_t5(struct lcd_config_s *pconf)
 {
+	unsigned int p2p_type;
+
 	if (lcd_debug_print_flag)
 		LCDPR("lcd tcon top set\n");
 
 	lcd_tcon_write(TCON_CLK_CTRL, 0x001f);
 	if (pconf->lcd_basic.lcd_type == LCD_P2P) {
-		switch (pconf->lcd_control.p2p_config->p2p_type) {
+		p2p_type = pconf->lcd_control.p2p_config->p2p_type & 0x1f;
+		switch (p2p_type) {
 		case P2P_CHPI:
 		case P2P_USIT:
 			lcd_tcon_write(TCON_TOP_CTRL, 0x8399);
@@ -877,6 +881,7 @@ int lcd_tcon_enable_tl1(struct lcd_config_s *pconf)
 {
 	struct lcd_tcon_config_s *tcon_conf = get_lcd_tcon_config();
 	struct tcon_mem_map_table_s *mm_table = get_lcd_tcon_mm_table();
+	unsigned int p2p_type;
 	int ret;
 
 	ret = lcd_tcon_valid_check();
@@ -890,7 +895,8 @@ int lcd_tcon_enable_tl1(struct lcd_config_s *pconf)
 	lcd_tcon_core_reg_pre_od(tcon_conf, mm_table);
 	lcd_tcon_core_reg_set(tcon_conf, mm_table);
 	if (pconf->lcd_basic.lcd_type == LCD_P2P) {
-		switch (pconf->lcd_control.p2p_config->p2p_type) {
+		p2p_type = pconf->lcd_control.p2p_config->p2p_type & 0x1f;
+		switch (p2p_type) {
 		case P2P_CHPI:
 			lcd_phy_tcon_chpi_bbc_init_tl1(pconf);
 			break;
