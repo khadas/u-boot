@@ -15,7 +15,7 @@
 
 static int is_bootloader_old(void)
 {
-    if (is_tpl_loaded_from_ext_sdmmc()) return 1;
+    if (is_tpl_loaded_from_ext_sdmmc()) return 0;
 
     if (OPTIMUS_WORK_MODE_UDISK_PRODUCE == optimus_work_mode_get()) {
         return !getenv_hex("usbDiskNewBoot", 0);//default old
