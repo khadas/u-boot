@@ -718,7 +718,7 @@ int meson_rsv_init(struct mtd_info *mtd,
 		if (BOOT_SNAND == medium_type) {
 			/* Reduce space use, malloc may fail */
 			handler->key->size = mtd->erasesize >> 2;
-			handler->dtb->size = mtd->erasesize >> 1;
+			handler->dtb->size = mtd->erasesize >> 2;
 		} else {
 			handler->key->size = 0x40000;
 			handler->dtb->size = 0x40000;
