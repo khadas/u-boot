@@ -931,6 +931,8 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	} else if (!strcmp_l1("partition-type:cache", cmd)) {
 		if (has_boot_slot == 0) {
 			strncat(response, "ext4", chars_left);
+		} else {
+			strncat(response, "NULL", chars_left);
 		}
 	} else if (!strcmp_l1("partition-type:data", cmd)) {
 		strncat(response, "ext4", chars_left);
