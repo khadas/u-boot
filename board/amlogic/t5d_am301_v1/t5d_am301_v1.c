@@ -786,6 +786,8 @@ int checkhw(char * name)
 				strcpy(dtb_name, "t5d_t950x4_am311-1g\0");
 			} else {
 				strcpy(dtb_name, "t5d_t950d4_am301-1g\0");
+				setenv("force_dtvkit_source", "true");
+				saveenv();
 			}
 			setenv("mem_size", "1g");
 			break;
