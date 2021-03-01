@@ -23,7 +23,9 @@
 enum hdr_module_sel {
 	VD1_HDR = 0x1,
 	VD2_HDR = 0x2,
+	VD3_HDR = 0x3,
 	OSD1_HDR = 0x4,
+	OSD2_HDR = 0x5,
 	VDIN0_HDR = 0x8,
 	VDIN1_HDR = 0x10,
 	DI_HDR = 0x20,
@@ -101,5 +103,199 @@ struct hdr_proc_lut_param_s {
 
 void hdr_func(enum hdr_module_sel module_sel,
 	      enum hdr_process_sel hdr_process_select);
+
+#ifndef OSD2_HDR2_CTRL
+#define OSD2_HDR2_CTRL                             0x5b00
+#endif
+#ifndef OSD2_HDR2_CLK_GATE
+#define OSD2_HDR2_CLK_GATE                         0x5b01
+#endif
+#ifndef OSD2_HDR2_MATRIXI_COEF00_01
+#define OSD2_HDR2_MATRIXI_COEF00_01                0x5b02
+#endif
+#ifndef OSD2_HDR2_MATRIXI_COEF02_10
+#define OSD2_HDR2_MATRIXI_COEF02_10                0x5b03
+#endif
+#ifndef OSD2_HDR2_MATRIXI_COEF11_12
+#define OSD2_HDR2_MATRIXI_COEF11_12                0x5b04
+#endif
+#ifndef OSD2_HDR2_MATRIXI_COEF20_21
+#define OSD2_HDR2_MATRIXI_COEF20_21                0x5b05
+#endif
+#ifndef OSD2_HDR2_MATRIXI_COEF22
+#define OSD2_HDR2_MATRIXI_COEF22                   0x5b06
+#endif
+#ifndef OSD2_HDR2_MATRIXI_COEF30_31
+#define OSD2_HDR2_MATRIXI_COEF30_31                0x5b07
+#endif
+#ifndef OSD2_HDR2_MATRIXI_COEF32_40
+#define OSD2_HDR2_MATRIXI_COEF32_40                0x5b08
+#endif
+#ifndef OSD2_HDR2_MATRIXI_COEF41_42
+#define OSD2_HDR2_MATRIXI_COEF41_42                0x5b09
+#endif
+#ifndef OSD2_HDR2_MATRIXI_OFFSET0_1
+#define OSD2_HDR2_MATRIXI_OFFSET0_1                0x5b0a
+#endif
+#ifndef OSD2_HDR2_MATRIXI_OFFSET2
+#define OSD2_HDR2_MATRIXI_OFFSET2                  0x5b0b
+#endif
+#ifndef OSD2_HDR2_MATRIXI_PRE_OFFSET0_1
+#define OSD2_HDR2_MATRIXI_PRE_OFFSET0_1            0x5b0c
+#endif
+#ifndef OSD2_HDR2_MATRIXI_PRE_OFFSET2
+#define OSD2_HDR2_MATRIXI_PRE_OFFSET2              0x5b0d
+#endif
+#ifndef OSD2_HDR2_MATRIXO_COEF00_01
+#define OSD2_HDR2_MATRIXO_COEF00_01                0x5b0e
+#endif
+#ifndef OSD2_HDR2_MATRIXO_COEF02_10
+#define OSD2_HDR2_MATRIXO_COEF02_10                0x5b0f
+#endif
+#ifndef OSD2_HDR2_MATRIXO_COEF11_12
+#define OSD2_HDR2_MATRIXO_COEF11_12                0x5b10
+#endif
+#ifndef OSD2_HDR2_MATRIXO_COEF20_21
+#define OSD2_HDR2_MATRIXO_COEF20_21                0x5b11
+#endif
+#ifndef OSD2_HDR2_MATRIXO_COEF22
+#define OSD2_HDR2_MATRIXO_COEF22                   0x5b12
+#endif
+#ifndef OSD2_HDR2_MATRIXO_COEF30_31
+#define OSD2_HDR2_MATRIXO_COEF30_31                0x5b13
+#endif
+#ifndef OSD2_HDR2_MATRIXO_COEF32_40
+#define OSD2_HDR2_MATRIXO_COEF32_40                0x5b14
+#endif
+#ifndef OSD2_HDR2_MATRIXO_COEF41_42
+#define OSD2_HDR2_MATRIXO_COEF41_42                0x5b15
+#endif
+#ifndef OSD2_HDR2_MATRIXO_OFFSET0_1
+#define OSD2_HDR2_MATRIXO_OFFSET0_1                0x5b16
+#endif
+#ifndef OSD2_HDR2_MATRIXO_OFFSET2
+#define OSD2_HDR2_MATRIXO_OFFSET2                  0x5b17
+#endif
+#ifndef OSD2_HDR2_MATRIXO_PRE_OFFSET0_1
+#define OSD2_HDR2_MATRIXO_PRE_OFFSET0_1            0x5b18
+#endif
+#ifndef OSD2_HDR2_MATRIXO_PRE_OFFSET2
+#define OSD2_HDR2_MATRIXO_PRE_OFFSET2              0x5b19
+#endif
+#ifndef OSD2_HDR2_MATRIXI_CLIP
+#define OSD2_HDR2_MATRIXI_CLIP                     0x5b1a
+#endif
+#ifndef OSD2_HDR2_MATRIXO_CLIP
+#define OSD2_HDR2_MATRIXO_CLIP                     0x5b1b
+#endif
+#ifndef OSD2_HDR2_CGAIN_OFFT
+#define OSD2_HDR2_CGAIN_OFFT                       0x5b1c
+#endif
+#ifndef OSD2_HDR2_HIST_RD
+#define OSD2_HDR2_HIST_RD                          0x5b1d
+#endif
+#ifndef OSD2_EOTF_LUT_ADDR_PORT
+#define OSD2_EOTF_LUT_ADDR_PORT                    0x5b1e
+#endif
+#ifndef OSD2_EOTF_LUT_DATA_PORT
+#define OSD2_EOTF_LUT_DATA_PORT                    0x5b1f
+#endif
+#ifndef OSD2_OETF_LUT_ADDR_PORT
+#define OSD2_OETF_LUT_ADDR_PORT                    0x5b20
+#endif
+#ifndef OSD2_OETF_LUT_DATA_PORT
+#define OSD2_OETF_LUT_DATA_PORT                    0x5b21
+#endif
+#ifndef OSD2_CGAIN_LUT_ADDR_PORT
+#define OSD2_CGAIN_LUT_ADDR_PORT                   0x5b22
+#endif
+#ifndef OSD2_CGAIN_LUT_DATA_PORT
+#define OSD2_CGAIN_LUT_DATA_PORT                   0x5b23
+#endif
+#ifndef OSD2_HDR2_CGAIN_COEF0
+#define OSD2_HDR2_CGAIN_COEF0                      0x5b24
+#endif
+#ifndef OSD2_HDR2_CGAIN_COEF1
+#define OSD2_HDR2_CGAIN_COEF1                      0x5b25
+#endif
+#ifndef OSD2_OGAIN_LUT_ADDR_PORT
+#define OSD2_OGAIN_LUT_ADDR_PORT                   0x5b26
+#endif
+#ifndef OSD2_OGAIN_LUT_DATA_PORT
+#define OSD2_OGAIN_LUT_DATA_PORT                   0x5b27
+#endif
+#ifndef OSD2_HDR2_ADPS_CTRL
+#define OSD2_HDR2_ADPS_CTRL                        0x5b28
+#endif
+#ifndef OSD2_HDR2_ADPS_ALPHA0
+#define OSD2_HDR2_ADPS_ALPHA0                      0x5b29
+#endif
+#ifndef OSD2_HDR2_ADPS_ALPHA1
+#define OSD2_HDR2_ADPS_ALPHA1                      0x5b2a
+#endif
+#ifndef OSD2_HDR2_ADPS_BETA0
+#define OSD2_HDR2_ADPS_BETA0                       0x5b2b
+#endif
+#ifndef OSD2_HDR2_ADPS_BETA1
+#define OSD2_HDR2_ADPS_BETA1                       0x5b2c
+#endif
+#ifndef OSD2_HDR2_ADPS_BETA2
+#define OSD2_HDR2_ADPS_BETA2                       0x5b2d
+#endif
+#ifndef OSD2_HDR2_ADPS_COEF0
+#define OSD2_HDR2_ADPS_COEF0                       0x5b2e
+#endif
+#ifndef OSD2_HDR2_ADPS_COEF1
+#define OSD2_HDR2_ADPS_COEF1                       0x5b2f
+#endif
+#ifndef OSD2_HDR2_GMUT_CTRL
+#define OSD2_HDR2_GMUT_CTRL                        0x5b30
+#endif
+#ifndef OSD2_HDR2_GMUT_COEF0
+#define OSD2_HDR2_GMUT_COEF0                       0x5b31
+#endif
+#ifndef OSD2_HDR2_GMUT_COEF1
+#define OSD2_HDR2_GMUT_COEF1                       0x5b32
+#endif
+#ifndef OSD2_HDR2_GMUT_COEF2
+#define OSD2_HDR2_GMUT_COEF2                       0x5b33
+#endif
+#ifndef OSD2_HDR2_GMUT_COEF3
+#define OSD2_HDR2_GMUT_COEF3                       0x5b34
+#endif
+#ifndef OSD2_HDR2_GMUT_COEF4
+#define OSD2_HDR2_GMUT_COEF4                       0x5b35
+#endif
+#ifndef OSD2_HDR2_PIPE_CTRL1
+#define OSD2_HDR2_PIPE_CTRL1                       0x5b36
+#endif
+#ifndef OSD2_HDR2_PIPE_CTRL2
+#define OSD2_HDR2_PIPE_CTRL2                       0x5b37
+#endif
+#ifndef OSD2_HDR2_PIPE_CTRL3
+#define OSD2_HDR2_PIPE_CTRL3                       0x5b38
+#endif
+#ifndef OSD2_HDR2_PROC_WIN1
+#define OSD2_HDR2_PROC_WIN1                        0x5b39
+#endif
+
+#ifndef OSD2_HDR2_PROC_WIN2
+#define OSD2_HDR2_PROC_WIN2                        0x5b3a
+#endif
+#ifndef OSD2_HDR2_MATRIXI_EN_CTRL
+#define OSD2_HDR2_MATRIXI_EN_CTRL                  0x5b3b
+#endif
+#ifndef OSD2_HDR2_MATRIXO_EN_CTRL
+#define OSD2_HDR2_MATRIXO_EN_CTRL                  0x5b3c
+#endif
+#ifndef OSD2_HDR2_HIST_CTRL
+#define OSD2_HDR2_HIST_CTRL                        0x5b3d
+#endif
+#ifndef OSD2_HDR2_HIST_H_START_END
+#define OSD2_HDR2_HIST_H_START_END                 0x5b3e
+#endif
+#ifndef OSD2_HDR2_HIST_V_START_END
+#define OSD2_HDR2_HIST_V_START_END                 0x5b3f
+#endif
 
 #endif

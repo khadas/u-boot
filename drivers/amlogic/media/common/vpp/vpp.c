@@ -1528,6 +1528,7 @@ void hdr_tx_pkt_cb(void)
 	if ((hdrinfo && hdrinfo->hdr_sup_eotf_smpte_st_2084) &&
 	    hdr_policy == 0) {
 		hdr_func(OSD1_HDR, SDR_HDR);
+		hdr_func(OSD2_HDR, SDR_HDR);
 		hdr_func(VD1_HDR, SDR_HDR);
 		amvecm_cp_hdr_info(&hdr_data);
 		hdmitx_set_drm_pkt(&hdr_data);
@@ -1581,6 +1582,7 @@ void vpp_init(void)
 		/* set vpp data path to u12 */
 		set_vpp_bitdepth();
 		hdr_func(OSD1_HDR, HDR_BYPASS);
+		hdr_func(OSD2_HDR, HDR_BYPASS);
 		hdr_func(OSD3_HDR, HDR_BYPASS);
 		hdr_func(VD1_HDR, HDR_BYPASS);
 		hdr_func(VD2_HDR, HDR_BYPASS);

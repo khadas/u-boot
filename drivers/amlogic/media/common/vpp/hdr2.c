@@ -17,8 +17,8 @@
 
 #include <amlogic/cpu_id.h>
 #include <malloc.h>
-#include "hdr2.h"
 #include "vpp_reg.h"
+#include "hdr2.h"
 #include <common.h>
 
 #define OO_Y_LUT_BYPASS_VAL 512
@@ -574,6 +574,58 @@ void set_hdr_matrix(enum hdr_module_sel module_sel,
 		GMUT_COEF4 = OSD1_HDR2_GMUT_COEF4;
 
 		hdr_ctrl = OSD1_HDR2_CTRL;
+	}else if (module_sel & OSD2_HDR) {
+		MATRIXI_COEF00_01 = OSD2_HDR2_MATRIXI_COEF00_01;
+		MATRIXI_COEF00_01 = OSD2_HDR2_MATRIXI_COEF00_01;
+		MATRIXI_COEF02_10 = OSD2_HDR2_MATRIXI_COEF02_10;
+		MATRIXI_COEF11_12 = OSD2_HDR2_MATRIXI_COEF11_12;
+		MATRIXI_COEF20_21 = OSD2_HDR2_MATRIXI_COEF20_21;
+		MATRIXI_COEF22 = OSD2_HDR2_MATRIXI_COEF22;
+		/*MATRIXI_COEF30_31 = OSD2_HDR2_MATRIXI_COEF30_31;*/
+		/*MATRIXI_COEF32_40 = OSD2_HDR2_MATRIXI_COEF32_40;*/
+		/*MATRIXI_COEF41_42 = OSD2_HDR2_MATRIXI_COEF41_42;*/
+		MATRIXI_OFFSET0_1 = OSD2_HDR2_MATRIXI_OFFSET0_1;
+		MATRIXI_OFFSET2 = OSD2_HDR2_MATRIXI_OFFSET2;
+		MATRIXI_PRE_OFFSET0_1 = OSD2_HDR2_MATRIXI_PRE_OFFSET0_1;
+		MATRIXI_PRE_OFFSET2 = OSD2_HDR2_MATRIXI_PRE_OFFSET2;
+		/*MATRIXI_CLIP = OSD2_HDR2_MATRIXI_CLIP;*/
+		MATRIXI_EN_CTRL = OSD2_HDR2_MATRIXI_EN_CTRL;
+
+		MATRIXO_COEF00_01 = OSD2_HDR2_MATRIXO_COEF00_01;
+		MATRIXO_COEF00_01 = OSD2_HDR2_MATRIXO_COEF00_01;
+		MATRIXO_COEF02_10 = OSD2_HDR2_MATRIXO_COEF02_10;
+		MATRIXO_COEF11_12 = OSD2_HDR2_MATRIXO_COEF11_12;
+		MATRIXO_COEF20_21 = OSD2_HDR2_MATRIXO_COEF20_21;
+		MATRIXO_COEF22 = OSD2_HDR2_MATRIXO_COEF22;
+		/*MATRIXO_COEF30_31 = OSD2_HDR2_MATRIXO_COEF30_31;*/
+		/*MATRIXO_COEF32_40 = OSD2_HDR2_MATRIXO_COEF32_40;*/
+		/*MATRIXO_COEF41_42 = OSD2_HDR2_MATRIXO_COEF41_42;*/
+		MATRIXO_OFFSET0_1 = OSD2_HDR2_MATRIXO_OFFSET0_1;
+		MATRIXO_OFFSET2 = OSD2_HDR2_MATRIXO_OFFSET2;
+		MATRIXO_PRE_OFFSET0_1 = OSD2_HDR2_MATRIXO_PRE_OFFSET0_1;
+		MATRIXO_PRE_OFFSET2 = OSD2_HDR2_MATRIXO_PRE_OFFSET2;
+		/*MATRIXO_CLIP = OSD2_HDR2_MATRIXO_CLIP;*/
+		MATRIXO_EN_CTRL = OSD2_HDR2_MATRIXO_EN_CTRL;
+
+		CGAIN_OFFT = OSD2_HDR2_CGAIN_OFFT;
+		CGAIN_COEF0 = OSD2_HDR2_CGAIN_COEF0;
+		CGAIN_COEF1 = OSD2_HDR2_CGAIN_COEF1;
+		ADPS_CTRL = OSD2_HDR2_ADPS_CTRL;
+		ADPS_ALPHA0 = OSD2_HDR2_ADPS_ALPHA0;
+		ADPS_ALPHA1 = OSD2_HDR2_ADPS_ALPHA1;
+		ADPS_BETA0 = OSD2_HDR2_ADPS_BETA0;
+		ADPS_BETA1 = OSD2_HDR2_ADPS_BETA1;
+		ADPS_BETA2 = OSD2_HDR2_ADPS_BETA2;
+		ADPS_COEF0 = OSD2_HDR2_ADPS_COEF0;
+		ADPS_COEF1 = OSD2_HDR2_ADPS_COEF1;
+		GMUT_CTRL = OSD2_HDR2_GMUT_CTRL;
+		GMUT_COEF0 = OSD2_HDR2_GMUT_COEF0;
+		GMUT_COEF1 = OSD2_HDR2_GMUT_COEF1;
+		GMUT_COEF2 = OSD2_HDR2_GMUT_COEF2;
+		GMUT_COEF3 = OSD2_HDR2_GMUT_COEF3;
+		GMUT_COEF4 = OSD2_HDR2_GMUT_COEF4;
+
+		hdr_ctrl = OSD2_HDR2_CTRL;
 	}
 
 	if (!hdr_mtx_param)
@@ -631,7 +683,7 @@ void set_hdr_matrix(enum hdr_module_sel module_sel,
 		/*for g12a/g12b osd blend shift rtl bug*/
 		if ((get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_G12A) &&
 		    (hdr_mtx_param->p_sel & HDR_BYPASS) &&
-		    (module_sel & OSD1_HDR))
+		    (module_sel & (OSD1_HDR | OSD1_HDR)))
 			gmut_shift = 10;
 		else
 			gmut_shift = 11;
@@ -644,7 +696,7 @@ void set_hdr_matrix(enum hdr_module_sel module_sel,
 		for (i = 0; i < 3; i++) {
 			if ((get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_G12A) &&
 				(hdr_mtx_param->p_sel & HDR_BYPASS) &&
-				(module_sel & OSD1_HDR))
+				(module_sel & (OSD1_HDR | OSD2_HDR)))
 				adpscl_enable[i] = 1;
 			else
 				adpscl_enable[i] = 0;
@@ -797,6 +849,10 @@ void set_eotf_lut(enum hdr_module_sel module_sel,
 		eotf_lut_addr_port = OSD1_EOTF_LUT_ADDR_PORT;
 		eotf_lut_data_port = OSD1_EOTF_LUT_DATA_PORT;
 		hdr_ctrl = OSD1_HDR2_CTRL;
+	} else if (module_sel & OSD2_HDR) {
+		eotf_lut_addr_port = OSD2_EOTF_LUT_ADDR_PORT;
+		eotf_lut_data_port = OSD2_EOTF_LUT_DATA_PORT;
+		hdr_ctrl = OSD2_HDR2_CTRL;
 	}
 
 	for (i = 0; i < HDR2_EOTF_LUT_SIZE; i++)
@@ -833,6 +889,10 @@ void set_ootf_lut(enum hdr_module_sel module_sel,
 		ootf_lut_addr_port = OSD1_OGAIN_LUT_ADDR_PORT;
 		ootf_lut_data_port = OSD1_OGAIN_LUT_DATA_PORT;
 		hdr_ctrl = OSD1_HDR2_CTRL;
+	} else if (module_sel & OSD2_HDR) {
+		ootf_lut_addr_port = OSD2_OGAIN_LUT_ADDR_PORT;
+		ootf_lut_data_port = OSD2_OGAIN_LUT_DATA_PORT;
+		hdr_ctrl = OSD2_HDR2_CTRL;
 	}
 
 	for (i = 0; i < HDR2_OOTF_LUT_SIZE; i++)
@@ -872,6 +932,10 @@ void set_oetf_lut(enum hdr_module_sel module_sel,
 		oetf_lut_addr_port = OSD1_OETF_LUT_ADDR_PORT;
 		oetf_lut_data_port = OSD1_OETF_LUT_DATA_PORT;
 		hdr_ctrl = OSD1_HDR2_CTRL;
+	} else if (module_sel & OSD2_HDR) {
+		   oetf_lut_addr_port = OSD2_OETF_LUT_ADDR_PORT;
+		   oetf_lut_data_port = OSD2_OETF_LUT_DATA_PORT;
+		   hdr_ctrl = OSD2_HDR2_CTRL;
 	}
 
 	for (i = 0; i < HDR2_OETF_LUT_SIZE; i++)
@@ -917,6 +981,10 @@ void set_c_gain(enum hdr_module_sel module_sel,
 		cgain_lut_addr_port = OSD1_CGAIN_LUT_ADDR_PORT;
 		cgain_lut_data_port = OSD1_CGAIN_LUT_DATA_PORT;
 		hdr_ctrl = OSD1_HDR2_CTRL;
+	} else if (module_sel & OSD2_HDR) {
+		cgain_lut_addr_port = OSD2_CGAIN_LUT_ADDR_PORT;
+		cgain_lut_data_port = OSD2_CGAIN_LUT_DATA_PORT;
+		hdr_ctrl = OSD2_HDR2_CTRL;
 	}
 
 	for (i = 0; i < HDR2_CGAIN_LUT_SIZE; i++)
@@ -949,10 +1017,15 @@ void hdr_func(enum hdr_module_sel module_sel,
 	printf("%s: %d, hdr_process_select 0x%x\n",
 	       __func__, module_sel, hdr_process_select);
 
+	if (get_cpu_id().family_id != MESON_CPU_MAJOR_ID_T7 &&
+		(module_sel == OSD2_HDR ||
+		module_sel == VD3_HDR))
+		return;
+
 	memset(&hdr_mtx_param, 0, sizeof(struct hdr_proc_mtx_param_s));
 	memset(&hdr_lut_param, 0, sizeof(struct hdr_proc_lut_param_s));
 
-	if (module_sel & (VD1_HDR | VD2_HDR | OSD1_HDR)) {
+	if (module_sel & (VD1_HDR | VD2_HDR | VD3_HDR | OSD1_HDR  | OSD2_HDR)) {
 		if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_S4)
 			bit_depth = 10;
 		else
@@ -967,7 +1040,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 	if (hdr_process_select & (HDR_BYPASS | RGB_BYPASS)) {
 		/*for g12a/g12b osd blend shift rtl bug*/
 		if ((get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_G12A) &&
-		     (module_sel & (OSD1_HDR | VD1_HDR | VD2_HDR))) {
+		     (module_sel & (OSD1_HDR |  OSD2_HDR | VD1_HDR | VD2_HDR))) {
 			for (i = 0; i < HDR2_OETF_LUT_SIZE; i++) {
 				hdr_lut_param.oetf_lut[i]  = oe_y_lut_bypass[i];
 				hdr_lut_param.ogain_lut[i] = OO_Y_LUT_BYPASS_VAL;
@@ -1023,7 +1096,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 		hdr_lut_param.bitdepth = bit_depth;
 		/*for g12a/g12b osd blend shift rtl bug*/
 		if ((get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_G12A) &&
-		    (module_sel & OSD1_HDR))
+		    (module_sel & (OSD1_HDR | OSD2_HDR)))
 			hdr_lut_param.cgain_en = LUT_ON;
 		else
 			hdr_lut_param.cgain_en = LUT_OFF;
@@ -1078,7 +1151,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 		/*for g12a/g12b osd blend shift rtl bug*/
 		if (((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) ||
 		     (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B)) &&
-		    (module_sel & OSD1_HDR))
+		     (module_sel & (OSD1_HDR | OSD2_HDR)))
 			hdr_lut_param.cgain_en = LUT_ON;
 		else
 			hdr_lut_param.cgain_en = LUT_OFF;
@@ -1108,12 +1181,12 @@ void hdr_func(enum hdr_module_sel module_sel,
 		     (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B &&
 		      get_cpu_id().chip_rev == MESON_CPU_CHIP_REVISION_A)) &&
 		    (hdr_process_select & HDR_BYPASS) &&
-		    (module_sel & (OSD1_HDR | VD1_HDR | VD2_HDR))) {
+		    (module_sel & (OSD1_HDR | OSD2_HDR | VD1_HDR | VD2_HDR))) {
 			for (i = 0; i < 15; i++) {
 				hdr_mtx_param.mtx_in[i] = bypass_coeff[i];
 				hdr_mtx_param.mtx_cgain[i] = bypass_coeff[i];
 				hdr_mtx_param.mtx_ogain[i] = bypass_coeff[i];
-				if (module_sel & OSD1_HDR)
+				if (module_sel & (OSD1_HDR | OSD2_HDR))
 					hdr_mtx_param.mtx_out[i] = rgb2ycbcr_709[i];
 				else
 					hdr_mtx_param.mtx_out[i] = bypass_coeff[i];
@@ -1125,7 +1198,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 						bypass_pre[i];
 					hdr_mtx_param.mtxi_pos_offset[i] =
 						bypass_pos[i];
-					if (module_sel & OSD1_HDR) {
+					if (module_sel & (OSD1_HDR | OSD2_HDR)) {
 						hdr_mtx_param.mtxo_pre_offset[i] =
 							rgb2yuvpre[i];
 						hdr_mtx_param.mtxo_pos_offset[i] =
@@ -1146,9 +1219,9 @@ void hdr_func(enum hdr_module_sel module_sel,
 			     MESON_CPU_MAJOR_ID_G12B &&
 			     get_cpu_id().chip_rev ==
 			     MESON_CPU_CHIP_REVISION_B)) &&
-			   (module_sel & (OSD1_HDR | VD1_HDR | VD2_HDR))) {
+			   (module_sel & (OSD1_HDR | OSD1_HDR | VD1_HDR | VD2_HDR))) {
 			for (i = 0; i < 15; i++) {
-				if (module_sel & OSD1_HDR)
+				if (module_sel & (OSD1_HDR| OSD2_HDR))
 					hdr_mtx_param.mtx_in[i] = rgb2ycbcr_709[i];
 				else
 					hdr_mtx_param.mtx_in[i] = bypass_coeff[i];
@@ -1159,7 +1232,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 					hdr_mtx_param.mtx_gamut[i] =
 						gamut_bypass[i];
 				if (i < 3) {
-					if (module_sel & OSD1_HDR) {
+					if (module_sel & (OSD1_HDR | OSD2_HDR)) {
 						hdr_mtx_param.mtxi_pre_offset[i] =
 						rgb2yuvpre[i];
 					hdr_mtx_param.mtxi_pos_offset[i] =
@@ -1176,7 +1249,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 						bypass_pos[i];
 				}
 			}
-			if (module_sel & OSD1_HDR) {
+			if (module_sel & (OSD1_HDR | OSD2_HDR)) {
 				hdr_mtx_param.mtx_on = MTX_OFF;
 				hdr_mtx_param.p_sel = HDR_BYPASS;
 				hdr_mtx_param.mtx_only = MTX_ONLY;
@@ -1237,7 +1310,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 	} else if (hdr_process_select & SDR_HDR) {
 		hdr_mtx_param.mtx_only = HDR_ONLY;
 		if ((get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_G12A) &&
-		    (module_sel & OSD1_HDR)) {
+		    (module_sel & (OSD1_HDR | OSD2_HDR))) {
 			for (i = 0; i < 15; i++) {
 				hdr_mtx_param.mtx_in[i] = bypass_coeff[i];
 				hdr_mtx_param.mtx_cgain[i] =
