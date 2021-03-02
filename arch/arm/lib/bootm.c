@@ -366,6 +366,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 		}
 #endif
 #endif
+		printf("uboot time: %u us\n", get_time());
 		if (images->os.arch == IH_ARCH_ARM) {
 			printf("boot 32bit kernel\n");
 			jump_to_a32_kernel(images->ep, machid, (unsigned long)images->ft_addr);
