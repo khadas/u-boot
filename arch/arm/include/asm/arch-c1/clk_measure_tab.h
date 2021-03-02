@@ -92,6 +92,4 @@ static const char* clk_msr_table[] = {
 	[92] = "ddr_dpll_pt_clk",
 };
 
-int clk_msr(int index);
-
 #endif

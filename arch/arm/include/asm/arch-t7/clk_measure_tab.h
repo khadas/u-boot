@@ -201,6 +201,4 @@ static const char* clk_msr_table[] = {
 	[222] = "cts_enc0_clk"
 };
 
-int clk_msr(int index);
-
 #endif

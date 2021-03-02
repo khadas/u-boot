@@ -6,7 +6,7 @@
 
 #include <common.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/clk_measure.h>
+#include <asm/arch/clk_measure_tab.h>
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
 

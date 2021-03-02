@@ -136,6 +136,4 @@ const char* clk_msr_table[] = {
 	[0]   = "am_ring_osc_clk_out_ee[0]   ",
 };
 
-int clk_msr(int index);
-
 #endif

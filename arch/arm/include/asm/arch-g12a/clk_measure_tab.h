@@ -137,6 +137,4 @@ const char* clk_msr_table[] = {
 
 };
 
-int clk_msr(int index);
-
 #endif

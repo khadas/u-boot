@@ -10,4 +10,5 @@ obj-$(CONFIG_MESON_AXG) += board-axg.o
 obj-$(CONFIG_ARCH_MESON) += $(SOC)/
 
 obj-$(CONFIG_AML_HW_SHA2) += hard_sha2.o
+obj-$(CONFIG_CMD_PLLTEST) += clk-pll.o clk-mpll.o
 obj-$(CONFIG_AML_ANTIROLLBACK) += anti-rollback.o

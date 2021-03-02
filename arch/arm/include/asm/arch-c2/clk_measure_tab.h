@@ -80,6 +80,4 @@ static const char* clk_msr_table[] = {
 	[95] = "osc_ring_cpu0",
 };
 
-int clk_msr(int index);
-
 #endif
