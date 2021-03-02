@@ -540,7 +540,7 @@ static void getvar_partition_type(char *part_name, char *response)
 			if (busy_flag == 1)
 				fastboot_response("INFOpartition-type:", response, "%s: NULL", part_name);
 			else
-				fastboot_okay("NULL", response);
+				fastboot_okay(NULL, response);
 		}
 	} else {
 		if (busy_flag == 1)
