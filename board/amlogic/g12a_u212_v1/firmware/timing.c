@@ -594,8 +594,97 @@ ddr_reg_t __ddr_reg[] = {
 #else
 #define VDDEE_VAL				CONFIG_VDDEE_INIT_VOLTAGE
 #endif
-/* VCCK PWM table */
-#if   (VCCK_VAL == 800)
+/* VCCK PWM table, SM1 VCCK supports 36 step voltage, g12a vcck supports 30 step voltage */
+#ifdef CONFIG_SM1_AC213_V1
+#if   (VCCK_VAL == 700)
+	#define VCCK_VAL_REG	0x00220000
+#elif (VCCK_VAL == 710)
+	#define VCCK_VAL_REG	0x00210001
+#elif (VCCK_VAL == 720)
+	#define VCCK_VAL_REG	0x00200002
+#elif (VCCK_VAL == 730)
+	#define VCCK_VAL_REG	0x001f0003
+#elif (VCCK_VAL == 740)
+	#define VCCK_VAL_REG	0x001e0004
+#elif (VCCK_VAL == 750)
+	#define VCCK_VAL_REG	0x001d0005
+#elif (VCCK_VAL == 760)
+	#define VCCK_VAL_REG	0x001c0006
+#elif (VCCK_VAL == 770)
+	#define VCCK_VAL_REG	0x001b0007
+#elif (VCCK_VAL == 780)
+	#define VCCK_VAL_REG	0x001a0008
+#elif (VCCK_VAL == 790)
+	#define VCCK_VAL_REG	0x00190009
+#elif (VCCK_VAL == 800)
+	#define VCCK_VAL_REG	0x0018000a
+#elif (VCCK_VAL == 810)
+	#define VCCK_VAL_REG	0x0017000b
+#elif (VCCK_VAL == 820)
+	#define VCCK_VAL_REG	0x0016000c
+#elif (VCCK_VAL == 830)
+	#define VCCK_VAL_REG	0x0015000d
+#elif (VCCK_VAL == 840)
+	#define VCCK_VAL_REG	0x0014000e
+#elif (VCCK_VAL == 850)
+	#define VCCK_VAL_REG	0x0013000f
+#elif (VCCK_VAL == 860)
+	#define VCCK_VAL_REG	0x00120010
+#elif (VCCK_VAL == 870)
+	#define VCCK_VAL_REG	0x00110011
+#elif (VCCK_VAL == 880)
+	#define VCCK_VAL_REG	0x00100012
+#elif (VCCK_VAL == 890)
+	#define VCCK_VAL_REG	0x000f0013
+#elif (VCCK_VAL == 900)
+	#define VCCK_VAL_REG	0x000e0014
+#elif (VCCK_VAL == 910)
+	#define VCCK_VAL_REG	0x000d0015
+#elif (VCCK_VAL == 920)
+	#define VCCK_VAL_REG	0x000c0016
+#elif (VCCK_VAL == 930)
+	#define VCCK_VAL_REG	0x000b0017
+#elif (VCCK_VAL == 940)
+	#define VCCK_VAL_REG	0x000a0018
+#elif (VCCK_VAL == 950)
+	#define VCCK_VAL_REG	0x00090019
+#elif (VCCK_VAL == 960)
+	#define VCCK_VAL_REG	0x0008001a
+#elif (VCCK_VAL == 970)
+	#define VCCK_VAL_REG	0x0007001b
+#elif (VCCK_VAL == 980)
+	#define VCCK_VAL_REG	0x0006001c
+#elif (VCCK_VAL == 990)
+	#define VCCK_VAL_REG	0x0005001d
+#elif (VCCK_VAL == 1000)
+	#define VCCK_VAL_REG	0x0004001e
+#elif (VCCK_VAL == 1010)
+	#define VCCK_VAL_REG	0x0003001f
+#elif (VCCK_VAL == 1020)
+	#define VCCK_VAL_REG	0x00020020
+#elif (VCCK_VAL == 1030)
+	#define VCCK_VAL_REG	0x00010021
+#elif (VCCK_VAL == 1040)
+	#define VCCK_VAL_REG	0x00000022
+#else
+	#error "VCCK val out of range\n"
+#endif
+#else
+#if   (VCCK_VAL == 730)
+	#define VCCK_VAL_REG	0x001c0000
+#elif (VCCK_VAL == 740)
+	#define VCCK_VAL_REG	0x001b0001
+#elif (VCCK_VAL == 750)
+	#define VCCK_VAL_REG	0x001a0002
+#elif (VCCK_VAL == 760)
+	#define VCCK_VAL_REG	0x00190003
+#elif (VCCK_VAL == 770)
+	#define VCCK_VAL_REG	0x00180004
+#elif (VCCK_VAL == 780)
+	#define VCCK_VAL_REG	0x00170005
+#elif (VCCK_VAL == 790)
+	#define VCCK_VAL_REG	0x00160006
+#elif (VCCK_VAL == 800)
 	#define VCCK_VAL_REG	0x00150007
 #elif (VCCK_VAL == 810)
 	#define VCCK_VAL_REG	0x00140008
@@ -641,6 +730,7 @@ ddr_reg_t __ddr_reg[] = {
 	#define VCCK_VAL_REG	0x0000001c
 #else
 	#error "VCCK val out of range\n"
+#endif
 #endif
 
 /* VDDEE_VAL_REG0: VDDEE PWM table  0.67v-0.97v*/
