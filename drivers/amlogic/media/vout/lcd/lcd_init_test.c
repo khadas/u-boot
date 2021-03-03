@@ -1083,17 +1083,13 @@ static void vx1_wait_timing_stable(void)
 
 static void vx1_control_set(void)
 {
-	int lane_count, byte_mode, region_num, hsize, vsize;
+	int lane_count;
 	/* int color_fmt; */
 	int vin_color, vin_bpp;
 
 	LCDPR("%s\n", __func__);
 
-	hsize = 3840;
-	vsize = 2160;
 	lane_count = 8;
-	region_num = 2;
-	byte_mode = 4;
 
 	vx1_clk_util_set();
 

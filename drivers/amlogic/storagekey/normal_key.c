@@ -549,7 +549,7 @@ int normalkey_readfromblock(void *block, unsigned long size)
 		return 0;
 	}
 
-	flush_dcache_range(block, block + size);
+	flush_dcache_range((unsigned long)block, (unsigned long)block + size);
 	normalkey_hash((u8 *)prawhead, sizeof(*prawhead) - 64,
 		       rawhead.headhash);
 	if (memcmp(rawhead.headhash, prawhead->headhash, 32)) {
@@ -671,8 +671,8 @@ int normalkey_writetoblock(void *block, unsigned long size)
 		return -1;
 
 	rawhead.wrtcnt++;
-	flush_dcache_range(&rawhead, (unsigned long)&rawhead + sizeof(rawhead));
-	flush_dcache_range(block, block + size);
+	flush_dcache_range((unsigned long)&rawhead, (unsigned long)&rawhead + sizeof(rawhead));
+	flush_dcache_range((unsigned long)block, (unsigned long)block + size);
 	memset(rawhead.headhash, 0, sizeof(rawhead.headhash));
 	normalkey_hash((u8 *)&rawhead, sizeof(rawhead) - 64,
 		       rawhead.headhash);

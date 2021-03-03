@@ -67,7 +67,7 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	int hpd_st = 0;
 
 	st = env_get("hdmitx_hpd_bypass");
-	if (st && (strcmp(st[0], "1") == 0)) {
+	if (st && (strcmp((const char *)(uintptr_t)st[0], "1") == 0)) {
 		printf("hdmitx_hpd_bypass detect\n");
 		return 0;
 	}

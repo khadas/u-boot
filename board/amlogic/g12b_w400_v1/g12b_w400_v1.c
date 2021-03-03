@@ -359,6 +359,8 @@ static void hdmi_tx_set_hdmi_5v(void)
  * BOOT_14: NOR_CS:reg1[27:24]=3
  */
 #define SPIFC_NUM_CS 1
+
+#if 0
 static int spifc_cs_gpios[SPIFC_NUM_CS] = {54};
 
 static int spifc_pinctrl_enable(void *pinctrl, bool enable)
@@ -377,7 +379,6 @@ static int spifc_pinctrl_enable(void *pinctrl, bool enable)
 	return 0;
 }
 
-#if 0
 static const struct spifc_platdata spifc_platdata = {
 	.reg = 0xffd14000,
 	.mem_map = 0xf6000000,
@@ -670,7 +671,7 @@ static const struct mtd_partition spinand_partitions[] = {
 	}
 };
 
-struct mtd_partition *get_spinand_partition_table(int *partitions)
+const struct mtd_partition *get_spinand_partition_table(int *partitions)
 {
 	*partitions = ARRAY_SIZE(spinand_partitions);
 	return spinand_partitions;

@@ -59,7 +59,6 @@
 #define PM_MIPI_DSI1     50
 #define PM_AUDIO         51
 
-static int pm_max = 52;
 
 static char* domain_name[] =
 {

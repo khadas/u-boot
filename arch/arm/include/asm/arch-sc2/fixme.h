@@ -83,8 +83,8 @@
 #define P_AO_PAD_DS_B                    (SYSCTRL_STICKY_REG0)
 
 /*TIMER*/
-#define ISA_TIMERE                       (SYSCTRL_STICKY_REG0)
-#define P_ISA_TIMERE                     (SYSCTRL_STICKY_REG0)
+//#define ISA_TIMERE                       (SYSCTRL_STICKY_REG0)
+//#define P_ISA_TIMERE                     (SYSCTRL_STICKY_REG0)
 
 /*DMC*/
 #define P_PREG_STICKY_REG0               (SYSCTRL_STICKY_REG0)
@@ -93,8 +93,8 @@
 #define HHI_MEM_PD_REG0                  (SYSCTRL_STICKY_REG0)
 
 /*UART*/
-#define P_AO_TIMEBASE_CNTL1              (SYSCTRL_STICKY_REG0)
-#define P_AO_RTI_PINMUX_REG0             (SYSCTRL_STICKY_REG0)
+//#define P_AO_TIMEBASE_CNTL1              (SYSCTRL_STICKY_REG0)
+//#define P_AO_RTI_PINMUX_REG0             (SYSCTRL_STICKY_REG0)
 
 #endif
 

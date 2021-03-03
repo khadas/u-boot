@@ -27,7 +27,7 @@
  * AO_RTI_STATUS_REG3 use SYSCTRL_SEC_STICKY_REG1
  * AO_SEC_SD_CFG15 use SYSCTRL_SEC_STATUS_REG2
  */
-#define SEC_AO_SEC_GP_CFG0		((0x00c4  << 2) + 0xfe005800)
+//#define SEC_AO_SEC_GP_CFG0		((0x00c4  << 2) + 0xfe005800)
 #define AO_SEC_GP_CFG0			((0x00c4  << 2) + 0xfe005800)
 #define AO_RTI_STATUS_REG3		((0x00e1  << 2) + 0xfe005800)
 

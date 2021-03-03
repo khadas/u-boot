@@ -42,7 +42,7 @@ void dsp_reset(uint32_t id,uint32_t reset_addr)
 		init_dsp(id,reset_addr, (0x1 | StatVectorSel<<1 | strobe<<2));
 		udelay(50);
 
-		writel(readl(DSP_CFG0) & ~(0xffff <<0) | (0x2018 << 0) | (1<<29), DSP_CFG0);
+		writel((readl(DSP_CFG0) &( ~(0xffff <<0))) | (0x2018 << 0) | (1<<29), DSP_CFG0);
 		udelay(10);
 
 		writel(readl(DSP_CFG0) | (1<<31), DSP_CFG0); //Dreset deassert
@@ -60,7 +60,7 @@ void dsp_reset(uint32_t id,uint32_t reset_addr)
 	} else {
 		init_dsp(id,reset_addr, (0x1 | StatVectorSel<<1 | strobe<<2));
 		udelay(50);
-		writel(readl(DSPB_CFG0) & ~(0xffff <<0) | (0x2019 << 0) | (1<<29), DSPB_CFG0);
+		writel((readl(DSPB_CFG0) & (~(0xffff <<0))) | (0x2019 << 0) | (1<<29), DSPB_CFG0);
 		udelay(10);
 		writel(readl(DSPB_CFG0) & ~(1<<31), DSPB_CFG0); //Dreset
 		udelay(10);
@@ -74,7 +74,6 @@ static int do_dsprun(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long addr;
 	unsigned int dspid;
-	uint32_t freq_sel;
 	int ret=0;
 	if (argc <= 1) {
 		printf("plese input dsp boot args:id, addrss, clk!\n");

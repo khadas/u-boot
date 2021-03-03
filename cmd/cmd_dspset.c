@@ -99,7 +99,6 @@ void dsp_power_set(unsigned int dspid,  uint32_t powerflag) {
 
 static int do_dspset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	unsigned long addr;
 	unsigned int dspid;
 	uint32_t freq_sel;
 	uint32_t powerflag;

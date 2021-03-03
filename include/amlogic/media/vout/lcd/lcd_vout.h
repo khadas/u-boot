@@ -599,5 +599,6 @@ extern void lcd_config_bsp_init(void);
 struct lcd_drv_s *lcd_get_driver(void);
 
 extern int lcd_probe(void);
+extern void vpp_enable_lcd_gamma_table(void);
 
 #endif /* INC_AML_LCD_VOUT_H */

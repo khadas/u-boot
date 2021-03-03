@@ -301,7 +301,7 @@ static const struct mtd_partition spinand_partitions[] = {
 		.size = MTDPART_SIZ_FULL,
 	}
 };
-struct mtd_partition *get_spinand_partition_table(int *partitions)
+const struct mtd_partition *get_spinand_partition_table(int *partitions)
 {
 	*partitions = ARRAY_SIZE(spinand_partitions);
 	return spinand_partitions;

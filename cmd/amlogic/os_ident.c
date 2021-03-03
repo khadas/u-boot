@@ -26,7 +26,7 @@ static int do_os_ident(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		return ret;
 	}
 
-	const void *img_addr = simple_strtoul(argv[1], NULL, 16);
+	const void *img_addr = (const void *)simple_strtoul(argv[1], NULL, 16);
 	debug_print("os hdr addr: 0x%lx\n", (ulong)img_addr);
 
 	ret = genimg_get_format(img_addr);

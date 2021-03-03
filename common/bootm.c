@@ -263,8 +263,6 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 static int read_fdto_partition(void)
 {
 	char cmd[128];
-	int ret = 0;
-	u64 tmp = 0;
 	void *dtbo_mem_addr = NULL;
 	char dtbo_partition[32];
 	char *s1;
@@ -324,15 +322,17 @@ static int read_fdto_partition(void)
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
 static int get_fdto_totalsize(u32 *tz)
 {
-	unsigned long long dtbo_mem_addr = NULL;
+#ifdef CONFIG_CMD_DTIMG
+	unsigned long long dtbo_mem_addr = 0x0;
+#endif
 	int ret;
 
 	ret = read_fdto_partition();
 	if (ret != 0)
 		return ret;
 
-	dtbo_mem_addr = simple_strtoul(env_get("dtbo_mem_addr"), NULL, 16);
 #ifdef CONFIG_CMD_DTIMG
+	dtbo_mem_addr = simple_strtoul(env_get("dtbo_mem_addr"), NULL, 16);
 	*tz = android_dt_get_totalsize(dtbo_mem_addr);
 #endif
 	return 0;
@@ -342,7 +342,7 @@ static int get_fdto_totalsize(u32 *tz)
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
 static int do_fdt_overlay(void)
 {
-	unsigned long long dtbo_mem_addr = NULL;
+	unsigned long long dtbo_mem_addr = 0x0;
 	int dtbo_num = 0;
 	int i;
 	char cmd[128];
@@ -583,9 +583,7 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
 		       uint unc_len, ulong *load_end)
 {
 	int ret = 0;
-	size_t size = 0;
 
-	const char *type_name = genimg_get_type_name(type);
 	*load_end = load;
 	print_decomp_msg(comp, type, load == image_start);
 
@@ -637,7 +635,8 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
 #endif /* CONFIG_LZMA */
 #ifdef CONFIG_LZO
 	case IH_COMP_LZO: {
-		size = unc_len;
+		const char *type_name = genimg_get_type_name(type);
+		size_t size = unc_len;
 		printf("   Uncompressing %s ... ", type_name);
 		ret = lzop_decompress(image_buf, image_len, load_buf, &size);
 		image_len = size;
@@ -646,7 +645,7 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
 #endif /* CONFIG_LZO */
 #ifdef CONFIG_LZ4
 	case IH_COMP_LZ4: {
-		size = unc_len;
+		size_t size = unc_len;
 
 		ret = ulz4fn(image_buf, image_len, load_buf, &size);
 		image_len = size;

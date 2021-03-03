@@ -6623,7 +6623,7 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 			printf("\n.training_offset=0x%08x,// %d,0x%08x", ddr_set_t_p_t7->training_offset, ddr_set_t_p_t7->training_offset,DDR_TIMMING_OFFSET_DDR_SET_T7(training_offset));
 		for (temp_count = 0; temp_count < 5; temp_count++)
 			printf("\n.ddr_dmc_remap[%d]=0x%08x,// %d,0x%08x",temp_count, ddr_set_t_p->ddr_dmc_remap[temp_count], ddr_set_t_p->ddr_dmc_remap[temp_count],DDR_TIMMING_OFFSET_DDR_SET(ddr_dmc_remap[temp_count]));
-		for (temp_count = 0; temp_count < 32; temp_count++)
+		for (temp_count = 0; temp_count < 4; temp_count++)
 			printf("\n.ddr_lpddr34_ca_remap[%d]=0x%08x,// %d,0x%08x",temp_count ,ddr_set_t_p->ddr_lpddr34_ca_remap[temp_count], ddr_set_t_p->ddr_lpddr34_ca_remap[temp_count],DDR_TIMMING_OFFSET_DDR_SET(ddr_lpddr34_ca_remap[temp_count]));
 		printf("\n.dram_rtt_nom_wr_park[0]=0x%08x,// %d,0x%08x", ddr_set_t_p->dram_rtt_nom_wr_park[0], ddr_set_t_p->dram_rtt_nom_wr_park[0],DDR_TIMMING_OFFSET_DDR_SET(dram_rtt_nom_wr_park[0]));
 		printf("\n.dram_rtt_nom_wr_park[1]=0x%08x,// %d,0x%08x", ddr_set_t_p->dram_rtt_nom_wr_park[1], ddr_set_t_p->dram_rtt_nom_wr_park[1],DDR_TIMMING_OFFSET_DDR_SET(dram_rtt_nom_wr_park[1]));
@@ -7460,13 +7460,13 @@ static int ddr_do_store_ddr_parameter_ops(uint8_t *buffer, uint32_t length)
 		run_command(str, 0);
 	}
 
-	char *name = NULL;
 	{
-		name = "ddr-parameter";
 		printf("\nstore rsv write ddr-parameter 0x%08x 0x%08x\n", (uint32_t)(uint64_t)buffer, length);
 		sprintf(str, "store rsv write ddr-parameter 0x%08x 0x%08x\n", (uint32_t)(uint64_t)buffer, length);
 		run_command(str, 0);
 	}
+
+	return 1;
 }
 #else
 static int ddr_do_store_ddr_parameter_ops(uint8_t *buffer, uint32_t length)

@@ -125,6 +125,7 @@ int check_lock(void)
 		info->lock_critical_state = (int)(lock_s[5] - '0');
 		info->lock_bootloader = (int)(lock_s[6] - '0');
 
+		extern void dump_lock_info(LockData_t* info);
 		dump_lock_info(info);
 	} else
 		return 0;
@@ -147,7 +148,7 @@ int get_mergestatus(struct misc_virtual_ab_message *message)
 	char *partition = "misc";
 	char vab_buf[1024] = {0};
 
-	if (store_read((unsigned char *)partition,
+	if (store_read((const char *)partition,
 		SYSTEM_SPACE_OFFSET_IN_MISC, 1024, (unsigned char *)vab_buf) < 0) {
 		printf("failed to store read %s.\n", partition);
 		return -1;
@@ -181,7 +182,7 @@ int set_mergestatus_cancel(struct misc_virtual_ab_message *message)
 	char *partition = "misc";
 	char vab_buf[1024] = {0};
 
-	if (store_read((unsigned char *)partition,
+	if (store_read((const char *)partition,
 		SYSTEM_SPACE_OFFSET_IN_MISC, 1024, (unsigned char *)vab_buf) < 0) {
 		printf("failed to store read %s.\n", partition);
 		return -1;
@@ -193,7 +194,7 @@ int set_mergestatus_cancel(struct misc_virtual_ab_message *message)
 		message->merge_status = CANCELLED;
 		printf("set message.merge_status CANCELLED\n");
 	}
-	store_write((unsigned char *)partition, SYSTEM_SPACE_OFFSET_IN_MISC, 1024, (unsigned char *)vab_buf);
+	store_write((const char *)partition, SYSTEM_SPACE_OFFSET_IN_MISC, 1024, (unsigned char *)vab_buf);
 	return 0;
 }
 

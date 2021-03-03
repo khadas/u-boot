@@ -398,7 +398,7 @@ const struct mtd_partition *get_spinand_partition_table(int *partitions)
 int checkhw(char * name)
 {
     strcpy(name, "sc2_s905c2_232\0");
-    setenv("aml_dt", "sc2_s905c2_232\0");
+    env_set("aml_dt", "sc2_s905c2_232\0");
     return 0;
 }
 #endif

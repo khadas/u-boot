@@ -1799,7 +1799,7 @@ int eqos_probe(struct udevice *dev)
 
 	eqos->interface = 0;
 
-	eqos_mdio_init(dev->name, eqos->mac_regs_p);
+	eqos_mdio_init((char *)dev->name, eqos->mac_regs_p);
 	eqos->bus = miiphy_get_dev_by_name(dev->name);
 	ret = eqos_phy_init(dev);
 	if (ret < 0) {

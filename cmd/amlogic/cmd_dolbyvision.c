@@ -72,7 +72,6 @@ static int do_dolbyvision_debug(cmd_tbl_t *cmdtp, int flag, int argc,
 			char *const argv[])
 {
 	int ret = 0;
-	int enable = 0;
 	unsigned long value = 0;
 
 	if (argc == 2) {

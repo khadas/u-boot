@@ -83,7 +83,7 @@ static const unsigned int iso7816_data_c_pins[]		= { GPIOC_6 };
 static const unsigned int tdm_d2_c_pins[]		= { GPIOC_0 };
 static const unsigned int tdm_d3_c_pins[]		= { GPIOC_1 };
 static const unsigned int tdm_fs1_c_pins[]		= { GPIOC_2 };
-static const unsigned int tdm_sclk1_c_pins[]		= { GPIOC_3 };
+
 static const unsigned int mclk_1_c_pins[]		= { GPIOC_4 };
 static const unsigned int tdm_d4_c_pins[]		= { GPIOC_5 };
 static const unsigned int tdm_d5_c_pins[]		= { GPIOC_6 };
@@ -1092,7 +1092,7 @@ static struct meson_pinctrl_data meson_s4_periphs_pinctrl_data = {
 static const struct udevice_id meson_s4_pinctrl_match[] = {
 	{
 		.compatible = "amlogic,meson-s4-periphs-pinctrl",
-		.data = &meson_s4_periphs_pinctrl_data,
+		.data = (ulong)&meson_s4_periphs_pinctrl_data,
 	},
 	{ }
 };

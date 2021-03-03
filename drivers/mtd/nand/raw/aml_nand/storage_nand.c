@@ -7,7 +7,6 @@
 #include "aml_nand.h"
 #include <dm/device.h>
 
-static struct storage_t *slcnand_storage;
 extern void mtd_store_mount_ops(struct storage_t* store);
 struct aml_pre_scan *pre_scan;
 

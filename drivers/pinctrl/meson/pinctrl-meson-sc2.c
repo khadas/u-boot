@@ -1269,7 +1269,7 @@ static struct meson_pinctrl_data meson_sc2_periphs_pinctrl_data = {
 static const struct udevice_id meson_sc2_pinctrl_match[] = {
 	{
 		.compatible = "amlogic,meson-sc2-periphs-pinctrl",
-		.data = &meson_sc2_periphs_pinctrl_data,
+		.data = (ulong)&meson_sc2_periphs_pinctrl_data,
 	},
 	{ },
 };

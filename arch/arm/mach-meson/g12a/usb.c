@@ -295,7 +295,7 @@ int usb2_phy_init (struct phy *phy) {
 int usb2_phy_tuning(uint32_t phy2_pll_base, int port)
 {
 	unsigned long phy_reg_base;
-	unsigned int pll_set38, pll_set34, pll_set3, pll_set4;
+	unsigned int pll_set38, pll_set34;
 	unsigned int rev_type = 0;
 
 	if (port > 2)
@@ -403,7 +403,7 @@ void usb_device_mode_init(void){
 
 	usb_set_power_domain();
 
-	printf("PHY2=0x%08x,PHY3=0x%08x\n", u2p_aml_regs, usb_aml_regs);
+	printf("PHY2=0x%08lx,PHY3=0x%08lx\n", (uintptr_t)u2p_aml_regs, (uintptr_t)usb_aml_regs);
 	if ((*(volatile uint32_t *)((ulong)(phy_base_addr + 0x38))) != 0) {
 		usb_phy_tuning_reset();
 		mdelay(150);

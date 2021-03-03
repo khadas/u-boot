@@ -224,7 +224,7 @@ int temp_read_entry(void)
 
 int temp_trim_entry(int tempbase, int tempver)
 {
-	unsigned int ret, ver;
+	unsigned int ver;
 	uint32_t data;
 
 	thermal_cali_data_read(1, &data, 4);

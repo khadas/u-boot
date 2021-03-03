@@ -284,6 +284,8 @@ static int meson_ir_contr_init(struct meson_ir_chip *chip, int type, unsigned ch
 	       chip->ir_contr[id].base + REG_REG1);
 
 	chip->ir_contr[id].get_framecode  = (*reg_proto)->get_framecode;
+
+	return 0;
 }
 
 int meson_ir_register_default_config(struct meson_ir_chip *chip, int type)

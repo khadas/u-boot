@@ -10,6 +10,7 @@
 #include <environment.h>
 #include <net.h>
 #include <phy.h>
+#include <amlogic/keyunify.h>
 #include <linux/errno.h>
 #include "eth_internal.h"
 #include <amlogic/cpu_id.h>

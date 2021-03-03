@@ -131,5 +131,6 @@ extern void lcd_clk_disable(void);
 
 extern void lcd_clk_generate_parameter(struct lcd_config_s *pconf);
 extern void lcd_clk_config_probe(void);
+extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
 #endif

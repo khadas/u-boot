@@ -56,7 +56,7 @@ static int do_rpmb_init(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]
 		return ret;
 	}
 	if (open_arg.ret) {
-		printf("tee_open_session() failed, ret = 0x%x\n",
+		printf("tee_open_session() failed, ret = 0x%x, ret_origin=0x%x \n",
 				open_arg.ret, open_arg.ret_origin);
 		return open_arg.ret;
 	}
@@ -114,7 +114,7 @@ static int do_rpmb_state(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 		return ret;
 	}
 	if (open_arg.ret) {
-		printf("tee_open_session() failed, ret = 0x%x\n",
+		printf("tee_open_session() failed, ret = 0x%x, ret_origin=0x%x\n",
 				open_arg.ret, open_arg.ret_origin);
 		return open_arg.ret;
 	}
@@ -148,7 +148,7 @@ static int do_rpmb_state(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 		strcpy(buff, parg);
 		char *find = strstr(buff, "androidboot.rpmb_state");
 		if (!find)
-			sprintf(buff,"%s androidboot.rpmb_state=%d", parg, param.u.value.a);
+			sprintf(buff,"%s androidboot.rpmb_state=0x%llx", parg, param.u.value.a);
 		else
 			find[23] = param.u.value.a ? '1':'0';
 

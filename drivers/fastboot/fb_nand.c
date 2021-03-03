@@ -241,7 +241,6 @@ void fastboot_nand_flash_write(const char *cmd, void *download_buffer,
 	size_t rwsize = 0, limit = 0;
 
 	enum boot_type_e medium_type = store_get_type();
-	cpu_id_t cpu_id = get_cpu_id();
 
 	ret = fb_nand_lookup(cmd, &mtd, &part, response);
 	if (ret) {

@@ -180,6 +180,8 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 	}
 #endif
 
+	do { (void)frac; } while(0);
+
 	free(mode);
 	return CMD_RET_FAILURE;
 }
@@ -254,6 +256,8 @@ static int do_vout2_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	}
 #endif
 
+	do { (void)frac; } while(0);
+
 	free(mode);
 	return CMD_RET_FAILURE;
 }
@@ -325,6 +329,8 @@ static int do_vout2_prepare(cmd_tbl_t *cmdtp, int flag, int argc, char *const ar
 		printf("no lcd driver\n");
 	}
 #endif
+
+	do { (void)frac; } while(0);
 
 	free(mode);
 	return CMD_RET_FAILURE;

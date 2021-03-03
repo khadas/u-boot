@@ -265,7 +265,7 @@ unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 		if (fdt_addr != (unsigned long)pInputFDT) //in case of GZIP single DTB
 			memcpy((void*)fdt_addr,(void*)pInputFDT,unzip_size);
 
-			lReturn = fdt_addr;
+		lReturn = fdt_addr;
 
 	}break;
 	case MAGIC_DTB_MLT_ID:

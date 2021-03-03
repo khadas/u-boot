@@ -862,7 +862,7 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 	}
 
 	if (!func_cb) {
-		FB_MSG("unknown command: %s,%d\n", cmdbuf, strlen(cmdbuf));
+		FB_MSG("unknown command: %s,%ld\n", cmdbuf, strlen(cmdbuf));
 		fastboot_tx_write_str("FAILunknown command");
 	} else {
 		if (req->actual < req->length) {

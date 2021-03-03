@@ -10,7 +10,7 @@
 // DO NOT EDIT!!!!!
 // ----------------------------------------------------------------------
 //
-//#include <asm/arch/regs.h>
+#include <asm/arch/regs.h>
 #include <asm/arch/register.h>
 
 #define DMA_BASE (uint32_t)(0xfe440400)

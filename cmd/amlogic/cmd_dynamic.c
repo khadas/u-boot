@@ -605,7 +605,7 @@ int do_ReadMetadata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
     }
 
     if (dynamic_partition) {
-        if (store_read((unsigned char *)partition,
+        if (store_read((const char *)partition,
         0, SUPERBUF_SIZE, (unsigned char *)superbuf) < 0) {
             printf("failed to store read %s.\n", partition);
             goto ERR;

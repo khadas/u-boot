@@ -213,9 +213,11 @@
 
 #ifdef CONFIG_PXP_EMULATOR
 #define CONFIG_PREBOOT "echo preboot for pxp"
+/* need change defconfig for this
 #define CONFIG_BOOTCOMMAND \
 	"setenv bootargs  console=ttyS0 earlycon=meson,0xfe002000 loglevel=9;\
      setenv dtb_mem_addr 0x6000000;fdt addr 0x6000000;booti 0x8000000 0x7000000 0x6000000;"
+*/
 #define CONFIG_ENV_IS_NOWHERE  1
 #else
 #define CONFIG_PREBOOT  \

@@ -400,7 +400,7 @@ const struct mtd_partition *get_spinand_partition_table(int *partitions)
 int checkhw(char * name)
 {
     strcpy(name, "sc2_s905x4_ah212\0");
-    setenv("aml_dt", "sc2_s905x4_ah212\0");
+    env_set("aml_dt", "sc2_s905x4_ah212\0");
     return 0;
 }
 #endif

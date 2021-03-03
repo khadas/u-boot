@@ -156,7 +156,7 @@ int write_bootloader_back(const char* bootloaderindex) {
 		copy = 2;
 	}
 
-	buffer = (char *)malloc(0x2000 * 512);
+	buffer = (unsigned char *)malloc(0x2000 * 512);
 	if (!buffer)
 	{
 		printf("ERROR! fail to allocate memory ...\n");
@@ -185,10 +185,8 @@ exit:
 	return ret;
 }
 
-static void aml_recovery() {
-	int ret = 0;
+static void aml_recovery(void) {
 	char *mode = NULL;
-	char recovery[768] = {0};
 	char command[32];
 	char miscbuf[4096] = {0};
 
@@ -205,6 +203,8 @@ static void aml_recovery() {
 	}
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+	int ret = 0;
+	extern int boot_info_open_partition(char *miscbuf);
 	ret = boot_info_open_partition(miscbuf);
 	if (ret != 0) {
 		wrnP("open misc partition failed, so skip recovery check");

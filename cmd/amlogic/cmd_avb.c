@@ -68,7 +68,7 @@ static AvbIOResult read_from_partition(AvbOps* ops, const char* partition, int64
             return AVB_IO_RESULT_OK;
         }
     } else {
-        rc = store_read((unsigned char *)partition, offset, num_bytes, buffer);
+        rc = store_read(partition, offset, num_bytes, buffer);
         if (rc) {
             printf("Failed to read %zdB from part[%s] at offset %lld\n", num_bytes, partition, offset);
             return AVB_IO_RESULT_ERROR_IO;
@@ -103,7 +103,7 @@ static AvbIOResult write_to_partition(AvbOps* ops, const char* partition,
             return AVB_IO_RESULT_OK;
         }
     } else {
-        rc = store_write((unsigned char *)partition, offset, num_bytes, (unsigned char *)buffer);
+        rc = store_write(partition, offset, num_bytes, (unsigned char *)buffer);
         if (rc) {
             printf("Failed to write %zdB from part[%s] at offset %lld\n", num_bytes, partition, offset);
             return AVB_IO_RESULT_ERROR_IO;
@@ -151,7 +151,7 @@ static AvbIOResult get_size_of_partition(AvbOps* ops, const char* partition,
         *out_size_num_bytes = DTB_PARTITION_SIZE;
     } else {
         /* rc = store_get_partititon_size((unsigned char *)partition, out_size_num_bytes); */
-        rc = store_part_size((unsigned char *)partition);
+        rc = store_part_size(partition);
         if (1 == rc) {
             printf("Failed to get partition[%s] size\n", partition);
             return AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION;
@@ -193,7 +193,7 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps* ops, const uint8_t* public
      * When the custom key is set and the device is in the LOCKED state
      * it will boot images signed with both the built-in key as well as the custom key
      */
-    printf("AVB2 verify with default kpub size:%d, vbmeta kpub size:%d\n", avb2_kpub_default_len, public_key_length);
+    printf("AVB2 verify with default kpub size:%d, vbmeta kpub size:%ld\n", avb2_kpub_default_len, public_key_length);
     if ((avb2_kpub_default_len == public_key_length)
         && !avb_safe_memcmp(public_key_data, avb2_kpub_default, public_key_length)) {
         *out_is_trusted = true;

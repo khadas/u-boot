@@ -251,7 +251,7 @@ int android_image_get_second(const  boot_img_hdr_t *hdr,
 			      ulong *second_data, ulong *second_len)
 {
 	if (is_android_r_image((void*)hdr))
-		return ;
+		return 0;
 
 	if (!hdr->second_size) {
 		*second_data = *second_len = 0;
@@ -373,7 +373,6 @@ static int android_image_get_kernel_v3(const boot_img_hdr_v3_t *hdr, int verify,
 		goto exit;
 	}
 
-	ulong end;
 	p_vendor_boot_img_hdr_t vb_hdr = &p_vender_boot_img->hdr;
 	char boot_name[ANDR_BOOT_NAME_SIZE + 8];
 	memset(boot_name,0,sizeof(boot_name));
@@ -385,8 +384,11 @@ static int android_image_get_kernel_v3(const boot_img_hdr_v3_t *hdr, int verify,
 	//      hdr_v3->kernel_addr, DIV_ROUND_UP(hdr->kernel_size, 1024));
 
 	int len = 0;
+#if defined(CONFIG_ANDROID_IMG)
+	ulong end;
 	ulong dtb_size = vb_hdr->dtb_size;
 	ulong dtb_addr = vb_hdr->dtb_addr;
+#endif
 
 	if (*vb_hdr->cmdline) {
 		printf("Kernel command line: %s\n", vb_hdr->cmdline);

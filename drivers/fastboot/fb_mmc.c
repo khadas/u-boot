@@ -349,8 +349,8 @@ static void fb_mmc_bootloader_ops(const char *cmd,
 		if (buffer)
 			ret = amlmmc_write_bootloader(CONFIG_FASTBOOT_FLASH_MMC_DEV, map,
 						      bytes, buffer);
-	else
-		ret = amlmmc_erase_bootloader(CONFIG_FASTBOOT_FLASH_MMC_DEV, map);
+		else
+			ret = amlmmc_erase_bootloader(CONFIG_FASTBOOT_FLASH_MMC_DEV, map);
 		if (ret) {
 			printf("failed %s %s from device %d", (buffer? ops[1]: ops[0]),
 				cmd, dev_desc->devnum);
@@ -542,7 +542,8 @@ void fastboot_mmc_erase(const char *cmd, char *response)
 
 	if (strcmp(cmd, "dtb") == 0) {
 #ifndef DTB_BIND_KERNEL
-		ret = emmc_erase_rsv(mmc, cmd);
+		extern int emmc_erase_rsv(struct mmc *mmc, char *rsv_part);
+		ret = emmc_erase_rsv(mmc, (char *)cmd);
 		if (ret) {
 			fastboot_fail("fastboot erase dtb fail", response);
 			return;

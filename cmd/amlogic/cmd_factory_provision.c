@@ -345,10 +345,10 @@ static void parse_params(int argc, char * const argv[],
 		if (!memcmp(argv[1], "query", strlen("query"))) {
 			params->action = ACTION_QUERY;
 			params->keybox_name = argv[2];
-			if (getenv("loadaddr") != NULL)
+			if (!env_get("loadaddr"))
 				params->ret_data_addr =
 					(uint32_t)simple_strtoul(
-						getenv("loadaddr"), NULL, 0);
+						(char * const)env_get("loadaddr"), NULL, 0);
 			else
 				params->ret_data_addr = CONFIG_SYS_LOAD_ADDR;
 		} else if (!memcmp(argv[1], "remove", strlen("remove"))) {

@@ -293,7 +293,6 @@ struct eqos_mac_regs {
 	uint32_t address0_low;				/* 0x304 */
 };
 
-#define BIT(X) (1<<X)
 #define EQOS_MAC_CONFIGURATION_GPSLCE		BIT(23)
 #define EQOS_MAC_CONFIGURATION_CST			BIT(21)
 #define EQOS_MAC_CONFIGURATION_ACS			BIT(20)

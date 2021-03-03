@@ -40,6 +40,8 @@ static int do_hdr_packet(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 		printf("[vpp] hdr packet error !!!\n");
 		return cmd_usage(cmdtp);
 	}
+
+	extern bool check_dolby_vision_on(void);
 	if (!check_dolby_vision_on()) {
 		printf("hdr_packet\n");
 		hdr_tx_pkt_cb();

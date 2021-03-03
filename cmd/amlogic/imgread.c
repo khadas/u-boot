@@ -185,16 +185,16 @@ static int do_image_read_dtb_from_knl(const char* partName, unsigned char* loada
 
         slot_name = env_get("slot-suffixes");
         if (strcmp(slot_name, "0") == 0) {
-            strcpy(partName, "vendor_boot_a");
+            strcpy((char *)partName, "vendor_boot_a");
         } else if (strcmp(slot_name, "1") == 0) {
-            strcpy(partName, "vendor_boot_b");
+            strcpy((char *)partName, "vendor_boot_b");
         }
         MsgP("partName = %s \n", partName);
 
         nFlashLoadLen = preloadSz_r;//head info is one page size == 4k
         debugP("sizeof preloadSz=%u\n", nFlashLoadLen);
 
-        nReturn = store_logic_read((unsigned char*)partName,lflashReadOff, nFlashLoadLen, loadaddr);
+        nReturn = store_logic_read(partName,lflashReadOff, nFlashLoadLen, loadaddr);
         if (nReturn) {
             errorP("Fail to read 0x%xB from part[%s] at offset 0\n", nFlashLoadLen, partName);
             return __LINE__;
@@ -458,7 +458,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
                 const unsigned leftSz = actualBootImgSz - IMG_PRELOAD_SZ;
 
                 debugP("Left sz 0x%x\n", leftSz);
-                rc = store_logic_read((unsigned char*)partName, flashReadOff, leftSz,loadaddr + IMG_PRELOAD_SZ);
+                rc = store_logic_read(partName, flashReadOff, leftSz,loadaddr + IMG_PRELOAD_SZ);
 		   if (rc) {
                     errorP("Fail to read 0x%xB from part[%s] at offset 0x%x\n", leftSz, partName, IMG_PRELOAD_SZ);
                     return __LINE__;
@@ -486,10 +486,10 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 
             slot_name = env_get("slot-suffixes");
             if (strcmp(slot_name, "0") == 0) {
-                strcpy(partName_r, "vendor_boot_a");
+                strcpy((char *)partName_r, "vendor_boot_a");
             }
             else if (strcmp(slot_name, "1") == 0) {
-                strcpy(partName_r, "vendor_boot_b");
+                strcpy((char *)partName_r, "vendor_boot_b");
             }
             MsgP("partName_r = %s\n", partName_r);
 
@@ -502,7 +502,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
                 printf("aml log : system error! Fail to allocate memory for %s!\n",partName_r);
                 return __LINE__;
             }
-            nReturn_r = store_logic_read((unsigned char*)partName_r,lflashReadOff_r, nFlashLoadLen_r, pBuffPreload);
+            nReturn_r = store_logic_read(partName_r,lflashReadOff_r, nFlashLoadLen_r, pBuffPreload);
 
 	     if (nReturn_r) {
                 errorP("Fail to read 0x%xB from part[%s] at offset 0\n", nFlashLoadLen_r, partName_r);
@@ -529,7 +529,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
                     pBuffPreload=malloc(nFlashLoadLen_r);
 			if (!pBuffPreload)
                         return __LINE__;
-                    rc_r = store_logic_read((unsigned char*)partName_r, lflashReadOff_r, nFlashLoadLen_r, pBuffPreload);
+                    rc_r = store_logic_read(partName_r, lflashReadOff_r, nFlashLoadLen_r, pBuffPreload);
 			if (rc_r) {
                         errorP("Fail to read 0x%xB from part[%s] at offset 0x%x\n",
                             (unsigned int)nFlashLoadLen_r, partName_r, (unsigned int)lflashReadOff_r);
@@ -797,6 +797,7 @@ static int do_image_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 
 #ifdef CONFIG_PXP_EMULATOR
 	printf("\naml log : PXP image all use preload\n");
+	do { (void)cmd_imgread_sub[0]; } while(0);
 	return 0;
 #else
 	cmd_tbl_t *c;

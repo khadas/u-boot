@@ -9,6 +9,7 @@
 
 static int  pm_max;
 static char*  domain_name[];
+extern unsigned long pwr_ctrl_status_psci_smc(unsigned int power_domain);
 
 static int do_powershow(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -23,7 +24,7 @@ static int do_powershow(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 		printf("Don't support this feature now!\n");
 
 	for (i = 0; i < pm_max; i++)
-		printf("%s[%d]:		%ld\n", domain_name[i],i, pwr_ctrl_status_psci_smc(i));
+		printf("%s[%d]:		%lx\n", domain_name[i],i, pwr_ctrl_status_psci_smc(i));
 
 	return ret;
 }
