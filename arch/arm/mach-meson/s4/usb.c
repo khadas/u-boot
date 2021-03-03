@@ -109,6 +109,7 @@ void usb_aml_detect_operation(int argc, char * const argv[])
 
 }
 
+#if 0
 static void set_pll_Calibration_default(uint32_t phy2_pll_base)
 {
     u32 tmp;
@@ -119,6 +120,7 @@ static void set_pll_Calibration_default(uint32_t phy2_pll_base)
     (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x10))
      = tmp;
 }
+#endif
 
 static void usb_set_calibration_trim(uint32_t volatile *phy2_pll_base)
 {
@@ -176,7 +178,7 @@ void set_usb_pll(uint32_t phy2_pll_base)
 		= USB2_PHY_PLL_OFFSET_50;
 	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x54))
 		= USB2_PHY_PLL_OFFSET_54;
-	usb_set_calibration_trim(phy2_pll_base);
+	usb_set_calibration_trim((uint32_t volatile *)(u64)phy2_pll_base);
 
 	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0xc)) =
 		TUNING_DISCONNECT_THRESHOLD;

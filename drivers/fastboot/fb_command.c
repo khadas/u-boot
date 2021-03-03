@@ -536,8 +536,6 @@ static void set_active_cmd(char *cmd_parameter, char *response)
 static void snapshot_update_cmd(char *cmd_parameter, char *response)
 {
 	char *cmd;
-	int ret = 0;
-	char str[128];
 
 	printf("cmd snapshot_update_cmd is %s\n", cmd_parameter);
 	cmd = cmd_parameter;

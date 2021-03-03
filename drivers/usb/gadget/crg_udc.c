@@ -542,8 +542,6 @@ static void req_done(struct crg_udc_ep *udc_ep,
 			struct crg_udc_request *udc_req, int status)
 {
 //	struct crg_gadget_dev *crg_udc = udc_ep->crg_udc;
-	unsigned long flags = 0;
-
 	if (likely(udc_req->usb_req.status == -EINPROGRESS))
 		udc_req->usb_req.status = status;
 
@@ -551,7 +549,7 @@ static void req_done(struct crg_udc_ep *udc_ep,
 
 	if (udc_req->mapped) {
 		if (udc_req->usb_req.length) {
-			dma_unmap_single(udc_req->usb_req.dma,
+			dma_unmap_single((volatile void *)udc_req->usb_req.dma,
 				udc_req->usb_req.length, usb_endpoint_dir_in(udc_ep->desc)
 				? DMA_TO_DEVICE : DMA_FROM_DEVICE);
 		}
@@ -1263,7 +1261,7 @@ void handle_cmpl_code_success(struct crg_gadget_dev *crg_udc,
 		//debug("Actual data xfer = 0x%x, tx_len = 0x%x\n",
 		//	udc_req_ptr->usb_req.actual, trb_transfer_length);
 		if (udc_req_ptr->usb_req.actual != 0)
-			crg_inval_cache(udc_req_ptr->usb_req.buf, udc_req_ptr->usb_req.actual);
+			crg_inval_cache((uintptr_t)udc_req_ptr->usb_req.buf, udc_req_ptr->usb_req.actual);
 		req_done(udc_ep_ptr, udc_req_ptr, 0);
 
 		if (!udc_ep_ptr->desc) {
@@ -1715,7 +1713,7 @@ static int crg_udc_ep_enable(struct usb_ep *ep,
 				ring_size =  CRGUDC_BULK_EP_TD_RING_SIZE;
 
 			len = ring_size * sizeof(struct transfer_trb_s);
-			vaddr = dma_alloc_coherent(len, &dma);
+			vaddr = dma_alloc_coherent(len, (unsigned long *)&dma);
 			if (!vaddr) {
 				printf("failed to allocate trb ring\n");
 				return -ENOMEM;
@@ -1728,7 +1726,7 @@ static int crg_udc_ep_enable(struct usb_ep *ep,
 			udc_ep->last_trb = udc_ep->first_trb + ring_size - 1;
 		}
 		memset(udc_ep->first_trb, 0, udc_ep->tran_ring_info.len);
-		crg_flush_cache(udc_ep->first_trb, udc_ep->tran_ring_info.len);
+		crg_flush_cache((uintptr_t)udc_ep->first_trb, udc_ep->tran_ring_info.len);
 
 		setup_link_trb(udc_ep->last_trb, true,
 					udc_ep->tran_ring_info.dma);
@@ -1786,7 +1784,6 @@ crg_udc_ep_queue(struct usb_ep *_ep, struct usb_request *_req, gfp_t gfp_flags)
 	struct crg_udc_ep *udc_ep_ptr;
 	struct crg_gadget_dev *crg_udc;
 	int status;
-	unsigned long flags = 0;
 	int dma_data_dir;
 
 	xdebug("%s\n", __func__);
@@ -1823,7 +1820,7 @@ crg_udc_ep_queue(struct usb_ep *_ep, struct usb_request *_req, gfp_t gfp_flags)
 	}
 
 	if (udc_req_ptr->usb_req.length != 0)
-		crg_flush_cache(udc_req_ptr->usb_req.buf, udc_req_ptr->usb_req.length);
+		crg_flush_cache((uintptr_t)udc_req_ptr->usb_req.buf, udc_req_ptr->usb_req.length);
 
 	/* Clearing the Values of the UDC_REQUEST container */
 	clear_req_container(udc_req_ptr);
@@ -2114,7 +2111,7 @@ static int init_event_ring(struct crg_gadget_dev *crg_udc, int index)
 	buff_length = CRG_ERST_SIZE * sizeof(struct erst_s);
 	if (!udc_event->erst.vaddr) {
 		udc_event->erst.vaddr =
-			dma_alloc_coherent(buff_length, &mapping);
+			dma_alloc_coherent(buff_length, (unsigned long *)&mapping);
 	} else
 		mapping = udc_event->erst.dma;
 
@@ -2126,7 +2123,7 @@ static int init_event_ring(struct crg_gadget_dev *crg_udc, int index)
 	buff_length = CRG_EVENT_RING_SIZE * sizeof(struct event_trb_s);
 	if (!udc_event->event_ring.vaddr) {
 		udc_event->event_ring.vaddr =
-			dma_alloc_coherent(buff_length, &mapping);
+			dma_alloc_coherent(buff_length, (unsigned long *)&mapping);
 	} else
 		mapping = udc_event->event_ring.dma;
 
@@ -2181,7 +2178,7 @@ static int init_device_context(struct crg_gadget_dev *crg_udc)
 
 	if (!crg_udc->ep_cx.vaddr) {
 		crg_udc->ep_cx.vaddr =
-			dma_alloc_coherent(buff_length, &mapping);
+			dma_alloc_coherent(buff_length, (unsigned long *)&mapping);
 		memset(crg_udc->ep_cx.vaddr, 0, buff_length);
 		crg_flush_cache((uintptr_t)crg_udc->ep_cx.vaddr, buff_length);
 	} else {
@@ -2206,7 +2203,7 @@ static int init_device_context(struct crg_gadget_dev *crg_udc)
 static int reset_data_struct(struct crg_gadget_dev *crg_udc)
 {
 	u32 tmp;
-	int i;
+
 	struct crg_uccr *uccr = crg_udc->uccr;
 
 	clrbits_le32(&uccr->control, (CRG_U3DC_CTRL_INT_EN|CRG_U3DC_CTRL_RUN));
@@ -2253,7 +2250,7 @@ static int init_ep0(struct crg_gadget_dev *crg_udc)
 
 		len = ring_size * sizeof(struct transfer_trb_s);
 		vaddr =
-			dma_alloc_coherent(len, &dma);
+			dma_alloc_coherent(len, (unsigned long *)&dma);
 
 		udc_ep_ptr->tran_ring_info.vaddr = vaddr;
 		udc_ep_ptr->tran_ring_info.dma = dma;
@@ -2987,7 +2984,7 @@ int crg_handle_xfer_event(struct crg_gadget_dev *crg_udc,
 				udc_req_ptr->usb_req.length -
 				trb_transfer_length;
 			if (udc_req_ptr->usb_req.actual != 0)
-				crg_inval_cache(udc_req_ptr->usb_req.buf, udc_req_ptr->usb_req.actual);
+				crg_inval_cache((uintptr_t)udc_req_ptr->usb_req.buf, udc_req_ptr->usb_req.actual);
 
 			if (udc_req_ptr->usb_req.actual != 512 &&
 				udc_req_ptr->usb_req.actual != 31) {
@@ -3171,8 +3168,6 @@ int g_dnl_board_usb_cable_connected(void)
 				&uccr->portsc, tmp);
 
 			if (hs_term_wakeup == 1) {
-				u32 tmp_wr;
-
 				debug("%s wr hs term on start\n", __func__);
 				hs_term_wakeup = 0;
 			}
@@ -3381,6 +3376,7 @@ int crg_udc_handle_event(struct crg_gadget_dev *crg_udc,
 	return 0;
 }
 
+#if 0
 static dma_addr_t event_trb_virt_to_dma
 	(struct crg_udc_event *udc_event, struct event_trb_s *event)
 {
@@ -3396,6 +3392,7 @@ static dma_addr_t event_trb_virt_to_dma
 
 	return dma_addr;
 }
+#endif
 
 int process_event_ring(struct crg_gadget_dev *crg_udc, int index)
 {
@@ -3462,8 +3459,6 @@ int crg_gadget_handle_interrupt(struct crg_gadget_dev *crg_udc)
 	}
 
 	if (tmp_status & CRG_U3DC_STATUS_EINT) {
-		int i;
-
 		//debug("%s EINT happens!\n", __func__);
 		reg_write(&uccr->status, CRG_U3DC_STATUS_EINT);
 
