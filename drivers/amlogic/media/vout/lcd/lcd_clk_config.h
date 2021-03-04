@@ -22,7 +22,6 @@
 #define _LCD_CLK_CONFIG_H
 
 #include <linux/types.h>
-#include <asm/arch/clk_measure.h>
 #include <amlogic/media/vout/lcd/aml_lcd.h>
 
 /* **********************************

@@ -33,6 +33,7 @@
 #define VPP_OUT_SATURATE      (1 << 0)
 
 extern unsigned int lcd_debug_test;
+extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
 void mdelay(unsigned long n);
 
