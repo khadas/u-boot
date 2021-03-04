@@ -715,8 +715,8 @@ void setup_tx_amp(struct udevice *dev)
 	if (0 == tx_amp_src) {
 		printf("not set tx_amp_src\n");
 	} else {
-		setup_amp = readl(tx_amp_src);
-		printf("addr 0x%x  =  0x%x\n", tx_amp_src, readl(tx_amp_src));
+		setup_amp = readl((uintptr_t)tx_amp_src);
+		printf("addr 0x%x  =  0x%x\n", tx_amp_src, readl((uintptr_t)tx_amp_src));
 	}
 }
 static void setup_internal_phy(struct udevice *dev)
@@ -1107,7 +1107,7 @@ static int eqos_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 	return ret;
 }
 
-static int eqos_mdio_init(char *name, void *mac_regs_p)
+static int eqos_mdio_init(const char *name, void *mac_regs_p)
 {
 	struct mii_dev *bus = mdio_alloc();
 
