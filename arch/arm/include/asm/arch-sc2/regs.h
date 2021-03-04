@@ -30,7 +30,7 @@
 //#define SEC_AO_SEC_GP_CFG0		((0x00c4  << 2) + 0xfe005800)
 #define AO_SEC_GP_CFG0			((0x00c4  << 2) + 0xfe005800)
 #define AO_RTI_STATUS_REG3		((0x00e1  << 2) + 0xfe005800)
-#define AO_SEC_SD_CFG15                 ((0x00c2  << 2) + 0xfe005800)
+//#define AO_SEC_SD_CFG15                 ((0x00c2  << 2) + 0xfe005800)
 
 /* PREG_STICKY_REG8  use SYSCTRL_STICKY_REG7
  * P_AO_SEC_GP_CFG12 use SYSCTRL_DEBUG_REG6

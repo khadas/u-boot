@@ -134,5 +134,5 @@
 #define SD_EMMC_DESC_TIMEOUT_ERROR      (1 << 5)
 
 //boot from sd or emmc
-//#define SEC_AO_SEC_GP_CFG0      (SYSCTRL_SEC_STATUS_REG4)
+#define SEC_AO_SEC_GP_CFG0      (SYSCTRL_SEC_STATUS_REG4)
 #endif

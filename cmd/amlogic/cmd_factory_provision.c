@@ -345,7 +345,7 @@ static void parse_params(int argc, char * const argv[],
 		if (!memcmp(argv[1], "query", strlen("query"))) {
 			params->action = ACTION_QUERY;
 			params->keybox_name = argv[2];
-			if (!env_get("loadaddr"))
+			if (env_get("loadaddr"))
 				params->ret_data_addr =
 					(uint32_t)simple_strtoul(
 						(char * const)env_get("loadaddr"), NULL, 0);

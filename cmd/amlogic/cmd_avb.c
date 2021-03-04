@@ -178,7 +178,7 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps* ops, const uint8_t* public
     *out_is_trusted = false;
 
 #if defined(CONFIG_AVB2_KPUB_VENDOR)
-    printf("AVB2 verify with vendor kpub size:%d, vbmeta kpub size:%d\n", avb2_kpub_vendor_len, public_key_length);
+    printf("AVB2 verify with vendor kpub size:%d, vbmeta kpub size:%ld\n", avb2_kpub_vendor_len, public_key_length);
     if ((avb2_kpub_vendor_len == public_key_length)
         && !avb_safe_memcmp(public_key_data, avb2_kpub_vendor, public_key_length)) {
         *out_is_trusted = true;

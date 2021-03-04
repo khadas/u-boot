@@ -301,7 +301,7 @@ int boot_info_open_partition(char *miscbuf)
 {
     char *partition = "misc";
     printf("Start read %s partition datas!\n", partition);
-    if (store_read((unsigned char *)partition,
+    if (store_read((const char *)partition,
         0, MISCBUF_SIZE, (unsigned char *)miscbuf) < 0) {
         printf("failed to store read %s.\n", partition);
         return -1;
@@ -325,7 +325,7 @@ bool boot_info_save(bootloader_control *info, char *miscbuf)
 
     memcpy(miscbuf+AB_METADATA_MISC_PARTITION_OFFSET, info, sizeof(bootloader_control));
     dump_boot_info(info);
-    store_write((unsigned char *)partition, 0, MISCBUF_SIZE, (unsigned char *)miscbuf);
+    store_write((const char *)partition, 0, MISCBUF_SIZE, (unsigned char *)miscbuf);
     return true;
 }
 
