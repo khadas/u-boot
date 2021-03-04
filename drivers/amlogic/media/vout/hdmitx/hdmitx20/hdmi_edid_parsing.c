@@ -102,7 +102,6 @@ static struct dispmode_vic dispmode_vic_tab[] = {
 	{"1680x1050p60hz", HDMIV_1680x1050p60hz},
 	{"1920x1200p60hz", HDMIV_1920x1200p60hz},
 	{"2160x1200p90hz", HDMIV_2160x1200p90hz},
-	{"2560x1080p60hz", HDMIV_2560x1080p60hz},
 	{"2560x1440p60hz", HDMIV_2560x1440p60hz},
 	{"2560x1600p60hz", HDMIV_2560x1600p60hz},
 	{"3440x1440p60hz", HDMIV_3440x1440p60hz},
@@ -740,10 +739,18 @@ static int hdmitx_edid_block_parse(struct rx_cap *pRXCap,
 			offset++;
 			for (i = 0 ; i < count ; i++) {
 				unsigned char VIC;
-				VIC = BlockBuf[offset + i] & (~0x80);
-				pRXCap->VIC[pRXCap->VIC_count] = VIC;
-				if (BlockBuf[offset + i] & 0x80)
+				/* 7.5.1 Video Data Block Table 58
+				 * and CTA-861-G page101: only 1~64
+				 * maybe Native Video Format. and
+				 * need to take care hdmi2.1 VIC:
+				 * 193~253
+				 */
+				VIC = BlockBuf[offset + i];
+				if (VIC >= 129 && VIC <= 192) {
+					VIC &= (~0x80);
 					pRXCap->native_VIC = VIC;
+				}
+				pRXCap->VIC[pRXCap->VIC_count] = VIC;
 				pRXCap->VIC_count++;
 			}
 			offset += count;
