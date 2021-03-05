@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <emmc_partitions.h>
 #include <amlogic/storage.h>
+#include <amlogic/aml_efuse.h>
 
 /**
  * image_size - final fastboot image size
@@ -293,6 +294,12 @@ static void download(char *cmd_parameter, char *response)
 {
 	char *tmp;
 
+	if (check_lock()) {
+		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
+		fastboot_fail("locked device", response);
+		return;
+	}
+
 	if (!cmd_parameter) {
 		fastboot_fail("Expected command parameter", response);
 		return;
@@ -348,6 +355,12 @@ void fastboot_data_download(const void *fastboot_data,
 {
 #define BYTES_PER_DOT	0x20000
 	u32 pre_dot_num, now_dot_num;
+
+	if (check_lock()) {
+		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
+		fastboot_fail("locked device", response);
+		return;
+	}
 
 	if (fastboot_data_len == 0 ||
 	    (fastboot_bytes_received + fastboot_data_len) >
@@ -571,6 +584,12 @@ static void flashing(char *cmd_parameter, char *response)
 	char lock_d[LOCK_DATA_SIZE];
 	u64 rc;
 
+	if (IS_FEAT_BOOT_VERIFY()) {
+		printf("device is secure mode, can not run this cmd.\n");
+		fastboot_fail("secure boot device", response);
+		return;
+	}
+
 	lock_s = env_get("lock");
 	if (!lock_s) {
 		printf("lock state is NULL \n");
@@ -770,6 +789,13 @@ static void oem_cmd(char *cmd_parameter, char *response)
 	int i = 0, len = 0, j = 0;
 	char cmd_str[FASTBOOT_RESPONSE_LEN];
 	printf("oem cmd_parameter: %s\n", cmd_parameter);
+
+	if (check_lock()) {
+		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
+		fastboot_fail("locked device", response);
+		return;
+	}
+
 	cmd = cmd_parameter;
 	strsep(&cmd, " ");
 	printf("To run cmd[%s]\n", cmd);
@@ -800,6 +826,12 @@ static void oem_cmd(char *cmd_parameter, char *response)
 static void oem_format(char *cmd_parameter, char *response)
 {
 	char cmdbuf[32];
+
+	if (check_lock()) {
+		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
+		fastboot_fail("locked device", response);
+		return;
+	}
 
 	if (!env_get("partitions")) {
 		fastboot_fail("partitions not set", response);
