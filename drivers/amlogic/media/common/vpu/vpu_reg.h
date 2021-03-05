@@ -36,8 +36,8 @@
 /* memory mapping */
 #define REG_ADDR_AOBUS(reg)         (reg + 0L)
 #define REG_ADDR_HIU(reg)           (reg + 0L)
-#define REG_ADDR_CBUS(reg)          (REG_BASE_CBUS + REG_OFFSET_CBUS(reg))
-#define REG_ADDR_VCBUS(reg)         (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg))
+#define REG_ADDR_CBUS(reg)          (REG_BASE_CBUS + REG_OFFSET_CBUS(reg) + 0L)
+#define REG_ADDR_VCBUS(reg)         (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg) + 0L)
 
 #define REG_VPU_ADDR(reg)           (reg + 0L)
 

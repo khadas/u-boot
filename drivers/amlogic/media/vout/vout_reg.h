@@ -25,25 +25,25 @@
 #define REG_BASE_VCBUS                  (0xff900000L)
 #endif
 #define REG_OFFSET_VCBUS(reg)           ((reg << 2))
-#define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg))
+#define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg) + 0L)
 
 #define REG_CLK_ADDR(reg)               (reg + 0L)
 #define REG_VOUT_ADDR(reg)              (reg + 0L)
 
 #ifndef HHI_VPU_CLKC_CNTL
-#define HHI_VPU_CLKC_CNTL                          (0xff63c000 + (0x06d << 2))
+#define HHI_VPU_CLKC_CNTL                          (0xff63c000L + (0x06d << 2))
 #endif
 #ifndef CLKCTRL_VPU_CLKC_CTRL
-#define CLKCTRL_VPU_CLKC_CTRL                      ((0x003c  << 2) + 0xfe000000)
+#define CLKCTRL_VPU_CLKC_CTRL                      ((0x003c << 2) + 0xfe000000L)
 #endif
 #ifndef VPU_VIU_VENC_MUX_CTRL
-#define VPU_VIU_VENC_MUX_CTRL                      ((0x271a  << 2) + 0xff000000)
+#define VPU_VIU_VENC_MUX_CTRL                      ((0x271a << 2) + 0xff000000L)
 #endif
 #ifndef VPU_VENCX_CLK_CTRL
-#define VPU_VENCX_CLK_CTRL                         ((0x2785  << 2) + 0xff000000)
+#define VPU_VENCX_CLK_CTRL                         ((0x2785 << 2) + 0xff000000L)
 #endif
 #ifndef VPU_VENC_CTRL
-#define VPU_VENC_CTRL                              ((0x1cef  << 2) + 0xff000000)
+#define VPU_VENC_CTRL                              ((0x1cef << 2) + 0xff000000L)
 #endif
 
 static inline unsigned int vout_reg_read(unsigned int idx, u32 reg)
