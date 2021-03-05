@@ -1345,7 +1345,7 @@ static void lcd_tcon_axi_mem_config_t5(void)
 
 static void lcd_tcon_axi_mem_config_t5d(void)
 {
-	unsigned int size = 0x00300000;
+	unsigned int size = 0x00500000;
 	unsigned int reg = 0x261;
 	unsigned int temp_size = 0;
 
@@ -1736,8 +1736,8 @@ static struct lcd_tcon_config_s tcon_data_t5d = {
 
 	.axi_bank = LCD_TCON_AXI_BANK_T5D,
 
-	.rsv_mem_size    = 0x00400000, /* 4M */
-	.axi_size        = 0x00300000, /* 3M */
+	.rsv_mem_size    = 0x00800000, /* 8M */
+	.axi_size        = 0x00500000, /* 5M */
 	.bin_path_size   = 0x00002800, /* 10K */
 	.vac_size        = 0,
 	.demura_set_size = 0,
