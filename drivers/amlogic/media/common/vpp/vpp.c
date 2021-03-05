@@ -521,16 +521,13 @@ static void vpp_set_matrix_default_init(void)
 	vpp_reg_setb(VPP_MATRIX_CTRL, 0xf, 11, 4);
 }
 
-static void vpp_set_matrix_ycbcr2rgb(int vd1_or_vd2_or_post, int mode)
+static void vpp_top_post2_matrix_yuv2rgb(int vpp_top)
 {
-	//VPP_PR("%s: %d, %d\n", __func__, vd1_or_vd2_or_post, mode);
-
 	int *m = NULL;
+	/* POST2 matrix: YUV limit -> RGB  default is 12bit*/
+	m = YUV709l_to_RGB709_coeff12;
 
-	if (is_osd_high_version()) {
-		/* POST2 matrix: YUV limit -> RGB  default is 12bit*/
-		m = YUV709l_to_RGB709_coeff12;
-
+	if (vpp_top == 0) {
 		/* VPP WRAP POST2 matrix */
 		vpp_reg_write(VPP_POST2_MATRIX_PRE_OFFSET0_1,
 			(((m[0] >> 2) & 0xfff) << 16) | ((m[1] >> 2) & 0xfff));
@@ -546,14 +543,68 @@ static void vpp_set_matrix_ycbcr2rgb(int vd1_or_vd2_or_post, int mode)
 			(((m[9] >> 2) & 0x1fff) << 16) | ((m[10] >> 2) & 0x1fff));
 		vpp_reg_write(VPP_POST2_MATRIX_COEF22,
 			(m[11] >> 2) & 0x1fff);
-
 		vpp_reg_write(VPP_POST2_MATRIX_OFFSET0_1,
 			(((m[18] >> 2) & 0xfff) << 16) | ((m[19] >> 2) & 0xfff));
 		vpp_reg_write(VPP_POST2_MATRIX_OFFSET2,
 			(m[20] >> 2) & 0xfff);
-
 		vpp_reg_setb(VPP_POST2_MATRIX_EN_CTRL, 1, 0, 1);
+	} else if (vpp_top == 1) {
+		vpp_reg_write(VPP1_MATRIX_PRE_OFFSET0_1,
+			(((m[0] >> 2) & 0xfff) << 16) | ((m[1] >> 2) & 0xfff));
+		vpp_reg_write(VPP1_MATRIX_PRE_OFFSET2,
+			(m[2] >> 2) & 0xfff);
+		vpp_reg_write(VPP1_MATRIX_COEF00_01,
+			(((m[3] >> 2) & 0x1fff) << 16) | ((m[4] >> 2) & 0x1fff));
+		vpp_reg_write(VPP1_MATRIX_COEF02_10,
+			(((m[5] >> 2) & 0x1fff) << 16) | ((m[6] >> 2) & 0x1fff));
+		vpp_reg_write(VPP1_MATRIX_COEF11_12,
+			(((m[7] >> 2) & 0x1fff) << 16) | ((m[8] >> 2) & 0x1fff));
+		vpp_reg_write(VPP1_MATRIX_COEF20_21,
+			(((m[9] >> 2) & 0x1fff) << 16) | ((m[10] >> 2) & 0x1fff));
+		vpp_reg_write(VPP1_MATRIX_COEF22,
+			(m[11] >> 2) & 0x1fff);
 
+		vpp_reg_write(VPP1_MATRIX_OFFSET0_1,
+			(((m[18] >> 2) & 0xfff) << 16) | ((m[19] >> 2) & 0xfff));
+		vpp_reg_write(VPP1_MATRIX_OFFSET2,
+			(m[20] >> 2) & 0xfff);
+
+		vpp_reg_setb(VPP1_MATRIX_EN_CTRL, 1, 0, 1);
+	} else if (vpp_top == 2) {
+		vpp_reg_write(VPP2_MATRIX_PRE_OFFSET0_1,
+			(((m[0] >> 2) & 0xfff) << 16) | ((m[1] >> 2) & 0xfff));
+		vpp_reg_write(VPP2_MATRIX_PRE_OFFSET2,
+			(m[2] >> 2) & 0xfff);
+		vpp_reg_write(VPP2_MATRIX_COEF00_01,
+			(((m[3] >> 2) & 0x1fff) << 16) | ((m[4] >> 2) & 0x1fff));
+		vpp_reg_write(VPP2_MATRIX_COEF02_10,
+			(((m[5] >> 2) & 0x1fff) << 16) | ((m[6] >> 2) & 0x1fff));
+		vpp_reg_write(VPP2_MATRIX_COEF11_12,
+			(((m[7] >> 2) & 0x1fff) << 16) | ((m[8] >> 2) & 0x1fff));
+		vpp_reg_write(VPP2_MATRIX_COEF20_21,
+			(((m[9] >> 2) & 0x1fff) << 16) | ((m[10] >> 2) & 0x1fff));
+		vpp_reg_write(VPP2_MATRIX_COEF22,
+			(m[11] >> 2) & 0x1fff);
+
+		vpp_reg_write(VPP2_MATRIX_OFFSET0_1,
+			(((m[18] >> 2) & 0xfff) << 16) | ((m[19] >> 2) & 0xfff));
+		vpp_reg_write(VPP2_MATRIX_OFFSET2,
+			(m[20] >> 2) & 0xfff);
+
+		vpp_reg_setb(VPP2_MATRIX_EN_CTRL, 1, 0, 1);
+	}
+
+}
+static void vpp_set_matrix_ycbcr2rgb(int vd1_or_vd2_or_post, int mode)
+{
+	//VPP_PR("%s: %d, %d\n", __func__, vd1_or_vd2_or_post, mode);
+
+	if (is_osd_high_version()) {
+		vpp_top_post2_matrix_yuv2rgb(0);
+		if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_T7) {
+			vpp_top_post2_matrix_yuv2rgb(1);
+			vpp_top_post2_matrix_yuv2rgb(2);
+		}
 		VPP_PR("g12a/b post2(bit12) matrix: YUV limit -> RGB ..............\n");
 		return;
 	}
@@ -643,6 +694,8 @@ void set_vpp_matrix(int m_select, int *s, int on)
 	int *m = NULL;
 	int size = 0;
 	int i;
+
+	pr_info("set_vpp_matrix m_select = %d on = %d\n",m_select,on);
 
 	if (m_select == VPP_MATRIX_OSD) {
 		m = osd_matrix_coeff;
