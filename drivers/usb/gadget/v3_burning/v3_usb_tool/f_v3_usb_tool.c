@@ -463,7 +463,11 @@ static void compl_do_reboot_bl1usb(struct usb_ep *ep, struct usb_request *req)
 #endif
     udelay(2*1000*1000);
     optimus_erase_bootloader("usb");//skip to bl1 usb rom driver
+#if 0
 	do_reset(NULL, 0, 0, NULL);
+#else
+	run_command("reboot", 0);
+#endif
 }
 
 static void cb_reboot(struct usb_ep *ep, struct usb_request *req)
