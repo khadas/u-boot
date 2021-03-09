@@ -105,16 +105,33 @@ static void hdmitx_set_hdmi_5v(void)
 }
 #endif
 
+static const char ddr_type_info[6][8] =
+{
+	"DDR3\0",       //CONFIG_DDR_TYPE_DDR3			//0
+	"DDR4\0",       //CONFIG_DDR_TYPE_DDR4			//1
+	"LPDDR4\0",     //CONFIG_DDR_TYPE_LPDDR4		//2
+	"LPDDR3\0",     //CONFIG_DDR_TYPE_LPDDR3		//3
+	"LPDDR2\0",     //CONFIG_DDR_TYPE_LPDDR2		//4
+	"LPDDR4X\0",    //CONFIG_DDR_TYPE_LPDDR4X		//5
+};
+
 void board_init_mem(void) {
 	#if 1
 	/* config bootm low size, make sure whole dram/psram space can be used */
 	phys_size_t ram_size;
+	unsigned int ddr_type;
 	char *env_tmp;
 	env_tmp = env_get("bootm_size");
 	if (!env_tmp) {
-		ram_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4);
+		ram_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFF80000) << 4);
 		env_set_hex("bootm_low", 0);
 		env_set_hex("bootm_size", ram_size);
+	}
+	env_tmp = env_get("boot_ddr_type");
+	if (!env_tmp) {
+		ddr_type = (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0x00070000) >> 16);
+		env_set("boot_ddr_type", 0);
+		env_set("boot_ddr_type", ddr_type_info[ddr_type]);
 	}
 	#endif
 }
@@ -193,9 +210,9 @@ phys_size_t get_effective_memsize(void)
 {
 	// >>16 -> MB, <<20 -> real size, so >>16<<20 = <<4
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
-	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4) - CONFIG_SYS_MEM_TOP_HIDE;
+	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFF80000) << 4) - CONFIG_SYS_MEM_TOP_HIDE;
 #else
-	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4);
+	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFF80000) << 4);
 #endif /* CONFIG_SYS_MEM_TOP_HIDE */
 
 }
@@ -225,7 +242,7 @@ struct mm_region *mem_map = bd_mem_map;
 int mach_cpu_init(void) {
 	/* update mmu table from bl2 ddr auto detect size */
 #ifdef CONFIG_UPDATE_MMU_TABLE
-	unsigned int nddrSize = ((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4;
+	unsigned int nddrSize = ((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFF80000) << 4;
 	switch (nddrSize)
 	{
 		case (CONFIG_1G_SIZE):
