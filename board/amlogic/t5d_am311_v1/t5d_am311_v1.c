@@ -772,8 +772,6 @@ int checkhw(char * name)
 	unsigned int ddr_size = 0;
 	char dtb_name[64] = {0};
 	int i;
-	cpu_id_t  cpu_id = get_cpu_id();
-
 	for (i=0; i<CONFIG_NR_DRAM_BANKS; i++) {
 		ddr_size += gd->bd->bi_dram[i].size;
 	}
@@ -782,17 +780,11 @@ int checkhw(char * name)
 #endif
 	switch (ddr_size) {
 		case 0x40000000:
-			if (cpu_id.chip_rev == 0xA)
-				strcpy(dtb_name, "t5d-reva_t950x4_am311-1g\0");
-			else
-				strcpy(dtb_name, "t5d_t950x4_am311-1g\0");
+			strcpy(dtb_name, "t5d_t950x4_am311-1g\0");
 			setenv("mem_size", "1g");
 			break;
 		case 0x20000000:
-			if (cpu_id.chip_rev == 0xA)
-				strcpy(dtb_name, "t5d-reva_t950x4_am311-512m\0");
-			else
-				strcpy(dtb_name, "t5d_t950x4_am311-512m\0");
+			strcpy(dtb_name, "t5d_t950x4_am311-512m\0");
 			break;
 		default:
 			strcpy(dtb_name, "t5d_am311_unsupport");

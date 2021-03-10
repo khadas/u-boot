@@ -764,46 +764,21 @@ int checkhw(char * name)
 	unsigned int ddr_size = 0;
 	char dtb_name[64] = {0};
 	int i;
-	cpu_id_t  cpu_id = get_cpu_id();
-
 	for (i=0; i<CONFIG_NR_DRAM_BANKS; i++) {
 		ddr_size += gd->bd->bi_dram[i].size;
 	}
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
 	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
 #endif
-	switch (cpu_id.chip_rev) {
-		case 0xA:
-			switch (ddr_size) {
-				case 0x80000000:
-					strcpy(dtb_name, "t5d-reva_am319_2g\0");
-					break;
-				case 0x40000000:
-					strcpy(dtb_name, "t5d-reva_am319_1g\0");
-					break;
-				case 0x20000000:
-					strcpy(dtb_name, "t5d-reva_am319_512m\0");
-					break;
-				default:
-					strcpy(dtb_name, "t5d-reva_am319_unsupport");
-					break;
-			}
+	switch (ddr_size) {
+             case 0x80000000:
+			strcpy(dtb_name, "t5d_am319_2g\0");
 			break;
-		case 0xB:
-			switch (ddr_size) {
-				case 0x80000000:
-					strcpy(dtb_name, "t5d_am319_2g\0");
-					break;
-				case 0x40000000:
-					strcpy(dtb_name, "t5d_am319_1g\0");
-					break;
-				case 0x20000000:
-					strcpy(dtb_name, "t5d_am319_512m\0");
-					break;
-				default:
-					strcpy(dtb_name, "t5d_am319_unsupport");
-					break;
-			}
+		case 0x40000000:
+			strcpy(dtb_name, "t5d_am319_1g\0");
+			break;
+		case 0x20000000:
+			strcpy(dtb_name, "t5d_am319_512m\0");
 			break;
 		default:
 			strcpy(dtb_name, "t5d_am319_unsupport");
