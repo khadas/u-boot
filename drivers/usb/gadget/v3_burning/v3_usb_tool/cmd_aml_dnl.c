@@ -16,6 +16,7 @@
 #include <asm/io.h>
 #include <asm/arch/register.h>
 
+int optimus_erase_bootloader(const char* extBootDev);
 extern int aml_dnl_register(const char *name);
 extern void aml_dnl_unregister(void);
 #define SOF_WAIT_TIME_MIN	500 //400ms for wait sof, need more than wcp
@@ -49,11 +50,9 @@ static void usb_parameter_init(int time_out)
 extern int phy_num;
 #endif
 
-static int do_aml_DNL(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int aml_v3_usbburning(unsigned timeout, unsigned pcToolWaitTime)
 {
 	int ret;
-	unsigned timeout = (2 <= argc) ? simple_strtoul(argv[1], NULL, 0) : 0;
-	unsigned pcToolWaitTime	= (3 <= argc) ? simple_strtoul(argv[2], NULL, 0) : 0;
 
 #ifdef  CONFIG_USB_GADGET_CRG
 	//printf("poc:0x%x\n", readl(SYSCTRL_POC));
@@ -117,6 +116,33 @@ static int do_aml_DNL(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	aml_dnl_unregister();
 	return CMD_RET_SUCCESS;
 }
+
+#ifndef CONFIG_AML_NO_USB_MODULE
+static int do_aml_DNL(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	int ret;
+	unsigned timeout = (2 <= argc) ? simple_strtoul(argv[1], NULL, 0) : 0;
+	unsigned pcToolWaitTime	= (3 <= argc) ? simple_strtoul(argv[2], NULL, 0) : 0;
+
+	return aml_v3_usbburning(timeout, pcToolWaitTime);
+}
+#else
+static int do_aml_DNL(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	unsigned timeout = (2 <= argc) ? simple_strtoul(argv[1], NULL, 0) : 0;
+
+	optimus_erase_bootloader(timeout ? "usb-timeout" : "usb");//skip to bl1 usb rom driver
+
+#ifdef CONFIG_AML_REBOOT
+	run_command("reboot", 0);
+	udelay(2*1000*1000);
+#endif//#ifdef CONFIG_AML_REBOOT
+	printf("call reset as reboot not work\n");//should not be reach here
+	do_reset(NULL, 0, 0, NULL);//call reset if reboot undefined
+
+	return CMD_RET_SUCCESS;
+}
+#endif// #ifndef CONFIG_AML_NO_USB_MODULE
 
 U_BOOT_CMD(
         adnl,	3,	0,	do_aml_DNL,

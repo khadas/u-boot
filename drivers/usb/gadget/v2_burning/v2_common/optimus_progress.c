@@ -173,6 +173,12 @@ int optimus_erase_bootloader(const char* extBootDev)
         return 0;
     }
 
+    if (!strcmp("usb-timeout", extBootDev))
+    {
+        set_boot_first_timeout(SCPI_CMD_USB_BOOT);
+        return 0;
+    }
+
     if (!strcmp("sdc", extBootDev))
     {
         cpu_id_t cpuid = get_cpu_id();

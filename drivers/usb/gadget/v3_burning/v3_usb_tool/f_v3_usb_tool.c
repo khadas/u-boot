@@ -31,6 +31,9 @@ static void cb_aml_media_write(struct usb_ep *ep, struct usb_request *req);
 static void cb_aml_media_read(struct usb_ep *outep, struct usb_request *outreq);
 static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req);
 
+static const char*  const _def_norisk_cmd_list_[] = {"printenv","help","echo",NULL};
+extern const char * const white_list_adnl_cmds[0] __attribute__((weak, alias("_def_norisk_cmd_list_")));
+
 #define DNL_PROTOCOL_VERSION		"0.1"
 #define FASTBOOT_INTERFACE_CLASS	0xff
 #define FASTBOOT_INTERFACE_SUB_CLASS	0x42
@@ -62,8 +65,6 @@ static inline struct f_fastboot *func_to_fastboot(struct usb_function *f)
 }
 
 static struct f_fastboot *fastboot_func;
-static unsigned int download_size;
-static unsigned int download_bytes;
 
 static struct usb_interface_descriptor interface_desc = {
 	.bLength		= USB_DT_INTERFACE_SIZE,
@@ -463,11 +464,13 @@ static void compl_do_reboot_bl1usb(struct usb_ep *ep, struct usb_request *req)
 #endif
     udelay(2*1000*1000);
     optimus_erase_bootloader("usb");//skip to bl1 usb rom driver
-#if 0
-	do_reset(NULL, 0, 0, NULL);
-#else
+
+#ifdef CONFIG_AML_REBOOT
 	run_command("reboot", 0);
-#endif
+	udelay(2*1000*1000);
+#endif//#ifdef CONFIG_AML_REBOOT
+	printf("call reset as reboot not work\n");//should not be reach here
+	do_reset(NULL, 0, 0, NULL);//call reset if reboot undefined
 }
 
 static void cb_reboot(struct usb_ep *ep, struct usb_request *req)
@@ -602,193 +605,6 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	fastboot_tx_write(response, replyLen);
 }
 
-static unsigned int rx_bytes_expected(void)
-{
-	int rx_remain = download_size - download_bytes;
-	if (rx_remain < 0)
-		return 0;
-	if (rx_remain > EP_BUFFER_SIZE)
-		return EP_BUFFER_SIZE;
-	return rx_remain;
-}
-
-#define BYTES_PER_DOT	0x20000
-static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
-{
-	char response[RESPONSE_LEN];
-	unsigned int transfer_size = download_size - download_bytes;
-	const unsigned char *buffer = req->buf;
-	unsigned int buffer_size = req->actual;
-	unsigned int pre_dot_num, now_dot_num;
-
-	if (req->status != 0) {
-		printf("Bad status: %d\n", req->status);
-		return;
-	}
-
-	if (buffer_size < transfer_size)
-		transfer_size = buffer_size;
-
-	memcpy((void *)CONFIG_USB_FASTBOOT_BUF_ADDR + download_bytes,
-	       buffer, transfer_size);
-
-	pre_dot_num = download_bytes / BYTES_PER_DOT;
-	download_bytes += transfer_size;
-	now_dot_num = download_bytes / BYTES_PER_DOT;
-
-	if (pre_dot_num != now_dot_num) {
-		putc('.');
-		if (!(now_dot_num % 74))
-			putc('\n');
-	}
-
-	/* Check if transfer is done */
-	if (download_bytes >= download_size) {
-		/*
-		 * Reset global transfer variable, keep download_bytes because
-		 * it will be used in the next possible flashing command
-		 */
-		download_size = 0;
-		req->complete = rx_handler_command;
-		/*req->length = EP_BUFFER_SIZE;*/
-		req->length = EP_CMD_LEN_MAX;
-		req->buf	= &EP_CMD_BUF[0];
-
-		sprintf(response, "OKAY");
-		fastboot_tx_write_str(response);
-
-		printf("\ndownloading of %d bytes finished\n", download_bytes);
-	} else {
-		req->length = rx_bytes_expected();
-		if (req->length < ep->maxpacket)
-			req->length = ep->maxpacket;
-	}
-
-	req->actual = 0;
-	usb_ep_queue(ep, req, 0);
-}
-
-static void cb_download(struct usb_ep *ep, struct usb_request *req)
-{
-	char *cmd = req->buf;
-	char response[RESPONSE_LEN];
-
-	printf("cmd cb_download is %s\n", cmd);
-
-	strsep(&cmd, ":");
-	download_size = simple_strtoul(cmd, NULL, 16);
-	download_bytes = 0;
-
-	printf("Starting download of %d bytes\n", download_size);
-
-	if (0 == download_size) {
-		sprintf(response, "FAILdata invalid size");
-	} else if (download_size > V3_DOWNLOAD_MEM_SIZE/*ddr_size_usable(CONFIG_USB_FASTBOOT_BUF_ADDR)*/) {
-		download_size = 0;
-		sprintf(response, "FAILdata too large");
-	} else {
-		sprintf(response, "DATA%08x", download_size);
-		req->complete = rx_handler_dl_image;
-		req->buf	  = (char*)V3_DOWNLOAD_EP_OUT;
-		req->length = rx_bytes_expected();
-		if (req->length < ep->maxpacket)
-			req->length = ep->maxpacket;
-	}
-	fastboot_tx_write_str(response);
-}
-
-typedef boot_img_hdr_t boot_img_hdr;
-
-static void do_bootm_on_complete(struct usb_ep *ep, struct usb_request *req)
-{
-	char boot_addr_start[12];
-	unsigned    kernel_size;
-	unsigned    ramdisk_size;
-	boot_img_hdr *hdr_addr = NULL;
-	int genFmt = 0;
-	unsigned actualBootImgSz = 0;
-	unsigned dtbSz = 0;
-	unsigned char* loadaddr = 0;
-
-	puts("Booting kernel...\n");
-
-	sprintf(boot_addr_start, "bootm 0x%lx", load_addr);
-	printf("boot_addr_start %s\n", boot_addr_start);
-
-	loadaddr = (unsigned char*)CONFIG_USB_FASTBOOT_BUF_ADDR;
-	hdr_addr = (boot_img_hdr*)loadaddr;
-
-	genFmt = genimg_get_format(hdr_addr);
-	if (IMAGE_FORMAT_ANDROID != genFmt) {
-		printf("Fmt unsupported!genFmt 0x%x != 0x%x\n", genFmt, IMAGE_FORMAT_ANDROID);
-		return;
-	}
-
-	kernel_size     =(hdr_addr->kernel_size + (hdr_addr->page_size-1)+hdr_addr->page_size)&(~(hdr_addr->page_size -1));
-	ramdisk_size    =(hdr_addr->ramdisk_size + (hdr_addr->page_size-1))&(~(hdr_addr->page_size -1));
-	dtbSz           = hdr_addr->second_size;
-	actualBootImgSz = kernel_size + ramdisk_size + dtbSz;
-	printf("kernel_size 0x%x, page_size 0x%x, totalSz 0x%x\n", hdr_addr->kernel_size, hdr_addr->page_size, kernel_size);
-	printf("ramdisk_size 0x%x, totalSz 0x%x\n", hdr_addr->ramdisk_size, ramdisk_size);
-	printf("dtbSz 0x%x, Total actualBootImgSz 0x%x\n", dtbSz, actualBootImgSz);
-
-	memcpy((void *)load_addr, (void *)CONFIG_USB_FASTBOOT_BUF_ADDR, actualBootImgSz);
-
-	flush_cache(load_addr,(unsigned long)actualBootImgSz);
-
-	run_command(boot_addr_start, 0);
-
-	/* This only happens if image is somehow faulty so we start over */
-	do_reset(NULL, 0, 0, NULL);
-}
-
-static void cb_boot(struct usb_ep *ep, struct usb_request *req)
-{
-	fastboot_func->in_req->complete = do_bootm_on_complete;
-	fastboot_tx_write_str("OKAY");
-}
-
-static void do_exit_on_complete(struct usb_ep *ep, struct usb_request *req)
-{
-	puts("Booting kernel..\n");
-	run_command("run storeboot", 0);
-
-	/* This only happens if image is somehow faulty so we start over */
-	do_reset(NULL, 0, 0, NULL);
-}
-
-
-static void cb_continue(struct usb_ep *ep, struct usb_request *req)
-{
-	fastboot_func->in_req->complete = do_exit_on_complete;
-	fastboot_tx_write_str("OKAY");
-}
-
-static void cb_set_active(struct usb_ep *ep, struct usb_request *req)
-{
-	char *cmd = req->buf;
-	//char response[RESPONSE_LEN];
-	int ret = 0;
-	char str[128];
-
-	printf("cmd cb_set_active is %s\n", cmd);
-	strsep(&cmd, ":");
-	if (!cmd) {
-		FB_ERR("missing slot name\n");
-		fastboot_tx_write_str("FAILmissing slot name");
-		return;
-	}
-
-	sprintf(str, "set_active_slot %s", cmd);
-	printf("command:    %s\n", str);
-	ret = run_command(str, 0);
-	printf("ret = %d\n", ret);
-	if (ret == 0)
-		fastboot_tx_write_str("OKAY");
-	else
-		fastboot_tx_write_str("FAILset slot error");
-}
-
 static void cb_devices(struct usb_ep *ep, struct usb_request *req)
 {
 	char response[RESPONSE_LEN];
@@ -814,20 +630,6 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 		.cmd = "getvar:",
 		.cb = cb_getvar,
 	}, {
-		.cmd = "download:",
-		.cb = cb_download,
-	}, {
-		.cmd = "boot",
-		.cb = cb_boot,
-	}, {
-		.cmd = "continue",
-		.cb = cb_continue,
-	},
-	{
-		.cmd = "update",
-		.cb = cb_download,
-	},
-	{
 		.cmd = "devices",
 		.cb = cb_devices,
 	},
@@ -836,10 +638,6 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 		.cb = cb_reboot,
 	},
 	{
-		.cmd = "set_active",
-		.cb = cb_set_active,
-	},
-    {
 		.cmd = "mwrite",
         .cb = cb_aml_media_write,
 	}, {
@@ -1094,7 +892,10 @@ static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 			return;
 		}
 	} else if( !strcmp("mread", argv[0]) ){
-		ret = _mread_cmd_parser(argc, argv, ack);
+		if (IS_FEAT_BOOT_VERIFY()) {
+			fastboot_fail("upload not allowed when secure boot");
+			ret = -__LINE__;
+		} else ret = _mread_cmd_parser(argc, argv, ack);
 #ifdef CONFIG_V3_KEY_BURNING_SUPPORT
 	} else if( !strcmp("key", argv[0]) ){
 		ret = v2_key_command(argc, argv, ack);
@@ -1118,18 +919,25 @@ static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 		ret = v3tool_bl33_setvar(argc, argv);
 	} else if( !strcmp("sheader_need", argv[0]) ){
 		ret = sheader_need() ? 0 : ret;
-	} else if( !strcmp("test", argv[0]) ){
-		static int i = 0;
-		if ( ++i < 20 ) {
-			fastboot_busy(NULL);
-			fastboot_tx_write_str(response_str);
-			return;
-		}
 	} else {
 		strsep(&cmd, " ");
-		ret = run_command(cmd, 0);
-		if ( ret ) {
-			FBS_ERR(ack,"fail in cmd,ret %d", ret);
+		int cmdIsInWhiteList = 1;
+		if (IS_FEAT_BOOT_VERIFY()) {
+			cmdIsInWhiteList = 0;
+			for (const char* aCmd = white_list_adnl_cmds[0]; !aCmd; ++aCmd) {
+				if (strcmp(cmd, aCmd)) continue;
+				cmdIsInWhiteList = 1; break;
+			}
+			if (!cmdIsInWhiteList) {
+				FBS_ERR(ack,"cmd %s not in secure boot white list", cmd);
+				ret = __LINE__;
+			}
+		}
+		if (cmdIsInWhiteList) {
+			ret = run_command(cmd, 0);
+			if ( ret ) {
+				FBS_ERR(ack,"fail in cmd,ret %d", ret);
+			}
 		}
 	}
 
@@ -1240,6 +1048,10 @@ static int _mwrite_cmd_parser(const int argc, char* argv[], char* ack)
 				} else if (!strcmp("sheader", partition)) {
 					commonInf->partStartOff += V3_PAYLOAD_LOAD_ADDR;
 				} else {
+					if (IS_FEAT_BOOT_VERIFY()) {
+						FBS_ERR(ack, "partition memory not allowed when secure boot enabled\n");
+						return -__LINE__;
+					}
 					commonInf->partStartOff += simple_strtoull(partition, NULL, 0);
 				}
 				FB_MSG("mem base %llx\n", commonInf->partStartOff);
