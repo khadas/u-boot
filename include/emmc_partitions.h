@@ -237,6 +237,12 @@ typedef struct LockData {
 	uint8_t reserved2[1];
 } LockData_t;
 
+#define AVB_CUSTOM_KEY_LEN_MAX 4096
+typedef struct AvbKey {
+	char magic_name[4];
+	uint32_t size;
+} AvbKey_t;
+
 /*512Bytes*/
 typedef struct FastbootContext {
 	/* locks */

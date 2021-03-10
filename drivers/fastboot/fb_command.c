@@ -414,6 +414,45 @@ static void flash(char *cmd_parameter, char *response)
 	char name[32] = {0};
 	u64 rc = 0;
 
+	if (check_lock()) {
+		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
+		fastboot_fail("locked device", response);
+		return;
+	}
+
+	if (strcmp(cmd_parameter, "avb_custom_key") == 0) {
+		char* buffer = NULL;
+		char *partition = "misc";
+		AvbKey_t key;
+		printf("avb_custom_key image_size: %d\n", image_size);
+
+		if (image_size > AVB_CUSTOM_KEY_LEN_MAX - sizeof(AvbKey_t)) {
+			printf("key size is too large\n");
+			fastboot_fail("size error", response);
+			return;
+		}
+
+		strncpy(key.magic_name, "AVBK", 4);
+		key.size = image_size;
+		rc = store_part_size(partition);
+
+		buffer = (char *)malloc(AVB_CUSTOM_KEY_LEN_MAX);
+		if (!buffer) {
+			printf("malloc error\n");
+			fastboot_fail("malloc error", response);
+			return;
+		}
+		memset(buffer, 0, AVB_CUSTOM_KEY_LEN_MAX);
+		memcpy(buffer, &key, sizeof(AvbKey_t));
+		memcpy(buffer + sizeof(AvbKey_t), fastboot_buf_addr, image_size);
+
+		store_write((const char *)partition, rc - AVB_CUSTOM_KEY_LEN_MAX, AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)buffer);
+
+		fastboot_okay(NULL, response);
+		free(buffer);
+		return;
+	}
+
 	if (strcmp(cmd_parameter, "userdata") == 0 || strcmp(cmd_parameter, "data") == 0) {
 		rc = store_part_size("userdata");
 		if (-1 == rc)
@@ -424,12 +463,6 @@ static void flash(char *cmd_parameter, char *response)
 		strncpy(name, "dtb", 3);
 	} else {
 		strncpy(name, cmd_parameter, 32);
-	}
-
-	if (check_lock()) {
-		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
-		fastboot_fail("locked device", response);
-		return;
 	}
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
@@ -469,6 +502,46 @@ static void erase(char *cmd_parameter, char *response)
 	if (check_lock()) {
 		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
 		fastboot_fail("locked device", response);
+		return;
+	}
+
+	if (strcmp(cmd_parameter, "avb_custom_key") == 0) {
+		char* buffer = NULL;
+		char *partition = "misc";
+
+		rc = store_part_size(partition);
+		buffer = (char *)malloc(AVB_CUSTOM_KEY_LEN_MAX);
+		if (!buffer) {
+			printf("malloc error\n");
+			fastboot_fail("malloc error", response);
+			return;
+		}
+		memset(buffer, 0, AVB_CUSTOM_KEY_LEN_MAX);
+
+		store_write((const char *)partition, rc - AVB_CUSTOM_KEY_LEN_MAX, AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)buffer);
+
+		fastboot_okay(NULL, response);
+		free(buffer);
+		return;
+	}
+
+	if (strcmp(cmd_parameter, "misc") == 0) {
+		char* buffer = NULL;
+		char *partition = "misc";
+
+		rc = store_part_size(partition);
+		buffer = (char *)malloc(rc - AVB_CUSTOM_KEY_LEN_MAX);
+		if (!buffer) {
+			printf("malloc error\n");
+			fastboot_fail("malloc error", response);
+			return;
+		}
+		memset(buffer, 0, rc - AVB_CUSTOM_KEY_LEN_MAX);
+
+		store_write((const char *)partition, 0, rc - AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)buffer);
+
+		fastboot_okay(NULL, response);
+		free(buffer);
 		return;
 	}
 

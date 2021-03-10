@@ -176,32 +176,48 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps* ops, const uint8_t* public
         bool* out_is_trusted)
 {
     *out_is_trusted = false;
+    AvbIOResult ret = AVB_IO_RESULT_ERROR_IO;
+    char* keybuf = NULL;
+    char *partition = "misc";
+    AvbKey_t key;
+    int size;
 
-#if defined(CONFIG_AVB2_KPUB_VENDOR)
-    printf("AVB2 verify with vendor kpub size:%d, vbmeta kpub size:%ld\n", avb2_kpub_vendor_len, public_key_length);
-    if ((avb2_kpub_vendor_len == public_key_length)
-        && !avb_safe_memcmp(public_key_data, avb2_kpub_vendor, public_key_length)) {
-        *out_is_trusted = true;
-        return AVB_IO_RESULT_OK;
+    keybuf = (char *)malloc(AVB_CUSTOM_KEY_LEN_MAX);
+    if (keybuf) {
+        memset(keybuf , 0, AVB_CUSTOM_KEY_LEN_MAX);
+        size = store_part_size(partition);
+        if (store_read((unsigned char *)partition,
+            size - AVB_CUSTOM_KEY_LEN_MAX, AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)keybuf) >= 0)  {
+            memcpy(&key, keybuf, sizeof(AvbKey_t));
+        }
     }
-#endif /* CONFIG_AVB2_KPUB_VENDOR */
 
-    //unsigned int isSecure = IS_FEAT_BOOT_VERIFY();
-    //printf("isSecure: %d\n", isSecure);
+    if (keybuf && (strncmp(keybuf, "AVBK", 4) == 0)) {
+        printf("AVB2 verify with avb_custom_key \n");
+        if ((key.size == public_key_length)
+            && !avb_safe_memcmp(public_key_data, keybuf+sizeof(AvbKey_t), public_key_length)) {
+            *out_is_trusted = true;
+            ret = AVB_IO_RESULT_OK;
+        }
+   } else {
 
     /**
      * When the custom key is set and the device is in the LOCKED state
      * it will boot images signed with both the built-in key as well as the custom key
      */
-    printf("AVB2 verify with default kpub size:%d, vbmeta kpub size:%ld\n", avb2_kpub_default_len, public_key_length);
-    if ((avb2_kpub_default_len == public_key_length)
-        && !avb_safe_memcmp(public_key_data, avb2_kpub_default, public_key_length)) {
-        *out_is_trusted = true;
-        return AVB_IO_RESULT_OK;
+        printf("AVB2 verify with default kpub size:%d, vbmeta kpub size:%ld\n", avb2_kpub_default_len, public_key_length);
+        if ((avb2_kpub_default_len == public_key_length)
+            && !avb_safe_memcmp(public_key_data, avb2_kpub_default, public_key_length)) {
+            *out_is_trusted = true;
+            ret = AVB_IO_RESULT_OK;
+        }
     }
 
-    printf("AVB2 key in bootloader does not match with the key in vbmeta\n");
-    return AVB_IO_RESULT_ERROR_IO;
+    if (keybuf)
+        free(keybuf);
+    if (ret != AVB_IO_RESULT_OK)
+        printf("AVB2 key in bootloader does not match with the key in vbmeta\n");
+    return ret;
 }
 
 static AvbIOResult read_rollback_index(AvbOps* ops, size_t rollback_index_location,
