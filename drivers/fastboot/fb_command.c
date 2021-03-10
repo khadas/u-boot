@@ -182,12 +182,14 @@ static void okay(char *cmd_parameter, char *response)
 
 void dump_lock_info(LockData_t* info)
 {
+#if 0
 	printf("info->version_major = %d\n", info->version_major);
 	printf("info->version_minor = %d\n", info->version_minor);
 	printf("info->unlock_ability = %d\n", info->unlock_ability);
 	printf("info->lock_state = %d\n", info->lock_state);
 	printf("info->lock_critical_state = %d\n", info->lock_critical_state);
 	printf("info->lock_bootloader = %d\n", info->lock_bootloader);
+#endif
 }
 
 static const char* getvar_list[] = {
@@ -355,12 +357,6 @@ void fastboot_data_download(const void *fastboot_data,
 {
 #define BYTES_PER_DOT	0x20000
 	u32 pre_dot_num, now_dot_num;
-
-	if (check_lock()) {
-		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
-		fastboot_fail("locked device", response);
-		return;
-	}
 
 	if (fastboot_data_len == 0 ||
 	    (fastboot_bytes_received + fastboot_data_len) >
@@ -790,6 +786,12 @@ static void oem_cmd(char *cmd_parameter, char *response)
 	char cmd_str[FASTBOOT_RESPONSE_LEN];
 	printf("oem cmd_parameter: %s\n", cmd_parameter);
 
+	if (IS_FEAT_BOOT_VERIFY()) {
+		printf("device is secure mode, can not run this cmd.\n");
+		fastboot_fail("secure boot device", response);
+		return;
+	}
+
 	if (check_lock()) {
 		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
 		fastboot_fail("locked device", response);
@@ -826,6 +828,12 @@ static void oem_cmd(char *cmd_parameter, char *response)
 static void oem_format(char *cmd_parameter, char *response)
 {
 	char cmdbuf[32];
+
+	if (IS_FEAT_BOOT_VERIFY()) {
+		printf("device is secure mode, can not run this cmd.\n");
+		fastboot_fail("secure boot device", response);
+		return;
+	}
 
 	if (check_lock()) {
 		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
