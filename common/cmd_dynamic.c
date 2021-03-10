@@ -351,7 +351,7 @@ void printlist(void)
     PartitionList* node = part_list;
     while (NULL != node)
     {
-        printf("name: %s\n",node->name);
+        //printf("name: %s\n",node->name);
         node = node->next;
     }
 }
@@ -369,14 +369,14 @@ int GetBackupGeometryOffset(void) {
 int GetPrimaryMetadataOffset(LpMetadataGeometry* geometry, int slot_number) {
     int offset = LP_PARTITION_RESERVED_BYTES + (LP_METADATA_GEOMETRY_SIZE * 2) +
                      geometry->metadata_max_size * slot_number;
-    printf("GetPrimaryMetadataOffset : %d\n", offset);
+    //printf("GetPrimaryMetadataOffset : %d\n", offset);
     return offset;
 }
 
 int GetBackupMetadataOffset(LpMetadataGeometry* geometry, int slot_number) {
     int start = LP_PARTITION_RESERVED_BYTES + (LP_METADATA_GEOMETRY_SIZE * 2) +
                    geometry->metadata_max_size * geometry->metadata_slot_count;
-    printf("GetBackupMetadataOffset : %d\n", start + geometry->metadata_max_size * slot_number);
+    //printf("GetBackupMetadataOffset : %d\n", start + geometry->metadata_max_size * slot_number);
     return start + geometry->metadata_max_size * slot_number;
 }
 
@@ -488,14 +488,14 @@ int ReadMetadataHeader(char *superbuf, LpMetadataHeader* header,
     int index = 0;
     char* flag;
 
-    printf("metaoffset: %d\n", GetPrimaryMetadataOffset(geometry, slot_number));
+    //printf("metaoffset: %d\n", GetPrimaryMetadataOffset(geometry, slot_number));
 
     memcpy(header, superbuf + GetPrimaryMetadataOffset(geometry, slot_number), sizeof(LpMetadataHeader));
     if (ValidateMetadataHeader(header) != 0) {
         return -1;
     }
 
-    printf("header table size = %d\n", header->tables_size);
+    //printf("header table size = %d\n", header->tables_size);
     buffer = (char*)malloc(header->tables_size);
     if (buffer == NULL) {
         printf("Out of memory reading logical partition tables.\n");
@@ -506,7 +506,7 @@ int ReadMetadataHeader(char *superbuf, LpMetadataHeader* header,
 #ifdef CONFIG_CMD_BOOTCTOL_VAB
     flag = CONFIG_CMD_BOOTCTOL_VAB;
     strcpy(flag, CONFIG_CMD_BOOTCTOL_VAB);
-    printf("CONFIG_CMD_BOOTCTOL_VAB: %s \n", CONFIG_CMD_BOOTCTOL_VAB);
+    //printf("CONFIG_CMD_BOOTCTOL_VAB: %s \n", CONFIG_CMD_BOOTCTOL_VAB);
     if ((strcmp(flag, "1") == 0) && (has_boot_slot == 1)) {
         index = index + 128;
     }
@@ -515,8 +515,8 @@ int ReadMetadataHeader(char *superbuf, LpMetadataHeader* header,
     memcpy(buffer, superbuf + index, header->tables_size);
     cursor = index + header->partitions.offset;
 
-    printf("index: %d\n", index);
-    printf("cursor: %d\n", cursor);
+    //printf("index: %d\n", index);
+    //printf("cursor: %d\n", cursor);
 
     // ValidateTableSize ensured that |cursor| is valid for the number of
     // entries in the table.
@@ -525,7 +525,7 @@ int ReadMetadataHeader(char *superbuf, LpMetadataHeader* header,
         memcpy(&partition, superbuf + cursor, sizeof(partition));
         cursor += header->partitions.entry_size;
 
-        printf("partition name : %s\n", partition.name);
+        //printf("partition name : %s\n", partition.name);
 
         if (partition.attributes & ~LP_PARTITION_ATTRIBUTE_MASK) {
             printf("Logical partition has invalid attribute set.\n");
@@ -622,12 +622,12 @@ int do_ReadMetadata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
         if (has_boot_slot == 1) {
             slot = getenv("slot-suffixes");
-		    printf("slot-suffixes: %s\n", slot);
-		    if (strcmp(slot, "0") == 0) {
-			    slot_number = 0;
-		    } else if (strcmp(slot, "1") == 0) {
-			    slot_number = 1;
-		    }
+            //printf("slot-suffixes: %s\n", slot);
+            if (strcmp(slot, "0") == 0) {
+                slot_number = 0;
+            } else if (strcmp(slot, "1") == 0) {
+                slot_number = 1;
+            }
         }
 
         ReadMetadataHeader(superbuf, &metadata_header, &geometry, slot_number);

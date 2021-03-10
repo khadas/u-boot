@@ -794,7 +794,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 			strncat(response, "no", chars_left);
 	} else if (!strcmp_l1("has-slot:oem", cmd)) {
 		if (has_boot_slot == 1) {
-			printf("has odm_ext slot\n");
+			printf("has oem slot\n");
 			strncat(response, "yes", chars_left);
 		} else
 			strncat(response, "no", chars_left);
@@ -1636,6 +1636,12 @@ static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 	int i = 0, len = 0, j = 0;
 	char cmd_str[RESPONSE_LEN];
 	printf("oem cmd[%s]\n", cmd);
+
+	if (IS_FEAT_BOOT_VERIFY()) {
+		printf("device is secure mode, can not run this cmd.\n");
+		fastboot_tx_write_str("FAILsecure boot device");
+		return;
+	}
 
 	if (check_lock()) {
 		error("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
