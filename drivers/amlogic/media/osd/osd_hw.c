@@ -41,7 +41,7 @@
 #include "osd_io.h"
 #include "osd_hw.h"
 #include "osd_hw_def.h"
-
+#include "osd_fb.h"
 #include "vpp.h"
 #include <amlogic/media/dv/dolby_vision.h>
 
@@ -200,19 +200,20 @@ int osd_get_chip_type(void)
 static void osd_vpu_power_on(void)
 {
 }
+#ifndef AML_T7_DISPLAY
 #ifdef AML_OSD_HIGH_VERSION
 static void osd_vpu_power_on_viu2(void)
 {
 }
 #endif
+#endif
+// static void osd_super_scale_mem_power_on(void)
+// {
+// }
 
-static void osd_super_scale_mem_power_on(void)
-{
-}
-
-static void osd_super_scale_mem_power_off(void)
-{
-}
+// static void osd_super_scale_mem_power_off(void)
+// {
+// }
 
 void osd_set_log_level(int level)
 {

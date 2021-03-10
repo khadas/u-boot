@@ -18,6 +18,7 @@
 #ifndef _OSD_FB_H_
 #define _OSD_FB_H_
 
+int get_osd_layer(void);
 void img_mode_set(u32 display_mode);
 void img_addr_set(ulong pic_image);
 void img_type_set(u32 type);

@@ -136,7 +136,7 @@
 #endif
 
 #define REG_OFFSET_VCBUS(reg)           ((reg << 2))
-#define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg))
+#define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg) + 0L)
 #define REG_OSD_ADDR(reg)               (reg + 0L)
 
 static inline u32 osd_reg_read(u32 reg)
