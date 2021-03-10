@@ -782,24 +782,43 @@ int checkhw(char * name)
 #endif
 	switch (ddr_size) {
 		case 0x40000000:
-			if (MESON_CPU_PACKAGE_ID_T950X4 == cpu_id.package_id) {
-				strcpy(dtb_name, "t5d_t950x4_am311-1g\0");
+			if (cpu_id.chip_rev == 0xA) {
+				if (MESON_CPU_PACKAGE_ID_T950X4 == cpu_id.package_id)
+					strcpy(dtb_name, "t5d-reva_t950x4_am311-1g\0");
+				else {
+					strcpy(dtb_name, "t5d-reva_t950d4_am301-1g\0");
+					setenv("force_dtvkit_source", "true");
+					saveenv();
+				}
 			} else {
-				strcpy(dtb_name, "t5d_t950d4_am301-1g\0");
-				setenv("force_dtvkit_source", "true");
-				saveenv();
+				if (MESON_CPU_PACKAGE_ID_T950X4 == cpu_id.package_id)
+					strcpy(dtb_name, "t5d_t950x4_am311-1g\0");
+				else {
+					strcpy(dtb_name, "t5d_t950d4_am301-1g\0");
+					setenv("force_dtvkit_source", "true");
+					saveenv();
+				}
 			}
 			setenv("mem_size", "1g");
 			break;
 		case 0x20000000:
-			if (MESON_CPU_PACKAGE_ID_T950X4 == cpu_id.package_id) {
-				strcpy(dtb_name, "t5d_t950x4_am311-512m\0");
+			if (cpu_id.chip_rev == 0xA) {
+				if (MESON_CPU_PACKAGE_ID_T950X4 == cpu_id.package_id)
+					strcpy(dtb_name, "t5d-reva_t950x4_am311-512m\0");
+				else
+					strcpy(dtb_name, "t5d-reva_t950d4_am301-512m\0");
 			} else {
-				strcpy(dtb_name, "t5d_t950d4_am301-512m\0");
+				if (MESON_CPU_PACKAGE_ID_T950X4 == cpu_id.package_id)
+					strcpy(dtb_name, "t5d_t950x4_am311-512m\0");
+				else
+					strcpy(dtb_name, "t5d_t950d4_am301-512m\0");
 			}
 			break;
 		case 0x60000000:
-			strcpy(dtb_name, "t5d_t950d4_am301-1.5g\0");
+			if (cpu_id.chip_rev == 0xA)
+				strcpy(dtb_name, "t5d-reva_t950d4_am301-1.5g\0");
+			else
+				strcpy(dtb_name, "t5d_t950d4_am301-1.5g\0");
 			setenv("force_dtvkit_source", "true");
 			saveenv();
 			break;
