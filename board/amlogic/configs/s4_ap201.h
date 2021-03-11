@@ -487,6 +487,9 @@
 //use hardware sha2
 #define CONFIG_AML_HW_SHA2
 
+/* define CONFIG_UPDATE_MMU_TABLE for need update mmu */
+#define CONFIG_UPDATE_MMU_TABLE
+
 /* #define CONFIG_MULTI_DTB    1 */
 
 /* support secure boot */

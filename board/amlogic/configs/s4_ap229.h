@@ -481,6 +481,9 @@
 
 #define CONFIG_CPU_ARMV8
 
+/* define CONFIG_UPDATE_MMU_TABLE for need update mmu */
+#define CONFIG_UPDATE_MMU_TABLE
+
 //use sha2 command
 #define CONFIG_CMD_SHA2
 
