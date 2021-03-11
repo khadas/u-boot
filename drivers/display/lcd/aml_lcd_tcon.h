@@ -51,6 +51,7 @@ struct lcd_tcon_config_s {
 	unsigned int *axi_reg;
 	void (*tcon_axi_mem_config)(void);
 	int (*tcon_enable)(struct lcd_config_s *pconf);
+	int (*tcon_disable)(struct lcd_config_s *pconf);
 };
 
 struct tcon_rmem_config_s {
@@ -145,7 +146,7 @@ struct lcd_tcon_local_cfg_s {
 #define TCON_CORE_REG_START_T5           0x0100
 #define REG_CORE_OD_T5                   0x263
 #define BIT_OD_EN_T5                     31
-#define REG_CTRL_TIMING_BASE_T5          0x1b
+#define REG_CTRL_TIMING_BASE_T5          0x300
 #define CTRL_TIMING_OFFSET_T5            12
 #define CTRL_TIMING_CNT_T5               0
 
@@ -189,7 +190,9 @@ struct tcon_mem_map_table_s *get_lcd_tcon_mm_table(void);
 
 int lcd_tcon_enable_txhd(struct lcd_config_s *pconf);
 int lcd_tcon_enable_tl1(struct lcd_config_s *pconf);
+int lcd_tcon_disable_tl1(struct lcd_config_s *pconf);
 int lcd_tcon_enable_t5(struct lcd_config_s *pconf);
+int lcd_tcon_disable_t5(struct lcd_config_s *pconf);
 
 #endif
 

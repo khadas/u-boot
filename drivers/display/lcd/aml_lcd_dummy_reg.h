@@ -364,3 +364,9 @@
 #define PWM_MISC_REG_EF                            ((0x6402 << 2) + 0xffd00000)
 #endif
 
+#ifndef RESET1_MASK
+#define RESET1_MASK                                ((0x0411  << 2) + 0xffd00000)
+#endif
+#ifndef RESET1_LEVEL
+#define RESET1_LEVEL                               ((0x0421  << 2) + 0xffd00000)
+#endif

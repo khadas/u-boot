@@ -30,6 +30,7 @@
 /* memory mapping */
 #define REG_ADDR_AOBUS(reg)             (reg + 0L)
 #define REG_ADDR_PERIPHS(reg)           (reg + 0L)
+#define REG_ADDR_RESET(reg)             (reg + 0L)
 #define REG_ADDR_CBUS(reg)              (REG_BASE_CBUS + REG_OFFSET_CBUS(reg))
 #define REG_ADDR_HIU(reg)               (reg + 0L)
 #define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg))
@@ -280,6 +281,24 @@ static inline void lcd_pinmux_clr_mask(unsigned int n, unsigned int _mask)
 
 	_reg += (n << 2);
 	lcd_periphs_write(_reg, (lcd_periphs_read(_reg) & (~(_mask))));
+}
+
+static inline unsigned int lcd_reset_read(unsigned int _reg)
+{
+	return (*(volatile unsigned int *)REG_ADDR_RESET(_reg));
+}
+
+static inline void lcd_reset_write(unsigned int _reg, unsigned int _value)
+{
+	*(volatile unsigned int *)REG_ADDR_RESET(_reg) = (_value);
+}
+
+static inline void lcd_reset_setb(unsigned int _reg, unsigned int _value,
+		unsigned int _start, unsigned int _len)
+{
+	lcd_reset_write(_reg, ((lcd_reset_read(_reg) &
+			~(((1L << (_len)) - 1) << (_start))) |
+			(((_value) & ((1L << (_len)) - 1)) << (_start))));
 }
 
 static inline unsigned int dsi_host_read(unsigned int _reg)

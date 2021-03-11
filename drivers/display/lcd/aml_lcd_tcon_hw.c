@@ -938,6 +938,45 @@ int lcd_tcon_enable_tl1(struct lcd_config_s *pconf)
 	return 0;
 }
 
+int lcd_tcon_disable_tl1(struct lcd_config_s *pconf)
+{
+	struct lcd_tcon_config_s *tcon_conf = get_lcd_tcon_config();
+	unsigned int reg, i, cnt, offset, bit;
+
+	/* disable over_drive */
+	if (tcon_conf->reg_core_od != REG_LCD_TCON_MAX) {
+		reg = tcon_conf->reg_core_od;
+		bit = tcon_conf->bit_od_en;
+		if (tcon_conf->core_reg_width == 8)
+			lcd_tcon_setb_byte(reg, 0, bit, 1);
+		else
+			lcd_tcon_setb(reg, 0, bit, 1);
+		mdelay(100);
+	}
+
+	/* disable all ctrl signal */
+	if (tcon_conf->reg_ctrl_timing_base != REG_LCD_TCON_MAX) {
+		reg = tcon_conf->reg_ctrl_timing_base;
+		offset = tcon_conf->ctrl_timing_offset;
+		cnt = tcon_conf->ctrl_timing_cnt;
+		for (i = 0; i < cnt; i++) {
+			if (tcon_conf->core_reg_width == 8)
+				lcd_tcon_setb_byte((reg + (i * offset)), 1, 3, 1);
+			else
+				lcd_tcon_setb((reg + (i * offset)), 1, 3, 1);
+		}
+	}
+
+	/* disable top */
+	if (tcon_conf->reg_top_ctrl != REG_LCD_TCON_MAX) {
+		reg = tcon_conf->reg_top_ctrl;
+		bit = tcon_conf->bit_en;
+		lcd_tcon_setb(reg, 0, bit, 1);
+	}
+
+	return 0;
+}
+
 int lcd_tcon_enable_t5(struct lcd_config_s *pconf)
 {
 	struct lcd_tcon_config_s *tcon_conf = get_lcd_tcon_config();
@@ -951,6 +990,8 @@ int lcd_tcon_enable_t5(struct lcd_config_s *pconf)
 		return -1;
 	if (!mm_table)
 		return -1;
+
+	lcd_vcbus_write(ENCL_VIDEO_EN, 0);
 
 	/* step 1: tcon top */
 	lcd_tcon_top_set_t5(pconf);
@@ -969,6 +1010,28 @@ int lcd_tcon_enable_t5(struct lcd_config_s *pconf)
 	/* step 5: tcon_top_output_set */
 	lcd_tcon_write(TCON_OUT_CH_SEL0, 0x76543210);
 	lcd_tcon_write(TCON_OUT_CH_SEL1, 0xba98);
+
+	lcd_vcbus_write(ENCL_VIDEO_EN, 1);
+
+	return 0;
+}
+
+int lcd_tcon_disable_t5(struct lcd_config_s *pconf)
+{
+	/* disable od ddr_if */
+	lcd_tcon_setb(0x263, 0, 31, 1);
+	mdelay(100);
+
+	/* top reset */
+	lcd_tcon_write(TCON_RST_CTRL, 0x003f);
+
+	/* global reset tcon */
+	lcd_reset_setb(RESET1_MASK, 0, 4, 1);
+	lcd_reset_setb(RESET1_LEVEL, 0, 4, 1);
+	udelay(1);
+	lcd_reset_setb(RESET1_LEVEL, 1, 4, 1);
+	udelay(2);
+	LCDPR("reset tcon\n");
 
 	return 0;
 }

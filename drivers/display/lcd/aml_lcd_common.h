@@ -41,7 +41,8 @@
 /* 20201027: add tcon support for txhd*/
 /* 20201105: optimize big size tcon bin parse in tvconfig*/
 /* 20201116: optimize phy ctrl compatibility*/
-#define LCD_DRV_VERSION    "20201116"
+/* 20210311: add global reset to clear tcon last state*/
+#define LCD_DRV_VERSION    "20210311"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
@@ -78,7 +79,7 @@ extern void lcd_phy_tcon_chpi_bbc_init_tl1(struct lcd_config_s *pconf);
 /* lcd tcon */
 extern void lcd_tcon_info_print(void);
 extern int lcd_tcon_enable(struct lcd_config_s *pconf);
-extern void lcd_tcon_disable(void);
+extern void lcd_tcon_disable(struct lcd_config_s *pconf);
 extern int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *lcd_drv, int load_id);
 
 /* lcd gpio */

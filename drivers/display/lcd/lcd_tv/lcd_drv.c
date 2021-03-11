@@ -444,9 +444,9 @@ static void lcd_mlvds_control_set(struct lcd_config_s *pconf)
 	lcd_tcon_enable(pconf);
 }
 
-static void lcd_mlvds_disable(void)
+static void lcd_mlvds_disable(struct lcd_config_s *pconf)
 {
-	lcd_tcon_disable();
+	lcd_tcon_disable(pconf);
 }
 #endif
 
@@ -1098,9 +1098,9 @@ static void lcd_p2p_control_set(struct lcd_config_s *pconf)
 	lcd_tcon_enable(pconf);
 }
 
-static void lcd_p2p_disable(void)
+static void lcd_p2p_disable(struct lcd_config_s *pconf)
 {
-	lcd_tcon_disable();
+	lcd_tcon_disable(pconf);
 }
 #endif
 
@@ -1428,12 +1428,12 @@ void lcd_tv_driver_disable(void)
 		break;
 #ifdef CONFIG_AML_LCD_TCON
 	case LCD_MLVDS:
-		lcd_mlvds_disable();
+		lcd_mlvds_disable(pconf);
 		lcd_mlvds_phy_set(pconf, 0);
 		lcd_pinmux_set(0);
 		break;
 	case LCD_P2P:
-		lcd_p2p_disable();
+		lcd_p2p_disable(pconf);
 		lcd_p2p_phy_set(pconf, 0);
 		lcd_pinmux_set(0);
 		break;

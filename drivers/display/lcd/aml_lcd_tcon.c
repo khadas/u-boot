@@ -706,9 +706,8 @@ int lcd_tcon_enable(struct lcd_config_s *pconf)
 	return 0;
 }
 
-void lcd_tcon_disable(void)
+void lcd_tcon_disable(struct lcd_config_s *pconf)
 {
-	unsigned int reg, i, cnt, offset, bit;
 	int ret;
 
 	ret = lcd_tcon_valid_check();
@@ -716,36 +715,9 @@ void lcd_tcon_disable(void)
 		return;
 
 	LCDPR("%s\n", __func__);
-	/* disable over_drive */
-	if (lcd_tcon_conf->reg_core_od != REG_LCD_TCON_MAX) {
-		reg = lcd_tcon_conf->reg_core_od;
-		bit = lcd_tcon_conf->bit_od_en;
-		if (lcd_tcon_conf->core_reg_width == 8)
-			lcd_tcon_setb_byte(reg, 0, bit, 1);
-		else
-			lcd_tcon_setb(reg, 0, bit, 1);
-		mdelay(100);
-	}
 
-	/* disable all ctrl signal */
-	if (lcd_tcon_conf->reg_ctrl_timing_base != REG_LCD_TCON_MAX) {
-		reg = lcd_tcon_conf->reg_ctrl_timing_base;
-		offset = lcd_tcon_conf->ctrl_timing_offset;
-		cnt = lcd_tcon_conf->ctrl_timing_cnt;
-		for (i = 0; i < cnt; i++) {
-			if (lcd_tcon_conf->core_reg_width == 8)
-				lcd_tcon_setb_byte((reg + (i * offset)), 1, 3, 1);
-			else
-				lcd_tcon_setb((reg + (i * offset)), 1, 3, 1);
-		}
-	}
-
-	/* disable top */
-	if (lcd_tcon_conf->reg_top_ctrl != REG_LCD_TCON_MAX) {
-		reg = lcd_tcon_conf->reg_top_ctrl;
-		bit = lcd_tcon_conf->bit_en;
-		lcd_tcon_setb(reg, 0, bit, 1);
-	}
+	if (lcd_tcon_conf->tcon_disable)
+		lcd_tcon_conf->tcon_disable(pconf);
 }
 
 /* **********************************
@@ -1645,6 +1617,7 @@ static struct lcd_tcon_config_s tcon_data_txhd = {
 	.axi_reg = NULL,
 	.tcon_axi_mem_config = lcd_tcon_axi_mem_config_txhd,
 	.tcon_enable = lcd_tcon_enable_txhd,
+	.tcon_disable = lcd_tcon_disable_tl1,
 };
 
 static struct lcd_tcon_config_s tcon_data_tl1 = {
@@ -1679,6 +1652,7 @@ static struct lcd_tcon_config_s tcon_data_tl1 = {
 	.axi_reg = NULL,
 	.tcon_axi_mem_config = lcd_tcon_axi_mem_config_tl1,
 	.tcon_enable = lcd_tcon_enable_tl1,
+	.tcon_disable = lcd_tcon_disable_tl1,
 };
 
 static struct lcd_tcon_config_s tcon_data_t5 = {
@@ -1713,6 +1687,7 @@ static struct lcd_tcon_config_s tcon_data_t5 = {
 	.axi_reg = NULL,
 	.tcon_axi_mem_config = lcd_tcon_axi_mem_config_t5,
 	.tcon_enable = lcd_tcon_enable_t5,
+	.tcon_disable = lcd_tcon_disable_t5,
 };
 
 static struct lcd_tcon_config_s tcon_data_t5d = {
@@ -1747,6 +1722,7 @@ static struct lcd_tcon_config_s tcon_data_t5d = {
 	.axi_reg = NULL,
 	.tcon_axi_mem_config = lcd_tcon_axi_mem_config_t5d,
 	.tcon_enable = lcd_tcon_enable_t5,
+	.tcon_disable = lcd_tcon_disable_t5,
 };
 
 int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *lcd_drv, int load_id)
