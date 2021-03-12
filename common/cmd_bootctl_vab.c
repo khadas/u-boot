@@ -187,6 +187,70 @@ struct misc_virtual_ab_message {
 
 unsigned int kDefaultBootAttempts = 7;
 
+/* Magic for the A/B struct when serialized. */
+#define AVB_AB_MAGIC "\0AB0"
+#define AVB_AB_MAGIC_LEN 4
+
+/* Versioning for the on-disk A/B metadata - keep in sync with avbtool. */
+#define AVB_AB_MAJOR_VERSION 1
+#define AVB_AB_MINOR_VERSION 0
+
+/* Size of AvbABData struct. */
+#define AVB_AB_DATA_SIZE 32
+
+/* Maximum values for slot data */
+#define AVB_AB_MAX_PRIORITY 15
+#define AVB_AB_MAX_TRIES_REMAINING 7
+
+/* Struct used for recording per-slot metadata.
+ *
+ * When serialized, data is stored in network byte-order.
+ */
+typedef struct AvbABSlotData {
+  /* Slot priority. Valid values range from 0 to AVB_AB_MAX_PRIORITY,
+   * both inclusive with 1 being the lowest and AVB_AB_MAX_PRIORITY
+   * being the highest. The special value 0 is used to indicate the
+   * slot is unbootable.
+   */
+  uint8_t priority;
+
+  /* Number of times left attempting to boot this slot ranging from 0
+   * to AVB_AB_MAX_TRIES_REMAINING.
+   */
+  uint8_t tries_remaining;
+
+  /* Non-zero if this slot has booted successfully, 0 otherwise. */
+  uint8_t successful_boot;
+
+  /* Reserved for future use. */
+  uint8_t reserved[1];
+} AvbABSlotData;
+
+/* Struct used for recording A/B metadata.
+ *
+ * When serialized, data is stored in network byte-order.
+ */
+typedef struct AvbABData {
+  /* Magic number used for identification - see AVB_AB_MAGIC. */
+  uint8_t magic[AVB_AB_MAGIC_LEN];
+
+  /* Version of on-disk struct - see AVB_AB_{MAJOR,MINOR}_VERSION. */
+  uint8_t version_major;
+  uint8_t version_minor;
+
+  /* Padding to ensure |slots| field start eight bytes in. */
+  uint8_t reserved1[2];
+
+  /* Per-slot metadata. */
+  AvbABSlotData slots[2];
+
+  /* Reserved for future use. */
+  uint8_t reserved2[12];
+
+  /* CRC32 of all 28 bytes preceding this field. */
+  uint32_t crc32;
+}AvbABData;
+
 bool boot_info_validate(bootloader_control* info)
 {
     if (info->magic != BOOT_CTRL_MAGIC) {
@@ -195,6 +259,20 @@ bool boot_info_validate(bootloader_control* info)
     }
     return true;
 }
+
+bool boot_info_validate_normalAB(AvbABData* info)
+{
+    if (memcmp(info->magic, AVB_AB_MAGIC, AVB_AB_MAGIC_LEN) != 0) {
+        printf("Magic %s is incorrect.\n", info->magic);
+        return false;
+    }
+    if (info->version_major > AVB_AB_MAJOR_VERSION) {
+        printf("No support for given major version.\n");
+        return false;
+    }
+    return true;
+}
+
 
 void boot_info_reset(bootloader_control* boot_ctrl)
 {
@@ -257,6 +335,17 @@ int get_active_slot(bootloader_control* info) {
     }
 }
 
+static bool slot_is_bootable_normalAB(AvbABSlotData* slot) {
+  return slot->priority > 0 &&
+         (slot->successful_boot || (slot->tries_remaining > 0));
+}
+
+int get_active_slot_normalAB(AvbABData* info) {
+    if (info->slots[0].priority > info->slots[1].priority)
+        return 0;
+    else
+        return 1;
+}
 
 int boot_info_set_active_slot(bootloader_control* bootctrl, int slot)
 {
@@ -311,6 +400,13 @@ bool boot_info_load(bootloader_control *out_info, char *miscbuf)
     return true;
 }
 
+bool boot_info_load_normalAB(AvbABData *out_info, char *miscbuf)
+{
+    memcpy(out_info, miscbuf+AB_METADATA_MISC_PARTITION_OFFSET, AVB_AB_DATA_SIZE);
+    return true;
+}
+
+
 bool boot_info_save(bootloader_control *info, char *miscbuf)
 {
     char *partition = "misc";
@@ -332,7 +428,9 @@ static int do_GetValidSlot(
 {
     char miscbuf[MISCBUF_SIZE] = {0};
     bootloader_control boot_ctrl;
+    AvbABData info;
     int slot;
+    int AB_mode = 0;
     bool bootable_a, bootable_b;
     char str_count[16];
 
@@ -351,9 +449,16 @@ static int do_GetValidSlot(
     boot_info_load(&boot_ctrl, miscbuf);
 
     if (!boot_info_validate(&boot_ctrl)) {
-        printf("boot-info is invalid. Resetting.\n");
-        boot_info_reset(&boot_ctrl);
-        boot_info_save(&boot_ctrl, miscbuf);
+        printf("boot-info virtual ab is invalid. Try normal ab.\n");
+        boot_info_load_normalAB(&info, miscbuf);
+        if (!boot_info_validate_normalAB(&info)) {
+            printf("boot-info is invalid. Resetting.\n");
+            boot_info_reset(&boot_ctrl);
+            boot_info_save(&boot_ctrl, miscbuf);
+        } else {
+            printf("update from normal ab to virtual ab\n");
+            AB_mode = 1;
+        }
     }
 
     //if recovery mode, need disable dolby
@@ -362,17 +467,28 @@ static int do_GetValidSlot(
         setenv("dolby_status","0");
     }
 
-    slot = get_active_slot(&boot_ctrl);
-    printf("active slot = %d\n", slot);
-
-    bootable_a = slot_is_bootable(&(boot_ctrl.slot_info[0]));
-    bootable_b = slot_is_bootable(&(boot_ctrl.slot_info[1]));
-
-    if (has_boot_slot == 1) {
-        sprintf(str_count, "%d", boot_ctrl.slot_info[0].tries_remaining);
-        setenv("retry-count_a", str_count);
-        sprintf(str_count, "%d", boot_ctrl.slot_info[1].tries_remaining);
-        setenv("retry-count_b", str_count);
+    if (AB_mode == 1) {
+        slot = get_active_slot_normalAB(&info);
+        printf("active slot = %d\n", slot);
+        bootable_a = slot_is_bootable_normalAB(&(info.slots[0]));
+        bootable_b = slot_is_bootable_normalAB(&(info.slots[1]));
+        if (has_boot_slot == 1) {
+            sprintf(str_count, "%d", info.slots[0].tries_remaining);
+            setenv("retry-count_a", str_count);
+            sprintf(str_count, "%d", info.slots[1].tries_remaining);
+            setenv("retry-count_b", str_count);
+        }
+    } else {
+        slot = get_active_slot(&boot_ctrl);
+        printf("active slot = %d\n", slot);
+        bootable_a = slot_is_bootable(&(boot_ctrl.slot_info[0]));
+        bootable_b = slot_is_bootable(&(boot_ctrl.slot_info[1]));
+        if (has_boot_slot == 1) {
+            sprintf(str_count, "%d", boot_ctrl.slot_info[0].tries_remaining);
+            setenv("retry-count_a", str_count);
+            sprintf(str_count, "%d", boot_ctrl.slot_info[1].tries_remaining);
+            setenv("retry-count_b", str_count);
+        }
     }
 
     if (dynamic_partition)

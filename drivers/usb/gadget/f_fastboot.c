@@ -884,6 +884,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		struct partitions *pPartition;
 		uint64_t sz = 0;
 		int ret = -1;
+		uint64_t size;
 		strsep(&cmd, ":");
 		if ((cmd == NULL) || (strcmp(cmd, "") == 0)) {
 			printf("partition name is NULL\n");
@@ -892,8 +893,12 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 			return;
 		}
 		printf("partition is %s\n", cmd);
-		if (strcmp(cmd, "userdata") == 0 && !vendor_boot_partition) {
-			strcpy(cmd, "data");
+		if (strcmp(cmd, "userdata") == 0 || strcmp(cmd, "data") == 0) {
+			ret = store_get_partititon_size((unsigned char *)"userdata", &size);
+			if (ret != 0)
+				strcpy(cmd, "data");
+			else
+				strcpy(cmd, "userdata");
 			printf("partition is %s\n", cmd);
 		}
 
@@ -1244,6 +1249,8 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 	LockData_t* info;
 	size_t chars_left;
 	char lock_d[LOCK_DATA_SIZE];
+	uint64_t size;
+	int rc;
 
 	if (IS_FEAT_BOOT_VERIFY()) {
 		printf("device is secure mode, can not run this cmd.\n");
@@ -1280,6 +1287,8 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 	info->lock_critical_state = (int)(lock_d[5] - '0');
 	info->lock_bootloader = (int)(lock_d[6] - '0');
 	dump_lock_info(info);
+
+	rc = store_get_partititon_size((unsigned char *)"userdata", &size);
 
 	strcpy(response, "OKAY");
 	chars_left = sizeof(response_str) - strlen(response) - 1;
@@ -1330,7 +1339,7 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 #ifdef CONFIG_AML_ANTIROLLBACK
 					if (avb_unlock()) {
 						printf("unlocking device.  Erasing userdata partition!\n");
-						if (vendor_boot_partition)
+						if (rc == 0)
 							run_command("store erase partition userdata", 0);
 						else
 							run_command("store erase partition data", 0);
@@ -1340,7 +1349,7 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 					}
 #else
 					printf("unlocking device.  Erasing userdata partition!\n");
-					if (vendor_boot_partition)
+					if (rc == 0)
 						run_command("store erase partition userdata", 0);
 					else
 						run_command("store erase partition data", 0);
@@ -1369,7 +1378,7 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 					printf("lock failed!\n");
 				} else {
 					printf("locking device.  Erasing userdata partition!\n");
-					if (vendor_boot_partition)
+					if (rc == 0)
 						run_command("store erase partition userdata", 0);
 					else
 						run_command("store erase partition data", 0);
@@ -1377,7 +1386,7 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 				}
 #else
 				printf("locking device.  Erasing userdata partition!\n");
-				if (vendor_boot_partition)
+				if (rc == 0)
 					run_command("store erase partition userdata", 0);
 				else
 					run_command("store erase partition data", 0);
@@ -1475,15 +1484,16 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 #endif
 
 	printf("partition is %s\n", cmd);
-	if (strcmp(cmd, "userdata") == 0 && !vendor_boot_partition) {
-		strcpy(cmd, "data");
-		printf("partition is %s\n", cmd);
-	}
-
-	if (strcmp(cmd, "dts") == 0) {
+	if (strcmp(cmd, "userdata") == 0 || strcmp(cmd, "data") == 0) {
+		rc = store_get_partititon_size((unsigned char *)"userdata", &size);
+		if (rc != 0)
+			strcpy(cmd, "data");
+		else
+			strcpy(cmd, "userdata");
+	} else if (strcmp(cmd, "dts") == 0) {
 		strcpy(cmd, "dtb");
-		printf("partition is %s\n", cmd);
 	}
+	printf("partition is %s\n", cmd);
 
 	//strcpy(response, "FAILno flash device defined");
 	if (is_mainstorage_emmc()) {
@@ -1654,20 +1664,20 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 	get_mergestatus(&message);
 
 	printf("partition is %s\n", cmd);
-
-	if (strcmp(cmd, "userdata") == 0 && !vendor_boot_partition) {
-		strcpy(cmd, "data");
-		printf("partition is %s\n", cmd);
+	if (strcmp(cmd, "userdata") == 0 || strcmp(cmd, "data") == 0) {
+		rc = store_get_partititon_size((unsigned char *)"userdata", &size);
+		if (rc != 0)
+			strcpy(cmd, "data");
+		else
+			strcpy(cmd, "userdata");
 		if (message.merge_status == SNAPSHOTTED || message.merge_status == MERGING) {
 			fastboot_tx_write_str("FAILin merge state, cannot erase");
 			return;
 		}
-	}
-
-	if (strcmp(cmd, "dts") == 0) {
+	} else if (strcmp(cmd, "dts") == 0) {
 		strcpy(cmd, "dtb");
-		printf("partition is %s\n", cmd);
 	}
+	printf("partition is %s\n", cmd);
 
 	//strcpy(response, "FAILno erase device defined");
 	if (is_mainstorage_emmc()) {
