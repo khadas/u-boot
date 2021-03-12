@@ -351,7 +351,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 
 		.sys_watchdog_base_address = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
-		.ee_timer_base_address = 0xffd0f188,                            //#define P_EE_TIMER_E		(volatile uint32_t *)0xffd0f188
+		.ee_timer_base_address = ((0x003b  << 2) + 0xfe010000),                            //SYSCTRL_TIMERE                             ((0x003b  << 2) + 0xfe010000)
 		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),             //AO_PWM_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),//DMC_DRAM_APD_CTRL
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),//DMC_DRAM_ASR_CTRL
@@ -497,6 +497,7 @@ typedef struct board_phase_setting_ps {
 	unsigned char	soc_bit_vref[44];
 	unsigned char	dram_bit_vref[36];
 	unsigned char	reserve_training_parameter[16]; //0-7 write dqs offset,8-15 read dqs offset,MSB bit 7 use 0 mean right offset
+	unsigned char	soc_bit_vref_dac1[44];
 }__attribute__ ((packed)) board_phase_setting_ps_t;
 
 typedef struct ddr_set_c2 {
@@ -7014,6 +7015,19 @@ uint32_t ddr_phy_training_reg_read_write(ddr_set_t_c2 *p_ddrs, char index,
 			reg_add_coarse_bit_mask = 0;
 			reg_add_fine_bit_mask = (~(0x3f << (((((sub_index - 36) % 2)) << 3) + 8)));
 		}
+	} else if (index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DAC1) {
+		if (sub_index < (36)) {         //vref dq and dbi
+			reg_add_coarse = 0;
+			reg_add_fine = (add_base + DDR_X32_F0_A890+ 0x100 + (((sub_index / 9) * 4) << 2)
+					+ (((sub_index % 9) >> 2) << 2) + reg_offset);
+			reg_add_coarse_bit_mask = 0;
+			reg_add_fine_bit_mask = (~(0x3f << (((((sub_index) % 9) % 4) << 3))));
+		} else if (sub_index < (44)) {  //vref dqs and dqsn
+			reg_add_coarse = 0;
+			reg_add_fine = (add_base + DDR_X32_F0_A890 + 0x100+ 8 + ((((sub_index - 36) / 2) * 4) << 2) + reg_offset);
+			reg_add_coarse_bit_mask = 0;
+			reg_add_fine_bit_mask = (~(0x3f << (((((sub_index - 36) % 2)) << 3) + 8)));
+		}
 	} else if (index == DMC_TEST_WINDOW_INDEX_DRAM_VREF) {
 		if (sub_index < (36)) {         //DDR_X32_F0_AD30	DDR_X32_F0_A930
 			reg_add_coarse = 0;
@@ -7116,7 +7130,9 @@ void ddr_read_write_training_value(ddr_set_t_c2 *p_ddrs, char over_ride_index,
 			} else if (over_ride_index == DMC_TEST_WINDOW_INDEX_TXDQDLY) {
 				p_size = 2;
 				count_max = 72;
-			} else if (over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF) {
+			} else if ((over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF) ||
+			(over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DAC1))
+			{
 				p_size = 1;
 				count_max = 44;
 			} else if (over_ride_index == DMC_TEST_WINDOW_INDEX_EXTERA_PS) {
@@ -7125,7 +7141,8 @@ void ddr_read_write_training_value(ddr_set_t_c2 *p_ddrs, char over_ride_index,
 			}
 			if (read_write == REGISTER_READ) {
 				read_skip = 0;
-				if ((ps == 3) && (over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF)) {
+				if ((ps == 3) && ((over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF)||
+				(over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DAC1))) {
 					if (t_count > 35)
 						read_skip = 1;
 					else    //ro training no vref value
@@ -7183,6 +7200,8 @@ void ddr_read_write_training_all_delay_value(ddr_set_t_c2 *p_ddrs, char read_wri
 					      read_write, ps, &(p_ddrs->cfg_ddr_training_delay_ps[ps].read_dqs_gate_delay), print);
 		ddr_read_write_training_value(p_ddrs, DMC_TEST_WINDOW_INDEX_SOC_VREF,
 					      read_write, ps, &(p_ddrs->cfg_ddr_training_delay_ps[ps].soc_bit_vref), print);
+		ddr_read_write_training_value(p_ddrs, DMC_TEST_WINDOW_INDEX_SOC_VREF_DAC1,
+					      read_write, ps, &(p_ddrs->cfg_ddr_training_delay_ps[ps].soc_bit_vref_dac1), print);
 		ddr_read_write_training_value(p_ddrs, DMC_TEST_WINDOW_INDEX_EXTERA_PS,
 					      read_write, ps, 0, print);
 		p_ddrs->cfg_ddr_training_delay_ps[ps].dram_bit_vref[0] = ((rd_reg(p_ddr_base->ddr_phy_base_address + 0x3930)) & 0x3f);
@@ -7439,6 +7458,9 @@ int do_ddr_display_c2_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, char
 				printf("\n.cfg_ddr_training_delay_ps[%d].dram_bit_vref[%d]=0x%08x,// %d", ps, temp_count, ddr_set_t_p->cfg_ddr_training_delay_ps[ps].dram_bit_vref[temp_count], ddr_set_t_p->cfg_ddr_training_delay_ps[ps].dram_bit_vref[temp_count]);
 			for (temp_count = 0; temp_count < 16; temp_count++)
 				printf("\n.cfg_ddr_training_delay_ps[%d].reserve_training_parameter[%d]=0x%08x,// %d", ps, temp_count, ddr_set_t_p->cfg_ddr_training_delay_ps[ps].reserve_training_parameter[temp_count], ddr_set_t_p->cfg_ddr_training_delay_ps[ps].reserve_training_parameter[temp_count]);
+			for (temp_count = 0; temp_count < 44; temp_count++)
+				printf("\n.cfg_ddr_training_delay_ps[%d].soc_bit_vref_dac1[%d]=0x%08x,// %d", ps, temp_count, ddr_set_t_p->cfg_ddr_training_delay_ps[ps].soc_bit_vref_dac1[temp_count], ddr_set_t_p->cfg_ddr_training_delay_ps[ps].soc_bit_vref_dac1[temp_count]);
+
 		}
 
 
@@ -7460,7 +7482,9 @@ static int ddr_do_store_ddr_parameter_ops(uint8_t *buffer, uint32_t length)
 		run_command(str, 0);
 	}
 
+	char *name = NULL;
 	{
+		name = "ddr-parameter";
 		printf("\nstore rsv write ddr-parameter 0x%08x 0x%08x\n", (uint32_t)(uint64_t)buffer, length);
 		sprintf(str, "store rsv write ddr-parameter 0x%08x 0x%08x\n", (uint32_t)(uint64_t)buffer, length);
 		run_command(str, 0);
@@ -9191,6 +9215,11 @@ void dwc_window_reg_after_training_update_increas_c2(char over_ride_index, uint3
 	}
 
 	if (over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF) {
+		for (temp_count_3 = 0; temp_count_3 < offset_value; temp_count_3++)
+			ddr_window_reg_after_training_update_increas_sub_c2(over_ride_index
+									    , ((over_ride_sub_index)), over_ride_increase_decrease, 1);
+	}
+	if (over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DAC1) {
 		for (temp_count_3 = 0; temp_count_3 < offset_value; temp_count_3++)
 			ddr_window_reg_after_training_update_increas_sub_c2(over_ride_index
 									    , ((over_ride_sub_index)), over_ride_increase_decrease, 1);
