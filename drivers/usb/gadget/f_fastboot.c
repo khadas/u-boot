@@ -38,6 +38,7 @@
 #include <anti-rollback.h>
 #endif
 #include <amlogic/aml_efuse.h>
+#include <amlogic/storage_if.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -1406,6 +1407,8 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
 	char* response = response_str;
+	uint64_t size;
+	int rc;
 
 	printf("cmd cb_flash is %s\n", cmd);
 
@@ -1419,6 +1422,45 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 	if (check_lock()) {
 		error("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
 		fastboot_tx_write_str("FAILlocked device");
+		return;
+	}
+
+	if (strcmp(cmd, "avb_custom_key") == 0) {
+		char* buffer = NULL;
+		char *partition = "misc";
+		AvbKey_t key;
+		printf("avb_custom_key image_size: %d\n", download_bytes);
+
+		if (download_bytes > AVB_CUSTOM_KEY_LEN_MAX - sizeof(AvbKey_t)) {
+			printf("key size is too large\n");
+			fastboot_tx_write_str("FAILkey size error");
+			return;
+		}
+
+		strncpy(key.magic_name, "AVBK", 4);
+		key.size = download_bytes;
+
+		rc = store_get_partititon_size((unsigned char *)partition, &size);
+		if (rc) {
+			printf("Failed to get partition[%s] size\n", partition);
+			fastboot_tx_write_str("FAILget size error");
+			return;
+		}
+
+		buffer = (char *)malloc(AVB_CUSTOM_KEY_LEN_MAX);
+		if (!buffer) {
+			printf("malloc error\n");
+			fastboot_tx_write_str("FAILmalloc error");
+			return;
+		}
+		memset(buffer, 0, AVB_CUSTOM_KEY_LEN_MAX);
+		memcpy(buffer, &key, sizeof(AvbKey_t));
+		memcpy(buffer + sizeof(AvbKey_t), (void *)CONFIG_USB_FASTBOOT_BUF_ADDR, download_bytes);
+
+		store_write_ops((unsigned char *)partition, (unsigned char *)buffer, size - AVB_CUSTOM_KEY_LEN_MAX, AVB_CUSTOM_KEY_LEN_MAX);
+
+		fastboot_tx_write_str("OKAY");
+		free(buffer);
 		return;
 	}
 
@@ -1539,6 +1581,8 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 {
 	char* response = response_str;
 	char *cmd = req->buf;
+	uint64_t size;
+	int rc;
 
 	printf("cmd cb_erase is %s\n", cmd);
 
@@ -1552,6 +1596,57 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 	if (check_lock()) {
 		error("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
 		fastboot_tx_write_str("FAILlocked device");
+		return;
+	}
+
+	if (strcmp(cmd, "avb_custom_key") == 0) {
+		char* buffer = NULL;
+		char *partition = "misc";
+
+		rc = store_get_partititon_size((unsigned char *)partition, &size);
+		if (rc) {
+			printf("Failed to get partition[%s] size\n", partition);
+			fastboot_tx_write_str("FAILget size error");
+			return;
+		}
+
+		buffer = (char *)malloc(AVB_CUSTOM_KEY_LEN_MAX);
+		if (!buffer) {
+			printf("malloc error\n");
+			fastboot_tx_write_str("FAILmalloc error");
+			return;
+		}
+		memset(buffer, 0, AVB_CUSTOM_KEY_LEN_MAX);
+
+		store_write_ops((unsigned char *)partition, (unsigned char *)buffer, size - AVB_CUSTOM_KEY_LEN_MAX, AVB_CUSTOM_KEY_LEN_MAX);
+
+		fastboot_tx_write_str("OKAY");
+		free(buffer);
+		return;
+	}
+
+	if (strcmp(cmd, "misc") == 0) {
+		char* buffer = NULL;
+		char *partition = "misc";
+
+		rc = store_get_partititon_size((unsigned char *)partition, &size);
+		if (rc) {
+			printf("Failed to get partition[%s] size\n", partition);
+			fastboot_tx_write_str("FAILget size error");
+			return;
+		}
+		buffer = (char *)malloc(size - AVB_CUSTOM_KEY_LEN_MAX);
+		if (!buffer) {
+			printf("malloc error\n");
+			fastboot_tx_write_str("FAILmalloc error");
+			return;
+		}
+		memset(buffer, 0, size - AVB_CUSTOM_KEY_LEN_MAX);
+
+		store_write_ops((unsigned char *)partition, (unsigned char *)buffer, 0, size - AVB_CUSTOM_KEY_LEN_MAX);
+
+		fastboot_tx_write_str("OKAY");
+		free(buffer);
 		return;
 	}
 
