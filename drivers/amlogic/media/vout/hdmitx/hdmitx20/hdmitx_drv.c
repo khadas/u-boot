@@ -1048,10 +1048,10 @@ static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
 	data32 |= (0 << 1);
 	data32 |= (0 << 0);
 	hdmitx_wr_reg(HDMITX_DWC_FC_DATAUTO0, data32);
-	hdmitx_set_spdinfo();
 	hdmitx_wr_reg(HDMITX_DWC_FC_DATAUTO1, 0);
 	hdmitx_wr_reg(HDMITX_DWC_FC_DATAUTO2, 0);
 	hdmitx_wr_reg(HDMITX_DWC_FC_DATMAN, 0);
+	hdmitx_set_spdinfo();
 
 	/* packet scheduller configuration for AVI, GCP, AUDI, ACR. */
 	data32  = 0;
@@ -1085,7 +1085,7 @@ static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
 	data32 |= (1 << 2);
 	data32 |= (1 << 1);
 	data32 |= (1 << 0);
-	hdmitx_wr_reg(HDMITX_DWC_FC_PACKET_TX_EN, data32);
+	hdmitx_set_reg_bits(HDMITX_DWC_FC_PACKET_TX_EN, data32, 0, 4);
 
 	/* For 3D video */
 	data32  = 0;
@@ -3236,4 +3236,7 @@ static void hdmitx_csc_config (unsigned char input_color_format,
 	data32 |= (color_depth  << 4);      /*  [7:4] csc_color_depth*/
 	data32 |= (csc_scale	<< 0);      /* [1:0] cscscale*/
 	hdmitx_wr_reg(HDMITX_DWC_CSC_SCALE, data32);
+
+	/* set csc in video path */
+	hdmitx_wr_reg(HDMITX_DWC_MC_FLOWCTRL, (conv_en == 1) ? 0x1 : 0x0);
 }   /* hdmitx_csc_config */
