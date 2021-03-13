@@ -2505,6 +2505,9 @@ static void hdmitx_csc_config (unsigned char input_color_format,
 	data32 |= (color_depth  << 4);  // [7:4] csc_color_depth
 	data32 |= (csc_scale	<< 0);  // [1:0] cscscale
 	hdmitx_wr_reg(HDMITX_DWC_CSC_SCALE,         data32);
+
+	/* set csc in video path */
+	hdmitx_wr_reg(HDMITX_DWC_MC_FLOWCTRL, (conv_en == 1) ? 0x1 : 0x0);
 }   /* hdmitx_csc_config */
 
 void hdmitx_set_drm_pkt(struct master_display_info_s *data)

@@ -511,6 +511,7 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 	unsigned int checkvalue1;
 	unsigned int checkvalue2;
 	char checksum[11];
+	unsigned char def_cksum[] = {'0', 'x', '0', '0', '0', '0', '0', '0', '0', '0', '\0'};
 	char* hdmimode;
 	char* colorattribute;
 	char dv_type[2] = {0};
@@ -528,6 +529,8 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 	store_checkvalue = (unsigned char*)getenv("hdmichecksum");
 	colorattribute = getenv("colorattribute");
 	hdmimode = getenv("hdmimode");
+	if (!store_checkvalue)
+		store_checkvalue = def_cksum;
 
 	printf("read hdmichecksum: %s, hdmimode: %s, colorattribute: %s\n",
 	       store_checkvalue, hdmimode, colorattribute);
