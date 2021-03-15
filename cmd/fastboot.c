@@ -113,6 +113,8 @@ static int do_fastboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		--argc;
 		while (*++arg) {
 			switch (*arg) {
+#if 0
+/*for secure consider ,no permission to download any address and size,use default only*/
 			case 'l':
 				if (--argc <= 0)
 					return CMD_RET_USAGE;
@@ -124,13 +126,15 @@ static int do_fastboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 					return CMD_RET_USAGE;
 				buf_size = simple_strtoul(*++argv, NULL, 16);
 				goto NXTARG;
-
+#endif
 			default:
 				return CMD_RET_USAGE;
 			}
 		}
+#if 0
 NXTARG:
 		;
+#endif
 	}
 
 	/* Handle case when USB controller param is just '-' */
