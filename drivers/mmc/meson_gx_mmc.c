@@ -456,7 +456,9 @@ static void mmc_setup_desc(struct udevice *dev, struct mmc_cmd *cmd,
 	}
 
 	meson_mmc_cmd = &(desc_cur->cmd_info);
-	*meson_mmc_cmd |= CMD_CFG_TIMEOUT_4S;
+	/* It takes longer to erase large amounts of data */
+	if (cmd->cmdidx != MMC_CMD_ERASE)
+		*meson_mmc_cmd |= CMD_CFG_TIMEOUT_4S;
 	*meson_mmc_cmd |= CMD_CFG_END_OF_CHAIN;
 }
 
@@ -520,11 +522,11 @@ static int meson_dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 	ret = meson_mmc_desc_transfer(dev, cmd, data);
 #endif
 
-	/* use 10s timeout */
+	/* use 30s timeout */
 	start = get_timer(0);
 	do {
 		status = meson_read(mmc, MESON_SD_EMMC_STATUS);
-	} while(!(status & STATUS_END_OF_CHAIN) && get_timer(start) < 10000);
+	} while(!(status & STATUS_END_OF_CHAIN) && get_timer(start) < 30000);
 
 	meson_mmc_read_response(mmc, cmd);
 
