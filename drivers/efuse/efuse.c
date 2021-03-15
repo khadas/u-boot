@@ -174,7 +174,7 @@ int efuse_get_cali_cvbs(void)
 
 	ret = efuse_read_cali((char *)&(cali_data), EFUSE_CALI_SIZE, 0x00);
 	if (ret == EFUSE_CALI_SIZE && cali_data.cvbs_flag)
-		return cali_data.cvbs_data;;
+		return cali_data.cvbs_data;
 #endif
 	return -1;
 }

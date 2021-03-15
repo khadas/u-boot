@@ -253,6 +253,8 @@ int do_efuse(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 static char efuse_help_text[] =
 #ifndef CONFIG_AML_MESON_AXG
 	"[read/write offset size [data]]\n"
+	"  [cali_read]  read from cali\n"
+	"                   -example: [efuse cali_read 0 7]; offset is 0,size is 7. \n"
 	"  [read/wirte]  - read or write 'size' data from\n"
 	"                  'offset' from efuse user data ;\n"
 	"  [offset]      - the offset byte from the beginning\n"
