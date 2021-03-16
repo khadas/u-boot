@@ -10,9 +10,11 @@
 #include <malloc.h>
 #include <asm/arch/efuse.h>
 #include <asm/arch/bl31_apis.h>
+#include <amlogic/aml_efuse.h>
 
 #define CMD_EFUSE_WRITE            0
 #define CMD_EFUSE_READ             1
+#define CMD_EFUSE_READ_CALI		2
 #define CMD_EFUSE_SECURE_BOOT_SET  6
 #define CMD_EFUSE_PASSWORD_SET     7
 #define CMD_EFUSE_CUSTOMER_ID_SET  8
@@ -23,7 +25,7 @@ int cmd_efuse(int argc, char * const argv[], char *buf)
 {
 	int i, action = -1;
 	u32 offset;
-	u32 size, max_size;
+	u32 size = 0, max_size;
 	char *end;
 	char *s;
 	int ret;
@@ -32,6 +34,8 @@ int cmd_efuse(int argc, char * const argv[], char *buf)
 
 	if (strncmp(argv[1], "read", 4) == 0) {
 		action = CMD_EFUSE_READ;
+	} else if (strncmp(argv[1], "cali_read", 9) == 0) {
+		action = CMD_EFUSE_READ_CALI;
 	} else if (strncmp(argv[1], "write", 5) == 0) {
 		action = CMD_EFUSE_WRITE;
 	} else if (strncmp(argv[1], "secure_boot_set", 15) == 0) {
@@ -95,6 +99,26 @@ efuse_action:
 		}
 		printf("\n");
 	}
+	else if (action == CMD_EFUSE_READ_CALI) {
+		memset(buf, 0, size);
+		ret = efuse_read_cali(buf, size, offset);
+		if (ret == -1) {
+			printf("ERROR: efuse read cali data fail!\n");
+			return -1;
+		}
+
+		if (ret != size)
+			printf("ERROR: read %d byte(s) not %d byte(s) data\n",
+			       ret, size);
+		printf("efuse read cali data");
+		for (i = 0; i < size; i++) {
+			if (i % 16 == 0)
+				printf("\n");
+			printf(":%02x", buf[i]);
+		}
+		printf("\n");
+	}
+
 	/* efuse write */
 	else if (action == CMD_EFUSE_WRITE) {
 		if (argc < 5) {
@@ -170,6 +194,8 @@ int do_efuse(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 static char efuse_help_text[] =
 	"[read/write offset size [data]]\n"
+	"  [cali_read]  -read from cali\n"
+	"                   example: [efuse cali_read 0 7]; offset is 0,size is 7. \n"
 	"  [read/write]  - read or write 'size' data from\n"
 	"                  'offset' from efuse user data ;\n"
 	"  [offset]      - the offset byte from the beginning\n"
