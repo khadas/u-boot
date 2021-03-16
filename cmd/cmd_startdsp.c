@@ -28,7 +28,7 @@
 
 void set_dsp_clk(uint32_t id, uint32_t freq_sel)
 {
-	int		control;
+	int			control;
 	uint32_t	clk_sel;
 	uint32_t	clk_div;
 	uint32_t	addr = 0;
