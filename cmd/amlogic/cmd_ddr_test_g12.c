@@ -7482,9 +7482,7 @@ static int ddr_do_store_ddr_parameter_ops(uint8_t *buffer, uint32_t length)
 		run_command(str, 0);
 	}
 
-	char *name = NULL;
 	{
-		name = "ddr-parameter";
 		printf("\nstore rsv write ddr-parameter 0x%08x 0x%08x\n", (uint32_t)(uint64_t)buffer, length);
 		sprintf(str, "store rsv write ddr-parameter 0x%08x 0x%08x\n", (uint32_t)(uint64_t)buffer, length);
 		run_command(str, 0);

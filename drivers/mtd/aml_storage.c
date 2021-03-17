@@ -57,7 +57,9 @@ static u8 boot_num_get(void)
 
 int get_meson_mtd_partition_table(struct mtd_partition **partitions)
 {
+#if defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND) || defined(CONFIG_MESON_NFC) || defined(CONFIG_SPI_FLASH)
 	enum boot_type_e medium_type = store_get_type();
+#endif
 	int mtdParts = -1;
 
 #ifdef CONFIG_MESON_NFC

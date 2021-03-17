@@ -120,7 +120,6 @@ int aml_v3_usbburning(unsigned timeout, unsigned pcToolWaitTime)
 #ifndef CONFIG_AML_NO_USB_MODULE
 static int do_aml_DNL(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-	int ret;
 	unsigned timeout = (2 <= argc) ? simple_strtoul(argv[1], NULL, 0) : 0;
 	unsigned pcToolWaitTime	= (3 <= argc) ? simple_strtoul(argv[2], NULL, 0) : 0;
 

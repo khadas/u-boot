@@ -155,7 +155,7 @@ void sheader_load(void *addr)
  * is bind into the tail of bl2.bin.
  * @addr: uboot address.
  */
-static int parse_uboot_sheader(void *addr)
+static p_payload_info_t parse_uboot_sheader(void *addr)
 {
 	p_payload_info_t pInfo = (p_payload_info_t)(addr + BL2_SIZE);
 
@@ -211,7 +211,7 @@ static int storage_boot_layout_rebuild(struct boot_layout *boot_layout,
 		(ssp->boot_device == BOOT_NAND_MTD)) {
 		reserved_size = ssp->sip.nsp.layout_reserve_size;
 		align_size = ((NAND_RSV_OFFSET / cal_copy) * ssp->sip.nsp.page_size);
-		printf("reserved_size:0x%x 0x%x\n", reserved_size, align_size);
+		printf("reserved_size:0x%llx 0x%llx\n", reserved_size, align_size);
 	} else if (ssp->boot_device == BOOT_SNAND) {
 		reserved_size = ssp->sip.snasp.layout_reserve_size;
 		align_size = ((NAND_RSV_OFFSET / cal_copy) * ssp->sip.snasp.pagesize);
@@ -222,18 +222,18 @@ static int storage_boot_layout_rebuild(struct boot_layout *boot_layout,
 	}
 	STORAGE_ROUND_UP_IF_UNALIGN(boot_entry[0].size, align_size);
 	ssp->boot_entry[0].size = boot_entry[0].size;
-	printf("ssp->boot_entry[0] offset:0x%lx, size:0x%lx\n",
+	printf("ssp->boot_entry[0] offset:0x%x, size:0x%x\n",
 			ssp->boot_entry[0].offset, ssp->boot_entry[0].size);
 	printf("cal_copy:0x%x\n", cal_copy);
-	printf("align_size:0x%x\n", align_size);
-	printf("reserved_size:0x%x\n", reserved_size);
+	printf("align_size:0x%llx\n", align_size);
+	printf("reserved_size:0x%llx\n", reserved_size);
 	if ((ssp->boot_device == BOOT_NAND_NFTL) ||
 		(ssp->boot_device == BOOT_NAND_MTD))
 		align_size = ssp->sip.nsp.block_size;
 	else if (ssp->boot_device == BOOT_SNAND)
 		align_size = ssp->sip.snasp.pagesize *
 			     ssp->sip.snasp.pages_per_eraseblock;
-	printf("align_size2:%lu\n", align_size);
+	printf("align_size2:%llu\n", align_size);
 
 	boot_entry[BOOT_AREA_BL2E].size = bl2e_size;
 	boot_entry[BOOT_AREA_BL2X].size = bl2x_size;
@@ -259,12 +259,12 @@ static int storage_boot_layout_general_setting(struct boot_layout *boot_layout,
 {
 	struct storage_startup_parameter *ssp = &g_ssp;
 	boot_area_entry_t *boot_entry = boot_layout->boot_entry;
-	struct storage_boot_entry *sbentry = g_ssp.boot_entry;
+	struct storage_boot_entry *sbentry = ssp->boot_entry;
 	p_payload_info_t pInfo = parse_uboot_sheader(ubootdata);;
 	p_payload_info_hdr_t hdr = &pInfo->hdr;
 	p_payload_info_item_t pItem = pInfo->arrItems;
 	int offPayload = 0, szPayload = 0;
-	unsigned int bl2e_size, bl2x_size;
+	unsigned int bl2e_size = 0, bl2x_size = 0;
 	char name[8] = {0};
 	int nIndex = 0;
 
@@ -281,9 +281,9 @@ static int storage_boot_layout_general_setting(struct boot_layout *boot_layout,
 			pr_info("Item[%d]%4s offset 0x%08x sz 0x%x\n",
 			       nIndex, name, offPayload, szPayload);
 		}
-		boot_entry[BOOT_AREA_BB1ST].size = g_ssp.boot_entry[BOOT_AREA_BB1ST].size;
-		boot_entry[BOOT_AREA_DDRFIP].size = g_ssp.boot_entry[BOOT_AREA_DDRFIP].size;
-		boot_entry[BOOT_AREA_DEVFIP].size = g_ssp.boot_entry[BOOT_AREA_DEVFIP].size;
+		boot_entry[BOOT_AREA_BB1ST].size = ssp->boot_entry[BOOT_AREA_BB1ST].size;
+		boot_entry[BOOT_AREA_DDRFIP].size = ssp->boot_entry[BOOT_AREA_DDRFIP].size;
+		boot_entry[BOOT_AREA_DEVFIP].size = ssp->boot_entry[BOOT_AREA_DEVFIP].size;
 		storage_boot_layout_rebuild(boot_layout, bl2e_size, bl2x_size);
 	} else {
 		/* may be sdcard boot and also have to rebuild layout */
@@ -293,11 +293,11 @@ static int storage_boot_layout_general_setting(struct boot_layout *boot_layout,
 			printf("bl2e_size=%x bl2x_size=%x current->type=%d\n",
 				bl2e_size, bl2x_size, current->type);
 			boot_entry[BOOT_AREA_BB1ST].size =
-				g_ssp.boot_entry[BOOT_AREA_BB1ST].size;
+				ssp->boot_entry[BOOT_AREA_BB1ST].size;
 			boot_entry[BOOT_AREA_DDRFIP].size =
-				g_ssp.boot_entry[BOOT_AREA_DDRFIP].size;
+				ssp->boot_entry[BOOT_AREA_DDRFIP].size;
 			boot_entry[BOOT_AREA_DEVFIP].size =
-				g_ssp.boot_entry[BOOT_AREA_DEVFIP].size;
+				ssp->boot_entry[BOOT_AREA_DEVFIP].size;
 			storage_boot_layout_rebuild(boot_layout,
 						    bl2e_size, bl2x_size);
 			return 0;
@@ -1214,8 +1214,8 @@ static int _store_boot_write(const char *part_name, u8 cpy, size_t size, void *a
 	cpu_id_t cpu_id = get_cpu_id();
 	enum boot_type_e medium_type = store_get_type();
 	struct storage_startup_parameter *ssp = &g_ssp;
-	struct storage_boot_entry *boot_entry = ssp->boot_entry;
-	u8 i;
+
+
 	int ret = 0;
 	struct storage_t *store = store_get_current();
 	int bl2_size = BL2_SIZE;

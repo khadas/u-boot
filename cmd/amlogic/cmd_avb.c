@@ -186,7 +186,7 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps* ops, const uint8_t* public
     if (keybuf) {
         memset(keybuf , 0, AVB_CUSTOM_KEY_LEN_MAX);
         size = store_part_size(partition);
-        if (store_read((unsigned char *)partition,
+        if (store_read((const char *)partition,
             size - AVB_CUSTOM_KEY_LEN_MAX, AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)keybuf) >= 0)  {
             memcpy(&key, keybuf, sizeof(AvbKey_t));
         }
