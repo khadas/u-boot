@@ -461,6 +461,7 @@
 
 #define		DDR_SOC_AC_DRV_0_OHM		0
 #define		DDR_SOC_AC_DRV_120_OHM		120
+#define		DDR_SOC_AC_DRV_80_OHM		80
 #define		DDR_SOC_AC_DRV_60_OHM		60
 #define		DDR_SOC_AC_DRV_40_OHM		40
 #define		DDR_SOC_AC_DRV_30_OHM		30
@@ -579,3 +580,30 @@
 #define		DDR_SOC_READ_DQS_GATE_MODE_LPDDR4_EDGE_MODE_2	24
 #define		DDR_SOC_READ_DQS_GATE_MODE_LPDDR4_EDGE_MODE_3	25
 #endif
+
+#define DDR_TIMMING_OFFSET(X)  (unsigned int)(unsigned long)(&(((ddr_set_t *)(0))->X))
+#define DDR_TIMMING_OFFSET_SIZE(X)  sizeof(((ddr_set_t *)(0))->X)
+#define DDR_TIMMING_TUNE(DDR_ID, PARA, VALUE) { DDR_ID, DDR_TIMMING_OFFSET(PARA), VALUE, DDR_TIMMING_OFFSET_SIZE(PARA), 0, 1 }
+
+#define T963_H8_NTC_EID       0xC0A
+#define T963_H8_SUM_EID       0xC4A
+#define T963_H35_NTC_EID      0x2C1A
+#define T963_H35_SUM_EID      0x2C5A
+#define T963_H9_NTC_EID       0x6C2A
+#define T963_H9_SUM_EID       0x6C6A
+#define T963_H_NA_EID         0x1400
+
+#define T963S_H8_NTC_EID      0xC8A
+#define T963S_H8_SUM_EID      0xCCA
+#define T963S_H35_SUM_EID     0x2CDA
+#define T950D4_H5_NTC_EID     0x509
+#define T950D4_H6_NTC_EID     0x909
+#define T950D4_H8_NTC_EID     0xC0A
+#define T950D4_H8_SUM_EID     0xC4A
+#define T950D4_H35_NTC_EID    0x2C1A
+#define T950D4_H35_SUM_EID    0x2C5A
+#define T950X4_H5_NTC_EID     0xD09
+#define T950X4_H8_NTC_EID     0xC8A
+#define T950X4_H8_SUM_EID     0xCCA
+#define T950X4_H35_SUM_EID    0x2CDA
+#define T950X4_B5_SUM_EID     0x4C6
