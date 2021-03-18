@@ -7,8 +7,12 @@
 #include <asm/arch/pwr_ctrl.h>
 #include <command.h>
 
-static int  pm_max;
+#ifndef PM_MAX
+#define PM_MAX	0
 static char*  domain_name[];
+#else
+extern char* domain_name[];
+#endif
 extern unsigned long pwr_ctrl_status_psci_smc(unsigned int power_domain);
 
 static int do_powershow(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -20,10 +24,12 @@ static int do_powershow(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 		return CMD_RET_USAGE;
 	}
 
-	if (pm_max == 0)
+	if (PM_MAX  == 0) {
 		printf("Don't support this feature now!\n");
+		return ret;
+	}
 
-	for (i = 0; i < pm_max; i++)
+	for (i = 0; i < PM_MAX; i++)
 		printf("%s[%d]:		%lx\n", domain_name[i],i, pwr_ctrl_status_psci_smc(i));
 
 	return ret;

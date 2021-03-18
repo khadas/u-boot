@@ -2,6 +2,8 @@
 /*
  * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+#ifndef _PWRC_H_
+#define _PWRC_H_
 
 #define PWR_ON    1
 #define PWR_OFF   0
@@ -15,9 +17,10 @@
 #define PM_DEMOD		6
 #define PM_AUDIO		7
 
-static int pm_max = 8;
-
-static char* domain_name[] =
+#define PM_MAX			8
+//static int pm_max = 8;
+/*
+char* domain_name[] =
 {
 	"PM_DOS_HEVC",
 	"PM_DOS_VDEC",
@@ -28,5 +31,6 @@ static char* domain_name[] =
 	"PM_DEMOD",
 	"PM_AUDIO",
 };
-
+*/
 unsigned long pwr_ctrl_psci_smc(unsigned int power_domain, bool power_control);
+#endif
