@@ -34,6 +34,7 @@ static struct lcd_power_step_s lcd_power_off_step[] = {
 	{LCD_POWER_TYPE_MAX,   0, 0, 0,},   /* ending flag */
 };
 
+#if 0
 static struct lcd_power_step_s lcd_power_on_step_p2p[] = {
 	{LCD_POWER_TYPE_CPU,   0, 1, 20,}, /* panel vcc */
 	{LCD_POWER_TYPE_EXTERN, 0, 0, 100,}, /* init external voltage */
@@ -46,6 +47,7 @@ static struct lcd_power_step_s lcd_power_off_step_p2p[] = {
 	{LCD_POWER_TYPE_CPU,   0, 0, 200,}, /* panel vcc */
 	{LCD_POWER_TYPE_MAX,   0, 0, 0,},   /* ending flag */
 };
+#endif
 
 static char lcd_bl_gpio[BL_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
 	"invalid", /* ending flag */

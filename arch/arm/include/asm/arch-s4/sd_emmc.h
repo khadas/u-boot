@@ -134,5 +134,6 @@
 #define SD_EMMC_DESC_TIMEOUT_ERROR      (1 << 5)
 
 //boot from sd or emmc
-#define SEC_AO_SEC_GP_CFG0      (SYSCTRL_SEC_STATUS_REG4)
+/*this macro of SEC_AO_SEC_GP_CFG0 was defined in ./arch/arm/include/asm/arch-s4/soc_def.h */
+//#define SEC_AO_SEC_GP_CFG0      (SYSCTRL_SEC_STATUS_REG4)
 #endif

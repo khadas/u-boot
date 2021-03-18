@@ -309,11 +309,12 @@ int lcd_extern_gpio_get(unsigned char index)
 {
 	int gpio;
 	char *str;
-
+#if 0
 	if (!lcd_ext_driver) {
 		EXTERR("no lcd_extern driver\n");
 		return LCD_GPIO_MAX;
 	}
+#endif
 
 	if (index >= LCD_EXTERN_GPIO_NUM_MAX) {
 		return LCD_GPIO_MAX;

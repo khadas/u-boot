@@ -230,8 +230,9 @@ static void lcd_gamma_init(void)
 {
 #ifndef CONFIG_AML_LCD_PXP
 	lcd_wait_vsync();
+	extern void vpp_disable_lcd_gamma_table(void);
 	vpp_disable_lcd_gamma_table();
-
+	extern void vpp_init_lcd_gamma_table(void);
 	vpp_init_lcd_gamma_table();
 
 	lcd_wait_vsync();

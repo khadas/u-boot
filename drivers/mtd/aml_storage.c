@@ -73,12 +73,12 @@ int get_meson_mtd_partition_table(struct mtd_partition **partitions)
 #if defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND)
 	extern const struct mtd_partition *get_spinand_partition_table(int *partitions);
 	if (BOOT_SNAND == medium_type)
-		*partitions = get_spinand_partition_table(&mtdParts);
+		*partitions = (struct mtd_partition *)get_spinand_partition_table(&mtdParts);
 #endif
 #ifdef CONFIG_SPI_FLASH
 	extern const struct mtd_partition *get_spiflash_partition_table(int *partitions);
 	if (medium_type == BOOT_SNOR)
-		*partitions = get_spiflash_partition_table(&mtdParts);
+		*partitions = (struct mtd_partition *)get_spiflash_partition_table(&mtdParts);
 #endif
 	return mtdParts;
 }

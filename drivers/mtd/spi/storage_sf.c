@@ -37,12 +37,12 @@ inline struct storage_t *get_snor_storage(void)
 	return snor_storage;
 }
 
-inline void set_spi_flash(struct spi_flash *snor)
+void set_spi_flash(struct spi_flash *snor)
 {
 	spi_flash = snor;
 }
 
-inline struct storage_t *get_spi_flash(void)
+struct spi_flash *get_spi_flash(void)
 {
 	return spi_flash;
 }
@@ -119,13 +119,14 @@ int spi_nor_probe(u32 init_flag)
 	struct spi_flash *flash = NULL;
 	int ret;
 
-	flash = get_spi_flash();
+	flash = (struct spi_flash *)get_spi_flash();
 	if (!flash) {
 		printf("get spi flash fail!\n");
 		return 1;
 	}
 
 	/* Maybe pinmux be modified by emmc, set again here */
+	extern int pinctrl_select_state(struct udevice *dev, const char *statename);
 	ret = pinctrl_select_state(flash->spi->dev->parent, "default");
 	if (ret) {
 		pr_err("select state %s failed\n", "default");

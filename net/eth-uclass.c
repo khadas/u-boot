@@ -462,7 +462,6 @@ static int eth_pre_unbind(struct udevice *dev)
 
 static int eth_get_efuse_mac(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev->platdata;
 #ifndef CONFIG_UNIFY_KEY_MANAGE
 	debug("\nWarning: %s MAC addresses is not from dtb\n",
 				dev->name);
@@ -474,6 +473,7 @@ static int eth_get_efuse_mac(struct udevice *dev)
 	ssize_t keysize = 0;
 	const char* seedNum = "0x1234";
 	unsigned char buf[MAC_MAX_LEN+1] = {0};
+	struct eth_pdata *pdata = dev->platdata;
 
 	err = key_unify_init(seedNum, NULL);
 	if (err)

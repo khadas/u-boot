@@ -65,7 +65,7 @@ static int MX35LF2GE4AD_ooblayout_free(struct mtd_info *mtd, int section,
 
 	return 0;
 }
-
+#if 0
 static int MX35LF4GE4AD_ooblayout_ecc(struct mtd_info *mtd, int section,
 				      struct mtd_oob_region *region)
 {
@@ -83,7 +83,7 @@ static int MX35LF4GE4AD_ooblayout_free(struct mtd_info *mtd, int section,
 
 	return 0;
 }
-
+#endif
 static const struct mtd_ooblayout_ops mx35lfxge4ab_ooblayout = {
 	.ecc = mx35lfxge4ab_ooblayout_ecc,
 	.free = mx35lfxge4ab_ooblayout_free,
@@ -94,10 +94,12 @@ static const struct mtd_ooblayout_ops MX35LF2GE4AD_ooblayout = {
 	.free = MX35LF2GE4AD_ooblayout_free,
 };
 
+#if 0
 static const struct mtd_ooblayout_ops MX35LF4GE4AD_ooblayout = {
 	.ecc = MX35LF4GE4AD_ooblayout_ecc,
 	.free = MX35LF4GE4AD_ooblayout_free,
 };
+#endif
 
 static int mx35lf1ge4ab_get_eccsr(struct spinand_device *spinand, u8 *eccsr)
 {

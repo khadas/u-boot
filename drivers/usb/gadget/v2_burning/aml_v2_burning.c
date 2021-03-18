@@ -62,10 +62,9 @@ extern unsigned _get_romcode_boot_id(void);
 #else
 static unsigned _get_romcode_boot_id(void)
 {
-	cpu_id_t cpuid = get_cpu_id();
-
     unsigned boot_id = 0;
 #ifdef SYSCTRL_SEC_STATUS_REG2
+    cpu_id_t cpuid = get_cpu_id();
 	if (MESON_CPU_MAJOR_ID_SC2 <= cpuid.family_id) {
 		boot_id = readl(SYSCTRL_SEC_STATUS_REG2);
         DWN_DBG("boot_id 0x%x\n", boot_id);

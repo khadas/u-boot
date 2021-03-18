@@ -58,7 +58,7 @@ int ring_msr(int index)
 			[0] = "am_ring_osc_clk_out_ee[0] " ,
 		};
 	const int tb[] = {0, 1, 2, 99, 100, 101, 102, 103, 104, 105, 3, 33};
-	unsigned long i;
+	unsigned long i = 0;
 	unsigned char efuseinfo[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 	if ((index != 0xff) && (index != 0)) {
