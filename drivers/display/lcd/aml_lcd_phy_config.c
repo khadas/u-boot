@@ -961,6 +961,7 @@ int lcd_phy_probe(void)
 		break;
 	case LCD_CHIP_G12A:
 	case LCD_CHIP_G12B:
+	case LCD_CHIP_SM1:
 		lcd_phy_ctrl = &lcd_phy_ctrl_g12a;
 		break;
 	case LCD_CHIP_TL1:
