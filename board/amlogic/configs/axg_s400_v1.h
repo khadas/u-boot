@@ -309,7 +309,7 @@
  *    DDR clk > 400MHz, please disable CONFIG_DDR_PLL_BYPASS blow
  */
 #define CONFIG_DDR_CLK					912  //MHz, Range: 200-1200, should be multiple of 24
-#define CONFIG_DDR4_CLK					912  //MHz, this is for same board with DDR4 chip
+#define CONFIG_DDR4_CLK					792  //MHz, this is for same board with DDR4 chip
 
 #define CONFIG_NR_DRAM_BANKS			1
 /* DDR type setting
