@@ -20,14 +20,36 @@ struct efuse_hal_api_arg {
 	unsigned long buffer_phy;
 	unsigned long retcnt_phy;
 };
+typedef struct efuse_cali {
+	unsigned int revision:2;
+	unsigned int reserved1:6;
+	unsigned int psensor_data:15;
+	unsigned int psensor_flag:1;
+	unsigned int saradc_data:6;
+	unsigned int saradc_flag:1;
+	unsigned int usbphy_data:4;
+	unsigned int usbphy_flag:1;
+	unsigned int reserved2:4;
+	unsigned int mipicsi_data:4;
+	unsigned int mipicsi_flag:1;
+	unsigned int hdmirx_data:4;
+	unsigned int hdmirx_flag:1;
+	unsigned int ethernet_data:5;
+	unsigned int ethernet_flag:1;
+	unsigned int cvbs_data:7;
+	unsigned int cvbs_flag:1;
+} efuse_cali_t;
 
 
 #define EFUSE_BYTES				512   /* (EFUSE_BITS/8) */
+#define EFUSE_CALI_SIZE			8
+#define EFUSE_CALI_CVBS
 
 #define EFUSE_HAL_API_READ	0
 #define EFUSE_HAL_API_WRITE 1
 #define EFUSE_HAL_API_WRITE_PATTERN 2
 #define EFUSE_HAL_API_USER_MAX 3
+#define EFUSE_HAL_API_READ_CALI 4
 
 #define EFUSE_USER_MASK            (0x1 << 16)
 #define EFUSE_THERMAL_MASK         (0x1 << 17)

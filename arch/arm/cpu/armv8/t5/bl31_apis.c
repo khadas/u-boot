@@ -79,6 +79,8 @@ int32_t meson_trustzone_efuse(struct efuse_hal_api_arg *arg)
 		cmd = EFUSE_READ;
 	else if (arg->cmd == EFUSE_HAL_API_WRITE)
 		cmd = EFUSE_WRITE;
+	else if (arg->cmd == EFUSE_HAL_API_READ_CALI)
+		cmd = EFUSE_READ_CALI;
 	else
 		cmd = EFUSE_WRITE_PATTERN;
 	offset = arg->offset;
@@ -105,7 +107,7 @@ int32_t meson_trustzone_efuse(struct efuse_hal_api_arg *arg)
 	ret = x0;
 	*retcnt = x0;
 
-	if ((arg->cmd == EFUSE_HAL_API_READ) && (ret != 0))
+	if ((arg->cmd == EFUSE_HAL_API_READ || arg->cmd == EFUSE_HAL_API_READ_CALI) && (ret != 0))
 		memcpy((void *)arg->buffer_phy,
 		       (const void *)sharemem_output_base, ret);
 
