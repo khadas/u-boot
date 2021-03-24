@@ -68,7 +68,7 @@
 #endif// #ifndef CONFIG_PXP_DDR
 
 #ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
-#define CONFIG_DTB_LOAD  "imgread dtb boot ${dtb_mem_addr}"
+#define CONFIG_DTB_LOAD  "imgread dtb ${boot_part} ${dtb_mem_addr}"
 #else
 #define CONFIG_DTB_LOAD  "imgread dtb _aml_dtb ${dtb_mem_addr}"
 #endif//#ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
@@ -123,7 +123,7 @@
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
             "init=/init console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe07a000 "\
-            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
+            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
             "\0"\
         "upgrade_check="\
             "echo recovery_status=${recovery_status};"\
@@ -245,6 +245,10 @@
             "if test ${vendor_boot_mode} = true; then "\
                 "setenv loadaddr_kernel 0x2080000;"\
                 "setenv dtb_mem_addr 0x1f00000;"\
+            "fi;"\
+            "if test ${active_slot} != normal; then "\
+                "echo ab mode, read dtb from kernel;"\
+                "setenv common_dtb_load ""imgread dtb ${boot_part} ${dtb_mem_addr}"";"\
             "fi;"\
             "\0"\
         "init_display="\
