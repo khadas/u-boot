@@ -778,5 +778,7 @@ struct hdr_info *hdmitx_get_rx_hdr_info(void)
 {
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
 
+	if (hdev->para->cd == HDMI_COLOR_DEPTH_24B)
+		memset(&hdev->RXCap.hdr_info, 0, sizeof(struct hdr_info));
 	return &hdev->RXCap.hdr_info;
 }
