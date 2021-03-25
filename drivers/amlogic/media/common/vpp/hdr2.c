@@ -1005,6 +1005,44 @@ void set_c_gain(enum hdr_module_sel module_sel,
 	vpp_reg_write(cgain_lut_data_port, lut[64]);
 }
 
+void clip_func_after_ootf(int mtx_gamut_mode,
+	enum hdr_module_sel module_sel)
+{
+	unsigned int asps_ctrl = 0;
+	int clip_en = 0;
+	int clip_max = 0;
+
+	/* if Dynamic TMO+ enable : clip_en = 1 clip_max = 524288
+	 * (hdr_process_select is HDR_SDR or HDR10P_SDR);
+	 * else if mtx_gamut_mode = 1 : clip_en = 0/1 clip_max = 524288;
+	 * else if  mtx_gamut_mode == 2 : clip_en = 1 clip_max = 393216;
+	 * else : clip_en = 0 clip_max = 524288;
+	 */
+	if (mtx_gamut_mode == 1) {
+		clip_max = 524288 >> 14;
+	} else if (mtx_gamut_mode == 2) {
+		clip_en = 1;
+		clip_max = 393216 >> 14;
+	} else {
+		clip_en = 0;
+		clip_max = 524288 >> 14;
+	}
+
+	if (module_sel & VD1_HDR)
+		asps_ctrl = VD1_HDR2_ADPS_CTRL;
+	else if (module_sel & VD2_HDR)
+		asps_ctrl = VD2_HDR2_ADPS_CTRL;
+	else if (module_sel & OSD1_HDR)
+		asps_ctrl = OSD1_HDR2_ADPS_CTRL;
+	else
+		return;
+
+	vpp_reg_setb(asps_ctrl,
+		clip_en, 7, 1);
+	vpp_reg_setb(asps_ctrl,
+		clip_max, 8, 6);
+}
+
 struct hdr_proc_lut_param_s hdr_lut_param;
 
 void hdr_func(enum hdr_module_sel module_sel,
@@ -1026,7 +1064,8 @@ void hdr_func(enum hdr_module_sel module_sel,
 	memset(&hdr_lut_param, 0, sizeof(struct hdr_proc_lut_param_s));
 
 	if (module_sel & (VD1_HDR | VD2_HDR | VD3_HDR | OSD1_HDR  | OSD2_HDR)) {
-		if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_S4)
+		if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_S4 ||
+			get_cpu_id().family_id == MESON_CPU_MAJOR_ID_T3)
 			bit_depth = 10;
 		else
 			bit_depth = 12;
@@ -1176,6 +1215,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 	/*mtx parameters*/
 	if (hdr_process_select & (HDR_BYPASS | HLG_BYPASS)) {
 		hdr_mtx_param.mtx_only = HDR_ONLY;
+		hdr_mtx_param.mtx_gamut_mode = 1;
 		/*for g12a/g12b osd blend shift rtl bug*/
 		if (((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) ||
 		     (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B &&
@@ -1283,6 +1323,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 		}
 	} else if (hdr_process_select & (HDR_SDR | HLG_SDR)) {
 		hdr_mtx_param.mtx_only = HDR_ONLY;
+		hdr_mtx_param.mtx_gamut_mode = 1;
 		for (i = 0; i < 15; i++) {
 			hdr_mtx_param.mtx_in[i] = ycbcr2rgb_ncl2020[i];
 			hdr_mtx_param.mtx_cgain[i] = rgb2ycbcr_709[i];
@@ -1309,6 +1350,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 			hdr_mtx_param.p_sel = HLG_SDR;
 	} else if (hdr_process_select & SDR_HDR) {
 		hdr_mtx_param.mtx_only = HDR_ONLY;
+		hdr_mtx_param.mtx_gamut_mode = 1;
 		if ((get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_G12A) &&
 		    (module_sel & (OSD1_HDR | OSD2_HDR))) {
 			for (i = 0; i < 15; i++) {
@@ -1357,6 +1399,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 		hdr_mtx_param.p_sel = SDR_HDR;
 	} else if (hdr_process_select & HLG_HDR) {
 		hdr_mtx_param.mtx_only = HDR_ONLY;
+		hdr_mtx_param.mtx_gamut_mode = 1;
 		for (i = 0; i < 15; i++) {
 			hdr_mtx_param.mtx_in[i] = ycbcr2rgb_ncl2020[i];
 			hdr_mtx_param.mtx_cgain[i] = bypass_coeff[i];
@@ -1369,6 +1412,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 		hdr_mtx_param.p_sel = HLG_HDR;
 	}  else if (hdr_process_select & SDR_HLG) {
 		hdr_mtx_param.mtx_only = HDR_ONLY;
+		hdr_mtx_param.mtx_gamut_mode = 1;
 		if ((get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_G12A) &&
 		    (module_sel & OSD1_HDR)) {
 			for (i = 0; i < 15; i++) {
@@ -1416,6 +1460,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 		hdr_mtx_param.mtx_on = MTX_ON;
 		hdr_mtx_param.p_sel = SDR_HLG;
 	} else if (hdr_process_select & HDR_OFF) {
+		hdr_mtx_param.mtx_gamut_mode = 0;
 		for (i = 0; i < 15; i++) {
 			hdr_mtx_param.mtx_in[i] = rgb2ycbcr_709[i];
 			hdr_mtx_param.mtx_cgain[i] = bypass_coeff[i];
@@ -1439,6 +1484,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 		hdr_mtx_param.p_sel = HDR_BYPASS;
 		hdr_mtx_param.mtx_only = HDR_ONLY;
 	} else if (hdr_process_select & RGB_BYPASS) {
+		hdr_mtx_param.mtx_gamut_mode = 0;
 		if ((get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_G12A)) {
 			/*DV HDR_BYPASS need bypass coeff*/
 			for (i = 0; i < 15; i++) {
@@ -1478,4 +1524,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 	set_hdr_matrix(module_sel, HDR_OUT_MTX, &hdr_mtx_param);
 
 	set_c_gain(module_sel, &hdr_lut_param);
+
+	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_T3)
+		clip_func_after_ootf(hdr_mtx_param.mtx_gamut_mode, module_sel);
 }
