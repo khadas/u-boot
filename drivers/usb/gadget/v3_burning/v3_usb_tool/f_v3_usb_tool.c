@@ -892,10 +892,8 @@ static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 			return;
 		}
 	} else if( !strcmp("mread", argv[0]) ){
-		if (IS_FEAT_BOOT_VERIFY()) {
-			fastboot_fail("upload not allowed when secure boot");
-			ret = -__LINE__;
-		} else ret = _mread_cmd_parser(argc, argv, ack);
+		FB_MSG("IS_FEAT_BOOT_VERIFY 0x%x\n", IS_FEAT_BOOT_VERIFY());
+		ret = _mread_cmd_parser(argc, argv, ack);
 #ifdef CONFIG_V3_KEY_BURNING_SUPPORT
 	} else if( !strcmp("key", argv[0]) ){
 		ret = v2_key_command(argc, argv, ack);
@@ -921,15 +919,18 @@ static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 		ret = sheader_need() ? 0 : ret;
 	} else {
 		strsep(&cmd, " ");
+		char* p = cmd; strsep(&p, ";"); //only allow one command to execute
 		int cmdIsInWhiteList = 1;
 		if (IS_FEAT_BOOT_VERIFY()) {
 			cmdIsInWhiteList = 0;
-			for (const char* aCmd = white_list_adnl_cmds[0]; !aCmd; ++aCmd) {
-				if (strcmp(cmd, aCmd)) continue;
+			const char** pCmdList = (const char**)white_list_adnl_cmds;
+			for (const char* aCmd = *pCmdList; aCmd; aCmd = *++pCmdList) {
+				FB_DBG("aCmd %s\n", aCmd);
+				if (strcmp(argv[0], aCmd)) continue;
 				cmdIsInWhiteList = 1; break;
 			}
 			if (!cmdIsInWhiteList) {
-				FBS_ERR(ack,"cmd %s not in secure boot white list", cmd);
+				FBS_ERR(ack,"cmd %s not in secure boot white list", argv[0]);
 				ret = __LINE__;
 			}
 		}
@@ -1119,6 +1120,10 @@ static int _mread_cmd_parser(const int argc, char* argv[], char* ack)
 	}
 	if ( -1 == mediaType ) {
 		FBS_ERR(ack, "unsupprted media %s", media);
+		return -__LINE__;
+	}
+	if (V3TOOL_MEDIA_TYPE_UNIFYKEY != mediaType && IS_FEAT_BOOT_VERIFY()) {
+		FBS_ERR(ack, "upload not allowed as secure boot enabled\n");
 		return -__LINE__;
 	}
 

@@ -80,6 +80,13 @@ config AML_ROBUST
 	help
 		"envs for robust upgrade like defendkey"
 
+config CMD_AUTOSCR
+	bool "legacy autoscr cmd"
+	default y
+	depends on CMD_SOURCE
+	help
+	  Run script in memory
+
 #prduct mode start---->
 config NO_FASTBOOT_FLASHING
 	depends on FASTBOOT

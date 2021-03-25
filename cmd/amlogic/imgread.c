@@ -886,4 +886,29 @@ U_BOOT_CMD(
    "    un pack the logo image, which already loaded at <imgLoadaddr>.\n"
 );
 
+#if defined(CONFIG_CMD_AUTOSCR)
+/*
+ * Keep for now for backward compatibility;
+ * remove later when support for "autoscr" goes away.
+ */
+static int
+do_autoscr (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	printf ("\n### WARNING ### "
+			"\"autoscr\" is deprecated, use \"source\" instead ###\n\n");
+	if (argc < 2) {
+		printf("too few argc %d for %s\n", argc, argv[0]);
+		return CMD_RET_FAILURE;
+	}
+	env_set("_src_addr", argv[1]);
+	return run_command("echo _src_addr ${_src_addr}; source ${_src_addr}; env delete _src_addr", 0);
+}
+
+U_BOOT_CMD_COMPLETE(
+	autoscr, 2, 0,	do_autoscr,
+	"DEPRECATED - use \"source\" command instead",
+	"	argv: autoscr script_mem_addr",
+	var_complete
+);
+#endif//#if defined(CONFIG_CMD_AUTOSCR)
 
