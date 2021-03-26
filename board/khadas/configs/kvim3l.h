@@ -637,7 +637,7 @@
 #define CONFIG_FAT_WRITE	1
 #define CONFIG_CMD_EXT4_WRITE	1
 
-#define CONFIG_MDUMP_COMPRESS 1
+//#define CONFIG_MDUMP_COMPRESS 1
 
 /* Cache Definitions */
 //#define CONFIG_SYS_DCACHE_OFF
