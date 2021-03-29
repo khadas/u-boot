@@ -167,6 +167,14 @@ static unsigned int vpu_pwrctrl_id_table_t7[] = {
 	VPU_PWR_ID_END
 };
 
+static unsigned int vpu_pwrctrl_id_table_t3[] = {
+	PM_VPU_HDMI,
+	PM_VI_CLK1,
+	PM_VI_CLK2,
+	PM_NOC_VPU,
+	VPU_PWR_ID_END
+};
+
 /* ******************************************************* */
 /*                 VPU module init table                 */
 /* ******************************************************* */

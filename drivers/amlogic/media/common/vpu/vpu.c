@@ -321,7 +321,7 @@ static struct vpu_data_s vpu_data_t3 = {
 	.vapb_clk_reg = CLKCTRL_VAPBCLK_CTRL,
 	.vid_clk_reg = CLKCTRL_VID_CLK0_CTRL2,
 
-	.pwrctrl_id_table = vpu_pwrctrl_id_table_t7,
+	.pwrctrl_id_table = vpu_pwrctrl_id_table_t3,
 
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,

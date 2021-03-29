@@ -40,6 +40,9 @@ enum vpu_chip_e {
 #ifndef PM_VI_CLK2
 #define PM_VI_CLK2             0xffff
 #endif
+#ifndef PM_NOC_VPU
+#define PM_NOC_VPU             0xffff
+#endif
 #define VPU_PWR_ID_MAX         10
 
 #define VPU_REG_END            0xffff
