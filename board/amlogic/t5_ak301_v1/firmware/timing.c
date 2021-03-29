@@ -600,7 +600,7 @@ ddr_reg_t __ddr_reg[] = {
 #elif (VCCK_VAL == 1040)
 	#define VCCK_VAL_REG	0x00000022
 #else
-	#error "VCCK val out of range\n"
+	#error "VCCK val out of range"
 #endif
 
 /* VDDEE PWM table */
@@ -649,7 +649,7 @@ ddr_reg_t __ddr_reg[] = {
 	#define PWM_CONSTANT_OUT
 	#define VDDEE_VAL_REG	0x00000014
 #else
-	#error "VDDEE val out of range\n"
+	#error "VDDEE val out of range"
 #endif
 
 /* for PWM use */
@@ -662,7 +662,14 @@ bl2_reg_t __bl2_reg[] = {
 	/* demo, user defined override register */
 	/* eg: PWM init */
 	/* PWM_A VDDEE_VAL_REG */
+#ifdef CONFIG_PDVFS_ENABLE
+	{PWMAB_PWM_A,         	0x00090009,     0xffffffff, 	0, 	BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0},
+	{PWMAB_PWM_A,         	0x000b0007,     0xffffffff, 	0, 	BL2_INIT_STAGE_VDDCORE_CONFIG_2, 0},
+	{PWMAB_PWM_A,		0x0008000a,  	0xffffffff,	0, 	BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0},
+#else
 	{PWMAB_PWM_A,		VDDEE_VAL_REG,	0xffffffff,	0,	BL2_INIT_STAGE_1, 0},
+#endif
+
 	/* PWM_B VCCK_VAL_REG */
 	{PWMAB_PWM_B,		VCCK_VAL_REG,	0xffffffff,	0,	BL2_INIT_STAGE_1, 0},
 	/*pwm needs to support full-height or full-low output*/
