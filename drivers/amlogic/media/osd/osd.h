@@ -253,6 +253,7 @@ struct hw_para_s {
 	u32 osd_ver;
 	u32 shift_line;
 	u32 mif_linear;
+	u32 path_ctrl_independ;
 };
 
 #endif /* _OSD_H_ */

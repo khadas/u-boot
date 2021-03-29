@@ -24,6 +24,7 @@
 #define OSD_TEST_DURATION 500
 
 #define msleep(a) mdelay(a)
+#define REG_INDEX_VCBUS(reg)  (u32)((reg) & REG_BASE_VCBUS ? ((reg - REG_BASE_VCBUS) >> 2) : reg)
 
 extern struct hw_para_s osd_hw;
 
@@ -99,112 +100,112 @@ static void osd_debug_dump_register_all(void)
 	u32 index = 0;
 
 	reg = VPU_VIU_VENC_MUX_CTRL;
-	osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	reg = VPP_MISC;
-	osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	reg = VPP_OFIFO_SIZE;
-	osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	reg = VPP_HOLD_LINES;
-	osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	if (osd_hw.osd_ver == OSD_HIGH_ONE) {
 #ifdef AML_OSD_HIGH_VERSION
 		reg = OSD_PATH_MISC_CTRL;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU_OSD_BLEND_CTRL;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU_OSD_BLEND_DIN0_SCOPE_H;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU_OSD_BLEND_DIN0_SCOPE_V;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU_OSD_BLEND_DIN1_SCOPE_H;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU_OSD_BLEND_DIN1_SCOPE_V;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU_OSD_BLEND_DIN2_SCOPE_H;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU_OSD_BLEND_DIN2_SCOPE_V;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU_OSD_BLEND_DIN3_SCOPE_H;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU_OSD_BLEND_DIN3_SCOPE_V;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU_OSD_BLEND_DUMMY_DATA0;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU_OSD_BLEND_DUMMY_ALPHA;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU_OSD_BLEND_BLEND0_SIZE;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU_OSD_BLEND_BLEND1_SIZE;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 
 		reg = VPP_OSD1_IN_SIZE;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VPP_OSD1_BLD_H_SCOPE;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VPP_OSD1_BLD_V_SCOPE;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VPP_OSD2_BLD_H_SCOPE;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VPP_OSD2_BLD_V_SCOPE;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = OSD1_BLEND_SRC_CTRL;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = OSD2_BLEND_SRC_CTRL;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VPP_POSTBLEND_H_SIZE;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VPP_OUT_H_V_SIZE;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 #endif
 	}
 	reg = VPP_OSD_SC_CTRL0;
-	osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	reg = VPP_OSD_SCI_WH_M1;
-	osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	reg = VPP_OSD_SCO_H_START_END;
-	osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	reg = VPP_OSD_SCO_V_START_END;
-	osd_logi("reg[0x%x]: 0x%08x\n\n", reg, osd_reg_read(reg));
+	osd_logi("reg[0x%x]: 0x%08x\n\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	reg = VPP_POSTBLEND_H_SIZE;
-	osd_logi("reg[0x%x]: 0x%08x\n\n", reg, osd_reg_read(reg));
+	osd_logi("reg[0x%x]: 0x%08x\n\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	for (index = 0; index < 2; index++) {
 		if (index == 1)
 			offset = REG_OFFSET;
 		reg = offset + VIU_OSD1_FIFO_CTRL_STAT;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = offset + VIU_OSD1_CTRL_STAT;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = offset + VIU_OSD1_BLK0_CFG_W0;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = offset + VIU_OSD1_BLK0_CFG_W1;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = offset + VIU_OSD1_BLK0_CFG_W2;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = offset + VIU_OSD1_BLK0_CFG_W3;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU_OSD1_BLK0_CFG_W4;
 		if (index == 1)
 			reg = VIU_OSD2_BLK0_CFG_W4;
-		osd_logi("reg[0x%x]: 0x%08x\n\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	}
 
 #ifdef CONFIG_AML_MESON_G12A
 	/* for viu2_osd */
 	if (!strcmp(env_get("display_layer"), "viu2_osd0")) {
 		reg = VIU2_OSD1_FIFO_CTRL_STAT;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU2_OSD1_CTRL_STAT;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU2_OSD1_BLK0_CFG_W0;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU2_OSD1_BLK0_CFG_W1;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU2_OSD1_BLK0_CFG_W2;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU2_OSD1_BLK0_CFG_W3;
-		osd_logi("reg[0x%x]: 0x%08x\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU2_OSD1_BLK0_CFG_W4;
-		osd_logi("reg[0x%x]: 0x%08x\n\n", reg, osd_reg_read(reg));
+		osd_logi("reg[0x%x]: 0x%08x\n\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	}
 #endif
 }

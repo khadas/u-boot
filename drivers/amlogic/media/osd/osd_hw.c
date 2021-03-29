@@ -767,7 +767,8 @@ void osd_setting_default_hwc(u32 index, struct pandata_s *disp_data)
 
 	if (osd_get_chip_type() > MESON_CPU_MAJOR_ID_TM2)
 		reg_offset = 8;
-	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7)
+	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7 ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3)
 		postbld_src3_sel = 4;
 	if (index == OSD1)
 		din_reoder_sel = 0x4441;
@@ -3148,6 +3149,33 @@ static void fix_vpu_clk2_default_regs(void)
 #endif
 }
 
+static void independ_path_default_regs(void)
+{
+	/* default: osd1_bld_din_sel -- do not osd_data_byp osd_blend */
+	osd_reg_set_bits(VIU_OSD1_PATH_CTRL, 0x0, 4, 1);
+	osd_reg_set_bits(VIU_OSD2_PATH_CTRL, 0x0, 4, 1);
+	osd_reg_set_bits(VIU_OSD3_PATH_CTRL, 0x0, 4, 1);
+
+	/* default: osd1_sc_path_sel -- before osd_blend or after hdr */
+	osd_reg_set_bits(VIU_OSD1_PATH_CTRL, 0x0, 0, 1);
+	osd_reg_set_bits(VIU_OSD2_PATH_CTRL, 0x1, 0, 1);
+	osd_reg_set_bits(VIU_OSD3_PATH_CTRL, 0x1, 0, 1);
+
+	/* default: osd byp dolby */
+	osd_reg_set_bits(VIU_VD1_PATH_CTRL, 0x1, 16, 1);
+	osd_reg_set_bits(VIU_VD2_PATH_CTRL, 0x1, 16, 1);
+	osd_reg_set_bits(VIU_OSD1_PATH_CTRL, 0x1, 16, 1);
+	osd_reg_set_bits(VIU_OSD2_PATH_CTRL, 0x1, 16, 1);
+	osd_reg_set_bits(VIU_OSD3_PATH_CTRL, 0x1, 16, 1);
+
+	/* default: osd 12bit path */
+	osd_reg_set_bits(VIU_VD1_PATH_CTRL, 0x0, 17, 1);
+	osd_reg_set_bits(VIU_VD2_PATH_CTRL, 0x0, 17, 1);
+	osd_reg_set_bits(VIU_OSD1_PATH_CTRL, 0x0, 17, 1);
+	osd_reg_set_bits(VIU_OSD2_PATH_CTRL, 0x0, 17, 1);
+	osd_reg_set_bits(VIU_OSD3_PATH_CTRL, 0x0, 17, 1);
+}
+
 void osd_init_hw(void)
 {
 	u32 group, idx, data32, data2;
@@ -3168,7 +3196,13 @@ void osd_init_hw(void)
 		osd_reg_write(VPP_POSTBLEND_H_SIZE, info->width);
 	osd_vpu_power_on();
 
-	fix_vpu_clk2_default_regs();
+	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3)
+		osd_hw.path_ctrl_independ = 1;
+
+	if (osd_hw.path_ctrl_independ)
+		independ_path_default_regs();
+	else
+		fix_vpu_clk2_default_regs();
 	/* here we will init default value ,these value only set once . */
 	if (!logo_loaded) {
 		/* init vpu fifo control register */
@@ -3308,9 +3342,10 @@ void osd_init_hw(void)
 		osd_hw.shift_line = 1;
 	else
 		osd_hw.shift_line = 0;
-	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7)
+	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7 ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3)
 		osd_hw.mif_linear = 1;
+
 	return;
 }
-
 
