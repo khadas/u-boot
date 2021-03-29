@@ -135,6 +135,7 @@
 	"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
 	"setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
 	"setenv bootargs ${bootargs} defendkey=0x08300000,0x100000;"\
+            "run adb_setting;"\
             "run cmdline_keys;"\
             "\0"\
         "switch_bootmode="\
@@ -332,11 +333,7 @@
             "run bcb_cmd; "\
             "run factory_reset_poweroff_protect;"\
             "run upgrade_check;"\
-            "run init_display;"\
-            "run storeargs;"\
-            "run adb_setting;"\
-            "bcb uboot-command;"\
-            "run switch_bootmode;"
+            "run storeargs;"
 #define CONFIG_BOOTCOMMAND "run storeboot"
 
 //#define CONFIG_ENV_IS_NOWHERE  1
