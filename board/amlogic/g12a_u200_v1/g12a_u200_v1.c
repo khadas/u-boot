@@ -669,8 +669,30 @@ void aml_config_dtb(void)
 	return;
 }
 
-
 #ifdef CONFIG_BOARD_LATE_INIT
+static const char ddr_type_info[6][8] =
+{
+	"DDR3\0",       //CONFIG_DDR_TYPE_DDR3			//0
+	"DDR4\0",       //CONFIG_DDR_TYPE_DDR4			//1
+	"LPDDR4\0",     //CONFIG_DDR_TYPE_LPDDR4		//2
+	"LPDDR3\0",     //CONFIG_DDR_TYPE_LPDDR3		//3
+	"LPDDR2\0",     //CONFIG_DDR_TYPE_LPDDR2		//4
+	"LPDDR4X\0",    //CONFIG_DDR_TYPE_LPDDR4X		//5
+};
+
+static void board_init_mem(void)
+{
+	unsigned int ddr_type;
+	char *env_tmp;
+
+	env_tmp = getenv("boot_ddr_type");
+	if (!env_tmp) {
+		ddr_type = (((readl(SEC_AO_SEC_GP_CFG0)) & 0x00070000) >> 16);
+		setenv("boot_ddr_type", 0);
+		setenv("boot_ddr_type", ddr_type_info[ddr_type]);
+	}
+}
+
 int board_late_init(void)
 {
 	 TE(__func__);
@@ -680,6 +702,7 @@ int board_late_init(void)
 						"defenv_reserv;save; fi;", 0);
 		run_command("if itest ${upgrade_step} == 1; then "\
 						"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
+		board_init_mem();
 		/*add board late init function here*/
 #ifndef DTB_BIND_KERNEL
 		int ret;
