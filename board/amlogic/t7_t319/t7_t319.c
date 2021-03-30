@@ -376,6 +376,15 @@ const struct mtd_partition *get_partition_table(int *partitions)
 }
 #endif /* CONFIG_SPI_NAND */
 
+#ifdef CONFIG_MULTI_DTB
+int checkhw(char * name)
+{
+	strcpy(name, "t7_pop1_t319\0");
+	env_set("aml_dt", "t7_pop1_t319\0");
+	return 0;
+}
+#endif
+
 const char * const _env_args_reserve_[] =
 {
 	"lock",

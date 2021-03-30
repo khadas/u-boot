@@ -371,6 +371,15 @@ const struct mtd_partition *get_partition_table(int *partitions)
 }
 #endif /* CONFIG_SPI_NAND */
 
+#ifdef CONFIG_MULTI_DTB
+int checkhw(char * name)
+{
+	strcpy(name, "t7_pxp\0");
+	env_set("aml_dt", "t7_pxp\0");
+	return 0;
+}
+#endif
+
 int __attribute__((weak)) mmc_initialize(bd_t *bis){ return 0;}
 
 int __attribute__((weak)) do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]){ return 0;}
