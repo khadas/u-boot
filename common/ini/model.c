@@ -810,6 +810,7 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 #ifdef CONFIG_AML_LCD_TCON
 	unsigned int n, flag = 0;
 	unsigned int offset = 0, data_len = 0;
+	int ret;
 #endif
 
 	/* orignal data in ini */
@@ -861,22 +862,23 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 						flag = 0;
 					}
 					memset(data_buf, 0, LCD_EXTERN_INIT_ON_MAX);
-					handle_tcon_ext_pmu_data(n, flag,
-								 data_buf,
-								 offset,
-								 data_len);
-					/* bin data size valid */
-					if (data_buf[0]) {
-						data_size = data_buf[0];
-						p_attr->cmd_data[j + 1] = data_size;
-						memcpy(&p_attr->cmd_data[j + 2],
-							&data_buf[1], data_size);
-					} else { /* orignal ini data */
-						data_size = tmp_buf[i + 1];
-						p_attr->cmd_data[j + 1] = data_size;
-						for (k = 0; k < data_size; k++) {
-							p_attr->cmd_data[j + 2 + k] =
-								(unsigned char)tmp_buf[i + 2 + k];
+					ret = handle_tcon_ext_pmu_data(n, flag,
+								data_buf, offset,
+								data_len);
+					if (ret == 0) {
+						/* bin data size valid */
+						if (data_buf[0]) {
+							data_size = data_buf[0];
+							p_attr->cmd_data[j + 1] = data_size;
+							memcpy(&p_attr->cmd_data[j + 2],
+								&data_buf[1], data_size);
+						} else { /* orignal ini data */
+							data_size = tmp_buf[i + 1];
+							p_attr->cmd_data[j + 1] = data_size;
+							for (k = 0; k < data_size; k++) {
+								p_attr->cmd_data[j + 2 + k] =
+									(unsigned char)tmp_buf[i + 2 + k];
+							}
 						}
 					}
 #endif
@@ -1377,12 +1379,12 @@ static int handle_panel_misc(struct panel_misc_s *p_misc)
 				sizeof(p_misc->outputmode) - 1);
 			p_misc->outputmode[sizeof(p_misc->outputmode) - 1]
 				= '\0';
-			sprintf(buf, "setenv outputmode %s", p_misc->outputmode);
+			snprintf(buf, 63, "setenv outputmode %s", p_misc->outputmode);
 			run_command(buf, 0);
 		}
 	} else {
-		strcpy(p_misc->outputmode, ini_value);
-		sprintf(buf, "setenv outputmode2 %s", p_misc->outputmode);
+		strncpy(p_misc->outputmode, ini_value, 63);
+		snprintf(buf, 63, "setenv outputmode2 %s", p_misc->outputmode);
 		run_command(buf, 0);
 	}
 
