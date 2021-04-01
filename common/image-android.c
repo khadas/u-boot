@@ -13,6 +13,9 @@ static const unsigned char lzop_magic[] = {
 };
 
 #define ANDROID_IMAGE_DEFAULT_KERNEL_ADDR	0x10008000
+
+#define ANDROIDR_IMAGE_KERNEL_DECOMPRESS_LOAD_ADDR	0x1080000
+
 static const unsigned char gzip_magic[] = {
 	0x1f, 0x8b
 };
@@ -457,14 +460,7 @@ static ulong android_image_get_end_v3(const boot_img_hdr_v3_t *hdr)
 {
 	if (!p_vender_boot_img)
 		return 0;
-#if 0
-	/* copy dtb to dtb_addr */
-	p_vendor_boot_img_hdr_t vb_hdr = &p_vender_boot_img->hdr;
-	unsigned int dtb_offset;
-	dtb_offset = (DIV_ROUND_UP(vb_hdr->vendor_ramdisk_size,vb_hdr->page_size)) * vb_hdr->page_size;
 
-	memmove((void*)(unsigned long)vb_hdr->dtb_addr,p_vender_boot_img->szData + dtb_offset,vb_hdr->dtb_size);
-#endif
 	/*??*/
 	ulong end;
 	/*
@@ -482,7 +478,7 @@ static ulong android_image_get_end_v3(const boot_img_hdr_v3_t *hdr)
 static  ulong android_image_get_kload_v3(const boot_img_hdr_v3_t *hdr)
 {
 	if (p_vender_boot_img)
-		return p_vender_boot_img->hdr.kernel_addr;
+		return ANDROIDR_IMAGE_KERNEL_DECOMPRESS_LOAD_ADDR;
 	else
 		return 0;
 }
@@ -514,10 +510,9 @@ int android_image_get_ramdisk_v3(const boot_img_hdr_v3_t *hdr,
 	unsigned char *pRAMdisk = (unsigned char *)(unsigned long)vb_hdr->ramdisk_addr;
 
 	/* copy ramdisk to ramdisk_addr */
-	memmove(pRAMdisk, (char*)(unsigned long)(vb_hdr->kernel_addr + nOffset),hdr->ramdisk_size);
+	memmove(pRAMdisk, (char*)(unsigned long)(simple_strtoul(env_get("loadaddr"), NULL, 16) + nOffset),hdr->ramdisk_size);
 	memmove(pRAMdisk + hdr->ramdisk_size, p_vender_boot_img->szData,vb_hdr->vendor_ramdisk_size);
-	//aml_u8_printf(pRAMdisk, 128);
-	//aml_u8_printf(pRAMdisk + hdr->ramdisk_size, 128);
+
 	if (rd_data)
 		*rd_data = vb_hdr->ramdisk_addr;
 
@@ -543,6 +538,11 @@ static ulong android_image_get_comp_v3(const boot_img_hdr_v3_t *os_hdr)
 
 static int android_image_need_move_v3(ulong *img_addr, const boot_img_hdr_v3_t *hdr)
 {
+	/*
+	  Gzip format boot.img need relocate to high address.In order to quickly boot,so change load
+	  decompress kernel address,when imgread load kernel at 0x3080000 and load decompress kernel
+	  address is 0x1080000 needless to relocate,margin calculation is 32M.
+	*/
 	ulong kernel_load_addr = android_image_get_kload_v3(hdr);
 	ulong img_start = *img_addr;
 	ulong val = 0;

@@ -236,8 +236,8 @@
             "get_avb_mode;"\
             "get_valid_slot;"\
             "if test ${vendor_boot_mode} = true; then "\
-                "setenv loadaddr_kernel 0x2080000;"\
-                "setenv dtb_mem_addr 0x1f00000;"\
+                "setenv loadaddr_kernel 0x3080000;"\
+                "setenv dtb_mem_addr 0x1000000;"\
             "fi;"\
             "if test ${active_slot} != normal; then "\
                 "echo ab mode, read dtb from kernel;"\
