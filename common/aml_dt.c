@@ -316,7 +316,7 @@ unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 			p_st_dtb_v1_t pDTB_V1 = (p_st_dtb_v1_t)pInputFDT;
 			lReturn = pDTB_V1->dtb[dtb_match_num].nDTBOffset + pInputFDT;
 
-			if (pInputFDT != fdt_addr)
+			//if (pInputFDT != fdt_addr)
 			{
 				memcpy((void*)fdt_addr, (void*)lReturn,pDTB_V1->dtb[dtb_match_num].nDTBIMGSize);
 				lReturn = fdt_addr;
@@ -328,7 +328,7 @@ unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 			p_st_dtb_v2_t pDTB_V2 = (p_st_dtb_v2_t)pInputFDT;
 			lReturn = pDTB_V2->dtb[dtb_match_num].nDTBOffset + pInputFDT;
 
-			if (pInputFDT != fdt_addr)
+			//if (pInputFDT != fdt_addr)
 			{
 				memcpy((void*)fdt_addr, (void*)lReturn,pDTB_V2->dtb[dtb_match_num].nDTBIMGSize);
 				lReturn = fdt_addr;
