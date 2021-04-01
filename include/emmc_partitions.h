@@ -55,6 +55,7 @@
 #define     EMMCKEY_RESERVE_OFFSET           (0x4000)
 #define     MMC_RESERVED_OFFSET              (36*SZ_1M)
 #define     MMC_BLOCK_SIZE                   (512)
+#define     KEY_COPIES                       (2)
 // #define     MMC_SECURE_NAME                 "secure"
 // #define     MMC_SECURE_SIZE                 (0x1*SZ_1M)
 

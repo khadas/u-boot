@@ -24,10 +24,6 @@
 #define UBOOT_SIZE  (0x1000)
 #define BLOCK_SIZE 512
 
-
-
-
-
 extern int find_dev_num_by_partition_name (char const *name);
 extern struct partitions *get_partition_info_by_num(const int num);
 extern bool emmckey_is_protected(struct mmc *mmc);
@@ -768,17 +764,19 @@ int mmc_read_rsv(const char *rsv_name, size_t size, void *buf) {
 		return ret;
 	}
 
-	if (!strcmp("key", rsv_name))
+	if (!strcmp("key", rsv_name)) {
 		info_disprotect |= DISPROTECT_KEY;
-	ret = storage_byte_read(mmc, off, size, buf);
-	if (!strcmp("key", rsv_name))
+		ret = mmc_key_read(buf, size, 0);
 		info_disprotect &= ~DISPROTECT_KEY;
-	if (ret != 0) {
+	} else
+		ret = storage_byte_read(mmc, off, size, buf);
+
+	if (ret != 0)
 		printf("read resv failed\n");
-	}
 
 	return ret;
 }
+
 int mmc_write_rsv(const char *rsv_name, size_t size, void *buf) {
 
 	char ret=1;
@@ -808,19 +806,19 @@ int mmc_write_rsv(const char *rsv_name, size_t size, void *buf) {
 	if (!strcmp("dtb", rsv_name)) {
 		ret = dtb_write(buf);
 		ret |= renew_partition_tbl(buf);
-	} else {
-		if (!strcmp("key", rsv_name))
-			info_disprotect |= DISPROTECT_KEY;
+	} else if (!strcmp("key", rsv_name)) {
+		info_disprotect |= DISPROTECT_KEY;
+		ret = mmc_key_write(buf, size, 0);
+		info_disprotect &= ~DISPROTECT_KEY;
+	} else
 		ret = storage_byte_write(mmc, off, size, buf);
-		if (!strcmp("key", rsv_name))
-			info_disprotect &= ~DISPROTECT_KEY;
-	}
 
 	if (ret != 0)
 		printf("write rsv failed\n");
 
 	return ret;
 }
+
 int mmc_erase_rsv(const char *rsv_name) {
 
 	char ret=1;
@@ -837,12 +835,16 @@ int mmc_erase_rsv(const char *rsv_name) {
 		return 1;
 	}
 	ret = storage_rsv_range_check(rsv_name, &size, &off);
-	if (ret) return ret;
-	if (!strcmp("key", rsv_name))
+	if (ret)
+		return ret;
+
+	if (!strcmp("key", rsv_name)) {
 		info_disprotect |= DISPROTECT_KEY;
-	ret = storage_byte_erase(mmc, off, size);
-	if (!strcmp("key", rsv_name))
+		ret = mmc_key_erase();
 		info_disprotect &= ~DISPROTECT_KEY;
+	} else
+		ret = storage_byte_erase(mmc, off, size);
+
 	if (ret != 0) {
 		printf("erase resv failed\n");
 	}
@@ -939,7 +941,6 @@ int emmc_pre(void)
 		printf("emmc init fail!\n");
 	return ret;
 }
-
 
 int emmc_probe(uint32_t init_flag)
 {

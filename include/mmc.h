@@ -72,7 +72,6 @@
 #define MMC_MODE_1BIT		BIT(28)
 #define MMC_MODE_SPI		BIT(27)
 
-
 #define SD_DATA_4BIT	0x00040000
 
 #define IS_SD(x)	((x)->version & SD_VERSION_SD)
@@ -117,7 +116,6 @@
 #define MMC_CMD62_ARG1			0xefac62ec
 #define MMC_CMD62_ARG2			0xcbaea7
 
-
 #define SD_CMD_SEND_RELATIVE_ADDR	3
 #define SD_CMD_SWITCH_FUNC		6
 #define SD_CMD_SEND_IF_COND		8
@@ -129,6 +127,9 @@
 #define SD_CMD_ERASE_WR_BLK_END		33
 #define SD_CMD_APP_SEND_OP_COND		41
 #define SD_CMD_APP_SEND_SCR		51
+
+#define MMC_KEY_SIZE            (256*1024)
+#define EMMC_KEY_DEV            (1)
 
 static inline bool mmc_is_tuning_cmd(uint cmdidx)
 {
@@ -619,6 +620,7 @@ struct mmc {
 	uint scr[2];
 	uint csd[4];
 	uint cid[4];
+	char key_stamp;
 	ushort rca;
 	u8 part_support;
 	u8 part_attr;
@@ -693,6 +695,12 @@ enum mmc_hwpart_conf_mode {
 	MMC_HWPART_CONF_CHECK,
 	MMC_HWPART_CONF_SET,
 	MMC_HWPART_CONF_COMPLETE,
+};
+
+struct aml_key_info {
+	u64 checksum;
+	u32 stamp;
+	u32 magic;
 };
 
 struct mmc *mmc_create(const struct mmc_config *cfg, void *priv);
