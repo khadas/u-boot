@@ -214,6 +214,24 @@ int board_late_init(void)
 	return 0;
 }
 
+unsigned int get_ddr_memsize(void)
+{
+	unsigned int ddr_size;
+#if 0
+	/*if soc don't support automatic get ddr size,
+	  then it get ddr size with software method*/
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		ddr_size += gd->bd->bi_dram[i].size;
+	}
+#if defined(CONFIG_SYS_MEM_TOP_HIDE)
+	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
+#endif
+#else
+	/*auto get ddr size from hardware method*/
+	ddr_size = ((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4;
+#endif
+	return ddr_size;
+}
 
 phys_size_t get_effective_memsize(void)
 {
@@ -416,9 +434,46 @@ const struct mtd_partition *get_spinand_partition_table(int *partitions)
 #ifdef CONFIG_MULTI_DTB
 int checkhw(char * name)
 {
-    strcpy(name, "sc2_s905x4_ah212\0");
-    env_set("aml_dt", "sc2_s905x4_ah212\0");
-    return 0;
+#ifdef CONFIG_AUTO_ADAPT_DDR_DTB
+	unsigned int ddr_size = 0;
+	char loc_name[64] = {0};
+	char *mem_size = env_get("mem_size");
+
+	ddr_size = get_ddr_memsize();
+
+	printf("%s:%d ddr_size:0x%x\r\n",__func__,__LINE__,ddr_size);
+	switch (ddr_size) {
+		case CONFIG_2G_SIZE:
+			strcpy(loc_name, "sc2_s905x4_ah212\0");
+
+			/* if limit memory size */
+			if (mem_size && !strcmp(mem_size, "1g")) {
+				strcpy(loc_name, "sc2_s905x4_ah212-1g\0");
+			}
+			break;
+		case CONFIG_1G_SIZE:
+			strcpy(loc_name, "sc2_s905x4_ah212-1g\0");
+			break;
+		case CONFIG_3G_SIZE:
+			strcpy(loc_name, "sc2_s905x4_ah212-3g\0");
+			break;
+		case CONFIG_DDR_MAX_SIZE:
+			strcpy(loc_name, "sc2_s905x4_ah212-4g\0");
+			break;
+		default:
+			printf("DDR size: 0x%x, multi-dt doesn't support\n", ddr_size);
+			strcpy(loc_name, "sc2_s905x4_ah212_unsupport\0");
+			break;
+	}
+
+	strcpy(name, loc_name);
+	env_set("aml_dt", loc_name);
+	return 0;
+#else
+	strcpy(name, "sc2_s905x4_ah212\0");
+	env_set("aml_dt", "sc2_s905x4_ah212\0");
+	return 0;
+#endif
 }
 #endif
 
