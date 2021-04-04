@@ -16,7 +16,9 @@
 /* v20200521: add sc2 support */
 /* v20201118: add t7 support */
 /* v20210114: add s4 support */
-#define VPU_VERION	"v20210114"
+/* v20210317: add t3 support */
+#define VPU_VERION	"v20210317"
+
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -308,6 +310,34 @@ static struct vpu_data_s vpu_data_s4 = {
 	.power_off = vpu_power_off_new,
 };
 
+static struct vpu_data_s vpu_data_t3 = {
+	.chip_type = VPU_CHIP_T3,
+	.chip_name = "t3",
+	.clk_level_dft = CLK_LEVEL_DFT_G12A,
+	.clk_level_max = CLK_LEVEL_MAX_G12A,
+	.gp_pll_valid = 0,
+
+	.vpu_clk_reg = CLKCTRL_VPU_CLK_CTRL,
+	.vapb_clk_reg = CLKCTRL_VAPBCLK_CTRL,
+	.vid_clk_reg = CLKCTRL_VID_CLK0_CTRL2,
+
+	.pwrctrl_id_table = vpu_pwrctrl_id_table_t7,
+
+	.fclk_div_table = fclk_div_table_g12a,
+	.vpu_clk_table = vpu_clk_table,
+
+	.mem_pd_table = NULL,
+	.power_table = NULL,
+	.iso_table = NULL,
+	.reset_table = NULL,
+
+	.module_init_table_cnt = 0,
+	.module_init_table = NULL,
+
+	.power_on = vpu_power_on_new,
+	.power_off = vpu_power_off_new,
+};
+
 static void vpu_chip_detect(void)
 {
 	unsigned int cpu_type;
@@ -346,7 +376,7 @@ static void vpu_chip_detect(void)
 		break;
 	default:
 		//vpu_conf.data = NULL;
-		vpu_conf.data = &vpu_data_s4;
+		vpu_conf.data = &vpu_data_t3;
 		break;
 	}
 
@@ -392,6 +422,7 @@ static int vpu_check(void)
 	case VPU_CHIP_T5D:
 	case VPU_CHIP_T7:
 	case VPU_CHIP_S4:
+	case VPU_CHIP_T3:
 		ret = 0;
 		break;
 	default:
@@ -654,6 +685,7 @@ int vpu_probe(void)
 	/* vpu module init off, for power save, and special module init */
 	vpu_mem_pd_init_off();
 	vpu_module_init_config();
+	VPUPR("%s\n", __func__);
 
 	return ret;
 }

@@ -177,4 +177,13 @@
 #define PWRCTRL_MEM_PD11                           ((0x001b  << 2) + 0xfe00c000)
 #endif
 
+#ifndef VPU_RDARB_MODE_L1C1
+#define VPU_RDARB_MODE_L1C1                        ((0x2790  << 2) + 0xff000000)
+#endif
+
+#ifndef VPU_RDARB_MODE_L1C2
+#define VPU_RDARB_MODE_L1C2                        ((0x2799  << 2) + 0xff000000)
+#endif
+
+
 #endif

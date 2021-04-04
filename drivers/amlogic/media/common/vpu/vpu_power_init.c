@@ -41,8 +41,10 @@ void vpu_module_init_config(void)
 	vpu_hiu_setb(vpu_conf.data->vid_clk_reg, 0, 0, 8);
 
 	/* dmc_arb_config */
-	vpu_vcbus_write(VPU_RDARB_MODE_L1C1, 0x0); //0x210000
-	vpu_vcbus_write(VPU_RDARB_MODE_L1C2, 0x10000);
+	if (vpu_conf.data->chip_type < VPU_CHIP_T3) {
+		vpu_vcbus_write(VPU_RDARB_MODE_L1C1, 0x0); //0x210000
+		vpu_vcbus_write(VPU_RDARB_MODE_L1C2, 0x10000);
+	}
 	vpu_vcbus_write(VPU_RDARB_MODE_L2C1, 0x900000);
 	vpu_vcbus_write(VPU_WRARB_MODE_L2C1, 0x20000);
 
