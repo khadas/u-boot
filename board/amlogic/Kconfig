@@ -629,6 +629,48 @@ config TARGET_T7_AN400P_LPDDR4X
 
 endif
 
+if MESON_T3
+
+config SYS_SOC
+	default "t3"
+
+config DDRFW_TYPE
+	string "T3 DDR FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+	string "T3 CHIPSET NAME"
+	default "POP1"
+
+config CHIPSET_VARIANT
+	string "T3 CHIPSET VARIANT"
+	default ""
+
+config AMLOGIC_KEY_TYPE
+	string "T3 AMLOGIC KEY TYPE"
+	default "dev-keys"
+
+config BL30_SELECT
+	string "T3 BL30 board config"
+	default "sc2_ah219"
+
+choice
+	prompt "T3 Board"
+
+config T3_SKT
+	bool "T3_SKT"
+	select TARGET_T3_SKT
+	help
+	  Select T3 SKT(XXXX) config
+
+endchoice
+
+config TARGET_T3_SKT
+	bool "T3 SKT board"
+	depends on T3_SKT
+
+endif
+
 if MESON_C2
 
 config SYS_SOC
@@ -803,3 +845,6 @@ source "board/amlogic/t7_t319/Kconfig"
 source "board/amlogic/t7_an40a1/Kconfig"
 
 source "board/amlogic/t7_an400p_lpddr4x/Kconfig"
+
+source "board/amlogic/t3_skt/Kconfig"
+

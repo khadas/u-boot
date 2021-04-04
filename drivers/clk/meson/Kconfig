@@ -53,3 +53,12 @@ config CLK_MESON_C2
 	help
 		This option is used to enable the meson c2 clock
 		driver.
+
+config CLK_MESON_T3
+        bool "Support T3 Clock"
+        depends on CLK
+        help
+          This option is used to enable the meson t3 clock
+          driver
+
+

@@ -1,0 +1,13 @@
+#ifndef __OSCRING_H__
+#define __OSCRING_H__
+
+#define	OSCRING_CTL_REG0		SYSCTRL_OSC_RING_CTRL0
+#define OSCRING_CTL_DATA0	0x51555555	/*0:25*/
+#define OSCRING_CTL_REG1		SYSCTRL_OSC_RING_CTRL1
+#define OSCRING_CTL_DATA1	0x80000005	/*0:7*/
+
+#define RING_PWM_VCCK		PWMIJ_PWM_B
+#define RING_PWM_EE		PWMGH_PWM_B
+
+int ring_msr(int index);
+#endif
