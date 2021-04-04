@@ -5,6 +5,7 @@
  */
 
 #include "../include/amlnf_dev.h"
+#include "../include/aml_nftl_I.h"
 #include "partition_table.h"
 int boot_device_flag = 0;
 struct aml_nand_device *aml_nand_dev = NULL;
