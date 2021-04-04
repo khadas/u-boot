@@ -327,6 +327,16 @@
 #define COMBO_DPHY_RO_EDP_LVDS_TX_PHY2_CNTL1	((0x0012  << 2) + 0xfe018000)
 #endif
 
+#ifndef COMBO_DPHY_RO_EDP_LVDS_TX_PHY0_CNTL1
+#define COMBO_DPHY_RO_EDP_LVDS_TX_PHY0_CNTL1	((0x0000  << 2) + 0xfe018000)
+#endif
+#ifndef COMBO_DPHY_RO_EDP_LVDS_TX_PHY1_CNTL1
+#define COMBO_DPHY_RO_EDP_LVDS_TX_PHY1_CNTL1	((0x0011  << 2) + 0xfe018000)
+#endif
+#ifndef COMBO_DPHY_RO_EDP_LVDS_TX_PHY2_CNTL1
+#define COMBO_DPHY_RO_EDP_LVDS_TX_PHY2_CNTL1	((0x0012  << 2) + 0xfe018000)
+#endif
+
 #ifndef ANACTRL_DIF_PHY_CNTL1
 #define ANACTRL_DIF_PHY_CNTL1			((0x00c8  << 2) + 0xfe008000)
 #endif
@@ -391,6 +401,12 @@
 #define ANACTRL_DIF_PHY_CNTL21			((0x00dc  << 2) + 0xfe008000)
 #endif
 
+#ifndef CLKCTRL_VID_CLK0_DIV
+#define CLKCTRL_VID_CLK0_DIV                       ((0x0032  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_VID_PLL_CLK2_DIV
+#define CLKCTRL_VID_PLL_CLK2_DIV                   ((0x007e  << 2) + 0xfe000000)
+#endif
 #ifndef CLKCTRL_VIID_CLK0_DIV
 #define CLKCTRL_VIID_CLK0_DIV			((0x0033  << 2) + 0xfe000000)
 #endif
@@ -826,15 +842,12 @@
 #ifndef PERIPHS_PIN_MUX_0
 #define PERIPHS_PIN_MUX_0 PADCTRL_PIN_MUX_REG0
 #endif
-
 #ifndef PERIPHS_PIN_MUX_7
 #define PERIPHS_PIN_MUX_7 0x5
 #endif
-
 #ifndef PERIPHS_PIN_MUX_8
 #define PERIPHS_PIN_MUX_8 0x5
 #endif
-
 #ifndef PERIPHS_PIN_MUX_9
 #define PERIPHS_PIN_MUX_9 0x5
 #endif
