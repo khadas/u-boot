@@ -627,8 +627,8 @@ int board_late_init(void)
 {
 	TE(__func__);
 
-	char outputModePre[32] = {};
-	char outputModeCur[32] = {};
+	char outputModePre[32] = {0};
+	char outputModeCur[32] = {0};
 
 	if (getenv("default_env")) {
 		printf("factory reset, need default all uboot env\n");

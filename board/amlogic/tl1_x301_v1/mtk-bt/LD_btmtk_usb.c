@@ -1131,6 +1131,7 @@ static int btmtk_usb_load_rom_patch_7668(struct LD_btmtk_usb_data *data)
     if (!data->rom_patch || !data->rom_patch_len) {
         usb_debug("please assign a rom patch(/system/etc/firmware/%s) or (/lib/firmware/%s)\n",
                 data->rom_patch_bin_file_name, data->rom_patch_bin_file_name);
+	os_kfree(buf);
         return -1;
     }
 

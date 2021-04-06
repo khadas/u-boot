@@ -478,8 +478,8 @@ int board_late_init(void)
 	unsigned int hwid = 1;
 	unsigned int ddr_size=0;
 	int i;
-	char outputModePre[30];
-	char outputModeCur[30];
+	char outputModePre[30] = {0};
+	char outputModeCur[30] = {0};
 
 	if (getenv("default_env")) {
 		printf("factory reset, need default all uboot env\n");

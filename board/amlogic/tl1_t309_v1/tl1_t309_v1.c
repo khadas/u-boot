@@ -650,8 +650,8 @@ int board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
-	char outputModePre[30];
-	char outputModeCur[30];
+	char outputModePre[30] = {0};
+	char outputModeCur[30] = {0};
 
 	if (getenv("default_env")) {
 		printf("factory reset, need default all uboot env\n");

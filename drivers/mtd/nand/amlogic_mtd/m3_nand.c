@@ -1028,7 +1028,7 @@ void nand_init(void)
 	nand_curr_device = 1; //fixit
 	amlmtd_init = 1;
 	if (ret)
-		free(controller);
+		kfree(controller);
 
 	return;
 }

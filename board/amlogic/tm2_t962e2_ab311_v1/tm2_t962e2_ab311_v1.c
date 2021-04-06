@@ -629,8 +629,8 @@ void reset_mt7668(void)
 int board_late_init(void)
 {
 	TE(__func__);
-	char outputModePre[32] = {};
-	char outputModeCur[32] = {};
+	char outputModePre[32] = {0};
+	char outputModeCur[32] = {0};
 	char *buf;
 
 	if (getenv("default_env")) {

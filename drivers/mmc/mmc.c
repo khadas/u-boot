@@ -2744,7 +2744,7 @@ static int _key_write(struct mmc *mmc, u64 blk, u64 cnt, void *addr)
 static int write_invalid_key(struct mmc *mmc, void *addr, int valid_flag)
 {
 	u64 blk, cnt, key_glb_offset;
-	int ret;
+	int ret = 0;
 	struct partitions * part = NULL;
 	struct virtual_partition *vpart = NULL;
 	char checksum_info[512] = {0};

@@ -628,8 +628,8 @@ int board_late_init(void)
 {
 	TE(__func__);
 
-	char outputModePre[30];
-	char outputModeCur[30];
+	char outputModePre[30] = {0};
+	char outputModeCur[30] = {0};
 	strcpy(outputModePre,getenv("outputmode"));
 
 		//update env before anyone using it

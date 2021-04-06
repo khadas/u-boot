@@ -332,10 +332,10 @@
             "fi;"\
             "\0"\
         "init_display="\
-            "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;osd open;osd clear;"\
+            "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;setenv dolby_status 0;setenv dolby_vision_on 0;osd open;osd clear;"\
             "if rdext4pic $board_logo_part $loadaddr; then echo $board_logo_part logo; "\
             "else rdext4pic odm $loadaddr;fi;bmp display $logoLoadAddr;"\
-            "bmp scale;vout output ${outputmode};dovi set;dovi pkg;vpp hdrpkt;"\
+            "bmp scale;vout output ${outputmode};vpp hdrpkt;"\
             "\0"\
         "check_display="\
             "if test ${reboot_mode} = cold_boot; then "\

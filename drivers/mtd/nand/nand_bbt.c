@@ -1156,7 +1156,7 @@ int nand_scan_bbt(struct mtd_info *mtd, struct nand_bbt_descr *bd)
 	if (md)
 		mark_bbt_region(mtd, md);
 
-	vfree(buf);
+	kfree(buf);
 	return res;
 }
 

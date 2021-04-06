@@ -749,6 +749,7 @@ int aml_ldim_dev_init_table_fixed_size_load_dts(char *dtaddr,
 		LDIMERR("%s: get %s failed\n", ldconf->name, propname);
 		table[0] = LCD_EXT_CMD_TYPE_END;
 		table[1] = 0;
+		free(propname);
 		return -1;
 	}
 
