@@ -895,7 +895,7 @@ static void setup_external_phy(struct udevice *dev)
 #ifdef CONFIG_DM_ETH
 static void __iomem *DM_network_interface_setup(struct udevice *dev)
 {
-	u32 internal_phy = 0;
+	int internal_phy = 0;
 
 	internal_phy = dev_read_u32_default(dev, "internal_phy", 1);
 	if (internal_phy < 0) {

@@ -744,41 +744,41 @@ int meson_rsv_init(struct mtd_info *mtd,
 	return ret;
 
 error10:
-	free(handler->ddr_para->nvalid);
+	kfree(handler->ddr_para->nvalid);
 	handler->ddr_para->nvalid = NULL;
 error9:
-	free(handler->ddr_para);
+	kfree(handler->ddr_para);
 	handler->ddr_para = NULL;
 error8:
-	free(handler->dtb->nvalid);
+	kfree(handler->dtb->nvalid);
 	handler->dtb->nvalid = NULL;
 error7:
-	free(handler->dtb);
+	kfree(handler->dtb);
 	handler->dtb = NULL;
 error6:
-	free(handler->key->nvalid);
+	kfree(handler->key->nvalid);
 	handler->key->nvalid = NULL;
 error5:
-	free(handler->key);
+	kfree(handler->key);
 	handler->key = NULL;
 #ifndef CONFIG_ENV_IS_IN_NAND
 error4:
-	free(handler->env->nvalid);
+	kfree(handler->env->nvalid);
 	handler->env->nvalid = NULL;
 error3:
-	free(handler->env);
+	kfree(handler->env);
 	handler->env = NULL;
 #endif
 error2:
-	free(handler->bbt->nvalid);
+	kfree(handler->bbt->nvalid);
 	handler->bbt->nvalid = NULL;
 error1:
-	free(handler->bbt);
+	kfree(handler->bbt);
 	handler->bbt = NULL;
 
 error0:
 	for (i = 0; i < NAND_RSV_BLOCK_NUM; i++) {
-		free(handler->free_node[i]);
+		kfree(handler->free_node[i]);
 		handler->free_node[i] = NULL;
 	}
 
@@ -822,7 +822,7 @@ int meson_rsv_bbt_read(u_char *dest, size_t size)
 	memcpy(dest, temp, len > size ? size : len);
 	pr_info("%s %d read 0x%lx bytes from bbt, ret %d\n",
 		__func__, __LINE__, len > size ? size : len, ret);
-	free(temp);
+	kfree(temp);
 	return ret;
 }
 
@@ -863,7 +863,7 @@ int meson_rsv_key_read(u_char *dest, size_t size)
 	memcpy(dest, temp, len > size ? size : len);
 	pr_info("%s %d read 0x%lx bytes from key, ret %d\n",
 		__func__, __LINE__, len > size ? size : len, ret);
-	free(temp);
+	kfree(temp);
 	return ret;
 }
 
@@ -904,7 +904,7 @@ int meson_rsv_ddr_para_read(u_char *dest, size_t size)
 	memcpy(dest, temp, len > size ? size : len);
 	pr_info("%s %d read 0x%lx bytes from ddr_para, ret %d\n",
 		__func__, __LINE__, len > size ? size : len, ret);
-	free(temp);
+	kfree(temp);
 	return ret;
 }
 
@@ -944,7 +944,7 @@ int meson_rsv_env_read(u_char *dest, size_t size)
 	memcpy(dest, temp, len > size ? size : len);
 	pr_info("%s %d read 0x%lx bytes from env, ret %d\n",
 		__func__, __LINE__, len > size ? size : len, ret);
-	free(temp);
+	kfree(temp);
 	return ret;
 }
 
@@ -984,7 +984,7 @@ int meson_rsv_dtb_read(u_char *dest, size_t size)
 	memcpy(dest, temp, len > size ? size : len);
 	pr_info("%s %d read 0x%lx bytes from dtb, ret %d\n",
 		__func__, __LINE__, len > size ? size : len, ret);
-	free(temp);
+	kfree(temp);
 	return ret;
 }
 
@@ -1018,7 +1018,7 @@ int meson_rsv_bbt_write(u_char *source, size_t size)
 	ret = meson_rsv_save(rsv_handler->bbt, temp);
 	pr_info("%s %d write 0x%lx bytes to bbt, ret %d\n",
 		__func__, __LINE__, len > size ? size : len, ret);
-	free(temp);
+	kfree(temp);
 	return ret;
 }
 
@@ -1051,7 +1051,7 @@ int meson_rsv_key_write(u_char *source, size_t size)
 	ret = meson_rsv_save(rsv_handler->key, temp);
 	pr_info("%s %d write 0x%lx bytes to key, ret %d\n",
 		__func__, __LINE__, len > size ? size : len, ret);
-	free(temp);
+	kfree(temp);
 	return ret;
 }
 
@@ -1084,7 +1084,7 @@ int meson_rsv_ddr_para_write(u_char *source, size_t size)
 	ret = meson_rsv_save(rsv_handler->ddr_para, temp);
 	pr_info("%s %d write 0x%lx bytes to key, ret %d\n",
 		__func__, __LINE__, len > size ? size : len, ret);
-	free(temp);
+	kfree(temp);
 	return ret;
 }
 
@@ -1118,7 +1118,7 @@ int meson_rsv_env_write(u_char *source, size_t size)
 	ret = meson_rsv_save(rsv_handler->env, temp);
 	pr_info("%s %d write 0x%lx bytes to env, ret %d\n",
 		__func__, __LINE__, len > size ? size : len, ret);
-	free(temp);
+	kfree(temp);
 	return ret;
 }
 
@@ -1151,7 +1151,7 @@ int meson_rsv_dtb_write(u_char *source, size_t size)
 	ret = meson_rsv_save(rsv_handler->dtb, temp);
 	pr_info("%s %d write 0x%lx bytes to dtb, ret %d\n",
 		__func__, __LINE__, len > size ? size : len, ret);
-	free(temp);
+	kfree(temp);
 	return ret;
 }
 

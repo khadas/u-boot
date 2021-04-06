@@ -94,7 +94,7 @@ int get_usbphy_baseinfo(struct phy *usb_phys)
 	struct udevice *bus;
 	struct uclass *uc;
 	int ret, i;
-	unsigned int count;
+	int count;
 
 	if (usb_phys[0].dev && usb_phys[1].dev)
 		return 0;

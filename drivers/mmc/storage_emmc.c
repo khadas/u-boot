@@ -126,6 +126,10 @@ static int storage_byte_read(struct mmc *mmc,loff_t off, size_t  size,void *addr
 	void *addr_byte;
 
 	blk_shift =  ffs(mmc->read_bl_len) - 1;
+	if (blk_shift < 0) {
+		printf("bad shift.\n");
+		return 1;
+	}
 	blk = off >>  blk_shift ;
 	cnt = size >>  blk_shift ;
 	sz_byte = size - ((cnt) << blk_shift) ;
@@ -164,6 +168,10 @@ static int storage_byte_write(struct mmc *mmc,loff_t off, size_t  size,void *add
 	u64 cnt = 0, n = 0, blk = 0, sz_byte = 0;
 
 	blk_shift =  ffs(mmc->read_bl_len) - 1;
+	if (blk_shift < 0) {
+		printf("bad shift.\n");
+		return 1;
+	}
 	blk = off >>  blk_shift ;
 	cnt = size >>  blk_shift ;
 	sz_byte = size - ((cnt) << blk_shift);
@@ -207,6 +215,10 @@ static int storage_byte_erase(struct mmc *mmc,loff_t off, size_t  size) {
 	u64 cnt = 0, n = 0, blk = 0;
 
 	blk_shift =  ffs(mmc->read_bl_len) - 1;
+	if (blk_shift < 0) {
+		printf("bad shift.\n");
+		return 1;
+	}
 	blk = off >>  blk_shift ;
 	cnt = size >>  blk_shift ;
 	mmc_init(mmc);

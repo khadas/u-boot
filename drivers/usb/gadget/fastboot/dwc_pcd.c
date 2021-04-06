@@ -355,7 +355,7 @@ static int ep_queue(struct usb_ep *usb_ep, struct usb_request *usb_req,
 {
 	pcd_struct_t *pcd;
 	struct dwc_otg_pcd_ep *ep = NULL;
-	int retval = 0;
+//	int retval = 0;
 
 	if (!usb_req || !usb_req->complete || !usb_req->buf) {
 		printf("bad params\n");
@@ -389,8 +389,11 @@ static int ep_queue(struct usb_ep *usb_ep, struct usb_request *usb_req,
 
 	pcd_queue(ep->dwc_ep.num, ep->dwc_ep.is_in, usb_req);
 
+	/*deadcode
+	 *
 	if (retval)
 		return -3;
+	 */
 
 	return 0;
 }

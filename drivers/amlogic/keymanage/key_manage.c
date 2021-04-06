@@ -534,7 +534,8 @@ static int do_keyman_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
         else KM_MSG("Err key dataFmt(%s)\n", dataFmt);
     }
 
-    return ret ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
+    //return ret ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
+    return CMD_RET_SUCCESS;
 }
 
 //argv: 1       2       3

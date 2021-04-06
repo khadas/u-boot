@@ -110,7 +110,7 @@ int32_t meson_trustzone_efuse(struct efuse_hal_api_arg *arg)
 int32_t meson_trustzone_efuse_get_max(struct efuse_hal_api_arg *arg)
 {
 	int32_t ret;
-	unsigned cmd;
+	unsigned cmd = 0;
 
 	if (arg->cmd == EFUSE_HAL_API_USER_MAX)
 		cmd = EFUSE_USER_MAX;

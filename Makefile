@@ -759,11 +759,6 @@ libs-y		:= $(patsubst %/, %/built-in.o, $(libs-y))
 u-boot-init := $(head-y)
 u-boot-main := $(libs-y)
 
-ifeq ($(CONFIG_AML_DOLBY), y)
-PLATFORM_CPPFLAGS += -I$(srctree)/drivers/amlogic/media/osd/dv/prebuild
-PLATFORM_LIBS += $(srctree)/drivers/amlogic/media/osd/dv/prebuild/dovi.a
-endif
-
 # Add GCC lib
 ifeq ($(CONFIG_USE_PRIVATE_LIBGCC),y)
 PLATFORM_LIBGCC = arch/$(ARCH)/lib/lib.a

@@ -9256,7 +9256,8 @@ int do_ddr_c2_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 
 	global_ddr_clk = get_ddr_clk();
 	bdlr_100step = get_bdlr_100step(global_ddr_clk);
-	ui_1_32_100step = (1000000 * 100 / (global_ddr_clk * 2 * 32));
+	if (global_ddr_clk)
+		ui_1_32_100step = (1000000 * 100 / (global_ddr_clk * 2 * 32));
 
 	if (argc == 1) {
 		printf("\nplease read aml phy cmd help\n");
@@ -9418,7 +9419,8 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 
 	global_ddr_clk = get_ddr_clk();
 	bdlr_100step = get_bdlr_100step(global_ddr_clk);
-	ui_1_32_100step = (1000000 * 100 / (global_ddr_clk * 2 * 32));
+	if (global_ddr_clk)
+		ui_1_32_100step = (1000000 * 100 / (global_ddr_clk * 2 * 32));
 
 	if (argc == 1) {
 		printf("\nplease read help\n");

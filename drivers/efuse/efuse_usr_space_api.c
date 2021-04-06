@@ -358,6 +358,7 @@ static int do_usr_efuse_api(cmd_tbl_t *cmdtp, int flag, int argc, char * const a
             ret = hex_ascii_to_buf(input, tmpBuf, bufSz);
             if (ret) {
                 EFUSE_ERR("Failed in change hex ascii to buf\n");
+                free(tmpBuf);
                 return __LINE__;
             }
             keydata = (char*)tmpBuf;

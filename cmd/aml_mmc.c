@@ -420,6 +420,10 @@ static int amlmmc_erase_in_card(int argc, char *const argv[])
 	mmc = find_mmc_device(dev);
 
 	tmp_shift = ffs(mmc->read_bl_len) -1;
+	if (tmp_shift < 0) {
+		printf("bad shift.\n");
+		return 1;
+	}
 	cnt = size >> tmp_shift;
 	blk = offset_addr >> tmp_shift;
 	/* sz_byte = size - (cnt<<tmp_shift); */
@@ -539,6 +543,10 @@ static int amlmmc_erase_non_loader(int argc, char *const argv[])
 	mmc_init(mmc);
 
 	blk_shift = ffs(mmc->read_bl_len) -1;
+	if (blk_shift < 0) {
+		printf("bad shift.\n");
+		return 1;
+	}
 	part_info = find_mmc_partition_by_name(MMC_BOOT_NAME);
 
 	if (part_info == NULL) {
@@ -598,6 +606,10 @@ static int amlmmc_erase_single_part(int argc, char *const argv[])
 	mmc_init(mmc);
 
 	blk_shift = ffs(mmc->read_bl_len) -1;
+	if (blk_shift < 0) {
+		printf("bad shift.\n");
+		return 1;
+	}
 	if (emmckey_is_protected(mmc)
 		&& (strncmp(name, MMC_RESERVED_NAME, sizeof(MMC_RESERVED_NAME)) == 0x00)) {
 		printf("\"%s-partition\" is been protecting and should no be erased!\n",
@@ -643,6 +655,10 @@ static int amlmmc_erase_whole(int argc, char *const argv[])
 		return 1;
 	mmc_init(mmc);
 	blk_shift = ffs(mmc->read_bl_len) -1;
+	if (blk_shift < 0) {
+		printf("bad shift.\n");
+		return 1;
+	}
 	start_blk = 0;
 
 	if (emmckey_is_protected(mmc)) {
@@ -699,6 +715,10 @@ static int amlmmc_erase_non_cache(int arc, char *const argv[])
 		 return 1;
 	 mmc_init(mmc);
 	 blk_shift = ffs(mmc->read_bl_len) -1;
+	 if (blk_shift < 0) {
+		printf("bad shift.\n");
+		return 1;
+	 }
 	 if (emmckey_is_protected(mmc)) {
 		 part_info = find_mmc_partition_by_name(MMC_RESERVED_NAME);
 		 if (part_info == NULL) {
@@ -891,6 +911,10 @@ static int amlmmc_write_in_card(int argc, char *const argv[])
 		return 1;
 
 	int blk_shift = ffs( mmc->read_bl_len) -1;
+	if (blk_shift < 0) {
+		printf("bad shift.\n");
+		return 1;
+	}
 	cnt = size >> blk_shift;
 	blk = offset >> blk_shift;
 	sz_byte = size - (cnt<<blk_shift);
@@ -1025,6 +1049,10 @@ static int amlmmc_read_in_card(int argc, char *const argv[])
 		return 1;
 
 	blk_shift = ffs( mmc->read_bl_len) - 1;
+	if (blk_shift < 0) {
+		printf("bad shift.\n");
+		return 1;
+	}
 	cnt = size >> blk_shift;
 	blk = offset >> blk_shift;
 	sz_byte = size - (cnt<<blk_shift);
@@ -1671,6 +1699,10 @@ static int compute_write_protect_range(struct mmc *mmc, char *name,
 	wp_grp_size = write_protect_group_size(mmc, ext_csd);
 
 	blk_shift = ffs(mmc->read_bl_len) -1;
+	if (blk_shift < 0) {
+		printf("bad shift.\n");
+		return 1;
+	}
 
 	part_info = find_mmc_partition_by_name(name);
 	if (part_info == NULL)
@@ -1808,8 +1840,10 @@ static int send_part_wp_type(struct mmc *mmc, char *name)
 
 	err = compute_write_protect_range(mmc, name, ext_csd,
 			&wp_grp_size, &start, &part_end);
-	if (err)
+	if (err) {
+		free(addr);
 		return 1;
+	}
 
 	group_start = start;
 
@@ -1874,10 +1908,16 @@ static int send_add_wp_type(struct mmc *mmc, u64 start, u64 cnt)
 	}
 
 	blk_shift = ffs(mmc->read_bl_len) - 1;
+	if (blk_shift < 0) {
+		printf("bad shift.\n");
+		free(addr);
+		return 1;
+	}
 	mmc_boundary = mmc->capacity>>blk_shift;
 
 	if ((part_end + 1) > mmc_boundary) {
 		printf("Error: the operation cross the boundary of mmc\n");
+		free(addr);
 		return 1;
 	}
 
@@ -1997,6 +2037,10 @@ static int set_add_write_protect(struct mmc *mmc, u8 wp_type, u64 start, u64 cnt
 	}
 
 	blk_shift = ffs(mmc->read_bl_len) - 1;
+	if (blk_shift < 0) {
+		printf("bad shift.\n");
+		return 1;
+	}
 	mmc_boundary = mmc->capacity>>blk_shift;
 
 	if ((part_end + 1) > mmc_boundary) {
@@ -2213,6 +2257,10 @@ static int set_add_clear_wp(struct mmc *mmc, u64 start, u64 cnt)
 	 }
 
 	 blk_shift = ffs(mmc->read_bl_len) - 1;
+	 if (blk_shift < 0) {
+		printf("bad shift.\n");
+		return 1;
+	 }
 	 mmc_boundary = mmc->capacity>>blk_shift;
 
 	 if ((part_end + 1) > mmc_boundary) {
@@ -2409,6 +2457,10 @@ static int send_add_wp_status(struct mmc *mmc, u64 start, u64 cnt)
 	 }
 
 	blk_shift = ffs(mmc->read_bl_len) - 1;
+	if (blk_shift < 0) {
+		printf("bad shift.\n");
+		return 1;
+	}
 	mmc_boundary = mmc->capacity>>blk_shift;
 
 	if ((part_end + 1) > mmc_boundary) {
@@ -3083,7 +3135,11 @@ int renew_partition_tbl(unsigned char *buffer)
 	/* only the dts new is valid */
 	if (!ret) {
 		free_partitions();
-		get_partition_from_dts(buffer);
+		ret = get_partition_from_dts(buffer);
+		if (ret) {
+			printf("Fail to get partition talbe from dts\n");
+			goto _out;
+		}
 		if (0 == mmc_device_init(_dtb_init())) {
 			printf("partition table success\n");
 			ret = 0;
