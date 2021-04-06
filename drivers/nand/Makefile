@@ -8,7 +8,7 @@
 
 #obj-$(CONFIG_AML_NAND) := aml_nand.o
 obj-$(CONFIG_AML_NAND) += dev/
-#obj-$(CONFIG_AML_NAND) += logic/
+obj-$(CONFIG_AML_NAND) += logic/
 #obj-$(CONFIG_AML_NAND) += logiclib/
 obj-$(CONFIG_AML_NAND) += phy/
 
