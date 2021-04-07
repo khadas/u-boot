@@ -50,7 +50,7 @@
 //#define CONFIG_BOOTLOADER_CONTROL_BLOCK
 
 #ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
-#define CONFIG_DTB_LOAD  "imgread dtb boot ${dtb_mem_addr}"
+#define CONFIG_DTB_LOAD  "imgread dtb ${boot_part} ${dtb_mem_addr}"
 #else
 #define CONFIG_DTB_LOAD  "imgread dtb _aml_dtb ${dtb_mem_addr}"
 #endif//#ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
@@ -95,11 +95,14 @@
         "sdcburncfg=aml_sdc_burn.ini\0"\
         "EnableSelinux=enforcing\0" \
         "recovery_part=recovery\0"\
+        "lock=10101000\0"\
         "recovery_offset=0\0"\
         "cvbs_drv=0\0"\
         "osd_reverse=0\0"\
         "video_reverse=0\0"\
+        "active_slot=normal\0"\
         "boot_part=boot\0"\
+        "vendor_boot_part=vendor_boot\0"\
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
         "get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
@@ -152,6 +155,19 @@
                 "store read ${loadaddr} ${boot_part} 0 0x400000;"\
                 "bootm ${loadaddr};"\
             "else if test ${os_type} = kernel; then "\
+                "get_system_as_root_mode;"\
+                "echo system_mode in storeboot: ${system_mode};"\
+                "get_valid_slot;"\
+                "get_avb_mode;"\
+                "echo active_slot in storeboot: ${active_slot};"\
+                "if test ${system_mode} = 1; then "\
+                    "setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
+                "else "\
+                    "setenv bootargs ${bootargs} androidboot.force_normal_boot=1;"\
+                "fi;"\
+                "if test ${active_slot} != normal; then "\
+                    "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
+                "fi;"\
                 "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
                 "setenv loadaddr ${loadaddr_kernel};"\
                 "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
@@ -189,7 +205,16 @@
             "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
             "\0"\
         "bcb_cmd="\
+            "get_avb_mode;"\
             "get_valid_slot;"\
+            "if test ${vendor_boot_mode} = true; then "\
+                "setenv loadaddr_kernel 0x3080000;"\
+                "setenv dtb_mem_addr 0x1000000;"\
+            "fi;"\
+            "if test ${active_slot} != normal; then "\
+                "echo ab mode, read dtb from kernel;"\
+                "setenv common_dtb_load ""imgread dtb ${boot_part} ${dtb_mem_addr}"";"\
+            "fi;"\
             "\0"\
         "cmdline_keys="\
             "setenv usid 1234567890; setenv region_code US;"\
@@ -206,6 +231,7 @@
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
             "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
             "setenv serial ${usid}; setenv serial# ${usid};"\
+	    "factory_provision init;"\
             "\0"\
         "upgrade_key="\
             "if gpio input GPIOD_3; then "\
@@ -240,7 +266,7 @@
 #define CONFIG_SYS_MALLOC_LEN				(256*1024)
 #else
 #define CONFIG_SYS_INIT_SP_ADDR				(0x00200000)
-#define CONFIG_SYS_MALLOC_LEN				(64*1024*1024)
+#define CONFIG_SYS_MALLOC_LEN				(96*1024*1024)
 #endif
 
 //#define CONFIG_NR_DRAM_BANKS			1

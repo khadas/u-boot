@@ -51,7 +51,7 @@
 //#define CONFIG_BOOTLOADER_CONTROL_BLOCK
 
 #ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
-#define CONFIG_DTB_LOAD  "imgread dtb boot ${dtb_mem_addr}"
+#define CONFIG_DTB_LOAD  "imgread dtb ${boot_part} ${dtb_mem_addr}"
 #else
 #define CONFIG_DTB_LOAD  "imgread dtb _aml_dtb ${dtb_mem_addr}"
 #endif//#ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
@@ -222,8 +222,12 @@
             "get_avb_mode;"\
             "get_valid_slot;"\
             "if test ${vendor_boot_mode} = true; then "\
-                "setenv loadaddr_kernel 0x2080000;"\
-                "setenv dtb_mem_addr 0x1f00000;"\
+                "setenv loadaddr_kernel 0x3080000;"\
+                "setenv dtb_mem_addr 0x1000000;"\
+            "fi;"\
+            "if test ${active_slot} != normal; then "\
+                "echo ab mode, read dtb from kernel;"\
+                "setenv common_dtb_load ""imgread dtb ${boot_part} ${dtb_mem_addr}"";"\
             "fi;"\
             "\0"\
         "init_display="\
@@ -244,6 +248,7 @@
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
             "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
             "setenv serial ${usid}; setenv serial# ${usid};"\
+	    "factory_provision init;"\
             "\0"\
         "upgrade_key="\
             "if gpio input GPIOD_3; then "\
@@ -278,7 +283,7 @@
 #define CONFIG_SYS_MALLOC_LEN				(256*1024)
 #else
 #define CONFIG_SYS_INIT_SP_ADDR				(0x00200000)
-#define CONFIG_SYS_MALLOC_LEN				(64*1024*1024)
+#define CONFIG_SYS_MALLOC_LEN				(96*1024*1024)
 #endif
 
 //#define CONFIG_NR_DRAM_BANKS			1
