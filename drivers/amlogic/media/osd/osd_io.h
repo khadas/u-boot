@@ -122,6 +122,34 @@
 #define VIU_OSD3_CTRL_STAT                         0x3d80
 #endif
 
+#ifndef VIU_VD1_PATH_CTRL
+#define VIU_VD1_PATH_CTRL                          0x1a73
+#endif
+
+#ifndef VIU_VD2_PATH_CTRL
+#define VIU_VD2_PATH_CTRL                          0x1a74
+#endif
+
+#ifndef VIU_VD3_PATH_CTRL
+#define VIU_VD3_PATH_CTRL                          0x1a75
+#endif
+
+#ifndef VIU_OSD1_PATH_CTRL
+#define VIU_OSD1_PATH_CTRL                         0x1a76
+#endif
+
+#ifndef VIU_OSD2_PATH_CTRL
+#define VIU_OSD2_PATH_CTRL                         0x1a77
+#endif
+
+#ifndef VIU_OSD3_PATH_CTRL
+#define VIU_OSD3_PATH_CTRL                         0x1a78
+#endif
+
+#ifndef VIU_OSD4_PATH_CTRL
+#define VIU_OSD4_PATH_CTRL                         0x1a79
+#endif
+
 #define REG_OFFSET_VCBUS(reg)           ((reg << 2))
 #define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg) + 0L)
 #define REG_OSD_ADDR(reg)               (reg + 0L)
