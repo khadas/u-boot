@@ -42,6 +42,9 @@
 
 #define CONFIG_CMD_BOOTCTOL_AVB
 
+/* support ext4*/
+#define CONFIG_CMD_EXT4 1
+
 #define CONFIG_FAT_WRITE 1
 #define CONFIG_AML_FACTORY_PROVISION 1
 
@@ -108,6 +111,7 @@
         "active_slot=normal\0"\
         "lock=10101000\0"\
         "boot_part=boot\0"\
+        "vendor_boot_part=vendor_boot\0"\
         "model_name=hdmitx\0" \
         "Irq_check_en=0\0"\
         "reboot_mode_android=""normal""\0"\
@@ -159,14 +163,14 @@
         "storeboot="\
             "get_system_as_root_mode;"\
             "echo system_mode: ${system_mode};"\
-            "if test ${system_mode} = 1; then "\
-                    "setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
-            "else "\
-                    "setenv bootargs ${bootargs} ${fs_type};"\
-            "fi;"\
             "get_valid_slot;"\
             "get_avb_mode;"\
             "echo active_slot: ${active_slot};"\
+            "if test ${system_mode} = 1; then "\
+                    "setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
+            "else "\
+                "setenv bootargs ${bootargs} androidboot.force_normal_boot=1;"\
+            "fi;"\
             "if test ${active_slot} != normal; then "\
                     "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
             "fi;"\
@@ -234,15 +238,25 @@
             "get_valid_slot;"\
             "echo active_slot: ${active_slot};"\
             "if test ${active_slot} = normal; then "\
-                "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
+                "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
                 "if itest ${upgrade_step} == 3; then "\
                     "if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;"\
                     "if ext4load mmc 1:2 ${loadaddr} /recovery/recovery.img; then echo cache recovery.img loaded; wipeisb; bootm ${loadaddr}; fi;"\
                 "else fi;"\
                 "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
             "else "\
-                "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
-                "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
+                "if test ${partiton_mode} = normal; then "\
+                    "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
+                    "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
+                "else "\
+                    "if test ${vendor_boot_mode} = true; then "\
+                        "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
+                        "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
+                    "else "\
+                        "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
+                        "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
+                    "fi;"\
+                "fi;"\
             "fi;"\
             "\0"\
         "init_display="\
@@ -293,6 +307,10 @@
         "bcb_cmd="\
             "get_avb_mode;"\
             "get_valid_slot;"\
+            "if test ${vendor_boot_mode} = true; then "\
+                "setenv loadaddr 2080000;"\
+                "setenv dtb_mem_addr 0x1f00000;"\
+            "fi;"\
             "\0"\
         "upgrade_key="\
             "if gpio input GPIOAO_3; then "\

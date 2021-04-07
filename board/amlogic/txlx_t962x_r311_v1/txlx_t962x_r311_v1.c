@@ -44,6 +44,8 @@
 #include <dm.h>
 #include <amlogic/spicc.h>
 #endif
+#include <asm/arch/timer.h>
+#include <partition_table.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -422,37 +424,65 @@ int board_late_init(void)
 	int ret;
 	char outputModePre[30] = {0};
 	char outputModeCur[30] = {0};
-
-	if (getenv("default_env")) {
-		printf("factory reset, need default all uboot env\n");
-		run_command("defenv_reserv;setenv upgrade_step 2; saveenv;", 0);
-	}
-
+	char* output_str;
 	//update env before anyone using it
-	run_command("get_rebootmode; echo reboot_mode=${reboot_mode};", 0);
+	run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
+				"if test ${reboot_mode} = factory_reset; then "\
+				"defenv_reserv;save; fi;", 0);
 	run_command("if itest ${upgrade_step} == 1; then "\
 				"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 
-	if (getenv("outputmode")) {
-		strcpy(outputModePre,getenv("outputmode"));
-	}
+	output_str = getenv("outputmode");
+	if ( output_str != NULL && strlen(output_str) < 30)
+		strcpy(outputModePre, output_str);
 
+	run_command("run bcb_cmd", 0);
 	/*add board late init function here*/
-	ret = run_command("store dtb read $dtb_mem_addr", 1);
-	if (ret) {
-		printf("%s(): [store dtb read $dtb_mem_addr] fail\n", __func__);
-		#ifdef CONFIG_DTB_MEM_ADDR
-		char cmd[64];
-		printf("load dtb to %x\n", CONFIG_DTB_MEM_ADDR);
-		sprintf(cmd, "store dtb read %x", CONFIG_DTB_MEM_ADDR);
-		ret = run_command(cmd, 1);
+#ifndef DTB_BIND_KERNEL
+	if (has_boot_slot == 0) {
+		ret = run_command("store dtb read $dtb_mem_addr", 1);
 		if (ret) {
-			printf("%s(): %s fail\n", __func__, cmd);
+			printf("%s(): [store dtb read $dtb_mem_addr] fail\n", __func__);
+#ifdef CONFIG_DTB_MEM_ADDR
+			char cmd[64];
+			printf("load dtb to %x\n", CONFIG_DTB_MEM_ADDR);
+			sprintf(cmd, "store dtb read %x", CONFIG_DTB_MEM_ADDR);
+			ret = run_command(cmd, 1);
+			if (ret) {
+				printf("%s(): %s fail\n", __func__, cmd);
+			}
+#endif
 		}
-		#endif
+	} else {
+		printf("%s(): ab update mode, use dtb in kernel img \n", __func__);
+		char cmd[128];
+		if (!getenv("dtb_mem_addr")) {
+			sprintf(cmd, "setenv dtb_mem_addr 0x%x", CONFIG_DTB_MEM_ADDR);
+			printf("%s(): cmd : %s\n", __func__, cmd);
+			run_command(cmd, 0);
+		}
+		sprintf(cmd, "imgread dtb ${boot_part} ${dtb_mem_addr}");
+		printf("%s(): cmd : %s\n", __func__, cmd);
+		ret = run_command(cmd, 0);
+		if (ret) {
+			printf("%s(): cmd[%s] fail, ret=%d\n", __func__, cmd, ret);
+		}
 	}
+#elif defined(CONFIG_DTB_MEM_ADDR)
+	{
+		char cmd[128];
+		if (!getenv("dtb_mem_addr")) {
+			sprintf(cmd, "setenv dtb_mem_addr 0x%x", CONFIG_DTB_MEM_ADDR);
+			run_command(cmd, 0);
+		}
+		sprintf(cmd, "imgread dtb ${boot_part} ${dtb_mem_addr}");
+		ret = run_command(cmd, 0);
+		if (ret) {
+			printf("%s(): cmd[%s] fail, ret=%d\n", __func__, cmd, ret);
+		}
+	}
+#endif// #ifndef DTB_BIND_KERNEL
 
-	/* load unifykey */
 	run_command("keyunify init 0x1234", 0);
 
 #ifdef CONFIG_SYS_I2C_MESON
@@ -477,7 +507,10 @@ int board_late_init(void)
 #ifdef CONFIG_AML_V2_FACTORY_BURN
 	/*aml_try_factory_sdcard_burning(0, gd->bd);*/
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
-	strcpy(outputModeCur,getenv("outputmode"));
+	output_str = getenv("outputmode");
+	if ( output_str != NULL && strlen(output_str) < 30)
+		strcpy(outputModeCur, output_str);
+
 	if (strcmp(outputModeCur,outputModePre)) {
 		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
 		run_command("saveenv", 0);
@@ -522,7 +555,7 @@ int checkhw(char * name)
 {
 	char loc_name[64] = {0};
 	char *ui_mode = getenv("ui_mode");
-	if (!strcmp(ui_mode, "720p")) {
+	if (ui_mode != NULL && !strcmp(ui_mode, "720p")) {
 		strcpy(loc_name, "txlx_t962x_r311-720p\0");
 	} else {
 		strcpy(loc_name, "txlx_t962x_r311-2g\0");

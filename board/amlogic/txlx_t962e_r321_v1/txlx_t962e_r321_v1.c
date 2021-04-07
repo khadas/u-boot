@@ -41,6 +41,8 @@
 #include <dm.h>
 #include <amlogic/spicc.h>
 #endif
+#include <asm/arch/timer.h>
+#include <partition_table.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -398,25 +400,57 @@ int board_late_init(void)
 		printf("factory reset, need default all uboot env\n");
 		run_command("defenv_reserv;setenv upgrade_step 2; saveenv;", 0);
 	}
-
 	//update env before anyone using it
 	run_command("get_rebootmode; echo reboot_mode=${reboot_mode};", 0);
 	run_command("if itest ${upgrade_step} == 1; then "\
-				"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
+			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
+
+	run_command("run bcb_cmd", 0);
 	/*add board late init function here*/
-	ret = run_command("store dtb read $dtb_mem_addr", 1);
-	if (ret) {
-		printf("%s(): [store dtb read $dtb_mem_addr] fail\n", __func__);
-		#ifdef CONFIG_DTB_MEM_ADDR
-		char cmd[64];
-		printf("load dtb to %x\n", CONFIG_DTB_MEM_ADDR);
-		sprintf(cmd, "store dtb read %x", CONFIG_DTB_MEM_ADDR);
-		ret = run_command(cmd, 1);
+#ifndef DTB_BIND_KERNEL
+	if (has_boot_slot == 0) {
+		ret = run_command("store dtb read $dtb_mem_addr", 1);
 		if (ret) {
-			printf("%s(): %s fail\n", __func__, cmd);
+			printf("%s(): [store dtb read $dtb_mem_addr] fail\n", __func__);
+#ifdef CONFIG_DTB_MEM_ADDR
+			char cmd[64];
+			printf("load dtb to %x\n", CONFIG_DTB_MEM_ADDR);
+			sprintf(cmd, "store dtb read %x", CONFIG_DTB_MEM_ADDR);
+			ret = run_command(cmd, 1);
+			if (ret) {
+				printf("%s(): %s fail\n", __func__, cmd);
+			}
+#endif
 		}
-		#endif
+	} else {
+		printf("%s(): ab update mode, use dtb in kernel img \n", __func__);
+		char cmd[128];
+		if (!getenv("dtb_mem_addr")) {
+			sprintf(cmd, "setenv dtb_mem_addr 0x%x", CONFIG_DTB_MEM_ADDR);
+			printf("%s(): cmd : %s\n", __func__, cmd);
+			run_command(cmd, 0);
+		}
+		sprintf(cmd, "imgread dtb ${boot_part} ${dtb_mem_addr}");
+		printf("%s(): cmd : %s\n", __func__, cmd);
+		ret = run_command(cmd, 0);
+		if (ret) {
+			printf("%s(): cmd[%s] fail, ret=%d\n", __func__, cmd, ret);
+		}
 	}
+#elif defined(CONFIG_DTB_MEM_ADDR)
+	{
+		char cmd[128];
+		if (!getenv("dtb_mem_addr")) {
+			sprintf(cmd, "setenv dtb_mem_addr 0x%x", CONFIG_DTB_MEM_ADDR);
+			run_command(cmd, 0);
+		}
+		sprintf(cmd, "imgread dtb ${boot_part} ${dtb_mem_addr}");
+		ret = run_command(cmd, 0);
+		if (ret) {
+			printf("%s(): cmd[%s] fail, ret=%d\n", __func__, cmd, ret);
+		}
+	}
+#endif// #ifndef DTB_BIND_KERNEL
 
 	/* load unifykey */
 	run_command("keyunify init 0x1234", 0);
