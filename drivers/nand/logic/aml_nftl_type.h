@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * drivers/nand/include/aml_nftl_type.h
+ * drivers/nand/logic/aml_nftl_type.h
  *
  * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
