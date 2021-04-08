@@ -74,7 +74,7 @@ int r1p1_temp_read(int type)
 			writel(T_CONTROL_DATA, TS_A73_CFG_REG1);
 			writel(T_TSCLK_DATA, CLKCTRL_TS_CLK_CTRL);
 			thermal_cali_data_read(1, &ret, 4);
-			printf("type1: ret = %x\n", ret);
+			printf("a73 tsensor cali data: ret = %x\n", ret);
 			mdelay(5);
 			buf[0] = (ret) & 0xff;
 			buf[1] = (ret >> 8) & 0xff;
@@ -103,14 +103,14 @@ int r1p1_temp_read(int type)
 				return -1;
 			}
 			tmp = r1p1_codetotemp(value_ts, u_efuse);
-			printf("temp1: %d\n", tmp);
+			printf("a73 tsensor temp: %d\n", tmp);
 			break;
 		case 3:
 			/*enable thermal3*/
 			writel(T_CONTROL_DATA, TS_GPU_CFG_REG1);
 			writel(T_TSCLK_DATA, CLKCTRL_TS_CLK_CTRL);
 			thermal_cali_data_read(3, &ret, 4);
-			printf("type3: ret = %x\n", ret);
+			printf("gpu tsensor cali data: ret = %x\n", ret);
 			mdelay(5);
 			buf[0] = (ret) & 0xff;
 			buf[1] = (ret >> 8) & 0xff;
@@ -141,14 +141,14 @@ int r1p1_temp_read(int type)
 				return -1;
 			}
 			tmp = r1p1_codetotemp(value_ts, u_efuse);
-			printf("temp3: %d\n", tmp);
+			printf("gpu tsensor temp: %d\n", tmp);
 			break;
 		case 4:
 			/*enable thermal4*/
 			writel(T_CONTROL_DATA, TS_NNA_CFG_REG1);
 			writel(T_TSCLK_DATA, CLKCTRL_TS_CLK_CTRL);
 			thermal_cali_data_read(4, &ret, 4);
-			printf("type4: ret = %x\n", ret);
+			printf("nna tsensor cali data: ret = %x\n", ret);
 			mdelay(5);
 			buf[0] = (ret) & 0xff;
 			buf[1] = (ret >> 8) & 0xff;
@@ -179,14 +179,14 @@ int r1p1_temp_read(int type)
 				return -1;
 			}
 			tmp = r1p1_codetotemp(value_ts, u_efuse);
-			printf("temp4: %d\n", tmp);
+			printf("nna tsensor temp: %d\n", tmp);
 			break;
 		case 5:
 			/*enable thermal2*/
 			writel(T_CONTROL_DATA, TS_HEVC_CFG_REG1);
 			writel(T_TSCLK_DATA, CLKCTRL_TS_CLK_CTRL);
 			thermal_cali_data_read(5, &ret, 4);
-			printf("type5: ret = %x\n", ret);
+			printf("hevc tsensor cali data: ret = %x\n", ret);
 			mdelay(5);
 			buf[0] = (ret) & 0xff;
 			buf[1] = (ret >> 8) & 0xff;
@@ -217,7 +217,47 @@ int r1p1_temp_read(int type)
 				return -1;
 			}
 			tmp = r1p1_codetotemp(value_ts, u_efuse);
-			printf("temp5: %d\n", tmp);
+			printf("hevc tsensor temp: %d\n", tmp);
+			break;
+		case 6:
+			/*enable thermal6*/
+			writel(T_CONTROL_DATA, TS_VPU_CFG_REG1);
+			writel(T_TSCLK_DATA, CLKCTRL_TS_CLK_CTRL);
+			thermal_cali_data_read(6, &ret, 4);
+			mdelay(5);
+			if (ret & 0x80000000) {
+				printf("vpu tsensor cali data: ret = %x\n", ret);
+				buf[0] = (ret) & 0xff;
+				buf[1] = (ret >> 8) & 0xff;
+				u_efuse = buf[1];
+				u_efuse = (u_efuse << 8) | buf[0];
+				value_ts = 0;
+				value_all_ts = 0;
+				cnt = 0;
+				pwr_ctrl_psci_smc(PM_VPU_HDMI, PWR_ON);
+				for (i = 0; i <= 10; i ++) {
+					udelay(50);
+					value_ts = readl(TS_VPU_STAT0) & 0xffff;
+				}
+				for (i = 0; i <= T_AVG_NUM; i ++) {
+					udelay(T_DLY_TIME);
+					value_ts = readl(TS_VPU_STAT0) & 0xffff;
+					if ((value_ts >= T_VALUE_MIN) &&
+							(value_ts <= T_VALUE_MAX)) {
+						value_all_ts += value_ts;
+						cnt ++;
+					}
+				}
+				pwr_ctrl_psci_smc(PM_VPU_HDMI, PWR_OFF);
+				value_ts =  value_all_ts / cnt;
+				printf("vpu tsensor avg: 0x%x, u_efuse: 0x%x\n", value_ts, u_efuse);
+				if (value_ts == 0) {
+					printf("hevc tsensor read temp is zero\n");
+					return -1;
+				}
+				tmp = r1p1_codetotemp(value_ts, u_efuse);
+				printf("vpu tsensor temp: %d\n", tmp);
+			}
 			break;
 		default:
 			printf("r1p1 tsensor trim type not support\n");
@@ -484,6 +524,7 @@ int temp_read_entry(void)
 			r1p1_temp_read(3);
 			r1p1_temp_read(4);
 			r1p1_temp_read(5);
+			r1p1_temp_read(6);
 			printf("read the thermal\n");
 		break;
 		case 0x3:
