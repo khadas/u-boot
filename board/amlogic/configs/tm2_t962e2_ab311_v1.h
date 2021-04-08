@@ -209,6 +209,11 @@
                     "run recovery_from_flash;"\
             "else if test ${reboot_mode} = update; then "\
                     "run update;"\
+            "else if test ${reboot_mode} = quiescent; then "\
+                    "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
+            "else if test ${reboot_mode} = recovery_quiescent; then "\
+                    "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
+                    "run recovery_from_flash;"\
             "else if test ${reboot_mode} = cold_boot; then "\
                 "echo cold boot: ffv_wake=${ffv_wake} powermode=${powermode} suspend=${suspend};"\
                 "if test ${ffv_wake} = on; then "\
@@ -234,7 +239,7 @@
                 "fi; "\
             "else if test ${reboot_mode} = fastboot; then "\
                 "fastboot;"\
-            "fi;fi;fi;fi;fi;"\
+            "fi;fi;fi;fi;fi;fi;fi;"\
             "\0" \
         "reset_suspend="\
             "if test ${ffv_freeze} != on; then "\
