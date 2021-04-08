@@ -6,6 +6,7 @@
 #include <common.h>
 #include <asm/arch/cpu.h>
 #include <amlogic/cpu_id.h>
+#include <amlogic/aml_efuse.h>
 #include "vdac.h"
 #include "cvbs_reg.h"
 
@@ -195,6 +196,51 @@ int vdac_ctrl_vref_adj(unsigned int value)
 	return ret;
 }
 
+static void vdac_gsw_init(void)
+{
+	struct meson_vdac_ctrl_s *vdac_ctrl;
+	unsigned int reg;
+	unsigned int bit = 0;
+	int i = 0;
+	int ret;
+
+	if (!vdac_data) {
+		printf("%s: vdac_data is NULL\n", __func__);
+		return;
+	}
+
+	if (!vdac_data->vdac_ctrl) {
+		printf("%s: vdac_ctrl is NULL\n", __func__);
+		return;
+	}
+
+	ret = efuse_get_cali_cvbs();
+	if (ret == -1) {
+		//printf("%s: no cali_cvbs data\n", __func__);
+		return;
+	}
+
+	vdac_ctrl = vdac_data->vdac_ctrl;
+	reg = vdac_data->reg_ctrl1;
+
+	printf("%s: 0x%x\n", __func__, ret);
+	while (i < VDAC_CTRL_MAX) {
+		if (vdac_ctrl[i].reg == VDAC_REG_MAX)
+			break;
+		if ((vdac_ctrl[i].reg == reg) && (vdac_ctrl[i].bit == bit)) {
+			vdac_set_reg_bits(reg, ret, bit, vdac_ctrl[i].len);
+			//if (vdac_debug_print) {
+			//	printf("vdac: reg=0x%x set bit%d=0x%x, readback=0x%08x\n",
+			//		reg, bit, ret, vdac_hiu_reg_read(reg));
+			//}
+			break;
+		}
+		i++;
+	}
+
+	return;
+}
+
 static struct meson_vdac_ctrl_s vdac_ctrl_enable_g12ab[] = {
 	{HHI_VDAC_CNTL0, 0, 9, 1},
 	{HHI_VDAC_CNTL0, 1, 0, 1},
@@ -217,6 +263,7 @@ static struct meson_vdac_ctrl_s vdac_ctrl_enable_sc2[] = {
 static struct meson_vdac_ctrl_s vdac_ctrl_enable_s4[] = {
 	{ANACTRL_VDAC_CTRL0, 0, 9, 1},
 	{ANACTRL_VDAC_CTRL0, 1, 0, 1},
+	{ANACTRL_VDAC_CTRL1, 0, 0, 7},  /*gsw */
 	{ANACTRL_VDAC_CTRL1, 1, 7, 1}, /* cdac_pwd */
 	{VDAC_REG_MAX, 0, 0, 0},
 };
@@ -256,10 +303,13 @@ void vdac_ctrl_config_probe(void)
 		break;
 	case MESON_CPU_MAJOR_ID_S4:
 		vdac_data = &vdac_data_s4;
+		break;
 	default:
 		vdac_data = &vdac_data_s4;
 		break;
 	}
+
+	vdac_gsw_init();
 
 	return;
 }
