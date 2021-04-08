@@ -70,6 +70,21 @@ static void lcd_timing_info_print(struct lcd_config_s * pconf)
 		pconf->basic.lcd_clk_min, pconf->basic.lcd_clk_max);
 }
 
+static void lcd_gpio_info_print(struct aml_lcd_drv_s *pdrv)
+{
+	struct lcd_power_ctrl_s *lcd_power;
+	int i = 0;
+
+	lcd_power = &pdrv->config.power;
+	printf("\ncpu_gpio:\n");
+	while (i < LCD_CPU_GPIO_NUM_MAX) {
+		if (strcmp(lcd_power->cpu_gpio[i], "invalid") == 0)
+			break;
+		printf("%d: gpio name=%s\n", i, lcd_power->cpu_gpio[i]);
+		i++;
+	}
+}
+
 static void lcd_power_info_print(struct aml_lcd_drv_s *pdrv, int status)
 {
 	struct lcd_power_step_s *power_step;
@@ -1314,6 +1329,8 @@ void lcd_info_print(struct aml_lcd_drv_s *pdrv)
 
 	lcd_power_info_print(pdrv, 1);
 	lcd_power_info_print(pdrv, 0);
+
+	lcd_gpio_info_print(pdrv);
 }
 
 void lcd_reg_print(struct aml_lcd_drv_s *pdrv)

@@ -83,7 +83,6 @@
         "loadaddr_kernel=0x01080000\0"\
         "otg_device=1\0" \
         "panel_type=edp_0\0" \
-        "lcd_debug_para=3\0" \
         "lcd_ctrl=0x00000000\0" \
         "lcd_debug=0x00000000\0" \
         "outputmode=panel\0" \

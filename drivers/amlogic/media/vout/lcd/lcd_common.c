@@ -557,15 +557,20 @@ static int lcd_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 	union lcd_ctrl_config_u *pctrl;
 	int parent_offset;
 	int child_offset;
-	char parent_str[10], propname[30];
+	char parent_str[10], type_str[20], propname[30];
 	char *propdata;
 	unsigned int temp;
 	int len;
 
-	if (pdrv->index == 0)
+	LCDPR("config load from dts\n");
+
+	if (pdrv->index == 0) {
 		sprintf(parent_str, "/lcd");
-	else
+		sprintf(type_str, "panel_type");
+	} else {
 		sprintf(parent_str, "/lcd%d", pdrv->index);
+		sprintf(type_str, "panel%d_type", pdrv->index);
+	}
 	parent_offset = fdt_path_offset(dt_addr, parent_str);
 	if (parent_offset < 0) {
 		LCDERR("not find %s node: %s\n",
@@ -574,12 +579,12 @@ static int lcd_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 	}
 
 	/* check panel_type */
-	char *panel_type = env_get("panel_type");
+	char *panel_type = env_get(type_str);
 	if (!panel_type) {
-		LCDERR("[%d]: no panel_type\n", pdrv->index);
+		LCDERR("[%d]: no %s\n", pdrv->index, type_str);
 		return -1;
 	}
-	LCDPR("[%d]: use panel_type=%s\n", pdrv->index, panel_type);
+	LCDPR("[%d]: use %s=%s\n", pdrv->index, type_str, panel_type);
 
 	snprintf(propname, 30, "%s/%s", parent_str, panel_type);
 	child_offset = fdt_path_offset(dt_addr, propname);
@@ -1066,6 +1071,8 @@ static int lcd_config_load_from_unifykey(struct aml_lcd_drv_s *pdrv)
 	unsigned int temp;
 	int ret;
 
+	LCDPR("config load from unifykey\n");
+
 	key_len = LCD_UKEY_LCD_SIZE;
 	para = (unsigned char *)malloc(sizeof(unsigned char) * key_len);
 	if (!para) {
@@ -1377,6 +1384,8 @@ static int lcd_config_load_from_bsp(struct aml_lcd_drv_s *pdrv)
 	char *panel_type, str[15];
 	unsigned int i, done;
 	unsigned int temp;
+
+	LCDPR("config load from bsp\n");
 
 	if (pdrv->index >= LCD_MAX_DRV) {
 		LCDERR("[%d]: invalid drv index %d\n", pdrv->index, pdrv->index);

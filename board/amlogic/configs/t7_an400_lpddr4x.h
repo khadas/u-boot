@@ -88,7 +88,6 @@
         "panel_type=vbyone_0\0" \
         "panel1_type=vbyone_0\0" \
         "panel2_type=lvds_1\0" \
-        "lcd_debug_para=3\0" \
         "lcd_ctrl=0x00000000\0" \
         "lcd1_ctrl=0x00000000\0" \
         "lcd2_ctrl=0x00000000\0" \
