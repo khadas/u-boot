@@ -663,11 +663,71 @@ config T3_SKT
 	help
 	  Select T3 SKT(XXXX) config
 
+config T3_AR301
+	bool "T3_AR301"
+	select TARGET_T3_AR301
+	help
+	  Select T3 AR301(XXXX) config
+
+config T3_AR309
+	bool "T3_AR309"
+	select TARGET_T3_AR309
+	help
+	  Select T3 AR309(XXXX) config
+
+config T3_AR321
+	bool "T3_AR321"
+	select TARGET_T3_AR321
+	help
+	  Select T3 AR321(XXXX) config
+
+config T3_AR319
+	bool "T3_AR319"
+	select TARGET_T3_AR319
+	help
+	  Select T3 AR319(XXXX) config
+
+config T3_AR311
+	bool "T3_AR311"
+	select TARGET_T3_AR311
+	help
+	  Select T3 AR311(XXXX) config
+
+config T3_AR331
+	bool "T3_AR331"
+	select TARGET_T3_AR331
+	help
+	  Select T3 AR331(XXXX) config
+
 endchoice
 
 config TARGET_T3_SKT
 	bool "T3 SKT board"
 	depends on T3_SKT
+
+config TARGET_T3_AR301
+	bool "T3 AR301 board"
+	depends on T3_AR301
+
+config TARGET_T3_AR309
+	bool "T3 AR309 board"
+	depends on T3_AR309
+
+config TARGET_T3_AR321
+	bool "T3 AR321 board"
+	depends on T3_AR321
+
+config TARGET_T3_AR319
+	bool "T3 AR319 board"
+	depends on T3_AR319
+
+config TARGET_T3_AR311
+	bool "T3 AR311 board"
+	depends on T3_AR311
+
+config TARGET_T3_AR331
+	bool "T3 AR331 board"
+	depends on T3_AR331
 
 endif
 
@@ -847,4 +907,16 @@ source "board/amlogic/t7_an40a1/Kconfig"
 source "board/amlogic/t7_an400p_lpddr4x/Kconfig"
 
 source "board/amlogic/t3_skt/Kconfig"
+
+source "board/amlogic/t3_ar301/Kconfig"
+
+source "board/amlogic/t3_ar309/Kconfig"
+
+source "board/amlogic/t3_ar321/Kconfig"
+
+source "board/amlogic/t3_ar319/Kconfig"
+
+source "board/amlogic/t3_ar311/Kconfig"
+
+source "board/amlogic/t3_ar331/Kconfig"
 
