@@ -1087,6 +1087,14 @@ __attribute__ ((section(".misc_param"))) = {
 	/* enable vddcpu dc-dc, set TEST_N to high */
 	{PADCTRL_TESTN_O,	(0x1 << 0), 		(0x1 << 0),	0, 0, 0},
 	{PADCTRL_TESTN_OEN,	(0x0 << 0), 		(0x1 << 0), 0, 0, 0},
+	/* GPIO pull enable */
+	{PADCTRL_GPIOX_PULL_EN,  (0x0 << 8),  (0xff << 8),  0, BL2_INIT_STAGE_1,  0}, /* Disable GPIOX_8 ~ GPIOX_15 */
+	/* GPIO direction */
+	{PADCTRL_GPIOX_OEN,  (0x0 << 6),  (0x1 << 6),  0, BL2_INIT_STAGE_1,  0}, /* GPIOX_6: Out */
+	/* GPIO output */
+	{PADCTRL_GPIOX_O,  (0x1 << 6),  (0x1 << 6),  0,  BL2_INIT_STAGE_1, 0},  /* GPIOX_6: High */
+	/* GPIO pinmux */
+	{PADCTRL_PIN_MUX_REG3,  (0x0 << 24),  (0xf << 24),  0,  BL2_INIT_STAGE_1,  0}, /* GPIOX_6 [27:24] */
 #endif
 };
 
