@@ -19,6 +19,7 @@
 		spi0 = &spifc;
 		spi1 = &spicc0;
 		spi2 = &spicc1;
+		spi3 = &spicc2;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
@@ -236,17 +237,23 @@
 	};
 };
 
-&spicc0 {
+&spicc0 {	//for TCON
 	status = "disabled";
 	pinctrl-names = "default";
-	pinctrl-0 = <&spicc0_pins1>;
-	//cs-gpios = <&gpio GPIOA_8 0>,
-		  // <&gpio GPIOA_9 0>;
+	pinctrl-0 = <&spicc0_pins_h>;
+	cs-gpios = <&gpio GPIOH_8 GPIO_ACTIVE_HIGH>;
 };
 
-&spicc1 {
+&spicc1 {	//for UWB/LocalDimm
 	status = "disabled";
 	pinctrl-names = "default";
-	pinctrl-0 = <&spicc1_pins1>;
-	//cs-gpios = <&gpio GPIOA_14 0>;
+	pinctrl-0 = <&spicc1_pins>;
+	cs-gpios = <&gpio GPIOH_24 GPIO_ACTIVE_HIGH>;
+};
+
+&spicc2 {
+	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&spicc2_pins>;
+	cs-gpios = <&gpio GPIOC_3 GPIO_ACTIVE_HIGH>;
 };

@@ -277,24 +277,6 @@
 				status = "disabled";
 			};
 
-			spicc0: spi@3800 {
-				compatible = "amlogic,meson-g12a-spicc";
-				reg = <0x0 0x3800 0x0 0x44>;
-				interrupts = <GIC_SPI 48 IRQ_TYPE_LEVEL_HIGH>;
-				#address-cells = <1>;
-				#size-cells = <0>;
-				status = "disabled";
-			};
-
-			spicc1: spi@3c00 {
-				compatible = "amlogic,meson-g12a-spicc";
-				reg = <0x0 0x3c00 0x0 0x44>;
-				interrupts = <GIC_SPI 47 IRQ_TYPE_LEVEL_HIGH>;
-				#address-cells = <1>;
-				#size-cells = <0>;
-				status = "disabled";
-			};
-
 			jtag {
 				compatible = "amlogic, jtag";
 				status = "okay";
@@ -341,6 +323,30 @@
 			reg = <0x0 0xfe000000 0x0 0x82e8>;
 			clocks = <&xtal>;
 			clock-names = "xtal";
+		};
+
+		spicc0: spi@fe050000 {
+			compatible = "amlogic,meson-g12a-spicc";
+			reg = <0x0 0xfe050000 0x0 0x44>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		spicc1: spi@fe052000 {
+			compatible = "amlogic,meson-g12a-spicc";
+			reg = <0x0 0xfe052000 0x0 0x44>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		spicc2: spi@fe054000 {
+			compatible = "amlogic,meson-g12a-spicc";
+			reg = <0x0 0xfe054000 0x0 0x44>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
 		};
 
 		i2c0: i2c@fe066000 {
