@@ -61,7 +61,6 @@ OBJS = task_entry.o
 OBJS += user_task.o
 OBJS += misc.o
 OBJS += uart.o
-OBJS += hardi2c_lite.o
 OBJS += suspend.o
 OBJS += lib/string.o
 OBJS += lib/delay.o
