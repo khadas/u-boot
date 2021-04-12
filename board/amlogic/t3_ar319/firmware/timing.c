@@ -406,43 +406,43 @@ __attribute__ ((section(".clk_param"))) = {
 #endif
 
 /* VDDEE_VAL_REG */
-#if    (VDDEE_VAL == 700)
+#if    (VDDEE_VAL == 710)
 	#define VDDEE_VAL_REG	0x120000
-#elif (VDDEE_VAL == 710)
-	#define VDDEE_VAL_REG	0x110001
 #elif (VDDEE_VAL == 720)
-	#define VDDEE_VAL_REG	0x100002
+	#define VDDEE_VAL_REG	0x110001
 #elif (VDDEE_VAL == 730)
-	#define VDDEE_VAL_REG	0xf0003
+	#define VDDEE_VAL_REG	0x100002
 #elif (VDDEE_VAL == 740)
-	#define VDDEE_VAL_REG	0xe0004
+	#define VDDEE_VAL_REG	0xf0003
 #elif (VDDEE_VAL == 750)
-	#define VDDEE_VAL_REG	0xd0005
+	#define VDDEE_VAL_REG	0xe0004
 #elif (VDDEE_VAL == 760)
-	#define VDDEE_VAL_REG	0xc0006
+	#define VDDEE_VAL_REG	0xd0005
 #elif (VDDEE_VAL == 770)
-	#define VDDEE_VAL_REG	0xb0007
+	#define VDDEE_VAL_REG	0xc0006
 #elif (VDDEE_VAL == 780)
-	#define VDDEE_VAL_REG	0xa0008
+	#define VDDEE_VAL_REG	0xb0007
 #elif (VDDEE_VAL == 790)
-	#define VDDEE_VAL_REG	0x90009
+	#define VDDEE_VAL_REG	0xa0008
 #elif (VDDEE_VAL == 800)
-	#define VDDEE_VAL_REG	0x8000a
+	#define VDDEE_VAL_REG	0x90009
 #elif (VDDEE_VAL == 810)
-	#define VDDEE_VAL_REG	0x7000b
+	#define VDDEE_VAL_REG	0x8000a
 #elif (VDDEE_VAL == 820)
-	#define VDDEE_VAL_REG	0x6000c
+	#define VDDEE_VAL_REG	0x7000b
 #elif (VDDEE_VAL == 830)
-	#define VDDEE_VAL_REG	0x5000d
+	#define VDDEE_VAL_REG	0x6000c
 #elif (VDDEE_VAL == 840)
-	#define VDDEE_VAL_REG	0x4000e
+	#define VDDEE_VAL_REG	0x5000d
 #elif (VDDEE_VAL == 850)
-	#define VDDEE_VAL_REG	0x3000f
+	#define VDDEE_VAL_REG	0x4000e
 #elif (VDDEE_VAL == 860)
-	#define VDDEE_VAL_REG	0x20010
+	#define VDDEE_VAL_REG	0x3000f
 #elif (VDDEE_VAL == 870)
-	#define VDDEE_VAL_REG	0x10011
+	#define VDDEE_VAL_REG	0x20010
 #elif (VDDEE_VAL == 880)
+	#define VDDEE_VAL_REG	0x10011
+#elif (VDDEE_VAL == 890)
 	#define VDDEE_VAL_REG	0x12
 #else
 	#error "VDDEE val out of range\n"
@@ -457,19 +457,25 @@ bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
 __attribute__ ((section(".misc_param"))) = {
 
-	/* demo, user defined override register */
-
+	/*config vddee and vcck pwm - pwm_a and pwm_b*/
+	/* PWM_A VDDEE_VAL_REG */
+	{PWMAB_PWM_A,		VDDEE_VAL_REG,  	0xffffffff,	0, 0, 0},
+	/* PWM_B VCCK_VAL_REG */
+	{PWMAB_PWM_B,		VCCK_VAL_REG,  		0xffffffff,	0, 0, 0},
+	{PWMAB_MISC_REG_AB,	(0x3 << 0), 		(0x3 << 0), 	0, 0, 0},
+	/* set pwm a and pwm b clock rate to 24M, enable them */
 	/* enable vddcpu dc-dc, set TEST_N to high */
 	{PADCTRL_TESTN_O,	(0x1 << 0), 		(0x1 << 0),	0, 0, 0},
 	{PADCTRL_TESTN_OEN,	(0x0 << 0), 		(0x1 << 0), 0, 0, 0},
-
-	/* set pwm h and pwm j clock rate to 24M, enable them */
-
+	/*enable pin,set gpiod_4,enable vddcpu*/
+	{PADCTRL_GPIOD_O,	(0x1 << 4),		(0x1 << 4),	0, 0, 0},
+	{PADCTRL_GPIOD_OEN,	(0x0 << 4),		(0x1 << 4),	0, 0, 0},
+	{CLKCTRL_PWM_CLK_AB_CTRL,((0x1 << 8) | (0x1 << 24)),0xffffffff,0,0, 0},
 	/* set GPIOE_0 GPIOE_1 drive strength to 3 */
 	{PADCTRL_GPIOE_DS,	0xf, 	0xf,		0, 0, 0},
-	/* set GPIOE_0 GPIOE_1 mux to pwmh pwmj */
-	{PADCTRL_PIN_MUX_REGI,	(0x3 << 0),		(0xf << 0),	0, 0, 0},
-	{PADCTRL_PIN_MUX_REGI,	(0x3 << 4),		(0xf << 4),	0, 0, 0},
+	/* set GPIOE_0 GPIOE_1 mux to pwma pwmb */
+	{PADCTRL_PIN_MUX_REGD,	(0x1 << 0),		(0xf << 0),	0, 0, 0},
+	{PADCTRL_PIN_MUX_REGD,	(0x1 << 4),		(0xf << 4),	0, 0, 0},
 };
 
 /* for all the storage parameter */
