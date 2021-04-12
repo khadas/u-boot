@@ -20,6 +20,7 @@
 static struct meson_gate gates[] = {
 	{CLKID_SPICC_A_GATE, T3_CLKCTRL_SPICC_CLK_CTRL, 6},
 	{CLKID_SPICC_B_GATE, T3_CLKCTRL_SPICC_CLK_CTRL, 22},
+	{CLKID_SPICC_C_GATE, T3_CLKCTRL_SPICC_CLK_CTRL1, 6},
 	{CLKID_SAR_ADC_GATE, T3_CLKCTRL_SAR_CLK_CTRL0, 8},
 	{CLKID_SD_EMMC_A_GATE, T3_CLKCTRL_SD_EMMC_CLK_CTRL, 7},
 	{CLKID_SD_EMMC_B_GATE, T3_CLKCTRL_SD_EMMC_CLK_CTRL, 23},
@@ -39,6 +40,7 @@ CLKID_UNREALIZED, CLKID_UNREALIZED, CLKID_UNREALIZED};
 static struct meson_mux muxes[] = {
 	{CLKID_SPICC_A_MUX, T3_CLKCTRL_SPICC_CLK_CTRL, 7,  0x7, spicc_parents, ARRAY_SIZE(spicc_parents)},
 	{CLKID_SPICC_B_MUX, T3_CLKCTRL_SPICC_CLK_CTRL, 23,  0x7, spicc_parents, ARRAY_SIZE(spicc_parents)},
+	{CLKID_SPICC_C_MUX, T3_CLKCTRL_SPICC_CLK_CTRL1, 7,  0x7, spicc_parents, ARRAY_SIZE(spicc_parents)},
 	{CLKID_SARADC_MUX, T3_CLKCTRL_SAR_CLK_CTRL0, 9, 0x3, saradc_parents, ARRAY_SIZE(saradc_parents)},
 	{CLKID_SD_EMMC_A_MUX, T3_CLKCTRL_SD_EMMC_CLK_CTRL, 9, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
 	{CLKID_SD_EMMC_B_MUX, T3_CLKCTRL_SD_EMMC_CLK_CTRL, 25, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
@@ -47,7 +49,8 @@ static struct meson_mux muxes[] = {
 
 static struct meson_div divs[] = {
 	{CLKID_SPICC_A_DIV, T3_CLKCTRL_SPICC_CLK_CTRL, 0, 6, CLKID_SPICC_A_MUX},
-	{CLKID_SPICC_B_DIV, T3_CLKCTRL_SPICC_CLK_CTRL, 16, 6, CLKID_SPICC_A_MUX},
+	{CLKID_SPICC_B_DIV, T3_CLKCTRL_SPICC_CLK_CTRL, 16, 6, CLKID_SPICC_B_MUX},
+	{CLKID_SPICC_C_DIV, T3_CLKCTRL_SPICC_CLK_CTRL, 0, 6, CLKID_SPICC_C_MUX},
 	{CLKID_SARADC_DIV, T3_CLKCTRL_SAR_CLK_CTRL0, 0, 8, CLKID_SARADC_MUX},
 	{CLKID_SD_EMMC_A_DIV, T3_CLKCTRL_SD_EMMC_CLK_CTRL, 0, 7, CLKID_SD_EMMC_A_MUX},
 	{CLKID_SD_EMMC_B_DIV, T3_CLKCTRL_SD_EMMC_CLK_CTRL, 16, 7, CLKID_SD_EMMC_B_MUX},
@@ -148,8 +151,8 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, ulong id)
 		rate = SYS_CLK;
 		break;
 	default:
-		pr_err("Unknown clock, Can not get its rate\n");
-		rate = 0;
+		/* only for DIV type, others such as GATE/MUX is always 0 */
+		rate = priv->actual_rate;
 		break;
 	}
 
@@ -177,9 +180,9 @@ static ulong meson_clk_set_rate(struct clk *clk, ulong rate)
 	mux_parent = meson_clk_get_mux_parent(clk, muxes,
 					ARRAY_SIZE(muxes), div_parent);
 	parent_rate = meson_clk_get_rate_by_id(clk, mux_parent);
-
 	div_val = DIV_ROUND_CLOSEST(parent_rate, rate) - 1;
 
+	priv->actual_rate = DIV_ROUND_CLOSEST(parent_rate, div_val + 1);
 	meson_clk_set_div(priv, div, div_val);
 
 	return 0;

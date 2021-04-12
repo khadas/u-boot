@@ -13,6 +13,7 @@ License-Identifier: (GPL-2.0+ OR MIT) */
 #define T3_CLKCTRL_SD_EMMC_CLK_CTRL                   (0x005b  << 2)
 #define T3_CLKCTRL_SPICC_CLK_CTRL                     (0x005d  << 2)
 #define T3_CLKCTRL_SAR_CLK_CTRL0                      (0x005f  << 2)
+#define T3_CLKCTRL_SPICC_CLK_CTRL1                    (0x0070  << 2)
 
 //========================================================================
 
