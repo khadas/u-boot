@@ -21,30 +21,42 @@
  * lcd_0
  ***************************************************/
 static char lcd0_cpu_gpio[LCD_CPU_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
+	"GPIOY_0", /* 12V */
+	"GPIOY_4", /* rst */
 	"invalid", /* ending flag */
 };
 
 static char lcd0_bl_gpio[BL_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
+	"GPIOY_12", /* enable */
+	"GPIOY_1",  /* pwm_e */
 	"invalid", /* ending flag */
 };
 
 static struct lcd_power_step_s lcd0_power_on_step[] = {
+	{LCD_POWER_TYPE_CPU,    0, 1, 50,}, /* panel vcc */
 	{LCD_POWER_TYPE_SIGNAL, 0, 0, 0,},
 	{LCD_POWER_TYPE_MAX,   0, 0, 0,},  /* ending flag */
 };
 
 static struct lcd_power_step_s lcd0_power_off_step[] = {
+	{LCD_POWER_TYPE_SIGNAL, 0, 0, 0,},
 	{LCD_POWER_TYPE_CPU,   0, 0, 200,}, /* panel vcc */
 	{LCD_POWER_TYPE_MAX,   0, 0, 0,},   /* ending flag */
 };
 
 static struct lcd_power_step_s lcd0_power_on_step_mipi[] = {
+	{LCD_POWER_TYPE_CPU,    1, 0, 0,}, /* rst */
+	{LCD_POWER_TYPE_CPU,    0, 0, 500,}, /* panel vcc */
+	{LCD_POWER_TYPE_CPU,    0, 1, 100,}, /* panel vcc */
+	{LCD_POWER_TYPE_CPU,    1, 1, 20,}, /* rst */
 	{LCD_POWER_TYPE_SIGNAL, 0, 0, 0,},
 	{LCD_POWER_TYPE_MAX,   0, 0, 0,},  /* ending flag */
 };
 
 static struct lcd_power_step_s lcd0_power_off_step_mipi[] = {
 	{LCD_POWER_TYPE_SIGNAL, 0, 0, 0,},
+	{LCD_POWER_TYPE_CPU,    1, 0, 0,}, /* rst */
+	{LCD_POWER_TYPE_CPU,   0, 0, 200,}, /* panel vcc */
 	{LCD_POWER_TYPE_MAX,   0, 0, 0,},   /* ending flag */
 };
 
@@ -77,7 +89,7 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	lcd0_power_on_step, lcd0_power_off_step,
 	/* backlight */
 	60, 255, 10, 128, 128,
-	BL_CTRL_MAX, 0, 1, 0, 200, 200,
+	BL_CTRL_PWM, 0, 1, 0, 200, 200,
 	BL_PWM_POSITIVE, BL_PWM_E, 180, 100, 25, 1, 0,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
@@ -96,7 +108,7 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	lcd0_power_on_step, lcd0_power_off_step,
 	/* backlight */
 	60, 255, 10, 128, 128,
-	BL_CTRL_MAX, 0, 1, 0, 200, 200,
+	BL_CTRL_PWM, 0, 1, 0, 200, 200,
 	BL_PWM_POSITIVE, BL_PWM_E, 180, 100, 25, 1, 0,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
@@ -115,7 +127,7 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	lcd0_power_on_step, lcd0_power_off_step,
 	/* backlight */
 	60, 255, 10, 128, 128,
-	BL_CTRL_MAX, 0, 1, 0, 200, 200,
+	BL_CTRL_PWM, 0, 1, 0, 200, 200,
 	BL_PWM_POSITIVE, BL_PWM_E, 180, 100, 25, 1, 0,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
@@ -133,7 +145,7 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	lcd0_power_on_step, lcd0_power_off_step,
 	/* backlight */
 	60, 255, 10, 128, 128,
-	BL_CTRL_MAX, 0, 1, 0, 200, 200,
+	BL_CTRL_PWM, 0, 1, 0, 200, 200,
 	BL_PWM_POSITIVE, BL_PWM_E, 180, 100, 25, 1, 0,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
@@ -153,7 +165,7 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	lcd0_power_on_step_mipi, lcd0_power_off_step_mipi,
 	/* backlight */
 	100, 255, 10, 128, 128,
-	BL_CTRL_MAX, 0, 1, 0, 200, 200,
+	BL_CTRL_PWM, 0, 1, 0, 200, 200,
 	BL_PWM_NEGATIVE, BL_PWM_E, 180, 100, 25, 1, 1,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
@@ -250,30 +262,42 @@ struct lcd_extern_config_s ext_config_dtf[LCD_EXTERN_NUM_MAX] = {
  * lcd_1
  ***************************************************/
 static char lcd1_cpu_gpio[LCD_CPU_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
+	"GPIOY_14", /* 12V */
+	"GPIOY_6", /* rst */
 	"invalid", /* ending flag */
 };
 
 static char lcd1_bl_gpio[BL_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
+	"GPIOY_13", /* enable */
+	"GPIOY_8", /* pwm_f */
 	"invalid", /* ending flag */
 };
 
 static struct lcd_power_step_s lcd1_power_on_step[] = {
+	{LCD_POWER_TYPE_CPU,   0, 1, 50,}, /* panel vcc */
 	{LCD_POWER_TYPE_SIGNAL, 0, 0, 0,},
 	{LCD_POWER_TYPE_MAX,   0, 0, 0,},  /* ending flag */
 };
 
 static struct lcd_power_step_s lcd1_power_off_step[] = {
 	{LCD_POWER_TYPE_SIGNAL, 0, 0, 0,},
+	{LCD_POWER_TYPE_CPU,   0, 0, 200,}, /* panel vcc */
 	{LCD_POWER_TYPE_MAX,   0, 0, 0,},   /* ending flag */
 };
 
 static struct lcd_power_step_s lcd1_power_on_step_mipi[] = {
+	{LCD_POWER_TYPE_CPU,    1, 0, 0,}, /* rst */
+	{LCD_POWER_TYPE_CPU,    0, 0, 500,}, /* panel vcc */
+	{LCD_POWER_TYPE_CPU,    0, 1, 100,}, /* panel vcc */
+	{LCD_POWER_TYPE_CPU,    1, 1, 20,}, /* rst */
 	{LCD_POWER_TYPE_SIGNAL, 0, 0, 0,},
 	{LCD_POWER_TYPE_MAX,   0, 0, 0,},  /* ending flag */
 };
 
 static struct lcd_power_step_s lcd1_power_off_step_mipi[] = {
 	{LCD_POWER_TYPE_SIGNAL, 0, 0, 0,},
+	{LCD_POWER_TYPE_CPU,    1, 0, 0,}, /* rst */
+	{LCD_POWER_TYPE_CPU,   0, 0, 200,}, /* panel vcc */
 	{LCD_POWER_TYPE_MAX,   0, 0, 0,},   /* ending flag */
 };
 
@@ -291,7 +315,7 @@ struct ext_lcd_config_s ext_lcd1_config[LCD_NUM_MAX] = {
 	lcd1_power_on_step, lcd1_power_off_step,
 	/* backlight */
 	60, 255, 10, 128, 128,
-	BL_CTRL_MAX, 0, 1, 0, 200, 200,
+	BL_CTRL_PWM, 0, 1, 0, 200, 200,
 	BL_PWM_POSITIVE, BL_PWM_E, 180, 100, 25, 1, 0,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
@@ -310,7 +334,7 @@ struct ext_lcd_config_s ext_lcd1_config[LCD_NUM_MAX] = {
 	lcd1_power_on_step, lcd1_power_off_step,
 	/* backlight */
 	60, 255, 10, 128, 128,
-	BL_CTRL_MAX, 0, 1, 0, 200, 200,
+	BL_CTRL_PWM, 0, 1, 0, 200, 200,
 	BL_PWM_POSITIVE, BL_PWM_F, 180, 100, 25, 1, 0,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
@@ -329,7 +353,7 @@ struct ext_lcd_config_s ext_lcd1_config[LCD_NUM_MAX] = {
 	lcd1_power_on_step, lcd1_power_off_step,
 	/* backlight */
 	60, 255, 10, 128, 128,
-	BL_CTRL_MAX, 0, 1, 0, 200, 200,
+	BL_CTRL_PWM, 0, 1, 0, 200, 200,
 	BL_PWM_POSITIVE, BL_PWM_F, 180, 100, 25, 1, 0,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
@@ -347,7 +371,7 @@ struct ext_lcd_config_s ext_lcd1_config[LCD_NUM_MAX] = {
 	lcd1_power_on_step, lcd1_power_off_step,
 	/* backlight */
 	60, 255, 10, 128, 128,
-	BL_CTRL_MAX, 0, 1, 0, 200, 200,
+	BL_CTRL_PWM, 0, 1, 0, 200, 200,
 	BL_PWM_POSITIVE, BL_PWM_F, 180, 100, 25, 1, 0,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
@@ -367,7 +391,7 @@ struct ext_lcd_config_s ext_lcd1_config[LCD_NUM_MAX] = {
 	lcd1_power_on_step_mipi, lcd1_power_off_step_mipi,
 	/* backlight */
 	100, 255, 10, 128, 128,
-	BL_CTRL_MAX, 0, 1, 0, 200, 200,
+	BL_CTRL_PWM, 0, 1, 0, 200, 200,
 	BL_PWM_NEGATIVE, BL_PWM_F, 180, 100, 25, 1, 1,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
@@ -410,6 +434,7 @@ static struct lcd_pinmux_ctrl_s lcd1_bl_pinmux_ctrl[BL_PINMUX_MAX] = {
  * lcd_2
  ***************************************************/
 static char lcd2_cpu_gpio[LCD_CPU_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
+	"GPIOY_14",
 	"invalid", /* ending flag */
 };
 
@@ -418,12 +443,14 @@ static char lcd2_bl_gpio[BL_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
 };
 
 static struct lcd_power_step_s lcd2_power_on_step[] = {
+	{LCD_POWER_TYPE_CPU,   0, 1, 20,}, /* panel vcc */
 	{LCD_POWER_TYPE_SIGNAL, 0, 0, 0,},
 	{LCD_POWER_TYPE_MAX,   0, 0, 0,},  /* ending flag */
 };
 
 static struct lcd_power_step_s lcd2_power_off_step[] = {
 	{LCD_POWER_TYPE_SIGNAL, 0, 0, 0,},
+	{LCD_POWER_TYPE_CPU,   0, 0, 200,}, /* panel vcc */
 	{LCD_POWER_TYPE_MAX,   0, 0, 0,},   /* ending flag */
 };
 
