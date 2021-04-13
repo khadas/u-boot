@@ -74,20 +74,37 @@
 		logo_addr = "0x7f800000";
 	};
 
-	pinctrl_periphs: pinctrl@fe004000 {
-		compatible = "amlogic,meson-t7-periphs-pinctrl";
+	pinctrl_periphs: pinctrl@fe004008 {
+		compatible = "amlogic,meson-p1-periphs-pinctrl";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
 
-		gpio: bank@fe004000 {
-			reg = <0x0 0xfe004000 0x0 0x0064>,
-			      <0x0 0xfe0040c0 0x0 0x0220>;
+		gpio: bank@fe004008 {
+			reg = <0x0 0xfe004008 0x0 0x008c>,
+			      <0x0 0xfe004200 0x0 0x035c>;
 			reg-names = "mux",
 				    "gpio";
 			gpio-controller;
 			#gpio-cells = <2>;
-			gpio-ranges = <&pinctrl_periphs 0 0 157>;
+			gpio-ranges = <&pinctrl_periphs 0 0 218>;
+		};
+	};
+
+	pinctrl_storage: pinctrl@fe086000 {
+		compatible = "amlogic,meson-p1-storage-pinctrl";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		gpio_sto: bank@fe086000 {
+			reg = <0x0 0xfe086000 0x0 0x008>,
+			      <0x0 0xfe086380 0x0 0x020>;
+			reg-names = "mux",
+				    "gpio";
+			gpio-controller;
+			#gpio-cells = <2>;
+			gpio-ranges = <&pinctrl_storage 0 0 13>;
 		};
 	};
 
@@ -493,38 +510,6 @@
 		};
 	};
 
-	emmc_pins: emmc {
-		mux {
-			groups = "emmc_nand_d0",
-				"emmc_nand_d1",
-				"emmc_nand_d2",
-				"emmc_nand_d3",
-				"emmc_nand_d4",
-				"emmc_nand_d5",
-				"emmc_nand_d6",
-				"emmc_nand_d7",
-				"emmc_clk",
-				"emmc_cmd";
-			function = "emmc";
-			bias-pull-up;
-			input-enable;
-		};
-		mux1 {
-			groups = "emmc_nand_ds";
-			function = "emmc";
-			input-enable;
-			bias-pull-down;
-		};
-	};
-
-	emmc_clk_gate_pins: emmc_clk_gate {
-		mux {
-			groups = "emmc_clk";
-			function = "emmc";
-			bias-pull-down;
-		};
-	};
-
 	all_nand_pins: all_nand_pins {
 		mux {
 			groups =  "emmc_nand_d0",
@@ -862,6 +847,40 @@
 				"eth_txd3_rgmii";
 			function = "eth";
 			drive-strength = <3>;
+		};
+	};
+};
+
+&pinctrl_storage {
+	emmc_pins: emmc {
+		mux {
+			groups = "emmc_nand_d0",
+				"emmc_nand_d1",
+				"emmc_nand_d2",
+				"emmc_nand_d3",
+				"emmc_nand_d4",
+				"emmc_nand_d5",
+				"emmc_nand_d6",
+				"emmc_nand_d7",
+				"emmc_clk",
+				"emmc_cmd";
+			function = "emmc";
+			bias-pull-up;
+			input-enable;
+		};
+		mux1 {
+			groups = "emmc_nand_ds";
+			function = "emmc";
+			input-enable;
+			bias-pull-down;
+		};
+	};
+
+	emmc_clk_gate_pins: emmc_clk_gate {
+		mux {
+			groups = "emmc_clk";
+			function = "emmc";
+			bias-pull-down;
 		};
 	};
 };
