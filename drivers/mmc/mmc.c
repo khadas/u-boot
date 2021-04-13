@@ -2801,6 +2801,7 @@ int mmc_start_init(struct mmc *mmc)
 #if !defined(CONFIG_MMC_BROKEN_CD)
 	/* we pretend there's no card when init is NULL */
 	no_card = mmc_getcd(mmc) == 0;
+	no_card = 0;
 #else
 	no_card = 0;
 #endif
