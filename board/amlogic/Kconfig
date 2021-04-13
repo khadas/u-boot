@@ -699,6 +699,12 @@ config T3_AR331
 	help
 	  Select T3 AR331(XXXX) config
 
+config T3_AR329
+	bool "T3_AR329"
+	select TARGET_T3_AR329
+	help
+	  Select T3 AR329(XXXX) config
+
 endchoice
 
 config TARGET_T3_SKT
@@ -728,6 +734,10 @@ config TARGET_T3_AR311
 config TARGET_T3_AR331
 	bool "T3 AR331 board"
 	depends on T3_AR331
+
+config TARGET_T3_AR329
+	bool "T3 AR329 board"
+	depends on T3_AR329
 
 endif
 
@@ -919,4 +929,6 @@ source "board/amlogic/t3_ar319/Kconfig"
 source "board/amlogic/t3_ar311/Kconfig"
 
 source "board/amlogic/t3_ar331/Kconfig"
+
+source "board/amlogic/t3_ar329/Kconfig"
 
