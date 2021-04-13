@@ -640,7 +640,7 @@ config DDRFW_TYPE
 
 config CHIPSET_NAME
 	string "T3 CHIPSET NAME"
-	default "POP1"
+	default "t982"
 
 config CHIPSET_VARIANT
 	string "T3 CHIPSET VARIANT"
