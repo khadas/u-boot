@@ -1962,4 +1962,10 @@ config CMD_EFUSE
 	help
 	  support efuse command
 
+config CMD_INI
+	bool "support ini command"
+	default n
+	help
+	  support ini command
+
 endmenu
