@@ -61,7 +61,7 @@
 //#define CONFIG_BOOTLOADER_CONTROL_BLOCK
 
 #ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
-#define CONFIG_DTB_LOAD  "imgread dtb boot ${dtb_mem_addr}"
+#define CONFIG_DTB_LOAD  "imgread dtb ${boot_part} ${dtb_mem_addr}"
 #else
 #define CONFIG_DTB_LOAD  "imgread dtb _aml_dtb ${dtb_mem_addr}"
 #endif//#ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
@@ -78,7 +78,7 @@
         "loadaddr_rtos=0x00001000\0"\
         "loadaddr_kernel=0x03080000\0"\
         "otg_device=1\0" \
-	"panel_type=lvds_1\0" \
+        "panel_type=lvds_1\0" \
         "outputmode=panel\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
@@ -94,7 +94,7 @@
         "fb_width=1920\0" \
         "fb_height=1080\0" \
         "frac_rate_policy=1\0" \
-        "usb_burning=adnl 1000\0" \
+        "usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
         "fdt_high=0x20000000\0"\
         "sdcburncfg=aml_sdc_burn.ini\0"\
         "EnableSelinux=enforcing\0" \
@@ -110,7 +110,7 @@
         "fatload_dev=usb\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-            "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xfe002000"\
+            "init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xfe002000"\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
@@ -215,14 +215,14 @@
             "fi;"\
             "\0"\
 
-#if 0
+#if !defined(CONFIG_PXP_DDR)
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
             "run upgrade_check;"\
             "run storeargs;"\
             "run upgrade_key;"
 #else
-#define CONFIG_PREBOOT  "echo preboot"
+#define CONFIG_PREBOOT  "echo PXP preboot"
 #endif
 /* #define CONFIG_ENV_IS_NOWHERE  1 */
 #define CONFIG_ENV_SIZE   (64*1024)
