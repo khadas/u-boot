@@ -53,6 +53,7 @@ ifneq ($(CONFIG_GICV2)$(CONFIG_GICV3),)
 obj-y	+= gic_64.o
 endif
 obj-y	+= interrupts_64.o
+obj-$(CONFIG_KALLSYMS) += stacktrace_64.o
 else
 obj-y	+= interrupts.o
 endif

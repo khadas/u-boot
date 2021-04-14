@@ -258,7 +258,10 @@ void	pci_init_board(void);
 void	jumptable_init(void);
 
 /* common/kallsysm.c */
-const char *symbol_lookup(unsigned long addr, unsigned long *caddr);
+const char *symbol_lookup(unsigned long addr, unsigned long *caddr, unsigned long *naddr);
+
+/* arch/arm/lib/stacktrace_64.c */
+void stack_dump(void);
 
 /* common/memsize.c */
 long	get_ram_size  (long *, long);

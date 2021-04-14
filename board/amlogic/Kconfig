@@ -31,6 +31,13 @@ config PXP_SCS
 		fast PXP bring up. This config should be closed if SCS feature
 		is ready.
 
+config KALLSYMS
+	bool "Support call stack dump when crash"
+	default y
+	help
+		This config can help to print call stack like linux kernel panic
+		when crash. It's very useful for debug crash issues.
+
 config AML_BL33_COMPRESS_ENABLE
 	bool "Amlogic U-boot compress"
 	help

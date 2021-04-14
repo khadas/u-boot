@@ -25,6 +25,12 @@ struct pt_regs {
 	unsigned long regs[31];
 };
 
+struct stackframe {
+	unsigned long fp;
+	unsigned long sp;
+	unsigned long pc;
+};
+
 #endif	/* __ASSEMBLY__ */
 
 #else	/* CONFIG_ARM64 */
