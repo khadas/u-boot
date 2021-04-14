@@ -192,38 +192,26 @@
 	pinctrl-1 = <&nand_cs_pins>;
 };
 
-&crg {
-        status = "disabled";
+&crg20 {
+        status = "okay";
         dr_mode = "host";
 };
 
-&crg2 {
-        status = "disabled";
+&crg30 {
+        status = "okay";
         dr_mode = "host";
 };
 
 &usb2_phy_v2 {
-        status = "disabled";
-        portnum = <1>;
+        status = "okay";
+        portnum = <3>;
 };
 
 &usb3_phy_v2 {
-        status = "disabled";
+        status = "okay";
         portnum = <0>;
-        gpio-vbus-power = "GPIOM_8";
-        gpios = <&gpio GPIOM_8 GPIO_ACTIVE_HIGH>;
-};
-
-&usb2_phy2_v2 {
-        status = "disabled";
-        portnum = <1>;
-};
-
-&usb3_phy2_v2 {
-        status = "disabled";
-        portnum = <0>;
-        gpio-vbus-power = "GPIOM_9";
-        gpios = <&gpio GPIOM_9 GPIO_ACTIVE_HIGH>;
+        gpio-vbus-power = "GPIOZ_18";
+        gpios = <&gpio GPIOZ_18 GPIO_ACTIVE_HIGH>;
 };
 
 &pwm_ef {

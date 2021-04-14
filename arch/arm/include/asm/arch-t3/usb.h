@@ -253,5 +253,9 @@ int usb2_phy_tuning(uint32_t phy2_pll_base, int port);
 void set_usb_pll(uint32_t phy2_pll_base);
 int usb_save_phy_dev (unsigned int number, struct phy *phy);
 int usb2_phy_init (struct phy *phy);
-void usb_device_mode_init(int phy_num);
+unsigned int usb_get_dwc_a_base_addr(void);
+unsigned int usb_get_device_mode_phy_base(void);
+void usb_phy_tuning_reset(void);
+void usb_device_mode_init(void);
+
 #endif

@@ -860,6 +860,9 @@ unknown:
 		 */
 		switch (ctrl->bRequestType & USB_RECIP_MASK) {
 		case USB_RECIP_INTERFACE:
+			if (!cdev->config || w_index >= 1)
+				break;
+
 			f = cdev->config->interface[intf];
 			break;
 
@@ -886,6 +889,9 @@ unknown:
 		 * special non-standard request.
 		 */
 		case USB_RECIP_DEVICE:
+			if (!cdev->config || w_index >= 1)
+				break;
+
 			debug("cdev->config->next_interface_id: %d intf: %d\n",
 			       cdev->config->next_interface_id, intf);
 			if (cdev->config->next_interface_id == 1)

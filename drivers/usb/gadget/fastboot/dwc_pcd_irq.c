@@ -558,7 +558,6 @@ static void dwc_otg_pcd_handle_rx_status_q_level_intr(void)
 	case DWC_DSTS_SETUP_UPDT:
 		dwc_otg_read_setup_packet(gadget_wrapper.pcd.setup_pkt.d32);
 		req_flag->request_enable = 1;
-		ep->xfer_count += status.b.bcnt;
 		break;
 
 	case DWC_DSTS_GOUT_NAK:
