@@ -371,6 +371,22 @@ const struct mtd_partition *get_spinand_partition_table(int *partitions)
 }
 #endif /* CONFIG_SPI_NAND */
 
+#ifdef CONFIG_MULTI_DTB
+int checkhw(char * name)
+{
+    strcpy(name, "t3_t982_ar319\0");
+    env_set("aml_dt", "t3_t982_ar319\0");
+    return 0;
+}
+#endif
+
+const char * const _env_args_reserve_[] =
+{
+	"lock",
+	"upgrade_step",
+	"bootloader_version",
+	NULL//Keep NULL be last to tell END
+};
 int __attribute__((weak)) mmc_initialize(bd_t *bis){ return 0;}
 
 int __attribute__((weak)) do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]){ return 0;}
