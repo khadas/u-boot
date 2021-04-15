@@ -210,8 +210,8 @@
 &usb3_phy_v2 {
         status = "okay";
         portnum = <0>;
-        gpio-vbus-power = "GPIOZ_18";
-        gpios = <&gpio GPIOZ_18 GPIO_ACTIVE_HIGH>;
+        gpio-vbus-power = "GPIOD_6";
+        gpios = <&gpio GPIOD_6 GPIO_ACTIVE_HIGH>;
 };
 
 &pwm_ef {

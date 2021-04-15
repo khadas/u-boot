@@ -42,12 +42,14 @@
 #define USB2_PHY_PLL_OFFSET_54	(0x2a)
 
 #define TUNING_DISCONNECT_THRESHOLD 0x3C
+#define M31_PHY_SETTING 0x1e32dabd
 
 #define PHY_23_BASE 0xfe030000
 #define PHY_22_BASE 0xfe032000
 #define PHY_21_BASE 0xfe03e000
 #define PHY_COMP_BASE 0xfe03a000
 #define RESET_BASE 0xFE002000
+#define M31_PHY_BASE 0XFE02A000
 
 static int Rev_flag = 0;
 
@@ -242,7 +244,7 @@ int usb_save_phy_dev (unsigned int number, struct phy *phy)
 
 void power_down_usb3(void)
 {
-	/* to do */
+	*(volatile unsigned int *)(unsigned long)M31_PHY_BASE = M31_PHY_SETTING;
 }
 
 int usb2_phy_init (struct phy *phy) {
