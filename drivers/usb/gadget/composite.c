@@ -233,9 +233,6 @@ static int config_desc(struct usb_composite_dev *cdev, unsigned w_value)
 		if (speed == USB_SPEED_HIGH) {
 			if (!c->highspeed)
 				continue;
-		} else {
-			if (!c->fullspeed)
-				continue;
 		}
 		if (w_value == 0)
 			return config_buf(c, speed, cdev->req->buf, type);
