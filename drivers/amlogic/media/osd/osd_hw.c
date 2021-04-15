@@ -3121,6 +3121,7 @@ static void set_vpp_super_position(void)
 
 static void fix_vpu_clk2_default_regs(void)
 {
+#ifdef AML_T7_DISPLAY
 	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7) {
 		 /* default: osd byp osd_blend */
 		osd_reg_set_bits(VPP_OSD1_SCALE_CTRL, 0x2, 0, 3);
@@ -3145,7 +3146,19 @@ static void fix_vpu_clk2_default_regs(void)
 		osd_reg_set_bits(MALI_AFBCD_TOP_CTRL, 0x0, 20, 1);
 		osd_reg_set_bits(MALI_AFBCD1_TOP_CTRL, 0x0, 20, 1);
 		osd_reg_set_bits(MALI_AFBCD1_TOP_CTRL, 0x0, 20, 1);
+
+		/* clean vpp_top 1/2 blend default order */
+		osd_reg_set_bits(VPP1_BLD_CTRL, 0x0, 0, 8);
+		osd_reg_set_bits(VPP2_BLD_CTRL, 0x0, 0, 8);
+
+		/* set vpp_top 1/2 default blend dummy */
+		osd_reg_write(VPP1_BLEND_BLEND_DUMMY_DATA, 0x008080);
+		osd_reg_write(VPP1_BLEND_DUMMY_ALPHA, 0xffffffff);
+		osd_reg_write(VPP2_BLEND_BLEND_DUMMY_DATA, 0x008080);
+		osd_reg_write(VPP2_BLEND_DUMMY_ALPHA, 0xffffffff);
+
 	}
+#endif
 }
 
 void osd_init_hw(void)

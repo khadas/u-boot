@@ -483,6 +483,7 @@ static int YUV709l_to_RGB709_coeff12[MATRIX_5x3_COEF_SIZE] = {
 	((a) & 0x3ff) : ((~(a) + 1) & 0x3ff)) * 10000 / 1024)
 
 #define INORM	50000
+#ifdef CONFIG_AML_HDMITX20
 static u32 bt2020_primaries[3][2] = {
 	{0.17 * INORM + 0.5, 0.797 * INORM + 0.5},	/* G */
 	{0.131 * INORM + 0.5, 0.046 * INORM + 0.5},	/* B */
@@ -492,6 +493,7 @@ static u32 bt2020_primaries[3][2] = {
 static u32 bt2020_white_point[2] = {
 	0.3127 * INORM + 0.5, 0.3290 * INORM + 0.5
 };
+#endif
 
 static int vpp_get_chip_type(void)
 {
@@ -600,11 +602,8 @@ static void vpp_set_matrix_ycbcr2rgb(int vd1_or_vd2_or_post, int mode)
 	//VPP_PR("%s: %d, %d\n", __func__, vd1_or_vd2_or_post, mode);
 
 	if (is_osd_high_version()) {
+		/* vpp top0 */
 		vpp_top_post2_matrix_yuv2rgb(0);
-		if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_T7) {
-			vpp_top_post2_matrix_yuv2rgb(1);
-			vpp_top_post2_matrix_yuv2rgb(2);
-		}
 		VPP_PR("g12a/b post2(bit12) matrix: YUV limit -> RGB ..............\n");
 		return;
 	}
@@ -1163,6 +1162,7 @@ static void set_osd4_rgb2yuv(bool on)
 	}
 }
 
+#ifndef AML_T7_DISPLAY
 static void set_viu2_osd_matrix_rgb2yuv(bool on)
 {
 	int *m = RGB709_to_YUV709l_coeff;
@@ -1193,6 +1193,7 @@ static void set_viu2_osd_matrix_rgb2yuv(bool on)
 		vpp_reg_setb(VIU2_OSD1_MATRIX_EN_CTRL, on, 0, 1);
 	}
 }
+#endif
 
 static void set_vpp_osd2_rgb2yuv(bool on)
 {
@@ -1577,11 +1578,18 @@ void vpp_viu2_matrix_update(int type)
 	switch (type) {
 	case VPP_CM_RGB:
 		/* default RGB */
+		#ifndef AML_T7_DISPLAY
 		set_viu2_osd_matrix_rgb2yuv(0);
+		#else
+		/* vpp_top1: yuv2rgb */
+		vpp_top_post2_matrix_yuv2rgb(1);
+		#endif
 		break;
 	case VPP_CM_YUV:
 		/* RGB to 709 limit */
+		#ifndef AML_T7_DISPLAY
 		set_viu2_osd_matrix_rgb2yuv(1);
+		#endif
 		break;
 	default:
 		break;
@@ -1600,6 +1608,7 @@ static void vpp_ofifo_init(void)
 	vpp_reg_write(VPP_HOLD_LINES, data32);
 }
 
+#ifdef CONFIG_AML_HDMITX20
 static void amvecm_cp_hdr_info(struct master_display_info_s *hdr_data)
 {
 	int i, j;
@@ -1630,12 +1639,15 @@ static void amvecm_cp_hdr_info(struct master_display_info_s *hdr_data)
 	hdr_data->luminance[0] = hdr_data->luminance[0] / 10000;
 	hdr_data->present_flag = 1;
 }
+#endif
 
 void hdr_tx_pkt_cb(void)
 {
 	int hdr_policy = 0;
+#ifdef CONFIG_AML_HDMITX20
 	struct master_display_info_s hdr_data;
 	struct hdr_info *hdrinfo = NULL;
+#endif
 	const char *hdr_policy_env = env_get("hdr_policy");
 
 	if (!hdr_policy_env)
@@ -1644,7 +1656,6 @@ void hdr_tx_pkt_cb(void)
 	hdr_policy = simple_strtoul(hdr_policy_env, NULL, 10);
 #ifdef CONFIG_AML_HDMITX20
 	hdrinfo = hdmitx_get_rx_hdr_info();
-#endif
 
 	if ((hdrinfo && hdrinfo->hdr_sup_eotf_smpte_st_2084) &&
 	    hdr_policy == 0) {
@@ -1652,15 +1663,16 @@ void hdr_tx_pkt_cb(void)
 		hdr_func(OSD2_HDR, SDR_HDR);
 		hdr_func(VD1_HDR, SDR_HDR);
 		amvecm_cp_hdr_info(&hdr_data);
-#ifdef CONFIG_AML_HDMITX20
 		hdmitx_set_drm_pkt(&hdr_data);
-#endif
 	}
+#endif
 
 	VPP_PR("hdr_policy = %d\n", hdr_policy);
+#ifdef CONFIG_AML_HDMITX20
 	if (hdrinfo)
 		VPP_PR("Rx hdr_info.hdr_sup_eotf_smpte_st_2084 = %d\n",
 		       hdrinfo->hdr_sup_eotf_smpte_st_2084);
+#endif
 }
 
 static bool is_vpp_supported(int chip_id)

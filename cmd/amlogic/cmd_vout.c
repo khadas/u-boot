@@ -334,7 +334,7 @@ static int do_vout2_prepare(cmd_tbl_t *cmdtp, int flag, int argc, char *const ar
 	if (venc_sel == VIU_MUX_ENCL) {
 		vout_viu_mux(VOUT_VIU2_SEL, mux_sel);
 #ifdef CONFIG_AML_VPP
-		vpp_viu2_matrix_update(VPP_CM_YUV);
+		vpp_viu2_matrix_update(VPP_CM_RGB);
 #endif
 		aml_lcd_driver_prepare(venc_index, mode, frac);
 		free(mode);
