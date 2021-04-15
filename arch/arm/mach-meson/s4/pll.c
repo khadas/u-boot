@@ -39,6 +39,7 @@ Description:
 #define STR_PLL_TEST_PCIE	"pcie"
 #define STR_PLL_TEST_ETHPHY	"ethphy"
 #define STR_PLL_TEST_USBPHY	"usbphy"
+#define STR_PLL_TEST_MPLL	"mpll"
 
 
 #define PLL_LOCK_CHECK_MAX		3
@@ -57,6 +58,18 @@ Description:
 #define SYS_PLL	1
 #define RW_CPUCTRL_SYS_CPU_CLK5	2
 #define GP1_PLL	3
+
+enum sec_pll {
+	SECID_SYS0_DCO_PLL = 0,
+	SECID_SYS0_DCO_PLL_DIS,
+	SECID_SYS0_PLL_OD,
+	SECID_SYS1_DCO_PLL,
+	SECID_SYS1_DCO_PLL_DIS,
+	SECID_SYS1_PLL_OD,
+	SECID_CPU_CLK_SEL,
+	SECID_CPU_CLK_RD,
+	SECID_CPU_CLK_DYN,
+};
 
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
@@ -133,7 +146,7 @@ uint32_t sys_pll_clk[] = {6000, 3000};
 sys_pll_cfg_t sys_pll_cfg = {
 	.sys_pll[0] = {
 		.cpu_clk   = 6000,
-		.pll_cntl  = 0X080004fa,
+		.pll_cntl  = 0X080304fa,
 		.pll_cntl1 = 0x0,
 		.pll_cntl2 = 0x0,
 		.pll_cntl3 = 0x48681c00,
@@ -144,7 +157,7 @@ sys_pll_cfg_t sys_pll_cfg = {
 
 	.sys_pll[1] = {
 		.cpu_clk   = 3000,
-		.pll_cntl  = 0X0800047d,
+		.pll_cntl  = 0X0803047d,
 		.pll_cntl1 = 0x0,
 		.pll_cntl2 = 0x0,
 		.pll_cntl3 = 0x48681c00,
@@ -171,11 +184,25 @@ hifi_pll_cfg_t hifi_pll_cfg = {
 		.pll_cntl0 = 0X0803047d,
 		.pll_cntl1 = 0X00006aab,
 		.pll_cntl2 = 0x0,
-		.pll_cntl3 = 0x6a295c00,
+		.pll_cntl3 = 0x68295c00,
 		.pll_cntl4 = 0x65771290,
 		.pll_cntl5 = 0x39272000,
 		.pll_cntl6 = 0x54540000
 	},
+};
+
+mpll_pll_set_t mpll = {
+	.pll_clk   = 100,
+	.pll_cntl0 = 0x00000543,
+	.pll_cntl1 = 0xc14003e7,
+	.pll_cntl2 = 0x60000033,
+	.pll_cntl3 = 0xc14003e7,
+	.pll_cntl4 = 0x60000033,
+	.pll_cntl5 = 0xc14003e7,
+	.pll_cntl6 = 0x60000033,
+	.pll_cntl7 = 0xc14003e7,
+	.pll_cntl8 = 0x60000033
+
 };
 
 /*PCIE clk_out = 24M*m/2^(n+1)/OD*/
@@ -206,7 +233,9 @@ static void clocks_set_sys_cpu_clk(uint32_t freq)
 {
 	struct arm_smccc_res res;
 
-	arm_smccc_smc(0x8200009C, RW_CPUCTRL_SYS_CPU_CLK, freq, 0, 0, 0,
+	arm_smccc_smc(0x82000099, SECID_CPU_CLK_SEL, (1 << 11), freq? 1 : 0,
+		      0, 0, 0, 0, &res);
+	arm_smccc_smc(0x82000099, SECID_CPU_CLK_DYN, freq, 0, 0, 0,
 		      0, 0, &res);
 }
 
@@ -217,8 +246,11 @@ static int sys_pll_init(sys_pll_set_t * sys_pll_set)
 	struct arm_smccc_res res;
 
 	do {
-		arm_smccc_smc(0x8200009C, SYS_PLL, sys_pll_set->pll_cntl, 0,
-			      0, 0, 0, 0, &res);
+		arm_smccc_smc(0x82000098, SECID_SYS0_DCO_PLL,
+			      (sys_pll_set->pll_cntl & 0x1FF),
+			      ((sys_pll_set->pll_cntl >> 10) & 0x1F),
+			      ((sys_pll_set->pll_cntl >> 16) & 0x3),
+			      0, 0, 0, &res);
 		//Wr(ANACTRL_SYSPLL_CTRL0, sys_pll_set->pll_cntl);
 		//Wr(ANACTRL_SYSPLL_CTRL0, sys_pll_set->pll_cntl | (3 << 28));
 		//Wr(ANACTRL_SYSPLL_CTRL1, sys_pll_set->pll_cntl1);
@@ -247,8 +279,9 @@ static int sys_pll_test(sys_pll_set_t * sys_pll_set)
 	unsigned int clk_msr_val = 0;
 	unsigned int sys_clk = 0;
 	sys_pll_set_t sys_pll;
-	int ret = 0;
+	int ret = 0, od = 0;
 
+	od = ((sys_pll_set->pll_cntl >> 16) & 0x3);
 	/* switch sys clk to oscillator */
 	clocks_set_sys_cpu_clk(0);
 
@@ -280,11 +313,11 @@ static int sys_pll_test(sys_pll_set_t * sys_pll_set)
 	if (ret) {
 		printf("SYS pll lock Failed! - %4d MHz\n", sys_clk);
 	} else {
-		printf("SYS pll lock OK! - %4d MHz. Div16 - %4d MHz. ",
-			sys_clk, sys_clk >> PLL_DIV16_OFFSET);
+		printf("SYS pll lock OK! - %4d MHz. Div16 >>%d - %4d MHz. ",
+			sys_clk, od, (sys_clk >> SYS_PLL_TEST_DIV) >> od);
 		clk_msr_val = clk_util_clk_msr(23);
 		printf("CLKMSR(23) - %4d MHz ", clk_msr_val);
-		if (clk_around(clk_msr_val, sys_clk >> SYS_PLL_TEST_DIV)) {
+		if (clk_around(clk_msr_val, (sys_clk >> SYS_PLL_TEST_DIV) >> od)) {
 			/* sys clk/pll div16 */
 			printf(": Match\n");
 		} else {
@@ -295,7 +328,7 @@ static int sys_pll_test(sys_pll_set_t * sys_pll_set)
 
 	/* restore sys pll */
 	sys_pll_init(&sys_pll);
-	clocks_set_sys_cpu_clk(1);
+	clocks_set_sys_cpu_clk(2);
 
 	return ret;
 }
@@ -746,6 +779,70 @@ static int pcie_pll_test_all(void)
 	return ret;
 }
 
+static void set_mpll(mpll_pll_set_t *mpll)
+{
+	writel(mpll->pll_cntl0, ANACTRL_MPLL_CTRL0);
+	writel(mpll->pll_cntl1, ANACTRL_MPLL_CTRL1);
+	writel(mpll->pll_cntl2, ANACTRL_MPLL_CTRL2);
+	writel(mpll->pll_cntl3, ANACTRL_MPLL_CTRL3);
+	writel(mpll->pll_cntl4, ANACTRL_MPLL_CTRL4);
+	writel(mpll->pll_cntl5, ANACTRL_MPLL_CTRL5);
+	writel(mpll->pll_cntl6, ANACTRL_MPLL_CTRL6);
+	writel(mpll->pll_cntl7, ANACTRL_MPLL_CTRL7);
+	writel(mpll->pll_cntl8, ANACTRL_MPLL_CTRL8);
+}
+
+static int mpll_pll_test(mpll_pll_set_t *mpll)
+{
+	unsigned int i, ret = 0, clk_msr_val = 0;
+	mpll_pll_set_t old_mpll;
+	u64 clk_rate[4] = {0};
+
+	old_mpll.pll_cntl0 = readl(ANACTRL_MPLL_CTRL0);
+	old_mpll.pll_cntl1 = readl(ANACTRL_MPLL_CTRL1);
+	old_mpll.pll_cntl2 = readl(ANACTRL_MPLL_CTRL2);
+	old_mpll.pll_cntl3 = readl(ANACTRL_MPLL_CTRL3);
+	old_mpll.pll_cntl4 = readl(ANACTRL_MPLL_CTRL4);
+	old_mpll.pll_cntl5 = readl(ANACTRL_MPLL_CTRL5);
+	old_mpll.pll_cntl6 = readl(ANACTRL_MPLL_CTRL6);
+	old_mpll.pll_cntl7 = readl(ANACTRL_MPLL_CTRL7);
+	old_mpll.pll_cntl8 = readl(ANACTRL_MPLL_CTRL8);
+
+	if (!mpll->pll_clk) {
+		clk_rate[0] = (2000 * 16384)/
+			((16384 * ((mpll->pll_cntl1 >> 20) & 0x1ff)) +
+			(mpll->pll_cntl1 & 0x7fff));
+		clk_rate[1] = (2000 * 16384)/
+			((16384 * ((mpll->pll_cntl3 >> 20) & 0x1ff)) +
+			(mpll->pll_cntl3 & 0x7fff));
+		clk_rate[2] = (2000 * 16384)/
+			((16384 * ((mpll->pll_cntl5 >> 20) & 0x1ff)) +
+			(mpll->pll_cntl5 & 0x7fff));
+		clk_rate[3] = (2000 * 16384)/
+			((16384 * ((mpll->pll_cntl7 >> 20) & 0x1ff)) +
+			(mpll->pll_cntl7 & 0x7fff));
+	}
+
+	set_mpll(mpll);
+	for (i = 0; i < 4; i++) {
+		if (mpll->pll_clk) {
+			clk_rate[i] = mpll->pll_clk;
+		}
+		printf("mpll%d - %4lld MHz-", i, clk_rate[i]);
+		clk_msr_val = clk_util_clk_msr(11 + i);
+		printf("CLKMSR(16) - %4d MHz ", clk_msr_val);
+		if (clk_around(clk_msr_val, clk_rate[i])) {
+			printf(": Match\n");
+		} else {
+			printf(": MisMatch\n");
+			ret += RET_CLK_NOT_MATCH;
+		}
+	}
+
+	set_mpll(&old_mpll);
+	return ret;
+}
+
 static int pll_test_all(unsigned char * pll_list)
 {
 	int ret = 0;
@@ -785,6 +882,10 @@ static int pll_test_all(unsigned char * pll_list)
 			ret = gp1_pll_test_all(&gp1_pll_cfg);
 			pll_report(ret, STR_PLL_TEST_GP1);
 			break;
+		case PLL_MPLL:
+			ret = mpll_pll_test(&mpll);
+			pll_report(ret, STR_PLL_TEST_MPLL);
+			break;
 		default:
 			break;
 		}
@@ -801,17 +902,19 @@ int pll_test(int argc, char * const argv[])
 	gp1_pll_set_t gp1_pll_set = {0};
 	hifi_pll_set_t hifi_pll_set = {0};
 	pcie_pll_set_t pcie_pll_set = {0};
+	mpll_pll_set_t mpll_pll_set = {0};
 
 	unsigned char plls[PLL_ENUM] = {
 		PLL_SYS,
 		0xff,//	PLL_FIX, //0xff will skip this pll
 		0xff,//	PLL_DDR,
-		PLL_HDMI,
+		0xff,// PLL_HDMI
 		PLL_GP0,
 		PLL_HIFI,
-		PLL_PCIE,
-		PLL_GP1,
+		0xff, //PLL_PCIE
+		0xff, //PLL_GP1
 		0xff,//PLL_USBPHY
+		PLL_MPLL,
 	};
 
 	if (0 == strcmp(STR_PLL_TEST_ALL, argv[1])) {
@@ -939,6 +1042,35 @@ int pll_test(int argc, char * const argv[])
 							16);
 			ret = pcie_pll_test(&pcie_pll_set);
 			pll_report(ret, STR_PLL_TEST_PCIE);
+		}
+	} else if (0 == strcmp(STR_PLL_TEST_MPLL, argv[1])) {
+		if (argc == 2) {
+			ret = mpll_pll_test(&mpll);
+			pll_report(ret, STR_PLL_TEST_MPLL);
+		} else if (argc != 11) {
+			printf("%s pll test: args error\n", STR_PLL_TEST_MPLL);
+			return -1;
+		} else {
+			mpll_pll_set.pll_cntl0 = simple_strtoul(argv[2], NULL,
+							16);
+			mpll_pll_set.pll_cntl1 = simple_strtoul(argv[3], NULL,
+							16);
+			mpll_pll_set.pll_cntl2 = simple_strtoul(argv[4], NULL,
+							16);
+			mpll_pll_set.pll_cntl3 = simple_strtoul(argv[5], NULL,
+							16);
+			mpll_pll_set.pll_cntl4 = simple_strtoul(argv[6], NULL,
+							16);
+			mpll_pll_set.pll_cntl5 = simple_strtoul(argv[7], NULL,
+							16);
+			mpll_pll_set.pll_cntl6 = simple_strtoul(argv[8], NULL,
+							16);
+			mpll_pll_set.pll_cntl7 = simple_strtoul(argv[9], NULL,
+							16);
+			mpll_pll_set.pll_cntl8 = simple_strtoul(argv[10], NULL,
+							16);
+			ret = mpll_pll_test(&mpll_pll_set);
+			pll_report(ret, STR_PLL_TEST_MPLL);
 		}
 	} else if (0 == strcmp(STR_PLL_TEST_GP1, argv[1])) {
 		if (argc == 2) {

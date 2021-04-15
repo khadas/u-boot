@@ -127,6 +127,19 @@ typedef struct pcie_pll_set_s {
 	unsigned int pll_cntl5;
 }pcie_pll_set_t;
 
+typedef struct mpll_pll_set_s {
+	unsigned int pll_clk;
+	unsigned int pll_cntl0;
+	unsigned int pll_cntl1;
+	unsigned int pll_cntl2;
+	unsigned int pll_cntl3;
+	unsigned int pll_cntl4;
+	unsigned int pll_cntl5;
+	unsigned int pll_cntl6;
+	unsigned int pll_cntl7;
+	unsigned int pll_cntl8;
+}mpll_pll_set_t;
+
 typedef struct ethphy_pll_set_s {
 	unsigned int pll_clk;
 	unsigned int pll_cntl0;
@@ -174,6 +187,7 @@ enum pll_enum {
 	PLL_PCIE,
 	PLL_GP1,
 	PLL_USBPHY,
+	PLL_MPLL,
 	PLL_ENUM,
 
 };
