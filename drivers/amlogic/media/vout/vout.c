@@ -822,7 +822,7 @@ static struct vout_conf_s vout_config_triple = {
 	.viu_valid[1] = 1,
 	.viu_valid[2] = 1,
 
-	.viu_mux_reg = VPU_VENC_CTRL,
+	.viu_mux_reg = VPU_VIU_VENC_MUX_CTRL,
 
 	.viu_mux = vout_viu_mux_t7,
 	.reg_dump = vout_reg_dump,

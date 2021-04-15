@@ -504,7 +504,10 @@
 #endif
 
 #ifndef VBO_INFILTER_CTRL
-#define VBO_INFILTER_CTRL                          0x14f9
+#define VBO_INFILTER_CTRL                          ((0x19f9  << 2) + 0xff000000)
+#endif
+#ifndef VBO_INFILTER_CTRL_H
+#define VBO_INFILTER_CTRL_H                        ((0x1977  << 2) + 0xff000000)
 #endif
 #ifndef VBO_INFILTER_TICK_PERIOD_L
 #define VBO_INFILTER_TICK_PERIOD_L                 0x14f9

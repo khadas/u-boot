@@ -12,7 +12,8 @@
 /* 20181106: init version */
 /* 20201211: support t5/t5d/t7 */
 /* 20210222: support multi driver index */
-#define LCD_DRV_VERSION    "20210222"
+/* 20210409: update lvds & vbyone regs for t7*/
+#define LCD_DRV_VERSION    "20210409"
 
 extern unsigned int lcd_debug_test;
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
@@ -45,6 +46,8 @@ int lcd_phy_probe(struct aml_lcd_drv_s *pdrv);
 int lcd_phy_config_init(struct aml_lcd_data_s *pdata);
 
 /*lcd vbyone*/
+void lcd_vbyone_enable(struct aml_lcd_drv_s *pdrv);
+void lcd_vbyone_disable(struct aml_lcd_drv_s *pdrv);
 void lcd_vbyone_sw_reset(struct aml_lcd_drv_s *pdrv);
 void lcd_vbyone_wait_timing_stable(struct aml_lcd_drv_s *pdrv);
 void lcd_vbyone_cdr_training_hold(struct aml_lcd_drv_s *pdrv, int flag);
