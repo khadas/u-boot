@@ -374,8 +374,8 @@ const struct mtd_partition *get_spinand_partition_table(int *partitions)
 #ifdef CONFIG_MULTI_DTB
 int checkhw(char * name)
 {
-    strcpy(name, "t3_t982_ar301-1g\0");
-    env_set("aml_dt", "t3_t982_ar301-1g\0");
+    strcpy(name, "t3_t982_ar301\0");
+    env_set("aml_dt", "t3_t982_ar301\0");
     return 0;
 }
 #endif
