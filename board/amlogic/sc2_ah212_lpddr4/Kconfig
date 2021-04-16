@@ -10,7 +10,7 @@ config SYS_VENDOR
 	default "amlogic"
 
 config SYS_CONFIG_NAME
-	default "sc2_ah212_lpddr3"
+	default "sc2_ah212_lpddr4"
 
 config DTB_BIND_KERNEL
     bool "load dtb from boot part but not flash rsv"
