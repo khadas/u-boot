@@ -30,7 +30,7 @@ static int usb_get_priv_data (struct phy *phy){
 
 	priv->reset_addr = dev_read_addr_index(phy->dev, 1);
 	if (priv->reset_addr == FDT_ADDR_T_NONE) {
-		pr_err("Coun't get usb_phy2_pll_base_addr[%d]\n", i);
+		pr_err("Coun't get usb_phy2_pll_base_addr[1]: reset addr\n");
 		return -1;
 	}
 

@@ -50,6 +50,10 @@ static int xhci_crg_setup_phy(struct udevice *dev)
 {
 	struct xhci_crg_platdata *plat = dev_get_platdata(dev);
 	int i, ret, count;
+#ifdef CONFIG_AML_USB
+	unsigned int usb_type = 0;
+#endif
+
 
 	/* Return if no phy declared */
 	if (!dev_read_prop(dev, "phys", NULL))
@@ -98,8 +102,6 @@ static int xhci_crg_setup_phy(struct udevice *dev)
 	}
 
 #ifdef CONFIG_AML_USB
-	unsigned int usb_type = 0;
-
 	for (i = 0; i < plat->num_phys; i++) {
 		dev_read_u32((&plat->usb_phys[i])->dev, "phy-version", &usb_type);
 		if (usb_type == 2) {

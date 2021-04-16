@@ -732,12 +732,10 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int do_usb_detect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	if (argc < 2)
-		return CMD_RET_USAGE;
 	if (argc >= 2) {
 		return usb_aml_detect_operation(argc, argv);
 	}
-	return 0;
+	return CMD_RET_USAGE;
 }
 
 U_BOOT_CMD(

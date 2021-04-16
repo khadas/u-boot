@@ -340,7 +340,7 @@ static dwc_otg_pcd_ep_t *get_ep_from_handle(pcd_struct_t *pcd, void *handle)
 	if (pcd->dwc_eps[0].priv == handle)
 		return &pcd->dwc_eps[0];
 
-	for (i = 1; i < 5; i++) {
+	for (i = 1; i < NUM_EP; i++) {
 		if (pcd->dwc_eps[i].priv == handle) {
 			return &pcd->dwc_eps[i];
 		}
@@ -606,18 +606,11 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 		&& driver->speed != USB_SPEED_HIGH)
 	    || !driver->bind || !driver->disconnect || !driver->setup)
 		return -EINVAL;
-	if (!dev)
-		return -ENODEV;
 	if (dev->driver)
 		return -EBUSY;
 
 	/* first hook up the driver ... */
 	dev->driver = driver;
-
-	if (retval) { /* TODO */
-		printf("target device_add failed, error %d\n", retval);
-		return retval;
-	}
 
 	ep = &gadget_wrapper.pcd.dwc_eps[0];
 	dwc_otg_pcd_init_ep(&gadget_wrapper.pcd, ep, 0, 0);
@@ -637,6 +630,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 	retval = driver->bind(&dev->gadget);
 	if (retval) {
 		dev->driver = 0;
+		printf("target device_add failed, error %d\n", retval);
 		return retval;
 	}
 
@@ -649,8 +643,6 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 {
 	gadget_wrapper_t *dev = &gadget_wrapper;
 
-	if (!dev)
-		return -ENODEV;
 	if (!driver || driver != dev->driver)
 		return -EINVAL;
 

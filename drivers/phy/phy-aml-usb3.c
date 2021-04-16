@@ -31,6 +31,11 @@ static int phy_aml_usb3_power_info(struct phy *phy){
 	struct phy_aml_usb3_priv *priv = dev_get_priv(phy->dev);
 
 	usb_vbus_gpioname = fdt_getprop(fdt, dev_of_offset(phy->dev), "gpio-vbus-power", NULL);
+	if (!usb_vbus_gpioname) {
+		printf("No ----gpio-vbus-power\n");
+		return 0;
+	}
+
 	debug("usb_vbus_gpioname=%s\n", usb_vbus_gpioname);
 
 	ret = dm_gpio_lookup_name(usb_vbus_gpioname, &priv->desc);
