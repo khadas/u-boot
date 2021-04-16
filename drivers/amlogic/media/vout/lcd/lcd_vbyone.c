@@ -280,7 +280,7 @@ void lcd_vbyone_wait_hpd(struct aml_lcd_drv_s *pdrv)
 	offset = pdrv->data->offset_venc_if[pdrv->index];
 	reg = VBO_STATUS_L + offset;
 
-	LCDPR("[%d]: %s ...\n", pdrv->index, __func__);
+	LCDPR("[%d]: %s ...", pdrv->index, __func__);
 	while (i++ < VX1_HPD_WAIT_TIMEOUT) {
 		if (lcd_vcbus_getb(reg, 6, 1) == 0)
 			break;

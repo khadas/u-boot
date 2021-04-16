@@ -126,6 +126,11 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 
 static struct lcd_pinmux_ctrl_s lcd0_pinmux_ctrl[LCD_PINMX_MAX] = {
 	{
+		.name = "lcd_vbyone_pin", //GPIOH_0/8
+		.pinmux_set = {{0x7, 0x4}, {0x8, 0x4}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{0x7, 0xf}, {0x8, 0xf}, {LCD_PINMUX_END, 0x0}},
+	},
+	{
 		.name = "invalid",
 	},
 };
@@ -235,6 +240,11 @@ struct ext_lcd_config_s ext_lcd1_config[LCD_NUM_MAX] = {
 };
 
 static struct lcd_pinmux_ctrl_s lcd1_pinmux_ctrl[LCD_PINMX_MAX] = {
+	{
+		.name = "lcd_vbyone_pin", //GPIOH_9/10
+		.pinmux_set = {{0x8, 0x440}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{0x8, 0xff0}, {LCD_PINMUX_END, 0x0}},
+	},
 	{
 		.name = "invalid",
 	},

@@ -87,6 +87,7 @@
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
+        "vout_init=disable\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
         "display_bpp=16\0" \
@@ -131,7 +132,7 @@
             "\0"\
         "storeargs="\
             "setenv bootargs ${initargs} otg_device=${otg_device} "\
-                "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable "\
+                "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},${vout_init} "\
                 "panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
                 "hdmimode=${hdmimode} outputmode=${outputmode} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
@@ -238,9 +239,6 @@
                 "setenv loadaddr_kernel 0x2080000;"\
                 "setenv dtb_mem_addr 0x1f00000;"\
             "fi;"\
-            "\0"\
-        "init_display="\
-            "osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
             "\0"\
         "init_display="\
             "osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode}"\
