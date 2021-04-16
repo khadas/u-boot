@@ -487,7 +487,7 @@
 //use hardware sha2
 //#define CONFIG_AML_HW_SHA2
 
-/* #define CONFIG_MULTI_DTB    1 */
+#define CONFIG_MULTI_DTB    1
 /*#define CONFIG_AUTO_ADAPT_DDR_DTB  1 */
 
 
