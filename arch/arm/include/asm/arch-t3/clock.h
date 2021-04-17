@@ -21,6 +21,7 @@ License-Identifier: (GPL-2.0+ OR MIT) */
 // -----------------------------------------------
 #define T3_ANACTRL_SYSPLL_CTRL0                       ((0x00 << 2) + 0x8000)
 #define T3_ANACTRL_FIXPLL_CTRL0                       ((0x10 << 2) + 0x8000)
+#define T3_ANACTRL_GP0PLL_CTRL0                       ((0x20 << 2) + 0x8000)
 //========================================================================
 
 /*
