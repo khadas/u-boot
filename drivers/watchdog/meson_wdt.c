@@ -112,7 +112,7 @@ static int meson_gxbb_wdt_probe(struct udevice *dev)
 	fdt_addr_t addr;
 	fdt_size_t size;
 	struct clk w_clk;
-	unsigned int rate = 0;
+	ulong rate = 0;
 	unsigned int reset_by_soc = 0;
 	int ret;
 
@@ -129,7 +129,7 @@ static int meson_gxbb_wdt_probe(struct udevice *dev)
 		return ret;
 	}
 	rate = clk_get_rate(&w_clk);
-	if (rate < 0) {
+	if (IS_ERR_VALUE(rate)) {
 		printf("Failed to get wdt-clk rate.\n");
 		return ret;
 	}
