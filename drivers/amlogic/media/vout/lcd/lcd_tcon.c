@@ -1457,10 +1457,8 @@ lcd_tcon_load_init_data_new_err:
 	return -1;
 }
 
-static int lcd_tcon_get_config(char *dt_addr, struct aml_lcd_drv_s *pdrv,
-			       int load_id)
+static int lcd_tcon_get_config(char *dt_addr, struct aml_lcd_drv_s *pdrv, int load_id)
 {
-	struct lcd_config_s *pconf = &pdrv->config;
 	int parent_offset, size;
 	char *propdata;
 	unsigned int mem_size;
@@ -1479,15 +1477,12 @@ static int lcd_tcon_get_config(char *dt_addr, struct aml_lcd_drv_s *pdrv,
 				lcd_tcon_config_axi_offset_default();
 			} else {
 				if (size == 2)
-					tcon_rmem.rsv_mem_paddr =
-						be32_to_cpup((((u32 *)propdata) + 1));
+					tcon_rmem.rsv_mem_paddr = be32_to_cpup((((u32 *)propdata) + 1));
 				else
-					tcon_rmem.rsv_mem_paddr =
-						be32_to_cpup(((u32 *)propdata));
+					tcon_rmem.rsv_mem_paddr = be32_to_cpup(((u32 *)propdata));
 			}
 
-			propdata = (char *)fdt_getprop(dt_addr, parent_offset,
-						       "size", NULL);
+			propdata = (char *)fdt_getprop(dt_addr, parent_offset, "size", NULL);
 			if (!propdata) {
 				LCDERR("failed to get tcon size from dts\n");
 				lcd_tcon_config_axi_offset_default();
@@ -1502,8 +1497,7 @@ static int lcd_tcon_get_config(char *dt_addr, struct aml_lcd_drv_s *pdrv,
 					tcon_rmem.rsv_mem_paddr = 0;
 					tcon_rmem.flag = 0;
 				} else {
-					tcon_rmem.rsv_mem_size =
-						lcd_tcon_conf->rsv_mem_size;
+					tcon_rmem.rsv_mem_size = lcd_tcon_conf->rsv_mem_size;
 				}
 			}
 		}

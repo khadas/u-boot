@@ -213,9 +213,9 @@ static struct bl_pwm_ctrl_config_s bl_pwm_ctrl_conf_t7 = {
 };
 
 static struct bl_pwm_ctrl_config_s bl_pwm_ctrl_conf_t3 = {
-	.pwm_clk = pwm_clk_ctrl_t7,
-	.pwm_misc = pwm_misc_t7,
-	.pwm_reg = pwm_reg_t7,
+	.pwm_clk = pwm_clk_ctrl_t3,
+	.pwm_misc = pwm_misc_t3,
+	.pwm_reg = pwm_reg_t3,
 	.pwm_cnt = 10,
 	.pwm_ao_clk = NULL,
 	.pwm_ao_misc = NULL,
@@ -650,6 +650,9 @@ int aml_bl_pwm_reg_config_init(struct aml_lcd_data_s *pdata)
 		break;
 	case LCD_CHIP_T7:
 		bl_pwm_ctrl_conf = &bl_pwm_ctrl_conf_t7;
+		break;
+	case LCD_CHIP_T3:
+		bl_pwm_ctrl_conf = &bl_pwm_ctrl_conf_t3;
 		break;
 	default:
 		bl_pwm_ctrl_conf = NULL;

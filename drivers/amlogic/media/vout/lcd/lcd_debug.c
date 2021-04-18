@@ -406,64 +406,6 @@ static void lcd_reg_print_vbyone(struct aml_lcd_drv_s *pdrv)
 }
 
 #ifdef CONFIG_AML_LCD_TCON
-static void lcd_reg_print_tcon(struct aml_lcd_drv_s *pdrv)
-{
-	unsigned int reg;
-
-	printf("\ntcon clk registers:\n");
-	reg = HHI_TCON_CLK_CNTL;
-	printf("HHI_TCON_CLK_CNTL   [0x%08x] = 0x%08x\n",
-	       reg, lcd_clk_read(reg));
-	reg = HHI_HPLL_CNTL6;
-	printf("HHI_HPLL_CNTL6      [0x%08x] = 0x%08x\n",
-	       reg, lcd_clk_read(reg));
-	reg = HHI_DIF_TCON_CNTL0;
-	printf("HHI_DIF_TCON_CNTL0  [0x%08x] = 0x%08x\n",
-	       reg, lcd_clk_read(reg));
-	reg = HHI_DIF_TCON_CNTL1;
-	printf("HHI_DIF_TCON_CNTL1  [0x%08x] = 0x%08x\n",
-	       reg, lcd_clk_read(reg));
-	reg = HHI_DIF_TCON_CNTL2;
-	printf("HHI_DIF_TCON_CNTL2  [0x%08x] = 0x%08x\n",
-	       reg, lcd_clk_read(reg));
-
-	printf("\ntcon top registers:\n");
-	reg = TCON_TOP_CTRL;
-	printf("TCON_TOP_CTRL       [0x%04x] = 0x%08x\n",
-	       reg, lcd_tcon_read(reg));
-	reg = TCON_OUT_CH_SEL0;
-	printf("TCON_OUT_CH_SEL0    [0x%04x] = 0x%08x\n",
-	       reg, lcd_tcon_read(reg));
-	reg = TCON_OUT_CH_SEL1;
-	printf("TCON_OUT_CH_SEL1    [0x%04x] = 0x%08x\n",
-	       reg, lcd_tcon_read(reg));
-	reg = TCON_STATUS0;
-	printf("TCON_STATUS0        [0x%04x] = 0x%08x\n",
-	       reg, lcd_tcon_read(reg));
-	reg = TCON_PLLLOCK_CNTL;
-	printf("TCON_PLLLOCK_CNTL   [0x%04x] = 0x%08x\n",
-	       reg, lcd_tcon_read(reg));
-	reg = TCON_RST_CTRL;
-	printf("TCON_RST_CTRL       [0x%04x] = 0x%08x\n",
-	       reg, lcd_tcon_read(reg));
-	reg = TCON_CLK_CTRL;
-	printf("TCON_CLK_CTRL       [0x%04x] = 0x%08x\n",
-	       reg, lcd_tcon_read(reg));
-	reg = TCON_STATUS1;
-	printf("TCON_STATUS1        [0x%04x] = 0x%08x\n",
-	       reg, lcd_tcon_read(reg));
-
-	reg = LVDS_CH_SWAP0;
-	printf("LVDS_CH_SWAP0       [0x%04x] = 0x%08x\n",
-	       reg, lcd_vcbus_read(reg));
-	reg = LVDS_CH_SWAP1;
-	printf("LVDS_CH_SWAP1       [0x%04x] = 0x%08x\n",
-	       reg, lcd_vcbus_read(reg));
-	reg = LVDS_CH_SWAP2;
-	printf("LVDS_CH_SWAP2       [0x%04x] = 0x%08x\n",
-	       reg, lcd_vcbus_read(reg));
-}
-
 static void lcd_reg_print_tcon_tl1(struct aml_lcd_drv_s *pdrv)
 {
 	unsigned int reg;
@@ -514,6 +456,72 @@ static void lcd_reg_print_tcon_tl1(struct aml_lcd_drv_s *pdrv)
 	reg = TCON_DDRIF_CTRL2;
 	printf("TCON_DDRIF_CTRL2    [0x%04x] = 0x%08x\n",
 	       reg, lcd_tcon_read(reg));
+
+	reg = P2P_CH_SWAP0;
+	printf("P2P_CH_SWAP0        [0x%04x] = 0x%08x\n",
+	       reg, lcd_vcbus_read(reg));
+	reg = P2P_CH_SWAP1;
+	printf("P2P_CH_SWAP1        [0x%04x] = 0x%08x\n",
+	       reg, lcd_vcbus_read(reg));
+}
+
+static void lcd_reg_print_tcon_t3(struct aml_lcd_drv_s *pdrv)
+{
+	unsigned int reg;
+
+	printf("\ntcon registers:\n");
+	reg = CLKCTRL_TCON_CLK_CNTL;
+	printf("CLKCTRL_TCON_CLK_CNTL [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = TCON_TOP_CTRL;
+	printf("TCON_TOP_CTRL         [0x%04x] = 0x%08x\n",
+	       reg, lcd_tcon_read(reg));
+	reg = TCON_RGB_IN_MUX;
+	printf("TCON_RGB_IN_MUX       [0x%04x] = 0x%08x\n",
+	       reg, lcd_tcon_read(reg));
+	reg = TCON_OUT_CH_SEL0;
+	printf("TCON_OUT_CH_SEL0      [0x%04x] = 0x%08x\n",
+	       reg, lcd_tcon_read(reg));
+	reg = TCON_OUT_CH_SEL1;
+	printf("TCON_OUT_CH_SEL1      [0x%04x] = 0x%08x\n",
+	       reg, lcd_tcon_read(reg));
+	reg = TCON_STATUS0;
+	printf("TCON_STATUS0          [0x%04x] = 0x%08x\n",
+	       reg, lcd_tcon_read(reg));
+	reg = TCON_PLLLOCK_CNTL;
+	printf("TCON_PLLLOCK_CNTL     [0x%04x] = 0x%08x\n",
+	       reg, lcd_tcon_read(reg));
+	reg = TCON_RST_CTRL;
+	printf("TCON_RST_CTRL         [0x%04x] = 0x%08x\n",
+	       reg, lcd_tcon_read(reg));
+	reg = TCON_AXI_OFST0;
+	printf("TCON_AXI_OFST0        [0x%04x] = 0x%08x\n",
+	       reg, lcd_tcon_read(reg));
+	reg = TCON_AXI_OFST1;
+	printf("TCON_AXI_OFST1        [0x%04x] = 0x%08x\n",
+	       reg, lcd_tcon_read(reg));
+	reg = TCON_AXI_OFST2;
+	printf("TCON_AXI_OFST2        [0x%04x] = 0x%08x\n",
+	       reg, lcd_tcon_read(reg));
+	reg = TCON_CLK_CTRL;
+	printf("TCON_CLK_CTRL         [0x%04x] = 0x%08x\n",
+	       reg, lcd_tcon_read(reg));
+	reg = TCON_STATUS1;
+	printf("TCON_STATUS1          [0x%04x] = 0x%08x\n",
+	       reg, lcd_tcon_read(reg));
+	reg = TCON_DDRIF_CTRL1;
+	printf("TCON_DDRIF_CTRL1      [0x%04x] = 0x%08x\n",
+	       reg, lcd_tcon_read(reg));
+	reg = TCON_DDRIF_CTRL2;
+	printf("TCON_DDRIF_CTRL2      [0x%04x] = 0x%08x\n",
+	       reg, lcd_tcon_read(reg));
+
+	reg = P2P_CH_SWAP0;
+	printf("P2P_CH_SWAP0          [0x%04x] = 0x%08x\n",
+	       reg, lcd_vcbus_read(reg));
+	reg = P2P_CH_SWAP1;
+	printf("P2P_CH_SWAP1          [0x%04x] = 0x%08x\n",
+	       reg, lcd_vcbus_read(reg));
 }
 #endif
 
@@ -1604,7 +1612,7 @@ static struct lcd_debug_info_if_s lcd_debug_info_if_edp = {
 #ifdef CONFIG_AML_LCD_TCON
 static struct lcd_debug_info_if_s lcd_debug_info_if_mlvds = {
 	.interface_print = lcd_info_print_mlvds,
-	.reg_dump_interface = lcd_reg_print_tcon,
+	.reg_dump_interface = lcd_reg_print_tcon_tl1,
 	.reg_dump_phy = lcd_reg_print_phy_analog,
 };
 
@@ -1655,8 +1663,12 @@ void lcd_debug_probe(struct aml_lcd_drv_s *pdrv)
 		lcd_debug_info_if_vbyone.reg_dump_phy =
 			lcd_reg_print_phy_analog_t3;
 #ifdef CONFIG_AML_LCD_TCON
+		lcd_debug_info_if_mlvds.reg_dump_interface =
+			lcd_reg_print_tcon_t3;
 		lcd_debug_info_if_mlvds.reg_dump_phy =
 			lcd_reg_print_phy_analog_t3;
+		lcd_debug_info_if_p2p.reg_dump_interface =
+			lcd_reg_print_tcon_t3;
 		lcd_debug_info_if_p2p.reg_dump_phy =
 			lcd_reg_print_phy_analog_t3;
 #endif
@@ -1671,12 +1683,8 @@ void lcd_debug_probe(struct aml_lcd_drv_s *pdrv)
 		lcd_debug_info_if_mipi.reg_dump_phy =
 			lcd_reg_print_phy_analog_tl1;
 #ifdef CONFIG_AML_LCD_TCON
-		lcd_debug_info_if_mlvds.reg_dump_interface =
-			lcd_reg_print_tcon_tl1;
 		lcd_debug_info_if_mlvds.reg_dump_phy =
 			lcd_reg_print_phy_analog_tl1;
-		lcd_debug_info_if_p2p.reg_dump_interface =
-			lcd_reg_print_tcon_tl1;
 		lcd_debug_info_if_p2p.reg_dump_phy =
 			lcd_reg_print_phy_analog_tl1;
 #endif

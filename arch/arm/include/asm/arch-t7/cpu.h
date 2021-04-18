@@ -67,14 +67,6 @@
 #define CPU_ID_REG		SYSCTRL_SEC_STATUS_REG0
 #define PACKAGE_ID_MASK 	0xFF
 
-#define MIPI_DSI_REGISTER 1
-#define MIPI_DSI_BASE        0xfe074000L
-#define MIPI_DSI_PHY_BASE    0xfe014000L
-#define MIPI_DSI_B_BASE      0xfe072000L
-#define MIPI_DSI_B_PHY_BASE  0xfe016000L
-#define EDPTX0_BASE          0xfe0b0000L
-#define EDPTX1_BASE          0xfe0b2000L
-
 /*C1 SoC secure boot solution default not support AES algorithm*/
 //#define CONFIG_AML_CRYPTO_AES 1
 

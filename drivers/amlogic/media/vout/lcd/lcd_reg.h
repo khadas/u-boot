@@ -8,6 +8,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
+#include <asm/arch/vpu_regs.h>
 #include "edp_tx_reg.h"
 #include "lcd_dummy_reg.h"
 

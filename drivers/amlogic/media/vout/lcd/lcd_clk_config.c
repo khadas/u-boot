@@ -1497,7 +1497,7 @@ static void lcd_set_tcon_clk_tl1(struct aml_lcd_drv_s *pdrv)
 	struct lcd_config_s *pconf = &pdrv->config;
 	unsigned int val;
 
-	if (lcd_debug_print_flag & LCD_DBG_PR_CLK)
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("[%d]: %s\n", pdrv->index, __func__);
 
 	switch (pconf->basic.lcd_type) {
@@ -1518,6 +1518,39 @@ static void lcd_set_tcon_clk_tl1(struct aml_lcd_drv_s *pdrv)
 	case LCD_P2P:
 		/* tcon_clk 50M */
 		lcd_clk_write(HHI_TCON_CLK_CNTL,
+			      (1 << 7) | (1 << 6) | (7 << 0));
+		break;
+	default:
+		break;
+	}
+}
+
+static void lcd_set_tcon_clk_t3(struct aml_lcd_drv_s *pdrv)
+{
+	struct lcd_config_s *pconf = &pdrv->config;
+	unsigned int val;
+
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
+		LCDPR("[%d]: %s\n", pdrv->index, __func__);
+
+	switch (pconf->basic.lcd_type) {
+	case LCD_MLVDS:
+		val = pconf->control.mlvds_cfg.clk_phase & 0xfff;
+		lcd_ana_setb(ANACTRL_TCON_PLL0_CNTL1, (val & 0xf), 24, 4);
+		lcd_ana_setb(ANACTRL_TCON_PLL0_CNTL4, ((val >> 4) & 0xf), 28, 4);
+		lcd_ana_setb(ANACTRL_TCON_PLL0_CNTL4, ((val >> 8) & 0xf), 24, 4);
+
+		/* tcon_clk */
+		if (pconf->timing.lcd_clk >= 100000000) /* 25M */
+			lcd_clk_write(CLKCTRL_TCON_CLK_CNTL,
+				      (1 << 7) | (1 << 6) | (0xf << 0));
+		else /* 12.5M */
+			lcd_clk_write(CLKCTRL_TCON_CLK_CNTL,
+				      (1 << 7) | (1 << 6) | (0x1f << 0));
+		break;
+	case LCD_P2P:
+		/* tcon_clk 50M */
+		lcd_clk_write(CLKCTRL_TCON_CLK_CNTL,
 			      (1 << 7) | (1 << 6) | (7 << 0));
 		break;
 	default:
@@ -2657,6 +2690,8 @@ static void lcd_clk_set_t7(struct aml_lcd_drv_s *pdrv)
 
 static void lcd_clk_set_t3(struct aml_lcd_drv_s *pdrv)
 {
+	if (pdrv->index == 0) /* tcon_clk invalid for lcd1 */
+		lcd_set_tcon_clk_t3(pdrv);
 	lcd_set_pll_t3(pdrv);
 	lcd_set_vid_pll_div_t3(pdrv);
 }

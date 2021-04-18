@@ -136,7 +136,7 @@ int handle_tcon_data_load(unsigned char **buf, unsigned int index);
 #define TCON_VAC_SET_PARAM_NUM    3
 #define TCON_VAC_LUT_PARAM_NUM    256
 
-int lcd_tcon_spi_data_probe(struct lcd_drv_s *lcd_drv);
+int lcd_tcon_spi_data_probe(struct aml_lcd_drv_s *pdrv);
 
 int lcd_tcon_valid_check(void);
 struct lcd_tcon_config_s *get_lcd_tcon_config(void);

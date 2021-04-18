@@ -35,6 +35,8 @@ void lcd_timing_init_config(struct lcd_config_s *pconf);
 int lcd_vmode_change(struct lcd_config_s *pconf);
 void lcd_pinmux_set(struct aml_lcd_drv_s *pdrv, int status);
 void lcd_vbyone_config_set(struct aml_lcd_drv_s *pdrv);
+void lcd_mlvds_config_set(struct aml_lcd_drv_s *pdrv);
+void lcd_p2p_config_set(struct aml_lcd_drv_s *pdrv);
 void lcd_mipi_dsi_config_set(struct aml_lcd_drv_s *pdrv);
 void lcd_edp_config_set(struct aml_lcd_drv_s *pdrv);
 

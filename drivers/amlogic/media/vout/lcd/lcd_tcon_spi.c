@@ -610,7 +610,7 @@ lcd_tcon_spi_data_parse_err0:
 	return -1;
 }
 
-int lcd_tcon_spi_data_probe(struct lcd_drv_s *lcd_drv)
+int lcd_tcon_spi_data_probe(struct aml_lcd_drv_s *pdrv)
 {
 	int ret;
 
@@ -618,8 +618,8 @@ int lcd_tcon_spi_data_probe(struct lcd_drv_s *lcd_drv)
 	if (ret)
 		return -1;
 
-	lcd_drv->lcd_tcon_spi_print = lcd_tcon_spi_print;
-	lcd_drv->lcd_tcon_spi_data_load = lcd_tcon_spi_data_load;
+	pdrv->tcon_spi_print = lcd_tcon_spi_print;
+	pdrv->tcon_spi_data_load = lcd_tcon_spi_data_load;
 
 	return 0;
 }
