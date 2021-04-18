@@ -13,9 +13,7 @@
 #include "../lcd_common.h"
 #include "../lcd_reg.h"
 
-
-#define LCD_EXTERN_NAME			"mipi_default"
-#define LCD_EXTERN_TYPE			LCD_EXTERN_MIPI
+#define EXT_DEFAULT_NAME	"ext_default"
 
 /******************** mipi command ********************/
 /* format:  data_type, cmd_size, data.... */
@@ -44,32 +42,43 @@ static unsigned char mipi_init_off_table[] = {
 	0xff, 0,       /* ending */
 };
 
-static int lcd_extern_driver_update(struct lcd_extern_driver_s *ext_drv)
+static int lcd_extern_driver_update(struct lcd_extern_driver_s *edrv,
+				    struct lcd_extern_dev_s *edev)
 {
-	if (ext_drv == NULL) {
-		EXTERR("%s driver is null\n", LCD_EXTERN_NAME);
-		return -1;
-	}
-	if (ext_drv->config->table_init_loaded == 0) {
-		ext_drv->config->cmd_size = LCD_EXT_CMD_SIZE_DYNAMIC;
-		ext_drv->config->table_init_on  = &mipi_init_on_table[0];
-		ext_drv->config->table_init_on_cnt  = sizeof(mipi_init_on_table);
-		ext_drv->config->table_init_off = &mipi_init_off_table[0];
-		ext_drv->config->table_init_off_cnt  = sizeof(mipi_init_off_table);
-		EXTERR("%s: tablet_init is invalid\n", ext_drv->config->name);
+	if (edev->config.table_init_loaded == 0) {
+		edev->config.cmd_size = LCD_EXT_CMD_SIZE_DYNAMIC;
+		edev->config.table_init_on  = &mipi_init_on_table[0];
+		edev->config.table_init_on_cnt  = sizeof(mipi_init_on_table);
+		edev->config.table_init_off = &mipi_init_off_table[0];
+		edev->config.table_init_off_cnt  = sizeof(mipi_init_off_table);
+		EXTERR("%s(%d): tablet_init is invalid\n",
+		       edev->config.name, edev->dev_index);
 		return -1;
 	}
 
 	return 0;
 }
 
-int lcd_extern_mipi_default_probe(struct lcd_extern_driver_s *ext_drv)
+int lcd_extern_mipi_default_probe(struct lcd_extern_driver_s *edrv,
+				  struct lcd_extern_dev_s *edev)
 {
 	int ret = 0;
 
-	ret = lcd_extern_driver_update(ext_drv);
+	if (!edrv) {
+		EXTERR("%s: %s ext_drv is null\n", __func__, EXT_DEFAULT_NAME);
+		return -1;
+	}
+	if (!edev) {
+		EXTERR("[%d]: %s: %s ext_dev is null\n", edrv->index, __func__, EXT_DEFAULT_NAME);
+		return -1;
+	}
 
-	if (lcd_debug_print_flag)
-		EXTPR("%s: %d\n", __func__, ret);
+	ret = lcd_extern_driver_update(edrv, edev);
+
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
+		EXTPR("[%d]: %s: %d %s\n",
+		      edrv->index, __func__, edev->dev_index,
+		      (ret == 0) ? "ok" : "fail");
+	}
 	return ret;
 }

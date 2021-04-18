@@ -463,7 +463,6 @@ struct lcd_dft_config_s {
 	struct lcd_pinmux_ctrl_s *lcd_pinmux;
 
 #ifdef CONFIG_AML_LCD_EXTERN
-	char (*ext_gpio)[LCD_CPU_GPIO_NAME_MAX];
 	struct lcd_extern_common_s *ext_common;
 	struct lcd_extern_config_s *ext_conf;
 #endif

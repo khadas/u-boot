@@ -202,7 +202,8 @@ static void lcd_power_ctrl(struct aml_lcd_drv_s *pdrv, int status)
 	unsigned int i, wait, gpio;
 	int value = LCD_PMU_GPIO_NUM_MAX;
 #ifdef CONFIG_AML_LCD_EXTERN
-	struct lcd_extern_driver_s *ext_drv;
+	struct lcd_extern_driver_s *edrv;
+	struct lcd_extern_dev_s *edev;
 #endif
 	i = 0;
 	lcd_power = &pdrv->config.power;
@@ -254,19 +255,20 @@ static void lcd_power_ctrl(struct aml_lcd_drv_s *pdrv, int status)
 			break;
 #ifdef CONFIG_AML_LCD_EXTERN
 		case LCD_POWER_TYPE_EXTERN:
-			ext_drv = lcd_extern_get_driver(power_step->index);
-			if (!ext_drv) {
-				LCDERR("no ext_drv\n");
+			edrv = lcd_extern_get_driver(pdrv->index);
+			edev = lcd_extern_get_dev(edrv, power_step->index);
+			if (!edrv || !edev) {
+				LCDERR("no ext_dev\n");
 				break;
 			}
 			if (status) {
-				if (ext_drv->power_on)
-					ext_drv->power_on();
+				if (edev->power_on)
+					edev->power_on(edrv, edev);
 				else
 					LCDERR("no ext power on\n");
 			} else {
-				if (ext_drv->power_off)
-					ext_drv->power_off();
+				if (edev->power_off)
+					edev->power_off(edrv, edev);
 				else
 					LCDERR("no ext power off\n");
 			}
@@ -420,39 +422,6 @@ static void lcd_module_prepare(struct aml_lcd_drv_s *pdrv,
 	if ((pdrv->status & LCD_STATUS_ENCL_ON) == 0)
 		lcd_encl_on(pdrv);
 }
-
-#ifdef CONFIG_AML_LCD_EXTERN
-static int lcd_extern_load_config(char *dt_addr, struct lcd_config_s *pconf)
-{
-	struct lcd_power_step_s *power_step;
-	int index, i = 0;
-
-	/* mipi extern_init is special */
-	if (pconf->lcd_basic.lcd_type == LCD_MIPI) {
-		index = pconf->lcd_control.mipi_config->extern_init;
-		if (index < LCD_EXTERN_INDEX_INVALID)
-			lcd_extern_probe(dt_addr, index);
-	}
-
-	while (i < LCD_PWR_STEP_MAX) {
-		power_step = &pconf->lcd_power->power_on_step[i];
-		if (power_step->type >= LCD_POWER_TYPE_MAX)
-			break;
-		if (power_step->type == LCD_POWER_TYPE_EXTERN) {
-			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
-				LCDPR("power_on: step %d: type=%d, index=%d\n",
-					i, power_step->type, power_step->index);
-			}
-			index = power_step->index;
-			if (index < LCD_EXTERN_INDEX_INVALID)
-				lcd_extern_probe(dt_addr, index);
-		}
-		i++;
-	}
-
-	return 0;
-}
-#endif
 
 static int lcd_init_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 {
@@ -924,7 +893,7 @@ static int lcd_config_probe(void)
 	}
 
 #ifdef CONFIG_AML_LCD_EXTERN
-	lcd_extern_load_config(dt_addr, load_id);
+	lcd_extern_probe(dt_addr, load_id);
 #endif
 #ifdef CONFIG_AML_LCD_BACKLIGHT
 	aml_bl_probe(dt_addr, load_id);
@@ -1237,6 +1206,63 @@ void aml_lcd_edp_edid(int index)
 		return;
 
 	dptx_edid_dump(pdrv);
+#endif
+}
+
+void aml_lcd_driver_ext_info(int index)
+{
+	struct aml_lcd_drv_s *pdrv;
+#ifdef CONFIG_AML_LCD_EXTERN
+	struct lcd_extern_driver_s *edrv;
+#endif
+
+	pdrv = lcd_driver_check_valid(index);
+	if (!pdrv)
+		return;
+#ifdef CONFIG_AML_LCD_EXTERN
+	edrv = lcd_extern_get_driver(pdrv->index);
+	if (edrv) {
+		if (edrv->info_print)
+			edrv->info_print(edrv);
+	}
+#endif
+}
+
+void aml_lcd_driver_ext_power_on(int index)
+{
+	struct aml_lcd_drv_s *pdrv;
+#ifdef CONFIG_AML_LCD_EXTERN
+	struct lcd_extern_driver_s *edrv;
+#endif
+
+	pdrv = lcd_driver_check_valid(index);
+	if (!pdrv)
+		return;
+#ifdef CONFIG_AML_LCD_EXTERN
+	edrv = lcd_extern_get_driver(pdrv->index);
+	if (edrv) {
+		if (edrv->power_ctrl)
+			edrv->power_ctrl(edrv, 1);
+	}
+#endif
+}
+
+void aml_lcd_driver_ext_power_off(int index)
+{
+	struct aml_lcd_drv_s *pdrv;
+#ifdef CONFIG_AML_LCD_EXTERN
+	struct lcd_extern_driver_s *edrv;
+#endif
+
+	pdrv = lcd_driver_check_valid(index);
+	if (!pdrv)
+		return;
+#ifdef CONFIG_AML_LCD_EXTERN
+	edrv = lcd_extern_get_driver(pdrv->index);
+	if (edrv) {
+		if (edrv->power_ctrl)
+			edrv->power_ctrl(edrv, 0);
+	}
 #endif
 }
 

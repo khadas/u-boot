@@ -212,6 +212,10 @@ static int lcd_power_load_from_dts(struct aml_lcd_drv_s *pdrv,
 			if (pstep[i].type == LCD_POWER_TYPE_CLK_SS) {
 				temp = pstep[i].value;
 				pdrv->config.timing.ss_level |= temp << 8;
+			} else if (pstep[i].type == LCD_POWER_TYPE_EXTERN) {
+#ifdef CONFIG_AML_LCD_EXTERN
+				lcd_extern_drv_index_add(pdrv->index, pstep[i].index);
+#endif
 			}
 			i++;
 		}
@@ -236,6 +240,11 @@ static int lcd_power_load_from_dts(struct aml_lcd_drv_s *pdrv,
 			pstep[i].value = temp;
 			temp = be32_to_cpup((((u32*)propdata) + j + 3));
 			pstep[i].delay = temp;
+			if (pstep[i].type == LCD_POWER_TYPE_EXTERN) {
+#ifdef CONFIG_AML_LCD_EXTERN
+				lcd_extern_drv_index_add(pdrv->index, pstep[i].index);
+#endif
+			}
 			i++;
 		}
 	}
@@ -285,6 +294,10 @@ static int lcd_power_load_from_unifykey(struct aml_lcd_drv_s *pdrv,
 		if (pstep[i].type == LCD_POWER_TYPE_CLK_SS) {
 			temp = pstep[i].value;
 			pdrv->config.timing.ss_level |= temp << 8;
+		} else if (pstep[i].type == LCD_POWER_TYPE_EXTERN) {
+#ifdef CONFIG_AML_LCD_EXTERN
+			lcd_extern_drv_index_add(pdrv->index, pstep[i].index);
+#endif
 		}
 		i++;
 	}
@@ -319,6 +332,11 @@ static int lcd_power_load_from_unifykey(struct aml_lcd_drv_s *pdrv,
 		if (pstep[j].type >= LCD_POWER_TYPE_MAX)
 			break;
 
+		if (pstep[i].type == LCD_POWER_TYPE_EXTERN) {
+#ifdef CONFIG_AML_LCD_EXTERN
+			lcd_extern_drv_index_add(pdrv->index, pstep[i].index);
+#endif
+		}
 		j++;
 	}
 
@@ -965,11 +983,15 @@ static int lcd_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 
 		propdata = (char *)fdt_getprop(dt_addr, child_offset,
 					       "extern_init", NULL);
-		if (!propdata) {
-			LCDERR("[%d]: failed to get extern_init\n", pdrv->index);
-		} else {
-			pctrl->mipi_cfg.extern_init =
-					be32_to_cpup((u32 *)propdata);
+		if (propdata) {
+			pctrl->mipi_cfg.extern_init = be32_to_cpup((u32 *)propdata);
+			if (pctrl->mipi_cfg.extern_init < 0xff) {
+				LCDPR("[%d]: find extern_init: %d\n",
+				      pdrv->index, pctrl->mipi_cfg.extern_init);
+			}
+#ifdef CONFIG_AML_LCD_EXTERN
+			lcd_extern_drv_index_add(pdrv->index, pctrl->mipi_cfg.extern_init);
+#endif
 		}
 #ifdef CONFIG_AML_LCD_TABLET
 		mipi_dsi_config_init(pconf);
@@ -1555,6 +1577,13 @@ static int lcd_config_load_from_bsp(struct aml_lcd_drv_s *pdrv)
 			pctrl->mipi_cfg.extern_init = 0xff;
 		else
 			pctrl->mipi_cfg.extern_init = ext_lcd->lcd_spc_val9;
+		if (pctrl->mipi_cfg.extern_init < 0xff) {
+			LCDPR("[%d]: find extern_init: %d\n",
+			      pdrv->index, pctrl->mipi_cfg.extern_init);
+		}
+#ifdef CONFIG_AML_LCD_EXTERN
+		lcd_extern_drv_index_add(pdrv->index, pctrl->mipi_cfg.extern_init);
+#endif
 #ifdef CONFIG_AML_LCD_TABLET
 		mipi_dsi_config_init(pconf);
 #endif
@@ -1593,6 +1622,12 @@ static int lcd_config_load_from_bsp(struct aml_lcd_drv_s *pdrv)
 		pconf->power.power_on_step[i].delay = power_step->delay;
 		if (power_step->type >= LCD_POWER_TYPE_MAX)
 			break;
+		if (power_step->type == LCD_POWER_TYPE_EXTERN) {
+#ifdef CONFIG_AML_LCD_EXTERN
+			lcd_extern_drv_index_add(pdrv->index,
+						 pconf->power.power_on_step[i].index);
+#endif
+		}
 		i++;
 	}
 
@@ -1610,6 +1645,12 @@ static int lcd_config_load_from_bsp(struct aml_lcd_drv_s *pdrv)
 		pconf->power.power_off_step[i].delay = power_step->delay;
 		if (power_step->type >= LCD_POWER_TYPE_MAX)
 			break;
+		if (power_step->type == LCD_POWER_TYPE_EXTERN) {
+#ifdef CONFIG_AML_LCD_EXTERN
+			lcd_extern_drv_index_add(pdrv->index,
+						 pconf->power.power_off_step[i].index);
+#endif
+		}
 		i++;
 	}
 #ifdef CONFIG_AML_LCD_BACKLIGHT

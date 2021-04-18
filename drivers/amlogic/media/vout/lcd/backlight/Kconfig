@@ -1,5 +1,3 @@
-menu "AMLOGIC LCD Drivers"
-
 config AML_LCD_BACKLIGHT
 	bool "backlight control for lcd"
 	depends on AML_LCD
@@ -9,5 +7,3 @@ config AML_LCD_BACKLIGHT
 
 source "drivers/amlogic/media/vout/lcd/backlight/bl_ldim/Kconfig"
 source "drivers/amlogic/media/vout/lcd/backlight/bl_extern/Kconfig"
-
-endmenu

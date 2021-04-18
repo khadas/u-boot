@@ -1827,7 +1827,8 @@ static void mipi_dsi_link_on(struct aml_lcd_drv_s *pdrv)
 	unsigned int op_mode_init, op_mode_disp;
 	struct dsi_config_s *dconf;
 #ifdef CONFIG_AML_LCD_EXTERN
-	struct lcd_extern_driver_s *pext;
+	struct lcd_extern_driver_s *edrv;
+	struct lcd_extern_dev_s *edev;
 #endif
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
@@ -1844,14 +1845,15 @@ static void mipi_dsi_link_on(struct aml_lcd_drv_s *pdrv)
 
 #ifdef CONFIG_AML_LCD_EXTERN
 	if (dconf->extern_init < LCD_EXTERN_INDEX_INVALID) {
-		pext = lcd_extern_get_driver(dconf->extern_init);
-		if (!pext) {
-			LCDPR("[%d]: no lcd_extern driver\n", pdrv->index);
+		edrv = lcd_extern_get_driver(pdrv->index);
+		edev = lcd_extern_get_dev(edrv, dconf->extern_init);
+		if (!edrv || !edev) {
+			LCDPR("[%d]: no lcd_extern dev\n", pdrv->index);
 		} else {
-			if (pext->config->table_init_on) {
-				dsi_write_cmd(pdrv, pext->config->table_init_on);
+			if (edev->config.table_init_on) {
+				dsi_write_cmd(pdrv, edev->config.table_init_on);
 				LCDPR("[%d]: [extern]%s dsi init on\n",
-				      pdrv->index, pext->config->name);
+				      pdrv->index, edev->config.name);
 			}
 		}
 	}
@@ -1872,7 +1874,8 @@ void mipi_dsi_link_off(struct aml_lcd_drv_s *pdrv)
 	unsigned int op_mode_init, op_mode_disp;
 	struct dsi_config_s *dconf;
 #ifdef CONFIG_AML_LCD_EXTERN
-	struct lcd_extern_driver_s *pext;
+	struct lcd_extern_driver_s *edrv;
+	struct lcd_extern_dev_s *edev;
 #endif
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
@@ -1893,14 +1896,15 @@ void mipi_dsi_link_off(struct aml_lcd_drv_s *pdrv)
 
 #ifdef CONFIG_AML_LCD_EXTERN
 	if (dconf->extern_init < LCD_EXTERN_INDEX_INVALID) {
-		pext = lcd_extern_get_driver(dconf->extern_init);
-		if (!pext) {
-			LCDPR("[%d]: no lcd_extern driver\n", pdrv->index);
+		edrv = lcd_extern_get_driver(pdrv->index);
+		edev = lcd_extern_get_dev(edrv, dconf->extern_init);
+		if (!edrv || !edev) {
+			LCDPR("[%d]: no lcd_extern dev\n", pdrv->index);
 		} else {
-			if (pext->config->table_init_off) {
-				dsi_write_cmd(pdrv, pext->config->table_init_off);
+			if (edev->config.table_init_off) {
+				dsi_write_cmd(pdrv, edev->config.table_init_off);
 				LCDPR("[%d]: [extern]%s dsi init off\n",
-				      pdrv->index, pext->config->name);
+				      pdrv->index, edev->config.name);
 			}
 		}
 	}

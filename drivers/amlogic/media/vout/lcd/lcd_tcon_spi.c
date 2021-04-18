@@ -64,23 +64,23 @@ static void lcd_tcon_spi_print(void)
 }
 
 #ifdef CONFIG_AML_LCD_EXTERN
-static int lcd_tcon_spi_ext_update(struct lcd_extern_driver_s *ext_drv)
+static int lcd_tcon_spi_ext_update(struct lcd_extern_dev_s *ext_dev)
 {
 	unsigned char *buf;
 	unsigned int size, crc;
 
-	if (!ext_drv) {
-		LCDERR("%s: ext_drv is null\n", __func__);
+	if (!ext_dev) {
+		LCDERR("%s: ext_dev is null\n", __func__);
 		return -1;
 	}
 
 	buf = tcon_spi.ext_buf;
 
 	/* write lcd_extern unifykey and driver init_on_table */
-	memcpy(ext_drv->config->table_init_on,
+	memcpy(ext_dev->config.table_init_on,
 	       &buf[LCD_UKEY_EXT_INIT],
 	       tcon_spi.ext_init_on_cnt);
-	ext_drv->config->table_init_on_cnt = tcon_spi.ext_init_on_cnt;
+	ext_dev->config.table_init_on_cnt = tcon_spi.ext_init_on_cnt;
 
 	/* update size & crc, then write to unifykey */
 	size = LCD_UKEY_EXT_INIT + tcon_spi.ext_init_on_cnt +
@@ -237,7 +237,7 @@ static int lcd_tcon_spi_data_load(void)
 {
 	struct tcon_mem_map_table_s *mm_table = get_lcd_tcon_mm_table();
 #ifdef CONFIG_AML_LCD_EXTERN
-	struct lcd_extern_driver_s *ext_drv = NULL;
+	struct lcd_extern_dev_s *ext_dev = NULL;
 	unsigned int ext_index;
 	unsigned int ext_need_update = 0;
 #endif
@@ -340,24 +340,25 @@ static int lcd_tcon_spi_data_load(void)
 #ifdef CONFIG_AML_LCD_EXTERN
 			if (!tcon_spi.ext_buf)
 				break;
-			ext_index = (tcon_spi.spi_block[i]->data_index >> 8) &
-					0xff;
-			if (ext_drv) {
-				if (ext_drv->config->index != ext_index) {
-					LCDERR
-			("%s: don't support multi ext device for tcon data\n",
-			 __func__);
+			ext_index = (tcon_spi.spi_block[i]->data_index >> 8) & 0xff;
+			if (ext_index >= LCD_EXTERN_DEV_MAX) {
+				LCDERR("%s: invalid ext device index %d for tcon data\n",
+				       __func__, ext_index);
+				break;
+			}
+			if (ext_dev) {
+				if (ext_dev->config.index != ext_index) {
+					LCDERR("%s: don't support multi ext device for tcon data\n",
+					       __func__);
 					continue;
 				}
 			} else {
-				ext_drv = lcd_extern_get_driver(ext_index);
-				if (!ext_drv)
+				ext_dev = lcd_extern_get_dev(0, ext_index);
+				if (!ext_dev)
 					break;
 			}
-			tcon_spi.ext_init_on_cnt =
-				ext_drv->config->table_init_on_cnt;
-			tcon_spi.ext_init_off_cnt =
-				ext_drv->config->table_init_off_cnt;
+			tcon_spi.ext_init_on_cnt = ext_dev->config.table_init_on_cnt;
+			tcon_spi.ext_init_off_cnt = ext_dev->config.table_init_off_cnt;
 
 			j = tcon_spi.spi_block[i]->data_index & 0xff;
 			ret = tcon_spi.data_read(tcon_spi.spi_block[i]);
@@ -382,7 +383,7 @@ static int lcd_tcon_spi_data_load(void)
 	}
 #ifdef CONFIG_AML_LCD_EXTERN
 	if (ext_need_update)
-		lcd_tcon_spi_ext_update(ext_drv);
+		lcd_tcon_spi_ext_update(ext_dev);
 #endif
 
 	for (i = 0; i < tcon_spi.block_cnt; i++) {

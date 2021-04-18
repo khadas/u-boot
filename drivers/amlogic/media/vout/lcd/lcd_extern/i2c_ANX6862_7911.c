@@ -14,13 +14,9 @@
 #include "../lcd_reg.h"
 
 #define LCD_EXTERN_NAME			"i2c_ANX6862_7911"
-#define LCD_EXTERN_TYPE			LCD_EXTERN_I2C
 
-#define LCD_EXTERN_I2C_ADDR		(0x20) //7bit address
-#define LCD_EXTERN_I2C_ADDR2		(0x74) //7bit address
-
-
-static struct lcd_extern_config_s *ext_config;
+//#define LCD_EXTERN_I2C_ADDR		(0x20) //7bit address
+//#define LCD_EXTERN_I2C_ADDR2		(0x74) //7bit address
 
 static unsigned char ANX6862_NVM_wr[] = {0xff, 0x80};
 static unsigned char ANX7911_NVM_wr[] = {0x00, 0x0a};
@@ -69,25 +65,27 @@ static unsigned char ANX6862_7911_init[] = {
 };
 #endif
 
-static int lcd_extern_power_cmd_dynamic_size(unsigned char *table,
-		unsigned char flag)
+static int lcd_extern_power_cmd_dynamic_size(struct lcd_extern_driver_s *edrv,
+					     struct lcd_extern_dev_s *edev,
+					     unsigned char *table,
+					     unsigned char flag)
 {
 	int i = 0, j, step = 0, max_len;
 	unsigned char type, cmd_size, type_chk, type_other;
 	unsigned char i2c_bus, i2c_addr;
 	int delay_bypass, delay_ms, ret = 0;
 
-	if (table == NULL)
+	if (!table)
 		return -1;
 
-	i2c_bus = ext_config->i2c_bus;
-	max_len = ext_config->table_init_on_cnt;
+	i2c_bus = edrv->i2c_bus;
+	max_len = edev->config.table_init_on_cnt;
 	if (flag) {
-		i2c_addr = ext_config->i2c_addr2;
+		i2c_addr = edev->config.i2c_addr2;
 		type_chk = LCD_EXT_CMD_TYPE_CMD2;
 		type_other = LCD_EXT_CMD_TYPE_CMD;
 	} else {
-		i2c_addr = ext_config->i2c_addr;
+		i2c_addr = edev->config.i2c_addr;
 		type_chk = LCD_EXT_CMD_TYPE_CMD;
 		type_other = LCD_EXT_CMD_TYPE_CMD2;
 	}
@@ -104,7 +102,7 @@ static int lcd_extern_power_cmd_dynamic_size(unsigned char *table,
 			break;
 
 		if (type == type_chk) {
-			if (lcd_debug_print_flag) {
+			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 				EXTPR("%s: step %d: type=0x%02x, cmd_size=%d\n",
 					__func__, step, type, table[i+1]);
 			}
@@ -114,7 +112,7 @@ static int lcd_extern_power_cmd_dynamic_size(unsigned char *table,
 		} else if (type == LCD_EXT_CMD_TYPE_DELAY) {
 			if (delay_bypass)
 				goto power_cmd_dynamic_next;
-			if (lcd_debug_print_flag) {
+			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 				EXTPR("%s: step %d: type=0x%02x, cmd_size=%d\n",
 					__func__, step, type, table[i+1]);
 			}
@@ -128,8 +126,8 @@ static int lcd_extern_power_cmd_dynamic_size(unsigned char *table,
 		} else {
 			delay_bypass = 1;
 			EXTERR("%s(%d: %s): type 0x%02x invalid\n",
-				__func__, ext_config->index,
-				ext_config->name, type);
+				__func__, edev->config.index,
+				edev->config.name, type);
 		}
 power_cmd_dynamic_next:
 		i += (cmd_size + 2);
@@ -139,8 +137,10 @@ power_cmd_dynamic_next:
 	return ret;
 }
 
-static int lcd_extern_power_cmd_fixed_size(unsigned char *table,
-		unsigned char flag)
+static int lcd_extern_power_cmd_fixed_size(struct lcd_extern_driver_s *edrv,
+					   struct lcd_extern_dev_s *edev,
+					   unsigned char *table,
+					   unsigned char flag)
 {
 	int i = 0, j, step = 0, max_len = LCD_EXTERN_INIT_ON_MAX;
 	unsigned char type, cmd_size, type_chk, type_other;
@@ -150,15 +150,15 @@ static int lcd_extern_power_cmd_fixed_size(unsigned char *table,
 	if (table == NULL)
 		return -1;
 
-	i2c_bus = ext_config->i2c_bus;
-	cmd_size = ext_config->cmd_size;
-	max_len = ext_config->table_init_on_cnt;
+	i2c_bus = edrv->i2c_bus;
+	cmd_size = edev->config.cmd_size;
+	max_len = edev->config.table_init_on_cnt;
 	if (flag) {
-		i2c_addr = ext_config->i2c_addr2;
+		i2c_addr = edev->config.i2c_addr2;
 		type_chk = LCD_EXT_CMD_TYPE_CMD2;
 		type_other = LCD_EXT_CMD_TYPE_CMD;
 	} else {
-		i2c_addr = ext_config->i2c_addr;
+		i2c_addr = edev->config.i2c_addr;
 		type_chk = LCD_EXT_CMD_TYPE_CMD;
 		type_other = LCD_EXT_CMD_TYPE_CMD2;
 	}
@@ -174,7 +174,7 @@ static int lcd_extern_power_cmd_fixed_size(unsigned char *table,
 		if (type == LCD_EXT_CMD_TYPE_END)
 			break;
 		if (type == type_chk) {
-			if (lcd_debug_print_flag) {
+			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 				EXTPR("%s: step %d: type=0x%02x, cmd_size=%d\n",
 					__func__, step, type, cmd_size);
 			}
@@ -184,7 +184,7 @@ static int lcd_extern_power_cmd_fixed_size(unsigned char *table,
 		} else if (type == LCD_EXT_CMD_TYPE_DELAY) {
 			if (delay_bypass)
 				goto power_cmd_fixed_next;
-			if (lcd_debug_print_flag) {
+			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 				EXTPR("%s: step %d: type=0x%02x, cmd_size=%d\n",
 					__func__, step, type, cmd_size);
 			}
@@ -198,8 +198,8 @@ static int lcd_extern_power_cmd_fixed_size(unsigned char *table,
 		} else {
 			delay_bypass = 1;
 			EXTERR("%s(%d: %s): type 0x%02x invalid\n",
-				__func__, ext_config->index,
-				ext_config->name, type);
+				__func__, edev->config.index,
+				edev->config.name, type);
 		}
 power_cmd_fixed_next:
 		i += cmd_size;
@@ -209,42 +209,46 @@ power_cmd_fixed_next:
 	return ret;
 }
 
-static int lcd_extern_power_cmd(unsigned char flag)
+static int lcd_extern_power_cmd(struct lcd_extern_driver_s *edrv,
+				struct lcd_extern_dev_s *edev, unsigned char flag)
 {
 	unsigned char *table;
 	unsigned char cmd_size;
 	int ret = 0;
 
-	table = ext_config->table_init_on;
-	cmd_size = ext_config->cmd_size;
+	table = edev->config.table_init_on;
+	cmd_size = edev->config.cmd_size;
 	if (cmd_size < 1) {
 		EXTERR("%s: cmd_size %d is invalid\n", __func__, cmd_size);
 		return -1;
 	}
-	if (table == NULL) {
+	if (!table) {
 		EXTERR("%s: init_on_table is NULL\n", __func__);
 		return -1;
 	}
 
 	if (cmd_size == LCD_EXT_CMD_SIZE_DYNAMIC)
-		ret = lcd_extern_power_cmd_dynamic_size(table, flag);
+		ret = lcd_extern_power_cmd_dynamic_size(edrv, edev, table, flag);
 	else
-		ret = lcd_extern_power_cmd_fixed_size(table, flag);
+		ret = lcd_extern_power_cmd_fixed_size(edrv, edev, table, flag);
 
 	return ret;
 }
 
-static int lcd_extern_check_reg_dynamic_size(unsigned char *table,
-		unsigned char *chk_table, int cnt, unsigned char flag)
+static int lcd_extern_check_reg_dynamic_size(struct lcd_extern_driver_s *edrv,
+					     struct lcd_extern_dev_s *edev,
+					     unsigned char *table,
+					     unsigned char *chk_table,
+					     int cnt, unsigned char flag)
 {
 	int i = 0, step = 0, max_len;
 	unsigned char type, cmd_size, type_chk, reg;
 	int ret = 0;
 
-	if (table == NULL)
+	if (!table)
 		return -1;
 
-	max_len = ext_config->table_init_on_cnt;
+	max_len = edev->config.table_init_on_cnt;
 	type_chk = (flag) ? LCD_EXT_CMD_TYPE_CMD2 : LCD_EXT_CMD_TYPE_CMD;
 
 	while ((i + 1) < max_len) {
@@ -261,7 +265,7 @@ static int lcd_extern_check_reg_dynamic_size(unsigned char *table,
 
 		if (type == type_chk) {
 			reg = table[i+2];
-			if (lcd_debug_print_flag) {
+			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 				EXTPR("%s: step %d: reg 0x%02x, val 0x%02x,0x%02x\n",
 					__func__, step,
 					reg, table[i+3], chk_table[reg]);
@@ -276,14 +280,17 @@ static int lcd_extern_check_reg_dynamic_size(unsigned char *table,
 	return ret;
 }
 
-static int lcd_extern_check_reg_fixed_size(unsigned char *table,
-		unsigned char *chk_table, int cnt, unsigned char flag)
+static int lcd_extern_check_reg_fixed_size(struct lcd_extern_driver_s *edrv,
+					   struct lcd_extern_dev_s *edev,
+					   unsigned char *table,
+					   unsigned char *chk_table,
+					   int cnt, unsigned char flag)
 {
 	int i = 0, step = 0, max_len;
 	unsigned char type, cmd_size, type_chk, reg;
 
-	cmd_size = ext_config->cmd_size;
-	max_len = ext_config->table_init_on_cnt;
+	cmd_size = edev->config.cmd_size;
+	max_len = edev->config.table_init_on_cnt;
 	type_chk = (flag) ? LCD_EXT_CMD_TYPE_CMD2 : LCD_EXT_CMD_TYPE_CMD;
 
 	while ((i + cmd_size) <= max_len) {
@@ -292,7 +299,7 @@ static int lcd_extern_check_reg_fixed_size(unsigned char *table,
 			break;
 		if (type == type_chk) {
 			reg = table[i+1];
-			if (lcd_debug_print_flag) {
+			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 				EXTPR("%s: step %d: reg 0x%02x, val 0x%02x,0x%02x\n",
 					__func__, step,
 					reg, table[i+2], chk_table[reg]);
@@ -307,26 +314,27 @@ static int lcd_extern_check_reg_fixed_size(unsigned char *table,
 	return 0;
 }
 
-static int lcd_extern_init_check(unsigned char flag)
+static int lcd_extern_init_check(struct lcd_extern_driver_s *edrv,
+				 struct lcd_extern_dev_s *edev, unsigned char flag)
 {
 	unsigned char *table, *chk_table, cmd_size;
 	unsigned char i2c_bus, i2c_addr;
 	int cnt, ret = 0;
 
-	table = ext_config->table_init_on;
-	cmd_size = ext_config->cmd_size;
-	i2c_bus = ext_config->i2c_bus;
+	table = edev->config.table_init_on;
+	cmd_size = edev->config.cmd_size;
+	i2c_bus = edrv->i2c_bus;
 	if (flag)
-		i2c_addr = ext_config->i2c_addr2;
+		i2c_addr = edev->config.i2c_addr2;
 	else
-		i2c_addr = ext_config->i2c_addr;
+		i2c_addr = edev->config.i2c_addr;
 
 	cnt = (flag) ? ANX7911_REG_CNT : ANX6862_REG_CNT;
 	if (cmd_size < 1) {
 		EXTERR("%s: cmd_size %d is invalid\n", __func__, cmd_size);
 		return -1;
 	}
-	if (table == NULL) {
+	if (!table) {
 		EXTERR("%s: init_table %d is NULL\n", __func__, flag);
 		return -1;
 	}
@@ -353,32 +361,33 @@ static int lcd_extern_init_check(unsigned char flag)
 	return ret;
 }
 
-static int lcd_extern_power_on(void)
+static int lcd_extern_power_on(struct lcd_extern_driver_s *edrv,
+			       struct lcd_extern_dev_s *edev)
 {
 	int ret = 0;
 
-	lcd_extern_pinmux_set(ext_config, 1);
+	lcd_extern_pinmux_set(edrv, 1);
 
 	/* check voltage is init or not */
 	/* step1: ANX6862 */
-	ret = lcd_extern_init_check(0);
+	ret = lcd_extern_init_check(edrv, edev, 0);
 	if (ret) {
 		EXTPR("ANX6862: need init voltage and NVM write\n");
 		/* init voltage */
-		lcd_extern_power_cmd(0);
+		lcd_extern_power_cmd(edrv, edev, 0);
 		/* NVM write */
-		aml_lcd_i2c_write(ext_config->i2c_bus, ext_config->i2c_addr,
+		aml_lcd_i2c_write(edrv->i2c_bus, edev->config.i2c_addr,
 			ANX6862_NVM_wr, 2);
 	}
 
 	/* step2: ANX7911 */
-	ret = lcd_extern_init_check(1);
+	ret = lcd_extern_init_check(edrv, edev, 1);
 	if (ret) {
 		EXTPR("ANX7911: need init voltage and NVM write\n");
 		/* init voltage */
-		lcd_extern_power_cmd(1);
+		lcd_extern_power_cmd(edrv, edev, 1);
 		/* NVM write */
-		aml_lcd_i2c_write(ext_config->i2c_bus, ext_config->i2c_addr2,
+		aml_lcd_i2c_write(edrv->i2c_bus, edev->config.i2c_addr2,
 			ANX7911_NVM_wr, 2);
 	}
 
@@ -386,38 +395,49 @@ static int lcd_extern_power_on(void)
 	return ret;
 }
 
-static int lcd_extern_power_off(void)
+static int lcd_extern_power_off(struct lcd_extern_driver_s *edrv,
+				struct lcd_extern_dev_s *edev)
 {
-	lcd_extern_pinmux_set(ext_config, 0);
+	lcd_extern_pinmux_set(edrv, 0);
 	return 0;
 }
 
-static int lcd_extern_driver_update(struct aml_lcd_extern_driver_s *ext_drv)
+static int lcd_extern_driver_update(struct lcd_extern_driver_s *edrv,
+				    struct lcd_extern_dev_s *edev)
 {
-	if (ext_drv == NULL) {
-		EXTERR("%s driver is null\n", LCD_EXTERN_NAME);
-		return -1;
-	}
-	if (ext_drv->config->table_init_loaded == 0) {
-		EXTERR("%s: tablet_init is invalid\n", ext_drv->config->name);
+	if (edev->config.table_init_loaded == 0) {
+		EXTERR("%s(%d): tablet_init is invalid\n",
+		       edev->config.name, edev->dev_index);
 		return -1;
 	}
 
-	ext_drv->power_on  = lcd_extern_power_on;
-	ext_drv->power_off = lcd_extern_power_off;
+	edev->power_on  = lcd_extern_power_on;
+	edev->power_off = lcd_extern_power_off;
 
 	return 0;
 }
 
-int lcd_extern_i2c_ANX6862_7911_probe(struct aml_lcd_extern_driver_s *ext_drv)
+int lcd_extern_i2c_ANX6862_7911_probe(struct lcd_extern_driver_s *edrv,
+				      struct lcd_extern_dev_s *edev)
 {
 	int ret = 0;
 
-	ext_config = ext_drv->config;
-	ret = lcd_extern_driver_update(ext_drv);
+	if (!edrv) {
+		EXTERR("%s: %s ext_drv is null\n", __func__, EXT_DEFAULT_NAME);
+		return -1;
+	}
+	if (!edev) {
+		EXTERR("[%d]: %s: %s ext_dev is null\n", edrv->index, __func__, EXT_DEFAULT_NAME);
+		return -1;
+	}
 
-	if (lcd_debug_print_flag)
-		EXTPR("%s: %d\n", __func__, ret);
+	ret = lcd_extern_driver_update(edrv, edrv);
+
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
+		EXTPR("[%d]: %s: %d %s\n",
+		      edrv->index, __func__, edev->dev_index,
+		      (ret == 0) ? "ok" : "fail");
+	}
 	return ret;
 }
 
