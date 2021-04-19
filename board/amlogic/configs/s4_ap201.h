@@ -116,7 +116,7 @@
         "active_slot=normal\0"\
         "boot_part=boot\0"\
         "vendor_boot_part=vendor_boot\0"\
-        "board=ohm\0"\
+        "board=ap201\0"\
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
         "get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
