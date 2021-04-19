@@ -419,6 +419,17 @@ struct aml_nand_flash_dev aml_nand_flash_ids[] = {
 		25,
 		0,
 		(NAND_TIMING_MODE5 | NAND_ECC_BCH8_MODE )},
+	{"Slc NAND 2Gib MX30LF2G28AD ",
+		{NAND_MFR_MACRONIX, 0xda, 0x90, 0x91, 0x7},
+		2048,
+		256,
+		0x20000,
+		128,
+		1,
+		20,
+		25,
+		0,
+		(NAND_TIMING_MODE5 | NAND_ECC_BCH8_MODE )},
 	{"Slc NAND 2Gib MX30LF2G18AC ",
 		{NAND_MFR_MACRONIX, 0xda, 0x90, 0x95, 0x06},
 		2048,
@@ -1095,6 +1106,7 @@ static struct aml_nand_flash_dev *aml_nand_get_flash_type(struct mtd_info *mtd,
 	for (i=0; i<MAX_ID_LEN; i++) {
 		dev_id[i] = chip->read_byte(mtd);
 	}
+
 	*maf_id = dev_id[0];
 	printk("NAND device id: %x %x %x %x %x %x \n",
 	dev_id[0], dev_id[1], dev_id[2], dev_id[3], dev_id[4], dev_id[5]);
@@ -1102,7 +1114,7 @@ static struct aml_nand_flash_dev *aml_nand_get_flash_type(struct mtd_info *mtd,
 	/* Lookup the flash id */
 	for (i = 0; aml_nand_flash_ids[i].name != NULL; i++) {
 		if (!strncmp((char*) aml_nand_flash_ids[i].id,
-		(char*)dev_id, 6)) {
+		   (char*)dev_id, strlen((char*) aml_nand_flash_ids[i].id))) {
 			type = &aml_nand_flash_ids[i];
 			break;
 		}
