@@ -1129,6 +1129,30 @@ static int getPWMPortIndVal(const char *ini_value, int def_val)
 		return BL_PWM_E;
 	else if (strcmp(ini_value, "BL_PWM_F") == 0)
 		return BL_PWM_F;
+	else if (strcmp(ini_value, "BL_PWM_G") == 0)
+		return BL_PWM_G;
+	else if (strcmp(ini_value, "BL_PWM_H") == 0)
+		return BL_PWM_H;
+	else if (strcmp(ini_value, "BL_PWM_I") == 0)
+		return BL_PWM_I;
+	else if (strcmp(ini_value, "BL_PWM_J") == 0)
+		return BL_PWM_J;
+	else if (strcmp(ini_value, "BL_PWM_AO_A") == 0)
+		return BL_PWM_AO_A;
+	else if (strcmp(ini_value, "BL_PWM_AO_B") == 0)
+		return BL_PWM_AO_B;
+	else if (strcmp(ini_value, "BL_PWM_AO_C") == 0)
+		return BL_PWM_AO_C;
+	else if (strcmp(ini_value, "BL_PWM_AO_D") == 0)
+		return BL_PWM_AO_D;
+	else if (strcmp(ini_value, "BL_PWM_AO_E") == 0)
+		return BL_PWM_AO_E;
+	else if (strcmp(ini_value, "BL_PWM_AO_F") == 0)
+		return BL_PWM_AO_F;
+	else if (strcmp(ini_value, "BL_PWM_AO_G") == 0)
+		return BL_PWM_AO_G;
+	else if (strcmp(ini_value, "BL_PWM_AO_H") == 0)
+		return BL_PWM_AO_H;
 	else if (strcmp(ini_value, "BL_PWM_VS") == 0)
 		return BL_PWM_VS;
 	else
@@ -1376,12 +1400,12 @@ static int handle_panel_misc(struct panel_misc_s *p_misc)
 				sizeof(p_misc->outputmode) - 1);
 			p_misc->outputmode[sizeof(p_misc->outputmode) - 1]
 				= '\0';
-			snprintf(buf, 63, "env_set outputmode %s", p_misc->outputmode);
+			snprintf(buf, 63, "setenv outputmode %s", p_misc->outputmode);
 			run_command(buf, 0);
 		}
 	} else {
 		strncpy(p_misc->outputmode, ini_value, 63);
-		snprintf(buf, 63, "env_set outputmode2 %s", p_misc->outputmode);
+		snprintf(buf, 63, "setenv outputmode2 %s", p_misc->outputmode);
 		run_command(buf, 0);
 	}
 
@@ -1399,13 +1423,13 @@ static int handle_panel_misc(struct panel_misc_s *p_misc)
 	}
 
 	if (p_misc->panel_reverse) {
-		run_command("env_set panel_reverse 1", 0);
-		run_command("env_set osd_reverse all,true", 0);
-		run_command("env_set video_reverse 1", 0);
+		run_command("setenv panel_reverse 1", 0);
+		run_command("setenv osd_reverse all,true", 0);
+		run_command("setenv video_reverse 1", 0);
 	} else {
-		run_command("env_set panel_reverse 0", 0);
-		run_command("env_set osd_reverse n", 0);
-		run_command("env_set video_reverse 0", 0);
+		run_command("setenv panel_reverse 0", 0);
+		run_command("setenv osd_reverse n", 0);
+		run_command("setenv video_reverse 0", 0);
 	}
 
 	return 0;
