@@ -24,6 +24,7 @@ int keymanage_efuse_init(const char *buf, int len)
     const char* dtbLoadAddr = env_get("dtb_mem_addr");
     if (!dtbLoadAddr) {
         env_set("dtb_mem_addr", simple_itoa(CONFIG_SYS_SDRAM_BASE + (16U<<20)));
+        dtbLoadAddr = env_get("dtb_mem_addr");
     }
     dtbLoadAddr = (char*)simple_strtoul(dtbLoadAddr, NULL, 0);
 

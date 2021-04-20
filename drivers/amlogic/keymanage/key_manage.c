@@ -174,6 +174,7 @@ static int _read_key_in_type_mac(const char* keyname, char* databuf, const unsig
 {
     int ret = 0;
     int index = 0;
+    int n = 0;
     ssize_t keyDevSz = 0;
 
     if (_UsrMacKeyLen > bufLen) {
@@ -198,12 +199,17 @@ static int _read_key_in_type_mac(const char* keyname, char* databuf, const unsig
         return 0;
     }
 
+    n = 0;
     databuf[0] = '\0';
     for (index = 0; index < keyDevSz; ++index)
     {
         const unsigned byteSum = decryptBuf[index];
 
-        sprintf(databuf, "%s%02x:", databuf, byteSum);
+        //sprintf(databuf, "%s%02x:", databuf, byteSum);
+        n += sprintf(&databuf[n], "%02x:", byteSum);
+        if (n > bufLen) {
+            break;
+        }
     }
 
     return ret;
@@ -236,12 +242,20 @@ static int _burn_key_in_type_sha1(const char* keyname, void* databuf, const unsi
         char org_sha1Str[fmtStrLen + 2];
         char gen_sha1Str[fmtStrLen + 2];
         int byteIndex = 0;
+        int gen_n,org_n;
 
+        gen_n = org_n = 0;
         org_sha1Str[0] = gen_sha1Str[0] = '\0';
         for (byteIndex = 0; byteIndex < shaSumLen; ++byteIndex)
         {
-            sprintf(org_sha1Str, "%s%02x", org_sha1Str, orgSum[byteIndex]);
-            sprintf(gen_sha1Str, "%s%02x", gen_sha1Str, genSum[byteIndex]);
+            //sprintf(org_sha1Str, "%s%02x", org_sha1Str, orgSum[byteIndex]);
+            //sprintf(gen_sha1Str, "%s%02x", gen_sha1Str, genSum[byteIndex]);
+            org_n += sprintf(&org_sha1Str[org_n], "%02x",  orgSum[byteIndex]);
+            gen_n += sprintf(&gen_sha1Str[gen_n], "%02x",  genSum[byteIndex]);
+            if ((org_n > fmtStrLen+2) || (gen_n > fmtStrLen+2)) {
+                KM_ERR("%s:%d mem is overflow!!!n",__func__,__LINE__);
+                break;
+            }
         }
         KM_ERR("sha1sum, orgSum[%s] != genSum[%s]\n", org_sha1Str, gen_sha1Str);
 
@@ -505,7 +519,7 @@ static int do_keyman_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
     {
         if (!strcmp("hex", dataFmt))
         {
-            _keyman_buf_to_hex_ascii((uint8_t*)dataBuf, keyLen, NULL);
+            _keyman_buf_to_hex_ascii((uint8_t*)dataBuf, keyLen, NULL, 0);
             return 0;
         }
         else if(!strcmp("str", dataFmt))

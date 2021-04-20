@@ -57,10 +57,14 @@ int efuse_usr_api_init_dtb(const char*  dt_addr)
     extern const void *fdt_getprop(const void *fdt, int nodeoffset,
             const char *name, int *lenp);
 	phandle = fdt_getprop(dt_addr, nodeoffset, "keynum", NULL);
+	if (phandle == NULL) {
+		EFUSE_ERR("keynum is NULL\n");
+		return __LINE__;
+	}
 	efusekeynum = be32_to_cpup((u32 *)phandle);
 	EFUSE_MSG("keynum is %x\n", efusekeynum);
 
-    if (efusekey_infos) free(efusekey_infos) ;
+	//if (efusekey_infos) free(efusekey_infos) ;
     efusekey_infos = (struct efusekey_info *)malloc(sizeof (struct efusekey_info) *efusekeynum);
     if (!efusekey_infos) {
         EFUSE_ERR("malloc err\n");
@@ -173,6 +177,7 @@ int efuse_usr_api_write_key(const char* keyname, const void* keydata, const unsi
 {
     int ret = 0;
     const struct efusekey_info* theCfgKeyInf = NULL;
+    loff_t offset = 0;
 
     ret = _get_cfg_key_inf_byname(keyname, &theCfgKeyInf);
     if (ret) {
@@ -184,7 +189,9 @@ int efuse_usr_api_write_key(const char* keyname, const void* keydata, const unsi
         return __LINE__;
     }
 
-    ret = efuse_write_usr((char*)keydata, theCfgKeyInf->size, (loff_t*)&theCfgKeyInf->offset);
+    offset = theCfgKeyInf->offset;
+    //ret = efuse_write_usr((char*)keydata, theCfgKeyInf->size, (loff_t*)&theCfgKeyInf->offset);
+    ret = efuse_write_usr((char*)keydata, theCfgKeyInf->size, &offset);
     if (ret < 0) {
         EFUSE_ERR("error: efuse write fail.\n");
         return __LINE__;
@@ -213,7 +220,7 @@ int efuse_usr_api_read_key(const char* keyname, void* databuf, const unsigned bu
     EFUSE_DBG("keyname=%s, databuf=%p, bufSz=%d, cfgCnt=%u\n", keyname, databuf, bufSz, cfgCnt);
 
     offset = theCfgKeyInf->offset;
-    memset(databuf, cfgCnt, 0);
+    memset(databuf, 0, cfgCnt);
     ret = efuse_read_usr((char*)databuf, cfgCnt, &offset);
     if (ret == -1) {
         EFUSE_ERR("ERROR: efuse read user data fail!, size=%u, offset=%llu\n", cfgCnt, offset);
@@ -293,6 +300,7 @@ static int do_usr_efuse_api(cmd_tbl_t *cmdtp, int flag, int argc, char * const a
             dtbLoadAddr = env_get("dtb_mem_addr");
             if (!dtbLoadAddr) {
                 env_set("dtb_mem_addr", simple_itoa(CONFIG_SYS_SDRAM_BASE + (16U<<20)));
+                dtbLoadAddr = env_get("dtb_mem_addr");
             }
             dtbLoadAddr = (char*)simple_strtoul(dtbLoadAddr, NULL, 0);
         }

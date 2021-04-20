@@ -138,7 +138,7 @@ int _keyman_hex_ascii_to_buf(const char* input, char* buf, const unsigned bufSz)
     return 0;
 }
 
-int _keyman_buf_to_hex_ascii(const uint8_t* pdata, const unsigned dataLen, char* fmtStr/*pr if NULL*/)
+int _keyman_buf_to_hex_ascii(const uint8_t* pdata, const unsigned dataLen, char* fmtStr/*pr if NULL*/, int fmtSize)
 {
     if (NULL == fmtStr) //Only print
     {
@@ -154,11 +154,17 @@ int _keyman_buf_to_hex_ascii(const uint8_t* pdata, const unsigned dataLen, char*
     else
     {
         int i = 0;
+        int n = 0;
 
         *fmtStr = '\0';
         for (; i < dataLen; ++i, ++pdata)
         {
-            sprintf(fmtStr, "%s%02x", fmtStr, *pdata);
+            //sprintf(fmtStr, "%s%02x", fmtStr, *pdata);
+            n += sprintf(&fmtStr[n], "%02x",  *pdata);
+            if (n > fmtSize) {
+                printf("%s:%d mem is overflow!!!\n",__func__,__LINE__);
+                break;
+            }
         }
     }
 
@@ -561,7 +567,7 @@ int do_keyunify (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
             KM_ERR("%s key read fail\n", keyname);
             return CMD_RET_FAILURE;
         }
-        _keyman_buf_to_hex_ascii(keydata, (unsigned)keysize, NULL);
+        _keyman_buf_to_hex_ascii(keydata, (unsigned)keysize, NULL, 0);
 
         return err;
     }

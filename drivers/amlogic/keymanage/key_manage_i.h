@@ -20,7 +20,7 @@
 #define KM_ERR(fmt ...)     printf("[KM]Error:f[%s]L%d:", __func__, __LINE__),printf(fmt)
 
 int _keyman_hex_ascii_to_buf(const char* input, char* buf, const unsigned bufSz);
-int _keyman_buf_to_hex_ascii(const uint8_t* pdata, const unsigned dataLen, char* fmtStr/*pr if NULL*/);
+int _keyman_buf_to_hex_ascii(const uint8_t* pdata, const unsigned dataLen, char* fmtStr/*pr if NULL*/, int fmtSize);
 
 int keymanage_dts_parse(const void* dt_addr);
 enum key_manager_df_e keymanage_dts_get_key_fmt(const char *keyname);
