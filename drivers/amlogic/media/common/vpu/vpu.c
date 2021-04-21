@@ -581,7 +581,6 @@ static int set_vpu_clk(unsigned int vclk)
 		clk_level = vclk;
 
 	if (clk_level >= vpu_conf.data->clk_level_max) {
-		ret = 1;
 		clk_level = vpu_conf.data->clk_level_dft;
 		VPUPR("clk out of supported range, set to default\n");
 	}

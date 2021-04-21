@@ -295,6 +295,7 @@ unsigned long get_fb_addr(void)
 		dt_addr = (char *) env_get_ulong("dtb_mem_addr",  16, 0x1000000);
 		if (dt_addr == NULL) {
 			osd_logi("dt_addr is null, load default parameters\n");
+			goto ret_fb_addr;
 		}
 		if (fdt_check_header(dt_addr) < 0) {
 			dt_addr = (char *)gd->fdt_blob;
@@ -312,23 +313,12 @@ unsigned long get_fb_addr(void)
 			osd_logi("load fb addr from dts:%s\n", fdt_node);
 			parent_offset = get_dts_node(dt_addr, fdt_node);
 			if (parent_offset < 0) {
+				strcpy(fdt_node, "/drm-vpu");
+				osd_logi("load fb addr from dts:%s\n", fdt_node);
+				parent_offset = get_dts_node(dt_addr, fdt_node);
 				if (parent_offset < 0) {
-					strcpy(fdt_node, "/drm-vpu");
-					osd_logi("load fb addr from dts:%s\n", fdt_node);
-					parent_offset = get_dts_node(dt_addr, fdt_node);
-					if (parent_offset < 0) {
-						osd_logi("not find node: %s\n",fdt_strerror(parent_offset));
-						osd_logi("use default fb_addr parameters\n");
-					} else {
-						/* check fb_addr */
-						propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr", NULL);
-						if (propdata == NULL) {
-							osd_logi("failed to get fb addr for logo\n");
-							osd_logi("use default fb_addr parameters\n");
-						} else {
-							fb_addr = simple_strtoul(propdata, NULL, 16);
-						}
-					}
+					osd_logi("not find node: %s\n",fdt_strerror(parent_offset));
+					osd_logi("use default fb_addr parameters\n");
 				} else {
 					/* check fb_addr */
 					propdata = (char *)fdt_getprop(dt_addr, parent_offset, "logo_addr", NULL);
@@ -351,6 +341,7 @@ unsigned long get_fb_addr(void)
 			}
 		}
 	}
+ret_fb_addr:
 #endif
 
 	if ((!initrd_set) && (osd_get_chip_type() >= MESON_CPU_MAJOR_ID_AXG)) {

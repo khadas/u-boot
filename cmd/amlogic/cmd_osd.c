@@ -194,7 +194,7 @@ static int do_osd_set(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 	osdID = simple_strtoul(argv[1], NULL, 10);
 
-	if ((osdID < 0) || (osdID > 2)) {
+	if (osdID > 2) {
 		printf("=== osdID is wrong. ===\n");
 		return 1;
 	}
