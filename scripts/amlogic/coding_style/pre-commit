@@ -46,3 +46,5 @@ rm $PATCH_FILE
 
 source $CUR_P/merge_pre_check.sh
 check_defconfig
+
+git diff --name-status --cached $against -- | ./scripts/amlogic/coding_style/licence_pre.pl
