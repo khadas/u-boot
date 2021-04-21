@@ -803,6 +803,24 @@
 #ifndef PWMEF_MISC_REG_AB
 #define PWMEF_MISC_REG_AB                          ((0x0002  << 2) + 0xfe05c000)
 #endif
+#ifndef PWMGH_PWM_A
+#define PWMGH_PWM_A                                ((0x0000  << 2) + 0xfe05e000)
+#endif
+#ifndef PWMGH_PWM_B
+#define PWMGH_PWM_B                                ((0x0001  << 2) + 0xfe05e000)
+#endif
+#ifndef PWMGH_MISC_REG_AB
+#define PWMGH_MISC_REG_AB                          ((0x0002  << 2) + 0xfe05e000)
+#endif
+#ifndef PWMIJ_PWM_A
+#define PWMIJ_PWM_A                                ((0x0000  << 2) + 0xfe060000)
+#endif
+#ifndef PWMIJ_PWM_B
+#define PWMIJ_PWM_B                                ((0x0001  << 2) + 0xfe060000)
+#endif
+#ifndef PWMIJ_MISC_REG_AB
+#define PWMIJ_MISC_REG_AB                          ((0x0002  << 2) + 0xfe060000)
+#endif
 
 #ifndef PWM_AO_AB_PWM_A
 #define PWM_AO_AB_PWM_A                            ((0x0000  << 2) + 0xfe05e000)
@@ -848,6 +866,12 @@
 #endif
 #ifndef CLKCTRL_PWM_CLK_EF_CTRL
 #define CLKCTRL_PWM_CLK_EF_CTRL                    ((0x0062  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_PWM_CLK_GH_CTRL
+#define CLKCTRL_PWM_CLK_GH_CTRL                    ((0x0063  << 2) + 0xfe000000)
+#endif
+#ifndef CLKCTRL_PWM_CLK_IJ_CTRL
+#define CLKCTRL_PWM_CLK_IJ_CTRL                    ((0x0064  << 2) + 0xfe000000)
 #endif
 #ifndef CLKCTRL_PWM_CLK_AO_AB_CTRL
 #define CLKCTRL_PWM_CLK_AO_AB_CTRL                 ((0x0068  << 2) + 0xfe000000)
