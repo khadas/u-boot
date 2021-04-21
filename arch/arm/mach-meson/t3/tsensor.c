@@ -109,7 +109,7 @@ int r1p1_temp_read(int type)
 			/*enable thermal2*/
 			writel(T_CONTROL_DATA, TS_NNA_CFG_REG1);
 			writel(T_TSCLK_DATA, CLKCTRL_TS_CLK_CTRL);
-			thermal_cali_data_read(3, &ret, 4);
+			thermal_cali_data_read(2, &ret, 4);
 			printf("NNA thermal cali data: ret = %x\n", ret);
 			mdelay(5);
 			buf[0] = (ret) & 0xff;
@@ -289,6 +289,7 @@ int r1p1_temp_trim(int tempbase, int tempver, int type)
 				printf("NNA tsensor thermal_calibration send error\n");
 				return -1;
 			}
+			break;
 		case 3:
 			value_ts = 0;
 			value_all_ts = 0;
@@ -327,6 +328,7 @@ int r1p1_temp_trim(int tempbase, int tempver, int type)
 				printf("VPU tsensor thermal_calibration send error\n");
 				return -1;
 			}
+			break;
 		default:
 			printf("r1p1 tsensor trim type not support\n");
 			return -1;
@@ -385,21 +387,21 @@ int temp_trim_entry(int tempbase, int tempver)
 
 	printf("tsensor input trim tempver, tempver:0x%x\n", tempver);
 	switch (tempver) {
-		case 0x84:
+		case 0x8C:
 			r1p1_temp_trim(tempbase, tempver, 1);
 			r1p1_temp_trim(tempbase, tempver, 2);
 			r1p1_temp_trim(tempbase, tempver, 3);
 			r1p1_temp_trim(tempbase, tempver, 0);
 			printf("triming the thermal by bbt-sw\n");
 		break;
-		case 0x85:
+		case 0x8D:
 			r1p1_temp_trim(tempbase, tempver, 1);
 			r1p1_temp_trim(tempbase, tempver, 2);
 			r1p1_temp_trim(tempbase, tempver, 3);
 			r1p1_temp_trim(tempbase, tempver, 0);
 			printf("triming the thermal by bbt-ops\n");
 		break;
-		case 0x87:
+		case 0x8F:
 			r1p1_temp_trim(tempbase, tempver, 1);
 			r1p1_temp_trim(tempbase, tempver, 2);
 			r1p1_temp_trim(tempbase, tempver, 3);
