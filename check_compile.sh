@@ -39,7 +39,19 @@ declare -i TOTAL_CFG_C
 
 # if filter!=cus, then include amlogic configs
 # get all configs name from board folder
-if [ "$1" != "cus" ]
+if [ "$2" !=  "" -a "$3" == ""  ]
+then
+      ARRAY_CFG[$TOTAL_CFG]=$2
+      TOTAL_CFG=$TOTAL_CFG+1
+fi
+if [ "$2" !=  "" -a "$3" != ""  ]
+then
+      ARRAY_CFG[$TOTAL_CFG]=$3
+      TOTAL_CFG=$TOTAL_CFG+1
+fi
+
+
+if [ "$1" != "cus" -a "$2" ==  "" -a "$3" == "" ]
 then
   filter=$1
   for file in ${folder_board}/*; do
