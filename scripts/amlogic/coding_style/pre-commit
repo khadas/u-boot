@@ -43,3 +43,5 @@ python $CUR_P/auto_fix.py $REVIEW_OUTPUT
 
 rm $REVIEW_OUTPUT
 rm $PATCH_FILE
+
+git diff --name-status --cached $against -- | ./scripts/amlogic/coding_style/licence_pre.pl
