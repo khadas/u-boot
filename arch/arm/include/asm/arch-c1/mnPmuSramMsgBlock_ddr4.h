@@ -1,6 +1,6 @@
-
-/** \file
- * \brief defines _PMU_SMB_DDR4U_1D data structure
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
 /**  \brief DDR4U_1D training firmware message block structure

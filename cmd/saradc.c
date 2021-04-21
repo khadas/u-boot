@@ -1,13 +1,7 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Command for SARADC.
- *
- * Copyright (C) 2012 Amlogic.
- * Elvis Yu <elvis.yu@amlogic.com>
- *
- * Copyright (C) 2018 Amlogic.
- * Xingyu Chen <xingyu.chen@amlogic.com>
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
-
 
 #include <common.h>
 #include <command.h>

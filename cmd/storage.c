@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Storage interface module
- *
- * Copyright (C) 2018 Amlogic Corporation
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include <amlogic/storage.h>
 #include <div64.h>
 #include <linux/math64.h>

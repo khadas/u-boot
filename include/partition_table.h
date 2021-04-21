@@ -1,3 +1,8 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
 #ifndef _PARTITION_TABLE_H
 #define _PARTITION_TABLE_H
 // #ifdef CONFIG_STORE_COMPATIBLE

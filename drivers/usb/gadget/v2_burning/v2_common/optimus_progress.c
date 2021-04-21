@@ -1,14 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        optimus_report_progress.c
- * \brief       display and print progress info when burning a partition
- *
- * \version     1.0.0
- * \date        2013/6/23
- * \author      Sam.Wu <wuehui@allwinnertech.com>
- *
- * Copyright (c) 2013 Allwinner Technology. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include "../v2_burning_i.h"
 
 #define OPTIMUS_PROMPT_SIZE_MIN     (4U<<20)//mininal size to prompt burning progress step

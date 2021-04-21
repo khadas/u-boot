@@ -1,11 +1,8 @@
-/* dwc controller pcd interrupt drivers  */
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * (C) Copyright 2010 Amlogic, Inc
- *
- * Victor Wan, victor.wan@amlogic.com,
- * 2010-03-30 @ Shanghai
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include "../../platform.h"
 #include "usb_ch9.h"
 #include "dwc_pcd.h"

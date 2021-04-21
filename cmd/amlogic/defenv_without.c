@@ -1,15 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        cmd_defenv_without.c
- * \brief       use this cmd but not 'env default',
- *               to reserve some envs after defaulting envs
- *
- * \version     1.0.0
- * \date        15/09/29
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2015 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include <config.h>
 #include <common.h>
 #include <command.h>

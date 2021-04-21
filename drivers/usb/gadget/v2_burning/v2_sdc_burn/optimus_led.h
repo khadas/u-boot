@@ -1,15 +1,8 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * \file        optimus_led.h
- * \brief       show burning states by LED
- *              current supported LED source is PWM, other type not supported yet!
- *
- * \version     1.0.0
- * \date        2013/11/9
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2013 Amlogic Inc.. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #ifndef __OPTIMUS_LED_H__
 #define __OPTIMUS_LED_H__
 

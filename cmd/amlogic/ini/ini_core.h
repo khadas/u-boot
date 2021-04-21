@@ -1,10 +1,6 @@
-/* inih -- simple .INI file parser
-
- inih is released under the New BSD license (see LICENSE.txt). Go to the project
- home page for more info:
-
- http://code.google.com/p/inih/
-
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
 #ifndef __INI_CORE_H__

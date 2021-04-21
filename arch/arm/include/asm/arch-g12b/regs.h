@@ -1,10 +1,8 @@
-// ----------------------------------------------------------------------
-// regs.h header
-//
-// bus base define, update manually
-//
-// ----------------------------------------------------------------------
-//
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
 #ifndef _BASE_REGISTER
 #define _BASE_REGISTER
 #define REG_BASE_AOBUS                  (0xFF800000L)

@@ -2,6 +2,7 @@
 /*
  * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #ifndef _DT_BINDINGS_MESON_SC2_GPIO_H
 #define _DT_BINDINGS_MESON_SC2_GPIO_H
 #define	GPIOA_14	0

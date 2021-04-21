@@ -1,15 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        optimus_usb_burn.c
- * \brief       burning itself from Pheripheral usb host
- *
- * \version     1.0.0
- * \date        2014-9-15
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *				Chunyu.Song <chunyu.song@amlogic.com>
- *
- * Copyright (c) 2013 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include "../v2_sdc_burn/optimus_sdc_burn_i.h"
 #include "../v2_sdc_burn/optimus_led.h"
 

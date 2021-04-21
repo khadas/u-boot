@@ -1,10 +1,6 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright 2016, Amlogic Inc
- * yonghui.yu
- *
- * Based vaguely on the Linux code
- *
- * SPDX-License-Identifier:	GPL-2.0+
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
 #include <config.h>

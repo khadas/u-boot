@@ -1,14 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        get_bcb_boot_part.c
- * \brief       parse bootloader control blob and get booted part name
- *
- * \version     1.0.0
- * \date        09/19/2019
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2019 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include <common.h>
 #include <command.h>
 #include <environment.h>

@@ -1,6 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Amlogic clkmsr command
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include <common.h>
 #include <command.h>
 #include <asm/arch/oscring.h>

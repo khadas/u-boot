@@ -1,14 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        km_secure_key.c
- * \brief       secure storage key ops for key manage
- *
- * \version     1.0.0
- * \date        15/06/30
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2015 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include "key_manage_i.h"
 #include <amlogic/amlkey_if.h>
 #include <u-boot/sha256.h>

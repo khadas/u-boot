@@ -1,5 +1,8 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
 
-/*******  dummy register *********/
 #ifndef MIPI_DSI_REGISTER
 #define REG_BASE_DSI_HOST                          (0xFFD00000L)
 

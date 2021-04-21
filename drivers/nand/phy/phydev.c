@@ -1,16 +1,8 @@
-/*****************************************************************
-**
-**  Copyright (C) 2012 Amlogic,Inc.  All rights reserved
-**
-**        Filename : phydev.c
-**        Revision : 1.001
-**        Author: Benjamin Zhao
-**        Description:
-**		1) Phydev basic operation based on phydev
-**			contains read/write/erase/block_isbad/block_markbad.
-**		2) Get/release chip function ensure only one entry to nand chip;
-**
-*****************************************************************/
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
 #include "../include/phynand.h"
 
 #ifdef AML_NAND_UBOOT

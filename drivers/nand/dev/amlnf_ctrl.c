@@ -1,9 +1,8 @@
-
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Aml
- *
- * (C) 2012 8
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include "../include/phynand.h"
 #include <asm/arch/secure_apb.h>
 /*when more chips,the patch need fixed, by liuxj*/

@@ -1,14 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        cmd_usb_tool.c
- * \brief       amlogic DNL protocl entry
- *
- * \version     1.0.0
- * \date        2018/12/17
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2018 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include <common.h>
 #include <command.h>
 #include <console.h>

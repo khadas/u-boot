@@ -1,14 +1,8 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * \file        amlkey_if.h
- * \brief       APIs of secure key for users
- *
- * \version     1.0.0
- * \date        15/07/10
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2015 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #ifndef __AMLKEY_IF_H__
 #define __AMLKEY_IF_H__
 

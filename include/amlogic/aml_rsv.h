@@ -1,11 +1,6 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * Header file of amlogic reserve manager
- *
- * Copyright (C) 2018 Amlogic Corporation
- *
- * Licensed under the GPL-2 or later.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
 #ifndef __MESON_RSV_H_

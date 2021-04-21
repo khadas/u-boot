@@ -1,13 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * (C) Copyright 2013 Amlogic, Inc
- *
- * This file is used to run commands from misc partition
- * More detail to check the command "run bcb_cmd" usage
- *
- * cheng.wang@amlogic.com,
- * 2015-04-23 @ Shenzhen
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include <common.h>
 #include <command.h>
 #include <environment.h>

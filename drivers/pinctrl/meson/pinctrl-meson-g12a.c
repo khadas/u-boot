@@ -1,10 +1,6 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Pin controller and GPIO driver for Amlogic Meson G12A SoC.
- *
- * Copyright (c) 2017 Amlogic, Inc. All rights reserved.
- * Author: Xingyu Chen <xingyu.chen@amlogic.com>
- *
- * SPDX-License-Identifier: (GPL-2.0+ or MIT)
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
 #include <common.h>

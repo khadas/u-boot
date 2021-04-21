@@ -1,6 +1,6 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * (C) Copyright 2017 - Beniamino Galvani <b.galvani@gmail.com>
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
 #ifndef __ASM_ARCH_MESON_GPIO_H

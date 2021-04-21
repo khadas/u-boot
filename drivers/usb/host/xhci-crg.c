@@ -1,10 +1,6 @@
-// SPDX-License-Identifier: GPL-2.0+
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright 2015 Freescale Semiconductor, Inc.
- *
- * DWC3 controller driver
- *
- * Author: Ramneek Mehresh<ramneek.mehresh@freescale.com>
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
 #include <common.h>

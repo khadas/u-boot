@@ -1,10 +1,6 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Pwm controller driver for Amlogic Meson AXG SOC
- *
- * Copyright (c) 2018 Amlogic, Inc. All rights reserved.
- * Auther: Bichao Zheng <bichao.zheng@amlogic.com>
- *
- * SPDX-License-Identifier: (GPL-2.0+ or MIT)
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
 #include <common.h>

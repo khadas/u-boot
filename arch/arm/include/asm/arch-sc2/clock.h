@@ -1,5 +1,8 @@
-/* SPDX-ed:   drivers/clk/meson/clk_meson_sc2.c
-License-Identifier: (GPL-2.0+ OR MIT) */
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
 /*
  * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */

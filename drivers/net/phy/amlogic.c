@@ -1,11 +1,8 @@
-// SPDX-License-Identifier: GPL-2.0+
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Meson GXL Internal PHY Driver
- *
- * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
- * Copyright (C) 2016 BayLibre, SAS. All rights reserved.
- * Author: Neil Armstrong <narmstrong@baylibre.com>
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include <config.h>
 #include <common.h>
 #include <linux/bitops.h>

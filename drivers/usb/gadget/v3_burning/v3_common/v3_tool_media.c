@@ -1,14 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        v3_tool_media.c
- * \brief       operations on media for v3tool
- *
- * \version     1.0.0
- * \date        2018/06/01
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2018 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include "../include/v3_tool_def.h"
 #include <fdtdec.h>
 #include <asm/arch/cpu_config.h>

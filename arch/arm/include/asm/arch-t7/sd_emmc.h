@@ -1,6 +1,6 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * (C) Copyright 2016 Carlo Caione <carlo@caione.org>
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
 #ifndef __SD_EMMC_H__

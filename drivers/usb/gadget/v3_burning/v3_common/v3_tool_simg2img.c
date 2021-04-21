@@ -1,14 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        v3_tool_simg2img.c
- * \brief
- *
- * \version     1.0.0
- * \date        2018/04/20
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2018 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include "../include/v3_tool_def.h"
 #include <sparse_format.h>
 extern char* fb_response_str;

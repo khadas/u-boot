@@ -1,15 +1,8 @@
-/*****************************************************************
-**
-**  Copyright (C) 2012 Amlogic,Inc.  All rights reserved
-**
-**        Filename : driver_uboot.c
-**        Revision : 1.001
-**        Author: Benjamin Zhao
-**        Description:
-**			amlnand_init,  mainly init nand phy driver.
-**
-**
-*****************************************************************/
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
 #include <config.h>
 #include <common.h>
 #include <command.h>

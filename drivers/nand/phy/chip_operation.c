@@ -1,16 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
 
-/*****************************************************************
-**
-**  Copyright (C) 2012 Amlogic,Inc.  All rights reserved
-**
-**        Filename : chip_operation.c
-**        Revision : 1.001
-**        Author: Benjamin Zhao
-**        Description:
-**chip operation function,  contains read/write/erase, and bad block function.
-**mainly init nand phy driver.
-**
-*****************************************************************/
 #include "../include/phynand.h"
 extern int mt_L04A_nand_check(struct amlnand_chip *aml_chip);
 extern int mt_L05B_nand_check(struct amlnand_chip *aml_chip);

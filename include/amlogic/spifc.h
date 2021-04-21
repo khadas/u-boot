@@ -1,10 +1,6 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * Amlogic SPI flash controller(SPIFC)
- *
- * Copyright (C) 2018 Amlogic Corporation
- *
- * Licensed under the GPL-2 or later.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
 #ifndef __SPIFC_H__

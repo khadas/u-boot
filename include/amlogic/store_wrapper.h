@@ -1,14 +1,8 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * \file        store_wrapper.h
- * \brief       wraaper for storage apis
- *
- * \version     1.0.0
- * \date        2019/5/30
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2019 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #ifndef __STORE_WRAPPER_H__
 #define __STORE_WRAPPER_H__
 #include <amlogic/storage.h>

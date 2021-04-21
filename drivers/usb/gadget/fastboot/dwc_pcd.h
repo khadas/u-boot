@@ -1,10 +1,6 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * Copyright (c) 2015 Amlogic, Inc. All rights reserved.
- *
- * This source code is subject to the terms and conditions defined in the
- * file 'LICENSE' which is part of this source code package.
- *
- * USB low level defines
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
 #ifndef __DWC_PCD_H__

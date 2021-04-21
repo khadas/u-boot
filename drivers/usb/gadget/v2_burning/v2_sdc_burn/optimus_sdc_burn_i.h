@@ -1,14 +1,8 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * \file        optimus_sdc_burn_i.h
- * \brief       internal struct types and interfaces for sdc burn
- *
- * \version     1.0.0
- * \date        2013-7-12
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2013 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #ifndef __OPTIMUS_SDC_BURN_I_H__
 #define __OPTIMUS_SDC_BURN_I_H__
 

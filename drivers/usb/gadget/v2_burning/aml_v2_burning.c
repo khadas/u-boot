@@ -1,14 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        aml_v2_burning.c
- * \brief       common interfaces for version 2 burning
- *
- * \version     1.0.0
- * \date        09/15/2013
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2013 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include "v2_burning_i.h"
 #include <mmc.h>
 #include <amlogic/cpu_id.h>

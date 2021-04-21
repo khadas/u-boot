@@ -1,14 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        f_v3_usb_tool.c
- * \brief
- *
- * \version     1.0.0
- * \date        2018/04/08
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2018 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 //declares from f_fastboot.c
 #include <config.h>
 #include <common.h>

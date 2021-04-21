@@ -1,11 +1,8 @@
-/* platform dirver header */
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * (C) Copyright 2010 Amlogic, Inc
- *
- * Victor Wan, victor.wan@amlogic.com,
- * 2010-03-24 @ Shanghai
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include "platform.h"
 #include <amlogic/cpu_id.h>
 #include <asm/arch/secure_apb.h>

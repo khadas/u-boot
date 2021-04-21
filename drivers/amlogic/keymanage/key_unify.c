@@ -1,6 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Unify interfaces for read/write nandkey/emmckey/efuse key
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include "key_manage_i.h"
 #include <amlogic/keyunify.h>
 #include <linux/ctype.h>

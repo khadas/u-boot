@@ -1,15 +1,8 @@
-/*****************************************************************
-**
-**  Copyright (C) 2012 Amlogic,Inc.  All rights reserved
-**
-**        Filename : chip.c
-**        Revision : 1.001
-**        Author: Benjamin Zhao
-**        Description:
-**		chip init/bbt/config/scan function,  mainly for nand phy driver.
-**
-**
-*****************************************************************/
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
 #include "../include/phynand.h"
 
 int get_flash_type(struct amlnand_chip *aml_chip)

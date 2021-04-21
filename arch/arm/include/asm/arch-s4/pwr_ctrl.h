@@ -2,6 +2,7 @@
 /*
  * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #ifndef _PWRC_H_
 #define _PWRC_H_
 

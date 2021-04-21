@@ -1,10 +1,6 @@
-// SPDX-License-Identifier: GPL-2.0+
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Meson g12b, revB USB2 PHY driver
- *
- * Copyright (C) 2017 Martin Blumenstingl <martin.blumenstingl@googlemail.com>
- * Copyright (C) 2018 BayLibre, SAS
- * Author: Neil Armstrong <narmstron@baylibre.com>
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
 #include <common.h>

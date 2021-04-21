@@ -1,13 +1,6 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * \file        aml_v2_burning.h
- * \brief       common interfaces for version burning
- *
- * \version     1.0.0
- * \date        09/15/2013
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2013 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
 //is the uboot loaded from usb otg

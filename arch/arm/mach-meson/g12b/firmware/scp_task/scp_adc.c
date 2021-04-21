@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
 #define MESON_CPU_MAJOR_ID_GXBB		0x1F
 #define MESON_CPU_MAJOR_ID_GXTVBB	0x20
 #define MESON_CPU_MAJOR_ID_GXL		0x21

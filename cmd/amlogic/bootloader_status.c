@@ -1,14 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        bootloader_status.c
- * \brief       Generate bootloader status in env for upgrade
- *
- * \version     1.0.0
- * \date        08/18/2020
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2020 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include <config.h>
 #include <common.h>
 #include <linux/kernel.h>

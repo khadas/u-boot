@@ -1,3 +1,7 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
 
 #ifndef _DT_BINDINGS_INPUT_MESON_RC_H
 #define _DT_BINDINGS_INPUT_MESON_RC_H

@@ -1,16 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        optimus_simg2img.c
- * \brief       sparse image to ext4 image in optimus system
- *              a sparse image consit of "file_header + chunk_num * (chunk_header + [chunk_data]),
- *              chunk data can be empty when chunk type is CHUNK_TYPE_DONT_CARE"
- *
- * \version     1.0.0
- * \date        2013/5/6
- * \author      Sam.Wu <yihui.wu@Amlogic.com>
- *
- * Copyright (c) 2013 Amlogic Inc. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include "../v2_burning_i.h"
 #include <partition_table.h>
 

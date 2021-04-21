@@ -1,3 +1,8 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
 #ifndef AMLNAND_PHYDEV_H_INCLUDED
 #define AMLNAND_PHYDEV_H_INCLUDED
 

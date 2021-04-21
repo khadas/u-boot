@@ -1,14 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        v3_tool_buff_manager.c
- * \brief       buffer manager for partition image
- *
- * \version     1.0.0
- * \date        2018/04/11
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2018 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include "../include/v3_tool_def.h"
 #include <mmc.h>
 

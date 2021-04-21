@@ -1,10 +1,8 @@
-// ----------------------------------------------------------------------
-// regs.h header
-//
-// copy from bl31_1.3/src/bl2z/plat/c1/include/regs.h, which is used for ramdump.
-//
-// ----------------------------------------------------------------------
-//
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
 #ifndef __AML_REG_H__
 #define __AML_REG_H__
 /*

@@ -1,7 +1,8 @@
-/**************************************************
- *           HDMI CEC uboot code                  *
- *                                                *
- **************************************************/
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
 #ifdef CONFIG_CEC_WAKEUP
 #include "secure_apb.h"
 #include "cec_tx_reg.h"

@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
 
 #include "../include/phynand.h"
 extern int nand_hardreset(struct amlnand_chip *aml_chip, u8 chipnr);

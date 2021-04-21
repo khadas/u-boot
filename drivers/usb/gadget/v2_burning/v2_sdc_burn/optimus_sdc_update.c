@@ -1,15 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        optimus_sdc_update.c
- * \brief       sdc_update command to burn a parition image from mmc
- *              this update based on the burner is latest: (uboot for burnner can run from peripherals such as sdmmc/usb)
- *
- * \version     1.0.0
- * \date        2014-9-15
- * \author      Sam.Wu <yihui.wu@amlogic.com>
- *				Chunyu.Song <chunyu.song@amlogic.com>
- * Copyright (c) 2014 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include "optimus_sdc_burn_i.h"
 #include <partition_table.h>
 

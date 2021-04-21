@@ -1,8 +1,8 @@
-// SPDX-License-Identifier: GPL-2.0+
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * (C) Copyright 2018 - Jian Hu <jian.hu@amlogic.com>
- * Author: Jian Hu <jian.hu@amlogic.com>
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include <common.h>
 #include <asm/io.h>
 #include <clk-uclass.h>

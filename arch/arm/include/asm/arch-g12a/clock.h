@@ -1,7 +1,8 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * Copyright 2018 - AmLogic, Inc.
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #ifndef _ARCH_MESON_G12A_CLOCK_H_
 #define _ARCH_MESON_G12A_CLOCK_H_
 

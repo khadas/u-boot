@@ -1,8 +1,6 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * (C) Copyright 2018 - Beniamino Galvani <b.galvani@gmail.com>
- * (C) Copyright 2018 - BayLibre, SAS
- * Author: Neil Armstrong <narmstrong@baylibre.com>
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
 #ifndef CLK_MESON_H

@@ -1,10 +1,7 @@
-
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * plat/txl/sha2.c
- *
- * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
-*/
-
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
 
 #include <common.h>
 #include <stdio.h>

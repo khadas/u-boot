@@ -1,14 +1,8 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * \file        key_manage_i.h
- * \brief       common included files for key manager
- *
- * \version     1.0.0
- * \date        15/06/30
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2015 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #ifndef __KEY_MANAGE_I_H__
 #define __KEY_MANAGE_I_H__
 

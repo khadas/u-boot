@@ -1,15 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        efuse_usr_space_api.c
- * \brief       support read/write user space using keyname mode
- *              mapping keyname to offset by looking /efusekey in dtb
- *
- * \version     1.0.0
- * \date        15/07/14
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2015 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include <config.h>
 #include <common.h>
 #include <command.h>

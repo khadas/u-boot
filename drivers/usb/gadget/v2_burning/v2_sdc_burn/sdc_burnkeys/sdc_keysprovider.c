@@ -1,14 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        sdc_keysprovider.c
- * \brief       Parse users' nankey/efusekey like PC's keysprovider.dll in sdcard burning mode
- *
- * \version     1.0.0
- * \date        2014/12/25
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2014 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include "../optimus_sdc_burn_i.h"
 #include "sdc_bootPart_license.h"
 

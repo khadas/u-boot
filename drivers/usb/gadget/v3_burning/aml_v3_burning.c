@@ -1,14 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        aml_v3_burning.c
- * \brief       v3 burning producing case entry
- *
- * \version     1.0.0
- * \date        2018年12月20日
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2018 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include "include/v3_tool_def.h"
 #include <mmc.h>
 #include <amlogic/cpu_id.h>

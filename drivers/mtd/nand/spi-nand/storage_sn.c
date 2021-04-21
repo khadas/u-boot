@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * SPI-NAND driver to storage interface module
- *
- * Copyright (C) 2018 Amlogic Corporation
- *
- * Licensed under the GPL-2 or later.
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
 #include <common.h>

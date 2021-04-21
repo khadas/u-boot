@@ -1,14 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        optimus_buffer_manager.c
- * \brief       buffer manager for download data: A thin layer between receiving partition data and writing flash
- *
- * \version     1.0.0
- * \date        2013/5/2
- * \author      Sam.Wu <yihui.wu@Amlogic.com>
- *
- * Copyright (c) 2013 Amlogic Inc.. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include "../v2_burning_i.h"
 
 #define OPTIMUS_SLOT_STA_FREE               (0)//buffer slot not used yet

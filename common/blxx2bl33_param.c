@@ -1,8 +1,6 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * blxxtobl33 parameter interface (sc2)
- * 1) define your parameter type in blxx2bl33_param.h the same with blxx.
- * 2) use param_of(type)
- * 3) param_of(type)->data where the parameter is in
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
 #include <amlogic/blxx2bl33_param.h>

@@ -1,14 +1,8 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * \file        aml_dnl.c
- * \brief       from g_dnl.c  USB Downloader Gadget
- *
- * \version     1.0.0
- * \date        2019/05/16
- * \author      Sam.Wu <yihui.wu@amlgic.com>
- *
- * Copyright (c) 2019 Amlogic. All Rights Reserved.
- *
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+
 #include <common.h>
 #include <malloc.h>
 

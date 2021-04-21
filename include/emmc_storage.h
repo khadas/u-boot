@@ -1,6 +1,7 @@
-/***********************************************
-*****Storage config of board, for ACS use.*****
-***********************************************/
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
 
 #ifndef __STORAGE_H
 #define __STORAGE_H

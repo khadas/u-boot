@@ -1,10 +1,6 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- *
- * This header provides constants for the AMLOGIC PCIE phy
- *
- * Copyright (C) 2017 AMLOGIC.INC
- * Author: Yue Wang <yue.wang@amlogic.com>
- * License terms:  GNU General Public License (GPL), version 2
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
 #ifndef _DT_AMLOGIC_PCIE_PHY
