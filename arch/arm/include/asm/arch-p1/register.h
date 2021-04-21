@@ -41726,5 +41726,6 @@
 
 #include "fixme.h"
 
+#include "soc_def.h"
 #endif // REGISTER_H
 

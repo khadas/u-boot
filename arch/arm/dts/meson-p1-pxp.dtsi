@@ -132,9 +132,9 @@
 
 /* SD card */
 &sd_emmc_b {
-	status = "okay";
-	pinctrl-0 = <&sdcard_pins>;
-	pinctrl-1 = <&sdcard_pins &to_sduart_pins>;
+	status = "disabled";
+//	pinctrl-0 = <&sdcard_pins>;
+//	pinctrl-1 = <&sdcard_pins &to_sduart_pins>;
 	pinctrl-names = "sd_all_pins", "sd_uart";
 
 	bus-width = <4>;
@@ -181,11 +181,11 @@
 	hs2_co_phase = <2>;
 	hs2_to_phase = <0>;
 
-	hw_reset = <&gpio GPIOB_9 GPIO_ACTIVE_HIGH>;
+	hw_reset = <&gpio_sto GPIOB_9 GPIO_ACTIVE_HIGH>;
 
 	mmc-pwrseq = <&emmc_pwrseq>;
-	vmmc-supply = <&vcc_3v3>;
-	vqmmc-supply = <&vddio_boot>;
+	//vmmc-supply = <&vcc_3v3>;
+	//vqmmc-supply = <&vddio_boot>;
 };
 
 /* nand */
