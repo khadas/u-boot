@@ -281,6 +281,22 @@
 #define ANACTRL_TCON_PLL2_STS			((0x00f1  << 2) + 0xfe008000)
 #endif
 
+#ifndef ANACTRL_LVDS_TX_PHY_CNTL0
+#define ANACTRL_LVDS_TX_PHY_CNTL0                  ((0x00f4  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_LVDS_TX_PHY_CNTL1
+#define ANACTRL_LVDS_TX_PHY_CNTL1                  ((0x00f5  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_LVDS_TX_PHY_CNTL2
+#define ANACTRL_LVDS_TX_PHY_CNTL2                  ((0x00f6  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_LVDS_TX_PHY_CNTL3
+#define ANACTRL_LVDS_TX_PHY_CNTL3                  ((0x00f7  << 2) + 0xfe008000)
+#endif
+#ifndef ANACTRL_VID_PLL_CLK_DIV
+#define ANACTRL_VID_PLL_CLK_DIV                    ((0x00f8  << 2) + 0xfe008000)
+#endif
+
 #ifndef COMBO_DPHY_CNTL0
 #define COMBO_DPHY_CNTL0			((0x0000  << 2) + 0xfe018000)
 #endif

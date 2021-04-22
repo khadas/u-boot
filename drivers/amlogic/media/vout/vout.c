@@ -776,6 +776,27 @@ static void vout_viu_mux_t7(int index, unsigned int mux_sel)
 	vout_reg_setb(VPU_VIU_VENC_MUX_CTRL, venc_idx, viu_bit, 2);
 }
 
+static void vout_viu_mux_t3(int index, unsigned int mux_sel)
+{
+	unsigned int viu_bit = 0xff, venc_idx;
+
+	switch (index) {
+	case VOUT_VIU1_SEL:
+		viu_bit = 0;
+		break;
+	case VOUT_VIU2_SEL:
+		viu_bit = 2;
+		break;
+	default:
+		vout_log("error: %s: invalid index %d\n", __func__, index);
+		return;
+	}
+	venc_idx = (mux_sel >> 4) & 0xf;
+
+	/* viu_mux: viu0_sel: 0=venc0, 1=venc1, 2=venc2, 3=invalid */
+	vout_reg_setb(VPU_VIU_VENC_MUX_CTRL, venc_idx, viu_bit, 2);
+}
+
 void vout_viu_mux(int index, unsigned int mux_sel)
 {
 	if (vout_conf_check())
@@ -828,6 +849,17 @@ static struct vout_conf_s vout_config_triple = {
 	.reg_dump = vout_reg_dump,
 };
 
+static struct vout_conf_s vout_config_dual_t3 = {
+	.viu_valid[0] = 1,
+	.viu_valid[1] = 1,
+	.viu_valid[2] = 0,
+
+	.viu_mux_reg = VPU_VIU_VENC_MUX_CTRL,
+
+	.viu_mux = vout_viu_mux_t3,
+	.reg_dump = vout_reg_dump,
+};
+
 void vout_probe(void)
 {
 	switch (get_cpu_id().family_id) {
@@ -842,6 +874,10 @@ void vout_probe(void)
 		break;
 	case MESON_CPU_MAJOR_ID_T7:
 		vout_conf = &vout_config_triple;
+		vout_reg_write(VPU_VIU_VENC_MUX_CTRL, 0x3f);
+		break;
+	case MESON_CPU_MAJOR_ID_T3:
+		vout_conf = &vout_config_dual_t3;
 		vout_reg_write(VPU_VIU_VENC_MUX_CTRL, 0x3f);
 		break;
 	default:

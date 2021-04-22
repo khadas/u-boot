@@ -816,6 +816,85 @@ static void lcd_reg_print_phy_analog_t7(struct aml_lcd_drv_s *pdrv)
 	       reg, lcd_ana_read(reg));
 }
 
+static void lcd_reg_print_dphy_t3(struct aml_lcd_drv_s *pdrv)
+{
+	unsigned int reg0, reg1;
+
+	switch (pdrv->index) {
+	case 1:
+		reg0 = ANACTRL_LVDS_TX_PHY_CNTL2;
+		reg1 = ANACTRL_LVDS_TX_PHY_CNTL3;
+		break;
+	case 0:
+	default:
+		reg0 = ANACTRL_LVDS_TX_PHY_CNTL0;
+		reg1 = ANACTRL_LVDS_TX_PHY_CNTL1;
+		break;
+	}
+
+	printf("ANACTRL_LVDS_TX_PHY_CNTL0    [0x%08x] = 0x%08x\n",
+	       reg0, lcd_ana_read(reg0));
+	printf("ANACTRL_LVDS_TX_PHY_CNTL1    [0x%08x] = 0x%08x\n",
+	       reg1, lcd_ana_read(reg1));
+}
+
+static void lcd_reg_print_phy_analog_t3(struct aml_lcd_drv_s *pdrv)
+{
+	unsigned int reg;
+
+	printf("\nphy analog registers:\n");
+	lcd_reg_print_dphy_t3(pdrv);
+
+	reg = ANACTRL_DIF_PHY_CNTL1;
+	printf("PHY_CNTL1           [0x%08x] = 0x%08x\n",
+	       reg, lcd_ana_read(reg));
+	reg = ANACTRL_DIF_PHY_CNTL2;
+	printf("PHY_CNTL2           [0x%08x] = 0x%08x\n",
+	       reg, lcd_ana_read(reg));
+	reg = ANACTRL_DIF_PHY_CNTL3;
+	printf("PHY_CNTL3           [0x%08x] = 0x%08x\n",
+	       reg, lcd_ana_read(reg));
+	reg = ANACTRL_DIF_PHY_CNTL4;
+	printf("PHY_CNTL4           [0x%08x] = 0x%08x\n",
+	       reg, lcd_ana_read(reg));
+	reg = ANACTRL_DIF_PHY_CNTL5;
+	printf("PHY_CNTL5           [0x%08x] = 0x%08x\n",
+	       reg, lcd_ana_read(reg));
+	reg = ANACTRL_DIF_PHY_CNTL6;
+	printf("PHY_CNTL6           [0x%08x] = 0x%08x\n",
+	       reg, lcd_ana_read(reg));
+	reg = ANACTRL_DIF_PHY_CNTL7;
+	printf("PHY_CNTL7           [0x%08x] = 0x%08x\n",
+	       reg, lcd_ana_read(reg));
+	reg = ANACTRL_DIF_PHY_CNTL8;
+	printf("PHY_CNTL8           [0x%08x] = 0x%08x\n",
+	       reg, lcd_ana_read(reg));
+	reg = ANACTRL_DIF_PHY_CNTL9;
+	printf("PHY_CNTL9           [0x%08x] = 0x%08x\n",
+	       reg, lcd_ana_read(reg));
+	reg = ANACTRL_DIF_PHY_CNTL10;
+	printf("PHY_CNTL10          [0x%08x] = 0x%08x\n",
+	       reg, lcd_ana_read(reg));
+	reg = ANACTRL_DIF_PHY_CNTL11;
+	printf("PHY_CNTL11          [0x%08x] = 0x%08x\n",
+	       reg, lcd_ana_read(reg));
+	reg = ANACTRL_DIF_PHY_CNTL12;
+	printf("PHY_CNTL12          [0x%08x] = 0x%08x\n",
+	       reg, lcd_ana_read(reg));
+	reg = ANACTRL_DIF_PHY_CNTL13;
+	printf("PHY_CNTL13          [0x%08x] = 0x%08x\n",
+	       reg, lcd_ana_read(reg));
+	reg = ANACTRL_DIF_PHY_CNTL14;
+	printf("PHY_CNTL14          [0x%08x] = 0x%08x\n",
+	       reg, lcd_ana_read(reg));
+	reg = ANACTRL_DIF_PHY_CNTL15;
+	printf("PHY_CNTL15          [0x%08x] = 0x%08x\n",
+	       reg, lcd_ana_read(reg));
+	reg = ANACTRL_DIF_PHY_CNTL16;
+	printf("PHY_CNTL16          [0x%08x] = 0x%08x\n",
+	       reg, lcd_ana_read(reg));
+}
+
 static void lcd_reg_print_mipi_phy_analog(struct aml_lcd_drv_s *pdrv)
 {
 	unsigned int reg;
@@ -1475,6 +1554,22 @@ static struct lcd_debug_info_reg_s lcd_debug_info_reg_t7_2 = {
 	.prbs_test = lcd_prbs_test_t7,
 };
 
+static struct lcd_debug_info_reg_s lcd_debug_info_reg_t3_0 = {
+	.reg_pll_table = lcd_reg_dump_pll_t3,
+	.reg_clk_table = lcd_reg_dump_clk_t7_0,
+	.reg_encl_table = lcd_reg_dump_encl_t7_0,
+	.reg_pinmux_table = lcd_reg_dump_pinmux_t3,
+	.prbs_test = NULL,
+};
+
+static struct lcd_debug_info_reg_s lcd_debug_info_reg_t3_1 = {
+	.reg_pll_table = lcd_reg_dump_pll_t3,
+	.reg_clk_table = lcd_reg_dump_clk_t7_1,
+	.reg_encl_table = lcd_reg_dump_encl_t7_1,
+	.reg_pinmux_table = lcd_reg_dump_pinmux_t3,
+	.prbs_test = NULL,
+};
+
 /* interface data */
 static struct lcd_debug_info_if_s lcd_debug_info_if_ttl = {
 	.interface_print = lcd_info_print_ttl,
@@ -1546,11 +1641,30 @@ void lcd_debug_probe(struct aml_lcd_drv_s *pdrv)
 		lcd_debug_info_if_mipi.reg_dump_phy =
 			lcd_reg_print_phy_analog_t7;
 		break;
+	case LCD_CHIP_T3:
+		switch (pdrv->index) {
+		case 1:
+			lcd_debug_info_reg = &lcd_debug_info_reg_t3_1;
+			break;
+		default:
+			lcd_debug_info_reg = &lcd_debug_info_reg_t3_0;
+			break;
+		}
+		lcd_debug_info_if_lvds.reg_dump_phy =
+			lcd_reg_print_phy_analog_t3;
+		lcd_debug_info_if_vbyone.reg_dump_phy =
+			lcd_reg_print_phy_analog_t3;
+#ifdef CONFIG_AML_LCD_TCON
+		lcd_debug_info_if_mlvds.reg_dump_phy =
+			lcd_reg_print_phy_analog_t3;
+		lcd_debug_info_if_p2p.reg_dump_phy =
+			lcd_reg_print_phy_analog_t3;
+#endif
+		break;
 	case LCD_CHIP_TL1:
 	case LCD_CHIP_TM2:
 	case LCD_CHIP_T5:
 	case LCD_CHIP_T5D:
-	case LCD_CHIP_T3:
 		lcd_debug_info_reg = &lcd_debug_info_reg_tl1;
 		lcd_debug_info_if_lvds.reg_dump_phy =
 			lcd_reg_print_phy_analog_tl1;

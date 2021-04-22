@@ -13,7 +13,8 @@
 /* 20201211: support t5/t5d/t7 */
 /* 20210222: support multi driver index */
 /* 20210409: update lvds & vbyone regs for t7*/
-#define LCD_DRV_VERSION    "20210409"
+/* 20210412: add t3 support*/
+#define LCD_DRV_VERSION    "20210412"
 
 extern unsigned int lcd_debug_test;
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);

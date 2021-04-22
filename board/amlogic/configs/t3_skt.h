@@ -81,8 +81,10 @@
         "loadaddr_rtos=0x00001000\0"\
         "loadaddr_kernel=0x03080000\0"\
         "otg_device=1\0" \
-	"panel_type=lvds_1\0" \
-        "outputmode=panel\0" \
+        "panel_type=lvds_1\0" \
+        "lcd_ctrl=0x00000000\0" \
+        "lcd_debug=0x00000000\0" \
+        "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \
@@ -126,9 +128,9 @@
             "\0"\
         "storeargs="\
             "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} "\
-                "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} "\
-                "hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
-                "frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} "\
+                "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable "\
+                "hdmimode=${hdmimode} cvbsmode=${cvbsmode} "\
+                "panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
                 "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
             "setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
@@ -195,6 +197,9 @@
             "\0"\
         "bcb_cmd="\
             "get_valid_slot;"\
+            "\0"\
+        "init_display="\
+            "osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode}"\
             "\0"\
         "cmdline_keys="\
             "setenv usid 1234567890; setenv region_code US;"\
@@ -317,7 +322,7 @@
 #define AML_VPU_CLK_LEVEL_DFT 7
 
 /* LCD */
-#define CONFIG_AML_LCD_PXP	1
+//#define CONFIG_AML_LCD_PXP	1
 
 /* osd */
 #define OSD_SCALE_ENABLE

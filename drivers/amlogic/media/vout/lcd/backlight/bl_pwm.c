@@ -146,6 +146,50 @@ static unsigned int pwm_ao_reg_t7[] = {
 	PWM_REG_MAX
 };
 
+static struct bl_pwm_clkctrl_s pwm_clk_ctrl_t3[] = {
+	/* pwm_reg,                bit_div, bit_sel, bit_en*/
+	{CLKCTRL_PWM_CLK_AB_CTRL,   0,       9,       8},
+	{CLKCTRL_PWM_CLK_AB_CTRL,   16,      25,      24},
+	{CLKCTRL_PWM_CLK_CD_CTRL,   0,       9,       8},
+	{CLKCTRL_PWM_CLK_CD_CTRL,   16,      25,      24},
+	{CLKCTRL_PWM_CLK_EF_CTRL,   0,       9,       8},
+	{CLKCTRL_PWM_CLK_EF_CTRL,   16,      25,      24},
+	{CLKCTRL_PWM_CLK_GH_CTRL,   0,       9,       8},
+	{CLKCTRL_PWM_CLK_GH_CTRL,   16,      25,      24},
+	{CLKCTRL_PWM_CLK_IJ_CTRL,   0,       9,       8},
+	{CLKCTRL_PWM_CLK_IJ_CTRL,   16,      25,      24},
+	{PWM_REG_MAX,               0,       0,       0}
+};
+
+static struct bl_pwm_misc_s pwm_misc_t3[] = {
+	/* pwm_reg,           pre_div, clk_sel, clk_en, pwm_en, val_en*/
+	{PWMAB_MISC_REG_AB,   8,       4,       15,     0,      1,},
+	{PWMAB_MISC_REG_AB,   16,      6,       23,     1,      1,},
+	{PWMCD_MISC_REG_AB,   8,       4,       15,     0,      1,},
+	{PWMCD_MISC_REG_AB,   16,      6,       23,     1,      1,},
+	{PWMEF_MISC_REG_AB,   8,       4,       15,     0,      1,},
+	{PWMEF_MISC_REG_AB,   16,      6,       23,     1,      1,},
+	{PWMGH_MISC_REG_AB,   8,       4,       15,     0,      1,},
+	{PWMGH_MISC_REG_AB,   16,      6,       23,     1,      1,},
+	{PWMIJ_MISC_REG_AB,   8,       4,       15,     0,      1,},
+	{PWMIJ_MISC_REG_AB,   16,      6,       23,     1,      1,},
+	{PWM_REG_MAX,         0,       0,       0,      0,      0,}
+};
+
+static unsigned int pwm_reg_t3[] = {
+	PWMAB_PWM_A,
+	PWMAB_PWM_B,
+	PWMCD_PWM_A,
+	PWMCD_PWM_B,
+	PWMEF_PWM_A,
+	PWMEF_PWM_B,
+	PWMGH_PWM_A,
+	PWMGH_PWM_B,
+	PWMIJ_PWM_A,
+	PWMIJ_PWM_B,
+	PWM_REG_MAX
+};
+
 static struct bl_pwm_ctrl_config_s bl_pwm_ctrl_conf_dft = {
 	.pwm_clk = NULL,
 	.pwm_misc = pwm_misc_dft,
@@ -168,13 +212,28 @@ static struct bl_pwm_ctrl_config_s bl_pwm_ctrl_conf_t7 = {
 	.pwm_ao_cnt = 8,
 };
 
+static struct bl_pwm_ctrl_config_s bl_pwm_ctrl_conf_t3 = {
+	.pwm_clk = pwm_clk_ctrl_t7,
+	.pwm_misc = pwm_misc_t7,
+	.pwm_reg = pwm_reg_t7,
+	.pwm_cnt = 10,
+	.pwm_ao_clk = NULL,
+	.pwm_ao_misc = NULL,
+	.pwm_ao_reg = NULL,
+	.pwm_ao_cnt = 0,
+};
+
 static char *bl_pwm_name[] = {
 	"PWM_A",
 	"PWM_B",
 	"PWM_C",
 	"PWM_D",
 	"PWM_E",
-	"PWM_F"
+	"PWM_F",
+	"PWM_G",
+	"PWM_H",
+	"PWM_I",
+	"PWM_J"
 };
 
 static char *bl_pwm_ao_name[] = {
@@ -265,6 +324,10 @@ void bl_pwm_set_duty(struct bl_pwm_config_s *bl_pwm)
 	case BL_PWM_D:
 	case BL_PWM_E:
 	case BL_PWM_F:
+	case BL_PWM_G:
+	case BL_PWM_H:
+	case BL_PWM_I:
+	case BL_PWM_J:
 		port = bl_pwm->pwm_port - BL_PWM_A;
 		if (port >= bl_pwm_ctrl_conf->pwm_cnt) {
 			BLERR("invalid pwm_port 0x%x\n", bl_pwm->pwm_port);
@@ -420,6 +483,10 @@ void bl_pwm_en(struct bl_pwm_config_s *bl_pwm, int flag)
 	case BL_PWM_D:
 	case BL_PWM_E:
 	case BL_PWM_F:
+	case BL_PWM_G:
+	case BL_PWM_H:
+	case BL_PWM_I:
+	case BL_PWM_J:
 		port = bl_pwm->pwm_port - BL_PWM_A;
 		if (port >= bl_pwm_ctrl_conf->pwm_cnt) {
 			BLERR("invalid pwm_port 0x%x\n", bl_pwm->pwm_port);
@@ -536,6 +603,10 @@ void bl_pwm_reg_print(struct bl_pwm_config_s *bl_pwm)
 	case BL_PWM_D:
 	case BL_PWM_E:
 	case BL_PWM_F:
+	case BL_PWM_G:
+	case BL_PWM_H:
+	case BL_PWM_I:
+	case BL_PWM_J:
 		port = bl_pwm->pwm_port - BL_PWM_A;
 		if (port >= bl_pwm_ctrl_conf->pwm_cnt) {
 			BLERR("invalid pwm_port 0x%x\n", bl_pwm->pwm_port);

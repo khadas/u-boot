@@ -201,6 +201,27 @@ void lcd_vbyone_sw_reset(struct aml_lcd_drv_s *pdrv)
 		/* realease PHY */
 		lcd_combo_dphy_setb(reg_phy_tx_ctrl0, 0, 8, 2);
 		lcd_vcbus_write(VBO_SOFT_RST + offset, 0);
+	} else if (pdrv->data->chip_type == LCD_CHIP_T3) {
+		offset = pdrv->data->offset_venc_if[pdrv->index];
+		switch (pdrv->index) {
+		case 0:
+			reg_phy_tx_ctrl0 = ANACTRL_LVDS_TX_PHY_CNTL0;
+			break;
+		case 1:
+			reg_phy_tx_ctrl0 = ANACTRL_LVDS_TX_PHY_CNTL2;
+			break;
+		default:
+			LCDERR("[%d]: %s: invalid drv_index\n", pdrv->index, __func__);
+			return;
+		}
+
+		/* force PHY to 0 */
+		lcd_ana_setb(reg_phy_tx_ctrl0, 3, 8, 2);
+		lcd_vcbus_write(VBO_SOFT_RST + offset, 0x1ff);
+		udelay(5);
+		/* realease PHY */
+		lcd_ana_setb(reg_phy_tx_ctrl0, 0, 8, 2);
+		lcd_vcbus_write(VBO_SOFT_RST + offset, 0);
 	} else {
 		/* force PHY to 0 */
 		lcd_ana_setb(HHI_LVDS_TX_PHY_CNTL0, 3, 8, 2);
@@ -334,7 +355,8 @@ void lcd_vbyone_hw_filter(struct aml_lcd_drv_s *pdrv, int flag)
 		0xfffff, /* 13: 3.53ms */
 	};
 
-	if (pdrv->data->chip_type == LCD_CHIP_T7) {
+	if (pdrv->data->chip_type == LCD_CHIP_T7 ||
+	    pdrv->data->chip_type == LCD_CHIP_T3) {
 		offset = pdrv->data->offset_venc_if[pdrv->index];
 		reg_infilter_l = VBO_INFILTER_CTRL + offset;
 		reg_infilter_h = VBO_INFILTER_CTRL_H + offset;

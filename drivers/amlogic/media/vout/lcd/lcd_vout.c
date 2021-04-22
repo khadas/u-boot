@@ -114,6 +114,17 @@ static struct aml_lcd_data_s lcd_data_t7 = {
 	.dft_conf = {NULL, NULL, NULL},
 };
 
+static struct aml_lcd_data_s lcd_data_t3 = {
+	.chip_type = LCD_CHIP_T3,
+	.chip_name = "t3",
+	.rev_type = 0,
+	.drv_max = 2,
+	.offset_venc = {0x0, (0x600 << 2), 0},
+	.offset_venc_if = {0x0, (0x500 << 2), 0},
+	.offset_venc_data = {0x0, (0x100 << 2), 0},
+	.dft_conf = {NULL, NULL, NULL},
+};
+
 static void lcd_chip_detect(void)
 {
 #if 1
@@ -146,6 +157,9 @@ static void lcd_chip_detect(void)
 		break;
 	case MESON_CPU_MAJOR_ID_T7:
 		lcd_data = &lcd_data_t7;
+		break;
+	case MESON_CPU_MAJOR_ID_T3:
+		lcd_data = &lcd_data_t3;
 		break;
 	default:
 		lcd_data = NULL;
