@@ -176,12 +176,16 @@ int board_late_init(void)
 	{ aml_v3_factory_usb_burning(0, gd->bd); }
 #endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 
+	/* load unifykey */
+	run_command("keyunify init 0x1234", 0);
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
 #ifdef CONFIG_AML_VPP
 	vpp_init();
 #endif
+
+	run_command("ini_model", 0);
 #ifdef CONFIG_AML_VOUT
 	vout_probe();
 #endif
