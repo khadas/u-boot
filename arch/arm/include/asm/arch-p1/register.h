@@ -7,7 +7,7 @@
 //
 // Project name: azp1
 //
-// Create time: Sun Apr  4 10:37:10 CST 2021 by leilei.ge
+// Create time: Tue Apr 20 20:56:58 CST 2021 by chong.gu
 //
 // ./REG_LIST_RTL.h
 //
@@ -19,7 +19,7 @@
 #define REGISTER_H
 
 
-#if	0
+#if 0
     #define Wr64(addr, data) *(volatile uint64_t *)(addr)=(data)
     #define Rd64(addr) *(volatile uint64_t *)(addr)
     #define Wr8(addr, data) *(volatile uint8_t *)(addr)=(data)
@@ -57,7 +57,7 @@
   //bit 27:26 : dpll_clk_en  2'b10: pll_clock output enable. 4xclk output disable..   2'b11,  pll_clock and 4xclk output enable.
                  //if set ddr_freq_sel , it would replaced by AM_DDR_FREQ_CTRL bit[11:10];
   //bit 25    : dpll_inv_sel.  4xclk inverter. if set ddr_freq_sel, it would replaced by AM_DDR_FREQ_CTRL bit[12]
-  //bit 21:19 : od1; if set ddr_freq_sel, it would replaced by AM_DDR_FREQ_CTRL[6:4]
+  //bit 21:19 : od1; if set ddr_freq_sl, it would replaced by AM_DDR_FREQ_CTRL[6:4]
   //bit 18:16 : od;  if set ddr_freq_sel, it would replaced by AM_DDR_FREQ_CTRL[2:0]
   //bit 14:10 : dpll_ref_div_n
   //bit 8:0   : dpll_int_num
@@ -189,6 +189,39 @@
   //bit 29.  dmc_clk_freq control the auto refresh timing.
   //bit 28:24. not use.
   //bit 23:0.  lpddr4 phy retraining timer counter in 100ns.
+//register define for DDRPHY proudction control
+#define AM_DDR_PHY0_PCTRL0                         ((0x0080  << 2) + 0xfe0a0000)
+  //bit 31. Burn in
+  //bit 30. atpg_asst_clken
+  //bit 13:0.  atpg_pllctrlbus[141:128].
+#define AM_DDR_PHY0_PCTRL1                         ((0x0081  << 2) + 0xfe0a0000)
+  //bit 31:0.  atpg_pll_ctrlbus[31:0]
+#define AM_DDR_PHY0_PCTRL2                         ((0x0082  << 2) + 0xfe0a0000)
+  //bit 31:0.  atpg_pll_ctrlbus[63:32]
+#define AM_DDR_PHY0_PCTRL3                         ((0x0083  << 2) + 0xfe0a0000)
+  //bit 31:0.  atpg_pll_ctrlbus[95:64]
+#define AM_DDR_PHY0_PCTRL4                         ((0x0084  << 2) + 0xfe0a0000)
+  //bit 31:0.  atpg_pll_ctrlbus[127:96]
+#define AM_DDR_PHY0_PCTRL5                         ((0x0085  << 2) + 0xfe0a0000)
+  //bit 31:0.  rxtxbypass_set0
+#define AM_DDR_PHY0_PCTRL6                         ((0x0086  << 2) + 0xfe0a0000)
+  //bit 31:0.  rxtxbypass_set1
+#define AM_DDR_PHY1_PCTRL0                         ((0x0088  << 2) + 0xfe0a0000)
+  //bit 31. Burn in
+  //bit 30. atpg_asst_clken
+  //bit 13:0.  atpg_pllctrlbus[141:128].
+#define AM_DDR_PHY1_PCTRL1                         ((0x0089  << 2) + 0xfe0a0000)
+  //bit 31:0.  atpg_pll_ctrlbus[31:0]
+#define AM_DDR_PHY1_PCTRL2                         ((0x008a  << 2) + 0xfe0a0000)
+  //bit 31:0.  atpg_pll_ctrlbus[63:32]
+#define AM_DDR_PHY1_PCTRL3                         ((0x008b  << 2) + 0xfe0a0000)
+  //bit 31:0.  atpg_pll_ctrlbus[95:64]
+#define AM_DDR_PHY1_PCTRL4                         ((0x008c  << 2) + 0xfe0a0000)
+  //bit 31:0.  atpg_pll_ctrlbus[127:96]
+#define AM_DDR_PHY1_PCTRL5                         ((0x008d  << 2) + 0xfe0a0000)
+  //bit 31:0.  rxtxbypass_set0
+#define AM_DDR_PHY1_PCTRL6                         ((0x008e  << 2) + 0xfe0a0000)
+  //bit 31:0.  rxtxbypass_set1
 //
 // Closing file:  ./../mmc_lp5/dmc_clk_freq/rtl/dmc_clk_freq.vh
 //
@@ -544,6 +577,7 @@
 #define PADCTRL_GPIOB_OEN                          ((0x00e2  << 2) + 0xfe086000)
 #define PADCTRL_GPIOB_PULL_EN                      ((0x00e3  << 2) + 0xfe086000)
 #define PADCTRL_GPIOB_PULL_UP                      ((0x00e4  << 2) + 0xfe086000)
+#define PADCTRL_GPIOB_LOCK                         ((0x00e5  << 2) + 0xfe086000)
 #define PADCTRL_GPIOB_PROT                         ((0x00e6  << 2) + 0xfe086000)
 #define PADCTRL_GPIOB_DS                           ((0x00e7  << 2) + 0xfe086000)
 //========================================================================
@@ -788,6 +822,7 @@
 //`define CLKCTRL_CDAC_CLK_CTRL           10'h42
 #define CLKCTRL_GE2DCLK_CTRL                       ((0x0043  << 2) + 0xfe000000)
 #define CLKCTRL_M4_CLK_CTRL                        ((0x0044  << 2) + 0xfe000000)
+#define CLKCTRL_M4_32K_CLK_CTRL                    ((0x0045  << 2) + 0xfe000000)
 //`define CLKCTRL_WAVE420L_CLK_CTRL       10'h45
 //`define CLKCTRL_WAVE420L_CLK_CTRL2      10'h46
 //`define CLKCTRL_HTX_CLK_CTRL0           10'h47 // HDMITX clock control
@@ -804,7 +839,8 @@
 //`define CLKCTRL_WAVE521_CLK_CTRL2       10'h55
 #define CLKCTRL_TS_CLK_CTRL                        ((0x0056  << 2) + 0xfe000000)
 //`define CLKCTRL_MALI_CLK_CTRL           10'h57
-//`define CLKCTRL_VIPNANOQ_CLK_CTRL       10'h58
+#define CLKCTRL_USB_CLK_CTRL                       ((0x0057  << 2) + 0xfe000000)
+#define CLKCTRL_USB_CLK_CTRL1                      ((0x0058  << 2) + 0xfe000000)
 #define CLKCTRL_ETH_CLK_CTRL                       ((0x0059  << 2) + 0xfe000000)
 #define CLKCTRL_NAND_CLK_CTRL                      ((0x005a  << 2) + 0xfe000000)
 #define CLKCTRL_SD_EMMC_CLK_CTRL                   ((0x005b  << 2) + 0xfe000000)
@@ -2574,10 +2610,6 @@
 // -----------------------------------------------
 // REG_BASE:  REGISTER_BASE_ADDR = 0xfe00e000
 // -----------------------------------------------
-#define CPUCTRL_SYS_A73_RESET_CNTL                 ((0x0040  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_CLK_CTRL0                  ((0x0041  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_CLK_CTRL1                  ((0x0042  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_CLK_CTRL2                  ((0x0043  << 2) + 0xfe00e000)
 #define CPUCTRL_SYS_CPU_RESET_CNTL                 ((0x0050  << 2) + 0xfe00e000)
 #define CPUCTRL_SYS_CPU_CLK_CTRL0                  ((0x0051  << 2) + 0xfe00e000)
 #define CPUCTRL_SYS_CPU_CLK_CTRL1                  ((0x0052  << 2) + 0xfe00e000)
@@ -2629,25 +2661,6 @@
 #define CPUCTRL_SYS_CPU_STATUS11                   ((0x00b0  << 2) + 0xfe00e000)
 #define CPUCTRL_SYS_CPU_STATUS12                   ((0x00b1  << 2) + 0xfe00e000)
 #define CPUCTRL_SYS_CPU_STATUS13                   ((0x00b2  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_PERIPHBASE                 ((0x00b3  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_POR_CFG0                   ((0x00c0  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_POR_CFG1                   ((0x00c1  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_CFG0                       ((0x00c2  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_CFG1                       ((0x00c3  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_CFG2                       ((0x00c4  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_CFG3                       ((0x00c5  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_CFG4                       ((0x00c6  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_CFG5                       ((0x00c7  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_CFG6                       ((0x00c8  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_CFG7                       ((0x00c9  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_CFG8                       ((0x00ca  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_CFG9                       ((0x00cb  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_STATUS0                    ((0x00d0  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_STATUS1                    ((0x00d1  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_STATUS2                    ((0x00d2  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_STATUS3                    ((0x00d3  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_STATUS4                    ((0x00d4  << 2) + 0xfe00e000)
-#define CPUCTRL_SYS_A73_STATUS5                    ((0x00d5  << 2) + 0xfe00e000)
 //========================================================================
 //  SAR_ADC
 //========================================================================
@@ -2778,7 +2791,15 @@
 #define ANACTRL_MCLK_PLL_CNTL7                     ((0x00c7  << 2) + 0xfe008000)
 #define ANACTRL_MCLK_PLL_CNTL8                     ((0x00c8  << 2) + 0xfe008000)
 #define ANACTRL_MCLK_PLL_CNTL9                     ((0x00c9  << 2) + 0xfe008000)
-#define ANACTRL_MCLK_PLL_STS                       ((0x00ca  << 2) + 0xfe008000)
+#define ANACTRL_MCLK_PLL_CNTL10                    ((0x00ca  << 2) + 0xfe008000)
+#define ANACTRL_MCLK_PLL_CNTL11                    ((0x00cb  << 2) + 0xfe008000)
+#define ANACTRL_MCLK_PLL_CNTL12                    ((0x00cc  << 2) + 0xfe008000)
+#define ANACTRL_MCLK_PLL_CNTL13                    ((0x00cd  << 2) + 0xfe008000)
+//`define ANACTRL_MCLK_PLL_CNTL14  8'hCe
+//`define ANACTRL_MCLK_PLL_CNTL15  8'hCf
+//`define ANACTRL_MCLK_PLL_CNTL16  8'hD0
+//`define ANACTRL_MCLK_PLL_CNTL17  8'hD1
+#define ANACTRL_MCLK_PLL_STS                       ((0x00d2  << 2) + 0xfe008000)
 //`define ANACTRL_DIF_PHY_CNTL1    8'hC8
 //`define ANACTRL_DIF_PHY_CNTL2    8'hC9
 //`define ANACTRL_DIF_PHY_CNTL3    8'hCa
@@ -3494,6 +3515,25 @@
 #define SPICC5_ENHANCE_CNTL1                       ((0x000f  << 2) + 0xfe04e000)
 #define SPICC5_ENHANCE_CNTL2                       ((0x0010  << 2) + 0xfe04e000)
 //========================================================================
+//  MSR_CLK_B - Registers
+//========================================================================
+// -----------------------------------------------
+// REG_BASE:  REGISTER_BASE_ADDR = 0xfe044000
+// -----------------------------------------------
+#define MSR_CLK_B_REG0                             ((0x0000  << 2) + 0xfe044000)
+#define MSR_CLK_B_REG1                             ((0x0001  << 2) + 0xfe044000)
+#define MSR_CLK_B_REG2                             ((0x0002  << 2) + 0xfe044000)
+#define MSR_CLK_B_REG3                             ((0x0003  << 2) + 0xfe044000)
+#define MSR_CLK_B_REG4                             ((0x0004  << 2) + 0xfe044000)
+#define MSR_CLK_B_REG5                             ((0x0005  << 2) + 0xfe044000)
+#define MSR_CLK_B_REG6                             ((0x0006  << 2) + 0xfe044000)
+#define MSR_CLK_B_REG7                             ((0x0007  << 2) + 0xfe044000)
+#define MSR_CLK_B_REG8                             ((0x0008  << 2) + 0xfe044000)
+#define MSR_CLK_B_REG9                             ((0x0009  << 2) + 0xfe044000)
+#define MSR_CLK_B_REG10                            ((0x0010  << 2) + 0xfe044000)
+#define MSR_CLK_B_REG11                            ((0x0011  << 2) + 0xfe044000)
+#define MSR_CLK_B_DUTY                             ((0x0012  << 2) + 0xfe044000)
+//========================================================================
 //  AIFIFO - Registers
 //========================================================================
 // -----------------------------------------------
@@ -3940,6 +3980,7 @@
 #define EE_AUDIO_SW_RESET1                         ((0x000b  << 2) + 0xfe330000)
 #define EE_AUDIO_CLK81_CTRL                        ((0x000c  << 2) + 0xfe330000)
 #define EE_AUDIO_CLK81_EN                          ((0x000d  << 2) + 0xfe330000)
+#define EE_AUDIO_MCLK_CTRL                         ((0x000e  << 2) + 0xfe330000)
 #define EE_AUDIO_MST_A_SCLK_CTRL0                  ((0x0010  << 2) + 0xfe330000)
 #define EE_AUDIO_MST_A_SCLK_CTRL1                  ((0x0011  << 2) + 0xfe330000)
 #define EE_AUDIO_MST_B_SCLK_CTRL0                  ((0x0012  << 2) + 0xfe330000)
@@ -4677,6 +4718,75 @@
 // -----------------------------------------------
 // REG_BASE:  REGISTER_BASE_ADDR = 0xfe334800
 // -----------------------------------------------
+#define PDMB_CTRL                                  ((0x0000  << 2) + 0xfe334800)
+  //bit 31:   PDM enable.
+  //bit 30:   invert the PDM_DCLK.
+  //bit 29:   output mode:  1: 24bits. 0: 32 bits.
+  //bit 28:   bypass mode. 1: bypass all filter. directly output the PDM input to DDR. 0: normal mode.
+  //bit 27~9: not used.
+  //bit 16:.   PDM Asynchronous FIFO soft reset.  write 1 to soft reset AFIFO.
+  //bit 15:8   PDM channel reset.  0: to reset each PDM channel.  1: normal mode.
+  //bit 7:0.  PDM channel enable. each bit for one channel.
+#define PDMB_HCIC_CTRL1                            ((0x0001  << 2) + 0xfe334800)
+  //bit 31      hcic filter enable.  1 use sinc filter. 0 bypass input to output.
+  //bit 29:24.  hcic final gain shift parameter.
+  //bit 23:16   hcic final gain multiplier.
+  //bit 8:4     hcic  down sample rate.
+  //bit 3:0     hcic  stage number. must be between 3 to 9.
+#define PDMB_HCIC_CTRL2                            ((0x0002  << 2) + 0xfe334800)
+  //Not used.
+#define PDMB_F1_CTRL                               ((0x0003  << 2) + 0xfe334800)
+  //bit 31 .   filter 1 enable.
+  //bit 16:15. f1 round mode.  2'b00 : sign bit at bit 49.  28bits output [49:22] round at bit 21. 32bits output [49:18]. 24bits output [49:26]
+         //                    2'b01 : sign bit at bit 50.  28bits output [50:23] round at bit 22. 32bits output [49:18]. 24bits output [49:26]
+         //                    2'b10 : sign bit at bit 51.  28bits output [51:24] round at bit 23 32bits output [49:18]. 24bits output [49:26].
+  //bit 15:12. filter 1 down sample rate.
+  //bit 8:0.   filter 1 stage number.
+#define PDMB_F2_CTRL                               ((0x0004  << 2) + 0xfe334800)
+  //bit 31 .   filter 2 enable.
+  //bit 16:15. f2 round mode.  2'b00 : round at bit 21. 2'b01 : round at bit 22.  2'b10 : round at bit 23.
+  //bit 15:12. filter 2 down sample rate.
+  //bit 8:0.   filter 2 stage number.
+#define PDMB_F3_CTRL                               ((0x0005  << 2) + 0xfe334800)
+  //bit 31 .   filter 3 enable.
+  //bit 16:15. f3 round mode.  2'b00 : round at bit 21. 2'b01 : round at bit 22.  2'b10 : round at bit 23.
+  //bit 15:12. filter 3 down sample rate.
+  //bit 8:0.   filter 3 stage number.
+#define PDMB_HPF_CTRL                              ((0x0006  << 2) + 0xfe334800)
+  //bit 31  High pass filter enable.
+  //bit 20:16 high pass filter shift steps. 6~19 steps.
+  //bit 15:0 high pass filter output factor.
+#define PDMB_CHAN_CTRL                             ((0x0007  << 2) + 0xfe334800)
+  //bit 31:24.  chan3 data sample pointer vs edge of the PDM_DCLK.
+  //bit 23:16   chan2 data sample pointer vs edge of the PDM_DCLK.
+  //bit 15:8.   chan1 data sample pointer vs edge of the PDM_DCLK.
+  //bit 7:0     chan0 data sample pointer vs edge of the PDM_DCLK.
+#define PDMB_CHAN_CTRL1                            ((0x0008  << 2) + 0xfe334800)
+  //bit 31:24.  chan7 data sample pointer vs edge of the PDM_DCLK.
+  //bit 23:16   chan6 data sample pointer vs edge of the PDM_DCLK.
+  //bit 15:8.   chan5 data sample pointer vs edge of the PDM_DCLK.
+  //bit 7:0     chan4 data sample pointer vs edge of the PDM_DCLK.
+#define PDMB_COEFF_ADDR                            ((0x0009  << 2) + 0xfe334800)
+  // address of the write/read of coeff data.
+#define PDMB_COEFF_DATA                            ((0x000a  << 2) + 0xfe334800)
+  //write/read data to coeff memory.
+#define PDMB_CLKG_CTRL                             ((0x000b  << 2) + 0xfe334800)
+  // auto clock gating control.  1: disable the clock gating function. the clock will awlays enabled. 0 : use RTL auto clock gating.
+  //31:7 not used.
+  //bit 6  filt_ctrl module auto clock gating control.
+  //bit 5  sinc fifo module auto clock gating control.
+  //bit 4  filter module auto clock gating control.
+  //bit 3  apb module auto clock gating control.
+  //bit 2  coeff memory module auto clock gating control.
+  //bit 1  each channel module auto clock gating control.
+  //bit 0 cts_pdm_clk   auto clock gating control.
+#define PDMB_STS                                   ((0x000c  << 2) + 0xfe334800)
+//bit 1  HPF filter output overflow.  means the PCLK is too slow.
+//bit 0  HCIC filter output overflow. means the CTS_PDM_CLK is too slow. can't finished the filter function.
+#define PDMB_MUTE_VALUE                            ((0x000d  << 2) + 0xfe334800)
+#define PDMB_MASK_NUM                              ((0x000e  << 2) + 0xfe334800)
+#define PDMB_CHAN_CTRL2                            ((0x000f  << 2) + 0xfe334800)
+  //bit 7:0    second sample and start FSM point vs rise edge of PDM_DCLK
 //========================================================================
 //  EQ DRC - Registers
 //========================================================================
@@ -9031,20 +9141,20 @@
 // MIPI_ISP_TOP_WRAPPER cfg
 //========================================================================
 // -----------------------------------------------
-// REG_BASE:  REGISTER_BASE_ADDR = 0xff9e0000
+// REG_BASE:  REGISTER_BASE_ADDR = 0xff9a0000
 // -----------------------------------------------
-#define MIPI_ISP_TOP_CTRL0                         ((0x0000  << 2) + 0xff9e0000)
-#define MIPI_ISP_TOP_CTRL1                         ((0x0001  << 2) + 0xff9e0000)
-#define MIPI_CSI_2M_PHY2_CNTL0                     ((0x0010  << 2) + 0xff9e0000)
-#define MIPI_CSI_2M_PHY2_CNTL1                     ((0x0011  << 2) + 0xff9e0000)
-#define MIPI_CSI_2M_PHY2_CNTL2                     ((0x0012  << 2) + 0xff9e0000)
-#define MIPI_CSI_2M_PHY2_CNTL3                     ((0x0013  << 2) + 0xff9e0000)
-#define MIPI_CSI_5M_PHY0_CNTL0                     ((0x0030  << 2) + 0xff9e0000)
-#define MIPI_CSI_5M_PHY0_CNTL1                     ((0x0031  << 2) + 0xff9e0000)
-#define MIPI_CSI_5M_PHY1_CNTL0                     ((0x0040  << 2) + 0xff9e0000)
-#define MIPI_CSI_5M_PHY1_CNTL1                     ((0x0041  << 2) + 0xff9e0000)
-#define MIPI_CSI_TOF_PHY3_CNTL0                    ((0x0050  << 2) + 0xff9e0000)
-#define MIPI_CSI_TOF_PHY3_CNTL1                    ((0x0051  << 2) + 0xff9e0000)
+#define MIPI_ISP_TOP_CTRL0                         ((0x0000  << 2) + 0xff9a0000)
+#define MIPI_ISP_TOP_CTRL1                         ((0x0001  << 2) + 0xff9a0000)
+#define MIPI_CSI_2M_PHY2_CNTL0                     ((0x0010  << 2) + 0xff9a0000)
+#define MIPI_CSI_2M_PHY2_CNTL1                     ((0x0011  << 2) + 0xff9a0000)
+#define MIPI_CSI_2M_PHY2_CNTL2                     ((0x0012  << 2) + 0xff9a0000)
+#define MIPI_CSI_2M_PHY2_CNTL3                     ((0x0013  << 2) + 0xff9a0000)
+#define MIPI_CSI_5M_PHY0_CNTL0                     ((0x0030  << 2) + 0xff9a0000)
+#define MIPI_CSI_5M_PHY0_CNTL1                     ((0x0031  << 2) + 0xff9a0000)
+#define MIPI_CSI_5M_PHY1_CNTL0                     ((0x0040  << 2) + 0xff9a0000)
+#define MIPI_CSI_5M_PHY1_CNTL1                     ((0x0041  << 2) + 0xff9a0000)
+#define MIPI_CSI_TOF_PHY3_CNTL0                    ((0x0050  << 2) + 0xff9a0000)
+#define MIPI_CSI_TOF_PHY3_CNTL1                    ((0x0051  << 2) + 0xff9a0000)
 //========================================================================
 // MIPI_ISP_TOP cfg
 //========================================================================
@@ -9656,9 +9766,6 @@
 //Bit 31:19 ,reserved
 //Bit 18:16 ,frame_vs_dst2_sel         ,default = 0       ,frame_vs_dst2_sel
 //Bit 15:0  ,frame_vs_dst2_cke_delay   ,default = 0       ,frame_vs_dst2_cke_delay
-//Bit 31:19 ,reserved
-//Bit 18:16 ,frame_vs_dst3_sel         ,default = 0       ,frame_vs_dst3_sel
-//Bit 15:0  ,frame_vs_dst3_cke_delay   ,default = 0       ,frame_vs_dst3_cke_delay
 #define MIPI_ADAPT_ALIG_ST0                        ((0x005a  << 2) + 0xff91d000)
 //Bit 31:0  ,mipi_adapt_alig_st0       , RO               ,mipi_adapt_alig_st0
 #define MIPI_ADAPT_ALIG_ST1                        ((0x005b  << 2) + 0xff91d000)
@@ -9865,21 +9972,6 @@
 //Bit 30:16 , ro_vsync2_vs_mont_max        ,default = 0 ,
 //Bit 15    , ro_vsync2_vs_delay_cnt0      ,default = 0 ,
 //Bit 14:0  , ro_vsync2_vs_mon_min         ,default = 0 ,
-//Bit 31    , reg_vsync3_soft_rst          ,default = 0 ,
-//Bit 30    , reserved
-//Bit 29    , reg_vsync3_mont_clr          ,default = 0 ,
-//Bit 28    , reg_vsync3_mont_en           ,default = 0 ,
-//Bit 27    , reg_vsync3_vs_delay_exc_clr  ,default = 0 ,
-//Bit 26:20 , reserved
-//Bit 19    , reg_vsync3_vs_delay_en       ,default = 0 ,
-//Bit 18    , reserved
-//Bit 17:16 , reg_vsync3_vs_delay_tick_sel ,default = 0 ,
-//Bit 15    , reserved
-//Bit 14:0  , reg_vsync3_vs_delay_num      ,default = 0 ,
-//Bit 31    , ro_vsync3_vs_delay_exc       ,default = 0 ,
-//Bit 30:16 , ro_vsync3_vs_mont_max        ,default = 0 ,
-//Bit 15    , ro_vsync3_vs_delay_cnt0      ,default = 0 ,
-//Bit 14:0  , ro_vsync3_vs_mon_min         ,default = 0 ,
 //
 // Closing file:  ./mipi_adapt.h
 //
@@ -9899,25 +9991,25 @@
 // synopsys translate_off
 // synopsys translate_on
 // -----------------------------------------------
-// REG_BASE:  REGISTER_BASE_ADDR = 0xff9c0000
+// REG_BASE:  REGISTER_BASE_ADDR = 0xff980000
 // -----------------------------------------------
-#define ISP_TOFWR_TOP_INPUT_SIZE                   ((0x0000  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_INPUT_SIZE                   ((0x0000  << 2) + 0xff980000)
 //Bit 31:16         reg_input_hsize                // unsigned ,    RW, default = 720
 //Bit 15: 0         reg_input_vsize                // unsigned ,    RW, default = 480
-#define ISP_TOFWR_TOP_HOLD_SIZE                    ((0x0001  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_HOLD_SIZE                    ((0x0001  << 2) + 0xff980000)
 //Bit 31:16         reg_hold_hsize                  // unsigned ,    RW, default = 720
 //Bit 15: 0         reg_hold_vsize                  // unsigned ,    RW, default = 20
-#define ISP_TOFWR_TOP_CTRL0                        ((0x0002  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_CTRL0                        ((0x0002  << 2) + 0xff980000)
 //Bit 31:10         reserved
 //Bit 9:8           reg_frm_start_sel             // unsigned ,    RW, default = 0,
 //Bit 7:6           reg_frm_rst_sel               // unsigned ,    RW, default = 0,
 //Bit 5:2           reg_sw_rst_ctrl               // unsigned ,    RW, default = 0,
 //Bit 1             pls_frm_start                 // unsigned ,    RW, default = 0,
 //Bit 0             pls_frm_rst                   // unsigned ,    RW, default = 0,
-#define ISP_TOFWR_TOP_PATH_EN                      ((0x0003  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_PATH_EN                      ((0x0003  << 2) + 0xff980000)
 //Bit 31:1          reserved
 //Bit 0             reg_wrmif_en                  // unsigned ,    RW, default = 0,
-#define ISP_TOFWR_TOP_MEAS                         ((0x0004  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_MEAS                         ((0x0004  << 2) + 0xff980000)
 //Bit 31:18         reserved
 //Bit 17            reg_tmg_phase                  // unsigned ,    RW, default = 1, timing_gen enable
 //Bit 16            reg_tmg_vsyn_sel               // unsigned ,    RW, default = 0, 0:din_vsyn_dly 1:tim_vsyn
@@ -9927,57 +10019,57 @@
 //Bit 11:8          reg_meas_din_sel               // unsigned ,    RW, default = 1
 //Bit 7:4           reg_meas_dout_sel              // unsigned ,    RW, default = 7
 //Bit 3:0           reserved
-#define ISP_TOFWR_TOP_SYN_CTRL                     ((0x0005  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_SYN_CTRL                     ((0x0005  << 2) + 0xff980000)
 //Bit 31:24         reg_din_reo_sel                // unsigned ,    RW, default = 8'h24, reorg din
 //Bit 23:19         reserved
 //Bit 18            reg_din_secure                 // unsigned ,    RW, default = 0
 //Bit 17:16         reg_din_syn_mode               // unsigned ,    RW, default = 0  sel between din_h/vsyn from mipi & dly bit0 for vsyn bit1 for hsyn
 //Bit 15:0          reg_vs_dly_num                 // unsigned ,    RW, default = 32
-#define ISP_TOFWR_TOP_TIMGEN                       ((0x0006  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_TIMGEN                       ((0x0006  << 2) + 0xff980000)
 //Bit 31:16         reg_tmg_vtotal                 // unsigned ,    RW, default = 16'hffff
 //Bit 15:0          reg_tmg_htotal                 // unsigned ,    RW, default = 1920
-#define ISP_TOFWR_TOP_TIMGEN_REF                   ((0x0007  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_TIMGEN_REF                   ((0x0007  << 2) + 0xff980000)
 //Bit 31:16         reg_tmg_ref_vcnt               // unsigned ,    RW, default = 0
 //Bit 15:0          reg_tmg_ref_hcnt               // unsigned ,    RW, default = 2
-#define ISP_TOFWR_TOP_TIMEGEN_DBG                  ((0x0008  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_TIMEGEN_DBG                  ((0x0008  << 2) + 0xff980000)
 //Bit 31:16         reserved
 //Bit 15:0          ro_ref_vcnt                    // unsigned ,    RO, default = 0
-#define ISP_TOFWR_TOP_IRQ_EN                       ((0x0009  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_IRQ_EN                       ((0x0009  << 2) + 0xff980000)
 //Bit 31:0          reg_irq_en                    // unsigned ,    RW, default = 1  //{irq_intfirq_line,frm_en,frm_rst,frm_end}
-#define ISP_TOFWR_TOP_IRQ_CLR                      ((0x000a  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_IRQ_CLR                      ((0x000a  << 2) + 0xff980000)
 //Bit 31:0          pls_irq_clr                   // unsigned ,    RW, default = 0
-#define ISP_TOFWR_TOP_IRQ_LINE_THRD                ((0x000b  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_IRQ_LINE_THRD                ((0x000b  << 2) + 0xff980000)
 //Bit 31:18         reserved
 //Bit 17:16         reg_irq_line_sel              // unsigned ,    RW, default = 0, irq_line_sel from din_hsyn or core_dout_vcnt
 //Bit 15:0          reg_irq_line_thrd             // unsigned ,    RW, default = 16'h100
-#define ISP_TOFWR_TOP_UNDONE_CLR                   ((0x000c  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_UNDONE_CLR                   ((0x000c  << 2) + 0xff980000)
 //Bit 31:8         reserved
 //Bit 7:0          pls_phs_undone_clr            // unsigned ,    RW, default = 0, frm_undone_clr
-#define ISP_TOFWR_TOP_GCLK_CTRL                    ((0x000d  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_GCLK_CTRL                    ((0x000d  << 2) + 0xff980000)
 //Bit 31:4          reserved
 //Bit 3:2           reg_top_gclk_ctrl             // unsigned ,    RW, default = 0,
 //Bit 1:0           reg_rgb2y_gclk_ctrl           // unsigned ,    RW, default = 0,
-#define ISP_TOFWR_TOP_RGB2Y_MTRX01                 ((0x000e  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_RGB2Y_MTRX01                 ((0x000e  << 2) + 0xff980000)
 //Bit 31:29         reserved
 //Bit 28:16         reg_rgb2y_mtrx_1          // signed ,    RW, default = 0  matrix coefficents for rgb2y
 //Bit 15:13         reserved
 //Bit 12: 0         reg_rgb2y_mtrx_0          // signed ,    RW, default = 0  matrix coefficents for rgb2y
-#define ISP_TOFWR_TOP_RGB2Y_MTRX23                 ((0x000f  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_RGB2Y_MTRX23                 ((0x000f  << 2) + 0xff980000)
 //Bit 31:29         reserved
 //Bit 28:16         reg_rgb2y_mtrx_3          // signed ,    RW, default = 0  matrix coefficents for rgb2y
 //Bit 15:13         reserved
 //Bit 12: 0         reg_rgb2y_mtrx_2          // signed ,    RW, default = 0  matrix coefficents for rgb2y
-#define ISP_TOFWR_TOP_RGB2Y_PRE_OFST23             ((0x0010  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_RGB2Y_PRE_OFST23             ((0x0010  << 2) + 0xff980000)
 //Bit 31:29         reserved
 //Bit 28:16         reg_rgb2y_pre_ofst_3      // signed ,    RW, default = 0  matrix pre offset for rgb2y
 //Bit 15:13         reserved
 //Bit 12: 0         reg_rgb2y_pre_ofst_2      // signed ,    RW, default = 0  matrix pre offset for rgb2y
-#define ISP_TOFWR_TOP_RGB2Y_PRE_OFST01             ((0x0011  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_RGB2Y_PRE_OFST01             ((0x0011  << 2) + 0xff980000)
 //Bit 31:29         reserved
 //Bit 28:16         reg_rgb2y_pre_ofst_1      // signed ,    RW, default = 0  matrix pre offset for rgb2y
 //Bit 15:13         reserved
 //Bit 12: 0         reg_rgb2y_pre_ofst_0      // signed ,    RW, default = 0  matrix pre offset for rgb2y
-#define ISP_TOFWR_TOP_RGB2Y_MTRX_RS                ((0x0012  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_RGB2Y_MTRX_RS                ((0x0012  << 2) + 0xff980000)
 //Bit 31:29         reserved
 //Bit 28:16         reg_rgb2y_pst_ofst        // signed ,    RW, default = 0  matrix post offset for rgb2y
 //Bit 15:10         reserved
@@ -9986,13 +10078,13 @@
 //Bit  5: 4         reg_rgb2y_mtrx_rs         // unsigned ,    RW, default = 0  0 s4.8; 1: s3.9; 2: s2.10 3:s1.11, matrix right shift for cm0
 //Bit  3: 1         reserved
 //Bit  0            reg_rgb2y_en              // unsigned ,    RW, default = 0  disable rgb2y
-#define ISP_TOFWR_TOP_RO_DBG_STAT0                 ((0x0013  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_RO_DBG_STAT0                 ((0x0013  << 2) + 0xff980000)
 //Bit 31:0          ro_debug_stat0                  // unsigned ,    RO, default = 0 ,
-#define ISP_TOFWR_TOP_RO_DBG_STAT1                 ((0x0014  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_RO_DBG_STAT1                 ((0x0014  << 2) + 0xff980000)
 //Bit 31:0          ro_debug_stat1                  // unsigned ,    RO, default = 0 ,
-#define ISP_TOFWR_TOP_RO_IRQ_STAT                  ((0x0015  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_RO_IRQ_STAT                  ((0x0015  << 2) + 0xff980000)
 //Bit 31:0          ro_irq_status                   // unsigned ,    RO, default = 0 ,
-#define ISP_TOFWR_TOP_AXI_WR_STAT                  ((0x0016  << 2) + 0xff9c0000)
+#define ISP_TOFWR_TOP_AXI_WR_STAT                  ((0x0016  << 2) + 0xff980000)
 //Bit 31:0          ro_axi_wr_cnt                  //unsigned, RO, default=0
 // synopsys translate_off
 // synopsys translate_on
@@ -10005,9 +10097,9 @@
 // synopsys translate_off
 // synopsys translate_on
 // -----------------------------------------------
-// REG_BASE:  REGISTER_BASE_ADDR = 0xff9c0000
+// REG_BASE:  REGISTER_BASE_ADDR = 0xff980000
 // -----------------------------------------------
-#define ISP_TOFWR_WMIF_CTRL1                       ((0x0020  << 2) + 0xff9c0000)
+#define ISP_TOFWR_WMIF_CTRL1                       ((0x0020  << 2) + 0xff980000)
 //Bit 31:26 reserved
 //Bit 25:24 reg_sync_sel      // unsigned , RW, default = 0, axi canvas id sync with frm rst
 //Bit 23:16 reg_canvas_id     // unsigned , RW, default = 0, axi canvas id num
@@ -10021,7 +10113,7 @@
 //Bit 4     reg_x_rev         // unsigned , RW, default = 0, horizontal reverse enable
 //Bit 3     reserved
 //Bit 2:0   reg_pack_mode     // unsigned , RW, default = 1, 0:4bit 1:8bit 2:16bit 3:32bit 4:64bit 5:128bit
-#define ISP_TOFWR_WMIF_CTRL2                       ((0x0021  << 2) + 0xff9c0000)
+#define ISP_TOFWR_WMIF_CTRL2                       ((0x0021  << 2) + 0xff980000)
 //Bit 31:30 reg_sw_rst        // unsigned , RW, default = 0,
 //Bit 29:24 reserved
 //Bit 23:22 reg_gclk_ctrl1    // unsigned , RW, default = 0
@@ -10029,7 +10121,7 @@
 //Bit 19:18 reg_gclk_ctrl0    // unsigned , RW, default = 0,
 //Bit 17    reserved
 //Bit 16:0  reg_urgent_ctrl   // unsigned , RW, default = 0, urgent control reg ://  16  reg_ugt_init  :  urgent initial value//  15  reg_ugt_en    :  urgent enable//  14  reg_ugt_type  :  1= wrmif 0=wrmif// 7:4  reg_ugt_top_th:  urgent top threshold// 3:0  reg_ugt_bot_th:  urgent bottom threshold
-#define ISP_TOFWR_WMIF_CTRL3                       ((0x0022  << 2) + 0xff9c0000)
+#define ISP_TOFWR_WMIF_CTRL3                       ((0x0022  << 2) + 0xff980000)
 //Bit 31    reserved
 //Bit 30    reg_hold_en       // unsigned , RW, default = 0
 //Bit 29:24 reg_pass_num      // unsigned , RW, default = 1
@@ -10038,22 +10130,22 @@
 //Bit 16    reg_acc_mode      // unsigned , RW, default = 1,
 //Bit 15:13 reserved
 //Bit 12:0  reg_stride        // unsigned , RW, default = 4096,
-#define ISP_TOFWR_WMIF_CTRL4                       ((0x0023  << 2) + 0xff9c0000)
+#define ISP_TOFWR_WMIF_CTRL4                       ((0x0023  << 2) + 0xff980000)
 //Bit 31:0  reg_baddr        // unsigned , RW, default = 0,
-#define ISP_TOFWR_WMIF_SCOPE_X                     ((0x0024  << 2) + 0xff9c0000)
+#define ISP_TOFWR_WMIF_SCOPE_X                     ((0x0024  << 2) + 0xff980000)
 //Bit 31:29 reserved
 //Bit 28:16 reg_x_end         // unsigned , RW, default = 4095, the canvas hor end pixel position
 //Bit 15:13 reserved
 //Bit 12: 0 reg_x_start       // unsigned , RW, default = 0, the canvas hor start pixel position
-#define ISP_TOFWR_WMIF_SCOPE_Y                     ((0x0025  << 2) + 0xff9c0000)
+#define ISP_TOFWR_WMIF_SCOPE_Y                     ((0x0025  << 2) + 0xff980000)
 //Bit 31:29 reserved
 //Bit 28:16 reg_y_end         // unsigned , RW, default = 0, the canvas ver end pixel position
 //Bit 15:13 reserved
 //Bit 12: 0 reg_y_start       // unsigned , RW, default = 0, the canvas ver start pixel positio
-#define ISP_TOFWR_WMIF_RO_STAT                     ((0x0026  << 2) + 0xff9c0000)
+#define ISP_TOFWR_WMIF_RO_STAT                     ((0x0026  << 2) + 0xff980000)
 //Bit 31:16 reserved
 //Bit 15:0  ro_status        // unsigned , RO, default = 0
-#define ISP_TOFWR_WMIF_CTRL5                       ((0x0027  << 2) + 0xff9c0000)
+#define ISP_TOFWR_WMIF_CTRL5                       ((0x0027  << 2) + 0xff980000)
 //Bit 31:25  reserved
 //Bit 24    reg_baddr_ofst_en    //unsigned, RW, default=0, baddr ofst mode 0: intr config, 1: baddr ofst accumulate
 //Bit 23:16 reg_baddr_ofst_num   //unsigned, RW, default=8, baddr ofst num
@@ -10061,9 +10153,9 @@
 //Bit 7     reg_wr_msb           //unsigned, RW, default=1, 1:msb, 0:lsb
 //Bit 6:3   reg_pix_bits_mode    //unsigned, RW, default=1, 0:4b 1:8b 2:16b 3:32b 4:64b 5:128b 6:12b 7:10b 8:14b
 //Bit 2:0   reg_din_pack_mode    //unsigned, RW, default=0, 0:1x 1:2x 2:4x 3:8x 4:16x 5:32x 6:64x
-#define ISP_TOFWR_WMIF_CTRL6                       ((0x0028  << 2) + 0xff9c0000)
+#define ISP_TOFWR_WMIF_CTRL6                       ((0x0028  << 2) + 0xff980000)
 //Bit 31:0  reg_baddr_ofst      //unsigned, RW, default=0, for auto baddr ofst
-#define ISP_TOFWR_WMIF_CTRL7                       ((0x0029  << 2) + 0xff9c0000)
+#define ISP_TOFWR_WMIF_CTRL7                       ((0x0029  << 2) + 0xff980000)
 //Bit 31:18  reserved
 //Bit 17:10 reg_frm_ctrl_ini    //unsigned, RW, default=0 ini_drop_num
 //Bit 9     reg_frm_ctrl_rst    //unsigned, RW, default=0, clean frm drop func
@@ -11054,8 +11146,6 @@
 //
 // Closing file:  ./isp_dwapc_top_reg.h
 //
-// synopsys translate_off
-// synopsys translate_on
 //========================================================================
 //  Global timer
 //========================================================================
@@ -11194,6 +11284,10 @@
 #define M4CTRL_AON_TIMERA                          ((0x0060  << 2) + 0xfe014000)
 #define M4CTRL_AON_TIMERB                          ((0x0061  << 2) + 0xfe014000)
 #define M4CTRL_AHB_ARB_CTRL                        ((0x0062  << 2) + 0xfe014000)
+#define M4CTRL_CFG_LOCK0                           ((0x0063  << 2) + 0xfe014000)
+#define M4CTRL_CFG_LOCK1                           ((0x0064  << 2) + 0xfe014000)
+#define M4CTRL_CFG_PROT0                           ((0x0065  << 2) + 0xfe014000)
+#define M4CTRL_CFG_PROT1                           ((0x0066  << 2) + 0xfe014000)
 //========================================================================
 //  Ethernet Phy TODO rm
 //========================================================================
@@ -11315,15 +11409,41 @@
 #define MMU_CTRL_REG6                              ((0x0006  << 2) + 0xfe098000)
 #define MMU_CTRL_REG7                              ((0x0007  << 2) + 0xfe098000)
 #define MMU_CTRL_REG8                              ((0x0008  << 2) + 0xfe098000)
-#define MMU_STATUS_REG0                            ((0x0010  << 2) + 0xfe098000)
-#define MMU_STATUS_REG1                            ((0x0011  << 2) + 0xfe098000)
-#define MMU_STATUS_REG2                            ((0x0012  << 2) + 0xfe098000)
-#define MMU_STATUS_REG3                            ((0x0013  << 2) + 0xfe098000)
-#define MMU_LOCK_CFG                               ((0x0020  << 2) + 0xfe098000)
-#define MMU_PROT_CFG                               ((0x0021  << 2) + 0xfe098000)
-#define MMU_IRQ_PENDING                            ((0x0022  << 2) + 0xfe098000)
-#define MMU_IRQ_MASK                               ((0x0023  << 2) + 0xfe098000)
-#define MMU_IRQ_CLR                                ((0x0024  << 2) + 0xfe098000)
+#define MMU_CTRL_REG9                              ((0x0009  << 2) + 0xfe098000)
+#define MMU_CTRL_REG10                             ((0x000a  << 2) + 0xfe098000)
+#define MMU_CTRL_REG11                             ((0x000b  << 2) + 0xfe098000)
+#define MMU_CTRL_REG12                             ((0x000c  << 2) + 0xfe098000)
+#define MMU_CTRL_REG13                             ((0x000d  << 2) + 0xfe098000)
+#define MMU_CTRL_REG14                             ((0x000e  << 2) + 0xfe098000)
+#define MMU_CTRL_REG15                             ((0x000f  << 2) + 0xfe098000)
+#define MMU_CTRL_REG16                             ((0x0010  << 2) + 0xfe098000)
+#define MMU_CTRL_REG17                             ((0x0011  << 2) + 0xfe098000)
+#define MMU_CTRL_REG18                             ((0x0012  << 2) + 0xfe098000)
+#define MMU_CTRL_REG19                             ((0x0013  << 2) + 0xfe098000)
+#define MMU_CTRL_REG20                             ((0x0014  << 2) + 0xfe098000)
+#define MMU_CTRL_REG21                             ((0x0015  << 2) + 0xfe098000)
+#define MMU_CTRL_REG22                             ((0x0016  << 2) + 0xfe098000)
+#define MMU_CTRL_REG23                             ((0x0017  << 2) + 0xfe098000)
+#define MMU_CTRL_REG24                             ((0x0018  << 2) + 0xfe098000)
+#define MMU_CTRL_REG25                             ((0x0019  << 2) + 0xfe098000)
+#define MMU_CTRL_REG26                             ((0x001a  << 2) + 0xfe098000)
+#define MMU_CTRL_REG27                             ((0x001b  << 2) + 0xfe098000)
+#define MMU_CTRL_REG28                             ((0x001c  << 2) + 0xfe098000)
+#define MMU_CTRL_REG29                             ((0x001d  << 2) + 0xfe098000)
+#define MMU_CTRL_REG30                             ((0x001e  << 2) + 0xfe098000)
+#define MMU_CTRL_REG31                             ((0x001f  << 2) + 0xfe098000)
+#define MMU_CTRL_REG32                             ((0x0020  << 2) + 0xfe098000)
+#define MMU_STATUS_REG0                            ((0x0030  << 2) + 0xfe098000)
+#define MMU_STATUS_REG1                            ((0x0031  << 2) + 0xfe098000)
+#define MMU_STATUS_REG2                            ((0x0032  << 2) + 0xfe098000)
+#define MMU_STATUS_REG3                            ((0x0033  << 2) + 0xfe098000)
+#define MMU_LOCK_CFG                               ((0x0040  << 2) + 0xfe098000)
+#define MMU_PROT_CFG                               ((0x0041  << 2) + 0xfe098000)
+#define MMU_IRQ_PENDING                            ((0x0042  << 2) + 0xfe098000)
+#define MMU_IRQ_MASK                               ((0x0043  << 2) + 0xfe098000)
+#define MMU_IRQ_CLR                                ((0x0044  << 2) + 0xfe098000)
+// synopsys translate_off
+// synopsys translate_on
 //
 // Closing file:  ./REG_LIST_RTL.h
 //
@@ -34619,7 +34739,8 @@
 //Bit 31:16         reg_hold_hsize                 // unsigned ,    RW, default = 720 
 //Bit 15: 0         reg_hold_vsize                 // unsigned ,    RW, default = 20
 #define ISP_TOP_CTRL0                              ((0x0003  << 2) + 0xff900000)
-//Bit 31:10         reserved
+//Bit 31:11         reserved
+//Bit 10            pls_frm_st_clr                // unsigned ,    RW, default = 0,
 //Bit 9:8           reg_frm_start_sel             // unsigned ,    RW, default = 0, //0:din_vsync 1:pls 2:rst_din
 //Bit 7:6           reg_frm_rst_sel               // unsigned ,    RW, default = 0, //0:auto 1:pls 2:start_din
 //Bit 5:2           reg_sw_rst_ctrl               // unsigned ,    RW, default = 0,
@@ -34722,21 +34843,35 @@
 //Bit 15:8          reg_rdma_mask                 // unsigned ,    RW, default = 0,
 //Bit 7:0           reg_rdma_start_sel            // unsigned ,    RW, default = 0,
 #define ISP_TOP_GCLK_CTRL                          ((0x0026  << 2) + 0xff900000)
-//Bit 31:4          reserved
+//Bit 31:8          reserved
 //Bit 7:6           reg_intf_gclk_wr              // unsigned ,    RW, default = 0,
 //Bit 5:4           reg_intf_gclk_rd              // unsigned ,    RW, default = 0,
 //Bit 3:2           reg_top_gclk_ctrl             // unsigned ,    RW, default = 0,
 //Bit 1:0           reg_rgb2y_gclk_ctrl           // unsigned ,    RW, default = 0,
+#define ISP_TOP_SRCDIF_CTRL                        ((0x0027  << 2) + 0xff900000)
+//Bit 31:19         reserved
+//Bit 18:3          reg_srcdif_dbg_thrd           // unsigned ,    RW, default = 800, thrd for diff between same pixel from rdmif frame & mipi_din frame
+//Bit 2             pls_srcdif_dbg_clr            // unsigned ,    RW, default = 0, clr pls for ro_dbg_cnt
+//Bit 1             reg_srcdif_dbg_mode           // unsigned ,    RW, default = 0, 0: output dbg_cnt 1: output dbg_cnt_max for several frames
+//Bit 0             reg_srcdif_dbg_en             // unsigned ,    RW, default = 0,
+#define ISP_TOP_SRCDIF_START                       ((0x0028  << 2) + 0xff900000)
+//Bit 31:16         reg_srcdif_dbg_hstart         // unsigned ,    RW, default = 0,
+//Bit 15:0          reg_srcdif_dbg_vstart         // unsigned ,    RW, default = 0,
+#define ISP_TOP_SRCDIF_SIZE                        ((0x0029  << 2) + 0xff900000)
+//Bit 31:16         reg_srcdif_dbg_hsize          // unsigned ,    RW, default = 200,
+//Bit 15:0          reg_srcdif_dbg_vsize          // unsigned ,    RW, default = 200,
+#define ISP_TOP_SRCDIF_RO_CNT                      ((0x002a  << 2) + 0xff900000)
+//Bit 31:0          ro_srcdif_dbg_cnt             // unsigned ,    RO, default = 0,
 #define ISP_TOP_RGB2Y_MTRX01                       ((0x0030  << 2) + 0xff900000)
 //Bit 31:29         reserved                           
-//Bit 28:16         reg_rgb2y_mtrx_1          // signed ,    RW, default = 0  matrix coefficents for rgb2y
+//Bit 28:16         reg_rgb2y_mtrx_1          // signed ,    RW, default = 150  matrix coefficents for rgb2y
 //Bit 15:13         reserved                           
-//Bit 12: 0         reg_rgb2y_mtrx_0          // signed ,    RW, default = 0  matrix coefficents for rgb2y
+//Bit 12: 0         reg_rgb2y_mtrx_0          // signed ,    RW, default = 77  matrix coefficents for rgb2y
 #define ISP_TOP_RGB2Y_MTRX23                       ((0x0031  << 2) + 0xff900000)
 //Bit 31:29         reserved                           
 //Bit 28:16         reg_rgb2y_mtrx_3          // signed ,    RW, default = 0  matrix coefficents for rgb2y
 //Bit 15:13         reserved                           
-//Bit 12: 0         reg_rgb2y_mtrx_2          // signed ,    RW, default = 0  matrix coefficents for rgb2y
+//Bit 12: 0         reg_rgb2y_mtrx_2          // signed ,    RW, default = 29  matrix coefficents for rgb2y
 #define ISP_TOP_RGB2Y_PRE_OFST23                   ((0x0032  << 2) + 0xff900000)
 //Bit 31:29         reserved                           
 //Bit 28:16         reg_rgb2y_pre_ofst_3      // signed ,    RW, default = 0  matrix pre offset for rgb2y
@@ -36780,7 +36915,7 @@
 //Bit 17:16        reg_lns_mesh_alpmode      // unsigned ,    RW, default = 0  0: orgin, 1:two light sources with 32 cols and 64 rows, 2 or 3: four light sources with 32 cols and 32 rows
 //Bit 15           reg_lns_mesh_prtmode      // unsigned ,    RW, default = 0  0:no protect mesh shading correction 1:protect mesh shading correction
 //Bit 14:13        reserved                           
-//Bit 12: 1        reg_lns_mesh_strength     // unsigned ,    RW, default = 4096  0: no correction 4096: correction to match mesh data
+//Bit 12: 1        reg_lns_mesh_strength     // unsigned ,    RW, default = 4095  0: no correction 4096: correction to match mesh data
 //Bit  0           reg_lns_mesh_dbg          // unsigned ,    RW, default = 0  debug 1: debug mode on
 #define ISP_LSWB_MS_LUTNORM_0                      ((0x101f  << 2) + 0xff900000)
 //Bit 31: 2        reserved                           
@@ -39464,7 +39599,7 @@
 //Bit 11:8  reg_ae_gclk_ctrl            //unsigned, RW, default=0
 //Bit 7:4   reg_awb_gclk_ctrl           //unsigned, RW, default=0
 //Bit 3:0   reg_af_gclk_ctrl            //unsigned, RW, default=0
-#define ISP_3A_RO_CTRL                             ((0x28c1  << 2) + 0xff900000)
+#define ISP_3A_DBGRO_CTRL                          ((0x28c1  << 2) + 0xff900000)
 //Bit 31:16 reserved
 //Bit 15:8  reg_3a_ro_en                //unsigned, RW, default=0
 //Bit 7:0   reg_3a_ro_clr               //unsigned, RW, default=0
@@ -39472,9 +39607,19 @@
 //Bit 31:20 reserved
 //Bit 19:4  reg_3a_watchdog_thrd        //unsigned, RW, default=65535
 //Bit 3:0   reg_3a_watchdog_en          //unsigned, RW, default=15
-#define ISP_3A_RO_STAT                             ((0x28c3  << 2) + 0xff900000)
+#define ISP_3A_DBGPATH_SEL                         ((0x28d0  << 2) + 0xff900000)
+//Bit 31:0   reg_3a_dbgpath_sel          //unsigned, RW, default=0
+#define ISP_3A_RO_STAT                             ((0x28e0  << 2) + 0xff900000)
 //Bit 31:8  reserved
 //Bit 7:0   ro_dma_size_err             //unsigned, RO, default=0 bit[7:4] dma_size setting larger than requested for each channel bit[3:0] dma_size setting smaller than requested for each channel
+#define ISP_3A_RO_DBGPATH0                         ((0x28e1  << 2) + 0xff900000)
+//Bit 31:0   ro_3a_dbgpath_dat0         //unsigned, RO, default=0
+#define ISP_3A_RO_DBGPATH1                         ((0x28e2  << 2) + 0xff900000)
+//Bit 31:0   ro_3a_dbgpath_dat1         //unsigned, RO, default=0
+#define ISP_3A_RO_DBGPATH2                         ((0x28e3  << 2) + 0xff900000)
+//Bit 31:0   ro_3a_dbgpath_dat2         //unsigned, RO, default=0
+#define ISP_3A_RO_DBGPATH3                         ((0x28e4  << 2) + 0xff900000)
+//Bit 31:0   ro_3a_dbgpath_dat3         //unsigned, RO, default=0
 // synopsys translate_off
 // synopsys translate_on
 //
@@ -41551,6 +41696,8 @@
 // Closing file:  ./parser_regs.h
 //
 
+
+
 // add p1 miss reg
 //========================================================================
 //  PWM_AO_AB - Registers
@@ -41577,243 +41724,7 @@
 // REG_BASE:  REGISTER_BASE_ADDR = 0xfe032000
 // -----------------------------------------------
 
-// add p1 miss reg
-#define OTP_TEE_RDY                                ((0x0000  << 2) + 0xfe440000)
-#define OTP_TEE_DEBUG                              ((0x0001  << 2) + 0xfe440000)
-#define OTP_TEE_CFG                                ((0x0002  << 2) + 0xfe440000)
-
-#define OTP_LIC                                    ((0x0010  << 2) + 0xfe440000)
-#define OTP_LIC00                                  (OTP_LIC + 0x00)
-#define OTP_LIC01                                  (OTP_LIC + 0x04)
-#define OTP_LIC02                                  (OTP_LIC + 0x08)
-#define OTP_LIC03                                  (OTP_LIC + 0x0C)
-
-#define OTP_LIC10                                  (OTP_LIC + 0x10)
-#define OTP_LIC11                                  (OTP_LIC + 0x14)
-#define OTP_LIC12                                  (OTP_LIC + 0x18)
-#define OTP_LIC13                                  (OTP_LIC + 0x1C)
-
-#define OTP_LIC20                                  (OTP_LIC + 0x20)
-#define OTP_LIC21                                  (OTP_LIC + 0x24)
-#define OTP_LIC22                                  (OTP_LIC + 0x28)
-#define OTP_LIC23                                  (OTP_LIC + 0x2C)
-
-#define OTP_LIC30                                  (OTP_LIC + 0x30)
-#define OTP_LIC31                                  (OTP_LIC + 0x34)
-#define OTP_LIC32                                  (OTP_LIC + 0x38)
-#define OTP_LIC33                                  (OTP_LIC + 0x3C)
-
-#define ANACTRL_SYS1PLL_CTRL1                      ((0x0009  << 2) + 0xfe008000)
-#define ANACTRL_SYS1PLL_CTRL2                      ((0x000a  << 2) + 0xfe008000)
-#define ANACTRL_SYS1PLL_CTRL3                      ((0x000b  << 2) + 0xfe008000)
-
-#define ANACTRL_FIXPLL_CTRL1                       ((0x0011  << 2) + 0xfe008000)
-#define ANACTRL_FIXPLL_CTRL2                       ((0x0012  << 2) + 0xfe008000)
-#define ANACTRL_FIXPLL_CTRL3                       ((0x0013  << 2) + 0xfe008000)
-#define ANACTRL_FIXPLL_CTRL4                       ((0x0014  << 2) + 0xfe008000)
-#define ANACTRL_FIXPLL_CTRL5                       ((0x0015  << 2) + 0xfe008000)
-#define ANACTRL_FIXPLL_CTRL6                       ((0x0016  << 2) + 0xfe008000)
-
-#define PWRCTRL_A730_FSM_START_OFF                 ((0x01bd  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_FSM_START_ON                  ((0x01be  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_FSM_JUMP                      ((0x01bf  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_AUTO_OFF_CTRL0                ((0x01c0  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_AUTO_OFF_CTRL1                ((0x01c1  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_AUTO_OFF_CTRL2                ((0x01c2  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_AUTO_OFF_CTRL3                ((0x01c3  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_AUTO_OFF_CTRL4                ((0x01c4  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_AUTO_OFF_CTRL5                ((0x01c5  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_TIMER_TH_01                   ((0x01c8  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_TIMER_TH_23                   ((0x01c9  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_TIMER_TH_45                   ((0x01ca  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_TIMER_TH_67                   ((0x01cb  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_TIMER_TH_89                   ((0x01cc  << 2) + 0xfe00c000)
-
-#define PWRCTRL_A730_AUTO_OFF_CTRL0                ((0x0190  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_AUTO_OFF_CTRL1                ((0x0191  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_AUTO_OFF_CTRL2                ((0x0192  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_AUTO_OFF_CTRL3                ((0x0193  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_AUTO_OFF_CTRL4                ((0x0194  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_AUTO_OFF_CTRL5                ((0x0195  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_TIMER_TH_01                   ((0x0198  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_TIMER_TH_23                   ((0x0199  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_TIMER_TH_45                   ((0x019a  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_TIMER_TH_67                   ((0x019b  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_TIMER_TH_89                   ((0x019c  << 2) + 0xfe00c000)
-
-#define PWRCTRL_A730_IRQ_MASK0                     ((0x01a0  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_IRQ_MASK1                     ((0x01a1  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_IRQ_MASK2                     ((0x01a2  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_IRQ_MASK3                     ((0x01a3  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_IRQ_MASK4                     ((0x01a4  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_IRQ_MASK5                     ((0x01a5  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_IRQ_MASK6                     ((0x01a6  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_IRQ_MASK7                     ((0x01a7  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_IRQ_MASK8                     ((0x01a8  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_IRQ_MASK9                     ((0x01a9  << 2) + 0xfe00c000)
-
-#define PWRCTRL_A730_MEMPD_INIT_SET                ((0x01b0  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_MEMPD_OFF_SET                 ((0x01b1  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_MEMPD_ON_A_SET                ((0x01b2  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_MEMPD_ON_B_SET                ((0x01b3  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_MEMPD_ON_C_SET                ((0x01b4  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_MEMPD_ON_D_SET                ((0x01b5  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_MEMPD_STS                     ((0x01b6  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_FSM_STS0                      ((0x01b7  << 2) + 0xfe00c000)
-
-#define PWRCTRL_A730_FSM_STS1                      ((0x01b8  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_FSM_STS2                      ((0x01b9  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_FSM_START_OFF                 ((0x01bd  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_FSM_START_ON                  ((0x01be  << 2) + 0xfe00c000)
-#define PWRCTRL_A730_FSM_JUMP                      ((0x01bf  << 2) + 0xfe00c000)
-
-#define PWRCTRL_A731_IRQ_MASK0                     ((0x01d0  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_IRQ_MASK1                     ((0x01d1  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_IRQ_MASK2                     ((0x01d2  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_IRQ_MASK3                     ((0x01d3  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_IRQ_MASK4                     ((0x01d4  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_IRQ_MASK5                     ((0x01d5  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_IRQ_MASK6                     ((0x01d6  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_IRQ_MASK7                     ((0x01d7  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_IRQ_MASK8                     ((0x01d8  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_IRQ_MASK9                     ((0x01d9  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_IRQ_MASK10                    ((0x01da  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_IRQ_MASK11                    ((0x01db  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_IRQ_MASK12                    ((0x01dc  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_IRQ_MASK13                    ((0x01dd  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_IRQ_MASK14                    ((0x01de  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_IRQ_MASK15                    ((0x01df  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_MEMPD_INIT_SET                ((0x01e0  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_MEMPD_OFF_SET                 ((0x01e1  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_MEMPD_ON_A_SET                ((0x01e2  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_MEMPD_ON_B_SET                ((0x01e3  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_MEMPD_ON_C_SET                ((0x01e4  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_MEMPD_ON_D_SET                ((0x01e5  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_MEMPD_STS                     ((0x01e6  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_FSM_STS0                      ((0x01e7  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_FSM_STS1                      ((0x01e8  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_FSM_STS2                      ((0x01e9  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_FSM_START_OFF                 ((0x01ed  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_FSM_START_ON                  ((0x01ee  << 2) + 0xfe00c000)
-#define PWRCTRL_A731_FSM_JUMP                      ((0x01ef  << 2) + 0xfe00c000)
-
-#define PWRCTRL_A732_AUTO_OFF_CTRL0                ((0x01f0  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_AUTO_OFF_CTRL1                ((0x01f1  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_AUTO_OFF_CTRL2                ((0x01f2  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_AUTO_OFF_CTRL3                ((0x01f3  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_AUTO_OFF_CTRL4                ((0x01f4  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_AUTO_OFF_CTRL5                ((0x01f5  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_TIMER_TH_01                   ((0x01f8  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_TIMER_TH_23                   ((0x01f9  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_TIMER_TH_45                   ((0x01fa  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_TIMER_TH_67                   ((0x01fb  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_TIMER_TH_89                   ((0x01fc  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_IRQ_MASK0                     ((0x0200  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_IRQ_MASK1                     ((0x0201  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_IRQ_MASK2                     ((0x0202  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_IRQ_MASK3                     ((0x0203  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_IRQ_MASK4                     ((0x0204  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_IRQ_MASK5                     ((0x0205  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_IRQ_MASK6                     ((0x0206  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_IRQ_MASK7                     ((0x0207  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_IRQ_MASK8                     ((0x0208  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_IRQ_MASK9                     ((0x0209  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_IRQ_MASK10                    ((0x020a  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_IRQ_MASK11                    ((0x020b  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_IRQ_MASK12                    ((0x020c  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_IRQ_MASK13                    ((0x020d  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_IRQ_MASK14                    ((0x020e  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_IRQ_MASK15                    ((0x020f  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_MEMPD_INIT_SET                ((0x0210  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_MEMPD_OFF_SET                 ((0x0211  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_MEMPD_ON_A_SET                ((0x0212  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_MEMPD_ON_B_SET                ((0x0213  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_MEMPD_ON_C_SET                ((0x0214  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_MEMPD_ON_D_SET                ((0x0215  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_MEMPD_STS                     ((0x0216  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_FSM_STS0                      ((0x0217  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_FSM_STS1                      ((0x0218  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_FSM_STS2                      ((0x0219  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_FSM_START_OFF                 ((0x021d  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_FSM_START_ON                  ((0x021e  << 2) + 0xfe00c000)
-#define PWRCTRL_A732_FSM_JUMP                      ((0x021f  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_AUTO_OFF_CTRL0                ((0x0220  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_AUTO_OFF_CTRL1                ((0x0221  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_AUTO_OFF_CTRL2                ((0x0222  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_AUTO_OFF_CTRL3                ((0x0223  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_AUTO_OFF_CTRL4                ((0x0224  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_AUTO_OFF_CTRL5                ((0x0225  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_TIMER_TH_01                   ((0x0228  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_TIMER_TH_23                   ((0x0229  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_TIMER_TH_45                   ((0x022a  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_TIMER_TH_67                   ((0x022b  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_TIMER_TH_89                   ((0x022c  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_IRQ_MASK0                     ((0x0230  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_IRQ_MASK1                     ((0x0231  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_IRQ_MASK2                     ((0x0232  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_IRQ_MASK3                     ((0x0233  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_IRQ_MASK4                     ((0x0234  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_IRQ_MASK5                     ((0x0235  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_IRQ_MASK6                     ((0x0236  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_IRQ_MASK7                     ((0x0237  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_IRQ_MASK8                     ((0x0238  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_IRQ_MASK9                     ((0x0239  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_IRQ_MASK10                    ((0x023a  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_IRQ_MASK11                    ((0x023b  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_IRQ_MASK12                    ((0x023c  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_IRQ_MASK13                    ((0x023d  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_IRQ_MASK14                    ((0x023e  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_IRQ_MASK15                    ((0x023f  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_MEMPD_INIT_SET                ((0x0240  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_MEMPD_OFF_SET                 ((0x0241  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_MEMPD_ON_A_SET                ((0x0242  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_MEMPD_ON_B_SET                ((0x0243  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_MEMPD_ON_C_SET                ((0x0244  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_MEMPD_ON_D_SET                ((0x0245  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_MEMPD_STS                     ((0x0246  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_FSM_STS0                      ((0x0247  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_FSM_STS1                      ((0x0248  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_FSM_STS2                      ((0x0249  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_FSM_START_OFF                 ((0x024d  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_FSM_START_ON                  ((0x024e  << 2) + 0xfe00c000)
-#define PWRCTRL_A733_FSM_JUMP                      ((0x024f  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_AUTO_OFF_CTRL0              ((0x0250  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_AUTO_OFF_CTRL1              ((0x0251  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_AUTO_OFF_CTRL2              ((0x0252  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_AUTO_OFF_CTRL3              ((0x0253  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_AUTO_OFF_CTRL4              ((0x0254  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_AUTO_OFF_CTRL5              ((0x0255  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_TIMER_TH_01                 ((0x0258  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_TIMER_TH_23                 ((0x0259  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_TIMER_TH_45                 ((0x025a  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_TIMER_TH_67                 ((0x025b  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_TIMER_TH_89                 ((0x025c  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_IRQ_MASK0                   ((0x0260  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_IRQ_MASK1                   ((0x0261  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_IRQ_MASK2                   ((0x0262  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_IRQ_MASK3                   ((0x0263  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_IRQ_MASK4                   ((0x0264  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_IRQ_MASK5                   ((0x0265  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_IRQ_MASK6                   ((0x0266  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_IRQ_MASK7                   ((0x0267  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_IRQ_MASK8                   ((0x0268  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_MEMPD_INIT_SET              ((0x0270  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_MEMPD_OFF_SET               ((0x0271  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_MEMPD_ON_A_SET              ((0x0272  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_MEMPD_ON_B_SET              ((0x0273  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_MEMPD_ON_C_SET              ((0x0274  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_MEMPD_ON_D_SET              ((0x0275  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_MEMPD_STS                   ((0x0276  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_FSM_STS0                    ((0x0277  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_FSM_STS1                    ((0x0278  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_FSM_STS2                    ((0x0279  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_FSM_START_OFF               ((0x027d  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_FSM_START_ON                ((0x027e  << 2) + 0xfe00c000)
-#define PWRCTRL_A73TOP_FSM_JUMP                    ((0x027f  << 2) + 0xfe00c000)
-
-#define HDMI20_AES_CNTL0                           ((0x0000  << 2) + 0xfe01e000)
-#define HDMI20_AES_DATA                            ((0x0001  << 2) + 0xfe01e000)
-#define HDMI20_AES_STAT0                           ((0x0002  << 2) + 0xfe01e000)
+#include "fixme.h"
 
 #endif // REGISTER_H
 
