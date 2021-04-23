@@ -65,6 +65,9 @@ uint32_t meson_ledstate_set_blink_times_on(uint32_t led_id, uint32_t blink_times
 	int32_t ret;
 	uint32_t data[5];
 
+	brightness_high = brightness_high;
+	brightness_low = brightness_low;
+
 	if ((blink_times > MAXIMUM_BLINK_NUM) || (blink_high > MAXIMUM_HIGH_MS) ||
 	(blink_low > MAXIMUM_LOW_MS)) {
 		printf("Parameter setting out of range\n");
@@ -91,6 +94,9 @@ uint32_t meson_ledstate_set_blink_times_off(uint32_t led_id, uint32_t blink_time
 {
 	int32_t ret;
 	uint32_t data[5];
+
+	brightness_high = brightness_high;
+	brightness_low = brightness_low;
 
 	if ((blink_times > MAXIMUM_BLINK_NUM) || (blink_high > MAXIMUM_HIGH_MS) ||
 			(blink_low > MAXIMUM_LOW_MS)) {
