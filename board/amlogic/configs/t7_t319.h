@@ -450,6 +450,9 @@
 //use dache command
 #define CONFIG_CMD_CACHE
 
+//use remapset command
+#define CONFIG_CMD_REMAPSET
+
 //use hardware sha2
 #define CONFIG_AML_HW_SHA2
 

@@ -429,6 +429,9 @@
 //use startdsp command
 #define CONFIG_CMD_STARTDSP
 
+//use remapset command
+#define CONFIG_CMD_REMAPSET
+
 //use dache command
 #define CONFIG_CMD_CACHE
 

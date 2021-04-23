@@ -172,6 +172,7 @@ obj-$(CONFIG_CMD_ETHSW) += ethsw.o
 obj-$(CONFIG_CMD_AXI) += axi.o
 obj-$(CONFIG_CMD_SARADC) += saradc.o
 obj-$(CONFIG_CMD_STARTDSP) += cmd_startdsp.o
+obj-$(CONFIG_CMD_REMAPSET) += cmd_remapset.o
 obj-$(CONFIG_CMD_IR) += irkey.o
 
 # Power
