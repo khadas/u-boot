@@ -63,9 +63,11 @@ static int save_dtbo_idx(const char *cmdline)
 			       dtbo_chosen_idx_end - dtbo_chosen_idx_start + 1);
 			strncpy(dtbo_idx, dtbo_chosen_idx_start,
 				dtbo_chosen_idx_end - dtbo_chosen_idx_start);
-		} else
+		} else {
+			memset(dtbo_idx, 0x00, strlen(dtbo_chosen_idx_start));
 			strncpy(dtbo_idx, dtbo_chosen_idx_start,
 				strlen(dtbo_chosen_idx_start));
+		}
 
 		setenv("androidboot.dtbo_idx",
 		       dtbo_idx + strlen("androidboot.dtbo_idx="));
@@ -148,6 +150,8 @@ int android_image_get_kernel(const boot_img_hdr_t * hdr, int verify,
 		strcat(newbootargs, hdr->cmdline);
 
 	setenv("bootargs", newbootargs);
+	free(newbootargs);
+	newbootargs = NULL;
 
 	if (os_data) {
 		*os_data = (ulong)hdr;
@@ -287,15 +291,7 @@ static int android_image_get_kernel_v3(const boot_img_hdr_v3_t *hdr, int verify,
 	 * string is null terminated so we take care of this.
 	 */
 	/*check vendor boot image first*/
-	if (!p_vender_boot_img)
-	{
-		if (os_data)
-			*os_data = 0;
-		if (os_len)
-			*os_len = 0;
-		goto exit;
-	}
-
+	if (p_vender_boot_img) {
 	ulong end;
 	p_vendor_boot_img_hdr_t vb_hdr = &p_vender_boot_img->hdr;
 	char boot_name[ANDR_BOOT_NAME_SIZE + 8];
@@ -351,6 +347,14 @@ static int android_image_get_kernel_v3(const boot_img_hdr_v3_t *hdr, int verify,
 	end = dtb_addr;
 	images.ft_addr = (char *)end;
 #endif
+	}
+	else {
+		if (os_data)
+			*os_data = 0;
+		if (os_len)
+			*os_len = 0;
+		goto exit;
+	}
 
 exit:
 
@@ -379,14 +383,7 @@ static ulong android_image_get_end_v3(const boot_img_hdr_v3_t *hdr)
 {
 	if (!p_vender_boot_img)
 		return 0;
-#if 0
-	/* copy dtb to dtb_addr */
-	p_vendor_boot_img_hdr_t vb_hdr = &p_vender_boot_img->hdr;
-	unsigned int dtb_offset;
-	dtb_offset = (DIV_ROUND_UP(vb_hdr->vendor_ramdisk_size,vb_hdr->page_size)) * vb_hdr->page_size;
 
-	memmove((void*)(unsigned long)vb_hdr->dtb_addr,p_vender_boot_img->szData + dtb_offset,vb_hdr->dtb_size);
-#endif
 	/*??*/
 	ulong end;
 	/*
