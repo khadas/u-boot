@@ -1153,7 +1153,7 @@ static int lcd_config_load_from_unifykey(struct aml_lcd_drv_s *pdrv)
 		((*(p + LCD_UKEY_PCLK + 3)) << 24));
 	if (pconf->timing.lcd_clk == 0) {
 		pconf->timing.lcd_clk = 60;
-		LCDERR("[%d]: lcd_clk is 0, default to 60Hz\n", pdrv->index);
+		LCDPR("[%d]: lcd_clk is 0, default to 60Hz\n", pdrv->index);
 	}
 	pconf->basic.h_period_min = (*(p + LCD_UKEY_H_PERIOD_MIN) |
 		((*(p + LCD_UKEY_H_PERIOD_MIN + 1)) << 8));

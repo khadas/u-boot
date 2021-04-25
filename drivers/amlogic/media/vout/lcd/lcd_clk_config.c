@@ -527,12 +527,12 @@ static void lcd_set_pll_ss_advance_t7(struct aml_lcd_drv_s *pdrv)
 	freq = cconf->ss_freq;
 	mode = cconf->ss_mode;
 	offset = cconf->pll_offset;
-	pll_ctrl2 = lcd_ana_read(HHI_TCON_PLL_CNTL2 + offset);
+	pll_ctrl2 = lcd_ana_read(ANACTRL_TCON_PLL0_CNTL2 + offset);
 	pll_ctrl2 &= ~(0x7 << 24); /* ss_freq */
 	pll_ctrl2 |= (freq << 24);
 	pll_ctrl2 &= ~(0x3 << 22); /* ss_mode */
 	pll_ctrl2 |= (mode << 22);
-	lcd_ana_write(HHI_TCON_PLL_CNTL2 + offset, pll_ctrl2);
+	lcd_ana_write(ANACTRL_TCON_PLL0_CNTL2 + offset, pll_ctrl2);
 
 	LCDPR("[%d]: set pll spread spectrum: freq=%d, mode=%d\n",
 	      pdrv->index, freq, mode);
