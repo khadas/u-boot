@@ -91,121 +91,121 @@ static int get_dtb_index(const char aml_dt_buf[128],unsigned long fdt_addr)
 {
 	int nReturn = -1;
 
-	if (!aml_dt_buf)
-		goto exit;
+	if (aml_dt_buf) {
+		p_st_dtb_hdr_t pDTBHdr = (p_st_dtb_hdr_t)fdt_addr;
+		char sz_aml_dt_msb[10][MULTI_DTB_TOKEN_UNIT_SIZE_V2];
+		memset(sz_aml_dt_msb,0,sizeof(sz_aml_dt_msb));
 
-	p_st_dtb_hdr_t pDTBHdr = (p_st_dtb_hdr_t)fdt_addr;
-	char sz_aml_dt_msb[10][MULTI_DTB_TOKEN_UNIT_SIZE_V2];
-	memset(sz_aml_dt_msb,0,sizeof(sz_aml_dt_msb));
+		/* split aml_dt with token '_',  e.g "tm2-revb_t962x3_ab301" */
+		//printf("		aml_dt : %s\n",aml_dt_buf);
 
-	/* split aml_dt with token '_',  e.g "tm2-revb_t962x3_ab301" */
-	//printf("		aml_dt : %s\n",aml_dt_buf);
-
-	char *tokens[AML_DTB_TOKEN_MAX_COUNT];
-	char sz_temp[AML_MAX_DTB_NAME_SIZE+4];
-	memset(tokens,0,sizeof(tokens));
-	memset(sz_temp,0,sizeof(sz_temp));
-	strncpy(sz_temp,aml_dt_buf,128);
-	int i,j;
-	int nLen = strlen(sz_temp);
-	sz_temp[nLen]='_';
-	sz_temp[nLen+1]='\0';
-	nLen +=1;
-	tokens[0]=sz_temp;
-	for (i = 1; i < sizeof(tokens)/sizeof(tokens[0]); i++)
-	{
-		tokens[i] = strstr(tokens[i-1],"_");
-		if (!tokens[i])
-			break;
-
-		*tokens[i]='\0';
-
-		tokens[i]=tokens[i]+1;
-
-		if (!(*tokens[i]))
+		char *tokens[AML_DTB_TOKEN_MAX_COUNT];
+		char sz_temp[AML_MAX_DTB_NAME_SIZE+4];
+		memset(tokens,0,sizeof(tokens));
+		memset(sz_temp,0,sizeof(sz_temp));
+		strncpy(sz_temp,aml_dt_buf,128);
+		int i,j;
+		int nLen = strlen(sz_temp);
+		sz_temp[nLen]='_';
+		sz_temp[nLen+1]='\0';
+		nLen +=1;
+		tokens[0]=sz_temp;
+		for (i = 1; i < sizeof(tokens)/sizeof(tokens[0]); i++)
 		{
-			tokens[i] = 0;
-			break;
-		}
-	}
+			tokens[i] = strstr(tokens[i-1],"_");
+			if (!tokens[i])
+				break;
 
-	//for (i=0;i<10 && tokens[i];++i)
-	//	printf("token-%d:%s\n",i,tokens[i]);
+			*tokens[i]='\0';
 
-	int nTokenLen = 0;
+			tokens[i]=tokens[i]+1;
 
-	switch (pDTBHdr->nVersion)
-	{
-	case AML_MUL_DTB_VER_1:
-	{
-		nTokenLen = MULTI_DTB_TOKEN_UNIT_SIZE_V1;
-	}break;
-	case AML_MUL_DTB_VER_2:
-	{
-		nTokenLen = MULTI_DTB_TOKEN_UNIT_SIZE_V2;
-	}break;
-	default: goto exit; break;
-	}
-
-
-	for (i = 0;i<MULTI_DTB_TOKEN_MAX_COUNT;++i)
-	{
-		if (tokens[i])
-		{
-			char *pbyswap = (char*)sz_aml_dt_msb+(nTokenLen*i);
-			strcpy(pbyswap,tokens[i]);
-			unsigned int nValSwap;
-			for (j = 0;j< nTokenLen;j+=4)
+			if (!(*tokens[i]))
 			{
-				int m;
-				/*swap byte order with unit@4bytes*/
-				nValSwap = *(unsigned int *)(pbyswap+j);
-				for (m=0;m<4;m++)
-					pbyswap[j+m] = (nValSwap >> ((3-m)<<3)) & 0xFF;
-
-				/*replace 0 with 0x20*/
-				for (m=0;m<MULTI_DTB_TOKEN_UNIT_SIZE_V2;++m)
-					if (0 == pbyswap[m])
-						pbyswap[m]=0x20;
-			}
-		}
-		else
-			break;
-	}
-
-	switch (pDTBHdr->nVersion)
-	{
-	case AML_MUL_DTB_VER_1:
-	{
-		p_st_dtb_v1_t pDTB_V1 = (p_st_dtb_v1_t)fdt_addr;
-		for (i=0;i< pDTB_V1->hdr.nDTBCount;++i)
-		{
-			if (!memcmp(pDTB_V1->dtb[i].szToken,sz_aml_dt_msb,
-				MULTI_DTB_TOKEN_MAX_COUNT*nTokenLen))
-			{
-				nReturn = i;
+				tokens[i] = 0;
 				break;
 			}
 		}
 
-	}break;
-	case AML_MUL_DTB_VER_2:
-	{
-		p_st_dtb_v2_t pDTB_V2 = (p_st_dtb_v2_t)fdt_addr;
-		for (i=0;i< pDTB_V2->hdr.nDTBCount;++i)
+		//for (i=0;i<10 && tokens[i];++i)
+		//	printf("token-%d:%s\n",i,tokens[i]);
+
+		int nTokenLen = 0;
+
+		switch (pDTBHdr->nVersion)
 		{
-			if (!memcmp(pDTB_V2->dtb[i].szToken,sz_aml_dt_msb,
-				MULTI_DTB_TOKEN_MAX_COUNT*nTokenLen))
+			case AML_MUL_DTB_VER_1:
 			{
-				nReturn = i;
-				break;
+				nTokenLen = MULTI_DTB_TOKEN_UNIT_SIZE_V1;
+			}break;
+			case AML_MUL_DTB_VER_2:
+			{
+				nTokenLen = MULTI_DTB_TOKEN_UNIT_SIZE_V2;
+			}break;
+			default: goto exit; break;
 			}
+
+
+		for (i = 0;i<MULTI_DTB_TOKEN_MAX_COUNT;++i)
+		{
+			if (tokens[i])
+			{
+				char *pbyswap = (char*)sz_aml_dt_msb+(nTokenLen*i);
+				strcpy(pbyswap,tokens[i]);
+				unsigned int nValSwap;
+				for (j = 0;j< nTokenLen;j+=4)
+				{
+					int m;
+					/*swap byte order with unit@4bytes*/
+					nValSwap = *(unsigned int *)(pbyswap+j);
+					for (m=0;m<4;m++)
+						pbyswap[j+m] = (nValSwap >> ((3-m)<<3)) & 0xFF;
+
+					/*replace 0 with 0x20*/
+					for (m=0;m<MULTI_DTB_TOKEN_UNIT_SIZE_V2;++m)
+						if (0 == pbyswap[m])
+							pbyswap[m]=0x20;
+				}
+			}
+			else
+				break;
 		}
 
-	}break;
-	default: goto exit; break;
-	}
+		switch (pDTBHdr->nVersion)
+		{
+			case AML_MUL_DTB_VER_1:
+			{
+				p_st_dtb_v1_t pDTB_V1 = (p_st_dtb_v1_t)fdt_addr;
+				for (i=0;i< pDTB_V1->hdr.nDTBCount;++i)
+				{
+					if (!memcmp(pDTB_V1->dtb[i].szToken,sz_aml_dt_msb,
+					MULTI_DTB_TOKEN_MAX_COUNT*nTokenLen))
+					{
+						nReturn = i;
+						break;
+					}
+				}
 
+			}break;
+			case AML_MUL_DTB_VER_2:
+			{
+				p_st_dtb_v2_t pDTB_V2 = (p_st_dtb_v2_t)fdt_addr;
+				for (i=0;i< pDTB_V2->hdr.nDTBCount;++i)
+				{
+					if (!memcmp(pDTB_V2->dtb[i].szToken,sz_aml_dt_msb,
+					MULTI_DTB_TOKEN_MAX_COUNT*nTokenLen))
+					{
+						nReturn = i;
+						break;
+					}
+				}
+
+			}break;
+			default: goto exit; break;
+		}
+	}
+	else
+		{goto exit; }
 exit:
 
 	return nReturn;

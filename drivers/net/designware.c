@@ -1134,7 +1134,7 @@ static int eqos_phy_init(struct eth_device *dev)
 {
 	struct eqos_eth_dev *priv = dev->priv;
 	struct phy_device *phydev;
-	int mask = 0xffffffff;
+	unsigned mask = 0xffffffff;
 
 #ifdef CONFIG_PHY_ADDR
 	mask = 1 << CONFIG_PHY_ADDR;
