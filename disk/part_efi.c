@@ -636,8 +636,10 @@ err:
 static void gpt_convert_efi_name_to_char(char *s, efi_char16_t *es, int n)
 {
 	char *ess = (char *)es;
-	int i, j;
+	int i = 0, j = 0;
 
+	if (j >= n)
+		return;
 	memset(s, '\0', n);
 
 	for (i = 0, j = 0; j < n; i += 2, j++) {

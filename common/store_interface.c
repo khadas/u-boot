@@ -1828,7 +1828,7 @@ static int do_store_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 	loff_t off=0, size=0;
 	char *cmd = NULL;
 	char	str[128];
-	int ret = 0;
+	int ret = -1;
 	char * s = argv[2];
 
 	if (argc < 6) return CMD_RET_USAGE;
@@ -1886,14 +1886,11 @@ static int do_store_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 			ret = run_command(str, 0);
 		}
    #endif
-#else
-		ret = -1;
 #endif
 		if (ret != 0) {
 			store_msg("nand cmd %s failed ",cmd);
 			return -1;
 		}
-		return ret;
 	}
 	else if(device_boot_flag == SPI_NAND_FLAG){
 		store_dbg("spi+nand , %s %d ",__func__,__LINE__);
@@ -1923,7 +1920,6 @@ static int do_store_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 			store_msg("amlmmc cmd %s failed \n",cmd);
 			return -1;
 		}
-		return ret;
 	}
 	else if(device_boot_flag==EMMC_BOOT_FLAG){
 		store_dbg("MMC BOOT, %s %d \n",__func__,__LINE__);
@@ -1934,10 +1930,9 @@ static int do_store_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 			store_msg("amlmmc cmd %s failed \n",cmd);
 			return -1;
 		}
-		return ret;
 	}else{
 		store_dbg("CARD BOOT, %s %d ",__func__,__LINE__);
-		return CMD_RET_FAILURE;
+		ret = CMD_RET_FAILURE;
 	}
 	return ret;
 }

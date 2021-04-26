@@ -162,7 +162,7 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 			unsigned int download_bytes)
 {
 	block_dev_desc_t *dev_desc;
-	disk_partition_t info;
+	disk_partition_t info = {1, 1, 1};
 	int ret = 0;
 
 	dev_desc = get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
@@ -237,8 +237,8 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 		return;
 	} else {
 		if (is_sparse_image(download_buffer)) {
-			struct fb_mmc_sparse sparse_priv;
-			struct sparse_storage sparse;
+			struct fb_mmc_sparse sparse_priv = {};
+			struct sparse_storage sparse = {};
 
 			sparse_priv.dev_desc = dev_desc;
 
@@ -263,7 +263,7 @@ void fb_mmc_erase_write(const char *cmd, void *download_buffer)
 {
 	int ret = 0;
 	block_dev_desc_t *dev_desc;
-	disk_partition_t info;
+	disk_partition_t info = {1, 1, 1};
 	lbaint_t blks, blks_start, blks_size, grp_size;
 	struct mmc *mmc = find_mmc_device(CONFIG_FASTBOOT_FLASH_MMC_DEV);
 
