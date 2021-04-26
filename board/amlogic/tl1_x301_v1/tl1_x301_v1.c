@@ -697,10 +697,10 @@ static int lcd_pgamma_spi_refresh(unsigned int reg, unsigned int offset,
 
 static int do_lcd_pgamma(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	unsigned int reg, offset, len;
-	char *str;
+	unsigned long reg, offset, len;
+	char *str, *buf;
 	int ret = 0;
-	unsigned int index;
+	unsigned long index;
 
 	if (argc < 1) {
 		cmd_usage(cmdtp);
@@ -709,16 +709,21 @@ static int do_lcd_pgamma(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 
 	str = getenv("lcd_spi_flash_pgamma_index");
 	if (str) {
-		index = (unsigned int)simple_strtoul(str, NULL, 10);
+		buf = malloc(strlen(str) + 2);
+		strcpy(buf, str);
+		index = simple_strtoul(buf, NULL, 10);
+		free(buf);
 	} else {
 		printf("%s: no lcd_spi_flash_pgamma_reg\n", __func__);
 		return -1;
 	}
 
-
 	str = getenv("lcd_spi_flash_pgamma_reg");
 	if (str) {
-		reg = (unsigned int)simple_strtoul(str, NULL, 16);
+		buf = malloc(strlen(str) + 2);
+		strcpy(buf, str);
+		reg = simple_strtoul(buf, NULL, 16);
+		free(buf);
 	} else {
 		printf("%s: no lcd_spi_flash_pgamma_reg\n", __func__);
 		return -1;
@@ -726,7 +731,10 @@ static int do_lcd_pgamma(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 
 	str = getenv("lcd_spi_flash_pgamma_offset");
 	if (str) {
-		offset = (unsigned int)simple_strtoul(str, NULL, 16);
+		buf = malloc(strlen(str) + 2);
+		strcpy(buf, str);
+		offset = simple_strtoul(buf, NULL, 16);
+		free(buf);
 	} else {
 		printf("%s: no lcd_spi_flash_pgamma_offset\n", __func__);
 		return -1;
@@ -734,7 +742,10 @@ static int do_lcd_pgamma(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 
 	str = getenv("lcd_spi_flash_pgamma_len");
 	if (str) {
-		len = (unsigned int)simple_strtoul(str, NULL, 10);
+		buf = malloc(strlen(str) + 2);
+		strcpy(buf, str);
+		len = simple_strtoul(buf, NULL, 10);
+		free(buf);
 	} else {
 		printf("%s: no lcd_spi_flash_pgamma_len\n", __func__);
 		return -1;
@@ -816,7 +827,7 @@ int board_late_init(void)
 					"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 
 	if (getenv("outputmode")) {
-		strcpy(outputModePre,getenv("outputmode"));
+		strncpy(outputModePre, getenv("outputmode"), 29);
 	}
 
 	run_command("run bcb_cmd", 0);
@@ -889,13 +900,14 @@ int board_late_init(void)
 #endif
 
 #ifdef CONFIG_AML_V2_FACTORY_BURN
-	if (0x1b8ec003 == readl(P_PREG_STICKY_REG2))
+	if (0x1b8ec003 == readl(P_PREG_STICKY_REG2)) {
 		aml_try_factory_usb_burning(1, gd->bd);
-		aml_try_factory_sdcard_burning(0, gd->bd);
+	}
+	aml_try_factory_sdcard_burning(0, gd->bd);
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 
 	TE(__func__);
-	strcpy(outputModeCur,getenv("outputmode"));
+	strncpy(outputModeCur, getenv("outputmode"), 19);
 	if (strcmp(outputModeCur,outputModePre)) {
 		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
 		run_command("saveenv", 0);

@@ -100,7 +100,7 @@ spi_flash_probe_retry:
 static int lcd_tconless_spi_data_read(struct lcd_tcon_spi_block_s *spi_block)
 {
 	unsigned int offset, len, i, new_size;
-	unsigned char crc_buf[4];
+	unsigned char crc_buf[8] = {0};
 	int ret;
 
 	if (!spi_block) {

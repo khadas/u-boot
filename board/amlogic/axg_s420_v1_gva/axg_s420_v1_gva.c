@@ -461,7 +461,7 @@ int board_late_init(void){
 	char cmd[128];
 	int ret;
 	char *s1;
-	char boot_partition[32];
+	char boot_partition[32] = {0};
 	if (!getenv("dtb_mem_addr")) {
 		sprintf(cmd, "setenv dtb_mem_addr 0x%x", CONFIG_DTB_MEM_ADDR);
 		run_command(cmd, 0);

@@ -352,12 +352,10 @@ static void hdmi_tx_set_hdmi_5v(void)
 
 static int send_adc_channel_power_key(void)
 {
-	char *env;
+	char *env, *buf, *s;
 	unsigned int send_val;
-	unsigned int channel;
-	unsigned int keycode;
-	char *endp;
-	char *s;
+	unsigned long channel;
+	unsigned long keycode;
 
 	env = getenv("adc_ch_power_key");
 	if (!env) {
@@ -365,14 +363,16 @@ static int send_adc_channel_power_key(void)
 		return -1;
 	}
 	printf("adc env =%s\n", env);
-
-	s = strdup(env);
-	channel = ustrtoul(strsep(&s, ","), &endp, 0);
-	keycode = ustrtoul(strsep(&s, ","), &endp, 0);
-	printf("adc parse channel =%d\n",channel);
-	printf("adc parse keycode = %d\n",keycode);
+	buf = malloc(strlen(env) + 2);
+	s   = buf;
+	strcpy(buf, env);
+	channel = simple_strtoul(strsep(&s, ","), NULL, 16);
+	keycode = simple_strtoul(strsep(&s, ","), NULL, 10);
+	printf("adc parse channel =%ld\n",channel);
+	printf("adc parse keycode = %ld\n",keycode);
 
 	send_val = channel << 16 | keycode;
+	free(buf);
 
 	if (send_usr_data(SCPI_CL_ADC_POWER_KEY, (unsigned int *)&send_val,sizeof(send_val))) {
 		printf("send adc_power_key send error!...\n");
@@ -384,17 +384,19 @@ static int send_adc_channel_power_key(void)
 
 static int send_ir_power_key(void)
 {
-	char *env;
-	char *endp;
-	unsigned int env_val;
+	char *env, *buf;
+	unsigned long env_val;
 
 	env = getenv("ir_power_key");
 	if (!env) {
 		printf("not set ir env,or try env default -a\n");
 		return -1;
 	}
-	env_val = ustrtoul(env, &endp, 0);
-	printf("env ir_power_key = %u\n", env_val);
+	buf = malloc(strlen(env) + 2);
+	strcpy(buf, env);
+	env_val = simple_strtoul(buf, NULL, 0);
+	free(buf);
+	printf("env ir_power_key = %lu\n", env_val);
 
 	if (send_usr_data(SCPI_CL_IR_POWER_KEY, (unsigned int *)&env_val,sizeof(env_val))) {
 		printf("send ir_power_key send error!...\n");
@@ -438,7 +440,7 @@ int board_late_init(void){
 				"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 
 	if (getenv("outputmode")) {
-		strcpy(outputModePre,getenv("outputmode"));
+		strncpy(outputModePre, getenv("outputmode"), 29);
 	}
 
 	/*add board late init function here*/
@@ -499,7 +501,7 @@ int board_late_init(void){
 	if (ret != 0) {
 		printf("send ir_power_key failed\n");
 	}
-	strcpy(outputModeCur,getenv("outputmode"));
+	strncpy(outputModeCur, getenv("outputmode"), 29);
 	if (strcmp(outputModeCur,outputModePre)) {
 		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
 		run_command("saveenv", 0);

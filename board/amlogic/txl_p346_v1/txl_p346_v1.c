@@ -488,7 +488,7 @@ int board_late_init(void)
 				"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 
 	if (getenv("outputmode")) {
-		strcpy(outputModePre,getenv("outputmode"));
+		strncpy(outputModePre, getenv("outputmode"), 29);
 	}
 
 	/*USE_HDMI_UART_FUNC*/
@@ -551,7 +551,7 @@ int board_late_init(void)
 	/* set output level to high for GPIOAO_10 */
 	setbits_le32(P_AO_GPIO_O_EN_N, (1<<26));
 
-	strcpy(outputModeCur,getenv("outputmode"));
+	strncpy(outputModeCur, getenv("outputmode"), 29);
 	if (strcmp(outputModeCur,outputModePre)) {
 		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
 		run_command("saveenv", 0);

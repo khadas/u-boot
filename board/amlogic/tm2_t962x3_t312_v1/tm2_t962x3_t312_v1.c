@@ -618,7 +618,7 @@ int board_late_init(void)
 					"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 
 	if (getenv("outputmode")) {
-		strcpy(outputModePre,getenv("outputmode"));
+		strncpy(outputModePre, getenv("outputmode"), 29);
 	}
 
 	run_command("run bcb_cmd", 0);
@@ -691,13 +691,14 @@ int board_late_init(void)
 #endif
 
 #ifdef CONFIG_AML_V2_FACTORY_BURN
-	if (0x1b8ec003 == readl(P_PREG_STICKY_REG2))
+	if (0x1b8ec003 == readl(P_PREG_STICKY_REG2)) {
 		aml_try_factory_usb_burning(1, gd->bd);
-		aml_try_factory_sdcard_burning(0, gd->bd);
+	}
+	aml_try_factory_sdcard_burning(0, gd->bd);
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 
 	TE(__func__);
-	strcpy(outputModeCur,getenv("outputmode"));
+	strncpy(outputModeCur, getenv("outputmode"), 29);
 	if (strcmp(outputModeCur,outputModePre)) {
 		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
 		run_command("saveenv", 0);

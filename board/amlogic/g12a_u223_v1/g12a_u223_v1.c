@@ -224,7 +224,7 @@ int board_eth_init(bd_t *bis)
 {
 #ifdef CONFIG_ETHERNET_NONE
 	return 0;
-#endif
+#else
 
 #ifdef ETHERNET_EXTERNAL_PHY
 	dwmac_meson_cfg_drive_strength();
@@ -236,6 +236,7 @@ int board_eth_init(bd_t *bis)
 	udelay(1000);
 	designware_initialize(ETH_BASE, PHY_INTERFACE_MODE_RMII);
 	return 0;
+#endif
 }
 
 #if CONFIG_AML_SD_EMMC
@@ -718,7 +719,7 @@ int board_late_init(void)
 		char cmd[128];
 		int ret;
 		char *s1;
-		char boot_partition[32];
+		char boot_partition[32] = {0};
 		if (!getenv("dtb_mem_addr")) {
 			sprintf(cmd, "setenv dtb_mem_addr 0x%x", CONFIG_DTB_MEM_ADDR);
 			run_command(cmd, 0);
@@ -776,9 +777,10 @@ int board_late_init(void)
 #endif
 
 #ifdef CONFIG_AML_V2_FACTORY_BURN
-	if (0x1b8ec003 == readl(P_PREG_STICKY_REG2))
+	if (0x1b8ec003 == readl(P_PREG_STICKY_REG2)) {
 		aml_try_factory_usb_burning(1, gd->bd);
-		aml_try_factory_sdcard_burning(0, gd->bd);
+	}
+	aml_try_factory_sdcard_burning(0, gd->bd);
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 
 	/* close pcie phy */

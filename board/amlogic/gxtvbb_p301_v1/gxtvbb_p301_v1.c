@@ -615,7 +615,7 @@ static int send_led_timer_data(void)
 	env = getenv("ledmode");
 	if (!env)
 		return -1;
-	strcpy(env_buf, env);
+	strncpy(env_buf, env, 63);
 	env = env_buf;
 	printf("ledmode=%s\n", env);
 	led_val.led_mode = lwm_parse_workmode(env);

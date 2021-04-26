@@ -342,7 +342,6 @@ static int checkUsbDevicePort(struct usb_device* udev, u16 vendorID, u16 product
         /* get device */
         for (i=0; i<USB_MAX_DEVICE; i++) {
           pdev = usb_get_dev_index(i);
-          printf("pdev->descriptor.idVendor=0x%x; pdev->descriptor.idProduct=0x%x\n",pdev->descriptor.idVendor,pdev->descriptor.idProduct);
           if ((pdev != NULL) && (pdev->descriptor.idVendor == vendorID) && (pdev->descriptor.idProduct == productID))  // MTK 7662
           {
               usb_debug("OK\n");

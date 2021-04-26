@@ -742,9 +742,10 @@ int board_late_init(void)
 #endif
 
 #ifdef CONFIG_AML_V2_FACTORY_BURN
-	if (0x1b8ec003 == readl(P_PREG_STICKY_REG2))
+	if (0x1b8ec003 == readl(P_PREG_STICKY_REG2)) {
 		aml_try_factory_usb_burning(1, gd->bd);
-		aml_try_factory_sdcard_burning(0, gd->bd);
+	}
+	aml_try_factory_sdcard_burning(0, gd->bd);
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 
     if (MESON_CPU_MAJOR_ID_SM1 == get_cpu_id().family_id) {

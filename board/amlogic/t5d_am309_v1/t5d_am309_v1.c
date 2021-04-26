@@ -638,7 +638,7 @@ int board_late_init(void)
 					"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 
 	if (getenv("outputmode")) {
-		strcpy(outputModePre,getenv("outputmode"));
+		strncpy(outputModePre, getenv("outputmode"), 29);
 	}
 
 	run_command("run bcb_cmd", 0);
@@ -721,7 +721,7 @@ int board_late_init(void)
 #endif//#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE
 
 	TE(__func__);
-	strcpy(outputModeCur,getenv("outputmode"));
+	strncpy(outputModeCur, getenv("outputmode"), 29);
 	if (strcmp(outputModeCur,outputModePre)) {
 		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
 		run_command("saveenv", 0);

@@ -60,9 +60,7 @@ void secondary_boot_func(void)
 extern struct eth_board_socket* eth_board_setup(char *name);
 int board_eth_init(bd_t *bis)
 {
-	int rc = 0;
-	eth_board_setup("g9bb");
-	return rc;
+	return 0;
 }
 
 #if CONFIG_AML_SD_EMMC

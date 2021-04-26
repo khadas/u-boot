@@ -424,7 +424,7 @@ int board_late_init(void)
 				"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 
 	if (getenv("outputmode")) {
-		strcpy(outputModePre,getenv("outputmode"));
+		strncpy(outputModePre, getenv("outputmode"), 29);
 	}
 
 	/*add board late init function here*/
@@ -463,7 +463,7 @@ int board_late_init(void)
 #ifdef CONFIG_AML_V2_FACTORY_BURN
 	/*aml_try_factory_sdcard_burning(0, gd->bd);*/
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
-	strcpy(outputModeCur,getenv("outputmode"));
+	strncpy(outputModeCur, getenv("outputmode"), 29);
 	if (strcmp(outputModeCur,outputModePre)) {
 		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
 		run_command("saveenv", 0);

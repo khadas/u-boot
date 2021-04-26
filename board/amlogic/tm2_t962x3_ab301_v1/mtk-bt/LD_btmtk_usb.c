@@ -679,7 +679,7 @@ static int btmtk_usb_load_rom_patch(struct LD_btmtk_usb_data *data)
     int real_len = 0;
     int first_block = 1;
     unsigned char phase;
-    void *buf;
+    void *buf = NULL;
     char *pos;
     unsigned char *tmp_str;
 
@@ -878,6 +878,7 @@ load_patch_protect:
  error:
     btmtk_usb_io_write32(data, SEMAPHORE_03, 0x1);
     //usb_debug("end\n");
+    os_kfree(buf);
     return ret;
 }
 
@@ -1218,6 +1219,7 @@ static int btmtk_usb_load_rom_patch_7668(struct LD_btmtk_usb_data *data)
     MTK_MDELAY(20);
 
     //usb_debug("end\n");
+    os_kfree(buf);
     return ret;
 }
 
@@ -1259,6 +1261,8 @@ void btmtk_usb_woble_setting_parsing(struct LD_btmtk_usb_data *data, woble_setti
 
                 // for next one
                 head = strstr(head, "0x");
+		if (!head)
+			break;
                 if (next_cmd && head > next_cmd)
                     break; // command end
             } while (tmp_len < sizeof(tmp));

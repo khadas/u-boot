@@ -630,7 +630,7 @@ int board_late_init(void)
 
 	char outputModePre[30] = {0};
 	char outputModeCur[30] = {0};
-	strcpy(outputModePre,getenv("outputmode"));
+	strncpy(outputModePre, getenv("outputmode"), 29);
 
 		//update env before anyone using it
 		run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
@@ -716,7 +716,7 @@ int board_late_init(void)
 #endif//#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE
 
 	TE(__func__);
-	strcpy(outputModeCur,getenv("outputmode"));
+	strncpy(outputModeCur, getenv("outputmode"), 29);
 	if (strcmp(outputModeCur,outputModePre)) {
 		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
 		run_command("saveenv", 0);
