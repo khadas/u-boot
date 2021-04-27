@@ -140,6 +140,9 @@ int do_reboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (strcmp(mode, "next") == 0) {
 			store_restore_bootidx();
 			reboot_mode_val = AMLOGIC_COLD_BOOT;
+		} else if (strcmp(mode, "next,quiescent") == 0) {
+			store_restore_bootidx();
+			reboot_mode_val = AMLOGIC_QUIESCENT_REBOOT;
 		} else if (strcmp(mode, "cold_boot") == 0)
 			reboot_mode_val = AMLOGIC_COLD_BOOT;
 		else if (strcmp(mode, "normal") == 0)

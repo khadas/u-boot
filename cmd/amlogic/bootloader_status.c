@@ -114,6 +114,9 @@ static void run_recovery_from_flash(void) {
 	env_set("dolby_status","0");
 	run_command("run init_display", 0);
 	run_command("run storeargs", 0);
+	run_command("get_rebootmode", 0);
+	run_command("if test ${reboot_mode} = quiescent; then setenv bootargs ${bootargs} androidboot.quiescent=1; fi;", 0);
+	run_command("if test ${reboot_mode} = recovery_quiescent; then setenv bootargs ${bootargs} androidboot.quiescent=1; fi;", 0);
 	run_command("run recovery_from_flash", 0);
 }
 
@@ -128,6 +131,9 @@ static void run_recovery_from_cache(void) {
 	env_set("dolby_status","0");
 	run_command("run init_display", 0);
 	run_command("run storeargs", 0);
+	run_command("get_rebootmode", 0);
+	run_command("if test ${reboot_mode} = quiescent; then setenv bootargs ${bootargs} androidboot.quiescent=1; fi;", 0);
+	run_command("if test ${reboot_mode} = recovery_quiescent; then setenv bootargs ${bootargs} androidboot.quiescent=1; fi;", 0);
 	run_command("if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;", 0);
 	run_command("if ext4load mmc 1:2 ${loadaddr} /recovery/recovery.img; then echo cache recovery.img loaded; fi;", 0);
 
@@ -333,7 +339,8 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 			} else {
 				env_set("reboot_status","reboot_finish");
 				run_command("saveenv", 0);
-				run_command("reboot next", 0);
+				run_command("get_rebootmode", 0);
+				run_command("if test ${reboot_mode} = quiescent; then reboot next,quiescent; else reboot next; fi;", 0);
 			}
 			return 0;
 		}
