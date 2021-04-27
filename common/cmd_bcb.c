@@ -252,10 +252,15 @@ static int do_RunAmlBcbCommand(
     }
 
     if (ret == 0) {
-        cmdaddr = simple_strtoul(getenv("cmdaddr"), NULL, 16);
-        char *command = (char *)map_sysmem(cmdaddr, 0);
-        if (strstr(command, CMD_WIPE_DATA)) {
-            return 0;
+        const char *paddr =  getenv("cmdaddr");
+        if (paddr != NULL) {
+            char cmdb[256] = {0};
+            sprintf(cmdb, paddr, strlen(paddr));
+            cmdaddr = simple_strtoul(cmdb, NULL, 16);
+            char *command = (char *)map_sysmem(cmdaddr, 0);
+            if (strstr(command, CMD_WIPE_DATA)) {
+                return 0;
+            }
         }
     }
 
