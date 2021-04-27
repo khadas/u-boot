@@ -27,6 +27,12 @@ SECTIONS
 		*(.generic_param*)
 	}
 
+	. = 0x00003800;
+	.ddr_param :
+	{
+		*(.ddr_param*)
+	}
+
 	. = 0x00005800;
 	.clk_param :
 	{
@@ -45,11 +51,13 @@ SECTIONS
 		*(.store_param*)
 	}
 
+#if 0
 	. = 0x00006000;
 	.ddr_param :
 	{
 		*(.ddr_param*)
 	}
+#endif
 
     ASSERT(. <= 0x00007000, "params image has exceeded its limit.")
 }
