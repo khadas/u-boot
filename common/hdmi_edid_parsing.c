@@ -855,7 +855,10 @@ unsigned int hdmi_edid_parsing(unsigned char *EDID_buf, struct rx_cap *pRXCap)
 		(pRXCap->number_of_dtd == 0)) {
 		pr_info("hdmitx: edid: change preferred_mode from %d to %d\n",
 			pRXCap->preferred_mode,	pRXCap->VIC[0]);
-		pRXCap->preferred_mode = pRXCap->VIC[0];
+          	if(pRXCap->preferred_mode != HDMIV_800x480p60hz) {
+                printk("jason pRXCap->preferred_mode != HDMIV_800x480p60hz \n");
+ 		pRXCap->preferred_mode = pRXCap->VIC[0];
+		}
 	}
 
 	return 1;

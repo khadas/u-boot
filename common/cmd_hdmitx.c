@@ -940,7 +940,15 @@ static int do_get_preferred_mode(cmd_tbl_t * cmdtp, int flag, int argc,
 		sprintf(color_attr, "setenv colorattribute %s", "444,8bit");
 	}
 	printk("sink preferred_mode is %s[%d]\n", para->sname, hdev->RXCap.preferred_mode);
-
+        if(hdev->RXCap.preferred_mode == HDMIV_800x480p60hz)
+	 {
+                  printk("jason HDMIV_800x480p60hz \n");
+		  setenv("hdmimode", para->sname);
+		  setenv("outputmode", para->sname);
+		  //setenv("ubootenv.var.outputmode", para->sname);
+		  setenv ("colorattribute","rgb,8bit");
+		  run_command("saveenv", 0);
+	 }
 bypass_edid_read:
 	/* save to ENV */
 	/*
