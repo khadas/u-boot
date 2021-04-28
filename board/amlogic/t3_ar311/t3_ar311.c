@@ -177,7 +177,7 @@ int board_late_init(void)
 #endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 
 	/* load unifykey */
-	run_command("keyunify init 0x1234", 0);
+	run_command("keyman init 0x1234", 0);
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
