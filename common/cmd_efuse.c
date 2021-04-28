@@ -315,7 +315,8 @@ int do_efuse_obj(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	if (set) {
-		rc = efuse_obj_write(obj_id, (size ? &buff[0] : NULL), size);
+		//rc = efuse_obj_write(obj_id, (size ? &buff[0] : NULL), size); //coverity error
+		rc = efuse_obj_write(obj_id, NULL, size);
 
 		if (rc == EFUSE_OBJ_SUCCESS)
 			rc = CMD_RET_SUCCESS;

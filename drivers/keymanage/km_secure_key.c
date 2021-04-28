@@ -65,12 +65,15 @@ int keymanage_secukey_write(const char *keyname, const void* keydata, unsigned i
             int index = 0;
             char origSum_str[SHA256_SUM_LEN * 2 + 2];
             char genSum_str[SHA256_SUM_LEN * 2 + 2];
+            int org_n = 0, gen_n = 0;
 
             origSum_str[0] = genSum_str[0] = '\0';
             for (index = 0; index < SHA256_SUM_LEN; ++index) {
 
-                sprintf(origSum_str, "%s%02x", origSum_str, origSum[index]);
-                sprintf(genSum_str, "%s%02x", genSum_str, genSum[index]);
+                //sprintf(origSum_str, "%s%02x", origSum_str, origSum[index]);  //coverity error
+                //sprintf(genSum_str, "%s%02x", genSum_str, genSum[index]);     //coverity error
+                org_n += sprintf(&origSum_str[org_n], "%02x", origSum[index]);
+                gen_n += sprintf(&genSum_str[gen_n], "%02x", genSum[index]);
             }
 
             KM_ERR("Failed in check hash, origSum[%s] != genSum[%s]\n", origSum_str, genSum_str);

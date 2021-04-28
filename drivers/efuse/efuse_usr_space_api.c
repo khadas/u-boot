@@ -57,6 +57,10 @@ int efuse_usr_api_init_dtb(const char*  dt_addr)
     }
 
 	phandle = fdt_getprop(dt_addr, nodeoffset, "keynum", NULL);
+	if (phandle == NULL) {
+		EFUSE_ERR("keynum handle is NULL\n");
+		return __LINE__;
+	}
 	efusekeynum = be32_to_cpup((u32 *)phandle);
 	EFUSE_MSG("keynum is %x\n", efusekeynum);
 
@@ -291,6 +295,7 @@ static int do_usr_efuse_api(cmd_tbl_t *cmdtp, int flag, int argc, char * const a
             dtbLoadAddr = getenv("dtb_mem_addr");
             if (!dtbLoadAddr) {
                 setenv("dtb_mem_addr", simple_itoa(CONFIG_SYS_SDRAM_BASE + (16U<<20)));
+                dtbLoadAddr = getenv("dtb_mem_addr");
             }
             dtbLoadAddr = (char*)simple_strtoul(dtbLoadAddr, NULL, 0);
         }
