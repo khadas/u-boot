@@ -374,6 +374,8 @@ u32 Tlv_WriteObject(struct storage_object *object,
 
 static int normalkey_hash(u8 *data, u32 len, u8 *hash)
 {
+	flush_dcache_range((unsigned long)data,(unsigned long)data+len);
+
 	sha256_context ctx;
 	sha256_starts(&ctx);
 	sha256_update(&ctx, data, len);
