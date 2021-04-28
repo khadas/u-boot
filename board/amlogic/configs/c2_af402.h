@@ -96,7 +96,8 @@
             "if itest ${upgrade_step} == 3; then run storeargs; run update; fi;"\
             "\0"\
         "storeargs="\
-            "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} "\
+            "get_bootloaderversion;" \
+            "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} androidboot.bootloader=${bootloader_version} "\
             "\0"\
         "switch_bootmode="\
             "get_rebootmode;"\

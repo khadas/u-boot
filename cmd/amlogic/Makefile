@@ -19,6 +19,8 @@ obj-$(CONFIG_AML_ROBUST) += bootloader_status.o
 obj-$(CONFIG_AML_REBOOT) += cmd_reboot.o
 obj-$(CONFIG_CMD_RSVMEM) += cmd_rsvmem.o
 
+obj-y += cmd_version.o
+
 ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 obj-y += cmd_bcb.o
 obj-y += get_bcb_boot_part.o
