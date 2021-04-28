@@ -46,20 +46,37 @@ void set_dsp_clk(uint32_t id, uint32_t freq_sel)
 	printf ("CLKCTRL_DSP_CLK_CTRL0 =%x", readl(addr));
 	printf ("\n");
 
+#ifdef CONFIG_CLK_P1_TYPE
 	switch (freq_sel)
 	{
-		case 0  : clk_sel = 1; clk_div =0; printf ("CLK_UTIL:dsp[]:fclk2p5:800MHz\n") ; break;
-		case 1  : clk_sel = 3; clk_div =0; printf ("CLK_UTIL:dsp[]:fclk5:400MHz\n")   ; break;
-		case 2  : clk_sel = 5; clk_div =0; printf ("CLK_UTIL:dsp[]:fclk4:500MHz\n")   ; break;
-		case 3  : clk_sel = 2; clk_div =0; printf ("CLK_UTIL:dsp[]:fclk/3:667MHz\n")  ; break;
-		case 4  : clk_sel = 2; clk_div =1; printf ("CLK_UTIL:dsp[]:fclk3/2:333MHz\n") ; break;
-		case 5  : clk_sel = 5; clk_div =1; printf ("CLK_UTIL:dsp[]:fclk4/2:250MHz\n") ; break;
-		case 6  : clk_sel = 3; clk_div =1; printf ("CLK_UTIL:dsp[]:fclk5/2:200MHz\n") ; break;
-		case 7  : clk_sel = 3; clk_div =3; printf ("CLK_UTIL:dsp[]:fclk5/4:100MHz\n") ; break;
-		case 8  : clk_sel = 0; clk_div =0; printf ("CLK_UTIL:dsp[]:oscin:24MHz\n")    ; break;
-		case 10 : clk_sel = 0; clk_div =7; printf ("CLK_UTIL:dsp[]:oscin/8:3MHz\n")   ; break;
-		default : clk_sel = 3; clk_div =0; printf ("CLK_UTIL:dsp[]:fclk5:400MHz\n")   ; break;
+		case 0  : clk_sel = 1; clk_div =0; printf ("CLK_UTIL:dsp[]:fclk2p5:800MHz\n")    ; break;
+		case 1  : clk_sel = 1; clk_div =1; printf ("CLK_UTIL:dsp[]:fclk2p5/2:400MHz\n")  ; break;
+		case 2  : clk_sel = 5; clk_div =0; printf ("CLK_UTIL:dsp[]:fclk4:500MHz\n")      ; break;
+		case 3  : clk_sel = 2; clk_div =0; printf ("CLK_UTIL:dsp[]:fclk/3:667MHz\n")     ; break;
+		case 4  : clk_sel = 2; clk_div =1; printf ("CLK_UTIL:dsp[]:fclk3/2:333MHz\n")    ; break;
+		case 5  : clk_sel = 5; clk_div =1; printf ("CLK_UTIL:dsp[]:fclk4/2:250MHz\n")    ; break;
+		case 6  : clk_sel = 1; clk_div =3; printf ("CLK_UTIL:dsp[]:fclk2p5/4:200MHz\n")  ; break;
+		case 7  : clk_sel = 1; clk_div =7; printf ("CLK_UTIL:dsp[]:fclk5/4:100MHz\n")    ; break;
+		case 8  : clk_sel = 0; clk_div =0; printf ("CLK_UTIL:dsp[]:oscin:24MHz\n")       ; break;
+		case 10 : clk_sel = 0; clk_div =7; printf ("CLK_UTIL:dsp[]:oscin/8:3MHz\n")      ; break;
+		default : clk_sel = 1; clk_div =0; printf ("CLK_UTIL:dsp[]:fclk2p5:800MHz\n")    ; break;
+		}
+#else
+	switch (freq_sel)
+	{
+		case 0  : clk_sel = 1; clk_div =0; printf ("CLK_UTIL:dsp[]:fclk2p5:800MHz\n")    ; break;
+		case 1  : clk_sel = 3; clk_div =0; printf ("CLK_UTIL:dsp[]:fclk5:400MHz\n")      ; break;
+		case 2  : clk_sel = 5; clk_div =0; printf ("CLK_UTIL:dsp[]:fclk4:500MHz\n")      ; break;
+		case 3  : clk_sel = 2; clk_div =0; printf ("CLK_UTIL:dsp[]:fclk/3:667MHz\n")     ; break;
+		case 4  : clk_sel = 2; clk_div =1; printf ("CLK_UTIL:dsp[]:fclk3/2:333MHz\n")    ; break;
+		case 5  : clk_sel = 5; clk_div =1; printf ("CLK_UTIL:dsp[]:fclk4/2:250MHz\n")    ; break;
+		case 6  : clk_sel = 3; clk_div =1; printf ("CLK_UTIL:dsp[]:fclk5/2:200MHz\n")    ; break;
+		case 7  : clk_sel = 3; clk_div =3; printf ("CLK_UTIL:dsp[]:fclk5/4:100MHz\n")    ; break;
+		case 8  : clk_sel = 0; clk_div =0; printf ("CLK_UTIL:dsp[]:oscin:24MHz\n")       ; break;
+		case 10 : clk_sel = 0; clk_div =7; printf ("CLK_UTIL:dsp[]:oscin/8:3MHz\n")      ; break;
+		default : clk_sel = 3; clk_div =0; printf ("CLK_UTIL:dsp[]:fclk5:400MHz\n")      ; break;
 	}
+#endif
 
 	if (control & (1 << 15)) {   //if sync_mux ==1, sel mux 0
 		control = (control & ~( ( 1<<15) | (0x3ff<<0) | (0x7 <<10) ) ) | (1<<13)| (1<<29) | (clk_div<<0) | (clk_sel<<10);

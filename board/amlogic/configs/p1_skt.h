@@ -405,6 +405,9 @@
 //use startdsp command
 #define CONFIG_CMD_STARTDSP
 
+// M4 clock has been added
+#define CONFIG_CLK_P1_TYPE
+
 //use hardware sha2
 #define CONFIG_AML_HW_SHA2
 
