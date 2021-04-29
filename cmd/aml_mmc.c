@@ -145,6 +145,10 @@ static int get_off_size(struct mmc * mmc, char * name, uint64_t offset, uint64_t
 		int blk_shift = 0;
 
 		blk_shift =  ffs(mmc->read_bl_len) - 1;
+		if (blk_shift < 0) {
+			printf("Bad shift.\n");
+		        return 0;
+		}
 		// printf("blk_shift:%d , off:0x%llx , size:0x%llx.\n ",blk_shift,off,size );
 		part_info = find_mmc_partition_by_name(name);
 		if (part_info == NULL) {
@@ -155,9 +159,9 @@ static int get_off_size(struct mmc * mmc, char * name, uint64_t offset, uint64_t
 
 		// printf("part_info->offset:0x%llx , off:0x%llx , size:0x%llx.\n",part_info->offset ,off,size);
 
-		*blk = off >>  blk_shift ;
-		*cnt = size >>  blk_shift ;
-		*sz_byte = size - ((*cnt) << blk_shift) ;
+		*blk = off >>  blk_shift;
+		*cnt = size >>  blk_shift;
+		*sz_byte = size - ((*cnt) << blk_shift);
 
 		// printf("get_partition_off_size : blk:0x%llx , cnt:0x%llx.\n",*blk,*cnt);
 		return 0;
@@ -224,6 +228,11 @@ int amlmmc_erase_bootloader(int dev, int map)
 	}
 
 	blk_shift = ffs(mmc->read_bl_len) -1;
+	if (blk_shift < 0) {
+		printf("bad shift.\n");
+				ret = -3;
+			goto _out;
+	}
 	/* erase bootloader in user/boot0/boot1 */
 	for (i = 0; i < count; i++) {
 		if (map & (0x1 << i)) {
@@ -240,8 +249,8 @@ int amlmmc_erase_bootloader(int dev, int map)
 						/* fixme, do somthing! */
 						continue;
 					} else {
-						start = part_info->offset>> blk_shift;
-						blkcnt = part_info->size>> blk_shift;
+						start = part_info->offset >> blk_shift;
+						blkcnt = part_info->size >> blk_shift;
 						if (cpu_id.family_id >= MESON_CPU_MAJOR_ID_GXL) {
 							start = GXL_START_BLK;
 							blkcnt -= GXL_START_BLK;
@@ -397,9 +406,17 @@ static int amlmmc_erase_in_card(int argc, char *const argv[])
 
 	name = argv[2];
 	dev = find_dev_num_by_partition_name (name);
+	if (dev < 0) {
+		printf("Cannot find dev.\n");
+		return 1;
+	}
 	offset_addr = simple_strtoull(argv[3], NULL, 16);
 	size = simple_strtoull(argv[4], NULL, 16);
 	mmc = find_mmc_device(dev);
+	if (!mmc) {
+		printf("[%s] no mmc devices available\n", __func__);
+		return 1;
+	}
 
 	tmp_shift = ffs(mmc->read_bl_len) -1;
 	if (tmp_shift < 0) {
@@ -410,15 +427,12 @@ static int amlmmc_erase_in_card(int argc, char *const argv[])
 	blk = offset_addr >> tmp_shift;
 	/* sz_byte = size - (cnt<<tmp_shift); */
 
-	if (dev < 0) {
-		printf("Cannot find dev.\n");
-		return 1;
-	}
 
 	mmc = find_mmc_device(dev);
-
-	if (!mmc)
+	if (!mmc) {
+		printf("[%s]  no mmc devices available\n", __func__);
 		return 1;
+	}
 
 	printf("MMC erase: dev # %d, start_erase_address(in block) # %#llx,\
 			several blocks  # %lld will be erased ...\n ",
@@ -445,11 +459,22 @@ static int amlmmc_erase_in_part(int argc, char *const argv[])
 	struct partitions *part_info;
 
 	name = argv[2];
-	dev = find_dev_num_by_partition_name (name);
+	dev = find_dev_num_by_partition_name(name);
+	if (dev < 0) {
+		printf("Cannot find dev.\n");
+		return 1;
+	}
 	offset_addr = simple_strtoull(argv[3], NULL, 16);
 	size = simple_strtoull(argv[4], NULL, 16);
 	part_info = find_mmc_partition_by_name(name);
+	if (part_info == NULL) {
+		printf("Bad part_info\n");
+		return 1;
+	}
+
 	mmc = find_mmc_device(dev);
+	if (!mmc)
+		return 1;
 
 	if (offset_addr >= part_info->size) {
 		printf("Start address out #%s# partition'address region,(addr_byte < 0x%llx)\n",
@@ -461,17 +486,8 @@ static int amlmmc_erase_in_part(int argc, char *const argv[])
 						name, part_info->offset,part_info->size);
 		return 1;
 	}
+
 	get_off_size(mmc, name, offset_addr, size, &blk, &cnt, &sz_byte);
-
-	if (dev < 0) {
-		printf("Cannot find dev.\n");
-		return 1;
-	}
-
-
-	if (!mmc)
-		return 1;
-
 	printf("MMC erase: dev # %d, start_erase_address(in block) # %#llx,\
 			several blocks  # %lld will be erased ...\n ",
 			dev, blk, cnt);
@@ -513,14 +529,11 @@ static int amlmmc_erase_non_loader(int argc, char *const argv[])
 	struct mmc *mmc;
 
 	dev = 1;
-	if (dev < 0) {
-		printf("Cannot find dev.\n");
+	mmc = find_mmc_device(dev);
+	if (!mmc) {
+		printf("[%s]  no mmc devices available\n", __func__);
 		return 1;
 	}
-	mmc = find_mmc_device(dev);
-
-	if (!mmc)
-		return 1;
 
 	mmc_init(mmc);
 
@@ -1195,7 +1208,6 @@ static int amlmmc_get_ext_csd(int argc, char *const argv[])
 	ret = mmc_get_ext_csd(mmc, ext_csd);
 	printf("read EXT_CSD byte[%d] val[0x%x] %s\n",
 			byte, ext_csd[byte], (ret == 0) ? "ok" : "fail");
-	ret = ret || ret;
 	return ret;
 }
 
@@ -1229,7 +1241,6 @@ static int amlmmc_set_ext_csd(int argc, char *const argv[])
 	ret = mmc_set_ext_csd(mmc, byte, val);
 	printf("write EXT_CSD byte[%d] val[0x%x] %s\n",
 			byte, val, (ret == 0) ? "ok" : "fail");
-	ret =ret || ret;
 	return ret;
 }
 
@@ -1647,8 +1658,8 @@ static u64 write_protect_group_size(struct mmc *mmc, u8 *ext_csd)
 {
 	int erase_group_def = ext_csd[EXT_CSD_ERASE_GROUP_DEF];
 	u64 write_protect_group_size;
-	int wp_grp_size = mmc->csd[2] & WP_GRP_SIZE_MASK;
-	int hc_wp_grp_size = ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
+	u64 wp_grp_size = mmc->csd[2] & WP_GRP_SIZE_MASK;
+	u64 hc_wp_grp_size = ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
 
 	if (erase_group_def == 0)
 		write_protect_group_size = (wp_grp_size + 1) * mmc->erase_grp_size;
@@ -1674,11 +1685,15 @@ static int compute_write_protect_range(struct mmc *mmc, char *name,
 	u64 cnt;
 	u64 start = *start_addr;
 	u64 align_start = *start_addr;
-	u64 wp_grp_size = *wp_grp_size_addr;
-	u64 group_num ;
+	u64 wp_grp_size = 0;
+	u64 group_num;
 	u64 partition_end;
 
 	wp_grp_size = write_protect_group_size(mmc, ext_csd);
+	if (wp_grp_size == 0) {
+		printf("bad wp_grp_size.\n");
+		return 1;
+	}
 
 	blk_shift = ffs(mmc->read_bl_len) -1;
 	if (blk_shift < 0) {
@@ -1704,7 +1719,7 @@ static int compute_write_protect_range(struct mmc *mmc, char *name,
 	if (emmc_cur_partition && !strncmp(name, "bootloader", strlen("bootloader")))
 		cnt =0;
 	else
-	cnt = part_info->size >> blk_shift;
+		cnt = part_info->size >> blk_shift;
 	if (cnt < wp_grp_size) {
 		printf("Caution: The partition size is 0x%llx sector smaller than "
 				"the group size 0x%llx sector, \n"
@@ -1745,7 +1760,7 @@ static int send_wp_prot_type(struct mmc *mmc, void *dst, u64 blk)
 	cmd.cmdarg = blk;
 	cmd.resp_type = MMC_RSP_R1;
 
-	data.dest = dst;
+	data.dest = (char* )dst;
 	data.blocks = 1;
 	data.blocksize = 8;
 	data.flags = MMC_DATA_READ;
@@ -1796,7 +1811,7 @@ static int send_part_wp_type(struct mmc *mmc, char *name)
 {
 	int err = 0;
 	u8 ext_csd[512] = {0};
-	u64 wp_grp_size, start, part_end;
+	u64 wp_grp_size, start = 0, part_end;
 	u64 group_start;
 	void *addr = NULL;
 	int i;
@@ -1814,7 +1829,7 @@ static int send_part_wp_type(struct mmc *mmc, char *name)
 		return 1;
 	}
 
-	addr = malloc(sizeof(u64));
+	addr = (char* )malloc(sizeof(u64));
 	if (addr == NULL) {
 		printf("Failed: malloc failed\n");
 		return 1;
@@ -1831,8 +1846,10 @@ static int send_part_wp_type(struct mmc *mmc, char *name)
 
 	while ((group_start + wp_grp_size - 1) <= part_end) {
 		err = send_wp_prot_type(mmc, addr, group_start);
-		if (err)
+		if (err) {
+			free(addr);
 			return 1;
+		}
 		printf("The write protect type for the 32 groups after 0x%llx is: \n0x",
 				group_start);
 		for (i = 0; i < 8; i++)
@@ -1840,6 +1857,8 @@ static int send_part_wp_type(struct mmc *mmc, char *name)
 		printf("\n");
 		group_start += 32 * wp_grp_size;
 	}
+
+	free(addr);
 	return 0;
 }
 
@@ -1905,8 +1924,10 @@ static int send_add_wp_type(struct mmc *mmc, u64 start, u64 cnt)
 
 	while ((group_start + wp_grp_size - 1) <= part_end) {
 		ret = send_wp_prot_type(mmc, addr, group_start);
-		if (ret)
+		if (ret) {
+			free(addr);
 			return 1;
+		}
 		printf("The write protect type for the 32 groups after 0x%llx is: \n0x",
 				group_start);
 		for (i = 0; i < 8; i++)
@@ -1914,6 +1935,8 @@ static int send_add_wp_type(struct mmc *mmc, u64 start, u64 cnt)
 		printf("\n");
 		group_start += 32 * wp_grp_size;
 	}
+
+	free(addr);
 	return 0;
 }
 
@@ -1922,7 +1945,7 @@ static int set_part_write_protect(struct mmc *mmc, u8 wp_type, char *name)
 	int err = 0;
 	u8 ext_csd[512] = {0};
 	u8 group_num  = 32;
-	u64 wp_grp_size, start, part_end;
+	u64 wp_grp_size, start = 0, part_end;
 	u64 group_start;
 	u64 check_group_start;
 	u64 set_protect_cnt = 0;
@@ -1998,9 +2021,6 @@ static int set_add_write_protect(struct mmc *mmc, u8 wp_type, u64 start, u64 cnt
 				"write protect process is invalid\n");
 		return 1;
 	}
-
-	if (err)
-		return 1;
 
 	wp_grp_size = write_protect_group_size(mmc, ext_csd);
 
@@ -2088,21 +2108,20 @@ static int do_amlmmc_write_protect(cmd_tbl_t *cmdtp, int flag, int argc, char *c
 	}
 
 	mmc = find_mmc_device(dev);
+	if (!mmc) {
+		printf("[%s]  no mmc devices available\n", __func__);
+		return 1;
+	}
 
 	if (IS_SD(mmc)) {
 		mmc = find_mmc_device(~dev);
-		if (IS_SD(mmc)) {
+		if (mmc && IS_SD(mmc)) {
 			printf("SD card can not be write protect\n");
 			return 1;
 		}
 	}
 
-	if (!mmc)
-		return 1;
-
 	mmc_init(mmc);
-	if (!mmc)
-		return 1;
 
 	if (strcmp(wp_type_str, "temporary") == 0)
 		write_protect_type = WP_TEMPORARY_TYPE;
@@ -2140,7 +2159,7 @@ static int set_part_clear_wp(struct mmc *mmc, char *name)
 	int err = 0;
 	u8 ext_csd[512] = {0};
 	u8 group_num  = 32;
-	u64 wp_grp_size, start, part_end;
+	u64 wp_grp_size, start = 0, part_end;
 	u64 group_start;
 	u64 check_group_start;
 	u64 set_protect_cnt = 0;
@@ -2308,15 +2327,13 @@ static int do_amlmmc_clear_wp(cmd_tbl_t *cmdtp, int flag, int argc, char *const 
 
 	if (IS_SD(mmc)) {
 		mmc = find_mmc_device(~dev);
-		if (IS_SD(mmc)) {
+		if (mmc && IS_SD(mmc)) {
 			printf("SD card can not be write protect\n");
 			return 1;
 		}
 	}
 
 	mmc_init(mmc);
-	if (!mmc)
-		return 1;
 
 	if (argc == 3)
 		ret = set_part_clear_wp(mmc, name);
@@ -2370,7 +2387,7 @@ static int send_part_wp_status(struct mmc *mmc, char *name)
 {
 	int err = 0;
 	u8 ext_csd[512] = {0};
-	u64 wp_grp_size, start, part_end;
+	u64 wp_grp_size, start = 0, part_end;
 	u64 group_start;
 
 	err = mmc_get_ext_csd(mmc, ext_csd);
@@ -2485,21 +2502,20 @@ static int do_amlmmc_send_wp_status(cmd_tbl_t *cmdtp,
 	}
 
 	mmc = find_mmc_device(dev);
+	if (!mmc) {
+		printf("[%s]  no mmc devices available\n", __func__);
+		return 1;
+	}
 
 	if (IS_SD(mmc)) {
 		mmc = find_mmc_device(~dev);
-		if (IS_SD(mmc)) {
+		if (mmc && IS_SD(mmc)) {
 			printf("SD card can not be write protect\n");
 			return 1;
 		}
 	}
 
-	if (!mmc)
-		return 1;
-
 	mmc_init(mmc);
-	if (!mmc)
-		return 1;
 
 	if (argc == 3)
 		ret = send_part_wp_status(mmc, name);
@@ -2538,21 +2554,21 @@ static int do_amlmmc_send_wp_type(cmd_tbl_t *cmdtp,
 	}
 
 	mmc = find_mmc_device(dev);
-
-	if (!mmc)
+	if (!mmc) {
+		printf("[%s]  no mmc devices available\n", __func__);
 		return 1;
+	}
 
 	if (IS_SD(mmc)) {
 		mmc = find_mmc_device(~dev);
-		if (IS_SD(mmc)) {
+		if (mmc && IS_SD(mmc)) {
 			printf("SD card can not be write protect\n");
 			return 1;
 		}
 	}
 
 	mmc_init(mmc);
-	if (!mmc)
-		return 1;
+
 	if (argc == 3)
 		ret = send_part_wp_type(mmc, name);
 	else
@@ -2659,8 +2675,6 @@ static int amlmmc_set_driver_strength(int argc, char *const argv[])
 		return 1;
 	}
 	mmc_init(mmc);
-	if (!mmc)
-		return 1;
 
 	ret = set_driver_strength(mmc, strength);
 
@@ -2683,8 +2697,6 @@ static int amlmmc_get_driver_strength(int argc, char *const argv[])
 		return 1;
 	}
 	mmc_init(mmc);
-	if (!mmc)
-		return 1;
 
 	ret = get_driver_strength(mmc);
 
@@ -2942,11 +2954,10 @@ static int update_invalid_dtb(struct mmc *mmc, void *addr)
 		if (_dtb_write(mmc, blk, cnt, addr)) {
 			dtb_err("%s: dev # %d, block # %#llx,cnt # %#llx ERROR!\n",
 				__func__, dev, blk, cnt);
-			ret = -4;
+			ret = -2;
 		}
 		info->valid[0] = 1;
 		info->stamp[0] = dtb->timestamp;
-		ret = 0;
 	} else {
 		dtb_info("update dtb2");
 		blk = (dtb_glb_offset + vpart->size) / mmc->read_bl_len;
@@ -2988,7 +2999,6 @@ int update_old_dtb(struct mmc *mmc, void *addr)
 			ret = -3;
 		}
 		info->stamp[0] = dtb->timestamp;
-		ret = 0;
 	} else if (stamp_after(info->stamp[0], info->stamp[1])) {
 		/*update dtb2*/
 		blk = (dtb_glb_offset + vpart->size) / mmc->read_bl_len;
@@ -3074,8 +3084,8 @@ int dtb_write(void *addr)
 		if (info->stamp[0] != info->stamp[1]) {
 			dtb_wrn("timestamp are not same %d:%d\n",
 				info->stamp[0], info->stamp[1]);
-			dtb->timestamp = 1 + stamp_after(info->stamp[1], info->stamp[0])?
-				info->stamp[1]:info->stamp[0];
+			dtb->timestamp = 1 + (stamp_after(info->stamp[1], info->stamp[0])?
+				info->stamp[1]:info->stamp[0]);
 		} else
 			dtb->timestamp = 1 + info->stamp[0];
 	}
@@ -3204,6 +3214,7 @@ int do_amlmmc_dtb_key(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 					return (n == cnt) ? 0 : 1;
 				}
 			}
+			break;
 		case 4:
 			addr = (void *)simple_strtoul(argv[2], NULL, 16);
 			if (strcmp(argv[1], "dtb_read") == 0) {
@@ -3503,7 +3514,7 @@ int do_emmc_key_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int ret = 0;
 	void *addr = NULL;
 	u64 size;
-	uint32_t *actual_lenth=0;
+	uint32_t actual_lenth = 0;
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
@@ -3512,7 +3523,7 @@ int do_emmc_key_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	size = simple_strtoull(argv[3], NULL, 16);
 	printf("enter emmc key read !!\n");
 	printf("addr:%p   size:%llx\n",addr,size);
-	ret = mmc_key_read(addr, size,actual_lenth);
+	ret = mmc_key_read(addr, size,&actual_lenth);
 	printf("ret:%d\n",ret);
 	return ret;
 }

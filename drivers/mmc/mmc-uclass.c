@@ -205,10 +205,14 @@ struct mmc *find_mmc_device(int dev_num)
 	mmc_dev = dev_get_parent(dev);
 
 	struct mmc *mmc = mmc_get_mmc_dev(mmc_dev);
-	if (mmc) {
-		mmc_set_clock(mmc, mmc->clock, true);
+	if (!mmc) {
+				printf("[%s]  no mmc devices available\n", __func__);
+		return NULL;
 	}
-	pinctrl_select_state(mmc->dev, "default");
+	else {
+		mmc_set_clock(mmc, mmc->clock, true);
+		pinctrl_select_state(mmc->dev, "default");
+	}
 
 	return mmc;
 }

@@ -926,10 +926,7 @@ static int _construct_mbr_entry(struct _iptbl *p_iptbl, struct dos_partition *p_
 	uint64_t externed_size = 0;
 	int i;
 	/* the entry is active or not */
-	if (part_num == 0 )
-		p_entry->boot_ind = 0x00;
-	else
-		p_entry->boot_ind = 0x00;
+	p_entry->boot_ind = 0x00;
 
 	if (part_num == 3) {/* the logic partion entry */
 		/* the entry type */
@@ -1254,6 +1251,12 @@ void trans_ept_to_diskpart(struct _iptbl *ept, disk_partition_t *disk_part) {
 int mmc_device_init (struct mmc *mmc)
 {
 	int ret = 1;
+
+#ifdef CONFIG_AML_PARTITION
+	int update = 1;
+	struct _iptbl *p_iptbl_rsv = NULL;
+#endif
+
 #if (CONFIG_PTBL_MBR)  || (!CONFIG_AML_PARTITION)
 	cpu_id_t cpu_id = get_cpu_id();
 #endif
@@ -1319,8 +1322,6 @@ int mmc_device_init (struct mmc *mmc)
 #endif
 
 #ifdef CONFIG_AML_PARTITION
-	int update = 1;
-	struct _iptbl *p_iptbl_rsv = NULL;
 	/* try to get partiton table from rsv */
 	ret = _zalloc_iptbl(&p_iptbl_rsv);
 	if (ret)
@@ -1467,7 +1468,8 @@ int find_virtual_partition_by_name (char const *name, struct partitions *partiti
 	}
 
 	if (!strcmp(name, "dtb")) {
-		strcpy(partition->name, name);
+		strncpy(partition->name, name, sizeof(partition->name) - 1);
+          	partition->name[sizeof(partition->name) - 1] = '\0';
 		partition->offset = offset + vpart->offset;
 		partition->size = (vpart->size * DTB_COPIES);
 	}

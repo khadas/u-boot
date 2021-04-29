@@ -2085,8 +2085,10 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 error:
 			mmc_set_signal_voltage(mmc, old_voltage);
 			/* if an error occured, revert to a safer bus mode */
-			mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+			err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
 				   EXT_CSD_BUS_WIDTH, EXT_CSD_BUS_WIDTH_1);
+			if (err)
+				return -ENOTSUPP;
 			mmc_select_mode(mmc, MMC_LEGACY);
 			mmc_set_bus_width(mmc, 1);
 		}
@@ -2166,9 +2168,9 @@ static int mmc_startup_v4(struct mmc *mmc)
 		 * than 2GB
 		 */
 		capacity = ext_csd[EXT_CSD_SEC_CNT] << 0
-				| ext_csd[EXT_CSD_SEC_CNT + 1] << 8
-				| ext_csd[EXT_CSD_SEC_CNT + 2] << 16
-				| ext_csd[EXT_CSD_SEC_CNT + 3] << 24;
+				| (u64)ext_csd[EXT_CSD_SEC_CNT + 1] << 8
+				| (u64)ext_csd[EXT_CSD_SEC_CNT + 2] << 16
+				| (u64)ext_csd[EXT_CSD_SEC_CNT + 3] << 24;
 		capacity *= MMC_MAX_BLOCK_LEN;
 		if ((capacity >> 20) > 2 * 1024)
 			mmc->capacity_user = capacity;
@@ -2221,9 +2223,9 @@ static int mmc_startup_v4(struct mmc *mmc)
 		mmc->enh_user_size *= ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
 		mmc->enh_user_size <<= 19;
 		mmc->enh_user_start =
-			(ext_csd[EXT_CSD_ENH_START_ADDR + 3] << 24) +
-			(ext_csd[EXT_CSD_ENH_START_ADDR + 2] << 16) +
-			(ext_csd[EXT_CSD_ENH_START_ADDR + 1] << 8) +
+			((u64)ext_csd[EXT_CSD_ENH_START_ADDR + 3] << 24) +
+			((u64)ext_csd[EXT_CSD_ENH_START_ADDR + 2] << 16) +
+			((u64)ext_csd[EXT_CSD_ENH_START_ADDR + 1] << 8) +
 			ext_csd[EXT_CSD_ENH_START_ADDR];
 		if (mmc->high_capacity)
 			mmc->enh_user_start <<= 9;
@@ -2269,9 +2271,9 @@ static int mmc_startup_v4(struct mmc *mmc)
 		 */
 		if (mmc->high_capacity && part_completed) {
 			capacity = (ext_csd[EXT_CSD_SEC_CNT]) |
-				(ext_csd[EXT_CSD_SEC_CNT + 1] << 8) |
-				(ext_csd[EXT_CSD_SEC_CNT + 2] << 16) |
-				(ext_csd[EXT_CSD_SEC_CNT + 3] << 24);
+				((u64)ext_csd[EXT_CSD_SEC_CNT + 1] << 8) |
+				((u64)ext_csd[EXT_CSD_SEC_CNT + 2] << 16) |
+				((u64)ext_csd[EXT_CSD_SEC_CNT + 3] << 24);
 			capacity *= MMC_MAX_BLOCK_LEN;
 			mmc->capacity_user = capacity;
 		}

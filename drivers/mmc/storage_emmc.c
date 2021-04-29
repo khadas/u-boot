@@ -370,15 +370,18 @@ int mmc_storage_init(unsigned char init_flag) {
 	int ret =1;
 	struct mmc *mmc;
 	mmc = find_mmc_device(STORAGE_EMMC);
+	if (!mmc) {
+		printf("[%s]  no mmc devices available\n", __func__);
+		return -1;
+	}
+
 	mmc->has_init=0;
 	pinctrl_select_state(mmc->dev, "default");
-	if (!mmc) {
-		return -1;
-	}
+
 	ret = mmc_init(mmc);
-	if (ret != 0) {
+	if (ret != 0)
 		return -1;
-	}
+
 	ret = storage_mmc_erase(init_flag, mmc);
 	return ret;
 }
@@ -406,8 +409,10 @@ int mmc_storage_read(const char *part_name, loff_t off, size_t size, void *dest)
 	struct mmc *mmc;
 	mmc = find_mmc_device(STORAGE_EMMC);
 
-	if (!mmc)
+	if (!mmc) {
+		printf("[%s]  no mmc devices available\n", __func__);
 		return 1;
+	}
 
 	if (!part_name) {//the operating object is the device,the unit of operation is block.
 		info_disprotect |= DISPROTECT_KEY;
@@ -510,7 +515,8 @@ static int fill_mask8_part(struct part_property *mask8)
 	while (part) {
 		if ((part->mask_flags == 8)
 			&& (mask8_cnt++ < BOOTINFO_MAX_PARTITIONS)) {
-			strncpy(mask8->name, part->name, strlen(part->name));
+			strncpy(mask8->name, part->name, sizeof(mask8->name) - 1);
+                  	mask8->name[sizeof(mask8->name) - 1] = '\0';
 			mask8->addr = part->offset / MMC_BLOCK_SIZE;
 			mask8->size = part->size / MMC_BLOCK_SIZE;
 			mask8++;
@@ -857,7 +863,7 @@ int mmc_erase_rsv(const char *rsv_name) {
 
 int mmc_protect_rsv(const char *rsv_name, bool ops) {
 
-	char ret=1;
+	int ret = 1;
 	ret = strcmp("key", rsv_name);
 	if (ret) return 1;
 
@@ -928,6 +934,11 @@ int emmc_pre(void)
 
 	mmc_initialize(gd->bd);
 	mmc = find_mmc_device(STORAGE_EMMC);
+	if (!mmc) {
+		printf("[%s]  no mmc devices available\n", __func__);
+		return -1;
+	}
+
 	mmc->has_init = 0;
 	ret = mmc_start_init(mmc);
 	if (ret == 0) {
