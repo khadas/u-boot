@@ -228,6 +228,31 @@ config A1_AD402_NAND_LINUX
 	help
 	  Select A1 AD402 NOR RTOS board config
 
+config A1_T404_NOR_RTOS
+	bool "A1_T404_NOR_RTOS"
+	select TARGET_A1_T404
+	select MTD_SPI_FLASH
+	select SYSTEM_RTOS
+	help
+	  Select A1 AD402 NOR RTOS board config
+	  
+config A1_T404_NAND_RTOS
+	bool "A1_T404_NAND_RTOS"
+	select TARGET_A1_T404
+	#select SPI_NAND
+	select MTD_SPI_NAND
+	select SYSTEM_RTOS
+	help
+	  Select A1 T404 NOR RTOS board config
+
+config A1_T404_NAND_LINUX
+	bool "A1_T404_NAND_LINUX"
+	select TARGET_A1_T404
+	#select SPI_NAND
+	select MTD_SPI_NAND
+	help
+	  Select A1 T404 NOR RTOS board config
+	  
 config A1_AD409_NOR_RTOS
 	bool "A1_AD409_NOR_RTOS"
 	select TARGET_A1_AD409
@@ -263,6 +288,10 @@ config TARGET_A1_AD402
 	bool "A1 AD402 board"
 	depends on A1_AD402_NOR_RTOS || A1_AD402_NAND_RTOS || A1_AD402_NAND_LINUX
 
+config TARGET_A1_T404
+	bool "A1 T404 board"
+	depends on A1_T404_NOR_RTOS || A1_T404_NAND_RTOS || A1_T404_NAND_LINUX
+	
 config TARGET_A1_AD409
 	bool "A1 AD409 board"
 	depends on A1_AD409_NOR_RTOS || A1_AD409_NAND_RTOS || A1_AD409_NAND_LINUX
@@ -270,7 +299,7 @@ config TARGET_A1_AD409
 config SYSTEM_RTOS
 	bool "SYSTEM_RTOS_PARTITION"
 	default n
-	depends on A1_AD401_NOR_RTOS || A1_AD402_NOR_RTOS || A1_AD409_NOR_RTOS || A1_AD401_NAND_RTOS || A1_AD402_NAND_RTOS || A1_AD409_NAND_RTOS
+	depends on A1_AD401_NOR_RTOS || A1_AD402_NOR_RTOS || A1_AD409_NOR_RTOS || A1_AD401_NAND_RTOS || A1_AD402_NAND_RTOS || A1_AD409_NAND_RTOS || A1_T404_NOR_RTOS || A1_T404_NAND_RTOS || A1_T404_NAND_LINUX
 	help
 	  Select SYSTEM RTOS partition table
 
@@ -854,6 +883,8 @@ source "board/amlogic/a1_ad409/Kconfig"
 source "board/amlogic/a1_ad401/Kconfig"
 
 source "board/amlogic/a1_ad402/Kconfig"
+
+source "board/amlogic/a1_t404/Kconfig"
 
 source "board/amlogic/c1_ae400/Kconfig"
 
