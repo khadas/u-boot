@@ -201,8 +201,8 @@ static int storage_boot_layout_rebuild(struct boot_layout *boot_layout,
 {
 	struct storage_startup_parameter *ssp = &g_ssp;
 	boot_area_entry_t *boot_entry = boot_layout->boot_entry;
-	uint64_t align_size, reserved_size = 0;
-	uint8_t i, cal_copy = ssp->boot_bakups;
+	uint64_t align_size, reserved_size = 0, cal_copy = ssp->boot_bakups;
+	uint8_t i;
 
 	align_size = ALIGN_SIZE;
 	if ((ssp->boot_device == BOOT_NAND_NFTL) ||
@@ -222,14 +222,14 @@ static int storage_boot_layout_rebuild(struct boot_layout *boot_layout,
 	ssp->boot_entry[0].size = boot_entry[0].size;
 	printf("ssp->boot_entry[0] offset:0x%x, size:0x%x\n",
 			ssp->boot_entry[0].offset, ssp->boot_entry[0].size);
-	printf("cal_copy:0x%x\n", cal_copy);
+	printf("cal_copy:0x%llx\n", cal_copy);
 	printf("align_size:0x%llx\n", align_size);
 	printf("reserved_size:0x%llx\n", reserved_size);
 	if ((ssp->boot_device == BOOT_NAND_NFTL) ||
 		(ssp->boot_device == BOOT_NAND_MTD))
 		align_size = ssp->sip.nsp.block_size;
 	else if (ssp->boot_device == BOOT_SNAND)
-		align_size = ssp->sip.snasp.pagesize *
+		align_size = (uint64_t)ssp->sip.snasp.pagesize *
 			     ssp->sip.snasp.pages_per_eraseblock;
 	printf("align_size2:%llu\n", align_size);
 
@@ -1170,7 +1170,7 @@ static int bl2x_mode_check_header(p_payload_info_t pInfo)
 	int sz_payload = 0;
 	uint64_t align_size = 1;
 	struct storage_startup_parameter *ssp = &g_ssp;
-	u8 cal_copy = ssp->boot_bakups;
+	uint64_t cal_copy = ssp->boot_bakups;
 
 	printf("\naml log : info parse...\n");
 	printf("\tsztimes : %s\n",hdr->szTimeStamp);
@@ -1193,7 +1193,7 @@ static int bl2x_mode_check_header(p_payload_info_t pInfo)
 	if (ssp->boot_device == BOOT_NAND_MTD)
 		align_size = ssp->sip.nsp.block_size;
 	else if (ssp->boot_device == BOOT_SNAND)
-		align_size = ssp->sip.snasp.pagesize *
+		align_size = (uint64_t)ssp->sip.snasp.pagesize *
 		ssp->sip.snasp.pages_per_eraseblock;
 	++pItem;
 
@@ -1386,8 +1386,8 @@ static int do_store_rsv_ops(cmd_tbl_t *cmdtp,
 		else
 			return store->write_rsv(name, size, (u_char *)addr);
 	} else if (!strcmp(argv[2], "protect")) {
-		bool flag = false;
 		char *ops;
+		flag = false;
 
 		if (unlikely(argc != 4 && argc != 5))
 			return CMD_RET_USAGE;
