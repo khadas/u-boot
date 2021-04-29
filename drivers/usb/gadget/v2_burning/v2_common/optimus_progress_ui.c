@@ -19,7 +19,7 @@ extern int lcd_drawchars (ushort x, ushort y, uchar *str, int count);
 #endif// #ifdef CONFIG_VIDEO_AMLLCD
 
 #ifdef CONFIG_AML_VOUT
-#define _VIDEO_DEV_OPEN "hdmitx hpd;osd open;osd clear;vout output ${outputmode};bmp scale;"
+#define _VIDEO_DEV_OPEN "hdmitx hpd;echo 1;osd open;echo 2; osd clear; echo 3;vout output ${outputmode};echo 4;bmp scale;"
 #else
 #define _VIDEO_DEV_OPEN "video dev bl_on;"
 #endif// #ifdef CONFIG_VIDEO_AMLTVOUT
@@ -110,8 +110,8 @@ int video_res_prepare_for_upgrade(HIMAGE hImg)
     }
 #endif// #ifdef CONFIG_VIDEO_AMLLCD
 
-    DWN_MSG("echo video prepare for upgrade\n");
     env_name = _VIDEO_DEV_OPEN;
+    DWN_MSG("echo video prepare for upgrade:%s\n", env_name);
     ret = run_command(env_name, 0);
     /*if (ret) goto _fail;*/
 

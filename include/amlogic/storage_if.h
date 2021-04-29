@@ -69,5 +69,7 @@ int store_key_read(uint8_t * buffer,
 int store_key_write(uint8_t * buffer,
 			uint32_t length, uint32_t *actual_lenth);
 
+extern int check_valid_dts(unsigned char *buffer, unsigned char **dts);
+
 #endif//ifndef __STOARGE_IF_H__
 

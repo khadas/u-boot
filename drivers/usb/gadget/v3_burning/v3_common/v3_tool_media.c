@@ -178,8 +178,7 @@ int v3tool_storage_init(const int eraseFlash, unsigned dtbImgSz)
 		extern struct mtd_partition *get_partition_table(int *partitions);
 		int mtdParts = -1;
 		if ( get_partition_table(&mtdParts)) {//
-			extern int check_valid_dts(unsigned char *buffer);
-			ret = check_valid_dts(dtbLoadedAddr);
+			ret = check_valid_dts(dtbLoadedAddr, NULL);
 		} else
 #endif // #if defined(CONFIG_MTD) && defined(CONFIG_AML_MTDPART)
 			ret = get_partition_from_dts(dtbLoadedAddr);

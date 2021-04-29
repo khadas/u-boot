@@ -385,8 +385,7 @@ int optimus_sdc_burn_dtb_load(HIMAGE hImg)
         rc = (wrLen == itemSz) ? 0 : __LINE__;
     }
     if (!rc) {
-        extern int check_valid_dts(unsigned char *buffer);
-        rc =  check_valid_dts(dtbTransferBuf);
+        rc =  check_valid_dts(dtbTransferBuf, NULL);
         DWN_MSG("check dts: rc %d\n", rc);
         if (!rc) {
 #ifdef CONFIG_MULTI_DTB
