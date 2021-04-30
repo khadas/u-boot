@@ -882,7 +882,7 @@ int ldim_dev_get_config_from_dts(char *dt_addr, int index)
 		LDIMERR("failed to get ldim_pwm_port\n");
 		bl_pwm->pwm_port = BL_PWM_MAX;
 	} else {
-		bl_pwm->pwm_port = bl_pwm_str_to_pwm(propdata);
+		bl_pwm->pwm_port = bl_pwm_str_to_num(propdata);
 		LDIMPR("ldim_pwm_port: %s(%u)\n", propdata, bl_pwm->pwm_port);
 	}
 	if (bl_pwm->pwm_port < BL_PWM_MAX) {
@@ -920,7 +920,7 @@ int ldim_dev_get_config_from_dts(char *dt_addr, int index)
 	if (propdata == NULL) {
 		bl_pwm->pwm_port = BL_PWM_MAX;
 	} else {
-		bl_pwm->pwm_port = bl_pwm_str_to_pwm(propdata);
+		bl_pwm->pwm_port = bl_pwm_str_to_num(propdata);
 	}
 	if (bl_pwm->pwm_port < BL_PWM_MAX) {
 		LDIMPR("find analog_pwm_port: %s(%u)\n", propdata, bl_pwm->pwm_port);

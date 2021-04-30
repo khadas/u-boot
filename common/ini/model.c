@@ -1319,24 +1319,59 @@ static int getPWMMethod(const char *ini_value, int def_val)
 		return def_val;
 }
 
-static int getPWMPortIndVal(const char *ini_value, int def_val)
+static char *bl_pwm_name[] = {
+	"BL_PWM_A",
+	"BL_PWM_B",
+	"BL_PWM_C",
+	"BL_PWM_D",
+	"BL_PWM_E",
+	"BL_PWM_F",
+	"BL_PWM_G",
+	"BL_PWM_H",
+	"BL_PWM_I",
+	"BL_PWM_J"
+};
+
+static char *bl_pwm_ao_name[] = {
+	"BL_PWM_AO_A",
+	"BL_PWM_AO_B",
+	"BL_PWM_AO_C",
+	"BL_PWM_AO_D",
+	"BL_PWM_AO_E",
+	"BL_PWM_AO_F",
+	"BL_PWM_AO_G",
+	"BL_PWM_AO_H"
+};
+
+static char bl_pwm_vs_name[] = {"BL_PWM_VS"};
+
+static unsigned int getPWMPortIndVal(const char *str)
 {
-	if (strcmp(ini_value, "BL_PWM_A") == 0)
-		return BL_PWM_A;
-	else if (strcmp(ini_value, "BL_PWM_B") == 0)
-		return BL_PWM_B;
-	else if (strcmp(ini_value, "BL_PWM_C") == 0)
-		return BL_PWM_C;
-	else if (strcmp(ini_value, "BL_PWM_D") == 0)
-		return BL_PWM_D;
-	else if (strcmp(ini_value, "BL_PWM_E") == 0)
-		return BL_PWM_E;
-	else if (strcmp(ini_value, "BL_PWM_F") == 0)
-		return BL_PWM_F;
-	else if (strcmp(ini_value, "BL_PWM_VS") == 0)
-		return BL_PWM_VS;
-	else
-		return def_val;
+	enum bl_pwm_port_e pwm_port = BL_PWM_MAX;
+	int i, cnt;
+
+	cnt = ARRAY_SIZE(bl_pwm_name);
+	for (i = 0; i < cnt; i++) {
+		if (strcmp(str, bl_pwm_name[i]) == 0) {
+			pwm_port = i + BL_PWM_A;
+			return pwm_port;
+		}
+	}
+
+	cnt = ARRAY_SIZE(bl_pwm_ao_name);
+	for (i = 0; i < cnt; i++) {
+		if (strcmp(str, bl_pwm_ao_name[i]) == 0) {
+			pwm_port = i + BL_PWM_AO_A;
+			return pwm_port;
+		}
+	}
+
+	if (strcmp(str, bl_pwm_vs_name) == 0) {
+		pwm_port = BL_PWM_VS;
+		return pwm_port;
+	}
+
+	return BL_PWM_MAX;
 }
 
 static int handle_bl_pwm(struct bl_attr_s *p_attr)
@@ -1351,7 +1386,7 @@ static int handle_bl_pwm(struct bl_attr_s *p_attr)
 	ini_value = IniGetString("Backlight_Attr", "pwm_port", "null");
 	if (model_debug_flag & DEBUG_BACKLIGHT)
 		ALOGD("%s, pwm_port is (%s)\n", __func__, ini_value);
-	p_attr->pwm.pwm_port = getPWMPortIndVal(ini_value, BL_PWM_MAX);
+	p_attr->pwm.pwm_port = getPWMPortIndVal(ini_value);
 
 	ini_value = IniGetString("Backlight_Attr", "pwm_freq", "0");
 	if (model_debug_flag & DEBUG_BACKLIGHT)
@@ -1386,7 +1421,7 @@ static int handle_bl_pwm(struct bl_attr_s *p_attr)
 	ini_value = IniGetString("Backlight_Attr", "pwm2_port", "null");
 	if (model_debug_flag & DEBUG_BACKLIGHT)
 		ALOGD("%s, pwm2_port is (%s)\n", __func__, ini_value);
-	p_attr->pwm.pwm2_port = getPWMPortIndVal(ini_value, BL_PWM_MAX);
+	p_attr->pwm.pwm2_port = getPWMPortIndVal(ini_value);
 
 	ini_value = IniGetString("Backlight_Attr", "pwm2_freq", "0");
 	if (model_debug_flag & DEBUG_BACKLIGHT)

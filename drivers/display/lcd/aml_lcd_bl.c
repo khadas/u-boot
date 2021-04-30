@@ -1026,22 +1026,76 @@ static char *bl_pwm_name[] = {
 	"PWM_D",
 	"PWM_E",
 	"PWM_F",
-	"PWM_VS",
+	"PWM_G",
+	"PWM_H",
+	"PWM_I",
+	"PWM_J"
 };
 
-enum bl_pwm_port_e bl_pwm_str_to_pwm(const char *str)
+static char *bl_pwm_ao_name[] = {
+	"PWM_AO_A",
+	"PWM_AO_B",
+	"PWM_AO_C",
+	"PWM_AO_D",
+	"PWM_AO_E",
+	"PWM_AO_F",
+	"PWM_AO_G",
+	"PWM_AO_H"
+};
+
+static char bl_pwm_vs_name[] = {"PWM_VS"};
+static char bl_pwm_invalid_name[] = {"invalid"};
+
+enum bl_pwm_port_e bl_pwm_str_to_num(const char *str)
 {
 	enum bl_pwm_port_e pwm_port = BL_PWM_MAX;
-	int i;
+	int i, cnt;
 
-	for (i = 0; i < ARRAY_SIZE(bl_pwm_name); i++) {
+	cnt = ARRAY_SIZE(bl_pwm_name);
+	for (i = 0; i < cnt; i++) {
 		if (strcmp(str, bl_pwm_name[i]) == 0) {
-			pwm_port = i;
-			break;
+			pwm_port = i + BL_PWM_A;
+			return pwm_port;
 		}
 	}
 
-	return pwm_port;
+	cnt = ARRAY_SIZE(bl_pwm_ao_name);
+	for (i = 0; i < cnt; i++) {
+		if (strcmp(str, bl_pwm_ao_name[i]) == 0) {
+			pwm_port = i + BL_PWM_AO_A;
+			return pwm_port;
+		}
+	}
+
+	if (strcmp(str, bl_pwm_vs_name) == 0) {
+		pwm_port = BL_PWM_VS;
+		return pwm_port;
+	}
+
+	return BL_PWM_MAX;
+}
+
+char *bl_pwm_num_to_str(unsigned int num)
+{
+	unsigned int temp, cnt;
+
+	if (num < BL_PWM_AO_A) {
+		temp = num - BL_PWM_A;
+		cnt = ARRAY_SIZE(bl_pwm_name);
+		if (temp >= cnt)
+			return bl_pwm_invalid_name;
+		return bl_pwm_name[temp];
+	} else if (num < BL_PWM_VS) {
+		temp = num - BL_PWM_AO_A;
+		cnt = ARRAY_SIZE(bl_pwm_ao_name);
+		if (temp >= cnt)
+			return bl_pwm_invalid_name;
+		return bl_pwm_ao_name[temp];
+	} else if (num == BL_PWM_VS) {
+		return bl_pwm_vs_name;
+	}
+
+	return bl_pwm_invalid_name;
 }
 
 void aml_bl_config_print(void)
@@ -1339,7 +1393,7 @@ static int aml_bl_config_load_from_dts(char *dt_addr, unsigned int index, struct
 			LCDERR("bl: failed to get bl_pwm_port\n");
 			bl_pwm->pwm_port = BL_PWM_MAX;
 		} else {
-			bl_pwm->pwm_port = bl_pwm_str_to_pwm(propdata);
+			bl_pwm->pwm_port = bl_pwm_str_to_num(propdata);
 		}
 		propdata = (char *)fdt_getprop(dt_addr, child_offset, "bl_pwm_attr", NULL);
 		if (propdata == NULL) {
@@ -1435,10 +1489,10 @@ static int aml_bl_config_load_from_dts(char *dt_addr, unsigned int index, struct
 		} else {
 			p = propdata;
 			str = p;
-			pwm_combo0->pwm_port = bl_pwm_str_to_pwm(str);
+			pwm_combo0->pwm_port = bl_pwm_str_to_num(str);
 			p += strlen(p) + 1;
 			str = p;
-			pwm_combo1->pwm_port = bl_pwm_str_to_pwm(str);
+			pwm_combo1->pwm_port = bl_pwm_str_to_num(str);
 		}
 		propdata = (char *)fdt_getprop(dt_addr, child_offset, "bl_pwm_combo_attr", NULL);
 		if (propdata == NULL) {

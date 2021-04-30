@@ -132,5 +132,9 @@ extern int ldim_config_load_from_unifykey(unsigned char *para);
 extern int ldim_config_load(char *dt_addr);
 #endif
 
+void bl_pwm_ctrl(struct bl_pwm_config_s *bl_pwm, int status);
+#ifdef CONFIG_OF_LIBFDT
+enum bl_pwm_port_e bl_pwm_str_to_num(const char *str);
+#endif
 #endif
 
