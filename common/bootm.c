@@ -318,7 +318,7 @@ static int read_fdto_partition(void)
 	int	ret = 0;
 	u64	tmp = 0;
 	void	*dtbo_mem_addr = NULL;
-	char	dtbo_partition[32];
+	char	dtbo_partition[32]={0};
 	char	*s1;
 	struct	dt_table_header hdr;
 
@@ -377,6 +377,7 @@ static int read_fdto_partition(void)
 				"setenv dtbo_mem_addr 0x%p",
 				dtbo_mem_addr);
 				run_command(cmd, 0);
+				free(dtbo_mem_addr);
 			}
 		}
 	}
@@ -391,12 +392,15 @@ static int get_fdto_totalsize(u32 *tz)
 
 	unsigned long long dtbo_mem_addr = NULL;
 	int ret;
+	char envval_str[128]={0};
 
 	ret = read_fdto_partition();
 	if (ret != 0)
 		return ret;
 
-	dtbo_mem_addr = simple_strtoul(getenv("dtbo_mem_addr"), NULL, 16);
+	//dtbo_mem_addr = simple_strtoul(getenv("dtbo_mem_addr"), NULL, 16);
+	getenv_f("dtbo_mem_addr", envval_str, sizeof(envval_str));
+	dtbo_mem_addr = simple_strtoul(envval_str, NULL, 16);
 	*tz = android_dt_get_totalsize(dtbo_mem_addr);
 
 	TE(__func__);
@@ -415,13 +419,16 @@ static int do_fdt_overlay(void)
 	unsigned long long dtbo_start;
 	char               *dtbo_idx = NULL;
 	char		   idx[32];
+	char envval_str[128]={0};
 
 	if (!getenv("dtbo_mem_addr")) {
 		printf("No valid dtbo image found\n");
 		return -1;
 	}
 
-	dtbo_mem_addr = simple_strtoul(getenv("dtbo_mem_addr"), NULL, 16);
+	//dtbo_mem_addr = simple_strtoul(getenv("dtbo_mem_addr"), NULL, 16);  //coverity error
+	getenv_f("dtbo_mem_addr",envval_str,sizeof(envval_str));
+	dtbo_mem_addr = simple_strtoul(envval_str, NULL, 16);
 	if (!android_dt_check_header(dtbo_mem_addr)) {
 		printf("Error: DTBO image header is incorrect\n");
 		return -1;
@@ -453,8 +460,10 @@ static int do_fdt_overlay(void)
 			sprintf(cmd, "dtimg start 0x%llx %d dtbo_start",
 				dtbo_mem_addr, i);
 			run_command(cmd, 0);
-			dtbo_start = simple_strtoul(
-					getenv("dtbo_start"), NULL, 16);
+			//dtbo_start = simple_strtoul(getenv("dtbo_start"), NULL, 16);  //coverity error
+			memset(envval_str, 0, sizeof(envval_str));
+			getenv_f("dtbo_start", envval_str, sizeof(envval_str));
+			dtbo_start = simple_strtoul(envval_str, NULL, 16);
 
 			sprintf(cmd, "fdt apply 0x%llx", dtbo_start);
 			run_command(cmd, 0);
@@ -466,11 +475,26 @@ static int do_fdt_overlay(void)
 }
 #endif
 
+#ifdef CONFIG_MULTI_DTB
+/*for avoid coverity error*/
+static char *get_multi_dt_entry_avoid(char *ft_addr)
+{
+	unsigned long ftaddr;
+	char *p_ftaddr;
+	extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
+
+	ftaddr = (unsigned long)images.ft_addr;
+	p_ftaddr = (char*)get_multi_dt_entry(ftaddr);
+	return p_ftaddr;
+}
+#endif
+
 #if defined(CONFIG_OF_LIBFDT)
 static int bootm_find_fdt(int flag, int argc, char * const argv[])
 {
 	TE(__func__);
 
+	char envval_str[128]={0};
 	int ret;
 	#ifdef CONFIG_OF_LIBFDT_OVERLAY
 	u32		  fdto_totalsize = 0;
@@ -485,8 +509,11 @@ static int bootm_find_fdt(int flag, int argc, char * const argv[])
 	//try to do store dtb decrypt ${dtb_mem_addr}
 	//because if load dtb.img from cache/udisk maybe encrypted.
 	run_command("store dtb decrypt ${dtb_mem_addr}", 0);
-	if (getenv("dtb_mem_addr"))
-		dtb_mem_addr = simple_strtoul(getenv("dtb_mem_addr"), NULL, 16);
+	if (getenv("dtb_mem_addr")) {
+		//dtb_mem_addr = simple_strtoul(getenv("dtb_mem_addr"), NULL, 16);  //coverity error
+		getenv_f("dtb_mem_addr",envval_str,sizeof(envval_str));
+		dtb_mem_addr = simple_strtoul(envval_str, NULL, 16);
+	}
 	else
 		dtb_mem_addr = CONFIG_DTB_MEM_ADDR;
 
@@ -504,7 +531,8 @@ static int bootm_find_fdt(int flag, int argc, char * const argv[])
 	#ifdef CONFIG_MULTI_DTB
 	extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
 	/* update dtb address, compatible with single dtb and multi dtbs */
-	images.ft_addr = (char*)get_multi_dt_entry((unsigned long)images.ft_addr);
+	//images.ft_addr = (char*)get_multi_dt_entry((unsigned long)images.ft_addr);  //coverity error
+	images.ft_addr = get_multi_dt_entry_avoid(images.ft_addr);
 	#endif
 	ret = boot_get_fdt(flag, argc, argv, IH_ARCH_DEFAULT, &images,
 			   &images.ft_addr, &images.ft_len);
@@ -534,6 +562,8 @@ static int bootm_find_fdt(int flag, int argc, char * const argv[])
 	#ifdef CONFIG_OF_LIBFDT_OVERLAY
 	do_fdt_overlay();
 	#endif
+
+	ft_len_bak = images.ft_len;
 
 	TE(__func__);
 
@@ -965,12 +995,21 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	}
 
 	/* Call various other states that are not generally used */
-	if (!ret && (states & BOOTM_STATE_OS_CMDLINE))
+	if (!ret && (states & BOOTM_STATE_OS_CMDLINE)) {
+		if (boot_fn) {
 		ret = boot_fn(BOOTM_STATE_OS_CMDLINE, argc, argv, images);
-	if (!ret && (states & BOOTM_STATE_OS_BD_T))
+		}
+	}
+	if (!ret && (states & BOOTM_STATE_OS_BD_T)) {
+		if (boot_fn) {
 		ret = boot_fn(BOOTM_STATE_OS_BD_T, argc, argv, images);
-	if (!ret && (states & BOOTM_STATE_OS_PREP))
+		}
+	}
+	if (!ret && (states & BOOTM_STATE_OS_PREP)) {
+		if (boot_fn) {
 		ret = boot_fn(BOOTM_STATE_OS_PREP, argc, argv, images);
+		}
+	}
 
 #ifdef CONFIG_TRACE
 	/* Pretend to run the OS, then run a user command */

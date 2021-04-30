@@ -452,7 +452,9 @@ int boot_selected_os(int argc, char * const argv[], int state,
 		     bootm_headers_t *images, boot_os_fn *boot_fn)
 {
 	arch_preboot_os();
+	if (boot_fn) {
 	boot_fn(state, argc, argv, images);
+	}
 
 	/* Stand-alone may return when 'autostart' is 'no' */
 	if (images->os.type == IH_TYPE_STANDALONE ||
