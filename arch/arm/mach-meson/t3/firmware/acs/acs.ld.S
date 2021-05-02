@@ -45,7 +45,7 @@ SECTIONS
 		*(.store_param*)
 	}
 
-	. = 0x0000600;
+	. = 0x0000600-0x40;//max 0x600-96
 	.ddr_param :
 	{
 		*(.ddr_param*)
