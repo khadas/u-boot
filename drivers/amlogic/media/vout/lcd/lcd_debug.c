@@ -1261,13 +1261,15 @@ static int lcd_prbs_test_t7(struct aml_lcd_drv_s *pdrv, unsigned int s, unsigned
 
 		/* set fifo_clk_sel: div 10 */
 		lcd_combo_dphy_write(reg_phy_tx_ctrl0, (3 << 5));
-		/* set cntl_ser_en:  8-channel to 1 */
+		/* set cntl_ser_en:  10-channel */
 		lcd_combo_dphy_setb(reg_phy_tx_ctrl0, 0x3ff, 16, 10);
+		lcd_combo_dphy_setb(reg_phy_tx_ctrl0, 1, 2, 1);
 		/* decoupling fifo enable, gated clock enable */
 		lcd_combo_dphy_write(reg_phy_tx_ctrl1, (1 << 6) | (1 << 0));
 		/* decoupling fifo write enable after fifo enable */
 		lcd_combo_dphy_setb(reg_phy_tx_ctrl1, 1, 7, 1);
 		/* prbs_err en */
+		lcd_combo_dphy_setb(reg_phy_tx_ctrl0, 1, 13, 1);
 		lcd_combo_dphy_setb(reg_phy_tx_ctrl0, 1, 12, 1);
 
 		while (cnt++ < timeout) {
