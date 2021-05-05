@@ -806,7 +806,7 @@ static void lcd_update_debug_bootargs(void)
 
 static int lcd_config_probe(void)
 {
-	int load_id = 0, load_id_lcd;
+	int load_id = 0, load_id_lcd, load_id_temp;
 	char *dt_addr = NULL;
 	struct aml_lcd_drv_s *pdrv;
 	unsigned int drv_cnt_flag;
@@ -827,30 +827,31 @@ static int lcd_config_probe(void)
 	}
 #endif
 
+	/*load_id: bit[8]:debug_force, bit[4]:key, bit[0]:dts*/
 	switch (debug_ctrl.debug_para_source) {
 	case 1:
 		LCDPR("lcd_debug_para: 1,dts\n");
-		load_id = 0x1;
+		load_id = 0x101;
 		break;
 	case 2:
 		LCDPR("lcd_debug_para: 2,unifykey\n");
-		load_id = 0x11;
+		load_id = 0x111;
 		break;
 	case 3:
 		LCDPR("lcd_debug_para: 3,bsp\n");
-		load_id = 0x0;
+		load_id = 0x100;
 		break;
 	default:
 		break;
 	}
-
 	load_id_lcd = load_id;
-	if (load_id & 0x1) {
+
+	if (load_id_lcd & 0x1) {
 		drv_cnt_flag = lcd_get_drv_cnt_flag_from_dts(dt_addr);
 		if (drv_cnt_flag == 0) {
 			LCDPR("not find /lcd node\n");
 			drv_cnt_flag = lcd_get_drv_cnt_flag_from_bsp();
-			load_id_lcd = 0x0;
+			load_id_lcd &= ~(1 <<0);
 		}
 	} else {
 		drv_cnt_flag = lcd_get_drv_cnt_flag_from_bsp();
@@ -869,8 +870,16 @@ static int lcd_config_probe(void)
 				lcd_driver_remove(i);
 				continue;
 			}
+			load_id_temp = load_id_lcd & 0xff;
+			if ((load_id_lcd & (1 << 8)) == 0) {
+				if (pdrv->key_valid)
+					load_id_temp |= (1 << 4);
+				else
+					load_id_temp &= ~(1 << 4);
+			}
+
 			lcd_clk_config_probe(pdrv);
-			ret = lcd_get_config(dt_addr, load_id_lcd, pdrv);
+			ret = lcd_get_config(dt_addr, load_id_temp, pdrv);
 			if (ret) {
 				lcd_driver_remove(i);
 				continue;
@@ -893,8 +902,16 @@ static int lcd_config_probe(void)
 				lcd_driver_remove(i);
 				continue;
 			}
+			load_id_temp = load_id_lcd & 0xff;
+			if ((load_id_lcd & (1 << 8)) == 0) {
+				if (pdrv->key_valid)
+					load_id_temp |= (1 << 4);
+				else
+					load_id_temp &= ~(1 << 4);
+			}
+
 			lcd_clk_config_probe(pdrv);
-			ret = lcd_get_config(dt_addr, load_id_lcd, pdrv);
+			ret = lcd_get_config(dt_addr, load_id_temp, pdrv);
 			if (ret) {
 				lcd_driver_remove(i);
 				continue;

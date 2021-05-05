@@ -2255,7 +2255,7 @@ int aml_bl_probe(char *dtaddr, int load_id)
 {
 	struct aml_lcd_data_s *pdata = aml_lcd_get_data();
 	struct aml_bl_drv_s *bdrv;
-	int load_id_bl;
+	int load_id_bl, load_id_temp;
 	int i, ret;
 
 	if (!pdata) {
@@ -2309,11 +2309,16 @@ int aml_bl_probe(char *dtaddr, int load_id)
 				return -1;
 			}
 		}
-		if (bdrv->key_valid)
-			load_id_bl |= 0x10;
+		load_id_temp = load_id_bl & 0xff;
+		if ((load_id_bl & (1 << 8)) == 0) {
+			if (bdrv->key_valid)
+				load_id_temp |= (1 << 4);
+			else
+				load_id_temp &= ~(1 << 4);
+		}
 
 		/* load bl config */
-		bl_config_load(dtaddr, load_id_bl, bdrv);
+		bl_config_load(dtaddr, load_id_temp, bdrv);
 		bl_power_init_off(bdrv);
 	}
 
