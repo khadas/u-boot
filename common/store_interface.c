@@ -417,6 +417,9 @@ static int do_store_dtb_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 						return CMD_RET_FAILURE;
 				}
 				unsigned fdtsz    = fdt_totalsize((char*)fdtAddr);
+				if (fdtsz > AML_DTB_IMG_MAX_SZ)
+					return CMD_RET_FAILURE;
+
 				memmove((char*)dtImgAddr, (char*)fdtAddr, fdtsz);
 		}
 #endif// #ifdef CONFIG_MULTI_DTB
