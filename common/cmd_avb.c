@@ -188,6 +188,7 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps* ops, const uint8_t* public
     uint64_t size;
     int rc;
 
+    key.size = 0;
     keybuf = (char *)malloc(AVB_CUSTOM_KEY_LEN_MAX);
     if (keybuf) {
         memset(keybuf , 0, AVB_CUSTOM_KEY_LEN_MAX);

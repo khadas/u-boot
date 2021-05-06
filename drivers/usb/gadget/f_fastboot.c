@@ -880,7 +880,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		} else
 			strncat(response, "no", chars_left);
 	} else if (!strncmp("partition-size", cmd, strlen("partition-size"))) {
-		char str_num[20];
+		char str_num[48];
 		struct partitions *pPartition;
 		uint64_t sz = 0;
 		int ret = -1;
@@ -1203,9 +1203,10 @@ static void do_bootm_on_complete(struct usb_ep *ep, struct usb_request *req)
 	printf("ramdisk_size 0x%x, totalSz 0x%x\n", hdr_addr->ramdisk_size, ramdisk_size);
 	printf("dtbSz 0x%x, Total actualBootImgSz 0x%x\n", dtbSz, actualBootImgSz);
 
-	memcpy((void *)load_addr, (void *)CONFIG_USB_FASTBOOT_BUF_ADDR, actualBootImgSz);
-
-	flush_cache(load_addr,(unsigned long)actualBootImgSz);
+	if ((actualBootImgSz > BOOT_IMG_HDR_SIZE) && (actualBootImgSz < CONFIG_FASTBOOT_MAX_DOWN_SIZE)) {
+		memcpy((void *)load_addr, (void *)CONFIG_USB_FASTBOOT_BUF_ADDR, actualBootImgSz);
+		flush_cache(load_addr,(unsigned long)actualBootImgSz);
+	}
 
 	run_command(boot_addr_start, 0);
 
@@ -1446,7 +1447,7 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 			return;
 		}
 
-		strncpy(key.magic_name, "AVBK", 4);
+		memcpy(key.magic_name, "AVBK", 4);
 		key.size = download_bytes;
 
 		rc = store_get_partititon_size((unsigned char *)partition, &size);
