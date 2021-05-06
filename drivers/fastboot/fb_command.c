@@ -483,6 +483,15 @@ static void flash(char *cmd_parameter, char *response)
 	fastboot_nand_flash_write(name, fastboot_buf_addr, image_size,
 				  response);
 #endif
+
+	if (strcmp(name, "bootloader") == 0) {
+#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
+		fastboot_mmc_erase("env", response);
+#endif
+#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND)
+		fastboot_nand_erase("env", response);
+#endif
+	}
 }
 
 /**
