@@ -1513,6 +1513,18 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 		printf("error: no valid fastboot device\n");
 		fastboot_fail("no vaild device\n");
 	}
+
+	if (strcmp(cmd, "bootloader") == 0) {
+		if (is_mainstorage_emmc()) {
+#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+			fb_mmc_erase_write("env", (void *)CONFIG_USB_FASTBOOT_BUF_ADDR);
+#endif
+		} else if (is_mainstorage_nand()) {
+#ifdef CONFIG_FASTBOOT_FLASH_NAND_DEV
+			fb_nand_erase("env", (void *)CONFIG_USB_FASTBOOT_BUF_ADDR);
+#endif
+		}
+	}
 	fastboot_tx_write_str(response);
 }
 #endif
