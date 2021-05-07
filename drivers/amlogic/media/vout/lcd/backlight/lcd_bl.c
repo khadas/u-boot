@@ -1422,9 +1422,9 @@ static int bl_config_load_from_unifykey(char *dt_addr, struct aml_bl_drv_s *bdrv
 	memset(para, 0, (sizeof(unsigned char) * key_len));
 
 	if (bdrv->index == 0)
-		sprintf(sname, "/backlight");
+		sprintf(sname, "backlight");
 	else
-		sprintf(sname, "/backlight%d", bdrv->index);
+		sprintf(sname, "backlight%d", bdrv->index);
 	ret = lcd_unifykey_get(sname, para, &key_len);
 	if (ret) {
 		free(para);
