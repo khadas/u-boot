@@ -32,7 +32,6 @@
 #include <linux/log2.h>
 #include <asm/arch/cpu_config.h>
 #include <amlogic/storage.h>
-#include <amlogic/cpu_id.h>
 #endif
 
 /* SPI NAND index visible in MTD names */
@@ -1251,14 +1250,12 @@ int spinand_add_partitions(struct mtd_info *mtd,
 	int part_num = 0, i = 0;
 	struct mtd_partition *temp, *parts_nm;
 	loff_t off;
-	cpu_id_t cpu_id = get_cpu_id();
 
-	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
-	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2)
+	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER)
+		part_num = nbparts + 2;
+	else if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER)
 		part_num = nbparts + 5;
 	else
-		part_num = nbparts + 2;
-	} else
 		part_num = nbparts + 1;
 
 	temp = kzalloc(sizeof(*temp) * part_num, GFP_KERNEL);
@@ -1271,50 +1268,48 @@ int spinand_add_partitions(struct mtd_info *mtd,
 	off = temp[0].size + NAND_RSV_BLOCK_NUM * mtd->erasesize;
 
 	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
-		if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) {
-			extern struct storage_startup_parameter g_ssp;
-			temp[BOOT_AREA_BL2E].name = BOOT_BL2E;
-			temp[BOOT_AREA_BL2E].offset =
-				g_ssp.boot_entry[BOOT_AREA_BL2E].offset;
-			temp[BOOT_AREA_BL2E].size =
-				g_ssp.boot_entry[BOOT_AREA_BL2E].size * g_ssp.boot_bakups;
-			if (temp[0].size % mtd->erasesize)
-				WARN_ON(1);
+		temp[1].name = BOOT_TPL;
+		temp[1].offset = off;
+		temp[1].size = CONFIG_TPL_SIZE_PER_COPY * CONFIG_NAND_TPL_COPY_NUM;
+		if (temp[1].size % mtd->erasesize)
+			WARN_ON(1);
+		parts_nm = &temp[2];
+		off += temp[1].size;
+	} else if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER) {
+		extern struct storage_startup_parameter g_ssp;
+		temp[BOOT_AREA_BL2E].name = BOOT_BL2E;
+		temp[BOOT_AREA_BL2E].offset =
+			g_ssp.boot_entry[BOOT_AREA_BL2E].offset;
+		temp[BOOT_AREA_BL2E].size =
+			g_ssp.boot_entry[BOOT_AREA_BL2E].size * g_ssp.boot_bakups;
+		if (temp[0].size % mtd->erasesize)
+			WARN_ON(1);
 
-			temp[BOOT_AREA_BL2X].name = BOOT_BL2X;
-			temp[BOOT_AREA_BL2X].offset =
-				g_ssp.boot_entry[BOOT_AREA_BL2X].offset;
-			temp[BOOT_AREA_BL2X].size =
-				g_ssp.boot_entry[BOOT_AREA_BL2X].size * g_ssp.boot_bakups;
-			if (temp[0].size % mtd->erasesize)
-				WARN_ON(1);
+		temp[BOOT_AREA_BL2X].name = BOOT_BL2X;
+		temp[BOOT_AREA_BL2X].offset =
+			g_ssp.boot_entry[BOOT_AREA_BL2X].offset;
+		temp[BOOT_AREA_BL2X].size =
+			g_ssp.boot_entry[BOOT_AREA_BL2X].size * g_ssp.boot_bakups;
+		if (temp[0].size % mtd->erasesize)
+			WARN_ON(1);
 
-			temp[BOOT_AREA_DDRFIP].name = BOOT_DDRFIP;
-			temp[BOOT_AREA_DDRFIP].offset =
-				g_ssp.boot_entry[BOOT_AREA_DDRFIP].offset;
-			temp[BOOT_AREA_DDRFIP].size =
-				g_ssp.boot_entry[BOOT_AREA_DDRFIP].size * g_ssp.boot_bakups;
-			if (temp[0].size % mtd->erasesize)
-				WARN_ON(1);
+		temp[BOOT_AREA_DDRFIP].name = BOOT_DDRFIP;
+		temp[BOOT_AREA_DDRFIP].offset =
+			g_ssp.boot_entry[BOOT_AREA_DDRFIP].offset;
+		temp[BOOT_AREA_DDRFIP].size =
+			g_ssp.boot_entry[BOOT_AREA_DDRFIP].size * g_ssp.boot_bakups;
+		if (temp[0].size % mtd->erasesize)
+			WARN_ON(1);
 
-			temp[BOOT_AREA_DEVFIP].name = BOOT_DEVFIP;
-			temp[BOOT_AREA_DEVFIP].offset =
-				g_ssp.boot_entry[BOOT_AREA_DEVFIP].offset;
-			temp[BOOT_AREA_DEVFIP].size =
-				g_ssp.boot_entry[BOOT_AREA_DEVFIP].size * CONFIG_NAND_TPL_COPY_NUM;
-			if (temp[0].size % mtd->erasesize)
-				WARN_ON(1);
-			off = temp[BOOT_AREA_DEVFIP].offset + temp[BOOT_AREA_DEVFIP].size;
-			parts_nm = &temp[5];
-		} else {
-			temp[1].name = BOOT_TPL;
-			temp[1].offset = off;
-			temp[1].size = CONFIG_TPL_SIZE_PER_COPY * CONFIG_NAND_TPL_COPY_NUM;
-			if (temp[1].size % mtd->erasesize)
-				WARN_ON(1);
-			parts_nm = &temp[2];
-			off += temp[1].size;
-		}
+		temp[BOOT_AREA_DEVFIP].name = BOOT_DEVFIP;
+		temp[BOOT_AREA_DEVFIP].offset =
+			g_ssp.boot_entry[BOOT_AREA_DEVFIP].offset;
+		temp[BOOT_AREA_DEVFIP].size =
+			g_ssp.boot_entry[BOOT_AREA_DEVFIP].size * CONFIG_NAND_TPL_COPY_NUM;
+		if (temp[0].size % mtd->erasesize)
+			WARN_ON(1);
+		off = temp[BOOT_AREA_DEVFIP].offset + temp[BOOT_AREA_DEVFIP].size;
+		parts_nm = &temp[5];
 	} else
 		parts_nm = &temp[1];
 

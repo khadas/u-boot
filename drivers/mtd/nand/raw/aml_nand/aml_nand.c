@@ -11,7 +11,6 @@
 #include <linux/err.h>
 #include <asm/cache.h>
 #include <amlogic/storage.h>
-#include <amlogic/cpu_id.h>
 #include <linux/log2.h>
 #include <dm/pinctrl.h>
 #include <dm/uclass.h>
@@ -138,7 +137,6 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 	struct nand_chip *chip = &aml_chip->chip;
 	struct mtd_info *mtd = &chip->mtd;
 	struct aml_nand_platform *plat = aml_chip->platform;
-	cpu_id_t cpu_id = get_cpu_id();
 #ifdef CONFIG_MTD_PARTITIONS
 	struct mtd_partition *temp_parts = NULL;
 	struct mtd_partition *parts;
@@ -175,11 +173,10 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 		nr = get_aml_partition_count();
 		adjust_offset = 1024 * mtd->writesize + (loff_t)reserved_part_blk_num * mtd->erasesize;
 
-		if (store_get_device_bootloader_mode() != DISCRETE_BOOTLOADER)
+		if (store_get_device_bootloader_mode() == COMPACT_BOOTLOADER)
 			goto _COMPAT_BOOTLOADER;
 
-		if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) ||
-		    (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4)) {
+		if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER) {
 			fip_part_size = g_ssp.boot_entry[BOOT_AREA_DEVFIP].size * CONFIG_NAND_TPL_COPY_NUM;
 			adjust_offset = g_ssp.boot_entry[BOOT_AREA_DEVFIP].offset + fip_part_size;
 			internal_part_count = 4;
@@ -190,8 +187,7 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 
 		for (i = 0; i < internal_part_count; i++) {
 			temp_parts = parts + i;
-			if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) ||
-			    (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4)) {
+			if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER) {
 				temp_parts->offset = g_ssp.boot_entry[i + 1].offset;
 				if (i == internal_part_count -1)
 					temp_parts->size = fip_part_size;
@@ -1625,7 +1621,6 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 	int oobmul;
 	unsigned valid_chip_num = 0;
 	struct nand_oobfree *oobfree = NULL;
-	cpu_id_t cpu_id = get_cpu_id();
 
 	chip->ecc.layout = &aml_nand_oob_64;
 	chip->select_chip = aml_nand_select_chip;
@@ -1647,12 +1642,10 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 	aml_chip->aml_nand_hw_init(aml_chip);
 	aml_chip->toggle_mode =0;
 	aml_chip->bch_info = NAND_ECC_BCH60_1K;
-	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_AXG) ||
-	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_TXHD)||
-	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_C1) ||
-	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_C2) ||
-	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4))
-		aml_chip->bch_info = NAND_ECC_BCH8_1K;
+#ifdef NAND_ECC_ONLY_BCH8_1K
+	aml_chip->bch_info = NAND_ECC_BCH8_1K;
+	printf("Currently only supports BCH8 1K!\n");
+#endif
 
 	chip->options = 0;
 	chip->options |=  NAND_SKIP_BBTSCAN;

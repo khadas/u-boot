@@ -10,7 +10,6 @@
 #include <linux/err.h>
 #include <asm/cache.h>
 //#include <asm/arch/secure_apb.h>
-#include <amlogic/cpu_id.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/nand_ecc.h>
@@ -89,7 +88,6 @@ void nand_info_page_prepare(struct aml_nand_chip *aml_chip, u8 *page0_buf)
 	ext_info_t *p_ext_info = NULL;
 	nand_setup_t *p_nand_setup = NULL;
 	nand_setup_sc2_t * p_nand_setup_sc2 = NULL;
-	cpu_id_t cpu_id = get_cpu_id();
 	int each_boot_pages, boot_num, bbt_pages;
 	unsigned int pages_per_blk_shift ,bbt_size;
 	fip_info_t *p_fip_info = NULL;
@@ -97,7 +95,8 @@ void nand_info_page_prepare(struct aml_nand_chip *aml_chip, u8 *page0_buf)
 
 	pages_per_blk_shift = (chip->phys_erase_shift - chip->page_shift);
 	bbt_size = aml_chip_normal->rsv->bbt->size;
-	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
+	if ((store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) ||
+		(store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER)) {
 		boot_num = CONFIG_NAND_TPL_COPY_NUM;
 		each_boot_pages = CONFIG_TPL_SIZE_PER_COPY / mtd->writesize;
 	} else {
@@ -114,8 +113,7 @@ void nand_info_page_prepare(struct aml_nand_chip *aml_chip, u8 *page0_buf)
 			chip->ecc.steps);
 
 	memset(p_nand_page0, 0x0, sizeof(nand_page0_t));
-	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) ||
-	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4)) {
+	if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER) {
 		p_nand_page0_sc2 = (nand_page0_sc2_t *) page0_buf;
 		p_nand_setup_sc2 = &p_nand_page0_sc2->nand_setup;
 		p_ext_info = &p_nand_page0_sc2->ext_info;
@@ -123,7 +121,7 @@ void nand_info_page_prepare(struct aml_nand_chip *aml_chip, u8 *page0_buf)
 		p_nand_setup_sc2->cfg.b.page_list = 0;
 		p_nand_setup_sc2->cfg.b.new_type = 0;
 		p_fip_info = &p_nand_page0_sc2->fip_info;
-		printk("sc2 cfg.d32 0x%x\n", p_nand_setup_sc2->cfg.d32);
+		printk("advance cfg.d32 0x%x\n", p_nand_setup_sc2->cfg.d32);
 	} else {
 		p_nand_page0 = (nand_page0_t *) page0_buf;
 		p_nand_setup = &p_nand_page0->nand_setup;
@@ -141,19 +139,20 @@ void nand_info_page_prepare(struct aml_nand_chip *aml_chip, u8 *page0_buf)
 	p_ext_info->bbt_occupy_pages = bbt_pages;
 	p_ext_info->bbt_start_block =
 		(BOOT_TOTAL_PAGES >> pages_per_blk_shift) + NAND_GAP_BLOCK_NUM;
-	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
-	p_fip_info->version = 1;
-	p_fip_info->mode = NAND_FIPMODE_DISCRETE;
-	/* in pages, fixme, should it stored in amlchip? */
-	p_fip_info->fip_start =
-		1024 + NAND_RSV_BLOCK_NUM * p_ext_info->page_per_blk;
-	ddrp_start_block = aml_chip_normal->rsv->ddr_para->nvalid->blk_addr;
-	p_nand_page0->ddrp_start_page = (ddrp_start_block << pages_per_blk_shift) +
-		aml_chip_normal->rsv->ddr_para->nvalid->page_addr;
-	printk("ddrp_start_page = 0x%x ddr_start_block = 0x%x\n",
-		p_nand_page0->ddrp_start_page, ddrp_start_block);
-	printk("bl: version %d, mode %d, start 0x%x\n",
-		p_fip_info->version, p_fip_info->mode, p_fip_info->fip_start);
+	if ((store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) ||
+	    (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER)) {
+		p_fip_info->version = 1;
+		p_fip_info->mode = NAND_FIPMODE_DISCRETE;
+		/* in pages, fixme, should it stored in amlchip? */
+		p_fip_info->fip_start =
+			1024 + NAND_RSV_BLOCK_NUM * p_ext_info->page_per_blk;
+		ddrp_start_block = aml_chip_normal->rsv->ddr_para->nvalid->blk_addr;
+		p_nand_page0->ddrp_start_page = (ddrp_start_block << pages_per_blk_shift) +
+			aml_chip_normal->rsv->ddr_para->nvalid->page_addr;
+		printk("ddrp_start_page = 0x%x ddr_start_block = 0x%x\n",
+			p_nand_page0->ddrp_start_page, ddrp_start_block);
+		printk("bl: version %d, mode %d, start 0x%x\n",
+			p_fip_info->version, p_fip_info->mode, p_fip_info->fip_start);
 	}
 	printk("page_per_blk = 0x%x bbt_pages = 0x%x \n",
 		p_ext_info->page_per_blk, bbt_pages);
@@ -209,8 +208,9 @@ int m3_nand_boot_read_page_hwecc(struct mtd_info *mtd,
 	int each_boot_pages, boot_num;
 	loff_t ofs;
 
-	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER)
-		boot_num = CONFIG_BL2_COPY_NUM;
+	if ((store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) ||
+	    (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER))
+		boot_num = CONFIG_BL2_COPY_NUM; /* TODO: need add advance mode support */
 	else
 		boot_num = (!aml_chip->boot_copy_num)? 1: aml_chip->boot_copy_num;
 
@@ -304,7 +304,8 @@ int m3_nand_boot_read_page_hwecc(struct mtd_info *mtd,
 				"pages_per_blk:0x%x-0x%x\n",
 				page, configure_data_w, configure_data,
 				pages_per_blk_w, pages_per_blk);
-		if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER)
+		if ((store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) ||
+			(store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER))
 			/* fixme, check fip_info_t */
 			printk(" TODO: check fip info\n");
 
@@ -382,8 +383,9 @@ int m3_nand_boot_write_page_hwecc(struct mtd_info *mtd,
 	int error = 0, i = 0, bch_mode, ecc_size;
 	int each_boot_pages, boot_num;
 
-	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER)
-		boot_num = CONFIG_BL2_COPY_NUM;
+	if ((store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) ||
+		(store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER))
+		boot_num = CONFIG_BL2_COPY_NUM; /* TODO: need add advance mode support */
 	else
 		boot_num = (!aml_chip->boot_copy_num)? 1: aml_chip->boot_copy_num;
 	each_boot_pages = BOOT_TOTAL_PAGES/boot_num;
@@ -439,8 +441,9 @@ int m3_nand_boot_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 	int en_slc = 0, each_boot_pages, boot_num;
 	loff_t ofs;
 
-	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER)
-		boot_num = CONFIG_BL2_COPY_NUM;
+	if ((store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) ||
+		(store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER))
+		boot_num = CONFIG_BL2_COPY_NUM; /* TODO: need add advance mode support */
 	else
 		boot_num = (!aml_chip->boot_copy_num)? 1: aml_chip->boot_copy_num;
 

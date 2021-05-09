@@ -283,7 +283,6 @@ const struct mtd_partition *get_spiflash_partition_table(int *partitions)
 
 #ifdef CONFIG_MESON_NFC
 static struct mtd_partition normal_partition_info[] = {
-#ifdef CONFIG_DISCRETE_BOOTLOADER
 {
 	.name = BOOT_BL2E,
 	.offset = 0,
@@ -304,7 +303,6 @@ static struct mtd_partition normal_partition_info[] = {
 	.offset = 0,
 	.size = 0,
 },
-#endif
 {
 	.name = "logo",
 	.offset = 0,

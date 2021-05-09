@@ -135,11 +135,7 @@ void store_unregister(struct storage_t *store_dev)
 
 int sheader_need(void)
 {
-	const cpu_id_t cpuid = get_cpu_id();
-	const int familyId = cpuid.family_id;
-
-	return ((MESON_CPU_MAJOR_ID_SC2 == familyId) || (MESON_CPU_MAJOR_ID_T7 == familyId)
-		|| (MESON_CPU_MAJOR_ID_S4 == familyId));
+	return BOOTLOADER_MODE_ADVANCE_INIT;
 }
 
 unsigned char *ubootdata = NULL;
@@ -444,7 +440,6 @@ int storage_post_init(void)
 
 int store_init(u32 init_flag)
 {
-	cpu_id_t cpu_id = get_cpu_id();
 	int i, ret = 0;
 	u8 record = 0;
 
@@ -460,8 +455,7 @@ int store_init(u32 init_flag)
 		return record;
 	}
 
-	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) || (cpu_id.family_id == MESON_CPU_MAJOR_ID_T7)
-	    || (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4))
+	if (BOOTLOADER_MODE_ADVANCE_INIT)
 		storage_post_init();
 
 	/*2. Enter the probe of the valid device*/
@@ -1209,7 +1203,6 @@ static int bl2x_mode_check_header(p_payload_info_t pInfo)
 
 static int _store_boot_write(const char *part_name, u8 cpy, size_t size, void *addr)
 {
-	cpu_id_t cpu_id = get_cpu_id();
 	enum boot_type_e medium_type = store_get_type();
 	struct storage_startup_parameter *ssp = &g_ssp;
 
@@ -1222,7 +1215,7 @@ static int _store_boot_write(const char *part_name, u8 cpy, size_t size, void *a
 	int tpl_cpynum = 0;
 	int bootloader_maxsize = 0;
 
-	if (store_get_device_bootloader_mode() != DISCRETE_BOOTLOADER)
+	if (store_get_device_bootloader_mode() == COMPACT_BOOTLOADER)
 		return store->boot_write(part_name, cpy, size, (u_char *)addr);
 
 	if (BOOT_NAND_MTD == medium_type ||  BOOT_SNAND == medium_type)
@@ -1230,8 +1223,7 @@ static int _store_boot_write(const char *part_name, u8 cpy, size_t size, void *a
 	else if (medium_type == BOOT_SNOR)
 		tpl_cpynum = CONFIG_NOR_TPL_COPY_NUM;
 
-	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) || (cpu_id.family_id == MESON_CPU_MAJOR_ID_T7)
-	    || (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4)) {
+	if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER) {
 		bl2_cpynum = ssp->boot_bakups;
 	} else	{
 		bootloader_maxsize = bl2_size + tpl_per_size;
@@ -1407,14 +1399,14 @@ static int do_store_param_ops(cmd_tbl_t *cmdtp,
 			    int flag, int argc, char * const argv[])
 {
 	boot_area_entry_t *boot_entry = general_boot_layout.boot_entry;
-	cpu_id_t cpu_id = get_cpu_id();
 	char bufvir[64];
 	int lenvir, i, re;
 	u32 bl2e_size, bl2x_size;
 	char *p = bufvir;
 
-	if ((cpu_id.family_id != MESON_CPU_MAJOR_ID_SC2) &&
-	    (cpu_id.family_id != MESON_CPU_MAJOR_ID_S4)) return 0;
+	if (store_get_device_bootloader_mode() != ADVANCE_BOOTLOADER)
+		return 0;
+
 	bl2e_size = boot_entry[BOOT_AREA_BL2E].size;
 	bl2x_size = boot_entry[BOOT_AREA_BL2X].size;
 	lenvir = snprintf(bufvir, sizeof(bufvir), "%s", "mtdbootparts=aml-nand:");

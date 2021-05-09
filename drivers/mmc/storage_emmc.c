@@ -892,7 +892,7 @@ void config_storage_dev_func(struct storage_t *dev, struct mmc* mmc)
 	dev->info.write_unit = mmc->write_bl_len;
 	dev->info.erase_unit = mmc->erase_grp_size;
 	dev->info.caps = mmc->capacity_user;
-	dev->info.mode = COMPACT_BOOTLOADER;
+	dev->info.mode = BOOTLOADER_MODE_EMMC;
 
 	dev->get_part_size = mmc_storage_get_part_size;
 	dev->read = mmc_storage_read;

@@ -14,7 +14,6 @@
 #include <amlogic/storage.h>
 #include <amlogic/aml_mtd.h>
 #include <amlogic/aml_rsv.h>
-#include <amlogic/cpu_id.h>
 #include <asm/arch/cpu_config.h>
 #include <partition_table.h>
 #include <time.h>
@@ -81,7 +80,8 @@ int get_meson_mtd_partition_table(struct mtd_partition **partitions)
 static struct mtd_info *mtd_store_get_by_name(const char *part_name,
 					      int boot)
 {
-	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
+	if ((store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) ||
+	    (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER)) {
 		if (!strcmp(part_name, BOOT_BL2) ||
 		    !strcmp(part_name, BOOT_SPL))
 			return mtd_store_get(0);
@@ -429,7 +429,8 @@ static int mtd_store_get_offset(const char *partname, loff_t *retoff, loff_t off
 #if defined(CONFIG_CMD_MTDPARTS)
 	else if (!mtdparts_init()) {
 		strncpy(tmp_part_name, partname,  min_t(int, strlen(partname), 20));
-		if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
+		if ((store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) ||
+		    (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER)) {
 			if (!strcmp(partname, BOOT_BL2) ||
 			    !strcmp(partname, BOOT_SPL))
 				strncpy(tmp_part_name, BOOT_LOADER, strlen(BOOT_LOADER));
@@ -489,7 +490,8 @@ static u64 mtd_store_size(const char *part_name)
 
 	if (!mtdparts_init()) {
 		strncpy(tmp_part_name, part_name, min_t(int, strlen(part_name), 20));
-		if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
+		if ((store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) ||
+		   (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER)) {
 			if (!strcmp(part_name, BOOT_BL2) ||
 			    !strcmp(part_name, BOOT_SPL))
 				strncpy(tmp_part_name, BOOT_LOADER, strlen(BOOT_LOADER));
@@ -527,7 +529,8 @@ static int mtd_store_read(const char *part_name,
 		offset += BOOT_TOTAL_PAGES * ((u64)mtd->writesize);
 		offset += NAND_RSV_BLOCK_NUM * ((u64)mtd->erasesize);
 
-		if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
+		if ((store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) ||
+		    (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER))  {
 				if (BOOT_NAND_MTD == medium_type ||
 					BOOT_SNAND == medium_type)
 					backup_num = CONFIG_NAND_TPL_COPY_NUM;
@@ -569,7 +572,8 @@ static int mtd_store_write(const char *part_name,
 		offset = off;
 		offset += BOOT_TOTAL_PAGES * ((u64)mtd->writesize);
 		offset += NAND_RSV_BLOCK_NUM * ((u64)mtd->erasesize);
-		if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
+		if ((store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) ||
+		    (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER)) {
 			if (BOOT_NAND_MTD == medium_type ||
 				BOOT_SNAND == medium_type)
 			offset += CONFIG_TPL_SIZE_PER_COPY *
@@ -690,7 +694,6 @@ static int mtd_store_erase(const char *part_name,
 
 static u8 mtd_store_boot_copy_num(const char *part_name)
 {
-	cpu_id_t cpu_id = get_cpu_id();
 	enum boot_type_e medium_type = store_get_type();
 
 	if (!part_name) {
@@ -701,21 +704,25 @@ static u8 mtd_store_boot_copy_num(const char *part_name)
 
 	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
 		if (!strcmp(part_name, BOOT_TPL) ||
-		    !strcmp(part_name, BOOT_FIP) ||
-		    !strcmp(part_name, BOOT_DEVFIP)) {
+		    !strcmp(part_name, BOOT_FIP)) {
 			if (BOOT_NAND_MTD == medium_type ||
-			BOOT_SNAND == medium_type)
+				BOOT_SNAND == medium_type)
 				return CONFIG_NAND_TPL_COPY_NUM;
 			if (medium_type == BOOT_SNOR)
 				return CONFIG_NOR_TPL_COPY_NUM;
-		} else {
-			if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) || (cpu_id.family_id == MESON_CPU_MAJOR_ID_T7)
-			    || (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4)) {
-				return g_ssp.boot_bakups;
-			} else {
-				return CONFIG_BL2_COPY_NUM;
-			}
-		}
+		} else
+			return CONFIG_BL2_COPY_NUM;
+	} else if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER) {
+		if (!strcmp(part_name, BOOT_DEVFIP) ||
+			!strcmp(part_name, BOOT_TPL) ||
+			!strcmp(part_name, BOOT_FIP)) {
+			if (BOOT_NAND_MTD == medium_type ||
+				BOOT_SNAND == medium_type)
+				return CONFIG_NAND_TPL_COPY_NUM;
+			if (medium_type == BOOT_SNOR)
+				return CONFIG_NOR_TPL_COPY_NUM;
+		} else
+			return g_ssp.boot_bakups;
 	} else {
 		if (!strcmp(part_name, BOOT_LOADER))
 			return boot_num_get();
@@ -734,7 +741,8 @@ int is_mtd_store_boot_area(const char *part_name)
 		return 0;
 	}
 
-	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
+	if ((store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) ||
+	    (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER)) {
 		if (!strcmp(part_name, BOOT_BL2) ||
 		    !strcmp(part_name, BOOT_SPL) ||
 		    !strcmp(part_name, BOOT_TPL) ||
@@ -751,25 +759,21 @@ int is_mtd_store_boot_area(const char *part_name)
 	return 0;
 }
 
-char *boot_entry_old[] = {BOOT_BL2, BOOT_TPL};
-char *boot_entry_sc2[] = {BOOT_BL2, BOOT_BL2E, BOOT_BL2X, BOOT_DDRFIP, BOOT_DEVFIP};
+char *boot_entry_advance[] = {BOOT_BL2, BOOT_BL2E, BOOT_BL2X, BOOT_DDRFIP, BOOT_DEVFIP};
+char *boot_entry_discrete[] = {BOOT_BL2, BOOT_TPL};
 static char **get_bootloader_entry(int *boot_count)
 {
-	cpu_id_t cpu_id = get_cpu_id();
-	char **boot_entry = boot_entry_old;
-
-	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) || (cpu_id.family_id == MESON_CPU_MAJOR_ID_T7)
-	    || (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4)) {
+	if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER) {
 		*boot_count = 5;
-		boot_entry = boot_entry_sc2;
+		return boot_entry_advance;
+	} else {
+		*boot_count = 2;
+		return boot_entry_discrete;
 	}
-	return boot_entry;
-
 }
 
 static u64 mtd_store_boot_copy_size(const char *part_name)
 {
-	cpu_id_t cpu_id = get_cpu_id();
 	struct mtd_info *mtd = mtd_store_get(0);
 	int pages_per_copy = 0, boot_count = 2 , i;
 	u64 size = 0;
@@ -782,41 +786,39 @@ static u64 mtd_store_boot_copy_size(const char *part_name)
 	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
 		if (!strcmp(part_name, BOOT_BL2) ||
 		    !strcmp(part_name, BOOT_SPL)) {
-			if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) || (cpu_id.family_id == MESON_CPU_MAJOR_ID_T7)
-			    || (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4)) {
-				return g_ssp.boot_entry[BOOT_AREA_BB1ST].size;
-			} else {
-				pages_per_copy = BOOT_TOTAL_PAGES / CONFIG_BL2_COPY_NUM;
-				return ((u64)mtd->writesize) * pages_per_copy;
-			}
+			pages_per_copy = BOOT_TOTAL_PAGES / CONFIG_BL2_COPY_NUM;
+			return ((u64)mtd->writesize) * pages_per_copy;
 		} else if (!strcmp(part_name, BOOT_TPL) ||
-				   !strcmp(part_name, BOOT_FIP) ||
-				   !strcmp(part_name, BOOT_DEVFIP)) {
-			if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) || (cpu_id.family_id == MESON_CPU_MAJOR_ID_T7)
-			    || (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4)) {
-				return g_ssp.boot_entry[BOOT_AREA_DEVFIP].size;
-			} else {
-				return CONFIG_TPL_SIZE_PER_COPY;
-			}
-		} else if (!strcmp(part_name, BOOT_BL2E))
+			   !strcmp(part_name, BOOT_FIP) ||
+			   !strcmp(part_name, BOOT_DEVFIP)) {
+			return CONFIG_TPL_SIZE_PER_COPY;
+		} else if (!strcmp(part_name, BOOT_LOADER)) {
+			return CONFIG_TPL_SIZE_PER_COPY +
+				(BOOT_TOTAL_PAGES / CONFIG_BL2_COPY_NUM)* ((u64)mtd->writesize);
+		} else
+			return 0;
+	} else if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER) {
+		if (!strcmp(part_name, BOOT_BL2) ||
+		    !strcmp(part_name, BOOT_SPL))
+			return g_ssp.boot_entry[BOOT_AREA_BB1ST].size;
+		else if (!strcmp(part_name, BOOT_TPL) ||
+			 !strcmp(part_name, BOOT_FIP) ||
+			 !strcmp(part_name, BOOT_DEVFIP))
+			return g_ssp.boot_entry[BOOT_AREA_DEVFIP].size;
+		else if (!strcmp(part_name, BOOT_BL2E))
 			return g_ssp.boot_entry[BOOT_AREA_BL2E].size;
 		else if (!strcmp(part_name, BOOT_BL2X))
 			return g_ssp.boot_entry[BOOT_AREA_BL2X].size;
 		else if (!strcmp(part_name, BOOT_DDRFIP))
 			return g_ssp.boot_entry[BOOT_AREA_DDRFIP].size;
 		else if (!strcmp(part_name, BOOT_LOADER)) {
-			if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) || (cpu_id.family_id == MESON_CPU_MAJOR_ID_T7)
-			    || (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4)) {
-				boot_entry  = get_bootloader_entry(&boot_count);
-				for (i = 0; i < boot_count; i++, boot_entry++)
-					size += g_ssp.boot_entry[i].size;
-			} else
-				size = CONFIG_TPL_SIZE_PER_COPY +
-				       (BOOT_TOTAL_PAGES / CONFIG_BL2_COPY_NUM)* ((u64)mtd->writesize);
+			boot_entry  = get_bootloader_entry(&boot_count);
+			for (i = 0; i < boot_count; i++, boot_entry++)
+				size += g_ssp.boot_entry[i].size;
 			return size;
-
 		} else
 			return 0;
+
 	} else {
 		u8 num;
 
@@ -1066,9 +1068,8 @@ static int _mtd_store_boot_erase(const char *part_name, u8 cpy)
 
 static int mtd_store_boot_erase(const char *part_name, u8 cpy)
 {
-	cpu_id_t cpu_id = get_cpu_id();
-	char **boot_entry = boot_entry_old;
-	u8 i, boot_entry_cnt = 2;
+	char **boot_entry = boot_entry_discrete;
+	u8 i = 0, boot_entry_cnt = 2;
 	int ret;
 	u8 backup_num = 0;
 	enum boot_type_e medium_type = store_get_type();
@@ -1079,11 +1080,10 @@ static int mtd_store_boot_erase(const char *part_name, u8 cpy)
 		return 1;
 	}
 
-	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
-		if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) ||
-		    (cpu_id.family_id == MESON_CPU_MAJOR_ID_T7) || 
-		    (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4)) {
-			boot_entry = boot_entry_sc2;
+	if ((store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) ||
+	    (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER)) {
+		if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER) {
+			boot_entry = boot_entry_advance;
 			boot_entry_cnt = 5;
 		}
 		if (BOOT_SNOR == medium_type)

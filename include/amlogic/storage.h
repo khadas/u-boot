@@ -13,6 +13,8 @@
 #include <malloc.h>
 #include <asm/byteorder.h>
 #include <jffs2/jffs2.h>
+/* storage plat data */
+#include <asm/arch/storage.h>
 
 #define RSV_UNVAIL	140	/* rsv unvail error */
 
@@ -38,9 +40,6 @@ enum boot_type_e {
 #define RSV_BBT "bbt"
 #define RSV_DDR_PARA "ddr_para"
 
-#define DISCRETE_BOOTLOADER 1
-#define COMPACT_BOOTLOADER 0
-
 struct nand_startup_parameter {
 	int page_size;
 	int block_size;
@@ -50,26 +49,6 @@ struct nand_startup_parameter {
 	/* */
 	int page0_disable;
 };
-
-#define BL2E_STORAGE_PARAM_SIZE		(0x80)
-//#define BOOT_FIRST_BLOB_SIZE        (166*1024)
-#define BOOT_FILLER_SIZE            (4*1024)
-#define BOOT_RESERVED_SIZE          (4*1024)
-#define BOOT_RANDOM_NONCE           (16)
-#define BOOT_BL2E_SIZE              (66672) //74864-8K
-#define BOOT_EBL2E_SIZE             (BOOT_FILLER_SIZE + BOOT_RESERVED_SIZE + BOOT_BL2E_SIZE)
-#define BOOT_BL2X_SIZE              (66672)
-#define MAX_BOOT_AREA_ENTRIES		(8)
-/* bl2 core address base */
-#define BL2_CORE_BASE_OFFSET_EMMC	(0x200)
-/* boot area entry index */
-#define BOOT_AREA_BB1ST             (0)
-/* filler and reserved are considered part of the bl2E in storage view */
-#define BOOT_AREA_BL2E              (1)
-#define BOOT_AREA_BL2X              (2)
-#define BOOT_AREA_DDRFIP            (3)
-#define BOOT_AREA_DEVFIP            (4)
-#define BOOT_AREA_INVALID           (MAX_BOOT_AREA_ENTRIES)
 
 typedef struct boot_area_entry {
     /* name */

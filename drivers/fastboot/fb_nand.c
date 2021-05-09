@@ -251,7 +251,9 @@ void fastboot_nand_flash_write(const char *cmd, void *download_buffer,
 
 	if (strcmp(cmd, "bootloader") == 0) {
 		rwsize = download_bytes;
-		if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
+		if ((store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) ||
+			(store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER)) {
+			/* TODO: Need to add support for advance mode */
 			copy_num = CONFIG_BL2_COPY_NUM;
 			limit = mtd->size / copy_num;
 		} else {
@@ -275,7 +277,9 @@ void fastboot_nand_flash_write(const char *cmd, void *download_buffer,
 		return;
 	}
 
-	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
+	if ((store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) ||
+		(store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER)) {
+		/* TODO: Need to add support for advance mode */
 			if (strcmp(cmd, "tpl") == 0) {
 				if (BOOT_SNAND == medium_type ||
 				   BOOT_NAND_MTD == medium_type)

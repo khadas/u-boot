@@ -52,7 +52,7 @@ static int is_bootloader_discrte(bool* discreteMode)
 		FB_ERR("Fail get store dev info\n");
 		return __LINE__;
 	}
-	*discreteMode = (DISCRETE_BOOTLOADER == storeInfo.mode);
+	*discreteMode = ((DISCRETE_BOOTLOADER == storeInfo.mode) || (ADVANCE_BOOTLOADER == storeInfo.mode));
 	return 0;
 }
 

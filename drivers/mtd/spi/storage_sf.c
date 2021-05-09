@@ -11,7 +11,6 @@
 #include <spi_flash.h>
 #include <amlogic/storage.h>
 #include "sf_internal.h"
-#include <amlogic/cpu_id.h>
 
 struct storage_t *snor_storage;
 static struct spi_flash *spi_flash;
@@ -47,7 +46,6 @@ int spi_flash_fit_storage(struct spi_flash *flash)
 	const struct spi_flash_info *info = NULL;
 	struct storage_t *spi_nor = NULL;
 	int ret = 0;
-	cpu_id_t cpu_id = get_cpu_id();
 
 	if (get_snor_storage())
 		return 0;
@@ -70,11 +68,7 @@ int spi_flash_fit_storage(struct spi_flash *flash)
 	spi_nor->info.write_unit = flash->page_size;
 	spi_nor->info.erase_unit = flash->erase_size;
 	spi_nor->info.caps = flash->size;
-	if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) || (cpu_id.family_id == MESON_CPU_MAJOR_ID_T7)
-	    || (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4))
-		spi_nor->info.mode = 1;
-	else
-		spi_nor->info.mode = 0;
+	spi_nor->info.mode = BOOTLOADER_MODE_SNOR;
 	set_snor_storage(spi_nor);
 	mtd_store_mount_ops(spi_nor);
 	ret = store_register(spi_nor);

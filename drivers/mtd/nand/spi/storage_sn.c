@@ -75,7 +75,7 @@ int spinand_fit_storage(struct mtd_info *info, char *name, u8 *id)
 	spi_nand->info.write_unit = mtd->writesize;
 	spi_nand->info.erase_unit = mtd->erasesize;
 	spi_nand->info.caps = mtd->size;
-	spi_nand->info.mode = 1;
+	spi_nand->info.mode = BOOTLOADER_MODE_SNAND;
 
 	set_snand_storage(spi_nand);
 	mtd_store_mount_ops(spi_nand);

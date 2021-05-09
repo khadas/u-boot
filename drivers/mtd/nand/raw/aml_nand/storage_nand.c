@@ -57,7 +57,7 @@ int slcnand_fit_storage(void)
 	slc_nand->info.erase_unit = type->erasesize;
 	slc_nand->info.caps = ((type->chipsize) << 20);
 	printf("cap: 0x%llx\n", slc_nand->info.caps);
-	slc_nand->info.mode = 1;
+	slc_nand->info.mode = BOOTLOADER_MODE_NAND;
 
 	mtd_store_mount_ops(slc_nand);
 

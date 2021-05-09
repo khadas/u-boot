@@ -11,7 +11,6 @@
 #include <linux/err.h>
 #include <asm/cache.h>
 //#include <asm/arch/secure_apb.h>
-#include <amlogic/cpu_id.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/nand_ecc.h>
@@ -312,7 +311,6 @@ static int m3_nand_options_confirm(struct aml_nand_chip *aml_chip)
 	unsigned int options_selected = 0, options_support = 0, options_define;
 	unsigned int eep_need_oobsize = 0, ecc_page_num = 0, ecc_bytes;
 	int error = 0, i, valid_chip_num = 0;
-	cpu_id_t cpu_id = get_cpu_id();
 
 	if (!strncmp((char*)plat->name,
 		NAND_BOOT_NAME,
@@ -366,13 +364,13 @@ static int m3_nand_options_confirm(struct aml_nand_chip *aml_chip)
 	chip->write_buf = aml_nand_dma_write_buf;
 	chip->read_buf = aml_nand_dma_read_buf;
 
-	if ((mtd->writesize <= 2048) ||
-	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_AXG) ||
-	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_TXHD)||
-	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_C1) ||
-	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_C2) ||
-	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_S4))
+	if (mtd->writesize <= 2048)
 		options_support = NAND_ECC_BCH8_MODE;
+
+#ifdef NAND_ECC_ONLY_BCH8_1K
+	options_support = NAND_ECC_BCH8_MODE;
+	printf("Currently only supports BCH8 1K!\n");
+#endif
 
 	switch (options_support) {
 

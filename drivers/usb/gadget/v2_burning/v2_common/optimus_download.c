@@ -51,7 +51,7 @@ static int is_bootloader_discrte(bool* discreteMode)
         FB_ERR("Fail get store dev info\n");
         return __LINE__;
     }
-    *discreteMode = (DISCRETE_BOOTLOADER == storeInfo.mode);
+    *discreteMode = ((DISCRETE_BOOTLOADER == storeInfo.mode) || (ADVANCE_BOOTLOADER == storeInfo.mode));
     return 0;
 }
 
@@ -322,7 +322,7 @@ static int optimus_download_bootloader_image(struct ImgBurnInfo* pDownInfo, u32 
         return 0;
     }
 
-    return ret ? 0 : dataSzReceived;
+    return dataSzReceived;
 }
 
 static int optimus_verify_bootloader(struct ImgBurnInfo* pDownInfo, u8* genSum)
@@ -754,7 +754,7 @@ static int _parse_img_download_info(struct ImgBurnInfo* pDownInfo, const char* p
     }
 
     pDownInfo->partBaseOffset   = partBaseOffset;
-    memcpy(pDownInfo->partName, partName, strlen(partName));
+    memcpy(pDownInfo->partName, partName, min_t(int, strlen(partName), 32));
 
     if (OPTIMUS_MEDIA_TYPE_MEM > pDownInfo->storageMediaType) //if command for burning partition
     {
@@ -892,7 +892,8 @@ int optimus_storage_init(int toErase)
             } break;
 
         default:
-            DWN_ERR("Unsupported erase flag %d\n", toErase); ret = -__LINE__;
+            ret = -__LINE__;
+            DWN_ERR("Unsupported erase flag %d ret %d\n", toErase, ret);
             break;
     }
 
@@ -1349,7 +1350,7 @@ void optimus_reset(const int cfgFlag)
     /*disable_interrupts();*/
 	reset_cpu(0);
 
-    while (i++)
+    while (++i)
     {
         unsigned ret = i;
         unsigned mask = 1U<<20;
@@ -1397,6 +1398,8 @@ int optimus_burn_complete(const int choice)
                             rc = run_command("getkey", 0);
                     }while(rc);
             }
+            optimus_poweroff();
+            break;
         case OPTIMUS_BURN_COMPLETE__POWEROFF_DIRECT:
             optimus_poweroff();
             break;
