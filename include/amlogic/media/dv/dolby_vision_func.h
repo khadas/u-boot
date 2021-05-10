@@ -334,8 +334,7 @@ struct dovi_setting_s {
 	uint32_t mode_changed;
 };
 
-
-extern int control_path(
+int control_path(
 	enum signal_format_e in_format,
 	enum signal_format_e out_format,
 	char *in_comp, int in_comp_size,
@@ -347,37 +346,4 @@ extern int control_path(
 	int set_no_el,
 	struct hdr10_param_s *hdr10_param,
 	struct dovi_setting_s *output);
-extern void *metadata_parser_init(int flag);
-extern int metadata_parser_reset(int flag);
-extern int metadata_parser_process(
-	char  *src_rpu, int rpu_len,
-	char  *dst_comp, int *comp_len,
-	char  *dst_md, int *md_len, bool src_eos);
-extern void metadata_parser_release(void);
-
-struct dolby_vision_func_s {
-	const char *version_info;
-	void * (*metadata_parser_init)(int flag);
-	int (*metadata_parser_reset)(int flag);
-	int (*metadata_parser_process)(
-		char  *src_rpu, int rpu_len,
-		char  *dst_comp, int *comp_len,
-		char  *dst_md, int *md_len, bool src_eos);
-	void (*metadata_parser_release)(void);
-	int (*control_path)(
-		enum signal_format_e in_format,
-		enum signal_format_e out_format,
-		char *in_comp, int in_comp_size,
-		char *in_md, int in_md_size,
-		enum priority_mode_e set_priority,
-		int set_bit_depth, int set_chroma_format, int set_yuv_range,
-		int set_graphic_min_lum, int set_graphic_max_lum,
-		int set_target_min_lum, int set_target_max_lum,
-		int set_no_el,
-		struct hdr10_param_s *hdr10_param,
-		struct dovi_setting_s *output);
-	int (*reserved_func)(void);
-};
-
-extern const struct dolby_vision_func_s DV_func;
 #endif

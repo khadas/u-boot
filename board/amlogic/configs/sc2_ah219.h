@@ -62,6 +62,7 @@
         "os_ident_addr=0x00500000\0"\
         "loadaddr_rtos=0x00001000\0"\
         "loadaddr_kernel=0x03080000\0"\
+		"dv_fw_addr=0xa00000\0"\
         "otg_device=1\0" \
         "panel_type=lcd_1\0" \
         "outputmode=1080p60hz\0" \
@@ -83,6 +84,9 @@
         "hdmichecksum=0x00000000\0" \
         "dolby_status=0\0" \
         "dolby_vision_on=0\0" \
+		"dv_fw_dir_odm_ext=/odm_ext/firmware/dovi_fw.bin\0" \
+		"dv_fw_dir_vendor=/vendor/firmware/dovi_fw.bin\0" \
+        "dv_fw_dir=/reserved/firmware/dovi_fw.bin\0" \
         "frac_rate_policy=1\0" \
         "hdr_policy=0\0" \
         "hdmi_read_edid=1\0" \
@@ -263,7 +267,7 @@
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
-                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;setenv dolby_status 0;setenv dolby_vision_on 0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};vpp hdrpkt;"\
+                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};dovi set;dovi pkg;vpp hdrpkt;"\
             "fi;fi;"\
             "\0"\
 	"storage_param="\
