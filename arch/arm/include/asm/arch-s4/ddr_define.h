@@ -146,6 +146,7 @@
 #define DDR_FUNC_LPDDR3_CA_CA0_OFFSET		(20)
 #define DDR_FUNC_LPDDR3_CA_CA1_OFFSET		(22)
 #define DDR_FUNC_LPDDR3_SOC_ODT_ONLY_UP		(1<<25)
+#define DDR_FUNC_CONFIG_DDR_X4_BIT_DRAM_RESERVE_PARAMETER		(1<<27)
 #define DDR_FUNC_CONFIG_DDR_DVFS_FUNCTION	(1<<28)
 #define DDR_FUNC_CONFIG_DFE_FUNCTION		(1<<29)
 #define DDR_FUNC_FAST_BOOT_CHECK_CHIP_ID	(1<<30)
@@ -443,7 +444,7 @@
 				[1] = ( 11|  0 << 5 |  0 << 10 | 12 << 15 | 14 << 20 | 15 << 25 ),\
 				[2] = ( 17| 18 << 5 | 19 << 10 | 21 << 15 | 22 << 20 | 23 << 25 ),\
 				[3] = ( 24| 25 << 5 | 26 << 10 | 27 << 15 | 28 << 20 | 29 << 25 ),\
-				[4] = ( 0 | 13 << 5 | 16 << 10 | 20 << 15 |  0 << 20 |  0 << 25 ),\
+				[4] = ( 30 | 13 << 5 | 16 << 10 | 20 << 15 |  0 << 20 |  0 << 25 ),\
 				}
 				//cs0 write bit0-1,cs0 read bit4-5,cs1 write bit 8-9,cs1 read bit 12-13
 #define		DDR_DRAM_ODT_DISABLE		0
