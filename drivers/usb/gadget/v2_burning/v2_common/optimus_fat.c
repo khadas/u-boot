@@ -47,6 +47,9 @@
 
 #define FAT_MSG(fmt...) printf("[fat]"fmt)
 
+#undef DIRENTSPERCLUST
+#define DIRENTSPERCLUST	(((uint64_t)mydata->clust_size * mydata->sect_size) / sizeof(dir_entry))
+
 static int disk_read (__u32 startblock, __u32 getsize, __u8 * bufptr);
 
 #if 0
@@ -1378,6 +1381,7 @@ void
 do_fat_fclose(int fd)
 {
 
+    if (fd < 0 || fd >= FILE_MAX) return;
     if (fd >= 0)
     {
         memset(&files[fd], 0, sizeof(struct file));

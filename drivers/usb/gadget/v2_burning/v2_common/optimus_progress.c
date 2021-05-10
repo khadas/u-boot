@@ -89,11 +89,11 @@ int optimus_hex_data_2_ascii_str(const unsigned char* hexData, const unsigned nB
         return __LINE__;
     }
 
-    sprintf(outStr, "%02x", hexData[0]);
-    for (; i < nBytes; ++i)
+    for (i = 0; i < nBytes; ++i)
     {
-        sprintf(outStr, "%s%02x", outStr, hexData[i]);
+        sprintf(outStr + 2 * i, "%02x", hexData[i]);
     }
+    outStr[2*i] = '\0';
 
     return 0;
 }

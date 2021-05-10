@@ -115,116 +115,6 @@ int optimus_simg2part (int argc, char * const argv[], char *info)
         return ret;
 }
 
-int optimus_sha1sum (int argc, char * const argv[], char *info)
-{
-        unsigned buffermax = 64<<20;
-        unsigned char* sha1_addr = (u8*)0x81000000;
-        int ret = -1;
-        char *partition_name;
-        unsigned long long Bits_need_read = 0,partition_offset = 0;
-        unsigned long long verify_len = 0;
-        u8 output[20];
-        char *sha1_verify = NULL;
-        char sha1_value[41];
-        int i = 1;
-
-        memset(sha1_value, 0, sizeof(sha1_value));
-
-        if (3 == argc) //test to sha1sum memory: sha1sum memAddr, length
-        {
-                unsigned verify_len = 0;
-                unsigned char* pBuf = NULL;
-
-                pBuf = (unsigned char*)simple_strtoul(argv[1], NULL, 0);
-                verify_len = simple_strtoul(argv[2], NULL, 0);
-
-                printf("Gen sha1sum: addr 0x%p, len 0x%x\n", pBuf, verify_len);
-                sha1_csum(pBuf, verify_len, output);
-
-                sprintf(sha1_value, "%02x", output[0]);
-                for (i = 1; i < 20; ++i)
-                {
-                        sprintf(sha1_value, "%02x", output[0]);
-                        for (; i < 20; ++i)
-                        {
-                                sprintf(sha1_value, "%s%02x", sha1_value, output[i]);
-                        }
-                        /*sprintf(sha1_value, "%s%02x", sha1_value, output[i]);*/
-                }
-                printf("gen sha1sum %s\n", sha1_value);
-                return 0;
-        }
-
-        if (argc != 4)//argv:cmd,partition_name,verify_len,sha1_verify
-        {
-                printf("bad args---sha1sum cmd need 3 args\n");
-                strcpy(info, "failed:need 3 args");
-                return -1;
-        }
-
-        partition_name = argv[1];
-
-        verify_len = simple_strtoull (argv[2], NULL, 10);
-        sha1_verify = argv[3];
-
-        //circularly verify 128M datas readed in memory 0x81000000
-        sha1_context ctx;
-        sha1_starts (&ctx);
-
-        Bits_need_read = verify_len;
-        partition_offset = 0;
-        while (Bits_need_read > buffermax)
-        {
-                ret = store_read_ops((unsigned char*)partition_name, (unsigned char *) sha1_addr, partition_offset, buffermax);
-                if (ret) {
-                        DWN_ERR("Fail to read data from %s at offset %llx size %x\n", partition_name, partition_offset, buffermax);
-                        return __LINE__;
-                }
-                sha1_update (&ctx, (unsigned char *) sha1_addr, buffermax);
-                Bits_need_read = Bits_need_read - buffermax;
-                partition_offset += buffermax;
-                printf("current Bits_need_read is 0x%llx, buffermax is : 0x%x\n",Bits_need_read,buffermax);
-                for (i = 0; i < 5; i++)sprintf(sha1_value,"%s%08x", sha1_value, (unsigned)ctx.state[i]) ;//5*8=40
-                printf("current sha1_value is  %s\n", sha1_value);
-        }
-
-        ret = store_read_ops((unsigned char*)partition_name, (unsigned char *) sha1_addr, partition_offset, Bits_need_read);
-        if (ret) {
-                DWN_ERR("Fail to read data from %s at offset %llx size %x\n", partition_name, partition_offset, buffermax);
-                return __LINE__;
-        }
-
-        sha1_update (&ctx, (unsigned char *) sha1_addr, Bits_need_read);
-        sha1_finish (&ctx, output);
-        //?????????????
-        printf("SHA1 for %s %p,verify_len:0x%llx ==>",partition_name, sha1_addr,verify_len);
-
-        for (i = 0; i < 20; i++)
-        {
-                printf("%02x", output[i]);
-                //sha1_value[i] = output[i];
-                sprintf(sha1_value,"%s%02x", sha1_value, output[i]);
-        }
-        //sha1_value[21] = '\0';
-        printf("\n");
-
-        printf("sha1_verify= %s\n", sha1_verify);
-        printf("sha1_value = %s\n", sha1_value);
-        if (strncmp(sha1_verify, sha1_value, 40) == 0)
-        {
-                ret = 0;
-                strcpy(info, "success");
-        }
-        else
-        {
-                ret = -1;
-                strcpy(info, "failed");
-        }
-
-        return ret;
-}
-
-
 int optimus_mem_md (int argc, char * const argv[], char *info)
 {
 	ulong	addr, length = 0x100;
@@ -341,10 +231,11 @@ static int _get_chipid(char* buff)
         return ret;
     }
 
-    buff[0] = ':', buff[1]='\0';
+    buff[0] = ':';
     for (; i < 12; ++i) {
-        sprintf(buff, "%s%02x", buff, chipid[15-i]);
+        sprintf(buff + 1 + i*2, "%02x", chipid[15-i]);
     }
+    buff[1 + i*2] = '\0';
     return 0;
 }
 
@@ -433,10 +324,6 @@ int optimus_working (const char *cmd, char* buff)
                         close_usb_phy_clock(0);//some platform can't poweroff but dis-connect needed by pc
                 }
                 ret = optimus_burn_complete(choice);
-        }
-        else if(strncmp(cmd,"sha1sum",(sizeof("sha1sum")-1)) == 0)
-        {
-                ret = optimus_sha1sum(argc, argv, buff);
         }
         else if(!strcmp(optCmd, "support_tempcontrol"))
         {

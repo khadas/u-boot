@@ -87,7 +87,8 @@ HIMAGE image_open(const char* interface, const char* device, const char* part, c
             }
             _hFile = pFile;
 
-            ret = do_fat_fread(pFile, (u8*)&hImg->imgHead, HeadSz);
+            /*ret = do_fat_fread(pFile, (u8*)&hImg->imgHead, HeadSz);*///This cause coverity overrun buffer event
+            ret = do_fat_fread(pFile, (u8*)(OPTIMUS_BURN_PKG_HEAD_BUF_ADDR) + sizeof(ImgSrcIf_t), HeadSz);
             if (ret != HeadSz) {
                     DWN_ERR("want to read %d, but %d\n", HeadSz, ret);
                     goto _err;
