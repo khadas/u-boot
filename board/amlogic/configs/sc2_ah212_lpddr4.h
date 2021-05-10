@@ -27,6 +27,9 @@
 #define CONFIG_CONS_INDEX 2
 #define CONFIG_BAUDRATE  115200
 
+/*high console baudrate*/
+#define CONFIG_HIGH_CONSOLE_BAUD			0
+
 /*if disable uboot console, enable it*/
 //#define CONFIG_SILENT_CONSOLE
 #ifdef CONFIG_SILENT_CONSOLE

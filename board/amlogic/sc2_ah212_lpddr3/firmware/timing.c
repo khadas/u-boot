@@ -205,6 +205,7 @@ __attribute__ ((section(".clk_param"))) = {
 #else
 	.pxp					= 0,
 #endif
+	.high_console_baud = CONFIG_HIGH_CONSOLE_BAUD,
 };
 
 

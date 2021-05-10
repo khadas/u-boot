@@ -27,6 +27,9 @@
 #define CONFIG_CONS_INDEX 2
 #define CONFIG_BAUDRATE  115200
 
+/*high console baudrate*/
+#define CONFIG_HIGH_CONSOLE_BAUD			0
+
 /* Enable ir remote wake up for bl30 */
 #define AML_IR_REMOTE_POWER_UP_KEY_VAL1 0xef10fe01 //amlogic tv ir --- power
 #define AML_IR_REMOTE_POWER_UP_KEY_VAL2 0XBB44FB04 //amlogic tv ir --- ch+
