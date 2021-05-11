@@ -992,12 +992,12 @@ void nand_init(void)
 		return;
 	}
 
-	controller = kzalloc(sizeof(struct hw_controller), GFP_KERNEL);
+	controller = malloc(sizeof(struct hw_controller));
 	if (controller == NULL) {
 		printk("%s kzalloc controller failed\n", __func__);
 		return;
 	}
-
+	memset(controller, 0, sizeof(struct hw_controller));
 	controller->chip_num = 1; /* assume chip num is 1 */
 	for (i = 0; i < MAX_CHIP_NUM; i++) {
 		controller->ce_enable[i] =
@@ -1027,8 +1027,8 @@ void nand_init(void)
 
 	nand_curr_device = 1; //fixit
 	amlmtd_init = 1;
-	if (ret)
-		kfree(controller);
+	if (ret && controller)
+		free(controller);
 
 	return;
 }

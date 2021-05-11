@@ -417,7 +417,7 @@ int aml_nand_read_rsv_info (struct mtd_info *mtd,
 	struct aml_nand_chip *aml_chip = mtd_to_nand_chip(mtd);
 	struct oobinfo_t *oobinfo;
 	int error = 0, ret = 0;
-	loff_t addr = 0;
+	u64 addr = 0;
 	size_t amount_loaded = 0;
 	size_t len;
 	unsigned char *data_buf;
@@ -428,7 +428,7 @@ int aml_nand_read_rsv_info (struct mtd_info *mtd,
 READ_RSV_AGAIN:
 	addr = nandrsv_info->valid_node->phy_blk_addr;
 	addr *= mtd->erasesize;
-	addr += nandrsv_info->valid_node->phy_page_addr * mtd->writesize;
+	addr += ((u64)nandrsv_info->valid_node->phy_page_addr) * mtd->writesize;
 	printk("%s:%d,read %s info to %llx\n",__func__, __LINE__,
 		nandrsv_info->name, addr);
 
@@ -655,7 +655,7 @@ int aml_nand_save_rsv_info(struct mtd_info *mtd,
 {
 	struct free_node_t *free_node = NULL, *tmp_node = NULL;
 	int error = 0, pages_per_blk, i = 1;
-	loff_t addr = 0;
+	u64 addr = 0;
 	int chipnr, page;
 	struct nand_chip *chip = mtd->priv;
 
@@ -731,7 +731,7 @@ RE_SEARCH:
 
 	addr = nandrsv_info->valid_node->phy_blk_addr;
 	addr *= mtd->erasesize;
-	addr += nandrsv_info->valid_node->phy_page_addr * mtd->writesize;
+	addr += ((u64)nandrsv_info->valid_node->phy_page_addr) * mtd->writesize;
 
 	printk("%s:%d,save info to %llx\n",__func__, __LINE__, addr);
 
@@ -981,7 +981,7 @@ int aml_nand_scan_rsv_info(struct mtd_info *mtd,
 	struct oobinfo_t *oobinfo;
 	struct free_node_t *free_node, *tmp_node = NULL;
 	unsigned char oob_buf[sizeof(struct oobinfo_t)];
-	loff_t offset;
+	u64 offset;
 	unsigned char *data_buf, good_addr[256] = {0};
 	int start_blk, max_scan_blk, i , k, scan_status = 0, env_status=0;
 	int phys_erase_shift, pages_per_blk, page_num;
@@ -1130,7 +1130,7 @@ RE_RSV_INFO:
 
 		offset = nandrsv_info->valid_node->phy_blk_addr;
 		offset *= mtd->erasesize;
-		offset += i * mtd->writesize;
+		offset += ((u64)i) * mtd->writesize;
 		//error = mtd->_read_oob(mtd, offset, &aml_oob_ops);
 		realpage = (int)(offset >> chip->page_shift);
 		page = realpage & chip->pagemask;
@@ -1196,7 +1196,7 @@ RE_RSV_INFO:
 
 	offset = nandrsv_info->valid_node->phy_blk_addr;
 	offset *= mtd->erasesize;
-	offset += nandrsv_info->valid_node->phy_page_addr * mtd->writesize;
+	offset += ((u64)nandrsv_info->valid_node->phy_page_addr) * mtd->writesize;
 	printk("%s valid addr: %llx\n", nandrsv_info->name, (uint64_t)offset);
 	return ret;
 }

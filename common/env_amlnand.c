@@ -113,13 +113,21 @@ int saveenv(void)
 #endif
 {
 	int	ret = 0;
-	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
+	unsigned char *buf, *tmp_buf;
+	env_t *env_new;
 
+	buf = malloc(sizeof(env_t) + ARCH_DMA_MINALIGN);
+	if (!buf)
+		printf("%s: failed to malloc env buffer, size:0x%lx\n",
+		       __func__, sizeof(env_t));
+	tmp_buf = (unsigned char *)(((unsigned long)buf & ARCH_DMA_MINALIGN) + ARCH_DMA_MINALIGN);
+	env_new = (env_t *)tmp_buf;
 	ret = env_export(env_new);
 	if (ret)
 		return ret;
 
 	ret = amlnf_env_save((u_char *)env_new, CONFIG_ENV_SIZE);
+	free(buf);
 
 	return ret;
 }
@@ -149,16 +157,21 @@ void env_relocate_spec(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
 	int ret;
-	ALLOC_CACHE_ALIGN_BUFFER(u_char, buf, CONFIG_ENV_SIZE);
+	unsigned char *buf, *tmp_buf;
 
+	tmp_buf = malloc(CONFIG_ENV_SIZE + ARCH_DMA_MINALIGN);
+	if (!tmp_buf)
+		printf("%s: failed to malloc env buffer, size: 0x%x\n",
+		       __func__, CONFIG_ENV_SIZE);
+	buf = (unsigned char *)(((unsigned long)tmp_buf & ARCH_DMA_MINALIGN) + ARCH_DMA_MINALIGN);
 	ret = readenv(buf);
 	if (ret) {
 		set_default_env("!readenv() failed");
 		//saveenv();
 		return;
 	}
-
 	env_import((char *)buf, 1);
+	free(tmp_buf);
 #endif /* ! ENV_IS_EMBEDDED */
 }
 
