@@ -72,6 +72,7 @@ static AvbIOResult read_from_partition(AvbOps* ops, const char* partition, int64
         if (!dtb_buf)
             return AVB_IO_RESULT_ERROR_OOM;
 
+        memset(dtb_buf, 0x00, MAX_DTB_SIZE);
         rc = store_dtb_rw(dtb_buf, MAX_DTB_SIZE, 2);
         if (rc) {
             printf("Failed to read dtb\n");
@@ -137,13 +138,13 @@ static AvbIOResult get_unique_guid_for_partition(AvbOps* ops, const char* partit
     memset(guid_buf, 0, guid_buf_size);
     run_command("get_valid_slot;", 0);
     s1 = getenv("active_slot");
-    printf("active_slot is %s\n", s1);
+    //printf("active_slot is %s\n", s1);
     if (!memcmp(partition, "system", strlen("system"))) {
-        if (strcmp(s1, "_a") == 0) {
+        if (s1 && (strcmp(s1, "_a") == 0)) {
             ret = get_partition_num_by_name("system_a");
             sprintf(part_name, "/dev/mmcblk0p%d", ret+1);
             strncpy(guid_buf, part_name, guid_buf_size);
-        } else if (strcmp(s1, "_b") == 0) {
+        } else if (s1 && (strcmp(s1, "_b") == 0)) {
             ret = get_partition_num_by_name("system_b");
             sprintf(part_name, "/dev/mmcblk0p%d", ret+1);
             strncpy(guid_buf, part_name, guid_buf_size);
@@ -185,7 +186,7 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps* ops, const uint8_t* public
     char* keybuf = NULL;
     char *partition = "misc";
     AvbKey_t key;
-    uint64_t size;
+    uint64_t size = 0;
     int rc;
 
     key.size = 0;
@@ -343,17 +344,22 @@ int avb_verify(AvbSlotVerifyData** out_data)
     const char * requested_partitions_ab[AVB_NUM_SLOT + 1] = {"boot", NULL, NULL, NULL, NULL};
     const char * requested_partitions[AVB_NUM_SLOT + 1] = {"boot", "dt", NULL, NULL, NULL};
     AvbSlotVerifyResult result = AVB_SLOT_VERIFY_RESULT_OK;
-    char *s1;
-    char *ab_suffix;
-    uint32_t i = 0;
+    char *s1 = NULL;
+    char *ab_suffix = NULL;
 
     run_command("get_valid_slot;", 0);
     s1 = getenv("active_slot");
-    printf("active_slot is %s\n", s1);
-    if (strcmp(s1, "normal") == 0) {
+    if (s1 != NULL) {
+        printf("active_slot is %s\n", s1);
+        if (strcmp(s1, "normal") == 0) {
+            ab_suffix = "";
+        } else {
+            ab_suffix = getenv("active_slot");
+        }
+    }
+
+    if (ab_suffix == NULL) {
         ab_suffix = "";
-    } else {
-        ab_suffix = getenv("active_slot");
     }
     printf("ab_suffix is %s\n", ab_suffix);
 
@@ -364,21 +370,11 @@ int avb_verify(AvbSlotVerifyData** out_data)
 
     upgradestep = getenv("upgrade_step");
 
-    if (is_device_unlocked() || !strcmp(upgradestep, "3"))
+    if ((upgradestep != NULL) && !strcmp(upgradestep, "3"))
         flags |= AVB_SLOT_VERIFY_FLAGS_ALLOW_VERIFICATION_ERROR;
 
-    if (!strcmp(ab_suffix, "")) {
-        for (i = 0; i < AVB_NUM_SLOT; i++) {
-            if (requested_partitions[i] == NULL) {
-                requested_partitions[i] = "recovery";
-                break;
-            }
-        }
-        if (i == AVB_NUM_SLOT) {
-            printf("ERROR: failed to find an empty slot for recovery");
-            return AVB_SLOT_VERIFY_RESULT_ERROR_INVALID_ARGUMENT;
-        }
-    }
+    if (is_device_unlocked())
+        flags |= AVB_SLOT_VERIFY_FLAGS_ALLOW_VERIFICATION_ERROR;
 
     if (!strcmp(ab_suffix, ""))
         result = avb_slot_verify(&avb_ops_, requested_partitions, ab_suffix,
@@ -389,7 +385,7 @@ int avb_verify(AvbSlotVerifyData** out_data)
             flags,
             AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE, out_data);
 
-    if (!strcmp(upgradestep, "3"))
+    if ((upgradestep != NULL) && !strcmp(upgradestep, "3"))
         result = AVB_SLOT_VERIFY_RESULT_OK;
 
     return result;
@@ -398,13 +394,13 @@ int avb_verify(AvbSlotVerifyData** out_data)
 static int do_avb_verify(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     AvbSlotVerifyResult result = AVB_SLOT_VERIFY_RESULT_OK;
-    AvbSlotVerifyData* out_data;
+    AvbSlotVerifyData* out_data = NULL;
     uint32_t i = 0;
 
-    result = avb_verify(&out_data);
+    result = (AvbSlotVerifyResult)avb_verify(&out_data);
 
     printf("result: %d\n", result);
-    if (result == AVB_SLOT_VERIFY_RESULT_OK) {
+    if ((result == AVB_SLOT_VERIFY_RESULT_OK) && (out_data != NULL)) {
 #ifdef CONFIG_AML_ANTIROLLBACK
         uint32_t version;
         uint32_t lock_state;
