@@ -432,7 +432,7 @@ static void flash(char *cmd_parameter, char *response)
 			return;
 		}
 
-		strncpy(key.magic_name, "AVBK", 4);
+		memcpy(key.magic_name, "AVBK", 4);
 		key.size = image_size;
 		rc = store_part_size(partition);
 
@@ -456,19 +456,20 @@ static void flash(char *cmd_parameter, char *response)
 	if (strcmp(cmd_parameter, "userdata") == 0 || strcmp(cmd_parameter, "data") == 0) {
 		rc = store_part_size("userdata");
 		if (-1 == rc)
-			strncpy(name, "data", 4);
+			strcpy(name, "data");
 		else
-			strncpy(name, "userdata", 8);
+			strcpy(name, "userdata");
 	} else if (strcmp(cmd_parameter, "dts") == 0) {
-		strncpy(name, "dtb", 3);
+		strcpy(name, "dtb");
 	} else {
-		strncpy(name, cmd_parameter, 32);
+		strncpy(name, cmd_parameter, 31);
 	}
+	strcat(name, "\0");
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 	if (dynamic_partition) {
 		if (is_partition_logical(name) == 0) {
-			printf("%s is logic partition, can not write here.......\n", name);
+			printf("logic partition, can not write here.......\n");
 			fastboot_fail("logic partition", response);
 			return;
 		}
@@ -560,23 +561,24 @@ static void erase(char *cmd_parameter, char *response)
 	if (strcmp(cmd_parameter, "userdata") == 0 || strcmp(cmd_parameter, "data") == 0) {
 		rc = store_part_size("userdata");
 		if (-1 == rc)
-			strncpy(name, "data", 4);
+			strcpy(name, "data");
 		else
-			strncpy(name, "userdata", 8);
+			strcpy(name, "userdata");
 		if (message.merge_status == SNAPSHOTTED || message.merge_status == MERGING) {
 			fastboot_fail("in merge state, cannot erase data", response);
 			return;
 		}
 	} else if (strcmp(cmd_parameter, "dts") == 0) {
-		strncpy(name, "dtb", 3);
+		strcpy(name, "dtb");
 	} else {
-		strncpy(name, cmd_parameter, 32);
+		strncpy(name, cmd_parameter, 31);
 	}
+	strcat(name, "\0");
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 		if (dynamic_partition) {
 			if (is_partition_logical(name) == 0) {
-				printf("%s is logic partition, can not erase here.......\n", name);
+				printf("logic partition, can not erase here.......\n");
 				fastboot_fail("logic partition", response);
 				return;
 			}
@@ -671,7 +673,7 @@ static void flashing(char *cmd_parameter, char *response)
 	lock_s = env_get("lock");
 	if (!lock_s) {
 		printf("lock state is NULL \n");
-		strncpy(lock_d, "10101000", 8);
+		memcpy(lock_d, "10101000", 8);
 		lock_s = "10101000";
 		env_set("lock", "10101000");
 		run_command("defenv_reserv; saveenv;", 0);
