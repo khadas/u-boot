@@ -629,6 +629,35 @@ char *getenv(const char *name)
 }
 
 /*
+ * The functionality of this function is the same
+ * with the function of getenv, the name getenv is same
+ * in libc, caused coverity checks failed.
+ * Look up variable from environment,
+ * return address of storage for that variable,
+ * or NULL if not found
+ */
+char *env_get(const char *name)
+{
+	if (gd->flags & GD_FLG_ENV_READY) { /* after import into hashtable */
+		ENTRY e, *ep;
+
+		WATCHDOG_RESET();
+
+		e.key	= name;
+		e.data	= NULL;
+		hsearch_r(e, FIND, &ep, &env_htab, 0);
+
+		return ep ? ep->data : NULL;
+	}
+
+	/* restricted capabilities before import */
+	if (getenv_f(name, (char *)(gd->env_buf), sizeof(gd->env_buf)) > 0)
+		return (char *)(gd->env_buf);
+
+	return NULL;
+}
+
+/*
  * Look up variable from environment for restricted C runtime env.
  */
 int getenv_f(const char *name, char *buf, unsigned len)

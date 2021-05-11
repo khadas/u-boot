@@ -30,6 +30,7 @@
 #define CONFIG_CMD_GPT_RENAME
 
 static LIST_HEAD(disk_partitions);
+extern char *env_get(const char *name);
 /*
  * extract_env(): Expand env name from string format '&{env_name}'
  *                and return pointer to the env (if the env is set)
@@ -60,14 +61,14 @@ static int extract_env(const char *str, char **env)
 	memset(s + strlen(s) - 1, '\0', 1);
 	memmove(s, s + 2, strlen(s) - 1);
 
-	e = getenv(s);
+	e = env_get(s);
 	if (e == NULL) {
 #ifdef CONFIG_RANDOM_UUID
 		debug("%s unset. ", str);
 		gen_rand_uuid_str(uuid_str, UUID_STR_FORMAT_GUID);
 		setenv(s, uuid_str);
 
-		e = getenv(s);
+		e = env_get(s);
 		if (e) {
 			debug("Set to random.\n");
 			ret = 0;
