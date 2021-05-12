@@ -98,6 +98,7 @@
         "upgrade_step=0\0"\
         "jtag=disable\0"\
         "loadaddr=3080000\0"\
+        "dv_fw_addr=0xa00000\0"\
         "panel_type=lcd_1\0" \
 	"lcd_ctrl=0x00000000\0" \
 	"outputmode=1080p60hz\0" \
@@ -121,6 +122,9 @@
         "hdmichecksum=0x00000000\0" \
         "dolby_status=0\0" \
         "dolby_vision_on=0\0" \
+        "dv_fw_dir_odm_ext=/odm_ext/firmware/dovi_fw.bin\0" \
+        "dv_fw_dir_vendor=/vendor/firmware/dovi_fw.bin\0" \
+        "dv_fw_dir=/reserved/firmware/dovi_fw.bin\0" \
         "usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
         "otg_device=1\0"\
         "fdt_high=0x20000000\0"\

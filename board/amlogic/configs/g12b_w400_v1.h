@@ -77,6 +77,7 @@
         "upgrade_step=0\0"\
         "jtag=disable\0"\
         "loadaddr=1080000\0"\
+        "dv_fw_addr=0xa00000\0"\
         "panel_type=lcd_2\0" \
 	"lcd_ctrl=0x00000000\0" \
         "outputmode=panel\0" \
@@ -100,6 +101,9 @@
         "hdmichecksum=0x00000000\0" \
         "dolby_status=0\0" \
         "dolby_vision_on=0\0" \
+        "dv_fw_dir_odm_ext=/odm_ext/firmware/dovi_fw.bin\0" \
+        "dv_fw_dir_vendor=/vendor/firmware/dovi_fw.bin\0" \
+        "dv_fw_dir=/reserved/firmware/dovi_fw.bin\0" \
         "usb_burning=update 1000\0" \
         "otg_device=1\0"\
         "fdt_high=0x20000000\0"\
@@ -277,7 +281,7 @@
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
-                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;setenv dolby_status 0;setenv dolby_vision_on 0;osd dual_logo;vpp hdrpkt;"\
+                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;osd dual_logo;dovi set;dovi pkg;vpp hdrpkt;"\
             "fi;fi;"\
             "\0"\
         "cmdline_keys="\
@@ -527,6 +531,11 @@
 
 /* DISPLAY & HDMITX */
 #define CONFIG_AML_HDMITX20 1
+
+#if defined(CONFIG_AML_HDMITX20)
+#define CONFIG_AML_DOLBY 1
+#define CONFIG_CMD_INI 1
+#endif
 
 #define CONFIG_AML_CANVAS 1
 #define CONFIG_AML_VOUT 1

@@ -53,6 +53,9 @@ static unsigned int vinfo_duration_num = 60;
 static unsigned int vinfo_field_height = 1080;
 static bool dolby_vision_on;
 static char *dolby_status;
+
+static bool dv_fw_valid = true;
+
 #define COEFF_NORM(a) ((int)((((a) * 2048.0) + 1) / 2))
 #define MATRIX_5x3_COEF_SIZE 24
 
@@ -204,7 +207,10 @@ int is_dolby_enable(void)
 	if (!dolby_status)
 		dolby_status = getenv("dolby_status");
 
-	printf("dolby_status %s\n", dolby_status);
+	printf("dolby_status %s %d\n", dolby_status, dv_fw_valid);
+
+	if (!dv_fw_valid)
+		return 0;
 	if (!strcmp(dolby_status, DOLBY_VISION_SET_STD) ||
 		!strcmp(dolby_status, DOLBY_VISION_SET_LL_YUV) ||
 		!strcmp(dolby_status, DOLBY_VISION_SET_LL_RGB))
@@ -532,7 +538,7 @@ static void dolby_vision_get_vinfo(struct hdmitx_dev *hdmitx_device)
 
 }
 
-static void dolby_vision_parse(struct hdmitx_dev *hdmitx_device)
+static int dolby_vision_parse(struct hdmitx_dev *hdmitx_device)
 {
 	enum signal_format_e src_format = FORMAT_SDR;
 	enum signal_format_e dst_format = dovi_setting.dst_format;
@@ -541,6 +547,7 @@ static void dolby_vision_parse(struct hdmitx_dev *hdmitx_device)
 	unsigned int target_max = 100;
 	unsigned int w = 3840;
 	unsigned int h = 2160;
+	int ret = 0;
 
 	dolby_vision_get_vinfo(hdmitx_device);
 	dovi_setting.vout_width = vinfo_width;
@@ -591,7 +598,7 @@ static void dolby_vision_parse(struct hdmitx_dev *hdmitx_device)
 		(dst_format >= 0 && dst_format <= 2))
 		target_max = dolby_vision_target_max[src_format][dst_format];
 
-	DV_func.control_path(
+	ret = control_path(
 		src_format, dst_format,
 		NULL, 0,
 		NULL, 0,
@@ -603,6 +610,7 @@ static void dolby_vision_parse(struct hdmitx_dev *hdmitx_device)
 		target_max * 10000, 1,
 		NULL,
 		&dovi_setting);
+	return ret;
 }
 
 static bool need_skip_cvm(unsigned int is_graphic) {
@@ -1226,7 +1234,7 @@ void send_hdmi_pkt(void)
 	if (!is_dolby_enable())
 		return;
 
-	printf("apply_stb_core_settings\n");
+	printf("send_hdmi_pkt %d\n",dovi_setting.dst_format);
 
 	if (dovi_setting.dst_format == FORMAT_DOVI) {
 		memset(&vsif, 0, sizeof(vsif));
@@ -1278,18 +1286,31 @@ void dolby_vision_process(void)
 	}
 	if (dovi_setting.dst_format == FORMAT_INVALID) {
 		printf("dolby_vision_process: dst_format = FORMAT_INVALID\n");
+		setenv("dolby_vision_on", "0");
+		run_command("saveenv", 0);
 		return;
 	}
-	dolby_vision_parse(&hdmitx_device);
-	apply_stb_core_settings();
-	enable_dolby_vision();
+	if (dolby_vision_parse(&hdmitx_device) == 0) {
+		apply_stb_core_settings();
+		enable_dolby_vision();
+	} else {
+		printf("dolby_vision_process: control path failed\n");
+		dovi_setting.dst_format = FORMAT_INVALID;
+		dv_fw_valid = false;
+		setenv("dolby_vision_on", "0");
+		run_command("saveenv", 0);
+		return;
+	}
 	/*dv send hdmi vsif after hdmi set mode*/
 	/* so we add another cmd to send this hdmi package solely*/
 }
 void dolbyvision_dump_setting() {
 	int i;
 	uint32_t *p;
-
+	if (!is_dolby_enable()) {
+		printf("dv is disabled\n");
+		return;
+	}
 	printf("core2\n");
 	p = (uint32_t *)&dovi_setting.dm_reg2;
 	for (i = 0; i < 24; i++)

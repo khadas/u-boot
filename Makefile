@@ -677,12 +677,6 @@ libs-y		:= $(patsubst %/, %/built-in.o, $(libs-y))
 u-boot-init := $(head-y)
 u-boot-main := $(libs-y)
 
-
-ifeq ($(CONFIG_AML_DOLBY), y)
-PLATFORM_CPPFLAGS += -I$(srctree)/drivers/display/osd/dv
-PLATFORM_LIBS += $(srctree)/drivers/display/osd/dv/dovi.a
-endif
-
 ifneq ($(CONFIG_AVB2_KPUB_FROM_FIP),)
 PLATFORM_CPPFLAGS += -DCONFIG_AVB2_KPUB_FROM_FIP
 endif

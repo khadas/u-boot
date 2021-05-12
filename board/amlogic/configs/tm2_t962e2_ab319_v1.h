@@ -76,6 +76,7 @@
         "upgrade_step=0\0"\
         "jtag=disable\0"\
         "loadaddr=3080000\0"\
+        "dv_fw_addr=0xa00000\0"\
         "model_name=FHD\0" \
         "panel_type=lvds_1\0" \
         "lcd_ctrl=0x00000000\0" \
@@ -99,6 +100,11 @@
         "hdr_policy=0\0" \
 		"hdmi_read_edid=1\0" \
 		"hdmichecksum=0x00000000\0" \
+        "dolby_status=0\0" \
+        "dolby_vision_on=0\0" \
+        "dv_fw_dir_odm_ext=/odm_ext/firmware/dovi_fw.bin\0" \
+        "dv_fw_dir_vendor=/vendor/firmware/dovi_fw.bin\0" \
+        "dv_fw_dir=/reserved/firmware/dovi_fw.bin\0" \
         "usb_burning=update 1000\0" \
         "otg_device=1\0"\
         "fdt_high=0x20000000\0"\
@@ -332,10 +338,10 @@
             "fi;"\
             "\0"\
         "init_display="\
-            "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;setenv dolby_status 0;setenv dolby_vision_on 0;osd open;osd clear;"\
+            "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;osd open;osd clear;"\
             "if rdext4pic $board_logo_part $loadaddr; then echo $board_logo_part logo; "\
             "else rdext4pic odm $loadaddr;fi;bmp display $logoLoadAddr;"\
-            "bmp scale;vout output ${outputmode};vpp hdrpkt;"\
+            "bmp scale;vout output ${outputmode};dovi set;dovi pkg;vpp hdrpkt;"\
             "\0"\
         "check_display="\
             "if test ${reboot_mode} = cold_boot; then "\
@@ -576,6 +582,10 @@
 
 /* DISPLAY & HDMITX */
 #define CONFIG_AML_HDMITX20 1
+#if defined(CONFIG_AML_HDMITX20)
+#define CONFIG_AML_DOLBY 1
+#define CONFIG_CMD_INI 1
+#endif
 #define CONFIG_AML_CANVAS 1
 #define CONFIG_AML_VOUT 1
 #define CONFIG_AML_OSD 1
