@@ -64,21 +64,21 @@ static struct meson_div divs[] = {
 };
 
 static struct parm meson_fixed_pll_parm[3] = {
-	{P1_ANACTRL_FIXPLL_CTRL0, 0, 8}, /* pm */
-	{P1_ANACTRL_FIXPLL_CTRL0, 10, 5}, /* pn */
-	{P1_ANACTRL_FIXPLL_CTRL0, 16, 2}, /* pod */
+	{P1_CLKCTRL_FIXPLL_CTRL0, 0, 8}, /* pm */
+	{P1_CLKCTRL_FIXPLL_CTRL0, 10, 5}, /* pn */
+	{P1_CLKCTRL_FIXPLL_CTRL0, 16, 2}, /* pod */
 };
 
 static struct parm meson_sys_pll_parm[3] = {
-	{P1_ANACTRL_SYSPLL_CTRL0, 0, 8}, /* pm */
-	{P1_ANACTRL_SYSPLL_CTRL0, 10, 5}, /* pn */
-	{P1_ANACTRL_SYSPLL_CTRL0, 16, 3}, /* pod */
+	{P1_CLKCTRL_SYS0PLL_CTRL0, 0, 8}, /* pm */
+	{P1_CLKCTRL_SYS0PLL_CTRL0, 10, 5}, /* pn */
+	{P1_CLKCTRL_SYS0PLL_CTRL0, 16, 3}, /* pod */
 };
 
 static struct parm meson_gp0_pll_parm[3] = {
-	{P1_ANACTRL_GP0PLL_CTRL0, 0, 8}, /* pm */
-	{P1_ANACTRL_GP0PLL_CTRL0, 10, 5}, /* pn */
-	{P1_ANACTRL_GP0PLL_CTRL0, 16, 3}, /* pod */
+	{P1_CLKCTRL_GP0PLL_CTRL0, 0, 8}, /* pm */
+	{P1_CLKCTRL_GP0PLL_CTRL0, 10, 5}, /* pn */
+	{P1_CLKCTRL_GP0PLL_CTRL0, 16, 3}, /* pod */
 };
 
 static int meson_clk_enable(struct clk *clk)
