@@ -381,7 +381,7 @@ config AMLOGIC_KEY_TYPE
 
 config BL30_SELECT
 	string "S4 BL30 board config"
-	default "sc2_ah219"
+	default "s4_ap229"
 
 choice
 	prompt "S4 Board"
@@ -429,6 +429,12 @@ config S4_AP201
 	help
 		Select S4 AP201(XXXX) config
 
+config S4_AP232
+	bool "S4_AP232"
+	select TARGET_S4_AP232
+	help
+		Select S4 AP232(XXXX) config
+
 endchoice
 
 config TARGET_S4_SKT
@@ -458,6 +464,10 @@ config TARGET_S4_T211
 config TARGET_S4_AP201
 	bool "S4 AP201 board"
 	depends on S4_AP201
+
+config TARGET_S4_AP232
+	bool "S4 AP232 board"
+	depends on S4_AP232
 
 endif
 
@@ -867,6 +877,8 @@ source "board/amlogic/s4_aq229/Kconfig"
 source "board/amlogic/s4_t211/Kconfig"
 
 source "board/amlogic/s4_ap201/Kconfig"
+
+source "board/amlogic/s4_ap232/Kconfig"
 
 source "board/amlogic/sc2_skt/Kconfig"
 
