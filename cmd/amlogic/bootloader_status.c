@@ -145,7 +145,7 @@ static void run_recovery_from_cache(void) {
 	run_command("reboot", 0);//need reboot old bootloader
 }
 
-int write_bootloader_back(const char* bootloaderindex) {
+int write_bootloader_back(const char* bootloaderindex, int dstindex) {
 	int iRet = 0;
 	int copy = 0;
 	int ret = -1;
@@ -154,6 +154,8 @@ int write_bootloader_back(const char* bootloaderindex) {
 		copy = 1;
 	} else if (strcmp(bootloaderindex, "2") == 0) {
 		copy = 2;
+	} else if (strcmp(bootloaderindex, "0") == 0) {
+		copy = 0;
 	}
 
 	buffer = (unsigned char *)malloc(0x2000 * 512);
@@ -168,7 +170,7 @@ int write_bootloader_back(const char* bootloaderindex) {
 		errorP("Fail read bootloader from rsv with sz\n");
 		goto exit;
 	}
-	iRet = store_boot_write("bootloader", 0, 0, buffer);
+	iRet = store_boot_write("bootloader", dstindex, 0, buffer);
 	if (iRet) {
 		printf("Failed to write bootloader\n");
 		goto exit;
@@ -230,6 +232,7 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	char *robustota = NULL;
 	char *mode = NULL;
 	char *update_env = NULL;
+	char *slot = NULL;
 
 	//if recovery mode, need disable dv, if factoryreset, need default uboot env
 	aml_recovery();
@@ -306,6 +309,14 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 			wrnP("current index is expect, no need reboot next, run ceche recovery\n");
 			if (has_boot_slot == 1) {
 				wrnP("ab mode\n");
+				slot = env_get("slot-suffixes");
+				if (strcmp(slot, "0") == 0) {
+					wrnP("write bootloader_a\n");
+					write_bootloader_back("0", 1);
+				} else if (strcmp(slot, "1") == 0) {
+					wrnP("write bootloader_b\n");
+					write_bootloader_back("0", 2);
+				}
 				update_env = env_get("update_env");
 				if (strcmp(update_env, "1") == 0) {
 					printf("ab mode, default all uboot env\n");
@@ -319,7 +330,7 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		} else {
 			wrnP("now ready start reboot next\n");
 			if (has_boot_slot == 1) {
-				write_bootloader_back(bootloaderindex);
+				write_bootloader_back(bootloaderindex, 0);
 #ifdef CONFIG_FASTBOOT
 				struct misc_virtual_ab_message message;
 				set_mergestatus_cancel(&message);
