@@ -392,15 +392,12 @@ static int get_fdto_totalsize(u32 *tz)
 
 	unsigned long long dtbo_mem_addr = NULL;
 	int ret;
-	char envval_str[128]={0};
 
 	ret = read_fdto_partition();
 	if (ret != 0)
 		return ret;
 
-	//dtbo_mem_addr = simple_strtoul(getenv("dtbo_mem_addr"), NULL, 16);
-	getenv_f("dtbo_mem_addr", envval_str, sizeof(envval_str));
-	dtbo_mem_addr = simple_strtoul(envval_str, NULL, 16);
+	dtbo_mem_addr = simple_strtoul(getenv("dtbo_mem_addr"), NULL, 16);
 	*tz = android_dt_get_totalsize(dtbo_mem_addr);
 
 	TE(__func__);
@@ -419,16 +416,13 @@ static int do_fdt_overlay(void)
 	unsigned long long dtbo_start;
 	char               *dtbo_idx = NULL;
 	char		   idx[32];
-	char envval_str[128]={0};
 
 	if (!getenv("dtbo_mem_addr")) {
 		printf("No valid dtbo image found\n");
 		return -1;
 	}
 
-	//dtbo_mem_addr = simple_strtoul(getenv("dtbo_mem_addr"), NULL, 16);  //coverity error
-	getenv_f("dtbo_mem_addr",envval_str,sizeof(envval_str));
-	dtbo_mem_addr = simple_strtoul(envval_str, NULL, 16);
+	dtbo_mem_addr = simple_strtoul(getenv("dtbo_mem_addr"), NULL, 16);  //coverity error
 	if (!android_dt_check_header(dtbo_mem_addr)) {
 		printf("Error: DTBO image header is incorrect\n");
 		return -1;
@@ -460,10 +454,7 @@ static int do_fdt_overlay(void)
 			sprintf(cmd, "dtimg start 0x%llx %d dtbo_start",
 				dtbo_mem_addr, i);
 			run_command(cmd, 0);
-			//dtbo_start = simple_strtoul(getenv("dtbo_start"), NULL, 16);  //coverity error
-			memset(envval_str, 0, sizeof(envval_str));
-			getenv_f("dtbo_start", envval_str, sizeof(envval_str));
-			dtbo_start = simple_strtoul(envval_str, NULL, 16);
+			dtbo_start = simple_strtoul(getenv("dtbo_start"), NULL, 16);  //coverity error
 
 			sprintf(cmd, "fdt apply 0x%llx", dtbo_start);
 			run_command(cmd, 0);
@@ -494,7 +485,6 @@ static int bootm_find_fdt(int flag, int argc, char * const argv[])
 {
 	TE(__func__);
 
-	char envval_str[128]={0};
 	int ret;
 	#ifdef CONFIG_OF_LIBFDT_OVERLAY
 	u32		  fdto_totalsize = 0;
@@ -510,9 +500,7 @@ static int bootm_find_fdt(int flag, int argc, char * const argv[])
 	//because if load dtb.img from cache/udisk maybe encrypted.
 	run_command("store dtb decrypt ${dtb_mem_addr}", 0);
 	if (getenv("dtb_mem_addr")) {
-		//dtb_mem_addr = simple_strtoul(getenv("dtb_mem_addr"), NULL, 16);  //coverity error
-		getenv_f("dtb_mem_addr",envval_str,sizeof(envval_str));
-		dtb_mem_addr = simple_strtoul(envval_str, NULL, 16);
+		dtb_mem_addr = simple_strtoul(getenv("dtb_mem_addr"), NULL, 16);  //coverity error
 	}
 	else
 		dtb_mem_addr = CONFIG_DTB_MEM_ADDR;
