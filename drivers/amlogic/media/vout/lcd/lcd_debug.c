@@ -231,6 +231,7 @@ static void lcd_info_print_edp(struct lcd_config_s *pconf)
 	printf("max_lane_count        %u\n"
 		"max_link_rate         %u\n"
 		"training_mode         %u\n"
+		"edid_en               %u\n"
 		"dpcd_caps_en          %u\n"
 		"sync_clk_mode         %u\n"
 		"lane_count            %u\n"
@@ -243,6 +244,7 @@ static void lcd_info_print_edp(struct lcd_config_s *pconf)
 		pconf->control.edp_cfg.max_lane_count,
 		pconf->control.edp_cfg.max_link_rate,
 		pconf->control.edp_cfg.training_mode,
+		pconf->control.edp_cfg.edid_en,
 		pconf->control.edp_cfg.dpcd_caps_en,
 		pconf->control.edp_cfg.sync_clk_mode,
 		pconf->control.edp_cfg.lane_count,
@@ -252,6 +254,10 @@ static void lcd_info_print_edp(struct lcd_config_s *pconf)
 		pconf->control.edp_cfg.main_stream_enable,
 		pconf->control.edp_cfg.phy_vswing,
 		pconf->control.edp_cfg.phy_preem);
+	printf("edid_state            0x%x\n"
+		"edid_retry_cnt        %u\n\n",
+		pconf->control.edp_cfg.edid_state,
+		pconf->control.edp_cfg.edid_retry_cnt);
 	lcd_pinmux_info_print(pconf);
 }
 

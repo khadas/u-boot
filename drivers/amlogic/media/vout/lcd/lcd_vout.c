@@ -1227,6 +1227,19 @@ void aml_lcd_vbyone_cdr(int index)
 	lcd_vbyone_cdr(pdrv);
 }
 
+void aml_lcd_edp_edid(int index)
+{
+#ifdef CONFIG_AML_LCD_TABLET
+	struct aml_lcd_drv_s *pdrv;
+
+	pdrv = lcd_driver_check_valid(index);
+	if (!pdrv)
+		return;
+
+	dptx_edid_dump(pdrv);
+#endif
+}
+
 void aml_lcd_driver_bl_on(int index)
 {
 	struct aml_lcd_drv_s *pdrv;

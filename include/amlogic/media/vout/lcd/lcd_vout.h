@@ -270,15 +270,18 @@ struct dsi_config_s {
 	unsigned char check_state;
 };
 
+#define EDP_EDID_STATE_LOAD     BIT(0)
+#define EDP_EDID_STATE_APPLY    BIT(1)
+#define EDP_EDID_RETRY_MAX      3
 struct edp_config_s {
 	unsigned char max_lane_count;
 	unsigned char max_link_rate;
 	unsigned char training_mode; /* 0=fast training, 1=auto training */
+	unsigned char edid_en;
 	unsigned char dpcd_caps_en;
 	unsigned char sync_clk_mode;
 	unsigned char scramb_mode;
 	unsigned char enhanced_framing_en;
-	unsigned char edid_en;
 	unsigned char pn_swap;
 
 	unsigned int phy_vswing;
@@ -288,9 +291,13 @@ struct edp_config_s {
 	unsigned char lane_count;
 	unsigned char link_rate;
 	unsigned int bit_rate;
+	unsigned char edid_state;
+	unsigned char edid_retry_cnt;
 	unsigned char link_update;
 	unsigned char training_settings;
 	unsigned char main_stream_enable;
+
+	unsigned char edid_data[128];
 };
 
 struct mlvds_config_s {
@@ -543,6 +550,7 @@ void aml_lcd_driver_info(int index);
 void aml_lcd_driver_reg_info(int index);
 void aml_lcd_vbyone_rst(int index);
 void aml_lcd_vbyone_cdr(int index);
+void aml_lcd_edp_edid(int index);
 void aml_lcd_driver_test(int index, int num);
 int aml_lcd_driver_prbs(int index, unsigned int s, unsigned int mode_flag);
 void aml_lcd_driver_unifykey_dump(int index, unsigned int flag);

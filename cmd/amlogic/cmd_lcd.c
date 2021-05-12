@@ -289,6 +289,21 @@ static int do_lcd_vbyone(cmd_tbl_t *cmdtp, int flag, int argc,
 	return ret;
 }
 
+static int do_lcd_edp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	int ret = 0;
+
+	if (argc == 1)
+		return -1;
+
+	if (strcmp(argv[1], "edid") == 0)
+		aml_lcd_edp_edid(0);
+	else
+		ret = -1;
+
+	return ret;
+}
+
 static int do_lcd_reg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	aml_lcd_driver_reg_info(0);
@@ -522,6 +537,21 @@ static int do_lcd1_vbyone(cmd_tbl_t *cmdtp, int flag, int argc,
 		aml_lcd_vbyone_rst(1);
 	else if (strcmp(argv[1], "cdr") == 0)
 		aml_lcd_vbyone_cdr(1);
+	else
+		ret = -1;
+
+	return ret;
+}
+
+static int do_lcd1_edp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	int ret = 0;
+
+	if (argc == 1)
+		return -1;
+
+	if (strcmp(argv[1], "edid") == 0)
+		aml_lcd_edp_edid(1);
 	else
 		ret = -1;
 
@@ -878,6 +908,7 @@ static cmd_tbl_t cmd_lcd_sub[] = {
 	U_BOOT_CMD_MKENT(tcon, 3, 0, do_lcd_tcon, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(vbyone, 3, 0, do_lcd_vbyone, "", ""),
+	U_BOOT_CMD_MKENT(edp, 3, 0, do_lcd_edp, "", ""),
 	U_BOOT_CMD_MKENT(reg,  2, 0, do_lcd_reg, "", ""),
 	U_BOOT_CMD_MKENT(test, 3, 0, do_lcd_test, "", ""),
 	U_BOOT_CMD_MKENT(prbs, 2, 0, do_lcd_prbs, "", ""),
@@ -896,6 +927,7 @@ static cmd_tbl_t cmd_lcd1_sub[] = {
 	U_BOOT_CMD_MKENT(clk , 2, 0, do_lcd1_clk, "", ""),
 	U_BOOT_CMD_MKENT(info, 2, 0, do_lcd1_info, "", ""),
 	U_BOOT_CMD_MKENT(vbyone, 3, 0, do_lcd1_vbyone, "", ""),
+	U_BOOT_CMD_MKENT(edp, 3, 0, do_lcd1_edp, "", ""),
 	U_BOOT_CMD_MKENT(reg,  2, 0, do_lcd1_reg, "", ""),
 	U_BOOT_CMD_MKENT(test, 3, 0, do_lcd1_test, "", ""),
 	U_BOOT_CMD_MKENT(prbs, 2, 0, do_lcd1_prbs, "", ""),

@@ -167,6 +167,7 @@ static void lcd_config_load_print(struct aml_lcd_drv_s *pdrv)
 	} else if (pconf->basic.lcd_type == LCD_EDP) {
 		LCDPR("max_lane_count      = %d\n", pctrl->edp_cfg.max_lane_count);
 		LCDPR("max_link_rate       = %d\n", pctrl->edp_cfg.max_link_rate);
+		LCDPR("edid_en             = %d\n", pctrl->edp_cfg.edid_en);
 		LCDPR("training_mode       = %d\n", pctrl->edp_cfg.training_mode);
 		LCDPR("dpcd_caps_en        = %d\n", pctrl->edp_cfg.dpcd_caps_en);
 		LCDPR("sync_clk_mode       = %d\n", pctrl->edp_cfg.sync_clk_mode);
@@ -987,16 +988,18 @@ static int lcd_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 			(unsigned char)be32_to_cpup((((u32 *)propdata) + 1));
 		pctrl->edp_cfg.training_mode =
 			(unsigned char)be32_to_cpup((((u32 *)propdata) + 2));
-		pctrl->edp_cfg.dpcd_caps_en =
-			(unsigned char)be32_to_cpup((((u32 *)propdata) + 3));
-		pctrl->edp_cfg.sync_clk_mode =
-			(unsigned char)be32_to_cpup((((u32 *)propdata) + 4));
-		pctrl->edp_cfg.scramb_mode =
-			(unsigned char)be32_to_cpup((((u32 *)propdata) + 5));
-		pctrl->edp_cfg.enhanced_framing_en =
-			(unsigned char)be32_to_cpup((((u32 *)propdata) + 6));
 		pctrl->edp_cfg.edid_en =
+			(unsigned char)be32_to_cpup((((u32 *)propdata) + 3));
+		pctrl->edp_cfg.dpcd_caps_en =
+			(unsigned char)be32_to_cpup((((u32 *)propdata) + 4));
+		pctrl->edp_cfg.sync_clk_mode =
+			(unsigned char)be32_to_cpup((((u32 *)propdata) + 5));
+		pctrl->edp_cfg.scramb_mode =
+			(unsigned char)be32_to_cpup((((u32 *)propdata) + 6));
+		pctrl->edp_cfg.enhanced_framing_en =
 			(unsigned char)be32_to_cpup((((u32 *)propdata) + 7));
+		pctrl->edp_cfg.pn_swap =
+			(unsigned char)be32_to_cpup((((u32 *)propdata) + 8));
 
 		pctrl->edp_cfg.lane_count = pctrl->edp_cfg.max_lane_count;
 		pctrl->edp_cfg.link_rate = pctrl->edp_cfg.max_link_rate;

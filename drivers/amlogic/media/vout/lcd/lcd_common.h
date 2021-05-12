@@ -40,6 +40,7 @@ void lcd_p2p_config_set(struct aml_lcd_drv_s *pdrv);
 void lcd_mipi_dsi_config_set(struct aml_lcd_drv_s *pdrv);
 void lcd_edp_config_set(struct aml_lcd_drv_s *pdrv);
 
+void lcd_set_venc_timing(struct aml_lcd_drv_s *pdrv);
 void lcd_set_venc(struct aml_lcd_drv_s *pdrv);
 
 /* lcd phy */
@@ -94,6 +95,8 @@ void mipi_dsi_print_info(struct lcd_config_s *pconf);
 void mipi_dsi_config_init(struct lcd_config_s *pconf);
 void mipi_dsi_link_off(struct aml_lcd_drv_s *pdrv);
 void mipi_dsi_tx_ctrl(struct aml_lcd_drv_s *pdrv, int flag);
+int dptx_edid_dump(struct aml_lcd_drv_s *pdrv);
+int dptx_edid_timing_probe(struct aml_lcd_drv_s *pdrv);
 void dptx_dpcd_dump(struct aml_lcd_drv_s *pdrv);
 void edp_tx_ctrl(struct aml_lcd_drv_s *pdrv, int flag);
 #endif
