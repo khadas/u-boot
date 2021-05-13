@@ -145,7 +145,6 @@ static void get_name(dir_entry *dirent, char *s_name)
 		*s_name = DELETED_FLAG;
 }
 
-static int flush_dirty_fat_buffer(fsdata *mydata);
 #if !defined(CONFIG_FAT_WRITE)
 /* Stub for read only operation */
 int flush_dirty_fat_buffer(fsdata *mydata)
@@ -1107,7 +1106,9 @@ int fat_size(const char *filename, loff_t *size)
 		 * expected to fail if passed a directory path:
 		 */
 		free(fsdata.fatbuf);
-		fat_itr_root(itr, &fsdata);
+		ret = fat_itr_root(itr, &fsdata);
+		if (ret)
+			goto out_free_itr;
 		if (!fat_itr_resolve(itr, filename, TYPE_DIR)) {
 			*size = 0;
 			ret = 0;
@@ -1219,7 +1220,8 @@ int fat_readdir(struct fs_dir_stream *dirs, struct fs_dirent **dentp)
 		return -ENOENT;
 
 	memset(dent, 0, sizeof(*dent));
-	strcpy(dent->name, dir->itr.name);
+	strncpy(dent->name, dir->itr.name, sizeof(dent->name) - 1);
+	dent->name[sizeof(dent->name) - 1] = '\0';
 
 	if (fat_itr_isdir(&dir->itr)) {
 		dent->type = FS_DT_DIR;
