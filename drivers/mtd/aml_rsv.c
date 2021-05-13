@@ -27,7 +27,7 @@ static struct free_node_t *get_free_node(struct meson_rsv_info_t *rsv_info)
 	index =
 		find_first_zero_bit((void *)&handler->fn_bitmask,
 				    NAND_RSV_BLOCK_NUM);
-	if (index > NAND_RSV_BLOCK_NUM) {
+	if (index >= NAND_RSV_BLOCK_NUM) {
 		pr_info("%s %d index :%d is greater than max rsv block num\n",
 			__func__, __LINE__, index);
 		return NULL;
@@ -45,7 +45,7 @@ static void release_free_node(struct meson_rsv_info_t *rsv_info,
 
 	pr_info("%s %d: bitmask = 0x%llx\n",
 		__func__, __LINE__, handler->fn_bitmask);
-	if (index > NAND_RSV_BLOCK_NUM) {
+	if (index >= NAND_RSV_BLOCK_NUM) {
 		pr_info("%s %d index :%d is greater than max rsv block num\n",
 			__func__, __LINE__, index);
 		return;
@@ -156,7 +156,7 @@ RE_SEARCH:
 				erase_info.addr = offset;
 				erase_info.len = mtd->erasesize;
 				menson_rsv_disprotect();
-				ret = mtd_erase(mtd, &erase_info);
+				mtd_erase(mtd, &erase_info);
 				menson_rsv_protect();
 				rsv_info->nvalid->ec++;
 				pr_info("%s %d: erasing bad info block:0x%llx\n",
@@ -192,7 +192,7 @@ RE_SEARCH:
 	}
 	offset = rsv_info->nvalid->blk_addr;
 	offset *= mtd->erasesize;
-	offset += rsv_info->nvalid->page_addr * mtd->writesize;
+	offset += ((u64)rsv_info->nvalid->page_addr) * mtd->writesize;
 	if (rsv_info->nvalid->page_addr == 0) {
 		ret = mtd_block_isbad(mtd, offset);
 		if (ret) {
@@ -245,7 +245,7 @@ int meson_rsv_write(struct meson_rsv_info_t *rsv_info, u_char *buf)
 
 	offset = rsv_info->nvalid->blk_addr;
 	offset *= mtd->erasesize;
-	offset += rsv_info->nvalid->page_addr * mtd->writesize;
+	offset += ((u64)rsv_info->nvalid->page_addr) * mtd->writesize;
 	pr_info("%s %d write %s to 0x%llx\n",
 		__func__, __LINE__, rsv_info->name, offset);
 	memcpy(oobinfo.name, rsv_info->name, 4);
@@ -284,7 +284,7 @@ int meson_rsv_read(struct meson_rsv_info_t *rsv_info, u_char *buf)
 READ_RSV_AGAIN:
 	offset = rsv_info->nvalid->blk_addr;
 	offset *= mtd->erasesize;
-	offset += rsv_info->nvalid->page_addr * mtd->writesize;
+	offset += ((u64)rsv_info->nvalid->page_addr) * mtd->writesize;
 	pr_info("%s %d read %s from 0x%llx\n",
 		__func__, __LINE__, rsv_info->name, offset);
 	memset(buf, 0, rsv_info->size);
@@ -498,7 +498,7 @@ RE_RSV_INFO:
 			memset((u8 *)&oobinfo, 0, oob_ops.ooblen);
 			offset = rsv_info->nvalid->blk_addr;
 			offset *= mtd->erasesize;
-			offset += mtd->writesize * i;
+			offset += ((u64)mtd->writesize) * i;
 			error = mtd_read_oob(mtd, offset, &oob_ops);
 			if (error && error != -EUCLEAN) {
 				pr_info("%s %d blk good but read failed:%llx, %d\n",
@@ -556,7 +556,7 @@ RE_RSV_INFO:
 		ret = -1;
 	offset = rsv_info->nvalid->blk_addr;
 	offset *= mtd->erasesize;
-	offset += rsv_info->nvalid->page_addr * mtd->writesize;
+	offset += ((u64)rsv_info->nvalid->page_addr) * mtd->writesize;
 	pr_info("%s valid address 0x%llx\n", rsv_info->name, offset);
 	return ret;
 }
