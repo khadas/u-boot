@@ -179,3 +179,20 @@ int efuse_get_cali_cvbs(void)
 	return -1;
 }
 
+/*
+ * return: >=0:succ and valid data, <0:fail
+*/
+int efuse_get_cali_item(char *str)
+{
+#ifdef EFUSE_HAL_API_READ_CALI_ITEM
+	int64_t ret;
+
+	extern int64_t meson_trustzone_efuse_caliItem(const char *str);
+	ret = meson_trustzone_efuse_caliItem(str);
+
+	return ret;
+#else
+	return -1;
+#endif
+}
+
