@@ -1013,22 +1013,20 @@ static int bl_config_load_from_dts(char *dt_addr, struct aml_bl_drv_s *bdrv)
 		sprintf(sname, "/backlight%d", bdrv->index);
 
 	bconf->method = BL_CTRL_MAX; /* default */
-	parent_offset = fdt_path_offset(dt_addr, "sname");
+	parent_offset = fdt_path_offset(dt_addr, sname);
 	if (parent_offset < 0) {
-		BLPR("not find %s node %s\n",
-		      sname,
-		      fdt_strerror(parent_offset));
+		BLPR("not find %s node: %s\n",
+		      sname, fdt_strerror(parent_offset));
 		return -1;
 	}
 	propdata = (char *)fdt_getprop(dt_addr, parent_offset, "status", NULL);
 	if (!propdata) {
 		BLPR("not find status, default to disabled\n");
 		return -1;
-	} else {
-		if (strncmp(propdata, "okay", 2)) {
-			BLPR("status disabled\n");
-			return -1;
-		}
+	}
+	if (strncmp(propdata, "okay", 2)) {
+		BLPR("status disabled\n");
+		return -1;
 	}
 
 	sprintf(propname,"%s/backlight_%d", sname, bconf->index);
