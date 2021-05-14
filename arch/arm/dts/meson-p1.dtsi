@@ -586,77 +586,99 @@
 
 	spicc0_pins: spicc0_pins {
 		mux {
-			groups = "spi0_mosi",
-				 "spi0_miso",
-				 //"spi0_ss0",used as GPIOT_21
-				 "spi0_sclk";
-			function = "spi0";
+			groups = "spi_a_mosi",
+				 "spi_a_miso",
+				 //"spi_a_ss0",used as GPIOH_9
+				 "spi_a_clk";
+			function = "spi_a";
 			drive-strength = <2>;
 		};
 	};
 
-	spicc1_pins_1: spicc1_pins_1 {
+	spicc1_pins: spicc1_pins {
 		mux {
-			groups = "spi1_mosi_c",
-				 "spi1_miso_c",
-				 //"spi1_ss0_c",used as GPIOC_3
-				 "spi1_sclk_c";
-			function = "spi1";
+			groups = "spi_b_mosi",
+				 "spi_b_miso",
+				 //"spi_b_ss0",used as GPIOH_13
+				 "spi_b_clk";
+			function = "spi_b";
 			drive-strength = <2>;
 		};
 	};
 
-	spicc1_pins_2: spicc1_pins_2 {
+	spicc2_pins_h: spicc2_pins_h {
 		mux {
-			groups = "spi1_mosi_m",
-				 "spi1_miso_m",
-				 //"spi1_ss0_m",used as GPIOM_11
-				 "spi1_sclk_m";
-			function = "spi1";
+			groups = "spi_c_mosi_h",
+				 "spi_c_miso_h",
+				 //"spi_c_ss0_h",used as GPIOH_17
+				 "spi_c_clk_h";
+			function = "spi_c";
 			drive-strength = <2>;
 		};
 	};
 
-	spicc2_pins: spicc2_pins {
+	spicc2_pins_x: spicc2_pins_x {
 		mux {
-			groups = "spi2_mosi",
-				 "spi2_miso",
-				 //"spi2_ss0",used as GPIOY_3
-				 "spi2_sclk";
-			function = "spi2";
+			groups = "spi_c_mosi_x",
+				 "spi_c_miso_x",
+				 //"spi_c_ss0_x",used as GPIOX_29
+				 "spi_c_clk_x";
+			function = "spi_c";
 			drive-strength = <2>;
 		};
 	};
 
-	spicc3_pins: spicc3_pins {
+	spicc3_pins_k: spicc3_pins_k {
 		mux {
-			groups = "spi3_mosi",
-				 "spi3_miso",
-				 //"spi3_ss0",used as GPIOT_9
-				 "spi3_sclk";
-			function = "spi3";
+			groups = "spi_d_mosi_k",
+				 "spi_d_miso_k",
+				 //"spi_d_ss0_k",used as GPIOK_3
+				 "spi_d_clk_k";
+			function = "spi_d";
 			drive-strength = <2>;
 		};
 	};
 
-	spicc4_pins: spicc4_pins {
+	spicc3_pins_x: spicc3_pins_x {
 		mux {
-			groups = "spi4_mosi",
-				 "spi4_miso",
-				 //"spi4_ss0",used as GPIOZ_3
-				 "spi4_sclk";
-			function = "spi4";
+			groups = "spi_d_mosi_x",
+				 "spi_d_miso_x",
+				 //"spi_d_ss0_x",used as GPIOX_3
+				 "spi_d_clk_x";
+			function = "spi_d";
+			drive-strength = <2>;
+		};
+	};
+
+	spicc4_pins_k: spicc4_pins_k {
+		mux {
+			groups = "spi_e_mosi_k",
+				 "spi_e_miso_k",
+				 //"spi_e_ss0_k",used as GPIOK_7
+				 "spi_e_clk_k";
+			function = "spi_e";
+			drive-strength = <2>;
+		};
+	};
+
+	spicc4_pins_x: spicc4_pins_x {
+		mux {
+			groups = "spi_e_mosi_x",
+				 "spi_e_miso_x",
+				 //"spi_e_ss0_x",used as GPIOX_18
+				 "spi_e_clk_x";
+			function = "spi_e";
 			drive-strength = <2>;
 		};
 	};
 
 	spicc5_pins: spicc5_pins {
 		mux {
-			groups = "spi5_mosi",
-				 "spi5_miso",
-				 //"spi5_ss0",used as GPIOZ_7
-				 "spi5_sclk";
-			function = "spi5";
+			groups = "spi_f_mosi",
+				 "spi_f_miso",
+				 //"spi_f_ss0",used as GPIOT_13
+				 "spi_f_clk";
+			function = "spi_f";
 			drive-strength = <2>;
 		};
 	};

@@ -256,28 +256,43 @@
 	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&spicc0_pins>;
-	cs-gpios = <&gpio GPIOT_21 0>;
+	cs-gpios = <&gpio GPIOH_9 0>;
 };
 
 &spicc1 {
 	status = "disabled";
 	pinctrl-names = "default";
-	pinctrl-0 = <&spicc1_pins_1>;
-	cs-gpios = <&gpio GPIOC_3 0>;
+	pinctrl-0 = <&spicc1_pins>;
+	cs-gpios = <&gpio GPIOH_13 0>;
 };
 
 &spicc2 {
 	status = "disabled";
 	pinctrl-names = "default";
-	pinctrl-0 = <&spicc2_pins>;
-	cs-gpios = <&gpio GPIOY_3 0>;
+	pinctrl-0 = <&spicc2_pins_h>;
+	cs-gpios = <&gpio GPIOH_17 0>;
 };
 
 &spicc3 {
 	status = "disabled";
 	pinctrl-names = "default";
-	pinctrl-0 = <&spicc3_pins>;
-	cs-gpios = <&gpio GPIOT_9 0>;
+	pinctrl-0 = <&spicc3_pins_k>;
+	cs-gpios = <&gpio GPIOK_3 0>;
+
+};
+
+&spicc4 {
+	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&spicc4_pins_k>;
+	cs-gpios = <&gpio GPIOK_7 0>;
+};
+
+&spicc5 {
+	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&spicc5_pins>;
+	cs-gpios = <&gpio GPIOT_13 0>;
 	spi-flash@0 {
 		compatible = "spi-flash";
 		reg = <0>;
@@ -286,18 +301,4 @@
 		spi-rx-bus-width = <1>;
 		status = "disabled";
         };
-};
-
-&spicc4 {
-	status = "disabled";
-	pinctrl-names = "default";
-	pinctrl-0 = <&spicc4_pins>;
-	cs-gpios = <&gpio GPIOZ_3 0>;
-};
-
-&spicc5 {
-	status = "disabled";
-	pinctrl-names = "default";
-	pinctrl-0 = <&spicc5_pins>;
-	cs-gpios = <&gpio GPIOZ_7 0>;
 };
