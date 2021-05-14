@@ -25,6 +25,8 @@ struct efuse_hal_api_arg {
 #define EFUSE_HAL_API_WRITE 1
 #define EFUSE_HAL_API_WRITE_PATTERN 2
 #define EFUSE_HAL_API_USER_MAX 3
+#define EFUSE_HAL_API_READ_CALI 4
+#define EFUSE_HAL_API_READ_CALI_ITEM 5
 
 #define EFUSE_USER_MASK            (0x1 << 16)
 #define EFUSE_THERMAL_MASK         (0x1 << 17)

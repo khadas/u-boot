@@ -14,7 +14,8 @@
 
 #define CMD_EFUSE_WRITE            0
 #define CMD_EFUSE_READ             1
-#define CMD_EFUSE_READ_CALI		2
+#define CMD_EFUSE_READ_CALI        2
+#define CMD_EFUSE_READ_CALI_ITEM   3
 #define CMD_EFUSE_SECURE_BOOT_SET  6
 #define CMD_EFUSE_PASSWORD_SET     7
 #define CMD_EFUSE_CUSTOMER_ID_SET  8
@@ -36,6 +37,9 @@ int cmd_efuse(int argc, char * const argv[], char *buf)
 		action = CMD_EFUSE_READ;
 	} else if (strncmp(argv[1], "cali_read", 9) == 0) {
 		action = CMD_EFUSE_READ_CALI;
+	} else if (strncmp(argv[1], "item_read", 9) == 0) {
+		action = CMD_EFUSE_READ_CALI_ITEM;
+		goto efuse_action;
 	} else if (strncmp(argv[1], "write", 5) == 0) {
 		action = CMD_EFUSE_WRITE;
 	} else if (strncmp(argv[1], "secure_boot_set", 15) == 0) {
@@ -118,6 +122,15 @@ efuse_action:
 		}
 		printf("\n");
 	}
+	else if (action == CMD_EFUSE_READ_CALI_ITEM) {
+		s = argv[2];
+		ret = efuse_get_cali_item(s);
+		if (ret < 0) {
+			printf("ERROR: efuse read cali item data fail!\n");
+			return -1;
+		}
+		printf("efuse %s cali data=0x%x\n",s,ret);
+	}
 
 	/* efuse write */
 	else if (action == CMD_EFUSE_WRITE) {
@@ -196,6 +209,8 @@ static char efuse_help_text[] =
 	"[read/write offset size [data]]\n"
 	"  [cali_read]  -read from cali\n"
 	"                   example: [efuse cali_read 0 7]; offset is 0,size is 7. \n"
+	"  [item_read]  -read cali item\n"
+	"                   [item_read sensor/saradc/mipicsi/hdmirx/eth/cvbs/earcrx/earctx]\n"
 	"  [read/write]  - read or write 'size' data from\n"
 	"                  'offset' from efuse user data ;\n"
 	"  [offset]      - the offset byte from the beginning\n"

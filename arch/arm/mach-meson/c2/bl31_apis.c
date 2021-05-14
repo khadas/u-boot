@@ -43,6 +43,8 @@ int32_t meson_trustzone_efuse(struct efuse_hal_api_arg *arg)
 
 	if (arg->cmd == EFUSE_HAL_API_READ)
 		cmd = EFUSE_READ;
+	else if (arg->cmd == EFUSE_HAL_API_READ_CALI)
+		cmd = EFUSE_READ_CALI;
 	else if (arg->cmd == EFUSE_HAL_API_WRITE)
 		cmd = EFUSE_WRITE;
 	else
@@ -71,7 +73,7 @@ int32_t meson_trustzone_efuse(struct efuse_hal_api_arg *arg)
 	ret = x0;
 	*retcnt = x0;
 
-	if ((arg->cmd == EFUSE_HAL_API_READ) && (ret != 0))
+	if ((arg->cmd == EFUSE_HAL_API_READ || arg->cmd == EFUSE_HAL_API_READ_CALI) && (ret != 0))
 		memcpy((void *)arg->buffer_phy,
 		       (const void *)sharemem_output_base, ret);
 
@@ -79,6 +81,66 @@ int32_t meson_trustzone_efuse(struct efuse_hal_api_arg *arg)
 		return -1;
 	else
 		return 0;
+}
+int64_t __meson_trustzone_efuse_caliitem(uint32_t cmd, uint32_t subcmd)
+{
+	int64_t ret;
+	uint32_t maincmd = cmd;
+	uint32_t sec_cmd = subcmd;
+	uint32_t size = subcmd;
+	asm __volatile__("" : : : "memory");
+
+	register uint64_t x0 asm("x0") = maincmd;
+	register uint64_t x1 asm("x1") = sec_cmd;
+	register uint64_t x2 asm("x2") = size;
+	do {
+		asm volatile(
+		    __asmeq("%0", "x0")
+		    __asmeq("%1", "x0")
+		    __asmeq("%2", "x1")
+		    __asmeq("%3", "x2")
+		    "smc    #0\n"
+		    : "=r"(x0)
+		    : "r"(x0), "r"(x1), "r"(x2));
+	} while (0);
+	ret = x0;
+	return ret;
+}
+
+typedef struct _efuseCaliItem{
+	char *name;
+	int  item;
+}tEfuseCaliItem;
+const tEfuseCaliItem EfuseCaliItem_cfg[]={
+	{.name="sensor",.item = EFUSE_CALI_SUBITEM_SENSOR0},
+	{.name="saradc", .item = EFUSE_CALI_SUBITEM_SARADC},
+	{.name="mipicsi",.item = EFUSE_CALI_SUBITEM_MIPICSI},
+	{.name="usbphy", .item = EFUSE_CALI_SUBITEM_USBPHY},
+	{.name="usbcclogic", .item = EFUSE_CALI_SUBITEM_USBCCLOGIC},
+	{.name="bc",    .item = EFUSE_CALI_SUBITEM_BC},
+};
+#define EFUSE_CALIITE_CNT sizeof(EfuseCaliItem_cfg)/sizeof(EfuseCaliItem_cfg[0])
+
+/*
+ * return: >=0: succ and valid data, -1:fail
+*/
+int64_t meson_trustzone_efuse_caliItem(const char *str)
+{
+	int i;
+	unsigned int subcmd;
+	int64_t ret;
+	for (i=0;i<EFUSE_CALIITE_CNT;i++) {
+		if (strncmp(EfuseCaliItem_cfg[i].name, str, strlen(EfuseCaliItem_cfg[i].name)) == 0) {
+			subcmd = EfuseCaliItem_cfg[i].item;
+			break;
+		}
+	}
+	if (i >= EFUSE_CALIITE_CNT) {
+		return -1;
+	}
+
+	ret = __meson_trustzone_efuse_caliitem(EFUSE_READ_CALI_ITEM, subcmd);
+	return ret;
 }
 
 int32_t meson_trustzone_efuse_get_max(struct efuse_hal_api_arg *arg)
