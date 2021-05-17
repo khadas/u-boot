@@ -798,6 +798,12 @@ int board_late_init(void)
 	int ret;
 	char* env;
 
+	//default uboot env need before anyone use it
+	if (getenv("default_env")) {
+		printf("factory reset, need default all uboot env.\n");
+		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
+	}
+
 	/*USE_HDMI_UART_FUNC*/
 	env = getenv("hdmiuart_mode");
 	/*printf("hdmiuart_mode env:%s\n",env);*/

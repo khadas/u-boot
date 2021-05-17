@@ -358,6 +358,10 @@ int board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void){
 	//update env before anyone using it
+	if (getenv("default_env")) {
+		printf("factory reset, need default all uboot env\n");
+		run_command("defenv_reserv;setenv upgrade_step 2; saveenv;", 0);
+	}
 	run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
 			"if test ${reboot_mode} = factory_reset; then "\
 			"defenv_reserv aml_dt;setenv upgrade_step 2;save; fi;", 0);

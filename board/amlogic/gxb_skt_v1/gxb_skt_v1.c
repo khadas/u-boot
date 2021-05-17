@@ -390,6 +390,11 @@ int board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void){
 	int ret;
+	//default uboot env need before anyone use it
+	if (getenv("default_env")) {
+		printf("factory reset, need default all uboot env.\n");
+		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
+	}
 	/*add board late init function here*/
 	run_command("setenv fdt_high 0x20000000", 1);
 	run_command("setenv dtb_mem_addr 0x1000000", 1);

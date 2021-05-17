@@ -425,6 +425,11 @@ int board_late_init(void)
 	char outputModePre[30] = {0};
 	char outputModeCur[30] = {0};
 	char* output_str;
+
+	if (getenv("default_env")) {
+		printf("factory reset, need default all uboot env\n");
+		run_command("defenv_reserv;setenv upgrade_step 2; saveenv;", 0);
+	}
 	//update env before anyone using it
 	run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
 				"if test ${reboot_mode} = factory_reset; then "\
