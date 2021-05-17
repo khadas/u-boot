@@ -283,6 +283,7 @@ static AvbSlotVerifyResult load_and_verify_hash_partition(
   size_t expected_digest_len = 0;
   uint8_t expected_digest_buf[AVB_SHA512_DIGEST_SIZE];
   const uint8_t* expected_digest = NULL;
+  size_t image_size_to_hash = 0;
 
   if (!avb_hash_descriptor_validate_and_byteswap(
           (const AvbHashDescriptor*)descriptor, &hash_desc)) {
@@ -375,7 +376,8 @@ static AvbSlotVerifyResult load_and_verify_hash_partition(
   // used later.
   AvbSHA256Ctx sha256_ctx;
   AvbSHA512Ctx sha512_ctx;
-  size_t image_size_to_hash = hash_desc.image_size;
+
+  image_size_to_hash = hash_desc.image_size;
   // If we allow verification error and the whole partition is smaller than
   // image size in hash descriptor, we just hash the whole partition.
   if (image_size_to_hash > image_size) {
@@ -572,6 +574,7 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
   bool is_main_vbmeta;
   bool look_for_vbmeta_footer;
   AvbVBMetaData* vbmeta_image_data = NULL;
+  uint32_t rollback_index_location_to_use = 0;
 
   ret = AVB_SLOT_VERIFY_RESULT_OK;
 
@@ -791,8 +794,7 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
     }
   }
 
-  uint32_t rollback_index_location_to_use = rollback_index_location;
-
+  rollback_index_location_to_use = rollback_index_location;
   /* Check if key used to make signature matches what is expected. */
   if (pk_data != NULL) {
     if (expected_public_key != NULL) {
