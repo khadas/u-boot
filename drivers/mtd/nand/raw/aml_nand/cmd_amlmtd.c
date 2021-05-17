@@ -311,7 +311,7 @@ static int do_fip_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]
 		base = 3;
 	}
 	/*calculate the fip_start_addr*/
-	fip_base = 1024*nand->writesize + NAND_RSV_BLOCK_NUM*nand->erasesize;
+	fip_base = 1024*(u64)nand->writesize + NAND_RSV_BLOCK_NUM*nand->erasesize;
 	if (!strcmp("read", sub)) {
 		printk("%s() %s\n", __func__, sub);
 		if (argc - base < 2) {

@@ -170,7 +170,7 @@ int m3_nand_boot_erase_cmd(struct mtd_info *mtd, int page)
 	struct nand_chip *chip = mtd->priv;
 	loff_t ofs;
 
-	ofs = (page << chip->page_shift);
+	ofs = ((loff_t)page << chip->page_shift);
 
 	if (chip->block_bad(mtd, ofs))
 		return 0;
@@ -249,7 +249,7 @@ int m3_nand_boot_read_page_hwecc(struct mtd_info *mtd,
 			if (!aml_chip->aml_nand_wait_devready(aml_chip, i)) {
 				printk("don't found selected chip:%d ready\n",
 					i);
-				error = -EBUSY;
+				//error = -EBUSY;
 			}
 			if (aml_chip->ops_mode & AML_CHIP_NONE_RB)
 				chip->cmd_ctrl(mtd, NAND_CMD_READ0 & 0xff,
@@ -316,7 +316,7 @@ int m3_nand_boot_read_page_hwecc(struct mtd_info *mtd,
 	read_page = page;
         read_page++;
 READ_BAD_BLOCK:
-	ofs = (read_page << chip->page_shift);
+        ofs = ((loff_t)read_page << chip->page_shift);
 	if (!(ofs % mtd->erasesize)) {
 		if (chip->block_bad(mtd, ofs)) {
 			read_page +=
@@ -475,7 +475,7 @@ int m3_nand_boot_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 		write_page++;
 
 WRITE_BAD_BLOCK:
-	ofs = (write_page << chip->page_shift);
+	ofs = ((loff_t)write_page << chip->page_shift);
 	if (!(ofs % mtd->erasesize)) {
 		if (chip->block_bad(mtd, ofs)) {
 			write_page +=

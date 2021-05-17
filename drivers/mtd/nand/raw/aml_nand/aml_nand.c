@@ -35,96 +35,59 @@ extern struct hw_controller *controller;
 #define	SZ_1M	0x100000
 extern struct mtd_info *nand_info[CONFIG_SYS_MAX_NAND_DEVICE];
 
-static struct nand_ecclayout aml_nand_uboot_oob = {
-	.eccbytes = 84,
-	.oobfree = {
-		{.offset = 0,
-		 .length = 6}}
+struct aml_nand_ecclayout {
+	struct nand_ecclayout *ptr_ecclayout;
+	unsigned int oobsize;
 };
 
-static struct nand_ecclayout aml_nand_oob_64 = {
-	.eccbytes = 56,
-	.oobfree = {
-		{.offset = 0,
-		 .length = 8}}
+#define NAND_ECCLAYOUT(__name, _eccbytes, _offset, _length)	\
+static struct nand_ecclayout aml_nand_oob_##__name = {	\
+	.eccbytes = _eccbytes,					\
+	.oobfree = {{						\
+		.offset = _offset,				\
+		.length = _length				\
+	}}							\
+}
+
+NAND_ECCLAYOUT(uboot, 84, 0, 6);
+NAND_ECCLAYOUT(64, 56, 0, 6);
+NAND_ECCLAYOUT(128, 120, 0, 8);
+NAND_ECCLAYOUT(218, 200, 0, 8);
+NAND_ECCLAYOUT(224, 208, 0, 8);
+NAND_ECCLAYOUT(256, 240, 0, 16);
+NAND_ECCLAYOUT(376, 352, 0, 16);
+NAND_ECCLAYOUT(436, 352, 0, 16);
+NAND_ECCLAYOUT(448, 416, 0, 16);
+NAND_ECCLAYOUT(640, 608, 0, 16);
+NAND_ECCLAYOUT(744, 700, 0, 16);
+NAND_ECCLAYOUT(1280, 1200, 0, 32);
+NAND_ECCLAYOUT(1664, 1584, 0, 32);
+
+static struct aml_nand_ecclayout ecclayout[16] = {
+	{&aml_nand_oob_64,  64 },
+	{&aml_nand_oob_128, 128},
+	{&aml_nand_oob_218, 218},
+	{&aml_nand_oob_224, 224},
+	{&aml_nand_oob_256, 256},
+	{&aml_nand_oob_376, 376},
+	{&aml_nand_oob_436, 436},
+	{&aml_nand_oob_448, 448},
+	{&aml_nand_oob_640, 640},
+	{&aml_nand_oob_744, 744},
+	{&aml_nand_oob_1280,1280},
+	{&aml_nand_oob_1664,1664}
 };
 
-static struct nand_ecclayout aml_nand_oob_128 = {
-	.eccbytes = 120,
-	.oobfree = {
-		{.offset = 0,
-		 .length = 8}}
-};
+struct nand_ecclayout *aml_ecclayout_get(unsigned int oobsize)
+{
+	struct aml_nand_ecclayout *entry = ecclayout;
+	int i;
 
-static struct nand_ecclayout aml_nand_oob_218 = {
-	.eccbytes = 200,
-	.oobfree = {
-		{.offset = 0,
-		 .length = 8}}
-};
-
-static struct nand_ecclayout aml_nand_oob_224 = {
-	.eccbytes = 208,
-	.oobfree = {
-		{.offset = 0,
-		 .length = 8}}
-};
-
-static struct nand_ecclayout aml_nand_oob_256 = {
-	.eccbytes = 240,
-	.oobfree = {
-		{.offset = 0,
-		 .length = 16}}
-};
-
-static struct nand_ecclayout aml_nand_oob_376 = {
-	.eccbytes = 352,
-	.oobfree = {
-		{.offset = 0,
-		 .length = 16}}
-};
-
-static struct nand_ecclayout aml_nand_oob_436 = {
-	.eccbytes = 352,
-	.oobfree = {
-		{.offset = 0,
-		 .length = 16}}
-};
-
-static struct nand_ecclayout aml_nand_oob_448 = {
-	.eccbytes = 416,
-	.oobfree = {
-		{.offset = 0,
-		 .length = 16}}
-};
-
-static struct nand_ecclayout aml_nand_oob_640 = {
-	.eccbytes = 608,
-	.oobfree = {
-		{.offset = 0,
-		 .length = 16}}
-};
-
-static struct nand_ecclayout aml_nand_oob_744 = {
-	.eccbytes = 700,
-	.oobfree = {
-		{.offset = 0,
-		 .length = 16}}
-};
-
-static struct nand_ecclayout aml_nand_oob_1280 = {
-	.eccbytes = 1200,
-	.oobfree = {
-		{.offset = 0,
-		 .length = 32}}
-};
-
-static struct nand_ecclayout aml_nand_oob_1664 = {
-	.eccbytes = 1584,
-	.oobfree = {
-		{.offset = 0,
-		 .length = 32}}
-};
+	for (i = 0; i < 16; i++, entry++)
+		if (entry->oobsize == oobsize)
+			return entry->ptr_ecclayout;
+	return NULL;
+}
 
 void aml_platform_get_user_byte(struct aml_nand_chip *aml_chip,
 	unsigned char *oob_buf, int byte_num)
@@ -190,6 +153,11 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 	loff_t offset;
 
 	phys_erase_shift = fls(mtd->erasesize) - 1;
+	if (phys_erase_shift < 0) {
+		pr_info("%s %d can not get erase shift\n",
+				__func__, __LINE__);
+		return -EINVAL;
+	}
 #endif
 	if (!strncmp((char*)plat->name, NAND_BOOT_NAME, strlen((const char*)NAND_BOOT_NAME))) {
 		/* boot partition must be set as this because of romboot restrict */
@@ -205,7 +173,7 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 		/* normal partitions */
 		parts = get_aml_mtd_partition();
 		nr = get_aml_partition_count();
-		adjust_offset = 1024 * mtd->writesize + reserved_part_blk_num * mtd->erasesize;
+		adjust_offset = 1024 * mtd->writesize + (loff_t)reserved_part_blk_num * mtd->erasesize;
 
 		if (store_get_device_bootloader_mode() != DISCRETE_BOOTLOADER)
 			goto _COMPAT_BOOTLOADER;
@@ -407,6 +375,8 @@ int aml_nand_wait(struct mtd_info *mtd, struct nand_chip *chip)
 	int read_status =0;
 	/* Apply this short delay always to ensure that we do wait tWB in
 	 * any case on any machine. */
+
+	memset(status, 0, MAX_CHIP_NUM);
 	ndelay(100);
 	/*SET_CBUS_REG_MASK(PREG_PAD_GPIO3_O, 1 << 11);*/
 	for (i = 0; i < controller->chip_num; i++) {
@@ -1515,6 +1485,12 @@ int aml_nand_block_bad(struct mtd_info *mtd, loff_t ofs)
 		return 0;
 
 	mtd_erase_shift = fls(mtd->erasesize) - 1;
+	/*
+	 * This involves the management of BBT, when an exception occurs,
+	 * the system should be stopped
+	 */
+	BUG_ON(mtd_erase_shift < 0);
+
 	blk_addr = (int)(ofs >> mtd_erase_shift);
 	if (aml_chip->block_status != NULL) {
 		if (aml_chip->block_status[blk_addr] == NAND_BLOCK_BAD) {
@@ -1577,6 +1553,12 @@ int aml_nand_block_markbad(struct mtd_info *mtd, loff_t ofs)
 	int8_t *buf = NULL;
 
 	mtd_erase_shift = fls(mtd->erasesize) - 1;
+	/*
+	 * This involves the management of BBT, when an exception occurs,
+	 * the system should be stopped
+	 */
+	BUG_ON(mtd_erase_shift < 0);
+
 	blk_addr = (int)(ofs >> mtd_erase_shift);
 	if (aml_chip->block_status != NULL) {
 		if ((aml_chip->block_status[blk_addr] == NAND_BLOCK_BAD)
@@ -1706,78 +1688,13 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 		}
 		if (!strncmp((char*)plat->name, NAND_BOOT_NAME,
 			strlen((const char*)NAND_BOOT_NAME)))
-			memcpy(chip->ecc.layout,
-			&aml_nand_uboot_oob, sizeof(struct nand_ecclayout));
+			chip->ecc.layout = &aml_nand_oob_uboot;
 		else if (chip->ecc.mode != NAND_ECC_SOFT) {
-			switch (aml_chip->oob_size) {
-				case 64:
-				memcpy(chip->ecc.layout,
-					&aml_nand_oob_64,
-					sizeof(struct nand_ecclayout));
-				break;
-				case 128:
-				memcpy(chip->ecc.layout,
-					&aml_nand_oob_128,
-					sizeof(struct nand_ecclayout));
-				break;
-				case 218:
-				memcpy(chip->ecc.layout,
-					&aml_nand_oob_218,
-					sizeof(struct nand_ecclayout));
-				break;
-				case 224:
-				memcpy(chip->ecc.layout,
-					&aml_nand_oob_224,
-					sizeof(struct nand_ecclayout));
-				break;
-				case 256:
-				memcpy(chip->ecc.layout,
-					&aml_nand_oob_256,
-					sizeof(struct nand_ecclayout));
-				break;
-				case 376:
-				memcpy(chip->ecc.layout,
-					&aml_nand_oob_376,
-					sizeof(struct nand_ecclayout));
-				break;
-				case 436:
-				memcpy(chip->ecc.layout,
-					&aml_nand_oob_436,
-					sizeof(struct nand_ecclayout));
-				break;
-				case 448:
-				memcpy(chip->ecc.layout,
-					&aml_nand_oob_448,
-					sizeof(struct nand_ecclayout));
-					break;
-				case 640:
-				memcpy(chip->ecc.layout,
-					&aml_nand_oob_640,
-					sizeof(struct nand_ecclayout));
-				break;
-				case 744:
-				memcpy(chip->ecc.layout,
-					&aml_nand_oob_744,
-					sizeof(struct nand_ecclayout));
-				break;
-				case 1280:
-				memcpy(chip->ecc.layout,
-					&aml_nand_oob_1280,
-					sizeof(struct nand_ecclayout));
-				break;
-				case 1664:
-				memcpy(chip->ecc.layout,
-					&aml_nand_oob_1664,
-					sizeof(struct nand_ecclayout));
-				break;
-				default:
-				printk("default, use nand base oob layout %d\n",
-					mtd->oobsize);
-				oobfree[0].length =
-		((mtd->writesize / chip->ecc.size) * aml_chip->user_byte_mode);
-				break;
+			chip->ecc.layout = aml_ecclayout_get(aml_chip->oob_size);
+			if (!chip->ecc.layout) {
+				err = -ENXIO;
+				goto exit_error;
 			}
-
 			chip->ecc.layout->oobfree[0].length *= oobmul;
 			chip->ecc.layout->eccbytes *= oobmul;
 			printk("%s :oobmul=%d,oobfree.length=%d,oob_size=%d\n",
@@ -1793,7 +1710,7 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 	 */
 	chip->ecc.layout->oobavail = 0;
 	oobfree = chip->ecc.layout->oobfree;
-	for (i = 0; oobfree[i].length && i < ARRAY_SIZE(oobfree); i++)
+	for (i = 0; oobfree[i].length && i < ARRAY_SIZE(chip->ecc.layout->oobfree); i++)
 		chip->ecc.layout->oobavail += oobfree[i].length;
 	printk("oob avail size %d\n", chip->ecc.layout->oobavail);
 	mtd->oobavail = chip->ecc.layout->oobavail;
@@ -1923,7 +1840,13 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 	int realpage, col0_data=0, col0_oob=0, valid_page_num = 1;
 	int col_data_sandisk[6], bad_sandisk_flag=0;
 
+	memset(col_data_sandisk, 0, 6);
 	phys_erase_shift = fls(mtd->erasesize) - 1;
+	if (phys_erase_shift < 0) {
+		pr_info("%s %d can not get erase shift\n",
+				__func__, __LINE__);
+		return -EINVAL;
+	}
 	chip->pagebuf = -1;
 	pages_per_blk = (1 << (chip->phys_erase_shift - chip->page_shift));
 

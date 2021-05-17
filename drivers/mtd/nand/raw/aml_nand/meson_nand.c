@@ -776,14 +776,15 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 		chip->write_page = m3_nand_boot_write_page;
 		oobfree = chip->ecc.layout->oobfree;
 		array_length = ARRAY_SIZE(chip->ecc.layout->oobfree);
-		if (chip->ecc.layout)
+		if (chip->ecc.layout) {
 			oobfree[0].length =
 			(mtd->writesize / 512) * aml_chip->user_byte_mode;
-		chip->ecc.layout->oobavail = 0;
-		for (i = 0; oobfree[i].length && i < array_length; i++)
-			chip->ecc.layout->oobavail += oobfree[i].length;
-		mtd->oobavail = chip->ecc.layout->oobavail;
-		mtd->ecclayout = chip->ecc.layout;
+			chip->ecc.layout->oobavail = 0;
+			for (i = 0; oobfree[i].length && i < array_length; i++)
+				chip->ecc.layout->oobavail += oobfree[i].length;
+			mtd->oobavail = chip->ecc.layout->oobavail;
+			mtd->ecclayout = chip->ecc.layout;
+		}
 	}
 
 	return 0;
@@ -791,7 +792,8 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 exit_error:
 	if (aml_chip)
 		kfree(aml_chip);
-	mtd->name = NULL;
+	if (mtd)
+		mtd->name = NULL;
 	return err;
 }
 

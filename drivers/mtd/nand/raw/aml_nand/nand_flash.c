@@ -1200,6 +1200,11 @@ static struct aml_nand_flash_dev *aml_nand_get_flash_type(struct mtd_info *mtd,
 
 	/* Calculate the address shift from the page size */
 	chip->page_shift = ffs(mtd->writesize) - 1;
+	if (chip->page_shift < 0) {
+		pr_info("%s %d can not get page shift\n",
+		__func__, __LINE__);
+		return ERR_PTR(-EINVAL);
+	}
 	/* Convert chipsize to number of pages per chip -1. */
 	chip->pagemask = (chip->chipsize >> chip->page_shift) - 1;
 
@@ -1258,9 +1263,9 @@ static int aml_nand_scan_ident(struct mtd_info *mtd, int maxchips)
 	/* Read the flash type */
 	aml_type = aml_nand_get_flash_type(mtd, chip, busw, &nand_maf_id);
 	if (pre_scan->pre_scan_flag) {
-		if (!aml_type) {
+		if (IS_ERR(aml_type)) {
 			chip->select_chip(mtd, -1);
-			return -ENODEV;
+			return PTR_ERR(aml_type);
 		}
 		return 0;
 	}
