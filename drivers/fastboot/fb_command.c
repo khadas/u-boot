@@ -486,12 +486,8 @@ static void flash(char *cmd_parameter, char *response)
 #endif
 
 	if (strcmp(name, "bootloader") == 0) {
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
-		fastboot_mmc_erase("env", response);
-#endif
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND)
-		fastboot_nand_erase("env", response);
-#endif
+		env_set("default_env", "1");
+		run_command("saveenv;", 0);
 	}
 }
 
