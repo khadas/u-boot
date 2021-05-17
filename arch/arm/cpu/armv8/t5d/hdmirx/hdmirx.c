@@ -178,6 +178,84 @@ void wr_reg_clk_ctl(unsigned int offset, unsigned int val)
 	rx_wr_reg(addr, val);
 }
 
+/*
+ * get - get masked bits of data
+ */
+unsigned int rx_get_bits(unsigned int data, unsigned int mask)
+{
+	unsigned int fstbs_rtn;
+	unsigned int rtn_val;
+
+	fstbs_rtn = first_bit_set(mask);
+	if (fstbs_rtn < 32)
+		rtn_val = (data & mask) >> fstbs_rtn;
+	else
+		rtn_val = 0;
+	return rtn_val;
+}
+
+unsigned int rx_set_bits(unsigned int data,
+	unsigned int mask, unsigned int value)
+{
+	unsigned int fstbs_rtn;
+	unsigned int rtn_val;
+
+	fstbs_rtn = first_bit_set(mask);
+	if (fstbs_rtn < 32)
+		rtn_val = ((value << fstbs_rtn) & mask) | (data & ~mask);
+	else
+		rtn_val = 0;
+	return rtn_val;
+}
+
+/*
+ * hdmirx_rd_amlphy - read hdmirx amlphy reg
+ * @addr: register address
+ *
+ * return data read value
+ */
+unsigned int hdmirx_rd_amlphy(unsigned long offset)
+{
+	unsigned long addr = offset + AMLPHY_BASE_ADDR;
+
+	return rx_rd_reg(addr);
+}
+
+/*
+ * hdmirx_rd_bits_amlphy - read specified bits of hdmirx amlphy reg
+ * @addr: register address
+ * @mask: bits mask
+ *
+ * return masked bits of register value
+ */
+uint32_t hdmirx_rd_bits_amlphy(uint16_t offset, uint32_t mask)
+{
+	return rx_get_bits(hdmirx_rd_amlphy(offset), mask);
+}
+
+/*
+ * hdmirx_wr_amlphy - Write data to hdmirx amlphy reg
+ * @addr: register address
+ * @data: new register value
+ */
+void hdmirx_wr_amlphy(unsigned int offset, unsigned int val)
+{
+	unsigned long addr = offset + AMLPHY_BASE_ADDR;
+	rx_wr_reg(addr, val);
+}
+
+/*
+ * hdmirx_wr_bits_amlphy - write specified bits of hdmirx amlphy reg
+ * @addr: register address
+ * @mask: bits mask
+ * @value: new register value
+ */
+void hdmirx_wr_bits_amlphy(unsigned int offset,
+	unsigned int mask, unsigned int value)
+{
+	hdmirx_wr_amlphy(offset, rx_set_bits(hdmirx_rd_amlphy(offset), mask, value));
+}
+
 bool hdmirx_repeat_support(void)
 {
 	return hdmirx_data.repeater;
@@ -631,6 +709,27 @@ void rx_set_pinmux(void)
 	writel((mux & 0xFFFF0000) | 0x1111 , P_PERIPHS_PIN_MUX_B);
 	printf("set pinmux A:0x%x\n", readl(P_PERIPHS_PIN_MUX_A));
 	printf("set pinmux B:0x%x\n", readl(P_PERIPHS_PIN_MUX_B));
+}
+
+/* set rx phy termination */
+void rx_set_phy_rterm(void)
+{
+	int64_t rterm_val;
+	unsigned int data32;
+
+	extern int64_t meson_trustzone_efuse_caliItem(const char *str);
+	rterm_val = meson_trustzone_efuse_caliItem("hdmirx");
+	if (rterm_val >= 0) {
+		data32 = hdmirx_rd_amlphy(HHI_RX_PHY_MISC_CNTL1);
+		data32 &= (~(0xf << 12));
+		/* rterm val */
+		data32 |= (rterm_val << 12);
+		/* rterm flag */
+		data32 |= 0x1 << 0;
+		hdmirx_wr_amlphy(HHI_RX_PHY_MISC_CNTL1, data32);
+		printf("rx trim:0x%x\n", data32);
+	} else
+		printf("no trim val!\n");
 }
 
 void hdmirx_hw_init(unsigned int port_map,

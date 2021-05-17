@@ -31,6 +31,9 @@
 #ifdef CONFIG_AML_HDMITX20
 #include <amlogic/hdmi.h>
 #endif
+#ifdef CONFIG_RX_RTERM
+#include <amlogic/aml_hdmirx.h>
+#endif
 #ifdef CONFIG_AML_LCD
 #include <amlogic/aml_lcd.h>
 #endif
@@ -703,6 +706,9 @@ int board_late_init(void)
 #ifdef CONFIG_AML_HDMITX20
 	hdmi_tx_set_hdmi_5v();
 	hdmi_tx_init();
+#endif
+#ifdef CONFIG_RX_RTERM
+	rx_set_phy_rterm();
 #endif
 #ifdef CONFIG_AML_CVBS
 	run_command("cvbs init", 0);
