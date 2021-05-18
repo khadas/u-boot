@@ -24,6 +24,10 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	char* colorattribute;
 	int hpd_st = 0;
 
+	if (!hdev) {
+		printf("null hdmitx dev\n");
+		return CMD_RET_FAILURE;
+	}
 	st = env_get("hdmitx_hpd_bypass");
 	if (st && (strcmp((const char *)(uintptr_t)st[0], "1") == 0)) {
 		printf("hdmitx_hpd_bypass detect\n");
@@ -109,6 +113,10 @@ static int do_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	unsigned char st = 0;
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
 
+	if (!hdev) {
+		printf("null hdmitx dev\n");
+		return CMD_RET_FAILURE;
+	}
 	memset(edid_raw_buf, 0, ARRAY_SIZE(edid_raw_buf));
 	if (argc < 2)
 		return cmd_usage(cmdtp);
@@ -137,6 +145,10 @@ static int do_rx_det(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	unsigned char st = 0;
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
 
+	if (!hdev) {
+		printf("null hdmitx dev\n");
+		return CMD_RET_FAILURE;
+	}
 	memset(edid_raw_buf, 0, ARRAY_SIZE(edid_raw_buf));
 
 	// read edid raw data
@@ -234,8 +246,13 @@ static void hdmitx_mask_rx_info(struct hdmitx_dev *hdev)
 static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
+
 	if (argc < 1)
 		return cmd_usage(cmdtp);
+	if (!hdev) {
+		printf("null hdmitx dev\n");
+		return CMD_RET_FAILURE;
+	}
 
 	if (strcmp(argv[1], "list") == 0)
 		hdev->hwop.list_support_modes();
@@ -251,6 +268,10 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			mode = simple_strtoul(argv[2], NULL, 10);
 		hdev->hwop.test_bist(mode);
 	} else if (strcmp(argv[1], "prbs") == 0) {
+		if (!hdev->para) {
+			printf("null hdmitx para\n");
+			return CMD_RET_FAILURE;
+		}
 		hdev->para->cs = HDMI_COLOR_FORMAT_RGB;
 		hdev->para->cd = HDMI_COLOR_DEPTH_24B;
 		hdev->vic = HDMI_1920x1080p60_16x9;
@@ -263,19 +284,18 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			div40 = 1;
 		hdev->hwop.set_div40(div40);
 	} else { /* "output" */
-		if (!edid_parsing_ok(hdev)) {
-			/* SWPL-34712: if EDID parsing error case, not save env,
-			 * only forcely output default mode(480p,RGB,8bit).
-			 */
-			printf("edid parsing ng, forcely output 480p, rgb,8bit\n");
-			hdev->vic = HDMI_720x480p60_16x9;
-			hdev->para =
-				hdmi_get_fmt_paras(hdev->vic);
-			hdev->para->cs = HDMI_COLOR_FORMAT_RGB;
-			hdev->para->cd = HDMI_COLOR_DEPTH_24B;
-			hdmi_tx_set(hdev);
-			return CMD_RET_SUCCESS;
-		}
+		/* in SWPL-34712: if EDID parsing error in kernel,
+		 * only forcely output default mode(480p,RGB,8bit)
+		 * in sysctl, not save the default mode to env.
+		 * if uboot follow this rule, will cause issue OTT-19333:
+		 * uboot read edid error and then output default mode,
+		 * without save it mode env. if then kernel edid nromal,
+		 * sysctrl/kernel get mode from env, the actual output
+		 * mode differs with outputmode env,it will
+		 * cause display abnormal(such as stretch). so don't
+		 * follow this rule in uboot, that's to say the actual
+		 * output mode needs to stays with the outputmode env.
+		 */
 		hdev->vic = hdmi_get_fmt_vic(argv[1]);
 		hdev->para = hdmi_get_fmt_paras(hdev->vic);
 		if (hdev->vic == HDMI_unkown) {
@@ -284,6 +304,10 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			return CMD_RET_FAILURE;
 		} else
 			printf("set hdmitx VIC = %d\n", hdev->vic);
+		if (!hdev->para) {
+			printf("null hdmitx para\n");
+			return CMD_RET_FAILURE;
+		}
 		if (env_get("colorattribute"))
 			hdmi_parse_attr(hdev->para, env_get("colorattribute"));
 		if (strstr(argv[1], "hz420") != NULL)
@@ -344,6 +368,10 @@ static int do_blank(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 	if (argc < 1)
 		return cmd_usage(cmdtp);
+	if (!hdev) {
+		printf("null hdmitx dev\n");
+		return CMD_RET_FAILURE;
+	}
 
 	if (strcmp(argv[1], "1") == 0)
 		hdev->hwop.output_blank(1);
@@ -357,18 +385,27 @@ static int do_off(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
 
+	if (!hdev) {
+		printf("null hdmitx dev\n");
+		return CMD_RET_FAILURE;
+	}
 	hdev->vic = HDMI_unkown;
 	hdev->hwop.turn_off();
 	printf("turn off hdmitx\n");
-	return 1;
+	return CMD_RET_SUCCESS;
 }
 
 static int do_dump(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
 
+	if (!hdev) {
+		printf("null hdmitx dev\n");
+		return CMD_RET_FAILURE;
+	}
+
 	hdev->hwop.dump_regs();
-	return 1;
+	return CMD_RET_SUCCESS;
 }
 
 static int do_reg(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
@@ -398,18 +435,29 @@ static int do_reg(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 static int do_info(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
-	struct hdmi_format_para *para = hdev->para;
 
-	printf("%s %d\n", para->ext_name, hdev->vic);
-	printf("cd%d cs%d cr%d\n", para->cd, para->cs, para->cr);
+	if (!hdev) {
+		printf("null hdmitx dev\n");
+		return CMD_RET_FAILURE;
+	}
+	if (!hdev->para)  {
+		printf("null hdmitx para\n");
+		return CMD_RET_FAILURE;
+	}
+	printf("%s %d\n", hdev->para->ext_name, hdev->vic);
+	printf("cd%d cs%d cr%d\n", hdev->para->cd, hdev->para->cs, hdev->para->cr);
 	printf("frac_rate: %d\n", hdev->frac_rate_policy);
-	return 1;
+	return CMD_RET_SUCCESS;
 }
 
 static int xtochar(int num, char* checksum)
 {
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
 
+	if (!hdev) {
+		printf("null hdmitx dev\n");
+		return -1;
+	}
 	if (((hdev->rawedid[num]  >> 4 ) & 0xf) <= 9)
 		checksum[0] = ((hdev->rawedid[num]  >> 4 ) & 0xf) + '0';
 	else
@@ -505,9 +553,7 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 	char * const argv[])
 {
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
-	unsigned char *edid = hdev->rawedid;
 	unsigned char *store_checkvalue;
-	memset(edid, 0, EDID_BLK_SIZE * EDID_BLK_NO);
 	unsigned int i;
 	unsigned int checkvalue[4];
 	unsigned int checkvalue1;
@@ -519,11 +565,16 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 	char dv_type[2] = {0};
 	scene_output_info_t scene_output_info;
 
+	if (!hdev) {
+		printf("null hdmitx dev\n");
+		return CMD_RET_FAILURE;
+	}
 	if (!hdev->hwop.get_hpd_state()) {
 		printf("HDMI HPD low, no need parse EDID\n");
 		return 1;
 	}
 	memset(&scene_output_info, 0, sizeof(scene_output_info_t));
+	memset(hdev->rawedid, 0, EDID_BLK_SIZE * EDID_BLK_NO);
 
 	get_parse_edid_data(hdev);
 
@@ -617,9 +668,6 @@ static int do_get_preferred_mode(cmd_tbl_t * cmdtp, int flag, int argc,
 	char * const argv[])
 {
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
-
-	unsigned char *edid = hdev->rawedid;
-
 	struct hdmi_format_para *para;
 	char pref_mode[64];
 	char color_attr[64];
@@ -629,7 +677,12 @@ static int do_get_preferred_mode(cmd_tbl_t * cmdtp, int flag, int argc,
 	if (hdmi_read_edid && (hdmi_read_edid[0] == '0'))
 		return 0;
 
-	memset(edid, 0, EDID_BLK_SIZE * EDID_BLK_NO);
+	if (!hdev) {
+		printf("null hdmitx dev\n");
+		return CMD_RET_FAILURE;
+	}
+
+	memset(hdev->rawedid, 0, EDID_BLK_SIZE * EDID_BLK_NO);
 	memset(pref_mode, 0, sizeof(pref_mode));
 	memset(color_attr, 0, sizeof(color_attr));
 
@@ -637,6 +690,8 @@ static int do_get_preferred_mode(cmd_tbl_t * cmdtp, int flag, int argc,
 	/* 720p is chosen as a safe compromise: supported by most sinks and looks good enough */
 	if (!hdev->hwop.get_hpd_state()) {
 		para = hdmi_get_fmt_paras(HDMI_1280x720p60_16x9);
+		if (!para)
+			goto bypass_edid_read;
 		snprintf(pref_mode, sizeof(pref_mode), "%s", para->sname);
 		snprintf(color_attr, sizeof(color_attr), "%s", "rgb,8bit");
 		printk("no sink, fallback to %s[%d]\n", para->sname, HDMI_1280x720p60_16x9);
@@ -658,6 +713,8 @@ static int do_get_preferred_mode(cmd_tbl_t * cmdtp, int flag, int argc,
 	} else {
 		hdev->RXCap.preferred_mode = HDMI_720x480p60_16x9;
 		para = hdmi_get_fmt_paras(HDMI_720x480p60_16x9);
+		if (!para)
+			goto bypass_edid_read;
 		sprintf(pref_mode, "setenv hdmimode %s", para->sname);
 		sprintf(color_attr, "setenv colorattribute %s", "444,8bit");
 	}
