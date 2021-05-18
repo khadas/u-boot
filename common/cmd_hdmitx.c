@@ -129,7 +129,7 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 		run_command("saveenv", 0);
 	}
 	hdmimode = getenv("hdmimode");
-	if (hpd_st) {
+	if (hpd_st && hdmimode) {
 		setenv("outputmode", hdmimode);
 	} else {
 		cvbsmode = getenv("cvbsmode");
@@ -316,19 +316,18 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		hdmi_tx_set(&hdmitx_device);
 		hdmitx_device.HWOp.test_bist(10);
 	} else { /* "output" */
-		if (!edid_parsing_ok(&hdmitx_device)) {
-			/* SWPL-34712: if EDID parsing error case, not save env,
-			 * only forcely output default mode(480p,RGB,8bit).
-			 */
-			printf("edid parsing ng, forcely output 480p, rgb,8bit\n");
-			hdmitx_device.vic = HDMI_720x480p60_16x9;
-			hdmitx_device.para =
-				hdmi_get_fmt_paras(hdmitx_device.vic);
-			hdmitx_device.para->cs = HDMI_COLOR_FORMAT_RGB;
-			hdmitx_device.para->cd = HDMI_COLOR_DEPTH_24B;
-			hdmi_tx_set(&hdmitx_device);
-			return CMD_RET_SUCCESS;
-		}
+		/* in SWPL-34712: if EDID parsing error in kernel,
+		 * only forcely output default mode(480p,RGB,8bit)
+		 * in sysctl, not save the default mode to env.
+		 * if uboot follow this rule, will cause issue OTT-19333:
+		 * uboot read edid error and then output default mode,
+		 * without save it mode env. if then kernel edid nromal,
+		 * sysctrl/kernel get mode from env, the actual output
+		 * mode differs with outputmode env,it will
+		 * cause display abnormal(such as stretch). so don't
+		 * follow this rule in uboot, that's to say the actual
+		 * output mode needs to stays with the outputmode env.
+		 */
 		hdmitx_device.vic = hdmi_get_fmt_vic(argv[1]);
 		hdmitx_device.para = hdmi_get_fmt_paras(hdmitx_device.vic);
 		if (hdmitx_device.vic == HDMI_unkown) {
@@ -659,6 +658,8 @@ static int do_get_preferred_mode(cmd_tbl_t * cmdtp, int flag, int argc,
 	/* 720p is chosen as a safe compromise: supported by most sinks and looks good enough */
 	if (!hdmitx_device.HWOp.get_hpd_state()) {
 		para = hdmi_get_fmt_paras(HDMI_1280x720p60_16x9);
+		if (!para)
+			goto bypass_edid_read;
 		snprintf(pref_mode, sizeof(pref_mode), "%s", para->sname);
 		snprintf(color_attr, sizeof(color_attr), "%s", "rgb,8bit");
 		printk("no sink, fallback to %s[%d]\n", para->sname, HDMI_1280x720p60_16x9);
@@ -680,6 +681,8 @@ static int do_get_preferred_mode(cmd_tbl_t * cmdtp, int flag, int argc,
 	} else {
 		hdev->RXCap.preferred_mode = HDMI_720x480p60_16x9;
 		para = hdmi_get_fmt_paras(HDMI_720x480p60_16x9);
+		if (!para)
+			goto bypass_edid_read;
 		sprintf(pref_mode, "setenv hdmimode %s", para->sname);
 		sprintf(color_attr, "setenv colorattribute %s", "444,8bit");
 	}
