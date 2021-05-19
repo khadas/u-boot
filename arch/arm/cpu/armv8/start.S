@@ -126,11 +126,15 @@ pie_fixup_done:
 2:	set_vbar	vbar_el2, x0
 	mov	x0, #0x33ff
 	msr	cptr_el2, x0			/* Enable FP/SIMD */
+	mrs	x0, hcr_el2
+	orr	x0, x0, #(1 << 27)
+	msr	hcr_el2, x0
 	b	0f
 1:	set_vbar	vbar_el1, x0
 	mov	x0, #3 << 20
 	msr	cpacr_el1, x0			/* Enable FP/SIMD */
 0:
+	msr daifclr,	#4
 
 	/*
 	 * Enable SMPEN bit for coherency.
@@ -372,9 +376,13 @@ ENTRY(c_runtime_cpu_setup)
 3:	msr	vbar_el3, x0
 	b	0f
 2:	msr	vbar_el2, x0
+	mrs	x0, hcr_el2
+	orr	x0, x0, #(1 << 27)
+	msr	hcr_el2, x0
 	b	0f
 1:	msr	vbar_el1, x0
 0:
+	msr daifclr,	#4
 #endif
 
 	ret
