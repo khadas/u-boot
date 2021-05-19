@@ -15,6 +15,9 @@
 #define AML_VCCK_INIT_VOLTAGE	  799	    //VCCK power up voltage
 #define AML_VDDEE_INIT_VOLTAGE    800       // VDDEE power up voltage
 
+/*y_led brightness val*/
+#define YELLOW_LED_VAL 0x00090013
+
 /* SMP Definitinos */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 

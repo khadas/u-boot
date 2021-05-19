@@ -1964,6 +1964,11 @@ __attribute__ ((section(".misc_param"))) = {
 	{PADCTRL_PIN_MUX_REGI,	(0x3 << 0),		(0xf << 0),	0, 0, 0},
 	{PADCTRL_PIN_MUX_REGI,	(0x3 << 4),		(0xf << 4),	0, 0, 0},
 #else
+	/*enable y_led (gpioao_4)*/
+	{PWMAB_PWM_B,			YELLOW_LED_VAL,	0xffffffff,	0, 0, 0},
+	{PWMAB_MISC_REG_AB,		(0x1 << 1),	(0x1 << 1),	0, 0, 0},
+	{CLKCTRL_PWM_CLK_AB_CTRL,	(0x1 << 24),	(0x1 << 24),	0, 0, 0},
+	{PADCTRL_PIN_MUX_REGG,		(3 << 16),	(0xf << 16),	0, 0, 0},
 	/* enable vddcpu dc-dc, set TEST_N to high */
 	{PADCTRL_TESTN_O,	(0x1 << 0), 		(0x1 << 0),	0, 0, 0},
 	{PADCTRL_TESTN_OEN,	(0x0 << 0), 		(0x1 << 0), 0, 0, 0},
