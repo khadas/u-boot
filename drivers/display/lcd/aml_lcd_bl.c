@@ -526,9 +526,10 @@ static void bl_set_pwm_gpio_check(struct bl_pwm_config_s *bl_pwm)
 
 static void bl_set_pwm(struct bl_pwm_config_s *bl_pwm)
 {
+	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
 	unsigned int pwm_hi = 0, pwm_lo = 0;
 	unsigned int port = bl_pwm->pwm_port;
-	unsigned int vs[4], ve[4], sw, n, i, pol = 0;
+	unsigned int vs[8], ve[8], sw, n, i, pol = 0;
 
 	if (bl_status > 0)
 		bl_set_pwm_gpio_check(bl_pwm);
@@ -562,8 +563,6 @@ static void bl_set_pwm(struct bl_pwm_config_s *bl_pwm)
 		break;
 	case BL_PWM_VS:
 		pwm_hi = bl_pwm->pwm_level;
-		memset(vs, 0xff, sizeof(unsigned int) * 4);
-		memset(ve, 0xff, sizeof(unsigned int) * 4);
 		n = bl_pwm->pwm_freq;
 		sw = (bl_pwm->pwm_cnt * 10 / n + 5) / 10;
 		pwm_hi = (pwm_hi * 10 / n + 5) / 10;
@@ -578,11 +577,24 @@ static void bl_set_pwm(struct bl_pwm_config_s *bl_pwm)
 					i, vs[i], i, ve[i]);
 			}
 		}
+		for (i = n; i < 8; i++) {
+			vs[i] = 0x1fff;
+			ve[i] = 0x1fff;
+		}
 		lcd_vcbus_write(VPU_VPU_PWM_V0, (pol << 31) |
 				(ve[0] << 16) | (vs[0]));
 		lcd_vcbus_write(VPU_VPU_PWM_V1, (ve[1] << 16) | (vs[1]));
 		lcd_vcbus_write(VPU_VPU_PWM_V2, (ve[2] << 16) | (vs[2]));
 		lcd_vcbus_write(VPU_VPU_PWM_V3, (ve[3] << 16) | (vs[3]));
+		if (lcd_drv->chip_type >= LCD_CHIP_TL1) {
+			lcd_vcbus_setb(VPU_VPU_PWM_H0, 1, 31, 1);
+			lcd_vcbus_setb(VPU_VPU_PWM_V0, vs[4], 0, 13);
+			lcd_vcbus_setb(VPU_VPU_PWM_V0, ve[4], 16, 13);
+			lcd_vcbus_write(VPU_VPU_PWM_V1, (ve[5] << 16) | (vs[5]));
+			lcd_vcbus_write(VPU_VPU_PWM_V2, (ve[6] << 16) | (vs[6]));
+			lcd_vcbus_write(VPU_VPU_PWM_V3, (ve[7] << 16) | (vs[7]));
+			lcd_vcbus_setb(VPU_VPU_PWM_H0, 0, 31, 1);
+		}
 		break;
 	default:
 		break;

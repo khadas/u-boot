@@ -363,6 +363,9 @@
 #ifndef PWM_MISC_REG_EF
 #define PWM_MISC_REG_EF                            ((0x6402 << 2) + 0xffd00000)
 #endif
+#ifndef VPU_VPU_PWM_H0
+#define VPU_VPU_PWM_H0                             ((0x2734  << 2) + 0xff900000)
+#endif
 
 #ifndef RESET1_MASK
 #define RESET1_MASK                                ((0x0411  << 2) + 0xffd00000)
