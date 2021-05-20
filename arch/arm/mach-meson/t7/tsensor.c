@@ -376,6 +376,7 @@ int r1p1_temp_trim(int tempbase, int tempver, int type)
 				printf("a53 tsensor thermal_calibration send error\n");
 				return -1;
 			}
+			break;
 		case 3:
 			value_ts = 0;
 			value_all_ts = 0;
@@ -416,6 +417,7 @@ int r1p1_temp_trim(int tempbase, int tempver, int type)
 				printf("gpu tsensor thermal_calibration send error\n");
 				return -1;
 			}
+			break;
 		case 4:
 			value_ts = 0;
 			value_all_ts = 0;
@@ -456,6 +458,7 @@ int r1p1_temp_trim(int tempbase, int tempver, int type)
 				printf("nna tsensor thermal_calibration send error\n");
 				return -1;
 			}
+			break;
 		case 5:
 			value_ts = 0;
 			value_all_ts = 0;

@@ -126,6 +126,9 @@ static void hw_update(const uint8_t *input, uint32_t ilen,
 
 static void SHA2_HW_init(sha2_ctx *ctx, uint32_t digest_len)
 {
+	if (ctx == NULL) {
+		return ;
+	}
 	if (cur_ctx != NULL) {
 		serial_puts("Err:sha4\n");
 		// sha2 usage problem

@@ -18,7 +18,7 @@ chip_id_t aml_chip_id = { 0, { 0 } };
 
 cpu_id_t __attribute__((weak)) get_cpu_id(void)
 {
-	cpu_id_t cpu_id;
+	cpu_id_t cpu_id={0};
 	unsigned int cpu_id_reg = readl(CPU_ID_REG);
 
 	cpu_id.family_id = (cpu_id_reg >> 24) & (0xFF);
