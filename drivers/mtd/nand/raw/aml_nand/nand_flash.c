@@ -1263,9 +1263,9 @@ static int aml_nand_scan_ident(struct mtd_info *mtd, int maxchips)
 	/* Read the flash type */
 	aml_type = aml_nand_get_flash_type(mtd, chip, busw, &nand_maf_id);
 	if (pre_scan->pre_scan_flag) {
-		if (IS_ERR(aml_type)) {
+		if (!aml_type) {
 			chip->select_chip(mtd, -1);
-			return PTR_ERR(aml_type);
+			return -ENODEV;
 		}
 		return 0;
 	}
