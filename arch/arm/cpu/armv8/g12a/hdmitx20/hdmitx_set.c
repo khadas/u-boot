@@ -2833,7 +2833,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 	struct hdmitx_dev *hdev = &hdmitx_device;
 	struct dv_vsif_para para = {0};
 	unsigned char VEN_HB[3] = {0x81, 0x01};
-	unsigned char VEN_DB1[24] = {0x00};
+	unsigned char VEN_DB1[27] = {0x00};
 	unsigned char VEN_DB2[27] = {0x00};
 	unsigned char len = 0;
 	unsigned int vic = hdev->vic;

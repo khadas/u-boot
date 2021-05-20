@@ -81,7 +81,8 @@ void mhu_message_send(uintptr_t mboxset_addr, uint32_t command, uint32_t size)
 {
         uint32_t mbox_cmd;
 
-        if (size < 0 || size > (MHU_PAYLOAD_SIZE - MHU_DATA_OFFSET)) {
+        //if (size < 0 || size > (MHU_PAYLOAD_SIZE - MHU_DATA_OFFSET)) {  //coverity error
+        if (size > (MHU_PAYLOAD_SIZE - MHU_DATA_OFFSET)) {
                 printf("[BL33]: scpi send input size error\n");
                 return;
         }
@@ -92,7 +93,8 @@ void mhu_message_send(uintptr_t mboxset_addr, uint32_t command, uint32_t size)
 
 void mhu_build_payload(uintptr_t mboxpl_addr, void *message, uint32_t size)
 {
-        if (size < 0 || size > (MHU_PAYLOAD_SIZE - MHU_DATA_OFFSET)) {
+        //if (size < 0 || size > (MHU_PAYLOAD_SIZE - MHU_DATA_OFFSET)) {  //coverity error
+        if (size > (MHU_PAYLOAD_SIZE - MHU_DATA_OFFSET)) {
                 printf("[BL33]: scpi send input size error\n");
                 return;
         }
@@ -102,7 +104,8 @@ void mhu_build_payload(uintptr_t mboxpl_addr, void *message, uint32_t size)
 
 void mhu_get_payload(uintptr_t mboxpl_addr, void *message, uint32_t size)
 {
-        if (size < 0 || size > (MHU_PAYLOAD_SIZE - MHU_DATA_OFFSET)) {
+        //if (size < 0 || size > (MHU_PAYLOAD_SIZE - MHU_DATA_OFFSET)) {  //coverity error
+        if (size > (MHU_PAYLOAD_SIZE - MHU_DATA_OFFSET)) {
                 printf("[BL33]: scpi revsize input size error\n");
                 return;
         }

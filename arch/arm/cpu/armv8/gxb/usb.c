@@ -32,12 +32,13 @@ static int set_usb_phy_clock(amlogic_usb_config_t * usb_cfg)
 	usb_config_data_t config;
 	usb_ctrl_data_t control;
 	int clk_sel,clk_div;
-	unsigned int port = usb_cfg->base_addr & USB_PHY_PORT_MSK;
+	unsigned int port;// = usb_cfg->base_addr & USB_PHY_PORT_MSK;
 	int time_dly = 500; //usec
 
 	if (!usb_cfg)
 		return -1;
 
+	port = usb_cfg->base_addr & USB_PHY_PORT_MSK;
 
 	if (port == USB_PHY_PORT_A) {
 		port_idx = 0;
@@ -100,6 +101,9 @@ void set_usb_phy_power(amlogic_usb_config_t * usb_cfg,int is_on)
 		port_idx = 3;
 	}
 
+	if (peri == NULL) {
+		return ;
+	}
 	if (is_on) {
 		control.d32 = peri->ctrl;
 		control.b.por = 0;
@@ -174,6 +178,9 @@ static void usb_bc_detect(amlogic_usb_config_t * usb_cfg)
 		port_idx = 3;
 	}
 
+	if (peri == NULL) {
+		return ;
+	}
 	adp_bc.d32 = peri->adp_bc;
 	if (adp_bc.b.device_sess_vld) {
 		_mdelay(T_DCD_TIMEOUT);

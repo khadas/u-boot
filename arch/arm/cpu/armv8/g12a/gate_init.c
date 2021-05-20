@@ -19,6 +19,8 @@ void ee_gate_off(void)
 	return;
 /*	int secureboot = readl(SECUREBOOT_FLAG_ADDR)&(1<<5);*/
 
+#if 0  //because coverity error, add #if 0
+
 #ifdef CONFIG_AML_CVBS
 	unsigned int cvbs_opened = 0;
 #endif
@@ -247,6 +249,7 @@ void ee_gate_off(void)
 		CLK_GATE_OFF(BLK_MOV);
 	}
 */
+#endif  //#if 0
 }
 
 void ee_gate_on(void)

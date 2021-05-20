@@ -20,7 +20,7 @@
 
 cpu_id_t get_cpu_id(void)
 {
-	cpu_id_t cpu_id;
+	cpu_id_t cpu_id = {0};
 	unsigned int cpu_id_reg = readl(P_AO_SEC_SD_CFG8);
 	cpu_id.reserve = 0;
 	cpu_id.family_id = (cpu_id_reg >> 24) & (0XFF);
