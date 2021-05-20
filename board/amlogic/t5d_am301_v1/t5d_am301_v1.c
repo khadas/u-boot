@@ -817,8 +817,12 @@ int checkhw(char * name)
 		case 0x60000000:
 			if (cpu_id.chip_rev == 0xA)
 				strcpy(dtb_name, "t5d-reva_t950d4_am301-1.5g\0");
-			else
-				strcpy(dtb_name, "t5d_t950d4_am301-1.5g\0");
+			else {
+				if (MESON_CPU_PACKAGE_ID_T950X4 == cpu_id.package_id)
+					strcpy(dtb_name, "t5d_t950x4_am311-1.5g\0");
+				else
+					strcpy(dtb_name, "t5d_t950d4_am301-1.5g\0");
+			}
 			setenv("force_dtvkit_source", "true");
 			saveenv();
 			break;
