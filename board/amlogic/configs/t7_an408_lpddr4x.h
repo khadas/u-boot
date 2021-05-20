@@ -106,6 +106,7 @@
         "active_slot=normal\0"\
         "boot_part=boot\0"\
         "vendor_boot_part=vendor_boot\0"\
+        "board_logo_part=odm_ext\0" \
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
         "get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
@@ -239,8 +240,12 @@
                 "setenv common_dtb_load ""imgread dtb ${boot_part} ${dtb_mem_addr}"";"\
             "fi;"\
             "\0"\
+        "load_bmp_logo="\
+            "if rdext4pic ${board_logo_part} $loadaddr; then bmp display $logoLoadAddr; " \
+            "else if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi; fi;" \
+            "\0"\
         "init_display="\
-            "osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode}"\
+            "osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode}"\
             "\0"\
         "cmdline_keys="\
             "setenv usid 1234567890; setenv region_code US;"\

@@ -85,7 +85,7 @@
         "fb_height=1080\0" \
         "frac_rate_policy=1\0" \
         "hdr_policy=0\0" \
-        "usb_burning=adnl 1000\0" \
+        "usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
         "fdt_high=0x20000000\0"\
         "sdcburncfg=aml_sdc_burn.ini\0"\
         "EnableSelinux=enforcing\0" \
@@ -98,6 +98,7 @@
         "active_slot=normal\0"\
         "boot_part=boot\0"\
         "vendor_boot_part=vendor_boot\0"\
+        "board_logo_part=odm_ext\0" \
         "board=boreal\0"\
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
@@ -105,7 +106,7 @@
         "fatload_dev=usb\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-            "init=/init loglevel=9 console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe07a000 "\
+            "init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe07a000 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
             "\0"\
         "upgrade_check="\
@@ -236,6 +237,10 @@
                 "setenv common_dtb_load ""imgread dtb ${boot_part} ${dtb_mem_addr}"";"\
             "fi;"\
             "\0"\
+        "load_bmp_logo="\
+            "if rdext4pic ${board_logo_part} $loadaddr; then bmp display $logoLoadAddr; " \
+            "else if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi; fi;" \
+            "\0"\
         "init_display="\
             "get_rebootmode;"\
             "echo reboot_mode:::: ${reboot_mode};"\
@@ -256,7 +261,7 @@
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
-                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;setenv dolby_status 0;setenv dolby_vision_on 0;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};vpp hdrpkt;"\
+                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;setenv dolby_status 0;setenv dolby_vision_on 0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};vpp hdrpkt;"\
             "fi;fi;"\
             "\0"\
 	"storage_param="\
