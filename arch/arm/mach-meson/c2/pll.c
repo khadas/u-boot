@@ -120,14 +120,6 @@ gp0_pll_cfg_t gp0_pll_cfg = {
 	},
 };
 
-#define PLL_RATE(_rate, _m, _n, _od) 			\
-{							\
-		.rate	=	(_rate),		\
-		.m		=	(_m),		\
-		.n		=	(_n),		\
-		.od		=	(_od),		\
-}
-
 #define DDSPLL_RATE(_RATE, _CTS, _N) 			\
 {							\
 	    .RATE	=	(_RATE),	    	\
@@ -254,7 +246,7 @@ static int sys_pll_test(sys_pll_set_t * sys_pll_set)
 {
 	unsigned int clk_msr_val = 0;
 	unsigned int sys_clk = 0, od = 0;
-	int ret = 0;
+	int ret0, ret = 0;
 
 	/* switch sys clk to oscillator */
 	clocks_set_sys_cpu_clk(0);
@@ -281,8 +273,8 @@ static int sys_pll_test(sys_pll_set_t * sys_pll_set)
 	if (sys_pll_set->cpu_clk)
 		sys_clk = sys_pll_set->cpu_clk;
 
-	ret = sys_pll_init(sys_pll_set);
-	if (ret) {
+	ret0 = sys_pll_init(sys_pll_set);
+	if (ret0) {
 		printf("SYS pll lock Failed! - %4d MHz\n", sys_clk);
 	} else {
 		printf("SYS pll lock OK! - %4d MHz >> %d/Div16 - %4d MHz.",
@@ -298,7 +290,6 @@ static int sys_pll_test(sys_pll_set_t * sys_pll_set)
 			/* sys clk/pll div16 */
 			printf(": Match\n");
 		} else {
-			ret = RET_CLK_NOT_MATCH;
 			printf(": MisMatch\n");
 		}
 	}
@@ -711,17 +702,9 @@ static int pll_test_all(unsigned char * pll_list)
 			ret = gp_pll_test_all(&gp0_pll_cfg);
 			pll_report(ret, STR_PLL_TEST_GP);
 			break;
-		case PLL_DDS:
-			ret = dds_pll_test_all();
-			pll_report(ret, STR_PLL_TEST_DDS);
-			break;
 		case PLL_USBPHY:
 			ret = usbphy_pll_test_all();
 			pll_report(ret, STR_PLL_TEST_USBPHY);
-			break;
-		case PLL_ETHPHY:
-			ret = ethphy_pll_test_all();
-			pll_report(ret, STR_PLL_TEST_ETHPHY);
 			break;
 		default:
 			break;

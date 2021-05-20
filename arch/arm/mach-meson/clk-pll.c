@@ -52,6 +52,8 @@ static unsigned long __pll_params_to_rate(unsigned int m, unsigned int n,
 
 	if (frac && MESON_PARM_APPLICABLE(&pll->frac)) {
 		frac_rate = (u64)PARENT_RATE * frac;
+		if ((pll->frac.width - 2) < 0)
+			return -EINVAL;
 		if (frac & (1 << (pll->frac.width - 1)))
 			rate -= DIV_ROUND_UP_ULL(frac_rate,
 						 (1 << (pll->frac.width - 2)));
@@ -83,7 +85,7 @@ static unsigned int __pll_params_with_frac(unsigned long rate,
 	else
 		val = div_u64(val * frac_max, PARENT_RATE);
 
-	val -= m * frac_max;
+	val -= (u64)m * frac_max;
 
 	return min((unsigned int)val, (frac_max - 1));
 }
