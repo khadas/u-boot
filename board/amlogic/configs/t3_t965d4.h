@@ -64,7 +64,7 @@
 //#define CONFIG_BOOTLOADER_CONTROL_BLOCK
 
 #ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
-#define CONFIG_DTB_LOAD  "imgread dtb boot ${dtb_mem_addr}"
+#define CONFIG_DTB_LOAD  "imgread dtb ${boot_part} ${dtb_mem_addr}"
 #else
 #define CONFIG_DTB_LOAD  "imgread dtb _aml_dtb ${dtb_mem_addr}"
 #endif//#ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
@@ -79,7 +79,7 @@
         "loadaddr=0x00020000\0"\
         "os_ident_addr=0x00500000\0"\
         "loadaddr_rtos=0x00001000\0"\
-        "loadaddr_kernel=0x01080000\0"\
+        "loadaddr_kernel=0x03080000\0"\
         "otg_device=1\0" \
         "panel_type=lvds_1\0" \
         "lcd_ctrl=0x00000000\0" \
@@ -121,7 +121,7 @@
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
             "init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xfe07a000"\
-            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
+            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
             "\0"\
         "upgrade_check="\
             "echo recovery_status=${recovery_status};"\
@@ -238,8 +238,12 @@
             "get_avb_mode;"\
             "get_valid_slot;"\
             "if test ${vendor_boot_mode} = true; then "\
-                "setenv loadaddr_kernel 0x2080000;"\
-                "setenv dtb_mem_addr 0x1f00000;"\
+                "setenv loadaddr_kernel 0x3080000;"\
+                "setenv dtb_mem_addr 0x1000000;"\
+            "fi;"\
+            "if test ${active_slot} != normal; then "\
+                "echo ab mode, read dtb from kernel;"\
+                "setenv common_dtb_load ""imgread dtb ${boot_part} ${dtb_mem_addr}"";"\
             "fi;"\
             "\0"\
         "init_display="\
