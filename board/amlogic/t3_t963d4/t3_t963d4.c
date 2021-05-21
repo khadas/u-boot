@@ -450,6 +450,7 @@ const char * const _env_args_reserve_[] =
 	"lock",
 	"upgrade_step",
 	"bootloader_version",
+	"model_name",
 	NULL//Keep NULL be last to tell END
 };
 int __attribute__((weak)) mmc_initialize(bd_t *bis){ return 0;}
