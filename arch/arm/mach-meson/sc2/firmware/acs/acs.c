@@ -26,5 +26,8 @@ dev_param_hdr_t __param_hdr __attribute__ ((section(".dev_header"))) = {
 
 	.ddr_set_magic = "ddrs_",
 	.ddr_set_length = sizeof(__ddr_setting),
+	._RFU = {
+		.ddr_buildin_fw = CONFIG_DDRFW_TYPE,
+	}
 };
 

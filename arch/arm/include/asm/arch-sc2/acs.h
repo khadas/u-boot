@@ -33,7 +33,10 @@ typedef struct dev_param_hdr {
 	char				ddr_set_magic[6];
 	unsigned short		ddr_set_length;
 
-	unsigned int		RFU[4];
+	union {
+		unsigned int	RFU[4];
+		char		ddr_buildin_fw[8];
+	}_RFU;
 } __attribute__ ((packed)) dev_param_hdr_t;
 
 #endif
