@@ -796,6 +796,9 @@ int checkhw(char * name)
 				case 0x80000000:
 					strcpy(dtb_name, "t5d_t950x4_am319-2g\0");
 					break;
+				case 0x60000000:
+					strcpy(dtb_name, "t5d_t950x4_am319-1.5g\0");
+					break;
 				case 0x40000000:
 					strcpy(dtb_name, "t5d_t950x4_am319-1g\0");
 					break;
