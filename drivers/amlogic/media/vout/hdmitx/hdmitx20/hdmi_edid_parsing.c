@@ -1142,7 +1142,6 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 	int svd_flag = 0;
 	/* Default max color depth is 24 bit */
 	enum hdmi_color_depth rx_y444_max_dc = HDMI_COLOR_DEPTH_24B;
-	enum hdmi_color_depth rx_y422_max_dc = HDMI_COLOR_DEPTH_24B;
 	enum hdmi_color_depth rx_y420_max_dc = HDMI_COLOR_DEPTH_24B;
 	enum hdmi_color_depth rx_rgb_max_dc = HDMI_COLOR_DEPTH_24B;
 
@@ -1242,16 +1241,7 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 		/* Rx may not support Y422 */
 		if (!(prxcap->native_Mode & (1 << 4)))
 			return 0;
-		if (prxcap->dc_y444 && prxcap->dc_30bit)
-			rx_y422_max_dc = HDMI_COLOR_DEPTH_30B;
-		if ((prxcap->dc_y444 && prxcap->dc_36bit) ||
-		    (dv->sup_yuv422_12bit))
-			rx_y422_max_dc = HDMI_COLOR_DEPTH_36B;
-		if (para->cd <= rx_y422_max_dc)
-			valid = 1;
-		else
-			valid = 0;
-		return valid;
+		return 1;
 	}
 	if (para->cs == HDMI_COLOR_FORMAT_RGB) {
 		/* Always assume RX supports RGB444 */
