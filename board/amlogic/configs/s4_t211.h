@@ -291,7 +291,6 @@
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
             "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
             "setenv serial ${usid}; setenv serial# ${usid};"\
-	    "factory_provision init;"\
             "\0"\
         "upgrade_key="\
             "if gpio input GPIOD_3; then "\
