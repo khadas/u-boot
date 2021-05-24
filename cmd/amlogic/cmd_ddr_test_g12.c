@@ -76,6 +76,7 @@ typedef struct  ddr_base_address_table ddr_base_address_table_t;
 #define MESON_CPU_MAJOR_ID_T7			0x36
 #define MESON_CPU_MAJOR_ID_S4			0x37
 #define MESON_CPU_MAJOR_ID_T3			0x38
+#undef  MESON_CPU_MAJOR_ID_S4D
 #define MESON_CPU_MAJOR_ID_S4D			0x3a
 #define MESON_CPU_VERSION_LVL_MAJOR     0
 #define MESON_CPU_VERSION_LVL_MINOR     1
