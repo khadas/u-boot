@@ -404,7 +404,7 @@ int checkhw(char * name)
                 switch (ddr_size)
                 {
                         case 0x80000000:
-                                strcpy(loc_name, "t3_t965d4_ar331-2g\0");
+                                strcpy(loc_name, "t3_t965d4_ar321-2g\0");
                                 break;
                         case 0xc0000000:
                                 strcpy(loc_name, "t3_t965d4_ar331-3g\0");
