@@ -156,6 +156,12 @@ int board_late_init(void)
 {
 	printf("board late init\n");
 
+	char outputModePre[30];
+	char outputModeCur[30];
+	if (env_get("outputmode")) {
+		strcpy(outputModePre, env_get("outputmode"));
+	}
+
 	//default uboot env need before anyone use it
 	if (env_get("default_env")) {
 		printf("factory reset, need default all uboot env.\n");
@@ -200,6 +206,16 @@ int board_late_init(void)
 #ifdef CONFIG_AML_LCD
 	lcd_probe();
 #endif
+
+	if (env_get("outputmode")) {
+		strcpy(outputModeCur, env_get("outputmode"));
+	}
+
+	if (strcmp(outputModeCur,outputModePre)) {
+		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
+		run_command("saveenv", 0);
+	}
+
 	return 0;
 }
 
