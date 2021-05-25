@@ -34,6 +34,7 @@ struct hdmitx_dev {
 	enum mode_type hdmi_current_tunnel_mode;
 	/* Add dongle_mode, clock, phy may be different from mbox */
 	unsigned int dongle_mode;
+	unsigned char limit_res_1080p;
 };
 
 struct hdmitx_dev *hdmitx_get_hdev(void);

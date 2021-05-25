@@ -284,9 +284,13 @@ static inline bool is_meson_gxl_package_805Y(void)
 /* below items has feature limited, may need extra judgement */
 static bool hdmitx_limited_1080p(void)
 {
+	struct hdmitx_dev *hdev = hdmitx_get_hdev();
+
 	if (is_meson_gxl_package_805X())
 		return true;
 	else if (is_meson_gxl_package_805Y())
+		return true;
+	else if (hdev->limit_res_1080p == 1)
 		return true;
 	else
 		return false;

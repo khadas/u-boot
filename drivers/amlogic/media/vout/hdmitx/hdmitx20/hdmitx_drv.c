@@ -16,6 +16,8 @@ const static char *prod_desc = "MBox Meson Ref"; /* Max 16 bytes */
 
 static struct hdmitx_dev hdmitx_device;
 
+DECLARE_GLOBAL_DATA_PTR;
+
 struct hdmitx_dev *hdmitx_get_hdev(void)
 {
 	return &hdmitx_device;
@@ -355,6 +357,44 @@ void hdmitx_set_div40(bool div40)
 	set_tmds_clk_div40(div40);
 }
 
+static void hdmitx_load_dts_config(struct hdmitx_dev *hdev)
+{
+	const void *dt_blob;
+	int node;
+	char *propdata;
+	int ret;
+
+	hdev->limit_res_1080p = 0;
+	dt_blob = gd->fdt_blob;
+	if (dt_blob == NULL) {
+		printf("ERR: hdmitx: dt_blob is null\n");
+		return;
+	}
+
+	ret = fdt_check_header(dt_blob);
+	if (ret < 0) {
+		printf("ERR: hdmitx: check dts: %s\n", fdt_strerror(ret));
+		return;
+	}
+
+	node = fdt_path_offset(dt_blob, "/amhdmitx");
+	if (node < 0) {
+		printf("ERR: hdmitx: not find /amhdmitx node: %s\n", fdt_strerror(node));
+		return;
+	}
+
+	propdata = (char *)fdt_getprop(dt_blob, node, "res_1080p", NULL);
+	if (propdata) {
+		if (!strcmp(propdata, "0"))
+			hdev->limit_res_1080p = 0;
+		else
+			hdev->limit_res_1080p = 1;
+	} else {
+		hdev->limit_res_1080p = 0;
+	}
+	printf("limit_res_1080p: %d\n", hdev->limit_res_1080p);
+}
+
 void hdmitx_init(void)
 {
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
@@ -372,6 +412,7 @@ void hdmitx_init(void)
 	hdev->hwop.test_prbs = hdmitx_test_prbs;
 	hdev->hwop.set_div40 = hdmitx_set_div40;
 	hdev->hwop.output_blank = hdmitx_output_blank;
+	hdmitx_load_dts_config(hdev);
 }
 
 void hdmi_tx_set(struct hdmitx_dev *hdev)
