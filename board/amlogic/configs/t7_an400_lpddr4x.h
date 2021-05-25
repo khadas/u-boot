@@ -468,6 +468,9 @@
 
 #define CONFIG_MULTI_DTB    1
 
+#define CONFIG_RX_RTERM		1
+#define CONFIG_CMD_HDMIRX   1
+
 /* define CONFIG_UPDATE_MMU_TABLE for need update mmu */
 #define	CONFIG_UPDATE_MMU_TABLE
 
