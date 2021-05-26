@@ -144,8 +144,8 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, ulong id)
 		rate = SYS_CLK;
 		break;
 	default:
-		pr_err("Unknown clock, Can not get its rate\n");
-		rate = 0;
+		/* only for DIV type, others such as GATE/MUX is always 0 */
+		rate = priv->actual_rate;
 		break;
 	}
 
@@ -176,6 +176,7 @@ static ulong meson_clk_set_rate(struct clk *clk, ulong rate)
 
 	div_val = DIV_ROUND_CLOSEST(parent_rate, rate) - 1;
 
+	priv->actual_rate = DIV_ROUND_CLOSEST(parent_rate, div_val + 1);
 	meson_clk_set_div(priv, div, div_val);
 
 	return 0;
