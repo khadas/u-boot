@@ -106,7 +106,7 @@ static void vdac_enable_cvbs_out(bool on)
 	reg_cntl1 = vdac_data->reg_ctrl1;
 
 	if (on) {
-		if (vdac_data->cpu_id == VDAC_CPU_S4) {
+		if (vdac_data->cpu_id >= VDAC_CPU_S4) {
 			vdac_enable_dac_input(reg_cntl0);
 			vdac_ctrl_config(1, reg_cntl1, 7);
 		} else {
@@ -116,7 +116,7 @@ static void vdac_enable_cvbs_out(bool on)
 			vdac_ctrl_config(1, reg_cntl0, 9);
 		}
 	} else {
-		if (vdac_data->cpu_id == VDAC_CPU_S4) {
+		if (vdac_data->cpu_id >= VDAC_CPU_S4) {
 			vdac_set_reg_bits(reg_cntl0, 0x0, 4, 1);
 			vdac_ctrl_config(0, reg_cntl1, 7);
 		} else {
@@ -152,7 +152,7 @@ void vdac_enable(bool on, unsigned int module_sel)
 		break;
 	}
 
-	if (vdac_data->cpu_id == VDAC_CPU_S4) {
+	if (vdac_data->cpu_id >= VDAC_CPU_S4) {
 		if (!vdac_get_reg_bits(vdac_data->reg_ctrl0, 11, 1))
 			vdac_set_reg_bits(vdac_data->reg_ctrl0, 1, 11, 1);
 	}
@@ -289,6 +289,13 @@ struct vdac_data_s vdac_data_s4 = {
 	.vdac_ctrl = vdac_ctrl_enable_s4,
 };
 
+struct vdac_data_s vdac_data_s4d = {
+	.cpu_id = VDAC_CPU_S4D,
+	.reg_ctrl0 = ANACTRL_VDAC_CTRL0,
+	.reg_ctrl1 = ANACTRL_VDAC_CTRL1,
+	.vdac_ctrl = vdac_ctrl_enable_s4,
+};
+
 void vdac_ctrl_config_probe(void)
 {
 	pri_flag = 0;
@@ -304,8 +311,11 @@ void vdac_ctrl_config_probe(void)
 	case MESON_CPU_MAJOR_ID_S4:
 		vdac_data = &vdac_data_s4;
 		break;
+	case MESON_CPU_MAJOR_ID_S4D:
+		vdac_data = &vdac_data_s4d;
+		break;
 	default:
-		vdac_data = &vdac_data_s4;
+		vdac_data = &vdac_data_s4d;
 		break;
 	}
 

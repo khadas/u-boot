@@ -21,6 +21,7 @@ enum vdac_cpu_type {
 	VDAC_CPU_G12AB = 0,
 	VDAC_CPU_SC2 = 1,
 	VDAC_CPU_S4   = 2,
+	VDAC_CPU_S4D   = 3,
 	VDAC_CPU_MAX,
 };
 
