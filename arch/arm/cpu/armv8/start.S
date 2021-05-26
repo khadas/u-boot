@@ -30,6 +30,9 @@ _start:
 #else
 	b	reset
 #endif
+	.globl __scs_bl33_devkey
+__scs_bl33_devkey:
+	.space	2048
 
 	.align 3
 

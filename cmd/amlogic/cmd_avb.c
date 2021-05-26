@@ -18,6 +18,7 @@
 #ifdef CONFIG_AML_ANTIROLLBACK
 #include <anti-rollback.h>
 #endif
+#include <version.h>
 
 #define AVB_USE_TESTKEY
 #define MAX_DTB_SIZE (AML_DTB_IMG_MAX_SZ + 512)
@@ -34,6 +35,14 @@ extern const int avb2_kpub_vendor_len;
 
 extern const char avb2_kpub_default[];
 extern const int avb2_kpub_default_len;
+
+#ifndef CONFIG_AVB2_KPUB_FROM_FIP
+#define CONFIG_AVB2_KPUB_FROM_FIP (0)
+#endif
+
+#if CONFIG_AVB2_KPUB_FROM_FIP
+int compare_avbkey_with_fipkey(const uint8_t* public_key_data, size_t public_key_length);
+#endif
 
 AvbOps avb_ops_;
 
@@ -182,6 +191,28 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps* ops, const uint8_t* public
     char *partition = "misc";
     AvbKey_t key;
     int size;
+#if CONFIG_AVB2_KPUB_FROM_FIP
+    int result = 0;
+#endif
+
+#if CONFIG_AVB2_KPUB_FROM_FIP
+    printf("AVB2 verifying with fip key \n");
+    result = compare_avbkey_with_fipkey(public_key_data, public_key_length);
+    if (result == -2) {
+        printf("AVB2 verified with fip key failed\n");
+        *out_is_trusted = false;
+        ret = AVB_IO_RESULT_OK;
+        return ret;
+    } else if (result == -1) {
+        printf("AVB2 cannot find fip key\n");
+    } else if (result == 0) {
+        printf("AVB2 verified with fip key success\n");
+        *out_is_trusted = true;
+        ret = AVB_IO_RESULT_OK;
+        return ret;
+    }
+#endif
+
 
     keybuf = (char *)malloc(AVB_CUSTOM_KEY_LEN_MAX);
     if (keybuf) {
@@ -337,6 +368,7 @@ int avb_verify(AvbSlotVerifyData** out_data)
     char *s1;
     char *ab_suffix;
     uint32_t i = 0;
+
     run_command("get_valid_slot;", 0);
     s1 = env_get("active_slot");
     printf("active_slot is %s\n", s1);
