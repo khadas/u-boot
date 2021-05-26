@@ -499,6 +499,31 @@ static void getvar_has_slot(char *part_name, char *response)
 }
 
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
+static int strcmp_l1(const char *s1, const char *s2)
+{
+	if (!s1 || !s2)
+		return -1;
+	return strncmp(s2, s1, strlen(s2));
+}
+
+static void partition_type_reply(char *part_name, char *response, char *part_type)
+{
+	u64 rc = 0;
+	if (strcmp_l1(part_name, "env") != 0)
+		rc = store_part_size(part_name);
+	if (busy_flag == 1) {
+		if (rc == -1)
+			fastboot_response("FAILpartition-type:", response, "%s: partition not found", part_name);
+		else
+			fastboot_response("INFOpartition-type:", response, "%s: %s", part_name, part_type);
+	} else {
+		if (rc == -1)
+			fastboot_fail("partition not found", response);
+		else
+			fastboot_okay(part_type, response);
+	}
+}
+
 static void getvar_partition_type(char *part_name, char *response)
 {
 	/*int r;
@@ -521,17 +546,14 @@ static void getvar_partition_type(char *part_name, char *response)
 				fastboot_okay(fs_get_type_name(), response);
 		}
 	}*/
-	if ((strcmp(part_name, "system") == 0) || (strcmp(part_name, "vendor") == 0)
-			|| (strcmp(part_name, "odm") == 0) || (strcmp(part_name, "product") == 0)
-			|| (strcmp(part_name, "system_ext") == 0) || (strcmp(part_name, "dtbo") == 0)
-			|| (strcmp(part_name, "metadata") == 0) || (strcmp(part_name, "vbmeta") == 0)
-			|| (strcmp(part_name, "vbmeta_system") == 0)
-			|| (strcmp(part_name, "data") == 0) || (strcmp(part_name, "userdata") == 0)
-			|| (strcmp(part_name, "odm_ext") == 0) || (strcmp(part_name, "oem") == 0)){
-		if (busy_flag == 1)
-			fastboot_response("INFOpartition-type:", response, "%s: ext4", part_name);
-		else
-			fastboot_okay("ext4", response);
+	if ((strcmp_l1(part_name, "system") == 0) || (strcmp_l1(part_name, "vendor") == 0)
+			|| (strcmp_l1(part_name, "odm") == 0) || (strcmp_l1(part_name, "product") == 0)
+			|| (strcmp_l1(part_name, "system_ext") == 0) || (strcmp_l1(part_name, "dtbo") == 0)
+			|| (strcmp_l1(part_name, "metadata") == 0) || (strcmp_l1(part_name, "vbmeta") == 0)
+			|| (strcmp_l1(part_name, "vbmeta_system") == 0) || (strcmp_l1(part_name, "super") == 0)
+			|| (strcmp_l1(part_name, "data") == 0) || (strcmp_l1(part_name, "userdata") == 0)
+			|| (strcmp_l1(part_name, "odm_ext") == 0) || (strcmp_l1(part_name, "oem") == 0)){
+		partition_type_reply(part_name, response, "ext4");
 	} else if (strcmp(part_name, "cache") == 0) {
 		if (has_boot_slot == 0) {
 			if (busy_flag == 1)
@@ -540,15 +562,12 @@ static void getvar_partition_type(char *part_name, char *response)
 				fastboot_okay("ext4", response);
 		} else {
 			if (busy_flag == 1)
-				fastboot_response("INFOpartition-type:", response, "%s: NULL", part_name);
+				fastboot_response("FAILpartition-type:", response, "%s: partition not found", part_name);
 			else
-				fastboot_okay(NULL, response);
+				fastboot_fail("partition not found", response);
 		}
-	} else {
-		if (busy_flag == 1)
-			fastboot_response("INFOpartition-type:", response, "%s: raw", part_name);
-		else
-			fastboot_okay("raw", response);
+	}else {
+		partition_type_reply(part_name, response, "raw");
 	}
 }
 
