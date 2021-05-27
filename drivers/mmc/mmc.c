@@ -2214,6 +2214,8 @@ int mmc_ffu_op(int dev, u64 ffu_ver, void *addr, u64 cnt)
 		ffu_addr = KINGSTON_FFU_ADDR;
 	} else if ((mmc->cid[0] >> 24) == BIWIN_MID) {
 		ffu_addr = BIWIN_FFU_ADDR;
+	} else if ((mmc->cid[0] >> 24) == TOSHIBA_MID) {
+		ffu_addr = TOSHIBA_FFU_ADDR;
 	} else {
 		printf("FFU update for this manufacturer not support yet\n");
 		return -1;

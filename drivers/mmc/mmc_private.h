@@ -12,9 +12,11 @@
 
 #include <mmc.h>
 
+#define TOSHIBA_MID           0x11
 #define SAMSUNG_MID           0x15
 #define KINGSTON_MID          0x70
 #define BIWIN_MID             0xf4
+#define TOSHIBA_FFU_ADDR      0xffffffff
 #define SAMSUNG_FFU_ADDR      0xc7810000
 #define KINGSTON_FFU_ADDR     0x0000ffff
 #define BIWIN_FFU_ADDR        0x0
