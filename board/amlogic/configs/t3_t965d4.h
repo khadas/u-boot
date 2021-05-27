@@ -114,7 +114,12 @@
         "active_slot=normal\0"\
         "boot_part=boot\0"\
         "vendor_boot_part=vendor_boot\0"\
+        "suspend=off\0"\
+        "powermode=on\0"\
+        "ffv_wake=off\0"\
+        "ffv_freeze=off\0"\
         "board_logo_part=odm_ext\0" \
+        "logic_addr=0x0\0" \
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
         "get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
@@ -135,16 +140,39 @@
         "storeargs="\
             "get_bootloaderversion;" \
             "setenv bootargs ${initargs} otg_device=${otg_device} "\
-                "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},${vout_init} "\
-                "panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
+                "logo=${display_layer},loaded,${fb_addr} powermode=${powermode} fb_width=${fb_width} fb_height=${fb_height} display_bpp=${display_bpp} outputmode=${outputmode} vout=${outputmode}"\
+                "enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
                 "hdmimode=${hdmimode} outputmode=${outputmode} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
                 "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
+        "ffv_freeze_action="\
+            "setenv ffv_freeze on;"\
+            "setenv bootargs ${bootargs} ffv_freeze=on"\
+            "\0"\
+        "cold_boot_normal_check="\
+            "setenv bootargs ${bootargs} ffv_freeze=off; "\
+            /*"run try_auto_burn;uboot wake up "*/\
+            "if test ${powermode} = on; then "\
+                /*"run try_auto_burn; "*/\
+            "else if test ${powermode} = standby; then "\
+                "systemoff; "\
+            "else if test ${powermode} = last; then "\
+               "echo suspend=${suspend}; "\
+                "if test ${suspend} = off; then "\
+                    /*"run try_auto_burn; "*/\
+                "else if test ${suspend} = on; then "\
+                    "systemoff; "\
+                "else if test ${suspend} = shutdown; then "\
+                    "systemoff; "\
+                "fi; fi; fi; "\
+            "fi; fi; fi; "\
+            "\0"\
         "switch_bootmode="\
             "get_rebootmode;"\
+            "setenv ffv_freeze off;"\
             "echo reboot_mode : ${reboot_mode};"\
             "if test ${reboot_mode} = factory_reset; then "\
                     "run recovery_from_flash;"\
@@ -156,9 +184,39 @@
                     "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
                     "run recovery_from_flash;"\
             "else if test ${reboot_mode} = cold_boot; then "\
+                "echo cold boot: ffv_wake=${ffv_wake} powermode=${powermode} suspend=${suspend};"\
+                "if test ${ffv_wake} = on; then "\
+                    "if test ${powermode} = on; then "\
+                        "setenv bootargs ${bootargs} ffv_freeze=off; "\
+                    "else if test ${powermode} = standby; then "\
+                        "run ffv_freeze_action; "\
+                    "else if test ${powermode} = last; then "\
+                        "if test ${suspend} = off; then "\
+                            "setenv bootargs ${bootargs} ffv_freeze=off; "\
+                        "else if test ${suspend} = on; then "\
+                            "run ffv_freeze_action; "\
+                        "else if test ${suspend} = shutdown; then "\
+                            "run ffv_freeze_action; "\
+                        "fi; fi; fi; "\
+                    "fi; fi; fi; "\
+                "else "\
+                    "run cold_boot_normal_check;"\
+                "fi; "\
+            "else if test ${reboot_mode} = ffv_reboot; then "\
+                "if test ${ffv_wake} = on; then "\
+                    "run ffv_freeze_action; "\
+                "fi; "\
             "else if test ${reboot_mode} = fastboot; then "\
                 "fastboot 1;"\
-            "fi;fi;fi;fi;fi;fi;"\
+            "fi;fi;fi;fi;fi;fi;fi;"\
+            "\0" \
+        "reset_suspend="\
+            "if test ${ffv_freeze} != on; then "\
+                "if test ${suspend} = on || test ${suspend} = shutdown; then "\
+                    "setenv ""suspend off"";"\
+                    "saveenv;"\
+                "fi;"\
+            "fi;"\
             "\0" \
         "storeboot="\
             "run get_os_type;"\
@@ -254,6 +312,18 @@
         "init_display="\
             "osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode}"\
             "\0"\
+        "check_display="\
+            "echo check_display reboot_mode : ${reboot_mode} ,powermode : ${powermode};"\
+            "if test ${reboot_mode} = ffv_reboot; then "\
+                "if test ${ffv_wake} = on; then "\
+                    "echo ffv reboot no display; "\
+                "else "\
+                    "run init_display; "\
+                "fi; "\
+            "else "\
+                "run init_display; "\
+            "fi; "\
+            "\0"\
         "cmdline_keys="\
             "setenv usid 1234567890; setenv region_code US;"\
             "if keyman init 0x1234; then "\
@@ -280,11 +350,13 @@
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
             "run upgrade_check;"\
-            "run init_display;"\
+            /* "run init_display;"\ */\
+            "run check_display;"\
             "run storeargs;"\
             "run upgrade_key;" \
             "bcb uboot-command;" \
-            "run switch_bootmode;"
+            "run switch_bootmode;" \
+            "run reset_suspend;"
 
 /* #define CONFIG_ENV_IS_NOWHERE  1 */
 #define CONFIG_ENV_SIZE   (64*1024)
