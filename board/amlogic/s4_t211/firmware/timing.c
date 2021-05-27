@@ -71,12 +71,12 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_board_SI_setting_ps[0].clk_drv_ohm = DDR_SOC_AC_DRV_40_OHM,
 	.cfg_board_SI_setting_ps[0].cs_drv_ohm = DDR_SOC_AC_DRV_40_OHM,
 	.cfg_board_SI_setting_ps[0].ac_drv_ohm = DDR_SOC_AC_DRV_40_OHM,
-	.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_p = DDR_SOC_DATA_DRV_ODT_40_OHM,
-	.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_n = DDR_SOC_DATA_DRV_ODT_40_OHM,
-	.cfg_board_SI_setting_ps[0].soc_data_odt_ohm_p = DDR_SOC_DATA_DRV_ODT_60_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_p = DDR_SOC_DATA_DRV_ODT_34_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_n = DDR_SOC_DATA_DRV_ODT_34_OHM,
+	.cfg_board_SI_setting_ps[0].soc_data_odt_ohm_p = DDR_SOC_DATA_DRV_ODT_80_OHM,
 	.cfg_board_SI_setting_ps[0].soc_data_odt_ohm_n = DDR_SOC_DATA_DRV_ODT_0_OHM,
 	.cfg_board_SI_setting_ps[0].dram_data_drv_ohm = DDR_DRAM_DDR4_DRV_34_OHM,
-	.cfg_board_SI_setting_ps[0].dram_data_odt_ohm = DDR_DRAM_DDR4_ODT_40_OHM,
+	.cfg_board_SI_setting_ps[0].dram_data_odt_ohm = DDR_DRAM_DDR4_ODT_48_OHM,
 	.cfg_board_SI_setting_ps[0].dram_data_wr_odt_ohm = DDR_DRAM_DDR_WR_ODT_0_OHM,
 	.cfg_board_SI_setting_ps[0].dram_ac_odt_ohm = DDR_DRAM_DDR_AC_ODT_0_OHM,
 	.cfg_board_SI_setting_ps[0].dram_data_drv_pull_up_calibration_ohm = DDR_DRAM_LPDDR4_ODT_40_OHM,
@@ -218,7 +218,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	},                                                     //total 44
 	.cfg_ddr_training_delay_ps[0].dram_bit_vref =
 	{
-		32,  32, 32, 32, 32, 32, 32, 32,
+		0,  32, 32, 32, 32, 32, 32, 32,
 		32, 32, 32, 32, 32, 32, 32, 32,
 		32, 32, 32, 32, 32, 32, 32, 32,
 		32, 32, 32, 32, 32, 32, 32, 32,
@@ -226,7 +226,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	},                                                     //total 36
 	.cfg_ddr_training_delay_ps[0].reserve_training_parameter = { 0xa+4, 0x5+5, 0xa+4, 0x7+8,0,0,0,0,0x4,0x4,0x82,0x3 },
 
-	.cfg_board_SI_setting_ps[0].vref_soc_data_permil =0x000002a8,// 680
+	.cfg_board_SI_setting_ps[0].vref_soc_data_permil =0x0,// 0
 	.cfg_board_SI_setting_ps[0].vref_dram_data_permil=0x000002bc,// 700
 	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[0]=0x00000080,// 128
 	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[1]=0x00000080,// 128
@@ -468,7 +468,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[69]=0x00000000,// 0
 	.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[70]=0x00000000,// 0
 	.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[71]=0x00000000,// 0
-	.cfg_ddr_training_delay_ps[0].soc_bit_vref[0]=0x00000028,// 40
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[0]=0x00000000,// 0
 	.cfg_ddr_training_delay_ps[0].soc_bit_vref[1]=0x00000026,// 38
 	.cfg_ddr_training_delay_ps[0].soc_bit_vref[2]=0x00000029,// 41
 	.cfg_ddr_training_delay_ps[0].soc_bit_vref[3]=0x00000025,// 37
