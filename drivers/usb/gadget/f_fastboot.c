@@ -620,6 +620,32 @@ static const char* getvar_list_ab[] = {
 	"slot-successful:b", "slot-unbootable:b", "slot-retry-count:b",
 };
 
+static void partition_type_reply(char *part_name, char *response, size_t chars_left)
+{
+	int ret = -1;
+	uint64_t size;
+	strsep(&part_name, ":");
+	printf("partition is %s\n", part_name);
+	ret = store_get_partititon_size((unsigned char*)part_name, &size);
+	if ((strcmp_l1("system", part_name) == 0) || (strcmp_l1("vendor", part_name) == 0)
+			|| (strcmp_l1("odm", part_name) == 0) || (strcmp_l1("product", part_name) == 0)
+			|| (strcmp_l1("system_ext", part_name) == 0) || (strcmp_l1("dtbo", part_name) == 0)
+			|| (strcmp_l1("metadata", part_name) == 0) || (strcmp_l1("vbmeta", part_name) == 0)
+			|| (strcmp_l1("vbmeta_system", part_name) == 0) || (strcmp_l1("super", part_name) == 0)
+			|| (strcmp_l1("data", part_name) == 0) || (strcmp_l1("userdata", part_name) == 0)
+			|| (strcmp_l1("odm_ext", part_name) == 0) || (strcmp_l1("oem", part_name) == 0)){
+		if (ret != 0)
+			strncat(response, "FAILpartition not found", chars_left);
+		else
+			strncat(response, "ext4", chars_left);
+	} else {
+		if (ret != 0)
+			strncat(response, "FAILpartition not found", chars_left);
+		else
+			strncat(response, "raw", chars_left);
+	}
+}
+
 static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
@@ -930,7 +956,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 					}
 				} else {
 					printf("find_mmc_partition_by_name fail\n");
-					sprintf(str_num, "FAILget fail");
+					sprintf(str_num, "FAILpartition not found");
 				}
 			}
 			strncat(response, str_num, chars_left);
@@ -939,32 +965,12 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		if (has_boot_slot == 0) {
 			strncat(response, "ext4", chars_left);
 		} else {
-			strncat(response, "NULL", chars_left);
+			strncat(response, "FAILpartition not found", chars_left);
 		}
-	} else if (!strcmp_l1("partition-type:data", cmd)) {
-		strncat(response, "ext4", chars_left);
-	} else if (!strcmp_l1("partition-type:userdata", cmd)) {
-		strncat(response, "ext4", chars_left);
-	} else if (!strcmp_l1("partition-type:system", cmd)) {
-		strncat(response, "ext4", chars_left);
-	} else if (!strcmp_l1("partition-type:vendor", cmd)) {
-		strncat(response, "ext4", chars_left);
-	} else if (!strcmp_l1("partition-type:odm", cmd)) {
-		strncat(response, "ext4", chars_left);
-	} else if (!strcmp_l1("partition-type:oem", cmd)) {
-		strncat(response, "ext4", chars_left);
-	} else if (!strcmp_l1("partition-type:odm_ext", cmd)) {
-		strncat(response, "ext4", chars_left);
-	} else if (!strcmp_l1("partition-type:tee", cmd)) {
-		strncat(response, "ext4", chars_left);
-	} else if (!strcmp_l1("partition-type:param", cmd)) {
-		strncat(response, "ext4", chars_left);
-	} else if (!strcmp_l1("partition-type:product", cmd)) {
-		strncat(response, "ext4", chars_left);
-	} else if (!strcmp_l1("partition-type:metadata", cmd)) {
-		strncat(response, "ext4", chars_left);
-	} else if (!strncmp("partition-type", cmd, strlen("partition-type"))) {
+	} else if (!strcmp_l1("partition-type:env", cmd)) {
 		strncat(response, "raw", chars_left);
+	} else if (!strncmp("partition-type", cmd, strlen("partition-type"))) {
+		partition_type_reply(cmd, response, chars_left);
 	} else if (!strcmp_l1("erase-block-size", cmd) ||
 		!strcmp_l1("logical-block-size", cmd)) {
 		strncat(response, "2000", chars_left);
