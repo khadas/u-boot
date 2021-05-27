@@ -78,16 +78,23 @@ void aml_lcd_i2c_bus_print(unsigned char i2c_bus)
 	LCDI2C_PR("i2c_bus = %s(%d)\n", str, i2c_bus);
 }
 
+#ifdef CONFIG_DM_I2C
 int aml_lcd_i2c_write(unsigned char i2c_bus, unsigned int i2c_addr,
 			 unsigned char *buff, unsigned int len)
 {
 	unsigned char aml_i2c_bus;
+	struct udevice *bus;
 	struct udevice *i2c_dev;
 	int i, ret = 0;
 	unsigned char data = 0;
 
 	aml_i2c_bus = i2c_bus;
-	ret = i2c_get_chip_for_busnum(aml_i2c_bus, i2c_addr, 1, &i2c_dev);
+	ret = uclass_get_device_by_seq(UCLASS_I2C, aml_i2c_bus, &bus);
+	if (ret) {
+		LCDI2C_ERR("no sys aml_i2c_bus %d find\n", aml_i2c_bus);
+		return ret;
+	}
+	ret = i2c_get_chip(bus, i2c_addr, 1, &i2c_dev);
 	if (ret) {
 		LCDI2C_ERR("no sys aml_i2c_bus %d find\n", aml_i2c_bus);
 		return ret;
@@ -121,11 +128,17 @@ int aml_lcd_i2c_read(unsigned char i2c_bus, unsigned int i2c_addr,
 			unsigned char *buff, unsigned int len)
 {
 	unsigned char aml_i2c_bus;
+	struct udevice *bus;
 	struct udevice *i2c_dev;
 	int ret = 0, i;
 
 	aml_i2c_bus = i2c_bus;
-	ret = i2c_get_chip_for_busnum(aml_i2c_bus, i2c_addr, 1, &i2c_dev);
+	ret = uclass_get_device_by_seq(UCLASS_I2C, aml_i2c_bus, &bus);
+	if (ret) {
+		LCDI2C_ERR("no sys aml_i2c_bus %d find\n", aml_i2c_bus);
+		return ret;
+	}
+	ret = i2c_get_chip(bus, i2c_addr, 1, &i2c_dev);
 	if (ret) {
 		LCDI2C_ERR("no sys aml_i2c_bus %d find\n", aml_i2c_bus);
 		return ret;
@@ -158,3 +171,18 @@ int aml_lcd_i2c_read(unsigned char i2c_bus, unsigned int i2c_addr,
 	return 0;
 }
 
+#else
+int aml_lcd_i2c_write(unsigned char i2c_bus, unsigned int i2c_addr,
+			 unsigned char *buff, unsigned int len)
+{
+	LCDI2C_ERR("no CONFIG_DM_I2C\n");
+	return -1;
+}
+
+int aml_lcd_i2c_read(unsigned char i2c_bus, unsigned int i2c_addr,
+			unsigned char *buff, unsigned int len)
+{
+	LCDI2C_ERR("no CONFIG_DM_I2C\n");
+	return -1;
+}
+#endif
