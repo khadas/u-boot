@@ -150,6 +150,30 @@
 #define VIU_OSD4_PATH_CTRL                         0x1a79
 #endif
 
+#ifndef VPP1_BLD_CTRL
+#define VPP1_BLD_CTRL                              0x5985
+#endif
+
+#ifndef VPP2_BLD_CTRL
+#define VPP2_BLD_CTRL                              0x59c5
+#endif
+
+#ifndef VPP1_BLEND_BLEND_DUMMY_DATA
+#define VPP1_BLEND_BLEND_DUMMY_DATA                0x59a9
+#endif
+
+#ifndef VPP1_BLEND_DUMMY_ALPHA
+#define VPP1_BLEND_DUMMY_ALPHA                     0x59aa
+#endif
+
+#ifndef VPP2_BLEND_BLEND_DUMMY_DATA
+#define VPP2_BLEND_BLEND_DUMMY_DATA                0x59e9
+#endif
+
+#ifndef VPP2_BLEND_DUMMY_ALPHA
+#define VPP2_BLEND_DUMMY_ALPHA                     0x59ea
+#endif
+
 #define REG_OFFSET_VCBUS(reg)           ((reg << 2))
 #define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg) + 0L)
 #define REG_OSD_ADDR(reg)               (reg + 0L)

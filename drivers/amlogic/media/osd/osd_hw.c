@@ -3174,6 +3174,16 @@ static void independ_path_default_regs(void)
 	osd_reg_set_bits(VIU_OSD1_PATH_CTRL, 0x0, 17, 1);
 	osd_reg_set_bits(VIU_OSD2_PATH_CTRL, 0x0, 17, 1);
 	osd_reg_set_bits(VIU_OSD3_PATH_CTRL, 0x0, 17, 1);
+
+	/* clean vpp_top 1/2 blend default order */
+	osd_reg_set_bits(VPP1_BLD_CTRL, 0x0, 0, 8);
+	osd_reg_set_bits(VPP2_BLD_CTRL, 0x0, 0, 8);
+
+	/* set vpp_top 1/2 default blend dummy */
+	osd_reg_write(VPP1_BLEND_BLEND_DUMMY_DATA, 0x008080);
+	osd_reg_write(VPP1_BLEND_DUMMY_ALPHA, 0xffffffff);
+	osd_reg_write(VPP2_BLEND_BLEND_DUMMY_DATA, 0x008080);
+	osd_reg_write(VPP2_BLEND_DUMMY_ALPHA, 0xffffffff);
 }
 
 void osd_init_hw(void)
