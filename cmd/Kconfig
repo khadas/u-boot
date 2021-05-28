@@ -261,7 +261,13 @@ config CMD_DSPSET
         default y
         help
           support dspset cmd
-
+		  
+config CMD_STARTM4
+        bool "startm4 cmd"
+        default y
+        help
+          support startm4 cmd
+		  
 source lib/efi_selftest/Kconfig
 
 config CMD_BOOTMENU

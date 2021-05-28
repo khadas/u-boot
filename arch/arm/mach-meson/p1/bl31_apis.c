@@ -320,6 +320,23 @@ void init_dsp(unsigned int id,unsigned int addr,unsigned int cfg0)
 		: "r" (x1), "r" (x2), "r" (x3));
 }
 
+void start_m4(unsigned int cpu_id,unsigned int bin_addr)
+{
+	register long x0 asm("x0") = START_M4;
+	register long x1 asm("x1") = cpu_id;
+	register long x2 asm("x2") = bin_addr;
+
+	asm volatile(
+			__asmeq("%0", "x0")
+			__asmeq("%1", "x1")
+			__asmeq("%2", "x2")
+
+			"smc	#0\n"
+		: "+r" (x0)
+		: "r" (x1), "r" (x2));
+}
+
+
 
 unsigned aml_reboot(uint64_t function_id, uint64_t arg0, uint64_t arg1, uint64_t arg2)
 {
