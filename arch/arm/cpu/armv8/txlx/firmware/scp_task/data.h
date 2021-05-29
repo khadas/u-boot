@@ -21,5 +21,8 @@ struct resume_param {
 	unsigned int method;
 	unsigned int date1;
 	unsigned int date2;
+	/* [0] for msg len */
+	unsigned char cec_otp_msg[17];
+	unsigned char cec_as_msg[17];
 };
 struct resume_param resume_data;

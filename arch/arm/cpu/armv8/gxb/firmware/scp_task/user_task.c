@@ -10,6 +10,8 @@
 #include "data.h"
 #include "registers.h"
 #include "task_apis.h"
+#include "suspend.h"
+#include "cec_tx_reg.h"
 
 #define TASK_ID_LOW_MB	3
 #define TASK_ID_HIGH_MB	4
@@ -82,6 +84,16 @@ void secure_task(void)
 				*response = RESPONSE_SUSPEND_LEAVE;
 				presume = (struct resume_param *)(response+1);
 				presume->method = resume_data.method;
+				if (presume->method == CEC_WAKEUP) {
+					presume->date1 = resume_data.date1;
+					presume->date2 = resume_data.date2;
+					memcpy(presume->cec_otp_msg,
+					       resume_data.cec_otp_msg,
+					       sizeof(resume_data.cec_otp_msg));
+					memcpy(presume->cec_as_msg,
+					       resume_data.cec_as_msg,
+					       sizeof(resume_data.cec_as_msg));
+				}
 			}
 	}
 		__switch_back_securemb();
@@ -91,6 +103,45 @@ void secure_task(void)
 void set_wakeup_method(unsigned int method)
 {
 	resume_data.method = method;
+}
+
+void set_cec_val1(unsigned int cec_val)
+{
+	resume_data.date1 = cec_val;
+	dbg_print("cec1: ", resume_data.date1);
+}
+
+void set_cec_val2(unsigned int cec_val)
+{
+	resume_data.date2 = cec_val;
+	dbg_print("cec2: ", resume_data.date2);
+}
+
+void set_cec_wk_msg(unsigned char msg_idx, unsigned char *cec_wk_msg)
+{
+	int i = 0;
+
+	if (!cec_wk_msg)
+		return;
+
+	switch (msg_idx) {
+	case CEC_OC_IMAGE_VIEW_ON:
+		memcpy(resume_data.cec_otp_msg, cec_wk_msg, cec_wk_msg[0] + 1);
+		dbg_print("otp msg len: ", resume_data.cec_otp_msg[0]);
+		dbg_prints("wk otp msg data:\n");
+		for (i = 0; i < resume_data.cec_otp_msg[0]; i++)
+			dbg_print("val:", resume_data.cec_otp_msg[i + 1]);
+		break;
+	case CEC_OC_ACTIVE_SOURCE:
+		memcpy(resume_data.cec_as_msg, cec_wk_msg, cec_wk_msg[0] + 1);
+		dbg_print("as msg len: ", resume_data.cec_as_msg[0]);
+		dbg_prints("wk as msg data:\n");
+		for (i = 0; i < resume_data.cec_as_msg[0]; i++)
+			dbg_print("val:", resume_data.cec_as_msg[i + 1]);
+		break;
+	default:
+		break;
+	}
 }
 
 void process_high_task(unsigned command)

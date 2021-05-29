@@ -7,10 +7,11 @@
  */
 
 #ifdef CONFIG_CEC_WAKEUP
-#include <asm/arch/cec_tx_reg.h>
+#include <asm/arch-tm2/cec_tx_reg.h>
 #include <amlogic/aml_cec.h>
 #include "hdmi_cec_arc.h"
 #include "task_apis.h"
+#include <linux/types.h>
 
 #ifndef NULL
 #define NULL ((void *)0)
@@ -69,6 +70,9 @@ struct cec_tx_msg {
 
 struct cec_tx_msg cec_tx_msgs = {};
 
+/* [0] for msg len */
+static unsigned char cec_otp_msg[17];
+static unsigned char cec_as_msg[17];
 
 static int cec_strlen(char *p)
 {
@@ -448,12 +452,20 @@ static void cec_set_stream_path(void)
 {
 	unsigned char phy_addr_ab = (readl(AO_DEBUG_REG1) >> 8) & 0xff;
 	unsigned char phy_addr_cd = readl(AO_DEBUG_REG1) & 0xff;
+	unsigned char msg_len = cec_msg.buf[cec_msg.rx_read_pos].msg_len;
 
 	if ((hdmi_cec_func_config >> CEC_FUNC_MASK) & 0x1) {
 		if ((hdmi_cec_func_config >> AUTO_POWER_ON_MASK) & 0x1) {
 			if ((phy_addr_ab == cec_msg.buf[cec_msg.rx_read_pos].msg[2]) &&
 			    (phy_addr_cd == cec_msg.buf[cec_msg.rx_read_pos].msg[3]))  {
 				cec_msg.cec_power = 0x1;
+				memset(cec_otp_msg, 0, sizeof(cec_otp_msg));
+				cec_otp_msg[0] = msg_len;
+				memcpy(&cec_otp_msg[1],
+				       cec_msg.buf[cec_msg.rx_read_pos].msg,
+				       cec_otp_msg[0]);
+				set_cec_wk_msg(CEC_OC_IMAGE_VIEW_ON,
+					       cec_otp_msg);
 			}
 		}
 	}
@@ -463,13 +475,24 @@ void cec_routing_change(void)
 {
 	unsigned char phy_addr_ab = (readl(P_AO_DEBUG_REG1) >> 8) & 0xff;
 	unsigned char phy_addr_cd = readl(P_AO_DEBUG_REG1) & 0xff;
+	unsigned char msg_len = cec_msg.buf[cec_msg.rx_read_pos].msg_len;
 
 	if ((hdmi_cec_func_config >> CEC_FUNC_MASK) & 0x1) {
 		if ((hdmi_cec_func_config >> AUTO_POWER_ON_MASK) & 0x1) {
 			/* wake up if routing destination is self */
-			if ((phy_addr_ab == cec_msg.buf[cec_msg.rx_read_pos].msg[4]) &&
-				(phy_addr_cd == cec_msg.buf[cec_msg.rx_read_pos].msg[5]))
+			if (phy_addr_ab ==
+			    cec_msg.buf[cec_msg.rx_read_pos].msg[4] &&
+			    phy_addr_cd ==
+			    cec_msg.buf[cec_msg.rx_read_pos].msg[5]) {
 				cec_msg.cec_power = 0x1;
+				memset(cec_otp_msg, 0, sizeof(cec_otp_msg));
+				cec_otp_msg[0] = msg_len;
+				memcpy(&cec_otp_msg[1],
+				       cec_msg.buf[cec_msg.rx_read_pos].msg,
+				       cec_otp_msg[0]);
+				set_cec_wk_msg(CEC_OC_IMAGE_VIEW_ON,
+					       cec_otp_msg);
+			}
 		}
 	}
 }
@@ -565,14 +588,14 @@ static int check_addr(int phy_addr)
 	return 1;
 }
 
-static int is_playback_dev(int addr)
+static bool is_playback_dev(int addr)
 {
 	if (addr != CEC_PLAYBACK_DEVICE_1_ADDR &&
 	    addr != CEC_PLAYBACK_DEVICE_2_ADDR &&
 	    addr != CEC_PLAYBACK_DEVICE_3_ADDR) {
-		return 0;
+		return false;
 	}
-	return 1;
+	return true;
 }
 
 int is_phy_addr_ready(cec_msg_t *msg)
@@ -625,10 +648,17 @@ static unsigned int cec_handle_message(void)
 	unsigned char opcode;
 	unsigned char source;
 	unsigned int  phy_addr/*, wake*/;
+	bool cec_func_on;
+	bool cec_auto_wake_en;
+	unsigned char msg_len = cec_msg.buf[cec_msg.rx_read_pos].msg_len;
+	unsigned char *msg;
 
 	source = (cec_msg.buf[cec_msg.rx_read_pos].msg[0] >> 4) & 0xf;
-	if (((hdmi_cec_func_config>>CEC_FUNC_MASK) & 0x1) &&
-		(cec_msg.buf[cec_msg.rx_read_pos].msg_len > 1)) {
+	cec_func_on = ((hdmi_cec_func_config >> CEC_FUNC_MASK) & 0x1) == 0x1;
+	cec_auto_wake_en =
+		((hdmi_cec_func_config >> AUTO_POWER_ON_MASK) & 0x1) == 0x1;
+	if (cec_func_on &&
+	    cec_msg.buf[cec_msg.rx_read_pos].msg_len > 1) {
 		opcode = cec_msg.buf[cec_msg.rx_read_pos].msg[1];
 		switch (opcode) {
 		case CEC_OC_GET_CEC_VERSION:
@@ -656,13 +686,21 @@ static unsigned int cec_handle_message(void)
 			cec_report_device_power_status(source);
 			break;
 		case CEC_OC_USER_CONTROL_PRESSED:
-			if (((hdmi_cec_func_config >> CEC_FUNC_MASK) & 0x1) &&
-			    ((hdmi_cec_func_config >> AUTO_POWER_ON_MASK) & 0x1) &&
-			     (cec_msg.buf[cec_msg.rx_read_pos].msg_len == 3) &&
+			if (cec_func_on &&
+			    cec_auto_wake_en &&
+			    cec_msg.buf[cec_msg.rx_read_pos].msg_len == 3 &&
 			    ((0x40 == cec_msg.buf[cec_msg.rx_read_pos].msg[2]) ||
 			     (0x6d == cec_msg.buf[cec_msg.rx_read_pos].msg[2]) ||
-			     (0x09 == cec_msg.buf[cec_msg.rx_read_pos].msg[2]) )) {
+			     (0x09 ==
+			     cec_msg.buf[cec_msg.rx_read_pos].msg[2]))) {
 				cec_msg.cec_power = 0x1;
+				memset(cec_otp_msg, 0, sizeof(cec_otp_msg));
+				cec_otp_msg[0] = msg_len;
+				memcpy(&cec_otp_msg[1],
+				       cec_msg.buf[cec_msg.rx_read_pos].msg,
+				       cec_otp_msg[0]);
+				set_cec_wk_msg(CEC_OC_IMAGE_VIEW_ON,
+					       cec_otp_msg);
 			}
 			break;
 		case CEC_OC_MENU_REQUEST:
@@ -672,8 +710,8 @@ static unsigned int cec_handle_message(void)
 		/* TV Wake up by image/text view on */
 		case CEC_OC_IMAGE_VIEW_ON:
 		case CEC_OC_TEXT_VIEW_ON:
-			if (((hdmi_cec_func_config >> CEC_FUNC_MASK) & 0x1) &&
-			    ((hdmi_cec_func_config >> AUTO_POWER_ON_MASK) & 0x1) &&
+			if (cec_func_on &&
+			    cec_auto_wake_en &&
 			    (!is_playback_dev(cec_msg.log_addr))) {
 				/* request active source needed */
 				phy_addr = 0xffff;
@@ -684,15 +722,23 @@ static unsigned int cec_handle_message(void)
 				cec_wakup.wk_logic_addr = source;
 				cec_wakup.wk_phy_addr = phy_addr;
 				set_cec_val1(*((unsigned int *)&cec_wakup));
+				memset(cec_otp_msg, 0, sizeof(cec_otp_msg));
+				cec_otp_msg[0] = msg_len;
+				memcpy(&cec_otp_msg[1],
+				       cec_msg.buf[cec_msg.rx_read_pos].msg,
+				       cec_otp_msg[0]);
+				set_cec_wk_msg(CEC_OC_IMAGE_VIEW_ON,
+					       cec_otp_msg);
 			}
 			break;
 
 		/* TV Wake up by active source*/
 		case CEC_OC_ACTIVE_SOURCE:
-			phy_addr = (cec_msg.buf[cec_msg.rx_read_pos].msg[2] << 8) |
-				   (cec_msg.buf[cec_msg.rx_read_pos].msg[3] << 0);
-			if (((hdmi_cec_func_config >> CEC_FUNC_MASK) & 0x1) &&
-			    ((hdmi_cec_func_config >> AUTO_POWER_ON_MASK) & 0x1) &&
+			phy_addr =
+				(cec_msg.buf[cec_msg.rx_read_pos].msg[2] << 8) +
+				(cec_msg.buf[cec_msg.rx_read_pos].msg[3] << 0);
+			if (cec_func_on &&
+			    cec_auto_wake_en &&
 			    (!is_playback_dev(cec_msg.log_addr) && check_addr(phy_addr))) {
 				cec_msg.cec_power = 0x1;
 				cec_msg.active_source = 1;
@@ -705,6 +751,14 @@ static unsigned int cec_handle_message(void)
 				cec_wakup.wk_logic_addr = source;
 				cec_wakup.wk_phy_addr = phy_addr;
 				set_cec_val1(*((unsigned int *)&cec_wakup));
+				memset(cec_as_msg, 0, sizeof(cec_as_msg));
+				cec_as_msg[0] = msg_len;
+				msg = cec_msg.buf[cec_msg.rx_read_pos].msg;
+				if (cec_as_msg[0] < MAX_MSG)
+					memcpy(&cec_as_msg[1], msg,
+					       cec_as_msg[0]);
+				set_cec_wk_msg(CEC_OC_ACTIVE_SOURCE,
+					       cec_as_msg);
 			}
 			break;
 		case CEC_OC_REPORT_PHYSICAL_ADDRESS:
@@ -873,6 +927,8 @@ void cec_node_init(void)
 	}
 	writel(0, AO_RTI_STATUS_REG1);
 	memset(&cec_wakup, 0, sizeof(cec_wakup));
+	memset(cec_otp_msg, 0, sizeof(cec_otp_msg));
+	memset(cec_as_msg, 0, sizeof(cec_as_msg));
 	if (probe == NULL) {
 		cec_msg.rx_read_pos = 0;
 		cec_msg.rx_write_pos = 0;

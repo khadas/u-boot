@@ -17,6 +17,8 @@
 #define NULL ((void *)0)
 #endif
 #define CEC_DBG_PRINT
+cec_msg_t cec_msg;
+unsigned long hdmi_cec_func_config;
 #ifdef CEC_DBG_PRINT
 	#define cec_dbg_print(s,v) {uart_puts(s);uart_put_hex(v,8); _udelay(100);}
 	#define cec_dbg_prints(s)  {uart_puts(s); _udelay(100);}
@@ -43,6 +45,9 @@ struct cec_tx_msg {
 
 struct cec_tx_msg cec_tx_msgs = {};
 
+/* [0] for msg len */
+static unsigned char cec_otp_msg[17];
+static unsigned char cec_as_msg[17];
 
 int cec_strlen(char *p)
 {
@@ -405,12 +410,20 @@ void cec_set_stream_path(void)
 {
 	unsigned char phy_addr_ab = (readl(P_AO_DEBUG_REG1) >> 8) & 0xff;
 	unsigned char phy_addr_cd = readl(P_AO_DEBUG_REG1) & 0xff;
+	unsigned char msg_len = cec_msg.buf[cec_msg.rx_read_pos].msg_len;
 
 	if ((hdmi_cec_func_config >> CEC_FUNC_MASK) & 0x1) {
 		if ((hdmi_cec_func_config >> AUTO_POWER_ON_MASK) & 0x1) {
 			if ((phy_addr_ab == cec_msg.buf[cec_msg.rx_read_pos].msg[2]) &&
 			    (phy_addr_cd == cec_msg.buf[cec_msg.rx_read_pos].msg[3]))  {
 				cec_msg.cec_power = 0x1;
+				memset(cec_otp_msg, 0, sizeof(cec_otp_msg));
+				cec_otp_msg[0] = msg_len;
+				memcpy(&cec_otp_msg[1],
+				       cec_msg.buf[cec_msg.rx_read_pos].msg,
+				       cec_otp_msg[0]);
+				set_cec_wk_msg(CEC_OC_IMAGE_VIEW_ON,
+					       cec_otp_msg);
 			}
 		}
 	}
@@ -420,14 +433,25 @@ void cec_routing_change(void)
 {
 	unsigned char phy_addr_ab = (readl(P_AO_DEBUG_REG1) >> 8) & 0xff;
 	unsigned char phy_addr_cd = readl(P_AO_DEBUG_REG1) & 0xff;
+	unsigned char msg_len = cec_msg.buf[cec_msg.rx_read_pos].msg_len;
 
 	if ((hdmi_cec_func_config >> CEC_FUNC_MASK) & 0x1) {
 		if ((hdmi_cec_func_config >> AUTO_POWER_ON_MASK) & 0x1) {
-				/* wake up if routing destination is self */
-				if ((phy_addr_ab == cec_msg.buf[cec_msg.rx_read_pos].msg[4]) &&
-					(phy_addr_cd == cec_msg.buf[cec_msg.rx_read_pos].msg[5]))  {
-					cec_msg.cec_power = 0x1;
-				}
+			/* wake up if routing destination is self */
+			if (phy_addr_ab ==
+			    cec_msg.buf[cec_msg.rx_read_pos].msg[4] &&
+			    phy_addr_cd ==
+			    cec_msg.buf[cec_msg.rx_read_pos].msg[5])  {
+				cec_msg.cec_power = 0x1;
+				memset(cec_otp_msg, 0,
+				       sizeof(cec_otp_msg));
+				cec_otp_msg[0] = msg_len;
+				memcpy(&cec_otp_msg[1],
+				       cec_msg.buf[cec_msg.rx_read_pos].msg,
+				       cec_otp_msg[0]);
+				set_cec_wk_msg(CEC_OC_IMAGE_VIEW_ON,
+					       cec_otp_msg);
+			}
 		}
 	}
 }
@@ -547,6 +571,7 @@ unsigned int cec_handle_message(void)
 {
 	unsigned char opcode;
 	unsigned char dest;
+	unsigned char msg_len = cec_msg.buf[cec_msg.rx_read_pos].msg_len;
 
 	if (((hdmi_cec_func_config>>CEC_FUNC_MASK) & 0x1) &&
 		(cec_msg.buf[cec_msg.rx_read_pos].msg_len > 1)) {
@@ -584,6 +609,13 @@ unsigned int cec_handle_message(void)
 			     (0x6d == cec_msg.buf[cec_msg.rx_read_pos].msg[2]) ||
 			     (0x09 == cec_msg.buf[cec_msg.rx_read_pos].msg[2]) )) {
 				cec_msg.cec_power = 0x1;
+				memset(cec_otp_msg, 0, sizeof(cec_otp_msg));
+				cec_otp_msg[0] = msg_len;
+				memcpy(&cec_otp_msg[1],
+				       cec_msg.buf[cec_msg.rx_read_pos].msg,
+				       cec_otp_msg[0]);
+				set_cec_wk_msg(CEC_OC_IMAGE_VIEW_ON,
+					       cec_otp_msg);
 			}
 			break;
 		case CEC_OC_MENU_REQUEST:
@@ -737,6 +769,8 @@ void cec_node_init(void)
 		uart_puts("failed on retried all possible address\n");
 		return ;
 	}
+	memset(cec_otp_msg, 0, sizeof(cec_otp_msg));
+	memset(cec_as_msg, 0, sizeof(cec_as_msg));
 	if (probe == NULL) {
 		cec_msg.rx_read_pos = 0;
 		cec_msg.rx_write_pos = 0;

@@ -11,7 +11,7 @@
  *                                                *
  **************************************************/
 #ifdef CONFIG_CEC_WAKEUP
-#include <asm/arch/cec_tx_reg.h>
+#include <asm/arch-txl/cec_tx_reg.h>
 #include <amlogic/aml_cec.h>
 #include "hdmi_cec_arc.h"
 #include "secure_apb.h"
@@ -73,6 +73,9 @@ struct cec_tx_msg {
 
 struct cec_tx_msg cec_tx_msgs = {};
 
+/* [0] for msg len */
+static unsigned char cec_otp_msg[17];
+static unsigned char cec_as_msg[17];
 
 static int cec_strlen(char *p)
 {
@@ -439,12 +442,46 @@ static void cec_set_stream_path(void)
 {
 	unsigned char phy_addr_ab = (readl(P_AO_DEBUG_REG1) >> 8) & 0xff;
 	unsigned char phy_addr_cd = readl(P_AO_DEBUG_REG1) & 0xff;
+	unsigned char msg_len = cec_msg.buf[cec_msg.rx_read_pos].msg_len;
 
 	if ((hdmi_cec_func_config >> CEC_FUNC_MASK) & 0x1) {
 		if ((hdmi_cec_func_config >> AUTO_POWER_ON_MASK) & 0x1) {
 			if ((phy_addr_ab == cec_msg.buf[cec_msg.rx_read_pos].msg[2]) &&
 			    (phy_addr_cd == cec_msg.buf[cec_msg.rx_read_pos].msg[3]))  {
 				cec_msg.cec_power = 0x1;
+				memset(cec_otp_msg, 0, sizeof(cec_otp_msg));
+				cec_otp_msg[0] = msg_len;
+				memcpy(&cec_otp_msg[1],
+				       cec_msg.buf[cec_msg.rx_read_pos].msg,
+				       cec_otp_msg[0]);
+				set_cec_wk_msg(CEC_OC_IMAGE_VIEW_ON,
+					       cec_otp_msg);
+			}
+		}
+	}
+}
+
+void cec_routing_change(void)
+{
+	unsigned char phy_addr_ab = (readl(P_AO_DEBUG_REG1) >> 8) & 0xff;
+	unsigned char phy_addr_cd = readl(P_AO_DEBUG_REG1) & 0xff;
+	unsigned char msg_len = cec_msg.buf[cec_msg.rx_read_pos].msg_len;
+
+	if ((hdmi_cec_func_config >> CEC_FUNC_MASK) & 0x1) {
+		if ((hdmi_cec_func_config >> AUTO_POWER_ON_MASK) & 0x1) {
+			/* wake up if routing destination is self */
+			if (phy_addr_ab ==
+			    cec_msg.buf[cec_msg.rx_read_pos].msg[4] &&
+			    phy_addr_cd ==
+			    cec_msg.buf[cec_msg.rx_read_pos].msg[5]) {
+				cec_msg.cec_power = 0x1;
+				memset(cec_otp_msg, 0, sizeof(cec_otp_msg));
+				cec_otp_msg[0] = msg_len;
+				memcpy(&cec_otp_msg[1],
+				       cec_msg.buf[cec_msg.rx_read_pos].msg,
+				       cec_otp_msg[0]);
+				set_cec_wk_msg(CEC_OC_IMAGE_VIEW_ON,
+					       cec_otp_msg);
 			}
 		}
 	}
@@ -602,6 +639,7 @@ static unsigned int cec_handle_message(void)
 	unsigned char opcode;
 	unsigned char source;
 	unsigned int  phy_addr;
+	unsigned char msg_len = cec_msg.buf[cec_msg.rx_read_pos].msg_len;
 
 	source = (cec_msg.buf[cec_msg.rx_read_pos].msg[0] >> 4) & 0xf;
 	if (((hdmi_cec_func_config>>CEC_FUNC_MASK) & 0x1) &&
@@ -626,6 +664,9 @@ static unsigned int cec_handle_message(void)
 		case CEC_OC_SET_STREAM_PATH:
 			cec_set_stream_path();
 			break;
+		case CEC_OC_ROUTING_CHANGE:
+			cec_routing_change();
+			break;
 		case CEC_OC_GIVE_DEVICE_POWER_STATUS:
 			cec_report_device_power_status(source);
 			break;
@@ -637,6 +678,13 @@ static unsigned int cec_handle_message(void)
 			     (0x6d == cec_msg.buf[cec_msg.rx_read_pos].msg[2]) ||
 			     (0x09 == cec_msg.buf[cec_msg.rx_read_pos].msg[2]) )) {
 				cec_msg.cec_power = 0x1;
+				memset(cec_otp_msg, 0, sizeof(cec_otp_msg));
+				cec_otp_msg[0] = msg_len;
+				memcpy(&cec_otp_msg[1],
+				       cec_msg.buf[cec_msg.rx_read_pos].msg,
+				       cec_otp_msg[0]);
+				set_cec_wk_msg(CEC_OC_IMAGE_VIEW_ON,
+					       cec_otp_msg);
 			}
 			break;
 		case CEC_OC_MENU_REQUEST:
@@ -656,6 +704,13 @@ static unsigned int cec_handle_message(void)
 				cec_wakup.wk_logic_addr = source;
 				cec_wakup.wk_phy_addr = phy_addr;
 				set_cec_val1(*((unsigned int *)&cec_wakup));
+				memset(cec_otp_msg, 0, sizeof(cec_otp_msg));
+				cec_otp_msg[0] = msg_len;
+				memcpy(&cec_otp_msg[1],
+				       cec_msg.buf[cec_msg.rx_read_pos].msg,
+				       cec_otp_msg[0]);
+				set_cec_wk_msg(CEC_OC_IMAGE_VIEW_ON,
+					       cec_otp_msg);
 			}
 			break;
 
@@ -675,6 +730,13 @@ static unsigned int cec_handle_message(void)
 				cec_wakup.wk_logic_addr = source;
 				cec_wakup.wk_phy_addr = phy_addr;
 				set_cec_val1(*((unsigned int *)&cec_wakup));
+				memset(cec_as_msg, 0, sizeof(cec_as_msg));
+				cec_as_msg[0] = msg_len;
+				memcpy(&cec_as_msg[1],
+				       cec_msg.buf[cec_msg.rx_read_pos].msg,
+				       cec_as_msg[0]);
+				set_cec_wk_msg(CEC_OC_ACTIVE_SOURCE,
+					       cec_as_msg);
 			}
 			break;
 		case CEC_OC_REPORT_PHYSICAL_ADDRESS:
@@ -844,6 +906,8 @@ void cec_node_init(void)
 	}
 	writel(0, P_AO_RTI_STATUS_REG1);
 	memset(&cec_wakup, 0, sizeof(cec_wakup));
+	memset(cec_otp_msg, 0, sizeof(cec_otp_msg));
+	memset(cec_as_msg, 0, sizeof(cec_as_msg));
 	if (probe == NULL) {
 		cec_msg.rx_read_pos = 0;
 		cec_msg.rx_write_pos = 0;

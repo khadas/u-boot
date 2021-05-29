@@ -262,8 +262,8 @@ typedef struct {
     unsigned char rx_buf_size;
 } cec_msg_t;
 
-cec_msg_t cec_msg;
-unsigned char hdmi_cec_func_config;
+extern cec_msg_t cec_msg;
+extern unsigned char hdmi_cec_func_config;
 void cec_node_init(void);
 unsigned int cec_handler(void);
 void remote_cec_hw_reset(void);

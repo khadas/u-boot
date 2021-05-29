@@ -19,5 +19,10 @@ unsigned char *low_task_share_mem = (unsigned char *)LOW_TASK_SHARE_MEM_BASE;
 struct resume_param {
 /* wakeup method: remote, ..., */
 	unsigned int method;
+	unsigned int date1;
+	unsigned int date2;
+	/* [0] for msg len */
+	unsigned char cec_otp_msg[17];
+	unsigned char cec_as_msg[17];
 };
 struct resume_param resume_data;
