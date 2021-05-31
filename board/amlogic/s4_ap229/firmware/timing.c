@@ -2221,18 +2221,24 @@ bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
 __attribute__ ((section(".misc_param"))) = {
 	/* config vddee and vcck pwm - pwm_h and pwm_j*/
-	{ PWMGH_PWM_B,		   VDDEE_VAL_REG, 0xffffffff, 0, 0, 0 },
-	{ PWMIJ_PWM_B,		   VCCK_VAL_REG,  0xffffffff, 0, 0, 0 },
-	{ PWMGH_MISC_REG_AB,	   (0x1 << 1),	  (0x1 << 1), 0, 0, 0 },
-	{ PWMIJ_MISC_REG_AB,	   (0x1 << 1),	  (0x1 << 1), 0, 0, 0 },
+#ifdef CONFIG_PDVFS_ENABLE
+	{PWMGH_PWM_B, 0x8000a, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0},
+	{PWMGH_PWM_B, 0x5000d, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_2, 0},
+	{PWMGH_PWM_B, 0x20010, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0},
+#else
+	{PWMGH_PWM_B, VDDEE_VAL_REG, 0xffffffff, 0, 0, 0},
+#endif
+	{PWMIJ_PWM_B, VCCK_VAL_REG, 0xffffffff,	0, 0, 0},
+	{PWMGH_MISC_REG_AB, (0x1 << 1), (0x1 << 1), 0, 0, 0},
+	{PWMIJ_MISC_REG_AB, (0x1 << 1), (0x1 << 1), 0, 0, 0},
 	/* set pwm h and pwm j clock rate to 24M, enable them */
-	{ CLKCTRL_PWM_CLK_GH_CTRL, (1 << 24),	  0xffffffff, 0, 0, 0 },
-	{ CLKCTRL_PWM_CLK_IJ_CTRL, (1 << 24),	  0xffffffff, 0, 0, 0 },
+	{ CLKCTRL_PWM_CLK_GH_CTRL, (1 << 24), 0xffffffff, 0, 0, 0 },
+	{ CLKCTRL_PWM_CLK_IJ_CTRL, (1 << 24), 0xffffffff, 0, 0, 0 },
 	/* set GPIOE_0 GPIOE_1 drive strength to 3 */
-	{ PADCTRL_GPIOE_DS,	   0xf,		  0xf,	      0, 0, 0 },
+	{ PADCTRL_GPIOE_DS, 0xf, 0xf, 0, 0, 0 },
 	/* set GPIOE_0 GPIOE_1 mux to pwmh pwmj */
-	{ PADCTRL_PIN_MUX_REGI,	   (0x3 << 0),	  (0xf << 0), 0, 0, 0 },
-	{ PADCTRL_PIN_MUX_REGI,	   (0x3 << 4),	  (0xf << 4), 0, 0, 0 },
+	{ PADCTRL_PIN_MUX_REGI,	(0x3 << 0), (0xf << 0), 0, 0, 0 },
+	{ PADCTRL_PIN_MUX_REGI,	(0x3 << 4), (0xf << 4), 0, 0, 0 },
 };
 
 #define DEV_FIP_SIZE 0x300000
