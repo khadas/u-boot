@@ -377,7 +377,7 @@ static int read_fdto_partition(void)
 				"setenv dtbo_mem_addr 0x%p",
 				dtbo_mem_addr);
 				run_command(cmd, 0);
-				free(dtbo_mem_addr);
+				//free(dtbo_mem_addr);
 			}
 		}
 	}
