@@ -263,10 +263,10 @@ int amlmmc_erase_bootloader(int dev, int map)
 					blkcnt = CONFIG_EMMC_BOOT1_TOUCH_REGION >> blk_shift;
 				}
 #endif/* CONFIG_EMMC_BOOT1_TOUCH_REGION */
-#ifdef CONFIG_AML_GPT
-			if (i == 0)
-				continue;
-#endif
+
+				if (i == 0 && (aml_gpt_valid(mmc) == 0))
+					continue;
+
 				printf("Erasing blocks " LBAFU " to " LBAFU " @ %s\n",
 				   start, blkcnt, partname[i]);
 				n = blk_derase(mmc_get_blk_desc(mmc), start, blkcnt);
@@ -335,10 +335,9 @@ int amlmmc_write_bootloader(int dev, int map, unsigned int size, const void *src
 					break;
 				}
 #endif /* CONFIG_EMMC_BOOT1_TOUCH_REGION */
-#ifdef CONFIG_AML_GPT
-			if (i == 0)
-				continue;
-#endif
+				if (i == 0 && (aml_gpt_valid(mmc) == 0))
+					continue;
+
 				printf("Wrting blocks " LBAFU " to " LBAFU " @ %s\n",
 				   start, blkcnt, partname[i]);
 				n = blk_dwrite(mmc_get_blk_desc(mmc), start, blkcnt, src);

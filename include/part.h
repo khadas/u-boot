@@ -363,6 +363,13 @@ int gpt_restore(struct blk_desc *dev_desc, char *str_disk_guid,
 int is_valid_gpt_buf(struct blk_desc *dev_desc, void *buf);
 
 /**
+ * erase_gpt_part_table() - erase Primary GPT and Backup GPT
+ *
+ * @return - '0' on success, otherwise error
+ */
+int erase_gpt_part_table(struct blk_desc *dev_desc);
+
+/**
  * write_mbr_and_gpt_partitions() - write MBR, Primary GPT and Backup GPT
  *
  * @param dev_desc - block device descriptor

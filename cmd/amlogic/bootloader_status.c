@@ -11,6 +11,7 @@
 #include <amlogic/storage.h>
 #include <partition_table.h>
 #include <fastboot.h>
+#include <emmc_partitions.h>
 
 #ifndef IS_FEAT_BOOT_VERIFY
 #define IS_FEAT_BOOT_VERIFY() 0
@@ -232,6 +233,10 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	char *robustota = NULL;
 	char *mode = NULL;
 	char *update_env = NULL;
+	int ret = -1;
+#ifdef CONFIG_MMC_MESON_GX
+	struct mmc *mmc = find_mmc_device(1);
+#endif
 
 	//if recovery mode, need disable dv, if factoryreset, need default uboot env
 	aml_recovery();
@@ -246,6 +251,12 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	rebootstatus = env_get("reboot_status");
 	if (rebootstatus == NULL) {
 		env_set("reboot_status","reboot_init");
+		rebootstatus = env_get("reboot_status");
+	}
+
+	if (rebootstatus == NULL) {
+		printf("rebootstatus is NULL, skip check\n");
+		return -1;
 	}
 
 	//no secure check need
@@ -300,6 +311,7 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 
 	match_flag = strcmp(bootloaderindex, expect_index);
 
+
 	//first reboot, command from recovery, need reboot next
 	if (!strcmp(rebootstatus,"reboot_next")) {
 		wrnP("--secure check reboot_next---\n");
@@ -321,23 +333,36 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		} else {
 			wrnP("now ready start reboot next\n");
 			if (has_boot_slot == 1) {
-				write_bootloader_back(bootloaderindex, 0);
-#ifdef CONFIG_FASTBOOT
-				struct misc_virtual_ab_message message;
-				set_mergestatus_cancel(&message);
+#ifdef CONFIG_MMC_MESON_GX
+				if (mmc != NULL)
+					ret = aml_gpt_valid(mmc);
 #endif
-				if (strcmp(bootloaderindex, "1") == 0) {
-					wrnP("back to slot a\n");
-					run_command("set_active_slot a", 0);
-				} else if (strcmp(bootloaderindex, "2") == 0) {
-					wrnP("back to slot b\n");
-					run_command("set_active_slot b", 0);
+				if (ret == 0) {
+					wrnP("gpt mode\n");
+					env_set("reboot_status","reboot_finish");
+					run_command("saveenv", 0);
+					run_command("get_rebootmode", 0);
+					run_command("if test ${reboot_mode} = quiescent; then reboot next,quiescent; else reboot next; fi;", 0);
+				} else {
+					write_bootloader_back(bootloaderindex, 0);
+#ifdef CONFIG_FASTBOOT
+					struct misc_virtual_ab_message message;
+					set_mergestatus_cancel(&message);
+#endif
+					if (strcmp(bootloaderindex, "1") == 0) {
+						wrnP("back to slot a\n");
+						run_command("set_active_slot a", 0);
+					} else if (strcmp(bootloaderindex, "2") == 0) {
+						wrnP("back to slot b\n");
+						run_command("set_active_slot b", 0);
+					}
+
+					env_set("update_env","1");
+					env_set("reboot_status","reboot_next");
+					env_set("expect_index","0");
+					run_command("saveenv", 0);
+					run_command("reset", 0);
 				}
-				env_set("update_env","1");
-				env_set("reboot_status","reboot_next");
-				env_set("expect_index","0");
-				run_command("saveenv", 0);
-				run_command("reset", 0);
 			} else {
 				env_set("reboot_status","reboot_finish");
 				run_command("saveenv", 0);
@@ -355,7 +380,19 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 			wrnP("reboot next succ, bootloader secure check pass......\n");
 			if (has_boot_slot == 1) {
 				printf("ab mode, default all uboot env\n");
-				run_command("env default -a;saveenv;", 0);
+				update_env = env_get("update_env");
+				if (strcmp(update_env, "1") == 0) {
+					printf("ab mode, default all uboot env\n");
+					run_command("env default -a;", 0);
+					env_set("update_env","0");
+
+					if (strcmp(bootloaderindex, "2") == 0) {
+						wrnP("rom always boot as boot0--> boot1\n");
+						wrnP("So if boot1 is ok, write it to boot0\n");
+						run_command("copy_slot_bootable 2 1", 0);
+					}
+					run_command("saveenv", 0);
+				}
 			} else {
 				run_recovery_from_cache();
 				return 0;
@@ -367,7 +404,37 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 			run_command("saveenv", 0);
 			if (has_boot_slot == 1) {
 				wrnP("ab mode\n");
-				run_command("adnl", 0);
+#ifdef CONFIG_FASTBOOT
+				struct misc_virtual_ab_message message;
+				set_mergestatus_cancel(&message);
+#endif
+				if (strcmp(bootloaderindex, "1") == 0) {
+					wrnP("back to slot a\n");
+					run_command("set_active_slot a", 0);
+				} else if (strcmp(bootloaderindex, "2") == 0) {
+					wrnP("back to slot b\n");
+					run_command("set_active_slot b", 0);
+				}
+
+#ifdef CONFIG_MMC_MESON_GX
+				if (mmc != NULL)
+					ret = aml_gpt_valid(mmc);
+#endif
+
+				if (ret == 0) {
+					wrnP("gpt mode\n");
+					env_set("update_env","0");
+					env_set("reboot_status","reboot_init");
+					run_command("saveenv", 0);
+				} else {
+					write_bootloader_back(bootloaderindex, 0);
+					env_set("update_env","1");
+					env_set("reboot_status","reboot_next");
+					env_set("expect_index","0");
+					run_command("saveenv", 0);
+					run_command("reset", 0);
+				}
+
 			} else {
 				run_recovery_from_flash();
 				return 0;

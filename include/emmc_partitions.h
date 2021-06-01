@@ -270,6 +270,7 @@ extern int get_emmc_partition_arraysize(void);
  *	>= 0 means valid partition
  */
 extern int get_partition_num_by_name(char const *name);
+extern int aml_gpt_valid(struct mmc *mmc);
 
 struct partitions* find_mmc_partition_by_name (char const *name);
 struct partitions *aml_get_partition_by_name(const char *name);

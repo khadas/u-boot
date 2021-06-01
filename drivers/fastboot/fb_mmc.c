@@ -16,6 +16,7 @@
 #include <linux/compat.h>
 #include <android_image.h>
 #include <amlogic/aml_mmc.h>
+#include <emmc_partitions.h>
 
 #define FASTBOOT_MAX_BLK_WRITE 16384
 
@@ -400,6 +401,13 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 	struct blk_desc *dev_desc;
 	int ret = 0;
 	disk_partition_t info;
+	struct mmc *mmc = find_mmc_device(CONFIG_FASTBOOT_FLASH_MMC_DEV);
+
+	if (mmc == NULL) {
+		pr_err("invalid mmc device\n");
+		fastboot_fail("invalid mmc device", response);
+		return;
+	}
 
 	dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
 	if (!dev_desc || dev_desc->type == DEV_TYPE_UNKNOWN) {
@@ -461,13 +469,17 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 
 	if (strcmp(cmd, "dtb") == 0) {
 #ifndef DTB_BIND_KERNEL
+		erase_gpt_part_table(dev_desc);
 		ret = dtb_write(download_buffer);
 		if (ret)
 			fastboot_fail("fastboot write dtb fail", response);
 		else {
-			/* renew partition table @ once*/
-			if (renew_partition_tbl(download_buffer))
-				fastboot_fail("fastboot write dtb fail", response);
+			if (aml_gpt_valid(mmc) != 0) {
+				/* renew partition table @ once*/
+				printf("renew partition table\n");
+				if (renew_partition_tbl(download_buffer))
+					fastboot_fail("fastboot write dtb fail", response);
+			}
 			fastboot_okay("", response);
 		}
 #else
@@ -539,6 +551,19 @@ void fastboot_mmc_erase(const char *cmd, char *response)
 		fastboot_fail("invalid mmc device", response);
 		return;
 	}
+
+#if CONFIG_IS_ENABLED(EFI_PARTITION)
+		if (strcmp(cmd, CONFIG_FASTBOOT_GPT_NAME) == 0) {
+			printf("%s: erase gpt, cmd:%s\n", __func__, cmd);
+			ret = erase_gpt_part_table(dev_desc);
+			if (ret) {
+				fastboot_fail("failed erase gpt", response);
+				return;
+			}
+			fastboot_okay("", response);
+			return;
+		}
+#endif
 
 	if (strcmp(cmd, "dtb") == 0) {
 #ifndef DTB_BIND_KERNEL

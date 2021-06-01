@@ -296,7 +296,7 @@ static void download(char *cmd_parameter, char *response)
 {
 	char *tmp;
 
-	if (check_lock()) {
+	if (check_lock() == 1) {
 		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
 		fastboot_fail("locked device", response);
 		return;
@@ -414,11 +414,30 @@ static void flash(char *cmd_parameter, char *response)
 	char name[32] = {0};
 	u64 rc = 0;
 
-	if (check_lock()) {
+	if (check_lock() == 1) {
 		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
 		fastboot_fail("locked device", response);
 		return;
 	}
+
+	printf("cmd_parameter: %s\n", cmd_parameter);
+
+#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+	struct mmc *mmc = find_mmc_device(CONFIG_FASTBOOT_FLASH_MMC_DEV);
+	if ((mmc != NULL) && strcmp(cmd_parameter, "bootloader") == 0 && (aml_gpt_valid(mmc) == 0)) {
+		printf("we write gpt partition table to bootloader now\n");
+		printf("will write bootloader to bootloader-boot0/bootloader-boot1\n");
+#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
+		fastboot_mmc_flash_write("bootloader-boot0", fastboot_buf_addr, image_size,
+				 response);
+		fastboot_mmc_flash_write("bootloader-boot1", fastboot_buf_addr, image_size,
+				 response);
+#endif
+		env_set("default_env", "1");
+		run_command("saveenv;", 0);
+		return;
+	}
+#endif
 
 	if (strcmp(cmd_parameter, "avb_custom_key") == 0) {
 		char* buffer = NULL;
@@ -505,11 +524,23 @@ static void erase(char *cmd_parameter, char *response)
 	char name[32] = {0};
 	u64 rc = 0;
 
-	if (check_lock()) {
+	if (check_lock() == 1) {
 		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
 		fastboot_fail("locked device", response);
 		return;
 	}
+
+	printf("cmd_parameter: %s\n", cmd_parameter);
+
+#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+	struct mmc *mmc = find_mmc_device(CONFIG_FASTBOOT_FLASH_MMC_DEV);
+	if ((mmc != NULL) && strcmp(cmd_parameter, "bootloader") == 0 && (aml_gpt_valid(mmc) == 0)) {
+		printf("we write gpt partition table to bootloader now\n");
+		printf("plese write bootloader to bootloader-boot0/bootloader-boot1\n");
+		fastboot_okay("gpt mode, skip", response);
+		return;
+	}
+#endif
 
 	if (strcmp(cmd_parameter, "avb_custom_key") == 0) {
 		char* buffer = NULL;
@@ -599,7 +630,7 @@ static void set_active_cmd(char *cmd_parameter, char *response)
 	printf("cmd cb_set_active is %s\n", cmd_parameter);
 	cmd = cmd_parameter;
 
-	if (check_lock()) {
+	if (check_lock() == 1) {
 		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
 		fastboot_fail("locked device", response);
 		return;
@@ -629,7 +660,7 @@ static void snapshot_update_cmd(char *cmd_parameter, char *response)
 	printf("cmd snapshot_update_cmd is %s\n", cmd_parameter);
 	cmd = cmd_parameter;
 
-	if (check_lock()) {
+	if (check_lock() == 1) {
 		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
 		fastboot_fail("locked device", response);
 		return;
@@ -872,7 +903,7 @@ static void oem_cmd(char *cmd_parameter, char *response)
 		return;
 	}
 
-	if (check_lock()) {
+	if (check_lock() == 1) {
 		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
 		fastboot_fail("locked device", response);
 		return;
@@ -915,7 +946,7 @@ static void oem_format(char *cmd_parameter, char *response)
 		return;
 	}
 
-	if (check_lock()) {
+	if (check_lock() == 1) {
 		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
 		fastboot_fail("locked device", response);
 		return;

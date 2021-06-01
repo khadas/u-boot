@@ -412,6 +412,7 @@ int write_bootloader(int copy, int dstindex) {
         goto exit;
     }
     memset(buffer, 0, 0x2000 * 512);
+    printf("copy from boot%d to boot%d\n", copy, dstindex);
     iRet = store_boot_read("bootloader", copy, 0, buffer);
     if (iRet) {
         printf("Fail read bootloader from rsv with sz\n");
@@ -483,6 +484,11 @@ static int do_GetValidSlot(
         env_set("partiton_mode","dynamic");
     else
         env_set("partiton_mode","normal");
+
+    if (gpt_partition)
+        env_set("gpt_mode","true");
+    else
+        env_set("gpt_mode","false");
 
     if (vendor_boot_partition) {
         env_set("vendor_boot_mode","true");
@@ -611,6 +617,101 @@ static int do_SetActiveSlot(
     return 0;
 }
 
+static int do_SetUpdateTries(
+    cmd_tbl_t * cmdtp,
+    int flag,
+    int argc,
+    char * const argv[])
+{
+    char miscbuf[MISCBUF_SIZE] = {0};
+    bootloader_control boot_ctrl;
+    bool bootable_a, bootable_b;
+    int slot;
+
+    boot_info_open_partition(miscbuf);
+    boot_info_load(&boot_ctrl, miscbuf);
+
+    if (!boot_info_validate(&boot_ctrl)) {
+        printf("boot-info is invalid. Resetting\n");
+        boot_info_reset(&boot_ctrl);
+        boot_info_save(&boot_ctrl, miscbuf);
+    }
+
+    slot = get_active_slot(&boot_ctrl);
+    bootable_a = slot_is_bootable(&(boot_ctrl.slot_info[0]));
+    bootable_b = slot_is_bootable(&(boot_ctrl.slot_info[1]));
+
+    if (slot == 0) {
+        if (bootable_a) {
+            if (boot_ctrl.slot_info[0].successful_boot == 0)
+                boot_ctrl.slot_info[0].tries_remaining -= 1;
+        }
+    }
+
+    if (slot == 1) {
+        if (bootable_b) {
+            if (boot_ctrl.slot_info[1].successful_boot == 0)
+                boot_ctrl.slot_info[1].tries_remaining -= 1;
+        }
+    }
+
+    boot_info_save(&boot_ctrl, miscbuf);
+    return 0;
+}
+
+static int do_CopySlot(
+    cmd_tbl_t * cmdtp,
+    int flag,
+    int argc,
+    char * const argv[])
+{
+    char miscbuf[MISCBUF_SIZE] = {0};
+    bootloader_control boot_ctrl;
+    int copy = -1;
+    int dest = -1;
+
+    boot_info_open_partition(miscbuf);
+    boot_info_load(&boot_ctrl, miscbuf);
+
+    if (!boot_info_validate(&boot_ctrl)) {
+        printf("boot-info is invalid. Resetting\n");
+        boot_info_reset(&boot_ctrl);
+        boot_info_save(&boot_ctrl, miscbuf);
+    }
+
+    if (strcmp(argv[1], "1") == 0) {
+        copy = 1;
+    } else if (strcmp(argv[1], "2") == 0) {
+        copy = 2;
+    } else if (strcmp(argv[1], "0") == 0) {
+        copy = 0;
+    }
+
+    if (strcmp(argv[2], "1") == 0) {
+        dest = 1;
+    } else if (strcmp(argv[2], "2") == 0) {
+        dest = 2;
+    } else if (strcmp(argv[2], "0") == 0) {
+        dest = 0;
+    }
+
+    if (copy == 1) {
+        if (boot_ctrl.slot_info[0].successful_boot == 1)
+            write_bootloader(copy, dest);
+    } else if (copy == 2){
+        if (boot_ctrl.slot_info[1].successful_boot == 1) {
+            write_bootloader(copy, dest);
+        } else {
+            env_set("update_env","1");
+            env_set("reboot_status","reboot_next");
+            env_set("expect_index","2");
+            run_command("saveenv", 0);
+        }
+    }
+
+    return 0;
+}
+
 int do_GetSystemMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #ifdef CONFIG_SYSTEM_AS_ROOT
@@ -649,6 +750,20 @@ U_BOOT_CMD(
     "set_active_slot",
     "\nThis command will set active slot\n"
     "So you can execute command: set_active_slot a"
+);
+
+U_BOOT_CMD(
+    copy_slot_bootable, 3, 1, do_CopySlot,
+    "copy_slot_bootable",
+    "\nThis command will set active slot\n"
+    "So you can execute command: copy_slot_bootable 2 1"
+);
+
+U_BOOT_CMD(
+    update_tries, 2, 0, do_SetUpdateTries,
+    "update_tries",
+    "\nThis command will change tries_remaining in misc\n"
+    "So you can execute command: update_tries"
 );
 
 U_BOOT_CMD(

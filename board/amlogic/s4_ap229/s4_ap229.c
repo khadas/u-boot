@@ -180,6 +180,7 @@ int board_late_init(void)
 	cvbs_init();
 #endif
 	run_command("amlsecurecheck", 0);
+	run_command("update_tries", 0);
 	return 0;
 }
 

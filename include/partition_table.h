@@ -61,6 +61,7 @@ extern int has_boot_slot;
 extern int has_system_slot;
 extern bool dynamic_partition;
 extern bool vendor_boot_partition;
+extern bool gpt_partition;
 
 extern int get_partition_from_dts(unsigned char * buffer);
 

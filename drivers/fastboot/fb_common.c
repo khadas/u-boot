@@ -157,7 +157,7 @@ int get_mergestatus(struct misc_virtual_ab_message *message)
 	run_command("get_valid_slot", 0);
 	int current_slot = 0;
 	char *slot;
-	slot = getenv("slot-suffixes");
+	slot = env_get("slot-suffixes");
 	if (strcmp(slot, "0") == 0) {
 		current_slot = 0;
 	} else if (strcmp(slot, "1") == 0) {

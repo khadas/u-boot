@@ -479,9 +479,9 @@ uint8_t mmc_storage_get_copies(const char *part_name) {
 
 uint64_t mmc_get_copy_size(const char *part_name) {
 
-#ifdef CONFIG_AML_GPT
-	return UBOOT_SIZE*512;
-#else
+//#ifdef CONFIG_AML_GPT
+//	return UBOOT_SIZE*512;
+//#else
 	struct partitions *part_info = NULL;
 	part_info = find_mmc_partition_by_name("bootloader");
 	if (part_info == NULL) {
@@ -489,7 +489,7 @@ uint64_t mmc_get_copy_size(const char *part_name) {
 		return -1;
 	}
 	return part_info->size;
-#endif
+//#endif
 }
 
 /* dtb read&write operation with backup updates */
@@ -583,6 +583,9 @@ int mmc_boot_read(const char *part_name, uint8_t cpy, size_t size, void *dest) {
 
 	char ret=1;
 	int i;
+	struct mmc *mmc;
+
+	mmc = find_mmc_device(STORAGE_EMMC);
 
 	if (cpy == 0)
 		cpy = 1;
@@ -597,10 +600,10 @@ int mmc_boot_read(const char *part_name, uint8_t cpy, size_t size, void *dest) {
 		if (cpy & 1) {
 			ret = blk_select_hwpart_devnum(IF_TYPE_MMC, STORAGE_EMMC, i);
 			if (ret) goto R_SWITCH_BACK;
-#ifdef CONFIG_AML_GPT
-			if (i == 0)
+
+			if (mmc != NULL && i == 0 && aml_gpt_valid(mmc) == 0)
 				continue;
-#endif
+
 			ret = storage_read_in_part(part_name, 0, size, dest);
 
 			if (ret != 0) {
@@ -650,10 +653,10 @@ int mmc_boot_write(const char *part_name, uint8_t cpy, size_t size, void *source
 				size = CONFIG_EMMC_BOOT1_TOUCH_REGION;
 			}
 #endif
-#ifdef CONFIG_AML_GPT
-			if (i == 0)
+
+			if (mmc != NULL && i == 0 && aml_gpt_valid(mmc) == 0)
 				continue;
-#endif
+
 			ret = storage_write_in_part(part_name, 0, size, source);
 
 			if (ret != 0) {
@@ -683,6 +686,9 @@ int mmc_boot_erase(const char *part_name, uint8_t cpy) {
 	char ret=1;
 	int i;
 	size_t size = 0;
+	struct mmc *mmc;
+
+	mmc = find_mmc_device(STORAGE_EMMC);
 
 	if (cpy == 0)
 		cpy = 1;
@@ -702,10 +708,10 @@ int mmc_boot_erase(const char *part_name, uint8_t cpy) {
 				size = CONFIG_EMMC_BOOT1_TOUCH_REGION;
 			}
 #endif
-#ifdef CONFIG_AML_GPT
-			if (i == 0)
+
+			if (mmc != NULL && i == 0 && aml_gpt_valid(mmc) == 0)
 				continue;
-#endif
+
 			ret = storage_erase_in_part(part_name, 0, size);
 
 			if (ret != 0) {
