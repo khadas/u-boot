@@ -838,7 +838,8 @@ static void bl_config_print(struct aml_bl_drv_s *bdrv)
 			bl_pwm = bconf->bl_pwm;
 			BLPR("pwm_index     = %d\n", bl_pwm->index);
 			BLPR("pwm_method    = %d\n", bl_pwm->pwm_method);
-			BLPR("pwm_port      = 0x%x\n", bl_pwm->pwm_port);
+			BLPR("pwm_port      = %s(0x%x)\n",
+			     bl_pwm_num_to_str(bl_pwm->pwm_port), bl_pwm->pwm_port);
 			if (bl_pwm->pwm_port == BL_PWM_VS) {
 				BLPR("pwm_freq      = %d x vfreq\n", bl_pwm->pwm_freq);
 				BLPR("pwm_cnt       = %u\n", bl_pwm->pwm_cnt);
@@ -859,7 +860,7 @@ static void bl_config_print(struct aml_bl_drv_s *bdrv)
 				BLPR("pwm_cnt       = %u\n", bl_pwm->pwm_cnt);
 				BLPR("pwm_pre_div   = %u\n", bl_pwm->pwm_pre_div);
 				if (bl_pwm->pwm_duty_max > 100) {
-					BLPR("pwm_duty 	 = %d%%(%d)\n",
+					BLPR("pwm_duty      = %d%%(%d)\n",
 					     bl_pwm->pwm_duty * 100 / 255, bl_pwm->pwm_duty);
 				} else {
 					BLPR("pwm_duty      = %d%%(%d)\n",
@@ -883,7 +884,8 @@ static void bl_config_print(struct aml_bl_drv_s *bdrv)
 			bl_pwm = bconf->bl_pwm_combo0;
 			BLPR("pwm_combo0_index    = %d\n", bl_pwm->index);
 			BLPR("pwm_combo0_method   = %d\n", bl_pwm->pwm_method);
-			BLPR("pwm_combo0_port     = 0x%x\n", bl_pwm->pwm_port);
+			BLPR("pwm_combo0_port     = %s(0x%x)\n",
+			     bl_pwm_num_to_str(bl_pwm->pwm_port), bl_pwm->pwm_port);
 			if (bl_pwm->pwm_port == BL_PWM_VS) {
 				BLPR("pwm_combo0_freq     = %d x vfreq\n", bl_pwm->pwm_freq);
 				BLPR("pwm_combo0_cnt      = %u\n", bl_pwm->pwm_cnt);
@@ -921,7 +923,8 @@ static void bl_config_print(struct aml_bl_drv_s *bdrv)
 			bl_pwm = bconf->bl_pwm_combo1;
 			BLPR("pwm_combo1_index    = %d\n", bl_pwm->index);
 			BLPR("pwm_combo1_method   = %d\n", bl_pwm->pwm_method);
-			BLPR("pwm_combo1_port     = 0x%x\n", bl_pwm->pwm_port);
+			BLPR("pwm_combo1_port     = %s(0x%x)\n",
+			     bl_pwm_num_to_str(bl_pwm->pwm_port), bl_pwm->pwm_port);
 			if (bl_pwm->pwm_port == BL_PWM_VS) {
 				BLPR("pwm_combo1_freq     = %d x vfreq\n", bl_pwm->pwm_freq);
 				BLPR("pwm_combo1_cnt      = %u\n", bl_pwm->pwm_cnt);

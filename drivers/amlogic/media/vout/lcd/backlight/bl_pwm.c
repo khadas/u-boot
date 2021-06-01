@@ -633,7 +633,7 @@ void bl_pwm_reg_print(struct bl_pwm_config_s *bl_pwm)
 		return;
 	}
 
-	BLPR("pwm_reg = 0x%08x\n", lcd_cbus_read(pwm_reg[port]));
+	BLPR("pwm_reg    = 0x%08x\n", lcd_cbus_read(pwm_reg[port]));
 }
 
 int aml_bl_pwm_reg_config_init(struct aml_lcd_data_s *pdata)
