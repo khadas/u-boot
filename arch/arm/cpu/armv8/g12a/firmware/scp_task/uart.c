@@ -48,6 +48,14 @@
 #define P_UART_CTRL(uart_base)		P_UART(uart_base, UART_CTRL)
 #define P_UART_STATUS(uart_base)	P_UART(uart_base, UART_STATUS)
 
+#define ADDR_IS_FEAT_DISABLE_PRINT 	EFUSE_LIC0
+#define FEAT_DISABLE_PRINT    22
+
+int IS_FEAT_DIS_PRINT(void)
+{
+	return ((readl(ADDR_IS_FEAT_DISABLE_PRINT) >> FEAT_DISABLE_PRINT) & 1);
+}
+
 static int uart_tx_isfull(void)
 {
 	return readl(P_UART_STATUS(UART_PORT_CONS)) &
@@ -61,6 +69,10 @@ void wait_uart_empty(void)
 		;
 #else
 	unsigned int count=0;
+
+	if (IS_FEAT_DIS_PRINT())
+		return;
+
 	do {
 		if ((readl(P_UART_STATUS(UART_PORT_CONS)) & (1 << 22)) == 0)
 			_udelay(4);
@@ -73,6 +85,9 @@ void wait_uart_empty(void)
 
 void uart_tx_flush(void)
 {
+	if (IS_FEAT_DIS_PRINT())
+		return;
+
 	while (!(readl(P_UART_STATUS(UART_PORT_CONS)) &
 		UART_STAT_MASK_TFIFO_EMPTY))
 		;
@@ -80,6 +95,9 @@ void uart_tx_flush(void)
 
 int uart_putc(int c)
 {
+	if (IS_FEAT_DIS_PRINT())
+		return 0;
+
 	if (c == '\n')
 		uart_putc('\r');
 
@@ -95,6 +113,9 @@ int uart_putc(int c)
 
 int uart_puts(const char *s)
 {
+	if (IS_FEAT_DIS_PRINT())
+		return 0;
+
 	while (*s)
 		uart_putc(*s++);
 	return 1;
@@ -104,6 +125,10 @@ void uart_put_hex(unsigned int data, unsigned bitlen)
 {
 	int i;
 	unsigned char s;
+
+	if (IS_FEAT_DIS_PRINT())
+		return;
+
 	for (i = bitlen - 4; i >= 0; i -= 4) {
 		if ((data >> i) == 0) {
 			uart_putc(0x30);

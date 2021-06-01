@@ -23,6 +23,10 @@ enum scpi_client_id {
 	SCPI_CL_POWER,
 	SCPI_CL_THERMAL,
 	SCPI_CL_REMOTE,
+	SCPI_CL_LED_TIMER,
+	SCPI_CL_SET_CEC_DATA,
+	SCPI_CL_UPDATE_PHY_ADDR,
+	SCPI_CL_UART,
 	SCPI_MAX,
 };
 
@@ -137,6 +141,7 @@ void high_task(void)
 }
 
 extern unsigned int usr_pwr_key;
+extern int uart_disable;
 void process_low_task(unsigned command)
 {
 	unsigned *pcommand =
@@ -153,6 +158,10 @@ void process_low_task(unsigned command)
 		if ((command >> 16) == SCPI_CL_REMOTE) {
 			usr_pwr_key = *(pcommand + 2);/*tx_size locates at *(pcommand + 1)*/
 			dbg_print("pwr_key=",usr_pwr_key);
+		}
+		else if ((command >> 16) == SCPI_CL_UART) {
+			dbg_print("uart_disable=", *(pcommand + 2));
+			uart_disable = *(pcommand + 2);
 		}
 	}
 }
