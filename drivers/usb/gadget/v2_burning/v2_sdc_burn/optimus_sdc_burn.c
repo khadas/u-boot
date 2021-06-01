@@ -12,14 +12,13 @@
 
 static int is_bootloader_old(void)
 {
-    const int sdc_boot = is_tpl_loaded_from_ext_sdmmc();
-    const int usbDiskNewBoot = env_get_hex("usbDiskNewBoot", 0);//default old
+    if (is_tpl_loaded_from_ext_sdmmc()) return 0;
 
-    switch (optimus_work_mode_get()) {
-        case OPTIMUS_WORK_MODE_SDC_PRODUCE: return !sdc_boot;
-        case OPTIMUS_WORK_MODE_UDISK_PRODUCE: return !usbDiskNewBoot;
-        default: return 1;//default old
+    if (OPTIMUS_WORK_MODE_UDISK_PRODUCE == optimus_work_mode_get()) {
+        return !env_get_hex("usbDiskNewBoot", 0);//default old
     }
+
+    return 0;
 }
 
 int get_burn_parts_from_img(HIMAGE hImg, ConfigPara_t* pcfgPara)
@@ -385,6 +384,20 @@ int optimus_sdc_burn_dtb_load(HIMAGE hImg)
         wrLen = optimus_download_img_data(dtbTransferBuf, (unsigned)itemSz, errInfo);
         rc = (wrLen == itemSz) ? 0 : __LINE__;
     }
+    if (!rc) {
+        extern int check_valid_dts(unsigned char *buffer);
+        rc =  check_valid_dts(dtbTransferBuf);
+        DWN_MSG("check dts: rc %d\n", rc);
+        if (!rc) {
+#ifdef CONFIG_MULTI_DTB
+            extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
+            dtbTransferBuf = (unsigned char *)get_multi_dt_entry((unsigned long)dtbTransferBuf);
+#endif
+            unsigned fdtsz    = fdt_totalsize((char*)dtbTransferBuf);
+            DWN_MSG("local upgrade dts/sz 0x%p/0x%x\n", (char*)OPTIMUS_DTB_LOAD_ADDR, fdtsz);
+            memmove((char*)OPTIMUS_DTB_LOAD_ADDR, dtbTransferBuf, fdtsz);
+        }
+    }
 
     return rc;
 }
@@ -634,6 +647,8 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
     int hasBootloader = 0;
     u64 datapartsSz = 0;
     int eraseFlag = pSdcCfgPara->custom.eraseFlash;
+    const int eraseBootloader = pSdcCfgPara->custom.eraseBootloader;
+    const int usbDiskUpgrade = (OPTIMUS_WORK_MODE_UDISK_PRODUCE == optimus_work_mode_get());
 
     optimus_buf_manager_init(16*1024);
     hImg = image_open("mmc", "0", "1", cfgFile);
@@ -665,8 +680,6 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
         DWN_ERR("Fail to open image %s\n", pkgPath);
         ret = __LINE__; goto _finish;
     }
-    const int eraseBootloader = pSdcCfgPara->custom.eraseBootloader;
-    const int usbDiskUpgrade = (OPTIMUS_WORK_MODE_UDISK_PRODUCE == optimus_work_mode_get());
     if (eraseBootloader && is_bootloader_old())
     {
         if (usbDiskUpgrade) {//upgrade new bootloader
@@ -743,7 +756,7 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
         ret = optimus_storage_init(0);
         if (ret) {
             DWN_ERR("FAil in init flash for usb upgrade\n");
-            return __LINE__;
+            ret = __LINE__; goto _finish;
         }
 
         DWN_MSG("store_get_type %d\n", store_get_type());
@@ -763,7 +776,7 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
         DWN_MSG("to erase ddr parameters\n");
         if (store_ddr_parameter_erase()) {
             DWN_ERR("Fail in erase ddr parameters\n");
-            return -__LINE__;
+            ret = __LINE__; goto _finish;
         }
     }
 #endif

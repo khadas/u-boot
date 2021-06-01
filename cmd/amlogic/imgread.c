@@ -14,9 +14,10 @@
 #include <amlogic/aml_efuse.h>
 #include <malloc.h>
 #include <emmc_partitions.h>
+#include <version.h>
 
 #ifndef IS_FEAT_BOOT_VERIFY
-#define IS_FEAT_BOOT_VERIFY() 0
+//#define IS_FEAT_BOOT_VERIFY() 0 //always undefined as IS_FEAT_BOOT_VERIFY is function not marco
 #endif// #ifndef IS_FEAT_BOOT_VERIFY
 int __attribute__((weak)) store_logic_read(const char *name, loff_t off, size_t size, void *buf)
 { return store_read(name, off, size, buf);}
@@ -105,8 +106,16 @@ static int _aml_get_secure_boot_kernel_size(const void* pLoadaddr, unsigned* pTo
     unsigned secureKernelImgSz = 2048;
     unsigned int nBlkCnt = 0;
     const t_aml_enc_blk* pBlkInf = NULL;
-    const int isSecure = IS_FEAT_BOOT_VERIFY();
+    int isSecure = 0;
     unsigned char *pAndHead = (unsigned char *)pLoadaddr;
+
+#ifdef CONFIG_AVB2
+    if (strcmp(CONFIG_AVB2, "avb2")) {//no avb2
+        isSecure = IS_FEAT_BOOT_VERIFY();
+    } else isSecure = 0;//donnot decrypt kernel/dtb if avb2 enabled
+#else
+    isSecure = IS_FEAT_BOOT_VERIFY();
+#endif//#ifdef CONFIG_AVB2
 
     if (is_andr_9_image(pAndHead))
     {
