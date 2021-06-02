@@ -247,7 +247,7 @@ static const struct mtd_partition spinand_partitions[] = {
 	{
 		.name = "dspA",
 		.offset = 0,
-		.size = 16 * SZ_1M,
+		.size = 20 * SZ_1M,
 	},
 	{
 		.name = "dspB",

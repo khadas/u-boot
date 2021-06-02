@@ -56,6 +56,8 @@
         "os_ident_addr=0x00500000\0"\
         "loadaddr_rtos=0x00001000\0"\
         "loadaddr_kernel=0x00020000\0"\
+        "loadaddrdspa_ddr=0x3400000\0"\
+        "loadaddrdspa_psram=0x3c0000\0"\
         "otg_device=1\0" \
         "panel_type=lcd_1\0" \
         "outputmode=1080p60hz\0" \
@@ -83,6 +85,7 @@
         "osd_reverse=0\0"\
         "video_reverse=0\0"\
         "boot_part=boot\0"\
+        "dsp_part=dspA\0"\
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
         "get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
@@ -127,11 +130,18 @@
                 "fastboot;"\
             "fi;fi;fi;fi;fi;fi;"\
             "\0" \
+	"dspaboot_psram="\
+	    "dcache off;store read ${loadaddrdspa_psram} ${dsp_part} 0 0x2a0000;dspset 0 2 1;dsprun 0 ${loadaddrdspa_psram};dcache on;" \
+            "\0" \
+	"dspaboot_ddr="\
+	    "dcache off;store read ${loadaddrdspa_ddr} ${dsp_part} 0 0x1400000;dspset 0 2 1;dsprun 0 ${loadaddrdspa_ddr};dcache on;" \
+            "\0" \
         "storeboot="\
+			"run dspaboot_ddr;" \
             "run get_os_type;"\
             "if test ${os_type} = rtos; then "\
                 "setenv loadaddr ${loadaddr_rtos};"\
-                "store read ${loadaddr} ${boot_part} 0 0x400000;"\
+                "store read ${loadaddr} ${boot_part} 0 0x1000000;"\
                 "bootm ${loadaddr};"\
             "else if test ${os_type} = kernel; then "\
                 "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
