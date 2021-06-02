@@ -207,7 +207,7 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	{.panel_type = "invalid"},
 };
 
-static struct lcd_pinmux_ctrl_s lcd0_pinmux_ctrl[LCD_PINMX_MAX] = {
+static struct lcd_pinmux_ctrl_s lcd0_pinmux_ctrl[LCD_PINMUX_MAX] = {
 	{
 		.name = "lcd_vbyone_pin", //GPIOH_0/8
 		.pinmux_set = {{0x7, 0x4}, {0x8, 0x4}, {LCD_PINMUX_END, 0x0}},
@@ -248,6 +248,24 @@ static struct lcd_pinmux_ctrl_s lcd0_bl_pinmux_ctrl[BL_PINMUX_MAX] = {
 		.name = "invalid",
 	},
 };
+
+#ifdef CONFIG_AML_LCD_BL_LDIM
+static struct lcd_pinmux_ctrl_s lcd0_ldim_pinmux_ctrl[BL_PINMUX_MAX] = {
+	{
+		.name = "ldim_pwm_pin", /*GPIOH_12*/
+		.pinmux_set = {{0x8, 0x40000}, {LCD_PINMUX_END, 0x0} },
+		.pinmux_clr = {{0x8, 0xf0000}, {LCD_PINMUX_END, 0x0} },
+	},
+	{
+		.name = "ldim_pwm_vs_pin", //GPIOH_12
+		.pinmux_set = {{0x8, 0x30000}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{0x8, 0xf0000}, {LCD_PINMUX_END, 0x0}},
+	},
+	{
+		.name = "invalid",
+	},
+};
+#endif
 
 #ifdef CONFIG_AML_LCD_EXTERN
 static char lcd0_ext_gpio[LCD_EXTERN_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
@@ -395,6 +413,9 @@ static struct lcd_dft_config_s lcd_dft_conf[] = {
 #endif
 		.bl_gpio = lcd0_bl_gpio,
 		.bl_pinmux = lcd0_bl_pinmux_ctrl,
+#ifdef CONFIG_AML_LCD_BL_LDIM
+		.ldim_pinmux = lcd0_ldim_pinmux_ctrl,
+#endif
 	},
 	{//index 1
 		.lcd_gpio = lcd1_cpu_gpio,

@@ -86,7 +86,7 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	{.panel_type = "invalid"},
 };
 
-static struct lcd_pinmux_ctrl_s lcd0_pinmux_ctrl[LCD_PINMX_MAX] = {
+static struct lcd_pinmux_ctrl_s lcd0_pinmux_ctrl[LCD_PINMUX_MAX] = {
 	{
 		.name = "lcd_vbyone_pin", //GPIOH_0/8
 		.pinmux_set = {{0x7, 0x4}, {0x8, 0x4}, {LCD_PINMUX_END, 0x0}},

@@ -401,13 +401,15 @@ static void spicc_chipselect(struct udevice *dev, bool select)
 	dm_gpio_set_value(&spicc->cs_gpios[cs], level);
 }
 
-static int spicc_claim_bus(struct udevice *bus)
+static int spicc_claim_bus(struct udevice *dev)
 {
+	spicc_chipselect(dev, 1);
 	return 0;
 }
 
-static int spicc_release_bus(struct udevice *bus)
+static int spicc_release_bus(struct udevice *dev)
 {
+	spicc_chipselect(dev, 0);
 	return 0;
 }
 

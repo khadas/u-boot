@@ -18,11 +18,5 @@ void bl_pwm_en(struct bl_pwm_config_s *bl_pwm, int flag);
 void bl_pwm_config_init(struct bl_pwm_config_s *bl_pwm);
 void bl_pwm_reg_print(struct bl_pwm_config_s *bl_pwm);
 
-#ifdef CONFIG_AML_LOCAL_DIMMING
-int ldim_config_load_from_dts(char *dt_addr, int child_offset);
-int ldim_config_load_from_unifykey(unsigned char *para);
-int ldim_config_load(char *dt_addr);
-#endif
-
 #endif
 

@@ -8,45 +8,31 @@
 #include <spi.h>
 #include <amlogic/media/vout/lcd/bl_ldim.h>
 
-void ldim_set_gpio(int index, int value);
-unsigned int ldim_get_gpio(int index);
-void ldim_set_duty_pwm(struct bl_pwm_config_s *bl);
+void ldim_gpio_set(struct ldim_dev_driver_s *dev_drv, int index, int value);
+int ldim_gpio_get(struct ldim_dev_driver_s *dev_drv, int index);
+void ldim_set_duty_pwm(struct bl_pwm_config_s *bl_pwm);
+void ldim_pwm_off(struct bl_pwm_config_s *bl_pwm);
 
-extern int ldim_spi_write(struct spi_slave *spi, unsigned char *tbuf, int tlen);
-extern int ldim_spi_read(struct spi_slave *spi, unsigned char *tbuf, int tlen,
-		unsigned char *rbuf, int rlen);
-extern int ldim_spi_driver_add(struct aml_ldim_driver_s *ldim_drv);
-extern int ldim_spi_driver_remove(struct aml_ldim_driver_s *ldim_drv);
+int ldim_spi_write(struct spi_slave *spi, unsigned char *tbuf, int tlen);
+int ldim_spi_read(struct spi_slave *spi, unsigned char *tbuf, int tlen,
+		  unsigned char *rbuf, int rlen);
+int ldim_spi_read_sync(struct spi_slave *spi, unsigned char *tbuf,
+		       unsigned char *rbuf, int len);
+int ldim_spi_driver_add(struct ldim_dev_driver_s *dev_drv);
+int ldim_spi_driver_remove(struct ldim_dev_driver_s *dev_drv);
 
 /* ldim device probe function */
-#ifdef CONFIG_AML_LOCAL_DIMMING_IW7019
-int ldim_dev_iw7019_probe(struct aml_ldim_driver_s *ldim_drv);
-int ldim_dev_iw7019_remove(struct aml_ldim_driver_s *ldim_drv);
+#ifdef CONFIG_AML_LCD_BL_LDIM_IW7027
+int ldim_dev_iw7027_probe(struct aml_ldim_driver_s *ldim_drv);
+int ldim_dev_iw7027_remove(struct aml_ldim_driver_s *ldim_drv);
 #endif
 
-#ifdef CONFIG_AML_LOCAL_DIMMING_IW7027
-extern int ldim_dev_iw7027_probe(struct aml_ldim_driver_s *ldim_drv);
-extern int ldim_dev_iw7027_remove(struct aml_ldim_driver_s *ldim_drv);
+#ifdef CONFIG_AML_LCD_BL_LDIM_OB3350
+int ldim_dev_ob3350_probe(struct aml_ldim_driver_s *ldim_drv);
+int ldim_dev_ob3350_remove(struct aml_ldim_driver_s *ldim_drv);
 #endif
 
-#ifdef CONFIG_AML_LOCAL_DIMMING_IW7027_HE
-int ldim_dev_iw7027_he_probe(struct aml_ldim_driver_s *ldim_drv);
-int ldim_dev_iw7027_he_remove(struct aml_ldim_driver_s *ldim_drv);
-#endif
-
-#ifdef CONFIG_AML_LOCAL_DIMMING_IW7038
-int ldim_dev_iw7038_probe(struct aml_ldim_driver_s *ldim_drv);
-int ldim_dev_iw7038_remove(struct aml_ldim_driver_s *ldim_drv);
-#endif
-
-#ifdef CONFIG_AML_LOCAL_DIMMING_OB3350
-extern int ldim_dev_ob3350_probe(struct aml_ldim_driver_s *ldim_drv);
-extern int ldim_dev_ob3350_remove(struct aml_ldim_driver_s *ldim_drv);
-#endif
-
-#ifdef CONFIG_AML_LOCAL_DIMMING_GLOBAL
 int ldim_dev_global_probe(struct aml_ldim_driver_s *ldim_drv);
 int ldim_dev_global_remove(struct aml_ldim_driver_s *ldim_drv);
-#endif
 
 #endif

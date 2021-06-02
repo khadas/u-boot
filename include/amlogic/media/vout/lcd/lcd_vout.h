@@ -398,6 +398,7 @@ struct lcd_power_ctrl_s {
 };
 
 #define LCD_PINMX_MAX              10
+#define LCD_PINMUX_MAX             LCD_PINMX_MAX
 #define BL_PINMUX_MAX              20
 #define LCD_PINMUX_NAME_LEN_MAX    30
 struct lcd_pinmux_ctrl_s {
@@ -469,6 +470,10 @@ struct lcd_dft_config_s {
 
 	char (*bl_gpio)[LCD_CPU_GPIO_NAME_MAX];
 	struct lcd_pinmux_ctrl_s *bl_pinmux;
+#ifdef CONFIG_AML_LCD_BL_LDIM
+	char (*ldim_gpio)[LCD_CPU_GPIO_NAME_MAX];
+	struct lcd_pinmux_ctrl_s *ldim_pinmux;
+#endif
 };
 
 struct aml_lcd_data_s {

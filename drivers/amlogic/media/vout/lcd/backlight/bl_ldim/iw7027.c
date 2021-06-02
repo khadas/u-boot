@@ -10,131 +10,322 @@
 #include <fdtdec.h>
 #include <amlogic/media/vout/lcd/aml_lcd.h>
 #include <amlogic/media/vout/lcd/bl_ldim.h>
-#include "../lcd_reg.h"
-#include "../lcd_common.h"
+#include "../../lcd_common.h"
 #include "ldim_drv.h"
 #include "ldim_dev_drv.h"
 
-#define NORMAL_MSG            (0<<7)
-#define BROADCAST_MSG         (1<<7)
-#define BLOCK_DATA            (0<<6)
-#define SINGLE_DATA           (1<<6)
-#define IW7027_DEV_ADDR        1
+#define NORMAL_MSG            (0 << 7)
+#define BROADCAST_MSG         BIT(7)
+#define BLOCK_DATA            (0 << 6)
+#define SINGLE_DATA           BIT(6)
 
-static int iw7027_on_flag;
+#define IW7027_REG_MAX        0x100
 
-struct iw7027 {
-	int cs_hold_delay;
-	int cs_clk_delay;
-	unsigned char cmd_size;
-	unsigned char *init_data;
-	unsigned int init_data_cnt;
-	struct spi_slave *spi;
+struct iw7027_s {
+	unsigned int dev_on_flag;
+
+	unsigned int reg_buf_size;
+	unsigned int tbuf_size;
+	unsigned int rbuf_size;
+
+	unsigned char *reg_buf; /* local dimming driver smr api usage */
+
+	/* spi api internal used, don't use outside!!! */
+	unsigned char *tbuf;
+	unsigned char *rbuf;
 };
-static struct iw7027 *bl_iw7027;
 
-static unsigned char *val_brightness;
+static struct iw7027_s *bl_iw7027;
 
-#if 0
-static unsigned char iw7027_init_data[LDIM_INIT_ON_SIZE] = {
-	0xc0, 0x23, 0x03,
-	0xc0, 0x24, 0xff,
-	0xc0, 0x25, 0x00,
-	0xc0, 0x26, 0x00,
-	0xc0, 0x27, 0x60,
-	0xc0, 0x29, 0x00,
-	0xc0, 0x2a, 0x00,
-	0xc0, 0x2b, 0x00,
-	0xc0, 0x2c, 0x73,
-	0xc0, 0x2d, 0x37,
-	0xc0, 0x31, 0x93,
-	0xc0, 0x32, 0x0f,
-	0xc0, 0x33, 0xff,
-	0xc0, 0x34, 0xc8,
-	0xc0, 0x35, 0xbf,
-	0xff, 0x00, 0x00,
-};
-#endif
-
-//iw7027 register write
-static int iw7027_wreg(struct spi_slave *spi, unsigned char addr, unsigned char val)
+/* write single device */
+static int spi_wregs(struct spi_slave *spi, unsigned char chip_id, unsigned int chip_cnt,
+		       unsigned char reg, unsigned char *data_buf, unsigned int tlen)
 {
-	unsigned char tbuf[3];
-	int ret;
+	unsigned char *tbuf;
+	int n, xlen, ret;
 
-	if (lcd_debug_print_flag)
-		LDIMPR("%s: 0x%02x = 0x%02x\n", __func__, addr, val);
+	if (!bl_iw7027 || !bl_iw7027->tbuf) {
+		LDIMERR("%s: bl_iw7027 or tbuf is null\n", __func__);
+		return -1;
+	}
+	tbuf = bl_iw7027->tbuf;
 
-	tbuf[0] = NORMAL_MSG | SINGLE_DATA | IW7027_DEV_ADDR;
-	tbuf[1] = addr & 0x7f;
-	tbuf[2] = val;
-	ret = ldim_spi_write(spi, tbuf, 3);
+	if (chip_id == 0x00 || chip_id == 0x3f) {
+		LDIMERR("%s: chip_id 0x%02x is invalid\n", __func__, chip_id);
+		return -1;
+	}
+	if (tlen == 0) {
+		LDIMERR("%s: tlen is 0\n", __func__);
+		return -1;
+	}
+	n = chip_id - 1;
+	if (tlen == 1)
+		xlen = 2 + 1 + n;
+	else
+		xlen = 3 + tlen + n;
+	if (bl_iw7027->tbuf_size < xlen) {
+		LDIMERR("%s: tbuf_size %d is not enough\n", __func__, bl_iw7027->tbuf_size);
+		return -1;
+	}
+
+	if (tlen == 1) {
+		tbuf[0] = NORMAL_MSG | SINGLE_DATA | (chip_id & 0x3f);
+		tbuf[1] = reg & 0x7f;
+		tbuf[2] = data_buf[0];
+		memset(&tbuf[3], 0, n);
+	} else {
+		tbuf[0] = NORMAL_MSG | BLOCK_DATA | (chip_id & 0x3f);
+		tbuf[1] = tlen;
+		tbuf[2] = reg & 0x7f;
+		memcpy(&tbuf[3], data_buf, tlen);
+		memset(&tbuf[3 + tlen], 0, n);
+	}
+	ret = ldim_spi_write(spi, tbuf, xlen);
 
 	return ret;
 }
 
-//iw7027 register read
-static int iw7027_rreg(struct spi_slave *spi, unsigned char addr,
-		unsigned char *val)
+static int spi_high_reg_switch(struct spi_slave *spi, unsigned char chip_id, unsigned int chip_cnt,
+			       int flag)
 {
-	unsigned char tbuf[4], rbuf[4], temp;
+	unsigned char temp;
 	int ret;
 
-	/*set read flag*/
-	temp = (addr >= 0x80) ? 0x80 : 0x0;
-	iw7027_wreg(spi, 0x78, temp);
+	if (flag)
+		temp = 0x80;
+	else
+		temp = 0x00;
+	ret = spi_wregs(spi, chip_id, chip_cnt, 0x78, &temp, 1);
+	if (ret)
+		return -1;
 
-	tbuf[0] = NORMAL_MSG | SINGLE_DATA | IW7027_DEV_ADDR;
-	tbuf[1] = addr | 0x80;
-	tbuf[2] = 0;
-	ret = ldim_spi_read(spi, tbuf, 3, rbuf, 1);
-	*val = rbuf[3];
-
-	return ret;
+	return 0;
 }
 
-//iw7027 block write
-static int iw7027_wregs(struct spi_slave *spi, unsigned char addr,
-		unsigned char *val, int len)
+/* read single device */
+static int spi_rregs(struct spi_slave *spi, unsigned char chip_id, unsigned int chip_cnt,
+		     unsigned char reg, unsigned char *data_buf, unsigned int rlen)
 {
-	unsigned char tbuf[30];
-	int ret, i;
+	unsigned char *tbuf, *rbuf;
+	int n, xlen, ret;
+	int i;
 
-	if (lcd_debug_print_flag) {
-		LDIMPR("%s: ", __func__);
-		for (i = 0; i < len; i++)
-			printf("0x%02x ", val[i]);
+	if (!bl_iw7027 || !bl_iw7027->tbuf || !bl_iw7027->rbuf) {
+		LDIMERR("%s: bl_iw7027 or tbuf or rbuf is null\n", __func__);
+		return -1;
+	}
+	tbuf = bl_iw7027->tbuf;
+	rbuf = bl_iw7027->rbuf;
+
+	if (chip_id == 0x00 || chip_id == 0x3f) {
+		LDIMERR("%s: chip_id 0x%02x is invalid\n", __func__, chip_id);
+		return -1;
+	}
+	if (rlen == 0) {
+		LDIMERR("%s: rlen is 0\n", __func__);
+		return -1;
+	}
+	n = chip_cnt + rlen;
+	if (rlen == 1)
+		xlen = 2 + n;
+	else
+		xlen = 3 + n;
+	if (bl_iw7027->tbuf_size < xlen) {
+		LDIMERR("%s: tbuf_size %d is not enough\n", __func__, bl_iw7027->tbuf_size);
+		return -1;
+	}
+	if (bl_iw7027->rbuf_size < xlen) {
+		LDIMERR("%s: rbuf_size %d is not enough\n", __func__, bl_iw7027->rbuf_size);
+		return -1;
+	}
+
+	if (reg >= 0x80)
+		spi_high_reg_switch(spi, chip_id, chip_cnt, 1);
+
+	if (rlen == 1) {
+		tbuf[0] = NORMAL_MSG | SINGLE_DATA | (chip_id & 0x3f);
+		tbuf[1] = (reg & 0x7f) | 0x80;
+		memset(&tbuf[2], 0, n);
+	} else {
+		tbuf[0] = NORMAL_MSG | BLOCK_DATA | (chip_id & 0x3f);
+		tbuf[1] = rlen;
+		tbuf[2] = (reg & 0x7f) | 0x80;
+		memset(&tbuf[3], 0, n);
+	}
+	ret = ldim_spi_read_sync(spi, tbuf, rbuf, xlen);
+	memcpy(data_buf, &rbuf[xlen - rlen], rlen);
+
+	if (reg >= 0x80)
+		spi_high_reg_switch(spi, chip_id, chip_cnt, 0);
+
+	if (lcd_debug_print_flag & LCD_DBG_PR_BL_ADV) {
+		LDIMPR("%s: reg=0x%02x, rlen=%d, data_buf:\n", __func__, reg, rlen);
+		for (i = 0; i < rlen; i++)
+			printf(" 0x%02x", data_buf[i]);
 		printf("\n");
 	}
 
-	tbuf[0] = NORMAL_MSG | BLOCK_DATA | IW7027_DEV_ADDR;
-	tbuf[1] = len;
-	tbuf[2] = addr & 0x7f;
-	memcpy(&tbuf[3], val, len);
-	ret = ldim_spi_write(spi, tbuf, (len + 3));
+	return ret;
+}
+
+/* write same data to all device */
+static int spi_wregs_all(struct spi_slave *spi, unsigned int chip_cnt,
+			 unsigned char reg, unsigned char *data_buf, int tlen)
+{
+	unsigned char *tbuf;
+	int n, xlen, ret;
+
+	if (!bl_iw7027 || !bl_iw7027->tbuf) {
+		LDIMERR("%s: bl_iw7027 or tbuf is null\n", __func__);
+		return -1;
+	}
+	tbuf = bl_iw7027->tbuf;
+
+	if (tlen == 0) {
+		LDIMERR("%s: tlen is 0\n", __func__);
+		return -1;
+	}
+	n = chip_cnt - 1;
+	if (tlen == 1)
+		xlen = 2 + 1 + n;
+	else
+		xlen = 3 + tlen + n;
+	if (bl_iw7027->tbuf_size < xlen) {
+		LDIMERR("%s: tbuf_size %d is not enough\n", __func__, bl_iw7027->tbuf_size);
+		return -1;
+	}
+
+	if (tlen == 1) {
+		tbuf[0] = BROADCAST_MSG | SINGLE_DATA | 0x00;
+		tbuf[1] = reg & 0x7f;
+		tbuf[2] = data_buf[0];
+		memset(&tbuf[3], 0, n);
+	} else {
+		tbuf[0] = BROADCAST_MSG | BLOCK_DATA | 0x00;
+		tbuf[1] = tlen;
+		tbuf[2] = reg & 0x7f;
+		memcpy(&tbuf[3], data_buf, tlen);
+		memset(&tbuf[3 + tlen], 0, n);
+	}
+	ret = ldim_spi_write(spi, tbuf, xlen);
 
 	return ret;
 }
 
-static int ldim_power_cmd_dynamic_size(void)
+/* write diff data to all device */
+static int spi_wregs_diff(struct spi_slave *spi, unsigned int chip_cnt,
+			  unsigned char reg, unsigned char *data_buf, int tlen)
+{
+	unsigned char *tbuf;
+	int i, n, xlen, ret;
+
+	if (!bl_iw7027 || !bl_iw7027->tbuf) {
+		LDIMERR("%s: bl_iw7027 or tbuf is null\n", __func__);
+		return -1;
+	}
+	tbuf = bl_iw7027->tbuf;
+
+	if (tlen == 0) {
+		LDIMERR("%s: tlen is 0\n", __func__);
+		return -1;
+	}
+	n = chip_cnt - 1;
+	if (tlen == 1)
+		xlen = 2 + chip_cnt + n;
+	else
+		xlen = 3 + tlen * chip_cnt + n;
+	if (bl_iw7027->tbuf_size < xlen) {
+		LDIMERR("%s: tbuf_size %d is not enough\n", __func__, bl_iw7027->tbuf_size);
+		return -1;
+	}
+
+	if (tlen == 1) {
+		tbuf[0] = BROADCAST_MSG | SINGLE_DATA | 0x3f;
+		tbuf[1] = reg & 0x7f;
+		for (i = 0; i < chip_cnt; i++)
+			tbuf[2 + i] = data_buf[0];
+		memset(&tbuf[2 + chip_cnt], 0, n);
+	} else {
+		tbuf[0] = BROADCAST_MSG | BLOCK_DATA | 0x3f;
+		tbuf[1] = tlen;
+		tbuf[2] = reg & 0x7f;
+		for (i = 0; i < chip_cnt; i++)
+			memcpy(&tbuf[3 + i * tlen], &data_buf[i * tlen], tlen);
+		memset(&tbuf[3 + tlen * chip_cnt], 0, n);
+	}
+	ret = ldim_spi_write(spi, tbuf, xlen);
+
+	return ret;
+}
+
+static int iw7027_reg_write(struct ldim_dev_driver_s *dev_drv, unsigned char chip_id,
+			    unsigned char reg, unsigned char *buf, unsigned int len)
+{
+	int ret;
+
+	ret = spi_wregs(dev_drv->spi_info.spi, chip_id, dev_drv->chip_cnt, reg, buf, len);
+	if (ret)
+		LDIMERR("%s: chip_id[%d] reg 0x%x error\n", __func__, chip_id, reg);
+
+	return ret;
+}
+
+static int iw7027_reg_read(struct ldim_dev_driver_s *dev_drv, unsigned char chip_id,
+			   unsigned char reg, unsigned char *buf, unsigned int len)
+{
+	int ret;
+
+	memset(buf, 0, len);
+	ret = spi_rregs(dev_drv->spi_info.spi, chip_id, dev_drv->chip_cnt, reg, buf, len);
+	if (ret)
+		LDIMERR("%s: chip_id[%d] reg 0x%x error\n", __func__, chip_id, reg);
+
+	return ret;
+}
+
+static int iw7027_reg_write_all(struct ldim_dev_driver_s *dev_drv,
+				unsigned char reg, unsigned char *buf, unsigned int len)
+{
+	int ret;
+
+	ret = spi_wregs_all(dev_drv->spi_info.spi, dev_drv->chip_cnt, reg, buf, len);
+	if (ret)
+		LDIMERR("%s: reg 0x%x, len %d error\n", __func__, reg, len);
+
+	return ret;
+}
+
+static int iw7027_reg_write_diff(struct ldim_dev_driver_s *dev_drv,
+				 unsigned char reg, unsigned char *buf, unsigned int len)
+{
+	int ret;
+
+	ret = spi_wregs_diff(dev_drv->spi_info.spi, dev_drv->chip_cnt, reg, buf, len);
+	if (ret)
+		LDIMERR("%s: reg 0x%x, len %d error\n", __func__, reg, len);
+
+	return ret;
+}
+
+static int ldim_power_cmd_dynamic_size(struct ldim_dev_driver_s *dev_drv)
 {
 	unsigned char *table;
 	int i = 0, j, step = 0, max_len = 0;
 	unsigned char type, cmd_size;
 	int delay_ms, ret = 0;
 
-	table = bl_iw7027->init_data;
-	max_len = bl_iw7027->init_data_cnt;
+	table = dev_drv->init_on;
+	max_len = dev_drv->init_on_cnt;
 
 	while ((i + 1) < max_len) {
 		type = table[i];
 		if (type == LCD_EXT_CMD_TYPE_END)
 			break;
-		if (lcd_debug_print_flag) {
+		if (lcd_debug_print_flag & LCD_DBG_PR_BL_NORMAL) {
 			LDIMPR("%s: step %d: type=0x%02x, cmd_size=%d\n",
-				__func__, step, type, table[i+1]);
+				__func__, step, type, table[i + 1]);
 		}
-		cmd_size = table[i+1];
+		cmd_size = table[i + 1];
 		if (cmd_size == 0)
 			goto power_cmd_dynamic_next;
 		if ((i + 2 + cmd_size) > max_len)
@@ -145,19 +336,19 @@ static int ldim_power_cmd_dynamic_size(void)
 		} else if (type == LCD_EXT_CMD_TYPE_DELAY) {
 			delay_ms = 0;
 			for (j = 0; j < cmd_size; j++)
-				delay_ms += table[i+2+j];
+				delay_ms += table[i + 2 + j];
 			if (delay_ms > 0)
 				mdelay(delay_ms);
 		} else if (type == LCD_EXT_CMD_TYPE_CMD) {
-			ret = iw7027_wreg(bl_iw7027->spi,
-				table[i+2], table[i+3]);
+			ret = iw7027_reg_write_all(dev_drv,
+				table[i + 2], &table[i + 3], (cmd_size - 1));
 			udelay(1);
 		} else if (type == LCD_EXT_CMD_TYPE_CMD_DELAY) {
-			ret = iw7027_wreg(bl_iw7027->spi,
-				table[i+2], table[i+3]);
+			ret = iw7027_reg_write_all(dev_drv,
+				table[i + 2], &table[i + 3], (cmd_size - 2));
 			udelay(1);
-			if (table[i+4] > 0)
-				mdelay(table[i+4]);
+			if (table[i + 2 + cmd_size - 1] > 0)
+				mdelay(table[i + 2 + cmd_size - 1]);
 		} else {
 			LDIMERR("%s: type 0x%02x invalid\n", __func__, type);
 		}
@@ -169,266 +360,307 @@ power_cmd_dynamic_next:
 	return ret;
 }
 
-static int ldim_power_cmd_fixed_size(void)
+static int iw7027_power_on_init(struct ldim_dev_driver_s *dev_drv)
 {
-	unsigned char *table;
-	int i = 0, j, step = 0, max_len = 0;
-	unsigned char type, cmd_size;
-	int delay_ms, ret = 0;
-
-	cmd_size = bl_iw7027->cmd_size;
-	if (cmd_size < 2) {
-		LDIMERR("%s: invalid cmd_size %d\n", __func__, cmd_size);
-		return -1;
-	}
-
-	table = bl_iw7027->init_data;
-	max_len = bl_iw7027->init_data_cnt;
-
-	while ((i + cmd_size) <= max_len) {
-		type = table[i];
-		if (type == LCD_EXT_CMD_TYPE_END)
-			break;
-		if (lcd_debug_print_flag) {
-			LDIMPR("%s: step %d: type=0x%02x, cmd_size=%d\n",
-				__func__, step, type, cmd_size);
-		}
-		if (type == LCD_EXT_CMD_TYPE_NONE) {
-			/* do nothing */
-		} else if (type == LCD_EXT_CMD_TYPE_DELAY) {
-			delay_ms = 0;
-			for (j = 0; j < (cmd_size - 1); j++)
-				delay_ms += table[i+1+j];
-			if (delay_ms > 0)
-				mdelay(delay_ms);
-		} else if (type == LCD_EXT_CMD_TYPE_CMD) {
-			ret = iw7027_wreg(bl_iw7027->spi,
-				table[i+1], table[i+2]);
-			udelay(1);
-		} else if (type == LCD_EXT_CMD_TYPE_CMD_DELAY) {
-			ret = iw7027_wreg(bl_iw7027->spi,
-				table[i+1], table[i+2]);
-			udelay(1);
-			if (table[i+3] > 0)
-				mdelay(table[i+3]);
-		} else {
-			LDIMERR("%s: type 0x%02x invalid\n", __func__, type);
-		}
-		i += cmd_size;
-		step++;
-	}
-
-	return ret;
-}
-
-static int iw7027_power_on_init(void)
-{
-	unsigned char cmd_size;
 	int ret = 0;
 
-	cmd_size = bl_iw7027->cmd_size;
-	if (cmd_size < 2) {
-		LDIMERR("%s: invalid cmd_size %d\n", __func__, cmd_size);
+	if (dev_drv->cmd_size < 2) {
+		LDIMERR("%s: invalid cmd_size %d\n", __func__, dev_drv->cmd_size);
 		return -1;
 	}
-	if (cmd_size == LCD_EXT_CMD_SIZE_DYNAMIC)
-		ret = ldim_power_cmd_dynamic_size();
-	else
-		ret = ldim_power_cmd_fixed_size();
+	if (!dev_drv->init_on) {
+		LDIMERR("%s: init_on is null\n", __func__);
+		return -1;
+	}
+
+	if (dev_drv->cmd_size == LCD_EXT_CMD_SIZE_DYNAMIC)
+		ret = ldim_power_cmd_dynamic_size(dev_drv);
 
 	return ret;
 }
 
-static int iw7027_hw_init_on(void)
+static int iw7027_hw_init_on(struct ldim_dev_driver_s *dev_drv)
 {
-	int i;
-	unsigned char  reg_duty_chk = 0 , reg_chk = 0;
-	struct aml_ldim_driver_s *ldim_drv = aml_ldim_get_driver();
+	unsigned char chip_id, reg, temp[2];
+	int i, retry_cnt = 0;
 
-	/* step 1: system power_on */
-	LDIMPR("%s: iw7027 system power_on\n", __func__);
-	ldim_set_gpio(ldim_drv->ldev_conf->en_gpio,
-		      ldim_drv->ldev_conf->en_gpio_on);
-	ldim_set_duty_pwm(&ldim_drv->ldev_conf->ldim_pwm_config);
-	ldim_set_duty_pwm(&ldim_drv->ldev_conf->analog_pwm_config);
-
-	/* step 2: delay for internal logic stable */
-	mdelay(10);
-
-	/* step 3: SPI communication check */
-	LDIMPR("%s: SPI Communication Check\n", __func__);
-	for (i = 0; i <= 10; i++) {
-		iw7027_wreg(bl_iw7027->spi, 0x00, 0x06);
-		iw7027_rreg(bl_iw7027->spi, 0x00, &reg_chk);
-		if (reg_chk == 0x06)
-			break;
-		if (i == 10) {
-			LDIMERR("%s: SPI communication check error\n",
-				__func__);
-		}
+	if (!dev_drv) {
+		LDIMERR("%s: dev_drv is null\n", __func__);
+		return -1;
 	}
 
-	/* step 4: configure initial registers */
-	LDIMPR("%s: Write initial control registers\n", __func__);
-	iw7027_power_on_init();
+	LDIMPR("%s\n", __func__);
 
-	/* step 5: supply stable vsync */
-	LDIMPR("%s: open Vsync\n", __func__);
-	ldim_drv->pinmux_ctrl(1);
+	chip_id = 0x01;
 
-	/* step 6: delay for system clock and light bar PSU stable */
-	mdelay(550);
+	/* step 1: system power_on */
+	ldim_gpio_set(dev_drv, dev_drv->en_gpio, dev_drv->en_gpio_on);
 
-	/* step 7: start calibration */
-	LDIMPR("%s: start calibration\n", __func__);
-	iw7027_wreg(bl_iw7027->spi, 0x00, 0x07);
-	mdelay(200);
+	/* step 2: Keep Vsync signal at low level */
+	/* step 3: delay for internal logic stable */
+	mdelay(10);
 
-	/* step 8: calibration done or not */
+iw7027_hw_init_on_retry:
+	/* SPI communication check */
+	for (i = 1; i <= 10; i++) {
+		/* step 4: Write 0X00=0X06 */
+		reg = 0x00;
+		temp[0] = 0x06;
+		iw7027_reg_write_all(dev_drv, reg, temp, 1);
+		/* step 5: Read if 0x00=0x06,go on to step 6,or step 4 loop until 0x00 = 0x06 */
+		iw7027_reg_read(dev_drv, chip_id, reg, temp, 1);
+		if (temp[0] == 0x06)
+			break;
+	}
+	if (i == 10)
+		LDIMERR("%s: SPI communication check error\n", __func__);
+
+	/* step 6: configure initial registers */
+	iw7027_power_on_init(dev_drv);
+
+	/* step 7: Generate external VSYNC to VSYNC/PWM pin */
+	ldim_set_duty_pwm(&dev_drv->ldim_pwm_config);
+	ldim_set_duty_pwm(&dev_drv->analog_pwm_config);
+	dev_drv->pinmux_ctrl(dev_drv, 1);
+
+	/* step 8: delay for system clock and light bar PSU stable */
+	mdelay(520);
+
+	/* start calibration */
+	/* step 9: set [SOFT_RST_N] = 1 to exit reset state */
+	reg = 0x00;
+	temp[0] = 0x07;
+	iw7027_reg_write_all(dev_drv, reg, temp, 1);
+	//mdelay(200);
+
+	/* step 10: Set 0X78[7]=1; no need here */
+	/* step 11: Wait until reg0xb3 LSB 4bit is 0101//It means iW7027 enter OTF state */
 	i = 0;
-	while (i++ < 1000) {
-		iw7027_rreg(bl_iw7027->spi, 0xb3, &reg_duty_chk);
+	while (i++ < 500) {
+		reg = 0xb3;
+		iw7027_reg_read(dev_drv, chip_id, reg, temp, 1);
 		/*VDAC statue reg :FB1=[0x5] FB2=[0x50]*/
 		/*The current platform using FB1*/
-		if ((reg_duty_chk & 0xf) == 0x05)
+		if ((temp[0] & 0xf) == 0x05)
 			break;
 		mdelay(1);
 	}
-	LDIMPR("%s: calibration done: [%d] = %x\n", __func__, i, reg_duty_chk);
+	/* step 12: Read 0x85,0x86 */
+	reg = 0x85;
+	iw7027_reg_read(dev_drv, chip_id, reg, temp, 2);
+
+	/* step 13: Set 0X78[7]=0, no need */
+	/* step 14: check if power on vaoltage exist */
+	if (temp[0] || temp[1]) {
+		LDIMERR("%s: 0x85,0x86 is not zero\n", __func__);
+		if (retry_cnt++ < 3) {
+			LDIMPR("%s: retry %d\n", __func__, retry_cnt);
+			goto iw7027_hw_init_on_retry;
+		}
+	} else {
+		/* step 15: calibration done */
+		LDIMPR("%s: calibration done\n", __func__);
+	}
+
+	//reg = 0x30;
+	//temp[0] = 0x1d;
+	//iw7027_reg_write_all(dev_drv, chip_id, reg, temp, 1);
+	//reg = 0x29;
+	//temp[0] = 0x84;
+	//iw7027_reg_write_all(dev_drv, chip_id, reg, temp, 1);
 
 	return 0;
 }
 
-static int iw7027_hw_init_off(void)
+static int iw7027_hw_init_off(struct ldim_dev_driver_s *dev_drv)
 {
-	struct aml_ldim_driver_s *ldim_drv = aml_ldim_get_driver();
+	if (!dev_drv) {
+		LDIMERR("%s: dev_drv is null\n", __func__);
+		return -1;
+	}
 
-	ldim_drv->pinmux_ctrl(0);
-	ldim_set_gpio(ldim_drv->ldev_conf->en_gpio,
-		      ldim_drv->ldev_conf->en_gpio_off);
+	ldim_gpio_set(dev_drv, dev_drv->en_gpio, dev_drv->en_gpio_off);
+	dev_drv->pinmux_ctrl(dev_drv, 0);
+	ldim_pwm_off(&dev_drv->ldim_pwm_config);
+	ldim_pwm_off(&dev_drv->analog_pwm_config);
 
 	return 0;
 }
 
-static unsigned int dim_max, dim_min;
-static unsigned int iw7027_get_value(unsigned int level)
+static inline void ldim_data_mapping(unsigned short *duty_buf, unsigned int max, unsigned int min,
+				     unsigned int zone_num, unsigned short *mapping)
 {
-	unsigned int val;
+	unsigned int i, j, val, zone_max;
 
-	val = dim_min + ((level * (dim_max - dim_min)) / LD_DATA_MAX);
-
-	return val;
+	zone_max = bl_iw7027->reg_buf_size / 2;
+	for (i = 0; i < zone_num; i++) {
+		val = min + ((duty_buf[i] * (max - min)) / LD_DATA_MAX);
+		j = mapping[i];
+		if (j >= zone_max) {
+			LDIMPR("%s: mapping[%d]=%d invalid, max %d\n",
+			       __func__, i, j, zone_max);
+			return;
+		}
+		bl_iw7027->reg_buf[2 * j] = (val >> 8) & 0xf;
+		bl_iw7027->reg_buf[2 * j + 1] = val & 0xff;
+	}
 }
 
-static int iw7027_smr(unsigned short *buf, unsigned char len)
+static int iw7027_smr(struct aml_ldim_driver_s *ldim_drv, unsigned short *buf, unsigned char len)
 {
-	unsigned int i, temp;
-	unsigned short num;
-	struct aml_ldim_driver_s *ldim_drv = aml_ldim_get_driver();
+	struct ldim_dev_driver_s *dev_drv = ldim_drv->dev_drv;
 
-	if (iw7027_on_flag == 0) {
-		LDIMPR("%s: on_flag=%d\n", __func__, iw7027_on_flag);
+	if (!dev_drv) {
+		LDIMERR("%s: dev_drv is null\n", __func__);
+		return -1;
+	}
+	if (!bl_iw7027)
+		return -1;
+
+	if (bl_iw7027->dev_on_flag == 0) {
+		LDIMPR("%s: on_flag=%d\n", __func__, bl_iw7027->dev_on_flag);
 		return 0;
 	}
-	num = ldim_drv->ldev_conf->bl_regnum;
-	if (len != num) {
+	if (len != dev_drv->zone_num) {
 		LDIMERR("%s: data len %d invalid\n", __func__, len);
 		return -1;
 	}
-	if (val_brightness == NULL) {
-		LDIMERR("%s: val_brightness is null\n", __func__);
+	if (!bl_iw7027->reg_buf) {
+		LDIMERR("%s: reg_buf is null\n", __func__);
 		return -1;
 	}
 
-	dim_max = ldim_drv->ldev_conf->dim_max;
-	dim_min = ldim_drv->ldev_conf->dim_min;
+	ldim_data_mapping(buf, dev_drv->dim_max, dev_drv->dim_min,
+			  dev_drv->zone_num, dev_drv->bl_mapping);
 
-	for (i = 0; i < num; i++) {
-		temp = iw7027_get_value(buf[i]);
-		val_brightness[2*i] = (temp >> 8) & 0xf;
-		val_brightness[2*i+1] = temp & 0xff;
+	iw7027_reg_write_diff(dev_drv, 0x40, bl_iw7027->reg_buf, 0x20);
+
+	return 0;
+}
+
+static int iw7027_power_on(struct aml_ldim_driver_s *ldim_drv)
+{
+	if (!bl_iw7027)
+		return -1;
+
+	if (bl_iw7027->dev_on_flag) {
+		LDIMPR("%s: iw7027 is already on, exit\n", __func__);
+		return 0;
 	}
 
-	iw7027_wregs(bl_iw7027->spi, 0x40, val_brightness, (num * 2));
-
-	return 0;
-}
-
-static int iw7027_power_on(void)
-{
-	iw7027_hw_init_on();
-	iw7027_on_flag = 1;
+	iw7027_hw_init_on(ldim_drv->dev_drv);
+	bl_iw7027->dev_on_flag = 1;
 
 	LDIMPR("%s: ok\n", __func__);
 	return 0;
 }
 
-static int iw7027_power_off(void)
+static int iw7027_power_off(struct aml_ldim_driver_s *ldim_drv)
 {
-	iw7027_on_flag = 0;
-	iw7027_hw_init_off();
+	if (!bl_iw7027)
+		return -1;
+
+	bl_iw7027->dev_on_flag = 0;
+	iw7027_hw_init_off(ldim_drv->dev_drv);
 
 	LDIMPR("%s: ok\n", __func__);
 	return 0;
 }
 
-static int iw7027_ldim_driver_update(struct aml_ldim_driver_s *ldim_drv)
+static int iw7027_ldim_driver_update(struct ldim_dev_driver_s *dev_drv)
 {
-	ldim_drv->device_power_on = iw7027_power_on;
-	ldim_drv->device_power_off = iw7027_power_off;
-	ldim_drv->device_bri_update = iw7027_smr;
+	if (!dev_drv) {
+		LDIMERR("%s: dev_drv is null\n", __func__);
+		return -1;
+	}
+
+	dev_drv->power_on = iw7027_power_on;
+	dev_drv->power_off = iw7027_power_off;
+	dev_drv->dev_smr = iw7027_smr;
+
+	dev_drv->reg_write = iw7027_reg_write;
+	dev_drv->reg_read = iw7027_reg_read;
 	return 0;
 }
 
 int ldim_dev_iw7027_probe(struct aml_ldim_driver_s *ldim_drv)
 {
-	if (ldim_drv->spi_info->spi == NULL) {
+	struct ldim_dev_driver_s *dev_drv = ldim_drv->dev_drv;
+	unsigned int size;
+
+	if (!dev_drv) {
+		LDIMERR("%s: dev_drv is null\n", __func__);
+		return -1;
+	}
+	if (!dev_drv->spi_info.spi) {
 		LDIMERR("%s: spi is null\n", __func__);
 		return -1;
 	}
 
-	bl_iw7027 = (struct iw7027 *)malloc(sizeof(struct iw7027));
-	if (bl_iw7027 == NULL) {
+	bl_iw7027 = (struct iw7027_s *)malloc(sizeof(struct iw7027_s));
+	if (!bl_iw7027) {
 		LDIMERR("iw7027 malloc error\n");
 		return -1;
 	}
-	memset(bl_iw7027, 0, sizeof(struct iw7027));
+	memset(bl_iw7027, 0, sizeof(struct iw7027_s));
 
-	iw7027_on_flag = 0;
+	bl_iw7027->dev_on_flag = 0;
 
-	bl_iw7027->spi = ldim_drv->spi_info->spi;
-	bl_iw7027->cs_hold_delay = ldim_drv->ldev_conf->cs_hold_delay;
-	bl_iw7027->cs_clk_delay = ldim_drv->ldev_conf->cs_clk_delay;
-	bl_iw7027->cmd_size = ldim_drv->ldev_conf->cmd_size;
-	bl_iw7027->init_data = ldim_drv->ldev_conf->init_on;
-	bl_iw7027->init_data_cnt = ldim_drv->ldev_conf->init_on_cnt;
+	/* 16 each device, each zone 2 bytes */
+	bl_iw7027->reg_buf_size = 16 * 2 * dev_drv->chip_cnt;
+	size = bl_iw7027->reg_buf_size * sizeof(unsigned char);
+	bl_iw7027->reg_buf = (unsigned char *)malloc(size);
+	if (!bl_iw7027->reg_buf)
+		goto ldim_dev_iw7027_probe_err0;
+	memset(bl_iw7027->reg_buf, 0, size);
 
-	val_brightness = (unsigned char *)malloc(
-		ldim_drv->ldev_conf->bl_regnum * 2 * sizeof(unsigned char));
-	if (val_brightness == NULL) {
-		LDIMERR("malloc val_brightness failed\n");
-		free(bl_iw7027);
-		return -1;
-	}
+	/* header + reg_max_cnt + chip_cnt */
+	bl_iw7027->tbuf_size = 3 + IW7027_REG_MAX + dev_drv->chip_cnt;
+	size = bl_iw7027->tbuf_size * sizeof(unsigned char);
+	bl_iw7027->tbuf = (unsigned char *)malloc(size);
+	if (!bl_iw7027->tbuf)
+		goto ldim_dev_iw7027_probe_err1;
+	memset(bl_iw7027->tbuf, 0, size);
 
-	iw7027_ldim_driver_update(ldim_drv);
+	/* header + reg_max_cnt + chip_cnt + dev_id_max(=chip_cnt) */
+	bl_iw7027->rbuf_size = 3 + IW7027_REG_MAX + dev_drv->chip_cnt * 2;
+	size = bl_iw7027->rbuf_size * sizeof(unsigned char);
+	bl_iw7027->rbuf = (unsigned char *)malloc(size);
+	if (!bl_iw7027->rbuf)
+		goto ldim_dev_iw7027_probe_err2;
+	memset(bl_iw7027->rbuf, 0, size);
 
-	printf("%s: ok\n", __func__);
+	iw7027_ldim_driver_update(dev_drv);
 
+	LDIMPR("%s ok\n", __func__);
 	return 0;
+
+ldim_dev_iw7027_probe_err2:
+	free(bl_iw7027->tbuf);
+	bl_iw7027->tbuf_size = 0;
+ldim_dev_iw7027_probe_err1:
+	free(bl_iw7027->reg_buf);
+	bl_iw7027->reg_buf_size = 0;
+ldim_dev_iw7027_probe_err0:
+	free(bl_iw7027);
+	bl_iw7027 = NULL;
+	return -1;
 }
 
 int ldim_dev_iw7027_remove(struct aml_ldim_driver_s *ldim_drv)
 {
-	if (val_brightness) {
-		free(val_brightness);
-		val_brightness = NULL;
-	}
+	if (!bl_iw7027)
+		return 0;
 
-	if (bl_iw7027) {
-		free(bl_iw7027);
-		bl_iw7027 = NULL;
-	}
+	free(bl_iw7027->rbuf);
+	bl_iw7027->rbuf_size = 0;
+	free(bl_iw7027->tbuf);
+	bl_iw7027->tbuf_size = 0;
+	free(bl_iw7027->reg_buf);
+	bl_iw7027->reg_buf_size = 0;
+	free(bl_iw7027);
+	bl_iw7027 = NULL;
+
 	return 0;
 }
 
