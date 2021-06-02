@@ -17,6 +17,18 @@
 #include <dm/pinctrl.h>
 #include "mmc_private.h"
 #include <asm/arch/register.h>
+#include <asm/arch/timer.h>
+
+#define MMC_PATTERN_OFFSET ((SZ_1M * (36 + 3)) / 512)
+#define MMC_MAGIC_OFFSET ((SZ_1M * (36 + 3)) / 512)
+#define MMC_RANDOM_OFFSET ((SZ_1M * (36 + 3)) / 512)
+
+#ifdef EMMC_DEBUG_ENABLE
+	#define emmc_debug(a...) printf(a)
+#else
+	#define emmc_debug(a...)
+#endif
+u64 align[10];
 
 static inline void *get_regbase(const struct mmc *mmc)
 {
@@ -33,6 +45,15 @@ static inline uint32_t meson_read(struct mmc *mmc, int offset)
 static inline void meson_write(struct mmc *mmc, uint32_t val, int offset)
 {
 	writel(val, get_regbase(mmc) + offset);
+}
+
+void mmc_reset_reg(struct mmc *mmc)
+{
+	meson_write(mmc, 0x4890, MESON_SD_EMMC_CFG);
+	meson_write(mmc, 0x0, MESON_SD_EMMC_INTF3);
+	meson_write(mmc, 0x0, MESON_SD_EMMC_DELAY1);
+	meson_write(mmc, 0x0, MESON_SD_EMMC_DELAY2);
+	meson_write(mmc, 0x0, MESON_SD_EMMC_ADJUST);
 }
 
 void mmc_print_reg(struct udevice *dev)
@@ -108,6 +129,7 @@ static void meson_mmc_config_clock(struct meson_host *host)
 	uint32_t clk = 0, clk_src = 0, clk_div = 0;
 	uint32_t co_phase = 0, tx_phase = 0;
 	uint32_t meson_mmc_clk = 0, cfg = 0;
+	u32 tx_delay = 0;
 
 	if (!mmc->clock)
 		return;
@@ -128,6 +150,7 @@ static void meson_mmc_config_clock(struct meson_host *host)
 	} else {
 		clk = 24000000;
 		clk_src = 0;
+		clk_set_parent(&host->mux, &host->xtal);
 		clk_enable(&host->xtal);
 		clk_set_rate(&host->div, clk);
 	}
@@ -138,6 +161,8 @@ static void meson_mmc_config_clock(struct meson_host *host)
 	mmc->clock = clk / clk_div;
 	if (mmc->ddr_mode) {
 		clk_div /= 2;
+		cfg |= CFG_DDR;
+		meson_write(mmc, cfg, MESON_SD_EMMC_CFG);
 		pr_info("DDR: \n");
 	}
 
@@ -170,6 +195,8 @@ static void meson_mmc_config_clock(struct meson_host *host)
 			dev_read_u32(mmc->dev, "ddr_tx_phase", &tx_phase);
 			break;
 		case MMC_HS_400:
+			dev_read_u32(mmc->dev, "hs4_co_phase", &co_phase);
+			dev_read_u32(mmc->dev, "hs4_tx_delay", &tx_delay);
 			break;
 		default:
 			co_phase = dev_read_u32_default(mmc->dev, "init_co_phase", 2);
@@ -177,11 +204,11 @@ static void meson_mmc_config_clock(struct meson_host *host)
 			break;
 	}
 
-	meson_mmc_clk =((0 << Cfg_irq_sdio_sleep_ds) |
+	meson_mmc_clk = ((0 << Cfg_irq_sdio_sleep_ds) |
 					(0 << Cfg_irq_sdio_sleep) |
 					(1 << Cfg_always_on) |
 					(0 << Cfg_rx_delay) |
-					(0 << Cfg_tx_delay) |
+					(tx_delay << Cfg_tx_delay) |
 					(0 << Cfg_sram_pd) |
 					(0 << Cfg_rx_phase) |
 					(tx_phase << Cfg_tx_phase) |
@@ -936,11 +963,502 @@ tuning:
 	return ret;
 }
 
+static int mmc_get_status(struct mmc *mmc, int timeout)
+{
+	struct mmc_cmd cmd;
+	int err, retries = 1;
+
+	cmd.cmdidx = MMC_CMD_SEND_STATUS;
+	cmd.resp_type = MMC_RSP_R1;
+	if (!mmc_host_is_spi(mmc))
+		cmd.cmdarg = mmc->rca << 16;
+
+	do {
+		err = mmc_send_cmd(mmc, &cmd, NULL);
+		if (!err) {
+			if ((cmd.response[0] & MMC_STATUS_RDY_FOR_DATA) &&
+			    (cmd.response[0] & MMC_STATUS_CURR_STATE) !=
+			     MMC_STATE_PRG) {
+				break;
+			} else if (cmd.response[0] & MMC_STATUS_MASK) {
+				return COMM_ERR;
+			}
+		} else if (--retries < 0) {
+			return err;
+		}
+		udelay(1000);
+	} while (timeout--);
+
+	if (timeout <= 0)
+		return TIMEOUT;
+
+	if (cmd.response[0] & MMC_STATUS_SWITCH_ERROR)
+		return SWITCH_ERR;
+
+	return 0;
+}
+
+static int emmc_send_deselect(struct mmc *mmc)
+{
+	struct mmc_cmd cmd = {0};
+	u32 err = 0;
+
+	cmd.cmdidx = MMC_CMD_SELECT_CARD;
+	cmd.cmdarg = 0;
+	cmd.resp_type = MMC_RSP_NONE;
+
+	err = mmc_send_cmd(mmc, &cmd, NULL);
+	if (err) {
+		printf("[%s][%d] cmd:0x%x send error\n",
+				__func__, __LINE__, cmd.cmdidx);
+		return err;
+	}
+
+	return err;
+}
+
+static int emmc_send_select(struct mmc *mmc)
+{
+	struct mmc_cmd cmd = {0};
+	u32 err = 0;
+
+	cmd.cmdidx = MMC_CMD_SELECT_CARD;
+	cmd.resp_type = MMC_RSP_R1;
+	cmd.cmdarg = 1 << 16;
+	err = mmc_send_cmd(mmc, &cmd, NULL);
+
+	return err;
+}
+
+static int emmc_send_cid(struct mmc *mmc)
+{
+	struct mmc_cmd cmd = {0};
+	u32 err = 0;
+
+	cmd.cmdidx = MMC_CMD_SEND_CID;
+	cmd.cmdarg = (1 << 16);
+	cmd.resp_type = MMC_RSP_R2;
+
+	err = mmc_send_cmd(mmc, &cmd, NULL);
+
+	return err;
+}
+
+static int aml_sd_emmc_cmd_v3(struct mmc *mmc)
+{
+	int i;
+	int ret;
+
+	ret = mmc_get_status(mmc, 1000);
+	ret |= emmc_send_deselect(mmc);
+	for (i = 0; i < 2; i++)
+		ret |= emmc_send_cid(mmc);
+	ret |= emmc_send_select(mmc);
+
+	return ret;
+}
+
+static int mmc_read_single_block(struct mmc *mmc, void *dst, lbaint_t start)
+{
+	struct mmc_cmd cmd;
+	struct mmc_data data;
+	int ret = 0;
+
+	cmd.cmdidx = MMC_CMD_READ_SINGLE_BLOCK;
+
+	if (mmc->high_capacity)
+		cmd.cmdarg = start;
+	else
+		cmd.cmdarg = start * mmc->read_bl_len;
+
+	cmd.resp_type = MMC_RSP_R1;
+
+	data.dest = dst;
+	data.blocks = 1;
+	data.blocksize = mmc->read_bl_len;
+	data.flags = MMC_DATA_READ;
+
+	ret = mmc_send_cmd(mmc, &cmd, &data);
+
+	return ret;
+}
+
+int mmc_read(struct mmc *mmc, lbaint_t start, int blkcnt, void *dst)
+{
+	int cur, blocks_todo = blkcnt;
+
+	if (blkcnt == 0)
+		return 0;
+
+#ifndef MMC_CMD23
+	if (mmc_set_blocklen(mmc, mmc->read_bl_len)) {
+		pr_debug("%s: Failed to set blocklen\n", __func__);
+		return 0;
+	}
+#endif
+
+	do {
+		cur = (blocks_todo > mmc->cfg->b_max) ?
+			mmc->cfg->b_max : blocks_todo;
+		if (mmc_read_blocks(mmc, dst, start, cur) != cur) {
+			pr_debug("%s: Failed to read blocks\n", __func__);
+			return 0;
+		}
+		blocks_todo -= cur;
+		start += cur;
+		dst += cur * mmc->read_bl_len;
+	} while (blocks_todo > 0);
+
+	return blkcnt;
+}
+
+int emmc_ds_manual_sht(struct mmc *mmc)
+{
+	u32 intf3 = meson_read(mmc, MESON_SD_EMMC_INTF3);
+	struct intf3 *gintf3 = (struct intf3 *)&(intf3);
+	int i, cnt = 0;
+	int match[64];
+	int best_start = -1, best_size = -1;
+	int cur_start = -1, cur_size = 0;
+	unsigned long phy_addr = 0x1080000;
+	void *addr = (void *)phy_addr;
+	u32 begin_time, end_time;
+	u32 capacity = mmc->capacity >> 9;
+	u32 offset;
+
+	meson_write(mmc, 0, MESON_SD_EMMC_ADJUST);
+	begin_time = get_time();
+	gintf3->ds_sht_m = 0;
+	gintf3->sd_intf3 = 1;
+	meson_write(mmc, intf3, MESON_SD_EMMC_INTF3);
+	offset = (u32)rand() % capacity;
+	for (i = 0; i < 64; i++) {
+		cnt = mmc_read(mmc, offset, 200, addr);
+		if (cnt == 200)
+			match[i] = 0;
+		else
+			match[i] = 1;
+		gintf3->ds_sht_m += 1;
+		meson_write(mmc, intf3, MESON_SD_EMMC_INTF3);
+	}
+	end_time = get_time();
+	printf("spend time is  %dus.\n", end_time - begin_time);
+
+	for (i = 0; i < 64; i++) {
+		if (match[i] == 0) {
+			if (cur_start < 0)
+				cur_start = i;
+			cur_size++;
+		} else {
+			if (cur_start >= 0) {
+				if (best_start < 0) {
+					best_start = cur_start;
+					best_size = cur_size;
+				} else {
+					if (best_size < cur_size) {
+						best_start = cur_start;
+						best_size = cur_size;
+					}
+				}
+				cur_start = -1;
+				cur_size = 0;
+			}
+		}
+	}
+	if (cur_start >= 0) {
+		if (best_start < 0) {
+			best_start = cur_start;
+			best_size = cur_size;
+		} else if (best_size < cur_size) {
+			best_start = cur_start;
+			best_size = cur_size;
+		}
+		cur_start = -1;
+		cur_size = -1;
+	}
+
+	gintf3->ds_sht_m = best_start + best_size / 2;
+	meson_write(mmc, intf3, MESON_SD_EMMC_INTF3);
+	printf("ds_sht:%u, window:%d, intf3:0x%x, clock:0x%x, cfg: 0x%x\n",
+			gintf3->ds_sht_m, best_size,
+			meson_read(mmc, MESON_SD_EMMC_INTF3),
+			meson_read(mmc, MESON_SD_EMMC_CLOCK),
+			meson_read(mmc, MESON_SD_EMMC_CFG));
+	return best_size;
+}
+
+unsigned int aml_sd_emmc_clktest(struct mmc *mmc)
+{
+	u32 intf3 = meson_read(mmc, MESON_SD_EMMC_INTF3);
+	struct intf3 *gintf3 = (struct intf3 *)&(intf3);
+	u32 clktest = 0, delay_cell = 0, clktest_log = 0, count = 0;
+	u32 vcfg = meson_read(mmc, MESON_SD_EMMC_CFG);
+	struct sd_emmc_config *gcfg = (struct sd_emmc_config *)&(vcfg);
+	int i = 0;
+	unsigned int cycle = 0;
+
+	meson_write(mmc, 0, MESON_SD_EMMC_ADJUST);
+
+	/* one cycle = xxx(ps) */
+	cycle = (1000000000 / mmc->clock) * 1000;
+	gcfg->auto_clk = 0;
+	gcfg->bl_len = 9;
+	gcfg->resp_timeout = 8;
+
+	meson_write(mmc, vcfg, MESON_SD_EMMC_CFG);
+	meson_write(mmc, 0, MESON_SD_EMMC_DELAY1);
+	meson_write(mmc, 0, MESON_SD_EMMC_DELAY2);
+
+	gintf3->clktest_exp = 8;
+	gintf3->clktest_on_m = 1;
+	meson_write(mmc, intf3, MESON_SD_EMMC_INTF3);
+
+	clktest_log = meson_read(mmc, MESON_SD_EMMC_CLKTEST_LOG);
+	clktest = meson_read(mmc, MESON_SD_EMMC_CLKTEST_OUT);
+	while (!(clktest_log & 0x80000000)) {
+		mdelay(1);
+		i++;
+		clktest_log = meson_read(mmc, MESON_SD_EMMC_CLKTEST_LOG);
+		clktest = meson_read(mmc, MESON_SD_EMMC_CLKTEST_OUT);
+		if (i > 4) {
+			printf("[%s] [%d] emmc clktest error\n",
+				__func__, __LINE__);
+			break;
+		}
+	}
+	if (clktest_log & 0x80000000) {
+		clktest = meson_read(mmc, MESON_SD_EMMC_CLKTEST_OUT);
+		count = clktest / (1 << 8);
+		if (vcfg & 0x4)
+			delay_cell = ((cycle / 2) / count);
+		else
+			delay_cell = (cycle / count);
+	}
+	printf("%s [%d] clktest : %u, delay_cell: %d, count: %u\n",
+		__func__, __LINE__, clktest, delay_cell, count);
+	intf3 = meson_read(mmc, MESON_SD_EMMC_INTF3);
+	gintf3->clktest_on_m = 0;
+	meson_write(mmc, intf3, MESON_SD_EMMC_INTF3);
+	gcfg->auto_clk = 1;
+	meson_write(mmc, vcfg, MESON_SD_EMMC_CFG);
+	return count;
+}
+
+static void tl1_emmc_line_timing(struct mmc *mmc)
+{
+	u32 delay1 = 0, delay2 = 0, count = 12;
+
+	delay2 = meson_read(mmc, MESON_SD_EMMC_DELAY2);
+	delay1  = (count << 0) | (count << 6) | (count << 12)
+		| (count << 18) | (count << 24);
+	delay2 |= (count << 0) | (count << 6) | (count << 12);
+	meson_write(mmc, delay1, MESON_SD_EMMC_DELAY1);
+	meson_write(mmc, delay2, MESON_SD_EMMC_DELAY2);
+}
+
+static u32 emmc_search_cmd_delay(char *str, int repeat_times)
+{
+	int best_start = -1, best_size = -1;
+	int cur_start = -1, cur_size = 0;
+	u32 cmd_delay;
+	int i;
+
+	for (i = 0; i < 64; i++) {
+		if (str[i] == repeat_times) {
+			cur_size += 1;
+			if (cur_start == -1)
+				cur_start = i;
+		} else {
+			cur_size = 0;
+			cur_start = -1;
+		}
+
+		if (cur_size > best_size) {
+			best_size = cur_size;
+			best_start = cur_start;
+		}
+	}
+
+	cmd_delay = (best_start + best_size / 2) << 24;
+	printf("best_start 0x%x, best_size %d, cmd_delay is 0x%x\n",
+			best_start, best_size, cmd_delay >> 24);
+	return cmd_delay;
+}
+
+static void emmc_show_cmd_window(char *str, int repeat_times)
+{
+	int pre_status = 0;
+	int status = 0;
+	int single = 0;
+	int start = 0;
+	int i;
+
+	printf(">>>>>>>>>>>>>>scan command window>>>>>>>>>>>>>>>\n");
+	for (i = 0; i < 64; i++) {
+		if (str[i] == repeat_times)
+			status = 1;
+		else
+			status = -1;
+
+		if (i != 0 && pre_status != status) {
+			if (pre_status == 1 && single == 1)
+				printf(">>cmd delay [ 0x%x ] is ok\n", i - 1);
+			else if (pre_status == 1 && single != 1)
+				printf(">>cmd delay [ 0x%x -- 0x%x ] is ok\n",
+						start, i - 1);
+			else if (pre_status != 1 &&  single == 1)
+				printf(">>cmd delay [ 0x%x ] is nok\n", i - 1);
+			else if (pre_status != 1 && single != 1)
+				printf(">>cmd delay [ 0x%x -- 0x%x ] is nok\n",
+						start, i - 1);
+			start = i;
+			single = 1;
+		} else {
+			single++;
+		}
+
+		if (i == 63) {
+			if (status == 1 && pre_status == 1)
+				printf(">>cmd delay [ 0x%x -- 0x%x ] is ok\n",
+						start, i);
+			else if (status != 1 && pre_status == -1)
+				printf(">>cmd delay [ 0x%x -- 0x%x ] is nok\n",
+						start, i);
+			else if (status == 1 && pre_status != 1)
+				printf(">>cmd delay [ 0x%x ] is ok\n", i);
+			else if (status != 1 && pre_status == 1)
+				printf(">>cmd delay [ 0x%x ] is nok\n", i);
+		}
+		pre_status = status;
+	}
+	printf("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+}
+
+static u32 scan_emmc_cmd_win(struct mmc *mmc, int send_status)
+{
+	u32 delay2 = meson_read(mmc, MESON_SD_EMMC_DELAY2);
+	u32 cmd_delay = 0;
+	u32 delay2_bak = delay2;
+	u32 i, j, err;
+	int repeat_times = 100;
+	char str[64] = {0};
+	u32 capacity = mmc->capacity >> 9;
+	unsigned long phy_addr = 0x1080000;
+	void *addr = (void *)phy_addr;
+	u32 offset;
+	u32 begin_time, end_time;
+
+	addr = (void *)malloc(512 * sizeof(char));
+	if (!addr)
+		return -1;
+
+	delay2 &= ~(0xff << 24);
+
+	begin_time = get_time();
+
+	for (i = 0; i < 64; i++) {
+		meson_write(mmc, delay2, MESON_SD_EMMC_DELAY2);
+		offset = (u32)rand() % capacity;
+		for (j = 0; j < repeat_times; j++) {
+			if (send_status)
+				err = aml_sd_emmc_cmd_v3(mmc);
+			else
+				err = mmc_read_single_block(mmc, addr, offset);
+			if (!err)
+				str[i]++;
+			else
+				break;
+		}
+		delay2 += (1 << 24);
+	}
+	end_time = get_time();
+	printf("spend time is  %dus.\n", end_time - begin_time);
+
+	meson_write(mmc, delay2_bak, MESON_SD_EMMC_DELAY2);
+	cmd_delay = emmc_search_cmd_delay(str, repeat_times);
+	if (0)
+		emmc_show_cmd_window(str, repeat_times);
+
+	free(addr);
+	return cmd_delay;
+}
+
+static void set_emmc_cmd_delay(struct mmc *mmc, int send_status)
+{
+	u32 delay2 = meson_read(mmc, MESON_SD_EMMC_DELAY2);
+	u32 cmd_delay = 0;
+
+	delay2 &= ~(0xff << 24);
+	cmd_delay = scan_emmc_cmd_win(mmc, send_status);
+	delay2 |= cmd_delay;
+	meson_write(mmc, delay2, MESON_SD_EMMC_DELAY2);
+}
+
+/* Insufficient number of NWR clocks in T7 EMMC Controller */
+static void set_emmc_nwr_clks(struct udevice *dev)
+{
+	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
+	struct mmc *mmc = &pdata->mmc;
+	struct meson_host *host = dev_get_priv(dev);
+	u32 delay1 = 0, delay2 = 0, count = host->nwr_cnt;
+
+	delay1 = (count << 0) | (count << 6) | (count << 12) | (count << 18) | (count << 24);
+	delay2 = (count << 0) | (count << 6) | (count << 12) | (count << 18);
+	meson_write(mmc, delay1, MESON_SD_EMMC_DELAY1);
+	meson_write(mmc, delay2, MESON_SD_EMMC_DELAY2);
+	printf("[%s], delay1: 0x%x, delay2: 0x%x\n", __func__,
+			meson_read(mmc, MESON_SD_EMMC_DELAY1),
+			meson_read(mmc, MESON_SD_EMMC_DELAY2));
+}
+
+static void aml_emmc_hs400_tl1(struct mmc *mmc)
+{
+	set_emmc_cmd_delay(mmc, 1);
+	tl1_emmc_line_timing(mmc);
+	emmc_ds_manual_sht(mmc);
+	set_emmc_cmd_delay(mmc, 0);
+}
+
+static void aml_emmc_hs400_v5(struct udevice *dev)
+{
+	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
+	struct mmc *mmc = &pdata->mmc;
+
+	set_emmc_nwr_clks(dev);
+	set_emmc_cmd_delay(mmc, 1);
+	emmc_ds_manual_sht(mmc);
+}
+
+static void aml_get_ctrl_ver(struct udevice *dev)
+{
+	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
+	struct mmc *mmc = &pdata->mmc;
+	struct meson_host *host = dev_get_priv(dev);
+
+	if (host->ignore_desc_busy)
+		aml_emmc_hs400_v5(dev);
+	else
+		aml_emmc_hs400_tl1(mmc);
+}
+
+void meson_post_hs400_timming(struct udevice *dev)
+{
+	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
+	struct mmc *mmc = &pdata->mmc;
+	struct meson_host *host = dev_get_priv(dev);
+
+	host->is_tuning = 1;
+	aml_sd_emmc_clktest(mmc);
+	aml_get_ctrl_ver(dev);
+	host->is_tuning = 0;
+}
+
 static const struct dm_mmc_ops meson_dm_mmc_ops = {
 	.send_cmd = meson_dm_mmc_send_cmd,
 	.set_ios = meson_dm_mmc_set_ios,
 	.send_init_stream = meson_hw_reset,
 	.get_cd = meson_get_cd,
+	.post_hs400_timming = meson_post_hs400_timming,
 #ifdef MMC_SUPPORTS_TUNING
 	.execute_tuning = meson_execute_tuning,
 #endif
@@ -971,6 +1489,12 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 	if (dev_read_bool(dev, "non-removable"))
 		host->is_in = 1;
 
+	if (dev_read_bool(dev, "ignore_desc_busy"))
+		host->ignore_desc_busy = 1;
+
+	if (dev_read_u32(dev, "nwr_cnt", &host->nwr_cnt) < 0)
+		host->nwr_cnt = 0;
+
 	dev_read_u32(dev, "card_type", &host->card_type);
 	if (aml_card_type_non_sdio(host)) {
 		ret = gpio_request_by_name(dev,
@@ -1000,18 +1524,19 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-/*void mmc_set_source_clock(struct udevice *dev)
-{
-	struct meson_host *host = dev_get_priv(dev);
-	unsigned long rate;
-
-	clk_set_rate(&host->div, 1000000000);
-	clk_disable(&host->xtal);
-	clk_enable(&host->gate);
-
-	printf("sd_emmc_clk_ctrl:0x%x\n", readl(((0x0038<<2) + 0xfe000800)));
-	printf("sd_emmc_clk_ctrl1:0x%x\n", readl(((0x0048<<2) + 0xfe000800)));
-}*/
+/*
+ *void mmc_set_source_clock(struct udevice *dev)
+ *{
+ *	struct meson_host *host = dev_get_priv(dev);
+ *	unsigned long rate;
+ *
+ *	clk_set_rate(&host->div, 1000000000);
+ *	clk_disable(&host->xtal);
+ *	clk_enable(&host->gate);
+ *
+ *	printf("sd_emmc_clk_ctrl1:0x%x\n", readl(((0x0048<<2) + 0xfe000800)));
+ *}
+ */
 
 static int meson_mmc_probe(struct udevice *dev)
 {
@@ -1046,7 +1571,7 @@ static int meson_mmc_probe(struct udevice *dev)
 	mmc->priv = pdata;
 	upriv->mmc = mmc;
 
-	//mmc_set_source_clock(dev);
+//	mmc_set_source_clock(dev);
 
 	mmc_set_clock(mmc, cfg->f_min, false);
 

@@ -25,6 +25,7 @@
 #include <amlogic/storage.h>
 #include <asm/arch/secure_apb.h>
 #include <asm/arch/sd_emmc.h>
+#include <amlogic/cpu_id.h>
 
 #define stamp_after(a, b) ((int)(b) - (int)(a) < 0)
 
@@ -449,12 +450,23 @@ int mmc_send_tuning(struct mmc *mmc, u32 opcode, int *cmd_error)
 }
 #endif
 
-static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
+int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 			   lbaint_t blkcnt)
 {
 	struct mmc_cmd cmd;
 	struct mmc_data data;
+#if CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
+	int err = 0;
 
+	if (blkcnt > 1) {
+		cmd.cmdidx = MMC_CMD_SET_BLOCK_COUNT;
+		cmd.cmdarg = blkcnt & 0xFFFF;
+		cmd.resp_type = MMC_RSP_R1;
+		err = mmc_send_cmd(mmc, &cmd, NULL);
+		if (err)
+			printf("mmc set blkcnt failed\n");
+	}
+#endif
 	if (blkcnt > 1)
 		cmd.cmdidx = MMC_CMD_READ_MULTIPLE_BLOCK;
 	else
@@ -474,7 +486,7 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 
 	if (mmc_send_cmd(mmc, &cmd, &data))
 		return 0;
-
+#if !CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
 	if (blkcnt > 1) {
 		cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
 		cmd.cmdarg = 0;
@@ -486,6 +498,7 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 			return 0;
 		}
 	}
+#endif
 
 	return blkcnt;
 }
@@ -1994,11 +2007,16 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 	int err;
 	const struct mode_width_tuning *mwt;
 	const struct ext_csd_bus_width *ecbw;
+	cpu_id_t cpuid = get_cpu_id();
+	u8 s4_rev = 0;
 
 #ifdef DEBUG
 	mmc_dump_capabilities("mmc", card_caps);
 	mmc_dump_capabilities("host", mmc->host_caps);
 #endif
+
+	if (cpuid.family_id == MESON_CPU_MAJOR_ID_S4)
+		s4_rev = cpuid.chip_rev;
 
 	/* Restrict card's capabilities by what the host can do */
 	card_caps &= mmc->host_caps;
@@ -2034,12 +2052,13 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 				goto error;
 			mmc_set_bus_width(mmc, bus_width(ecbw->cap));
 
-			if (mwt->mode == MMC_HS_400) {
+			if (mwt->mode == MMC_HS_400 && s4_rev != 0xA) {
 				err = mmc_select_hs400(mmc);
 				if (err) {
 					pr_err("Select HS400 failed %d\n", err);
 					goto error;
 				}
+				mmc_hs400_timming(mmc);
 			} else {
 				/* configure the bus speed (card) */
 				err = mmc_set_card_speed(mmc, mwt->mode);
@@ -2920,6 +2939,7 @@ int mmc_init(struct mmc *mmc)
 	if (mmc->has_init)
 		return 0;
 
+	mmc_reset_reg(mmc);
 	start = get_timer(0);
 
 	if (!mmc->init_in_progress)
@@ -2941,8 +2961,8 @@ int mmc_init(struct mmc *mmc)
 		}
 	}
 	info_disprotect &= ~DISPROTECT_KEY;
-	return err;
 
+	return err;
 }
 
 ulong mmc_ffu_write(int dev_num, lbaint_t start, lbaint_t blkcnt, const void *src)

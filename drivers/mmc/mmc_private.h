@@ -52,6 +52,8 @@ struct meson_host {
 	uint is_tuning;
 	uint card_type;
 	uint src_clk;
+	uint ignore_desc_busy;
+	uint nwr_cnt;
 	struct clk core;
 	struct clk xtal;
 	struct clk div2;
@@ -130,6 +132,9 @@ static inline ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start,
 #endif
 
 #endif /* CONFIG_SPL_BUILD */
+
+void meson_post_hs400_timming(struct udevice *dev);
+void mmc_hs400_timming(struct mmc *mmc);
 
 #ifdef CONFIG_MMC_TRACE
 void mmmc_trace_before_send(struct mmc *mmc, struct mmc_cmd *cmd);

@@ -61,6 +61,18 @@ void mmc_send_init_stream(struct mmc *mmc)
 	dm_mmc_send_init_stream(mmc->dev);
 }
 
+void dm_mmc_post_hs400_timming(struct udevice *dev)
+{
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+
+	ops->post_hs400_timming(dev);
+}
+
+void mmc_hs400_timming(struct mmc *mmc)
+{
+	dm_mmc_post_hs400_timming(mmc->dev);
+}
+
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
 int dm_mmc_wait_dat0(struct udevice *dev, int state, int timeout)
 {

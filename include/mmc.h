@@ -22,6 +22,22 @@
 #define MMC_SUPPORTS_TUNING
 #endif
 
+#define NO_CARD_ERR   -16
+#define UNUSABLE_ERR  -17
+#define COMM_ERR      -18
+#define TIMEOUT       -19
+#define IN_PROGRESS   -20
+#define SWITCH_ERR    -21
+
+#define MESON_SD_EMMC_ADJ_IDX_LOG 0x20
+#define MESON_SD_EMMC_CLKTEST_LOG 0x24
+#define MESON_SD_EMMC_CLKTEST_OUT 0x28
+#define MESON_SD_EMMC_EYETEST_LOG 0x2C
+#define MESON_SD_EMMC_EYETEST_OUT0 0x30
+#define MESON_SD_EMMC_EYETEST_OUT1 0x34
+#define MESON_SD_EMMC_INTF3   0x38
+#define MMC_CMD23
+
 /* SD/MMC version bits; 8 flags, 8 major, 8 minor, 8 change */
 #define SD_VERSION_SD	(1U << 31)
 #define MMC_VERSION_MMC	(1U << 30)
@@ -469,6 +485,7 @@ struct dm_mmc_ops {
 	 */
 	int (*get_wp)(struct udevice *dev);
 
+	void (*post_hs400_timming)(struct udevice *dev);
 #ifdef MMC_SUPPORTS_TUNING
 	/**
 	 * execute_tuning() - Start the tuning process
@@ -513,6 +530,9 @@ int mmc_getwp(struct mmc *mmc);
 int mmc_execute_tuning(struct mmc *mmc, uint opcode);
 int mmc_wait_dat0(struct mmc *mmc, int state, int timeout);
 
+int mmc_set_blocklen(struct mmc *mmc, int len);
+int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
+			   lbaint_t blkcnt);
 #else
 struct mmc_ops {
 	int (*send_cmd)(struct mmc *mmc,
@@ -673,6 +693,7 @@ struct mmc {
 				  * operating mode due to limitations when
 				  * accessing the boot partitions
 				  */
+	int refix;
 	u32 quirks;
 };
 
@@ -740,7 +761,7 @@ int mmc_send_tuning(struct mmc *mmc, u32 opcode, int *cmd_error);
  */
 int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg);
 
-int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size);
+//int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size);
 
 /**
  * mmc_voltage_to_mv() - Convert a mmc_voltage in mV
@@ -870,6 +891,7 @@ int board_mmc_init(bd_t *bis);
 int cpu_mmc_init(bd_t *bis);
 int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr);
 int mmc_get_env_dev(void);
+void mmc_reset_reg(struct mmc *mmc);
 
 /* Set block count limit because of 16 bit register limit on some hardware*/
 #ifndef CONFIG_SYS_MMC_MAX_BLK_COUNT
