@@ -569,8 +569,13 @@ void rx_clk_init(void)
 
 void rx_set_pinmux(void)
 {
-	writel(0xFFFF0000, PERIPHS_PIN_MUX_5);
-	printf("set pinmux:%#x\n", readl(PERIPHS_PIN_MUX_5));
+	unsigned int data32=0;
+
+	writel(0x11111111 , PERIPHS_PIN_MUX_B);
+	printf("PERIPHS_PIN_MUX_B set pinmux:%#x\n", readl(PERIPHS_PIN_MUX_B));
+	data32 = (readl(PERIPHS_PIN_MUX_C)&~0xffff) | 0x1111;
+	writel(data32, PERIPHS_PIN_MUX_C);
+	printf("PERIPHS_PIN_MUX_C set pinmux:%#x\n", readl(PERIPHS_PIN_MUX_C));
 }
 
 void hdmirx_hw_init(unsigned int port_map,

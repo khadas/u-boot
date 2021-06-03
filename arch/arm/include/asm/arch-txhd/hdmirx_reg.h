@@ -994,9 +994,15 @@
 #define DWC_CEC_WKUPCTRL                 0x1FC4
 
 /*pinmux register*/
-#define     PERIPHS_PIN_MUX_5                                  (0xff634400 + (0x31 << 2))
-#define SEC_PERIPHS_PIN_MUX_5                                  (0xff634400 + (0x31 << 2))
-#define   P_PERIPHS_PIN_MUX_5                                  (volatile uint32_t *)(0xff634400 + (0x31 << 2))
+#define     PERIPHS_PIN_MUX_5                                  (0xff634400 + (0x25 << 2))
+#define SEC_PERIPHS_PIN_MUX_5                                  (0xff634400 + (0x25 << 2))
+#define   P_PERIPHS_PIN_MUX_5                                  (volatile uint32_t *)(0xff634400 + (0x25 << 2))
+#define     PERIPHS_PIN_MUX_B                                  (0xff634400 + (0x2b << 2))
+#define SEC_PERIPHS_PIN_MUX_B                                  (0xff634400 + (0x2b << 2))
+#define   P_PERIPHS_PIN_MUX_B                                  (volatile uint32_t *)(0xff634400 + (0x2b << 2))
+#define     PERIPHS_PIN_MUX_C                                  (0xff634400 + (0x2c << 2))
+#define SEC_PERIPHS_PIN_MUX_C                                  (0xff634400 + (0x2c << 2))
+#define   P_PERIPHS_PIN_MUX_C                                  (volatile uint32_t *)(0xff634400 + (0x2c << 2))
 
 /*
  * ESM registers
