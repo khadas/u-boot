@@ -83,6 +83,7 @@ static int do_rpmb_state(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 	struct tee_invoke_arg invoke_arg;
 	const struct tee_optee_ta_uuid uuid = TA_RPMB_UUID;
 	struct tee_param param = { .attr = TEE_PARAM_ATTR_TYPE_VALUE_OUTPUT };
+	char *parg = NULL;
 
 	dev = tee_find_device(NULL, NULL, NULL, NULL);
 	if (!dev) {
@@ -119,7 +120,7 @@ static int do_rpmb_state(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 		goto exit;
 	}
 
-	char *parg = env_get("bootargs");
+	parg = env_get("bootargs");
 	if (parg)
 	{
 		char *buff =malloc(strlen(parg) + 64);
