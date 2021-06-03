@@ -148,8 +148,10 @@ static void meson_saradc_hw_init(struct meson_saradc *priv)
 	 * BIT[23-25]: vdda*3/4 connect to channel-7 by default
 	 * BIT[26]:    select the sampling clock period: 0:3T, 1:5T
 	 * BIT[27]:    disable ring counter
+	 * BIT[31]:    use the clk domain to add delay to
+	 *             the start convert signal for hold times
 	 */
-	writel(0x0980000a, priv->base + SARADC_REG3);
+	writel(0x8980000a, priv->base + SARADC_REG3);
 
 	/* disable continuous sampling mode */
 	clrsetbits_le32(priv->base + SARADC_REG0,
