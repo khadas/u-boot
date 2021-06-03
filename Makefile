@@ -1511,7 +1511,11 @@ quiet_cmd_u-boot__ ?= LD      $@
 quiet_cmd_smap = GEN     common/system_map.o
 cmd_smap = \
 	smap=`$(call SYSTEM_MAP,u-boot) | \
-		awk '$$2 ~ /[tTwW]/ {printf $$1 $$3 "\\\\000"}'` ; \
+		awk '$$2 ~ /[tTwW]/ {printf $$1}'` ;\
+	smap=`$(call SYSTEM_MAP,u-boot) | \
+		awk '$$2 ~ /[tTwW]/ {printf $$3}'` ;\
+	smap=`$(call SYSTEM_MAP,u-boot) | \
+		awk '$$2 ~ /[tTwW]/ {printf "\\\\000"}'` ;\
 	$(CC) $(c_flags) -DSYSTEM_MAP="\"$${smap}\"" \
 		-c $(srctree)/common/system_map.c -o common/system_map.o
 
