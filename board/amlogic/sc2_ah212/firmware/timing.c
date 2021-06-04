@@ -52,7 +52,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.version				= 1,
 	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK01_CH0,
 	.DramType				= CONFIG_DDR_TYPE_DDR3,
-	.DRAMFreq				= {912, 0, 0, 0},
+	.DRAMFreq				= {912, 0, 0, 0},//1008,912,792
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
 
@@ -128,14 +128,14 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 },
 #endif
 
-#if 1
+#if 0
 {
 	// g12a 4layer 2pcs ddr3 rank0
 	.board_id				= CONFIG_BOARD_ID_MASK,
 	.version				= 1,
 	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
 	.DramType				= CONFIG_DDR_TYPE_DDR3,
-	.DRAMFreq				= {912, 0, 0, 0},
+	.DRAMFreq				= {912, 0, 0, 0},//1008,912,792
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
 
@@ -218,7 +218,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.version				= 1,
 	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK01_CH0,
 	.DramType				= CONFIG_DDR_TYPE_DDR4,
-	.DRAMFreq				= {1320, 0, 0, 0},
+	.DRAMFreq				= {1320, 0, 0, 0},//1584,1320,1200
 	.ddr_rfc_type			= DDR_RFC_TYPE_DDR4_2Gbx8,
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
@@ -292,7 +292,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.version				= 1,
 	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
 	.DramType				= CONFIG_DDR_TYPE_DDR4,
-	.DRAMFreq				= {1320, 0, 0, 0},
+	.DRAMFreq				= {1320, 0, 0, 0},//1584,1320,1200
 	.ddr_rfc_type			= DDR_RFC_TYPE_DDR4_2Gbx8,
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
@@ -366,7 +366,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK01_CH01,
 	.ddr_rfc_type			= DDR_RFC_TYPE_LPDDR4_8Gbx1,
 	.DramType				= CONFIG_DDR_TYPE_LPDDR4,
-	.DRAMFreq				= {1320, 0, 0, 0},
+	.DRAMFreq				= {1320, 0, 0, 0},//1584,1320,1200
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
 
@@ -440,7 +440,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH01,
 	.ddr_rfc_type			= DDR_RFC_TYPE_LPDDR4_8Gbx1,
 	.DramType				= CONFIG_DDR_TYPE_LPDDR4,
-	.DRAMFreq				= {1320, 0, 0, 0},
+	.DRAMFreq				= {1320, 0, 0, 0},//1584,1320,1200
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
 
@@ -501,6 +501,156 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
 	.fast_boot[0]			= 1,
+},
+#endif
+
+#if 1
+{
+	// 2layer lpddr3 rank01
+	.board_id				= CONFIG_BOARD_ID_MASK,
+	.version				= 1,
+	//.dram_rank_config		= CONFIG_DDR0_32BIT_RANK01_CH0,
+	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK01_CH0,
+	.DramType				= CONFIG_DDR_TYPE_LPDDR3,
+	.DRAMFreq				= {400, 0, 0, 0},//912,792,600,400
+	.ddr_rfc_type			= DDR_RFC_TYPE_LPDDR4_4Gbx1,
+	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
+	.ddr_start_offset		= CFG_DDR_START_OFFSET,
+
+	.DisabledDbyte			= 0xf0,
+	.Is2Ttiming				= 0,
+	.HdtCtrl				= 0xa,
+	.dram_cs0_size_MB		= 0xffff,//1024,
+	.dram_cs1_size_MB		= 0xffff,//1024,
+	.training_SequenceCtrl	= {0x131f,0}, //ddr3 0x21f 0x31f
+	.phy_odt_config_rank	= {0x23,0x13}, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
+	.dfi_odt_config			= 0x0d0d,  //use 0d0d compatibility with 1rank and 2rank  //0808
+	.PllBypassEn			= 0, //bit0-ps0,bit1-ps1
+	.ddr_rdbi_wr_enable		= 0,
+	.clk_drv_ohm			= 60,
+	.cs_drv_ohm				= 60,
+	.ac_drv_ohm				= 60,
+	.soc_data_drv_ohm_p		= 40,
+	.soc_data_drv_ohm_n		= 40,
+	.soc_data_odt_ohm_p		= 60,
+	.soc_data_odt_ohm_n		= 0,
+	.dram_data_drv_ohm		= 30, //
+	.dram_data_odt_ohm		= 120,
+	.dram_ac_odt_ohm		= 0,
+	.soc_clk_slew_rate		= 0x3ff,//0x253,
+	.soc_cs_slew_rate		= 0x3ff,//0x253,
+	.soc_ac_slew_rate		= 0x3ff,//0x253,
+	.soc_data_slew_rate		= 0x2ff,
+	.vref_output_permil		= 800,//200,
+	.vref_receiver_permil	= 700,//875,  //700 for drv 40 odt 60 is better ,why?
+	.vref_dram_permil		= 600,//875,
+	//.vref_reverse			= 0,
+	.ac_trace_delay			= {10,2,10,10,10,0x0,0x0,0x0,0x0,0x0},
+	.ac_pinmux				= {00,00},
+	.ddr_dmc_remap			= {
+							[0] = ( 5 |  6 << 5 |  7 << 10 |  8<< 15 | 9<< 20 | 10 << 25 ),
+							[1] = ( 11|  29 << 5 |  0 << 10 | 15 << 15 | 16 << 20 | 17 << 25 ),
+							[2] = ( 18| 19 << 5 | 20 << 10 | 21 << 15 | 22 << 20 | 23 << 25 ),
+							[3] = ( 24| 25 << 5 | 26 << 10 | 27 << 15 | 28 << 20 | 30 << 25 ),
+							[4] = ( 31| 12 << 5 | 13 << 10 |  14<< 15 |  0 << 20 |  0 << 25 ),
+	},
+	.ddr_lpddr34_ca_remap	= {21/8,8/8,31/8,1/8},// {2,7,1,4,5,6,0,3,9,8},
+	.ddr_lpddr34_dq_remap	= {1,2,7,4,0,3,5,6, 8,12,14,9,11,10,15,13, 21,22,16,17,23,20,19,18, 31,29,26,27,30,28,25,24},
+	//{21,22,16,17,23,20,19,18,8,12,14,9,11,10,15,13,31,29,26,27,30,28,25,24,1,2,7,4,0,3,5,6},
+	.dram_rtt_nom_wr_park	= {00,00},
+
+	/* pll ssc config:
+	 *
+	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
+	 *      ppm = strength * 500
+	 *      mode: 0=center, 1=up, 2=down
+	 *
+	 *   eg:
+	 *     1. config 1000ppm center ss. then mode=0, strength=2
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
+	 *     2. config 3000ppm down ss. then mode=2, strength=6
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
+	 */
+	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
+	.ddr_func				= DDR_FUNC,
+	.magic					= DRAM_CFG_MAGIC,
+	.diagnose				= CONFIG_DIAGNOSE_DISABLE,
+	.training_offset 		= (0<<3) | (4<<0),//read dqs offset after training,bit3=0 right move,bit3=1 left move,bit[2:0] offset step
+},
+#endif
+
+#if 0
+{
+	// 2layer lpddr3 rank0
+	.board_id				= CONFIG_BOARD_ID_MASK,
+	.version				= 1,
+	//.dram_rank_config		= CONFIG_DDR0_32BIT_RANK01_CH0,
+	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
+	.DramType				= CONFIG_DDR_TYPE_LPDDR3,
+	.DRAMFreq				= {600, 0, 0, 0},//912,792,600,400
+	.ddr_rfc_type			= DDR_RFC_TYPE_LPDDR4_4Gbx1,
+	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
+	.ddr_start_offset		= CFG_DDR_START_OFFSET,
+
+	.DisabledDbyte			= 0xf0,
+	.Is2Ttiming				= 0,
+	.HdtCtrl				= 0xa,
+	.dram_cs0_size_MB		= 0xffff,//1024,
+	.dram_cs1_size_MB		= 0,//1024,
+	.training_SequenceCtrl	= {0x131f,0}, //ddr3 0x21f 0x31f
+	.phy_odt_config_rank	= {0x23,0x13}, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
+	.dfi_odt_config			= 0x0d0d,  //use 0d0d compatibility with 1rank and 2rank  //0808
+	.PllBypassEn			= 0, //bit0-ps0,bit1-ps1
+	.ddr_rdbi_wr_enable		= 0,
+	.clk_drv_ohm			= 60,
+	.cs_drv_ohm				= 60,
+	.ac_drv_ohm				= 60,
+	.soc_data_drv_ohm_p		= 40,
+	.soc_data_drv_ohm_n		= 40,
+	.soc_data_odt_ohm_p		= 60,
+	.soc_data_odt_ohm_n		= 0,
+	.dram_data_drv_ohm		= 30, //
+	.dram_data_odt_ohm		= 120,
+	.dram_ac_odt_ohm		= 0,
+	.soc_clk_slew_rate		= 0x3ff,//0x253,
+	.soc_cs_slew_rate		= 0x3ff,//0x253,
+	.soc_ac_slew_rate		= 0x3ff,//0x253,
+	.soc_data_slew_rate		= 0x2ff,
+	.vref_output_permil		= 800,//200,
+	.vref_receiver_permil	= 700,//875,  //700 for drv 40 odt 60 is better ,why?
+	.vref_dram_permil		= 600,//875,
+	//.vref_reverse			= 0,
+	.ac_trace_delay			= {10,2,10,10,10,0x0,0x0,0x0,0x0,0x0},
+	.ac_pinmux				= {00,00},
+	.ddr_dmc_remap			= {
+							[0] = ( 5 |  6 << 5 |  7 << 10 |  8<< 15 | 9<< 20 | 10 << 25 ),
+							[1] = ( 11|  29 << 5 |  0 << 10 | 15 << 15 | 16 << 20 | 17 << 25 ),
+							[2] = ( 18| 19 << 5 | 20 << 10 | 21 << 15 | 22 << 20 | 23 << 25 ),
+							[3] = ( 24| 25 << 5 | 26 << 10 | 27 << 15 | 28 << 20 | 30 << 25 ),
+							[4] = ( 31| 12 << 5 | 13 << 10 |  14<< 15 |  0 << 20 |  0 << 25 ),
+	},
+	.ddr_lpddr34_ca_remap	= {21/8,8/8,31/8,1/8},// {2,7,1,4,5,6,0,3,9,8},
+	.ddr_lpddr34_dq_remap	= {1,2,7,4,0,3,5,6, 8,12,14,9,11,10,15,13, 21,22,16,17,23,20,19,18, 31,29,26,27,30,28,25,24},
+	//{21,22,16,17,23,20,19,18,8,12,14,9,11,10,15,13,31,29,26,27,30,28,25,24,1,2,7,4,0,3,5,6},
+	.dram_rtt_nom_wr_park	= {00,00},
+
+	/* pll ssc config:
+	 *
+	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
+	 *      ppm = strength * 500
+	 *      mode: 0=center, 1=up, 2=down
+	 *
+	 *   eg:
+	 *     1. config 1000ppm center ss. then mode=0, strength=2
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
+	 *     2. config 3000ppm down ss. then mode=2, strength=6
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
+	 */
+	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
+	.ddr_func				= DDR_FUNC,
+	.magic					= DRAM_CFG_MAGIC,
+	.diagnose				= CONFIG_DIAGNOSE_DISABLE,
+	.training_offset 		= (0<<3) | (4<<0),//read dqs offset after training,bit3=0 right move,bit3=1 left move,bit[2:0] offset step
 },
 #endif
 };
