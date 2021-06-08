@@ -132,6 +132,7 @@ char* sha256_hex2str(unsigned char* in_sha_hex, char* out_sha_str)
     return out_sha_str;
 }
 
+#ifdef CONFIG_CMD_BOOTCTOL_AVB
 static const char *avb_get_dovi_hash_from_vbmeta(AvbSlotVerifyData* data)
 {
 	int i;
@@ -168,16 +169,19 @@ static const char *avb_get_dovi_hash_from_vbmeta(AvbSlotVerifyData* data)
 	}
 	return NULL;
 }
+#endif
 
 /*pass: return 1; fail: retrun -1*/
 int check_dovi_sha256(unsigned char* dovi_body, int size) {
 
-	int nRet = 0;
 	unsigned char sha256[SHA256_SUM_LEN] = {0};
 	char sha256_str[SHA256_SUM_LEN * 2 + 1] = {0};
 	sha256_context sha256_cxt;
+#ifdef CONFIG_CMD_BOOTCTOL_AVB
+	int nRet = 0;
 	AvbSlotVerifyData* out_data = NULL;
 	const char *tmp = NULL;
+#endif
 	char dovi_expect_hash[SHA256_SUM_LEN * 2 + 1] = {0};
 
 	if (!dovi_body)
@@ -228,6 +232,7 @@ int check_dovi_sha256(unsigned char* dovi_body, int size) {
 	} else {
 		return -1;
 	}
+#endif//CONFIG_CMD_BOOTCTOL_AVB
 
 	/*step 3: calcaute dovi.fw sha256*/
 	sha256_starts(&sha256_cxt);
@@ -241,7 +246,6 @@ int check_dovi_sha256(unsigned char* dovi_body, int size) {
 		printf("expect:%s, real: %s\n", dovi_expect_hash, sha256_str);
 		return -1;
 	}
-#endif//CONFIG_CMD_BOOTCTOL_AVB
 	return 1;
 }
 
