@@ -30,6 +30,8 @@ struct bl_pwm_misc_s {
 };
 
 struct bl_pwm_ctrl_config_s {
+	unsigned int pwm_div_flag; /*1:div in clktree*/
+	unsigned int pwm_vs_flag; /*1:8ch*/
 	struct bl_pwm_clkctrl_s *pwm_clk;
 	struct bl_pwm_misc_s *pwm_misc;
 	unsigned int *pwm_reg;
@@ -191,6 +193,21 @@ static unsigned int pwm_reg_t3[] = {
 };
 
 static struct bl_pwm_ctrl_config_s bl_pwm_ctrl_conf_dft = {
+	.pwm_div_flag = 0,
+	.pwm_vs_flag = 0,
+	.pwm_clk = NULL,
+	.pwm_misc = pwm_misc_dft,
+	.pwm_reg = pwm_reg_dft,
+	.pwm_cnt = 6,
+	.pwm_ao_clk = NULL,
+	.pwm_ao_misc = pwm_ao_misc_dft,
+	.pwm_ao_reg = pwm_ao_reg_dft,
+	.pwm_ao_cnt = 2,
+};
+
+static struct bl_pwm_ctrl_config_s bl_pwm_ctrl_conf_tl1 = {
+	.pwm_div_flag = 0,
+	.pwm_vs_flag = 1,
 	.pwm_clk = NULL,
 	.pwm_misc = pwm_misc_dft,
 	.pwm_reg = pwm_reg_dft,
@@ -202,6 +219,8 @@ static struct bl_pwm_ctrl_config_s bl_pwm_ctrl_conf_dft = {
 };
 
 static struct bl_pwm_ctrl_config_s bl_pwm_ctrl_conf_t7 = {
+	.pwm_div_flag = 0,
+	.pwm_vs_flag = 1,
 	.pwm_clk = pwm_clk_ctrl_t7,
 	.pwm_misc = pwm_misc_t7,
 	.pwm_reg = pwm_reg_t7,
@@ -213,6 +232,8 @@ static struct bl_pwm_ctrl_config_s bl_pwm_ctrl_conf_t7 = {
 };
 
 static struct bl_pwm_ctrl_config_s bl_pwm_ctrl_conf_t3 = {
+	.pwm_div_flag = 1,
+	.pwm_vs_flag = 1,
 	.pwm_clk = pwm_clk_ctrl_t3,
 	.pwm_misc = pwm_misc_t3,
 	.pwm_reg = pwm_reg_t3,
@@ -309,7 +330,7 @@ char *bl_pwm_num_to_str(unsigned int num)
 	return bl_pwm_invalid_name;
 }
 
-void bl_pwm_set_duty(struct bl_pwm_config_s *bl_pwm)
+static void bl_pwm_set_duty(struct bl_pwm_config_s *bl_pwm)
 {
 	unsigned int *pwm_reg;
 	int port;
@@ -359,13 +380,13 @@ void bl_pwm_set_duty(struct bl_pwm_config_s *bl_pwm)
 		BLPR("pwm_reg=0x%08x\n", lcd_cbus_read(pwm_reg[port]));
 }
 
-static void bl_set_pwm(struct aml_bl_drv_s *bdrv, struct bl_pwm_config_s *bl_pwm)
+void bl_set_pwm(struct bl_pwm_config_s *bl_pwm)
 {
 	unsigned int port = bl_pwm->pwm_port;
-	unsigned int vs[4], ve[4], sw, n, i, pol = 0;
+	unsigned int vs[8], ve[8], sw, n, i, pol = 0;
 
-	if (bdrv->state > 0)
-		bl_set_pwm_gpio_check(bdrv, bl_pwm);
+	if (!bl_pwm_ctrl_conf)
+		return;
 
 	switch (bl_pwm->pwm_method) {
 	case BL_PWM_POSITIVE:
@@ -387,8 +408,6 @@ static void bl_set_pwm(struct aml_bl_drv_s *bdrv, struct bl_pwm_config_s *bl_pwm
 	switch (port) {
 	case BL_PWM_VS:
 		bl_pwm->pwm_hi = bl_pwm->pwm_level;
-		memset(vs, 0xff, sizeof(unsigned int) * 4);
-		memset(ve, 0xff, sizeof(unsigned int) * 4);
 		n = bl_pwm->pwm_freq;
 		sw = (bl_pwm->pwm_cnt * 10 / n + 5) / 10;
 		bl_pwm->pwm_hi = (bl_pwm->pwm_hi * 10 / n + 5) / 10;
@@ -401,10 +420,25 @@ static void bl_set_pwm(struct aml_bl_drv_s *bdrv, struct bl_pwm_config_s *bl_pwm
 			if (lcd_debug_print_flag & LCD_DBG_PR_BL_NORMAL)
 				BLPR("vs[%d]=%d, ve[%d]=%d\n", i, vs[i], i, ve[i]);
 		}
+		for (i = n; i < 8; i++) {
+			vs[i] = 0x1fff;
+			ve[i] = 0x1fff;
+		}
 		lcd_vcbus_write(VPU_VPU_PWM_V0, (pol << 31) | (ve[0] << 16) | (vs[0]));
 		lcd_vcbus_write(VPU_VPU_PWM_V1, (ve[1] << 16) | (vs[1]));
 		lcd_vcbus_write(VPU_VPU_PWM_V2, (ve[2] << 16) | (vs[2]));
 		lcd_vcbus_write(VPU_VPU_PWM_V3, (ve[3] << 16) | (vs[3]));
+		if (bl_pwm_ctrl_conf->pwm_vs_flag) {
+			if (lcd_debug_print_flag & LCD_DBG_PR_BL_NORMAL)
+				BLPR("pwm_vs_flag support\n");
+			lcd_vcbus_setb(VPU_VPU_PWM_H0, 1, 31, 1);
+			lcd_vcbus_setb(VPU_VPU_PWM_V0, vs[4], 0, 13);
+			lcd_vcbus_setb(VPU_VPU_PWM_V0, ve[4], 16, 13);
+			lcd_vcbus_write(VPU_VPU_PWM_V1, (ve[5] << 16) | (vs[5]));
+			lcd_vcbus_write(VPU_VPU_PWM_V2, (ve[6] << 16) | (vs[6]));
+			lcd_vcbus_write(VPU_VPU_PWM_V3, (ve[7] << 16) | (vs[7]));
+			lcd_vcbus_setb(VPU_VPU_PWM_H0, 0, 31, 1);
+		}
 		break;
 	default:
 		bl_pwm_set_duty(bl_pwm);
@@ -457,13 +491,15 @@ void bl_pwm_set_level(struct aml_bl_drv_s *bdrv,
 		((bl_pwm->pwm_level * 1000 / bl_pwm->pwm_cnt) + 5) / 10;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_BL_NORMAL) {
-		BLPR("port 0x%x: level=%d, level_max=%d, level_min=%d, pwm_max=%d, pwm_min=%d, pwm_level=%d, duty=%d%%\n",
+		BLPR("pwm_port 0x%x: level=%d, level_max=%d, level_min=%d, pwm_max=%d, pwm_min=%d, pwm_level=%d, duty=%d%%\n",
 		     bl_pwm->pwm_port, level, max, min,
 		     pwm_max, pwm_min, bl_pwm->pwm_level,
 		     bl_pwm->pwm_duty);
 	}
 
-	bl_set_pwm(bdrv, bl_pwm);
+	if (bdrv->state > 0)
+		bl_set_pwm_gpio_check(bdrv, bl_pwm);
+	bl_set_pwm(bl_pwm);
 }
 
 void bl_pwm_en(struct bl_pwm_config_s *bl_pwm, int flag)
@@ -517,10 +553,15 @@ void bl_pwm_en(struct bl_pwm_config_s *bl_pwm, int flag)
 
 	if (flag) {
 		if (pwm_clk) {
-			lcd_cbus_setb(pwm_clk[port].reg, 0, pwm_clk[port].bit_div, 2);
+			if (bl_pwm_ctrl_conf->pwm_div_flag)
+				lcd_cbus_setb(pwm_clk[port].reg, pre_div, pwm_clk[port].bit_div, 2);
+			else
+				lcd_cbus_setb(pwm_clk[port].reg, 0, pwm_clk[port].bit_div, 2);
 			lcd_cbus_setb(pwm_clk[port].reg, 0, pwm_clk[port].bit_sel, 8);
 			lcd_cbus_setb(pwm_clk[port].reg, 1, pwm_clk[port].bit_en, 1);
 		}
+		if (bl_pwm_ctrl_conf->pwm_div_flag == 0)
+			lcd_cbus_setb(pwm_misc[port].reg, pre_div, pwm_misc[port].bit_pre_div, 7);
 		lcd_cbus_setb(pwm_misc[port].reg, pre_div, pwm_misc[port].bit_pre_div, 7);
 		/* pwm clk_sel */
 		lcd_cbus_setb(pwm_misc[port].reg, 0, pwm_misc[port].bit_clk_sel, 2);
@@ -642,11 +683,13 @@ int aml_bl_pwm_reg_config_init(struct aml_lcd_data_s *pdata)
 	case LCD_CHIP_G12A:
 	case LCD_CHIP_G12B:
 	case LCD_CHIP_SM1:
+		bl_pwm_ctrl_conf = &bl_pwm_ctrl_conf_dft;
+		break;
 	case LCD_CHIP_TL1:
 	case LCD_CHIP_TM2:
 	case LCD_CHIP_T5:
 	case LCD_CHIP_T5D:
-		bl_pwm_ctrl_conf = &bl_pwm_ctrl_conf_dft;
+		bl_pwm_ctrl_conf = &bl_pwm_ctrl_conf_tl1;
 		break;
 	case LCD_CHIP_T7:
 		bl_pwm_ctrl_conf = &bl_pwm_ctrl_conf_t7;

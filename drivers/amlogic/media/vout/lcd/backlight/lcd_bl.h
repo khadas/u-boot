@@ -11,7 +11,7 @@ void bl_set_pwm_gpio_check(struct aml_bl_drv_s *bdrv, struct bl_pwm_config_s *bl
 
 enum bl_pwm_port_e bl_pwm_str_to_num(const char *str);
 char *bl_pwm_num_to_str(unsigned int num);
-void bl_pwm_set_duty(struct bl_pwm_config_s *bl_pwm);
+void bl_set_pwm(struct bl_pwm_config_s *bl_pwm);
 void bl_pwm_set_level(struct aml_bl_drv_s *bdrv,
 		     struct bl_pwm_config_s *bl_pwm, unsigned int level);
 void bl_pwm_en(struct bl_pwm_config_s *bl_pwm, int flag);
