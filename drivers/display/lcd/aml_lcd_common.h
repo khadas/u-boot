@@ -42,7 +42,8 @@
 /* 20201105: optimize big size tcon bin parse in tvconfig*/
 /* 20201116: optimize phy ctrl compatibility*/
 /* 20210311: add global reset to clear tcon last state*/
-#define LCD_DRV_VERSION    "20210311"
+/* 20210608: add tcon multi lut support*/
+#define LCD_DRV_VERSION    "20210608"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
