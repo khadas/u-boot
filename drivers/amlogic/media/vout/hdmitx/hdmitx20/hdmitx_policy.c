@@ -303,11 +303,6 @@ static bool is_support_4k(void)
 	return true;
 }
 
-static bool is_support_4k30hz(void)
-{
-	return is_support_4k();
-}
-
 static bool is_support_deepcolor(void)
 {
 	return true;
@@ -589,13 +584,6 @@ static void get_highest_hdmimode(hdmi_data_t *hdmi_data, char *mode)
 			}
 			if (vic == HDMI_unkown)
 				continue;
-		}
-		if (!is_support_4k30hz() &&
-		    ((resolve_resolution_value(mode_tmp) >
-		     resolve_resolution_value("2160p30hz")) ||
-		     strstr(mode_tmp, "smpte"))) {
-			printf("This platform not support the mode over 2160p30hz\n");
-			continue;
 		}
 		if (resolve_resolution_value(mode_tmp) >
 		    resolve_resolution_value(value)) {
