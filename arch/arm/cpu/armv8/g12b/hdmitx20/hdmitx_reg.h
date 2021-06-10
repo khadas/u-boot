@@ -174,6 +174,7 @@ void aocec_wr_reg(unsigned long addr, unsigned long data);
 #define HDMITX_TOP_I2C_BUSY_CNT_STAT                  (TOP_OFFSET_MASK + 0x029)
 #define HDMITX_TOP_HDCP22_BSOD                  (TOP_OFFSET_MASK + 0x02A)
 #define HDMITX_TOP_DDC_CNTL                  (TOP_OFFSET_MASK + 0x02B)
+#define HDMITX_TOP_DISABLE_NULL              (TOP_OFFSET_MASK + 0x030)
 #define HDMITX_TOP_REVOCMEM_ADDR_S                  (TOP_OFFSET_MASK + 0x2000 >> 2)
 #define HDMITX_TOP_REVOCMEM_ADDR_E                  (TOP_OFFSET_MASK + 0x365E >> 2)
 

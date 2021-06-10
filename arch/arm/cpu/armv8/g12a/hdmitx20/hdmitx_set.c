@@ -691,6 +691,10 @@ static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
 	data32 |= (0 << 0);
 	hdmitx_wr_reg(HDMITX_TOP_BIST_CNTL, data32);
 
+	/* disable null package */
+	data32 = 0x7;
+	hdmitx_wr_reg(HDMITX_TOP_DISABLE_NULL, data32);
+
 	/* Configure video */
 
 	// Configure video sampler
@@ -747,20 +751,10 @@ static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
 	data32  = 0;
 	data32 |= (((output_color_format==HDMI_COLOR_FORMAT_422)? HDMI_COLOR_DEPTH_24B : color_depth)   << 4);  // [7:4] color_depth
 	data32 |= (0 << 0);
-	if ((data32 & 0xf0) == 0x40 )
+	/* HDMI1.4 CTS7-19 */
+	if ((data32 & 0xf0) == 0x40)
 		data32 &= ~(0xf << 4);
 	hdmitx_wr_reg(HDMITX_DWC_VP_PR_CD, data32);
-	if (output_color_format == HDMI_COLOR_FORMAT_422) {
-		switch (color_depth) {
-		case HDMI_COLOR_DEPTH_24B:
-			tmp = 4;
-			break;
-		default:
-			tmp = 0;
-			break;
-		}
-		hdmitx_set_reg_bits(HDMITX_DWC_VP_PR_CD, tmp, 4, 4);
-	}
 
 	/* Video Packet Stuffing */
 	data32  = 0;
