@@ -71,16 +71,53 @@
 #define SAR_ADC_DDR_ID_BASE   0
 #define SAR_ADC_DDR_ID_STEP   80
 
+
+#define DDR_ID_ACS_ADC   ((3 << 6) | (8)) //bit 6 adc_channel bit 0-5 adc value,chan 3 value 8 is layer 2
+
+
 #define DDR_TIMMING_OFFSET(X) (unsigned int)(unsigned long)(&(((ddr_set_t *)(0))->X))
 #define DDR_TIMMING_OFFSET_SIZE(X) sizeof(((ddr_set_t *)(0))->X)
 #define DDR_TIMMING_TUNE_TIMMING0(DDR_ID, PARA, VALUE) { DDR_ID, DDR_TIMMING_OFFSET(PARA), VALUE, DDR_TIMMING_OFFSET_SIZE(PARA), 0, DDR_RESV_CHECK_ID_ENABLE }
-#define DDR_TIMMING_TUNE_TIMMING1(DDR_ID, PARA, VALUE) { DDR_ID, sizeof(ddr_set_t )+DDR_TIMMING_OFFSET(PARA), VALUE, DDR_TIMMING_OFFSET_SIZE(PARA), 0, DDR_RESV_CHECK_ID_ENABLE }
-#if 0
+#define DDR_TIMMING_TUNE_TIMMING1(DDR_ID, PARA, VALUE) { DDR_ID, sizeof(ddr_set_t) + DDR_TIMMING_OFFSET(PARA), VALUE, DDR_TIMMING_OFFSET_SIZE(PARA), 0, DDR_RESV_CHECK_ID_ENABLE }
+#if 1
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
- //hxbao, need fine tune
- { 0, 0, 0xffffffff, 0, 0, 0 },
-	DDR_TIMMING_TUNE_TIMMING0( T3_2GB_SAM_DDR4_X4_EID  , cfg_board_SI_setting_ps[0].DRAMFreq,1320 ),
-	DDR_TIMMING_TUNE_TIMMING1( T3_2GB_SAM_DDR4_X4_EID  , cfg_board_SI_setting_ps[0].DRAMFreq,1320 ),
+	{ 0, 0, 0xffffffff, 0, 0, 0 },
+#if 1
+	// DDR_TIMMING_TUNE_TIMMING0( T3_2GB_SAM_DDR4_X4_EID  , cfg_board_SI_setting_ps[0].DRAMFreq,1320 ),
+	//  DDR_TIMMING_TUNE_TIMMING1( T3_2GB_SAM_DDR4_X4_EID  , cfg_board_SI_setting_ps[0].DRAMFreq,1320 ),
+	// DDR_TIMMING_TUNE_TIMMING0( DDR_ID_ACS_ADC  , cfg_board_SI_setting_ps[0].DRAMFreq,1176 ),
+	// DDR_TIMMING_TUNE_TIMMING1( DDR_ID_ACS_ADC  , cfg_board_SI_setting_ps[0].DRAMFreq,1176 ),
+	DDR_TIMMING_TUNE_TIMMING0(DDR_ID_ACS_ADC, cfg_board_common_setting.dram_ch0_size_MB,
+				  (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+				  (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+				  (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+				  (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+	DDR_TIMMING_TUNE_TIMMING0(DDR_ID_ACS_ADC, cfg_board_common_setting.dram_ch1_size_MB,
+				  (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+				  (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+				  (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+				  (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+	DDR_TIMMING_TUNE_TIMMING1(DDR_ID_ACS_ADC, cfg_board_common_setting.dram_ch0_size_MB,
+				  (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+				  (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+				  (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+				  (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+	DDR_TIMMING_TUNE_TIMMING1(DDR_ID_ACS_ADC, cfg_board_common_setting.dram_ch1_size_MB,
+				  (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+				  (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+				  (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+				  (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+#endif
+#if 0
+	DDR_TIMMING_TUNE_TIMMING0(DDR_ID_ACS_ADC, cfg_board_common_setting.dram_ch0_size_MB,
+				  0xffff),
+	DDR_TIMMING_TUNE_TIMMING0(DDR_ID_ACS_ADC, cfg_board_common_setting.dram_ch1_size_MB,
+				  0xffff),
+	DDR_TIMMING_TUNE_TIMMING1(DDR_ID_ACS_ADC, cfg_board_common_setting.dram_ch0_size_MB,
+				  0xffff),
+	DDR_TIMMING_TUNE_TIMMING1(DDR_ID_ACS_ADC, cfg_board_common_setting.dram_ch1_size_MB,
+				  0xffff),
+#endif
 };
 #endif
 //#define ENABLE_SKT_BOARD 1		//SKT AR319 6layer 4pcs ddr4
@@ -4079,12 +4116,12 @@ __attribute__ ((section(".clk_param"))) = {
 #else
 	#error "VDDEE val out of range\n"
 #endif
-
+#if 0
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 	//hxbao, need fine tune
-	{0,			0,            		0xffffffff,   0, 0, 0},
+	{ 0, 0, 0xffffffff, 0, 0, 0 },
 };
-
+#endif
 /* gpio/pinmux/pwm init */
 register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
 __attribute__ ((section(".misc_param"))) = {
