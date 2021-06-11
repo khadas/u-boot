@@ -232,7 +232,6 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	char *robustota = NULL;
 	char *mode = NULL;
 	char *update_env = NULL;
-	char *slot = NULL;
 
 	//if recovery mode, need disable dv, if factoryreset, need default uboot env
 	aml_recovery();
@@ -309,14 +308,6 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 			wrnP("current index is expect, no need reboot next, run ceche recovery\n");
 			if (has_boot_slot == 1) {
 				wrnP("ab mode\n");
-				slot = env_get("slot-suffixes");
-				if (strcmp(slot, "0") == 0) {
-					wrnP("write bootloader_a\n");
-					write_bootloader_back("0", 1);
-				} else if (strcmp(slot, "1") == 0) {
-					wrnP("write bootloader_b\n");
-					write_bootloader_back("0", 2);
-				}
 				update_env = env_get("update_env");
 				if (strcmp(update_env, "1") == 0) {
 					printf("ab mode, default all uboot env\n");
