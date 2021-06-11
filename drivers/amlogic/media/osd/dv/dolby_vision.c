@@ -129,9 +129,17 @@ static inline bool is_meson_sc2(void)
 		return false;
 }
 
+static inline bool is_meson_s4d(void)
+{
+	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_S4D)
+		return true;
+	else
+		return false;
+}
+
 static inline bool is_meson_box(void)
 {
-	if (is_meson_gxm() || is_meson_g12() || is_meson_sc2())
+	if (is_meson_gxm() || is_meson_g12() || is_meson_sc2() || is_meson_s4d())
 		return true;
 	else
 		return false;
@@ -198,7 +206,7 @@ static inline u32 READ_VPP_REG(u32 reg)
 	if (reg > 0x10000)
 		val = *(volatile unsigned int *)REG_DV_ADDR(reg);
 	else {
-		if (is_meson_sc2())
+		if (is_meson_sc2() || is_meson_s4d())
 			val = *(volatile unsigned int *)REG_ADDR_VCBUS_SC2(reg);
 		else
 			val = *(volatile unsigned int *)REG_ADDR_VCBUS(reg);
@@ -212,7 +220,7 @@ static inline void WRITE_VPP_REG(u32 reg,
 	if (reg > 0x10000)
 		*(volatile unsigned int *)REG_DV_ADDR(reg) = (val);
 	else {
-		if (is_meson_sc2())
+		if (is_meson_sc2() || is_meson_s4d())
 			*(volatile unsigned int *)REG_ADDR_VCBUS_SC2(reg) = (val);
 		else
 			*(volatile unsigned int *)REG_ADDR_VCBUS(reg) = (val);
@@ -231,7 +239,7 @@ static inline u32 phyaddr_to_dvaddr(u32 reg) {
 	u32 val;
 
 	if (reg > 0x10000) {
-		if (is_meson_sc2())
+		if (is_meson_sc2() || is_meson_s4d())
 			val = (reg - REG_BASE_VCBUS_SC2) >> 2;
 		else
 			val = (reg - REG_BASE_VCBUS) >> 2;
@@ -241,11 +249,20 @@ static inline u32 phyaddr_to_dvaddr(u32 reg) {
 	}
 }
 
+static inline bool is_dolby_stb_chip(void) {
+	return (is_meson_g12() || is_meson_tm2_stbmode() || is_meson_sc2() || is_meson_s4d());
+}
+
 #ifdef CONFIG_AML_DOLBY
 /*check dolby enable status,if status is disabled, not enable dolby
 */
 int is_dolby_enable(void)
 {
+	if (!is_dolby_stb_chip()) {
+		printf("not dolby stb chip %x\n", get_cpu_id().family_id);
+		return 0;
+	}
+
 	if (!dolby_status)
 		dolby_status = env_get("dolby_status");
 
@@ -278,7 +295,8 @@ bool check_dolby_vision_on(void)
 		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B) ||
 		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SM1) ||
 		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TM2) ||
-		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SC2)) {
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SC2) ||
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_S4D)) {
 		if (READ_VPP_REG(DOLBY_CORE3_SWAP_CTRL0) & 0x1)
 			return true;
 	}
@@ -832,7 +850,7 @@ static int dolby_core2_set(
 		(g_hpotch << 16) | g_vpotch);
 	if (is_meson_txlx_stbmode())
 		WRITE_VPP_REG(DOLBY_CORE2A_SWAP_CTRL5, 0xf8000000);
-	else if (is_meson_g12() || is_meson_tm2_stbmode() || is_meson_sc2())
+	else if (is_dolby_stb_chip())
 		WRITE_VPP_REG(DOLBY_CORE2A_SWAP_CTRL5,  0xa8000000);
 	else
 		WRITE_VPP_REG(DOLBY_CORE2A_SWAP_CTRL5, 0x0);
@@ -939,7 +957,7 @@ static int dolby_core3_set(
 		&& diag_enable) {
 		cur_dv_mode = dv_ll_output_mode & 0xff;
 
-		if (is_meson_g12() || is_meson_tm2_stbmode() || is_meson_sc2()) {
+		if (is_dolby_stb_chip()) {
 			if (dolby_vision_ll_policy == DOLBY_VISION_LL_YUV422)
 				diag_mode = 0x20;
 			else
@@ -1133,7 +1151,7 @@ int apply_stb_core_settings(void)
 static int  enable_dolby_vision(void)
 {
 	printf("enable_dolby_vision\n");
-	if (is_meson_g12() || is_meson_tm2_stbmode() || is_meson_sc2()) {
+	if (is_dolby_stb_chip()) {
 		hdr_func(OSD1_HDR, RGB_BYPASS);
 		hdr_func(OSD2_HDR, RGB_BYPASS);
 

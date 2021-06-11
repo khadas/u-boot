@@ -70,10 +70,12 @@
         "os_ident_addr=0x00500000\0"\
         "loadaddr_rtos=0x00001000\0"\
         "loadaddr_kernel=0x03080000\0"\
+        "dv_fw_addr=0xa00000\0"\
         "otg_device=1\0" \
         "panel_type=lcd_1\0" \
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
+        "colorattribute=444,8bit\0"\
         "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
@@ -86,6 +88,12 @@
         "fb_addr=0x00300000\0" \
         "fb_width=1920\0" \
         "fb_height=1080\0" \
+        "hdmichecksum=0x00000000\0" \
+        "dolby_status=0\0" \
+        "dolby_vision_on=0\0" \
+        "dv_fw_dir_odm_ext=/odm_ext/firmware/dovi_fw.bin\0" \
+        "dv_fw_dir_vendor=/vendor/firmware/dovi_fw.bin\0" \
+        "dv_fw_dir=/reserved/firmware/dovi_fw.bin\0" \
         "frac_rate_policy=1\0" \
         "hdr_policy=0\0" \
         "usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
@@ -125,6 +133,7 @@
             "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} "\
                 "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} "\
                 "hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
+                "hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} " \
                 "hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} "\
                 "frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
@@ -260,7 +269,7 @@
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
-                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;setenv dolby_status 0;setenv dolby_vision_on 0;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};vpp hdrpkt;"\
+                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};dovi set;dovi pkg;vpp hdrpkt;"\
             "fi;fi;"\
             "\0"\
 	"storage_param="\
