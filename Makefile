@@ -1210,9 +1210,6 @@ prepare: prepare0
 define filechk_version.h
 	(echo \#define PLAIN_VERSION \"$(UBOOTRELEASE)\"; \
 	echo \#define U_BOOT_VERSION \"U-Boot \" PLAIN_VERSION; \
-	echo \#define CONFIG_SYSTEM_AS_ROOT \"${SYSTEMMODE}\"; \
-	echo \#define CONFIG_AVB2 \"${AVBMODE}\"; \
-	echo \#define CONFIG_CMD_BOOTCTOL_VAB \"${BOOTCTRLMODE}\"; \
 	echo \#define CC_VERSION_STRING \"$$($(CC) --version | head -n 1)\"; \
 	echo \#define LD_VERSION_STRING \"$$($(LD) --version | head -n 1)\"; )
 endef
@@ -1225,6 +1222,15 @@ endef
 
 $(version_h): include/config/uboot.release FORCE
 	$(call filechk,version.h)
+ifeq ("$(AVBMODE)", "avb2")
+	echo "#define CONFIG_AVB2" \"$(AVBMODE)\" >> $(version_h)
+endif
+ifeq ("$(SYSTEMMODE)", "systemroot")
+	echo "#define CONFIG_SYSTEM_AS_ROOT" \"$(SYSTEMMODE)\" >> $(version_h)
+endif
+ifeq ("$(BOOTCTRLMODE)", "1")
+	echo "#define CONFIG_CMD_BOOTCTOL_VAB" \"$(BOOTCTRLMODE)\" >> $(version_h)
+endif
 
 $(timestamp_h): $(srctree)/Makefile FORCE
 	$(call filechk,timestamp.h)

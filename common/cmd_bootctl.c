@@ -462,23 +462,13 @@ static int do_Get_slot_state(
 
 int do_GetSystemMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-    char* system;
 #ifdef CONFIG_SYSTEM_AS_ROOT
-    system = CONFIG_SYSTEM_AS_ROOT;
+    setenv("system_mode","1");
 #else
     setenv("system_mode","0");
-    return 0;
 #endif
-    strcpy(system, CONFIG_SYSTEM_AS_ROOT);
-    printf("CONFIG_SYSTEM_AS_ROOT: %s \n", CONFIG_SYSTEM_AS_ROOT);
-    if (strcmp(system, "systemroot") == 0) {
-        setenv("system_mode","1");
-    }
-    else
-        setenv("system_mode","0");
 
     return 0;
-
 }
 
 int do_GetAvbMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
