@@ -345,17 +345,8 @@ static int do_SetActiveSlot(
 
 int do_GetSystemMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-    char* system;
 #ifdef CONFIG_SYSTEM_AS_ROOT
-    system = CONFIG_SYSTEM_AS_ROOT;
-    strcpy(system, CONFIG_SYSTEM_AS_ROOT);
-    printf("CONFIG_SYSTEM_AS_ROOT: %s \n", CONFIG_SYSTEM_AS_ROOT);
-    if (strcmp(system, "systemroot") == 0) {
-        env_set("system_mode","1");
-    }
-    else {
-        env_set("system_mode","0");
-    }
+    env_set("system_mode","1");
 #else
     env_set("system_mode","0");
 #endif
@@ -366,16 +357,7 @@ int do_GetSystemMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 int do_GetAvbMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #ifdef CONFIG_AVB2
-    char* avbmode;
-    avbmode = CONFIG_AVB2;
-    strcpy(avbmode, CONFIG_AVB2);
-    printf("CONFIG_AVB2: %s \n", CONFIG_AVB2);
-    if (strcmp(avbmode, "avb2") == 0) {
-        env_set("avb2","1");
-    }
-    else {
-        env_set("avb2","0");
-    }
+    env_set("avb2","1");
 #else
     env_set("avb2","0");
 #endif

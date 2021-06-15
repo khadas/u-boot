@@ -478,7 +478,6 @@ int ReadMetadataHeader(char *superbuf, LpMetadataHeader* header,
     int ishead = 0;
     int i;
     int index = 0;
-    char* flag;
 
     //printf("metaoffset: %d\n", GetPrimaryMetadataOffset(geometry, slot_number));
 
@@ -496,10 +495,7 @@ int ReadMetadataHeader(char *superbuf, LpMetadataHeader* header,
 
     index = GetPrimaryMetadataOffset(geometry, slot_number) + sizeof(LpMetadataHeader);
 #ifdef CONFIG_CMD_BOOTCTOL_VAB
-    flag = CONFIG_CMD_BOOTCTOL_VAB;
-    strcpy(flag, CONFIG_CMD_BOOTCTOL_VAB);
-    //printf("CONFIG_CMD_BOOTCTOL_VAB: %s \n", CONFIG_CMD_BOOTCTOL_VAB);
-    if ((strcmp(flag, "1") == 0) && (has_boot_slot == 1)) {
+    if (has_boot_slot == 1) {
         index = index + 128;
     }
 #endif
