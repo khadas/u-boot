@@ -45,7 +45,7 @@
 
 #define MMC_CMD23
 #define MMC_HS400_MODE
-#define MMC_SET_TUNING_PARA             //set tuning para directly without tuning
+//#define MMC_SET_TUNING_PARA             //set tuning para directly without tuning
 //#define MMC_WRITE_TUNING_PARA
 
 struct sd_emmc_global_regs {
