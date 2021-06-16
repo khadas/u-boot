@@ -16,7 +16,8 @@
 /* 20210412: add t3 support*/
 /* 20210514: add extern driver support*/
 /* 20210518: update t7 & t3 lvds lane setting*/
-#define LCD_DRV_VERSION    "20210518"
+/* 20210616: fix t3 clk ss mistake*/
+#define LCD_DRV_VERSION    "20210616"
 
 extern unsigned int lcd_debug_test;
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);

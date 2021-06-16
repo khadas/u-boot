@@ -1533,7 +1533,7 @@ void lcd_info_print(struct aml_lcd_drv_s *pdrv)
 	LCDPR("%s, %s %ubit, %ux%u@%u.%02uHz\n"
 		"fr_adj_type       %d\n"
 		"lcd_clk           %u.%03uMHz\n"
-		"ss_level          %u\n\n",
+		"ss_level          0x%x\n\n",
 		pconf->basic.model_name,
 		lcd_type_type_to_str(pconf->basic.lcd_type),
 		pconf->basic.lcd_bits,
