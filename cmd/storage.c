@@ -1399,28 +1399,21 @@ static int do_store_param_ops(cmd_tbl_t *cmdtp,
 			    int flag, int argc, char * const argv[])
 {
 	boot_area_entry_t *boot_entry = general_boot_layout.boot_entry;
-	char bufvir[64];
+	char bufvir[128];
 	int lenvir, i, re;
-	u32 bl2e_size, bl2x_size;
 	char *p = bufvir;
 
 	if (store_get_device_bootloader_mode() != ADVANCE_BOOTLOADER)
 		return 0;
 
-	bl2e_size = boot_entry[BOOT_AREA_BL2E].size;
-	bl2x_size = boot_entry[BOOT_AREA_BL2X].size;
 	lenvir = snprintf(bufvir, sizeof(bufvir), "%s", "mtdbootparts=aml-nand:");
 	p += lenvir;
 	re = sizeof(bufvir) - lenvir;
-	for (i = 0; i < 2; i++) {		/* bl2e and bl2x */
-		if (i == 0)
-			lenvir = snprintf(p, re, "%dk(%s),",
-					 (int)(bl2e_size / 1024),
-					 "bl2e");
-		else
-			lenvir = snprintf(p, re, "%dk(%s),",
-					 (int)(bl2x_size / 1024),
-					 "bl2x");
+
+	for (i = BOOT_AREA_BL2E; i <= BOOT_AREA_DEVFIP; i++) {
+		lenvir = snprintf(p, re, "%dk(%s),",
+				 (int)(boot_entry[i].size / 1024),
+				 boot_entry[i].name);
 		re -= lenvir;
 		p += lenvir;
 	}
@@ -1541,5 +1534,5 @@ U_BOOT_CMD(store, CONFIG_SYS_MAXARGS, 1, do_store,
 	"	turn on/off the rsv info protection\n"
 	"	name must't null\n"
 	"store param\n"
-	"	transfer bl2e/x size to kernel in such case like sc2"
+	"	transfer bl2e/x ddrfip devfip size to kernel in such case like sc2"
 );
