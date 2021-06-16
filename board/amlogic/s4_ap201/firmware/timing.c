@@ -46,7 +46,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_common_setting.pll_ssc_mode = DDR_PLL_SSC_DISABLE,
 		.cfg_board_common_setting.org_tdqs2dq = 0,
 		.cfg_board_common_setting.reserve1_test_function = { 0 },
-		.cfg_board_common_setting.ddr_dmc_remap = DDR_DMC_REMAP_DDR3_32BIT,                        //DDR_DMC_REMAP_LPDDR4_32BIT,//DDR_DMC_REMAP_DDR3_32BIT
+		.cfg_board_common_setting.ddr_dmc_remap = DDR_DMC_REMAP_DDR3_32BIT_X4,                        //DDR_DMC_REMAP_LPDDR4_32BIT,//DDR_DMC_REMAP_DDR3_32BIT
 
 		//s4 ddr3 ac pinmux
 		.cfg_board_common_setting.ac_pinmux =
