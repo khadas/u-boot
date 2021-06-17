@@ -332,6 +332,41 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 	debug("## Transferring control to Linux (at address %lx)...\n",
 		(ulong) kernel_entry);
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
+#ifdef CONFIG_AML_KASLR_SEED
+	int node, ret, len;
+	char *prop, *bootargs;
+	uint64_t seed;
+
+	node = fdt_path_offset(images->ft_addr, "/chosen");
+	if (node < 0)
+		printf("Can't find /chosen node from DTB\n");
+
+	bootargs = (char *)fdt_getprop(images->ft_addr, node, "bootargs", &len);
+	if (!bootargs)
+		printf("Can't find bootargs property in chosen\n");
+
+	if (bootargs && strstr(bootargs, "ramoops_io_en=1")) {
+		ret = fdt_appendprop_string(images->ft_addr, node, "bootargs", " nokaslr");
+		if (!ret)
+			printf("Not enable kaslr for debug purpose\n");
+		else
+			printf("Fail to set nokaslr %s\n", fdt_strerror(ret));
+	} else {
+		prop = (char *)fdt_getprop(images->ft_addr, node, "kaslr-seed", NULL);
+		if (!prop)
+			printf("Can't find kaslr-seed property in chosen\n");
+
+		srand(timer_get_us());
+		seed = (uint64_t)rand();
+//		printf("--leo-- seed 0x%llx\n", seed);
+
+		ret = fdt_setprop(images->ft_addr, node, "kaslr-seed", &seed, sizeof(seed));
+		if (!ret)
+			printf("Enable kaslr\n");
+		else
+			printf("Can't set kaslr-seed value in chosen\n");
+	}
+#endif
 
 	announce_and_cleanup(fake);
 

@@ -614,5 +614,6 @@
 #endif
 #endif
 
+#define CONFIG_AML_KASLR_SEED
 #endif
 
