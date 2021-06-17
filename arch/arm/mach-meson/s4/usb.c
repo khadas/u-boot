@@ -37,6 +37,8 @@
 #define USB2_PHY_PLL_OFFSET_54	(0x2a)
 
 #define TUNING_DISCONNECT_THRESHOLD 0x3C
+#define DISCONNECT_THRESHOLD_ENHANCE 0x2
+
 
 static struct phy usb_phys[2];
 
@@ -156,6 +158,7 @@ static void usb_enable_phy_pll (void)
 
 void set_usb_pll(uint32_t phy2_pll_base)
 {
+	int val;
 
 	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x40))
 		= (USB2_PHY_PLL_OFFSET_40 | USB_PHY2_RESET | USB_PHY2_ENABLE);
@@ -178,6 +181,10 @@ void set_usb_pll(uint32_t phy2_pll_base)
 
 	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0xc)) =
 		TUNING_DISCONNECT_THRESHOLD;
+	val = (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x38));
+	val &= ~0xc000000;
+	val |= (DISCONNECT_THRESHOLD_ENHANCE << 26 & 0xc000000);
+	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x38)) = val;
 	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x34))
 		= USB2_PHY_PLL_OFFSET_34;
 	debug("tuning_disconnect_threshold=0x%x\n", TUNING_DISCONNECT_THRESHOLD);
@@ -314,8 +321,7 @@ void usb_device_mode_init(void){
 	phy_base_addr = usb2_priv->usb_phy2_pll_base_addr[1];
 	reset_addr = usb2_priv->reset_addr;
 
-	//printf("PHY2=0x%08x,PHY3=0x%08x\n", u2p_aml_regs, usb_aml_regs);
-	printf("PHY2=%p,PHY3=%p\n", u2p_aml_regs, usb_aml_regs);
+	printf("PHY2=%p,phy-base=0x%08x\n", u2p_aml_regs, phy_base_addr);
 	if ((*(volatile uint32_t *)(unsigned long)(phy_base_addr + 0x38)) != 0) {
 		usb_phy_tuning_reset();
 		mdelay(150);
