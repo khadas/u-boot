@@ -17,7 +17,7 @@
 //#define S4_LPDDR4_DONGLE_LAYER_6 1  //use for 1rank lpddr4
 
 //#define S4_LPDDR4_2RANK 1
-//#define S4_DDR4_2RANK 1
+#define S4_DDR4_2RANK 1
 //#define S4_DDR4_1RANK 1
 #define S4_DDR3  1
 ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
