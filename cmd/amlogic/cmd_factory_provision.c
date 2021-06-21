@@ -630,11 +630,7 @@ static int check_keybox(const char *keybox, uint32_t size)
 
 static void calc_sha256(const char *data, uint32_t data_size, char *sha256)
 {
-	sha256_context sha256_cxt;
-
-	sha256_starts(&sha256_cxt);
-	sha256_update(&sha256_cxt, (const uint8_t *)data, (uint32_t)data_size);
-	sha256_finish(&sha256_cxt, (uint8_t *)sha256);
+	sha256_csum_wd((const unsigned char *)data, data_size, (unsigned char *)sha256, 0);
 }
 
 static int verify_written_keybox(const char *keybox_name, const char *keybox,
