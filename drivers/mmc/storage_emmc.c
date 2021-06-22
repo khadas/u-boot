@@ -11,6 +11,7 @@
 #include <asm/arch-g12a/bl31_apis.h>
 #include <linux/compat.h>
 #include <amlogic/aml_mmc.h>
+#include <linux/compat.h>
 
 #define USER_PARTITION 0
 #define BOOT0_PARTITION 1
@@ -41,7 +42,6 @@ static int storage_range_check(struct mmc *mmc,char const *part_name,loff_t offs
 	struct partitions *part_info = NULL;
 
 	cpu_id_t cpu_id = get_cpu_id();
-
 
 	if (strcmp(part_name, "bootloader") == 0) {
 		*off = 0;
@@ -86,8 +86,6 @@ static int storage_range_check(struct mmc *mmc,char const *part_name,loff_t offs
 	return 0;
 }
 
-
-
 static int storage_rsv_range_check(char const *part_name, size_t *size,loff_t *off) {
 
 	struct partitions *part = NULL;
@@ -115,7 +113,6 @@ static int storage_rsv_range_check(char const *part_name, size_t *size,loff_t *o
 		*size = vpart->size;
 	return 0;
 }
-
 
 static int storage_byte_read(struct mmc *mmc,loff_t off, size_t  size,void *addr) {
 
@@ -158,8 +155,6 @@ static int storage_byte_read(struct mmc *mmc,loff_t off, size_t  size,void *addr
 	   free(addr_tmp);
 	}
 	return (n == cnt) ? 0 : 1;
-
-
 }
 
 static int storage_byte_write(struct mmc *mmc,loff_t off, size_t  size,void *addr) {
@@ -208,7 +203,6 @@ static int storage_byte_write(struct mmc *mmc,loff_t off, size_t  size,void *add
 	return (n == cnt) ? 0 : 1;
 }
 
-
 static int storage_byte_erase(struct mmc *mmc,loff_t off, size_t  size) {
 
 	int blk_shift = 0;
@@ -247,8 +241,6 @@ static int storage_erase_in_part(char const *part_name, loff_t off, size_t size)
 	return (ret == 0) ? 0 : 1;
 }
 
-
-
 static int storage_read_in_part(char const *part_name, loff_t off, size_t size, void *dest)
 {
 	int ret =1;
@@ -267,7 +259,6 @@ static int storage_read_in_part(char const *part_name, loff_t off, size_t size, 
 
 	return ret;
 }
-
 
 static int storage_write_in_part(char const *part_name, loff_t off, size_t size, void *source)
 {
@@ -359,11 +350,7 @@ R_SWITCH_BACK:
 	}
 
 	return ret;
-
-
 }
-
-
 
 int mmc_storage_init(unsigned char init_flag) {
 
@@ -385,10 +372,6 @@ int mmc_storage_init(unsigned char init_flag) {
 	ret = storage_mmc_erase(init_flag, mmc);
 	return ret;
 }
-
-
-
-
 
 uint64_t mmc_storage_get_part_size(const char *part_name) {
 
@@ -429,7 +412,6 @@ int mmc_storage_read(const char *part_name, loff_t off, size_t size, void *dest)
 
 }
 
-
 int mmc_storage_write(const char *part_name, loff_t off, size_t size, void *source) {
 
 	int ret=1;
@@ -469,27 +451,27 @@ int mmc_storage_erase(const char *part_name, loff_t off, size_t size, int scrub_
 }
 
 uint8_t mmc_storage_get_copies(const char *part_name) {
+	struct mmc *mmc;
 
-	char ret=3;
+	mmc = find_mmc_device(STORAGE_EMMC);
+	if (!mmc)
+		return 1;
 
-	return ret;
+	if (aml_gpt_valid(mmc) == 0)
+		return 2;
 
+	return 3;
 }
 
-
 uint64_t mmc_get_copy_size(const char *part_name) {
-
-//#ifdef CONFIG_AML_GPT
-//	return UBOOT_SIZE*512;
-//#else
 	struct partitions *part_info = NULL;
-	part_info = find_mmc_partition_by_name("bootloader");
+
+	part_info = aml_get_partition_by_name("bootloader");
 	if (part_info == NULL) {
 		printf("get partition info failed !!\n");
 		return -1;
 	}
 	return part_info->size;
-//#endif
 }
 
 /* dtb read&write operation with backup updates */
@@ -596,7 +578,6 @@ int mmc_boot_read(const char *part_name, uint8_t cpy, size_t size, void *dest) {
 	else if (cpy == 0xff)
 		cpy = 7;
 	for (i=0;i<3;i++) {//cpy:
-
 		if (cpy & 1) {
 			ret = blk_select_hwpart_devnum(IF_TYPE_MMC, STORAGE_EMMC, i);
 			if (ret) goto R_SWITCH_BACK;
@@ -734,6 +715,87 @@ E_SWITCH_BACK:
 	return ret;
 }
 
+int mmc_gpt_read(void *source)
+{
+	struct mmc *mmc;
+	struct blk_desc *dev_desc;
+	unsigned long offset = 0;
+	size_t size = 34;
+	int ret;
+
+	mmc = find_mmc_device(STORAGE_EMMC);
+	if (!mmc)
+		return 1;
+
+	dev_desc = mmc_get_blk_desc(mmc);
+	ret = blk_dread(dev_desc, offset, size, (u_char *)source);
+	if (ret != size)
+		return -1;
+
+	if (is_valid_gpt_buf(dev_desc, (u_char *)source)) {
+		printf("%s: invalid GPT\n", __func__);
+		return -1;
+	}
+
+	return 0;
+}
+
+int mmc_gpt_write(void *source)
+{
+	struct blk_desc *dev_desc;
+	struct mmc *mmc;
+
+	mmc = find_mmc_device(STORAGE_EMMC);
+	if (!mmc)
+		return 1;
+
+	dev_desc = mmc_get_blk_desc(mmc);
+	if (is_valid_gpt_buf(dev_desc, (u_char *)source)) {
+		printf("%s: invalid GPT - refusing to write to flash\n", __func__);
+		return -1;
+	}
+
+	if (write_mbr_and_gpt_partitions(dev_desc, (u_char *)source)) {
+		printf("%s: writing GPT partitions failed\n", __func__);
+		return -1;
+	}
+
+	if (get_ept_from_gpt(mmc) != 0)
+		printf("get ept from gpt failed\n");
+
+	printf("update gpt and ept success\n");
+	return 0;
+}
+
+/*
+ * check is gpt is valid
+ * if valid return 0
+ * else return 1
+ */
+int mmc_gpt_erase(void)
+{
+	struct blk_desc *dev_desc;
+	struct mmc *mmc;
+	int ret;
+
+	mmc = find_mmc_device(STORAGE_EMMC);
+	if (!mmc)
+		return 1;
+
+	dev_desc = mmc_get_blk_desc(mmc);
+	if (!dev_desc) {
+		printf("%s: Invalid Argument(s)\n", __func__);
+		return 1;
+	}
+
+	ret = erase_gpt_part_table(dev_desc);
+	if (ret) {
+		printf("%s, failed erase gpt", __func__);
+		return 1;
+	}
+	return 0;
+}
+
 uint32_t mmc_get_rsv_size(const char *rsv_name) {
 
 	struct virtual_partition *vpart = NULL;
@@ -821,7 +883,11 @@ int mmc_write_rsv(const char *rsv_name, size_t size, void *buf) {
 
 	if (!strcmp("dtb", rsv_name)) {
 		ret = dtb_write(buf);
-		ret |= renew_partition_tbl(buf);
+		if (!gpt_partition) {
+			/* renew partition table @ once*/
+			printf("renew partition table\n");
+			ret |= renew_partition_tbl(buf);
+		}
 	} else if (!strcmp("key", rsv_name)) {
 		info_disprotect |= DISPROTECT_KEY;
 		ret = mmc_key_write(buf, size, 0);
@@ -916,6 +982,10 @@ void config_storage_dev_func(struct storage_t *dev, struct mmc* mmc)
 	dev->write_rsv = mmc_write_rsv;
 	dev->erase_rsv = mmc_erase_rsv;
 	dev->protect_rsv = mmc_protect_rsv;
+
+	dev->gpt_read = mmc_gpt_read;
+	dev->gpt_write = mmc_gpt_write;
+	dev->gpt_erase = mmc_gpt_erase;
 
 	return;
 }

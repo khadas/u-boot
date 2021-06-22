@@ -19,6 +19,7 @@
 #include <part_efi.h>
 #include <linux/compiler.h>
 #include <linux/ctype.h>
+#include <emmc_partitions.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -331,8 +332,8 @@ int part_test_efi(struct blk_desc *dev_desc)
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(legacy_mbr, legacymbr, 1, dev_desc->blksz);
 
 	/* Read legacy MBR from block 0 and validate it */
-	if ((blk_dread(dev_desc, 0, 1, (ulong *)legacymbr) != 1)
-		|| (is_pmbr_valid(legacymbr) != 1)) {
+	if ((blk_dread(dev_desc, 0, 1, (ulong *)legacymbr) != 1) ||
+			(is_pmbr_valid(legacymbr) != 1)) {
 		return -1;
 	}
 	return 0;
@@ -493,10 +494,9 @@ int gpt_fill_pte(struct blk_desc *dev_desc,
 		if (strlen(str_type_guid)) {
 			if (uuid_str_to_bin(str_type_guid, bin_type_guid,
 					    UUID_STR_FORMAT_GUID)) {
-				char str[7] = {"default"};
-				strcpy(str_type_guid, str);
-				uuid_str_to_bin(str_type_guid, bin_type_guid,
-						UUID_STR_FORMAT_GUID);
+				printf("Partition no. %d: invalid type guid: %s\n",
+				       i, str_type_guid);
+				return -1;
 			}
 		} else {
 			/* default partition type GUID */
@@ -861,6 +861,7 @@ int erase_gpt_part_table(struct blk_desc *dev_desc)
 		free(gpt_h);
 		return 1;
 	}
+	gpt_partition = false;
 	free(gpt_h);
 	return 0;
 }
@@ -1123,7 +1124,7 @@ static gpt_entry *alloc_read_gpt_entries(struct blk_desc *dev_desc,
 	blk = le64_to_cpu(pgpt_head->partition_entry_lba);
 	blk_cnt = BLOCK_CNT(count, dev_desc);
 	if (blk_dread(dev_desc, blk, (lbaint_t)blk_cnt, pte) != blk_cnt) {
-		printf("*** ERROR: Can't read GPT Entries ***\n");
+		printf("*** ERROR: Can't read GPT Entries %lu***\n", blk_cnt);
 		free(pte);
 		return NULL;
 	}

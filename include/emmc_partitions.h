@@ -259,6 +259,8 @@ typedef struct FastbootContext {
 } FastbootContext_t;
 
 extern bool is_partition_checked;
+extern struct partitions *part_table;
+extern int parts_total_num;
 extern struct partitions emmc_partition_table[];
 
 extern int get_emmc_partition_arraysize(void);
@@ -278,6 +280,7 @@ int mmc_boot_size(char *name, uint64_t* size);
 struct virtual_partition *aml_get_virtual_partition_by_name(const char *name);
 bool aml_is_emmc_tsd (struct mmc *mmc);
 int mmc_device_init (struct mmc *mmc);
+int get_ept_from_gpt(struct mmc *mmc);
 
 #define PARTITION_ELEMENT(na, sz, flags) {.name = na, .size = sz, .mask_flags = flags,}
 

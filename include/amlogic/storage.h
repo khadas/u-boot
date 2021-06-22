@@ -132,7 +132,9 @@ struct storage_t {
 	int (*boot_write)(const char *part_name,
 			  u8 cpy, size_t size, void *source);
 	int (*boot_erase)(const char *part_name, u8 cpy);
-
+	int (*gpt_read)(void *dest);
+	int (*gpt_write)(void *source);
+	int (*gpt_erase)(void);
 	u32 (*get_rsv_size)(const char *rsv_name);
 	int (*read_rsv)(const char *rsv_name, size_t size, void *buf);
 	int (*write_rsv)(const char *rsv_name, size_t size, void *buf);

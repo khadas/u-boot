@@ -70,10 +70,10 @@ bool emmckey_is_access_range_legal (struct mmc *mmc, ulong start, lbaint_t blkcn
 			if ((key_start_blk <= (start + blkcnt -1))
 				&& (key_end_blk >= start)
 				&& (blkcnt != start)) {
-				pr_info("%s, keys %ld, keye %ld, start %ld, blkcnt %ld\n",
+				printf("%s, keys %ld, keye %ld, start %ld, blkcnt %ld\n",
 						mmc->cfg->name, key_start_blk,
 						key_end_blk, start, blkcnt);
-				pr_err("Emmckey: Access range is illegal!\n");
+				pr_err("eMMCkey: Access range is illegal!\n");
 				return 0;
 			}
 		}
@@ -2934,7 +2934,7 @@ int mmc_init(struct mmc *mmc)
 		if (!is_partition_checked) {
 			if (mmc_device_init(mmc) == 0) {
 				is_partition_checked = true;
-				pr_info("eMMC/TSD partition table have been checked OK!\n");
+				printf("eMMC/TSD partition table have been checked OK!\n");
 				for (i = 0; i < ARRAY_SIZE(aml_pattern_table); i++)
 					mmc_pattern_check(mmc, &aml_pattern_table[i]);
 			}

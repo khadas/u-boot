@@ -16,6 +16,7 @@
 #include <asm/arch/secure_apb.h>
 #include <amlogic/blxx2bl33_param.h>
 #include <amlogic/aml_mtd.h>
+#include <mmc.h>
 
 #undef pr_info
 #define pr_info       printf
@@ -710,6 +711,48 @@ int store_boot_erase(const char *name, u8 copy)
 	return store->boot_erase(name, copy);
 }
 
+int store_gpt_read(void *buf)
+{
+	struct storage_t *store = store_get_current();
+
+	if (!store) {
+		pr_info("%s %d please init storage device first\n",
+			__func__, __LINE__);
+		return 1;
+	}
+	if (!store->gpt_read)
+		return 1;
+	return store->gpt_read(buf);
+}
+
+int store_gpt_write(void *buf)
+{
+	struct storage_t *store = store_get_current();
+
+	if (!store) {
+		pr_info("%s %d please init storage device first\n",
+			__func__, __LINE__);
+		return 1;
+	}
+	if (!store->gpt_write)
+		return 1;
+	return store->gpt_write(buf);
+}
+
+int store_gpt_erase(void)
+{
+	struct storage_t *store = store_get_current();
+
+	if (!store) {
+		pr_info("%s %d please init storage device first\n",
+			__func__, __LINE__);
+		return 1;
+	}
+	if (!store->gpt_erase)
+		return 1;
+	return store->gpt_erase();
+}
+
 u32 store_rsv_size(const char *name)
 {
 	struct storage_t *store = store_get_current();
@@ -1344,6 +1387,84 @@ static int do_store_boot_erase(cmd_tbl_t *cmdtp,
 	return store->boot_erase(name, cpy);
 }
 
+static int do_store_gpt_read(cmd_tbl_t *cmdtp,
+			 int flag, int argc, char * const argv[])
+{
+	struct storage_t *store = store_get_current();
+	unsigned long addr;
+	int ret;
+
+	if (!store) {
+		pr_info("%s %d please init your storage device first!\n",
+			__func__, __LINE__);
+		return CMD_RET_FAILURE;
+	}
+
+	if (unlikely(argc != 3))
+		return CMD_RET_USAGE;
+
+	addr = simple_strtoul(argv[2], NULL, 16);
+
+	if (store->gpt_read) {
+		ret = store->gpt_read((u_char *)addr);
+		return ret;
+	}
+
+	printf("read gpt is not prepared\n");
+	return CMD_RET_USAGE;
+}
+
+static int do_store_gpt_write(cmd_tbl_t *cmdtp,
+			 int flag, int argc, char * const argv[])
+{
+	struct storage_t *store = store_get_current();
+	unsigned long addr;
+	int ret;
+
+	if (!store) {
+		pr_info("%s %d please init your storage device first!\n",
+			__func__, __LINE__);
+		return CMD_RET_FAILURE;
+	}
+
+	if (unlikely(argc != 3))
+		return CMD_RET_USAGE;
+
+	addr = simple_strtoul(argv[2], NULL, 16);
+
+	if (store->gpt_write) {
+		ret = store->gpt_write((u_char *)addr);
+		return ret;
+	}
+
+	printf("write gpt is not prepared\n");
+	return CMD_RET_USAGE;
+}
+
+static int do_store_gpt_erase(cmd_tbl_t *cmdtp,
+			 int flag, int argc, char * const argv[])
+{
+	struct storage_t *store = store_get_current();
+	int ret;
+
+	if (!store) {
+		pr_info("%s %d please init your storage device first!\n",
+			__func__, __LINE__);
+		return CMD_RET_FAILURE;
+	}
+
+	if (unlikely(argc != 2))
+		return CMD_RET_USAGE;
+
+	if (store->gpt_erase) {
+		ret = store->gpt_erase();
+		return ret;
+	}
+
+	printf("erase gpt is not prepared\n");
+	return CMD_RET_USAGE;
+}
+
 static int do_store_rsv_ops(cmd_tbl_t *cmdtp,
 			    int flag, int argc, char * const argv[])
 {
@@ -1432,6 +1553,9 @@ static cmd_tbl_t cmd_store_sub[] = {
 	U_BOOT_CMD_MKENT(erase, 5, 0, do_store_erase, "", ""),
 	U_BOOT_CMD_MKENT(read, 6, 0, do_store_read, "", ""),
 	U_BOOT_CMD_MKENT(write, 7, 0, do_store_write, "", ""),
+	U_BOOT_CMD_MKENT(write_gpt, 3, 0, do_store_gpt_write, "", ""),
+	U_BOOT_CMD_MKENT(read_gpt, 3, 0, do_store_gpt_read, "", ""),
+	U_BOOT_CMD_MKENT(erase_gpt, 2, 0, do_store_gpt_erase, "", ""),
 	U_BOOT_CMD_MKENT(write_bl2img, 5, 0, do_store_write_bl2img, "", ""),
 	U_BOOT_CMD_MKENT(boot_read,	6, 0, do_store_boot_read, "", ""),
 	U_BOOT_CMD_MKENT(boot_write, 6, 0, do_store_boot_write, "", ""),
@@ -1480,6 +1604,12 @@ U_BOOT_CMD(store, CONFIG_SYS_MAXARGS, 1, do_store,
 	"	if partition name not value. write start with\n"
 	"	offset in normal logic area,if tpl area exist\n"
 	"	write offset at end of tpl area\n"
+	"store write_gpt addr\n"
+	"   write gpt from address 'addr'\n"
+	"store read_gpt addr\n"
+	"   read gpt to address 'addr'\n"
+	"store erase_gpt\n"
+	"   erase primary and secondary gpt\n"
 	"store erase partition name off size.\n"
 	"	erase 'size' bytes from offset 'off'\n"
 	"	of device/partition [partition name]\n"

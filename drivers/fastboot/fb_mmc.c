@@ -479,7 +479,7 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 		if (ret)
 			fastboot_fail("fastboot write dtb fail", response);
 		else {
-			if (aml_gpt_valid(mmc) != 0) {
+			if (!gpt_partition) {
 				/* renew partition table @ once*/
 				printf("renew partition table\n");
 				if (renew_partition_tbl(download_buffer))
