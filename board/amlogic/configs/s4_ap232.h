@@ -110,6 +110,7 @@
         "active_slot=normal\0"\
         "boot_part=boot\0"\
         "vendor_boot_part=vendor_boot\0"\
+        "board_logo_part=odm_ext\0" \
         "board=oppen\0"\
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
@@ -248,6 +249,10 @@
                 "echo ab mode, read dtb from kernel;"\
                 "setenv common_dtb_load ""imgread dtb ${boot_part} ${dtb_mem_addr}"";"\
             "fi;"\
+            "\0"\
+        "load_bmp_logo="\
+            "if rdext4pic ${board_logo_part} $loadaddr; then bmp display $logoLoadAddr; " \
+            "else if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi; fi;" \
             "\0"\
         "init_display="\
             "get_rebootmode;"\
