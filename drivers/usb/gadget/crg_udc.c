@@ -548,7 +548,7 @@ static void req_done(struct crg_udc_ep *udc_ep,
 	if (likely(udc_req->usb_req.status == -EINPROGRESS))
 		udc_req->usb_req.status = status;
 
-	//list_del_init(&udc_req->queue);
+	list_del_init(&udc_req->queue);
 
 	if (udc_req->mapped) {
 		if (udc_req->usb_req.length) {
@@ -567,18 +567,18 @@ static void req_done(struct crg_udc_ep *udc_ep,
 
 static void nuke(struct crg_udc_ep *udc_ep, int status)
 {
-	//struct crg_udc_request *req = NULL;
+	struct crg_udc_request *req = NULL;
 
-	//while (!list_empty(&udc_ep->queue)) {
+	while (!list_empty(&udc_ep->queue)) {
 
-	//	req = list_entry(udc_ep->queue.next,
-	//			struct crg_udc_request,
-	//			queue);
+		req = list_entry(udc_ep->queue.next,
+				struct crg_udc_request,
+				queue);
 
-	//	req_done(udc_ep, req, status);
-	//}
+		req_done(udc_ep, req, status);
+	}
 
-	req_done(udc_ep, udc_ep->ep_req, status);
+	//req_done(udc_ep, udc_ep->ep_req, status);
 
 }
 
@@ -1049,7 +1049,7 @@ int crg_udc_queue_ctrl(struct crg_udc_ep *udc_ep_ptr,
 		return -EINVAL;
 	}
 
-//	if (list_empty(&udc_ep_ptr->queue)) {
+	if (list_empty(&udc_ep_ptr->queue)) {
 		/* For control endpoint, we can handle one setup request at a
 		 * time. so if there are TD pending in the transfer ring.
 		 * wait for the sequence number error event. Then put the new
@@ -1141,13 +1141,13 @@ int crg_udc_queue_ctrl(struct crg_udc_ep *udc_ep_ptr,
 			printf("Eq = 0x%p != Dq = 0x%p\n", enq_pt, dq_pt);
 			/* Assert() */
 		}
-//	} else {
-//		printf("udc_ep_ptr->queue not empty\n");
+	} else {
+		printf("udc_ep_ptr->queue not empty\n");
 //		/* New setup packet came
 //		 * Drop the this req..
 //		 */
-//		return -EINVAL;
-//	}
+		return -EINVAL;
+	}
 
 	return 0;
 }
@@ -1198,7 +1198,7 @@ void build_ep0_status(struct crg_udc_ep *udc_ep_ptr,
 	//reg_write(&uccr->doorbell, tmp);
 	knock_doorbell(crg_udc, 0);
 
-	//list_add_tail(&udc_req_ptr->queue, &udc_ep_ptr->queue);
+	list_add_tail(&udc_req_ptr->queue, &udc_ep_ptr->queue);
 
 	debug("%s end\n", __func__);
 }
@@ -1251,9 +1251,9 @@ void handle_cmpl_code_success(struct crg_gadget_dev *crg_udc,
 		 * is the end of a TD
 		 */
 		//debug("end of TD\n");
-		//udc_req_ptr = list_entry(udc_ep_ptr->queue.next,
-		//			struct crg_udc_request, queue);
-		udc_req_ptr = udc_ep_ptr->ep_req;
+		udc_req_ptr = list_entry(udc_ep_ptr->queue.next,
+					struct crg_udc_request, queue);
+		//udc_req_ptr = udc_ep_ptr->ep_req;
 
 		//debug("udc_req_ptr = 0x%p\n", udc_req_ptr);
 
@@ -1297,33 +1297,27 @@ void update_dequeue_pt(struct event_trb_s *event, struct crg_udc_ep *udc_ep)
 
 void advance_dequeue_pt(struct crg_udc_ep *udc_ep)
 {
-#if 0
+
 	struct crg_udc_request *udc_req;
 
 	if (!list_empty(&udc_ep->queue)) {
-		xdebug("%s\n", __func__);
 		udc_req = list_entry(udc_ep->queue.next,
 				struct crg_udc_request,
 				queue);
 
 		if (udc_req->first_trb) {
-			xdebug("%s first trb = 0x%p\n",
-				__func__, udc_req->first_trb);
-
 			udc_ep->deq_pt = udc_req->first_trb;
 		} else {
-			xdebug("%s enq_pt = 0x%p\n", __func__, udc_ep->enq_pt);
 			udc_ep->deq_pt = udc_ep->enq_pt;
 		}
 	} else {
-		xdebug("%s empty enq_pt = 0x%p\n", __func__, udc_ep->enq_pt);
 		udc_ep->deq_pt = udc_ep->enq_pt;
 	}
-#endif
-	udc_ep->deq_pt = udc_ep->enq_pt;
+
+	//udc_ep->deq_pt = udc_ep->enq_pt;
 
 }
-#if 0
+
 bool is_request_dequeued(struct crg_gadget_dev *crg_udc,
 		struct crg_udc_ep *udc_ep, struct event_trb_s *event)
 {
@@ -1355,7 +1349,7 @@ bool is_request_dequeued(struct crg_gadget_dev *crg_udc,
 
 	return status;
 }
-#endif
+
 
 int crg_udc_build_td(struct crg_udc_ep *udc_ep_ptr,
 		struct crg_udc_request *udc_req_ptr)
@@ -1403,15 +1397,12 @@ int crg_udc_build_td(struct crg_udc_ep *udc_ep_ptr,
 /* This function will go through the list of the USB requests for the
  * given endpoint and schedule any unscheduled trb's to the xfer ring
  */
- #if 0
 void queue_pending_trbs(struct crg_udc_ep *udc_ep_ptr)
 {
 	struct crg_udc_request *udc_req_ptr;
 	/* schedule  trbs till there arent any pending unscheduled ones
 	 * or the ring is full again
 	 */
-
-	debug("%s 1\n", __func__);
 	list_for_each_entry(udc_req_ptr, &udc_ep_ptr->queue, queue) {
 		if (udc_req_ptr->all_trbs_queued == 0)
 			crg_udc_build_td(udc_ep_ptr, udc_req_ptr);
@@ -1419,10 +1410,8 @@ void queue_pending_trbs(struct crg_udc_ep *udc_ep_ptr)
 		if (udc_ep_ptr->tran_ring_full == true)
 			break;
 	}
-
-	debug("%s 2\n", __func__);
 }
- #endif
+
 
 static int set_ep0_halt(struct crg_gadget_dev *crg_udc)
 {
@@ -1566,7 +1555,7 @@ static int ep_halt(struct crg_udc_ep *udc_ep_ptr, int halt, int ignore_wedge)
 
 		/* clear pause for the endpoint */
 
-		//if (!list_empty(&udc_ep_ptr->queue)) {
+		if (!list_empty(&udc_ep_ptr->queue)) {
 			u32 tmp;
 
 			tmp = udc_ep_ptr->DCI;
@@ -1574,7 +1563,7 @@ static int ep_halt(struct crg_udc_ep *udc_ep_ptr, int halt, int ignore_wedge)
 			//reg_write(&uccr->doorbell, tmp);
 			knock_doorbell(crg_udc, udc_ep_ptr->DCI);
 			debug("DOORBELL = 0x%x\n", tmp);
-		//}
+		}
 	} else {
 		/* wedged EP deny CLEAR HALT */
 		debug("wedged EP deny CLEAR HALT DCI = %d\n", udc_ep_ptr->DCI);
@@ -1760,17 +1749,18 @@ static int crg_udc_ep_enable(struct usb_ep *ep,
 static struct usb_request *
 crg_udc_alloc_request(struct usb_ep *_ep, gfp_t gfp_flags)
 {
-	struct crg_udc_ep *udc_ep;
+	//struct crg_udc_ep *udc_ep;
 	struct crg_udc_request *udc_req_ptr;
 
-	udc_ep = container_of(_ep, struct crg_udc_ep, usb_ep);
+	//udc_ep = container_of(_ep, struct crg_udc_ep, usb_ep);
 	debug("%s\n", __func__);
 	udc_req_ptr = kzalloc(sizeof(struct crg_udc_request), gfp_flags);
 
 	memset(udc_req_ptr, 0, sizeof(struct crg_udc_request));
 
 	udc_req_ptr->usb_req.dma = DMA_ADDR_INVALID;
-	udc_ep->ep_req = udc_req_ptr;
+	INIT_LIST_HEAD(&udc_req_ptr->queue);
+	//udc_ep->ep_req = udc_req_ptr;
 
 	return &udc_req_ptr->usb_req;
 }
@@ -1800,18 +1790,8 @@ crg_udc_ep_queue(struct usb_ep *_ep, struct usb_request *_req, gfp_t gfp_flags)
 
 	if (!udc_ep_ptr->first_trb ||
 		!udc_req_ptr->usb_req.complete ||
-		!udc_req_ptr->usb_req.buf
-		) {
-		printf("%s, invalid usbrequest\n", __func__);
-		if (!udc_ep_ptr->first_trb)
-			printf("%s, no first_trb\n", __func__);
-
-		if (!udc_req_ptr->usb_req.complete)
-			printf("%s, no complete\n", __func__);
-
-		if (!udc_req_ptr->usb_req.buf)
-			printf("%s, no req buf\n", __func__);
-
+		!udc_req_ptr->usb_req.buf ||
+		!list_empty(&udc_req_ptr->queue)) {
 		return -EINVAL;
 	}
 	xdebug("enqueue EPDCI = 0x%x\n", udc_ep_ptr->DCI);
@@ -1882,6 +1862,10 @@ crg_udc_ep_queue(struct usb_ep *_ep, struct usb_request *_req, gfp_t gfp_flags)
 		status = crg_udc_build_td(udc_ep_ptr, udc_req_ptr);
 	}
 
+	if (!status) {
+		if (udc_req_ptr)
+			list_add_tail(&udc_req_ptr->queue, &udc_ep_ptr->queue);
+	}
 	return status;
 }
 
@@ -1907,6 +1891,11 @@ static int crg_udc_ep_set_halt(struct usb_ep *_ep, int value)
 
 	udc_ep_ptr = container_of(_ep, struct crg_udc_ep, usb_ep);
 
+	if (value && usb_endpoint_dir_in(udc_ep_ptr->desc) &&
+			!list_empty(&udc_ep_ptr->queue)) {
+
+		return -EAGAIN;
+	}
 	status = ep_halt(udc_ep_ptr, value, 1);
 
 	return status;
@@ -2069,10 +2058,12 @@ static int enable_setup(struct crg_gadget_dev *crg_udc)
 
 static int prepare_for_setup(struct crg_gadget_dev *crg_udc)
 {
+	struct crg_udc_ep *udc_ep0_ptr;
 	if (!is_event_rings_empty(crg_udc) ||
 		(crg_udc->portsc_on_reconnecting == 1))
 		return -EBUSY;
 
+	udc_ep0_ptr = &crg_udc->udc_ep[0];
 /* If we reinit ep0 on bus reset, we just make ep0 dequeue pointer align
  * with enqueue pointer, all remaining xfer trbs became dumb ones which
  * will not produce xfer event anymore.
@@ -2080,7 +2071,9 @@ static int prepare_for_setup(struct crg_gadget_dev *crg_udc)
  * If we considering the opposite solution, we should wait all ep0 xfer
  * trbs be completed(with some err complete code)
  */
-
+	if (!list_empty(&udc_ep0_ptr->queue)) {
+		return -EBUSY;
+	}
 	enable_setup(crg_udc);
 
 	return 0;
@@ -2701,6 +2694,10 @@ get_status_error:
 	status = crg_udc_build_td(udc_ep_ptr, udc_req_ptr);
 
 	debug("getstatus databuf eqpt = 0x%p\n", udc_ep_ptr->enq_pt);
+	if (!status) {
+		if (udc_req_ptr)
+			list_add_tail(&udc_req_ptr->queue, &udc_ep_ptr->queue);
+	}
 }
 
 void set_address_cmpl(struct crg_gadget_dev *crg_udc)
@@ -2930,7 +2927,7 @@ int crg_handle_xfer_event(struct crg_gadget_dev *crg_udc,
 	/*Corigine ep contexts start from ep1*/
 	u16 comp_code;
 	struct crg_udc_request *udc_req_ptr;
-	//bool trbs_dequeued = false;
+	bool trbs_dequeued = false;
 
 	if (!udc_ep_ptr->first_trb ||
 		get_ep_state(crg_udc, DCI) == EP_STATE_DISABLED)
@@ -2953,11 +2950,11 @@ int crg_handle_xfer_event(struct crg_gadget_dev *crg_udc,
 		DCI, udc_ep_ptr->deq_pt, udc_ep_ptr->enq_pt);
 	xdebug("comp_code = %d\n", comp_code);
 
-	//if (is_request_dequeued(crg_udc, udc_ep_ptr, event)) {
-	//	trbs_dequeued = true;
+	if (is_request_dequeued(crg_udc, udc_ep_ptr, event)) {
+		trbs_dequeued = true;
 	//	debug("WARNING: Drop the transfer event\n");
-	//	goto queue_more_trbs;
-	//}
+		goto queue_more_trbs;
+	}
 
 	comp_code = GETF(EVE_TRB_COMPL_CODE, event->dw2);
 
@@ -2968,7 +2965,7 @@ int crg_handle_xfer_event(struct crg_gadget_dev *crg_udc,
 		handle_cmpl_code_success(crg_udc, event, udc_ep_ptr);
 
 		//debug("%s handle cmpl end\n", __func__);
-		//trbs_dequeued = true;
+		trbs_dequeued = true;
 		break;
 	}
 	case CMPL_CODE_SHORT_PKT:
@@ -2980,12 +2977,16 @@ int crg_handle_xfer_event(struct crg_gadget_dev *crg_udc,
 			trb_transfer_length = GETF(EVE_TRB_TRAN_LEN,
 						event->dw2);
 
-			udc_req_ptr = udc_ep_ptr->ep_req;
-
-
+			udc_req_ptr = list_entry(udc_ep_ptr->queue.next,
+						struct crg_udc_request, queue);
 			udc_req_ptr->usb_req.actual =
-				udc_req_ptr->usb_req.length -
-				trb_transfer_length;
+				udc_req_ptr->usb_req.length - trb_transfer_length;
+			//udc_req_ptr = udc_ep_ptr->ep_req;
+
+
+		//	udc_req_ptr->usb_req.actual =
+				//udc_req_ptr->usb_req.length -
+			//	trb_transfer_length;
 			if (udc_req_ptr->usb_req.actual != 0)
 				crg_inval_cache((uintptr_t)udc_req_ptr->usb_req.buf, udc_req_ptr->usb_req.actual);
 
@@ -3020,7 +3021,7 @@ int crg_handle_xfer_event(struct crg_gadget_dev *crg_udc,
 			req_done(udc_ep_ptr, udc_req_ptr, 0);
 		} else
 			debug("ep dir in\n");
-
+			trbs_dequeued = true;
 		/* Advance the dequeue pointer to next TD */
 		advance_dequeue_pt(udc_ep_ptr);
 
@@ -3031,12 +3032,12 @@ int crg_handle_xfer_event(struct crg_gadget_dev *crg_udc,
 	{
 		debug("%s CMPL_CODE_PROTOCOL_STALL\n", __func__);
 
-		//udc_req_ptr = list_entry(udc_ep_ptr->queue.next,
-		//			struct crg_udc_request, queue);
+		udc_req_ptr = list_entry(udc_ep_ptr->queue.next,
+					struct crg_udc_request, queue);
 
-		udc_req_ptr = udc_ep_ptr->ep_req;
+		//udc_req_ptr = udc_ep_ptr->ep_req;
 		req_done(udc_ep_ptr, udc_req_ptr, -EINVAL);
-		//trbs_dequeued = true;
+		trbs_dequeued = true;
 		crg_udc->setup_status = WAIT_FOR_SETUP;
 		advance_dequeue_pt(udc_ep_ptr);
 		break;
@@ -3055,10 +3056,10 @@ int crg_handle_xfer_event(struct crg_gadget_dev *crg_udc,
 		/* skip seqnum err event until last one arrives. */
 		if (udc_ep_ptr->deq_pt == udc_ep_ptr->enq_pt) {
 
-			//udc_req_ptr = list_entry(udc_ep_ptr->queue.next,
-			//		struct crg_udc_request,
-			//		queue);
-			udc_req_ptr = udc_ep_ptr->ep_req;
+			udc_req_ptr = list_entry(udc_ep_ptr->queue.next,
+					struct crg_udc_request,
+					queue);
+			//udc_req_ptr = udc_ep_ptr->ep_req;
 
 			if (udc_req_ptr)
 				req_done(udc_ep_ptr, udc_req_ptr, -EINVAL);
@@ -3125,7 +3126,7 @@ int crg_handle_xfer_event(struct crg_gadget_dev *crg_udc,
 
 	xdebug("%s 2 ep%d dqpt=0x%p, eqpt=0x%p\n", __func__,
 		DCI, udc_ep_ptr->deq_pt, udc_ep_ptr->enq_pt);
-#if 0
+#if 1
 queue_more_trbs:
 	/* If there are some trbs dequeued by HW and the ring
 	 * was full before, then schedule any pending TRB's
