@@ -14,6 +14,7 @@
 #include <libavb.h>
 #include <version.h>
 #include <amlogic/storage.h>
+#include <fastboot.h>
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 
@@ -161,16 +162,6 @@ typedef struct bootloader_control {
     // format).
     uint32_t crc32_le;
 }bootloader_control;
-
-// Holds Virtual A/B merge status information. Current version is 1. New fields
-// must be added to the end.
-struct misc_virtual_ab_message {
-    uint8_t version;
-    uint32_t magic;
-    uint8_t merge_status;  // IBootControl 1.1, MergeStatus enum.
-    uint8_t source_slot;   // Slot number when merge_status was written.
-    uint8_t reserved[57];
-};
 
 #define MISC_VIRTUAL_AB_MESSAGE_VERSION 2
 #define MISC_VIRTUAL_AB_MAGIC_HEADER 0x56740AB0
@@ -409,6 +400,40 @@ bool boot_info_save(bootloader_control *info, char *miscbuf)
     return true;
 }
 
+int write_bootloader(int copy, int dstindex) {
+    int iRet = 0;
+    int ret = -1;
+    unsigned char* buffer = NULL;
+
+    buffer = (unsigned char *)malloc(0x2000 * 512);
+    if (!buffer)
+    {
+        printf("ERROR! fail to allocate memory ...\n");
+        goto exit;
+    }
+    memset(buffer, 0, 0x2000 * 512);
+    iRet = store_boot_read("bootloader", copy, 0, buffer);
+    if (iRet) {
+        printf("Fail read bootloader from rsv with sz\n");
+        goto exit;
+    }
+    iRet = store_boot_write("bootloader", dstindex, 0, buffer);
+    if (iRet) {
+        printf("Failed to write bootloader\n");
+        goto exit;
+    } else {
+        ret = 0;
+    }
+
+exit:
+    if (buffer)
+    {
+        free(buffer);
+        buffer = NULL;
+    }
+    return ret;
+}
+
 static int do_GetValidSlot(
     cmd_tbl_t * cmdtp,
     int flag,
@@ -468,36 +493,68 @@ static int do_GetValidSlot(
         printf("set vendor_boot_mode false\n");
     }
 
-    if ((slot == 0) && (bootable_a)) {
-        if (has_boot_slot == 1) {
-            env_set("active_slot","_a");
-            env_set("boot_part","boot_a");
-            env_set("recovery_part","recovery_a");
-            env_set("slot-suffixes","0");
+    if (slot == 0) {
+        if (bootable_a) {
+            if (has_boot_slot == 1) {
+                env_set("active_slot","_a");
+                env_set("boot_part","boot_a");
+                env_set("recovery_part","recovery_a");
+                env_set("slot-suffixes","0");
+            }
+            else {
+                env_set("active_slot","normal");
+                env_set("boot_part","boot");
+                env_set("recovery_part","recovery");
+                env_set("slot-suffixes","-1");
+            }
+            return 0;
+        } else if (bootable_b) {
+            write_bootloader(2, 0);
+#ifdef CONFIG_FASTBOOT
+            struct misc_virtual_ab_message message;
+            set_mergestatus_cancel(&message);
+#endif
+            run_command("set_active_slot b", 0);
+            env_set("update_env","1");
+            env_set("reboot_status","reboot_next");
+            env_set("expect_index","0");
+            run_command("saveenv", 0);
+            run_command("reset", 0);
+        } else {
+            run_command("run init_display; run storeargs; run update;", 0);
         }
-        else {
-            env_set("active_slot","normal");
-            env_set("boot_part","boot");
-            env_set("recovery_part","recovery");
-            env_set("slot-suffixes","-1");
-        }
-        return 0;
     }
 
-    if ((slot == 1) && (bootable_b)) {
-        if (has_boot_slot == 1) {
-            env_set("active_slot","_b");
-            env_set("boot_part","boot_b");
-            env_set("recovery_part","recovery_b");
-            env_set("slot-suffixes","1");
+    if (slot == 1) {
+        if (bootable_b) {
+            if (has_boot_slot == 1) {
+                env_set("active_slot","_b");
+                env_set("boot_part","boot_b");
+                env_set("recovery_part","recovery_b");
+                env_set("slot-suffixes","1");
+            }
+            else {
+                env_set("active_slot","normal");
+                env_set("boot_part","boot");
+                env_set("recovery_part","recovery");
+                env_set("slot-suffixes","-1");
+            }
+            return 0;
+        } else if (bootable_a) {
+            write_bootloader(1, 0);
+#ifdef CONFIG_FASTBOOT
+            struct misc_virtual_ab_message message;
+            set_mergestatus_cancel(&message);
+#endif
+            run_command("set_active_slot a", 0);
+            env_set("update_env","1");
+            env_set("reboot_status","reboot_next");
+            env_set("expect_index","0");
+            run_command("saveenv", 0);
+            run_command("reset", 0);
+        } else {
+            run_command("run init_display; run storeargs; run update;", 0);
         }
-        else {
-            env_set("active_slot","normal");
-            env_set("boot_part","boot");
-            env_set("recovery_part","recovery");
-            env_set("slot-suffixes","-1");
-        }
-        return 0;
     }
 
     return 0;
