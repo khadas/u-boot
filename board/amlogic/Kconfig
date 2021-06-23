@@ -397,6 +397,11 @@ config S4_AP222
 	select TARGET_S4_AP222
 	help
 		Select S4 AP222(XXXX) config
+config S4_AP223
+	bool "S4_AP223"
+	select TARGET_S4_AP223
+	help
+		Select S4 AP223(XXXX) config
 
 config S4_AP229
 	bool "S4_AP229"
@@ -444,6 +449,10 @@ config TARGET_S4_SKT
 config TARGET_S4_AP222
 	bool "S4 AP222 board"
 	depends on S4_AP222
+
+config TARGET_S4_AP223
+	bool "S4 AP223 board"
+	depends on S4_AP223
 
 config TARGET_S4_AP229
 	bool "S4 AP229 board"
@@ -867,6 +876,8 @@ source "board/amlogic/c1_ae409/Kconfig"
 source "board/amlogic/s4_skt/Kconfig"
 
 source "board/amlogic/s4_ap222/Kconfig"
+
+source "board/amlogic/s4_ap223/Kconfig"
 
 source "board/amlogic/s4_ap229/Kconfig"
 
