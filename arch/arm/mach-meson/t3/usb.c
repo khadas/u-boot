@@ -100,11 +100,6 @@ int get_usbphy_baseinfo(void)
 	int ret, i, j = 0;
 	int count;
 
-	for (i = 0; i < AMLOGIC_CTR_COUNT; i++) {
-		if (ctr[i].usb_phys[0].dev && ctr[i].usb_phys[1].dev)
-			return 0;
-	}
-
 	ret = uclass_get(UCLASS_USB, &uc);
 	if (ret)
 		return ret;
@@ -112,12 +107,14 @@ int get_usbphy_baseinfo(void)
 		debug("bus->name=%s, bus->driver->name =%s\n",
 			bus->name, bus->driver->name);
 		count = dev_count_phandle_with_args(bus, "phys", "#phy-cells");
-		debug("usb phy cells=%u\n", count);
+		debug("usb phy cells=%d\n", count);
 		if (count <= 0) {
 			ctr[j].phy_count = 0;
-			return count;
+			continue;
 		}
 		for (i = 0; i < count; i++) {
+			if (ctr[j].usb_phys[i].dev)
+				continue;
 			ret = generic_phy_get_by_index(bus, i, &ctr[j].usb_phys[i]);
 			if (ret && ret != -ENOENT) {
 				pr_err("Failed to get USB PHY%d for %s\n",
