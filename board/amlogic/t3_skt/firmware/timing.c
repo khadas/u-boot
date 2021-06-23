@@ -119,7 +119,19 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_board_common_setting.Is2Ttiming								= CONFIG_USE_DDR_2T_MODE,
 	.cfg_board_common_setting.log_level								= LOG_LEVEL_BASIC,
 	.cfg_board_common_setting.ddr_rdbi_wr_enable							= DDR_WRITE_READ_DBI_DISABLE,             //DDR_WRITE_READ_DBI_ENABLE,//DDR_WRITE_READ_DBI_DISABLE,
-	.cfg_board_common_setting.pll_ssc_mode								= DDR_PLL_SSC_DISABLE,
+	/* pll ssc config:
+	 *
+	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
+	 *      ppm = strength * 500
+	 *      mode: 0=center, 1=up, 2=down
+	 *
+	 *   eg:
+	 *     1. config 1000ppm center ss. then mode=0, strength=2
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
+	 *     2. config 3000ppm down ss. then mode=2, strength=6
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
+	 */
+	.cfg_board_common_setting.pll_ssc_mode								= (1 << 20) | (1 << 8) | (2 << 4) | 0,   //center_ssc_1000ppm,//SSC_DISABLE,(1 << 20) | (0 << 8) | (2 << 4) | 0,
 	.cfg_board_common_setting.org_tdqs2dq								= 0,
 	.cfg_board_common_setting.reserve1_test_function						= { 0 },
 	.cfg_board_common_setting.ddr_dmc_remap								= DDR_DMC_REMAP_DDR4_32BIT,
@@ -732,7 +744,19 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_board_common_setting.Is2Ttiming								= CONFIG_USE_DDR_2T_MODE,
 	.cfg_board_common_setting.log_level								= LOG_LEVEL_BASIC,
 	.cfg_board_common_setting.ddr_rdbi_wr_enable							= DDR_WRITE_READ_DBI_DISABLE,             //DDR_WRITE_READ_DBI_ENABLE,//DDR_WRITE_READ_DBI_DISABLE,
-	.cfg_board_common_setting.pll_ssc_mode								= DDR_PLL_SSC_DISABLE,
+	/* pll ssc config:
+	 *
+	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
+	 *      ppm = strength * 500
+	 *      mode: 0=center, 1=up, 2=down
+	 *
+	 *   eg:
+	 *     1. config 1000ppm center ss. then mode=0, strength=2
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
+	 *     2. config 3000ppm down ss. then mode=2, strength=6
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
+	 */
+	.cfg_board_common_setting.pll_ssc_mode								= (1 << 20) | (1 << 8) | (2 << 4) | 0,   //center_ssc_1000ppm,//SSC_DISABLE,(1 << 20) | (0 << 8) | (2 << 4) | 0,
 	.cfg_board_common_setting.org_tdqs2dq								= 0,
 	.cfg_board_common_setting.reserve1_test_function						= { 0 },
 	.cfg_board_common_setting.ddr_dmc_remap								= DDR_DMC_REMAP_DDR4_32BIT,
@@ -1335,7 +1359,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_board_common_setting.Is2Ttiming								= CONFIG_USE_DDR_2T_MODE,
 	.cfg_board_common_setting.log_level								= LOG_LEVEL_BASIC,
 	.cfg_board_common_setting.ddr_rdbi_wr_enable							= DDR_WRITE_READ_DBI_DISABLE,             //DDR_WRITE_READ_DBI_ENABLE,//DDR_WRITE_READ_DBI_DISABLE,
-	.cfg_board_common_setting.pll_ssc_mode								= DDR_PLL_SSC_DISABLE,
+	.cfg_board_common_setting.pll_ssc_mode								= (1 << 20) | (1 << 8) | (2 << 4) | 0,   //center_ssc_1000ppm,//SSC_DISABLE,(1 << 20) | (0 << 8) | (2 << 4) | 0,
 	.cfg_board_common_setting.org_tdqs2dq								= 0,
 	.cfg_board_common_setting.reserve1_test_function						= { 0 },
 	.cfg_board_common_setting.ddr_dmc_remap								= DDR_DMC_REMAP_DDR4_32BIT,
@@ -1785,7 +1809,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_board_common_setting.Is2Ttiming								= CONFIG_USE_DDR_2T_MODE,
 	.cfg_board_common_setting.log_level								= LOG_LEVEL_BASIC,
 	.cfg_board_common_setting.ddr_rdbi_wr_enable							= DDR_WRITE_READ_DBI_DISABLE,             //DDR_WRITE_READ_DBI_ENABLE,//DDR_WRITE_READ_DBI_DISABLE,
-	.cfg_board_common_setting.pll_ssc_mode								= DDR_PLL_SSC_DISABLE,
+	.cfg_board_common_setting.pll_ssc_mode								= (1 << 20) | (1 << 8) | (2 << 4) | 0,   //center_ssc_1000ppm,//SSC_DISABLE,(1 << 20) | (0 << 8) | (2 << 4) | 0,
 	.cfg_board_common_setting.org_tdqs2dq								= 0,
 	.cfg_board_common_setting.reserve1_test_function						= { 0 },
 	.cfg_board_common_setting.ddr_dmc_remap								= DDR_DMC_REMAP_DDR4_32BIT,
@@ -2216,7 +2240,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_board_common_setting.Is2Ttiming								= CONFIG_USE_DDR_2T_MODE,
 	.cfg_board_common_setting.log_level								= LOG_LEVEL_BASIC,
 	.cfg_board_common_setting.ddr_rdbi_wr_enable							= DDR_WRITE_READ_DBI_DISABLE,             //DDR_WRITE_READ_DBI_ENABLE,//DDR_WRITE_READ_DBI_DISABLE,
-	.cfg_board_common_setting.pll_ssc_mode								= DDR_PLL_SSC_DISABLE,
+	.cfg_board_common_setting.pll_ssc_mode								= (1 << 20) | (1 << 8) | (2 << 4) | 0,   //center_ssc_1000ppm,//SSC_DISABLE,(1 << 20) | (0 << 8) | (2 << 4) | 0,
 	.cfg_board_common_setting.org_tdqs2dq								= 0,
 	.cfg_board_common_setting.reserve1_test_function						= { 0 },
 	.cfg_board_common_setting.ddr_dmc_remap								= DDR_DMC_REMAP_DDR4_32BIT,
@@ -2666,7 +2690,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_board_common_setting.Is2Ttiming								= CONFIG_USE_DDR_2T_MODE,
 	.cfg_board_common_setting.log_level								= LOG_LEVEL_BASIC,
 	.cfg_board_common_setting.ddr_rdbi_wr_enable							= DDR_WRITE_READ_DBI_DISABLE,             //DDR_WRITE_READ_DBI_ENABLE,//DDR_WRITE_READ_DBI_DISABLE,
-	.cfg_board_common_setting.pll_ssc_mode								= DDR_PLL_SSC_DISABLE,
+	.cfg_board_common_setting.pll_ssc_mode								= (1 << 20) | (1 << 8) | (2 << 4) | 0,   //center_ssc_1000ppm,//SSC_DISABLE,(1 << 20) | (0 << 8) | (2 << 4) | 0,
 	.cfg_board_common_setting.org_tdqs2dq								= 0,
 	.cfg_board_common_setting.reserve1_test_function						= { 0 },
 	.cfg_board_common_setting.ddr_dmc_remap								= DDR_DMC_REMAP_DDR4_32BIT,
@@ -3097,7 +3121,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_board_common_setting.Is2Ttiming								= CONFIG_USE_DDR_2T_MODE,
 	.cfg_board_common_setting.log_level								= LOG_LEVEL_BASIC,
 	.cfg_board_common_setting.ddr_rdbi_wr_enable							= DDR_WRITE_READ_DBI_DISABLE,             //DDR_WRITE_READ_DBI_ENABLE,//DDR_WRITE_READ_DBI_DISABLE,
-	.cfg_board_common_setting.pll_ssc_mode								= DDR_PLL_SSC_DISABLE,
+	.cfg_board_common_setting.pll_ssc_mode								= (1 << 20) | (1 << 8) | (2 << 4) | 0,   //center_ssc_1000ppm,//SSC_DISABLE,(1 << 20) | (0 << 8) | (2 << 4) | 0,
 	.cfg_board_common_setting.org_tdqs2dq								= 0,
 	.cfg_board_common_setting.reserve1_test_function						= { 0 },
 	.cfg_board_common_setting.ddr_dmc_remap								= DDR_DMC_REMAP_DDR4_32BIT,
@@ -3547,7 +3571,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_board_common_setting.Is2Ttiming								= CONFIG_USE_DDR_2T_MODE,
 	.cfg_board_common_setting.log_level								= LOG_LEVEL_BASIC,
 	.cfg_board_common_setting.ddr_rdbi_wr_enable							= DDR_WRITE_READ_DBI_DISABLE,             //DDR_WRITE_READ_DBI_ENABLE,//DDR_WRITE_READ_DBI_DISABLE,
-	.cfg_board_common_setting.pll_ssc_mode								= DDR_PLL_SSC_DISABLE,
+	.cfg_board_common_setting.pll_ssc_mode								= (1 << 20) | (1 << 8) | (2 << 4) | 0,   //center_ssc_1000ppm,//SSC_DISABLE,(1 << 20) | (0 << 8) | (2 << 4) | 0,
 	.cfg_board_common_setting.org_tdqs2dq								= 0,
 	.cfg_board_common_setting.reserve1_test_function						= { 0 },
 	.cfg_board_common_setting.ddr_dmc_remap								= DDR_DMC_REMAP_DDR4_32BIT,
