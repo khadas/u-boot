@@ -46,6 +46,9 @@
 /*a/b update */
 #define CONFIG_CMD_BOOTCTOL_AVB
 
+#define CONFIG_FAT_WRITE 1
+#define CONFIG_AML_FACTORY_PROVISION 1
+
 /* Serial config */
 #define CONFIG_CONS_INDEX 2
 #define CONFIG_BAUDRATE  115200
@@ -237,14 +240,14 @@
             "fi;fi;"\
             "get_system_as_root_mode;"\
             "echo system_mode: ${system_mode};"\
+            "get_valid_slot;"\
+            "get_avb_mode;"\
+            "echo active_slot: ${active_slot} avb2: ${avb2};"\
             "if test ${system_mode} = 1; then "\
                     "setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
             "else "\
                     "setenv bootargs ${bootargs} androidboot.force_normal_boot=1;"\
             "fi;"\
-            "get_valid_slot;"\
-            "get_avb_mode;"\
-            "echo active_slot: ${active_slot} avb2: ${avb2};"\
             "if test ${active_slot} != normal; then "\
                     "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
             "fi;"\
@@ -329,10 +332,7 @@
             "fi;"\
             "\0"\
         "init_display="\
-            "osd open;osd clear;"\
-            "if rdext4pic $board_logo_part $loadaddr; then echo $board_logo_part logo; "\
-            "else rdext4pic odm $loadaddr;fi;"\
-            "bmp display $logoLoadAddr;bmp scale;vout output ${outputmode}"\
+            "osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode}"\
             "\0"\
         "check_display="\
             "if test ${reboot_mode} = cold_boot; then "\
@@ -381,6 +381,7 @@
                     "setenv bootargs ${bootargs} androidboot.oem.key1=ATV00104319;"\
                 "fi;"\
             "fi;"\
+            "factory_provision init;"\
             "\0"\
         "bcb_cmd="\
             "get_rebootmode;"\
