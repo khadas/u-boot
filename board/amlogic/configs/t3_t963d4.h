@@ -133,6 +133,7 @@
 		"cec_fun=0x2F\0" \
 		"logic_addr=0x0\0" \
 		"cec_ac_wakeup=1\0" \
+	"disable_ir=0\0"\
         "initargs="\
             "init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xfe07a000"\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
@@ -155,7 +156,8 @@
 			"osd_reverse=${osd_reverse} video_reverse=${video_reverse} "\
 			"irq_check_en=${Irq_check_en}  "\
 			"androidboot.selinux=${EnableSelinux} "\
-			"androidboot.firstboot=${firstboot} jtag=${jtag}; "\
+			"androidboot.firstboot=${firstboot} jtag=${jtag} "\
+			"disable_ir=${disable_ir};"\
 		"setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} "\
 		"androidboot.hardware=amlogic;"\
 		"run cmdline_keys;"\
