@@ -321,6 +321,7 @@
                     "setenv bootargs ${bootargs} androidboot.oem.key1=ATV00104319;"\
                 "fi;"\
             "fi;"\
+            "factory_provision init;"\
             "\0"\
         "bcb_cmd="\
             "get_avb_mode;"\
