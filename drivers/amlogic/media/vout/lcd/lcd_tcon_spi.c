@@ -429,8 +429,7 @@ static int lcd_tcon_spi_data_parse(void)
 	if (ret)
 		return -1;
 
-	para = (unsigned char *)
-		malloc(sizeof(unsigned char) * LCD_UKEY_TCON_SPI_SIZE);
+	para = (unsigned char *)malloc(sizeof(unsigned char) * LCD_UKEY_TCON_SPI_SIZE);
 	if (!para) {
 		LCDERR("%s: Not enough memory\n", __func__);
 		return -1;
@@ -510,10 +509,8 @@ static int lcd_tcon_spi_data_parse(void)
 			}
 			goto lcd_tcon_spi_data_parse_err1;
 		}
-		memset(tcon_spi.spi_block[i], 0,
-		       sizeof(struct lcd_tcon_spi_block_s));
-		memcpy(tcon_spi.spi_block[i], p,
-		       LCD_UKEY_TCON_SPI_BLOCK_SIZE_PRE);
+		memset(tcon_spi.spi_block[i], 0, sizeof(struct lcd_tcon_spi_block_s));
+		memcpy(tcon_spi.spi_block[i], p, LCD_UKEY_TCON_SPI_BLOCK_SIZE_PRE);
 		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 			LCDPR("lcd_tcon_spi block %d:\n", i);
 			LCDPR("  data_type         = 0x%02x\n",
@@ -581,16 +578,14 @@ static int lcd_tcon_spi_data_parse(void)
 				}
 				goto lcd_tcon_spi_data_parse_err1;
 			}
-			memset(tcon_spi.ext_buf, 0,
-			       (ext_size * sizeof(unsigned char)));
+			memset(tcon_spi.ext_buf, 0, (ext_size * sizeof(unsigned char)));
 #ifdef CONFIG_CMD_INI
 			if (data_buf) {
 				data_buf_size = data_buf[4] |
 					(data_buf[5] << 8) |
 					(data_buf[6] << 16) |
 					(data_buf[7] << 24);
-				memcpy(tcon_spi.ext_buf, data_buf,
-				       data_buf_size);
+				memcpy(tcon_spi.ext_buf, data_buf, data_buf_size);
 			}
 #endif
 		}

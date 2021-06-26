@@ -1018,6 +1018,55 @@
 #define RESETCTRL_RESET6_MASK                      ((0x0026  << 2) + 0xfe002000)
 #endif
 
+#ifndef RESET0_MASK
+#define RESET0_MASK                                ((0x0410  << 2) + 0xffd00000)
+#endif
+#ifndef RESET1_MASK
+#define RESET1_MASK                                ((0x0411  << 2) + 0xffd00000)
+#endif
+#ifndef RESET2_MASK
+#define RESET2_MASK                                ((0x0412  << 2) + 0xffd00000)
+#endif
+#ifndef RESET3_MASK
+#define RESET3_MASK                                ((0x0413  << 2) + 0xffd00000)
+#endif
+#ifndef RESET4_MASK
+#define RESET4_MASK                                ((0x0414  << 2) + 0xffd00000)
+#endif
+#ifndef RESET5_MASK
+#define RESET5_MASK                                ((0x0415  << 2) + 0xffd00000)
+#endif
+#ifndef RESET6_MASK
+#define RESET6_MASK                                ((0x0416  << 2) + 0xffd00000)
+#endif
+#ifndef RESET7_MASK
+#define RESET7_MASK                                ((0x0417  << 2) + 0xffd00000)
+#endif
+#ifndef RESET0_LEVEL
+#define RESET0_LEVEL                               ((0x0420  << 2) + 0xffd00000)
+#endif
+#ifndef RESET1_LEVEL
+#define RESET1_LEVEL                               ((0x0421  << 2) + 0xffd00000)
+#endif
+#ifndef RESET2_LEVEL
+#define RESET2_LEVEL                               ((0x0422  << 2) + 0xffd00000)
+#endif
+#ifndef RESET3_LEVEL
+#define RESET3_LEVEL                               ((0x0423  << 2) + 0xffd00000)
+#endif
+#ifndef RESET4_LEVEL
+#define RESET4_LEVEL                               ((0x0424  << 2) + 0xffd00000)
+#endif
+#ifndef RESET5_LEVEL
+#define RESET5_LEVEL                               ((0x0425  << 2) + 0xffd00000)
+#endif
+#ifndef RESET6_LEVEL
+#define RESET6_LEVEL                               ((0x0426  << 2) + 0xffd00000)
+#endif
+#ifndef RESET7_LEVEL
+#define RESET7_LEVEL                               ((0x0427  << 2) + 0xffd00000)
+#endif
+
 #ifndef PM_MIPI_DSI0
 #define PM_MIPI_DSI0 0xff
 #endif

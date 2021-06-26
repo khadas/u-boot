@@ -86,6 +86,11 @@ struct tcon_mem_map_table_s {
 	unsigned char **data_mem_vaddr;
 };
 
+#define TCON_BIN_VER_LEN    9
+struct lcd_tcon_local_cfg_s {
+	char bin_ver[TCON_BIN_VER_LEN];
+};
+
 /* **********************************
  * tcon config
  * ********************************** */
@@ -114,11 +119,26 @@ struct tcon_mem_map_table_s {
 #define BIT_TOP_EN_T5                    4
 
 #define TCON_CORE_REG_START_T5           0x0100
-#define REG_CORE_OD_T5                   0x247
-#define BIT_OD_EN_T5                     0
-#define REG_CTRL_TIMING_BASE_T5          0x1b
+#define REG_CORE_OD_T5                   0x263
+#define BIT_OD_EN_T5                     31
+#define REG_CTRL_TIMING_BASE_T5          0x300
 #define CTRL_TIMING_OFFSET_T5            12
 #define CTRL_TIMING_CNT_T5               0
+
+/* T5D */
+#define LCD_TCON_CORE_REG_WIDTH_T5D       32
+#define LCD_TCON_TABLE_WIDTH_T5D          32
+#define LCD_TCON_TABLE_LEN_T5D            0x102c /* 0x40b*4 */
+#define LCD_TCON_AXI_BANK_T5D             1
+
+#define BIT_TOP_EN_T5D                    4
+
+#define TCON_CORE_REG_START_T5D           0x0100
+#define REG_CORE_OD_T5D                   0x263
+#define BIT_OD_EN_T5D                     31
+#define REG_CTRL_TIMING_BASE_T5D          0x1b
+#define CTRL_TIMING_OFFSET_T5D            12
+#define CTRL_TIMING_CNT_T5D               0
 
 #ifdef CONFIG_CMD_INI
 void *handle_lcd_ext_buf_get(void);
@@ -144,7 +164,10 @@ struct tcon_rmem_s *get_lcd_tcon_rmem(void);
 struct tcon_mem_map_table_s *get_lcd_tcon_mm_table(void);
 
 int lcd_tcon_enable_tl1(struct aml_lcd_drv_s *pdrv);
+int lcd_tcon_disable_tl1(struct aml_lcd_drv_s *pdrv);
 int lcd_tcon_enable_t5(struct aml_lcd_drv_s *pdrv);
+int lcd_tcon_disable_t5(struct aml_lcd_drv_s *pdrv);
+int lcd_tcon_disable_t3(struct aml_lcd_drv_s *pdrv);
 
 #endif
 
