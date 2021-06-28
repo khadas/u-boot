@@ -333,7 +333,7 @@ static void get_mac(void)
 	char mac_addr[MAC_LENGHT] = {0};
 	int i, mode;
 
-	mode = kbi_i2c_read(REG_MAC_SWITCH);
+	mode = 1;//kbi_i2c_read(REG_MAC_SWITCH);
 
 	if (mode == 1) {
 		kbi_i2c_read_block(REG_MAC, MAC_LENGHT, mac_addr);
