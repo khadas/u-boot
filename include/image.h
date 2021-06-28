@@ -152,6 +152,7 @@ struct lmb;
 #define IH_OS_INTEGRITY		21	/* INTEGRITY	*/
 #define IH_OS_OSE		22	/* OSE		*/
 #define IH_OS_PLAN9		23	/* Plan 9	*/
+#define IH_OS_ZIRCON		24	/* Zircon	*/
 
 /*
  * CPU Architecture Codes (supported by Linux)
@@ -441,6 +442,7 @@ int boot_get_setup(bootm_headers_t *images, uint8_t arch, ulong *setup_start,
 #endif
 #define IMAGE_FORMAT_FIT	0x02	/* new, libfdt based format */
 #define IMAGE_FORMAT_ANDROID	0x03	/* Android boot image */
+#define IMAGE_FORMAT_ZIRCON	0x04	/* Zircon boot image */
 
 ulong genimg_get_kernel_addr_fit(char * const img_addr,
 			         const char **fit_uname_config,
@@ -1086,5 +1088,15 @@ int android_image_get_ramdisk_v3(const boot_img_hdr_v3_t *hdr, ulong *rd_data, u
 int vendor_boot_image_check_header(const vendor_boot_img_hdr_t * hdr);
 
 #endif /* CONFIG_ANDROID_BOOT_IMAGE */
+
+#if defined(CONFIG_ZIRCON_BOOT_IMAGE)
+struct andr_img_hdr;
+int zircon_image_check_header(const void *hdr);
+int zircon_image_get_kernel(const void* hdr, int verify,
+			     ulong *os_data, ulong *os_len);
+ulong zircon_image_get_end(const void *hdr);
+ulong zircon_image_get_kload(const void *hdr);
+ulong zircon_image_get_comp(const void *hdr);
+#endif /* CONFIG_ZIRCON_BOOT_IMAGE */
 
 #endif	/* __IMAGE_H__ */

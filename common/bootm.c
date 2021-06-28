@@ -238,7 +238,19 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		if (images.os.load == 0x10008000)
 			images.os.load = 0x1080000;
-
+		images.ep = images.os.load;
+		ep_found = true;
+		break;
+#endif
+#ifdef CONFIG_ZIRCON_BOOT_IMAGE
+	case IMAGE_FORMAT_ZIRCON:
+		images.os.type = IH_TYPE_KERNEL;
+		images.os.comp =  zircon_image_get_comp(os_hdr);
+		images.os.os = IH_OS_ZIRCON;
+		images.os.end = zircon_image_get_end(os_hdr);
+		images.os.load = zircon_image_get_kload(os_hdr);
+		if (images.os.load == 0x10008000)
+			images.os.load = 0x1080000;
 		images.ep = images.os.load;
 		ep_found = true;
 		break;
@@ -735,6 +747,10 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 		      blob_start, blob_end);
 		debug("images.os.load = 0x%lx, load_end = 0x%lx\n", load,
 		      *load_end);
+		if (os.os == IH_OS_ZIRCON) {
+			/* no further checking is necessary */
+			return 0;
+		}
 #ifndef CONFIG_ANDROID_BOOT_IMAGE
 		/* Check what type of image this is. */
 		if (images->legacy_hdr_valid) {
@@ -949,7 +965,7 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 
 	/* Check reserved memory region */
 #ifdef CONFIG_CMD_RSVMEM
-	if (images->os.type != IH_TYPE_STANDALONE) {
+	if (images->os.type != IH_TYPE_STANDALONE && images->os.os != IH_OS_ZIRCON) {
 		ret = run_command("rsvmem check", 0);
 		if (ret) {
 			puts("rsvmem check failed\n");
@@ -959,7 +975,7 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 #endif
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_LMB)
-	if (!ret && (states & BOOTM_STATE_FDT)) {
+	if (images->os.os != IH_OS_ZIRCON && !ret && (states & BOOTM_STATE_FDT)) {
 		boot_fdt_add_mem_rsv_regions(&images->lmb, images->ft_addr);
 		ret = boot_relocate_fdt(&images->lmb, &images->ft_addr,
 					&images->ft_len);
@@ -1222,7 +1238,15 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 			}
 #endif
 		}
-
+		break;
+#endif
+#ifdef CONFIG_ZIRCON_BOOT_IMAGE
+	case IMAGE_FORMAT_ZIRCON:
+		printf("## Booting Zircon Image at 0x%08lx ...\n", img_addr);
+		buf = map_sysmem(img_addr, 0);
+		if (zircon_image_get_kernel(buf, images->verify,
+					     os_data, os_len))
+			return NULL;
 		break;
 #endif
 	default:

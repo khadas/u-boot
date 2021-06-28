@@ -440,6 +440,9 @@ static boot_os_fn *boot_os[] = {
 #ifdef CONFIG_INTEGRITY
 	[IH_OS_INTEGRITY] = do_bootm_integrity,
 #endif
+#ifdef CONFIG_ZIRCON_BOOT_IMAGE
+	[IH_OS_ZIRCON] = do_bootm_zircon,
+#endif
 };
 
 /* Allow for arch specific config before we boot */

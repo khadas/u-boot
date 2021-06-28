@@ -362,6 +362,10 @@ config KALLSYMS
 		This config can help to print call stack like linux kernel panic
 		when crash. It's very useful for debug crash issues.
 
+config ZIRCON_BOOT_IMAGE
+	bool "Build Zircon compatible boot image"
+	default n
+
 if GXB_SKT_V1
 source "board/amlogic/gxb_skt_v1/Kconfig"
 endif
