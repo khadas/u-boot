@@ -8,6 +8,9 @@
 #include <image.h>
 #include <linux/libfdt.h>
 #include <android_image.h>
+#if defined(CONFIG_ZIRCON_BOOT_IMAGE)
+#include <zircon/image.h>
+#endif
 #include <asm/arch/bl31_apis.h>
 #include <asm/arch/secure_apb.h>
 #include <amlogic/store_wrapper.h>
@@ -481,8 +484,14 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 			p_vender_boot_img = 0;
 		}
         genFmt = genimg_get_format(hdr_addr);
+#if defined(CONFIG_ZIRCON_BOOT_IMAGE)
+	if (IMAGE_FORMAT_ANDROID != genFmt && IMAGE_FORMAT_ZIRCON != genFmt) {
+		errorP("Fmt 0x%x unsupported!, supported genFmt 0x%x or 0x%x\n", genFmt,
+				IMAGE_FORMAT_ANDROID, IMAGE_FORMAT_ZIRCON);
+#else
         if (IMAGE_FORMAT_ANDROID != genFmt) {
             errorP("Fmt unsupported!genFmt 0x%x != 0x%x\n", genFmt, IMAGE_FORMAT_ANDROID);
+#endif
             return __LINE__;
         }
 
@@ -505,6 +514,14 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
             debugP("ramdisk_size 0x%x, totalSz 0x%x\n", hdr_addr->ramdisk_size, ramdisk_size);
 			debugP("dtbSz 0x%x, Total actualbootimgsz 0x%x\n", dtbsz, actualbootimgsz);
         }
+
+#if defined(CONFIG_ZIRCON_BOOT_IMAGE)
+	if (genFmt == IMAGE_FORMAT_ZIRCON) {
+		const zbi_header_t *zbi = (zbi_header_t *)hdr_addr;
+
+		actualbootimgsz = zbi->length + sizeof(*zbi);
+	}
+#endif//#if defined(CONFIG_ZIRCON_BOOT_IMAGE)
 
 		if (actualbootimgsz > IMG_PRELOAD_SZ) {
 			const u32 leftsz = actualbootimgsz - IMG_PRELOAD_SZ;

@@ -120,5 +120,6 @@ endif
 
 obj-y += libavb/
 obj-y += libxbc/
+obj-$(CONFIG_ZIRCON_BOOT_IMAGE) += kvstore.o
 
 subdir-ccflags-$(CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED) += -O2

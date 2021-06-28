@@ -183,6 +183,10 @@ config BL2E_PAYLOAD_SIZE
 	default  262144 if BL2E_256K
 	default 1048576 if BL2E_1024K
 
+config ZIRCON_BOOT_IMAGE
+	bool "Build Zircon compatible boot image"
+	default n
+
 if MESON_GXBB
 
 config TARGET_ODROID_C2

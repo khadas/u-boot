@@ -501,6 +501,9 @@ static boot_os_fn *boot_os[] = {
 #ifdef CONFIG_BOOTM_OPTEE
 	[IH_OS_TEE] = do_bootm_tee,
 #endif
+#ifdef CONFIG_ZIRCON_BOOT_IMAGE
+	[IH_OS_ZIRCON] = do_bootm_zircon,
+#endif
 };
 
 /* Allow for arch specific config before we boot */

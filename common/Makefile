@@ -112,6 +112,7 @@ endif
 
 obj-y += image.o
 obj-$(CONFIG_ANDROID_BOOT_IMAGE) += image-android.o
+obj-$(CONFIG_ZIRCON_BOOT_IMAGE) += image-zircon.o
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += image-fdt.o
 obj-$(CONFIG_$(SPL_TPL_)FIT) += image-fit.o
 obj-$(CONFIG_$(SPL_)MULTI_DTB_FIT) += boot_fit.o common_fit.o
@@ -147,3 +148,6 @@ endif
 
 obj-y += blxx2bl33_param.o
 obj-y += nocs_seb.o
+
+# zircon commands
+obj-$(CONFIG_ZIRCON_BOOT_IMAGE) += cmd_zircon_bootconfig.o
