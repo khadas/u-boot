@@ -367,6 +367,14 @@ static void get_osd_version(void)
 		osd_hw.osd_ver = OSD_HIGH_ONE;
 }
 
+u32 osd_canvas_align(u32 x)
+{
+	if (osd_hw.osd_ver >= OSD_HIGH_ONE)
+		return (((x) + 63) & ~63);
+	else
+		return (((x) + 31) & ~31);
+}
+
 int get_osd_layer(void)
 {
 	char *layer_str;

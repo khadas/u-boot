@@ -293,7 +293,9 @@ struct fb_con2fbmap {
 #define VESA_HSYNC_SUSPEND      2
 #define VESA_POWERDOWN          3
 
-#define CANVAS_ALIGNED(x)  (((x) + 63) & ~63)
+u32 osd_canvas_align(u32 x);
+
+#define CANVAS_ALIGNED(x) osd_canvas_align(x)
 
 enum osd_index_e {
 	OSD1 = 0,
