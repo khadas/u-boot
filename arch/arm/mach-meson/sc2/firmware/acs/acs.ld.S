@@ -27,11 +27,13 @@ SECTIONS
 		*(.generic_param*)
 	}
 
+#if !defined(CONFIG_CHIP_NOCS)
 	. = 0x00003800;
 	.ddr_param :
 	{
 		*(.ddr_param*)
 	}
+#endif
 
 	. = 0x00005800;
 	.clk_param :
@@ -51,7 +53,7 @@ SECTIONS
 		*(.store_param*)
 	}
 
-#if 0
+#if defined(CONFIG_CHIP_NOCS)
 	. = 0x00006000;
 	.ddr_param :
 	{
