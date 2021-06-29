@@ -14,6 +14,8 @@ int store_logic_read(const char *name, loff_t off, size_t size, void *buf);
 
 u64 store_logic_cap(const char* partName);
 
+int store_gpt_ops(size_t sz, void *buf, int is_wr);
+
 #define AML_MAGIC_HDR_L       (0x4c4d4140) //"@AML"
 #define AML_MAGIC_HDR_R       (0x544f4f42) //"BOOT"
 

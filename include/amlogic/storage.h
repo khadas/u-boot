@@ -475,4 +475,8 @@ int store_get_device_bootloader_mode(void);
 int sheader_need(void);
 void sheader_load(void *addr);
 
+int store_gpt_read(void *buf);
+int store_gpt_write(void *buf);
+int store_gpt_erase(void);
+
 #endif/* __STORAGE_H__ */

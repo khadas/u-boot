@@ -43,7 +43,7 @@ extern const char * const white_list_adnl_cmds[0] __attribute__((weak, alias("_d
 static struct {
     int         hadDown;    //already downloaded to mem
     unsigned    imgSize;      //size of dtb.img
-}_memDtbImg = {0};
+} _memDtbImg[2];
 
 struct f_fastboot {
 	struct usb_function usb_function;
@@ -894,9 +894,11 @@ static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 #endif//#ifdef CONFIG_V3_KEY_BURNING_SUPPORT
 	} else if( !strcmp("disk_initial", argv[0]) ){
 		int toErase = argc > 1 ? simple_strtoul(argv[1], NULL, 0) : 0;
-		int dtbImgSz = (0x1b8e == _memDtbImg.hadDown) ? _memDtbImg.imgSize : 0;
-		ret = v3tool_storage_init(toErase, dtbImgSz);
-		memset(&_memDtbImg, 0, sizeof(_memDtbImg));
+		int dtbImgSz = (_memDtbImg[0].hadDown == 0x1b8e) ? _memDtbImg[0].imgSize : 0;
+		int gptImgSz = (_memDtbImg[1].hadDown == 0x1b8e) ? _memDtbImg[1].imgSize : 0;
+
+		ret = v3tool_storage_init(toErase, dtbImgSz, gptImgSz);
+		memset(_memDtbImg, 0, sizeof(_memDtbImg));
 	} else if( !strcmp("save_setting", argv[0]) ){
 #if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
 		env_set("firstboot", "1");
@@ -1038,10 +1040,14 @@ static int _mwrite_cmd_parser(const int argc, char* argv[], char* ack)
 			{
 				if (!strcmp("dtb", partition)) {
 					commonInf->partStartOff += V3_DTB_LOAD_ADDR;
-					_memDtbImg.hadDown  = 0x1b8e;
-					_memDtbImg.imgSize  = imgSize;
+					_memDtbImg[0].hadDown  = 0x1b8e;
+					_memDtbImg[0].imgSize  = imgSize;
 				} else if (!strcmp("sheader", partition)) {
 					commonInf->partStartOff += V3_PAYLOAD_LOAD_ADDR;
+				} else if (!strcmp("gpt", partition)) {
+					_memDtbImg[1].hadDown  = 0x1b8e;
+					_memDtbImg[1].imgSize  = imgSize;
+					commonInf->partStartOff += V3_GPT_LOAD_ADDR;
 				} else {
 					if (IS_FEAT_BOOT_VERIFY()) {
 						FBS_ERR(ack, "partition memory not allowed when secure boot enabled\n");

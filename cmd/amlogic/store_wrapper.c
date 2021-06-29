@@ -128,3 +128,20 @@ u64 store_logic_cap(const char* partName)
 #endif// #ifndef CONFIG_CMD_MTD
 }
 
+int store_gpt_ops(size_t sz, void *buf, int is_wr)
+{
+	int ret = 0;
+
+	if (!sz || sz >= 0x100000) {
+		errorP("sz 0x%zx to large\n", sz);
+		return -__LINE__;
+	}
+
+	if (is_wr)
+		ret = store_gpt_write(buf);
+	else
+		ret = store_gpt_read(buf);
+
+	return ret;
+}
+
