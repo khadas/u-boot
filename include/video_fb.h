@@ -36,7 +36,6 @@
 #define GDF_24BIT_888RGB        4
 #define GDF__8BIT_332RGB        5
 
-#define CANVAS_ALIGNED(x)  (((x) + 63) & ~63)
 /******************************************************************************/
 /* Export Graphic Driver Control                                              */
 /******************************************************************************/
@@ -70,6 +69,9 @@ typedef struct graphic_device {
 
 void *video_hw_init (int display_mode);       /* returns GraphicDevice struct or NULL */
 int get_osd_layer(void);
+u32 osd_canvas_align(u32 x);
+
+#define CANVAS_ALIGNED(x) osd_canvas_align(x)
 
 #ifdef VIDEO_HW_BITBLT
 void video_hw_bitblt (
