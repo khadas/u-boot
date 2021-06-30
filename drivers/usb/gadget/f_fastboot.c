@@ -807,37 +807,37 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	} else if (!strcmp_l1("has-slot:bootloader", cmd)) {
 		printf("do not has slot bootloader\n");
 		strncat(response, "no", chars_left);
-	} else if (!strcmp_l1("has-slot:boot", cmd)) {
+	} else if (strcmp(cmd, "has-slot:boot") == 0) {
 		if (has_boot_slot == 1) {
 			printf("has boot slot\n");
 			strncat(response, "yes", chars_left);
 		} else
 			strncat(response, "no", chars_left);
-	} else if (!strcmp_l1("has-slot:odm_ext", cmd)) {
+	} else if (strcmp(cmd, "has-slot:odm_ext") == 0) {
 		if (has_boot_slot == 1) {
 			printf("has odm_ext slot\n");
 			strncat(response, "yes", chars_left);
 		} else
 			strncat(response, "no", chars_left);
-	} else if (!strcmp_l1("has-slot:oem", cmd)) {
+	} else if (strcmp(cmd, "has-slot:oem") == 0) {
 		if (has_boot_slot == 1) {
 			printf("has oem slot\n");
 			strncat(response, "yes", chars_left);
 		} else
 			strncat(response, "no", chars_left);
-	} else if (!strcmp_l1("has-slot:vendor_boot", cmd)) {
+	} else if (strcmp(cmd, "has-slot:vendor_boot") == 0) {
 		if (has_boot_slot == 1) {
 			printf("has vendor_boot slot\n");
 			strncat(response, "yes", chars_left);
 		} else
 			strncat(response, "no", chars_left);
-	} else if (!strcmp_l1("has-slot:recovery", cmd)) {
+	} else if (strcmp(cmd, "has-slot:recovery") == 0) {
 		if (has_boot_slot == 1) {
 			printf("has recovery slot\n");
 			strncat(response, "yes", chars_left);
 		} else
 			strncat(response, "no", chars_left);
-	} else if (!strcmp_l1("has-slot:system", cmd)) {
+	} else if (strcmp(cmd, "has-slot:system") == 0) {
 		if (dynamic_partition) {
 			strncat(response, "no", chars_left);
 		} else {
@@ -847,7 +847,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 			} else
 				strncat(response, "no", chars_left);
 		}
-	} else if (!strcmp_l1("has-slot:vendor", cmd)) {
+	} else if (strcmp(cmd, "has-slot:vendor") == 0) {
 		if (dynamic_partition) {
 			strncat(response, "no", chars_left);
 		} else {
@@ -857,13 +857,13 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 			} else
 				strncat(response, "no", chars_left);
 		}
-	} else if (!strcmp_l1("has-slot:vbmeta", cmd)) {
+	} else if (strcmp(cmd, "has-slot:vbmeta") == 0) {
 		if (has_boot_slot == 1) {
 			printf("has vbmeta slot\n");
 			strncat(response, "yes", chars_left);
 		} else
 			strncat(response, "no", chars_left);
-	} else if (!strcmp_l1("has-slot:product", cmd)) {
+	} else if (strcmp(cmd, "has-slot:product") == 0) {
 		if (dynamic_partition) {
 			strncat(response, "no", chars_left);
 		} else {
@@ -873,7 +873,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 			} else
 				strncat(response, "no", chars_left);
 		}
-	} else if (!strcmp_l1("has-slot:super", cmd)) {
+	} else if (strcmp(cmd, "has-slot:super") == 0) {
 		if (!dynamic_partition) {
 			strncat(response, "no", chars_left);
 		} else {
@@ -883,9 +883,9 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 			} else
 				strncat(response, "no", chars_left);
 		}
-	} else if (!strcmp_l1("has-slot:metadata", cmd)) {
+	} else if (strcmp(cmd, "has-slot:metadata") == 0) {
 		strncat(response, "no", chars_left);
-	} else if (!strcmp_l1("has-slot:dtbo", cmd)) {
+	} else if (strcmp(cmd, "has-slot:dtbo") == 0) {
 		if (has_boot_slot == 1) {
 			printf("has dtbo slot\n");
 			strncat(response, "yes", chars_left);
@@ -899,7 +899,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		strncat(response, "no", chars_left);
 	} else if (!strcmp_l1("has-slot:factory", cmd)) {
 		strncat(response, "no", chars_left);
-	} else if (!strcmp_l1("has-slot:odm", cmd)) {
+	} else if (strcmp(cmd, "has-slot:odm") == 0) {
 		if (has_boot_slot == 1) {
 			printf("has odm slot\n");
 			strncat(response, "yes", chars_left);
