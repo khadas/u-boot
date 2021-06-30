@@ -473,6 +473,8 @@ const char * const _env_args_reserve_[] =
 	"upgrade_step",
 	"bootloader_version",
 	"model_name",
+	"hdmimode",
+	"outputmode",
 	NULL//Keep NULL be last to tell END
 };
 int __attribute__((weak)) mmc_initialize(bd_t *bis){ return 0;}
