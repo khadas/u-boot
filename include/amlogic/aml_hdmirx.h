@@ -6,11 +6,8 @@
 #ifndef _AML_HDMIRX_H
 #define _AML_HDMIRX_H
 
-#if 0
 void hdmirx_hw_init(unsigned int port_map,
 		unsigned char *pedid_data,
 		int edid_size);
-#endif
-void rx_set_phy_rterm(void);
 
 #endif /* _AML_HDMIRX_H */

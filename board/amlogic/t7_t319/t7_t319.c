@@ -37,9 +37,6 @@
 #include <amlogic/media/vout/lcd/lcd_vout.h>
 #endif
 #include <asm/arch/pmic_bd71837.h>
-#ifdef CONFIG_RX_RTERM
-#include <amlogic/aml_hdmirx.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -178,9 +175,6 @@ int board_late_init(void)
 #endif
 #ifdef CONFIG_AML_VPP
 	vpp_init();
-#endif
-#ifdef CONFIG_RX_RTERM
-	rx_set_phy_rterm();
 #endif
 #ifdef CONFIG_AML_VOUT
 	vout_probe();

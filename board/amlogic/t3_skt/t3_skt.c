@@ -52,9 +52,6 @@
 #ifdef CONFIG_AML_LCD
 #include <amlogic/media/vout/lcd/lcd_vout.h>
 #endif
-#ifdef CONFIG_RX_RTERM
-#include <amlogic/aml_hdmirx.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -201,9 +198,7 @@ int board_late_init(void)
 #ifdef CONFIG_AML_VPP
 	vpp_init();
 #endif
-#ifdef CONFIG_RX_RTERM
-	rx_set_phy_rterm();
-#endif
+
 	run_command("ini_model", 0);
 #ifdef CONFIG_AML_VOUT
 	vout_probe();
