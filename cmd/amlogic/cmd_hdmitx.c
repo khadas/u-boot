@@ -66,7 +66,7 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 					return 0;
 			} else {
 				memset(mode, 0, sizeof(mode));
-				sprintf(mode, "%s", getenv("outputmode"));
+				sprintf(mode, "%s", env_get("outputmode"));
 				frac = hdmitx_parse_vout_name(mode);
 				if (lcd_drv->lcd_outputmode_check(mode, frac) == 0) {
 					free(mode);
@@ -263,6 +263,20 @@ static int do_rx_det(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		printf("edid read failed\n");
 
 	return st;
+}
+
+static void hdmitx_mask_rx_info(struct hdmitx_dev *hdev)
+{
+	if (env_get("colorattribute"))
+		hdmi_parse_attr(hdev->para, env_get("colorattribute"));
+
+	if (!hdev || !hdev->para)
+		return;
+
+	/* when current output color depth is 8bit, mask hdr capability */
+	/* refer to SWPL-44445 for more detail */
+	if (hdev->para->cd == HDMI_COLOR_DEPTH_24B)
+		memset(&hdev->RXCap.hdr_info, 0, sizeof(struct hdr_info));
 }
 
 static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
@@ -632,6 +646,9 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 		printf("update colorattribute: %s\n", env_get("colorattribute"));
 		printf("update hdmichecksum: %s\n", env_get("hdmichecksum"));
 	}
+	hdev->vic = hdmi_get_fmt_vic(env_get("outputmode"));
+	hdev->para = hdmi_get_fmt_paras(hdev->vic);
+	hdmitx_mask_rx_info(hdev);
 	return 0;
 }
 static int do_get_preferred_mode(cmd_tbl_t * cmdtp, int flag, int argc,
@@ -761,7 +778,5 @@ struct hdr_info *hdmitx_get_rx_hdr_info(void)
 {
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
 
-	if (hdev->para->cd == HDMI_COLOR_DEPTH_24B)
-		memset(&hdev->RXCap.hdr_info, 0, sizeof(struct hdr_info));
 	return &hdev->RXCap.hdr_info;
 }
