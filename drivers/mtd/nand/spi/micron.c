@@ -14,7 +14,7 @@
 
 #define SPINAND_MFR_MICRON		0x2c
 
-#define MICRON_STATUS_ECC_MASK		GENMASK(7, 4)
+#define MICRON_STATUS_ECC_MASK		GENMASK(6, 4)
 #define MICRON_STATUS_ECC_NO_BITFLIPS	(0 << 4)
 #define MICRON_STATUS_ECC_1TO3_BITFLIPS	(1 << 4)
 #define MICRON_STATUS_ECC_4TO6_BITFLIPS	(3 << 4)
@@ -29,7 +29,7 @@ static SPINAND_OP_VARIANTS(read_cache_variants,
 		SPINAND_PAGE_READ_FROM_CACHE_OP(false, 0, 1, NULL, 0));
 
 static SPINAND_OP_VARIANTS(write_cache_variants,
-		SPINAND_PROG_LOAD_X4(true, 0, NULL, 0),
+		//SPINAND_PROG_LOAD_X4(true, 0, NULL, 0),
 		SPINAND_PROG_LOAD(true, 0, NULL, 0));
 
 static SPINAND_OP_VARIANTS(update_cache_variants,
@@ -92,6 +92,31 @@ static int mt29f2g01abagd_ecc_get_status(struct spinand_device *spinand,
 	return -EINVAL;
 }
 
+static int mt29f4g01abafdwb_ooblayout_ecc(struct mtd_info *mtd, int section,
+					struct mtd_oob_region *region)
+{
+	/* Unable to know the layout of ECC */
+	return -ERANGE;
+}
+
+static int mt29f4g01abafdwb_ooblayout_free(struct mtd_info *mtd, int section,
+					 struct mtd_oob_region *region)
+{
+	if (section)
+		return -ERANGE;
+
+	/* Reserve 4 bytes for the BBM. */
+	region->offset = 4;
+	region->length = 60;
+
+	return 0;
+}
+
+static const struct mtd_ooblayout_ops mt29f4g01abafdwb_ooblayout = {
+	.ecc = mt29f4g01abafdwb_ooblayout_ecc,
+	.free = mt29f4g01abafdwb_ooblayout_free,
+};
+
 static const struct spinand_info micron_spinand_table[] = {
 	SPINAND_INFO("MT29F2G01ABAGD/F50L2G41XA", 0x24,
 		     NAND_MEMORG(1, 2048, 128, 64, 2048, 2, 1, 1),
@@ -101,6 +126,16 @@ static const struct spinand_info micron_spinand_table[] = {
 					      &update_cache_variants),
 		     0,
 		     SPINAND_ECCINFO(&mt29f2g01abagd_ooblayout,
+				     mt29f2g01abagd_ecc_get_status)),
+
+	SPINAND_INFO("MT29F4G01ABAFDWB", 0x34,
+		     NAND_MEMORG(1, 4096, 128, 64, 2048, 1, 1, 1),
+		     NAND_ECCREQ(8, 512),
+		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
+					      &write_cache_variants,
+					      &update_cache_variants),
+		     0,
+		     SPINAND_ECCINFO(&mt29f4g01abafdwb_ooblayout,
 				     mt29f2g01abagd_ecc_get_status)),
 };
 
