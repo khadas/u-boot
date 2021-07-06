@@ -59,40 +59,40 @@ static int fbinary(u64 x)
 	}
 	return -1;
 }
-
-static int mmc_get_status(struct mmc *mmc, int timeout)
-{
-	struct mmc_cmd cmd;
-	int err, retries = 1;
-
-	cmd.cmdidx = MMC_CMD_SEND_STATUS;
-	cmd.resp_type = MMC_RSP_R1;
-	if (!mmc_host_is_spi(mmc))
-		cmd.cmdarg = mmc->rca << 16;
-
-	do {
-		err = mmc_send_cmd(mmc, &cmd, NULL);
-		if (!err) {
-			if ((cmd.response[0] & MMC_STATUS_RDY_FOR_DATA) &&
-			    (cmd.response[0] & MMC_STATUS_CURR_STATE) !=
-			     MMC_STATE_PRG)
-				break;
-			else if (cmd.response[0] & MMC_STATUS_MASK) {
-				return COMM_ERR;
-			}
-		} else if (--retries < 0)
-			return err;
-		udelay(1000);
-	} while (timeout--);
-
-	if (timeout <= 0) {
-		return TIMEOUT;
-	}
-	if (cmd.response[0] & MMC_STATUS_SWITCH_ERROR)
-		return SWITCH_ERR;
-
-	return 0;
-}
+//
+//static int mmc_get_status(struct mmc *mmc, int timeout)
+//{
+//	struct mmc_cmd cmd;
+//	int err, retries = 1;
+//
+//	cmd.cmdidx = MMC_CMD_SEND_STATUS;
+//	cmd.resp_type = MMC_RSP_R1;
+//	if (!mmc_host_is_spi(mmc))
+//		cmd.cmdarg = mmc->rca << 16;
+//
+//	do {
+//		err = mmc_send_cmd(mmc, &cmd, NULL);
+//		if (!err) {
+//			if ((cmd.response[0] & MMC_STATUS_RDY_FOR_DATA) &&
+//			    (cmd.response[0] & MMC_STATUS_CURR_STATE) !=
+//			     MMC_STATE_PRG)
+//				break;
+//			else if (cmd.response[0] & MMC_STATUS_MASK) {
+//				return COMM_ERR;
+//			}
+//		} else if (--retries < 0)
+//			return err;
+//		udelay(1000);
+//	} while (timeout--);
+//
+//	if (timeout <= 0) {
+//		return TIMEOUT;
+//	}
+//	if (cmd.response[0] & MMC_STATUS_SWITCH_ERROR)
+//		return SWITCH_ERR;
+//
+//	return 0;
+//}
 
 static int mmc_read_single_block(struct mmc *mmc, void *dst, lbaint_t start)
 {
@@ -422,12 +422,13 @@ static int emmc_send_cid(struct mmc *mmc)
 static int aml_sd_emmc_cmd_v3(struct mmc *mmc)
 {
 	int i;
-	mmc_send_status(mmc, 1000);
-	emmc_send_deselect(mmc);
+	int ret;
+	ret = mmc_send_status(mmc, 1000);
+	ret |= emmc_send_deselect(mmc);
 	for (i = 0; i < 2; i++)
-		emmc_send_cid(mmc);
-	emmc_send_select(mmc);
-	return 0;
+		ret |= emmc_send_cid(mmc);
+	ret |= emmc_send_select(mmc);
+	return ret;
 }
 
 static int emmc_detect_base_line(u64 *arr)
@@ -1083,7 +1084,6 @@ static u32 scan_emmc_cmd_win(struct mmc *mmc, int send_status)
 	int repeat_times = 100;
 	char str[64] = {0};
 	u32 capacity = mmc->capacity >> 9;
-	int timeout = 1000;
 	unsigned long phy_addr = 0x1080000;
 	void * addr = (void*) phy_addr;
 	u32 offset;
@@ -1102,7 +1102,7 @@ static u32 scan_emmc_cmd_win(struct mmc *mmc, int send_status)
 		offset = (u32)rand() % capacity;
 		for (j = 0; j < repeat_times; j++) {
 			if (send_status)
-				err = mmc_get_status(mmc, timeout);
+				err = aml_sd_emmc_cmd_v3(mmc);
 			else
 				err = mmc_read_single_block(mmc, addr, offset);
 			if (!err)
