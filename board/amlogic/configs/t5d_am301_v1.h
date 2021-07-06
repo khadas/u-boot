@@ -154,7 +154,7 @@
             "if test ${cec_ac_wakeup} = 1; then "\
                 "cec ${logic_addr} ${cec_fun}; "\
                 "if test ${edid_select} = 1111; then "\
-                    "if test ${partiton_mode} = dynamic; then " \
+					"if test ${partition_mode} = dynamic; then " \
                         "hdmirx init ${port_map} ${edid_20_dir_dynamic}; "\
                     "else "\
                         "hdmirx init ${port_map} ${edid_20_dir}; "\
@@ -329,7 +329,7 @@
                 "else fi;"\
                 "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
             "else "\
-                "if test ${partiton_mode} = normal; then "\
+				"if test ${partition_mode} = normal; then "\
                     "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
                     "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                 "else "\
