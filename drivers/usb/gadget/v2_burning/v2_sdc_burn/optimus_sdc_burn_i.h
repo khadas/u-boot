@@ -132,6 +132,8 @@ int optimus_fat_register_device(const char *ifname, const char *dev_part_str);
 int do_fat_get_file_format(const char* imgFilePath, unsigned char* pbuf, const unsigned bufSz);
 
 extern int aml_check_is_ready_for_sdc_produce(void);
+int usb_burn_erase_data(unsigned char init_flag);
+struct partitions *get_partition_info_by_num(const int num);
 
 #endif//#ifndef __OPTIMUS_SDC_BURN_I_H__
 

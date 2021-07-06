@@ -646,8 +646,9 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
     __hdle hUiProgress = NULL;
     int hasBootloader = 0;
     u64 datapartsSz = 0;
-    int eraseFlag = pSdcCfgPara->custom.eraseFlash;
-    const int eraseBootloader = pSdcCfgPara->custom.eraseBootloader;
+	ConfigPara_t *sdc_cfg_para = pSdcCfgPara;
+	int eraseFlag = sdc_cfg_para->custom.eraseFlash;
+	int erase_bootloader = sdc_cfg_para->custom.eraseBootloader;
     const int usbDiskUpgrade = (OPTIMUS_WORK_MODE_UDISK_PRODUCE == optimus_work_mode_get());
 
     optimus_buf_manager_init(16*1024);
@@ -675,12 +676,14 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
         memcpy((void*)pkgPath, cfgFile, strnlen(cfgFile, 128));
     }
 
+	eraseFlag = pSdcCfgPara->custom.eraseFlash;
+	erase_bootloader = pSdcCfgPara->custom.eraseBootloader;
     hImg = hImg ? hImg : image_open("mmc", "0", "1", pkgPath);
     if (!hImg) {
         DWN_ERR("Fail to open image %s\n", pkgPath);
         ret = __LINE__; goto _finish;
     }
-    if (eraseBootloader && is_bootloader_old())
+	if (erase_bootloader && is_bootloader_old())
     {
         if (usbDiskUpgrade) {//upgrade new bootloader
             if (optimus_burn_bootlader(hImg)) {
@@ -761,8 +764,11 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
 
         DWN_MSG("store_get_type %d\n", store_get_type());
         //erase after bootloader for usb disk
-        if (BOOT_EMMC == store_get_type()) ret = run_command("echo amlmmc erase non_loader;amlmmc erase non_loader", 0);
-        else ret = run_command("echo store erase.chip; store erase.chip", 0);
+		if (store_get_type() == BOOT_EMMC) {
+			ret = usb_burn_erase_data(1);
+		} else {
+			ret = run_command("echo store erase.chip; store erase.chip", 0);
+		}
     }
     else
         ret = optimus_storage_init(eraseFlag);
