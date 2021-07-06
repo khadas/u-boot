@@ -169,37 +169,34 @@ static int meson_clk_get_pll_settings(unsigned long rate,
 	return best ? 0 : -EINVAL;
 }
 
-#if 0
-static long meson_clk_pll_round_rate(struct meson_clk_pll_data *pll, unsigned long rate)
+static unsigned long meson_clk_pll_recalc_rate(struct meson_clk_pll_data *pll)
 {
 	unsigned int m, n, frac, od;
-	unsigned long round;
-	int ret;
 
-	ret = meson_clk_get_pll_settings(rate, &m, &n, pll, &od);
-	if (ret)
-		return meson_clk_pll_recalc_rate(pll);
+	n = meson_parm_read(&pll->n);
+	m = meson_parm_read(&pll->m);
+	od = MESON_PARM_APPLICABLE(&pll->od) ?
+		meson_parm_read(&pll->od) :
+		0;
 
-	round = __pll_params_to_rate(m, n, 0, pll, od);
-
-	if (!MESON_PARM_APPLICABLE(&pll->frac) || rate == round)
-		return round;
-
-	/*
-	 * The rate provided by the setting is not an exact match, let's
-	 * try to improve the result using the fractional parameter
-	 */
-	frac = __pll_params_with_frac(rate, m, n, pll);
+	frac = MESON_PARM_APPLICABLE(&pll->frac) ?
+		meson_parm_read(&pll->frac) :
+		0;
 
 	return __pll_params_to_rate(m, n, frac, pll, od);
 }
-#endif
 
 static int meson_clk_pll_wait_lock(struct meson_clk_pll_data *pll)
 {
 	int delay = 1000;
 
 	do {
+		/* There may be no lock status check for some plls */
+		if (!pll->l.reg) {
+			_udelay(1000);
+			return 0;
+		}
+
 		/* Is the clock locked now ? */
 		if (meson_parm_read(&pll->l))
 			return 0;
@@ -209,13 +206,210 @@ static int meson_clk_pll_wait_lock(struct meson_clk_pll_data *pll)
 	return -ETIMEDOUT;
 }
 
+static void meson_pll_report(struct meson_clk_pll_data *pll, unsigned long target,
+			     unsigned long msr_rate, unsigned long res,
+			     unsigned int margin)
+{
+	if (!target) {
+		printf("invalid target\n");
+		return;
+	}
+
+	if (!msr_rate) {
+		printf("invalid msr rate\n");
+		return;
+	}
+
+	if (((msr_rate - margin) <= res) && (res <= (msr_rate + margin)))
+		printf("%s PLL lock ok, target rate=%luM div=%ld clkmsr rate=%luM: Match\n",
+		       pll->name, target, target / msr_rate, res);
+	else
+		printf("%s PLL lock failed, target rate=%luM div=%ld clkmsr rate=%luM: Not Match\n",
+		       pll->name, target, target / msr_rate, res);
+}
+
+void meson_switch_cpu_clk(unsigned int smc_id, unsigned int secid, unsigned int flag)
+{
+	struct arm_smccc_res res;
+
+	arm_smccc_smc(smc_id, secid,
+	0x1 << 11, flag << 11,
+	0, 0, 0, 0, &res);
+}
+
+unsigned long meson_div16_to_msr(struct meson_clk_pll_data *pll, unsigned long rate)
+{
+	/* msr is div16 */
+	return rate >> 4;
+}
+
+int meson_pll_store_rate(struct meson_clk_pll_data *pll)
+{
+	if (meson_parm_read(&pll->en)) {
+		/* Record the current pll frequency when pll is enabled */
+		if (pll->ops->pll_recalc)
+			pll->store_rate = pll->ops->pll_recalc(pll);
+		else /* default */
+			pll->store_rate = meson_clk_pll_recalc_rate(pll);
+	} else {
+		pll->store_rate = 0;
+	}
+
+	return 0;
+}
+
+void meson_pll_restore_rate(struct meson_clk_pll_data *pll)
+{
+	if (!pll->store_rate) {
+		/* disabled pll */
+		if (pll->ops->pll_disable)
+			pll->ops->pll_disable(pll);
+		else
+			meson_clk_pll_disable(pll);
+		return;
+	}
+
+	if (pll->ops->pll_set_rate)
+		pll->ops->pll_set_rate(pll, pll->store_rate);
+	else /* default */
+		meson_pll_set_rate(pll, pll->store_rate);
+}
+
 void meson_clk_pll_disable(struct meson_clk_pll_data *pll)
 {
 	/* Put the pll is in reset */
 	setbits_le32(pll->rst.reg, 1 << pll->rst.shift);
-
 	/* Disable the pll */
-	setbits_le32(pll->en.reg, 0 << pll->en.shift);
+	clrbits_le32(pll->en.reg, 1 << pll->en.shift);
+}
+
+void meson_secure_pll_disable(struct meson_clk_pll_data *pll)
+{
+	struct arm_smccc_res res;
+
+	arm_smccc_smc(pll->smc_id, pll->secid_disable,
+			      0, 0, 0, 0, 0, 0, &res);
+}
+
+int meson_secure_pll_set_parm_rate(struct meson_clk_pll_data *pll, char * const argv[])
+{
+	struct arm_smccc_res res;
+	unsigned int enabled, i, val, j = 10;
+	const struct reg_sequence *init_regs = pll->init_regs;
+
+	if (PARENT_RATE == 0)
+		return -EINVAL;
+
+	enabled = meson_parm_read(&pll->en);
+	if (enabled)
+		meson_secure_pll_disable(pll);
+
+	do {
+		/* run the same sequence provided by vlsi */
+		for (i = 0; i < pll->init_count; i++) {
+			val = simple_strtoul(argv[i + 2], NULL, 16);
+			arm_smccc_smc(pll->smc_id, pll->secid_test, init_regs[i].reg, val,
+				      init_regs[i].delay_us, 0, 0, 0, &res);
+		}
+		/* start test */
+		arm_smccc_smc(pll->smc_id, pll->secid_test, 0xff, 0xff, 0xff, 0, 0, 0, &res);
+		if (meson_clk_pll_wait_lock(pll))
+			printf("%s pll did not lock, retrying %d\n", pll->name, 10 - j);
+		else
+			break;
+		j--;
+	} while (j);
+
+	return 0;
+}
+
+int meson_secure_pll_set_rate(struct meson_clk_pll_data *pll, unsigned long rate)
+{
+	struct arm_smccc_res res;
+	unsigned int enabled, m, n, od, ret = 0;
+
+	if (PARENT_RATE == 0 || rate == 0)
+		return -EINVAL;
+
+	ret = meson_clk_get_pll_settings(rate, &m, &n, pll, &od);
+	if (ret)
+		return ret;
+
+	enabled = meson_parm_read(&pll->en);
+	if (enabled)
+		meson_secure_pll_disable(pll);
+	/*Send m,n for arm64 */
+	arm_smccc_smc(pll->smc_id, pll->secid,
+			      m, n, od, 0, 0, 0, &res);
+
+	if (meson_clk_pll_wait_lock(pll))
+		printf("%s pll did not lock\n", pll->name);
+
+	return 0;
+}
+
+int meson_pll_set_parm_rate(struct meson_clk_pll_data *pll, char * const argv[])
+{
+	unsigned int enabled, i, val, j = 10;
+	const struct reg_sequence *init_regs;
+
+	if (PARENT_RATE == 0 || !pll)
+		return -EINVAL;
+
+	init_regs = pll->init_regs;
+	enabled = meson_parm_read(&pll->en);
+	if (enabled)
+		meson_clk_pll_disable(pll);
+
+	do {
+		/* run the same sequence provided by vlsi */
+		for (i = 0; i < pll->init_count; i++) {
+			//val = init_regs[i].def;
+			val = simple_strtoul(argv[i + 2], NULL, 16);
+			writel(val, init_regs[i].reg);
+			if (init_regs[i].delay_us)
+				_udelay(init_regs[i].delay_us);
+		}
+
+		if (meson_clk_pll_wait_lock(pll))
+			printf("%s pll did not lock, retrying %d\n", pll->name, 10 - j);
+		else
+			break;
+		j--;
+	} while (j);
+
+	return 0;
+}
+
+int meson_pll_set_one_rate(struct meson_clk_pll_data *pll, unsigned long rate)
+{
+	unsigned int enabled, i, val, j = 10;
+	const struct reg_sequence *init_regs = pll->init_regs;
+
+	if (!PARENT_RATE || !rate)
+		return -EINVAL;
+
+	enabled = meson_parm_read(&pll->en);
+	if (enabled)
+		meson_clk_pll_disable(pll);
+
+	do {
+		/* run the same sequence provided by vlsi */
+		for (i = 0; i < pll->init_count; i++) {
+			val = init_regs[i].def;
+			writel(val, init_regs[i].reg);
+			if (init_regs[i].delay_us)
+				_udelay(init_regs[i].delay_us);
+		}
+
+		if (meson_clk_pll_wait_lock(pll))
+			printf("%s pll did not lock, retrying %d\n", pll->name, 10 - j);
+		else
+			break;
+		j--;
+	} while (j);
+
+	return 0;
 }
 
 int meson_pll_set_rate(struct meson_clk_pll_data *pll, unsigned long rate)
@@ -240,15 +434,15 @@ int meson_pll_set_rate(struct meson_clk_pll_data *pll, unsigned long rate)
 		frac = __pll_params_with_frac(rate, m, n, pll);
 
 #ifdef MESON_PLL_DEBUG
-	printf("meson_pll_set_rate: %s trate = %lu, m = %d, n = %d, od = %d\n",
-	pll->name, rate, m, n, od);
+	printf("pll set rate: %s trate = %lu, m = %d, n = %d, od = %d\n",
+	       pll->name, rate, m, n, od);
 #endif
 	enabled = meson_parm_read(&pll->en);
 	if (enabled)
 		meson_clk_pll_disable(pll);
 
 	/* run the same sequence provided by vlsi */
-        for (i = 0; i < pll->init_count; i++) {
+	for (i = 0; i < pll->init_count; i++) {
 		if (pn->reg == init_regs[i].reg) {
 			/* Clear M N Vbits and Update M N value */
 			val = init_regs[i].def;
@@ -280,155 +474,89 @@ int meson_pll_set_rate(struct meson_clk_pll_data *pll, unsigned long rate)
 	return 0;
 }
 
-int meson_pll_set_one_rate(struct meson_clk_pll_data *pll, unsigned long rate)
-{
-	unsigned int enabled, i, val, j = 10;
-	const struct reg_sequence *init_regs = pll->init_regs;
-
-	if (PARENT_RATE == 0 || rate == 0)
-		return -EINVAL;
-
-	enabled = meson_parm_read(&pll->en);
-	if (enabled)
-		meson_clk_pll_disable(pll);
-
-	do {
-		/* run the same sequence provided by vlsi */
-		for (i = 0; i < pll->init_count; i++) {
-			val = init_regs[i].def;
-			writel(val, init_regs[i].reg);
-			if (init_regs[i].delay_us)
-				_udelay(init_regs[i].delay_us);
-		}
-
-		if (meson_clk_pll_wait_lock(pll))
-			printf("pcie pll did not lock, retrying %d\n", 10 - j);
-		else
-			break;
-		j--;
-	} while (j);
-
-	return 0;
-}
-
-void meson_secure_pll_disable(struct meson_clk_pll_data *pll)
-{
-	struct arm_smccc_res res;
-
-	arm_smccc_smc(pll->smc_id, pll->secid_disable,
-			      0, 0, 0, 0, 0, 0, &res);
-}
-
-int meson_secure_pll_set_rate(struct meson_clk_pll_data *pll, unsigned long rate)
-{
-	struct arm_smccc_res res;
-	unsigned int enabled, m, n, ret = 0;
-	unsigned int od;
-
-	if (PARENT_RATE == 0 || rate == 0)
-		return -EINVAL;
-
-	ret = meson_clk_get_pll_settings(rate, &m, &n, pll, &od);
-	if (ret)
-		return ret;
-
-	enabled = meson_parm_read(&pll->en);
-	if (enabled)
-		meson_secure_pll_disable(pll);
-	/*Send m,n for arm64 */
-	arm_smccc_smc(pll->smc_id, pll->secid,
-			      m, n, od, 0, 0, 0, &res);
-
-	return 0;
-}
-
-void meson_pll_report(struct meson_clk_pll_data *pll, unsigned int target, unsigned  long res)
-{
-	if (((target-2) <= res) && (res <= (target+2)))
-		printf("%s PLL lock ok, target rate = %uM, clkmsr rate = %luM : Match\n", pll->name, target, res);
-	else
-		printf("%s PLL lock failed, target rate = %uM, clkmsr rate = %luM: Not Match\n", pll->name, target, res);
-}
-
 void meson_pll_test(struct meson_clk_pll_data *pll)
 {
 	int i;
-	unsigned long result;
+	unsigned long result, rate;
 
-	for (i = 0; i < pll->def_cnt;i++) {
-		meson_pll_set_rate(pll, (unsigned long)pll->def_rate[i] * (unsigned long)1000000);
+	if (pll->ops->pll_prepare_test)
+		pll->ops->pll_prepare_test(pll);
 
-		result = clk_util_clk_msr(pll->clkmsr_id);
-
-		meson_pll_report(pll, pll->def_rate[i], result);
-	}
-}
-
-void meson_secure_pll_test(struct meson_clk_pll_data *pll)
-{
-	int i;
-	unsigned long result;
-
-	for (i = 0; i < pll->def_cnt;i++) {
-		meson_secure_pll_set_rate(pll, (unsigned long)pll->def_rate[i] * (unsigned long)1000000);
-
-		result = clk_util_clk_msr(pll->clkmsr_id);
-		/* for sys_pll, clkmsr result is actual value/16 */
-		if (pll->clkmsr_div16_en)
-			result *= 16;
-
-		if (((pll->def_rate[i]-2*5) <= result) && (result <= (pll->def_rate[i]+2*5)))
-			printf("%s PLL lock ok, target rate = %u M, clkmsr rate = %lu: Match\n", pll->name, pll->def_rate[i], result);
+	for (i = 0; i < pll->def_cnt; i++) {
+		if (pll->ops->pll_set_rate)
+			pll->ops->pll_set_rate(pll, (unsigned long)pll->def_rate[i] * 1000000);
 		else
-			printf("%s PLL lock failed, target rate = %u M, clkmsr rate = %lu: Not Match\n", pll->name, pll->def_rate[i], result);
-	}
-}
+			meson_pll_set_rate(pll, (unsigned long)pll->def_rate[i] * 1000000);
 
-void meson_pll_test_one(struct meson_clk_pll_data *pll)
-{
-	int i;
-	unsigned long result;
-
-	for (i = 0; i < pll->def_cnt;i++) {
-		meson_pll_set_one_rate(pll, (unsigned long)pll->def_rate[i] * (unsigned long)1000000);
+		if (pll->ops->pll_rate_to_msr)
+			rate = pll->ops->pll_rate_to_msr(pll, (unsigned long)pll->def_rate[i]);
+		else
+			rate = (unsigned long)pll->def_rate[i];
 
 		result = clk_util_clk_msr(pll->clkmsr_id);
-
-		meson_pll_report(pll, pll->def_rate[i], result);
+		meson_pll_report(pll, (unsigned long)pll->def_rate[i],
+				 rate, result, pll->clkmsr_margin);
 	}
+
+	if (pll->ops->pll_unprepare_test)
+		pll->ops->pll_unprepare_test(pll);
 }
 
-void meson_switch_cpu_clk(unsigned int smc_id, unsigned int secid, unsigned int flag)
+void meson_pll_parm_test(struct meson_clk_pll_data *pll, char * const argv[])
 {
-	struct arm_smccc_res res;
+	unsigned long result, target, rate;
 
-	arm_smccc_smc(smc_id, secid,
-	0x1 << 11, flag << 11,
-	0, 0, 0, 0, &res);
+	/* some pll need prepare before test */
+	if (pll->ops->pll_prepare_test)
+		pll->ops->pll_prepare_test(pll);
+
+	/* set rate according to argv */
+	if (pll->ops->pll_set_parm_rate)
+		pll->ops->pll_set_parm_rate(pll, argv);
+	else /* default */
+		meson_pll_set_parm_rate(pll, argv);
+
+	/* recalc rate */
+	if (pll->ops->pll_recalc)
+		target = pll->ops->pll_recalc(pll);
+	else /* default */
+		target = meson_clk_pll_recalc_rate(pll);
+
+	/*
+	 * There are some clk device (divider, mux, od) between measuring and pll.
+	 * We can describe in pll_rate_to_msr.
+	 */
+	if (pll->ops->pll_rate_to_msr)
+		rate = pll->ops->pll_rate_to_msr(pll, target);
+	else
+		rate = target;
+
+	/* clk msr */
+	result = clk_util_clk_msr(pll->clkmsr_id);
+
+	/* report */
+	meson_pll_report(pll, target ? (target / 1000000) : 0, target ? (rate / 1000000) : 0,
+			 result, pll->clkmsr_margin);
+
+	/* unprepare */
+	if (pll->ops->pll_unprepare_test)
+		pll->ops->pll_unprepare_test(pll);
 }
 
-void one_pll_test(struct meson_clk_pll_data **pll_list, int pll_cnt,
-		struct meson_clk_mpll_data **mpll_list, int mpll_cnt,
-		char *arg)
+struct meson_clk_pll_data *meson_pll_find_by_name(struct meson_clk_pll_data **pll_list,
+						  int pll_cnt, char *name)
 {
 	struct meson_clk_pll_data *pll;
-	struct meson_clk_mpll_data *mpll;
-	unsigned int i, j;
+	unsigned int i;
 
-	for (i = 0; i < pll_cnt;i++) {
-		pll = pll_list[i];
-		if (0 == strcmp(pll->name, arg)) {
-			meson_pll_test(pll);
-			return;
-		}
+	if (!pll_list) {
+		printf("The pll list is null!\n");
+		return NULL;
 	}
-	for (j = 0; j < mpll_cnt;j++) {
-		mpll = mpll_list[j];
-		if (0 == strcmp(mpll->name, arg)) {
-			meson_mpll_test(mpll);
-			return;
-		}
-	}
-	if (i == pll_cnt && (j == mpll_cnt))
-		printf("The pll is not supported Or wrong pll name\n");
+
+	for (i = 0, pll = pll_list[0]; i < pll_cnt; i++, pll = pll_list[i])
+		if (!strcmp(pll->name, name))
+			return pll;
+
+	return NULL;
 }

@@ -53,12 +53,22 @@ static void params_from_rate(unsigned long requested_rate,
 	}
 }
 
-static void mpll_init(struct meson_clk_mpll_data *mpll)
+static long rate_from_params(unsigned int sdm, unsigned int n2)
+{
+	unsigned long divisor = (SDM_DEN * n2) + sdm;
+
+	if (n2 < N2_MIN)
+		return -EINVAL;
+
+	return DIV_ROUND_UP_ULL((u64)2000000000 * SDM_DEN, divisor);
+}
+
+static void mpll_init(struct meson_clk_pll_data *mpll)
 {
 	const struct reg_sequence *init_regs = mpll->init_regs;
 	unsigned int i, val;
 
-        for (i = 0; i < mpll->init_count; i++) {
+	for (i = 0; i < mpll->init_count; i++) {
 		val = init_regs[i].def;
 		writel(val, init_regs[i].reg);
 		if (init_regs[i].delay_us)
@@ -80,7 +90,34 @@ static void mpll_init(struct meson_clk_mpll_data *mpll)
 		meson_parm_write(&mpll->misc, 1);
 }
 
-int meson_mpll_set_rate(struct meson_clk_mpll_data *mpll,
+unsigned long meson_mpll_recalc_rate(struct meson_clk_pll_data *mpll)
+{
+	unsigned int sdm, n2;
+	long rate;
+
+	sdm = meson_parm_read(&mpll->sdm);
+	n2 = meson_parm_read(&mpll->n2);
+
+	rate = rate_from_params(sdm, n2);
+	return rate < 0 ? 0 : rate;
+}
+
+int meson_mpll_set_parm_rate(struct meson_clk_pll_data *mpll, char * const argv[])
+{
+	const struct reg_sequence *init_regs = mpll->init_regs;
+	unsigned int i, val;
+
+	for (i = 0; i < mpll->init_count; i++) {
+		val = simple_strtoul(argv[i + 2], NULL, 16);
+		writel(val, init_regs[i].reg);
+		if (init_regs[i].delay_us)
+			_udelay(init_regs[i].delay_us);
+	}
+
+	return 0;
+}
+
+int meson_mpll_set_rate(struct meson_clk_pll_data *mpll,
 			 unsigned long rate)
 {
 	unsigned int sdm, n2;
@@ -98,27 +135,8 @@ int meson_mpll_set_rate(struct meson_clk_mpll_data *mpll,
 	/* Enable */
 	meson_parm_write(&mpll->en, 1);
 
+	_udelay(50);
+
 	return 0;
 }
 
-void meson_mpll_report(struct meson_clk_mpll_data *pll, unsigned int target, unsigned  long res)
-{
-	if (((target-2*5) <= res) && (res <= (target+2*5)))
-		printf("%s target rate = %uM, clkmsr rate = %luM : Match\n", pll->name    , target, res);
-	else
-		printf("%s target rate = %uM, clkmsr rate = %luM: Not Match\n", pll->name, target, res);
-}
-
-void meson_mpll_test(struct meson_clk_mpll_data *pll)
-{
-	int i;
-	unsigned long result;
-
-	for (i = 0; i < pll->def_cnt;i++) {
-		meson_mpll_set_rate(pll, (unsigned long)pll->def_rate[i] * (unsigned long)1000000);
-
-		result = clk_util_clk_msr(pll->clkmsr_id);
-
-		meson_mpll_report(pll, pll->def_rate[i], result);
-	}
-}
