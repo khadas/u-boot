@@ -647,11 +647,12 @@ endif
 endif
 
 KBUILD_CFLAGS += $(call cc-option,-Wno-format-nonliteral)
+KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
+
 ifeq ($(cc-name),clang)
 KBUILD_CPPFLAGS += $(call cc-option,-Qunused-arguments,)
 KBUILD_CFLAGS += $(call cc-disable-warning, format-invalid-specifier)
 KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
-KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
 KBUILD_CFLAGS += $(call cc-option, -fcatch-undefined-behavior)
 endif
 
@@ -1818,6 +1819,7 @@ $(clean-dirs):
 clean: $(clean-dirs)
 	$(call cmd,rmdirs)
 	$(call cmd,rmfiles)
+	@echo   CROSS_COMPILE : $(CROSS_COMPILE) VERSION: `$(CC) --version`
 	@find $(if $(KBUILD_EXTMOD), $(KBUILD_EXTMOD), .) $(RCS_FIND_IGNORE) \
 		\( -name '*.[oas]' -o -name '*.ko' -o -name '.*.cmd' \
 		-o -name '*.ko.*' -o -name '*.su' \
