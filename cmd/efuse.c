@@ -20,6 +20,8 @@
 #define CMD_EFUSE_PASSWORD_SET     7
 #define CMD_EFUSE_CUSTOMER_ID_SET  8
 
+#define CMD_EFUSE_CHECK_PATTERN_ITEM   10
+
 #define CMD_EFUSE_AMLOGIC_SET      20
 
 int cmd_efuse(int argc, char * const argv[], char *buf)
@@ -39,6 +41,9 @@ int cmd_efuse(int argc, char * const argv[], char *buf)
 		action = CMD_EFUSE_READ_CALI;
 	} else if (strncmp(argv[1], "item_read", 9) == 0) {
 		action = CMD_EFUSE_READ_CALI_ITEM;
+		goto efuse_action;
+	} else if (strncmp(argv[1], "check", 9) == 0) {
+		action = CMD_EFUSE_CHECK_PATTERN_ITEM;
 		goto efuse_action;
 	} else if (strncmp(argv[1], "write", 5) == 0) {
 		action = CMD_EFUSE_WRITE;
@@ -130,6 +135,14 @@ efuse_action:
 			return -1;
 		}
 		printf("efuse %s cali data=0x%x\n",s,ret);
+	} else if (action == CMD_EFUSE_CHECK_PATTERN_ITEM) {
+		s = argv[2];
+		ret = efuse_check_pattern_item(s);
+		if (ret < 0) {
+			printf("ERROR: efuse check pattern fail!\n");
+			return -1;
+		}
+		printf("efuse %s is %s\n", s, ret > 0 ? "wrote" : "not write");
 	}
 
 	/* efuse write */
@@ -211,6 +224,8 @@ static char efuse_help_text[] =
 	"                   example: [efuse cali_read 0 7]; offset is 0,size is 7. \n"
 	"  [item_read]  -read cali item\n"
 	"                   [item_read sensor/saradc/mipicsi/hdmirx/eth/cvbs/earcrx/earctx]\n"
+	"  [check]      -check if pattern is write\n"
+	"                  [check dgpk1]\n"
 	"  [read/write]  - read or write 'size' data from\n"
 	"                  'offset' from efuse user data ;\n"
 	"  [offset]      - the offset byte from the beginning\n"

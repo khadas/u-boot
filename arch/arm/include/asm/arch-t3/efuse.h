@@ -43,6 +43,7 @@ struct efuse_hal_api_arg {
 #define EFUSE_HAL_API_USER_MAX 3
 #define EFUSE_HAL_API_READ_CALI 4
 #define EFUSE_HAL_API_READ_CALI_ITEM 5
+#define EFUSE_HAL_API_CHECKPATTERN_ITEM  6
 
 #define EFUSE_USER_MASK            (0x1 << 16)
 #define EFUSE_THERMAL_MASK         (0x1 << 17)
@@ -59,6 +60,7 @@ ssize_t efuse_write(const char *buf, size_t count, loff_t *ppos);
 
 int32_t meson_trustzone_efuse(struct efuse_hal_api_arg *arg);
 int32_t meson_trustzone_efuse_get_max(struct efuse_hal_api_arg *arg);
+int64_t meson_trustzone_efuse_lockitem(const char *str);
 
 #endif
 

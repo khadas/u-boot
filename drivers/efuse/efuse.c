@@ -89,6 +89,19 @@ int efuse_get_cali_item(char *str)
 #endif
 }
 
+int efuse_check_pattern_item(char *str)
+{
+#ifdef EFUSE_HAL_API_CHECKPATTERN_ITEM
+	int64_t ret;
+
+	//extern int64_t meson_trustzone_efuse_lockitem(const char *str);
+	ret = meson_trustzone_efuse_lockitem(str);
+	return ret;
+#else
+	return -1;
+#endif
+}
+
 ssize_t efuse_write(const char *buf, size_t count, loff_t *ppos)
 {
 	unsigned int pos = *ppos;
