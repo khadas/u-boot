@@ -870,18 +870,12 @@ static int amlmmc_erase_allbootloader(int dev, struct mmc *mmc)
 static int amlmmc_erase_by_part(int argc, char *const argv[])
 {
 	int ret = CMD_RET_USAGE;
-	char *name = "logo";
 	struct mmc *mmc;
-	int dev;
+	int dev = CONFIG_SYS_MMC_BOOT_DEV;
 
 	if (argc != 3)
 		return ret;
 
-	dev = find_dev_num_by_partition_name(name);
-	if (dev < 0) {
-		printf("Cannot find dev.\n");
-		return 1;
-	}
 	mmc = find_mmc_device(dev);
 	if (!mmc)
 		return 1;
