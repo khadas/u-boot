@@ -967,7 +967,7 @@ int write_mbr_and_gpt_partitions(struct blk_desc *dev_desc, void *buf)
 		return 1;
 	}
 
-	part_print_efi(dev_desc);
+	//part_print_efi(dev_desc);
 
 	return 0;
 }

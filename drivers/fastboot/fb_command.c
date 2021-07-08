@@ -424,18 +424,55 @@ static void flash(char *cmd_parameter, char *response)
 
 #ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
 	struct mmc *mmc = find_mmc_device(CONFIG_FASTBOOT_FLASH_MMC_DEV);
-	if ((mmc != NULL) && strcmp(cmd_parameter, "bootloader") == 0 && (aml_gpt_valid(mmc) == 0)) {
-		printf("we write gpt partition table to bootloader now\n");
-		printf("will write bootloader to bootloader-boot0/bootloader-boot1\n");
+	if (mmc && strcmp(cmd_parameter, "bootloader") == 0) {
+		printf("try to read gpt data from bootloader.img\n");
+		struct blk_desc *dev_desc;
+		/* the max size of bootloader.img is 4M, we reserve 128k for gpt.bin
+		 * so we put gpt.bin at offset 0x3DFE00
+		 * 0 ~ 512 bootloader secure boot, we don't care it here.
+		 * 512 ~ 0x3DFDFF  original bootloader.img and 0
+		 * 0x3DFE00 ~ end  gpt.bin
+		 */
+
+		dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
+		if (!dev_desc || dev_desc->type == DEV_TYPE_UNKNOWN) {
+			printf("invalid mmc device\n");
+			fastboot_fail("invalid mmc device", response);
+			return;
+		}
+
+		if (is_valid_gpt_buf(dev_desc, fastboot_buf_addr + 0x3DFE00)) {
+			printf("printf normal bootloader.img, no gpt partition table\n");
+		} else {
+			printf("find gpt parition table, update it\n"
+				"and write bootloader to boot0/boot1\n");
+
+			if (write_mbr_and_gpt_partitions(dev_desc, fastboot_buf_addr + 0x3DFE00)) {
+				printf("%s: writing GPT partitions failed\n", __func__);
+				fastboot_fail("writing GPT partitions failed", response);
+				return;
+			}
+			if (mmc_device_init(mmc) != 0) {
+				printf(" update gpt partition table fail\n");
+				fastboot_fail("fastboot update gpt partition fail", response);
+				return;
+			}
+			printf("%s: writing GPT partitions ok\n", __func__);
+		}
+
+		if (aml_gpt_valid(mmc) == 0) {
+			printf("gpt mode\n");
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
-		fastboot_mmc_flash_write("bootloader-boot0", fastboot_buf_addr, image_size,
+			fastboot_mmc_flash_write("bootloader-boot0", fastboot_buf_addr, image_size,
 				 response);
-		fastboot_mmc_flash_write("bootloader-boot1", fastboot_buf_addr, image_size,
+			fastboot_mmc_flash_write("bootloader-boot1", fastboot_buf_addr, image_size,
 				 response);
+			run_command("mmc dev 1 0;", 0);
 #endif
-		env_set("default_env", "1");
-		run_command("saveenv;", 0);
-		return;
+			env_set("default_env", "1");
+			run_command("saveenv;", 0);
+			return;
+		}
 	}
 #endif
 

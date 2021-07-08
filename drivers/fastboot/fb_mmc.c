@@ -453,6 +453,11 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 				      response);
 			return;
 		}
+		if (mmc_device_init(mmc) != 0) {
+			printf(" update gpt partition table fail\n");
+			fastboot_fail("fastboot update gpt partition fail", response);
+			return;
+		}
 		printf("........ success\n");
 		fastboot_okay(NULL, response);
 		return;
