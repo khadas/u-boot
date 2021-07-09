@@ -302,6 +302,8 @@ static void usage(void)
 static void parse_params(int argc, char * const argv[],
 		struct input_param *params)
 {
+	char *load_addr_str = NULL;
+
 	memset(params, 0, sizeof(struct input_param));
 	switch (argc) {
 	case 5:
@@ -326,10 +328,11 @@ static void parse_params(int argc, char * const argv[],
 		if (!memcmp(argv[1], "query", strlen("query"))) {
 			params->action = ACTION_QUERY;
 			params->keybox_name = argv[2];
-			if (getenv("loadaddr") != NULL)
+			load_addr_str = getenv("loadaddr");
+			if (load_addr_str != NULL)
 				params->ret_data_addr =
 					(uint32_t)simple_strtoul(
-						getenv("loadaddr"), NULL, 0);
+							load_addr_str, NULL, 0);
 			else
 				params->ret_data_addr = CONFIG_SYS_LOAD_ADDR;
 		} else if (!memcmp(argv[1], "remove", strlen("remove"))) {
