@@ -193,7 +193,7 @@ LDFLAGS			+=	--fatal-warnings -O1
 LDFLAGS			+=	--gc-sections
 
 OCFLAGS		+= -j .dev_header -j .generic_param -j .clk_param \
-			   -j .misc_param -j .store_param -j .ddr_param \
+			   -j .misc_param -j .store_param -j .ddr_2acs_index -j .ddr_2acs_data -j .ddr_param \
 			   --gap-fill 0x0
 
 CC			:=	${CROSS_COMPILE}gcc
