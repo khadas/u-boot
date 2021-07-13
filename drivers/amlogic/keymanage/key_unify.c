@@ -310,6 +310,10 @@ int key_unify_write(const char *keyname, const void* keydata, const unsigned dat
     if (!theDevOps->can_overwrite) {
         KM_DBG("can't overwrite\n");
         int ret = theDevOps->pKeyExist(keyname);
+		if (ret < 0) {
+			KM_ERR("fail in query key exist\n");
+			return __LINE__;
+		}
         if (ret) {
             KM_ERR("OTP key[%s] already existed, can't program twice!\n", keyname);
             return __LINE__;
@@ -397,33 +401,42 @@ int key_unify_query_exist(const char* keyname, int* exist)
     }
 
     *exist = theDevOps->pKeyExist(keyname);
+	if (*exist < 0) {
+		KM_ERR("FAil in query key exist\n");
+		return __LINE__;
+	}
 
     return 0;
 }
 
 int key_unify_query_secure(const char* keyname, int* isSecure)
 {
-    const KmDevKeyOps* theDevOps  = NULL;
+	const KmDevKeyOps *theDevOps  = NULL;
+	int ret = 0;
 
-    theDevOps = _get_km_ops_by_name (keyname) ;
-    if (!theDevOps) {
-        KM_ERR("key[%s] no cfg in dts\n", keyname);
-        return __LINE__;
-    }
+	theDevOps = _get_km_ops_by_name(keyname);
+	if (!theDevOps) {
+		KM_ERR("key[%s] no cfg in dts\n", keyname);
+		return __LINE__;
+	}
 
-    int ret = theDevOps->pKeyExist (keyname) ;
-    if (!ret) {
-        KM_ERR("key[%s] not programed yet\n", keyname);
-        return __LINE__;
-    }
+	ret = theDevOps->pKeyExist(keyname);
+	if (ret < 0) {
+		KM_ERR("fail in query key exist[%s]\n", keyname);
+		return __LINE__;
+	}
+	if (!ret) {
+		KM_MSG("key[%s] not programed yet\n", keyname);
+		return __LINE__;
+	}
 
-    *isSecure = !theDevOps->pKeyCanRead (keyname) ;
-    if (!ret) {
-        KM_ERR ("key[%s] can't read as it's secure\n", keyname) ;
-        return __LINE__;
-    }
+	*isSecure = !theDevOps->pKeyCanRead(keyname);
+	if (!ret) {
+		KM_MSG("key[%s] can't read as it's secure\n", keyname);
+		return __LINE__;
+	}
 
-    return 0;
+	return 0;
 }
 
 int key_unify_query_canOverWrite(const char* keyname, int* canOverWrite)

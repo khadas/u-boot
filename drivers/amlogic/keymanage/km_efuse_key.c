@@ -10,6 +10,7 @@
 #include <amlogic/aml_efuse.h>
 
 #define SECURE_BOOT_KEY_NAME    "secure_boot_set"
+#define EFUSE_KEY_DGPK1			"KEY_EFUSE_DGPK1"
 
 extern int efuse_usr_api_init_dtb(const char*  dt_addr);
 extern int efuse_usr_api_get_cfg_key_size(const char* keyname, unsigned* pSz);
@@ -53,20 +54,20 @@ int keymange_efuse_exit(void)
 //must be hexdata if stored in efuse
 int keymanage_efuse_write(const char *keyname, const void* keydata, unsigned int datalen)
 {
-    int ret = 0;
+	int ret = 0;
 
-    if (!strcmp(SECURE_BOOT_KEY_NAME, keyname))
-    {
-            char _cmdbuf[96];
-            sprintf(_cmdbuf, "efuse %s %p", keyname, keydata);
-            ret = run_command(_cmdbuf, 0);;
-    }
-    else
-    {
-            ret = efuse_usr_api_write_key(keyname,  keydata, datalen);
-    }
+	if (!strcmp(SECURE_BOOT_KEY_NAME, keyname) || !strcmp(EFUSE_KEY_DGPK1, keyname)) {
+		char _cmdbuf[96];
 
-    return ret;
+		sprintf(_cmdbuf, "efuse %s %p", SECURE_BOOT_KEY_NAME, keydata);
+		ret = run_command(_cmdbuf, 0);
+		if (ret)
+			KM_ERR("FAil in cmd:%s\n", _cmdbuf);
+	} else {
+		ret = efuse_usr_api_write_key(keyname,  keydata, datalen);
+	}
+
+	return ret;
 }
 
 ssize_t keymanage_efuse_size(const char* keyname)
@@ -85,53 +86,56 @@ ssize_t keymanage_efuse_size(const char* keyname)
 
 int keymanage_efuse_exist(const char* keyname)
 {
+	if (!strcmp(SECURE_BOOT_KEY_NAME, keyname)) {
+		const unsigned long cfg10 = IS_FEAT_BOOT_VERIFY();
 
-        if (!strcmp(SECURE_BOOT_KEY_NAME, keyname))
-        {
-                const unsigned long cfg10 = IS_FEAT_BOOT_VERIFY();
-                KM_MSG("cfg10=0x%lX\n", cfg10);
-                return ( cfg10 );
-        }
-        else
-        {
-                int ret = 0;
-                const ssize_t cfgSz = keymanage_efuse_size(keyname);
-                char* databuf = NULL;
-                int isEmpty = 1;
-                int i = 0;
+		KM_MSG("cfg10=0x%lX\n", cfg10);
+		return cfg10;
+	} else if (!strcmp(EFUSE_KEY_DGPK1, keyname)) {
+		char *pattern = (char *)"dgpk1";
+		int ret = efuse_check_pattern_item(pattern);
 
-                databuf = (char*)malloc(cfgSz);
-                if (!databuf) {
-                        KM_ERR("Fail to alloc bufsz 0x%x for key %s\n", (unsigned)cfgSz, keyname);
-                        return 0;
-                }
-                ret = keymanage_efuse_read(keyname, databuf, cfgSz);
-                if (ret) {
-                        KM_ERR("Fail at read key[%s]\n", keyname);
-                        goto _exit;
-                }
-                for (i = 0; i < cfgSz && isEmpty; ++i) {
-                        isEmpty = !databuf[i];
-                }
+		KM_MSG("efuse check pattern ret %d\n", ret);
+		if (ret < 0) {
+			KM_ERR("efuse check pattern fail!\n");
+			return -1;
+		}
+		KM_MSG("efuse %s is %s\n", pattern, ret > 0 ? "wrote" : "not write");
+		return ret > 0;
+	}
+	{
+		int ret = 0;
+		const ssize_t cfgSz = keymanage_efuse_size(keyname);
+		char *databuf = NULL;
+		int isEmpty = 1;
+		int i = 0;
+
+		databuf = (char *)malloc(cfgSz);
+		if (!databuf) {
+			KM_ERR("Fail to alloc bufsz 0x%x for key %s\n", (unsigned)cfgSz, keyname);
+			return 0;
+		}
+		ret = keymanage_efuse_read(keyname, databuf, cfgSz);
+		if (ret) {
+			KM_ERR("Fail at read key[%s]\n", keyname);
+			goto _exit;
+		}
+		for (i = 0; i < cfgSz && isEmpty; ++i)
+			isEmpty = !databuf[i];
 
 _exit:
-                free(databuf);
-                return !isEmpty;
-        }
+		free(databuf);
+		return !isEmpty;
+	}
 
-        return __LINE__;
+	return __LINE__;
 }
 
 int keymanage_efuse_query_can_read(const char* keyname)
 {
-        if (!strcmp(SECURE_BOOT_KEY_NAME, keyname))
-        {
-                return 0;
-        }
-        else
-        {
-                return 1;//user space always can be read
-        }
+	if (!strcmp(SECURE_BOOT_KEY_NAME, keyname) || !strcmp(EFUSE_KEY_DGPK1, keyname))
+		return 0;
+	return 1;//user space always can be read
 }
 
 //data format is hexdata

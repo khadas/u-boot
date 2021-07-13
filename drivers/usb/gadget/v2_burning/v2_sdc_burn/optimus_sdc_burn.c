@@ -415,7 +415,6 @@ static int sdc_burn_get_user_key_names(HIMAGE hImg, const char* **pKeysName, uns
 
         hImgItem = image_item_open(hImg, "conf", "keys");
         if (!hImgItem) {
-                DWN_ERR("Fail to open keys.conf\n");
                 return ITEM_NOT_EXIST;
         }
 
@@ -489,147 +488,190 @@ static int sdc_check_key_need_to_burn(const char* keyName, const int keyOverWrit
 //burn the amlogic keys like USB_Burning_Tool
 int sdc_burn_aml_keys(HIMAGE hImg, const int keyOverWrite, int licenseKey, int imgKey)
 {
-        int rc = 0;
-        const char* *keysName = NULL;
-        unsigned keysNum = 0;
-        const char** pCurKeysName = NULL;
-        unsigned index = 0;
+	int rc = 0;
+	const char **keysName = NULL;
+	unsigned keysNum = 0;
+	const char **pCurKeysName = NULL;
+	unsigned index = 0;
+	int num_img_keys = 0;
+	const char **img_key_names = NULL;
+	const char *IMG_KEY_MAIN = "AML_KEY";
 
-        {
-                unsigned random32 = 0;
-                unsigned seed = 0;
-                char cmd[96];
+	num_img_keys = get_subtype_nr(hImg, IMG_KEY_MAIN);
 
-                random32 = seed = get_timer(0) + 12345;//FIXME:make it random
-                /*random32 = random_u32(seed);*/
-                DWN_MSG("random value is 0x%x\n", random32);
-                sprintf(cmd, "aml_key_burn init 0x%x", random32);
+	rc = sdc_burn_get_user_key_names(hImg, &keysName, &keysNum);
+	if (rc == ITEM_NOT_EXIST) {
+		DWN_MSG("not exist keys.conf\n");
+	} else if (rc) {
+		DWN_ERR("Fail in parse keys.conf, rc %d\n", rc);
+		return __LINE__;
+	}
+	if (!num_img_keys && !keysNum) {
+		DWN_MSG("Both img keys and keys.conf none\n");
+		return 0;
+	}
 
-                rc = run_command(cmd, 0);
-                if (rc) {
-                        DWN_ERR("Fail in cmd[%s]\n", cmd);
-                        return __LINE__;
-                }
-        }
+	if (strcmp("1", getenv("usb_update")))
+		rc = run_command("aml_key_burn probe vfat sdc", 0);
+	else
+		rc = run_command("aml_key_burn probe vfat udisk", 0);
+	if (rc) {
+		DWN_ERR("Fail in probe for aml_key_burn\n");
+		return __LINE__;
+	}
 
-        rc = sdc_burn_get_user_key_names(hImg, &keysName, &keysNum);
-        if (ITEM_NOT_EXIST != rc && rc) {
-                DWN_ERR("Fail to parse keys.conf, rc =%d\n", rc);
-                return __LINE__;
-        }
-        if (keysNum > 0) {
-            if (strcmp("1", getenv("usb_update")))
-                rc = run_command("aml_key_burn probe vfat sdc", 0);
-            else
-                rc = run_command("aml_key_burn probe vfat udisk", 0);
-            if (rc) {
-                DWN_ERR("Fail in probe for aml_key_burn\n");
-                return __LINE__;
-            }
-            DWN_MSG("keys.conf:\n");
-        }
-        for (index = 0; index < keysNum; ++index)printf("\tkey[%d]\t%s\n", index, keysName[index]) ;
+	DWN_MSG("keys.conf:\n");
+	for (index = 0; index < keysNum; ++index)
+		printf("\tkey[%d]\t%s\n", index, keysName[index]);
 
-        rc =  optimus_sdc_keysprovider_init();
-        if (rc) {
-                DWN_ERR("Fail in optimus_sdc_keysprovider_init\n");
-                return __LINE__;
-        }
+	img_key_names = keysName + keysNum;
+	for (index = 0; index < num_img_keys; ++index) {
+		const char *sub = img_key_names[index];
 
-        pCurKeysName = keysName;
-        for (index = 0; index < keysNum; ++index)
-        {
-                const char* const keyName = *pCurKeysName++;
+		rc = get_subtype_nm_by_index(hImg, "AML_KEY", &sub, index);
+		if (rc) {
+			DWN_ERR("Fail in get %s sub type\n", IMG_KEY_MAIN);
+			return __LINE__;
+		}
+		DWN_MSG("AML_KEY[%d] %s\n", index, sub);
+		img_key_names[index] = sub;
+	}
 
-                if (!keyName) continue;
-                DWN_MSG("\n");
-                DWN_MSG("Now to burn key <---- [%s] ----> %d \n", keyName, index);
-                rc = sdc_check_key_need_to_burn(keyName, keyOverWrite);
-                if (rc < 0) {
-                        DWN_ERR("Fail when when check stauts for key(%s)\n", keyName);
-                        /*return __LINE__;*/
-                }
-                if (!rc) continue;//not need to burn this key
+	{
+		unsigned random32 = 0;
+		unsigned seed = 0;
+		char cmd[96];
 
-                //0, init the key license parser
-                const void* pHdle = NULL;
-                rc = optimus_sdc_keysprovider_open(keyName, &pHdle);
-                if (rc) {
-                        DWN_ERR("Fail in init license for key[%s]\n", keyName);
-                        return __LINE__;
-                }
+		seed = get_timer(0) + 12345;//FIXME:make it random
+		random32 = seed;
+		/*random32 = random_u32(seed);*/
+		DWN_MSG("random value is 0x%x\n", random32);
+		sprintf(cmd, "aml_key_burn init 0x%x", random32);
 
-                //1,using cmd_keysprovider to read a key to memory
-                u8* keyValue = (u8*)OPTIMUS_DOWNLOAD_TRANSFER_BUF_ADDR;
-                unsigned keySz = OPTIMUS_DOWNLOAD_SLOT_SZ;//buffer size
-                rc = optimus_sdc_keysprovider_get_keyval(pHdle, keyValue, &keySz);
-                if (rc) {
-                        DWN_ERR("Fail to get value for key[%s]\n", keyName);
-                        return __LINE__;
-                }
+		rc = run_command(cmd, 0);
+		if (rc) {
+			DWN_ERR("Fail in cmd[%s]\n", cmd);
+			return __LINE__;
+		}
+	}
 
-                //3, burn the key
-                rc = optimus_keysburn_onekey(keyName, (u8*)keyValue, keySz);
-                if (rc) {
-                        DWN_ERR("Fail in burn the key[%s] at addr=%p, sz=%d\n", keyName, keyValue, keySz);
-                        return __LINE__;
-                }
+	rc =  optimus_sdc_keysprovider_init();
+	if (rc) {
+		DWN_ERR("Fail in optimus_sdc_keysprovider_init\n");
+		return __LINE__;
+	}
 
-                //3,report burn result to cmd_keysprovider
-                rc = optimus_sdc_keysprovider_update_license(pHdle);
-                if (rc) {
-                        DWN_ERR("Fail in update license for key[%s]\n", keyName);
-                        return __LINE__;
-                }
-        }
+	pCurKeysName = keysName;
+	for (index = 0; index < keysNum + num_img_keys; ++index) {
+		const char * const keyName = *pCurKeysName++;
 
-        const char* mainTypeKey = "AML_KEY";
-        const int nrItems = get_subtype_nr(hImg, mainTypeKey);
-        for (index = 0; index < nrItems; ++index)
-        {
-            const char* keyName = NULL;
-            if (get_subtype_nm_by_index(hImg, mainTypeKey, &keyName, index)) {
-                DWN_ERR("fail in get key[%d] subtype\n", index);
-                return -__LINE__;
-            }
-            DWN_MSG("Now burn IMG key <---- [%s] ----> %d \n", keyName, index);
-            rc = sdc_check_key_need_to_burn(keyName, keyOverWrite);
-            if (rc < 0) {
-                DWN_ERR("Fail when when check stauts for key(%s)\n", keyName);
-                /*return __LINE__;*/
-            }
-            if (!rc) continue;//not need to burn this key
+		if (!keyName)
+			continue;
+		DWN_MSG("\n");
+		DWN_MSG("Now to burn key <---- [%s] ----> %d\n", keyName, index);
+		rc = sdc_check_key_need_to_burn(keyName, keyOverWrite);
+		if (rc < 0) {
+			DWN_ERR("Fail when check stauts for key(%s)\n", keyName);
+			/*return __LINE__;*/
+		}
+		if (!rc)
+			continue;//not need to burn this key
 
-            //1,using cmd_keysprovider to read a key to memory
-            char* keyValue = (char*)OPTIMUS_DOWNLOAD_TRANSFER_BUF_ADDR;
-            int keySz = OPTIMUS_DOWNLOAD_SLOT_SZ;//buffer size
-            rc = optimus_img_item2buf(hImg, mainTypeKey, keyName, keyValue, &keySz);
-            if (rc) {
-                DWN_ERR("Fail to get value for key[%s]\n", keyName);
-                return __LINE__;
-            }
+		//0, init the key license parser
+		const void *pHdle = NULL;
+		u8 *keyValue = (u8 *)OPTIMUS_DOWNLOAD_TRANSFER_BUF_ADDR;
+		unsigned keySz = OPTIMUS_DOWNLOAD_SLOT_SZ;//buffer size
 
-            //3, burn the key
-            rc = optimus_keysburn_onekey(keyName, (u8*)keyValue, keySz);
-            if (rc) {
-                DWN_ERR("Fail in burn the key[%s] at addr=%p, sz=%d\n", keyName, keyValue, keySz);
-                return __LINE__;
-            }
-        }
+		if (index < keysNum) {
+			rc = optimus_sdc_keysprovider_open(keyName, &pHdle);
+			if (rc) {
+				DWN_ERR("Fail in init license for key[%s]\n", keyName);
+				return __LINE__;
+			}
+			//1,using cmd_keysprovider to read a key to memory
+			rc = optimus_sdc_keysprovider_get_keyval(pHdle, keyValue, &keySz);
+			if (rc) {
+				DWN_ERR("Fail to get value for key[%s]\n", keyName);
+				return __LINE__;
+			}
+		} else {
+			rc = optimus_img_item2buf(hImg, IMG_KEY_MAIN, keyName,
+					(char *)keyValue, (int *)&keySz);
+			if (rc) {
+				DWN_ERR("FAil in get img key %s\n", keyName);
+				return __LINE__;
+			}
+		}
 
-        rc = optimus_sdc_keysprovider_exit();
-        if (rc) {
-                DWN_ERR("Fail in optimus_sdc_keysprovider_exit\n");
-                return __LINE__;
-        }
+		//2, burn the key
+		rc = optimus_keysburn_onekey(keyName, (u8 *)keyValue, keySz);
+		if (rc) {
+			DWN_ERR("Fail in burn the key[%s] at addr=%p, sz=%d\n",
+					keyName, keyValue, keySz);
+			return __LINE__;
+		}
 
-        rc = run_command("aml_key_burn uninit", 0);
-        if (rc) {
-                DWN_ERR("Fail in uninit for aml_key_burn\n");
-                return __LINE__;
-        }
+		//3,report burn result to cmd_keysprovider
+		if (index < keysNum) {
+			rc = optimus_sdc_keysprovider_update_license(pHdle);
+			if (rc) {
+				DWN_ERR("Fail in update license for key[%s]\n", keyName);
+				return __LINE__;
+			}
+		}
+	}
 
-        return 0;
+	const char *mainTypeKey = "AML_KEY";
+	const int nrItems = get_subtype_nr(hImg, mainTypeKey);
+
+	for (index = 0; index < nrItems; ++index) {
+		const char *keyName = NULL;
+
+		if (get_subtype_nm_by_index(hImg, mainTypeKey, &keyName, index)) {
+			DWN_ERR("fail in get key[%d] subtype\n", index);
+			return -__LINE__;
+		}
+		DWN_MSG("Now burn IMG key <---- [%s] ----> %d\n", keyName, index);
+		rc = sdc_check_key_need_to_burn(keyName, keyOverWrite);
+		if (rc < 0) {
+			DWN_ERR("Fail when check stauts for key(%s)\n", keyName);
+			/*return __LINE__;*/
+		}
+		if (!rc)
+			continue;//not need to burn this key
+
+		//1,using cmd_keysprovider to read a key to memory
+		char *keyValue = (char *)OPTIMUS_DOWNLOAD_TRANSFER_BUF_ADDR;
+		int keySz = OPTIMUS_DOWNLOAD_SLOT_SZ;//buffer size
+
+		rc = optimus_img_item2buf(hImg, mainTypeKey, keyName, keyValue, &keySz);
+		if (rc) {
+			DWN_ERR("Fail to get value for key[%s]\n", keyName);
+			return __LINE__;
+		}
+
+		//3, burn the key
+		rc = optimus_keysburn_onekey(keyName, (u8 *)keyValue, keySz);
+		if (rc) {
+			DWN_ERR("Fail in burn the key[%s] at addr=%p, sz=%d\n",
+					keyName, keyValue, keySz);
+			return __LINE__;
+		}
+	}
+
+	rc = optimus_sdc_keysprovider_exit();
+	if (rc) {
+		DWN_ERR("Fail in optimus_sdc_keysprovider_exit\n");
+		return __LINE__;
+	}
+
+	rc = run_command("aml_key_burn uninit", 0);
+	if (rc) {
+		DWN_ERR("Fail in uninit for aml_key_burn\n");
+		return __LINE__;
+	}
+
+	return 0;
 }
 #else
 #define sdc_burn_aml_keys(fmt...)     0

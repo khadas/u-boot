@@ -5,7 +5,7 @@
 
 #include "../optimus_sdc_burn_i.h"
 #include "sdc_bootPart_license.h"
-#include <crc.h>
+#include <u-boot/crc.h>
 
 COMPILE_TYPE_CHK(AML_BOOT_PART_KEY_HEAD_SZ == sizeof(BootPartKeyInf_head_t), _aa1);
 COMPILE_TYPE_CHK(AML_BOOT_PART_KEY_ITEM_SZ == sizeof(BootPartKeyInf_Item_t), _aa2);
