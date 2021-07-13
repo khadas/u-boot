@@ -53,6 +53,7 @@ ifeq (${COMPILER}, gcc)
 # The command for calling the compiler.
 #
 #ifeq ($(ARCH_CPU), RISC_V_N205)
+#CROSS_COMPILE_PATH=/opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/
 CC=$(CROSS_COMPILE_PATH)riscv-none-embed-gcc
 CPP=$(CROSS_COMPILE_PATH)riscv-none-embed-g++
 

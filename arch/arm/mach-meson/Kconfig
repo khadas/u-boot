@@ -137,6 +137,8 @@ endchoice
 config SYS_MALLOC_F_LEN
 	default 0x1000
 
-source "board/amlogic/Kconfig"
+#source "board/amlogic/Kconfig"
+
+source "board/khadas/Kconfig"
 
 endif

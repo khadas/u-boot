@@ -126,7 +126,7 @@ endif
 
 %_defconfig: $(obj)/conf
 ifeq ($(wildcard arch/$(SRCARCH)/configs/$@),)
-	$(Q)$< $(silent) --defconfig=board/amlogic/defconfigs/$@ $(Kconfig)
+	$(Q)$< $(silent) --defconfig=board/khadas/defconfigs/$@ $(Kconfig)
 else
 	$(Q)$< $(silent) --defconfig=arch/$(SRCARCH)/configs/$@ $(Kconfig)
 endif
