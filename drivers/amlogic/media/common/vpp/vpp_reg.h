@@ -370,13 +370,13 @@
 #endif
 
 #ifndef LCD_GAMMA_CNTL_PORT0
-#define LCD_GAMMA_CNTL_PORT0                       ((0x14b4  << 2) + 0xff000000)
+#define LCD_GAMMA_CNTL_PORT0                       0x14b4
 #endif
 #ifndef LCD_GAMMA_DATA_PORT0
-#define LCD_GAMMA_DATA_PORT0                       ((0x14b5  << 2) + 0xff000000)
+#define LCD_GAMMA_DATA_PORT0                       0x14b5
 #endif
 #ifndef LCD_GAMMA_ADDR_PORT0
-#define LCD_GAMMA_ADDR_PORT0                       ((0x14b6  << 2) + 0xff000000)
+#define LCD_GAMMA_ADDR_PORT0                       0x14b6
 #endif
 
 //#define GAMMA_CNTL_PORT                            0x1400

@@ -1407,10 +1407,10 @@ void vpp_enable_lcd_gamma_table(int index)
 	if (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_T7) {
 		switch (index) {
 		case 1:
-			reg = LCD_GAMMA_CNTL_PORT0 + (0x100 << 2);
+			reg = LCD_GAMMA_CNTL_PORT0 + 0x100;
 			break;
 		case 2:
-			reg = LCD_GAMMA_CNTL_PORT0 + (0x200 << 2);
+			reg = LCD_GAMMA_CNTL_PORT0 + 0x200;
 			break;
 		case 0:
 		default:
@@ -1431,10 +1431,10 @@ void vpp_disable_lcd_gamma_table(int index)
 	if (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_T7) {
 		switch (index) {
 		case 1:
-			reg = LCD_GAMMA_CNTL_PORT0 + (0x100 << 2);
+			reg = LCD_GAMMA_CNTL_PORT0 + 0x100;
 			break;
 		case 2:
-			reg = LCD_GAMMA_CNTL_PORT0 + (0x200 << 2);
+			reg = LCD_GAMMA_CNTL_PORT0 + 0x200;
 			break;
 		case 0:
 		default:
@@ -1457,16 +1457,16 @@ static void vpp_set_lcd_gamma_table(int index, u16 *data, u32 rgb_mask)
 	if (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_T7) {
 		switch (index) {
 		case 1:
-			reg_encl_en = ENCL_VIDEO_EN + (0x600 << 2);
-			reg_cntl_port = LCD_GAMMA_CNTL_PORT0 + (0x100 << 2);
-			reg_data_port = LCD_GAMMA_DATA_PORT0 + (0x100 << 2);
-			reg_addr_port = LCD_GAMMA_ADDR_PORT0 + (0x100 << 2);
+			reg_encl_en = ENCL_VIDEO_EN + 0x600;
+			reg_cntl_port = LCD_GAMMA_CNTL_PORT0 + 0x100;
+			reg_data_port = LCD_GAMMA_DATA_PORT0 + 0x100;
+			reg_addr_port = LCD_GAMMA_ADDR_PORT0 + 0x100;
 			break;
 		case 2:
-			reg_encl_en = ENCL_VIDEO_EN + (0x800 << 2);
-			reg_cntl_port = LCD_GAMMA_CNTL_PORT0 + (0x200 << 2);
-			reg_data_port = LCD_GAMMA_DATA_PORT0 + (0x200 << 2);
-			reg_addr_port = LCD_GAMMA_ADDR_PORT0 + (0x200 << 2);
+			reg_encl_en = ENCL_VIDEO_EN + 0x800;
+			reg_cntl_port = LCD_GAMMA_CNTL_PORT0 + 0x200;
+			reg_data_port = LCD_GAMMA_DATA_PORT0 + 0x200;
+			reg_addr_port = LCD_GAMMA_ADDR_PORT0 + 0x200;
 			break;
 		case 0:
 		default:
@@ -1481,6 +1481,16 @@ static void vpp_set_lcd_gamma_table(int index, u16 *data, u32 rgb_mask)
 		reg_cntl_port = L_GAMMA_CNTL_PORT;
 		reg_data_port = L_GAMMA_DATA_PORT;
 		reg_addr_port = L_GAMMA_ADDR_PORT;
+	}
+
+	if (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_T7) {
+		vpp_reg_write(reg_addr_port, (1 << 8));
+		for (i = 0; i < 256; i++)
+			vpp_reg_write(reg_data_port,
+				(data[i] << 20) |
+				(data[i] << 10) |
+				(data[i] << 0));
+		return;
 	}
 
 	if (!(vpp_reg_read(reg_encl_en) & 0x1))

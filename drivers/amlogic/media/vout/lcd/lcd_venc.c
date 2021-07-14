@@ -45,8 +45,6 @@ void lcd_wait_vsync(struct aml_lcd_drv_s *pdrv)
 
 static void lcd_gamma_init(struct aml_lcd_drv_s *pdrv)
 {
-	if (pdrv->data->chip_type >= LCD_CHIP_T7)
-		return;
 #ifndef CONFIG_AML_LCD_PXP
 #ifdef CONFIG_AML_VPP
 	lcd_wait_vsync(pdrv);
