@@ -44,6 +44,7 @@
 #define CMD_UNDEFINE            0x0
 #define CMD_TEST                0x6
 #define CMD_LED_INFO            0xF7
+#define CMD_SET_KEYPAD          0xF6
 
 /*******************************************************************************
  * Mssage Comopsition
