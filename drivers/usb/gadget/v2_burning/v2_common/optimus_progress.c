@@ -138,6 +138,9 @@ unsigned add_sum(const void* pBuf, const unsigned size)
 }
 
 #ifndef SCPI_CMD_USB_BOOT
+#include <asm/arch/bl31_apis.h>
+#include <asm/cpu_id.h>
+
 #define SCPI_CMD_USB_BOOT 		0xB0	//skip to wait pc with timeout
 #define SCPI_CMD_USB_UNBOOT 	0xB1	//skip to wait pc forever
 #define SCPI_CMD_SDCARD_BOOT 	0xB2
@@ -145,13 +148,14 @@ unsigned add_sum(const void* pBuf, const unsigned size)
 static void _erase_bootloader(uint64_t arg0)
 {
     if (SCPI_CMD_CLEAR_BOOT == arg0) return;//dummy as not supported
-
+#ifdef FORCE_USB_BOOT
+	set_usb_boot_function(FORCE_USB_BOOT);
+#else
     store_erase_ops((u8*)"boot", 0, 0, 0);
+#endif//#ifdef FORCE_USB_BOOT
 }
 extern void set_boot_first_timeout(uint64_t arg0) __attribute__((weak, alias("_erase_bootloader")));
 
-#include <asm/arch/bl31_apis.h>
-#include <asm/cpu_id.h>
 #endif//#ifndef SCPI_CMD_USB_BOOT
 //I assume that store_inited yet when "bootloader_is_old"!!!!
 int optimus_erase_bootloader(const char* extBootDev)
