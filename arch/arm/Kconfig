@@ -780,6 +780,10 @@ config TARGET_MESON_T5D
 	bool "Support meson t5d-series 64bit"
 	select ARM64
 
+config TARGET_MESON_T5W
+	bool "Support meson t5d-series 64bit"
+	select ARM64
+
 config TARGET_LS1021AQDS
 	bool "Support ls1021aqds"
 	select CPU_V7

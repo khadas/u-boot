@@ -344,6 +344,10 @@ config T5D_AM319_V1
 	bool "Support amlogic t5d am319 v1 board"
 	default n
 
+config T5W_SKT_V1
+	bool "Support amlogic t5w skt v1 board"
+	default n
+
 config PXP_EMULATOR
 	bool "Support pxp environment"
 	default n
@@ -712,4 +716,8 @@ endif
 
 if T5D_AM319_V1
 source "board/amlogic/t5d_am319_v1/Kconfig"
+endif
+
+if T5W_SKT_V1
+source "board/amlogic/t5w_skt_v1/Kconfig"
 endif
