@@ -368,5 +368,6 @@ struct crg_udc_platdata {
 	int num_in_eps;
 };
 
-
+int usb_gadget_register_driver(struct usb_gadget_driver *drive);
+int g_dnl_board_usb_cable_connected(void);
 #endif /* __CRG_UDC_H__ */

@@ -324,7 +324,6 @@ struct usb_gadget_crg {
 	unsigned                        quirk_ep_out_aligned_size:1;
 };
 
-
 struct crg_gadget_dev {
 	void __iomem *reg_base;
 	struct crg_uccr *uccr;
@@ -1140,6 +1139,8 @@ int crg_udc_queue_ctrl(struct crg_udc_ep *udc_ep_ptr,
 			 */
 			printf("Eq = 0x%p != Dq = 0x%p\n", enq_pt, dq_pt);
 			/* Assert() */
+			usb_gadget_register_driver(crg_udc->gadget_driver);
+			g_dnl_board_usb_cable_connected();
 		}
 	} else {
 		printf("udc_ep_ptr->queue not empty\n");
@@ -2365,6 +2366,11 @@ void crg_udc_reinit(struct crg_gadget_dev *crg_udc)
 	}
 	debug("%s i=%d \n", __func__, i);
 	debug("after ep_enable=0x%x\n", reg_read(&uccr->ep_enable));
+
+	udc_ep_ptr = &crg_udc->udc_ep[0];
+	nuke(udc_ep_ptr, -ESHUTDOWN);
+	advance_dequeue_pt(udc_ep_ptr);
+	crg_udc_epcx_update_dqptr(udc_ep_ptr);
 
 	for (i = 2; i < EP_TOTAL; i++) {
 		udc_ep_ptr = &crg_udc->udc_ep[i];
