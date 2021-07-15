@@ -6,7 +6,7 @@ include $(buildtree)/include/autoconf.mk
 include $(buildtree)/.config
 
 # Select ARMv7-m bare-metal toolchain
-CROSS_COMPILE=arm-none-eabi-
+CROSS_COMPILE ?=arm-none-eabi-
 ASM=$(CROSS_COMPILE)as
 CC=$(CROSS_COMPILE)gcc
 CPP=$(CROSS_COMPILE)cpp
