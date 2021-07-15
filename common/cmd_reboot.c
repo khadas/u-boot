@@ -118,11 +118,7 @@ int do_get_rebootmode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 			setenv("reboot_mode","ffv_reboot");
 			break;
 		}
-		default:
-		{
-			setenv("reboot_mode","charging");
-			break;
-		}
+		/* remove default, fix coverity error DEADCODE*/
 	}
 
 #ifdef CONFIG_CMD_FASTBOOT
