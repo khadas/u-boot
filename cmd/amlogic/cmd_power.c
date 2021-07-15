@@ -9,7 +9,7 @@
 
 #ifndef PM_MAX
 #define PM_MAX	0
-static char*  domain_name[];
+static char *domain_name[PM_MAX];
 #else
 extern char* domain_name[];
 #endif

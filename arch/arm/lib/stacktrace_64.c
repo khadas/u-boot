@@ -54,7 +54,7 @@ int dump_backtrace(struct pt_regs *regs)
 	memset(&frame, 0x00, sizeof(frame));
 	if (regs) {
 		frame.fp = regs->regs[29];
-		frame.sp = regs->regs[31];
+		frame.sp = regs->regs[30];
 		frame.pc = regs->elr;
 	} else {
 		frame.fp = (unsigned long)__builtin_frame_address(0);

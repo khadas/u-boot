@@ -1522,6 +1522,9 @@ unsigned int env_to_a_num(const char *env_name)
 	unsigned int a_num = 0;
 	char *endp;
 
+	if (!str_buf)
+		return 0;
+
 	printf("str==%s\n", str_buf);
 
 	a_num = simple_strtoull_ddr(str_buf, &endp, 0);
@@ -1539,6 +1542,9 @@ unsigned int a_num_to_env(const char *env_name, unsigned int *a_num)
 	memset(str_buf, 0, sizeof(buf));
 	printf("sizeof(str_buf)==%d\n", (unsigned int)(sizeof(buf)));
 	str_buf = getenv(env_name);
+
+	if (!str_buf)
+		return 0;
 
 	printf("str==%s\n", str_buf);
 
@@ -1561,6 +1567,9 @@ unsigned int env_to_num(const char *env_name, unsigned int *num_arry)
 	memset(str_buf, 0, sizeof(buf));
 	printf("sizeof(str_buf)==%d\n", (unsigned int)(sizeof(buf)));
 	str_buf = getenv(env_name);
+
+	if (!str_buf)
+		return 0;
 
 	char *str[48];
 	char *endp;
@@ -1592,6 +1601,9 @@ unsigned int num_to_env(const char *env_name, unsigned int *num_arry)
 	memset(str_buf, 0, sizeof(buf));
 	printf("sizeof(str_buf)==%d\n", (unsigned int)(sizeof(buf)));
 	str_buf = getenv(env_name);
+
+	if (!str_buf)
+		return 0;
 
 	printf("str==%s\n", str_buf);
 
