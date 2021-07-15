@@ -32,7 +32,7 @@
 # Default values for build configurations
 #
 
-export CROSS_COMPILE=/opt/gcc-linaro-aarch64-none-elf-4.8-2013.11_linux/bin/aarch64-none-elf-
+export CROSS_COMPILE ?=/opt/gcc-linaro-aarch64-none-elf-4.8-2013.11_linux/bin/aarch64-none-elf-
 
 include $(buildsrc)/config.mk
 include $(buildtree)/include/autoconf.mk
