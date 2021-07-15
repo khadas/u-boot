@@ -183,7 +183,7 @@ exit:
 	if (buffer)
 	{
 		free(buffer);
-		buffer = NULL;
+		//buffer = NULL;
 	}
 	return ret;
 }
@@ -235,7 +235,10 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	char *update_env = NULL;
 	int ret = -1;
 #ifdef CONFIG_MMC_MESON_GX
-	struct mmc *mmc = find_mmc_device(1);
+	struct mmc *mmc = NULL;
+
+	if (store_get_type() == BOOT_EMMC)
+		mmc = find_mmc_device(1);
 #endif
 
 	//if recovery mode, need disable dv, if factoryreset, need default uboot env
@@ -321,6 +324,10 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 			if (has_boot_slot == 1) {
 				wrnP("ab mode\n");
 				update_env = env_get("update_env");
+				if (!update_env) {
+					errorP("can not get update_env\n");
+					return -1;
+				}
 				if (strcmp(update_env, "1") == 0) {
 					printf("ab mode, default all uboot env\n");
 					run_command("env default -a;saveenv;", 0);
@@ -381,6 +388,10 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 			if (has_boot_slot == 1) {
 				printf("ab mode, default all uboot env\n");
 				update_env = env_get("update_env");
+				if (!update_env) {
+					errorP("can not get update_env\n");
+					return -1;
+				}
 				if (strcmp(update_env, "1") == 0) {
 					printf("ab mode, default all uboot env\n");
 					run_command("env default -a;", 0);
