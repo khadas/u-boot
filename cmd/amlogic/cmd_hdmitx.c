@@ -267,11 +267,11 @@ static int do_rx_det(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 static void hdmitx_mask_rx_info(struct hdmitx_dev *hdev)
 {
-	if (env_get("colorattribute"))
-		hdmi_parse_attr(hdev->para, env_get("colorattribute"));
-
 	if (!hdev || !hdev->para)
 		return;
+
+	if (env_get("colorattribute"))
+		hdmi_parse_attr(hdev->para, env_get("colorattribute"));
 
 	/* when current output color depth is 8bit, mask hdr capability */
 	/* refer to SWPL-44445 for more detail */
@@ -495,6 +495,16 @@ static void get_parse_edid_data(struct hdmitx_dev *hdev)
 	/* parse edid data */
 	hdmi_edid_parsing(hdev->rawedid, &hdev->RXCap);
 
+	if (!hdr_priority)
+		return;
+	/* if hdr_priority is 2, then mark both dv_info and hdr_info */
+	if (strcmp(hdr_priority, "2") == 0) {
+		memset(&hdev->RXCap.dv_info, 0, sizeof(struct dv_info));
+		memset(&hdev->RXCap.hdr_info, 0, sizeof(struct hdr_info));
+		memset(&hdev->RXCap.hdr10plus_info, 0, sizeof(struct hdr10_plus_info));
+		pr_info("hdr_priority: %s and clear dv/hdr_info\n", hdr_priority);
+		return;
+	}
 	/* if hdr_priority is 1, then mark dv_info */
 	if (hdr_priority && (strcmp(hdr_priority, "1") == 0)) {
 		memset(&hdev->RXCap.dv_info, 0, sizeof(struct dv_info));
