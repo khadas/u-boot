@@ -255,6 +255,12 @@ typedef struct ddr_set
 	board_phase_setting_ps_t	cfg_ddr_training_delay_ps[2];
 }__attribute__ ((packed)) ddr_set_t;
 
+typedef struct ddr_set_ps0_only {
+	board_common_setting_t		cfg_board_common_setting;
+	board_SI_setting_ps_t		cfg_board_SI_setting_ps;
+	board_phase_setting_ps_t	cfg_ddr_training_delay_ps;
+}	__attribute__ ((packed)) ddr_set_ps0_only_t;
+
 typedef struct board_clk_set{
 	unsigned	short	cpu_clk;
 	unsigned 	short	dsu_clk;

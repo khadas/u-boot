@@ -50,6 +50,13 @@ SECTIONS
 	{
 		*(.ddr_param*)
 	}
-
+	.ddr_2acs_index :
+	{
+		*(.ddr_2acs_index*)
+	}
+	.ddr_2acs_data :
+	{
+		*(.ddr_2acs_data*)
+	}
     ASSERT(. <= 0x00001000, "params image has exceeded its limit.")
 }
