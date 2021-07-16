@@ -246,9 +246,15 @@
             "osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode}"\
             "\0"\
         "cmdline_keys="\
-            "setenv usid 1234567890; setenv region_code US;"\
+			"setenv region_code US;"\
             "if keyman init 0x1234; then "\
-                "if keyman read usid ${loadaddr} str; then fi;"\
+				"if keyman read usid ${loadaddr} str; then "\
+					"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+					"setenv serial ${usid}; setenv serial# ${usid};"\
+				"else "\
+					"setenv bootargs ${bootargs} androidboot.serialno=an400p_${cpu_id};"\
+					"setenv serial an400p_${cpu_id}; setenv serial# an400p_${cpu_id};"\
+				"fi;"\
                 "if keyman read region_code ${loadaddr} str; then fi;"\
                 "if keyman read mac ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} mac=${mac} androidboot.mac=${mac};"\
@@ -258,8 +264,6 @@
                 "fi;"\
             "fi;"\
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
-            "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-            "setenv serial ${usid}; setenv serial# ${usid};"\
 	    "factory_provision init;"\
             "\0"\
         "upgrade_key="\

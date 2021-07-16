@@ -156,8 +156,29 @@ int board_late_init(void)
 {
 	printf("board late init\n");
 
+	unsigned char chipid[16];
+
+	memset(chipid, 0, 16);
+
+	if (get_chip_id(chipid, 16) != -1) {
+		char chipid_str[32];
+		int i;
+
+		memset(chipid_str, 0, 32);
+
+		char *buff = &chipid_str[0];
+
+		for (i = 0; i < 12; ++i)
+			sprintf(buff + i + i, "%02x", chipid[15 - i]);
+		env_set("cpu_id", chipid_str);
+		printf("buff: %s\n", buff);
+	} else {
+		env_set("cpu_id", "1234567890");
+	}
+
 	char outputModePre[30];
 	char outputModeCur[30];
+
 	if (env_get("outputmode")) {
 		strcpy(outputModePre, env_get("outputmode"));
 	}
