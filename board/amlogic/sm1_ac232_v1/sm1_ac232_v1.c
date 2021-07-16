@@ -667,18 +667,40 @@ void aml_config_dtb(void)
 int board_late_init(void)
 {
 	TE(__func__);
+	unsigned char chipid[16];
+
+	memset(chipid, 0, 16);
+
+	if (get_chip_id(chipid, 16) != -1) {
+		char chipid_str[32];
+		int i;
+
+		memset(chipid_str, 0, 32);
+
+		char *buff = &chipid_str[0];
+
+		buff[0] = '\0';
+		buff[24] = '\0';
+		for (i = 0; i < 12; ++i)
+			sprintf(buff + i + i, "%02x", chipid[15 - i]);
+		setenv("cpu_id", buff);
+		printf("buff: %s\n", buff);
+	} else {
+		setenv("cpu_id", "1234567890");
+	}
+
 	//default uboot env need before anyone use it
 	if (getenv("default_env")) {
 		printf("factory reset, need default all uboot env.\n");
 		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
 	}
-		//update env before anyone using it
-		run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
+	//update env before anyone using it
+	run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
 						"if test ${reboot_mode} = factory_reset; then "\
 						"defenv_reserv;save; fi;", 0);
-		run_command("if itest ${upgrade_step} == 1; then "\
+	run_command("if itest ${upgrade_step} == 1; then "\
 						"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
-		run_command("run bcb_cmd", 0);
+	run_command("run bcb_cmd", 0);
 		/*add board late init function here*/
 #ifndef DTB_BIND_KERNEL
 		int ret;
@@ -797,7 +819,7 @@ int checkhw(char * name)
 	if (MESON_CPU_MAJOR_ID_SM1 == cpu_id.family_id) {
 		switch (ddr_size) {
 			case 0x80000000:
-				if (!strcmp(ddr_mode, "1g")) {
+				if (ddr_mode && !strcmp(ddr_mode, "1g")) {
 					strcpy(loc_name, "sm1_ac232_1g\0");
 					break;
 				}
@@ -817,7 +839,7 @@ int checkhw(char * name)
 	else {
 		switch (ddr_size) {
 			case 0x80000000:
-				if (!strcmp(ddr_mode, "1g")) {
+				if (ddr_mode && !strcmp(ddr_mode, "1g")) {
 					strcpy(loc_name, "g12a_u212_1g\0");
 					break;
 				}

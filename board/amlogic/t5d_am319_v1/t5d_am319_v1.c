@@ -274,11 +274,6 @@ static int  sd_emmc_init(unsigned port)
 		case SDIO_PORT_B:
 			/*treat port b as port c on t5*/
 			break;
-			clrbits_le32(P_PERIPHS_PIN_MUX_9, 0xF << 24);
-			setbits_le32(P_PREG_PAD_GPIO1_EN_N, 1 << 6);
-			setbits_le32(P_PAD_PULL_UP_EN_REG1, 1 << 6);
-			setbits_le32(P_PAD_PULL_UP_REG1, 1 << 6);
-			break;
 		case SDIO_PORT_C:
 			//enable pull up
 			//clrbits_le32(P_PAD_PULL_UP_REG3, 0xff<<0);
@@ -626,9 +621,29 @@ void reset_mt7668(void)
 int board_late_init(void)
 {
 	TE(__func__);
-
 	char outputModePre[30] = {0};
 	char outputModeCur[30] = {0};
+	unsigned char chipid[16];
+
+	memset(chipid, 0, 16);
+
+	if (get_chip_id(chipid, 16) != -1) {
+		char chipid_str[32];
+		int i;
+
+		memset(chipid_str, 0, 32);
+
+		char *buff = &chipid_str[0];
+
+		buff[0] = '\0';
+		buff[24] = '\0';
+		for (i = 0; i < 12; ++i)
+			sprintf(buff + i + i, "%02x", chipid[15 - i]);
+		setenv("cpu_id", buff);
+		printf("buff: %s\n", buff);
+	} else {
+		setenv("cpu_id", "1234567890");
+	}
 
 	if (getenv("default_env")) {
 		printf("factory reset, need default all uboot env\n");

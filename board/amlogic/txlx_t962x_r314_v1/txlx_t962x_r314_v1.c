@@ -412,6 +412,20 @@ int board_late_init(void)
 	int ret;
 	char outputModePre[30] = {0};
 	char outputModeCur[30] = {0};
+	static char chipid_str[32];
+	unsigned char chipid[16] = {0};
+	int i = 0;
+
+	get_chip_id(chipid, 16);
+
+	char *buff = &chipid_str[0];
+
+	buff[0] = '\0';
+	buff[24] = '\0';
+	for (; i < 12; ++i)
+		sprintf(buff + i + i, "%02x", chipid[15 - i]);
+	setenv("cpu_id", buff);
+	printf("buff: %s\n", buff);
 
 	if (getenv("default_env")) {
 		printf("factory reset, need default all uboot env\n");

@@ -629,6 +629,27 @@ void reset_mt7668(void)
 int board_late_init(void)
 {
 	TE(__func__);
+	unsigned char chipid[16];
+
+	memset(chipid, 0, 16);
+
+	if (get_chip_id(chipid, 16) != -1) {
+		char chipid_str[32];
+		int i;
+
+		memset(chipid_str, 0, 32);
+
+		char *buff = &chipid_str[0];
+
+		buff[0] = '\0';
+		buff[24] = '\0';
+		for (i = 0; i < 12; ++i)
+			sprintf(buff + i + i, "%02x", chipid[15 - i]);
+		setenv("cpu_id", buff);
+		printf("buff: %s\n", buff);
+	} else {
+		setenv("cpu_id", "1234567890");
+	}
 
 	char outputModePre[32] = {0};
 	char outputModeCur[32] = {0};
