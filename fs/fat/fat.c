@@ -21,7 +21,7 @@
 #include <linux/ctype.h>
 
 #ifdef CONFIG_SUPPORT_VFAT
-static const int vfat_enabled = 1;
+//static const int vfat_enabled = 1;
 #else
 static const int vfat_enabled = 0;
 #endif

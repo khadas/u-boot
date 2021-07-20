@@ -593,5 +593,5 @@ bl2_reg_t __bl2_reg[] = {
 	{AO_GPIO_O,         (1 << 4),                (1 << 4),   0, BL2_INIT_STAGE_1, 0},
 	/* Enable VCCK */
 	{AO_SEC_REG0,         (1 << 0),                (1 << 0),     0, BL2_INIT_STAGE_1, 0},
-	{AO_GPIO_O,           (1 << 31),               (1 << 31),    0, BL2_INIT_STAGE_1, 0},
+	{AO_GPIO_O,           (1u << 31),            (1u << 31),    0, BL2_INIT_STAGE_1, 0},
 };

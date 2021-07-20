@@ -2730,8 +2730,8 @@ int aml_nand_write_page_raw(struct mtd_info *mtd,
 					NAND_CMD_PAGEPROG,
 					-1, -1, i);
 
-				oob_buf += nand_oob_size;
-				buf += nand_page_size;
+			oob_buf += nand_oob_size;
+			buf += nand_page_size;
 			} else {
 				error = -ENODEV;
 				goto exit;

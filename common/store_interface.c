@@ -666,7 +666,6 @@ static int do_store_ddr_parameter_ops(cmd_tbl_t * cmdtp,
 static int do_store_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	int i, init_flag=0, ret = 0;
-	char *cmd = "";
 	char	str[128];
 
 	init_flag = (argc > 2) ? (int)simple_strtoul(argv[2], NULL, 16) : 0;
@@ -723,7 +722,7 @@ static int do_store_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 				run_command(str,0);
 				ret = run_command("mmcinfo", 0);
 				if (ret != 0) {
-					store_msg("amlmmc cmd %s failed \n",cmd);
+					store_msg("amlmmc cmd failed \n");
 					return -1;
 				}
 				if (init_flag == STORE_BOOT_ERASE_PROTECT_CACHE) { // OTA upgrade protect cache
@@ -762,7 +761,7 @@ static int do_store_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 					ret = run_command(str,0);
 				}
 				if (ret != 0) {
-					store_msg("cmd %s failed \n",cmd);
+					store_msg("cmd failed \n");
 					return -1;
 				}
 
@@ -795,7 +794,7 @@ static int do_store_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 					}
 
 					if (ret != 0) {
-						store_msg("cmd %s failed \n",cmd);
+						store_msg("cmd failed \n");
 						return -1;
 					}
 
@@ -855,7 +854,7 @@ static int do_store_size(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 {
 	int ret = 0;
 	uint64_t addr;
-	char *cmd = NULL, *s = NULL;
+	char *s = NULL;
 	char	str[128];
 
 	if (argc < 4) return CMD_RET_USAGE;
@@ -900,7 +899,7 @@ static int do_store_size(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 		ret = -1;
 #endif// #if defined(CONFIG_AML_NAND)
 		if (ret != 0) {
-			store_msg("nand cmd %s failed",cmd);
+			store_msg("nand cmd failed");
 			return -1;
 #if defined(CONFIG_AML_NAND) || defined(CONFIG_AML_MTD)
 		} else {
@@ -917,7 +916,7 @@ static int do_store_size(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 		ret = -1;
 		#endif
 		if (ret != 0) {
-			store_msg("nand cmd %s failed",cmd);
+			store_msg("nand cmd failed");
 			return -1;
 #if defined(CONFIG_AML_NAND)
 		} else {
@@ -931,7 +930,7 @@ static int do_store_size(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 		store_dbg("command:	%s", str);
 		ret = run_command(str, 0);
 		if (ret != 0) {
-			store_msg("amlmmc cmd %s failed",cmd);
+			store_msg("amlmmc cmd failed");
 			return -1;
 		}
 		return ret;
@@ -942,7 +941,7 @@ static int do_store_size(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 		store_dbg("command:	%s", str);
 		ret = run_command(str, 0);
 		if (ret != 0) {
-			store_msg("amlmmc cmd %s failed",cmd);
+			store_msg("amlmmc cmd failed");
 			return -1;
 		}
 		return ret;
@@ -959,7 +958,7 @@ static int do_store_erase(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 {
 	int i, erase = 2, ret = 0;
 	loff_t size=0;
-	char *cmd = NULL, *area;
+	char *area;
 	char	str[128];
 	loff_t off;
 
@@ -967,7 +966,6 @@ static int do_store_erase(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 
 	off = off;
 	area = argv[2];
-	cmd = argv[2];
 
 	if (strcmp(area, "boot") == 0) {
 			off =  argc > 3 ? simple_strtoul(argv[3], NULL, 16) : 0;
@@ -983,7 +981,7 @@ static int do_store_erase(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 			ret = -1;
 			#endif
 			if (ret != 0) {
-				store_msg("nand cmd %s failed ",cmd);
+				store_msg("nand cmd failed ");
 				return -1;
 			}
 			return ret;
@@ -992,13 +990,13 @@ static int do_store_erase(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 
 			ret = run_command("sf probe 2",0);
 			if (ret != 0) {
-				store_msg("nand cmd %s failed",cmd);
+				store_msg("nand cmd failed");
 				return -1;
 			}
 			sprintf(str, "sf erase  0 0x%x", CONFIG_ENV_IN_SPI_OFFSET);//store erase boot shoould NOT erase ENV in flash!
 			ret = run_command(str,0);
 			if (ret != 0) {
-				store_msg("nand cmd %s failed",cmd);
+				store_msg("nand cmd failed");
 				return -1;
 			}
 			return ret;
@@ -1008,7 +1006,7 @@ static int do_store_erase(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 			sprintf(str, "amlmmc  erase bootloader");
 			ret = run_command(str, 0);
 			if (ret != 0) {
-				store_msg("amlmmc cmd %s failed",cmd);
+				store_msg("amlmmc cmd failed");
 				return -1;
 			}
 
@@ -1029,11 +1027,11 @@ static int do_store_erase(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 				store_dbg("command: %s\n", str);
 				ret = run_command(str, 0);
 				if (ret == -1) {
-					//store_msg("mmc cmd %s failed \n",cmd);
+					//store_msg("mmc cmd failed \n");
 					return 0;
 				}
 				else if(ret != 0){
-					store_msg("amlmmc cmd %s failed",cmd);
+					store_msg("amlmmc cmd failed");
 					//return -1;
 					goto E_SWITCH_BACK;
 				}
@@ -1042,7 +1040,7 @@ static int do_store_erase(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 				sprintf(str, "amlmmc erase bootloader");
 				ret = run_command(str, 0);
 				if (ret != 0) {
-					store_msg("amlmmc cmd %s failed",cmd);
+					store_msg("amlmmc cmd failed");
 					//return -1;
 					goto E_SWITCH_BACK;
 				}
@@ -1054,7 +1052,7 @@ E_SWITCH_BACK:
 			store_dbg("command: %s\n", str);
 			ret = run_command(str, 0);
 			if (ret != 0) {
-				store_msg("amlmmc cmd %s failed \n",cmd);
+				store_msg("amlmmc cmd failed \n");
 				return -1;
 			}
 
@@ -1072,17 +1070,17 @@ E_SWITCH_BACK:
 			#if defined(CONFIG_AML_NAND)
 			ret = run_command("amlnf  deverase data 0",0);
 			if (ret != 0) {
-				store_msg("nand cmd %s failed ",cmd);
+				store_msg("nand cmd failed ");
 				return -1;
 			}
 			ret = run_command("amlnf  deverase code 0",0);
 			if (ret != 0) {
-				store_msg("nand cmd %s failed ",cmd);
+				store_msg("nand cmd failed ");
 				return -1;
 			}
 			ret = run_command("amlnf  deverase cache 0",0);
 			if (ret != 0) {
-				store_msg("nand cmd %s failed ",cmd);
+				store_msg("nand cmd failed ");
 				return -1;
 			}
 			#elif defined(CONFIG_AML_MTD)
@@ -1097,18 +1095,18 @@ E_SWITCH_BACK:
 			/*case for uboot in nor flash,system in nand flash*/
 			ret = run_command("amlnf  deverase data 0",0);
 			if (ret != 0) {
-				store_msg("nand cmd %s failed ",cmd);
+				store_msg("nand cmd failed ");
 				return -1;
 			}
 
 			ret = run_command("amlnf  deverase code 0",0);
 			if (ret != 0) {
-				store_msg("nand cmd %s failed ",cmd);
+				store_msg("nand cmd failed ");
 				return -1;
 			}
 			ret = run_command("amlnf  deverase cache 0",0);
 			if (ret != 0) {
-				store_msg("nand cmd %s failed ",cmd);
+				store_msg("nand cmd failed ");
 				return -1;
 			}
 			#endif
@@ -1119,7 +1117,7 @@ E_SWITCH_BACK:
 			off = size =0;
 			ret = run_command("mmc  erase  1",0); // whole
 			if (ret != 0) {
-				store_msg("mmc cmd %s failed ",cmd);
+				store_msg("mmc cmd failed ");
 				return -1;
 			}
 
@@ -1131,7 +1129,7 @@ E_SWITCH_BACK:
 			MsgP("amlmmc erase non_loader\n");
 			ret = run_command("amlmmc erase non_loader",0); //whole
 			if (ret != 0) {
-				store_msg("amlmmc cmd %s failed ",cmd);
+				store_msg("amlmmc cmd failed ");
 				return -1;
 			}
 			return ret;
@@ -1145,7 +1143,7 @@ E_SWITCH_BACK:
 			sprintf(str, "emmc erase key");
 			ret = run_command(str, 0);
 			if (ret != 0) {
-				store_msg("emmc cmd %s failed",cmd);
+				store_msg("emmc cmd failed");
 				return CMD_RET_USAGE;
 			}
 		} else if (device_boot_flag == NAND_BOOT_FLAG) {
@@ -1153,7 +1151,7 @@ E_SWITCH_BACK:
 			sprintf(str, "amlnf key_erase");
 			ret = run_command(str, 0);
 			if (ret != 0) {
-				store_msg("emmc cmd %s failed",cmd);
+				store_msg("emmc cmd failed");
 				return CMD_RET_USAGE;
 			}
 		#endif
@@ -1164,7 +1162,7 @@ E_SWITCH_BACK:
 			sprintf(str, "emmc erase dtb");
 			ret = run_command(str, 0);
 			if (ret != 0) {
-				store_msg("emmc cmd %s failed",cmd);
+				store_msg("emmc cmd failed");
 				return CMD_RET_USAGE;
 			}
 		} else if (device_boot_flag == NAND_BOOT_FLAG) {
@@ -1172,7 +1170,7 @@ E_SWITCH_BACK:
 			sprintf(str, "amlnf dtb_erase");
 			ret = run_command(str, 0);
 			if (ret != 0) {
-				store_msg("emmc cmd %s failed",cmd);
+				store_msg("emmc cmd failed");
 				return CMD_RET_USAGE;
 			}
 		#endif
@@ -1242,7 +1240,6 @@ static int do_store_scrub(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 {
 	int ret = 0;
 	loff_t off=0;
-	char *cmd = NULL;
 	char	str[128];
 
 	off = (ulong)simple_strtoul(argv[2], NULL, 16);
@@ -1256,7 +1253,7 @@ static int do_store_scrub(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 		ret = -1;
 		#endif
 		if (ret != 0) {
-			store_msg("nand cmd %s failed",cmd);
+			store_msg("nand cmd failed");
 			return -1;
 		}
 	}
@@ -1265,20 +1262,20 @@ static int do_store_scrub(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 		#if defined(CONFIG_AML_NAND)
 		ret = run_command(str, 0);
 		if (ret != 0) {
-			store_msg("nand cmd %s failed",cmd);
+			store_msg("nand cmd failed");
 			return -1;
 		}
 		#endif
 
 		ret = run_command("sf probe 2", 0);
 		if (ret != 0) {
-			store_msg("nand cmd %s failed",cmd);
+			store_msg("nand cmd failed");
 			return -1;
 		}
 		sprintf(str, "sf erase  0 0x%x", _SPI_FLASH_ERASE_SZ);
 		ret = run_command(str,0);
 		if (ret != 0) {
-			store_msg("nand cmd %s failed",cmd);
+			store_msg("nand cmd failed");
 			return -1;
 		}
 		return ret;
@@ -1287,7 +1284,7 @@ static int do_store_scrub(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 		store_dbg("spi+mmc , %s %d ",__func__,__LINE__);
 		ret = run_command("amlmmc erase whole",0);
 		if (ret != 0) {
-			store_msg("amlmmc cmd %s failed \n",cmd);
+			store_msg("amlmmc cmd failed \n");
 			return -1;
 		}
 		return ret;
@@ -1298,7 +1295,7 @@ static int do_store_scrub(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 		run_command("mmc dev 1", 0);
 		ret = run_command("mmcinfo", 0);
 		if (ret != 0) {
-			store_msg("amlmmc cmd %s failed \n",cmd);
+			store_msg("amlmmc cmd failed \n");
 			return -1;
 		}
 		if (_info_disprotect_back_before_mmcinfo1 & DISPROTECT_KEY) {
@@ -1316,7 +1313,6 @@ static int do_store_rom_protect(cmd_tbl_t * cmdtp, int flag, int argc, char * co
 {
 
 #if defined(CONFIG_AML_NAND)
-	char *cmd = NULL;
 	char	str[128];
 	char *area = argv[2];
 #endif
@@ -1329,7 +1325,7 @@ static int do_store_rom_protect(cmd_tbl_t * cmdtp, int flag, int argc, char * co
 		store_dbg("command:	%s", str);
 		int ret = run_command(str, 0);
 		if (ret != 0) {
-			store_msg("nand cmd %s failed",cmd);
+			store_msg("nand cmd failed");
 			return -1;
 		}
 #elif defined(CONFIG_AML_MTD)
@@ -1346,7 +1342,6 @@ static int do_store_rom_write(cmd_tbl_t * cmdtp, int flag, int argc, char * cons
 {
 	uint64_t addr;
 	loff_t off=0, size=0;
-	char *cmd = NULL;
 	char	str[128];
 	int ret = 0;
 	if (argc < 5) return CMD_RET_USAGE;
@@ -1441,7 +1436,7 @@ static int do_store_rom_write(cmd_tbl_t * cmdtp, int flag, int argc, char * cons
 		ret = -1;
 #endif
 		if (ret != 0) {
-			store_msg("nand cmd %s failed",cmd);
+			store_msg("nand cmd failed");
 			return -1;
 		}
 		return ret;
@@ -1449,20 +1444,20 @@ static int do_store_rom_write(cmd_tbl_t * cmdtp, int flag, int argc, char * cons
 	else if ((device_boot_flag==SPI_EMMC_FLAG)||(device_boot_flag==SPI_NAND_FLAG)){
 		ret = run_command("sf  probe 2",0);
 		if (ret != 0) {
-			store_msg("nand cmd %s failed",cmd);
+			store_msg("nand cmd failed");
 			return -1;
 		}
 		sprintf(str, "sf  erase  0x%llx  0x%llx ", off, size);
 		ret = run_command(str, 0);
 		if (ret != 0) {
-			store_msg("nand cmd %s failed",cmd);
+			store_msg("nand cmd failed");
 			return -1;
 		}
 		sprintf(str, "sf  write 0x%llx  0x%llx  0x%llx ",addr, off, size);
 		store_dbg("command:	%s", str);
 		ret = run_command(str, 0);
 		if (ret != 0) {
-			store_msg("nand cmd %s failed",cmd);
+			store_msg("nand cmd failed");
 			return -1;
 		}
 		return ret;
@@ -1484,7 +1479,7 @@ static int do_store_rom_write(cmd_tbl_t * cmdtp, int flag, int argc, char * cons
 		store_dbg("command: %s\n", str);
 		ret = run_command(str, 0);
 		if (ret != 0) {
-			store_msg("amlmmc cmd %s failed \n",cmd);
+			store_msg("amlmmc cmd failed \n");
 			return -1;
 		}
 		return ret;
@@ -1498,7 +1493,6 @@ static int do_store_rom_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 {
 	uint64_t addr;
 	loff_t off=0, size=0;
-	char *cmd = NULL;
 	char	str[128];
 	int ret = 0;
 	int i = 0, read = 2;
@@ -1633,7 +1627,7 @@ static int do_store_rom_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 		ret = -1;
 #endif// #if defined(CONFIG_AML_NAND) || defined(CONFIG_AML_MTD)
 		if (ret != 0) {
-			store_msg("nand cmd %s failed",cmd);
+			store_msg("nand cmd failed");
 			return -1;
 		}
 		return ret;
@@ -1646,7 +1640,7 @@ static int do_store_rom_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 		store_dbg("command:	%s", str);
 		ret = run_command(str, 0);
 		if (ret != 0) {
-			store_msg("nand cmd %s failed",cmd);
+			store_msg("nand cmd failed");
 			return -1;
 		}
 		return ret;
@@ -1659,7 +1653,7 @@ static int do_store_rom_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 		//tmp_buf= (unsigned char *)addr;
 		ret = run_command(str, 0);
 		if (ret != 0) {
-			store_msg("amlmmc cmd %s failed \n",cmd);
+			store_msg("amlmmc cmd failed \n");
 			return -1;
 		}
 
@@ -1678,11 +1672,10 @@ static int do_store_rom_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 			store_dbg("command: %s\n", str);
 			ret = run_command(str, 0);
 			if (ret == -1) {
-				//store_msg("mmc cmd %s failed \n",cmd);
 				return 0;
 			}
 			else if(ret != 0){
-				store_msg("amlmmc cmd %s failed",cmd);
+				store_msg("amlmmc cmd failed");
 				goto R_SWITCH_BACK;
 				//return -1;
 			}
@@ -1692,7 +1685,7 @@ static int do_store_rom_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 			store_dbg("command: %s\n", str);
 			ret = run_command(str, 0);
 			if (ret != 0) {
-				store_msg("amlmmc cmd %s failed \n",cmd);
+				store_msg("amlmmc cmd failed \n");
 				//return -1;
 				goto R_SWITCH_BACK;
 			}
@@ -1704,7 +1697,7 @@ R_SWITCH_BACK:
 		store_dbg("command: %s\n", str);
 		ret = run_command(str, 0);
 		if (ret != 0) {
-			store_msg("amlmmc cmd %s failed \n",cmd);
+			store_msg("amlmmc cmd failed \n");
 			return -1;
 		}
 
@@ -1728,7 +1721,6 @@ static int do_store_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 {
 	uint64_t addr;
 	loff_t off=0, size=0;
-	char *cmd = NULL;
 	char	str[128];
 	int ret = 0;
 	char * s = argv[2];
@@ -1790,7 +1782,7 @@ static int do_store_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 
 #if defined(CONFIG_AML_NAND)
 		if (ret != 0) {
-			store_msg("nand cmd %s failed \n",cmd);
+			store_msg("nand cmd failed \n");
 			return -1;
 		} else {
 			return ret;
@@ -1803,7 +1795,7 @@ static int do_store_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 		store_dbg("command:	%s\n", str);
 		ret = run_command(str, 0);
 		if (ret != 0) {
-			store_msg("amlmmc cmd %s failed \n",cmd);
+			store_msg("amlmmc cmd failed \n");
 			return -1;
 		}
 		return ret;
@@ -1814,7 +1806,7 @@ static int do_store_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 		store_dbg("command:	%s\n", str);
 		ret = run_command(str, 0);
 		if (ret != 0) {
-			store_msg("amlmmc cmd %s failed \n",cmd);
+			store_msg("amlmmc cmd failed \n");
 			return -1;
 		}
 		return ret;
@@ -1829,7 +1821,6 @@ static int do_store_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 {
 	uint64_t addr;
 	loff_t off=0, size=0;
-	char *cmd = NULL;
 	char	str[128];
 	int ret = -1;
 	char * s = argv[2];
@@ -1891,7 +1882,7 @@ static int do_store_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
    #endif
 #endif
 		if (ret != 0) {
-			store_msg("nand cmd %s failed ",cmd);
+			store_msg("nand cmd failed ");
 			return -1;
 		}
 	}
@@ -1906,7 +1897,7 @@ static int do_store_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 		#endif
 
 		if (ret != 0) {
-			store_msg("nand cmd %s failed \n",cmd);
+			store_msg("nand cmd failed \n");
 			return -1;
 		#if defined(CONFIG_AML_NAND)
 		} else {
@@ -1920,7 +1911,7 @@ static int do_store_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 		store_dbg("command: %s\n", str);
 		ret = run_command(str, 0);
 		if (ret != 0) {
-			store_msg("amlmmc cmd %s failed \n",cmd);
+			store_msg("amlmmc cmd failed \n");
 			return -1;
 		}
 	}
@@ -1930,7 +1921,7 @@ static int do_store_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 		store_dbg("command: %s\n", str);
 		ret = run_command(str, 0);
 		if (ret != 0) {
-			store_msg("amlmmc cmd %s failed \n",cmd);
+			store_msg("amlmmc cmd failed \n");
 			return -1;
 		}
 	}else{

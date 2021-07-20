@@ -595,7 +595,7 @@ int amlchip_opstest(struct amlnand_chip *aml_chip)
 	if (!page_buf) {
 	    aml_nand_msg("no memory for data buf, and need %x", buf_size);
 		printf( "%s: line:%d\n", __func__, __LINE__);
-        while (1) ;
+	    while (1) ;
 	    return 0;
 	}
 

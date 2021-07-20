@@ -1737,7 +1737,7 @@ static int block_isbad(struct amlnand_chip *aml_chip)
 			if (!page_buf) {
 				aml_nand_msg("no memory for data buf, and need %x", buf_size);
 				printf( "%s: line:%d\n", __func__, __LINE__);
-                while (1) ;
+				while (1) ;
 				ret = -NAND_MALLOC_FAILURE;
 				return 0;
 			}
@@ -1941,7 +1941,7 @@ static int block_markbad(struct amlnand_chip *aml_chip)
 	if (!page_buf) {
 	    aml_nand_msg("no memory for data buf, and need %x", buf_size);
 		printf( "%s: line:%d\n", __func__, __LINE__);
-        while (1) ;
+	    while (1) ;
 	    ret = -NAND_MALLOC_FAILURE;
 	    return 0;
 	}

@@ -743,7 +743,7 @@ bl2_reg_t __bl2_reg[] = {
 	{GPIO_O_REG3,         (1 << 8),                0xffffffff,   0, BL2_INIT_STAGE_1, 0},
 	/* Enable VCCK */
 	{AO_SEC_REG0,         (1 << 0),                0xffffffff,   0, BL2_INIT_STAGE_1, 0},
-	{AO_GPIO_O,           (1 << 31),               0xffffffff,   0, BL2_INIT_STAGE_1, 0},
+	{AO_GPIO_O,           (1u << 31),            0xffffffff,   0, BL2_INIT_STAGE_1, 0},
 	/* Init sys led*/
 	{AO_GPIO_O_EN_N,      (0 << 11),               (1 << 11),    0, BL2_INIT_STAGE_1, 0},
 	{AO_GPIO_O,           (0 << 11),               (1 << 11),    0, BL2_INIT_STAGE_1, 0},

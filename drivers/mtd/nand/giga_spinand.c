@@ -987,7 +987,7 @@ static int spinand_mtd_read_oob(struct mtd_info *mtd, loff_t from,  struct mtd_o
   else
     ret = spinand_do_read_ops(mtd, from, ops);
 
-    spinand_release_device(mtd);
+  spinand_release_device(mtd);
 out:
   return ret;
 }

@@ -269,10 +269,12 @@ m_pll_cfg_t m_pll_cfg = {
 	},
 };
 
+#if 0
 /*PCIE clk_out = 24M*m/2^(n+1)/OD*/
 static const struct pciepll_rate_table pcie_pll_rate_table[] = {
 	PLL_RATE(4800, 200, 1, 12),
 };
+#endif
 
 static void pll_report(unsigned int flag, char * name)
 {

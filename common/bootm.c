@@ -402,7 +402,7 @@ static int get_fdto_totalsize(u32 *tz)
 {
 	TE(__func__);
 
-	unsigned long long dtbo_mem_addr = NULL;
+	unsigned long long dtbo_mem_addr = 0;
 	int ret;
 
 	ret = read_fdto_partition();
@@ -421,7 +421,7 @@ static int get_fdto_totalsize(u32 *tz)
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
 static int do_fdt_overlay(void)
 {
-	unsigned long long dtbo_mem_addr = NULL;
+	unsigned long long dtbo_mem_addr = 0;
 	int                dtbo_num = 0;
 	int                i;
 	char               cmd[128];

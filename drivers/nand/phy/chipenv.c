@@ -1589,7 +1589,7 @@ get_free_blk:
 					&& (!full_page_flag)
 					&& (!arg_info->update_flag))
 					ops_para->page_addr += 1;
-					temp_page_num =
+				temp_page_num =
 					ops_para->page_addr % 256;
 			}
 
@@ -3162,39 +3162,36 @@ int aml_nand_scan_hynix_info(struct amlnand_chip *aml_chip)
 					start_blk,
 					ops_para->page_addr);
 
-		for (k = 0; k < controller->chip_num; k++)
-			for (j = 0; j < retry_info->reg_cnt_lp;
-				j++)
-				aml_nand_dbg("REG(0x%x):val:0x%x,for chip%d",
-				retry_info->reg_addr_lp[j],
-			retry_info->reg_def_val[k][j], k);
+				for (k = 0; k < controller->chip_num; k++)
+					for (j = 0; j < retry_info->reg_cnt_lp;j++)
+						aml_nand_dbg("REG(0x%x):val:0x%x,for chip%d",
+						retry_info->reg_addr_lp[j],
+						retry_info->reg_def_val[k][j], k);
 
-	if ((flash->new_type == HYNIX_20NM_8GB)
-		|| (flash->new_type == HYNIX_20NM_4GB)
-		|| (flash->new_type == HYNIX_1YNM)) {
+				if ((flash->new_type == HYNIX_20NM_8GB)
+					|| (flash->new_type == HYNIX_20NM_4GB)
+					|| (flash->new_type == HYNIX_1YNM)) {
 #ifdef DEBUG_HYINX_DEF
-		for (n = 0; n < controller->chip_num; n++)
-			for (j = 0; j < save_cnt; j++)
-				memcpy(&retry_info->reg_offs_val_lp[n][j][0],
-					(u8 *)(aml_chip->user_page_buf +
-					MAX_CHIP_NUM*READ_RETRY_REG_NUM +
-					j*READ_RETRY_REG_NUM+n*save_cnt),
-					READ_RETRY_REG_NUM);
+					for (n = 0; n < controller->chip_num; n++)
+						for (j = 0; j < save_cnt; j++)
+							memcpy(&retry_info->reg_offs_val_lp[n][j][0],
+							(u8 *)(aml_chip->user_page_buf +
+							MAX_CHIP_NUM*READ_RETRY_REG_NUM +
+							j*READ_RETRY_REG_NUM+n*save_cnt),
+							READ_RETRY_REG_NUM);
 #else
-		memcpy(&retry_info->reg_offs_val_lp[0][0][0],
-			(u8 *)(aml_chip->user_page_buf +
-			MAX_CHIP_NUM*READ_RETRY_REG_NUM),
-			MAX_CHIP_NUM*READ_RETRY_CNT*READ_RETRY_REG_NUM);
+					memcpy(&retry_info->reg_offs_val_lp[0][0][0],
+					(u8 *)(aml_chip->user_page_buf +
+					MAX_CHIP_NUM*READ_RETRY_REG_NUM),
+					MAX_CHIP_NUM*READ_RETRY_CNT*READ_RETRY_REG_NUM);
 #endif
 				}
-for (n = 0; n < controller->chip_num; n++)
-	for (j = 0; j < retry_info->retry_cnt_lp; j++)
-		for (k = 0; k < retry_info->reg_cnt_lp; k++)
-			aml_nand_dbg("Retry%dst,REG(0x%x):val:0x%2x,for chip%d",
-				k,
-				retry_info->reg_addr_lp[k],
-			retry_info->reg_offs_val_lp[n][j][k],
-			n);
+				for (n = 0; n < controller->chip_num; n++)
+					for (j = 0; j < retry_info->retry_cnt_lp; j++)
+						for (k = 0; k < retry_info->reg_cnt_lp; k++)
+							aml_nand_dbg("Retry%dst,REG(0x%x):val:0x%2x,for chip%d",k,
+							retry_info->reg_addr_lp[k],
+							retry_info->reg_offs_val_lp[n][j][k],n);
 
 				retry_info->default_flag = 1;
 				retry_info->flag = 1;

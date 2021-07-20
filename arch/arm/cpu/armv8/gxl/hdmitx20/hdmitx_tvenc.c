@@ -76,6 +76,7 @@ static const struct reg_t tvregs_720p_50hz[] = {
 	{MREG_END_MARKER, 0},
 };
 
+#if 0
 static const struct reg_t tvregs_720p_100hz[] = {
 	{P_ENCP_VIDEO_EN, 0},
 	{P_ENCI_VIDEO_EN, 0},
@@ -140,6 +141,7 @@ static const struct reg_t tvregs_720p_120hz[] = {
 	{P_ENCI_VIDEO_EN, 0},
 	{MREG_END_MARKER, 0},
 };
+#endif
 
 static const struct reg_t tvregs_480i[] = {
 	{P_ENCP_VIDEO_EN, 0},

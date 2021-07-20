@@ -58,7 +58,7 @@ static struct key_item_t *unifykey_find_item_by_name(const char *name)
 
     if (!strncmp(_PROVSION_DEFAULT_KEY_NAME, name, strlen(_PROVSION_DEFAULT_KEY_NAME) - 3))
         return _defProvisonItem;
-	return NULL;
+    return NULL;
 }
 
 enum key_manager_df_e keymanage_dts_get_key_fmt(const char *keyname)

@@ -22,7 +22,7 @@
  */
 struct pt_regs {
 	unsigned long elr;
-	unsigned long regs[31];
+	unsigned long regs[32];
 };
 
 struct stackframe {

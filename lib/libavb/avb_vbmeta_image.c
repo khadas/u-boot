@@ -26,7 +26,7 @@ AvbVBMetaVerifyResult avb_vbmeta_image_verify(
   const uint8_t* auxiliary_block;
   int verification_result;
   uint64_t block_total = 0;
-  uintptr_t data_ptr = NULL;
+  uintptr_t data_ptr = 0;
 
   ret = AVB_VBMETA_VERIFY_RESULT_INVALID_VBMETA_HEADER;
 

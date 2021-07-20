@@ -286,16 +286,16 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 
 				//printk("col0_data =%x\n",col0_data);
 
-				if (aml_chip->mfr_type  != NAND_MFR_SANDISK)
-					aml_chip->aml_nand_command(aml_chip,
-						NAND_CMD_RNDOUT,
-						aml_chip->page_size, -1, i);
-				udelay(2);
+			if (aml_chip->mfr_type  != NAND_MFR_SANDISK)
+				aml_chip->aml_nand_command(aml_chip,
+					NAND_CMD_RNDOUT,
+					aml_chip->page_size, -1, i);
+			udelay(2);
 
-				if (aml_chip->mfr_type  == NAND_MFR_SANDISK)
-					col0_oob = 0x0;
-				else
-					col0_oob = chip->read_byte(mtd);
+			if (aml_chip->mfr_type  == NAND_MFR_SANDISK)
+				col0_oob = 0x0;
+			else
+				col0_oob = chip->read_byte(mtd);
 				//printk("col0_oob =%x\n",col0_oob);
 			}
 

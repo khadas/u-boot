@@ -113,8 +113,7 @@ DECLARE_GLOBAL_DATA_PTR;
 struct part_info *amlmtd_part = NULL;
 int amlmtd_part_cnt = 0;
 extern int mtdparts_init(void);
-#endif
-
+#else
 /* default values for mtdids and mtdparts variables */
 #if defined(MTDIDS_DEFAULT)
 static const char *const mtdids_default = MTDIDS_DEFAULT;
@@ -126,6 +125,7 @@ static const char *const mtdids_default = NULL;
 static const char *const mtdparts_default = MTDPARTS_DEFAULT;
 #else
 static const char *const mtdparts_default = NULL;
+#endif
 #endif
 
 /* copies of last seen 'mtdids', 'mtdparts' and 'partition' env variables */

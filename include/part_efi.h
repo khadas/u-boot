@@ -166,14 +166,14 @@ typedef union _gpt_entry_attributes {
 } __packed gpt_entry_attributes;
 
 #define PARTNAME_SZ	(72 / sizeof(efi_char16_t))
-typedef struct _gpt_entry {
+typedef struct __attribute__((aligned(sizeof(efi_char16_t)))) _gpt_entry {
 	efi_guid_t partition_type_guid;
 	efi_guid_t unique_partition_guid;
 	__le64 starting_lba;
 	__le64 ending_lba;
 	gpt_entry_attributes attributes;
 	efi_char16_t partition_name[PARTNAME_SZ];
-} __packed gpt_entry;
+} gpt_entry;
 
 typedef struct _legacy_mbr {
 	u8 boot_code[440];

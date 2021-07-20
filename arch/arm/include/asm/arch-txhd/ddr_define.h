@@ -151,5 +151,5 @@
 											DDR_FUNC_PRINT_WINDOW			| \
 											DDR_FUNC_4PCS_DDR4_ODTCFG_MODE1	| \
 											DDR_FUNC_4PCS_DDR4_ODTCFG_MODE2	| \
-											(1 << 31) 						\
+											(1u << 31) 					\
 											)
