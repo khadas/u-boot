@@ -728,7 +728,7 @@ int mmc_gpt_read(void *source)
 
 	mmc = find_mmc_device(STORAGE_EMMC);
 	if (!mmc)
-		return 1;
+		return -1;
 
 	dev_desc = mmc_get_blk_desc(mmc);
 	ret = blk_dread(dev_desc, offset, size, (u_char *)source);
@@ -737,7 +737,7 @@ int mmc_gpt_read(void *source)
 
 	if (is_valid_gpt_buf(dev_desc, (u_char *)source)) {
 		printf("%s: invalid GPT\n", __func__);
-		return -1;
+		return 1;
 	}
 
 	return 0;

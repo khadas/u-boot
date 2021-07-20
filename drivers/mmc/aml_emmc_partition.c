@@ -35,7 +35,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 /* debug info*/
 #define CONFIG_MPT_DEBUG 	(0)
-#define GPT_PRIORITY             (1)
+#define GPT_SIZE      0x4400
 
 #define apt_err(fmt, ...) printf( "%s()-%d: " fmt , \
                   __func__, __LINE__, ##__VA_ARGS__)
@@ -1160,7 +1160,6 @@ int is_gpt_changed(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 			printf("%s: *** Using Backup GPT ***\n",
 					__func__);
 		}
-			//return 1;
 	}
 	for (i = 0; i < le32_to_cpu(gpt_head->num_partition_entries); i++) {
 		if (!is_pte_valid(&gpt_pte[i]))
@@ -1359,6 +1358,42 @@ void __attribute__((unused)) _update_part_tbl(struct partitions *p, int count)
 	}
 }
 
+int resize_gpt(struct mmc *mmc)
+{
+	gpt_header *gpt_h;
+	void *buf;
+	int ret;
+	struct blk_desc *dev_desc = mmc_get_blk_desc(mmc);
+
+	buf = malloc(GPT_SIZE);
+	if (!buf) {
+		printf("not enough space for gpt buffer\n");
+		return -1;
+	}
+
+	ret = mmc_gpt_read(buf);
+	if (ret == 0) {
+		/* determine start of GPT Header in the buffer */
+		gpt_h = buf + (GPT_PRIMARY_PARTITION_TABLE_LBA *
+				dev_desc->blksz);
+		if (le64_to_cpu(gpt_h->last_usable_lba) > dev_desc->lba) {
+			ret = write_mbr_and_gpt_partitions(dev_desc, (u_char *)buf);
+			if (ret) {
+				printf("%s: writing GPT partitions failed\n", __func__);
+				free(buf);
+				return -1;
+			}
+			printf("resize gpt success\n");
+		}
+	} else if (ret == -1) {
+		printf("%s: read gpt failed\n", __func__);
+		free(buf);
+		return -1;
+	}
+	free(buf);
+	return 0;
+}
+
 /***************************************************
  *	init partition table for emmc device.
  *	returns 0 means ok.
@@ -1417,6 +1452,9 @@ int mmc_device_init (struct mmc *mmc)
 		memset(p_iptbl_ept->partitions, 0,
 				sizeof(struct partitions) * MAX_PART_COUNT);
 	}
+
+	if (resize_gpt(mmc))
+		goto _out;
 
 	/* calculate inherent offset */
 	iptbl_inh.count = get_emmc_partition_arraysize();

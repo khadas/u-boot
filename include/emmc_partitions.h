@@ -277,6 +277,9 @@ extern int get_emmc_partition_arraysize(void);
  */
 extern int get_partition_num_by_name(char const *name);
 extern int aml_gpt_valid(struct mmc *mmc);
+int mmc_gpt_read(void *source);
+int mmc_gpt_write(void *source);
+int mmc_gpt_erase(void);
 
 struct partitions* find_mmc_partition_by_name (char const *name);
 struct partitions *aml_get_partition_by_name(const char *name);
