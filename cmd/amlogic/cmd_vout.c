@@ -13,7 +13,11 @@
 #endif
 #include <amlogic/media/vout/aml_vout.h>
 #ifdef CONFIG_AML_HDMITX
+#ifdef CONFIG_AML_HDMITX20
 #include <amlogic/media/vout/hdmitx/hdmitx.h>
+#else
+#include <amlogic/media/vout/hdmitx21/hdmitx.h>
+#endif
 #endif
 
 #ifdef CONFIG_AML_CVBS
@@ -44,7 +48,11 @@ static unsigned int vout_parse_vout_name(char *name)
 static int do_vout_list(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 #ifdef CONFIG_AML_HDMITX
+#ifdef CONFIG_AML_HDMITX20
 	struct hdmitx_dev *hdmitx_device = hdmitx_get_hdev();
+#else
+	struct hdmitx_dev *hdmitx_device = get_hdmitx21_device();
+#endif
 #endif
 
 #ifdef CONFIG_AML_HDMITX
@@ -162,7 +170,11 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 static int do_vout2_list(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 #ifdef CONFIG_AML_HDMITX
+#ifdef CONFIG_AML_HDMITX20
 	struct hdmitx_dev *hdmitx_device = hdmitx_get_hdev();
+#else
+	struct hdmitx_dev *hdmitx_device = get_hdmitx21_device();
+#endif
 #endif
 
 #ifdef CONFIG_AML_HDMITX

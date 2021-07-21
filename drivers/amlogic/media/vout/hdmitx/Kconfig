@@ -8,4 +8,6 @@ config AML_HDMITX
 
 source "drivers/amlogic/media/vout/hdmitx/hdmitx20/Kconfig"
 
+source "drivers/amlogic/media/vout/hdmitx/hdmitx21/Kconfig"
+
 endmenu

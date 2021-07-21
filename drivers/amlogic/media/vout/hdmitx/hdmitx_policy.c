@@ -8,7 +8,11 @@
 #include <environment.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
+#ifdef CONFIG_AML_HDMITX20
 #include <amlogic/media/vout/hdmitx/hdmitx.h>
+#else
+#include <amlogic/media/vout/hdmitx21/hdmitx.h>
+#endif
 #include <amlogic/media/dv/dolby_vision.h>
 #include <asm/arch/cpu.h>
 #include <amlogic/cpu_id.h>
@@ -284,7 +288,11 @@ static inline bool is_meson_gxl_package_805Y(void)
 /* below items has feature limited, may need extra judgement */
 static bool hdmitx_limited_1080p(void)
 {
+#ifdef CONFIG_AML_HDMITX20
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
+#else
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+#endif
 
 	if (is_meson_gxl_package_805X())
 		return true;
@@ -428,7 +436,7 @@ static int resolve_resolution_value(const char *mode)
 }
 
 /* need update DV CAP */
-static int update_dv_type(hdmi_data_t *hdmi_data)
+static int update_dv_type(struct input_hdmi_data *hdmi_data)
 {
 	/* 1.read dolby vision mode from prop(env) */
 	int type;
@@ -438,7 +446,7 @@ static int update_dv_type(hdmi_data_t *hdmi_data)
 		return DOLBY_VISION_DISABLE;
 
 	type = hdmi_data->ubootenv_dv_type;
-	dv = &(hdmi_data->pRXCap->dv_info);
+	dv = &hdmi_data->prxcap->dv_info;
 
 	/* 2.check tv support or not */
 	if ((type == 1) && (dv->support_DV_RGB_444_8BIT == 1)) {
@@ -472,7 +480,7 @@ static int update_dv_type(hdmi_data_t *hdmi_data)
 	return DOLBY_VISION_DISABLE;
 }
 
-static void update_dv_attr(hdmi_data_t *hdmi_data, char *dv_attr)
+static void update_dv_attr(struct input_hdmi_data *hdmi_data, char *dv_attr)
 {
 	int dv_type;
 	struct dv_info *dv = NULL;
@@ -480,7 +488,7 @@ static void update_dv_attr(hdmi_data_t *hdmi_data, char *dv_attr)
 		return;
 
 	dv_type = hdmi_data->ubootenv_dv_type;
-	dv = &(hdmi_data->pRXCap->dv_info);
+	dv = &hdmi_data->prxcap->dv_info;
 
 	switch (dv_type) {
 	case DOLBY_VISION_STD_ENABLE:
@@ -504,7 +512,7 @@ static void update_dv_attr(hdmi_data_t *hdmi_data, char *dv_attr)
 	printf("dv_type :%d dv_attr:%s", dv_type, dv_attr);
 }
 
-static void update_dv_displaymode(hdmi_data_t *hdmi_data,
+static void update_dv_displaymode(struct input_hdmi_data *hdmi_data,
 	char *final_displaymode)
 {
 	char dv_displaymode[MODE_LEN] = {0};
@@ -516,7 +524,7 @@ static void update_dv_displaymode(hdmi_data_t *hdmi_data,
 		return;
 	dv_type = hdmi_data->ubootenv_dv_type;
 	strcpy(cur_outputmode, hdmi_data->ubootenv_hdmimode);
-	dv = &(hdmi_data->pRXCap->dv_info);
+	dv = &hdmi_data->prxcap->dv_info;
 	if (dv->sup_2160p60hz == 1)
 		strcpy(dv_displaymode, DV_MODE_4K2K60HZ);
 	else
@@ -551,7 +559,7 @@ static void update_dv_displaymode(hdmi_data_t *hdmi_data,
 }
 
 /* get the highest hdmi mode by edid */
-static void get_highest_hdmimode(hdmi_data_t *hdmi_data, char *mode)
+static void get_highest_hdmimode(struct input_hdmi_data *hdmi_data, char *mode)
 {
 	char value[MODE_LEN] = {0};
 	char mode_tmp[MODE_LEN];
@@ -561,7 +569,7 @@ static void get_highest_hdmimode(hdmi_data_t *hdmi_data, char *mode)
 
 	if (!hdmi_data || !mode)
 		return;
-	hdev = container_of(hdmi_data->pRXCap,
+	hdev = container_of(hdmi_data->prxcap,
 			struct hdmitx_dev, RXCap);
 
 	strcpy(value, DEFAULT_HDMI_MODE);
@@ -576,13 +584,13 @@ static void get_highest_hdmimode(hdmi_data_t *hdmi_data, char *mode)
 		/* refer to disp_cap sysfs */
 		vic = hdmitx_edid_get_VIC(hdev, mode_tmp, 0);
 		/* Handling only 4k420 mode */
-		if (vic == HDMI_unkown) {
+		if (vic == 0) {
 			if (is_4k50_fmt(mode_tmp)) {
 				strcat(mode_tmp, "420");
 				vic = hdmitx_edid_get_VIC(hdev,
 					mode_tmp, 0);
 			}
-			if (vic == HDMI_unkown)
+			if (vic == 0)
 				continue;
 		}
 		if (resolve_resolution_value(mode_tmp) >
@@ -597,17 +605,17 @@ static void get_highest_hdmimode(hdmi_data_t *hdmi_data, char *mode)
 }
 
 /* check if the edid support current hdmi mode */
-static void filter_hdmimode(hdmi_data_t *hdmi_data, char *mode)
+static void filter_hdmimode(struct input_hdmi_data *hdmi_data, char *mode)
 {
 	struct hdmitx_dev *hdev = NULL;
 
 	if (!hdmi_data || !mode)
 		return;
-	hdev = container_of(hdmi_data->pRXCap,
+	hdev = container_of(hdmi_data->prxcap,
 			struct hdmitx_dev, RXCap);
 
 	if (hdmitx_edid_get_VIC(hdev, hdmi_data->ubootenv_hdmimode, 0)
-		!= HDMI_unkown) {
+		!= 0) {
 		strcpy(mode, hdmi_data->ubootenv_hdmimode);
 	} else {
 		/* old mode is not support in this TV,
@@ -617,14 +625,14 @@ static void filter_hdmimode(hdmi_data_t *hdmi_data, char *mode)
 	}
 }
 
-static void get_hdmi_outputmode(hdmi_data_t *hdmi_data, char *mode)
+static void get_hdmi_outputmode(struct input_hdmi_data *hdmi_data, char *mode)
 {
 	struct hdmitx_dev *hdev = NULL;
 
 	if (!hdmi_data || !mode)
 		return;
 
-	hdev = container_of(hdmi_data->pRXCap,
+	hdev = container_of(hdmi_data->prxcap,
 			struct hdmitx_dev, RXCap);
 
     /* Fall back to 480p if EDID can't be parsed */
@@ -641,7 +649,7 @@ static void get_hdmi_outputmode(hdmi_data_t *hdmi_data, char *mode)
 	printf("set HDMI mode to %s\n", mode);
 }
 
-static void get_best_color_attr(hdmi_data_t *hdmi_data,
+static void get_best_color_attr(struct input_hdmi_data *hdmi_data,
 	const char *outputmode, char *colorattribute)
 {
 	int length = 0;
@@ -686,7 +694,7 @@ static void get_best_color_attr(hdmi_data_t *hdmi_data,
 	}
 }
 
-static void get_hdmi_colorattribute(hdmi_data_t *hdmi_data,
+static void get_hdmi_colorattribute(struct input_hdmi_data *hdmi_data,
 	const char *outputmode, char *colorattribute)
 {
 	char temp_mode[MODE_LEN] = {0};
@@ -734,7 +742,7 @@ static void get_hdmi_colorattribute(hdmi_data_t *hdmi_data,
 	       colorattribute, outputmode);
 }
 
-static void update_hdmi_deepcolor(hdmi_data_t *hdmi_data,
+static void update_hdmi_deepcolor(struct input_hdmi_data *hdmi_data,
 	const char *outputmode, char *colorattribute)
 {
 	if (!hdmi_data || !outputmode || !colorattribute)
@@ -747,8 +755,8 @@ static void update_hdmi_deepcolor(hdmi_data_t *hdmi_data,
 	printf("colorattribute = %s\n", colorattribute);
 }
 
-void dolbyvision_scene_process(hdmi_data_t *hdmi_data,
-	scene_output_info_t *output_info)
+void dolbyvision_scene_process(struct input_hdmi_data *hdmi_data,
+	struct scene_output_info *output_info)
 {
 	int dv_type = DOLBY_VISION_DISABLE;
 
@@ -772,7 +780,7 @@ void dolbyvision_scene_process(hdmi_data_t *hdmi_data,
 }
 
 /* currently, SDR/HDR share the same policy process */
-void sdr_scene_process(hdmi_data_t *hdmi_data, scene_output_info_t *output_info)
+void sdr_scene_process(struct input_hdmi_data *hdmi_data, struct scene_output_info *output_info)
 {
 	char outputmode[MODE_LEN] = {0};
 	char colorattribute[MODE_LEN] = {0};
@@ -793,7 +801,7 @@ void sdr_scene_process(hdmi_data_t *hdmi_data, scene_output_info_t *output_info)
 	printf("sdr final_deepcolor:%s\n", output_info->final_deepcolor);
 }
 
-void get_hdmi_data(struct hdmitx_dev *hdev, hdmi_data_t *data)
+void get_hdmi_data(struct hdmitx_dev *hdev, struct input_hdmi_data *data)
 {
 	char *hdmimode;
 	char *colorattribute;
@@ -815,8 +823,8 @@ void get_hdmi_data(struct hdmitx_dev *hdev, hdmi_data_t *data)
 	data->isLowPowerMode = is_low_powermode();
 	data->isframeratepriority = is_framerate_priority();
 	#endif
-	data->pRXCap = &(hdev->RXCap);
-	/* memcpy(&(data->pRXCap), &(hdev->RXCap), sizeof(hdev->RXCap)); */
+	data->prxcap = &hdev->RXCap;
+	/* memcpy(&(data->prxcap), &(hdev->RXCap), sizeof(hdev->RXCap)); */
 	printf("ubootenv hdmimode: %s, cscd: %s, dv_type: %d\n",
 	       data->ubootenv_hdmimode,
 	       data->ubootenv_colorattribute,

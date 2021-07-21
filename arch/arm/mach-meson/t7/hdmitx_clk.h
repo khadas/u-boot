@@ -26,34 +26,10 @@
 #define VID_PLL_DIV_2p5    14
 #define VID_PLL_DIV_3p25   15
 
-enum viu_type {
-    VIU_ENCL = 0,
-    VIU_ENCI,
-    VIU_ENCP,
-    VIU_ENCT,
-};
-
-typedef struct{
-    enum hdmi_vic vic;
-    unsigned viu_path;
-    enum viu_type viu_type;
-    unsigned hpll_clk_out;
-    unsigned od1;
-    unsigned od2;
-    unsigned od3;
-    unsigned vid_pll_div;
-    unsigned vid_clk_div;
-    unsigned hdmi_tx_pixel_div;
-    unsigned encp_div;
-    unsigned enci_div;
-}hw_enc_clk_val_t;
-
-#define GROUP_MAX       10
+#define GROUP_MAX       8
 #define GROUP_END       -1
 struct hw_enc_clk_val_group {
     enum hdmi_vic group[GROUP_MAX];
-    unsigned viu_path;
-    enum viu_type viu_type;
     unsigned hpll_clk_out;
     unsigned od1;
     unsigned od2;
@@ -64,5 +40,4 @@ struct hw_enc_clk_val_group {
     unsigned encp_div;
     unsigned enci_div;
 };
-
 #endif

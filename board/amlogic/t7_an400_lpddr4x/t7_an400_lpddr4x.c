@@ -30,8 +30,8 @@
 #ifdef CONFIG_AML_VOUT
 #include <amlogic/media/vout/aml_vout.h>
 #endif
-#ifdef CONFIG_AML_HDMITX20
-#include <amlogic/media/vout/hdmitx/hdmitx_module.h>
+#ifdef CONFIG_AML_HDMITX21
+#include <amlogic/media/vout/hdmitx21/hdmitx_module.h>
 #endif
 #ifdef CONFIG_AML_LCD
 #include <amlogic/media/vout/lcd/lcd_vout.h>
@@ -88,10 +88,12 @@ int active_clk(void)
 }
 
 
-#ifdef CONFIG_AML_HDMITX20
+#ifdef CONFIG_AML_HDMITX21
 static void hdmitx_set_hdmi_5v(void)
 {
 	/*Power on VCC_5V for HDMI_5V*/
+	writel(readl(PADCTRL_GPIOH_OEN) & (~(1 << 1)), PADCTRL_GPIOH_OEN);
+	writel(readl(PADCTRL_GPIOH_O) | (1 << 1), PADCTRL_GPIOH_O);
 }
 #endif
 void board_init_mem(void) {
@@ -126,10 +128,6 @@ int board_init(void)
 
 #if 0 //bypass below operations for pxp
 	active_clk();
-#ifdef CONFIG_AML_HDMITX20
-	hdmitx_set_hdmi_5v();
-	hdmitx_init();
-#endif
 #endif
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 	/*set vcc5V*/
@@ -192,6 +190,10 @@ int board_late_init(void)
 
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
+#endif
+#ifdef CONFIG_AML_HDMITX21
+	hdmitx_set_hdmi_5v();
+	hdmitx21_init();
 #endif
 #ifdef CONFIG_AML_VPP
 	vpp_init();

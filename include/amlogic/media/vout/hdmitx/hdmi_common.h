@@ -6,6 +6,8 @@
 #ifndef __HDMI_COMMON_H__
 #define __HDMI_COMMON_H__
 
+#include "../hdmitx_common.h"
+
 /* Little-Endian format */
 enum scdc_addr {
 	SINK_VER = 0x01,
@@ -642,7 +644,7 @@ typedef struct input_hdmi_data {
 	bool isframeratepriority;
 	bool isLowPowerMode;
 	#endif
-	struct rx_cap *pRXCap;
+	struct rx_cap *prxcap;
 } hdmi_data_t;
 
 typedef struct scene_output_info {

@@ -14,35 +14,10 @@
 #include <amlogic/media/vout/lcd/aml_lcd.h>
 #endif
 
-#ifdef CONFIG_AML_LCD
-static unsigned int hdmitx_parse_vout_name(char *name)
-{
-	char *p, *frac_str;
-	unsigned int frac = 0;
-
-	p = strchr(name, ',');
-	if (!p) {
-		frac = 0;
-	} else {
-		frac_str = p + 1;
-		*p = '\0';
-		if (strcmp(frac_str, "frac") == 0)
-			frac = 1;
-	}
-
-	return frac;
-}
-#endif
-
 static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	char *const argv[])
 {
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
-#ifdef CONFIG_AML_LCD
-	struct aml_lcd_drv_s *lcd_drv = NULL;
-	char *mode;
-	unsigned int frac;
-#endif
 	char* st;
 	char* hdmimode;
 	char* cvbsmode;
@@ -54,29 +29,6 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 		printf("hdmitx_hpd_bypass detect\n");
 		return 0;
 	}
-
-#ifdef CONFIG_AML_LCD
-	lcd_drv = aml_lcd_get_driver();
-	if (lcd_drv) {
-		if (lcd_drv->lcd_outputmode_check) {
-			mode = (char *)malloc(64 * sizeof(char));
-			if (!mode) {
-				printf("cmd_hpd: mode malloc falied\n");
-				if (lcd_drv->lcd_outputmode_check(mode, 0) == 0)
-					return 0;
-			} else {
-				memset(mode, 0, sizeof(mode));
-				sprintf(mode, "%s", env_get("outputmode"));
-				frac = hdmitx_parse_vout_name(mode);
-				if (lcd_drv->lcd_outputmode_check(mode, frac) == 0) {
-					free(mode);
-					return 0;
-				}
-				free(mode);
-			}
-		}
-	}
-#endif
 
 	hpd_st = hdev->hwop.get_hpd_state();
 	if (!hpd_st) {

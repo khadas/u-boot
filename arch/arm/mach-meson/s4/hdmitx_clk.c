@@ -834,15 +834,6 @@ next:
 	set_hdmitx_fe_clk(hdev);
 }
 
-int hdmitx_likely_frac_rate_mode(char *m)
-{
-	if (strstr(m, "24hz") || strstr(m, "30hz") || strstr(m, "60hz")
-		|| strstr(m, "120hz") || strstr(m, "240hz"))
-		return 1;
-	else
-		return 0;
-}
-
 void hdmitx_set_clk(struct hdmitx_dev *hdev)
 {
 	char *frac_rate_str = NULL;
