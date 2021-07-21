@@ -63,36 +63,6 @@ struct ctr_info {
 
 static struct ctr_info ctr[AMLOGIC_CTR_COUNT];
 
-/*Rev_flag == 0XB, g12b and revB, tl1 */
-/*Rev_flag == 1, sm1 */
-static void phy_aml_usb2_check_rev (void)
-{
-	cpu_id_t cpu_id = get_cpu_id();
-
-	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_T3)
-		Rev_flag = MESON_CPU_MAJOR_ID_T3;
-	else
-		Rev_flag = 0;		
-	return;
-}
-
-static int phy_aml_usb2_get_rev_type (void)
-{
-	int val = 0;
-
-	switch (Rev_flag) {
-		case MESON_CPU_MAJOR_ID_T3:
-			val = 1;
-			break;
-		default:
-			printf("amlogic usb phy need tuning\n");
-			val = 0;
-			break;
-	}
-
-	return val;
-}
-
 int get_usbphy_baseinfo(void)
 {
 	struct udevice *bus;
@@ -163,7 +133,6 @@ void usb_aml_detect_operation(int argc, char * const argv[])
 			}
 		}
 	}
-	phy_aml_usb2_check_rev();
 	printf("PHY version is 0x%02x\n", Rev_flag);
 }
 
@@ -210,43 +179,31 @@ static void usb_enable_phy_pll (u32 base_addr)
 
 void set_usb_pll(uint32_t phy2_pll_base)
 {
-	int hardware_rev, val;
+	int val;
 
-	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x40))
-		= (USB2_PHY_PLL_OFFSET_40 | USB_PHY2_RESET | USB_PHY2_ENABLE);
-	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x44)) =
-		USB2_PHY_PLL_OFFSET_44;
-	hardware_rev = phy_aml_usb2_get_rev_type();
-	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0x48)) =
-		USB2_PHY_PLL_OFFSET_48;
+	val = USB2_PHY_PLL_OFFSET_40 | USB_PHY2_RESET | USB_PHY2_ENABLE;
+	writel(val, phy2_pll_base + 0x40);
+	val = USB2_PHY_PLL_OFFSET_44;
+	writel(val, phy2_pll_base + 0x44);
+	val = USB2_PHY_PLL_OFFSET_48;
+	writel(val, phy2_pll_base + 0x48);
 	udelay(100);
-	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x40))
-		= (((USB2_PHY_PLL_OFFSET_40) | (USB_PHY2_ENABLE))
-			& (~(USB_PHY2_RESET)));
+	val = ((USB2_PHY_PLL_OFFSET_40) | (USB_PHY2_ENABLE))
+			& (~(USB_PHY2_RESET));
+	writel(val, phy2_pll_base + 0x40);
 
-	if (hardware_rev) {
-		(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x50))
-			= USB2_PHY_PLL_OFFSET_50;
-		(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x54))
-			= USB2_PHY_PLL_OFFSET_54;
-		usb_set_calibration_trim(phy2_pll_base);
-		val = (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x38));
-		val &= ~0x18000000;
-		val |= ((DISCONNECT_THRESHOLD_ENHANCE << 27) & 0x18000000);
-		(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x38)) = val;
-	} else {
-		(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x50))
-			= USB2_PHY_PLL_OFFSET_50;
-		(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x10))
-			= USB2_PHY_PLL_OFFSET_10;
-		(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x38))
-			= USB2_PHY_PLL_OFFSET_38_CLEAR;
-	}
+	//(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x50))
+		//= USB2_PHY_PLL_OFFSET_50;
+	writel(USB2_PHY_PLL_OFFSET_50, phy2_pll_base + 0x50);
+	writel(USB2_PHY_PLL_OFFSET_54, phy2_pll_base + 0x54);
+	usb_set_calibration_trim(phy2_pll_base);
+	val = readl(phy2_pll_base + 0x38);
+	val &= ~0x18000000;
+	val |= ((DISCONNECT_THRESHOLD_ENHANCE << 27) & 0x18000000);
+	writel(val, phy2_pll_base + 0x38);
+	writel(TUNING_DISCONNECT_THRESHOLD, phy2_pll_base + 0xc);
+	writel(USB2_PHY_PLL_OFFSET_34, phy2_pll_base + 0x34);
 
-	(*(volatile uint32_t *)((unsigned long)phy2_pll_base + 0xc)) =
-		TUNING_DISCONNECT_THRESHOLD;
-	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x34))
-		= USB2_PHY_PLL_OFFSET_34;
 	debug("tuning_disconnect_threshold=0x%x\n", TUNING_DISCONNECT_THRESHOLD);
 }
 
@@ -282,7 +239,6 @@ int usb2_phy_init (struct phy *phy) {
 	usb_save_phy_dev(0, phy);
 	usb_enable_phy_pll(priv->base_addr);
 	//usb_set_power_domain();
-	phy_aml_usb2_check_rev();
 
 	*(volatile unsigned int *)(unsigned long)priv->reset_addr = (1 << USB_RESET_BIT);
 	udelay(500);
