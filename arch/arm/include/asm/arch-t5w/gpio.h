@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * arch/arm/include/asm/arch-t5d/gpio.h
+ * arch/arm/include/asm/arch-t5w/gpio.h
  *
  * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
@@ -9,7 +9,7 @@
 #ifndef _MESON_T5D_GPIO_H
 #define _MESON_T5D_GPIO_H
 
-#define EE_OFFSET 14
+#define EE_OFFSET 13
 #define GPIOAO(x) (x)
 #define GPIOEE(x) (EE_OFFSET + x)
 
@@ -27,113 +27,132 @@
 #define GPIOD_10	10
 #define GPIOE_0		11
 #define GPIOE_1		12
-#define GPIOE_2		13
 
 /* Second GPIO chip */
-#define GPIOH_0 	0
-#define GPIOH_1 	1
-#define GPIOH_2 	2
-#define GPIOH_3 	3
-#define GPIOH_4 	4
-#define GPIOH_5 	5
-#define GPIOH_6 	6
-#define GPIOH_7 	7
-#define GPIOH_8 	8
-#define GPIOH_9 	9
-#define GPIOH_10	10
-#define GPIOH_11	11
-#define GPIOH_12	12
-#define GPIOH_13	13
-#define GPIOH_14	14
-#define GPIOH_15	15
-#define GPIOH_16	16
-#define GPIOH_17	17
-#define GPIOH_18	18
-#define GPIOH_19	19
-#define GPIOH_20	20
-#define GPIOH_21	21
+#define	GPIOB_0		0
+#define	GPIOB_1		1
+#define	GPIOB_2		2
+#define	GPIOB_3		3
+#define	GPIOB_4		4
+#define	GPIOB_5		5
+#define	GPIOB_6		6
+#define	GPIOB_7		7
+#define	GPIOB_8		8
+#define	GPIOB_9		9
+#define	GPIOB_10	10
+#define	GPIOB_11	11
+#define	GPIOB_12	12
+#define	GPIOB_13	13
 
-#define GPIOB_0		22
-#define GPIOB_1		23
-#define GPIOB_2		24
-#define GPIOB_3		25
-#define GPIOB_4		26
-#define GPIOB_5		27
-#define GPIOB_6		28
-#define GPIOB_7		29
-#define GPIOB_8		30
-#define GPIOB_9		31
-#define GPIOB_10	32
-#define GPIOB_11	33
-#define GPIOB_12	34
-#define GPIOB_13	35
+#define	GPIOW_0		14
+#define	GPIOW_1		15
+#define	GPIOW_2		16
+#define	GPIOW_3		17
+#define	GPIOW_4		18
+#define	GPIOW_5		19
+#define	GPIOW_6		20
+#define	GPIOW_7		21
+#define	GPIOW_8		22
+#define	GPIOW_9		23
+#define	GPIOW_10	24
+#define	GPIOW_11	25
+#define	GPIOW_12	26
 
-#define GPIOZ_0  	36
-#define GPIOZ_1  	37
-#define GPIOZ_2  	38
-#define GPIOZ_3  	39
-#define GPIOZ_4  	40
-#define GPIOZ_5  	41
-#define GPIOZ_6  	42
-#define GPIOZ_7  	43
-#define GPIOZ_8  	44
-#define GPIOZ_9  	45
-#define GPIOZ_10 	46
-#define GPIOZ_11 	47
-#define GPIOZ_12 	48
-#define GPIOZ_13 	49
-#define GPIOZ_14 	50
-#define GPIOZ_15 	51
-#define GPIOZ_16 	52
-#define GPIOZ_17 	53
-#define GPIOZ_18 	54
-#define GPIOZ_19 	55
+#define	GPIOZ_0		27
+#define	GPIOZ_1		28
+#define	GPIOZ_2		29
+#define	GPIOZ_3		30
+#define	GPIOZ_4		31
+#define	GPIOZ_5		32
+#define	GPIOZ_6		33
+#define	GPIOZ_7		34
+#define	GPIOZ_8		35
+#define	GPIOZ_9		36
+#define	GPIOZ_10	37
+#define	GPIOZ_11	38
+#define	GPIOZ_12	39
+#define	GPIOZ_13	40
+#define	GPIOZ_14	41
+#define	GPIOZ_15	42
+#define	GPIOZ_16	43
+#define	GPIOZ_17	44
+#define	GPIOZ_18	45
+#define	GPIOZ_19	46
 
-#define GPIOW_0 	56
-#define GPIOW_1 	57
-#define GPIOW_2 	58
-#define GPIOW_3 	59
-#define GPIOW_4 	60
-#define GPIOW_5 	61
-#define GPIOW_6 	62
-#define GPIOW_7 	63
-#define GPIOW_8 	64
-#define GPIOW_9 	65
-#define GPIOW_10	66
-#define GPIOW_11	67
-#define GPIOW_12	68
+#define	GPIOH_0		47
+#define	GPIOH_1		48
+#define	GPIOH_2		49
+#define	GPIOH_3		50
+#define	GPIOH_4		51
+#define	GPIOH_5		52
+#define	GPIOH_6		53
+#define	GPIOH_7		54
+#define	GPIOH_8		55
+#define	GPIOH_9		56
+#define	GPIOH_10	57
+#define	GPIOH_11	58
+#define	GPIOH_12	59
+#define	GPIOH_13	60
+#define	GPIOH_14	61
+#define	GPIOH_15	62
+#define	GPIOH_16	63
+#define	GPIOH_17	64
+#define	GPIOH_18	65
+#define	GPIOH_19	66
+#define	GPIOH_20	67
+#define	GPIOH_21	68
+#define	GPIOH_22	69
+#define	GPIOH_23	70
+#define	GPIOH_24	71
+#define	GPIOH_25	72
 
-#define GPIOM_0 	69
-#define GPIOM_1 	70
-#define GPIOM_2 	71
-#define GPIOM_3 	72
-#define GPIOM_4 	73
-#define GPIOM_5 	74
-#define GPIOM_6 	75
-#define GPIOM_7 	76
-#define GPIOM_8 	77
-#define GPIOM_9 	78
-#define GPIOM_10	79
-#define GPIOM_11	80
-#define GPIOM_12	81
-#define GPIOM_13	82
-#define GPIOM_14	83
-#define GPIOM_15	84
-#define GPIOM_16	85
-#define GPIOM_17	86
-#define GPIOM_18	87
-#define GPIOM_19	88
-#define GPIOM_20	89
-#define GPIOM_21	90
-#define GPIOM_22	91
-#define GPIOM_23	92
-#define GPIOM_24	93
-#define GPIOM_25	94
-#define GPIOM_26	95
-#define GPIOM_27	96
-#define GPIOM_28	97
-#define GPIOM_29	98
+#define GPIOM_0		73
+#define GPIOM_1		74
+#define GPIOM_2		75
+#define GPIOM_3		76
+#define GPIOM_4		77
+#define GPIOM_5		78
+#define GPIOM_6		79
+#define GPIOM_7		80
+#define GPIOM_8		81
+#define GPIOM_9		82
+#define GPIOM_10	83
+#define GPIOM_11	84
+#define GPIOM_12	85
+#define GPIOM_13	86
+#define GPIOM_14	87
+#define GPIOM_15	88
+#define GPIOM_16	89
+#define GPIOM_17	90
+#define GPIOM_18	91
+#define GPIOM_19	92
+#define GPIOM_20	93
+#define GPIOM_21	94
+#define GPIOM_22	95
+#define GPIOM_23	96
+#define GPIOM_24	97
+#define GPIOM_25	98
+#define GPIOM_26	99
+#define GPIOM_27	100
+#define GPIOM_28	101
+#define GPIOM_29	102
 
-#endif /* _MESON_T5D_GPIO_H */
+#define GPIOC_0		103
+#define GPIOC_1		104
+#define GPIOC_2		105
+#define GPIOC_3		106
+#define GPIOC_4		107
+#define GPIOC_5		108
+#define GPIOC_6		109
+#define GPIOC_7		110
+#define GPIOC_8		111
+#define GPIOC_9		112
+#define GPIOC_10	113
+#define GPIOC_11	114
+#define GPIOC_12	115
+#define GPIOC_13	116
+#define GPIOC_14	117
+
+#endif /* _MESON_T5W_GPIO_H */
 
 

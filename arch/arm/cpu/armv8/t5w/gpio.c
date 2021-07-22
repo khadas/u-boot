@@ -69,7 +69,6 @@ static struct pin_mux_desc pin_to_gpio[] = {
 	[GPIOAO(GPIOD_10)] = PIN_MUX(MUX_AO_DOMAIN, 0x1, 8),
 	[GPIOAO(GPIOE_0)] = PIN_MUX(MUX_AO_DOMAIN, 0x1, 16),
 	[GPIOAO(GPIOE_1)] = PIN_MUX(MUX_AO_DOMAIN, 0x1, 20),
-	[GPIOAO(GPIOE_2)] = PIN_MUX(MUX_AO_DOMAIN, 0x1, 24),
 	[GPIOEE(GPIOB_0)] = PIN_MUX(MUX_EE_DOMAIN, 0x0, 0),
 	[GPIOEE(GPIOB_1)] = PIN_MUX(MUX_EE_DOMAIN, 0x0, 4),
 	[GPIOEE(GPIOB_2)] = PIN_MUX(MUX_EE_DOMAIN, 0x0, 8),
@@ -139,6 +138,10 @@ static struct pin_mux_desc pin_to_gpio[] = {
 	[GPIOEE(GPIOH_19)] = PIN_MUX(MUX_EE_DOMAIN, 0x7, 12),
 	[GPIOEE(GPIOH_20)] = PIN_MUX(MUX_EE_DOMAIN, 0x7, 16),
 	[GPIOEE(GPIOH_21)] = PIN_MUX(MUX_EE_DOMAIN, 0x7, 20),
+	[GPIOEE(GPIOH_22)] = PIN_MUX(MUX_EE_DOMAIN, 0x7, 24),
+	[GPIOEE(GPIOH_23)] = PIN_MUX(MUX_EE_DOMAIN, 0x7, 28),
+	[GPIOEE(GPIOH_24)] = PIN_MUX(MUX_EE_DOMAIN, 0x2b, 0),
+	[GPIOEE(GPIOH_25)] = PIN_MUX(MUX_EE_DOMAIN, 0x2b, 4),
 
 	[GPIOEE(GPIOM_0)] = PIN_MUX(MUX_EE_DOMAIN, 0xa, 0),
 	[GPIOEE(GPIOM_1)] = PIN_MUX(MUX_EE_DOMAIN, 0xa, 4),
@@ -170,6 +173,22 @@ static struct pin_mux_desc pin_to_gpio[] = {
 	[GPIOEE(GPIOM_27)] = PIN_MUX(MUX_EE_DOMAIN, 0xd, 12),
 	[GPIOEE(GPIOM_28)] = PIN_MUX(MUX_EE_DOMAIN, 0xd, 16),
 	[GPIOEE(GPIOM_29)] = PIN_MUX(MUX_EE_DOMAIN, 0xd, 20),
+
+	[GPIOEE(GPIOC_0)] = PIN_MUX(MUX_EE_DOMAIN, 0xf, 0),
+	[GPIOEE(GPIOC_1)] = PIN_MUX(MUX_EE_DOMAIN, 0xf, 4),
+	[GPIOEE(GPIOC_2)] = PIN_MUX(MUX_EE_DOMAIN, 0xf, 8),
+	[GPIOEE(GPIOC_3)] = PIN_MUX(MUX_EE_DOMAIN, 0xf, 12),
+	[GPIOEE(GPIOC_4)] = PIN_MUX(MUX_EE_DOMAIN, 0xf, 16),
+	[GPIOEE(GPIOC_5)] = PIN_MUX(MUX_EE_DOMAIN, 0xf, 20),
+	[GPIOEE(GPIOC_6)] = PIN_MUX(MUX_EE_DOMAIN, 0xf, 24),
+	[GPIOEE(GPIOC_7)] = PIN_MUX(MUX_EE_DOMAIN, 0xf, 28),
+	[GPIOEE(GPIOC_8)] = PIN_MUX(MUX_EE_DOMAIN, 0x2a,  0),
+	[GPIOEE(GPIOC_9)] = PIN_MUX(MUX_EE_DOMAIN, 0x2a,  4),
+	[GPIOEE(GPIOC_10)] = PIN_MUX(MUX_EE_DOMAIN, 0x2a, 8),
+	[GPIOEE(GPIOC_11)] = PIN_MUX(MUX_EE_DOMAIN, 0x2a, 12),
+	[GPIOEE(GPIOC_12)] = PIN_MUX(MUX_EE_DOMAIN, 0x2a, 16),
+	[GPIOEE(GPIOC_13)] = PIN_MUX(MUX_EE_DOMAIN, 0x2a, 20),
+	[GPIOEE(GPIOC_14)] = PIN_MUX(MUX_EE_DOMAIN, 0x2a, 24),
 };
 
 /* sequence of banks keep same as arch-t5d/gpio.h */
@@ -178,18 +197,20 @@ static struct meson_bank mesont5d_banks[] = {
 	/*name   first  last   pullen   pull   dir   out  in*/
 	AOBANK("GPIOD_", GPIOAO(GPIOD_0), GPIOAO(GPIOD_10),
 	3,  0, 2,  0,  0,  0,  4,  0, 1,  0),
-	AOBANK("GPIOE_", GPIOAO(GPIOE_0), GPIOAO(GPIOE_2),
+	AOBANK("GPIOE_", GPIOAO(GPIOE_0), GPIOAO(GPIOE_1),
 	3,  16, 2,  16,  0,  16,  4,  16, 1,  16),
-	BANK("GPIOH_", GPIOEE(GPIOH_0), GPIOEE(GPIOH_21),
-	2, 0,  2,  0,  6,  0, 7, 0, 8, 0),
 	BANK("GPIOB_", GPIOEE(GPIOB_0), GPIOEE(GPIOB_13),
 	0, 0,  0,  0,  0,  0,  1, 0,  2, 0),
-	BANK("GPIOZ_", GPIOEE(GPIOZ_0), GPIOEE(GPIOZ_19),
-	1, 0,  1,  0,  3,  0,  4, 0,  5, 0),
 	BANK("GPIOW_", GPIOEE(GPIOW_0), GPIOEE(GPIOW_12),
 	3, 0,  3,  0,  9,  0,  10, 0,  11, 0),
+	BANK("GPIOZ_", GPIOEE(GPIOZ_0), GPIOEE(GPIOZ_19),
+	1, 0,  1,  0,  3,  0,  4, 0,  5, 0),
+	BANK("GPIOH_", GPIOEE(GPIOH_0), GPIOEE(GPIOH_21),
+	2, 0,  2,  0,  6,  0, 7, 0, 8, 0),
 	BANK("GPIOM_", GPIOEE(GPIOM_0), GPIOEE(GPIOM_29),
 	4, 0,  4,  0,  12,  0, 13, 0, 14, 0),
+	BANK("GPIOC_", GPIOEE(GPIOC_0), GPIOEE(GPIOC_14),
+	5, 0,  5,  0,  16,  0, 17, 0, 18, 0),
 };
 
 U_BOOT_DEVICES(t5d_gpios) = {
@@ -200,6 +221,7 @@ U_BOOT_DEVICES(t5d_gpios) = {
 	{ "gpio_aml", &mesont5d_banks[4] },
 	{ "gpio_aml", &mesont5d_banks[5] },
 	{ "gpio_aml", &mesont5d_banks[6] },
+	{ "gpio_aml", &mesont5d_banks[7] },
 };
 
 static unsigned long domain[]={
