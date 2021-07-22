@@ -177,12 +177,12 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 },
 //*/
 {
-	/* tl1 skt (x309) ddr4 */
+	// tm2 ref(ab311) 4layer 2pcs ddr4 rank0
 	.board_id				= CONFIG_BOARD_ID_MASK,
 	.version				= 1,
 	.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
 	.DramType				= CONFIG_DDR_TYPE_DDR4,
-	.DRAMFreq				= {1200, 0, 0, 0},
+	.DRAMFreq				= {1320, 0, 0, 0},
 	.ddr_rfc_type			= DDR_RFC_TYPE_DDR4_2Gbx8,
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
@@ -199,20 +199,20 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.clk_drv_ohm			= 40,
 	.cs_drv_ohm				= 40,
 	.ac_drv_ohm				= 40,
-	.soc_data_drv_ohm_p		= 48,
-	.soc_data_drv_ohm_n		= 48,
-	.soc_data_odt_ohm_p		= 60,
+	.soc_data_drv_ohm_p		= 34,
+	.soc_data_drv_ohm_n		= 34,
+	.soc_data_odt_ohm_p		= 40,
 	.soc_data_odt_ohm_n		= 0,
-	.dram_data_drv_ohm		= 48,//48, //34, //ddr4 sdram only 34 or 48, skt board use 34 better
-	.dram_data_odt_ohm		= 48, //60,
+	.dram_data_drv_ohm		= 34,//48, //34, //ddr4 sdram only 34 or 48, skt board use 34 better
+	.dram_data_odt_ohm		= 40, //60,
 	.dram_ac_odt_ohm		= 0,
 	.soc_clk_slew_rate		= 0x3ff,
 	.soc_cs_slew_rate		= 0x3ff,
 	.soc_ac_slew_rate		= 0x3ff,
 	.soc_data_slew_rate		= 0x2ff,
 	.vref_output_permil		= 500,
-	.vref_receiver_permil	= 0,
-	.vref_dram_permil		= 0,
+	.vref_receiver_permil	= 7800/12,
+	.vref_dram_permil		= 0,//9200/12
 	//.vref_reverse			= 0,
 	//.ac_trace_delay			={0x0,0x0},// {0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40},
 	.ac_trace_delay			= {18,32+22,32+25,32+24,32,32+16,32+25,32+24,32+26,32+15},
@@ -240,10 +240,11 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
 	 */
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func				= DDR_FUNC,
+	.ddr_func				= DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,
 	.magic					= DRAM_CFG_MAGIC,
 	.slt_test_function={0x0,0x0},   //{0x1,0x0},enable slt 4 DRAMFreq test;{0x0,0x0},disable slt 4 DRAMFreq test;
 	.fast_boot[0]			= 1,
+	.training_offset= (1<<3) | (2<<0),//read dqs offset after training,bit3=0 right move,bit3=1 left move,bit[2:0] offset step
 },
 /*
 {
