@@ -62,10 +62,20 @@ static int do_get_bootloader_status(cmd_tbl_t *cmdtp, int flag, int argc, char *
 	//3,forUpgrade_robustOta
 	bool supportRobustOta = false;
 	switch (familyId) {
-		case 0x32:
+		case 0x32://sc2
+		case 0x36://t7
+		case 0x37://s4
+		case 0x38://t3
+		case 0x3A://s4d
 			supportRobustOta = true;
 			break;
-		default:break;
+		default:
+		{
+			if (familyId > 0x3A) {
+				supportRobustOta = true;
+			}
+		}
+		break;
 	}
 	env_set("forUpgrade_robustOta", supportRobustOta ? "true" : "false");
 
