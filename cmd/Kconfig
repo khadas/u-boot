@@ -1129,6 +1129,11 @@ config CMD_IR
 	bool "ir"
 	help
 	  IR support.
+
+config CMD_KEYPAD
+	bool "keypad"
+	help
+	  AOCPU dynamic keypad support.
 endmenu
 
 
