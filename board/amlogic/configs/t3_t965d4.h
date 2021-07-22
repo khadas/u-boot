@@ -125,6 +125,13 @@
         "get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
         "fatload_dev=usb\0"\
         "fs_type=""rootfstype=ramfs""\0"\
+		"edid_14_dir=/odm/etc/tvconfig/hdmi/port1_14.bin\0" \
+		"edid_20_dir=/odm/etc/tvconfig/hdmi/port1_20.bin\0" \
+		"edid_select=0\0" \
+		"port_map=0x4321\0" \
+		"cec_fun=0x2F\0" \
+		"logic_addr=0x0\0" \
+		"cec_ac_wakeup=1\0" \
         "initargs="\
             "init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xfe07a000"\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
@@ -152,7 +159,19 @@
 		"androidboot.hardware=amlogic;"\
 		"run cmdline_keys;"\
 		"\0"\
+	"cec_init="\
+		"echo cec_ac_wakeup=${cec_ac_wakeup}; "\
+		"if test ${cec_ac_wakeup} = 1; then "\
+			"cec ${logic_addr} ${cec_fun}; "\
+			"if test ${edid_select} = 1111; then "\
+				"hdmirx init ${port_map} ${edid_20_dir}; "\
+			"else "\
+				"hdmirx init ${port_map} ${edid_14_dir}; "\
+			"fi;"\
+		"fi;"\
+		"\0"\
 	"ffv_freeze_action="\
+		"run cec_init;"\
 		"setenv ffv_freeze on;"\
 		"setenv bootargs ${bootargs} ffv_freeze=on"\
 		"\0"\
@@ -162,14 +181,17 @@
 		"if test ${powermode} = on; then "\
 			/*"run try_auto_burn; "*/\
 		"else if test ${powermode} = standby; then "\
+			"run cec_init;"\
 			"systemoff; "\
 		"else if test ${powermode} = last; then "\
 			"echo suspend=${suspend}; "\
 			"if test ${suspend} = off; then "\
 				/*"run try_auto_burn; "*/\
 			"else if test ${suspend} = on; then "\
+				"run cec_init;"\
 				"systemoff; "\
 			"else if test ${suspend} = shutdown; then "\
+				"run cec_init;"\
 				"systemoff; "\
 			"fi; fi; fi; "\
 		"fi; fi; fi; "\
@@ -558,6 +580,9 @@
 
 #define CONFIG_MULTI_DTB    1
 
+#define CONFIG_RX_RTERM		1
+#define CONFIG_CMD_HDMIRX   1
+#define CONFIG_CMD_CEC		1
 /* support secure boot */
 #define CONFIG_AML_SECURE_UBOOT   1
 

@@ -109,6 +109,13 @@
         "get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
         "fatload_dev=usb\0"\
         "fs_type=""rootfstype=ramfs""\0"\
+		"edid_14_dir=/odm/etc/tvconfig/hdmi/port1_14.bin\0" \
+		"edid_20_dir=/odm/etc/tvconfig/hdmi/port1_20.bin\0" \
+		"edid_select=0\0" \
+		"port_map=0x4321\0" \
+		"cec_fun=0x2F\0" \
+		"logic_addr=0x0\0" \
+		"cec_ac_wakeup=1\0" \
         "initargs="\
             "init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe078000 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
@@ -475,6 +482,9 @@
 
 #define CONFIG_MULTI_DTB    1
 
+#define CONFIG_RX_RTERM		1
+#define CONFIG_CMD_HDMIRX   1
+#define CONFIG_CMD_CEC		1
 /* define CONFIG_UPDATE_MMU_TABLE for need update mmu */
 #define	CONFIG_UPDATE_MMU_TABLE
 
