@@ -3192,7 +3192,18 @@ sub process {
 					     "Improper SPDX comment style for '$realfile', please use '$comment' instead\n" . $herecurr);
 				}
 
+				# check if the script is in the GPL-2.0 sources tree
+				my @gpl_licnese_tree = ( "uboot",  );
+				my $fetch_url = `git remote -v | awk 'NR==1 {print \$2}'`;
+				my $is_gpl_license = 0;
+				foreach my $check (@gpl_licnese_tree) {
+					if ( $fetch_url =~ /$check/ ) {
+						$is_gpl_license = 1;
+						last;
+					}
+				}
 				if ($comment !~ /^$/ &&
+					$is_gpl_license > 0  &&
 				    $rawline !~ m@^\+\Q$comment\E SPDX-License-Identifier: @) {
 					WARN("SPDX_LICENSE_TAG",
 					     "Missing or malformed SPDX-License-Identifier tag in line $checklicenseline\n" . $herecurr);
@@ -3912,6 +3923,7 @@ sub process {
 		}
 
 # check for declarations of signed or unsigned without int
+=pod # no check unsigned type
 		while ($line =~ m{\b($Declare)\s*(?!char\b|short\b|int\b|long\b)\s*($Ident)?\s*[=,;\[\)\(]}g) {
 			my $type = $1;
 			my $var = $2;
@@ -3934,7 +3946,7 @@ sub process {
 				}
 			}
 		}
-
+=cut
 # TEST: allow direct testing of the type matcher.
 		if ($dbg_type) {
 			if ($line =~ /^.\s*$Declare\s*$/) {
@@ -4141,6 +4153,7 @@ sub process {
                }
 
 # check for sizeof(foo)/sizeof(foo[0]) that could be ARRAY_SIZE(foo)
+=pod #no check ARRAY_SIZE
 		if ($line =~ m@\bsizeof\s*\(\s*($Lval)\s*\)@) {
 			my $array = $1;
 			if ($line =~ m@\b(sizeof\s*\(\s*\Q$array\E\s*\)\s*/\s*sizeof\s*\(\s*\Q$array\E\s*\[\s*0\s*\]\s*\))@) {
@@ -4152,7 +4165,7 @@ sub process {
 				}
 			}
 		}
-
+=cut
 # check for function declarations without arguments like "int foo()"
 		if ($line =~ /(\b$Type\s*$Ident)\s*\(\s*\)/) {
 			if (ERROR("FUNCTION_WITHOUT_ARGS",
@@ -4164,6 +4177,7 @@ sub process {
 
 # check for new typedefs, only function parameters and sparse annotations
 # make sense.
+=pod #no check typedef
 		if ($line =~ /\btypedef\s/ &&
 		    $line !~ /\btypedef\s+$Type\s*\(\s*\*?$Ident\s*\)\s*\(/ &&
 		    $line !~ /\btypedef\s+$Type\s+$Ident\s*\(/ &&
@@ -4172,7 +4186,7 @@ sub process {
 			WARN("NEW_TYPEDEFS",
 			     "do not add new typedefs\n" . $herecurr);
 		}
-
+=cut
 # * goes on variable not on type
 		# (char*[ const])
 		while ($line =~ m{(\($NonptrType(\s*(?:$Modifier\b\s*|\*\s*)+)\))}g) {
@@ -5198,6 +5212,7 @@ sub process {
 		}
 
 #Specific variable tests
+=pod #no check CamelCase
 		while ($line =~ m{($Constant|$Lval)}g) {
 			my $var = $1;
 
@@ -5229,7 +5244,7 @@ sub process {
 				}
 			}
 		}
-
+=cut
 #no spaces allowed after \ in define
 		if ($line =~ /\#\s*define.*\\\s+$/) {
 			if (WARN("WHITESPACE_AFTER_LINE_CONTINUATION",
@@ -5899,10 +5914,11 @@ sub process {
 		}
 
 # prefer usleep_range over udelay
+=pod # no check udelay
 		if ($line =~ /\budelay\s*\(\s*(\d+)\s*\)/) {
 			my $delay = $1;
 			# ignore udelay's < 10, however
-			if (! ($delay < 10) ) {
+			if ( ! ($delay < 10) ) {
 				CHK("USLEEP_RANGE",
 				    "usleep_range is preferred over udelay; see Documentation/timers/timers-howto.rst\n" . $herecurr);
 			}
@@ -5911,7 +5927,7 @@ sub process {
 				     "long udelay - prefer mdelay; see arch/arm/include/asm/delay.h\n" . $herecurr);
 			}
 		}
-
+=cut
 # warn about unexpectedly long msleep's
 		if ($line =~ /\bmsleep\s*\((\d+)\);/) {
 			if ($1 < 20) {
@@ -6109,6 +6125,7 @@ sub process {
 		}
 
 # check for c99 types like uint8_t used outside of uapi/ and tools/
+=pod # no check c99 types (uint_8)
 		if ($realfile !~ m@\binclude/uapi/@ &&
 		    $realfile !~ m@\btools/@ &&
 		    $line =~ /\b($Declare)\s*$Ident\s*[=;,\[]/) {
@@ -6126,7 +6143,7 @@ sub process {
 				}
 			}
 		}
-
+=cut
 # check for cast of C90 native int or longer types constants
 		if ($line =~ /(\(\s*$C90_int_types\s*\)\s*)($Constant)\b/) {
 			my $cast = $1;
