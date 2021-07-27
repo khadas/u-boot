@@ -111,6 +111,68 @@ int32_t meson_trustzone_efuse(struct efuse_hal_api_arg *arg)
 		return 0;
 }
 
+int64_t __meson_trustzone_efuse_caliitem(uint32_t cmd, uint32_t subcmd)
+{
+	int64_t ret;
+	uint32_t maincmd = cmd;
+	uint32_t sec_cmd = subcmd;
+	uint32_t size = subcmd;
+
+	asm __volatile__("" : : : "memory");
+
+	register uint64_t x0 asm("x0") = maincmd;
+	register uint64_t x1 asm("x1") = sec_cmd;
+	register uint64_t x2 asm("x2") = size;
+	do {
+		asm volatile(__asmeq("%0", "x0")
+		    __asmeq("%1", "x0")
+		    __asmeq("%2", "x1")
+		    __asmeq("%3", "x2")
+		    "smc    #0\n"
+		    : "=r"(x0)
+		    : "r"(x0), "r"(x1), "r"(x2));
+	} while (0);
+	ret = x0;
+	return ret;
+}
+
+struct t_efuse_item {
+	char *name;
+	int  item;
+};
+
+const struct t_efuse_item efuselockitem_cfg[] = {
+	{.name = "dgpk1", .item = EFUSE_LOCK_SUBITEM_DGPK1_KEY},
+	{.name = "dgpk2", .item = EFUSE_LOCK_SUBITEM_DGPK2_KEY},
+	{.name = "aud_id", .item = EFUSE_LOCK_SUBITEM_AUDIO_V_ID},
+};
+
+#define EFUSELOCKITEM_CNT   sizeof(efuselockitem_cfg) / sizeof(efuselockitem_cfg[0])
+/*
+ *return: 0: unlock, not write data
+ *        1: lock, wrote data
+ *        -1: fail
+ */
+int64_t meson_trustzone_efuse_lockitem(const char *str)
+{
+	int i;
+	unsigned int subcmd = 0;
+	int64_t ret;
+
+	for (i = 0; i < EFUSELOCKITEM_CNT; i++) {
+		if (strncmp(efuselockitem_cfg[i].name, str,
+			strlen(efuselockitem_cfg[i].name)) == 0) {
+			subcmd = efuselockitem_cfg[i].item;
+			break;
+		}
+	}
+	if (i >= EFUSELOCKITEM_CNT)
+		return -1;
+
+	ret = __meson_trustzone_efuse_caliitem(EFUSE_READ_CALI_ITEM, subcmd);
+	return ret;
+}
+
 int32_t meson_trustzone_efuse_get_max(struct efuse_hal_api_arg *arg)
 {
 	int32_t ret;

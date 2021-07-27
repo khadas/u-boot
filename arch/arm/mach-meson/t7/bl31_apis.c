@@ -138,21 +138,26 @@ int64_t __meson_trustzone_efuse_caliitem(uint32_t cmd, uint32_t subcmd)
 	return ret;
 }
 
+struct t_efuse_item {
+	char *name;
+	int  item;
+};
 typedef struct _efuseCaliItem{
 	char *name;
 	int  item;
 }tEfuseCaliItem;
-const tEfuseCaliItem EfuseCaliItem_cfg[]={
-	{.name="sensor",.item = EFUSE_CALI_SUBITEM_SENSOR0},
-	{.name="saradc", .item = EFUSE_CALI_SUBITEM_SARADC},
-	{.name="mipicsi",.item = EFUSE_CALI_SUBITEM_MIPICSI},
-	{.name="hdmirx", .item = EFUSE_CALI_SUBITEM_HDMIRX},
-	{.name="eth",    .item = EFUSE_CALI_SUBITEM_ETHERNET},
-	{.name="cvbs",   .item = EFUSE_CALI_SUBITEM_CVBS},
-	{.name="earcrx",   .item = EFUSE_CALI_SUBITEM_EARCRX},
-	{.name="earctx",   .item = EFUSE_CALI_SUBITEM_EARCTX},
+const struct t_efuse_item efusecalitem_cfg[] = {
+	{.name = "sensor",  .item = EFUSE_CALI_SUBITEM_SENSOR0},
+	{.name = "saradc",  .item = EFUSE_CALI_SUBITEM_SARADC},
+	{.name = "mipicsi", .item = EFUSE_CALI_SUBITEM_MIPICSI},
+	{.name = "hdmirx",  .item = EFUSE_CALI_SUBITEM_HDMIRX},
+	{.name = "eth",     .item = EFUSE_CALI_SUBITEM_ETHERNET},
+	{.name = "cvbs",    .item = EFUSE_CALI_SUBITEM_CVBS},
+	{.name = "earcrx",   .item = EFUSE_CALI_SUBITEM_EARCRX},
+	{.name = "earctx",   .item = EFUSE_CALI_SUBITEM_EARCTX},
 };
-#define EFUSE_CALIITE_CNT sizeof(EfuseCaliItem_cfg)/sizeof(EfuseCaliItem_cfg[0])
+
+#define EFUSE_CALIITE_CNT sizeof(efusecalitem_cfg) / sizeof(efusecalitem_cfg[0])
 
 /*
  * return: >=0: succ and valid data, -1:fail
@@ -163,14 +168,46 @@ int64_t meson_trustzone_efuse_caliItem(const char *str)
 	unsigned int subcmd;
 	int64_t ret;
 	for (i=0;i<EFUSE_CALIITE_CNT;i++) {
-		if (strncmp(EfuseCaliItem_cfg[i].name, str, strlen(EfuseCaliItem_cfg[i].name)) == 0) {
-			subcmd = EfuseCaliItem_cfg[i].item;
+		if (strncmp(efusecalitem_cfg[i].name, str, strlen(efusecalitem_cfg[i].name)) == 0) {
+			subcmd = efusecalitem_cfg[i].item;
 			break;
 		}
 	}
 	if (i >= EFUSE_CALIITE_CNT) {
 		return -1;
 	}
+
+	ret = __meson_trustzone_efuse_caliitem(EFUSE_READ_CALI_ITEM, subcmd);
+	return ret;
+}
+
+const struct t_efuse_item efuselockitem_cfg[] = {
+	{.name = "dgpk1", .item = EFUSE_LOCK_SUBITEM_DGPK1_KEY},
+	{.name = "dgpk2", .item = EFUSE_LOCK_SUBITEM_DGPK2_KEY},
+	{.name = "aud_id", .item = EFUSE_LOCK_SUBITEM_AUDIO_V_ID},
+};
+
+#define EFUSELOCKITEM_CNT   sizeof(efuselockitem_cfg) / sizeof(efuselockitem_cfg[0])
+/*
+ *return: 0: unlock, not write data
+ *        1: lock, wrote data
+ *		 -1: fail
+ */
+int64_t meson_trustzone_efuse_lockitem(const char *str)
+{
+	int i;
+	unsigned int subcmd = 0;
+	int64_t ret;
+
+	for (i = 0; i < EFUSELOCKITEM_CNT; i++) {
+		if (strncmp(efuselockitem_cfg[i].name, str,
+			strlen(efuselockitem_cfg[i].name)) == 0) {
+			subcmd = efuselockitem_cfg[i].item;
+			break;
+		}
+	}
+	if (i >= EFUSELOCKITEM_CNT)
+		return -1;
 
 	ret = __meson_trustzone_efuse_caliitem(EFUSE_READ_CALI_ITEM, subcmd);
 	return ret;

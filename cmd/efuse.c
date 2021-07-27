@@ -225,7 +225,7 @@ static char efuse_help_text[] =
 	"  [item_read]  -read cali item\n"
 	"                   [item_read sensor/saradc/mipicsi/hdmirx/eth/cvbs/earcrx/earctx]\n"
 	"  [check]      -check if pattern is write\n"
-	"                  [check dgpk1]\n"
+	"                  [check dgpk1|dgpk2|aud_id]\n"
 	"  [read/write]  - read or write 'size' data from\n"
 	"                  'offset' from efuse user data ;\n"
 	"  [offset]      - the offset byte from the beginning\n"
