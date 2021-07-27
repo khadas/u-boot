@@ -514,27 +514,6 @@ int check_vref(void)
 }
 
 int board_late_init(void){
-	unsigned char chipid[16];
-
-	memset(chipid, 0, 16);
-
-	if (get_chip_id(chipid, 16) != -1) {
-		char chipid_str[32];
-		int i;
-
-		memset(chipid_str, 0, 32);
-
-		char *buff = &chipid_str[0];
-
-		buff[0] = '\0';
-		buff[24] = '\0';
-		for (i = 0; i < 12; ++i)
-			sprintf(buff + i + i, "%02x", chipid[15 - i]);
-		setenv("cpu_id", buff);
-		printf("buff: %s\n", buff);
-	} else {
-		setenv("cpu_id", "1234567890");
-	}
 	//default uboot env need before anyone use it
 	if (getenv("default_env")) {
 		printf("factory reset, need default all uboot env.\n");
@@ -599,6 +578,33 @@ int board_late_init(void){
 	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXL) {
 		setenv("maxcpus","4");
 	}
+
+	unsigned char chipid[16];
+
+	memset(chipid, 0, 16);
+
+	if (get_chip_id(chipid, 16) != -1) {
+		char chipid_str[32];
+		int i, j;
+		char buf_tmp[4];
+
+		memset(chipid_str, 0, 32);
+
+		char *buff = &chipid_str[0];
+
+		for (i = 0, j = 0; i < 12; ++i) {
+			sprintf(&buf_tmp[0], "%02x", chipid[15 - i]);
+			if (strcmp(buf_tmp, "00") != 0) {
+				sprintf(buff + j, "%02x", chipid[15 - i]);
+				j = j + 2;
+			}
+		}
+		setenv("cpu_id", chipid_str);
+		printf("buff: %s\n", buff);
+	} else {
+		setenv("cpu_id", "1234567890");
+	}
+
 	return 0;
 }
 #endif

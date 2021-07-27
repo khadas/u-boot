@@ -300,8 +300,8 @@
                     "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
                     "setenv serial ${usid};"\
                 "else "\
-					"setenv bootargs ${bootargs} androidboot.serialno=p400_${cpu_id};"\
-					"setenv serial p400_${cpu_id};"\
+					"setenv bootargs ${bootargs} androidboot.serialno=p400${cpu_id};"\
+					"setenv serial p400${cpu_id};"\
                 "fi;"\
                 "if keyman read mac ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} mac=${mac} androidboot.mac=${mac};"\
