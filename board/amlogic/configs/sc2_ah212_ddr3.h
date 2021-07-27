@@ -283,8 +283,8 @@
 					"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
 					"setenv serial ${usid}; setenv serial# ${usid};"\
 				"else "\
-					"setenv bootargs ${bootargs} androidboot.serialno=ohm_ddr3_${cpu_id};"\
-					"setenv serial ohm_ddr3_${cpu_id}; setenv serial# ohm_ddr3_${cpu_id};"\
+					"setenv bootargs ${bootargs} androidboot.serialno=ohmddr3${cpu_id};"\
+					"setenv serial ohmddr3${cpu_id}; setenv serial# ohmddr3${cpu_id};"\
 				"fi;"\
                 "if keyman read region_code ${loadaddr} str; then fi;"\
                 "if keyman read mac ${loadaddr} str; then "\

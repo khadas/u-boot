@@ -418,32 +418,13 @@ int board_late_init(void)
 {
 	printf("board late init\n");
 
-	unsigned char chipid[16];
-
-	memset(chipid, 0, 16);
-
-	if (get_chip_id(chipid, 16) != -1) {
-		char chipid_str[32];
-		int i;
-
-		memset(chipid_str, 0, 32);
-
-		char *buff = &chipid_str[0];
-
-		for (i = 0; i < 12; ++i)
-			sprintf(buff + i + i, "%02x", chipid[15 - i]);
-		env_set("cpu_id", chipid_str);
-		printf("buff: %s\n", buff);
-	} else {
-		env_set("cpu_id", "1234567890");
-	}
-
 	//default uboot env need before anyone use it
 	if (env_get("default_env")) {
 		printf("factory reset, need default all uboot env.\n");
 		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
 	}
 	run_command("mmc dev 1", 0);
+
 #if 0
 		//update env before anyone using it
 		run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
@@ -516,6 +497,32 @@ int board_late_init(void)
 		aml_try_factory_usb_burning(1, gd->bd);
 	aml_try_factory_sdcard_burning(0, gd->bd);
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
+
+	unsigned char chipid[16];
+
+	memset(chipid, 0, 16);
+
+	if (get_chip_id(chipid, 16) != -1) {
+		char chipid_str[32];
+		int i, j;
+		char buf_tmp[4];
+
+		memset(chipid_str, 0, 32);
+
+		char *buff = &chipid_str[0];
+
+		for (i = 0, j = 0; i < 12; ++i) {
+			sprintf(&buf_tmp[0], "%02x", chipid[15 - i]);
+			if (strcmp(buf_tmp, "00") != 0) {
+				sprintf(buff + j, "%02x", chipid[15 - i]);
+				j = j + 2;
+			}
+		}
+		env_set("cpu_id", chipid_str);
+		printf("buff: %s\n", buff);
+	} else {
+		env_set("cpu_id", "1234567890");
+	}
 
 	return 0;
 }

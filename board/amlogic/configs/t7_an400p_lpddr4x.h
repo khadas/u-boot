@@ -252,8 +252,8 @@
 					"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
 					"setenv serial ${usid}; setenv serial# ${usid};"\
 				"else "\
-					"setenv bootargs ${bootargs} androidboot.serialno=an400p_${cpu_id};"\
-					"setenv serial an400p_${cpu_id}; setenv serial# an400p_${cpu_id};"\
+					"setenv bootargs ${bootargs} androidboot.serialno=an400p${cpu_id};"\
+					"setenv serial an400p${cpu_id}; setenv serial# an400p${cpu_id};"\
 				"fi;"\
                 "if keyman read region_code ${loadaddr} str; then fi;"\
                 "if keyman read mac ${loadaddr} str; then "\
