@@ -156,7 +156,7 @@ static int do_RunBcbCommand(
 
     run_command("get_rebootmode", 0);
     RebootMode = getenv("reboot_mode");
-    if (strstr(RebootMode, "quiescent") != NULL) {
+    if (RebootMode && (strstr(RebootMode, "quiescent") != NULL)) {
         printf("quiescent mode.\n");
         run_command("run storeargs", 0);
         run_command("setenv bootargs ${bootargs} androidboot.quiescent=1;", 0);
@@ -165,7 +165,7 @@ static int do_RunBcbCommand(
     run_command("get_valid_slot", 0);
     if (getenv("active_slot")) {
         ActiveSlot = getenv("active_slot");
-        if (strstr(ActiveSlot, "normal") == NULL) {
+        if (ActiveSlot && (strstr(ActiveSlot, "normal") == NULL)) {
             printf("ab update mode\n");
             run_command("setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};", 0);
         }
@@ -218,7 +218,7 @@ static int do_RunAmlBcbCommand(
     char *partition = "misc";
     char recovery[RECOVERYBUF_SIZE] = {0};
     char miscbuf[MISCBUF_SIZE] = {0};
-    unsigned long long cmdaddr =  -1;
+    unsigned long long cmdaddr;
 
     if (status == 1) {
         setenv("reboot_mode","update");
@@ -244,23 +244,21 @@ static int do_RunAmlBcbCommand(
         }
     }
 
-    char tmpb[256] = {0};
-    setenv_hex("cmdaddr", (ulong)tmpb[0]);
-    int ret = run_command("ext4load mmc 1:2 ${cmdaddr} /recovery/command 100", 1);
+    int ret = run_command("ext4load mmc 1:2 ${loadaddr} /recovery/command 100", 1);
     if (ret != 0) {
-        ret = run_command("ext4load mmc 1:2 ${cmdaddr} /recovery/command", 1);
+        ret = run_command("ext4load mmc 1:2 ${loadaddr} /recovery/command", 1);
     }
 
     if (ret == 0) {
-        const char *paddr =  getenv("cmdaddr");
+        const char *paddr =  getenv("loadaddr");
         if (paddr != NULL) {
-            char cmdb[256] = {0};
-            sprintf(cmdb, paddr, strlen(paddr));
-            cmdaddr = simple_strtoul(cmdb, NULL, 16);
+            cmdaddr = simple_strtoul(paddr, NULL, 16);
             char *command = (char *)map_sysmem(cmdaddr, 0);
-            if (strstr(command, CMD_WIPE_DATA)) {
+            if (command && strstr(command, CMD_WIPE_DATA)) {
+                unmap_sysmem(command);
                 return 0;
             }
+            unmap_sysmem(command);
         }
     }
 
