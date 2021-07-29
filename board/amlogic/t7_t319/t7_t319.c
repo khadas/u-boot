@@ -217,7 +217,8 @@ int board_late_init(void)
 	} else {
 		env_set("cpu_id", "1234567890");
 	}
-
+	run_command("amlsecurecheck", 0);
+	run_command("update_tries", 0);
 	return 0;
 }
 
