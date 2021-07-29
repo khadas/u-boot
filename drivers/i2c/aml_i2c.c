@@ -721,8 +721,9 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 			   else
 #endif
 			   {
-					devaddr[0] = addr & 0xff;
-					devaddr[1] = (addr >> 8) & 0xff;
+				   	// devices like EEPROMS send [high byte] [low byte] for 16 bit addresses
+					devaddr[0] = (addr >> 8) & 0xff;
+					devaddr[1] = addr & 0xff;
 			   }
 			   break;
 
@@ -811,8 +812,9 @@ int i2c_write(unsigned char chip, unsigned int addr, int alen,unsigned char *buf
 			else
 #endif
 			   {
-					devaddr[0] = addr & 0xff;
-					devaddr[1] = (addr >> 8) & 0xff;
+					// devices like EEPROMS send [high byte] [low byte] for 16 bit addresses
+					devaddr[0] = (addr >> 8) & 0xff; 
+					devaddr[1] = addr & 0xff;
 			   }
 			   break;
 
