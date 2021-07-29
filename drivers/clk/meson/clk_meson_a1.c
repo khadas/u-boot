@@ -158,7 +158,7 @@ static ulong meson_clk_set_rate(struct clk *clk, ulong rate)
 	unsigned int div_val;
 	struct meson_clk *priv = dev_get_priv(clk->dev);
 	unsigned int i;
-	struct meson_div *div;
+	struct meson_div *div = NULL;
 
 	for (i = 0; i < ARRAY_SIZE(divs); i++) {
 		if (clk->id == divs[i].index)

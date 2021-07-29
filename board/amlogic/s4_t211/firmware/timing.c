@@ -28,7 +28,7 @@
 //bit24-31 define ID and size
 #define DDR_ID_FROM_EFUSE  (0Xff<<24)
 #define DDR_ID_FROM_ADC  (0Xfe<<24)
-#define DDR_ID_FROM_GPIO_CONFIG1  (0Xfd<<24)
+#define DDR_ID_FROM_GPIO_CONFIG1  (0Xfdu<<24)
 #define DDR_ID_START_MASK  (0XFFDDCCBB)
 
 #define DDR_ADC_CH0  (0X0<<6)
