@@ -140,6 +140,7 @@
             "\0" \
         "storeboot="\
             "run get_os_type;"\
+			"run storage_param;"\
             "if test ${os_type} = rtos; then "\
                 "setenv loadaddr ${loadaddr_rtos};"\
                 "store read ${loadaddr} ${boot_part} 0 0x400000;"\
@@ -254,10 +255,11 @@
                 "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;setenv dolby_status 0;setenv dolby_vision_on 0;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};vpp hdrpkt;"\
             "fi;fi;"\
             "\0"\
-	"storage_param="\
-	    "store param;"\
-	    "setenv bootargs ${bootargs} ${mtdbootparts}; "\
-            "\0"\
+		"storage_param="\
+			"setenv bootargs ${bootargs} ${emmc_quirks}; "\
+			"store param;"\
+			"setenv bootargs ${bootargs} ${mtdbootparts}; "\
+			"\0"\
         "cmdline_keys="\
 			"setenv region_code US;"\
             "if keyman init 0x1234; then "\

@@ -7,7 +7,7 @@
 #define __AML_MMC_H__
 
 #include <common.h>
-
+#include <mmc.h>
 
 /* bootloader operation */
 #define AML_BL_USER		(0x1 << 0)
@@ -89,6 +89,6 @@ int emmc_update_mbr(unsigned char *buffer);
 int mmc_get_ext_csd(struct mmc *mmc, u8 *ext_csd);
 int mmc_set_ext_csd(struct mmc *mmc, u8 index, u8 value);
 
-
-
+/* mmc caps quirks */
+int emmc_quirks(void);
 #endif /* __AML_MMC_H__ */
