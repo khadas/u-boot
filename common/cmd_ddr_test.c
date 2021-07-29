@@ -6520,8 +6520,9 @@ DDR_TEST_START:
 					printf("\nEnd 3rd read.                              \n");
 
 				if (copy_test_flag)
-				{if(print_flag)
-					printf("\n copy_test_flag = 1,start copy test.                              \n");
+				{
+					if(print_flag)
+						printf("\n copy_test_flag = 1,start copy test.                              \n");
 					ddr_test_copy((void *)(int_convter_p(start_addr+test_size/2)),(void *)(int_convter_p(start_addr)), test_size/2 );
 					ddr_read((void *)(int_convter_p(start_addr+test_size/2)), test_size/2);
 					ddr_read((void *)(int_convter_p(start_addr+test_size/2)), test_size/2);
