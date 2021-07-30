@@ -1676,6 +1676,7 @@ $(version_h): include/config/uboot.release include/config/acs.release FORCE
 	$(call filechk,version.h)
 ifeq ("$(AVBMODE)", "avb2")
 	echo "#define CONFIG_AVB2" \"$(AVBMODE)\" >> $(version_h)
+	echo "#define CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK" \"1\" >> $(version_h)
 endif
 ifeq ("$(SYSTEMMODE)", "systemroot")
 	echo "#define CONFIG_SYSTEM_AS_ROOT" \"$(SYSTEMMODE)\" >> $(version_h)

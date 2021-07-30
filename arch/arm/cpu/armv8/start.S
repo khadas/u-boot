@@ -33,6 +33,9 @@ _start:
 	.globl __scs_bl33_devkey
 __scs_bl33_devkey:
 	.space	2048
+	.globl __scs_krnl_devkey
+__scs_krnl_devkey:
+	.space	2048
 
 	.align 3
 

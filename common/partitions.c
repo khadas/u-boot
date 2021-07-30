@@ -15,6 +15,8 @@
 #include <compiler.h>
 #include <mmc.h>
 #include <emmc_partitions.h>
+#include <version.h>
+#include <amlogic/image_check.h>
 
 #ifdef CONFIG_MULTI_DTB
 	extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
@@ -63,10 +65,6 @@ void free_partitions(void)
 	part_table = NULL;
 }
 
-#ifndef IS_FEAT_BOOT_VERIFY
-#define IS_FEAT_BOOT_VERIFY() 0
-#endif// #ifndef IS_FEAT_BOOT_VERIFY
-
 /*
   return 0 if dts is valid
   other value are falure.
@@ -76,20 +74,28 @@ int check_valid_dts(unsigned char *buffer)
 	int ret = -__LINE__;
 	char *dt_addr;
 	/* fixme, a work around way */
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
 	unsigned char *sbuffer = (unsigned char *)env_get_hex("loadaddr", 0x1000000 + 0x100000);
+	ulong ncheckoffset = 0;
 	/* g12a merge to trunk, use trunk code */
 	//unsigned char *sbuffer = (unsigned char *)0x1000000;
 
 	if (IS_FEAT_BOOT_VERIFY()) {
 		memcpy(sbuffer, buffer, AML_DTB_IMG_MAX_SZ);
 		flush_cache((unsigned long)sbuffer, AML_DTB_IMG_MAX_SZ);
+#ifndef CONFIG_IMAGE_CHECK
 		ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, (long unsigned)sbuffer, AML_DTB_IMG_MAX_SZ, 0);
+#else
+		ret = secure_image_check((uint8_t *)(unsigned long)sbuffer, AML_DTB_IMG_MAX_SZ, 0);
+		ncheckoffset = sizeof(struct aml_boot_header_t);
+#endif
 		if (ret) {
 			printf("\n %s() %d: Decrypt dtb: Sig Check %d\n", __func__, __LINE__, ret);
 			return -__LINE__;
 		}
-		memcpy(buffer, sbuffer, AML_DTB_IMG_MAX_SZ);
+		memcpy(buffer, sbuffer + ncheckoffset, AML_DTB_IMG_MAX_SZ);
 	}
+#endif
 #ifdef CONFIG_MULTI_DTB
 	dt_addr = (char *)get_multi_dt_entry((unsigned long)buffer);
 #else

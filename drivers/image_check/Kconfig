@@ -1,0 +1,4 @@
+config IMAGE_CHECK
+	bool "AML IMAGE CHECK Support"
+	help
+	  Enable support for the Amlogic image check.

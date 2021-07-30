@@ -128,6 +128,8 @@ source "drivers/amlogic/Kconfig"
 
 source "drivers/efuse/Kconfig"
 
+source "drivers/image_check/Kconfig"
+
 config PHYS_TO_BUS
 	bool "Custom physical to bus address mapping"
 	help

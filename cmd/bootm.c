@@ -25,6 +25,9 @@
 #include <anti-rollback.h>
 #endif
 #include <asm/arch/secure_apb.h>
+#include <amlogic/aml_efuse.h>
+#include <version.h>
+#include <amlogic/image_check.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -117,7 +120,6 @@ static void recovery_mode_process(void)
 //end
 int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	int nRet = 0;
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	static int relocated = 0;
 
@@ -149,25 +151,54 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if ((*endp != 0) && (*endp != ':') && (*endp != '#'))
 			return do_bootm_subcommand(cmdtp, flag, argc, argv);
 	}
-
-	unsigned int nLoadAddr = GXB_IMG_LOAD_ADDR; //default load address
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
+	unsigned int loadaddr = GXB_IMG_LOAD_ADDR; //default load address
 
 	if (argc > 0)
 	{
 		char *endp;
-		nLoadAddr = simple_strtoul(argv[0], &endp, 16);
-		//printf("aml log : addr = 0x%x\n",nLoadAddr);
+		loadaddr = simple_strtoul(argv[0], &endp, 16);
+		//printf("aml log : addr = 0x%x\n",loadaddr);
 	}
+#ifndef CONFIG_IMAGE_CHECK
+	int ret = 0;
 
-	nRet = aml_sec_boot_check(AML_D_P_IMG_DECRYPT,nLoadAddr,GXB_IMG_SIZE,GXB_IMG_DEC_ALL);
+	ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, loadaddr, GXB_IMG_SIZE, GXB_IMG_DEC_ALL);
 
-	if (nRet)
+	if (ret)
 	{
-		printf("\naml log : Sig Check %d\n",nRet);
-		return nRet;
+		printf("\naml log : Sig Check %d\n", ret);
+		return ret;
 	}
+#else
+	if (IS_FEAT_BOOT_VERIFY()) {
+		int ret = 0;
+
+		ret = secure_image_check((uint8_t *)(unsigned long)loadaddr,
+			GXB_IMG_SIZE, GXB_IMG_DEC_ALL);
+		if (ret) {
+			printf("\naml log : Sig Check %d\n", ret);
+			return ret;
+		}
+		/* Override load address argument to skip secure boot header.
+		 * Only skip if secure boot so normal boot can use plain boot.img+
+		 */
+		ulong img_addr, ncheckoffset;
+		char argv0_new[12] = {0};
+		char *argv_new = (char *)&argv0_new;
+
+		img_addr = genimg_get_kernel_addr(argc < 1 ? NULL : argv[0]);
+		ncheckoffset = android_image_check_offset();
+		img_addr += ncheckoffset;
+		snprintf(argv0_new, sizeof(argv0_new), "%lx", img_addr);
+		argc = 1;
+		argv = (char **)&argv_new;
+	}
+#endif
+#endif
 
 #ifdef CONFIG_CMD_BOOTCTOL_AVB
+	int rc = 0;
 	char *avb_s = env_get("avb2");
 	if (avb_s == NULL) {
 		run_command("get_avb_mode;", 0);
@@ -182,18 +213,18 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		const char *bootstate_g = "androidboot.verifiedbootstate=green";
 		const char *bootstate = NULL;
 		uint8_t vbmeta_digest[AVB_SHA256_DIGEST_SIZE];
-		nRet = avb_verify(&out_data);
-		printf("avb verification: locked = %d, result = %d\n", !is_device_unlocked(), nRet);
+		rc = avb_verify(&out_data);
+		printf("avb verification: locked = %d, result = %d\n", !is_device_unlocked(), rc);
 		if (is_device_unlocked()) {
-			if(nRet != AVB_SLOT_VERIFY_RESULT_OK &&
-					nRet != AVB_SLOT_VERIFY_RESULT_ERROR_VERIFICATION &&
-					nRet != AVB_SLOT_VERIFY_RESULT_ERROR_ROLLBACK_INDEX &&
-					nRet != AVB_SLOT_VERIFY_RESULT_ERROR_PUBLIC_KEY_REJECTED) {
+			if (rc != AVB_SLOT_VERIFY_RESULT_OK &&
+					rc != AVB_SLOT_VERIFY_RESULT_ERROR_VERIFICATION &&
+					rc != AVB_SLOT_VERIFY_RESULT_ERROR_ROLLBACK_INDEX &&
+					rc != AVB_SLOT_VERIFY_RESULT_ERROR_PUBLIC_KEY_REJECTED) {
 				avb_slot_verify_data_free(out_data);
-				return nRet;
+				return rc;
 			}
 		} else {
-			if (nRet == AVB_SLOT_VERIFY_RESULT_OK) {
+			if (rc == AVB_SLOT_VERIFY_RESULT_OK) {
 #ifdef CONFIG_AML_ANTIROLLBACK
 				uint32_t i = 0;
 				uint32_t version;
@@ -206,9 +237,9 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				}
 #endif
 			}
-			if (nRet != AVB_SLOT_VERIFY_RESULT_OK) {
+			if (rc != AVB_SLOT_VERIFY_RESULT_OK) {
 				avb_slot_verify_data_free(out_data);
-				return nRet;
+				return rc;
 			}
 		}
 		bootargs = env_get("bootargs");

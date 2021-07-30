@@ -122,4 +122,5 @@ obj-$(CONFIG_W1_EEPROM) += w1-eeprom/
 obj-$(CONFIG_EFUSE) += efuse/
 obj-$(CONFIG_MACH_PIC32) += ddr/microchip/
 obj-$(CONFIG_DM_HWSPINLOCK) += hwspinlock/
+obj-$(CONFIG_IMAGE_CHECK) += image_check/
 endif
