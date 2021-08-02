@@ -674,7 +674,7 @@ void set_hdr_matrix(enum hdr_module_sel module_sel,
 		/*for g12a/g12b osd blend shift rtl bug*/
 		if ((get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_G12A) &&
 		    (hdr_mtx_param->p_sel & HDR_BYPASS) &&
-		    (module_sel & (OSD1_HDR | OSD1_HDR)))
+		    (module_sel & (OSD1_HDR | OSD2_HDR)))
 			gmut_shift = 10;
 		else
 			gmut_shift = 11;
@@ -1250,7 +1250,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 			     MESON_CPU_MAJOR_ID_G12B &&
 			     get_cpu_id().chip_rev ==
 			     MESON_CPU_CHIP_REVISION_B)) &&
-			   (module_sel & (OSD1_HDR | OSD1_HDR | VD1_HDR | VD2_HDR))) {
+			   (module_sel & (OSD1_HDR | OSD2_HDR | VD1_HDR | VD2_HDR))) {
 			for (i = 0; i < 15; i++) {
 				if (module_sel & (OSD1_HDR| OSD2_HDR))
 					hdr_mtx_param.mtx_in[i] = rgb2ycbcr_709[i];

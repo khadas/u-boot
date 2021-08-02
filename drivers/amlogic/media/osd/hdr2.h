@@ -9,13 +9,13 @@
 enum hdr_module_sel {
 	VD1_HDR = 0x1,
 	VD2_HDR = 0x2,
-	VD3_HDR = 0x2,
-	OSD1_HDR = 0x4,
-	OSD2_HDR = 0x5,
-	VDIN0_HDR = 0x8,
-	VDIN1_HDR = 0x10,
-	DI_HDR = 0x20,
-	OSD3_HDR = 0x40,
+	VD3_HDR = 0x4,
+	OSD1_HDR = 0x8,
+	OSD2_HDR = 0x10,
+	VDIN0_HDR = 0x20,
+	VDIN1_HDR = 0x40,
+	DI_HDR = 0x80,
+	OSD3_HDR = 0x100,
 	HDR_MAX
 };
 
