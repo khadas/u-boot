@@ -67,6 +67,10 @@ static int do_osd_close(cmd_tbl_t *cmdtp, int flag, int argc,
 		osd_enable_hw(OSD2, 0);
 		osd_set_free_scale_enable_hw(OSD1, 0);
 		osd_set_free_scale_enable_hw(OSD2, 0);
+		if (index == OSD3) {
+			osd_enable_hw(OSD3, 0);
+			osd_set_free_scale_enable_hw(OSD3, 0);
+		}
 	}
 
 	osd_enabled = 0;

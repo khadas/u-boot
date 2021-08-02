@@ -385,6 +385,8 @@ int get_osd_layer(void)
 		osd_index = OSD1;
 	else if (strcmp(layer_str, "osd1") == 0)
 		osd_index = OSD2;
+	else if (strcmp(layer_str, "osd2") == 0)
+		osd_index = OSD3;
 	else if (strcmp(layer_str, "viu2_osd0") == 0)
 		osd_index = VIU2_OSD1;
 	else
@@ -424,14 +426,20 @@ static void *osd_hw_init(void)
 		osd_loge("osd_hw_init: invalid osd_index\n");
 		return NULL;
 	}
-	if (osd_index == OSD1)
+	if (osd_index == OSD1) {
 		osd_layer_init(&fb_gdev, OSD1);
-	else if (osd_index == OSD2) {
+	} else if (osd_index == OSD2) {
 		if (osd_hw.osd_ver == OSD_SIMPLE) {
 			osd_loge("AXG not support osd2\n");
 			return NULL;
 		}
 		osd_layer_init(&fb_gdev, OSD2);
+	} else if (osd_index == OSD3) {
+		if (osd_hw.osd_ver == OSD_SIMPLE) {
+			osd_loge("AXG not support osd3\n");
+			return NULL;
+		}
+		osd_layer_init(&fb_gdev, OSD3);
 	} else if (osd_index == VIU2_OSD1) {
 		if (osd_hw.osd_ver == OSD_SIMPLE) {
 			osd_loge("AXG not support viu2 osd0\n");
@@ -1009,6 +1017,8 @@ int video_scale_bitmap(void)
 		osd_index = OSD1;
 	else if (strcmp(layer_str, "osd1") == 0)
 		osd_index = OSD2;
+	else if (strcmp(layer_str, "osd2") == 0)
+		osd_index = OSD3;
 	else if (strcmp(layer_str, "viu2_osd0") == 0) {
 		osd_index = VIU2_OSD1;
 		goto no_scale;
