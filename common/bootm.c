@@ -584,6 +584,11 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
 {
 	int ret = 0;
 
+#ifdef CONFIG_SILENT_CONSOLE
+	/* disable silent */
+	gd->flags &= ~GD_FLG_SILENT;
+#endif
+
 	*load_end = load;
 	print_decomp_msg(comp, type, load == image_start);
 

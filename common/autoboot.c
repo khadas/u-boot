@@ -263,6 +263,12 @@ static int abortboot(int bootdelay)
 		abort = __abortboot(bootdelay);
 
 #ifdef CONFIG_SILENT_CONSOLE
+	if (env_get("silent") != NULL) {
+		char *p = env_get("silent");
+
+		if (p[0] == '1')
+			gd->flags |= GD_FLG_SILENT;
+	}
 	if (abort)
 		gd->flags &= ~GD_FLG_SILENT;
 #endif

@@ -75,9 +75,11 @@ static int on_silent(const char *name, const char *value, enum env_op op,
 	if ((flags & H_INTERACTIVE) == 0)
 		return 0;
 #endif
-
 	if (value != NULL)
-		gd->flags |= GD_FLG_SILENT;
+		if (value[0] == '1')
+			gd->flags |= GD_FLG_SILENT;
+		else
+			gd->flags &= ~GD_FLG_SILENT;
 	else
 		gd->flags &= ~GD_FLG_SILENT;
 
@@ -723,10 +725,16 @@ int console_assign(int file, const char *devname)
 static void console_update_silent(void)
 {
 #ifdef CONFIG_SILENT_CONSOLE
-	if (env_get("silent") != NULL)
-		gd->flags |= GD_FLG_SILENT;
+	char *p = env_get("silent");
+
+	if (p != NULL)
+		if (p[0] == '1')
+			gd->flags |= GD_FLG_SILENT;
+		else
+			gd->flags &= ~GD_FLG_SILENT;
 	else
 		gd->flags &= ~GD_FLG_SILENT;
+
 #endif
 }
 
