@@ -769,6 +769,8 @@ void rx_set_phy_rterm(void)
 	s64 rterm_val;
 	unsigned int data32;
 
+	/*power domain control for hdmirx */
+	pwr_ctrl_psci_smc(PM_HDMIRX, PWR_ON);
 	rterm_val = meson_trustzone_efuse_caliItem("hdmirx");
 	if (rterm_val >= 0) {
 		data32 = hdmirx_rd_amlphy(HHI_RX_PHY_MISC_CNTL1);
