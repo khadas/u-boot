@@ -137,7 +137,7 @@ int board_init(void)
 #endif
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 	/*set vcc5V*/
-	run_command("gpio set GPIOH_1", 0);
+	run_command("gpio set GPIOH_4", 0);
 	return 0;
 }
 
