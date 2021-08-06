@@ -4218,6 +4218,9 @@ __attribute__ ((section(".misc_param"))) = {
 	/*enable pin,set gpiod_4,enable vddcpu*/
 	{ PADCTRL_GPIOD_O,	   (0x1 << 4),		       (0x1 << 4), 0, 0, 0 },
 	{ PADCTRL_GPIOD_OEN,	   (0x0 << 4),		       (0x1 << 4), 0, 0, 0 },
+	/* enable vddio3v3/vddcpu/vcc3v3, set gpiod_10 high */
+	{ PADCTRL_GPIOD_O,	   (0x1 << 10),		       (0x1 << 10), 0, 0, 0 },
+	{ PADCTRL_GPIOD_OEN,	   (0x0 << 10),		       (0x1 << 10), 0, 0, 0 },
 	/* set pwm a and pwm b clock rate to 24M, enable them */
 	{ CLKCTRL_PWM_CLK_AB_CTRL, ((0x1 << 8) | (0x1 << 24)), 0xffffffff, 0, 0, 0 },
 	/* set GPIOE_0 GPIOE_1 drive strength to 3 */
