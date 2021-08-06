@@ -277,40 +277,43 @@ static int do_image_read_dtb_from_knl(const char *partname,
 		errorP("Fail in _aml_get_secure_boot_kernel_size, rc=%d\n", ret);
 		return __LINE__;
 	}
-	wrsz  = securekernelimgsz - preloadsz;
-	wroff = lflashreadinitoff + preloadsz;
-	wraddr = (unsigned char *)loadaddr + preloadsz;
+
+	if (securekernelimgsz) {
+		wrsz  = securekernelimgsz - preloadsz;
+		wroff = lflashreadinitoff + preloadsz;
+		wraddr = (unsigned char *)loadaddr + preloadsz;
+	}
 #endif//#if !defined(CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK) && defined(CONFIG_IMAGE_CHECK)
 	ret = store_logic_read(partname, wroff, wrsz, wraddr);
 	if (ret) {
 		errorP("Fail to read 0x%xB from part[%s] at offset 0x%x\n",
-			nflashloadlen, partname, (unsigned int)lflashreadoff);
+			(unsigned int)wrsz, partname, (unsigned int)wroff);
 		return __LINE__;
 	}
 #ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
-#ifndef CONFIG_IMAGE_CHECK
 	if (IS_FEAT_BOOT_VERIFY()) {
+#ifndef CONFIG_IMAGE_CHECK
 		//because secure boot will use DMA which need disable MMU temp
 		//here must update the cache, otherwise nand will fail (eMMC is OK)
 		flush_cache((unsigned long)secondaddr, (unsigned long)nflashloadlen);
 
 		ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, (unsigned long)loadaddr,
 			GXB_IMG_SIZE, GXB_IMG_DEC_DTB);
-	}
 #else
-	//because secure boot will use DMA which need disable MMU temp
-	//here must update the cache, otherwise nand will fail (eMMC is OK)
-	flush_cache((unsigned long)loadaddr, (unsigned long)securekernelimgsz);
+		//because secure boot will use DMA which need disable MMU temp
+		//here must update the cache, otherwise nand will fail (eMMC is OK)
+		flush_cache((unsigned long)loadaddr, (unsigned long)securekernelimgsz);
 
-	ret = secure_image_check((uint8_t *)(unsigned long)loadaddr,
-		GXB_IMG_SIZE, GXB_IMG_DEC_DTB);
-	secondaddr += android_image_check_offset();
+		ret = secure_image_check((uint8_t *)(unsigned long)loadaddr,
+			GXB_IMG_SIZE, GXB_IMG_DEC_DTB);
+		secondaddr += android_image_check_offset();
 #endif
-	if (ret) {
-		errorP("\n[dtb]aml log : Sig Check is %d\n", ret);
-		return __LINE__;
+		if (ret) {
+			errorP("\n[dtb]aml log : Sig Check is %d\n", ret);
+			return __LINE__;
+		}
+		MsgP("decrypted dtb sz 0x%x\n", nflashloadlen);
 	}
-	MsgP("decrypted dtb sz 0x%x\n", nflashloadlen);
 #endif
 	char *dtdestaddr = (char *)loadaddr;//simple_strtoull(getenv("dtb_mem_addr"), NULL, 0);
 
