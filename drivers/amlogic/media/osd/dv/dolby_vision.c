@@ -39,7 +39,7 @@ static unsigned int dolby_vision_target_max[3][3] = {
 	{ 600, 1000, 100 },  /* SDR =>  DOVI/HDR/SDR */
 };
 static unsigned int dolby_vision_target_graphics_max[3] = {
-	300, 300, 100
+	300, 375, 100
 }; /* DOVI/HDR/SDR */
 
 /* 0: video priority 1: graphic priority */
@@ -1205,47 +1205,111 @@ static int  enable_dolby_vision(void)
 	return 0;
 }
 
+int get_primaries_type(struct master_display_info_s *data)
+{
+	if (!data->present_flag)
+		return 0;
+
+	if (data->primaries[0][1] > data->primaries[1][1] &&
+	    data->primaries[0][1] > data->primaries[2][1] &&
+	    data->primaries[2][0] > data->primaries[0][0] &&
+	    data->primaries[2][0] > data->primaries[1][0]) {
+		/* reasonable g,b,r */
+		return 2;
+	} else if (data->primaries[0][0] > data->primaries[1][0] &&
+		   data->primaries[0][0] > data->primaries[2][0] &&
+		   data->primaries[1][1] > data->primaries[0][1] &&
+		   data->primaries[1][1] > data->primaries[2][1]) {
+		/* reasonable r,g,b */
+		return 1;
+	}
+	/* source not usable, use standard bt2020 */
+	return 0;
+}
+
 static int prepare_drm_pkt(struct master_display_info_s *data,
 	struct dovi_setting_s *setting, const struct hdmitx_dev *hdmitx_device)
 {
+	int primaries_type = 0;
 	struct hdr_10_infoframe_s *p_hdr;
-	p_hdr = &(setting->hdr_info);
 
+	p_hdr = &setting->hdr_info;
 	if (!data || !hdmitx_device || !setting)
 		return -1;
 
 	data->features = (1 << 29) | (5 << 26) | (0 << 25) | (1 << 24)
 			| (9 << 16) | (0x10 << 8) | (10 << 0);
-	data->primaries[0][0] =
-		(p_hdr->display_primaries_x_1_MSB << 8)
-		| p_hdr->display_primaries_x_1_LSB;
-	data->primaries[0][1] =
-		(p_hdr->display_primaries_y_1_MSB << 8)
-		| p_hdr->display_primaries_y_1_LSB;
-	data->primaries[1][0] =
-		(p_hdr->display_primaries_x_2_MSB << 8)
-		| p_hdr->display_primaries_x_2_LSB;
-	data->primaries[1][1] =
-		(p_hdr->display_primaries_y_2_MSB << 8)
-		| p_hdr->display_primaries_y_2_LSB;
-	data->primaries[2][0] =
-		(p_hdr->display_primaries_x_0_MSB << 8)
+
+	primaries_type = get_primaries_type(data);
+	if (primaries_type == 2) {
+		/* GBR -> RGB as dolby will swap back to GBR
+		 * in send_hdmi_pkt
+		 */
+		data->primaries[0][0] = (p_hdr->display_primaries_x_0_MSB << 8)
+			| p_hdr->display_primaries_x_0_LSB;
+		data->primaries[0][1] = (p_hdr->display_primaries_y_0_MSB << 8)
+			| p_hdr->display_primaries_y_0_LSB;
+		data->primaries[1][0] = (p_hdr->display_primaries_x_1_MSB << 8)
+			| p_hdr->display_primaries_x_1_LSB;
+		data->primaries[1][1] = (p_hdr->display_primaries_y_1_MSB << 8)
+			| p_hdr->display_primaries_y_1_LSB;
+		data->primaries[2][0] = (p_hdr->display_primaries_x_2_MSB << 8)
+			| p_hdr->display_primaries_x_2_LSB;
+		data->primaries[2][1] = (p_hdr->display_primaries_y_2_MSB << 8)
+			| p_hdr->display_primaries_y_2_LSB;
+		data->white_point[0] = (p_hdr->white_point_x_MSB << 8)
+			| p_hdr->white_point_x_LSB;
+		data->white_point[1] = (p_hdr->white_point_y_MSB << 8)
+			| p_hdr->white_point_y_LSB;
+	} else if (primaries_type == 1) {
+		/* RGB -> RGB and dolby will swap to send as GBR
+		 * in send_hdmi_pkt
+		 */
+		data->primaries[0][0] = (p_hdr->display_primaries_x_1_MSB << 8)
+			| p_hdr->display_primaries_x_1_LSB;
+		data->primaries[0][1] = (p_hdr->display_primaries_y_1_MSB << 8)
+			| p_hdr->display_primaries_y_1_LSB;
+		data->primaries[1][0] = (p_hdr->display_primaries_x_2_MSB << 8)
+			| p_hdr->display_primaries_x_2_LSB;
+		data->primaries[1][1] = (p_hdr->display_primaries_y_2_MSB << 8)
+			| p_hdr->display_primaries_y_2_LSB;
+		data->primaries[2][0] = (p_hdr->display_primaries_x_0_MSB << 8)
+			| p_hdr->display_primaries_x_0_LSB;
+		data->primaries[2][1] = (p_hdr->display_primaries_y_0_MSB << 8)
+			| p_hdr->display_primaries_y_0_LSB;
+		data->white_point[0] = (p_hdr->white_point_x_MSB << 8)
+			| p_hdr->white_point_x_LSB;
+		data->white_point[1] = (p_hdr->white_point_y_MSB << 8)
+			| p_hdr->white_point_y_LSB;
+	} else {
+		/* GBR -> RGB as dolby will swap back to GBR
+		 * in send_hdmi_pkt
+		 */
+		data->primaries[0][0] = (p_hdr->display_primaries_x_0_MSB << 8)
 		| p_hdr->display_primaries_x_0_LSB;
-	data->primaries[2][1] =
-		(p_hdr->display_primaries_y_0_MSB << 8)
+		data->primaries[0][1] = (p_hdr->display_primaries_y_0_MSB << 8)
 		| p_hdr->display_primaries_y_0_LSB;
-	data->white_point[0] =
-		(p_hdr->white_point_x_MSB << 8)
-		| p_hdr->white_point_x_LSB;
-	data->white_point[1] =
-		(p_hdr->white_point_y_MSB << 8)
-		| p_hdr->white_point_y_LSB;
+		data->primaries[1][0] = (p_hdr->display_primaries_x_1_MSB << 8)
+		| p_hdr->display_primaries_x_1_LSB;
+		data->primaries[1][1] = (p_hdr->display_primaries_y_1_MSB << 8)
+		| p_hdr->display_primaries_y_1_LSB;
+		data->primaries[2][0] = (p_hdr->display_primaries_x_2_MSB << 8)
+			| p_hdr->display_primaries_x_2_LSB;
+		data->primaries[2][1] = (p_hdr->display_primaries_y_2_MSB << 8)
+			| p_hdr->display_primaries_y_2_LSB;
+		data->white_point[0] = (p_hdr->white_point_x_MSB << 8)
+			| p_hdr->white_point_x_LSB;
+		data->white_point[1] = (p_hdr->white_point_y_MSB << 8)
+			| p_hdr->white_point_y_LSB;
+	}
+
 	data->luminance[0] =
 		(p_hdr->max_display_mastering_luminance_MSB << 8)
 		| p_hdr->max_display_mastering_luminance_LSB;
 	data->luminance[1] =
 		(p_hdr->min_display_mastering_luminance_MSB << 8)
 		| p_hdr->min_display_mastering_luminance_LSB;
+
 	data->max_content =
 		(p_hdr->max_content_light_level_MSB << 8)
 		| p_hdr->max_content_light_level_LSB;
