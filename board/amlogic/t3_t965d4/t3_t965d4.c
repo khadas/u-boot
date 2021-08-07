@@ -158,14 +158,15 @@ int board_init(void)
 
 int board_late_init(void)
 {
-	printf("board late init\n");
-
 	char outputModePre[30];
 	char outputModeCur[30];
-	if (env_get("outputmode")) {
-		strcpy(outputModePre, env_get("outputmode"));
-	}
 
+	printf("board late init\n");
+
+	/* ****************************************************
+	 * 1.setup bootup resource
+	 * ****************************************************
+	 */
 	//default uboot env need before anyone use it
 	if (env_get("default_env")) {
 		printf("factory reset, need default all uboot env.\n");
@@ -184,6 +185,13 @@ int board_late_init(void)
 		run_command("if fdt addr ${dtb_mem_addr}; then else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
 	}
 #endif//#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
+
+	/* ****************************************************
+	 * 2.use bootup resource after setup
+	 * ****************************************************
+	 */
+	if (env_get("outputmode"))
+		strcpy(outputModePre, env_get("outputmode"));
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
 	aml_try_factory_sdcard_burning(0, gd->bd);
