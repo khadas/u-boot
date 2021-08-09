@@ -40,6 +40,9 @@
 #include <amlogic/aml_hdmirx.h>
 #endif
 #include <amlogic/storage.h>
+#ifdef CONFIG_POWER_FUSB302
+#include <power/fusb302.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -124,6 +127,10 @@ int board_init(void)
 	/* The non-secure watchdog is enabled in BL2 TEE, disable it */
 	run_command("watchdog off", 0);
 	printf("watchdog disable\n");
+
+#ifdef CONFIG_POWER_FUSB302
+	fusb302_init();
+#endif
 
 	aml_set_bootsequence(0);
 	//Please keep try usb boot first in board_init, as other init before usb may cause burning failure
