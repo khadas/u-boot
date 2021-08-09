@@ -47,11 +47,11 @@ config CLK_MESON_T7
           This option is used to enable the meson t7 clock
           driver
 
-config CLK_MESON_C2
-	bool "Support C2 Clock"
+config CLK_MESON_P1
+	bool "Support P1 Clock"
 	depends on CLK
 	help
-		This option is used to enable the meson c2 clock
+		This option is used to enable the meson p1 clock
 		driver.
 
 config CLK_MESON_T3
