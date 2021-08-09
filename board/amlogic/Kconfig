@@ -127,7 +127,7 @@ config DDR_FULL_FW
 	default n
 	help
 		Support full ddr fw for soc using advanced boot loader as
-		bl2, such as sc2/t7/s4/t3....
+		bl2, such as sc2/t7/s4/t3/p1....
 
 choice
 	prompt "BL2E size"
@@ -623,6 +623,36 @@ config TARGET_SC2_AH212_LPDDR4
 
 endif
 
+if MESON_P1
+
+config SYS_SOC
+	default "p1"
+
+config DDRFW_TYPE
+	string "P1 DDR FW Type"
+	default "ddr4"
+
+config BL30_SELECT
+	string "P1 BL30 board config"
+	default "p1_skt"
+
+choice
+	prompt "P1 Board"
+
+config P1_SKT
+	bool "P1_SKT"
+	select TARGET_P1_SKT
+	help
+	  Select P1 SKT(XXXX) config
+
+endchoice
+
+config TARGET_P1_SKT
+	bool "P1 SKT board"
+	depends on P1_SKT
+
+endif
+
 if MESON_T7
 
 config SYS_SOC
@@ -963,6 +993,8 @@ source "board/amlogic/g12a_u200_v1/Kconfig"
 source "board/amlogic/g12b_w400_v1/Kconfig"
 
 source "board/amlogic/sm1_ac200_v1/Kconfig"
+
+source "board/amlogic/p1_skt/Kconfig"
 
 source "board/amlogic/t7_skt/Kconfig"
 
