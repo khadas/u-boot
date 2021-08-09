@@ -38,6 +38,12 @@ config KALLSYMS
 		This config can help to print call stack like linux kernel panic
 		when crash. It's very useful for debug crash issues.
 
+config PXP_AOCPU
+	bool "Amlogic Pxp aocpu flag"
+	help
+		Support PXP aocpu bring up
+		if this option is enable, then BL30 will be excuted on AOCPU
+
 config AML_BL33_COMPRESS_ENABLE
 	bool "Amlogic U-boot compress"
 	help
