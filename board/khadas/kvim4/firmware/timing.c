@@ -53,7 +53,7 @@
 #define         AN_408_DDR0_2G_DDR1_2G_RANK01   5
 #define         AN_408_DDR0_4G_DDR1_4G_RANK01   6
 
-#define DDR_SIZE_TYPE_1         AN_408_DDR0_2G_DDR1_1G //AN_408_DDR0_2G_DDR1_0G//AN_408_DDR0_2G_DDR1_1G//AN_408_DDR0_1G_DDR1_1G
+#define DDR_SIZE_TYPE_1         AN_408_DDR0_2G_DDR1_2G //AN_408_DDR0_2G_DDR1_0G//AN_408_DDR0_2G_DDR1_1G//AN_408_DDR0_1G_DDR1_1G
 
 ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 #if 0
@@ -253,7 +253,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		//.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
 		.DramType = CONFIG_DDR_TYPE_LPDDR4,
 		.enable_lpddr4x_mode = ENABLE_LPDDR4X_MODE,
-		.DRAMFreq ={ 2016,		       0,	0,	 0	 },
+		.DRAMFreq ={ 1608,		       0,	0,	 0	 },
 		.ddr_rfc_type = DDR_RFC_TYPE_LPDDR4_8Gbx1,
 		.ddr_base_addr = CFG_DDR_BASE_ADDR,
 		.ddr_start_offset = CFG_DDR_START_OFFSET,
@@ -320,15 +320,15 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
 #elif (DDR_SIZE_TYPE_1 == AN_408_DDR0_2G_DDR1_2G_RANK01)
 		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 #elif (DDR_SIZE_TYPE_1 == AN_408_DDR0_4G_DDR1_4G_RANK01)
 		.dram_ch0_size_MB =
 			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
@@ -443,7 +443,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		//.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
 		.DramType = CONFIG_DDR_TYPE_LPDDR4,
 		.enable_lpddr4x_mode = ENABLE_LPDDR4X_MODE,
-		.DRAMFreq ={ 2016,		       0,	0,	 0	 },
+		.DRAMFreq ={ 1848,		       0,	0,	 0	 },
 		.ddr_rfc_type = DDR_RFC_TYPE_LPDDR4_8Gbx1,
 		.ddr_base_addr = CFG_DDR_BASE_ADDR,
 		.ddr_start_offset = CFG_DDR_START_OFFSET,
