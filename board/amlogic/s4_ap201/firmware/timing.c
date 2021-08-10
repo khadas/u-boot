@@ -1492,10 +1492,12 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			32, 32, 32, 32, 32, 32, 32, 32,
 			32, 32, 32, 32
 		},                                             //total 36
-		//.cfg_ddr_training_delay_ps.reserve_training_parameter = { 0x80+10, 0x80+10,0x80+10,0x80+10,0x80+10,0x80+10,0x80+10,0x80+10,0x80+10, 0x80+10,0x80+10,0x80+10,0x80+10,0x80+10,0x80+10,0x80+10},
-		.cfg_ddr_training_delay_ps.reserve_training_parameter = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x80 + 10, 0, 0x80 + 5 },
-
-	//
+		.cfg_ddr_training_delay_ps.reserve_training_parameter = {
+			(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,//cs0 write dqs,lane0-lane3
+			(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,//cs1 write dqs,lane0-lane3
+			(1 << 7) | 8, (0 << 7) | 0, (1 << 7) | 9, (0 << 7) | 0,//cs0 read dqs,lane0-lane3
+			(1 << 7) | 13, (1 << 7) | 10, (1 << 7) | 6, (1 << 7) | 12,//cs1 read dqs,lane0-lane3
+		},
 	},
 #endif
 #ifdef S4_DDR4_1RANK
