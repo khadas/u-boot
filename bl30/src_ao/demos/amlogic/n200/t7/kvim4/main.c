@@ -49,6 +49,7 @@
 #include "vrtc.h"
 #include "mailbox-api.h"
 #include "version.h"
+#include "leds_state.h"
 
 //#include "printf.h"
 #define INT_TEST_NEST_DEPTH  6
@@ -167,6 +168,8 @@ int main(void)
 
 	vMbInit();
 
+	// Initialize SYS_LED
+	xLedsStateInit();
 
 	// Create timer
 	xSoftTimer = xTimerCreate("Timer", pdMS_TO_TICKS(100), pdTRUE, NULL, vPrintSystemStatus);
