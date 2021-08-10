@@ -130,7 +130,7 @@ static int get_dtb_index(const char aml_dt_buf[128],unsigned long fdt_addr)
 		//for (i=0;i<10 && tokens[i];++i)
 		//	printf("token-%d:%s\n",i,tokens[i]);
 
-		int nTokenLen = 0;
+		int nTokenLen = 0, nDtbcnt = 0;
 
 		switch (pDTBHdr->nVersion)
 		{
@@ -176,6 +176,7 @@ static int get_dtb_index(const char aml_dt_buf[128],unsigned long fdt_addr)
 			case AML_MUL_DTB_VER_1:
 			{
 				p_st_dtb_v1_t pDTB_V1 = (p_st_dtb_v1_t)fdt_addr;
+				nDtbcnt = pDTB_V1->hdr.nDTBCount;
 				for (i=0;i< pDTB_V1->hdr.nDTBCount;++i)
 				{
 					if (!memcmp(pDTB_V1->dtb[i].szToken,sz_aml_dt_msb,
@@ -190,6 +191,7 @@ static int get_dtb_index(const char aml_dt_buf[128],unsigned long fdt_addr)
 			case AML_MUL_DTB_VER_2:
 			{
 				p_st_dtb_v2_t pDTB_V2 = (p_st_dtb_v2_t)fdt_addr;
+				nDtbcnt = pDTB_V2->hdr.nDTBCount;
 				for (i=0;i< pDTB_V2->hdr.nDTBCount;++i)
 				{
 					if (!memcmp(pDTB_V2->dtb[i].szToken,sz_aml_dt_msb,
@@ -203,6 +205,34 @@ static int get_dtb_index(const char aml_dt_buf[128],unsigned long fdt_addr)
 			}break;
 			default: goto exit; break;
 		}
+
+		/* print dtb */
+		char **dt_name;
+		dt_name = (char **)malloc(sizeof(char *)*MULTI_DTB_TOKEN_MAX_COUNT);
+		for (i = 0; i < MULTI_DTB_TOKEN_MAX_COUNT; i++)
+			dt_name[i] = (char *)malloc(sizeof(char)*nTokenLen);
+		unsigned int x = 0, y = 0, z = 0; //loop counter
+		unsigned int nDtbSwap;
+		unsigned int aml_dtb_header_size = 8+(nTokenLen * 3);
+		for (i = 0; i < nDtbcnt; i++) {
+			for (x = 0; x < MULTI_DTB_TOKEN_MAX_COUNT; x++) {
+				for (y = 0; y < nTokenLen; y+=4) {
+					nDtbSwap = *(unsigned int *)(fdt_addr + 12 + i * aml_dtb_header_size + 0 + (x * nTokenLen) + y);
+					for (z=0;z<4;z++)
+						dt_name[x][y+z] = (nDtbSwap >> ((3-z)<<3)) & 0xFF;
+					/*replace 0 with 0x20*/
+					for (z=0; z < nTokenLen; z++)
+						if (0x20== dt_name[x][z])
+							dt_name[x][z]= '\0';
+				}
+			}
+			if (pDTBHdr->nVersion == 1)
+				printf("	  dtb %d soc: %.4s	 plat: %.4s   vari: %.4s\n", i, (char *)(dt_name[0]), (char *)(dt_name[1]), (char *)(dt_name[2]));
+			else if(pDTBHdr->nVersion == 2)
+				printf("      dtb %d soc: %.16s   plat: %.16s	vari: %.16s\n", i, (char *)(dt_name[0]), (char *)(dt_name[1]), (char *)(dt_name[2]));
+		}
+		if (dt_name)
+			free(dt_name);
 	}
 	else
 		{goto exit; }
@@ -265,7 +295,7 @@ unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 	{
 		printf("      Multi DTB detected.\n");
 		printf("      Multi DTB tool version: v%d.\n", pDTBHdr->nVersion);
-		printf("      Support %d DTBS.\n", pDTBHdr->nDTBCount);
+		printf("      Found %d DTBS.\n", pDTBHdr->nDTBCount);
 
 
 		/* check and set aml_dt */
@@ -300,7 +330,7 @@ unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 			goto exit;
 		}
 
-		printf("      Found DTB for \"%s\"\n",aml_dt_buf);
+		printf("      Matched DTB for \"%s\"\n",aml_dt_buf);
 
 		switch (pDTBHdr->nVersion)
 		{
