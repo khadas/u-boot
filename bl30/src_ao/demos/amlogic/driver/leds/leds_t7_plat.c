@@ -69,7 +69,7 @@ LedDevice_t MesonLeds[] = {
 		.id = LED_ID_0,
 		.type = LED_TYPE_PWM,
 		.name = "sys_led",
-		.hardware_id = LED_PWMAO_G,
+		.hardware_id = LED_PWMAO_C,
 		.polarity = LED_POLARITY_POSITIVE,
 		.breathtime = 0,
 	},
@@ -105,7 +105,7 @@ int32_t vLedPlatInit(int32_t ** stickmem)
 int32_t vLedPinmuxInit(void)
 {
 	/* set pinmux */
-	return xPinmuxSet(GPIOD_7, PIN_FUNC2);
+	return xPinmuxSet(GPIOD_6, PIN_FUNC2);
 }
 
 
