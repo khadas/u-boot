@@ -553,17 +553,19 @@ static const struct meson_i2c_platdata i2c_data[] = {
 	{ 0, 0xffd1f000, 166666666, 3, 15, 100000 },
 	{ 1, 0xffd1e000, 166666666, 3, 15, 100000 },
 	{ 2, 0xffd1d000, 166666666, 3, 15, 100000 },
+	{ 3, 0xffd1c000, 166666666, 3, 15, 100000 },
 };
 
 U_BOOT_DEVICES(meson_i2cs) = {
 	{ "i2c_meson", &i2c_data[0] },
 	{ "i2c_meson", &i2c_data[1] },
 	{ "i2c_meson", &i2c_data[2] },
+	{ "i2c_meson", &i2c_data[3] },
 };
 
 /*
- *GPIOH_20//I2C_SCL
- *GPIOH_21//I2C_SDA
+ *GPIOD_2//I2C_SCL
+ *GPIOD_3//I2C_SDA
  *pinmux configuration seperated with i2c controller configuration
  * config it when you use
  */
@@ -571,12 +573,12 @@ U_BOOT_DEVICES(meson_i2cs) = {
 void set_i2c_b_pinmux(void)
 {
 	/*ds =3 */
-	setbits_le32(PAD_DS_REG2B, 0xf << 8);
+	setbits_le32(AO_PAD_DS_A, 0xf << 4);
 	/*pull up disable*/
-	clrbits_le32(PAD_PULL_UP_EN_REG2, 0x3 << 20);
+	clrbits_le32(AO_GPIO_O_EN_N, 0x3 << 2);
 	/*pin mux to i2cm1*/
-	clrbits_le32(PERIPHS_PIN_MUX_7, 0xff << 16);
-	setbits_le32(PERIPHS_PIN_MUX_7, 0x1 << 16 | 0x1 << 20);
+	clrbits_le32(AO_RTI_PINMUX_REG0, 0xff << 8);
+	setbits_le32(AO_RTI_PINMUX_REG0, 0x1 << 8 | 0x1 << 12);
 	return;
 }
 #endif
