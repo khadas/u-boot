@@ -108,6 +108,13 @@
 	/* pinctrl-0 = <&i2c3_master_pins2>;*/
 };
 
+&i2c_AO_A {
+	status= "okay";
+	clock-frequency = <100000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c0_ao_pins1>;
+};
+
 &ir {
 	status = "disabled";
 	/* pinctrl-0 = <&remote_input_ao_pins>; */
