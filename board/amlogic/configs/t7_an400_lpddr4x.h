@@ -78,7 +78,8 @@
         "lcd1_ctrl=0x00000000\0" \
         "lcd2_ctrl=0x00000000\0" \
         "lcd_debug=0x00000000\0" \
-        "outputmode=panel2\0" \
+        "outputmode=1080p60hz\0" \
+        "outputmode2=panel2\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \
@@ -245,7 +246,18 @@
             "else if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi; fi;" \
             "\0"\
         "init_display="\
-            "osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode}"\
+            /* logo1 */ \
+            "setenv display_layer osd0;"\
+            "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;"\
+            "osd open;osd clear;run load_bmp_logo;"\
+            "bmp scale;"\
+            "vout output ${outputmode};"\
+            /* logo2 */ \
+            "setenv display_layer viu2_osd0;"\
+            "vout2 prepare ${outputmode2};" \
+            "osd open;osd clear;run load_bmp_logo;"\
+            "vout2 output ${outputmode2};" \
+            "bmp scale;" \
             "\0"\
         "cmdline_keys="\
 			"setenv region_code US;"\
