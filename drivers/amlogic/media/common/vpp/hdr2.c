@@ -329,7 +329,10 @@ static int bypass_coeff[15] = {
 };
 
 /* gamut bypass */
-int gamut_bypass[9] = {2048, 0, 0, 0, 2048, 0, 0, 0, 2048};
+/* if OSD1_HDR2_GMUT_CTRL is set 0xa, the following values should be set */
+int gamut_bypass[9] = {1024, 0, 0, 0, 1024, 0, 0, 0, 1024};
+/* if OSD1_HDR2_GMUT_CTRL is set 0xb, the following values should be set */
+//int gamut_bypass[9] = {2048, 0, 0, 0, 2048, 0, 0, 0, 2048};
 
 void set_hdr_matrix(enum hdr_module_sel module_sel,
 		    enum hdr_matrix_sel mtx_sel,
