@@ -695,10 +695,8 @@
             "run upgrade_check;"\
             "run check_display;"\
             "run storeargs;"\
-            "run upgrade_key;" \
-            "bcb uboot-command;" \
-            "run switch_bootmode;" \
-            "run reset_suspend;"
+            "run reset_suspend;"\
+            "run upgrade_key;"
 
 #ifndef CONFIG_HDMITX_ONLY
 /* dual logo, normal boot */

@@ -425,6 +425,7 @@ int mtd_store_write_skip_bad(struct mtd_info *mtd,
 	return 0;
 }
 
+#if defined(CONFIG_CMD_MTDPARTS)
 static size_t mtd_store_logic_part_size(struct mtd_info *mtd,
 					struct part_info *part)
 {
@@ -439,6 +440,7 @@ static size_t mtd_store_logic_part_size(struct mtd_info *mtd,
 			cnt++;
 	return part->size - cnt * mtd->erasesize;
 }
+#endif
 
 static int mtd_store_get_offset(const char *partname, loff_t *retoff, loff_t off)
 {
@@ -485,29 +487,43 @@ static int mtd_store_get_offset(const char *partname, loff_t *retoff, loff_t off
 	return ret;
 }
 
+#ifdef CONFIG_AML_MTDPART
 extern int get_aml_mtdpart_count(void);
+#endif
 static int mtd_store_count(void)
 {
 	if (mtdparts_init())
 		return -1;
+#ifdef CONFIG_AML_MTDPART
 	return get_aml_mtdpart_count();
+#else
+	return 0;
+#endif
 }
 
+#ifdef CONFIG_AML_MTDPART
 extern int get_aml_mtdpart_name(struct mtd_info *master, int idx, char *name);
+#endif
 static int mtd_store_name(int idx, char *partname)
 {
 	int ret = 0;
-	struct mtd_info *mtd = mtd_store_get(1);
 
 	if (idx >= mtd_store_count())
 		return -1;
+#ifdef CONFIG_AML_MTDPART
+	struct mtd_info *mtd = mtd_store_get(1);
 	ret = get_aml_mtdpart_name(mtd, idx, partname);
+#else
+	printk("CONFIG_AML_MTDPART is not defined!\n");
+	ret = -1;
+#endif
 
 	return ret;
 }
 
 static u64 mtd_store_size(const char *part_name)
 {
+#if defined(CONFIG_CMD_MTDPARTS)
 	struct mtd_info *mtd = mtd_store_get(1);
 	char tmp_part_name[20] = {0};
 	u8 pnum;
@@ -537,6 +553,7 @@ static u64 mtd_store_size(const char *part_name)
 		}
 		return mtd_store_logic_part_size(mtd, part);
 	}
+#endif
 	return 0;
 }
 

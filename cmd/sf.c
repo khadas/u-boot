@@ -17,6 +17,7 @@
 
 #include <asm/io.h>
 #include <dm/device-internal.h>
+#include <dm/pinctrl.h>
 
 static struct spi_flash *flash;
 
@@ -125,6 +126,9 @@ static int do_spi_flash_probe(int argc, char * const argv[])
 	if (!ret) {
 		device_remove(new, DM_REMOVE_NORMAL);
 	}
+
+	ret = pinctrl_select_state(bus_dev, "default");
+
 	flash = NULL;
 	ret = spi_flash_probe_bus_cs(bus, cs, speed, mode, &new);
 	if (ret) {
