@@ -57,6 +57,9 @@ static unsigned int osd_h_filter_mode = 1;
 static unsigned int osd_v_filter_mode = 1;
 extern GraphicDevice fb_gdev;
 
+static void independ_path_default_regs(void);
+static void fix_vpu_clk2_default_regs(void);
+
 static unsigned int osd_filter_coefs_bicubic_sharp[] = {
 	0x01fa008c, 0x01fa0100, 0xff7f0200, 0xfe7f0300,
 	0xfd7e0500, 0xfc7e0600, 0xfb7d0800, 0xfb7c0900,
@@ -1092,7 +1095,6 @@ void osd_setup_hw(u32 index,
 		add_to_update_list(index, OSD_ENABLE);
 	}
 #endif
-
 	if (memcmp(&pan_data, &osd_hw.pandata[index],
 		   sizeof(struct pandata_s)) != 0 ||
 	    memcmp(&disp_data, &osd_hw.dispdata[index],
@@ -1702,6 +1704,7 @@ static  void  osd2_update_disp_scale_enable(void)
 	}
 }
 
+#ifdef AML_T7_DISPLAY
 static  void  osd3_update_disp_scale_enable(void)
 {
 	if (osd_hw.scale[OSD3].h_enable)
@@ -1718,10 +1721,9 @@ static  void  osd3_update_disp_scale_enable(void)
 	}
 }
 
-#ifdef AML_T7_DISPLAY
 static void viu2_osd1_update_disp_scale_enable(void)
 {
-
+	osd3_update_disp_scale_enable();
 }
 #else
 static void viu2_osd1_update_disp_scale_enable(void)
@@ -2064,6 +2066,7 @@ static void osd2_update_disp_freescale_enable(void)
 	remove_from_update_list(OSD2, DISP_FREESCALE_ENABLE);
 }
 
+#ifdef AML_T7_DISPLAY
 static void osd3_update_disp_freescale_enable(void)
 {
 	int hf_phase_step, vf_phase_step;
@@ -2076,6 +2079,42 @@ static void osd3_update_disp_freescale_enable(void)
 	int vf_bank_len = 4;
 	u32 data32 = 0x0;
 	u32 shift_line = osd_hw.shift_line;
+	int osd_index = -1;
+	u32 osd_sc_ctrl0, osd_sci_wh_m1;
+	u32 osd_sco_h_start_end, osd_sco_v_start_end;
+	u32 osd_sco_hsc_ctrl0, osd_sco_vsc_ctrl0;
+	u32 osd_sco_hsc_phase_step, osd_sco_vsc_phase_step;
+	u32 osd_sco_hsc_ini_phase, osd_sco_vsc_ini_phase;
+
+	osd_index = get_osd_layer();
+	if (osd_index < 0) {
+		osd_loge("%s: invalid osd_index\n", __func__);
+		return;
+	}
+
+	if (osd_index < VIU2_OSD1) {
+		osd_sc_ctrl0 = VPP_OSD_SC_CTRL0;
+		osd_sci_wh_m1 = VPP_OSD_SCI_WH_M1;
+		osd_sco_h_start_end = VPP_OSD_SCO_H_START_END;
+		osd_sco_v_start_end = VPP_OSD_SCO_V_START_END;
+		osd_sco_hsc_ctrl0 = VPP_OSD_HSC_CTRL0;
+		osd_sco_vsc_ctrl0 = VPP_OSD_VSC_CTRL0;
+		osd_sco_hsc_phase_step = VPP_OSD_HSC_PHASE_STEP;
+		osd_sco_hsc_ini_phase = VPP_OSD_HSC_INI_PHASE;
+		osd_sco_vsc_phase_step = VPP_OSD_VSC_PHASE_STEP;
+		osd_sco_vsc_ini_phase = VPP_OSD_VSC_INI_PHASE;
+	} else {
+		osd_sc_ctrl0 = OSD34_SC_CTRL0;
+		osd_sci_wh_m1 = OSD34_SCI_WH_M1;
+		osd_sco_h_start_end = OSD34_SCO_H_START_END;
+		osd_sco_v_start_end = OSD34_SCO_V_START_END;
+		osd_sco_hsc_ctrl0 = OSD34_HSC_CTRL0;
+		osd_sco_vsc_ctrl0 = OSD34_VSC_CTRL0;
+		osd_sco_hsc_phase_step = OSD34_HSC_PHASE_STEP;
+		osd_sco_hsc_ini_phase = OSD34_HSC_INI_PHASE;
+		osd_sco_vsc_phase_step = OSD34_VSC_PHASE_STEP;
+		osd_sco_vsc_ini_phase = OSD34_VSC_INI_PHASE;
+	}
 
 	if (osd_hw.scale_workaround)
 		vf_bank_len = 2;
@@ -2109,11 +2148,11 @@ static void osd3_update_disp_freescale_enable(void)
 			data32 |= 1;      /* select osd2 input */
 			data32 |= 1 << 2; /* enable osd scaler */
 			data32 |= 1 << 3; /* enable osd scaler path */
-			VSYNCOSD_WR_MPEG_REG(VPP_OSD_SC_CTRL0, data32);
+			VSYNCOSD_WR_MPEG_REG(osd_sc_ctrl0, data32);
 		}
 	} else {
 		/* disable osd scaler path */
-		VSYNCOSD_WR_MPEG_REG(VPP_OSD_SC_CTRL0, 0);
+		VSYNCOSD_WR_MPEG_REG(osd_sc_ctrl0, 0);
 	}
 	hf_phase_step = (src_w << 18) / dst_w;
 	hf_phase_step = (hf_phase_step << 6);
@@ -2130,13 +2169,13 @@ static void osd3_update_disp_freescale_enable(void)
 	if (osd_hw.free_scale_enable[OSD3]) {
 		data32 = (((src_h - 1 + shift_line) & 0x1fff)
 			  | ((src_w - 1) & 0x1fff) << 16);
-		VSYNCOSD_WR_MPEG_REG(VPP_OSD_SCI_WH_M1, data32);
+		VSYNCOSD_WR_MPEG_REG(osd_sci_wh_m1, data32);
 		data32 = ((osd_hw.free_dst_data[OSD3].x_end & 0xfff) |
 			  (osd_hw.free_dst_data[OSD3].x_start & 0xfff) << 16);
-		VSYNCOSD_WR_MPEG_REG(VPP_OSD_SCO_H_START_END, data32);
+		VSYNCOSD_WR_MPEG_REG(osd_sco_h_start_end, data32);
 		data32 = ((osd_hw.free_dst_data[OSD3].y_end & 0xfff) |
 			  (osd_hw.free_dst_data[OSD3].y_start & 0xfff) << 16);
-		VSYNCOSD_WR_MPEG_REG(VPP_OSD_SCO_V_START_END, data32);
+		VSYNCOSD_WR_MPEG_REG(osd_sco_v_start_end, data32);
 	}
 	data32 = 0x0;
 	if (osd_hw.free_scale[OSD3].h_enable) {
@@ -2145,7 +2184,7 @@ static void osd3_update_disp_freescale_enable(void)
 			  | ((hsc_ini_rpt_p0_num & 0x3) << 8);
 		data32 |= 1 << 22;
 	}
-	VSYNCOSD_WR_MPEG_REG(VPP_OSD_HSC_CTRL0, data32);
+	VSYNCOSD_WR_MPEG_REG(osd_sco_hsc_ctrl0, data32);
 	data32 = 0x0;
 	if (osd_hw.free_scale[OSD3].v_enable) {
 		data32 |= (vf_bank_len & 0x7)
@@ -2159,19 +2198,42 @@ static void osd3_update_disp_freescale_enable(void)
 			data32 |= 1 << 21;
 		data32 |= 1 << 24;
 	}
-	VSYNCOSD_WR_MPEG_REG(VPP_OSD_VSC_CTRL0, data32);
+	VSYNCOSD_WR_MPEG_REG(osd_sco_vsc_ctrl0, data32);
 	data32 = 0x0;
 	if (osd_hw.free_scale_enable[OSD3]) {
 		data32 |= (bot_ini_phase & 0xffff) << 16;
-		VSYNCOSD_WR_MPEG_REG_BITS(VPP_OSD_HSC_PHASE_STEP,
+		VSYNCOSD_WR_MPEG_REG_BITS(osd_sco_hsc_phase_step,
 					  hf_phase_step, 0, 28);
-		VSYNCOSD_WR_MPEG_REG_BITS(VPP_OSD_HSC_INI_PHASE, 0, 0, 16);
-		VSYNCOSD_WR_MPEG_REG_BITS(VPP_OSD_VSC_PHASE_STEP,
+		VSYNCOSD_WR_MPEG_REG_BITS(osd_sco_hsc_ini_phase, 0, 0, 16);
+		VSYNCOSD_WR_MPEG_REG_BITS(osd_sco_vsc_phase_step,
 					  vf_phase_step, 0, 28);
-		VSYNCOSD_WR_MPEG_REG(VPP_OSD_VSC_INI_PHASE, data32);
+		VSYNCOSD_WR_MPEG_REG(osd_sco_vsc_ini_phase, data32);
+	}
+	if (osd_index == VIU2_OSD1) {
+		/* hdr in size */
+		VSYNCOSD_WR_MPEG_REG(OSD3_HDR_IN_SIZE, dst_h << 16 | dst_w);
+		/* vpp_top1 scope */
+		VSYNCOSD_WR_MPEG_REG
+			(VPP1_BLD_DIN1_HSCOPE,
+			 (osd_hw.free_dst_data[OSD3].x_start << 16) |
+			 osd_hw.free_dst_data[OSD3].x_end);
+
+		VSYNCOSD_WR_MPEG_REG
+			(VPP1_BLD_DIN1_VSCOPE,
+			 (osd_hw.free_dst_data[OSD3].y_start << 16) |
+			 osd_hw.free_dst_data[OSD3].y_end);
+
+		VSYNCOSD_WR_MPEG_REG(VPP1_BLD_OUT_SIZE, dst_h << 16 | dst_w);
+
+		osd_logd2("vpp1 bld scop(%d %d %d %d)\n",
+			osd_hw.free_dst_data[OSD3].x_start,
+			osd_hw.free_dst_data[OSD3].x_end,
+			osd_hw.free_dst_data[OSD3].y_start,
+			osd_hw.free_dst_data[OSD3].y_end);
 	}
 	remove_from_update_list(OSD3, DISP_FREESCALE_ENABLE);
 }
+#endif
 
 static void osd2_update_coef(void)
 {
@@ -2217,6 +2279,7 @@ static void osd2_update_coef(void)
 	remove_from_update_list(OSD2, OSD_FREESCALE_COEF);
 }
 
+#ifdef AML_T7_DISPLAY
 static void osd3_update_coef(void)
 {
 	int i;
@@ -2224,41 +2287,68 @@ static void osd3_update_coef(void)
 	int hf_coef_wren = 1;
 	int vf_coef_wren = 1;
 	unsigned int *hf_coef, *vf_coef;
+	int osd_index = -1;
+	u32 osd_scale_coef_idx;
+	u32 osd_scale_coef;
+	static int osd34_use_v_filter_mode[2] = {-1, -1};
+	static int osd34_use_h_filter_mode[2] = {-1, -1};
+	int *use_v_filter_mode;
+	int *use_h_filter_mode;
+
+	osd_index = get_osd_layer();
+	if (osd_index < 0) {
+		osd_loge("%s: invalid osd_index\n", __func__);
+		return;
+	}
+
+	osd_logd2("%s, index:%d\n", __func__, osd_index);
+
+	if (osd_index < VIU2_OSD1) {
+		use_v_filter_mode = &osd34_use_v_filter_mode[0];
+		use_h_filter_mode = &osd34_use_h_filter_mode[0];
+		osd_scale_coef_idx = VPP_OSD_SCALE_COEF_IDX;
+		osd_scale_coef = VPP_OSD_SCALE_COEF;
+	} else {
+		use_v_filter_mode = &osd34_use_v_filter_mode[1];
+		use_h_filter_mode = &osd34_use_h_filter_mode[1];
+		osd_scale_coef_idx = OSD34_SCALE_COEF_IDX;
+		osd_scale_coef = OSD34_SCALE_COEF;
+	}
 
 	if (osd_hw.scale_workaround) {
-		if (use_v_filter_mode != 3) {
-			use_v_filter_mode = 3;
+		if (*use_v_filter_mode != 3) {
+			*use_v_filter_mode = 3;
 			need_update_coef = true;
 		} else {
 			need_update_coef = false;
 		}
 	} else {
-		if (use_v_filter_mode != osd_v_filter_mode) {
-			use_v_filter_mode = osd_v_filter_mode;
+		if (*use_v_filter_mode != osd_v_filter_mode) {
+			*use_v_filter_mode = osd_v_filter_mode;
 			need_update_coef = true;
 		} else {
 			need_update_coef = false;
 		}
 	}
-	vf_coef = filter_table[use_v_filter_mode];
+	vf_coef = filter_table[*use_v_filter_mode];
 	if (need_update_coef) {
 		if (vf_coef_wren) {
-			osd_reg_set_bits(VPP_OSD_SCALE_COEF_IDX, 0x0000, 0, 9);
+			osd_reg_set_bits(osd_scale_coef_idx, 0x0000, 0, 9);
 			for (i = 0; i < 33; i++)
-				osd_reg_write(VPP_OSD_SCALE_COEF, vf_coef[i]);
+				osd_reg_write(osd_scale_coef, vf_coef[i]);
 		}
 	}
 	need_update_coef = false;
-	if (use_h_filter_mode != osd_h_filter_mode) {
-		use_h_filter_mode = osd_h_filter_mode;
+	if (*use_h_filter_mode != osd_h_filter_mode) {
+		*use_h_filter_mode = osd_h_filter_mode;
 		need_update_coef = true;
 	}
-	hf_coef = filter_table[use_h_filter_mode];
+	hf_coef = filter_table[*use_h_filter_mode];
 	if (need_update_coef) {
 		if (hf_coef_wren) {
-			osd_reg_set_bits(VPP_OSD_SCALE_COEF_IDX, 0x0100, 0, 9);
+			osd_reg_set_bits(osd_scale_coef_idx, 0x0100, 0, 9);
 			for (i = 0; i < 33; i++)
-				osd_reg_write(VPP_OSD_SCALE_COEF, hf_coef[i]);
+				osd_reg_write(osd_scale_coef, hf_coef[i]);
 		}
 	}
 	remove_from_update_list(OSD3, OSD_FREESCALE_COEF);
@@ -2266,15 +2356,20 @@ static void osd3_update_coef(void)
 
 static void viu2_osd1_update_disp_freescale_enable(void)
 {
+	osd3_update_disp_freescale_enable();
+}
+#else
+static void viu2_osd1_update_disp_freescale_enable(void)
+{
 	/* do nothing */
-
 	remove_from_update_list(VIU2_OSD1, DISP_FREESCALE_ENABLE);
 }
+#endif
 
 #ifdef AML_T7_DISPLAY
 static void viu2_osd1_update_coef(void)
 {
-
+	osd3_update_coef();
 }
 #else
 static void viu2_osd1_update_coef(void)
@@ -2369,6 +2464,7 @@ static void osd2_update_color_mode(void)
 	remove_from_update_list(OSD2, OSD_COLOR_MODE);
 }
 
+#ifdef AML_T7_DISPLAY
 static void osd3_update_color_mode(void)
 {
 	u32 data32 = 0;
@@ -2393,10 +2489,9 @@ static void osd3_update_color_mode(void)
 	remove_from_update_list(OSD3, OSD_COLOR_MODE);
 }
 
-#ifdef AML_T7_DISPLAY
 static void viu2_osd1_update_color_mode(void)
 {
-
+	osd3_update_color_mode();
 }
 #else
 static void viu2_osd1_update_color_mode(void)
@@ -2533,6 +2628,7 @@ static void osd2_update_enable(void)
 	remove_from_update_list(OSD2, OSD_ENABLE);
 }
 
+#ifdef AML_T7_DISPLAY
 static void osd3_update_enable(void)
 {
 	if (osd_hw.free_scale_mode[OSD3]) {
@@ -2546,10 +2642,9 @@ static void osd3_update_enable(void)
 	remove_from_update_list(OSD3, OSD_ENABLE);
 }
 
-#ifdef AML_T7_DISPLAY
 static void viu2_osd1_update_enable(void)
 {
-
+	osd3_update_enable();
 }
 #else
 static void viu2_osd1_update_enable(void)
@@ -2582,6 +2677,7 @@ static void osd2_update_disp_osd_reverse(void)
 	remove_from_update_list(OSD2, DISP_OSD_REVERSE);
 }
 
+#ifdef AML_T7_DISPLAY
 static void osd3_update_disp_osd_reverse(void)
 {
 	if (osd_hw.osd_reverse[OSD3])
@@ -2591,10 +2687,9 @@ static void osd3_update_disp_osd_reverse(void)
 	remove_from_update_list(OSD3, DISP_OSD_REVERSE);
 }
 
-#ifdef AML_T7_DISPLAY
 static void viu2_osd1_update_disp_osd_reverse(void)
 {
-
+	osd3_update_disp_osd_reverse();
 }
 #else
 static void viu2_osd1_update_disp_osd_reverse(void)
@@ -2747,13 +2842,6 @@ static void osd2_update_disp_osd_rotate(void)
 	remove_from_update_list(OSD2, DISP_OSD_ROTATE);
 }
 
-static void osd3_update_disp_osd_rotate(void)
-{
-	/* do nothing*/
-
-	remove_from_update_list(OSD3, DISP_OSD_ROTATE);
-}
-
 static void viu2_osd1_update_disp_osd_rotate(void)
 {
 	/* do nothing*/
@@ -2773,16 +2861,16 @@ static void osd2_update_color_key(void)
 	remove_from_update_list(OSD2, OSD_COLOR_KEY);
 }
 
+#ifdef AML_T7_DISPLAY
 static void osd3_update_color_key(void)
 {
 	VSYNCOSD_WR_MPEG_REG(VIU_OSD3_TCOLOR_AG0, osd_hw.color_key[OSD3]);
 	remove_from_update_list(OSD3, OSD_COLOR_KEY);
 }
 
-#ifdef AML_T7_DISPLAY
 static void viu2_osd1_update_color_key(void)
 {
-
+	osd3_update_color_key();
 }
 #else
 static void viu2_osd1_update_color_key(void)
@@ -2812,6 +2900,7 @@ static void osd2_update_color_key_enable(void)
 	remove_from_update_list(OSD2, OSD_COLOR_KEY_ENABLE);
 }
 
+#ifdef AML_T7_DISPLAY
 static void osd3_update_color_key_enable(void)
 {
 	u32  data32;
@@ -2823,10 +2912,9 @@ static void osd3_update_color_key_enable(void)
 	remove_from_update_list(OSD3, OSD_COLOR_KEY_ENABLE);
 }
 
-#ifdef AML_T7_DISPLAY
 static void viu2_osd1_update_color_key_enable(void)
 {
-
+	osd3_update_color_key_enable();
 }
 #else
 static void viu2_osd1_update_color_key_enable(void)
@@ -2860,6 +2948,7 @@ static void osd2_update_gbl_alpha(void)
 	remove_from_update_list(OSD2, OSD_GBL_ALPHA);
 }
 
+#ifdef AML_T7_DISPLAY
 static void osd3_update_gbl_alpha(void)
 {
 	u32  data32;
@@ -2871,10 +2960,9 @@ static void osd3_update_gbl_alpha(void)
 	remove_from_update_list(OSD3, OSD_GBL_ALPHA);
 }
 
-#ifdef AML_T7_DISPLAY
 static void viu2_osd1_update_gbl_alpha(void)
 {
-
+	osd3_update_gbl_alpha();
 }
 #else
 static void viu2_osd1_update_gbl_alpha(void)
@@ -2901,13 +2989,6 @@ static void osd2_update_order(void)
 		break;
 	}
 	remove_from_update_list(OSD2, OSD_CHANGE_ORDER);
-}
-
-static void osd3_update_order(void)
-{
-	/* do nothing */
-
-	remove_from_update_list(OSD3, OSD_CHANGE_ORDER);
 }
 
 static void osd1_update_order(void)
@@ -3182,6 +3263,7 @@ static void osd2_update_disp_geometry(void)
 	remove_from_update_list(OSD2, DISP_GEOMETRY);
 }
 
+#ifdef AML_T7_DISPLAY
 static void osd3_update_disp_geometry(void)
 {
 	u32 data32;
@@ -3238,10 +3320,9 @@ static void osd3_update_disp_geometry(void)
 	remove_from_update_list(OSD3, DISP_GEOMETRY);
 }
 
-#ifdef AML_T7_DISPLAY
 static void viu2_osd1_update_disp_geometry(void)
 {
-
+	osd3_update_disp_geometry();
 }
 #else
 static void viu2_osd1_update_disp_geometry(void)
@@ -3320,7 +3401,7 @@ static void osd3_update_disp_3d_mode(void)
 #ifdef AML_T7_DISPLAY
 static void viu2_osd1_update_disp_3d_mode(void)
 {
-
+	osd3_update_disp_3d_mode();
 }
 #else
 static void viu2_osd1_update_disp_3d_mode(void)
@@ -3371,7 +3452,60 @@ int osd_get_hist_stat(u32 *hist_result)
 #ifdef AML_T7_DISPLAY
 void osd_init_hw_viu2(void)
 {
+	u32 group, idx;
+	char *osd_reverse;
+	/* 1:vd1  2:osd1 else :close */
+	u32 bld_src2_sel = 2;
+	u32 osd_premult = 0;
+	u32 blend_en = 1;
 
+	/* OSD3 -> VPP1 */
+	if (osd_hw.path_ctrl_independ) {
+		independ_path_default_regs();
+		/* osd byp osd_blend */
+		osd_reg_set_bits(VIU_OSD3_PATH_CTRL, 0x1, 4, 1);
+	} else {
+		fix_vpu_clk2_default_regs();
+		/* osd byp osd_blend */
+		osd_reg_set_bits(VPP_OSD3_SCALE_CTRL, 0x7, 0, 3);
+	}
+
+	/* vpp1 osd order, premult, blend_en */
+	osd_reg_set_bits(VPP1_BLD_CTRL, bld_src2_sel, 4, 4);
+	osd_reg_set_bits(VPP1_BLD_CTRL, osd_premult, 17, 1);
+	osd_reg_set_bits(VPP1_BLD_CTRL, blend_en, 31, 1);
+
+	/* vpp_top input mux */
+	osd_reg_set_bits(OSD_PATH_MISC_CTRL, OSD3 + VPP_OSD1,
+			 OSD3 * 4 + 16, 8);
+
+	/* to vpp_top1 */
+	osd_reg_set_bits(PATH_START_SEL, VPU_VPP1, 24, 2);
+
+	/* init param */
+	osd_reverse = env_get("osd_reverse");
+	for (group = 0; group < HW_OSD_COUNT; group++)
+		for (idx = 0; idx < HW_REG_INDEX_MAX; idx++)
+			osd_hw.reg[group][idx].update_func =
+				hw_func_array[group][idx];
+
+	osd_hw.updated[VIU2_OSD1] = 0;
+	osd_hw.enable[VIU2_OSD1] = DISABLE;
+
+	osd_hw.fb_gem[VIU2_OSD1].canvas_idx = OSD4_CANVAS_INDEX;
+	osd_hw.gbl_alpha[VIU2_OSD1] = OSD_GLOBAL_ALPHA_DEF;
+	osd_hw.color_info[VIU2_OSD1] = NULL;
+	osd_hw.color_key[VIU2_OSD1] = 0xffffffff;
+	osd_hw.scale[VIU2_OSD1].h_enable = 0;
+	osd_hw.scale[VIU2_OSD1].v_enable = 0;
+	osd_hw.mode_3d[VIU2_OSD1].enable = 0;
+	if (osd_reverse && strcmp(osd_reverse, "all,true") == 0)
+		osd_hw.osd_reverse[VIU2_OSD1] = 1;
+	else
+		osd_hw.osd_reverse[VIU2_OSD1] = 0;
+
+	osd_hw.rotation_pandata[VIU2_OSD1].x_start = 0;
+	osd_hw.rotation_pandata[VIU2_OSD1].y_start = 0;
 }
 #else
 void osd_init_hw_viu2(void)

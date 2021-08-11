@@ -7,6 +7,7 @@
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
 #include <amlogic/cpu_id.h>
+#include <amlogic/fb.h>
 #include <amlogic/media/vpp/vpp.h>
 #include <amlogic/media/vout/aml_vmode.h>
 #include <amlogic/media/vout/aml_vout.h>
@@ -506,8 +507,14 @@ static void vout_vmode_init(void)
 	struct aml_lcd_drv_s *pdrv;
 	unsigned int venc_index;
 #endif
+	uint index = 0;
 
-	outputmode = env_get("outputmode");
+	index = get_osd_layer();
+	if (index < VIU2_OSD1)
+		outputmode = env_get("outputmode");
+	else
+		outputmode = env_get("outputmode2");
+
 	vset = vout_find_mode_by_name(outputmode);
 	if (!vset)
 		return;

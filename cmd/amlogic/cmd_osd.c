@@ -24,6 +24,7 @@ extern void osd_enable_hw(u32 index, u32 enable);
 extern void osd_set_free_scale_enable_hw(u32 index, u32 enable);
 extern int osd_rma_test(u32 osd_index);
 extern int get_osd_layer(void);
+
 static int do_osd_open(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
@@ -95,16 +96,26 @@ static int do_osd_clear(cmd_tbl_t *cmdtp, int flag, int argc,
 	index = get_osd_layer();
 	if (index < VIU2_OSD1) {
 		fb_addr = (ulong)gdev->frameAdrs;
-		fb_len = CANVAS_ALIGNED(gdev->fb_width * gdev->gdfBytesPP) * gdev->fb_height;
+		fb_len = CANVAS_ALIGNED(gdev->fb_width * gdev->gdfBytesPP) *
+			gdev->fb_height;
 	} else {
 		fb_addr = (ulong)(gdev->frameAdrs +
-			CANVAS_ALIGNED(gdev->fb_width * gdev->gdfBytesPP) * gdev->fb_height);
-		fb_len = CANVAS_ALIGNED(gdev->winSizeX * gdev->gdfBytesPP) * gdev->winSizeY;
+			CANVAS_ALIGNED(gdev->fb_width * gdev->gdfBytesPP) *
+				       gdev->fb_height);
+		if (get_osd_viux_scale_cap())
+			fb_len = CANVAS_ALIGNED(gdev->fb_width *
+						gdev->gdfBytesPP) *
+						gdev->fb_height;
+		else
+			fb_len = CANVAS_ALIGNED(gdev->winSizeX *
+						gdev->gdfBytesPP) *
+						gdev->winSizeY;
 	}
 	memset((void *)fb_addr, 0, fb_len);
 	flush_cache(fb_addr, fb_len);
 #else
-	fb_len = CANVAS_ALIGNED(gdev->winSizeX * gdev->gdfBytesPP) * gdev->winSizeY;
+	fb_len = CANVAS_ALIGNED(gdev->winSizeX * gdev->gdfBytesPP) *
+			gdev->winSizeY;
 	memset((void *)(long long)(gdev->frameAdrs), 0, fb_len);
 
 	flush_cache(gdev->frameAdrs, fb_len);

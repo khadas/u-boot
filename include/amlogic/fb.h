@@ -294,14 +294,17 @@ struct fb_con2fbmap {
 #define VESA_POWERDOWN          3
 
 u32 osd_canvas_align(u32 x);
+int get_osd_layer(void);
+int get_osd_viux_scale_cap(void);
 
 #define CANVAS_ALIGNED(x) osd_canvas_align(x)
 
 enum osd_index_e {
 	OSD1 = 0,
 	OSD2,
-	OSD3,
-	VIU2_OSD1
+	VIU2_OSD1,
+	/* for OSD3->VPP1 case */
+	OSD3 = VIU2_OSD1,
 };
 
 enum {

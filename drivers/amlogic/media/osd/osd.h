@@ -42,7 +42,7 @@
 #define KEYCOLOR_FLAG_ONHOLD  2
 #define KEYCOLOR_FLAG_CURRENT 4
 
-#define HW_OSD_COUNT 4
+#define HW_OSD_COUNT 3
 /* OSD block definition */
 #define HW_OSD_BLOCK_COUNT 4
 #define HW_OSD_BLOCK_REG_COUNT (HW_OSD_BLOCK_COUNT*2)
@@ -170,6 +170,20 @@ enum osd_ver_e {
 	OSD_HIGH_OTHER
 };
 
+enum vpp_mux_input_type {
+	VPP_DIN_NONE = 0,
+	VPP_OSD1,
+	VPP_OSD2,
+	VPP_OSD3,
+	VPP_OSD4,
+};
+
+enum vpp_vsync_type {
+	VPU_VPP0,
+	VPU_VPP1,
+	VPU_VPP2,
+};
+
 struct pandata_s {
 	s32 x_start;
 	s32 x_end;
@@ -254,6 +268,7 @@ struct hw_para_s {
 	u32 shift_line;
 	u32 mif_linear;
 	u32 path_ctrl_independ;
+	u32 viux_scale_cap;
 };
 
 #endif /* _OSD_H_ */
