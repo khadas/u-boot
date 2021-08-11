@@ -608,7 +608,6 @@ static u32 fake_reg = 0;
 u8 store_boot_copy_start(void)
 {
 	struct storage_t *store = store_get_current();
-	cpu_id_t cpu_id = get_cpu_id();
 
 	if (!store) {
 		pr_info("%s %d please init storage device first\n",
@@ -617,18 +616,19 @@ u8 store_boot_copy_start(void)
 	}
 	if (store->type != BOOT_EMMC)
 		return 0;
-	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2)
+	/* new arch since sc2 */
+	if (BOOTLOADER_MODE_ADVANCE_INIT)
 		return storage_get_emmc_boot_start();
 	return 0;
 }
 
 u8 store_bootup_bootidx(const char *name)
 {
-	cpu_id_t cpu_id = get_cpu_id();
 	u8 bl2_idx = 0, fip_idx = 0;
 	u32 val = 0;
 
-	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) {
+	/* new arch since sc2 */
+	if (BOOTLOADER_MODE_ADVANCE_INIT) {
 			bl2_idx = readl(SYSCTRL_SEC_STATUS_REG2) & 0xF;
 			//TODO: fixme after robust devfip is finished.
 			fip_idx = bl2_idx;
@@ -655,8 +655,8 @@ u8 store_bootup_bootidx(const char *name)
 
 void store_restore_bootidx(void)
 {
-	cpu_id_t cpu_id = get_cpu_id();
-	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SC2) {
+	/* new arch since sc2 */
+	if (BOOTLOADER_MODE_ADVANCE_INIT) {
 		extern void aml_set_bootsequence(uint32_t val);
 		aml_set_bootsequence(0x55);
 	}
