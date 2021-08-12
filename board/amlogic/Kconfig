@@ -651,11 +651,51 @@ config P1_SKT
 	help
 	  Select P1 SKT(XXXX) config
 
+config P1_AS400
+	bool "P1_AS400"
+	select TARGET_P1_AS400
+	help
+	  Select P1 AS400 config
+
+config P1_AS408
+	bool "P1_AS408"
+	select TARGET_P1_AS408
+	help
+	  Select P1 AS408 config
+
+config P1_AS409
+	bool "P1_AS409"
+	select TARGET_P1_AS409
+	help
+	  Select P1 AS409 config
+
+config P1_NINOX_4
+	bool "P1_NINOX_4"
+	select TARGET_P1_NINOX_4
+	help
+	  Select P1 NINOX 4 config
+
 endchoice
 
 config TARGET_P1_SKT
 	bool "P1 SKT board"
 	depends on P1_SKT
+
+config TARGET_P1_AS400
+	bool "P1 AS400 board"
+	depends on P1_AS400
+
+config TARGET_P1_AS408
+	bool "P1 AS408 board"
+	depends on P1_AS408
+
+config TARGET_P1_AS409
+	bool "P1 AS409 board"
+	depends on P1_AS409
+
+config TARGET_P1_NINOX_4
+	bool "P1 NINOX 4 board"
+	depends on P1_NINOX_4
 
 endif
 
@@ -1001,6 +1041,14 @@ source "board/amlogic/g12b_w400_v1/Kconfig"
 source "board/amlogic/sm1_ac200_v1/Kconfig"
 
 source "board/amlogic/p1_skt/Kconfig"
+
+source "board/amlogic/p1_as400/Kconfig"
+
+source "board/amlogic/p1_as408/Kconfig"
+
+source "board/amlogic/p1_as409/Kconfig"
+
+source "board/amlogic/p1_ninox_4/Kconfig"
 
 source "board/amlogic/t7_skt/Kconfig"
 
