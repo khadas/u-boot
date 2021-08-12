@@ -27,7 +27,11 @@
  */
 
 #define AML_VCCK_INIT_VOLTAGE	  939	    //VCCK power up voltage
-#define AML_VDDEE_INIT_VOLTAGE    800       // VDDEE power up voltage
+#define AML_VDDEE_INIT_VOLTAGE    840       // VDDEE power up voltage
+#define AML_VDD_DDR_INIT_VOLTAGE  800
+#define AML_LPDDR4X_VDD2H_INIT_VOLTAGE 1110
+#define AML_VDD_CPUA_INIT_VOLTAGE	880
+#define AML_VDD_CPUB_INIT_VOLTAGE	880
 
 /* SMP Definitinos */
 #define CPU_RELEASE_ADDR		secondary_boot_func

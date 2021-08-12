@@ -654,82 +654,85 @@ __attribute__ ((section(".clk_param"))) = {
 	.low_console_baud = CONFIG_LOW_CONSOLE_BAUD,
 };
 
-
-#define VCCK_VAL                                AML_VCCK_INIT_VOLTAGE
 #define VDDEE_VAL                               AML_VDDEE_INIT_VOLTAGE
-/* VCCK PWM table */
-#if   (VCCK_VAL == 1039)
-#define VCCK_VAL_REG    0x00000022
-#elif (VCCK_VAL == 1029)
-#define VCCK_VAL_REG    0x00010021
-#elif (VCCK_VAL == 1019)
-#define VCCK_VAL_REG    0x00020020
-#elif (VCCK_VAL == 1009)
-#define VCCK_VAL_REG    0x0003001f
-#elif (VCCK_VAL == 999)
-#define VCCK_VAL_REG    0x0004001e
-#elif (VCCK_VAL == 989)
-#define VCCK_VAL_REG    0x0005001d
-#elif (VCCK_VAL == 979)
-#define VCCK_VAL_REG    0x0006001c
-#elif (VCCK_VAL == 969)
-#define VCCK_VAL_REG    0x0007001b
-#elif (VCCK_VAL == 959)
-#define VCCK_VAL_REG    0x0008001a
-#elif (VCCK_VAL == 949)
-#define VCCK_VAL_REG    0x00090019
-#elif (VCCK_VAL == 939)
-#define VCCK_VAL_REG    0x000a0018
-#elif (VCCK_VAL == 929)
-#define VCCK_VAL_REG    0x000b0017
-#elif (VCCK_VAL == 919)
-#define VCCK_VAL_REG    0x000c0016
-#elif (VCCK_VAL == 909)
-#define VCCK_VAL_REG    0x000d0015
-#elif (VCCK_VAL == 899)
-#define VCCK_VAL_REG    0x000e0014
-#elif (VCCK_VAL == 889)
-#define VCCK_VAL_REG    0x000f0013
-#elif (VCCK_VAL == 879)
-#define VCCK_VAL_REG    0x00100012
-#elif (VCCK_VAL == 869)
-#define VCCK_VAL_REG    0x00110011
-#elif (VCCK_VAL == 859)
-#define VCCK_VAL_REG    0x00120010
-#elif (VCCK_VAL == 849)
-#define VCCK_VAL_REG    0x0013000f
-#elif (VCCK_VAL == 839)
-#define VCCK_VAL_REG    0x0014000e
-#elif (VCCK_VAL == 829)
-#define VCCK_VAL_REG    0x0015000d
-#elif (VCCK_VAL == 819)
-#define VCCK_VAL_REG    0x0016000c
-#elif (VCCK_VAL == 809)
-#define VCCK_VAL_REG    0x0017000b
-#elif (VCCK_VAL == 799)
-#define VCCK_VAL_REG    0x0018000a
-#elif (VCCK_VAL == 789)
-#define VCCK_VAL_REG    0x00190009
-#elif (VCCK_VAL == 779)
-#define VCCK_VAL_REG    0x001a0008
-#elif (VCCK_VAL == 769)
-#define VCCK_VAL_REG    0x001b0007
-#elif (VCCK_VAL == 759)
-#define VCCK_VAL_REG    0x001c0006
-#elif (VCCK_VAL == 749)
-#define VCCK_VAL_REG    0x001d0005
-#elif (VCCK_VAL == 739)
-#define VCCK_VAL_REG    0x001e0004
-#elif (VCCK_VAL == 729)
-#define VCCK_VAL_REG    0x001f0003
-#elif (VCCK_VAL == 719)
-#define VCCK_VAL_REG    0x00200002
-#elif (VCCK_VAL == 709)
-#define VCCK_VAL_REG    0x00210001
-#elif (VCCK_VAL == 699)
-#define VCCK_VAL_REG    0x00220000
+#define VDD_DDR_VAL                             AML_VDD_DDR_INIT_VOLTAGE
+#define LPDDR4X_VDD2H_VAL						AML_LPDDR4X_VDD2H_INIT_VOLTAGE
+#define VDD_CPUA_VAL							AML_VDD_CPUA_INIT_VOLTAGE
+#define VDD_CPUB_VAL							AML_VDD_CPUB_INIT_VOLTAGE
+
+/* VDD DDR table */
+#if   (VDD_DDR_VAL == 700)
+#define VDD_DDR_VAL_REG    0x00
+#elif (VDD_DDR_VAL == 710)
+#define VDD_DDR_VAL_REG    0x01
+#elif (VDD_DDR_VAL == 720)
+#define VDD_DDR_VAL_REG    0x02
+#elif (VDD_DDR_VAL == 730)
+#define VDD_DDR_VAL_REG    0x03
+#elif (VDD_DDR_VAL == 740)
+#define VDD_DDR_VAL_REG    0x04
+#elif (VDD_DDR_VAL == 750)
+#define VDD_DDR_VAL_REG    0x05
+#elif (VDD_DDR_VAL == 760)
+#define VDD_DDR_VAL_REG    0x06
+#elif (VDD_DDR_VAL == 770)
+#define VDD_DDR_VAL_REG    0x07
+#elif (VDD_DDR_VAL == 780)
+#define VDD_DDR_VAL_REG    0x08
+#elif (VDD_DDR_VAL == 790)
+#define VDD_DDR_VAL_REG    0x09
+#elif (VDD_DDR_VAL == 800)
+#define VDD_DDR_VAL_REG    0x0a
+#elif (VDD_DDR_VAL == 810)
+#define VDD_DDR_VAL_REG    0x0b
+#elif (VDD_DDR_VAL == 820)
+#define VDD_DDR_VAL_REG    0x0c
+#elif (VDD_DDR_VAL == 830)
+#define VDD_DDR_VAL_REG    0x0d
+#elif (VDD_DDR_VAL == 840)
+#define VDD_DDR_VAL_REG    0x0e
+#elif (VDD_DDR_VAL == 850)
+#define VDD_DDR_VAL_REG    0x0f
+#elif (VDD_DDR_VAL == 860)
+#define VDD_DDR_VAL_REG    0x10
+#elif (VDD_DDR_VAL == 870)
+#define VDD_DDR_VAL_REG    0x11
+#elif (VDD_DDR_VAL == 880)
+#define VDD_DDR_VAL_REG    0x12
+#elif (VDD_DDR_VAL == 890)
+#define VDD_DDR_VAL_REG    0x13
+#elif (VDD_DDR_VAL == 900)
+#define VDD_DDR_VAL_REG    0x14
+#elif (VDD_DDR_VAL == 910)
+#define VDD_DDR_VAL_REG    0x15
+#elif (VDD_DDR_VAL == 920)
+#define VDD_DDR_VAL_REG    0x16
+#elif (VDD_DDR_VAL == 930)
+#define VDD_DDR_VAL_REG    0x17
+#elif (VDD_DDR_VAL == 940)
+#define VDD_DDR_VAL_REG    0x18
+#elif (VDD_DDR_VAL == 950)
+#define VDD_DDR_VAL_REG    0x19
+#elif (VDD_DDR_VAL == 960)
+#define VDD_DDR_VAL_REG    0x1a
+#elif (VDD_DDR_VAL == 970)
+#define VDD_DDR_VAL_REG    0x1b
+#elif (VDD_DDR_VAL == 980)
+#define VDD_DDR_VAL_REG    0x1c
+#elif (VDD_DDR_VAL == 990)
+#define VDD_DDR_VAL_REG    0x1d
+#elif (VDD_DDR_VAL == 1000)
+#define VDD_DDR_VAL_REG    0x1e
+#elif (VDD_DDR_VAL == 1010)
+#define VDD_DDR_VAL_REG    0x1f
+#elif (VDD_DDR_VAL == 1020)
+#define VDD_DDR_VAL_REG    0x20
+#elif (VDD_DDR_VAL == 1030)
+#define VDD_DDR_VAL_REG    0x21
+#elif (VDD_DDR_VAL == 1040)
+#define VDD_DDR_VAL_REG    0x22
 #else
-#error "VCCK val out of range\n"
+#error "VDD_DDR val out of range\n"
 #endif
 
 /* VDDEE_VAL_REG */
@@ -775,10 +778,253 @@ __attribute__ ((section(".clk_param"))) = {
 #error "VDDEE val out of range\n"
 #endif
 
+/* LPDDR4X_VDD2H_REG */
+#if    (LPDDR4X_VDD2H_VAL == 800)
+#define LPDDR4X_VDD2H_REG   0x00
+#elif (LPDDR4X_VDD2H_VAL == 810)
+#define LPDDR4X_VDD2H_REG   0x01
+#elif (LPDDR4X_VDD2H_VAL == 820)
+#define LPDDR4X_VDD2H_REG   0x02
+#elif (LPDDR4X_VDD2H_VAL == 830)
+#define LPDDR4X_VDD2H_REG   0x03
+#elif (LPDDR4X_VDD2H_VAL == 840)
+#define LPDDR4X_VDD2H_REG   0x04
+#elif (LPDDR4X_VDD2H_VAL == 850)
+#define LPDDR4X_VDD2H_REG   0x05
+#elif (LPDDR4X_VDD2H_VAL == 860)
+#define LPDDR4X_VDD2H_REG   0x06
+#elif (LPDDR4X_VDD2H_VAL == 870)
+#define LPDDR4X_VDD2H_REG   0x07
+#elif (LPDDR4X_VDD2H_VAL == 880)
+#define LPDDR4X_VDD2H_REG   0x08
+#elif (LPDDR4X_VDD2H_VAL == 890)
+#define LPDDR4X_VDD2H_REG   0x09
+#elif (LPDDR4X_VDD2H_VAL == 900)
+#define LPDDR4X_VDD2H_REG   0x0a
+#elif (LPDDR4X_VDD2H_VAL == 910)
+#define LPDDR4X_VDD2H_REG   0x0b
+#elif (LPDDR4X_VDD2H_VAL == 920)
+#define LPDDR4X_VDD2H_REG   0x0c
+#elif (LPDDR4X_VDD2H_VAL == 930)
+#define LPDDR4X_VDD2H_REG   0x0d
+#elif (LPDDR4X_VDD2H_VAL == 940)
+#define LPDDR4X_VDD2H_REG   0x0e
+#elif (LPDDR4X_VDD2H_VAL == 950)
+#define LPDDR4X_VDD2H_REG   0x0f
+#elif (LPDDR4X_VDD2H_VAL == 960)
+#define LPDDR4X_VDD2H_REG   0x10
+#elif (LPDDR4X_VDD2H_VAL == 970)
+#define LPDDR4X_VDD2H_REG   0x11
+#elif (LPDDR4X_VDD2H_VAL == 980)
+#define LPDDR4X_VDD2H_REG   0x12
+#elif (LPDDR4X_VDD2H_VAL == 990)
+#define LPDDR4X_VDD2H_REG   0x13
+#elif (LPDDR4X_VDD2H_VAL == 1000)
+#define LPDDR4X_VDD2H_REG   0x14
+#elif (LPDDR4X_VDD2H_VAL == 1010)
+#define LPDDR4X_VDD2H_REG   0x15
+#elif (LPDDR4X_VDD2H_VAL == 1020)
+#define LPDDR4X_VDD2H_REG   0x16
+#elif (LPDDR4X_VDD2H_VAL == 1030)
+#define LPDDR4X_VDD2H_REG   0x17
+#elif (LPDDR4X_VDD2H_VAL == 1040)
+#define LPDDR4X_VDD2H_REG   0x18
+#elif (LPDDR4X_VDD2H_VAL == 1050)
+#define LPDDR4X_VDD2H_REG   0x19
+#elif (LPDDR4X_VDD2H_VAL == 1060)
+#define LPDDR4X_VDD2H_REG   0x1a
+#elif (LPDDR4X_VDD2H_VAL == 1070)
+#define LPDDR4X_VDD2H_REG   0x1b
+#elif (LPDDR4X_VDD2H_VAL == 1080)
+#define LPDDR4X_VDD2H_REG   0x1c
+#elif (LPDDR4X_VDD2H_VAL == 1090)
+#define LPDDR4X_VDD2H_REG   0x1d
+#elif (LPDDR4X_VDD2H_VAL == 1100)
+#define LPDDR4X_VDD2H_REG   0x1e
+#elif (LPDDR4X_VDD2H_VAL == 1110)
+#define LPDDR4X_VDD2H_REG   0x1f
+#elif (LPDDR4X_VDD2H_VAL == 1120)
+#define LPDDR4X_VDD2H_REG   0x20
+#elif (LPDDR4X_VDD2H_VAL == 1130)
+#define LPDDR4X_VDD2H_REG   0x21
+#elif (LPDDR4X_VDD2H_VAL == 1140)
+#define LPDDR4X_VDD2H_REG   0x22
+#else
+#error "LPDDR4X val out of range\n"
+#endif
+
+/* VDD_CPUA_REG */
+#if    (VDD_CPUA_VAL == 500)
+#define VDD_CPUA_REG   0x01
+#elif (VDD_CPUA_VAL == 505)
+#define VDD_CPUA_REG   0x02
+#elif (VDD_CPUA_VAL == 510)
+#define VDD_CPUA_REG   0x03
+#elif (VDD_CPUA_VAL == 515)
+#define VDD_CPUA_REG   0x04
+#elif (VDD_CPUA_VAL == 520)
+#define VDD_CPUA_REG   0x05
+#elif (VDD_CPUA_VAL == 525)
+#define VDD_CPUA_REG   0x06
+#elif (VDD_CPUA_VAL == 530)
+#define VDD_CPUA_REG   0x07
+#elif (VDD_CPUA_VAL == 535)
+#define VDD_CPUA_REG   0x08
+#elif (VDD_CPUA_VAL == 540)
+#define VDD_CPUA_REG   0x09
+#elif (VDD_CPUA_VAL == 545)
+#define VDD_CPUA_REG   0x0a
+#elif (VDD_CPUA_VAL == 550)
+#define VDD_CPUA_REG   0x0b
+#elif (VDD_CPUA_VAL == 555)
+#define VDD_CPUA_REG   0x0c
+#elif (VDD_CPUA_VAL == 560)
+#define VDD_CPUA_REG   0x0d
+#elif (VDD_CPUA_VAL == 565)
+#define VDD_CPUA_REG   0x0e
+#elif (VDD_CPUA_VAL == 570)
+#define VDD_CPUA_REG   0x0f
+#elif (VDD_CPUA_VAL == 575)
+#define VDD_CPUA_REG   0x10
+#elif (VDD_CPUA_VAL == 580)
+#define VDD_CPUA_REG   0x11
+#elif (VDD_CPUA_VAL == 585)
+#define VDD_CPUA_REG   0x12
+#elif (VDD_CPUA_VAL == 590)
+#define VDD_CPUA_REG   0x13
+#elif (VDD_CPUA_VAL == 595)
+#define VDD_CPUA_REG   0x14
+#elif (VDD_CPUA_VAL == 600)
+#define VDD_CPUA_REG   0x15
+#elif (VDD_CPUA_VAL == 605)
+#define VDD_CPUA_REG   0x16
+#elif (VDD_CPUA_VAL == 610)
+#define VDD_CPUA_REG   0x17
+#elif (VDD_CPUA_VAL == 615)
+#define VDD_CPUA_REG   0x18
+#elif (VDD_CPUA_VAL == 620)
+#define VDD_CPUA_REG   0x19
+#elif (VDD_CPUA_VAL == 625)
+#define VDD_CPUA_REG   0x1a
+#elif (VDD_CPUA_VAL == 630)
+#define VDD_CPUA_REG   0x1b
+#elif (VDD_CPUA_VAL == 635)
+#define VDD_CPUA_REG   0x1c
+#elif (VDD_CPUA_VAL == 640)
+#define VDD_CPUA_REG   0x1d
+#elif (VDD_CPUA_VAL == 645)
+#define VDD_CPUA_REG   0x1e
+#elif (VDD_CPUA_VAL == 650)
+#define VDD_CPUA_REG   0x1f
+#elif (VDD_CPUA_VAL == 655)
+#define VDD_CPUA_REG   0x20
+#elif (VDD_CPUA_VAL == 660)
+#define VDD_CPUA_REG   0x21
+#elif (VDD_CPUA_VAL == 665)
+#define VDD_CPUA_REG   0x22
+#elif (VDD_CPUA_VAL == 880)
+#define VDD_CPUA_REG   0x4d
+#else
+#error "VDD_CPUA val out of range\n"
+#endif
+
+/* VDD_CPUB_REG */
+#if    (VDD_CPUB_VAL == 500)
+#define VDD_CPUB_REG   0x01
+#elif (VDD_CPUB_VAL == 505)
+#define VDD_CPUB_REG   0x02
+#elif (VDD_CPUB_VAL == 510)
+#define VDD_CPUB_REG   0x03
+#elif (VDD_CPUB_VAL == 515)
+#define VDD_CPUB_REG   0x04
+#elif (VDD_CPUB_VAL == 520)
+#define VDD_CPUB_REG   0x05
+#elif (VDD_CPUB_VAL == 525)
+#define VDD_CPUB_REG   0x06
+#elif (VDD_CPUB_VAL == 530)
+#define VDD_CPUB_REG   0x07
+#elif (VDD_CPUB_VAL == 535)
+#define VDD_CPUB_REG   0x08
+#elif (VDD_CPUB_VAL == 540)
+#define VDD_CPUB_REG   0x09
+#elif (VDD_CPUB_VAL == 545)
+#define VDD_CPUB_REG   0x0a
+#elif (VDD_CPUB_VAL == 550)
+#define VDD_CPUB_REG   0x0b
+#elif (VDD_CPUB_VAL == 555)
+#define VDD_CPUB_REG   0x0c
+#elif (VDD_CPUB_VAL == 560)
+#define VDD_CPUB_REG   0x0d
+#elif (VDD_CPUB_VAL == 565)
+#define VDD_CPUB_REG   0x0e
+#elif (VDD_CPUB_VAL == 570)
+#define VDD_CPUB_REG   0x0f
+#elif (VDD_CPUB_VAL == 575)
+#define VDD_CPUB_REG   0x10
+#elif (VDD_CPUB_VAL == 580)
+#define VDD_CPUB_REG   0x11
+#elif (VDD_CPUB_VAL == 585)
+#define VDD_CPUB_REG   0x12
+#elif (VDD_CPUB_VAL == 590)
+#define VDD_CPUB_REG   0x13
+#elif (VDD_CPUB_VAL == 595)
+#define VDD_CPUB_REG   0x14
+#elif (VDD_CPUB_VAL == 600)
+#define VDD_CPUB_REG   0x15
+#elif (VDD_CPUB_VAL == 605)
+#define VDD_CPUB_REG   0x16
+#elif (VDD_CPUB_VAL == 610)
+#define VDD_CPUB_REG   0x17
+#elif (VDD_CPUB_VAL == 615)
+#define VDD_CPUB_REG   0x18
+#elif (VDD_CPUB_VAL == 620)
+#define VDD_CPUB_REG   0x19
+#elif (VDD_CPUB_VAL == 625)
+#define VDD_CPUB_REG   0x1a
+#elif (VDD_CPUB_VAL == 630)
+#define VDD_CPUB_REG   0x1b
+#elif (VDD_CPUB_VAL == 635)
+#define VDD_CPUB_REG   0x1c
+#elif (VDD_CPUB_VAL == 640)
+#define VDD_CPUB_REG   0x1d
+#elif (VDD_CPUB_VAL == 645)
+#define VDD_CPUB_REG   0x1e
+#elif (VDD_CPUB_VAL == 650)
+#define VDD_CPUB_REG   0x1f
+#elif (VDD_CPUB_VAL == 655)
+#define VDD_CPUB_REG   0x20
+#elif (VDD_CPUB_VAL == 660)
+#define VDD_CPUB_REG   0x21
+#elif (VDD_CPUB_VAL == 665)
+#define VDD_CPUB_REG   0x22
+#elif (VDD_CPUB_VAL == 670)
+#define VDD_CPUB_REG   0x23
+#elif (VDD_CPUB_VAL == 880)
+#define VDD_CPUB_REG   0x4d
+#else
+#error "VDD_CPUB val out of range\n"
+#endif
+
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 	//hxbao, need fine tune
 	{ 0, 0, 0xffffffff, 0, 0, 0 },
 };
+
+#define I2C_BUS		0x2
+#define I2C_M3 	3 /*from bl2 i2c meson_i2c.h*/
+#define I2C_DEV_ADDR_BD71888    0x4b
+#define BD71888_REG_BUCK2_CTRL  0x06
+#define BD71888_REG_BUCK3_CTRL  0x07
+#define BD71888_REG_BUCK2_VOLT_RUN      0x10
+#define BD71888_REG_BUCK3_VOLT_RUN      0x12
+#define BD71888_REG_REGLOCK     0x2f
+#define BD71888_REG_BUCK8_CTRL   0x0C
+#define BD71888_REG_BUCK8_VOLT_RUN  0x17
+
+#define I2C_DEV_ADDR_BD2657    0x6a
+#define BD2657_REG_REGLOCK     	0xa0
+#define BD2657_REG_BUCK0_VOLT_RUN  0x0a
+#define BD2657_REG_BUCK2_VOLT_RUN  0x12
 
 /* gpio/pinmux/pwm init */
 register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
@@ -791,11 +1037,30 @@ __attribute__ ((section(".misc_param"))) = {
 
 	/* set pwm h and pwm j clock rate to 24M, enable them */
 
-	/* set GPIOE_0 GPIOE_1 drive strength to 3 */
-	{ PADCTRL_GPIOE_DS,	0xf,	    0xf,	0, 0, 0 },
-	/* set GPIOE_0 GPIOE_1 mux to pwmh pwmj */
-	{ PADCTRL_PIN_MUX_REGI, (0x3 << 0), (0xf << 0), 0, 0, 0 },
-	{ PADCTRL_PIN_MUX_REGI, (0x3 << 4), (0xf << 4), 0, 0, 0 },
+	/*set pinmux GPIOD_2(I2CM_J_SCL) and GPIOD_3(I2CM_J_SDA) for pmic*/
+	{PADCTRL_GPIOD_DS,	(0xf << 4), 	(0xf << 4),		0, 0, 0},
+	{PADCTRL_GPIOD_PULL_EN,	(0x3 << 2), 	(0x3 << 2),		0, 0, 0},
+	{PADCTRL_GPIOD_PULL_UP,	(0x3 << 2), 	(0x3 << 2),		0, 0, 0},
+	{PADCTRL_PIN_MUX_REG2,	(0x11 << 8),	(0xff << 8),		0, 0, 0}, /* set pinmux */
+	{BD71888_REG_REGLOCK, 1, (1 << 4), 0, (I2C_BUS << 4) | (I2C_M3), I2C_DEV_ADDR_BD71888},
+
+	/* bd71888 : set vddee voltage*/
+	{BD71888_REG_BUCK2_VOLT_RUN, VDDEE_VAL_REG, 0x3f, 0,  \
+		(I2C_BUS << 4) | (I2C_M3), I2C_DEV_ADDR_BD71888},
+	/* bd71888 : set vdd ddr voltage*/
+	{BD71888_REG_BUCK3_VOLT_RUN, VDD_DDR_VAL_REG, 0x3f, 0,  \
+		(I2C_BUS << 4) | (I2C_M3), I2C_DEV_ADDR_BD71888},
+
+	/* bd71888 : set vdd2h voltage*/
+	{BD71888_REG_BUCK8_VOLT_RUN, LPDDR4X_VDD2H_REG, 0x3f, 0,  \
+		(I2C_BUS << 4) | (I2C_M3), I2C_DEV_ADDR_BD71888},
+
+	/* bd2657 : set vdd_cpua voltage*/
+	{BD2657_REG_BUCK0_VOLT_RUN, VDD_CPUA_REG, 0xff, 0,  \
+		(I2C_BUS << 4) | (I2C_M3), I2C_DEV_ADDR_BD2657},
+	/* bd2657 : set vdd_cpub voltage*/
+	{BD2657_REG_BUCK2_VOLT_RUN, VDD_CPUB_REG, 0xff, 0,  \
+		(I2C_BUS << 4) | (I2C_M3), I2C_DEV_ADDR_BD2657},
 };
 
 #define DEV_FIP_SIZE 0x300000
