@@ -336,13 +336,11 @@ static int sd_inand_staff_init(struct mmc *mmc)
 	return SD_NO_ERROR;
 }
 
-
 /*
  * **********************************************************************************************
  * u-boot interface function
  * **********************************************************************************************
  */
-
 int aml_sd_send_cmd_ffu(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 {
 	int ret = SD_NO_ERROR;

@@ -10,7 +10,7 @@
 #define __CPU_SDIO_H__
 
 #define SD_EMMC_BASE_A 0xFFE03000
-#define SD_EMMC_BASE_B 0xFFE07000
+#define SD_EMMC_BASE_B 0xFFE05000
 #define SD_EMMC_BASE_C 0xFFE07000
 
 #define SDIO_PORT_A 0
@@ -43,9 +43,9 @@
 #define	SD_EMMC_RESP_TIMEOUT_ERROR		1<<4
 #define	SD_EMMC_DESC_TIMEOUT_ERROR		1<<5
 
-#define MMC_CMD23
-#define MMC_HS400_MODE
-#define MMC_SET_TUNING_PARA             //set tuning para directly without tuning
+//#define MMC_CMD23
+//#define MMC_HS400_MODE
+//#define MMC_SET_TUNING_PARA             //set tuning para directly without tuning
 //#define MMC_WRITE_TUNING_PARA
 
 struct sd_emmc_global_regs {

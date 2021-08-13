@@ -259,7 +259,6 @@ int board_eth_init(bd_t *bis)
 	return 0;
 }
 
-#ifndef CONFIG_PXP_EMULATOR
 #if CONFIG_AML_SD_EMMC
 #include <mmc.h>
 #include <asm/arch/sd_emmc.h>
@@ -270,12 +269,10 @@ static int  sd_emmc_init(unsigned port)
 		case SDIO_PORT_A:
 			break;
 		case SDIO_PORT_B:
-			/*treat port b as port c on t5*/
-			break;
-			clrbits_le32(P_PERIPHS_PIN_MUX_9, 0xF << 24);
-			setbits_le32(P_PREG_PAD_GPIO1_EN_N, 1 << 6);
-			setbits_le32(P_PAD_PULL_UP_EN_REG1, 1 << 6);
-			setbits_le32(P_PAD_PULL_UP_REG1, 1 << 6);
+			clrbits_le32(P_PERIPHS_PIN_MUX_G, 0xF << 24);
+			setbits_le32(P_PREG_PAD_GPIO5_EN_N, 1 << 10);
+			setbits_le32(P_PAD_PULL_UP_EN_REG5, 1 << 10);
+			setbits_le32(P_PAD_PULL_UP_REG5, 1 << 10);
 			break;
 		case SDIO_PORT_C:
 			//enable pull up
@@ -289,7 +286,6 @@ static int  sd_emmc_init(unsigned port)
 }
 
 extern unsigned sd_debug_board_1bit_flag;
-
 
 static void sd_emmc_pwr_prepare(unsigned port)
 {
@@ -354,6 +350,7 @@ static void board_mmc_register(unsigned port)
 
 	sd_emmc_register(aml_priv);
 }
+
 int board_mmc_init(bd_t	*bis)
 {
 #ifdef CONFIG_VLSI_EMULATOR
@@ -366,7 +363,6 @@ int board_mmc_init(bd_t	*bis)
 //	board_mmc_register(SDIO_PORT_B1);
 	return 0;
 }
-#endif
 #endif
 
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
