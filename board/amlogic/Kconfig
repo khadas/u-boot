@@ -638,6 +638,18 @@ config DDRFW_TYPE
 	string "P1 DDR FW Type"
 	default "ddr4"
 
+config CHIPSET_NAME
+	string "P1 CHIPSET NAME"
+	default "azp1"
+
+config CHIPSET_VARIANT
+	string "P1 CHIPSET VARIANT"
+	default ""
+
+config AMLOGIC_KEY_TYPE
+	string "P1 AMLOGIC KEY TYPE"
+	default "dev-keys"
+
 config BL30_SELECT
 	string "P1 BL30 board config"
 	default "p1_skt"
