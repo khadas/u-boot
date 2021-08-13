@@ -21,6 +21,9 @@ int ldim_spi_read_sync(struct spi_slave *spi, unsigned char *tbuf,
 int ldim_spi_driver_add(struct ldim_dev_driver_s *dev_drv);
 int ldim_spi_driver_remove(struct ldim_dev_driver_s *dev_drv);
 
+int handle_ldim_dev_zone_mapping_get(unsigned char *buf, unsigned int size,
+				     const char *path);
+
 /* ldim device probe function */
 #ifdef CONFIG_AML_LCD_BL_LDIM_IW7027
 int ldim_dev_iw7027_probe(struct aml_ldim_driver_s *ldim_drv);

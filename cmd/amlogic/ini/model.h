@@ -75,6 +75,13 @@ enum lcd_ldim_mode_e {
 	LDIM_MODE_MAX,
 };
 
+enum ldim_dev_type_e {
+	LDIM_DEV_TYPE_NORMAL = 0,
+	LDIM_DEV_TYPE_SPI,
+	LDIM_DEV_TYPE_I2C,
+	LDIM_DEV_TYPE_MAX,
+};
+
 enum lcd_extern_type_e {
 	LCD_EXTERN_I2C = 0,
 	LCD_EXTERN_SPI,
@@ -250,6 +257,121 @@ struct bl_attr_s {
 	struct bl_pwm_s pwm;
 	struct bl_ldim_s ldim;         //v2
 	struct bl_custome_s custome;   //v2
+};
+
+#define CC_LDIM_DEV_NAME_LEN_MAX        (30)
+
+struct ldim_dev_header_s {/* header (10Byte) */
+	unsigned int crc32;
+	unsigned short data_len;
+	unsigned short version;
+	unsigned short rev;
+};
+
+struct ldim_dev_basic_s {/* basic (30Byte) */
+	char dev_name[CC_LDIM_DEV_NAME_LEN_MAX];
+	unsigned int reserved;
+};
+
+struct ldim_dev_if_s {/* interface (25Byte) */
+	unsigned char type;
+	unsigned int freq;
+	unsigned short if_attr_0;
+	unsigned short if_attr_1;
+	unsigned short if_attr_2;
+	unsigned short if_attr_3;
+	unsigned short if_attr_4;
+	unsigned short if_attr_5;
+	unsigned short if_attr_6;
+	unsigned short if_attr_7;
+	unsigned short if_attr_8;
+	unsigned short if_attr_9;
+};
+
+struct ldim_dev_pwm_s {/* pwm (48Byte) */
+	unsigned char pwm_vs_port;
+	unsigned char pwm_vs_pol;
+	unsigned int pwm_vs_freq;
+	unsigned short pwm_vs_duty;
+	unsigned short pwm_vs_attr_0;
+	unsigned short pwm_vs_attr_1;
+	unsigned short pwm_vs_attr_2;
+	unsigned short pwm_vs_attr_3;
+	unsigned char pwm_hs_port;
+	unsigned char pwm_hs_pol;
+	unsigned int pwm_hs_freq;
+	unsigned short pwm_hs_duty;
+	unsigned short pwm_hs_attr_0;
+	unsigned short pwm_hs_attr_1;
+	unsigned short pwm_hs_attr_2;
+	unsigned short pwm_hs_attr_3;
+	unsigned char pwm_adj_port;
+	unsigned char pwm_adj_pol;
+	unsigned int pwm_adj_freq;
+	unsigned short pwm_adj_duty;
+	unsigned short pwm_adj_attr_0;
+	unsigned short pwm_adj_attr_1;
+	unsigned short pwm_adj_attr_2;
+	unsigned short pwm_adj_attr_3;
+	char pinmux_sel[30];
+};
+
+struct ldim_dev_ctrl_s {/* ctrl (271Byte) */
+	unsigned char en_gpio;
+	unsigned char en_gpio_on;
+	unsigned char en_gpio_off;
+	unsigned short on_delay;
+	unsigned short off_delay;
+	unsigned char err_gpio;
+	unsigned char write_check;
+	unsigned short dim_max;
+	unsigned short dim_min;
+	unsigned short chip_cnt;
+	char zone_map_path[256];
+};
+
+struct ldim_dev_profile_s {/* profile (273Byte) */
+	unsigned char profile_mode;
+	char profile_path[256];
+	unsigned short profile_attr_0;
+	unsigned short profile_attr_1;
+	unsigned short profile_attr_2;
+	unsigned short profile_attr_3;
+	unsigned short profile_attr_4;
+	unsigned short profile_attr_5;
+	unsigned short profile_attr_6;
+	unsigned short profile_attr_7;
+};
+
+struct ldim_dev_custom_s {/* custom (40Byte) */
+	unsigned int custome_attr_0;
+	unsigned int custome_attr_1;
+	unsigned int custome_attr_2;
+	unsigned int custome_attr_3;
+	unsigned int custome_attr_4;
+	unsigned int custome_attr_5;
+	unsigned int custome_attr_6;
+	unsigned int custome_attr_7;
+	unsigned int custome_attr_8;
+	unsigned int custome_attr_9;
+};
+
+#define LDIM_INIT_ON_MAX     1000
+#define LDIM_INIT_OFF_MAX    24
+struct ldim_dev_init_s {
+	unsigned char cmd_size;
+	unsigned char cmd_data[LDIM_INIT_ON_MAX + LDIM_INIT_OFF_MAX];
+};
+
+struct ldim_dev_attr_s {
+	struct ldim_dev_header_s head;
+	struct ldim_dev_basic_s basic;
+	struct ldim_dev_if_s interface;
+	struct ldim_dev_pwm_s pwm;
+	struct ldim_dev_ctrl_s ctrl;
+	struct ldim_dev_profile_s profile;
+	struct ldim_dev_custom_s custome;
+	struct ldim_dev_init_s init;
 };
 
 #define CC_LCD_EXT_NAME_LEN_MAX        (30)

@@ -24,9 +24,6 @@ enum ldim_dev_type_e {
 	LDIM_DEV_TYPE_MAX,
 };
 
-#define LDIM_INIT_ON_MAX     300
-#define LDIM_INIT_OFF_MAX    20
-
 struct ldim_config_s {
 	unsigned char row;
 	unsigned char col;
@@ -46,11 +43,15 @@ struct ldim_spi_dev_info_s {
 	struct spi_slave *spi;
 };
 
+#define LDIM_DEV_NAME_MAX    30
+#define LDIM_INIT_ON_MAX     1000
+#define LDIM_INIT_OFF_MAX    24
 struct ldim_dev_driver_s {
 	unsigned char index;
-	char name[20];
-	char pinmux_name[20];
+	char name[LDIM_DEV_NAME_MAX];
+	char pinmux_name[LDIM_DEV_NAME_MAX];
 	char gpio_name[BL_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX];
+	unsigned char key_valid;
 	unsigned char type;
 	unsigned char probe_flag;
 

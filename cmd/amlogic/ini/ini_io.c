@@ -245,7 +245,8 @@ int check_string_data_have_header_valid(unsigned int* tmp_crc32, char *data_str,
     return -1;
 }
 
-int ReadLCDParam(unsigned char data_buf[]) {
+int read_lcd_param(unsigned char data_buf[])
+{
     int rd_size = 0;
 
     if (data_buf == NULL) {
@@ -257,7 +258,8 @@ int ReadLCDParam(unsigned char data_buf[]) {
     return rd_size;
 }
 
-int SaveLCDParam(int wr_size, unsigned char data_buf[]) {
+int save_lcd_param(int wr_size, unsigned char data_buf[])
+{
     int tmp_ret = 0;
 
     if (data_buf == NULL) {
@@ -272,7 +274,8 @@ int SaveLCDParam(int wr_size, unsigned char data_buf[]) {
     return tmp_ret;
 }
 
-int ReadLCDExternParam(unsigned char data_buf[]) {
+int read_lcd_extern_param(unsigned char data_buf[])
+{
     int rd_size = 0;
 
     if (data_buf == NULL) {
@@ -284,7 +287,8 @@ int ReadLCDExternParam(unsigned char data_buf[]) {
     return rd_size;
 }
 
-int SaveLCDExternParam(int wr_size, unsigned char data_buf[]) {
+int save_lcd_extern_param(int wr_size, unsigned char data_buf[])
+{
     int tmp_ret = 0;
 
     if (data_buf == NULL) {
@@ -299,7 +303,8 @@ int SaveLCDExternParam(int wr_size, unsigned char data_buf[]) {
     return tmp_ret;
 }
 
-int ReadBackLightParam(unsigned char data_buf[]) {
+int read_backlight_param(unsigned char data_buf[])
+{
     int rd_size = 0;
 
     if (data_buf == NULL) {
@@ -311,7 +316,8 @@ int ReadBackLightParam(unsigned char data_buf[]) {
     return rd_size;
 }
 
-int SaveBackLightParam(int wr_size, unsigned char data_buf[]) {
+int save_backlight_param(int wr_size, unsigned char data_buf[])
+{
     int tmp_ret = 0;
 
     if (data_buf == NULL) {
@@ -324,6 +330,32 @@ int SaveBackLightParam(int wr_size, unsigned char data_buf[]) {
     }
 
     return tmp_ret;
+}
+
+int read_ldim_dev_param(unsigned char data_buf[])
+{
+	int rd_size = 0;
+
+	if (!data_buf)
+		return -1;
+
+	rd_size = ReadIniData(CS_LDIM_DEV_ITEM_NAME, data_buf);
+
+	return rd_size;
+}
+
+int save_ldim_dev_param(int wr_size, unsigned char data_buf[])
+{
+	int tmp_ret = 0;
+
+	if (!data_buf)
+		return -1;
+
+	tmp_ret = WriteIniData(CS_LDIM_DEV_ITEM_NAME, wr_size, data_buf);
+	if (tmp_ret != wr_size)
+		return -1;
+
+	return tmp_ret;
 }
 
 int ReadTconSpiParam(unsigned char data_buf[]) {

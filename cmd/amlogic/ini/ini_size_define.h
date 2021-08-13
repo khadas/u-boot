@@ -24,6 +24,7 @@
 #define CC_MAX_TCON_ACC_LUT_SIZE         (0x1000)
 #define CC_MAX_TCON_BIN_PATH_SIZE        (0x2800)
 #define CC_MAX_TCON_SPI_SIZE             (0x610)
+#define CC_MAX_LDIM_DEV_ZONE_MAP_SIZE    (0x2ee0)
 #define CC_ONE_SECTION_SIZE              (0x10000)
 
 

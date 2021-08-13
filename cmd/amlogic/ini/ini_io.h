@@ -10,6 +10,7 @@
 #define CS_LCD_ITEM_NAME                          "lcd"
 #define CS_LCD_EXT_ITEM_NAME                      "lcd_extern"
 #define CS_BACKLIGHT_ITEM_NAME                    "backlight"
+#define CS_LDIM_DEV_ITEM_NAME                     "ldim_dev"
 #define CS_LCD_TCON_ITEM_NAME                     "lcd_tcon"
 #define CS_LCD_TCON_SPI_ITEM_NAME                 "lcd_tcon_spi"
 #define CS_PANEL_INI_PATH_ITEM_NAME               "panel_ini_path"
@@ -24,12 +25,14 @@
 extern "C" {
 #endif
 
-int ReadLCDParam(unsigned char data_buf[]);
-int SaveLCDParam(int wr_size, unsigned char data_buf[]);
-int ReadLCDExternParam(unsigned char data_buf[]);
-int SaveLCDExternParam(int wr_size, unsigned char data_buf[]);
-int ReadBackLightParam(unsigned char data_buf[]);
-int SaveBackLightParam(int wr_size, unsigned char data_buf[]);
+int read_lcd_param(unsigned char data_buf[]);
+int save_lcd_param(int wr_size, unsigned char data_buf[]);
+int read_lcd_extern_param(unsigned char data_buf[]);
+int save_lcd_extern_param(int wr_size, unsigned char data_buf[]);
+int read_backlight_param(unsigned char data_buf[]);
+int save_backlight_param(int wr_size, unsigned char data_buf[]);
+int read_ldim_dev_param(unsigned char data_buf[]);
+int save_ldim_dev_param(int wr_size, unsigned char data_buf[]);
 int ReadTconSpiParam(unsigned char data_buf[]);
 int SaveTconSpiParam(int wr_size, unsigned char data_buf[]);
 int ReadTconBinParam(unsigned char data_buf[]);
