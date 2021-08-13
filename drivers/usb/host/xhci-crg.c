@@ -18,10 +18,10 @@
 struct xhci_crg_platdata {
 	struct phy *usb_phys;
 	int num_phys;
-};
 #ifdef CONFIG_AML_USB
-unsigned int usb2portnum;
+	unsigned int usbportnum;
 #endif
+};
 
 void crg_set_mode(struct xhci_hccr *hccr, u32 mode)
 {
@@ -52,8 +52,10 @@ static int xhci_crg_setup_phy(struct udevice *dev)
 
 
 	/* Return if no phy declared */
-	if (!dev_read_prop(dev, "phys", NULL))
+	if (!dev_read_prop(dev, "phys", NULL)) {
+		dev_read_u32(dev, "portnum", &plat->usbportnum);
 		return 0;
+	}
 
 	count = dev_count_phandle_with_args(dev, "phys", "#phy-cells");
 	if (count <= 0)
@@ -101,7 +103,7 @@ static int xhci_crg_setup_phy(struct udevice *dev)
 	for (i = 0; i < plat->num_phys; i++) {
 		dev_read_u32((&plat->usb_phys[i])->dev, "phy-version", &usb_type);
 		if (usb_type == 2) {
-			dev_read_u32((&plat->usb_phys[i])->dev, "portnum", &usb2portnum);
+			dev_read_u32((&plat->usb_phys[i])->dev, "portnum", &plat->usbportnum);
 		}
 	}
 #endif
@@ -129,9 +131,7 @@ static int xhci_crg_probe(struct udevice *dev)
 	struct xhci_hcor *hcor;
 	struct xhci_hccr *hccr;
 	enum usb_dr_mode dr_mode;
-#ifndef CONFIG_AML_USB
 	struct xhci_crg_platdata *plat = dev_get_platdata(dev);
-#endif
 	int ret;
 
 #ifdef CONFIG_AML_USB
@@ -159,7 +159,11 @@ static int xhci_crg_probe(struct udevice *dev)
 
 	crg_set_mode(hccr, dr_mode);
 
+#ifndef CONFIG_AML_USB
 	return xhci_register(dev, hccr, hcor);
+#else
+	return xhci_register(dev, hccr, hcor, plat->usbportnum);
+#endif
 }
 
 static int xhci_crg_remove(struct udevice *dev)

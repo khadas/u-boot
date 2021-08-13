@@ -222,8 +222,13 @@ struct dwc3 {					/* offset: 0xC100 */
 
 #ifdef CONFIG_USB_XHCI_DWC3
 void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode);
-void dwc3_core_soft_reset(struct dwc3 *dwc3_reg);
+#ifndef CONFIG_AML_USB
 int dwc3_core_init(struct dwc3 *dwc3_reg);
+void dwc3_core_soft_reset(struct dwc3 *dwc3_reg);
+#else
+int dwc3_core_init(struct dwc3 *dwc3_reg, unsigned int usbportnum);
+void dwc3_core_soft_reset(struct dwc3 *dwc3_reg, unsigned int usbportnum);
+#endif
 void dwc3_set_fladj(struct dwc3 *dwc3_reg, u32 val);
 #endif
 #endif /* __DWC3_H_ */

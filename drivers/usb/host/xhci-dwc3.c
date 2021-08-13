@@ -22,10 +22,10 @@
 struct xhci_dwc3_platdata {
 	struct phy *usb_phys;
 	int num_phys;
-};
 #ifdef CONFIG_AML_USB
-unsigned int usb2portnum;
+	unsigned int usbportnum;
 #endif
+};
 
 void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode)
 {
@@ -34,7 +34,11 @@ void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode)
 			DWC3_GCTL_PRTCAPDIR(mode));
 }
 
+#ifndef CONFIG_AML_USB
 static void dwc3_phy_reset(struct dwc3 *dwc3_reg)
+#else
+static void dwc3_phy_reset(struct dwc3 *dwc3_reg, unsigned int usbportnum)
+#endif
 {
 	int i;
 	u32 reg;
@@ -45,9 +49,8 @@ static void dwc3_phy_reset(struct dwc3 *dwc3_reg)
 	/* Assert USB2 PHY reset */
 	setbits_le32(&dwc3_reg->g_usb2phycfg, DWC3_GUSB2PHYCFG_PHYSOFTRST);
 #ifdef CONFIG_AML_USB
-	for (i=1; i <= usb2portnum; i++) {
+	for (i = 1; i <= usbportnum; i++)
 		setbits_le32(&dwc3_reg->g_usb2phycfg[i], DWC3_GUSB2PHYCFG_PHYSOFTRST);
-	}
 #endif
 
 	mdelay(100);
@@ -59,7 +62,7 @@ static void dwc3_phy_reset(struct dwc3 *dwc3_reg)
 		/* Clear USB2 PHY reset */
 	clrbits_le32(&dwc3_reg->g_usb2phycfg, DWC3_GUSB2PHYCFG_PHYSOFTRST);
 #else
-	for (i=0; i <= usb2portnum; i++) {
+	for (i = 0; i <= usbportnum; i++) {
 		/* Clear USB2 PHY reset, DWC3_GUSB2PHYCFG_PHYIF must clear, */
 		/* otherwise the sof would occur many errors */
 		reg = readl(&dwc3_reg->g_usb2phycfg[i]);
@@ -71,13 +74,21 @@ static void dwc3_phy_reset(struct dwc3 *dwc3_reg)
 #endif
 }
 
+#ifndef CONFIG_AML_USB
 void dwc3_core_soft_reset(struct dwc3 *dwc3_reg)
+#else
+void dwc3_core_soft_reset(struct dwc3 *dwc3_reg, unsigned int usbportnum)
+#endif
 {
 	/* Before Resetting PHY, put Core in Reset */
 	setbits_le32(&dwc3_reg->g_ctl, DWC3_GCTL_CORESOFTRESET);
 
 	/* reset USB3 phy - if required */
+#ifndef CONFIG_AML_USB
 	dwc3_phy_reset(dwc3_reg);
+#else
+	dwc3_phy_reset(dwc3_reg, usbportnum);
+#endif
 
 	mdelay(100);
 
@@ -85,7 +96,11 @@ void dwc3_core_soft_reset(struct dwc3 *dwc3_reg)
 	clrbits_le32(&dwc3_reg->g_ctl, DWC3_GCTL_CORESOFTRESET);
 }
 
+#ifndef CONFIG_AML_USB
 int dwc3_core_init(struct dwc3 *dwc3_reg)
+#else
+int dwc3_core_init(struct dwc3 *dwc3_reg, unsigned int usbportnum)
+#endif
 {
 	u32 reg;
 	u32 revision;
@@ -97,8 +112,11 @@ int dwc3_core_init(struct dwc3 *dwc3_reg)
 		puts("this is not a DesignWare USB3 DRD Core\n");
 		return -1;
 	}
-
+#ifndef CONFIG_AML_USB
 	dwc3_core_soft_reset(dwc3_reg);
+#else
+	dwc3_core_soft_reset(dwc3_reg, usbportnum);
+#endif
 
 	dwc3_hwparams1 = readl(&dwc3_reg->g_hwparams1);
 
@@ -162,8 +180,10 @@ static int xhci_dwc3_setup_phy(struct udevice *dev)
 #endif
 
 	/* Return if no phy declared */
-	if (!dev_read_prop(dev, "phys", NULL))
+	if (!dev_read_prop(dev, "phys", NULL)) {
+		dev_read_u32(dev, "portnum", &plat->usbportnum);
 		return 0;
+	}
 
 	count = dev_count_phandle_with_args(dev, "phys", "#phy-cells");
 	if (count <= 0)
@@ -211,7 +231,7 @@ static int xhci_dwc3_setup_phy(struct udevice *dev)
 	for (i = 0; i < plat->num_phys; i++) {
 		dev_read_u32((&plat->usb_phys[i])->dev, "phy-version", &usb_type);
 		if (usb_type == 2) {
-			dev_read_u32((&plat->usb_phys[i])->dev, "portnum", &usb2portnum);
+			dev_read_u32((&plat->usb_phys[i])->dev, "portnum", &plat->usbportnum);
 		}
 	}
 #endif
@@ -240,9 +260,7 @@ static int xhci_dwc3_probe(struct udevice *dev)
 	struct xhci_hccr *hccr;
 	struct dwc3 *dwc3_reg;
 	enum usb_dr_mode dr_mode;
-#ifndef CONFIG_AML_USB
 	struct xhci_dwc3_platdata *plat = dev_get_platdata(dev);
-#endif
 	int ret;
 
 #ifdef CONFIG_AML_USB
@@ -265,7 +283,11 @@ static int xhci_dwc3_probe(struct udevice *dev)
 
 	dwc3_reg = (struct dwc3 *)((char *)(hccr) + DWC3_REG_OFFSET);
 
+#ifndef CONFIG_AML_USB
 	dwc3_core_init(dwc3_reg);
+#else
+	dwc3_core_init(dwc3_reg, plat->usbportnum);
+#endif
 
 	dr_mode = usb_get_dr_mode(dev_of_offset(dev));
 	if (dr_mode == USB_DR_MODE_UNKNOWN)
@@ -273,8 +295,11 @@ static int xhci_dwc3_probe(struct udevice *dev)
 		dr_mode = USB_DR_MODE_HOST;
 
 	dwc3_set_mode(dwc3_reg, dr_mode);
-
+#ifndef CONFIG_AML_USB
 	return xhci_register(dev, hccr, hcor);
+#else
+	return xhci_register(dev, hccr, hcor, plat->usbportnum);
+#endif
 }
 
 static int xhci_dwc3_remove(struct udevice *dev)

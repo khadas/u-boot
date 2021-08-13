@@ -490,7 +490,7 @@
                         compatible = "crg-xhci";
                         status = "disable";
                         reg = <0x0 0xfde00000 0x0 0x100000>;
-
+			portnum = <2>;
                 };
 
                 usb2_phy_v2: usb2phy@fe03a000 {

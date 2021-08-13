@@ -75,6 +75,15 @@
  */
 #define XHCI_PORT_RZ ((1 << 2) | (1 << 24) | (0xf << 28))
 
+struct descriptor {
+	struct usb_hub_descriptor hub;
+	struct usb_device_descriptor device;
+	struct usb_config_descriptor config;
+	struct usb_interface_descriptor interface;
+	struct usb_endpoint_descriptor endpoint;
+	struct usb_ss_ep_comp_descriptor ep_companion;
+} __packed;
+
 /*
  * XHCI Register Space.
  */
@@ -1230,6 +1239,10 @@ struct xhci_ctrl {
 	struct xhci_scratchpad *scratchpad;
 	struct xhci_virt_device *devs[MAX_HC_SLOTS];
 	int rootdev;
+#ifdef CONFIG_AML_USB
+	struct descriptor descriptor;
+	unsigned int portnum;
+#endif
 };
 
 unsigned long trb_addr(struct xhci_segment *seg, union xhci_trb *trb);
@@ -1282,8 +1295,14 @@ int xhci_deregister(struct udevice *dev);
  * @hcor:	Not sure what this means
  * @return 0 if registered, -ve on error
  */
+#ifndef CONFIG_AML_USB
 int xhci_register(struct udevice *dev, struct xhci_hccr *hccr,
 		  struct xhci_hcor *hcor);
+#else
+int xhci_register(struct udevice *dev, struct xhci_hccr *hccr,
+		  struct xhci_hcor *hcor, unsigned int portnum);
+void xhci_init_descriptor(struct descriptor *descriptor);
+#endif
 
 extern struct dm_usb_ops xhci_usb_ops;
 
