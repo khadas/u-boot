@@ -410,6 +410,9 @@
 //use startdsp command
 #define CONFIG_CMD_STARTDSP
 
+/* define CONFIG_UPDATE_MMU_TABLE for need update mmu */
+#define	CONFIG_UPDATE_MMU_TABLE
+
 // M4 clock has been added
 #define CONFIG_CLK_P1_TYPE
 
