@@ -106,7 +106,7 @@ void board_init_mem(void) {
 	char *env_tmp;
 	env_tmp = env_get("bootm_size");
 	if (!env_tmp) {
-		ram_size = ((0x100000000 == ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFFFFFFF0000) << 4)) ? 0xe0000000 : \
+		ram_size = ((0x100000000 <  ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFFFFFFF0000) << 4)) ? 0xe0000000 : \
 					(((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFFFFFF0000) << 4));
 		env_set_hex("bootm_low", 0);
 		env_set_hex("bootm_size", ram_size);
