@@ -140,13 +140,21 @@ static void run_recovery_from_cache(void) {
 		env_set("loadaddr","0x01080000");
 	}
 	env_set("dolby_status","0");
+	run_command("run bcb_cmd;", 0);
 	run_command("run init_display", 0);
 	run_command("run storeargs", 0);
 	run_command("get_rebootmode", 0);
+
 	run_command("if test ${reboot_mode} = quiescent; then setenv bootargs ${bootargs} androidboot.quiescent=1; fi;", 0);
 	run_command("if test ${reboot_mode} = recovery_quiescent; then setenv bootargs ${bootargs} androidboot.quiescent=1; fi;", 0);
 	run_command("if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;", 0);
-	run_command("if ext4load mmc 1:2 ${loadaddr} /recovery/recovery.img; then echo cache recovery.img loaded; fi;", 0);
+
+	run_command("if test ${vendor_boot_mode} = true; then "\
+		"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
+		"imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset};"\
+		"else "\
+		"if ext4load mmc 1:2 ${loadaddr} /recovery/recovery.img; then echo cache recovery.img loaded; fi;"\
+		"fi;", 0);
 
 	env_set("check_result","recovery_succ");
 	run_command("bootm ${loadaddr}", 0);
