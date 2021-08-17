@@ -174,6 +174,34 @@
 #define VPP2_BLEND_DUMMY_ALPHA                     0x59ea
 #endif
 
+#ifndef VIU_OSD3_FIFO_CTRL_STAT
+#define VIU_OSD3_FIFO_CTRL_STAT                    0x3d9c
+#endif
+
+#ifndef VIU_OSD3_BLK0_CFG_W0
+#define VIU_OSD3_BLK0_CFG_W0                       0x3d88
+#endif
+
+#ifndef VIU_OSD3_BLK0_CFG_W1
+#define VIU_OSD3_BLK0_CFG_W1                       0x3d8c
+#endif
+
+#ifndef VIU_OSD3_BLK0_CFG_W2
+#define VIU_OSD3_BLK0_CFG_W2                       0x3d90
+#endif
+
+#ifndef VIU_OSD3_BLK0_CFG_W3
+#define VIU_OSD3_BLK0_CFG_W3                       0x3d94
+#endif
+
+#ifndef VIU_OSD3_BLK0_CFG_W4
+#define VIU_OSD3_BLK0_CFG_W4                       0x3d98
+#endif
+
+#ifndef VIU_OSD3_TCOLOR_AG0
+#define VIU_OSD3_TCOLOR_AG0                        0x3d84
+#endif
+
 #define REG_OFFSET_VCBUS(reg)           ((reg << 2))
 #define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg) + 0L)
 #define REG_OSD_ADDR(reg)               (reg + 0L)

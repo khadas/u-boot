@@ -189,6 +189,23 @@ static void osd_debug_dump_register_all(void)
 		osd_logi("reg[0x%x]: 0x%08x\n\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	}
 
+	if (!strcmp(env_get("display_layer"), "osd2")) {
+		reg = VIU_OSD3_FIFO_CTRL_STAT;
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+		reg = VIU_OSD3_CTRL_STAT;
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+		reg = VIU_OSD3_BLK0_CFG_W0;
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+		reg = VIU_OSD3_BLK0_CFG_W1;
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+		reg = VIU_OSD3_BLK0_CFG_W2;
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+		reg = VIU_OSD3_BLK0_CFG_W3;
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+		reg = VIU_OSD3_BLK0_CFG_W4;
+		osd_logi("reg[0x%x]: 0x%08x\n\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	}
+
 #ifdef CONFIG_AML_MESON_G12A
 	/* for viu2_osd */
 	if (!strcmp(env_get("display_layer"), "viu2_osd0")) {

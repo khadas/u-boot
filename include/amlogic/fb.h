@@ -300,6 +300,7 @@ u32 osd_canvas_align(u32 x);
 enum osd_index_e {
 	OSD1 = 0,
 	OSD2,
+	OSD3,
 	VIU2_OSD1
 };
 
