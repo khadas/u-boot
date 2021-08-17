@@ -18,6 +18,7 @@
 #include <partition_table.h>
 #include <malloc.h>
 #include <emmc_partitions.h>
+#include <fs.h>
 
 #include <amlogic/aml_efuse.h>
 #if defined(CONFIG_AML_NAND) || defined (CONFIG_AML_MTD)
@@ -385,6 +386,8 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
     int rc = 0;
     uint64_t flashReadOff = 0;
     unsigned secureKernelImgSz = 0;
+	char *upgrade_step_s = NULL;
+	bool cache_flag = false;
 #if defined(CONFIG_IMAGE_FORMAT_LEGACY)
     image_header_t *hdr;
 #endif
@@ -410,11 +413,39 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
     hdr_addr = (boot_img_hdr_t*)(loadaddr + nCheckOffset);
 
     if (3 < argc) flashReadOff = simple_strtoull(argv[3], NULL, 0);
-    rc = store_read_ops((unsigned char*)partName, loadaddr, flashReadOff, IMG_PRELOAD_SZ);
-    if (rc) {
-        errorP("Fail to read 0x%xB from part[%s] at offset 0\n", IMG_PRELOAD_SZ, partName);
-        return __LINE__;
-    }
+
+	upgrade_step_s = getenv("upgrade_step");
+	if (upgrade_step_s && (strcmp(upgrade_step_s, "3") == 0) &&
+		(strcmp(partName, "recovery") == 0)) {
+		loff_t len_read;
+
+		MsgP("read recovery.img from cache\n");
+		rc = fs_set_blk_dev("mmc", "1:2", FS_TYPE_EXT);
+		if (rc) {
+			errorP("Fail to set blk dev cache\n");
+			cache_flag = false;
+		}
+		if (rc == 0) {
+			rc = fs_read("/recovery/recovery.img", (unsigned long)loadaddr,
+					flashReadOff, IMG_PRELOAD_SZ, &len_read);
+			if (rc < 0 || IMG_PRELOAD_SZ != len_read) {
+				errorP("Fail to read recovery.img from cache\n");
+				cache_flag = false;
+			} else {
+				cache_flag = true;
+			}
+		}
+	}
+	if (!cache_flag) {
+		MsgP("read from part: %s\n", partName);
+		rc = store_read_ops((unsigned char *)partName, loadaddr,
+				flashReadOff, IMG_PRELOAD_SZ);
+		if (rc) {
+			errorP("Fail to read 0x%xB from part[%s] at offset 0\n",
+				IMG_PRELOAD_SZ, partName);
+			return __LINE__;
+		}
+	}
     flashReadOff += IMG_PRELOAD_SZ;
 
     genFmt = genimg_get_format(hdr_addr);
@@ -480,11 +511,38 @@ load_left_r:
             const unsigned leftSz = actualBootImgSz - IMG_PRELOAD_SZ;
 
             debugP("Left sz 0x%x\n", leftSz);
-            rc = store_read_ops((unsigned char*)partName, loadaddr + IMG_PRELOAD_SZ, flashReadOff, leftSz);
-            if (rc) {
-                errorP("Fail to read 0x%xB from part[%s] at offset 0x%x\n", leftSz, partName, IMG_PRELOAD_SZ);
-                return __LINE__;
-            }
+			if (upgrade_step_s && (strcmp(upgrade_step_s, "3") == 0) &&
+				(strcmp(partName, "recovery") == 0)) {
+				loff_t len_read;
+
+				MsgP("read recovery.img from cache\n");
+				rc = fs_set_blk_dev("mmc", "1:2", FS_TYPE_EXT);
+				if (rc) {
+					errorP("Fail to set blk dev cache\n");
+					cache_flag = false;
+				}
+				if (rc == 0) {
+					rc = fs_read("/recovery/recovery.img",
+							(unsigned long)loadaddr,
+							0, actualBootImgSz, &len_read);
+					if (rc < 0 || actualBootImgSz != len_read) {
+						errorP("Fail to read recovery.img from cache\n");
+						cache_flag = false;
+					} else {
+						cache_flag = true;
+					}
+				}
+			}
+			if (!cache_flag) {
+				MsgP("read from part: %s\n", partName);
+				rc = store_read_ops((unsigned char *)partName,
+						loadaddr + IMG_PRELOAD_SZ, flashReadOff, leftSz);
+				if (rc) {
+					errorP("Fail to read 0x%xB from part[%s] at offset 0x%x\n",
+						leftSz, partName, IMG_PRELOAD_SZ);
+					return __LINE__;
+				}
+			}
         }
         debugP("totalSz=0x%x\n", actualBootImgSz);
 
@@ -498,7 +556,7 @@ load_left_r:
            Android R need read vendor_boot partition
            define Android R variable add suffix xxx_r
            */
-        char* partName_r = "vendor_boot_a";
+		char partName_r[32] = {0};
         int nReturn_r = __LINE__;
         uint64_t lflashReadOff_r = 0;
         unsigned int nFlashLoadLen_r = 0;
@@ -508,12 +566,12 @@ load_left_r:
         char *slot_name;
 
         slot_name = getenv("slot-suffixes");
-        if (strcmp(slot_name, "0") == 0) {
-            strcpy(partName_r, "vendor_boot_a");
-        }
-        else if (strcmp(slot_name, "1") == 0) {
-            strcpy(partName_r, "vendor_boot_b");
-        }
+	if (strcmp(slot_name, "0") == 0)
+		strcpy(partName_r, "vendor_boot_a");
+	else if (strcmp(slot_name, "1") == 0)
+		strcpy(partName_r, "vendor_boot_b");
+	else
+		strcpy(partName_r, "vendor_boot");
         MsgP("partName_r = %s\n", partName_r);
 
         nFlashLoadLen_r = preloadSz_r;					//head info is one page size == 4k
@@ -527,14 +585,41 @@ load_left_r:
             return __LINE__;
         }
 
-        nReturn_r = store_read_ops((unsigned char*)partName_r, pBuffPreload, lflashReadOff_r, nFlashLoadLen_r);
+		if (upgrade_step_s && (strcmp(upgrade_step_s, "3") == 0) &&
+			(strcmp(partName_r, "vendor_boot") == 0)) {
+			loff_t len_read;
 
-        if (nReturn_r) {
-            errorP("Fail to read 0x%xB from part[%s] at offset 0\n", nFlashLoadLen_r, partName_r);
-            free(pBuffPreload);
-            pBuffPreload = 0;
-            return __LINE__;
-        }
+			MsgP("read vendor_boot.img from cache\n");
+			rc = fs_set_blk_dev("mmc", "1:2", FS_TYPE_EXT);
+			if (rc) {
+				errorP("Fail to set blk dev cache\n");
+				cache_flag = false;
+			}
+			if (rc == 0) {
+				rc = fs_read("/recovery/vendor_boot.img",
+						(unsigned long)pBuffPreload,
+						lflashReadOff_r, nFlashLoadLen_r, &len_read);
+				if (rc < 0 || nFlashLoadLen_r != len_read) {
+					errorP("Fail to read vendor_boot.img from cache\n");
+					cache_flag = false;
+				} else {
+					cache_flag = true;
+				}
+			}
+		}
+		if (!cache_flag) {
+			MsgP("read from part: %s\n", partName_r);
+			nReturn_r = store_read_ops((unsigned char *)partName_r, pBuffPreload,
+							lflashReadOff_r, nFlashLoadLen_r);
+
+			if (nReturn_r) {
+				errorP("Fail to read 0x%xB from part[%s] at offset 0\n",
+					nFlashLoadLen_r, partName_r);
+				free(pBuffPreload);
+				pBuffPreload = 0;
+				return __LINE__;
+			}
+		}
 
         p_vendor_boot_img_hdr_t pVendorIMGHDR = (p_vendor_boot_img_hdr_t)pBuffPreload;
 
@@ -557,14 +642,43 @@ load_left_r:
 				if (!pBuffPreload)
                     return __LINE__;
 
-                rc_r = store_read_ops((unsigned char*)partName_r, pBuffPreload, lflashReadOff_r, nFlashLoadLen_r);
-                if (rc_r) {
-                    errorP("Fail to read 0x%xB from part[%s] at offset 0x%x\n",
-                        (unsigned int)nFlashLoadLen_r, partName_r, (unsigned int)lflashReadOff_r);
-                    free(pBuffPreload);
-                    pBuffPreload = 0;
-                    return __LINE__;
-                }
+				if (upgrade_step_s && (strcmp(upgrade_step_s, "3") == 0) &&
+					(strcmp(partName_r, "vendor_boot") == 0)) {
+					loff_t len_read;
+
+					MsgP("read vendor_boot.img from cache\n");
+					rc = fs_set_blk_dev("mmc", "1:2", FS_TYPE_EXT);
+					if (rc) {
+						errorP("Fail to set blk dev cache\n");
+						cache_flag = false;
+					}
+					if (rc == 0) {
+						rc = fs_read("/recovery/vendor_boot.img",
+								(unsigned long)pBuffPreload,
+								lflashReadOff_r, nFlashLoadLen_r,
+								&len_read);
+						if (rc < 0 || nFlashLoadLen_r != len_read) {
+							errorP("Fail to read from cache\n");
+							cache_flag = false;
+						} else {
+							cache_flag = true;
+						}
+					}
+				}
+				if (!cache_flag) {
+					MsgP("read from part: %s\n", partName_r);
+					rc_r = store_read_ops((unsigned char *)partName_r,
+								pBuffPreload,
+								lflashReadOff_r, nFlashLoadLen_r);
+					if (rc_r) {
+						errorP("Fail read 0x%xB from part[%s] at 0x%x\n",
+							(unsigned int)nFlashLoadLen_r, partName_r,
+							(unsigned int)lflashReadOff_r);
+						free(pBuffPreload);
+						pBuffPreload = 0;
+						return __LINE__;
+					}
+				}
             }
 
             debugP("totalSz=0x%x\n", nFlashLoadLen_r);
