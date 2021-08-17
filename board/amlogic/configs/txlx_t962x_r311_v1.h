@@ -110,7 +110,7 @@
         "active_slot=normal\0"\
         "boot_part=boot\0"\
         "vendor_boot_part=vendor_boot\0"\
-        "model_name=FHD\0" \
+        "model_name=FHD2HDMI\0" \
         "ui_mode=720p\0" \
         "edid_14_dir=/system/etc/port_14.bin\0" \
         "edid_20_dir=/system/etc/port_20.bin\0" \
