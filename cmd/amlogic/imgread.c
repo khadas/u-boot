@@ -16,6 +16,7 @@
 #include <emmc_partitions.h>
 #include <version.h>
 #include <amlogic/image_check.h>
+#include <fs.h>
 
 #ifndef IS_FEAT_BOOT_VERIFY
 //#define IS_FEAT_BOOT_VERIFY() 0 //always undefined as IS_FEAT_BOOT_VERIFY is function not marco
@@ -411,6 +412,8 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
     int rc = 0;
 	u64 flashreadoff = 0;
 	u32 securekernelimgsz = 0;
+	char *upgrade_step_s = NULL;
+	bool cache_flag = false;
 
 	if (argc > 2)
 		loadaddr = (unsigned char *)simple_strtoul(argv[2], NULL, 16);
@@ -422,10 +425,36 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 	if (argc > 3)
 		flashreadoff = simple_strtoull(argv[3], NULL, 0);
 
-	rc = store_logic_read(partname, flashreadoff, IMG_PRELOAD_SZ, loadaddr);
-	if (rc) {
-		errorP("Fail to read 0x%xB from part[%s] at offset 0\n", IMG_PRELOAD_SZ, partname);
-		return __LINE__;
+	upgrade_step_s = env_get("upgrade_step");
+	if (upgrade_step_s && (strcmp(upgrade_step_s, "3") == 0) &&
+		(strcmp(partname, "recovery") == 0)) {
+		loff_t len_read;
+
+		MsgP("read recovery.img from cache\n");
+		rc = fs_set_blk_dev("mmc", "1:2", FS_TYPE_EXT);
+		if (rc) {
+			errorP("Fail to set blk dev cache\n");
+			cache_flag = false;
+		} else {
+			fs_read("/recovery/recovery.img", (unsigned long)loadaddr,
+					flashreadoff, IMG_PRELOAD_SZ, &len_read);
+			if (IMG_PRELOAD_SZ != len_read) {
+				errorP("Fail to read recovery.img from cache\n");
+				cache_flag = false;
+			} else {
+				cache_flag = true;
+			}
+		}
+	}
+
+	if (!cache_flag) {
+		MsgP("read from part: %s\n", partname);
+		rc = store_logic_read(partname, flashreadoff, IMG_PRELOAD_SZ, loadaddr);
+		if (rc) {
+			errorP("Fail to read 0x%xB from part[%s] at offset 0\n",
+				IMG_PRELOAD_SZ, partname);
+			return __LINE__;
+		}
 	}
 	flashreadoff += IMG_PRELOAD_SZ;
 
@@ -524,12 +553,37 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 			const u32 leftsz = actualbootimgsz - IMG_PRELOAD_SZ;
 
 			debugP("Left sz 0x%x\n", leftsz);
-			rc = store_logic_read(partname, flashreadoff,
-				leftsz, loadaddr + IMG_PRELOAD_SZ);
-			if (rc) {
-				errorP("Fail to read 0x%xB from part[%s] at offset 0x%x\n",
-					leftsz, partname, IMG_PRELOAD_SZ);
-				return __LINE__;
+
+			if (upgrade_step_s && (strcmp(upgrade_step_s, "3") == 0) &&
+				(strcmp(partname, "recovery") == 0)) {
+				loff_t len_read;
+
+				MsgP("read recovery.img from cache\n");
+				rc = fs_set_blk_dev("mmc", "1:2", FS_TYPE_EXT);
+				if (rc) {
+					errorP("Fail to set blk dev cache\n");
+					cache_flag = false;
+				} else {
+					fs_read("/recovery/recovery.img",
+							(unsigned long)loadaddr,
+							0, actualbootimgsz, &len_read);
+					if (actualbootimgsz != len_read) {
+						errorP("Fail to read recovery.img from cache\n");
+						cache_flag = false;
+					} else {
+						cache_flag = true;
+					}
+				}
+			}
+			if (!cache_flag) {
+				MsgP("read from part: %s\n", partname);
+				rc = store_logic_read(partname, flashreadoff,
+					leftsz, loadaddr + IMG_PRELOAD_SZ);
+				if (rc) {
+					errorP("Fail to read 0x%xB from part[%s] at offset 0x%x\n",
+						leftsz, partname, IMG_PRELOAD_SZ);
+					return __LINE__;
+				}
 			}
 		}
 		debugP("totalSz=0x%x\n", actualbootimgsz);
@@ -557,6 +611,8 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 			strcpy((char *)partname_r, "vendor_boot_a");
 		else if (strcmp(slot_name, "1") == 0)
 			strcpy((char *)partname_r, "vendor_boot_b");
+		else
+			strcpy((char *)partname_r, "vendor_boot");
 
 		MsgP("partname_r = %s\n", partname_r);
 
@@ -571,14 +627,38 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 			return __LINE__;
 		}
 
-		ret_r = store_logic_read(partname_r, lflashreadoff_r,
-			nflashloadlen_r, pbuffpreload);
-		if (ret_r) {
-			errorP("Fail to read 0x%xB from part[%s] at offset 0\n",
-				nflashloadlen_r, partname_r);
-			free(pbuffpreload);
-			pbuffpreload = 0;
-			return __LINE__;
+		if (upgrade_step_s && (strcmp(upgrade_step_s, "3") == 0) &&
+			(strcmp(partname_r, "vendor_boot") == 0)) {
+			loff_t len_read;
+
+			MsgP("read vendor_boot from cache\n");
+			ret_r = fs_set_blk_dev("mmc", "1:2", FS_TYPE_EXT);
+			if (ret_r) {
+				errorP("Fail to set blk dev cache\n");
+				cache_flag = false;
+			} else {
+				fs_read("/recovery/vendor_boot.img",
+							(unsigned long)pbuffpreload,
+							0, nflashloadlen_r, &len_read);
+				if (nflashloadlen_r != len_read) {
+					errorP("Fail to read vendor_boot.img from cache\n");
+					cache_flag = false;
+				} else {
+					cache_flag = true;
+				}
+			}
+		}
+		if (!cache_flag) {
+			MsgP("read from part: %s\n", partname_r);
+			ret_r = store_logic_read(partname_r, lflashreadoff_r,
+				nflashloadlen_r, pbuffpreload);
+			if (ret_r) {
+				errorP("Fail to read 0x%xB from part[%s] at offset 0\n",
+					nflashloadlen_r, partname_r);
+				free(pbuffpreload);
+				pbuffpreload = 0;
+				return __LINE__;
+			}
 		}
 		p_vendor_boot_img_hdr_t pvendorimghdr = (p_vendor_boot_img_hdr_t)pbuffpreload;
 
@@ -615,15 +695,40 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 				pbuffpreload = malloc(nflashloadlen_r);
 				if (!pbuffpreload)
 					return __LINE__;
-				rc_r = store_logic_read(partname_r, lflashreadoff_r,
-					nflashloadlen_r, pbuffpreload);
-				if (rc_r) {
-					errorP("Fail to read 0x%xB from part[%s] at offset 0x%x\n",
-						(unsigned int)nflashloadlen_r, partname_r,
-						(unsigned int)lflashreadoff_r);
-					free(pbuffpreload);
-					pbuffpreload = 0;
-					return __LINE__;
+				if (upgrade_step_s && (strcmp(upgrade_step_s, "3") == 0) &&
+					(strcmp(partname_r, "vendor_boot") == 0)) {
+					loff_t len_read;
+
+					MsgP("recovery mode, read vendor_boot from cache\n");
+					ret_r = fs_set_blk_dev("mmc", "1:2", FS_TYPE_EXT);
+					if (ret_r) {
+						errorP("Fail to set blk dev cache\n");
+						cache_flag = false;
+					} else {
+						fs_read("/recovery/vendor_boot.img",
+								(unsigned long)pbuffpreload,
+								lflashreadoff_r, nflashloadlen_r,
+								&len_read);
+						if (nflashloadlen_r != len_read) {
+							errorP("Fail to read from cache\n");
+							cache_flag = false;
+						} else {
+							cache_flag = true;
+						}
+					}
+				}
+				if (!cache_flag) {
+					MsgP("read from part: %s\n", partname_r);
+					rc_r = store_logic_read(partname_r, lflashreadoff_r,
+						nflashloadlen_r, pbuffpreload);
+					if (rc_r) {
+						errorP("Fail read 0x%xB from %s at offset 0x%x\n",
+							(unsigned int)nflashloadlen_r, partname_r,
+							(unsigned int)lflashreadoff_r);
+						free(pbuffpreload);
+						pbuffpreload = 0;
+						return __LINE__;
+					}
 				}
 			}
 
