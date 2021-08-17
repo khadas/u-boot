@@ -202,6 +202,54 @@
 #define VIU_OSD3_TCOLOR_AG0                        0x3d84
 #endif
 
+#ifndef VPP1_BLD_CTRL
+#define VPP1_BLD_CTRL                              0x5985
+#endif
+
+#ifndef VPP1_BLD_OUT_SIZE
+#define VPP1_BLD_OUT_SIZE                          0x5986
+#endif
+
+#ifndef VPP1_BLD_DIN0_HSCOPE
+#define VPP1_BLD_DIN0_HSCOPE                       0x5987
+#endif
+
+#ifndef VPP1_BLD_DIN0_VSCOPE
+#define VPP1_BLD_DIN0_VSCOPE                       0x5988
+#endif
+
+#ifndef VPP1_BLD_DIN1_HSCOPE
+#define VPP1_BLD_DIN1_HSCOPE                       0x5989
+#endif
+
+#ifndef VPP1_BLD_DIN1_VSCOPE
+#define VPP1_BLD_DIN1_VSCOPE                       0x598a
+#endif
+
+#ifndef VPP1_BLD_DIN2_HSCOPE
+#define VPP1_BLD_DIN2_HSCOPE                       0x598b
+#endif
+
+#ifndef VPP1_BLD_DIN2_VSCOPE
+#define VPP1_BLD_DIN2_VSCOPE                       0x598c
+#endif
+
+#ifndef OSD1_HDR_IN_SIZE
+#define OSD1_HDR_IN_SIZE                           0x1a5a
+#endif
+
+#ifndef OSD2_HDR_IN_SIZE
+#define OSD2_HDR_IN_SIZE                           0x1a5b
+#endif
+
+#ifndef OSD3_HDR_IN_SIZE
+#define OSD3_HDR_IN_SIZE                           0x1a5c
+#endif
+
+#ifndef OSD4_HDR_IN_SIZE
+#define OSD4_HDR_IN_SIZE                           0x1a5d
+#endif
+
 #define REG_OFFSET_VCBUS(reg)           ((reg << 2))
 #define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg) + 0L)
 #define REG_OSD_ADDR(reg)               (reg + 0L)

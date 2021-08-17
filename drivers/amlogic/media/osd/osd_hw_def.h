@@ -36,18 +36,6 @@ static void osd2_update_disp_osd_rotate(void);
 static void osd2_update_disp_scale_enable(void);
 static void osd2_update_disp_3d_mode(void);
 
-static void osd3_update_color_mode(void);
-static void osd3_update_enable(void);
-static void osd3_update_color_key(void);
-static void osd3_update_color_key_enable(void);
-static void osd3_update_gbl_alpha(void);
-static void osd3_update_order(void);
-static void osd3_update_disp_geometry(void);
-static void osd3_update_coef(void);
-static void osd3_update_disp_freescale_enable(void);
-static void osd3_update_disp_osd_reverse(void);
-static void osd3_update_disp_osd_rotate(void);
-static void osd3_update_disp_scale_enable(void);
 static void osd3_update_disp_3d_mode(void);
 
 static void viu2_osd1_update_color_mode(void);
@@ -93,20 +81,6 @@ static update_func_t hw_func_array[HW_OSD_COUNT][HW_REG_INDEX_MAX] = {
 		osd2_update_disp_freescale_enable,
 		osd2_update_disp_osd_reverse,
 		osd2_update_disp_osd_rotate,
-	},
-	{
-		osd3_update_color_mode,
-		osd3_update_enable,
-		osd3_update_color_key,
-		osd3_update_color_key_enable,
-		osd3_update_gbl_alpha,
-		osd3_update_order,
-		osd3_update_coef,
-		osd3_update_disp_geometry,
-		osd3_update_disp_scale_enable,
-		osd3_update_disp_freescale_enable,
-		osd3_update_disp_osd_reverse,
-		osd3_update_disp_osd_rotate,
 	},
 	{
 		viu2_osd1_update_color_mode,

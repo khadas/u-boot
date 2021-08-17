@@ -188,7 +188,8 @@ static void osd_layer_init(GraphicDevice *gdev, int layer)
 	const struct color_bit_define_s *color =
 			&default_color_format_array[gdev->gdfIndex];
 
-	if (index >= VIU2_OSD1) {
+	/* if viu2 has no scaler */
+	if (index >= VIU2_OSD1 && !osd_hw.viux_scale_cap) {
 		xres = gdev->winSizeX;
 		yres = gdev->winSizeY;
 		xres_virtual = gdev->winSizeX;
@@ -365,6 +366,17 @@ static void get_osd_version(void)
 		osd_hw.osd_ver = OSD_NORMAL;
 	else
 		osd_hw.osd_ver = OSD_HIGH_ONE;
+
+	#ifdef AML_T7_DISPLAY
+	osd_hw.viux_scale_cap = 1;
+	#else
+	osd_hw.viux_scale_cap = 0;
+	#endif
+}
+
+int get_osd_viux_scale_cap(void)
+{
+	return osd_hw.viux_scale_cap;
 }
 
 u32 osd_canvas_align(u32 x)
@@ -636,8 +648,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 		return (-1);
 	}
 
-	/* viu1 has scaler, viu2 has no scaler */
-	if (osd_index >= VIU2_OSD1) {
+	/* if viu2 has no scaler */
+	if (osd_index >= VIU2_OSD1 && !osd_hw.viux_scale_cap) {
 		pwidth = info->width;
 		pheight = info->height;
 	} else {
@@ -1021,7 +1033,8 @@ int video_scale_bitmap(void)
 		osd_index = OSD3;
 	else if (strcmp(layer_str, "viu2_osd0") == 0) {
 		osd_index = VIU2_OSD1;
-		goto no_scale;
+		if (!osd_hw.viux_scale_cap)
+			goto no_scale;
 	} else {
 		osd_logd2("video_scale_bitmap: invalid display_layer\n");
 		return (-1);
