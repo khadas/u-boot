@@ -81,6 +81,12 @@ static struct parm meson_gp0_pll_parm[3] = {
 	{P1_CLKCTRL_GP0PLL_CTRL0, 16, 3}, /* pod */
 };
 
+static struct parm meson_gp1_pll_parm[3] = {
+	{P1_CLKCTRL_GP1PLL_CTRL0, 0, 8}, /* pm */
+	{P1_CLKCTRL_GP1PLL_CTRL0, 16, 5}, /* pn */
+	{P1_CLKCTRL_GP1PLL_CTRL0, 12, 3}, /* pod */
+};
+
 static int meson_clk_enable(struct clk *clk)
 {
 	return meson_set_gate_by_id(clk, gates, ARRAY_SIZE(gates), true);
@@ -114,6 +120,11 @@ static ulong meson_pll_get_rate(struct clk *clk, unsigned long id)
 		pm = &meson_gp0_pll_parm[0];
 		pn = &meson_gp0_pll_parm[1];
 		pod = &meson_gp0_pll_parm[2];
+		break;
+	case CLKID_GP1_PLL:
+		pm = &meson_gp1_pll_parm[0];
+		pn = &meson_gp1_pll_parm[1];
+		pod = &meson_gp1_pll_parm[2];
 		break;
 	default:
 		return -ENOENT;
@@ -232,12 +243,12 @@ static int meson_clk_probe(struct udevice *dev)
 }
 
 static const struct udevice_id meson_clk_ids[] = {
-	{ .compatible = "amlogic,t7-clkc" },
+	{ .compatible = "amlogic,p1-clkc" },
 	{ }
 };
 
 U_BOOT_DRIVER(meson_clk) = {
-	.name		= "meson-clk-t7",
+	.name		= "meson-clk-p1",
 	.id		= UCLASS_CLK,
 	.of_match	= meson_clk_ids,
 	.priv_auto_alloc_size = sizeof(struct meson_clk),
