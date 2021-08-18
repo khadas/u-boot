@@ -2225,6 +2225,7 @@ __attribute__ ((section(".misc_param"))) = {
 	/* set GPIOE_0 GPIOE_1 mux to pwmh pwmj */
 	{ PADCTRL_PIN_MUX_REGI,	   (0x3 << 0),	  (0xf << 0), 0, 0, 0 },
 	{ PADCTRL_PIN_MUX_REGI,	   (0x3 << 4),	  (0xf << 4), 0, 0, 0 },
+	{ PADCTRL_GPIOD_PULL_UP,   (0x1 << 2),	  (0x1 << 2), 0, 0, 0 },
 };
 
 #define DEV_FIP_SIZE 0x300000
