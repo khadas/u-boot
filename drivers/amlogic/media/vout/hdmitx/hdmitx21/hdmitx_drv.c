@@ -146,6 +146,11 @@ static void hdmi_hwp_init(void)
 	data32 |= (0 << 16); // [23:16] infilter_ddc_sample_clk_divide
 	hdmitx21_wr_reg(HDMITX_TOP_INFILTER, data32);
 	hdmitx21_wr_reg(AON_CYP_CTL_IVCTX, 2);
+	hdmitx21_set_reg_bits(GCP_CNTL_IVCTX, 1, 0, 1);
+	// clear avmute
+	hdmitx21_set_reg_bits(GCP_AUTO_GEN_IVCTX, 2, 2, 2);
+	hdmitx21_set_reg_bits(TPI_SC_IVCTX, 0, 3, 1);
+	hdmitx21_set_reg_bits(TPI_SC_IVCTX, 1, 7, 1);
 }
 
 static struct hdmi_support_mode gxbb_modes[] = {
@@ -916,6 +921,9 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	//-------------
 	//config video
 	//-------------
+	// HDMI case
+	hdmitx21_set_reg_bits(TPI_SC_IVCTX, 1, 0, 1);
+
 	data8 = 0;
 	data8 |= (dp_color_depth & 0x03); // [1:0]color depth. 00:8bpp;01:10bpp;10:12bpp;11:16bpp
 	data8 |= (((dp_color_depth != 4) ? 1 : 0) << 7);  // [7]  deep color enable bit
