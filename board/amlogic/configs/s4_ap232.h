@@ -309,7 +309,7 @@
 	    "factory_provision init;"\
             "\0"\
         "upgrade_key="\
-            "if gpio input GPIOD_3; then "\
+	    "if gpio input GPIOD_2; then "\
             "echo detect upgrade key; run update;"\
             "fi;"\
             "\0"\
@@ -320,6 +320,7 @@
             "run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
+	    "run upgrade_key;" \
             "bcb uboot-command;"\
             "run switch_bootmode;"
 #else
