@@ -136,7 +136,7 @@ int board_init(void)
 	while(1);
 #endif
 
-#ifdef CONFIG_PXP_EMULATOR
+#ifdef CONFIG_PXP_DDR
 	return 0;
 #else
 	aml_set_bootsequence(0);
@@ -163,7 +163,7 @@ int board_init(void)
 int board_late_init(void)
 {
 	printf("board late init\n");
-#ifdef CONFIG_PXP_EMULATOR
+#ifdef CONFIG_PXP_DDR
 	return 0;
 #else
 	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
