@@ -14,6 +14,7 @@
 #include <asm/io.h>
 #include <linux/usb/dwc3.h>
 #include <linux/usb/otg.h>
+#include <asm/arch/usb.h>
 
 struct xhci_crg_platdata {
 	struct phy *usb_phys;
@@ -22,6 +23,8 @@ struct xhci_crg_platdata {
 	unsigned int usbportnum;
 #endif
 };
+
+unsigned int m31_phys;
 
 void crg_set_mode(struct xhci_hccr *hccr, u32 mode)
 {
@@ -49,7 +52,6 @@ static int xhci_crg_setup_phy(struct udevice *dev)
 #ifdef CONFIG_AML_USB
 	unsigned int usb_type = 0;
 #endif
-
 
 	/* Return if no phy declared */
 	if (!dev_read_prop(dev, "phys", NULL)) {
@@ -135,6 +137,14 @@ static int xhci_crg_probe(struct udevice *dev)
 	int ret;
 
 #ifdef CONFIG_AML_USB
+	if (dev_read_prop(dev, "m31", NULL)) {
+		printf("M31 PHY\n");
+#ifdef AML_USB_M31_PHY_ONLY
+		m31_phy_init(m31_phys);
+#endif
+		m31_phys++;
+	}
+
 	ret = xhci_crg_setup_phy(dev);
 	if (ret)
 		return ret;
