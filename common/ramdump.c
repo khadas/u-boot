@@ -37,6 +37,27 @@ void ramdump_init(void)
 	printf("%s, add:%lx, size:%lx\n", __func__, ramdump_base, ramdump_size);
 }
 
+static void wait_usb_dev(void)
+{
+	block_dev_desc_t *usb_dev;
+	int print_cnt = 0;
+
+	while (1) {
+		run_command("usb start", 1);
+		usb_dev = usb_stor_get_dev(0);
+		if (!usb_dev) {
+			if (!(print_cnt & 0x3f)) {
+				print_cnt++;
+				printf("ramdump: can't find usb device, please insert a usb disk to save ramdump data\n");
+			}
+			mdelay(10000);
+			continue;
+		} else {
+			break;
+		}
+	}
+}
+
 /*
  * NOTE: this is a default impemention for writing compressed ramdump data
  * to /data/ partition for Android platform. You can read out dumpfile in
@@ -50,18 +71,27 @@ void ramdump_init(void)
  */
 __weak int ramdump_save_compress_data(void)
 {
-	int data_pid;
 	char cmd[128] = {0};
+	char *env;
 
-	data_pid = get_partition_num_by_name("data");
-	if (data_pid < 0) {
-		printf("can't find data partition\n");
-		return -1;
+	env = getenv("ramdump_location");
+	if (!env)
+		return 0;
+
+	printf("ramdump_location:%s\n", env);
+	/* currently we only support write to usb disk */
+	if (strncmp(env, "usb", 3)) {
+		printf("not supported location\n");
+		return 0;
 	}
-	sprintf(cmd, "ext4write mmc 1:%x %lx /crashdump-1.bin %lx\n",
-		data_pid, ramdump_base, ramdump_size);
+
+	wait_usb_dev();
+
+	sprintf(cmd, "fatwrite usb 0 %lx crashdump-1.bin %lx\n",
+		ramdump_base, ramdump_size);
 	printf("CMD:%s\n", cmd);
 	run_command(cmd, 1);
+	run_command("reset", 1);
 	return 0;
 }
 
@@ -144,8 +174,10 @@ void check_ramdump(void)
 				size = ramdump_size;
 				printf("%s, addr:%lx, size:%lx\n",
 					__func__, addr, size);
-				if (addr && size)
+				if (addr && size) {
 					ramdump_env_setup(addr, size);
+					ramdump_save_compress_data();
+				}
 			}
 		}
 	}
