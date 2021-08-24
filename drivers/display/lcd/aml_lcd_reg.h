@@ -57,7 +57,7 @@
 #define HHI_HPLL_CNTL6                          HHI_HDMI_PLL_CNTL5
 #endif
 
-/*#define HHI_VIID_CLK_DIV     	0x4a*/
+/*#define HHI_VIID_CLK_DIV     0x4a*/
 #define DAC0_CLK_SEL           28
 #define DAC1_CLK_SEL           24
 #define DAC2_CLK_SEL           20
@@ -66,7 +66,7 @@
 #define ENCL_CLK_SEL           12
 #define VCLK2_XD                0
 
-/*#define HHI_VIID_CLK_CNTL    	0x4b*/
+/*#define HHI_VIID_CLK_CNTL    0x4b*/
 #define VCLK2_EN               19
 #define VCLK2_CLK_IN_SEL       16
 #define VCLK2_SOFT_RST         15

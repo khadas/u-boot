@@ -149,6 +149,7 @@ static void lcd_venc_set(struct lcd_config_s *pconf)
 	case LCD_CHIP_TM2:
 	case LCD_CHIP_T5:
 	case LCD_CHIP_T5D:
+	case LCD_CHIP_T5W:
 		/*[15:14]: 2'b10 or 2'b01*/
 		lcd_vcbus_write(ENCL_INBUF_CNTL1, (2 << 14) | (h_active - 1));
 		lcd_vcbus_write(ENCL_INBUF_CNTL0, 0x200);
@@ -187,6 +188,7 @@ static void lcd_lvds_clk_util_set(struct lcd_config_s *pconf)
 	case LCD_CHIP_TM2:
 	case LCD_CHIP_T5:
 	case LCD_CHIP_T5D:
+	case LCD_CHIP_T5W:
 		lcd_hiu_setb(HHI_LVDS_TX_PHY_CNTL0, 1, 2, 1);
 		break;
 	default:
@@ -339,6 +341,7 @@ static void lcd_lvds_control_set(struct lcd_config_s *pconf)
 		break;
 	case LCD_CHIP_T5:
 	case LCD_CHIP_T5D:
+	case LCD_CHIP_T5W:
 		/* lvds channel:    //tx 12 channels
 		 *    0: d0_a
 		 *    1: d1_a
@@ -421,6 +424,7 @@ static void lcd_mlvds_control_set(struct lcd_config_s *pconf)
 	case LCD_CHIP_TM2:
 	case LCD_CHIP_T5:
 	case LCD_CHIP_T5D:
+	case LCD_CHIP_T5W:
 		/* pn swap[2] */
 		lcd_hiu_setb(HHI_LVDS_TX_PHY_CNTL0, 1, 2, 1);
 
@@ -493,6 +497,7 @@ static void lcd_vbyone_clk_util_set(struct lcd_config_s *pconf)
 	case LCD_CHIP_TM2:
 	case LCD_CHIP_T5:
 	case LCD_CHIP_T5D:
+	case LCD_CHIP_T5W:
 		lcd_hiu_setb(HHI_LVDS_TX_PHY_CNTL0, 1, 2, 1);
 		break;
 	default:
@@ -603,6 +608,7 @@ static void lcd_vbyone_hw_filter(int flag)
 	case LCD_CHIP_TM2:
 	case LCD_CHIP_T5:
 	case LCD_CHIP_T5D:
+	case LCD_CHIP_T5W:
 		if (flag) {
 			period = vx1_conf->hw_filter_time & 0xff;
 			if (period >=
@@ -871,6 +877,7 @@ static void lcd_vbyone_disable(void)
 	case LCD_CHIP_TM2:
 	case LCD_CHIP_T5:
 	case LCD_CHIP_T5D:
+	case LCD_CHIP_T5W:
 		lcd_vcbus_setb(VBO_INSGN_CTRL, 0, 2, 1);
 		lcd_vcbus_setb(VBO_INSGN_CTRL, 0, 0, 1);
 		break;
@@ -986,6 +993,7 @@ static void lcd_vbyone_sw_hpd(void)
 	case LCD_CHIP_TM2:
 	case LCD_CHIP_T5:
 	case LCD_CHIP_T5D:
+	case LCD_CHIP_T5W:
 		/* hpd */
 		lcd_vcbus_setb(VBO_INSGN_CTRL, 0, 3, 1);
 		lcd_vcbus_setb(VBO_INSGN_CTRL, 1, 2, 1);
@@ -1252,6 +1260,7 @@ static void lcd_mlvds_config_set(struct lcd_config_s *pconf)
 		break;
 	case LCD_CHIP_T5:
 	case LCD_CHIP_T5D:
+	case LCD_CHIP_T5W:
 		/* mlvds channel:    //tx 8 channels
 		 *    0: d0_a
 		 *    1: d1_a

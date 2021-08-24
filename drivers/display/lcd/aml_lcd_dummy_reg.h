@@ -373,3 +373,8 @@
 #ifndef RESET1_LEVEL
 #define RESET1_LEVEL                               ((0x0421  << 2) + 0xffd00000)
 #endif
+
+/* T5W */
+#define HHI_VIID_CLK0_DIV		0x0a0
+#define HHI_VIID_CLK0_CTRL		0x0a1
+#define HHI_VID_CLK0_CTRL2              0x0a4

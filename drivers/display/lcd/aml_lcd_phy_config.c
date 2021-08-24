@@ -980,6 +980,7 @@ int lcd_phy_probe(void)
 		break;
 	case LCD_CHIP_T5:
 	case LCD_CHIP_T5D:
+	case LCD_CHIP_T5W:
 		lcd_phy_ctrl = &lcd_phy_ctrl_t5;
 		phy_ctrl_bit_on = 1;
 		break;

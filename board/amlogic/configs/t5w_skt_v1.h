@@ -593,7 +593,7 @@
 #define CONFIG_AML_VPP
 
 /* DISPLAY */
-//#define CONFIG_AML_VOUT 1
+#define CONFIG_AML_VOUT 1
 
 #define CONFIG_AML_CANVAS 1
 #define CONFIG_AML_OSD 1
