@@ -1630,6 +1630,9 @@ fail:
 }
 
 void avb_slot_verify_data_free(AvbSlotVerifyData* data) {
+  if (!data) {
+    return;
+  }
   if (data->ab_suffix != NULL) {
     avb_free(data->ab_suffix);
   }
@@ -1663,6 +1666,7 @@ void avb_slot_verify_data_free(AvbSlotVerifyData* data) {
     avb_free(data->loaded_partitions);
   }
   avb_free(data);
+  data = NULL;
 }
 
 const char* avb_slot_verify_result_to_string(AvbSlotVerifyResult result) {
