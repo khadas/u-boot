@@ -236,6 +236,16 @@ phys_size_t get_effective_memsize(void)
 
 }
 
+ulong board_get_usable_ram_top(ulong total_size)
+{
+	unsigned long top = gd->ram_top;
+
+	if (top >= 0xE0000000UL) {
+		return 0xE0000000UL;
+	}
+	return top;
+}
+
 static struct mm_region bd_mem_map[] = {
 	{
 		.virt = 0x00000000UL,
