@@ -723,18 +723,6 @@
 		};
 	};
 
-	spifc_pins: spifc_pins {
-		mux {
-			groups = "nor_d",
-				 "nor_q",
-				 "nor_c",
-				 "nor_hold",
-				 "nor_wp";
-			function = "nor";
-			drive-strength = <3>;
-		};
-	};
-
 	pwm_a_pins: pwm_a_pins {
 		mux {
 			groups = "pwm_a";
@@ -943,6 +931,18 @@
 			groups = "emmc_clk";
 			function = "emmc";
 			bias-pull-down;
+		};
+	};
+
+	spifc_pins: spifc_pins {
+		mux {
+			groups = "spif_hold",
+				 "spif_mo",
+				 "spif_mi",
+				 "spif_clk",
+				 "spif_wp";
+			function = "spif";
+			drive-strength = <3>;
 		};
 	};
 };
