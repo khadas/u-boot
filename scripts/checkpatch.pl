@@ -1112,19 +1112,6 @@ EOM
 exit($exit);
 
 sub top_of_kernel_tree {
-	my ($root) = @_;
-
-	my @tree_check = (
-		"COPYING", "CREDITS", "Kbuild", "MAINTAINERS", "Makefile",
-		"README", "Documentation", "arch", "include", "drivers",
-		"fs", "init", "ipc", "kernel", "lib", "scripts",
-	);
-
-	foreach my $check (@tree_check) {
-		if (! -e $root . '/' . $check) {
-			return 0;
-		}
-	}
 	return 1;
 }
 
