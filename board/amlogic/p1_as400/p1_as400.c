@@ -205,6 +205,16 @@ int board_late_init(void)
 #endif
 }
 
+ulong board_get_usable_ram_top(ulong total_size)
+{
+	unsigned long top = gd->ram_top;
+
+	if (top >= 0xE0000000UL) {
+		return 0xE0000000UL;
+	}
+	return top;
+}
+
 phys_size_t get_effective_memsize(void)
 {
 	// >>16 -> MB, <<20 -> real size, so >>16<<20 = <<4
