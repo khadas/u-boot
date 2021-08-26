@@ -272,6 +272,38 @@ int mach_cpu_init(void) {
 	return 0;
 }
 
+#ifdef CONFIG_MULTI_DTB
+int checkhw(char * name)
+{
+	char loc_name[64] = {0};
+	unsigned long ddr_size=0;
+
+	int i;
+	for (i=0; i<CONFIG_NR_DRAM_BANKS; i++) {
+		ddr_size += gd->bd->bi_dram[i].size;
+	}
+#if defined(CONFIG_SYS_MEM_TOP_HIDE)
+	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
+#endif
+
+	switch (ddr_size) {
+	case 0xe0000000UL:
+		strcpy(loc_name, "p1_skt_4g\0");
+		break;
+	case 0x200000000UL:
+		strcpy(loc_name, "p1_skt_8g\0");
+		break;
+	default:
+		strcpy(loc_name, "p1_skt_unsupport");
+		break;
+	}
+	/* set aml_dt */
+	strcpy(name, loc_name);
+	env_set("aml_dt", loc_name);
+	return 0;
+}
+#endif
+
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	/* eg: bl31/32 rsv */
