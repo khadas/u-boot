@@ -559,9 +559,17 @@ void set_boot_first_timeout(uint64_t arg0)
 			: "+r" (x0)
 			: "r" (x1));
 }
+
+extern void set_usb_power_off(void);
+static void machine_off(void)
+{
+	set_usb_power_off();
+}
+
 void aml_system_off(void)
 {
 	/* TODO: Add poweroff capability */
+	machine_off();
 	aml_reboot(0x82000042, 1, 0, 0);
 	aml_reboot(0x84000008, 0, 0, 0);
 }

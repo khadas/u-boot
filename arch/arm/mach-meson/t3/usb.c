@@ -407,3 +407,19 @@ void usb_device_mode_init(void){
 	//--------------------------------------------------
 
 }
+
+void set_usb_power_off(void)
+{
+	unsigned int val;
+
+	val = readl(RESETCTRL_RESET0_LEVEL);
+	val &= ~((1 << 2) | (1 << 3) | (1 << 9));
+	writel(val, RESETCTRL_RESET0_LEVEL);
+
+	val = readl(RESETCTRL_RESET1_LEVEL);
+	val &= ~(1 << 13);
+	writel(val, RESETCTRL_RESET1_LEVEL);
+//	*((volatile uint32_t *)0xfe002040) &= ~((1 << 2) | (1 << 3) | (1 << 9));
+//	*((volatile uint32_t *)0xfe002044) &= ~(1 << 13);
+}
+
