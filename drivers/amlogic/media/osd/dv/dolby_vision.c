@@ -606,8 +606,8 @@ static void dolby_vision_get_vinfo(struct hdmitx_dev *hdmitx_device)
 
 static int dolby_vision_parse(struct hdmitx_dev *hdmitx_device)
 {
-	enum signal_format_e src_format = FORMAT_SDR;
-	enum signal_format_e dst_format = dovi_setting.dst_format;
+	enum signal_format_enum src_format = FORMAT_SDR;
+	enum signal_format_enum dst_format = dovi_setting.dst_format;
 	unsigned int graphic_min = 50;
 	unsigned int graphic_max = 100;
 	unsigned int target_max = 100;
@@ -619,7 +619,7 @@ static int dolby_vision_parse(struct hdmitx_dev *hdmitx_device)
 	dovi_setting.vout_width = vinfo_width;
 	dovi_setting.vout_height= vinfo_height;
 	dovi_setting.g_bitdepth = 8;
-	dovi_setting.g_format = GF_SDR_RGB;
+	dovi_setting.g_format = G_SDR_RGB;
 	dovi_setting.video_width = w << 16;
 	dovi_setting.video_height = h << 16;
 
@@ -1205,33 +1205,10 @@ static int  enable_dolby_vision(void)
 	return 0;
 }
 
-int get_primaries_type(struct master_display_info_s *data)
-{
-	if (!data->present_flag)
-		return 0;
-
-	if (data->primaries[0][1] > data->primaries[1][1] &&
-	    data->primaries[0][1] > data->primaries[2][1] &&
-	    data->primaries[2][0] > data->primaries[0][0] &&
-	    data->primaries[2][0] > data->primaries[1][0]) {
-		/* reasonable g,b,r */
-		return 2;
-	} else if (data->primaries[0][0] > data->primaries[1][0] &&
-		   data->primaries[0][0] > data->primaries[2][0] &&
-		   data->primaries[1][1] > data->primaries[0][1] &&
-		   data->primaries[1][1] > data->primaries[2][1]) {
-		/* reasonable r,g,b */
-		return 1;
-	}
-	/* source not usable, use standard bt2020 */
-	return 0;
-}
-
 static int prepare_drm_pkt(struct master_display_info_s *data,
 	struct dovi_setting_s *setting, const struct hdmitx_dev *hdmitx_device)
 {
-	int primaries_type = 0;
-	struct hdr_10_infoframe_s *p_hdr;
+	struct hdr10_infoframe *p_hdr;
 
 	p_hdr = &setting->hdr_info;
 	if (!data || !hdmitx_device || !setting)
@@ -1240,82 +1217,37 @@ static int prepare_drm_pkt(struct master_display_info_s *data,
 	data->features = (1 << 29) | (5 << 26) | (0 << 25) | (1 << 24)
 			| (9 << 16) | (0x10 << 8) | (10 << 0);
 
-	primaries_type = get_primaries_type(data);
-	if (primaries_type == 2) {
-		/* GBR -> RGB as dolby will swap back to GBR
-		 * in send_hdmi_pkt
-		 */
-		data->primaries[0][0] = (p_hdr->display_primaries_x_0_MSB << 8)
-			| p_hdr->display_primaries_x_0_LSB;
-		data->primaries[0][1] = (p_hdr->display_primaries_y_0_MSB << 8)
-			| p_hdr->display_primaries_y_0_LSB;
-		data->primaries[1][0] = (p_hdr->display_primaries_x_1_MSB << 8)
-			| p_hdr->display_primaries_x_1_LSB;
-		data->primaries[1][1] = (p_hdr->display_primaries_y_1_MSB << 8)
-			| p_hdr->display_primaries_y_1_LSB;
-		data->primaries[2][0] = (p_hdr->display_primaries_x_2_MSB << 8)
-			| p_hdr->display_primaries_x_2_LSB;
-		data->primaries[2][1] = (p_hdr->display_primaries_y_2_MSB << 8)
-			| p_hdr->display_primaries_y_2_LSB;
-		data->white_point[0] = (p_hdr->white_point_x_MSB << 8)
-			| p_hdr->white_point_x_LSB;
-		data->white_point[1] = (p_hdr->white_point_y_MSB << 8)
-			| p_hdr->white_point_y_LSB;
-	} else if (primaries_type == 1) {
-		/* RGB -> RGB and dolby will swap to send as GBR
-		 * in send_hdmi_pkt
-		 */
-		data->primaries[0][0] = (p_hdr->display_primaries_x_1_MSB << 8)
-			| p_hdr->display_primaries_x_1_LSB;
-		data->primaries[0][1] = (p_hdr->display_primaries_y_1_MSB << 8)
-			| p_hdr->display_primaries_y_1_LSB;
-		data->primaries[1][0] = (p_hdr->display_primaries_x_2_MSB << 8)
-			| p_hdr->display_primaries_x_2_LSB;
-		data->primaries[1][1] = (p_hdr->display_primaries_y_2_MSB << 8)
-			| p_hdr->display_primaries_y_2_LSB;
-		data->primaries[2][0] = (p_hdr->display_primaries_x_0_MSB << 8)
-			| p_hdr->display_primaries_x_0_LSB;
-		data->primaries[2][1] = (p_hdr->display_primaries_y_0_MSB << 8)
-			| p_hdr->display_primaries_y_0_LSB;
-		data->white_point[0] = (p_hdr->white_point_x_MSB << 8)
-			| p_hdr->white_point_x_LSB;
-		data->white_point[1] = (p_hdr->white_point_y_MSB << 8)
-			| p_hdr->white_point_y_LSB;
-	} else {
-		/* GBR -> RGB as dolby will swap back to GBR
-		 * in send_hdmi_pkt
-		 */
-		data->primaries[0][0] = (p_hdr->display_primaries_x_0_MSB << 8)
-		| p_hdr->display_primaries_x_0_LSB;
-		data->primaries[0][1] = (p_hdr->display_primaries_y_0_MSB << 8)
-		| p_hdr->display_primaries_y_0_LSB;
-		data->primaries[1][0] = (p_hdr->display_primaries_x_1_MSB << 8)
-		| p_hdr->display_primaries_x_1_LSB;
-		data->primaries[1][1] = (p_hdr->display_primaries_y_1_MSB << 8)
-		| p_hdr->display_primaries_y_1_LSB;
-		data->primaries[2][0] = (p_hdr->display_primaries_x_2_MSB << 8)
-			| p_hdr->display_primaries_x_2_LSB;
-		data->primaries[2][1] = (p_hdr->display_primaries_y_2_MSB << 8)
-			| p_hdr->display_primaries_y_2_LSB;
-		data->white_point[0] = (p_hdr->white_point_x_MSB << 8)
-			| p_hdr->white_point_x_LSB;
-		data->white_point[1] = (p_hdr->white_point_y_MSB << 8)
-			| p_hdr->white_point_y_LSB;
-	}
-
+	/* ko return primaries in RGB order, uboot send pkt in RGB order, */
+	/* to keep same with kernel*/
+	data->primaries[0][0] = (p_hdr->primaries_x_0_msb << 8)
+	| p_hdr->primaries_x_0_lsb;
+	data->primaries[0][1] = (p_hdr->primaries_y_0_msb << 8)
+	| p_hdr->primaries_y_0_lsb;
+	data->primaries[1][0] = (p_hdr->primaries_x_1_msb << 8)
+	| p_hdr->primaries_x_1_lsb;
+	data->primaries[1][1] = (p_hdr->primaries_y_1_msb << 8)
+	| p_hdr->primaries_y_1_lsb;
+	data->primaries[2][0] = (p_hdr->primaries_x_2_msb << 8)
+		| p_hdr->primaries_x_2_lsb;
+	data->primaries[2][1] = (p_hdr->primaries_y_2_msb << 8)
+		| p_hdr->primaries_y_2_lsb;
+	data->white_point[0] = (p_hdr->white_point_x_msb << 8)
+		| p_hdr->white_point_x_lsb;
+	data->white_point[1] = (p_hdr->white_point_y_msb << 8)
+		| p_hdr->white_point_y_lsb;
 	data->luminance[0] =
-		(p_hdr->max_display_mastering_luminance_MSB << 8)
-		| p_hdr->max_display_mastering_luminance_LSB;
+		(p_hdr->max_display_mastering_lum_msb << 8)
+		| p_hdr->max_display_mastering_lum_lsb;
 	data->luminance[1] =
-		(p_hdr->min_display_mastering_luminance_MSB << 8)
-		| p_hdr->min_display_mastering_luminance_LSB;
+		(p_hdr->min_display_mastering_lum_msb << 8)
+		| p_hdr->min_display_mastering_lum_lsb;
 
 	data->max_content =
-		(p_hdr->max_content_light_level_MSB << 8)
-		| p_hdr->max_content_light_level_LSB;
+		(p_hdr->max_content_light_level_msb << 8)
+		| p_hdr->max_content_light_level_lsb;
 	data->max_frame_average =
-		(p_hdr->max_frame_average_light_level_MSB << 8)
-		| p_hdr->max_frame_average_light_level_LSB;
+		(p_hdr->max_frame_avg_light_level_msb << 8)
+		| p_hdr->max_frame_avg_light_level_lsb;
 	return 0;
 }
 
@@ -1326,30 +1258,30 @@ static int prepare_vsif_pkt(struct dv_vsif_para *vsif,
 			return -1;
 	vsif->vers.ver2.low_latency = setting->dovi_ll_enable;
 	vsif->vers.ver2.dobly_vision_signal = 1;
-	if (hdmitx_device->RXCap.dv_info.sup_backlight_control
-		&& (setting->ext_md.available_level_mask
-		& EXT_MD_AVAIL_LEVEL_2)) {
+	if (hdmitx_device->RXCap.dv_info.sup_backlight_control &&
+		(setting->ext_md.avail_level_mask &
+		EXT_MD_LEVEL_2)) {
 		vsif->vers.ver2.backlt_ctrl_MD_present = 1;
 		vsif->vers.ver2.eff_tmax_PQ_hi =
-			setting->ext_md.level_2.target_max_PQ_hi & 0xf;
+			setting->ext_md.level_2.target_max_pq_h & 0xf;
 			vsif->vers.ver2.eff_tmax_PQ_low =
-			setting->ext_md.level_2.target_max_PQ_lo;
+			setting->ext_md.level_2.target_max_pq_l;
 	} else {
 		vsif->vers.ver2.backlt_ctrl_MD_present = 0;
 		vsif->vers.ver2.eff_tmax_PQ_hi = 0;
 		vsif->vers.ver2.eff_tmax_PQ_low = 0;
 	}
 
-	if (setting->dovi_ll_enable
-		&& (setting->ext_md.available_level_mask
-		& EXT_MD_AVAIL_LEVEL_255)) {
+	if (setting->dovi_ll_enable &&
+		(setting->ext_md.avail_level_mask &
+		EXT_MD_LEVEL_255)) {
 		vsif->vers.ver2.auxiliary_MD_present = 1;
 		vsif->vers.ver2.auxiliary_runmode =
-			setting->ext_md.level_255.dm_run_mode;
+			setting->ext_md.level_255.run_mode;
 		vsif->vers.ver2.auxiliary_runversion =
-			setting->ext_md.level_255.dm_run_version;
+			setting->ext_md.level_255.run_version;
 		vsif->vers.ver2.auxiliary_debug0 =
-			setting->ext_md.level_255.dm_debug0;
+			setting->ext_md.level_255.dm_debug_0;
 	} else {
 		vsif->vers.ver2.auxiliary_MD_present = 0;
 		vsif->vers.ver2.auxiliary_runmode = 0;
@@ -1358,6 +1290,13 @@ static int prepare_vsif_pkt(struct dv_vsif_para *vsif,
 	}
 	return 0;
 }
+
+static const char *output_str[4] = {
+	"DOVI",
+	"HDR10",
+	"SDR",
+	"DOVI_LL"
+};
 
 void send_hdmi_pkt(void)
 {
@@ -1368,7 +1307,10 @@ void send_hdmi_pkt(void)
 	if (!is_dolby_enable())
 		return;
 
-	printf("send_hdmi_pkt %d\n",dovi_setting.dst_format);
+	printf("send hdmi pkt %d [%s]\n",
+		dovi_setting.dst_format,
+		(dovi_setting.dst_format >= 0 && dovi_setting.dst_format < 4) ?
+		output_str[dovi_setting.dst_format] : "NULL");
 
 	if (dovi_setting.dst_format == FORMAT_DOVI) {
 		memset(&vsif, 0, sizeof(vsif));
@@ -1462,27 +1404,27 @@ void dolbyvision_dump_setting() {
 			i, READ_VPP_REG(i));
 
 	printf("\ncore2lut\n");
-	p = (uint32_t *)&dovi_setting.dm_lut2.TmLutI;
+	p = (uint32_t *)&dovi_setting.dm_lut2.tm_lut_i;
 	for (i = 0; i < 64; i++)
 		printf("%08x, %08x, %08x, %08x\n",
 			p[i*4+3], p[i*4+2], p[i*4+1], p[i*4]);
 	printf("\n");
-	p = (uint32_t *)&dovi_setting.dm_lut2.TmLutS;
+	p = (uint32_t *)&dovi_setting.dm_lut2.tm_lut_s;
 	for (i = 0; i < 64; i++)
 		printf("%08x, %08x, %08x, %08x\n",
 			p[i*4+3], p[i*4+2], p[i*4+1], p[i*4]);
 	printf("\n");
-	p = (uint32_t *)&dovi_setting.dm_lut2.SmLutI;
+	p = (uint32_t *)&dovi_setting.dm_lut2.sm_lut_i;
 	for (i = 0; i < 64; i++)
 		printf("%08x, %08x, %08x, %08x\n",
 			p[i*4+3], p[i*4+2], p[i*4+1], p[i*4]);
 	printf("\n");
-	p = (uint32_t *)&dovi_setting.dm_lut2.SmLutS;
+	p = (uint32_t *)&dovi_setting.dm_lut2.sm_lut_s;
 	for (i = 0; i < 64; i++)
 		printf("%08x, %08x, %08x, %08x\n",
 			p[i*4+3], p[i*4+2], p[i*4+1], p[i*4]);
 	printf("\n");
-	p = (uint32_t *)&dovi_setting.dm_lut2.G2L;
+	p = (uint32_t *)&dovi_setting.dm_lut2.g_2_l;
 	for (i = 0; i < 64; i++)
 		printf("%08x, %08x, %08x, %08x\n",
 			p[i*4+3], p[i*4+2], p[i*4+1], p[i*4]);
