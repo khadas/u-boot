@@ -9,15 +9,6 @@
 #ifndef _DOBLY_VISION_H_
 #define _DOBLY_VISION_H_
 
-
-
-#define EXT_MD_AVAIL_LEVEL_1    (1 << 0)
-#define EXT_MD_AVAIL_LEVEL_2    (1 << 1)
-#define EXT_MD_AVAIL_LEVEL_4    (1 << 2)
-#define EXT_MD_AVAIL_LEVEL_5    (1 << 3)
-#define EXT_MD_AVAIL_LEVEL_6    (1 << 4)
-#define EXT_MD_AVAIL_LEVEL_255  (1 << 31)
-
 #define DOLBY_VISION_OUTPUT_MODE_IPT			0
 #define DOLBY_VISION_OUTPUT_MODE_IPT_TUNNEL		1
 #define DOLBY_VISION_OUTPUT_MODE_HDR10			2
@@ -28,7 +19,6 @@
 #define DOLBY_VISION_LL_DISABLE				0
 #define DOLBY_VISION_LL_YUV422				1
 #define DOLBY_VISION_LL_RGB444				2
-
 
 #define DOLBY_VISION_SET_DISABLE    "0"
 #define DOLBY_VISION_SET_STD        "1"

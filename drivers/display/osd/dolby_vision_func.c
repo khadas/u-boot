@@ -245,7 +245,6 @@ int check_dovi_sha256(unsigned char* dovi_body, int size) {
 		printf("expect:%s, real: %s\n", dovi_expect_hash, sha256_str);
 		return -1;
 	}
-
 	return 1;
 }
 
@@ -366,16 +365,17 @@ struct cp_struct cp_info;
 
 /*return 0: success*/
 int control_path(
-    enum signal_format_e in_format, enum signal_format_e out_format,
-    char *in_comp, int in_comp_size,
-    char *in_md, int in_md_size,
-    enum priority_mode_e set_priority,
-    int set_bit_depth, int set_chroma_format, int set_yuv_range,
-    int set_graphic_min_lum, int set_graphic_max_lum,
-    int set_target_min_lum, int set_target_max_lum,
-    int set_no_el,
-    struct hdr10_param_s *p_hdr10_param,
-    struct dovi_setting_s *output)
+	enum signal_format_enum in_format,
+	enum signal_format_enum out_format,
+	char *in_comp, int in_comp_size,
+	char *in_md, int in_md_size,
+	enum priority_mode_enum set_priority,
+	int set_bit_depth, int set_chroma_format, int set_yuv_range,
+	int set_graphic_min_lum, int set_graphic_max_lum,
+	int set_target_min_lum, int set_target_max_lum,
+	int set_no_el,
+	struct hdr10_parameter *p_hdr10_param,
+	struct dovi_setting_s *output)
 {
     char *fw_dir_odm_ext = NULL;
     char *fw_dir_vendor = NULL;
