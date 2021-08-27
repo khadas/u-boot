@@ -657,6 +657,9 @@ __attribute__ ((section(".clk_param"))) = {
 
 #define VCCK_A_VAL				AML_VCCK_A_INIT_VOLTAGE
 #define VCCK_B_VAL				AML_VCCK_B_INIT_VOLTAGE
+#define VDD_CPUA_VAL			AML_VDD_CPUA_INIT_VOLTAGE
+#define VDD_CPUB_VAL			AML_VDD_CPUB_INIT_VOLTAGE
+
 /* VCCK_A PWM table */
 #if   (VCCK_A_VAL == 1039)
 	#define VCCK_A_VAL_REG	0x00000022
@@ -807,10 +810,630 @@ __attribute__ ((section(".clk_param"))) = {
 	#error "VCCK_B val out of range\n"
 #endif
 
+/* VDD_CPUA_REG */
+#if    (VDD_CPUA_VAL == 500)
+#define VDD_CPUA_REG   0x01
+#elif (VDD_CPUA_VAL == 505)
+#define VDD_CPUA_REG   0x02
+#elif (VDD_CPUA_VAL == 510)
+#define VDD_CPUA_REG   0x03
+#elif (VDD_CPUA_VAL == 515)
+#define VDD_CPUA_REG   0x04
+#elif (VDD_CPUA_VAL == 520)
+#define VDD_CPUA_REG   0x05
+#elif (VDD_CPUA_VAL == 525)
+#define VDD_CPUA_REG   0x06
+#elif (VDD_CPUA_VAL == 530)
+#define VDD_CPUA_REG   0x07
+#elif (VDD_CPUA_VAL == 535)
+#define VDD_CPUA_REG   0x08
+#elif (VDD_CPUA_VAL == 540)
+#define VDD_CPUA_REG   0x09
+#elif (VDD_CPUA_VAL == 545)
+#define VDD_CPUA_REG   0x0a
+#elif (VDD_CPUA_VAL == 550)
+#define VDD_CPUA_REG   0x0b
+#elif (VDD_CPUA_VAL == 555)
+#define VDD_CPUA_REG   0x0c
+#elif (VDD_CPUA_VAL == 560)
+#define VDD_CPUA_REG   0x0d
+#elif (VDD_CPUA_VAL == 565)
+#define VDD_CPUA_REG   0x0e
+#elif (VDD_CPUA_VAL == 570)
+#define VDD_CPUA_REG   0x0f
+#elif (VDD_CPUA_VAL == 575)
+#define VDD_CPUA_REG   0x10
+#elif (VDD_CPUA_VAL == 580)
+#define VDD_CPUA_REG   0x11
+#elif (VDD_CPUA_VAL == 585)
+#define VDD_CPUA_REG   0x12
+#elif (VDD_CPUA_VAL == 590)
+#define VDD_CPUA_REG   0x13
+#elif (VDD_CPUA_VAL == 595)
+#define VDD_CPUA_REG   0x14
+#elif (VDD_CPUA_VAL == 600)
+#define VDD_CPUA_REG   0x15
+#elif (VDD_CPUA_VAL == 605)
+#define VDD_CPUA_REG   0x16
+#elif (VDD_CPUA_VAL == 610)
+#define VDD_CPUA_REG   0x17
+#elif (VDD_CPUA_VAL == 615)
+#define VDD_CPUA_REG   0x18
+#elif (VDD_CPUA_VAL == 620)
+#define VDD_CPUA_REG   0x19
+#elif (VDD_CPUA_VAL == 625)
+#define VDD_CPUA_REG   0x1a
+#elif (VDD_CPUA_VAL == 630)
+#define VDD_CPUA_REG   0x1b
+#elif (VDD_CPUA_VAL == 635)
+#define VDD_CPUA_REG   0x1c
+#elif (VDD_CPUA_VAL == 640)
+#define VDD_CPUA_REG   0x1d
+#elif (VDD_CPUA_VAL == 645)
+#define VDD_CPUA_REG   0x1e
+#elif (VDD_CPUA_VAL == 650)
+#define VDD_CPUA_REG   0x1f
+#elif (VDD_CPUA_VAL == 655)
+#define VDD_CPUA_REG   0x20
+#elif (VDD_CPUA_VAL == 660)
+#define VDD_CPUA_REG   0x21
+#elif (VDD_CPUA_VAL == 665)
+#define VDD_CPUA_REG   0x22
+#elif (VDD_CPUA_VAL == 670)
+#define VDD_CPUA_REG   0x23
+#elif (VDD_CPUA_VAL == 675)
+#define VDD_CPUA_REG   0x24
+#elif (VDD_CPUA_VAL == 680)
+#define VDD_CPUA_REG   0x25
+#elif (VDD_CPUA_VAL == 685)
+#define VDD_CPUA_REG   0x26
+#elif (VDD_CPUA_VAL == 690)
+#define VDD_CPUA_REG   0x27
+#elif (VDD_CPUA_VAL == 695)
+#define VDD_CPUA_REG   0x28
+#elif (VDD_CPUA_VAL == 700)
+#define VDD_CPUA_REG   0x29
+#elif (VDD_CPUA_VAL == 705)
+#define VDD_CPUA_REG   0x2a
+#elif (VDD_CPUA_VAL == 710)
+#define VDD_CPUA_REG   0x2b
+#elif (VDD_CPUA_VAL == 715)
+#define VDD_CPUA_REG   0x2c
+#elif (VDD_CPUA_VAL == 720)
+#define VDD_CPUA_REG   0x2d
+#elif (VDD_CPUA_VAL == 725)
+#define VDD_CPUA_REG   0x2e
+#elif (VDD_CPUA_VAL == 730)
+#define VDD_CPUA_REG   0x2f
+#elif (VDD_CPUA_VAL == 735)
+#define VDD_CPUA_REG   0x30
+#elif (VDD_CPUA_VAL == 740)
+#define VDD_CPUA_REG   0x31
+#elif (VDD_CPUA_VAL == 745)
+#define VDD_CPUA_REG   0x32
+#elif (VDD_CPUA_VAL == 750)
+#define VDD_CPUA_REG   0x33
+#elif (VDD_CPUA_VAL == 755)
+#define VDD_CPUA_REG   0x34
+#elif (VDD_CPUA_VAL == 760)
+#define VDD_CPUA_REG   0x35
+#elif (VDD_CPUA_VAL == 765)
+#define VDD_CPUA_REG   0x36
+#elif (VDD_CPUA_VAL == 770)
+#define VDD_CPUA_REG   0x37
+#elif (VDD_CPUA_VAL == 775)
+#define VDD_CPUA_REG   0x38
+#elif (VDD_CPUA_VAL == 780)
+#define VDD_CPUA_REG   0x39
+#elif (VDD_CPUA_VAL == 785)
+#define VDD_CPUA_REG   0x3a
+#elif (VDD_CPUA_VAL == 790)
+#define VDD_CPUA_REG   0x3b
+#elif (VDD_CPUA_VAL == 795)
+#define VDD_CPUA_REG   0x3c
+#elif (VDD_CPUA_VAL == 800)
+#define VDD_CPUA_REG   0x3d
+#elif (VDD_CPUA_VAL == 805)
+#define VDD_CPUA_REG   0x3e
+#elif (VDD_CPUA_VAL == 810)
+#define VDD_CPUA_REG   0x3f
+#elif (VDD_CPUA_VAL == 815)
+#define VDD_CPUA_REG   0x40
+#elif (VDD_CPUA_VAL == 820)
+#define VDD_CPUA_REG   0x41
+#elif (VDD_CPUA_VAL == 825)
+#define VDD_CPUA_REG   0x42
+#elif (VDD_CPUA_VAL == 830)
+#define VDD_CPUA_REG   0x43
+#elif (VDD_CPUA_VAL == 835)
+#define VDD_CPUA_REG   0x44
+#elif (VDD_CPUA_VAL == 840)
+#define VDD_CPUA_REG   0x45
+#elif (VDD_CPUA_VAL == 845)
+#define VDD_CPUA_REG   0x46
+#elif (VDD_CPUA_VAL == 850)
+#define VDD_CPUA_REG   0x47
+#elif (VDD_CPUA_VAL == 855)
+#define VDD_CPUA_REG   0x48
+#elif (VDD_CPUA_VAL == 860)
+#define VDD_CPUA_REG   0x49
+#elif (VDD_CPUA_VAL == 865)
+#define VDD_CPUA_REG   0x4a
+#elif (VDD_CPUA_VAL == 870)
+#define VDD_CPUA_REG   0x4b
+#elif (VDD_CPUA_VAL == 875)
+#define VDD_CPUA_REG   0x4c
+#elif (VDD_CPUA_VAL == 880)
+#define VDD_CPUA_REG   0x4d
+#elif (VDD_CPUA_VAL == 885)
+#define VDD_CPUA_REG   0x4e
+#elif (VDD_CPUA_VAL == 890)
+#define VDD_CPUA_REG   0x4f
+#elif (VDD_CPUA_VAL == 895)
+#define VDD_CPUA_REG   0x50
+#elif (VDD_CPUA_VAL == 900)
+#define VDD_CPUA_REG   0x51
+#elif (VDD_CPUA_VAL == 905)
+#define VDD_CPUA_REG   0x52
+#elif (VDD_CPUA_VAL == 910)
+#define VDD_CPUA_REG   0x53
+#elif (VDD_CPUA_VAL == 915)
+#define VDD_CPUA_REG   0x54
+#elif (VDD_CPUA_VAL == 920)
+#define VDD_CPUA_REG   0x55
+#elif (VDD_CPUA_VAL == 925)
+#define VDD_CPUA_REG   0x56
+#elif (VDD_CPUA_VAL == 930)
+#define VDD_CPUA_REG   0x57
+#elif (VDD_CPUA_VAL == 935)
+#define VDD_CPUA_REG   0x58
+#elif (VDD_CPUA_VAL == 940)
+#define VDD_CPUA_REG   0x59
+#elif (VDD_CPUA_VAL == 945)
+#define VDD_CPUA_REG   0x5a
+#elif (VDD_CPUA_VAL == 950)
+#define VDD_CPUA_REG   0x5b
+#elif (VDD_CPUA_VAL == 955)
+#define VDD_CPUA_REG   0x5c
+#elif (VDD_CPUA_VAL == 960)
+#define VDD_CPUA_REG   0x5d
+#elif (VDD_CPUA_VAL == 965)
+#define VDD_CPUA_REG   0x5e
+#elif (VDD_CPUA_VAL == 970)
+#define VDD_CPUA_REG   0x5f
+#elif (VDD_CPUA_VAL == 975)
+#define VDD_CPUA_REG   0x60
+#elif (VDD_CPUA_VAL == 980)
+#define VDD_CPUA_REG   0x61
+#elif (VDD_CPUA_VAL == 985)
+#define VDD_CPUA_REG   0x62
+#elif (VDD_CPUA_VAL == 990)
+#define VDD_CPUA_REG   0x63
+#elif (VDD_CPUA_VAL == 995)
+#define VDD_CPUA_REG   0x64
+#elif (VDD_CPUA_VAL == 1000)
+#define VDD_CPUA_REG   0x65
+#elif (VDD_CPUA_VAL == 1005)
+#define VDD_CPUA_REG   0x66
+#elif (VDD_CPUA_VAL == 1010)
+#define VDD_CPUA_REG   0x67
+#elif (VDD_CPUA_VAL == 1015)
+#define VDD_CPUA_REG   0x68
+#elif (VDD_CPUA_VAL == 1020)
+#define VDD_CPUA_REG   0x69
+#elif (VDD_CPUA_VAL == 1025)
+#define VDD_CPUA_REG   0x6a
+#elif (VDD_CPUA_VAL == 1030)
+#define VDD_CPUA_REG   0x6b
+#elif (VDD_CPUA_VAL == 1035)
+#define VDD_CPUA_REG   0x6c
+#elif (VDD_CPUA_VAL == 1040)
+#define VDD_CPUA_REG   0x6d
+#elif (VDD_CPUA_VAL == 1045)
+#define VDD_CPUA_REG   0x6e
+#elif (VDD_CPUA_VAL == 1050)
+#define VDD_CPUA_REG   0x6f
+#elif (VDD_CPUA_VAL == 1055)
+#define VDD_CPUA_REG   0x70
+#elif (VDD_CPUA_VAL == 1060)
+#define VDD_CPUA_REG   0x71
+#elif (VDD_CPUA_VAL == 1065)
+#define VDD_CPUA_REG   0x72
+#elif (VDD_CPUA_VAL == 1070)
+#define VDD_CPUA_REG   0x73
+#elif (VDD_CPUA_VAL == 1075)
+#define VDD_CPUA_REG   0x74
+#elif (VDD_CPUA_VAL == 1080)
+#define VDD_CPUA_REG   0x75
+#elif (VDD_CPUA_VAL == 1085)
+#define VDD_CPUA_REG   0x76
+#elif (VDD_CPUA_VAL == 1090)
+#define VDD_CPUA_REG   0x77
+#elif (VDD_CPUA_VAL == 1095)
+#define VDD_CPUA_REG   0x78
+#elif (VDD_CPUA_VAL == 1100)
+#define VDD_CPUA_REG   0x79
+#elif (VDD_CPUA_VAL == 1105)
+#define VDD_CPUA_REG   0x7a
+#elif (VDD_CPUA_VAL == 1110)
+#define VDD_CPUA_REG   0x7b
+#elif (VDD_CPUA_VAL == 1115)
+#define VDD_CPUA_REG   0x7c
+#elif (VDD_CPUA_VAL == 1120)
+#define VDD_CPUA_REG   0x7d
+#elif (VDD_CPUA_VAL == 1125)
+#define VDD_CPUA_REG   0x7e
+#elif (VDD_CPUA_VAL == 1130)
+#define VDD_CPUA_REG   0x7f
+#elif (VDD_CPUA_VAL == 1135)
+#define VDD_CPUA_REG   0x80
+#elif (VDD_CPUA_VAL == 1140)
+#define VDD_CPUA_REG   0x81
+#elif (VDD_CPUA_VAL == 1145)
+#define VDD_CPUA_REG   0x82
+#elif (VDD_CPUA_VAL == 1150)
+#define VDD_CPUA_REG   0x83
+#elif (VDD_CPUA_VAL == 1155)
+#define VDD_CPUA_REG   0x84
+#elif (VDD_CPUA_VAL == 1160)
+#define VDD_CPUA_REG   0x85
+#elif (VDD_CPUA_VAL == 1165)
+#define VDD_CPUA_REG   0x86
+#elif (VDD_CPUA_VAL == 1170)
+#define VDD_CPUA_REG   0x87
+#elif (VDD_CPUA_VAL == 1175)
+#define VDD_CPUA_REG   0x88
+#elif (VDD_CPUA_VAL == 1180)
+#define VDD_CPUA_REG   0x89
+#elif (VDD_CPUA_VAL == 1185)
+#define VDD_CPUA_REG   0x8a
+#elif (VDD_CPUA_VAL == 1190)
+#define VDD_CPUA_REG   0x8b
+#elif (VDD_CPUA_VAL == 1195)
+#define VDD_CPUA_REG   0x8c
+#elif (VDD_CPUA_VAL == 1200)
+#define VDD_CPUA_REG   0x8d
+#elif (VDD_CPUA_VAL == 1205)
+#define VDD_CPUA_REG   0x8e
+#elif (VDD_CPUA_VAL == 1210)
+#define VDD_CPUA_REG   0x8f
+#elif (VDD_CPUA_VAL == 1215)
+#define VDD_CPUA_REG   0x90
+#elif (VDD_CPUA_VAL == 1220)
+#define VDD_CPUA_REG   0x91
+#elif (VDD_CPUA_VAL == 1225)
+#define VDD_CPUA_REG   0x92
+#elif (VDD_CPUA_VAL == 1230)
+#define VDD_CPUA_REG   0x93
+#elif (VDD_CPUA_VAL == 1235)
+#define VDD_CPUA_REG   0x94
+#elif (VDD_CPUA_VAL == 1240)
+#define VDD_CPUA_REG   0x95
+#elif (VDD_CPUA_VAL == 1245)
+#define VDD_CPUA_REG   0x96
+#elif (VDD_CPUA_VAL == 1250)
+#define VDD_CPUA_REG   0x97
+#elif (VDD_CPUA_VAL == 1255)
+#define VDD_CPUA_REG   0x98
+#elif (VDD_CPUA_VAL == 1260)
+#define VDD_CPUA_REG   0x99
+#elif (VDD_CPUA_VAL == 1265)
+#define VDD_CPUA_REG   0x9a
+#elif (VDD_CPUA_VAL == 1270)
+#define VDD_CPUA_REG   0x9b
+#elif (VDD_CPUA_VAL == 1275)
+#define VDD_CPUA_REG   0x9c
+#elif (VDD_CPUA_VAL == 1280)
+#define VDD_CPUA_REG   0x9d
+#elif (VDD_CPUA_VAL == 1285)
+#define VDD_CPUA_REG   0x9e
+#elif (VDD_CPUA_VAL == 1290)
+#define VDD_CPUA_REG   0x9f
+#elif (VDD_CPUA_VAL == 1295)
+#define VDD_CPUA_REG   0xa0
+#elif (VDD_CPUA_VAL == 1300)
+#define VDD_CPUA_REG   0xa1
+#elif (VDD_CPUA_VAL == 1305)
+#define VDD_CPUA_REG   0xa2
+#elif (VDD_CPUA_VAL == 1310)
+#define VDD_CPUA_REG   0xa3
+#elif (VDD_CPUA_VAL == 1315)
+#define VDD_CPUA_REG   0xa4
+#elif (VDD_CPUA_VAL == 1320)
+#define VDD_CPUA_REG   0xa5
+#elif (VDD_CPUA_VAL == 1325)
+#define VDD_CPUA_REG   0xa6
+#elif (VDD_CPUA_VAL == 1330)
+#define VDD_CPUA_REG   0xa7
+#elif (VDD_CPUA_VAL == 1335)
+#define VDD_CPUA_REG   0xa8
+#elif (VDD_CPUA_VAL == 1340)
+#define VDD_CPUA_REG   0xa9
+#elif (VDD_CPUA_VAL == 1345)
+#define VDD_CPUA_REG   0xaa
+#elif (VDD_CPUA_VAL == 1350)
+#define VDD_CPUA_REG   0xab
+#else
+#error "VDD_CPUA val out of range\n"
+#endif
+
+/* VDD_CPUB_REG */
+#if    (VDD_CPUB_VAL == 500)
+#define VDD_CPUB_REG   0x01
+#elif (VDD_CPUB_VAL == 505)
+#define VDD_CPUB_REG   0x02
+#elif (VDD_CPUB_VAL == 510)
+#define VDD_CPUB_REG   0x03
+#elif (VDD_CPUB_VAL == 515)
+#define VDD_CPUB_REG   0x04
+#elif (VDD_CPUB_VAL == 520)
+#define VDD_CPUB_REG   0x05
+#elif (VDD_CPUB_VAL == 525)
+#define VDD_CPUB_REG   0x06
+#elif (VDD_CPUB_VAL == 530)
+#define VDD_CPUB_REG   0x07
+#elif (VDD_CPUB_VAL == 535)
+#define VDD_CPUB_REG   0x08
+#elif (VDD_CPUB_VAL == 540)
+#define VDD_CPUB_REG   0x09
+#elif (VDD_CPUB_VAL == 545)
+#define VDD_CPUB_REG   0x0a
+#elif (VDD_CPUB_VAL == 550)
+#define VDD_CPUB_REG   0x0b
+#elif (VDD_CPUB_VAL == 555)
+#define VDD_CPUB_REG   0x0c
+#elif (VDD_CPUB_VAL == 560)
+#define VDD_CPUB_REG   0x0d
+#elif (VDD_CPUB_VAL == 565)
+#define VDD_CPUB_REG   0x0e
+#elif (VDD_CPUB_VAL == 570)
+#define VDD_CPUB_REG   0x0f
+#elif (VDD_CPUB_VAL == 575)
+#define VDD_CPUB_REG   0x10
+#elif (VDD_CPUB_VAL == 580)
+#define VDD_CPUB_REG   0x11
+#elif (VDD_CPUB_VAL == 585)
+#define VDD_CPUB_REG   0x12
+#elif (VDD_CPUB_VAL == 590)
+#define VDD_CPUB_REG   0x13
+#elif (VDD_CPUB_VAL == 595)
+#define VDD_CPUB_REG   0x14
+#elif (VDD_CPUB_VAL == 600)
+#define VDD_CPUB_REG   0x15
+#elif (VDD_CPUB_VAL == 605)
+#define VDD_CPUB_REG   0x16
+#elif (VDD_CPUB_VAL == 610)
+#define VDD_CPUB_REG   0x17
+#elif (VDD_CPUB_VAL == 615)
+#define VDD_CPUB_REG   0x18
+#elif (VDD_CPUB_VAL == 620)
+#define VDD_CPUB_REG   0x19
+#elif (VDD_CPUB_VAL == 625)
+#define VDD_CPUB_REG   0x1a
+#elif (VDD_CPUB_VAL == 630)
+#define VDD_CPUB_REG   0x1b
+#elif (VDD_CPUB_VAL == 635)
+#define VDD_CPUB_REG   0x1c
+#elif (VDD_CPUB_VAL == 640)
+#define VDD_CPUB_REG   0x1d
+#elif (VDD_CPUB_VAL == 645)
+#define VDD_CPUB_REG   0x1e
+#elif (VDD_CPUB_VAL == 650)
+#define VDD_CPUB_REG   0x1f
+#elif (VDD_CPUB_VAL == 655)
+#define VDD_CPUB_REG   0x20
+#elif (VDD_CPUB_VAL == 660)
+#define VDD_CPUB_REG   0x21
+#elif (VDD_CPUB_VAL == 665)
+#define VDD_CPUB_REG   0x22
+#elif (VDD_CPUB_VAL == 670)
+#define VDD_CPUB_REG   0x23
+#elif (VDD_CPUB_VAL == 880)
+#define VDD_CPUB_REG   0x4d
+#elif (VDD_CPUB_VAL == 885)
+#define VDD_CPUB_REG   0x4e
+#elif (VDD_CPUB_VAL == 890)
+#define VDD_CPUB_REG   0x4f
+#elif (VDD_CPUB_VAL == 895)
+#define VDD_CPUB_REG   0x50
+#elif (VDD_CPUB_VAL == 900)
+#define VDD_CPUB_REG   0x51
+#elif (VDD_CPUB_VAL == 905)
+#define VDD_CPUB_REG   0x52
+#elif (VDD_CPUB_VAL == 910)
+#define VDD_CPUB_REG   0x53
+#elif (VDD_CPUB_VAL == 915)
+#define VDD_CPUB_REG   0x54
+#elif (VDD_CPUB_VAL == 920)
+#define VDD_CPUB_REG   0x55
+#elif (VDD_CPUB_VAL == 925)
+#define VDD_CPUB_REG   0x56
+#elif (VDD_CPUB_VAL == 930)
+#define VDD_CPUB_REG   0x57
+#elif (VDD_CPUB_VAL == 935)
+#define VDD_CPUB_REG   0x58
+#elif (VDD_CPUB_VAL == 940)
+#define VDD_CPUB_REG   0x59
+#elif (VDD_CPUB_VAL == 945)
+#define VDD_CPUB_REG   0x5a
+#elif (VDD_CPUB_VAL == 950)
+#define VDD_CPUB_REG   0x5b
+#elif (VDD_CPUB_VAL == 955)
+#define VDD_CPUB_REG   0x5c
+#elif (VDD_CPUB_VAL == 960)
+#define VDD_CPUB_REG   0x5d
+#elif (VDD_CPUB_VAL == 965)
+#define VDD_CPUB_REG   0x5e
+#elif (VDD_CPUB_VAL == 970)
+#define VDD_CPUB_REG   0x5f
+#elif (VDD_CPUB_VAL == 975)
+#define VDD_CPUB_REG   0x60
+#elif (VDD_CPUB_VAL == 980)
+#define VDD_CPUB_REG   0x61
+#elif (VDD_CPUB_VAL == 985)
+#define VDD_CPUB_REG   0x62
+#elif (VDD_CPUB_VAL == 990)
+#define VDD_CPUB_REG   0x63
+#elif (VDD_CPUB_VAL == 995)
+#define VDD_CPUB_REG   0x64
+#elif (VDD_CPUB_VAL == 1000)
+#define VDD_CPUB_REG   0x65
+#elif (VDD_CPUB_VAL == 1005)
+#define VDD_CPUB_REG   0x66
+#elif (VDD_CPUB_VAL == 1010)
+#define VDD_CPUB_REG   0x67
+#elif (VDD_CPUB_VAL == 1015)
+#define VDD_CPUB_REG   0x68
+#elif (VDD_CPUB_VAL == 1020)
+#define VDD_CPUB_REG   0x69
+#elif (VDD_CPUB_VAL == 1025)
+#define VDD_CPUB_REG   0x6a
+#elif (VDD_CPUB_VAL == 1030)
+#define VDD_CPUB_REG   0x6b
+#elif (VDD_CPUB_VAL == 1035)
+#define VDD_CPUB_REG   0x6c
+#elif (VDD_CPUB_VAL == 1040)
+#define VDD_CPUB_REG   0x6d
+#elif (VDD_CPUB_VAL == 1045)
+#define VDD_CPUB_REG   0x6e
+#elif (VDD_CPUB_VAL == 1050)
+#define VDD_CPUB_REG   0x6f
+#elif (VDD_CPUB_VAL == 1055)
+#define VDD_CPUB_REG   0x70
+#elif (VDD_CPUB_VAL == 1060)
+#define VDD_CPUB_REG   0x71
+#elif (VDD_CPUB_VAL == 1065)
+#define VDD_CPUB_REG   0x72
+#elif (VDD_CPUB_VAL == 1070)
+#define VDD_CPUB_REG   0x73
+#elif (VDD_CPUB_VAL == 1075)
+#define VDD_CPUB_REG   0x74
+#elif (VDD_CPUB_VAL == 1080)
+#define VDD_CPUB_REG   0x75
+#elif (VDD_CPUB_VAL == 1085)
+#define VDD_CPUB_REG   0x76
+#elif (VDD_CPUB_VAL == 1090)
+#define VDD_CPUB_REG   0x77
+#elif (VDD_CPUB_VAL == 1095)
+#define VDD_CPUB_REG   0x78
+#elif (VDD_CPUB_VAL == 1100)
+#define VDD_CPUB_REG   0x79
+#elif (VDD_CPUB_VAL == 1105)
+#define VDD_CPUB_REG   0x7a
+#elif (VDD_CPUB_VAL == 1110)
+#define VDD_CPUB_REG   0x7b
+#elif (VDD_CPUB_VAL == 1115)
+#define VDD_CPUB_REG   0x7c
+#elif (VDD_CPUB_VAL == 1120)
+#define VDD_CPUB_REG   0x7d
+#elif (VDD_CPUB_VAL == 1125)
+#define VDD_CPUB_REG   0x7e
+#elif (VDD_CPUB_VAL == 1130)
+#define VDD_CPUB_REG   0x7f
+#elif (VDD_CPUB_VAL == 1135)
+#define VDD_CPUB_REG   0x80
+#elif (VDD_CPUB_VAL == 1140)
+#define VDD_CPUB_REG   0x81
+#elif (VDD_CPUB_VAL == 1145)
+#define VDD_CPUB_REG   0x82
+#elif (VDD_CPUB_VAL == 1150)
+#define VDD_CPUB_REG   0x83
+#elif (VDD_CPUB_VAL == 1155)
+#define VDD_CPUB_REG   0x84
+#elif (VDD_CPUB_VAL == 1160)
+#define VDD_CPUB_REG   0x85
+#elif (VDD_CPUB_VAL == 1165)
+#define VDD_CPUB_REG   0x86
+#elif (VDD_CPUB_VAL == 1170)
+#define VDD_CPUB_REG   0x87
+#elif (VDD_CPUB_VAL == 1175)
+#define VDD_CPUB_REG   0x88
+#elif (VDD_CPUB_VAL == 1180)
+#define VDD_CPUB_REG   0x89
+#elif (VDD_CPUB_VAL == 1185)
+#define VDD_CPUB_REG   0x8a
+#elif (VDD_CPUB_VAL == 1190)
+#define VDD_CPUB_REG   0x8b
+#elif (VDD_CPUB_VAL == 1195)
+#define VDD_CPUB_REG   0x8c
+#elif (VDD_CPUB_VAL == 1200)
+#define VDD_CPUB_REG   0x8d
+#elif (VDD_CPUB_VAL == 1205)
+#define VDD_CPUB_REG   0x8e
+#elif (VDD_CPUB_VAL == 1210)
+#define VDD_CPUB_REG   0x8f
+#elif (VDD_CPUB_VAL == 1215)
+#define VDD_CPUB_REG   0x90
+#elif (VDD_CPUB_VAL == 1220)
+#define VDD_CPUB_REG   0x91
+#elif (VDD_CPUB_VAL == 1225)
+#define VDD_CPUB_REG   0x92
+#elif (VDD_CPUB_VAL == 1230)
+#define VDD_CPUB_REG   0x93
+#elif (VDD_CPUB_VAL == 1235)
+#define VDD_CPUB_REG   0x94
+#elif (VDD_CPUB_VAL == 1240)
+#define VDD_CPUB_REG   0x95
+#elif (VDD_CPUB_VAL == 1245)
+#define VDD_CPUB_REG   0x96
+#elif (VDD_CPUB_VAL == 1250)
+#define VDD_CPUB_REG   0x97
+#elif (VDD_CPUB_VAL == 1255)
+#define VDD_CPUB_REG   0x98
+#elif (VDD_CPUB_VAL == 1260)
+#define VDD_CPUB_REG   0x99
+#elif (VDD_CPUB_VAL == 1265)
+#define VDD_CPUB_REG   0x9a
+#elif (VDD_CPUB_VAL == 1270)
+#define VDD_CPUB_REG   0x9b
+#elif (VDD_CPUB_VAL == 1275)
+#define VDD_CPUB_REG   0x9c
+#elif (VDD_CPUB_VAL == 1280)
+#define VDD_CPUB_REG   0x9d
+#elif (VDD_CPUB_VAL == 1285)
+#define VDD_CPUB_REG   0x9e
+#elif (VDD_CPUB_VAL == 1290)
+#define VDD_CPUB_REG   0x9f
+#elif (VDD_CPUB_VAL == 1295)
+#define VDD_CPUB_REG   0xa0
+#elif (VDD_CPUB_VAL == 1300)
+#define VDD_CPUB_REG   0xa1
+#elif (VDD_CPUB_VAL == 1305)
+#define VDD_CPUB_REG   0xa2
+#elif (VDD_CPUB_VAL == 1310)
+#define VDD_CPUB_REG   0xa3
+#elif (VDD_CPUB_VAL == 1315)
+#define VDD_CPUB_REG   0xa4
+#elif (VDD_CPUB_VAL == 1320)
+#define VDD_CPUB_REG   0xa5
+#elif (VDD_CPUB_VAL == 1325)
+#define VDD_CPUB_REG   0xa6
+#elif (VDD_CPUB_VAL == 1330)
+#define VDD_CPUB_REG   0xa7
+#elif (VDD_CPUB_VAL == 1335)
+#define VDD_CPUB_REG   0xa8
+#elif (VDD_CPUB_VAL == 1340)
+#define VDD_CPUB_REG   0xa9
+#elif (VDD_CPUB_VAL == 1345)
+#define VDD_CPUB_REG   0xaa
+#elif (VDD_CPUB_VAL == 1350)
+#define VDD_CPUB_REG   0xab
+#else
+#error "VDD_CPUB val out of range\n"
+#endif
+
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 	//hxbao, need fine tune
 	{ 0, 0, 0xffffffff, 0, 0, 0 },
 };
+
+#define I2C_BUS		0x2
+#define I2C_M3		9
+
+#define I2C_DEV_ADDR_BD2657    0x6a
+#define BD2657_REG_REGLOCK		0xa0
+#define BD2657_REG_BUCK0_VOLT_RUN  0x0a
+#define BD2657_REG_BUCK2_VOLT_RUN  0x12
 
 /* gpio/pinmux/pwm init */
 register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
@@ -832,6 +1455,19 @@ __attribute__ ((section(".misc_param"))) = {
 	/* set GPIOE_0 GPIOE_1 mux to pwma pwmb */
 	{ PADCTRL_PIN_MUX_REG4, (0x1 << 0), (0xf << 0), 0, 0, 0 },
 	{ PADCTRL_PIN_MUX_REG4, (0x1 << 4), (0xf << 4), 0, 0, 0 },
+
+	/*set pinmux GPIOD_2(I2CM_J_SCL) and GPIOD_3(I2CM_J_SDA) for pmic*/
+	{PADCTRL_GPIOD_DS,	(0xf << 4),	(0xf << 4),	0,	0,	0},
+	{PADCTRL_GPIOD_PULL_EN,	(0x3 << 2),	(0x3 << 2),	0,	0,	0},
+	{PADCTRL_GPIOD_PULL_UP,	(0x3 << 2),	(0x3 << 2),	0,	0,	0},
+	{PADCTRL_PIN_MUX_REG2,	(0x11 << 8),	(0xff << 8),	0,	0,	0},
+
+	/* bd2657 : set vdd_cpua voltage*/
+	{BD2657_REG_BUCK0_VOLT_RUN, VDD_CPUA_REG, 0xff, 0,
+		(I2C_BUS << 4) | (I2C_M3), I2C_DEV_ADDR_BD2657},
+	/* bd2657 : set vdd_cpub voltage*/
+	{BD2657_REG_BUCK2_VOLT_RUN, VDD_CPUB_REG, 0xff, 0,
+		(I2C_BUS << 4) | (I2C_M3), I2C_DEV_ADDR_BD2657},
 };
 
 #define DEV_FIP_SIZE 0x300000
