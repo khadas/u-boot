@@ -1063,13 +1063,14 @@ lcd_prbs_clk_check_next:
 	return 0;
 }
 
-static int lcd_prbs_test_tl1(struct aml_lcd_drv_s *pdrv, unsigned int s, unsigned int mode_flag)
+static int lcd_prbs_test_tl1(struct aml_lcd_drv_s *pdrv, unsigned int ms,
+			     unsigned int mode_flag)
 {
 	struct lcd_clk_config_s *cconf;
 	unsigned int reg_phy_tx_ctrl0, reg_phy_tx_ctrl1;
 	int encl_msr_id, fifo_msr_id;
 	unsigned int lcd_prbs_mode;
-	unsigned int val1, val2, timeout;
+	unsigned int val1, val2, s, timeout;
 	unsigned int cnt = 0;
 	unsigned int clk_err_cnt = 0;
 	int i, j, ret;
@@ -1083,6 +1084,7 @@ static int lcd_prbs_test_tl1(struct aml_lcd_drv_s *pdrv, unsigned int s, unsigne
 	encl_msr_id = 9;
 	fifo_msr_id = 129;
 
+	s = ms / 1000;
 	s = (s == 0) ? 1 : ((s > 1800) ? 1800 : s);
 	timeout = s * 200;
 	for (i = 0; i < LCD_PRBS_MODE_MAX; i++) {
@@ -1194,7 +1196,8 @@ lcd_prbs_test_end:
 	return 0;
 }
 
-static int lcd_prbs_test_t7(struct aml_lcd_drv_s *pdrv, unsigned int s, unsigned int mode_flag)
+static int lcd_prbs_test_t7(struct aml_lcd_drv_s *pdrv, unsigned int ms,
+			    unsigned int mode_flag)
 {
 	struct lcd_clk_config_s *cconf;
 	unsigned int reg_phy_tx_ctrl0, reg_phy_tx_ctrl1, reg_ctrl_out, bit_width;
@@ -1236,8 +1239,8 @@ static int lcd_prbs_test_t7(struct aml_lcd_drv_s *pdrv, unsigned int s, unsigned
 	encl_msr_id = cconf->data->enc_clk_msr_id;
 	fifo_msr_id = -1;
 
-	s = (s == 0) ? 1 : ((s > 1800) ? 1800 : s);
-	timeout = s * 200;
+	timeout = (ms > 1000) ? 1000 : ms;
+
 	for (i = 0; i < LCD_PRBS_MODE_MAX; i++) {
 		if ((mode_flag & (1 << i)) == 0)
 			continue;
@@ -1263,7 +1266,7 @@ static int lcd_prbs_test_t7(struct aml_lcd_drv_s *pdrv, unsigned int s, unsigned
 
 		}
 		cconf->data->prbs_clk_config(pdrv, lcd_prbs_mode);
-		mdelay(20);
+		udelay(500);
 
 		/* set fifo_clk_sel: div 10 */
 		lcd_combo_dphy_write(reg_phy_tx_ctrl0, (3 << 5));
@@ -1280,9 +1283,10 @@ static int lcd_prbs_test_t7(struct aml_lcd_drv_s *pdrv, unsigned int s, unsigned
 
 		while (cnt++ < timeout) {
 			val1 = lcd_combo_dphy_getb(reg_ctrl_out, bit_width, bit_width);
-			mdelay(5);
+			udelay(1000);
 			ret = 1;
-			for (j = 0; j < 10; j++) {
+			for (j = 0; j < 20; j++) {
+				udelay(5);
 				val2 = lcd_combo_dphy_getb(reg_ctrl_out, bit_width, bit_width);
 				if (val2 != val1) {
 					ret = 0;
@@ -1352,7 +1356,8 @@ lcd_prbs_test_t7_end:
 	return 0;
 }
 
-static int lcd_prbs_test_t3(struct aml_lcd_drv_s *pdrv, unsigned int s, unsigned int mode_flag)
+static int lcd_prbs_test_t3(struct aml_lcd_drv_s *pdrv, unsigned int ms,
+			    unsigned int mode_flag)
 {
 	struct lcd_clk_config_s *cconf;
 	unsigned int reg_phy_tx_ctrl0, reg_phy_tx_ctrl1;
@@ -1384,8 +1389,8 @@ static int lcd_prbs_test_t3(struct aml_lcd_drv_s *pdrv, unsigned int s, unsigned
 	encl_msr_id = cconf->data->enc_clk_msr_id;
 	fifo_msr_id = -1;
 
-	s = (s == 0) ? 1 : ((s > 1800) ? 1800 : s);
-	timeout = s * 200;
+	timeout = (ms > 1000) ? 1000 : ms;
+
 	for (i = 0; i < LCD_PRBS_MODE_MAX; i++) {
 		if ((mode_flag & (1 << i)) == 0)
 			continue;
@@ -1411,7 +1416,7 @@ static int lcd_prbs_test_t3(struct aml_lcd_drv_s *pdrv, unsigned int s, unsigned
 
 		}
 		cconf->data->prbs_clk_config(pdrv, lcd_prbs_mode);
-		mdelay(20);
+		udelay(500);
 
 		/* set fifo_clk_sel: div 10 */
 		lcd_ana_write(reg_phy_tx_ctrl0, (3 << 6));
@@ -1428,9 +1433,10 @@ static int lcd_prbs_test_t3(struct aml_lcd_drv_s *pdrv, unsigned int s, unsigned
 
 		while (cnt++ < timeout) {
 			val1 = lcd_ana_getb(reg_phy_tx_ctrl1, 12, 12);
-			mdelay(5);
+			udelay(1000);
 			ret = 1;
-			for (j = 0; j < 10; j++) {
+			for (j = 0; j < 20; j++) {
+				udelay(5);
 				val2 = lcd_ana_getb(reg_phy_tx_ctrl1, 12, 12);
 				if (val2 != val1) {
 					ret = 0;
@@ -1500,14 +1506,15 @@ lcd_prbs_test_t3_end:
 	return 0;
 }
 
-int lcd_prbs_test(struct aml_lcd_drv_s *pdrv, unsigned int s, unsigned int mode_flag)
+int lcd_prbs_test(struct aml_lcd_drv_s *pdrv, unsigned int ms,
+		  unsigned int mode_flag)
 {
 	struct lcd_debug_info_reg_s *info_reg;
 	int ret = -1;
 
 	info_reg = (struct lcd_debug_info_reg_s *)pdrv->debug_info_reg;
 	if (info_reg && info_reg->prbs_test)
-		ret = info_reg->prbs_test(pdrv, s, mode_flag);
+		ret = info_reg->prbs_test(pdrv, ms, mode_flag);
 	else
 		LCDERR("[%d]: %s: don't support prbs test\n", pdrv->index, __func__);
 

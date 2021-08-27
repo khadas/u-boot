@@ -325,7 +325,7 @@ static int do_lcd_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 static int do_lcd_prbs(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
-	unsigned int s, prbs_mode_flag;
+	unsigned int ms, prbs_mode_flag;
 
 	if (argc == 1)
 		return -1;
@@ -335,17 +335,19 @@ static int do_lcd_prbs(cmd_tbl_t *cmdtp, int flag, int argc,
 			prbs_mode_flag = LCD_PRBS_MODE_VX1;
 		else
 			return -1;
+		ms = (unsigned int)simple_strtoul(argv[2], NULL, 10);
 	} else if (strcmp(argv[1], "lvds") == 0) {
 		if (argc == 3)
 			prbs_mode_flag = LCD_PRBS_MODE_LVDS;
 		else
 			return -1;
+		ms = (unsigned int)simple_strtoul(argv[2], NULL, 10);
 	} else {
 		prbs_mode_flag = LCD_PRBS_MODE_LVDS | LCD_PRBS_MODE_VX1;
+		ms = (unsigned int)simple_strtoul(argv[1], NULL, 10);
 	}
 
-	s = (unsigned int)simple_strtoul(argv[2], NULL, 10);
-	aml_lcd_driver_prbs(0, s, prbs_mode_flag);
+	aml_lcd_driver_prbs(0, ms, prbs_mode_flag);
 	return 0;
 }
 
@@ -578,7 +580,7 @@ static int do_lcd1_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 
 static int do_lcd1_prbs(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	unsigned int s, prbs_mode_flag;
+	unsigned int ms, prbs_mode_flag;
 
 	if (argc == 1)
 		return -1;
@@ -588,17 +590,19 @@ static int do_lcd1_prbs(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 			prbs_mode_flag = LCD_PRBS_MODE_VX1;
 		else
 			return -1;
+		ms = (unsigned int)simple_strtoul(argv[2], NULL, 10);
 	} else if (strcmp(argv[1], "lvds") == 0) {
 		if (argc == 3)
 			prbs_mode_flag = LCD_PRBS_MODE_LVDS;
 		else
 			return -1;
+		ms = (unsigned int)simple_strtoul(argv[2], NULL, 10);
 	} else {
 		prbs_mode_flag = LCD_PRBS_MODE_LVDS | LCD_PRBS_MODE_VX1;
+		ms = (unsigned int)simple_strtoul(argv[1], NULL, 10);
 	}
 
-	s = (unsigned int)simple_strtoul(argv[2], NULL, 10);
-	aml_lcd_driver_prbs(1, s, prbs_mode_flag);
+	aml_lcd_driver_prbs(1, ms, prbs_mode_flag);
 	return 0;
 }
 
@@ -798,7 +802,7 @@ static int do_lcd2_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 
 static int do_lcd2_prbs(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	unsigned int s, prbs_mode_flag;
+	unsigned int ms, prbs_mode_flag;
 
 	if (argc == 1)
 		return -1;
@@ -808,17 +812,19 @@ static int do_lcd2_prbs(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 			prbs_mode_flag = LCD_PRBS_MODE_VX1;
 		else
 			return -1;
+		ms = (unsigned int)simple_strtoul(argv[2], NULL, 10);
 	} else if (strcmp(argv[1], "lvds") == 0) {
 		if (argc == 3)
 			prbs_mode_flag = LCD_PRBS_MODE_LVDS;
 		else
 			return -1;
+		ms = (unsigned int)simple_strtoul(argv[2], NULL, 10);
 	} else {
 		prbs_mode_flag = LCD_PRBS_MODE_LVDS | LCD_PRBS_MODE_VX1;
+		ms = (unsigned int)simple_strtoul(argv[1], NULL, 10);
 	}
 
-	s = (unsigned int)simple_strtoul(argv[2], NULL, 10);
-	aml_lcd_driver_prbs(2, s, prbs_mode_flag);
+	aml_lcd_driver_prbs(2, ms, prbs_mode_flag);
 	return 0;
 }
 
