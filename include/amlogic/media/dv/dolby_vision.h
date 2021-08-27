@@ -6,15 +6,6 @@
 #ifndef _DOBLY_VISION_H_
 #define _DOBLY_VISION_H_
 
-
-
-#define EXT_MD_AVAIL_LEVEL_1    (1 << 0)
-#define EXT_MD_AVAIL_LEVEL_2    (1 << 1)
-#define EXT_MD_AVAIL_LEVEL_4    (1 << 2)
-#define EXT_MD_AVAIL_LEVEL_5    (1 << 3)
-#define EXT_MD_AVAIL_LEVEL_6    (1 << 4)
-#define EXT_MD_AVAIL_LEVEL_255  (1 << 31)
-
 #define DOLBY_VISION_OUTPUT_MODE_IPT			0
 #define DOLBY_VISION_OUTPUT_MODE_IPT_TUNNEL		1
 #define DOLBY_VISION_OUTPUT_MODE_HDR10			2
@@ -25,7 +16,6 @@
 #define DOLBY_VISION_LL_DISABLE				0
 #define DOLBY_VISION_LL_YUV422				1
 #define DOLBY_VISION_LL_RGB444				2
-
 
 #define DOLBY_VISION_SET_DISABLE    "0"
 #define DOLBY_VISION_SET_STD        "1"
@@ -76,10 +66,6 @@ struct dovi_mode_s {
 #define VD1_MTX_EN_MASK  (1 << VD1_MTX_EN)
 #define XVY_MTX_EN_MASK  (1 << XVY_MTX_EN)
 #define OSD1_MTX_EN_MASK (1 << OSD1_MTX_EN)
-
-#define DEF_G2L_LUT_SIZE_2P        8
-#define DEF_G2L_LUT_SIZE           (1 << DEF_G2L_LUT_SIZE_2P)
-
 
 void dolby_vision_process(void);
 void send_hdmi_pkt(void);
