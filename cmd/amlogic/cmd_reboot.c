@@ -105,13 +105,11 @@ int do_get_rebootmode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 			env_set("reboot_mode","recovery_quiescent");
 			break;
 		}
-#ifdef AMLOGIC_FFV_REBOOT
-		case AMLOGIC_FFV_REBOOT:
+		case AMLOGIC_TEST_REBOOT:
 		{
-			env_set("reboot_mode", "ffv_reboot");
+			env_set("reboot_mode","reboot_test");
 			break;
 		}
-#endif
 		default:
 		{
 			env_set("reboot_mode","charging");
@@ -183,10 +181,8 @@ int do_reboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			reboot_mode_val = AMLOGIC_KERNEL_PANIC;
 		else if (strcmp(mode, "rpmbp") == 0)
 			reboot_mode_val = AMLOGIC_RPMBP_REBOOT;
-#ifdef AMLOGIC_FFV_REBOOT
-		else if (strcmp(mode, "ffv_reboot") == 0)
-			reboot_mode_val = AMLOGIC_FFV_REBOOT;
-#endif
+		else if (strcmp(mode, "reboot_test") == 0)
+			reboot_mode_val = AMLOGIC_TEST_REBOOT;
 		else {
 			printf("Can not find match reboot mode, use normal by default\n");
 			reboot_mode_val = AMLOGIC_NORMAL_BOOT;
