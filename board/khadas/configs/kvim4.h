@@ -145,6 +145,7 @@
             "\0"\
         "storeargs="\
             "get_bootloaderversion;" \
+            "get_rebootmode;"\
             "setenv bootargs ${initargs} otg_device=${otg_device} "\
                 "logo=${display_layer},loaded,${fb_addr} powermode=${powermode}  vout=${outputmode},enable "\
                 "panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
@@ -154,7 +155,7 @@
 			"hdmitx=${cecconfig},${colorattribute} "\
 			"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
-                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
+                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} reboot_mode=${reboot_mode}; "\
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
@@ -473,6 +474,7 @@
             "\0" \
         "storeargs="\
             "get_bootloaderversion;" \
+            "get_rebootmode;"\
             "setenv bootargs ${initargs} otg_device=${otg_device} "\
                 "logo=${display_layer},loaded,${fb_addr} powermode=${powermode}  vout=${outputmode},enable vout2=${outputmode2},enable "\
                 "panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
@@ -484,7 +486,7 @@
                 "hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
                 "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} "\
-                "jtag=${jtag} disable_ir=${disable_ir};"\
+                "jtag=${jtag} disable_ir=${disable_ir} reboot_mode=${reboot_mode};"\
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
@@ -710,7 +712,8 @@
             "run check_display;"\
             "run storeargs;"\
             "run reset_suspend;"\
-            "run upgrade_key;"
+            "run upgrade_key;"\
+            "run switch_bootmode;"
 
 #ifndef CONFIG_HDMITX_ONLY
 /* dual logo, normal boot */
