@@ -99,7 +99,7 @@ int32_t vLedPlatInit(int32_t ** stickmem)
 	*stickmem = &LedStickMem0;
 
 	/* off by default */
-	return xLedsStateSetBrightness(LED_ID_0, LED_OFF);
+	return xLedsStateSetBrightness(LED_ID_0, LED_FULL);
 }
 
 int32_t vLedPinmuxInit(void)
