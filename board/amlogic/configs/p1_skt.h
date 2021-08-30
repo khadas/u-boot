@@ -115,8 +115,8 @@
         "fatload_dev=usb\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-            "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xfe002000"\
-            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
+            "init=/init console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe078000"\
+            " loglevel=7"\
             "\0"\
         "upgrade_check="\
             "echo recovery_status=${recovery_status};"\
@@ -220,7 +220,7 @@
             "fi;"\
             "\0"\
 
-#if 0
+#if 1
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
             "run upgrade_check;"\
