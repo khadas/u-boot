@@ -52,17 +52,17 @@ static int _tpi_infoframe_wrrd(u8 wr, u8 info_type, u8 *body)
 	case HDMI_INFOFRAME_TYPE_AVI:
 		sel = 0;
 		break;
-	case HDMI_INFOFRAME_TYPE_VENDOR:
-		sel = 1;
-		break;
-	case HDMI_INFOFRAME_TYPE_DRM:
+	case HDMI_INFOFRAME_TYPE_AUDIO:
 		sel = 2;
 		break;
-	case HDMI_INFOFRAME_TYPE_AUDIO:
+	case HDMI_INFOFRAME_TYPE_SPD:
 		sel = 3;
 		break;
-	case HDMI_INFOFRAME_TYPE_SPD:
-		sel = 16;
+	case HDMI_INFOFRAME_TYPE_VENDOR:
+		sel = 5;
+		break;
+	case HDMI_INFOFRAME_TYPE_DRM:
+		sel = 6;
 		break;
 	default:
 		pr_info("%s[%d] wrong info_type %d\n", __func__, __LINE__, info_type);
