@@ -1,6 +1,6 @@
 
 /*
- * arch/arm/include/asm/arch-txl/timing.h
+ * arch/arm/include/asm/arch-p1/timing.h
  *
  * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
  *
@@ -43,6 +43,11 @@
 #define BL2_INIT_STAGE_8			8
 #define BL2_INIT_STAGE_9			9
 
+#define BL2_INIT_STAGE_PWM_PRE_INIT		0x81
+#define BL2_INIT_STAGE_PWM_CHK_HW		0x82
+#define BL2_INIT_STAGE_PWM_CFG_GROUP	0x83
+#define BL2_INIT_STAGE_PWM_INIT			0xC0
+
 typedef struct bl2_reg {
 	unsigned	int		reg;
 	unsigned	int		value;
@@ -51,6 +56,15 @@ typedef struct bl2_reg {
 	unsigned	short	udelay;
 	unsigned	short	rsv_0;
 }__attribute__ ((packed)) bl2_reg_t;
+
+typedef struct ddr_reg {
+	unsigned	int		reg;
+	unsigned	int		value;
+	unsigned	int		mask;
+	unsigned	short	udelay;
+	unsigned	char	flag;
+	unsigned	char	rsv_0;
+}__attribute__ ((packed)) ddr_reg_t;
 
 typedef struct training_delay_set_ps{
 	unsigned	char	ac_trace_delay[10];
@@ -72,6 +86,10 @@ typedef struct training_delay_set_ps{
 	unsigned	short	csr_dqsrcvcntrl[4];
 	unsigned	short	csr_pptdqscntinvtrntg0[4];
 	unsigned	short	csr_pptdqscntinvtrntg1[4];
+	unsigned	short	csr_PptWck2DqoCntInvTrnTg0[4];
+	unsigned	short	csr_PptWck2DqoCntInvTrnTg1[4];
+	unsigned	short	csr_RxReplicaPathPhaseCsrs[4][5];
+	unsigned	short	csr_RxReplicaCtl03[4];
 	unsigned	short	csr_seq0bgpr[9];
 	unsigned	short	csr_dllgainctl;
 	unsigned	short	csr_dlllockpara;
@@ -79,15 +97,37 @@ typedef struct training_delay_set_ps{
 }__attribute__ ((packed)) training_delay_set_ps_t;
 
 typedef struct ddr_mrs_reg {
-	unsigned	int		cfg_ddr_mr[8];
-	unsigned	int		cfg_ddr_mr11;
-	unsigned	int		cfg_ddr_mr12;
-	unsigned	int		cfg_ddr_mr13;
-	unsigned	int		cfg_ddr_mr14;
-	unsigned	int		cfg_ddr_mr16;
-	unsigned	int		cfg_ddr_mr17;
-	unsigned	int		cfg_ddr_mr22;
-	unsigned	int		cfg_ddr_mr24;
+	unsigned	short		cfg_ddr_mr[52];
+	/*
+	unsigned	short		cfg_ddr_mr[8];
+	unsigned	short		cfg_ddr_mr10;
+	unsigned	short		cfg_ddr_mr11;
+	unsigned	short		cfg_ddr_mr12;
+	unsigned	short		cfg_ddr_mr13;
+	unsigned	short		cfg_ddr_mr14;
+	unsigned	short		cfg_ddr_mr15;
+	unsigned	short		cfg_ddr_mr16;
+	unsigned	short		cfg_ddr_mr17;
+	unsigned	short		cfg_ddr_mr18;
+	unsigned	short		cfg_ddr_mr19;
+	unsigned	short		cfg_ddr_mr20;
+	unsigned	short		cfg_ddr_mr21;
+	unsigned	short		cfg_ddr_mr22;
+	unsigned	short		cfg_ddr_mr24;
+	unsigned	short		cfg_ddr_mr25;
+	unsigned	short		cfg_ddr_mr26;
+	unsigned	short		cfg_ddr_mr27;
+	unsigned	short		cfg_ddr_mr28;
+	unsigned	short		cfg_ddr_mr30;
+	unsigned	short		cfg_ddr_mr31;
+	unsigned	short		cfg_ddr_mr32;
+	unsigned	short		cfg_ddr_mr33;
+	unsigned	short		cfg_ddr_mr34;
+	unsigned	short		cfg_ddr_mr37;
+	unsigned	short		cfg_ddr_mr40;
+	unsigned	short		cfg_ddr_mr41;
+	unsigned	short		cfg_ddr_mr51;
+	*/
 }__attribute__ ((packed)) ddr_mrs_reg_t;
 
 typedef struct ddr_timing{
@@ -95,11 +135,15 @@ typedef struct ddr_timing{
 	unsigned	int		cfg_ddr_mrd;
 	unsigned	int		cfg_ddr_rfcab;
 	unsigned	int		cfg_ddr_rfcpb;
+	unsigned	int		cfg_ddr_pbr2act;
+	unsigned	int		cfg_ddr_pbr2pbr;
+	unsigned	int		cfg_ddr_ppd;
 	unsigned	int		cfg_ddr_rpab;
 	unsigned	int		cfg_ddr_rppb;
 	unsigned	int		cfg_ddr_rtw;
 	unsigned	int		cfg_ddr_rl;
 	unsigned	int		cfg_ddr_wl;
+	//unsigned	int		cfg_ddr_nrbtp;
 	unsigned	int		cfg_ddr_ras;
 	unsigned	int		cfg_ddr_rc;
 	unsigned	int		cfg_ddr_rcd;
@@ -138,6 +182,8 @@ typedef struct ddr_timing{
 	unsigned	int		cfg_ddr_dfiphywrlat;
 	unsigned	int		cfg_ddr_dfiphyrddataen;
 	unsigned	int		cfg_ddr_dfiphyrdlat;
+	unsigned	int		cfg_ddr_dfiphywrlatcsn;
+	unsigned	int		cfg_ddr_dfiphyrddatacsn;
 	unsigned	int		cfg_ddr_dfictrlupdmin;
 	unsigned	int		cfg_ddr_dfictrlupdmax;
 	unsigned	int		cfg_ddr_dfimstrresp;
@@ -372,8 +418,8 @@ typedef struct ddr_set{
 	unsigned	char	bitTimeControl_2d;
 	//system reserve,do not modify
 	/* align8 */
-    unsigned	char	char_rev1;
-	unsigned	char	training_offset;//char_rev2;
+    unsigned	char	dfe_offset_value;       //char_rev1;
+	unsigned	char	training_offset;		//char_rev2;
 	unsigned	int		ddr_dmc_remap[5];
 	unsigned	int		dram_rtt_nom_wr_park[2];
 	//system reserve,do not modify
@@ -399,7 +445,7 @@ typedef struct board_clk_set{
 	unsigned	short	vddee;
 	unsigned	short	vcck;
 	unsigned	short	pxp;
-	unsigned    char    low_console_baud;
+	unsigned    char 	low_console_baud;
 	unsigned	char	szPad[1];
 }__attribute__ ((packed)) board_clk_set_t;
 
@@ -425,12 +471,18 @@ typedef struct pll_ctrl{
 
 typedef struct pll_set{
 	/*new struct for sc2*/
-	pll_ctrl_t	sys_pll_ctrl;
-	pll_ctrl_t	fix_pll_ctrl;
-	pll_ctrl_t	gp0_pll_ctrl;
-	pll_ctrl_t	gp1_pll_ctrl;
-	pll_ctrl_t	hifi_pll_ctrl;
+	pll_ctrl_t      sys_pll_ctrl;
+	pll_ctrl_t      sys1_pll_ctrl;
+	pll_ctrl_t      fix_pll_ctrl;
+	pll_ctrl_t      gp0_pll_ctrl;
+	pll_ctrl_t      gp1_pll_ctrl;
+	pll_ctrl_t      hifi_pll_ctrl;
 }__attribute__ ((packed)) pll_set_t;
+
+typedef struct dwc_apb {
+	unsigned int      addr;
+	unsigned short    val;
+} dwc_apb_t;
 
 typedef struct bl2_sec_parameter{
 	/*new struct for sc2*/
@@ -442,14 +494,5 @@ typedef struct bl2_sec_parameter{
 
 	uint32_t		RFU[27];
 }__attribute__ ((packed)) sec_parameter_t;
-
-typedef struct dmem_cfg {
-	PMU_SMB_DDR3U_1D_t ddr3u;
-	PMU_SMB_DDR4U_1D_t ddr4u;
-	PMU_SMB_DDR4U_2D_t ddr4u_2d;
-	PMU_SMB_LPDDR3_1D_t lpddr3u;
-	PMU_SMB_LPDDR4_1D_t lpddr4u;
-	PMU_SMB_LPDDR4_2D_t lpddr4u_2d;
-} dmem_cfg_t;
 
 #endif //__AML_TIMING_H_

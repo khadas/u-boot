@@ -1,5 +1,5 @@
 /*
- * board/amlogic/txl_skt_v1/firmware/timing.c
+ * board/amlogic/p1_skt_v1/firmware/timing.c
  *
  * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
  *
@@ -60,587 +60,376 @@
 
 #define 		ENABLE_LPDDR4X_MODE 			1
 
-#define         AN_408_DDR0_1G_DDR1_0G          0
-#define         AN_408_DDR0_2G_DDR1_0G          1
-#define         AN_408_DDR0_1G_DDR1_1G          2
-#define         AN_408_DDR0_2G_DDR1_1G          3
-#define         AN_408_DDR0_2G_DDR1_2G          4
-#define         AN_408_DDR0_2G_DDR1_2G_RANK01   5
-#define         AN_408_DDR0_4G_DDR1_4G_RANK01   6
 
-#define DDR_SIZE_TYPE_1         AN_408_DDR0_1G_DDR1_1G //AN_408_DDR0_2G_DDR1_0G//AN_408_DDR0_2G_DDR1_1G//AN_408_DDR0_1G_DDR1_1G
+//#define BOARD_ENABLE_DDR4    1
+#define BOARD_ENABLE_LPDDR4   1
+//#define BOARD_ENABLE_LPDDR5   1
+
+#if BOARD_ENABLE_LPDDR4
+#define ENABLE_LPDDR4X_MODE 1
+#ifdef CONFIG_PXP_DDR_FIX_2112_TIMMING
+	#define   LPDDR4_DDR_CLK  2112
+#else
+	#define   LPDDR4_DDR_CLK  2112//2112//1584//1200//600
+#endif
+
+#define         DDR0_1G_DDR1_0G          0
+#define         DDR0_2G_DDR1_0G          1
+#define         DDR0_1G_DDR1_1G          2
+#define         DDR0_2G_DDR1_1G          3
+#define         DDR0_2G_DDR1_2G          4
+#define         DDR0_2G_DDR1_2G_RANK01   5
+#define         DDR0_4G_DDR1_4G_RANK01   6
+
+#define DDR_SIZE_TYPE_1         DDR0_2G_DDR1_2G//DDR0_4G_DDR1_4G_RANK01
 
 ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
-#if 0
-		{
-		/* tl1 skt (x309) ddr4 */
-		.board_id = CONFIG_BOARD_ID_MASK,
-		.version = 1,
-		//.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
-		.DramType = CONFIG_DDR_TYPE_DDR4,
-		.DRAMFreq ={ 1200,		       0,	0,	 0	 },
-		.ddr_rfc_type = DDR_RFC_TYPE_DDR4_2Gbx8,
-		.ddr_base_addr = CFG_DDR_BASE_ADDR,
-		.ddr_start_offset = CFG_DDR_START_OFFSET,
-		.DisabledDbyte[0] = 0xf0,                       //bit 0 -3 ch0 cs0 ,bit 4-7 ch0 cs1,
-		.DisabledDbyte[1] = 0xf0,                       //bit 0 -3 ch1 cs0 ,bit 4-7 ch1 cs1,
-		.Is2Ttiming = 1,
-		.HdtCtrl = 0xC8,
-		//.dram_ch0_size_MB		= 0xffff,
-		//.dram_ch1_size_MB		= 0,
-#if (DDR_SIZE_TYPE_1 == AN_408_DDR0_1G_DDR1_0G)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-#elif (DDR_SIZE_TYPE_1 == AN_408_DDR0_2G_DDR1_0G)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-#elif (DDR_SIZE_TYPE_1 == AN_408_DDR0_1G_DDR1_1G)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-#elif (DDR_SIZE_TYPE_1 == AN_408_DDR0_2G_DDR1_1G)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-#elif (DDR_SIZE_TYPE_1 == AN_408_DDR0_2G_DDR1_2G)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
+	{
+	//.fast_boot[0]=0x000000fd,// 253
+	.board_id = CONFIG_BOARD_ID_MASK,
+	.version = 1,
+	//.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
+	.DramType = CONFIG_DDR_TYPE_LPDDR4,
+	.enable_lpddr4x_mode = ENABLE_LPDDR4X_MODE,
+	.DRAMFreq ={ LPDDR4_DDR_CLK,		     0,	     0,	     0	    },
+	.ddr_rfc_type = DDR_RFC_TYPE_LPDDR4_8Gbx1,
+	.ddr_base_addr = CFG_DDR_BASE_ADDR,
+	.ddr_start_offset = CFG_DDR_START_OFFSET,
+	.DisabledDbyte[0] = 0xf0,                               //bit 0 -3 ch0 cs0 ,bit 4-7 ch0 cs1,
+	.DisabledDbyte[1] = 0xf0,                               //bit 0 -3 ch1 cs0 ,bit 4-7 ch1 cs1,
+	.Is2Ttiming = 0,
+	.HdtCtrl = 0xc8,
+	//.dram_ch0_size_MB		= 0xffff,
+	//.dram_ch1_size_MB		= 0,
+#if (DDR_SIZE_TYPE_1 == DDR0_1G_DDR1_0G)
+	.dram_ch0_size_MB =
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+	.dram_ch1_size_MB =
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+#elif (DDR_SIZE_TYPE_1 == DDR0_2G_DDR1_0G)
+	.dram_ch0_size_MB =
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+	.dram_ch1_size_MB =
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+#elif (DDR_SIZE_TYPE_1 == DDR0_1G_DDR1_1G)
+	.dram_ch0_size_MB =
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+	.dram_ch1_size_MB =
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+#elif (DDR_SIZE_TYPE_1 == DDR0_2G_DDR1_1G)
+	.dram_ch0_size_MB =
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+	.dram_ch1_size_MB =
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+#elif (DDR_SIZE_TYPE_1 == DDR0_2G_DDR1_2G)
+	.dram_ch0_size_MB =
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+	.dram_ch1_size_MB =
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+#elif (DDR_SIZE_TYPE_1 == DDR0_2G_DDR1_2G_RANK01)
+	.DisabledDbyte[0] = 0x00,                               //bit 0 -3 ch0 cs0 ,bit 4-7 ch0 cs1,
+	.DisabledDbyte[1] = 0x00,                               //bit 0 -3 ch1 cs0 ,bit 4-7 ch1 cs1,
+	.Is2Ttiming = 0,
+	.dram_ch0_size_MB =
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+	.dram_ch1_size_MB =
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+#elif (DDR_SIZE_TYPE_1 == DDR0_4G_DDR1_4G_RANK01)
+	.DisabledDbyte[0] = 0x00,                               //bit 0 -3 ch0 cs0 ,bit 4-7 ch0 cs1,
+	.DisabledDbyte[1] = 0x00,                               //bit 0 -3 ch1 cs0 ,bit 4-7 ch1 cs1,
+	.Is2Ttiming = 0,
+	//.HdtCtrl = 0x4,
+	.dram_ch0_size_MB =
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+	.dram_ch1_size_MB =
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 #endif
-		.training_SequenceCtrl ={ 0x31f,		    0x61 },     //ddr3 0x21f 0x31f
-		.phy_odt_config_rank ={ 0x23,			  0x13 }, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
-		.dfi_odt_config = 0x0d0d,               //use 0d0d compatibility with 1rank and 2rank  //0808
-		.PllBypassEn = 0,                       //bit0-ps0,bit1-ps1
-		.ddr_rdbi_wr_enable = 0x0,              //bit 0 read-dbi,bit 1 write dbi
-		.clk_drv_ohm = 40,
-		.cs_drv_ohm = 40,
-		.ac_drv_ohm = 40,
-		.soc_data_drv_ohm_p = 40,
-		.soc_data_drv_ohm_n = 40,
-		.soc_data_odt_ohm_p = 48,
-		.soc_data_odt_ohm_n = 0,
-		.dram_data_drv_ohm = 40,        //48, //34, //ddr4 sdram only 34 or 48, skt board use 34 better
-		.dram_data_odt_ohm = 48,        //48,                //60,
-		.dram_ac_odt_ohm = 0,
-		.soc_clk_slew_rate = 0x3ff,
-		.soc_cs_slew_rate = 0x3ff,
-		.soc_ac_slew_rate = 0x3ff,
-		.soc_data_slew_rate = 0x2ff,
-		.vref_output_permil = 500,
-		.vref_receiver_permil = 0,
-		.vref_dram_permil = 0,
-		//.vref_reverse			= 0,
-		//.ac_trace_delay			={0x0,0x0},// {0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40},
-		.ac_trace_delay ={ 32 + 20,		     32 + 20, 32 + 20, 32 + 20, 32, 32 + 0, 32 + 20, 32 + 20, 32 + 20, 32 + 20},
-		.ddr_dmc_remap =
-		{
-		[0] = (5 | 7 << 5 | 8 << 10 | 9 << 15 | 10 << 20 | 11 << 25),
-		[1] = (12 | 0 << 5 | 0 << 10 | 15 << 15 | 16 << 20 | 17 << 25),
-		[2] = (18 | 19 << 5 | 20 << 10 | 21 << 15 | 22 << 20 | 23 << 25),
-		[3] = (24 | 25 << 5 | 26 << 10 | 27 << 15 | 28 << 20 | 29 << 25),
-		[4] = (30 | 13 << 5 | 14 << 10 | 6 << 15 | 0 << 20 | 0 << 25),
-		},
-		.ddr_lpddr34_ca_remap ={ 00,			   00 },
-		.ddr_lpddr34_dq_remap ={ 00,			   00 },
-		.dram_rtt_nom_wr_park ={ 00,			   00 },
+	.training_SequenceCtrl ={ 0x131f,			  0x61 },       //ddr3 0x21f 0x31f
+	.phy_odt_config_rank ={ 0x23,				0x13 },   //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
+	.dfi_odt_config = 0x0d0d,                       //use 0d0d compatibility with 1rank and 2rank  //0808
+	.PllBypassEn = 0,                               //bit0-ps0,bit1-ps1
+	.ddr_rdbi_wr_enable = 0x0,                      //bit 0 read-dbi,bit 1 write dbi
+	.clk_drv_ohm = 40,
+	.cs_drv_ohm = 40,
+	.ac_drv_ohm = 40,
+	.soc_data_drv_ohm_p = 40,
+	.soc_data_drv_ohm_n = 40,
+	.soc_data_odt_ohm_p = 0,
+	.soc_data_odt_ohm_n = 40,
+	.dram_data_drv_ohm = 40,        //48, //34, //ddr4 sdram only 34 or 48, skt board use 34 better
+	.dram_data_odt_ohm = 60,        //60,
+	.dram_ac_odt_ohm = 120,         //120,
+	.soc_clk_slew_rate = 0x3ff,
+	.soc_cs_slew_rate = 0x3ff,
+	.soc_ac_slew_rate = 0x3ff,
+	.soc_data_slew_rate = 0x2ff,
+	.vref_output_permil = 0,
+	.vref_receiver_permil = 0,
+	.vref_dram_permil = 0,
+    .lpddr4_dram_vout_voltage_1_3_2_5_setting=1,
+	//.vref_reverse			= 0,
+	//.ac_trace_delay			={0x0,0x0},// {0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40},
+	.ac_trace_delay ={ 32 + 0,			   32 + 0, 32 + 0, 32 + 0, 32, 32 + 0, 32 + 0, 32 + 0, 32 + 0, 32 + 0},
+	.ddr_dmc_remap =
+	{
+	//[0] = (5 | 6 << 5 | 7 << 10 | 8 << 15 | 9 << 20 | 10 << 25),
+	//[1] = (11 | 0 << 5 | 0 << 10 | 15 << 15 | 16 << 20 | 17 << 25),
+	//[2] = (18 | 19 << 5 | 20 << 10 | 21 << 15 | 22 << 20 | 23 << 25),
+	//[3] = (24 | 25 << 5 | 26 << 10 | 27 << 15 | 28 << 20 | 29 << 25),
+	//[4] = (30 | 12 << 5 | 13 << 10 | 14 << 15 | 0 << 20 | 0 << 25),
 
-		/* pll ssc config:
-		 *
-		 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
-		 *      ppm = strength * 500
-		 *      mode: 0=center, 1=up, 2=down
-		 *
-		 *   eg:
-		 *     1. config 1000ppm center ss. then mode=0, strength=2
-		 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
-		 *     2. config 3000ppm down ss. then mode=2, strength=6
-		 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
-		 */
-		//.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-		.ddr_func = DDR_FUNC_COPY_CHANNEL_CFG,  // DDR_FUNC,
-		.magic = DRAM_CFG_MAGIC,
-		.slt_test_function ={ 0x0,			0x0 }, //{0x1,0x0},enable slt 4 DRAMFreq test;{0x0,0x0},disable slt 4 DRAMFreq test;
-		.fast_boot[0] = 0,
-		.ac_pinmux =
-		{
-		2,
-		5,
-		20,
-		14,
-		8,
-		24,
-		4,
-		13,
-		25,
-		12,
-		10,
-		23,
-		26,
-		18,
-		0,
-		0,
-		0,
-		9,
-		1,
-		19,
-		0,
-		22,
-		11,
-		7,
-		6,
-		3,
-		0,
-		0,
-		},
-		.dfi_pinmux =
-		{
-		18,
-		15,
-		16,
-		12,
-		5,
-		20,
-		10,
-		7,
-		0,
-		11,
-		14,
-		8,
-		23,
-		17,
-		3,
-		13,
-		22,
-		2,
-		21,
-		19,
-		6,
-		4,
-		1,
-		0,
-		0,
-		0,
-		},
-		},
+	[0] = (0 | 5 << 5 | 6 << 10 | 7 << 15 | 8 << 20 | 9 << 25),
+	[1] = (10 | 0 << 5 | 0 << 10 | 11 << 15 | 15 << 20 | 16 << 25),
+	[2] = (17 | 18 << 5 | 19 << 10 | 20 << 15 | 21 << 20 | 22 << 25),
+	[3] = (23 | 24 << 5 | 25 << 10 | 26 << 15 | 27 << 20 | 28 << 25),
+	[4] = (29 | 12 << 5 | 13 << 10 | 14 << 15 | 0 << 20 | 0 << 25),
+	},
+	.ddr_lpddr34_ca_remap = { 1,0,3,2},
+    .ac_pinmux={1,0, 2, 5, 4, 3, 6, 0, 0, 0, 0, 0,
+     1, 4,2, 5, 0, 3,6 },
+	.ddr_lpddr34_dq_remap ={
+        5, 4, 1, 2, 0, 3, 7, 6,
+        8, 10, 9, 11, 13, 15, 14, 12,
+         2 + 16, 3 + 16 ,7 + 16, 6 + 16,5 + 16, 4 + 16, 0 + 16, 1 + 16,
+         11 + 16, 9 + 16, 10 + 16, 12 + 16, 8 + 16, 15 + 16, 13 + 16, 14 + 16},
+
+	.dram_rtt_nom_wr_park ={ 00,				 00 },
+
+	/* pll ssc config:
+	 *
+	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
+	 *      ppm = strength * 500
+	 *      mode: 0=center, 1=up, 2=down
+	 *
+	 *   eg:
+	 *     1. config 1000ppm center ss. then mode=0, strength=2
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
+	 *     2. config 3000ppm down ss. then mode=2, strength=6
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
+	 */
+	//.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
+	.ddr_func = DDR_FUNC,
+	.magic = DRAM_CFG_MAGIC,
+	.slt_test_function ={ 0x0,			      0x0 },   //{0x1,0x0},enable slt 4 DRAMFreq test;{0x0,0x0},disable slt 4 DRAMFreq test;
+	.fast_boot[0] = 0,
+	//.ac_pinmux ={ 2,	      3,			      1,      0,      5, 4, 0, 0, 0, 0,
+	//  1, 3,				     5,	     2,	     4, 0, 0, 0, 0 },
+
+	},
+	{
+	//.fast_boot[0]=0x000000fd,// 253
+	.board_id = CONFIG_BOARD_ID_MASK,
+	.version = 1,
+	//.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
+	.DramType = CONFIG_DDR_TYPE_LPDDR4,
+	.enable_lpddr4x_mode = ENABLE_LPDDR4X_MODE,
+	.DRAMFreq ={ LPDDR4_DDR_CLK,		     0,	     0,	     0	    },
+	.ddr_rfc_type = DDR_RFC_TYPE_LPDDR4_8Gbx1,
+	.ddr_base_addr = CFG_DDR_BASE_ADDR,
+	.ddr_start_offset = CFG_DDR_START_OFFSET,
+	.DisabledDbyte[0] = 0xf0,                               //bit 0 -3 ch0 cs0 ,bit 4-7 ch0 cs1,
+	.DisabledDbyte[1] = 0xf0,                               //bit 0 -3 ch1 cs0 ,bit 4-7 ch1 cs1,
+	.Is2Ttiming = 0,
+	.HdtCtrl = 0xc8,
+	//.dram_ch0_size_MB		= 0xffff,
+	//.dram_ch1_size_MB		= 0,
+#if (DDR_SIZE_TYPE_1 == DDR0_1G_DDR1_0G)
+	.dram_ch0_size_MB =
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+	.dram_ch1_size_MB =
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+#elif (DDR_SIZE_TYPE_1 == DDR0_2G_DDR1_0G)
+	.dram_ch0_size_MB =
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+	.dram_ch1_size_MB =
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+#elif (DDR_SIZE_TYPE_1 == DDR0_1G_DDR1_1G)
+	.dram_ch0_size_MB =
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+	.dram_ch1_size_MB =
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+#elif (DDR_SIZE_TYPE_1 == DDR0_2G_DDR1_1G)
+	.dram_ch0_size_MB =
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+	.dram_ch1_size_MB =
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+#elif (DDR_SIZE_TYPE_1 == DDR0_2G_DDR1_2G)
+	.dram_ch0_size_MB =
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+	.dram_ch1_size_MB =
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+#elif (DDR_SIZE_TYPE_1 == DDR0_2G_DDR1_2G_RANK01)
+	.dram_ch0_size_MB =
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+	.dram_ch1_size_MB =
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+#elif (DDR_SIZE_TYPE_1 == DDR0_4G_DDR1_4G_RANK01)
+	.DisabledDbyte[0] = 0x00,                               //bit 0 -3 ch0 cs0 ,bit 4-7 ch0 cs1,
+	.DisabledDbyte[1] = 0x00,                               //bit 0 -3 ch1 cs0 ,bit 4-7 ch1 cs1,
+	.Is2Ttiming = 0,
+	.HdtCtrl = 0x4,
+	.dram_ch0_size_MB =
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+	.dram_ch1_size_MB =
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 #endif
-#if 1
-		{
-		//.fast_boot[0]=0x000000fd,// 253
-		.board_id = CONFIG_BOARD_ID_MASK,
-		.version = 1,
-		//.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
-		.DramType = CONFIG_DDR_TYPE_LPDDR4,
-		.enable_lpddr4x_mode = ENABLE_LPDDR4X_MODE,
-		.DRAMFreq ={ 2016,		       0,	0,	 0	 },
-		.ddr_rfc_type = DDR_RFC_TYPE_LPDDR4_8Gbx1,
-		.ddr_base_addr = CFG_DDR_BASE_ADDR,
-		.ddr_start_offset = CFG_DDR_START_OFFSET,
-		.DisabledDbyte[0] = 0xf0,                       //bit 0 -3 ch0 cs0 ,bit 4-7 ch0 cs1,
-		.DisabledDbyte[1] = 0xf0,                       //bit 0 -3 ch1 cs0 ,bit 4-7 ch1 cs1,
-		.Is2Ttiming = 0,
-		.HdtCtrl = 0xc8,
-		//.dram_ch0_size_MB		= 0xffff,
-		//.dram_ch1_size_MB		= 0,
-#if (DDR_SIZE_TYPE_1 == AN_408_DDR0_1G_DDR1_0G)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-#elif (DDR_SIZE_TYPE_1 == AN_408_DDR0_2G_DDR1_0G)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-#elif (DDR_SIZE_TYPE_1 == AN_408_DDR0_1G_DDR1_1G)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-#elif (DDR_SIZE_TYPE_1 == AN_408_DDR0_2G_DDR1_1G)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-#elif (DDR_SIZE_TYPE_1 == AN_408_DDR0_2G_DDR1_2G)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-#elif (DDR_SIZE_TYPE_1 == AN_408_DDR0_2G_DDR1_2G_RANK01)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-#elif (DDR_SIZE_TYPE_1 == AN_408_DDR0_4G_DDR1_4G_RANK01)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-#endif
-		.training_SequenceCtrl ={ 0x131f,		    0x61 },     //ddr3 0x21f 0x31f
-		.phy_odt_config_rank ={ 0,			  0 }, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
-		.dfi_odt_config = 0x0d0d,               //use 0d0d compatibility with 1rank and 2rank  //0808
-		.PllBypassEn = 0,                       //bit0-ps0,bit1-ps1
-		.ddr_rdbi_wr_enable = 0x3,              //bit 0 read-dbi,bit 1 write dbi
-		.clk_drv_ohm = 40,
-		.cs_drv_ohm = 40,
-		.ac_drv_ohm = 40,
-		.soc_data_drv_ohm_p = 40,
-		.soc_data_drv_ohm_n = 40,
-		.soc_data_odt_ohm_p = 60,
-		.soc_data_odt_ohm_n = 60,
-		.dram_data_drv_ohm = 40,                //48, //34, //ddr4 sdram only 34 or 48, skt board use 34 better
-		.dram_data_odt_ohm = 60,                //60,
-		.dram_ac_odt_ohm = 240,
-		.soc_clk_slew_rate = 0x1ff,
-		.soc_cs_slew_rate = 0x1ff,
-		.soc_ac_slew_rate = 0x1ff,
-		.soc_data_slew_rate = 0x5ff,
-		.vref_output_permil = 629, //300
-		.vref_receiver_permil = 0,
-		.vref_dram_permil = 300,
-		.lpddr4_dram_vout_voltage_1_3_2_5_setting=0,
-		//.vref_reverse			= 0,
-		//.ac_trace_delay			={0x0,0x0},// {0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40},
-		.ac_trace_delay ={ 32 + 10,		     32,      0,       0, 0, 32 + 10, 32, 0, 0, 0},
-		//.ac_trace_delay ={ 32 + 10,		     32 + 0, 32 + 2, 32 + 2, 32, 32 + 10, 32 + 0, 32 + 2, 32 + 2, 32 + 0},
-		.ddr_dmc_remap =
-		{
-		[0] = (5 | 6 << 5 | 7 << 10 | 8 << 15 | 9 << 20 | 10 << 25),
-		[1] = (11 | 0 << 5 | 0 << 10 | 15 << 15 | 16 << 20 | 17 << 25),
-		[2] = (18 | 19 << 5 | 20 << 10 | 21 << 15 | 22 << 20 | 23 << 25),
-		[3] = (24 | 25 << 5 | 26 << 10 | 27 << 15 | 28 << 20 | 29 << 25),
-		[4] = (30 | 12 << 5 | 13 << 10 | 14 << 15 | 0 << 20 | 0 << 25),
-		},
-		.ddr_lpddr34_ca_remap ={ 00,			   00 },
-		.ddr_lpddr34_dq_remap ={ 7,			     1,			       5,	0,	 2,  3,	 4,  6,
-		  8,  15,			12,	 13,	  9,  10, 11, 14,
-		  22, 18,			21,	 20,	  17, 23, 16, 19,
-		  29, 30,			28,	 31,	  24, 27, 26, 25 },
+	.training_SequenceCtrl ={ 0x131f,			  0x61 },       //ddr3 0x21f 0x31f
+	.phy_odt_config_rank ={ 0x23,				0x13 },   //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
+	.dfi_odt_config = 0x0d0d,                       //use 0d0d compatibility with 1rank and 2rank  //0808
+	.PllBypassEn = 0,                               //bit0-ps0,bit1-ps1
+	.ddr_rdbi_wr_enable = 0x0,                      //bit 0 read-dbi,bit 1 write dbi
+	.clk_drv_ohm = 40,
+	.cs_drv_ohm = 40,
+	.ac_drv_ohm = 40,
+	.soc_data_drv_ohm_p = 40,
+	.soc_data_drv_ohm_n = 40,
+	.soc_data_odt_ohm_p = 0,
+	.soc_data_odt_ohm_n = 40,
+	.dram_data_drv_ohm = 40,        //48, //34, //ddr4 sdram only 34 or 48, skt board use 34 better
+	.dram_data_odt_ohm = 60,        //60,
+	.dram_ac_odt_ohm = 120,         //120,
+	.soc_clk_slew_rate = 0x3ff,
+	.soc_cs_slew_rate = 0x3ff,
+	.soc_ac_slew_rate = 0x3ff,
+	.soc_data_slew_rate = 0x2ff,
+	.vref_output_permil = 0,
+	.vref_receiver_permil = 0,
+	.vref_dram_permil = 0,
+    .lpddr4_dram_vout_voltage_1_3_2_5_setting=1,
+	//.vref_reverse			= 0,
+	//.ac_trace_delay			={0x0,0x0},// {0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40},
+	.ac_trace_delay ={ 32 + 0,			   32 + 0, 32 + 0, 32 + 0, 32, 32 + 0, 32 + 0, 32 + 0, 32 + 0, 32 + 0},
+	.ddr_dmc_remap =
+	{
+	//[0] = (5 | 6 << 5 | 7 << 10 | 8 << 15 | 9 << 20 | 10 << 25),
+	//[1] = (11 | 0 << 5 | 0 << 10 | 15 << 15 | 16 << 20 | 17 << 25),
+	//[2] = (18 | 19 << 5 | 20 << 10 | 21 << 15 | 22 << 20 | 23 << 25),
+	//[3] = (24 | 25 << 5 | 26 << 10 | 27 << 15 | 28 << 20 | 29 << 25),
+	//[4] = (30 | 12 << 5 | 13 << 10 | 14 << 15 | 0 << 20 | 0 << 25),
 
-		.dram_rtt_nom_wr_park ={ 00,			   00 },
+	[0] = (0 | 5 << 5 | 6 << 10 | 7 << 15 | 8 << 20 | 9 << 25),
+	[1] = (10 | 0 << 5 | 0 << 10 | 11 << 15 | 15 << 20 | 16 << 25),
+	[2] = (17 | 18 << 5 | 19 << 10 | 20 << 15 | 21 << 20 | 22 << 25),
+	[3] = (23 | 24 << 5 | 25 << 10 | 26 << 15 | 27 << 20 | 28 << 25),
+	[4] = (29 | 12 << 5 | 13 << 10 | 14 << 15 | 0 << 20 | 0 << 25),
+	},
+	.ddr_lpddr34_ca_remap = { 0,1,2,3},
+	.ac_pinmux={ 4, 1,3, 5, 2, 0,  6, 0, 0, 0, 0, 0,
+    3,5,4, 0, 2, 1, 6},
+	.ddr_lpddr34_dq_remap ={
+        7, 2, 1, 3, 4, 0, 5, 6,
+    8, 10, 9, 11, 13, 15, 14, 12,
+     0 + 16, 3 + 16 , 4 + 16, 7 + 16, 6 + 16, 5 + 16, 2 + 16, 1 + 16, 12 + 16,
+     15 + 16, 13 + 16, 14 + 16, 9 + 16, 10 + 16, 8 + 16, 11 + 16},
+	.dram_rtt_nom_wr_park ={ 00,				 00 },
 
-		/* pll ssc config:
-		 *
-		 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
-		 *      ppm = strength * 500
-		 *      mode: 0=center, 1=up, 2=down
-		 *
-		 *   eg:
-		 *     1. config 1000ppm center ss. then mode=0, strength=2
-		 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
-		 *     2. config 3000ppm down ss. then mode=2, strength=6
-		 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
-		 */
-		//.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-		.ddr_func				= DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,                        // DDR_FUNC,
-		//.ddr_func = 0,                          // DDR_FUNC,
-		.magic = DRAM_CFG_MAGIC,
-		.slt_test_function ={ 0x0,			0x0 }, //{0x1,0x0},enable slt 4 DRAMFreq test;{0x0,0x0},disable slt 4 DRAMFreq test;
-		.fast_boot[0] = 0,
-		.ac_pinmux ={ 2,	      3,			1,	 0,	  5, 4, 0, 0, 0, 0,
-		  1, 3,			       5,	2,	 4, 0, 0, 0, 0 },
+	/* pll ssc config:
+	 *
+	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
+	 *      ppm = strength * 500
+	 *      mode: 0=center, 1=up, 2=down
+	 *
+	 *   eg:
+	 *     1. config 1000ppm center ss. then mode=0, strength=2
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
+	 *     2. config 3000ppm down ss. then mode=2, strength=6
+	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
+	 */
+	//.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
+	.ddr_func = DDR_FUNC,
+	.magic = DRAM_CFG_MAGIC,
+	.slt_test_function ={ 0x0,			      0x0 },   //{0x1,0x0},enable slt 4 DRAMFreq test;{0x0,0x0},disable slt 4 DRAMFreq test;
+	.fast_boot[0] = 0,
+	//.ac_pinmux ={ 2,	      3,			      1,      0,      5, 4, 0, 0, 0, 0,
+	//  1, 3,				     5,	     2,	     4, 0, 0, 0, 0 },
 
-		.dfi_pinmux =
-		{
-		1,
-		2,
-		3,
-		4,
-		5,
-		6,
-		7,
-		8,
-		0,
-		10,
-		11,
-		12,
-		13,
-		14,
-		15,
-		16,
-		17,
-		18,
-		19,
-		20,
-		21,
-		22,
-		23,
-		0,
-		0,
-		0,
-		},
-		},
-
-		{
-		//.fast_boot[0]=0x000000fd,// 253
-		.board_id = CONFIG_BOARD_ID_MASK,
-		.version = 1,
-		//.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
-		.DramType = CONFIG_DDR_TYPE_LPDDR4,
-		.enable_lpddr4x_mode = ENABLE_LPDDR4X_MODE,
-		.DRAMFreq ={ 2016,		       0,	0,	 0	 },
-		.ddr_rfc_type = DDR_RFC_TYPE_LPDDR4_8Gbx1,
-		.ddr_base_addr = CFG_DDR_BASE_ADDR,
-		.ddr_start_offset = CFG_DDR_START_OFFSET,
-		.DisabledDbyte[0] = 0xf0,                       //bit 0 -3 ch0 cs0 ,bit 4-7 ch0 cs1,
-		.DisabledDbyte[1] = 0xf0,                       //bit 0 -3 ch1 cs0 ,bit 4-7 ch1 cs1,
-		.Is2Ttiming = 0,
-		.HdtCtrl = 0xc8,
-		//.dram_ch0_size_MB		= 0xffff,
-		//.dram_ch1_size_MB		= 0,
-#if (DDR_SIZE_TYPE_1 == AN_408_DDR0_1G_DDR1_0G)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-#elif (DDR_SIZE_TYPE_1 == AN_408_DDR0_2G_DDR1_0G)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-#elif (DDR_SIZE_TYPE_1 == AN_408_DDR0_1G_DDR1_1G)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-#elif (DDR_SIZE_TYPE_1 == AN_408_DDR0_2G_DDR1_1G)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-#elif (DDR_SIZE_TYPE_1 == AN_408_DDR0_2G_DDR1_2G)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-#elif (DDR_SIZE_TYPE_1 == AN_408_DDR0_2G_DDR1_2G_RANK01)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-#elif (DDR_SIZE_TYPE_1 == AN_408_DDR0_4G_DDR1_4G_RANK01)
-		.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-		.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET),
-#endif
-		.training_SequenceCtrl ={ 0x131f,		    0x61 },     //ddr3 0x21f 0x31f
-		.phy_odt_config_rank ={ 0,			  0 }, //use 0x23 0x13  compatibility with 1rank and 2rank //targeting rank 0. [3:0] is used //for write ODT [7:4] is used for //read ODT
-		.dfi_odt_config = 0x0d0d,               //use 0d0d compatibility with 1rank and 2rank  //0808
-		.PllBypassEn = 0,                       //bit0-ps0,bit1-ps1
-		.ddr_rdbi_wr_enable = 0x3,              //bit 0 read-dbi,bit 1 write dbi
-		.clk_drv_ohm = 40,
-		.cs_drv_ohm = 40,
-		.ac_drv_ohm = 40,
-		.soc_data_drv_ohm_p = 40,
-		.soc_data_drv_ohm_n = 40,
-		.soc_data_odt_ohm_p = 60,
-		.soc_data_odt_ohm_n = 60,
-		.dram_data_drv_ohm = 40,                //48, //34, //ddr4 sdram only 34 or 48, skt board use 34 better
-		.dram_data_odt_ohm = 60,                //60,
-		.dram_ac_odt_ohm = 240,
-		.soc_clk_slew_rate = 0x1ff,
-		.soc_cs_slew_rate = 0x1ff,
-		.soc_ac_slew_rate = 0x1ff,
-		.soc_data_slew_rate = 0x5ff,
-		.vref_output_permil = 629,
-		.vref_receiver_permil = 0,
-		.vref_dram_permil = 300,
-		.lpddr4_dram_vout_voltage_1_3_2_5_setting=0,
-		//.vref_reverse			= 0,
-		//.ac_trace_delay			={0x0,0x0},// {0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40},
-		//.ac_trace_delay ={ 32 + 10,		     32 + 0, 32 + 2, 32 + 2, 32, 32 + 10, 32 + 0, 32 + 2, 32 + 2, 32 + 0},
-		.ac_trace_delay ={ 32 + 10,		     32,      0,       0, 0, 32 + 10, 32, 0, 0, 0},
-		.ddr_dmc_remap =
-		{
-		[0] = (5 | 6 << 5 | 7 << 10 | 8 << 15 | 9 << 20 | 10 << 25),
-		[1] = (11 | 0 << 5 | 0 << 10 | 15 << 15 | 16 << 20 | 17 << 25),
-		[2] = (18 | 19 << 5 | 20 << 10 | 21 << 15 | 22 << 20 | 23 << 25),
-		[3] = (24 | 25 << 5 | 26 << 10 | 27 << 15 | 28 << 20 | 29 << 25),
-		[4] = (30 | 12 << 5 | 13 << 10 | 14 << 15 | 0 << 20 | 0 << 25),
-		},
-		.ddr_lpddr34_ca_remap ={ 00,			   00 },
-		.ddr_lpddr34_dq_remap ={ 4,			     6,			       5,	0,	 7,  1,	 2,  3,
-		  15, 11,			13,	 14,	  12, 9,  8,  10,
-		  21, 19,			22,	 16,	  18, 17, 23, 20,
-		  29, 30,			26,	 25,	  24, 27, 31, 28 },
-		.dram_rtt_nom_wr_park ={ 00,			   00 },
-
-		/* pll ssc config:
-		 *
-		 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
-		 *      ppm = strength * 500
-		 *      mode: 0=center, 1=up, 2=down
-		 *
-		 *   eg:
-		 *     1. config 1000ppm center ss. then mode=0, strength=2
-		 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
-		 *     2. config 3000ppm down ss. then mode=2, strength=6
-		 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
-		 */
-		//.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-		.ddr_func				= DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,                        // DDR_FUNC,
-		//.ddr_func = 0,                          // DDR_FUNC,
-		.magic = DRAM_CFG_MAGIC,
-		.slt_test_function ={ 0x0,			0x0 }, //{0x1,0x0},enable slt 4 DRAMFreq test;{0x0,0x0},disable slt 4 DRAMFreq test;
-		.fast_boot[0] = 0,
-		.ac_pinmux ={ 2,	      3,			1,	 0,	  5, 4, 0, 0, 0, 0,
-		  1, 3,			       5,	2,	 4, 0, 0, 0, 0 },
-
-		.dfi_pinmux =
-		{
-		1,
-		2,
-		3,
-		4,
-		5,
-		6,
-		7,
-		8,
-		0,
-		10,
-		11,
-		12,
-		13,
-		14,
-		15,
-		16,
-		17,
-		18,
-		19,
-		20,
-		21,
-		22,
-		23,
-		0,
-		0,
-		0,
-		},
-		},
-#endif
+	},
 };
+#endif //end BOARD_ENABLE_LPDDR4
 
 board_clk_set_t __board_clk_setting
 __attribute__ ((section(".clk_param"))) = {
