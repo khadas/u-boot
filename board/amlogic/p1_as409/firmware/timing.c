@@ -1434,6 +1434,8 @@ bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 #define BD2657_REG_REGLOCK		0xa0
 #define BD2657_REG_BUCK0_VOLT_RUN  0x0a
 #define BD2657_REG_BUCK2_VOLT_RUN  0x12
+#define BD2657_REG_CRD_TIMER	0x2a
+#define BD2657_REG_CRD_TIMER_VALUE	0x00
 
 /* gpio/pinmux/pwm init */
 register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
@@ -1467,6 +1469,10 @@ __attribute__ ((section(".misc_param"))) = {
 		(I2C_BUS << 4) | (I2C_M3), I2C_DEV_ADDR_BD2657},
 	/* bd2657 : set vdd_cpub voltage*/
 	{BD2657_REG_BUCK2_VOLT_RUN, VDD_CPUB_REG, 0xff, 0,
+		(I2C_BUS << 4) | (I2C_M3), I2C_DEV_ADDR_BD2657},
+
+	/* bd2657 : set Cold-Reset duration*/
+	{BD2657_REG_CRD_TIMER, BD2657_REG_CRD_TIMER_VALUE, 0xff, 0,
 		(I2C_BUS << 4) | (I2C_M3), I2C_DEV_ADDR_BD2657},
 };
 

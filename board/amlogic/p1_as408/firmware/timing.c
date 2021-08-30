@@ -807,6 +807,16 @@ __attribute__ ((section(".clk_param"))) = {
 	#error "VCCK_B val out of range\n"
 #endif
 
+#define I2C_BUS		0x2
+#define I2C_M3		9
+
+#define I2C_DEV_ADDR_BD2657    0x6a
+#define BD2657_REG_REGLOCK		0xa0
+#define BD2657_REG_BUCK0_VOLT_RUN  0x0a
+#define BD2657_REG_BUCK2_VOLT_RUN  0x12
+#define BD2657_REG_CRD_TIMER	0x2a
+#define BD2657_REG_CRD_TIMER_VALUE	0x00
+
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 	//hxbao, need fine tune
 	{ 0, 0, 0xffffffff, 0, 0, 0 },
@@ -832,6 +842,16 @@ __attribute__ ((section(".misc_param"))) = {
 	/* set GPIOE_0 GPIOE_1 mux to pwma pwmb */
 	{ PADCTRL_PIN_MUX_REG4, (0x1 << 0), (0xf << 0), 0, 0, 0 },
 	{ PADCTRL_PIN_MUX_REG4, (0x1 << 4), (0xf << 4), 0, 0, 0 },
+
+	/*set pinmux GPIOD_2(I2CM_J_SCL) and GPIOD_3(I2CM_J_SDA) for pmic*/
+	{PADCTRL_GPIOD_DS,	(0xf << 4),	(0xf << 4),	0,	0,	0},
+	{PADCTRL_GPIOD_PULL_EN,	(0x3 << 2),	(0x3 << 2),	0,	0,	0},
+	{PADCTRL_GPIOD_PULL_UP,	(0x3 << 2),	(0x3 << 2),	0,	0,	0},
+	{PADCTRL_PIN_MUX_REG2,	(0x11 << 8),	(0xff << 8),	0,	0,	0},
+
+	/* bd2657 : set Cold-Reset duration*/
+	{BD2657_REG_CRD_TIMER, BD2657_REG_CRD_TIMER_VALUE, 0xff, 0,
+		(I2C_BUS << 4) | (I2C_M3), I2C_DEV_ADDR_BD2657},
 };
 
 #define DEV_FIP_SIZE 0x300000
