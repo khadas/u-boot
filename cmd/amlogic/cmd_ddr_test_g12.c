@@ -80,6 +80,7 @@ typedef struct  ddr_base_address_table ddr_base_address_table_t;
 #define MESON_CPU_MAJOR_ID_T7                   0x36
 #define MESON_CPU_MAJOR_ID_S4                   0x37
 #define MESON_CPU_MAJOR_ID_T3                   0x38
+#define MESON_CPU_MAJOR_ID_P1                   0x39
 #undef  MESON_CPU_MAJOR_ID_S4D
 #define MESON_CPU_MAJOR_ID_S4D                  0x3a
 #define MESON_CPU_VERSION_LVL_MAJOR     0
@@ -371,6 +372,37 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 	{
 		.soc_family_name = "T3",
 		.chip_id = MESON_CPU_MAJOR_ID_T3,
+		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
+		.ddr_phy_base_address = 0xfc000000,
+		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),   //DMC_DRAM_TRFC
+		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
+		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
+		.ddr_pll_base_address = ((0x0000 << 2) + 0xfe0a0000),           //AM_DDR_PLL_CNTL0//
+		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000), //SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384,zhiguang confirm
+		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+
+		.sys_watchdog_base_address = 0,
+		.sys_watchdog_enable_value = 0x03c401ff,
+		.ee_timer_base_address = ((0x003b << 2) + 0xfe010000),          //SYSCTRL_TIMERE                             ((0x003b  << 2) + 0xfe010000)
+		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),             //AO_PWM_PWM_B
+		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),            //DMC_DRAM_APD_CTRL
+		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),            //DMC_DRAM_ASR_CTRL
+		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xfe036400),   // DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
+
+		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
+		.ddr_phy_base_address_1 = 0xfb000000,
+		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
+		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe034400),
+		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe034000),
+		.ddr_dmc_asr_address_1 = ((0x018d << 2) + 0xfe034000),
+		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe034000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe034000),
+	},
+	//P1
+	{
+		.soc_family_name = "P1",
+		.chip_id = MESON_CPU_MAJOR_ID_P1,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_phy_base_address = 0xfc000000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),   //DMC_DRAM_TRFC
@@ -1385,7 +1417,8 @@ int check_base_address(void)
 	for (count = 0; count < 12; count++)
 		ddr_sha.sha_chip_id[count] = global_chip_id[count];
 
-	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)) {
+	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)
+	|| (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1)) {
 		phy_base_add[0] = p_ddr_base->ddr_phy_base_address;
 		phy_base_add[1] = p_ddr_base->ddr_phy_base_address_1;
 		ddr_dmc_sticky[0] = p_ddr_base->ddr_dmc_sticky0;
@@ -5730,7 +5763,8 @@ int get_ddr_clk(void)
 	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_TM2)
 	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C1)
 	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_SC2)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)) {
+	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)
+		|| (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1)) {
 		ddr_pll = rd_reg(p_ddr_base->ddr_pll_base_address);
 		ddr_pll = ddr_pll & 0xfffff;
 		ddr_clk = pll_convert_to_ddr_clk_g12a(ddr_pll);
@@ -6605,7 +6639,7 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 		printf("\n.board_id=0x%08x,// %d,0x%08x", ddr_set_t_p->board_id, ddr_set_t_p->board_id, DDR_TIMMING_OFFSET_DDR_SET(board_id));
 		printf("\n.version=0x%08x,// %d,0x%08x", ddr_set_t_p->version, ddr_set_t_p->version, DDR_TIMMING_OFFSET_DDR_SET(version));
 		printf("\n.DramType=0x%08x,// %d,0x%08x", ddr_set_t_p->DramType, ddr_set_t_p->DramType, DDR_TIMMING_OFFSET_DDR_SET(DramType));
-		if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)) {
+		if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1)) {
 			printf("\n.DisabledDbyte[0]=0x%08x,// %d,0x%08x", ddr_set_t_p_t7->DisabledDbyte[0], ddr_set_t_p_t7->DisabledDbyte[0], DDR_TIMMING_OFFSET_DDR_SET_T7(DisabledDbyte[0]));
 			printf("\n.DisabledDbyte[1]=0x%08x,// %d,0x%08x", ddr_set_t_p_t7->DisabledDbyte[1], ddr_set_t_p_t7->DisabledDbyte[1], DDR_TIMMING_OFFSET_DDR_SET_T7(DisabledDbyte[1]));
 			printf("\n.Is2Ttiming=0x%08x,// %d,0x%08x", ddr_set_t_p_t7->Is2Ttiming, ddr_set_t_p_t7->Is2Ttiming, DDR_TIMMING_OFFSET_DDR_SET_T7(Is2Ttiming));
@@ -6684,7 +6718,7 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 		printf("\n.tdqs2dq=0x%08x,// %d,0x%08x", ddr_set_t_p->tdqs2dq, ddr_set_t_p->tdqs2dq, DDR_TIMMING_OFFSET_DDR_SET(tdqs2dq));
 		printf("\n.dram_data_wr_odt_ohm=0x%08x,// %d,0x%08x", ddr_set_t_p->dram_data_wr_odt_ohm, ddr_set_t_p->dram_data_wr_odt_ohm, DDR_TIMMING_OFFSET_DDR_SET(dram_data_wr_odt_ohm));
 		printf("\n.bitTimeControl_2d=0x%08x,// %d,0x%08x", ddr_set_t_p->bitTimeControl_2d, ddr_set_t_p->bitTimeControl_2d, DDR_TIMMING_OFFSET_DDR_SET(bitTimeControl_2d));
-		if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7))
+		if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1))
 			printf("\n.training_offset=0x%08x,// %d,0x%08x", ddr_set_t_p_t7->training_offset, ddr_set_t_p_t7->training_offset, DDR_TIMMING_OFFSET_DDR_SET_T7(training_offset));
 		for (temp_count = 0; temp_count < 5; temp_count++)
 			printf("\n.ddr_dmc_remap[%d]=0x%08x,// %d,0x%08x", temp_count, ddr_set_t_p->ddr_dmc_remap[temp_count], ddr_set_t_p->ddr_dmc_remap[temp_count], DDR_TIMMING_OFFSET_DDR_SET(ddr_dmc_remap[temp_count]));
@@ -7665,7 +7699,7 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 		if (enable_ddr_fast_boot == 2)
 			ddr_set_t_p->fast_boot[0] = 0;
 	}
-	if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) {
+	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1)) {
 		ddr_set_add = (uint32_t)(uint64_t)(ddr_set_t_p);
 		ddr_set_size = sizeof(ddr_set_t);
 		out_sha2 = (char *)ddr_sha.sha2;
@@ -9137,9 +9171,11 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	    ) {
 		printf("reset...\n");
 		run_command("reset", 0);
+		run_command("reboot", 0);
 	} else {                        //G12A/G12B/SM1/TL1/TM2 //(p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)
 		printf("reboot...\n");  //reset will enter bl2 panic path,so change to "reboot"
 		run_command("reboot", 0);
+		run_command("reset", 0);
 		//ddr_test_watchdog_reset_system();
 	}
 
@@ -9573,7 +9609,7 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 		return 1;
 	}
 
-	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)) {
+	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1)) {
 		writel(ddr_dmc_apd_temp_save, p_ddr_base->ddr_dmc_apd_address);
 		writel(ddr_dmc_asr_temp_save, p_ddr_base->ddr_dmc_asr_address);
 		wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl);
@@ -9659,7 +9695,7 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	writel(ddr_dmc_asr_temp_save, p_ddr_base->ddr_dmc_asr_address);
 	wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl);
 
-	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)) {
+	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1)) {
 		dmc_ddr_config_channel_id = 0;
 		dmc_change_channel(dmc_ddr_config_channel_id);
 	}
@@ -9888,7 +9924,7 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 				} else {
 					do_ddr_display_c2_ddr_information((cmd_tbl_t *)cmdtp, (int)flag, (int)argc2, (argv2));
 				}
-			} else if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)) {
+			} else if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1)) {
 				dmc_ddr_config_channel_id = 0;
 				dmc_change_channel(dmc_ddr_config_channel_id);
 				do_ddr_display_g12_ddr_information((cmd_tbl_t *)cmdtp, (int)flag, (int)argc2, (argv2));
