@@ -8,6 +8,7 @@
 #include <asm/arch/secure_apb.h>
 #include <ramdump.h>
 #include <emmc_partitions.h>
+#include <usb.h>
 
 #define DEBUG_RAMDUMP	0
 #define AMLOGIC_KERNEL_PANIC		0x0c
@@ -36,13 +37,12 @@ void ramdump_init(void)
 
 static void wait_usb_dev(void)
 {
-	block_dev_desc_t *usb_dev;
-	int print_cnt = 0;
+	int print_cnt = 0, ret;
 
 	while (1) {
 		run_command("usb start", 1);
-		usb_dev = usb_stor_get_dev(0);
-		if (!usb_dev) {
+		ret = usb_stor_scan(1);
+		if (ret) {
 			if (!(print_cnt & 0x3f)) {
 				print_cnt++;
 				printf("ramdump: can't find usb device, please insert a usb disk to save ramdump data\n");
@@ -71,7 +71,7 @@ __weak int ramdump_save_compress_data(void)
 	char cmd[128] = {0};
 	char *env;
 
-	env = getenv("ramdump_location");
+	env = env_get("ramdump_location");
 	if (!env)
 		return 0;
 
