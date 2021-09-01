@@ -123,6 +123,7 @@
 #define FLAG_EXIT_FROM_LOOP 1
 #define FLAG_PARSE_SEMICOLON (1 << 1)		/* symbol ';' is special for parser */
 #define FLAG_REPARSING       (1 << 2)		/* >= 2nd pass */
+#define FLAG_EXIT_FROM_ERR  (1 << 15)
 
 #endif
 
@@ -3243,6 +3244,11 @@ static int parse_stream_outer(struct in_str *inp, int flag)
 		}
 		b_free(&temp);
 	/* loop on syntax errors, return on EOF */
+	// printf("loop %d\n", rcode);
+	if (rcode == 1
+	    //&& flag & FLAG_EXIT_FROM_ERR
+	    )
+	    break;
 	} while (rcode != -1 && !(flag & FLAG_EXIT_FROM_LOOP) &&
 		(inp->peek != static_peek || b_peek(inp)));
 #ifndef __U_BOOT__

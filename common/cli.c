@@ -94,7 +94,11 @@ int run_command_list(const char *cmd, int len, int flag)
 		buff[len] = '\0';
 	}
 #ifdef CONFIG_HUSH_PARSER
-	rcode = parse_string_outer(buff, FLAG_PARSE_SEMICOLON);
+
+//	rcode = parse_string_outer(buff, FLAG_PARSE_SEMICOLON );
+	rcode = parse_string_outer(buff, FLAG_PARSE_SEMICOLON
+				| ( flag < 0 ? FLAG_EXIT_FROM_ERR : 0) );
+
 #else
 	/*
 	 * This function will overwrite any \n it sees with a \0, which
