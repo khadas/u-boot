@@ -151,7 +151,7 @@
                     "run recovery_from_flash;"\
             "else if test ${reboot_mode} = cold_boot; then "\
             "else if test ${reboot_mode} = fastboot; then "\
-                "fastboot;"\
+                "fastboot 1;"\
             "fi;fi;fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
@@ -228,7 +228,8 @@
             "run bcb_cmd; "\
             "run upgrade_check;"\
             "run storeargs;"\
-            "run upgrade_key;"
+            "run upgrade_key;"\
+            "run switch_bootmode;"
 #else
 #define CONFIG_PREBOOT  "echo preboot"
 #endif
