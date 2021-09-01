@@ -1980,4 +1980,10 @@ config CMD_INI
 	help
 	  support ini command
 
+config CMD_SCRIPT
+	bool "simple plain script run from mem without mkimage wrappers"
+	default y
+	help
+	  simple plain script run from mem without mkimage wrappers
+
 endmenu

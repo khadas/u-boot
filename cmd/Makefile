@@ -193,6 +193,9 @@ endif # !CONFIG_SPL_BUILD
 obj-$(CONFIG_CMD_DSPRUN) += cmd_dsprun.o
 obj-$(CONFIG_CMD_DSPSET) += cmd_dspset.o
 obj-$(CONFIG_CMD_STARTM4) += cmd_startm4.o
+
+obj-$(CONFIG_CMD_SCRIPT) += script.o
+
 # core command
 obj-y += nvedit.o
 
