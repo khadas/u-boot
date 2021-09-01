@@ -758,6 +758,12 @@ void tftp_start(enum proto_t protocol)
 #endif
 	       &tftp_remote_ip, &net_ip);
 
+	char tftp_remote_ip_str[22];
+
+	ip_to_string(tftp_remote_ip, tftp_remote_ip_str);
+	env_set("tftp_remote_ip", tftp_remote_ip_str);
+	env_set("tftp_filename", tftp_filename);
+
 	/* Check if we need to send across this subnet */
 	if (net_gateway.s_addr && net_netmask.s_addr) {
 		struct in_addr our_net;
