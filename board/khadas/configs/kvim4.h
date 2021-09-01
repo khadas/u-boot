@@ -63,8 +63,38 @@
 
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
+
+#ifdef CONFIG_CMD_USB
+#define BOOT_TARGET_DEVICES_USB(func) func(USB, usb, 0)
+#else
+#define BOOT_TARGET_DEVICES_USB(func)
+#endif
+
+#ifndef BOOT_TARGET_DEVICES
+#define BOOT_TARGET_DEVICES(func) \
+    BOOT_TARGET_DEVICES_USB(func) \
+    func(MMC, mmc, 0) \
+    func(MMC, mmc, 1) \
+    func(PXE, pxe, na) \
+    func(DHCP, dhcp, na)
+#endif
+
+#include <config_distro_bootcmd.h>
+
 #ifdef CONFIG_HDMITX_ONLY
 #define CONFIG_EXTRA_ENV_SETTINGS \
+        "fdt_addr_r=0x01000000\0"\
+        "fdtoverlay_addr_r=0x00a00000\0"\
+        "fdtaddr=0x01000000\0"\
+        "kernel_addr_r=0x01080000\0"\
+        "pxefile_addr_r=0x00010000\0"\
+        "scriptaddr=0x00010000\0" \
+        "ramdisk_addr_r=0x10000000\0"\
+        "kernel_comp_addr_r=0x0d080000\0"\
+        "kernel_comp_size=0x2000000\0"\
+        "pxeuuid=00000000-0000-0000-0000-000000000000\0"\
+        "bootfile=\0"\
+        "fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
         "firstboot=1\0"\
         "silent=1\0"\
         "upgrade_step=0\0"\
@@ -373,10 +403,26 @@
             "if tftp 1080000 u-boot.bin.signed; then "\
                 "store boot_write bootloader 1080000 $filesize;"\
             "fi;"\
-            "\0"
+            "\0"\
+        BOOTENV\
+        "pxe_boot=dhcp; pxe get && pxe boot\0"\
+        "bootcmd_storeboot=run storeboot\0"\
+        "boot_targets=usb0 mmc0 mmc1 storeboot pxe dhcp\0"
 
 #else
 #define CONFIG_EXTRA_ENV_SETTINGS \
+      "fdt_addr_r=0x01000000\0"\
+      "fdtoverlay_addr_r=0x00a00000\0"\
+        "fdtaddr=0x01000000\0"\
+        "kernel_addr_r=0x01080000\0"\
+        "pxefile_addr_r=0x00010000\0"\
+        "scriptaddr=0x00010000\0" \
+        "ramdisk_addr_r=0x10000000\0"\
+        "kernel_comp_addr_r=0x0d080000\0"\
+        "kernel_comp_size=0x2000000\0"\
+        "pxeuuid=00000000-0000-0000-0000-000000000000\0"\
+        "bootfile=\0"\
+        "fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
         "firstboot=1\0"\
         "silent=1\0"\
         "upgrade_step=0\0"\
@@ -703,7 +749,11 @@
             "if tftp 1080000 u-boot.bin.signed; then "\
                 "store boot_write bootloader 1080000 $filesize;"\
             "fi;"\
-            "\0"
+            "\0"\
+        BOOTENV\
+        "pxe_boot=dhcp; pxe get && pxe boot\0"\
+        "bootcmd_storeboot=run storeboot\0"\
+        "boot_targets=usb0 mmc0 mmc1 storeboot pxe dhcp\0"
 #endif
 
 #define CONFIG_PREBOOT  \
@@ -965,3 +1015,9 @@
 #define CONFIG_AML_KASLR_SEED
 
 #endif
+
+#undef CONFIG_SYS_CBSIZE
+#define CONFIG_SYS_CBSIZE 4096
+
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE 8192000
+#define CONFIG_VIDEO_BMP_GZIP 1
