@@ -270,6 +270,9 @@ config MD5
 config CRC32C
 	bool
 
+config XXHASH
+	bool
+
 endmenu
 
 menu "Compression Support"
@@ -300,6 +303,12 @@ config LZO
 	bool "Enable LZO decompression support"
 	help
 	  This enables support for LZO compression algorithm.r
+
+config ZSTD
+	bool "Enable Zstandard decompression support"
+	select XXHASH
+	help
+	  This enables Zstandard decompression library.
 
 config SPL_LZ4
 	bool "Enable LZ4 decompression support in SPL"
