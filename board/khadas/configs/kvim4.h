@@ -270,7 +270,7 @@
 	    "factory_provision init;"\
             "\0"\
         "upgrade_key="\
-            "if gpio input GPIOD_3; then "\
+            "if gpio input GPIOD_4; then "\
             "echo detect upgrade key; run update;"\
             "fi;"\
             "\0"\
