@@ -22,6 +22,8 @@
 #include <asm/byteorder.h>
 #include <asm/io.h>
 
+#if defined(CONFIG_CMD_SCRIPT)
+#else
 #if defined(CONFIG_FIT)
 /**
  * get_default_image() - Return default property from /images
@@ -185,6 +187,7 @@ static int do_source(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return rcode;
 }
 
+
 #ifdef CONFIG_SYS_LONGHELP
 static char source_help_text[] =
 	"[addr]\n"
@@ -202,4 +205,5 @@ U_BOOT_CMD(
 	source, 2, 0,	do_source,
 	"run script from memory", source_help_text
 );
+#endif
 #endif
