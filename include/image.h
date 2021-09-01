@@ -302,6 +302,7 @@ enum {
 	IH_COMP_LZMA,			/* lzma  Compression Used	*/
 	IH_COMP_LZO,			/* lzo   Compression Used	*/
 	IH_COMP_LZ4,			/* lz4   Compression Used	*/
+	IH_COMP_ZSTD,			/* zstd  Compression Used	*/
 
 	IH_COMP_COUNT,
 };
@@ -1387,6 +1388,44 @@ struct fit_loadable_tbl {
 	 */
 	void (*handler)(ulong data, size_t size);
 };
+
+/*
+ * Compression type and magic number mapping table.
+ */
+struct comp_magic_map {
+    int		comp_id;
+    const char	*name;
+    unsigned char	magic[2];
+};
+
+/**
+ * image_decomp_type() - Find out compression type of an image
+ *
+ * @buf:	Address in U-Boot memory where image is loaded.
+ * @len:	Length of the compressed image.
+ * @return	compression type or IH_COMP_NONE if not compressed.
+ *
+ * Note: Only following compression types are supported now.
+ * lzo, lzma, gzip, bzip2
+ */
+int image_decomp_type(const unsigned char *buf, ulong len);
+
+/**
+ * image_decomp() - decompress an image
+ *
+ * @comp:	Compression algorithm that is used (IH_COMP_...)
+ * @load:	Destination load address in U-Boot memory
+ * @image_start Image start address (where we are decompressing from)
+ * @type:	OS type (IH_OS_...)
+ * @load_bug:	Place to decompress to
+ * @image_buf:	Address to decompress from
+ * @image_len:	Number of bytes in @image_buf to decompress
+ * @unc_len:	Available space for decompression
+ * @return 0 if OK, -ve on error (BOOTM_ERR_...)
+ */
+int image_decomp(int comp, ulong load, ulong image_start, int type,
+	 void *load_buf, void *image_buf, ulong image_len,
+	 uint unc_len, ulong *load_end);
 
 /*
  * Define a FIT loadable image type handler

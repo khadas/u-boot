@@ -13,6 +13,8 @@
 #include <linux/kernel.h>
 #include <linux/sizes.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Image booting support
  */
@@ -23,6 +25,12 @@ static int booti_start(cmd_tbl_t *cmdtp, int flag, int argc,
 	ulong ld;
 	ulong relocated_addr;
 	ulong image_size;
+	uint8_t *temp;
+	ulong dest;
+	ulong dest_end;
+	unsigned long comp_len;
+	unsigned long decomp_len;
+	int ctype;
 
 	ret = do_bootm_states(cmdtp, flag, argc, argv, BOOTM_STATE_START,
 			      images, 1);
@@ -36,6 +44,34 @@ static int booti_start(cmd_tbl_t *cmdtp, int flag, int argc,
 		ld = simple_strtoul(argv[0], NULL, 16);
 		debug("*  kernel: cmdline image address = 0x%08lx\n", ld);
 	}
+
+	temp = map_sysmem(ld, 0);
+	ctype = image_decomp_type(temp, 2);
+
+	if (ctype > 0) {
+	dest = env_get_ulong("kernel_comp_addr_r", 16, 0);
+	comp_len = env_get_ulong("kernel_comp_size", 16, 0);
+	if (!dest || !comp_len) {
+	    puts("kernel_comp_addr_r or kernel_comp_size is not provided!\n");
+	    return -EINVAL;
+	}
+	if (dest < gd->ram_base || dest > gd->ram_top) {
+	    puts("kernel_comp_addr_r is outside of DRAM range!\n");
+	    return -EINVAL;
+	}
+
+	debug("kernel image compression type %d size = 0x%08lx address = 0x%08lx\n",
+	    ctype, comp_len, (ulong)dest);
+	decomp_len = comp_len * 10;
+	ret = image_decomp(ctype, 0, ld, IH_TYPE_KERNEL,
+		 (void *)dest, (void *)ld, comp_len,
+		 decomp_len, &dest_end);
+	if (ret)
+	    return ret;
+	/* dest_end contains the uncompressed Image size */
+	memmove((void *) ld, (void *)dest, dest_end);
+	}
+	unmap_sysmem((void *)ld);
 
 	ret = booti_setup(ld, &relocated_addr, &image_size, false);
 	if (ret != 0)
