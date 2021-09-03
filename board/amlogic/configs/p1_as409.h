@@ -215,6 +215,7 @@
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
             "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
             "setenv serial ${usid}; setenv serial# ${usid};"\
+            "factory_provision init;"\
             "\0"\
         "upgrade_key="\
             "if gpio input GPIOD_3; then "\
@@ -394,6 +395,9 @@
 #define CONFIG_FS_FAT 1
 #define CONFIG_FS_EXT4 1
 #define CONFIG_LZO 1
+
+#define CONFIG_FAT_WRITE 1
+#define CONFIG_AML_FACTORY_PROVISION 1
 
 /* Cache Definitions */
 /* #define CONFIG_SYS_DCACHE_OFF */
