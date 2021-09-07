@@ -33,6 +33,7 @@
 #include "pwm.h"
 #include "pwm_plat.h"
 #include "keypad.h"
+#include "meson_i2c.h"
 
 #include "hdmi_cec.h"
 #include "hdmirx_wake.h"
@@ -175,9 +176,23 @@ void str_power_on(int shutdown_flag)
 	printf("vdd_cpu on\n");
 }
 
+void mcu_i2c_init(void);
+void mcu_i2c_init(void)
+{
+	// set pinmux
+	xPinmuxSet(GPIOD_2, PIN_FUNC1);
+	xPinmuxSet(GPIOD_3, PIN_FUNC1);
+	//set ds and pull up
+	xPinconfSet(GPIOD_2, PINF_CONFIG_BIAS_PULL_UP | PINF_CONFIG_DRV_STRENGTH_3);
+	xPinconfSet(GPIOD_3, PINF_CONFIG_BIAS_PULL_UP | PINF_CONFIG_DRV_STRENGTH_3);
+
+	xI2cMesonPortInit(I2C_AO_A);
+}
+
 void str_power_off(int shutdown_flag)
 {
 	int ret;
+
 #if 0
 	/***set vdd_ee val***/
 	vdd_ee = vPwmMesongetvoltage(VDDEE_VOLT);
@@ -187,7 +202,6 @@ void str_power_off(int shutdown_flag)
 	}
 #endif
 
-	shutdown_flag = shutdown_flag;
 	/***power off vdd_cpu***/
 #ifndef CONFIG_ETH_WAKEUP
 	ret = xGpioSetDir(GPIO_TEST_N,GPIO_DIR_OUT);
@@ -217,6 +231,7 @@ void str_power_off(int shutdown_flag)
 	}
 
 	printf("vdd_cpu off\n");
+
 	/***power off vcc_5v***/
 	ret = xGpioSetDir(GPIOH_4,GPIO_DIR_OUT);
 	if (ret < 0) {
@@ -231,5 +246,18 @@ void str_power_off(int shutdown_flag)
 	}
 
 	printf("vcc_5v off\n");
+
+	if (1 == shutdown_flag) {
+		uint8_t val = 1;
+
+		printf("mcu off\n");
+		mcu_i2c_init();
+		// Poweroff MCU
+		ret = xI2cMesonWrite(0x18, 0x80, &val, 1);
+		if (ret < 0) {
+			printf("power off mcu fail\n");
+			return;
+		}
+	}
 }
 
