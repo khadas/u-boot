@@ -89,7 +89,7 @@ static int convert_fipkey_to_avbkey(scs_pubrsa_key_t *rsapub, AvbRSAPublicKey *a
 	return 0;
 }
 
-int compare_avbkey_with_fipkey(const uint8_t* public_key_data, size_t public_key_length)
+int compare_avbkey_with_fipkey(const uint8_t *public_key_data, size_t public_key_length)
 {
 	AvbRSAPublicKey avb_key;
 	uint8_t *public_tmp = NULL;
