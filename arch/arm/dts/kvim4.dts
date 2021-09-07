@@ -306,10 +306,15 @@
 &spifc {
 	status = "okay";
 	cs-gpios = <&gpio GPIOM_4 GPIO_ACTIVE_HIGH>;
+//	clocks = <&clkc CLKID_CLK81>;
+//	clocks = <&clkc CLKID_SPIFC>;
+	clocks = <&clkc CLKID_SYS_PLL>;
+	clock-names = "core";
 	spi-flash@0 {
 		status = "okay";
 		compatible = "winbond,w25q256fw", "jedec,spi-nor";
-		spi-max-frequency = <83333333>;
+		//spi-max-frequency = <83333333>; / * crc error */
+		spi-max-frequency = <40000000>;
 	};
 };
 
