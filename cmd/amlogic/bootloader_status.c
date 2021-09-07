@@ -251,6 +251,7 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	char *robustota = NULL;
 	char *mode = NULL;
 	char *update_env = NULL;
+	char *rebootmode = NULL;
 	int ret = -1;
 #ifdef CONFIG_MMC_MESON_GX
 	struct mmc *mmc = NULL;
@@ -261,6 +262,59 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 
 	//if recovery mode, need disable dv, if factoryreset, need default uboot env
 	aml_recovery();
+
+	run_command("get_rebootmode", 0);
+	rebootmode = env_get("reboot_mode");
+	printf("rebootmode is %s\n", rebootmode);
+	if (rebootmode && (strcmp(rebootmode, "rescueparty") == 0)) {
+		printf("rebootmode is rescueparty, need rollback\n");
+		char *slot;
+
+#ifdef CONFIG_MMC_MESON_GX
+		if (mmc)
+			ret = aml_gpt_valid(mmc);
+#endif
+
+#ifdef CONFIG_FASTBOOT
+		struct misc_virtual_ab_message message;
+
+		set_mergestatus_cancel(&message);
+#endif
+
+		slot = env_get("slot-suffixes");
+		if (!slot) {
+			run_command("get_valid_slot", 0);
+			slot = env_get("slot-suffixes");
+		}
+		if (strcmp(slot, "0") == 0) {
+			if (ret != 0) {
+				wrnP("normal mode\n");
+				write_bootloader_back("2", 0);
+				env_set("expect_index", "0");
+			} else {
+				wrnP("gpt mode\n");
+				env_set("expect_index", "2");
+			}
+			wrnP("back to slot b\n");
+			run_command("set_active_slot b", 0);
+		} else if (strcmp(slot, "1") == 0) {
+			if (ret != 0) {
+				wrnP("normal mode\n");
+				write_bootloader_back("1", 0);
+				env_set("expect_index", "0");
+			} else {
+				wrnP("gpt mode\n");
+				env_set("expect_index", "1");
+			}
+			wrnP("back to slot a\n");
+			run_command("set_active_slot a", 0);
+		}
+
+		env_set("update_env", "1");
+		env_set("reboot_status", "reboot_next");
+		run_command("saveenv", 0);
+		run_command("reset", 0);
+	}
 
 	//check_result init
 	checkresult = env_get("check_result");
