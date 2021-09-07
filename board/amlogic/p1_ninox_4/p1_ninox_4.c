@@ -53,6 +53,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+extern int common_write(uint8_t pmic_addr, uint8_t addr, uint8_t val);
+
 void sys_led_init(void)
 {
 }
@@ -123,6 +125,12 @@ void board_init_mem(void) {
 	#endif
 }
 
+void pmic_unlock(void)
+{
+	common_write(0x4b, 0x2f, 0x00);
+	printf("pmic_bd71888_unlock\n");
+}
+
 int board_init(void)
 {
 	printf("board init\n");
@@ -130,6 +138,8 @@ int board_init(void)
 	/* The non-secure watchdog is enabled in BL2 TEE, disable it */
 	run_command("watchdog off", 0);
 	printf("watchdog disable\n");
+
+	pmic_unlock();
 
 #if 0
 	run_command("startdsp 0 0x300a0000 0", 0);

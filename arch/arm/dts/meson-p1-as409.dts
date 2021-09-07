@@ -72,6 +72,14 @@
 	/* pinctrl-0 = <&i2c3_master_pins2>;*/
 };
 
+/* pmic71888/pmic2657 */
+&i2c9 {
+       status= "okay";
+       clock-frequency = <100000>;
+       pinctrl-names = "default";
+       pinctrl-0 = <&i2c9_pins1>;
+};
+
 &pinctrl_periphs {
 	bl_pwm_off_pins:bl_pwm_off_pin {
 		mux {

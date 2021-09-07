@@ -64,6 +64,14 @@
 	status = "okay";
 };
 
+/* pmic71888/pmic2657 */
+&i2c9 {
+       status= "okay";
+       clock-frequency = <100000>;
+       pinctrl-names = "default";
+       pinctrl-0 = <&i2c9_pins1>;
+};
+
 /* demo for i2c user */
 &i2c3 {
 	status= "disabled";
