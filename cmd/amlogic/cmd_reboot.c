@@ -69,9 +69,9 @@ int do_get_rebootmode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 			env_set("reboot_mode","shutdown_reboot");
 			break;
 		}
-		case AMLOGIC_CRASH_REBOOT:
+		case AMLOGIC_RESCUEPARTY_REBOOT:
 		{
-			env_set("reboot_mode","crash_dump");
+			env_set("reboot_mode", "rescueparty");
 			break;
 		}
 		case AMLOGIC_KERNEL_PANIC:
@@ -164,8 +164,8 @@ int do_reboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			reboot_mode_val = AMLOGIC_SUSPEND_REBOOT;
 		else if (strcmp(mode, "hibernate") == 0)
 			reboot_mode_val = AMLOGIC_HIBERNATE_REBOOT;
-		else if (strcmp(mode, "crash_dump") == 0)
-			reboot_mode_val = AMLOGIC_CRASH_REBOOT;
+		else if (strcmp(mode, "rescueparty") == 0)
+			reboot_mode_val = AMLOGIC_RESCUEPARTY_REBOOT;
 		else if (strcmp(mode, "kernel_panic") == 0)
 			reboot_mode_val = AMLOGIC_KERNEL_PANIC;
 		else if (strcmp(mode, "rpmbp") == 0)

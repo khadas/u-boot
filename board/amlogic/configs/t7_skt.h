@@ -158,7 +158,6 @@
             "else if test ${os_type} = kernel; then "\
                 "get_system_as_root_mode;"\
                 "echo system_mode in storeboot: ${system_mode};"\
-                "get_valid_slot;"\
                 "get_avb_mode;"\
                 "echo active_slot in storeboot: ${active_slot};"\
                 "if test ${system_mode} = 1; then "\
