@@ -115,6 +115,12 @@ config AML_DISABLE_DEV_CMDS
 	help
 	"Disable un-safe developing commands for product mode"
 
+config CMD_PMU
+	bool "enable pmu test"
+	default n
+	help
+	"enable pmu test"
+
 config AML_PRODUCT_MODE
 	bool "amlogic product/security mode"
 	default n

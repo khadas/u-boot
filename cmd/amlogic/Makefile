@@ -46,4 +46,4 @@ obj-$(CONFIG_AML_FACTORY_PROVISION) += cmd_factory_provision.o
 obj-$(CONFIG_SECURE_POWER_CONTROL) += cmd_power.o
 obj-$(CONFIG_CMD_HDMIRX) += cmd_hdmirx.o
 obj-$(CONFIG_CMD_CEC) += cmd_cec.o
-obj-y += cmd_pmic.o
+obj-$(CONFIG_CMD_PMU) += cmd_pmic.o
