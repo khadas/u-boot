@@ -808,6 +808,28 @@ cleanup:
 }
 #endif
 
+static void env_helper(cmd_tbl_t *cmdtp, struct pxe_label *label)
+{
+    char *buf;
+    char *env_file = "uEnv.txt";
+    char *env_addr = env_get("scriptaddr");
+    unsigned long addr, file_size = 0;
+
+    if (!env_addr)
+	return;
+    if (strict_strtoul(env_addr, 16, &addr) < 0)
+	return;
+    if (get_relfile(cmdtp, env_file, addr) < 0)
+	return;
+    if (strict_strtoul(from_env("filesize"), 16, &file_size))
+	return;
+    if (file_size < 1)
+	return;
+
+    printf("Import user vars: %s %ld bytes\n", env_file, file_size);
+    buf = map_sysmem(addr , 0);
+    himport_r(&env_htab, buf, file_size, '\n', H_NOCLEAR, 0, 0, NULL);
+}
 
 /*
  * Boot according to the contents of a pxe_label.
@@ -1009,6 +1031,8 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	kernel_addr = genimg_get_kernel_addr(bootm_argv[1]);
 	buf = map_sysmem(kernel_addr, 0);
 
+	env_helper(cmdtp, label);
+
 	if (label->localcmd) {
 		int err;
 		//printf("%s:::: %s\n", __func__, label->localcmd);
@@ -1035,7 +1059,12 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 			strcat(bootargs, ip_str);
 			strcat(bootargs, mac_str);
 
-			cli_simple_process_macros(bootargs, finalbootargs);
+			int max_loop=32;
+			do {
+			    cli_simple_process_macros(bootargs, finalbootargs);
+			    cli_simple_process_macros(finalbootargs, bootargs);
+			} while (strcmp(bootargs, finalbootargs) && max_loop--);
+
 			env_set("bootargs", finalbootargs);
 			printf("append: %s\n", finalbootargs);
 		}
