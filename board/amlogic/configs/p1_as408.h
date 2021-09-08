@@ -230,7 +230,6 @@
             "run bcb_cmd; "\
             "run upgrade_check;"\
             "run storeargs;"\
-            "run upgrade_key;"\
             "run switch_bootmode;"
 #else
 #define CONFIG_PREBOOT  "echo preboot"

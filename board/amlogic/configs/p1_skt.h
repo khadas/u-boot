@@ -226,7 +226,6 @@
             "run bcb_cmd; "\
             "run upgrade_check;"\
             "run storeargs;"\
-            "run upgrade_key;"
 #else
 #define CONFIG_PREBOOT  "echo preboot"
 #endif
