@@ -596,7 +596,6 @@ static int do_GetValidSlot(
 				setenv("recovery_part", "recovery");
 				setenv("slot-suffixes", "-1");
 			}
-			return 0;
 		} else if (bootable_b) {
 #ifdef CONFIG_FASTBOOT
 			struct misc_virtual_ab_message message;
@@ -631,7 +630,6 @@ static int do_GetValidSlot(
 				setenv("recovery_part", "recovery");
 				setenv("slot-suffixes", "-1");
 			}
-			return 0;
 		} else if (bootable_a) {
 #ifdef CONFIG_FASTBOOT
 			struct misc_virtual_ab_message message;
@@ -651,6 +649,39 @@ static int do_GetValidSlot(
 			}
 		} else {
 			run_command("run init_display; run storeargs; run update;", 0);
+		}
+	}
+
+	if (rebootmode && (strcmp(rebootmode, "rescueparty") == 0)) {
+		printf("rebootmode is rescueparty, need rollback\n");
+
+#ifdef CONFIG_FASTBOOT
+		struct misc_virtual_ab_message message;
+
+		set_mergestatus_cancel(&message);
+#endif
+		if (slot == 0) {
+			run_command("set_active_slot b", 0);
+			setenv("default_env", "1");
+			run_command("saveenv", 0);
+			if (write_bootloader(2, 0) == 0) {
+				printf("rollback ok\n");
+				run_command("reset", 0);
+			} else {
+				printf("rollback failed\n");
+				run_command("run init_display; run storeargs; run update;", 0);
+			}
+		} else if (slot == 1) {
+			run_command("set_active_slot a", 0);
+			setenv("default_env", "1");
+			run_command("saveenv", 0);
+			if (write_bootloader(1, 0) == 0) {
+				printf("rollback ok\n");
+				run_command("reset", 0);
+			} else {
+				printf("rollback failed\n");
+				run_command("run init_display; run storeargs; run update;", 0);
+			}
 		}
 	}
 

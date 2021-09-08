@@ -162,14 +162,16 @@ static int do_RunBcbCommand(
         run_command("setenv bootargs ${bootargs} androidboot.quiescent=1;", 0);
     }
 
-    run_command("get_valid_slot", 0);
-    if (getenv("active_slot")) {
-        ActiveSlot = getenv("active_slot");
-        if (ActiveSlot && (strstr(ActiveSlot, "normal") == NULL)) {
-            printf("ab update mode\n");
-            run_command("setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};", 0);
-        }
-    }
+	ActiveSlot = getenv("active_slot");
+	if (!ActiveSlot) {
+		run_command("get_valid_slot", 0);
+		ActiveSlot = getenv("active_slot");
+	}
+	if (ActiveSlot && !strstr(ActiveSlot, "normal")) {
+		printf("ab update mode\n");
+		run_command("setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};",
+			0);
+	}
 
     if (!memcmp(command, CMD_RUN_RECOVERY, strlen(CMD_RUN_RECOVERY))) {
         if (run_command("run recovery_from_flash", 0) < 0) {

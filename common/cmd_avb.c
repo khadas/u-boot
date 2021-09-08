@@ -136,8 +136,11 @@ static AvbIOResult get_unique_guid_for_partition(AvbOps* ops, const char* partit
     int ret;
     char part_name[128];
     memset(guid_buf, 0, guid_buf_size);
-    run_command("get_valid_slot;", 0);
-    s1 = getenv("active_slot");
+	s1 = getenv("active_slot");
+	if (!s1) {
+		run_command("get_valid_slot;", 0);
+		s1 = getenv("active_slot");
+	}
     //printf("active_slot is %s\n", s1);
     if (!memcmp(partition, "system", strlen("system"))) {
         if (s1 && (strcmp(s1, "_a") == 0)) {
@@ -347,8 +350,11 @@ int avb_verify(AvbSlotVerifyData** out_data)
     char *s1 = NULL;
     char *ab_suffix = NULL;
 
-    run_command("get_valid_slot;", 0);
-    s1 = getenv("active_slot");
+	s1 = getenv("active_slot");
+	if (!s1) {
+		run_command("get_valid_slot;", 0);
+		s1 = getenv("active_slot");
+	}
     if (s1 != NULL) {
         printf("active_slot is %s\n", s1);
         if (strcmp(s1, "normal") == 0) {

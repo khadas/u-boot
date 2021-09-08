@@ -177,7 +177,6 @@
             "else "\
                     "setenv bootargs ${bootargs} ${fs_type};"\
             "fi;"\
-            "get_valid_slot;"\
             "get_avb_mode;"\
             "echo active_slot: ${active_slot};"\
             "if test ${active_slot} != normal; then "\
@@ -244,7 +243,6 @@
                 "bootm ${loadaddr};fi;"\
             "\0"\
         "recovery_from_flash="\
-            "get_valid_slot;"\
             "echo active_slot: ${active_slot};"\
             "if test ${active_slot} = normal; then "\
                 "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\

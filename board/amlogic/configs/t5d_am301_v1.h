@@ -153,7 +153,6 @@
             "\0"\
         "cec_init="\
             "echo cec_ac_wakeup=${cec_ac_wakeup}; "\
-            "get_valid_slot;"\
             "if test ${cec_ac_wakeup} = 1; then "\
                 "cec ${logic_addr} ${cec_fun}; "\
                 "if test ${edid_select} = 1111; then "\
@@ -252,7 +251,6 @@
             "fi;fi;"\
             "get_system_as_root_mode;"\
             "echo system_mode: ${system_mode};"\
-            "get_valid_slot;"\
             "get_avb_mode;"\
             "echo active_slot: ${active_slot};"\
             "if test ${system_mode} = 1; then "\
@@ -322,7 +320,6 @@
                 "bootm ${loadaddr};fi;"\
             "\0"\
         "recovery_from_flash="\
-            "get_valid_slot;"\
             "echo active_slot: ${active_slot};"\
             "if test ${active_slot} = normal; then "\
                 "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
