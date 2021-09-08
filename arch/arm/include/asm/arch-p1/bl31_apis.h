@@ -186,6 +186,6 @@ void set_boot_first_timeout(uint64_t arg0);
 int bl31_get_cornerinfo(uint8_t *outbuf, int size);
 int32_t set_boot_params(const keymaster_boot_params*);
 int32_t get_avbkey_from_fip(uint8_t *buf, uint32_t buflen);
-void start_m4(unsigned int cpu_id,unsigned int bin_addr);
+void start_m4(unsigned int cpu_id,unsigned int bin_addr, uint32_t bank, uint32_t cmd);
 
 #endif
