@@ -114,6 +114,10 @@
 #define HHI_VPU_MEM_PD_REG4                        (0xff63c000 + (0x044 << 2))
 #endif
 
+#ifndef HHI_VPU_CLKB_CNTL
+#define HHI_VPU_CLKB_CNTL			   (0xff63c000 + (0x083 << 2))
+#endif
+
 #ifndef RESET0_LEVEL
 #define RESET0_LEVEL                               (0x0420)
 #endif
