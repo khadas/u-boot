@@ -64,6 +64,7 @@ int ring_msr(int index)
 			  190, 191, 192, 193, 194, 195, 196, 197};
 	unsigned long i;
 	uint8_t efuseinfo[4] = {0, 0, 0, 0};
+	int multiple = 400;
 
 	if ((index != 0xff) && (index != 0)) {
 		if (bl31_get_cornerinfo(efuseinfo, sizeof(efuseinfo) / sizeof(uint8_t)) != 0) {
@@ -106,9 +107,21 @@ int ring_msr(int index)
 
 	printf("%d KHz ", (efuseinfo[1] * 20));
 
-	for (i = 2; i <=3; i++) {
-		printf("%d uA ",  (efuseinfo[i] * 400));
+	switch (efuseinfo[0]) {
+	case 1:
+		multiple = 400;
+		break;
+	case 2:
+		multiple = 800;
+		break;
+	default:
+		multiple = 400;
 	}
+
+	for (i = 2; i <= 3; i++) {
+		printf("%d uA ",  (efuseinfo[i] * multiple));
+	}
+
 	printf("\n");
 
 	return 0;
