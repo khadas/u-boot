@@ -240,7 +240,7 @@ struct vbyone_config_s {
 #define DSI_CMD_SIZE_INDEX       1  /* byte[1] */
 #define DSI_GPIO_INDEX           2  /* byte[2] */
 
-#define DSI_INIT_ON_MAX          100
+#define DSI_INIT_ON_MAX          2600
 #define DSI_INIT_OFF_MAX         30
 
 struct dsi_config_s {
