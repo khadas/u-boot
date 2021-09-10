@@ -10,17 +10,13 @@
 #define PWR_OFF   0
 
 enum pm_e {
-	PM_DSP = 0,
-	PM_DOS_HCODEC,
-	PM_DOS_HEVC,
-	PM_DOS_VDEC,
-	PM_DOS_WAVE,
-	PM_VPU_HDMI,
-	PM_USB_COMB,
-	PM_PCIE,
-	PM_GE2D,
-	PM_ETH,
-	PM_AUDIO
+	PM_DOS_HEVC = 2,
+	PM_DOS_VDEC = 3,
+	PM_VPU_HDMI = 5,
+	PM_DEMOD = 11,
 };
 
+#define PM_MAX (PM_DEMOD + 1)
+
 unsigned long pwr_ctrl_psci_smc(enum pm_e power_domain, bool power_control);
+unsigned long pwr_ctrl_status_psci_smc(unsigned int power_domain);

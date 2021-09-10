@@ -10,6 +10,7 @@ obj-y   += gate_init.o
 obj-y   += power_cal.o
 obj-y   += power_domain.o
 obj-y   += cpu_id.o
+obj-y   += pwrc.o
 
 obj-$(CONFIG_CMD_PLLTEST)	+= pll.o
 obj-$(CONFIG_CMD_AML_MTEST) += core.o
