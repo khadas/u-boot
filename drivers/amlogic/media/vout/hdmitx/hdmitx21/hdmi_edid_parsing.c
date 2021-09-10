@@ -320,9 +320,9 @@ next:
 		t->v_blank = t->v_blank / 2;
 	}
 /*
- * call hdmi21_match_dtd_paras() to check t is matched with VIC
+ * call hdmitx21_match_dtd_paras() to check t is matched with VIC
  */
-	para = hdmi21_match_dtd_paras(t);
+	para = hdmitx21_match_dtd_paras(t);
 	if (para) {
 		t->vic = para->timing.vic;
 		prxcap->preferred_mode = prxcap->dtd[0].vic; /* Select dtd0 */
@@ -891,8 +891,8 @@ unsigned int hdmi_edid_parsing(unsigned char *edid_buf, struct rx_cap *prxcap)
 int hdmitx_edid_VIC_support(enum hdmi_vic vic)
 {
 	int i;
-	int size = get_hdmitx_timing_size();
-	const struct hdmi_timing *t = get_hdmitx_timing_para0();
+	int size = hdmitx21_timing_size();
+	const struct hdmi_timing *t = hdmitx21_get_timing_para0();
 
 	for (i = 0; i < size; i++) {
 		if (vic == t->vic)
@@ -907,8 +907,8 @@ enum hdmi_vic hdmitx_edid_vic_tab_map_vic(const char *disp_mode)
 {
 	int i;
 	enum hdmi_vic vic = HDMI_UNKNOWN;
-	int size = get_hdmitx_timing_size();
-	const struct hdmi_timing *t = get_hdmitx_timing_para0();
+	int size = hdmitx21_timing_size();
+	const struct hdmi_timing *t = hdmitx21_get_timing_para0();
 
 	for (i = 0; i < size; i++) {
 		if (t->sname && strncmp(disp_mode, t->sname, strlen(t->sname)) == 0) {
@@ -1151,7 +1151,7 @@ bool is_supported_mode_attr(struct input_hdmi_data *hdmi_data, char *mode_attr)
 	if (mode_attr[0]) {
 		if (!pre_process_str(mode_attr))
 			return false;
-		para = hdmi21_tst_fmt_name(mode_attr, mode_attr);
+		para = hdmitx21_tst_fmt_name(mode_attr, mode_attr);
 	}
 	if (para) {
 		printf("sname = %s\n", para->sname);

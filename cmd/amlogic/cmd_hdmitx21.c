@@ -192,7 +192,7 @@ static int do_rx_det(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 static void hdmitx_mask_rx_info(struct hdmitx_dev *hdev)
 {
 	if (env_get("colorattribute"))
-		hdmi21_get_fmt_name(env_get("hdmimode"), env_get("colorattribute"));
+		hdmitx21_get_fmtpara(env_get("hdmimode"), env_get("colorattribute"));
 
 	if (!hdev || !hdev->para)
 		return;
@@ -243,23 +243,21 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			 */
 			printf("edid parsing ng, forcely output 480p, rgb,8bit\n");
 			hdev->vic = HDMI_3_720x480p60_16x9;
-			hdev->para =
-				hdmi21_get_fmt_paras(hdev->vic);
+			hdev->para = hdmitx21_get_fmtpara("480p60hz", "rgb,8bit");
 			hdev->para->cs = HDMI_COLORSPACE_RGB;
 			hdev->para->cd = COLORDEPTH_24B;
 			hdmitx21_set(hdev);
 			return CMD_RET_SUCCESS;
 		}
-		hdev->para = hdmitx21_get_fmtpara(argv[1]);
+		if (!env_get("colorattribute"))
+			env_set("colorattribute", "444,8bit");
+		hdev->para = hdmitx21_get_fmtpara(argv[1], env_get("colorattribute"));
 		hdev->vic = hdev->para->timing.vic;
 		if (hdev->vic == HDMI_UNKNOWN) {
 			/* Not find VIC */
 			printf("Not find '%s' mapped VIC\n", argv[1]);
 			return CMD_RET_FAILURE;
 		}
-		if (env_get("colorattribute"))
-			hdev->para = hdmi21_tst_fmt_name(env_get("hdmimode"),
-				env_get("colorattribute"));
 		if (strstr(argv[1], "hz420"))
 			hdev->para->cs = HDMI_COLORSPACE_YUV420;
 		/* For RGB444 or YCbCr444 under 6Gbps mode, no deepcolor */
@@ -563,7 +561,7 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 		printf("update colorattribute: %s\n", env_get("colorattribute"));
 		printf("update hdmichecksum: %s\n", env_get("hdmichecksum"));
 	}
-	hdev->para = hdmitx21_get_fmtpara(env_get("outputmode"));
+	hdev->para = hdmitx21_get_fmtpara(env_get("outputmode"), env_get("colorattribute"));
 	hdev->vic = hdev->para->timing.vic;
 	hdmitx_mask_rx_info(hdev);
 	return 0;
@@ -572,7 +570,7 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 static int do_get_preferred_mode(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct hdmitx_dev *hdev = get_hdmitx21_device();
-
+	const struct hdmi_timing *tp;
 	unsigned char *edid = hdev->rawedid;
 
 	struct hdmi_format_para *para;
@@ -580,6 +578,7 @@ static int do_get_preferred_mode(cmd_tbl_t *cmdtp, int flag, int argc, char *con
 	char color_attr[64];
 	char *hdmi_read_edid;
 
+	para = hdmitx21_get_fmtpara("480p60hz", "444,8bit");
 	hdmi_read_edid = env_get("hdmi_read_edid");
 	if (hdmi_read_edid && (hdmi_read_edid[0] == '0'))
 		return 0;
@@ -591,7 +590,7 @@ static int do_get_preferred_mode(cmd_tbl_t *cmdtp, int flag, int argc, char *con
 	/* If sink is not detected there is a still a good chance it supports proper modes */
 	/* 720p is chosen as a safe compromise: supported by most sinks and looks good enough */
 	if (!hdev->hwop.get_hpd_state()) {
-		para = hdmi21_get_fmt_paras(HDMI_4_1280x720p60_16x9);
+		para = hdmitx21_get_fmtpara("720p60hz", "444,8bit");
 		snprintf(pref_mode, sizeof(pref_mode), "%s", para->sname);
 		snprintf(color_attr, sizeof(color_attr), "%s", "rgb,8bit");
 		printf("no sink, fallback to %s[%d]\n", para->sname, HDMI_4_1280x720p60_16x9);
@@ -599,8 +598,9 @@ static int do_get_preferred_mode(cmd_tbl_t *cmdtp, int flag, int argc, char *con
 	}
 
 	get_parse_edid_data(hdev);
-
-	para = hdmi21_get_fmt_paras(hdev->RXCap.preferred_mode);
+	tp = hdmitx21_gettiming_from_vic(hdev->RXCap.preferred_mode);
+	if (tp)
+		para = hdmitx21_get_fmtpara(tp->name, env_get("colorattribute"));
 
 	if (para) {
 		sprintf(pref_mode, "preferred_mode %s", para->sname);
@@ -612,7 +612,7 @@ static int do_get_preferred_mode(cmd_tbl_t *cmdtp, int flag, int argc, char *con
 			sprintf(color_attr, "setenv colorattribute %s", "rgb,8bit");
 	} else {
 		hdev->RXCap.preferred_mode = HDMI_3_720x480p60_16x9;
-		para = hdmi21_get_fmt_paras(HDMI_3_720x480p60_16x9);
+		para = hdmitx21_get_fmtpara("480p60hz", "444,8bit");
 		sprintf(pref_mode, "setenv hdmimode %s", para->sname);
 		sprintf(color_attr, "setenv colorattribute %s", "444,8bit");
 	}

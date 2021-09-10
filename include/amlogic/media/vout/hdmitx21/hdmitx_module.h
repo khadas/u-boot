@@ -45,13 +45,15 @@ struct hdmitx_dev {
 };
 
 struct hdmitx_dev *get_hdmitx21_device(void);
-struct hdmi_format_para *hdmi21_get_fmt_paras(enum hdmi_vic vic);
+const struct hdmi_timing *hdmitx21_get_timing_para0(void);
+int hdmitx21_timing_size(void);
 void hdmitx21_set_clk(struct hdmitx_dev *hdev);
-struct hdmi_timing *hdmitx21_gettiming_from_vic(enum hdmi_vic vic);
-struct hdmi_format_para *hdmitx21_get_fmtpara(char *mode);
-struct hdmi_format_para *hdmi21_get_fmt_name(char const *name, char const *attr);
-struct hdmi_format_para *hdmi21_tst_fmt_name(char const *name, char const *attr);
-struct hdmi_format_para *hdmi21_match_dtd_paras(struct dtd *t);
+const struct hdmi_timing *hdmitx21_gettiming_from_vic(enum hdmi_vic vic);
+struct hdmi_format_para *hdmitx21_get_fmtpara(const char *mode,
+	const char *attr);
+struct hdmi_format_para *hdmitx21_get_fmt_name(char const *name, char const *attr);
+struct hdmi_format_para *hdmitx21_tst_fmt_name(char const *name, char const *attr);
+struct hdmi_format_para *hdmitx21_match_dtd_paras(struct dtd *t);
 
 void hdmitx21_set(struct hdmitx_dev *hdev);
 void hdmitx21_dump_regs(void);

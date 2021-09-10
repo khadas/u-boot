@@ -16,7 +16,7 @@
 static struct hdmitx_dev hdmitx_device;
 
 static void hdmitx_set_phy(struct hdmitx_dev *hdev);
-static void hdmitx_set_scdc(struct hdmitx_dev *hdev);
+static void hdmitx_set_div40(bool div40);
 
 struct hdmitx_dev *get_hdmitx21_device(void)
 {
@@ -24,8 +24,6 @@ struct hdmitx_dev *get_hdmitx21_device(void)
 }
 
 DECLARE_GLOBAL_DATA_PTR;
-
-static void set_tmds_clk_div40(unsigned int div40);
 
 #define HSYNC_POLARITY      1   /*HSYNC polarity: active high*/
 #define VSYNC_POLARITY      1   /*VSYNC polarity: active high*/
@@ -36,14 +34,6 @@ static void set_tmds_clk_div40(unsigned int div40);
 #define TX_INPUT_COLOR_RANGE    HDMI_COLOR_RANGE_LIM
 /*Pixel range: 0=limited; 1=full.*/
 #define TX_OUTPUT_COLOR_RANGE   HDMI_COLOR_RANGE_LIM
-
-static void hdelay(int us)
-{
-	udelay(us * 1000);
-}
-
-#define mdelay(i)   hdelay(i)
-#define msleep(i)   hdelay(i)
 
 static void hdmitx_set_hw(struct hdmitx_dev *hdev);
 static int hdmitx_set_audmode(struct hdmitx_dev *hdev);
@@ -206,8 +196,7 @@ static void hdmitx21_test_bist(unsigned int mode)
 	case 1:
 	case 2:
 	case 3:
-		if (hdev->para)
-			value = hdev->para->timing.h_active;
+		value = hdev->para->timing.h_active;
 		hd21_write_reg(VENC_VIDEO_TST_CLRBAR_WIDTH, value / 8);
 		hd21_set_reg_bits(ENCP_VIDEO_MODE_ADV, 0, 3, 1);
 		hd21_write_reg(VENC_VIDEO_TST_EN, 1);
@@ -224,11 +213,6 @@ static void hdmitx21_test_bist(unsigned int mode)
 static void hdmitx21_output_blank(unsigned int blank)
 {
 	// TODO
-}
-
-void hdmitx_set_div40(bool div40)
-{
-	set_tmds_clk_div40(div40);
 }
 
 static void hdmitx_load_dts_config(struct hdmitx_dev *hdev)
@@ -720,8 +704,6 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	data32 |= (1920 << 0);  // [13: 0] cntl_hdcp22_min_size_h
 	hdmitx21_wr_reg(HDMITX_TOP_HDCP22_MIN_SIZE, data32);
 
-	if (0)
-		hdmitx_set_scdc(hdev);
 	hdmitx21_set_clk(hdev);
 	hdmitx_set_hw(hdev);
 	if (para->timing.pi_mode == 0 &&
@@ -798,6 +780,68 @@ static int hdmitx_set_audmode(struct hdmitx_dev *hdev)
 	return 0;
 }
 
+static void hdmitx_set_scdc_div40(bool div40)
+{
+	u32 addr = 0x20;
+	u32 data;
+
+	if (div40)
+		data = 0x3;
+	else
+		data = 0;
+
+	hdmitx21_wr_reg(DDC_ADDR_IVCTX, 0xa8); //SCDC slave addr
+	hdmitx21_wr_reg(DDC_OFFSET_IVCTX, addr & 0xff); //SCDC slave offset
+	hdmitx21_wr_reg(DDC_DATA_AON_IVCTX, data & 0xff); //SCDC slave offset data to ddc fifo
+	hdmitx21_wr_reg(DDC_DIN_CNT1_IVCTX, 0x01); //data length lo
+	hdmitx21_wr_reg(DDC_DIN_CNT2_IVCTX, 0x00); //data length hi
+	hdmitx21_wr_reg(DDC_CMD_IVCTX, 0x06); //DDC Write CMD
+	hdmitx21_poll_reg(DDC_STATUS_IVCTX, 1 << 4, ~(1 << 4), HZ / 100); //i2c process
+	hdmitx21_poll_reg(DDC_STATUS_IVCTX, 0 << 4, ~(1 << 4), HZ / 100); //i2c done
+}
+
+static void set_top_div40(bool div40)
+{
+	u32 data32;
+
+	pr_info("div40: %d\n", div40);
+	// Enable normal output to PHY
+	if (div40) {
+		data32 = 0;
+		data32 |= (0 << 16); // [25:16] tmds_clk_pttn[19:10]
+		data32 |= (0 << 0);  // [ 9: 0] tmds_clk_pttn[ 9: 0]
+		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_01, data32);
+
+		data32 = 0;
+		data32 |= (0x3ff << 16); // [25:16] tmds_clk_pttn[39:30]
+		data32 |= (0x3ff << 0);  // [ 9: 0] tmds_clk_pttn[29:20]
+		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_23, data32);
+	} else {
+		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_01, 0x001f001f);
+		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_23, 0x001f001f);
+	}
+	hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_CNTL, 0x1);
+	// [14:12] tmds_sel: 0=output 0; 1=output normal data;
+	//                   2=output PRBS; 4=output shift pattn
+	// [11: 8] shift_pttn
+	// [ 4: 0] prbs_pttn
+	data32 = 0;
+	data32 |= (1 << 12);
+	data32 |= (0 << 8);
+	data32 |= (0 << 0);
+	hdmitx21_wr_reg(HDMITX_TOP_BIST_CNTL, data32);
+
+	if (div40)
+		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_CNTL, 0x2);
+}
+
+static void hdmitx_set_div40(bool div40)
+{
+	hdmitx_set_scdc_div40(div40);
+	set_top_div40(div40);
+	hdmitx21_wr_reg(SCRCTL_IVCTX, (1 << 5) | !!div40);
+}
+
 #define NUM_INT_VSYNC   INT_VEC_VIU1_VSYNC
 
 /*Pixel bit width: 4=24-bit; 5=30-bit; 6=36-bit; 7=48-bit.
@@ -822,7 +866,6 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	u32 active_pixels = 1920; // Number of active pixels per line
 	u32 active_lines = 1080; // Number of active lines per field
 	u8 scrambler_en = 0;
-	u8 tmds_clk_div4 = 0;
 	u32 aud_n = 6144; // ACR N
 	// 0=I2S 2-channel; 1=I2S 4 x 2-channel; 2=channel 0/1, 4/5 valid.
 	// 2=audio sample packet; 7=one bit audio; 8=DST audio packet; 9=HBR audio packet.
@@ -840,51 +883,21 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	if (para->timing.pixel_freq > 340000) {
 		para->scrambler_en = 1;
 		para->tmds_clk_div40 = 1;
+	} else {
+		para->scrambler_en = 0;
+		para->tmds_clk_div40 = 0;
 	}
 	color_depth = para->cd;
 	output_color_format = para->cs;
 	active_pixels = para->timing.h_active;
 	active_lines = para->timing.v_active;
 	scrambler_en = para->scrambler_en;
-	tmds_clk_div4 = para->tmds_clk_div40;
 	dp_color_depth = (output_color_format == HDMI_COLORSPACE_YUV422) ?
 				COLORDEPTH_24B : color_depth;
 
 	pr_info("configure hdmitx21\n");
-	hdmitx_set_div40(tmds_clk_div4);
-	// Enable normal output to PHY
-
-	if (tmds_clk_div4) {
-		data32 = 0;
-		data32 |= (0 << 16); // [25:16] tmds_clk_pttn[19:10]
-		data32 |= (0 << 0);  // [ 9: 0] tmds_clk_pttn[ 9: 0]
-		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_01, data32);
-
-		data32 = 0;
-		data32 |= (0x3ff << 16); // [25:16] tmds_clk_pttn[39:30]
-		data32 |= (0x3ff << 0);  // [ 9: 0] tmds_clk_pttn[29:20]
-		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_23, data32);
-	} else {
-		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_01, 0x001f001f);
-		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_23, 0x001f001f);
-	}
-	hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_CNTL, 0x1);
 	hdmitx21_wr_reg(HDMITX_TOP_SW_RESET, 0);
-	// [14:12] tmds_sel: 0=output 0; 1=output normal data; 2=output PRBS; 4=output shift pattn
-	// [11: 8] shift_pttn
-	// [ 4: 0] prbs_pttn
-	data32 = 0;
-	data32 |= (1 << 12);
-	data32 |= (0 << 8);
-	data32 |= (0 << 0);
-	hdmitx21_wr_reg(HDMITX_TOP_BIST_CNTL, data32);
-
-	if (tmds_clk_div4) {
-		data32 = 0;
-		data32 |= (1 << 1); // [    1] shift_tmds_clk_pttn
-		data32 |= (0 << 0); // [ 0] load_tmds_clk_pttn
-		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_CNTL, data32);
-	}
+	hdmitx_set_div40(para->tmds_clk_div40);
 
 	//--------------------------------------------------------------------------
 	// Glitch-filter HPD and RxSense
@@ -1133,22 +1146,9 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	data32 |= (active_lines << 16); // [30:16] cntl_vactive
 	data32 |= (active_pixels << 0);  // [14: 0] cntl_hactive
 	hdmitx21_wr_reg(HDMITX_TOP_HV_ACTIVE, data32);
+	hdmitx21_set_reg_bits(PWD_SRST_IVCTX, 3, 1, 2);
+	hdmitx21_set_reg_bits(PWD_SRST_IVCTX, 0, 1, 2);
 } /* config_hdmi21_tx */
-
-static void set_tmds_clk_div40(unsigned int div40)
-{
-	pr_info("div40: %d\n", div40);
-	if (div40) {
-		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_01, 0);
-		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_23, 0x03ff03ff);
-	} else {
-		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_01, 0x001f001f);
-		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_23, 0x001f001f);
-	}
-	hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_CNTL, 0x1);
-	msleep(20);
-	hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_CNTL, 0x2);
-}
 
 static void hdmitx_set_packet(int type, unsigned char *DB, unsigned char *HB)
 {
@@ -1541,33 +1541,8 @@ static void hdmitx_set_phy(struct hdmitx_dev *hdev)
 	debug("hdmitx phy setting done\n");
 }
 
-static void scdc21_config(struct hdmitx_dev *hdev)
-{
-	/* TMDS 1/40 & Scramble */
-	//scdc21_wr_sink(TMDS_CFG, hdev->para->tmds_clk_div40 ? 0x3 : 0);
-}
-
-static void hdmitx_set_scdc(struct hdmitx_dev *hdev)
-{
-	switch (hdev->para->timing.vic) {
-	default:
-		hdev->para->tmds_clk_div40 = 0;
-		break;
-	}
-	set_tmds_clk_div40(hdev->para->tmds_clk_div40);
-	scdc21_config(hdev);
-}
-
 static void hdmitx_set_hw(struct hdmitx_dev *hdev)
 {
-	struct hdmi_format_para *para = NULL;
-
-	para = hdmi21_get_fmt_paras(hdev->vic);
-	if (!para) {
-		printf("cannot get hdmi paras %s[%d]\n", __func__, __LINE__);
-		return;
-	}
-
 	/* --------------------------------------------------------*/
 	/* Set up HDMI*/
 	/* --------------------------------------------------------*/
