@@ -29,15 +29,16 @@
 #define GROUP_MAX       8
 #define GROUP_END       -1
 struct hw_enc_clk_val_group {
-    enum hdmi_vic group[GROUP_MAX];
-    unsigned hpll_clk_out;
-    unsigned od1;
-    unsigned od2;
-    unsigned od3;
-    unsigned vid_pll_div;
-    unsigned vid_clk_div;
-    unsigned hdmi_tx_pixel_div;
-    unsigned encp_div;
-    unsigned enci_div;
+	enum hdmi_vic group[GROUP_MAX];
+	u32 hpll_clk_out; /* Unit: kHz */
+	u32 od1;
+	u32 od2; /* HDMI_CLK_TODIG */
+	u32 od3;
+	u32 vid_pll_div;
+	u32 vid_clk_div;
+	u32 enc_div;
+	u32 fe_div;
+	u32 pnx_div;
+	u32 pixel_div;
 };
 #endif
