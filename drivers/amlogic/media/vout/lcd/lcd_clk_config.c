@@ -1810,7 +1810,7 @@ static void lcd_set_tcon_clk_t3(struct aml_lcd_drv_s *pdrv)
 	struct lcd_config_s *pconf = &pdrv->config;
 	unsigned int val;
 
-	if (pconf->basic.lcd_type != LCD_MLVDS ||
+	if (pconf->basic.lcd_type != LCD_MLVDS &&
 	    pconf->basic.lcd_type != LCD_P2P)
 		return;
 
