@@ -639,8 +639,8 @@ u32 meson_tuning_transfer(struct udevice *dev, u32 opcode)
 	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
 	struct meson_host *host = dev_get_priv(dev);
 	struct mmc *mmc = &pdata->mmc;
-	u32 tuning_err = 0, start_blk = CALI_PATTERN_ADDR;
-	int cmd_err = 0, n, nmatch;
+	u32 start_blk = CALI_PATTERN_ADDR;
+	int cmd_err = 0, n, nmatch, tuning_err = 0;
 
 	for (n = 0, nmatch = 0; n < TUNING_NUM_PER_POINT; n++) {
 		if ((opcode == MMC_CMD_SEND_TUNING_BLOCK_HS200)
@@ -656,6 +656,8 @@ u32 meson_tuning_transfer(struct udevice *dev, u32 opcode)
 		} else {
 			pr_debug("Tuning transfer error: nmatch=%d tuning_err:0x%x\n",
 					nmatch, tuning_err);
+			if (tuning_err != -EIO)
+				mmc_abort_tuning(mmc, opcode);
 			break;
 		}
 	}
