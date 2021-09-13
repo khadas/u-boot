@@ -500,6 +500,11 @@ config S4_AQ229
 	help
 		Select S4 AQ229(XXXX) config
 
+config S4_AP229_S905C3ENG
+	bool "S4_AP229_S905C3ENG"
+	select TARGET_S4_AP229_S905C3ENG
+	help
+		Select S4 AP229 S905C3ENG(XXXX) config
 
 config S4_T211
 	bool "S4_T211"
@@ -556,6 +561,9 @@ config TARGET_S4_AP201
 config TARGET_S4_AP232
 	bool "S4 AP232 board"
 	depends on S4_AP232
+
+config TARGET_S4_AP229_S905C3ENG
+	bool "S4 AP229 S905C3ENG board"
 
 endif
 
@@ -1053,6 +1061,8 @@ source "board/amlogic/s4_t211/Kconfig"
 source "board/amlogic/s4_ap201/Kconfig"
 
 source "board/amlogic/s4_ap232/Kconfig"
+
+source "board/amlogic/s4_ap229_s905c3eng/Kconfig"
 
 source "board/amlogic/sc2_skt/Kconfig"
 
