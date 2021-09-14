@@ -206,7 +206,7 @@ static int do_image_read_dtb_from_knl(const char *partname,
 	}
 
 	if (is_android_r_image((void *)hdr_addr)) {
-		const int preloadsz_r = 0x1000;
+		const int preloadsz_r = preloadsz;
 		int rc_r = 0;
 		char *slot_name;
 
@@ -280,6 +280,7 @@ static int do_image_read_dtb_from_knl(const char *partname,
 	}
 
 	if (securekernelimgsz) {
+		debugP("secure kernel sz 0x%x\n", securekernelimgsz);
 		wrsz  = securekernelimgsz - preloadsz;
 		wroff = lflashreadinitoff + preloadsz;
 		wraddr = (unsigned char *)loadaddr + preloadsz;
@@ -378,6 +379,10 @@ static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
     } else {
         iRet = do_image_read_dtb_from_knl(partName, loadaddr, lflashReadOff);
     }
+	if (iRet) {
+		errorP("Fail read dtb from %s, ret %d\n", partName, iRet);
+		return CMD_RET_FAILURE;
+	}
 
     unsigned long fdtAddr = (unsigned long)loadaddr;
 #ifdef CONFIG_MULTI_DTB
@@ -601,7 +606,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 		int ret_r = __LINE__;
 		u64 lflashreadoff_r = 0;
 		unsigned int nflashloadlen_r = 0;
-		const int preloadsz_r = 0x1000;
+		const int preloadsz_r = 0x1000 * 2;//4k not enough for signed
 		unsigned char *pbuffpreload = 0;
 		int rc_r = 0;
 		char *slot_name;
@@ -665,9 +670,9 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 		rc_r = vendor_boot_image_check_header(pvendorimghdr);
 		if (!rc_r) {
 			//Check if encrypted image
-			rc_r = _aml_get_secure_boot_kernel_size(loadaddr, &securekernelimgsz);
+			rc_r = _aml_get_secure_boot_kernel_size(pbuffpreload, &securekernelimgsz);
 			if (rc_r) {
-				errorP("Fail in _aml_get_secure_boot_kernel_size, rc=%d\n", rc);
+				errorP("Fail in _aml_get_secure_boot_kernel_size, rc=%d\n", rc_r);
 				free(pbuffpreload);
 				pbuffpreload = 0;
 				return __LINE__;
@@ -684,9 +689,9 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 					pagesz_r);
 				dtb_size_r      = ALIGN(pvendorimghdr->dtb_size, pagesz_r);
 				nflashloadlen_r = ramdisk_size_r + dtb_size_r + 0x1000;
-				debugP("ramdisk_size_r 0x%x, totalSz 0x%x\n",
+				debugP("ramdisk_size_r 0x%x, totalSz 0x%lx\n",
 					pvendorimghdr->vendor_ramdisk_size, ramdisk_size_r);
-				debugP("dtb_size_r 0x%x, totalSz 0x%x\n",
+				debugP("dtb_size_r 0x%x, totalSz 0x%lx\n",
 					pvendorimghdr->dtb_size, dtb_size_r);
 			}
 
@@ -734,6 +739,26 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 
 			debugP("totalSz=0x%x\n", nflashloadlen_r);
 			flush_cache((unsigned long)pbuffpreload, nflashloadlen_r);
+#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
+			if (IS_FEAT_BOOT_VERIFY()) {
+#ifndef CONFIG_IMAGE_CHECK
+				rc_r = aml_sec_boot_check(AML_D_P_IMG_DECRYPT,
+						(unsigned long)pbuffpreload,
+						GXB_IMG_SIZE, GXB_IMG_DEC_DTB);
+#else
+				rc_r = secure_image_check(pbuffpreload, GXB_IMG_SIZE,
+						GXB_IMG_DEC_DTB);
+				/*pbuffpreload += android_image_check_offset();*/
+				memmove(pbuffpreload, pbuffpreload + android_image_check_offset(),
+						nflashloadlen_r - android_image_check_offset());
+#endif
+				if (rc_r) {
+					errorP("\n[vendor_boot]aml log : Sig Check is %d\n", rc_r);
+					return __LINE__;
+				}
+				MsgP("vendor_boot decrypt at 0x%p\n", pbuffpreload);
+			}
+#endif//#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
 
 			p_vender_boot_img = (p_vendor_boot_img_t)pbuffpreload;
 		} else {
