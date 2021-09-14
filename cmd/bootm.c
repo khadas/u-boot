@@ -190,6 +190,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		img_addr = genimg_get_kernel_addr(argc < 1 ? NULL : argv[0]);
 		ncheckoffset = android_image_check_offset();
 		img_addr += ncheckoffset;
+		env_set_hex("loadaddr", img_addr);//android_image_get_ramdisk_v3 need env loadaddr
 		snprintf(argv0_new, sizeof(argv0_new), "%lx", img_addr);
 		argc = 1;
 		argv = (char **)&argv_new;
