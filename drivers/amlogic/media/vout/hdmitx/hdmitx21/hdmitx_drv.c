@@ -511,6 +511,7 @@ static void hdmi_set_vend_spec_infofram(struct hdmitx_dev *hdev,
 	ven_hb[0] = 0x81;
 	ven_hb[1] = 0x01;
 	ven_hb[2] = 0x5;
+	memset(db, 0, sizeof(db));
 
 	if (videocode == 0) {      /* For non-4kx2k mode setting */
 		hdmi_vend_infoframe_set(NULL);
