@@ -121,6 +121,33 @@
 #define BOOTENV_EFI_SET_FDTFILE_FALLBACK
 #endif
 
+#ifdef CONFIG_OF_LIBFDT_OVERLAY
+#define BOOTENV_EFI_FDT_OVERLAYS                                          \
+		"env exists fdtoverlay_addr_r && "                        \
+		"fdt_ovl_dir=$fdt_file.overlays && "                      \
+		"fdt_ovl_env=$fdt_file.overlay.env && "                   \
+		"fdt addr ${fdt_addr_r} && "                              \
+		"echo EFI fdt overlay scan: $fdt_src $fdt_ovl_env && "    \
+		"test -e $fdt_src $fdt_ovl_env && "                       \
+		"mw ${loadaddr} 0 fff && "                                \
+		"load $fdt_src ${loadaddr} $fdt_ovl_env && "              \
+		"setenv fdt_overlays \"\" && "                            \
+		"fdt_overlays_vars=\"fdt_overlays fdt_overlays_dir\" && " \
+		"setenv fdt_overlays_dir $fdt_ovl_dir && "                \
+		"env import -t ${loadaddr} fff $fdt_overlays_vars && "    \
+		"env exists fdt_overlays && "                             \
+		"echo EFI fdt overlays: ${fdt_overlays} && "              \
+		"fdt resize 65536 && "                                    \
+		"for o in ${fdt_overlays}; do "                           \
+		"fdt_ovl=${fdt_overlays_dir}/$o.dtbo; "                   \
+		"test -e $fdt_src $fdt_ovl && "                           \
+		"load $fdt_src ${fdtoverlay_addr_r} $fdt_ovl && "         \
+		"fdt apply ${fdtoverlay_addr_r} && "                      \
+		"echo EFI fdt overlay: $fdt_ovl was applied; "            \
+		"done"
+#else
+#define BOOTENV_EFI_FDT_OVERLAYS
+#endif
 
 #define BOOTENV_SHARED_EFI                                                \
 	"boot_efi_binary="                                                \
@@ -138,8 +165,12 @@
 		"fi\0"                                                    \
 	\
 	"load_efi_dtb="                                                   \
-		"load ${devtype} ${devnum}:${distro_bootpart} "           \
-			"${fdt_addr_r} ${prefix}${efi_fdtfile}\0"         \
+		"fdt_src=\"${devtype} ${devnum}:${distro_bootpart}\"; "   \
+		"fdt_file=${prefix}${efi_fdtfile}; "                      \
+		"load $fdt_src ${fdt_addr_r} $fdt_file "                  \
+		"&& echo EFI fdt: $fdt_file && "                          \
+		BOOTENV_EFI_FDT_OVERLAYS                                  \
+		"\0"                                                      \
 	\
 	"efi_dtb_prefixes=/ /dtb/ /dtb/current/\0"                        \
 	"scan_dev_for_efi="                                               \
