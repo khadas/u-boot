@@ -330,6 +330,7 @@ static int initr_manual_reloc_cmdtable(void)
 #ifdef CONFIG_AML_STORAGE
 static int initr_storage(void)
 {
+	run_command("gpio set GPIOB_12", 0);
 	store_init(0);
 	return 0;
 }
