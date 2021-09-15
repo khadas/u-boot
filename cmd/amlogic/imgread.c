@@ -765,7 +765,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 			free(pbuffpreload);
 			pbuffpreload = 0;
 		}
-	} /*ANDROID R*/
+	} /*ANDROID R/S*/
     return 0;
 }
 

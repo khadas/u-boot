@@ -82,8 +82,9 @@ static int save_dtbo_idx(const char *cmdline)
 
 int is_android_r_image(void *img_addr)
 {
+	/* check android version for R/S/etc */
 	p_boot_img_hdr_v3_t pHDR = (p_boot_img_hdr_v3_t)(img_addr);
-	return (ANDROID_R_IMG_VER == pHDR->header_version);
+	return ((pHDR->header_version >= 3) ? 1 : 0);
 }
 
 static ulong android_image_get_kernel_addr(const  boot_img_hdr_t *hdr)

@@ -37,6 +37,13 @@
 #define VENDOR_BOOT_ARGS_SIZE     (2048)
 #define VENDOR_BOOT_NAME_SIZE     (16)
 
+#define VENDOR_RAMDISK_TYPE_NONE	0
+#define VENDOR_RAMDISK_TYPE_PLATFORM	1
+#define VENDOR_RAMDISK_TYPE_RECOVERY	2
+#define VENDOR_RAMDISK_TYPE_DLKM	3
+#define VENDOR_RAMDISK_NAME_SIZE	32
+#define VENDOR_RAMDISK_TABLE_ENTRY_BOARD_ID_SIZE	16
+
 /* Before android R boot.img header structure */
 typedef struct {
 	char magic[BOOT_MAGIC_SIZE]; /*"ANDROID!"*/
@@ -117,6 +124,8 @@ typedef struct {
 
 
 #define ANDROID_R_IMG_VER  (3)
+#define ANDROID_S_IMG_VER  (4)
+
 /* Android R boot.img and vendor_boot.img structure */
 typedef struct {
 	char 	magic[ANDR_BOOT_MAGIC_SIZE]; /*"ANDROID!"*/
@@ -193,7 +202,7 @@ typedef struct {
  *    jump to kernel_addr
  */
 
-typedef struct {
+struct vendor_boot_img_hdr {
 	char     magic[VENDOR_BOOT_MAGIC_SIZE];  /*"VNDRBOOT"*/
 
 	uint32_t header_version;   				 /*Version of the vendor boot image header*/
@@ -213,9 +222,29 @@ typedef struct {
 
 	uint32_t dtb_size; 						 /* size in bytes for DTB image */
 	uint64_t dtb_addr;						 /* physical load address for DTB image */
-	unsigned char szReserved[VENDOR_BOOT_IMG_HDR_SIZE - 2112];       /*align to 4KB header,2112 is size before this*/
-}vendor_boot_img_hdr_t, * p_vendor_boot_img_hdr_t;
+	/* new for v4 */
+	u32 vendor_ramdisk_table_size;/* size in bytes for the vendor ramdisk table */
+	u32 vendor_ramdisk_table_entry_num;/* number of entries in the vendor ramdisk table */
+	u32 vendor_ramdisk_table_entry_size;
+	u32 vendor_bootconfig_size;/* size in bytes for bootconfig image */
+	unsigned char szReserved[VENDOR_BOOT_IMG_HDR_SIZE - 2128];
+};
 
+typedef struct vendor_boot_img_hdr vendor_boot_img_hdr_t;
+typedef struct vendor_boot_img_hdr *p_vendor_boot_img_hdr_t;
+
+struct vendor_ramdisk_table_entry_v4 {
+	u32 ramdisk_size;	/* size in bytes for the ramdisk image */
+	u32 ramdisk_offset;	/* offset to the ramdisk image in vendor ramdisk section */
+	u32 ramdisk_type;	/* type of the ramdisk */
+	u8 ramdisk_name[VENDOR_RAMDISK_NAME_SIZE];	/* asciiz ramdisk name */
+	// Hardware identifiers describing the board, soc or platform which this
+	// ramdisk is intended to be loaded on.
+	u32 board_id[VENDOR_RAMDISK_TABLE_ENTRY_BOARD_ID_SIZE];
+};
+
+typedef struct vendor_ramdisk_table_entry_v4 vendor_ramdisk_table_entry_v4_t;
+typedef struct vendor_ramdisk_table_entry_v4 *p_vendor_ramdisk_table_entry_v4_t;
 
 /*compile check*/
 BUILD_ASSERT((sizeof(vendor_boot_img_hdr_t) == VENDOR_BOOT_IMG_HDR_SIZE));
