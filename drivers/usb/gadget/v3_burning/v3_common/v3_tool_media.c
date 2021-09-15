@@ -434,6 +434,7 @@ int v3tool_storage_init(const int eraseFlash, unsigned int dtbImgSz, unsigned in
 
     if (sheader_need()) sheader_load((void*)V3_PAYLOAD_LOAD_ADDR);
 
+	run_command("gpio set GPIOB_12", 0);
 	ret = store_init(1);
 	if (ret <= 0)
 		FBS_EXIT(_ACK, "Fail in store init %d, ret %d\n", 1, ret);
