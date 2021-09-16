@@ -223,9 +223,9 @@
 
 #if 1
 #define CONFIG_PREBOOT  \
-            "run bcb_cmd; "\
-            "run upgrade_check;"\
-            "run storeargs;"\
+	"run bcb_cmd; "\
+	"run upgrade_check;"\
+	"run storeargs;"
 #else
 #define CONFIG_PREBOOT  "echo preboot"
 #endif
