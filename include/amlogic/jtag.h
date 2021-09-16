@@ -31,6 +31,8 @@
 #define	SOCBRG			9 /* SOC Bridge */
 #define	DEMOD			10/* demod */
 #define	SECPU			11/* secpu */
+#define	MOPA			12
+#define	MOPB			13
 
 /*
  * bitmap for jtag select ID:
