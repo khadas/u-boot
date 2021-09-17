@@ -468,7 +468,7 @@ static void construct_avi_packet(struct hdmitx_dev *hdev)
 
 	hdmi_avi_infoframe_init(info);
 
-	info->colorspace = HDMI_COLORSPACE_YUV444; /* TODO */
+	info->colorspace = para->cs;
 	info->scan_mode = HDMI_SCAN_MODE_NONE;
 	info->colorimetry = HDMI_COLORIMETRY_ITU_709;
 	info->picture_aspect = HDMI_PICTURE_ASPECT_16_9;
@@ -681,11 +681,11 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		 (para->timing.h_pol << 2) |
 		 (para->timing.v_pol << 3) |
 		 (0 << 4) |
-		 (((TX_INPUT_COLOR_FORMAT == HDMI_COLORSPACE_YUV420) ? 4 : 0) << 5) |
+		 (((para->cs == HDMI_COLORSPACE_YUV420) ? 4 : 0) << 5) |
 		 (0 << 8) |
 		 (0 << 12) |
 		 (((TX_INPUT_COLOR_FORMAT == HDMI_COLORSPACE_RGB) ? 0 : 3) << 16) |
-		 (0 << 20) |
+		 (((para->cs == HDMI_COLORSPACE_YUV420) ? 1 : 0) << 20) |
 		 (0 << 24);
 	hd21_write_reg(VPU_HDMI_SETTING, data32);
 	// [    1] src_sel_encp: Enable ENCI or ENCP output to HDMI
@@ -863,11 +863,8 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	struct hdmi_format_para *para = hdev->para;
 	u8 color_depth = COLORDEPTH_24B; // Pixel bit width: 4=24-bit; 5=30-bit; 6=36-bit; 7=48-bit.
 	// Pixel format: 0=RGB444; 1=YCbCr422; 2=YCbCr444; 3=YCbCr420.
-	u8 input_color_format = HDMI_COLORSPACE_YUV444;
-	u8 input_color_range = COLORRANGE_LIM; // Pixel range: 0=limited; 1=full.
 	// Pixel format: 0=RGB444; 1=YCbCr422; 2=YCbCr444; 3=YCbCr420.
 	u8 output_color_format = HDMI_COLORSPACE_YUV444;
-	u8 output_color_range = COLORRANGE_LIM; // Pixel range: 0=limited; 1=full.
 	u8 vic = 16; // Video format identification code
 	u32 active_pixels = 1920; // Number of active pixels per line
 	u32 active_lines = 1080; // Number of active lines per field
@@ -878,7 +875,6 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	u8 audio_packet_type = 2;
 	u32 data32;
 	u8 data8;
-	u8 csc_en;
 	u8 dp_color_depth = 0;
 
 	vic = para->timing.vic;
@@ -886,7 +882,7 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 		audio_packet_type = 2;
 	else
 		audio_packet_type = 9;
-	if (para->timing.pixel_freq > 340000) {
+	if (para->tmds_clk > 340000) {
 		para->scrambler_en = 1;
 		para->tmds_clk_div40 = 1;
 	} else {
@@ -924,6 +920,8 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	//-------------
 	// HDMI case
 	hdmitx21_set_reg_bits(TPI_SC_IVCTX, 1, 0, 1);
+	hdmi_drm_infoframe_set(NULL);
+	hdmi_vend_infoframe_set(NULL);
 
 	data8 = 0;
 	data8 |= (dp_color_depth & 0x03); // [1:0]color depth. 00:8bpp;01:10bpp;10:12bpp;11:16bpp
@@ -949,16 +947,15 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	//---------------
 	//config vp core
 	//---------------
-	csc_en = (input_color_format != output_color_format ||
-		  input_color_range  != output_color_range) ? 1 : 0;
-	if (csc_en) {
-		//some common register are configuration here TODO why config this value ??
-		hdmitx21_wr_reg(VP_CMS_CSC0_MULTI_CSC_CONFIG_IVCTX, 0x00);
+	//some common register are configuration here TODO why config this value
+	hdmitx21_wr_reg(VP_CMS_CSC0_MULTI_CSC_CONFIG_IVCTX, 0x00);
+	hdmitx21_wr_reg((VP_CMS_CSC0_MULTI_CSC_CONFIG_IVCTX + 1), 0x08);
+	hdmitx21_wr_reg(VP_CMS_CSC1_MULTI_CSC_CONFIG_IVCTX, 0x00);
+	hdmitx21_wr_reg((VP_CMS_CSC1_MULTI_CSC_CONFIG_IVCTX + 1), 0x08);
+	if (output_color_format == HDMI_COLORSPACE_RGB) {
+		hdmitx21_wr_reg(VP_CMS_CSC0_MULTI_CSC_CONFIG_IVCTX, 0x65);
 		hdmitx21_wr_reg((VP_CMS_CSC0_MULTI_CSC_CONFIG_IVCTX + 1), 0x08);
-		hdmitx21_wr_reg(VP_CMS_CSC1_MULTI_CSC_CONFIG_IVCTX, 0x00);
-		hdmitx21_wr_reg((VP_CMS_CSC1_MULTI_CSC_CONFIG_IVCTX + 1), 0x08);
 	}
-
 	// [5:4] disable_lsbs_cr / [3:2] disable_lsbs_cb / [1:0] disable_lsbs_y
 	// 0=12bit; 1=10bit(disable 2-LSB), 2=8bit(disable 4-LSB), 3=6bit(disable 6-LSB)
 	data8 = 0;
@@ -967,11 +964,7 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	data8 |= ((6 - color_depth) << 0);
 	hdmitx21_wr_reg(VP_INPUT_MASK_IVCTX, data8);
 
-	//444 to 422
-	if (input_color_format == HDMI_COLORSPACE_YUV444 &&
-	    output_color_format == HDMI_COLORSPACE_YUV422) {
-		hdmitx21_wr_reg(VP_CMS_CSC1_C444_C422_CONFIG_IVCTX, 0x01); //444-422
-	}
+	hdmitx21_wr_reg(VP_CMS_CSC1_C444_C422_CONFIG_IVCTX, 0x00);
 
 	// Output 422
 	if (output_color_format == HDMI_COLORSPACE_YUV422) {
@@ -1037,14 +1030,6 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 		hdmitx21_wr_reg(VP_OUTPUT_MASK_IVCTX, data8);
 	}
 
-	//444 to 420
-	if (input_color_format == HDMI_COLORSPACE_YUV444 &&
-	    output_color_format == HDMI_COLORSPACE_YUV420) {
-		hdmitx21_wr_reg(VP_CMS_CSC1_C444_C422_CONFIG_IVCTX, 0x01);  //444-422
-		hdmitx21_wr_reg(VP_CMS_CSC1_C422_C420_CONFIG_IVCTX, 0x01); //422-420
-		hdmitx21_wr_reg(VP_OUTPUT_FORMAT_IVCTX, 0x00);
-		hdmitx21_wr_reg((VP_OUTPUT_FORMAT_IVCTX + 1), 0x04); //luma demux
-	}
 	//---------------
 	// config I2S
 	//---------------
@@ -1102,36 +1087,6 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	//---------------
 	// config Packet
 	//---------------
-	//==== General Control PACKET
-	hdmitx21_wr_reg(TPI_INFO_FSEL_IVCTX, 0x06);            //GEN1
-	hdmitx21_wr_reg(TPI_INFO_B4_IVCTX, 0x00);              //byte1 [0] set_AVMUTE
-	//byte2 [3:0] CD3~CD1=5, 30bits per pixel
-	hdmitx21_wr_reg(TPI_INFO_B5_IVCTX, dp_color_depth & 0xff);
-	hdmitx21_wr_reg(TPI_INFO_B6_IVCTX, 0x00);              //byte3
-	hdmitx21_wr_reg(TPI_INFO_B7_IVCTX, 0x00);              //byte4
-	hdmitx21_wr_reg(TPI_INFO_EN_IVCTX, 0xff);         //TPI Info enable
-
-	//======audio infoFrame packet============
-	//---aif config en----
-	hdmitx21_wr_reg(TPI_INFO_FSEL_IVCTX, 0x02); //audio infoframe packet config sel
-	//------header--------
-	hdmitx21_wr_reg(TPI_INFO_B0_IVCTX, 0x84); //header -- HB0 pkt type
-	hdmitx21_wr_reg(TPI_INFO_B1_IVCTX, 0x01); //header -- HB1 version
-	hdmitx21_wr_reg(TPI_INFO_B2_IVCTX, 0x0a); //header -- HB2 length
-	//---subpackets------
-	hdmitx21_wr_reg(TPI_INFO_B3_IVCTX, 0x3D); //content -- PB0 checksum
-
-	data32 = 0;
-	data32 |= 0x01;
-	//content -- PB1 CT,CC.coding type,channel num
-	hdmitx21_wr_reg(TPI_INFO_B4_IVCTX, data32 & 0xff);
-	hdmitx21_wr_reg(TPI_INFO_B5_IVCTX, 0x00); //content -- PB2 SS,SF TODO
-	hdmitx21_wr_reg(TPI_INFO_B6_IVCTX, 0x00); //content -- PB3 fromat TODO
-	hdmitx21_wr_reg(TPI_INFO_B7_IVCTX, 0x2d); //content -- PB4 CA
-	hdmitx21_wr_reg(TPI_INFO_B8_IVCTX, 0x00); //content -- PB5 LFEP TODO
-	//--aif inforFrame pkt en---
-	hdmitx21_wr_reg(TPI_INFO_EN_IVCTX, 0xbf); //packet Info enable [6]:tpi_info_repeat
-
 	hdmitx21_wr_reg(VTEM_CTRL_IVCTX, 0x04); //[2] reg_vtem_ctrl
 
 	//drm,emp pacekt

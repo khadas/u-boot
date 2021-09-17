@@ -12,5 +12,6 @@ const struct hdmi_timing *get_hdmitx_timing_para0(void);
 int get_hdmitx_timing_size(void);
 
 void set_vmode_enc_hw(enum hdmi_vic vic);
+void dump_infoframe_packets(void);
 
 #endif

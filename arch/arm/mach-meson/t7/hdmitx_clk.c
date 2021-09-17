@@ -808,7 +808,7 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_36[] = {
 	  HDMI_97_3840x2160p60_16x9,
 	  HDMI_96_3840x2160p50_16x9,
 	  HDMI_VIC_END},
-		4455000, 1, 1, 2, VID_PLL_DIV_3p25, 1, 2, 1, 1, 1},
+		4455000, 1, 1, 2, VID_PLL_DIV_7p5, 1, 1, 1, 1, 1},
 };
 
 static void hdmitx21_set_clk_(struct hdmitx_dev *hdev)
@@ -820,6 +820,7 @@ static void hdmitx21_set_clk_(struct hdmitx_dev *hdev)
 	enum hdmi_colorspace cs = hdev->para->cs;
 	enum hdmi_color_depth cd = hdev->para->cd;
 	char *sspll_dis = NULL;
+	struct hw_enc_clk_val_group tmp_clk = {0};
 
 	/* YUV 422 always use 24B mode */
 	if (cs == HDMI_COLORSPACE_YUV422)
@@ -874,20 +875,29 @@ static void hdmitx21_set_clk_(struct hdmitx_dev *hdev)
 		return;
 	}
 next:
-	set_hpll_clk_out(p_enc[j].hpll_clk_out);
+	memcpy(&tmp_clk, &p_enc[j], sizeof(struct hw_enc_clk_val_group));
+	if (cs == HDMI_COLORSPACE_YUV420) {
+		/* adjust the sub-clock under Y420 */
+		if (cd == COLORDEPTH_24B)
+			tmp_clk.od1 = 2;
+		tmp_clk.od3 = 1;
+		tmp_clk.pnx_div = 2;
+		tmp_clk.pixel_div = 2;
+	}
+	set_hpll_clk_out(tmp_clk.hpll_clk_out);
 	sspll_dis = env_get("sspll_dis");
 	if ((!sspll_dis || !strcmp(sspll_dis, "0")) &&
 		(cd == COLORDEPTH_24B))
 		set_hpll_sspll(vic);
-	set_hpll_od1(p_enc[j].od1);
-	set_hpll_od2(p_enc[j].od2);
-	set_hpll_od3(p_enc[j].od3);
-	clocks_set_vid_clk_div_for_hdmi(p_enc[j].vid_pll_div);
-	set_vid_clk_div(hdev, p_enc[j].vid_clk_div);
-	set_hdmitx_enc_div(hdev, p_enc[j].enc_div);
-	set_hdmitx_fe_div(hdev, p_enc[j].fe_div);
-	set_hdmitx_pnx_div(hdev, p_enc[j].pnx_div);
-	set_hdmitx_pixel_div(hdev, p_enc[j].pixel_div);
+	set_hpll_od1(tmp_clk.od1);
+	set_hpll_od2(tmp_clk.od2);
+	set_hpll_od3(tmp_clk.od3);
+	clocks_set_vid_clk_div_for_hdmi(tmp_clk.vid_pll_div);
+	set_vid_clk_div(hdev, tmp_clk.vid_clk_div);
+	set_hdmitx_enc_div(hdev, tmp_clk.enc_div);
+	set_hdmitx_fe_div(hdev, tmp_clk.fe_div);
+	set_hdmitx_pnx_div(hdev, tmp_clk.pnx_div);
+	set_hdmitx_pixel_div(hdev, tmp_clk.pixel_div);
 	hdmitx_enable_encp_clk(hdev);
 
 	//configure crt_video V1: in_sel=vid_pll_clk(0),div_n=xd)
