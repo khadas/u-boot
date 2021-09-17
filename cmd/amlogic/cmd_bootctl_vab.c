@@ -262,7 +262,7 @@ void boot_info_reset(bootloader_control* boot_ctrl)
     memcpy(boot_ctrl->slot_suffix, "_a", 2);
     boot_ctrl->magic = BOOT_CTRL_MAGIC;
     boot_ctrl->version = BOOT_CTRL_VERSION;
-    boot_ctrl->nb_slot = 1;
+	boot_ctrl->nb_slot = 2;
 
     for (slot = 0; slot < 4; ++slot) {
         slot_metadata entry = {};
@@ -328,6 +328,31 @@ int get_active_slot_normalAB(AvbABData* info) {
         return 1;
 }
 
+static uint32_t vab_crc32(const uint8_t *buf, size_t size)
+{
+	static uint32_t crc_table[256];
+	uint32_t ret = -1;
+
+	// Compute the CRC-32 table only once.
+	if (!crc_table[1]) {
+		for (uint32_t i = 0; i < 256; ++i) {
+			uint32_t crc = i;
+
+			for (uint32_t j = 0; j < 8; ++j) {
+				uint32_t mask = -(crc & 1);
+
+				crc = (crc >> 1) ^ (0xEDB88320 & mask);
+			}
+			crc_table[i] = crc;
+		}
+	}
+
+	for (size_t i = 0; i < size; ++i)
+		ret = (ret >> 8) ^ crc_table[(ret ^ buf[i]) & 0xFF];
+
+	return ~ret;
+}
+
 int boot_info_set_active_slot(bootloader_control* bootctrl, int slot)
 {
     int i;
@@ -391,13 +416,63 @@ bool boot_info_save(bootloader_control *info, char *miscbuf)
 {
     char *partition = "misc";
     printf("save boot-info \n");
-    info->crc32_le = avb_htobe32(
-      avb_crc32((const uint8_t*)info, sizeof(bootloader_control) - sizeof(uint32_t)));
+	info->crc32_le = vab_crc32((const uint8_t *)info,
+		sizeof(bootloader_control) - sizeof(uint32_t));
 
     memcpy(miscbuf+AB_METADATA_MISC_PARTITION_OFFSET, info, sizeof(bootloader_control));
     dump_boot_info(info);
     store_write((const char *)partition, 0, MISCBUF_SIZE, (unsigned char *)miscbuf);
     return true;
+}
+
+int is_BootSame(int srcindex, int dstindex)
+{
+	int iRet = 0;
+	int ret = -1;
+	unsigned char *buffer_src = NULL;
+	unsigned char *buffer_dest = NULL;
+
+	buffer_src = (unsigned char *)malloc(0x2000 * 512);
+	if (!buffer_src) {
+		printf("ERROR! fail to allocate memory ...\n");
+		goto exit;
+	}
+	memset(buffer_src, 0, 0x2000 * 512);
+
+	buffer_dest = (unsigned char *)malloc(0x2000 * 512);
+	if (!buffer_dest) {
+		printf("ERROR! fail to allocate memory ...\n");
+		goto exit;
+	}
+	memset(buffer_dest, 0, 0x2000 * 512);
+
+	printf("check boot%d is same as boot%d\n", srcindex, dstindex);
+	iRet = store_boot_read("bootloader", srcindex, 0, buffer_src);
+	if (iRet) {
+		printf("Fail read bootloader %d\n", srcindex);
+		goto exit;
+	}
+	iRet = store_boot_read("bootloader", dstindex, 0, buffer_dest);
+	if (iRet) {
+		printf("Fail read bootloader %d\n", dstindex);
+		goto exit;
+	}
+
+	if (memcmp(buffer_src, buffer_dest, 0x2000 * 512) == 0) {
+		printf("bootloader %d & %d is same\n", srcindex, dstindex);
+		ret = 0;
+	}
+
+exit:
+	if (buffer_src) {
+		free(buffer_src);
+		buffer_src = NULL;
+	}
+	if (buffer_dest) {
+		free(buffer_dest);
+		buffer_dest = NULL;
+	}
+	return ret;
 }
 
 int write_bootloader(int copy, int dstindex) {
@@ -627,6 +702,7 @@ static int do_SetUpdateTries(
     bootloader_control boot_ctrl;
     bool bootable_a, bootable_b;
     int slot;
+	int ret = -1;
 
     boot_info_open_partition(miscbuf);
     boot_info_load(&boot_ctrl, miscbuf);
@@ -656,6 +732,15 @@ static int do_SetUpdateTries(
     }
 
     boot_info_save(&boot_ctrl, miscbuf);
+
+	if (boot_ctrl.slot_info[slot].successful_boot == 1 && gpt_partition) {
+		printf("current slot %d is successful_boot\n", slot);
+		ret = is_BootSame(1, 2);
+		if (ret) {
+			printf("boot0 doesn't = boot1, write boot0 to boot1\n");
+			write_bootloader(1, 2);
+		}
+	}
     return 0;
 }
 

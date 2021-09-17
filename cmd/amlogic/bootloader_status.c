@@ -417,11 +417,28 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 					ret = aml_gpt_valid(mmc);
 #endif
 				if (ret == 0) {
-					wrnP("gpt mode\n");
-					env_set("reboot_status","reboot_finish");
-					run_command("saveenv", 0);
-					run_command("get_rebootmode", 0);
-					run_command("if test ${reboot_mode} = quiescent; then reboot next,quiescent; else reboot next; fi;", 0);
+					wrnP("gpt mode, write boot1 to boot0\n");
+					write_bootloader_back("2", 1);
+#ifdef CONFIG_FASTBOOT
+					struct misc_virtual_ab_message message;
+
+					set_mergestatus_cancel(&message);
+#endif
+					char *slot;
+
+					slot = env_get("slot-suffixes");
+					if (!slot) {
+						run_command("get_valid_slot", 0);
+						slot = env_get("slot-suffixes");
+					}
+					if (strcmp(slot, "0") == 0) {
+						wrnP("back to slot b\n");
+						run_command("set_active_slot b", 0);
+					} else if (strcmp(slot, "1") == 0) {
+						wrnP("back to slot a\n");
+						run_command("set_active_slot a", 0);
+					}
+					env_set("expect_index", "1");
 				} else {
 					write_bootloader_back(bootloaderindex, 0);
 #ifdef CONFIG_FASTBOOT
@@ -435,13 +452,13 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 						wrnP("back to slot b\n");
 						run_command("set_active_slot b", 0);
 					}
-
-					env_set("update_env","1");
-					env_set("reboot_status","reboot_next");
-					env_set("expect_index","0");
-					run_command("saveenv", 0);
-					run_command("reset", 0);
+					env_set("expect_index", "0");
 				}
+
+				env_set("update_env", "1");
+				env_set("reboot_status", "reboot_next");
+				run_command("saveenv", 0);
+				run_command("reset", 0);
 			} else {
 				env_set("reboot_status","reboot_finish");
 				run_command("saveenv", 0);
