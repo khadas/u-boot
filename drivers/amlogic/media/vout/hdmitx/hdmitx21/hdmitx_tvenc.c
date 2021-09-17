@@ -331,17 +331,6 @@ static void hdmi_tvenc1080i_set(enum hdmi_vic vic)
 		hd21_write_reg(ENCP_DVI_VSO_BEGIN_ODD, vso_begin_odd);
 		hd21_write_reg(ENCP_DVI_VSO_END_ODD, vso_begin_odd);
 	}
-
-	hd21_write_reg(VPU_HDMI_SETTING, (0 << 0) |
-		(0 << 1) |
-		(tp->h_pol << 2) |
-		(tp->v_pol << 3) |
-		(0 << 4) |
-		(4 << 5) |
-		(0 << 8) |
-		(0 << 12)
-	);
-	hd21_set_reg_bits(VPU_HDMI_SETTING, 1, 1, 1);
 }
 
 void set_tv_encp_new(u32 enc_index, enum hdmi_vic vic, u32 enable)
