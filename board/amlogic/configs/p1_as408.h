@@ -419,6 +419,9 @@
 //use startdsp command
 #define CONFIG_CMD_STARTDSP
 
+//use dache command
+#define CONFIG_CMD_CACHE
+
 /* define CONFIG_UPDATE_MMU_TABLE for need update mmu */
 #define	CONFIG_UPDATE_MMU_TABLE
 

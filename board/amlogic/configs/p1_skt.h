@@ -414,6 +414,9 @@
 //use startdsp command
 #define CONFIG_CMD_STARTDSP
 
+//use dache command
+#define CONFIG_CMD_CACHE
+
 // M4 clock has been added
 #define CONFIG_CLK_P1_TYPE
 
