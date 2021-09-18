@@ -36,6 +36,7 @@
 #include <linux/mtd/partitions.h>
 #include <asm/arch/bl31_apis.h>
 #include <amlogic/aml_mtd.h>
+#include <asm/arch/stick_mem.h>
 
 #ifdef CONFIG_AML_VPU
 #include <amlogic/media/vpu/vpu.h>
@@ -132,6 +133,7 @@ int board_init(void)
 {
 	printf("board init\n");
 
+	get_stick_reboot_flag();
 	/* The non-secure watchdog is enabled in BL2 TEE, disable it */
 	run_command("watchdog off", 0);
 	printf("watchdog disable\n");

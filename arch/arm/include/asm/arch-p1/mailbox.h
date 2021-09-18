@@ -62,6 +62,7 @@
          /*SYSTEM*/
 #define CMD_UNDEFINE            0x0
 #define CMD_TEST		0x6
+#define CMD_GET_STICK_REBOOT_FLAG	0x40
 #define CMD_LED_INFO            0xF7
 
 /*******************************************************************************
