@@ -43,6 +43,12 @@ extern int store_write_ops(
 #define LP_METADATA_MINOR_VERSION_MIN 0
 #define LP_METADATA_MINOR_VERSION_MAX 2
 
+/* Metadata version needed to use the UPDATED partition attribute. */
+#define LP_METADATA_VERSION_FOR_UPDATED_ATTR 1
+
+/* Metadata version needed for the new expanded header struct. */
+#define LP_METADATA_VERSION_FOR_EXPANDED_HEADER 2
+
 /* Attributes for the LpMetadataPartition::attributes field.
  *
  * READONLY - The partition should not be considered writable. When used with
@@ -60,8 +66,24 @@ extern int store_write_ops(
  */
 #define LP_PARTITION_ATTR_SLOT_SUFFIXED (1 << 1)
 
-/* Mask that defines all valid attributes. */
-#define LP_PARTITION_ATTRIBUTE_MASK (LP_PARTITION_ATTR_READONLY | LP_PARTITION_ATTR_SLOT_SUFFIXED)
+/* This flag is applied automatically when using MetadataBuilder::NewForUpdate.
+ * It signals that the partition was created (or modified) for a snapshot-based
+ * update. If this flag is not present, the partition was likely flashed via
+ * fastboot.
+ */
+#define LP_PARTITION_ATTR_UPDATED (1 << 2)
+
+/* This flag marks a partition as disabled. It should not be used or mapped. */
+#define LP_PARTITION_ATTR_DISABLED (1 << 3)
+
+/* Mask that defines all valid attributes. When changing this, make sure to
+ * update ParseMetadata().
+ */
+#define LP_PARTITION_ATTRIBUTE_MASK_V0 \
+	(LP_PARTITION_ATTR_READONLY | LP_PARTITION_ATTR_SLOT_SUFFIXED)
+#define LP_PARTITION_ATTRIBUTE_MASK_V1 (LP_PARTITION_ATTR_UPDATED | LP_PARTITION_ATTR_DISABLED)
+#define LP_PARTITION_ATTRIBUTE_MASK \
+	(LP_PARTITION_ATTRIBUTE_MASK_V0 | LP_PARTITION_ATTRIBUTE_MASK_V1)
 
 /* Default name of the physical partition that holds logical partition entries.
  * The layout of this partition will look like:
@@ -198,7 +220,26 @@ typedef struct LpMetadataHeader {
     LpMetadataTableDescriptor groups;
     /* 116: Block device table. */
     LpMetadataTableDescriptor block_devices;
+
+    /* Everything past here is header version 1.2+, and is only included if
+     * needed. When liblp supporting >= 1.2 reads a < 1.2 header, it must
+     * zero these additional fields.
+     */
+
+    /* 128: See LP_HEADER_FLAG_ constants for possible values. Header flags are
+     * independent of the version number and intended to be informational only.
+     * New flags can be added without bumping the version.
+     */
+	uint32_t flags;
+
+    /* 132: Reserved (zero), pad to 256 bytes. */
+	uint8_t reserved[124];
 } __attribute__((packed)) LpMetadataHeader;
+
+/* This device uses Virtual A/B. Note that on retrofit devices, the expanded
+ * header may not be present.
+ */
+#define LP_HEADER_FLAG_VIRTUAL_AB_DEVICE 0x1
 
 /* This struct defines a logical partition entry, similar to what would be
  * present in a GUID Partition Table.
@@ -337,6 +378,24 @@ typedef struct LpMetadataBlockDevice {
  */
 #define LP_BLOCK_DEVICE_SLOT_SUFFIXED (1 << 0)
 
+/* For ease of writing compatibility checks, the original metadata header is
+ * preserved below, and typedefs are provided for the current version.
+ */
+typedef struct LpMetadataHeaderV1_0 {
+	uint32_t magic;
+	uint16_t major_version;
+	uint16_t minor_version;
+	uint32_t header_size;
+	uint8_t header_checksum[32];
+	uint32_t tables_size;
+	uint8_t tables_checksum[32];
+	LpMetadataTableDescriptor partitions;
+	LpMetadataTableDescriptor extents;
+	LpMetadataTableDescriptor groups;
+	LpMetadataTableDescriptor block_devices;
+} __attribute__((packed)) LpMetadataHeaderV1_0;
+
+typedef LpMetadataHeader LpMetadataHeaderV1_2;
 
 typedef struct PartitionList
 {
@@ -501,18 +560,23 @@ int ReadMetadataHeader(char *superbuf, LpMetadataHeader* header,
         return -1;
     }
 
-    index = GetPrimaryMetadataOffset(geometry, slot_number) + sizeof(LpMetadataHeader);
-#ifdef CONFIG_CMD_BOOTCTOL_VAB
-    if (has_boot_slot == 1) {
-        index = index + 128;
-    }
-#endif
+	if (header->minor_version == 0)
+		index = GetPrimaryMetadataOffset(geometry, slot_number)
+				+ sizeof(LpMetadataHeaderV1_0);
+	else
+		index = GetPrimaryMetadataOffset(geometry, slot_number)
+				+ sizeof(LpMetadataHeader);
 
     memcpy(buffer, superbuf + index, header->tables_size);
     cursor = index + header->partitions.offset;
 
     //printf("index: %d\n", index);
     //printf("cursor: %d\n", cursor);
+
+	uint32_t valid_attributes = LP_PARTITION_ATTRIBUTE_MASK_V0;
+
+	if (header->minor_version >= LP_METADATA_VERSION_FOR_UPDATED_ATTR)
+		valid_attributes |= LP_PARTITION_ATTRIBUTE_MASK_V1;
 
     // ValidateTableSize ensured that |cursor| is valid for the number of
     // entries in the table.
@@ -521,14 +585,14 @@ int ReadMetadataHeader(char *superbuf, LpMetadataHeader* header,
         memcpy(&partition, superbuf + cursor, sizeof(partition));
         cursor += header->partitions.entry_size;
 
-        //printf("partition name : %s\n", partition.name);
+		printf("partition name : %s\n", partition.name);
 
-        if (partition.attributes & ~LP_PARTITION_ATTRIBUTE_MASK) {
-            printf("Logical partition has invalid attribute set.\n");
-            if (buffer)
-                free (buffer);
-            return -1;
-        }
+		if (partition.attributes & ~valid_attributes) {
+			printf("Logical partition has invalid attribute set.\n");
+			if (buffer)
+				free(buffer);
+			return -1;
+		}
         if (partition.first_extent_index + partition.num_extents < partition.first_extent_index) {
             printf("Logical partition first_extent_index + num_extents overflowed.\n");
             if (buffer)
