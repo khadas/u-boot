@@ -263,7 +263,7 @@ static void amhdmitx_infoframe_init(struct hdmitx_dev *hdev)
 	int ret = 0;
 
 	ret = hdmi_vendor_infoframe_init(&hdev->infoframes.vend.vendor.hdmi);
-	if (!ret)
+	if (ret)
 		pr_info("%s[%d] init vendor infoframe failed %d\n", __func__, __LINE__, ret);
 	hdmi_avi_infoframe_init(&hdev->infoframes.avi.avi);
 	// TODO, panic
@@ -1130,9 +1130,9 @@ static int hdmitx_cntl_config(struct hdmitx_dev *hdev, unsigned int cmd,
 #define GET_HIGH8BIT(a)	(((a) >> 8) & 0xff)
 void hdmitx_set_drm_pkt(struct master_display_info_s *data)
 {
-	struct hdmitx_dev *hdev = &hdmitx_device;
-	unsigned char DRM_HB[3] = {0x87, 0x1, 26};
-	unsigned char DRM_DB[26] = {0x0};
+	unsigned char drm_hb[3] = {0x87, 0x1, 26};
+	unsigned char db[28] = {0x0};
+	unsigned char *drm_db = &db[1];
 	unsigned int hdr_transfer_feature = 0;
 	unsigned int hdr_color_feature = 0;
 	unsigned int hdr_mode = 0;
@@ -1148,31 +1148,31 @@ void hdmitx_set_drm_pkt(struct master_display_info_s *data)
 
 	hdr_transfer_feature = (data->features >> 8) & 0xff;
 	hdr_color_feature = (data->features >> 16) & 0xff;
-	DRM_DB[1] = 0x0;
-	DRM_DB[2] = GET_LOW8BIT(data->primaries[0][0]);
-	DRM_DB[3] = GET_HIGH8BIT(data->primaries[0][0]);
-	DRM_DB[4] = GET_LOW8BIT(data->primaries[0][1]);
-	DRM_DB[5] = GET_HIGH8BIT(data->primaries[0][1]);
-	DRM_DB[6] = GET_LOW8BIT(data->primaries[1][0]);
-	DRM_DB[7] = GET_HIGH8BIT(data->primaries[1][0]);
-	DRM_DB[8] = GET_LOW8BIT(data->primaries[1][1]);
-	DRM_DB[9] = GET_HIGH8BIT(data->primaries[1][1]);
-	DRM_DB[10] = GET_LOW8BIT(data->primaries[2][0]);
-	DRM_DB[11] = GET_HIGH8BIT(data->primaries[2][0]);
-	DRM_DB[12] = GET_LOW8BIT(data->primaries[2][1]);
-	DRM_DB[13] = GET_HIGH8BIT(data->primaries[2][1]);
-	DRM_DB[14] = GET_LOW8BIT(data->white_point[0]);
-	DRM_DB[15] = GET_HIGH8BIT(data->white_point[0]);
-	DRM_DB[16] = GET_LOW8BIT(data->white_point[1]);
-	DRM_DB[17] = GET_HIGH8BIT(data->white_point[1]);
-	DRM_DB[18] = GET_LOW8BIT(data->luminance[0]);
-	DRM_DB[19] = GET_HIGH8BIT(data->luminance[0]);
-	DRM_DB[20] = GET_LOW8BIT(data->luminance[1]);
-	DRM_DB[21] = GET_HIGH8BIT(data->luminance[1]);
-	DRM_DB[22] = GET_LOW8BIT(data->max_content);
-	DRM_DB[23] = GET_HIGH8BIT(data->max_content);
-	DRM_DB[24] = GET_LOW8BIT(data->max_frame_average);
-	DRM_DB[25] = GET_HIGH8BIT(data->max_frame_average);
+	drm_db[1] = 0x0;
+	drm_db[2] = GET_LOW8BIT(data->primaries[0][0]);
+	drm_db[3] = GET_HIGH8BIT(data->primaries[0][0]);
+	drm_db[4] = GET_LOW8BIT(data->primaries[0][1]);
+	drm_db[5] = GET_HIGH8BIT(data->primaries[0][1]);
+	drm_db[6] = GET_LOW8BIT(data->primaries[1][0]);
+	drm_db[7] = GET_HIGH8BIT(data->primaries[1][0]);
+	drm_db[8] = GET_LOW8BIT(data->primaries[1][1]);
+	drm_db[9] = GET_HIGH8BIT(data->primaries[1][1]);
+	drm_db[10] = GET_LOW8BIT(data->primaries[2][0]);
+	drm_db[11] = GET_HIGH8BIT(data->primaries[2][0]);
+	drm_db[12] = GET_LOW8BIT(data->primaries[2][1]);
+	drm_db[13] = GET_HIGH8BIT(data->primaries[2][1]);
+	drm_db[14] = GET_LOW8BIT(data->white_point[0]);
+	drm_db[15] = GET_HIGH8BIT(data->white_point[0]);
+	drm_db[16] = GET_LOW8BIT(data->white_point[1]);
+	drm_db[17] = GET_HIGH8BIT(data->white_point[1]);
+	drm_db[18] = GET_LOW8BIT(data->luminance[0]);
+	drm_db[19] = GET_HIGH8BIT(data->luminance[0]);
+	drm_db[20] = GET_LOW8BIT(data->luminance[1]);
+	drm_db[21] = GET_HIGH8BIT(data->luminance[1]);
+	drm_db[22] = GET_LOW8BIT(data->max_content);
+	drm_db[23] = GET_HIGH8BIT(data->max_content);
+	drm_db[24] = GET_LOW8BIT(data->max_frame_average);
+	drm_db[25] = GET_HIGH8BIT(data->max_frame_average);
 
 	/* SMPTE ST 2084 and (BT2020 or NON_STANDARD) */
 	if (hdr_transfer_feature == T_SMPTE_ST_2084 &&
@@ -1191,27 +1191,27 @@ void hdmitx_set_drm_pkt(struct master_display_info_s *data)
 	switch (hdr_mode) {
 	case 1:
 		/*standard HDR*/
-		DRM_DB[0] = 0x02; /* SMPTE ST 2084 */
-		hdmitx_set_packet(HDMI_PACKET_DRM, DRM_DB, DRM_HB);
-		hdmitx_cntl_config(hdev, CONF_AVI_BT2020, SET_AVI_BT2020);
+		drm_db[0] = 0x02; /* SMPTE ST 2084 */
+		hdmi_drm_infoframe_rawset(drm_hb, db);
+		hdmi_avi_infoframe_config(CONF_AVI_BT2020, SET_AVI_BT2020);
 		break;
 	case 2:
 		/*non standard*/
-		DRM_DB[0] = 0x02; /* no standard SMPTE ST 2084 */
-		hdmitx_set_packet(HDMI_PACKET_DRM, DRM_DB, DRM_HB);
-		hdmitx_cntl_config(hdev, CONF_AVI_BT2020, CLR_AVI_BT2020);
+		drm_db[0] = 0x02; /* no standard SMPTE ST 2084 */
+		hdmi_drm_infoframe_rawset(drm_hb, db);
+		hdmi_avi_infoframe_config(CONF_AVI_BT2020, CLR_AVI_BT2020);
 		break;
 	case 3:
 		/*HLG*/
-		DRM_DB[0] = 0x03;/* HLG is 0x03 */
-		hdmitx_set_packet(HDMI_PACKET_DRM, DRM_DB, DRM_HB);
-		hdmitx_cntl_config(hdev, CONF_AVI_BT2020, SET_AVI_BT2020);
+		drm_db[0] = 0x03;/* HLG is 0x03 */
+		hdmi_drm_infoframe_rawset(drm_hb, db);
+		hdmi_avi_infoframe_config(CONF_AVI_BT2020, SET_AVI_BT2020);
 		break;
 	case 0:
 	default:
 		/*other case*/
-		hdmitx_set_packet(HDMI_PACKET_DRM, NULL, NULL);
-		hdmitx_cntl_config(hdev, CONF_AVI_BT2020, CLR_AVI_BT2020);
+		hdmi_drm_infoframe_rawset(NULL, NULL);
+		hdmi_avi_infoframe_config(CONF_AVI_BT2020, CLR_AVI_BT2020);
 		break;
 	}
 }
