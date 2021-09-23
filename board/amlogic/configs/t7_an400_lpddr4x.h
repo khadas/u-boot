@@ -251,7 +251,7 @@
             "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;"\
             "osd open;osd clear;run load_bmp_logo;"\
             "bmp scale;"\
-            "vout output ${outputmode};"\
+            "vout output ${outputmode};vpp hdrpkt;"\
             /* logo2 */ \
             "setenv display_layer viu2_osd0;"\
             "vout2 prepare ${outputmode2};" \

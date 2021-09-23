@@ -467,7 +467,7 @@ static int YUV709l_to_RGB709_coeff12[MATRIX_5x3_COEF_SIZE] = {
 	((a) & 0x3ff) : ((~(a) + 1) & 0x3ff)) * 10000 / 1024)
 
 #define INORM	50000
-#ifdef CONFIG_AML_HDMITX20
+#ifdef CONFIG_AML_HDMITX
 static u32 bt2020_primaries[3][2] = {
 	{0.17 * INORM + 0.5, 0.797 * INORM + 0.5},	/* G */
 	{0.131 * INORM + 0.5, 0.046 * INORM + 0.5},	/* B */
@@ -1602,7 +1602,7 @@ static void vpp_ofifo_init(void)
 	vpp_reg_write(VPP_HOLD_LINES, data32);
 }
 
-#ifdef CONFIG_AML_HDMITX20
+#ifdef CONFIG_AML_HDMITX
 static void amvecm_cp_hdr_info(struct master_display_info_s *hdr_data)
 {
 	int i, j;
@@ -1638,7 +1638,7 @@ static void amvecm_cp_hdr_info(struct master_display_info_s *hdr_data)
 void hdr_tx_pkt_cb(void)
 {
 	int hdr_policy = 0;
-#ifdef CONFIG_AML_HDMITX20
+#ifdef CONFIG_AML_HDMITX
 	struct master_display_info_s hdr_data;
 	struct hdr_info *hdrinfo = NULL;
 #endif
@@ -1648,7 +1648,7 @@ void hdr_tx_pkt_cb(void)
 		return;
 
 	hdr_policy = simple_strtoul(hdr_policy_env, NULL, 10);
-#ifdef CONFIG_AML_HDMITX20
+#ifdef CONFIG_AML_HDMITX
 	hdrinfo = hdmitx_get_rx_hdr_info();
 
 	if ((hdrinfo && hdrinfo->hdr_sup_eotf_smpte_st_2084) &&
@@ -1662,7 +1662,7 @@ void hdr_tx_pkt_cb(void)
 #endif
 
 	VPP_PR("hdr_policy = %d\n", hdr_policy);
-#ifdef CONFIG_AML_HDMITX20
+#ifdef CONFIG_AML_HDMITX
 	if (hdrinfo)
 		VPP_PR("Rx hdr_info.hdr_sup_eotf_smpte_st_2084 = %d\n",
 		       hdrinfo->hdr_sup_eotf_smpte_st_2084);
