@@ -379,22 +379,6 @@ int mmc_set_blocklen(struct mmc *mmc, int len)
 	return err;
 }
 
-int mmc_abort_tuning(struct mmc *mmc, u32 opcode)
-{
-	struct mmc_cmd cmd;
-	int err;
-
-	if (opcode != MMC_CMD_SEND_TUNING_BLOCK_HS200)
-		return 0;
-
-	cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
-	cmd.resp_type = MMC_RSP_R1;
-
-	err = mmc_send_cmd(mmc, &cmd, NULL);
-
-	return err;
-}
-
 #ifdef MMC_SUPPORTS_TUNING
 static const u8 tuning_blk_pattern_4bit[] = {
 	0xff, 0x0f, 0xff, 0x00, 0xff, 0xcc, 0xc3, 0xcc,

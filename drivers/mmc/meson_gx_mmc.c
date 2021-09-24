@@ -654,10 +654,15 @@ u32 meson_tuning_transfer(struct udevice *dev, u32 opcode)
 		if (!tuning_err) {
 			nmatch++;
 		} else {
-			pr_debug("Tuning transfer error: nmatch=%d tuning_err:0x%x\n",
+			pr_debug("Tuning transfer error: nmatch=%d tuning_err:%d\n",
 					nmatch, tuning_err);
-			if (tuning_err != -EIO)
-				mmc_abort_tuning(mmc, opcode);
+			/* After the cmd21 command fails,
+			 * it takes a certain time for the emmc status to
+			 * switch from data back to transfer. Currently,
+			 * only this model has this problem. THGBMJG6C1LBAIL
+			 * by adding ndelay(20000) to resolve
+			 */
+			ndelay(20000);
 			break;
 		}
 	}

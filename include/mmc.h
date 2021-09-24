@@ -730,7 +730,6 @@ int mmc_unbind(struct udevice *dev);
 int mmc_initialize(bd_t *bis);
 int mmc_init(struct mmc *mmc);
 int mmc_send_tuning(struct mmc *mmc, u32 opcode, int *cmd_error);
-int mmc_abort_tuning(struct mmc *mmc, u32 opcode);
 
 /**
  * mmc_of_parse() - Parse the device tree to get the capabilities of the host
