@@ -557,6 +557,7 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	aml_audio_init();  /* Init audio hw firstly */
 	hdmitx_set_audmode(hdev);
 	hdmitx21_venc_en(0, 0);
+	hd21_set_reg_bits(VPU_HDMI_SETTING, 0, (enc_sel == 0) ? 0 : 1, 1);
 	if (enc_sel == 0)
 		enable_crt_video_encp(1, 0);
 	else
@@ -639,6 +640,41 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		(0 << 12);
 	hd21_write_reg(VPU_HDMI_DITH_CNTL, data32);
 
+	_hdmitx21_set_clk();
+
+	// Set this timer very small on purpose, to test the new function
+	hdmitx21_wr_reg(HDMITX_TOP_I2C_BUSY_CNT_MAX,  30);
+
+	data32 = 0;
+	data32 |= (1 << 31); // [   31] cntl_hdcp14_min_size_v_en
+	data32 |= (240 << 16); // [28:16] cntl_hdcp14_min_size_v
+	data32 |= (1 << 15); // [   15] cntl_hdcp14_min_size_h_en
+	data32 |= (640 << 0);  // [13: 0] cntl_hdcp14_min_size_h
+	hdmitx21_wr_reg(HDMITX_TOP_HDCP14_MIN_SIZE, data32);
+
+	data32 = 0;
+	data32 |= (1 << 31); // [   31] cntl_hdcp22_min_size_v_en
+	data32 |= (1080 << 16); // [28:16] cntl_hdcp22_min_size_v
+	data32 |= (1 << 15); // [   15] cntl_hdcp22_min_size_h_en
+	data32 |= (1920 << 0);  // [13: 0] cntl_hdcp22_min_size_h
+	hdmitx21_wr_reg(HDMITX_TOP_HDCP22_MIN_SIZE, data32);
+
+	hdmitx21_set_clk(hdev);
+	hdmitx_set_hw(hdev);
+	if (para->timing.pi_mode == 0 &&
+	    (para->timing.v_active == 480 || para->timing.v_active == 576))
+		hdmitx21_venc_en(1, 0);
+	else
+		hdmitx21_venc_en(1, 1);
+	construct_avi_packet(hdev);
+
+	videocode = para->timing.vic;
+	if (videocode == HDMI_95_3840x2160p30_16x9 ||
+		videocode == HDMI_94_3840x2160p25_16x9 ||
+		videocode == HDMI_93_3840x2160p24_16x9 ||
+		videocode == HDMI_98_4096x2160p24_256x135)
+		hdmi_set_vend_spec_infofram(hdev, videocode);
+
 	// [    0] src_sel_enci
 	// [    1] src_sel_encp
 	// [    2] inv_hsync. 1=Invert Hsync polarity.
@@ -690,41 +726,6 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	hd21_write_reg(VPU_HDMI_SETTING, data32);
 	// [    1] src_sel_encp: Enable ENCI or ENCP output to HDMI
 	hd21_set_reg_bits(VPU_HDMI_SETTING, 1, (enc_sel == 0) ? 0 : 1, 1);
-
-	_hdmitx21_set_clk();
-
-	// Set this timer very small on purpose, to test the new function
-	hdmitx21_wr_reg(HDMITX_TOP_I2C_BUSY_CNT_MAX,  30);
-
-	data32 = 0;
-	data32 |= (1 << 31); // [   31] cntl_hdcp14_min_size_v_en
-	data32 |= (240 << 16); // [28:16] cntl_hdcp14_min_size_v
-	data32 |= (1 << 15); // [   15] cntl_hdcp14_min_size_h_en
-	data32 |= (640 << 0);  // [13: 0] cntl_hdcp14_min_size_h
-	hdmitx21_wr_reg(HDMITX_TOP_HDCP14_MIN_SIZE, data32);
-
-	data32 = 0;
-	data32 |= (1 << 31); // [   31] cntl_hdcp22_min_size_v_en
-	data32 |= (1080 << 16); // [28:16] cntl_hdcp22_min_size_v
-	data32 |= (1 << 15); // [   15] cntl_hdcp22_min_size_h_en
-	data32 |= (1920 << 0);  // [13: 0] cntl_hdcp22_min_size_h
-	hdmitx21_wr_reg(HDMITX_TOP_HDCP22_MIN_SIZE, data32);
-
-	hdmitx21_set_clk(hdev);
-	hdmitx_set_hw(hdev);
-	if (para->timing.pi_mode == 0 &&
-	    (para->timing.v_active == 480 || para->timing.v_active == 576))
-		hdmitx21_venc_en(1, 0);
-	else
-		hdmitx21_venc_en(1, 1);
-	construct_avi_packet(hdev);
-
-	videocode = para->timing.vic;
-	if (videocode == HDMI_95_3840x2160p30_16x9 ||
-		videocode == HDMI_94_3840x2160p25_16x9 ||
-		videocode == HDMI_93_3840x2160p24_16x9 ||
-		videocode == HDMI_98_4096x2160p24_256x135)
-		hdmi_set_vend_spec_infofram(hdev, videocode);
 
 	hdmitx_set_phy(hdev);
 
