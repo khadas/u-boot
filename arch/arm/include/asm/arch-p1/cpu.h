@@ -93,5 +93,5 @@ AES key will be generated to EFUSE pattern, it can be used for use case
 like the AES key not ready when secure boot enabled for the first time.
 */
 //#define CONFIG_AML_EFUSE_GEN_AES_ONLY 1
-
+#define CONFIG_SYS_NONCACHED_MEMORY     (1 << 20)       /* 1 MiB */
 #endif /* _CPU_H */

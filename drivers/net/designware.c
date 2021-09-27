@@ -53,7 +53,6 @@ struct phy_device *p_phydev = NULL;
 #define AML_ETH_PHY_CNTL0 0x80
 #define AML_ETH_PHY_CNTL1 0x84
 #define AML_ETH_PHY_CNTL2 0x88
-
 enum {
 	/* chip num */
 	ETH_PHY		= 0x0,
@@ -1580,7 +1579,7 @@ static int eqos_send(struct udevice *dev, void *packet, int length)
 	eqos_flush_buffer(eqos->tx_dma_buf, length);
 
 	tx_desc = &(eqos->tx_descs[eqos->tx_desc_idx]);
-	eqos_inval_desc(tx_desc);
+//	eqos_inval_desc(tx_desc);
 	eqos->tx_desc_idx++;
 	eqos->tx_desc_idx %= EQOS_DESCRIPTORS_TX;
 
@@ -1619,7 +1618,7 @@ static int eqos_recv(struct udevice *dev, int flags, uchar **packetp)
 	debug("%s(dev=%p):\n", __func__, dev);
 
 	rx_desc = &(eqos->rx_descs[eqos->rx_desc_idx]);
-	eqos_inval_desc(rx_desc);
+//	eqos_inval_desc(rx_desc);
 	if (rx_desc->des3 & EQOS_DESC3_OWN) {
 		debug("%s: RX packet not available\n", __func__);
 		return -EAGAIN;
