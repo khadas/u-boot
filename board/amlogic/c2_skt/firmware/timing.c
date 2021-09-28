@@ -2754,7 +2754,13 @@ ddr_reg_t __ddr_reg[] = {
 bl2_reg_t __bl2_reg[] = {
 	/* demo, user defined override register */
 	{0,			0,            		0xffffffff,   0, 0, 0},
-	{PWMAB_PWM_A,		VDDEE_VAL_REG,  	0xffffffff,	0, BL2_INIT_STAGE_1, 0},
+#ifdef CONFIG_PDVFS_ENABLE
+	{PWMAB_PWM_A, 0x000c0006, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0},
+	{PWMAB_PWM_A, 0x00090009, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_2, 0},
+	{PWMAB_PWM_A, 0x0007000b, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0},
+#else
+	{PWMAB_PWM_A, VDDEE_VAL_REG, 0xffffffff, 0, BL2_INIT_STAGE_1, 0},
+#endif
 	{PWMAB_PWM_B,		VCCK_VAL_REG,  		0xffffffff,	0, BL2_INIT_STAGE_1, 0},
 	{PWMAB_MISC_REG_AB,	0x3 << 0, 		0x3, 		0, BL2_INIT_STAGE_1, 0},
 	/* enable vddcpu dc-dc, set GPIOD_10 high */

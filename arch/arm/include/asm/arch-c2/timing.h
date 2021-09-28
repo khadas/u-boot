@@ -24,6 +24,10 @@
 #define BL2_INIT_STAGE_PWM_CHK_HW		0x82
 #define BL2_INIT_STAGE_PWM_CFG_GROUP	0x83
 #define BL2_INIT_STAGE_PWM_INIT			0xC0
+/*bl2 efuse val flag*/
+#define BL2_INIT_STAGE_VDDCORE_CONFIG_1		0x84
+#define BL2_INIT_STAGE_VDDCORE_CONFIG_2		0x85
+#define BL2_INIT_STAGE_VDDCORE_CONFIG_3		0x86
 
 typedef struct bl2_reg {
 	unsigned	int		reg;
