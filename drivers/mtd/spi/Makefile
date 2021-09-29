@@ -13,7 +13,7 @@ obj-$(CONFIG_SPI_FLASH) += sf_probe.o spi_flash.o spi_flash_ids.o sf.o
 obj-$(CONFIG_SPI_FLASH_DATAFLASH) += sf_dataflash.o
 obj-$(CONFIG_SPI_FLASH_MTD) += sf_mtd.o
 obj-$(CONFIG_SPI_FLASH_SANDBOX) += sandbox.o
-ifeq ($(CONFIG_SPI_FLASH),y)
+ifeq ($(CONFIG_SPI_FLASH_MTD),y)
 obj-$(CONFIG_AML_STORAGE) += storage_sf.o
 obj-$(CONFIG_AML_MTDPART) += sf_partition.o
 endif
