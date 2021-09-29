@@ -67,6 +67,15 @@ config MESON_S4
 	help
 		Support Amlogic Meson S4
 
+config MESON_A5
+	bool "A5"
+	select ARM64
+	select DM
+	select DM_SERIAL
+	help
+		Support Amlogic Meson A5
+
+
 config MESON_SC2
 	bool "SC2"
 	select ARM64

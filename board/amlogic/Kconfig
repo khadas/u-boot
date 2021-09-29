@@ -567,6 +567,48 @@ config TARGET_S4_AP229_S905C3ENG
 
 endif
 
+if MESON_A5
+
+config SYS_SOC
+	default "a5"
+
+config DDRFW_TYPE
+	string "A5 DDR FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+        string "A5 CHIPSET NAME"
+        default ""
+
+config CHIPSET_VARIANT
+        string "A5 CHIPSET VARIANT"
+        default ""
+
+config AMLOGIC_KEY_TYPE
+        string "A5 AMLOGIC KEY TYPE"
+        default "dev-keys"
+
+config BL30_SELECT
+	string "A5 BL30 board config"
+	default "a5_skt"
+
+choice
+	prompt "A5 Board"
+
+config A5_SKT
+	bool "A5_SKT"
+	select TARGET_A5_SKT
+	help
+		Select A5 SKT(XXXX) config
+
+config TARGET_A5_SKT
+	bool "A5 SKT board"
+	depends on A5_SKT
+
+endchoice
+
+endif
+
 if MESON_SC2
 
 config SYS_SOC
@@ -1063,6 +1105,8 @@ source "board/amlogic/s4_ap201/Kconfig"
 source "board/amlogic/s4_ap232/Kconfig"
 
 source "board/amlogic/s4_ap229_s905c3eng/Kconfig"
+
+source "board/amlogic/a5_skt/Kconfig"
 
 source "board/amlogic/sc2_skt/Kconfig"
 
