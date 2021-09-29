@@ -10,6 +10,7 @@
 #include <amlogic/cpu_id.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/timer.h>
+#include <div64.h>
 
 /* Local Headers */
 #include <amlogic/media/vout/aml_vmode.h>
@@ -1792,16 +1793,82 @@ static void osd_super_scale_disable(void)
 #endif
 }
 
+#define NEW_PPS_PHASE
+#ifdef NEW_PPS_PHASE
+#define OSD_ZOOM_BITS 20
+#define OSD_PHASE_BITS 16
+
+enum osd_f2v_vphase_type_e {
+	OSD_F2V_IT2IT = 0,
+	OSD_F2V_IB2IB,
+	OSD_F2V_IT2IB,
+	OSD_F2V_IB2IT,
+	OSD_F2V_P2IT,
+	OSD_F2V_P2IB,
+	OSD_F2V_IT2P,
+	OSD_F2V_IB2P,
+	OSD_F2V_P2P,
+	OSD_F2V_TYPE_MAX
+};
+
+struct osd_f2v_vphase_s {
+	u8 rcv_num;
+	u8 rpt_num;
+	u16 phase;
+};
+
+static void f2v_get_vertical_phase(u32 zoom_ratio,
+	enum osd_f2v_vphase_type_e type,
+	u8 bank_length,
+	struct osd_f2v_vphase_s *vphase)
+{
+	u8 f2v_420_in_pos_luma[OSD_F2V_TYPE_MAX] = {
+		0, 2, 0, 2, 0, 0, 0, 2, 0};
+	u8 f2v_420_out_pos[OSD_F2V_TYPE_MAX] = {
+		0, 2, 2, 0, 0, 2, 0, 0, 0};
+	s32 offset_in, offset_out;
+
+	/* luma */
+	offset_in = f2v_420_in_pos_luma[type]
+		<< OSD_PHASE_BITS;
+	offset_out = (f2v_420_out_pos[type] * zoom_ratio)
+		>> (OSD_ZOOM_BITS - OSD_PHASE_BITS);
+
+	vphase->rcv_num = bank_length;
+	if (bank_length == 4 || bank_length == 3)
+		vphase->rpt_num = 1;
+	else
+		vphase->rpt_num = 0;
+
+	if (offset_in > offset_out) {
+		vphase->rpt_num = vphase->rpt_num + 1;
+		vphase->phase =
+			((4 << OSD_PHASE_BITS) + offset_out - offset_in)
+			>> 2;
+	} else {
+		while ((offset_in + (4 << OSD_PHASE_BITS))
+			<= offset_out) {
+			if (vphase->rpt_num == 1)
+				vphase->rpt_num = 0;
+			else
+				vphase->rcv_num++;
+			offset_in += 4 << OSD_PHASE_BITS;
+		}
+		vphase->phase = (offset_out - offset_in) >> 2;
+	}
+}
+#endif
+
 static void osd1_update_disp_freescale_enable(void)
 {
-	int hf_phase_step, vf_phase_step;
+	u64 hf_phase_step, vf_phase_step;
 	int src_w, src_h, dst_w, dst_h;
-	int bot_ini_phase;
+	int bot_ini_phase, top_ini_phase;
 	int vsc_ini_rcv_num, vsc_ini_rpt_p0_num;
 	int vsc_bot_rcv_num = 0, vsc_bot_rpt_p0_num = 0;
 	int hsc_ini_rcv_num, hsc_ini_rpt_p0_num;
 	int hf_bank_len = 4;
-	int vf_bank_len = 0;
+	int vf_bank_len = 4;
 	u32 data32 = 0x0;
 	u32 shift_line = osd_hw.shift_line;
 
@@ -1810,6 +1877,8 @@ static void osd1_update_disp_freescale_enable(void)
 		vf_bank_len = 2;
 	else
 		vf_bank_len = 4;
+
+#ifndef NEW_PPS_PHASE
 	if (osd_hw.bot_type == 1) {
 		vsc_bot_rcv_num = 4;
 		vsc_bot_rpt_p0_num = 1;
@@ -1820,11 +1889,13 @@ static void osd1_update_disp_freescale_enable(void)
 		vsc_bot_rcv_num = 8;
 		vsc_bot_rpt_p0_num = 3;
 	}
-	hsc_ini_rcv_num = hf_bank_len;
 	vsc_ini_rcv_num = vf_bank_len;
-	hsc_ini_rpt_p0_num = hf_bank_len / 2 - 1;
 	vsc_ini_rpt_p0_num =
 		(vf_bank_len / 2 - 1) > 0 ? (vf_bank_len / 2 - 1) : 0;
+#endif
+	hsc_ini_rcv_num = hf_bank_len;
+	hsc_ini_rpt_p0_num = hf_bank_len / 2 - 1;
+
 	src_w = osd_hw.free_scale_width[OSD1];
 	src_h = osd_hw.free_scale_height[OSD1];
 	dst_w = osd_hw.free_dst_data[OSD1].x_end -
@@ -1854,17 +1925,72 @@ static void osd1_update_disp_freescale_enable(void)
 		/* disable osd scaler path */
 		VSYNCOSD_WR_MPEG_REG(VPP_OSD_SC_CTRL0, 0);
 	}
-	hf_phase_step = (src_w << 18) / dst_w;
-	hf_phase_step = (hf_phase_step << 6);
-	vf_phase_step = (src_h << 20) / dst_h;
-	if (osd_hw.field_out_en)   /* interlace output */
+
+	hf_phase_step = (u64)src_w << 24;
+	if (dst_w == 0)
+		dst_w = 1;
+	do_div(hf_phase_step, dst_w);
+	if (shift_line) {
+		vf_phase_step = (u64)(src_h - 1) << 20;
+		if (dst_h == 0)
+			dst_h = 1;
+		do_div(vf_phase_step, dst_h);
+	} else {
+		vf_phase_step = (u64)src_h << 20;
+		if (dst_h == 0)
+			dst_h = 1;
+		do_div(vf_phase_step, dst_h);
+	}
+
+#ifdef NEW_PPS_PHASE
+	if (osd_hw.field_out_en) {
+		struct osd_f2v_vphase_s vphase;
+
+		f2v_get_vertical_phase(vf_phase_step,
+			OSD_F2V_P2IT,
+			vf_bank_len,
+			&vphase);
+		vsc_ini_rcv_num = vphase.rcv_num;
+		vsc_ini_rpt_p0_num = vphase.rpt_num;
+		top_ini_phase = vphase.phase;
+
+		f2v_get_vertical_phase(vf_phase_step,
+			OSD_F2V_P2IB,
+			vf_bank_len,
+			&vphase);
+		vsc_bot_rcv_num = vphase.rcv_num;
+		vsc_bot_rpt_p0_num = vphase.rpt_num;
+		bot_ini_phase = vphase.phase;
+	} else {
+		struct osd_f2v_vphase_s vphase;
+
+		f2v_get_vertical_phase(vf_phase_step,
+			OSD_F2V_P2P,
+			vf_bank_len,
+			&vphase);
+		vsc_ini_rcv_num = vphase.rcv_num;
+		vsc_ini_rpt_p0_num = vphase.rpt_num;
+		top_ini_phase = vphase.phase;
+
+		vsc_bot_rcv_num = 0;
+		vsc_bot_rpt_p0_num = 0;
+		bot_ini_phase = 0;
+	}
+#else
+	if (osd_hw.field_out_en) /* interface output */
 		bot_ini_phase = ((vf_phase_step / 2) >> 4);
 	else
 		bot_ini_phase = 0;
+	top_ini_phase = 0;
+#endif
+
 	vf_phase_step = (vf_phase_step << 4);
 	/* config osd scaler in/out hv size */
-	if (shift_line)
+	if (shift_line) {
 		vsc_ini_rcv_num++;
+		if (osd_hw.field_out_en)
+			vsc_bot_rcv_num++;
+	}
 
 	data32 = 0x0;
 	if (osd_hw.free_scale_enable[OSD1]) {
@@ -1890,6 +2016,8 @@ static void osd1_update_disp_freescale_enable(void)
 		if (osd_hw.scale_workaround)
 			data32 |= 1 << 21;
 		data32 |= 1 << 24;
+		if (osd_get_chip_type() >= MESON_CPU_MAJOR_ID_G12B)
+			data32 |= 1 << 25;
 	}
 	VSYNCOSD_WR_MPEG_REG(VPP_OSD_VSC_CTRL0, data32);
 	data32 = 0x0;
@@ -1900,9 +2028,16 @@ static void osd1_update_disp_freescale_enable(void)
 		data32 |= 1 << 22;
 	}
 	VSYNCOSD_WR_MPEG_REG(VPP_OSD_HSC_CTRL0, data32);
-	data32 = 0x0;
+
+	data32 = top_ini_phase;
 	if (osd_hw.free_scale_enable[OSD1]) {
 		data32 |= (bot_ini_phase & 0xffff) << 16;
+		if (osd_hw.field_out_en) {
+			if (shift_line)
+				src_h--;
+			if (src_h == dst_h * 2)
+				data32 |= 0x80008000;
+		}
 		VSYNCOSD_WR_MPEG_REG_BITS(VPP_OSD_HSC_PHASE_STEP,
 					  hf_phase_step, 0, 28);
 		VSYNCOSD_WR_MPEG_REG_BITS(VPP_OSD_HSC_INI_PHASE, 0, 0, 16);
@@ -1959,11 +2094,11 @@ static void osd1_update_coef(void)
 
 static void osd2_update_disp_freescale_enable(void)
 {
-	int hf_phase_step, vf_phase_step;
+	u64 hf_phase_step, vf_phase_step;
 	int src_w, src_h, dst_w, dst_h;
-	int bot_ini_phase;
+	int bot_ini_phase, top_ini_phase;
 	int vsc_ini_rcv_num, vsc_ini_rpt_p0_num;
-	int vsc_bot_rcv_num = 6, vsc_bot_rpt_p0_num = 2;
+	int vsc_bot_rcv_num = 0, vsc_bot_rpt_p0_num = 0;
 	int hsc_ini_rcv_num, hsc_ini_rpt_p0_num;
 	int hf_bank_len = 4;
 	int vf_bank_len = 4;
@@ -1972,17 +2107,34 @@ static void osd2_update_disp_freescale_enable(void)
 
 	if (osd_hw.scale_workaround)
 		vf_bank_len = 2;
-	hsc_ini_rcv_num = hf_bank_len;
+	else
+		vf_bank_len = 4;
+
+#ifndef NEW_PPS_PHASE
+	if (osd_hw.bot_type == 1) {
+		vsc_bot_rcv_num = 4;
+		vsc_bot_rpt_p0_num = 1;
+	} else if (osd_hw.bot_type == 2) {
+		vsc_bot_rcv_num = 6;
+		vsc_bot_rpt_p0_num = 2;
+	} else if (osd_hw.bot_type == 3) {
+		vsc_bot_rcv_num = 8;
+		vsc_bot_rpt_p0_num = 3;
+	}
 	vsc_ini_rcv_num = vf_bank_len;
-	hsc_ini_rpt_p0_num = hf_bank_len / 2 - 1;
 	vsc_ini_rpt_p0_num =
 		(vf_bank_len / 2 - 1) > 0 ? (vf_bank_len / 2 - 1) : 0;
+#endif
+	hsc_ini_rcv_num = hf_bank_len;
+	hsc_ini_rpt_p0_num = hf_bank_len / 2 - 1;
+
 	src_w = osd_hw.free_scale_width[OSD2];
 	src_h = osd_hw.free_scale_height[OSD2];
 	dst_w = osd_hw.free_dst_data[OSD2].x_end -
 		osd_hw.free_dst_data[OSD2].x_start + 1;
 	dst_h = osd_hw.free_dst_data[OSD2].y_end -
 		osd_hw.free_dst_data[OSD2].y_start + 1;
+
 	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_MG9TV) {
 		/* super scaler mode */
 		if (osd_hw.free_scale_mode[OSD2] & 0x2) {
@@ -2008,17 +2160,73 @@ static void osd2_update_disp_freescale_enable(void)
 		/* disable osd scaler path */
 		VSYNCOSD_WR_MPEG_REG(VPP_OSD_SC_CTRL0, 0);
 	}
-	hf_phase_step = (src_w << 18) / dst_w;
-	hf_phase_step = (hf_phase_step << 6);
-	vf_phase_step = (src_h << 20) / dst_h;
-	if (osd_hw.field_out_en)   /* interlace output */
+
+	hf_phase_step = (u64)src_w << 24;
+	if (dst_w == 0)
+		dst_w = 1;
+	do_div(hf_phase_step, dst_w);
+	if (shift_line) {
+		vf_phase_step = (u64)(src_h - 1) << 20;
+		if (dst_h == 0)
+			dst_h = 1;
+		do_div(vf_phase_step, dst_h);
+	} else {
+		vf_phase_step = (u64)src_h << 20;
+		if (dst_h == 0)
+			dst_h = 1;
+		do_div(vf_phase_step, dst_h);
+	}
+
+#ifdef NEW_PPS_PHASE
+	if (osd_hw.field_out_en) {
+		struct osd_f2v_vphase_s vphase;
+
+		f2v_get_vertical_phase(vf_phase_step,
+			OSD_F2V_P2IT,
+			vf_bank_len,
+			&vphase);
+		vsc_ini_rcv_num = vphase.rcv_num;
+		vsc_ini_rpt_p0_num = vphase.rpt_num;
+		top_ini_phase = vphase.phase;
+
+		f2v_get_vertical_phase(vf_phase_step,
+			OSD_F2V_P2IB,
+			vf_bank_len,
+			&vphase);
+		vsc_bot_rcv_num = vphase.rcv_num;
+		vsc_bot_rpt_p0_num = vphase.rpt_num;
+		bot_ini_phase = vphase.phase;
+	} else {
+		struct osd_f2v_vphase_s vphase;
+
+		f2v_get_vertical_phase(vf_phase_step,
+			OSD_F2V_P2P,
+			vf_bank_len,
+			&vphase);
+		vsc_ini_rcv_num = vphase.rcv_num;
+		vsc_ini_rpt_p0_num = vphase.rpt_num;
+		top_ini_phase = vphase.phase;
+
+		vsc_bot_rcv_num = 0;
+		vsc_bot_rpt_p0_num = 0;
+		bot_ini_phase = 0;
+	}
+#else
+	if (osd_hw.field_out_en) /* interface output */
 		bot_ini_phase = ((vf_phase_step / 2) >> 4);
 	else
 		bot_ini_phase = 0;
+	top_ini_phase = 0;
+#endif
+
 	vf_phase_step = (vf_phase_step << 4);
 	/* config osd scaler in/out hv size */
-	if (shift_line)
+	if (shift_line) {
 		vsc_ini_rcv_num++;
+		if (osd_hw.field_out_en)
+			vsc_bot_rcv_num++;
+	}
+
 	data32 = 0x0;
 	if (osd_hw.free_scale_enable[OSD2]) {
 		data32 = (((src_h - 1 + shift_line) & 0x1fff)
@@ -2051,11 +2259,19 @@ static void osd2_update_disp_freescale_enable(void)
 		if (osd_hw.scale_workaround)
 			data32 |= 1 << 21;
 		data32 |= 1 << 24;
+		if (osd_get_chip_type() >= MESON_CPU_MAJOR_ID_G12B)
+			data32 |= 1 << 25;
 	}
 	VSYNCOSD_WR_MPEG_REG(VPP_OSD_VSC_CTRL0, data32);
-	data32 = 0x0;
+	data32 = top_ini_phase;
 	if (osd_hw.free_scale_enable[OSD2]) {
 		data32 |= (bot_ini_phase & 0xffff) << 16;
+		if (osd_hw.field_out_en) {
+			if (shift_line)
+				src_h--;
+			if (src_h == dst_h * 2)
+				data32 |= 0x80008000;
+		}
 		VSYNCOSD_WR_MPEG_REG_BITS(VPP_OSD_HSC_PHASE_STEP,
 					  hf_phase_step, 0, 28);
 		VSYNCOSD_WR_MPEG_REG_BITS(VPP_OSD_HSC_INI_PHASE, 0, 0, 16);
@@ -2069,11 +2285,11 @@ static void osd2_update_disp_freescale_enable(void)
 #ifdef AML_T7_DISPLAY
 static void osd3_update_disp_freescale_enable(void)
 {
-	int hf_phase_step, vf_phase_step;
+	u64 hf_phase_step, vf_phase_step;
 	int src_w, src_h, dst_w, dst_h;
-	int bot_ini_phase;
+	int bot_ini_phase, top_ini_phase;
 	int vsc_ini_rcv_num, vsc_ini_rpt_p0_num;
-	int vsc_bot_rcv_num = 6, vsc_bot_rpt_p0_num = 2;
+	int vsc_bot_rcv_num = 0, vsc_bot_rpt_p0_num = 0;
 	int hsc_ini_rcv_num, hsc_ini_rpt_p0_num;
 	int hf_bank_len = 4;
 	int vf_bank_len = 4;
@@ -2118,17 +2334,34 @@ static void osd3_update_disp_freescale_enable(void)
 
 	if (osd_hw.scale_workaround)
 		vf_bank_len = 2;
-	hsc_ini_rcv_num = hf_bank_len;
+	else
+		vf_bank_len = 4;
+
+#ifndef NEW_PPS_PHASE
+	if (osd_hw.bot_type == 1) {
+		vsc_bot_rcv_num = 4;
+		vsc_bot_rpt_p0_num = 1;
+	} else if (osd_hw.bot_type == 2) {
+		vsc_bot_rcv_num = 6;
+		vsc_bot_rpt_p0_num = 2;
+	} else if (osd_hw.bot_type == 3) {
+		vsc_bot_rcv_num = 8;
+		vsc_bot_rpt_p0_num = 3;
+	}
 	vsc_ini_rcv_num = vf_bank_len;
-	hsc_ini_rpt_p0_num = hf_bank_len / 2 - 1;
 	vsc_ini_rpt_p0_num =
 		(vf_bank_len / 2 - 1) > 0 ? (vf_bank_len / 2 - 1) : 0;
+#endif
+	hsc_ini_rcv_num = hf_bank_len;
+	hsc_ini_rpt_p0_num = hf_bank_len / 2 - 1;
+
 	src_w = osd_hw.free_scale_width[OSD3];
 	src_h = osd_hw.free_scale_height[OSD3];
 	dst_w = osd_hw.free_dst_data[OSD3].x_end -
 		osd_hw.free_dst_data[OSD3].x_start + 1;
 	dst_h = osd_hw.free_dst_data[OSD3].y_end -
 		osd_hw.free_dst_data[OSD3].y_start + 1;
+
 	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_MG9TV) {
 		/* super scaler mode */
 		if (osd_hw.free_scale_mode[OSD3] & 0x2) {
@@ -2154,17 +2387,73 @@ static void osd3_update_disp_freescale_enable(void)
 		/* disable osd scaler path */
 		VSYNCOSD_WR_MPEG_REG(osd_sc_ctrl0, 0);
 	}
-	hf_phase_step = (src_w << 18) / dst_w;
-	hf_phase_step = (hf_phase_step << 6);
-	vf_phase_step = (src_h << 20) / dst_h;
-	if (osd_hw.field_out_en)   /* interlace output */
+
+	hf_phase_step = (u64)src_w << 24;
+	if (dst_w == 0)
+		dst_w = 1;
+	do_div(hf_phase_step, dst_w);
+	if (shift_line) {
+		vf_phase_step = (u64)(src_h - 1) << 20;
+		if (dst_h == 0)
+			dst_h = 1;
+		do_div(vf_phase_step, dst_h);
+	} else {
+		vf_phase_step = (u64)src_h << 20;
+		if (dst_h == 0)
+			dst_h = 1;
+		do_div(vf_phase_step, dst_h);
+	}
+
+#ifdef NEW_PPS_PHASE
+	if (osd_hw.field_out_en) {
+		struct osd_f2v_vphase_s vphase;
+
+		f2v_get_vertical_phase(vf_phase_step,
+			OSD_F2V_P2IT,
+			vf_bank_len,
+			&vphase);
+		vsc_ini_rcv_num = vphase.rcv_num;
+		vsc_ini_rpt_p0_num = vphase.rpt_num;
+		top_ini_phase = vphase.phase;
+
+		f2v_get_vertical_phase(vf_phase_step,
+			OSD_F2V_P2IB,
+			vf_bank_len,
+			&vphase);
+		vsc_bot_rcv_num = vphase.rcv_num;
+		vsc_bot_rpt_p0_num = vphase.rpt_num;
+		bot_ini_phase = vphase.phase;
+	} else {
+		struct osd_f2v_vphase_s vphase;
+
+		f2v_get_vertical_phase(vf_phase_step,
+			OSD_F2V_P2P,
+			vf_bank_len,
+			&vphase);
+		vsc_ini_rcv_num = vphase.rcv_num;
+		vsc_ini_rpt_p0_num = vphase.rpt_num;
+		top_ini_phase = vphase.phase;
+
+		vsc_bot_rcv_num = 0;
+		vsc_bot_rpt_p0_num = 0;
+		bot_ini_phase = 0;
+	}
+#else
+	if (osd_hw.field_out_en)	 /* interface output */
 		bot_ini_phase = ((vf_phase_step / 2) >> 4);
 	else
 		bot_ini_phase = 0;
+	top_ini_phase = 0;
+#endif
+
 	vf_phase_step = (vf_phase_step << 4);
 	/* config osd scaler in/out hv size */
-	if (shift_line)
+	if (shift_line) {
 		vsc_ini_rcv_num++;
+		if (osd_hw.field_out_en)
+			vsc_bot_rcv_num++;
+	}
+
 	data32 = 0x0;
 	if (osd_hw.free_scale_enable[OSD3]) {
 		data32 = (((src_h - 1 + shift_line) & 0x1fff)
@@ -2197,11 +2486,19 @@ static void osd3_update_disp_freescale_enable(void)
 		if (osd_hw.scale_workaround)
 			data32 |= 1 << 21;
 		data32 |= 1 << 24;
+		if (osd_get_chip_type() >= MESON_CPU_MAJOR_ID_G12B)
+			data32 |= 1 << 25;
 	}
 	VSYNCOSD_WR_MPEG_REG(osd_sco_vsc_ctrl0, data32);
-	data32 = 0x0;
+	data32 = top_ini_phase;
 	if (osd_hw.free_scale_enable[OSD3]) {
 		data32 |= (bot_ini_phase & 0xffff) << 16;
+		if (osd_hw.field_out_en) {
+			if (shift_line)
+				src_h--;
+			if (src_h == dst_h * 2)
+				data32 |= 0x80008000;
+		}
 		VSYNCOSD_WR_MPEG_REG_BITS(osd_sco_hsc_phase_step,
 					  hf_phase_step, 0, 28);
 		VSYNCOSD_WR_MPEG_REG_BITS(osd_sco_hsc_ini_phase, 0, 0, 16);
