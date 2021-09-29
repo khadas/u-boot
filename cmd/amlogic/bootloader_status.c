@@ -242,14 +242,12 @@ static void aml_recovery(void) {
 }
 
 static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]) {
-	int code_boot = 0;
 	int match_flag = 0;
 	char *rebootstatus = NULL;
 	char *checkresult = NULL;
 	char *bootloaderindex = NULL;
 	char *expect_index = NULL;
 	char *robustota = NULL;
-	char *mode = NULL;
 	char *update_env = NULL;
 	char *rebootmode = NULL;
 	int ret = -1;
@@ -265,6 +263,10 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 
 	run_command("get_rebootmode", 0);
 	rebootmode = env_get("reboot_mode");
+	if (!rebootmode) {
+		wrnP("can not get reboot mode, so skip secure check\n");
+		return -1;
+	}
 	printf("rebootmode is %s\n", rebootmode);
 	if (rebootmode && (strcmp(rebootmode, "rescueparty") == 0)) {
 		printf("rebootmode is rescueparty, need rollback\n");
@@ -334,31 +336,10 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		return -1;
 	}
 
-	//no secure check need
-	if (!strcmp(rebootstatus, "reboot_init")) {
-		printf("rebootstatus is reboot_init, skip check\n");
-		return -1;
-	}
-
 	//check reboot_end
 	if (!strcmp(rebootstatus, "reboot_end")) {
 		env_set("reboot_status","reboot_init");
 		run_command("saveenv", 0);
-	}
-
-	//get reboot_mode
-	mode = env_get("reboot_mode");
-	if (mode == NULL) {
-		wrnP("can not get reboot mode, so skip secure check\n");
-		return -1;
-	}
-
-	code_boot = strcmp(mode, "cold_boot");
-	if (code_boot == 0) {
-		wrnP("not support code_boot for check\n");
-		//env_set("reboot_status","reboot_init");
-		//run_command("saveenv", 0);
-		//return -1;
 	}
 
 	//get boot status
@@ -374,6 +355,46 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	bootloaderindex = env_get("forUpgrade_bootloaderIndex");
 	if (bootloaderindex == NULL) {
 		wrnP("can not get bootloader index, so skip secure check\n");
+		return -1;
+	}
+
+#ifdef CONFIG_MMC_MESON_GX
+	if (mmc) {
+		struct blk_desc *dev_desc = mmc_get_blk_desc(mmc);
+
+		if (dev_desc && !strcmp(bootloaderindex, "0")) {
+			unsigned char *buffer = NULL;
+
+			buffer = (unsigned char *)malloc(0x2000 * 512);
+			if (buffer) {
+				memset(buffer, 0, 0x2000 * 512);
+				ret = store_boot_read("bootloader", 0, 0, buffer);
+				if (ret == 0) {
+					wrnP("--read bootloader ok, check valib gpt---\n");
+					if (is_valid_gpt_buf(dev_desc, buffer + 0x3DFE00)) {
+						printf("no gpt partition table\n");
+					} else {
+						printf("find gpt parition table, update it\n"
+							"and write bootloader to boot0/boot1\n");
+						ret = write_mbr_and_gpt_partitions(dev_desc,
+								buffer + 0x3DFE00);
+						if (ret == 0) {
+							printf("write gpt ok, reset\n");
+							write_bootloader_back(bootloaderindex, 1);
+							write_bootloader_back(bootloaderindex, 2);
+							run_command("reboot bootloader", 0);
+						}
+					}
+				}
+				free(buffer);
+			}
+		}
+	}
+#endif
+
+	//no secure check need
+	if (!strcmp(rebootstatus, "reboot_init")) {
+		printf("rebootstatus is reboot_init, skip check\n");
 		return -1;
 	}
 
