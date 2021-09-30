@@ -67,32 +67,48 @@ typedef struct ddr_reg {
 }__attribute__ ((packed)) ddr_reg_t;
 
 typedef struct training_delay_set_ps{
-	unsigned	char	ac_trace_delay[10];
-	unsigned	char	ac_trace_delay_rev[2];
-	unsigned	char	read_dqs_delay[16];
-	unsigned	char	read_dq_bit_delay[72];
-	unsigned	short	write_dqs_delay[16];
+	unsigned	char	ac_trace_delay[24];//10
+	//unsigned	char	ac_trace_delay_rev[2];
+	//unsigned	char	read_dqs_delay[16];
+	unsigned	short	read_dq_bit_delay_t[72];
+	unsigned	short	read_dq_bit_delay_c[72];
+	unsigned	short	write_dqs_delay[8];
+	unsigned	short	write_wck_delay[8];
 //	*/
 	unsigned	short	write_dq_bit_delay[72];
-	unsigned	short	read_dqs_gate_delay[16];
-	unsigned	char	soc_bit_vref[36];
+	unsigned	short	read_dqs_gate_delay[8];
+	unsigned	char	soc_bit_vref0[36];
+	unsigned	char	soc_bit_vref1[36];
+	unsigned	char	soc_bit_vref2[36];
+	unsigned	char	soc_bit_vref3[36];
 	unsigned	char	dram_bit_vref[32];
 	///*
-	unsigned	char	rever1;//read_dqs  read_dq,write_dqs, write_dq
-	unsigned	char	dfi_mrl;
+	unsigned	short	dca_wck_tx_t[8];//t and c
+	unsigned	short	dca_wck_rx_t[8];//t and c
+	unsigned	short	dca_dqs_tx_t[8];//t and c
+	unsigned	short	dca_wck_tx_c[8];//t and c
+	unsigned	short	dca_wck_rx_c[8];//t and c
+	unsigned	short	dca_dqs_tx_c[8];//t and c
+	unsigned	short	dca_dq_tx[8];//common
+
+	//unsigned	char	rever1;//read_dqs  read_dq,write_dqs, write_dq
+	unsigned	char	dfi_mrl[4];
 	unsigned	char	dfi_hwtmrl;
-	unsigned	char	ARdPtrInitVal;
-	unsigned	short	csr_vrefinglobal;
-	unsigned	short	csr_dqsrcvcntrl[4];
+	unsigned	char    csr_hwtctrl;
+	unsigned	char	rever1;
+	unsigned	char	rever2;
+	//unsigned	char	ARdPtrInitVal;
+	//unsigned	short	csr_vrefinglobal;
+	//unsigned	short	csr_dqsrcvcntrl[4];
 	unsigned	short	csr_pptdqscntinvtrntg0[4];
 	unsigned	short	csr_pptdqscntinvtrntg1[4];
 	unsigned	short	csr_PptWck2DqoCntInvTrnTg0[4];
 	unsigned	short	csr_PptWck2DqoCntInvTrnTg1[4];
 	unsigned	short	csr_RxReplicaPathPhaseCsrs[4][5];
-	unsigned	short	csr_RxReplicaCtl03[4];
-	unsigned	short	csr_seq0bgpr[9];
-	unsigned	short	csr_dllgainctl;
-	unsigned	short	csr_dlllockpara;
+	//unsigned	short	csr_RxReplicaCtl03[4];
+	//unsigned	short	csr_seq0bgpr[9];
+	//unsigned	short	csr_dllgainctl;
+	//unsigned	short	csr_dlllockpara;
 //	unsigned	short	rever2;
 }__attribute__ ((packed)) training_delay_set_ps_t;
 
@@ -406,7 +422,9 @@ typedef struct ddr_set{
 	//use for limited ddr speed core timmming parameter,for some old dram maybe have no over speed register
 	/* align8 */
 
-	unsigned	char	ac_trace_delay[10];
+	unsigned	char	ac_trace_delay[24];//[10];
+	unsigned	char	rever1;
+	unsigned	char	rever2;
 	unsigned	char	lpddr4_dram_vout_voltage_1_3_2_5_setting;
 	//use for lpddr4 read vout voltage  setting 0 --->2/5VDDQ ,1--->1/3VDDQ
 	unsigned	char	lpddr4_x8_mode;
@@ -433,7 +451,7 @@ typedef struct ddr_set{
 	unsigned	char	dfi_pinmux[DWC_DFI_PINMUX_TOTAL];
 	unsigned	char	char_rev3;
 	unsigned	char	char_rev4;
-	ddr_phy_common_extra_set_t cfg_ddr_phy_common_extra_set_t;
+//	ddr_phy_common_extra_set_t cfg_ddr_phy_common_extra_set_t;
 	training_delay_set_ps_t	cfg_ddr_training_delay_ps[2];
 
 	//override read bit delay

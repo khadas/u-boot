@@ -39,7 +39,11 @@ endif
 obj-$(CONFIG_AML_RPMB) += cmd_rpmb.o
 obj-$(CONFIG_CMD_BOOTCTOL_AVB) += cmd_avb.o
 obj-$(CONFIG_CMD_DDR_D2PLL) += cmd_d2pll.o
+ifdef CONFIG_MESON_P1
+obj-y += cmd_ddr_test_p1.o
+else
 obj-y += cmd_ddr_test_g12.o
+endif
 
 obj-$(CONFIG_CMD_OS_IDENT) += os_ident.o
 obj-$(CONFIG_AML_FACTORY_PROVISION) += cmd_factory_provision.o
