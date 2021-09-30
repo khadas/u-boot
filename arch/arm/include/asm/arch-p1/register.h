@@ -41747,7 +41747,7 @@
 // REG_BASE:  REGISTER_BASE_ADDR = 0xfe032000
 // -----------------------------------------------
 
-#include "fixme.h"
+#include "extra_register.h"
 
 #include "soc_def.h"
 #endif // REGISTER_H

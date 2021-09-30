@@ -28515,11 +28515,10 @@
 #define OTP_LIC32              (0x78 + OTP_TEE_REG_BASE)
 #define OTP_LIC33              (0x7c + OTP_TEE_REG_BASE)
 
-
+#define OTP_LIC0               (OTP_LIC00)
 //
 // Closing file:  ./parser_regs.h
 //
-#include "fixme.h"
 #include "soc_def.h"
 #endif // REGISTER_H
 
