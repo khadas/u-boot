@@ -13,6 +13,8 @@
 	#define DDC_EDIDSEG_ADDR 0x30
 #define DDC_SCDC_ADDR 0xA8
 
+#define HDMI_PACKET_TYPE_GCP 0x3
+
 /* Little-Endian format */
 enum scdc_addr {
 	SINK_VER = 0x01,

@@ -47,8 +47,6 @@ void hdmitx21_poll_reg(unsigned int addr, unsigned int exp_data,
 void hdmitx21_set_default_clk(void);
 void hdmitx21_set_audioclk(bool en);
 void hdmitx21_venc_en(bool en, bool pi_mode);
-void set_tv_enci_new(u32 enc_index, enum hdmi_vic vic, u32 enable);
-void set_tv_encp_new(u32 enc_index, enum hdmi_vic vic, u32 enable);
 
 #define ANACTRL_REG_ADDR(reg) \
 	((ANACTRL_REG_IDX << BASE_REG_OFFSET) + ((reg) << 2))

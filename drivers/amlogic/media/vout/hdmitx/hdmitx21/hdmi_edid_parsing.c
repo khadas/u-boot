@@ -1043,27 +1043,7 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 		rx_max_tmds_clk = prxcap->Max_TMDS_Clock1 * 5;
 	}
 
-	calc_tmds_clk = para->tmds_clk;
-	if (para->cs == HDMI_COLORSPACE_YUV420)
-		calc_tmds_clk = calc_tmds_clk / 2;
-	if (para->cs != HDMI_COLORSPACE_YUV422) {
-		switch (para->cd) {
-		case COLORDEPTH_30B:
-			calc_tmds_clk = calc_tmds_clk * 5 / 4;
-			break;
-		case COLORDEPTH_36B:
-			calc_tmds_clk = calc_tmds_clk * 3 / 2;
-			break;
-		case COLORDEPTH_48B:
-			calc_tmds_clk = calc_tmds_clk * 2;
-			break;
-		case COLORDEPTH_24B:
-		default:
-			calc_tmds_clk = calc_tmds_clk * 1;
-			break;
-		}
-	}
-	calc_tmds_clk = calc_tmds_clk / 1000;
+	calc_tmds_clk = para->tmds_clk / 1000;
 	printf("RX tmds clk: %d   Calc clk: %d\n",
 	       rx_max_tmds_clk, calc_tmds_clk);
 	if (calc_tmds_clk < rx_max_tmds_clk)
