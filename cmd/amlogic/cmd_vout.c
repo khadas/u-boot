@@ -27,6 +27,155 @@
 #include <amlogic/media/vout/lcd/aml_lcd.h>
 #endif
 
+#ifdef CONFIG_AML_HDMITX
+static int vout_hdmi_hpd(int hpd_st)
+{
+#ifdef CONFIG_AML_LCD
+	unsigned int mux_sel = VIU_MUX_MAX, venc_sel = VIU_MUX_MAX;
+	char *mode;
+#endif
+	char *hdmimode;
+	char *cvbsmode;
+	char *colorattribute;
+
+#ifdef CONFIG_AML_LCD
+	mode = env_get("outputmode");
+	mux_sel = aml_lcd_driver_outputmode_check(mode, 0);
+	venc_sel = mux_sel & 0xf;
+	if (venc_sel == VIU_MUX_ENCL) {
+		printf("%s: lcd no need hpd detect\n", __func__);
+		free(mode);
+		return 0;
+	}
+#endif
+	/*get hdmi mode and colorattribute from env */
+	hdmimode = env_get("hdmimode");
+	if (hdmimode)
+		printf("%s: hdmimode=%s\n", __func__, hdmimode);
+
+	colorattribute = env_get("colorattribute");
+	if (colorattribute)
+		printf("%s: colorattribute=%s\n", __func__, colorattribute);
+
+	if (hdmimode) {
+		if (strstr(hdmimode, "null")) {
+			env_set("hdmimode", "1080p60hz");
+			//run_command("saveenv", 0);
+		}
+	} else {
+		env_set("hdmimode", "1080p60hz");
+		//run_command("saveenv", 0);
+	}
+
+	hdmimode = env_get("hdmimode");
+	if (hpd_st) {
+		printf("set outputmode: hdmimode=%s\n", hdmimode);
+		env_set("outputmode", hdmimode);
+	} else {
+		cvbsmode = env_get("cvbsmode");
+		if (cvbsmode)
+			env_set("outputmode", cvbsmode);
+		env_set("hdmichecksum", "0x00000000");
+		//run_command("saveenv", 0);
+	}
+
+	return 1;
+}
+
+static int vout2_hdmi_hpd(int hpd_st)
+{
+#ifdef CONFIG_AML_LCD
+	unsigned int mux_sel = VIU_MUX_MAX, venc_sel = VIU_MUX_MAX;
+	char *mode;
+#endif
+	char *hdmimode;
+	char *cvbsmode;
+	char *colorattribute;
+
+#ifdef CONFIG_AML_LCD
+	mode = env_get("outputmode2");
+	mux_sel = aml_lcd_driver_outputmode_check(mode, 0);
+	venc_sel = mux_sel & 0xf;
+	if (venc_sel == VIU_MUX_ENCL) {
+		free(mode);
+		return 0;
+	}
+#endif
+	/*get hdmi mode and colorattribute from env */
+	hdmimode = env_get("hdmimode");
+	if (hdmimode)
+		printf("%s: hdmimode=%s\n", __func__, hdmimode);
+	colorattribute = env_get("colorattribute");
+	if (colorattribute)
+		printf("%s: colorattribute=%s\n", __func__, colorattribute);
+
+	if (hdmimode) {
+		if (strstr(hdmimode, "null")) {
+			env_set("hdmimode", "1080p60hz");
+			//run_command("saveenv", 0);
+		}
+	} else {
+		env_set("hdmimode", "1080p60hz");
+		//run_command("saveenv", 0);
+	}
+
+	hdmimode = env_get("hdmimode");
+	if (hpd_st) {
+		printf("set outputmode2: hdmimode=%s\n", hdmimode);
+		env_set("outputmode2", hdmimode);
+	} else {
+		cvbsmode = env_get("cvbsmode");
+		if (cvbsmode)
+			env_set("outputmode2", cvbsmode);
+		env_set("hdmichecksum", "0x00000000");
+		//run_command("saveenv", 0);
+	}
+
+	return 0;
+}
+
+int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
+		  char *const argv[])
+{
+	char *st;
+	int hpd_st = 0;
+#ifdef CONFIG_AML_HDMITX20
+	struct hdmitx_dev *hdev = hdmitx_get_hdev();
+#else
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+#endif
+	int ret = 0;
+
+	st = env_get("hdmitx_hpd_bypass");
+	if (st && (strcmp((const char *)(uintptr_t)st[0], "1") == 0)) {
+		printf("hdmitx_hpd_bypass detect\n");
+		return 0;
+	}
+
+	hpd_st = hdev->hwop.get_hpd_state();
+	if (!hpd_st) {
+		/* For some TV, they cost extra time to pullup HPD after 5V */
+		int loop = 10;
+
+		while (loop--) {
+			mdelay(100);
+			hpd_st = hdev->hwop.get_hpd_state();
+			if (hpd_st) {
+				printf("hpd delay %d ms\n", (10 - loop) * 100);
+				break;
+			}
+		}
+	}
+	printf("%s, hpd_state=%d\n", __func__, hpd_st);
+
+	ret = vout_hdmi_hpd(hpd_st);
+	if (!ret)
+		vout2_hdmi_hpd(hpd_st);
+
+	return hpd_st;
+}
+#endif
+
 static unsigned int vout_parse_vout_name(char *name)
 {
 	char *p, *frac_str;
@@ -206,7 +355,7 @@ static int do_vout2_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 #if defined(CONFIG_AML_CVBS) || defined(CONFIG_AML_HDMITX) || defined(CONFIG_AML_LCD)
 	unsigned int mux_sel = VIU_MUX_MAX, venc_sel = VIU_MUX_MAX;
 #endif
-#ifdef CONFIG_AML_HDMITX20
+#ifdef CONFIG_AML_HDMITX
 	char str[64];
 #endif
 #ifdef CONFIG_AML_LCD
@@ -236,7 +385,7 @@ static int do_vout2_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	}
 #endif
 
-#ifdef CONFIG_AML_HDMITX20
+#ifdef CONFIG_AML_HDMITX
 	if (frac == 0) { /* remove frac support in outputmode */
 		mux_sel = hdmi_outputmode_check(mode, frac);
 		venc_sel = mux_sel & 0xf;
@@ -310,7 +459,7 @@ static int do_vout2_prepare(cmd_tbl_t *cmdtp, int flag, int argc, char *const ar
 	}
 #endif
 
-#ifdef CONFIG_AML_HDMITX20
+#ifdef CONFIG_AML_HDMITX
 	mux_sel = hdmi_outputmode_check(mode, frac);
 	venc_sel = mux_sel & 0xf;
 	if (venc_sel < VIU_MUX_MAX) {
