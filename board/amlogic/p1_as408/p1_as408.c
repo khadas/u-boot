@@ -288,10 +288,10 @@ int checkhw(char * name)
 
 	switch (ddr_size) {
 	case 0xe0000000UL:
-		strcpy(loc_name, "p1_as408_4g\0");
+		strcpy(loc_name, "p1_skt_4g\0");
 		break;
 	case 0x200000000UL:
-		strcpy(loc_name, "p1_as408_8g\0");
+		strcpy(loc_name, "p1_skt_8g\0");
 		break;
 	default:
 		strcpy(loc_name, "p1_as408_unsupport");
