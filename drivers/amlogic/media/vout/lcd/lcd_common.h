@@ -5,6 +5,7 @@
 
 #ifndef _AML_LCD_COMMON_H
 #define _AML_LCD_COMMON_H
+#include <div64.h>
 #include <amlogic/media/vout/lcd/aml_lcd.h>
 #include "lcd_clk_config.h"
 #include "lcd_unifykey.h"
@@ -18,12 +19,22 @@
 /* 20210518: update t7 & t3 lvds lane setting*/
 /* 20210616: fix t3 clk ss mistake*/
 /* 20210625: add tcon multi lut support*/
-#define LCD_DRV_VERSION    "20210625"
+/* 20211009: support 59 & 47 frame rate for tv mode*/
+#define LCD_DRV_VERSION    "20211009"
 
 extern unsigned int lcd_debug_test;
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
 void mdelay(unsigned long n);
+
+static inline unsigned int lcd_do_div(unsigned long long num, unsigned int den)
+{
+	unsigned long long ret = num;
+
+	do_div(ret, den);
+
+	return (unsigned int)ret;
+}
 
 void lcd_display_init_test(struct aml_lcd_drv_s *pdrv);
 void lcd_display_init_reg_dump(struct aml_lcd_drv_s *pdrv);
@@ -36,7 +47,7 @@ char *lcd_mode_mode_to_str(int mode);
 
 int lcd_get_config(char *dt_addr, int load_id, struct aml_lcd_drv_s *pdrv);
 void lcd_timing_init_config(struct lcd_config_s *pconf);
-int lcd_vmode_change(struct lcd_config_s *pconf);
+int lcd_vmode_change(struct aml_lcd_drv_s *pdrv);
 void lcd_pinmux_set(struct aml_lcd_drv_s *pdrv, int status);
 void lcd_vbyone_config_set(struct aml_lcd_drv_s *pdrv);
 void lcd_mlvds_config_set(struct aml_lcd_drv_s *pdrv);
