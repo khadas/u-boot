@@ -151,7 +151,7 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	{.panel_type = "invalid"},
 };
 
-static struct lcd_pinmux_ctrl_s lcd0_pinmux_ctrl[LCD_PINMX_MAX] = {
+static struct lcd_pinmux_ctrl_s lcd0_pinmux_ctrl[LCD_PINMUX_MAX] = {
 	{
 		.name = "lcd_vbyone_pin", //GPIOY_10/12
 		.pinmux_set = {{0x14, 0x00030300}, {LCD_PINMUX_END, 0x0} },
@@ -182,8 +182,14 @@ static struct lcd_pinmux_ctrl_s lcd0_bl_pinmux_ctrl[BL_PINMUX_MAX] = {
 };
 
 #ifdef CONFIG_AML_LCD_EXTERN
-static char lcd_ext_gpio[LCD_EXTERN_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
+static char lcd0_ext_gpio[LCD_EXTERN_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
 	"invalid", /* ending flag */
+};
+
+static struct lcd_pinmux_ctrl_s lcd0_ext_pinmux_ctrl[LCD_PINMUX_NUM] = {
+	{
+		.name = "invalid",
+	},
 };
 
 static unsigned char init_on_table[LCD_EXTERN_INIT_ON_MAX] = {
@@ -208,13 +214,14 @@ static unsigned char init_off_table[LCD_EXTERN_INIT_OFF_MAX] = {
 };
 
 struct lcd_extern_common_s ext_common_dft = {
-	.lcd_ext_key_valid = 0,
-	.lcd_ext_num = 1,
-	.pinmux_set = {{LCD_PINMUX_END, 0x0} },
-	.pinmux_clr = {{LCD_PINMUX_END, 0x0} },
+	.key_valid = 0,
+	.ext_num = 1,
+	.ext_gpio = lcd0_ext_gpio,
+	.i2c_bus = LCD_EXTERN_I2C_BUS_1,
+	.ext_pinmux = lcd0_ext_pinmux_ctrl,
 };
 
-struct lcd_extern_config_s ext_config_dtf[LCD_EXTERN_NUM_MAX] = {
+struct lcd_extern_config_s ext_config_dtf[LCD_EXTERN_DEV_MAX] = {
 	{
 		.index = 0,
 		.name = "invalid",
@@ -223,8 +230,6 @@ struct lcd_extern_config_s ext_config_dtf[LCD_EXTERN_NUM_MAX] = {
 		.status = 0, /* 0=disable, 1=enable */
 		.i2c_addr = 0x20, /* 7bit i2c address */
 		.i2c_addr2 = 0x74, /* 7bit i2c address, 0xff for none */
-		/* LCD_EXTERN_I2C_BUS_0/1/2/3/4 */
-		.i2c_bus = LCD_EXTERN_I2C_BUS_1,
 		.cmd_size = 0xff,
 		.table_init_on = init_on_table,
 		.table_init_off = init_off_table,
@@ -483,7 +488,6 @@ static struct lcd_dft_config_s lcd_dft_conf[] = {
 		.lcd_pinmux = lcd0_pinmux_ctrl,
 
 #ifdef CONFIG_AML_LCD_EXTERN
-		.ext_gpio = lcd_ext_gpio[0],
 		.ext_common = &ext_common_dft,
 		.ext_conf = ext_config_dtf,
 #endif
@@ -499,7 +503,6 @@ static struct lcd_dft_config_s lcd_dft_conf[] = {
 		.lcd_pinmux = lcd1_pinmux_ctrl,
 
 #ifdef CONFIG_AML_LCD_EXTERN
-		.ext_gpio = lcd_ext_gpio[0],
 		.ext_common = &ext_common_dft,
 		.ext_conf = ext_config_dtf,
 #endif
@@ -515,7 +518,6 @@ static struct lcd_dft_config_s lcd_dft_conf[] = {
 		.lcd_pinmux = lcd2_pinmux_ctrl,
 
 #ifdef CONFIG_AML_LCD_EXTERN
-		.ext_gpio = lcd_ext_gpio[0],
 		.ext_common = &ext_common_dft,
 		.ext_conf = ext_config_dtf,
 #endif
