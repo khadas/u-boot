@@ -1723,6 +1723,8 @@ static int handle_ldim_dev_profile(struct ldim_dev_attr_s *p_attr)
 static int handle_ldim_dev_custom(struct ldim_dev_attr_s *p_attr)
 {
 	const char *ini_value = NULL;
+	unsigned int tmp_buf[32];
+	int i = 0, tmp_cnt = 0;
 
 	ini_value = IniGetString("Ldim_dev_Attr", "custome_attr_0", "0");
 	if (model_debug_flag & DEBUG_BACKLIGHT)
@@ -1773,6 +1775,31 @@ static int handle_ldim_dev_custom(struct ldim_dev_attr_s *p_attr)
 	if (model_debug_flag & DEBUG_BACKLIGHT)
 		ALOGD("%s, custome_attr_9 is (%s)\n", __func__, ini_value);
 	p_attr->custome.custome_attr_9 = strtoul(ini_value, NULL, 0);
+
+	ini_value = IniGetString("Ldim_dev_Attr", "param_data", "null");
+	if (model_debug_flag & DEBUG_BACKLIGHT)
+		ALOGD("%s, param_data is (%s)\n", __func__, ini_value);
+	if (strcmp(ini_value, "null") == 0) {
+		p_attr->custome.custome_param_size = 0;
+		printf("%s, panel.ini no param_data(%s)\n", __func__, ini_value);
+	} else {
+		tmp_cnt = trans_buffer_data(ini_value, tmp_buf);
+		if (model_debug_flag & DEBUG_BACKLIGHT)
+			ALOGD("%s, param_data is (%d)\n", __func__, tmp_cnt);
+		/* data check and copy */
+		if (tmp_cnt > LDIM_PARAM_MAX) {
+			printf("%s: invalid param data\n", __func__);
+		} else {
+			p_attr->custome.custome_param_size = tmp_cnt;
+			i = 0;
+			while (i < tmp_cnt) {
+				p_attr->custome.custome_param[i] = tmp_buf[i];
+				if (model_debug_flag & DEBUG_BACKLIGHT)
+					ALOGD("param_data[%d] is (%d)\n", i, tmp_buf[i]);
+				i++;
+			}
+		}
+	}
 
 	return 0;
 }

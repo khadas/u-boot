@@ -222,7 +222,7 @@ struct lcd_unifykey_header_s {
  * local dimming device
  * *********************************
  */
-#define LCD_UKEY_LDIM_DEV_SIZE             1747 //722 + (1 + 1024)
+#define LCD_UKEY_LDIM_DEV_SIZE             1876 /*1747 //722 + (1 + 1024)*/
 
 /* header (10Byte) */
 /* LCD_UKEY_HEAD_SIZE */
@@ -302,9 +302,14 @@ struct lcd_unifykey_header_s {
 #define LCD_UKEY_LDIM_DEV_CUST_ATTR_7      (LCD_UKEY_LDIM_DEV_NAME + 709)
 #define LCD_UKEY_LDIM_DEV_CUST_ATTR_8      (LCD_UKEY_LDIM_DEV_NAME + 713)
 #define LCD_UKEY_LDIM_DEV_CUST_ATTR_9      (LCD_UKEY_LDIM_DEV_NAME + 717)
+/* 1 + 128 */
+#define LCD_UKEY_LDIM_DEV_CUST_PARAM_SIZE	(LCD_UKEY_LDIM_DEV_NAME + 721)
+#define LCD_UKEY_LDIM_DEV_CUST_PARAM		(LCD_UKEY_LDIM_DEV_NAME + 722)
+
 /* init (dynamic) */
-#define LCD_UKEY_LDIM_DEV_CMD_SIZE         (LCD_UKEY_LDIM_DEV_NAME + 721)
-#define LCD_UKEY_LDIM_DEV_INIT             (LCD_UKEY_LDIM_DEV_NAME + 722)
+#define LCD_UKEY_LDIM_DEV_CMD_SIZE         (LCD_UKEY_LDIM_DEV_NAME + 850)
+#define LCD_UKEY_LDIM_DEV_INIT             (LCD_UKEY_LDIM_DEV_NAME + 851)
+
 /*#define LCD_UKEY_LDIM_DEV_INIT_TYPE      (0)*/
 /*#define LCD_UKEY_LDIM_DEV_INIT_VAL        1   //not defined */
 /*#define LCD_UKEY_LDIM_DEV_INIT_DELAY     (n)*/

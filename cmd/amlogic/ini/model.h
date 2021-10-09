@@ -343,7 +343,8 @@ struct ldim_dev_profile_s {/* profile (273Byte) */
 	unsigned short profile_attr_7;
 };
 
-struct ldim_dev_custom_s {/* custom (40Byte) */
+#define LDIM_PARAM_MAX     32
+struct ldim_dev_custom_s {/* custom (40Byte) + 129Bytes */
 	unsigned int custome_attr_0;
 	unsigned int custome_attr_1;
 	unsigned int custome_attr_2;
@@ -354,6 +355,8 @@ struct ldim_dev_custom_s {/* custom (40Byte) */
 	unsigned int custome_attr_7;
 	unsigned int custome_attr_8;
 	unsigned int custome_attr_9;
+	unsigned char custome_param_size;
+	unsigned int custome_param[32];
 };
 
 #define LDIM_INIT_ON_MAX     1000
