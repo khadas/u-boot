@@ -132,7 +132,7 @@
         "logic_addr=0x0\0" \
         "cec_ac_wakeup=1\0" \
         "initargs="\
-            "init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe078000 "\
+            "root=LABEL=ROOTFS rootflags=data=writeback rw rootfstype=ext4" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 console=tty0 no_console_suspend earlycon=aml-uart,0xfe078000 fsck.repair=yes net.ifnames=0 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
             "\0"\
         "upgrade_check="\
@@ -238,28 +238,25 @@
             "fi;"\
             "\0" \
         "storeboot="\
-            "run get_os_type;"\
-            "if test ${os_type} = rtos; then "\
-                "setenv loadaddr ${loadaddr_rtos};"\
-                "store read ${loadaddr} ${boot_part} 0 0x400000;"\
-                "bootm ${loadaddr};"\
-            "else if test ${os_type} = kernel; then "\
-                "get_system_as_root_mode;"\
-                "echo system_mode in storeboot: ${system_mode};"\
-                "get_avb_mode;"\
-                "echo active_slot in storeboot: ${active_slot};"\
-                "if test ${system_mode} = 1; then "\
-                    "setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
-                "else "\
-                    "setenv bootargs ${bootargs} androidboot.force_normal_boot=1;"\
+            "setenv loadaddr ${loadaddr_kernel};"\
+            "echo Try to boot from SD card.;"\
+            "if load mmc 0:1 $dtb_mem_addr dtb/amlogic/kvim4_linux.dtb; then "\
+                "if load mmc 0:1 $loadaddr zImage; then "\
+                    "if load mmc 0:1 10000000 uInitrd; then "\
+                        "echo Boot from SD card.;"\
+                        "booti $loadaddr 10000000 $dtb_mem_addr;"\
+                    "fi;"\
                 "fi;"\
-                "if test ${active_slot} != normal; then "\
-                    "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
+            "fi;"\
+            "echo Try to boot from eMMC.;"\
+            "if load mmc 1:4 $dtb_mem_addr /boot/dtb/amlogic/kvim4.dtb; then "\
+                "if load mmc 1:4 $loadaddr zImage; then "\
+                    "if load mmc 1:4 10000000 uInitrd; then "\
+                        "echo Boot from eMMC.;"\
+                        "booti $loadaddr 10000000 $dtb_mem_addr;"\
+                    "fi;"\
                 "fi;"\
-                "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
-                "setenv loadaddr ${loadaddr_kernel};"\
-                "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
-            "else echo wrong OS format ${os_type}; fi;fi;"\
+            "fi;"\
             "echo try upgrade as booting failure; run update;"\
             "\0" \
          "update="\
@@ -448,7 +445,7 @@
         "logic_addr=0x0\0" \
         "cec_ac_wakeup=1\0" \
         "initargs="\
-            "init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe078000 "\
+            "root=LABEL=ROOTFS rootflags=data=writeback rw rootfstype=ext4" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 console=tty0 no_console_suspend earlycon=aml-uart,0xfe078000 fsck.repair=yes net.ifnames=0 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
             "\0"\
         "upgrade_check="\
@@ -556,29 +553,26 @@
             "fi;fi;fi;fi;fi;fi;fi"\
             "\0" \
         "storeboot="\
-            "run get_os_type;"\
-            "if test ${os_type} = rtos; then "\
-                "setenv loadaddr ${loadaddr_rtos};"\
-                "store read ${loadaddr} ${boot_part} 0 0x400000;"\
-                "bootm ${loadaddr};"\
-            "else if test ${os_type} = kernel; then "\
-                "get_system_as_root_mode;"\
-                "echo system_mode in storeboot: ${system_mode};"\
-                "get_avb_mode;"\
-                "echo active_slot in storeboot: ${active_slot};"\
-                "if test ${system_mode} = 1; then "\
-                    "setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
-                "else "\
-                    "setenv bootargs ${bootargs} androidboot.force_normal_boot=1;"\
+            "setenv loadaddr ${loadaddr_kernel};"\
+            "echo Try to boot from SD card.;"\
+            "if load mmc 0:1 $dtb_mem_addr dtb/amlogic/kvim4_linux.dtb; then "\
+                "if load mmc 0:1 $loadaddr zImage; then "\
+                    "if load mmc 0:1 10000000 uInitrd; then "\
+                        "echo Boot from SD card.;"\
+                        "booti $loadaddr 10000000 $dtb_mem_addr;"\
+                    "fi;"\
                 "fi;"\
-                "if test ${active_slot} != normal; then "\
-                    "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
+            "fi;"\
+            "echo Try to boot from eMMC.;"\
+            "if load mmc 1:4 $dtb_mem_addr /boot/dtb/amlogic/kvim4.dtb; then "\
+                "if load mmc 1:4 $loadaddr zImage; then "\
+                    "if load mmc 1:4 10000000 uInitrd; then "\
+                        "echo Boot from eMMC.;"\
+                        "booti $loadaddr 10000000 $dtb_mem_addr;"\
+                    "fi;"\
                 "fi;"\
-                "setenv bootargs ${bootargs} androidboot.rollback=${rollback_flag};"\
-                "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
-                "setenv loadaddr ${loadaddr_kernel};"\
-                "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
-            "else echo wrong OS format ${os_type}; fi;fi;"\
+            "fi;"\
+            "\0" \
             "echo try upgrade as booting failure; run update;"\
             "\0" \
         "update="\
