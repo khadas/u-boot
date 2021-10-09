@@ -278,6 +278,7 @@ void hdmitx21_init(void)
 {
 	struct hdmitx_dev *hdev = get_hdmitx21_device();
 	char *dongle_mode = NULL;
+	static struct hdmi_format_para para;
 
 	dongle_mode = env_get("dongle_mode");
 	if (dongle_mode && (dongle_mode[0] == '1'))
@@ -294,6 +295,7 @@ void hdmitx21_init(void)
 	hdmitx_load_dts_config(hdev);
 	hdmi_hwp_init();
 	amhdmitx_infoframe_init(hdev);
+	hdev->para = &para;
 }
 
 static void set_vid_clk_div(u32 div)
