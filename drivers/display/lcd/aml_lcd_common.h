@@ -15,6 +15,7 @@
 
 #ifndef _AML_LCD_COMMON_H
 #define _AML_LCD_COMMON_H
+#include <div64.h>
 #include <amlogic/aml_lcd.h>
 #include "aml_lcd_clk_config.h"
 #include "aml_lcd_unifykey.h"
@@ -43,7 +44,8 @@
 /* 20201116: optimize phy ctrl compatibility*/
 /* 20210311: add global reset to clear tcon last state*/
 /* 20210608: add tcon multi lut support*/
-#define LCD_DRV_VERSION    "20210608"
+/* 20211009: support 59 & 47 frame rate for tv mode*/
+#define LCD_DRV_VERSION    "20211009"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
@@ -51,6 +53,15 @@
 
 extern void mdelay(unsigned long n);
 extern unsigned int lcd_debug_test;
+
+static inline unsigned int lcd_do_div(unsigned long long num, unsigned int den)
+{
+	unsigned long long ret = num;
+
+	do_div(ret, den);
+
+	return (unsigned int)ret;
+}
 
 /* lcd common */
 extern int lcd_type_str_to_type(const char *str);
