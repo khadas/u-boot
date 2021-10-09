@@ -984,6 +984,11 @@ __attribute__ ((section(".clk_param"))) = {
 #define BD2657_REG_CRD_TIMER	0x2a
 #define BD2657_REG_CRD_TIMER_VALUE	0x00
 
+#define I2C_DEV_ADDR_BD71888    0x4b
+#define BD71888_REG_REGLOCK             0x2f
+#define BD71888_REG_BUCK8_VOLT_RUN  0x17
+#define BD71888_REG_BUCK8_VOLT_VALUE    0x19
+
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 	//hxbao, need fine tune
 	{ 0, 0, 0xffffffff, 0, 0, 0 },
@@ -1019,6 +1024,14 @@ __attribute__ ((section(".misc_param"))) = {
 	/* bd2657 : set Cold-Reset duration*/
 	{BD2657_REG_CRD_TIMER, BD2657_REG_CRD_TIMER_VALUE, 0xff, 0,
 		(I2C_BUS << 4) | (I2C_M3), I2C_DEV_ADDR_BD2657},
+
+	/* bd2657 : set LOCK REG to 0 to unlock BD71888 */
+	{BD71888_REG_REGLOCK, 0x00, 0xff, 0,
+		(I2C_BUS << 4) | (I2C_M3), I2C_DEV_ADDR_BD71888},
+
+	/* bd2657 : set VDD2H VOLT to 1.05V for LPDDR5 */
+	{BD71888_REG_BUCK8_VOLT_RUN, BD71888_REG_BUCK8_VOLT_VALUE, 0xff, 0,
+		(I2C_BUS << 4) | (I2C_M3), I2C_DEV_ADDR_BD71888},
 };
 
 #define DEV_FIP_SIZE 0x300000
