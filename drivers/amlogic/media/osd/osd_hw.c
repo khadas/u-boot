@@ -3458,6 +3458,53 @@ void osd_init_hw_viu2(void)
 	u32 bld_src2_sel = 2;
 	u32 osd_premult = 0;
 	u32 blend_en = 1;
+	u32 data32;
+
+	/* init osd fifo control register
+	 * set DDR request priority to be urgent
+	 */
+	data32 = 1;
+
+	/* hold_fifo_lines */
+	if (osd_hw.osd_ver == OSD_HIGH_ONE)
+		data32 |= 8 << 5;
+	else
+		data32 |= 4 << 5;
+	/* burst_len_sel: 3=64 */
+	if (osd_hw.osd_ver == OSD_HIGH_ONE) {
+		data32 |= 1 << 10;
+		data32 |= 1 << 31;
+	} else {
+		data32 |= 3  << 10;
+	}
+
+	/*
+	 * bit 23:22, fifo_ctrl
+	 * 00 : for 1 word in 1 burst
+	 * 01 : for 2 words in 1 burst
+	 * 10 : for 4 words in 1 burst
+	 * 11 : reserved
+	 */
+	data32 |= 2 << 22;
+	/* bit 28:24, fifo_lim */
+	data32 |= 2 << 24;
+
+	/* fifo_depth_val: 32*8=256 */
+	data32 |= 64 << 12;
+	osd_reg_write(VIU_OSD3_FIFO_CTRL_STAT, data32);
+
+	/* just disable osd to avoid booting hang up */
+	data32 = 0x0 << 0;
+	data32 |= OSD_GLOBAL_ALPHA_DEF << 12;
+	osd_reg_write(VIU_OSD3_CTRL_STAT, data32);
+
+	/* set replaced_alpha */
+	data32 = 0x1 << 14;
+	data32 |= 0xff << 6;
+	osd_reg_write(VIU_OSD3_CTRL_STAT2, data32);
+
+	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3)
+		osd_hw.path_ctrl_independ = 1;
 
 	/* OSD3 -> VPP1 */
 	if (osd_hw.path_ctrl_independ) {
@@ -3506,6 +3553,10 @@ void osd_init_hw_viu2(void)
 
 	osd_hw.rotation_pandata[VIU2_OSD1].x_start = 0;
 	osd_hw.rotation_pandata[VIU2_OSD1].y_start = 0;
+
+	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7 ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3)
+		osd_hw.mif_linear = 1;
 }
 #else
 void osd_init_hw_viu2(void)
@@ -3593,6 +3644,13 @@ static void set_vpp_super_position(void)
 
 static void fix_vpu_clk2_default_regs(void)
 {
+	static int init_done;
+
+	if (init_done) {
+		osd_logd("%s, has been initialized, skip.\n", __func__);
+		return;
+	}
+	init_done = 1;
 #ifdef AML_T7_DISPLAY
 	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7) {
 		 /* default: osd byp osd_blend */
@@ -3635,6 +3693,13 @@ static void fix_vpu_clk2_default_regs(void)
 
 static void independ_path_default_regs(void)
 {
+	static int init_done;
+
+	if (init_done) {
+		osd_logd("%s, has been initialized, skip.\n", __func__);
+		return;
+	}
+	init_done = 1;
 	/* default: osd1_bld_din_sel -- do not osd_data_byp osd_blend */
 	osd_reg_set_bits(VIU_OSD1_PATH_CTRL, 0x0, 4, 1);
 	osd_reg_set_bits(VIU_OSD2_PATH_CTRL, 0x0, 4, 1);
