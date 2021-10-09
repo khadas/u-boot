@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+source scripts/amlogic/clean.sh $1
+
+if [ -f bl30.bin ]
+then
+	rm bl30.bin
+fi
+

@@ -1,0 +1,334 @@
+                      SOFTWARE LICENSE AGREEMENT
+
+
+This Software License Agreement (the "Agreement") is entered into as of August 10, 2017 (the
+"Effictive Date"), by and between AMLOGIC (CA) CO., INC., with principal office at 2518
+Mission College Blvd., Suite 120, Santa Clara, CA 95054, USA ("Amlogic"), with a place of business
+ at 1600 Amphitheatre Parkway, Mountain View, California 94043, USA ("Licensee"). The parties
+agree as follows:
+
+      1.    DEFINITIONS.
+
+             1.1  "Authorized Location" shall mean the location set forth in the applicable
+ Software Description Form in the form attached hereto as Exhibit A, or if none is listed, then the
+address for Licensee set forth above.
+
+             1.2  "Authorized Licensee Product" means the specific product listed in the
+applicable Software Description Form, or if none is listed, then any system level product sold by
+Licensee that incorporates the Amlogic Product and the Software or Derivative Work and
+includes other hardware and software provided by Licensee.
+
+             1.3  "Amlogic Product" means any of the proprietary integrated circuit
+product(s) sold by Amlogic with which the Software was designed to be used.
+
+             1.4  "Derivative Work" means any discrete modification to the Software made
+by Licensee pursuant to this agreement and any modified, altered, enhanced or adapted version
+of the Software, or derivative work thereof (as that term is defined under United States copyright
+ law) based on the Software.
+
+             1.5  "End User Agreement" means a written, legally enforceable agreement
+that (i) stipulates that the Software is licensed, not sold, and that title to and ownership of the
+ Software and any portion thereof remain with Amlogic or its licensors; (ii) disclaims all express
+and implied warranties on behalf of Amlogic, and exclude liability of Amlogic and its licensors
+ for any special, indirect, exemplary, incidental or consequential damages; and (iii) prohibits the
+end user from (a) copying the Software, except as reasonably necessary for internal back-up
+purposes, (b) using andlor transferring the Software to any third party apart from a Authorized
+Licensee Product, (c) modifying the Software, (d) attempting to reverse engineer, decompile or
+disassemble any portion of the Software, or (e) exporting the Software or any underlying
+technology in contravention of any applicable U.S. or foreign export laws and regulations.
+
+             1.6  "Object Code" means those portions of the Software, if any, furnished to
+Licensee in object code or machine readable form, including, without limitation, any bit images
+or other binary files for FPGAs.
+
+             1.7  "Software" shall mean that software provided by Amlogic to Licensee
+ from time to time and which is described in a Software Description Form executed by the parties
+ that references this Agreement.
+             1.8  "Source Code" means those portions ofthe Software, if any, furnished to
+Licensee in source code or human readable form, including, without limitation, any Verilog,
+HTL or RTL code.
+
+      2.    LICENSEE GRANT; OWNERSHIP.
+
+            2.1    License Grants. Subject to the terms and conditions of this Agreement,
+Amlogic hereby grants to Licensee, under all of Amlogic' s intellectual property rights in and to
+the Software, a limited, non-exclusive, non-transferable, royalty-free license (i) to use, modify
+and create Derivative Works from the Source Code, and to use the Object Code, without right to
+ sublicense, solely at the Authorized Location, solely for the purpose of incorporating the
+ Software or Derivative Works in Authorized Licensee Products for use solely with the Amlogic
+ Product, and only if in compliance with Section 2.2 below; and (ii) to reproduce, distribute and
+ sublicense, in object code form only, copies ofthe Software or Derivative Works only to be
+ incorporated in Authorized Licensee Products for use solely with the Amlogic Product to
+resellers, distributors and end users of such Authorized Licensee Products, and only if in
+compliance with Section 2.3 below.
+
+            2.2    Restriction on Modification. If and to the extent that the Software is
+designed to be compliant with any published standard (including, without limitation, DOCSIS,
+ HomePNA, IEEE, and ITU standards), Licensee may not make any modifications to the
+ Software that would cause the Software or the accompanying Amlogic Products to be
+ incompatible with such standard.
+
+            2.3    Restriction on Distribution. Licensee shall only distribute the Software
+or Derivative Works to resellers, distributors and end users either (a) physically embedded in the
+Authorized Licensee Products in a manner that is not readily accessible to end users; or
+(b) pursuant to an End User Agreement. By way of example only, an End User Agreement shall
+be required to distribute the Software or Derivative Works on a CD-ROM, floppy disk, or by
+electronic transmission.
+
+            2.4    Proprietary Notices. Licensee shall not remove, efface or obscure any
+copyright or trademark notices from the Software or Derivative Work. Licensee shall include
+reproductions of the Amlogic copyright notice with each copy of the Software and any
+Derivative Work, except where such Software is embedded in a manner not readily accessible to
+the end user. Licensee acknowledges that any symbols, trademarks, tradenames, and service
+marks adopted by Amlogic to identify the Software or otherwise, belong to Amlogic and that
+Licensee shall have no rights therein.
+
+            2.5   Ownership.  Amlogic shall retain all right, title and interest, including all
+intellectual property rights, in and to the Software. Licensee hereby irrevocably assigns and
+agrees to assign to Amlogic all right, title and interest in and to the Derivative Works. Licensee
+agrees to perform all acts deemed reasonably necessary or desirable by Amlogic to permit and
+assist Amlogic, at Amlogic's expense, to obtain and enforce the full benefits throughout the
+world of Licensee's assignment of all right, title and interest in the Derivative Works to the
+ Software and all related intellectual property rights to Amlogic, including but not limited to
+ execution of documents and assistance or cooperation in the registration and enforcement of any
+ such intellectual property rights throughout the world. If Amlogic is unable for any reason
+
+
+                                       2
+
+whatsoever to secure Licensee's signature to any document Licensee is required to execute
+pursuant to the foregoing, Licensee hereby irrevocably designates and appoints Amlogic and its
+duly authorized officers and agents, as their agents and attorneys-in-fact to act for and in its
+behalf and instead of Licensee, to execute and file any such document and to do all other
+lawfully permitted acts to further the purposes of the foregoing with the same legal force and
+effect as if executed by Licensee. The foregoing is deemed a power coupled with an interest and
+is irrevocable. Notwithstanding the foregoing or any other provision of this Agreement, nothing
+contained herein shall be construed as granting Amlogic any right, title or interest in or to any of
+Licensee's intellectual property or Confidential Information.
+
+            2.6   Third Party Software. The Software is distributed to Licensee in
+aggregation with various third party software ("Open Source Software"). The Open Source
+Software is distributed to Licensee under the terms ofvarious "open source tl license agreements
+which are incorporated herein by reference. Please review
+http://openlinux.amlogic.com/wikilindex.php/AlTI1/Android/3.0Third­
+Party Libraries and Open Source License Agreements for these notices and requirements.
+Licensee agrees to comply with terms and conditions contained in all such Open Source
+Software licenses with respect to the applicable Open Source Software.
+
+            2.7   No Other Rights Granted. Apart from the license rights expressly set
+forth in this Agreement, Amlogic does not grant and Licensee does not receive any ownership
+right, title or interest nor any security interest or other interest in any intellectual property rights
+relating to the Software, nor in any copy of any part of the foregoing. Licensee shall not use,
+license, sell or otherwise distribute the Software or any Derivative Work except as provided in
+this Agreement, and shall not, directly or indirectly, reverse engineer, decompile or disassemble
+any portion of the Object Code (or attempt to do so).
+
+            2.8   Fees. In consideration of the licenses granted hereunder, Licensee shall
+pay to Amlogic the fees according to the terms set forth on the Software Description Form, if
+applicable. If the Software Description Form does not include payment terms, all payments
+under this Agreement shall be made within thirty (30) days of the invoice date. Licensee shall
+pay any taxes, duties or charges of any kind (including any sales, withholding or value added
+taxes) imposed by any federal, state or local governmental entity for products or services
+provided under this Agreement excluding only taxes based solely on Amlogic's net income. If all
+or any part of any payment owed to Amlogic under this Agreement is withheld, based upon a
+claim that such withholding is required pursuant to the tax laws of any country or its political
+subdivisions andlor any tax treaty between the U.S. and any such country, such payment shall be
+increased by the amount necessary to result in a net payment to Amlogic of the amounts
+otherwise payable under this Agreement. Any amounts due under this Agreement which are not
+paid within thirty (30) calendar days of their due date shall be subject to a late payment charge of
+the lower of: (i) one and one half percent (1.5%) per month (and shall thereafter bear interest at a
+rate of eighteen percent (18%) per annum until paid); and (ii) the highest interest rate permitted
+by applicable law. Each party is responsible for its own expenses under this Agreement. All
+fees payable under this Agreement are non-refundable.
+
+
+                                       3
+
+      3.    NO WARRANTY OR SUPPORT.
+
+            3.1   No Warranty.  THE SOFTWARE IS   PROVIDED "AS IS," AND WITH
+ALL FAULTS.   AMLOGIC PROVIDESNO WARRANTIES OF ANY KIND, WHETHER
+EXPRESS OR IMPLIED, BY STATUTE, COMMUNICATION, COURSE OF         DEALING OR
+CONDUCT WITH LICENSEE, OR OTHERWISE.       AMLOGIC SPECIFICALLY DISCLAIMS
+ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FORA SPECIFIC
+PURPOSE OR NONINFRINGEMENT CONCERNING THE SOFTWARE OR ANY
+UPGRADES TO    OR DOCUMENTATION FOR THE SOFTWARE.        WITHOUT
+LIMITATION OF THE ABOVE, AMLOGIC GRANTS NO WARRANTY THAT THE
+SOFTWARE IS   ERROR-FREE OR WILL OPERATE WITHOUT INTERRUPTION, AND
+GRANTS NO WARRANTY REGARDING ITS        USE OR THE RESULTS THEREFROM
+INCLUDING, WITHOUT LIMITATION, ITS     CORRECTNESS, ACCURACY OR
+RELIABILITY.
+
+            3.2   No Support. Nothing in this Agreement shall obligate Amlogic to
+provide any support for the Software. Amlogic may, but shall be under no obligation to, correct
+any defects in the Software and/or provide updates to licensees of the Software. Licensee shall
+make reasonable efforts to promptly report to Amlogic any defects it finds in the Software, as an
+aid to creating improved revisions of the Software.
+
+            3.3   End User Support. Licensee shall, at its own expense, be solely
+responsible for providing technical support and training to its customers for Authorized Licensee
+Products, and Amlogic shall have no obligation with respect thereto. Licensee shall be solely
+responsible for, and Amlogic shall have no obligation to honor, any warranties that Licensee
+provides to its customers or to end users with respect to the Software or Derivative Works.
+Licensee shall defend any claim against Amlogic arising in connection with any such warranties,
+express, implied, statutory, or otherwise, and shall pay any settlements or damages awarded
+against Amlogic that are based on any such warranties.
+
+      4.    TERM AND TERMINATION.
+
+            4.1   Term and Termination. This Agreement shall become effective on the
+date first set forth above and shall remain in effect perpetually unless terminated as provided
+below. If Licensee defaults in a material obligation under this Agreement, and if the default is
+curable, also fails to cure such default thirty (30) days after written notice of such default,
+Amlogic may immediately terminate and cancel this Agreement and the licenses granted
+hereunder upon written notice to Licensee. Licensee may terminate this Agreement at any time
+upon written notice to Amlogic and fulfillment of its obligations under Section 4.2 herein.
+
+            4.2   Effect of Termination. Upon any termination of this Agreement, the
+rights and licenses granted to Licensee under this Agreement shall immediately terminate;
+provided, however, that sublicenses of the Software or Derivative Works in Object Code format,
+to the extent validly granted to end users pursuant to Section 2.1(ii) prior to termination of this
+Agreement, shall survive such termination subject to compliance with the obligations set forth
+herein. Upon termination, Licensee shall ship to Amlogic, within thirty (30) days, all tangible
+ items in its possession or control which are proprietary to Amlogic; and Licensee shall destroy or
+
+
+                                       4
+
+return to Amlogic, at Amlogic's option, all copies of the Software and Derivative Works
+(including, without limitation, Source Code) in its possession or control.
+
+            4.3   Survival. The provisions of Sections 1,2.2,2.3,2.4,2.5,2.6,2.7,3,4,5,
+6 and 7 shall survive the termination of this Agreement.
+
+      S.    CONFIDENTIALITY.
+
+            5.1   Existing NDA (if Applicable). If Amlogic and Licensee already have put
+in place a non-disclosure agreement that would protect communications made under this
+Agreement (the "NDA"), then all such communications shall be subject to the terms and
+conditions of such NDA, which the parties acknowledge is in full force and effect. The parties
+agree that the Software, Object Code, Source and any accompanying documentation will be
+considered Confidential Information under the NDA. In the event of a conflict between the
+terms of this Agreement and the terms of the NDA, the terms of this Agreement will prevail.
+
+            5.2   Obligations if No NDA Exists. If no NDA exists, then the following
+terms shall apply: Licensee acknowledges and agrees that the Software, Object Code, Source
+Code, any accompanying documentation, and any other information (if such other information is
+identified as confidential or should be recognized as confidential under the circumstances)
+provided to Licensee by Amlogic hereunder (collectively, "Confidential Information") constitute
+the confidential and proprietary information of Amlogic, and that Licensee's protection thereof is
+an essential condition to Licensee's use and possession of the Confidential Information.
+Licensee shall retain all Confidential Information in strict confidence and not disclose it to any
+third party or use it in any way except as permitted by this Agreement without Amlogic's express
+written consent. Licensee will exercise at least the same amount of diligence in preserving the
+secrecy of the Confidential Information as it uses in preserving the secrecy ofits own most
+valuable confidential information, but in no event less than reasonable diligence. The
+prohibitions contained in this Section 5.2 preclude dissemination of Confidential Information to
+Licensee's subsidiaries, affiliates, contractors or subcontractors, except in the event of a
+permitted assignment pursuant to Section 7.1. Information shall not be considered Confidential
+Information if and to the extent that it: (i) was in the public domain at the time it was disclosed
+or has entered the public domain through no fault of Licensee; (ii) was known to Licensee,
+without restriction, at the time of disclosure as proven by the files of Licensee in existence at the
+time of disclosure; or (iii) becomes known to Licensee, without restriction, from a source other
+than Amlogic without breach of this Agreement by Licensee and otherwise not in violation of
+Amlogic's rights. Because of the unique and valuable nature of the Confidential Information,
+Licensee acknowledges and agrees that Amlogic will suffer irreparable harm in the event that the
+Licensee fails to comply with any of its obligations herein and that monetary damages will be
+inadequate to compensate Amlogic for such breach. Accordingly, Amlogic and Licensee agree
+that Amlogic will, in addition to any other remedies available at law or in equity, be entitled to
+obtain injunctive relief to enforce the terms of this Agreement.
+
+            5.3   Source Code Protection. Licensee shall not under any circumstances
+copy, duplicate or otherwise reproduce the Source Code in any manner except as provided
+herein. Licensee is granted the right to make one (1) archival or backup copy ofthe Source
+Code, which shall be marked as an archival copy and as the confidential and proprietary property
+of Amlogic to which access is restricted. Licensee agrees to inform all employees and
+
+
+                                       5
+
+contractors who are given access by Licensee to the Software, including the Source Code, the
+Object Code, or any accompanying documentation, that such materials are confidential and trade
+secrets of Amlogic licensed to Licensee as such.
+
+      6.    LIMITATION OF LIABILITY.
+
+      EXCEPT FOR A BREACH BY LICENSEE OF SECTION 2 (LICENSE GRANT;
+OWNERSHIP) OR A BREACH BY EITHER PARTY OF SECTION 5 (CONFIDENTIALITY),
+IN NO EVENT SHALL LICENSEE, AMLOGIC OR ANY OF AMLOGIC'S LICENSORS
+HAVE ANY LIABILITY FOR ANY INDIRECT, INCIDENTAL, SPECIAL, OR
+CONSEQUENTIAL DAMAGES, HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER FOR BREACH OF CONTRACT, TORT (INCLUDING
+NEGLIGENCE) OR OTHER WISE, ARISING OUT OF THIS AGREEMENT, INCLUDING
+BUT NOT LIMITED TO LOSS OF PROFITS, EVEN IF    SUCH PARTY HAS BEEN
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.       THESE LIMITATIONS SHALL
+APPLY NOTWITHSTANDING ANY FAILURE OF ESSENTIAL PURPOSE OF ANY
+LIMITED REMEDY.
+
+IN NO EVENT SHALL AMLOGIC BE LIABLE FOR ANY AMOUNT EXCEEDING THE
+GREATER OF ONE HUNDRED DOLLARS AND THE AMOUNTS PAID BY CUSTOMER
+TO AMLOGIC HEREUNDER.
+
+      7.    MISCELLANEOUS.
+
+            7.1   Assignment. This Agreement shall be binding upon and inure to the
+benefit ofthe parties and their respective successors and assigns, provided, however that
+Licensee may not assign this Agreement or any rights or obligation hereunder, directly or
+indirectly, by operation of law or otherwise, without the prior written consent ofAmlogic, and
+any such attempted assignment shall be void. Notwithstanding the foregoing, Licensee may
+assign this Agreement to a successor to all or substantially all of its business or assets to which
+this Agreement relates that is not a competitor of Amlogic.
+
+            7.2   Notices. All notices between the parties shall be in writing and shall be
+deemed to have been given if personally delivered or sent by certified mail (return receipt
+requested), or telecopy, to the other party's legal department at the address set forth in this
+Agreement, and for Amlogic to Attn: Legal Department, Amlogic, Inc. 2518 Mission College
+Blvd, Suite 120, Santa Clara CA, 95054, USA and such other address as is provided by notice as
+set forth herein. Notices shall be deemed effective upon receipt if personally delivered, three (3)
+business days after it was sent if by certified mail, or one (1) business day after it was sent if by
+telecopier.
+
+            7.3   Governing Law; Venue. This Agreement shall be governed by the laws
+of California without regard to any conflict-of-Iaws rules, and the United Nations Convention on
+Contracts for the International Sale of Goods is hereby excluded. The sole jurisdiction and
+venue for actions related to the subject matter hereof shall be the state and federal courts located
+in the County of Santa Clara, California, and both parties hereby consent to such jurisdiction and
+venue.
+
+
+                                       6
+
+            7.4   Severability. All terms and provisions ofthis Agreement shall, if
+possible, be construed in a manner which makes them valid, but in the event any term or
+provision of this Agreement is found by a court of competent jurisdiction to be illegal or
+unenforceable, the validity or enforceability of the remainder of this Agreement shall not be
+affected if the illegal or unenforceable provision does not materially affect the intent ofthis
+Agreement. If the illegal or unenforceable provision materially affects the intent of the parties to
+this Agreement, this Agreement shall become terminated.
+
+            7.5   Equitable Relief. Licensee hereby acknowledges that its breach of this
+Agreement would cause irreparable harm and significant injury to Amlogic that may be difficult
+to ascertain and that a remedy at law would be inadequate. Accordingly, Licensee agrees that
+Amlogic shall have the right to seek and obtain immediate injunctive relief to enforce obligations
+under the Agreement in addition to any other rights and remedies it may have.
+
+            7.6   Export Regulations. Licensee agrees and warrants that it shall comply, at
+its own expense, with the U.S. Foreign Corrupt Practices Act and all export laws, restrictions,
+national security controls and regulations of the United States and any applicable foreign agency
+or authority. Licensee shall not export or re-export, or authorize the export or re-export of the
+Software or any other product, technology, or information that Licensee obtains or learns
+hereunder, or any copy or direct product thereof, in violation of any of such laws, restrictions, or
+regulations or without any license or approval required thereunder. Any and all obligations of
+Amlogic to provide Software or any media in which the Software is contained shall be subject in
+all respects to such laws, restrictions, and regulations.
+
+            7.7   Waiver. The waiver of, or failure to enforce, any breach or default
+hereunder shall not constitute the waiver of any other or subsequent breach or default.
+
+            7.8   Entire Agreement. This Agreement, along with any associated Software
+Description Forms, sets forth the entire Agreement between the parties and supersedes any and
+all prior proposals, agreements and representations between them, whether written or oral. This
+Agreement may be changed only by mutual agreement of the parties in writing. In the event of
+a conflict between the terms of this Agreement and the terms of a Software Description Form,
+the term of the Software Description Form will prevail.
+

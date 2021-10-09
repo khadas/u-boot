@@ -1,0 +1,58 @@
+#!/bin/bash
+
+cmd=""
+chipset=""
+mrk=""
+output=""
+
+generate_aes_key() {
+    local argv=("$@")
+    local i=0		   
+    # Parse args
+    i=0
+    while [ $i -lt $# ]; do
+        arg="${argv[$i]}"
+				#echo "i=$i argv[$i]=${argv[$i]}"
+        i=$((i + 1))
+        case "$arg" in
+        		--cmd)
+                cmd="${argv[$i]}" ;;            
+            --chipset)
+               chipset="${argv[$i]}" ;;
+            --mrk)
+                mrk="${argv[$i]}" ;;
+            --output)
+                output="${argv[$i]}" ;;                
+            *)
+                echo "Unknown option $arg"; exit 1
+            ;;
+       esac
+       i=$((i + 1))
+			done
+		
+		#echo cmd=${cmd}	
+		#echo mrk=${mrk}	
+		#echo soc=${soc}
+		#echo output=${output}
+		
+		./vendor-keytool ${cmd}	 --chipset=${chipset} --mrk=${mrk} &> ${output}
+}			
+			
+parse_main() {
+    case "$@" in
+        --help)
+            usage
+            ;;
+        --version)
+            echo "$(basename $0) version $VERSION"
+            ;;
+        *-o*)
+            generate_aes_key "$@"
+            ;;
+        *)
+            usage "$@"
+            ;;
+    esac
+}
+
+parse_main "$@"			

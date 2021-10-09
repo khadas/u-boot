@@ -1,0 +1,134 @@
+#
+#  Copyright (C) 2014-2018 Amlogic, Inc. All rights reserved.
+#
+#  All information contained herein is Amlogic confidential.
+#
+#  This software is provided to you pursuant to Software License Agreement
+#  (SLA) with Amlogic Inc ("Amlogic"). This software may be used
+#  only in accordance with the terms of this agreement.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification is strictly prohibited without prior written permission from
+#  Amlogic.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+#******************************************************************************
+# The compiler to be used.
+#
+#******************************************************************************
+ifndef COMPILER
+COMPILER=gcc
+endif
+
+
+#******************************************************************************
+#
+# The debugger to be used.
+#
+#******************************************************************************
+ifndef DEBUGGER
+DEBUGGER=gdb
+endif
+
+#******************************************************************************
+#
+# Definitions for using GCC.
+#
+#******************************************************************************
+ifeq (${COMPILER}, gcc)
+
+#
+# The command for calling the compiler.
+#
+#ifeq ($(ARCH_CPU), RISC_V_N205)
+CC=$(CROSS_COMPILE_PATH)riscv-none-embed-gcc
+CPP=$(CROSS_COMPILE_PATH)riscv-none-embed-g++
+
+AFLAGS+=-march=rv32imc -mabi=ilp32 -mcmodel=medany \
+	--specs=nano.specs --specs=nosys.specs -ffunction-sections \
+	-fdata-sections -fno-common -fgnu89-inline
+
+WARNINGS=-Werror -Wall -Wextra -Wshadow -Wpointer-arith -Wbad-function-cast -Wsign-compare \
+	-Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wunused
+CFLAGS+= -g -march=rv32imc -mabi=ilp32 -mcmodel=medany -O2 \
+	--specs=nano.specs --specs=nosys.specs -ffunction-sections \
+	-fdata-sections -fno-common -fgnu89-inline
+
+CFLAGS+=$(WARNINGS)
+
+AR=$(CROSS_COMPILE_PATH)riscv-none-embed-ar
+LD=$(CROSS_COMPILE_PATH)riscv-none-embed-ld
+OBJCOPY=$(CROSS_COMPILE_PATH)riscv-none-embed-objcopy
+NM=$(CROSS_COMPILE_PATH)riscv-none-embed-nm
+OBJDUMP=$(CROSS_COMPILE_PATH)riscv-none-embed-objdump
+#endif
+endif
+
+
+#******************************************************************************
+#
+# Tell the compiler to include debugging information if the DEBUG environment
+# variable is set.
+#
+#******************************************************************************
+ifdef DEBUG
+CFLAGS += -g
+endif
+
+ifdef ENABLE_STACKTRACE
+CFLAGS += -DENABLE_STACKTRACE=1
+endif
+
+GET_DATE:=$(shell date +%F)
+GET_TIME:=$(shell date +%H:%M:%S)
+COMMIT_ID:=$(word 2, $(shell git log -1 2>/dev/null | head -n 1))
+BRANCH:=$(word 2, $(shell git branch 2>/dev/null | grep "\*"))
+ifeq ("${COMMIT_ID}", "")
+COMMIT_ID:=
+BRANCH:=
+endif
+
+CFLAGS += -D VERSION="\"${BRANCH} ${COMMIT_ID} ${GET_TIME} ${GET_DATE}\""
+
+CFLAGS += -D SOC_${SOC}
+
+#******************************************************************************
+#
+# The rule for building the object file from each C source file.
+#
+#******************************************************************************
+${COMPILER}/%.o: %.c
+	@if [ 'x${VERBOSE}' = x ];                               \
+	 then                                                    \
+	     echo "  CC    ${<}";                                \
+	 else                                                    \
+	     echo ${CC} ${CFLAGS} -D${COMPILER} -o ${@} -c ${<}; \
+	 fi
+	@${CC} ${CFLAGS} -D${COMPILER} -MD -o ${@} -c ${<}
+
+#******************************************************************************
+#
+# The rule for building the object file from each assembly source file.
+#
+#******************************************************************************
+${COMPILER}/%.o: %.S
+	@if [ 'x${VERBOSE}' = x ];                               \
+	 then                                                    \
+	     echo "  CC    ${<}";                                \
+	 else                                                    \
+	     echo ${CC} ${AFLAGS} -D${COMPILER} -o ${@} -c ${<}; \
+	 fi
+	 @${CC} ${AFLAGS} -D${COMPILER} -MD -o ${@} -c ${<}
+
