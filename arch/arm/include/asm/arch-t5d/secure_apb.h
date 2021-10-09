@@ -14,7 +14,7 @@
 #else
 #define SECURE_APB_H
 
-#include "fixme.h"
+#include "extra_register.h"
 
 //
 // Reading file:  ./secure_apb4_ee.h
