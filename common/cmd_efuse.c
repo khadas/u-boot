@@ -29,7 +29,8 @@
 
 int cmd_efuse(int argc, char * const argv[], char *buf)
 {
-	int i, action = -1;
+	//int i, action = -1;
+	int i, action;
 	loff_t offset;
 	uint32_t size = 0, max_size;
 	char *end;
@@ -290,7 +291,8 @@ U_BOOT_CMD(
 #ifdef CONFIG_EFUSE_OBJ_API
 int do_efuse_obj(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	uint32_t rc = CMD_RET_FAILURE;
+	//uint32_t rc = CMD_RET_FAILURE;
+	uint32_t rc;
 	uint8_t set = 0;
 	uint32_t obj_id = 0;
 	uint8_t buff[32];

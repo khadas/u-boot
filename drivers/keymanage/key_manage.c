@@ -205,12 +205,14 @@ static int _burn_key_in_type_sha1(const char* keyname, void* databuf, const unsi
     const unsigned shaSumLen = 20;
     const unsigned licLen = srcKeyLen - shaSumLen;
     const u8* orgSum = (u8*)srcKeyVal + licLen;
-    u8 genSum[shaSumLen];
+	u8 genSum[shaSumLen];
 
     if (srcKeyLen <= 20) {
         KM_ERR("Err key len %d for sha1 fmt\n", srcKeyLen);
         return __LINE__;
     }
+
+	memset(genSum, 0, sizeof(genSum));
 
     sha1_csum((u8*)srcKeyVal, licLen, genSum);
 
@@ -419,6 +421,11 @@ int key_manage_write(const char* keyname, const void* keydata, const unsigned da
     }
 
     decryptBuf = (char*)malloc(DecryptBufMaxLen);
+	if (!decryptBuf) {
+		KM_ERR("Fail malloc mem\n");
+		return __LINE__;
+	}
+
     switch (srcKeyType)
     {
         case KM_USER_KEY_TYPE_MAC:
@@ -475,8 +482,12 @@ int key_manage_read(const char* keyname, void* keydata, const unsigned bufLen)
     }
 
     decryptBuf = (char*)malloc(DecryptBufMaxLen);
-    switch (srcKeyType)
-    {
+	if (!decryptBuf) {
+		KM_ERR("Fail malloc mem\n");
+		return __LINE__;
+	}
+
+	switch (srcKeyType) {
         case KM_USER_KEY_TYPE_MAC:
             {
                 ret = _read_key_in_type_mac(keyname, (char*)keydata, (unsigned)keysize, decryptBuf);
@@ -679,6 +690,10 @@ static int do_keyman_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
         dataLen = strlen(databuf) / 2;
 
         tmpBuf = (char*)malloc(dataLen);
+	if (!tmpBuf) {
+		KM_ERR("Fail malloc mem\n");
+		return CMD_RET_FAILURE;
+	}
         ret = _keyman_hex_ascii_to_buf(databuf, tmpBuf, dataLen);
         if (ret) {
             KM_ERR("Fail in change hex argv[3] to bin, err=%d\n", ret);

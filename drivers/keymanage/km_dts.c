@@ -81,7 +81,7 @@ enum key_manager_df_e keymanage_dts_get_key_fmt(const char *keyname)
 		return keyValFmt;
 	}
 
-    keyValFmt = key_manage->datFmt;
+	keyValFmt = (enum key_manager_df_e)key_manage->datFmt;
 	return keyValFmt;
 }
 
@@ -104,7 +104,7 @@ enum key_manager_dev_e keymanage_dts_get_key_device(const char *keyname)
 		return KEY_M_MAX_DEV;
 	}
 
-	return key_manage->dev;
+	return (enum key_manager_dev_e)key_manage->dev;
 }
 
 const char* keymanage_dts_get_enc_type(const char* keyname)
@@ -389,7 +389,16 @@ int keymanage_dts_parse(const void* dt_addr)
             const char* keyName = fdt_get_name(dt_addr, node, &len);
             KM_DBG("provisionkey[%s] len %d\n", keyName, len);
 
+		if (!keyName) {
+			KM_ERR("keyName is NULL\n");
+			return __LINE__;
+		}
             struct key_item_t *pItem= unifykey_item + id;
+
+		if (!pItem) {
+			KM_ERR("pItem is NULL\n");
+			return __LINE__;
+		}
 
             szlen = strnlen(keyName, KEY_UNIFY_NAME_LEN - 1);
             memcpy(pItem->name, keyName, szlen);

@@ -28,17 +28,30 @@ int keymanage_secukey_write(const char *keyname, const void* keydata, unsigned i
     int ret = 0;
     uint8_t origSum[SHA256_SUM_LEN];
     const int isSecure =  ( KEY_M_SECURE_KEY == keymanage_dts_get_key_device(keyname) ) ? 1 : 0;
-    const int isEncrypt= strlen(keymanage_dts_get_enc_type(keyname)) ? 1 : 0;
-    const unsigned int keyAttr = ( isSecure << 0 ) | ( isEncrypt << 8 );
+    //const int isEncrypt= strlen(keymanage_dts_get_enc_type(keyname)) ? 1 : 0;
+    //const unsigned int keyAttr = ( isSecure << 0 ) | ( isEncrypt << 8 );
     ssize_t writenLen = 0;
+	int isEncrypt;
+	unsigned int keyAttr;
+	const char *penc_type;
 
-    if (isSecure)
-    {
-        sha256_context ctx;
-        sha256_starts(&ctx);
-        sha256_update(&ctx, keydata, datalen);
-        sha256_finish(&ctx, origSum);
-    }
+	penc_type = keymanage_dts_get_enc_type(keyname);
+	if (!penc_type) {
+		//isEncrypt = strlen(penc_type) ? 1 : 0;
+		isEncrypt = 0;
+	} else {
+		isEncrypt = strlen(penc_type) ? 1 : 0;
+		//
+	}
+	keyAttr = (isSecure << 0) | (isEncrypt << 8);
+
+	if (isSecure) {
+		sha256_context ctx;
+
+		sha256_starts(&ctx);
+		sha256_update(&ctx, keydata, datalen);
+		sha256_finish(&ctx, origSum);
+	}
 
     KM_MSG("isEncrypt=%s\n", keymanage_dts_get_enc_type(keyname));
     KM_DBG("%s, keyname=%s, keydata=%p, datalen=%d, isSecure=%d\n", __func__, keyname, keydata, datalen, isSecure);
@@ -51,7 +64,7 @@ int keymanage_secukey_write(const char *keyname, const void* keydata, unsigned i
 
     if (isSecure)
     {
-        uint8_t genSum[SHA256_SUM_LEN];
+	uint8_t genSum[SHA256_SUM_LEN] = {0,};
 
         ret = amlkey_hash_4_secure((uint8_t*)keyname, genSum);
         if (ret) {

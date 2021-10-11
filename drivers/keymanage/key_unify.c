@@ -177,6 +177,11 @@ int key_unify_init(const char* seedStr, const char* dtbLoadaddr)
 
     dtbLoadaddr = (char*) getenv_ulong("dtb_mem_addr", 16, CONFIG_SYS_SDRAM_BASE + (16U<<20));
 
+	if (!dtbLoadaddr) {
+		KM_DBG("Fail dtbLoadaddr is NULL\n");
+		return err;
+	}
+
     if (keymanage_dts_parse(dtbLoadaddr)) {
         KM_DBG("Fail parse /unifykey at addr[0x%p]\n", dtbLoadaddr);
         return err;
@@ -206,7 +211,8 @@ int key_unify_init(const char* seedStr, const char* dtbLoadaddr)
  * */
 int key_unify_uninit(void)
 {
-    int err=-EINVAL;
+    //int err=-EINVAL;
+	int err;
     int i;
 
     for (i=0; i < _KM_DEVCNT; i++)
@@ -473,8 +479,12 @@ int do_keyunify (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
         KM_DBG("write key[%s], addr=%p, len=%d\n", keyname, keyData, len);
         err = key_unify_write(keyname, keyData, len);
         if (err ) {
-            KM_ERR("%s key write fail, err=%d\n", keyname, err);
-            return CMD_RET_FAILURE;
+		KM_ERR("%s key write fail, err=%d\n", keyname, err);
+		if (dataBuf) {
+			free(dataBuf);
+			//
+		}
+		return CMD_RET_FAILURE;
         }
         if (dataBuf)free(dataBuf) ;
 

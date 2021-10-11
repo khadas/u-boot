@@ -26,6 +26,11 @@ int keymanage_efuse_init(const char *buf, int len)
 
     const char* dtbLoadAddr = (char*) getenv_ulong("dtb_mem_addr", 16, CONFIG_SYS_SDRAM_BASE + (16U<<20));
 
+	if (!dtbLoadAddr) {
+		KM_ERR("dtbLoadAddr is NULL\n");
+		return __LINE__;
+	}
+
     ret = efuse_usr_api_init_dtb(dtbLoadAddr);
     if (ret) {
         KM_ERR("efuse init failed\n");
