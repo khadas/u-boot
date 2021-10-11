@@ -49,7 +49,7 @@ static struct nand_ecclayout aml_nand_oob_##__name = {	\
 }
 
 NAND_ECCLAYOUT(uboot, 84, 0, 6);
-NAND_ECCLAYOUT(64, 56, 0, 6);
+NAND_ECCLAYOUT(64, 56, 0, 8);
 NAND_ECCLAYOUT(128, 120, 0, 8);
 NAND_ECCLAYOUT(218, 200, 0, 8);
 NAND_ECCLAYOUT(224, 208, 0, 8);
