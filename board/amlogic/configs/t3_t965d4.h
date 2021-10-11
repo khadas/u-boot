@@ -119,6 +119,7 @@
 	"ffv_wake=off\0"\
 	"ffv_freeze=off\0"\
         "board_logo_part=odm_ext\0" \
+	"boot_flag=0\0"\
 	"logic_addr=0x0\0" \
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
@@ -371,10 +372,17 @@
             "factory_provision init;"\
             "\0"\
         "upgrade_key="\
-            "if gpio input GPIOD_3; then "\
-            "echo detect upgrade key; run update;"\
-            "fi;"\
-            "\0"\
+		"if gpio input GPIOD_3; then "\
+			"echo detect upgrade key;"\
+			"if test ${boot_flag} = 0; then "\
+				"echo enter fastboot; setenv boot_flag 1; saveenv; fastboot 1;"\
+			"else if test ${boot_flag} = 1; then "\
+				"echo enter update; setenv boot_flag 2; saveenv; run update;"\
+			"else "\
+				"echo enter recovery; setenv boot_flag 0; saveenv; run recovery_from_flash;"\
+			"fi;fi;"\
+		"fi;"\
+		"\0"\
 
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
