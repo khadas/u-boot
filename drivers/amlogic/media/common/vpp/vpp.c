@@ -1006,7 +1006,7 @@ for G12A, set osd2 matrix(10bit) RGB2YUV
 
 		vpp_reg_setb(VPP_WRAP_OSD1_MATRIX_EN_CTRL, on, 0, 1);
 
-		VPP_PR("g12a/b osd1 matrix rgb2yuv ..............\n");
+		VPP_PR("%s rgb2yuv on = %d..............\n", __func__, on);
 	} else {
 		vpp_reg_setb(VIU_OSD1_BLK0_CFG_W0, 0, 7, 1);
 		/* eotf lut bypass */
@@ -1066,7 +1066,7 @@ static void set_osd2_rgb2yuv(bool on)
 
 		vpp_reg_setb(VPP_WRAP_OSD2_MATRIX_EN_CTRL, on, 0, 1);
 
-		VPP_PR("g12a/b osd2 matrix rgb2yuv..............\n");
+		VPP_PR("%s rgb2yuv on = %d..............\n", __func__, on);
 	}
 }
 
@@ -1104,7 +1104,7 @@ static void set_osd3_rgb2yuv(bool on)
 
 		vpp_reg_setb(VPP_WRAP_OSD3_MATRIX_EN_CTRL, on, 0, 1);
 
-		VPP_PR("g12a/b osd3 matrix rgb2yuv..............\n");
+		VPP_PR("%s rgb2yuv on = %d..............\n", __func__, on);
 	}
 }
 
@@ -1655,6 +1655,7 @@ void hdr_tx_pkt_cb(void)
 	    hdr_policy == 0) {
 		hdr_func(OSD1_HDR, SDR_HDR);
 		hdr_func(OSD2_HDR, SDR_HDR);
+		hdr_func(OSD3_HDR, SDR_HDR);
 		hdr_func(VD1_HDR, SDR_HDR);
 		amvecm_cp_hdr_info(&hdr_data);
 		hdmitx_set_drm_pkt(&hdr_data);
