@@ -114,6 +114,7 @@
         "video_reverse=0\0"\
         "active_slot=normal\0"\
         "boot_part=boot\0"\
+	"boot_flag=0\0"\
         "suspend=off\0"\
         "powermode=standby\0"\
         "ffv_wake=off\0"\
@@ -381,7 +382,14 @@
             "\0"\
         "upgrade_key="\
             "if gpio input GPIOAO_3; then "\
-                "echo detect upgrade key; run update;"\
+			"echo detect upgrade key;"\
+			"if test ${boot_flag} = 0; then "\
+				"echo enter fastboot; setenv boot_flag 1; saveenv; fastboot;"\
+			"else if test ${boot_flag} = 1; then "\
+				"echo enter update; setenv boot_flag 2; saveenv; run update;"\
+			"else "\
+				"echo enter recovery; setenv boot_flag 0; saveenv; run recovery_from_flash;"\
+			"fi;fi;"\
             "fi;"\
             "\0"\
 	"irremote_update="\
