@@ -1154,6 +1154,7 @@ static int  enable_dolby_vision(void)
 	if (is_dolby_stb_chip()) {
 		hdr_func(OSD1_HDR, RGB_BYPASS);
 		hdr_func(OSD2_HDR, RGB_BYPASS);
+		hdr_func(OSD3_HDR, RGB_BYPASS);
 
 		/*enable core3*/
 		WRITE_VPP_REG_BITS(VPP_DOLBY_CTRL, 1, 3, 1);
