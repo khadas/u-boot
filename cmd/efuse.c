@@ -240,3 +240,194 @@ U_BOOT_CMD(
 	efuse,  5,  1,  do_efuse,
 	"efuse commands", efuse_help_text
 );
+
+#ifdef CONFIG_EFUSE_OBJ_API
+static char *efuse_obj_err_parse(uint32_t  efuse_obj_err_status)
+{
+	char *err_char = NULL;
+
+	switch (efuse_obj_err_status) {
+	case EFUSE_OBJ_ERR_INVALID_DATA:
+		err_char = "invalid data";
+		break;
+	case EFUSE_OBJ_ERR_NOT_FOUND:
+		err_char = "field not found";
+		break;
+	case EFUSE_OBJ_ERR_SIZE:
+		err_char = "size not match";
+		break;
+	case EFUSE_OBJ_ERR_NOT_SUPPORT:
+		err_char = "not support";
+		break;
+	case EFUSE_OBJ_ERR_ACCESS:
+		err_char = "access denied";
+		break;
+	case EFUSE_OBJ_ERR_WRITE_PROTECTED:
+		err_char = "write protected";
+		break;
+	case EFUSE_OBJ_ERR_INTERNAL:
+	case EFUSE_OBJ_ERR_OTHER_INTERNAL:
+		err_char = "internal error";
+		break;
+	default:
+		err_char = "unknown error";
+		break;
+		}
+
+	return err_char;
+}
+
+static int hex2bin(char *hex, void *bin, size_t binlen)
+{
+	int i, c, n1, n2, hexlen, k;
+
+	hexlen = strnlen(hex, 64);
+	k = 0;
+	n1 = -1;
+	n2 = -1;
+	for (i = 0; i < hexlen; i++) {
+		n2 = n1;
+		c = hex[i];
+		if (c >= '0' && c <= '9') {
+			n1 = c - '0';
+		} else if (c >= 'a' && c <= 'f') {
+			n1 = c - 'a' + 10;
+		} else if (c >= 'A' && c <= 'F') {
+			n1 = c - 'A' + 10;
+		} else if (c == ' ') {
+			n1 = -1;
+			continue;
+		} else {
+			return -1;
+		}
+
+		if (n1 >= 0 && n2 >= 0) {
+			((uint8_t *)bin)[k] = (n2 << 4) | n1;
+			n1 = -1;
+			k++;
+		}
+	}
+	return k;
+}
+
+int do_efuse_obj(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	uint32_t rc = CMD_RET_FAILURE;
+	uint8_t buff[32];
+	uint32_t bufflen = sizeof(buff);
+	char *name = NULL;
+
+	if (argc < 3 || argc > 4) {
+		printf("Invalid number of arguments %d\n", argc);
+		return CMD_RET_USAGE;
+	}
+
+	memset(&buff[0], 0, sizeof(buff));
+
+	if (strcmp(argv[1], "get") == 0) {
+		// $0 get field
+		if (argc == 3) {
+			name = argv[2];
+			rc = efuse_obj_read(EFUSE_OBJ_EFUSE_DATA, name, buff, &bufflen);
+			if (rc == EFUSE_OBJ_SUCCESS) {
+				int i;
+
+				for (i = 0; i < bufflen; i++)
+					printf("%02x%s", buff[i],
+						((i && i % 16 == 15) || (i == bufflen - 1)
+						? "\n" : " "));
+				rc = CMD_RET_SUCCESS;
+			} else {
+				printf("Error getting eFUSE object: %s: %d\n",
+					efuse_obj_err_parse(rc), rc);
+				rc = CMD_RET_FAILURE;
+			}
+		} else {
+			printf("Error: too many arguments %d\n", argc);
+			rc = CMD_RET_USAGE;
+		}
+	} else if (strcmp(argv[1], "set") == 0) {
+		// $0 set field data
+		if (argc == 4) {
+			name = argv[2];
+			char *data = argv[3];
+			int dlen = strnlen(data, 64);
+			uint8_t databuf[32] = {0};
+
+			dlen = hex2bin(data, databuf, dlen);
+			if (dlen < 0) {
+				printf("parse data hex2bin error\n");
+				return CMD_RET_FAILURE;
+			}
+			rc = efuse_obj_write(EFUSE_OBJ_EFUSE_DATA, name, databuf, dlen);
+			if (rc == EFUSE_OBJ_SUCCESS) {
+				rc = CMD_RET_SUCCESS;
+			} else {
+				printf("Error setting eFUSE object: %s: %d\n",
+					efuse_obj_err_parse(rc), rc);
+				rc = CMD_RET_FAILURE;
+			}
+		} else {
+			printf("Error: too few arguments %d\n", argc);
+			rc = CMD_RET_USAGE;
+		}
+	} else if (strcmp(argv[1], "lock") == 0) {
+		// $0 lock field
+		if (argc == 3) {
+			name = argv[2];
+			rc = efuse_obj_write(EFUSE_OBJ_LOCK_STATUS, name, buff, bufflen);
+			if (rc == EFUSE_OBJ_SUCCESS) {
+				rc = CMD_RET_SUCCESS;
+			} else {
+				printf("Error setting eFUSE object: %s: %d\n",
+					efuse_obj_err_parse(rc), rc);
+				rc = CMD_RET_FAILURE;
+			}
+		} else {
+			printf("Error: too many arguments %d\n", argc);
+			rc = CMD_RET_USAGE;
+		}
+	} else if (strcmp(argv[1], "get_lock") == 0) {
+		// $0 get_lock field
+		if (argc == 3) {
+			name = argv[2];
+			rc = efuse_obj_read(EFUSE_OBJ_LOCK_STATUS, name, buff, &bufflen);
+			if (rc == EFUSE_OBJ_SUCCESS) {
+				int i;
+
+				for (i = 0; i < bufflen; i++)
+					printf("%02x%s", buff[i],
+						((i && i % 16 == 15) || (i == bufflen - 1)
+						? "\n" : " "));
+				rc = CMD_RET_SUCCESS;
+			} else {
+				printf("Error getting eFUSE object: %s: %d\n",
+					efuse_obj_err_parse(rc), rc);
+				rc = CMD_RET_FAILURE;
+			}
+		} else {
+			printf("Error: too many arguments %d\n", argc);
+			rc = CMD_RET_USAGE;
+		}
+	}
+
+	return rc;
+}
+
+static char efuse_obj_help_text[] =
+	"[set | get | lock | get_lock] <FIELD> {<field-value-hexdump-string>}\n"
+	"\n"
+	"get FIELD         Get field value. FIELD is the field name\n"
+	"                          expected_data is an optional expected data\n"
+	"set FIELD DATA    Set field to data.  DATA is in continuous\n"
+	"                          hexdump format, e.g. aabb1122\n"
+	"lock FIELD        Lock field. Program exits with status 0 if success\n"
+	"get_lock FIELD    Check if field is locked.  Program exits with\n"
+	"                          status 1 if locked, or 0 if unlocked\n"
+	"                          expected_result is 00 or 01, an optional expected lock result\n"
+	"\n";
+
+U_BOOT_CMD(efuse_obj,	4,	0,	do_efuse_obj,
+	"eFUSE object program commands", efuse_obj_help_text
+);
+#endif /* CONFIG_EFUSE_OBJ_API */

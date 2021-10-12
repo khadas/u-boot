@@ -194,3 +194,33 @@ uint32_t efuse_get_max(void)
 	}
 }
 
+#ifdef CONFIG_EFUSE_OBJ_API
+uint32_t efuse_obj_write(uint32_t obj_id, char *name, uint8_t *buff, uint32_t size)
+{
+	uint32_t ret;
+	efuse_obj_field_t efuseinfo;
+
+	memset(&efuseinfo, 0, sizeof(efuseinfo));
+	strncpy(efuseinfo.name, name, sizeof(efuseinfo.name));
+	if (size > sizeof(efuseinfo.data))
+		return EFUSE_OBJ_ERR_SIZE;
+	efuseinfo.size = size;
+	memcpy(efuseinfo.data, buff, efuseinfo.size);
+	ret = meson_efuse_obj_write(obj_id, (uint8_t *)&efuseinfo, sizeof(efuseinfo));
+	return ret;
+}
+
+uint32_t efuse_obj_read(uint32_t obj_id, char *name, uint8_t *buff, uint32_t *size)
+{
+	uint32_t ret;
+	efuse_obj_field_t efuseinfo;
+
+	memset(&efuseinfo, 0, sizeof(efuseinfo));
+	strncpy(efuseinfo.name, name, sizeof(efuseinfo.name));
+	*size = sizeof(efuseinfo);
+	ret = meson_efuse_obj_read(obj_id, (uint8_t *)&efuseinfo, size);
+	memcpy(buff, efuseinfo.data, efuseinfo.size);
+	*size = efuseinfo.size;
+	return ret;
+}
+#endif /* CONFIG_EFUSE_OBJ_API */
