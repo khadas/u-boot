@@ -12,6 +12,13 @@
 #include <video_fb.h>
 #include <video.h>
 #include <amlogic/fb.h>
+#ifdef CONFIG_AML_HDMITX
+#ifdef CONFIG_AML_HDMITX20
+#include <amlogic/media/vout/hdmitx/hdmitx.h>
+#else
+#include <amlogic/media/vout/hdmitx21/hdmitx.h>
+#endif
+#endif
 
 int osd_enabled = 0;
 /* Graphic Device */
@@ -63,15 +70,13 @@ static int do_osd_close(cmd_tbl_t *cmdtp, int flag, int argc,
 	gdev = NULL;
 	if (index >= VIU2_OSD1) {
 		osd_enable_hw(VIU2_OSD1, 0);
+		if (get_osd_viux_scale_cap())
+			osd_set_free_scale_enable_hw(VIU2_OSD1, 0);
 	} else {
 		osd_enable_hw(OSD1, 0);
 		osd_enable_hw(OSD2, 0);
 		osd_set_free_scale_enable_hw(OSD1, 0);
 		osd_set_free_scale_enable_hw(OSD2, 0);
-		if (index == OSD3) {
-			osd_enable_hw(OSD3, 0);
-			osd_set_free_scale_enable_hw(OSD3, 0);
-		}
 	}
 
 	osd_enabled = 0;
@@ -240,6 +245,64 @@ static int do_osd_get(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	return 0;
 }
+
+static int do_osd_dual_logo(cmd_tbl_t *cmdtp, int flag, int argc,
+			    char *const argv[])
+{
+#ifdef CONFIG_AML_HDMITX
+	int st = 0;
+#ifdef CONFIG_AML_HDMITX20
+	struct hdmitx_dev *hdev = hdmitx_get_hdev();
+#else
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+#endif
+
+	/* detect hdmi plugin or not */
+	st = hdev->hwop.get_hpd_state();
+	printf("osd: hpd_state=%c\n", st ? '1' : '0');
+
+	if (st) {
+		/* hdmi plugin, dual logo display
+		 * CONFIG_RECOVERY_DUAL_LOGO is given priority in recovery
+		 */
+		if (!strncmp(env_get("reboot_mode"), "factory_reset", 13)) {
+		#if defined(CONFIG_RECOVERY_DUAL_LOGO)
+			run_command(CONFIG_RECOVERY_DUAL_LOGO, 0);
+		#else
+		#if defined(CONFIG_DUAL_LOGO)
+			printf("osd: use dual logo cmd macro in recovery mode\n");
+			run_command(CONFIG_DUAL_LOGO, 0);
+		#else
+			printf("osd: dual logo cmd macro is not defined in recovery mode\n");
+		#endif
+		#endif
+		} else {
+		#if defined(CONFIG_DUAL_LOGO)
+			run_command(CONFIG_DUAL_LOGO, 0);
+		#else
+			printf("osd: dual logo cmd macro is not defined\n");
+		#endif
+		}
+	} else {
+		/* hdmi plugout, single logo display */
+	#if defined(CONFIG_SINGLE_LOGO)
+		run_command(CONFIG_SINGLE_LOGO, 0);
+	#else
+		printf("osd: single logo cmd macro is not defined\n");
+	#endif
+	}
+#else
+	printf("osd: no hdmitx_device defined\n");
+	#if defined(CONFIG_SINGLE_LOGO)
+		run_command(CONFIG_SINGLE_LOGO, 0);
+	#else
+		printf("osd: single logo cmd macro is not defined\n");
+	#endif
+#endif
+
+	return 0;
+}
+
 static cmd_tbl_t cmd_osd_sub[] = {
 	U_BOOT_CMD_MKENT(open, 2, 0, do_osd_open, "", ""),
 	U_BOOT_CMD_MKENT(enable, 2, 0, do_osd_enable, "", ""),
@@ -250,6 +313,7 @@ static cmd_tbl_t cmd_osd_sub[] = {
 	U_BOOT_CMD_MKENT(display, 5, 0, do_osd_display, "", ""),
 	U_BOOT_CMD_MKENT(set, 7, 0, do_osd_set, "", ""),
 	U_BOOT_CMD_MKENT(get, 2, 0, do_osd_get, "", ""),
+	U_BOOT_CMD_MKENT(dual_logo, 2, 0, do_osd_dual_logo, "", ""),
 };
 
 static int do_osd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
@@ -284,5 +348,6 @@ U_BOOT_CMD(
 	"                                        c for hist_spl_pix_cnt\n"
 	"                                        d for hist_cheoma_sum\n"
 	"osd get                          - get Hist GoldenData from env\n"
+	"osd dual_logo                    - detect hdmi hpd, then display logo"
 );
 
