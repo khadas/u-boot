@@ -255,6 +255,7 @@ struct hdmi_format_para *hdmitx21_get_fmtpara(const char *mode,
 		return NULL;
 
 	para->timing = *timing;
+	para->sname = timing->sname;
 	_parse_hdmi_attr(attr, &para->cs, &para->cd, &para->cr);
 
 	para->tmds_clk = _calc_tmds_clk(para->timing.pixel_freq,
