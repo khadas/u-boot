@@ -27,7 +27,7 @@
 
 #define BOOTENV_SHARED_BLKDEV_BODY(devtypel) \
 		"if " #devtypel " dev ${devnum}; then " \
-			"setenv devtype " #devtypel "; " \
+			"devtype=" #devtypel "; " \
 			"run scan_dev_for_boot_part; " \
 		"fi\0"
 
@@ -37,7 +37,7 @@
 
 #define BOOTENV_DEV_BLKDEV(devtypeu, devtypel, instance) \
 	"bootcmd_" #devtypel #instance "=" \
-		"setenv devnum " #instance "; " \
+		"devnum=" #instance "; " \
 		"run " #devtypel "_boot\0"
 
 #define BOOTENV_DEV_NAME_BLKDEV(devtypeu, devtypel, instance) \
@@ -77,7 +77,7 @@
 		"if ubi part ${bootubipart} && " \
 			"ubifsmount ubi${devnum}:${bootubivol}; " \
 		"then " \
-			"setenv devtype ubi; " \
+			"devtype=ubi; " \
 			"run scan_dev_for_boot; " \
 		"fi\0"
 #define BOOTENV_DEV_UBIFS	BOOTENV_DEV_BLKDEV
