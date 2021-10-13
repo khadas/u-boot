@@ -15,7 +15,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define SPI_DEFAULT_SPEED_HZ 100000
+#define SPI_DEFAULT_SPEED_HZ 40000000
 
 static int spi_set_speed_mode(struct udevice *bus, int speed, int mode)
 {
