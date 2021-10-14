@@ -221,6 +221,7 @@ static void hdmi_tvenc1080i_set(enum hdmi_vic vic)
 		vs_bline_odd = 0, vs_eline_odd = 0;
 	unsigned long vso_begin_evn = 0, vso_begin_odd = 0;
 	const struct hdmi_timing *tp = NULL;
+	unsigned long offset = 0xf;
 
 	tp = hdmitx21_gettiming_from_vic(vic);
 	if (!tp) {
@@ -320,8 +321,8 @@ static void hdmi_tvenc1080i_set(enum hdmi_vic vic)
 			- VSYNC_LINES - (1 - vs_adjust);
 
 	vs_eline_evn = modulo(vs_bline_evn + VSYNC_LINES, TOTAL_LINES);
-	hd21_write_reg(ENCP_DVI_VSO_BLINE_EVN, vs_bline_evn);   /* 0 */
-	hd21_write_reg(ENCP_DVI_VSO_ELINE_EVN, vs_eline_evn);   /* 5 */
+	hd21_write_reg(ENCP_DVI_VSO_BLINE_EVN, vs_bline_evn - offset);   /* 0 */
+	hd21_write_reg(ENCP_DVI_VSO_ELINE_EVN, vs_eline_evn - offset);   /* 5 */
 	vso_begin_evn = hs_begin; /* 2 */
 	hd21_write_reg(ENCP_DVI_VSO_BEGIN_EVN, vso_begin_evn);  /* 2 */
 	hd21_write_reg(ENCP_DVI_VSO_END_EVN, vso_begin_evn);  /* 2 */
@@ -331,8 +332,8 @@ static void hdmi_tvenc1080i_set(enum hdmi_vic vic)
 		vs_eline_odd = de_v_begin_odd - 1 - SOF_LINES;
 		vso_begin_odd = modulo(hs_begin + (total_pixels_venc >> 1),
 					total_pixels_venc);
-		hd21_write_reg(ENCP_DVI_VSO_BLINE_ODD, vs_bline_odd);
-		hd21_write_reg(ENCP_DVI_VSO_ELINE_ODD, vs_eline_odd);
+		hd21_write_reg(ENCP_DVI_VSO_BLINE_ODD, vs_bline_odd - offset);
+		hd21_write_reg(ENCP_DVI_VSO_ELINE_ODD, vs_eline_odd - offset);
 		hd21_write_reg(ENCP_DVI_VSO_BEGIN_ODD, vso_begin_odd);
 		hd21_write_reg(ENCP_DVI_VSO_END_ODD, vso_begin_odd);
 	}
