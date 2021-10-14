@@ -375,6 +375,12 @@
 #endif
 
 /* T5W */
+#ifndef HHI_VIID_CLK0_DIV
 #define HHI_VIID_CLK0_DIV		0x0a0
+#endif
+#ifndef HHI_VIID_CLK0_CTRL
 #define HHI_VIID_CLK0_CTRL		0x0a1
+#endif
+#ifndef HHI_VID_CLK0_CTRL2
 #define HHI_VID_CLK0_CTRL2              0x0a4
+#endif
