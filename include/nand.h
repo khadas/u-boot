@@ -49,6 +49,8 @@ typedef struct mtd_info nand_info_t;
 
 extern int nand_curr_device;
 extern nand_info_t nand_info[];
+int amlnf_key_write(u8 *buf, int len, u32 *actual_length);
+int amlnf_key_read(u8 *buf, int len, u32 *actual_length);
 
 static inline int nand_read(nand_info_t *info, loff_t ofs, size_t *len, u_char *buf)
 {

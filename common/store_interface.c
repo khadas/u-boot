@@ -19,8 +19,8 @@
 #include <asm/byteorder.h>
 #include <div64.h>
 #include <linux/err.h>
-#include<partition_table.h>
-#include<emmc_partitions.h>
+#include <partition_table.h>
+#include <emmc_partitions.h>
 #include <libfdt.h>
 #include <linux/string.h>
 #include <asm/cpu_id.h>
@@ -29,10 +29,10 @@
 #include <asm/arch/secure_apb.h>
 
 #if defined(CONFIG_AML_NAND) || defined (CONFIG_AML_MTD)
-extern int amlnf_init(unsigned flag);
+extern int amlnf_init(unsigned int flag);
 extern void nand_init(void);
-extern int amlnf_key_write(u8 *buf, int len, uint32_t *actual_lenth);
-extern int amlnf_key_read(u8 * buf, int len, uint32_t *actual_lenth);
+//extern int amlnf_key_write(u8 *buf, int len, u32 *actual_length);
+//extern int amlnf_key_read(u8 *buf, int len, u32 *actual_length);
 extern int amlnf_ddr_parameter_read(u8 *buf, int len);
 extern int amlnf_ddr_parameter_write(u8 *buf, int len);
 extern int amlnf_ddr_parameter_erase(void);
@@ -45,19 +45,19 @@ extern int amlnf_ddr_parameter_erase(void);
 #ifndef CONFIG_BL2_VAL_NUM_MIN
 #define CONFIG_BL2_VAL_NUM_MIN  (CONFIG_BL2_COPY_NUM/2)
 #endif// #ifndef CONFIG_BL2_VAL_NUM_MIN
-static uint32_t _bootloaderOrgCrc[2];  //0 for bl2, 1 for tpl
+static u32 _bootloaderOrgCrc[2];  //0 for bl2, 1 for tpl
 #endif// #if defined(CONFIG_DISCRETE_BOOTLOADER)
 
-extern int get_partition_from_dts(unsigned char * buffer);
+extern int get_partition_from_dts(unsigned char *buffer);
 
 /* key opeartions of emmc */
 extern int mmc_key_read(unsigned char *buf,
-		unsigned int size, uint32_t *actual_lenth);
+		unsigned int size, u32 *actual_length);
 extern int mmc_key_write(unsigned char *buf,
-		unsigned int size, uint32_t *actual_lenth);
+		unsigned int size, u32 *actual_length);
 extern int mmc_key_erase(void);
 extern int find_dev_num_by_partition_name (char *name);
-extern unsigned emmc_cur_partition;
+//extern unsigned int emmc_cur_partition;
 
 extern int mmc_ddr_parameter_read(unsigned char *buf, unsigned int size);
 extern int mmc_ddr_parameter_write(unsigned char *buf, unsigned int size);
@@ -84,56 +84,59 @@ static char _mbrFlag[4] ;
 #endif
 
 #ifdef CONFIG_AML_MTD
-static int mtd_find_phy_off_by_lgc_off(const char* partName, const loff_t logicAddr, loff_t* phyAddr)
+static int mtd_find_phy_off_by_lgc_off(const char *partname,
+		const loff_t logicaddr, loff_t *phyaddr)
 {
-	nand_info_t * mtdPartInf = NULL;
+	nand_info_t *mtdpartinf = NULL;
 	loff_t off = 0;
 	static struct {
-		loff_t lastblkPhyOff;
-		loff_t lastblkLgcOff;
-		char   partName[64];
-	}_map4SpeedUp = {0};
-	int canSpeedUp = 0;
+		loff_t lastblkphyoff;
+		loff_t lastblklgcoff;
+		char   partname[64];
+	} _map4speedup = {0};
+	int canspeedup = 0;
 
 	if (!(NAND_BOOT_FLAG == device_boot_flag || SPI_NAND_FLAG == device_boot_flag)) {
 		return 0;
 	}
 
-	mtdPartInf = get_mtd_device_nm(partName);
-	if (IS_ERR(mtdPartInf)) {
-		ErrP("device(%s) is err\n", partName);
+	mtdpartinf = get_mtd_device_nm(partname);
+	if (IS_ERR(mtdpartinf)) {
+		ErrP("device(%s) is err\n", partname);
 		return CMD_RET_FAILURE;
 	}
-	const unsigned eraseSz = mtdPartInf->erasesize;
-	const unsigned offsetInBlk = logicAddr & (eraseSz - 1);
+	const unsigned int erasesz = mtdpartinf->erasesize;
+	const unsigned int offsetinblk = logicaddr & (erasesz - 1);
 
-	if ( !strcmp(partName, _map4SpeedUp.partName) && logicAddr >= _map4SpeedUp.lastblkLgcOff) {
-		canSpeedUp = 1;
+	if (!strcmp(partname, _map4speedup.partname) && logicaddr >= _map4speedup.lastblklgcoff) {
+		canspeedup = 1;
 	} else {
-		_map4SpeedUp.lastblkLgcOff = _map4SpeedUp.lastblkPhyOff = 0;
-		strncpy(_map4SpeedUp.partName, partName, 63);
+		_map4speedup.lastblklgcoff = 0;
+		_map4speedup.lastblkphyoff = 0;
+		strncpy(_map4speedup.partname, partname, 63);
 	}
 
-	if ( canSpeedUp ) {
-		if ( logicAddr >= _map4SpeedUp.lastblkLgcOff &&
-				logicAddr < _map4SpeedUp.lastblkLgcOff + eraseSz) {
-			*phyAddr = _map4SpeedUp.lastblkPhyOff + offsetInBlk;
+	if (canspeedup) {
+		if (logicaddr >= _map4speedup.lastblklgcoff &&
+				logicaddr < _map4speedup.lastblklgcoff + erasesz) {
+			*phyaddr = _map4speedup.lastblkphyoff + offsetinblk;
 			return 0;
 		}
-		_map4SpeedUp.lastblkPhyOff += eraseSz;
-		_map4SpeedUp.lastblkLgcOff += eraseSz;
-		off = _map4SpeedUp.lastblkPhyOff;
+		_map4speedup.lastblkphyoff += erasesz;
+		_map4speedup.lastblklgcoff += erasesz;
+		off = _map4speedup.lastblkphyoff;
 	}
-	for (; off < mtdPartInf->size; off += eraseSz, _map4SpeedUp.lastblkPhyOff += eraseSz) {
-		if (nand_block_isbad(mtdPartInf, off)) {
+	for (; off < mtdpartinf->size;
+		off += erasesz, _map4speedup.lastblkphyoff += erasesz) {
+		if (nand_block_isbad(mtdpartinf, off)) {
 			MsgP("  %08llx\n", (unsigned long long)off);
 		} else {
-			if ( logicAddr >= _map4SpeedUp.lastblkLgcOff &&
-					logicAddr < _map4SpeedUp.lastblkLgcOff + eraseSz) {
-				*phyAddr = _map4SpeedUp.lastblkPhyOff + offsetInBlk;
+			if (logicaddr >= _map4speedup.lastblklgcoff &&
+					logicaddr < _map4speedup.lastblklgcoff + erasesz) {
+				*phyaddr = _map4speedup.lastblkphyoff + offsetinblk;
 				return 0;
 			}
-			_map4SpeedUp.lastblkLgcOff += eraseSz;
+			_map4speedup.lastblklgcoff += erasesz;
 		}
 	}
 
@@ -145,6 +148,7 @@ static int mtd_find_phy_off_by_lgc_off(const char* partName, const loff_t logicA
 /* mmcinfo 1 will clear info_disprotect before run_command("mmc erase 1") */
 static int _info_disprotect_back_before_mmcinfo1 = 0;
 extern int info_disprotect;
+/*
 static inline int isstring(char *p)
 {
 	char *endptr = p;
@@ -159,13 +163,15 @@ static inline int isstring(char *p)
 
 	return 0;
 }
-
+*/
+/*
 static inline int str2long(char *p, ulong *num)
 {
 	char *endptr;
 	*num = simple_strtoul(p, &endptr, 16);
 	return (*p != '\0' && *endptr == '\0') ? 1 : 0;
 }
+*/
 
 static inline int str2longlong(char *p, unsigned long long *num)
 {
@@ -247,7 +253,7 @@ static int get_off_size(int argc, char *argv[],  loff_t *off, loff_t *size)
 {
 		if (argc >= 1) {
 			if (!(str2longlong(argv[0], (unsigned long long*)off))) {
-			store_msg("'%s' is not a number\n", argv[0]);
+				store_msg("'%s' is not a number\n", argv[0]);
 				return -1;
 			}
 		} else {
@@ -256,12 +262,12 @@ static int get_off_size(int argc, char *argv[],  loff_t *off, loff_t *size)
 		}
 
 		if (argc >= 2) {
-				if (!(str2longlong(argv[1], (unsigned long long *)size))) {
-						store_msg("'%s' is not a number\n", argv[1]);
-						return -1;
-				}
-		}else{
-				*size = 0;
+			if (!(str2longlong(argv[1], (unsigned long long *)size))) {
+				store_msg("'%s' is not a number\n", argv[1]);
+				return -1;
+			}
+		} else {
+			*size = 0;
 		}
 
 		store_dbg("offset 0x%llx, size 0x%llx", *off, *size);
@@ -271,81 +277,91 @@ static int get_off_size(int argc, char *argv[],  loff_t *off, loff_t *size)
 
 static int do_decrypt_dtb(char *dtbaddr) {
 	int ret = 0;
-	unsigned long dtImgAddr = simple_strtoul(dtbaddr, NULL, 16);
+	unsigned long dtimgaddr = simple_strtoul(dtbaddr, NULL, 16);
 
-	ret = fdt_check_header((char*)dtImgAddr);
+	ret = fdt_check_header((char *)dtimgaddr);
 	if (!ret) {
 		MsgP("Is good fdt check header, no need decrypt!\n");
 		return ret;
 	}
 
 #ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
-	flush_cache(dtImgAddr, AML_DTB_IMG_MAX_SZ);
-	ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, dtImgAddr, AML_DTB_IMG_MAX_SZ, 0);
+	flush_cache(dtimgaddr, AML_DTB_IMG_MAX_SZ);
+	ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, dtimgaddr, AML_DTB_IMG_MAX_SZ, 0);
 	if (ret) {
 		MsgP("decrypt dtb: Sig Check %d\n",ret);
 		return ret;
 	}
 
 	ulong nCheckOffset;
-	nCheckOffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,GXB_IMG_LOAD_ADDR,GXB_EFUSE_PATTERN_SIZE,GXB_IMG_DEC_ALL);
+	nCheckOffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,
+			GXB_IMG_LOAD_ADDR, GXB_EFUSE_PATTERN_SIZE, GXB_IMG_DEC_ALL);
 	if (AML_D_Q_IMG_SIG_HDR_SIZE == (nCheckOffset & 0xFFFF))
 		nCheckOffset = (nCheckOffset >> 16) & 0xFFFF;
 	else
 		nCheckOffset = 0;
 
 	if (nCheckOffset)
-		memmove((char *)dtImgAddr, (char*)dtImgAddr + nCheckOffset, AML_DTB_IMG_MAX_SZ);
+		memmove((char *)dtimgaddr,
+				(char *)dtimgaddr + nCheckOffset, AML_DTB_IMG_MAX_SZ);
 #endif//#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
 
 #ifdef CONFIG_MULTI_DTB
 	extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
 
-	unsigned long fdtAddr = get_multi_dt_entry(dtImgAddr);
-	ret = fdt_check_header((char*)fdtAddr);
+	unsigned long fdtaddr = get_multi_dt_entry(dtimgaddr);
+
+	ret = fdt_check_header((char *)fdtaddr);
 	if (ret) {
 		ErrP("Fail in fdt check header\n");
 		return CMD_RET_FAILURE;
 	}
 
-	unsigned fdtsz    = fdt_totalsize((char*)fdtAddr);
-	memmove((char*)dtImgAddr, (char*)fdtAddr, fdtsz);
+	unsigned int fdtsz = fdt_totalsize((char *)fdtaddr);
+
+	if (fdtsz > AML_DTB_IMG_MAX_SZ)
+		return CMD_RET_FAILURE;
+
+	memmove((void *)dtimgaddr, (void *)fdtaddr, fdtsz);
 #endif// #ifdef CONFIG_MULTI_DTB
 
 	return ret;
 }
 
 //store dtb read/write buff size
-static int do_store_dtb_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_store_dtb_ops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 		int ret = 0;
-		char _cmdBuf[128];
-		char* ops = argv[2];
-		const unsigned maxDtbSz = 256 * 1024;
-		unsigned actualDtbSz = 0;
-		char* devCmd = NULL;
-		char* dtbLoadaddr = argv[3];
+		char _cmdbuf[128];
+		char *ops = argv[2];
+		const unsigned int maxdtbsz = 256 * 1024;
+		unsigned int actualdtbsz = 0;
+		char *devcmd = NULL;
+		char *dtbloadaddr = argv[3];
 
-		if (argc < 4) return CMD_RET_USAGE;
+		if (argc < 4)
+			return CMD_RET_USAGE;
 
 		const int is_decrypt = !strcmp("decrypt", ops);
 		if (is_decrypt) {
-				return do_decrypt_dtb(dtbLoadaddr);
+			return do_decrypt_dtb(dtbloadaddr);
 		}
 
 		const int is_write = !strcmp("write", ops);
 		if (!is_write) {
 				ret = !strcmp("read", ops) || !strcmp("iread", ops);//must be 0
-				if (!ret) return CMD_RET_USAGE;
+				if (!ret)
+					return CMD_RET_USAGE;
 		}
 
-		actualDtbSz = maxDtbSz;
+		actualdtbsz = maxdtbsz;
 		if (argc > 4) {
-				const unsigned bufSz = simple_strtoul(argv[4], NULL, 0);
-				if (bufSz > maxDtbSz) {
-						ErrP("bufSz (%s) > max 0x%x\n", argv[4], maxDtbSz);
-						return CMD_RET_FAILURE;
-				}
+			const unsigned int bufsz = simple_strtoul(argv[4], NULL, 0);
+
+			if (bufsz > maxdtbsz) {
+				ErrP("bufsz (%s) > max 0x%x\n", argv[4], maxdtbsz);
+				return CMD_RET_FAILURE;
+			}
 		}
 
 		ops = is_write ? "dtb_write" : "dtb_read";
@@ -355,14 +371,14 @@ static int do_store_dtb_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 				case NAND_BOOT_FLAG:
 				case SPI_NAND_FLAG:
 						{
-								devCmd = "amlnf";
+								devcmd = "amlnf";
 						}
 						break;
 
 				case EMMC_BOOT_FLAG:
 				case SPI_EMMC_FLAG:
 						{
-								devCmd = "emmc";
+								devcmd = "emmc";
 						}
 						break;
 
@@ -371,19 +387,19 @@ static int do_store_dtb_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 						return CMD_RET_FAILURE;
 		}
 
-		sprintf(_cmdBuf, "%s %s %s 0x%x", devCmd, ops, dtbLoadaddr, actualDtbSz);
-		MsgP("To run cmd[%s]\n", _cmdBuf);
-		ret = run_command(_cmdBuf, 0);
+		sprintf(_cmdbuf, "%s %s %s 0x%x", devcmd, ops, dtbloadaddr, actualdtbsz);
+		MsgP("To run cmd[%s]\n", _cmdbuf);
+		ret = run_command(_cmdbuf, 0);
 
-		unsigned long dtImgAddr = simple_strtoul(dtbLoadaddr, NULL, 16);
+		unsigned long dtimgaddr = simple_strtoul(dtbloadaddr, NULL, 16);
 		//
 		//ONLY need decrypting when 'store dtb read'
 	   if (!strcmp("read", argv[2]))
 	   {
-		   flush_cache(dtImgAddr, AML_DTB_IMG_MAX_SZ);
+		   flush_cache(dtimgaddr, AML_DTB_IMG_MAX_SZ);
 #ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
 
-		   ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, dtImgAddr, AML_DTB_IMG_MAX_SZ, 0);
+		   ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, dtimgaddr, AML_DTB_IMG_MAX_SZ, 0);
 		   if (ret) {
 			   MsgP("decrypt dtb: Sig Check %d\n",ret);
 			   return ret;
@@ -395,32 +411,37 @@ static int do_store_dtb_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 	   if (!is_write && strcmp("iread", argv[2]))
 	   {
 			ulong nCheckOffset;
-			nCheckOffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,GXB_IMG_LOAD_ADDR,GXB_EFUSE_PATTERN_SIZE,GXB_IMG_DEC_ALL);
+
+			nCheckOffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,
+					GXB_IMG_LOAD_ADDR, GXB_EFUSE_PATTERN_SIZE, GXB_IMG_DEC_ALL);
 			if (AML_D_Q_IMG_SIG_HDR_SIZE == (nCheckOffset & 0xFFFF))
 				nCheckOffset = (nCheckOffset >> 16) & 0xFFFF;
 			else
 				nCheckOffset = 0;
 
 			if (nCheckOffset)
-				memmove((char *)dtImgAddr, (char*)dtImgAddr + nCheckOffset, AML_DTB_IMG_MAX_SZ);
+				memmove((char *)dtimgaddr,
+						(char *)dtimgaddr + nCheckOffset,
+						AML_DTB_IMG_MAX_SZ);
 		}
 #endif//#ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
 #ifdef CONFIG_MULTI_DTB
 		if (!is_write && strcmp("iread", argv[2]))
 		{
 				extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
+				unsigned long fdtaddr = get_multi_dt_entry(dtimgaddr);
 
-				unsigned long fdtAddr = get_multi_dt_entry(dtImgAddr);
-				ret = fdt_check_header((char*)fdtAddr);
+				ret = fdt_check_header((char *)fdtaddr);
 				if (ret) {
 						ErrP("Fail in fdt check header\n");
 						return CMD_RET_FAILURE;
 				}
-				unsigned fdtsz    = fdt_totalsize((char*)fdtAddr);
+				unsigned int fdtsz    = fdt_totalsize((char *)fdtaddr);
+
 				if (fdtsz > AML_DTB_IMG_MAX_SZ)
 					return CMD_RET_FAILURE;
 
-				memmove((char*)dtImgAddr, (char*)fdtAddr, fdtsz);
+				memmove((char *)dtimgaddr, (char *)fdtaddr, fdtsz);
 		}
 #endif// #ifdef CONFIG_MULTI_DTB
 
@@ -432,20 +453,21 @@ static int do_store_dtb_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
   store mbr Addr
  */
 extern int emmc_update_mbr(unsigned char *buffer);
-static int do_store_mbr_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_store_mbr_ops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int ret = 0;
 	unsigned char *buffer;
 	cpu_id_t cpu_id = get_cpu_id();
 
-	if ((cpu_id.family_id < MESON_CPU_MAJOR_ID_GXL)
-	   || (device_boot_flag != EMMC_BOOT_FLAG)) {
+	if (cpu_id.family_id < MESON_CPU_MAJOR_ID_GXL ||
+			device_boot_flag != EMMC_BOOT_FLAG) {
 		ret = -1;
 		ErrP("MBR not support, try [store dtb write Addr]\n");
 		goto _out;
 	}
 
-	if (argc < 3) return CMD_RET_USAGE;
+	if (argc < 3)
+		return CMD_RET_USAGE;
 
 	buffer = (unsigned char *)simple_strtoul(argv[2], NULL, 16);
 	ret = emmc_update_mbr(buffer);
@@ -457,12 +479,13 @@ _out:
 	return ret;
 }
 
-static int do_store_bootlog(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_store_bootlog(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int ret = 0;
 	unsigned int val;
 
-	if (argc < 2) return CMD_RET_USAGE;
+	if (argc < 2)
+		return CMD_RET_USAGE;
 
 	val = readl(AO_SEC_GP_CFG2);
 	printf("Boot logs:\n\t bl2: %d\n\tfip: %d\n", (val >> 25) & 0x7, (val >> 22) & 0x7);
@@ -478,8 +501,8 @@ static int do_store_bootlog(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 	&& ((device) != NAND_BOOT_FLAG)	\
 	&& ((device) != SPI_NAND_FLAG))
 
-int store_ddr_parameter_read(uint8_t *buffer,
-			     uint32_t length)
+int store_ddr_parameter_read(u8 *buffer,
+			     u32 length)
 {
 	int ret = 0;
 
@@ -497,7 +520,7 @@ int store_ddr_parameter_read(uint8_t *buffer,
 	return ret;
 }
 
-int store_ddr_parameter_write(uint8_t *buffer, uint32_t length)
+int store_ddr_parameter_write(u8 *buffer, u32 length)
 {
 	int ret = 0;
 
@@ -537,8 +560,8 @@ int store_ddr_parameter_erase(void)
 	return ret;
 }
 
-int store_key_read(uint8_t *buffer,
-		   uint32_t length, uint32_t *actual_lenth)
+int store_key_read(u8 *buffer,
+		   u32 length, u32 *actual_length)
 {
 	int ret = 0;
 
@@ -548,16 +571,16 @@ int store_key_read(uint8_t *buffer,
 	}
 
 	if (IS_STORAGE_EMMC_BOOT(device_boot_flag))
-		ret = mmc_key_read(buffer, (int)length, actual_lenth);
+		ret = mmc_key_read(buffer, (int)length, actual_length);
 #if defined(CONFIG_AML_NAND) || defined(CONFIG_AML_MTD)
 	else
-		ret = amlnf_key_read(buffer, (int)length, actual_lenth);
+		ret = amlnf_key_read(buffer, (int)length, actual_length);
 #endif
 	return ret;
 }
 
-int store_key_write(uint8_t *buffer,
-		    uint32_t length, uint32_t *actual_lenth)
+int store_key_write(u8 *buffer,
+		    u32 length, u32 *actual_length)
 {
 	int ret = 0;
 
@@ -567,36 +590,39 @@ int store_key_write(uint8_t *buffer,
 	}
 
 	if (IS_STORAGE_EMMC_BOOT(device_boot_flag))
-		ret = mmc_key_write(buffer, (int)length, actual_lenth);
+		ret = mmc_key_write(buffer, (int)length, actual_length);
 #if defined(CONFIG_AML_NAND) || defined(CONFIG_AML_MTD)
 	else
-		ret = amlnf_key_write(buffer, (int)length, actual_lenth);
+		ret = amlnf_key_write(buffer, (int)length, actual_length);
 #endif
 	return ret;
 }
 
-static int do_store_key_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_store_key_ops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int ret = 0;
-	char _cmdBuf[128];
-	char* ops = argv[2];
-	const unsigned maxKyeSz = 256 * 1024;
-	unsigned actualDtbSz = 0;
-	char* devCmd = NULL;
+	char _cmdbuf[128];
+	char *ops = argv[2];
+	const unsigned int maxkyesz = 256 * 1024;
+	unsigned int actualdtbsz = 0;
+	char *devcmd = NULL;
 
-	if (argc < 4) return CMD_RET_USAGE;
+	if (argc < 4)
+		return CMD_RET_USAGE;
 
 	const int is_write = !strcmp("write", ops);
 	if (!is_write) {
 		ret = strcmp("read", ops);//must be 0
-		if (ret) return CMD_RET_USAGE;
+		if (ret)
+			return CMD_RET_USAGE;
 	}
 
-	actualDtbSz = maxKyeSz;
+	actualdtbsz = maxkyesz;
 	if (argc > 4) {
-		const unsigned bufSz = simple_strtoul(argv[4], NULL, 0);
-		if (bufSz > maxKyeSz) {
-			ErrP("bufSz (%s) > max 0x%x\n", argv[4], maxKyeSz);
+		const unsigned int bufsz = simple_strtoul(argv[4], NULL, 0);
+
+		if (bufsz > maxkyesz) {
+			ErrP("bufsz (%s) > max 0x%x\n", argv[4], maxkyesz);
 			return CMD_RET_FAILURE;
 		}
 	}
@@ -606,64 +632,67 @@ static int do_store_key_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 	switch (device_boot_flag) {
 	case NAND_BOOT_FLAG:
 	case SPI_NAND_FLAG:
-		devCmd = "amlnf";
+		devcmd = "amlnf";
 		break;
 	case EMMC_BOOT_FLAG:
 	case SPI_EMMC_FLAG:
-		devCmd = "emmc";
+		devcmd = "emmc";
 		break;
 	default:
 		ErrP("device_boot_flag=0x%x err\n", device_boot_flag);
 		return CMD_RET_FAILURE;
 	}
 
-	sprintf(_cmdBuf, "%s %s %s 0x%x", devCmd, ops, argv[3], actualDtbSz);
-	MsgP("To run cmd[%s]\n", _cmdBuf);
-	ret = run_command(_cmdBuf, 0);
+	sprintf(_cmdbuf, "%s %s %s 0x%x", devcmd, ops, argv[3], actualdtbsz);
+	MsgP("To run cmd[%s]\n", _cmdbuf);
+	ret = run_command(_cmdbuf, 0);
 
 	return ret;
 }
 
-static int do_store_ddr_parameter_ops(cmd_tbl_t * cmdtp,
+static int do_store_ddr_parameter_ops(cmd_tbl_t *cmdtp,
 				      int flag, int argc, char * const argv[])
 {
 	unsigned long addr;
 	int ret = 0;
-	char* ops = argv[2];
-	const unsigned maxDdrPSz = 2 * 1024;
-	unsigned int actualDtbSz = 0;
+	char *ops = argv[2];
+	const unsigned int maxddrpsz = 2 * 1024;
+	unsigned int actualdtbsz = 0;
 
 	if (!strcmp("erase", ops) && (argc == 3)) {
 		 ret = store_ddr_parameter_erase();
 		 return ret;
 	}
 
-	if (argc < 4) return CMD_RET_USAGE;
+	if (argc < 4)
+		return CMD_RET_USAGE;
 
 	const int is_write = !strcmp("write", ops);
 	if (!is_write) {
 		ret = strcmp("read", ops);//must be 0
-		if (ret) return CMD_RET_USAGE;
+		if (ret)
+			return CMD_RET_USAGE;
 	}
-	actualDtbSz = maxDdrPSz;
+	actualdtbsz = maxddrpsz;
 	if (argc > 4) {
-		const unsigned bufSz = simple_strtoul(argv[4], NULL, 0);
-		if (bufSz > maxDdrPSz) {
-			ErrP("bufSz (%s) > max 0x%x\n", argv[4], maxDdrPSz);
+		const unsigned int bufsz = simple_strtoul(argv[4], NULL, 0);
+
+		if (bufsz > maxddrpsz) {
+			ErrP("bufsz (%s) > max 0x%x\n", argv[4], maxddrpsz);
 			return CMD_RET_FAILURE;
 		}
 	}
 
 	addr = (ulong)simple_strtoul(argv[3], NULL, 16);
 	if (is_write)
-		store_ddr_parameter_write((uint8_t *)addr, actualDtbSz);
+		store_ddr_parameter_write((u8 *)addr, actualdtbsz);
 	else
-		store_ddr_parameter_read((uint8_t *)addr, actualDtbSz);
+		store_ddr_parameter_read((u8 *)addr, actualdtbsz);
 
 	return ret;
 }
 
-static int do_store_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_store_init(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i, init_flag=0, ret = 0;
 	char	str[128];
@@ -685,7 +714,8 @@ static int do_store_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 #if defined(CONFIG_AML_NAND)
 		case NAND_BOOT_FLAG:
 			{
-				if ((init_flag >=STORE_BOOT_ERASE_PROTECT_CACHE) && (init_flag <=STORE_BOOT_SCRUB_ALL)) {
+				if (init_flag >= STORE_BOOT_ERASE_PROTECT_CACHE &&
+						init_flag <= STORE_BOOT_SCRUB_ALL) {
 					sprintf(str, "amlnf  init  %d ",init_flag);
 					run_command(str, 0);
 				}
@@ -716,7 +746,7 @@ static int do_store_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 #endif// #ifdef	CONFIG_AML_MTD
 		case EMMC_BOOT_FLAG:
 			{
-				store_dbg("MMC BOOT, %s %d \n",__func__,__LINE__);
+				store_dbg("MMC BOOT, %s %d\n", __func__, __LINE__);
 				device_boot_flag = EMMC_BOOT_FLAG;
 				sprintf(str, "mmc dev %d", CONFIG_SYS_MMC_ENV_DEV);
 				run_command(str,0);
@@ -725,9 +755,9 @@ static int do_store_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 					store_msg("amlmmc cmd failed \n");
 					return -1;
 				}
-				if (init_flag == STORE_BOOT_ERASE_PROTECT_CACHE) { // OTA upgrade protect cache
+				if (init_flag == STORE_BOOT_ERASE_PROTECT_CACHE) {
 					ret = run_command("amlmmc erase non_cache", 0);
-				}else if(init_flag >= STORE_BOOT_ERASE_ALL){ // erase all except  reserved area
+				} else if (init_flag >= STORE_BOOT_ERASE_ALL) {
 					if (_info_disprotect_back_before_mmcinfo1 & DISPROTECT_KEY) {
 						MsgP("amlmmc key\n");
 						run_command("amlmmc key", 0);
@@ -742,21 +772,26 @@ static int do_store_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 			break;
 		case SPI_EMMC_FLAG:
 			{
-				store_dbg("spi+mmc , %s %d ",__func__,__LINE__);
+				store_dbg("spi+mmc , %s %d ", __func__, __LINE__);
 				ret = run_command("mmcinfo 1", 0);
 
-				if (init_flag == STORE_BOOT_ERASE_PROTECT_CACHE) { // OTA upgrade protect cache
+				if (init_flag == STORE_BOOT_ERASE_PROTECT_CACHE) {
 					store_msg("amlmmc erase non_cache \n");
 					ret = run_command("amlmmc erase non_cache", 0);
-				}else if(init_flag == STORE_BOOT_ERASE_ALL){ // erase all except  reserved area
+				} else if (init_flag == STORE_BOOT_ERASE_ALL) {
 					if (_info_disprotect_back_before_mmcinfo1 & DISPROTECT_KEY) {
 						run_command("mmc key", 0);
 					}
 					MsgP("amlmmc erase 1 \n");
 					ret = run_command("amlmmc erase 1", 0);
 				}
-				if ((init_flag > STORE_BOOT_ERASE_PROTECT_CACHE) && (init_flag <= STORE_BOOT_SCRUB_ALL)) {
+				if (init_flag > STORE_BOOT_ERASE_PROTECT_CACHE &&
+						init_flag <= STORE_BOOT_SCRUB_ALL) {
 					ret = run_command("sf probe 2", 0);
+					if (ret != 0) {
+						store_msg("sf probe failed");
+						return -1;
+					}
 					sprintf(str, "sf erase  0 0x%x", _SPI_FLASH_ERASE_SZ);
 					ret = run_command(str,0);
 				}
@@ -770,9 +805,10 @@ static int do_store_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 			break;
 		case SPI_NAND_FLAG:
 			{
-				store_dbg("spi+nand , %s %d ",__func__,__LINE__);
+				store_dbg("spi+nand , %s %d ", __func__, __LINE__);
 #if defined(CONFIG_AML_NAND)
-				if ((init_flag >=STORE_BOOT_ERASE_PROTECT_CACHE) && (init_flag <=STORE_BOOT_SCRUB_ALL)) {
+				if (init_flag >= STORE_BOOT_ERASE_PROTECT_CACHE &&
+						init_flag <= STORE_BOOT_SCRUB_ALL) {
 					sprintf(str, "amlnf  init  %d ",init_flag);
 					run_command(str, 0);
 				}
@@ -787,7 +823,8 @@ static int do_store_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 					return -1;
 #if defined(CONFIG_AML_NAND)
 				} else {
-					if ((init_flag > STORE_BOOT_ERASE_PROTECT_CACHE) && (init_flag <= STORE_BOOT_SCRUB_ALL)) {
+					if (init_flag > STORE_BOOT_ERASE_PROTECT_CACHE &&
+							init_flag <= STORE_BOOT_SCRUB_ALL) {
 						ret = run_command("sf probe 2", 0);
 						sprintf(str, "sf erase  0 0x%x", _SPI_FLASH_ERASE_SZ);
 						ret = run_command(str,0);
@@ -803,14 +840,14 @@ static int do_store_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 				}
 			}
 		default:
-			store_dbg("CARD BOOT, %s %d",__func__,__LINE__);
+			store_dbg("CARD BOOT, %s %d", __func__, __LINE__);
 			return CMD_RET_FAILURE;
 	}
 
 	return 0;
 }
 
-static int do_store_exit(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_store_exit(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #if defined(CONFIG_AML_NAND)
 	if (device_boot_flag == NAND_BOOT_FLAG) {
@@ -828,7 +865,7 @@ static int do_store_exit(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 	return 0;
 }
 
-static int do_store_disprotect(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_store_disprotect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *area;
 
@@ -850,18 +887,19 @@ static int do_store_disprotect(cmd_tbl_t * cmdtp, int flag, int argc, char * con
 	return 0;
 }
 
-static int do_store_size(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_store_size(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int ret = 0;
-	uint64_t addr;
+	u64 addr;
 	char *s = NULL;
 	char	str[128];
 
-	if (argc < 4) return CMD_RET_USAGE;
+	if (argc < 4)
+		return CMD_RET_USAGE;
 
 	s = argv[2];
 	addr = (ulong)simple_strtoul(argv[3], NULL, 16);
-	if ( !addr ) {
+	if (!addr) {
 		ErrP("addr(%s) is invalid\n", argv[3]);
 		return CMD_RET_FAILURE;
 	}
@@ -873,27 +911,26 @@ static int do_store_size(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 		ret = run_command(str, 0);
 #elif defined(CONFIG_AML_MTD)
 		{//get mtd part logic size (i.e, not including the bad blocks)
-			nand_info_t * mtdPartInf = NULL;
+			nand_info_t *mtdpartinf = NULL;
 			loff_t off = 0;
-			uint64_t partSzLgc = 0;
-			const char* partName = s;
+			u64 partszlgc = 0;
+			const char *partname = s;
 
-			mtdPartInf = get_mtd_device_nm(partName);
-			if (IS_ERR(mtdPartInf)) {
-				ErrP("device(%s) is err\n", partName);
+			mtdpartinf = get_mtd_device_nm(partname);
+			if (IS_ERR(mtdpartinf)) {
+				ErrP("device(%s) is err\n", partname);
 				return CMD_RET_FAILURE;
 			}
-			const unsigned eraseSz   = mtdPartInf->erasesize;
-			const uint64_t partSzPhy = mtdPartInf->size;
+			const unsigned int erasesz = mtdpartinf->erasesize;
+			const u64 partszphy = mtdpartinf->size;
 
-			partSzLgc = partSzPhy;
-			for (; off < partSzPhy; off += eraseSz) {
-				if (nand_block_isbad(mtdPartInf, off)) {
-					partSzLgc -= eraseSz;
-				}
+			partszlgc = partszphy;
+			for (; off < partszphy; off += erasesz) {
+				if (nand_block_isbad(mtdpartinf, off))
+					partszlgc -= erasesz;
 			}
-			uint64_t* pAddr = (uint64_t*)addr;
-			*pAddr = partSzLgc;
+			u64 *paddr = (u64 *)addr;
+			*paddr = partszlgc;
 		}
 #else
 		ret = -1;
@@ -906,8 +943,7 @@ static int do_store_size(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 			return ret;
 #endif
 		}
-	}
-	else if(device_boot_flag == SPI_NAND_FLAG){
+	} else if (device_boot_flag == SPI_NAND_FLAG) {
 		#if defined(CONFIG_AML_NAND)
 		sprintf(str, "amlnf  size  %s %llx",s,addr);
 		store_dbg("command:	%s", str);
@@ -923,9 +959,8 @@ static int do_store_size(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 			return ret;
 #endif
 		}
-	}
-	else if(device_boot_flag == SPI_EMMC_FLAG){
-		store_dbg("MMC , %s %d ",__func__,__LINE__);
+	} else if (device_boot_flag == SPI_EMMC_FLAG) {
+		store_dbg("MMC , %s %d ", __func__, __LINE__);
 		sprintf(str, "amlmmc  size  %s %llx",s,addr);
 		store_dbg("command:	%s", str);
 		ret = run_command(str, 0);
@@ -934,9 +969,8 @@ static int do_store_size(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 			return -1;
 		}
 		return ret;
-	}
-	else if(device_boot_flag==EMMC_BOOT_FLAG){
-		store_dbg("MMC , %s %d ",__func__,__LINE__);
+	} else if (device_boot_flag == EMMC_BOOT_FLAG) {
+		store_dbg("MMC , %s %d ", __func__, __LINE__);
 		sprintf(str, "amlmmc  size  %s %llx",s,addr);
 		store_dbg("command:	%s", str);
 		ret = run_command(str, 0);
@@ -945,34 +979,34 @@ static int do_store_size(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 			return -1;
 		}
 		return ret;
-	}
-	else if(device_boot_flag==CARD_BOOT_FLAG){
-		store_dbg("CARD BOOT , %s %d ",__func__,__LINE__);
+	} else if (device_boot_flag == CARD_BOOT_FLAG) {
+		store_dbg("CARD BOOT , %s %d ", __func__, __LINE__);
 		return CMD_RET_FAILURE;
 	}
 
 	return CMD_RET_FAILURE;
 }
 
-static int do_store_erase(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_store_erase(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i, erase = 2, ret = 0;
-	loff_t size=0;
+	//loff_t size=0;
 	char *area;
 	char	str[128];
-	loff_t off;
+	//loff_t off = 0;
 
-	if (argc < 3) return CMD_RET_USAGE;
+	if (argc < 3)
+		return CMD_RET_USAGE;
 
-	off = off;
 	area = argv[2];
 
 	if (strcmp(area, "boot") == 0) {
-			off =  argc > 3 ? simple_strtoul(argv[3], NULL, 16) : 0;
-			size =  argc > 4 ? simple_strtoul(argv[4], NULL, 16) : 0x60000;
+			//off =  argc > 3 ? simple_strtoul(argv[3], NULL, 16) : 0;
+			//size =  argc > 4 ? simple_strtoul(argv[4], NULL, 16) : 0x60000;
 		if (device_boot_flag == NAND_BOOT_FLAG) {
 			#if defined(CONFIG_AML_NAND)
-			store_dbg("NAND BOOT,erase uboot : %s %d  off =%llx ,size=%llx",__func__,__LINE__, off, size);
+			store_dbg("NAND BOOT,erase uboot : %s %d  off =%llx ,size=%llx",
+					__func__, __LINE__, off, size);
 
 			ret = run_command("amlnf deverase boot 0",0);
 			#elif defined(CONFIG_AML_MTD)
@@ -985,8 +1019,10 @@ static int do_store_erase(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 				return -1;
 			}
 			return ret;
-		}else if((device_boot_flag==SPI_EMMC_FLAG)||(device_boot_flag==SPI_NAND_FLAG)){
-			store_dbg("SPI BOOT,erase uboot :  %s %d  off =%llx ,size=%llx",__func__,__LINE__,off,size);
+		} else if ((device_boot_flag == SPI_EMMC_FLAG) ||
+				(device_boot_flag == SPI_NAND_FLAG)) {
+			store_dbg("SPI BOOT,erase uboot :  %s %d  off =%llx ,size=%llx",
+					__func__, __LINE__, off, size);
 
 			ret = run_command("sf probe 2",0);
 			if (ret != 0) {
@@ -1000,8 +1036,9 @@ static int do_store_erase(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 				return -1;
 			}
 			return ret;
-		}else if(device_boot_flag == EMMC_BOOT_FLAG){
-			store_dbg("MMC BOOT,erase uboot :  %s %d  off =%llx ,size=%llx",__func__,__LINE__,off,size);
+		} else if (device_boot_flag == EMMC_BOOT_FLAG) {
+			store_dbg("MMC BOOT,erase uboot :  %s %d  off =%llx ,size=%llx",
+					__func__, __LINE__, off, size);
 
 			sprintf(str, "amlmmc  erase bootloader");
 			ret = run_command(str, 0);
@@ -1029,8 +1066,7 @@ static int do_store_erase(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 				if (ret == -1) {
 					//store_msg("mmc cmd failed \n");
 					return 0;
-				}
-				else if(ret != 0){
+				} else if (ret != 0) {
 					store_msg("amlmmc cmd failed");
 					//return -1;
 					goto E_SWITCH_BACK;
@@ -1059,14 +1095,15 @@ E_SWITCH_BACK:
 #endif
 
 			return ret;
-		}else{
-			store_dbg("CARD BOOT,erase uboot :  %s %d  off =%llx ,size=%llx",__func__,__LINE__,off,size);
+		} else {
+			store_dbg("CARD BOOT,erase uboot :  %s %d  off =%llx ,size=%llx",
+					__func__, __LINE__, off, size);
 			return 0;
 		}
-	}
-	else if (strcmp(area, "data") == 0){
+	} else if (strcmp(area, "data") == 0) {
 		if (device_boot_flag == NAND_BOOT_FLAG) {
-			store_dbg("NAND BOOT,erase data : %s %d  off =%llx ,size=%llx",__func__,__LINE__, off, size);
+			store_dbg("NAND BOOT,erase data : %s %d  off =%llx ,size=%llx",
+					__func__, __LINE__, off,  size);
 			#if defined(CONFIG_AML_NAND)
 			ret = run_command("amlnf  deverase data 0",0);
 			if (ret != 0) {
@@ -1088,9 +1125,8 @@ E_SWITCH_BACK:
 				ret |= run_command("nand erase.chip", 0);
 			#endif
 			return ret;
-		}
-		else if(device_boot_flag == SPI_NAND_FLAG){
-			store_dbg("spi+nand , %s %d ",__func__,__LINE__);
+		} else if (device_boot_flag == SPI_NAND_FLAG) {
+			store_dbg("spi+nand , %s %d ", __func__, __LINE__);
 			#if defined(CONFIG_AML_NAND)
 			/*case for uboot in nor flash,system in nand flash*/
 			ret = run_command("amlnf  deverase data 0",0);
@@ -1111,10 +1147,8 @@ E_SWITCH_BACK:
 			}
 			#endif
 			return ret;
-		}
-		else if(device_boot_flag == SPI_EMMC_FLAG){
-			store_dbg("spi+mmc , %s %d ",__func__,__LINE__);
-			off = size =0;
+		} else if (device_boot_flag == SPI_EMMC_FLAG) {
+			store_dbg("spi+mmc , %s %d ", __func__, __LINE__);
 			ret = run_command("mmc  erase  1",0); // whole
 			if (ret != 0) {
 				store_msg("mmc cmd failed ");
@@ -1122,10 +1156,9 @@ E_SWITCH_BACK:
 			}
 
 			return ret;
-		}
-		else if(device_boot_flag==EMMC_BOOT_FLAG){
-			store_dbg("MMC BOOT,erase data : %s %d  off =%llx ,size=%llx",__func__,__LINE__, off, size);
-			off = size =0;
+		} else if (device_boot_flag == EMMC_BOOT_FLAG) {
+			store_dbg("MMC BOOT,erase data : %s %d  off =%llx ,size=%llx",
+					__func__, __LINE__, off, size);
 			MsgP("amlmmc erase non_loader\n");
 			ret = run_command("amlmmc erase non_loader",0); //whole
 			if (ret != 0) {
@@ -1133,12 +1166,12 @@ E_SWITCH_BACK:
 				return -1;
 			}
 			return ret;
-		}else{
-			store_dbg("CARD BOOT,erase data : %s %d  off =%llx ,size=%llx",__func__,__LINE__, off, size);
+		} else {
+			store_dbg("CARD BOOT,erase data : %s %d  off =%llx ,size=%llx",
+					__func__, __LINE__, off, size);
 			return 0;
 		}
-	}
-	else if (strcmp(area, "key") == 0){
+	} else if (strcmp(area, "key") == 0) {
 		if (device_boot_flag == EMMC_BOOT_FLAG) {
 			sprintf(str, "emmc erase key");
 			ret = run_command(str, 0);
@@ -1156,8 +1189,7 @@ E_SWITCH_BACK:
 			}
 		#endif
 		}
-	}
-	else if (strcmp(area, "dtb") == 0) {
+	} else if (strcmp(area, "dtb") == 0) {
 		if (device_boot_flag == EMMC_BOOT_FLAG) {
 			sprintf(str, "emmc erase dtb");
 			ret = run_command(str, 0);
@@ -1189,6 +1221,8 @@ E_SWITCH_BACK:
 				return CMD_RET_USAGE;
 
 			dev = find_dev_num_by_partition_name(p_name);
+			if (dev < 0)
+				return CMD_RET_USAGE;
 			mmc = find_mmc_device(dev);
 			if (!mmc)
 				return CMD_RET_FAILURE;
@@ -1219,24 +1253,25 @@ E_SWITCH_BACK:
 			printf("store erase \"%s-partition\" is %s\n", p_name, n ? "fail" : "ok");
 			if (n)
 				return CMD_RET_FAILURE;
-		}
-		else if (NAND_BOOT_FLAG == device_boot_flag){
+		} else if (device_boot_flag == NAND_BOOT_FLAG) {
 #ifdef CONFIG_AML_MTD
-			if ( 4 > argc ) return CMD_RET_USAGE;
+			if (argc < 4)
+				return CMD_RET_USAGE;
 			sprintf(str, "nand erase.part %s", argv[3]);
 			return run_command(str, 0);
 #else
 			return CMD_RET_USAGE;
 #endif//#ifdef CONFIG_AML_MTD
+		} else {
+			return CMD_RET_USAGE;
 		}
-		else return CMD_RET_USAGE;
 	} else
 		return CMD_RET_USAGE;
 
 	return 0;
 }
 
-static int do_store_scrub(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_store_scrub(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int ret = 0;
 	loff_t off=0;
@@ -1256,9 +1291,8 @@ static int do_store_scrub(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 			store_msg("nand cmd failed");
 			return -1;
 		}
-	}
-	else if(device_boot_flag == SPI_NAND_FLAG){
-		store_dbg("spi+nand , %s %d ",__func__,__LINE__);
+	} else if (device_boot_flag == SPI_NAND_FLAG) {
+		store_dbg("spi+nand , %s %d ", __func__, __LINE__);
 		#if defined(CONFIG_AML_NAND)
 		ret = run_command(str, 0);
 		if (ret != 0) {
@@ -1279,23 +1313,21 @@ static int do_store_scrub(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 			return -1;
 		}
 		return ret;
-	}
-	else if(device_boot_flag == SPI_EMMC_FLAG){
-		store_dbg("spi+mmc , %s %d ",__func__,__LINE__);
+	} else if (device_boot_flag == SPI_EMMC_FLAG) {
+		store_dbg("spi+mmc , %s %d\n", __func__, __LINE__);
 		ret = run_command("amlmmc erase whole",0);
 		if (ret != 0) {
-			store_msg("amlmmc cmd failed \n");
+			store_msg("amlmmc cmd failed\n");
 			return -1;
 		}
 		return ret;
-	}
-	else if(device_boot_flag==EMMC_BOOT_FLAG){
-		store_dbg("MMC BOOT, %s %d \n",__func__,__LINE__);
+	} else if (device_boot_flag == EMMC_BOOT_FLAG) {
+		store_dbg("MMC BOOT, %s %d\n", __func__, __LINE__);
 		device_boot_flag = EMMC_BOOT_FLAG;
 		run_command("mmc dev 1", 0);
 		ret = run_command("mmcinfo", 0);
 		if (ret != 0) {
-			store_msg("amlmmc cmd failed \n");
+			store_msg("amlmmc cmd failed\n");
 			return -1;
 		}
 		if (_info_disprotect_back_before_mmcinfo1 & DISPROTECT_KEY) {
@@ -1309,7 +1341,7 @@ static int do_store_scrub(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 	return ret;
 }
 
-static int do_store_rom_protect(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_store_rom_protect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 
 #if defined(CONFIG_AML_NAND)
@@ -1317,7 +1349,8 @@ static int do_store_rom_protect(cmd_tbl_t * cmdtp, int flag, int argc, char * co
 	char *area = argv[2];
 #endif
 
-	if (argc < 3)return CMD_RET_USAGE;
+	if (argc < 3)
+		return CMD_RET_USAGE;
 
 	if (device_boot_flag == NAND_BOOT_FLAG) {
 #if defined(CONFIG_AML_NAND)
@@ -1338,16 +1371,18 @@ static int do_store_rom_protect(cmd_tbl_t * cmdtp, int flag, int argc, char * co
 	return CMD_RET_SUCCESS;
 }
 
-static int do_store_rom_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_store_rom_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	uint64_t addr;
+	u64 addr;
 	loff_t off=0, size=0;
 	char	str[128];
 	int ret = 0;
-	if (argc < 5) return CMD_RET_USAGE;
+	if (argc < 5)
+		return CMD_RET_USAGE;
 
 	addr = (ulong)simple_strtoul(argv[2], NULL, 16);
-	if (get_off_size(argc - 3, (char **)(argv + 3), &off, &size) != 0) return CMD_RET_FAILURE;
+	if (get_off_size(argc - 3, (char **)(argv + 3), &off, &size) != 0)
+		return CMD_RET_FAILURE;
 
 	if (device_boot_flag == NAND_BOOT_FLAG) {
 #if defined(CONFIG_AML_NAND) || defined(CONFIG_AML_MTD)
@@ -1360,35 +1395,38 @@ static int do_store_rom_write(cmd_tbl_t * cmdtp, int flag, int argc, char * cons
  *store rom_write addr offset size <iCopy>
  //Used to update the whole bootloader, i.e, update 'bl2 + tpl' at the same time
  @iCopy is optional,
-	if used, must < min(tplCpyNum, Bl2CpyNum), and update only the specified copy
+	if used, must < min(tplcpynum, bl2cpynum), and update only the specified copy
 	if not used, update all the copies of bl2 and tpl
 */
-		const int Bl2Size       = BL2_SIZE;
-		const int Bl2CpyNum     = CONFIG_BL2_COPY_NUM; //TODO: decided by efuse, no macro
-		const int tplCapSize    = CONFIG_TPL_SIZE_PER_COPY;
-		const int tplCpyNum     = CONFIG_TPL_COPY_NUM;
-		const int bootloaderMaxSz = Bl2Size + tplCapSize;
-		const int tplWriteSz     = size - Bl2Size;
-		loff_t copyOff = 0;
-		const int iCopy2Update  = argc > 5 ? simple_strtoul(argv[5], NULL, 0) : -1;
-		const int TPL_MIN_SZ    = (1U << 16);
-		const int updateTpl     = TPL_MIN_SZ < tplWriteSz;
+		const int bl2size = BL2_SIZE;
+		const int bl2cpynum = CONFIG_BL2_COPY_NUM; //TODO: decided by efuse, no macro
+		const int tplcapsize = CONFIG_TPL_SIZE_PER_COPY;
+		const int tplcpynum = CONFIG_TPL_COPY_NUM;
+		const int bootloadermaxsz = bl2size + tplcapsize;
+		const int tplwritesz = size - bl2size;
+		loff_t copyoff = 0;
+		const int icopy2update = argc > 5 ? simple_strtoul(argv[5], NULL, 0) : -1;
+		const int TPL_MIN_SZ = (1U << 16);
+		const int updatetpl = tplwritesz > TPL_MIN_SZ;
 		int i = 0;
 
-		if ( bootloaderMaxSz < size ) {
-			ErrP("bootloader sz 0x%llx too large,max sz 0x%x\n", size, bootloaderMaxSz );
+		if (bootloadermaxsz < size) {
+			ErrP("bootloader sz 0x%llx too large,max sz 0x%x\n",
+					size, bootloadermaxsz);
 			return CMD_RET_FAILURE;
 		}
-		if ( !updateTpl ) {
-			MsgP("Warnning:tplWriteSz 0x%x too small, update bl2 only but not update tpl\n", tplWriteSz);
-		}
-		if (iCopy2Update >= tplCpyNum || iCopy2Update >= Bl2CpyNum) {
-			ErrP("iCopy2Update[%s] invalid, must < min(%d, %d)\n", argv[5], tplCpyNum, Bl2CpyNum);
+		if (!updatetpl)
+			MsgP("Warn:tplwritesz 0x%x too small,update bl2 but not tpl\n",
+					tplwritesz);
+		if (icopy2update >= tplcpynum || icopy2update >= bl2cpynum) {
+			ErrP("icopy2update[%s] invalid, must < min(%d, %d)\n",
+					argv[5], tplcpynum, bl2cpynum);
 			return CMD_RET_FAILURE;
 		}
-		for (i = 0; i < Bl2CpyNum; ++i)
+		for (i = 0; i < bl2cpynum; ++i)
 		{
-			if (iCopy2Update >= 0 && iCopy2Update != i) continue;
+			if (icopy2update >= 0 && icopy2update != i)
+				continue;
 
 			sprintf(str, "amlnf rom_erase %d", i);
 			ret = run_command(str, 0);
@@ -1397,8 +1435,8 @@ static int do_store_rom_write(cmd_tbl_t * cmdtp, int flag, int argc, char * cons
 				return CMD_RET_FAILURE;
 			}
 
-			//copyOff = i * Bl2Size;
-			sprintf(str, "amlnf bl2_write 0x%llx %d 0x%x", addr, i, Bl2Size);
+			//copyoff = i * bl2size;
+			sprintf(str, "amlnf bl2_write 0x%llx %d 0x%x", addr, i, bl2size);
 			debugP("runCmd[%s]\n", str);
 			ret = run_command(str, 0);
 			if (ret) {
@@ -1406,10 +1444,11 @@ static int do_store_rom_write(cmd_tbl_t * cmdtp, int flag, int argc, char * cons
 				return CMD_RET_FAILURE;
 			}
 		}
-		addr += Bl2Size;
-		for ( i = 0; i < tplCpyNum && updateTpl; ++i )
+		addr += bl2size;
+		for (i = 0; i < tplcpynum && updatetpl; ++i)
 		{
-			if (iCopy2Update >= 0 && iCopy2Update != i) continue;
+			if (icopy2update >= 0 && icopy2update != i)
+				continue;
 
 			sprintf(str, "amlnf fip_erase %d", i);
 			ret = run_command(str, 0);
@@ -1418,8 +1457,8 @@ static int do_store_rom_write(cmd_tbl_t * cmdtp, int flag, int argc, char * cons
 				return CMD_RET_FAILURE;
 			}
 
-			copyOff = i * tplCapSize;
-			sprintf(str, "amlnf fip_write 0x%llx %llx 0x%x", addr, copyOff, tplWriteSz);
+			copyoff = i * tplcapsize;
+			sprintf(str, "amlnf fip_write 0x%llx %llx 0x%x", addr, copyoff, tplwritesz);
 			debugP("runCmd[%s]\n", str);
 			ret = run_command(str, 0);
 			if (ret) {
@@ -1428,8 +1467,10 @@ static int do_store_rom_write(cmd_tbl_t * cmdtp, int flag, int argc, char * cons
 			}
 		}
 #if CONFIG_TPL_VAL_NUM_MIN
-		_bootloaderOrgCrc[0] = crc32(0, (unsigned char*)(addr - Bl2Size), Bl2Size);
-		_bootloaderOrgCrc[1] = crc32(0, (unsigned char*)addr, tplWriteSz);
+		_bootloaderOrgCrc[0] = crc32(0,
+				(unsigned char *)(addr - bl2size), bl2size);
+		_bootloaderOrgCrc[1] = crc32(0,
+				(unsigned char *)addr, tplwritesz);
 #endif// #if CONFIG_TPL_VAL_NUM_MIN
 #endif//#ifndef CONFIG_DISCRETE_BOOTLOADER
 #else
@@ -1440,8 +1481,8 @@ static int do_store_rom_write(cmd_tbl_t * cmdtp, int flag, int argc, char * cons
 			return -1;
 		}
 		return ret;
-	}
-	else if ((device_boot_flag==SPI_EMMC_FLAG)||(device_boot_flag==SPI_NAND_FLAG)){
+	} else if ((device_boot_flag == SPI_EMMC_FLAG) ||
+			(device_boot_flag == SPI_NAND_FLAG)) {
 		ret = run_command("sf  probe 2",0);
 		if (ret != 0) {
 			store_msg("nand cmd failed");
@@ -1461,10 +1502,8 @@ static int do_store_rom_write(cmd_tbl_t * cmdtp, int flag, int argc, char * cons
 			return -1;
 		}
 		return ret;
-	}
-	else if(device_boot_flag==EMMC_BOOT_FLAG){
-		store_dbg("MMC BOOT, %s %d \n",__func__,__LINE__);
-
+	} else if (device_boot_flag == EMMC_BOOT_FLAG) {
+		store_dbg("MMC BOOT, %s %d\n", __func__, __LINE__);
 #ifndef CONFIG_AML_SECU_BOOT_V2
 #ifdef MMC_UBOOT_CLEAR_MBR
 		//modify the 55 AA info for emmc uboot
@@ -1475,7 +1514,8 @@ static int do_store_rom_write(cmd_tbl_t * cmdtp, int flag, int argc, char * cons
 		tmp_buf[511]=0;
 #endif
 #endif// #if defined(CONFIG_AML_SECU_BOOT_V2)
-		sprintf(str, "amlmmc  write bootloader 0x%llx  0x%llx  0x%llx", addr, off, size);
+		sprintf(str, "amlmmc  write bootloader 0x%llx  0x%llx  0x%llx",
+				addr, off, size);
 		store_dbg("command: %s\n", str);
 		ret = run_command(str, 0);
 		if (ret != 0) {
@@ -1484,24 +1524,26 @@ static int do_store_rom_write(cmd_tbl_t * cmdtp, int flag, int argc, char * cons
 		}
 		return ret;
 	} else {
-		store_dbg("CARD BOOT, %s %d",__func__,__LINE__);
+		store_dbg("CARD BOOT, %s %d", __func__, __LINE__);
 		return 0;
 	}
 }
 
-static int do_store_rom_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_store_rom_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	uint64_t addr;
+	u64 addr;
 	loff_t off=0, size=0;
 	char	str[128];
 	int ret = 0;
 	int i = 0, read = 2;
 	cpu_id_t cpu_id = get_cpu_id();
 
-	if (argc < 5) return CMD_RET_USAGE;
+	if (argc < 5)
+		return CMD_RET_USAGE;
 
 	addr = (ulong)simple_strtoul(argv[2], NULL, 16);
-	if (get_off_size(argc - 3, (char **)(argv + 3), &off, &size) != 0) return CMD_RET_FAILURE;
+	if (get_off_size(argc - 3, (char **)(argv + 3), &off, &size) != 0)
+		return CMD_RET_FAILURE;
 
 	if (device_boot_flag == NAND_BOOT_FLAG) {
 #if defined(CONFIG_AML_NAND) || defined(CONFIG_AML_MTD)
@@ -1514,114 +1556,124 @@ static int do_store_rom_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const
  *store rom_read addr offset size <iCopy>
  //Used to read the whole bootloader, i.e, update 'bl2 + tpl' at the same time
  @iCopy is optional,
-	if used, must < min(tplCpyNum, Bl2CpyNum), and read only the specified copy
+	if used, must < min(tplcpynum, bl2cpynum), and read only the specified copy
 	if not used, check if all the copies of 'bl2 + tpl' are same content
 */
-		const int Bl2Size       = BL2_SIZE;
-		const int Bl2CpyNum     = CONFIG_BL2_COPY_NUM; //TODO: decided by efuse, no macro
-		const int tplCapSize    = CONFIG_TPL_SIZE_PER_COPY;
-		const int tplCpyNum     = CONFIG_TPL_COPY_NUM;
-		const int bootloaderMaxSz = Bl2Size + tplCapSize;
-		const int tplRealSz     = size - Bl2Size;
-		loff_t copyOff = 0;
-		int iCopy2Update  = argc > 5 ? simple_strtoul(argv[5], NULL, 0) : -1;
-		char* tmpBuf = NULL;
-		int okCrcNum = 0;
-		const int verifyMode = (off == (1ULL << 62) - 1) && (iCopy2Update < 0); //verify mode
-		if (!verifyMode && iCopy2Update < 0) iCopy2Update = 0; //default read copy 0 if no verify mode
+		const int bl2size       = BL2_SIZE;
+		const int bl2cpynum     = CONFIG_BL2_COPY_NUM; //TODO: decided by efuse, no macro
+		const int tplcapsize    = CONFIG_TPL_SIZE_PER_COPY;
+		const int tplcpynum     = CONFIG_TPL_COPY_NUM;
+		const int bootloadermaxsz = bl2size + tplcapsize;
+		const int tplrealsz     = size - bl2size;
+		loff_t copyoff = 0;
+		int icopy2update  = argc > 5 ? simple_strtoul(argv[5], NULL, 0) : -1;
+		char *tmpbuf = NULL;
+		int okcrcnum = 0;
+		const int verifymode =
+			(off == (1ULL << 62) - 1) && (icopy2update < 0); //verify mode
 
-		if ( bootloaderMaxSz < size || tplRealSz < 0 ) {
-			ErrP("bootloader sz 0x%llx invalid,  max sz %d\n", size, bootloaderMaxSz );
+		if (!verifymode && icopy2update < 0)
+			icopy2update = 0; //default read copy 0 if no verify mode
+
+		if (bootloadermaxsz < size || tplrealsz < 0) {
+			ErrP("bootloader sz 0x%llx invalid,  max sz %d\n", size, bootloadermaxsz);
 			return CMD_RET_FAILURE;
 		}
-		if (iCopy2Update >= tplCpyNum || iCopy2Update >= Bl2CpyNum) {
-			ErrP("iCopy2Update[%s] invalid, must < min(%d, %d)\n", argv[5], tplCpyNum, Bl2CpyNum);
+		if (icopy2update >= tplcpynum || icopy2update >= bl2cpynum) {
+			ErrP("icopy2update[%s] invalid, must < min(%d, %d)\n",
+					argv[5], tplcpynum, bl2cpynum);
 			return CMD_RET_FAILURE;
 		}
 
-		tmpBuf = (char*)malloc(size);
-		if ( !tmpBuf ) {
+		tmpbuf = (char *)malloc(size);
+		if (!tmpbuf) {
 			ErrP("Failed maloc 0x%llx bytes\n", size);
 			return CMD_RET_FAILURE;
 		}
-		memset(tmpBuf, 0, size);
+		memset(tmpbuf, 0, size);
 
-		char* readBuf = tmpBuf;
-		const uint32_t orgBl2Crc = _bootloaderOrgCrc[0];
-		for (i = 0; i < Bl2CpyNum; ++i)
+		char *readbuf = tmpbuf;
+		const u32 orgbl2crc = _bootloaderOrgCrc[0];
+
+		for (i = 0; i < bl2cpynum; ++i)
 		{
-			if (iCopy2Update >= 0 && iCopy2Update != i) continue;
+			if (icopy2update >= 0 && icopy2update != i)
+				continue;
 
-			sprintf(str, "amlnf bl2_read 0x%p %x 0x%x", readBuf, i, Bl2Size);
+			sprintf(str, "amlnf bl2_read 0x%p %x 0x%x", readbuf, i, bl2size);
 			debugP("runCmd[%s]\n", str);
 			ret = run_command(str, 0);
 			if (ret) {
 				ErrP("Failed at pgram bl2[%d],ret=%d\n", i, ret);
-				free(tmpBuf);
+				free(tmpbuf);
 				return CMD_RET_FAILURE;
 			}
 #if CONFIG_BL2_VAL_NUM_MIN
-			if (verifyMode) //copy index not specified, need read all copies
-			{
-				const uint32_t readCrc = crc32(0, (unsigned char*)readBuf, Bl2Size);
-				if (readCrc == orgBl2Crc) {
-					okCrcNum += 1;
-					if ( okCrcNum >= CONFIG_BL2_VAL_NUM_MIN ) {
+			if (verifymode) {//copy index not specified, need read all copies
+				const u32 readcrc = crc32(0, (unsigned char *)readbuf, bl2size);
+
+				if (readcrc == orgbl2crc) {
+					okcrcnum += 1;
+					if (okcrcnum >= CONFIG_BL2_VAL_NUM_MIN)
 						break;
-					}
 				}
 			}
 #endif//#if CONFIG_BL2_VAL_NUM_MIN
 		}
 #if CONFIG_BL2_VAL_NUM_MIN
-		if (okCrcNum < CONFIG_BL2_VAL_NUM_MIN && verifyMode) {
-			ErrP("okCrcNum(%d) < CONFIG_BL2_VAL_NUM_MIN(%d)\n", okCrcNum, CONFIG_BL2_VAL_NUM_MIN);
-			free(tmpBuf);
+		if (okcrcnum < CONFIG_BL2_VAL_NUM_MIN && verifymode) {
+			ErrP("okcrcnum(%d) < CONFIG_BL2_VAL_NUM_MIN(%d)\n",
+					okcrcnum, CONFIG_BL2_VAL_NUM_MIN);
+			free(tmpbuf);
 			return CMD_RET_FAILURE;
 		}
-		okCrcNum = 0;
+		okcrcnum = 0;
 #endif//#if CONFIG_BL2_VAL_NUM_MIN
-		memcpy((char*)addr, readBuf, Bl2Size);
+		memcpy((char *)addr, readbuf, bl2size);
 
-		if (tplRealSz > 0) // to support dump only bl2
+		if (tplrealsz > 0) // to support dump only bl2
 		{
-			const uint32_t orgTplCrc = _bootloaderOrgCrc[1];
-			for ( i = 0; i < tplCpyNum && !ret; ++i )
-			{
-				if (iCopy2Update >= 0 && iCopy2Update != i) continue;
+			const u32 orgtplcrc = _bootloaderOrgCrc[1];
 
-				copyOff = i * tplCapSize;
-				sprintf(str, "amlnf fip_read 0x%p %llx 0x%x", readBuf, copyOff, tplRealSz);
+			for (i = 0; i < tplcpynum && !ret; ++i)
+			{
+				if (icopy2update >= 0 && icopy2update != i)
+					continue;
+
+				copyoff = i * tplcapsize;
+				sprintf(str, "amlnf fip_read 0x%p %llx 0x%x",
+						readbuf, copyoff, tplrealsz);
 				debugP("runCmd[%s]\n", str);
 				ret = run_command(str, 0);
 				if (ret) {
 					ErrP("Failed at pgram bl2[%d],ret=%d\n", i, ret);
-					free(tmpBuf);
+					free(tmpbuf);
 					return CMD_RET_FAILURE;
 				}
 #if CONFIG_TPL_VAL_NUM_MIN
-				if (verifyMode) //copy index not specified, need read all copies
+				if (verifymode) //copy index not specified, need read all copies
 				{
-					const uint32_t readCrc = crc32(0, (unsigned char*)readBuf, tplRealSz);
-					if (orgTplCrc == readCrc) {
-						okCrcNum += 1;
-						if ( okCrcNum >= CONFIG_TPL_VAL_NUM_MIN ) {
-							break;
-						}
-					}
+					const u32 readcrc = crc32(0,
+							(unsigned char *)readbuf, tplrealsz);
+
+					if (orgtplcrc == readcrc)
+						okcrcnum += 1;
+					if (okcrcnum >= CONFIG_TPL_VAL_NUM_MIN)
+						break;
 				}
 #endif//#if CONFIG_TPL_VAL_NUM_MIN
 			}
 #if CONFIG_TPL_VAL_NUM_MIN
-			if (okCrcNum < CONFIG_TPL_VAL_NUM_MIN && verifyMode) {
-				ErrP("okCrcNum(%d) < CONFIG_TPL_VAL_NUM_MIN(%d)\n", okCrcNum, CONFIG_TPL_VAL_NUM_MIN);
-				free(tmpBuf);
+			if (okcrcnum < CONFIG_TPL_VAL_NUM_MIN && verifymode) {
+				ErrP("okcrcnum(%d) < CONFIG_TPL_VAL_NUM_MIN(%d)\n",
+						okcrcnum, CONFIG_TPL_VAL_NUM_MIN);
+				free(tmpbuf);
 				return CMD_RET_FAILURE;
 			}
 #endif//#if CONFIG_TPL_VAL_NUM_MIN
-			memcpy((char*)addr + Bl2Size, (unsigned char*)readBuf, tplRealSz);
+			memcpy((char *)addr + bl2size, (unsigned char *)readbuf, tplrealsz);
 		}
-		free(tmpBuf);
+		free(tmpbuf);
 #endif// #ifndef CONFIG_DISCRETE_BOOTLOADER
 #else
 		ret = -1;
@@ -1631,12 +1683,14 @@ static int do_store_rom_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 			return -1;
 		}
 		return ret;
-	}else if ((device_boot_flag==SPI_EMMC_FLAG)||(device_boot_flag==SPI_NAND_FLAG)){
+	} else if ((device_boot_flag == SPI_EMMC_FLAG) ||
+			(device_boot_flag == SPI_NAND_FLAG)) {
 		ret = run_command("sf  probe 2",0);
 		if (ret != 0) {
 			return -1;
 		}
-		sprintf(str, "sf  read 0x%llx  0x%llx  0x%llx ",addr, off, size);
+		sprintf(str, "sf read 0x%llx  0x%llx  0x%llx ",
+				addr, off, size);
 		store_dbg("command:	%s", str);
 		ret = run_command(str, 0);
 		if (ret != 0) {
@@ -1644,11 +1698,12 @@ static int do_store_rom_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 			return -1;
 		}
 		return ret;
-	}else if (device_boot_flag==EMMC_BOOT_FLAG){
-	   if ( cpu_id.family_id >= MESON_CPU_MAJOR_ID_GXL)
-				off += 512;
+	} else if (device_boot_flag == EMMC_BOOT_FLAG) {
+		if (cpu_id.family_id >= MESON_CPU_MAJOR_ID_GXL)
+			off += 512;
 		store_dbg("MMC BOOT, %s %d \n",__func__,__LINE__);
-		sprintf(str, "amlmmc  read bootloader 0x%llx  0x%llx  0x%llx", addr, off, size);
+		sprintf(str, "amlmmc  read bootloader 0x%llx  0x%llx  0x%llx",
+				addr, off, size);
 		store_dbg("command: %s\n", str);
 		//tmp_buf= (unsigned char *)addr;
 		ret = run_command(str, 0);
@@ -1673,15 +1728,15 @@ static int do_store_rom_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const
 			ret = run_command(str, 0);
 			if (ret == -1) {
 				return 0;
-			}
-			else if(ret != 0){
+			} else if (ret != 0) {
 				store_msg("amlmmc cmd failed");
 				goto R_SWITCH_BACK;
 				//return -1;
 			}
 
 			//write uboot to boot partition
-			sprintf(str, "amlmmc  read bootloader 0x%llx  0x%llx  0x%llx", addr, off, size);
+			sprintf(str, "amlmmc  read bootloader 0x%llx  0x%llx  0x%llx",
+					addr, off, size);
 			store_dbg("command: %s\n", str);
 			ret = run_command(str, 0);
 			if (ret != 0) {
@@ -1710,56 +1765,64 @@ R_SWITCH_BACK:
 #endif
 #endif// #ifndef CONFIG_AML_SECU_BOOT_V2
 		return ret;
-	}else{
+	} else {
 		store_dbg("CARD BOOT, %s %d ",__func__,__LINE__);
 		return 0;
 	}
 
 }
 
-static int do_store_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_store_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	uint64_t addr;
+	u64 addr;
 	loff_t off=0, size=0;
 	char	str[128];
 	int ret = 0;
-	char * s = argv[2];
+	char *s = argv[2];
 
-	if (argc < 6) return CMD_RET_USAGE;
+	if (argc < 6)
+		return CMD_RET_USAGE;
 
 	addr = (ulong)simple_strtoul(argv[3], NULL, 16);
 
-	if (get_off_size(argc - 4, (char **)(argv + 4), &off, &size) != 0) return CMD_RET_FAILURE;
+	if (get_off_size(argc - 4, (char **)(argv + 4), &off, &size) != 0)
+		return CMD_RET_FAILURE;
 
 	store_dbg("addr = %llx off= 0x%llx  size=0x%llx",addr,off,size);
-	if ((device_boot_flag == NAND_BOOT_FLAG)) {
+	if (device_boot_flag == NAND_BOOT_FLAG) {
 #if defined(CONFIG_AML_NAND) || defined(CONFIG_AML_MTD)
 #if defined(CONFIG_AML_NAND)
-	sprintf(str, "amlnf  read_byte %s 0x%llx  0x%llx  0x%llx",s, addr, off, size);
+		sprintf(str, "amlnf  read_byte %s 0x%llx  0x%llx  0x%llx",
+			s, addr, off, size);
 #elif defined(CONFIG_AML_MTD)
 	#if  defined(CONFIG_DISCRETE_BOOTLOADER)
-	if ( !strcmp(CONFIG_TPL_PART_NAME, s) ) {
-		const int tplCapSize    = CONFIG_TPL_SIZE_PER_COPY;
-		const int tplCpyNum     = CONFIG_TPL_COPY_NUM;
-		const int iCopy2Update  = argc > 6 ? simple_strtoul(argv[6], NULL, 0) : 0;//0 copy at default
+		if (!strcmp(CONFIG_TPL_PART_NAME, s)) {
+			const int tplcapsize    = CONFIG_TPL_SIZE_PER_COPY;
+			const int tplcpynum     = CONFIG_TPL_COPY_NUM;
+			const int icopy2update  =
+				argc > 6 ? simple_strtoul(argv[6], NULL, 0) : 0;//0 copy at default
 
-		if (iCopy2Update >= tplCpyNum) {
-			ErrP("iCopy2Update[%s] invalid, must < max(%d)\n", argv[6], tplCpyNum);
-			return CMD_RET_FAILURE;
-		}
+			if (icopy2update >= tplcpynum) {
+				ErrP("icopy2update[%s] invalid, must < max(%d)\n",
+						argv[6], tplcpynum);
+				return CMD_RET_FAILURE;
+			}
 
-		loff_t copyOff = iCopy2Update * tplCapSize;
-		sprintf(str, "amlnf fip_read 0x%llx %llx 0x%llx", addr, copyOff, size);
-	} else
+			loff_t copyoff = icopy2update * tplcapsize;
+
+			sprintf(str, "amlnf fip_read 0x%llx %llx 0x%llx",
+					addr, copyoff, size);
+		} else {
 	#endif // #if  defined(CONFIG_DISCRETE_BOOTLOADER)
-	{
-		ret =  mtd_find_phy_off_by_lgc_off(s, off, &off);
-		if (ret) {
-			ErrP("Fail in find phy addr by logic off (0x%llx),ret(%d)\n", off, ret);
-			return CMD_RET_FAILURE;
+			ret =  mtd_find_phy_off_by_lgc_off(s, off, &off);
+			if (ret) {
+				ErrP("Fail in find phy addr by logic off (0x%llx),ret(%d)\n",
+						off, ret);
+				return CMD_RET_FAILURE;
+			}
+			sprintf(str, "nand  read %s 0x%llx  0x%llx  0x%llx",
+					s, addr, off, size);
 		}
-		sprintf(str, "nand  read %s 0x%llx  0x%llx  0x%llx",s, addr, off, size);
-	}
 #endif // #if defined(CONFIG_AML_NAND)
 #else
 		ret = -1;
@@ -1770,10 +1833,10 @@ static int do_store_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 			return -1;
 		}
 		return ret;
-	}
-	else if(device_boot_flag == SPI_NAND_FLAG){
+	} else if (device_boot_flag == SPI_NAND_FLAG) {
 		#if defined(CONFIG_AML_NAND)
-		sprintf(str, "amlnf  read_byte %s 0x%llx  0x%llx  0x%llx", s, addr, off, size);
+		sprintf(str, "amlnf  read_byte %s 0x%llx  0x%llx  0x%llx",
+				s, addr, off, size);
 		store_dbg("command:	%s\n", str);
 		ret = run_command(str, 0);
 		#else
@@ -1788,10 +1851,10 @@ static int do_store_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 			return ret;
 		}
 #endif
-	}
-	else if(device_boot_flag == SPI_EMMC_FLAG){
+	} else if (device_boot_flag == SPI_EMMC_FLAG) {
 		store_dbg("spi+mmc , %s %d ",__func__,__LINE__);
-		sprintf(str, "amlmmc  read %s 0x%llx  0x%llx  0x%llx", s, addr, off, size);
+		sprintf(str, "amlmmc  read %s 0x%llx  0x%llx  0x%llx",
+				s, addr, off, size);
 		store_dbg("command:	%s\n", str);
 		ret = run_command(str, 0);
 		if (ret != 0) {
@@ -1799,10 +1862,10 @@ static int do_store_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 			return -1;
 		}
 		return ret;
-	}
-	else if(device_boot_flag==EMMC_BOOT_FLAG) {
+	} else if (device_boot_flag == EMMC_BOOT_FLAG) {
 		store_dbg("MMC BOOT, %s %d \n",__func__,__LINE__);
-		sprintf(str, "amlmmc  read %s 0x%llx  0x%llx  0x%llx", s, addr, off, size);
+		sprintf(str, "amlmmc  read %s 0x%llx  0x%llx  0x%llx",
+				s, addr, off, size);
 		store_dbg("command:	%s\n", str);
 		ret = run_command(str, 0);
 		if (ret != 0) {
@@ -1810,48 +1873,54 @@ static int do_store_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 			return -1;
 		}
 		return ret;
-	}else{
+	} else {
 		store_dbg("CARD BOOT, %s %d ",__func__,__LINE__);
 
 		return 0;
 	}
 }
 
-static int do_store_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_store_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	uint64_t addr;
+	u64 addr;
 	loff_t off=0, size=0;
 	char	str[128];
 	int ret = -1;
-	char * s = argv[2];
+	char *s = argv[2];
 
-	if (argc < 6) return CMD_RET_USAGE;
+	if (argc < 6)
+		return CMD_RET_USAGE;
 
 	addr = (ulong)simple_strtoul(argv[3], NULL, 16);
-	if (get_off_size(argc - 4, (char **)(argv + 4), &off, &size) != 0) return CMD_RET_FAILURE;
+	if (get_off_size(argc - 4, (char **)(argv + 4), &off, &size) != 0)
+		return CMD_RET_FAILURE;
 
 	if (device_boot_flag == NAND_BOOT_FLAG) {
 #if defined(CONFIG_AML_NAND) || defined(CONFIG_AML_MTD)
 	#if defined(CONFIG_AML_NAND)
-		sprintf(str, "amlnf write_byte %s 0x%llx  0x%llx  0x%llx", s, addr, off, size);
+		sprintf(str, "amlnf write_byte %s 0x%llx  0x%llx  0x%llx",
+				s, addr, off, size);
 		ret = run_command(str, 0);
 	#elif defined(CONFIG_AML_MTD)
 		#if  defined(CONFIG_DISCRETE_BOOTLOADER)
-		if ( !strcmp(CONFIG_TPL_PART_NAME, s) ) {
-			const int tplCapSize    = CONFIG_TPL_SIZE_PER_COPY;
-			const int tplCpyNum     = CONFIG_TPL_COPY_NUM;
-			const int iCopy2Update  = argc > 6 ? simple_strtoul(argv[6], NULL, 0) : -1; //only update one copy
+		if (!strcmp(CONFIG_TPL_PART_NAME, s)) {
+			const int tplcapsize = CONFIG_TPL_SIZE_PER_COPY;
+			const int tplcpynum = CONFIG_TPL_COPY_NUM;
+			const int icopy2update =
+				argc > 6 ? simple_strtoul(argv[6], NULL, 0) : -1;
 			int i = 0;
 
-			debugP("iCopy2Update=%d, tplCpyNum=%d\n", iCopy2Update, tplCpyNum);
-			if (iCopy2Update >= tplCpyNum) {
-				ErrP("iCopy2Update[%s] invalid, must < max(%d)\n", argv[6], tplCpyNum);
+			debugP("icopy2update=%d, tplcpynum=%d\n", icopy2update, tplcpynum);
+			if (icopy2update >= tplcpynum) {
+				ErrP("icopy2update[%s] invalid, must < max(%d)\n",
+						argv[6], tplcpynum);
 				return CMD_RET_FAILURE;
 			}
 
-			for ( i = 0; i < tplCpyNum; ++i )
+			for (i = 0; i < tplcpynum; ++i)
 			{
-				if (iCopy2Update >= 0 && iCopy2Update != i) continue;
+				if (icopy2update >= 0 && icopy2update != i)
+					continue;
 
 				sprintf(str, "amlnf fip_erase %d", i);
 				ret = run_command(str, 0);
@@ -1860,8 +1929,10 @@ static int do_store_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 					return CMD_RET_FAILURE;
 				}
 
-				loff_t copyOff = i * tplCapSize;
-				sprintf(str, "amlnf fip_write 0x%llx %llx 0x%llx", addr, copyOff, size);
+				loff_t copyoff = i * tplcapsize;
+
+				sprintf(str, "amlnf fip_write 0x%llx %llx 0x%llx",
+						addr, copyoff, size);
 				debugP("runCmd[%s]\n", str);
 				ret = run_command(str, 0);
 				if (ret) {
@@ -1885,8 +1956,7 @@ static int do_store_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 			store_msg("nand cmd failed ");
 			return -1;
 		}
-	}
-	else if(device_boot_flag == SPI_NAND_FLAG){
+	} else if (device_boot_flag == SPI_NAND_FLAG) {
 		store_dbg("spi+nand , %s %d ",__func__,__LINE__);
 		#if defined(CONFIG_AML_NAND)
 		sprintf(str, "amlnf  write_byte %s 0x%llx  0x%llx  0x%llx", s, addr, off, size);
@@ -1904,8 +1974,7 @@ static int do_store_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 			return ret;
 		#endif
 		}
-	}
-	else if(device_boot_flag == SPI_EMMC_FLAG){
+	} else if (device_boot_flag == SPI_EMMC_FLAG) {
 		store_dbg("spi+mmc , %s %d ",__func__,__LINE__);
 		sprintf(str, "amlmmc  write %s 0x%llx  0x%llx  0x%llx", s, addr, off, size);
 		store_dbg("command: %s\n", str);
@@ -1914,8 +1983,7 @@ static int do_store_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 			store_msg("amlmmc cmd failed \n");
 			return -1;
 		}
-	}
-	else if(device_boot_flag==EMMC_BOOT_FLAG){
+	} else if (device_boot_flag == EMMC_BOOT_FLAG) {
 		store_dbg("MMC BOOT, %s %d \n",__func__,__LINE__);
 		sprintf(str, "amlmmc  write %s 0x%llx  0x%llx  0x%llx", s, addr, off, size);
 		store_dbg("command: %s\n", str);
@@ -1924,7 +1992,7 @@ static int do_store_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 			store_msg("amlmmc cmd failed \n");
 			return -1;
 		}
-	}else{
+	} else {
 		store_dbg("CARD BOOT, %s %d ",__func__,__LINE__);
 		ret = CMD_RET_FAILURE;
 	}
@@ -1950,11 +2018,12 @@ static cmd_tbl_t cmd_store_sub[] = {
 	U_BOOT_CMD_MKENT(bootlog,       2, 0, do_store_bootlog, "", ""),
 };
 
-static int do_store(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_store(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *c;
 
-	if (argc < 2) return CMD_RET_USAGE;
+	if (argc < 2)
+		return CMD_RET_USAGE;
 	c = find_cmd_tbl(argv[1], cmd_store_sub, ARRAY_SIZE(cmd_store_sub));
 	if (c)
 		return	c->cmd(cmdtp, flag, argc, argv);

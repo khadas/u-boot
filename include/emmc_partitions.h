@@ -267,6 +267,7 @@ typedef struct FastbootContext {
 	uint32_t crc32;
 } FastbootContext_t;
 
+extern unsigned int emmc_cur_partition;
 extern bool is_partition_checked;
 extern struct partitions emmc_partition_table[];
 
