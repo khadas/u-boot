@@ -198,6 +198,17 @@ static int _bootloader_read(u8* pBuf, unsigned off, unsigned binSz, const char* 
 	int iCopy = 0;
 	const int bootCpyNum = store_boot_copy_num(bootName);
 	const int bootCpySz  = (int)store_boot_copy_size(bootName);
+	int validCpyNum = bootCpyNum;//at least valid cpy num
+	int actVldCpyNum = 0;//actual valid copy num
+
+#if CONFIG_NAND_BL2_VALID_NUM
+	if (!strcmp("bl2", bootName))
+		validCpyNum = CONFIG_NAND_BL2_VALID_NUM;
+#endif // #if CONFIG_NAND_BL2_VALID_NUM
+#if CONFIG_NAND_TPL_VALID_NUM
+	if (!strcmp("tpl", bootName))
+		validCpyNum = CONFIG_NAND_TPL_VALID_NUM;
+#endif// #if CONFIG_NAND_TPL_VALID_NUM
 
 	if (binSz + off > bootCpySz) {
 		FBS_ERR(_ACK, "bootloader sz(0x%x) + off(0x%x) > bootCpySz 0x%x\n", binSz, off, bootCpySz);
@@ -208,11 +219,28 @@ static int _bootloader_read(u8* pBuf, unsigned off, unsigned binSz, const char* 
 	for (iCopy = 0; iCopy < bootCpyNum; ++iCopy) {
 		void* dataBuf = iCopy ? pBuf + binSz : pBuf;
 		int ret = store_boot_read(bootName, iCopy, binSz, dataBuf);
-		if (ret) FBS_EXIT("Fail to read boot[%s] at copy[%d]\n", bootName, iCopy);
-		if (iCopy) {
-			if (memcmp(pBuf, dataBuf, binSz))
-				FBS_EXIT(_ACK, "[%s] copy[%d] content NOT the same as copy[0]\n", bootName, iCopy);
+		if (ret) {
+			FB_ERR("Fail to read boot[%s] at copy[%d]\n", bootName, iCopy);
+			continue;
 		}
+		if (iCopy) {
+			if (!actVldCpyNum) {//NO valid cpy yet, so copy0 NOT valid also
+				memcpy(pBuf, dataBuf, binSz);
+			}
+			if (memcmp(pBuf, dataBuf, binSz)) {
+				FBS_ERR(_ACK, "[%s] copy[%d] content NOT the same as copy[0]\n",
+						bootName, iCopy);//maybe ddr err as nand not err
+				memset(pBuf, 0, binSz);
+				return -__LINE__;
+			}
+		}
+		++actVldCpyNum;
+	}
+	if (actVldCpyNum < validCpyNum) {
+		FBS_ERR(_ACK, "[%s]actual valid copy num %d < configured num %d\n",
+				bootName, actVldCpyNum, validCpyNum);
+		memset(pBuf, 0, binSz);
+		return -__LINE__;
 	}
 
 	return 0;

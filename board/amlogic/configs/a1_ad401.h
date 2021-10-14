@@ -237,6 +237,9 @@
 /* #define 	CONFIG_CMD_SAVEENV */
 /* fixme, need fix*/
 
+//#define CONFIG_NAND_BL2_VALID_NUM	4
+//#define CONFIG_NAND_TPL_VALID_NUM	4
+
 #if (defined(CONFIG_ENV_IS_IN_AMLNAND) || defined(CONFIG_ENV_IS_IN_MMC)) && defined(CONFIG_STORE_COMPATIBLE)
 #error env in amlnand/mmc already be compatible;
 #endif
