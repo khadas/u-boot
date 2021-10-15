@@ -78,8 +78,8 @@
         "lcd1_ctrl=0x00000000\0" \
         "lcd2_ctrl=0x00000000\0" \
         "lcd_debug=0x00000000\0" \
-		"outputmode=1080p60hz\0" \
-		"outputmode2=panel1\0" \
+	"outputmode=panel1\0" \
+	"outputmode2=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \
@@ -246,18 +246,7 @@
             "else if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi; fi;" \
             "\0"\
         "init_display="\
-            /* logo1 */ \
-            "setenv display_layer osd0;"\
-            "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;"\
-            "osd open;osd clear;run load_bmp_logo;"\
-            "bmp scale;"\
-            "vout output ${outputmode};vpp hdrpkt;"\
-            /* logo2 */ \
-            "setenv display_layer viu2_osd0;"\
-            "vout2 prepare ${outputmode2};" \
-            "osd open;osd clear;run load_bmp_logo;"\
-            "vout2 output ${outputmode2};" \
-            "bmp scale;" \
+            "osd dual_logo;"\
             "\0"\
         "cmdline_keys="\
 			"setenv region_code US;"\
@@ -294,6 +283,25 @@
             "run upgrade_key;" \
             "bcb uboot-command;" \
             "run switch_bootmode;"
+
+/* dual logo, normal boot */
+#define CONFIG_DUAL_LOGO \
+	"setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
+	"osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
+	"setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+	"\0"\
+
+/* dual logo, factory_reset boot, recovery always displays on panel */
+#define CONFIG_RECOVERY_DUAL_LOGO \
+	"setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
+	"osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
+	"setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+	"\0"\
+
+/* single logo */
+#define CONFIG_SINGLE_LOGO \
+	"setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+	"\0"\
 
 /* #define CONFIG_ENV_IS_NOWHERE  1 */
 #define CONFIG_ENV_SIZE   (64*1024)
