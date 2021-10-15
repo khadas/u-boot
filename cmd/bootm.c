@@ -120,6 +120,27 @@ static void recovery_mode_process(void)
 //end
 int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+	/* add reboot_mode in bootargs for kernel command line */
+	char *pbootargs = env_get("bootargs");
+	char *preboot_mode = env_get("reboot_mode");
+
+	if (pbootargs && preboot_mode) {
+		int nlen = strlen(pbootargs) + strlen(preboot_mode) + 16;
+		char *pnewbootargs = malloc(nlen);
+		//char *pnewbootargs = (char *)0x6000000;
+		if (pnewbootargs) {
+			memset((void *)pnewbootargs, 0, nlen);
+			sprintf(pnewbootargs, "%s reboot_mode=%s\n", pbootargs, preboot_mode);
+			env_set("bootargs", pnewbootargs);
+			free(pnewbootargs);
+			pnewbootargs = NULL;
+		} else {
+			puts("Error: malloc in pnewbootargs failed!\n");
+		}
+	} else {
+		puts("Error: add reboot_mode in bootargs failed!\n");
+	}
+
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	static int relocated = 0;
 
