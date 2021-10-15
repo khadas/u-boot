@@ -158,22 +158,27 @@ void __attribute__((unused)) _dump_part_tbl(struct partitions *p, int count)
 static int _get_part_index_by_name(struct partitions *tbl,
 					   int cnt, const char *name)
 {
-	   int i=0;
-	   struct partitions *part = NULL;
+	int i = 0;
+	struct partitions *part = NULL;
 
-       while (i < cnt) {
-			   part = &tbl[i];
-               if (!strcmp(name, part->name)) {
-					   apt_info("find %s @ tbl[%d]\n", name, i);
-					   break;
-			   }
-			   i++;
-	   };
-       if (i == cnt) {
-			   i = -1;
-			   apt_wrn("do not find match in table %s\n", name);
-	   }
-	   return i;
+	while (i < cnt) {
+		part = &tbl[i];
+		if (!strcmp(name, part->name)) {
+			apt_info("find %s @ tbl[%d]\n", name, i);
+			break;
+		}
+		i++;
+	};
+
+	if (i == cnt) {
+		i = -1;
+		apt_wrn("do not find match in table %s\n", name);
+	}
+
+	if (gpt_partition)
+		i += 1;
+
+	return i;
 }
 
 static struct partitions *_find_partition_by_name(struct partitions *tbl,
