@@ -74,6 +74,11 @@ extern int store_write_ops(
 extern int is_partition_logical(char* parition_name);
 #endif
 
+u32 kMaxDownloadSizeDefault = 0x10000000;
+u32 kMaxFetchSizeDefault = 0x10000000;
+
+static void cb_fetch(struct usb_ep *outep, struct usb_request *outreq);
+
 /* The 64 defined bytes plus \0 */
 
 #define EP_BUFFER_SIZE	4096
@@ -713,6 +718,16 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		strncat(response, FASTBOOT_VERSION, chars_left);
 	} else if (!strcmp_l1("bootloader-version", cmd)) {
 		strncat(response, s_version, chars_left);
+	} else if (!strcmp_l1("max-download-size", cmd)) {
+		char str_num[12];
+
+		sprintf(str_num, "0x%08x", kMaxDownloadSizeDefault);
+		strncat(response, str_num, chars_left);
+	} else if (!strcmp_l1("max-fetch-size", cmd)) {
+		char str_num[12];
+
+		sprintf(str_num, "0x%08x", kMaxFetchSizeDefault);
+		strncat(response, str_num, chars_left);
 	} else if (!strcmp_l1("off-mode-charge", cmd)) {
 		strncat(response, "0", chars_left);
 	} else if (!strcmp_l1("variant", cmd)) {
@@ -760,8 +775,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 				strncat(response, "super_b", chars_left);
 			}
 		}
-	} else if (!strcmp_l1("downloadsize", cmd) ||
-		!strcmp_l1("max-download-size", cmd)) {
+	} else if (!strcmp_l1("downloadsize", cmd)) {
 		char str_num[12];
 
 		sprintf(str_num, "0x%08x", ddr_size_usable(CONFIG_USB_FASTBOOT_BUF_ADDR));
@@ -1823,6 +1837,10 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 		.cb = cb_download,
 	},
 	{
+		.cmd = "fetch",
+		.cb = cb_fetch,
+	},
+	{
 		.cmd = "flashall",
 		.cb = cb_flashall,
 	},
@@ -1890,3 +1908,178 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 		usb_ep_queue(ep, req, 0);
 	}
 }
+
+static struct {
+	unsigned int totalBytes;
+	unsigned int transferredBytes; //transferredBytes <= totalBytes
+	unsigned int dataCheckAlg;
+	void *priv;//now for backup req->buf
+} _mreadInfo = {0};
+
+static u64 my_ato11(const char *str)
+{
+	u64 result = 0;
+	int len, i;
+
+	len = strlen(str);
+	for (i = 0; i < len; i++) {
+		if (*str >= '0' && *str <= '9')
+			result = result * 16 + (*str - '0');
+		else if (*str >= 'A' && *str <= 'F')
+			result = result * 16 + (*str - 'A') + 10;
+		else if (*str >= 'a' && *str <= 'f')
+			result = result * 16 + (*str - 'a') + 10;
+		str++;
+	}
+
+	return result;
+}
+
+static void tx_handler_mread(struct usb_ep *inep, struct usb_request *inreq)
+{
+	const unsigned int transfer_size = inreq->actual;
+
+	if (inreq->status != 0) {
+		printf("in req Bad status: %d\n", inreq->status);
+		return;
+	}
+
+	if (fastboot_func->in_req != inreq) {
+		printf("exception, bogus req\n");
+		return;
+	}
+
+	_mreadInfo.transferredBytes += transfer_size;
+
+	/* Check if transfer is done */
+	if (_mreadInfo.transferredBytes >= _mreadInfo.totalBytes) {
+		printf("mread 0x%x bytes end\n", _mreadInfo.transferredBytes);
+		/*write ended and return to receive command*/
+		inreq->complete = fastboot_complete;
+		inreq->length = EP_BUFFER_SIZE;
+		if (_mreadInfo.priv)
+			inreq->buf  = (char *)_mreadInfo.priv;
+		//should return to rx next command
+		fastboot_tx_write_str("OKAY");
+	} else {
+		const unsigned int leftLen = _mreadInfo.totalBytes
+			- _mreadInfo.transferredBytes;
+
+		if (leftLen > EP_BUFFER_SIZE)
+			inreq->length = EP_BUFFER_SIZE;
+		else
+			inreq->length = leftLen;
+		inreq->buf   += transfer_size;//remove copy
+
+		inreq->actual = 0;
+		usb_ep_queue(inep, inreq, 0);
+	}
+}
+
+static void cb_fetch(struct usb_ep *outep, struct usb_request *outreq)
+{
+	char *cmd = outreq->buf;
+	char *cmd_parameter = outreq->buf;
+	u64 size = 0;
+	int len, ret;
+	int i = 0;
+	char name[32] = {0};
+	u64 offset = 0;
+	u64 read_size = 0;
+	struct partitions *pPartition;
+
+	if (check_lock()) {
+		error("device is locked, can not run this cmd\n");
+		fastboot_tx_write_str("FAILlocked device");
+		return;
+	}
+
+	len = strlen(cmd);
+	while (strsep(&cmd, ":"))
+		i++;
+
+	for (cmd = cmd_parameter, i = 0; cmd < (cmd_parameter + len); i++) {
+		/* Skip to next assignment */
+		if (i == 1) {
+			strncpy(name, cmd, 31);
+			strcat(name, "\0");
+		} else if (i == 2) {
+			offset = my_ato11(cmd);
+		} else if (i == 3) {
+			read_size = my_ato11(cmd);
+		}
+
+		for (cmd += strlen(cmd); cmd < (cmd_parameter + len) && !*cmd;)
+			cmd++;
+	}
+
+	if (strncmp("vendor_boot", name, strlen("vendor_boot")) != 0) {
+		printf("We can only fetch vendor_boot\n");
+		fastboot_tx_write_str("FAILFetch is only allowed on vendor_boot");
+		return;
+	}
+
+	pPartition = find_mmc_partition_by_name(name);
+	if (pPartition) {
+		size = pPartition->size;
+	} else {
+		printf("find_mmc_partition_by_name fail\n");
+		fastboot_tx_write_str("FAILget partition size error");
+	}
+
+	if (offset > size) {
+		printf("Invalid offset: 0x%llx, part_size is 0x%llx\n",
+			offset, size);
+		fastboot_fail("Invalid offset");
+		return;
+	}
+
+	if (read_size == 0 || read_size > size - offset ||
+			read_size > kMaxFetchSizeDefault) {
+		printf("Invalid read_size: 0x%llx, part_size is 0x%llx\n",
+			offset, size);
+		fastboot_fail("Invalid read size");
+		return;
+	}
+
+	printf("Start read %s partition datas!\n", name);
+	unsigned char *buffer = NULL;
+	char str[RESPONSE_LEN] = {0};
+
+	buffer = (unsigned char *)CONFIG_USB_FASTBOOT_BUF_ADDR;
+	sprintf(str, "DATA%12llx", read_size);
+	len = strlen(str);
+	printf("str:%s, len: %d\n", str, len);
+	memcpy(buffer, str, strlen(str));
+
+	if (store_read_ops((unsigned char *)name,
+		(unsigned char *)(buffer + len), offset, read_size) < 0) {
+		printf("failed to store read %s.\n", name);
+		fastboot_fail("read partition data error");
+		return;
+	}
+
+	_mreadInfo.transferredBytes = 0;
+	_mreadInfo.totalBytes = read_size + len;
+	struct usb_ep *inep = fastboot_func->in_ep;
+	struct usb_request *inreq = fastboot_func->in_req;
+
+	inreq->complete = tx_handler_mread;//handle for download complete
+	const unsigned int leftLen = _mreadInfo.totalBytes - _mreadInfo.transferredBytes;
+
+	if (leftLen > EP_BUFFER_SIZE)
+		inreq->length = EP_BUFFER_SIZE;
+	else
+		inreq->length = leftLen;
+	if (!_mreadInfo.priv)
+		_mreadInfo.priv = inreq->buf;//backup command buf
+	inreq->buf = buffer;//to remove copy
+	//printf("upload buf=%p, leftLen 0x%x, req len 0x%x\n",
+	//	inreq->buf, leftLen, inreq->length);
+	ret = usb_ep_queue(inep, inreq, 0);
+	if (ret)
+		printf("Error %d on queue\n", ret);
+
+	fastboot_tx_write_str(str);
+}
+
