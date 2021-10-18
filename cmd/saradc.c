@@ -91,7 +91,7 @@ static int do_saradc_close(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_saradc_getval(cmd_tbl_t *cmdtp, int flag, int argc,
 		char * const argv[])
 {
-	char value_str[10];
+	char value_str[20];
 	unsigned int val;
 	int ret;
 
@@ -99,6 +99,7 @@ static int do_saradc_getval(cmd_tbl_t *cmdtp, int flag, int argc,
 		pr_err("SARADC channel[%d] is invalid\n", current_channel);
 		return -EINVAL;
 	};
+	memset(value_str, 0, sizeof(value_str));
 
 	ret = adc_channel_single_shot_mode("adc", current_mode,
 					   current_channel, &val);
@@ -156,7 +157,7 @@ static int do_saradc_test(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_saradc_get_in_range(cmd_tbl_t *cmdtp, int flag,
 		int argc, char * const argv[])
 {
-	char value_str[10];
+	char value_str[20];
 	int max, min;
 	unsigned int val;
 	int ret;
@@ -166,6 +167,7 @@ static int do_saradc_get_in_range(cmd_tbl_t *cmdtp, int flag,
 	if (ret)
 		return ret;
 
+	memset(value_str, 0, sizeof(value_str));
 	min = simple_strtoul(argv[1], NULL, 10);
 	max = simple_strtoul(argv[2], NULL, 10);
 	int donot_setenv = 0;
