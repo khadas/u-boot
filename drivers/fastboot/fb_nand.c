@@ -35,6 +35,7 @@ __weak int board_fastboot_write_partition_setup(char *name)
 	return 0;
 }
 
+extern struct mtd_info *mtd_store_get(int dev);
 static int fb_nand_lookup(const char *partname,
 			  struct mtd_info **mtd,
 			  struct part_info **part,
@@ -67,7 +68,7 @@ static int fb_nand_lookup(const char *partname,
 		return -EINVAL;
 	}
 
-	*mtd = get_nand_dev_by_index(dev->id->num);
+	*mtd = mtd_store_get(dev->id->num);
 
 	return 0;
 }
@@ -237,6 +238,7 @@ void fastboot_nand_flash_write(const char *cmd, void *download_buffer,
 	struct mtd_info *mtd = NULL;
 	int ret, err;
 	int copy_num = 0, i = 0;
+	int pages_per_copy;
 	u64 off = 0;
 	size_t rwsize = 0, limit = 0;
 
@@ -255,7 +257,8 @@ void fastboot_nand_flash_write(const char *cmd, void *download_buffer,
 			(store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER)) {
 			/* TODO: Need to add support for advance mode */
 			copy_num = CONFIG_BL2_COPY_NUM;
-			limit = mtd->size / copy_num;
+			pages_per_copy = BOOT_TOTAL_PAGES / CONFIG_BL2_COPY_NUM;
+			limit = mtd->writesize * pages_per_copy;
 		} else {
 			copy_num = get_bootnum(mtd, rwsize);
 			limit = mtd->size / copy_num;
