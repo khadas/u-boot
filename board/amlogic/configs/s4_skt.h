@@ -255,7 +255,7 @@
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
-                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;setenv dolby_status 0;setenv dolby_vision_on 0;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};vpp hdrpkt;"\
+                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;setenv dolby_status 0;setenv dolby_vision_on 0;watermark_init;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};vpp hdrpkt;"\
             "fi;fi;"\
             "\0"\
 		"storage_param="\
@@ -469,6 +469,8 @@
 
 #define CONFIG_FAT_WRITE 1
 #define CONFIG_AML_FACTORY_PROVISION 1
+
+#define CONFIG_AML_WATERMARK 1
 
 /* Cache Definitions */
 /* #define CONFIG_SYS_DCACHE_OFF */
