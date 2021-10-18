@@ -1308,10 +1308,13 @@ typedef struct ddr_set_p1 {
 	/* rsv_char0. update for diagnose type define */
 	//unsigned	char	diagnose;
 
-	unsigned short	soc_data_drv_ohm_ps1;
-	unsigned short	dram_data_drv_ohm_ps1;
-	unsigned short	soc_data_odt_ohm_ps1;
-	unsigned short	dram_data_odt_ohm_ps1;
+	unsigned	char dac_offset[4]; //bit 7 offset direction 0 ++  1 --
+	unsigned	char rx_offset[2];//bit 7 offset direction 0 ++  1 --
+	unsigned	char tx_offset[2];//bit 7 offset direction 0 ++  1 --
+	//unsigned short	soc_data_drv_ohm_ps1;
+	//unsigned short	dram_data_drv_ohm_ps1;
+	//unsigned short	soc_data_odt_ohm_ps1;
+	//unsigned short	dram_data_odt_ohm_ps1;
 	unsigned short	dram_data_wr_odt_ohm_ps1;
 #if 0
 	/* imem/dmem define */
@@ -6742,12 +6745,24 @@ uint32_t ddr_get_training_delay_address(uint32_t ps, char over_ride_index, char 
 	uint32_t t_count = sub_index;
 	uint32_t reg_add = 0;
  if (over_ride_index == DMC_TEST_WINDOW_INDEX_ATXDLY) {
-		if (((t_count % DWC_TOTAL_CA_NUM_PER_CH) > 1) && ((t_count % DWC_TOTAL_CA_NUM_PER_CH) < 4))     //clk
-		    reg_add = (uint64_t)(((((ps << 20) | (DDR_PHY_BLOCK_AC << 16) | (((t_count / DWC_TOTAL_CA_NUM_PER_CH)) << 12) | (csr_CKTxDly_ADDR)))));
-		else if (((t_count % DWC_TOTAL_CA_NUM_PER_CH) < 2))                                             //cs
-		    reg_add = (uint64_t)(((((ps << 20) | (DDR_PHY_BLOCK_AC << 16) | (((t_count / DWC_TOTAL_CA_NUM_PER_CH)) << 12) | ((t_count % DWC_TOTAL_CA_NUM_PER_CH) << 8) | (csr_ACTxDly_ADDR)))));
-		else
-		    reg_add = (uint64_t)(((((ps << 20) | (DDR_PHY_BLOCK_AC << 16) | (((t_count / DWC_TOTAL_CA_NUM_PER_CH)) << 12) | (((t_count - 2) % DWC_TOTAL_CA_NUM_PER_CH) << 8) | (csr_ACTxDly_ADDR)))));
+	if (((t_count % DWC_TOTAL_CA_NUM_PER_CH) > 1) &&
+	((t_count % DWC_TOTAL_CA_NUM_PER_CH) < 4))//clk
+		reg_add = (uint64_t)(((((ps << 20) |
+		(DDR_PHY_BLOCK_AC << 16) |
+		(((t_count / DWC_TOTAL_CA_NUM_PER_CH)) << 12) |
+		(csr_CKTxDly_ADDR)))));
+	else if (((t_count % DWC_TOTAL_CA_NUM_PER_CH) < 2))//cs
+		reg_add = (uint64_t)(((((ps << 20) |
+		(DDR_PHY_BLOCK_AC << 16) |
+		(((t_count / DWC_TOTAL_CA_NUM_PER_CH)) << 12) |
+		(((t_count + 8) % DWC_TOTAL_CA_NUM_PER_CH) << 8) |
+		(csr_ACTxDly_ADDR)))));
+	else
+		reg_add = (uint64_t)(((((ps << 20) |
+		(DDR_PHY_BLOCK_AC << 16) |
+		(((t_count / DWC_TOTAL_CA_NUM_PER_CH)) << 12) |
+		(((t_count - 4) % DWC_TOTAL_CA_NUM_PER_CH) << 8) |
+		(csr_ACTxDly_ADDR)))));
 	}
 
 	if (over_ride_index == DMC_TEST_WINDOW_INDEX_WCK_CK) {             //just use for lpddr5
@@ -6968,13 +6983,23 @@ void ddr_read_write_training_value(ddr_set_t_p1 *p_ddrs, char over_ride_index, c
 		p_size = 1;
 		count_max = DWC_AC_PINMUX_TOTAL;
 		if ((t_count % DWC_TOTAL_CA_NUM_PER_CH) == 3) //skip clk n
-			continue;
-		if (((t_count % DWC_TOTAL_CA_NUM_PER_CH) > 1) && ((t_count % DWC_TOTAL_CA_NUM_PER_CH) < 4))     //clk
-		    reg_add = (uint64_t)(((((ps << 20) | (DDR_PHY_BLOCK_AC << 16) | (((t_count / DWC_TOTAL_CA_NUM_PER_CH)) << 12) | (csr_CKTxDly_ADDR)))));
-		else if (((t_count % DWC_TOTAL_CA_NUM_PER_CH) < 2))                                             //cs
-		    reg_add = (uint64_t)(((((ps << 20) | (DDR_PHY_BLOCK_AC << 16) | (((t_count / DWC_TOTAL_CA_NUM_PER_CH)) << 12) | ((t_count % DWC_TOTAL_CA_NUM_PER_CH) << 8) | (csr_ACTxDly_ADDR)))));
-		else
-		    reg_add = (uint64_t)(((((ps << 20) | (DDR_PHY_BLOCK_AC << 16) | (((t_count / DWC_TOTAL_CA_NUM_PER_CH)) << 12) | (((t_count - 2) % DWC_TOTAL_CA_NUM_PER_CH) << 8) | (csr_ACTxDly_ADDR)))));
+			reg_add = 0;//continue;
+	if (((t_count % DWC_TOTAL_CA_NUM_PER_CH) > 1) &&
+		((t_count % DWC_TOTAL_CA_NUM_PER_CH) < 4))//clk
+		reg_add = (uint64_t)(((((ps << 20) |
+		(DDR_PHY_BLOCK_AC << 16) |
+		(((t_count / DWC_TOTAL_CA_NUM_PER_CH)) << 12) |
+		(csr_CKTxDly_ADDR)))));
+	else if (((t_count % DWC_TOTAL_CA_NUM_PER_CH) < 2))//cs
+		reg_add = (uint64_t)(((((ps << 20) | (DDR_PHY_BLOCK_AC << 16) |
+		(((t_count / DWC_TOTAL_CA_NUM_PER_CH)) << 12) |
+		(((t_count + 8) % DWC_TOTAL_CA_NUM_PER_CH) << 8) |
+		(csr_ACTxDly_ADDR)))));
+	else
+		reg_add = (uint64_t)(((((ps << 20) | (DDR_PHY_BLOCK_AC << 16) |
+		(((t_count / DWC_TOTAL_CA_NUM_PER_CH)) << 12) |
+		(((t_count - 4) % DWC_TOTAL_CA_NUM_PER_CH) << 8) |
+		(csr_ACTxDly_ADDR)))));
 	}
 
 	if (over_ride_index == DMC_TEST_WINDOW_INDEX_WCK_CK) {             //just use for lpddr5
@@ -7104,8 +7129,9 @@ void ddr_read_write_training_value(ddr_set_t_p1 *p_ddrs, char over_ride_index, c
 		//if (((left_half) && ((t_count % (count_max >> 1)) >= (count_max >> 2))) && (over_ride_index != DMC_TEST_WINDOW_INDEX_ATXDLY)) {
 		//} else
 		{
-		    t_count_value = dwc_ddrphy_phyinit_io_read16(reg_add);
-		    delay_temp = ddr_cacl_phy_delay_all_step(over_ride_index, t_count_value);
+		if (reg_add)
+			t_count_value = dwc_ddrphy_phyinit_io_read16(reg_add);
+		delay_temp = ddr_cacl_phy_delay_all_step(over_ride_index, t_count_value);
 
 		if (p_size == 1)
 			(*input_uint8_p) = delay_temp;
@@ -7124,7 +7150,8 @@ void ddr_read_write_training_value(ddr_set_t_p1 *p_ddrs, char over_ride_index, c
 		//} else
 		{
 		    t_count_value = ddr_cacl_phy_over_ride_back_reg(over_ride_index, delay_temp);
-		    dwc_ddrphy_phyinit_io_write16(reg_add, t_count_value);
+			if (reg_add)
+				dwc_ddrphy_phyinit_io_write16(reg_add, t_count_value);
 
 		    //if (over_ride_index == DMC_TEST_WINDOW_INDEX_RXCLKDLY)
 		    //	dwc_ddrphy_phyinit_io_write16( reg_add + 4, t_count_value);
@@ -7598,25 +7625,43 @@ ddr_set_t_p->dram_rank_config,
 ddr_set_t_p->dram_rank_config,
 TIMMING_OFFSET(dram_rank_config));
 
-printf("\n.soc_data_drv_ohm_ps1=0x%08x,// %d,0x%08x",
-ddr_set_t_p->soc_data_drv_ohm_ps1,
-ddr_set_t_p->soc_data_drv_ohm_ps1,
-TIMMING_OFFSET(soc_data_drv_ohm_ps1));
+for (temp_count = 0; temp_count < 4; temp_count++)
+	printf("\n.dac_offset[%d]=0x%08x,// %d,0x%08x", temp_count,
+	ddr_set_t_p->dac_offset[temp_count],
+	ddr_set_t_p->dac_offset[temp_count],
+	TIMMING_OFFSET(dac_offset[temp_count]));
 
-printf("\n.dram_data_drv_ohm_ps1=0x%08x,// %d,0x%08x",
-ddr_set_t_p->dram_data_drv_ohm_ps1,
-ddr_set_t_p->dram_data_drv_ohm_ps1,
-TIMMING_OFFSET(dram_data_drv_ohm_ps1));
+for (temp_count = 0; temp_count < 2; temp_count++)
+	printf("\n.rx_offset[%d]=0x%08x,// %d,0x%08x", temp_count,
+	ddr_set_t_p->rx_offset[temp_count],
+	ddr_set_t_p->rx_offset[temp_count],
+	TIMMING_OFFSET(rx_offset[temp_count]));
 
-printf("\n.soc_data_odt_ohm_ps1=0x%08x,// %d,0x%08x",
-ddr_set_t_p->soc_data_odt_ohm_ps1,
-ddr_set_t_p->soc_data_odt_ohm_ps1,
-TIMMING_OFFSET(soc_data_odt_ohm_ps1));
+for (temp_count = 0; temp_count < 2; temp_count++)
+	printf("\n.tx_offset[%d]=0x%08x,// %d,0x%08x", temp_count,
+	ddr_set_t_p->tx_offset[temp_count],
+	ddr_set_t_p->tx_offset[temp_count],
+	TIMMING_OFFSET(tx_offset[temp_count]));
 
-printf("\n.dram_data_odt_ohm_ps1=0x%08x,// %d,0x%08x",
-ddr_set_t_p->dram_data_odt_ohm_ps1,
-ddr_set_t_p->dram_data_odt_ohm_ps1,
-TIMMING_OFFSET(dram_data_odt_ohm_ps1));
+//printf("\n.soc_data_drv_ohm_ps1=0x%08x,// %d,0x%08x",
+//ddr_set_t_p->soc_data_drv_ohm_ps1,
+//ddr_set_t_p->soc_data_drv_ohm_ps1,
+//TIMMING_OFFSET(soc_data_drv_ohm_ps1));
+
+//printf("\n.dram_data_drv_ohm_ps1=0x%08x,// %d,0x%08x",
+//ddr_set_t_p->dram_data_drv_ohm_ps1,
+//ddr_set_t_p->dram_data_drv_ohm_ps1,
+//TIMMING_OFFSET(dram_data_drv_ohm_ps1));
+
+//printf("\n.soc_data_odt_ohm_ps1=0x%08x,// %d,0x%08x",
+//ddr_set_t_p->soc_data_odt_ohm_ps1,
+//ddr_set_t_p->soc_data_odt_ohm_ps1,
+//TIMMING_OFFSET(soc_data_odt_ohm_ps1));
+
+//printf("\n.dram_data_odt_ohm_ps1=0x%08x,// %d,0x%08x",
+//ddr_set_t_p->dram_data_odt_ohm_ps1,
+//ddr_set_t_p->dram_data_odt_ohm_ps1,
+//TIMMING_OFFSET(dram_data_odt_ohm_ps1));
 
 printf("\n.dram_data_wr_odt_ohm_ps1=0x%08x,// %d,0x%08x",
 ddr_set_t_p->dram_data_wr_odt_ohm_ps1,

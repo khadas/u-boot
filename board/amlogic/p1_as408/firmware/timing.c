@@ -74,6 +74,7 @@
 //#define BOARD_ENABLE_LPDDR4   1
 #define BOARD_ENABLE_LPDDR5   1
 #define BOARD_ENABLE_LPDDR5_RDL_MODIFY   1
+//#define BOARD_ENABLE_LPDDR5_OPS_FT_PINMUX   1
 #if BOARD_ENABLE_LPDDR4
 #define ENABLE_LPDDR4X_MODE 1
 #ifdef CONFIG_PXP_DDR_FIX_2112_TIMMING
@@ -443,9 +444,9 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 #if BOARD_ENABLE_LPDDR5
 
 #ifdef CONFIG_PXP_DDR_FIX_2112_TIMMING
-	#define   LPDDR5_DDR_DATA_RATE  6400
+	#define   LPDDR5_DDR_DATA_RATE  792 * 8//6400
 #else
-	#define   LPDDR5_DDR_DATA_RATE  4000//6400/4000/4800//2800-7280
+	#define   LPDDR5_DDR_DATA_RATE  792 * 8//4000//6400/4000/4800//2800-7280
 #endif
 
 #define DDR_SIZE_TYPE_1         DDR0_2G_DDR1_2G//DDR0_4G_DDR1_4G_RANK01
@@ -458,7 +459,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	//.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
 	.DramType = CONFIG_DDR_TYPE_LPDDR5,
 	.enable_lpddr4x_mode = 0,//ENABLE_LPDDR4X_MODE,
-	.DRAMFreq = {LPDDR5_DDR_DATA_RATE/8,		     0,	     0,	     0},
+	.DRAMFreq = {LPDDR5_DDR_DATA_RATE / 8,		     0,	     0,	     0},
 	.ddr_rfc_type = DDR_RFC_TYPE_LPDDR5_8Gbx1,
 	.ddr_base_addr = CFG_DDR_BASE_ADDR,
 	.ddr_start_offset = CFG_DDR_START_OFFSET,
@@ -553,7 +554,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
 		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 #endif
-	.training_SequenceCtrl = { 0x135f,			  0x61 },//ddr3 0x21f 0x31f
+	.training_SequenceCtrl = { 0x175f,			  0x61 },//ddr3 0x21f 0x31f
 	//use 0x23 0x13  compatibility with 1rank and 2rank
 	//targeting rank 0. [3:0] is used
 	//for write ODT [7:4] is used for //read ODT
@@ -568,10 +569,25 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.soc_data_drv_ohm_p = 40,
 	.soc_data_drv_ohm_n = 40,
 	.soc_data_odt_ohm_p = 0,
-	.soc_data_odt_ohm_n = 60,
+	.soc_data_odt_ohm_n = 40,
 	.dram_data_drv_ohm = 40,        //48,
 	.dram_data_odt_ohm = 60,        //60,
 	.dram_ac_odt_ohm = 240,         //120,
+
+	.dac_offset = {
+		(1 << 7) | (15),
+		(1 << 7) | (0),
+		(1 << 7) | (15),
+		(1 << 7) | (0)
+	},//bit 7 offset direction 0 ++  1 --
+	.rx_offset = {
+		(1 << 7) | (0),
+		(1 << 7) | (0)
+	},//bit 7 offset direction 0 ++  1 --
+	.tx_offset = {
+		(1 << 7) | (0),
+		(1 << 7) | (0),
+	},//bit 7 offset direction 0 ++  1 --
 	.soc_clk_slew_rate = 0x3ff,
 	.soc_cs_slew_rate = 0x3ff,
 	.soc_ac_slew_rate = 0x3ff,
@@ -623,7 +639,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
 	 */
 	//.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func = 0,                                  // DDR_FUNC,
+	.ddr_func =  DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,
 	.magic = DRAM_CFG_MAGIC,
 	//{0x1,0x0},enable slt 4 DRAMFreq test;
 	//{0x0,0x0},disable slt 4 DRAMFreq test;
@@ -637,7 +653,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	//.dram_rank_config		= CONFIG_DDR0_32BIT_RANK0_CH0,
 	.DramType = CONFIG_DDR_TYPE_LPDDR5,
 	.enable_lpddr4x_mode = 0,// ENABLE_LPDDR4X_MODE,
-	.DRAMFreq = {LPDDR5_DDR_DATA_RATE/8,		     0,	     0,	     0},
+	.DRAMFreq = {LPDDR5_DDR_DATA_RATE / 8,		     0,	     0,	     0},
 	.ddr_rfc_type = DDR_RFC_TYPE_LPDDR5_8Gbx1,
 	.ddr_base_addr = CFG_DDR_BASE_ADDR,
 	.ddr_start_offset = CFG_DDR_START_OFFSET,
@@ -732,7 +748,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
 		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 #endif
-	.training_SequenceCtrl = { 0x135f,			  0x61 },//ddr3 0x21f 0x31f
+	.training_SequenceCtrl = { 0x175f,			  0x61 },//ddr3 0x21f 0x31f
 	//use 0x23 0x13  compatibility with 1rank and 2rank
 	//targeting rank 0. [3:0] is used
 	//for write ODT [7:4] is used for //read ODT
@@ -747,10 +763,26 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.soc_data_drv_ohm_p = 40,
 	.soc_data_drv_ohm_n = 40,
 	.soc_data_odt_ohm_p = 0,
-	.soc_data_odt_ohm_n = 60,
+	.soc_data_odt_ohm_n = 40,
 	.dram_data_drv_ohm = 40,        //48,
 	.dram_data_odt_ohm = 60,        //60,
 	.dram_ac_odt_ohm = 240,         //120,
+
+	.dac_offset = {
+		(1 << 7) | (15),
+		(1 << 7) | (0),
+		(1 << 7) | (15),
+		(1 << 7) | (0)
+	},//bit 7 offset direction 0 ++  1 --
+	.rx_offset = {
+		(1 << 7) | (0),
+		(1 << 7) | (0)
+	},//bit 7 offset direction 0 ++  1 --
+	.tx_offset = {
+		(1 << 7) | (0),
+		(1 << 7) | (0),
+	},//bit 7 offset direction 0 ++  1 --
+
 	.soc_clk_slew_rate = 0x3ff,
 	.soc_cs_slew_rate = 0x3ff,
 	.soc_ac_slew_rate = 0x3ff,
@@ -784,6 +816,12 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 							10, 9, 11, 8, 12, 15, 13, 14,
 							5, 4, 6, 3, 2, 1, 0, 7,
 							15, 13, 14, 12, 8, 10, 9, 11},
+#ifdef BOARD_ENABLE_LPDDR5_OPS_FT_PINMUX
+	.ddr_lpddr34_dq_remap = {4, 7, 1, 2, 6, 5, 0, 3,
+							10, 9, 11, 8, 12, 15, 13, 14,
+							5, 4, 6, 3, 2, 1, 0, 7,
+							15, 13, 14, 12, 8, 10, 9, 11},
+#endif							
 	.dram_rtt_nom_wr_park = { 00,				 00 },
 
 	/* pll ssc config:
@@ -799,7 +837,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
 	 */
 	//.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func = DDR_FUNC,
+	.ddr_func = DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,
 	.magic = DRAM_CFG_MAGIC,
 	//{0x1,0x0},enable slt 4 DRAMFreq test;
 	//{0x0,0x0},disable slt 4 DRAMFreq test;

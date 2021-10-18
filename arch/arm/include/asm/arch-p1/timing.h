@@ -297,11 +297,13 @@ typedef struct ddr_set{
 
 	/* rsv_char0. update for diagnose type define */
 	//unsigned	char	diagnose;
-
-	unsigned short	soc_data_drv_ohm_ps1;
-	unsigned short	dram_data_drv_ohm_ps1;
-	unsigned short	soc_data_odt_ohm_ps1;
-	unsigned short	dram_data_odt_ohm_ps1;
+	unsigned	char dac_offset[4];
+	unsigned	char rx_offset[2];
+	unsigned	char tx_offset[2];
+	//unsigned short	soc_data_drv_ohm_ps1;
+	//unsigned short	dram_data_drv_ohm_ps1;
+	//unsigned short	soc_data_odt_ohm_ps1;
+	//unsigned short	dram_data_odt_ohm_ps1;
 	unsigned short	dram_data_wr_odt_ohm_ps1;
 #if 0
 	/* imem/dmem define */
