@@ -330,13 +330,11 @@ static int do_spi_xip(int argc, char * const argv[])
 		if (*argv[1] == 0 || *endp != 0)
 			return -1;
 		printf("addr 0x%lu\n", addr);
-	}
 
-	ret = spifc_xip_prepare();
-	if (ret)
-		goto _out;
+		ret = spifc_xip_prepare();
+		if (ret)
+			goto _out;
 
-	if (argc == 2) {
 		xip_entrance = (int (*)(int, char **))(addr);
 		xip_entrance(3, NULL);
 	}
