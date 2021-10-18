@@ -38,6 +38,7 @@ static void download(char *, char *);
 static void flash(char *, char *);
 static void erase(char *, char *);
 #endif
+static void fetch(char *, char *);
 static void flashing(char *, char *);
 static void reboot_bootloader(char *, char *);
 static void reboot_fastboot(char *, char *);
@@ -80,6 +81,10 @@ static const struct {
 		.dispatch = erase
 	},
 #endif
+	[FASTBOOT_COMMAND_FETCH] =  {
+		.command = "fetch",
+		.dispatch = fetch
+	},
 	[FASTBOOT_COMMAND_BOOT] =  {
 		.command = "boot",
 		.dispatch = okay
@@ -119,6 +124,8 @@ static const struct {
 		.dispatch = oem_cmd,
 	},
 };
+
+struct fastboot_read fastboot_readInfo;
 
 static int strcmp_l1(const char *s1, const char *s2)
 {
@@ -657,6 +664,123 @@ static void erase(char *cmd_parameter, char *response)
 #endif
 }
 #endif
+
+static u64 my_ato11(const char *str)
+{
+	u64 result = 0;
+	int len, i;
+
+	len = strlen(str);
+	for (i = 0; i < len; i++) {
+		if (*str >= '0' && *str <= '9')
+			result = result * 16 + (*str - '0');
+		else if (*str >= 'A' && *str <= 'F')
+			result = result * 16 + (*str - 'A') + 10;
+		else if (*str >= 'a' && *str <= 'f')
+			result = result * 16 + (*str - 'a') + 10;
+		str++;
+	}
+
+	return result;
+}
+
+static void fetch(char *cmd_parameter, char *response)
+{
+	int len;
+	int i = 0;
+	char *cmd;
+	char name[32] = {0};
+	u64 offset = 0;
+	u64 read_size = 0;
+	size_t size = 0;
+
+	if (check_lock() == 1) {
+		printf("device is locked, can not run this cmd\n");
+		fastboot_fail("locked device", response);
+		return;
+	}
+
+	cmd = cmd_parameter;
+	len = strlen(cmd_parameter);
+	while (strsep(&cmd, ":"))
+		i++;
+
+	for (cmd = cmd_parameter, i = 0; cmd < (cmd_parameter + len); i++) {
+		/* Skip to next assignment */
+		if (i == 0) {
+			strncpy(name, cmd, 31);
+			strcat(name, "\0");
+		} else if (i == 1) {
+			offset = my_ato11(cmd);
+		} else if (i == 2) {
+			read_size = my_ato11(cmd);
+		}
+
+		for (cmd += strlen(cmd); cmd < (cmd_parameter + len) && !*cmd;)
+			cmd++;
+	}
+
+	printf("name: %s\n", name);
+	if (strncmp("vendor_boot", name, strlen("vendor_boot")) != 0) {
+		printf("We can only %s vendor_boot\n", __func__);
+		fastboot_fail("Fetch is only allowed on vendor_boot", response);
+		return;
+	}
+
+#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
+	struct blk_desc *dev_desc;
+	disk_partition_t part_info;
+	int r;
+
+	r = fastboot_mmc_get_part_info(name, &dev_desc, &part_info,
+				       response);
+	if (r >= 0)
+		size = part_info.size * 512;
+#endif
+#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND)
+	struct part_info *part_info;
+	int r;
+
+	r = fastboot_nand_get_part_info(name, &part_info, response);
+	if (r >= 0)
+		size = part_info->size * 512;
+#endif
+
+	if (offset > size) {
+		printf("Invalid offset: 0x%llx, partition size is 0x%lx\n",
+			offset, size);
+		fastboot_fail("Invalid offset", response);
+		return;
+	}
+
+	if (read_size == 0 || read_size > size - offset ||
+			read_size > kMaxFetchSizeDefault) {
+		printf("Invalid read size: 0x%llx, partition size is 0x%lx\n",
+			offset, size);
+		fastboot_fail("Invalid read size", response);
+		return;
+	}
+
+	printf("Start read %s partition datas!\n", name);
+	void *buffer;
+	char str[128] = {0};
+
+	buffer = (void *)CONFIG_FASTBOOT_BUF_ADDR;
+	sprintf(str, "DATA%12llx", read_size);
+	printf("str: %s, len: %ld\n", str, strlen(str));
+	memcpy(buffer, str, strlen(str));
+
+	if (store_read((const char *)name, offset, read_size,
+		(unsigned char *)buffer + strlen(str)) < 0) {
+		printf("failed to store read %s.\n", name);
+		fastboot_fail("read partition data error", response);
+		return;
+	}
+
+	fastboot_readInfo.transferredBytes = 0;
+	fastboot_readInfo.totalBytes = read_size + strlen(str);
+	fastboot_response("DATA", response, "%12llx", read_size);
+}
 
 static void set_active_cmd(char *cmd_parameter, char *response)
 {
