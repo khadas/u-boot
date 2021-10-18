@@ -13,6 +13,9 @@
 #include <partition_table.h>
 #include <amlogic/storage.h>
 
+u32 kMaxDownloadSizeDefault = 0x10000000;
+u32 kMaxFetchSizeDefault = 0x10000000;
+
 static void getvar_version(char *var_parameter, char *response);
 static void getvar_bootloader_version(char *var_parameter, char *response);
 static void getvar_downloadsize(char *var_parameter, char *response);
@@ -40,6 +43,9 @@ static void getvar_has_slot(char *var_parameter, char *response);
 static void getvar_partition_type(char *part_name, char *response);
 static void getvar_partition_size(char *part_name, char *response);
 #endif
+static void getvar_maxdownloadsize(char *var_parameter, char *response);
+static void getvar_maxfetchsize(char *var_parameter, char *response);
+
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 extern int is_partition_logical(char* parition_name);
@@ -95,6 +101,12 @@ static const struct {
 	}, {
 		.variable = "super-partition-name",
 		.dispatch = getvar_super_partition_name
+	}, {
+		.variable = "max-download-size",
+		.dispatch = getvar_maxdownloadsize
+	}, {
+		.variable = "max-fetch-size",
+		.dispatch = getvar_maxfetchsize
 	}, {
 		.variable = "downloadsize",
 		.dispatch = getvar_downloadsize
@@ -349,6 +361,23 @@ static void getvar_downloadsize(char *var_parameter, char *response)
 		fastboot_response("INFOdownloadsize: ", response, "0x%08x", fastboot_buf_size);
 	else
 		fastboot_response("OKAY", response, "0x%08x", fastboot_buf_size);
+}
+
+static void getvar_maxdownloadsize(char *var_parameter, char *response)
+{
+	if (busy_flag == 1)
+		fastboot_response("INFOdownloadsize: ", response,
+			"0x%08x", kMaxDownloadSizeDefault);
+	else
+		fastboot_response("OKAY", response, "0x%08x", kMaxDownloadSizeDefault);
+}
+
+static void getvar_maxfetchsize(char *var_parameter, char *response)
+{
+	if (busy_flag == 1)
+		fastboot_response("INFOdownloadsize: ", response, "0x%08x", kMaxFetchSizeDefault);
+	else
+		fastboot_response("OKAY", response, "0x%08x", kMaxFetchSizeDefault);
 }
 
 static void getvar_serialno(char *var_parameter, char *response)

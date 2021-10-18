@@ -21,6 +21,7 @@
 #define FASTBOOT_RESPONSE_LEN	(64 + 1)
 
 extern int busy_flag;
+extern u32 kMaxFetchSizeDefault;
 
 /**
  * All known commands to fastboot
@@ -35,6 +36,7 @@ enum {
 	FASTBOOT_COMMAND_FLASH,
 	FASTBOOT_COMMAND_ERASE,
 #endif
+	FASTBOOT_COMMAND_FETCH,
 	FASTBOOT_COMMAND_BOOT,
 	FASTBOOT_COMMAND_CONTINUE,
 	FASTBOOT_COMMAND_REBOOT_BOOTLOADER,
@@ -48,6 +50,16 @@ enum {
 	FASTBOOT_COMMAND_OEM,
 	FASTBOOT_COMMAND_COUNT
 };
+
+struct fastboot_read {
+	unsigned int totalBytes;
+	unsigned int transferredBytes; //transferredBytes <= totalBytes
+	unsigned int dataCheckAlg;
+	void *priv;//now for backup req->buf
+	void *buf;
+};
+
+extern struct fastboot_read fastboot_readInfo;
 
 /**
  * fastboot_response() - Writes a response of the form "$tag$reason".

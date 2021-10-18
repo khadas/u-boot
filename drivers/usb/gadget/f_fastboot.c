@@ -476,6 +476,47 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 	usb_ep_queue(ep, req, 0);
 }
 
+static void tx_handler_mread(struct usb_ep *inep, struct usb_request *inreq)
+{
+	const unsigned int transfer_size = inreq->actual;
+
+	if (inreq->status != 0) {
+		printf("in req Bad status: %d\n", inreq->status);
+		return;
+	}
+
+	if (fastboot_func->in_req != inreq) {
+		printf("exception, bogus req\n");
+		return;
+	}
+
+	fastboot_readInfo.transferredBytes += transfer_size;
+
+	/* Check if transfer is done */
+	if (fastboot_readInfo.transferredBytes >= fastboot_readInfo.totalBytes) {
+		printf("mread 0x%x bytes end\n", fastboot_readInfo.transferredBytes);
+		/*write ended and return to receive command*/
+		inreq->complete = fastboot_complete;
+		inreq->length = EP_BUFFER_SIZE;
+		if (fastboot_readInfo.priv)
+			inreq->buf = (char *)fastboot_readInfo.priv;
+		//should return to rx next command
+		fastboot_tx_write_str("OKAY");
+	} else {
+		const unsigned int leftLen = fastboot_readInfo.totalBytes
+			- fastboot_readInfo.transferredBytes;
+
+		if (leftLen > EP_BUFFER_SIZE)
+			inreq->length = EP_BUFFER_SIZE;
+		else
+			inreq->length = leftLen;
+		inreq->buf += transfer_size;//remove copy
+
+		inreq->actual = 0;
+		usb_ep_queue(inep, inreq, 0);
+	}
+}
+
 static void do_exit_on_complete(struct usb_ep *ep, struct usb_request *req)
 {
 	g_dnl_trigger_detach();
@@ -507,8 +548,31 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 	}
 
 	if (!strncmp("DATA", response, 4)) {
-		req->complete = rx_handler_dl_image;
-		req->length = rx_bytes_expected(ep);
+		if (cmd == 5) {
+			printf("come to fetch code\n");
+			struct usb_ep *inep = fastboot_func->in_ep;
+			struct usb_request *inreq = fastboot_func->in_req;
+			int ret;
+			const unsigned int leftLen = fastboot_readInfo.totalBytes
+				- fastboot_readInfo.transferredBytes;
+
+			if (!fastboot_readInfo.priv)
+				fastboot_readInfo.priv = inreq->buf;
+
+			inreq->buf = (void *)CONFIG_FASTBOOT_BUF_ADDR;//to remove copy
+			inreq->complete = tx_handler_mread;
+			if (leftLen > EP_BUFFER_SIZE)
+				inreq->length = EP_BUFFER_SIZE;
+			else
+				inreq->length = leftLen;
+
+			ret = usb_ep_queue(inep, inreq, 0);
+			if (ret)
+				printf("Error %d on queue\n", ret);
+		} else {
+			req->complete = rx_handler_dl_image;
+			req->length = rx_bytes_expected(ep);
+		}
 	}
 
 	fastboot_tx_write_str(response);
