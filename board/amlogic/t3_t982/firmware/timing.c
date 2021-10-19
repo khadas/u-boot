@@ -4238,7 +4238,13 @@ register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
 __attribute__ ((section(".misc_param"))) = {
 	/*config vddee and vcck pwm - pwm_a and pwm_b*/
 	/* PWM_A VDDEE_VAL_REG */
-	{ PWMAB_PWM_A,		   VDDEE_VAL_REG,	       0xffffffff, 0, 0, 0 },
+#ifdef CONFIG_PDVFS_ENABLE
+	{PWMAB_PWM_A, 0xc0006, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0},
+	{PWMAB_PWM_A, 0xa0008, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_2, 0},
+	{PWMAB_PWM_A, 0x90009, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0},
+#else
+	{PWMAB_PWM_A, VDDEE_VAL_REG, 0xffffffff, 0,	0, 0},
+#endif
 	/* PWM_B VCCK_VAL_REG */
 	{ PWMAB_PWM_B,		   VCCK_VAL_REG,	       0xffffffff, 0, 0, 0 },
 	{ PWMAB_MISC_REG_AB,	   (0x3 << 0),		       (0x3 << 0), 0, 0, 0 },
