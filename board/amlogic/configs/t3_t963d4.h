@@ -198,7 +198,6 @@
 		"fi; fi; fi; "\
 		"\0"\
 	"switch_bootmode="\
-		"get_rebootmode;"\
 		"setenv ffv_freeze off;"\
 		"echo reboot_mode : ${reboot_mode};"\
 		"if test ${reboot_mode} = factory_reset; then "\
@@ -346,9 +345,20 @@
 			"else "\
 				"run init_display; "\
 			"fi; "\
+		"else if test ${reboot_mode} = cold_boot; then "\
+			"if test ${powermode} = on; then "\
+				"echo powermode : ${powermode} ,need to init_display; "\
+				"run init_display; "\
+			"else if test ${powermode} = last; then "\
+				"if test ${suspend} = off; then "\
+					"echo suspend : ${suspend} ,need to init_display; "\
+					"run init_display; "\
+				"fi; "\
+			"fi;fi; "\
 		"else "\
+			"echo reboot_mode is normal;"\
 			"run init_display; "\
-		"fi; "\
+		"fi;fi; "\
 		"\0"\
         "cmdline_keys="\
 			"setenv region_code US;"\
@@ -388,6 +398,7 @@
             "run bcb_cmd; "\
             "run upgrade_check;"\
 	/* "run init_display;"\ */\
+	"get_rebootmode;"\
 	"run check_display;"\
 	"run storeargs;"\
             "run upgrade_key;" \
