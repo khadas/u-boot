@@ -240,7 +240,7 @@ unsigned int get_ddr_memsize(void)
 #endif
 #else
 	/*auto get ddr size from hardware method*/
-	ddr_size = ((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) << 4;
+	ddr_size = ((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFF80000) << 4;
 #endif
 	return ddr_size;
 }
