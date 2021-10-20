@@ -4,12 +4,15 @@
  */
 
 char *domain_name[] = {
-	"PM_DOS_HEVC",
-	"PM_DOS_VDEC",
-	"PM_VPU_HDMI",
-	"PM_USB_COMB",
-	"PM_GE2D",
-	"PM_ETH",
-	"PM_DEMOD",
+	"PM_NNA",
 	"PM_AUDIO",
+	"PM_SDIOA",
+	"PM_EMMC",
+	"PM_USB_COMB",
+	"PM_ETH",
+	"PM_RSA",
+	"PM_AUDIO_PDM",
+	"PM_DMC",
+	"PM_SYS_WRAP",
+	"PM_DSPA",
 };

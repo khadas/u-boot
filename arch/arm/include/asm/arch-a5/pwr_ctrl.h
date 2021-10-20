@@ -8,17 +8,20 @@
 
 #define PWR_ON    1
 #define PWR_OFF   0
+#define PM_NNA    0
+#define PM_AUDIO  1
+#define PM_SDIOA  2
+#define PM_EMMC   3
+#define PM_USB_COMB     4
+#define PM_ETH          5
+#define PM_RSA          6
+#define PM_AUDIO_PDM    7
+#define PM_DMC          8
+#define PM_SYS_WRAP     9
+#define PM_DSPA         10
 
-#define PM_DOS_HEVC		0
-#define PM_DOS_VDEC		1
-#define PM_VPU_HDMI		2
-#define PM_USB_COMB		3
-#define PM_GE2D			4
-#define PM_ETH			5
-#define PM_DEMOD		6
-#define PM_AUDIO		7
+#define PM_MAX		11
 
-#define PM_MAX			8
 //static int pm_max = 8;
 /*
 char* domain_name[] =
