@@ -30,6 +30,7 @@
 #define TX_ENDPOINT_MAXIMUM_PACKET_SIZE      (0x0040)
 
 #define DEVICE_SERIAL	"1234567890"
+#define DEVICE_NAME "USB fastboot gadget"
 
 #define EP_BUFFER_SIZE			4096
 /*
@@ -163,6 +164,7 @@ static int fastboot_bind(struct usb_configuration *c, struct usb_function *f)
 	struct usb_gadget *gadget = c->cdev->gadget;
 	struct f_fastboot *f_fb = func_to_fastboot(f);
 	const char *s;
+	const char *board_name;
 
 	/* DYNAMIC interface numbers assignments */
 	id = usb_interface_id(c, f);
@@ -202,6 +204,12 @@ static int fastboot_bind(struct usb_configuration *c, struct usb_function *f)
 		g_dnl_set_serialnumber((char *)s);
 	} else
 		g_dnl_set_serialnumber(DEVICE_SERIAL);
+
+	board_name = env_get("board");
+	if (board_name)
+		g_dnl_set_productname((char *)board_name);
+	else
+		g_dnl_set_productname(DEVICE_NAME);
 
 	return 0;
 }
