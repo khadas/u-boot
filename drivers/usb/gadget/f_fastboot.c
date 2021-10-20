@@ -54,6 +54,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DEVICE_PRODUCT	CONFIG_DEVICE_PRODUCT
 #endif
 #define DEVICE_SERIAL	"1234567890"
+#define DEVICE_NAME "USB fastboot gadget"
 
 #define FB_ERR(fmt ...) printf("[ERR]%sL%d:", __func__, __LINE__),printf(fmt)
 #define FB_MSG(fmt ...) printf("[MSG]"fmt)
@@ -222,6 +223,7 @@ static int fastboot_bind(struct usb_configuration *c, struct usb_function *f)
 	int id;
 	struct usb_gadget *gadget = c->cdev->gadget;
 	struct f_fastboot *f_fb = func_to_fastboot(f);
+	const char *board_name;
 
 	/* DYNAMIC interface numbers assignments */
 	id = usb_interface_id(c, f);
@@ -244,6 +246,18 @@ static int fastboot_bind(struct usb_configuration *c, struct usb_function *f)
 	if (!f_fb->out_ep)
 		return -ENODEV;
 	f_fb->out_ep->driver_data = c->cdev;
+
+	board_name = getenv("board");
+	if (board_name) {
+		printf("getenv board: %s\n", board_name);
+		g_dnl_set_productname((char *)board_name);
+	} else {
+#ifdef DEVICE_PRODUCT
+		g_dnl_set_productname(DEVICE_PRODUCT);
+#else
+		g_dnl_set_productname(DEVICE_NAME);
+#endif
+	}
 
 	return 0;
 }

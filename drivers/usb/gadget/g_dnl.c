@@ -41,8 +41,9 @@
 #define CONFIGURATION_NUMBER 1
 
 #define DRIVER_VERSION		"usb_dnl 2.0"
+#define DEVICE_NAME "USB download gadget"
 
-static const char product[] = "USB download gadget";
+static char product[MAX_STRING_SERIAL];
 static char g_dnl_serial[MAX_STRING_SERIAL] = "1234567890";
 static const char manufacturer[] = "amlogic";
 char usid_string[MAX_STRING_SERIAL];
@@ -68,6 +69,12 @@ char * get_usid_string(void)
 	return NULL;
 }
 
+void g_dnl_set_productname(char *s)
+{
+	memset(product, 0, MAX_STRING_SERIAL);
+	strncpy(product, s, MAX_STRING_SERIAL - 1);
+}
+
 static struct usb_device_descriptor device_desc = {
 	.bLength = sizeof device_desc,
 	.bDescriptorType = USB_DT_DEVICE,
@@ -77,7 +84,7 @@ static struct usb_device_descriptor device_desc = {
 	.bDeviceSubClass = 0x02, /*0x02:CDC-modem , 0x00:CDC-serial*/
 
 	.idVendor = 0x18d1,
-	.idProduct = 0x0d02,
+	.idProduct = 0x4ee7,
 	.iProduct = STRING_PRODUCT,
 	.iSerialNumber = STRING_SERIAL,
 	.bNumConfigurations = 1,
@@ -214,6 +221,13 @@ static int g_dnl_bind(struct usb_composite_dev *cdev)
 	int id, ret;
 	int gcnum;
 	char *s=NULL;
+	const char *board_name;
+
+	board_name = getenv("board");
+	if (board_name)
+		g_dnl_set_productname((char *)board_name);
+	else
+		g_dnl_set_productname(DEVICE_NAME);
 
 	debug("%s: gadget: 0x%p cdev: 0x%p\n", __func__, gadget, cdev);
 
