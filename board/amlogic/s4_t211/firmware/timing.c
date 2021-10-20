@@ -173,6 +173,8 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			32, 33, 34, 35
 		},                                                   //d0-d31 dm0 dm1 dm2 dm3
 		.cfg_board_common_setting.ddr_vddee_setting = { 0 },
+		.cfg_board_common_setting.ddr_vddee_setting[1] = (0x3 << 24) |
+		(0x93 << 16) | (0x83 << 8) | (0xd << 0),
 		.cfg_board_SI_setting_ps.DRAMFreq = 1320,
 		.cfg_board_SI_setting_ps.PllBypassEn = 0,
 		.cfg_board_SI_setting_ps.training_SequenceCtrl = 0,
