@@ -211,6 +211,8 @@ uint32_t __bl2_ddr_reg_data[] __attribute__ ((section(".ddr_2acs_data"))) = {
 	//cfg_ddr_training_delay_ps.reserve_training_parameter[13] = (1 << 7) | 6;
 	DDR_TIMMING_TUNE_TIMMING0_F(cfg_ddr_training_delay_ps.reserve_training_parameter[9], ((1 << 7) | 0x16) + 6),
 	DDR_TIMMING_TUNE_TIMMING1_F(cfg_ddr_training_delay_ps.reserve_training_parameter[9], ((1 << 7) | 0x16) + 6),
+	DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_SI_setting_ps.DRAMFreq, 1176),
+	DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_SI_setting_ps.DRAMFreq, 1176),
     //...
     //...
 	//data end
