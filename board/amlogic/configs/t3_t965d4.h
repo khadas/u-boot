@@ -80,7 +80,7 @@
         "os_ident_addr=0x00500000\0"\
         "loadaddr_rtos=0x00001000\0"\
         "loadaddr_kernel=0x03080000\0"\
-	"otg_device=0\0" \
+	"otg_device=1\0" \
         "panel_type=lvds_1\0" \
         "lcd_ctrl=0x00000000\0" \
         "lcd_debug=0x00000000\0" \
