@@ -25,6 +25,11 @@
 #define CONFIG_CLK_IF
 #endif
 
+/* use DDR genernally, mustn't enable it unless SRAM test */
+//#define CONFIG_SPICC_DMA_SRAM
+
+#define CONFIG_DMA_SMC_MODE
+
 /* Register Map */
 #define SPICC_RXDATA	0x00
 
@@ -49,6 +54,7 @@
 #define SPICC_FIX_FACTOR_DIV	4
 #define SPICC_BITLENGTH_MASK	GENMASK(24, 19)
 #define SPICC_BURSTLENGTH_MASK	GENMASK(31, 25)
+#define XCH_BURST_MAX		128
 
 #define SPICC_INTREG	0x0c
 #define SPICC_TE_EN	BIT(0) /* TX FIFO Empty Interrupt */
@@ -64,11 +70,11 @@
 #define SPICC_DMA_ENABLE		BIT(0)
 /* When txfifo_count<threshold, request a read(dma->txfifo) burst */
 #define SPICC_TXFIFO_THRESHOLD_MASK	GENMASK(5, 1)
-#define SPICC_TXFIFO_THRESHOLD_DEFAULT	4
 /* When rxfifo count>threshold, request a write(rxfifo->dma) burst */
 #define SPICC_RXFIFO_THRESHOLD_MASK	GENMASK(10, 6)
 #define SPICC_READ_BURST_MASK		GENMASK(14, 11)
 #define SPICC_WRITE_BURST_MASK		GENMASK(18, 15)
+#define DMA_REQ_DEFAULT			8
 #define SPICC_DMA_URGENT		BIT(19)
 #define SPICC_DMA_THREADID_MASK		GENMASK(25, 20)
 #define SPICC_DMA_BURSTNUM_MASK		GENMASK(31, 26)
@@ -113,6 +119,15 @@
 
 #define SPICC_DWADDR	0x24	/* Write Address of DMA */
 
+#define SPICC_LD_CNTL0	0x28
+#define SPICC_LD_CNTL1	0x2c
+#define SMC_REQ_CNT_MAX		0xffff
+#ifdef CONFIG_DMA_SMC_MODE
+#define DMA_BURST_MAX		(DMA_REQ_DEFAULT * SMC_REQ_CNT_MAX)
+#else
+#define DMA_BURST_MAX		XCH_BURST_MAX
+#endif
+
 #define SPICC_ENH_CTL0	0x38	/* Enhanced Feature 0 */
 #define SPICC_ENH_CS_PRE_DELAY_MASK	GENMASK(15, 0)
 #define SPICC_ENH_DATARATE_MASK		GENMASK(23, 16)
@@ -147,7 +162,6 @@
 
 #define CS_GPIO_MAX			4
 #define SPICC_DEFAULT_WORDLEN		8
-#define PIO_BURST_MAX_TIME		(16 * 64 * 100) /* unit us */
 
 #define spicc_info(fmt, args...) \
 	printf("[info]%s: " fmt, __func__, ## args)
@@ -202,6 +216,8 @@ struct meson_spicc_device {
 	unsigned long			tx_remain;
 	unsigned long			rx_remain;
 	unsigned long			xfer_remain;
+	unsigned int			burst_len;
+	unsigned int			using_dma;
 };
 
 static void meson_spicc_oen_enable(struct meson_spicc_device *spicc)
@@ -239,7 +255,9 @@ static void meson_spicc_auto_io_delay(struct meson_spicc_device *spicc)
 	cap_delay = SPICC_CAP_AHEAD_2_CYCLE;
 
 	hz = spicc->real_speed_hz;
-	if (hz >= 100000000)
+	if (spicc->mode & SPI_LOOP)
+		cap_delay = SPICC_CAP_AHEAD_1_CYCLE;
+	else if (hz >= 100000000)
 		cap_delay = SPICC_CAP_DELAY_1_CYCLE;
 	else if (hz >= 80000000)
 		cap_delay = SPICC_CAP_NO_DELAY;
@@ -272,8 +290,11 @@ static inline bool meson_spicc_rxready(struct meson_spicc_device *spicc)
 			 readl_relaxed(spicc->base + SPICC_STATREG));
 }
 
-static void meson_spicc_reset_fifo(struct meson_spicc_device *spicc)
+static inline void meson_spicc_pre_burst(struct meson_spicc_device *spicc)
 {
+	writel_bits_relaxed(SPICC_ENABLE, SPICC_ENABLE,
+			    spicc->base + SPICC_CONREG);
+
 	if (spicc->data->has_oen)
 		writel_bits_relaxed(SPICC_ENH_MAIN_CLK_AO,
 				    SPICC_ENH_MAIN_CLK_AO,
@@ -289,6 +310,13 @@ static void meson_spicc_reset_fifo(struct meson_spicc_device *spicc)
 	if (spicc->data->has_oen)
 		writel_bits_relaxed(SPICC_ENH_MAIN_CLK_AO, 0,
 				    spicc->base + SPICC_ENH_CTL0);
+}
+
+static inline void meson_spicc_post_burst(struct meson_spicc_device *spicc)
+{
+	writel_bits_relaxed(SPICC_ENABLE | SPICC_XCH | SPICC_SMC,
+			    0, spicc->base + SPICC_CONREG);
+	writel_relaxed(0, spicc->base + SPICC_DMAREG);
 }
 
 static inline u32 meson_spicc_pull_data(struct meson_spicc_device *spicc)
@@ -342,6 +370,82 @@ static inline void meson_spicc_tx(struct meson_spicc_device *spicc)
 			       spicc->base + SPICC_TXDATA);
 }
 
+static u32 meson_spicc_calc_dma_len(struct meson_spicc_device *spicc, u32 *req)
+{
+	u32 len = spicc->xfer_remain / spicc->bytes_per_word;
+	u32 i;
+
+	if (len <= spicc->data->fifo_size) {
+		*req = len;
+		return len;
+	}
+
+	*req = DMA_REQ_DEFAULT;
+	if (len == (DMA_BURST_MAX + 1)) {
+		len = DMA_BURST_MAX - DMA_REQ_DEFAULT;
+	} else if (len >= DMA_BURST_MAX) {
+		len = DMA_BURST_MAX;
+	} else {
+		/* 1 < len < DMA_BURST_MAX */
+		for (i = DMA_REQ_DEFAULT; i > 1; i--) {
+			if ((len % i) == 0) {
+				*req = i;
+				return len;
+			}
+		}
+
+		if ((len % DMA_REQ_DEFAULT) == 1)
+			len -= DMA_REQ_DEFAULT;
+		len -= len % DMA_REQ_DEFAULT;
+	}
+
+	return len;
+}
+
+static void meson_spicc_setup_dma_burst(struct meson_spicc_device *spicc)
+{
+	unsigned int words, req;
+
+	words = meson_spicc_calc_dma_len(spicc, &req);
+
+	/* Setup Xfer variables */
+	spicc->burst_len = words * spicc->bytes_per_word;
+	spicc->xfer_remain -= spicc->burst_len;
+
+	writel_relaxed((u32)(unsigned long)spicc->tx_buf, spicc->base + SPICC_DRADDR);
+	writel_relaxed((u32)(unsigned long)spicc->rx_buf, spicc->base + SPICC_DWADDR);
+	spicc->tx_buf += spicc->burst_len;
+	spicc->rx_buf += spicc->burst_len;
+
+#ifdef CONFIG_DMA_SMC_MODE
+	words /= req;
+	/* Enable DMA write/read counter */
+	writel_relaxed(0x3 << 4, spicc->base + SPICC_LD_CNTL0);
+	/* Setup burst length */
+	writel_relaxed((words << 16) | words, spicc->base + SPICC_LD_CNTL1);
+#else
+	/* Setup burst length */
+	writel_bits_relaxed(SPICC_BURSTLENGTH_MASK,
+			FIELD_PREP(SPICC_BURSTLENGTH_MASK, words - 1),
+			spicc->base + SPICC_CONREG);
+#endif
+
+	writel_relaxed(SPICC_DMA_ENABLE
+		    | SPICC_DMA_URGENT
+		    | FIELD_PREP(SPICC_TXFIFO_THRESHOLD_MASK,
+				 spicc->data->fifo_size + 1 - req)
+		    | FIELD_PREP(SPICC_READ_BURST_MASK, req - 1)
+		    | FIELD_PREP(SPICC_RXFIFO_THRESHOLD_MASK, req - 1)
+		    | FIELD_PREP(SPICC_WRITE_BURST_MASK, req - 1),
+		    spicc->base + SPICC_DMAREG);
+
+#ifdef CONFIG_DMA_SMC_MODE
+	writel_bits_relaxed(SPICC_SMC, SPICC_SMC, spicc->base + SPICC_CONREG);
+#else
+	writel_bits_relaxed(SPICC_XCH, SPICC_XCH, spicc->base + SPICC_CONREG);
+#endif
+}
+
 static void meson_spicc_setup_pio_burst(struct meson_spicc_device *spicc)
 {
 	unsigned int burst_len;
@@ -353,7 +457,8 @@ static void meson_spicc_setup_pio_burst(struct meson_spicc_device *spicc)
 	/* Setup Xfer variables */
 	spicc->tx_remain = burst_len;
 	spicc->rx_remain = burst_len;
-	spicc->xfer_remain -= burst_len * spicc->bytes_per_word;
+	spicc->burst_len = burst_len * spicc->bytes_per_word;
+	spicc->xfer_remain -= spicc->burst_len;
 
 	/* Setup burst length */
 	writel_bits_relaxed(SPICC_BURSTLENGTH_MASK,
@@ -363,24 +468,37 @@ static void meson_spicc_setup_pio_burst(struct meson_spicc_device *spicc)
 
 	/* Fill TX FIFO */
 	meson_spicc_tx(spicc);
+
+	/* Start burst */
+	writel_bits_relaxed(SPICC_XCH, SPICC_XCH, spicc->base + SPICC_CONREG);
 }
 
 /* os interface */
-static int spicc_wait_complete(struct meson_spicc_device *spicc, int us)
+static int spicc_wait_complete(struct meson_spicc_device *spicc)
 {
-	u32 regv;
+	u32 comp;
+	unsigned long x10us;
 
-	while (us--) {
-		regv = readl(spicc->base + SPICC_STATREG);
-		if (regv & SPICC_TC) {
-			/* set 1 to clear */
-			regv |= SPICC_TC;
-			writel(regv, spicc->base + SPICC_STATREG);
-			return 0;
-		}
-		udelay(1);
+	x10us = 8LL * 100000LL * spicc->burst_len * 2 / spicc->speed_hz;
+	/* some tolerance */
+	x10us += 20000;
+
+	while (x10us--) {
+		udelay(10);
+		comp = readl_relaxed(spicc->base + SPICC_STATREG) & SPICC_TC;
+#ifdef CONFIG_DMA_SMC_MODE
+		if (spicc->using_dma)
+			comp = !(readl(spicc->base + SPICC_DMAREG)
+				 & SPICC_DMA_ENABLE);
+#endif
+		if (comp)
+			break;
 	}
-	return -ETIME;
+
+	/* set 1 to clear */
+	writel_bits_relaxed(SPICC_TC, SPICC_TC, spicc->base + SPICC_STATREG);
+
+	return x10us ? 0 : -ETIME;
 }
 
 static void spicc_chipselect(struct udevice *dev, bool select)
@@ -517,6 +635,7 @@ static int spicc_set_wordlen(struct udevice *bus, uint wordlen)
 			  (spicc->bytes_per_word << 3) - 1);
 	writel_relaxed(regv, spicc->base + SPICC_CONREG);
 
+	spicc->using_dma = (wordlen == 64) ? 1 : 0;
 	spicc->wordlen = wordlen;
 	spicc_dbg("set wordlen %d\n", wordlen);
 
@@ -535,7 +654,9 @@ static int spicc_xfer(
 	struct spi_slave *slave = dev_get_parent_priv(dev);
 	int ret = 0;
 
-	meson_spicc_reset_fifo(spicc);
+	if ((bitlen % slave->wordlen) || (slave->wordlen == 64 && bitlen <= 64))
+		return -EINVAL;
+
 	spicc_set_wordlen(bus, slave->wordlen);
 
 	/* Setup transfer parameters */
@@ -543,27 +664,48 @@ static int spicc_xfer(
 	spicc->rx_buf = (u8 *)din;
 	spicc->xfer_remain = bitlen >> 3;
 
+#ifndef CONFIG_SPICC_DMA_SRAM
+	if (spicc->using_dma) {
+		flush_dcache_range((unsigned long)dout,
+				   (unsigned long)dout + (bitlen >> 3));
+		flush_dcache_range((unsigned long)din,
+				   (unsigned long)din + (bitlen >> 3));
+	}
+#endif
+
 	if (flags & SPI_XFER_BEGIN)
 		spicc_chipselect(dev, 1);
 
 	while (spicc->xfer_remain) {
+		meson_spicc_pre_burst(spicc);
+		if (spicc->using_dma)
+			meson_spicc_setup_dma_burst(spicc);
+		else
+			meson_spicc_setup_pio_burst(spicc);
 
-		meson_spicc_setup_pio_burst(spicc);
-
-		/* Start burst */
-		writel_bits_relaxed(SPICC_XCH, SPICC_XCH,
-				    spicc->base + SPICC_CONREG);
-
-		ret = spicc_wait_complete(spicc, PIO_BURST_MAX_TIME);
+		ret = spicc_wait_complete(spicc);
 		if (ret) {
 			spicc_err("time expire\n");
 			break;
 		}
-		meson_spicc_rx(spicc);
+
+		if (!spicc->using_dma)
+			meson_spicc_rx(spicc);
+
+		meson_spicc_post_burst(spicc);
 	}
 
 	if (ret || flags & SPI_XFER_END)
 		spicc_chipselect(dev, 0);
+
+#ifndef CONFIG_SPICC_DMA_SRAM
+	if (spicc->using_dma) {
+		invalidate_dcache_range((unsigned long)dout,
+					(unsigned long)dout + (bitlen >> 3));
+		invalidate_dcache_range((unsigned long)din,
+					(unsigned long)din + (bitlen >> 3));
+	}
+#endif
 
 	return ret;
 }
