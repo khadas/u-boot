@@ -51,7 +51,7 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/pwm/pwm.h>
 #include <dt-bindings/pwm/meson.h>
-#include <dt-bindings/clock/s4-clkc.h>
+#include <dt-bindings/clock/a5-clkc.h>
 
 / {
 	interrupt-parent = <&gic>;
@@ -318,7 +318,7 @@
 		};
 
 		clkc: clock-controller@0 {
-			compatible = "amlogic,s4-clkc";
+			compatible = "amlogic,a5-clkc";
 			#clock-cells = <1>;
 			reg = <0x0 0xfe000000 0x0 0x82e8>;
 			clocks = <&xtal>;
