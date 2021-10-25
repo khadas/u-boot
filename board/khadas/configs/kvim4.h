@@ -83,6 +83,8 @@
 
 #ifdef CONFIG_HDMITX_ONLY
 #define CONFIG_EXTRA_ENV_SETTINGS \
+       "bootcmd_spi=test.s \"$boot_source\" = \"spi\" && sf probe && "\
+           "sf read $loadaddr 0x4c8000 0x8000 && script\0"\
         "fdt_addr_r=0x01000000\0"\
         "fdtoverlay_addr_r=0x00a00000\0"\
         "fdtaddr=0x01000000\0"\
@@ -407,12 +409,14 @@
         BOOTENV\
         "pxe_boot=dhcp; pxe get && pxe boot\0"\
         "bootcmd_storeboot=run storeboot\0"\
-        "boot_targets=usb0 mmc0 mmc1 storeboot pxe dhcp\0"
+        "boot_targets=spi usb0 mmc0 mmc1 storeboot pxe dhcp\0"
 
 #else
 #define CONFIG_EXTRA_ENV_SETTINGS \
-      "fdt_addr_r=0x01000000\0"\
-      "fdtoverlay_addr_r=0x00a00000\0"\
+        "bootcmd_spi=test.s \"$boot_source\" = \"spi\" && sf probe && "\
+            "sf read $loadaddr 0x4c8000 0x8000 && script\0"\
+        "fdt_addr_r=0x01000000\0"\
+        "fdtoverlay_addr_r=0x00a00000\0"\
         "fdtaddr=0x01000000\0"\
         "kernel_addr_r=0x01080000\0"\
         "pxefile_addr_r=0x00010000\0"\
@@ -753,7 +757,7 @@
         BOOTENV\
         "pxe_boot=dhcp; pxe get && pxe boot\0"\
         "bootcmd_storeboot=run storeboot\0"\
-        "boot_targets=usb0 mmc0 mmc1 storeboot pxe dhcp\0"
+        "boot_targets=spi usb0 mmc0 mmc1 storeboot pxe dhcp\0"
 #endif
 
 #define CONFIG_PREBOOT  \
