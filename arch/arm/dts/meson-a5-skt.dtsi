@@ -238,7 +238,7 @@
         status = "okay";
         portnum = <0>;
         gpio-vbus-power = "GPIOH_6";
-        gpios = <&gpio GPIOH_6 GPIO_ACTIVE_HIGH>;
+        /* gpios = <&gpio GPIOH_6 GPIO_ACTIVE_HIGH>; */
 };
 
 &pwm_ef {
