@@ -126,6 +126,7 @@
 	pinctrl-0 = <&external_eth_rgmii_pins>;
 	internal_phy = <0>;
 	mc_val = <0x1621>;
+	cali_val = <0xa0000>;
 };
 
 &i2c3 {
