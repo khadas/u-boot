@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * board/amlogic/t5d_skt_v1/t5d_skt_v1.c
+ * board/amlogic/t5d_skt_v1/t5w_at301_v1.c
  *
  * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
@@ -762,7 +762,7 @@ phys_size_t get_effective_memsize(void)
 }
 
 #ifdef CONFIG_MULTI_DTB
-int checkhw(char *name)
+int checkhw(char * name)
 {
 	char dtb_name[64] = {0};
 	unsigned int ddr_size = 0;
@@ -774,7 +774,7 @@ int checkhw(char *name)
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
 	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
 #endif
-	strcpy(dtb_name, "t5w_skt_2g\0");
+	strcpy(dtb_name, "t5w_at309_2g\0");
 	if (name)
 		strcpy(name, dtb_name);
 	setenv("aml_dt", dtb_name);

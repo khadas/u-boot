@@ -348,6 +348,10 @@ config T5W_SKT_V1
 	bool "Support amlogic t5w skt v1 board"
 	default n
 
+config T5W_AT301_V1
+	bool "Support amlogic t5w at301 v1 board"
+	default n
+
 config PXP_EMULATOR
 	bool "Support pxp environment"
 	default n
@@ -721,3 +725,8 @@ endif
 if T5W_SKT_V1
 source "board/amlogic/t5w_skt_v1/Kconfig"
 endif
+
+if T5W_AT301_V1
+source "board/amlogic/t5w_at301_v1/Kconfig"
+endif
+
