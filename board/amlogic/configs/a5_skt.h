@@ -502,8 +502,14 @@
 /* define CONFIG_UPDATE_MMU_TABLE for need update mmu */
 #define CONFIG_UPDATE_MMU_TABLE
 
+// RTC clock has been added
+#define CONFIG_CLK_A5_TYPE
+
 //use sha2 command
 #define CONFIG_CMD_SHA2
+
+//use startdsp command
+#define CONFIG_CMD_STARTDSP
 
 //use hardware sha2
 #define CONFIG_AML_HW_SHA2

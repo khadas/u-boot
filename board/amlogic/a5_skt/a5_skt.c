@@ -117,6 +117,12 @@ int board_init(void)
 	run_command("watchdog off", 0);
 	printf("watchdog disable\n");
 
+#if 0
+	run_command("startdsp 0 0x300a0000 0", 0);
+	printf("dsp start!\n");
+	while (1);
+#endif
+
 #if !defined(CONFIG_PXP_DDR)	//bypass below operations for pxp
 	aml_set_bootsequence(0);
 	//Please keep try usb boot first in board_init,

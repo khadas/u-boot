@@ -36,7 +36,9 @@ void set_dsp_clk(uint32_t id, uint32_t freq_sel)
 	switch ( id )
 	{
 		case 0  :  addr = CLKCTRL_DSPA_CLK_CTRL0; break;
+#ifndef CONFIG_CLK_A5_TYPE
 		case 1  :  addr = CLKCTRL_DSPB_CLK_CTRL0; break;
+#endif
 		default :  break;
 	}
 	// Make sure not busy from last setting and we currently match the last setting
@@ -46,7 +48,7 @@ void set_dsp_clk(uint32_t id, uint32_t freq_sel)
 	printf ("CLKCTRL_DSP_CLK_CTRL0 =%x", readl(addr));
 	printf ("\n");
 
-#ifdef CONFIG_CLK_P1_TYPE
+#if defined(CONFIG_CLK_P1_TYPE) || defined(CONFIG_CLK_A5_TYPE)
 	switch (freq_sel)
 	{
 		case 0  : clk_sel = 1; clk_div =0; printf ("CLK_UTIL:dsp[]:fclk2p5:800MHz\n")    ; break;
@@ -114,7 +116,7 @@ static int do_startdsp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	freq_sel = simple_strtoul(argv[3], NULL, 16);
 
 	printf("dsp%d boot \n",dspid);
-	printf("dspboot start address:0x%d\n",addr);
+	printf("dspboot start address:0x%x\n",addr);
 	printf("dsp clk num:%d\n",freq_sel);
 
 	StatVectorSel = (addr != 0xfffa0000);
