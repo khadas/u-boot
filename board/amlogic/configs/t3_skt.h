@@ -26,7 +26,7 @@
  * platform power init config
  */
 
-#define AML_VCCK_INIT_VOLTAGE	  889	    //VCCK power up voltage
+#define AML_VCCK_INIT_VOLTAGE	  1009	    //VCCK power up voltage
 #define AML_VDDEE_INIT_VOLTAGE    840       // VDDEE power up voltage
 
 /* SMP Definitinos */
