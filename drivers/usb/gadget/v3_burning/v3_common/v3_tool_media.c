@@ -56,13 +56,8 @@ static int is_bootloader_discrte(bool* discreteMode)
 	return 0;
 }
 
-static int bootloader_copy_sz(void)
+int bootloader_copy_sz(void)
 {
-	bool discreteMode = false;
-	if (is_bootloader_discrte(&discreteMode)) {
-		return 0;
-	}
-
 	return store_boot_copy_size("bootloader");
 }
 
@@ -159,7 +154,7 @@ static int _discrete_bootloader_write(u8* dataBuf, unsigned off, unsigned binSz)
 			memset(name, 0, 8);
 			for (nIndex = 1, pItem += 1; nIndex < hdr->byItemNum; ++nIndex, ++pItem)
 			{
-				memcpy(name, &pItem->nMagic, sizeof(unsigned int));
+				memcpy(name, &pItem->nMagic, 8);
 				offPayload = pItem->nOffset;
 				szPayload  = pItem->nPayLoadSize;
 				FB_MSG("Item[%d]%4s offset 0x%08x sz 0x%x\n", nIndex, name, offPayload, szPayload);

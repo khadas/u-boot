@@ -210,12 +210,12 @@ HIMAGEITEM image_item_open(HIMAGE hImg, const char* mainType, const char* subTyp
 
     if (IMAGE_IF_TYPE_STORE != imgInfo->imgSrcIf.devIf)
     {
-            DWN_DBG("Item offset 0x%llx\n", pItem->offsetInImage);
-            i = do_fat_fseek(_hFile, pItem->offsetInImage, 0);
-            if (i) {
-                    DWN_ERR("fail to seek, offset is 0x%x\n", (u32)pItem->offsetInImage);
-                    return NULL;
-            }
+		DWN_MSG("Item offset 0x%llx\n", pItem->offsetInImage);
+		i = do_fat_fseek(_hFile, pItem->offsetInImage, 0);
+		if (i) {
+			DWN_ERR("fail to seek, offset is 0x%x\n", (u32)pItem->offsetInImage);
+			return NULL;
+		}
     }
     imgInfo->imgSrcIf.itemCurSeekOffsetInImg = pItem->offsetInImage;
 
@@ -451,6 +451,8 @@ int optimus_img_item2buf(HIMAGE hImg, const char* main, const char* sub, char* b
 {
     HIMAGEITEM hImgItem = NULL;
     hImgItem = image_item_open(hImg, main, sub);
+	unsigned itemSzNotAligned = 0;
+	int		 alignSz	= 0;
 
     if (!hImgItem) {
         DWN_WRN("Fail to open item [%s,%s]\n", main, sub);
@@ -467,11 +469,25 @@ int optimus_img_item2buf(HIMAGE hImg, const char* main, const char* sub, char* b
         image_item_close(hImgItem); return __LINE__;
     }
 
+	itemSzNotAligned = image_item_get_first_cluster_size(hImg, hImgItem);
+	if (itemSzNotAligned /*& 0x7*/) {//Not Aligned 8bytes/64bits, mmc dma read will failed
+		const unsigned clusterSz = image_get_cluster_size(hImg);
+
+		alignSz	 = clusterSz - itemSzNotAligned;
+		if (*bufsz < itemSz + alignSz) {
+			DWN_ERR("item buf sz not enough for align\n");
+			return -__LINE__;
+		}
+		DWN_MSG("align buf 0x%p for sdc read...\t", buf);
+		buf += alignSz;
+	}
+
     int rc = image_item_read(hImg, hImgItem, buf, (unsigned)itemSz);
     if (rc) {
         DWN_ERR("Fail read item data, rc %d\n", rc);
         image_item_close(hImgItem); return __LINE__;
     }
+	if (alignSz) memmove(buf - alignSz, buf, itemSz);
 
     image_item_close(hImgItem);
     *bufsz = itemSz;

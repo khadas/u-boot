@@ -286,6 +286,14 @@ static int do_image_read_dtb_from_knl(const char *partname,
 		wraddr = (unsigned char *)loadaddr + preloadsz;
 	}
 #endif//#if !defined(CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK) && defined(CONFIG_IMAGE_CHECK)
+	if ((BOOT_NAND_MTD == store_get_type() || BOOT_SNAND == store_get_type())) {
+		unsigned notAlignSz = wroff & 0xfff;
+
+		wroff -= notAlignSz;
+		wrsz  += notAlignSz;
+		secondaddr += notAlignSz;
+		MsgP("not align dtb off 0x%llx\n", wroff);
+	}
 	ret = store_logic_read(partname, wroff, wrsz, wraddr);
 	if (ret) {
 		errorP("Fail to read 0x%xB from part[%s] at offset 0x%x\n",

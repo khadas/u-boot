@@ -115,6 +115,10 @@ unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyVa
 #define OPTIMUS_DTB_LOAD_ADDR                   0x1000000
 #endif// #ifdef CONFIG_DTB_MEM_ADDR
 
+//payload sz not fixed and > 1M, so payload need be after GPT
+#define V2_GPT_LOAD_ADDR        (CONFIG_DTB_MEM_ADDR + 0x100000)
+#define V2_PAYLOAD_LOAD_ADDR    (V2_GPT_LOAD_ADDR + 0x100000) //sheader for sc2 nand
+
 #define COMPILE_TYPE_CHK(expr, t)       typedef char t[(expr) ? 1 : -1]
 #define COMPILE_TIME_ASSERT(expr)       typedef char assert_type[(expr) ? 1 : -1]
 
@@ -203,6 +207,10 @@ int optimus_work_mode_set(int workmode);
 #define P_AO_SEC_GP_CFG0 	SYSCTRL_SEC_STATUS_REG4
 #define P_PREG_STICKY_REG2	SYSCTRL_SEC_STICKY_REG2
 #endif// #ifndef P_AO_SEC_SD_CFG0
+
+int bootloader_write(u8 *dataBuf, unsigned off, unsigned binSz);
+int bootloader_read(u8 *pBuf, unsigned off, unsigned binSz);
+int bootloader_copy_sz(void);
 
 #endif//ifndef __OPTIMUS_DOWNLOAD_H__
 

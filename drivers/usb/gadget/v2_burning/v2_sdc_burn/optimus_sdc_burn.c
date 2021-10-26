@@ -295,6 +295,8 @@ int optimus_burn_bootlader(HIMAGE hImg)
     int rcode = 0;
     int NeedVerify = 1;
 
+	if ((BOOT_NAND_MTD == store_get_type() || BOOT_SNAND == store_get_type()))
+		run_command("store boot_erase bootloader", 0);
     rcode = optimus_burn_one_partition("bootloader", hImg, NULL, NeedVerify);
     if (rcode) {
         DWN_ERR("Fail when burn bootloader\n");
@@ -313,7 +315,7 @@ int optimus_report_burn_complete_sta(int isFailed, int rebootAfterBurn)
         DWN_MSG("PLS long-press power key to shut down\n");
         optimus_led_show_burning_failure();
         while (1) {
-            /*if(ctrlc())run_command("reset", 0);*/
+            if(ctrlc())run_command("reset", 0);
         }
 
         return __LINE__;
@@ -323,6 +325,24 @@ int optimus_report_burn_complete_sta(int isFailed, int rebootAfterBurn)
     optimus_led_show_burning_success();
     optimus_burn_complete(rebootAfterBurn ? rebootAfterBurn : OPTIMUS_BURN_COMPLETE__POWEROFF_AFTER_POWERKEY);//set complete flag and poweroff if burn successful
     return 0;
+}
+
+static int optimus_sdc_burn_sheader_load(HIMAGE hImg)
+{
+	int rc = 0;
+	u64 partBaseOffset = V2_PAYLOAD_LOAD_ADDR;
+	char* transferBuf  = (char*)partBaseOffset;
+	int bufsz = 0x4<<20;
+
+	rc = optimus_img_item2buf(hImg, "PARTITION", "bootloader", transferBuf, &bufsz);
+	if (rc) {
+		DWN_ERR("FAil in load bootloader as store header, rc %d\n", rc);
+		return -__LINE__;
+	}
+
+	DWN_MSG("sheader loaded to 0x%p\n", transferBuf);
+	sheader_load(transferBuf);
+	return rc;
 }
 
 int optimus_sdc_burn_dtb_load(HIMAGE hImg)
@@ -778,6 +798,14 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
         ret = __LINE__; goto _finish;
     }
 
+	if (sheader_need()) {
+		ret = optimus_sdc_burn_sheader_load(hImg);
+		if (ret) {
+			DWN_ERR("Fail in load sheader for sdc_burn\n");
+			ret = __LINE__; goto _finish;
+		}
+	}
+
     if (video_res_prepare_for_upgrade(hImg)) {
         DWN_ERR("Fail when prepare bm res or init video for upgrade\n");
         image_close(hImg);
@@ -809,7 +837,7 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
 		if (store_get_type() == BOOT_EMMC) {
 			ret = usb_burn_erase_data(1);
 		} else {
-			ret = run_command("echo store erase.chip; store erase.chip", 0);
+			ret = run_command("echo store erase.chip 0; store erase.chip 0", 0);
 		}
     }
     else
