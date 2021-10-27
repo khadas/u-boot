@@ -320,6 +320,20 @@ int env_set(const char *varname, const char *varvalue)
 		return _do_env_set(0, 3, (char * const *)argv, H_PROGRAMMATIC);
 }
 
+int env_resolve(const char *varname, const char *varvalue)
+{
+	const char * const argv[5] = { "setenv", "-r", varname, varvalue, NULL };
+
+	/* before import into hashtable */
+	if (!(gd->flags & GD_FLG_ENV_READY))
+		return 1;
+
+	if (!varvalue || varvalue[0] == '\0')
+		return _do_env_set(0, 3, (char * const *)argv, H_PROGRAMMATIC);
+	else
+		return _do_env_set(0, 4, (char * const *)argv, H_PROGRAMMATIC);
+}
+
 /**
  * Set an environment variable to an integer value
  *
