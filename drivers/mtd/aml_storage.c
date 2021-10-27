@@ -599,41 +599,20 @@ static int mtd_store_write(const char *part_name,
 	return ret;
 }
 
-static int mtd_store_erase(const char *part_name,
-			   loff_t off, size_t size, int scrub_flag)
+static int _mtd_store_erase(struct mtd_info *mtd,
+			   loff_t offset, size_t size, int scrub_flag, int bb_flag)
 {
-	struct mtd_info *mtd;
-	loff_t offset = 0;
-	unsigned long erased_size, erase_len, chip_size;
 	struct erase_info info;
-	int ret;
-
-	/* Record the current chip size first */
-	mtd = mtd_store_get(1);
-	chip_size = mtd->size;
-
-	/*part_name=NULL,operation target is whole device*/
-	if (!part_name)	{
-		mtd = mtd_store_get(1);
-		printf("!!!warn: erase all chip!!!\n");
-		size = mtd->size;
-		mtd = mtd_store_get(0);
-	}
-	else
-		mtd = mtd_store_get_by_name(part_name, 0);
-	if (IS_ERR(mtd))
-		return -ENXIO;
-
-	ret = mtd_store_get_offset((const char *)part_name, &offset, off);
-	if (ret)
-		return ret;
-	if (size == 0)
-		size = mtd_store_size(part_name) - off;
-	erase_len = lldiv(size + mtd->erasesize - 1,
-			  mtd->erasesize);
+	unsigned long erased_size, erase_len;
+	unsigned long chip_size;
+	int ret = 0;
 
 	printf("erasing from 0x%llx, length 0x%lx\n",
-		   offset, size);
+			   offset, size);
+
+	chip_size = mtd_store_get(1)->size;
+	erase_len = lldiv(size + mtd->erasesize - 1,
+			 mtd->erasesize);
 	if ((MTD_NORFLASH == mtd->type)
 		&& (size == mtd->size) && (0 == offset)) {
 		/* erase whole spi flash in one cmd */
@@ -649,7 +628,7 @@ static int mtd_store_erase(const char *part_name,
 	} else {
 		for (erased_size = 0; erased_size < erase_len;
 			 offset += mtd->erasesize) {
-			if (!part_name)/*erase chip,erase_len include bb*/
+			if (bb_flag)/*erase chip,erase_len include bb*/
 				erased_size++;
 			WATCHDOG_RESET();
 			if (!scrub_flag) {
@@ -671,7 +650,7 @@ static int mtd_store_erase(const char *part_name,
 			info.len = mtd->erasesize;
 			info.scrub = scrub_flag;
 			info.callback = NULL;
-			if (part_name) /*erase partition,erase_len except bb*/
+			if (!bb_flag) /*erase partition,erase_len except bb*/
 				erased_size++;
 
 			loff_t bootloader_max_addr = BOOT_TOTAL_PAGES * ((u64)mtd->writesize);
@@ -690,6 +669,61 @@ static int mtd_store_erase(const char *part_name,
 		}
 	}
 	return ret;
+}
+
+static int mtd_store_erase(const char *part_name,
+			   loff_t off, size_t size, int flag)
+{
+	struct mtd_info *mtd;
+	loff_t offset = 0;
+	int ret, scrub_flag = flag & STORE_SCRUB;
+
+	/*part_name=NULL,operation target is whole device*/
+	if (!part_name)	{
+		mtd = mtd_store_get(1);
+		if (flag & STORE_ERASE_DATA) {
+			printf("!!!warn: erase all data!!!\n");
+			if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER) {
+				ret = mtd_store_get_offset(BOOT_DEVFIP, &offset, 0);
+				if (ret)
+					return ret;
+				offset += mtd_store_size(BOOT_DEVFIP);
+			} else if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER) {
+				ret = mtd_store_get_offset(BOOT_TPL, &offset, 0);
+				if (ret)
+					return ret;
+				offset += mtd_store_size(BOOT_TPL);
+			} else { /*spinor*/
+				offset = mtd_store_size(BOOT_LOADER);
+			}
+			size = mtd->size - offset;
+		} else if (flag & STORE_ERASE_RSV) {
+			if (store_get_type() == BOOT_SNOR) {
+				printf("!!!warn: spinor without rsv!!!\n");
+				return 0;
+			}
+			printf("!!!warn: erase all rsv!!!\n");
+			offset = mtd_store_size("bl2");
+			size = BOOT_TOTAL_PAGES * (u64)mtd->writesize;
+		} else {
+			printf("!!!warn: erase all chip!!!\n");
+			offset = 0;
+			size = mtd->size;
+			mtd = mtd_store_get(0);
+		}
+	} else {
+		mtd = mtd_store_get_by_name(part_name, 0);
+		if (IS_ERR(mtd))
+			return -ENXIO;
+
+		ret = mtd_store_get_offset((const char *)part_name, &offset, off);
+		if (ret)
+			return ret;
+		if (size == 0)
+			size = mtd_store_size(part_name) - off;
+	}
+
+	return _mtd_store_erase(mtd, offset, size, scrub_flag, !part_name);
 }
 
 static u8 mtd_store_boot_copy_num(const char *part_name)

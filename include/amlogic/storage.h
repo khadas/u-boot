@@ -122,7 +122,7 @@ struct storage_t {
 	int (*write)(const char *part_name, loff_t off,
 		     size_t size, void *source);
 	int (*erase)(const char *part_name, loff_t off,
-		     size_t size, int scrub_flag);
+		     size_t size, int flag);
 
 #define BOOT_OPS_ALL 0xFF/* for cpy parameter operates all copies */
 	u8 (*get_copies)(const char *part_name);
@@ -163,6 +163,10 @@ struct device_node_t {
 #define NAND_BOOT_ERASE_ALL             3
 #define NAND_BOOT_SCRUB_ALL             4
 #define NAND_SCAN_ID_INIT               5
+
+#define STORE_SCRUB			BIT(0)
+#define STORE_ERASE_DATA		BIT(1)
+#define STORE_ERASE_RSV			BIT(2)
 /**
  * @usage: init all the valid storage device
  *

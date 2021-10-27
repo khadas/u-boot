@@ -932,7 +932,7 @@ static int do_store_erase(cmd_tbl_t *cmdtp,
 	size_t size = 0;
 	char *name = NULL;
 	char *s;
-	int scrub_flag = 0, ret;
+	int erase_flag = 0, ret;
 	unsigned long time;
 
 	const char *scrub =
@@ -950,10 +950,8 @@ static int do_store_erase(cmd_tbl_t *cmdtp,
 		return CMD_RET_FAILURE;
 	}
 
-	if (strncmp(argv[1], "scrub", 5) == 0)
-		scrub_flag = 1;
-
-	if (scrub_flag == 1) {
+	if (!strncmp(argv[1], "scrub", 5)) {
+		erase_flag |= STORE_SCRUB;
 		puts(scrub);
 		if (!confirm_yesno()) {
 			printf("erase aborted\n");
@@ -964,6 +962,13 @@ static int do_store_erase(cmd_tbl_t *cmdtp,
 	/*store erase.chip*/
 	s = strchr(argv[1], '.');
 	if (s != NULL && strcmp(s, ".chip") == 0) {
+		if (argc == 3 && !simple_strtoul(argv[argc - 1], NULL, 16))
+			erase_flag |= STORE_ERASE_DATA;
+		else if ((argc == 3) && (simple_strtoul(argv[argc - 1], NULL, 16) == 1))
+			erase_flag |= STORE_ERASE_RSV;
+		else if (argc == 3)
+			return CMD_RET_USAGE;
+
 		offset = 0;
 	} else {
 		/*store erase normal, partition name can't NULL*/
@@ -983,7 +988,7 @@ static int do_store_erase(cmd_tbl_t *cmdtp,
 	}
 
 	time = get_timer(0);
-	ret = store->erase(name, offset, size, scrub_flag);
+	ret = store->erase(name, offset, size, erase_flag);
 	time = get_timer(time);
 
 	if (size != 0)
@@ -1619,8 +1624,10 @@ U_BOOT_CMD(store, CONFIG_SYS_MAXARGS, 1, do_store,
 	"	of device/partition [partition name]\n"
 	"	includes oob area if the device has.\n"
 	"	partition name must't NULL\n"
-	"store erase.chip\n"
+	"store erase.chip [flag]\n"
 	"	erase all nand chip,except bad block\n"
+	"	flag 0 erase all nand chip,except bootloader&rsv\n"
+	"	flag 1 erase rsv\n"
 	"store scrub.chip\n"
 	"	erase all nand chip,include bad block\n"
 	"store boot_read name addr copy size\n"
