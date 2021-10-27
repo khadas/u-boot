@@ -12,8 +12,8 @@
  * platform power init config
  */
 
-#define AML_VCCK_A_INIT_VOLTAGE	  889	    // VCCK A power up voltage
-#define AML_VCCK_B_INIT_VOLTAGE	  889	    // VCCK B power up voltage
+#define AML_VCCK_A_INIT_VOLTAGE	  999	    // VCCK A power up voltage
+#define AML_VCCK_B_INIT_VOLTAGE	  999	    // VCCK B power up voltage
 #define AML_VDDEE_INIT_VOLTAGE    831       // VDDEE power up voltage
 #define AML_VDDGPU_INIT_VOLTAGE	  831       // VDDGPU power up voltage
 #define AML_VDDNPU_INIT_VOLTAGE   831       // VDDNPU power up voltage
