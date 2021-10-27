@@ -2492,13 +2492,13 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		//.cfg_ddr_training_delay_ps.reserve_training_parameter = { 0x4, 0x4, 0x4, 0x4, 0, 0, 0, 0, 0x80 + 0x18, 0x80 + 0x18, 0x80 + 0x18, 0x80 + 0x18 },
 		.cfg_ddr_training_delay_ps.reserve_training_parameter = {
 		//cs0 write dqs,lane0-lane3
-		(0 << 7) | 0x4, (0 << 7) | 0x4, (0 << 7) | 0x4, (0 << 7) | 0x4,
+		(0 << 7) | 04, (0 << 7) | 04, (0 << 7) | 04, (0 << 7) | 04,
 		//cs1 write dqs,lane0-lane3
-		(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+		(0 << 7) | 00, (0 << 7) | 00, (0 << 7) | 00, (0 << 7) | 00,
 		//cs0 read dqs,lane0-lane3
-		(1 << 7) | 0x18, (1 << 7) | 0x18, (1 << 7) | 0x18, (1 << 7) | 0x18,
+		(1 << 7) | 14, (1 << 7) | 14, (1 << 7) | 14, (1 << 7) | 14,
 		//cs1 read dqs,lane0-lane3
-		(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+		(0 << 7) | 00, (0 << 7) | 00, (0 << 7) | 00, (0 << 7) | 00,
 		},
 		.cfg_board_SI_setting_ps.vref_soc_data_permil = 0,                   //0x000002a8,// 680
 		.cfg_board_SI_setting_ps.vref_dram_data_permil = 0,                  //0x000002bc,// 700
@@ -2919,13 +2919,13 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		//.cfg_ddr_training_delay_ps.reserve_training_parameter = { 0x4, 0x4, 0x4, 0x4, 0, 0, 0, 0, 0x80 + 0x18, 0x80 + 0x18, 0x80 + 0x18, 0x80 + 0x18 },
 		.cfg_ddr_training_delay_ps.reserve_training_parameter = {
 		//cs0 write dqs,lane0-lane3
-		(0 << 7) | 14, (0 << 7) | 0x4, (0 << 7) | 0x4, (0 << 7) | 0x4,
+		(0 << 7) | 14, (0 << 7) | 04, (0 << 7) | 04, (0 << 7) | 04,
 		//cs1 write dqs,lane0-lane3
-		(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+		(0 << 7) | 00, (0 << 7) | 00, (0 << 7) | 00, (0 << 7) | 00,
 		//cs0 read dqs,lane0-lane3
-		(1 << 7) | 0x18, (1 << 7) | 0x18, (1 << 7) | 0x18, (1 << 7) | 0x18,
+		(1 << 7) | 14, (1 << 7) | 14, (1 << 7) | 14, (1 << 7) | 14,
 		//cs1 read dqs,lane0-lane3
-		(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+		(0 << 7) | 00, (0 << 7) | 00, (0 << 7) | 00, (0 << 7) | 00,
 		},
 		.cfg_board_SI_setting_ps.vref_soc_data_permil = 0,                   //0x000002a8,// 680
 		.cfg_board_SI_setting_ps.vref_dram_data_permil = 0,                  //0x000002bc,// 700
