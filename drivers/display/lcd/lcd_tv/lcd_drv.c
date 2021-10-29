@@ -377,13 +377,15 @@ static void lcd_lvds_control_set(struct lcd_config_s *pconf)
 		break;
 	}
 
-	lcd_vcbus_write(LVDS_GEN_CNTL, (lcd_vcbus_read(LVDS_GEN_CNTL) | (1 << 4) | (fifo_mode << 0)));
+	lcd_vcbus_setb(LVDS_GEN_CNTL, 1, 4, 1);
+	lcd_vcbus_setb(LVDS_GEN_CNTL, fifo_mode, 0, 2);
 	lcd_vcbus_setb(LVDS_GEN_CNTL, 1, 3, 1);
 }
 
 static void lcd_lvds_disable(void)
 {
 	lcd_vcbus_setb(LVDS_GEN_CNTL, 0, 3, 1); /* disable lvds fifo */
+	lcd_vcbus_setb(LVDS_GEN_CNTL, 0, 0, 2);
 }
 
 #ifdef CONFIG_AML_LCD_TCON
