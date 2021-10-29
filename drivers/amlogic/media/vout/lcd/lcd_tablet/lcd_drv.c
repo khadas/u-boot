@@ -443,8 +443,8 @@ static void lcd_lvds_control_set(struct aml_lcd_drv_s *pdrv)
 		break;
 	}
 
-	lcd_vcbus_write(LVDS_GEN_CNTL + offset,
-			(lcd_vcbus_read(LVDS_GEN_CNTL + offset) | (1 << 4) | (fifo_mode << 0)));
+	lcd_vcbus_setb(LVDS_GEN_CNTL + offset, 1, 4, 1);
+	lcd_vcbus_setb(LVDS_GEN_CNTL + offset, fifo_mode, 0, 2);
 	lcd_vcbus_setb(LVDS_GEN_CNTL + offset, 1, 3, 1);
 }
 
@@ -474,6 +474,7 @@ static void lcd_lvds_disable(struct aml_lcd_drv_s *pdrv)
 
 		/* disable lvds fifo */
 		lcd_vcbus_setb(LVDS_GEN_CNTL + offset, 0, 3, 1);
+		lcd_vcbus_setb(LVDS_GEN_CNTL + offset, 0, 0, 2);
 		/* disable fifo */
 		lcd_combo_dphy_setb(reg_dphy_tx_ctrl1, 0, 6, 2);
 		/* disable lane */
@@ -481,6 +482,7 @@ static void lcd_lvds_disable(struct aml_lcd_drv_s *pdrv)
 	} else if (pdrv->data->chip_type == LCD_CHIP_T3) {
 		/* disable lvds fifo */
 		lcd_vcbus_setb(LVDS_GEN_CNTL, 0, 3, 1);
+		lcd_vcbus_setb(LVDS_GEN_CNTL, 0, 0, 2);
 		/* disable fifo */
 		lcd_clk_setb(ANACTRL_LVDS_TX_PHY_CNTL1, 0, 30, 2);
 		/* disable lane */
@@ -488,6 +490,7 @@ static void lcd_lvds_disable(struct aml_lcd_drv_s *pdrv)
 	} else {
 		/* disable lvds fifo */
 		lcd_vcbus_setb(LVDS_GEN_CNTL, 0, 3, 1);
+		lcd_vcbus_setb(LVDS_GEN_CNTL, 0, 0, 2);
 		/* disable fifo */
 		lcd_clk_setb(HHI_LVDS_TX_PHY_CNTL1, 0, 30, 2);
 		/* disable lane */
