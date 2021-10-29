@@ -223,7 +223,7 @@ static int spifc_set_speed(struct udevice *bus, uint hz)
 		pr_err("can't set clk rate 0x%x\n !",plat->speed);
 		return ret;
 	}
-	writel((1 << 30) | (1 << 28) | (7 << 16) | (4 << 12) | (4 << 8) | (2), SPIFC_ACTIMING0);
+	writel((1 << 30) | (1 << 28) | (7 << 16) | (7 << 12) | (7 << 8) | (2), SPIFC_ACTIMING0);
 
 	return 0;
 }

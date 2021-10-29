@@ -278,10 +278,10 @@
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&spifc_pins>;
-	max-frequency = <24000000>;
+	max-frequency = <96000000>;
 	max-cs = <2>;
-	/* 512M */
-	clocks = <&clkc CLKID_FCLK_DIV3>,
+	/* 768M */
+	clocks = <&clkc CLKID_FCLK_DIV2>,
 		 <&clkc CLKID_SPIFC_MUX>,
 		 <&clkc CLKID_SPIFC_DIV>,
 		 <&clkc CLKID_SPIFC_GATE>,
