@@ -55,9 +55,9 @@
 #endif
 
 /*if disable uboot console, enable it*/
-//#define CONFIG_SILENT_CONSOLE
+#define CONFIG_SILENT_CONSOLE
 #ifdef CONFIG_SILENT_CONSOLE
-#undef CONFIG_SILENT_CONSOLE_UPDATE_ON_RELOC
+//#undef CONFIG_SILENT_CONSOLE_UPDATE_ON_RELOC
 #endif
 #define CONFIG_SARADC_CH  2
 

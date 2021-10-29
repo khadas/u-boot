@@ -73,7 +73,10 @@ static int on_silent(const char *name, const char *value, enum env_op op,
 #endif
 
 	if (value != NULL)
-		gd->flags |= GD_FLG_SILENT;
+		if (!strcmp(value, "on"))
+			gd->flags |= GD_FLG_SILENT;
+		else
+			gd->flags &= ~GD_FLG_SILENT;
 	else
 		gd->flags &= ~GD_FLG_SILENT;
 

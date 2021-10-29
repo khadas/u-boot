@@ -615,6 +615,12 @@ static int decomp_image(int comp, ulong load, ulong image_start, int type,
 {
 	const char *type_name = genimg_get_type_name(type);
 	__attribute__((unused)) uint unc_len = CONFIG_SYS_BOOTM_LEN;
+
+#ifdef CONFIG_SILENT_CONSOLE
+	/* disable silent */
+	gd->flags &= ~GD_FLG_SILENT;
+#endif
+
 	*load_end = load;
 	switch (comp) {
 	case IH_COMP_NONE:

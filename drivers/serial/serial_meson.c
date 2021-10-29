@@ -194,7 +194,8 @@ static int serial_init_port (unsigned long port_base)
 static void serial_putc_port (unsigned long port_base,const char c)
 {
 
-#ifndef CONFIG_SILENT_CONSOLE
+//#ifndef CONFIG_SILENT_CONSOLE
+#if 1
     if (c == '\n')
         serial_putc_port(port_base,'\r');
 
@@ -231,7 +232,8 @@ static int serial_getc_port (unsigned long port_base)
 {
     unsigned char ch;
 
-#ifndef CONFIG_SILENT_CONSOLE
+//#ifndef CONFIG_SILENT_CONSOLE
+#if 1
     /* Wait till character is placed in fifo */
 	while ((readl(P_UART_STATUS(port_base)) & UART_STAT_MASK_RFIFO_CNT) == 0) ;
 	ch = readl(P_UART_RFIFO(port_base)) & 0x00ff;
