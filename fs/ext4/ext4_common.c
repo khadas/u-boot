@@ -2333,6 +2333,8 @@ int ext4fs_mount(unsigned part_length)
 	if (!data)
 		return 0;
 
+	if (fs && fs->dev_desc)
+		blkcache_invalidate(fs->dev_desc->if_type, fs->dev_desc->devnum);
 	/* Read the superblock. */
 	status = ext4_read_superblock((char *)&data->sblock);
 
