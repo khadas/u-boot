@@ -31,6 +31,9 @@
 #ifdef CONFIG_AML_HDMITX20
 #include <amlogic/hdmi.h>
 #endif
+#ifdef CONFIG_RX_RTERM
+#include <amlogic/aml_hdmirx.h>
+#endif
 #ifdef CONFIG_AML_LCD
 #include <amlogic/aml_lcd.h>
 #endif
@@ -458,7 +461,7 @@ static struct mtd_partition normal_partition_info[] = {
     {
         .name = "system",
         .offset = 0,
-        .size = 64*SZ_1M,
+        .size = 256*SZ_1M,
     },
 	/* last partition get the rest capacity */
     {
@@ -630,18 +633,20 @@ int board_late_init(void)
 
 	char outputModePre[30] = {0};
 	char outputModeCur[30] = {0};
-	strncpy(outputModePre, getenv("outputmode"), 29);
+
 	if (getenv("default_env")) {
 		printf("factory reset, need default all uboot env\n");
 		run_command("defenv_reserv;setenv upgrade_step 2; saveenv;", 0);
 	}
 
 		//update env before anyone using it
-		run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
-						"if test ${reboot_mode} = factory_reset; then "\
-						"defenv_reserv;setenv upgrade_step 2;save; fi;", 0);
+	run_command("get_rebootmode; echo reboot_mode=${reboot_mode};", 0);
 		run_command("if itest ${upgrade_step} == 1; then "\
 						"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
+	if (getenv("outputmode")) {
+		strncpy(outputModePre, getenv("outputmode"), 29);
+		run_command("run bcb_cmd", 0);
+	}
 	run_command("run bcb_cmd", 0);
 		/*add board late init function here*/
 #ifndef DTB_BIND_KERNEL
@@ -706,6 +711,9 @@ int board_late_init(void)
 	hdmi_tx_set_hdmi_5v();
 	hdmi_tx_init();
 #endif
+#ifdef CONFIG_RX_RTERM
+	rx_set_phy_rterm();
+#endif
 #ifdef CONFIG_AML_CVBS
 	run_command("cvbs init", 0);
 #endif
@@ -722,10 +730,31 @@ int board_late_init(void)
 #endif//#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE
 
 	TE(__func__);
+    if (getenv("outputmode"))
 	strncpy(outputModeCur, getenv("outputmode"), 29);
 	if (strcmp(outputModeCur,outputModePre)) {
 		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
 		run_command("saveenv", 0);
+	}
+	unsigned char chipid[16];
+	memset(chipid, 0, 16);
+	if (get_chip_id(chipid, 16) != -1) {
+		char chipid_str[32];
+		int i, j;
+		char buf_tmp[4];
+		memset(chipid_str, 0, 32);
+		char *buff = &chipid_str[0];
+		for (i = 0, j = 0; i < 12; ++i) {
+			sprintf(&buf_tmp[0], "%02x", chipid[15 - i]);
+			if (strcmp(buf_tmp, "00") != 0) {
+				sprintf(buff + j, "%02x", chipid[15 - i]);
+				j = j + 2;
+			}
+		}
+		setenv("cpu_id", chipid_str);
+		printf("buff: %s\n", buff);
+	} else {
+		setenv("cpu_id", "1234567890");
 	}
 	return 0;
 }
