@@ -216,7 +216,7 @@ typedef struct board_SI_setting_ps
 	unsigned	char	dram_ac_odt_ohm;
 	unsigned	char	dram_data_drv_pull_up_calibration_ohm;
 	unsigned	char	lpddr4_dram_vout_voltage_range_setting;
-	unsigned	char	reserve2;
+	unsigned	char	dfe_offset;
 	unsigned	short	vref_ac_permil; //phy
 	unsigned	short	vref_soc_data_permil; //soc
 	unsigned	short	vref_dram_data_permil;
@@ -235,7 +235,9 @@ typedef struct board_phase_setting_ps
 	unsigned	char	read_dq_bit_delay[72];
 	unsigned	char	soc_bit_vref[44];
 	unsigned	char	dram_bit_vref[36];
-	unsigned	char	reserve_training_parameter[16];//0-7 read dqs offset,8-15 write dqs offset,MSB bit 7 use 0 mean right offset
+	//0-7 write dqs offset,8-15 read dqs offset,MSB bit 7 use 0 mean right offset
+	unsigned	char	reserve_training_parameter[16];
+	unsigned	char	soc_bit_vref_dac1[44];
 }__attribute__ ((packed)) board_phase_setting_ps_t;
 
 typedef struct ddr_set
@@ -244,6 +246,12 @@ typedef struct ddr_set
 	board_SI_setting_ps_t		cfg_board_SI_setting_ps[2]	;
 	board_phase_setting_ps_t	cfg_ddr_training_delay_ps[2]	;
 }__attribute__ ((packed)) ddr_set_t;
+
+typedef struct ddr_set_ps0_only {
+	board_common_setting_t		cfg_board_common_setting;
+	board_SI_setting_ps_t		cfg_board_SI_setting_ps;
+	board_phase_setting_ps_t	cfg_ddr_training_delay_ps;
+} __attribute__ ((packed)) ddr_set_ps0_only_t;
 
 #define DDR_FW_TOTAL_OFFSET		0
 #define DDR_FW_TOTAL_SIZE		2

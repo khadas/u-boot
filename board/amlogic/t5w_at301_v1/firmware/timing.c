@@ -18,8 +18,8 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.timming_struct_org_size						= sizeof(ddr_set_t),
 	.cfg_board_common_setting.timming_struct_real_size						= 0,                                      //0
 	.cfg_board_common_setting.fast_boot								= { 0 },
-	.cfg_board_common_setting.fast_boot[0] = 0x1,
-	.cfg_board_common_setting.fast_boot[3] = 0xC6,
+	//.cfg_board_common_setting.fast_boot[0] = 0x1,
+	//.cfg_board_common_setting.fast_boot[3] = 0xC6,
 	.cfg_board_common_setting.ddr_func								= 0,
 	.cfg_board_common_setting.board_id								= CONFIG_BOARD_ID_MASK,
 	.cfg_board_common_setting.DramType								= CONFIG_DDR_TYPE_DDR4,
@@ -49,53 +49,18 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.org_tdqs2dq								= 0,
 	.cfg_board_common_setting.reserve1_test_function						= { 0 },
 	.cfg_board_common_setting.ddr_dmc_remap								= DDR_DMC_REMAP_DDR4_32BIT,
-#if 0
-	.cfg_board_common_setting.ac_pinmux								= {
-		0,  0,	0,  1,	2,  3,	8, 27,
-		10, 2,	9,  21, 5,  14, 1, 0,
-		25, 13, 12, 4,	7,  22, 0, 0,
-		0,  0,	6,  3,	20, 0,	0, 15,
-		26, 11,
-	},
-#endif
+
 #if 1
-	//ak329 ac pinmux
-	.cfg_board_common_setting.ac_pinmux								= {
-		0,  0,	0,  1,	2,  3,	7, 28,
-		20, 9,	2,  21, 6,  10, 0, 1,
-		27, 11, 12, 4,	8,  25, 0, 0,
-		0,  0,	5,  3,	23, 0,	0, 24,
+	//t5w ac pinmux
+	.cfg_board_common_setting.ac_pinmux = {
+		0, 0, 0, 1, 2, 3, 7, 27,
+		21,	9, 2, 10, 5, 23, 0, 1,
+		25,	11,	20,	3, 8, 28, 0, 0,
+		0, 0, 6, 4, 12, 0, 0, 24,
 		26, 13, 0
 	},
 #endif
-#if 0
-	SIP package
-	2.1 - T963(17.45X16 .8)
-	4DDR4 (NTC)
 
-	unsigned char ddr_ac_pinmux_ddr4_default[AML_AC_PINMUX_G1_TOTAL + AML_AC_PINMUX_G0_TOTAL] =
-	{
-		0, 0,  0,  1, 2, 3,
-		7, 28, 20, 9, 2, 21,6,	10, 0, 1, 27, 11, 12, 4, 8, 25, 0, 0, 0, 0, 5, 3, 23, 0, 0, 24, 26, 13,
-	};
-
-	4DDR4 (SAMSUNG)
-
-	unsigned char ddr_ac_pinmux_ddr4_default[AML_AC_PINMUX_G1_TOTAL + AML_AC_PINMUX_G0_TOTAL] =
-	{
-		0, 0,  0,  1, 2, 3,
-		8, 27, 10, 2, 9, 21,5,	23, 1, 0, 25, 13, 12, 4, 7, 28, 0, 0, 0, 0, 6, 3, 20, 0, 0, 24, 26, 11,
-	};
-
-#endif
-#if 0
-	.cfg_board_common_setting.ac_pinmux								=
-	{
-		0, 0, 0, 1, 2, 3,
-		0, 1, 2, 3, 4, 5,6,  7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 0, 0, 0, 20, 21, 22, 0, 0, 25, 26, 27,
-	},
-
-#endif
 	.cfg_board_common_setting.ddr_dqs_swap								= 0,
 	.cfg_board_common_setting.ddr_dq_remap								= {
 		0,  1,	2,  3,	4,  5,	6,  7,
@@ -123,7 +88,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_SI_setting_ps[0].dram_ac_odt_ohm = DDR_DRAM_DDR_AC_ODT_0_OHM,
 	.cfg_board_SI_setting_ps[0].dram_data_drv_pull_up_calibration_ohm = DDR_DRAM_LPDDR4_ODT_40_OHM,
 	.cfg_board_SI_setting_ps[0].lpddr4_dram_vout_voltage_range_setting = DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ,
-	.cfg_board_SI_setting_ps[0].reserve2 = 0,
+	.cfg_board_SI_setting_ps[0].dfe_offset = 0,
 	.cfg_board_SI_setting_ps[0].vref_ac_permil = 0,
 	.cfg_board_SI_setting_ps[0].vref_soc_data_permil = 0,
 	.cfg_board_SI_setting_ps[0].vref_dram_data_permil = 0,
@@ -429,7 +394,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_SI_setting_ps[1].dram_ac_odt_ohm = DDR_DRAM_DDR_AC_ODT_0_OHM,
 	.cfg_board_SI_setting_ps[1].dram_data_drv_pull_up_calibration_ohm = DDR_DRAM_LPDDR4_ODT_40_OHM,
 	.cfg_board_SI_setting_ps[1].lpddr4_dram_vout_voltage_range_setting = DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ,
-	.cfg_board_SI_setting_ps[1].reserve2 = 0,
+	.cfg_board_SI_setting_ps[1].dfe_offset = 0,
 	.cfg_board_SI_setting_ps[1].vref_ac_permil = 0,
 	.cfg_board_SI_setting_ps[1].vref_soc_data_permil = 0,
 	.cfg_board_SI_setting_ps[1].vref_dram_data_permil = 0,
