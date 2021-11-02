@@ -34,6 +34,8 @@ struct lcd_clk_ctrl_s {
 	unsigned int len;
 };
 
+#define LCD_CLK_MSR_INVALID   0xffffffff
+
 struct lcd_clk_data_s {
 	/* clk path node parameters */
 	unsigned int pll_od_fb;
@@ -56,6 +58,8 @@ struct lcd_clk_data_s {
 
 	unsigned char clk_path_valid;
 	unsigned char vclk_sel;
+	int enc_clk_msr_id;
+	int fifo_clk_msr_id;
 	struct lcd_clk_ctrl_s *pll_ctrl_table;
 
 	unsigned int ss_level_max;

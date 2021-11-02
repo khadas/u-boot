@@ -1161,6 +1161,12 @@ static struct lcd_debug_info_reg_s lcd_debug_info_reg_tl1 = {
 	.reg_pinmux_table = lcd_reg_dump_pinmux_tl1,
 };
 
+static struct lcd_debug_info_reg_s lcd_debug_info_reg_t5w = {
+	.reg_clk_table = lcd_reg_dump_clk_tl1,
+	.reg_encl_table = lcd_reg_dump_encl_t5w,
+	.reg_pinmux_table = lcd_reg_dump_pinmux_t5w,
+};
+
 /* interface data */
 static struct lcd_debug_info_if_s lcd_debug_info_if_ttl = {
 	.interface_print = lcd_info_print_ttl,
@@ -1207,11 +1213,31 @@ void aml_lcd_debug_probe(struct aml_lcd_drv_s *lcd_drv)
 	lcd_type = lcd_drv->lcd_config->lcd_basic.lcd_type;
 
 	switch (lcd_drv->chip_type) {
+	case LCD_CHIP_T5W:
+		lcd_debug_info_reg = &lcd_debug_info_reg_t5w;
+		lcd_debug_info_if_lvds.reg_dump_interface =
+			lcd_reg_print_lvds_tl1;
+		lcd_debug_info_if_lvds.reg_dump_phy =
+			lcd_reg_print_phy_analog_tl1;
+		lcd_debug_info_if_vbyone.reg_dump_interface =
+			lcd_reg_print_vbyone_txl;
+		lcd_debug_info_if_vbyone.reg_dump_phy =
+			lcd_reg_print_phy_analog_tl1;
+#ifdef CONFIG_AML_LCD_TCON
+		lcd_debug_info_if_mlvds.reg_dump_interface =
+			lcd_reg_print_tcon_tl1;
+		lcd_debug_info_if_mlvds.reg_dump_phy =
+			lcd_reg_print_phy_analog_tl1;
+		lcd_debug_info_if_p2p.reg_dump_interface =
+			lcd_reg_print_tcon_tl1;
+		lcd_debug_info_if_p2p.reg_dump_phy =
+			lcd_reg_print_phy_analog_tl1;
+#endif
+		break;
 	case LCD_CHIP_TL1:
 	case LCD_CHIP_TM2:
 	case LCD_CHIP_T5:
 	case LCD_CHIP_T5D:
-	case LCD_CHIP_T5W:
 		lcd_debug_info_reg = &lcd_debug_info_reg_tl1;
 		lcd_debug_info_if_lvds.reg_dump_interface =
 			lcd_reg_print_lvds_tl1;

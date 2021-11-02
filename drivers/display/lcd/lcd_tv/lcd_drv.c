@@ -37,10 +37,27 @@ static int lcd_type_supported(struct lcd_config_s *pconf)
 
 static void lcd_encl_tcon_set(struct lcd_config_s *pconf)
 {
+	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
+	unsigned int reg_rgb_base, reg_rgb_coeff, reg_pol_ctrl, reg_dith_ctrl;
 	unsigned int lcd_bits;
 
-	lcd_vcbus_write(L_RGB_BASE_ADDR, 0);
-	lcd_vcbus_write(L_RGB_COEFF_ADDR, 0x400);
+	switch (lcd_drv->chip_type) {
+	case LCD_CHIP_T5W:
+		reg_rgb_base = LCD_RGB_BASE_ADDR;
+		reg_rgb_coeff = LCD_RGB_COEFF_ADDR;
+		reg_pol_ctrl = LCD_POL_CNTL_ADDR;
+		reg_dith_ctrl = LCD_DITH_CNTL_ADDR;
+		break;
+	default:
+		reg_rgb_base = L_RGB_BASE_ADDR;
+		reg_rgb_coeff = L_RGB_COEFF_ADDR;
+		reg_pol_ctrl = L_POL_CNTL_ADDR;
+		reg_dith_ctrl = L_DITH_CNTL_ADDR;
+		break;
+	}
+
+	lcd_vcbus_write(reg_rgb_base, 0);
+	lcd_vcbus_write(reg_rgb_coeff, 0x400);
 
 	switch (pconf->lcd_basic.lcd_type) {
 	case LCD_MLVDS:
@@ -54,28 +71,28 @@ static void lcd_encl_tcon_set(struct lcd_config_s *pconf)
 
 	switch (lcd_bits) {
 	case 6:
-		lcd_vcbus_write(L_DITH_CNTL_ADDR,  0x600);
+		lcd_vcbus_write(reg_dith_ctrl,  0x600);
 		break;
 	case 8:
-		lcd_vcbus_write(L_DITH_CNTL_ADDR,  0x400);
+		lcd_vcbus_write(reg_dith_ctrl,  0x400);
 		break;
 	case 10:
 	default:
-		lcd_vcbus_write(L_DITH_CNTL_ADDR,  0x0);
+		lcd_vcbus_write(reg_dith_ctrl,  0x0);
 		break;
 	}
 
 	switch (pconf->lcd_basic.lcd_type) {
 	case LCD_LVDS:
-		lcd_vcbus_setb(L_POL_CNTL_ADDR, 1, 0, 1);
+		lcd_vcbus_setb(reg_pol_ctrl, 1, 0, 1);
 		if (pconf->lcd_timing.vsync_pol)
-			lcd_vcbus_setb(L_POL_CNTL_ADDR, 1, 1, 1);
+			lcd_vcbus_setb(reg_pol_ctrl, 1, 1, 1);
 		break;
 	case LCD_VBYONE:
 		if (pconf->lcd_timing.hsync_pol)
-			lcd_vcbus_setb(L_POL_CNTL_ADDR, 1, 0, 1);
+			lcd_vcbus_setb(reg_pol_ctrl, 1, 0, 1);
 		if (pconf->lcd_timing.vsync_pol)
-			lcd_vcbus_setb(L_POL_CNTL_ADDR, 1, 1, 1);
+			lcd_vcbus_setb(reg_pol_ctrl, 1, 1, 1);
 		break;
 	default:
 		break;
@@ -167,6 +184,32 @@ static void lcd_venc_set(struct lcd_config_s *pconf)
 	lcd_vcbus_setb(ENCL_VIDEO_MODE_ADV, 0, 3, 1);
 
 	lcd_vcbus_write(ENCL_VIDEO_EN, 1);
+
+	if (lcd_drv->chip_type == LCD_CHIP_T5W) {
+		/*
+		 * bit31: lvds enable
+		 * bit30: vx1 enable
+		 * bit29: hdmitx enable
+		 * bit28: dsi_edp enable
+		 */
+		switch (pconf->lcd_basic.lcd_type) {
+		case LCD_LVDS:
+			lcd_vcbus_write(VPU_DISP_VIU0_CTRL, (1 << 31) |
+							    (0 << 30) |
+							    (0 << 29) |
+							    (0 << 28));
+			break;
+		case LCD_VBYONE:
+			lcd_vcbus_write(VPU_DISP_VIU0_CTRL, (0 << 31) |
+							    (1 << 30) |
+							    (0 << 29) |
+							    (0 << 28));
+			break;
+		default:
+			break;
+		}
+		lcd_vcbus_write(VPU_VENC_CTRL, 2);
+	}
 }
 
 static void lcd_lvds_clk_util_set(struct lcd_config_s *pconf)
@@ -308,6 +351,7 @@ static void lcd_lvds_control_set(struct lcd_config_s *pconf)
 		break;
 	case LCD_CHIP_TL1:
 	case LCD_CHIP_TM2:
+	case LCD_CHIP_T5W:
 		/* lvds channel:    //tx 12 channels
 		 *    0: d0_a
 		 *    1: d1_a
@@ -341,7 +385,6 @@ static void lcd_lvds_control_set(struct lcd_config_s *pconf)
 		break;
 	case LCD_CHIP_T5:
 	case LCD_CHIP_T5D:
-	case LCD_CHIP_T5W:
 		/* lvds channel:    //tx 12 channels
 		 *    0: d0_a
 		 *    1: d1_a

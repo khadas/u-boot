@@ -45,7 +45,8 @@
 /* 20210311: add global reset to clear tcon last state*/
 /* 20210608: add tcon multi lut support*/
 /* 20211009: support 59 & 47 frame rate for tv mode*/
-#define LCD_DRV_VERSION    "20211009"
+/* 20211009: add t5w support*/
+#define LCD_DRV_VERSION    "20211102"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)

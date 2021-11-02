@@ -45,8 +45,6 @@ void vpu_module_init_config(void)
 	vpu_hiu_setb(vpu_conf.data->vid_clk_reg, 0, 0, 8);
 
 	/* dmc_arb_config */
-	vpu_vcbus_write(VPU_RDARB_MODE_L1C1, 0x0); //0x210000
-	vpu_vcbus_write(VPU_RDARB_MODE_L1C2, 0x10000);
 	switch (vpu_conf.data->chip_type) {
 	case VPU_CHIP_GXBB:
 	case VPU_CHIP_GXTVBB:
@@ -59,13 +57,23 @@ void vpu_module_init_config(void)
 	case VPU_CHIP_G12A:
 	case VPU_CHIP_G12B:
 	case VPU_CHIP_SM1:
+		vpu_vcbus_write(VPU_RDARB_MODE_L1C1, 0x0); //0x210000
+		vpu_vcbus_write(VPU_RDARB_MODE_L1C2, 0x10000);
 		vpu_vcbus_write(VPU_RDARB_MODE_L2C1, 0x900000);
+		vpu_vcbus_write(VPU_WRARB_MODE_L2C1, 0x20000);
+		break;
+	case VPU_CHIP_TL1:
+	case VPU_CHIP_TM2:
+	case VPU_CHIP_T5:
+	case VPU_CHIP_T5D:
+		vpu_vcbus_write(VPU_RDARB_MODE_L1C1, 0x0); //0x210000
+		vpu_vcbus_write(VPU_RDARB_MODE_L1C2, 0x10000);
+		vpu_vcbus_write(VPU_RDARB_MODE_L2C1, 0x20000);
+		vpu_vcbus_write(VPU_WRARB_MODE_L2C1, 0x20000);
 		break;
 	default:
-		vpu_vcbus_write(VPU_RDARB_MODE_L2C1, 0x20000);
 		break;
 	}
-	vpu_vcbus_write(VPU_WRARB_MODE_L2C1, 0x20000);
 
 	VPUPR("%s\n", __func__);
 }

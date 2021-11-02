@@ -384,3 +384,41 @@
 #ifndef HHI_VID_CLK0_CTRL2
 #define HHI_VID_CLK0_CTRL2              0x0a4
 #endif
+
+#ifndef LCD_GAMMA_CNTL_PORT0
+#define LCD_GAMMA_CNTL_PORT0                       0x14b4
+#endif
+#ifndef LCD_RGB_BASE_ADDR
+#define LCD_RGB_BASE_ADDR                          0x14a5
+#endif
+#ifndef LCD_RGB_COEFF_ADDR
+#define LCD_RGB_COEFF_ADDR                         0x14a6
+#endif
+#ifndef LCD_POL_CNTL_ADDR
+#define LCD_POL_CNTL_ADDR                          0x14a7
+#endif
+#ifndef LCD_DITH_CNTL_ADDR
+#define LCD_DITH_CNTL_ADDR                         0x14a8
+#endif
+
+#ifndef VPU_VENCI_STAT
+#define VPU_VENCI_STAT                             0x1ceb
+#endif
+#ifndef VPU_VENCP_STAT
+#define VPU_VENCP_STAT                             0x1cec
+#endif
+#ifndef VPU_VENCL_STAT
+#define VPU_VENCL_STAT                             0x1ced
+#endif
+#ifndef VPU_VENC_CTRL
+#define VPU_VENC_CTRL                              0x1cef
+#endif
+#ifndef VPU_DISP_VIU0_CTRL
+#define VPU_DISP_VIU0_CTRL                         0x2786
+#endif
+#ifndef VPU_DISP_VIU1_CTRL
+#define VPU_DISP_VIU1_CTRL                         0x2787
+#endif
+#ifndef VPU_DISP_VIU2_CTRL
+#define VPU_DISP_VIU2_CTRL                         0x2788
+#endif

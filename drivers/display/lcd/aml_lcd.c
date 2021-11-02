@@ -873,13 +873,19 @@ int lcd_remove(void)
 #define LCD_WAIT_VSYNC_TIMEOUT    50000
 void lcd_wait_vsync(void)
 {
-	int line_cnt, line_cnt_previous;
+	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
+	int reg, line_cnt, line_cnt_previous;
 	int i = 0;
 
+	if (lcd_drv->chip_type == LCD_CHIP_T5W)
+		reg = VPU_VENCP_STAT;
+	else
+		reg = ENCL_INFO_READ;
+
 	line_cnt = 0x1fff;
-	line_cnt_previous = lcd_vcbus_getb(ENCL_INFO_READ, 16, 13);
+	line_cnt_previous = lcd_vcbus_getb(reg, 16, 13);
 	while (i++ < LCD_WAIT_VSYNC_TIMEOUT) {
-		line_cnt = lcd_vcbus_getb(ENCL_INFO_READ, 16, 13);
+		line_cnt = lcd_vcbus_getb(reg, 16, 13);
 		if (line_cnt < line_cnt_previous)
 			break;
 		line_cnt_previous = line_cnt;

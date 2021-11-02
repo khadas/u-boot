@@ -70,6 +70,13 @@
 #define VPU_VPU_PWM_V0                             (0x2730)
 #endif
 
+#ifndef VPU_RDARB_MODE_L1C1
+#define VPU_RDARB_MODE_L1C1                        (0x2790)
+#endif
+#ifndef VPU_RDARB_MODE_L1C2
+#define VPU_RDARB_MODE_L1C2                        (0x2799)
+#endif
+
 #ifndef HHI_VPU_CLK_CNTL
 #define HHI_VPU_CLK_CNTL                           (0xc883c000 + (0x6f << 2))
 #endif
