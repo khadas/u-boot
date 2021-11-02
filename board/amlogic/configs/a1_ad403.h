@@ -123,7 +123,7 @@
 		"run cmdline_keys;"\
 		"\0"\
 	"switch_bootmode="\
-	"get_rebootmode;"\
+		"echo reboot_mode : ${reboot_mode};"\
 		"if test ${reboot_mode} = factory_reset; then "\
 			"run recovery_from_flash;"\
 		"else if test ${reboot_mode} = update; then "\
@@ -135,7 +135,7 @@
 			"run recovery_from_flash;"\
 		"else if test ${reboot_mode} = cold_boot; then "\
 		"else if test ${reboot_mode} = fastboot; then "\
-		"fastboot;"\
+		"fastboot 0;"\
 		"fi;fi;fi;fi;fi;fi;"\
 		"\0" \
 	"storeboot="\
@@ -221,7 +221,8 @@
 #define CONFIG_PREBOOT  \
 	"run bcb_cmd; "\
 	"run upgrade_check;"\
-	"run storeargs;"
+	"run storeargs;" \
+	"run switch_bootmode;"
 
 /* #define CONFIG_ENV_IS_NOWHERE  1 */
 #define CONFIG_ENV_SIZE   (8 * 1024)

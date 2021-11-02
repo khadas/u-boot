@@ -19,6 +19,8 @@
 #include <asm/armv8/mmu.h>
 #include <amlogic/aml_v3_burning.h>
 #include <linux/mtd/partitions.h>
+#include <dt-bindings/gpio/meson-a1-gpio.h>
+#include <amlogic/saradc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -162,6 +164,38 @@ int board_late_init(void)
 		env_set("cpu_id", "1234567890");
 	}
 
+	env_set("reboot_mode", "cold_boot");
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device_by_name(UCLASS_ADC, "adc", &dev);
+	if (ret)
+		return ret;
+	ret = adc_set_mode(dev, 0, ADC_MODE_AVERAGE);
+	if (ret) {
+		pr_err("set adc mode fail\n");
+		return 0;
+	}
+
+	unsigned int val;
+	int sec = 5;
+
+	while (sec) {
+		ret = adc_channel_single_shot_mode("adc", ADC_MODE_AVERAGE,  0, &val);
+		if (ret)
+			return 0;
+		if (val < 50) {
+			sec--;
+			mdelay(1000);
+		} else {
+			break;
+		}
+	}
+
+	if (!sec) {
+		printf("set reboot_mode to fastboot\n");
+		env_set("reboot_mode", "fastboot");
+	}
 	return 0;
 #undef UPGRADE_CMD
 #undef CHECK_FDT_CMD
