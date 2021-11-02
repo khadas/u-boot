@@ -1873,7 +1873,8 @@ static void inline nand_get_chip(void )
 			writel(0xFFFFFFFF, P_PAD_DS_REG0A);
 	} else if ((cpu_id.family_id == MESON_CPU_MAJOR_ID_TL1) ||
 			(cpu_id.family_id == MESON_CPU_MAJOR_ID_TM2) ||
-			(cpu_id.family_id == MESON_CPU_MAJOR_ID_T5D)) {
+			(cpu_id.family_id == MESON_CPU_MAJOR_ID_T5D) ||
+			(cpu_id.family_id == MESON_CPU_MAJOR_ID_T5W)) {
 		AMLNF_SET_REG_MASK(P_PAD_PULL_UP_EN_REG0, 0x1FFF);
 		AMLNF_SET_REG_MASK(P_PAD_PULL_UP_REG0,
 			((AMLNF_READ_REG(P_PAD_PULL_UP_REG0) & (~0x1FFF))
@@ -3757,7 +3758,8 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 	    (cpu_id.family_id == MESON_CPU_MAJOR_ID_TXHD) ||
 		(cpu_id.family_id == MESON_CPU_MAJOR_ID_TL1) ||
 		(cpu_id.family_id == MESON_CPU_MAJOR_ID_TM2) ||
-		(cpu_id.family_id == MESON_CPU_MAJOR_ID_T5D))
+		(cpu_id.family_id == MESON_CPU_MAJOR_ID_T5D) ||
+		(cpu_id.family_id == MESON_CPU_MAJOR_ID_T5W))
 		aml_chip->bch_info = NAND_ECC_BCH8_1K;
 
 	chip->options = 0;

@@ -508,7 +508,7 @@
 /* axg only support slc nand */
 /* swither for mtd nand which is for slc only. */
 /* support for mtd */
-//#define CONFIG_AML_MTD 1
+#define CONFIG_AML_MTD 1
 /* support for nftl */
 //#define CONFIG_AML_NAND	1
 
@@ -534,10 +534,10 @@
 #define CONFIG_BL2_COPY_NUM               4
 #endif /* CONFIG_DISCRETE_BOOTLOADER */
 
-//#define CONFIG_CMD_NAND 1
-//#define CONFIG_MTD_DEVICE y
+#define CONFIG_CMD_NAND 1
+#define CONFIG_MTD_DEVICE y
 /* mtd parts of ourown.*/
-//#define CONFIFG_AML_MTDPART	1
+#define CONFIFG_AML_MTDPART	1
 /* mtd parts by env default way.*/
 /*
 #define MTDIDS_NAME_STR		"aml_nand.0"
