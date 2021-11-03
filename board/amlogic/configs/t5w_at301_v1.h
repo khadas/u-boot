@@ -380,8 +380,8 @@
                     "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
                     "setenv serial ${usid};"\
                 "else "\
-                    "setenv bootargs ${bootargs} androidboot.serialno=1234567890;"\
-                    "setenv serial 1234567890;"\
+                    "setenv bootargs ${bootargs} androidboot.serialno=at301${cpu_id};"\
+                    "setenv serial at301${cpu_id};"\
                 "fi;"\
                 "if keyman read mac ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} mac=${mac} androidboot.mac=${mac};"\
@@ -392,6 +392,9 @@
                 "if keyman read oemkey ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} androidboot.oem.key1=${oemkey};"\
                 "fi;"\
+            "else "\
+                "setenv bootargs ${bootargs} androidboot.serialno=at301${cpu_id};"\
+                "setenv serial at301${cpu_id};"\
             "fi;"\
 	    "factory_provision init;"\
             "\0"\
