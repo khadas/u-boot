@@ -256,6 +256,8 @@ struct hw_para_s {
 	u32 bot_type;
 	u32 osd_ver;
 	u32 shift_line;
+	u32 path_ctrl_independ;
+	u32 mif_linear;
 };
 
 #endif /* _OSD_H_ */

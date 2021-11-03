@@ -22703,6 +22703,12 @@
 // Closing file:  ./ge2d_regs.h
 //
 
+#define VIU_OSD1_PATH_CTRL                         ((0x1a76  << 2) + 0xff900000)
+#define VIU_OSD2_PATH_CTRL                         ((0x1a77  << 2) + 0xff900000)
+#define VIU_OSD3_PATH_CTRL                         ((0x1a78  << 2) + 0xff900000)
+#define VIU_VD1_PATH_CTRL                          ((0x1a73  << 2) + 0xff900000)
+#define VIU_VD2_PATH_CTRL                          ((0x1a74  << 2) + 0xff900000)
+
 #include "secure_apb.h"
 //#include "no_enct.h"
 

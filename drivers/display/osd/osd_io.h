@@ -21,6 +21,62 @@
 #define REG_ADDR_VCBUS(reg)   ((reg) & REG_BASE_VCBUS ? reg + 0L : REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg))
 #define REG_ADDR_HIU(reg)     (reg + 0L)
 
+#ifndef VIU_OSD3_BLK1_CFG_W4
+#define VIU_OSD3_BLK1_CFG_W4                       0x3d99
+#endif
+
+#ifndef VIU_OSD3_BLK2_CFG_W4
+#define VIU_OSD3_BLK2_CFG_W4                       0x3d9a
+#endif
+
+#ifndef VIU_OSD3_CTRL_STAT
+#define VIU_OSD3_CTRL_STAT                         0x3d80
+#endif
+
+#ifndef VIU_VD1_PATH_CTRL
+#define VIU_VD1_PATH_CTRL                          0x1a73
+#endif
+
+#ifndef VIU_VD2_PATH_CTRL
+#define VIU_VD2_PATH_CTRL                          0x1a74
+#endif
+
+#ifndef VIU_OSD1_PATH_CTRL
+#define VIU_OSD1_PATH_CTRL                         0x1a76
+#endif
+
+#ifndef VIU_OSD2_PATH_CTRL
+#define VIU_OSD2_PATH_CTRL                         0x1a77
+#endif
+
+#ifndef VIU_OSD3_PATH_CTRL
+#define VIU_OSD3_PATH_CTRL                         0x1a78
+#endif
+
+#ifndef VPP1_BLD_CTRL
+#define VPP1_BLD_CTRL                              0x5985
+#endif
+
+#ifndef VPP2_BLD_CTRL
+#define VPP2_BLD_CTRL                              0x59c5
+#endif
+
+#ifndef VPP1_BLEND_BLEND_DUMMY_DATA
+#define VPP1_BLEND_BLEND_DUMMY_DATA                0x59a9
+#endif
+
+#ifndef VPP1_BLEND_DUMMY_ALPHA
+#define VPP1_BLEND_DUMMY_ALPHA                     0x59aa
+#endif
+
+#ifndef VPP2_BLEND_BLEND_DUMMY_DATA
+#define VPP2_BLEND_BLEND_DUMMY_DATA                0x59e9
+#endif
+
+#ifndef VPP2_BLEND_DUMMY_ALPHA
+#define VPP2_BLEND_DUMMY_ALPHA                     0x59ea
+#endif
+
 static inline unsigned int osd_hiu_read(unsigned int _reg)
 {
 	unsigned int val = 0;
