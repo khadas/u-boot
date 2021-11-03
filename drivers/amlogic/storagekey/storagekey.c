@@ -53,16 +53,16 @@ static int32_t _amlkey_init(uint8_t *seed, uint32_t len, int encrypt_type)
 	uint32_t buffer_size, actual_size;
 
 	/* do nothing for now*/
-	printf("%s() enter!\n", __func__);
+	pr_info("%s() enter!\n", __func__);
 	if (storagekey_info.buffer != NULL) {
-		printf("%s() %d: already init!\n", __func__, __LINE__);
+		pr_info("%s() %d: already init!\n", __func__, __LINE__);
 		goto _out;
 	}
 
 	/* get buffer from bl31 */
 	storagekey_info.buffer = secure_storage_getbuffer(&buffer_size);
 	if (storagekey_info.buffer == NULL) {
-		printf("%s() %d: can't get buffer from bl31!\n",
+		pr_info("%s() %d: can't get buffer from bl31!\n",
 			__func__, __LINE__);
 		ret = -1;
 		goto _out;
@@ -72,7 +72,7 @@ static int32_t _amlkey_init(uint8_t *seed, uint32_t len, int encrypt_type)
 		encrypt_type = 0;
 	secure_storage_set_enctype(encrypt_type);
 	actual_size = store_rsv_size("key");
-	printf("%s %d actual_size: 0x%x\n", __func__, __LINE__,
+	pr_info("%s %d actual_size: 0x%x\n", __func__, __LINE__,
 		actual_size);
 
 	storagekey_info.size = min_t(uint32_t, actual_size, buffer_size);
@@ -81,7 +81,7 @@ static int32_t _amlkey_init(uint8_t *seed, uint32_t len, int encrypt_type)
 	if (ret == RSV_UNVAIL)
 		ret = 0;
 	if (ret) {
-		printf("amlkey init rsv read key faill\n");
+		pr_info("amlkey init rsv read key fail\n");
 		/* memset head info for bl31 */
 		memset(storagekey_info.buffer, 0, SECUESTORAGE_HEAD_SIZE);
 		ret = 0;

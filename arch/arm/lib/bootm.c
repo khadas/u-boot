@@ -86,7 +86,7 @@ __weak void board_quiesce_devices(void)
  */
 static void announce_and_cleanup(int fake)
 {
-	printf("\nStarting kernel ...%s\n\n", fake ?
+	pr_info("\nStarting kernel ...%s\n\n", fake ?
 		"(fake run for tracing)" : "");
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
 #ifdef CONFIG_BOOTSTAGE_FDT
@@ -367,13 +367,13 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 #endif
 #endif
 		extern uint32_t get_time(void);
-		printf("uboot time: %u us\n", get_time());
+		pr_info("uboot time: %u us\n", get_time());
 		if (images->os.arch == IH_ARCH_ARM) {
-			printf("boot 32bit kernel\n");
+			pr_info("boot 32bit kernel\n");
 			jump_to_a32_kernel(images->ep, machid, (unsigned long)images->ft_addr);
 		}
 		else {
-			printf("boot 64bit kernel\n");
+			pr_info("boot 64bit kernel\n");
 			kernel_entry(images->ft_addr, NULL, NULL, NULL);
 		}
 	}

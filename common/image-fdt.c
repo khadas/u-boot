@@ -179,7 +179,7 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 		debug("## device tree at %p ... %p (len=%ld [0x%lX])\n",
 		      fdt_blob, fdt_blob + *of_size - 1, of_len, of_len);
 
-		printf("   Loading Device Tree to %p, end %p ... ",
+		pr_info("   Loading Device Tree to %p, end %p ... ",
 		       of_start, of_start + of_len - 1);
 
 		err = fdt_open_into(fdt_blob, of_start, of_len);
@@ -251,7 +251,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 	if (!select) {
 		if (env_get("dtb_mem_addr")) {
 			select = env_get("dtb_mem_addr");
-			printf("env select addr: 0x%s\n", select);
+			pr_info("env select addr: 0x%s\n", select);
 		}
 		else {
 			select = "0x01000000";
@@ -383,8 +383,8 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 				/*
 				 * FDT blob
 				 */
-				debug("*  fdt: raw FDT blob\n");
-				printf("## Flattened Device Tree blob at %08lx\n",
+				pr_debug("*  fdt: raw FDT blob\n");
+				pr_info("## Flattened Device Tree blob at %08lx\n",
 				       (long)fdt_addr);
 			}
 			break;
@@ -393,7 +393,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 			goto no_fdt;
 		}
 
-		printf("   Booting using the fdt blob at %#08lx\n", fdt_addr);
+		pr_info("   Booting using the fdt blob at %#08lx\n", fdt_addr);
 		fdt_blob = map_sysmem(fdt_addr, 0);
 	} else if (images->legacy_hdr_valid &&
 			image_check_type(&images->legacy_hdr_os_copy,

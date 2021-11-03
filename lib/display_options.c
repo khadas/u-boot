@@ -104,7 +104,7 @@ void print_size(uint64_t size, const char *s)
 	}
 
 	if (!c) {
-		printf("%llu Bytes%s", size, s);
+		pr_info("%llu Bytes%s", size, s);
 		return;
 	}
 
@@ -121,11 +121,11 @@ void print_size(uint64_t size, const char *s)
 		}
 	}
 
-	printf ("%lu", n);
+	pr_info("%lu", n);
 	if (m) {
-		printf (".%ld", m);
+		pr_info(".%ld", m);
 	}
-	printf (" %ciB%s", c, s);
+	pr_info(" %ciB%s", c, s);
 }
 
 #define MAX_LINE_LENGTH_BYTES (64)

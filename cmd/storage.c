@@ -18,9 +18,6 @@
 #include <amlogic/aml_mtd.h>
 #include <mmc.h>
 
-#undef pr_info
-#define pr_info       printf
-
 #ifdef CONFIG_SPI_FLASH_MTD
 extern int spi_nor_pre(void);
 extern int spi_nor_probe(u32 init_flag);
@@ -1040,9 +1037,9 @@ static int do_store_read(cmd_tbl_t *cmdtp,
 	time = get_timer(time);
 
 	if (size != 0)
-		printf("%lu bytes ", size);
+		pr_info("%lu bytes ", size);
 
-	printf("read in %lu ms", time);
+	pr_info("read in %lu ms", time);
 	if ((time > 0) && (size != 0)) {
 		puts(" (");
 		print_size(div_u64(size, time) * 1000, "/s");

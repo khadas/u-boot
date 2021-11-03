@@ -270,7 +270,7 @@ static int read_fdto_partition(void)
 
 	//run_command("get_valid_slot;", 0);
 	s1 = env_get("active_slot");
-	printf("active_slot is %s\n", s1);
+	pr_info("active_slot is %s\n", s1);
 	if (strcmp(s1, "normal") == 0) {
 		strcpy(dtbo_partition, "dtbo");
 	} else if (strcmp(s1, "_a") == 0) {
@@ -284,10 +284,10 @@ static int read_fdto_partition(void)
 	* here, but wasting time to read the whole dtbo image
 	* partition is unacceptable
 	*/
-	printf("Start read %s partition datas!\n", dtbo_partition);
+	pr_info("Start read %s partition datas!\n", dtbo_partition);
 	if (store_read(dtbo_partition, 0,
 		sizeof(struct dt_table_header), &hdr) < 0) {
-		printf("Fail to read header of DTBO partition\n");
+		pr_info("Fail to read header of DTBO partition\n");
 		return -1;
 	}
 
@@ -351,14 +351,14 @@ static int do_fdt_overlay(void)
 	char idx[32];
 
 	if (!env_get("dtbo_mem_addr")) {
-		printf("No valid dtbo image found\n");
+		pr_info("No valid dtbo image found\n");
 		return -1;
 	}
 
 	dtbo_mem_addr = simple_strtoul(env_get("dtbo_mem_addr"), NULL, 16);
 #ifdef CONFIG_CMD_DTIMG
 	if (!android_dt_check_header(dtbo_mem_addr)) {
-		printf("Error: DTBO image header is incorrect\n");
+		pr_info("Error: DTBO image header is incorrect\n");
 		return -1;
 	}
 #endif
@@ -366,18 +366,18 @@ static int do_fdt_overlay(void)
 	/* android_dt_print_contents(dtbo_mem_addr); */
 	dtbo_num = fdt32_to_cpu((
 		(const struct dt_table_header *)dtbo_mem_addr)->dt_entry_count);
-	printf("find %d dtbos\n", dtbo_num);
+	pr_info("find %d dtbos\n", dtbo_num);
 
 	dtbo_idx = env_get("androidboot.dtbo_idx");
 	if (!dtbo_idx) {
-		printf("No androidboot.dtbo_idx configured\n");
-		printf("And no dtbos will be applied\n");
+		pr_info("No androidboot.dtbo_idx configured\n");
+		pr_info("And no dtbos will be applied\n");
 		return -1;
 	}
-	printf("dtbos to be applied: %s\n", dtbo_idx);
+	pr_info("dtbos to be applied: %s\n", dtbo_idx);
 
 	#ifndef CONFIG_CMD_DTIMG
-	printf("Error: No dtimg support found\n");
+	pr_info("Error: No dtimg support found\n");
 	return -1;
 	#endif
 
@@ -385,7 +385,7 @@ static int do_fdt_overlay(void)
 		memset(idx, 0x00, sizeof(idx));
 		sprintf(idx, "%d", i);
 		if (strstr(dtbo_idx, idx)) {
-			printf("Apply dtbo %d\n", i);
+			pr_info("Apply dtbo %d\n", i);
 			sprintf(cmd, "dtimg start 0x%llx %d dtbo_start",
 				dtbo_mem_addr, i);
 			run_command(cmd, 0);
@@ -448,7 +448,7 @@ int bootm_find_images(int flag, int argc, char * const argv[])
 	images.ft_addr = (char *)map_sysmem(dtb_mem_addr, 0);
 	images.ft_len = fdt_get_header(dtb_mem_addr, totalsize);
 #endif /* CONFIG_DTB_MEM_ADDR */
-	printf("load dtb from 0x%lx ......\n", (unsigned long)(images.ft_addr));
+	pr_info("load dtb from 0x%lx ......\n", (unsigned long)(images.ft_addr));
 #ifdef CONFIG_MULTI_DTB
 	extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
 	/* update dtb address, compatible with single dtb and multi dtbs */
@@ -462,7 +462,7 @@ int bootm_find_images(int flag, int argc, char * const argv[])
 		images.ft_addr = ft_addr_bak;
 		images.ft_len = ft_len_bak;
 
-		printf("load dtb from 0x%lx ......\n",
+		pr_info("load dtb from 0x%lx ......\n",
 			(unsigned long)(images.ft_addr));
 #ifdef CONFIG_MULTI_DTB
 		extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
@@ -537,9 +537,17 @@ static void print_decomp_msg(int comp_type, int type, bool is_xip)
 	const char *name = genimg_get_type_name(type);
 
 	if (comp_type == IH_COMP_NONE)
+#ifndef USE_HOSTCC
+		pr_info("   %s %s ... ", is_xip ? "XIP" : "Loading", name);
+#else
 		printf("   %s %s ... ", is_xip ? "XIP" : "Loading", name);
+#endif
 	else
+#ifndef USE_HOSTCC
+		pr_info("   Uncompressing %s ... ", name);
+#else
 		printf("   Uncompressing %s ... ", name);
+#endif
 }
 
 /**
@@ -1068,7 +1076,7 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	char *avb_s;
 	avb_s = env_get("avb2");
-	printf("avb2: %s\n", avb_s);
+	pr_info("avb2: %s\n", avb_s);
 	if (strcmp(avb_s, "1") != 0) {
 #ifdef CONFIG_AML_ANTIROLLBACK
 		boot_img_hdr_t **tmp_img_hdr = (boot_img_hdr_t **)&buf;
@@ -1151,7 +1159,7 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	case IMAGE_FORMAT_ANDROID:
-		printf("## Booting Android Image at 0x%08lx ...\n", img_addr);
+		pr_info("## Booting Android Image at 0x%08lx ...\n", img_addr);
 		if (!android_image_need_move(&img_addr, buf))
 			buf = map_sysmem(img_addr, 0);
 		else

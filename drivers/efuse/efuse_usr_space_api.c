@@ -11,8 +11,8 @@
 #include <asm/arch/efuse.h>
 
 #define EFUSE_DBG(fmt...)   //printf("[EFUSE_DBG]"fmt)
-#define EFUSE_MSG(fmt...)   printf("[EFUSE_MSG]"fmt)
-#define EFUSE_ERR(fmt...)   printf("[EFUSE_ERR]f(%s)L%d:", __func__, __LINE__),printf(fmt)
+#define EFUSE_MSG(fmt...)   pr_info("[EFUSE_MSG]" fmt)
+#define EFUSE_ERR(fmt...)   pr_err("[EFUSE_ERR]f(%s)L%d:", __func__, __LINE__); pr_err(fmt)
 
 struct efusekey_info{
 	char keyname[32];

@@ -112,7 +112,7 @@ static int mtd_parse_partition(const char **_mtdparts,
 	} else {
 		partition->size = ustrtoull(mtdparts, (char **)&mtdparts, 0);
 		if (partition->size < SZ_4K) {
-			printf("Minimum partition size 4kiB, %lldB requested\n",
+			pr_err("Minimum partition size 4kiB, %lldB requested\n",
 			       partition->size);
 			return -EINVAL;
 		}
@@ -130,12 +130,12 @@ static int mtd_parse_partition(const char **_mtdparts,
 		name = ++mtdparts;
 		mtdparts = strchr(name, ')');
 		if (!mtdparts) {
-			printf("No closing ')' found in partition name\n");
+			pr_err("No closing ')' found in partition name\n");
 			return -EINVAL;
 		}
 		name_len = mtdparts - name + 1;
 		if ((name_len - 1) == 0) {
-			printf("Empty partition name\n");
+			pr_err("Empty partition name\n");
 			return -EINVAL;
 		}
 		mtdparts++;
@@ -153,14 +153,14 @@ static int mtd_parse_partition(const char **_mtdparts,
 	/* Check for a potential next partition definition */
 	if (*mtdparts == ',') {
 		if (partition->size == MTD_SIZE_REMAINING) {
-			printf("No partitions allowed after a fill-up\n");
+			pr_err("No partitions allowed after a fill-up\n");
 			return -EINVAL;
 		}
 		++mtdparts;
 	} else if ((*mtdparts == ';') || (*mtdparts == '\0')) {
 		/* NOP */
 	} else {
-		printf("Unexpected character '%c' in mtdparts\n", *mtdparts);
+		pr_err("Unexpected character '%c' in mtdparts\n", *mtdparts);
 		return -EINVAL;
 	}
 
@@ -227,7 +227,7 @@ int mtd_parse_partitions(struct mtd_info *parent, const char **_mtdparts,
 	/* Allocate an array of partitions to give back to the caller */
 	parts = malloc(sizeof(*parts) * nparts);
 	if (!parts) {
-		printf("Not enough space to save partitions meta-data\n");
+		pr_err("Not enough space to save partitions meta-data\n");
 		return -ENOMEM;
 	}
 
@@ -243,7 +243,7 @@ int mtd_parse_partitions(struct mtd_info *parent, const char **_mtdparts,
 
 		sz = parts[idx].size;
 		if (sz < parent->writesize || do_div(sz, parent->writesize)) {
-			printf("Partition size must be a multiple of %d\n",
+			pr_err("Partition size must be a multiple of %d\n",
 			       parent->writesize);
 			return -EINVAL;
 		}
@@ -543,10 +543,10 @@ static int do_del_mtd_partitions(struct mtd_info *master)
 		if (mtd_has_partitions(slave))
 			del_mtd_partitions(slave);
 
-		debug("Deleting %s MTD partition\n", slave->name);
+		pr_debug("Deleting %s MTD partition\n", slave->name);
 		ret = del_mtd_device(slave);
 		if (ret < 0) {
-			printf("Error when deleting partition \"%s\" (%d)\n",
+			pr_err("Error when deleting partition \"%s\" (%d)\n",
 			       slave->name, ret);
 			err = ret;
 			continue;
@@ -563,7 +563,7 @@ int del_mtd_partitions(struct mtd_info *master)
 {
 	int ret;
 
-	debug("Deleting MTD partitions on \"%s\":\n", master->name);
+	pr_debug("Deleting MTD partitions on \"%s\":\n", master->name);
 
 	mutex_lock(&mtd_partitions_mutex);
 	ret = do_del_mtd_partitions(master);
@@ -583,7 +583,7 @@ static struct mtd_info *allocate_partition(struct mtd_info *master,
 	slave = kzalloc(sizeof(*slave), GFP_KERNEL);
 	name = kstrdup(part->name, GFP_KERNEL);
 	if (!name || !slave) {
-		printk(KERN_ERR"memory allocation error while creating partitions for \"%s\"\n",
+		pr_err("memory allocation error while creating partitions for \"%s\"\n",
 		       master->name);
 		kfree(name);
 		kfree(slave);
@@ -680,7 +680,7 @@ static struct mtd_info *allocate_partition(struct mtd_info *master,
 		if (mtd_mod_by_eb(cur_offset, master) != 0) {
 			/* Round up to next erasesize */
 			slave->offset = (mtd_div_by_eb(cur_offset, master) + 1) * master->erasesize;
-			debug("Moving partition %d: "
+			pr_debug("Moving partition %d: "
 			       "0x%012llx -> 0x%012llx\n", partno,
 			       (unsigned long long)cur_offset, (unsigned long long)slave->offset);
 		}
@@ -691,7 +691,7 @@ static struct mtd_info *allocate_partition(struct mtd_info *master,
 			slave->size = master->size - slave->offset
 							- slave->size;
 		} else {
-			debug("mtd partition \"%s\" doesn't have enough space: %#llx < %#llx, disabled\n",
+			pr_debug("mtd partition \"%s\" doesn't have enough space: %#llx < %#llx, disabled\n",
 				part->name, master->size - slave->offset,
 				slave->size);
 			/* register to preserve ordering */
@@ -701,7 +701,7 @@ static struct mtd_info *allocate_partition(struct mtd_info *master,
 	if (slave->size == MTDPART_SIZ_FULL)
 		slave->size = master->size - slave->offset;
 
-	printk("0x%012llx-0x%012llx : \"%s\"\n", (unsigned long long)slave->offset,
+	pr_debug("0x%012llx-0x%012llx : \"%s\"\n", (unsigned long long)slave->offset,
 		(unsigned long long)(slave->offset + slave->size), slave->name);
 
 	/* let's do some sanity checks */
@@ -709,13 +709,13 @@ static struct mtd_info *allocate_partition(struct mtd_info *master,
 		/* let's register it anyway to preserve ordering */
 		slave->offset = 0;
 		slave->size = 0;
-		printk(KERN_ERR"mtd: partition \"%s\" is out of reach -- disabled\n",
+		pr_err("mtd: partition \"%s\" is out of reach -- disabled\n",
 			part->name);
 		goto out_register;
 	}
 	if (slave->offset + slave->size > master->size) {
 		slave->size = master->size - slave->offset;
-		printk(KERN_WARNING"mtd: partition \"%s\" extends beyond the end of device \"%s\" -- size truncated to %#llx\n",
+		pr_warning("mtd: partition \"%s\" extends beyond the end of device \"%s\" -- size truncated to %#llx\n",
 		       part->name, master->name, slave->size);
 	}
 	if (master->numeraseregions > 1) {
@@ -749,13 +749,13 @@ static struct mtd_info *allocate_partition(struct mtd_info *master,
 		/* FIXME: Let it be writable if it is on a boundary of
 		 * _minor_ erase size though */
 		slave->flags &= ~MTD_WRITEABLE;
-		printk(KERN_WARNING"mtd: partition \"%s\" doesn't start on an erase block boundary -- force read-only\n",
+		pr_warning("mtd: partition \"%s\" doesn't start on an erase block boundary -- force read-only\n",
 			part->name);
 	}
 	if ((slave->flags & MTD_WRITEABLE) &&
 	    mtd_mod_by_eb(slave->size, slave)) {
 		slave->flags &= ~MTD_WRITEABLE;
-		printk(KERN_WARNING"mtd: partition \"%s\" doesn't end on an erase block -- force read-only\n",
+		pr_warning("mtd: partition \"%s\" doesn't end on an erase block -- force read-only\n",
 			part->name);
 	}
 
@@ -883,7 +883,7 @@ int get_aml_mtdpart_name(struct mtd_info *master, int idx, char *name)
 
 	list_for_each_entry(dentry, &aml_device, link) {
 		list_for_each_entry(temp, &dentry->parts, link) {
-			printf("0x%012llx-0x%012llx : \"%s\"\n",
+			pr_debug("0x%012llx-0x%012llx : \"%s\"\n",
 			(unsigned long long)temp->offset,
 			(unsigned long long)(temp->offset + temp->size),
 			temp->name);
@@ -898,7 +898,7 @@ void list_aml_mtd_partitions(struct mtd_info *master)
 	int i = 0;
 
 	list_for_each_entry(slave, &master->partitions, node)
-		printf("%2d: %-20s0x%08llx\t0x%08llx\n",
+		pr_debug("%2d: %-20s0x%08llx\t0x%08llx\n",
 					i++, slave->name, slave->size, slave->offset);
 	return;
 }
@@ -913,13 +913,14 @@ int add_mtd_partitions(struct mtd_info *master,
 	int i;
 
 #ifdef CONFIG_AML_MTDPART
-	printf("%s, %d, master: %p, master->partitions: %p\n", __func__, __LINE__, master, &master->partitions);
+	pr_debug("%s, %d, master: %p, master->partitions: %p\n",
+			__func__, __LINE__, master, &master->partitions);
 	if (master->partitions.next == NULL) {
-		printf("%s, %d INIT partition\n", __func__, __LINE__);
+		pr_debug("%s, %d INIT partition\n", __func__, __LINE__);
 		INIT_LIST_HEAD(&master->partitions);
 	}
 #endif
-	printk("Creating %d MTD partitions on \"%s\":\n", nbparts, master->name);
+	pr_debug("Creating %d MTD partitions on \"%s\":\n", nbparts, master->name);
 
 	for (i = 0; i < nbparts; i++) {
 		slave = allocate_partition(master, parts + i, i, cur_offset);
@@ -1026,7 +1027,7 @@ int parse_mtd_partitions(struct mtd_info *master, const char *const *types,
 		ret = (*parser->parse_fn)(master, pparts, data);
 		put_partition_parser(parser);
 		if (ret > 0) {
-			printk(KERN_NOTICE "%d %s partitions found on MTD device %s\n",
+			pr_notice("%d %s partitions found on MTD device %s\n",
 			       ret, parser->name, master->name);
 			break;
 		}
@@ -1064,19 +1065,20 @@ int mtdparts_init(void)
 	else if ((BOOT_SNAND == medium_type) || (BOOT_SNOR == medium_type))
 		cnt = MAX_MTD_CNT - 1;
 	else {
-		printf("no valid storage device\n");
+		pr_debug("no valid storage device\n");
 		return 1;
 	}
 
 	if (init_flag) {
-		debug("%s %d part already init\n", __func__, __LINE__);
+		pr_debug("%s %d part already init\n", __func__, __LINE__);
 		return 0;
 	}
 	INIT_LIST_HEAD(&aml_device);
 
 	for (i = 0; i < cnt; i++) {
 		mtd = mtd_store_get(i);
-		printf("%s, %d,mtd->partition: 0x%p, mtd: 0x%p\n", __func__, __LINE__, &mtd->partitions, mtd);
+		pr_debug("%s, %d,mtd->partition: 0x%p, mtd: 0x%p\n",
+				__func__, __LINE__, &mtd->partitions, mtd);
 		list_for_each_entry(part, &mtd->partitions, node) {
 			dev = kzalloc(sizeof(*dev), GFP_KERNEL);
 			dev->num_parts = 1;
@@ -1104,7 +1106,7 @@ int mtdparts_init(void)
 	}
 	list_for_each_entry(dentry, &aml_device, link) {
 		list_for_each_entry(temp, &dentry->parts, link) {
-			printf("0x%012llx-0x%012llx : \"%s\"\n",
+			pr_debug("0x%012llx-0x%012llx : \"%s\"\n",
 			(unsigned long long)temp->offset,
 			(unsigned long long)(temp->offset + temp->size),
 			temp->name);

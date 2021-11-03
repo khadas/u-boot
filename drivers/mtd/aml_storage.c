@@ -18,9 +18,6 @@
 #include <partition_table.h>
 #include <time.h>
 
-#undef pr_info
-#define pr_info	printf
-
 struct map_handler_t {
 	u16 *map;
 	u16 valid_max;

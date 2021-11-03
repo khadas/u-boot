@@ -438,7 +438,7 @@ static int spifc_ofdata_to_platdata(struct udevice *bus)
 					       "max-cs",
 					       2);
 	plat->mode = 0;
-	printf("spifc freq %d reg %p\n", plat->speed, (void *)plat->reg);
+	pr_info("spifc freq %d reg %p\n", plat->speed, (void *)plat->reg);
 	return 0;
 }
 

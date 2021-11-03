@@ -51,7 +51,7 @@ static int save_dtbo_idx(const char *cmdline)
 
 		dtbo_chosen_idx_start = strstr(cmdline, "androidboot.dtbo_idx");
 		if (!dtbo_chosen_idx_start) {
-			printf("No androidboot.dtbo_idx configured");
+			pr_info("No androidboot.dtbo_idx configured");
 			return -1;
 		}
 
@@ -60,7 +60,7 @@ static int save_dtbo_idx(const char *cmdline)
 			dtbo_idx = malloc(dtbo_chosen_idx_end -
 					dtbo_chosen_idx_start + 1);
 			if (!dtbo_idx) {
-				printf("dtbo out of memory\n");
+				pr_info("dtbo out of memory\n");
 				return -1;
 			}
 			memset(dtbo_idx, 0x00,
@@ -137,14 +137,14 @@ int android_image_get_kernel(const  boot_img_hdr_t *hdr, int verify,
 	strncpy(andr_tmp_str, hdr->name, ANDR_BOOT_NAME_SIZE);
 	andr_tmp_str[ANDR_BOOT_NAME_SIZE] = '\0';
 	if (strlen(andr_tmp_str))
-		printf("Android's image name: %s\n", andr_tmp_str);
+		pr_info("Android's image name: %s\n", andr_tmp_str);
 
-	printf("Kernel load addr 0x%08x size %u KiB\n",
+	pr_info("Kernel load addr 0x%08x size %u KiB\n",
 	       kernel_addr, DIV_ROUND_UP(hdr->kernel_size, 1024));
 
 	int len = 0;
 	if (*hdr->cmdline) {
-		printf("Kernel command line: %s\n", hdr->cmdline);
+		pr_info("Kernel command line: %s\n", hdr->cmdline);
 		len += strlen(hdr->cmdline);
 	}
 
@@ -240,7 +240,7 @@ int android_image_get_ramdisk(const  boot_img_hdr_t *hdr,
 		return -1;
 	}
 
-	printf("RAM disk load addr 0x%08x size %u KiB\n",
+	pr_info("RAM disk load addr 0x%08x size %u KiB\n",
 	       hdr->ramdisk_addr, DIV_ROUND_UP(hdr->ramdisk_size, 1024));
 
 	*rd_data = (unsigned long)hdr;

@@ -217,7 +217,7 @@ static int spinand_init_quad_enable(struct spinand_device *spinand)
 	    spinand->op_templates.update_cache->data.buswidth == 4)
 		enable = true;
 
-	printf("spinand qe is %s\n",enable ? "enable" : "disabled");
+	pr_info("spinand qe is %s\n", enable ? "enable" : "disabled");
 	return spinand_upd_cfg(spinand, CFG_QUAD_ENABLE,
 			       enable ? CFG_QUAD_ENABLE : 0);
 }
@@ -468,9 +468,9 @@ static int spinand_read_id_op(struct spinand_device *spinand, u8 *buf)
 		memcpy(buf, spinand->scratchbuf, SPINAND_MAX_ID_LEN);
 
 	/* Success or failure print id */
-	printf("spinand id detect\n");
+	pr_info("spinand id detect\n");
 	for (i = 0; i < SPINAND_MAX_ID_LEN; i++)
-		printf("id[%d] = 0x%x\n",i,spinand->id.data[i]);
+		pr_info("id[%d] = 0x%x\n", i, spinand->id.data[i]);
 
 	return ret;
 }
@@ -1093,11 +1093,11 @@ static int spinand_detect(struct spinand_device *spinand)
 		return -EINVAL;
 	}
 
-	printf("%s  %s SPI NAND was found.\n", spinand->manufacturer->name, spinand->model);
-	printf("%llu MiB, block size: %zu KiB, page size: %zu, OOB size: %u\n",
+	pr_info("%s  %s SPI NAND was found.\n", spinand->manufacturer->name, spinand->model);
+	pr_info("%llu MiB, block size: %zu KiB, page size: %zu, OOB size: %u\n",
 		 nanddev_size(nand) >> 20, nanddev_eraseblock_size(nand) >> 10,
 		 nanddev_page_size(nand), nanddev_per_page_oobsize(nand));
-	printf("read cmd: 0x%x write cmd: 0x%x\n",spinand->op_templates.read_cache->cmd.opcode,
+	pr_info("read cmd: 0x%x write cmd: 0x%x\n", spinand->op_templates.read_cache->cmd.opcode,
 		 spinand->op_templates.write_cache->cmd.opcode);
 
 	return 0;
@@ -1447,7 +1447,7 @@ static int spinand_probe(struct udevice *dev)
 		spinand_scan_bbt(spinand, mtd);
 		meson_rsv_save(spinand->rsv->bbt, spinand->bbt);
 	} else {
-		pr_err("reading bbt info from %s!\n", mtd->name);
+		pr_info("reading bbt info from %s!\n", mtd->name);
 		meson_rsv_read(spinand->rsv->bbt, spinand->bbt);
 	}
 

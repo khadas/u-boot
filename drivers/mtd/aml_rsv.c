@@ -13,9 +13,6 @@
 #include <partition_table.h>
 #include <amlogic/storage.h>
 
-#undef pr_info
-#define pr_info	printf
-
 extern int info_disprotect;
 static struct meson_rsv_handler_t *rsv_handler;
 
@@ -326,7 +323,7 @@ int meson_rsv_erase(struct meson_rsv_info_t *rsv_info)
 	struct erase_info erase_info;
 
 
-	printf("%s %d rsv erasing %s\n",
+	pr_info("%s %d rsv erasing %s\n",
 			__func__, __LINE__, rsv_info->name);
 
 	if (rsv_info->valid) {
@@ -464,10 +461,10 @@ RE_RSV_INFO:
 		}
 	} while ((++start) < end);
 
-	printf("%s blk = %d, ec = %d, page = %d, timestamp = %d\n",
+	pr_info("%s blk = %d, ec = %d, page = %d, timestamp = %d\n",
 			rsv_info->name, rsv_info->nvalid->blk_addr, rsv_info->nvalid->ec,
 			rsv_info->nvalid->page_addr, rsv_info->nvalid->timestamp);
-	printf("%s free list: \n", rsv_info->name);
+	pr_info("%s free list:\n", rsv_info->name);
 	temp_node = rsv_info->nfree;
 	while (temp_node) {
 		pr_info("block num = %d, ec = %d, dirty_flag = %d\n",
@@ -727,13 +724,13 @@ int meson_rsv_init(struct mtd_info *mtd,
 	}
 	rsv_handler = handler;
 
-	printf("bbt_start=%d, size:0x%x\n", handler->bbt->start,handler->bbt->size);
+	pr_info("bbt_start=%d, size:0x%x\n", handler->bbt->start, handler->bbt->size);
 #ifndef CONFIG_ENV_IS_IN_NAND
-	printf("env_start=%d, size:0x%x\n", handler->env->start,handler->env->size);
+	pr_info("env_start=%d, size:0x%x\n", handler->env->start, handler->env->size);
 #endif
-	printf("key_start=%d, size:0x%x\n", handler->key->start,handler->key->size);
-	printf("dtb_start=%d, size:0x%x\n", handler->dtb->start,handler->dtb->size);
-	printf("ddr_start=%d, size:0x%x\n", handler->ddr_para->start,
+	pr_info("key_start=%d, size:0x%x\n", handler->key->start, handler->key->size);
+	pr_info("dtb_start=%d, size:0x%x\n", handler->dtb->start, handler->dtb->size);
+	pr_info("ddr_start=%d, size:0x%x\n", handler->ddr_para->start,
 		handler->ddr_para->size);
 
 	return ret;

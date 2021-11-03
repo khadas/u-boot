@@ -14,10 +14,11 @@
 #include "key_manage.h"
 #include <amlogic/keyunify.h>
 #include <amlogic/amlkey_if.h>
+#include <linux/printk.h>
 
 #define KM_DBG(fmt ...)     //printf("[KM]Dbg:"fmt)
-#define KM_MSG(fmt ...)     printf("[KM]Msg:"fmt)
-#define KM_ERR(fmt ...)     printf("[KM]Error:f[%s]L%d:", __func__, __LINE__),printf(fmt)
+#define KM_MSG(fmt ...)     pr_info("[KM]Msg:" fmt)
+#define KM_ERR(fmt ...)     pr_err("[KM]Error:f[%s]L%d:", __func__, __LINE__); pr_err(fmt)
 
 int _keyman_hex_ascii_to_buf(const char* input, char* buf, const unsigned bufSz);
 int _keyman_buf_to_hex_ascii(const uint8_t* pdata, const unsigned dataLen, char* fmtStr/*pr if NULL*/, int fmtSize);

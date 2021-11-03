@@ -565,7 +565,7 @@ static int initr_net(void)
 	puts("Net:   ");
 	eth_initialize();
 #if defined(CONFIG_RESET_PHY_R)
-	debug("Reset Ethernet PHY\n");
+	pr_debug("Reset Ethernet PHY\n");
 	reset_phy();
 #endif
 	return 0;

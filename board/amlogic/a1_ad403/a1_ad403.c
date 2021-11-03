@@ -86,7 +86,7 @@ void board_init_mem(void)
 
 int board_init(void)
 {
-	printf("board init\n");
+	pr_info("board init\n");
 	/* reset uart A for BT*/
 	writel(0x4000000, RESETCTRL_RESET1);
 	/*Please keep try usb boot first in board_init*/
@@ -110,11 +110,11 @@ int board_late_init(void)
 #define CHECK_FDT_CMD "if fdt addr ${dtb_mem_addr}; "\
 	"then else echo no valid dtb at ${dtb_mem_addr};fi;"
 
-	printf("board late init\n");
+	pr_info("board late init\n");
 
 	//default uboot env need before anyone use it
 	if (env_get("default_env")) {
-		printf("factory reset, need default all uboot env.\n");
+		pr_info("factory reset, need default all uboot env.\n");
 		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
 	}
 
@@ -123,7 +123,7 @@ int board_late_init(void)
 
 #ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
 	if (run_command("run common_dtb_load", 0)) {
-		printf("Fail in load dtb with cmd[%s]\n", env_get("common_dtb_load"));
+		pr_info("Fail in load dtb with cmd[%s]\n", env_get("common_dtb_load"));
 	} else {
 		//load dtb here then users can directly use 'fdt' command
 		run_command(CHECK_FDT_CMD, 0);
@@ -157,7 +157,7 @@ int board_late_init(void)
 			}
 		}
 		env_set("cpu_id", chipid_str);
-		printf("buff: %s\n", buff);
+		pr_info("buff: %s\n", buff);
 	} else {
 		env_set("cpu_id", "1234567890");
 	}
@@ -230,7 +230,7 @@ struct mm_region *mem_map = bd_mem_map;
 
 int mach_cpu_init(void)
 {
-	printf("\nmach_cpu_init\n");
+	pr_info("\nmach_cpu_init\n");
 	return 0;
 }
 
