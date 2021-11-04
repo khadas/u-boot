@@ -36,6 +36,7 @@ struct jtag_pinctrl_reg_desc {
 	defined(CONFIG_TARGET_MESON_SM1) || \
 	defined(CONFIG_TARGET_MESON_TM2) || \
 	defined(CONFIG_TARGET_MESON_T5D) || \
+	defined(CONFIG_TARGET_MESON_T5W) || \
 	defined(CONFIG_TARGET_MESON_T5)
 	struct jtag_pinctrl_reg_desc regs_data[] = {
 		{JTAG_AP_AO, P_AO_RTI_PINMUX_REG0,
