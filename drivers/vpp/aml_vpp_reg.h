@@ -463,8 +463,11 @@
 #define VPP_OSD2_MATRIX_PRE_OFFSET0_1       0x392b
 #define VPP_OSD2_MATRIX_PRE_OFFSET2         0x392c
 #define VPP_OSD2_MATRIX_EN_CTRL             0x392d
-
 /*hdr2 register end*/
+
+#define LCD_GAMMA_CNTL_PORT0                       0x14b4
+#define LCD_GAMMA_DATA_PORT0                       0x14b5
+#define LCD_GAMMA_ADDR_PORT0                       0x14b6
 
 //#define GAMMA_CNTL_PORT                            0x1400
 #define  GAMMA_VCOM_POL    7     /* RW */

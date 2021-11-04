@@ -1444,50 +1444,86 @@ void vpp_load_gamma_table(unsigned short *data, unsigned int len, enum vpp_gamma
 
 void vpp_enable_lcd_gamma_table(void)
 {
-	vpp_reg_setb(L_GAMMA_CNTL_PORT, 1, GAMMA_EN, 1);
+	unsigned int reg;
+
+	if (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_T5W)
+		reg = LCD_GAMMA_CNTL_PORT0;
+	else
+		reg = L_GAMMA_CNTL_PORT;
+
+	vpp_reg_setb(reg, 1, GAMMA_EN, 1);
 }
 
 void vpp_disable_lcd_gamma_table(void)
 {
-	vpp_reg_setb(L_GAMMA_CNTL_PORT, 0, GAMMA_EN, 1);
+	unsigned int reg;
+
+	if (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_T5W)
+		reg = LCD_GAMMA_CNTL_PORT0;
+	else
+		reg = L_GAMMA_CNTL_PORT;
+
+	vpp_reg_setb(reg, 0, GAMMA_EN, 1);
 }
 
 #define GAMMA_RETRY        1000
 static void vpp_set_lcd_gamma_table(u16 *data, u32 rgb_mask)
 {
+	unsigned int reg_encl_en, reg_cntl_port, reg_data_port, reg_addr_port;
 	int i;
 	int cnt = 0;
 
-	if (!(vpp_reg_read(ENCL_VIDEO_EN) & 0x1))
+	if (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_T5W) {
+		reg_encl_en = ENCL_VIDEO_EN;
+		reg_cntl_port = LCD_GAMMA_CNTL_PORT0;
+		reg_data_port = LCD_GAMMA_DATA_PORT0;
+		reg_addr_port = LCD_GAMMA_ADDR_PORT0;
+	} else {
+		reg_encl_en = ENCL_VIDEO_EN;
+		reg_cntl_port = L_GAMMA_CNTL_PORT;
+		reg_data_port = L_GAMMA_DATA_PORT;
+		reg_addr_port = L_GAMMA_ADDR_PORT;
+	}
+
+	if (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_T5W) {
+		vpp_reg_write(reg_addr_port, (1 << 8));
+		for (i = 0; i < 256; i++)
+			vpp_reg_write(reg_data_port,
+				(data[i] << 20) |
+				(data[i] << 10) |
+				(data[i] << 0));
+		return;
+	}
+
+	if (!(vpp_reg_read(reg_encl_en) & 0x1))
 		return;
 
-	vpp_reg_setb(L_GAMMA_CNTL_PORT,
-				0, GAMMA_EN, 1);
+	vpp_reg_setb(reg_cntl_port, 0, GAMMA_EN, 1);
 
-	while (!(vpp_reg_read(L_GAMMA_CNTL_PORT) & (0x1 << ADR_RDY))) {
+	while (!(vpp_reg_read(reg_cntl_port) & (0x1 << ADR_RDY))) {
 		udelay(10);
 		if (cnt++ > GAMMA_RETRY)
 			break;
 	}
 	cnt = 0;
-	vpp_reg_write(L_GAMMA_ADDR_PORT, (0x1 << H_AUTO_INC) |
+	vpp_reg_write(reg_addr_port, (0x1 << H_AUTO_INC) |
 				    (0x1 << rgb_mask)   |
 				    (0x0 << HADR));
 	for (i = 0; i < 256; i++) {
-		while (!(vpp_reg_read(L_GAMMA_CNTL_PORT) & (0x1 << WR_RDY))) {
+		while (!(vpp_reg_read(reg_cntl_port) & (0x1 << WR_RDY))) {
 			udelay(10);
 			if (cnt++ > GAMMA_RETRY)
 				break;
 		}
 		cnt = 0;
-		vpp_reg_write(L_GAMMA_DATA_PORT, data[i]);
+		vpp_reg_write(reg_data_port, data[i]);
 	}
-	while (!(vpp_reg_read(L_GAMMA_CNTL_PORT) & (0x1 << ADR_RDY))) {
+	while (!(vpp_reg_read(reg_cntl_port) & (0x1 << ADR_RDY))) {
 		udelay(10);
 		if (cnt++ > GAMMA_RETRY)
 			break;
 	}
-	vpp_reg_write(L_GAMMA_ADDR_PORT, (0x1 << H_AUTO_INC) |
+	vpp_reg_write(reg_addr_port, (0x1 << H_AUTO_INC) |
 				    (0x1 << rgb_mask)   |
 				    (0x23 << HADR));
 
