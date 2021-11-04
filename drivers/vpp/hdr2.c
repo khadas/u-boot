@@ -946,6 +946,11 @@ void hdr_func(enum hdr_module_sel module_sel,
 		bit_depth = 10;
 	else
 		return;
+
+	if (get_cpu_id().family_id  == MESON_CPU_MAJOR_ID_T5W) {
+		bit_depth = 10;
+	}
+
 	/*lut parameters*/
 	if (hdr_process_select & (HDR_BYPASS | RGB_BYPASS)) {
 		/*for g12a/g12b osd blend shift rtl bug*/
