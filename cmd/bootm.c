@@ -184,8 +184,11 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		 * Only skip if secure boot so normal boot can use plain boot.img+
 		 */
 		ulong img_addr, ncheckoffset;
-		char argv0_new[12] = {0};
-		char *argv_new = (char *)&argv0_new;
+		static char argv0_new[12] = {0};
+		static char *argv_new;
+
+		memset(argv0_new, 0, sizeof(argv0_new));
+		argv_new = (char *)&argv0_new;
 
 		img_addr = genimg_get_kernel_addr(argc < 1 ? NULL : argv[0]);
 		ncheckoffset = android_image_check_offset();
