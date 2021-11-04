@@ -201,7 +201,7 @@ uint32_t efuse_obj_write(uint32_t obj_id, char *name, uint8_t *buff, uint32_t si
 	efuse_obj_field_t efuseinfo;
 
 	memset(&efuseinfo, 0, sizeof(efuseinfo));
-	strncpy(efuseinfo.name, name, sizeof(efuseinfo.name));
+	strncpy(efuseinfo.name, name, sizeof(efuseinfo.name) - 1);
 	if (size > sizeof(efuseinfo.data))
 		return EFUSE_OBJ_ERR_SIZE;
 	efuseinfo.size = size;
@@ -216,7 +216,7 @@ uint32_t efuse_obj_read(uint32_t obj_id, char *name, uint8_t *buff, uint32_t *si
 	efuse_obj_field_t efuseinfo;
 
 	memset(&efuseinfo, 0, sizeof(efuseinfo));
-	strncpy(efuseinfo.name, name, sizeof(efuseinfo.name));
+	strncpy(efuseinfo.name, name, sizeof(efuseinfo.name) - 1);
 	*size = sizeof(efuseinfo);
 	ret = meson_efuse_obj_read(obj_id, (uint8_t *)&efuseinfo, size);
 	memcpy(buff, efuseinfo.data, efuseinfo.size);
