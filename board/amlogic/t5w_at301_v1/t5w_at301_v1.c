@@ -563,24 +563,23 @@ U_BOOT_DEVICES(meson_i2cs) = {
 };
 
 /*
- *GPIOD_2//I2C_SCL
- *GPIOD_3//I2C_SDA
+ *GPIOH_20//I2C_SCL
+ *GPIOH_21//I2C_SDA
  *pinmux configuration seperated with i2c controller configuration
  * config it when you use
  */
-#if 0 /* i2c pinmux demo */
-void set_i2c_b_pinmux(void)
+/* i2c2 pinmux for tcon */
+void set_i2c_2_pinmux(void)
 {
 	/*ds =3 */
-	setbits_le32(AO_PAD_DS_A, 0xf << 4);
+	setbits_le32(PAD_DS_REG2B, 0xf << 8);
 	/*pull up disable*/
-	clrbits_le32(AO_GPIO_O_EN_N, 0x3 << 2);
-	/*pin mux to i2cm1*/
-	clrbits_le32(AO_RTI_PINMUX_REG0, 0xff << 8);
-	setbits_le32(AO_RTI_PINMUX_REG0, 0x1 << 8 | 0x1 << 12);
+	clrbits_le32(PAD_PULL_UP_REG2, 0x3 << 20);
+	/*pin mux to i2cm2*/
+	clrbits_le32(PERIPHS_PIN_MUX_7, 0xff << 16);
+	setbits_le32(PERIPHS_PIN_MUX_7, 0x1 << 16 | 0x1 << 20);
 	return;
 }
-#endif
 #endif /*end CONFIG_SYS_I2C_MESON*/
 
 #ifdef CONFIG_PWM_MESON
@@ -613,6 +612,9 @@ int board_init(void)
 	board_usb_pll_disable(&g_usb_config_GXL_skt);
 	board_usb_init(&g_usb_config_GXL_skt,BOARD_USB_MODE_HOST);
 #endif /*CONFIG_USB_XHCI_AMLOGIC*/
+
+	set_i2c_2_pinmux();
+
 	return 0;
 }
 
