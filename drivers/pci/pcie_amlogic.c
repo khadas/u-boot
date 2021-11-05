@@ -141,11 +141,7 @@ static int amlogic_pcie_regions_setup(e_pcieDev pcie_dev)
 
 	target_base_addr  = high_2m_base_addr & 0x3fffff;
 	type = PCIE_ATU_TYPE_MEM;
-	if (type == PCIE_ATU_TYPE_CFG0 || type == PCIE_ATU_TYPE_CFG1) {
-		target_base_addr  =   (0 & 0xff) << 24 |
-							  (0 & 0x1F) << 19 |
-							  (0 & 0x7) << 16;
-	} else if (type == PCIE_ATU_TYPE_MEM)
+	if (type == PCIE_ATU_TYPE_MEM)
 		target_base_addr &= (~0xfff);
 
 	dw_pcie_prog_outbound_atu(pcie_dev, PCIE_ATU_REGION_INDEX1,
@@ -178,12 +174,10 @@ static int amlogic_pcie_read_config
 	target_base_addr  = ep_cfg_base_addr & 0x3fffff;
 	type = TYPE_CFG0;
 
-	if (type == TYPE_CFG0 || type == TYPE_CFG1) {
+	if (type == TYPE_CFG0)
 		target_base_addr = (0 & 0xff) << 24 |
-							(0 & 0x1F) << 19 |
-							(0 & 0x7) << 16;
-	} else if (type == TYPE_MEM)
-		target_base_addr &= (~0xfff);
+				   (0 & 0x1F) << 19 |
+				   (0 & 0x7) << 16;
 
 	dw_pcie_prog_outbound_atu(pcie_dev, PCIE_ATU_REGION_INDEX0,
 					type, ep_cfg_base_addr,
@@ -218,12 +212,10 @@ static int amlogic_pcie_write_config(struct pci_controller *hose, pci_dev_t d,
 	target_base_addr  = ep_cfg_base_addr & 0x3fffff;
 	type = TYPE_CFG0;
 
-	if (type == TYPE_CFG0 || type == TYPE_CFG1) {
+	if (type == TYPE_CFG0)
 		target_base_addr  = (0 & 0xff) << 24 |
-							(0 & 0x1F) << 19 |
-							(0 & 0x7) << 16;
-	} else if (type == TYPE_MEM)
-		target_base_addr &= (~0xfff);
+				    (0 & 0x1F) << 19 |
+				    (0 & 0x7) << 16;
 
 	dw_pcie_prog_outbound_atu(pcie_dev, PCIE_ATU_REGION_INDEX0,
 					type, ep_cfg_base_addr,
