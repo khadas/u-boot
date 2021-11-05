@@ -973,6 +973,7 @@ int r1p1_temp_read(int type)
 		case MESON_CPU_MAJOR_ID_TM2:
 		case MESON_CPU_MAJOR_ID_T5:
 		case MESON_CPU_MAJOR_ID_T5D:
+		case MESON_CPU_MAJOR_ID_T5W:
 			ts_b = 3159;
 			ts_a = 9411;
 			ts_m = 424;
@@ -1174,6 +1175,7 @@ int r1p1_read_entry(void)
 			break;
 			case MESON_CPU_MAJOR_ID_T5:
 			case MESON_CPU_MAJOR_ID_T5D:
+			case MESON_CPU_MAJOR_ID_T5W:
 			ret = readl(AO_SEC_GP_CFG10);
 			ver = (ret >> 24) & 0xff;
 			if ((ver & 0x80) == 0) {
