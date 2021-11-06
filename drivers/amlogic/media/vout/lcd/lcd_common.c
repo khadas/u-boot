@@ -654,6 +654,17 @@ static int lcd_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 		pconf->basic.lcd_clk_max = be32_to_cpup((((u32 *)propdata) + 5));
 	}
 
+	propdata = (char *)fdt_getprop(dt_addr, child_offset, "range_frame_rate", NULL);
+	if (!propdata) {
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
+			LCDPR("[%d]: no range_frame_rate\n", pdrv->index);
+		pconf->basic.frame_rate_min = 0;
+		pconf->basic.frame_rate_max = 0;
+	} else {
+		pconf->basic.frame_rate_min = be32_to_cpup((u32 *)propdata);
+		pconf->basic.frame_rate_max = be32_to_cpup((((u32 *)propdata) + 1));
+	}
+
 	propdata = (char *)fdt_getprop(dt_addr, child_offset, "lcd_timing", NULL);
 	if (!propdata) {
 		LCDERR("[%d]: failed to get lcd_timing\n", pdrv->index);
@@ -1122,6 +1133,9 @@ static int lcd_config_load_from_unifykey(struct aml_lcd_drv_s *pdrv)
 		((*(p + LCD_UKEY_PCLK_MAX + 1)) << 8) |
 		((*(p + LCD_UKEY_PCLK_MAX + 2)) << 16) |
 		((*(p + LCD_UKEY_PCLK_MAX + 3)) << 24));
+	pconf->basic.frame_rate_min = *(p + LCD_UKEY_FRAME_RATE_MIN);
+	pconf->basic.frame_rate_max = (*(p + LCD_UKEY_FRAME_RATE_MAX) |
+		((*(p + LCD_UKEY_FRAME_RATE_MAX + 1)) << 8));
 
 	pctrl = &pconf->control;
 	/* interface: 20byte */
@@ -1381,6 +1395,8 @@ static int lcd_config_load_from_bsp(struct aml_lcd_drv_s *pdrv)
 	pconf->basic.v_period_max = pconf->basic.v_period;
 	pconf->basic.lcd_clk_min = 0;
 	pconf->basic.lcd_clk_max = 0;
+	pconf->basic.frame_rate_min = 0;
+	pconf->basic.frame_rate_max = 0;
 
 	pconf->timing.hsync_width = ext_lcd->hsync_width;
 	pconf->timing.hsync_bp    = ext_lcd->hsync_bp;
@@ -1821,6 +1837,47 @@ void lcd_mipi_dsi_config_set(struct aml_lcd_drv_s *pdrv)
 void lcd_edp_config_set(struct aml_lcd_drv_s *pdrv)
 {
 	//todo
+}
+
+void lcd_basic_timing_range_update(struct aml_lcd_drv_s *pdrv)
+{
+	struct lcd_config_s *pconf = &pdrv->config;
+	unsigned int sync_duration, h_period, v_period, vmin, vmax;
+	unsigned long long temp;
+
+	//for basic timing
+	h_period = pconf->basic.h_period;
+	v_period = pconf->basic.v_period;
+	if (pconf->timing.lcd_clk < 200) { /* regard as frame_rate */
+		sync_duration = pconf->timing.lcd_clk;
+		pconf->timing.lcd_clk = sync_duration * h_period * v_period;
+		pconf->timing.sync_duration_num = sync_duration;
+		pconf->timing.sync_duration_den = 1;
+	} else { /* regard as pixel clock */
+		temp = pconf->timing.lcd_clk * 1000;
+		sync_duration = lcd_do_div(temp, (v_period * h_period));
+		pconf->timing.sync_duration_num = sync_duration;
+		pconf->timing.sync_duration_den = 1000;
+	}
+
+	//for vrr range config
+	temp = pconf->timing.sync_duration_num;
+	temp *= v_period;
+	vmin = pconf->basic.v_period_min * pconf->timing.sync_duration_den;
+	vmax = pconf->basic.v_period_max * pconf->timing.sync_duration_den;
+	if (pconf->basic.frame_rate_max == 0) {
+		if (vmin > 0)
+			pconf->basic.frame_rate_max = lcd_do_div(temp, vmin);
+	}
+	if (pconf->basic.frame_rate_min == 0) {
+		if (vmax > 0)
+			pconf->basic.frame_rate_min = lcd_do_div(temp, vmax);
+	}
+
+	//save default config
+	pconf->timing.lcd_clk_dft = pconf->timing.lcd_clk;
+	pconf->timing.h_period_dft = pconf->basic.h_period;
+	pconf->timing.v_period_dft = pconf->basic.v_period;
 }
 
 void lcd_timing_init_config(struct lcd_config_s *pconf)
