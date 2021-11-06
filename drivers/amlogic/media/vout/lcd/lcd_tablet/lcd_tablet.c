@@ -46,26 +46,8 @@ static void lcd_list_support_mode(struct lcd_config_s *pconf)
 
 static void lcd_config_init(struct aml_lcd_drv_s *pdrv)
 {
-	struct lcd_config_s *pconf = &pdrv->config;
-	unsigned int h_period, v_period, clk, sync_duration;
-
-	h_period = pconf->basic.h_period;
-	v_period = pconf->basic.v_period;
-	clk = pconf->timing.lcd_clk;
-
-	if (clk < 200) { /* regard as frame_rate */
-		sync_duration = clk * 100;
-		pconf->timing.lcd_clk = clk * h_period * v_period;
-	} else { /* regard as pixel clock */
-		sync_duration = ((clk / h_period) * 100) / v_period;
-	}
-	pconf->timing.lcd_clk_dft = pconf->timing.lcd_clk;
-	pconf->timing.h_period_dft = pconf->basic.h_period;
-	pconf->timing.v_period_dft = pconf->basic.v_period;
-	pconf->timing.sync_duration_num = sync_duration;
-	pconf->timing.sync_duration_den = 100;
-
-	lcd_timing_init_config(pconf);
+	lcd_basic_timing_range_update(pdrv);
+	lcd_timing_init_config(&pdrv->config);
 	lcd_tablet_config_update(pdrv);
 	lcd_clk_generate_parameter(pdrv);
 }

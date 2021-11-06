@@ -20,7 +20,8 @@
 /* 20210616: fix t3 clk ss mistake*/
 /* 20210625: add tcon multi lut support*/
 /* 20211009: support 59 & 47 frame rate for tv mode*/
-#define LCD_DRV_VERSION    "20211009"
+/* 20211106: support vrr config*/
+#define LCD_DRV_VERSION    "20211106"
 
 extern unsigned int lcd_debug_test;
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
@@ -46,6 +47,7 @@ int lcd_mode_str_to_mode(const char *str);
 char *lcd_mode_mode_to_str(int mode);
 
 int lcd_get_config(char *dt_addr, int load_id, struct aml_lcd_drv_s *pdrv);
+void lcd_basic_timing_range_update(struct aml_lcd_drv_s *pdrv);
 void lcd_timing_init_config(struct lcd_config_s *pconf);
 int lcd_vmode_change(struct aml_lcd_drv_s *pdrv);
 void lcd_pinmux_set(struct aml_lcd_drv_s *pdrv, int status);

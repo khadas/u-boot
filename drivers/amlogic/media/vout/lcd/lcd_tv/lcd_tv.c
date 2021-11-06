@@ -225,30 +225,15 @@ static void lcd_list_support_mode(struct lcd_config_s *pconf)
 
 static void lcd_config_init(struct aml_lcd_drv_s *pdrv)
 {
-	struct lcd_config_s *pconf = &pdrv->config;
-	unsigned int clk;
-
-	if (pconf->timing.lcd_clk == 0) {/* default 0 for 60hz */
-		pconf->timing.lcd_clk = 60;
+	if (pdrv->config.timing.lcd_clk == 0) {/* default 0 for 60hz */
+		pdrv->config.timing.lcd_clk = 60;
 	} else {
 		LCDPR("[%d]: custome clk: %d\n",
-		      pdrv->index, pconf->timing.lcd_clk);
+		      pdrv->index, pdrv->config.timing.lcd_clk);
 	}
-	clk = pconf->timing.lcd_clk;
-	if (clk < 200) { /* regard as frame_rate */
-		pconf->timing.lcd_clk = clk * pconf->basic.h_period *
-			pconf->basic.v_period;
-	} else /* regard as pixel clock */
-		pconf->timing.lcd_clk = clk;
-	pconf->timing.lcd_clk_dft = pconf->timing.lcd_clk;
-	pconf->timing.h_period_dft = pconf->basic.h_period;
-	pconf->timing.v_period_dft = pconf->basic.v_period;
-	pconf->timing.sync_duration_num =
-		((pconf->timing.lcd_clk / pconf->basic.h_period) * 100) /
-		pconf->basic.v_period;
-	pconf->timing.sync_duration_den = 100;
 
-	lcd_timing_init_config(pconf);
+	lcd_basic_timing_range_update(pdrv);
+	lcd_timing_init_config(&pdrv->config);
 }
 
 static int lcd_outputmode_check(struct aml_lcd_drv_s *pdrv, char *mode, unsigned int frac)

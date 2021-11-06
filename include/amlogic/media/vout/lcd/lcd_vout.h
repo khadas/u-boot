@@ -112,6 +112,8 @@ struct lcd_basic_s {
 	unsigned short h_period_max;
 	unsigned short v_period_min;
 	unsigned short v_period_max;
+	unsigned short frame_rate_min;
+	unsigned short frame_rate_max;
 	unsigned int lcd_clk_min;
 	unsigned int lcd_clk_max;
 
