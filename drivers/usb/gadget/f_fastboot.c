@@ -974,7 +974,8 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 				pPartition = find_mmc_partition_by_name(cmd);
 				if (pPartition) {
 					printf("size:%016llx\n", pPartition->size);
-					if (strcmp(cmd, "data") == 0) {
+					if (strcmp(cmd, "data") == 0 ||
+						strcmp(cmd, "userdata") == 0) {
 						printf("reserve 0x4000 for fde data\n");
 						sz = pPartition->size - 0x4000;
 						printf("data size :%016llx\n", sz);
@@ -997,6 +998,9 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		}
 	} else if (!strcmp_l1("partition-type:env", cmd)) {
 		strncat(response, "raw", chars_left);
+	} else if (!strcmp_l1("partition-type:data", cmd) ||
+		!strcmp_l1("partition-type:userdata", cmd)) {
+		strncat(response, "ext4", chars_left);
 	} else if (!strncmp("partition-type", cmd, strlen("partition-type"))) {
 		partition_type_reply(cmd, response, chars_left);
 	} else if (!strcmp_l1("erase-block-size", cmd) ||
