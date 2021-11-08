@@ -580,9 +580,13 @@ static void getvar_partition_type(char *part_name, char *response)
 			|| (strcmp_l1(part_name, "system_ext") == 0) || (strcmp_l1(part_name, "dtbo") == 0)
 			|| (strcmp_l1(part_name, "metadata") == 0) || (strcmp_l1(part_name, "vbmeta") == 0)
 			|| (strcmp_l1(part_name, "vbmeta_system") == 0) || (strcmp_l1(part_name, "super") == 0)
-			|| (strcmp_l1(part_name, "data") == 0) || (strcmp_l1(part_name, "userdata") == 0)
 			|| (strcmp_l1(part_name, "odm_ext") == 0) || (strcmp_l1(part_name, "oem") == 0)){
 		partition_type_reply(part_name, response, "ext4");
+	} else if ((strcmp(part_name, "data") == 0) || (strcmp(part_name, "userdata") == 0)) {
+		if (busy_flag == 1)
+			fastboot_response("INFOpartition-type:", response, "%s: ext4", part_name);
+		else
+			fastboot_okay("ext4", response);
 	} else if (strcmp(part_name, "cache") == 0) {
 		if (has_boot_slot == 0) {
 			if (busy_flag == 1)
