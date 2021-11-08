@@ -15,6 +15,7 @@
 #include <version.h>
 #include <amlogic/storage.h>
 #include <fastboot.h>
+#include <u-boot/sha1.h>
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 
@@ -425,12 +426,15 @@ bool boot_info_save(bootloader_control *info, char *miscbuf)
     return true;
 }
 
-int is_BootSame(int srcindex, int dstindex)
+static int is_BootSame(int srcindex, int dstindex)
 {
 	int iRet = 0;
 	int ret = -1;
 	unsigned char *buffer_src = NULL;
 	unsigned char *buffer_dest = NULL;
+	const int SHA1SUMLEN = 20;
+	u8 gensum0[SHA1SUMLEN * 2];
+	u8 *gensum1 = gensum0 + SHA1SUMLEN;
 
 	buffer_src = (unsigned char *)malloc(0x2000 * 512);
 	if (!buffer_src) {
@@ -439,38 +443,29 @@ int is_BootSame(int srcindex, int dstindex)
 	}
 	memset(buffer_src, 0, 0x2000 * 512);
 
-	buffer_dest = (unsigned char *)malloc(0x2000 * 512);
-	if (!buffer_dest) {
-		printf("ERROR! fail to allocate memory ...\n");
-		goto exit;
-	}
-	memset(buffer_dest, 0, 0x2000 * 512);
-
-	printf("check boot%d is same as boot%d\n", srcindex, dstindex);
 	iRet = store_boot_read("bootloader", srcindex, 0, buffer_src);
 	if (iRet) {
 		printf("Fail read bootloader %d\n", srcindex);
 		goto exit;
 	}
+	sha1_csum(buffer_src, 0x2000 * 512, gensum0);
+
+	buffer_dest = buffer_src;
+	memset(buffer_dest, 0, 0x2000 * 512);
 	iRet = store_boot_read("bootloader", dstindex, 0, buffer_dest);
 	if (iRet) {
 		printf("Fail read bootloader %d\n", dstindex);
 		goto exit;
 	}
+	sha1_csum(buffer_dest, 0x2000 * 512, gensum1);
 
-	if (memcmp(buffer_src, buffer_dest, 0x2000 * 512) == 0) {
-		printf("bootloader %d & %d is same\n", srcindex, dstindex);
-		ret = 0;
-	}
+	ret = memcmp(gensum0, gensum1, SHA1SUMLEN);
+	printf("bootloader %d & %d %s same\n", srcindex, dstindex, ret ? "NOT" : "DO");
 
 exit:
 	if (buffer_src) {
 		free(buffer_src);
 		buffer_src = NULL;
-	}
-	if (buffer_dest) {
-		free(buffer_dest);
-		buffer_dest = NULL;
 	}
 	return ret;
 }
@@ -739,6 +734,7 @@ static int do_SetUpdateTries(
 		if (ret) {
 			printf("boot0 doesn't = boot1, write boot0 to boot1\n");
 			write_bootloader(1, 2);
+			printf("after write boot0 to boot1\n");
 		}
 	}
     return 0;
