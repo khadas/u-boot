@@ -160,8 +160,8 @@ int board_init(void)
 
 int board_late_init(void)
 {
-	char outputModePre[30];
-	char outputModeCur[30];
+	char outputModePre[30] = {};
+	char outputModeCur[30] = {};
 
 	printf("board late init\n");
 
@@ -193,7 +193,7 @@ int board_late_init(void)
 	 * ****************************************************
 	 */
 	if (env_get("outputmode"))
-		strcpy(outputModePre, env_get("outputmode"));
+		strncpy(outputModePre, env_get("outputmode"), 29);
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
 	aml_try_factory_sdcard_burning(0, gd->bd);
@@ -224,7 +224,7 @@ int board_late_init(void)
 #endif
 
 	if (env_get("outputmode")) {
-		strcpy(outputModeCur, env_get("outputmode"));
+		strncpy(outputModeCur, env_get("outputmode"), 29);
 	}
 
 	if (strcmp(outputModeCur,outputModePre)) {
