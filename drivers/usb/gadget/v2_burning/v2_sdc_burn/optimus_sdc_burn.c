@@ -518,6 +518,10 @@ int sdc_burn_aml_keys(HIMAGE hImg, const int keyOverWrite, int licenseKey, int i
 	const char *IMG_KEY_MAIN = "AML_KEY";
 
 	num_img_keys = get_subtype_nr(hImg, IMG_KEY_MAIN);
+	if (num_img_keys < 0) {
+		DWN_ERR("Fail in parse pkg items\n");
+		return __LINE__;
+	}
 
 	rc = sdc_burn_get_user_key_names(hImg, &keysName, &keysNum);
 	if (rc == ITEM_NOT_EXIST) {

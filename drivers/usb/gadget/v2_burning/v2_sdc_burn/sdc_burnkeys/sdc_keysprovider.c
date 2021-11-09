@@ -240,7 +240,7 @@ static int optimus_sdc_burn_parse_mac_ini_key_value(const char* setName, const c
                 keyBuf[_currentKey.keySize] = 0;
                 _currentKey.keyBuf = keyBuf;
                 DWN_DBG("keybuf[%s]\n", keyBuf);
-                memcpy(pKeyConsist->startMac, usrKeyVal, strlen(usrKeyVal));
+		memcpy(pKeyConsist->startMac, usrKeyVal, 20/*strlen(usrKeyVal)*/);
         }
         else if (!strcmp("end", keyName))
         {

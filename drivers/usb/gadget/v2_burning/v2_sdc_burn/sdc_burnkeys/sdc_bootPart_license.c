@@ -219,7 +219,7 @@ int optimus_sdc_bootPart_lic_update_key_inf(const char* keyName, unsigned char* 
         //update item info
         pBootPartKeyItemInf->itemIndex  = itemIndex;
         pBootPartKeyItemInf->itemSz     = keyLen + sizeof(BootPartKeyInf_Item_t);
-        memcpy(pBootPartKeyItemInf->keyName, keyName, strlen(keyName));
+	memcpy(pBootPartKeyItemInf->keyName, keyName, AML_BOOT_PART_KEY_ITEM_NAME_LEN);
         pBootPartKeyItemInf->version    = AML_BOOT_PART_KEY_ITEM_VERSION;
         pBootPartKeyItemInf->magic      = AML_BOOT_PART_KEY_ITEM_MAGIC;
         //

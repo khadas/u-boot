@@ -519,7 +519,9 @@ int v3tool_storage_init(const int eraseFlash, unsigned int dtbImgSz, unsigned in
 #ifdef CONFIG_BACKUP_PART_NORMAL_ERASE
 		if (backupPartSz) {
 			FB_MSG("restore BackupPart %s from mem\n", BackupPart);
-			store_write(BackupPart, 0, backupPartSz, BackupPartAddr);
+			ret = store_write(BackupPart, 0, backupPartSz, BackupPartAddr);
+			if (ret)
+				FB_MSG("FAil in restore part %s\n", BackupPart);
 		}
 #endif//#ifdef CONFIG_BACKUP_PART_NORMAL_ERASE
 	}
