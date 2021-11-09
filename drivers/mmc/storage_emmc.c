@@ -132,7 +132,7 @@ static int storage_byte_read(struct mmc *mmc,loff_t off, size_t  size,void *addr
 	sz_byte = size - ((cnt) << blk_shift) ;
 	mmc_init(mmc);
 
-	pr_info("blk:%lld   cnt:%lld \n",blk,cnt);
+	pr_debug("blk:%lld   cnt:%lld\n", blk, cnt);
 	n = blk_dread(mmc_get_blk_desc(mmc), blk, cnt, addr);
 	if ((n == cnt) && (sz_byte != 0)) {
 	   /*printf("sz_byte=%#llx bytes\n",sz_byte);*/
@@ -171,7 +171,7 @@ static int storage_byte_write(struct mmc *mmc,loff_t off, size_t  size,void *add
 	cnt = size >>  blk_shift ;
 	sz_byte = size - ((cnt) << blk_shift);
 	mmc_init(mmc);
-	pr_info("blk:%lld   cnt:%lld \n",blk,cnt);
+	pr_debug("blk:%lld   cnt:%lld\n", blk, cnt);
 
 	n = blk_dwrite(mmc_get_blk_desc(mmc), blk, cnt, addr);
 	if ((n == cnt) && (sz_byte != 0)) {
@@ -216,7 +216,7 @@ static int storage_byte_erase(struct mmc *mmc,loff_t off, size_t  size) {
 	blk = off >>  blk_shift ;
 	cnt = size >>  blk_shift ;
 	mmc_init(mmc);
-	pr_info("blk:%lld   cnt:%lld \n",blk,cnt);
+	pr_debug("blk:%lld   cnt:%lld\n", blk, cnt);
 	if (cnt)
 		n = blk_derase(mmc_get_blk_desc(mmc), blk, cnt);
 	printf("%lld blocks erased: %s\n", cnt, (n == 0) ? "OK" : "ERROR");
