@@ -2701,8 +2701,7 @@ get_status_error:
 
 	debug("getstatus databuf eqpt = 0x%p\n", udc_ep_ptr->enq_pt);
 	if (!status) {
-		if (udc_req_ptr)
-			list_add_tail(&udc_req_ptr->queue, &udc_ep_ptr->queue);
+		list_add_tail(&udc_req_ptr->queue, &udc_ep_ptr->queue);
 	}
 }
 
