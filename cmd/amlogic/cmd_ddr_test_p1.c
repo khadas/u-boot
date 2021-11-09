@@ -8566,7 +8566,7 @@ void dwc_window_reg_after_training_update(char over_ride_index, uint32_t over_ri
 	//delay_reg_value=ddr_cacl_phy_over_ride_back_reg(over_ride_index, over_ride_value,enable_bit5);
     } else {//if (over_ride_index == DMC_TEST_WINDOW_INDEX_ATXDLY)
 	//reg_add = ((0 << 20) | (0 << 16) | (over_ride_sub_index << 12) | (0x80));
-	delay_old_value = dwc_ddrphy_phyinit_io_read16(reg_add);
+	//delay_old_value = dwc_ddrphy_phyinit_io_read16(reg_add);
 	dwc_ddrphy_phyinit_io_write16(reg_add, delay_reg_value);
     }
 
@@ -8666,7 +8666,7 @@ void dwc_window_reg_after_training_update_increase_sub(char over_ride_index, uin
 	}
 	if (over_ride_index == DMC_TEST_WINDOW_INDEX_TXDQSDLY) {
 		delay_old_value = dwc_ddrphy_phyinit_io_read16(reg_add);
-		delay_reg_value = ddr_cacl_phy_delay_all_step(over_ride_index, delay_old_value);
+		//delay_reg_value = ddr_cacl_phy_delay_all_step(over_ride_index, delay_old_value);
 		//some case will happen tdqs from 0x1f to 0x0 or 0x0 to 0x1f ,then fast boot write back will happen error ,because
 		// fast boot write back will re-calculate coarse UI,then result dq phase fail.
 		//if ((over_ride_sub_index % 2) == 0)
