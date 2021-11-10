@@ -585,8 +585,8 @@
 #endif
 
 /* vpu */
-//#define CONFIG_AML_VPU 1
-#define CONFIG_VPU_CLK_LEVEL_DFT 3
+#define CONFIG_AML_VPU 1
+#define CONFIG_VPU_CLK_LEVEL_DFT 7
 
 #ifdef CONFIG_AML_VPU
 /* VPP */
@@ -603,10 +603,10 @@
 //#define CONFIG_AML_HDMITX20 1
 //#define CONFIG_AML_CVBS 1
 
-//#define CONFIG_AML_LCD    1
+#define CONFIG_AML_LCD    1
 #define CONFIG_AML_LCD_TABLET 1
 #define CONFIG_AML_LCD_TV 1
-#define CONFIG_AML_LCD_TCON 1
+//#define CONFIG_AML_LCD_TCON 1
 #define CONFIG_AML_LCD_EXTERN 1
 
 #endif

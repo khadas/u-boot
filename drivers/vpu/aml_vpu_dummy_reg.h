@@ -74,6 +74,10 @@
 #define HHI_VPU_CLK_CNTL                           (0xc883c000 + (0x6f << 2))
 #endif
 
+#ifndef HHI_VPU_CLK_CTRL
+#define HHI_VPU_CLK_CTRL                           (0xc883c000 + (0x6f << 2))
+#endif
+
 #ifndef HHI_VAPBCLK_CNTL
 #define HHI_VAPBCLK_CNTL                           (0xc883c000 + (0x7d << 2))
 #endif

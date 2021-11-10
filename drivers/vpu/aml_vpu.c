@@ -25,7 +25,8 @@
 /* v20190313: add sm1 support */
 /* v20200817: add t5 support */
 /* v20201022: add t5d support */
-#define VPU_VERION	"v20201022"
+/* v20210819: add t5w support */
+#define VPU_VERION	"v20210819"
 
 static int dts_ready = 0;
 
@@ -456,6 +457,36 @@ static struct vpu_data_s vpu_data_t5d = {
 	.power_off = vpu_power_off_new,
 };
 
+static struct vpu_data_s vpu_data_t5w = {
+	.chip_type = VPU_CHIP_T5W,
+	.chip_name = "t5w",
+	.clk_level_dft = CLK_LEVEL_DFT_G12A,
+	.clk_level_max = CLK_LEVEL_MAX_G12A,
+	.gp_pll_valid = 0,
+
+	.vpu_clk_reg = HHI_VPU_CLK_CTRL,
+	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
+	.vid_clk_reg = HHI_VID_CLK_CNTL2,
+
+	.pwrctrl_id = PM_VPU_HDMI,
+
+	.fclk_div_table = fclk_div_table_g12a,
+	.vpu_clk_table = vpu_clk_table,
+
+	.mem_pd_table = NULL,
+	.power_table = NULL,
+	.iso_table = NULL,
+	.reset_table = NULL,
+
+	.module_init_table_cnt = sizeof(vpu_module_init_tm2) / sizeof(struct vpu_ctrl_s),
+	.module_init_table = vpu_module_init_tm2,
+
+	.power_on = NULL,
+	.power_off = NULL,
+//	.power_on = vpu_power_on_new,
+//	.power_off = vpu_power_off_new,
+};
+
 static void vpu_chip_detect(void)
 {
 	unsigned int cpu_type;
@@ -507,8 +538,11 @@ static void vpu_chip_detect(void)
 	case MESON_CPU_MAJOR_ID_T5D:
 		vpu_conf.data = &vpu_data_t5d;
 		break;
+	case MESON_CPU_MAJOR_ID_T5W:
+		vpu_conf.data = &vpu_data_t5w;
+		break;
 	default:
-		vpu_conf.data = NULL;
+		vpu_conf.data = &vpu_data_t5w;
 		break;
 	}
 
@@ -559,6 +593,7 @@ static int vpu_check(void)
 	case VPU_CHIP_TM2:
 	case VPU_CHIP_T5:
 	case VPU_CHIP_T5D:
+	case VPU_CHIP_T5W:
 		ret = 0;
 		break;
 	default:
