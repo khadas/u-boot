@@ -23,7 +23,7 @@
 #include <amlogic/vout.h>
 #endif
 #ifdef CONFIG_AML_VPU_REG_NEW
-#include <asm/arch/regs.h>
+#include <asm/arch/register.h>
 #endif
 #include <amlogic/fb.h>
 #include <video_fb.h>

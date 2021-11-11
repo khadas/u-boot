@@ -19,7 +19,7 @@
 #include <amlogic/canvas.h>
 #endif
 #ifdef CONFIG_AML_VPU_REG_NEW
-#include <asm/arch/regs.h>
+#include <asm/arch/register.h>
 #endif
 
 /* Local Headers */
@@ -194,7 +194,7 @@ static void osd_debug_dump_register_all(void)
 		osd_logi("reg[0x%x]: 0x%08x\n\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	}
 
-#ifdef CONFIG_AML_MESON_G12A
+#if defined(CONFIG_AML_MESON_G12A) && !defined(CONFIG_AML_T7_DISPLAY)
 	/* for viu2_osd */
 	if (!strcmp(getenv("display_layer"), "viu2_osd0")) {
 		reg = VIU2_OSD1_FIFO_CTRL_STAT;
