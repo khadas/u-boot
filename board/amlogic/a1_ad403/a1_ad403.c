@@ -282,17 +282,17 @@ static const struct mtd_partition spinand_partitions[] = {
 	{
 		.name = "recovery",
 		.offset = 0,
-		.size = 13 * SZ_1M,
+		.size = 12 * SZ_1M,
 	},
 	{
 		.name = "boot",
 		.offset = 0,
-		.size = 10 * SZ_1M,
+		.size = 12 * SZ_1M,
 	},
 	{
 		.name = "system",
 		.offset = 0,
-		.size = 72 * SZ_1M,
+		.size = 48 * SZ_1M,
 	},
 	/* last partition get the rest capacity */
 	{
