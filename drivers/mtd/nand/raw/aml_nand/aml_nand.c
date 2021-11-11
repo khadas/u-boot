@@ -1641,12 +1641,12 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 	chip->chip_delay = 100;
 	aml_chip->aml_nand_hw_init(aml_chip);
 	aml_chip->toggle_mode =0;
-	aml_chip->bch_info = NAND_ECC_BCH60_1K;
 #ifdef NAND_ECC_ONLY_BCH8_1K
 	aml_chip->bch_info = NAND_ECC_BCH8_1K;
 	printf("Currently only supports BCH8 1K!\n");
+#else
+	aml_chip->bch_info = NAND_ECC_BCH60_1K;
 #endif
-
 	chip->options = 0;
 	chip->options |=  NAND_SKIP_BBTSCAN;
 	chip->options |= NAND_NO_SUBPAGE_WRITE;

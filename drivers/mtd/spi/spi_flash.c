@@ -573,11 +573,13 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 			debug("SF: unable to claim SPI bus\n");
 			return log_ret(ret);
 		}
-		spi_xfer(spi, 0, NULL, NULL, SPI_XFER_MMAP);
-		spi_flash_copy_mmap(data, flash->memory_map + offset, len);
-		spi_xfer(spi, 0, NULL, NULL, SPI_XFER_MMAP_END);
+		ret = spi_xfer(spi, 0, NULL, NULL, SPI_XFER_MMAP);
+		if (!ret) {
+			spi_flash_copy_mmap(data, flash->memory_map + offset, len);
+			ret = spi_xfer(spi, 0, NULL, NULL, SPI_XFER_MMAP_END);
+		}
 		spi_release_bus(spi);
-		return 0;
+		return ret;
 	}
 
 	cmdsz = SPI_FLASH_CMD_LEN + flash->dummy_byte;

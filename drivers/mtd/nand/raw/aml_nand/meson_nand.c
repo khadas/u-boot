@@ -364,13 +364,21 @@ static int m3_nand_options_confirm(struct aml_nand_chip *aml_chip)
 	chip->write_buf = aml_nand_dma_write_buf;
 	chip->read_buf = aml_nand_dma_read_buf;
 
-	if (mtd->writesize <= 2048)
-		options_support = NAND_ECC_BCH8_MODE;
-
 #ifdef NAND_ECC_ONLY_BCH8_1K
 	options_support = NAND_ECC_BCH8_MODE;
 	printf("Currently only supports BCH8 1K!\n");
-#endif
+	chip->ecc.strength = 8;
+	chip->ecc.size = NAND_ECC_UNIT_SIZE;
+	chip->ecc.bytes = NAND_BCH8_ECC_SIZE;
+	aml_chip->bch_mode = NAND_ECC_BCH8;
+	aml_chip->user_byte_mode = 2;
+	aml_chip->ecc_cnt_limit = 6;
+	aml_chip->ecc_max = 8;
+	chip->ecc.steps = mtd->writesize / chip->ecc.size;
+
+#else
+	if (mtd->writesize <= 2048)
+		options_support = NAND_ECC_BCH8_MODE;
 
 	switch (options_support) {
 
@@ -384,7 +392,6 @@ static int m3_nand_options_confirm(struct aml_nand_chip *aml_chip)
 			aml_chip->ecc_max = 8;
 			chip->ecc.steps = mtd->writesize / chip->ecc.size;
 			break;
-
 		case NAND_ECC_BCH8_1K_MODE:
 			chip->ecc.strength = 8;
 			chip->ecc.size = NAND_ECC_UNIT_1KSIZE;
@@ -474,7 +481,7 @@ static int m3_nand_options_confirm(struct aml_nand_chip *aml_chip)
 			error = -ENXIO;
 			break;
 	}
-
+#endif
 	options_selected =
 	plat->platform_nand_data.chip.options & NAND_INTERLEAVING_OPTIONS_MASK;
 	options_define = (aml_chip->options & NAND_INTERLEAVING_OPTIONS_MASK);
