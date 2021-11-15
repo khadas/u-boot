@@ -16,6 +16,9 @@
 
 #include <common.h>
 #include <amlogic/media/vout/lcd/aml_lcd.h>
+#ifdef CONFIG_AML_LCD_TCON
+#include "lcd_tconless_spi_data.h"
+#endif
 
 /***************************************************
  * lcd_0
@@ -442,4 +445,8 @@ void lcd_config_bsp_init(void)
 		pdata->dft_conf[0] = &lcd_dft_conf[0];
 		pdata->dft_conf[1] = &lcd_dft_conf[1];
 	}
+
+#ifdef CONFIG_AML_LCD_TCON
+	lcd_tconless_spi_data_probe();
+#endif
 }

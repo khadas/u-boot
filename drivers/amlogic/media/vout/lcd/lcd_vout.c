@@ -303,8 +303,12 @@ static void lcd_power_ctrl(struct aml_lcd_drv_s *pdrv, int status)
 			break;
 #ifdef CONFIG_AML_LCD_TCON
 		case LCD_POWER_TYPE_TCON_SPI_DATA_LOAD:
-			if (pdrv->tcon_spi_data_load)
-				pdrv->tcon_spi_data_load();
+			if (!pdrv->tcon_spi_data_load) {
+				LCDERR("[%d]: %s: tcon_spi_data_load is null\n",
+				       pdrv->index, __func__);
+				break;
+			}
+			pdrv->tcon_spi_data_load();
 			break;
 #endif
 		default:

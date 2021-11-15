@@ -244,6 +244,8 @@ static int lcd_tcon_spi_data_load(void)
 	unsigned int i, j, size, new_size;
 	int ret;
 
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
+		LCDPR("%s start\n", __func__);
 	if (tcon_spi.version == 0)
 		return 0;
 
@@ -405,6 +407,8 @@ static int lcd_tcon_spi_data_load(void)
 		}
 	}
 
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
+		LCDPR("%s ok\n", __func__);
 	return 0;
 }
 
