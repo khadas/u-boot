@@ -36,8 +36,6 @@ extern int amlnf_dtb_erase(void);
 #endif
 
 #if (AML_CFG_KEY_RSV_EN)
-extern int amlnf_key_write(u8 *buf, int len, uint32_t *actual_lenth);
-extern int amlnf_key_read(u8 * buf, int len, uint32_t *actual_lenth);
 extern int amlnf_key_erase(void);
 #endif
 
@@ -208,7 +206,7 @@ int amlnand_write(struct amlnf_dev *nftl_dev,
 	u64 offset,
 	u64 size)
 {
-	u32 ret = 0;
+	int ret = 0;
 	u64 head_sector;
 	u64 head_start_bytes;
 	u64 head_bytes_num;
@@ -226,38 +224,46 @@ int amlnand_write(struct amlnf_dev *nftl_dev,
 	head_sector = offset >> AML_NFTL_ALIGN_SHIFT;
 	CMD_LINE
 	if (head_bytes_num >= size) {
-		ret |= nftl_dev->read_sector(nftl_dev,
+		ret = nftl_dev->read_sector(nftl_dev,
 			head_sector,
 			1,
 			local_buf);
-		memcpy(local_buf+head_start_bytes, buf, size);
-		ret |= nftl_dev->write_sector(nftl_dev,
-			head_sector,
-			1,
-			local_buf);
+		if (!ret) {
+			memcpy(local_buf + head_start_bytes, buf, size);
+			ret = nftl_dev->write_sector(nftl_dev,
+						     head_sector,
+						     1,
+						     local_buf);
+		}
 		goto flush;
 	}
 	CMD_LINE
 
-    if ((offset % AML_NFTL_ALIGN_SIZE) != 0) {                     //sectore alignment
-	    ret |= nftl_dev->read_sector(nftl_dev, head_sector, 1, local_buf);
-	    memcpy(local_buf+head_start_bytes, buf, head_bytes_num);
-	    ret |= nftl_dev->write_sector(nftl_dev, head_sector, 1, local_buf);
-
-
-	    buf += head_bytes_num;
-	    offset += head_bytes_num;
-	    size -= head_bytes_num;
+	if ((offset % AML_NFTL_ALIGN_SIZE) != 0) {
+		ret = nftl_dev->read_sector(nftl_dev, head_sector, 1, local_buf);
+		if (!ret) {
+			memcpy(local_buf + head_start_bytes, buf, head_bytes_num);
+			ret = nftl_dev->write_sector(nftl_dev, head_sector, 1, local_buf);
+			if (ret)
+				return ret;
+			buf += head_bytes_num;
+			offset += head_bytes_num;
+			size -= head_bytes_num;
+		} else {
+			return ret;
+		}
 	}
 
 	if (size > AML_NFTL_ALIGN_SIZE) {            //why 4
 		CMD_LINE
 		mid_len = size >> AML_NFTL_ALIGN_SHIFT;
 		mid_sector = offset >> AML_NFTL_ALIGN_SHIFT;
-		ret |= nftl_dev->write_sector(nftl_dev,
+		ret = nftl_dev->write_sector(nftl_dev,
 			mid_sector,
 			mid_len,
 			buf);
+		if (ret)
+			return ret;
 		buf += mid_len << AML_NFTL_ALIGN_SHIFT;
 		offset += mid_len << AML_NFTL_ALIGN_SHIFT;
 		size = size - (mid_len << AML_NFTL_ALIGN_SHIFT);
@@ -268,16 +274,19 @@ int amlnand_write(struct amlnf_dev *nftl_dev,
 	CMD_LINE
 	tail_sector = offset >> AML_NFTL_ALIGN_SHIFT;
 	tail_bytes_num = size;
-	ret |= nftl_dev->read_sector(nftl_dev, tail_sector, 1, local_buf);
+	ret = nftl_dev->read_sector(nftl_dev, tail_sector, 1, local_buf);
+	if (ret)
+		return ret;
 	memcpy(local_buf, buf, tail_bytes_num);
-	ret |= nftl_dev->write_sector(nftl_dev, tail_sector, 1, local_buf);
-
+	ret = nftl_dev->write_sector(nftl_dev, tail_sector, 1, local_buf);
 flush:
 	CMD_LINE
-	ret = nftl_dev->flush((struct amlnf_dev *)nftl_dev);
-	if (ret < 0) {
-		aml_nand_msg("nftl flush cache failed");
-		ret = -1;
+	if (!ret) {
+		ret = nftl_dev->flush((struct amlnf_dev *)nftl_dev);
+		if (ret < 0) {
+			aml_nand_msg("nftl flush cache failed");
+			ret = -1;
+		}
 	}
 	CMD_LINE
 	return ret;
@@ -327,7 +336,7 @@ static int do_amlnfphy(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 			show_phydev_list();
 			return 0;
 		}
-		phydev = aml_phy_get_dev(dev_name);
+		phydev = aml_phy_get_dev(NULL);
 		if (!phydev) {
 		   aml_nand_msg("phydev be NULL, can't get it!");
 		   return -1;
@@ -797,8 +806,6 @@ static int do_amlnfphy(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 			erase_len = size;
 			printf("whole dev.\n");
 		} else {
-			if ((strcmp(cmd, "deverase") == 0) && (argc < 3))
-				goto usage;
 			if ((arg_off_size(argc - 3,
 					(char **)(argv + 3),
 					phydev->size,
@@ -949,8 +956,6 @@ static int do_amlnfphy(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 			off = 0;
 			/* ((u64)flash->chipsize << 20); */
 			size = chipsize;
-			erase_addr = erase_off = off;
-			erase_len = size;
 			printf("whole dev.\n");
 		} else {
 			if ((arg_off_size(argc - 2,
@@ -959,8 +964,6 @@ static int do_amlnfphy(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 				&off,
 				&size) != 0))
 				goto usage;
-			erase_addr = erase_off = off;
-			erase_len = size;
 		}
 
 		erase_addr = erase_off = off;

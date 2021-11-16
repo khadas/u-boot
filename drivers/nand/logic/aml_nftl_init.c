@@ -220,6 +220,7 @@ int aml_create_nftl_dev(struct amlnf_logicdev_t *amlnf_logicdev)
 			nf_dev->size_sector = size;
 			if((i+1) !=amlnf_logicdev->nand_dev->nr_partitions)	{
 				NPRINT("aml_create_nftl_dev fail 2\n");
+				aml_nftl_free(nf_dev);
 				return 1;
 			}
 		}
@@ -296,21 +297,23 @@ int amlnf_logic_init(unsigned flag)
 	//INIT_LIST_HEAD (&nf_dev_list);
 	//amlnand_show_dev_partition(aml_chip);
 	list_for_each_entry(phydev, &nphy_dev_list, list){
-		if (phydev!=NULL){
-			if (strncmp((char*)phydev->name, NAND_BOOT_NAME, strlen((const char*)NAND_BOOT_NAME))){
+		if (strncmp((char *)phydev->name,
+			    NAND_BOOT_NAME,
+			    strlen((const char *)NAND_BOOT_NAME))) {
 #ifdef AML_NAND_UBOOT
-				if(flag == NAND_BOOT_NORMAL){
-					if(!strncmp((char*)phydev->name, NAND_DATA_NAME, strlen((const char*)NAND_DATA_NAME))){
-						aml_nand_dbg("nand normal boot: not init NAND_DATA DEVICE");
-						continue;
-					}
+			if (flag == NAND_BOOT_NORMAL) {
+				if (!strncmp((char *)phydev->name,
+					     NAND_DATA_NAME,
+					     strlen((const char *)NAND_DATA_NAME))) {
+					aml_nand_dbg("nand normal boot: not init NAND_DATA DEVICE");
+					continue;
 				}
+			}
 #endif
-				ret = amlnf_nftl_init(phydev);
-				if(ret < 0){
-					aml_nand_msg("%s() failed", __func__);
-					goto exit_error;
-				}
+			ret = amlnf_nftl_init(phydev);
+			if (ret < 0) {
+				aml_nand_msg("%s() failed", __func__);
+				goto exit_error;
 			}
 		}
 	}
@@ -325,15 +328,12 @@ void amlnf_logic_exit(void)
 {
 	struct amlnf_logicdev_t *amlnf_logicdev = NULL;
 
-	list_for_each_entry(amlnf_logicdev, &nlogic_dev_list, list){
-		if(amlnf_logicdev){
-			if(strncmp((char*)amlnf_logicdev->nand_dev->name, NAND_BOOT_NAME, strlen((const char*)NAND_BOOT_NAME))){
-				aml_nftl_part_release(amlnf_logicdev->priv);
-				if(amlnf_logicdev->nand_dev){
-					kfree(amlnf_logicdev->nand_dev);
-					amlnf_logicdev->nand_dev = NULL;
-				}
-			}
+	list_for_each_entry(amlnf_logicdev, &nlogic_dev_list, list) {
+		if (strncmp((char *)amlnf_logicdev->nand_dev->name,
+			    NAND_BOOT_NAME,
+			    strlen((const char *)NAND_BOOT_NAME))) {
+			aml_nftl_part_release(amlnf_logicdev->priv);
+			kfree(amlnf_logicdev->nand_dev);
 		}
 	}
 

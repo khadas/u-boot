@@ -927,10 +927,8 @@ static int read_page(struct amlnand_chip *aml_chip)
 					plane1_page_addr);
 #if (__DEBUG_L04__)
 				if (ops_para->option & DEV_USE_SHAREPAGE_MODE) {
-					if (buf)
-						buf += flash->pagesize*2;
-					if (oob_buf)
-						oob_buf += BYTES_OF_USER_PER_PAGE;
+					buf += flash->pagesize * 2;
+					oob_buf += BYTES_OF_USER_PER_PAGE;
 					ret = read_page_two_plane(aml_chip,
 						i, buf, oob_buf,
 						plane0_page_addr + 1,
@@ -962,10 +960,8 @@ static int read_page(struct amlnand_chip *aml_chip)
 				plane1_page_addr);
 			#if (__DEBUG_L04__)
 			if (ops_para->option & DEV_USE_SHAREPAGE_MODE) {
-				if (buf)
-					buf += flash->pagesize*2;
-				if (oob_buf)
-					oob_buf += BYTES_OF_USER_PER_PAGE;
+				buf += flash->pagesize * 2;
+				oob_buf += BYTES_OF_USER_PER_PAGE;
 				ret = read_page_two_plane(aml_chip,
 					ops_para->chipnr, buf, oob_buf,
 					plane0_page_addr + 1,
@@ -1150,7 +1146,7 @@ static int write_page_two_plane(struct amlnand_chip *aml_chip,
 
 	u32 column;
 	u32 page_size;
-	u8 bch_mode, user_byte_num;
+	u8 bch_mode, user_byte_num = 0;
 	u8 slc_mode, status, st_cnt;
 	int ret = 0;
 
@@ -2292,8 +2288,10 @@ static int test_block_reserved(struct amlnand_chip *aml_chip, int tst_blk)
 	u16  tmp_blk;
 	int  ret = 0, t = 0;
 	u32 tmp_value;
-
 	u8 *dat_buf = NULL;
+
+	if (!flash->blocksize || !flash->pagesize)
+		return -1;
 
 	dat_buf  = aml_nand_malloc(flash->pagesize);
 	if (!dat_buf) {
@@ -2307,8 +2305,6 @@ static int test_block_reserved(struct amlnand_chip *aml_chip, int tst_blk)
 
 	if (nand_boot)
 		offset = (1024 * flash->pagesize);
-	else
-		offset = 0;
 
 	phys_erase_shift = ffs(flash->blocksize) - 1;
 	phys_page_shift =  ffs(flash->pagesize) - 1;
@@ -2701,8 +2697,8 @@ int nand_hardreset(struct amlnand_chip *aml_chip, u8 chipnr)
 
 	controller->cmd_ctrl(controller, 0x78, NAND_CTRL_CLE);
 	controller->cmd_ctrl(controller, chipnr>> 0, NAND_CTRL_ALE);
-	controller->cmd_ctrl(controller, chipnr>> 8, NAND_CTRL_ALE);
-	controller->cmd_ctrl(controller, chipnr>>16, NAND_CTRL_ALE);
+	controller->cmd_ctrl(controller, 0, NAND_CTRL_ALE);
+	controller->cmd_ctrl(controller, 0, NAND_CTRL_ALE);
 	NFC_SEND_CMD_IDLE(controller, NAND_TWHR_TIME_CYCLE);
 	NFC_SEND_CMD_IDLE(controller, 0);
 	NFC_SEND_CMD_IDLE(controller, 0);

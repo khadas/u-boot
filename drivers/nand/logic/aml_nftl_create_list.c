@@ -363,18 +363,11 @@ uint32 check_block_accroding_p2l(_phy_block_info* p_phy_block_info, struct aml_n
 
 uint32 create_part_list_last(struct aml_nftl_part_t * part)
 {
-	uint32 i, total_blocks, logic_page = 0, ret;
+	uint32 total_blocks;
 	_physic_op_par phy_op_par;
 	uchar spare_data[BYTES_OF_USER_PER_PAGE];
 	_phy_block_info* p_phy_block_info;
-	_phy_block_info* current_block1;
-	_phy_block_info* current_block2;
-	_phy_block_info* block1;
-	_physic_op_par phy_op_par2;
-	_phy_block_info* p_phy_block_free = NULL;
 
-	current_block1 = NULL;
-	current_block2 = NULL;
 	p_phy_block_info = part->part_start_phy_block;
 
 	for(part->blocks = 0; p_phy_block_info->phy_block.blkNO_in_chip < part->nand_chip->blk_per_chip; p_phy_block_info++) {
@@ -438,23 +431,9 @@ uint32 create_part_list_last(struct aml_nftl_part_t * part)
 		part->nand_read_page(part,&phy_op_par);
 	}
 
-	if((current_block1 == NULL)&&(current_block2 == NULL)) {
-		NPRINT("all block full!!\n");
-		p_phy_block_info = NULL;
-		part->part_current_used_block = NULL;
-	} else if(current_block2 == NULL) {
-		p_phy_block_info = current_block1;
-	} 
-
-	if(p_phy_block_info != NULL) {
-		part->part_current_used_block = p_phy_block_info;
-		part->current_block_used_page = recover_current_block_mapping(part,p_phy_block_info);
-		part->current_block_used_count = p_phy_block_info->block_used_count;
-		for(i=0;i<part->current_block_used_page;i++) {
-		}
-		if(part->current_block_used_page < part->part_current_used_block->invalid_page_count)
-			NPRINT("error 22!!\n");
-	}
+	NPRINT("all block full!!\n");
+	p_phy_block_info = NULL;
+	part->part_current_used_block = NULL;
 
 	for(p_phy_block_info=part->block_used_head.block_used_next; p_phy_block_info!=NULL; p_phy_block_info=p_phy_block_info->block_used_next) {
 		if(part->part_current_used_block != p_phy_block_info)
@@ -462,32 +441,6 @@ uint32 create_part_list_last(struct aml_nftl_part_t * part)
 	}
 
 	adjust_invaild_list(part);
-
-	if(part->part_current_used_block == NULL) {
-
-	}
-	block1 = part->part_current_used_block;
-	for(i=0;i< part->nand_chip->pages_per_blk;i++) {
-		phy_op_par.phy_page.Page_NO = i;
-		phy_op_par.phy_page.blkNO_in_chip = block1->phy_block.blkNO_in_chip;
-		phy_op_par2.phy_page.Page_NO = i;
-		phy_op_par2.phy_page.blkNO_in_chip = p_phy_block_free->phy_block.blkNO_in_chip;
-		if(logic_page != 0xffffffff)
-		{
-			ret = part->nand_copy_page(part,&phy_op_par,&phy_op_par2,part->temp_page_buf,
-						   p_phy_block_free->block_used_count,p_phy_block_free->erase_count,logic_page);
-			if(ret != 0) {
-				phy_op_par.phy_page.Page_NO = 0;
-				phy_op_par.phy_page.blkNO_in_chip = p_phy_block_free->phy_block.blkNO_in_chip;
-				phy_op_par.page_bitmap = part->nand_chip->bitmap_per_page;
-				part->nand_mark_bad_blk(part,&phy_op_par);
-				NPRINT("do_write_error_in_create_list erase error!\n");
-				return 1;
-			}
-		} else {
-			break;
-		}
-	}
 
 	return 0;
 }
@@ -543,18 +496,11 @@ u32 do_write_error_in_create_list_for_discard(struct aml_nftl_part_t *part, _phy
 
 uint32 create_part_list(struct aml_nftl_part_t * part)
 {
-	uint32 i, total_blocks, logic_page = 0, ret;
+	uint32 total_blocks;
 	_physic_op_par phy_op_par;
 	uchar spare_data[BYTES_OF_USER_PER_PAGE];
 	_phy_block_info* p_phy_block_info;
-	_phy_block_info* current_block1;
-	_phy_block_info* current_block2;
-	_phy_block_info* block1;
-	_physic_op_par phy_op_par2;
-	_phy_block_info* p_phy_block_free = NULL;
 
-	current_block1 = NULL;
-	current_block2 = NULL;
 	p_phy_block_info = part->part_start_phy_block;
 
 	for(part->blocks = 0; p_phy_block_info->phy_block.blkNO_in_chip < part->nand_chip->blk_per_chip; p_phy_block_info++) {
@@ -618,25 +564,9 @@ uint32 create_part_list(struct aml_nftl_part_t * part)
 		part->nand_read_page(part,&phy_op_par);
 	}
 
-	if((current_block1 == NULL)&&(current_block2 == NULL)) {
-		NPRINT("all block full!!\n");
-		p_phy_block_info = NULL;
-		part->part_current_used_block = NULL;
-	} else if(current_block2 == NULL) {
-		p_phy_block_info = current_block1;
-	} else {
-		do_write_error_in_create_list_for_discard(part, current_block1, current_block2, part->nand_chip->pages_per_blk);
-	}
-
-	if(p_phy_block_info != NULL) {
-		part->part_current_used_block = p_phy_block_info;
-		part->current_block_used_page = recover_current_block_mapping(part,p_phy_block_info);
-		part->current_block_used_count = p_phy_block_info->block_used_count;
-		for(i=0;i<part->current_block_used_page;i++) {
-		}
-		if(part->current_block_used_page < part->part_current_used_block->invalid_page_count)
-			NPRINT("error 22!!\n");
-	}
+	NPRINT("all block full!!\n");
+	p_phy_block_info = NULL;
+	part->part_current_used_block = NULL;
 
 	for(p_phy_block_info=part->block_used_head.block_used_next; p_phy_block_info!=NULL; p_phy_block_info=p_phy_block_info->block_used_next) {
 		if(part->part_current_used_block != p_phy_block_info)
@@ -645,33 +575,6 @@ uint32 create_part_list(struct aml_nftl_part_t * part)
 
 	adjust_invaild_list(part);
 
-	if(part->part_current_used_block == NULL) {
-
-	}
-	block1 = part->part_current_used_block;
-	for(i=0;i< part->nand_chip->pages_per_blk;i++) {
-		phy_op_par.phy_page.Page_NO = i;
-		phy_op_par.phy_page.blkNO_in_chip = block1->phy_block.blkNO_in_chip;
-		phy_op_par2.phy_page.Page_NO = i;
-		phy_op_par2.phy_page.blkNO_in_chip = p_phy_block_free->phy_block.blkNO_in_chip;
-		if(logic_page != 0xffffffff)
-		{
-			ret = part->nand_copy_page(part,&phy_op_par,&phy_op_par2,part->temp_page_buf,
-						   p_phy_block_free->block_used_count,p_phy_block_free->erase_count,logic_page);
-			if(ret != 0) {
-				phy_op_par.phy_page.Page_NO = 0;
-				phy_op_par.phy_page.blkNO_in_chip = p_phy_block_free->phy_block.blkNO_in_chip;
-				phy_op_par.page_bitmap = part->nand_chip->bitmap_per_page;
-				part->nand_mark_bad_blk(part,&phy_op_par);
-				NPRINT("do_write_error_in_create_list erase error!\n");
-				do_write_error_in_create_list(part, p_phy_block_free, p_phy_block_free, part->nand_chip->pages_per_blk);
-				return 1;
-			}
-		} else {
-			break;
-		}
-	}
-	
 	create_part_list_last(part);
 
 	return 0;
@@ -706,47 +609,45 @@ uint32 do_write_error_in_create_list(struct aml_nftl_part_t* part,_phy_block_inf
 		phy_op_par.phy_page.blkNO_in_chip = block1->phy_block.blkNO_in_chip;
 		phy_op_par2.phy_page.Page_NO = i;
 		phy_op_par2.phy_page.blkNO_in_chip = p_phy_block_free->phy_block.blkNO_in_chip;
-		if(logic_page != 0xffffffff)
-		{
-			ret = part->nand_copy_page(part,&phy_op_par,&phy_op_par2,part->temp_page_buf,
-						   p_phy_block_free->block_used_count,p_phy_block_free->erase_count,logic_page);
-			if(ret != 0) {
-				phy_op_par.phy_page.Page_NO = 0;
-				phy_op_par.phy_page.blkNO_in_chip = p_phy_block_free->phy_block.blkNO_in_chip;
-				phy_op_par.page_bitmap = part->nand_chip->bitmap_per_page;
-				part->nand_mark_bad_blk(part,&phy_op_par);
-				NPRINT("do_write_error_in_create_list erase error!\n");
-				return 1;
-			}
-		} else {
-			break;
+		ret = part->nand_copy_page(part, &phy_op_par,
+					   &phy_op_par2,
+					   part->temp_page_buf,
+					   p_phy_block_free->block_used_count,
+					   p_phy_block_free->erase_count,
+					   logic_page);
+		if (ret != 0) {
+			phy_op_par.phy_page.Page_NO = 0;
+			phy_op_par.phy_page.blkNO_in_chip =
+				p_phy_block_free->phy_block.blkNO_in_chip;
+			phy_op_par.page_bitmap = part->nand_chip->bitmap_per_page;
+			part->nand_mark_bad_blk(part, &phy_op_par);
+			NPRINT("%s erase error!\n", __func__);
+			return 1;
 		}
 	}
-		
+
 	phy_op_par.phy_page.Page_NO = 0;
 	phy_op_par.phy_page.blkNO_in_chip = block1->phy_block.blkNO_in_chip;
 	phy_op_par.page_bitmap = part->nand_chip->bitmap_per_page;
 	part->nand_mark_bad_blk(part,&phy_op_par);
-	
+
 	for(i=0;i<page_num;i++) {
 		phy_op_par.phy_page.Page_NO = i;
 		phy_op_par.phy_page.blkNO_in_chip = block1->phy_block.blkNO_in_chip;
 		phy_op_par2.phy_page.Page_NO = i;
 		phy_op_par2.phy_page.blkNO_in_chip = p_phy_block_free->phy_block.blkNO_in_chip;
-		if(logic_page != 0xffffffff)
-		{
-			ret = part->nand_copy_page(part,&phy_op_par,&phy_op_par2,part->temp_page_buf,
-						   p_phy_block_free->block_used_count,p_phy_block_free->erase_count,logic_page);
-			if(ret != 0) {
-				phy_op_par.phy_page.Page_NO = 0;
-				phy_op_par.phy_page.blkNO_in_chip = p_phy_block_free->phy_block.blkNO_in_chip;
-				phy_op_par.page_bitmap = part->nand_chip->bitmap_per_page;
-				part->nand_mark_bad_blk(part,&phy_op_par);
-				NPRINT("do_write_error_in_create_list erase error!\n");
-				return 1;
-			}
-		} else {
-			break;
+		ret = part->nand_copy_page(part, &phy_op_par, &phy_op_par2,
+					   part->temp_page_buf,
+					   p_phy_block_free->block_used_count,
+					   p_phy_block_free->erase_count, logic_page);
+		if (ret != 0) {
+			phy_op_par.phy_page.Page_NO = 0;
+			phy_op_par.phy_page.blkNO_in_chip =
+				p_phy_block_free->phy_block.blkNO_in_chip;
+			phy_op_par.page_bitmap = part->nand_chip->bitmap_per_page;
+			part->nand_mark_bad_blk(part, &phy_op_par);
+			NPRINT("%s erase error!\n", __func__);
+			return 1;
 		}
 	}
 

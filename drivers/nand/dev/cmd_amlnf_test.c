@@ -77,6 +77,7 @@ static int nand_erase_ops_test(struct amlnand_phydev *phydev, uint64_t off, uint
 		} else if (ret < 0) {
 			aml_nand_msg("nand get bad block failed: ret=%d at addr=%llx",ret, erase_addr);
 			ret =  -NAND_ERASE_FAILED;
+			goto exit_error;
 		}
 		extern int nand_erase(struct amlnand_phydev *phydev);
 		ret = nand_erase(phydev);
@@ -100,6 +101,11 @@ static int nand_read_ops_test(struct amlnand_phydev *phydev,uint64_t off , uint6
 	unsigned char * buffer = NULL;
 	int ret = 0;
 
+	if (!dat_buf) {
+		aml_nand_msg("nand read no buf");
+		return -NAND_READ_FAILED;
+	}
+
 	offset = off;
 	write_len = len;
 	buffer = aml_nand_malloc(2 * phydev->writesize);
@@ -109,19 +115,16 @@ static int nand_read_ops_test(struct amlnand_phydev *phydev,uint64_t off , uint6
 		goto exit_error;
 	}
 
-	if (!dat_buf) {
-		aml_nand_msg("nand read no buf");
-		return -NAND_READ_FAILED;
-	}
-
 	if ((offset & (phydev->writesize - 1)) != 0 ||(write_len & (phydev->writesize - 1)) != 0) {
 		aml_nand_msg ("Attempt to read non page aligned data");
-		return -NAND_READ_FAILED;
+		ret = -NAND_READ_FAILED;
+		goto exit_error;
 	}
 
 	if ((offset + write_len) > phydev->size) {
 		aml_nand_msg("Attemp to read out side the dev area");
-		return -NAND_READ_FAILED;
+		ret = -NAND_READ_FAILED;
+		goto exit_error;
 	}
 	memset(devops, 0x0, sizeof(struct phydev_ops));
 	devops->addr = offset;
@@ -139,7 +142,8 @@ static int nand_read_ops_test(struct amlnand_phydev *phydev,uint64_t off , uint6
 				continue;
 			} else if (ret < 0) {
 				aml_nand_msg("AMLNAND get bad block failed: ret=%d at addr=%llx",ret, devops->addr);
-				return -1;
+				ret = -NAND_READ_FAILED;
+				goto exit_error;
 			}
 		}
 		memset(buffer,0x0,(2 * phydev->writesize));
@@ -291,7 +295,8 @@ static int nand_write_ops_test(struct amlnand_phydev *phydev , uint64_t off, uin
 				continue;
 			} else if (ret < 0) {
 				aml_nand_msg("AMLNAND get bad block failed: ret=%d at addr=%llx",ret, devops->addr);
-				return -1;
+				ret = -1;
+				goto exit_error;
 			}
 		}
 		ret = phydev->write(phydev);

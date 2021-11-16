@@ -106,8 +106,8 @@ int nand_is_blk_good(struct aml_nftl_part_t *part,_physic_op_par *p)
 
 	memset(ops, 0, sizeof(struct phydev_ops));
 
-	ops->addr =  phydev->erasesize;
-	ops->addr = p->phy_page.blkNO_in_chip;
+	ops->addr = phydev->erasesize;
+	ops->addr *= p->phy_page.blkNO_in_chip;
 	ops->addr <<= phydev->erasesize_shift;
 
 	//    NPRINT("nand_is_blk_good %x,%x,%llx\n",p->phy_page.blkNO_in_chip,aml_nftl_blk->nand_dev->erasesize,aml_nftl_blk->nand_dev->ops.addr);

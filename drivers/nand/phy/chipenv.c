@@ -38,6 +38,9 @@ int chipenv_init_erase_protect(struct amlnand_chip *aml_chip, int flag,int block
 	struct hw_controller *controller = &aml_chip->controller;
 	struct read_retry_info *retry_info = &(controller->retry_info);
 
+	if (!flash->blocksize || !flash->pagesize)
+		return -1;
+
 	int phys_erase_shift = ffs(flash->blocksize) - 1;
 	start_blk =  (1024 * flash->pagesize) >> phys_erase_shift;
 	block_num  -= (controller->chip_num - 1) * start_blk;
@@ -116,10 +119,13 @@ static int amlnand_oops_handle(struct amlnand_chip *aml_chip, int flag)
 	unsigned int buf_size;
 	int last_reserve_blk;
 
+	if (!flash->blocksize || !flash->pagesize)
+		return -1;
 	buf_size = 0x40000; /*rsv item max size is 256KB*/
 	buf = aml_nand_malloc(buf_size);
 	if (!buf) {
-	  aml_nand_msg("%s() %d: malloc failed", __FUNCTION__, __LINE__);
+		aml_nand_msg("%s() %d: malloc failed", __func__, __LINE__);
+		return -1;
 	}
 	memset(buf, 0x0, buf_size);
 
@@ -144,7 +150,6 @@ static int amlnand_oops_handle(struct amlnand_chip *aml_chip, int flag)
 		goto exit_error0;
 	}
 #endif
-
 	erase_shift = ffs(flash->blocksize) - 1;
 	write_shift =  ffs(flash->pagesize) - 1;
 	erase_len = ((uint64_t)(flash->chipsize*controller->chip_num))<<20;
@@ -350,8 +355,10 @@ int amlnand_free_block_test(struct amlnand_chip *aml_chip, int start_blk)
 	u16  tmp_blk;
 	int  ret = 0, t = 0;
 	u32 tmp_value;
-
 	u8 *dat_buf = NULL;
+
+	if (!flash->blocksize || !flash->pagesize)
+		return -1;
 
 	dat_buf  = aml_nand_malloc(flash->pagesize);
 	if (!dat_buf) {
@@ -363,16 +370,8 @@ int amlnand_free_block_test(struct amlnand_chip *aml_chip, int start_blk)
 	memset(dat_buf, 0xa5, flash->pagesize);
 
 	nand_boot = 1;
-
-	/*
-	if (boot_device_flag == 0)
-		nand_boot = 0;
-	*/
-
 	if (nand_boot)
 		offset = (1024 * flash->pagesize);
-	else
-		offset = 0;
 
 	phys_erase_shift = ffs(flash->blocksize) - 1;
 	phys_page_shift =  ffs(flash->pagesize) - 1;
@@ -541,6 +540,7 @@ int get_last_reserve_block(struct amlnand_chip *aml_chip)
 	int  ret = 0;
 	u32 tmp_value;
 	static u32 total_blk = 0, scan_flag = 0;
+
 	if ((total_blk > RESERVED_BLOCK_CNT) && (scan_flag == 1)) {
 		aml_nand_dbg("total_blk:%d",total_blk);
 		return total_blk;
@@ -548,8 +548,10 @@ int get_last_reserve_block(struct amlnand_chip *aml_chip)
 	if (aml_chip->nand_bbtinfo.arg_valid) {
 		scan_flag = 1;
 	}
-	offset = (1024 * flash->pagesize);
 
+	if (!flash->blocksize || !flash->pagesize)
+		return -1;
+	offset = (1024 * flash->pagesize);
 	phys_erase_shift = ffs(flash->blocksize) - 1;
 	phys_page_shift =  ffs(flash->pagesize) - 1;
 	pages_per_blk = (1 << (phys_erase_shift - phys_page_shift));
@@ -599,6 +601,9 @@ int repair_reserved_bad_block(struct amlnand_chip *aml_chip)
 	u8 *dat_buf = NULL;
 	u8 *oob_buf = NULL;
 	u32 tmp_value;
+
+	if (!flash->blocksize || !flash->pagesize)
+		return -1;
 
 	memset(bad_blk, 0, 128*sizeof(u32));
 	offset = (1024 * flash->pagesize);
@@ -767,15 +772,11 @@ int amlnand_get_free_block(struct amlnand_chip *aml_chip, u32 block)
 	u32 tmp_value;
 
 	nand_boot = 1;
-
-	/*if(boot_device_flag == 0) {
-		nand_boot = 0;
-	}*/
 	if (nand_boot)
 		offset = (1024 * flash->pagesize);
-	else
-		offset = 0;
 
+	if (!flash->blocksize || !flash->pagesize)
+		return -1;
 	phys_erase_shift = ffs(flash->blocksize) - 1;
 	phys_page_shift =  ffs(flash->pagesize) - 1;
 	pages_per_blk = (1 << (phys_erase_shift - phys_page_shift));
@@ -938,11 +939,11 @@ int amlnand_erase_info_by_name(struct amlnand_chip *aml_chip,
 
 	if (nand_boot)
 		offset = (1024 * flash->pagesize);
-	else
-		offset = 0;
 
 	memset((u8 *)ops_para, 0x0, sizeof(struct chip_ops_para));
 
+	if (!flash->blocksize || !flash->pagesize)
+		return -1;
 	phys_erase_shift = ffs(flash->blocksize) - 1;
 	phys_page_shift =  ffs(flash->pagesize) - 1;
 	pages_per_blk = (1 << (phys_erase_shift - phys_page_shift));
@@ -1036,12 +1037,12 @@ int amlnand_read_info_by_name(struct amlnand_chip *aml_chip,
 
 	if (nand_boot)
 		offset = (1024 * flash->pagesize);
-	else
-		offset = 0;
 
 	arg_oob_info = (struct nand_arg_oobinfo *)oob_buf;
 	memset((u8 *)ops_para, 0x0, sizeof(struct chip_ops_para));
 
+	if (!flash->blocksize || !flash->pagesize)
+		return -1;
 	phys_erase_shift = ffs(flash->blocksize) - 1;
 	phys_page_shift =  ffs(flash->pagesize) - 1;
 	pages_per_blk = (1 << (phys_erase_shift - phys_page_shift));
@@ -1180,9 +1181,10 @@ int amlnand_save_info_by_name(struct amlnand_chip *aml_chip,
 
 	if (nand_boot)
 		offset = (1024 * flash->pagesize);
-	else
-		offset = 0;
 	ENV_NAND_LINE
+
+	if (!flash->blocksize || !flash->pagesize)
+		return -1;
 	phys_erase_shift = ffs(flash->blocksize) - 1;
 	phys_page_shift =  ffs(flash->pagesize) - 1;
 	pages_per_blk = (1 << (phys_erase_shift - phys_page_shift));
@@ -1202,7 +1204,6 @@ int amlnand_save_info_by_name(struct amlnand_chip *aml_chip,
 		}
 	}
 
-	/* aml_nand_msg("extra_page:%d",extra_page);   //1 */
 	tmp_blk = (offset >> phys_erase_shift);
 
 	if ((flash->new_type) && ((flash->new_type < 10)
@@ -2030,12 +2031,12 @@ int amlnand_check_info_by_name(struct amlnand_chip *aml_chip,
 
 	if (nand_boot)
 		offset = (1024 * flash->pagesize);
-	else
-		offset = 0;
 	ENV_NAND_LINE
 	arg_oob_info = (struct nand_arg_oobinfo *)oob_buf;
 	memset((u8 *)ops_para, 0x0, sizeof(struct chip_ops_para));
 
+	if (!flash->blocksize || !flash->pagesize)
+		return -1;
 	phys_erase_shift = ffs(flash->blocksize) - 1;
 	phys_page_shift =  ffs(flash->pagesize) - 1;
 	pages_per_blk = (1 << (phys_erase_shift - phys_page_shift));
@@ -2452,6 +2453,9 @@ int amlnand_recover_fbbt(struct amlnand_chip *aml_chip)
 	u8 phys_erase_shift;
 	u64 chip_size;
 
+	if (!flash->blocksize || !flash->chipsize)
+		return -1;
+
 	aml_nand_dbg("%s : start",__func__);
 	phys_erase_shift = ffs(flash->blocksize) - 1;
 	chip_size = flash->chipsize;
@@ -2509,9 +2513,10 @@ int amlnand_init_block_status(struct amlnand_chip *aml_chip)
 	int ret = 0, i, j;
 
 	aml_nand_dbg("amlnand_init_block_status : start");
+	if (!flash->blocksize || !flash->chipsize)
+		return -1;
 
 	phys_erase_shift = ffs(flash->blocksize) - 1;
-
 	chip_size = flash->chipsize;
 	total_blk = (int) ((chip_size<<20) >> phys_erase_shift);
 
@@ -2602,8 +2607,6 @@ static int confirm_dev_para(struct dev_para*dev_para_cmp,struct amlnf_partition 
 				break;
 			}
 			partiton_num ++;
-		}else if(partition == NULL){
-			break;
 		}
 	}
 
@@ -2633,8 +2636,6 @@ static void init_dev_para(struct dev_para*dev_para_ptr,struct amlnf_partition *c
 			aml_nand_dbg("init_dev_para : partition->name %s ", partition->name);
 			aml_nand_dbg("init_dev_para : partition->size %llx", partition->size);
 			aml_nand_dbg("init_dev_para : partition->mask_flags %d", partition->mask_flags);
-		}else if(partition == NULL){
-			break;
 		}
 	}
 	dev_para_ptr->nr_partitions = partiton_num;
@@ -2867,9 +2868,9 @@ int aml_nand_save_hynix_info(struct amlnand_chip *aml_chip)
 
 	if (nand_boot)
 		offset = (1024 * flash->pagesize);
-	else
-		offset = 0;
 
+	if (!flash->blocksize || !flash->pagesize)
+		return -1;
 	phys_erase_shift = ffs(flash->blocksize) - 1;
 	phys_page_shift =  ffs(flash->pagesize) - 1;
 	pages_per_blk = (1 << (phys_erase_shift - phys_page_shift));
@@ -2939,7 +2940,7 @@ get_free_blk:
 				if (aml_chip->state == CHIP_READY)
 					nand_get_chip(aml_chip);
 				#endif
-				ret = operation->write_page(aml_chip);
+				operation->write_page(aml_chip);
 				#ifdef AML_NAND_UBOOT
 				nand_release_chip(aml_chip);
 				#else
@@ -3049,18 +3050,12 @@ int aml_nand_scan_hynix_info(struct amlnand_chip *aml_chip)
 		return NAND_SUCCESS;
 
 	nand_boot = 1;
-
-	/*if(boot_device_flag == 0){
-		nand_boot = 0;
-	}*/
-
 	if (nand_boot)
 		offset = (1024 * flash->pagesize);
-	else
-		offset = 0;
-
 	memset((u8 *)ops_para, 0x0, sizeof(struct chip_ops_para));
 
+	if (!flash->blocksize || !flash->pagesize)
+		return -1;
 	phys_erase_shift = ffs(flash->blocksize) - 1;
 	phys_page_shift =  ffs(flash->pagesize) - 1;
 	if ((flash->new_type) && (flash->new_type < 10))
@@ -3252,6 +3247,8 @@ int aml_nand_scan_hynix_info(struct amlnand_chip *aml_chip)
 		offset_tmp = 0;
 	}
 
+	if (!flash->blocksize || !flash->pagesize)
+		return -1;
 	phys_erase_shift = ffs(flash->blocksize) - 1;
 	phys_page_shift =  ffs(flash->pagesize) - 1;
 	pages_per_blk = (1 << (phys_erase_shift -phys_page_shift));
@@ -3630,7 +3627,6 @@ int  shipped_bbt_invalid_ops(struct amlnand_chip *aml_chip)
 	struct hw_controller *controller = &aml_chip->controller;
 	struct nand_flash *flash = &aml_chip->flash;
 	uint64_t chipsize;
-	unsigned char *buf = NULL;
 	int ret = 0, pre_erase = 0;
 
 /*
@@ -3695,18 +3691,30 @@ int  shipped_bbt_invalid_ops(struct amlnand_chip *aml_chip)
 	} else {
 	/* normal boot or upgrade, no need to erase the whole chip! */
 	/* init key info here!*/
-		ret = amlnand_info_init(aml_chip, (unsigned char *)&(aml_chip->nand_key),buf,(unsigned char *)KEY_INFO_HEAD_MAGIC, aml_chip->keysize);
+		ret = amlnand_info_init(aml_chip,
+					(unsigned char *)&aml_chip->nand_key,
+					NULL,
+					(unsigned char *)KEY_INFO_HEAD_MAGIC,
+					aml_chip->keysize);
 		if (ret < 0) {
 			aml_nand_msg("invalid nand key\n");
 			goto exit_error0;
 		}
-		ret = amlnand_info_init(aml_chip, (unsigned char *)&(aml_chip->nand_ddr_para),buf,(unsigned char *)DDR_PARAMETER_HEAD_MAGIC, aml_chip->ddrsize);
+		ret = amlnand_info_init(aml_chip,
+					(unsigned char *)&aml_chip->nand_ddr_para,
+					NULL,
+					(unsigned char *)DDR_PARAMETER_HEAD_MAGIC,
+					aml_chip->ddrsize);
 		if (ret < 0) {
 			aml_nand_msg("invalid nand ddr parameter\n");
 			goto exit_error0;
 		}
 #ifdef CONFIG_SECURE_NAND
-		ret = amlnand_info_init(aml_chip, (unsigned char *)&(aml_chip->nand_secure),buf,(unsigned char *)SECURE_INFO_HEAD_MAGIC, CONFIG_SECURE_SIZE);
+		ret = amlnand_info_init(aml_chip,
+					(unsigned char *)&aml_chip->nand_secure,
+					NULL,
+					(unsigned char *)SECURE_INFO_HEAD_MAGIC,
+					CONFIG_SECURE_SIZE);
 		if (ret < 0) {
 			aml_nand_msg("invalid nand secure_ptr\n");
 			goto exit_error0;
@@ -3766,10 +3774,6 @@ int  shipped_bbt_invalid_ops(struct amlnand_chip *aml_chip)
 	}
 
 exit_error0:
-	if (buf) {
-		kfree(buf);
-		buf = NULL;
-	}
 	return ret;
 }
 

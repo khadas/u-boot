@@ -74,27 +74,26 @@ uint32 nand_read_logic_page(struct aml_nftl_part_t* part,uint32 page_no,uchar *b
 {
 	int ret;
 	uchar spare_data[BYTES_OF_USER_PER_PAGE];
-	_nand_page* logic_page_map = NULL;
 	_physic_op_par phy_op_par;
 	_phy_block_info* p_phy_block;
 
-	phy_op_par.phy_page.Page_NO = logic_page_map->Page_NO;
-	phy_op_par.phy_page.blkNO_in_chip = logic_page_map->blkNO_in_chip;
+	phy_op_par.phy_page.Page_NO = 0;
+	phy_op_par.phy_page.blkNO_in_chip = 0;
 	phy_op_par.page_bitmap = part->nand_chip->bitmap_per_page;
 	phy_op_par.main_data_addr = buf;
 	phy_op_par.spare_data_addr = spare_data;
 
-	ret = part->nand_read_page(part,&phy_op_par);
+	ret = part->nand_read_page(part, &phy_op_par);
 	if((ret == -EUCLEAN)|| (ret  == -EBADMSG)) {
 		if((part->cfg->nftl_support_gc_read_reclaim != 0) || (ret  == -EUCLEAN)) {
-			p_phy_block = get_phy_block_addr(part,logic_page_map->blkNO_in_chip);
+			p_phy_block = get_phy_block_addr(part, 0);
 			add_prio_gc(part,p_phy_block,GC_READ_RECLAIM);
 			NPRINT("read a page: %d READ_RECLAIM!\n",page_no);
 		}
 		if (ret  == -EBADMSG){
 			//memset(buf, 0x0, part->nand_chip->bytes_per_page);
 			NPRINT("nand_read_logic_page : read a page ecc failed \n");
-			p_phy_block = get_phy_block_addr(part,logic_page_map->blkNO_in_chip);
+			p_phy_block = get_phy_block_addr(part, 0);
 			add_prio_gc(part,p_phy_block, GC_READ_RECLAIM);
 		}
 		ret = 0;

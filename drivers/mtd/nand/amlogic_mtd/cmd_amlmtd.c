@@ -462,8 +462,6 @@ static int do_dtb_ops(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
  * operations for key.
  * should never be used by users, just for nand team debug.
  */
-extern int amlnf_key_read(u8 *buf, int len, uint32_t *actual_lenth);
-extern int amlnf_key_write(u8 *buf, int len, uint32_t *actual_lenth);
 extern int amlnf_key_erase(void);
 static int do_key_ops(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {

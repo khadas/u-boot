@@ -102,9 +102,9 @@ static int read_uboot(struct amlnand_phydev *phydev)
 		en_slc, len, addr );
 	valid_pages = (en_slc)?(valid_pages>>1):valid_pages;
 	for (i = 1;
-		i < ((valid_pages*flash->pagesize)/len + 1); i++) {
-		if (((valid_pages*flash->pagesize)/(2*i) >= len)
-				&& (boot_num < 4))
+		i < (((u64)valid_pages * flash->pagesize) / len + 1); i++) {
+		if ((((u64)valid_pages * flash->pagesize) / (2 * i) >= len) &&
+		    boot_num < 4)
 			boot_num <<= 1;
 		else
 			break;
@@ -427,7 +427,7 @@ static int write_uboot(struct amlnand_phydev *phydev)
 		BOOT_LINE
 		writelen = 0;
 		addr = 0;
-		addr += flash->pagesize * p_ext_info->each_boot_pages *i;
+		addr += (u64)flash->pagesize * p_ext_info->each_boot_pages * i;
 		boot_pages = p_ext_info->each_boot_pages;
 		if (ops_para->option & DEV_SLC_MODE) {
 			addr >>= 1;
@@ -721,7 +721,7 @@ int roomboot_nand_write(struct amlnand_phydev *phydev)
 				ops_para->page_addr);
 			/* break; */
 		addr += phydev->erasesize;
-	} while (addr < (1024 * flash->pagesize));
+	} while (addr < (1024 * (u64)flash->pagesize));
 	BOOT_LINE
 	memset(devops, 0x0, sizeof(struct phydev_ops));
 	devops->addr = offset;

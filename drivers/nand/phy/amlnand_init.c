@@ -101,7 +101,7 @@ static void dbg_buffer_alloc(struct amlnand_chip *aml_chip)
 {
 	struct hw_controller *controller = &aml_chip->controller;
 	struct nand_flash *flash = &aml_chip->flash;
-	u32 ret = 0, buf_size;
+	u32 buf_size;
 
 	buf_size = flash->oobsize * controller->chip_num;
 	if (flash->option & NAND_MULTI_PLANE_MODE)
@@ -110,7 +110,6 @@ static void dbg_buffer_alloc(struct amlnand_chip *aml_chip)
 	aml_chip->user_oob_buf = aml_nand_malloc(buf_size);
 	if (aml_chip->user_oob_buf == NULL) {
 		aml_nand_msg("malloc failed for user_oob_buf ");
-		ret = -NAND_MALLOC_FAILURE;
 		goto _out;
 	}
 	memset(aml_chip->user_oob_buf, 0x0, buf_size);
@@ -121,15 +120,10 @@ static void dbg_buffer_alloc(struct amlnand_chip *aml_chip)
 	aml_chip->user_page_buf = aml_nand_malloc(buf_size);
 	if (aml_chip->user_page_buf == NULL) {
 		aml_nand_msg("malloc failed for user_page_buf ");
-		ret = -NAND_MALLOC_FAILURE;
 		goto _out;
 	}
 	memset(aml_chip->user_page_buf, 0x0, buf_size);
 	return;
-	if (ret) {
-		aml_nand_msg("%s() ret %d", __func__, ret);
-	}
-
 _out:
 	dbg_buffer_free(aml_chip);
 	return;

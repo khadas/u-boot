@@ -35,9 +35,9 @@ int aml_nftl_start(void* priv,void* cfg, void ** ppart,uint64_t size,unsigned er
 	struct aml_nftl_part_t* part;
 
 	struct amlnand_phydev* nand_phydev = (struct amlnand_phydev*)priv;
-	uint64_t phy_dev_size=0,tmp_off_size;
+	u64 phy_dev_size = 0, tmp_off_size = 0;
 	uint64_t tmp_compensation_pages=0;
-	uint32_t phy_dev_block,phy_off_block;	
+	u32 phy_dev_block = 0, phy_off_block;
 	*ppart = aml_nftl_malloc(sizeof(struct aml_nftl_part_t));
 	part = *ppart;
 	if (!part)
@@ -53,7 +53,11 @@ int aml_nftl_start(void* priv,void* cfg, void ** ppart,uint64_t size,unsigned er
 		return -ENOMEM;
 
 	memcpy(&part->version[0], DRV_FTL_VERSION, 8);
+	part->version[8] = '\0';
 	NPRINT("nftl version %s\n",part->version);
+
+	if (!writesize || !erasesize)
+		return -1;
 
 	phys_write_shift = ffs(writesize) - 1;
 	part->nand_chip->bytes_per_page = writesize;
@@ -101,18 +105,24 @@ int aml_nftl_start(void* priv,void* cfg, void ** ppart,uint64_t size,unsigned er
 	}else{
 		part->free_block_num = (size_in_blk / part->cfg->nftl_part_reserved_block_ratio);
 	}
-	
+
 	/*calculate the phy size*/
 	for(i = 0; i < nand_phydev->nr_partitions; i++){
-		phy_dev_size += nand_phydev->partitions[i].size;        			
+		phy_dev_size += nand_phydev->partitions[i].size;
 	}
 	if(phy_dev_size != -1) {
-		tmp_compensation_pages = ((phy_dev_size >> phys_write_shift) + (1<<phys_page_shift) - 1)/(1<<phys_page_shift);
-		tmp_off_size = tmp_compensation_pages << phys_write_shift;
-		phy_off_block = (tmp_off_size + (1<<phys_erase_shift)-1) >> phys_erase_shift;
-		if(ffs(tmp_off_size)-1 == phys_erase_shift)
-			phy_off_block++;
-		phy_dev_block = phy_off_block + ((phy_dev_size + (1<<phys_erase_shift)-1)>>phys_erase_shift);	
+		if (phys_page_shift < 32) {
+			tmp_compensation_pages =
+			((phy_dev_size >> phys_write_shift) +
+			 (1 << phys_page_shift) - 1) / (1 << phys_page_shift);
+			tmp_off_size = tmp_compensation_pages << phys_write_shift;
+			phy_off_block =
+			(tmp_off_size + (1 << phys_erase_shift) - 1) >> phys_erase_shift;
+			if (ffs(tmp_off_size) - 1 == phys_erase_shift)
+				phy_off_block++;
+			phy_dev_block = phy_off_block +
+			((phy_dev_size + (1 << phys_erase_shift) - 1) >> phys_erase_shift);
+		}
 		NPRINT("get the phy_dev_size=%llxH tmp_off_size=%llxH phy_dev_block=%xH",phy_dev_size,tmp_off_size,phy_dev_block);
 		if(phy_dev_block + part->cfg->nftl_min_free_block_num > size_in_blk )
 		{
@@ -126,7 +136,7 @@ int aml_nftl_start(void* priv,void* cfg, void ** ppart,uint64_t size,unsigned er
 	}
 	else{
 		NPRINT("The partition size == -1");
-	}	
+	}
 	NPRINT("nftl start:size_in_blk=%d,free_block_num=%d",size_in_blk,part->free_block_num);
 
 	temp = erasesize  >> 9;

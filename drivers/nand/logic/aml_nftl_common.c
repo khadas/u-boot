@@ -87,13 +87,7 @@ void set_oob_special_page(struct aml_nftl_part_t *part,uchar* buf,uint32 special
 
 uchar get_bad_flag_from_oob(uchar* buf)
 {
-	uint32 special_data = 0;
-
-	if(special_data == 0)
-	{
-		return 0;
-	}
-	return 1;
+	return 0;
 }
 
 uint32 get_block_used_count_from_oob(uchar* buf)

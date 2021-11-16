@@ -391,7 +391,7 @@ union nand_core_clk_t {
 
 #define	EN_SLC_REG_NUM		8
 
-#define	READ_RETRY_ZERO		((char)-1)
+#define	READ_RETRY_ZERO		(0xff)
 
 #define	NAND_CMD_HYNIX_GET_VALUE		0x37
 #define	NAND_CMD_HYNIX_SET_VALUE_START		0x36

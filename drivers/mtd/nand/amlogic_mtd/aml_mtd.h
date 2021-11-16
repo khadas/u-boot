@@ -785,5 +785,6 @@ int aml_nand_get_fbb_issue(void);
 
 void aml_nand_check_fbb_issue(u8 *dev_id);
 
+int amlnf_key_read(u8 *buf, int len, uint32_t *actual_length);
+int amlnf_key_write(u8 *buf, int len, uint32_t *actual_length);
 #endif
-

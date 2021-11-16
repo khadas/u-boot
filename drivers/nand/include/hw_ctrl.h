@@ -9,8 +9,6 @@
 #ifndef __HW_CTRL_H__
 #define __HW_CTRL_H__
 
-#include "amlnf_dev.h"
-
 #ifndef AML_NAND_UBOOT
 #include <linux/types.h>
 #endif /* AML_NAND_UBOOT */

@@ -121,6 +121,10 @@ static int get_flash_type(struct amlnand_chip *aml_chip)
 		goto error_exit;
 	}
 
+	if (!aml_chip->flash.pagesize || !aml_chip->flash.blocksize) {
+		ret = -NAND_ID_FAILURE;
+		goto error_exit;
+	}
 	controller->page_shift =  ffs(aml_chip->flash.pagesize) - 1;
 	controller->block_shift =  ffs(aml_chip->flash.blocksize) - 1;
 	controller->internal_page_nums =
@@ -620,6 +624,8 @@ int amlchip_opstest(struct amlnand_chip *aml_chip)
 	if (ops_para->option & DEV_USE_SHAREPAGE_MODE)
 		writesize *= 2;
 
+	if (!erasesize || !writesize)
+		return -1;
 	erase_shift  = ffs(erasesize) - 1;
 	write_shift  = ffs(writesize) - 1;
 
@@ -672,21 +678,19 @@ int amlchip_opstest(struct amlnand_chip *aml_chip)
 	aml_nand_dbg("TEST step2 erase whole chip");
 	opslen = addr = 0;
 	/* len = ((u64)(flash->chipsize*controller->chip_num))<<20; */
-	len = 1<<erase_shift;
+
+	len = (u64)1 << erase_shift;
 	aml_nand_dbg("TEST step2 erase whole chip, len:%llx, total_page:%d",
 		len,
 		len>>write_shift);
 	while (1) {
-		if (ops_para->option & DEV_SERIAL_CHIP_MODE)
-			ops_para->chipnr =
-				(addr>>erase_shift)%controller->chip_num;
-
 		ops_para->page_addr =
 			(int)(addr >> write_shift)/controller->chip_num;
 		ret = operation->erase_block(aml_chip);
-		if (ret < 0)
+		if (ret < 0) {
 			aml_nand_msg("fail page_addr:%d", ops_para->page_addr);
 			break;
+		}
 
 		addr += erasesize;
 		opslen += erasesize;
@@ -704,10 +708,6 @@ int amlchip_opstest(struct amlnand_chip *aml_chip)
 		ops_para->data_buf[i] = i;
 
 	while (1) {
-		if (ops_para->option & DEV_SERIAL_CHIP_MODE)
-			ops_para->chipnr =
-				(addr>>erase_shift)%controller->chip_num;
-
 		ops_para->page_addr =
 			(int)(addr >> write_shift)/controller->chip_num;
 		ret = operation->write_page(aml_chip);
@@ -732,10 +732,6 @@ int amlchip_opstest(struct amlnand_chip *aml_chip)
 		len>>write_shift);
 	while (1) {
 		memset(ops_para->data_buf, 0, writesize);
-		if (ops_para->option & DEV_SERIAL_CHIP_MODE)
-			ops_para->chipnr =
-				(addr>>erase_shift)%controller->chip_num;
-
 		ops_para->page_addr =
 			(int)(addr >> write_shift)/controller->chip_num;
 		ret = operation->read_page(aml_chip);

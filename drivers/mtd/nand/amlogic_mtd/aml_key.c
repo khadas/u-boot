@@ -15,7 +15,7 @@
 
 static struct aml_nand_chip *aml_chip_key = NULL;
 
-int amlnf_key_read(u8 *buf, int len, uint32_t *actual_lenth)
+int amlnf_key_read(u8 *buf, int len, uint32_t *actual_length)
 {
 	struct aml_nand_chip * aml_chip = aml_chip_key;
 	struct mtd_info *mtd = &aml_chip->mtd;
@@ -38,12 +38,12 @@ int amlnf_key_read(u8 *buf, int len, uint32_t *actual_lenth)
 	aml_nand_ext_read_rsv_info(mtd,
 		aml_chip_key->aml_nandkey_info, 0, key_ptr);
 	memcpy(buf, key_ptr, aml_chip->keysize);
-	*actual_lenth = aml_chip->keysize;
+	*actual_length = aml_chip->keysize;
 	free(key_ptr);
 	return 0;
 }
 
-int amlnf_key_write(u8 *buf, int len, uint32_t *actual_lenth)
+int amlnf_key_write(u8 *buf, int len, uint32_t *actual_length)
 {
 	struct aml_nand_chip * aml_chip = aml_chip_key;
 	struct mtd_info *mtd = &aml_chip->mtd;

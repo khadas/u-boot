@@ -217,17 +217,13 @@ static int erase_env_protect(struct amlnand_chip *aml_chip, int blk)
 	int ret = 0;
 
 	nand_boot = 1;
-
 	if (nand_boot)
 		offset = (1024 * flash->pagesize);
-	else {
-		offset = 0;
-	}
 
+	if (!flash->blocksize)
+		return -1;
 	phys_erase_shift = ffs(flash->blocksize) - 1;
-
 	start_blk = (int)(offset >> phys_erase_shift);
-
 	blk  -= (controller->chip_num - 1) * start_blk;
 
 	if (!(info_disprotect & DISPROTECT_FBBT)) {
@@ -344,6 +340,8 @@ int  amlnf_erase_ops(u64 off, u64 erase_len, u8 scrub_flag)
 	int percent_complete = -1;
 	int temp_value,last_reserve_blk;
 
+	if (!flash->blocksize || !flash->pagesize)
+		return -1;
 	erase_shift = ffs(flash->blocksize) - 1;
 	write_shift =  ffs(flash->pagesize) - 1;
 	start_blk = (int)(off >> erase_shift);
@@ -393,7 +391,7 @@ int  amlnf_erase_ops(u64 off, u64 erase_len, u8 scrub_flag)
 		nand_release_chip(aml_chip);
 
 		if (ret < 0) {
-			ret = operation->block_markbad(aml_chip);
+			operation->block_markbad(aml_chip);
 			continue;
 		}
 		percent = (start_blk * 100) / total_blk;
@@ -423,6 +421,8 @@ int  dbg_amlnf_erase_ops(u64 off, u64 erase_len, u8 scrub_flag)
 	int percent_complete = -1;
 	int temp_value;
 
+	if (!flash->blocksize || !flash->pagesize)
+		return -1;
 	erase_shift = ffs(flash->blocksize) - 1;
 	write_shift =  ffs(flash->pagesize) - 1;
 	start_blk = (int)(off >> erase_shift);

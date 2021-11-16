@@ -15,20 +15,19 @@ static struct amlnand_chip *aml_ddr_para = NULL;
 /*
  * This funcion reads the u-boot keys.
  */
-int amlnf_key_read(u8 * buf, int len, uint32_t *actual_lenth)
+int amlnf_key_read(u8 *buf, int len, uint32_t *actual_length)
 {
 	struct amlnand_chip * aml_chip = aml_chip_key;
 	struct nand_menson_key *key_ptr = NULL;
-	u32 keysize = aml_chip->keysize;
+	u32 keysize;
 	int error = 0;
-
-	*actual_lenth = keysize;
 
 	if (aml_chip == NULL) {
 		printk("%s(): amlnf key not ready yet!", __func__);
 		return -EFAULT;
 	}
-
+	keysize = aml_chip->keysize;
+	*actual_length = keysize;
 	if (len > keysize) {
 		/*
 		No return here! keep consistent, should memset zero
@@ -39,7 +38,7 @@ int amlnf_key_read(u8 * buf, int len, uint32_t *actual_lenth)
 		//return -EFAULT;
 	}
 
-	key_ptr = kzalloc(aml_chip->keysize + sizeof(u32), GFP_KERNEL);
+	key_ptr = malloc(aml_chip->keysize + sizeof(u32));
 	if (key_ptr == NULL)
 		return -ENOMEM;
 
@@ -57,7 +56,7 @@ int amlnf_key_read(u8 * buf, int len, uint32_t *actual_lenth)
 	memcpy(buf, key_ptr->data, keysize);
 
 exit:
-	kfree(key_ptr);
+	free(key_ptr);
 	return 0;
 }
 
@@ -68,7 +67,7 @@ int amlnf_key_write(u8 *buf, int len, uint32_t *actual_lenth)
 {
 	struct amlnand_chip * aml_chip = aml_chip_key;
 	struct nand_menson_key *key_ptr = NULL;
-	u32 keysize = aml_chip->keysize;
+	u32 keysize;
 	int error = 0;
 	struct nand_flash *flash = &aml_chip_key->flash;
 
@@ -76,7 +75,7 @@ int amlnf_key_write(u8 *buf, int len, uint32_t *actual_lenth)
 		printk("%s(): amlnf key not ready yet!", __func__);
 		return -EFAULT;
 	}
-
+	keysize = aml_chip->keysize;
 	if (len > keysize) {
 		/*
 		No return here! keep consistent, should memset zero
@@ -87,7 +86,7 @@ int amlnf_key_write(u8 *buf, int len, uint32_t *actual_lenth)
 		//return -EFAULT;
 	}
 
-	key_ptr = kzalloc(aml_chip->keysize + flash->pagesize, GFP_KERNEL);
+	key_ptr = malloc(aml_chip->keysize + flash->pagesize);
 	if (key_ptr == NULL)
 		return -ENOMEM;
 
@@ -104,7 +103,7 @@ int amlnf_key_write(u8 *buf, int len, uint32_t *actual_lenth)
 		goto exit;
 	}
 exit:
-	kfree(key_ptr);
+	free(key_ptr);
 	return error;
 }
 
@@ -162,14 +161,14 @@ int amlnf_ddr_parameter_read(u8 * buf, int len)
 {
 	struct amlnand_chip * aml_chip = aml_ddr_para;
 	u8 *ddr_ptr = NULL;
-	int ddrsize = (int)aml_chip->ddrsize;
+	int ddrsize;
 	int error = 0;
 
 	if (aml_chip == NULL) {
 		printk("%s(): amlnf ddr parameter not ready yet!", __func__);
 		return -EFAULT;
 	}
-
+	ddrsize = (int)aml_chip->ddrsize;
 	if (len > ddrsize) {
 		/*
 		No return here! keep consistent, should memset zero
@@ -180,7 +179,7 @@ int amlnf_ddr_parameter_read(u8 * buf, int len)
 		//return -EFAULT;
 	}
 
-	ddr_ptr = kzalloc(aml_chip->ddrsize, GFP_KERNEL);
+	ddr_ptr = malloc(aml_chip->ddrsize);
 	if (ddr_ptr == NULL)
 		return -ENOMEM;
 
@@ -198,7 +197,7 @@ int amlnf_ddr_parameter_read(u8 * buf, int len)
 	ddrsize = min_t(int, len, ddrsize);
 	memcpy(buf, ddr_ptr, ddrsize);
 exit:
-	kfree(ddr_ptr);
+	free(ddr_ptr);
 	return 0;
 }
 
@@ -207,14 +206,14 @@ int amlnf_ddr_parameter_write(u8 *buf, int len)
 {
 	struct amlnand_chip * aml_chip = aml_ddr_para;
 	u8 *ddr_ptr = NULL;
-	int ddrsize = (int)aml_chip->ddrsize;
+	int ddrsize;
 	int error = 0;
 
 	if (aml_chip == NULL) {
 		printk("%s(): amlnf ddr parameter not ready yet!", __func__);
 		return -EFAULT;
 	}
-
+	ddrsize = (int)aml_chip->ddrsize;
 	if (len > ddrsize) {
 		/*
 		No return here! keep consistent, should memset zero
@@ -225,7 +224,7 @@ int amlnf_ddr_parameter_write(u8 *buf, int len)
 		//return -EFAULT;
 	}
 
-	ddr_ptr = kzalloc(ddrsize, GFP_KERNEL);
+	ddr_ptr = malloc(ddrsize);
 	if (ddr_ptr == NULL)
 		return -ENOMEM;
 
@@ -243,7 +242,7 @@ int amlnf_ddr_parameter_write(u8 *buf, int len)
 		goto exit;
 	}
 exit:
-	kfree(ddr_ptr);
+	free(ddr_ptr);
 	return error;
 }
 

@@ -18,6 +18,9 @@ _phy_block_info* out_phy_block_from_invalid_page_list(struct aml_nftl_part_t* pa
 static inline void print_p2l_tbl(struct aml_nftl_part_t* part, _phy_block_info* p_phy_block)
 {
 	int i;
+
+	if (!p_phy_block)
+		return;
 	NPRINT("%s(): blk %d\n", __func__, p_phy_block->phy_block.blkNO_in_chip);
 	for ( i=0; i<part->nand_chip->pages_per_blk; i+=4) {
 		NPRINT("%s(): blk %d\n", __func__, i);

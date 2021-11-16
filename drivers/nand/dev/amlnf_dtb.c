@@ -62,7 +62,7 @@ int amlnf_dtb_save(u8 *buf, int len)
 exit_err:
 	if (dtb_buf) {
 		/* kfree(dtb_buf); */
-		kfree(dtb_buf);
+		aml_nand_free(dtb_buf);
 		dtb_buf = NULL;
 	}
 	return ret;
@@ -132,7 +132,7 @@ int amlnf_dtb_read(u8 *buf, int len)
 exit_err:
 	if (dtb_buf) {
 		/* kfree(dtb_buf); */
-		kfree(dtb_buf);
+		aml_nand_free(dtb_buf);
 		dtb_buf = NULL;
 	}
 	return ret;
@@ -368,7 +368,7 @@ int amlnf_dtb_init(struct amlnand_chip *aml_chip)
 
 	aml_nand_dbg("%s: register dtd cdev OK", __func__);
 
-	kfree(dtb_buf);
+	aml_nand_free(dtb_buf);
 	dtb_buf = NULL;
 
 	return ret;
@@ -384,7 +384,7 @@ exit_err1:
 #endif /* AML_NAND_UBOOT */
 exit_err:
 	if (dtb_buf) {
-		kfree(dtb_buf);
+		aml_nand_free(dtb_buf);
 		dtb_buf = NULL;
 	}
 	return ret;
@@ -422,7 +422,7 @@ int amlnf_dtb_init_partitions(struct amlnand_chip *aml_chip)
 	}
 exit_err:
 	if (dtb_buf) {
-		kfree(dtb_buf);
+		aml_nand_free(dtb_buf);
 		dtb_buf = NULL;
 	}
 	return ret;

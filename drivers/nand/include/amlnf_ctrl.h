@@ -9,8 +9,6 @@
 #ifndef AMLNAND_PHYDEV_H_INCLUDED
 #define AMLNAND_PHYDEV_H_INCLUDED
 
-#include "amlnf_dev.h"
-
 /***nand CE/RB pinmux setting***/
 #define	AML_NAND_CE0	0xe
 #define	AML_NAND_CE1	0xd

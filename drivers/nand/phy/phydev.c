@@ -44,6 +44,8 @@ static u32 amlnand_slc_addr_trs(struct amlnand_phydev *phydev)
 	int total_pages_in_dev;
 
 	real_erase_size = (phydev->erasesize << 1);
+	if (!real_erase_size)
+		return (~0);
 	real_erase_shift = ffs(real_erase_size) - 1;
 	w_size_shift = phydev->writesize_shift;
 	e_size_shift = phydev->erasesize_shift;
@@ -128,7 +130,6 @@ static int nand_read(struct amlnand_phydev *phydev)
 {
 	struct amlnand_chip *aml_chip = (struct amlnand_chip *)phydev->priv;
 	struct phydev_ops *devops = &(phydev->ops);
-	struct hw_controller *controller = &(aml_chip->controller);
 	struct chip_operation *operation = &(aml_chip->operation);
 	struct chip_ops_para *ops_para = &(aml_chip->ops_para);
 	u64 addr, readlen = 0, len = 0;
@@ -172,15 +173,6 @@ static int nand_read(struct amlnand_phydev *phydev)
 		ops_para->option |= DEV_ECC_SOFT_MODE;
 
 	while (1) {
-		if (ops_para->option & DEV_SERIAL_CHIP_MODE) {
-			ops_para->chipnr =
-				(addr >> phydev->erasesize)
-				% controller->chip_num;
-			controller->select_chip(controller, ops_para->chipnr);
-			aml_nand_dbg("ops_para->chipnr  =%d", ops_para->chipnr);
-			aml_nand_dbg("DEV_SERIAL_CHIP_MODE");
-		}
-
 		if (ops_para->option & DEV_SLC_MODE)
 			ops_para->page_addr = amlnand_slc_addr_trs(phydev);
 		else
@@ -227,7 +219,6 @@ static int nand_write(struct amlnand_phydev *phydev)
 {
 	struct amlnand_chip *aml_chip = (struct amlnand_chip *)phydev->priv;
 	struct phydev_ops *devops = &(phydev->ops);
-	struct hw_controller *controller = &(aml_chip->controller);
 	struct chip_operation *operation = &(aml_chip->operation);
 	struct chip_ops_para *ops_para = &(aml_chip->ops_para);
 	u64 addr, writelen = 0, len = 0;
@@ -270,14 +261,6 @@ static int nand_write(struct amlnand_phydev *phydev)
 		ops_para->option |= DEV_ECC_SOFT_MODE;
 
 	while (1) {
-		if (ops_para->option & DEV_SERIAL_CHIP_MODE) {
-			ops_para->chipnr =
-				(addr>>phydev->erasesize_shift) %
-				controller->chip_num;
-			controller->select_chip(controller, ops_para->chipnr);
-			aml_nand_dbg("DEV_SERIAL_CHIP_MODE");
-		}
-
 		if (ops_para->option & DEV_SLC_MODE)
 			ops_para->page_addr = amlnand_slc_addr_trs(phydev);
 		else
@@ -335,7 +318,6 @@ int nand_erase(struct amlnand_phydev *phydev)
 {
 	struct amlnand_chip *aml_chip = (struct amlnand_chip *)phydev->priv;
 	struct phydev_ops *devops = &(phydev->ops);
-	struct hw_controller *controller = &(aml_chip->controller);
 	struct chip_operation *operation = &(aml_chip->operation);
 	struct chip_ops_para *ops_para = &(aml_chip->ops_para);
 	u64 addr = 0, eraselen = 0;
@@ -375,12 +357,6 @@ int nand_erase(struct amlnand_phydev *phydev)
 			ops_para->page_addr =
 				(int)(addr >> phydev->writesize_shift);
 
-		if (ops_para->option & DEV_SERIAL_CHIP_MODE) {
-			ops_para->chipnr =
-				(addr>>phydev->erasesize)%controller->chip_num;
-			controller->select_chip(controller, ops_para->chipnr);
-		}
-
 		ret = operation->erase_block(aml_chip);
 		if (ret < 0) {
 			aml_nand_msg("nand erase fail at addr :%x ",
@@ -407,7 +383,6 @@ static int nand_block_isbad(struct amlnand_phydev *phydev)
 	struct amlnand_chip *aml_chip = (struct amlnand_chip *)phydev->priv;
 	/* struct nand_flash *flash = &(aml_chip->flash); */
 	struct phydev_ops *devops = &(phydev->ops);
-	struct hw_controller *controller = &(aml_chip->controller);
 	struct chip_operation *operation = &(aml_chip->operation);
 	struct chip_ops_para *ops_para = &(aml_chip->ops_para);
 	u64 addr = 0;
@@ -436,11 +411,6 @@ static int nand_block_isbad(struct amlnand_phydev *phydev)
 	else
 		ops_para->page_addr = (int)(addr >> phydev->writesize_shift);
 
-	if ((ops_para->option & DEV_SERIAL_CHIP_MODE))
-		ops_para->chipnr =
-			(addr >> phydev->erasesize_shift)
-			% controller->chip_num;
-
 	ret = operation->block_isbad(aml_chip);
 	if (ret < 0)
 		aml_nand_msg("fail page_addr:ret=%d, %x len:%llx",
@@ -457,7 +427,6 @@ static int nand_block_markbad(struct amlnand_phydev *phydev)
 {
 	struct amlnand_chip *aml_chip = (struct amlnand_chip *)phydev->priv;
 	struct phydev_ops *devops = &(phydev->ops);
-	struct hw_controller *controller = &(aml_chip->controller);
 	struct chip_operation *operation = &(aml_chip->operation);
 	struct chip_ops_para *ops_para = &(aml_chip->ops_para);
 	u64 addr = 0;
@@ -489,12 +458,6 @@ static int nand_block_markbad(struct amlnand_phydev *phydev)
 	else
 		ops_para->page_addr = (int)(addr >> phydev->writesize_shift);
 
-	if (ops_para->option & DEV_SERIAL_CHIP_MODE) {
-		ops_para->chipnr =
-			(addr>>phydev->erasesize)%controller->chip_num;
-		controller->select_chip(controller, ops_para->chipnr);
-	}
-
 	ret = operation->block_markbad(aml_chip);
 	if (ret < 0)
 		aml_nand_msg("nand mark bad failed at page %d",
@@ -508,7 +471,6 @@ static int block_modifybbt(struct amlnand_phydev *phydev, int value)
 {
 	struct amlnand_chip *aml_chip = (struct amlnand_chip *)phydev->priv;
 	struct phydev_ops *devops = &(phydev->ops);
-	struct hw_controller *controller = &(aml_chip->controller);
 	struct chip_operation *operation = &(aml_chip->operation);
 	struct chip_ops_para *ops_para = &(aml_chip->ops_para);
 	u64 addr = 0;
@@ -536,12 +498,6 @@ static int block_modifybbt(struct amlnand_phydev *phydev, int value)
 	else
 		ops_para->page_addr = (int)(addr >> phydev->writesize_shift);
 
-	if (ops_para->option & DEV_SERIAL_CHIP_MODE) {
-		ops_para->chipnr =
-			(addr>>phydev->erasesize)%controller->chip_num;
-		controller->select_chip(controller, ops_para->chipnr);
-	}
-
 	ret = operation->blk_modify_bbt_chip_op(aml_chip, value);
 	if (ret < 0)
 		aml_nand_msg("nand mark bad failed at page %d",
@@ -556,7 +512,6 @@ static int update_bbt(struct amlnand_phydev *phydev)
 {
 	struct amlnand_chip *aml_chip = (struct amlnand_chip *)phydev->priv;
 	struct phydev_ops *devops = &(phydev->ops);
-	struct hw_controller *controller = &(aml_chip->controller);
 	struct chip_operation *operation = &(aml_chip->operation);
 	struct chip_ops_para *ops_para = &(aml_chip->ops_para);
 	u64 addr = 0;
@@ -583,12 +538,6 @@ static int update_bbt(struct amlnand_phydev *phydev)
 	else
 		ops_para->page_addr = (int)(addr >> phydev->writesize_shift);
 
-	if (ops_para->option & DEV_SERIAL_CHIP_MODE) {
-		ops_para->chipnr =
-			(addr>>phydev->erasesize)%controller->chip_num;
-		controller->select_chip(controller, ops_para->chipnr);
-	}
-
 	ret = operation->update_bbt_chip_op(aml_chip);
 	if (ret < 0)
 		aml_nand_msg("nand mark bad failed at page %d",
@@ -603,7 +552,6 @@ static int nand_test_block(struct amlnand_phydev *phydev)
 {
 	struct amlnand_chip *aml_chip = (struct amlnand_chip *)phydev->priv;
 	struct phydev_ops *devops = &(phydev->ops);
-	struct hw_controller *controller = &(aml_chip->controller);
 	struct chip_operation *operation = &(aml_chip->operation);
 	struct chip_ops_para *ops_para = &(aml_chip->ops_para);
 	u64 addr = 0;
@@ -636,12 +584,6 @@ static int nand_test_block(struct amlnand_phydev *phydev)
 		ops_para->page_addr = amlnand_slc_addr_trs(phydev);
 	else
 		ops_para->page_addr = (int)(addr >> phydev->writesize_shift);
-
-	if (ops_para->option & DEV_SERIAL_CHIP_MODE) {
-		ops_para->chipnr =
-			(addr>>phydev->erasesize)%controller->chip_num;
-		controller->select_chip(controller, ops_para->chipnr);
-	}
 
 	tmp_addr = ops_para->page_addr;
 	ops_para->data_buf = devops->datbuf;
@@ -1144,8 +1086,6 @@ static void show_phydev_info(void)
 	char *config1, *config2;
 
 	list_for_each_entry(phydev, &nphy_dev_list, list) {
-		if (phydev == NULL)
-			break;
 	#if 0
 		for (i = 0; i < phydev->nr_partitions; i++) {
 			partition = &phydev->partitions[i];
@@ -1257,6 +1197,10 @@ int boot_dev_init(struct amlnand_chip *aml_chip)
 	phydev->size *= flash->pagesize;
 	/* phydev->size *= chip_num; */
 	PHYDEV_LINE
+	if (!phydev->writesize || !phydev->erasesize) {
+		aml_nand_free(phydev);
+		return -1;
+	}
 	phydev->writesize_shift = ffs(phydev->writesize) - 1;
 	phydev->erasesize_shift = ffs(phydev->erasesize) - 1;
 	phydev->writesize_mask =
@@ -1363,6 +1307,9 @@ int amlnand_phydev_init(struct amlnand_chip *aml_chip)
 	memset(bad_blk, 0, 128*sizeof(u64));
 #endif
 
+	if (!flash->pagesize || !flash->blocksize)
+		return -1;
+
 	if (flash->option & NAND_MULTI_PLANE_MODE)
 		plane_num = 2;
 	else
@@ -1374,7 +1321,7 @@ int amlnand_phydev_init(struct amlnand_chip *aml_chip)
 
 	chip_num = controller->chip_num;
 
-	chip_size = (flash->chipsize*chip_num);
+	chip_size = (u64)flash->chipsize * chip_num;
 	chip_size = chip_size << 20;
 	if (config->dev_num == 0) {
 		aml_nand_msg("config get unvalid: config->dev_num =%d",
@@ -1467,7 +1414,7 @@ int amlnand_phydev_init(struct amlnand_chip *aml_chip)
 				dev_size = dev_size \
 			+ ((u64)(dev_size)/(u64)(ADJUST_SIZE_NFTL));
 				*/
-			} else {
+			} else if (phydev_pre) {
 				if ((phydev_pre->option & DEV_SLC_MODE)
 && (flash->option & NAND_CHIP_SLC_MODE)
 				&& (!(phydev->option & DEV_MULTI_PLANE_MODE)))
@@ -1499,6 +1446,10 @@ int amlnand_phydev_init(struct amlnand_chip *aml_chip)
 			phydev->size *= flash->pagesize;
 			//printk("----------%llx\n", phydev->size);
 			/* phydev->size *= chip_num; */
+			if (!phydev->writesize || !phydev->erasesize) {
+				aml_nand_free(phydev);
+				return -1;
+			}
 			phydev->writesize_shift = ffs(phydev->writesize) - 1;
 			phydev->erasesize_shift = ffs(phydev->erasesize) - 1;
 			phydev->writesize_mask =
@@ -1528,6 +1479,10 @@ int amlnand_phydev_init(struct amlnand_chip *aml_chip)
 				phydev->oobavail <<= 1;
 			}
 
+			if (!phydev->writesize || !phydev->erasesize) {
+				aml_nand_free(phydev);
+				return -1;
+			}
 			phydev->writesize_shift = ffs(phydev->writesize) - 1;
 			phydev->erasesize_shift = ffs(phydev->erasesize) - 1;
 
@@ -1726,37 +1681,23 @@ void amlnf_phy_exit(void)
 
 	struct amlnand_phydev *phydev = NULL;
 	struct amlnand_chip *aml_chip = NULL;
-	//struct list_head *entry;
 	int time= 0;
-	list_for_each_entry(phydev,&nphy_dev_list,list){
-
-		if (phydev) {
-			if (time == 0) {
-				aml_chip = (struct amlnand_chip *)phydev->priv;
-				if (aml_chip) {
-					if (aml_chip->block_status) {
-						kfree(aml_chip->block_status);
-						aml_chip->block_status = NULL;
-					}
-					if (aml_chip->user_page_buf) {
-						kfree(aml_chip->user_page_buf);
-						aml_chip->user_page_buf = NULL;
-					}
-					if (aml_chip->user_oob_buf) {
-						kfree(aml_chip->user_oob_buf);
-						aml_chip->user_oob_buf = NULL;
-					}
-					if (aml_chip->shipped_bbt_ptr) {
-						kfree(aml_chip->shipped_bbt_ptr);
-						aml_chip->shipped_bbt_ptr = NULL;
-					}
-					if (aml_chip->config_ptr) {
-						kfree(aml_chip->config_ptr);
-						aml_chip->config_ptr = NULL;
-					}
-				}
-				time++;
+	list_for_each_entry(phydev, &nphy_dev_list, list) {
+		if (time == 0) {
+			aml_chip = (struct amlnand_chip *)phydev->priv;
+			if (aml_chip) {
+				kfree(aml_chip->block_status);
+				aml_chip->block_status = NULL;
+				kfree(aml_chip->user_page_buf);
+				aml_chip->user_page_buf = NULL;
+				kfree(aml_chip->user_oob_buf);
+				aml_chip->user_oob_buf = NULL;
+				kfree(aml_chip->shipped_bbt_ptr);
+				aml_chip->shipped_bbt_ptr = NULL;
+				kfree(aml_chip->config_ptr);
+				aml_chip->config_ptr = NULL;
 			}
+			time++;
 		}
 	}
 

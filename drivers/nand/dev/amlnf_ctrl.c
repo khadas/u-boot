@@ -153,12 +153,12 @@ struct list_head nf_dev_list;
 
 void *aml_nand_malloc(u32 size)
 {
-	return kmalloc(size, GFP_KERNEL);
+	return malloc(size);
 }
 
 void aml_nand_free(void *ptr)
 {
-	kfree(ptr);
+	free(ptr);
 }
 
 #ifndef AML_NAND_UBOOT
@@ -636,9 +636,10 @@ int aml_sys_info_init(struct amlnand_chip *aml_chip)
 
 	buf_size = 0x40000; /*rsv item max size is 256KB*/
 	buf = aml_nand_malloc(buf_size + flash->pagesize);
-	if (!buf)
+	if (!buf) {
 		aml_nand_msg("aml_sys_info_init : malloc failed");
-
+		return -1;
+	}
 	memset(buf, 0x0, buf_size);
 	NAND_LINE
 #if (AML_CFG_KEY_RSV_EN)
@@ -749,7 +750,7 @@ int aml_sys_info_init(struct amlnand_chip *aml_chip)
 #endif
 	NAND_LINE
 exit_error:
-	kfree(buf);
+	aml_nand_free(buf);
 	buf = NULL;
 	return ret;
 }

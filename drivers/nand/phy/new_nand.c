@@ -220,9 +220,6 @@ static int aml_nand_get_20nm_OTP_value(struct hw_controller *controller,  unsign
 					check_flag = 1;
 					break;
 				}
-				if (check_flag) {
-					break;
-				}
 			}
 			if (check_flag) {
 				break;
@@ -720,11 +717,12 @@ static int readretry_handle_hynix(struct hw_controller *controller,
 				retry_info->reg_offs_val_lp[chipnr][cur_cnt][i];
 	}
 
-	set_reg_value_hynix(controller,
+	if (set_reg_value_hynix(controller,
 		&reg_value[0],
 		&retry_info->reg_addr_lp[0],
 		chipnr,
-		retry_info->reg_cnt_lp);
+		retry_info->reg_cnt_lp) < 0)
+		aml_nand_msg("set retry_info reg value failed for chip[%d]", i);
 	udelay(2);
 
 	retry_info->cur_cnt_lp[chipnr]++;
@@ -3265,7 +3263,7 @@ int amlnand_set_readretry_slc_para(struct amlnand_chip *aml_chip)
 		retry_info->retry_cnt_lp = 7;
 
 		retry_info->reg_addr_lp[0] = 0x89;
-		retry_info->reg_addr_lp[0] = 0x93;
+		retry_info->reg_addr_lp[1] = 0x93;
 
 		retry_info->reg_def_val[0][0] = 0;
 		retry_info->reg_def_val[0][1] = 0;

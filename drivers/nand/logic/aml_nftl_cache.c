@@ -285,7 +285,9 @@ uint32 nand_op(uchar flag,struct aml_nftl_part_t* part,uint32 start_sector,uint3
         len -= part->nand_chip->sector_per_page;
         len_save = part->nand_chip->sector_per_page;
 //        NPRINT("page :%d; bitmap: %x; buf %x\n",page_save,bitmap,buf_save);
-		ret = nand_op2(part,page_save,bitmap,buf_save);
+	ret = nand_op2(part, page_save, bitmap, buf_save);
+	if (ret)
+		return ret;
     }
 
 //////////////////////////////////////////////////////////////

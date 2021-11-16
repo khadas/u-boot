@@ -588,4 +588,6 @@ extern int get_adjust_block_num(void);
 
 extern void amldev_dumpinfo(struct amlnand_phydev *phydev);
 
+int amlnf_key_write(u8 *buf, int len, uint32_t *actual_length);
+int amlnf_key_read(u8 *buf, int len, uint32_t *actual_length);
 #endif

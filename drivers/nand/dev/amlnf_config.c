@@ -188,7 +188,7 @@ int amlnand_get_partition_table(struct amlnand_chip *aml_chip)
 	amlnand_config = aml_nand_malloc(config_size);
 	if (!amlnand_config) {
 		aml_nand_dbg("amlnand_config: malloc failed!");
-		ret = -NAND_MALLOC_FAILURE;
+		return -NAND_MALLOC_FAILURE;
 	}
 
 	/* show_partition_table(); */
