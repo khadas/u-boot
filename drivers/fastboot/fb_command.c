@@ -326,7 +326,13 @@ static void download(char *cmd_parameter, char *response)
 	 * where cmd_parameter is an 8 digit hexadecimal number
 	 */
 	if (fastboot_bytes_expected > fastboot_buf_size) {
-		fastboot_fail(cmd_parameter, response);
+		char str[128] = {0};
+
+		printf("fastboot_bytes_expected %d > fastboot_buf_size %d\n",
+		       fastboot_bytes_expected, fastboot_buf_size);
+		sprintf(str, "data too large, please add -S %dM",
+			(fastboot_buf_size / 1024 / 1024));
+		fastboot_fail(str, response);
 	} else {
 		printf("Starting download of %d bytes\n",
 		       fastboot_bytes_expected);
