@@ -222,6 +222,8 @@ int board_late_init(void)
 #ifdef CONFIG_AML_LCD
 	lcd_probe();
 #endif
+	run_command("amlsecurecheck", 0);
+	run_command("update_tries", 0);
 
 	if (env_get("outputmode")) {
 		strncpy(outputModeCur, env_get("outputmode"), 29);
