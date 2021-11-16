@@ -6,6 +6,9 @@
 #include <common.h>
 #include <amlogic/storage.h>
 #include <linux/mtd/mtd.h>
+#include <asm/arch/cpu_config.h>
+#include <amlogic/store_wrapper.h>
+#include <u-boot/sha256.h>
 
 #define debugP(fmt...) //printf("Dbg[WRP]L%d:", __LINE__),printf(fmt)
 #define errorP(fmt...) printf("Err[WRP]L%d:", __LINE__),printf(fmt)
@@ -144,4 +147,98 @@ int store_gpt_ops(size_t sz, void *buf, int is_wr)
 
 	return ret;
 }
+
+#ifndef CONFIG_AML_V3_FACTORY_BURN//storage wrapper
+#define FB_ERR(fmt ...) printf("[ERR]%s:L%d:", __func__, __LINE__), printf(fmt)
+#define FB_EXIT(fmt ...) do { FB_ERR(fmt); return -__LINE__; } while (0)
+#define FB_MSG(fmt ...) printf("[MSG]" fmt)
+#define FBS_EXIT(buf, fmt ...) do { FBS_ERR(buf, fmt); return -__LINE__; } while (0)
+
+int bootloader_copy_sz(void)
+{
+	return store_boot_copy_size("bootloader");
+}
+
+static int _bootloader_write(u8 *dataBuf, unsigned off, unsigned binSz, const char *bootName)
+{
+	int iCopy = 0;
+	const int bootCpyNum = store_boot_copy_num(bootName);
+	const int bootCpySz  = (int)store_boot_copy_size(bootName);
+
+	FB_MSG("[%s] CpyNum %d, bootCpySz 0x%x\n", bootName, bootCpyNum, bootCpySz);
+	if (binSz + off > bootCpySz)
+		FB_EXIT("bootloader sz(0x%x) + off(0x%x) > bootCpySz 0x%x\n",
+				binSz, off, bootCpySz);
+
+	if (off) {
+		FB_ERR("current only 0 suuported!\n");
+		return -__LINE__;
+	}
+
+	for (; iCopy < bootCpyNum; ++iCopy) {
+		int ret = store_boot_write(bootName, iCopy, binSz, dataBuf);
+
+		if (ret)
+			FB_EXIT("FAil in program[%s] at copy[%d]\n", bootName, iCopy);
+	}
+
+	return 0;
+}
+
+int bootloader_write(u8 *dataBuf, unsigned off, unsigned binSz)
+{
+	return _bootloader_write(dataBuf, off, binSz, "bootloader");
+}
+
+static int _bootloader_read(u8 *pBuf, unsigned off, unsigned binSz, const char *bootName)
+{
+	int iCopy = 0;
+	const int bootCpyNum = store_boot_copy_num(bootName);
+	const int bootCpySz  = (int)store_boot_copy_size(bootName);
+	int validCpyNum = bootCpyNum;//at least valid cpy num
+	int actVldCpyNum = 0;//actual valid copy num
+
+	if (binSz + off > bootCpySz) {
+		FB_ERR("bootloader sz(0x%x) + off(0x%x) > bootCpySz 0x%x\n", binSz, off, bootCpySz);
+		return -__LINE__;
+	}
+	if (off)
+		FB_EXIT("current only 0 suuported!\n");
+
+	for (iCopy = 0; iCopy < bootCpyNum; ++iCopy) {
+		void *dataBuf = iCopy ? pBuf + binSz : pBuf;
+		int ret = store_boot_read(bootName, iCopy, binSz, dataBuf);
+
+		if (ret) {
+			FB_ERR("Fail to read boot[%s] at copy[%d]\n", bootName, iCopy);
+			continue;
+		}
+		if (iCopy) {
+			if (!actVldCpyNum) {//NO valid cpy yet, so copy0 NOT valid also
+				memcpy(pBuf, dataBuf, binSz);
+			}
+			if (memcmp(pBuf, dataBuf, binSz)) {
+				FB_ERR("[%s] copy[%d] content NOT the same as copy[0]\n",
+						bootName, iCopy);//maybe ddr err as nand not err
+				memset(pBuf, 0, binSz);
+				return -__LINE__;
+			}
+		}
+		++actVldCpyNum;
+	}
+	if (actVldCpyNum < validCpyNum) {
+		FB_ERR("[%s]actual valid copy num %d < configured num %d\n",
+				bootName, actVldCpyNum, validCpyNum);
+		memset(pBuf, 0, binSz);
+		return -__LINE__;
+	}
+
+	return 0;
+}
+
+int bootloader_read(u8 *pBuf, unsigned off, unsigned binSz)
+{
+	return _bootloader_read(pBuf, off, binSz, "bootloader");
+}
+#endif// #ifndef CONFIG_AML_V3_FACTORY_BURN//storage wrapper
 
