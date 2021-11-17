@@ -15,3 +15,9 @@ config AML_LCD_BL_LDIM_OB3350
 	depends on AML_LCD_BL_LDIM
 	help
 	  Support for ob3350 local dimming device
+
+config AML_LCD_BL_LDIM_BLMCU
+	bool "blmcu local dimming driver"
+	depends on AML_LCD_BL_LDIM
+	help
+	  Support for blmcu local dimming device
