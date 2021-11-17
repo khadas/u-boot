@@ -73,10 +73,16 @@ struct tcon_data_priority_s {
 };
 
 struct tcon_mem_map_table_s {
+	/*header*/
 	unsigned int version;
+	unsigned char tcon_data_flag;
 	unsigned int data_load_level;
 	unsigned int block_cnt;
+	unsigned char init_load;
+
 	unsigned int valid_flag;
+	unsigned char demura_cnt;
+	unsigned int block_bit_flag;
 
 	unsigned int core_reg_table_size;
 	unsigned char *core_reg_table;
@@ -143,6 +149,7 @@ struct lcd_tcon_local_cfg_s {
 #ifdef CONFIG_CMD_INI
 void *handle_lcd_ext_buf_get(void);
 void *handle_tcon_path_mem_get(unsigned int size);
+void *handle_tcon_path_resv_mem_get(unsigned int size);
 int handle_tcon_vac(unsigned char *vac_data, unsigned int vac_mem_size);
 int handle_tcon_demura_set(unsigned char *demura_set_data,
 			   unsigned int demura_set_size);

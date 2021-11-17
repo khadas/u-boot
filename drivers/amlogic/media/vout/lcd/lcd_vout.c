@@ -381,6 +381,9 @@ static void lcd_module_enable(struct aml_lcd_drv_s *pdrv, char *mode, unsigned i
 #ifdef CONFIG_AML_LCD_BACKLIGHT
 			aml_bl_driver_enable(pdrv->index);
 #endif
+		} else {
+			LCDPR("[%d]: bypass interface for init_level %d\n",
+			      pdrv->index, pdrv->boot_ctrl.init_level);
 		}
 	}
 	if (!lcd_debug_test)

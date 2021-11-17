@@ -21,7 +21,8 @@
 /* 20210625: add tcon multi lut support*/
 /* 20211009: support 59 & 47 frame rate for tv mode*/
 /* 20211106: support vrr config*/
-#define LCD_DRV_VERSION    "20211106"
+/* 20211210: support load tcon bin by ioctl*/
+#define LCD_DRV_VERSION    "20211210"
 
 extern unsigned int lcd_debug_test;
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);

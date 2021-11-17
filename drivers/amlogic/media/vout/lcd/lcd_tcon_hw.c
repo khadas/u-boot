@@ -746,7 +746,7 @@ static int lcd_tcon_data_set(struct tcon_mem_map_table_s *mm_table)
 {
 	struct lcd_tcon_data_block_header_s *block_header;
 	unsigned char *data_buf;
-	unsigned int temp_crc32;
+	unsigned int temp_crc32, index;
 	int i;
 
 	if (!mm_table || !mm_table->data_mem_vaddr) {
@@ -761,30 +761,31 @@ static int lcd_tcon_data_set(struct tcon_mem_map_table_s *mm_table)
 	}
 
 	for (i = 0; i < mm_table->block_cnt; i++) {
-		if (mm_table->data_priority[i].index >= mm_table->block_cnt ||
+		index = mm_table->data_priority[i].index;
+		if (!mm_table->data_mem_vaddr[index]) {
+			LCDERR("%s: data_mem_vaddr[%d] is null\n",
+			       __func__, index);
+			continue;
+		}
+		if (index >= mm_table->block_cnt ||
 		    mm_table->data_priority[i].priority == 0xff) {
-			LCDERR("%s: data index or priority is invalid\n",
-			       __func__);
+			LCDERR("%s: data index %d or priority %d is invalid\n",
+			       __func__, index, mm_table->data_priority[i].priority);
 			return -1;
 		}
-		data_buf = mm_table->data_mem_vaddr[mm_table->data_priority[i].index];
-		if (!data_buf) {
-			LCDERR("%s: data %d buf is null\n",
-			       __func__, mm_table->data_priority[i].index);
-			return -1;
-		}
+		data_buf = mm_table->data_mem_vaddr[index];
 		block_header = (struct lcd_tcon_data_block_header_s *)data_buf;
 		temp_crc32 = crc32(0, &data_buf[4], (block_header->block_size - 4));
 		if (temp_crc32 != block_header->crc32) {
 			LCDERR("%s: block %d, %s data crc error\n",
-				__func__, mm_table->data_priority[i].index,
+				__func__, index,
 				block_header->name);
 			continue;
 		}
 
 		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 			LCDPR("%s: block %d, %s, priority %d: size=0x%x, type=0x%02x, ctrl=0x%x\n",
-				__func__, mm_table->data_priority[i].index,
+				__func__, index,
 				block_header->name,
 				mm_table->data_priority[i].priority,
 				block_header->block_size,
