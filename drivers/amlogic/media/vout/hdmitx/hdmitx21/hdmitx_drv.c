@@ -9,6 +9,7 @@
 #include <amlogic/media/vout/aml_vout.h>
 #include <amlogic/media/vout/hdmitx21/hdmitx.h>
 #include <amlogic/auge_sound.h>
+#include <linux/arm-smccc.h>
 #include "hdmitx_drv.h"
 
 #define HZ 100000000 // TODO
@@ -228,6 +229,7 @@ static void hdmitx_load_dts_config(struct hdmitx_dev *hdev)
 	int ret;
 
 	hdev->limit_res_1080p = 0;
+	hdev->enc_idx = 0;
 	dt_blob = gd->fdt_blob;
 	if (!dt_blob) {
 		printf("ERR: hdmitx: dt_blob is null\n");
@@ -240,7 +242,7 @@ static void hdmitx_load_dts_config(struct hdmitx_dev *hdev)
 		return;
 	}
 
-	node = fdt_path_offset(dt_blob, "/amhdmitx");
+	node = fdt_path_offset(dt_blob, "/soc/amhdmitx");
 	if (node < 0) {
 		printf("ERR: hdmitx: not find /amhdmitx node: %s\n", fdt_strerror(node));
 		return;
@@ -248,14 +250,17 @@ static void hdmitx_load_dts_config(struct hdmitx_dev *hdev)
 
 	propdata = (char *)fdt_getprop(dt_blob, node, "res_1080p", NULL);
 	if (propdata) {
-		if (!strcmp(propdata, "0"))
-			hdev->limit_res_1080p = 0;
-		else
+		if (be32_to_cpup((u32 *)propdata) == 1)
 			hdev->limit_res_1080p = 1;
-	} else {
-		hdev->limit_res_1080p = 0;
 	}
 	printf("limit_res_1080p: %d\n", hdev->limit_res_1080p);
+
+	propdata = (char *)fdt_getprop(dt_blob, node, "enc_idx", NULL);
+	if (propdata) {
+		if (be32_to_cpup((u32 *)propdata) == 2)
+			hdev->enc_idx = 2;
+	}
+	printf("enc_idx: %d\n", hdev->enc_idx);
 }
 
 static void amhdmitx_infoframe_init(struct hdmitx_dev *hdev)
@@ -379,12 +384,12 @@ void enable_crt_video_encl2(u32 enable, u32 in_sel)
 	//#if (SDF_CORNER == 0 || SDF_CORNER == 2)    //ss_corner
 	//      hd21_set_reg_bits(CLKCTRL_VID_CLK_CTRL, 1, 16, 3);  //sel div4 : 500M
 	//#endif
-		hd21_set_reg_bits(CLKCTRL_VID_CLK2_CTRL, 1, in_sel, 1);
+		hd21_set_reg_bits(CLKCTRL_VID_CLK2_CTRL, 3, 0, 2);
 	} else {
 		hd21_set_reg_bits(CLKCTRL_VIID_CLK2_CTRL, 1, in_sel - 8, 1);
 	}
 	//gclk_encl_clk:hi_vid_clk_cntl2[3]
-	hd21_set_reg_bits(CLKCTRL_VID_CLK2_CTRL2, enable, 3, 1);
+	hd21_set_reg_bits(CLKCTRL_VID_CLK2_CTRL2, enable, 3, 1); /* cts_enc2_clk */
 }
 
 //Enable CLK_ENCP
@@ -402,7 +407,12 @@ void enable_crt_video_hdmi(u32 enable, u32 in_sel, u8 enc_sel)
 	u32 addr_vid_clk02;
 	u32 addr_viid_clk02;
 	u32 addr_vid_clk022;
+	u32 val = 0;
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+	struct hdmi_format_para *para = hdev->para;
 
+	if (para->cs == HDMI_COLORSPACE_YUV420)
+		val = 1;
 	addr_enc02_hdmi_clk = (enc_sel == 0) ?
 				CLKCTRL_ENC0_HDMI_CLK_CTRL : CLKCTRL_ENC2_HDMI_CLK_CTRL;
 	addr_vid_clk02 = (enc_sel == 0) ? CLKCTRL_VID_CLK0_CTRL : CLKCTRL_VID_CLK2_CTRL;
@@ -411,21 +421,19 @@ void enable_crt_video_hdmi(u32 enable, u32 in_sel, u8 enc_sel)
 
 	// hdmi_tx_pnx_clk
 	//clk_sel:hi_hdmi_clk_cntl[27:24];
-	hd21_set_reg_bits(addr_enc02_hdmi_clk, in_sel, 24, 4);
+	hd21_set_reg_bits(addr_enc02_hdmi_clk, val, 24, 4);
 	// hdmi_tx_fe_clk: for 420 mode, Freq(hdmi_tx_pixel_clk) = Freq(hdmi_tx_fe_clk)/2,
 	// otherwise Freq(hdmi_tx_pixel_clk) = Freq(hdmi_tx_fe_clk).
 	// clk_sel:hi_hdmi_clk_cntl[23:20];
 	hd21_set_reg_bits(addr_enc02_hdmi_clk, (in_sel == 1) ? 0 : in_sel, 20, 4);
 	// hdmi_tx_pixel_clk
 	//clk_sel:hi_hdmi_clk_cntl[19:16];
-	hd21_set_reg_bits(addr_enc02_hdmi_clk, in_sel, 16, 4);
+	hd21_set_reg_bits(addr_enc02_hdmi_clk, val, 16, 4);
 	if (in_sel <= 4) { //V1
 		if (in_sel == 1)
 			// If 420 mode, need to turn on div1_clk for hdmi_tx_fe_clk
 			// For hdmi_tx_fe_clk and hdmi_tx_pnx_clk
-			hd21_set_reg_bits(addr_vid_clk02, 1, 0, 1);
-		// For hdmi_tx_pixel_clk
-		hd21_set_reg_bits(addr_vid_clk02, 1, in_sel, 1);
+			hd21_set_reg_bits(addr_vid_clk02, 3, 0, 2);
 	} else if (in_sel <= 9) { //V2
 		// For hdmi_tx_pixel_clk
 		hd21_set_reg_bits(addr_viid_clk02, 1, in_sel - 8, 1);
@@ -545,6 +553,13 @@ static void hdmi_set_vend_spec_infofram(struct hdmitx_dev *hdev,
 	hdmi_vend_infoframe_rawset(ven_hb, db);
 }
 
+static void set_hdmitx_enc_idx(unsigned int val)
+{
+	struct arm_smccc_res res;
+
+	arm_smccc_smc(HDCPTX_IOOPR, CONF_ENC_IDX, 1, !!val, 0, 0, 0, 0, &res);
+}
+
 void hdmitx21_set(struct hdmitx_dev *hdev)
 {
 	struct hdmi_format_para *para = hdev->para;
@@ -558,15 +573,20 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	hdmi_hwp_init();
 	aml_audio_init();  /* Init audio hw firstly */
 	hdmitx_set_audmode(hdev);
+	if (hdev->enc_idx == 2) {
+		set_hdmitx_enc_idx(2);
+		hd21_set_reg_bits(VPU_DISP_VIU2_CTRL, 1, 29, 1);
+		hd21_set_reg_bits(VPU_VIU_VENC_MUX_CTRL, 2, 2, 2);
+	}
 	hdmitx21_venc_en(0, 0);
-	hd21_set_reg_bits(VPU_HDMI_SETTING, 0, (enc_sel == 0) ? 0 : 1, 1);
-	if (enc_sel == 0)
+	hd21_set_reg_bits(VPU_HDMI_SETTING, 0, (hdev->enc_idx == 0) ? 0 : 1, 1);
+	if (hdev->enc_idx == 0)
 		enable_crt_video_encp(1, 0);
 	else
 		enable_crt_video_encp2(1, 0);
 	enable_crt_video_hdmi(1,
 			      (TX_INPUT_COLOR_FORMAT == HDMI_COLORSPACE_YUV420) ? 1 : 0,
-			      enc_sel);
+			      hdev->enc_idx);
 	// configure GCP
 	if (para->cs == HDMI_COLORSPACE_YUV422 || para->cd == COLORDEPTH_24B) {
 		hdmitx21_set_reg_bits(GCP_CNTL_IVCTX, 0, 0, 1);
@@ -579,11 +599,8 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	// --------------------------------------------------------
 	// Enable viu vsync interrupt, enable hdmitx interrupt, enable htx_hdcp22 interrupt
 	// --------------------------------------------------------
-
-	if (enc_sel == 0) {
-		hd21_write_reg(VPU_VENC_CTRL + (0 << 2), 0); // sel enci timming
-	} else { //enc_sel==2
-		hd21_write_reg(VPU_VENC_CTRL + (0x800 << 2), 1); // sel encp timming
+	hd21_write_reg(VPU_VENC_CTRL, 1);
+	if (hdev->enc_idx == 2) {
 		// Enable VENC2 to HDMITX path
 		hd21_set_reg_bits(SYSCTRL_VPU_SECURE_REG0, 1, 16, 1);
 	}
@@ -595,10 +612,10 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	// only 480i / 576i use the ENCI
 	if (para->timing.pi_mode == 0 &&
 	    (para->timing.v_active == 480 || para->timing.v_active == 576)) {
-		hd21_write_reg(VPU_VENC_CTRL + (0 << 2), 0); // sel enci timming
+		hd21_write_reg(VPU_VENC_CTRL, 0); // sel enci timming
 		set_tv_enci_new(hdev, enc_sel, vic, 1);
 	} else {
-		hd21_write_reg(VPU_VENC_CTRL + (0 << 2), 1); // sel encp timming
+		hd21_write_reg(VPU_VENC_CTRL, 1); // sel encp timming
 		set_tv_encp_new(hdev, enc_sel, vic, 1);
 	}
 
@@ -735,7 +752,7 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		 (0 << 24);
 	hd21_write_reg(VPU_HDMI_SETTING, data32);
 	// [    1] src_sel_encp: Enable ENCI or ENCP output to HDMI
-	hd21_set_reg_bits(VPU_HDMI_SETTING, 1, (enc_sel == 0) ? 0 : 1, 1);
+	hd21_set_reg_bits(VPU_HDMI_SETTING, 1, (hdev->enc_idx == 0) ? 0 : 1, 1);
 
 	hdmitx_set_phy(hdev);
 
@@ -763,6 +780,7 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 unsigned int hdmi_outputmode_check(char *mode, unsigned int frac)
 {
 	int i, ret = 0xff;
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
 
 	for (i = 0; i < ARRAY_SIZE(gxbb_modes); i++) {
 		if (!strcmp(mode, gxbb_modes[i].sname)) {
@@ -787,6 +805,8 @@ unsigned int hdmi_outputmode_check(char *mode, unsigned int frac)
 		ret = VIU_MUX_ENCI;
 	else
 		ret = VIU_MUX_ENCP;
+	if (hdev->enc_idx == 2)
+		ret |= 2 << 4;
 	return ret;
 }
 

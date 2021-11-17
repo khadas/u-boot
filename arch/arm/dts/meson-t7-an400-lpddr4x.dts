@@ -64,6 +64,10 @@
 	status = "okay";
 };
 
+&amhdmitx {
+	enc_idx = <0>; /* value can be 0 or 2 */
+};
+
 /* demo for i2c user */
 &i2c3 {
 	status= "disabled";
