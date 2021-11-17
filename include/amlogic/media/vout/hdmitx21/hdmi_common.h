@@ -651,4 +651,18 @@ struct dispmode_vic {
 	enum hdmi_vic VIC;
 };
 
+#define HDCPTX_IOOPR             0x820000ab
+enum hdcptx_oprcmd {
+	HDCP_DEFAULT,
+	HDCP14_KEY_READY,
+	HDCP14_LOADKEY,
+	HDCP14_RESULT,
+	HDCP22_KEY_READY,
+	HDCP22_LOADKEY,
+	HDCP22_RESULT,
+	HDCP22_SET_TOPO,
+	HDCP22_GET_TOPO,
+	CONF_ENC_IDX, /* 0: get idx; 1: set idx */
+};
+
 #endif

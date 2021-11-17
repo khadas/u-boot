@@ -13,16 +13,18 @@ struct reg_map {
 	u32 phy_addr;
 };
 
-#define VPUCTRL_REG_IDX		0
-#define HDMITX_COR_REG_IDX	1
-#define HDMITX_TOP_REG_IDX	2
-#define SYSCTRL_REG_IDX		3
-#define PWRCTRL_REG_IDX		4
-#define ANACTRL_REG_IDX		5
-#define RESETCTRL_REG_IDX	6
-#define CLKCTRL_REG_IDX		7
-#define PADCTRL_REG_IDX		8
-#define REG_IDX_END		9 /* END */
+enum map_addr_idx_e {
+	VPUCTRL_REG_IDX,
+	HDMITX_COR_REG_IDX,
+	HDMITX_TOP_REG_IDX,
+	SYSCTRL_REG_IDX,
+	PWRCTRL_REG_IDX,
+	ANACTRL_REG_IDX,
+	RESETCTRL_REG_IDX,
+	CLKCTRL_REG_IDX,
+	PADCTRL_REG_IDX,
+	REG_IDX_END
+};
 
 #define BASE_REG_OFFSET              24
 
@@ -385,6 +387,7 @@ void hdmitx21_venc_en(bool en, bool pi_mode);
 #define ENCT_INFO_READ                VPUCTRL_REG_ADDR(0x271e)
 #define ENCL_INFO_READ                VPUCTRL_REG_ADDR(0x271f)
 #define VPU_HDMI_FMT_CTRL             VPUCTRL_REG_ADDR(0x2743)
+#define VPU_DISP_VIU2_CTRL            VPUCTRL_REG_ADDR(0x2788)
 #define VPU_HDMI_DITH_CNTL            VPUCTRL_REG_ADDR(0x27fc)
 
 #endif

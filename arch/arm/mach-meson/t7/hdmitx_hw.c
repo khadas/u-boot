@@ -106,30 +106,43 @@ u32 TO21_PHY_ADDR(u32 addr)
 	return (reg21_maps[index].phy_addr + offset);
 }
 
-u32 hd21_read_reg(u32 addr)
+static u32 get_enc_paddr(unsigned int addr)
+{
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+	unsigned int idx = addr >> BASE_REG_OFFSET;
+	unsigned int offset = (addr & 0xffff) >> 2;
+
+	if (hdev->enc_idx == 2 && idx == VPUCTRL_REG_IDX) {
+		if (offset >= 0x1b00 && offset < 0x1d00)
+			return addr + (0x800 << 2);
+	}
+	return addr;
+}
+
+u32 hd21_read_reg(u32 vaddr)
 {
 	u32 val;
+	u32 paddr = TO21_PHY_ADDR(get_enc_paddr(vaddr));
 
-	val = readl(TO21_PHY_ADDR(addr));
+	val = readl(paddr);
 	if (hdmi_dbg)
-		pr_info("Rd32[0x%08x] 0x%08x\n", TO21_PHY_ADDR(addr), val);
+		pr_info("Rd32[0x%08x] 0x%08x\n", paddr, val);
 	return val;
 }
 
-void hd21_write_reg(u32 addr, u32 val)
+void hd21_write_reg(u32 vaddr, u32 val)
 {
 	u32 rval;
+	u32 paddr = TO21_PHY_ADDR(get_enc_paddr(vaddr));
 
-	writel(val, TO21_PHY_ADDR(addr));
-	rval = readl(TO21_PHY_ADDR(addr));
+	writel(val, paddr);
+	rval = readl(paddr);
 	if (!hdmi_dbg)
 		return;
 	if (val != rval)
-		pr_info("Wr32[0x%08x] 0x%08x != Rd32 0x%08x\n",
-			TO21_PHY_ADDR(addr), val, rval);
+		pr_info("Wr32[0x%08x] 0x%08x != Rd32 0x%08x\n", paddr, val, rval);
 	else
-		pr_info("Wr32[0x%08x] 0x%08x\n",
-			TO21_PHY_ADDR(addr), val);
+		pr_info("Wr32[0x%08x] 0x%08x\n", paddr, val);
 }
 
 void hd21_set_reg_bits(u32 addr, u32 value,

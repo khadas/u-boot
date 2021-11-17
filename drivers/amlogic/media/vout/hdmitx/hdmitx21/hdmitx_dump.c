@@ -42,6 +42,265 @@ static void dumpcor(u32 start, u32 end)
 	}
 }
 
+#define CONNECT2REG(reg) ({ \
+	typeof(reg) _reg = (reg); \
+	(hdmitx21_rd_reg(_reg) & 0xff) + \
+	((hdmitx21_rd_reg(_reg + 1) & 0xff) << 8); })
+
+#define CONNECT3REG(reg) ({ \
+	typeof(reg) _reg = (reg); \
+	(hdmitx21_rd_reg(_reg) & 0xff) + \
+	((hdmitx21_rd_reg(_reg + 1) & 0xff) << 8) + \
+	((hdmitx21_rd_reg(_reg + 2) & 0xff) << 16); })
+
+#define CONNECT4REG(reg) ({ \
+	typeof(reg) _reg = (reg); \
+	(hdmitx21_rd_reg(_reg) & 0xff) + \
+	((hdmitx21_rd_reg(_reg + 1) & 0xff) << 8) + \
+	((hdmitx21_rd_reg(_reg + 2) & 0xff) << 16) + \
+	((hdmitx21_rd_reg(_reg + 3) & 0xff) << 24); })
+
+static int dump_hdmivpfdet_show(void)
+{
+	u32 reg;
+	u32 val;
+	u32 total, active, front, sync, back, blank;
+
+	pr_info("\n--------vp fdet info--------\n");
+
+	hdmitx21_wr_reg(VP_FDET_CLEAR_IVCTX, 0);
+	hdmitx21_wr_reg(VP_FDET_STATUS_IVCTX, 0);
+	mdelay(50); /* at least 1 frame? */
+
+	reg = VP_FDET_FRAME_RATE_IVCTX;
+	val = CONNECT3REG(reg);
+	if (val)
+		pr_info("frame_rate [%x] 0x%x 200000000/%d Hz\n",
+			reg, val, val);
+
+	reg = VP_FDET_PIXEL_COUNT_IVCTX;
+	val = CONNECT2REG(reg);
+	active = val;
+	if (val)
+		pr_info("hactive [%x] 0x%x %d\n", reg, val, val);
+
+	reg = VP_FDET_HFRONT_COUNT_IVCTX;
+	val = CONNECT2REG(reg);
+	front = val;
+	if (val)
+		pr_info("hfront [%x] 0x%x %d\n", reg, val, val);
+
+	reg = VP_FDET_HSYNC_HIGH_COUNT_IVCTX;
+	val = CONNECT2REG(reg);
+	sync = val;
+	if (val)
+		pr_info("hsync [%x] 0x%x %d\n", reg, val, val);
+
+	reg = VP_FDET_HBACK_COUNT_IVCTX;
+	val = CONNECT2REG(reg);
+	back = val;
+	if (val)
+		pr_info("hback [%x] 0x%x %d\n", reg, val, val);
+
+	blank = front + sync + back;
+	total = active + blank;
+	if (blank)
+		pr_info("Calc hblank 0x%x %d\n", blank, blank);
+	if (total)
+		pr_info("Calc htotal 0x%x %d\n", total, total);
+
+	reg = VP_FDET__LINE__COUNT_IVCTX;
+	val = CONNECT2REG(reg);
+	active = val;
+	if (val)
+		pr_info("vactive [%x] 0x%x %d\n", reg, val, val);
+
+	reg = VP_FDET_VSYNC_HIGH_COUNT_EVEN_IVCTX;
+	val = CONNECT2REG(reg);
+	sync = val;
+	if (val)
+		pr_info("vsync_high_count_even [%x] 0x%x %d\n",
+			reg, val, val);
+
+	reg = VP_FDET_VFRONT_COUNT_EVEN_IVCTX;
+	val = CONNECT2REG(reg);
+	front = val;
+	if (val)
+		pr_info("vfront_count_even [%x] 0x%x %d\n",
+			reg, val, val);
+
+	reg = VP_FDET_VBACK_COUNT_EVEN_IVCTX;
+	val = CONNECT2REG(reg);
+	back = val;
+	if (val)
+		pr_info("vback_count_even [%x] 0x%x %d\n",
+			reg, val, val);
+
+	blank = front + sync + back;
+	total = active + blank;
+	if (blank)
+		pr_info("Calc vblank 0x%x %d\n", blank, blank);
+	if (total)
+		pr_info("Calc vtotal 0x%x %d\n", total, total);
+
+	reg = VP_FDET_CONFIG_IVCTX;
+	val = hdmitx21_rd_reg(reg);
+	if (val)
+		pr_info("[%x] 0x%x %d\n", reg, val, val);
+
+	reg = VP_FDET_STATUS_IVCTX;
+	val = hdmitx21_rd_reg(reg);
+	if (val) {
+		pr_info("status [%x] 0x%x %d\n", reg, val, val);
+		pr_info("  hsync_polarity %d\n", (val >> 0) & 1);
+		pr_info("  vsync_polarity %d\n", (val >> 1) & 1);
+		pr_info("  interlaced %d\n", (val >> 2) & 1);
+		pr_info("  video656 %d\n", (val >> 3) & 1);
+	}
+
+	reg = VP_FDET_INTERLACE_THRESHOLD_IVCTX;
+	val = hdmitx21_rd_reg(reg);
+	if (val)
+		pr_info("interlace_threshold [%x] %x %d\n",
+			reg, val, val);
+
+	reg = VP_FDET_FRAME_RATE_DELTA_THRESHOLD_IVCTX;
+	val = CONNECT3REG(reg);
+	if (val)
+		pr_info("frame_rate_delta_threshold [%x] 0x%x %d\n",
+			reg, val, val);
+
+	reg = VP_FDET_HSYNC_LOW_COUNT_IVCTX;
+	val = CONNECT2REG(reg);
+	if (val)
+		pr_info("hsync_low_count [%x] 0x%x %d\n", reg, val, val);
+
+	reg = VP_FDET_VSYNC_LOW_COUNT_EVEN_IVCTX;
+	val = CONNECT2REG(reg);
+	if (val)
+		pr_info("vsync_low_count_even [%x] 0x%x %d\n",
+			reg, val, val);
+
+	reg = VP_FDET_VSYNC_LOW_COUNT_ODD_IVCTX;
+	val = CONNECT2REG(reg);
+	if (val)
+		pr_info("vsync_low_count_odd [%x] 0x%x %d\n",
+			reg, val, val);
+
+	reg = VP_FDET_VSYNC_HIGH_COUNT_ODD_IVCTX;
+	val = CONNECT2REG(reg);
+	if (val)
+		pr_info("vsync_high_count_odd [%x] 0x%x %d\n",
+			reg, val, val);
+
+	reg = VP_FDET_VFRONT_COUNT_ODD_IVCTX;
+	val = CONNECT2REG(reg);
+	if (val)
+		pr_info("vfront_count_odd [%x] 0x%x %d\n", reg, val, val);
+
+	reg = VP_FDET_VBACK_COUNT_ODD_IVCTX;
+	val = CONNECT2REG(reg);
+	if (val)
+		pr_info("frame_count [%x] 0x%x %d\n", reg, val, val);
+
+	reg = VP_FDET_FRAME_COUNT_IVCTX;
+	val = CONNECT2REG(reg);
+	if (val)
+		pr_info("frame_count [%x] 0x%x %d\n", reg, val, val);
+
+	reg = VP_FDET__LINE__RATE_DELTA_THRESHOLD_IVCTX;
+	val = CONNECT2REG(reg);
+	if (val)
+		pr_info("line_rate_delta_threshold [%x] 0x%x %d\n",
+			reg, val, val);
+
+	reg = VP_FDET__LINE__RATE_IVCTX;
+	val = CONNECT2REG(reg);
+	if (val)
+		pr_info("line_rate [%x] 0x%x %d\n", reg, val, val);
+
+	reg = VP_FDET_VSYNC_HSYNC_OFFSET_EVEN_IVCTX;
+	val = CONNECT2REG(reg);
+	if (val)
+		pr_info("vsync_hsync_offset_even [%x] 0x%x %d\n",
+			reg, val, val);
+
+	reg = VP_FDET_VSYNC_HSYNC_OFFSET_ODD_IVCTX;
+	val = CONNECT2REG(reg);
+	if (val)
+		pr_info("vsync_hsync_offset_odd [%x] 0x%x %d\n",
+			reg, val, val);
+
+#define PR_DETAIL(n, str) \
+	do { \
+		if ((val >> (n)) & 1) \
+			pr_info(" %s", str) ; \
+	} while (0)
+
+	reg = VP_FDET_IRQ_MASK_IVCTX;
+	val = CONNECT3REG(reg);
+	if (val) {
+		pr_info("irq_mask [%x] 0x%x %d\n", reg, val, val);
+
+		PR_DETAIL(0, "hsync_polarity");
+		PR_DETAIL(1, "vsync_polarity");
+		PR_DETAIL(2, "interlaced");
+		PR_DETAIL(3, "video656");
+		PR_DETAIL(4, "frame_rate");
+		PR_DETAIL(5, "pixel_count");
+		PR_DETAIL(6, "line_count");
+		PR_DETAIL(7, "hsync_low_count");
+		PR_DETAIL(8, "hsync_high_count");
+		PR_DETAIL(9, "hfront_count");
+		PR_DETAIL(10, "hback_count");
+		PR_DETAIL(11, "vsync_low_count_even");
+		PR_DETAIL(12, "vsync_high_count_even");
+		PR_DETAIL(13, "vfront_count_even");
+		PR_DETAIL(14, "vback_count_even");
+		PR_DETAIL(15, "vsync_low_count_odd");
+		PR_DETAIL(16, "vsync_high_count_odd");
+		PR_DETAIL(17, "vfront_count_odd");
+		PR_DETAIL(18, "vback_count_odd");
+		PR_DETAIL(19, "line_rate");
+		PR_DETAIL(20, "vsync_hsync_offset_even");
+		PR_DETAIL(21, "vsync_hsync_offset_odd");
+		PR_DETAIL(22, "frame_and_pixel_cnt_done");
+		pr_info("\n");
+	}
+
+	reg = VP_FDET_IRQ_STATUS_IVCTX;
+	val = CONNECT3REG(reg);
+	if (val) {
+		pr_info("irq_status [%x] 0x%x %d\n",
+			reg, val, val);
+		PR_DETAIL(0, "hsync_polarity");
+		PR_DETAIL(1, "vsync_polarity");
+		PR_DETAIL(2, "interlaced");
+		PR_DETAIL(3, "video656");
+		PR_DETAIL(4, "frame_rate");
+		PR_DETAIL(5, "pixel_count");
+		PR_DETAIL(6, "line_count");
+		PR_DETAIL(7, "hsync_low_count");
+		PR_DETAIL(8, "hsync_high_count");
+		PR_DETAIL(9, "hfront_count");
+		PR_DETAIL(10, "hback_count");
+		PR_DETAIL(11, "vsync_low_count_even");
+		PR_DETAIL(12, "vsync_high_count_even");
+		PR_DETAIL(13, "vfront_count_even");
+		PR_DETAIL(14, "vback_count_even");
+		PR_DETAIL(15, "vsync_low_count_odd");
+		PR_DETAIL(16, "vsync_high_count_odd");
+		PR_DETAIL(17, "vfront_count_odd");
+		PR_DETAIL(18, "vback_count_odd");
+		PR_DETAIL(19, "line_rate");
+		PR_DETAIL(20, "vsync_hsync_offset_even");
+		PR_DETAIL(21, "vsync_hsync_offset_odd");
+		PR_DETAIL(22, "frame_and_pixel_cnt_done");
+		pr_info("\n");
+	}
+	return 0;
+}
+
 void hdmitx21_dump_regs(void)
 {
 	// ((0x0000 << 2) + 0xfe008000) ~ ((0x00f3 << 2) + 0xfe008000)
@@ -95,4 +354,5 @@ void hdmitx21_dump_regs(void)
 	// 0x00000f80 - 0x00000fa9
 	dumpcor(DSC_PKT_GEN_CTL_IVCTX, DSC_PKT_SPARE_9_IVCTX);
 	dump_infoframe_packets();
+	dump_hdmivpfdet_show();
 }

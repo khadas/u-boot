@@ -314,6 +314,7 @@ static int do_info(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 	printf("%s %d\n", para->timing.name, hdev->vic);
 	printf("cd%d cs%d cr%d\n", para->cd, para->cs, para->cr);
+	printf("enc_idx %d\n", hdev->enc_idx);
 	printf("frac_rate: %d\n", hdev->frac_rate_policy);
 	return 1;
 }

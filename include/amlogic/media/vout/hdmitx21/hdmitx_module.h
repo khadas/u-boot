@@ -42,6 +42,7 @@ struct hdmitx_dev {
 	/* Add dongle_mode, clock, phy may be different from mbox */
 	unsigned int dongle_mode;
 	unsigned char limit_res_1080p;
+	unsigned char enc_idx;
 };
 
 struct hdmitx_dev *get_hdmitx21_device(void);
