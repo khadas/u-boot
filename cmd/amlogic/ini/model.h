@@ -504,6 +504,24 @@ struct lcd_tcon_spi_block_s {
 	unsigned int param_cnt;
 };
 
+struct lcd_optical_attr_s {
+	struct lcd_header_s head;
+	unsigned int hdr_support;
+	unsigned int features;
+	unsigned int primaries_r_x;
+	unsigned int primaries_r_y;
+	unsigned int primaries_g_x;
+	unsigned int primaries_g_y;
+	unsigned int primaries_b_x;
+	unsigned int primaries_b_y;
+	unsigned int white_point_x;
+	unsigned int white_point_y;
+	unsigned int luma_max;
+	unsigned int luma_min;
+	unsigned int luma_avg;
+	unsigned int adv_val[10];
+};
+
 #define CC_MAX_SUPPORT_PANEL_CNT          (128)
 
 #define CC_MAX_PANEL_ALL_INFO_TAG_SIZE    (16)
