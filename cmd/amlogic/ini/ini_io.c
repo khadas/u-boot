@@ -385,6 +385,32 @@ int SaveTconSpiParam(int wr_size, unsigned char data_buf[]) {
     return tmp_ret;
 }
 
+int ReadLcdOpticalParam(unsigned char data_buf[])
+{
+	int rd_size = 0;
+
+	if (!data_buf)
+		return -1;
+
+	rd_size = ReadIniData(CS_LCD_OPTICAL_ITEM_NAME, data_buf);
+
+	return rd_size;
+}
+
+int SaveLcdOpticalParam(int wr_size, unsigned char data_buf[])
+{
+	int tmp_ret = 0;
+
+	if (!data_buf)
+		return -1;
+
+	tmp_ret = WriteIniData(CS_LCD_OPTICAL_ITEM_NAME, wr_size, data_buf);
+	if (tmp_ret != wr_size)
+		return -1;
+
+	return tmp_ret;
+}
+
 int ReadTconBinParam(unsigned char data_buf[]) {
     int rd_size = 0;
 
