@@ -258,6 +258,7 @@ static int do_osd_dual_logo(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 
 	/* detect hdmi plugin or not */
+	run_command("hdmitx hpd", 0);
 	st = hdev->hwop.get_hpd_state();
 	printf("osd: hpd_state=%c\n", st ? '1' : '0');
 
