@@ -567,7 +567,6 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	u32 data32;
 	enum hdmi_vic vic = para->timing.vic;
 	unsigned char checksum[11];
-	char *p_tmp;
 	enum hdmi_vic videocode;
 
 	hdmi_hwp_init();
@@ -755,11 +754,6 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	hd21_set_reg_bits(VPU_HDMI_SETTING, 1, (hdev->enc_idx == 0) ? 0 : 1, 1);
 
 	hdmitx_set_phy(hdev);
-
-	//kernel will determine output mode on its own
-	p_tmp = env_get("outputmode");
-	if (p_tmp)
-		env_set("hdmimode", p_tmp);
 
 	/* null char needed to terminate the string
 	 * otherwise garbage in checksum logopara

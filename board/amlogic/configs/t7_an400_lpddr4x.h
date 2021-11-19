@@ -249,6 +249,7 @@
             "else if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi; fi;" \
             "\0"\
         "init_display="\
+	"setenv outputmode2 ${hdmimode};"\
             "osd dual_logo;"\
             "\0"\
         "cmdline_keys="\
@@ -296,6 +297,7 @@
 
 /* dual logo, normal boot */
 #define CONFIG_DUAL_LOGO \
+	"setenv outputmode2 ${hdmimode};"\
 	"setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
 	"osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
 	"setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
@@ -303,6 +305,7 @@
 
 /* dual logo, factory_reset boot, recovery always displays on panel */
 #define CONFIG_RECOVERY_DUAL_LOGO \
+	"setenv outputmode2 ${hdmimode};"\
 	"setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
 	"osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
 	"setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
