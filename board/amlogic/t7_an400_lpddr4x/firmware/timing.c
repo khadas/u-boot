@@ -801,172 +801,172 @@ __attribute__ ((section(".clk_param"))) = {
 #endif
 
 /* VDDEE_VAL_REG */
-#if   (VDDEE_VAL == 711)
+#if   (VDDEE_VAL == 700)
 #define VDDEE_VAL_REG   0x120000
-#elif (VDDEE_VAL == 721)
+#elif (VDDEE_VAL == 710)
 #define VDDEE_VAL_REG   0x110001
-#elif (VDDEE_VAL == 731)
+#elif (VDDEE_VAL == 720)
 #define VDDEE_VAL_REG   0x100002
-#elif (VDDEE_VAL == 741)
+#elif (VDDEE_VAL == 730)
 #define VDDEE_VAL_REG   0xf0003
-#elif (VDDEE_VAL == 751)
+#elif (VDDEE_VAL == 740)
 #define VDDEE_VAL_REG   0xe0004
-#elif (VDDEE_VAL == 761)
+#elif (VDDEE_VAL == 750)
 #define VDDEE_VAL_REG   0xd0005
-#elif (VDDEE_VAL == 771)
+#elif (VDDEE_VAL == 760)
 #define VDDEE_VAL_REG   0xc0006
-#elif (VDDEE_VAL == 781)
+#elif (VDDEE_VAL == 770)
 #define VDDEE_VAL_REG   0xb0007
-#elif (VDDEE_VAL == 791)
+#elif (VDDEE_VAL == 780)
 #define VDDEE_VAL_REG   0xa0008
-#elif (VDDEE_VAL == 801)
+#elif (VDDEE_VAL == 790)
 #define VDDEE_VAL_REG   0x90009
-#elif (VDDEE_VAL == 811)
+#elif (VDDEE_VAL == 800)
 #define VDDEE_VAL_REG   0x8000a
-#elif (VDDEE_VAL == 821)
+#elif (VDDEE_VAL == 810)
 #define VDDEE_VAL_REG   0x7000b
-#elif (VDDEE_VAL == 831)
+#elif (VDDEE_VAL == 820)
 #define VDDEE_VAL_REG   0x6000c
-#elif (VDDEE_VAL == 841)
+#elif (VDDEE_VAL == 830)
 #define VDDEE_VAL_REG   0x5000d
-#elif (VDDEE_VAL == 851)
+#elif (VDDEE_VAL == 840)
 #define VDDEE_VAL_REG   0x4000e
-#elif (VDDEE_VAL == 861)
+#elif (VDDEE_VAL == 850)
 #define VDDEE_VAL_REG   0x3000f
-#elif (VDDEE_VAL == 871)
+#elif (VDDEE_VAL == 860)
 #define VDDEE_VAL_REG   0x20010
-#elif (VDDEE_VAL == 881)
+#elif (VDDEE_VAL == 870)
 #define VDDEE_VAL_REG   0x10011
-#elif (VDDEE_VAL == 891)
+#elif (VDDEE_VAL == 880)
 #define VDDEE_VAL_REG   0x12
 #else
 #error "VDDEE val out of range\n"
 #endif
 
 /* VDD_GPU PWM table */
-#if   (VDD_GPU_VAL == 711)
+#if   (VDD_GPU_VAL == 700)
 #define VDD_GPU_VAL_REG 0x120000
-#elif (VDD_GPU_VAL == 721)
+#elif (VDD_GPU_VAL == 710)
 #define VDD_GPU_VAL_REG 0x110001
-#elif (VDD_GPU_VAL == 731)
+#elif (VDD_GPU_VAL == 720)
 #define VDD_GPU_VAL_REG 0x100002
-#elif (VDD_GPU_VAL == 741)
+#elif (VDD_GPU_VAL == 730)
 #define VDD_GPU_VAL_REG 0xf0003
-#elif (VDD_GPU_VAL == 751)
+#elif (VDD_GPU_VAL == 740)
 #define VDD_GPU_VAL_REG 0xe0004
-#elif (VDD_GPU_VAL == 761)
+#elif (VDD_GPU_VAL == 750)
 #define VDD_GPU_VAL_REG 0xd0005
-#elif (VDD_GPU_VAL == 771)
+#elif (VDD_GPU_VAL == 760)
 #define VDD_GPU_VAL_REG 0xc0006
-#elif (VDD_GPU_VAL == 781)
+#elif (VDD_GPU_VAL == 770)
 #define VDD_GPU_VAL_REG 0xb0007
-#elif (VDD_GPU_VAL == 791)
+#elif (VDD_GPU_VAL == 780)
 #define VDD_GPU_VAL_REG 0xa0008
-#elif (VDD_GPU_VAL == 801)
+#elif (VDD_GPU_VAL == 790)
 #define VDD_GPU_VAL_REG 0x90009
-#elif (VDD_GPU_VAL == 811)
+#elif (VDD_GPU_VAL == 800)
 #define VDD_GPU_VAL_REG 0x8000a
-#elif (VDD_GPU_VAL == 821)
+#elif (VDD_GPU_VAL == 810)
 #define VDD_GPU_VAL_REG 0x7000b
-#elif (VDD_GPU_VAL == 831)
+#elif (VDD_GPU_VAL == 820)
 #define VDD_GPU_VAL_REG 0x6000c
-#elif (VDD_GPU_VAL == 841)
+#elif (VDD_GPU_VAL == 830)
 #define VDD_GPU_VAL_REG 0x5000d
-#elif (VDD_GPU_VAL == 851)
+#elif (VDD_GPU_VAL == 840)
 #define VDD_GPU_VAL_REG 0x4000e
-#elif (VDD_GPU_VAL == 861)
+#elif (VDD_GPU_VAL == 850)
 #define VDD_GPU_VAL_REG 0x3000f
-#elif (VDD_GPU_VAL == 871)
+#elif (VDD_GPU_VAL == 860)
 #define VDD_GPU_VAL_REG 0x20010
-#elif (VDD_GPU_VAL == 881)
+#elif (VDD_GPU_VAL == 870)
 #define VDD_GPU_VAL_REG 0x10011
-#elif (VDD_GPU_VAL == 891)
+#elif (VDD_GPU_VAL == 880)
 #define VDD_GPU_VAL_REG 0x12
 #else
 #error "VDD_GPU val out of range\n"
 #endif
 
 /* VDD_NPU PWM table */
-#if   (VDD_NPU_VAL == 711)
+#if   (VDD_NPU_VAL == 700)
 #define VDD_NPU_VAL_REG 0x120000
-#elif (VDD_NPU_VAL == 721)
+#elif (VDD_NPU_VAL == 710)
 #define VDD_NPU_VAL_REG 0x110001
-#elif (VDD_NPU_VAL == 731)
+#elif (VDD_NPU_VAL == 720)
 #define VDD_NPU_VAL_REG 0x100002
-#elif (VDD_NPU_VAL == 741)
+#elif (VDD_NPU_VAL == 730)
 #define VDD_NPU_VAL_REG 0xf0003
-#elif (VDD_NPU_VAL == 751)
+#elif (VDD_NPU_VAL == 740)
 #define VDD_NPU_VAL_REG 0xe0004
-#elif (VDD_NPU_VAL == 761)
+#elif (VDD_NPU_VAL == 750)
 #define VDD_NPU_VAL_REG 0xd0005
-#elif (VDD_NPU_VAL == 771)
+#elif (VDD_NPU_VAL == 760)
 #define VDD_NPU_VAL_REG 0xc0006
-#elif (VDD_NPU_VAL == 781)
+#elif (VDD_NPU_VAL == 770)
 #define VDD_NPU_VAL_REG 0xb0007
-#elif (VDD_NPU_VAL == 791)
+#elif (VDD_NPU_VAL == 780)
 #define VDD_NPU_VAL_REG 0xa0008
-#elif (VDD_NPU_VAL == 801)
+#elif (VDD_NPU_VAL == 790)
 #define VDD_NPU_VAL_REG 0x90009
-#elif (VDD_NPU_VAL == 811)
+#elif (VDD_NPU_VAL == 800)
 #define VDD_NPU_VAL_REG 0x8000a
-#elif (VDD_NPU_VAL == 821)
+#elif (VDD_NPU_VAL == 810)
 #define VDD_NPU_VAL_REG 0x7000b
-#elif (VDD_NPU_VAL == 831)
+#elif (VDD_NPU_VAL == 820)
 #define VDD_NPU_VAL_REG 0x6000c
-#elif (VDD_NPU_VAL == 841)
+#elif (VDD_NPU_VAL == 830)
 #define VDD_NPU_VAL_REG 0x5000d
-#elif (VDD_NPU_VAL == 851)
+#elif (VDD_NPU_VAL == 840)
 #define VDD_NPU_VAL_REG 0x4000e
-#elif (VDD_NPU_VAL == 861)
+#elif (VDD_NPU_VAL == 850)
 #define VDD_NPU_VAL_REG 0x3000f
-#elif (VDD_NPU_VAL == 871)
+#elif (VDD_NPU_VAL == 860)
 #define VDD_NPU_VAL_REG 0x20010
-#elif (VDD_NPU_VAL == 881)
+#elif (VDD_NPU_VAL == 870)
 #define VDD_NPU_VAL_REG 0x10011
-#elif (VDD_NPU_VAL == 891)
+#elif (VDD_NPU_VAL == 880)
 #define VDD_NPU_VAL_REG 0x12
 #else
 #error "VDD_NPU val out of range\n"
 #endif
 
 /* VDD_DDR PWM table */
-#if   (VDD_DDR_VAL == 711)
+#if   (VDD_DDR_VAL == 700)
 #define VDD_DDR_VAL_REG 0x120000
-#elif (VDD_DDR_VAL == 721)
+#elif (VDD_DDR_VAL == 710)
 #define VDD_DDR_VAL_REG 0x110001
-#elif (VDD_DDR_VAL == 731)
+#elif (VDD_DDR_VAL == 720)
 #define VDD_DDR_VAL_REG 0x100002
-#elif (VDD_DDR_VAL == 741)
+#elif (VDD_DDR_VAL == 730)
 #define VDD_DDR_VAL_REG 0xf0003
-#elif (VDD_DDR_VAL == 751)
+#elif (VDD_DDR_VAL == 740)
 #define VDD_DDR_VAL_REG 0xe0004
-#elif (VDD_DDR_VAL == 761)
+#elif (VDD_DDR_VAL == 750)
 #define VDD_DDR_VAL_REG 0xd0005
-#elif (VDD_DDR_VAL == 771)
+#elif (VDD_DDR_VAL == 760)
 #define VDD_DDR_VAL_REG 0xc0006
-#elif (VDD_DDR_VAL == 781)
+#elif (VDD_DDR_VAL == 770)
 #define VDD_DDR_VAL_REG 0xb0007
-#elif (VDD_DDR_VAL == 791)
+#elif (VDD_DDR_VAL == 780)
 #define VDD_DDR_VAL_REG 0xa0008
-#elif (VDD_DDR_VAL == 801)
+#elif (VDD_DDR_VAL == 790)
 #define VDD_DDR_VAL_REG 0x90009
-#elif (VDD_DDR_VAL == 811)
+#elif (VDD_DDR_VAL == 800)
 #define VDD_DDR_VAL_REG 0x8000a
-#elif (VDD_DDR_VAL == 821)
+#elif (VDD_DDR_VAL == 810)
 #define VDD_DDR_VAL_REG 0x7000b
-#elif (VDD_DDR_VAL == 831)
+#elif (VDD_DDR_VAL == 820)
 #define VDD_DDR_VAL_REG 0x6000c
-#elif (VDD_DDR_VAL == 841)
+#elif (VDD_DDR_VAL == 830)
 #define VDD_DDR_VAL_REG 0x5000d
-#elif (VDD_DDR_VAL == 851)
+#elif (VDD_DDR_VAL == 840)
 #define VDD_DDR_VAL_REG 0x4000e
-#elif (VDD_DDR_VAL == 861)
+#elif (VDD_DDR_VAL == 850)
 #define VDD_DDR_VAL_REG 0x3000f
-#elif (VDD_DDR_VAL == 871)
+#elif (VDD_DDR_VAL == 860)
 #define VDD_DDR_VAL_REG 0x20010
-#elif (VDD_DDR_VAL == 881)
+#elif (VDD_DDR_VAL == 870)
 #define VDD_DDR_VAL_REG 0x10011
-#elif (VDD_DDR_VAL == 891)
+#elif (VDD_DDR_VAL == 880)
 #define VDD_DDR_VAL_REG 0x12
 #else
 #error "VDD_DDR val out of range\n"
