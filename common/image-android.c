@@ -422,6 +422,10 @@ int android_image_get_ramdisk_v3(const boot_img_hdr_v3_t *hdr,
 
 	p_vendor_boot_img_hdr_t vb_hdr = &p_vender_boot_img->hdr;
 
+#ifdef CONFIG_RAMDISK_MEM_ADDR
+	vb_hdr->ramdisk_addr = CONFIG_RAMDISK_MEM_ADDR;
+#endif
+
 	debug("RAM disk load addr 0x%08x size %u KiB\n",
 	       vb_hdr->ramdisk_addr, DIV_ROUND_UP(hdr->ramdisk_size, 1024));
 
