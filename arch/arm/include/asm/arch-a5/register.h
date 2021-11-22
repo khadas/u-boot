@@ -7,7 +7,7 @@
 //
 // Project name: a5
 //
-// Create time: Tue Aug 31 19:56:26 CST 2021 by chong.gu
+// Create time: Sun Oct 24 09:02:30 CST 2021 by chong.gu
 //
 // ./REG_LIST_RTL.h
 //
@@ -27,7 +27,7 @@
 #define Wr_reg_bits(reg, val, start, len) \
       Wr(reg, ((Rd(reg) & ~(((1L << (len)) - 1) << (start))) | ((uint32_t)(val) << (start))))
 #else
-#include "dpi.h"
+    #include "dpi.h"
 #endif
 #endif
 //
@@ -37,7 +37,7 @@
 // synopsys translate_on
 //
 //
-// Reading file:  ../mmc_lp4/dmc_clk_freq/rtl/dmc_clk_freq.vh
+// Reading file:  ./dmc_clk_freq.vh
 //
 //`ifdef DMC_FREQ_REG_DEFINE
 //`else
@@ -45,7 +45,7 @@
 // -----------------------------------------------
 // REG_BASE:  APB1_BASE_ADDR = 0xfe040000
 // -----------------------------------------------
-//`define DMC_FREQ_REG_BASE      32'hfe036c00
+//`define DMC_FREQ_REG_BASE      32'hfe040000
 #define AM_DDR_PLL_CNTL0                           ((0x0000  << 2) + 0xfe040000)
   //bit 29    : dpll_reset.
   //bit 28    : dpll_en.
@@ -115,24 +115,27 @@
   //bit 6:0    : DDR_SDMNC_MONITOR
 #define DDR_CLK_CNTL                               ((0x0008  << 2) + 0xfe040000)
   //bit 31     ddr_pll_clk enable. enable the clock from DDR_PLL to clock generateion.
-  // whenever change the DDR_PLL frequency, disable the clock, after the DDR_PLL locked,
-  //then enable it again.
-  //bit 30.    ddr_pll_prod_test_en.  enable the clock to clock/32 which
-  //to clock frequency measurement and production test pin.
+  // whenever change the DDR_PLL frequency, disable the clock, after the DDR_PLL locked, then enable it again.
+  //bit 30.    ddr_pll_prod_test_en.  enable the clock to clock/32 which to clock frequency measurement and production test pin.
   //bit 29.    not used.
   //bit 28.    clock generation logic soft reset. 0 = reset.
   //bit 27.    phy_4xclk phase inverter..
-  //bit 25.    DDRPHY DfiClk/DMC clock selection.     1:  AM_PLL clk output /2.
-  //		   0: directly output from AM_PLL .
+  //bit 25.    DDRPHY DfiClk/DMC clock selection.  1:  AM_PLL clk output /2.  0: directly output from AM_PLL .
   //bit 24.    enable AM_PLL CLK output /2 function.   1: enable.  0: disable.   if try to use this clkoutput/2 function.
-  //bit 26.    pll_freq divide/2. 1:  use pll div/2 clock as the n_clk. 0: use pll clock as n_clk.  this setting is used for the synopsys DDR PHY PLL fast lock mode.
   //bit 16.   enable DMC at speed mbist mode.
+  //bit 9     enable DFICLK use LPCLK/4 at FREQ1..
+  //bit 8.    reset lpclk logic.
+  //bit 7     enalbe DFICLK use LPCLK/4 at current freq.
+  //bit 6.    enable 4Xclock use LPCLK
+  //bit 5.    not used.
+  //bit 4.   enable DFICLK use APB clock.
   //bit 2. enable dmc_clk.
   //bit 1. not used.
   //bit 0. enable LPDDR4-PHY clock
 #define DDR_PHY_CTRL                               ((0x0009  << 2) + 0xfe040000)
   // LPDDR4 power on reset need to special combination of PwrOkIn and phy_reset_n.
   //bit 31:  DDr PHY power on status.  read only.
+  //bit 5.   DDR PHY dfi_init_start_or.   1: for dfi_init_start = 1 if dmc need to power down.  0: normal working mode.
   //bit 4.   DDR PHY PwrOkIn pin.
   //bit 1.   DDR PHY APB soft reset_n.
   //bit 0.   phy_reset_n.
@@ -144,7 +147,7 @@
  //bit 2:0.  OD.
 //`endif
 //
-// Closing file:  ../mmc_lp4/dmc_clk_freq/rtl/dmc_clk_freq.vh
+// Closing file:  ./dmc_clk_freq.vh
 //
 //
 // Reading file:  ../mmc_lp4/dmc/rtl/dmc_reg.vh
@@ -360,8 +363,8 @@
   //bit 15:8.   write urgent 1 request pending hold num.
   //bit 7:0.    write urgent 0 request pending hold num.
 #define DMC_CMD_FILTER_CTRL7                       ((0x0056  << 2) + 0xfe036000)
-  //bit 31:24.  aw_req_pedning signal assertion after wbuf full.
-  //bit 23:16   aw_req_pending signal hold how long if wbuf not full.
+  //bit 31:24.  aw_req_pedning singal assertion after wbuf full.
+  //bit 23:16   aw_req_pending singal hold how long if wbuf not full.
   //bit 15:8    write to read waiting cycles if there write hit request.
   //bit 7:0     read to write waiting cycles if there write hit request.
 #define DMC_CMD_FILTER_CTRL8                       ((0x0057  << 2) + 0xfe036000)
@@ -414,7 +417,7 @@
   //bit 10  ARM  FIQ controlled urgent enable.
   //bit  9. ARM IRQ controlled super urgent enable.
   //bit  8. ARM IRQ controlled urgent enable.
-  //bit  7.  IRQ/FIQ control enable.
+  //bit  7.  IRQ/FIQ controll enable.
   //bit  6:5.  not used.
   //bit 4. enable AXI0 auto urgent enable. When there's no other request, treat the AXI0 as super urgent request. other wise, use the bit3:0 to set the urgent.
   //bit 3:2 A9 urgent if there's VIU request.
@@ -445,7 +448,7 @@
   //bit 10  ARM  FIQ controlled urgent enable.
   //bit  9. ARM IRQ controlled super urgent enable.
   //bit  8. ARM IRQ controlled urgent enable.
-  //bit  7.  IRQ/FIQ control enable.
+  //bit  7.  IRQ/FIQ controll enable.
   //bit  6:0.  not used.
 #define DMC_AXI2_CHAN_CTRL                         ((0x0088  << 2) + 0xfe036000)
   //bit 31       enable to incr 2 urgent levels if the pending cycles is doubled.
@@ -544,7 +547,7 @@
 #define DMC_CHAN_STS                               ((0x00ce  << 2) + 0xfe036000)
   //AXI0  is first CPU and Mali conbined channel from CCI-400 directly.  The first 2Gbyte address will go through this channel.
   //AXI10  is the second CPU, Mali channel combined with NNA  from NIC-400.  The upper 2Gbyte address will go through this channel.
-  // read only register.
+  // read only regsiter.
   // the second mali and NNA channel IDLE.
   // the second CPU channel IDLE.
   // the first mali channel IDLE.
@@ -557,7 +560,7 @@
   //bit 15:0.   axibus channel idle.         1 : idle 0: busy.
 #define DMC_IRQ_STS                                ((0x00cf  << 2) + 0xfe036000)
   //bit 31:3   Not used.
-  //bit 2 :    QOS Monitor interrupt flag.  1: means there's QOS monitor interrupt.  write 1 to clean this interrupt.
+  //bit 2 :    QOS Monitor interrupt flag.  1: means there's QOS monitor interrup.  write 1 to clean this interrupt.
   //bit 1 :    WRITE protection interrupt.  1: means there's write protection violation.  need to write DMC_PROT_IRQ_CTRL  bit 1to clean this bit.
   //bit 0 :    read protection interrupt.   1: means there's read  protection violation.  need to write DMC_PROT_IRQ_CTRL bit 0 to clean this bit.
 #define DMC_PROT0_RANGE                            ((0x00d0  << 2) + 0xfe036000)
@@ -633,7 +636,7 @@
    //bit 23.  wdata type.     1 : the first write is {WD3, WD2,WD1,WD0}, then the latter is the previous data plus a pattern.( { + WD7,  + WD6, + WD5, + WD4}).
    //                         0 : the WDATA is the data in write register.
    //bit 23.  1  compare the sha result with the test sha message registers. 0 : dont compare the result.
-   //bit 22:20.   read repeat times.  for non-sha function, we can define multi times of the read. the test module would repeat the same address repeat times.
+   //bit 22:20.   read repeat times.  for non-sha function, we can define multi times of the read. the test module would repeat the same adddress repeat times.
    //bit 19.     limit write.  0: no outstanding write request limitation.
    //                          1: limit the outstanding write commands to the number of bits [15:8]
    //bit 18.     limit read.   0. no outstanding read request limitation.
@@ -819,7 +822,7 @@
 #define DMC_DRAM_TRSTL                             ((0x0019  << 2) + 0xfe036400)
   //not used.
 #define DMC_DRAM_TZQLAT                            ((0x001a  << 2) + 0xfe036400)
-  //bit 5:0 ZQ LATCH command to other command timing in LPDDR4 mode.
+  //bit 5:0 ZQ LATCH command to other comand timing in LPDDR4 mode.
 #define DMC_DRAM_TMRR                              ((0x001b  << 2) + 0xfe036400)
   //bit 7:0 tMRR  not used in DMC.
 #define DMC_DRAM_TCKESR                            ((0x001c  << 2) + 0xfe036400)
@@ -881,12 +884,12 @@
   //bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
   //bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
   //bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
-  //bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occurred in rank0.
+  //bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occure in rank0.
   //bit 4.   rank0 ODT default.    default vulue for ODT[0] pins if theres no read/write activity.
   //bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
   //bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
   //bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
-  //bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occurred in rank1.
+  //bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occure in rank1.
 #define DMC_DRAM_DFIODTCFG1                        ((0x0037  << 2) + 0xfe036400)
   //bit 27:24  ODT length for BL8 read transfer.
   //bit 19:16. ODT length for BL8 write transfer.
@@ -913,7 +916,7 @@
   //23:16.  when to send PHY ZQ UPDATE command.
   //15:8.   when to send ZQCS/ZQCAL to rank1 DDR SDRAM.
   //7:0.    when to senc ZQCS/ZQCAL to rank0 DDR SDRAM.
-//timing parameter for frequency set 1.
+//timing paramter for frequency set 1.
 #define DMC_NFQ_TMRD                               ((0x0040  << 2) + 0xfe036400)
 #define DMC_NFQ_TRFC                               ((0x0041  << 2) + 0xfe036400)
 #define DMC_NFQ_TRP                                ((0x0042  << 2) + 0xfe036400)
@@ -999,7 +1002,7 @@
  //bit 10    1: enable staggered chip select for 2 ranks DRAM.
  //bit 9     1: enable send auto refresh command to DDR SDRAM when PCTL is in CFG/STOP state.
  //bit 8     send auto refr cmd before enter register triggered  self refresh
- //bit 7     send auto refr cmd after exit register triggered self refresh mode.
+ //bit 7     send auto refr cmd after exit regsiter triggered self refresh mode.
  //bit 6     disable dram clock after enter register triggered self refresh.
  //bit 5     send DFI_LP_REQ to PHY after enter register triggered elf refresh mode.
  //bit 4     send DRAM to power down mode after enter self refresh. ONLY for LPDDR4.
@@ -1019,7 +1022,7 @@
   //bit 19: dfi_init_complete wait enable.  1: after dfi_init_complete, wait additional EXSR time for new command. 0: phy will handle all the timing    after dfi_init_complete DMC can do everything they want.
   //bit 18:  dfi_rddata_cs_n polariy.  0:  rank0 select = 2'b10. rank1 select = 2'b10. 1: rank0 select = 2'b01, rank1_select = 2'b10.
   //bit 17:  dfi_wrdata_cs_n polariy.  0:  rank0 select = 2'b10. rank1 select = 2'b10. 1: rank0 select = 2'b01, rank1_select = 2'b10.
-  //bit 16:  force PHY ctrl_on  if = 1, phy_ctrl_on signal will keep on.
+  //bit 16:  force PHY ctrl_on  if = 1, phy_ctrl_on singal will keep on.
    //bit 15 siu_dfi1_lp_en
   //bit 14 siu_dfi_lp_ack_and
   //bit 13 siu_dfi_lp_ack_or
@@ -1091,7 +1094,7 @@
 //bit 14.   freq post config_en. After  freq enter stop state let DMC configure DDR SDRAM.
 //bit 13.   send zqcl after freq change in DDR3/4 mode.
 //bit 12.   send zqcs after freq change. 1: enable. 0 not send.
-//bit 11.   in AUTO MRW function: the data format.  1: use USR_CMD format.  0: MRW format.
+//bit 11.   in AUTO MRW fucntion: the data format.  1: use USR_CMD format.  0: MRW format.
 //bit 10.   AUTO MRW function:  1 use hardware auto MRW function.  0: don't do auto MRW.
 //bit 9.  1 : FREQ MRW done. let FREQ change machine continue.
 //bit 8   FREQ WAIT. 1 when freq change finishes, state machine stop at self refresh state in case there's something need to handle.
@@ -1169,7 +1172,7 @@
   //bit 25:24 : retraining dfi_freq[4:3], the [2:0] bit still use the dfi_freq bits to keep the frequency.
   //bit 23:0: retraining period unit : 100ns.
 #define DMC_DFI_ERR_STAT                           ((0x0098  << 2) + 0xfe036400)
- //LPDDR4 PHY DFI error information.
+ //LPDDR4 PHY DFI error infomation.
  //bit 31:20. not used.
  //bit 9.    ddr0_dfi_error
  //bit 8:5   ddr0_dfi_error_info.
@@ -1518,12 +1521,12 @@
 #define DMC_DRAM_CMD                               ((0x00d0  << 2) + 0xfe036400)
  //bit 31. cmd done.  write 0 to clean.
  //bit 30. data done. write 0 to clean.
- //bit 8.  1: MPC/MRR command is in a 16bits width SDRAM. 0 : normal operation.
+ //bit 8.  1: MPC/MRR comand is in a 16bits width SDRAM. 0 : normal operation.
  //bit 5.  user defined command.
  //bit 4.  LPDDR4 MPC write data command( MPC WR FIFO).
  //bit 3.  LPDDR4 MPC read data command (MPC RD Calibration and RD FIFO).
  //bit 2.  LPDDR4 MPC-1 command ( NOP,  Start DQS interval ....)
- //bit 1.  mrr command.
+ //bit 1.  mrr comand.
  //bit 0.  mrw command.
 #define DMC_DRAM_CMD_CODE                          ((0x00d1  << 2) + 0xfe036400)
  //bit 31:28  user command case: = {act_n, ras_n, cas_n, we_n}
@@ -1552,7 +1555,7 @@
 //RD0_16 is for Freq0 DRAM MR setting. it would send to DRAM right before FREQ1-> FREQ0.
 //each register can be one MRW command. So total 16 MRW command can be sent to DRAM.
 //The register formats:
-//bit 31.   MRW/USER command enable.  1: enabled command. 0 not enabled.
+//bit 31.   MRW/USER comand enable.  1: enabled command. 0 not enabled.
 //bit 30.   last MRW/USER command.   if this bit =1, After send this command, the DRAM controller will contine frequency next stage.
 //bit 29:26. USER COMMAND parameter: in DDR3/DDR4.  {act_n, ras_n, cas_n, we_n} value for user command
 				     //in LPDDR4.  bit 16: 1 4 cycles command.  0 2 cycles command.
@@ -1674,7 +1677,7 @@
 //DMC use 15bits ID to identify the input ports and ID.
 // bit 14:10.
 // AXI bus ID number from 0 ~15.  2, 8~10, 12~15 Not used the others defined as bellow.
-// 0 : CPU and MALI.   Mali and cpu will be separated to 2 channel. CPU traffic will be assigned to ID = 0. Mali traffic will assigned to ID =1.
+// 0 : CPU and MALI.   Mali and cpu will be seperated to 2 channel. CPU traffic will be assigned to ID = 0. Mali traffic will assigned to ID =1.
 // 1 : Mali
 // 3 : HDMI.
 // 4 : HEVC.   //HEVC_F/B combined to one
@@ -2052,37 +2055,37 @@
    //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
    //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
 #define DDR_APB_SEC_CTRL1                          ((0x00f1  << 2) + 0xfe037000)
-   // APB access control for DMC DRAM timing parameter and DFI interface registers.
+   // APB access control for DMC DRAM timing parameter and DFI inteface registers.
    //default : 0x005
    //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
    //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
 #define DDR_APB_SEC_CTRL2                          ((0x00f2  << 2) + 0xfe037000)
-   // APB access control for DMC PLL clock frequency control register.
+   // APB access control for DMC PLL clock frequency control regsiter.
    //default : 0x005
    //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
    //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
 #define DDR_APB_SEC_CTRL3                          ((0x00f3  << 2) + 0xfe037000)
-   // APB access control for DMC sticky control register.
+   // APB access control for DMC sticky control regsiter.
    //default : 0x005
    //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
    //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
 #define DDR_APB_SEC_CTRL4                          ((0x00f4  << 2) + 0xfe037000)
-   // APB access control for DMC test control register.
+   // APB access control for DMC test control regsiter.
    //default : 0x005
    //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
    //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
 #define DDR_APB_SEC_CTRL5                          ((0x00f5  << 2) + 0xfe037000)
-   // APB access control for DMC clk reset control register.
+   // APB access control for DMC clk reset control regsiter.
    //default : 0x005
    //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
    //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
 #define DDR_APB_SEC_CTRL6                          ((0x00f6  << 2) + 0xfe037000)
-   // APB access control for DMC protection register.
+   // APB access control for DMC protection regsiter.
    //default : 0x005
    //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
    //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
 #define DDR_APB_SEC_CTRL7                          ((0x00f7  << 2) + 0xfe037000)
-   // APB access control for DMC normal register.
+   // APB access control for DMC normal regsiter.
    //default : 0x0ff
    //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
    //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
@@ -2095,7 +2098,7 @@
    //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
    //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
 #define DDR_APB_SEC_CTRL9                          ((0x00f9  << 2) + 0xfe037000)
-   // APB access control for DMC canvas register.
+   // APB access control for DMC canvas regsiter.
    //default : 0x005
    //bit 8    lock bit if this bit =  1,  this register is locked and cannot modified anymore.
    //bit 7:0.  APB access enable for each APB user ID. one ID one bit. 1: enable. 0 disable.
@@ -2390,7 +2393,7 @@
   //bit 5.   LPDT data endian.  1 = transfer the high bit first. 0 : transfer the low bit first.
   //bit 4.   HS data endian.
   //bit 3.  force data byte lane in stop mode.
-  //bit 2.  force data byte lane 0 in receiver mode.
+  //bit 2.  force data byte lane 0 in reciever mode.
   //bit 1. write 1 to sync the txclkesc input. the internal logic have to use txclkesc to decide Txvalid and Txready.
   //bit 0.  enalbe the MIPI DSI PHY TxDDRClk.
 #define MIPI_DSI_CHAN_CTRL                         ((0x0001  << 2) + 0xfe01c000)
@@ -2449,8 +2452,8 @@
 #define MIPI_DSI_WAKEUP_TIM                        ((0x0008  << 2) + 0xfe01c000)
   //TWAKEUP.
 #define MIPI_DSI_LPOK_TIM                          ((0x0009  << 2) + 0xfe01c000)
-  //bit 31:0 when in RxULPS state, RX receiver is in sleep mode.
-  //every MIPI_DSI_ULPS_CHECK period, the receiver would be enabled once, and waiting this timer period to get the stable input.
+  //bit 31:0 when in RxULPS state, RX reciever is in sleep mode.
+  //every MIPI_DSI_ULPS_CHECK period, the reciever would be enabled once, and waiting this timer period to get the stable input.
 #define MIPI_DSI_LP_WCHDOG                         ((0x000a  << 2) + 0xfe01c000)
   //bit 31:0 watch dog timer for MIPI DSI LP receive state.
 #define MIPI_DSI_ANA_CTRL                          ((0x000b  << 2) + 0xfe01c000)
@@ -2461,7 +2464,7 @@
 #define MIPI_DSI_TURN_WCHDOG                       ((0x000d  << 2) + 0xfe01c000)
  //bit 31:0 watch dog timer for lane 0 LP turn around waiting time.
 #define MIPI_DSI_ULPS_CHECK                        ((0x000e  << 2) + 0xfe01c000)
- //bit 31:0 when Lane0 in LP receive state,  if the another side sent Low power command,  using this timer to enable Tcheck the another size wakeup nor not.
+ //bit 31:0 when Lane0 in LP recieve state,  if the another side sent Low power command,  using this timer to enable Tcheck the another size wakeup nor not.
 #define MIPI_DSI_TEST_CTRL0                        ((0x000f  << 2) + 0xfe01c000)
 #define MIPI_DSI_TEST_CTRL1                        ((0x0010  << 2) + 0xfe01c000)
 //========================================================================
@@ -2470,25 +2473,23 @@
 // -----------------------------------------------
 // REG_BASE:  REGISTER_BASE_ADDR = 0xfe09a000
 // -----------------------------------------------
-#define RTC_EN                                     ((0x0000  << 2) + 0xfe09a000)
-#define RTC_TIME_REG0                              ((0x0001  << 2) + 0xfe09a000)
-#define RTC_TIME_REG1                              ((0x0002  << 2) + 0xfe09a000)
-#define RTC_ALARM0_REG0                            ((0x0003  << 2) + 0xfe09a000)
-#define RTC_ALARM0_REG1                            ((0x0004  << 2) + 0xfe09a000)
-#define RTC_ALARM1_REG0                            ((0x0005  << 2) + 0xfe09a000)
-#define RTC_ALARM1_REG1                            ((0x0006  << 2) + 0xfe09a000)
-#define RTC_ALARM2_REG0                            ((0x0007  << 2) + 0xfe09a000)
-#define RTC_ALARM2_REG1                            ((0x0008  << 2) + 0xfe09a000)
-#define RTC_ALARM_SEL                              ((0x0009  << 2) + 0xfe09a000)
-#define RTC_ALARM_TIME_SET                         ((0x000a  << 2) + 0xfe09a000)
-#define RTC_SEC_ADJUST_REG                         ((0x000b  << 2) + 0xfe09a000)
-#define RTC_ALARM_IRQ_MASK                         ((0x000c  << 2) + 0xfe09a000)
-#define RTC_INT                                    ((0x000d  << 2) + 0xfe09a000)
-#define RTC_REAL_TIME0                             ((0x000e  << 2) + 0xfe09a000)
-#define RTC_REAL_TIME1                             ((0x000f  << 2) + 0xfe09a000)
-#define RTC_WIDEN_VAL                              ((0x0010  << 2) + 0xfe09a000)
-#define RTC_OSCIN_CTRL0                            ((0x0011  << 2) + 0xfe09a000)
-#define RTC_OSCIN_CTRL1                            ((0x0012  << 2) + 0xfe09a000)
+//
+//
+//
+#define RTC_CTRL                                   ((0x0000  << 2) + 0xfe09a000)
+#define RTC_COUNTER_REG                            ((0x0001  << 2) + 0xfe09a000)
+#define RTC_ALARM0_REG                             ((0x0002  << 2) + 0xfe09a000)
+#define RTC_ALARM1_REG                             ((0x0003  << 2) + 0xfe09a000)
+#define RTC_ALARM2_REG                             ((0x0004  << 2) + 0xfe09a000)
+#define RTC_ALARM3_REG                             ((0x0005  << 2) + 0xfe09a000)
+#define RTC_SEC_ADJUST_REG                         ((0x0006  << 2) + 0xfe09a000)
+#define RTC_WIDEN_VAL                              ((0x0007  << 2) + 0xfe09a000)
+#define RTC_INT_MASK                               ((0x0008  << 2) + 0xfe09a000)
+#define RTC_INT_CLR                                ((0x0009  << 2) + 0xfe09a000)
+#define RTC_OSCIN_CTRL0                            ((0x000a  << 2) + 0xfe09a000)
+#define RTC_OSCIN_CTRL1                            ((0x000b  << 2) + 0xfe09a000)
+#define RTC_INT_STATUS                             ((0x000c  << 2) + 0xfe09a000)
+#define RTC_REAL_TIME                              ((0x000d  << 2) + 0xfe09a000)
 //========================================================================
 //  Temp sensor PLL
 //========================================================================
@@ -2853,6 +2854,7 @@
 #define SYSCTRL_TIMER90K                           ((0x0057  << 2) + 0xfe010000)
 #define SYSCTRL_SCR                                ((0x0058  << 2) + 0xfe010000)
 #define SYSCTRL_HPG_TIMER                          ((0x0059  << 2) + 0xfe010000)
+#define SYSCTRL_AXI_PIPE_CTRL2                     ((0x005a  << 2) + 0xfe010000)
 //`define SYSCTRL_VIPNANOQ_CTRL0                  10'h5A
 #define SYSCTRL_AHB2DDR_CTRL0                      ((0x005b  << 2) + 0xfe010000)
 #define SYSCTRL_AHB2DDR_CTRL1                      ((0x005c  << 2) + 0xfe010000)
@@ -3035,8 +3037,8 @@
 #define CLKCTRL_EFUSE_CPU_CFG2                     ((0x0121  << 2) + 0xfe000000)
 #define CLKCTRL_EFUSE_ENCP_CFG0                    ((0x0122  << 2) + 0xfe000000)
 #define CLKCTRL_EFUSE_MALI_CFG01                   ((0x0123  << 2) + 0xfe000000)
-#define CLKCTRL_EFUSE_HEVCB_CFG01                  ((0x0124  << 2) + 0xfe000000)
-#define CLKCTRL_EFUSE_HEVCB_CFG2                   ((0x0125  << 2) + 0xfe000000)
+//`define CLKCTRL_EFUSE_HEVCB_CFG01       10'h124
+//`define CLKCTRL_EFUSE_HEVCB_CFG2        10'h125
 #define CLKCTRL_EFUSE_LOCK                         ((0x0126  << 2) + 0xfe000000)
 //========================================================================
 //  PWR_CTRL
@@ -4944,26 +4946,26 @@
 // REG_BASE:  REGISTER_BASE_ADDR = 0xfe030000
 // -----------------------------------------------
 #define BT_CTRL                                    ((0x0000  << 2) + 0xfe030000)
-#define BT_SOFT_RESET           31	// Soft reset
-#define BT_JPEG_START           30
-#define BT_JPEG_IGNORE_BYTES    18	//20:18
-#define BT_JPEG_IGNORE_LAST     17
-#define BT_UPDATE_ST_SEL        16
-#define BT_COLOR_REPEAT         15
-#define BT_VIDEO_MODE           13	// 14:13
-#define BT_AUTO_FMT             12
-#define BT_PROG_MODE            11
-#define BT_JPEG_MODE            10
-#define BT_XCLK27_EN_BIT        9	// 1 : xclk27 is input.     0 : xclk27 is output.
-#define BT_FID_EN_BIT           8	// 1 : enable use FID port.
-#define BT_CLK27_SEL_BIT        7	// 1 : external xclk27      0 : internal clk27.
-#define BT_CLK27_PHASE_BIT      6	// 1 : no inverted          0 : inverted.
-#define BT_ACE_MODE_BIT         5	// 1 : auto cover error by hardware.
-#define BT_SLICE_MODE_BIT       4	// 1 : no ancillay flag     0 : with ancillay flag.
-#define BT_FMT_MODE_BIT         3	// 1 : ntsc                 0 : pal.
-#define BT_REF_MODE_BIT         2	// 1 : from bit stream.     0 : from ports.
-#define BT_MODE_BIT             1	// 1 : BT656 model          0 : SAA7118 mode.
-#define BT_EN_BIT               0	// 1 : enable.
+    #define BT_SOFT_RESET           31      // Soft reset
+    #define BT_JPEG_START           30
+    #define BT_JPEG_IGNORE_BYTES    18     //20:18
+    #define BT_JPEG_IGNORE_LAST     17
+    #define BT_UPDATE_ST_SEL        16
+    #define BT_COLOR_REPEAT         15
+    #define BT_VIDEO_MODE           13     // 14:13
+    #define BT_AUTO_FMT             12
+    #define BT_PROG_MODE            11
+    #define BT_JPEG_MODE            10
+    #define BT_XCLK27_EN_BIT        9      // 1 : xclk27 is input.     0 : xclk27 is output.
+    #define BT_FID_EN_BIT           8       // 1 : enable use FID port.
+    #define BT_CLK27_SEL_BIT        7       // 1 : external xclk27      0 : internal clk27.
+    #define BT_CLK27_PHASE_BIT      6       // 1 : no inverted          0 : inverted.
+    #define BT_ACE_MODE_BIT         5       // 1 : auto cover error by hardware.
+    #define BT_SLICE_MODE_BIT       4       // 1 : no ancillay flag     0 : with ancillay flag.
+    #define BT_FMT_MODE_BIT         3       // 1 : ntsc                 0 : pal.
+    #define BT_REF_MODE_BIT         2       // 1 : from bit stream.     0 : from ports.
+    #define BT_MODE_BIT             1       // 1 : BT656 model          0 : SAA7118 mode.
+    #define BT_EN_BIT               0       // 1 : enable.
 #define BT_VBISTART                                ((0x0001  << 2) + 0xfe030000)
 #define BT_VBIEND                                  ((0x0002  << 2) + 0xfe030000)
 #define BT_FIELDSADR                               ((0x0003  << 2) + 0xfe030000)
@@ -4973,27 +4975,27 @@
 #define BT_SLICELINE0                              ((0x0007  << 2) + 0xfe030000)
 #define BT_SLICELINE1                              ((0x0008  << 2) + 0xfe030000)
 #define BT_PORT_CTRL                               ((0x0009  << 2) + 0xfe030000)
-#define BT_HSYNC_PHASE           0
-#define BT_VSYNC_PHASE           1
-#define BT_HSYNC_PULSE           2
-#define BT_VSYNC_PULSE           3
-#define BT_FID_PHASE             4
-#define BT_FID_HSVS              5
-#define BT_IDQ_EN                6
-#define BT_IDQ_PHASE             7
-#define BT_D8B                   8
-#define BT_10BTO8B               9
-#define BT_FID_DELAY            10	//12:10
-#define BT_VSYNC_DELAY          13	//
-#define BT_HSYNC_DELAY          16
-#define BT_FID_HSVS_PCNT        19
-#define BT_FID_HSVS_VS_RISING   20
-#define BT_FID_HSVS_VS_FALLING  21
-#define BT_VREF_FROM_VS_ONLY    22
-#define BT_PORT_ACTIVE_HMODE    23
-#define BT_DUAL_EDGE_CLK_EN     24
-#define BT_CLK_INV_SEL          25
-#define BT_DATA_ENDIAN          26
+  #define BT_HSYNC_PHASE           0
+  #define BT_VSYNC_PHASE           1
+  #define BT_HSYNC_PULSE           2
+  #define BT_VSYNC_PULSE           3
+  #define BT_FID_PHASE             4
+  #define BT_FID_HSVS              5
+  #define BT_IDQ_EN                6
+  #define BT_IDQ_PHASE             7
+  #define BT_D8B                   8
+  #define BT_10BTO8B               9
+  #define BT_FID_DELAY            10    //12:10
+  #define BT_VSYNC_DELAY          13    //
+  #define BT_HSYNC_DELAY          16
+  #define BT_FID_HSVS_PCNT        19
+  #define BT_FID_HSVS_VS_RISING   20
+  #define BT_FID_HSVS_VS_FALLING  21
+  #define BT_VREF_FROM_VS_ONLY    22
+  #define BT_PORT_ACTIVE_HMODE    23
+  #define BT_DUAL_EDGE_CLK_EN     24
+  #define BT_CLK_INV_SEL          25
+  #define BT_DATA_ENDIAN          26
 #define BT_SWAP_CTRL                               ((0x000a  << 2) + 0xfe030000)
 #define BT_601_CTRL0                               ((0x000e  << 2) + 0xfe030000)
 #define BT_601_CTRL1                               ((0x000f  << 2) + 0xfe030000)
@@ -5728,7 +5730,7 @@
   //Not used.
 #define PDM_F1_CTRL                                ((0x0003  << 2) + 0xfe331000)
   //bit 31 .   filter 1 enable.
-  //bit 16:15. f1 round mode. 2'b00 : sign bit at bit 49.  28bits output [49:22] round at bit 21. 32bits output [49:18]. 24bits output [49:26]
+  //bit 16:15. f1 round mode.  2'b00 : sign bit at bit 49.  28bits output [49:22] round at bit 21. 32bits output [49:18]. 24bits output [49:26]
 		//                    2'b01 : sign bit at bit 50.  28bits output [50:23] round at bit 22. 32bits output [49:18]. 24bits output [49:26]
 		//                    2'b10 : sign bit at bit 51.  28bits output [51:24] round at bit 23 32bits output [49:18]. 24bits output [49:26].
   //bit 15:12. filter 1 down sample rate.
@@ -6693,7 +6695,7 @@
 //Bit 7:0,    reg_premable_Z_value    ,default = 0
 #define EARCTX_SPDIFOUT_SWAP                       ((0x0007  << 2) + 0xfe333400)
 //Bit 31:16,  reg_hold_cnt        ,default = 0,hold start cnt ,valid when reg_hold_for_tdm set 1
-//Bit 15,     reg_init_send_en    ,default = 0,send 01 squence some times after initial done from frddr set
+//Bit 15,     reg_init_send_en    ,default = 0,send 01 squence some times after intial done from frddr set
 //Bit 14:0,   reg_init_send_cnt   ,default = 0,send 01 squence time ,valid when reg_init_send_en set 1
 #define EARCTX_ERR_CORRT_CTRL0                     ((0x0008  << 2) + 0xfe333400)
 //Bit 31:24,  reserved
@@ -6853,14 +6855,14 @@
 //
 #define EARC_RX_CMDC_TOP_CTRL0                     ((0x0000  << 2) + 0xfe333800)
 //Bit   31   ,     idle2_int                 unsigned, default = 0, 1: enable
-//Bit   30   ,     idle1_int                     unsigned, default = 0, 1: enable
-//Bit   29   ,     disc2_int                     unsigned, default = 0, 1: enable
-//Bit   28   ,     disc1_int                     unsigned, default = 0, 1: enable
-//Bit   27   ,     earc_int                      unsigned, default = 0, 1: enable
-//Bit   26   ,     hb_status_int                 unsigned, default = 0, 1: enable
-//Bit   25   ,     losthb_int                    unsigned, default = 0, 1: enable
-//Bit   24   ,     timeout_int                   unsigned, default = 0, 1: enable
-//Bit   23   ,     status_ch_int                 unsigned, default = 0, 1: enable
+//Bit   30   ,     idle1_int                 unsigned, default = 0, 1: enable
+//Bit   29   ,     disc2_int                 unsigned, default = 0, 1: enable
+//Bit   28   ,     disc1_int                 unsigned, default = 0, 1: enable
+//Bit   27   ,     earc_int                  unsigned, default = 0, 1: enable
+//Bit   26   ,     hb_status_int             unsigned, default = 0, 1: enable
+//Bit   25   ,     losthb_int                unsigned, default = 0, 1: enable
+//Bit   24   ,     timeout_int               unsigned, default = 0, 1: enable
+//Bit   23   ,     status_ch_int             unsigned, default = 0, 1: enable
 //Bit   22   ,     int_rec_invalid_id        unsigned, default = 0, 1: enable
 //Bit   21   ,     int_rec_invalid_offset    unsigned, default = 0, 1: enable
 //Bit   20   ,     int_rec_unexp             unsigned, default = 0, 1: enable
@@ -6908,19 +6910,19 @@
 //Bit      31:0,    ro_cmdc_status0         unsigned, RO, default = 0,
 #define EARC_RX_CMDC_VSM_CTRL0                     ((0x0007  << 2) + 0xfe333800)
 //Bit      31,      sw_state_update         unsigned, default = 0,  XX
-//Bit      30:28,   sw_state                    unsigned, default = 0,  XX
-//Bit      27,      arc_initiated               unsigned, default = 0,  XX
-//Bit      26,      arc_terminated              unsigned, default = 0,  XX
-//Bit      25,      arc_enable                  unsigned, default = 0,  XX
-//Bit      24,      man_hpd                     unsigned, default = 0,  XX
-//Bit      23:22,   hpd_sel                     unsigned, default = 0,  XX
+//Bit      30:28,   sw_state                unsigned, default = 0,  XX
+//Bit      27,      arc_initiated           unsigned, default = 0,  XX
+//Bit      26,      arc_terminated          unsigned, default = 0,  XX
+//Bit      25,      arc_enable              unsigned, default = 0,  XX
+//Bit      24,      man_hpd                 unsigned, default = 0,  XX
+//Bit      23:22,   hpd_sel                 unsigned, default = 0,  XX
 //Bit      21:20,   hpd_sel_earc            unsigned, default = 0,  XX
 //Bit      19,      comma_cnt_rst           unsigned, default = 0,  XX
 //Bit      18,      timeout_status_rst      unsigned, default = 0,  XX
 //Bit      17,      losthb_status_rst       unsigned, default = 0,  XX
 //Bit      16,      force_rst               unsigned, default = 0,  XX
 //Bit      15,      auto_state              unsigned, default = 0,  XX
-//Bit      14,      cmdc_state_en               unsigned, default = 0,  XX
+//Bit      14,      cmdc_state_en           unsigned, default = 0,  XX
 //Bit    13:0,      reserved
 #define EARC_RX_CMDC_VSM_CTRL1                     ((0x0008  << 2) + 0xfe333800)
 //Bit    31:12,      max_count_th          unsigned, default = 0,  idle done timing
@@ -7014,14 +7016,14 @@
 //Bit     31:20,     recv_pre_threshold          unsigned, default = 0,  packet control
 //Bit      19:9,     reserved
 //Bit         8,     rec_packet_d                 unsigned, default = 0,  XX
-//Bit         7,     rec_parity_err_cnt               unsigned, default = 0,  XX
-//Bit         6,     rec_ecc_err_cnt                  unsigned, default = 0,  XX
-//Bit         5,     rec_unexp_cnt                            unsigned, default = 0,  XX
-//Bit         4,     rec_invalid_offset_cnt           unsigned, default = 0,  XX
-//Bit         3,     rec_invalid_id_cnt               unsigned, default = 0,  XX
-//Bit         2,     rec_timeout_cnt                  unsigned, default = 0,  XX
-//Bit         1,     rec_w_cnt                                unsigned, default = 0,  XX
-//Bit         0,     rec_r_cnt                                unsigned, default = 0,  X
+//Bit         7,     rec_parity_err_cnt		      unsigned, default = 0,  XX
+//Bit         6,     rec_ecc_err_cnt		      unsigned, default = 0,  XX
+//Bit         5,     rec_unexp_cnt			      unsigned, default = 0,  XX
+//Bit         4,     rec_invalid_offset_cnt	      unsigned, default = 0,  XX
+//Bit         3,     rec_invalid_id_cnt		      unsigned, default = 0,  XX
+//Bit         2,     rec_timeout_cnt		      unsigned, default = 0,  XX
+//Bit         1,     rec_w_cnt				      unsigned, default = 0,  XX
+//Bit         0,     rec_r_cnt				      unsigned, default = 0,  X
 #define EARC_RX_CMDC_BIPHASE_CTRL0                 ((0x0019  << 2) + 0xfe333800)
 //Bit     31:24,     reg_tns                       unsigned, default = 7, xx
 //Bit     23:16,     delay_th                      unsigned, default = 0, xx
@@ -7223,7 +7225,7 @@
 //Bit   16,     reg_earc_cps_chst_clr_en       unsigned, default = 0, auto clear compress mode when channel status not compress
 //Bit   15,     reg_earc_cps_nonpcm2pcm_clr_en unsigned, default = 0, auto clear compress mode when nonpcm2pcm
 //Bit   14,     reg_earc_auto                  unsigned, default = 0, auto change earc/arc
-//Bit   13,     reg_earcin_papb_lr             unsigned, default = 0, user l or r channel status to check papb
+//Bit   13,     reg_earcin_papb_lr             unsigned, default = 0, user l or r channle status to check papb
 //Bit   12,     reg_earcin_check_papb          unsigned, default = 0, 0:data valid after 1 block;1: in 1st block if exit papb ,data valid after papb
 //Bit   11,     reg_earcin_start_papb          unsigned, default = 0, start write toddr 1:from papb check,0 from preamble Z,valid when reg_earcin_check_papb set
 //Bit   10,     reg_formatchange_auto_rst      unsigned, default = 0, auto reset will detect format change
@@ -9832,6 +9834,8 @@
 //
 // Closing file:  ./REG_LIST_RTL.h
 //
+
 #include "fixme.h"
 
 #endif // REGISTER_H
+
