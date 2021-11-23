@@ -81,6 +81,7 @@ WakeUp_Reason vWakeupReason[] = {
 	[CECB_WAKEUP] = { .name = "cecb" },
 	[VAD_WAKEUP] = { .name = "vad" },
 	[HDMI_RX_WAKEUP] = { .name = "hdmirx_plugin" },
+	[TP_WAKEUP] = { .name = "tp_irq" },
 };
 
 void set_suspend_flag(void)
@@ -334,6 +335,9 @@ static void vSTRTask( void *pvParameters )
 				case HDMI_RX_WAKEUP:
 					exit_reason = HDMI_RX_WAKEUP;
 					break;
+				case TP_WAKEUP:
+					exit_reason = TP_WAKEUP;
+					break;					
 				default:
 					break;
 			}

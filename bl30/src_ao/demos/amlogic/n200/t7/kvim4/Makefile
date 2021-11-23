@@ -71,6 +71,7 @@ $(info LDFLAGS = $(LDFLAGS))
 -include $(FREERTOS_VENDOR_DRIVER)/key/build.mk
 -include $(FREERTOS_VENDOR_DRIVER)/i2c/build.mk
 -include $(FREERTOS_VENDOR_DRIVER)/eth/build.mk
+-include $(FREERTOS_VENDOR_DRIVER)/tp/build.mk
 -include $(FREERTOS_VENDOR_DRIVER)/hdmirx/t7_common/build.mk
 
 objs_from_dir=$(sort $(foreach obj, $($(2)-y), \
@@ -104,7 +105,7 @@ OBJS += ${COMPILER}/main.o	\
 		$(COMPILER)/start.o \
 		$(COMPILER)/vtable.o\
 		${COMPILER}/keypad.o \
-		${COMPILER}/btwake.o
+		${COMPILER}/btwake.o 
 
 #
 # The default rule, which causes init to be built.
