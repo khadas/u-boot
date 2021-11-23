@@ -451,7 +451,8 @@ out:
         &slot_data->loaded_partitions[slot_data->num_loaded_partitions++];
     loaded_partition->partition_name = avb_strdup(found);
     loaded_partition->data_size = image_size;
-    loaded_partition->data = image_buf;
+	loaded_partition->data = NULL;
+	avb_free(image_buf);
     loaded_partition->preloaded = image_preloaded;
     image_buf = NULL;
   }
@@ -521,7 +522,8 @@ static AvbSlotVerifyResult load_requested_partitions(
       goto out;
     }
     loaded_partition->data_size = image_size;
-    loaded_partition->data = image_buf; /* Transferring the owner. */
+	loaded_partition->data = NULL;
+	avb_free(image_buf);
     loaded_partition->preloaded = image_preloaded;
     image_buf = NULL;
     image_preloaded = false;
