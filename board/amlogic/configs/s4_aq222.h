@@ -120,7 +120,7 @@
                 "run storeargs; run recovery_from_flash;"\
             "else fi;"\
             "echo upgrade_step=${upgrade_step}; "\
-            "if itest ${upgrade_step} == 3; then run storeargs; run update; fi;"\
+            "if itest ${upgrade_step} == 3; then run init_display; run storeargs; run update; fi;"\
             "\0"\
         "storeargs="\
             "get_bootloaderversion;" \
