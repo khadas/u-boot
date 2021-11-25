@@ -97,7 +97,7 @@ const char * get_usid_string(void)
 	buff[0] = buff[24] = '\0';
 	int i = 0;
 	for (; i < 12; ++i) {
-		sprintf(buff, "%s%02x", buff, chipid[15-i]);
+		sprintf(&buff[i * 2], "%02x", chipid[15 - i]);
 	}
 	return buff;
 }
@@ -203,7 +203,8 @@ static int g_dnl_bind(struct usb_composite_dev *cdev)
     device_desc.iSerialNumber = id;
 
     const char* s = get_usid_string();
-    if (s) strncpy(g_dnl_serial, s, strlen(s));
+	if (s)
+		strncpy(g_dnl_serial, s, strnlen(s, MAX_STRING_SERIAL));
     else printf("Fail in get chipid\n");
 
 	ret = g_dnl_config_register(cdev);

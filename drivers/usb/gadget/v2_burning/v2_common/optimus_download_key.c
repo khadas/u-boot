@@ -135,7 +135,6 @@ static void hdcp2DataDecryption(const unsigned len, const char *input, char *out
 unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyValLen, char* errInfo)
 {
     int ret = 0;
-    unsigned writtenLen = 0;
 
     int hdcprx22KeyIndex = 0;
     for (; hdcprx22KeyIndex < _HDCP22RxTypes; ++hdcprx22KeyIndex) {
@@ -196,8 +195,8 @@ unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyVa
         }
     }
 
-    writtenLen = ret >=0 ? keyValLen : 0;
-    return writtenLen;
+    /*writtenLen = ret >=0 ? keyValLen : 0;*/
+	return keyValLen;
 }
 
 

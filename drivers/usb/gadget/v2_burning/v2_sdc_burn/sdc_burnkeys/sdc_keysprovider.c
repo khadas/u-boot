@@ -247,7 +247,7 @@ static int optimus_sdc_burn_parse_mac_ini_key_value(const char* setName, const c
                 currentMacCfg->end = usrKeyVal;
                 _currentKey.keySize = strlen(usrKeyVal);
                 _optimus_get_mac_diff(currentMacCfg);
-                memcpy(pKeyConsist->endMac, usrKeyVal, strlen(usrKeyVal));
+		memcpy(pKeyConsist->endMac, usrKeyVal, 20/*strlen(usrKeyVal)*/);
                 pKeyConsist->total = currentMacCfg->total;
         }
         else if(!strcmp("used", keyName))

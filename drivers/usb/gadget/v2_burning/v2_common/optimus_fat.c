@@ -1138,6 +1138,10 @@ s64 do_fat_get_fileSz(const char* imgItemPath)
     else
     {
         rcode = optimus_sdc_burn_switch_to_extmmc();
+	if (rcode) {
+		DWN_ERR("FAil in switch to ext mmc\n");
+		return 0;
+	}
         sprintf(cmdBuf, "fatsize mmc 0 %s", imgItemPath);
     }
     /*SDC_DBG("to run cmd [%s]\n", cmdBuf);*/

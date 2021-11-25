@@ -392,8 +392,7 @@ int optimus_ini_trans_lines_2_usr_params(const char* const lines[], const unsign
                                 }
                                 break;
 
-                        default:
-                                break;
+			//default: break;//dead code, as nwords <=3
                 }
 
                 if (INI_LINE_TYPE_SET == lineType)

@@ -172,13 +172,13 @@ static char response_str[RESPONSE_LEN + 1];
 
 static void fastboot_fail(const char *s)
 {
-	strncpy(response_str, "FAIL", 4);
+	memcpy(response_str, "FAIL", 5);
 	if (s)strncat(response_str, s, RESPONSE_LEN - 4 - 1) ;
 }
 
 static void fastboot_okay(const char *s)
 {
-	strncpy(response_str, "OKAY", 4);
+	memcpy(response_str, "OKAY", 5);
 	if (s)strncat(response_str, s, RESPONSE_LEN - 4 - 1) ;
 }
 
@@ -412,8 +412,8 @@ static int fastboot_add(struct usb_configuration *c)
 
 	status = usb_add_function(c, &f_fb->usb_function);
 	if (status) {
+		FB_WRN("fail in usb_add_function\n");
 		free(f_fb);
-		fastboot_func = f_fb;
 	}
 
 	return status;
@@ -530,10 +530,10 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		static int cmdIndex = 0;
 		int getvar_num;
 		if (has_boot_slot == 1) {
-			strcpy(cmd, getvar_list_ab[cmdIndex]);
+			memcpy(cmd, getvar_list_ab[cmdIndex], RESPONSE_LEN);
 			getvar_num = (sizeof(getvar_list_ab) / sizeof(getvar_list_ab[0]));
 		} else {
-			strcpy(cmd, getvar_list[cmdIndex]);//only support no-arg cmd
+			memcpy(cmd, getvar_list[cmdIndex], RESPONSE_LEN);//only support no-arg cmd
 			getvar_num = (sizeof(getvar_list) / sizeof(getvar_list[0]));
 		}
 		printf("getvar_num: %d\n", getvar_num);
@@ -1033,7 +1033,7 @@ static int _mwrite_cmd_parser(const int argc, char* argv[], char* ack)
 	commonInf->imgSzTotal = imgSize;
 	commonInf->mediaType = mediaType;
 	commonInf->partStartOff = partOff;
-	strncpy(commonInf->partName, partition,V3_PART_NAME_LEN);
+	memcpy(commonInf->partName, partition, V3_PART_NAME_LEN);
 	switch (mediaType)
 	{
 		case V3TOOL_MEDIA_TYPE_MEM:
@@ -1141,7 +1141,7 @@ static int _mread_cmd_parser(const int argc, char* argv[], char* ack)
 		case V3TOOL_MEDIA_TYPE_UNIFYKEY:
 		case V3TOOL_MEDIA_TYPE_MMC:
 			{
-				strncpy(commonInf->partName, partition,V3_PART_NAME_LEN);
+				memcpy(commonInf->partName, partition, V3_PART_NAME_LEN);
 			}break;
 		default:
 			FBS_ERR(ack, "unsupported meida %s", media);

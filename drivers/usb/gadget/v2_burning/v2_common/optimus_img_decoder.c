@@ -64,16 +64,15 @@ HIMAGE image_open(const char* interface, const char* device, const char* part, c
 
     if (!strcmp("store", interface))
     {
-            DWN_DBG("imgHead=0x%p, hImg=%p\n", &hImg->imgHead, hImg);
-            ret = store_logic_read(part, IMG_OFFSET_IN_PART, HeadSz, &hImg->imgHead);
-            if (ret) {
-                    DWN_ERR("Fail to read image header.\n");
-                    ret = __LINE__; goto _err;
-            }
-
-            pImgSrcIf->devIf = IMAGE_IF_TYPE_STORE;
-            pImgSrcIf->devAlignSz = 4*1024;//512;//OPTIMUS_DOWNLOAD_SLOT_SZ;
-            strcpy(pImgSrcIf->partName, part);
+	DWN_DBG("imgHead=0x%p, hImg=%p\n", &hImg->imgHead, hImg);
+	ret = store_logic_read(part, IMG_OFFSET_IN_PART, HeadSz, &hImg->imgHead);
+	if (ret) {
+		DWN_ERR("Fail to read image header.\n");
+		ret = __LINE__; goto _err;
+	}
+	pImgSrcIf->devIf = IMAGE_IF_TYPE_STORE;
+	pImgSrcIf->devAlignSz = 4 * 1024;//512;//OPTIMUS_DOWNLOAD_SLOT_SZ;
+	strncpy(pImgSrcIf->partName, part, strnlen(part, 28));
     }
     else
     {

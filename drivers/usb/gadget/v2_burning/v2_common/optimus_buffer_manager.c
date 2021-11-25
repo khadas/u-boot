@@ -203,17 +203,19 @@ int optimus_buf_manager_get_buf_for_bulk_transfer(char** pBuf, const unsigned wa
     _bufManager.pktTransferSta      = PKT_TRANSFER_STA_WORKING;
 
     //prepare data for upload
-    if (!bufSzNotDisposed && _bufManager.isUpload)
-    {
-        u32 wantSz = (leftPktSz > _bufManager.writeBackUnitSz) ? _bufManager.writeBackUnitSz : ((u32)leftPktSz);
-        DWN_DBG("want size 0x%x\n", wantSz);
+	if (!bufSzNotDisposed && _bufManager.isUpload) {
+		u32 _wantSz = (leftPktSz > _bufManager.writeBackUnitSz)
+		    ? _bufManager.writeBackUnitSz : ((u32)leftPktSz);
 
-        u32 readSz = optimus_dump_storage_data((u8*)BufBase, wantSz, errInfo);
-        if (readSz != wantSz) {
-            DWN_ERR("Want read %u, but %u\n", wantSz, readSz);
-            return OPT_DOWN_FAIL;
-        }
-    }
+		DWN_DBG("want size 0x%x\n", _wantSz);
+
+		u32 readSz = optimus_dump_storage_data((u8 *)BufBase, _wantSz, errInfo);
+
+		if (readSz != _wantSz) {
+			DWN_ERR("Want read %u, but %u\n", _wantSz, readSz);
+			return OPT_DOWN_FAIL;
+		}
+	}
 
     return OPT_DOWN_OK;
 }

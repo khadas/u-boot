@@ -307,9 +307,9 @@ int store_dtb_rw(void* buf, unsigned dtbSz, int rwFlag)
         case 2: {//iread
             ret = store_rsv_read("dtb", dtbSz, buf);
             if (ret) FBS_EXIT(_ACK, "err(%d) in read dtb\t", ret);
+		break;
         }
         case 0: {//read
-            if ( 2 == rwFlag ) return 0;
             //TODO: add dtb parser
             FBS_EXIT(_ACK, "dtb parser not implemented yet\t");
         }break;
@@ -490,9 +490,11 @@ int v3tool_storage_init(const int eraseFlash, unsigned int dtbImgSz, unsigned in
 			break;
 
 		case 4: {//force erase all
-					if (store_rsv_protect(NULL, false))
-						FBS_EXIT(_ACK, "Fail in disprotect all rsv\n");
-				}
+				if (store_rsv_protect(NULL, false))
+					FBS_EXIT(_ACK, "Fail in disprotect all rsv\n");
+				initFlag = 4;
+				break;
+			}
 		case 2:
 				initFlag = 4;
 				break;
@@ -513,7 +515,9 @@ int v3tool_storage_init(const int eraseFlash, unsigned int dtbImgSz, unsigned in
 			store_gpt_erase();
 			if (dtbImgSz) {
 				FB_MSG("to update dtb for compatible\n");
-				store_rsv_write("dtb", dtbImgSz, dtbLoadedAddr);
+				ret = store_rsv_write("dtb", dtbImgSz, dtbLoadedAddr);
+				if (ret)
+					FB_WRN("Fail in erase dtb\n");
 			}
 		}
 #ifdef CONFIG_BACKUP_PART_NORMAL_ERASE

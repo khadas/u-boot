@@ -408,14 +408,23 @@ int optimus_sdc_burn_dtb_load(HIMAGE hImg)
         extern int check_valid_dts(unsigned char *buffer);
         rc =  check_valid_dts(dtbTransferBuf);
         DWN_MSG("check dts: rc %d\n", rc);
-        if (!rc) {
+	if (!rc) {
 #ifdef CONFIG_MULTI_DTB
-            extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
-            dtbTransferBuf = (unsigned char *)get_multi_dt_entry((unsigned long)dtbTransferBuf);
+	extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
+	dtbTransferBuf = (unsigned char *)get_multi_dt_entry((unsigned long)dtbTransferBuf);
+	if (!dtbTransferBuf) {
+		DWN_ERR("Fail in parse multi dtb\n");
+		return __LINE__;
+	}
 #endif
-            unsigned fdtsz    = fdt_totalsize((char*)dtbTransferBuf);
-            DWN_MSG("local upgrade dts/sz 0x%p/0x%x\n", (char*)OPTIMUS_DTB_LOAD_ADDR, fdtsz);
-            memmove((char*)OPTIMUS_DTB_LOAD_ADDR, dtbTransferBuf, fdtsz);
+	unsigned fdtsz    = fdt_totalsize((char *)dtbTransferBuf);
+
+	DWN_MSG("local upgrade dts/sz 0x%p/0x%x\n", (char *)OPTIMUS_DTB_LOAD_ADDR, fdtsz);
+	if (fdtsz > 0x200000) {
+		DWN_ERR("Err fdtsz 0x%x\n", fdtsz);
+		return __LINE__;
+	}
+	memmove((char *)OPTIMUS_DTB_LOAD_ADDR, dtbTransferBuf, fdtsz);
         }
     }
 
@@ -512,7 +521,7 @@ int sdc_burn_aml_keys(HIMAGE hImg, const int keyOverWrite, int licenseKey, int i
 	const char **keysName = NULL;
 	unsigned keysNum = 0;
 	const char **pCurKeysName = NULL;
-	unsigned index = 0;
+	int index = 0;
 	int num_img_keys = 0;
 	const char **img_key_names = NULL;
 	const char *IMG_KEY_MAIN = "AML_KEY";
