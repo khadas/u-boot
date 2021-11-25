@@ -446,6 +446,13 @@ struct lcd_config_s {
 	unsigned int pinmux_clr[LCD_PINMUX_NUM][2];
 };
 
+struct lcd_duration_s {
+	unsigned int frame_rate;
+	unsigned int duration_num;
+	unsigned int duration_den;
+	unsigned int frac;
+};
+
 #define LCD_INIT_LEVEL_NORMAL         0
 #define LCD_INIT_LEVEL_PWR_OFF        1
 #define LCD_INIT_LEVEL_KERNEL_ON      2
@@ -522,10 +529,12 @@ struct aml_lcd_drv_s {
 	unsigned char mode;
 	unsigned char key_valid;
 	unsigned char clk_path; /* 0=hpll, 1=gp0_pll */
+	unsigned int output_vmode;
 
 	struct lcd_config_s config;
 	struct aml_lcd_data_s *data;
 	struct lcd_boot_ctrl_s boot_ctrl;
+	struct lcd_duration_s *std_duration;
 	void *clk_conf;
 
 	int  (*outputmode_check)(struct aml_lcd_drv_s *pdrv, char *mode, unsigned int frac);
@@ -533,7 +542,7 @@ struct aml_lcd_drv_s {
 	void (*driver_init_pre)(struct aml_lcd_drv_s *pdrv);
 	int  (*driver_init)(struct aml_lcd_drv_s *pdrv);
 	void (*driver_disable)(struct aml_lcd_drv_s *pdrv);
-	void (*list_support_mode)(struct lcd_config_s *pconf);
+	void (*list_support_mode)(struct aml_lcd_drv_s *pdrv);
 #ifdef CONFIG_AML_LCD_TCON
 	void (*tcon_reg_print)(void);
 	void (*tcon_table_print)(void);

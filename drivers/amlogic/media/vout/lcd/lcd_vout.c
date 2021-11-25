@@ -987,7 +987,7 @@ void aml_lcd_driver_list_support_mode(void)
 			continue;
 
 		if (pdrv->list_support_mode)
-			pdrv->list_support_mode(&pdrv->config);
+			pdrv->list_support_mode(pdrv);
 	}
 }
 
