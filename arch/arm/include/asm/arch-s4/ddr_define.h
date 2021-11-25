@@ -152,6 +152,19 @@
 #define DDR_FUNC_FAST_BOOT_CHECK_CHIP_ID	(1<<30)
 #define DDR_FUNC_SCRAMBLE					(1<<31)
 
+#define DDR_FUNC							(0)
+
+//#define DDR_FUNC		(DDR_FUNC_D2PLL				|
+//						DDR_FUNC_LP					|
+//						DDR_FUNC_ZQ_PD				|
+//						DDR_FUNC_EXT_VREF			|
+//						DDR_FUNC_DDR4_TIMING_TEST	|
+//						DDR_FUNC_DDR_PLL_BYPASS		|
+//						DDR_FUNC_RDBI				|
+//						DDR_FUNC_LPDDR3_CA			|
+//						DDR_FUNC_PRINT_WINDOW		|
+//						DDR_FULL_TEST
+//						)
 
 /* dwc imem/dmem */
 #define DWC_MEM_LOAD_ADDR					0xFFFE0000
