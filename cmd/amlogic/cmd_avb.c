@@ -453,9 +453,11 @@ int avb_verify(AvbSlotVerifyData** out_data)
 	upgradestep = env_get("upgrade_step");
 	vendor_boot_status = env_get("vendor_boot_mode");
 	if (!strcmp(vendor_boot_status, "true")) {
-		for (i = 0; i < AVB_NUM_SLOT + 1; i++) {
-			if (!partition_select[i])
+		for (i = 0; i < AVB_NUM_SLOT; i++) {
+			if (!partition_select[i]) {
 				partition_select[i] = vendor_boot;
+				break;
+			}
 		}
 	}
 
