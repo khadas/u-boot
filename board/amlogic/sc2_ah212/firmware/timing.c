@@ -424,10 +424,12 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
 	 */
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func				= DDR_FUNC,
+	.ddr_func				= DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,
 	.magic					= DRAM_CFG_MAGIC,
 	.diagnose				= CONFIG_DIAGNOSE_DISABLE,
 	.fast_boot[0]			= 1,
+	//read dqs offset after training,bit3=0 right move,bit3=1 left move,bit[2:0] offset step
+	.training_offset		= (1 << 3) | (4 << 0),
 },
 #endif
 
@@ -498,7 +500,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
 	 */
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func				= DDR_FUNC,
+	.ddr_func				= DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,
 	.magic					= DRAM_CFG_MAGIC,
 	.fast_boot[0]			= 1,
 },
