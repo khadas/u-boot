@@ -461,6 +461,43 @@ static int ldim_dev_zone_mapping_load(struct ldim_dev_driver_s *dev_drv,
 	return 0;
 }
 
+static int ldim_dev_init_table_save(struct ldim_dev_driver_s *dev_drv, int flag,
+				    unsigned char *table)
+{
+	if (!dev_drv || !table) {
+		LDIMERR("%s: resource error\n", __func__);
+		return -1;
+	}
+
+	if (flag) {
+		if (dev_drv->init_on) {
+			free(dev_drv->init_on);
+			dev_drv->init_on = NULL;
+		}
+		dev_drv->init_on =
+			(unsigned char *)malloc(sizeof(unsigned char) * dev_drv->init_on_cnt);
+		if (!dev_drv->init_on) {
+			LDIMERR("%s: Not enough memory\n", __func__);
+			return -1;
+		}
+		memcpy(dev_drv->init_on, table, dev_drv->init_on_cnt);
+	} else {
+		if (dev_drv->init_off) {
+			free(dev_drv->init_off);
+			dev_drv->init_off = NULL;
+		}
+		dev_drv->init_off =
+			(unsigned char *)malloc(sizeof(unsigned char) * dev_drv->init_off_cnt);
+		if (!dev_drv->init_off) {
+			LDIMERR("%s: Not enough memory\n", __func__);
+			return -1;
+		}
+		memcpy(dev_drv->init_off, table, dev_drv->init_off_cnt);
+	}
+
+	return 0;
+}
+
 #ifdef CONFIG_OF_LIBFDT
 static int ldim_dev_init_dynamic_load_dts(char *dtaddr, int nodeoffset,
 					  struct ldim_dev_driver_s *dev_drv, int flag)
@@ -469,19 +506,12 @@ static int ldim_dev_init_dynamic_load_dts(char *dtaddr, int nodeoffset,
 	int i = 0, j, max_len;
 	unsigned char *table;
 	char propname[20], *propdata;
+	int ret;
 
 	if (flag) {
-		if (dev_drv->init_on) {
-			free(dev_drv->init_on);
-			dev_drv->init_on = NULL;
-		}
 		max_len = LDIM_INIT_ON_MAX;
 		sprintf(propname, "init_on");
 	} else {
-		if (dev_drv->init_off) {
-			free(dev_drv->init_off);
-			dev_drv->init_off = NULL;
-		}
 		max_len = LDIM_INIT_OFF_MAX;
 		sprintf(propname, "init_off");
 	}
@@ -499,7 +529,11 @@ static int ldim_dev_init_dynamic_load_dts(char *dtaddr, int nodeoffset,
 		LDIMERR("%s: get %s failed\n", dev_drv->name, propname);
 		table[0] = LCD_EXT_CMD_TYPE_END;
 		table[1] = 0;
-		return -1;
+		if (flag)
+			dev_drv->init_on_cnt = 2;
+		else
+			dev_drv->init_off_cnt = 2;
+		goto init_table_dynamic_dts_abort;
 	}
 
 	while ((i + 1) < max_len) {
@@ -516,7 +550,11 @@ static int ldim_dev_init_dynamic_load_dts(char *dtaddr, int nodeoffset,
 				dev_drv->name, propname);
 			table[i] = LCD_EXT_CMD_TYPE_END;
 			table[i + 1] = 0;
-			return -1;
+			if (flag)
+				dev_drv->init_on_cnt = i + 2;
+			else
+				dev_drv->init_off_cnt = i + 2;
+			goto init_table_dynamic_dts_abort;
 		}
 		for (j = 0; j < cmd_size; j++) {
 			table[i + 2 + j] =
@@ -531,26 +569,16 @@ init_table_dynamic_dts_next:
 	else
 		dev_drv->init_off_cnt = i + 2;
 
-	if (flag) {
-		dev_drv->init_on =
-			(unsigned char *)malloc(sizeof(unsigned char) * dev_drv->init_on_cnt);
-		if (!dev_drv->init_on) {
-			LDIMERR("%s: Not enough memory\n", __func__);
-			goto init_table_dynamic_dts_failed;
-		}
-		memcpy(dev_drv->init_on, table, dev_drv->init_on_cnt);
-	} else {
-		dev_drv->init_off =
-			(unsigned char *)malloc(sizeof(unsigned char) * dev_drv->init_off_cnt);
-		if (!dev_drv->init_off) {
-			LDIMERR("%s: Not enough memory\n", __func__);
-			goto init_table_dynamic_dts_failed;
-		}
-		memcpy(dev_drv->init_off, table, dev_drv->init_off_cnt);
-	}
-
+	ret = ldim_dev_init_table_save(dev_drv, flag, table);
+	if (ret)
+		goto init_table_dynamic_dts_failed;
 	free(table);
 	return 0;
+
+init_table_dynamic_dts_abort:
+	ldim_dev_init_table_save(dev_drv, flag, table);
+	free(table);
+	return -1;
 
 init_table_dynamic_dts_failed:
 	free(table);
@@ -640,20 +668,9 @@ init_table_dynamic_ukey_next:
 	else
 		dev_drv->init_off_cnt = i + 2;
 
-	if (flag) {
-		dev_drv->init_on =
-			(unsigned char *)malloc(dev_drv->init_on_cnt * sizeof(unsigned char));
-		if (!dev_drv->init_on)
-			goto init_table_dynamic_ukey_err;
-		memcpy(dev_drv->init_on, table, dev_drv->init_on_cnt);
-	} else {
-		dev_drv->init_off =
-			(unsigned char *)malloc(dev_drv->init_off_cnt * sizeof(unsigned char));
-		if (!dev_drv->init_off)
-			goto init_table_dynamic_ukey_err;
-		memcpy(dev_drv->init_off, table, dev_drv->init_off_cnt);
-	}
-
+	ret = ldim_dev_init_table_save(dev_drv, flag, table);
+	if (ret)
+		goto init_table_dynamic_ukey_err;
 	free(table);
 	return 0;
 
@@ -840,7 +857,7 @@ static int ldim_dev_get_config_from_dts(struct ldim_dev_driver_s *dev_drv,
 	propdata = (char *)fdt_getprop(dt_addr, child_offset, "ldim_pwm_pinmux_sel", NULL);
 	if (propdata) {
 		LDIMPR("find custome ldim_pwm_pinmux_sel: %s\n", propdata);
-		strcpy(dev_drv->pinmux_name, propdata);
+		strncpy(dev_drv->pinmux_name, propdata, (LDIM_DEV_NAME_MAX - 1));
 	}
 
 	propdata = (char *)fdt_getprop(dt_addr, child_offset, "en_gpio_on_off", NULL);
@@ -859,7 +876,7 @@ static int ldim_dev_get_config_from_dts(struct ldim_dev_driver_s *dev_drv,
 	}
 
 	propdata = (char *)fdt_getprop(dt_addr, child_offset, "write_check", NULL);
-	if (propdata)
+	if (!propdata)
 		dev_drv->write_check = 0;
 	else
 		dev_drv->write_check = (unsigned char)(be32_to_cpup((u32 *)propdata));
@@ -958,7 +975,7 @@ static int ldim_dev_get_config_from_ukey(struct ldim_dev_driver_s *dev_drv)
 
 	ret = lcd_unifykey_get("ldim_dev", para, &key_len);
 	if (ret < 0) {
-		kfree(para);
+		free(para);
 		return -1;
 	}
 
@@ -967,7 +984,7 @@ static int ldim_dev_get_config_from_ukey(struct ldim_dev_driver_s *dev_drv)
 	ret = lcd_unifykey_len_check(key_len, len);
 	if (ret < 0) {
 		LDIMERR("unifykey header length is incorrect\n");
-		kfree(para);
+		free(para);
 		return -1;
 	}
 
@@ -984,7 +1001,7 @@ static int ldim_dev_get_config_from_ukey(struct ldim_dev_driver_s *dev_drv)
 	ret = lcd_unifykey_len_check(key_len, len);
 	if (ret < 0) {
 		LDIMERR("unifykey length is incorrect\n");
-		kfree(para);
+		free(para);
 		return -1;
 	}
 
@@ -997,7 +1014,7 @@ static int ldim_dev_get_config_from_ukey(struct ldim_dev_driver_s *dev_drv)
 	dev_drv->type = *(p + LCD_UKEY_LDIM_DEV_IF_TYPE);
 	if (dev_drv->type >= LDIM_DEV_TYPE_MAX) {
 		LDIMERR("invalid type %d\n", dev_drv->type);
-		kfree(para);
+		free(para);
 		return -1;
 	}
 
@@ -1094,7 +1111,6 @@ static int ldim_dev_get_config_from_ukey(struct ldim_dev_driver_s *dev_drv)
 	} else {
 		strncpy(dev_drv->pinmux_name, str, (LDIM_DEV_NAME_MAX - 1));
 		LDIMPR("find custome ldim_pwm_pinmux_sel: %s\n", str);
-		strcpy(dev_drv->pinmux_name, str);
 	}
 
 	/* ctrl (271Byte) */
@@ -1158,11 +1174,11 @@ static int ldim_dev_get_config_from_ukey(struct ldim_dev_driver_s *dev_drv)
 	dev_drv->init_loaded = 1;
 
 ldim_dev_get_config_from_ukey_end:
-	kfree(para);
+	free(para);
 	return 0;
 
 ldim_dev_get_config_from_ukey_err:
-	kfree(para);
+	free(para);
 	return -1;
 }
 
@@ -1227,7 +1243,7 @@ static int ldim_dev_get_config(char *dt_addr, struct aml_ldim_driver_s *ldim_drv
 			str = p;
 			if (strlen(str) == 0)
 				break;
-			strcpy(dev_drv->gpio_name[i], str);
+			strncpy(dev_drv->gpio_name[i], str, (LCD_CPU_GPIO_NAME_MAX - 1));
 			if (lcd_debug_print_flag & LCD_DBG_PR_BL_NORMAL)
 				LDIMPR("i=%d, gpio=%s\n", i, dev_drv->gpio_name[i]);
 			i++;

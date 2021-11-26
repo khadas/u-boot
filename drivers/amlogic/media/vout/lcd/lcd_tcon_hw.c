@@ -19,6 +19,8 @@ static void lcd_tcon_core_reg_pre_od(struct lcd_tcon_config_s *tcon_conf,
 	unsigned int *table32;
 	unsigned int reg, bit, en = 0;
 
+	if (!tcon_conf)
+		return;
 	if ((!mm_table) || (!mm_table->core_reg_table)) {
 		LCDERR("%s: table is NULL\n", __func__);
 		return;
@@ -73,7 +75,7 @@ static void lcd_tcon_core_reg_pre_dis_od(struct lcd_tcon_config_s *tcon_conf,
 	unsigned int *table32;
 	unsigned int reg, bit;
 
-	if ((!mm_table) || (!mm_table->core_reg_table)) {
+	if (!mm_table || !mm_table->core_reg_table) {
 		LCDERR("%s: table is NULL\n", __func__);
 		return;
 	}
@@ -100,7 +102,9 @@ static void lcd_tcon_core_reg_set(struct lcd_tcon_config_s *tcon_conf,
 	unsigned int len, offset;
 	int i;
 
-	if (!mm_table->core_reg_table) {
+	if (!tcon_conf)
+		return;
+	if (!mm_table || !mm_table->core_reg_table) {
 		LCDERR("%s: table is NULL\n", __func__);
 		return;
 	}
@@ -745,7 +749,7 @@ static int lcd_tcon_data_set(struct tcon_mem_map_table_s *mm_table)
 	unsigned int temp_crc32;
 	int i;
 
-	if (!mm_table->data_mem_vaddr) {
+	if (!mm_table || !mm_table->data_mem_vaddr) {
 		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 			LCDPR("%s: no data_mem, exit\n", __func__);
 		return 0;
@@ -877,6 +881,10 @@ int lcd_tcon_enable_tl1(struct aml_lcd_drv_s *pdrv)
 
 	ret = lcd_tcon_valid_check();
 	if (ret)
+		return -1;
+	if (!tcon_conf)
+		return -1;
+	if (!mm_table)
 		return -1;
 
 	/* step 1: tcon top */

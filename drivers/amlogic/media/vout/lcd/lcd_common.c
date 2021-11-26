@@ -340,9 +340,9 @@ static int lcd_power_load_from_unifykey(struct aml_lcd_drv_s *pdrv,
 		if (pstep[j].type >= LCD_POWER_TYPE_MAX)
 			break;
 
-		if (pstep[i].type == LCD_POWER_TYPE_EXTERN) {
+		if (pstep[j].type == LCD_POWER_TYPE_EXTERN) {
 #ifdef CONFIG_AML_LCD_EXTERN
-			lcd_extern_drv_index_add(pdrv->index, pstep[i].index);
+			lcd_extern_drv_index_add(pdrv->index, pstep[j].index);
 #endif
 		}
 		j++;
@@ -1854,7 +1854,8 @@ void lcd_basic_timing_range_update(struct aml_lcd_drv_s *pdrv)
 		pconf->timing.sync_duration_num = sync_duration;
 		pconf->timing.sync_duration_den = 1;
 	} else { /* regard as pixel clock */
-		temp = pconf->timing.lcd_clk * 1000;
+		temp = pconf->timing.lcd_clk;
+		temp *= 1000;
 		sync_duration = lcd_do_div(temp, (v_period * h_period));
 		pconf->timing.sync_duration_num = sync_duration;
 		pconf->timing.sync_duration_den = 1000;

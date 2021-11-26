@@ -1787,7 +1787,7 @@ static void lcd_set_tcon_clk_tl1(struct aml_lcd_drv_s *pdrv)
 
 static void lcd_set_tcon_clk_t5(struct aml_lcd_drv_s *pdrv)
 {
-	if (pdrv->config.basic.lcd_type != LCD_MLVDS ||
+	if (pdrv->config.basic.lcd_type != LCD_MLVDS &&
 	    pdrv->config.basic.lcd_type != LCD_P2P)
 		return;
 

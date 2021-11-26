@@ -1395,7 +1395,6 @@ set_pll_retry_vx1:
 	lcd_clk_setb(COMBO_DPHY_VID_PLL0_DIV, 1, 15, 1);
 	lcd_clk_setb(COMBO_DPHY_VID_PLL0_DIV, 0x739c, 0, 15);
 	lcd_clk_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 15, 1);
-	data32 = readl(COMBO_DPHY_VID_PLL0_DIV);
 
 	data32 = readl(COMBO_DPHY_VID_PLL0_DIV);  //used COMBO not VID
 	data32 |= (1 << 19);

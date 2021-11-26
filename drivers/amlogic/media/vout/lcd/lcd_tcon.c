@@ -923,7 +923,8 @@ static int lcd_tcon_data_load(struct aml_lcd_drv_s *pdrv)
 #ifdef CONFIG_CMD_INI
 	struct lcd_tcon_data_block_header_s block_header;
 	struct tcon_data_priority_s *data_prio;
-	unsigned int i, j, priority, demura_cnt = 0;
+	unsigned int priority, demura_cnt = 0;
+	int i, j;
 #endif
 	int ret;
 
@@ -995,8 +996,7 @@ static int lcd_tcon_data_load(struct aml_lcd_drv_s *pdrv)
 			priority = i;
 			data_prio[i].priority = priority;
 			if (i > 0) {
-				j = i - 1;
-				while (j >= 0) {
+				for (j = i - 1; j >= 0; j--) {
 					if (priority > data_prio[j].priority)
 						break;
 					if (priority == data_prio[j].priority) {
@@ -1008,7 +1008,6 @@ static int lcd_tcon_data_load(struct aml_lcd_drv_s *pdrv)
 					}
 					data_prio[j + 1].index = data_prio[j].index;
 					data_prio[j + 1].priority = data_prio[j].priority;
-					j--;
 				}
 				data_prio[j + 1].index = i;
 				data_prio[j + 1].priority = priority;
@@ -1471,6 +1470,10 @@ static int lcd_tcon_get_config(char *dt_addr, struct aml_lcd_drv_s *pdrv, int lo
 
 	if (load_id & 0x1) {
 		parent_offset = fdt_path_offset(dt_addr, "/reserved-memory");
+		if (parent_offset < 0) {
+			LCDERR("can't find node: /reserved-memory\n");
+			goto lcd_tcon_get_config_next;
+		}
 		size = fdt_address_cells(dt_addr, parent_offset);
 		parent_offset = fdt_path_offset(dt_addr, "/reserved-memory/linux,lcd_tcon");
 		if (parent_offset < 0) {
@@ -1516,6 +1519,7 @@ static int lcd_tcon_get_config(char *dt_addr, struct aml_lcd_drv_s *pdrv, int lo
 		LCDPR("tcon: rsv_mem addr: 0x%x\n", tcon_rmem.rsv_mem_paddr);
 	}
 
+lcd_tcon_get_config_next:
 	tcon_mm_table.core_reg_table_size = lcd_tcon_conf->reg_table_len;
 	if (lcd_tcon_conf->core_reg_ver)
 		lcd_tcon_load_init_data_from_unifykey_new();

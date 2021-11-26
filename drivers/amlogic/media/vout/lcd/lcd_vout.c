@@ -495,7 +495,7 @@ static int lcd_init_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 			str = p;
 			if (strlen(str) == 0)
 				break;
-			strcpy(pconf->power.cpu_gpio[i], str);
+			strncpy(pconf->power.cpu_gpio[i], str, (LCD_CPU_GPIO_NAME_MAX - 1));
 			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 				LCDPR("[%d]: i=%d, gpio=%s\n",
 				      pdrv->index, i, pconf->power.cpu_gpio[i]);
