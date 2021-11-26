@@ -14,7 +14,7 @@
 #include <amlogic/aml_hdmirx.h>
 #include "ini/ini_platform.h"
 
-#define HDMIRX_VERSION "Ver 2018/09/29\n"
+#define HDMIRX_VERSION "Ver 2021/11/19\n"
 
 static int hdmirx_hpd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
