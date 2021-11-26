@@ -785,9 +785,8 @@ int meson_rsv_bbt_read(u_char *dest, size_t size)
 
 	if (!rsv_handler ||
 	    !rsv_handler->bbt) {
-		pr_info("%s %d %s not inited yet!\n",
-			__func__, __LINE__,
-			rsv_handler->bbt->name);
+		pr_info("%s %d: not inited yet!\n",
+			__func__, __LINE__);
 		return 1;
 	}
 
@@ -826,9 +825,8 @@ int meson_rsv_key_read(u_char *dest, size_t size)
 
 	if (!rsv_handler ||
 	    !rsv_handler->key) {
-		pr_info("%s %d %s not inited yet!\n",
-			__func__, __LINE__,
-			rsv_handler->key->name);
+		pr_info("%s %d: not inited yet!\n",
+			__func__, __LINE__);
 		return 1;
 	}
 
@@ -867,9 +865,8 @@ int meson_rsv_ddr_para_read(u_char *dest, size_t size)
 
 	if (!rsv_handler ||
 	    !rsv_handler->ddr_para) {
-		pr_info("%s %d %s not inited yet!\n",
-			__func__, __LINE__,
-			rsv_handler->ddr_para->name);
+		pr_info("%s %d: not inited yet!\n",
+			__func__, __LINE__);
 		return 1;
 	}
 
@@ -908,9 +905,8 @@ int meson_rsv_env_read(u_char *dest, size_t size)
 
 	if (!rsv_handler ||
 	    !rsv_handler->env) {
-		pr_info("%s %d %s not inited yet!\n",
-			__func__, __LINE__,
-			rsv_handler->env->name);
+		pr_info("%s %d: not inited yet!\n",
+			__func__, __LINE__);
 		return 1;
 	}
 	if (!rsv_handler->env->valid) {
@@ -948,9 +944,8 @@ int meson_rsv_dtb_read(u_char *dest, size_t size)
 
 	if (!rsv_handler ||
 	    !rsv_handler->dtb) {
-		pr_info("%s %d rsv info %s not inited yet!\n",
-			__func__, __LINE__,
-			rsv_handler->dtb->name);
+		pr_info("%s %d: rsv info not inited yet!\n",
+			__func__, __LINE__);
 		return 1;
 	}
 	if (!rsv_handler->dtb->valid) {
