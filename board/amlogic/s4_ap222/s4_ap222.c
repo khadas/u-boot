@@ -341,7 +341,7 @@ static struct mtd_partition normal_partition_info[] = {
 {
 	.name = "system",
 	.offset = 0,
-	.size = 128 * SZ_1M,
+	.size = 136 * SZ_1M,
 },
 /* last partition get the rest capacity */
 {
