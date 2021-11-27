@@ -70,11 +70,14 @@
 #define         DDR0_2G_DDR1_2G          4
 #define         DDR0_2G_DDR1_2G_RANK01   5
 #define         DDR0_4G_DDR1_4G_RANK01   6
+
 //#define BOARD_ENABLE_DDR4    1
 #define BOARD_ENABLE_LPDDR4   1
 //#define BOARD_ENABLE_LPDDR5   1
 #define BOARD_ENABLE_LPDDR5_RDL_MODIFY   1
+
 #if BOARD_ENABLE_LPDDR4
+
 #define ENABLE_LPDDR4X_MODE 1
 #ifdef CONFIG_PXP_DDR_FIX_2112_TIMMING
 	#define   LPDDR4_DDR_CLK  2112
@@ -244,17 +247,17 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 
 	/* pll ssc config:
 	 *
-	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
+	 *   pll_ssc_mode = (1 << 20) | (1 << 8) | ([strength] << 4) | [mode],
 	 *      ppm = strength * 500
 	 *      mode: 0=center, 1=up, 2=down
 	 *
 	 *   eg:
 	 *     1. config 1000ppm center ss. then mode=0, strength=2
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
+	 *        .pll_ssc_mode = (1 << 20) | (1 << 8) | (2 << 4) | 0,
 	 *     2. config 3000ppm down ss. then mode=2, strength=6
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
+	 *        .pll_ssc_mode = (1 << 20) | (1 << 8) | (6 << 4) | 2,
 	 */
-	//.pll_ssc_mode = (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
+	//.pll_ssc_mode = (1 << 20) | (1 << 8) | (2 << 4) | 0,//center_ssc_1000ppm
 	.ddr_func = DDR_FUNC,
 	.magic = DRAM_CFG_MAGIC,
 	//{0x1,0x0},enable slt 4 DRAMFreq test;
@@ -420,17 +423,17 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 
 	/* pll ssc config:
 	 *
-	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
+	 *   pll_ssc_mode = (1 << 20) | (1 << 8) | ([strength] << 4) | [mode],
 	 *      ppm = strength * 500
 	 *      mode: 0=center, 1=up, 2=down
 	 *
 	 *   eg:
 	 *     1. config 1000ppm center ss. then mode=0, strength=2
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
+	 *        .pll_ssc_mode = (1 << 20) | (1 << 8) | (2 << 4) | 0,
 	 *     2. config 3000ppm down ss. then mode=2, strength=6
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
+	 *        .pll_ssc_mode = (1 << 20) | (1 << 8) | (6 << 4) | 2,
 	 */
-	//.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
+	//.pll_ssc_mode			= (1 << 20) | (1 << 8) | (2 << 4) | 0,//center_ssc_1000ppm
 	.ddr_func = DDR_FUNC,
 	.magic = DRAM_CFG_MAGIC,
 	//{0x1,0x0},enable slt 4 DRAMFreq test;
@@ -440,6 +443,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	},
 };
 #endif //end BOARD_ENABLE_LPDDR4
+
 #if BOARD_ENABLE_LPDDR5
 
 #ifdef CONFIG_PXP_DDR_FIX_2112_TIMMING
@@ -627,18 +631,20 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 
 	/* pll ssc config:
 	 *
-	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
+	 *   pll_ssc_mode = (1 << 20) | (1 << 8) | ([strength] << 4) | [mode],
 	 *      ppm = strength * 500
 	 *      mode: 0=center, 1=up, 2=down
 	 *
 	 *   eg:
 	 *     1. config 1000ppm center ss. then mode=0, strength=2
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
+	 *        .pll_ssc_mode = (1 << 20) | (1 << 8) | (2 << 4) | 0,
 	 *     2. config 3000ppm down ss. then mode=2, strength=6
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
+	 *        .pll_ssc_mode = (1 << 20) | (1 << 8) | (6 << 4) | 2,
 	 */
-	//.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func =  DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,
+	//.pll_ssc_mode			= (1 << 20) | (1 << 8) | (2 << 4) | 0,//center_ssc_1000ppm
+	.ddr_func =  (DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION |
+	DDR_FUNC_CONFIG_OFFSET_TRAINING_PER_DELAY |
+	DDR_FUNC_CONFIG_RD_ECC_FUNCTION),
 	.magic = DRAM_CFG_MAGIC,
 	//{0x1,0x0},enable slt 4 DRAMFreq test;
 	//{0x0,0x0},disable slt 4 DRAMFreq test;
@@ -781,7 +787,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		(1 << 7) | (0),
 		(1 << 7) | (0),
 	},//bit 7 offset direction 0 ++  1 --
-
+	//.cfg_ddr_training_delay_ps[0].soc_bit_vref0[2] = (0 << 7) | (10),
 	.soc_clk_slew_rate = 0x3ff,
 	.soc_cs_slew_rate = 0x3ff,
 	.soc_ac_slew_rate = 0x3ff,
@@ -815,22 +821,30 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 							10, 9, 11, 8, 12, 15, 13, 14,
 							5, 4, 6, 3, 2, 1, 0, 7,
 							15, 13, 14, 12, 8, 10, 9, 11},
+#ifdef BOARD_ENABLE_LPDDR5_OPS_FT_PINMUX
+	.ddr_lpddr34_dq_remap = {4, 7, 1, 2, 6, 5, 0, 3,
+							10, 9, 11, 8, 12, 15, 13, 14,
+							5, 4, 6, 3, 2, 1, 0, 7,
+							15, 13, 14, 12, 8, 10, 9, 11},
+#endif
 	.dram_rtt_nom_wr_park = { 00,				 00 },
 
 	/* pll ssc config:
 	 *
-	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
+	 *   pll_ssc_mode = (1 << 20) | (1 << 8) | ([strength] << 4) | [mode],
 	 *      ppm = strength * 500
 	 *      mode: 0=center, 1=up, 2=down
 	 *
 	 *   eg:
 	 *     1. config 1000ppm center ss. then mode=0, strength=2
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
+	 *        .pll_ssc_mode = (1 << 20) | (1 << 8) | (2 << 4) | 0,
 	 *     2. config 3000ppm down ss. then mode=2, strength=6
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
+	 *        .pll_ssc_mode = (1 << 20) | (1 << 8) | (6 << 4) | 2,
 	 */
-	//.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func = DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,
+	//.pll_ssc_mode			= (1 << 20) | (1 << 8) | (2 << 4) | 0,//center_ssc_1000ppm
+	.ddr_func =  (DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION |
+	DDR_FUNC_CONFIG_OFFSET_TRAINING_PER_DELAY |
+	DDR_FUNC_CONFIG_RD_ECC_FUNCTION),
 	.magic = DRAM_CFG_MAGIC,
 	//{0x1,0x0},enable slt 4 DRAMFreq test;
 	//{0x0,0x0},disable slt 4 DRAMFreq test;
@@ -838,7 +852,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.fast_boot[0] = 0,
 	},
 };
-#endif
+#endif //end BOARD_ENABLE_LPDDR5
 
 board_clk_set_t __board_clk_setting
 __attribute__ ((section(".clk_param"))) = {

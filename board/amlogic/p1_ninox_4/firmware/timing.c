@@ -70,11 +70,280 @@
 #define         DDR0_2G_DDR1_2G          4
 #define         DDR0_2G_DDR1_2G_RANK01   5
 #define         DDR0_4G_DDR1_4G_RANK01   6
+
 //#define BOARD_ENABLE_DDR4    1
-#define BOARD_ENABLE_LPDDR4   1
-//#define BOARD_ENABLE_LPDDR5   1
+//#define BOARD_ENABLE_LPDDR4   1
+#define BOARD_ENABLE_LPDDR5   1
 #define BOARD_ENABLE_LPDDR5_RDL_MODIFY   1
+//#define BOARD_ENABLE_LPDDR5_OPS_FT_PINMUX   1
+
+#define DDR_RESV_CHECK_ID_ENABLE  0Xfe
+#define SAR_ADC_DDR_ID_BASE   0
+#define SAR_ADC_DDR_ID_STEP   80
+
+#define ADC_PORT0 (0 << 6)
+#define ADC_PORT1 (1 << 6)
+#define ADC_PORT2 (2 << 6)
+#define ADC_PORT3 (3 << 6)
+#define ADC_ID_0   0 // size lp4  1+2 gpioid_11(1,0)
+#define ADC_ID_1   1 // size lp4  3+4 gpioid_11(1,0)
+#define ADC_ID_2   2 // size lp4  5+6 gpioid_11(1,0)
+#define ADC_ID_3   3 // size lp4x  1+2 gpioid_11(1,0)
+#define ADC_ID_4   4 // size lp4x  3+4 gpioid_11(1,0)
+#define ADC_ID_5   5 // size lp4x  7+8 gpioid_11(1,0)
+#define ADC_ID_6   6 // size lp5  1+2 gpioid_11(1,0)
+#define ADC_ID_7   7 // size lp5  3+4 gpioid_11(1,0)
+#define ADC_ID_8   8 // size lp5  5+6 gpioid_11(1,0)
+#define ADC_ID_9   9 // size lp5  7+8 gpioid_11(1,0)
+#define ADC_ID_10   10 //
+#define ADC_ID_11   11 //
+#define ADC_ID_12   12 //
+
+#define DDR_TIMMING_OFFSET(X) (unsigned int)(unsigned long)(&(((ddr_set_t *)(0))->X))
+#define DDR_TIMMING_OFFSET_SIZE(X) sizeof(((ddr_set_t *)(0))->X)
+#define DDR_TIMMING_TUNE_TIMMING0(DDR_ID, PARA, VALUE) {DDR_ID, DDR_TIMMING_OFFSET(PARA), VALUE, DDR_TIMMING_OFFSET_SIZE(PARA), 0, DDR_RESV_CHECK_ID_ENABLE}
+#define DDR_TIMMING_TUNE_TIMMING1(DDR_ID, PARA, VALUE) {DDR_ID, sizeof(ddr_set_t) + DDR_TIMMING_OFFSET(PARA), VALUE, DDR_TIMMING_OFFSET_SIZE(PARA), 0, DDR_RESV_CHECK_ID_ENABLE}
+bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
+	DDR_TIMMING_TUNE_TIMMING0(
+	ADC_PORT0 + ADC_ID_5,
+	DramType,
+	CONFIG_DDR_TYPE_LPDDR4
+	),
+	DDR_TIMMING_TUNE_TIMMING0(
+	ADC_PORT0 + ADC_ID_5,
+	enable_lpddr4x_mode,
+	1
+	),
+	DDR_TIMMING_TUNE_TIMMING0(
+	ADC_PORT0 + ADC_ID_5,
+	DRAMFreq[0],
+	2112
+	),
+	DDR_TIMMING_TUNE_TIMMING0(
+	ADC_PORT0 + ADC_ID_5,
+	DRAMFreq[1],
+	792
+	),
+	DDR_TIMMING_TUNE_TIMMING0(
+	ADC_PORT0 + ADC_ID_5,
+	ddr_rfc_type,
+	DDR_RFC_TYPE_LPDDR4_8Gbx1
+	),
+	DDR_TIMMING_TUNE_TIMMING0(
+	ADC_PORT0 + ADC_ID_5,
+	training_SequenceCtrl[0],
+	0x131f
+	),
+	DDR_TIMMING_TUNE_TIMMING0(
+	ADC_PORT0 + ADC_ID_5,
+	ddr_rdbi_wr_enable,
+	0
+	),
+	DDR_TIMMING_TUNE_TIMMING0(
+	ADC_PORT0 + ADC_ID_5,
+	dram_ac_odt_ohm,
+	120
+	),
+	DDR_TIMMING_TUNE_TIMMING0(
+	ADC_PORT0 + ADC_ID_5,
+	ddr_dmc_remap[0],
+	(0 | 5 << 5 | 6 << 10 | 7 << 15 | 8 << 20 | 9 << 25)
+	),
+	DDR_TIMMING_TUNE_TIMMING0(
+	ADC_PORT0 + ADC_ID_5,
+	ddr_dmc_remap[1],
+	(10 | 0 << 5 | 0 << 10 | 11 << 15 | 15 << 20 | 16 << 25)
+	),
+	DDR_TIMMING_TUNE_TIMMING0(
+	ADC_PORT0 + ADC_ID_5,
+	ddr_dmc_remap[2],
+	(17 | 18 << 5 | 19 << 10 | 20 << 15 | 21 << 20 | 22 << 25)
+	),
+	DDR_TIMMING_TUNE_TIMMING0(
+	ADC_PORT0 + ADC_ID_5,
+	ddr_dmc_remap[3],
+	(23 | 24 << 5 | 25 << 10 | 26 << 15 | 27 << 20 | 28 << 25)
+	),
+	DDR_TIMMING_TUNE_TIMMING0(
+	ADC_PORT0 + ADC_ID_5,
+	ddr_dmc_remap[4],
+	(29 | 12 << 5 | 13 << 10 | 14 << 15 | 0 << 20 | 0 << 25)
+	),
+
+	{
+	ADC_PORT0 + ADC_ID_5, DDR_TIMMING_OFFSET(ddr_lpddr34_ca_remap[0]),
+	(1 << 0) | (0 << 8) | (3 << 16) | (2 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, DDR_TIMMING_OFFSET(ac_pinmux[0]),
+	(1 << 0) | (0 << 8) | (2 << 16) | (5 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, DDR_TIMMING_OFFSET(ac_pinmux[4]),
+	(4 << 0) | (3 << 8) | (6 << 16) | (0 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, DDR_TIMMING_OFFSET(ac_pinmux[12]),
+	(1 << 0) | (4 << 8) | (2 << 16) | (5 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, DDR_TIMMING_OFFSET(ac_pinmux[16]),
+	(0 << 0) | (3 << 8) | (6 << 16) | (0 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, DDR_TIMMING_OFFSET(ddr_lpddr34_dq_remap[0]),
+	(5 << 0) | (4 << 8) | (1 << 16) | (2 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, DDR_TIMMING_OFFSET(ddr_lpddr34_dq_remap[4]),
+	(0 << 0) | (3 << 8) | (7 << 16) | (6 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, DDR_TIMMING_OFFSET(ddr_lpddr34_dq_remap[8]),
+	(8 << 0) | (10 << 8) | (9 << 16) | (11 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, DDR_TIMMING_OFFSET(ddr_lpddr34_dq_remap[12]),
+	(13 << 0) | (15 << 8) | (14 << 16) | (12 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, DDR_TIMMING_OFFSET(ddr_lpddr34_dq_remap[16]),
+	(18 << 0) | (19 << 8) | (23 << 16) | (22 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, DDR_TIMMING_OFFSET(ddr_lpddr34_dq_remap[20]),
+	(21 << 0) | (20 << 8) | (16 << 16) | (17 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, DDR_TIMMING_OFFSET(ddr_lpddr34_dq_remap[24]),
+	(27 << 0) | (25 << 8) | (26 << 16) | (28 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, DDR_TIMMING_OFFSET(ddr_lpddr34_dq_remap[28]),
+	(24 << 0) | (31 << 8) | (29 << 16) | (30 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+
+	DDR_TIMMING_TUNE_TIMMING1(
+	ADC_PORT0 + ADC_ID_5,
+	DramType,
+	CONFIG_DDR_TYPE_LPDDR4
+	),
+	DDR_TIMMING_TUNE_TIMMING1(
+	ADC_PORT0 + ADC_ID_5,
+	enable_lpddr4x_mode,
+	1
+	),
+	DDR_TIMMING_TUNE_TIMMING1(
+	ADC_PORT0 + ADC_ID_5,
+	DRAMFreq[0],
+	2112
+	),
+	DDR_TIMMING_TUNE_TIMMING1(
+	ADC_PORT0 + ADC_ID_5,
+	DRAMFreq[1],
+	792
+	),
+	DDR_TIMMING_TUNE_TIMMING1(
+	ADC_PORT0 + ADC_ID_5,
+	ddr_rfc_type,
+	DDR_RFC_TYPE_LPDDR4_8Gbx1
+	),
+	DDR_TIMMING_TUNE_TIMMING1(
+	ADC_PORT0 + ADC_ID_5,
+	training_SequenceCtrl[0],
+	0x131f
+	),
+	DDR_TIMMING_TUNE_TIMMING1(
+	ADC_PORT0 + ADC_ID_5,
+	ddr_rdbi_wr_enable,
+	0
+	),
+	DDR_TIMMING_TUNE_TIMMING1(
+	ADC_PORT0 + ADC_ID_5,
+	dram_ac_odt_ohm,
+	120
+	),
+	DDR_TIMMING_TUNE_TIMMING1(
+	ADC_PORT0 + ADC_ID_5,
+	ddr_dmc_remap[0],
+	(0 | 5 << 5 | 6 << 10 | 7 << 15 | 8 << 20 | 9 << 25)
+	),
+	DDR_TIMMING_TUNE_TIMMING1(
+	ADC_PORT0 + ADC_ID_5,
+	ddr_dmc_remap[1],
+	(10 | 0 << 5 | 0 << 10 | 11 << 15 | 15 << 20 | 16 << 25)
+	),
+	DDR_TIMMING_TUNE_TIMMING1(
+	ADC_PORT0 + ADC_ID_5,
+	ddr_dmc_remap[2],
+	(17 | 18 << 5 | 19 << 10 | 20 << 15 | 21 << 20 | 22 << 25)
+	),
+	DDR_TIMMING_TUNE_TIMMING1(
+	ADC_PORT0 + ADC_ID_5,
+	ddr_dmc_remap[3],
+	(23 | 24 << 5 | 25 << 10 | 26 << 15 | 27 << 20 | 28 << 25)
+	),
+	DDR_TIMMING_TUNE_TIMMING1(
+	ADC_PORT0 + ADC_ID_5,
+	ddr_dmc_remap[4],
+	(29 | 12 << 5 | 13 << 10 | 14 << 15 | 0 << 20 | 0 << 25)
+	),
+	{
+	ADC_PORT0 + ADC_ID_5, sizeof(ddr_set_t) + DDR_TIMMING_OFFSET(ddr_lpddr34_ca_remap[0]),
+	(0 << 0) | (1 << 8) | (2 << 16) | (3 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, sizeof(ddr_set_t) + DDR_TIMMING_OFFSET(ac_pinmux[0]),
+	(4 << 0) | (1 << 8) | (3 << 16) | (5 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, sizeof(ddr_set_t) + DDR_TIMMING_OFFSET(ac_pinmux[4]),
+	(2 << 0) | (0 << 8) | (6 << 16) | (0 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, sizeof(ddr_set_t) + DDR_TIMMING_OFFSET(ac_pinmux[12]),
+	(3 << 0) | (5 << 8) | (4 << 16) | (0 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, sizeof(ddr_set_t) + DDR_TIMMING_OFFSET(ac_pinmux[16]),
+	(2 << 0) | (1 << 8) | (6 << 16) | (0 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, sizeof(ddr_set_t) + DDR_TIMMING_OFFSET(ddr_lpddr34_dq_remap[0]),
+	(7 << 0) | (2 << 8) | (1 << 16) | (3 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, sizeof(ddr_set_t) + DDR_TIMMING_OFFSET(ddr_lpddr34_dq_remap[4]),
+	(4 << 0) | (0 << 8) | (5 << 16) | (6 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, sizeof(ddr_set_t) + DDR_TIMMING_OFFSET(ddr_lpddr34_dq_remap[8]),
+	(8 << 0) | (10 << 8) | (9 << 16) | (11 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, sizeof(ddr_set_t) + DDR_TIMMING_OFFSET(ddr_lpddr34_dq_remap[12]),
+	(13 << 0) | (15 << 8) | (14 << 16) | (12 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, sizeof(ddr_set_t) + DDR_TIMMING_OFFSET(ddr_lpddr34_dq_remap[16]),
+	(16 << 0) | (19 << 8) | (20 << 16) | (23 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, sizeof(ddr_set_t) + DDR_TIMMING_OFFSET(ddr_lpddr34_dq_remap[20]),
+	(22 << 0) | (21 << 8) | (18 << 16) | (17 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, sizeof(ddr_set_t) + DDR_TIMMING_OFFSET(ddr_lpddr34_dq_remap[24]),
+	(28 << 0) | (31 << 8) | (29 << 16) | (30 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+	{
+	ADC_PORT0 + ADC_ID_5, sizeof(ddr_set_t) + DDR_TIMMING_OFFSET(ddr_lpddr34_dq_remap[28]),
+	(25 << 0) | (26 << 8) | (24 << 16) | (27 << 24),
+	4, 0, DDR_RESV_CHECK_ID_ENABLE},
+};
+
 #if BOARD_ENABLE_LPDDR4
+
 #define ENABLE_LPDDR4X_MODE 1
 #ifdef CONFIG_PXP_DDR_FIX_2112_TIMMING
 	#define   LPDDR4_DDR_CLK  2112
@@ -244,32 +513,18 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 
 	/* pll ssc config:
 	 *
-	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
+	 *   pll_ssc_mode = (1 << 20) | (1 << 8) | ([strength] << 4) | [mode],
 	 *      ppm = strength * 500
 	 *      mode: 0=center, 1=up, 2=down
 	 *
 	 *   eg:
 	 *     1. config 1000ppm center ss. then mode=0, strength=2
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
+	 *        .pll_ssc_mode = (1 << 20) | (1 << 8) | (2 << 4) | 0,
 	 *     2. config 3000ppm down ss. then mode=2, strength=6
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
+	 *        .pll_ssc_mode = (1 << 20) | (1 << 8) | (6 << 4) | 2,
 	 */
-	//.pll_ssc_mode = (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func = DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,
-	.dac_offset={
-		(1<<7)|(15),
-		(1<<7)|(0),
-		(1<<7)|(15),
-		(1<<7)|(0)
-
-	},  //bit 7 offset direction 0 ++  1 --
-	.rx_offset={		
-		(1<<7)|(0),
-		(1<<7)|(0)}, //bit 7 offset direction 0 ++  1 --
-	.tx_offset={
-		(1<<7)|(0),
-		(1<<7)|(0),
-	}, //bit 7 offset direction 0 ++  1 --
+	//.pll_ssc_mode = (1 << 20) | (1 << 8) | (2 << 4) | 0,//center_ssc_1000ppm
+	.ddr_func = DDR_FUNC,
 	.magic = DRAM_CFG_MAGIC,
 	//{0x1,0x0},enable slt 4 DRAMFreq test;
 	//{0x0,0x0},disable slt 4 DRAMFreq test;
@@ -434,32 +689,18 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 
 	/* pll ssc config:
 	 *
-	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
+	 *   pll_ssc_mode = (1 << 20) | (1 << 8) | ([strength] << 4) | [mode],
 	 *      ppm = strength * 500
 	 *      mode: 0=center, 1=up, 2=down
 	 *
 	 *   eg:
 	 *     1. config 1000ppm center ss. then mode=0, strength=2
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
+	 *        .pll_ssc_mode = (1 << 20) | (1 << 8) | (2 << 4) | 0,
 	 *     2. config 3000ppm down ss. then mode=2, strength=6
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
+	 *        .pll_ssc_mode = (1 << 20) | (1 << 8) | (6 << 4) | 2,
 	 */
-	//.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func = DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,
-	.dac_offset={
-		(1<<7)|(15),
-		(1<<7)|(0),
-		(1<<7)|(15),
-		(1<<7)|(0)
-
-	},  //bit 7 offset direction 0 ++  1 --
-	.rx_offset={		
-		(1<<7)|(0),
-		(1<<7)|(0)}, //bit 7 offset direction 0 ++  1 --
-	.tx_offset={
-		(1<<7)|(0),
-		(1<<7)|(0),
-	}, //bit 7 offset direction 0 ++  1 --
+	//.pll_ssc_mode			= (1 << 20) | (1 << 8) | (2 << 4) | 0,//center_ssc_1000ppm
+	.ddr_func = DDR_FUNC,
 	.magic = DRAM_CFG_MAGIC,
 	//{0x1,0x0},enable slt 4 DRAMFreq test;
 	//{0x0,0x0},disable slt 4 DRAMFreq test;
@@ -468,6 +709,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	},
 };
 #endif //end BOARD_ENABLE_LPDDR4
+
 #if BOARD_ENABLE_LPDDR5
 
 #ifdef CONFIG_PXP_DDR_FIX_2112_TIMMING
@@ -602,14 +844,14 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.dram_ac_odt_ohm = 240,         //120,
 
 	.dac_offset = {
-		(1 << 7) | (15),
-		(1 << 7) | (0),
-		(1 << 7) | (15),
-		(1 << 7) | (0)
+		(1 << 7) | (18),
+		(0 << 7) | (12),
+		(1 << 7) | (18),
+		(0 << 7) | (2)
 	},//bit 7 offset direction 0 ++  1 --
 	.rx_offset = {
-		(1 << 7) | (0),
-		(1 << 7) | (0)
+		(1 << 7) | (1),
+		(1 << 7) | (1)
 	},//bit 7 offset direction 0 ++  1 --
 	.tx_offset = {
 		(1 << 7) | (0),
@@ -655,18 +897,20 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 
 	/* pll ssc config:
 	 *
-	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
+	 *   pll_ssc_mode = (1 << 20) | (1 << 8) | ([strength] << 4) | [mode],
 	 *      ppm = strength * 500
 	 *      mode: 0=center, 1=up, 2=down
 	 *
 	 *   eg:
 	 *     1. config 1000ppm center ss. then mode=0, strength=2
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
+	 *        .pll_ssc_mode = (1 << 20) | (1 << 8) | (2 << 4) | 0,
 	 *     2. config 3000ppm down ss. then mode=2, strength=6
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
+	 *        .pll_ssc_mode = (1 << 20) | (1 << 8) | (6 << 4) | 2,
 	 */
-	//.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func =  DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,
+	//.pll_ssc_mode			= (1 << 20) | (1 << 8) | (2 << 4) | 0,//center_ssc_1000ppm
+	.ddr_func =  (DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION |
+	DDR_FUNC_CONFIG_OFFSET_TRAINING_PER_DELAY |
+	DDR_FUNC_CONFIG_RD_ECC_FUNCTION),
 	.magic = DRAM_CFG_MAGIC,
 	//{0x1,0x0},enable slt 4 DRAMFreq test;
 	//{0x0,0x0},disable slt 4 DRAMFreq test;
@@ -796,20 +1040,20 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.dram_ac_odt_ohm = 240,         //120,
 
 	.dac_offset = {
-		(1 << 7) | (15),
-		(1 << 7) | (0),
-		(1 << 7) | (15),
-		(1 << 7) | (0)
+		(1 << 7) | (18),
+		(0 << 7) | (12),
+		(1 << 7) | (18),
+		(0 << 7) | (2)
 	},//bit 7 offset direction 0 ++  1 --
 	.rx_offset = {
-		(1 << 7) | (0),
-		(1 << 7) | (0)
+		(1 << 7) | (1),
+		(1 << 7) | (1)
 	},//bit 7 offset direction 0 ++  1 --
 	.tx_offset = {
 		(1 << 7) | (0),
 		(1 << 7) | (0),
 	},//bit 7 offset direction 0 ++  1 --
-
+	//.cfg_ddr_training_delay_ps[0].soc_bit_vref0[2] = (0 << 7) | (10),
 	.soc_clk_slew_rate = 0x3ff,
 	.soc_cs_slew_rate = 0x3ff,
 	.soc_ac_slew_rate = 0x3ff,
@@ -843,22 +1087,30 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 							10, 9, 11, 8, 12, 15, 13, 14,
 							5, 4, 6, 3, 2, 1, 0, 7,
 							15, 13, 14, 12, 8, 10, 9, 11},
+#ifdef BOARD_ENABLE_LPDDR5_OPS_FT_PINMUX
+	.ddr_lpddr34_dq_remap = {4, 7, 1, 2, 6, 5, 0, 3,
+							10, 9, 11, 8, 12, 15, 13, 14,
+							5, 4, 6, 3, 2, 1, 0, 7,
+							15, 13, 14, 12, 8, 10, 9, 11},
+#endif
 	.dram_rtt_nom_wr_park = { 00,				 00 },
 
 	/* pll ssc config:
 	 *
-	 *   pll_ssc_mode = (1<<20) | (1<<8) | ([strength] << 4) | [mode],
+	 *   pll_ssc_mode = (1 << 20) | (1 << 8) | ([strength] << 4) | [mode],
 	 *      ppm = strength * 500
 	 *      mode: 0=center, 1=up, 2=down
 	 *
 	 *   eg:
 	 *     1. config 1000ppm center ss. then mode=0, strength=2
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (2 << 4) | 0,
+	 *        .pll_ssc_mode = (1 << 20) | (1 << 8) | (2 << 4) | 0,
 	 *     2. config 3000ppm down ss. then mode=2, strength=6
-	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
+	 *        .pll_ssc_mode = (1 << 20) | (1 << 8) | (6 << 4) | 2,
 	 */
-	//.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
-	.ddr_func = DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,
+	//.pll_ssc_mode			= (1 << 20) | (1 << 8) | (2 << 4) | 0,//center_ssc_1000ppm
+	.ddr_func =  (DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION |
+	DDR_FUNC_CONFIG_OFFSET_TRAINING_PER_DELAY |
+	DDR_FUNC_CONFIG_RD_ECC_FUNCTION),
 	.magic = DRAM_CFG_MAGIC,
 	//{0x1,0x0},enable slt 4 DRAMFreq test;
 	//{0x0,0x0},disable slt 4 DRAMFreq test;
@@ -866,7 +1118,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.fast_boot[0] = 0,
 	},
 };
-#endif
+#endif //end BOARD_ENABLE_LPDDR5
 
 board_clk_set_t __board_clk_setting
 __attribute__ ((section(".clk_param"))) = {
@@ -1647,11 +1899,6 @@ __attribute__ ((section(".clk_param"))) = {
 #else
 #error "VDD_CPUB val out of range\n"
 #endif
-
-bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
-	//hxbao, need fine tune
-	{ 0, 0, 0xffffffff, 0, 0, 0 },
-};
 
 #define I2C_BUS		0x2
 #define I2C_M3		9

@@ -6127,7 +6127,7 @@ int ddr_clk_convert_to_pll(unsigned int ddr_clk)
 	 * //							OD			N					M
 	 * ddr_pll= (2 << 2) | (1 << 16) | ((((ddr_clk/6)*6)/12) << 4);
 	 * }
-	 * else if((ddr_clk >= 750) && (ddr_clk < 2000)) {
+	 * else if ((ddr_clk >= 750) && (ddr_clk < 2000)) {
 	 * //							OD			N					M
 	 * ddr_pll= (1 << 2) | (1 << 16) | ((((ddr_clk/12)*12)/24) << 4);
 	 * }
@@ -7201,7 +7201,7 @@ void ddr_read_write_training_value(ddr_set_t_p1 *p_ddrs, char over_ride_index, c
     }
 
     if (over_ride_index == DMC_TEST_WINDOW_INDEX_VREF) {
-	//	char vref_value=0;
+	//	char vref_value = 0;
 	//char vref_range_soc=0;
 	//	char vref_range_dram=0;
 	//dwc_ddrphy_phyinit_io_write16((0<<20)|(2<<16)|(0<<12)|(0xb2),0x208); //vref global
@@ -7440,7 +7440,8 @@ void ddr_read_write_training_value(ddr_set_t_p1 *p_ddrs, char over_ride_index, c
 
 void ddr_read_write_training_all_delay_value(ddr_set_t_p1 *p_ddrs, char read_write, char half_flag)
 {
-    //if(ddr_gloabl_message[dmc_ddr_config_channel_id].stick_dmc_window_test_test_enable_init_flag&DDR_ENABLE_TRAINING_OVER_RIDE_DELAY)
+    //if (ddr_gloabl_message[dmc_ddr_config_channel_id].
+	//stick_dmc_window_test_test_enable_init_flag&DDR_ENABLE_TRAINING_OVER_RIDE_DELAY)
     for (uint32_t ps = 0; ps < 1; ps++) {
 	ddr_read_write_training_value(p_ddrs, DMC_TEST_WINDOW_INDEX_ATXDLY, read_write, ps, p_ddrs->cfg_ddr_training_delay_ps[ps].ac_trace_delay, half_flag);
 	ddr_read_write_training_value(p_ddrs, DMC_TEST_WINDOW_INDEX_TXDQSDLY, read_write, ps, p_ddrs->cfg_ddr_training_delay_ps[ps].write_dqs_delay, half_flag);
@@ -8696,28 +8697,33 @@ void dwc_window_reg_after_training_update_increase_sub(char over_ride_index, uin
 		}
 		delay_reg_value = ddr_cacl_phy_over_ride_back_reg(over_ride_index, delay_reg_value);
 		dwc_ddrphy_phyinit_io_write16((reg_add), delay_reg_value);
-	}
-	if ((over_ride_index == DMC_TEST_WINDOW_INDEX_RX_CLK_T_DLY) || (over_ride_index == DMC_TEST_WINDOW_INDEX_RX_CLK_C_DLY)) {
-		delay_old_value = dwc_ddrphy_phyinit_io_read16(reg_add);
-		//for dqst c share coarse,when move no change coarse
-		delay_old_coarse_value = (delay_old_value >> 7);
-		delay_old_fine_value = (delay_old_value & 0x7f);
-		delay_reg_value = ddr_cacl_phy_delay_all_step(over_ride_index, delay_old_fine_value);
-		if (over_ride_increase_decrease == 0) {
-			delay_reg_value = delay_reg_value + step_value;
-			if (delay_reg_value > 0x7f)
-				delay_reg_value = 0x7f;
+}
+if ((over_ride_index == DMC_TEST_WINDOW_INDEX_RX_CLK_T_DLY) ||
+	(over_ride_index == DMC_TEST_WINDOW_INDEX_RX_CLK_C_DLY)) {
+	delay_old_value = dwc_ddrphy_phyinit_io_read16(reg_add);
+	// for dqst c share coarse,when move no change coarse
+	delay_old_coarse_value = (delay_old_value >> 7);
+	delay_old_fine_value = (delay_old_value & 0x7f);
+	delay_reg_value = delay_old_fine_value;
+	// ddr_cacl_phy_delay_all_step(over_ride_index, delay_old_fine_value);
+	if (over_ride_increase_decrease == 0) {
+		delay_reg_value = delay_reg_value + step_value;
+		if (delay_reg_value > 0x7f) {
+			delay_old_coarse_value = delay_old_coarse_value + 1;
+			delay_reg_value = delay_reg_value - 64;
 		}
-		if (over_ride_increase_decrease != 0) {
-			if (delay_reg_value > step_value)
-				delay_reg_value = delay_reg_value - step_value;
-			else
-				delay_reg_value = 0;
-		}
-		//delay_reg_value = ddr_cacl_phy_over_ride_back_reg(over_ride_index, delay_reg_value);
-		dwc_ddrphy_phyinit_io_write16((reg_add),
-		(delay_old_coarse_value << 7) | delay_reg_value);
+}
+if (over_ride_increase_decrease != 0) {
+	if (delay_reg_value > step_value) {
+		delay_reg_value = delay_reg_value - step_value;
+	} else {
+		delay_old_coarse_value = delay_old_coarse_value - 1;
+		delay_reg_value = delay_reg_value + 64 - step_value;
 	}
+}
+// delay_reg_value = ddr_cacl_phy_over_ride_back_reg(over_ride_index, delay_reg_value);
+dwc_ddrphy_phyinit_io_write16((reg_add), (delay_old_coarse_value << 7) | delay_reg_value);
+}
 
 	if (over_ride_index == DMC_TEST_WINDOW_INDEX_RXENDLY) {
 		delay_old_value = dwc_ddrphy_phyinit_io_read16(reg_add);
@@ -8935,7 +8941,7 @@ int do_ddr_g12_override_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 
 	if (argc == 1) {
 		printf("\nplease read help\n");
-	} else if (argc > 4) { //offset_enable=1;
+	} else if (argc > 4) { //offset_enable = 1;
 		{
 			count = 0;
 			test_index = simple_strtoull_ddr(argv[count + 1], &endp, 0);
@@ -9008,14 +9014,6 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 		return 1;
 	}
 
-	uint32_t dmc_retraining_ctrl = 0;
-
-	dmc_retraining_ctrl = rd_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address));
-	wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl & (~(1 << 31)));
-	unsigned int ddr_dmc_apd_temp_save, ddr_dmc_asr_temp_save;
-
-	ddr_dmc_apd_temp_save = readl(p_ddr_base->ddr_dmc_apd_address);
-	ddr_dmc_asr_temp_save = readl(p_ddr_base->ddr_dmc_asr_address);
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F + 7 * 32)
 	printf("\n12nm phy read write register should closd apd and asr funciton\n");
@@ -9045,7 +9043,7 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	if (argc == 1) {
 		printf("\nplease read help\n");
 		return 1;
-	} else if (argc > 6) { //offset_enable=1;
+	} else if (argc > 6) { //offset_enable = 1;
 		{
 			count = 0;
 			test_index = simple_strtoull_ddr(argv[count + 1], &endp, 0);
@@ -9083,14 +9081,43 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 				offset_value = 0;
 		}
 	} else {
-		wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl);
+		//if (need_disable_dmc_retraininig)
+		//wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl);
 		return 1;
 	}
+
+	unsigned int need_phy_vt_gate;
+	unsigned int need_disable_dmc_retraininig;
+	uint32_t dmc_retraining_ctrl = 0;
+
+	if (p_ddr_base->chip_id != MESON_CPU_MAJOR_ID_P1) {
+		need_disable_dmc_retraininig = 1;
+		need_phy_vt_gate = 1;
+	} else {
+		need_disable_dmc_retraininig = 0;
+		need_phy_vt_gate = 0;
+	}
+	if ((test_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DFE_DAC0) ||
+	(test_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DFE_DAC1) ||
+	(test_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DFE_DAC2) ||
+	(test_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DFE_DAC3)) {
+		need_disable_dmc_retraininig = 0;
+		need_phy_vt_gate = 0;
+	}
+
+	dmc_retraining_ctrl = rd_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address));
+if (need_disable_dmc_retraininig)
+	wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl & (~(1 << 31)));
+	unsigned int ddr_dmc_apd_temp_save, ddr_dmc_asr_temp_save;
+
+	ddr_dmc_apd_temp_save = readl(p_ddr_base->ddr_dmc_apd_address);
+	ddr_dmc_asr_temp_save = readl(p_ddr_base->ddr_dmc_asr_address);
 
 	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1)) {
 		writel(ddr_dmc_apd_temp_save, p_ddr_base->ddr_dmc_apd_address);
 		writel(ddr_dmc_asr_temp_save, p_ddr_base->ddr_dmc_asr_address);
-		wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl);
+		if (need_disable_dmc_retraininig)
+			wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl);
 		count = 0;
 		test_index = simple_strtoull_ddr(argv[count + 1], &endp, 0);
 		if (*argv[count + 1] == 0 || *endp != 0)
@@ -9102,16 +9129,22 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 		test_index = (test_index % 100);     //for DDR_PHY 1
 		dmc_change_channel(dmc_ddr_config_channel_id);
 		dmc_retraining_ctrl = rd_reg(p_ddr_base->ddr_dmc_lpdd4_retraining_address);
+	if (need_disable_dmc_retraininig)
 		wr_reg(p_ddr_base->ddr_dmc_lpdd4_retraining_address, dmc_retraining_ctrl & (~(1 << 31)));
 		ddr_dmc_apd_temp_save = readl(p_ddr_base->ddr_dmc_apd_address);
 		ddr_dmc_asr_temp_save = readl(p_ddr_base->ddr_dmc_asr_address);
 	}
+	if (test_index == DMC_TEST_WINDOW_INDEX_RX_CLK_T_DLY ||
+	test_index == DMC_TEST_WINDOW_INDEX_RX_CLK_C_DLY)
+		need_phy_vt_gate = 0;
 	dwc_ddrphy_phyinit_lower_power_enable(0);
 	if (test_index == DMC_TEST_WINDOW_INDEX_RX_CLK_T_DLY ||
 	test_index == DMC_TEST_WINDOW_INDEX_RX_CLK_C_DLY) {
 	} else {
-		dwc_ddrphy_get_phy_init_retraining();
-		dwc_ddrphy_enable_phy_retraining(0);
+		if (need_phy_vt_gate) {
+			dwc_ddrphy_get_phy_init_retraining();
+			dwc_ddrphy_enable_phy_retraining(0);
+		}
 	}
 	//printf("lcdlr_max %d,\n", lcdlr_max);
 	if (left_right_flag == DDR_PARAMETER_RIGHT)
@@ -9196,13 +9229,16 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	test_index == DMC_TEST_WINDOW_INDEX_RX_CLK_C_DLY) {
 		//dwc_ddrphy_phyinit_lower_power_enable(1);
 	} else {
-		//dwc_ddrphy_enable_phy_retraining(1);
-		dwc_ddrphy_enable_phy_retraining(0);
-		//dwc_ddrphy_phyinit_lower_power_enable(1);
+		if (need_phy_vt_gate) {
+			//dwc_ddrphy_enable_phy_retraining(1);
+			dwc_ddrphy_enable_phy_retraining(0);
+			//dwc_ddrphy_phyinit_lower_power_enable(1);
+		}
 	}
 	writel(ddr_dmc_apd_temp_save, p_ddr_base->ddr_dmc_apd_address);
 	writel(ddr_dmc_asr_temp_save, p_ddr_base->ddr_dmc_asr_address);
-	wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl);
+	if (need_disable_dmc_retraininig)
+		wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl);
 	ddr_udelay_dummy(100);
 	dwc_ddrphy_phyinit_lower_power_enable(1);
 	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1)) {
