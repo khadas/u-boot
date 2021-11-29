@@ -170,7 +170,7 @@ void board_init_mem(void) {
 	char *env_tmp;
 	env_tmp = env_get("bootm_size");
 	if (!env_tmp) {
-		ram_size = ((0x100000000 == ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFFFFFFF0000) << 4)) ? 0xe0000000 : \
+		ram_size = ((0x100000000 <= ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFFFFFFF0000) << 4)) ? 0xe0000000 : \
 					(((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFFFFFF0000) << 4));
 		env_set_hex("bootm_low", 0);
 		env_set_hex("bootm_size", ram_size);
@@ -324,12 +324,6 @@ static struct mm_region bd_mem_map[] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.virt = 0x100000000UL,
-		.phys = 0x100000000UL,
-		.size = 0x120000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_INNER_SHARE
-	}, {
 		.virt = 0xe0000000UL,
 		.phys = 0xe0000000UL,
 		.size = 0x20000000UL,
@@ -350,12 +344,7 @@ int mach_cpu_init(void) {
 	unsigned long nddrSize =((0x100000000 == ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFFFFFFF0000) << 4)) ? 0xe0000000 : \
 					(((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFFFFFF0000) << 4));
 	if ( nddrSize <= 0xe0000000 )
-	{
 		bd_mem_map[0].size = nddrSize;
-		bd_mem_map[1].virt = 0;
-		bd_mem_map[1].phys = 0;
-		bd_mem_map[1].size = 0;
-	}
 #endif
 	return 0;
 }
