@@ -369,6 +369,7 @@ obj-$(CONFIG_AML_SUPPORT_TLV) += aml_tlv.o
 obj-y += cmd_tee_log_level.o
 obj-y += cmd_avb.o
 obj-$(CONFIG_AML_FACTORY_PROVISION) += cmd_factory_provision.o
+obj-$(CONFIG_AML_WATERMARK) += cmd_watermark.o
 obj-$(CONFIG_AML_POWER_DOMAIN_SEC) += cmd_power.o
 
 # zircon commands
