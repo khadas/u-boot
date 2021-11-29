@@ -115,8 +115,10 @@ void board_init_mem(void) {
 	char *env_tmp;
 	env_tmp = env_get("bootm_size");
 	if (!env_tmp) {
-		ram_size = ((0x100000000 == ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFFFFFFF0000) << 4)) ? 0xe0000000 : \
-					(((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFFFFFF0000) << 4));
+		ram_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xffff) << 4;
+		if (ram_size >= 0xe0000000)
+			ram_size = 0xe0000000;
+
 		env_set_hex("bootm_low", 0);
 		env_set_hex("bootm_size", ram_size);
 	}
@@ -217,13 +219,19 @@ ulong board_get_usable_ram_top(ulong total_size)
 
 phys_size_t get_effective_memsize(void)
 {
+	phys_size_t ddr_size;
+
 	// >>16 -> MB, <<20 -> real size, so >>16<<20 = <<4
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
-	return (0x100000000 == ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFFFFFFF0000) << 4)) ? (0xe0000000 - CONFIG_SYS_MEM_TOP_HIDE) : \
-				((((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFFFFFF0000) << 4) - CONFIG_SYS_MEM_TOP_HIDE);
+	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xffff) << 4;
+	if (ddr_size >= 0xe0000000)
+		ddr_size = 0xe0000000;
+	return (ddr_size - CONFIG_SYS_MEM_TOP_HIDE);
 #else
-	return (0x100000000 == ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFFFFFFF0000) << 4)) ? 0xe0000000 : \
-				(((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFFFFFF0000) << 4);
+	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xffff) << 4;
+	if (ddr_size >= 0xe0000000)
+		ddr_size = 0xe0000000;
+	return ddr_size
 #endif /* CONFIG_SYS_MEM_TOP_HIDE */
 
 }
@@ -233,12 +241,6 @@ static struct mm_region bd_mem_map[] = {
 		.virt = 0x00000000UL,
 		.phys = 0x00000000UL,
 		.size = 0xe0000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_INNER_SHARE
-	}, {
-		.virt = 0x100000000UL,
-		.phys = 0x100000000UL,
-		.size = 0x120000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
@@ -259,15 +261,11 @@ struct mm_region *mem_map = bd_mem_map;
 int mach_cpu_init(void) {
 	//printf("\nmach_cpu_init\n");
 #ifdef 	CONFIG_UPDATE_MMU_TABLE
-	unsigned long nddrSize =((0x100000000 == ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFFFFFFF0000) << 4)) ? 0xe0000000 : \
-					(((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFFFFFF0000) << 4));
+	unsigned long nddrSize = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xffff) << 4;
+
 	if ( nddrSize < 0xe0000000 )
-	{
 		bd_mem_map[0].size = nddrSize;
-		bd_mem_map[1].virt = 0;
-		bd_mem_map[1].phys = 0;
-		bd_mem_map[1].size = 0;
-	}
+
 #endif
 	return 0;
 }
