@@ -95,8 +95,9 @@ enum lcd_extern_type_e {
 struct lcd_header_s {
 	unsigned int crc32;
 	unsigned short data_len;
-	unsigned short version;
-	unsigned short rev;
+	unsigned char version;
+	unsigned char block_next_flag;
+	unsigned short block_cur_size;
 };
 
 struct lcd_basic_s {
@@ -170,6 +171,67 @@ struct lcd_attr_s {
 	struct lcd_customer_s customer;
 	struct lcd_interface_s interface;
 	struct lcd_pwr_s pwr[CC_MAX_PWR_SEQ_CNT];
+};
+
+struct lcd_phy_s {
+	unsigned int   phy_attr_flag; //each bit enable one attr behind
+	unsigned short phy_attr_0; //2byte //vswing
+	unsigned short phy_attr_1; //2byte //vcm
+	unsigned short phy_attr_2; //2byte //ref bias switch
+	unsigned short phy_attr_3; //2byte //odt
+	unsigned short phy_attr_4; //2byte //current/voltage mode
+	unsigned short phy_attr_5; //2byte //reserved
+	unsigned short phy_attr_6; //2byte //reserved
+	unsigned short phy_attr_7; //2byte //reserved
+	unsigned short phy_attr_8; //2byte //reserved
+	unsigned short phy_attr_9; //2byte //reserved
+	unsigned short phy_attr_10; //2byte //reserved
+	unsigned short phy_attr_11; //2byte //reserved
+	unsigned int   phy_lane_ctrl[64]; //64 *2byte lane_reg //
+	unsigned char  phy_lane_pn_swap[8]; //64bit //pn_swap
+	unsigned char  phy_lane_swap[64]; //64byte //channel_swap
+};
+
+struct lcd_ctrl_s {
+	unsigned int   ctrl_attr_flag;    //4byte   //each bit enable one attr behind
+	unsigned short ctrl_attr_0;       //2byte   //
+	unsigned short ctrl_attr_1;       //2byte   //
+	unsigned short ctrl_attr_2;       //2byte   //
+	unsigned short ctrl_attr_3;       //2byte   //
+	unsigned short ctrl_attr_4;       //2byte   //
+	unsigned short ctrl_attr_5;       //2byte    //
+	unsigned short ctrl_attr_6;       //2byte
+	unsigned short ctrl_attr_7;       //2byte
+	unsigned short ctrl_attr_8;       //2byte
+	unsigned short ctrl_attr_9;       //2byte
+	unsigned short ctrl_attr_10;       //2byte   //
+	unsigned short ctrl_attr_11;       //2byte   //
+	unsigned short ctrl_attr_12;       //2byte   //
+	unsigned short ctrl_attr_13;       //2byte   //
+	unsigned short ctrl_attr_14;       //2byte   //
+	unsigned short ctrl_attr_15;       //2byte   //
+	unsigned short ctrl_attr_16;       //2byte   //
+	unsigned short ctrl_attr_17;       //2byte   //
+	unsigned short ctrl_attr_18;       //2byte   //
+	unsigned short ctrl_attr_19;       //2byte   //
+	unsigned short ctrl_attr_20;       //2byte   //
+	unsigned short ctrl_attr_21;       //2byte    //
+	unsigned short ctrl_attr_22;       //2byte
+	unsigned short ctrl_attr_23;       //2byte
+	unsigned short ctrl_attr_24;       //2byte
+	unsigned short ctrl_attr_25;       //2byte
+	unsigned short ctrl_attr_26;       //2byte   //
+	unsigned short ctrl_attr_27;       //2byte   //
+	unsigned short ctrl_attr_28;       //2byte   //
+	unsigned short ctrl_attr_29;       //2byte   //
+	unsigned short ctrl_attr_30;       //2byte   //
+	unsigned short ctrl_attr_31;       //2byte   //
+};
+
+struct lcd_v2_attr_s {
+	struct lcd_header_s head;
+	struct lcd_phy_s phy;
+	struct lcd_ctrl_s ctrl;
 };
 
 #define CC_BL_NAME_LEN_MAX        (30)

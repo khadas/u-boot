@@ -338,6 +338,28 @@ struct p2p_config_s {
 	unsigned int phy_preem;
 };
 
+struct phy_lane_s {
+	unsigned int preem;
+	unsigned int amp;
+};
+
+#define CH_LANE_MAX 32
+struct phy_config_s {
+	unsigned int flag;
+	unsigned int vswing;
+	unsigned int vcm;
+	unsigned int odt;
+	unsigned int ref_bias;
+	unsigned int mode;
+	unsigned int weakly_pull_down;
+	struct phy_lane_s lane[CH_LANE_MAX];
+
+	unsigned int lane_num;
+	unsigned int vswing_level;
+	unsigned int ext_pullup;
+	unsigned int preem_level;
+};
+
 union lcd_ctrl_config_u {
 	struct ttl_config_s ttl_cfg;
 	struct lvds_config_s lvds_cfg;
@@ -417,6 +439,7 @@ struct lcd_config_s {
 	struct lcd_basic_s basic;
 	struct lcd_timing_s timing;
 	union lcd_ctrl_config_u control;
+	struct phy_config_s phy_cfg;
 	struct lcd_power_ctrl_s power;
 	struct lcd_pinmux_ctrl_s *pinmux;
 	unsigned int pinmux_set[LCD_PINMUX_NUM][2];

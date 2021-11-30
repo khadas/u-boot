@@ -22,7 +22,8 @@
 /* 20211009: support 59 & 47 frame rate for tv mode*/
 /* 20211106: support vrr config*/
 /* 20211210: support load tcon bin by ioctl*/
-#define LCD_DRV_VERSION    "20211210"
+/* 20211216: support phy adjust by lane*/
+#define LCD_DRV_VERSION    "20211216"
 
 extern unsigned int lcd_debug_test;
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
@@ -63,6 +64,8 @@ void lcd_set_venc(struct aml_lcd_drv_s *pdrv);
 
 /* lcd phy */
 void lcd_phy_tcon_chpi_bbc_init_tl1(struct lcd_config_s *pconf);
+unsigned int lcd_phy_vswing_level_to_value(struct aml_lcd_drv_s *pdrv, unsigned int level);
+unsigned int lcd_phy_preem_level_to_value(struct aml_lcd_drv_s *pdrv, unsigned int level);
 void lcd_phy_set(struct aml_lcd_drv_s *pdrv, int status);
 int lcd_phy_probe(struct aml_lcd_drv_s *pdrv);
 int lcd_phy_config_init(struct aml_lcd_data_s *pdata);
