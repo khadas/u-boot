@@ -33,7 +33,7 @@ enum sec_pll {
 };
 
 
-int t3_sys0_pll_prepare_test(struct meson_clk_pll_data *pll)
+int t3_sys0_pll_prepare(struct meson_clk_pll_data *pll)
 {
 	struct arm_smccc_res res;
 
@@ -53,7 +53,7 @@ int t3_sys0_pll_prepare_test(struct meson_clk_pll_data *pll)
 	return 0;
 }
 
-void t3_sys0_pll_unprepare_test(struct meson_clk_pll_data *pll)
+void t3_sys0_pll_unprepare(struct meson_clk_pll_data *pll)
 {
 	struct arm_smccc_res res;
 
@@ -124,8 +124,8 @@ struct meson_clk_pll_data t3_sys0_pll = {
 		.width   = 1,
 	},
 	.ops = &(const struct meson_pll_test_ops) {
-		.pll_prepare_test = t3_sys0_pll_prepare_test,
-		.pll_unprepare_test = t3_sys0_pll_unprepare_test,
+		.pll_prepare = t3_sys0_pll_prepare,
+		.pll_unprepare = t3_sys0_pll_unprepare,
 		.pll_disable = meson_secure_pll_disable,
 		.pll_set_rate = meson_secure_pll_set_rate,
 		.pll_set_parm_rate = meson_secure_pll_set_parm_rate,
@@ -188,8 +188,8 @@ struct meson_clk_pll_data t3_sys1_pll = {
 		.width   = 1,
 	},
 	.ops = &(const struct meson_pll_test_ops) {
-		.pll_prepare_test = meson_pll_store_rate,
-		.pll_unprepare_test = meson_pll_restore_rate,
+		.pll_prepare = meson_pll_store_rate,
+		.pll_unprepare = meson_pll_restore_rate,
 		.pll_disable = meson_secure_pll_disable,
 		.pll_set_rate = meson_secure_pll_set_rate,
 		.pll_set_parm_rate = meson_secure_pll_set_parm_rate,
@@ -262,14 +262,14 @@ struct meson_clk_pll_data t3_gp0_pll = {
 		.width   = 1,
 	},
 	.ops = &(const struct meson_pll_test_ops) {
-		.pll_prepare_test = meson_pll_store_rate,
-		.pll_unprepare_test = meson_pll_restore_rate,
+		.pll_prepare = meson_pll_store_rate,
+		.pll_unprepare = meson_pll_restore_rate,
 	},
 	.clkmsr_id = 20,
 	.clkmsr_margin = 2
 };
 
-int t3_gp1_pll_prepare_test(struct meson_clk_pll_data *pll)
+int t3_gp1_pll_prepare(struct meson_clk_pll_data *pll)
 {
 	struct arm_smccc_res res;
 
@@ -288,7 +288,7 @@ int t3_gp1_pll_prepare_test(struct meson_clk_pll_data *pll)
 	return 0;
 }
 
-void t3_gp1_pll_unprepare_test(struct meson_clk_pll_data *pll)
+void t3_gp1_pll_unprepare(struct meson_clk_pll_data *pll)
 {
 	struct arm_smccc_res res;
 
@@ -359,8 +359,8 @@ struct meson_clk_pll_data t3_gp1_pll = {
 		.width   = 1,
 	},
 	.ops = &(const struct meson_pll_test_ops) {
-		.pll_prepare_test = t3_gp1_pll_prepare_test,
-		.pll_unprepare_test = t3_gp1_pll_unprepare_test,
+		.pll_prepare = t3_gp1_pll_prepare,
+		.pll_unprepare = t3_gp1_pll_unprepare,
 	},
 	.clkmsr_id = 21,
 	.clkmsr_margin = 2
@@ -423,8 +423,8 @@ struct meson_clk_pll_data t3_pcie_pll = {
 		.width   = 1,
 	},
 	.ops = &(const struct meson_pll_test_ops) {
-		.pll_prepare_test = meson_pll_store_rate,
-		.pll_unprepare_test = meson_pll_restore_rate,
+		.pll_prepare = meson_pll_store_rate,
+		.pll_unprepare = meson_pll_restore_rate,
 		.pll_set_rate = meson_pll_set_one_rate,
 		.pll_rate_to_msr = t3_pcie_pll_rate_to_msr,
 	},
@@ -487,8 +487,8 @@ struct meson_clk_pll_data t3_adc_pll = {
 		.width   = 1,
 	},
 	.ops = &(const struct meson_pll_test_ops) {
-		.pll_prepare_test = meson_pll_store_rate,
-		.pll_unprepare_test = meson_pll_restore_rate,
+		.pll_prepare = meson_pll_store_rate,
+		.pll_unprepare = meson_pll_restore_rate,
 		.pll_set_rate = meson_pll_set_one_rate,
 		.pll_rate_to_msr = t3_adc_pll_rate_to_msr,
 	},
@@ -560,8 +560,8 @@ struct meson_clk_pll_data t3_hifi_pll = {
 		.width   = 1,
 	},
 	.ops = &(const struct meson_pll_test_ops) {
-		.pll_prepare_test = meson_pll_store_rate,
-		.pll_unprepare_test = meson_pll_restore_rate,
+		.pll_prepare = meson_pll_store_rate,
+		.pll_unprepare = meson_pll_restore_rate,
 	},
 	.clkmsr_id = 19,
 	.clkmsr_margin = 2
@@ -569,8 +569,8 @@ struct meson_clk_pll_data t3_hifi_pll = {
 
 static unsigned int t3_mpll_default_rate[] = {100};
 static struct meson_pll_test_ops mpll_test_ops = {
-	.pll_prepare_test = meson_pll_store_rate,
-	.pll_unprepare_test = meson_pll_restore_rate,
+	.pll_prepare = meson_pll_store_rate,
+	.pll_unprepare = meson_pll_restore_rate,
 	.pll_set_parm_rate = meson_mpll_set_parm_rate,
 	.pll_set_rate = meson_mpll_set_rate,
 	.pll_recalc = meson_mpll_recalc_rate

@@ -59,11 +59,11 @@ struct reg_sequence {
  * struct meson_pll_test_ops -  Callback operations for hardware clocks; these are to
  * be provided by the pll test, and will be called by pll test drivers.
  *
- * @pll_prepare_test: Some PLLs need to do some special preparations before testing.
+ * @pll_prepare: Some PLLs need to do some special preparations before testing.
  *		For example, record the current PLL frequency and restore it after the test.
  *		Not necessary.
  *
- * @pll_unprepare_test:	The reverse operation of pll_prepare_test.
+ * @pll_unprepare:	The reverse operation of pll_prepare.
  *		Not necessary.
  *
  * @pll_disable: disabled the current PLL
@@ -83,8 +83,8 @@ struct reg_sequence {
  *		Not necessary.
  */
 struct meson_pll_test_ops {
-	int (*pll_prepare_test)(struct meson_clk_pll_data *pll);
-	void (*pll_unprepare_test)(struct meson_clk_pll_data *pll);
+	int (*pll_prepare)(struct meson_clk_pll_data *pll);
+	void (*pll_unprepare)(struct meson_clk_pll_data *pll);
 	void (*pll_disable)(struct meson_clk_pll_data *pll);
 	int (*pll_set_rate)(struct meson_clk_pll_data *pll, unsigned long rate);
 	int (*pll_set_parm_rate)(struct meson_clk_pll_data *pll, char * const argv[]);
