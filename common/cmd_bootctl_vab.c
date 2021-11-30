@@ -19,6 +19,7 @@
 #include <fb_mmc.h>
 #include <mmc.h>
 #include <amlogic/aml_mmc.h>
+#include <u-boot/sha1.h>
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 
@@ -284,7 +285,7 @@ void boot_info_reset(bootloader_control* boot_ctrl)
 	memcpy(boot_ctrl->slot_suffix, "_a", 2);
 	boot_ctrl->magic = BOOT_CTRL_MAGIC;
 	boot_ctrl->version = BOOT_CTRL_VERSION;
-	boot_ctrl->nb_slot = 1;
+	boot_ctrl->nb_slot = 2;
 
 	for (slot = 0; slot < 4; ++slot) {
 		slot_metadata entry = {};
@@ -353,6 +354,33 @@ int get_active_slot_normalAB(AvbABData* info) {
 		return 0;
 	else
 		return 1;
+}
+
+static uint32_t vab_crc32(const u8 *buf, size_t size)
+{
+	static u32 crc_table[256];
+	u32 ret = -1;
+	u32 i, j, crc, mask;
+	size_t l;
+
+	// Compute the CRC-32 table only once.
+	if (!crc_table[1]) {
+		for (i = 0; i < 256; ++i) {
+			crc = i;
+
+			for (j = 0; j < 8; ++j) {
+				mask = -(crc & 1);
+
+				crc = (crc >> 1) ^ (0xEDB88320 & mask);
+			}
+			crc_table[i] = crc;
+		}
+	}
+
+	for (l = 0; l < size; ++l)
+		ret = (ret >> 8) ^ crc_table[(ret ^ buf[l]) & 0xFF];
+
+	return ~ret;
 }
 
 int boot_info_set_active_slot(bootloader_control* bootctrl, int slot)
@@ -426,8 +454,8 @@ bool boot_info_save(bootloader_control *info, char *miscbuf)
 	char *partition = "misc";
 
 	printf("save boot-info\n");
-	info->crc32_le = avb_htobe32(avb_crc32((const uint8_t *)info,
-		sizeof(bootloader_control) - sizeof(uint32_t)));
+	info->crc32_le = vab_crc32((const uint8_t *)info,
+		sizeof(bootloader_control) - sizeof(uint32_t));
 
 	memcpy(miscbuf + AB_METADATA_MISC_PARTITION_OFFSET, info, sizeof(bootloader_control));
 	dump_boot_info(info);
