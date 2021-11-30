@@ -220,12 +220,15 @@ static void meson_pll_report(struct meson_clk_pll_data *pll, unsigned long targe
 		return;
 	}
 
-	if (((msr_rate - margin) <= res) && (res <= (msr_rate + margin)))
+	if (((msr_rate - margin) <= res) && (res <= (msr_rate + margin))) {
 		printf("%s PLL lock ok, target rate=%luM div=%ld clkmsr rate=%luM: Match\n",
 		       pll->name, target, target / msr_rate, res);
-	else
+		printf("%s pll test pass\n", pll->name);
+	} else {
 		printf("%s PLL lock failed, target rate=%luM div=%ld clkmsr rate=%luM: Not Match\n",
 		       pll->name, target, target / msr_rate, res);
+		printf("%s pll test failed\n", pll->name);
+	}
 }
 
 void meson_switch_cpu_clk(unsigned int smc_id, unsigned int secid, unsigned int flag)
@@ -479,8 +482,11 @@ void meson_pll_test(struct meson_clk_pll_data *pll)
 	int i;
 	unsigned long result, rate;
 
-	if (pll->ops->pll_prepare_test)
-		pll->ops->pll_prepare_test(pll);
+	if (!pll || !pll->ops)
+		return;
+
+	if (pll->ops && pll->ops->pll_prepare)
+		pll->ops->pll_prepare(pll);
 
 	for (i = 0; i < pll->def_cnt; i++) {
 		if (pll->ops->pll_set_rate)
@@ -498,20 +504,23 @@ void meson_pll_test(struct meson_clk_pll_data *pll)
 				 rate, result, pll->clkmsr_margin);
 	}
 
-	if (pll->ops->pll_unprepare_test)
-		pll->ops->pll_unprepare_test(pll);
+	if (pll->ops && pll->ops->pll_unprepare)
+		pll->ops->pll_unprepare(pll);
 }
 
 void meson_pll_parm_test(struct meson_clk_pll_data *pll, char * const argv[])
 {
 	unsigned long result, target, rate;
 
+	if (!pll || !pll->ops)
+		return;
+
 	/* some pll need prepare before test */
-	if (pll->ops->pll_prepare_test)
-		pll->ops->pll_prepare_test(pll);
+	if (pll->ops && pll->ops->pll_prepare)
+		pll->ops->pll_prepare(pll);
 
 	/* set rate according to argv */
-	if (pll->ops->pll_set_parm_rate)
+	if (pll->ops && pll->ops->pll_set_parm_rate)
 		pll->ops->pll_set_parm_rate(pll, argv);
 	else /* default */
 		meson_pll_set_parm_rate(pll, argv);
@@ -535,12 +544,12 @@ void meson_pll_parm_test(struct meson_clk_pll_data *pll, char * const argv[])
 	result = clk_util_clk_msr(pll->clkmsr_id);
 
 	/* report */
-	meson_pll_report(pll, target ? (target / 1000000) : 0, target ? (rate / 1000000) : 0,
+	meson_pll_report(pll, target ? (target / 1000000) : 0, rate ? (rate / 1000000) : 0,
 			 result, pll->clkmsr_margin);
 
 	/* unprepare */
-	if (pll->ops->pll_unprepare_test)
-		pll->ops->pll_unprepare_test(pll);
+	if (pll->ops && pll->ops->pll_unprepare)
+		pll->ops->pll_unprepare(pll);
 }
 
 struct meson_clk_pll_data *meson_pll_find_by_name(struct meson_clk_pll_data **pll_list,
