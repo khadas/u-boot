@@ -1472,7 +1472,6 @@ static int bl_config_load_from_unifykey(char *dt_addr, struct aml_bl_drv_s *bdrv
 		BLPR("unifykey header:\n");
 		BLPR("crc32             = 0x%08x\n", bl_header.crc32);
 		BLPR("data_len          = %d\n", bl_header.data_len);
-		BLPR("reserved          = 0x%04x\n", bl_header.reserved);
 	}
 
 	/* step 2: check backlight parameters */

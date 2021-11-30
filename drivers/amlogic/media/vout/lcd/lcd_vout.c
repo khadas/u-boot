@@ -929,6 +929,7 @@ int lcd_probe(void)
 		return -1;
 	}
 	lcd_config_bsp_init();
+
 	lcd_phy_config_init(lcd_data);
 	ret = lcd_config_probe();
 	if (ret)
