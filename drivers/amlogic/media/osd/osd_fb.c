@@ -446,18 +446,12 @@ static void *osd_hw_init(void)
 			return NULL;
 		}
 		osd_layer_init(&fb_gdev, OSD2);
-	} else if (osd_index == OSD3) {
-		if (osd_hw.osd_ver == OSD_SIMPLE) {
-			osd_loge("AXG not support osd3\n");
-			return NULL;
-		}
-		osd_layer_init(&fb_gdev, OSD3);
-	} else if (osd_index == VIU2_OSD1) {
+	} else if (osd_index == VIU2_OSD1 /* OSD3 */) {
 		if (osd_hw.osd_ver == OSD_SIMPLE) {
 			osd_loge("AXG not support viu2 osd0\n");
 			return NULL;
 		}
-		osd_layer_init(&fb_gdev, VIU2_OSD1);
+		osd_layer_init(&fb_gdev, VIU2_OSD1 /* OSD3 */);
 	} else {
 		osd_loge("display_layer(%d) invalid\n", osd_index);
 		return NULL;
