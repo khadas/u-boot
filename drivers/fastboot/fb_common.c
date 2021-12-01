@@ -104,7 +104,7 @@ void fastboot_okay(const char *reason, char *response)
 int check_lock(void)
 {
 	char *lock_s;
-	LockData_t* info;
+	LockData_t info = {0};
 
 	lock_s = env_get("lock");
 	if (!lock_s) {
@@ -115,29 +115,17 @@ int check_lock(void)
 	}
 	printf("lock state: %s\n", lock_s);
 
-	info = malloc(sizeof(struct LockData));
-	if (info) {
-		memset(info,0,LOCK_DATA_SIZE);
-		info->version_major = (int)(lock_s[0] - '0');
-		info->version_minor = (int)(lock_s[1] - '0');
-		info->unlock_ability = (int)(lock_s[2] - '0');
-		info->lock_state = (int)(lock_s[4] - '0');
-		info->lock_critical_state = (int)(lock_s[5] - '0');
-		info->lock_bootloader = (int)(lock_s[6] - '0');
+	info.version_major = (int)(lock_s[0] - '0');
+	info.version_minor = (int)(lock_s[1] - '0');
+	info.unlock_ability = (int)(lock_s[2] - '0');
+	info.lock_state = (int)(lock_s[4] - '0');
+	info.lock_critical_state = (int)(lock_s[5] - '0');
+	info.lock_bootloader = (int)(lock_s[6] - '0');
 
-		extern void dump_lock_info(LockData_t* info);
-		dump_lock_info(info);
-	} else
-		return 0;
-
-	if ((info->lock_state == 1 ) || ( info->lock_critical_state == 1 )) {
-		free (info);
+	if (info.lock_state == 1 || info.lock_critical_state == 1)
 		return 1;
-	}
-	else {
-		free (info);
+	else
 		return 0;
-	}
 }
 
 /**

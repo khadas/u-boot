@@ -187,15 +187,15 @@ static void okay(char *cmd_parameter, char *response)
 	fastboot_okay(NULL, response);
 }
 
-void dump_lock_info(LockData_t* info)
+void dump_lock_info(LockData_t info)
 {
 #if 0
-	printf("info->version_major = %d\n", info->version_major);
-	printf("info->version_minor = %d\n", info->version_minor);
-	printf("info->unlock_ability = %d\n", info->unlock_ability);
-	printf("info->lock_state = %d\n", info->lock_state);
-	printf("info->lock_critical_state = %d\n", info->lock_critical_state);
-	printf("info->lock_bootloader = %d\n", info->lock_bootloader);
+	printf("info.version_major = %d\n", info.version_major);
+	printf("info.version_minor = %d\n", info.version_minor);
+	printf("info.unlock_ability = %d\n", info.unlock_ability);
+	printf("info.lock_state = %d\n", info.lock_state);
+	printf("info.lock_critical_state = %d\n", info.lock_critical_state);
+	printf("info.lock_bootloader = %d\n", info.lock_bootloader);
 #endif
 }
 
@@ -854,7 +854,7 @@ static void flashing(char *cmd_parameter, char *response)
 {
 	char *cmd;
 	char* lock_s;
-	LockData_t* info;
+	LockData_t info = {0};
 	char lock_d[LOCK_DATA_SIZE];
 	u64 rc;
 
@@ -879,19 +879,13 @@ static void flashing(char *cmd_parameter, char *response)
 			strncpy(lock_d, lock_s, strlen(lock_s));
 	}
 
-	info = malloc(sizeof(struct LockData));
-	if (!info) {
-		printf("malloc error\n");
-		fastboot_fail("malloc error", response);
-		return;
-	}
-	memset(info,0,LOCK_DATA_SIZE);
-	info->version_major = (int)(lock_d[0] - '0');
-	info->version_minor = (int)(lock_d[1] - '0');
-	info->unlock_ability = (int)(lock_d[2] - '0');
-	info->lock_state = (int)(lock_d[4] - '0');
-	info->lock_critical_state = (int)(lock_d[5] - '0');
-	info->lock_bootloader = (int)(lock_d[6] - '0');
+	info.version_major = (int)(lock_d[0] - '0');
+	info.version_minor = (int)(lock_d[1] - '0');
+	info.unlock_ability = (int)(lock_d[2] - '0');
+	info.lock_state = (int)(lock_d[4] - '0');
+	info.lock_critical_state = (int)(lock_d[5] - '0');
+	info.lock_bootloader = (int)(lock_d[6] - '0');
+	dump_lock_info(info);
 
 	printf("cb_flashing cmd_parameter: %s\n", cmd_parameter);
 	cmd = cmd_parameter;
@@ -900,17 +894,16 @@ static void flashing(char *cmd_parameter, char *response)
 	if (!cmd) {
 		printf("missing variable\n");
 		fastboot_fail("missing var", response);
-		free(info);
 		return;
 	}
 
 	rc = store_part_size("userdata");
 
 	if (!strcmp_l1("unlock_critical", cmd)) {
-		info->lock_critical_state = 0;
+		info.lock_critical_state = 0;
 		fastboot_okay(NULL, response);
 	} else if (!strcmp_l1("lock_critical", cmd)) {
-		info->lock_critical_state = 1;
+		info.lock_critical_state = 1;
 		fastboot_okay(NULL, response);
 	} else if (!strcmp_l1("get_unlock_ability", cmd)) {
 		char str[32];
@@ -921,22 +914,21 @@ static void flashing(char *cmd_parameter, char *response)
 			busy_flag = 0;
 		} else {
 			sprintf(str, "get_unlock_ability: %d",
-				info->unlock_ability);
+				info.unlock_ability);
 			fastboot_response("INFO", response, "%s", str);
 			is_unlock_ability_sent = true;
 			busy_flag = 1;
 		}
-		free(info);
 		return;
 	} else if (!strcmp_l1("get_unlock_bootloader_nonce", cmd)) {
 		char str_num[8];
-		sprintf(str_num, "%d", info->lock_critical_state);
+		sprintf(str_num, "%d", info.lock_critical_state);
 		fastboot_response("OKAY", response, "%s", str_num);
 	} else if (!strcmp_l1("lock_bootloader", cmd)) {
-		info->lock_bootloader = 1;
+		info.lock_bootloader = 1;
 	} else if (!strcmp_l1("unlock", cmd)) {
-		if (info->unlock_ability == 1 ) {
-			if (info->lock_state == 1 ) {
+		if (info.unlock_ability == 1) {
+			if (info.lock_state == 1) {
 				char *avb_s;
 				avb_s = env_get("avb2");
 				if (avb_s == NULL) {
@@ -972,8 +964,8 @@ static void flashing(char *cmd_parameter, char *response)
 #endif
 				}
 			}
-			info->lock_state = 0;
-			info->lock_critical_state = 0;
+			info.lock_state = 0;
+			info.lock_critical_state = 0;
 			env_set("lock_state", "green");
 			fastboot_okay(NULL, response);
 		} else {
@@ -981,7 +973,7 @@ static void flashing(char *cmd_parameter, char *response)
 			fastboot_response("FAIL", response, "%s", "unlock_ability is 0, can not unlock");
 		}
 	} else if (!strcmp_l1("lock", cmd)) {
-		if (info->lock_state == 0 ) {
+		if (info.lock_state == 0) {
 			char *avb_s;
 			avb_s = env_get("avb2");
 			if (avb_s == NULL) {
@@ -1018,7 +1010,7 @@ static void flashing(char *cmd_parameter, char *response)
 #endif
 			}
 		}
-		info->lock_state = 1;
+		info.lock_state = 1;
 		env_set("lock_state", "orange");
 		fastboot_okay(NULL, response);
 	} else {
@@ -1026,11 +1018,12 @@ static void flashing(char *cmd_parameter, char *response)
 		fastboot_response("FAIL", response, "%s", "Variable not implemented");
 	}
 
-	sprintf(lock_d, "%d%d%d0%d%d%d0", info->version_major, info->version_minor, info->unlock_ability, info->lock_state, info->lock_critical_state, info->lock_bootloader);
+	sprintf(lock_d, "%d%d%d0%d%d%d0", info.version_major, info.version_minor,
+		info.unlock_ability, info.lock_state, info.lock_critical_state,
+		info.lock_bootloader);
 	printf("lock_d state: %s\n", lock_d);
 	env_set("lock", lock_d);
 	run_command("defenv_reserv; saveenv;", 0);
-	free(info);
 	return;
 }
 #endif// #if !CONFIG_IS_ENABLED(NO_FASTBOOT_FLASHING)
