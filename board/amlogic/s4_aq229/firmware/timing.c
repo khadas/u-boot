@@ -97,11 +97,15 @@ uint32_t __ddr_parameter_reg_index[] __attribute__ ((section(".ddr_2acs_index"))
 //#define DDR_FUNC_CONFIG_DFE_FUNCTION            (1 << 29)
 //#define DDR_FUNC_CONFIG_DDR_X4_BIT_DRAM_RESERVE_PARAMETER               (1 << 27)
 //#define S4_LPDDR4 1   //use for 1rank lpddr4
+//#define S4_LPDDR4_1RANK_RAYSON_2GB 1
 
 //#define S4_LPDDR4_DONGLE_LAYER_4 1   //use for 1rank lpddr4
 //#define S4_LPDDR4_DONGLE_LAYER_6 1  //use for 1rank lpddr4
 
 //#define S4_LPDDR4_2RANK 1
+//#define S4_LPDDR4_2RANK_RAYSON_2GB 1
+//#define S4_LPDDR4_2RANK_FORESEE_2GB 1
+
 //#define S4_DDR4_2RANK 1
 #define S4_DDR4_1RANK 1
 //#define S4_DDR4_1RANK_PCB_MODE2_GANGZHENG 1
@@ -2057,7 +2061,8 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		},                                             //total 36
 		.cfg_ddr_training_delay_ps.reserve_training_parameter = { 0 },
 	},
-#endif
+#endif //end S4_DDR4_1RANK_PCB_MODE2_GANGZHENG
+#endif //end S4_DDR4_1RANK
 #if 0
 	{
 		//timing_config,4layer 2pcs ddr4 rank0, ap229.

@@ -24,7 +24,6 @@
 #define DDR_TIMMING_TUNE_TIMMING1(DDR_ID, PARA, VALUE) { DDR_ID, sizeof(((ddr_set_ps0_only_t) + DDR_TIMMING_OFFSET(PARA), VALUE, DDR_TIMMING_OFFSET_SIZE(PARA), 0, DDR_RESV_CHECK_ID_ENABLE }
 
 
-
 //bit24-31 define ID and size
 #define DDR_ID_FROM_EFUSE  (0Xff<<24)
 #define DDR_ID_FROM_ADC  (0Xfeu<<24)
@@ -470,7 +469,6 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 #endif
 
 		.cfg_ddr_training_delay_ps.reserve_training_parameter = { 0, 0, 0, 0, 8, 8, 8, 8, 0, 0, 0, 0, 0x80 + 0x10, 0x80 + 0x10, 0x80 + 0x10, 0x80 + 0x10 },
-
 	},
 #endif  //end T212_DONGLE 4layer LPDDR4 rank01
 #if S4_LPDDR4
@@ -2005,9 +2003,9 @@ DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ,
 			32, 32, 32, 32
 		},                                             //total 36
 		.cfg_ddr_training_delay_ps.reserve_training_parameter = { 0 },
-
 	},
-#endif
+#endif //end S4_DDR4_1RANK_PCB_MODE2_GANGZHENG
+#endif //end S4_DDR4_1RANK
 #if 0
 	{
 		//timing_config,4layer 2pcs ddr4 rank0, ap229.
