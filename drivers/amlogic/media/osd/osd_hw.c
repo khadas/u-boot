@@ -499,7 +499,10 @@ int osd_set_scan_mode(u32 index)
 	vmode = vout_get_current_vmode();
 #endif
 	osd_hw.scan_mode = SCAN_MODE_PROGRESSIVE;
-	osd_hw.scale_workaround = 0;
+	if (osd_hw.fb_for_4k2k) {
+		if (osd_hw.free_scale_enable[index])
+			osd_hw.scale_workaround = 1;
+	}
 	switch (vmode) {
 	/* case VMODE_LCD: */
 	case VMODE_480I:
