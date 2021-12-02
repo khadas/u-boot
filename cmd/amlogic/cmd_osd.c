@@ -35,6 +35,16 @@ extern int get_osd_layer(void);
 static int do_osd_open(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
+	char *s;
+	uint fb_for_4k2k = 0;
+
+	s = env_get("fb_for_4k2k");
+	if (s) {
+		fb_for_4k2k = simple_strtoul(s, NULL, 10) ? 1 : 0;
+		printf("[OSD]using fb_for_4k2k %d\n", fb_for_4k2k);
+	}
+	osd_set_4k2k_fb_mode_hw(fb_for_4k2k);
+
 	gdev = video_hw_init(RECT_MODE);
 	if (gdev == NULL) {
 		printf("Initialize video device failed!\n");
