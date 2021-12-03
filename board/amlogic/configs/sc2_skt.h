@@ -93,6 +93,7 @@
         "osd_reverse=0\0"\
         "video_reverse=0\0"\
         "boot_part=boot\0"\
+		"rollback_flag=0\0"\
 	"boot_flag=0\0"\
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
@@ -180,6 +181,7 @@
             "if imgread dtb recovery ${dtb_mem_addr}; then "\
                 "else echo restore dtb; run common_dtb_load;"\
             "fi;"\
+		"setenv bootargs ${bootargs} androidboot.rollback=${rollback_flag};"\
             "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
             "\0"\
         "bcb_cmd="\

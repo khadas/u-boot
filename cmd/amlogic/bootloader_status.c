@@ -298,6 +298,7 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 				env_set("expect_index", "2");
 			}
 			wrnP("back to slot b\n");
+			run_command("set_roll_flag 1", 0);
 			run_command("set_active_slot b", 0);
 		} else if (strcmp(slot, "1") == 0) {
 			if (ret != 0) {
@@ -309,6 +310,7 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 				env_set("expect_index", "1");
 			}
 			wrnP("back to slot a\n");
+			run_command("set_roll_flag 1", 0);
 			run_command("set_active_slot a", 0);
 		}
 
@@ -454,9 +456,11 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 					}
 					if (strcmp(slot, "0") == 0) {
 						wrnP("back to slot b\n");
+						run_command("set_roll_flag 1", 0);
 						run_command("set_active_slot b", 0);
 					} else if (strcmp(slot, "1") == 0) {
 						wrnP("back to slot a\n");
+						run_command("set_roll_flag 1", 0);
 						run_command("set_active_slot a", 0);
 					}
 					env_set("expect_index", "1");
@@ -468,9 +472,11 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 #endif
 					if (strcmp(bootloaderindex, "1") == 0) {
 						wrnP("back to slot a\n");
+						run_command("set_roll_flag 1", 0);
 						run_command("set_active_slot a", 0);
 					} else if (strcmp(bootloaderindex, "2") == 0) {
 						wrnP("back to slot b\n");
+						run_command("set_roll_flag 1", 0);
 						run_command("set_active_slot b", 0);
 					}
 					env_set("expect_index", "0");
@@ -531,9 +537,11 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 #endif
 				if (strcmp(bootloaderindex, "1") == 0) {
 					wrnP("back to slot a\n");
+					run_command("set_roll_flag 1", 0);
 					run_command("set_active_slot a", 0);
 				} else if (strcmp(bootloaderindex, "2") == 0) {
 					wrnP("back to slot b\n");
+					run_command("set_roll_flag 1", 0);
 					run_command("set_active_slot b", 0);
 				}
 

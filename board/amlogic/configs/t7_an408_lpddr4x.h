@@ -107,6 +107,7 @@
         "boot_part=boot\0"\
         "vendor_boot_part=vendor_boot\0"\
         "board_logo_part=odm_ext\0" \
+		"rollback_flag=0\0"\
 	"boot_flag=0\0"\
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
@@ -175,6 +176,7 @@
                 "if test ${active_slot} != normal; then "\
                     "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
                 "fi;"\
+			"setenv bootargs ${bootargs} androidboot.rollback=${rollback_flag};"\
                 "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
                 "setenv loadaddr ${loadaddr_kernel};"\
                 "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
