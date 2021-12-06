@@ -64,6 +64,7 @@ const struct spi_flash_info spi_flash_ids[] = {
 #endif
 #ifdef CONFIG_SPI_FLASH_GIGADEVICE	/* GIGADEVICE */
 	{"gd25q16c",	   INFO(0xc84015, 0x0, 64 * 1024,    32, RD_FULL | WR_QPP | SECT_4K) },
+	{"GD25Q80C",	   INFO(0xc84014, 0x0, 64 * 1024,    16, RD_FULL | WR_QPP | SECT_4K) },
 	{"gd25q127c",	   INFO(0xc84018, 0x0, 64 * 1024,   256, SECT_4K) },
 	/*
 	 * The id of gd25q64b and gd25q64c are the same, but the commands
@@ -202,6 +203,9 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{ "xm25qh64a",	   INFO(0x207017, 0x0, 64 * 1024,    128, SECT_4K | RD_DUAL | RD_QUAD) },
 	{ "xm25qh128a",	   INFO(0x207018, 0x0, 64 * 1024,    256, SECT_4K | RD_DUAL | RD_QUAD) },
 #endif
+	{"FM25Q08A",	   INFO(0xa14014, 0x0, 64 * 1024,    16, RD_FULL | WR_QPP | SECT_4K) },
+	{"BY25D80",	   INFO(0x684014, 0x0, 64 * 1024,    16, RD_DUAL | SECT_4K) },
+	{"P25Q80H",	   INFO(0x856014, 0x0, 64 * 1024,    16, RD_FULL | WR_QPP | SECT_4K) },
 	{},	/* Empty entry to terminate the list */
 	/*
 	 * Note:
