@@ -585,17 +585,20 @@ static int do_GetValidSlot(
             }
             return 0;
         } else if (bootable_b) {
-            write_bootloader(2, 0);
-#ifdef CONFIG_FASTBOOT
-            struct misc_virtual_ab_message message;
-            set_mergestatus_cancel(&message);
-#endif
-            run_command("set_active_slot b", 0);
-            env_set("update_env","1");
-            env_set("reboot_status","reboot_next");
-            env_set("expect_index","0");
-            run_command("saveenv", 0);
-            run_command("reset", 0);
+		printf("active slot is 0, but a isn't bootable, rollback\n");
+		run_command("set_active_slot b", 0);
+		env_set("update_env", "1");
+		env_set("reboot_status", "reboot_next");
+		if (gpt_partition) {
+			write_bootloader(2, 1);
+			env_set("expect_index", "1");
+		} else {
+			write_bootloader(2, 0);
+			env_set("expect_index", "0");
+		}
+		run_command("saveenv", 0);
+		run_command("reset", 0);
+
         } else {
             run_command("run init_display; run storeargs; run update;", 0);
         }
@@ -617,17 +620,19 @@ static int do_GetValidSlot(
             }
             return 0;
         } else if (bootable_a) {
-            write_bootloader(1, 0);
-#ifdef CONFIG_FASTBOOT
-            struct misc_virtual_ab_message message;
-            set_mergestatus_cancel(&message);
-#endif
-            run_command("set_active_slot a", 0);
-            env_set("update_env","1");
-            env_set("reboot_status","reboot_next");
-            env_set("expect_index","0");
-            run_command("saveenv", 0);
-            run_command("reset", 0);
+		printf("active slot is 1, but b isn't bootable, rollback\n");
+		run_command("set_active_slot a", 0);
+		env_set("update_env", "1");
+		env_set("reboot_status", "reboot_next");
+		if (gpt_partition) {
+			write_bootloader(2, 1);
+			env_set("expect_index", "1");
+		} else {
+			write_bootloader(1, 0);
+			env_set("expect_index", "0");
+		}
+		run_command("saveenv", 0);
+		run_command("reset", 0);
         } else {
             run_command("run init_display; run storeargs; run update;", 0);
         }
@@ -729,12 +734,20 @@ static int do_SetUpdateTries(
     boot_info_save(&boot_ctrl, miscbuf);
 
 	if (boot_ctrl.slot_info[slot].successful_boot == 1 && gpt_partition) {
+		char *bootloaderindex = NULL;
+
 		printf("current slot %d is successful_boot\n", slot);
-		ret = is_BootSame(1, 2);
-		if (ret) {
-			printf("boot0 doesn't = boot1, write boot0 to boot1\n");
-			write_bootloader(1, 2);
-			printf("after write boot0 to boot1\n");
+		bootloaderindex = env_get("forUpgrade_bootloaderIndex");
+		printf("bootloaderindex: %s\n", bootloaderindex);
+		/*if boot from boot1, means boot0 is bab, don't need to copyback*/
+		if (bootloaderindex && strcmp(bootloaderindex, "2")) {
+			printf("check if boot0 = boot1\n");
+			ret = is_BootSame(1, 2);
+			if (ret) {
+				printf("boot0 doesn't = boot1, write boot0 to boot1\n");
+				write_bootloader(1, 2);
+				printf("after write boot0 to boot1\n");
+			}
 		}
 	}
     return 0;
