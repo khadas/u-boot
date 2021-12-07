@@ -1666,10 +1666,23 @@ static int handle_ldim_dev_ctrl(struct ldim_dev_attr_s *p_attr)
 		ALOGD("%s, chip_count is (%s)\n", __func__, ini_value);
 	p_attr->ctrl.chip_cnt = strtoul(ini_value, NULL, 0);
 
-	ini_value = IniGetString("Ldim_dev_Attr", "zone_mapping_path", "0");
-	if (model_debug_flag & DEBUG_BACKLIGHT)
-		ALOGD("%s, zone_mapping_path is (%s)\n", __func__, ini_value);
-	strncpy(p_attr->ctrl.zone_map_path, ini_value, 255);
+	ini_value = IniGetString("Ldim_dev_Attr", "zone_mapping_path", "null");
+	if (strcmp(ini_value, "null") != 0) {
+		env_set("bl_mapping_path", ini_value);
+		strncpy(p_attr->ctrl.zone_map_path, ini_value, 255); //if no path_k
+		if (model_debug_flag & DEBUG_BACKLIGHT)
+			ALOGE("%s, zone_mapping_path is (%s)\n", __func__, ini_value);
+	}
+
+	ini_value = IniGetString("Ldim_dev_Attr", "zone_mapping_path_k", "null");
+	if (strcmp(ini_value, "null") != 0) {
+		if (model_debug_flag & DEBUG_BACKLIGHT)
+			ALOGD("%s, zone_mapping_path_k is (%s)\n", __func__, ini_value);
+		strncpy(p_attr->ctrl.zone_map_path, ini_value, 255);
+	} else {
+		if (model_debug_flag & DEBUG_BACKLIGHT)
+			ALOGD("%s, zone_mapping_path_k is NOT FOUND\n", __func__);
+	}
 
 	return 0;
 }

@@ -906,7 +906,7 @@ static int ldim_dev_get_config_from_dts(struct ldim_dev_driver_s *dev_drv,
 
 	propdata = (char *)fdt_getprop(dt_addr, child_offset, "ldim_zone_mapping_path", NULL);
 	if (propdata) {
-		LDIMPR("find custom ldim_zone_mapping\n");
+		LDIMPR("%s:find custom ldim_zone_mapping_path\n", __func__);
 		str = propdata;
 		ret = ldim_dev_zone_mapping_load(dev_drv, str);
 		if (ret) {
@@ -924,7 +924,7 @@ static int ldim_dev_get_config_from_dts(struct ldim_dev_driver_s *dev_drv,
 			goto ldim_dev_get_config_from_dts_next;
 		}
 	}
-	LDIMPR("find custome ldim_zone_mapping\n");
+	LDIMPR("%s:find custome ldim_zone_mapping\n", __func__);
 	for (i = 0; i < dev_drv->zone_num; i++)
 		dev_drv->bl_mapping[i] = (unsigned short)be32_to_cpup((((u32 *)propdata) + i));
 
@@ -1152,6 +1152,8 @@ static int ldim_dev_get_config_from_ukey(struct ldim_dev_driver_s *dev_drv)
 			dev_drv->bl_mapping[i] = (unsigned short)i;
 	} else {
 		LDIMPR("find custom ldim_zone_mapping\n");
+		str = env_get("bl_mapping_path");
+		LDIMPR("env_get ldim_zone_mapping = %s\n", str);
 		ret = ldim_dev_zone_mapping_load(dev_drv, str);
 		if (ret) {
 			for (i = 0; i < dev_drv->zone_num; i++)
