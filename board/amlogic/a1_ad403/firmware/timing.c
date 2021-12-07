@@ -324,4 +324,7 @@ bl2_reg_t __bl2_reg[] = {
 	{PADCTRL_GPIOF_OEN, 0, 1 << 11, 0, BL2_INIT_STAGE_POWERKEY_INIT | POWERKEY_CFG0, 0},
 	{PADCTRL_GPIOF_O, 1 << 11, 0, 0, BL2_INIT_STAGE_POWERKEY_INIT | POWERKEY_CFG0, 0},
 	/* power key up config*/
+
+	/* set .value as a1_ad403 board_id */
+	{0, 11, 0, 0, BL2_INIT_STAGE_CHK_BOARD_ID, 0},
 };
