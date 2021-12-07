@@ -253,6 +253,36 @@ static struct lcd_pinmux_ctrl_s lcd_pinmux_ctrl[LCD_PINMX_MAX] = {
 
 static struct lcd_pinmux_ctrl_s bl_pinmux_ctrl[BL_PINMUX_MAX] = {
 	{
+		.name = "bl_pwm_on_pin", /*GPIOH_12*/
+		.pinmux_set = {{6, 0x00040000}, {LCD_PINMUX_END, 0x0} },
+		.pinmux_clr = {{6, 0x000f0000}, {LCD_PINMUX_END, 0x0} },
+	},
+	{
+		.name = "bl_pwm_vs_on_pin", /*GPIOH_12*/
+		.pinmux_set = {{6, 0x00030000}, {LCD_PINMUX_END, 0x0} },
+		.pinmux_clr = {{6, 0x000f0000}, {LCD_PINMUX_END, 0x0} },
+	},
+	{
+		.name = "bl_pwm_combo_0_on_pin", /*GPIOH_12*/
+		.pinmux_set = {{6, 0x00040000}, {LCD_PINMUX_END, 0x0} },
+		.pinmux_clr = {{6, 0x000f0000}, {LCD_PINMUX_END, 0x0} },
+	},
+	{
+		.name = "bl_pwm_combo_1_on_pin", /*GPIOH_13*/
+		.pinmux_set = {{6, 0x00400000}, {LCD_PINMUX_END, 0x0} },
+		.pinmux_clr = {{6, 0x00f00000}, {LCD_PINMUX_END, 0x0} },
+	},
+	{
+		.name = "bl_pwm_combo_0_vs_on_pin", /*GPIOH_12*/
+		.pinmux_set = {{6, 0x00030000}, {LCD_PINMUX_END, 0x0} },
+		.pinmux_clr = {{6, 0x000f0000}, {LCD_PINMUX_END, 0x0} },
+	},
+	{
+		.name = "bl_pwm_combo_1_vs_on_pin", /*GPIOH_13*/
+		.pinmux_set = {{6, 0x00300000}, {LCD_PINMUX_END, 0x0} },
+		.pinmux_clr = {{6, 0x00f00000}, {LCD_PINMUX_END, 0x0} },
+	},
+	{
 		.name = "invalid",
 	},
 };
