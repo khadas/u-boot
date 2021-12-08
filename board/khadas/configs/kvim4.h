@@ -280,9 +280,7 @@
             "run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
-            "run upgrade_key;" \
-            "bcb uboot-command;" \
-            "run switch_bootmode;"
+            "run upgrade_key;"
 
 /* dual logo, normal boot */
 #define CONFIG_DUAL_LOGO \

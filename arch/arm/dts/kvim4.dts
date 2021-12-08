@@ -305,7 +305,7 @@
 
 &spifc {
 	status = "okay";
-	cs-gpios = <&gpio GPIOB_12 GPIO_ACTIVE_HIGH>;
+	cs-gpios = <&gpio GPIOT_14 GPIO_ACTIVE_HIGH>;
 	spi-flash@0 {
 		status = "okay";
 	};
