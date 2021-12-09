@@ -593,7 +593,7 @@ void lcd_tcon_info_print(void)
 				tcon_rmem.acc_lut_rmem.mem_size);
 		}
 	} else {
-		printf("data_mem_block_cnt:   %d\n",
+		printf("data_mem block_cnt:   %d\n",
 		       tcon_mm_table.block_cnt);
 		for (i = 0; i < tcon_mm_table.block_cnt; i++) {
 			if (tcon_mm_table.data_mem_vaddr[i]) {
@@ -621,7 +621,7 @@ void lcd_tcon_info_print(void)
 			return;
 		if (cnt > 32)
 			return;
-		printf("\n");
+		printf("\nbin_path cnt: %d\n", cnt);
 		for (i = 0; i < cnt; i++) {
 			n = 32 + 256 * i;
 			file_size = tcon_rmem.bin_path_rmem.mem_vaddr[n] |
@@ -629,7 +629,7 @@ void lcd_tcon_info_print(void)
 			(tcon_rmem.bin_path_rmem.mem_vaddr[n + 2] << 16) |
 			(tcon_rmem.bin_path_rmem.mem_vaddr[n + 3] << 24);
 			str = (char *)&tcon_rmem.bin_path_rmem.mem_vaddr[n + 4];
-			printf("tcon_path[%d]: size: 0x%x, %s\n", i,
+			printf("bin_path[%d]: size: 0x%x, %s\n", i,
 			       file_size, str);
 		}
 	}
@@ -971,16 +971,21 @@ static int lcd_tcon_data_load(struct aml_lcd_drv_s *pdrv, unsigned char *data_bu
 		return -1;
 	}
 	if (!tcon_mm_table.data_size) {
-		LCDERR("%s: data_size error\n", __func__);
+		LCDERR("%s: data_size buf error\n", __func__);
 		return -1;
 	}
 	if (!tcon_mm_table.data_priority) {
-		LCDERR("%s: data_priority error\n", __func__);
+		LCDERR("%s: data_priority buf error\n", __func__);
 		return -1;
 	}
 
 	data_prio = tcon_mm_table.data_priority;
 	block_header = (struct lcd_tcon_data_block_header_s *)data_buf;
+	if (block_header->block_size < sizeof(struct lcd_tcon_data_block_header_s)) {
+		LCDERR("%s: block[%d] size 0x%x error\n",
+			__func__, index, block_header->block_size);
+		return -1;
+	}
 
 	tcon_mm_table.valid_flag |= block_header->block_flag;
 	if (block_header->block_flag == LCD_TCON_DATA_VALID_DEMURA)

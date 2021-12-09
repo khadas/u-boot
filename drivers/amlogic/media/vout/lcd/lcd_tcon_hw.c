@@ -395,6 +395,48 @@ void lcd_tcon_axi_rmem_lut_load(unsigned int index, unsigned char *buf,
 	memcpy(tcon_rmem->axi_rmem[index].mem_vaddr, buf, size);
 }
 
+static int lcd_tcon_wr_n_data_write(struct lcd_tcon_data_part_wr_n_s *wr_n,
+				    unsigned char *p,
+				    unsigned int n,
+				    unsigned int reg)
+{
+	unsigned int k, data, d;
+
+	if (wr_n->reg_inc) {
+		for (k = 0; k < wr_n->data_cnt; k++) {
+			data = 0;
+			for (d = 0; d < wr_n->reg_data_byte; d++)
+				data |= (p[n + d] << (d * 8));
+			if (wr_n->reg_data_byte == 1)
+				lcd_tcon_write_byte((reg + k), data);
+			else
+				lcd_tcon_write((reg + k), data);
+			if (lcd_debug_print_flag & LCD_DBG_PR_ADV) {
+				LCDPR("%s: write reg 0x%x=0x%x\n",
+				      __func__, (reg + k), data);
+			}
+			n += wr_n->reg_data_byte;
+		}
+	} else {
+		for (k = 0; k < wr_n->data_cnt; k++) {
+			data = 0;
+			for (d = 0; d < wr_n->reg_data_byte; d++)
+				data |= (p[n + d] << (d * 8));
+			if (wr_n->reg_data_byte == 1)
+				lcd_tcon_write_byte(reg, data);
+			else
+				lcd_tcon_write(reg, data);
+			if (lcd_debug_print_flag & LCD_DBG_PR_ADV) {
+				LCDPR("%s: write reg 0x%x=0x%x\n",
+				      __func__, reg, data);
+			}
+			n += wr_n->reg_data_byte;
+		}
+	}
+
+	return 0;
+}
+
 static int lcd_tcon_data_common_parse_set(unsigned char *data_buf)
 {
 	struct lcd_tcon_config_s *tcon_conf = get_lcd_tcon_config();
@@ -477,29 +519,7 @@ static int lcd_tcon_data_common_parse_set(unsigned char *data_buf)
 					reg |= (p[m + d] << (d * 8));
 				if (reg < reg_base)
 					goto lcd_tcon_data_common_parse_set_err_reg;
-				if (data_part.wr_n->reg_inc) {
-					for (k = 0; k < data_part.wr_n->data_cnt; k++) {
-						data = 0;
-					for (d = 0; d < data_part.wr_n->reg_data_byte; d++)
-						data |= (p[n + d] << (d * 8));
-					if (data_part.wr_n->reg_data_byte == 1)
-						lcd_tcon_write_byte((reg + k), data);
-					else
-						lcd_tcon_write((reg + k), data);
-					n += data_part.wr_n->reg_data_byte;
-					}
-				} else {
-					for (k = 0; k < data_part.wr_n->data_cnt; k++) {
-						data = 0;
-					for (d = 0; d < data_part.wr_n->reg_data_byte; d++)
-						data |= (p[n + d] << (d * 8));
-					if (data_part.wr_n->reg_data_byte == 1)
-						lcd_tcon_write_byte(reg, data);
-					else
-						lcd_tcon_write(reg, data);
-					n += data_part.wr_n->reg_data_byte;
-					}
-				}
+				lcd_tcon_wr_n_data_write(data_part.wr_n, p, n, reg);
 				m += reg_byte;
 			}
 			break;
@@ -544,6 +564,10 @@ static int lcd_tcon_data_common_parse_set(unsigned char *data_buf)
 				lcd_tcon_update_bits_byte(reg, mask, data);
 			else
 				lcd_tcon_update_bits(reg, mask, data);
+			if (lcd_debug_print_flag & LCD_DBG_PR_ADV) {
+				LCDPR("%s: write reg 0x%x, data=0x%x, mask=0x%x\n",
+				      __func__, reg, mask, data);
+			}
 			break;
 		case LCD_TCON_DATA_PART_TYPE_RD_MASK:
 			if (block_ctrl_flag)
@@ -611,6 +635,10 @@ static int lcd_tcon_data_common_parse_set(unsigned char *data_buf)
 				temp = lcd_tcon_read_byte(reg) & mask;
 			else
 				temp = lcd_tcon_read(reg) & mask;
+			if (lcd_debug_print_flag & LCD_DBG_PR_ADV) {
+				LCDPR("%s: read chk reg 0x%04x = 0x%02x, mask = 0x%02x\n",
+				      __func__, reg, temp, mask);
+			}
 			n += data_byte;
 			for (j = 0; j < data_cnt; j++) {
 				data = 0;
@@ -645,6 +673,10 @@ static int lcd_tcon_data_common_parse_set(unsigned char *data_buf)
 				lcd_tcon_update_bits_byte(reg, mask, data);
 			else
 				lcd_tcon_update_bits(reg, mask, data);
+			if (lcd_debug_print_flag & LCD_DBG_PR_ADV) {
+				LCDPR("%s: write reg 0x%x, data=0x%x, mask=0x%x\n",
+				      __func__, reg, mask, data);
+			}
 			break;
 		case LCD_TCON_DATA_PART_TYPE_CHK_EXIT:
 			if (block_ctrl_flag)
@@ -762,24 +794,27 @@ static int lcd_tcon_data_set(struct tcon_mem_map_table_s *mm_table)
 
 	for (i = 0; i < mm_table->block_cnt; i++) {
 		index = mm_table->data_priority[i].index;
+		if (index >= mm_table->block_cnt) {
+			LCDERR("%s: data index %d is invalid\n",
+			       __func__, index);
+			return -1;
+		}
 		if (!mm_table->data_mem_vaddr[index]) {
 			LCDERR("%s: data_mem_vaddr[%d] is null\n",
 			       __func__, index);
 			continue;
 		}
-		if (index >= mm_table->block_cnt ||
-		    mm_table->data_priority[i].priority == 0xff) {
-			LCDERR("%s: data index %d or priority %d is invalid\n",
-			       __func__, index, mm_table->data_priority[i].priority);
-			return -1;
-		}
 		data_buf = mm_table->data_mem_vaddr[index];
 		block_header = (struct lcd_tcon_data_block_header_s *)data_buf;
+		if (block_header->block_size < sizeof(struct lcd_tcon_data_block_header_s)) {
+			LCDERR("%s: block_size[%d] 0x%x is invalid\n",
+			       __func__, index, block_header->block_size);
+			continue;
+		}
 		temp_crc32 = crc32(0, &data_buf[4], (block_header->block_size - 4));
 		if (temp_crc32 != block_header->crc32) {
 			LCDERR("%s: block %d, %s data crc error\n",
-				__func__, index,
-				block_header->name);
+				__func__, index, block_header->name);
 			continue;
 		}
 
