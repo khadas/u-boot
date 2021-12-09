@@ -425,6 +425,7 @@ void hdmi_tx_init(void)
 void hdmi_tx_set(struct hdmitx_dev *hdev)
 {
 	unsigned char checksum[11];
+	char *p_tmp;
 
 	aml_audio_init(); /* Init audio hw firstly */
 	hdmitx_hw_init();
@@ -434,9 +435,13 @@ void hdmi_tx_set(struct hdmitx_dev *hdev)
 	hdmitx_set_audmode(hdev);
 	hdmitx_debug();
 	//kernel will determine output mode on its own
-	setenv("hdmimode", getenv("outputmode"));
+	p_tmp = getenv("outputmode");
+	if (p_tmp)
+		setenv("hdmimode", p_tmp);
 
-	//null char needed to terminate the string otherwise garbage in checksum logopara
+	/* null char needed to terminate the string
+	 * otherwise garbage in checksum logopara
+	 */
 	memcpy(checksum, hdev->RXCap.checksum, 10);
 	checksum[10] = '\0';
 	setenv("hdmichecksum", (const char*)checksum);
@@ -1441,27 +1446,34 @@ do { \
  */
 static void enc_vpu_bridge_reset(int mode)
 {
-    unsigned int wr_clk = 0;
+	unsigned int wr_clk = 0;
 
-    wr_clk = (hd_read_reg(P_VPU_HDMI_SETTING) & 0xf00) >> 8;
-    if (mode) {
-        hd_set_reg_bits(P_VPU_HDMI_SETTING, 0, 0, 2);  // [    0] src_sel_enci: Disable ENCP output to HDMI
-        hd_set_reg_bits(P_VPU_HDMI_SETTING, 0, 8, 4);  // [    0] src_sel_enci: Disable ENCP output to HDMI
-        mdelay(1);
-        hd_set_reg_bits(P_VPU_HDMI_SETTING, wr_clk, 8, 4);
-        mdelay(1);
-        hd_set_reg_bits(P_VPU_HDMI_SETTING, 2, 0, 2);  // [    0] src_sel_enci: Enable ENCP output to HDMI
-    } else {
-        hd_write_reg(P_ENCI_VIDEO_EN, 0);
-        hd_set_reg_bits(P_VPU_HDMI_SETTING, 0, 0, 2);  // [    0] src_sel_enci: Disable ENCI output to HDMI
-        hd_set_reg_bits(P_VPU_HDMI_SETTING, 0, 8, 4);  // [    0] src_sel_enci: Disable ENCP output to HDMI
-        mdelay(1);
-        hd_write_reg(P_ENCI_VIDEO_EN, 1);
-        mdelay(1);
-        hd_set_reg_bits(P_VPU_HDMI_SETTING, wr_clk, 8, 4);
-        mdelay(1);
-        hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 0, 2);  // [    0] src_sel_enci: Enable ENCI output to HDMI
-    }
+	wr_clk = (hd_read_reg(P_VPU_HDMI_SETTING) & 0xf00) >> 8;
+	if (mode) {
+		hd_write_reg(P_ENCP_VIDEO_EN, 0);
+		// [    0] src_sel_enci: Disable ENCP output to HDMI
+		hd_set_reg_bits(P_VPU_HDMI_SETTING, 0, 0, 2);
+		hd_set_reg_bits(P_VPU_HDMI_SETTING, 0, 8, 4);
+		mdelay(1);
+		hd_set_reg_bits(P_VPU_HDMI_SETTING, wr_clk, 8, 4);
+		mdelay(1);
+		// [    0] src_sel_enci: Enable ENCP output to HDMI
+		hd_set_reg_bits(P_VPU_HDMI_SETTING, 2, 0, 2);
+		mdelay(1);
+		hd_write_reg(P_ENCP_VIDEO_EN, 1);
+	} else {
+		hd_write_reg(P_ENCI_VIDEO_EN, 0);
+		// [    0] src_sel_enci: Disable ENCI output to HDMI
+		hd_set_reg_bits(P_VPU_HDMI_SETTING, 0, 0, 2);
+		hd_set_reg_bits(P_VPU_HDMI_SETTING, 0, 8, 4);
+		mdelay(1);
+		hd_set_reg_bits(P_VPU_HDMI_SETTING, wr_clk, 8, 4);
+		mdelay(1);
+		// [    0] src_sel_enci: Enable ENCI output to HDMI
+		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 0, 2);
+		mdelay(1);
+		hd_write_reg(P_ENCI_VIDEO_EN, 1);
+	}
 }
 
 static void hdmi_tvenc1080i_set(enum hdmi_vic vic)
@@ -1599,8 +1611,6 @@ static void hdmi_tvenc1080i_set(enum hdmi_vic vic)
 		(0 << 8) |
 		(0 << 12)
 	);
-	hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);
-
 }
 
 static void hdmi_tvenc4k2k_set(enum hdmi_vic vic)
@@ -1803,7 +1813,6 @@ static void hdmi_tvenc4k2k_set(enum hdmi_vic vic)
 			(0 << 8) |
 			(0 << 12)
 	);
-	hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);
 }
 
 static void hdmi_tvenc480i_set(enum hdmi_vic vic)
@@ -1973,7 +1982,6 @@ static void hdmi_tvenc480i_set(enum hdmi_vic vic)
 			(1 << 8) |
 			(1 << 12)
 	);
-	hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 0, 1);
 }
 
 static void hdmi_tvenc_set_def(enum hdmi_vic vic)
@@ -2197,7 +2205,6 @@ static void hdmi_tvenc_set_def(enum hdmi_vic vic)
 				(1 << 8) |
 				(1 << 12)
 		);
-		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 0, 1);
 		break;
 	case HDMI_1920x1080i60_16x9:
 	case HDMI_1920x1080i50_16x9:
@@ -2210,7 +2217,6 @@ static void hdmi_tvenc_set_def(enum hdmi_vic vic)
 				(0 << 8) |
 				(0 << 12)
 		);
-		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);
 		break;
 	case HDMI_3840x2160p30_16x9:
 	case HDMI_3840x2160p25_16x9:
@@ -2231,7 +2237,6 @@ static void hdmi_tvenc_set_def(enum hdmi_vic vic)
 			(0 << 8) |
 			(0 << 12)
 		);
-		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);
 		break;
 	case HDMI_720x480p60_4x3:
 	case HDMI_720x480p60_16x9:
@@ -2248,7 +2253,6 @@ static void hdmi_tvenc_set_def(enum hdmi_vic vic)
 				(1 << 8) |
 				(0 << 12)
 		);
-		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);
 		break;
 	case HDMI_1280x720p60_16x9:
 	case HDMI_1280x720p50_16x9:
@@ -2263,7 +2267,6 @@ static void hdmi_tvenc_set_def(enum hdmi_vic vic)
 				(0 << 8) |
 				(0 << 12)
 		);
-		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);
 		break;
 	default:
 		hd_write_reg(P_VPU_HDMI_SETTING, (0 << 0) |
@@ -2275,9 +2278,7 @@ static void hdmi_tvenc_set_def(enum hdmi_vic vic)
 				(0 << 8) |
 				(0 << 12)
 		);
-		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);
 	}
-	hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);
 }
 
 static void hdmi_tvenc_vesa_set(enum hdmi_vic vic)
@@ -2408,7 +2409,6 @@ static void hdmi_tvenc_vesa_set(enum hdmi_vic vic)
 				(0 << 8) |
 				(0 << 12)
 		);
-		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);
 		break;
 	default:
 		hd_write_reg(P_VPU_HDMI_SETTING, (0 << 0) |
@@ -2420,9 +2420,7 @@ static void hdmi_tvenc_vesa_set(enum hdmi_vic vic)
 				(0 << 8) |
 				(0 << 12)
 		);
-		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);
 	}
-	hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);
 }
 static void hdmi_tvenc_set(enum hdmi_vic vic)
 {
@@ -2488,7 +2486,6 @@ static void hdmi_tvenc_set(enum hdmi_vic vic)
                              (1                                 << 8) | // [11: 8] wr_rate. 0=A write every clk1; 1=A write every 2 clk1; ...; 15=A write every 16 clk1.
                              (1                                 <<12)   // [15:12] rd_rate. 0=A read every clk2; 1=A read every 2 clk2; ...; 15=A read every 16 clk2.
 		);
-		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 0, 1);  // [    0] src_sel_enci: Enable ENCI output to HDMI
 		break;
 	case HDMI_1920x1080i60_16x9:
 	case HDMI_1920x1080i50_16x9:
@@ -2511,7 +2508,6 @@ static void hdmi_tvenc_set(enum hdmi_vic vic)
                              (0                                 << 8) | // [11: 8] wr_rate. 0=A write every clk1; 1=A write every 2 clk1; ...; 15=A write every 16 clk1.
                              (0                                 <<12)   // [15:12] rd_rate. 0=A read every clk2; 1=A read every 2 clk2; ...; 15=A read every 16 clk2.
 		);
-		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);  // [    1] src_sel_encp: Enable ENCP output to HDMI
 		break;
 	case HDMI_3840x2160p30_16x9:
 	case HDMI_3840x2160p25_16x9:
@@ -2539,7 +2535,6 @@ static void hdmi_tvenc_set(enum hdmi_vic vic)
                      (0                                 << 8) | // [11: 8] wr_rate. 0=A write every clk1; 1=A write every 2 clk1; ...; 15=A write every 16 clk1.
                      (0                                 <<12)   // [15:12] rd_rate. 0=A read every clk2; 1=A read every 2 clk2; ...; 15=A read every 16 clk2.
 		);
-		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);  // [    1] src_sel_encp: Enable ENCP output to HDMI
 		break;
 	case HDMI_720x480p60_4x3:
 	case HDMI_720x480p60_16x9:
@@ -2565,7 +2560,6 @@ static void hdmi_tvenc_set(enum hdmi_vic vic)
                              (0                                 <<12)   // [15:12] rd_rate. 0=A read every clk2; 1=A read every 2 clk2; ...; 15=A read every 16 clk2.
 		);
 		// Annie 01Sep2011: Register VENC_DVI_SETTING and VENC_DVI_SETTING_MORE are no long valid, use VPU_HDMI_SETTING instead.
-		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);  // [    1] src_sel_encp: Enable ENCP output to HDMI
 		break;
 	case HDMI_1280x720p60_16x9:
 	case HDMI_1280x720p50_16x9:
@@ -2589,7 +2583,6 @@ static void hdmi_tvenc_set(enum hdmi_vic vic)
                              (0                                 <<12)   // [15:12] rd_rate. 0=A read every clk2; 1=A read every 2 clk2; ...; 15=A read every 16 clk2.
 		);
 		// Annie 01Sep2011: Register VENC_DVI_SETTING and VENC_DVI_SETTING_MORE are no long valid, use VPU_HDMI_SETTING instead.
-		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);  // [    1] src_sel_encp: Enable ENCP output to HDMI
 		break;
 	default:
 		// Annie 01Sep2011: Register VENC_DVI_SETTING and VENC_DVI_SETTING_MORE are no long valid, use VPU_HDMI_SETTING instead.
@@ -2610,7 +2603,6 @@ static void hdmi_tvenc_set(enum hdmi_vic vic)
                              (0                                 <<12)   // [15:12] rd_rate. 0=A read every clk2; 1=A read every 2 clk2; ...; 15=A read every 16 clk2.
 		);
 		// Annie 01Sep2011: Register VENC_DVI_SETTING and VENC_DVI_SETTING_MORE are no long valid, use VPU_HDMI_SETTING instead.
-		hd_set_reg_bits(P_VPU_HDMI_SETTING, 1, 1, 1);  // [    1] src_sel_encp: Enable ENCP output to HDMI
 	}
 }
 
@@ -2798,11 +2790,11 @@ void hdmitx_set_drm_pkt(struct master_display_info_s *data)
 	 *hdr_transfer_feature: bit 15-8: transfer_characteristic
 	 *	1:bt709 0xe:bt2020-10 0x10:smpte-st-2084 0x12:hlg(todo)
 	 */
-	if (data) {
-		hdr_transfer_feature = (data->features >> 8) & 0xff;
-		hdr_color_feature = (data->features >> 16) & 0xff;
-	}
-
+	if (!data)
+		return;
+	hdr_transfer_feature = (data->features >> 8) & 0xff;
+	hdr_color_feature = (data->features >> 16) & 0xff;
+	printf("%s, tf=%d, cf=%d\n", __func__, hdr_transfer_feature, hdr_color_feature);
 	DRM_DB[1] = 0x0;
 	DRM_DB[2] = GET_LOW8BIT(data->primaries[0][0]);
 	DRM_DB[3] = GET_HIGH8BIT(data->primaries[0][0]);
@@ -2889,6 +2881,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 
 	hdev->hdmi_current_eotf_type = type;
 	hdev->hdmi_current_tunnel_mode = tunnel_mode;
+	printf("%s, eotf=%d, tunel_mode=%d\n", __func__, type, tunnel_mode);
 	/*ver0 and ver1_15 and ver1_12bit with ll= 0 use hdmi 1.4b VSIF*/
 	if ((hdev->RXCap.dv_info.ver == 0) || ((hdev->RXCap.dv_info.ver == 1)
 		&& (hdev->RXCap.dv_info.length == 0xE))
@@ -3089,7 +3082,7 @@ void hdmitx_set_hdr10plus_pkt(unsigned int flag,
 			CLR_AVI_BT2020);
 		return;
 	}
-
+	printf("%s, flag=%d\n", __func__, flag);
 	VEN_DB[0] = 0x8b;
 	VEN_DB[1] = 0x84;
 	VEN_DB[2] = 0x90;
@@ -3161,6 +3154,14 @@ static void hdmitx_set_vdac(unsigned int enable)
 	return ;
 }
 
+static void hdmitx_disable_venc(void)
+{
+	hd_write_reg(P_ENCI_VIDEO_EN, 0);
+	hd_write_reg(P_ENCP_VIDEO_EN, 0);
+	mdelay(1);
+	hd_set_reg_bits(P_VPU_HDMI_SETTING, 0, 0, 2);
+}
+
 static void hdmitx_set_hw(struct hdmitx_dev* hdev)
 {
 	struct hdmi_format_para *para = NULL;
@@ -3170,10 +3171,10 @@ static void hdmitx_set_hw(struct hdmitx_dev* hdev)
 		printk("error at %s[%d]\n", __func__, __LINE__);
 		return;
 	}
+	hdmitx_disable_venc();
 	hdmitx_set_pll(hdev);
 	hdmitx_enc(hdev->vic);
 	hdmitx_set_dith(hdev);
-	hdmitx_set_phy(hdev);
 	hdmitx_set_vdac(0);
 
 	// --------------------------------------------------------
@@ -3267,7 +3268,7 @@ static void hdmitx_set_hw(struct hdmitx_dev* hdev)
 		set_tmds_clk_div40(0);
 		break;
 	}
-	hd_write_reg(P_ENCP_VIDEO_EN, 1); /* enable it finially */
+	hdmitx_set_phy(hdev);
 }
 
 // Use this self-made function rather than %, because % appears to produce wrong
