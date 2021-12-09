@@ -51,8 +51,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 /* creat MBR for emmc */
-#define MAX_PNAME_LEN 	(16)
-#define MAX_PART_COUNT	(32)
+#define MAX_PNAME_LEN	MAX_MMC_PART_NAME_LEN
+#define MAX_PART_COUNT	MAX_MMC_PART_NUM
 
 /*
   Global offset of reserved partition is 36MBytes

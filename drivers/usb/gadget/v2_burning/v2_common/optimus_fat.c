@@ -211,13 +211,15 @@ static __u32 get_fatent(fsdata *mydata, __u32 entry)
         startblock += mydata->fat_sect;	/* Offset from start of disk */
 
         /* Write back the fatbuf to the disk */
-        if (flush_dirty_fat_buffer(mydata) < 0)
-            return -1;
+	if (flush_dirty_fat_buffer(mydata) < 0) {
+		DWN_ERR("err in flush dirty\n");
+		return 0;
+	}
 
-        if (disk_read(startblock, getsize, bufptr) < 0) {
-            debug("Error reading FAT blocks\n");
-            return ret;
-        }
+	if (disk_read(startblock, getsize, bufptr) < 0) {
+		DWN_MSG("Error reading FAT blocks\n");
+		return ret;
+	}
         mydata->fatbufnum = bufnum;
     }
 
@@ -357,9 +359,8 @@ static int _get_contents(int fd, loff_t pos,
         if (maxsize || rightPart == actsize) {
             curclust = get_fatent(mydata, curclust);
             if (CHECK_CLUST(curclust, mydata->fatsize)) {
-                DWN_MSG("curclust: 0x%x\n", curclust);
-                DWN_MSG("Invalid FAT entry\n");
-                return -__LINE__;
+		DWN_MSG("next curclust: 0x%x, fatsize %d\n", curclust, mydata->fatsize);
+		return 0;//next cluster reach end
             }
         }
 

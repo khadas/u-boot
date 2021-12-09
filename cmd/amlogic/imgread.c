@@ -1161,12 +1161,22 @@ static int do_load_logo_from_ext4(cmd_tbl_t *cmdtp, int flag, int argc, char * c
     int iRet = 0;
     const char* ext4Part = argv[1];
     void* loadaddr = (void*)simple_strtoul(argv[2], NULL, 16);
+	int autoSelectSlot = 1;//auto detect if need add _a/_b
 
     if (argc > 3) {
         env_set("ext4LogoPath", argv[3]);
     } else {
         env_set("ext4LogoPath", "/logo_files/bootup.bmp");
     }
+	if (argc > 4) {
+		const char *paraAutoSel = argv[4];
+
+		autoSelectSlot = !memcmp(paraAutoSel, "true", 5);
+		if (!autoSelectSlot && strcmp(paraAutoSel, "false")) {
+			errorP("illegal para4 %s\n", paraAutoSel);
+			return CMD_RET_FAILURE;
+		}
+	}
 
     if (!loadaddr) {
         errorP("illgle loadaddr %s\n", argv[2]);
@@ -1179,7 +1189,8 @@ static int do_load_logo_from_ext4(cmd_tbl_t *cmdtp, int flag, int argc, char * c
     }
 
     env_set("bootLogoPart", ext4Part);
-    run_command("if test ${active_slot} != normal; then setenv bootLogoPart ${bootLogoPart}${active_slot}; printenv bootLogoPart; fi", 0);
+	if (autoSelectSlot)
+		run_command("if test ${active_slot} != normal; then setenv bootLogoPart ${bootLogoPart}${active_slot}; printenv bootLogoPart; fi", 0);
     const int partIndex = get_partition_num_by_name(env_get("bootLogoPart"));
     if (partIndex < 0) {
         errorP("fail find part index for name(%s)\n", env_get("bootLogoPart")); return CMD_RET_FAILURE;
@@ -1222,7 +1233,7 @@ static int do_load_logo_from_ext4(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 
 U_BOOT_CMD_COMPLETE(
    rdext4pic,                   //read ext4 picture
-   4,                           //maxargs
+	5,                           //maxargs
    0,                           //repeatable
    do_load_logo_from_ext4,      //command function
    "read logo bmp from ext4 part",           //description
