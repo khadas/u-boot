@@ -7,6 +7,9 @@
 #include <asm/arch/acs.h>
 #include <asm/arch/timing.h>
 #include "timing.c"
+#ifdef CONFIG_MDUMP_COMPRESS
+#include "ramdump_para.c"
+#endif
 
 dev_param_hdr_t __param_hdr __attribute__ ((section(".dev_header"))) = {
 	.magic = DEV_PARAM_MAGIC,
@@ -26,6 +29,12 @@ dev_param_hdr_t __param_hdr __attribute__ ((section(".dev_header"))) = {
 
 	.ddr_set_magic = "ddrs_",
 	.ddr_set_length = sizeof(__ddr_setting),
+
+#ifdef CONFIG_MDUMP_COMPRESS
+	.ramdump_set_magic = "mdump",
+	.ramdump_set_length = sizeof(__ramdump_data),
+#endif
+
 	._RFU = {
 		.ddr_buildin_fw = CONFIG_DDRFW_TYPE,
 	}

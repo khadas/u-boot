@@ -41,11 +41,13 @@ static void wait_usb_dev(void)
 
 	while (1) {
 		run_command("usb start", 1);
+		mdelay(2000);
+		run_command("usb reset", 1);
 		ret = usb_stor_scan(1);
 		if (ret) {
 			if (!(print_cnt & 0x3f)) {
 				print_cnt++;
-				printf("ramdump: can't find usb device, please insert a usb disk to save ramdump data\n");
+				printf("ramdump: can't find usb device, please insert Udisk.\n\n");
 			}
 			mdelay(10000);
 			continue;
@@ -88,7 +90,8 @@ __weak int ramdump_save_compress_data(void)
 		ramdump_base, ramdump_size);
 	printf("CMD:%s\n", cmd);
 	run_command(cmd, 1);
-	run_command("reset", 1);
+	//run_command("reset", 1);
+	printf("run fatwrite usb ok, boot kernel !\n");
 	return 0;
 }
 

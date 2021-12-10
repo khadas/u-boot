@@ -1,8 +1,8 @@
 SOURCES		+= acs_entry.S
 
-ifdef CONFIG_MDUMP_COMPRESS
-SOURCES		+=	ramdump.c
-endif
+# #ifdef CONFIG_MDUMP_COMPRESS
+# SOURCES		+=	ramdump.c
+# #endif
 
 SOURCES		+=	acs.c
 

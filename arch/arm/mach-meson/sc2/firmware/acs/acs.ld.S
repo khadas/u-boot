@@ -61,5 +61,13 @@ SECTIONS
 	}
 #endif
 
+#if defined(CONFIG_MDUMP_COMPRESS)
+	. = 0x00006800;
+	.ramdump_param :
+	{
+		*(.ramdump_param*)
+	}
+#endif
+
     ASSERT(. <= 0x00007000, "params image has exceeded its limit.")
 }
