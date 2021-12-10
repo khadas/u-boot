@@ -266,7 +266,7 @@ int fill_ept_by_gpt(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 				gpt_head, &gpt_pte) != 1) {
 		if (is_gpt_valid(dev_desc, (dev_desc->lba - 1),
 					gpt_head, &gpt_pte) != 1) {
-			printf("%s: invalid gpt ***\n", __func__);
+			printf("%s: invalid gpt\n", __func__);
 			return 1;
 		}
 		printf("%s: *** Using Backup GPT ***\n", __func__);
