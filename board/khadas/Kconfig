@@ -1,0 +1,176 @@
+# function list
+
+config PXP_EMULATOR
+	bool "Amlogic Pxp emulater flag"
+	help
+		Support PXP environment
+
+config PXP_DDR
+	bool "Amlogic Pxp ddr flag"
+	help
+		Support PXP ddr environment
+		If this config is open, then DDR is running under PXP/PTM mode,
+		Which is simulation by software. The behavivor is not same
+		as real SOC. This config must be closed if running on real
+		chips.
+
+config PXP_STO
+	bool "Amlogic Pxp storage flag"
+	help
+		Support PxP storage preload mode.
+		When it's enabled, data were load to ram background.
+		When it's disabled, data were load to the storage media
+		module which makes the routine works much more like the
+		silicon chip.
+
+config PXP_SCS
+	bool "Amlogic Pxp scs flag"
+	help
+		Support PXP scs environment
+		If this option is open, then SCS check may be disabled for
+		fast PXP bring up. This config should be closed if SCS feature
+		is ready.
+
+config KALLSYMS
+	bool "Support call stack dump when crash"
+	default y
+	help
+		This config can help to print call stack like linux kernel panic
+		when crash. It's very useful for debug crash issues.
+
+config AML_BL33_COMPRESS_ENABLE
+	bool "Amlogic U-boot compress"
+	help
+		Support U-boot compress function
+
+config AML_CRYPTO_AES
+	bool "Amlogic Crypto AES for Secure Boot"
+	help
+		"Support AES for Amlogic Secure Boot"
+
+config AML_SECURE_BOOT_V3
+	bool "Amlogic SecureBoot V3"
+	help
+		"Support Amlogic SecureBoot V3 version"
+
+config FIP_IMG_SUPPORT
+	bool "Amlogic FIP IMG format file"
+	help
+		"Support Amlogic FIP IMG format"
+
+config AML_SECURE_UBOOT
+	bool "Amlogic SecureBoot function"
+	help
+		"Support Amlogic SecureBoot function"
+
+config AML_CRYPTO_UBOOT
+	bool "Encrypt Amlogic U-boot"
+	help
+		"Support U-boot encrypt function"
+
+config UBOOT_RUN_IN_SRAM
+	bool "Amlogic U-boot run in sram"
+	default n
+	help
+		"Support Amlogic U-boot run in SRAM"
+
+config AML_TSENSOR
+	bool "Amlogic Temp Sensor"
+	help
+		"Support Amlogic Thermal Sensor"
+
+config AML_TSENSOR_COOL
+	bool "Amlogic HIGH TEMP COOL"
+	depends on AML_TSENSOR
+	help
+		"Support Amlogic High Temperature Cool"
+
+config AML_OSCRING
+	bool "Amlogic OSCRING MSR"
+	help
+		"Support Amlogic chip oscring msr"
+
+config SYS_VENDOR
+	string "Vendor name"
+	default "khadas"
+	help
+	  This option contains information about board name.
+	  Based on this option board/<CONFIG_SYS_VENDOR>/<CONFIG_SYS_BOARD> will
+	  be used.
+
+config NEED_BL32
+	bool "Enable bl32"
+	default n
+	help
+		"Support bl32 function"
+
+config RAMDISK_MEM_ADDR
+	hex
+	default 0x0a000000
+	help
+		"select ramdisk load address"
+
+config DTB_MEM_ADDR
+	hex
+	default 0x01000000
+	help
+		"select Device tree load address"
+
+config MULTI_DTB
+	bool "Amlogic Multi-DT function"
+	default n
+	help
+		"Support Multi-DT function"
+
+config DDR_FULL_FW
+	bool "full ddr fw support for soc using advanced boot loader"
+	default n
+	help
+		Support full ddr fw for soc using advanced boot loader as
+		bl2, such as sc2/t7/s4/t3....
+
+if MESON_T7
+
+config SYS_SOC
+	default "t7"
+
+config DDRFW_TYPE
+	string "T7 DDR FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+	string "T7 CHIPSET NAME"
+	default "POP1"
+
+config CHIPSET_VARIANT
+	string "T7 CHIPSET VARIANT"
+	default ""
+
+config AMLOGIC_KEY_TYPE
+	string "T7 AMLOGIC KEY TYPE"
+	default "dev-keys"
+
+config BL30_SELECT
+	string "T7 BL30 board config"
+	default "sc2_ah219"
+
+choice
+	prompt "T7 Board"
+
+config KHADAS_VIM4
+	bool "Khadas VIM4"
+	select TARGET_KHADAS_VIM4
+	help
+	  Select Khadas VIM4 config
+
+endchoice
+
+config TARGET_KHADAS_VIM4
+	bool "Khadas VIM4 board"
+	depends on KHADAS_VIM4
+
+endif
+
+# Khadas boards
+
+source "board/khadas/kvim4/Kconfig"
