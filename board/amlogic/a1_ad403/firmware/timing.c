@@ -327,4 +327,8 @@ bl2_reg_t __bl2_reg[] = {
 
 	/* set .value as a1_ad403 board_id */
 	{0, 11, 0, 0, BL2_INIT_STAGE_CHK_BOARD_ID, 0},
+
+	/* set battery low voltage to 3400 mV, and when battery voltage */
+	/* is low than 3400 mV,board power down */
+	{0, 3400, 0, 0, BL2_INIT_STAGE_BATTERY_LOW_VOLTAGE, 0},
 };

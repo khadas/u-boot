@@ -41,6 +41,7 @@
 #define BL2_INIT_STAGE_VDDCORE_TABLE		0x84
 #define BL2_INIT_STAGE_VDDCORE_CONFIG		0x85
 #define BL2_INIT_STAGE_VDDCORE_CONFIG_1		0x86
+#define BL2_INIT_STAGE_BATTERY_LOW_VOLTAGE	0x88
 
 typedef struct bl2_reg {
 	unsigned	int		reg;
