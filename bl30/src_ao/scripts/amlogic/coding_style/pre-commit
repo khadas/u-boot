@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# Amlogic gerrit code auto-fix script
+# Author: xiaobo.gu@amlogic.com
+# Init version: 2015.05.01
+
+if git rev-parse --verify HEAD 2>/dev/null >/dev/null
+then
+	against=HEAD
+else
+	# Initial commit: diff against an empty tree object
+	against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+fi
+
+# get current dir
+#CUR_P=$(dirname $0)
+CUR_P="./scripts/amlogic/coding_style"
+CUR_P=${CUR_P/\./$(pwd)}
+#echo $CUR_P
+
+# prepare variables
+REVIEW_OUTPUT=$CUR_P/review.txt
+#PATCH_FILE_NAME=$CUR_P/patch_name
+PATCH_FILE=$CUR_P/waiting_check.patch
+#CUR_P=`abspath $pwd`
+#echo $CUR_P
+
+# get latest patch
+#git format-patch -s -1 -o $CUR_P > $PATCH_FILE_NAME
+git diff --cached --stat -p $against -- > $PATCH_FILE
+#PATCH_NAME=`cat $PATCH_FILE_NAME`
+#echo $PATCH_NAME
+
+# check patch and generate review summary
+python $CUR_P/checkpatch.py $PATCH_FILE > $REVIEW_OUTPUT
+
+# fix files by review summary
+#python $CUR_P/auto_fix.py $REVIEW_OUTPUT
+parse_out=$(python $CUR_P/parse_review.py $REVIEW_OUTPUT)
+
+res=$(echo $parse_out | grep "Verified +1")
+if [ -z "$res" ]
+then
+	echo $parse_out
+	rm $REVIEW_OUTPUT
+	rm $PATCH_FILE
+	exit 1
+fi
+
+# cleanup
+#rm $PATCH_FILE_NAME
+#rm $PATCH_NAME
+
+rm $REVIEW_OUTPUT
+rm $PATCH_FILE
+exit 0

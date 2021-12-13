@@ -1,0 +1,31 @@
+gcc//wesion/users/hlm/A311D2-2/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o: \
+ /wesion/users/hlm/A311D2-2/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.c \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/stdlib.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/machine/ieeefp.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/_ansi.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/newlib-nano/newlib.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/_newlib_version.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/sys/config.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/sys/features.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/lib/gcc/riscv-none-embed/8.3.0/include/stddef.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/sys/reent.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/_ansi.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/sys/_types.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/machine/_types.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/machine/_default_types.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/sys/lock.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/sys/cdefs.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/machine/stdlib.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/alloca.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/stdint.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/sys/_intsup.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/sys/_stdint.h \
+ ../../../../../demos/amlogic/include/myprintf.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/lib/gcc/riscv-none-embed/8.3.0/include/stdarg.h \
+ ../../../../../demos/amlogic/include/common.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/errno.h \
+ /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/riscv-none-embed/include/sys/errno.h \
+ FreeRTOSConfig.h \
+ /wesion/users/hlm/A311D2-2/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.h \
+ ../../../../../demos/amlogic/n200/include/t7/mailbox.h \
+ ../../../../../demos/amlogic/n200/include/t7/register.h

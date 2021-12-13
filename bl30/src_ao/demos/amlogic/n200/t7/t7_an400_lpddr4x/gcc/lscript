@@ -1,0 +1,44 @@
+OUTPUT_FORMAT("elf32-littleriscv", "elf32-littleriscv",
+              "elf32-littleriscv")
+OUTPUT_ARCH("riscv")
+ENTRY( _start )
+MEMORY
+{
+    ram (rw) : ORIGIN = 0xf71ef000, LENGTH = (64 * 1024)
+}
+SECTIONS
+{
+    __stack_size = DEFINED(__stack_size) ? __stack_size : 2K;
+    .text :
+    {
+ *(.vtable)
+        . = ALIGN(4);
+        *(.text)
+        *(.rodata*)
+        _etext = .;
+    } > ram
+    .data :
+    {
+        _data = .;
+        *(vtable)
+        *(.data)
+        _edata = .;
+    } > ram
+    .bss :
+    {
+        _bss = .;
+        *(.sbss*)
+        *(.gnu.linkonce.sb.*)
+        *(.bss .bss.*)
+        *(.gnu.linkonce.b.*)
+        . = ALIGN(4);
+        _ebss = .;
+    } > ram
+    .stack :
+    {
+        PROVIDE( _heap_end = . );
+ . = ALIGN(1024);
+        . += __stack_size;
+        PROVIDE( _sp = . );
+    } >ram
+}
