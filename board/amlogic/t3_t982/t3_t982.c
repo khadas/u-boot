@@ -121,7 +121,7 @@ void board_init_mem(void) {
 	char *env_tmp;
 	env_tmp = env_get("bootm_size");
 	if (!env_tmp) {
-		ram_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffff) << 4;
+		ram_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffffUL) << 4;
 		if (ram_size >= 0xe0000000)
 			ram_size = 0xe0000000;
 
@@ -271,12 +271,12 @@ phys_size_t get_effective_memsize(void)
 
 	// >>16 -> MB, <<20 -> real size, so >>16<<20 = <<4
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
-	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffff) << 4;
+	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffffUL) << 4;
 	if (ddr_size >= 0xe0000000)
 		ddr_size = 0xe0000000;
 	return (ddr_size - CONFIG_SYS_MEM_TOP_HIDE);
 #else
-	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffff) << 4;
+	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffffUL) << 4;
 	if (ddr_size >= 0xe0000000)
 		ddr_size = 0xe0000000;
 	return ddr_size
@@ -317,7 +317,7 @@ struct mm_region *mem_map = bd_mem_map;
 
 int mach_cpu_init(void) {
 	//printf("\nmach_cpu_init\n");
-	unsigned long nddrSize = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffff) << 4;
+	unsigned long nddrSize = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffffUL) << 4;
 
 	if ( nddrSize <= 0xe0000000 )
 		bd_mem_map[0].size = nddrSize;
