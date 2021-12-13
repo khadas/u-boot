@@ -66,11 +66,15 @@
 #ifdef CONFIG_POWER_FUSB302
 #include <fusb302.h>
 #endif
+#include <asm/saradc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 //new static eth setup
 struct eth_board_socket*  eth_board_skt;
+#define HW_VERSION_ADC_VALUE_TOLERANCE   0x28
+#define HW_EXT_BOARD_ADC              0x77
+
 
 void sys_led_init(void)
 {
@@ -84,6 +88,21 @@ int serial_set_pin_port(unsigned long port_base)
     //GPIOAO_0==tx,GPIOAO_1==rx
     //setbits_le32(P_AO_RTI_PIN_MUX_REG,3<<11);
     return 0;
+}
+
+void ext_board_detect(void)
+{
+        int val;
+        saradc_enable();
+        udelay(100);
+
+        val = get_adc_sample_gxbb(0);
+        if ((val > (HW_EXT_BOARD_ADC - HW_VERSION_ADC_VALUE_TOLERANCE))  && (val < (HW_EXT_BOARD_ADC + HW_VERSION_ADC_VALUE_TOLERANCE)))
+                setenv("ext_board_exist", "1");
+        else
+                setenv("ext_board_exist", "0");
+        saradc_disable();
+
 }
 
 int dram_init(void)
@@ -809,6 +828,7 @@ int board_late_init(void)
         board_lcd_detect();
 #endif
 	lcd_probe();
+        ext_board_detect();
 #endif
 
 #ifdef CONFIG_AML_V2_FACTORY_BURN
