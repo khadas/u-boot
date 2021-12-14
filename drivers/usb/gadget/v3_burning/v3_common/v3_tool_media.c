@@ -428,6 +428,7 @@ int v3tool_storage_init(const int eraseFlash, unsigned int dtbImgSz, unsigned in
 {
 	int ret = 0;
 	unsigned char* dtbLoadedAddr = (unsigned char*)V3_DTB_LOAD_ADDR;
+	unsigned char *gptLoadedAddr = (unsigned char *)V3_GPT_LOAD_ADDR;
 
 	if (V3TOOL_WORK_MODE_USB_PRODUCE != v3tool_work_mode_get()) {//Already inited in other work mode
 		/*DWN_MSG("Exit before re-init\n");*/
@@ -449,7 +450,7 @@ int v3tool_storage_init(const int eraseFlash, unsigned int dtbImgSz, unsigned in
 			ret = get_partition_from_dts(dtbLoadedAddr);
 		if (ret) FBS_EXIT(_ACK, "Failed at check dts\n");
 	} else if (gptImgSz) {
-		if (get_partition_from_dts((unsigned char *)V3_GPT_LOAD_ADDR))
+		if (get_partition_from_dts(gptLoadedAddr))
 			FBS_EXIT(_ACK, "Fail at check gpt\n");
 		else
 			FB_MSG("Parse partition table from GPT\n");
@@ -508,18 +509,27 @@ int v3tool_storage_init(const int eraseFlash, unsigned int dtbImgSz, unsigned in
 		ret = store_rsv_erase("key");
 		if (ret) FBS_EXIT(_ACK, "disk_initial 5, Fail in erase key\n");
 	} else if (initFlag > 1) {
-		ret = store_erase(NULL, 0, 0, 0);
-		if (ret) FBS_EXIT(_ACK, "Fail in erase flash, ret[%d]\n", ret);
+		FB_MSG("dtbImgSz 0x%x, gptImgSz 0x%x\n", dtbImgSz, gptImgSz);
 		if (store_get_type() == BOOT_EMMC) {
-			FB_MSG("TO erase gpt for compatible\n");
-			store_gpt_erase();
-			if (dtbImgSz) {
-				FB_MSG("to update dtb for compatible\n");
-				ret = store_rsv_write("dtb", dtbImgSz, dtbLoadedAddr);
+			if (gptImgSz) {//gpt first if both exist gpt/dtb
+				FB_MSG("To erase dtb && update gpt for gpt from dtb\n");
+				ret = store_rsv_erase("dtb");
 				if (ret)
 					FB_WRN("Fail in erase dtb\n");
+				ret = store_gpt_ops(gptImgSz, gptLoadedAddr, 1);
+				if (ret)
+					FB_WRN("Fail in update gpt\n");
+			} else if (dtbImgSz) {
+				FB_MSG("To erase gpt && update dtb for gpt to dtb\n");
+				store_gpt_erase();
+				ret = store_rsv_write("dtb", dtbImgSz, dtbLoadedAddr);
+				if (ret)
+					FB_WRN("Fail in update dtb\n");
 			}
 		}
+		ret = store_erase(NULL, 0, 0, 0);
+		if (ret)
+			FBS_EXIT(_ACK, "Fail in erase flash, ret[%d]\n", ret);
 #ifdef CONFIG_BACKUP_PART_NORMAL_ERASE
 		if (backupPartSz) {
 			FB_MSG("restore BackupPart %s from mem\n", BackupPart);

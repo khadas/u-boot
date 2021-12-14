@@ -898,7 +898,6 @@ static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 		int gptImgSz = (_memDtbImg[1].hadDown == 0x1b8e) ? _memDtbImg[1].imgSize : 0;
 
 		ret = v3tool_storage_init(toErase, dtbImgSz, gptImgSz);
-		memset(_memDtbImg, 0, sizeof(_memDtbImg));
 	} else if( !strcmp("save_setting", argv[0]) ){
 #if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
 		env_set("firstboot", "1");
