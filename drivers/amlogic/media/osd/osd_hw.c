@@ -569,12 +569,17 @@ int osd_set_scan_mode(u32 index)
 	}
 	if (osd_hw.free_scale_enable[index])
 		osd_hw.scan_mode = SCAN_MODE_PROGRESSIVE;
-	if (index == OSD2) {
+
+	if (index == OSD1) {
+		data32 = (osd_reg_read(VIU_OSD1_BLK0_CFG_W0) & 3) >> 1;
+	} else if (index == OSD2) {
 		if (real_scan_mode == SCAN_MODE_INTERLACE)
 			return 1;
 		/* data32 = (osd_reg_read(VIU_OSD2_BLK0_CFG_W0) & 3) >> 1; */
-	} else
-		data32 = (osd_reg_read(VIU_OSD1_BLK0_CFG_W0) & 3) >> 1;
+	} else {
+		data32 = (osd_reg_read(VIU_OSD3_BLK0_CFG_W0) & 3) >> 1;
+	}
+
 	if (data32 == osd_hw.scan_mode)
 		return 1;
 	else
