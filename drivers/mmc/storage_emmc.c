@@ -763,6 +763,7 @@ int mmc_gpt_write(void *source)
 	if (get_ept_from_gpt(mmc) != 0)
 		printf("get ept from gpt failed\n");
 
+	part_init(dev_desc);
 	printf("update gpt and ept success\n");
 	return 0;
 }

@@ -1375,8 +1375,11 @@ int mmc_device_init (struct mmc *mmc)
 	ret = get_ept_from_gpt(mmc);
 	if (!ret) {
 #ifdef CONFIG_AML_PARTITION
+		/* init part again */
+		part_init(mmc_get_blk_desc(mmc));
 		return enable_rsv_part_table(mmc);
 #else
+		part_init(mmc_get_blk_desc(mmc));
 		return ret;
 #endif
 	}
