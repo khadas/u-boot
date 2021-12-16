@@ -165,7 +165,7 @@ typedef struct bootloader_control {
 	// Status of any pending snapshot merge of dynamic partitions.
 	uint8_t merge_status : 3;
 	// Ensure 4-bytes alignment for slot_info field.
-	uint8_t reserved0[1];
+	u8 roll_flag;
 	// Per-slot information.  Up to 4 slots.
 	struct slot_metadata slot_info[4];
 	// Reserved for further use.
@@ -188,7 +188,7 @@ struct misc_virtual_ab_message {
 #define MISC_VIRTUAL_AB_MESSAGE_VERSION 2
 #define MISC_VIRTUAL_AB_MAGIC_HEADER 0x56740AB0
 
-unsigned int kDefaultBootAttempts = 7;
+unsigned int kDefaultBootAttempts = 4;
 
 /* Magic for the A/B struct when serialized. */
 #define AVB_AB_MAGIC "\0AB0"
@@ -203,7 +203,7 @@ unsigned int kDefaultBootAttempts = 7;
 
 /* Maximum values for slot data */
 #define AVB_AB_MAX_PRIORITY 15
-#define AVB_AB_MAX_TRIES_REMAINING 7
+#define AVB_AB_MAX_TRIES_REMAINING 4
 
 /* Struct used for recording per-slot metadata.
  *
@@ -242,7 +242,8 @@ typedef struct AvbABData {
 	uint8_t version_minor;
 
 	/* Padding to ensure |slots| field start eight bytes in. */
-	uint8_t reserved1[2];
+	u8 roll_flag;
+	u8 reserved1[1];
 
 	/* Per-slot metadata. */
 	AvbABSlotData slots[2];
@@ -286,6 +287,7 @@ void boot_info_reset(bootloader_control* boot_ctrl)
 	boot_ctrl->magic = BOOT_CTRL_MAGIC;
 	boot_ctrl->version = BOOT_CTRL_VERSION;
 	boot_ctrl->nb_slot = 2;
+	boot_ctrl->roll_flag = 0;
 
 	for (slot = 0; slot < 4; ++slot) {
 		slot_metadata entry = {};
@@ -392,6 +394,7 @@ int boot_info_set_active_slot(bootloader_control* bootctrl, int slot)
 
 	for (i = 0; i < bootctrl->nb_slot; ++i) {
 		if (i != slot) {
+			bootctrl->slot_info[i].priority -= 1;
 			if (bootctrl->slot_info[i].priority >= kActivePriority)
 				bootctrl->slot_info[i].priority = kActivePriority - 1;
 		}
@@ -586,6 +589,13 @@ static int do_GetValidSlot(
 			sprintf(str_count, "%d", info.slots[1].tries_remaining);
 			setenv("retry-count_b", str_count);
 		}
+		boot_info_reset(&boot_ctrl);
+		boot_ctrl.slot_info[0].successful_boot = info.slots[0].successful_boot;
+		boot_ctrl.slot_info[1].successful_boot = info.slots[1].successful_boot;
+		boot_info_set_active_slot(&boot_ctrl, slot);
+		boot_ctrl.roll_flag = info.roll_flag;
+		boot_info_save(&boot_ctrl, miscbuf);
+		slot = get_active_slot(&boot_ctrl);
 	} else {
 		slot = get_active_slot(&boot_ctrl);
 		bootable_a = slot_is_bootable(&boot_ctrl.slot_info[0]);
@@ -630,6 +640,8 @@ static int do_GetValidSlot(
 
 			set_mergestatus_cancel(&message);
 #endif
+			boot_ctrl.roll_flag = 1;
+			boot_info_save(&boot_ctrl, miscbuf);
 			run_command("set_active_slot b", 0);
 			setenv("default_env", "1");
 			run_command("saveenv", 0);
@@ -664,6 +676,8 @@ static int do_GetValidSlot(
 
 			set_mergestatus_cancel(&message);
 #endif
+			boot_ctrl.roll_flag = 1;
+			boot_info_save(&boot_ctrl, miscbuf);
 			run_command("set_active_slot a", 0);
 			setenv("default_env", "1");
 			run_command("saveenv", 0);
@@ -689,6 +703,8 @@ static int do_GetValidSlot(
 		set_mergestatus_cancel(&message);
 #endif
 		if (slot == 0) {
+			boot_ctrl.roll_flag = 1;
+			boot_info_save(&boot_ctrl, miscbuf);
 			run_command("set_active_slot b", 0);
 			setenv("default_env", "1");
 			run_command("saveenv", 0);
@@ -700,6 +716,8 @@ static int do_GetValidSlot(
 				run_command("run init_display; run storeargs; run update;", 0);
 			}
 		} else if (slot == 1) {
+			boot_ctrl.roll_flag = 1;
+			boot_info_save(&boot_ctrl, miscbuf);
 			run_command("set_active_slot a", 0);
 			setenv("default_env", "1");
 			run_command("saveenv", 0);
@@ -762,6 +780,98 @@ static int do_SetActiveSlot(
 	}
 
 	boot_info_save(&info, miscbuf);
+
+	printf("info.roll_flag = %d\n", info.roll_flag);
+
+	if (info.roll_flag == 1) {
+		printf("if null gpt, write dtb back when rollback\n");
+		run_command("imgread dtb ${boot_part} ${dtb_mem_addr}", 0);
+		run_command("emmc dtb_write ${dtb_mem_addr} 0", 0);
+	}
+
+	return 0;
+}
+
+static int do_SetRollFlag
+(cmd_tbl_t *cmdtp,
+	int flag,
+	int argc,
+	char * const argv[])
+{
+	char miscbuf[MISCBUF_SIZE] = {0};
+	bootloader_control info;
+
+	if (argc != 2)
+		return cmd_usage(cmdtp);
+
+	if (has_boot_slot == 0) {
+		printf("device is not ab mode\n");
+		return -1;
+	}
+
+	boot_info_open_partition(miscbuf);
+	boot_info_load(&info, miscbuf);
+
+	if (!boot_info_validate(&info)) {
+		printf("boot-info is invalid. Resetting.\n");
+		return 0;
+	}
+
+	if (strcmp(argv[1], "1") == 0)
+		info.roll_flag = 1;
+	else
+		info.roll_flag = 0;
+
+	boot_info_save(&info, miscbuf);
+
+	printf("set info.roll_flag = %d\n", info.roll_flag);
+
+	return 0;
+}
+
+static int do_SetUpdateTries
+(cmd_tbl_t *cmdtp,
+	int flag,
+	int argc,
+	char * const argv[])
+{
+	char miscbuf[MISCBUF_SIZE] = {0};
+	bootloader_control boot_ctrl;
+	bool bootable_a, bootable_b;
+	int slot;
+
+	boot_info_open_partition(miscbuf);
+	boot_info_load(&boot_ctrl, miscbuf);
+
+	if (!boot_info_validate(&boot_ctrl)) {
+		printf("boot-info is invalid. Resetting\n");
+		boot_info_reset(&boot_ctrl);
+		boot_info_save(&boot_ctrl, miscbuf);
+	}
+
+	slot = get_active_slot(&boot_ctrl);
+	bootable_a = slot_is_bootable(&boot_ctrl.slot_info[0]);
+	bootable_b = slot_is_bootable(&boot_ctrl.slot_info[1]);
+
+	if (slot == 0) {
+		if (bootable_a) {
+			if (boot_ctrl.slot_info[0].successful_boot == 0)
+				boot_ctrl.slot_info[0].tries_remaining -= 1;
+		}
+	}
+
+	if (slot == 1) {
+		if (bootable_b) {
+			if (boot_ctrl.slot_info[1].successful_boot == 0)
+				boot_ctrl.slot_info[1].tries_remaining -= 1;
+		}
+	}
+
+	boot_info_save(&boot_ctrl, miscbuf);
+
+	printf("%s boot_ctrl.roll_flag = %d\n", __func__, boot_ctrl.roll_flag);
+	if (boot_ctrl.roll_flag == 1)
+		setenv("rollback_flag", "1");
 
 	return 0;
 }
@@ -863,6 +973,20 @@ set_active_slot, 2, 1, do_SetActiveSlot,
 "set_active_slot",
 "\nThis command will set active slot\n"
 "So you can execute command: set_active_slot a"
+);
+
+U_BOOT_CMD
+(set_roll_flag, 2, 1, do_SetRollFlag,
+	"set_roll_flag",
+	"\nThis command will set active slot\n"
+	"So you can execute command: set_active_slot a"
+);
+
+U_BOOT_CMD
+(update_tries, 2, 0, do_SetUpdateTries,
+	"update_tries",
+	"\nThis command will change tries_remaining in misc\n"
+	"So you can execute command: update_tries"
 );
 
 U_BOOT_CMD(

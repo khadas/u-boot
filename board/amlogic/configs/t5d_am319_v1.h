@@ -116,6 +116,7 @@
         "video_reverse=0\0"\
         "active_slot=normal\0"\
         "boot_part=boot\0"\
+		"rollback_flag=0\0"\
 	"boot_flag=0\0"\
         "suspend=off\0"\
         "powermode=on\0"\
@@ -260,6 +261,7 @@
                     "setenv bootargs ${bootargs} root=/dev/mmcblk0p24;"\
                 "fi;fi;"\
             "fi;"\
+			"setenv bootargs ${bootargs} androidboot.rollback=${rollback_flag};"\
             "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
             "run update;"\
             "\0"\
