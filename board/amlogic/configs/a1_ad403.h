@@ -217,8 +217,15 @@
 			"fi;"\
 			"setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
 			"\0"\
+		"upgrade_key="\
+			"saradc open 0;"\
+			"if saradc get_in_range 490 530; then "\
+			"echo detect upgrade key; run update;"\
+			"fi;"\
+			"\0"\
 
 #define CONFIG_PREBOOT  \
+	"run upgrade_key; "\
 	"run bcb_cmd; "\
 	"run upgrade_check;"\
 	"run storeargs;" \
