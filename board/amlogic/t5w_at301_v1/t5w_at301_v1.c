@@ -732,8 +732,9 @@ int board_late_init(void)
 #endif//#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE
 
 	TE(__func__);
-    if (getenv("outputmode"))
-	strncpy(outputModeCur, getenv("outputmode"), 29);
+	if (getenv("outputmode")) {
+		strncpy(outputModeCur, getenv("outputmode"), 29);
+	}
 	if (strcmp(outputModeCur,outputModePre)) {
 		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
 		run_command("saveenv", 0);

@@ -86,10 +86,11 @@ int32_t meson_trustzone_efuse(struct efuse_hal_api_arg *arg)
 	offset = arg->offset;
 	size = arg->size;
 
-	if (arg->cmd == EFUSE_HAL_API_WRITE)
+	if (arg->cmd == EFUSE_HAL_API_WRITE) {
 		memcpy((void *)sharemem_input_base,
 		       (const void *)arg->buffer_phy, size);
-		asm __volatile__("" : : : "memory");
+	}
+	asm __volatile__("" : : : "memory");
 
 	register uint64_t x0 asm("x0") = cmd;
 	register uint64_t x1 asm("x1") = offset;
