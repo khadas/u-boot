@@ -72,13 +72,13 @@
         "loadaddr_kernel=0x01080000\0"\
         "otg_device=1\0" \
         "panel_type=vbyone_0\0" \
-        "panel1_type=vbyone_0\0" \
+        "panel1_type=vbyone_1\0" \
         "panel2_type=lvds_1\0" \
         "lcd_ctrl=0x00000000\0" \
         "lcd1_ctrl=0x00000000\0" \
         "lcd2_ctrl=0x00000000\0" \
         "lcd_debug=0x00000000\0" \
-        "outputmode=panel2\0" \
+        "outputmode=panel1\0" \
         "outputmode2=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
