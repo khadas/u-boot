@@ -320,6 +320,9 @@ static void lcd_module_enable(char *mode, unsigned int frac)
 		if (boot_ctrl.lcd_init_level == LCD_INIT_LEVEL_NORMAL) {
 			lcd_interface_on();
 			lcd_backlight_enable();
+		} else {
+			LCDPR("bypass interface for init_level %d\n",
+			      boot_ctrl.lcd_init_level);
 		}
 	}
 	if (!lcd_debug_test)
@@ -709,17 +712,18 @@ static int lcd_mode_probe(char *dt_addr, int load_id)
 
 	/* load lcd config */
 	switch (aml_lcd_driver.lcd_config->lcd_mode) {
-#ifdef CONFIG_AML_LCD_TV
 	case LCD_MODE_TV:
+#ifdef CONFIG_AML_LCD_TV
 		ret = get_lcd_tv_config(dt_addr, load_id);
-		break;
 #endif
-#ifdef CONFIG_AML_LCD_TABLET
+		break;
 	case LCD_MODE_TABLET:
+#ifdef CONFIG_AML_LCD_TABLET
 		ret = get_lcd_tablet_config(dt_addr, load_id);
-		break;
 #endif
+		break;
 	default:
+		ret = -1;
 		LCDERR("invalid lcd mode: %d\n", aml_lcd_driver.lcd_config->lcd_mode);
 		break;
 	}

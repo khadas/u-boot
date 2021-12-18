@@ -46,7 +46,8 @@
 /* 20210608: add tcon multi lut support*/
 /* 20211009: support 59 & 47 frame rate for tv mode*/
 /* 20211009: add t5w support*/
-#define LCD_DRV_VERSION    "20211102"
+/* 20211210: support load tcon bin by ioctl*/
+#define LCD_DRV_VERSION    "20211210"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
