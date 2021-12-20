@@ -88,24 +88,24 @@ gp0_pll_cfg_t gp0_pll_cfg = {
 
 gp1_pll_cfg_t gp1_pll_cfg = {
 	.gp1_pll[0] = {
-		.pll_clk   = 6000, /* MHz */
-		.pll_cntl0 = 0x080304fa,
-		.pll_cntl1 = 0x00000000,
-		.pll_cntl2 = 0x00000000,
-		.pll_cntl3 = 0x48681c00,
-		.pll_cntl4 = 0x88770290,
-		.pll_cntl5 = 0x39272000,
-		.pll_cntl6 = 0x56540000
+		.pll_clk   = 1608, /* MHz */
+		.pll_cntl0 = 0x20011086,
+		.pll_cntl1 = 0x30011086,
+		.pll_cntl2 = 0x1420500f,
+		.pll_cntl3 = 0x00023041,
+		.pll_cntl4 = 0x0,
+		.pll_cntl5 = 0x10011086,
+		.pll_cntl6 = 0x00023001
 	},
 	.gp1_pll[1] = {
-		.pll_clk   = 3000, /* MHz */
-		.pll_cntl0 = 0X0803047d,
-		.pll_cntl1 = 0x00006aab,
-		.pll_cntl2 = 0x00000000,
-		.pll_cntl3 = 0x6a295c00,
-		.pll_cntl4 = 0x65771290,
-		.pll_cntl5 = 0x39272000,
-		.pll_cntl6 = 0x54540000
+		.pll_clk   = 1500, /* MHz */
+		.pll_cntl0 = 0x2001107d,
+		.pll_cntl1 = 0x3001107d,
+		.pll_cntl2 = 0x1420500f,
+		.pll_cntl3 = 0x00023041,
+		.pll_cntl4 = 0x0,
+		.pll_cntl5 = 0x1001107d,
+		.pll_cntl6 = 0x00023001
 	},
 };
 
@@ -157,23 +157,23 @@ hdmirx_pll_cfg_t hdmirx_pll_cfg = {
 sys_pll_cfg_t sys_pll_cfg = {
 	.sys_pll[0] = {
 		.cpu_clk   = 750,
-		.pll_cntl  = 0x080304fa,
-		.pll_cntl1 = 0x0,
-		.pll_cntl2 = 0x0,
-		.pll_cntl3 = 0x48681c00,
-		.pll_cntl4 = 0x88770290,
-		.pll_cntl5 = 0x39272000,
-		.pll_cntl6 = 0x56540000
+		.pll_cntl  = 0x2001207D,
+		.pll_cntl1 = 0x3001207D,
+		.pll_cntl2 = 0x1420500f,
+		.pll_cntl3 = 0x00023041,
+		.pll_cntl4 = 0x0,
+		.pll_cntl5 = 0x1001207D,
+		.pll_cntl6 = 0x00023001,
 	},
 	.sys_pll[1] = {
 		.cpu_clk   = 375,
-		.pll_cntl  = 0x0803047d,
-		.pll_cntl1 = 0x0,
-		.pll_cntl2 = 0x0,
-		.pll_cntl3 = 0x48681c00,
-		.pll_cntl4 = 0x88770290,
-		.pll_cntl5 = 0x39272000,
-		.pll_cntl6 = 0x56540000
+		.pll_cntl  = 0x2001307D,
+		.pll_cntl1 = 0x3001307D,
+		.pll_cntl2 = 0x1420500f,
+		.pll_cntl3 = 0x00023041,
+		.pll_cntl4 = 0x0,
+		.pll_cntl5 = 0x1001307D,
+		.pll_cntl6 = 0x00023001,
 	},
 };
 
@@ -403,14 +403,15 @@ static int sys_pll_init(sys_pll_set_t * sys_pll_set)
 	unsigned int lock_check = PLL_LOCK_CHECK_MAX;
 
 	do {
-		Wr(HHI_SYS_PLL_CNTL0, sys_pll_set->pll_cntl | (1 << 29));
-		Wr(HHI_SYS_PLL_CNTL1, sys_pll_set->pll_cntl1);
-		Wr(HHI_SYS_PLL_CNTL2, sys_pll_set->pll_cntl2);
-		Wr(HHI_SYS_PLL_CNTL3, sys_pll_set->pll_cntl3);
-		Wr(HHI_SYS_PLL_CNTL4, sys_pll_set->pll_cntl4);
-		Wr(HHI_SYS_PLL_CNTL5, sys_pll_set->pll_cntl5);
-		Wr(HHI_SYS_PLL_CNTL0, ((1 << 30) | ( 1<< 29) | sys_pll_set->pll_cntl));
-		Wr(HHI_SYS_PLL_CNTL0, Rd(HHI_SYS_PLL_CNTL0)&(~(1<<29)));
+		Wr(HHI_SYS_PLL_CNTL0, sys_pll_set->pll_cntl);
+		Wr(HHI_SYS_PLL_CNTL0, sys_pll_set->pll_cntl1);
+		Wr(HHI_SYS_PLL_CNTL1, sys_pll_set->pll_cntl2);
+		Wr(HHI_SYS_PLL_CNTL2, sys_pll_set->pll_cntl3);
+		Wr(HHI_SYS_PLL_CNTL3, sys_pll_set->pll_cntl4);
+		_udelay(20);
+		Wr(HHI_SYS_PLL_CNTL0, sys_pll_set->pll_cntl5);
+		_udelay(20);
+		Wr(HHI_SYS_PLL_CNTL2, sys_pll_set->pll_cntl6);
 		_udelay(20);
 	} while((!((readl(HHI_SYS_PLL_CNTL0)>>31)&0x1)) && --lock_check);
 	if (lock_check != 0)
@@ -426,20 +427,15 @@ static int sys_pll_test(sys_pll_set_t * sys_pll_set)
 	unsigned int sys_clk = 0;
 	int ret=0;
 
+	/* enable CPU clk msr cntl bit */
+	writel(clk_msr_reg | SYS_PLL_DIV16_CNTL | SYS_CLK_DIV16_CNTL, HHI_SYS_CPU_CLK_CNTL1);
 	/* switch sys clk to oscillator */
-	clocks_set_sys_cpu_clk( 0, 0, 0, 0);
-
-	/* store current sys pll cntl */
-	sys_pll_set_t sys_pll;
-	sys_pll.pll_cntl = readl(HHI_SYS_PLL_CNTL0);
-	sys_pll.pll_cntl1 = readl(HHI_SYS_PLL_CNTL1);
-	sys_pll.pll_cntl2 = readl(HHI_SYS_PLL_CNTL2);
-	sys_pll.pll_cntl3 = readl(HHI_SYS_PLL_CNTL3);
-	sys_pll.pll_cntl4 = readl(HHI_SYS_PLL_CNTL4);
-	sys_pll.pll_cntl5 = readl(HHI_SYS_PLL_CNTL5);
+	clocks_set_sys_cpu_clk(1000, 0, 0, 0);
 
 	if (sys_pll_set->cpu_clk == 0) {
-		sys_clk = (24 / ((sys_pll_set->pll_cntl>>10)&0x1F) * (sys_pll_set->pll_cntl&0x1FF)) >> ((sys_pll_set->pll_cntl>>16)&0x3);
+		sys_clk = (24 / ((sys_pll_set->pll_cntl >> 16) & 0x1F) *
+			(sys_pll_set->pll_cntl & 0x1FF))
+			>> ((sys_pll_set->pll_cntl >> 12) & 0x7);
 	}
 	else {
 		sys_clk = sys_pll_set->cpu_clk;
@@ -451,8 +447,6 @@ static int sys_pll_test(sys_pll_set_t * sys_pll_set)
 	/* store CPU clk msr reg, restore it when test done */
 	clk_msr_reg = readl(HHI_SYS_CPU_CLK_CNTL1);
 
-	/* enable CPU clk msr cntl bit */
-	writel(clk_msr_reg | SYS_PLL_DIV16_CNTL | SYS_CLK_DIV16_CNTL, HHI_SYS_CPU_CLK_CNTL1);
 
 	if (0 == sys_pll_set->pll_cntl) {
 		printf("sys pll cntl equal NULL, skip\n");
@@ -467,6 +461,7 @@ static int sys_pll_test(sys_pll_set_t * sys_pll_set)
 	_udelay(100);
 	if (ret) {
 		printf("SYS pll lock Failed! - %4d MHz\n", sys_clk);
+		return ret;
 	} else {
 		printf("SYS pll lock OK! - %4d MHz. Div16 - %4d MHz. ", sys_clk, sys_clk >> PLL_DIV16_OFFSET);
 		clk_msr_val = clk_util_clk_msr(17);
@@ -480,8 +475,6 @@ static int sys_pll_test(sys_pll_set_t * sys_pll_set)
 		}
 	}
 
-	/* restore sys pll */
-	sys_pll_init(&sys_pll);
 	clocks_set_sys_cpu_clk( 1, 0, 0, 0);
 
 	/* restore clk msr reg */
@@ -684,6 +677,71 @@ static int gp0_pll_test_all(gp0_pll_cfg_t * gp0_pll_cfg)
 	int ret = 0;
 	for (i = 0; i < (sizeof(gp0_pll_cfg_t) / sizeof(gp0_pll_set_t)); i++)
 		ret += gp0_pll_test(&(gp0_pll_cfg->gp0_pll[i]));
+	return ret;
+}
+
+static int gp1_pll_test(gp1_pll_set_t *gp1_pll)
+{
+	unsigned int pll_clk = 0;
+	int ret = 0;
+	unsigned int lock_check = PLL_LOCK_CHECK_MAX;
+	unsigned int clk_msr_val = 0, od = 0, m = 0, n = 0;
+
+	od = (gp1_pll->pll_cntl0 >> 12) & 0x7;
+
+	if (gp1_pll->pll_clk == 0) {
+		m = gp1_pll->pll_cntl0 & 0x1FF;
+		n = (gp1_pll->pll_cntl0 >> 16) & 0x1F;
+		pll_clk = (24 *  m / n) >> od;
+	} else {
+		pll_clk = gp1_pll->pll_clk;
+	}
+
+	writel(gp1_pll->pll_cntl0, HHI_GP1_PLL_CNTL0);
+	writel(gp1_pll->pll_cntl1, HHI_GP1_PLL_CNTL0);
+	writel(gp1_pll->pll_cntl2, HHI_GP1_PLL_CNTL1);
+	writel(gp1_pll->pll_cntl3, HHI_GP1_PLL_CNTL2);
+	writel(gp1_pll->pll_cntl4, HHI_GP1_PLL_CNTL3);
+	_udelay(20);
+	writel(gp1_pll->pll_cntl5, HHI_GP1_PLL_CNTL0);
+	_udelay(20);
+	writel(gp1_pll->pll_cntl6, HHI_GP1_PLL_CNTL2);
+	_udelay(10);
+	do {
+		writel(readl(HHI_GP1_PLL_CNTL0) | (1 << 29),
+				HHI_GP1_PLL_CNTL0);
+		_udelay(10);
+		writel(readl(HHI_GP1_PLL_CNTL0) & (~(1 << 29)),
+				HHI_GP1_PLL_CNTL0);
+		_udelay(100);
+	} while ((!((readl(HHI_GP1_PLL_CNTL0) >> 31) & 0x1)) && --lock_check);
+
+	if (lock_check == 0) {
+		printf("GP1 pll lock Failed! - %4d MHz\n", pll_clk);
+		ret = RET_PLL_LOCK_FAIL;
+	} else {
+		printf("GP1 pll lock OK! - %4d MHz >>%d - %4d MHz. ",
+			pll_clk, od, pll_clk >> od);
+		/* get gp1_pll_clk */
+		clk_msr_val = clk_util_clk_msr(86);
+		printf("CLKMSR(86) - %4d MHz ", clk_msr_val);
+		if (clk_around(clk_msr_val, pll_clk)) {
+			printf(": Match\n");
+		} else {
+			printf(": MisMatch\n");
+			ret = RET_CLK_NOT_MATCH;
+		}
+	}
+	return ret;
+}
+
+static int gp1_pll_test_all(gp1_pll_cfg_t *gp1_pll_cfg)
+{
+	unsigned int i = 0;
+	int ret = 0;
+
+	for (i = 0; i < (sizeof(gp1_pll_cfg_t) / sizeof(gp1_pll_set_t)); i++)
+		ret += gp1_pll_test(&gp1_pll_cfg->gp1_pll[i]);
 	return ret;
 }
 
@@ -1025,6 +1083,7 @@ int pll_test(int argc, char * const argv[])
 	sys_pll_set_t sys_pll_set = {0};
 	hdmirx_pll_set_t hdmirx_pll_set = {0};
 	gp0_pll_set_t gp0_pll_set = {0};
+	gp1_pll_set_t gp1_pll_set = {0};
 	hifi_pll_set_t hifi_pll_set = {0};
 	adc_pll_set_t adc_pll_set = {0};
 	m_pll_set_t m_pll_set = {0};
@@ -1097,48 +1156,73 @@ int pll_test(int argc, char * const argv[])
 		if (argc == 2) {
 			ret = gp0_pll_test_all(&gp0_pll_cfg);
 			pll_report(ret, STR_PLL_TEST_GP0);
-		} else if (argc != 9) {
+		} else if (argc != 11) {
 			printf("%s pll test: args error\n", STR_PLL_TEST_GP0);
 			return -1;
 		} else {
 			gp0_pll_set.pll_cntl0 = simple_strtoul(argv[2], NULL,
 							16);
-			gp0_pll_set.pll_cntl1 = simple_strtoul(argv[3], NULL,
+			gp0_pll_set.pll_cntl1 = simple_strtoul(argv[4], NULL,
 							16);
-			gp0_pll_set.pll_cntl2 = simple_strtoul(argv[4], NULL,
+			gp0_pll_set.pll_cntl2 = simple_strtoul(argv[5], NULL,
 							16);
-			gp0_pll_set.pll_cntl3 = simple_strtoul(argv[5], NULL,
+			gp0_pll_set.pll_cntl3 = simple_strtoul(argv[6], NULL,
 							16);
-			gp0_pll_set.pll_cntl4 = simple_strtoul(argv[6], NULL,
+			gp0_pll_set.pll_cntl4 = simple_strtoul(argv[7], NULL,
 							16);
-			gp0_pll_set.pll_cntl5 = simple_strtoul(argv[7], NULL,
+			gp0_pll_set.pll_cntl5 = simple_strtoul(argv[8], NULL,
 							16);
-			gp0_pll_set.pll_cntl6 = simple_strtoul(argv[8], NULL,
+			gp0_pll_set.pll_cntl6 = simple_strtoul(argv[9], NULL,
 							16);
 			ret = gp0_pll_test(&gp0_pll_set);
 			pll_report(ret, STR_PLL_TEST_GP0);
+		}
+	} else if (strcmp(STR_PLL_TEST_GP1, argv[1]) == 0) {
+		if (argc == 2) {
+			ret = gp1_pll_test_all(&gp1_pll_cfg);
+			pll_report(ret, STR_PLL_TEST_GP1);
+		} else if (argc != 9) {
+			printf("%s pll test: args error\n", STR_PLL_TEST_GP1);
+			ret = -1;
+		} else {
+			gp1_pll_set.pll_cntl0 = simple_strtoul(argv[2], NULL,
+							16);
+			gp1_pll_set.pll_cntl1 = simple_strtoul(argv[3], NULL,
+							16);
+			gp1_pll_set.pll_cntl2 = simple_strtoul(argv[4], NULL,
+							16);
+			gp1_pll_set.pll_cntl3 = simple_strtoul(argv[5], NULL,
+							16);
+			gp1_pll_set.pll_cntl4 = simple_strtoul(argv[6], NULL,
+							16);
+			gp1_pll_set.pll_cntl5 = simple_strtoul(argv[7], NULL,
+							16);
+			gp1_pll_set.pll_cntl6 = simple_strtoul(argv[8], NULL,
+							16);
+			ret = gp1_pll_test(&gp1_pll_set);
+			pll_report(ret, STR_PLL_TEST_GP1);
 		}
 	} else if (0 == strcmp(STR_PLL_TEST_HIFI, argv[1])) {
 		if (argc == 2) {
 			ret = hifi_pll_test_all(&hifi_pll_cfg);
 			pll_report(ret, STR_PLL_TEST_HIFI);
-		} else if (argc != 9) {
+		} else if (argc != 11) {
 			printf("%s pll test:args error\n", STR_PLL_TEST_HIFI);
 			return -1;
 		} else {
 			hifi_pll_set.pll_cntl0 = simple_strtoul(argv[2], NULL,
 							16);
-			hifi_pll_set.pll_cntl1 = simple_strtoul(argv[3], NULL,
+			hifi_pll_set.pll_cntl1 = simple_strtoul(argv[4], NULL,
 							16);
-			hifi_pll_set.pll_cntl2 = simple_strtoul(argv[4], NULL,
+			hifi_pll_set.pll_cntl2 = simple_strtoul(argv[5], NULL,
 							16);
-			hifi_pll_set.pll_cntl3 = simple_strtoul(argv[5], NULL,
+			hifi_pll_set.pll_cntl3 = simple_strtoul(argv[6], NULL,
 							16);
-			hifi_pll_set.pll_cntl4 = simple_strtoul(argv[6], NULL,
+			hifi_pll_set.pll_cntl4 = simple_strtoul(argv[7], NULL,
 							16);
-			hifi_pll_set.pll_cntl5 = simple_strtoul(argv[7], NULL,
+			hifi_pll_set.pll_cntl5 = simple_strtoul(argv[8], NULL,
 							16);
-			hifi_pll_set.pll_cntl6 = simple_strtoul(argv[8], NULL,
+			hifi_pll_set.pll_cntl6 = simple_strtoul(argv[9], NULL,
 							16);
 			ret = hifi_pll_test(&hifi_pll_set);
 			pll_report(ret, STR_PLL_TEST_HIFI);
@@ -1216,5 +1300,5 @@ int pll_test(int argc, char * const argv[])
 		}
 	}
 
-	return 0;
+	return ret;
 }
