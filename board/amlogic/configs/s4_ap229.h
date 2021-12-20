@@ -142,7 +142,8 @@
                 "frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} "\
                 "hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
-                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
+		"androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot}   "\
+		"jtag=${jtag} ${emmc_quirks};   "\
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
