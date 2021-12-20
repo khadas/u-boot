@@ -3235,6 +3235,7 @@ void osd_init_hw(void)
 		data32 |= 0xff << 6;
 		osd_reg_write(VIU_OSD1_CTRL_STAT2 , data32);
 		osd_reg_write(VIU_OSD2_CTRL_STAT2 , data32);
+		logo_loaded = 1;
 	}
 
 	if (osd_hw.osd_ver <= OSD_NORMAL)
