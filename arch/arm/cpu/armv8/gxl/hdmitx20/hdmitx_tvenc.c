@@ -806,6 +806,29 @@ static const struct reg_t tvregs_vesa_1152x864p75hz[] = {
 	{MREG_END_MARKER, 0}
 };
 
+static const struct reg_t tvregs_vesa_2048x1080p24hz[] = {
+	{P_ENCP_VIDEO_EN, 0,},
+	{P_ENCI_VIDEO_EN, 0,},
+
+	{P_ENCP_VIDEO_MODE, 0x4040,},
+	{P_ENCP_VIDEO_MODE_ADV, 0x18,},
+	{P_ENCP_VIDEO_MAX_PXCNT, 0xABD,},
+	{P_ENCP_VIDEO_MAX_LNCNT, 0x464,},
+	{P_ENCP_VIDEO_HAVON_BEGIN, 0x22A,},
+	{P_ENCP_VIDEO_HAVON_END, 0xA29,},
+	{P_ENCP_VIDEO_VAVON_BLINE, 0x29,},
+	{P_ENCP_VIDEO_VAVON_ELINE, 0x460,},
+	{P_ENCP_VIDEO_HSO_BEGIN, 0x0,},
+	{P_ENCP_VIDEO_HSO_END, 0x2C,},
+	{P_ENCP_VIDEO_VSO_BEGIN, 0x1E,},
+	{P_ENCP_VIDEO_VSO_END, 0x32,},
+	{P_ENCP_VIDEO_VSO_BLINE, 0x0,},
+	{P_ENCP_VIDEO_VSO_ELINE, 0x5,},
+
+	{P_ENCI_VIDEO_EN, 0},
+	{MREG_END_MARKER, 0}
+};
+
 #if 0
 static const struct reg_t tvregs_vesa_1280x600p60hz[] = {
 	{P_ENCP_VIDEO_EN, 0,},
@@ -1326,6 +1349,7 @@ static struct vic_tvregs_set tvregsTab[] = {
 	{HDMIV_1024x600p60hz, tvregs_vesa_1024x600p60hz},
 	{HDMIV_1024x768p60hz, tvregs_vesa_1024x768p60hz},
 	{HDMIV_1152x864p75hz, tvregs_vesa_1152x864p75hz},
+	{HDMIV_2048x1080p24hz, tvregs_vesa_2048x1080p24hz},
 #if 0
 	{HDMIV_1280x600p60hz, tvregs_vesa_1280x600p60hz},
 #endif
