@@ -534,6 +534,11 @@ static int do_GetValidSlot(
 	if (argc != 1)
 		return cmd_usage(cmdtp);
 
+	if (has_boot_slot == 0) {
+		printf("device is not ab mode\n");
+		return -1;
+	}
+
 	boot_info_open_partition(miscbuf);
 	boot_info_load(&boot_ctrl, miscbuf);
 
@@ -763,6 +768,11 @@ static int do_SetUpdateTries(
 	bool bootable_a, bootable_b;
 	int slot;
 	int ret = -1;
+
+	if (has_boot_slot == 0) {
+		printf("device is not ab mode\n");
+		return -1;
+	}
 
 	boot_info_open_partition(miscbuf);
 	boot_info_load(&boot_ctrl, miscbuf);
