@@ -987,7 +987,13 @@ register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
 __attribute__ ((section(".misc_param"))) = {
 	/* demo, user defined override register */
 	/* config vddee pwm - pwmao_a */
-	{ PWM_AO_AB_PWM_A,	      VDDEE_VAL_REG,   0xffffffff,    0, 0, 0 },
+#ifdef CONFIG_PDVFS_ENABLE
+	{PWM_AO_AB_PWM_A, 0x7000b, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0},
+	{PWM_AO_AB_PWM_A, 0x5000d, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_2, 0},
+	{PWM_AO_AB_PWM_A, 0x4000e, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0},
+#else
+	{PWM_AO_AB_PWM_A, VDDEE_VAL_REG,   0xffffffff,    0, 0, 0 },
+#endif
 	{ PWM_AO_AB_MISC_REG_AB,      (0x1 << 0),      (0x1 << 0),    0, 0, 0 },
 	{ CLKCTRL_PWM_CLK_AO_AB_CTRL, (0x1 << 8),      (0x7FF << 0),  0, 0, 0 },
 	/* config vcck a pwm - pwmao_d */

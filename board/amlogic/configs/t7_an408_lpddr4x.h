@@ -18,6 +18,8 @@
 #define AML_VDDGPU_INIT_VOLTAGE	  830       // VDDGPU power up voltage
 #define AML_VDDNPU_INIT_VOLTAGE   830       // VDDNPU power up voltage
 #define AML_VDDDDR_INIT_VOLTAGE   830       // VDDDDR power up voltage
+/*Distinguish whether to use efuse to adjust vddee*/
+#define CONFIG_PDVFS_ENABLE
 
 /* SMP Definitinos */
 #define CPU_RELEASE_ADDR		secondary_boot_func
