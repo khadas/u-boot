@@ -5,8 +5,8 @@
 
 /dts-v1/;
 
-#include "meson-a5-skt.dtsi"
-#include "meson-a5_skt-panel.dtsi"
+#include "meson-a5-av409.dtsi"
+#include "meson-a5_av409-panel.dtsi"
 
 / {
 	compatible = "amlogic,s4-ap222", "amlogic,s4-txxx", "amlogic,meson-s4";
@@ -27,8 +27,8 @@
 			0xffff  0x0>; /* ending flag */
 		performance_ntsc = <0xff006fc0  0x9 /* 0x1bf0 << 2 + 0xff000000 */
 			0xff006c48  0x8020 /* 0x1b12 */
-                        0xff006c0c  0x0 /* 0x1b03 */
-                        0xff006c10  0x0 /* 0x1b04 */
+			0xff006c0c  0x0 /* 0x1b03 */
+			0xff006c10  0x0 /* 0x1b04 */
 			0xff006c14  0x0 /* 0x1b05 */
 			0xff006d58  0x333 /* 0x1b56 */
 			0xff007164  0xf850 /* 0x1c59 */
