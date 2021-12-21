@@ -228,6 +228,11 @@ static int do_GetValidSlot(
 	if (argc != 1)
 		return cmd_usage(cmdtp);
 
+	if (has_boot_slot == 0) {
+		printf("device is not ab mode\n");
+		return -1;
+	}
+
 	//recovery mode, need disable dolby
 	run_command("get_rebootmode", 0);
 	char *rebootmode = getenv("reboot_mode");
