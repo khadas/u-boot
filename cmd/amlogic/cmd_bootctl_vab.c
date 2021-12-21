@@ -273,7 +273,7 @@ void boot_info_reset(bootloader_control* boot_ctrl)
 		if (slot < boot_ctrl->nb_slot) {
 			entry.priority = 7;
 			entry.tries_remaining = kDefaultBootAttempts;
-			entry.successful_boot = 1;
+			entry.successful_boot = 0;
 		} else {
 			entry.priority = 0;  // Unbootable
 			entry.tries_remaining = 0;
@@ -282,6 +282,7 @@ void boot_info_reset(bootloader_control* boot_ctrl)
 
 		boot_ctrl->slot_info[slot] = entry;
 	}
+	boot_ctrl->slot_info[0].successful_boot = 1;
 	boot_ctrl->recovery_tries_remaining = 0;
 }
 
@@ -370,7 +371,7 @@ int boot_info_set_active_slot(bootloader_control* bootctrl, int slot)
 
 	for (i = 0; i < bootctrl->nb_slot; ++i) {
 		if (i != slot) {
-			bootctrl->slot_info[i].priority -= 1;
+			//bootctrl->slot_info[i].priority -= 1;
 			if (bootctrl->slot_info[i].priority >= kActivePriority)
 				bootctrl->slot_info[i].priority = kActivePriority - 1;
 		}
@@ -713,8 +714,12 @@ static int do_SetActiveSlot(
 
 	if (!gpt_partition && info.roll_flag == 1) {
 		printf("if null gpt, write dtb back when rollback\n");
-		run_command("imgread dtb ${boot_part} ${dtb_mem_addr}", 0);
-		run_command("emmc dtb_write ${dtb_mem_addr} 0", 0);
+		if (run_command("imgread dtb ${boot_part} ${dtb_mem_addr}", 0)) {
+			printf("Fail in load dtb\n");
+		} else {
+			printf("write dtb back\n");
+			run_command("emmc dtb_write ${dtb_mem_addr} 0", 0);
+		}
 	}
 
 	return 0;

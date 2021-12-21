@@ -261,7 +261,7 @@ void boot_info_reset(AvbABData* info)
 	info->version_minor = AVB_AB_MINOR_VERSION;
 	info->slots[0].priority = AVB_AB_MAX_PRIORITY;
 	info->slots[0].tries_remaining = AVB_AB_MAX_TRIES_REMAINING;
-	info->slots[0].successful_boot = 0;
+	info->slots[0].successful_boot = 1;
 	info->slots[1].priority = AVB_AB_MAX_PRIORITY - 1;
 	info->slots[1].tries_remaining = AVB_AB_MAX_TRIES_REMAINING;
 	info->slots[1].successful_boot = 0;
@@ -331,7 +331,7 @@ int boot_info_set_active_slot(AvbABData* info, int slot)
 
 	/* Ensure other slot doesn't have as high a priority. */
 	other_slot_number = 1 - slot;
-	info->slots[other_slot_number].priority -= 1;
+	//info->slots[other_slot_number].priority -= 1;
 	if (info->slots[other_slot_number].priority == AVB_AB_MAX_PRIORITY)
 		info->slots[other_slot_number].priority = AVB_AB_MAX_PRIORITY - 1;
 
@@ -598,8 +598,12 @@ static int do_SetActiveSlot(
 
 	printf("info.roll_flag = %d\n", info.roll_flag);
 	if (info.roll_flag == 1) {
-		run_command("imgread dtb ${boot_part} ${dtb_mem_addr}", 0);
-		run_command("emmc dtb_write ${dtb_mem_addr} 0", 0);
+		if (run_command("imgread dtb ${boot_part} ${dtb_mem_addr}", 0)) {
+			printf("Fail in load dtb\n");
+		} else {
+			printf("write dtb back\n");
+			run_command("emmc dtb_write ${dtb_mem_addr} 0", 0);
+		}
 	}
 
 	return 0;
