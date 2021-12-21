@@ -21,6 +21,8 @@
 #include <linux/compiler.h>
 #include <linux/ctype.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Convert a string to lowercase.  Converts at most 'len' characters,
  * 'len' may be larger than the length of 'str' if 'str' is NULL
@@ -319,6 +321,12 @@ static int get_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos,
 
 	*gotsize = 0;
 	debug("Filesize: %llu bytes\n", filesize);
+
+	if ((filesize - (loff_t)buffer) >= gd->start_addr_sp) {
+		printf("img size subtract load address %llx exceed maximum available space %lx\n",
+				filesize - (loff_t)buffer, gd->start_addr_sp);
+		return -1;
+	}
 
 	if (pos >= filesize) {
 		debug("Read position past EOF: %llu\n", pos);
