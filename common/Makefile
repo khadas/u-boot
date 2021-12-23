@@ -144,3 +144,4 @@ obj-y += ramdump.o
 endif
 
 obj-y += blxx2bl33_param.o
+obj-y += nocs_seb.o

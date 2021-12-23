@@ -82,4 +82,6 @@
 #endif /* ! CONFIG_MALLOC */
 #endif /* CONFIG_POLARSSL_RSA */
 
+#define CONFIG_UPDATE_UBOOT_NOCS
+
 #endif /* _BOOT_ROM_CONFIG_H_ */
