@@ -10,7 +10,7 @@
 #include "optimus_led.h"
 #include <asm/arch/secure_apb.h>
 #include <asm/io.h>
-
+#include <emmc_partitions.h>
 #include <amlogic/aml_efuse.h>
 
 static int is_bootloader_old(void)
@@ -640,6 +640,60 @@ unsigned long FlashRdTime = 0;
 unsigned long FlashWrTime = 0;
 #endif//#if SUM_FUNC_TIME_COST
 
+extern unsigned int get_part_tbl_from_ept(int num, char *name);
+
+static int _usb_burn_erase_mmc(int argc, char * const protect_parts[])
+{
+	int num = 0;
+	const int protect_key = 1;
+	int ret = 0;
+	unsigned int mask_flags;
+	char name[MAX_PART_NAME_LEN];
+	struct mmc *mmc;
+	const unsigned int protect_mask = MMC_PARTITION_PROTECT_MASK;
+	const int dev = EMMC_DTB_DEV;//CONFIG_SYS_MMC_BOOT_DEV;
+	const int CMD_BUF_SZ = 128;
+	char cmd_buf[CMD_BUF_SZ];
+	/*protect_key = emmckey_is_protected(mmc);*/
+
+	mmc = find_mmc_device(dev);
+	if (!mmc)
+		return 1;
+	mmc_init(mmc);
+
+	while (get_part_tbl_from_ept(num, name) != -1) {
+		mask_flags = get_part_tbl_from_ept(num, name);
+		if ((mask_flags & protect_mask) && protect_key) {
+			printf("%-10s partition is protected\n", name);
+		} else if (protect_key && !strcmp(name, MMC_RESERVED_NAME)) {
+			printf("%-10s partition is protected\n", name);
+		} else if (!strcmp(name, MMC_BOOT_NAME)) {
+			printf("%-10s partition is protected\n", name);
+		} else {
+			int i = 0;
+			int need_protect = 0;
+
+			for (; i < argc && !need_protect; ++i)
+				need_protect = !strcmp(protect_parts[i], name);
+			if (!need_protect) {
+				printf("%-10s partition is erased: ", name);
+				/*ret |= _amlmmc_erase_single_part(dev, mmc, name);*/
+				snprintf(cmd_buf, CMD_BUF_SZ, "store erase partition %s", name);
+				ret = run_command(cmd_buf, 0);
+				if (ret) {
+					DWN_MSG("Fail in %s\n", cmd_buf);
+					break;
+				}
+			} else {
+				printf("%-10s partition is Keeped\n", name);
+			}
+		}
+		num++;
+	}
+
+	return ret;
+}
+
 int optimus_burn_with_cfg_file(const char* cfgFile)
 {
     extern ConfigPara_t g_sdcBurnPara ;
@@ -652,7 +706,7 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
     int hasBootloader = 0;
     u64 datapartsSz = 0;
     int eraseFlag = pSdcCfgPara->custom.eraseFlash;
-    const int eraseBootloader = pSdcCfgPara->custom.eraseBootloader;
+	int eraseBootloader = pSdcCfgPara->custom.eraseBootloader;
     const int usbDiskUpgrade = (OPTIMUS_WORK_MODE_UDISK_PRODUCE == optimus_work_mode_get());
 
     optimus_buf_manager_init(16*1024);
@@ -685,6 +739,10 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
         DWN_ERR("Fail to open image %s\n", pkgPath);
         ret = __LINE__; goto _finish;
     }
+	eraseBootloader = pSdcCfgPara->custom.eraseBootloader;
+	eraseFlag = pSdcCfgPara->custom.eraseFlash;
+	DWN_MSG("eraseBootloader %d, is old %d, %d\n",
+		eraseBootloader, is_bootloader_old(), eraseFlag);
     if (eraseBootloader && is_bootloader_old())
     {
         if (usbDiskUpgrade) {//upgrade new bootloader
@@ -758,12 +816,14 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
             DWN_MSG("Disable erase as data parts size is 0\n");
     }
     if (eraseFlag && !strcmp("1", getenv("usb_update"))) {
+	char *protect_parts[] = {"env"};
         ret = optimus_storage_init(0);
         if (ret) {
             DWN_ERR("FAil in init flash for usb upgrade\n");
             ret = __LINE__; goto _finish;
         }
-        ret = run_command("store erase data", 0);//erase after bootloader for usb disk
+	/*ret = run_command("store erase data", 0);//erase after bootloader for usb disk*/
+	ret = _usb_burn_erase_mmc(ARRAY_SIZE(protect_parts), protect_parts);
     }
     else
         ret = optimus_storage_init(eraseFlag);
