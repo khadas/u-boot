@@ -20,8 +20,8 @@
 #include <asm-generic/gpio.h>
 
 #define PHY20_RESET_LEVEL_BIT	8
-#define	PHY21_RESET_LEVEL_BIT	9
 #define	USB_RESET_BIT			4
+#define USB_2_DRD_BIT 10
 
 #define USB2_PHY_PLL_OFFSET_40	(0x09400414)
 #define USB2_PHY_PLL_OFFSET_44	(0x927E0000)
@@ -39,18 +39,32 @@
 #define TUNING_DISCONNECT_THRESHOLD 0x3C
 #define DISCONNECT_THRESHOLD_ENHANCE 0x2
 
+#define PHY_20_BASE 0xfe03c000
+#define PHY_COMP_BASE 0xfe03a000
+#define RESET_BASE 0xFE002000
 
-static struct phy usb_phys[2];
+#define AMLOGIC_CTR_COUNT		(0x1)
+#define MESON_CPU_MAJOR_ID_A5_TMPE 0xFF
 
-int get_usbphy_baseinfo(struct phy *usb_phys)
+struct ctr_info {
+	struct phy usb_phys[4];
+	unsigned long phy_count;
+};
+
+static struct ctr_info ctr[AMLOGIC_CTR_COUNT];
+//static struct phy usb_phys[4];
+
+int get_usbphy_baseinfo(void)
 {
 	struct udevice *bus;
 	struct uclass *uc;
-	int ret, i;
+	int ret, i, j = 0;
 	int count;
 
-	if (usb_phys[0].dev && usb_phys[1].dev)
-		return 0;
+	for (i = 0; i < AMLOGIC_CTR_COUNT; i++) {
+		if (ctr[i].usb_phys[0].dev && ctr[i].usb_phys[1].dev)
+			return 0;
+	}
 
 	ret = uclass_get(UCLASS_USB, &uc);
 	if (ret)
@@ -62,17 +76,23 @@ int get_usbphy_baseinfo(struct phy *usb_phys)
 		debug("usb phy count=%u\n", count);
 		if (count <= 0)
 			return count;
+		if (j >= AMLOGIC_CTR_COUNT) {
+			pr_err("AMLOGIC_CTR_COUNT is small: %d\n", j);
+			return -1;
+		}
 		for (i = 0; i < count; i++) {
-			ret = generic_phy_get_by_index(bus, i, &usb_phys[i]);
+			ret = generic_phy_get_by_index(bus, i, &ctr[j].usb_phys[i]);
 			if (ret && ret != -ENOENT) {
 				pr_err("Failed to get USB PHY%d for %s\n",
 				       i, bus->name);
 				return ret;
 			}
-			ret = generic_phy_getinfo(&usb_phys[i]);
+			ret = generic_phy_getinfo(&ctr[j].usb_phys[i]);
 			if (ret)
 				return ret;
 		}
+		ctr[j].phy_count = count;
+		j++;
 	}
 	return 0;
 }
@@ -81,44 +101,34 @@ void usb_aml_detect_operation(int argc, char * const argv[])
 {
 	struct phy_aml_usb2_priv *usb2_priv;
 	struct phy_aml_usb3_priv *usb3_priv;
-	int ret;
+	int ret, i;
 
-	ret = get_usbphy_baseinfo(usb_phys);
+	ret = get_usbphy_baseinfo();
 	if (ret) {
 		printf("get usb dts failed\n");
 		return;
 	}
-	usb2_priv = dev_get_priv(usb_phys[0].dev);
-	usb3_priv = dev_get_priv(usb_phys[1].dev);
+	for (i = 0; i < AMLOGIC_CTR_COUNT; i++) {
+		usb2_priv = dev_get_priv(ctr[i].usb_phys[0].dev);
+		usb3_priv = dev_get_priv(ctr[i].usb_phys[1].dev);
 
-	if (usb3_priv) {
-		printf("priv->usb3 port num = %d, config addr=0x%08x\n",
-			usb3_priv->usb3_port_num, usb3_priv->base_addr);
-	}
-	if (usb2_priv) {
-		printf("usb2 phy: config addr = 0x%08x, reset addr=0x%08x\n",
-			usb2_priv->base_addr, usb2_priv->reset_addr);
+		if (usb3_priv) {
+			printf("priv->usb3 port num = %d, config addr=0x%08x\n",
+				usb3_priv->usb3_port_num, usb3_priv->base_addr);
+		}
+		if (usb2_priv) {
+			printf("usb2 phy: config addr = 0x%08x, reset addr=0x%08x\n",
+				usb2_priv->base_addr, usb2_priv->reset_addr);
 
-		printf("usb2 phy: portnum=%d, phy-addr1= 0x%08x, phy-addr2= 0x%08x\n",
-		usb2_priv->u2_port_num, usb2_priv->usb_phy2_pll_base_addr[0],
-		usb2_priv->usb_phy2_pll_base_addr[1]);
-		printf("dwc2_a base addr: 0x%08x\n", usb2_priv->dwc2_a_addr);
+			printf("usb2 phy: portnum=%d, phy-addr1= 0x%08x, phy-addr2= 0x%08x\n",
+			usb2_priv->u2_port_num, usb2_priv->usb_phy2_pll_base_addr[0],
+			usb2_priv->usb_phy2_pll_base_addr[1]);
+			printf("dwc2_a base addr: 0x%08x\n", usb2_priv->dwc2_a_addr);
+		}
 	}
 
 }
 
-#if 0
-static void set_pll_Calibration_default(uint32_t phy2_pll_base)
-{
-    u32 tmp;
-
-    //tmp = (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x8));
-    tmp = 0x7f;
-    tmp |= (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x10));
-    (*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x10))
-     = tmp;
-}
-#endif
 
 static void usb_set_calibration_trim(uint32_t volatile *phy2_pll_base)
 {
@@ -131,7 +141,7 @@ static void usb_set_calibration_trim(uint32_t volatile *phy2_pll_base)
 	cali_en = (cali >> 12) & 0x1;
 	cali = cali >> 8;
 	if (cali_en) {
-		cali =cali & 0xf;
+		cali = cali & 0xf;
 		if (cali > 12)
 			cali = 12;
 	} else {
@@ -151,9 +161,12 @@ void usb_reset(unsigned int reset_addr, int bit){
 	*(volatile unsigned int *)(unsigned long)reset_addr = (1 << bit);
 }
 
-static void usb_enable_phy_pll (void)
+static void usb_enable_phy_pll (u32 base_addr)
 {
-	*(volatile uint32_t *)(unsigned long)RESETCTRL_RESET0_LEVEL |= (3 << PHY20_RESET_LEVEL_BIT);
+	if (base_addr == PHY_20_BASE) {
+		*(volatile uint32_t *)(unsigned long)
+			RESETCTRL_RESET0_LEVEL |= (1 << PHY20_RESET_LEVEL_BIT);
+	}
 }
 
 void set_usb_pll(uint32_t phy2_pll_base)
@@ -171,7 +184,6 @@ void set_usb_pll(uint32_t phy2_pll_base)
 	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x40))
 		= (((USB2_PHY_PLL_OFFSET_40) | (USB_PHY2_ENABLE))
 			& (~(USB_PHY2_RESET)));
-
 
 	(*(volatile uint32_t *)(unsigned long)((unsigned long)phy2_pll_base + 0x50))
 		= USB2_PHY_PLL_OFFSET_50;
@@ -192,8 +204,17 @@ void set_usb_pll(uint32_t phy2_pll_base)
 
 int usb_save_phy_dev (unsigned int number, struct phy *phy)
 {
-	usb_phys[number].dev = phy->dev;
-	usb_phys[number].id = phy->id;
+	int i;
+
+	for (i = 0; i < AMLOGIC_CTR_COUNT; i++) {
+		if (!ctr[i].usb_phys[number].dev) {
+			ctr[i].usb_phys[number].dev = phy->dev;
+			ctr[i].usb_phys[number].id = phy->id;
+		} else {
+			if (ctr[i].usb_phys[number].dev == phy->dev)
+				break;
+		}
+	}
 	return 0;
 }
 
@@ -205,16 +226,20 @@ int usb2_phy_init (struct phy *phy) {
 	int i,cnt;
 
 	usb_save_phy_dev(0, phy);
-	usb_enable_phy_pll();
+	usb_enable_phy_pll(priv->base_addr);
 
-	*(volatile unsigned int *)(unsigned long)priv->reset_addr = (1 << USB_RESET_BIT);
+	if (priv->usb_phy2_pll_base_addr[0] == PHY_20_BASE) {
+		debug("priv->reset_addr is 0x%x\n", priv->reset_addr);
+		*(volatile unsigned int *)(unsigned long)priv->reset_addr =
+			(1 << USB_2_DRD_BIT) | (1 << USB_RESET_BIT);
 
-	udelay(500);
-	priv->usbphy_reset_bit[0] = PHY20_RESET_LEVEL_BIT;
-	priv->usbphy_reset_bit[1] = PHY21_RESET_LEVEL_BIT;
+		udelay(500);
+		priv->usbphy_reset_bit[0] = PHY20_RESET_LEVEL_BIT;
+	}
 
 	for (i = 0; i < priv->u2_port_num; i++) {
 		u2p_aml_reg = (struct u2p_aml_regs *)((ulong)(priv->base_addr + i * PHY_REGISTER_SIZE));
+		debug("u2p_aml_reg is 0x%x\n", (u32)(u64)u2p_aml_reg);
 		dev_u2p_r0.d32 = u2p_aml_reg->u2p_r0;
 		dev_u2p_r0.b.host_device= 1;
 		dev_u2p_r0.b.POR= 0;
@@ -254,78 +279,29 @@ int usb2_phy_tuning(uint32_t phy2_pll_base, int port)
 /**************************************************************/
 /*           device mode config                               */
 /**************************************************************/
-unsigned int usb_get_dwc_a_base_addr(void)
+void usb_device_mode_init(int phy_num)
 {
-	struct phy_aml_usb2_priv *usb2_priv;
-	int ret;
-
-	if (!usb_phys[0].dev) {
-		ret = get_usbphy_baseinfo(usb_phys);
-		if (ret) {
-			printf("get usb dts failed\n");
-			return 0;
-		}
-	}
-	usb2_priv = dev_get_priv(usb_phys[0].dev);
-	return usb2_priv->dwc2_a_addr;
-}
-
-unsigned int usb_get_device_mode_phy_base(void)
-{
-	struct phy_aml_usb2_priv *usb2_priv;
-	int ret;
-
-	if (!usb_phys[0].dev) {
-		ret = get_usbphy_baseinfo(usb_phys);
-		if (ret) {
-			printf("get usb dts failed\n");
-			return 0;
-		}
-	}
-	usb2_priv = dev_get_priv(usb_phys[0].dev);
-	return usb2_priv->usb_phy2_pll_base_addr[1];
-}
-
-void usb_phy_tuning_reset(void)
-{
-	return ;
-}
-
-void usb_device_mode_init(void){
 	u2p_r0_t dev_u2p_r0;
 	u2p_r1_t dev_u2p_r1;
 
 	usb_r0_t dev_usb_r0;
 	usb_r4_t dev_usb_r4;
-	int cnt, ret;
-	u2p_aml_regs_t * u2p_aml_regs;
+	int cnt;
+	u2p_aml_regs_t *u2p_aml_regs;
 	usb_aml_regs_t *usb_aml_regs;
-	struct phy_aml_usb2_priv *usb2_priv;
-	struct phy_aml_usb3_priv *usb3_priv;
 	unsigned int phy_base_addr, reset_addr;
 
-	ret = get_usbphy_baseinfo(usb_phys);
-	if (ret) {
-		printf("get usb dts failed\n");
-		return;
-	}
-	usb2_priv = dev_get_priv(usb_phys[0].dev);
-	usb3_priv = dev_get_priv(usb_phys[1].dev);
-	if (!usb2_priv || !usb3_priv) {
-		printf("get usb phy address from dts failed\n");
-		return;
-	}
 
-	u2p_aml_regs = (u2p_aml_regs_t * )((unsigned long)(usb2_priv->base_addr + PHY_REGISTER_SIZE));
-	usb_aml_regs = (usb_aml_regs_t * )((ulong)usb3_priv->base_addr);
-	phy_base_addr = usb2_priv->usb_phy2_pll_base_addr[1];
-	reset_addr = usb2_priv->reset_addr;
+	u2p_aml_regs = (u2p_aml_regs_t *)((unsigned long)(PHY_COMP_BASE));
+	usb_aml_regs = (usb_aml_regs_t *)((ulong)(PHY_COMP_BASE + 0x80));
+	phy_base_addr = PHY_20_BASE;
+	reset_addr = RESET_BASE;
 
 	printf("PHY2=%p,phy-base=0x%08x\n", u2p_aml_regs, phy_base_addr);
-	if ((*(volatile uint32_t *)(unsigned long)(phy_base_addr + 0x38)) != 0) {
-		usb_phy_tuning_reset();
-		mdelay(150);
-	}
+	//if ((*(volatile uint32_t *)(unsigned long)(phy_base_addr + 0x38)) != 0) {
+		//usb_phy_tuning_reset(phy_num);
+		//mdelay(150);
+	//}
 
 	//step 1: usb controller reset
 	usb_reset(reset_addr, USB_RESET_BIT);
@@ -349,7 +325,8 @@ void usb_device_mode_init(void){
 
 	udelay(10);
 	//step 6: phy21 reset
-	usb_reset(reset_addr, PHY21_RESET_LEVEL_BIT);
+	usb_reset(reset_addr, PHY20_RESET_LEVEL_BIT);
+
 	udelay(50);
 
 	// step 6: wait for phy ready
@@ -365,12 +342,11 @@ void usb_device_mode_init(void){
 		}
 	}
 
+	//set_usb_phy21_pll();
 	set_usb_pll(phy_base_addr);
 	//--------------------------------------------------
 
 	// ------------- usb phy21 initinal end ----------
 
 	//--------------------------------------------------
-
 }
-

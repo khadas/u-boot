@@ -139,7 +139,7 @@ int board_init(void)
 #if 0
 	active_clk();
 #endif
-	run_command("gpio set GPIOH_7", 0);
+	run_command("gpio set GPIOD_6", 0);
 #ifdef CONFIG_AML_HDMITX20
 	hdmitx_set_hdmi_5v();
 	hdmitx_init();
