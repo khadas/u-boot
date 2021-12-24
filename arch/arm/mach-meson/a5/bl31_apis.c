@@ -50,6 +50,85 @@ int32_t set_boot_params(const keymaster_boot_params *boot_params)
 }
 
 #ifdef CONFIG_EFUSE
+#ifdef CONFIG_EFUSE_OBJ_API
+uint32_t meson_efuse_obj_read(uint32_t obj_id, uint8_t *buff, uint32_t *size)
+{
+	uint32_t rc = EFUSE_OBJ_ERR_UNKNOWN;
+	uint32_t len = 0;
+
+	if (!sharemem_input_base)
+		sharemem_input_base =
+			get_sharemem_info(GET_SHARE_MEM_INPUT_BASE);
+
+	if (!sharemem_output_base)
+		sharemem_output_base =
+			get_sharemem_info(GET_SHARE_MEM_OUTPUT_BASE);
+
+	memcpy((void *)sharemem_input_base, buff, *size);
+
+	register uint64_t x0 asm("x0") = EFUSE_OBJ_READ;
+	register uint64_t x1 asm("x1") = obj_id;
+	register uint64_t x2 asm("x2") = *size;
+
+	do {
+		asm volatile(__asmeq("%0", "x0")
+			__asmeq("%1", "x1")
+			__asmeq("%2", "x0")
+			__asmeq("%3", "x1")
+			__asmeq("%4", "x2")
+			"smc	#0\n"
+			: "+r" (x0), "+r" (x1)
+			: "r" (x0), "r" (x1), "r" (x2));
+	} while (0);
+
+	rc = x0;
+	len = x1;
+
+	if (rc == EFUSE_OBJ_SUCCESS) {
+		if (*size >= len) {
+			memcpy(buff, (const void *)sharemem_output_base, len);
+			*size = len;
+		} else {
+			rc = EFUSE_OBJ_ERR_SIZE;
+		}
+	}
+
+	return rc;
+}
+
+uint32_t meson_efuse_obj_write(uint32_t obj_id, uint8_t *buff, uint32_t size)
+{
+	uint32_t rc = EFUSE_OBJ_ERR_UNKNOWN;
+
+	if (!sharemem_input_base)
+		sharemem_input_base =
+			get_sharemem_info(GET_SHARE_MEM_INPUT_BASE);
+
+	if (!sharemem_output_base)
+		sharemem_output_base =
+			get_sharemem_info(GET_SHARE_MEM_OUTPUT_BASE);
+
+	memcpy((void *)sharemem_input_base, buff, size);
+
+	register uint64_t x0 asm("x0") = EFUSE_OBJ_WRITE;
+	register uint64_t x1 asm("x1") = obj_id;
+	register uint64_t x2 asm("x2") = size;
+
+	do {
+		asm volatile(__asmeq("%0", "x0")
+			__asmeq("%1", "x0")
+			__asmeq("%2", "x1")
+			__asmeq("%3", "x2")
+			"smc	#0\n"
+			: "+r" (x0)
+			: "r" (x0), "r" (x1), "r" (x2));
+	} while (0);
+
+	rc = x0;
+	return rc;
+}
+#endif /* CONFIG_EFUSE_OBJ_API */
+
 int32_t meson_trustzone_efuse(struct efuse_hal_api_arg *arg)
 {
 	int ret;
