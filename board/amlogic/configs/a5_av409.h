@@ -316,7 +316,8 @@
 	"\0"\
 
 #ifndef CONFIG_PXP_DDR
-#define CONFIG_PREBOOT  \
+#define CONFIG_PREBOOT  "echo preboot"
+/*#define CONFIG_PREBOOT  \
 		"run bcb_cmd; "\
 		"run upgrade_check;"\
 		"run init_display;"\
@@ -324,6 +325,7 @@
 		"run upgrade_key;" \
 		"bcb uboot-command;"\
 		"run switch_bootmode;"
+*/
 #else
 #define CONFIG_PREBOOT  "echo preboot"
 #endif
