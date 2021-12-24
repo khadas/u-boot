@@ -336,21 +336,11 @@
 
 	jtag_a_pins:jtag_a_pin {
 		mux {
-			groups = "jtag_1_clk",
-			"jtag_1_tms",
-			"jtag_1_tdi",
-			"jtag_1_tdo";
+			groups = "jtag_clk",
+			"jtag_tms",
+			"jtag_tdi",
+			"jtag_tdo";
 			function = "jtag_1";
-		};
-	};
-
-	jtag_b_pins:jtag_b_pin {
-		mux {
-			groups = "jtag_2_clk",
-			"jtag_2_tms",
-			"jtag_2_tdi",
-			"jtag_2_tdo";
-			function = "jtag_2";
 		};
 	};
 
