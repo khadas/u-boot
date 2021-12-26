@@ -9,6 +9,7 @@
 
 /* board clk defines */
 #define CPU_CLK                                 1512
+#define DSU_CLK                                 1200
 
 //bit 6 adc_channel bit 0-5 adc value,chan 3 value 8 is layer 2
 #define DDR_ID_ACS_ADC   ((3 << 6) | (8))
@@ -2155,6 +2156,7 @@ board_clk_set_t __board_clk_setting
 __attribute__ ((section(".clk_param"))) = {
 	/* clock settings for bl2 */
 	.cpu_clk	= CPU_CLK / 24 * 24,
+	.dsu_clk	= DSU_CLK / 24 * 24,
 #ifdef CONFIG_PXP_DDR
 	.pxp = 1,
 #else
