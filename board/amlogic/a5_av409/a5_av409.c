@@ -161,19 +161,16 @@ int board_late_init(void)
 		printf("factory reset, need default all uboot env.\n");
 		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
 	}
-	return 0;
 
 #if !defined(CONFIG_PXP_DDR)	//bypass below operations for pxp
-/*	run_command("echo upgrade_step $upgrade_step; \
+	run_command("echo upgrade_step $upgrade_step; \
 		if itest ${upgrade_step} == 1; then defenv_reserv; \
 		setenv upgrade_step 2; saveenv; fi;",
 		    0);
-*/
 	board_init_mem();
-//	run_command("run bcb_cmd", 0);
+	run_command("run bcb_cmd", 0);
 
 #ifndef CONFIG_SYSTEM_RTOS	//prue rtos not need dtb
-#if 0
 	if (run_command("run common_dtb_load", 0)) {
 		printf("Fail in load dtb with cmd[%s]\n", env_get("common_dtb_load"));
 	} else {
@@ -182,7 +179,6 @@ int board_late_init(void)
 		("if fdt addr ${dtb_mem_addr}; then else echo no valid dtb at ${dtb_mem_addr};fi;",
 		0);
 	}
-#endif
 #endif //#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE	//try auto upgrade from ext-sdcard
@@ -206,8 +202,8 @@ int board_late_init(void)
 #ifdef CONFIG_AML_CVBS
 	cvbs_init();
 #endif
-	//run_command("amlsecurecheck", 0);
-	//run_command("update_tries", 0);
+	run_command("amlsecurecheck", 0);
+	run_command("update_tries", 0);
 
 	unsigned char chipid[16];
 
@@ -234,7 +230,7 @@ int board_late_init(void)
 	} else {
 		env_set("cpu_id", "1234567890");
 	}
-	//emmc_quirks();
+	emmc_quirks();
 	return 0;
 }
 
