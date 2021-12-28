@@ -15,7 +15,8 @@
 #include <asm/arch/secure_apb.h>
 
 #define MESON_SARADC_VDDA_VOLTAGE			(1800000)
-#define MESON_SARADC_TIMEOUT				(100 * 1000)
+/* C2/A5 need more time to sample while decim filter is enable */
+#define MESON_SARADC_TIMEOUT				(120 * 1000)
 #define SARADC_MAX_FIFO_SIZE				16
 
 #define SARADC_REG0					0x00
@@ -291,7 +292,7 @@ static int meson_saradc_set_mode(struct udevice *dev, int ch, unsigned int mode)
 			NO_AVERAGING << SARADC_AVG_CNTL_AVG_MODE_SHIFT(ch));
 	}
 
-	priv->data->dops->set_ref_voltage(priv, mode);
+	priv->data->dops->set_ref_voltage(priv, mode, ch);
 
 	priv->current_mode = mode;
 

@@ -47,7 +47,7 @@ static void meson_g12a_extra_init(struct meson_saradc *priv)
 }
 
 static void meson_g12a_set_ref_voltage(struct meson_saradc *priv,
-					unsigned int mode)
+					unsigned int mode, int ch)
 {
 	if (mode & ADC_CAPACITY_HIGH_PRECISION_VREF) {
 		if (readl(priv->base + SARADC_REG13) &

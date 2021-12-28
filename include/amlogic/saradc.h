@@ -53,7 +53,8 @@ struct meson_saradc_diff_ops {
 	void (*set_ch7_mux)(struct meson_saradc *priv, int ch, int mux);
 	void (*enable_decim_filter)(struct meson_saradc *priv,
 				    int ch, unsigned int mode);
-	void (*set_ref_voltage)(struct meson_saradc *priv, unsigned int mode);
+	void (*set_ref_voltage)(struct meson_saradc *priv, unsigned int mode,
+				int ch);
 	int (*get_fifo_channel)(int val);
 	int (*get_fifo_data)(struct meson_saradc *priv,
 			     struct adc_uclass_platdata *uc_pdata, int val);
@@ -68,6 +69,7 @@ struct meson_saradc_diff_ops {
  * @reg11_cmv_sel: g12a and later: 0; others(axg etc): 1
  * @reg11_eoc:     g12a and later: 1; others(axg etc): 0
  * @has_bl30_integration:
+ * @update_vref_conf: only for C2 & A5; C2: 0; A5: 1
  * @num_channels: the number of adc channels
  * @self_test_channel: channel of self-test
  * @resolution: gxl and later: 12bit; others(gxtvbb etc): 10bit
@@ -79,6 +81,7 @@ struct meson_saradc_data {
 	bool reg11_cmv_sel;
 	bool reg11_eoc;
 	bool has_bl30_integration;
+	bool update_vref_conf;
 	unsigned char self_test_channel;
 	unsigned char num_channels;
 	unsigned int resolution;

@@ -19,7 +19,11 @@
 	#define SARADC_C2_REG11_CALIB_FACTOR_MASK		GENMASK(18, 12)
 
 #define SARADC_C2_REG13					0x34
+#define SARADC_C2_REG14					0x38
 	#define SARADC_C2_REG13_VREF_SEL			BIT(19)
+	#define SARADC_C2_REG13_VBG_SEL				BIT(16)
+	#define SARADC_C2_REG13_EN_VCM0P9			BIT(1)
+
 
 #define SARADC_C2_CH0_CTRL1				0x4c
 	#define SARADC_C2_CH0_CTRL1_CHAN_MUX_SEL_MASK	GENMASK(23, 21)
@@ -61,25 +65,42 @@ static void meson_c2_enable_decim_filter(struct meson_saradc *priv, int ch,
 }
 
 static void meson_c2_set_ref_voltage(struct meson_saradc *priv,
-					unsigned int mode)
+					unsigned int mode, int ch)
 {
-	if (mode & ADC_CAPACITY_HIGH_PRECISION_VREF) {
-		if (readl(priv->base + SARADC_C2_REG11) &
-					SARADC_C2_REG11_CALIB_FACTOR_MASK) {
-			clrsetbits_le32(priv->base + SARADC_C2_REG13,
-					SARADC_C2_REG13_VREF_SEL,
-					SARADC_C2_REG13_VREF_SEL);
+	uint32_t val;
+
+	if (priv->data->update_vref_conf) {
+		val = SARADC_C2_REG13_VBG_SEL | SARADC_C2_REG13_EN_VCM0P9;
+
+		if ((mode & ADC_CAPACITY_HIGH_PRECISION_VREF) &&
+		    (readl(priv->base + SARADC_C2_REG11) &
+		     SARADC_C2_REG11_CALIB_FACTOR_MASK)) {
+			clrsetbits_le32(priv->base + SARADC_C2_REG13, val, 0);
+			clrsetbits_le32(priv->base + SARADC_C2_REG14, val, 0);
+			clrsetbits_le32(priv->base + SARADC_C2_CH0_CTRL1 +
+					ch * 12, val, 0);
 		} else {
-			clrsetbits_le32(priv->base + SARADC_C2_REG13,
-					SARADC_C2_REG13_VREF_SEL,
-					0);
-			pr_notice("calib factor is null,\
-					select the vdda as vref\n");
+			clrsetbits_le32(priv->base + SARADC_C2_REG13, val, val);
+			clrsetbits_le32(priv->base + SARADC_C2_REG14, val, val);
+			clrsetbits_le32(priv->base + SARADC_C2_CH0_CTRL1 +
+					ch * 12, val, val);
 		}
 	} else {
-		clrsetbits_le32(priv->base + SARADC_C2_REG13,
-				SARADC_C2_REG13_VREF_SEL,
-				SARADC_C2_REG13_VREF_SEL);
+		val = SARADC_C2_REG13_VREF_SEL;
+
+		if (mode & ADC_CAPACITY_HIGH_PRECISION_VREF) {
+			if (readl(priv->base + SARADC_C2_REG11) &
+			    SARADC_C2_REG11_CALIB_FACTOR_MASK) {
+				clrsetbits_le32(priv->base + SARADC_C2_REG13,
+						val, val);
+			} else {
+				clrsetbits_le32(priv->base + SARADC_C2_REG13,
+						val, 0);
+				pr_notice("calib factor is null, select the vdda as vref\n");
+			}
+		} else {
+			clrsetbits_le32(priv->base + SARADC_C2_REG13, val, val);
+		}
 	}
 }
 
@@ -129,6 +150,7 @@ static struct meson_saradc_diff_ops meson_c2_diff_ops = {
 
 struct meson_saradc_data meson_saradc_c2_data = {
 	.has_bl30_integration	   = true,
+	.update_vref_conf	   = 0,
 	.self_test_channel	   = SARADC_CH_SELF_TEST,
 	.num_channels		   = MESON_SARADC_CH_MAX,
 	.resolution		   = SARADC_12BIT,
@@ -146,10 +168,27 @@ struct meson_saradc_data meson_saradc_c2_data = {
 	.clock_rate		   = 600000,
 };
 
+struct meson_saradc_data meson_saradc_a5_data = {
+	.has_bl30_integration	   = true,
+	.update_vref_conf	   = 1,
+	.self_test_channel	   = SARADC_CH_SELF_TEST,
+	.num_channels		   = MESON_SARADC_CH_MAX,
+	.resolution		   = SARADC_12BIT,
+	.dops			   = &meson_c2_diff_ops,
+	.capacity		   = ADC_CAPACITY_AVERAGE |
+				     ADC_CAPACITY_HIGH_PRECISION_VREF |
+				     ADC_CAPACITY_DECIM_FILTER,
+	.clock_rate		   = 600000,
+};
+
 static const struct udevice_id meson_c2_saradc_ids[] = {
 	{
 		.compatible = "amlogic,meson-c2-saradc",
 		.data = (ulong)&meson_saradc_c2_data,
+	},
+	{
+		.compatible = "amlogic,meson-a5-saradc",
+		.data = (ulong)&meson_saradc_a5_data,
 	},
 	{ }
 };
