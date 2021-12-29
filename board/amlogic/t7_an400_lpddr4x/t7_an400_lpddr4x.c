@@ -106,9 +106,10 @@ void board_init_mem(void) {
 	char *env_tmp;
 	env_tmp = env_get("bootm_size");
 	if (!env_tmp) {
-		ram_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xffffUL) << 4;
-		if (ram_size >= 0xe0000000)
-			ram_size = 0xe0000000;
+		ram_size = ((0x100000000 <= ((readl(SYSCTRL_SEC_STATUS_REG4) &
+				0xFFFFFFFF0000) << 4)) ? 0xe0000000 :
+					(((readl(SYSCTRL_SEC_STATUS_REG4)) &
+					0xFFFFFFFF0000) << 4));
 
 		env_set_hex("bootm_low", 0);
 		env_set_hex("bootm_size", ram_size);
@@ -277,7 +278,11 @@ struct mm_region *mem_map = bd_mem_map;
 int mach_cpu_init(void) {
 	//printf("\nmach_cpu_init\n");
 #ifdef 	CONFIG_UPDATE_MMU_TABLE
-	unsigned long nddrSize = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xffffUL) << 4;
+	unsigned long nddrSize = ((0x100000000 <= ((readl(SYSCTRL_SEC_STATUS_REG4) &
+				0xFFFFFFFF0000) << 4)) ? 0xe0000000 :
+				(((readl(SYSCTRL_SEC_STATUS_REG4)) &
+				0xFFFFFFFF0000) << 4));
+
 
 	if ( nddrSize <= 0xe0000000 )
 		bd_mem_map[0].size = nddrSize;
@@ -428,8 +433,8 @@ const struct mtd_partition *get_partition_table(int *partitions)
 #ifdef CONFIG_MULTI_DTB
 int checkhw(char * name)
 {
-	strcpy(name, "t7_a311d2_an400\0");
-	env_set("aml_dt", "t7_a311d2_an400\0");
+	strcpy(name, "t7_a311d2_an400_8g\0");
+	env_set("aml_dt", "t7_a311d2_an400_8g\0");
 	return 0;
 }
 #endif
