@@ -321,6 +321,14 @@
 			status = "disabled";
 		};
 
+		spicc1: spi@fe052000 {
+			compatible = "amlogic,meson-g12a-spicc";
+			reg = <0x0 0xfe052000 0x0 0x44>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
 		spifc: spi@fe056000 {
 			compatible = "amlogic,spifc";
 			status = "disabled";
