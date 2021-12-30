@@ -85,6 +85,7 @@ struct tcon_mem_map_table_s {
 	unsigned int block_bit_flag;
 
 	unsigned int core_reg_table_size;
+	struct lcd_tcon_init_block_header_s *core_reg_header;
 	unsigned char *core_reg_table;
 
 	struct tcon_data_priority_s *data_priority;
@@ -163,12 +164,15 @@ int handle_tcon_data_load(unsigned char **buf, unsigned int index);
 #define TCON_VAC_SET_PARAM_NUM    3
 #define TCON_VAC_LUT_PARAM_NUM    256
 
+void lcd_tcon_init_data_version_update(char *data_buf);
+int lcd_tcon_data_multi_match_find(struct aml_lcd_drv_s *pdrv, unsigned char *data_buf);
 int lcd_tcon_spi_data_probe(struct aml_lcd_drv_s *pdrv);
 
 int lcd_tcon_valid_check(void);
 struct lcd_tcon_config_s *get_lcd_tcon_config(void);
 struct tcon_rmem_s *get_lcd_tcon_rmem(void);
 struct tcon_mem_map_table_s *get_lcd_tcon_mm_table(void);
+struct lcd_tcon_local_cfg_s *get_lcd_tcon_local_cfg(void);
 
 int lcd_tcon_enable_tl1(struct aml_lcd_drv_s *pdrv);
 int lcd_tcon_disable_tl1(struct aml_lcd_drv_s *pdrv);

@@ -19,13 +19,13 @@
  * ********************************** */
 //#define LCD_DEBUG_INFO
 extern unsigned int lcd_debug_print_flag;
-#define LCD_DBG_PR_NORMAL       (1 << 0)
-#define LCD_DBG_PR_ADV          (1 << 1) //tcon_data
-#define LCD_DBG_PR_CLK          (1 << 2)
-#define LCD_DBG_PR_BL_NORMAL    (1 << 4)
-#define LCD_DBG_PR_BL_ADV       (1 << 5) //pwm, isr, ext, ldim
-#define LCD_DBG_PR_TEST         (1 << 6)
-#define LCD_DBG_PR_REG          (1 << 7)
+#define LCD_DBG_PR_NORMAL       BIT(0)
+#define LCD_DBG_PR_ADV          BIT(1)
+#define LCD_DBG_PR_ADV2         BIT(2) //clk calc, tcon_data
+#define LCD_DBG_PR_BL_NORMAL    BIT(4)
+#define LCD_DBG_PR_BL_ADV       BIT(5) //pwm, isr, ext, ldim
+#define LCD_DBG_PR_TEST         BIT(6)
+#define LCD_DBG_PR_REG          BIT(7)
 
 #define LCDPR(fmt, args...)     printf("lcd: "fmt"", ## args)
 #define LCDERR(fmt, args...)    printf("lcd: error: "fmt"", ## args)
