@@ -660,21 +660,16 @@
         "cmdline_keys="\
             "setenv region_code US;"\
             "if keyman init 0x1234; then "\
-                "if keyman read usid ${loadaddr} str; then "\
-                    "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-                    "setenv serial ${usid}; setenv serial# ${usid};"\
-                "else "\
-                    "setenv bootargs ${bootargs} androidboot.serialno=an400${cpu_id};"\
-                    "setenv serial an400${cpu_id}; setenv serial# an400${cpu_id};"\
-                "fi;"\
                 "if keyman read region_code ${loadaddr} str; then fi;"\
-                "if keyman read mac ${loadaddr} str; then "\
-                    "setenv bootargs ${bootargs} mac=${mac} androidboot.mac=${mac};"\
-                "fi;"\
                 "if keyman read deviceid ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
                 "fi;"\
             "fi;"\
+            "kbi usid noprint;"\
+				"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+				"setenv serial ${usid}; setenv serial# ${usid};"\
+            "kbi ethmac noprint;"\
+				"setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
             "factory_provision init;"\
             "\0"\
