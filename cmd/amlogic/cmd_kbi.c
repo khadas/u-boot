@@ -362,6 +362,15 @@ static void get_mac(int is_print)
 	int mac_addr[MAC_LENGHT] = {0};
 	int i, mode;
 
+	if(1){
+		run_command("efuse mac", 0);
+		char *temp = getenv("eth_mac");
+		if (temp != NULL) {
+			printf("mac=%s\n", temp);
+		}
+		return;
+	}
+
 	mode = kbi_i2c_read(REG_MAC_SWITCH);
 
 	if (mode == 1) {
@@ -472,6 +481,16 @@ static void get_usid(int is_print)
 	char serial[64];
 	int usid[USID_LENGHT] = {};
 	int i;
+
+	if(1){
+		run_command("efuse usid", 0);
+		char *temp = getenv("usid");
+		if (temp != NULL) {
+			printf("usid=%s\n", temp);
+		}
+		return;
+	}
+
 #ifdef CONFIG_USID_FROM_ETH_MAC
 	int mode;
 	mode = kbi_i2c_read(REG_MAC_SWITCH);
