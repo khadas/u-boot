@@ -242,6 +242,8 @@ U_BOOT_CMD(
 	"efuse commands", efuse_help_text
 );
 
+efuse_obj_field_t efuse_field;
+
 #ifdef CONFIG_EFUSE_OBJ_API
 static char *efuse_obj_err_parse(uint32_t  efuse_obj_err_status)
 {
@@ -324,6 +326,7 @@ int do_efuse_obj(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	memset(&buff[0], 0, sizeof(buff));
+	memset(&efuse_field, 0, sizeof(efuse_field));
 
 	if (strcmp(argv[1], "get") == 0) {
 		// $0 get field
@@ -332,6 +335,11 @@ int do_efuse_obj(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			rc = efuse_obj_read(EFUSE_OBJ_EFUSE_DATA, name, buff, &bufflen);
 			if (rc == EFUSE_OBJ_SUCCESS) {
 				int i;
+
+				memset(&efuse_field, 0, sizeof(efuse_field));
+				strncpy(efuse_field.name, name, sizeof(efuse_field.name));
+				memcpy(efuse_field.data, buff, bufflen);
+				efuse_field.size = bufflen;
 
 				for (i = 0; i < bufflen; i++)
 					printf("%02x%s", buff[i],
@@ -395,6 +403,11 @@ int do_efuse_obj(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			rc = efuse_obj_read(EFUSE_OBJ_LOCK_STATUS, name, buff, &bufflen);
 			if (rc == EFUSE_OBJ_SUCCESS) {
 				int i;
+
+				memset(&efuse_field, 0, sizeof(efuse_field));
+				strncpy(efuse_field.name, name, sizeof(efuse_field.name));
+				memcpy(efuse_field.data, buff, bufflen);
+				efuse_field.size = bufflen;
 
 				for (i = 0; i < bufflen; i++)
 					printf("%02x%s", buff[i],
