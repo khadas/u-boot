@@ -431,6 +431,11 @@ struct lcd_pinmux_ctrl_s {
 	unsigned int pinmux_clr[LCD_PINMUX_NUM][2];
 };
 
+struct cus_ctrl_config_s {
+	unsigned int flag;
+	unsigned char dlg_flag;
+};
+
 #define LCD_ENABLE_RETRY_MAX    3
 struct lcd_config_s {
 	unsigned char retry_enable_flag;
@@ -440,6 +445,7 @@ struct lcd_config_s {
 	struct lcd_timing_s timing;
 	union lcd_ctrl_config_u control;
 	struct phy_config_s phy_cfg;
+	struct cus_ctrl_config_s cus_ctrl;
 	struct lcd_power_ctrl_s power;
 	struct lcd_pinmux_ctrl_s *pinmux;
 	unsigned int pinmux_set[LCD_PINMUX_NUM][2];

@@ -1057,7 +1057,8 @@ static int lcd_config_load_from_unifykey_v2(struct lcd_config_s *pconf,
 {
 	struct lcd_unifykey_header_s *header;
 	struct phy_config_s *phy_cfg = &pconf->phy_cfg;
-	unsigned int len;
+	struct cus_ctrl_config_s *cus_ctrl = &pconf->cus_ctrl;
+	unsigned int len, temp;
 	int i, ret;
 
 	header = (struct lcd_unifykey_header_s *)p;
@@ -1083,7 +1084,7 @@ static int lcd_config_load_from_unifykey_v2(struct lcd_config_s *pconf,
 		((*(p + LCD_UKEY_PHY_ATTR_FLAG + 1)) << 8) |
 		((*(p + LCD_UKEY_PHY_ATTR_FLAG + 2)) << 16) |
 		((*(p + LCD_UKEY_PHY_ATTR_FLAG + 3)) << 24));
-	if (lcd_debug_print_flag)
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("%s: ctrl_flag=0x%x\n", __func__, phy_cfg->flag);
 
 	phy_cfg->vcm = (*(p + LCD_UKEY_PHY_ATTR_1) |
@@ -1092,7 +1093,7 @@ static int lcd_config_load_from_unifykey_v2(struct lcd_config_s *pconf,
 			*(p + LCD_UKEY_PHY_ATTR_2 + 1) << 8);
 	phy_cfg->odt = (*(p + LCD_UKEY_PHY_ATTR_3) |
 			*(p + LCD_UKEY_PHY_ATTR_3 + 1) << 8);
-	if (lcd_debug_print_flag) {
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 		LCDPR("%s: vcm=0x%x, ref_bias=0x%x, odt=0x%x\n",
 		      __func__, phy_cfg->vcm, phy_cfg->ref_bias,
 		      phy_cfg->odt);
@@ -1106,12 +1107,30 @@ static int lcd_config_load_from_unifykey_v2(struct lcd_config_s *pconf,
 			phy_cfg->lane[i].amp =
 				*(p + LCD_UKEY_PHY_LANE_CTRL + 4 * i + 2) |
 				(*(p + LCD_UKEY_PHY_LANE_CTRL + 4 * i + 3) << 8);
-			if (lcd_debug_print_flag) {
+			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 				LCDPR("%s: lane[%d]: preem=0x%x, amp=0x%x\n",
 					__func__, i,
 					phy_cfg->lane[i].preem,
 					phy_cfg->lane[i].amp);
 			}
+		}
+	}
+
+	/* ctrl */
+	cus_ctrl->flag = (*(p + LCD_UKEY_CUS_CTRL_ATTR_FLAG) |
+		((*(p + LCD_UKEY_CUS_CTRL_ATTR_FLAG + 1)) << 8) |
+		((*(p + LCD_UKEY_CUS_CTRL_ATTR_FLAG + 2)) << 16) |
+		((*(p + LCD_UKEY_CUS_CTRL_ATTR_FLAG + 3)) << 24));
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
+		LCDPR("%s: ctrl_flag=0x%x\n", __func__, cus_ctrl->flag);
+
+	if (cus_ctrl->flag & 0x1) {
+		temp = (*(p + LCD_UKEY_CUS_CTRL_ATTR_0) |
+			*(p + LCD_UKEY_CUS_CTRL_ATTR_0 + 1) << 8);
+		cus_ctrl->dlg_flag = temp & 0x3;
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
+			LCDPR("%s: dlg_flag=%d\n",
+			      __func__, cus_ctrl->dlg_flag);
 		}
 	}
 

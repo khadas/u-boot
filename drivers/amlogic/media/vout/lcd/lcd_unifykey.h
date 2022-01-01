@@ -105,25 +105,26 @@ struct lcd_unifykey_header_s {
 /* header (10Byte) */
 /* LCD_UKEY_HEAD_SIZE */
 /* phy (356Byte) */
-#define LCD_UKEY_PHY_ATTR_FLAG     (LCD_UKEY_HEAD_SIZE + 0)
-#define LCD_UKEY_PHY_ATTR_0        (LCD_UKEY_HEAD_SIZE + 4)
-#define LCD_UKEY_PHY_ATTR_1        (LCD_UKEY_HEAD_SIZE + 6)
-#define LCD_UKEY_PHY_ATTR_2        (LCD_UKEY_HEAD_SIZE + 8)
-#define LCD_UKEY_PHY_ATTR_3        (LCD_UKEY_HEAD_SIZE + 10)
-#define LCD_UKEY_PHY_ATTR_4        (LCD_UKEY_HEAD_SIZE + 12)
-#define LCD_UKEY_PHY_ATTR_5        (LCD_UKEY_HEAD_SIZE + 14)
-#define LCD_UKEY_PHY_ATTR_6        (LCD_UKEY_HEAD_SIZE + 16)
-#define LCD_UKEY_PHY_ATTR_7        (LCD_UKEY_HEAD_SIZE + 18)
-#define LCD_UKEY_PHY_ATTR_8        (LCD_UKEY_HEAD_SIZE + 20)
-#define LCD_UKEY_PHY_ATTR_9        (LCD_UKEY_HEAD_SIZE + 22)
-#define LCD_UKEY_PHY_ATTR_10       (LCD_UKEY_HEAD_SIZE + 24)
-#define LCD_UKEY_PHY_ATTR_11       (LCD_UKEY_HEAD_SIZE + 26)
-#define LCD_UKEY_PHY_LANE_CTRL     (LCD_UKEY_HEAD_SIZE + 28)//64*4
-#define LCD_UKEY_PHY_LANE_PN_SWAP  (LCD_UKEY_HEAD_SIZE + 284)//8
-#define LCD_UKEY_PHY_LANE_SWAP     (LCD_UKEY_HEAD_SIZE + 292)//64
-/* ctrl (68Byte) */
-#define LCD_UKEY_CTRL_START        (LCD_UKEY_HEAD_SIZE + 356)
-#define LCD_UKEY_CTRL_END          (LCD_UKEY_HEAD_SIZE + 424)
+#define LCD_UKEY_PHY_ATTR_FLAG          (LCD_UKEY_HEAD_SIZE + 0)
+#define LCD_UKEY_PHY_ATTR_0             (LCD_UKEY_HEAD_SIZE + 4)
+#define LCD_UKEY_PHY_ATTR_1             (LCD_UKEY_HEAD_SIZE + 6)
+#define LCD_UKEY_PHY_ATTR_2             (LCD_UKEY_HEAD_SIZE + 8)
+#define LCD_UKEY_PHY_ATTR_3             (LCD_UKEY_HEAD_SIZE + 10)
+#define LCD_UKEY_PHY_ATTR_4             (LCD_UKEY_HEAD_SIZE + 12)
+#define LCD_UKEY_PHY_ATTR_5             (LCD_UKEY_HEAD_SIZE + 14)
+#define LCD_UKEY_PHY_ATTR_6             (LCD_UKEY_HEAD_SIZE + 16)
+#define LCD_UKEY_PHY_ATTR_7             (LCD_UKEY_HEAD_SIZE + 18)
+#define LCD_UKEY_PHY_ATTR_8             (LCD_UKEY_HEAD_SIZE + 20)
+#define LCD_UKEY_PHY_ATTR_9             (LCD_UKEY_HEAD_SIZE + 22)
+#define LCD_UKEY_PHY_ATTR_10            (LCD_UKEY_HEAD_SIZE + 24)
+#define LCD_UKEY_PHY_ATTR_11            (LCD_UKEY_HEAD_SIZE + 26)
+#define LCD_UKEY_PHY_LANE_CTRL          (LCD_UKEY_HEAD_SIZE + 28)//64*4
+#define LCD_UKEY_PHY_LANE_PN_SWAP       (LCD_UKEY_HEAD_SIZE + 284)//8
+#define LCD_UKEY_PHY_LANE_SWAP          (LCD_UKEY_HEAD_SIZE + 292)//64
+/* custom ctrl (68Byte) */
+#define LCD_UKEY_CUS_CTRL_ATTR_FLAG     (LCD_UKEY_HEAD_SIZE + 356)
+#define LCD_UKEY_CUS_CTRL_ATTR_0        (LCD_UKEY_HEAD_SIZE + 360)
+#define LCD_UKEY_CUS_CTRL_END           (LCD_UKEY_HEAD_SIZE + 424)
 
 /* ********************************
  * lcd extern

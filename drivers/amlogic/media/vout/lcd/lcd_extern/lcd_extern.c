@@ -44,7 +44,7 @@ struct lcd_extern_dev_s *lcd_extern_get_dev(struct lcd_extern_driver_s *edrv, in
 	return NULL;
 }
 
-static void lcd_extern_init_table_dynamic_size_print(struct lcd_extern_config_s *econf, int flag)
+static void lcd_extern_init_table_dynamic_print(struct lcd_extern_config_s *econf, int flag)
 {
 	int i, j, max_len;
 	unsigned char type, size;
@@ -160,8 +160,7 @@ init_table_dynamic_print_mipi_next:
 	}
 }
 
-static void lcd_extern_init_table_fixed_size_print(
-		struct lcd_extern_config_s *econf, int flag)
+static void lcd_extern_init_table_fixed_print(struct lcd_extern_config_s *econf, int flag)
 {
 	int i, j, max_len;
 	unsigned char cmd_size;
@@ -195,6 +194,28 @@ static void lcd_extern_init_table_fixed_size_print(
 	}
 }
 
+static void lcd_extern_multi_list_print(struct lcd_extern_dev_s *edev)
+{
+	struct lcd_extern_multi_list_s *temp_list;
+	int i;
+
+	if (!edev->multi_list_header) {
+		printf("multi_list: NULL\n");
+		return;
+	}
+
+	temp_list = edev->multi_list_header;
+	while (temp_list) {
+		printf("multi_list[%d]:\n", temp_list->index);
+		printf("  type: 0x%x\n", temp_list->type);
+		printf("  data:");
+		for (i = 0; i < temp_list->data_len; i++)
+			printf(" %d", temp_list->data_buf[i]);
+		printf("\n");
+		temp_list = temp_list->next;
+	}
+}
+
 static void lcd_extern_dev_info_print(struct lcd_extern_dev_s *edev)
 {
 	printf("lcd_extern device[%d] info:\n", edev->config.index);
@@ -225,12 +246,13 @@ static void lcd_extern_dev_info_print(struct lcd_extern_dev_s *edev)
 			edev->config.table_init_on_cnt,
 			edev->config.table_init_off_cnt);
 		if (edev->config.cmd_size == LCD_EXT_CMD_SIZE_DYNAMIC) {
-			lcd_extern_init_table_dynamic_size_print(&edev->config, 1);
-			lcd_extern_init_table_dynamic_size_print(&edev->config, 0);
+			lcd_extern_init_table_dynamic_print(&edev->config, 1);
+			lcd_extern_init_table_dynamic_print(&edev->config, 0);
 		} else {
-			lcd_extern_init_table_fixed_size_print(&edev->config, 1);
-			lcd_extern_init_table_fixed_size_print(&edev->config, 0);
+			lcd_extern_init_table_fixed_print(&edev->config, 1);
+			lcd_extern_init_table_fixed_print(&edev->config, 0);
 		}
+		lcd_extern_multi_list_print(edev);
 		break;
 	case LCD_EXTERN_SPI:
 		printf("spi_gpio_cs:      %d\n"
@@ -256,11 +278,11 @@ static void lcd_extern_dev_info_print(struct lcd_extern_dev_s *edev)
 			edev->config.table_init_on_cnt,
 			edev->config.table_init_off_cnt);
 		if (edev->config.cmd_size == LCD_EXT_CMD_SIZE_DYNAMIC) {
-			lcd_extern_init_table_dynamic_size_print(&edev->config, 1);
-			lcd_extern_init_table_dynamic_size_print(&edev->config, 0);
+			lcd_extern_init_table_dynamic_print(&edev->config, 1);
+			lcd_extern_init_table_dynamic_print(&edev->config, 0);
 		} else {
-			lcd_extern_init_table_fixed_size_print(&edev->config, 1);
-			lcd_extern_init_table_fixed_size_print(&edev->config, 0);
+			lcd_extern_init_table_fixed_print(&edev->config, 1);
+			lcd_extern_init_table_fixed_print(&edev->config, 0);
 		}
 		break;
 	case LCD_EXTERN_MIPI:
@@ -274,8 +296,8 @@ static void lcd_extern_dev_info_print(struct lcd_extern_dev_s *edev)
 			edev->config.cmd_size,
 			edev->config.table_init_on_cnt,
 			edev->config.table_init_off_cnt);
-		lcd_extern_init_table_dynamic_size_print(&edev->config, 1);
-		lcd_extern_init_table_dynamic_size_print(&edev->config, 0);
+		lcd_extern_init_table_dynamic_print(&edev->config, 1);
+		lcd_extern_init_table_dynamic_print(&edev->config, 0);
 		break;
 	default:
 		printf("not support extern_type\n");
@@ -1194,7 +1216,7 @@ static int lcd_extern_get_config_dts(char *dtaddr, char *snode,
 }
 #endif
 
-static int lcd_extern_init_table_dynamic_load_unifykey(struct lcd_extern_config_s *extconf,
+static int lcd_extern_init_table_dynamic_load_ukey(struct lcd_extern_config_s *extconf,
 		unsigned char *p, int key_len, int len, int flag)
 {
 	unsigned char cmd_size = 0;
@@ -1235,7 +1257,7 @@ static int lcd_extern_init_table_dynamic_load_unifykey(struct lcd_extern_config_
 					extconf->table_init_on_cnt = i + 2;
 				else
 					extconf->table_init_off_cnt = i + 2;
-				goto lcd_extern_init_table_dynamic_load_unifykey_abort;
+				goto lcd_extern_init_table_dynamic_load_ukey_abort;
 			}
 			table[i] = *(buf + LCD_UKEY_EXT_INIT + i);
 			/* cmd_size */
@@ -1250,7 +1272,7 @@ static int lcd_extern_init_table_dynamic_load_unifykey(struct lcd_extern_config_
 					extconf->table_init_on_cnt = i + 2;
 				else
 					extconf->table_init_off_cnt = i + 2;
-				goto lcd_extern_init_table_dynamic_load_unifykey_abort;
+				goto lcd_extern_init_table_dynamic_load_ukey_abort;
 			}
 			table[i+1] = *(buf + LCD_UKEY_EXT_INIT + i + 1);
 			cmd_size = table[i+1];
@@ -1268,7 +1290,7 @@ static int lcd_extern_init_table_dynamic_load_unifykey(struct lcd_extern_config_
 					extconf->table_init_on_cnt = i + 2;
 				else
 					extconf->table_init_off_cnt = i + 2;
-				goto lcd_extern_init_table_dynamic_load_unifykey_abort;
+				goto lcd_extern_init_table_dynamic_load_ukey_abort;
 			}
 
 			/* data */
@@ -1283,7 +1305,7 @@ static int lcd_extern_init_table_dynamic_load_unifykey(struct lcd_extern_config_
 					extconf->table_init_on_cnt = i + 2;
 				else
 					extconf->table_init_off_cnt = i + 2;
-				goto lcd_extern_init_table_dynamic_load_unifykey_abort;
+				goto lcd_extern_init_table_dynamic_load_ukey_abort;
 			}
 			for (j = 0; j < cmd_size; j++)
 				table[i + 2 + j] =
@@ -1311,7 +1333,7 @@ init_table_dynamic_i2c_spi_ukey_next:
 					extconf->table_init_on_cnt = i + 2;
 				else
 					extconf->table_init_off_cnt = i + 2;
-				goto lcd_extern_init_table_dynamic_load_unifykey_abort;
+				goto lcd_extern_init_table_dynamic_load_ukey_abort;
 			}
 			table[i] = *(buf + LCD_UKEY_EXT_INIT + i);
 			/* type */
@@ -1326,7 +1348,7 @@ init_table_dynamic_i2c_spi_ukey_next:
 					extconf->table_init_on_cnt = i + 2;
 				else
 					extconf->table_init_off_cnt = i + 2;
-				goto lcd_extern_init_table_dynamic_load_unifykey_abort;
+				goto lcd_extern_init_table_dynamic_load_ukey_abort;
 			}
 			table[i+1] = *(buf + LCD_UKEY_EXT_INIT + i + 1);
 			cmd_size = table[i+1];
@@ -1355,7 +1377,7 @@ init_table_dynamic_i2c_spi_ukey_next:
 					extconf->table_init_on_cnt = i + 2;
 				else
 					extconf->table_init_off_cnt = i + 2;
-				goto lcd_extern_init_table_dynamic_load_unifykey_abort;
+				goto lcd_extern_init_table_dynamic_load_ukey_abort;
 			}
 			for (j = 0; j < cmd_size; j++)
 				table[i+2+j] = *(buf + LCD_UKEY_EXT_INIT + i + 2 + j);
@@ -1373,26 +1395,26 @@ init_table_dynamic_mipi_ukey_next:
 			extconf->table_init_on_cnt = 0;
 		else
 			extconf->table_init_off_cnt = 0;
-		goto lcd_extern_init_table_dynamic_load_unifykey_err;
+		goto lcd_extern_init_table_dynamic_load_ukey_err;
 	}
 
 	ret = lcd_extern_init_table_save(extconf, flag, table);
 	if (ret)
-		goto lcd_extern_init_table_dynamic_load_unifykey_err;
+		goto lcd_extern_init_table_dynamic_load_ukey_err;
 	free(table);
 	return 0;
 
-lcd_extern_init_table_dynamic_load_unifykey_abort:
+lcd_extern_init_table_dynamic_load_ukey_abort:
 	lcd_extern_init_table_save(extconf, flag, table);
 	free(table);
 	return -1;
 
-lcd_extern_init_table_dynamic_load_unifykey_err:
+lcd_extern_init_table_dynamic_load_ukey_err:
 	free(table);
 	return -1;
 }
 
-static int lcd_extern_init_table_fixed_load_unifykey(struct lcd_extern_config_s *extconf,
+static int lcd_extern_init_table_fixed_load_ukey(struct lcd_extern_config_s *extconf,
 		unsigned char *p, int key_len, int len, int flag)
 {
 	unsigned char cmd_size;
@@ -1426,7 +1448,7 @@ static int lcd_extern_init_table_fixed_load_unifykey(struct lcd_extern_config_s 
 				extconf->table_init_on_cnt = i + cmd_size;
 			else
 				extconf->table_init_off_cnt = i + cmd_size;
-			goto lcd_extern_init_table_fixed_load_unifykey_abort;
+			goto lcd_extern_init_table_fixed_load_ukey_abort;
 		}
 		len += cmd_size;
 		ret = lcd_unifykey_len_check(key_len, len);
@@ -1437,7 +1459,7 @@ static int lcd_extern_init_table_fixed_load_unifykey(struct lcd_extern_config_s 
 				extconf->table_init_on_cnt = i + cmd_size;
 			else
 				extconf->table_init_off_cnt = i + cmd_size;
-			goto lcd_extern_init_table_fixed_load_unifykey_abort;
+			goto lcd_extern_init_table_fixed_load_ukey_abort;
 		}
 		for (j = 0; j < cmd_size; j++)
 			table[i+j] = *(buf + LCD_UKEY_EXT_INIT + i + j);
@@ -1454,16 +1476,16 @@ static int lcd_extern_init_table_fixed_load_unifykey(struct lcd_extern_config_s 
 		extconf->table_init_off_cnt = i + cmd_size;
 	ret = lcd_extern_init_table_save(extconf, flag, table);
 	if (ret)
-		goto lcd_extern_init_table_fixed_load_unifykey_err;
+		goto lcd_extern_init_table_fixed_load_ukey_err;
 	free(table);
 	return 0;
 
-lcd_extern_init_table_fixed_load_unifykey_abort:
+lcd_extern_init_table_fixed_load_ukey_abort:
 	lcd_extern_init_table_save(extconf, flag, table);
 	free(table);
 	return -1;
 
-lcd_extern_init_table_fixed_load_unifykey_err:
+lcd_extern_init_table_fixed_load_ukey_err:
 	free(table);
 	return -1;
 }
@@ -1555,18 +1577,18 @@ static int lcd_extern_get_config_unifykey(struct lcd_extern_driver_s *edrv,
 		if (edev->config.cmd_size == 0)
 			break;
 		if (edev->config.cmd_size == LCD_EXT_CMD_SIZE_DYNAMIC) {
-			ret = lcd_extern_init_table_dynamic_load_unifykey(&edev->config,
+			ret = lcd_extern_init_table_dynamic_load_ukey(&edev->config,
 					p, key_len, len, 1);
 			if (ret)
 				break;
-			ret = lcd_extern_init_table_dynamic_load_unifykey(&edev->config,
+			ret = lcd_extern_init_table_dynamic_load_ukey(&edev->config,
 					p, key_len, len, 0);
 		} else {
-			ret = lcd_extern_init_table_fixed_load_unifykey(&edev->config,
+			ret = lcd_extern_init_table_fixed_load_ukey(&edev->config,
 					p, key_len, len, 1);
 			if (ret)
 				break;
-			ret = lcd_extern_init_table_fixed_load_unifykey(&edev->config,
+			ret = lcd_extern_init_table_fixed_load_ukey(&edev->config,
 					p, key_len, len, 0);
 		}
 		if (ret == 0)
@@ -1590,18 +1612,18 @@ static int lcd_extern_get_config_unifykey(struct lcd_extern_driver_s *edrv,
 		if (edev->config.cmd_size == 0)
 			break;
 		if (edev->config.cmd_size == LCD_EXT_CMD_SIZE_DYNAMIC) {
-			ret = lcd_extern_init_table_dynamic_load_unifykey(&edev->config,
+			ret = lcd_extern_init_table_dynamic_load_ukey(&edev->config,
 					p, key_len, len, 1);
 			if (ret)
 				break;
-			ret = lcd_extern_init_table_dynamic_load_unifykey(&edev->config,
+			ret = lcd_extern_init_table_dynamic_load_ukey(&edev->config,
 					p, key_len, len, 0);
 		} else {
-			ret = lcd_extern_init_table_fixed_load_unifykey(&edev->config,
+			ret = lcd_extern_init_table_fixed_load_ukey(&edev->config,
 					p, key_len, len, 1);
 			if (ret)
 				break;
-			ret = lcd_extern_init_table_fixed_load_unifykey(&edev->config,
+			ret = lcd_extern_init_table_fixed_load_ukey(&edev->config,
 					p, key_len, len, 0);
 		}
 		if (ret == 0)
@@ -1618,11 +1640,11 @@ static int lcd_extern_get_config_unifykey(struct lcd_extern_driver_s *edrv,
 		if (edev->config.cmd_size != LCD_EXT_CMD_SIZE_DYNAMIC)
 			break;
 		if (edev->config.cmd_size == LCD_EXT_CMD_SIZE_DYNAMIC) {
-			ret = lcd_extern_init_table_dynamic_load_unifykey(&edev->config,
+			ret = lcd_extern_init_table_dynamic_load_ukey(&edev->config,
 					p, key_len, len, 1);
 			if (ret)
 				break;
-			ret = lcd_extern_init_table_dynamic_load_unifykey(&edev->config,
+			ret = lcd_extern_init_table_dynamic_load_ukey(&edev->config,
 					p, key_len, len, 0);
 		} else {
 			ret = -1;
@@ -1636,6 +1658,105 @@ static int lcd_extern_get_config_unifykey(struct lcd_extern_driver_s *edrv,
 
 	free(para);
 	return 0;
+}
+
+static void lcd_extern_multi_list_add(struct lcd_extern_dev_s *edev,
+		unsigned int index, unsigned int type,
+		unsigned char data_len, unsigned char *data_buf)
+{
+	struct lcd_extern_multi_list_s *temp_list;
+	struct lcd_extern_multi_list_s *cur_list;
+
+	/* creat list */
+	cur_list = (struct lcd_extern_multi_list_s *)
+		malloc(sizeof(struct lcd_extern_multi_list_s));
+	if (!cur_list)
+		return;
+	memset(cur_list, 0, sizeof(struct lcd_extern_multi_list_s));
+	cur_list->index = index;
+	cur_list->type = type;
+	cur_list->data_len = data_len;
+	cur_list->data_buf = data_buf;
+
+	if (!edev->multi_list_header) {
+		edev->multi_list_header = cur_list;
+	} else {
+		temp_list = edev->multi_list_header;
+		while (temp_list->next) {
+			if (temp_list->index == cur_list->index) {
+				EXTERR("%s: dev_%d: index=%d(type=%d) already in list\n",
+					__func__, edev->dev_index,
+					cur_list->index, cur_list->type);
+				return;
+			}
+			temp_list = temp_list->next;
+		}
+		temp_list->next = cur_list;
+	}
+
+	EXTPR("%s: dev_%d: index=%d, type=%d\n",
+	       __func__, edev->dev_index, cur_list->index, cur_list->type);
+}
+
+static int lcd_extern_multi_list_remove(struct lcd_extern_dev_s *edev)
+{
+	struct lcd_extern_multi_list_s *cur_list;
+	struct lcd_extern_multi_list_s *next_list;
+
+	/* add to exist list */
+	cur_list = edev->multi_list_header;
+	while (cur_list) {
+		next_list = cur_list->next;
+		free(cur_list);
+		cur_list = next_list;
+	}
+	edev->multi_list_header = NULL;
+
+	return 0;
+}
+
+static void lcd_extern_config_update_dynamic_size(struct lcd_extern_dev_s *edev,
+						  int flag)
+{
+	unsigned char type, size, *table;
+	unsigned int max_len = 0, i = 0, j, index;
+
+	if (flag) {
+		max_len = edev->config.table_init_on_cnt;
+		table = edev->config.table_init_on;
+	} else {
+		max_len = edev->config.table_init_off_cnt;
+		table = edev->config.table_init_off;
+	}
+
+	while ((i + 1) < max_len) {
+		type = table[i];
+		size = table[i + 1];
+		if (type == LCD_EXT_CMD_TYPE_END)
+			break;
+		if (size == 0)
+			goto lcd_extern_config_update_dynamic_size_next;
+		if ((i + 2 + size) > max_len)
+			break;
+
+		if (type == LCD_EXT_CMD_TYPE_MULTI_FR) {
+			for (j = 0; j < size; j += 3) {
+				index = i + 2 + j;
+				lcd_extern_multi_list_add(edev, table[index],
+					type, 2, &table[index + 1]);
+			}
+		}
+lcd_extern_config_update_dynamic_size_next:
+		i += (size + 2);
+	}
+}
+
+static void lcd_extern_config_update(struct lcd_extern_dev_s *edev)
+{
+	if (edev->config.cmd_size == LCD_EXT_CMD_SIZE_DYNAMIC) {
+		lcd_extern_config_update_dynamic_size(edev, 1);
+		lcd_extern_config_update_dynamic_size(edev, 0);
+	}
 }
 
 static int lcd_extern_add_dev(struct lcd_extern_driver_s *edrv,
@@ -1768,11 +1889,14 @@ static int lcd_extern_dev_probe(char *dtaddr, int load_id,
 			}
 		}
 	}
-	if (ret == 0)
+	if (ret == 0) {
+		lcd_extern_config_update(edev);
 		ret = lcd_extern_add_dev(edrv, edev);
+	}
 
 	if (ret) {
 		EXTERR("[%d]: %s: %d failed\n", edrv->index, __func__, dev_index);
+		lcd_extern_multi_list_remove(edev);
 		free(edev);
 		edrv->dev[n] = NULL;
 		return -1;

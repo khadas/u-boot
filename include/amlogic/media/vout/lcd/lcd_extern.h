@@ -80,9 +80,18 @@ struct lcd_extern_config_s {
 	unsigned char *table_init_off;
 };
 
+struct lcd_extern_multi_list_s {
+	unsigned int index;
+	unsigned int type;
+	unsigned char data_len;
+	unsigned char *data_buf;
+	struct lcd_extern_multi_list_s *next;
+};
+
 struct lcd_extern_dev_s {
 	int dev_index;
 	struct lcd_extern_config_s config;
+	struct lcd_extern_multi_list_s *multi_list_header;
 	int (*reg_read)(struct lcd_extern_driver_s *ext_drv,
 			struct lcd_extern_dev_s *ext_dev,
 			unsigned char reg, unsigned char *buf);
