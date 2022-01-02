@@ -402,6 +402,29 @@ const struct mtd_partition *get_spinand_partition_table(int *partitions)
 }
 #endif /* CONFIG_SPI_NAND */
 
+#ifdef CONFIG_MULTI_DTB
+int checkhw(char *name)
+{
+	char loc_name[64] = {0};
+	unsigned long ddr_size = 0;
+	int i;
+
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
+		ddr_size += gd->bd->bi_dram[i].size;
+	printf("ddr_size is %lx\n", ddr_size);
+	if (ddr_size <= 0x40000000)
+		strcpy(loc_name, "s4_s805x2_aq222\0");
+	else if (ddr_size <= 0x60000000)
+		strcpy(loc_name, "s4_s805x2_aq222_1.5g\0");
+	else
+		strcpy(loc_name, "s4_s805x2_aq222\0");
+	/* set aml_dt */
+	strcpy(name, loc_name);
+	env_set("aml_dt", loc_name);
+	return 0;
+}
+#endif
+
 const char * const _env_args_reserve_[] =
 {
 	"lock",
