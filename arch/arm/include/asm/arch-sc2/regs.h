@@ -29,11 +29,11 @@
 #define AO_RTI_STATUS_REG3		(SYSCTRL_SEC_STICKY_REG1) /* reboot mode */
 
 
-/* PREG_STICKY_REG8  use SYSCTRL_STICKY_REG7
+/* PREG_STICKY_REG8  use SYSCTRL_STICKY_REG6
  * P_AO_SEC_GP_CFG12 use SYSCTRL_DEBUG_REG6
  * P_AO_SEC_GP_CFG13 use SYSCTRL_DEBUG_REG7
  */
-#define PREG_STICKY_REG8		(SYSCTRL_DEBUG_REG5) /* save memory config and boot status*/
+#define PREG_STICKY_REG8		(SYSCTRL_STICKY_REG6) /*save memory config, boot status*/
 #define P_AO_SEC_GP_CFG12		(SYSCTRL_DEBUG_REG6) /* ram compress size */
 #define P_AO_SEC_GP_CFG13		(SYSCTRL_DEBUG_REG7) /* ram compress start addrs */
 

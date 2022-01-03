@@ -9,6 +9,7 @@
 #include <ramdump.h>
 #include <emmc_partitions.h>
 #include <usb.h>
+#include <asm/arch/regs.h>
 
 #define DEBUG_RAMDUMP	0
 #define AMLOGIC_KERNEL_PANIC		0x0c
@@ -164,8 +165,8 @@ void check_ramdump(void)
 	int reboot_mode;
 
 	env = env_get("ramdump_enable");
+	printf("%s, ramdump_enable = %s\n", __func__, env);
 	if (env) {
-		printf("%s,%s\n", __func__, env);
 		if (!strcmp(env, "1")) {
 			reboot_mode = get_reboot_mode();
 			if ((reboot_mode == AMLOGIC_WATCHDOG_REBOOT ||

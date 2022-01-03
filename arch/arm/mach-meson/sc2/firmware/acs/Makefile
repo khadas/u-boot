@@ -192,15 +192,15 @@ CFLAGS			+= 	-Wno-unused
 LDFLAGS			+=	--fatal-warnings -O1
 LDFLAGS			+=	--gc-sections
 
-#ifdef CONFIG_MDUMP_COMPRESS
+ifdef CONFIG_MDUMP_COMPRESS
 OCFLAGS		+= -j .dev_header -j .generic_param -j .clk_param \
 			   -j .misc_param -j .store_param -j .ddr_param -j .ramdump_param \
 			   --gap-fill 0x0
-#else
+else
 OCFLAGS		+= -j .dev_header -j .generic_param -j .clk_param \
 			   -j .misc_param -j .store_param -j .ddr_param \
 			   --gap-fill 0x0
-#endif
+endif
 
 CC			:=	${CROSS_COMPILE}gcc
 CPP			:=	${CROSS_COMPILE}cpp

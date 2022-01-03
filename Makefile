@@ -1689,6 +1689,10 @@ ifeq ("$(CHIPMODE)", "1")
 	echo "#define CONFIG_CHIP_NOCS" $(CHIPMODE) >> $(version_h)
 endif
 
+ifeq ("$(CONFIG_MDUMP_COMPRESS)", "1")
+	echo "#define CONFIG_MDUMP_COMPRESS" $(CONFIG_MDUMP_COMPRESS) >> $(version_h)
+endif
+
 $(timestamp_h): $(srctree)/Makefile FORCE
 	$(call filechk,timestamp.h)
 

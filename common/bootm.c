@@ -32,6 +32,7 @@
 #include <command.h>
 #include <bootm.h>
 #include <image.h>
+#include <version.h>
 
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
 #include <ext_common.h>
