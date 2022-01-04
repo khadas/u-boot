@@ -143,6 +143,7 @@ efuse_action:
 			return -1;
 		}
 		printf("efuse %s is %s\n", s, ret > 0 ? "wrote" : "not write");
+		return ret == 0 ? 1 : 0; //cmd return 0: wrote, 1: not write
 	}
 
 	/* efuse write */
