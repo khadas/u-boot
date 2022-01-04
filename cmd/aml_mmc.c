@@ -2139,6 +2139,134 @@ static int do_amlmmc_write_protect(cmd_tbl_t *cmdtp, int flag, int argc, char *c
 	return ret;
 }
 
+static int do_amlmmc_boot_wp(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	int ret = CMD_RET_USAGE;
+	u8 ext_csd[512] = {0};
+	char *name = NULL;
+	char *type = NULL;
+	struct mmc *mmc;
+	int dev = 1;
+	u8 boot_wp = 0;
+	u8 boot_wp_status = 0;
+	u8 perm_dis = 0;
+	u8 perm_en = 0;
+
+	if (argc != 4)
+		return ret;
+
+	name = argv[2];
+	type = argv[3];
+	mmc = find_mmc_device(dev);
+	if (!mmc)
+		return 1;
+
+	if (IS_SD(mmc)) {
+		mmc = find_mmc_device(~dev);
+		if (!mmc)
+			return 1;
+		if (IS_SD(mmc)) {
+			printf("SD card can not be write protect\n");
+			return 1;
+		}
+	}
+
+	mmc_init(mmc);
+
+	ret = mmc_get_ext_csd(mmc, ext_csd);
+	if (ret)
+		printf("get ext_csd failed\n");
+
+	boot_wp = ext_csd[EXT_CSD_BOOT_WP];
+	boot_wp_status = ext_csd[EXT_CSD_BOOT_WP_STATUS];
+
+	perm_dis = boot_wp & 0x10;
+	perm_en = boot_wp & 0x4;
+
+	if (!strcmp(type, "permanent") && perm_dis == 0) {
+		if (!strcmp(name, "both"))
+			boot_wp = 0x4;
+		else if (!strcmp(name, "boot0"))
+			boot_wp = 0x84;
+		else if (!strcmp(name, "boot1"))
+			boot_wp = 0x8c;
+		else
+			return -1;
+	}
+
+	if (!strcmp(type, "poweron")) {
+		if (!strcmp(name, "both") && perm_en == 0) {
+			boot_wp |= 0x1;
+		} else if (!strcmp(name, "boot0")) {
+			boot_wp |= 0x81;
+			boot_wp |= boot_wp_status & 0x8;
+		} else if (!strcmp(name, "boot1")) {
+			boot_wp |= 0x83;
+		} else {
+			return -1;
+		}
+	}
+
+	printf("boot_wp is 0x%x\n", boot_wp);
+
+	ret = mmc_set_ext_csd(mmc, EXT_CSD_BOOT_WP, boot_wp);
+	if (ret) {
+		printf("set ext_csd boot_wp field failed\n");
+		return ret;
+	}
+
+	return ret;
+}
+
+static int do_amlmmc_boot_wp_status(cmd_tbl_t *cmdtp,
+		int flag, int argc, char *const argv[])
+{
+	int ret = CMD_RET_USAGE;
+	u8 ext_csd[512] = {0};
+	u8 boot_wp_status;
+	struct mmc *mmc;
+	int dev = 1;
+
+	if (argc != 2)
+		return ret;
+
+	mmc = find_mmc_device(dev);
+	if (!mmc)
+		return ret;
+
+	if (IS_SD(mmc)) {
+		mmc = find_mmc_device(~dev);
+		if (!mmc)
+			return ret;
+		if (IS_SD(mmc)) {
+			printf("SD card can not be write protect\n");
+			return 1;
+		}
+	}
+
+	mmc_init(mmc);
+	ret = mmc_get_ext_csd(mmc, ext_csd);
+	if (ret)
+		printf("get ext_csd failed\n");
+	boot_wp_status =  ext_csd[EXT_CSD_BOOT_WP_STATUS];
+
+	if ((boot_wp_status & 0x3) == 0)
+		printf("boot0 is not protected\n");
+	else if ((boot_wp_status & 0x3) == 1)
+		printf("boot0 is power on protected\n");
+	else if ((boot_wp_status & 0x3) == 2)
+		printf("boot0 is permanently protected\n");
+
+	if ((boot_wp_status & 0xc) == 0)
+		printf("boot1 is not protected\n");
+	else if ((boot_wp_status & 0xc) == 4)
+		printf("boot1 is power on protected\n");
+	else if ((boot_wp_status & 0xc) == 8)
+		printf("boot1 is permanently protected\n");
+
+	return ret;
+}
+
 static int clear_write_prot_per_group(struct mmc *mmc, u64 blk)
 {
 	struct mmc_cmd cmd;
@@ -2733,6 +2861,8 @@ static cmd_tbl_t cmd_amlmmc[] = {
 	U_BOOT_CMD_MKENT(send_wp_status, 4, 0, do_amlmmc_send_wp_status, "", ""),
 	U_BOOT_CMD_MKENT(send_wp_type,   4, 0, do_amlmmc_send_wp_type, "", ""),
 	U_BOOT_CMD_MKENT(clear_wp,      4, 0, do_amlmmc_clear_wp,      "", ""),
+	U_BOOT_CMD_MKENT(boot_wp,        4, 0, do_amlmmc_boot_wp,        "", ""),
+	U_BOOT_CMD_MKENT(boot_wp_status, 2, 0, do_amlmmc_boot_wp_status, "", ""),
 	U_BOOT_CMD_MKENT(ds,            4, 0, do_amlmmc_driver_strength, "", ""),
 #ifdef CONFIG_SECURITYKEY
 	U_BOOT_CMD_MKENT(key,           2, 0, do_amlmmc_key,           "", ""),
@@ -2781,6 +2911,8 @@ U_BOOT_CMD(
 	"amlmmc send_wp_type <addr_base16> <cnt_base10> send protect type on specified address\n"
 	"amlmmc clear_wp <partition_name> clear write protect of partition\n"
 	"amlmmc clear_wp <addr_base16> <cnt_base10> clear write protect on specified addresst\n"
+	"amlmmc boot_wp <boot number> <write protect type> boot0/boot1/both, /poweron/permanent\n"
+	"amlmmc boot_wp_status send boot write protect status\n"
 	"amlmmc ds <dev_num> <val> set driver strength\n"
 #ifdef CONFIG_SECURITYKEY
 	"amlmmc key - disprotect key partition\n"
