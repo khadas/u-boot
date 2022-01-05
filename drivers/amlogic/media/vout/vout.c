@@ -413,6 +413,22 @@ static const struct vout_set_s vout_sets_dft[] = {
 		.height            = 1080,
 		.viu_color_fmt     = VPP_CM_YUV,
 		.viu_mux           = VIU_MUX_ENCP,
+	},
+	{ /* VMODE_2560x1080p60hz */
+		.name              = "3840x1080p120hz",
+		.mode              = VMODE_3840x1080p120hz,
+		.width             = 3840,
+		.height            = 1080,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
+	},
+	{ /* VMODE_2560x1080p60hz */
+		.name              = "3840x1080p100hz",
+		.mode              = VMODE_3840x1080p100hz,
+		.width             = 3840,
+		.height            = 1080,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
 	}
 };
 
@@ -632,6 +648,11 @@ static int get_window_axis(int *axis)
 		axis[1] = getenv_int("4k2ksmpte_y", def_y);
 		axis[2] = getenv_int("4k2ksmpte_w", def_w);
 		axis[3] = getenv_int("4k2ksmpte_h", def_h);
+	} else if (strncmp(mode, "3840x1080p", 10) == 0) {
+		axis[0] = getenv_int("3840x1080p_x", def_x);
+		axis[1] = getenv_int("3840x1080p_y", def_y);
+		axis[2] = getenv_int("3840x1080p_w", def_w);
+		axis[3] = getenv_int("3840x1080p_h", def_h);
 	} else if (strncmp(mode, "panel",5) == 0) {
 		axis[0] = getenv_int("panel_x", def_x);
 		axis[1] = getenv_int("panel_y", def_y);
