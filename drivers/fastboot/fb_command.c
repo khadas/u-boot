@@ -39,7 +39,9 @@ static void flash(char *, char *);
 static void erase(char *, char *);
 #endif
 static void fetch(char *, char *);
+#if !CONFIG_IS_ENABLED(NO_FASTBOOT_FLASHING)
 static void flashing(char *, char *);
+#endif//#if !CONFIG_IS_ENABLED(NO_FASTBOOT_FLASHING)
 static void reboot_bootloader(char *, char *);
 static void reboot_fastboot(char *, char *);
 #if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_FORMAT)
