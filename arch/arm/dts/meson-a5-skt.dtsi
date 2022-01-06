@@ -256,6 +256,9 @@
 	spi-flash@0 {
 		status = "okay";
 	};
+	spi-nand@1 {
+		status = "okay";
+	};
 };
 
 &spicc0 {

@@ -701,7 +701,7 @@ static struct mtd_info *allocate_partition(struct mtd_info *master,
 	if (slave->size == MTDPART_SIZ_FULL)
 		slave->size = master->size - slave->offset;
 
-	pr_debug("0x%012llx-0x%012llx : \"%s\"\n", (unsigned long long)slave->offset,
+	pr_info("0x%012llx-0x%012llx : \"%s\"\n", (unsigned long long)slave->offset,
 		(unsigned long long)(slave->offset + slave->size), slave->name);
 
 	/* let's do some sanity checks */
@@ -883,7 +883,7 @@ int get_aml_mtdpart_name(struct mtd_info *master, int idx, char *name)
 
 	list_for_each_entry(dentry, &aml_device, link) {
 		list_for_each_entry(temp, &dentry->parts, link) {
-			pr_debug("0x%012llx-0x%012llx : \"%s\"\n",
+			pr_info("0x%012llx-0x%012llx : \"%s\"\n",
 			(unsigned long long)temp->offset,
 			(unsigned long long)(temp->offset + temp->size),
 			temp->name);
@@ -898,7 +898,7 @@ void list_aml_mtd_partitions(struct mtd_info *master)
 	int i = 0;
 
 	list_for_each_entry(slave, &master->partitions, node)
-		pr_debug("%2d: %-20s0x%08llx\t0x%08llx\n",
+		pr_info("%2d: %-20s0x%08llx\t0x%08llx\n",
 					i++, slave->name, slave->size, slave->offset);
 	return;
 }
@@ -913,14 +913,14 @@ int add_mtd_partitions(struct mtd_info *master,
 	int i;
 
 #ifdef CONFIG_AML_MTDPART
-	pr_debug("%s, %d, master: %p, master->partitions: %p\n",
+	pr_info("%s, %d, master: %p, master->partitions: %p\n",
 			__func__, __LINE__, master, &master->partitions);
 	if (master->partitions.next == NULL) {
-		pr_debug("%s, %d INIT partition\n", __func__, __LINE__);
+		pr_info("%s, %d INIT partition\n", __func__, __LINE__);
 		INIT_LIST_HEAD(&master->partitions);
 	}
 #endif
-	pr_debug("Creating %d MTD partitions on \"%s\":\n", nbparts, master->name);
+	pr_info("Creating %d MTD partitions on \"%s\":\n", nbparts, master->name);
 
 	for (i = 0; i < nbparts; i++) {
 		slave = allocate_partition(master, parts + i, i, cur_offset);
@@ -1106,7 +1106,7 @@ int mtdparts_init(void)
 	}
 	list_for_each_entry(dentry, &aml_device, link) {
 		list_for_each_entry(temp, &dentry->parts, link) {
-			pr_debug("0x%012llx-0x%012llx : \"%s\"\n",
+			pr_info("0x%012llx-0x%012llx : \"%s\"\n",
 			(unsigned long long)temp->offset,
 			(unsigned long long)(temp->offset + temp->size),
 			temp->name);

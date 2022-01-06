@@ -377,8 +377,10 @@ static int storage_get_and_parse_ssp(int *need_build) // boot_device:
 		case BOOT_SNAND:
 			if (IS_FEAT_EN_8BL2_SNAND())
 				ssp->boot_bakups = 8;
-			if (IS_FEAT_DIS_NBL2_SNAND())
+			else if (IS_FEAT_DIS_NBL2_SNAND())
 				ssp->boot_bakups = 1;
+			else
+				ssp->boot_bakups = 4; /* Default 4 backup, consistent with rom */
 			sip->snasp.pagesize = current->info.write_unit;
 			sip->snasp.pages_per_eraseblock =
 			current->info.erase_unit / current->info.write_unit;
