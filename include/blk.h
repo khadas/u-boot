@@ -274,7 +274,7 @@ unsigned long blk_dwrite(struct blk_desc *block_dev, lbaint_t start,
 			 lbaint_t blkcnt, const void *buffer);
 unsigned long blk_derase(struct blk_desc *block_dev, lbaint_t start,
 			 lbaint_t blkcnt);
-
+void blk_dcache_invalid(struct blk_desc *block_dev);
 /**
  * blk_find_device() - Find a block device
  *
@@ -458,6 +458,11 @@ static inline ulong blk_derase(struct blk_desc *block_dev, lbaint_t start,
 {
 	blkcache_invalidate(block_dev->if_type, block_dev->devnum);
 	return block_dev->block_erase(block_dev, start, blkcnt);
+}
+
+static inline void blk_dcache_invalid(struct blk_desc *block_dev)
+{
+	blkcache_invalidate(block_dev->if_type, block_dev->devnum);
 }
 
 /**

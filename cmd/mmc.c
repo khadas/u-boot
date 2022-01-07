@@ -490,6 +490,7 @@ static int do_mmc_dev(cmd_tbl_t *cmdtp, int flag,
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
+	blk_dcache_invalid(mmc_get_blk_desc(mmc));
 	ret = blk_select_hwpart_devnum(IF_TYPE_MMC, dev, part);
 	printf("switch to partitions #%d, %s\n",
 	       part, (!ret) ? "OK" : "ERROR");

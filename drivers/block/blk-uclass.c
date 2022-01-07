@@ -447,6 +447,11 @@ unsigned long blk_dread(struct blk_desc *block_dev, lbaint_t start,
 	return blks_read;
 }
 
+void blk_dcache_invalid(struct blk_desc *block_dev)
+{
+	blkcache_invalidate(block_dev->if_type, block_dev->devnum);
+}
+
 unsigned long blk_dwrite(struct blk_desc *block_dev, lbaint_t start,
 			 lbaint_t blkcnt, const void *buffer)
 {
