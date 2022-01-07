@@ -510,6 +510,17 @@ static void construct_avi_packet(struct hdmitx_dev *hdev)
 	hdmi_avi_infoframe_set(info);
 }
 
+static void construct_audio_packet(struct hdmitx_dev *hdev)
+{
+	struct hdmi_audio_infoframe *info = &hdev->infoframes.aud.audio;
+
+	hdmi_audio_infoframe_init(info);
+
+	info->coding_type = HDMI_AUDIO_CODING_TYPE_STREAM;
+	info->channels = CC_2CH;
+	hdmi_audio_infoframe_set(info);
+}
+
 static void hdmi_set_vend_spec_infofram(struct hdmitx_dev *hdev,
 					enum hdmi_vic videocode)
 {
@@ -807,6 +818,7 @@ unsigned int hdmi_outputmode_check(char *mode, unsigned int frac)
 static int hdmitx_set_audmode(struct hdmitx_dev *hdev)
 {
 	hdmitx21_set_audioclk(1);
+	construct_audio_packet(hdev);
 
 	return 0;
 }
