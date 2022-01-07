@@ -617,6 +617,18 @@ enum hdmi_audio_fs {
 	FS_MAX,
 };
 
+enum hdmi_audio_chnnum {
+	CC_REFER_TO_STREAM = 0,
+	CC_2CH,
+	CC_3CH,
+	CC_4CH,
+	CC_5CH,
+	CC_6CH,
+	CC_7CH,
+	CC_8CH,
+	CC_MAX_CH
+};
+
 struct hdmi_support_mode {
 	enum hdmi_vic vic;
 	char *sname;
