@@ -249,7 +249,7 @@ ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE ?=
 endif
 
-CROSS_COMPILE ?=/opt/gcc-linaro-7.3.1-2018.05-i686_aarch64-elf/bin/aarch64-elf-
+CROSS_COMPILE ?=/opt/toolchains/gcc-linaro-7.3.1-2018.05-i686_aarch64-elf/bin/aarch64-elf-
 export CROSS_COMPILE
 
 KCONFIG_CONFIG	?= .config
