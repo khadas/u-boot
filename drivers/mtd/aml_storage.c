@@ -456,7 +456,8 @@ static int mtd_store_get_offset(const char *partname, loff_t *retoff, loff_t off
 extern int get_aml_mtdpart_count(void);
 static int mtd_store_count(void)
 {
-	mtdparts_init();
+	if (mtdparts_init())
+		return -1;
 	return get_aml_mtdpart_count();
 }
 
