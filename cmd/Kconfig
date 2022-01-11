@@ -1980,10 +1980,20 @@ config CMD_INI
 	help
 	  support ini command
 
+menu "Khadas commands"
+
 config CMD_SCRIPT
 	bool "simple plain script run from mem without mkimage wrappers"
 	default y
 	help
 	  simple plain script run from mem without mkimage wrappers
+
+config CMD_CFGLOAD
+	bool "support boot.ini"
+	default n
+	help
+	  support load boot.ini
+
+endmenu
 
 endmenu
