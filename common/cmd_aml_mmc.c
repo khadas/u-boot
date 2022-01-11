@@ -2215,7 +2215,6 @@ static int do_amlmmc_write_protect(cmd_tbl_t *cmdtp, int flag, int argc, char *c
 	return ret;
 }
 
-
 static int do_amlmmc_boot_wp(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	int ret = CMD_RET_USAGE;
@@ -2224,7 +2223,10 @@ static int do_amlmmc_boot_wp(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	char *type = NULL;
 	struct mmc *mmc;
 	int dev = 1;
-	u8 boot_wp;
+	u8 boot_wp = 0;
+	u8 boot_wp_status = 0;
+	u8 perm_dis = 0;
+	u8 perm_en = 0;
 
 	if (argc != 4)
 		return ret;
@@ -2248,29 +2250,38 @@ static int do_amlmmc_boot_wp(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	mmc_init(mmc);
 
 	ret = mmc_get_ext_csd(mmc, ext_csd);
-	if (ret) {
+	if (ret)
 		printf("get ext_csd failed\n");
-	}
-	boot_wp = ext_csd[EXT_CSD_BOOT_WP];
 
-	if (!strcmp(name, "both"))
-		boot_wp &= 0x7f;
-	else if (!strcmp(name, "boot0")) {
-		boot_wp |= 0x80;
-		boot_wp &= 0xf5;
-	} else if (!strcmp(name, "boot1"))
-		boot_wp |= 0x8a;
-	else
-		return -1;
+	boot_wp = ext_csd[EXT_CSD_BOOT_WP];
+	boot_wp_status = ext_csd[EXT_CSD_BOOT_WP_STATUS];
+
+	perm_dis = boot_wp & 0x10;
+	perm_en = boot_wp & 0x4;
+
+	if (!strcmp(type, "permanent") && perm_dis == 0) {
+		if (!strcmp(name, "both"))
+			boot_wp = 0x4;
+		else if (!strcmp(name, "boot0"))
+			boot_wp = 0x84;
+		else if (!strcmp(name, "boot1"))
+			boot_wp = 0x8c;
+		else
+			return -1;
+	}
 
 	if (!strcmp(type, "poweron")) {
-		boot_wp |= 0x1;
-		boot_wp &= 0xbf;
-	} else if (!strcmp(type,  "permanent")) {
-		boot_wp |= 0x4;
-		boot_wp &= 0xef;
-	} else
-		return -1;
+		if (!strcmp(name, "both") && perm_en == 0) {
+			boot_wp |= 0x1;
+		} else if (!strcmp(name, "boot0")) {
+			boot_wp |= 0x81;
+			boot_wp |= boot_wp_status & 0x8;
+		} else if (!strcmp(name, "boot1")) {
+			boot_wp |= 0x83;
+		} else {
+			return -1;
+		}
+	}
 
 	printf("boot_wp is 0x%x\n", boot_wp);
 
