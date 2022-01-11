@@ -182,9 +182,6 @@
 		"if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; "\
 		"then bootm ${loadaddr}; fi;"\
 		"\0"\
-	"bcb_cmd="\
-		"get_valid_slot;"\
-		"\0"\
 	"cmdline_keys="\
 		"setenv region_code US;"\
 		"setenv usid ad403${cpu_id};"\
@@ -214,16 +211,8 @@
 			"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
 			"setenv serial ${usid}; setenv serial# ${usid};"\
 			"\0"\
-		"upgrade_key="\
-			"saradc open 0;"\
-			"if saradc get_in_range 490 530; then "\
-			"echo detect upgrade key; run update;"\
-			"fi;"\
-			"\0"\
 
 #define CONFIG_PREBOOT  \
-	"run upgrade_key; "\
-	"run bcb_cmd; "\
 	"run upgrade_check;"\
 	"run storeargs;" \
 	"run switch_bootmode;"

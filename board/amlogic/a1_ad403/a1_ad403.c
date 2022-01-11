@@ -177,26 +177,43 @@ int board_late_init(void)
 		return 0;
 	}
 
+#define KEY_NONE 0
+#define KEY_FAST_BOOT 1
+#define KEY_USB_UPDATE 2
 	unsigned int val;
-	int sec = 5;
+	int sec = 5, key_mode = KEY_NONE;
 
 	while (sec) {
 		ret = adc_channel_single_shot_mode("adc", ADC_MODE_AVERAGE,  0, &val);
 		if (ret)
 			return 0;
 		if (val < 50) {
+			key_mode = KEY_FAST_BOOT;
 			sec--;
 			mdelay(1000);
+		} else if (val >= 490 && val <= 530) {
+			key_mode = KEY_USB_UPDATE;
+			sec--;
+			mdelay(1000);
+
 		} else {
+			key_mode = KEY_NONE;
 			break;
 		}
 	}
 
 	if (!sec) {
-		printf("set reboot_mode to fastboot\n");
-		env_set("reboot_mode", "fastboot");
+		if (key_mode == KEY_FAST_BOOT) {
+			printf("set reboot_mode to fastboot\n");
+			env_set("reboot_mode", "fastboot");
+		} else if (key_mode == KEY_USB_UPDATE) {
+			run_command("run update", 0);
+		}
 	}
 	return 0;
+#undef KEY_NONE
+#undef KEY_FAST_BOOT
+#undef KEY_USB_UPDATE
 #undef UPGRADE_CMD
 #undef CHECK_FDT_CMD
 }
