@@ -41,6 +41,7 @@
 #define ETH_PHY_GPIO    12
 #define VAD_WAKEUP	13
 #define HDMI_RX_WAKEUP	14
+#define WOL_WAKEUP  15
 
 #define STR_QUEUE_LENGTH    32
 #define STR_QUEUE_ITEM_SIZE 4
