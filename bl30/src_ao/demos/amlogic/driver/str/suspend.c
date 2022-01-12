@@ -82,6 +82,7 @@ WakeUp_Reason vWakeupReason[] = {
 	[VAD_WAKEUP] = { .name = "vad" },
 	[HDMI_RX_WAKEUP] = { .name = "hdmirx_plugin" },
 	[TP_WAKEUP] = { .name = "tp_irq" },
+	[WOL_WAKEUP] = { .name = "wol" },
 };
 
 void set_suspend_flag(void)
@@ -338,6 +339,9 @@ static void vSTRTask( void *pvParameters )
 				case TP_WAKEUP:
 					exit_reason = TP_WAKEUP;
 					break;					
+				case WOL_WAKEUP:
+					exit_reason = WOL_WAKEUP;
+					break;
 				default:
 					break;
 			}

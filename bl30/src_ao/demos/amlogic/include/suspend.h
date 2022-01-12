@@ -37,11 +37,12 @@
 #define CEC_WAKEUP		8
 #define	REMOTE_CUS_WAKEUP		9
 #define ETH_PMT_WAKEUP      10
-#define CECB_WAKEUP		11
+#define CECB_WAKEUP		16
 #define ETH_PHY_GPIO    12
 #define VAD_WAKEUP	13
 #define HDMI_RX_WAKEUP	14
 #define TP_WAKEUP  15
+#define WOL_WAKEUP  11
 
 #define STR_QUEUE_LENGTH    32
 #define STR_QUEUE_ITEM_SIZE 4
