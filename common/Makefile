@@ -39,6 +39,7 @@ obj-$(CONFIG_PHYLIB) += miiphyutil.o
 ifdef CONFIG_USB
 obj-y += usb.o usb_hub.o
 obj-$(CONFIG_USB_STORAGE) += usb_storage.o
+obj-$(CONFIG_RTK_USB_BT) += rtk_fw.o
 endif
 
 # others

@@ -147,6 +147,12 @@ int board_init(void)
 	{ aml_v3_factory_usb_burning(0, gd->bd); }
 #endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 
+#ifdef CONFIG_RTK_USB_BT
+	clrbits_le32(PADCTRL_GPIOC_OEN, (0x1 << 11));
+	clrbits_le32(PADCTRL_GPIOC_O, (0x1 << 11));
+	setbits_le32(PADCTRL_GPIOC_O, (0x1 << 11));
+#endif
+
 #if 0
 	active_clk();
 #ifdef CONFIG_AML_HDMITX20
