@@ -392,7 +392,7 @@ static void lcd_phy_cntl_set_t5(struct phy_config_s *phy, int status, int bypass
 	lcd_ana_write(HHI_DIF_CSI_PHY_CNTL12, tmp);
 	data = ((phy->lane[8].preem & 0xff) << 8 |
 	       (phy->lane[9].preem & 0xff) << 24);
-	lcd_ana_write(HHI_DIF_CSI_PHY_CNTL6, chreg);
+	lcd_ana_write(HHI_DIF_CSI_PHY_CNTL6, chreg | data);
 	lcd_ana_write(HHI_DIF_CSI_PHY_CNTL13, tmp);
 	data = ((phy->lane[10].preem & 0xff) << 8 |
 	       (phy->lane[11].preem & 0xff) << 24);
@@ -1213,6 +1213,7 @@ void lcd_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 
 struct lcd_phy_ctrl_s lcd_phy_ctrl_g12a = {
 	.lane_lock = 0,
+	.ctrl_bit_on = 0,
 	.phy_set_lvds = NULL,
 	.phy_set_vx1 = NULL,
 	.phy_set_mlvds = NULL,
@@ -1223,6 +1224,7 @@ struct lcd_phy_ctrl_s lcd_phy_ctrl_g12a = {
 
 struct lcd_phy_ctrl_s lcd_phy_ctrl_tl1 = {
 	.lane_lock = 0,
+	.ctrl_bit_on = 1,
 	.phy_set_lvds = lcd_lvds_phy_set_tl1,
 	.phy_set_vx1 = lcd_vbyone_phy_set_tl1,
 	.phy_set_mlvds = lcd_mlvds_phy_set_tl1,
@@ -1233,6 +1235,7 @@ struct lcd_phy_ctrl_s lcd_phy_ctrl_tl1 = {
 
 struct lcd_phy_ctrl_s lcd_phy_ctrl_t5 = {
 	.lane_lock = 0,
+	.ctrl_bit_on = 1,
 	.phy_set_lvds = lcd_lvds_phy_set_t5,
 	.phy_set_vx1 = lcd_vbyone_phy_set_t5,
 	.phy_set_mlvds = lcd_mlvds_phy_set_t5,
@@ -1243,6 +1246,7 @@ struct lcd_phy_ctrl_s lcd_phy_ctrl_t5 = {
 
 struct lcd_phy_ctrl_s lcd_phy_ctrl_t7 = {
 	.lane_lock = 0,
+	.ctrl_bit_on = 1,
 	.phy_set_lvds = lcd_lvds_phy_set_t7,
 	.phy_set_vx1 = lcd_vbyone_phy_set_t7,
 	.phy_set_mlvds = NULL,
@@ -1253,6 +1257,7 @@ struct lcd_phy_ctrl_s lcd_phy_ctrl_t7 = {
 
 struct lcd_phy_ctrl_s lcd_phy_ctrl_t3 = {
 	.lane_lock = 0,
+	.ctrl_bit_on = 1,
 	.phy_set_lvds = lcd_lvds_phy_set_t3,
 	.phy_set_vx1 = lcd_vbyone_phy_set_t3,
 	.phy_set_mlvds = lcd_mlvds_phy_set_t3,
