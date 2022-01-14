@@ -3017,10 +3017,14 @@ void osd_init_hw_viu2(void)
 #ifdef CONFIG_AML_MESON_G12A
 void osd_init_hw_viu2(void)
 {
-	u32 group, idx, data32;
+	u32 group, idx, data32, holdline = 4;
 	char *osd_reverse;
+	unsigned long s = 0;
 
 	osd_reverse = getenv("osd_reverse");
+	s = getenv_ulong("viu2_hold_line", 10, 0);
+	if (s)
+		holdline = s;
 	for (group = 0; group < HW_OSD_COUNT; group++)
 		for (idx = 0; idx < HW_REG_INDEX_MAX; idx++)
 			osd_hw.reg[group][idx].update_func =
@@ -3036,7 +3040,7 @@ void osd_init_hw_viu2(void)
 	/* set DDR request priority to be urgent */
 	data32 = 1;
 	/* hold_fifo_lines */
-	data32 |= 4 << 5;
+	data32 |= holdline << 5;
 	/* burst_len_sel: 3=64 */
 	data32 |= 1 << 10;
 	data32 |= 1 << 31;
@@ -3140,9 +3144,10 @@ static void independ_path_default_regs(void)
 
 void osd_init_hw(void)
 {
-	u32 group, idx, data32, data2;
+	u32 group, idx, data32, data2, holdline = 8;
 	char *osd_reverse;
 	u32 ofifo_size = 0xfff;
+	unsigned long s = 0;
 
 	osd_reverse = getenv("osd_reverse");
 	for (group = 0; group < HW_OSD_COUNT; group++)
@@ -3184,10 +3189,16 @@ void osd_init_hw(void)
 			data32 &= ~(0x1f << 5); /* bit[9:5] HOLD_FIFO_LINES */
 			data32 |= 0x18 << 5;
 		} else {
-			if (osd_hw.osd_ver == OSD_HIGH_ONE)
-				data32 |= 8 << 5;  /* hold_fifo_lines */
-			else
-				data32 |= 4 << 5;  /* hold_fifo_lines */
+			s = getenv_ulong("viu1_hold_line", 10, 0);
+			if (s) {
+				holdline = s;
+				data32 |= holdline << 5;  /* hold_fifo_lines */
+			} else {
+				if (osd_hw.osd_ver == OSD_HIGH_ONE)
+					data32 |= 8 << 5;  /* hold_fifo_lines */
+				else
+					data32 |= 4 << 5;  /* hold_fifo_lines */
+			}
 		}
 		/* burst_len_sel: 3=64 */
 		if (osd_hw.osd_ver == OSD_HIGH_ONE) {
@@ -3291,7 +3302,7 @@ void osd_init_hw(void)
 		osd_hw.free_scale_mode[OSD1] = 0;
 		osd_hw.free_scale_mode[OSD2] = 0;
 	}
-	memset(osd_hw.rotate, 0, sizeof(struct osd_rotate_s));
+	memset(osd_hw.rotate, 0, sizeof(struct osd_rotate_s) * HW_OSD_COUNT);
 	if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) ||
 		((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B) &&
 		(get_cpu_id().chip_rev == MESON_CPU_CHIP_REVISION_A)))
