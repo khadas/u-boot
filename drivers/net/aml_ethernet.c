@@ -1192,7 +1192,7 @@ static int do_autoping(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 			printf("Quit autoping...\n");
 			return 0;
 		}
-		sprintf(buffer, "ping %s ", argv[1]);
+		snprintf(buffer, sizeof(buffer), "ping %s ", argv[1]);
 		run_command(buffer, 0);
 	}
 	return 0;

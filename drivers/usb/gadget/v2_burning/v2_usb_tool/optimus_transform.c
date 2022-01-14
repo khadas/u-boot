@@ -72,12 +72,12 @@ int optimus_simg2part (int argc, char * const argv[], char *info)
         const unsigned memAddrTop = OPTIMUS_DOWNLOAD_SPARSE_INFO_FOR_VERIFY;//this address backup the chunk info, don't overwrite it!
 
         if (argc < 4) {
-                sprintf(info, "failed: used [%s partName memAddr, pktSz]\n", argv[0]);
+                sprintf(info, "failed: used simg2part partName memAddr, pktSz]\n");
                 DWN_ERR(info);
                 return __LINE__;
         }
         if (!pktSz || !simg_addr) {
-                sprintf(info, "simg_addr(%s) or pktSz(%s)error\n", argv[2], argv[3]);
+                sprintf(info, "simg_addr or pktSz error\n");
                 DWN_ERR(info);
                 return __LINE__;
         }
@@ -88,17 +88,6 @@ int optimus_simg2part (int argc, char * const argv[], char *info)
                 return __LINE__;
         }
 
-#if  0
-        ret = simg_write_to_partition(partition_name, simg_addr);
-#else      /* -----  not 0  ----- */
-#if  0
-        ret = optimus_simg_probe(simg_addr, pktSz);
-        if (!ret) {
-                sprintf(info, "failed:format error, not a sparse image at addr %s\n", argv[2]);
-                DWN_ERR(info);
-                return __LINE__;
-        }
-#endif     /* -----  0  ----- */
         ret = optimus_parse_img_download_info(partition_name, pktSz, "sparse", "store", 0);
         if (ret) {
                 sprintf(info, "failed:init download info for part(%s)\n", partition_name);
@@ -110,7 +99,6 @@ int optimus_simg2part (int argc, char * const argv[], char *info)
                 DWN_ERR("failed when burn simg!, want(0x%x), write(0x%x)\n", pktSz, writeLen);
                 return __LINE__;
         }
-#endif     /* -----  not 0  ----- */
 
         return ret;
 }
@@ -199,7 +187,7 @@ static int _cpu_temp_in_valid_range(int argc, char* argv[], char* errInfo)
         minTemp = simple_strtol(argv[1], NULL, 0);
         maxTemp = simple_strtol(argv[2], NULL, 0);
         if (minTemp <=0 || maxTemp <= 0 || minTemp >= maxTemp) {
-                sprintf(errInfo, "Invalid:minTemp=%s, maxTemp=%s\n", argv[1], argv[2]);
+                sprintf(errInfo, "Invalid:minTemp=%d, maxTemp=%d\n", minTemp, maxTemp);
                 return __LINE__;
         }
         ret = run_command("read_temp", 0);

@@ -239,18 +239,16 @@ int v2_key_command(const int argc, char * const argv[], char *info)
 
     DWN_DBG("argc=%d, argv[%s, %s, %s, %s]\n", argc, argv[0], argv[1], argv[2], argv[3]);
     if (argc < 2) {
-        sprintf(info, "argc < 2, need key subcmd\n");
-        DWN_ERR(info);
+	DWN_ERR("argc < 2, need key subcmd\n");
         return __LINE__;
     }
 
     if (!strcmp("init", keyCmd))
     {
-        if (argc < 3) {
-            sprintf(info, "failed:cmd [key init] must take argument (seedNum)\n");
-            DWN_ERR(info);
-            return __LINE__;
-        }
+	if (argc < 3) {
+		DWN_ERR("failed:cmd [key init] must take argument (seedNum)\n");
+		return __LINE__;
+	}
 
         rcode = key_manage_init(subCmd_argv[1], subCmd_argv[2]);
     }
@@ -260,11 +258,10 @@ int v2_key_command(const int argc, char * const argv[], char *info)
     }
     else if(!strcmp("is_burned", keyCmd))
     {
-        if (subCmd_argc < 2) {
-            sprintf(info, "failed: %s %s need a keyName\n", argv[0], argv[1]);
-            DWN_ERR(info);
-            return __LINE__;
-        }
+	if (subCmd_argc < 2) {
+		DWN_ERR("failed: %s %s need a keyName\n", argv[0], argv[1]);
+		return __LINE__;
+	}
         const char* queryKey = subCmd_argv[1];
         int keyIsBurned = 0;
 
@@ -278,22 +275,20 @@ int v2_key_command(const int argc, char * const argv[], char *info)
         }
 
         rcode = key_manage_query_exist(queryKey, &keyIsBurned);
-        if (rcode) {
-            sprintf(info, "failed to query key state, rcode %d\n", rcode);
-            DWN_ERR(info);
-            return __LINE__;
-        }
+	if (rcode) {
+		DWN_ERR("failed to query key state, rcode %d\n", rcode);
+		return __LINE__;
+	}
         sprintf(info, "%s:key[%s] was %s burned", keyIsBurned ? "success" : "failed",
                         queryKey, keyIsBurned ? "" : "NOT");
         rcode = !keyIsBurned;
     }
     else if(!strcmp("can_write", keyCmd))
     {
-        if (subCmd_argc < 2) {
-            sprintf(info, "failed: %s %s need a keyName\n", argv[0], argv[1]);
-            DWN_ERR(info);
-            return __LINE__;
-        }
+	if (subCmd_argc < 2) {
+		DWN_ERR("failed: %s %s need a keyName\n", argv[0], argv[1]);
+		return __LINE__;
+	}
         const char* queryKey = subCmd_argv[1];
         int exist = 0;
         int canOverWrite = 0;
@@ -308,16 +303,14 @@ int v2_key_command(const int argc, char * const argv[], char *info)
         }
 
         rcode = key_manage_query_canOverWrite(queryKey, &canOverWrite);
-        if (rcode) {
-            sprintf(info, "failed in query key over write, rcode %d\n", rcode);
-            DWN_ERR(info);
-            return __LINE__;
-        }
+	if (rcode) {
+		DWN_ERR("failed in query key over write, rcode %d\n", rcode);
+		return __LINE__;
+	}
         rcode = key_manage_query_exist(queryKey, &exist);
         if (rcode) {
-            sprintf(info, "failed in query key exist, rcode %d\n", rcode);
-            DWN_ERR(info);
-            return __LINE__;
+		DWN_ERR("failed in query key exist, rcode %d\n", rcode);
+		return __LINE__;
         }
 
         int canWrite = ! (exist && !canOverWrite);
@@ -352,11 +345,10 @@ int v2_key_command(const int argc, char * const argv[], char *info)
         const char* keyName = subCmd_argv[1];
         const char* keyValInStr = subCmd_argv[2];
 
-        if (subCmd_argc < 3) {
-            sprintf(info, "failed: %s %s need a keyName and keyValInStr\n", argv[0], argv[1]);
-            DWN_ERR(info);
-            return __LINE__;
-        }
+	if (subCmd_argc < 3) {
+		DWN_ERR("failed: %s %s need a keyName and keyValInStr\n", argv[0], argv[1]);
+		return __LINE__;
+	}
 
         rcode = v2_key_burn(keyName, (u8*)keyValInStr, strlen(keyValInStr), info);
         rcode = (strlen(keyValInStr) == rcode) ? 0 : __LINE__;
@@ -367,11 +359,10 @@ int v2_key_command(const int argc, char * const argv[], char *info)
         const int cswBufLen = CMD_BUFF_SIZE - sizeof("success") + 1;
         char* keyValBuf = (char*)info + CMD_BUFF_SIZE - cswBufLen;
 
-        if (subCmd_argc < 2) {
-            sprintf(info, "failed: %s %s need a keyName\n", argv[0], argv[1]);
-            DWN_ERR(info);
-            return __LINE__;
-        }
+	if (subCmd_argc < 2) {
+		DWN_ERR("failed: %s %s need a keyName\n", argv[0], argv[1]);
+		return __LINE__;
+	}
 
         sprintf(info, "keyman read %s 0x%p str", keyName, keyValBuf);
         rcode = run_command(info, 0);
