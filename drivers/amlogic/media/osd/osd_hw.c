@@ -3759,11 +3759,13 @@ void osd_init_hw_viu2(void)
 {
 	u32 group, idx;
 	char *osd_reverse;
+	char *s;
 	/* 1:vd1  2:osd1 else :close */
 	u32 bld_src2_sel = 2;
 	u32 osd_premult = 0;
 	u32 blend_en = 1;
 	u32 data32;
+	u32 holdline = 8;
 
 	/* init osd fifo control register
 	 * set DDR request priority to be urgent
@@ -3771,10 +3773,16 @@ void osd_init_hw_viu2(void)
 	data32 = 1;
 
 	/* hold_fifo_lines */
-	if (osd_hw.osd_ver == OSD_HIGH_ONE)
-		data32 |= 8 << 5;
-	else
-		data32 |= 4 << 5;
+	s = env_get("viu2_hold_line");
+	if (s) {
+		holdline = simple_strtoul(s, NULL, 10);
+		data32 |= holdline << 5;  /* hold_fifo_lines */
+	} else {
+		if (osd_hw.osd_ver == OSD_HIGH_ONE)
+			data32 |= 8 << 5;  /* hold_fifo_lines */
+		else
+			data32 |= 4 << 5;
+	}
 	/* burst_len_sel: 3=64 */
 	if (osd_hw.osd_ver == OSD_HIGH_ONE) {
 		data32 |= 1 << 10;
@@ -3866,10 +3874,14 @@ void osd_init_hw_viu2(void)
 #else
 void osd_init_hw_viu2(void)
 {
-	u32 group, idx, data32;
+	u32 group, idx, data32, holdline = 4;
 	char *osd_reverse;
+	char *s;
 
 	osd_reverse = env_get("osd_reverse");
+	s = env_get("viu2_hold_line");
+	if (s)
+		holdline = simple_strtoul(s, NULL, 10);
 	for (group = 0; group < HW_OSD_COUNT; group++)
 		for (idx = 0; idx < HW_REG_INDEX_MAX; idx++)
 			osd_hw.reg[group][idx].update_func =
@@ -3885,7 +3897,7 @@ void osd_init_hw_viu2(void)
 	/* set DDR request priority to be urgent */
 	data32 = 1;
 	/* hold_fifo_lines */
-	data32 |= 4 << 5;
+	data32 |= holdline << 5;  /* hold_fifo_lines */
 	/* burst_len_sel: 3=64 */
 	data32 |= 1 << 10;
 	data32 |= 1 << 31;
@@ -4042,9 +4054,10 @@ static void independ_path_default_regs(void)
 
 void osd_init_hw(void)
 {
-	u32 group, idx, data32, data2;
+	u32 group, idx, data32, data2, holdline = 8;
 	char *osd_reverse;
 	struct vinfo_s *info = NULL;
+	char *s;
 
 	osd_reverse = env_get("osd_reverse");
 	for (group = 0; group < HW_OSD_COUNT; group++)
@@ -4090,10 +4103,16 @@ void osd_init_hw(void)
 			data32 &= ~(0x1f << 5); /* bit[9:5] HOLD_FIFO_LINES */
 			data32 |= 0x18 << 5;
 		} else {
-			if (osd_hw.osd_ver == OSD_HIGH_ONE)
-				data32 |= 8 << 5;  /* hold_fifo_lines */
-			else
-				data32 |= 4 << 5;  /* hold_fifo_lines */
+			s = env_get("viu1_hold_line");
+			if (s) {
+				holdline = simple_strtoul(s, NULL, 10);
+				data32 |= holdline << 5;  /* hold_fifo_lines */
+			} else {
+				if (osd_hw.osd_ver == OSD_HIGH_ONE)
+					data32 |= 8 << 5;  /* hold_fifo_lines */
+				else
+					data32 |= 4 << 5;  /* hold_fifo_lines */
+			}
 		}
 		/* burst_len_sel: 3=64 */
 		if (osd_hw.osd_ver == OSD_HIGH_ONE) {
@@ -4246,7 +4265,7 @@ void osd_init_hw(void)
 		osd_hw.free_scale_mode[OSD2] = 0;
 		osd_hw.free_scale_mode[OSD3] = 0;
 	}
-	memset(osd_hw.rotate, 0, sizeof(struct osd_rotate_s));
+	memset(osd_hw.rotate, 0, sizeof(struct osd_rotate_s) * HW_OSD_COUNT);
 	if ((osd_get_chip_type() == MESON_CPU_MAJOR_ID_G12A) ||
 		((osd_get_chip_type() == MESON_CPU_MAJOR_ID_G12B) &&
 		(get_cpu_id().chip_rev == MESON_CPU_CHIP_REVISION_A)))
