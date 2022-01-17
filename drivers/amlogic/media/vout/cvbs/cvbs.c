@@ -483,7 +483,10 @@ static void cvbs_performance_enhancement(int mode)
 
 	switch (mode) {
 	case VMODE_PAL:
-		perfconf = &cvbs_drv.perf_conf_pal;
+		if (cvbs_drv.data->sva_val)
+			perfconf = &cvbs_drv.perf_conf_pal_sva;
+		else
+			perfconf = &cvbs_drv.perf_conf_pal;
 		break;
 	case VMODE_NTSC:
 	case VMODE_NTSC_M:
@@ -681,7 +684,13 @@ static void cvbs_get_config(void)
 		printf("cvbs: find clk_path: 0x%x\n", s_enci_clk_path);
 	}
 
-	/* performance */
+	propdata = (char *)fdt_getprop(dt_blob, node, "sva_std", NULL);
+	if (propdata) {
+		cvbs_drv.data->sva_val = be32_to_cpup((u32 *)propdata);
+		printf("cvbs: find sva_std: 0x%x\n", cvbs_drv.data->sva_val);
+	}
+
+	/* performance: PAL CTCC */
 	str = cvbsout_performance_str[1];
 	propdata = (char *)fdt_getprop(dt_blob, node, str, NULL);
 	if (!propdata) {
@@ -701,7 +710,7 @@ static void cvbs_get_config(void)
 	if (cnt >= CVBS_PERFORMANCE_CNT_MAX)
 		cnt = 0;
 	if (cnt > 0) {
-		printf("cvbs: find performance_pal config\n");
+		printf("cvbs: find %s config\n", str);
 		cvbs_drv.perf_conf_pal.reg_table = malloc(sizeof(struct reg_s) * cnt);
 		if (!cvbs_drv.perf_conf_pal.reg_table) {
 			printf("cvbs: error: failed to alloc %s table\n", str);
@@ -723,6 +732,49 @@ static void cvbs_get_config(void)
 		}
 	}
 
+	/* performance: PAL SVA */
+	str = cvbsout_performance_str[0];
+	propdata = (char *)fdt_getprop(dt_blob, node, str, NULL);
+	if (!propdata) {
+		str = cvbsout_performance_str[1];
+		propdata = (char *)fdt_getprop(dt_blob, node, str, NULL);
+		if (!propdata)
+			goto cvbs_performance_config_ntsc;
+	}
+	cnt = 0;
+	while (cnt < CVBS_PERFORMANCE_CNT_MAX) {
+		j = 2 * cnt;
+		temp = be32_to_cpup((((u32 *)propdata) + j));
+		if (temp == MREG_END_MARKER) /* ending */
+			break;
+		cnt++;
+	}
+	if (cnt >= CVBS_PERFORMANCE_CNT_MAX)
+		cnt = 0;
+	if (cnt > 0) {
+		printf("cvbs: find %s config\n", str);
+		cvbs_drv.perf_conf_pal_sva.reg_table = malloc(sizeof(struct reg_s) * cnt);
+		if (!cvbs_drv.perf_conf_pal_sva.reg_table) {
+			printf("cvbs: error: failed to alloc %s table\n", str);
+			cnt = 0;
+		}
+		memset(cvbs_drv.perf_conf_pal_sva.reg_table, 0, (sizeof(struct reg_s) * cnt));
+		cvbs_drv.perf_conf_pal_sva.reg_cnt = cnt;
+
+		i = 0;
+		s = cvbs_drv.perf_conf_pal_sva.reg_table;
+		while (i < cvbs_drv.perf_conf_pal_sva.reg_cnt) {
+			j = 2 * i;
+			s->reg = be32_to_cpup((((u32 *)propdata) + j));
+			s->val = be32_to_cpup((((u32 *)propdata) + j + 1));
+			/* printf("%p: 0x%04x = 0x%x\n", s, s->reg, s->val); */
+
+			s++;
+			i++;
+		}
+	}
+
+	/* performance: NTSC */
 cvbs_performance_config_ntsc:
 	str = cvbsout_performance_str[2];
 	propdata = (char *)fdt_getprop(dt_blob, node, str, NULL);

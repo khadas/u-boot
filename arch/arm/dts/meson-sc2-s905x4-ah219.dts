@@ -53,6 +53,7 @@
 	cvbsout {
 		compatible = "amlogic, cvbsout-sc2";
 		status = "okay";
+		sva_std = <0>; /* if default sva test this value is 1*/
 
 		/* performance: reg_address, reg_value */
 		/* sc2 */
@@ -62,6 +63,13 @@
 			0xff006c14  0xf9 /* 0x1b05 */
 			0xff006d58  0x333 /* 0x1b56 */
 			0xff007164  0xf25c /* 0x1c59 */
+			0xffff  0x0>; /* ending flag */
+		/* ccitt033 SVA value */
+		performance = <0xff006fc0  0x3 /* 0x1bf0 */
+			0xff006c48  0x8080 /* 0x1b12 */
+			0xff006c14  0xfc /* 0x1b05 */
+			0xff006d58  0x333 /* 0x1b56 */
+			0xff007164  0xf458 /* 0x1c59 */
 			0xffff  0x0>; /* ending flag */
 		performance_ntsc = <0xff006fc0  0x3 /* 0x1bf0 << 2 + 0xff000000 */
 			0xff006c48  0x8180 /* 0x1b12 */

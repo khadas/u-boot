@@ -6,6 +6,9 @@
 #ifndef _AML_CVBS_H
 #define _AML_CVBS_H
 
+/* 20220117: cvbsout add dts sva value config */
+#define TVAFE_VER "20220117"
+
 #define CONFIG_CVBS_PERFORMANCE_COMPATIBILITY_SUPPORT	1
 
 #define CONFIG_CVBS_CHINASARFT		0x0
@@ -45,6 +48,7 @@ struct cvbs_data_s {
 
 	unsigned int vdac_vref_adj;
 	unsigned int vdac_gsw;
+	unsigned int sva_val;
 };
 
 struct reg_s {
@@ -62,6 +66,7 @@ struct cvbs_drv_s {
 	struct cvbs_data_s *data;
 	struct performance_config_s perf_conf_pal;
 	struct performance_config_s perf_conf_ntsc;
+	struct performance_config_s perf_conf_pal_sva;
 };
 
 #endif
