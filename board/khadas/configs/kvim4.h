@@ -681,8 +681,13 @@
                 "fi;"\
             "fi;"\
             "kbi usid noprint;"\
-				"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-				"setenv serial ${usid}; setenv serial# ${usid};"\
+				"if printenv usid; then "\
+					"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+					"setenv serial ${usid}; setenv serial# ${usid};"\
+				"else "\
+					"setenv bootargs ${bootargs} androidboot.serialno=an400${cpu_id};"\
+					"setenv serial an400${cpu_id}; setenv serial# an400${cpu_id};"\
+				"fi;"\
             "kbi ethmac noprint;"\
 				"setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
