@@ -425,7 +425,7 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 				}
 				if (strcmp(update_env, "1") == 0) {
 					printf("ab mode, default all uboot env\n");
-					run_command("env default -a;saveenv;", 0);
+					run_command("defenv_reserv;saveenv;", 0);
 					env_set("update_env","0");
 				}
 			} else {
@@ -510,7 +510,7 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 				}
 				if (strcmp(update_env, "1") == 0) {
 					printf("ab mode, default all uboot env\n");
-					run_command("env default -a;", 0);
+					run_command("defenv_reserv;saveenv;", 0);
 					env_set("update_env","0");
 
 					if (strcmp(bootloaderindex, "2") == 0) {
