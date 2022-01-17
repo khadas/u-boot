@@ -301,21 +301,7 @@ static void set_wol(bool is_shutdown, int enable)
 			s +=3;
 			}
 		} else {
-			kbi_i2c_read_block(REG_MAC, MAC_LENGHT, mac_addr);
-		}
-	}
-
-	if(1){
-		run_command("efuse mac", 0);
-		char *s = getenv("eth_mac");
-		if ((s != NULL) && (strcmp(s, "00:00:00:00:00:00") != 0)) {
-			printf("getmac = %s\n", s);
-			int i = 0;
-			for (i = 0; i < 6 && s[0] != '\0' && s[1] != '\0'; i++) {
-			mac_addr[i] = chartonum(s[0]) << 4 | chartonum(s[1]);
-			s +=3;
-			}
-		} else {
+			//kbi_i2c_read_block(REG_MAC, MAC_LENGHT, mac_addr);
 			int t = 0;
 			for(t = 0; t < 6; t++){
 				mac_addr[t] = 0x00;
