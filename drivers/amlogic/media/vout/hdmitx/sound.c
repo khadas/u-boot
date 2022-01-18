@@ -51,9 +51,9 @@ static int audiobus_update_bits(unsigned int reg, unsigned int mask,
 
 static void aml_set_audio_spdif_clk(void)
 {
-	/*mpll0: 25m*/
+	/*mpll0: 491520000 */
 	hhi_write(ANACTRL_MPLL_CTRL0, 0x543);
-	hhi_write(ANACTRL_MPLL_CTRL1, 0xC5101856);
+	hhi_write(ANACTRL_MPLL_CTRL1, 0xC040046B);
 	hhi_write(ANACTRL_MPLL_CTRL2, 0x40000033);
 
 	/* audio clk gate */
@@ -66,7 +66,7 @@ static void aml_set_audio_spdif_clk(void)
 	audiobus_write(EE_AUDIO_CLK_SPDIFOUT_CTRL,
 		       1 << 31   /* enable */
 		       | 0 << 24 /* mpll0 */
-		       | 3 << 0  /* dividor */);
+		       | 0x4f << 0  /* dividor */);
 }
 
 static void aml_spdif_fifo_ctrl(void)
