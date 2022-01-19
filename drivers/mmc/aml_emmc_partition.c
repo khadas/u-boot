@@ -1299,7 +1299,13 @@ int enable_rsv_part_table(struct mmc *mmc)
 			if (ret)
 				printf("update rsv with gpt failed\n");
 		}
+	} else {
+		printf("rsv not exist\n");
+		ret = update_ptbl_rsv(mmc, p_iptbl_ept);
+		if (ret)
+			printf("update rsv with gpt failed\n");
 	}
+
 	_free_iptbl(p_iptbl_rsv);
 	return ret;
 }
