@@ -3,11 +3,14 @@
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  * SPDX-License-Identifier:	GPL-2.0+ BSD-2-Clause
  */
-#include "libfdt_env.h"
+//#include "libfdt_env.h"
+#include "../include/libfdt_env.h"
 
 #ifndef USE_HOSTCC
-#include <fdt.h>
-#include <libfdt.h>
+//#include <fdt.h>
+//#include <libfdt.h>
+#include "../include/fdt.h"
+#include "libfdt.h"
 #else
 #include "fdt_host.h"
 #endif

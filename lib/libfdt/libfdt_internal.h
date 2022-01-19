@@ -1,11 +1,12 @@
-#ifndef _LIBFDT_INTERNAL_H
-#define _LIBFDT_INTERNAL_H
 /*
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  * SPDX-License-Identifier:	GPL-2.0+ BSD-2-Clause
  */
-#include <fdt.h>
+#ifndef _LIBFDT_INTERNAL_H
+#define _LIBFDT_INTERNAL_H
+//#include <fdt.h>
+#include "../include/fdt.h"
 
 #define FDT_ALIGN(x, a)		(((x) + (a) - 1) & ~((a) - 1))
 #define FDT_TAGALIGN(x)		(FDT_ALIGN((x), FDT_TAGSIZE))

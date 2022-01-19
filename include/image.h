@@ -46,7 +46,8 @@ struct lmb;
 
 #if defined(CONFIG_FIT)
 #include <hash.h>
-#include <libfdt.h>
+//#include <libfdt.h>
+#include "libfdt.h"
 #include <fdt_support.h>
 # ifdef CONFIG_SPL_BUILD
 #  ifdef CONFIG_SPL_CRC32_SUPPORT
