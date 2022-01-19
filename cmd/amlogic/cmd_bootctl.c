@@ -241,7 +241,7 @@ static int do_GetValidSlot(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 
 	if (has_boot_slot == 0) {
 		printf("device is not ab mode\n");
-		return -1;
+		return 0;
 	}
 
 	ret = boot_info_open_partition(miscbuf);

@@ -18,5 +18,6 @@
 
 #define CONFIG_GZIP 1
 #define CONFIG_ZLIB 1
+#define CONFIG_LZ4  1
 
 #endif

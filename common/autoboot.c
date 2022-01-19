@@ -243,8 +243,8 @@ static int __abortboot(int bootdelay)
 # endif
 				break;
 			}
-			udelay(10000);
-		} while (!abort && get_timer(ts) < 1000);
+			udelay(2);
+		} while (!abort && get_timer(ts) < 2);
 
 		pr_info("\b\b\b%2d ", bootdelay);
 	}
