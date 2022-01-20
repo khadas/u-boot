@@ -10,9 +10,12 @@
 #include <asm/arch/timing.h>
 #include <asm/arch/ddr_define.h>
 
-/* board clk defines */
+/* board cpu & dus init
+ * When changing CPU, DSU may need to be changed,
+ * please confirm with dvfs owner.
+ */
 #define CPU_CLK                                 1920
-#define DSU_CLK                                 1200
+#define DSU_CLK                                 1512
 
 /* ddr config support multiple configs for boards which use same bootloader:
  * config steps:
