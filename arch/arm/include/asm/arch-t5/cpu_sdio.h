@@ -43,8 +43,8 @@
 #define	SD_EMMC_RESP_TIMEOUT_ERROR		1<<4
 #define	SD_EMMC_DESC_TIMEOUT_ERROR		1<<5
 
-#define MMC_CMD23
-#define MMC_HS400_MODE
+//#define MMC_CMD23
+//#define MMC_HS400_MODE
 #define MMC_SET_TUNING_PARA             //set tuning para directly without tuning
 //#define MMC_WRITE_TUNING_PARA
 

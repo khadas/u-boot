@@ -1421,7 +1421,7 @@ uint32_t mmc_set_hs400_mode(struct mmc *mmc)
 		mmc_set_clock_div(mmc, 792000000);
 	else if (cpu_id.family_id == MESON_CPU_MAJOR_ID_T5 ||
 			cpu_id.family_id == MESON_CPU_MAJOR_ID_T5D)
-		mmc_set_clock_div(mmc, 780000000);
+		mmc_set_clock_div(mmc, 768000000);
 	else if (cpu_id.family_id >= MESON_CPU_MAJOR_ID_G12B)
 		mmc_set_clock_div(mmc, 800000000);
 	else
