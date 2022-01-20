@@ -20,6 +20,7 @@
 #include <image.h>
 #include <amlogic/cpu_id.h>
 #include "../include/v3_tool_def.h"
+#include <asm/arch/efuse.h>
 DECLARE_GLOBAL_DATA_PTR;
 static void cb_aml_media_write(struct usb_ep *ep, struct usb_request *req);
 static void cb_aml_media_read(struct usb_ep *outep, struct usb_request *outreq);
@@ -680,7 +681,7 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 
 //following extended amlogic commands
 //
-char* fb_response_str = &response_str[4];
+char *fb_response_str = &response_str[5];
 
 enum {
     MWRITE_DATA_CHECK_ALG_NONE  = 0, //not need check sum
@@ -848,6 +849,33 @@ static int v3tool_bl33_setvar(const int argc, char* const argv[])
     return 0;
 }
 
+#ifdef CONFIG_EFUSE_OBJ_API
+extern efuse_obj_field_t efuse_field;
+static int efuse_obj_status(const char *cmd, char *replyBuf, const int bufLen)
+{
+	int i = 0;
+	int ret = 0;
+
+	ret = run_command(cmd, 0);
+	if (ret) {
+		snprintf(replyBuf, bufLen, "FAIL ret %d %s\n", ret, cmd);
+		FB_ERR(replyBuf); return -__LINE__;
+	}
+	memset(replyBuf, 0, bufLen);
+	for (i = 0; i < efuse_field.size; ++i) {
+		const int bufId = i * 2;
+
+		if (bufId >= bufLen - 1)  {
+			FB_MSG("too long efuse obj data sz %d\n", efuse_field.size);
+			break;
+		}
+		sprintf(replyBuf + bufId, "%02x", efuse_field.data[i]);
+	}
+	FB_MSG("obj cmd ok, ret %s\n", replyBuf);
+	return 0;
+}
+#endif//#ifdef CONFIG_EFUSE_OBJ_API
+
 //forward declare for cb_oem_cmd
 static int _mwrite_cmd_parser(const int argc, char* argv[], char* ack);
 static int _verify_partition_img(const int argc, char* argv[], char* ack);
@@ -859,7 +887,7 @@ static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 	int ret = 0;
 	char tmp[RESPONSE_LEN + 1];
 	char* cmd = req->buf;
-	char* ack = response_str + 4;
+	char *ack = response_str + 5;
 
 	ack[0] = '\0';//set err for which buf not setted
 	char* cmdBuf = tmp;
@@ -912,6 +940,14 @@ static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 		ret = v3tool_bl33_setvar(argc, argv);
 	} else if( !strcmp("sheader_need", argv[0]) ){
 		ret = sheader_need() ? 0 : ret;
+#ifdef CONFIG_EFUSE_OBJ_API
+	} else if (!strcmp("efuse_obj", argv[0])) {
+		char *_cmd = tmp;
+
+		memcpy(_cmd, cmd, RESPONSE_LEN + 1);
+		strsep(&_cmd, " ");
+		ret = efuse_obj_status(_cmd, ack, RESPONSE_LEN - 4);
+#endif//#ifdef CONFIG_EFUSE_OBJ_API
 	} else {
 		strsep(&cmd, " ");
 		char* p = cmd; strsep(&p, ";"); //only allow one command to execute
@@ -937,7 +973,7 @@ static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 		}
 	}
 
-	ret ? fastboot_fail(NULL) :fastboot_okay(NULL);
+	ret ? fastboot_fail(ack) : fastboot_okay(ack);
 	fastboot_tx_write_str(response_str);
 	FB_MSG("response[%d][%s]\n", ret, response_str);
 	return ;
