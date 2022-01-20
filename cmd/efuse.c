@@ -242,9 +242,10 @@ U_BOOT_CMD(
 	"efuse commands", efuse_help_text
 );
 
+#ifdef CONFIG_EFUSE_OBJ_API
+
 efuse_obj_field_t efuse_field;
 
-#ifdef CONFIG_EFUSE_OBJ_API
 static char *efuse_obj_err_parse(uint32_t  efuse_obj_err_status)
 {
 	char *err_char = NULL;
