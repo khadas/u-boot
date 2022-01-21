@@ -1,5 +1,13 @@
 if TARGET_T7_AN400_LPDDR4X
 
+config ENV_HDMITX_ONLY
+	string
+	option env="BOARD_COMPILE_HDMITX_ONLY"
+
+config HDMITX_ONLY
+	bool "hdmi tx only"
+	default y if ENV_HDMITX_ONLY="true"
+
 config SYS_SOC
 	default "t7"
 
