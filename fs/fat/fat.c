@@ -323,8 +323,8 @@ static int get_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos,
 	debug("Filesize: %llu bytes\n", filesize);
 
 	if (filesize >= (gd->start_addr_sp - (loff_t)buffer)) {
-		printf("img size subtract load address %llx exceed maximum available space %lx\n",
-				filesize - (loff_t)buffer, gd->start_addr_sp);
+		printf("img size %llx exceed maximum available space %llx\n",
+				filesize, gd->start_addr_sp - (loff_t)buffer);
 		return -1;
 	}
 
