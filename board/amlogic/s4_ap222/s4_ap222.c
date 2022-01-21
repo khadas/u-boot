@@ -20,6 +20,7 @@
 #include <amlogic/aml_v3_burning.h>
 #include <amlogic/aml_v2_burning.h>
 #include <linux/mtd/partitions.h>
+#include <mtd/mtd-abi.h>
 #include <asm/arch/bl31_apis.h>
 #include <amlogic/aml_mtd.h>
 #include <amlogic/aml_mmc.h>
@@ -334,6 +335,12 @@ static struct mtd_partition normal_partition_info[] = {
 	.size = 16 * SZ_1M,
 },
 {
+	.name = "factory",
+	.offset = 0,
+	.size = 8 * SZ_1M,
+	.mask_flags = MTD_WRITEABLE,
+},
+{
 	.name = "boot",
 	.offset = 0,
 	.size = 16 * SZ_1M,
@@ -341,7 +348,12 @@ static struct mtd_partition normal_partition_info[] = {
 {
 	.name = "system",
 	.offset = 0,
-	.size = 136 * SZ_1M,
+	.size = 288 * SZ_1M,
+},
+{
+	.name = "vendor",
+	.offset = 0,
+	.size = 16 * SZ_1M,
 },
 /* last partition get the rest capacity */
 {
