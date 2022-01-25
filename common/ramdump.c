@@ -179,6 +179,8 @@ void check_ramdump(void)
 					ramdump_env_setup(addr, size);
 					ramdump_save_compress_data();
 				}
+			} else {
+				ramdump_env_setup(0, 0);
 			}
 		}
 	}
