@@ -849,7 +849,7 @@ static int v3tool_bl33_setvar(const int argc, char* const argv[])
     return 0;
 }
 
-#ifdef CONFIG_EFUSE_OBJ_API
+#if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
 extern efuse_obj_field_t efuse_field;
 static int efuse_obj_status(const char *cmd, char *replyBuf, const int bufLen)
 {
@@ -940,7 +940,7 @@ static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 		ret = v3tool_bl33_setvar(argc, argv);
 	} else if( !strcmp("sheader_need", argv[0]) ){
 		ret = sheader_need() ? 0 : ret;
-#ifdef CONFIG_EFUSE_OBJ_API
+#if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
 	} else if (!strcmp("efuse_obj", argv[0])) {
 		char *_cmd = tmp;
 
