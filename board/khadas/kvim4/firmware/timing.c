@@ -275,6 +275,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.DisabledDbyte[1] = 0xf0,                       //bit 0 -3 ch1 cs0 ,bit 4-7 ch1 cs1,
 		.Is2Ttiming = 0,
 		.HdtCtrl = 0xc8,
+		.cfg_ddr_training_delay_ps[0].dram_bit_vref[0] = 0x8,
 		//.dram_ch0_size_MB		= 0xffff,
 		//.dram_ch1_size_MB		= 0,
 #if (DDR_SIZE_TYPE_1 == AN_408_DDR0_1G_DDR1_0G)
@@ -480,6 +481,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.DisabledDbyte[1] = 0xf0,                       //bit 0 -3 ch1 cs0 ,bit 4-7 ch1 cs1,
 		.Is2Ttiming = 0,
 		.HdtCtrl = 0xc8,
+		.cfg_ddr_training_delay_ps[0].dram_bit_vref[0] = 0x8,
 		//.dram_ch0_size_MB		= 0xffff,
 		//.dram_ch1_size_MB		= 0,
 #if (DDR_SIZE_TYPE_1 == AN_408_DDR0_1G_DDR1_0G)
