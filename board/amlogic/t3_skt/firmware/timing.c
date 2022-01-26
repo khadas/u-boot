@@ -123,6 +123,7 @@ typedef  struct   ddr_para_data_start {
 
 #if 1
 uint32_t __bl2_ddr_reg_data[] __attribute__ ((section(".ddr_2acs_data"))) = {
+	//DDR_ID
 	DDR_TIMMING_TUNE_START(DDR_ID_FROM_ADC, DDR_ADC_CH3, DDR_ADC_VALUE1),
 	//data start,2GB,DDR0-1GB,DDR1-1GB
 	DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_common_setting.dram_ch0_size_MB,
@@ -173,7 +174,7 @@ uint32_t __bl2_ddr_reg_data[] __attribute__ ((section(".ddr_2acs_data"))) = {
 	DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_SI_setting_ps.DRAMFreq, 1176),
 	DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_SI_setting_ps.DRAMFreq, 1176),
 
-	DDR_TIMMING_TUNE_START(DDR_ID_FROM_ADC,							      DDR_ADC_CH3, DDR_ADC_VALUE8),
+	DDR_TIMMING_TUNE_START(DDR_ID_FROM_ADC, DDR_ADC_CH3, DDR_ADC_VALUE8),
 	//data start,4GB,DDR0-2GB,DDR1-2GB
 	DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_common_setting.dram_ch0_size_MB,
 		((DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
@@ -197,6 +198,13 @@ uint32_t __bl2_ddr_reg_data[] __attribute__ ((section(".ddr_2acs_data"))) = {
 		 (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET))),
 	DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_SI_setting_ps.DRAMFreq, 1176),
 	DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_SI_setting_ps.DRAMFreq, 1176),
+
+	//HW_ID
+	DDR_TIMMING_TUNE_START(DDR_ID_FROM_ADC, DDR_ADC_CH0, DDR_ADC_VALUE2),
+	//.cfg_ddr_training_delay_ps.ac_trace_delay[2] = 28 + 30,
+	DDR_TIMMING_TUNE_TIMMING0_F(cfg_ddr_training_delay_ps.ac_trace_delay[2], 28 + 30),
+	//.cfg_ddr_training_delay_ps.ac_trace_delay[2] = 48 + 30,
+	DDR_TIMMING_TUNE_TIMMING1_F(cfg_ddr_training_delay_ps.ac_trace_delay[2], 48 + 30),
 
 	//SIP
 	DDR_TIMMING_TUNE_START(DDR_ID_FROM_EFUSE, 0, T3_2GB_SAM_DDR4_X4_EID),
