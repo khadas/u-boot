@@ -9,9 +9,9 @@
 #include "../v2_burning_i.h"
 #include <amlogic/keyunify.h>
 
-#ifndef CMD_BUFF_SIZE
-#define CMD_BUFF_SIZE (512)
-#endif// #ifndef CMD_BUFF_SIZE
+#ifndef RESPONSE_LEN
+#define RESPONSE_LEN (128)
+#endif// #ifndef RESPONSE_LEN
 
 
 #ifndef __HDCP22_HEY_H__
@@ -356,16 +356,17 @@ int v2_key_command(const int argc, char * const argv[], char *info)
     else if(!strcmp("read", keyCmd))
     {
         const char* keyName = subCmd_argv[1];
-        const int cswBufLen = CMD_BUFF_SIZE - sizeof("success") + 1;
-        char* keyValBuf = (char*)info + CMD_BUFF_SIZE - cswBufLen;
+	const int cswBufLen = strlen("success") + 1;
+	char *keyValBuf = (char *)info +  cswBufLen;
+	char cmdBuf[RESPONSE_LEN];
 
 	if (subCmd_argc < 2) {
 		DWN_ERR("failed: %s %s need a keyName\n", argv[0], argv[1]);
 		return __LINE__;
 	}
 
-        sprintf(info, "keyman read %s 0x%p str", keyName, keyValBuf);
-        rcode = run_command(info, 0);
+	snprintf(cmdBuf, RESPONSE_LEN, "keyman read %s 0x%p str", keyName, keyValBuf);
+	rcode = run_command(cmdBuf, 0);
         if (!rcode)
             sprintf(info, "success:%s=[%s]", keyName, keyValBuf);
         else
