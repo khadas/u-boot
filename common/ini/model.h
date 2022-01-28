@@ -119,7 +119,10 @@ struct lcd_customer_s {
 	unsigned char vlock_val_1;
 	unsigned char vlock_val_2;
 	unsigned char vlock_val_3;
-	unsigned int customer_value_9;
+	unsigned char custom_pinmux;
+	unsigned char fr_auto_dis;
+	unsigned char frame_rate_min;
+	unsigned char frame_rate_max;
 };
 
 struct lcd_interface_s {

@@ -742,10 +742,31 @@ static int handle_lcd_customer(struct lcd_attr_s *p_attr)
 		ALOGD("%s, vlock_val_3 is (%s)\n", __func__, ini_value);
 	p_attr->customer.vlock_val_3 = strtoul(ini_value, NULL, 0);
 
-	ini_value = IniGetString("lcd_Attr", "customer_value_9", "0");
+	ini_value = IniGetString("lcd_Attr", "custom_pinmux", "0");
 	if (model_debug_flag & DEBUG_LCD)
-		ALOGD("%s, customer_value_9 is (%s)\n", __func__, ini_value);
-	p_attr->customer.customer_value_9 = strtoul(ini_value, NULL, 0);
+		ALOGD("%s, custom_pinmux is (%s)\n", __func__, ini_value);
+	p_attr->customer.custom_pinmux = strtoul(ini_value, NULL, 0);
+	if (p_attr->customer.custom_pinmux == 0) {
+		ini_value = IniGetString("lcd_Attr", "customer_value_9", "0");
+		if (model_debug_flag & DEBUG_LCD)
+			ALOGD("%s, customer_value_9 is (%s)\n", __func__, ini_value);
+		p_attr->customer.custom_pinmux = strtoul(ini_value, NULL, 0);
+	}
+
+	ini_value = IniGetString("lcd_Attr", "fr_auto_disable", "0");
+	if (model_debug_flag & DEBUG_LCD)
+		ALOGD("%s, fr_auto_disable is (%s)\n", __func__, ini_value);
+	p_attr->customer.fr_auto_dis = strtoul(ini_value, NULL, 0);
+
+	ini_value = IniGetString("lcd_Attr", "frame_rate_min", "0");
+	if (model_debug_flag & DEBUG_LCD)
+		ALOGD("%s, frame_rate_min is (%s)\n", __func__, ini_value);
+	p_attr->customer.frame_rate_min = strtoul(ini_value, NULL, 0);
+
+	ini_value = IniGetString("lcd_Attr", "frame_rate_max", "0");
+	if (model_debug_flag & DEBUG_LCD)
+		ALOGD("%s, frame_rate_max is (%s)\n", __func__, ini_value);
+	p_attr->customer.frame_rate_max = strtoul(ini_value, NULL, 0);
 
 	return 0;
 }

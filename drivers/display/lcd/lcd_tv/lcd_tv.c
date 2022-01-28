@@ -1022,7 +1022,10 @@ static int lcd_config_load_from_unifykey(struct lcd_config_s *pconf)
 		((*(p + LCD_UKEY_PCLK_MAX + 1)) << 8) |
 		((*(p + LCD_UKEY_PCLK_MAX + 2)) << 16) |
 		((*(p + LCD_UKEY_PCLK_MAX + 3)) << 24));
-	pconf->customer_pinmux = (*(p + LCD_UKEY_CUST_VAL_9) & 0x1);
+	pconf->customer_pinmux = *(p + LCD_UKEY_CUST_PINMUX);
+	pconf->fr_auto_dis = *(p + LCD_UKEY_FR_AUTO_DIS);
+	pconf->lcd_basic.frame_rate_min = *(p + LCD_UKEY_FRAME_RATE_MIN);
+	pconf->lcd_basic.frame_rate_max = *(p + LCD_UKEY_FRAME_RATE_MAX);
 
 	/* interface: 20byte */
 	if (pconf->lcd_basic.lcd_type == LCD_VBYONE) {
