@@ -1561,6 +1561,7 @@ void lcd_info_print(struct aml_lcd_drv_s *pdrv)
 	pconf = &pdrv->config;
 	LCDPR("[%d]: lcd driver version: %s\n", pdrv->index, LCD_DRV_VERSION);
 	LCDPR("key_valid: %d\n", pdrv->key_valid);
+	LCDPR("custom_pinmux: %d\n", pconf->custom_pinmux);
 	LCDPR("mode: %s, status: %d\n",
 	      lcd_mode_mode_to_str(pdrv->mode), pdrv->status);
 
