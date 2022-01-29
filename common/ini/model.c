@@ -2791,7 +2791,6 @@ handle_tcon_data_load_next:
 		return -1;
 	}
 
-	data_buf[47] = '\0'; /* ensure name string ending */
 	if (model_debug_flag & DEBUG_TCON)
 		ALOGD("%s %d finish, bin_size = 0x%lx\n", __func__, index, bin_size);
 

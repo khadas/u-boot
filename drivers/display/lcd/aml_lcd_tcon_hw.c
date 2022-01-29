@@ -811,8 +811,9 @@ static int lcd_tcon_data_set(struct tcon_mem_map_table_s *mm_table)
 		}
 		temp_crc32 = crc32(0, &data_buf[4], (block_header->block_size - 4));
 		if (temp_crc32 != block_header->crc32) {
-			LCDERR("%s: block %d, %s data crc error\n",
-				__func__, index, block_header->name);
+			LCDERR("%s: block %d, %s data crc 0x%x error (raw 0x%x)\n",
+				__func__, index, block_header->name,
+				temp_crc32, block_header->crc32);
 			continue;
 		}
 
