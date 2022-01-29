@@ -1029,7 +1029,10 @@ int lcd_vmode_change(struct lcd_config_s *pconf)
 		}
 		break;
 	case 4: /* hdmi mode */
-		if ((duration_num / duration_den) == 59) {
+		if (((duration_num / duration_den) == 59) ||
+		    ((duration_num / duration_den) == 47) ||
+		    ((duration_num / duration_den) == 119) ||
+		    ((duration_num / duration_den) == 95)) {
 			/* pixel clk adjust */
 			temp = duration_num;
 			temp = temp * h_period * v_period;

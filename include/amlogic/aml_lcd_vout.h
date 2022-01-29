@@ -392,6 +392,13 @@ struct lcd_pinmux_ctrl_s {
 	unsigned int pinmux_clr[LCD_PINMUX_NUM][2];
 };
 
+struct lcd_duration_s {
+	unsigned int frame_rate;
+	unsigned int duration_num;
+	unsigned int duration_den;
+	unsigned int frac;
+};
+
 #define LCD_ENABLE_RETRY_MAX    3
 struct lcd_config_s {
 	unsigned char lcd_mode;
@@ -399,11 +406,13 @@ struct lcd_config_s {
 	unsigned char lcd_clk_path; /* 0=hpll, 1=gp0_pll */
 	unsigned char retry_enable_flag;
 	unsigned char retry_enable_cnt;
+	unsigned int output_vmode;
 	unsigned int backlight_index;
 	struct lcd_basic_s lcd_basic;
 	struct lcd_timing_s lcd_timing;
 	struct lcd_ctrl_config_s lcd_control;
 	struct lcd_power_ctrl_s *lcd_power;
+	struct lcd_duration_s *std_duration;
 	unsigned char pinctrl_ver;
 	unsigned char customer_pinmux;
 	unsigned char fr_auto_dis;
