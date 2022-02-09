@@ -699,10 +699,8 @@ static void crg_udc_epcx_update_dqptr(struct crg_udc_ep *udc_ep)
 	dma_addr_t dqptaddr;
 	u32 cmd_param0;
 
-	if (DCI == 0) {
-		printf("%s Cannot update dqptr for ep0\n", __func__);
+	if (DCI == 0)
 		return;
-	}
 
 	dqptaddr = tran_trb_virt_to_dma(udc_ep, udc_ep->deq_pt);
 	//dqptaddr = (dma_addr_t)(u64)udc_ep->deq_pt;
@@ -3311,6 +3309,11 @@ int crg_handle_port_status(struct crg_gadget_dev *crg_udc)
 			}
 
 		}
+	}
+
+	if (portsc_val & CRG_U3DC_PORTSC_PLC) {
+		usb_gadget_register_driver(crg_udc->gadget_driver);
+		g_dnl_board_usb_cable_connected();
 	}
 
 	return 0;
