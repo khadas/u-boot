@@ -35,6 +35,7 @@
 #define MESON_CPU_MAJOR_ID_S4		0x37
 #define MESON_CPU_MAJOR_ID_T3		0x38
 #define MESON_CPU_MAJOR_ID_P1           0x39
+#define MESON_CPU_MAJOR_ID_T7		0x36
 #define MESON_CPU_MAJOR_ID_S4D		0x3A
 
 

@@ -26576,6 +26576,11 @@
 // synopsys translate_off
 // synopsys translate_on
 #define DOLBY_CORE2A_REG_START                     ((0x3400  << 2) + 0xff000000)
+#define DOLBY_CORE2A_CTRL                          ((0x3401  << 2) + 0xff000000)
+#define DOLBY_CORE2A_Metadata_Start                ((0x3402  << 2) + 0xff000000)
+#define DOLBY_CORE2A_Metadata_End                  ((0x3403  << 2) + 0xff000000)
+#define DOLBY_CORE2A_Interrupt_Raw                 ((0x3404  << 2) + 0xff000000)
+#define DOLBY_CORE2A_Interrupt_Enable              ((0x3405  << 2) + 0xff000000)
 #define DOLBY_CORE2A_CLKGATE_CTRL                  ((0x3432  << 2) + 0xff000000)
 #define DOLBY_CORE2A_SWAP_CTRL0                    ((0x3433  << 2) + 0xff000000)
 #define DOLBY_CORE2A_SWAP_CTRL1                    ((0x3434  << 2) + 0xff000000)
@@ -26616,6 +26621,11 @@
 // synopsys translate_off
 // synopsys translate_on
 #define DOLBY_CORE3_REG_START                      ((0x3600  << 2) + 0xff000000)
+#define DOLBY_CORE3_CTRL                           ((0x3601  << 2) + 0xff000000)
+#define DOLBY_CORE3_Metadata_Start                 ((0x3602  << 2) + 0xff000000)
+#define DOLBY_CORE3_Metadata_End                   ((0x3603  << 2) + 0xff000000)
+#define DOLBY_CORE3_Interrupt_Raw                  ((0x3604  << 2) + 0xff000000)
+#define DOLBY_CORE3_Interrupt_Enable               ((0x3605  << 2) + 0xff000000)
 #define DOLBY_CORE3_CLKGATE_CTRL                   ((0x36f0  << 2) + 0xff000000)
 #define DOLBY_CORE3_SWAP_CTRL0                     ((0x36f1  << 2) + 0xff000000)
 #define DOLBY_CORE3_SWAP_CTRL1                     ((0x36f2  << 2) + 0xff000000)
@@ -26624,12 +26634,12 @@
 #define DOLBY_CORE3_SWAP_CTRL4                     ((0x36f5  << 2) + 0xff000000)
 #define DOLBY_CORE3_SWAP_CTRL5                     ((0x36f6  << 2) + 0xff000000)
 #define DOLBY_CORE3_SWAP_CTRL6                     ((0x36f7  << 2) + 0xff000000)
-#define DOLBY_CORE3_SWAP_CTRL7                     ((0x36f8  << 2) + 0xff000000)
+#define DOLBY_CORE3_DIAG_CTRL                      ((0x36f8  << 2) + 0xff000000)
 #define DOLBY_CORE3_SWAP_CTRL8                     ((0x36f9  << 2) + 0xff000000)
 #define DOLBY_CORE3_SWAP_CTRL9                     ((0x36fa  << 2) + 0xff000000)
-#define DOLBY_CORE3_STATUS0                        ((0x36fb  << 2) + 0xff000000)
-#define DOLBY_CORE3_STATUS1                        ((0x36fc  << 2) + 0xff000000)
-#define DOLBY_CORE3_STATUS2                        ((0x36fd  << 2) + 0xff000000)
+#define DOLBY_CORE3_CRC_CTRL                       ((0x36fb  << 2) + 0xff000000)
+#define DOLBY_CORE3_INPUT_CSC_CRC                  ((0x36fc  << 2) + 0xff000000)
+#define DOLBY_CORE3_OUTPUT_CSC_CRC                 ((0x36fd  << 2) + 0xff000000)
 #define DOLBY_CORE3_STATUS3                        ((0x36fe  << 2) + 0xff000000)
 // synopsys translate_off
 // synopsys translate_on
@@ -35840,7 +35850,7 @@
 // Closing file:  ./parser_regs.h
 //
 
-#define REG_BASE_VCBUS                             (0xff000000)
+#define REG_BASE_VCBUS                             (0xff000000L)
 
 #include "soc_def.h"
 #endif // REGISTER_H
