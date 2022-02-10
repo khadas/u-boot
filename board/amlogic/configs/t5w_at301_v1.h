@@ -96,7 +96,7 @@
         "display_layer=osd0\0" \
         "display_color_fg=0xffff\0" \
         "display_color_bg=0\0" \
-        "dtb_mem_addr=0x1000000\0" \
+	"dtb_mem_addr=0x1f00000\0" \
         "fb_addr=0x1f800000\0" \
         "fb_width=1920\0" \
         "fb_height=1080\0" \
@@ -800,7 +800,7 @@
 #define CONFIG_SYS_MEM_TOP_HIDE 0x08000000 //hide 128MB for kernel reserve
 #define CONFIG_CMD_LOADB    1
 
-//#define CONFIG_MULTI_DTB    1
+#define CONFIG_MULTI_DTB    1
 
 /* debug mode defines */
 //#define CONFIG_DEBUG_MODE           1

@@ -797,18 +797,23 @@ phys_size_t get_effective_memsize(void)
 int checkhw(char * name)
 {
 	char dtb_name[64] = {0};
-	unsigned int ddr_size = 0;
+	unsigned long ddr_size = 0;
 	int i;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
 		ddr_size += gd->bd->bi_dram[i].size;
-
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
 	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
 #endif
-	strcpy(dtb_name, "t5w_at309_2g\0");
-	if (name)
-		strcpy(name, dtb_name);
+	printf("ddr_size is %lx\n", ddr_size);
+	if (ddr_size <= 0x40000000)
+		strcpy(dtb_name, "t5w_at301_1g\0");
+	else if (ddr_size <= 0x60000000)
+		strcpy(dtb_name, "t5w_at301_1.5g\0");
+	else
+		strcpy(dtb_name, "t5w_at301_2g\0");
+
+	strcpy(name, dtb_name);
 	setenv("aml_dt", dtb_name);
 	return 0;
 }
