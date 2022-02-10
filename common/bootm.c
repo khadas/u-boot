@@ -1134,6 +1134,9 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 	const char	*fit_uname_config = NULL;
 	const char	*fit_uname_kernel = NULL;
 	char *avb_s;
+#ifdef CONFIG_AML_ANTIROLLBACK
+	boot_img_hdr_t **tmp_img_hdr = NULL;
+#endif
 	avb_s = getenv("avb2");
 	if (avb_s == NULL) {
 		run_command("get_avb_mode;", 0);
@@ -1142,7 +1145,7 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 	printf("avb2: %s\n", avb_s);
 	if (strcmp(avb_s, "1") != 0) {
 #ifdef CONFIG_AML_ANTIROLLBACK
-		boot_img_hdr_t **tmp_img_hdr = (boot_img_hdr_t **)&buf;
+		tmp_img_hdr = (boot_img_hdr_t **)&buf;
 #endif
 	}
 
@@ -1238,9 +1241,9 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		if (strcmp(avb_s, "1") != 0) {
 #ifdef CONFIG_AML_ANTIROLLBACK
-			if (!check_antirollback((*tmp_img_hdr)->kernel_version)) {
+			if (!check_antirollback((*tmp_img_hdr)->os_version)) {
 				*os_len = 0;
-			     return NULL;
+				return NULL;
 			}
 #endif
 		}
