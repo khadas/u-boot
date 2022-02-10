@@ -64,7 +64,7 @@ int cpu_sd_emmc_init(unsigned port)
 		writel(0xABAAAA, P_PAD_DS_REG0A);
 		/* pull up data by default */
 		setbits_le32(P_PAD_PULL_UP_EN_REG0, 0xfff);
-		setbits_le32(P_PAD_PULL_UP_REG0, 0xfff);
+		setbits_le32(P_PAD_PULL_UP_REG0, 0x7ff);
 
 		/* set pinmux */
 		writel(0x11111111, P_PERIPHS_PIN_MUX_0);
