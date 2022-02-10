@@ -1587,7 +1587,7 @@ static int yaffsfs_DoStat(struct yaffs_obj *obj, struct yaffs_stat *buf)
 	obj = yaffs_get_equivalent_obj(obj);
 
 	if (obj && buf) {
-		buf->st_dev = (int)obj->my_dev->os_context;
+		buf->st_dev = (long)obj->my_dev->os_context;
 		buf->st_ino = obj->obj_id;
 		buf->st_mode = obj->yst_mode & ~S_IFMT;
 
@@ -2928,7 +2928,7 @@ struct yaffs_dirent *yaffs_readdir(yaffs_DIR * dirp)
 		if (dsc->nextReturn) {
 			dsc->de.d_ino =
 			    yaffs_get_equivalent_obj(dsc->nextReturn)->obj_id;
-			dsc->de.d_dont_use = (unsigned)dsc->nextReturn;
+			dsc->de.d_dont_use = (unsigned long)dsc->nextReturn;
 			dsc->de.d_off = dsc->offset++;
 			yaffs_get_obj_name(dsc->nextReturn,
 					   dsc->de.d_name, NAME_MAX);

@@ -597,6 +597,7 @@ static int mtd_store_write(const char *part_name,
 	return ret;
 }
 
+extern int mtd_block_is_protect(struct mtd_info *master, loff_t ofs);
 static int _mtd_store_erase(struct mtd_info *mtd,
 			   loff_t offset, size_t size, int scrub_flag, int bb_flag)
 {
@@ -641,6 +642,11 @@ static int _mtd_store_erase(struct mtd_info *mtd,
 					pr_info("MTD get bad block failed in 0x%08llx\n",
 						offset);
 					return ret;
+				}
+
+				if (bb_flag && mtd_block_is_protect(mtd, offset)) {
+					pr_info("skip protect block in 0x%08llx\n", offset);
+					continue;
 				}
 			}
 			info.mtd = mtd;

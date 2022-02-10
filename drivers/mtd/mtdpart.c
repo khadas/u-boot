@@ -902,6 +902,24 @@ void list_aml_mtd_partitions(struct mtd_info *master)
 					i++, slave->name, slave->size, slave->offset);
 	return;
 }
+
+int mtd_block_is_protect(struct mtd_info *master, loff_t ofs)
+{
+	struct part_info *temp;
+	struct mtd_device *dentry;
+
+	if (!mtdparts_init()) {
+		list_for_each_entry(dentry, &aml_device, link) {
+			list_for_each_entry(temp, &dentry->parts, link) {
+				if (!(temp->mask_flags & MTD_WRITEABLE) &&
+					(ofs < (temp->offset + temp->size)) &&
+					ofs >= (unsigned long long)temp->offset)
+					return 1;
+			}
+		}
+	}
+	return 0;
+}
 #endif
 
 int add_mtd_partitions(struct mtd_info *master,
@@ -1098,6 +1116,7 @@ int mtdparts_init(void)
 
 		temp->offset = part->offset;
 		temp->size = part->size;
+		temp->mask_flags = part->flags;
 		temp->dev = dev;
 		INIT_LIST_HEAD(&dev->parts);
 		list_add_tail(&temp->link, &dev->parts);
