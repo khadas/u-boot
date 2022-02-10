@@ -182,6 +182,7 @@ int aml_try_factory_sdcard_burning(int flag, bd_t* bis)
         /* enable console output */
         gd->flags &= ~GD_FLG_SILENT;
 #endif
+	optimus_clear_ovd_register();
         if ( aml_check_is_ready_for_sdc_produce() )
         {
             return aml_burn_sdc_producing(flag, bis);
