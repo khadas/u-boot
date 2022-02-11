@@ -915,6 +915,13 @@
 #define CONFIG_AML_HW_SHA2
 
 #define CONFIG_MULTI_DTB    1
+// use auto select DTB table
+#ifdef CONFIG_MULTI_DTB
+    #define CONFIG_T7_3G_SIZE   0xC0000000
+    #define CONFIG_T7_4G_SIZE   0x100000000
+    #define CONFIG_T7_6G_SIZE   0x180000000
+    #define CONFIG_T7_8G_SIZE   0x200000000
+#endif
 
 #define CONFIG_RX_RTERM        1
 #define CONFIG_CMD_HDMIRX   1
