@@ -1083,6 +1083,16 @@ static int handle_lcd_ctrl(struct lcd_v2_attr_s *p_attr)
 		ALOGD("%s, ctrl_attr_0 is (%s)\n", __func__, ini_value);
 	p_attr->ctrl.ctrl_attr_0 = strtoul(ini_value, NULL, 0);
 
+	ini_value = IniGetString("lcd_Attr", "ctrl_attr_0_parm0", "0");
+	if (model_debug_flag & DEBUG_LCD)
+		ALOGD("%s, ctrl_attr_0_parm0 is (%s)\n", __func__, ini_value);
+	p_attr->ctrl.ctrl_attr_0_parm0 = strtoul(ini_value, NULL, 0);
+
+	ini_value = IniGetString("lcd_Attr", "ctrl_attr_0_parm1", "0");
+	if (model_debug_flag & DEBUG_LCD)
+		ALOGD("%s, ctrl_attr_0_parm1 is (%s)\n", __func__, ini_value);
+	p_attr->ctrl.ctrl_attr_0_parm1 = strtoul(ini_value, NULL, 0);
+
 	return 0;
 }
 

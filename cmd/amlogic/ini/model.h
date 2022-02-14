@@ -196,37 +196,41 @@ struct lcd_phy_s {
 struct lcd_ctrl_s {
 	unsigned int   ctrl_attr_flag;    //4byte   //each bit enable one attr behind
 	unsigned short ctrl_attr_0;       //2byte   //
+	unsigned short ctrl_attr_0_parm0;       //2byte   //
+	unsigned short ctrl_attr_0_parm1;       //2byte   //
+	unsigned short ctrl_attr_0_parm2;       //2byte   //
+	unsigned short ctrl_attr_0_parm3;       //2byte   //
+	unsigned short ctrl_attr_0_parm4;       //2byte   //
+	unsigned short ctrl_attr_0_parm5;       //2byte   //
+	unsigned short ctrl_attr_0_parm6;       //2byte   //
+	unsigned short ctrl_attr_0_parm7;       //2byte   //
 	unsigned short ctrl_attr_1;       //2byte   //
+	unsigned short ctrl_attr_1_parm0;       //2byte   //
+	unsigned short ctrl_attr_1_parm1;       //2byte   //
+	unsigned short ctrl_attr_1_parm2;       //2byte   //
+	unsigned short ctrl_attr_1_parm3;       //2byte   //
+	unsigned short ctrl_attr_1_parm4;       //2byte   //
+	unsigned short ctrl_attr_1_parm5;       //2byte   //
+	unsigned short ctrl_attr_1_parm6;       //2byte   //
+	unsigned short ctrl_attr_1_parm7;       //2byte   //
 	unsigned short ctrl_attr_2;       //2byte   //
+	unsigned short ctrl_attr_2_parm0;       //2byte   //
+	unsigned short ctrl_attr_2_parm1;       //2byte   //
+	unsigned short ctrl_attr_2_parm2;       //2byte   //
+	unsigned short ctrl_attr_2_parm3;       //2byte   //
+	unsigned short ctrl_attr_2_parm4;       //2byte   //
+	unsigned short ctrl_attr_2_parm5;       //2byte   //
+	unsigned short ctrl_attr_2_parm6;       //2byte   //
+	unsigned short ctrl_attr_2_parm7;       //2byte   //
 	unsigned short ctrl_attr_3;       //2byte   //
-	unsigned short ctrl_attr_4;       //2byte   //
-	unsigned short ctrl_attr_5;       //2byte    //
-	unsigned short ctrl_attr_6;       //2byte
-	unsigned short ctrl_attr_7;       //2byte
-	unsigned short ctrl_attr_8;       //2byte
-	unsigned short ctrl_attr_9;       //2byte
-	unsigned short ctrl_attr_10;       //2byte   //
-	unsigned short ctrl_attr_11;       //2byte   //
-	unsigned short ctrl_attr_12;       //2byte   //
-	unsigned short ctrl_attr_13;       //2byte   //
-	unsigned short ctrl_attr_14;       //2byte   //
-	unsigned short ctrl_attr_15;       //2byte   //
-	unsigned short ctrl_attr_16;       //2byte   //
-	unsigned short ctrl_attr_17;       //2byte   //
-	unsigned short ctrl_attr_18;       //2byte   //
-	unsigned short ctrl_attr_19;       //2byte   //
-	unsigned short ctrl_attr_20;       //2byte   //
-	unsigned short ctrl_attr_21;       //2byte    //
-	unsigned short ctrl_attr_22;       //2byte
-	unsigned short ctrl_attr_23;       //2byte
-	unsigned short ctrl_attr_24;       //2byte
-	unsigned short ctrl_attr_25;       //2byte
-	unsigned short ctrl_attr_26;       //2byte   //
-	unsigned short ctrl_attr_27;       //2byte   //
-	unsigned short ctrl_attr_28;       //2byte   //
-	unsigned short ctrl_attr_29;       //2byte   //
-	unsigned short ctrl_attr_30;       //2byte   //
-	unsigned short ctrl_attr_31;       //2byte   //
+	unsigned short ctrl_attr_3_parm0;       //2byte   //
+	unsigned short ctrl_attr_3_parm1;       //2byte   //
+	unsigned short ctrl_attr_3_parm2;       //2byte   //
+	unsigned short ctrl_attr_3_parm3;       //2byte   //
+	unsigned short ctrl_attr_3_parm4;       //2byte   //
+	unsigned short ctrl_attr_3_parm5;       //2byte   //
+	unsigned short ctrl_attr_3_parm6;       //2byte   //
+	unsigned short ctrl_attr_3_parm7;       //2byte   //
 };
 
 struct lcd_v2_attr_s {

@@ -25,7 +25,9 @@
 /* 20211216: support phy adjust by lane*/
 /* 20211229: update multi lut init and switch flow*/
 /* 20211230: support lcd driver DLG switch flow*/
-#define LCD_DRV_VERSION    "20211230"
+/* 20220121: update custom_pinmux and fr_auto_dis support*/
+/* 20220216: update vrr config when display mode change*/
+#define LCD_DRV_VERSION    "20220216"
 
 extern unsigned int lcd_debug_test;
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
