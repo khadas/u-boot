@@ -1747,6 +1747,8 @@ static int lcd_config_load_from_bsp(struct aml_lcd_drv_s *pdrv)
 		pctrl->mipi_cfg.check_reg = 0xff;
 		pctrl->mipi_cfg.check_cnt = 0;
 #ifdef CONFIG_AML_LCD_TABLET
+		pctrl->mipi_cfg.dsi_init_on = ext_lcd->init_on;
+		pctrl->mipi_cfg.dsi_init_off = ext_lcd->init_off;
 		lcd_mipi_dsi_init_table_check_bsp(&pctrl->mipi_cfg, 1);
 		lcd_mipi_dsi_init_table_check_bsp(&pctrl->mipi_cfg, 0);
 #endif

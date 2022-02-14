@@ -270,6 +270,14 @@ int lcd_mipi_dsi_init_table_detect(char *dtaddr, int nodeoffset,
 		sprintf(propname, "dsi_init_off");
 	}
 
+	if (!init_table) {
+		init_table = (unsigned char *)malloc(sizeof(unsigned char) * max_len);
+		if (!init_table) {
+			LCDERR("%s: Not enough memory\n", __func__);
+			return -1;
+		}
+	}
+
 	i = 0;
 	propdata = (char *)fdt_getprop(dtaddr, nodeoffset, propname, NULL);
 	if (propdata == NULL) {
@@ -320,6 +328,11 @@ int lcd_mipi_dsi_init_table_detect(char *dtaddr, int nodeoffset,
 		i += (cmd_size + 2);
 	}
 
+	if (flag)
+		dconf->dsi_init_on = init_table;
+	else
+		dconf->dsi_init_off = init_table;
+
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		mipi_dsi_init_table_print(dconf, flag);
 
@@ -341,6 +354,11 @@ int lcd_mipi_dsi_init_table_check_bsp(struct dsi_config_s *dconf, int flag)
 		init_table = dconf->dsi_init_off;
 		max_len = DSI_INIT_OFF_MAX;
 		sprintf(propname, "dsi_init_off");
+	}
+
+	if (!init_table) {
+		LCDERR("%s: %s is not exist\n", __func__, propname);
+		return -1;
 	}
 
 	i = 0;
