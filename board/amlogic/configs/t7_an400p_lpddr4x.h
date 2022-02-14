@@ -244,7 +244,7 @@
             "else if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi; fi;" \
             "\0"\
         "init_display="\
-            "osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode}"\
+            "osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
             "\0"\
         "cmdline_keys="\
 			"setenv region_code US;"\
