@@ -460,6 +460,9 @@
 #ifndef CLKCTRL_MIPI_DSI_MEAS_CLK_CTRL
 #define CLKCTRL_MIPI_DSI_MEAS_CLK_CTRL		((0x0080  << 2) + 0xfe000000)
 #endif
+#ifndef CLKCTRL_HDMI_VID_PLL_CLK_DIV
+#define CLKCTRL_HDMI_VID_PLL_CLK_DIV            ((0x0081  << 2) + 0xfe000000)
+#endif
 
 #ifndef CLKCTRL_TCON_CLK_CNTL
 #define CLKCTRL_TCON_CLK_CNTL                      ((0x0087  << 2) + 0xfe000000)
