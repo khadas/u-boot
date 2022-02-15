@@ -446,3 +446,39 @@ U_BOOT_CMD(efuse_obj,	4,	0,	do_efuse_obj,
 	"eFUSE object program commands", efuse_obj_help_text
 );
 #endif /* CONFIG_EFUSE_OBJ_API */
+
+#ifdef CONFIG_EFUSE_MRK_GET_CHECKNUM
+int do_efuse_mrk(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	uint32_t rc = CMD_RET_FAILURE;
+	char name[16];
+	uint32_t checknum = 0;
+
+	if (argc != 2) {
+		printf("Invalid number of arguments %d\n", argc);
+		return CMD_RET_USAGE;
+	}
+
+	memset(name, 0, sizeof(name));
+	strncpy(name, argv[1], sizeof(name) - 1);
+	if (!efuse_mrk_get_checknum(name, &checknum)) {
+		printf("%s: 0x%08x\n", argv[1], checknum);
+		rc = CMD_RET_SUCCESS;
+	} else {
+		printf("get mrk checknum for %s failed\n", argv[1]);
+	}
+
+	return rc;
+}
+
+static char efuse_mrk_help_text[] =
+	"<MRK>\n"
+	"Supported MRK includes: DVGK, DVUK,\n"
+	"DGPK1, DGPK2,\n"
+	"ETSI_SCK_0, ETSI_SCK_1, ETSI_SCK_2,\n"
+	"SCPU_ETSI_SCK_0, SCPU_ETSI_SCK_1, SEGK\n";
+
+U_BOOT_CMD(efuse_mrk,	2,	0,	do_efuse_mrk,
+	"eFUSE mrk checknum", efuse_mrk_help_text
+);
+#endif /* CONFIG_EFUSE_MRK_GET_CHECKNUM */

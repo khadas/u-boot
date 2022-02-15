@@ -224,3 +224,16 @@ uint32_t efuse_obj_read(uint32_t obj_id, char *name, uint8_t *buff, uint32_t *si
 	return ret;
 }
 #endif /* CONFIG_EFUSE_OBJ_API */
+
+#ifdef CONFIG_EFUSE_MRK_GET_CHECKNUM
+uint32_t efuse_mrk_get_checknum(char *name, uint32_t *checknum)
+{
+	uint32_t ret;
+	char mrk_name[16];
+
+	memset(mrk_name, 0, sizeof(mrk_name));
+	strncpy(mrk_name, name, sizeof(mrk_name) - 1);
+	ret = meson_efuse_mrk_get_checknum(name, checknum);
+	return ret;
+}
+#endif

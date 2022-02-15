@@ -137,6 +137,39 @@ uint32_t meson_efuse_obj_write(uint32_t obj_id, uint8_t *buff, uint32_t size)
 }
 #endif /* CONFIG_EFUSE_OBJ_API */
 
+#ifdef CONFIG_EFUSE_MRK_GET_CHECKNUM
+uint32_t meson_efuse_mrk_get_checknum(char *name, uint32_t *checknum)
+{
+	uint32_t rc = EFUSE_MRK_CHECKNUM_SUCCESS;
+
+	if (!sharemem_input_base)
+		sharemem_input_base =
+			get_sharemem_info(GET_SHARE_MEM_INPUT_BASE);
+
+	if (!sharemem_output_base)
+		sharemem_output_base =
+			get_sharemem_info(GET_SHARE_MEM_OUTPUT_BASE);
+
+	strncpy((void *)sharemem_input_base, name, 16);
+	register uint64_t x0 asm("x0") = EFUSE_MRK_GET_CHECKNUM;
+	register uint64_t x1 asm("x1") = 0;
+
+	do {
+		asm volatile(__asmeq("%0", "x0")
+			__asmeq("%0", "x0")
+			__asmeq("%1", "x1")
+			"smc	#0\n"
+			: "+r" (x0), "=r" (x1)
+			: "r" (x0));
+	} while (0);
+
+	rc = x0;
+	*checknum = x1;
+
+	return rc;
+}
+#endif
+
 int32_t meson_trustzone_efuse(struct efuse_hal_api_arg *arg)
 {
 	int ret;
