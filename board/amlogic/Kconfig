@@ -681,6 +681,12 @@ config SC2_AH232
 	help
 	  Select SC2 AH232 config
 
+config SC2_AH221
+	bool "SC2_AH221"
+	select TARGET_SC2_AH221
+	help
+	  Select SC2 AH221 config
+
 config SC2_AH212_DDR3
 	bool "SC2_AH212_DDR3"
 	select TARGET_SC2_AH212_DDR3
@@ -716,6 +722,10 @@ config TARGET_SC2_AH212
 config TARGET_SC2_AH232
 	bool "SC2 AH232 board"
 	depends on SC2_AH232
+
+config TARGET_SC2_AH221
+	bool "SC2 AH221 board"
+	depends on SC2_AH221
 
 config TARGET_SC2_AH212_DDR3
 	bool "SC2 AH212 ddr3 board"
@@ -1139,6 +1149,8 @@ source "board/amlogic/sc2_ah219/Kconfig"
 source "board/amlogic/sc2_ah212/Kconfig"
 
 source "board/amlogic/sc2_ah232/Kconfig"
+
+source "board/amlogic/sc2_ah221/Kconfig"
 
 source "board/amlogic/sc2_ah212_ddr3/Kconfig"
 
