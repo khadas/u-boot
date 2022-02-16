@@ -485,37 +485,6 @@ static int strcmp_l1(const char *s1, const char *s2)
 	return strncmp(s1, s2, strlen(s1));
 }
 
-int get_mergestatus(struct misc_virtual_ab_message *message)
-{
-	char *partition = "misc";
-	char vab_buf[1024] = {0};
-
-	if (store_read_ops((unsigned char *)partition,
-		(unsigned char *)vab_buf, SYSTEM_SPACE_OFFSET_IN_MISC, 1024) < 0) {
-		printf("failed to store read %s.\n", partition);
-		return -1;
-	}
-
-	run_command("get_valid_slot", 0);
-	int current_slot = 0;
-	char *slot;
-	slot = getenv("slot-suffixes");
-	if (strcmp(slot, "0") == 0) {
-		current_slot = 0;
-	} else if (strcmp(slot, "1") == 0) {
-		current_slot = 1;
-	}
-
-	memcpy(message, vab_buf, sizeof(struct misc_virtual_ab_message));
-	printf("message.merge_status: %d\n", message->merge_status);
-	printf("message.source_slot: %d\n", message->source_slot);
-	if (message->merge_status == SNAPSHOTTED && current_slot == message->source_slot) {
-		message->merge_status = NONE;
-		printf("set message.merge_status NONE\n");
-	}
-	return 0;
-}
-
 int set_mergestatus_cancel(struct misc_virtual_ab_message *message)
 {
 	char *partition = "misc";
@@ -1009,19 +978,6 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		}
 	} else if (!strcmp_l1("snapshot-update-status", cmd)) {
 		if (has_boot_slot == 1) {
-			struct misc_virtual_ab_message message;
-			get_mergestatus(&message);
-			switch (message.merge_status) {
-				case SNAPSHOTTED:
-					strncat(response, "snapshotted", chars_left);
-					break;
-				case MERGING:
-					strncat(response, "merging", chars_left);
-					break;
-				default:
-					strncat(response, "none", chars_left);
-					break;
-			}
 		}
 	} else if (!strcmp_l1("slot-successful", cmd)) {
 		char str[128];
@@ -1563,13 +1519,6 @@ static void cb_set_active(struct usb_ep *ep, struct usb_request *req)
 		return;
 	}
 
-	struct misc_virtual_ab_message message;
-	get_mergestatus(&message);
-	if (message.merge_status == MERGING) {
-		fastboot_tx_write_str("FAILin merge state, cannot set active");
-		return;
-	}
-
 	sprintf(str, "set_active_slot %s", cmd);
 	printf("command:    %s\n", str);
 	ret = run_command(str, 0);
@@ -1686,9 +1635,6 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 		return;
 	}
 
-	struct misc_virtual_ab_message message;
-	get_mergestatus(&message);
-
 	printf("partition is %s\n", cmd);
 	if (strcmp(cmd, "userdata") == 0 || strcmp(cmd, "data") == 0) {
 		rc = store_get_partititon_size((unsigned char *)"userdata", &size);
@@ -1696,10 +1642,6 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 			strcpy(cmd, "data");
 		else
 			strcpy(cmd, "userdata");
-		if (message.merge_status == SNAPSHOTTED || message.merge_status == MERGING) {
-			fastboot_tx_write_str("FAILin merge state, cannot erase");
-			return;
-		}
 	} else if (strcmp(cmd, "dts") == 0) {
 		strcpy(cmd, "dtb");
 	}
