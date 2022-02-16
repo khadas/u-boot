@@ -27,6 +27,8 @@
 #include <amlogic/media/vout/lcd/aml_lcd.h>
 #endif
 
+int hpd_st;
+
 #ifdef CONFIG_AML_HDMITX
 static int vout_hdmi_hpd(int hpd_st)
 {
@@ -35,7 +37,7 @@ static int vout_hdmi_hpd(int hpd_st)
 	char *mode;
 #endif
 	char *hdmimode;
-	char *cvbsmode;
+//	char *cvbsmode;
 	char *colorattribute;
 
 #ifdef CONFIG_AML_LCD
@@ -56,7 +58,7 @@ static int vout_hdmi_hpd(int hpd_st)
 	colorattribute = env_get("colorattribute");
 	if (colorattribute)
 		printf("%s: colorattribute=%s\n", __func__, colorattribute);
-
+#if 0
 	if (hdmimode) {
 		if (strstr(hdmimode, "null")) {
 			env_set("hdmimode", "1080p60hz");
@@ -68,13 +70,15 @@ static int vout_hdmi_hpd(int hpd_st)
 	}
 
 	hdmimode = env_get("hdmimode");
+#endif
 	if (hpd_st) {
 		printf("set outputmode: hdmimode=%s\n", hdmimode);
 		env_set("outputmode", hdmimode);
 	} else {
-		cvbsmode = env_get("cvbsmode");
-		if (cvbsmode)
-			env_set("outputmode", cvbsmode);
+//	cvbsmode = env_get("cvbsmode");
+	//	if (cvbsmode)
+	//		env_set("outputmode", cvbsmode);
+		env_set("outputmode", hdmimode);
 		env_set("hdmichecksum", "0x00000000");
 		//run_command("saveenv", 0);
 	}
@@ -89,7 +93,7 @@ static int vout2_hdmi_hpd(int hpd_st)
 	char *mode;
 #endif
 	char *hdmimode;
-	char *cvbsmode;
+//	char *cvbsmode;
 	char *colorattribute;
 
 #ifdef CONFIG_AML_LCD
@@ -124,9 +128,9 @@ static int vout2_hdmi_hpd(int hpd_st)
 		printf("set outputmode2: hdmimode=%s\n", hdmimode);
 		env_set("outputmode2", hdmimode);
 	} else {
-		cvbsmode = env_get("cvbsmode");
-		if (cvbsmode)
-			env_set("outputmode2", cvbsmode);
+	//	cvbsmode = env_get("cvbsmode");
+	//	if (cvbsmode)
+			env_set("outputmode2", hdmimode);
 		env_set("hdmichecksum", "0x00000000");
 		//run_command("saveenv", 0);
 	}
@@ -138,7 +142,7 @@ int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 		  char *const argv[])
 {
 	char *st;
-	int hpd_st = 0;
+	 hpd_st = 0;
 #ifdef CONFIG_AML_HDMITX20
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
 #else
