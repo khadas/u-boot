@@ -17,6 +17,8 @@
 #warning "include warning"
 #endif
 
+#define CONFIG_AML_WATERMARK 1
+
 /*
  * platform power init config
  */
@@ -198,7 +200,7 @@
             "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
             "\0"\
         "init_display="\
-            "osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale"\
+            "watermark_init;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale"\
             "\0"\
         "cmdline_keys="\
             "if keyman init 0x1234; then "\

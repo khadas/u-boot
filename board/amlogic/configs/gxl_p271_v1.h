@@ -20,6 +20,8 @@
 #endif
 #endif		/* for compile problem of A53 and m3 */
 
+#define CONFIG_AML_WATERMARK 1
+
 /*
  * platform power init config
  */
@@ -276,16 +278,16 @@
                     "setenv reboot_mode_android ""quiescent"";"\
                     "run storeargs;"\
                     "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
-                    "osd open;osd clear;"\
+                    "watermark_init;osd open;osd clear;"\
             "else if test ${reboot_mode} = recovery_quiescent; then "\
                     "setenv reboot_mode_android ""quiescent"";"\
                     "run storeargs;"\
                     "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
-                    "osd open;osd clear;"\
+                    "watermark_init;osd open;osd clear;"\
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
-                "osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale; "\
+                "watermark_init;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale; "\
             "fi;fi;"\
             "\0"\
         "cmdline_keys="\

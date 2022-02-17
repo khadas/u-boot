@@ -74,6 +74,8 @@
 #define CONFIG_FAT_WRITE 1
 #define CONFIG_AML_FACTORY_PROVISION 1
 
+#define CONFIG_AML_WATERMARK 1
+
 /* Bootloader Control Block function
    That is used for recovery and the bootloader to talk to each other
   */
@@ -290,16 +292,16 @@
                     "setenv reboot_mode_android ""quiescent"";"\
                     "run storeargs;"\
                     "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
-                    "osd open;osd clear;"\
+                    "watermark_init;osd open;osd clear;"\
             "else if test ${reboot_mode} = recovery_quiescent; then "\
                     "setenv reboot_mode_android ""quiescent"";"\
                     "run storeargs;"\
                     "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
-                    "osd open;osd clear;"\
+                    "watermark_init;osd open;osd clear;"\
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
-                "osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale; "\
+                "watermark_init;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale; "\
             "fi;fi;"\
             "\0"\
         "cmdline_keys="\
