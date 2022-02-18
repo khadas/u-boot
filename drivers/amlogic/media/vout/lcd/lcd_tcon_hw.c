@@ -7,6 +7,9 @@
 #include <malloc.h>
 #include <asm/arch/io.h>
 #include <amlogic/media/vout/lcd/aml_lcd.h>
+#ifdef CONFIG_AMLOGIC_TEE
+#include <amlogic/tee_aml.h>
+#endif
 #include "lcd_reg.h"
 #include "lcd_common.h"
 #include "lcd_tcon.h"
@@ -797,6 +800,74 @@ lcd_tcon_data_common_parse_set_err_size:
 	return -1;
 }
 
+#ifdef CONFIG_AMLOGIC_TEE
+int lcd_tcon_mem_tee_protect(int mem_flag, int protect_en)
+{
+	int ret;
+	struct tcon_rmem_s *tcon_rmem = get_lcd_tcon_rmem();
+	struct lcd_tcon_local_cfg_s *local_cfg = get_lcd_tcon_local_cfg();
+	struct lcd_tcon_config_s *tcon_conf = get_lcd_tcon_config();
+	unsigned char *secure_handle_vaddr;
+	unsigned int temp;
+
+	if (mem_flag > tcon_conf->axi_bank) {
+		LCDPR("no need protect\n");
+		return 0;
+	}
+
+	/* mem_flag: 0 = od secure mem(default secure)
+	 * 1 = demura_lut mem(default unsecure)
+	 */
+	secure_handle_vaddr = (unsigned char *)(unsigned long)
+		(tcon_rmem->secure_handle_rmem.mem_paddr);
+	if (!secure_handle_vaddr) {
+		LCDERR("%s: handle_vaddr is null\n", __func__);
+		return 0;
+	}
+
+	if (protect_en) {
+		if (local_cfg->secure_cfg[mem_flag].protect)
+			return 0;
+		if (!tcon_rmem->axi_rmem)
+			return -1;
+
+		ret = tee_protect_mem_by_type(TEE_MEM_TYPE_TCON,
+					      tcon_rmem->axi_rmem[mem_flag].mem_paddr,
+					      tcon_rmem->axi_rmem[mem_flag].mem_size,
+					      &local_cfg->secure_cfg[mem_flag].handle);
+
+		if (ret) {
+			LCDERR("%s: tee_protect_mem failed! protect %d, ret: %d\n",
+			       __func__, mem_flag, ret);
+			LCDERR("%s: mem_start: 0x%08x, mem_size: 0x%x\n",
+			       __func__, (unsigned int)tcon_rmem->axi_rmem[mem_flag].mem_paddr,
+			       tcon_rmem->axi_rmem[mem_flag].mem_size);
+			return -1;
+		}
+		local_cfg->secure_cfg[mem_flag].protect = 1;
+		memcpy(&secure_handle_vaddr[mem_flag * 4],
+		       &local_cfg->secure_cfg[mem_flag].handle,
+		       sizeof(unsigned int));
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
+			temp = secure_handle_vaddr[0 + mem_flag * 4] |
+			       (secure_handle_vaddr[1 + mem_flag * 4] << 8) |
+			       (secure_handle_vaddr[2 + mem_flag * 4] << 16) |
+			       (secure_handle_vaddr[3 + mem_flag * 4] << 24);
+			LCDPR("handle: %d, temp: %d\n",
+			      local_cfg->secure_cfg[mem_flag].handle, temp);
+		}
+	} else {
+		if (!local_cfg->secure_cfg[mem_flag].protect)
+			return 0;
+		tee_unprotect_mem(local_cfg->secure_cfg[mem_flag].handle);
+		local_cfg->secure_cfg[mem_flag].protect = 0;
+		memset(&secure_handle_vaddr[0 + mem_flag * 4], 0xff, 4);
+	}
+
+	return 0;
+}
+#endif
+
 static int lcd_tcon_data_set(struct aml_lcd_drv_s *pdrv,
 		struct tcon_mem_map_table_s *mm_table)
 {
@@ -1092,6 +1163,55 @@ int lcd_tcon_enable_t5(struct aml_lcd_drv_s *pdrv)
 	/* step 4:  tcon data set */
 	if (mm_table->version)
 		lcd_tcon_data_set(pdrv, mm_table);
+
+	/* step 5: tcon_top_output_set */
+	lcd_tcon_write(TCON_OUT_CH_SEL0, 0x76543210);
+	lcd_tcon_write(TCON_OUT_CH_SEL1, 0xba98);
+
+	lcd_vcbus_write(ENCL_VIDEO_EN, 1);
+
+	return 0;
+}
+
+int lcd_tcon_enable_t3(struct aml_lcd_drv_s *pdrv)
+{
+	struct lcd_config_s *pconf = &pdrv->config;
+	struct lcd_tcon_config_s *tcon_conf = get_lcd_tcon_config();
+	struct tcon_mem_map_table_s *mm_table = get_lcd_tcon_mm_table();
+	int ret;
+
+	ret = lcd_tcon_valid_check();
+	if (ret)
+		return -1;
+	if (!tcon_conf)
+		return -1;
+	if (!mm_table)
+		return -1;
+
+	lcd_vcbus_write(ENCL_VIDEO_EN, 0);
+
+	/* step 1: tcon top */
+	lcd_tcon_top_set_t5(pconf);
+
+	/* step 2: tcon_core_reg_update */
+	lcd_tcon_core_reg_pre_dis_od(tcon_conf, mm_table);
+	if (mm_table->core_reg_header) {
+		if (mm_table->core_reg_header->block_ctrl == 0) {
+			lcd_tcon_core_reg_set(tcon_conf, mm_table,
+				mm_table->core_reg_table);
+		}
+	}
+
+	/* step 3: set axi rmem, must before tcon data */
+	lcd_tcon_axi_rmem_set(tcon_conf);
+
+	/* step 4:  tcon data set */
+	if (mm_table->version)
+		lcd_tcon_data_set(pdrv, mm_table);
+
+#ifdef CONFIG_AMLOGIC_TEE
+	lcd_tcon_mem_tee_protect(0, 1);
+#endif
 
 	/* step 5: tcon_top_output_set */
 	lcd_tcon_write(TCON_OUT_CH_SEL0, 0x76543210);

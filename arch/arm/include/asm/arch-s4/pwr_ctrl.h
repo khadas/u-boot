@@ -33,5 +33,6 @@ char* domain_name[] =
 	"PM_AUDIO",
 };
 */
+unsigned long viu_init_psci_smc(void);
 unsigned long pwr_ctrl_psci_smc(unsigned int power_domain, bool power_control);
 #endif

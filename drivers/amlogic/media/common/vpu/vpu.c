@@ -19,7 +19,6 @@
 /* v20210317: add t3 support */
 #define VPU_VERION	"v20210317"
 
-
 DECLARE_GLOBAL_DATA_PTR;
 
 struct vpu_conf_s vpu_conf = {
@@ -318,6 +317,7 @@ static struct vpu_data_s vpu_data_t3 = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = CLKCTRL_VPU_CLK_CTRL,
+	.vpu_clkb_reg = CLKCTRL_VPU_CLKB_CTRL,
 	.vapb_clk_reg = CLKCTRL_VAPBCLK_CTRL,
 	.vid_clk_reg = CLKCTRL_VID_CLK0_CTRL2,
 
@@ -371,12 +371,14 @@ static void vpu_chip_detect(void)
 	case MESON_CPU_MAJOR_ID_T7:
 		vpu_conf.data = &vpu_data_t7;
 		break;
+	case MESON_CPU_MAJOR_ID_T3:
+		vpu_conf.data = &vpu_data_t3;
+		break;
 	case MESON_CPU_MAJOR_ID_S4:
 		vpu_conf.data = &vpu_data_s4;
 		break;
 	default:
-		//vpu_conf.data = NULL;
-		vpu_conf.data = &vpu_data_t3;
+		vpu_conf.data = NULL;
 		break;
 	}
 
@@ -625,6 +627,43 @@ static int set_vpu_clk(unsigned int vclk)
 	return ret;
 }
 
+static int set_vpu_clkb(unsigned int vclk)
+{
+	unsigned int clk_level;
+	unsigned int clkb_reg;
+	int ret = 0;
+
+	/* vpu clkb */
+	clkb_reg = vpu_conf.data->vpu_clkb_reg;
+	if (!clkb_reg)
+		return 0;
+
+	if (vclk >= 100) /* regard as vpu_clk */
+		clk_level = get_vpu_clk_level(vclk);
+	else /* regard as clk_level */
+		clk_level = vclk;
+
+	if (clk_level >= vpu_conf.data->clk_level_max) {
+		clk_level = vpu_conf.data->clk_level_dft;
+		VPUPR("clk out of supported range, set to default\n");
+	}
+#ifdef VPU_DEBUG_PRINT
+	VPUPR("%s\n", __func__);
+#endif
+
+	vpu_hiu_setb(clkb_reg, 1, 8, 1);
+	vpu_hiu_setb(clkb_reg, 1, 0, 8);
+	vpu_hiu_setb(clkb_reg, 1, 24, 1);
+	vpu_hiu_setb(clkb_reg, 0, 16, 4);
+	vpu_hiu_setb(clkb_reg, 0, 20, 2);
+
+#ifdef VPU_DEBUG_PRINT
+	VPUPR("%s finish\n", __func__);
+#endif
+
+	return ret;
+}
+
 static int get_vpu_config(void)
 {
 	const void *dt_blob;
@@ -681,6 +720,7 @@ int vpu_probe(void)
 	if (vpu_conf.data->power_on)
 		vpu_conf.data->power_on();
 	set_vpu_clk(vpu_conf.clk_level);
+	set_vpu_clkb(vpu_conf.clk_level);
 
 	/* vpu module init off, for power save, and special module init */
 	vpu_mem_pd_init_off();

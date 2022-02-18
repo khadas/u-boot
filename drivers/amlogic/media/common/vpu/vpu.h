@@ -83,6 +83,7 @@ struct vpu_data_s {
 	unsigned char gp_pll_valid;
 
 	unsigned int vpu_clk_reg;
+	unsigned int vpu_clkb_reg;
 	unsigned int vapb_clk_reg;
 	unsigned int vid_clk_reg;
 

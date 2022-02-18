@@ -1472,6 +1472,14 @@ static void lcd_tcon_axi_mem_config_tl1(void)
 		return;
 	memset(tcon_rmem.axi_rmem, 0,
 	       lcd_tcon_conf->axi_bank * sizeof(struct tcon_rmem_config_s));
+	tcon_local_cfg.secure_cfg = (struct tcon_mem_secure_config_s *)malloc
+		(lcd_tcon_conf->axi_bank * sizeof(struct tcon_mem_secure_config_s));
+	if (!tcon_local_cfg.secure_cfg) {
+		free(tcon_rmem.axi_rmem);
+		return;
+	}
+	memset(tcon_local_cfg.secure_cfg, 0,
+	       lcd_tcon_conf->axi_bank * sizeof(struct tcon_mem_secure_config_s));
 
 	for (i = 0; i < lcd_tcon_conf->axi_bank; i++) {
 		tcon_rmem.axi_rmem[i].mem_paddr = tcon_rmem.axi_mem_paddr + temp_size;
@@ -1510,6 +1518,15 @@ static void lcd_tcon_axi_mem_config_t5(void)
 		return;
 	}
 	memset(lcd_tcon_conf->axi_reg, 0, temp_size);
+	tcon_local_cfg.secure_cfg = (struct tcon_mem_secure_config_s *)malloc
+		(lcd_tcon_conf->axi_bank * sizeof(struct tcon_mem_secure_config_s));
+	if (!tcon_local_cfg.secure_cfg) {
+		free(tcon_rmem.axi_rmem);
+		free(lcd_tcon_conf->axi_reg);
+		return;
+	}
+	memset(tcon_local_cfg.secure_cfg, 0,
+	       lcd_tcon_conf->axi_bank * sizeof(struct tcon_mem_secure_config_s));
 
 	temp_size = 0;
 	for (i = 0; i < lcd_tcon_conf->axi_bank; i++) {
@@ -1540,7 +1557,6 @@ static void lcd_tcon_axi_mem_config_t5d(void)
 	if (!tcon_rmem.axi_rmem)
 		return;
 	memset(tcon_rmem.axi_rmem, 0, temp_size);
-
 	temp_size = sizeof(unsigned int);
 	lcd_tcon_conf->axi_reg = (unsigned int *)malloc(temp_size);
 	if (!lcd_tcon_conf->axi_reg) {
@@ -1548,6 +1564,16 @@ static void lcd_tcon_axi_mem_config_t5d(void)
 		return;
 	}
 	memset(lcd_tcon_conf->axi_reg, 0, temp_size);
+	tcon_local_cfg.secure_cfg = (struct tcon_mem_secure_config_s *)malloc
+		(lcd_tcon_conf->axi_bank * sizeof(struct tcon_mem_secure_config_s));
+	if (!tcon_local_cfg.secure_cfg) {
+		free(tcon_rmem.axi_rmem);
+		free(lcd_tcon_conf->axi_reg);
+		return;
+	}
+	memset(tcon_local_cfg.secure_cfg, 0,
+	       lcd_tcon_conf->axi_bank * sizeof(struct tcon_mem_secure_config_s));
+
 
 	tcon_rmem.axi_rmem->mem_paddr = tcon_rmem.axi_mem_paddr;
 	tcon_rmem.axi_rmem->mem_vaddr =
@@ -1564,7 +1590,8 @@ static int lcd_tcon_mem_config(void)
 	int ret;
 
 	/* reserved memory */
-	max_size = lcd_tcon_conf->axi_size + lcd_tcon_conf->bin_path_size;
+	max_size = lcd_tcon_conf->axi_size + lcd_tcon_conf->bin_path_size
+		+ lcd_tcon_conf->secure_handle_size;
 	if (tcon_rmem.rsv_mem_size < max_size) {
 		LCDERR("%s: tcon mem size 0x%x is not enough, need 0x%x\n",
 		       __func__, tcon_rmem.rsv_mem_size, max_size);
@@ -1586,6 +1613,23 @@ static int lcd_tcon_mem_config(void)
 		LCDPR("tcon bin_path paddr: 0x%08x, size: 0x%x\n",
 		      tcon_rmem.bin_path_rmem.mem_paddr,
 		      tcon_rmem.bin_path_rmem.mem_size);
+
+	tcon_rmem.secure_handle_rmem.mem_size =
+			lcd_tcon_conf->secure_handle_size;
+	tcon_rmem.secure_handle_rmem.mem_paddr =
+		tcon_rmem.axi_mem_paddr + tcon_rmem.axi_mem_size +
+		lcd_tcon_conf->bin_path_size;
+	if ((lcd_debug_print_flag & LCD_DBG_PR_NORMAL) &&
+	    tcon_rmem.secure_handle_rmem.mem_size > 0)
+		LCDPR("tcon secure_handle paddr: 0x%08x, size: 0x%x\n",
+		      tcon_rmem.secure_handle_rmem.mem_paddr,
+		      tcon_rmem.secure_handle_rmem.mem_size);
+	/* default f secure handle rmem */
+	tcon_rmem.secure_handle_rmem.mem_vaddr =
+		(unsigned char *)(unsigned long)
+		(tcon_rmem.secure_handle_rmem.mem_paddr);
+	memset(tcon_rmem.secure_handle_rmem.mem_vaddr, 0xff,
+	       tcon_rmem.secure_handle_rmem.mem_size);
 
 	/* default clear tcon rmem */
 	mem_vaddr = (unsigned char *)(unsigned long)(tcon_rmem.rsv_mem_paddr);
@@ -1875,6 +1919,7 @@ static struct lcd_tcon_config_s tcon_data_t5 = {
 	.rsv_mem_size    = 0x00c00000, /* 12M */
 	.axi_size        = 0x00a00000, /* 9M */
 	.bin_path_size   = 0x00002800, /* 10K */
+	.secure_handle_size   = 0x00000064, /* 32bit*2 */
 	.vac_size        = 0,
 	.demura_set_size = 0,
 	.demura_lut_size = 0,
@@ -1945,6 +1990,7 @@ static struct lcd_tcon_config_s tcon_data_t3 = {
 	.rsv_mem_size    = 0x00c00000, /* 12M */
 	.axi_size        = 0x00a00000, /* 9M */
 	.bin_path_size   = 0x00002800, /* 10K */
+	.secure_handle_size   = 0x00000064, /* 32bit*2 */
 	.vac_size        = 0,
 	.demura_set_size = 0,
 	.demura_lut_size = 0,
@@ -1952,7 +1998,7 @@ static struct lcd_tcon_config_s tcon_data_t3 = {
 
 	.axi_reg = NULL,
 	.tcon_axi_mem_config = lcd_tcon_axi_mem_config_t5,
-	.tcon_enable = lcd_tcon_enable_t5,
+	.tcon_enable = lcd_tcon_enable_t3,
 	.tcon_disable = lcd_tcon_disable_t3,
 };
 

@@ -45,4 +45,5 @@ enum pm_e {
 	PM_SPICC_B
 };
 
+unsigned long viu_init_psci_smc(void);
 unsigned long pwr_ctrl_psci_smc(unsigned int power_domain, bool power_control);

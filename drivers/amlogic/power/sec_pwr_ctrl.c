@@ -23,3 +23,13 @@ unsigned long pwr_ctrl_status_psci_smc(unsigned int power_domain)
 		      0, 0, 0, 0, &res);
 	return res.a0;
 }
+
+unsigned long viu_init_psci_smc(void)
+{
+	struct arm_smccc_res res;
+
+	arm_smccc_smc(0x82000080, 0, 0, 0,
+		      0, 0, 0, 0, &res);
+	return res.a0;
+}
+

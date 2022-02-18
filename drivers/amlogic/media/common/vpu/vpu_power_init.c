@@ -47,7 +47,10 @@ void vpu_module_init_config(void)
 	}
 	vpu_vcbus_write(VPU_RDARB_MODE_L2C1, 0x900000);
 	vpu_vcbus_write(VPU_WRARB_MODE_L2C1, 0x20000);
-
+#ifdef CONFIG_AMLOGIC_TEE
+	if (vpu_conf.data->chip_type == VPU_CHIP_T3)
+		viu_init_psci_smc();
+#endif
 	VPUPR("%s\n", __func__);
 }
 
