@@ -57,6 +57,7 @@ int optimus_hex_data_2_ascii_str(const unsigned char* hexData, const unsigned nB
 int optimus_progress_init(const unsigned itemSzHigh, const unsigned itemSzLow, const u32 startStep, const u32 endStep);
 int optimus_progress_exit(void);
 int optimus_update_progress(const unsigned thisBurnSz);
+int usb_burn_erase_data(unsigned char init_flag);
 
 enum {
     V3TOOL_WORK_MODE_USB_UPDATE = (0xefe5),

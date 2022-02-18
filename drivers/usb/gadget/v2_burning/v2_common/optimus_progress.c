@@ -4,7 +4,11 @@
  */
 
 #include "../v2_burning_i.h"
+#include <amlogic/aml_mmc.h>
+#include <dm/pinctrl.h>
+#include <emmc_partitions.h>
 
+#define BLOCK_SIZE 512
 #define OPTIMUS_PROMPT_SIZE_MIN     (4U<<20)//mininal size to prompt burning progress step
 
 struct ProgressInfo{
@@ -190,4 +194,57 @@ void optimus_clear_ovd_register(void)
 {
     set_boot_first_timeout(SCPI_CMD_CLEAR_BOOT);
 }
+
+#ifdef CONFIG_CMD_MMC
+//erase only emmc user part and skip bootloader/env
+int usb_burn_erase_data(unsigned char init_flag)
+{
+	int ret = 0, i;
+	struct mmc *mmc;
+	struct partitions *part_info = NULL;
+
+	init_flag = init_flag;
+
+	mmc = find_mmc_device(1);
+	if (!mmc) {
+		printf("[%s]  no mmc devices available\n", __func__);
+		return -1;
+	}
+
+	mmc->has_init = 0;
+	pinctrl_select_state(mmc->dev, "default");
+
+	ret = mmc_init(mmc);
+	if (ret != 0) {
+		DWN_ERR("mmc init failed, ret %d\n", ret);
+		return -__LINE__;
+	}
+
+	for (i = 0; i < 64; i++) {
+		part_info = get_partition_info_by_num(i);
+		if (!part_info)
+			break;
+		if (!strcmp("reserved", part_info->name) ||
+				!strcmp("bootloader", part_info->name)) {
+			printf("Part:%s is skiped\n", part_info->name);
+			continue;
+		}
+		if (part_info->size == 0) {
+			printf("Part:%s size is 0\n", part_info->name);
+			continue;
+		}
+		if (part_info->mask_flags & PART_PROTECT_FLAG) {
+			printf("Part:%s is protected\n", part_info->name);
+			continue;
+		}
+		ret = blk_derase(mmc_get_blk_desc(mmc),
+				part_info->offset / BLOCK_SIZE,
+				part_info->size / BLOCK_SIZE);
+		printf("Erased: %s %s\n",
+				part_info->name,
+				(ret == 0) ? "OK" : "ERR");
+	}
+	return 0;
+}
+#endif// #ifdef CONFIG_CMD_MMC
 

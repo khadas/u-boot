@@ -7,6 +7,7 @@
 #include <fdtdec.h>
 #include <asm/arch/cpu_config.h>
 #include <u-boot/sha256.h>
+#include <amlogic/nocs_seb.h>
 #define DWN_ERR FB_ERR
 #define BOOTLOADER_MAX_SZ   (0x2<<20)
 #define DTB_MAX_SZ          (256<<10)
@@ -61,11 +62,44 @@ int bootloader_copy_sz(void)
 	return store_boot_copy_size("bootloader");
 }
 
+/*#define _NOCS_TEST_ON_NOSCS_*/
+// <0 exception, 0 -- no nocs scs , 1 -- nocs scs
+static int is_nocs_scs_chip(void)
+{
+#ifdef CONFIG_UPDATE_UBOOT_NOCS
+	nocs_chip_type chip_type = NOCS_UNDEFINE;
+	nocs_scs_status scs_sta  = NOCS_SCS_DISABLE;
+	bool is_nocs_chip = false;
+
+	if (get_nocs_inf(&chip_type, &scs_sta) != SEB_NO_ERROR) {
+		FB_ERR("Exception in check nocs info!\n");
+		return -__LINE__;
+	}
+	DWN_MSG("ty %d, en %d\n", chip_type, scs_sta);
+	is_nocs_chip = (chip_type > NOCS_UNDEFINE && chip_type < LAST_NOCS_TYPE);
+	if (!is_nocs_chip)
+		return 0;
+#ifdef _NOCS_TEST_ON_NOSCS_
+	return chip_type;
+#else
+	if (scs_sta == NOCS_SCS_ENABLE)
+		return chip_type;
+	return 0;//no care chip type if not scs enable
+#endif //#ifdef _NOCS_TEST_ON_NOSCS_
+#else
+	return 0;
+#endif//#ifdef CONFIG_UPDATE_UBOOT_NOCS
+}
+
+#ifdef CONFIG_UPDATE_UBOOT_NOCS
+static nocs_boot_replace * _nocsInfo;
 static int _bootloader_write(u8* dataBuf, unsigned off, unsigned binSz, const char* bootName)
 {
-	int iCopy = 0;
+	int iCopy = 0, ret = 0;
 	const int bootCpyNum = store_boot_copy_num(bootName);
 	const int bootCpySz  = (int)store_boot_copy_size(bootName);
+	unsigned char *flash_boot = NULL;
+
 	FB_MSG("[%s] CpyNum %d, bootCpySz 0x%x\n", bootName, bootCpyNum, bootCpySz);
 	if (binSz + off > bootCpySz) FBS_EXIT(_ACK, "bootloader sz(0x%x) + off(0x%x) > bootCpySz 0x%x\n", binSz, off, bootCpySz);
 
@@ -73,14 +107,92 @@ static int _bootloader_write(u8* dataBuf, unsigned off, unsigned binSz, const ch
 		FBS_ERR(_ACK, "current only 0 suuported!\n");
 		return -__LINE__;
 	}
+	do {
+		int chip_type = is_nocs_scs_chip();
+
+		if (chip_type < 0) {
+			FBS_ERR(_ACK, "Fail in get nocs info\n");
+			return -__LINE__;
+		}
+		if (!chip_type)//no scs-en nocs chip
+			break;
+
+		if (chip_type < LAST_NOCS_TYPE) {
+			flash_boot = (unsigned char *)(V3_DOWNLOAD_VERIFY_INFO + 512);
+			const int boot_cpy = store_bootup_bootidx("bootloader");
+			nocs_boot_replace nocs_normal_areas;
+			int i = 0;
+			int ret = 0;
+
+			FB_MSG("NOCS chip %d with SCS, cur cpy %d\n", chip_type, boot_cpy);
+			ret = store_boot_read(bootName, boot_cpy, 0, flash_boot);
+			if (ret) {
+				FBS_ERR(_ACK, "fail in read bootloader cpy%d\n", boot_cpy);
+				return -__LINE__;
+			}
+			if (nocs_secure_boot_modify(chip_type, flash_boot, bootCpySz,
+						dataBuf, binSz, &nocs_normal_areas)
+					!= SEB_NO_ERROR) {
+				FBS_ERR(_ACK, "Fail in get nocs upgrade areas\n");
+				return -__LINE__;
+			}
+			if (!nocs_normal_areas.area_num || nocs_normal_areas.area_num > 4) {
+				FBS_ERR(_ACK, "Invalid upgrade area num %d\n",
+						nocs_normal_areas.area_num);
+				return -__LINE__;
+			}
+			for (i = 0; i < nocs_normal_areas.area_num; ++i) {
+				unsigned int _off = nocs_normal_areas.offset[i];
+				unsigned int sz = nocs_normal_areas.size[i];
+
+				DWN_MSG("wr normal[%d] off 0x%x, sz 0x%x\n", i, _off, sz);
+				memcpy(flash_boot + _off, dataBuf + _off, sz);
+			}
+			_nocsInfo = (nocs_boot_replace *)V3_DOWNLOAD_VERIFY_INFO;
+			memcpy(_nocsInfo, &nocs_normal_areas, sizeof(nocs_boot_replace));
+		} else {
+			FBS_ERR(_ACK, "scs en but chip %d unsupported\n", chip_type);
+			return -__LINE__;
+		}
+	} while (0);
 
 	for (; iCopy < bootCpyNum; ++iCopy) {
-		int ret = store_boot_write(bootName, iCopy, binSz, dataBuf);
+		ret = store_boot_write(bootName, iCopy, binSz, flash_boot ? flash_boot : dataBuf);
 		if (ret) FBS_EXIT(_ACK, "FAil in program[%s] at copy[%d]\n", bootName, iCopy);
+	}
+	if (flash_boot)
+		memcpy(flash_boot, dataBuf, binSz);//for verify
+	else
+		_nocsInfo = NULL;
+
+	return 0;
+}
+#else
+static int _bootloader_write(u8 *dataBuf, unsigned off, unsigned binSz, const char *bootName)
+{
+	int iCopy = 0, ret = 0;
+	const int bootCpyNum = store_boot_copy_num(bootName);
+	const int bootCpySz  = (int)store_boot_copy_size(bootName);
+
+	FB_MSG("[%s] CpyNum %d, bootCpySz 0x%x\n", bootName, bootCpyNum, bootCpySz);
+	if (binSz + off > bootCpySz)
+		FBS_EXIT(_ACK, "bootloader sz(0x%x) + off(0x%x) > bootCpySz 0x%x\n",
+				binSz, off, bootCpySz);
+
+	if (off) {
+		FBS_ERR(_ACK, "current only 0 suuported!\n");
+		return -__LINE__;
+	}
+
+	for (; iCopy < bootCpyNum; ++iCopy) {
+		ret = store_boot_write(bootName, iCopy, binSz, dataBuf);
+		if (ret)
+			FBS_EXIT(_ACK, "FAil in program[%s] at copy[%d]\n", bootName, iCopy);
 	}
 
 	return 0;
 }
+#endif//#ifdef CONFIG_UPDATE_UBOOT_NOCS
 
 static p_payload_info_t _bl2x_mode_detect(u8* dataBuf)
 {
@@ -285,6 +397,8 @@ static int _discrete_bootloader_read(u8* dataBuf, unsigned off, unsigned binSz)
 int bootloader_read(u8* pBuf, unsigned off, unsigned binSz)
 {
 	bool discreteMode = false;
+	int ret = 0;
+
 	if (is_bootloader_discrte(&discreteMode)) {
 		return -__LINE__;
 	}
@@ -292,7 +406,28 @@ int bootloader_read(u8* pBuf, unsigned off, unsigned binSz)
 	if (discreteMode)
 		return _discrete_bootloader_read(pBuf, off, binSz);
 
-	return _bootloader_read(pBuf, off, binSz, "bootloader");
+	ret = _bootloader_read(pBuf, off, binSz, "bootloader");
+	if (ret)
+		FBS_EXIT(_ACK, "Fail in read bootloader, ret %d\n", ret);
+#ifdef CONFIG_UPDATE_UBOOT_NOCS
+	if (_nocsInfo) {
+		int i = 0;
+		u8 *srcData = (u8 *)(V3_DOWNLOAD_VERIFY_INFO + 512);
+		const unsigned int normal_num = _nocsInfo->area_num;
+
+		if (normal_num > MAX_SKIP_NUM)
+			FBS_EXIT(_ACK, "Exception, err nocs area num %d\n", normal_num);
+		for (i = 0; i < normal_num; ++i) {
+			unsigned int _off = _nocsInfo->offset[i];
+			unsigned int sz  = _nocsInfo->size[i];
+
+			DWN_MSG("rd normal[%d] off 0x%x, sz 0x%x\n", i, _off, sz);
+			memcpy(srcData + _off, pBuf + _off, sz);
+		}
+		memcpy(pBuf, srcData, binSz);
+	}
+#endif//#ifdef CONFIG_UPDATE_UBOOT_NOCS
+	return 0;
 }
 
 //@rwFlag: 0---read, 1---write, 2---iread
@@ -527,7 +662,16 @@ int v3tool_storage_init(const int eraseFlash, unsigned int dtbImgSz, unsigned in
 					FB_WRN("Fail in update dtb\n");
 			}
 		}
-		ret = store_erase(NULL, 0, 0, 0);
+		if (is_nocs_scs_chip() > 0) {
+			if (store_get_type() != BOOT_EMMC) {
+				FBS_ERR(_ACK, "nocs scs chip but storage not emmc\n");
+				return -__LINE__;
+			}
+			FB_MSG("remain bootloader as nocs scs chip\n");
+			ret = usb_burn_erase_data(1);
+		} else {
+			ret = store_erase(NULL, 0, 0, 0);
+		}
 		if (ret)
 			FBS_EXIT(_ACK, "Fail in erase flash, ret[%d]\n", ret);
 #ifdef CONFIG_BACKUP_PART_NORMAL_ERASE
