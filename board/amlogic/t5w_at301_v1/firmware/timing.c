@@ -16,11 +16,11 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.timming_max_valid_configs						= 1,
 	.cfg_board_common_setting.timming_struct_version						= 0,
 	.cfg_board_common_setting.timming_struct_org_size						= sizeof(ddr_set_t),
-	.cfg_board_common_setting.timming_struct_real_size						= 0,                                      //0
+	.cfg_board_common_setting.timming_struct_real_size = 0,
 	.cfg_board_common_setting.fast_boot								= { 0 },
 	.cfg_board_common_setting.fast_boot[0] = 0x1,
 	//.cfg_board_common_setting.fast_boot[3] = 0xC6,
-	.cfg_board_common_setting.ddr_func = DDR_FUNC_CONFIG_DFE_FUNCTION,
+	.cfg_board_common_setting.ddr_func = DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,
 	.cfg_board_common_setting.board_id								= CONFIG_BOARD_ID_MASK,
 	.cfg_board_common_setting.DramType								= CONFIG_DDR_TYPE_DDR4,
 	.cfg_board_common_setting.dram_rank_config							= CONFIG_DDR0_32BIT_RANK01_CH0,
@@ -88,7 +88,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_SI_setting_ps[0].dram_ac_odt_ohm = DDR_DRAM_DDR_AC_ODT_0_OHM,
 	.cfg_board_SI_setting_ps[0].dram_data_drv_pull_up_calibration_ohm = DDR_DRAM_LPDDR4_ODT_40_OHM,
 	.cfg_board_SI_setting_ps[0].lpddr4_dram_vout_voltage_range_setting = DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ,
-	.cfg_board_SI_setting_ps[0].dfe_offset = 0,
+	.cfg_board_SI_setting_ps[0].dfe_offset = 0x33,
 	.cfg_board_SI_setting_ps[0].vref_ac_permil = 0,
 	.cfg_board_SI_setting_ps[0].vref_soc_data_permil = 0,
 	.cfg_board_SI_setting_ps[0].vref_dram_data_permil = 0,
@@ -371,10 +371,14 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 
 #if 1
 	.cfg_ddr_training_delay_ps[0].reserve_training_parameter = {
+		//cs0 write dqs,lane0-lane3
 		(0 << 7) | 0,  (0 << 7) | 0,  (0 << 7) | 0,  (0 << 7) | 5,
+		//cs1 write dqs,lane0-lane3
 		(1 << 7) | 0,  (0 << 7) | 0,  (0 << 7) | 0,  (0 << 7) | 5,
-		(1 << 7) | 15, (1 << 7) | 15, (1 << 7) | 10, (1 << 7) | 10,
-		(1 << 7) | 15, (1 << 7) | 15, (1 << 7) | 15, (1 << 7) | 15,
+		//cs0 read dqs,lane0-lane3
+		(1 << 7) | 15, (1 << 7) | 15, (1 << 7) | 14, (1 << 7) | 18,
+		//cs1 read dqs,lane0-lane3
+		(1 << 7) | 20, (1 << 7) | 22, (1 << 7) | 19, (1 << 7) | 20,
 	},
 #endif
 	.cfg_board_SI_setting_ps[1].DRAMFreq = 667,

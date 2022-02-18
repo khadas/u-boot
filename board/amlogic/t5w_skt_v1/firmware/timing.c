@@ -16,11 +16,11 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.timming_max_valid_configs						= 1,
 	.cfg_board_common_setting.timming_struct_version						= 0,
 	.cfg_board_common_setting.timming_struct_org_size						= sizeof(ddr_set_t),
-	.cfg_board_common_setting.timming_struct_real_size						= 0,                                      //0
+	.cfg_board_common_setting.timming_struct_real_size = 0,
 	.cfg_board_common_setting.fast_boot								= { 0 },
 	.cfg_board_common_setting.fast_boot[0] = 0x1,
 	//.cfg_board_common_setting.fast_boot[3] = 0xC6,
-	.cfg_board_common_setting.ddr_func = DDR_FUNC_CONFIG_DFE_FUNCTION,
+	.cfg_board_common_setting.ddr_func = DDR_FUNC | DDR_FUNC_CONFIG_DFE_FUNCTION,
 	.cfg_board_common_setting.board_id								= CONFIG_BOARD_ID_MASK,
 	.cfg_board_common_setting.DramType								= CONFIG_DDR_TYPE_DDR4,
 	.cfg_board_common_setting.dram_rank_config							= CONFIG_DDR0_32BIT_RANK01_CH0,
@@ -371,9 +371,13 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 
 #if 1
 	.cfg_ddr_training_delay_ps[0].reserve_training_parameter = {
+		//cs0 write dqs,lane0-lane3
 		(0 << 7) | 0,  (0 << 7) | 0,  (0 << 7) | 0,  (0 << 7) | 5,
+		//cs1 write dqs,lane0-lane3
 		(1 << 7) | 0,  (0 << 7) | 0,  (0 << 7) | 0,  (0 << 7) | 5,
+		//cs0 read dqs,lane0-lane3
 		(1 << 7) | 15, (1 << 7) | 15, (1 << 7) | 10, (1 << 7) | 10,
+		//cs1 read dqs,lane0-lane3
 		(1 << 7) | 15, (1 << 7) | 15, (1 << 7) | 15, (1 << 7) | 15,
 	},
 #endif
