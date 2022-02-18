@@ -444,37 +444,13 @@ static void getvar_current_slot(char *var_parameter, char *response)
 
 static void getvar_snapshot_update_status(char *var_parameter, char *response)
 {
-	struct misc_virtual_ab_message message;
-	get_mergestatus(&message);
 	if (busy_flag == 1) {
 		if (has_boot_slot == 1) {
-			switch (message.merge_status) {
-				case SNAPSHOTTED:
-					fastboot_busy("snapshotted", response);
-					break;
-				case MERGING:
-					fastboot_busy("merging", response);
-					break;
-				default:
-					fastboot_busy("none", response);
-					break;
-			}
 		} else
 			fastboot_busy("none", response);
 	}
 	else {
 		if (has_boot_slot == 1) {
-			switch (message.merge_status) {
-				case SNAPSHOTTED:
-					fastboot_okay("snapshotted", response);
-					break;
-				case MERGING:
-					fastboot_okay("merging", response);
-					break;
-				default:
-					fastboot_okay("none", response);
-					break;
-			}
 		} else
 			fastboot_fail("not ab mode", response);
 	}

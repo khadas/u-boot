@@ -104,11 +104,6 @@ void fastboot_okay(const char *reason, char *response);
 int check_lock(void);
 
 /**
- *get merge status
-*/
-int get_mergestatus(struct misc_virtual_ab_message *message);
-
-/**
  *set merge status
 */
 int set_mergestatus_cancel(struct misc_virtual_ab_message *message);

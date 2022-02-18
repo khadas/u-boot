@@ -634,19 +634,12 @@ static void erase(char *cmd_parameter, char *response)
 		return;
 	}
 
-	struct misc_virtual_ab_message message;
-	get_mergestatus(&message);
-
 	if (strcmp(cmd_parameter, "userdata") == 0 || strcmp(cmd_parameter, "data") == 0) {
 		rc = store_part_size("userdata");
 		if (-1 == rc)
 			strcpy(name, "data");
 		else
 			strcpy(name, "userdata");
-		if (message.merge_status == SNAPSHOTTED || message.merge_status == MERGING) {
-			fastboot_fail("in merge state, cannot erase data", response);
-			return;
-		}
 	} else if (strcmp(cmd_parameter, "dts") == 0) {
 		strcpy(name, "dtb");
 	} else {
@@ -802,13 +795,6 @@ static void set_active_cmd(char *cmd_parameter, char *response)
 	if (check_lock() == 1) {
 		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
 		fastboot_fail("locked device", response);
-		return;
-	}
-
-	struct misc_virtual_ab_message message;
-	get_mergestatus(&message);
-	if (message.merge_status == MERGING) {
-		fastboot_fail("in merge state, cannot set active", response);
 		return;
 	}
 
