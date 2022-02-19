@@ -455,7 +455,7 @@ void scene_process(struct hdmitx_dev *hdev,
 
 	/* 2. dolby vision scene process */
 	/* only for tv support dv and box enable dv */
-	if (is_dolby_enabled() && is_tv_support_dv(hdev)) {
+	if (is_dv_preference(hdev)) {
 		dolbyvision_scene_process(&hdmidata, scene_output_info);
 	} else if (is_dolby_enabled()) {
 		/* for enable dolby vision core when
@@ -471,11 +471,21 @@ void scene_process(struct hdmitx_dev *hdev,
 	}
 	/* 3.sdr scene process */
 	/* decide final display mode and deepcolor */
-	if (is_dolby_enabled() && is_tv_support_dv(hdev)) {
-		/* do nothing */
+	if (is_dv_preference(hdev)) {
+		/* do nothing
+		 * already done above, just sync with sysctrl
+		 */
+	} else if (is_hdr_preference(hdev)) {
+		hdr_scene_process(&hdmidata, scene_output_info);
 	} else {
 		sdr_scene_process(&hdmidata, scene_output_info);
 	}
+	/* not find outputmode and use default mode */
+	if (strlen(scene_output_info->final_displaymode) == 0)
+		strcpy(scene_output_info->final_displaymode, DEFAULT_HDMI_MODE);
+	/* not find color space and use default mode */
+	if (!strstr(scene_output_info->final_deepcolor, "bit"))
+		strcpy(scene_output_info->final_deepcolor, DEFAULT_COLOR_FORMAT);
 }
 
 static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
@@ -489,8 +499,8 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 	unsigned int checkvalue2;
 	char checksum[11];
 	unsigned char def_cksum[] = {'0', 'x', '0', '0', '0', '0', '0', '0', '0', '0', '\0'};
-	char* hdmimode;
-	char* colorattribute;
+	char *hdmimode;
+	char *colorattribute;
 	char dv_type[2] = {0};
 	scene_output_info_t scene_output_info;
 
@@ -511,8 +521,9 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 	store_checkvalue = (unsigned char*)env_get("hdmichecksum");
 	colorattribute = env_get("colorattribute");
 	hdmimode = env_get("hdmimode");
+
 	if (!store_checkvalue)
-			store_checkvalue = def_cksum;
+		store_checkvalue = def_cksum;
 
 	printf("read hdmichecksum: %s, hdmimode: %s, colorattribute: %s\n",
 	       store_checkvalue, hdmimode, colorattribute);
@@ -541,13 +552,10 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 			xtochar(0x80 * i + 0x7f, &checksum[2* i + 2]);
 		checksum[10] = '\0';
 		memcpy(hdev->RXCap.checksum, checksum, 10);
-		printf("TV has changed, initial mode: %s  attr: %s now crc: %s\n",
-			env_get("outputmode"), env_get("colorattribute"), checksum);
+		printf("TV has changed, now crc: %s\n", checksum);
 	} else {
 		memcpy(hdev->RXCap.checksum, store_checkvalue, 10);
-		printf("TV is same, initial mode is: %s attr: %s, checksum: %s\n",
-			env_get("outputmode"), env_get("colorattribute"),
-			hdev->RXCap.checksum);
+		printf("TV is the same, checksum: %s\n", hdev->RXCap.checksum);
 	}
 
 	if (hdev->RXCap.edid_changed) {

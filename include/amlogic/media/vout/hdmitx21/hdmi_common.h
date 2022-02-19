@@ -645,18 +645,46 @@ struct hdmi_support_mode {
 #define MODE_LEN	32
 #define VESA_MAX_TIMING 64
 
-struct input_hdmi_data {
+#define DEFAULT_OUTPUTMODE_ENV		"1080p60hz"
+#define DEFAULT_HDMIMODE_ENV		"1080p60hz"
+#define DEFAULT_COLORATTRIBUTE_ENV	"444,8bit"
+
+#define DEFAULT_COLOR_FORMAT_4K         "420,8bit"
+#define DEFAULT_COLOR_FORMAT            "444,8bit"
+#define DEFAULT_HDMI_MODE               "480p60hz"
+
+typedef enum {
+	DOLBY_VISION_PRIORITY = 0,
+	HDR10_PRIORITY        = 1,
+	SDR_PRIORITY          = 2,
+} hdr_priority_e;
+
+typedef enum {
+	HDR_POLICY_SINK   = 0,
+	HDR_POLICY_SOURCE = 1,
+} hdr_policy_e;
+
+enum {
+	RESOLUTION_PRIORITY = 0,
+	FRAMERATE_PRIORITY  = 1,
+};
+
+typedef struct input_hdmi_data {
 	char ubootenv_hdmimode[MODE_LEN];
 	char ubootenv_colorattribute[MODE_LEN];
 	int ubootenv_dv_type;
+	/* dynamic range fromat preference,0:dolby vision,1:hdr,2:sdr */
+	hdr_priority_e hdr_priority;
+	/* dynamic range policy,0 :follow sink, 1: match content */
+	hdr_policy_e hdr_policy;
 	struct rx_cap *prxcap;
-};
+} hdmi_data_t;
 
-struct scene_output_info {
+typedef struct scene_output_info {
 	char final_displaymode[MODE_LEN];
 	char final_deepcolor[MODE_LEN];
 	int final_dv_type;
-};
+} scene_output_info_t;
 
 struct dispmode_vic {
 	const char *disp_mode;
