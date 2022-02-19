@@ -976,6 +976,22 @@ static bool is_rx_support_y420(struct hdmitx_dev *hdev)
 	return 0;
 }
 
+static int is_4k_fmt(char *mode)
+{
+	int i;
+	static char const *hdmi4k[] = {
+		"2160p",
+		"smpte",
+		NULL
+	};
+
+	for (i = 0; hdmi4k[i]; i++) {
+		if (strstr(mode, hdmi4k[i]))
+			return 1;
+	}
+	return 0;
+}
+
 /* For some TV's EDID, there maybe exist some information ambiguous.
  * Such as EDID declears support 2160p60hz(Y444 8bit), but no valid
  * Max_TMDS_Clock2 to indicate that it can support 5.94G signal.
@@ -1000,6 +1016,8 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 
 	if (strcmp(para->sname, "invalid") == 0)
 		return 0;
+	if (!is_support_4k() && is_4k_fmt(para->sname))
+		return false;
 	/* exclude such as: 2160p60hz YCbCr444 10bit */
 	switch (para->timing.vic) {
 	case HDMI_96_3840x2160p50_16x9:
@@ -1044,8 +1062,8 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 	}
 
 	calc_tmds_clk = para->tmds_clk / 1000;
-	printf("RX tmds clk: %d   Calc clk: %d\n",
-	       rx_max_tmds_clk, calc_tmds_clk);
+	/* printf("RX tmds clk: %d   Calc clk: %d\n", */
+	/* rx_max_tmds_clk, calc_tmds_clk); */
 	if (calc_tmds_clk < rx_max_tmds_clk)
 		valid = 1;
 	else
@@ -1118,7 +1136,7 @@ static bool pre_process_str(char *name)
 		return true;
 }
 
-bool is_supported_mode_attr(struct input_hdmi_data *hdmi_data, char *mode_attr)
+bool is_supported_mode_attr(hdmi_data_t *hdmi_data, char *mode_attr)
 {
 	struct hdmi_format_para *para = NULL;
 	struct hdmitx_dev *hdev = NULL;
@@ -1133,12 +1151,37 @@ bool is_supported_mode_attr(struct input_hdmi_data *hdmi_data, char *mode_attr)
 			return false;
 		para = hdmitx21_tst_fmt_name(mode_attr, mode_attr);
 	}
-	if (para) {
-		printf("sname = %s\n", para->sname);
-		printf("char_clk = %d\n", para->tmds_clk);
-		printf("cd = %d\n", para->cd);
-		printf("cs = %d\n", para->cs);
+	/* if (para) { */
+		/* printf("sname = %s\n", para->sname); */
+		/* printf("char_clk = %d\n", para->tmds_clk); */
+		/* printf("cd = %d\n", para->cd); */
+		/* printf("cs = %d\n", para->cs); */
+	/* } */
+
+	return hdmitx_edid_check_valid_mode(hdev, para);
+}
+
+bool hdmitx_chk_mode_attr_sup(hdmi_data_t *hdmi_data, char *mode, char *attr)
+{
+	struct hdmi_format_para *para = NULL;
+	struct hdmitx_dev *hdev = NULL;
+
+	if (!hdmi_data || !mode || !attr)
+		return false;
+	hdev = container_of(hdmi_data->prxcap,
+			struct hdmitx_dev, RXCap);
+
+	if (attr[0]) {
+		if (!pre_process_str(attr))
+			return false;
+		para = hdmitx21_tst_fmt_name(mode, attr);
 	}
+	/* if (para) { */
+		/* printf("sname = %s\n", para->sname); */
+		/* printf("char_clk = %d\n", para->tmds_clk); */
+		/* printf("cd = %d\n", para->cd); */
+		/* printf("cs = %d\n", para->cs); */
+	/* } */
 
 	return hdmitx_edid_check_valid_mode(hdev, para);
 }

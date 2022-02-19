@@ -53,14 +53,21 @@ enum hdmi_vic hdmitx_edid_get_VIC(struct hdmitx_dev *hdev,
 bool edid_parsing_ok(struct hdmitx_dev *hdev);
 bool is_dolby_enabled(void);
 bool is_tv_support_dv(struct hdmitx_dev *hdev);
+bool is_dv_preference(struct hdmitx_dev *hdev);
+bool is_hdr_preference(struct hdmitx_dev *hdev);
 void dolbyvision_scene_process(hdmi_data_t *hdmi_data,
 	scene_output_info_t *output_info);
 void sdr_scene_process(hdmi_data_t *hdmi_data,
 	scene_output_info_t *output_info);
+void hdr_scene_process(struct input_hdmi_data *hdmi_data,
+	scene_output_info_t *output_info);
+
 void get_hdmi_data(struct hdmitx_dev *hdev, hdmi_data_t *data);
 bool pre_process_str(char *name);
 struct hdmi_format_para *hdmi_tst_fmt_name(char const *name, char const *attr);
+bool is_support_4k(void);
 bool is_supported_mode_attr(hdmi_data_t *hdmi_data, char *mode_attr);
+bool hdmitx_chk_mode_attr_sup(hdmi_data_t *hdmi_data, char *mode, char *attr);
 int get_ubootenv_dv_type(void);
 void hdmi_tx_set(struct hdmitx_dev *hdev);
 /* Parsing RAW EDID data from edid to pRXCap */
