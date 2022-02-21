@@ -4259,8 +4259,8 @@ __attribute__ ((section(".misc_param"))) = {
 	/* PWM_B VCCK_VAL_REG */
 	{ PWMAB_PWM_B,		   VCCK_VAL_REG,	       0xffffffff, 0, 0, 0 },
 	{ PWMAB_MISC_REG_AB,	   (0x3 << 0),		       (0x3 << 0), 0, 0, 0 },
-	/* enable vddcpu dc-dc, set TEST_N to high */
-	{ PADCTRL_TESTN_O,	   (0x1 << 0),		       (0x1 << 0), 0, 0, 0 },
+	/* disable vddcpu dc-dc, set TEST_N to low */
+	{ PADCTRL_TESTN_O,	   (0x0 << 0),		       (0x1 << 0), 0, 0, 0 },
 	{ PADCTRL_TESTN_OEN,	   (0x0 << 0),		       (0x1 << 0), 0, 0, 0 },
 	/*enable pin,set gpiod_4,enable vddcpu*/
 	{ PADCTRL_GPIOD_O,	   (0x1 << 4),		       (0x1 << 4), 0, 0, 0 },
