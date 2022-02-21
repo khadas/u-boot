@@ -113,4 +113,12 @@ config PINCTRL_MESON_A5
 	select PINCTRL_MESON_AXG_PMX
 	select PINCONF_MESON_G12A
 
+config PINCTRL_MESON_C3
+	bool "Amlogic Meson C3 SoC pinctrl driver"
+	depends on PINCTRL_GENERIC
+	depends on PINCONF
+	select PINCTRL_MESON
+	select PINCTRL_MESON_AXG_PMX
+	select PINCONF_MESON_G12A
+
 endif

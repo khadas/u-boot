@@ -640,6 +640,44 @@ config TARGET_A5_AV409
 
 endif
 
+if MESON_C3
+
+config SYS_SOC
+	default "c3"
+
+config DDRFW_TYPE
+	string "c3 DDR FW Type"
+	default "ddr3"
+
+config CHIPSET_NAME
+        string "c3 CHIPSET NAME"
+        default ""
+
+config CHIPSET_VARIANT
+        string "C3 CHIPSET VARIANT"
+        default ""
+
+config AMLOGIC_KEY_TYPE
+        string "C3 AMLOGIC KEY TYPE"
+        default "dev-keys"
+
+choice
+	prompt "C3 Board"
+
+config C3_SKT
+	bool "C3_SKT"
+	select TARGET_C3_SKT
+	help
+		Select C3 SKT(XXXX) config
+
+endchoice
+
+config TARGET_C3_SKT
+	bool "C3 SKT board"
+	depends on C3_SKT
+
+endif
+
 if MESON_SC2
 
 config SYS_SOC
@@ -1235,4 +1273,6 @@ source "board/amlogic/t3_t982/Kconfig"
 source "board/amlogic/t3_t965d4/Kconfig"
 
 source "board/amlogic/t3_t963d4/Kconfig"
+
+source "board/amlogic/c3_skt/Kconfig"
 
