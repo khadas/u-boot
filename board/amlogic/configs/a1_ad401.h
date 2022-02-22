@@ -57,7 +57,8 @@
         "loadaddr_rtos=0x00001000\0"\
         "loadaddr_kernel=0x00020000\0"\
         "loadaddrdspa_ddr=0x3400000\0"\
-        "loadaddrdspa_psram=0x3c0000\0"\
+	"loadaddrdspa_psram=0x3c0000\0"\
+	"loadaddrdspa_sram=0xffe08000\0"\
         "otg_device=1\0" \
         "panel_type=lcd_1\0" \
         "outputmode=1080p60hz\0" \
@@ -136,8 +137,12 @@
 	"dspaboot_ddr="\
 	    "dcache off;store read ${loadaddrdspa_ddr} ${dsp_part} 0 0x1400000;dspset 0 2 1;dsprun 0 ${loadaddrdspa_ddr};dcache on;" \
             "\0" \
-        "storeboot="\
-			"run dspaboot_ddr;" \
+	"dspaboot_sram="\
+	    "dcache off;store read ${loadaddrdspa_sram} ${dsp_part} 0 0x100000;dspset 0 2 1;" \
+	    "dsprun 0 ${loadaddrdspa_sram};dcache on;"\
+	    "\0" \
+	"storeboot=" \
+	    "run dspaboot_sram;"\
             "run get_os_type;"\
             "if test ${os_type} = rtos; then "\
                 "setenv loadaddr ${loadaddr_rtos};"\
