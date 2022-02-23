@@ -18,6 +18,13 @@
 #define AML_BOOT_IMAGE_VERSION   0x1
 
 #define SHA256_DIGEST_SIZE	32
+typedef struct {
+	uint32_t device_locked;
+	uint32_t verified_boot_state;
+	uint8_t verified_boot_key[SHA256_DIGEST_SIZE];
+	uint8_t verified_boot_hash[SHA256_DIGEST_SIZE];
+	uint32_t boot_patchlevel;
+} keymaster_boot_params;
 
 #define MAX_RSA_KEY_SIZE 4096
 #define MAX_RSANUMBYTES ((MAX_RSA_KEY_SIZE) / 8)

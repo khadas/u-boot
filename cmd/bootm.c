@@ -114,7 +114,6 @@ static void recovery_mode_process(void)
 /*******************************************************************/
 /* bootm - boot application image from image in memory */
 /*******************************************************************/
-
 //temp solution for A1, as A1 secure boot not ready yet...
 #include <amlogic/cpu_id.h>
 //end
@@ -276,6 +275,9 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			keymaster_boot_params boot_params;
 			const int is_dev_unlocked = is_device_unlocked();
 
+			boot_params.boot_patchlevel =
+				avb_get_boot_patchlevel_from_vbmeta(out_data);
+
 			boot_params.device_locked = is_dev_unlocked? 0: 1;
 			if (is_dev_unlocked) {
 				bootstate = bootstate_o;
@@ -377,15 +379,15 @@ static char bootm_help_text[] =
 	"\tramdisk - relocate initrd, set env initrd_start/initrd_end\n"
 #endif
 #if defined(CONFIG_OF_LIBFDT)
-	"\tfdt     - relocate flat device tree\n"
+	"\tfdt	- relocate flat device tree\n"
 #endif
 	"\tcmdline - OS specific command line processing/setup\n"
-	"\tbdt     - OS specific bd_t processing\n"
+	"\tbdt	- OS specific bd_t processing\n"
 	"\tprep    - OS specific prep before relocation or go\n"
 #if defined(CONFIG_TRACE)
 	"\tfake    - OS specific fake start without go\n"
 #endif
-	"\tgo      - start OS";
+	"\tgo	 - start OS";
 #endif
 
 U_BOOT_CMD(
@@ -507,8 +509,8 @@ U_BOOT_CMD(
 	"print header information for application image",
 	"addr [addr ...]\n"
 	"    - print header information for application image starting at\n"
-	"      address 'addr' in memory; this includes verification of the\n"
-	"      image contents (magic number, header and payload checksums)"
+	"	 address 'addr' in memory; this includes verification of the\n"
+	"	 image contents (magic number, header and payload checksums)"
 );
 #endif
 
@@ -614,7 +616,7 @@ static int nand_imls_legacyimage(struct mtd_info *mtd, int nand_dev,
 }
 
 static int nand_imls_fitimage(struct mtd_info *mtd, int nand_dev, loff_t off,
-			      size_t len)
+				 size_t len)
 {
 	void *imgdata;
 	int ret;
@@ -732,6 +734,6 @@ U_BOOT_CMD(
 	"list all images found in flash",
 	"\n"
 	"    - Prints information about all images found at sector/block\n"
-	"      boundaries in nor/nand flash."
+	"	 boundaries in nor/nand flash."
 );
 #endif

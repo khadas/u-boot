@@ -16,6 +16,7 @@
 #define __GXBB_BL31_APIS_H
 
 #include <asm/arch/io.h>
+#include <amlogic/image_check.h>
 
 /*#define SRAM_READ				0x82000010
 #define CORE_RD_REV1			0x82000011
@@ -80,13 +81,6 @@
 
 /* KEYMASTER */
 #define SET_BOOT_PARAMS		0x82000072
-#define SHA256_DIGEST_SIZE  32
-typedef struct {
-	uint32_t device_locked;
-	uint32_t verified_boot_state;
-	uint8_t verified_boot_key[SHA256_DIGEST_SIZE];
-	uint8_t verified_boot_hash[SHA256_DIGEST_SIZE];
-} keymaster_boot_params;
 
 /* Secure HAL APIs */
 #define TRUSTZONE_HAL_API_SRAM                  0x400

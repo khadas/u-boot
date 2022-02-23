@@ -16,6 +16,7 @@
 #define __GXBB_BL31_APIS_H
 
 #include <asm/arch/io.h>
+#include <amlogic/image_check.h>
 
 /*#define SRAM_READ				0x82000010
 #define CORE_RD_REV1			0x82000011

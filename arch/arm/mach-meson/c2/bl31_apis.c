@@ -12,7 +12,6 @@
 #include <asm/cache.h>
 #include <asm/arch/bl31_apis.h>
 #include <amlogic/cpu_id.h>
-#include <asm/arch/secure_apb.h>
 
 static long sharemem_input_base;
 static long sharemem_output_base;
