@@ -6,7 +6,7 @@
 /dts-v1/;
 
 #include "meson-t7-txxx.dtsi"
-#include "meson-t7_skt-panel.dtsi"
+#include "khadas-ts050-panel.dtsi"
 
 / {
 	compatible = "khadas,vim4","amlogic,t7-an400-lpddr4x", "amlogic,t7-txxx", "amlogic,meson-t7";
