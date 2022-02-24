@@ -12,6 +12,17 @@
 #include <mapmem.h>
 #include <amlogic/storage.h>
 
+#ifdef CONFIG_NAND_FACTORY_PROVISION
+#ifndef CONFIG_YAFFS_DIRECT
+#define CONFIG_YAFFS_DIRECT
+#endif
+#ifndef CONFIG_YAFFSFS_PROVIDE_VALUES
+#define CONFIG_YAFFSFS_PROVIDE_VALUES
+#endif
+#include <../../fs/yaffs2/yaffsfs.h>
+#include <../../fs/yaffs2/yaffs_guts.h>
+#endif
+
 #define CMD_DEBUG         (0)
 #define CMD_LOG_TAG       "[FACTORY-PROVISION] "
 
@@ -44,6 +55,7 @@
 #define SIZE_BLOCK              (512)
 
 #define MAX_SIZE_CMD            (256)
+#define MAX_SIZE_FILE_PATH      (256)
 #define MAX_SIZE_KEYBOX_NAME    (256)
 #define MAX_SIZE_PART_NAME      (32)
 #define MAX_SIZE_KEYBOX         (SIZE_1K * 16)
@@ -68,6 +80,7 @@
 #define PART_TYPE               "user"
 #define PART_NAME_RSV           "rsv"
 #define PART_NAME_FTY           "factory"
+#define NAND_FTY_MOUNT_PT       "mnt"
 
 #define CMD_RET_SUCCESS                                0x00000000
 #define CMD_RET_KEYBOX_NOT_EXIST                       0x00000001
@@ -333,7 +346,9 @@ static void parse_params(int argc, char * const argv[],
 			if (env_get("loadaddr"))
 				params->ret_data_addr =
 					(uint32_t)simple_strtoul(
-						(char * const)env_get("loadaddr"), NULL, 0);
+					(char * const)env_get("loadaddr"),
+					NULL,
+					0);
 			else
 				params->ret_data_addr = CONFIG_SYS_LOAD_ADDR;
 		} else if (!memcmp(argv[1], "remove", strlen("remove"))) {
@@ -630,7 +645,8 @@ static int check_keybox(const char *keybox, uint32_t size)
 
 static void calc_sha256(const char *data, uint32_t data_size, char *sha256)
 {
-	sha256_csum_wd((const unsigned char *)data, data_size, (unsigned char *)sha256, 0);
+	sha256_csum_wd((const unsigned char *)data, data_size,
+			(unsigned char *)sha256, 0);
 }
 
 static int verify_written_keybox(const char *keybox_name, const char *keybox,
@@ -831,40 +847,442 @@ exit:
 	return ret;
 }
 
-int is_storage_medium_supported(void)
+static void get_medium_name(uint32_t medium_type, char medium_name[64])
 {
-	int ret = CMD_RET_SUCCESS;
-	int medium_type = store_get_type();
-	char type_str[64] = { 0 };
+	memset(medium_name, 0, 64);
+	switch (medium_type) {
+	case BOOT_EMMC:
+		strcpy(medium_name, "EMMC");
+		break;
+	case BOOT_SD:
+		strcpy(medium_name, "SD");
+		break;
+	case BOOT_NAND_NFTL:
+		strcpy(medium_name, "NAND_NFTL");
+		break;
+	case BOOT_NAND_MTD:
+		strcpy(medium_name, "NAND_MTD");
+		break;
+	case BOOT_SNAND:
+		strcpy(medium_name, "SNAND");
+		break;
+	case BOOT_SNOR:
+		strcpy(medium_name, "SNOR");
+		break;
+	default:
+		strcpy(medium_name, "Unknown Storage Medium");
+		break;
+	}
+}
 
-	if (medium_type != BOOT_EMMC) {
-		switch (medium_type) {
-		case BOOT_SD:
-			strcpy(type_str, "SD");
-			break;
-		case BOOT_NAND_NFTL:
-			strcpy(type_str, "NAND_NFTL");
-			break;
-		case BOOT_NAND_MTD:
-			strcpy(type_str, "NAND_MTD");
-			break;
-		case BOOT_SNAND:
-			strcpy(type_str, "SNAND");
-			break;
-		case BOOT_SNOR:
-			strcpy(type_str, "SNOR");
-			break;
-		default:
-			strcpy(type_str, "Unknown Storage Medium");
+static int is_storage_medium_supported(void)
+{
+	int ret = CMD_RET_DEVICE_NOT_AVAILABLE;
+	int medium_type = store_get_type();
+	char medium_name[64] = { 0 };
+	uint32_t supported_types[] = {
+		BOOT_EMMC, BOOT_NAND_NFTL, BOOT_NAND_MTD, BOOT_SNAND
+	};
+	int i = 0;
+
+	for (; i < sizeof(supported_types) / sizeof(uint32_t); i++) {
+		if (medium_type == supported_types[i]) {
+			ret = CMD_RET_SUCCESS;
 			break;
 		}
+	}
 
-		LOGE("Provision function is not supported on '%s' storage medium", type_str);
-		ret = CMD_RET_DEVICE_NOT_AVAILABLE;
+	get_medium_name(medium_type, medium_name);
+	if (ret != CMD_RET_SUCCESS)
+		LOGE("Provision function is not supported on '%s' storage medium\n",
+				medium_name);
+	else
+		LOGI("Being '%s' storage medium\n", medium_name);
+
+	return ret;
+}
+
+#ifdef CONFIG_NAND_FACTORY_PROVISION
+static const char *yaffs_error_str(void)
+{
+	int error = yaffsfs_GetLastError();
+
+	if (error < 0)
+		error = -error;
+
+	switch (error) {
+	case EBUSY: return "Busy";
+	case ENODEV: return "No such device";
+	case EINVAL: return "Invalid parameter";
+	case ENFILE: return "Too many open files";
+	case EBADF:  return "Bad handle";
+	case EACCES: return "Wrong permissions";
+	case EXDEV:  return "Not on same device";
+	case ENOENT: return "No such entry";
+	case ENOSPC: return "Device full";
+	case EROFS:  return "Read only file system";
+	case ERANGE: return "Range error";
+	case ENOTEMPTY: return "Not empty";
+	case ENAMETOOLONG: return "Name too long";
+	case ENOMEM: return "Out of memory";
+	case EFAULT: return "Fault";
+	case EEXIST: return "Name exists";
+	case ENOTDIR: return "Not a directory";
+	case EISDIR: return "Not permitted on a directory";
+	case ELOOP:  return "Symlink loop";
+	case 0: return "No error";
+	default: return "Unknown error";
+	}
+}
+
+extern int meson_yaffs2_mount(char *mtpoint, char *part_name);
+
+static int nand_write(const char *file_path, const char *data, uint32_t size)
+{
+	int fd = -1;
+
+	fd = yaffs_open(file_path, O_CREAT | O_RDWR | O_TRUNC, S_IREAD | S_IWRITE);
+	if (fd < 0) {
+		LOGE("open file '%s' failed, %s\n", file_path, yaffs_error_str());
+		return CMD_RET_UNKNOWN_ERROR;
+	}
+
+	if (yaffs_write(fd, data, size) != size) {
+		LOGE("write file '%s' failed, %s\n", file_path, yaffs_error_str());
+		yaffs_close(fd);
+		return CMD_RET_UNKNOWN_ERROR;
+	}
+
+	if (yaffs_close(fd)) {
+		LOGE("close file '%s' failed, %s\n", file_path, yaffs_error_str());
+		return CMD_RET_UNKNOWN_ERROR;
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+static int nand_read(const char *file_path, char *buf, uint32_t *size)
+{
+	int fd = -1;
+
+	fd = yaffs_open(file_path, O_RDWR, 0);
+	if (fd < 0) {
+		LOGE("open file '%s' failed, %s\n", file_path, yaffs_error_str());
+		return CMD_RET_UNKNOWN_ERROR;
+	}
+
+	*size = yaffs_read(fd, buf, *size);
+	if (*size <= 0) {
+		LOGE("read file '%s' failed, %s\n", file_path, yaffs_error_str());
+		yaffs_close(fd);
+		return CMD_RET_UNKNOWN_ERROR;
+	}
+
+	if (yaffs_close(fd)) {
+		LOGE("close file '%s' failed, %s\n", file_path, yaffs_error_str());
+		return CMD_RET_UNKNOWN_ERROR;
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+static int nand_verify_written_keybox(const char *keybox_name,
+		const char *keybox, uint32_t keybox_size)
+{
+	int ret = CMD_RET_SUCCESS;
+	char sha256[SHA256_SUM_LEN] = { 0 };
+	char written_sha256[SHA256_SUM_LEN] = { 0 };
+	char file_path[MAX_SIZE_FILE_PATH] = { 0 };
+	uint32_t read_size = MAX_SIZE_KEYBOX;
+
+	calc_sha256(keybox, keybox_size, sha256);
+
+	memset(g_keybox, 0, sizeof(g_keybox));
+	sprintf(file_path, "%s/%s", NAND_FTY_MOUNT_PT, keybox_name);
+	ret = nand_read(file_path, g_keybox, &read_size);
+	if (ret)
+		return ret;
+	if (keybox_size != read_size)
+		return CMD_RET_UNKNOWN_ERROR;
+
+	calc_sha256(g_keybox, read_size, written_sha256);
+
+	if (memcmp(sha256, written_sha256, SHA256_SUM_LEN))
+		return CMD_RET_UNKNOWN_ERROR;
+
+	return CMD_RET_SUCCESS;
+}
+
+static int nand_factory_mount(void)
+{
+	struct yaffs_dev *dev = yaffs_getdev(NAND_FTY_MOUNT_PT);
+
+	if (!dev || (dev && dev->is_mounted == 0)) {
+		if (meson_yaffs2_mount(NAND_FTY_MOUNT_PT, PART_NAME_FTY)) {
+			LOGE("nand mount '%s' partition failed\n", PART_NAME_FTY);
+			return CMD_RET_UNKNOWN_ERROR;
+		}
+		LOGI("nand mount '%s' partition success\n", PART_NAME_FTY);
+		return CMD_RET_SUCCESS;
+	}
+
+	LOGI("nand '%s' partition is already mounted\n", PART_NAME_FTY);
+
+	return CMD_RET_SUCCESS;
+}
+
+static int nand_remove_same_type_keybox(uint32_t key_type, const char *uuid)
+{
+	int ret = CMD_RET_SUCCESS;
+	yaffs_DIR *dir = NULL;
+	struct yaffs_dirent *dirt = NULL;
+	struct yaffs_stat st;
+	struct keybox_header hdr;
+	uint32_t read_size = 0;
+	char uuid_str[40] = { 0 };
+	char file_path[MAX_SIZE_FILE_PATH] = { 0 };
+
+	ret = nand_factory_mount();
+	if (ret)
+		return ret;
+
+	dir = yaffs_opendir(NAND_FTY_MOUNT_PT);
+	if (!dir) {
+		LOGE("open dir '%s' failed, %s\n",
+				NAND_FTY_MOUNT_PT, yaffs_error_str());
+		return CMD_RET_UNKNOWN_ERROR;
+	}
+
+	convert_to_uuid_str(uuid, uuid_str);
+	while ((dirt = yaffs_readdir(dir)) != NULL) {
+		memset(file_path, 0, sizeof(file_path));
+		sprintf(file_path, "%s/%s", NAND_FTY_MOUNT_PT, dirt->d_name);
+		yaffs_stat(file_path, &st);
+		if ((st.st_mode & S_IFREG) != S_IFREG) // not regular file
+			continue;
+
+		memset(&hdr, 0, sizeof(hdr));
+		read_size = sizeof(hdr);
+		if (nand_read(file_path, (char *)&hdr, &read_size) ||
+				read_size != sizeof(hdr)) {
+			LOGE("read keybox '%s' failed\n", file_path);
+			ret = CMD_RET_UNKNOWN_ERROR;
+			goto exit;
+		}
+
+		if (!memcmp(uuid, hdr.ta_uuid, sizeof(hdr.ta_uuid)) &&
+				key_type == hdr.key_type) {
+			if (yaffs_unlink(file_path)) {
+				LOGE("remove the same type");
+				LOGE("(uuid = %s, key_type = 0x%02X) keybox '%s' failed\n",
+					uuid_str, key_type, file_path);
+				ret = CMD_RET_UNKNOWN_ERROR;
+				goto exit;
+			}
+		}
+	}
+
+exit:
+	yaffs_closedir(dir);
+	return ret;
+}
+
+static int nand_append_keybox(const char *keybox_name, const char *keybox,
+		uint32_t keybox_size)
+{
+	int ret = CMD_RET_SUCCESS;
+	char file_path[MAX_SIZE_FILE_PATH] = { 0 };
+
+	ret = nand_factory_mount();
+	if (ret)
+		return ret;
+
+	sprintf(file_path, "%s/%s", NAND_FTY_MOUNT_PT, keybox_name);
+	ret = nand_write(file_path, keybox, keybox_size);
+	if (ret) {
+		LOGE("write keybox '%s' failed\n", file_path);
+		return ret;
+	}
+
+	ret = nand_verify_written_keybox(keybox_name, keybox, keybox_size);
+	if (ret) {
+		LOGE("verify written keybox '%s' failed\n", file_path);
+		return ret;
+	}
+
+	LOGI("write keybox '%s' success\n", file_path);
+
+	return ret;
+}
+
+static int nand_query_keybox(const char *keybox_name, char *ret_data)
+{
+	struct yaffs_stat st;
+	char file_path[MAX_SIZE_FILE_PATH] = { 0 };
+	int ret = nand_factory_mount();
+
+	if (ret)
+		return ret;
+
+	sprintf(file_path, "%s/%s", NAND_FTY_MOUNT_PT, keybox_name);
+	if (yaffs_stat(file_path, &st)) {
+		LOGI("keybox '%s' not exists\n", file_path);
+		ret = CMD_RET_KEYBOX_NOT_EXIST;
+	} else {
+		*(uint32_t *)ret_data = st.st_size;
+		LOGI("keybox '%s' size is %d\n", file_path, *(uint32_t *)ret_data);
 	}
 
 	return ret;
 }
+
+static int nand_remove_keybox(const char *keybox_name)
+{
+	char file_path[MAX_SIZE_FILE_PATH] = { 0 };
+	int ret = nand_factory_mount();
+
+	if (ret)
+		return ret;
+
+	sprintf(file_path, "%s/%s", NAND_FTY_MOUNT_PT, keybox_name);
+	if (yaffs_unlink(file_path)) {
+		LOGE("remove '%s' failed\n", file_path);
+		return CMD_RET_UNKNOWN_ERROR;
+	}
+
+	LOGI("remove '%s' success\n", file_path);
+
+	return CMD_RET_SUCCESS;
+}
+
+static int nand_remove_all_keyboxes(void)
+{
+	int ret = CMD_RET_SUCCESS;
+	yaffs_DIR *dir = NULL;
+	struct yaffs_dirent *dirt = NULL;
+	struct yaffs_stat st;
+	char file_path[MAX_SIZE_FILE_PATH] = { 0 };
+
+	ret = nand_factory_mount();
+	if (ret)
+		return ret;
+
+	dir = yaffs_opendir(NAND_FTY_MOUNT_PT);
+	if (!dir) {
+		LOGE("open dir '%s' failed, %s\n",
+				NAND_FTY_MOUNT_PT, yaffs_error_str());
+		return CMD_RET_UNKNOWN_ERROR;
+	}
+
+	while ((dirt = yaffs_readdir(dir)) != NULL) {
+		memset(file_path, 0, sizeof(file_path));
+		sprintf(file_path, "%s/%s", NAND_FTY_MOUNT_PT, dirt->d_name);
+		yaffs_stat(file_path, &st);
+		if ((st.st_mode & S_IFREG) != S_IFREG) // not regular file
+			continue;
+
+		if (yaffs_unlink(file_path)) {
+			LOGE("remove '%s' failed, %s\n",
+					file_path, yaffs_error_str());
+			ret = CMD_RET_UNKNOWN_ERROR;
+		} else {
+			LOGI("remove '%s' success\n", file_path);
+		}
+	}
+
+	yaffs_closedir(dir);
+
+	return ret;
+}
+
+static int nand_list_all_keyboxes(void)
+{
+	int ret = CMD_RET_SUCCESS;
+	char cmd[MAX_SIZE_CMD] = { 0 };
+
+	ret = nand_factory_mount();
+	if (ret)
+		return ret;
+
+	sprintf(cmd, "yls %s", NAND_FTY_MOUNT_PT);
+	if (run_command(cmd, 0)) {
+		LOGE("command[%s] failed\n", cmd);
+		ret = CMD_RET_UNKNOWN_ERROR;
+	}
+
+	return ret;
+}
+
+static int nand_provision(const struct input_param *params)
+{
+	int ret = CMD_RET_SUCCESS;
+	char *in_kb = NULL;
+	char *ret_data = NULL;
+	const struct keybox_header *hdr = NULL;
+
+	switch (params->action) {
+	case ACTION_INIT:
+		ret = nand_factory_mount();
+		break;
+	case ACTION_WRITE:
+		in_kb = map_sysmem(params->keybox_phy_addr, 0);
+
+		ret = check_keybox(in_kb, params->keybox_size);
+		if (ret != CMD_RET_SUCCESS)
+			goto exit;
+
+		hdr = (const struct keybox_header *)in_kb;
+		ret = nand_remove_same_type_keybox(hdr->key_type,
+				(const char *)hdr->ta_uuid);
+		if (ret != CMD_RET_SUCCESS)
+			goto exit;
+
+		memcpy(g_keybox, in_kb, params->keybox_size);
+
+		ret = preprocess_keybox(g_keybox, params->keybox_size);
+		if (ret != CMD_RET_SUCCESS)
+			goto exit;
+
+		ret = nand_append_keybox(params->keybox_name, g_keybox,
+				params->keybox_size);
+		if (ret != CMD_RET_SUCCESS)
+			goto exit;
+		break;
+	case ACTION_QUERY:
+		ret_data = map_sysmem(params->ret_data_addr, 0);
+		ret = nand_query_keybox(params->keybox_name, ret_data);
+		if (ret != CMD_RET_SUCCESS)
+			goto exit;
+		break;
+	case ACTION_REMOVE:
+		ret = nand_remove_keybox(params->keybox_name);
+		if (ret != CMD_RET_SUCCESS)
+			goto exit;
+		break;
+	case ACTION_CLEAR:
+		ret = nand_remove_all_keyboxes();
+		if (ret != CMD_RET_SUCCESS)
+			goto exit;
+		break;
+	case ACTION_LIST:
+		ret = nand_list_all_keyboxes();
+		if (ret != CMD_RET_SUCCESS)
+			goto exit;
+		break;
+	default:
+		break;
+	}
+
+exit:
+	if (in_kb)
+		unmap_sysmem(in_kb);
+	if (ret_data)
+		unmap_sysmem(ret_data);
+	if (ret == CMD_RET_BAD_PARAMETER)
+		usage();
+	return ret;
+}
+#endif
 
 int cmd_func(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -873,6 +1291,7 @@ int cmd_func(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *in_kb = NULL;
 	char *ret_data = NULL;
 	const struct keybox_header *hdr = NULL;
+	int medium_type = store_get_type();
 
 	ret = is_storage_medium_supported();
 	if (ret != CMD_RET_SUCCESS)
@@ -883,6 +1302,20 @@ int cmd_func(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	ret = check_params(&params);
 	if (ret != CMD_RET_SUCCESS)
 		goto exit;
+
+	if (medium_type == BOOT_NAND_NFTL || medium_type == BOOT_NAND_MTD ||
+			medium_type == BOOT_SNAND) {
+#ifdef CONFIG_NAND_FACTORY_PROVISION
+		return nand_provision(&params);
+#else
+		char medium_name[64] = { 0 };
+
+		get_medium_name(medium_type, medium_name);
+		LOGE("Provision function is closed on %s of this SOC\n",
+				medium_name);
+		return CMD_RET_BAD_PARAMETER;
+#endif
+	}
 
 	switch (params.action) {
 	case ACTION_INIT:
