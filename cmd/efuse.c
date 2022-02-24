@@ -69,6 +69,7 @@ int cmd_efuse(int argc, char * const argv[], char *buf)
 	}
 	if (strncmp(argv[1], "usid", 4) == 0) {
 		char usid[11] = {0};
+		char usid_write[11] = {0};
 		int size = 10;
 		uint32_t usid_offset = 18;
 		ret = efuse_read_usr(usid, size, (loff_t *)&usid_offset);
@@ -87,7 +88,8 @@ int cmd_efuse(int argc, char * const argv[], char *buf)
 		}
 		printf("\n");
 		*/
-		setenv("usid", usid);
+		sprintf(usid_write,"%x%x%x%x%x%x%x%x%x%x", usid[0],usid[1],usid[2],usid[3],usid[4],usid[5],usid[6],usid[7],usid[8],usid[9]);
+		setenv("usid", usid_write);
 		return 0;
 	}
 	if (strncmp(argv[1], "read", 4) == 0) {

@@ -101,6 +101,8 @@
 #define getenv env_get
 #define MCU_I2C_BUS_NUM				6
 
+static int vim4_flag = 1;
+
 static char* LED_MODE_STR[] = { "off", "on", "breathe", "heartbeat"};
 
 //extern int khadas_i2c_read(u8 addr, u8 reg, u8 *val);
@@ -368,7 +370,7 @@ static void get_mac(int is_print)
 	int mac_addr[MAC_LENGHT] = {0};
 	int i, mode;
 
-	if(1){
+	if(vim4_flag == 1){
 		run_command("efuse mac", 0);
 		char *temp = getenv("eth_mac");
 		if (temp != NULL) {
@@ -488,7 +490,7 @@ static void get_usid(int is_print)
 	int usid[USID_LENGHT] = {};
 	int i;
 
-	if(1){
+	if(vim4_flag == 1){
 		run_command("efuse usid", 0);
 		char *temp = getenv("usid");
 		if (temp != NULL) {
