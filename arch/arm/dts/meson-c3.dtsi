@@ -170,14 +170,14 @@
 &saradc {
 	compatible = "amlogic,meson-a5-saradc", "amlogic,meson-saradc";
 	clocks = <&xtal>,
-		 <&clkc CLKID_SARADC_SEL>,
+		 <&clkc CLKID_SARADC_MUX>,
 		 <&clkc CLKID_SARADC_DIV>,
 		 <&clkc CLKID_SARADC>;
 	clock-names = "xtal", "adc_mux", "adc_div", "adc_gate";
 };
 
 &sd_emmc_a {
-	clocks = <&clkc CLKID_SD_EMMC_A_SEL>,
+	clocks = <&clkc CLKID_SD_EMMC_A_MUX>,
 		    <&clkc CLKID_SD_EMMC_A_DIV>,
 			<&clkc CLKID_SD_EMMC_A>,
 			<&clkc CLKID_FCLK_DIV2>,
@@ -195,7 +195,7 @@
 };
 
 &sd_emmc_c {
-	clocks = <&clkc CLKID_SD_EMMC_C_SEL>,
+	clocks = <&clkc CLKID_SD_EMMC_C_MUX>,
 			<&clkc CLKID_SD_EMMC_C_DIV>,
 			<&clkc CLKID_SD_EMMC_C>,
 			<&clkc CLKID_FCLK_DIV2>,
@@ -204,7 +204,7 @@
 };
 
 &nand {
-	clocks = <&clkc CLKID_SD_EMMC_C_SEL>,
+	clocks = <&clkc CLKID_SD_EMMC_C_MUX>,
 			<&clkc CLKID_SD_EMMC_C_DIV>,
 			<&clkc CLKID_SD_EMMC_C>,
 			<&clkc CLKID_FCLK_DIV2>,
@@ -215,7 +215,7 @@
 &spicc0 {
 	clocks = <&clkc CLKID_SPICC_0_DIV>, <&clkc CLKID_SPICC_0>;
 	clock-names = "async", "async-gate";
-	assigned-clocks = <&clkc CLKID_SPICC_0_SEL>, <&clkc CLKID_SPICC_0_DIV>;
+	assigned-clocks = <&clkc CLKID_SPICC_0_MUX>, <&clkc CLKID_SPICC_0_DIV>;
 	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
 	assigned-clock-rates = <0>, <500000000>;
 };
@@ -223,7 +223,7 @@
 &spicc1 {
 	clocks = <&clkc CLKID_SPICC_1_DIV>, <&clkc CLKID_SPICC_1>;
 	clock-names = "async", "async-gate";
-	assigned-clocks = <&clkc CLKID_SPICC_1_SEL>, <&clkc CLKID_SPICC_1_DIV>;
+	assigned-clocks = <&clkc CLKID_SPICC_1_MUX>, <&clkc CLKID_SPICC_1_DIV>;
 	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
 	assigned-clock-rates = <0>, <500000000>;
 };
