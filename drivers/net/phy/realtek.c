@@ -151,6 +151,8 @@ static int rtl8211f_config(struct phy_device *phydev)
 
 	genphy_config_aneg(phydev);
 
+	run_command("kbi resetflag 1", 0);
+
 	return 0;
 }
 

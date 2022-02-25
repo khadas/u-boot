@@ -187,7 +187,7 @@
 			"hdmitx=${cecconfig},${colorattribute} "\
 			"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
-                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} reboot_mode=${reboot_mode}; "\
+                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} wol_enable=${wol_enable} jtag=${jtag} reboot_mode=${reboot_mode}; "\
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
@@ -271,6 +271,7 @@
             "fi;"\
             "\0" \
         "storeboot="\
+            "kbi resetflag 0;"\
             "setenv loadaddr ${loadaddr_kernel};"\
             "echo Try to boot from SD card.;"\
             "if load mmc 0:1 $dtb_mem_addr dtb/amlogic/kvim4_linux.dtb; then "\
@@ -340,6 +341,19 @@
                 "fi;"\
             "fi;"\
             "\0"\
+        "wol_init="\
+            "kbi powerstate;"\
+            "kbi trigger wol r;"\
+            "if test ${wol_enable} = 1; then "\
+                "kbi trigger wol w 1;"\
+            "fi;"\
+            "setenv bootargs ${bootargs} wol_enable=${wol_enable};"\
+            "if test ${power_state} = 1; then "\
+                "kbi poweroff;"\
+            "else "\
+                "kbi wolreset;"\
+            "fi;"\
+            "\0"\
         "bcb_cmd="\
             "get_avb_mode;"\
             "get_valid_slot;"\
@@ -378,21 +392,21 @@
         "cmdline_keys="\
             "setenv region_code US;"\
             "if keyman init 0x1234; then "\
-                "if keyman read usid ${loadaddr} str; then "\
-                    "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-                    "setenv serial ${usid}; setenv serial# ${usid};"\
-                "else "\
-                    "setenv bootargs ${bootargs} androidboot.serialno=an400${cpu_id};"\
-                    "setenv serial an400${cpu_id}; setenv serial# an400${cpu_id};"\
-                "fi;"\
                 "if keyman read region_code ${loadaddr} str; then fi;"\
-                "if keyman read mac ${loadaddr} str; then "\
-                    "setenv bootargs ${bootargs} mac=${mac} androidboot.mac=${mac};"\
-                "fi;"\
                 "if keyman read deviceid ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
                 "fi;"\
             "fi;"\
+            "kbi usid noprint;"\
+            "if printenv usid; then "\
+                "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+                "setenv serial ${usid}; setenv serial# ${usid};"\
+            "else "\
+                "setenv bootargs ${bootargs} androidboot.serialno=an400${cpu_id};"\
+                "setenv serial an400${cpu_id}; setenv serial# an400${cpu_id};"\
+            "fi;"\
+            "kbi ethmac noprint;"\
+            "setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
             "factory_provision init;"\
             "\0"\
@@ -535,7 +549,7 @@
 			"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} "\
                 "hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
-                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} "\
+                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} wol_enable=${wol_enable} "\
                 "jtag=${jtag} disable_ir=${disable_ir} reboot_mode=${reboot_mode};"\
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
@@ -612,6 +626,7 @@
             "fi;fi;fi;fi;fi;fi;fi"\
             "\0" \
         "storeboot="\
+            "kbi resetflag 0;"\
             "setenv loadaddr ${loadaddr_kernel};"\
             "echo Try to boot from SD card.;"\
             "if load mmc 0:1 $dtb_mem_addr dtb/amlogic/kvim4_linux.dtb; then "\
@@ -682,6 +697,19 @@
                 "fi;"\
             "fi;"\
             "\0"\
+        "wol_init="\
+            "kbi powerstate;"\
+            "kbi trigger wol r;"\
+            "if test ${wol_enable} = 1; then "\
+                "kbi trigger wol w 1;"\
+            "fi;"\
+            "setenv bootargs ${bootargs} wol_enable=${wol_enable};"\
+            "if test ${power_state} = 1; then "\
+                "kbi poweroff;"\
+            "else "\
+                "kbi wolreset;"\
+            "fi;"\
+            "\0"\
         "bcb_cmd="\
             "get_avb_mode;"\
             "get_valid_slot;"\
@@ -720,21 +748,24 @@
             "fi; "\
             "\0"\
         "cmdline_keys="\
-		"setenv region_code US;"\
-		"setenv usid an400${cpu_id};"\
-		"if keyman init 0x1234; then "\
-			"if keyman read usid ${loadaddr} str; then fi;"\
+            "setenv region_code US;"\
+            "if keyman init 0x1234; then "\
                 "if keyman read region_code ${loadaddr} str; then fi;"\
-                "if keyman read mac ${loadaddr} str; then "\
-                    "setenv bootargs ${bootargs} mac=${mac} androidboot.mac=${mac};"\
-                "fi;"\
                 "if keyman read deviceid ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
                 "fi;"\
             "fi;"\
+            "kbi usid noprint;"\
+            "if printenv usid; then "\
+                "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+                "setenv serial ${usid}; setenv serial# ${usid};"\
+            "else "\
+                "setenv bootargs ${bootargs} androidboot.serialno=an400${cpu_id};"\
+                "setenv serial an400${cpu_id}; setenv serial# an400${cpu_id};"\
+            "fi;"\
+            "kbi ethmac noprint;"\
+            "setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
-		"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-		"setenv serial ${usid}; setenv serial# ${usid};"\
             "factory_provision init;"\
             "\0"\
         "upgrade_key="\
@@ -764,6 +795,7 @@
             "run bcb_cmd; "\
             "run upgrade_check;"\
             "run check_display;"\
+            "run wol_init;"\
             "run storeargs;"\
             "run reset_suspend;"\
             "run upgrade_key;"\

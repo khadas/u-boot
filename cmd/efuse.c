@@ -35,6 +35,60 @@ int cmd_efuse(int argc, char * const argv[], char *buf)
 	long lAddr1, lAddr2;
 	unsigned long nType;
 
+	if (strncmp(argv[1], "mac", 3) == 0) {
+			char mac[6] = {0};
+			char mac_addr[17] = {0};
+			int size = 6;
+			uint32_t mac_offset = 0;
+
+			ret = efuse_read_usr(mac, size, (loff_t *)&mac_offset);
+
+			if (ret == -1) {
+				printf("ERROR: efuse read mac information fail!\n");
+				return -1;
+			}
+
+			if (ret != size) {
+				printf("ERROR: read %d byte(s) not %d byte(s) data\n", ret, size);
+			}
+			/*for(i = 0; i < 6; i++){
+				if(i != 5){
+							printf("%02x:", mac[i]);
+				}else{
+							printf("%02x", mac[i]);
+				}
+			}
+			printf("\n");
+			*/
+			sprintf(mac_addr, "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+			env_set("eth_mac", mac_addr);
+
+			return 0;
+	}
+
+	if (strncmp(argv[1], "usid", 4) == 0) {
+			char usid[11] = {0};
+			char usid_read[11] = {0};
+			int size = 10;
+			uint32_t usid_offset = 18;
+
+			ret = efuse_read_usr(usid, size, (loff_t *)&usid_offset);
+
+			if (ret == -1) {
+				printf("ERROR: efuse read mac information fail!\n");
+				return -1;
+			}
+
+			if (ret != size) {
+				printf("ERROR: read %d byte(s) not %d byte(s) data\n",
+						ret, size);
+			}
+			sprintf(usid_read, "%x%x%x%x%x%x%x%x%x%x", usid[0], usid[1], usid[2], usid[3], usid[4], usid[5], usid[6], usid[7], usid[8], usid[9]);
+			env_set("usid", usid_read);
+
+			return 0;
+	}
+
 	if (strncmp(argv[1], "read", 4) == 0) {
 		action = CMD_EFUSE_READ;
 	} else if (strncmp(argv[1], "cali_read", 9) == 0) {

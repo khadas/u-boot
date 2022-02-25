@@ -176,6 +176,7 @@ obj-$(CONFIG_CMD_STARTDSP) += cmd_startdsp.o
 obj-$(CONFIG_CMD_REMAPSET) += cmd_remapset.o
 obj-$(CONFIG_CMD_IR) += irkey.o
 obj-$(CONFIG_CMD_CFGLOAD) += cfgload.o
+obj-$(CONFIG_CMD_KHADAS_KBI) += kbi.o
 
 # Power
 obj-$(CONFIG_CMD_PMIC) += pmic.o

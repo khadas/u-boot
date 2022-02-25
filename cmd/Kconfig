@@ -1994,6 +1994,12 @@ config CMD_CFGLOAD
 	help
 	  support load boot.ini
 
+config CMD_KHADAS_KBI
+	bool "support khadas kbi"
+	default y
+	help
+	  support config for khadas kbi
+
 endmenu
 
 endmenu
