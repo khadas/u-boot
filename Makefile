@@ -434,7 +434,7 @@ scripts_basic:
 
 # To avoid any implicit rule to kick in, define an empty command.
 scripts/basic/%: scripts_basic ;
-export BOARD_COMPILE_HDMITX_ONLY=true
+
 PHONY += outputmakefile
 # outputmakefile generates a Makefile in the output directory, if using a
 # separate output directory. This allows convenient use of make in the
