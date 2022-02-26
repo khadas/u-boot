@@ -808,9 +808,6 @@ lcd_prbs_retry_pll_vx1_tl1:
 	}
 
 	/* pll_div */
-	lcd_hiu_setb(HHI_VIID_CLK_CNTL, 0, VCLK2_EN, 1);
-	udelay(5);
-
 	/* Disable the div output clock */
 	lcd_hiu_setb(HHI_VID_PLL_CLK_DIV, 0, 19, 1);
 	lcd_hiu_setb(HHI_VID_PLL_CLK_DIV, 0, 15, 1);
@@ -870,9 +867,6 @@ lcd_prbs_retry_pll_lvds_tl1:
 	}
 
 	/* pll_div */
-	lcd_hiu_setb(HHI_VIID_CLK_CNTL, 0, VCLK2_EN, 1);
-	udelay(5);
-
 	/* Disable the div output clock */
 	lcd_hiu_setb(HHI_VID_PLL_CLK_DIV, 0, 19, 1);
 	lcd_hiu_setb(HHI_VID_PLL_CLK_DIV, 0, 15, 1);
@@ -894,8 +888,10 @@ lcd_prbs_retry_pll_lvds_tl1:
 void lcd_prbs_config_clk_tl1(unsigned int lcd_prbs_mode)
 {
 	if (lcd_prbs_mode == LCD_PRBS_MODE_VX1) {
+		lcd_hiu_setb(HHI_VIID_CLK_CNTL, 0, VCLK2_EN, 1);
 		lcd_prbs_set_pll_vx1_tl1();
 	} else if (lcd_prbs_mode == LCD_PRBS_MODE_LVDS) {
+		lcd_hiu_setb(HHI_VIID_CLK_CNTL, 0, VCLK2_EN, 1);
 		lcd_prbs_set_pll_lvds_tl1();
 	} else {
 		LCDERR("%s: unsupport lcd_prbs_mode %d\n",
@@ -930,6 +926,56 @@ void lcd_prbs_config_clk_tl1(unsigned int lcd_prbs_mode)
 		LCDPR("%s ok\n", __func__);
 }
 
+static void lcd_prbs_config_clk_t5w(unsigned int lcd_prbs_mode)
+{
+	unsigned int reg_vid2_clk_div, reg_vid2_clk_ctrl, reg_vid_clk_ctrl2;
+
+	if (lcd_debug_print_flag)
+		LCDPR("%s\n", __func__);
+
+	reg_vid2_clk_div = HHI_VIID_CLK0_DIV;
+	reg_vid2_clk_ctrl = HHI_VIID_CLK0_CTRL;
+	reg_vid_clk_ctrl2 = HHI_VID_CLK0_CTRL2;
+
+	if (lcd_prbs_mode == LCD_PRBS_MODE_VX1) {
+		lcd_hiu_setb(reg_vid2_clk_ctrl, 0, VCLK2_EN, 1);
+		lcd_prbs_set_pll_vx1_tl1();
+	} else if (lcd_prbs_mode == LCD_PRBS_MODE_LVDS) {
+		lcd_hiu_setb(reg_vid2_clk_ctrl, 0, VCLK2_EN, 1);
+		lcd_prbs_set_pll_lvds_tl1();
+	} else {
+		LCDERR("%s: unsupport lcd_prbs_mode %d\n",
+		       __func__, lcd_prbs_mode);
+		return;
+	}
+
+	lcd_hiu_setb(reg_vid2_clk_div, 0, VCLK2_XD, 8);
+	udelay(5);
+
+	/* select vid_pll_clk */
+	lcd_hiu_setb(reg_vid2_clk_ctrl, 0, VCLK2_CLK_IN_SEL, 3);
+	lcd_hiu_setb(reg_vid2_clk_ctrl, 1, VCLK2_EN, 1);
+	udelay(5);
+
+	/* [15:12] encl_clk_sel, select vclk2_div1 */
+	lcd_hiu_setb(reg_vid2_clk_div, 8, ENCL_CLK_SEL, 4);
+	/* release vclk2_div_reset and enable vclk2_div */
+	lcd_hiu_setb(reg_vid2_clk_div, 1, VCLK2_XD_EN, 2);
+	udelay(5);
+
+	lcd_hiu_setb(reg_vid2_clk_ctrl, 1, VCLK2_DIV1_EN, 1);
+	lcd_hiu_setb(reg_vid2_clk_ctrl, 1, VCLK2_SOFT_RST, 1);
+	udelay(10);
+	lcd_hiu_setb(reg_vid2_clk_ctrl, 0, VCLK2_SOFT_RST, 1);
+	udelay(5);
+
+	/* enable CTS_ENCL clk gate */
+	lcd_hiu_setb(reg_vid_clk_ctrl2, 1, ENCL_GATE_VCLK, 1);
+
+	if (lcd_debug_print_flag == 6)
+		LCDPR("%s ok\n", __func__);
+}
+
 static void lcd_set_vid_pll_div(struct lcd_clk_config_s *cConf)
 {
 	unsigned int shift_val, shift_sel;
@@ -937,9 +983,6 @@ static void lcd_set_vid_pll_div(struct lcd_clk_config_s *cConf)
 
 	if (lcd_debug_print_flag == 2)
 		LCDPR("%s\n", __func__);
-
-	lcd_hiu_setb(HHI_VIID_CLK_CNTL, 0, VCLK2_EN, 1);
-	udelay(5);
 
 	/* Disable the div output clock */
 	lcd_hiu_setb(HHI_VID_PLL_CLK_DIV, 0, 19, 1);
@@ -973,23 +1016,23 @@ static void lcd_set_vid_pll_div(struct lcd_clk_config_s *cConf)
 	lcd_hiu_setb(HHI_VID_PLL_CLK_DIV, 1, 19, 1);
 }
 
-static void lcd_set_vclk_crt(int lcd_type, struct lcd_clk_config_s *cConf)
+static void lcd_set_vclk_crt(struct lcd_config_s *pconf)
 {
 	if (lcd_debug_print_flag == 2)
 		LCDPR("%s\n", __func__);
 
 #ifdef CONFIG_AML_LCD_PXP
 	/* setup the XD divider value */
-	lcd_hiu_setb(HHI_VIID_CLK_DIV, (cConf->xd), VCLK2_XD, 8);
+	lcd_hiu_setb(HHI_VIID_CLK_DIV, clk_conf.xd, VCLK2_XD, 8);
 	udelay(5);
 	/* select vid_pll_clk */
 	lcd_hiu_setb(HHI_VIID_CLK_CNTL, 7, VCLK2_CLK_IN_SEL, 3);
 #else
 	/* setup the XD divider value */
-	lcd_hiu_setb(HHI_VIID_CLK_DIV, (cConf->xd - 1), VCLK2_XD, 8);
+	lcd_hiu_setb(HHI_VIID_CLK_DIV, (clk_conf.xd - 1), VCLK2_XD, 8);
 	udelay(5);
 	/* select vid_pll_clk */
-	lcd_hiu_setb(HHI_VIID_CLK_CNTL, cConf->data->vclk_sel,
+	lcd_hiu_setb(HHI_VIID_CLK_CNTL, clk_conf.data->vclk_sel,
 		VCLK2_CLK_IN_SEL, 3);
 #endif
 	lcd_hiu_setb(HHI_VIID_CLK_CNTL, 1, VCLK2_EN, 1);
@@ -1011,7 +1054,7 @@ static void lcd_set_vclk_crt(int lcd_type, struct lcd_clk_config_s *cConf)
 	lcd_hiu_setb(HHI_VID_CLK_CNTL2, 1, ENCL_GATE_VCLK, 1);
 }
 
-static void lcd_set_vclk_crt_t5w(int lcd_type, struct lcd_clk_config_s *cConf)
+static void lcd_set_vclk_crt_t5w(struct lcd_config_s *pconf)
 {
 	if (lcd_debug_print_flag == 2)
 		LCDPR("%s\n", __func__);
@@ -1024,10 +1067,10 @@ static void lcd_set_vclk_crt_t5w(int lcd_type, struct lcd_clk_config_s *cConf)
 	lcd_hiu_setb(HHI_VIID_CLK0_CTRL, 7, VCLK2_CLK_IN_SEL, 3);
 #else
 	/* setup the XD divider value */
-	lcd_hiu_setb(HHI_VIID_CLK0_DIV, (cConf->xd - 1), VCLK2_XD, 8);
+	lcd_hiu_setb(HHI_VIID_CLK0_DIV, (clk_conf.xd - 1), VCLK2_XD, 8);
 	udelay(5);
 	/* select vid_pll_clk */
-	lcd_hiu_setb(HHI_VIID_CLK0_CTRL, cConf->data->vclk_sel,
+	lcd_hiu_setb(HHI_VIID_CLK0_CTRL, clk_conf.data->vclk_sel,
 		VCLK2_CLK_IN_SEL, 3);
 #endif
 	lcd_hiu_setb(HHI_VIID_CLK0_CTRL, 1, VCLK2_EN, 1);
@@ -2466,30 +2509,35 @@ generate_clk_done_g12a:
  */
 static void lcd_clk_set_gxtvbb(struct lcd_config_s *pconf)
 {
+	lcd_hiu_setb(HHI_VIID_CLK_CNTL, 0, VCLK2_EN, 1);
 	lcd_set_pll_gxtvbb(&clk_conf);
 	lcd_set_vid_pll_div(&clk_conf);
 }
 
 static void lcd_clk_set_txl(struct lcd_config_s *pconf)
 {
+	lcd_hiu_setb(HHI_VIID_CLK_CNTL, 0, VCLK2_EN, 1);
 	lcd_set_pll_txl(&clk_conf);
 	lcd_set_vid_pll_div(&clk_conf);
 }
 
 static void lcd_clk_set_txlx(struct lcd_config_s *pconf)
 {
+	lcd_hiu_setb(HHI_VIID_CLK_CNTL, 0, VCLK2_EN, 1);
 	lcd_set_pll_txlx(&clk_conf);
 	lcd_set_vid_pll_div(&clk_conf);
 }
 
 static void lcd_clk_set_axg(struct lcd_config_s *pconf)
 {
+	lcd_hiu_setb(HHI_VIID_CLK_CNTL, 0, VCLK2_EN, 1);
 	lcd_set_pll_axg(&clk_conf);
 	lcd_set_dsi_meas_clk();
 }
 
 static void lcd_clk_set_txhd(struct lcd_config_s *pconf)
 {
+	lcd_hiu_setb(HHI_VIID_CLK_CNTL, 0, VCLK2_EN, 1);
 	lcd_set_tcon_clk(pconf);
 	lcd_set_pll_txhd(&clk_conf);
 	lcd_set_vid_pll_div(&clk_conf);
@@ -2497,6 +2545,7 @@ static void lcd_clk_set_txhd(struct lcd_config_s *pconf)
 
 static void lcd_clk_set_g12a_path0(struct lcd_config_s *pconf)
 {
+	lcd_hiu_setb(HHI_VIID_CLK_CNTL, 0, VCLK2_EN, 1);
 	lcd_set_hpll_g12a(&clk_conf);
 	lcd_set_vid_pll_div(&clk_conf);
 	lcd_set_dsi_meas_clk();
@@ -2505,6 +2554,7 @@ static void lcd_clk_set_g12a_path0(struct lcd_config_s *pconf)
 
 static void lcd_clk_set_g12a_path1(struct lcd_config_s *pconf)
 {
+	lcd_hiu_setb(HHI_VIID_CLK_CNTL, 0, VCLK2_EN, 1);
 	lcd_set_gp0_pll_g12a(&clk_conf);
 	lcd_set_dsi_meas_clk();
 	lcd_set_dsi_phy_clk(1);
@@ -2512,6 +2562,7 @@ static void lcd_clk_set_g12a_path1(struct lcd_config_s *pconf)
 
 static void lcd_clk_set_g12b_path0(struct lcd_config_s *pconf)
 {
+	lcd_hiu_setb(HHI_VIID_CLK_CNTL, 0, VCLK2_EN, 1);
 	lcd_set_hpll_g12b(&clk_conf);
 	lcd_set_vid_pll_div(&clk_conf);
 	lcd_set_dsi_meas_clk();
@@ -2520,6 +2571,7 @@ static void lcd_clk_set_g12b_path0(struct lcd_config_s *pconf)
 
 static void lcd_clk_set_g12b_path1(struct lcd_config_s *pconf)
 {
+	lcd_hiu_setb(HHI_VIID_CLK_CNTL, 0, VCLK2_EN, 1);
 	lcd_set_gp0_pll_g12b(&clk_conf);
 	lcd_set_dsi_meas_clk();
 	lcd_set_dsi_phy_clk(1);
@@ -2527,6 +2579,7 @@ static void lcd_clk_set_g12b_path1(struct lcd_config_s *pconf)
 
 static void lcd_clk_set_tl1(struct lcd_config_s *pconf)
 {
+	lcd_hiu_setb(HHI_VIID_CLK_CNTL, 0, VCLK2_EN, 1);
 	lcd_set_tcon_clk_tl1(pconf);
 	lcd_set_pll_tl1(&clk_conf);
 	lcd_set_vid_pll_div(&clk_conf);
@@ -2534,6 +2587,15 @@ static void lcd_clk_set_tl1(struct lcd_config_s *pconf)
 
 static void lcd_clk_set_t5(struct lcd_config_s *pconf)
 {
+	lcd_hiu_setb(HHI_VIID_CLK_CNTL, 0, VCLK2_EN, 1);
+	lcd_set_tcon_clk_t5(pconf);
+	lcd_set_pll_tl1(&clk_conf);
+	lcd_set_vid_pll_div(&clk_conf);
+}
+
+static void lcd_clk_set_t5w(struct lcd_config_s *pconf)
+{
+	lcd_hiu_setb(HHI_VIID_CLK0_CTRL, 0, VCLK2_EN, 1);
 	lcd_set_tcon_clk_t5(pconf);
 	lcd_set_pll_tl1(&clk_conf);
 	lcd_set_vid_pll_div(&clk_conf);
@@ -2847,10 +2909,9 @@ void lcd_clk_update(struct lcd_config_s *pconf)
 /* for timing change */
 void lcd_clk_set(struct lcd_config_s *pconf)
 {
-	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
 	int cnt = 0;
 
-	if (clk_conf.data == NULL) {
+	if (!clk_conf.data) {
 		LCDERR("%s: clk config data is null\n", __func__);
 		return;
 	}
@@ -2858,11 +2919,8 @@ void lcd_clk_set(struct lcd_config_s *pconf)
 lcd_clk_set_retry:
 	if (clk_conf.data->clk_set)
 		clk_conf.data->clk_set(pconf);
-
-	if (lcd_drv->chip_type == LCD_CHIP_T5W)
-		lcd_set_vclk_crt_t5w(pconf->lcd_basic.lcd_type, &clk_conf);
-	else
-		lcd_set_vclk_crt(pconf->lcd_basic.lcd_type, &clk_conf);
+	if (clk_conf.data->vclk_crt_set)
+		clk_conf.data->vclk_crt_set(pconf);
 #ifdef CONFIG_AML_LCD_PXP
 	return;
 #endif
@@ -2975,6 +3033,7 @@ static struct lcd_clk_data_s lcd_clk_data_gxtvbb = {
 	.set_ss_level = lcd_set_pll_ss_level_gxtvbb,
 	.set_ss_advance = NULL,
 	.clk_set = lcd_clk_set_gxtvbb,
+	.vclk_crt_set = lcd_set_vclk_crt,
 	.clk_config_init_print = lcd_clk_config_init_print_dft,
 	.clk_config_print = lcd_clk_config_print_dft,
 	.prbs_clk_config = NULL,
@@ -3017,6 +3076,7 @@ static struct lcd_clk_data_s lcd_clk_data_gxl = {
 	.set_ss_level = NULL,
 	.set_ss_advance = NULL,
 	.clk_set = lcd_clk_set_txl,
+	.vclk_crt_set = lcd_set_vclk_crt,
 	.clk_config_init_print = lcd_clk_config_init_print_dft,
 	.clk_config_print = lcd_clk_config_print_dft,
 	.prbs_clk_config = NULL,
@@ -3059,6 +3119,7 @@ static struct lcd_clk_data_s lcd_clk_data_txl = {
 	.set_ss_level = lcd_set_pll_ss_level_txl,
 	.set_ss_advance = NULL,
 	.clk_set = lcd_clk_set_txl,
+	.vclk_crt_set = lcd_set_vclk_crt,
 	.clk_config_init_print = lcd_clk_config_init_print_dft,
 	.clk_config_print = lcd_clk_config_print_dft,
 	.prbs_clk_config = NULL,
@@ -3101,6 +3162,7 @@ static struct lcd_clk_data_s lcd_clk_data_txlx = {
 	.set_ss_level = lcd_set_pll_ss_level_txlx,
 	.set_ss_advance = NULL,
 	.clk_set = lcd_clk_set_txlx,
+	.vclk_crt_set = lcd_set_vclk_crt,
 	.clk_config_init_print = lcd_clk_config_init_print_dft,
 	.clk_config_print = lcd_clk_config_print_dft,
 	.prbs_clk_config = NULL,
@@ -3143,6 +3205,7 @@ static struct lcd_clk_data_s lcd_clk_data_axg = {
 	.set_ss_level = NULL,
 	.set_ss_advance = NULL,
 	.clk_set = lcd_clk_set_axg,
+	.vclk_crt_set = lcd_set_vclk_crt,
 	.clk_config_init_print = lcd_clk_config_init_print_axg,
 	.clk_config_print = lcd_clk_config_print_axg,
 	.prbs_clk_config = NULL,
@@ -3185,6 +3248,7 @@ static struct lcd_clk_data_s lcd_clk_data_txhd = {
 	.set_ss_level = lcd_set_pll_ss_level_txhd,
 	.set_ss_advance = lcd_set_pll_ss_advance_txhd,
 	.clk_set = lcd_clk_set_txhd,
+	.vclk_crt_set = lcd_set_vclk_crt,
 	.clk_config_init_print = lcd_clk_config_init_print_dft,
 	.clk_config_print = lcd_clk_config_print_dft,
 	.prbs_clk_config = NULL,
@@ -3227,6 +3291,7 @@ static struct lcd_clk_data_s lcd_clk_data_g12a_path0 = {
 	.set_ss_level = NULL,
 	.set_ss_advance = NULL,
 	.clk_set = lcd_clk_set_g12a_path0,
+	.vclk_crt_set = lcd_set_vclk_crt,
 	.clk_config_init_print = lcd_clk_config_init_print_axg,
 	.clk_config_print = lcd_clk_config_print_g12a,
 	.prbs_clk_config = NULL,
@@ -3269,6 +3334,7 @@ static struct lcd_clk_data_s lcd_clk_data_g12a_path1 = {
 	.set_ss_level = NULL,
 	.set_ss_advance = NULL,
 	.clk_set = lcd_clk_set_g12a_path1,
+	.vclk_crt_set = lcd_set_vclk_crt,
 	.clk_config_init_print = lcd_clk_config_init_print_axg,
 	.clk_config_print = lcd_clk_config_print_g12a,
 	.prbs_clk_config = NULL,
@@ -3311,6 +3377,7 @@ static struct lcd_clk_data_s lcd_clk_data_g12b_path0 = {
 	.set_ss_level = NULL,
 	.set_ss_advance = NULL,
 	.clk_set = lcd_clk_set_g12b_path0,
+	.vclk_crt_set = lcd_set_vclk_crt,
 	.clk_config_init_print = lcd_clk_config_init_print_axg,
 	.clk_config_print = lcd_clk_config_print_g12a,
 	.prbs_clk_config = NULL,
@@ -3353,6 +3420,7 @@ static struct lcd_clk_data_s lcd_clk_data_g12b_path1 = {
 	.set_ss_level = NULL,
 	.set_ss_advance = NULL,
 	.clk_set = lcd_clk_set_g12b_path1,
+	.vclk_crt_set = lcd_set_vclk_crt,
 	.clk_config_init_print = lcd_clk_config_init_print_axg,
 	.clk_config_print = lcd_clk_config_print_g12a,
 	.prbs_clk_config = NULL,
@@ -3395,6 +3463,7 @@ static struct lcd_clk_data_s lcd_clk_data_tl1 = {
 	.set_ss_level = lcd_set_pll_ss_level_tl1,
 	.set_ss_advance = lcd_set_pll_ss_advance_tl1,
 	.clk_set = lcd_clk_set_tl1,
+	.vclk_crt_set = lcd_set_vclk_crt,
 	.clk_config_init_print = lcd_clk_config_init_print_dft,
 	.clk_config_print = lcd_clk_config_print_dft,
 	.prbs_clk_config = lcd_prbs_config_clk_tl1,
@@ -3437,6 +3506,7 @@ static struct lcd_clk_data_s lcd_clk_data_tm2 = {
 	.set_ss_level = lcd_set_pll_ss_level_tl1,
 	.set_ss_advance = lcd_set_pll_ss_advance_tl1,
 	.clk_set = lcd_clk_set_tl1,
+	.vclk_crt_set = lcd_set_vclk_crt,
 	.clk_config_init_print = lcd_clk_config_init_print_dft,
 	.clk_config_print = lcd_clk_config_print_dft,
 	.prbs_clk_config = lcd_prbs_config_clk_tl1,
@@ -3479,6 +3549,7 @@ static struct lcd_clk_data_s lcd_clk_data_t5 = {
 	.set_ss_level = lcd_set_pll_ss_level_tl1,
 	.set_ss_advance = lcd_set_pll_ss_advance_tl1,
 	.clk_set = lcd_clk_set_t5,
+	.vclk_crt_set = lcd_set_vclk_crt,
 	.clk_config_init_print = lcd_clk_config_init_print_dft,
 	.clk_config_print = lcd_clk_config_print_dft,
 	.prbs_clk_config = lcd_prbs_config_clk_tl1,
@@ -3521,6 +3592,7 @@ static struct lcd_clk_data_s lcd_clk_data_t5d = {
 	.set_ss_level = lcd_set_pll_ss_level_tl1,
 	.set_ss_advance = lcd_set_pll_ss_advance_tl1,
 	.clk_set = lcd_clk_set_t5,
+	.vclk_crt_set = lcd_set_vclk_crt,
 	.clk_config_init_print = lcd_clk_config_init_print_dft,
 	.clk_config_print = lcd_clk_config_print_dft,
 	.prbs_clk_config = lcd_prbs_config_clk_tl1,
@@ -3562,10 +3634,11 @@ static struct lcd_clk_data_s lcd_clk_data_t5w = {
 	.pll_frac_generate = lcd_pll_frac_generate_txl,
 	.set_ss_level = lcd_set_pll_ss_level_tl1,
 	.set_ss_advance = lcd_set_pll_ss_advance_tl1,
-	.clk_set = lcd_clk_set_t5,
+	.clk_set = lcd_clk_set_t5w,
+	.vclk_crt_set = lcd_set_vclk_crt_t5w,
 	.clk_config_init_print = lcd_clk_config_init_print_dft,
 	.clk_config_print = lcd_clk_config_print_dft,
-	.prbs_clk_config = lcd_prbs_config_clk_tl1,
+	.prbs_clk_config = lcd_prbs_config_clk_t5w,
 };
 
 static void lcd_clk_config_chip_init(struct lcd_clk_config_s *cConf)

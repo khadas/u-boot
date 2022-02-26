@@ -819,21 +819,34 @@ static unsigned long lcd_abs(unsigned long a, unsigned long b)
 static int lcd_prbs_clk_check(unsigned long encl_clk, unsigned long fifo_clk,
 			      unsigned int cnt)
 {
+	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
+	unsigned int encl_clk_msr_id, fifo_clk_msr_id;
 	unsigned long clk_check, temp;
 
-	clk_check = clk_util_clk_msr(9);
+	switch (lcd_drv->chip_type) {
+	case LCD_CHIP_T5W:
+		encl_clk_msr_id = 6;
+		fifo_clk_msr_id = 129;
+		break;
+	default:
+		encl_clk_msr_id = 9;
+		fifo_clk_msr_id = 129;
+		break;
+	}
+
+	clk_check = clk_util_clk_msr(encl_clk_msr_id);
 	if (clk_check != encl_clk) {
 		temp = lcd_abs(clk_check, encl_clk);
 		if (temp >= CLK_CHK_MAX) {
 			if (lcd_debug_print_flag == 6) {
-				LCDERR("encl  clkmsr error %ld, cnt: %d\n",
+				LCDERR("encl clkmsr error %ld, cnt: %d\n",
 				       clk_check, cnt);
 			}
 			return -1;
 		}
 	}
 
-	clk_check = clk_util_clk_msr(129);
+	clk_check = clk_util_clk_msr(fifo_clk_msr_id);
 	if (clk_check != fifo_clk) {
 		temp = lcd_abs(clk_check, fifo_clk);
 		if (temp >= CLK_CHK_MAX) {
