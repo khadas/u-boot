@@ -139,6 +139,7 @@ struct sram_hal_api_arg {
 #define JTAG_A53_EE 3
 #define CLUSTER_BIT 2
 
+#define PSCI_CPU_ON			0x84000003
 
 /* AVB2 */
 #define GET_AVBKEY_FROM_FIP              0x820000b0
@@ -183,4 +184,5 @@ void set_boot_first_timeout(uint64_t arg0);
 int bl31_get_cornerinfo(uint8_t *outbuf, int size);
 int32_t set_boot_params(const keymaster_boot_params*);
 int32_t get_avbkey_from_fip(uint8_t *buf, uint32_t buflen);
+void power_core_for_freetos(uint8_t cpuid, uint64_t entrypoint);
 #endif
