@@ -16,6 +16,11 @@
 #include <amlogic/storage.h>
 #include <fastboot.h>
 #include <u-boot/sha1.h>
+#include <asm/arch/efuse.h>
+
+#if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
+extern efuse_obj_field_t efuse_field;
+#endif//#ifdef CONFIG_EFUSE_OBJ_API
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 
@@ -531,6 +536,7 @@ static int do_GetValidSlot(
 	int slot;
 	int AB_mode = 0;
 	bool bootable_a, bootable_b;
+	bool nocs_mode = false;
 
 	if (argc != 1)
 		return cmd_usage(cmdtp);
@@ -607,7 +613,7 @@ static int do_GetValidSlot(
 			}
 			return 0;
 		} else if (bootable_b) {
-			write_bootloader(2, 0);
+			printf("slot a is unbootable, back to b\n");
 			boot_ctrl.roll_flag = 1;
 			boot_info_save(&boot_ctrl, miscbuf);
 #ifdef CONFIG_FASTBOOT
@@ -618,7 +624,21 @@ static int do_GetValidSlot(
 			run_command("set_active_slot b", 0);
 			env_set("update_env", "1");
 			env_set("reboot_status", "reboot_next");
-			env_set("expect_index", "0");
+
+#if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
+			run_command("efuse_obj get FEAT_DISABLE_EMMC_USER", 0);
+			if (*efuse_field.data == 1)
+				nocs_mode = true;
+#endif//#ifdef CONFIG_EFUSE_OBJ_API
+			if (gpt_partition || nocs_mode) {
+				printf("gpt or nocs mode\n");
+				write_bootloader(2, 1);
+				env_set("expect_index", "1");
+			} else {
+				printf("normal mode\n");
+				write_bootloader(2, 0);
+				env_set("expect_index", "0");
+			}
 			run_command("saveenv", 0);
 			run_command("reset", 0);
 		} else {
@@ -641,7 +661,7 @@ static int do_GetValidSlot(
 			}
 			return 0;
 		} else if (bootable_a) {
-			write_bootloader(1, 0);
+			printf("slot b is unbootable, back to a\n");
 			boot_ctrl.roll_flag = 1;
 			boot_info_save(&boot_ctrl, miscbuf);
 #ifdef CONFIG_FASTBOOT
@@ -652,7 +672,21 @@ static int do_GetValidSlot(
 			run_command("set_active_slot a", 0);
 			env_set("update_env", "1");
 			env_set("reboot_status", "reboot_next");
-			env_set("expect_index", "0");
+
+#if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
+			run_command("efuse_obj get FEAT_DISABLE_EMMC_USER", 0);
+			if (*efuse_field.data == 1)
+				nocs_mode = true;
+#endif//#ifdef CONFIG_EFUSE_OBJ_API
+			if (gpt_partition || nocs_mode) {
+				printf("gpt or nocs mode\n");
+				write_bootloader(2, 1);
+				env_set("expect_index", "1");
+			} else {
+				printf("normal mode\n");
+				write_bootloader(1, 0);
+				env_set("expect_index", "0");
+			}
 			run_command("saveenv", 0);
 			run_command("reset", 0);
 		} else {
@@ -773,6 +807,7 @@ static int do_SetUpdateTries(
 	bool bootable_a, bootable_b;
 	int slot;
 	int ret = -1;
+	bool nocs_mode = false;
 
 	if (has_boot_slot == 0) {
 		printf("device is not ab mode\n");
@@ -813,20 +848,28 @@ static int do_SetUpdateTries(
 		env_set("rollback_flag", "1");
 	}
 
-	if (boot_ctrl.slot_info[slot].successful_boot == 1 && gpt_partition) {
-		char *bootloaderindex = NULL;
+#if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
+				run_command("efuse_obj get FEAT_DISABLE_EMMC_USER", 0);
+				if (*efuse_field.data == 1)
+					nocs_mode = true;
+#endif//#ifdef CONFIG_EFUSE_OBJ_API
 
-		printf("current slot %d is successful_boot\n", slot);
-		bootloaderindex = env_get("forUpgrade_bootloaderIndex");
-		printf("bootloaderindex: %s\n", bootloaderindex);
-		/*if boot from boot1, means boot0 is bab, don't need to copyback*/
-		if (bootloaderindex && strcmp(bootloaderindex, "2")) {
-			printf("check if boot0 = boot1\n");
-			ret = is_BootSame(1, 2);
-			if (ret) {
-				printf("boot0 doesn't = boot1, write boot0 to boot1\n");
-				write_bootloader(1, 2);
-				printf("after write boot0 to boot1\n");
+	if (boot_ctrl.slot_info[slot].successful_boot == 1) {
+		if (gpt_partition || nocs_mode) {
+			char *bootloaderindex = NULL;
+
+			printf("current slot %d is successful_boot\n", slot);
+			bootloaderindex = env_get("forUpgrade_bootloaderIndex");
+			printf("bootloaderindex: %s\n", bootloaderindex);
+			/*if boot from boot1, means boot0 is bab, don't need to copyback*/
+			if (bootloaderindex && strcmp(bootloaderindex, "2")) {
+				printf("check if boot0 = boot1\n");
+				ret = is_BootSame(1, 2);
+				if (ret) {
+					printf("boot0 doesn't = boot1, write boot0 to boot1\n");
+					write_bootloader(1, 2);
+					printf("after write boot0 to boot1\n");
+				}
 			}
 		}
 	}

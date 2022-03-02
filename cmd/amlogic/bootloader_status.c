@@ -12,6 +12,11 @@
 #include <partition_table.h>
 #include <fastboot.h>
 #include <emmc_partitions.h>
+#include <asm/arch/efuse.h>
+
+#if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
+extern efuse_obj_field_t efuse_field;
+#endif//#ifdef CONFIG_EFUSE_OBJ_API
 
 #ifndef IS_FEAT_BOOT_VERIFY
 #define IS_FEAT_BOOT_VERIFY() 0
@@ -250,6 +255,7 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	char *robustota = NULL;
 	char *update_env = NULL;
 	char *rebootmode = NULL;
+	int gpt_flag = -1;
 	int ret = -1;
 #ifdef CONFIG_MMC_MESON_GX
 	struct mmc *mmc = NULL;
@@ -260,6 +266,18 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 
 	//if recovery mode, need disable dv, if factoryreset, need default uboot env
 	aml_recovery();
+
+#if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
+	run_command("efuse_obj get FEAT_DISABLE_EMMC_USER", 0);
+
+	if (*efuse_field.data == 1) {
+		wrnP("efuse_field.data == 1\n");
+		env_set("nocs_mode", "true");
+	} else {
+		wrnP("efuse_field.data != 1\n");
+		env_set("nocs_mode", "false");
+	}
+#endif//#ifdef CONFIG_EFUSE_OBJ_API
 
 	run_command("get_rebootmode", 0);
 	rebootmode = env_get("reboot_mode");
@@ -274,8 +292,18 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 
 #ifdef CONFIG_MMC_MESON_GX
 		if (mmc)
-			ret = aml_gpt_valid(mmc);
+			gpt_flag = aml_gpt_valid(mmc);
 #endif
+		if (gpt_flag == 0)
+			ret = 0;
+
+#if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
+		run_command("efuse_obj get FEAT_DISABLE_EMMC_USER", 0);
+
+		//dis_user_flag = run_command("efuse_obj get FEAT_DISABLE_EMMC_USER", 0);
+		if (*efuse_field.data == 1)
+			ret = 0;
+#endif//#ifdef CONFIG_EFUSE_OBJ_API
 
 #ifdef CONFIG_FASTBOOT
 		struct misc_virtual_ab_message message;
@@ -294,8 +322,9 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 				write_bootloader_back("2", 0);
 				env_set("expect_index", "0");
 			} else {
-				wrnP("gpt mode\n");
-				env_set("expect_index", "2");
+				wrnP("gpt or disable user bootloader mode\n");
+				write_bootloader_back("2", 1);
+				env_set("expect_index", "1");
 			}
 			wrnP("back to slot b\n");
 			run_command("set_roll_flag 1", 0);
@@ -306,7 +335,8 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 				write_bootloader_back("1", 0);
 				env_set("expect_index", "0");
 			} else {
-				wrnP("gpt mode\n");
+				wrnP("gpt or disable user bootloader mode\n");
+				write_bootloader_back("2", 1);
 				env_set("expect_index", "1");
 			}
 			wrnP("back to slot a\n");
@@ -407,6 +437,8 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		return -1;
 	}
 
+	wrnP("expect_index is : %s\n", expect_index);
+
 	match_flag = strcmp(bootloaderindex, expect_index);
 
 
@@ -437,10 +469,19 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 			if (has_boot_slot == 1) {
 #ifdef CONFIG_MMC_MESON_GX
 				if (mmc != NULL)
-					ret = aml_gpt_valid(mmc);
+					gpt_flag = aml_gpt_valid(mmc);
 #endif
+				if (gpt_flag == 0)
+					ret = 0;
+
+#if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
+				run_command("efuse_obj get FEAT_DISABLE_EMMC_USER", 0);
+
+				if (*efuse_field.data == 1)
+					ret = 0;
+#endif//#ifdef CONFIG_EFUSE_OBJ_API
 				if (ret == 0) {
-					wrnP("gpt mode, write boot1 to boot0\n");
+					wrnP("gpt or disable user bootloader mode, write boot1 to boot0\n");
 					write_bootloader_back("2", 1);
 #ifdef CONFIG_FASTBOOT
 					struct misc_virtual_ab_message message;
@@ -547,11 +588,21 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 
 #ifdef CONFIG_MMC_MESON_GX
 				if (mmc != NULL)
-					ret = aml_gpt_valid(mmc);
+					gpt_flag = aml_gpt_valid(mmc);
 #endif
 
+				if (gpt_flag == 0)
+					ret = 0;
+
+#if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
+				run_command("efuse_obj get FEAT_DISABLE_EMMC_USER", 0);
+
+				if (*efuse_field.data == 1)
+					ret = 0;
+#endif//#ifdef CONFIG_EFUSE_OBJ_API
+
 				if (ret == 0) {
-					wrnP("gpt mode\n");
+					wrnP("gpt or disable user bootloader mode\n");
 					env_set("update_env","0");
 					env_set("reboot_status","reboot_init");
 					run_command("saveenv", 0);
