@@ -13,6 +13,7 @@
 #include <linux/mtd/partitions.h>
 #include <amlogic/storage.h>
 #include <amlogic/aml_mtd.h>
+#include <amlogic/aml_nand.h>
 #include <amlogic/aml_rsv.h>
 #include <asm/arch/cpu_config.h>
 #include <partition_table.h>
@@ -123,6 +124,37 @@ static size_t drop_ffs(const struct mtd_info *mtd,
 	 * of the buffer
 	 */
 	return min(l, *len);
+}
+#endif
+
+#ifdef CONFIG_YAFFS2
+int meson_yaffs2_mount(char *mtpoint, char *part_name)
+{
+	struct mtd_info *mtd = mtd_store_get(1);
+	struct mtd_device *dev;
+	struct part_info *part;
+	u8 pnum;
+	int ret;
+
+	if (!part_name || !mtpoint)
+		return -1;
+
+	ret = find_dev_and_part(part_name,
+				&dev,
+				&pnum,
+				&part);
+	if (ret) {
+		pr_info("%s %d can not find part:%s\n",
+			__func__, __LINE__, part_name);
+		return ret;
+	}
+
+	/* mtd_dev 1 is a normal partition */
+	cmd_yaffs_devconfig(mtpoint, 1, part->offset / mtd->erasesize,
+			(part->offset + part->size) / mtd->erasesize);
+	cmd_yaffs_mount(mtpoint);
+
+	return 0;
 }
 #endif
 
@@ -597,7 +629,7 @@ static int mtd_store_write(const char *part_name,
 	return ret;
 }
 
-extern int mtd_block_is_protect(struct mtd_info *master, loff_t ofs);
+extern int meson_block_ignore_erase(struct mtd_info *master, loff_t ofs);
 static int _mtd_store_erase(struct mtd_info *mtd,
 			   loff_t offset, size_t size, int scrub_flag, int bb_flag)
 {
@@ -644,7 +676,7 @@ static int _mtd_store_erase(struct mtd_info *mtd,
 					return ret;
 				}
 
-				if (bb_flag && mtd_block_is_protect(mtd, offset)) {
+				if (bb_flag && meson_block_ignore_erase(mtd, offset)) {
 					pr_info("skip protect block in 0x%08llx\n", offset);
 					continue;
 				}

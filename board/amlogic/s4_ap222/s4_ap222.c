@@ -325,6 +325,13 @@ static struct mtd_partition normal_partition_info[] = {
 	.size = 0,
 },
 {
+	.name = "factory",
+	.offset = 0,
+	.size = 8 * SZ_1M,
+	/* MESON_IGNORE_ERASE_CHIP will ignore store erase.chip */
+	.mask_flags = MESON_IGNORE_ERASE_CHIP,
+},
+{
 	.name = "logo",
 	.offset = 0,
 	.size = 2 * SZ_1M,
@@ -333,12 +340,6 @@ static struct mtd_partition normal_partition_info[] = {
 	.name = "recovery",
 	.offset = 0,
 	.size = 16 * SZ_1M,
-},
-{
-	.name = "factory",
-	.offset = 0,
-	.size = 8 * SZ_1M,
-	.mask_flags = MTD_WRITEABLE,
 },
 {
 	.name = "boot",

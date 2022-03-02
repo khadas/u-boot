@@ -593,6 +593,10 @@ static struct mtd_info *allocate_partition(struct mtd_info *master,
 	/* set up the MTD object for this partition */
 	slave->type = master->type;
 	slave->flags = master->flags & ~part->mask_flags;
+
+	if (part->mask_flags & MESON_IGNORE_ERASE_CHIP)
+		slave->flags |= MESON_IGNORE_ERASE_CHIP;
+
 	slave->size = part->size;
 	slave->writesize = master->writesize;
 	slave->writebufsize = master->writebufsize;
@@ -903,7 +907,7 @@ void list_aml_mtd_partitions(struct mtd_info *master)
 	return;
 }
 
-int mtd_block_is_protect(struct mtd_info *master, loff_t ofs)
+int meson_block_ignore_erase(struct mtd_info *master, loff_t ofs)
 {
 	struct part_info *temp;
 	struct mtd_device *dentry;
@@ -911,7 +915,7 @@ int mtd_block_is_protect(struct mtd_info *master, loff_t ofs)
 	if (!mtdparts_init()) {
 		list_for_each_entry(dentry, &aml_device, link) {
 			list_for_each_entry(temp, &dentry->parts, link) {
-				if (!(temp->mask_flags & MTD_WRITEABLE) &&
+				if ((temp->mask_flags & MESON_IGNORE_ERASE_CHIP) &&
 					(ofs < (temp->offset + temp->size)) &&
 					ofs >= (unsigned long long)temp->offset)
 					return 1;
