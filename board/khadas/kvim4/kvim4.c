@@ -205,6 +205,8 @@ int board_init(void)
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 	/*set vcc5V*/
 	run_command("gpio set GPIOH_4", 0);
+	run_command("gpio clear GPIOT_13", 0);
+	run_command("gpio clear GPIOH_3", 0);
 	return 0;
 }
 
