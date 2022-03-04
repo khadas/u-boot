@@ -631,6 +631,10 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_24[] = {
 		},
 		1, VIU_ENCP, 5600000, 2, 1, 1, VID_PLL_DIV_5, 2, 1, 1, -1
 	},
+	{{HDMIV_3840x1080p60hz,
+	  GROUP_END},
+		1, VIU_ENCP, 5940000, 2, 1, 1, VID_PLL_DIV_5, 2, 1, 1, -1
+	},
 };
 
 /* For colordepth 10bits */
