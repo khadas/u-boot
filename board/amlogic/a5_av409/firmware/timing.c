@@ -141,7 +141,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		sizeof(ddr_set_ps0_only_t),
 	.cfg_board_common_setting.timming_struct_real_size = 0,
 	.cfg_board_common_setting.fast_boot = { 0, 0, 0, 0},
-	.cfg_board_common_setting.ddr_func = 0,
+	.cfg_board_common_setting.ddr_func = DDR_FUNC_CONFIG_DFE_FUNCTION,
 	.cfg_board_common_setting.board_id = CONFIG_BOARD_ID_MASK,
 	.cfg_board_common_setting.DramType = CONFIG_DDR_TYPE_DDR4,
 	.cfg_board_common_setting.dram_rank_config = CONFIG_DDR0_32BIT_RANK0_CH0,
@@ -177,7 +177,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		32, 33, 34, 35
 	},  //d0-d31 dm0 dm1 dm2 dm3
 	.cfg_board_common_setting.ddr_vddee_setting = {0},
-	.cfg_board_SI_setting_ps.DRAMFreq = 1176,
+	.cfg_board_SI_setting_ps.DRAMFreq = 1320,
 	.cfg_board_SI_setting_ps.PllBypassEn = 0,
 	.cfg_board_SI_setting_ps.training_SequenceCtrl = 0,
 	.cfg_board_SI_setting_ps.ddr_odt_config = DDR_DRAM_ODT_W_CS0_ODT0,
@@ -188,7 +188,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_board_SI_setting_ps.soc_data_drv_ohm_n = DDR_SOC_DATA_DRV_ODT_40_OHM,
 	.cfg_board_SI_setting_ps.soc_data_odt_ohm_p = DDR_SOC_DATA_DRV_ODT_60_OHM,
 	.cfg_board_SI_setting_ps.soc_data_odt_ohm_n = DDR_SOC_DATA_DRV_ODT_0_OHM,
-	.cfg_board_SI_setting_ps.dram_data_drv_ohm = DDR_DRAM_DDR4_DRV_34_OHM,
+	.cfg_board_SI_setting_ps.dram_data_drv_ohm = DDR_DRAM_DDR4_DRV_48_OHM,
 	.cfg_board_SI_setting_ps.dram_data_odt_ohm = DDR_DRAM_DDR4_ODT_60_OHM,
 	.cfg_board_SI_setting_ps.dram_data_wr_odt_ohm = DDR_DRAM_DDR_WR_ODT_0_OHM,
 	.cfg_board_SI_setting_ps.dram_ac_odt_ohm = DDR_DRAM_DDR_AC_ODT_0_OHM,
@@ -320,7 +320,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	},
 		//total 44
 	.cfg_ddr_training_delay_ps.dram_bit_vref = {
-		0,  32, 32, 32, 32, 32, 32, 32,
+		0x69,  32, 32, 32, 32, 32, 32, 32,
 		32, 32, 32, 32, 32, 32, 32, 32,
 		32, 32, 32, 32, 32, 32, 32, 32,
 		32, 32, 32, 32, 32, 32, 32, 32,
@@ -330,11 +330,11 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 
 	.cfg_ddr_training_delay_ps.reserve_training_parameter = {
 		((0 << 7) | 0x0), ((0 << 7) | 0x0),
-		((0 << 7) | 0x5), ((0 << 7) | 0x5),
+		((0 << 7) | 0x7), ((0 << 7) | 0x5),
 		((0 << 7) | 0x0), ((0 << 7) | 0x0),
 		((0 << 7) | 0x0), ((0 << 7) | 0x0),
-		((1 << 7) | 0xb), ((1 << 7) | 0xf),
-		((1 << 7) | 0x14), ((1 << 7) | 0x12),
+		((1 << 7) | 0xd), ((1 << 7) | 0xb),
+		((1 << 7) | 0x12), ((1 << 7) | 0x15),
 		((0 << 7) | 0x0), ((0 << 7) | 0x0),
 		((0 << 7) | 0x0), ((0 << 7) | 0x0),
 	},

@@ -170,7 +170,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	},//AV400;
 
 	.cfg_board_common_setting.ddr_vddee_setting[0] = 0,
-	.cfg_board_SI_setting_ps.DRAMFreq = 1176,
+	.cfg_board_SI_setting_ps.DRAMFreq = 1320,
 	.cfg_board_SI_setting_ps.PllBypassEn = 0,
 	.cfg_board_SI_setting_ps.training_SequenceCtrl = 0,
 	.cfg_board_SI_setting_ps.ddr_odt_config = DDR_DRAM_ODT_W_CS0_ODT0,
@@ -397,10 +397,10 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_ddr_training_delay_ps.dram_bit_vref[0] = 0x0000004d,
 
 	.cfg_ddr_training_delay_ps.reserve_training_parameter = {
-		(0 << 7) | 0x0, (0 << 7) | 0,
-		(0 << 7) | 0x0, (0 << 7) | 0,
-		(0 << 7) | 0x0, (0 << 7) | 0x0,
-		(0 << 7) | 0x0, (0 << 7) | 0,
+		(0 << 7) | 0x0, (0 << 7) | 2,
+		(0 << 7) | 0x0, (0 << 7) | 3,
+		(0 << 7) | 0x0, (0 << 7) | 0x3,
+		(0 << 7) | 0x2, (0 << 7) | 4,
 		(1 << 7) | 0x7, (1 << 7) | 10,
 		(1 << 7) | 10, (1 << 7) | 11,
 		(1 << 7) | 9, (1 << 7) | 14,
