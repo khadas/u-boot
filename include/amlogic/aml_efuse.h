@@ -73,4 +73,6 @@ int IS_FEAT_BOOT_ENCRYPT(void);
 int efuse_read_cali(char *buf, size_t count, uint32_t offset);
 int efuse_get_cali_cvbs(void);
 int efuse_get_cali_item(char *str);
+int efuse_check_pattern_item(char *str);
+
 #endif /* __BL2_EFUSE_H__ */

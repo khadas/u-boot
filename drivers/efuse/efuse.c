@@ -82,6 +82,19 @@ int efuse_read_usr(char *buf, size_t count, loff_t *ppos)
 	return ret;
 }
 
+int efuse_check_pattern_item(char *str)
+{
+#ifdef EFUSE_HAL_API_CHECKPATTERN_ITEM
+	s64 ret;
+
+	//extern int64_t meson_trustzone_efuse_lockitem(const char *str);
+	ret = meson_trustzone_efuse_lockitem(str);
+	return ret;
+#else
+	return -1;
+#endif
+}
+
 int efuse_write_usr(char *buf, size_t count, loff_t *ppos)
 {
 	char data[EFUSE_BYTES];
@@ -117,6 +130,7 @@ uint32_t efuse_get_max(void)
 	arg.cmd = EFUSE_HAL_API_USER_MAX;
 
 	ret = meson_trustzone_efuse_get_max(&arg);
+
 	if (ret == 0) {
 		printf("ERROR: can not get efuse user max bytes!!!\n");
 		return -1;
