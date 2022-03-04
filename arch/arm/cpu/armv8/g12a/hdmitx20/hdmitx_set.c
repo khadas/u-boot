@@ -345,6 +345,7 @@ static struct hdmi_support_mode gxbb_modes[] = {
 	{HDMIV_2048x1080p24hz, "2048x1080p24hz", 0},
 	{HDMIV_3440x1440p60hz, "3440x1440p60hz", 0},
 	{HDMIV_2400x1200p90hz, "2400x1200p90hz", 0},
+	{HDMIV_3840x1080p60hz, "3840x1080p60hz", 0},
 	{HDMIV_1280x1024p60hz, "1280x1024p60hz", 0},
 	{HDMIV_1680x1050p60hz, "1680x1050p60hz", 0},
 	{HDMIV_1024x600p60hz, "1024x600p60hz", 0},
