@@ -1028,16 +1028,16 @@ static void lcd_mipi_phy_set_g12a(struct lcd_config_s *pconf, int status)
 		phy_width = MIPI_PHY_LANE_WIDTH;
 		switch (pconf->lcd_control.mipi_config->lane_num) {
 		case 1:
-			lane_cnt = DSI_LANE_COUNT_1;
+			lane_cnt = DSI_LANE_COUNT_1_G12A;
 			break;
 		case 2:
-			lane_cnt = DSI_LANE_COUNT_2;
+			lane_cnt = DSI_LANE_COUNT_2_G12A;
 			break;
 		case 3:
-			lane_cnt = DSI_LANE_COUNT_3;
+			lane_cnt = DSI_LANE_COUNT_3_G12A;
 			break;
 		case 4:
-			lane_cnt = DSI_LANE_COUNT_4;
+			lane_cnt = DSI_LANE_COUNT_4_G12A;
 			break;
 		default:
 			lane_cnt = 0;

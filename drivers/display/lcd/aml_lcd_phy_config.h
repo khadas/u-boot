@@ -71,6 +71,18 @@ struct lcd_phy_ctrl_s {
 #define DSI_LANE_COUNT_4        (DSI_LANE_CLK | DSI_LANE_0 |\
 					DSI_LANE_1 | DSI_LANE_2 | DSI_LANE_3)
 
+#define DSI_LANE_0_G12A         0x10 //(1 << 4)
+#define DSI_LANE_CLK_G12A       0x08 //(1 << 3)
+#define DSI_LANE_1_G12A         0x04 //(1 << 2)
+#define DSI_LANE_2_G12A         0x02 //(1 << 1)
+#define DSI_LANE_3_G12A         0x01 //(1 << 0)
+#define DSI_LANE_COUNT_1_G12A   (DSI_LANE_CLK_G12A | DSI_LANE_0_G12A)
+#define DSI_LANE_COUNT_2_G12A   (DSI_LANE_CLK_G12A | DSI_LANE_0_G12A | DSI_LANE_1_G12A)
+#define DSI_LANE_COUNT_3_G12A   (DSI_LANE_CLK_G12A | DSI_LANE_0_G12A |\
+					DSI_LANE_1_G12A | DSI_LANE_2_G12A)
+#define DSI_LANE_COUNT_4_G12A   (DSI_LANE_CLK_G12A | DSI_LANE_0_G12A |\
+					DSI_LANE_1_G12A | DSI_LANE_2_G12A | DSI_LANE_3_G12A)
+
 static unsigned int lvds_vx1_p2p_phy_preem_tl1[] = {
 	0x06020602,
 	0x26022602,
