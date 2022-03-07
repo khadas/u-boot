@@ -84,6 +84,7 @@
         "loadaddr_kernel=0x03080000\0"\
 	"otg_device=1\0" \
         "panel_type=lvds_1\0" \
+        "panel_name=null\0" \
         "lcd_ctrl=0x00000000\0" \
         "lcd_debug=0x00000000\0" \
         "outputmode=1080p60hz\0" \
@@ -154,7 +155,7 @@
 		"get_bootloaderversion;" \
 		"setenv bootargs ${initargs} otg_device=${otg_device} "\
 			"logo=${display_layer},loaded,${fb_addr} "\
-			"powermode=${powermode} vout=${outputmode},${vout_init} "\
+			"powermode=${powermode} vout=${outputmode},${vout_init} panel_name=${panel_name} "\
 			"panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
 			"hdmimode=${hdmimode} outputmode=${outputmode} "\
 			"osd_reverse=${osd_reverse} video_reverse=${video_reverse} "\

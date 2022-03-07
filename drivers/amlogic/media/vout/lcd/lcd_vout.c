@@ -731,12 +731,14 @@ static void lcd_update_ctrl_bootargs(struct aml_lcd_drv_s *pdrv)
 	default:
 		break;
 	}
+	pdrv->boot_ctrl.custom_pinmux = pdrv->config.custom_pinmux ? 1 : 0;
 	pdrv->boot_ctrl.init_level = env_get_ulong("lcd_init_level", 10, 0);
 
 	/*
 	 *bit[31:20]: reserved
 	 *bit[19:18]: lcd_init_level
-	 *bit[17:16]: reserved
+	 *bit[17]: reserved
+	 *bit[16]: custom pinmux flag
 	 *bit[15:8]: advanced flag(p2p_type when lcd_type=p2p)
 	 *bit[7:4]: lcd bits
 	 *bit[3:0]: lcd_type
@@ -744,8 +746,17 @@ static void lcd_update_ctrl_bootargs(struct aml_lcd_drv_s *pdrv)
 	val |= (pdrv->boot_ctrl.lcd_type & 0xf);
 	val |= (pdrv->boot_ctrl.lcd_bits & 0xf) << 4;
 	val |= (pdrv->boot_ctrl.advanced_flag & 0xff) << 8;
+	val |= (pdrv->boot_ctrl.custom_pinmux & 0x1) << 16;
 	val |= (pdrv->boot_ctrl.init_level & 0x3) << 18;
 	sprintf(ctrl_str, "0x%08x", val);
+
+	if (strlen(pdrv->config.basic.model_name) > 0) {
+		if (pdrv->index == 0)
+			sprintf(env_str, "panel_name");
+		else
+			sprintf(env_str, "panel%d_name", pdrv->index);
+		env_set(env_str, pdrv->config.basic.model_name);
+	}
 
 	if (pdrv->index == 0)
 		sprintf(env_str, "lcd_ctrl");
