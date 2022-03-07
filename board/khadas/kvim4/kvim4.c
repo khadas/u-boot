@@ -96,6 +96,35 @@ int active_clk(void)
 	return 0;
 }
 
+#ifdef CONFIG_AML_LCD
+void board_lcd_detect(void)
+{
+	u8 value = 0;
+	int gpio = 138;
+	int ret = 0;
+
+	ret = gpio_request(gpio, "aml_lcd_gpio");
+	if (ret && ret != -EBUSY) {
+		printf("gpio: requesting pin %u failed\n", gpio);
+		return;
+	}
+	ret = gpio_direction_input(gpio);
+	if (ret && ret != -EBUSY) {
+		printf("gpio: requesting pin %u failed\n", gpio);
+		return;
+	}
+	udelay(10);
+	value = gpio_get_value(gpio);
+	if (value < 0) {
+		printf("%s: failed to read LCD_RESET status! error: %d\n", __func__, value);
+		return;
+	}
+	printf("LCD_RESET PIN: %d\n", value);
+	env_set_ulong("lcd_exist", value);
+	gpio_free(gpio);
+}
+#endif /* CONFIG_AML_LCD */
+
 unsigned int get_romcode_boot_id(void)
 {
 	const cpu_id_t cpuid = get_cpu_id();
@@ -299,6 +328,7 @@ int board_late_init(void)
 	vout_probe();
 #endif
 #ifdef CONFIG_AML_LCD
+	board_lcd_detect();
 	lcd_probe();
 #endif
 
