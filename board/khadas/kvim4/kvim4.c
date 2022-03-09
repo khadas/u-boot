@@ -235,6 +235,11 @@ int board_init(void)
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 	/*set vcc5V*/
 	run_command("gpio set GPIOH_4", 0);
+
+	// FAN testing
+	run_command("i2c dev 6", 0);
+	run_command("i2c mw 0x18 0x96 1", 0);
+
 	return 0;
 }
 
