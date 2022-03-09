@@ -185,7 +185,7 @@ const tefusecaliitem efuselockitem_cfg[] = {
 	{.name = "aud_id", .item = EFUSE_LOCK_SUBITEM_AUDIO_V_ID},
 };
 
-#define EFUSELOCKITEM_CNT   ARRAY_SIZE(efuselockitem_cfg) / sizeof(efuselockitem_cfg[0])
+#define EFUSELOCKITEM_CNT   ARRAY_SIZE(efuselockitem_cfg)
 /*
  *return: 0: unlock, not write data
  *        1: lock, wrote data
