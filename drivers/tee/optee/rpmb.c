@@ -106,6 +106,9 @@ static u32 rpmb_get_dev_info(u16 dev_id, struct rpmb_dev_info *info)
 		return TEE_ERROR_GENERIC;
 
 	memcpy(info->cid, mmc->cid, sizeof(info->cid));
+	for (int i = 0; i < sizeof(info->cid) / sizeof(uint32_t); i++)
+		((uint32_t *)info->cid)[i] = be32_to_cpu(((uint32_t *)info->cid)[i]);
+
 	info->rel_wr_sec_c = mmc->ext_csd[222];
 	info->rpmb_size_mult = mmc->ext_csd[168];
 	info->ret_code = RPMB_CMD_GET_DEV_INFO_RET_OK;
@@ -121,6 +124,8 @@ static u32 rpmb_process_request(struct optee_private *priv, void *req,
 
 	if (req_size < sizeof(*sreq))
 		return TEE_ERROR_BAD_PARAMETERS;
+
+	sreq->dev_id = 1;
 
 	switch (sreq->cmd) {
 	case RPMB_CMD_DATA_REQ:

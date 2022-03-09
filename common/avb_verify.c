@@ -746,6 +746,64 @@ static AvbIOResult write_rollback_index(AvbOps *ops,
 }
 
 /**
+ * device_lock() - device lock
+ *
+ * @ops: contains AVB ops handlers
+ *
+ * @return:
+ *       AVB_IO_RESULT_OK: lock success
+ *       AVB_IO_RESULT_ERROR_IO: an error occurred
+ */
+static AvbIOResult device_lock(AvbOps *ops)
+{
+#ifndef CONFIG_OPTEE_TA_AVB
+	printf("%s not supported yet\n", __func__);
+	return AVB_IO_RESULT_OK;
+#else
+	AvbIOResult rc;
+	struct tee_param param;
+
+	memset(&param, 0, sizeof(param));
+	param.attr = TEE_PARAM_ATTR_TYPE_VALUE_INPUT;
+	param.u.value.a = 1;
+
+	rc = invoke_func(ops->user_data, TA_AVB_CMD_WRITE_LOCK_STATE, 1, &param);
+	if (rc)
+		return rc;
+	return AVB_IO_RESULT_OK;
+#endif
+}
+
+/**
+ * device_unlock() - device unlock
+ *
+ * @ops: contains AVB ops handlers
+ *
+ * @return:
+ *       AVB_IO_RESULT_OK: unlock success
+ *       AVB_IO_RESULT_ERROR_IO: an error occurred
+ */
+static AvbIOResult device_unlock(AvbOps *ops)
+{
+#ifndef CONFIG_OPTEE_TA_AVB
+	printf("%s not supported yet\n", __func__);
+	return AVB_IO_RESULT_OK;
+#else
+	AvbIOResult rc;
+	struct tee_param param;
+
+	memset(&param, 0, sizeof(param));
+	param.attr = TEE_PARAM_ATTR_TYPE_VALUE_INPUT;
+	param.u.value.a = 0;
+
+	rc = invoke_func(ops->user_data, TA_AVB_CMD_WRITE_LOCK_STATE, 1, &param);
+	if (rc)
+		return rc;
+	return AVB_IO_RESULT_OK;
+#endif
+}
+
+/**
  * read_is_device_unlocked() - gets whether the device is unlocked
  *
  * @ops: contains AVB ops handlers
@@ -867,6 +925,8 @@ AvbOps *avb_ops_alloc(int boot_device)
 	ops_data->ops.validate_vbmeta_public_key = validate_vbmeta_public_key;
 	ops_data->ops.read_rollback_index = read_rollback_index;
 	ops_data->ops.write_rollback_index = write_rollback_index;
+	ops_data->ops.device_lock = device_lock;
+	ops_data->ops.device_unlock = device_unlock;
 	ops_data->ops.read_is_device_unlocked = read_is_device_unlocked;
 	ops_data->ops.get_unique_guid_for_partition =
 		get_unique_guid_for_partition;

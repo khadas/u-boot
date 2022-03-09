@@ -22,7 +22,7 @@
 #include <asm/arch/bl31_apis.h>
 #include <libavb.h>
 #ifdef CONFIG_AML_ANTIROLLBACK
-#include <anti-rollback.h>
+#include <amlogic/anti-rollback.h>
 #endif
 #include <asm/arch/secure_apb.h>
 #include <amlogic/aml_efuse.h>

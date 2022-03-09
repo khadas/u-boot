@@ -38,6 +38,10 @@
 #include <ext_common.h>
 #endif
 
+#ifdef CONFIG_AML_ANTIROLLBACK
+#include <amlogic/anti-rollback.h>
+#endif
+
 #ifndef CONFIG_SYS_BOOTM_LEN
 /* use 8MByte as default max gunzip size */
 #define CONFIG_SYS_BOOTM_LEN	0x800000
@@ -1074,13 +1078,16 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 	const void *buf;
 	const char	*fit_uname_config = NULL;
 	const char	*fit_uname_kernel = NULL;
+#ifdef CONFIG_AML_ANTIROLLBACK
+	boot_img_hdr_t **tmp_img_hdr = NULL;
+#endif
 
 	char *avb_s;
 	avb_s = env_get("avb2");
 	pr_info("avb2: %s\n", avb_s);
 	if (strcmp(avb_s, "1") != 0) {
 #ifdef CONFIG_AML_ANTIROLLBACK
-		boot_img_hdr_t **tmp_img_hdr = (boot_img_hdr_t **)&buf;
+		tmp_img_hdr = (boot_img_hdr_t **)&buf;
 #endif
 	}
 
@@ -1171,7 +1178,7 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		if (strcmp(avb_s, "1") != 0) {
 #ifdef CONFIG_AML_ANTIROLLBACK
-			if (!check_antirollback((*tmp_img_hdr)->kernel_version)) {
+			if (!check_antirollback((*tmp_img_hdr)->os_version)) {
 				*os_len = 0;
 				return NULL;
 			}

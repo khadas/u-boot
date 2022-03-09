@@ -14,6 +14,10 @@
 #include <amlogic/storage.h>
 #include <amlogic/aml_efuse.h>
 
+#ifdef CONFIG_AML_ANTIROLLBACK
+#include <amlogic/anti-rollback.h>
+#endif
+
 /**
  * image_size - final fastboot image size
  */

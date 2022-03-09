@@ -16,7 +16,7 @@
 #include <amlogic/storage.h>
 #include <asm/arch/bl31_apis.h>
 #ifdef CONFIG_AML_ANTIROLLBACK
-#include <anti-rollback.h>
+#include <amlogic/anti-rollback.h>
 #endif
 #include <version.h>
 
@@ -340,7 +340,7 @@ static AvbIOResult read_is_device_unlocked(AvbOps* ops, bool* out_is_unlocked)
 			lock_s[4] = '0';
 		else
 			lock_s[4] = '1';
-		env_get("lock", lock_s);
+		lock_s = env_get("lock");
 		result = AVB_IO_RESULT_OK;
 		goto out;
 	} else {
