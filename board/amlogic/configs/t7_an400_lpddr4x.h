@@ -149,7 +149,9 @@
                 "logo=${display_layer},loaded,${fb_addr} powermode=${powermode}  vout=${outputmode},enable "\
                 "panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
                 "hdmimode=${hdmimode} outputmode=${outputmode} "\
-				"hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} " \
+			"hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} "\
+			"hdmitx=${cecconfig},${colorattribute} "\
+			"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
                 "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
@@ -471,7 +473,9 @@
                 "panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
                 "panel1_type=${panel1_type} lcd1_ctrl=${lcd1_ctrl} panel2_type=${panel2_type} lcd2_ctrl=${lcd2_ctrl} "\
                 "hdmimode=${hdmimode} outputmode=${outputmode} "\
-				"hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} " \
+			"hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} " \
+			"hdmitx=${cecconfig},${colorattribute} "\
+			"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} "\
                 "hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
                 "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} "\
@@ -641,7 +645,7 @@
             "else if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi; fi;" \
             "\0"\
         "init_display="\
-			"hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
+			"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
             "osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
             "setenv outputmode2 ${hdmimode};"\
             "osd dual_logo;"\
