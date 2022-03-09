@@ -95,7 +95,7 @@
         "dolby_vision_on=0\0" \
         "dv_fw_dir_odm_ext=/odm_ext/firmware/dovi_fw.bin\0" \
         "dv_fw_dir_vendor=/vendor/firmware/dovi_fw.bin\0" \
-        "dv_fw_dir=/reserved/firmware/dovi_fw.bin\0" \
+        "dv_fw_dir=/oem/firmware/dovi_fw.bin\0" \
         "frac_rate_policy=1\0" \
         "hdr_policy=0\0" \
         "usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
