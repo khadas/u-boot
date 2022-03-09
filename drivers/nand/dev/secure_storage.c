@@ -1,0 +1,160 @@
+/*
+* Copyright (C) 2017 Amlogic, Inc. All rights reserved.
+* *
+This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+* *
+This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+* *
+You should have received a copy of the GNU General Public License along
+* with this program; if not, write to the Free Software Foundation, Inc.,
+* 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+* *
+Description:
+*/
+
+
+#include "../include/phynand.h"
+
+
+//#define SECURE_SIZE  (CONFIG_SECURE_SIZE - (sizeof(uint32_t)))
+struct amlnand_chip *aml_chip_secure = NULL;
+
+ int32_t nand_secure_read(struct amlnand_chip * aml_chip, char *buf, unsigned int len)
+{
+	//struct amlnand_chip * aml_chip = provider->priv;
+	//secure_t *secure_ptr = NULL;
+	unsigned char *secure_ptr = NULL;
+	int error = 0;
+	if (len > CONFIG_SECURE_SIZE)
+	{
+		aml_nand_msg("key data len too much,%s\n",__func__);
+		return -EFAULT;
+	}
+	secure_ptr = kzalloc(CONFIG_SECURE_SIZE, GFP_KERNEL);
+	if (secure_ptr == NULL)
+		return -ENOMEM;
+	memset(secure_ptr,0,CONFIG_SECURE_SIZE);
+
+	error = amlnand_read_info_by_name(aml_chip, (unsigned char *)(&aml_chip->nand_secure),secure_ptr,(unsigned char *)SECURE_INFO_HEAD_MAGIC, CONFIG_SECURE_SIZE);
+	if (error)
+	{
+		aml_nand_msg("read key error,%s\n",__func__);
+		error = -EFAULT;
+		goto exit;
+	}
+	//memcpy(buf, secure_ptr->data, len);
+	memcpy(buf, secure_ptr, len);
+exit:
+	kfree(secure_ptr);
+	return error;
+}
+
+int32_t nand_secure_write(struct amlnand_chip * aml_chip, char *buf, unsigned int len)
+{
+	//secure_t *secure_ptr = NULL;
+	unsigned char *secure_ptr = NULL;
+	int error = 0;
+	struct nand_flash *flash = &aml_chip->flash;
+
+	if (len > CONFIG_SECURE_SIZE)
+	{
+		aml_nand_msg("key data len too much,%s\n",__func__);
+		return -EFAULT;
+	}
+	secure_ptr = kzalloc(CONFIG_SECURE_SIZE + flash->pagesize, GFP_KERNEL);
+	if (secure_ptr == NULL)
+		return -ENOMEM;
+	memset(secure_ptr,0,CONFIG_SECURE_SIZE);
+	//memcpy(secure_ptr->data + 0, buf, len);
+	memcpy(secure_ptr, buf, len);
+
+	error = amlnand_save_info_by_name(aml_chip, (unsigned char *)(&aml_chip->nand_secure),secure_ptr,(unsigned char *)SECURE_INFO_HEAD_MAGIC, CONFIG_SECURE_SIZE);
+	if (error)
+	{
+		printk("save key error,%s\n",__func__);
+		error = -EFAULT;
+		goto exit;
+	}
+exit:
+	kfree(secure_ptr);
+	return error;
+}
+
+
+int aml_secure_init(struct amlnand_chip *aml_chip)
+{
+	int ret = 0;
+	unsigned char *secure_ptr = NULL;
+
+	secure_ptr = aml_nand_malloc(CONFIG_SECURE_SIZE);
+	if (secure_ptr == NULL) {
+		aml_nand_msg("nand malloc for secure_ptr failed");
+		ret = -1;
+		goto exit_error0;
+	}
+	memset(secure_ptr,0x0,CONFIG_SECURE_SIZE);
+	aml_nand_msg("nand secure: nand_secure_probe. ");
+
+	ret = amlnand_info_init(aml_chip, (unsigned char *)(&aml_chip->nand_secure),secure_ptr,(unsigned char *)SECURE_INFO_HEAD_MAGIC, CONFIG_SECURE_SIZE);
+	if (ret < 0) {
+		aml_nand_msg("invalid nand secure_ptr\n");
+		ret = -1;
+		goto exit_error0;
+	}
+
+#if 0
+	aml_nand_msg("nand secure debug :: save secure again !!!!");
+	ret = amlnand_save_info_by_name( aml_chip,&(aml_chip->nand_secure),secure_ptr, SECURE_INFO_HEAD_MAGIC,CONFIG_SECURE_SIZE);
+	if (ret < 0) {
+		aml_nand_msg("nand save default secure_ptr failed aigain!!");
+	}
+
+#endif
+
+	aml_chip_secure = aml_chip;
+
+exit_error0:
+	if (secure_ptr) {
+		aml_nand_free(secure_ptr);
+		secure_ptr =NULL;
+	}
+	return ret;
+}
+
+
+#ifdef CONFIG_SECURE_NAND
+int secure_storage_nand_read(char *buf,unsigned int len)
+{
+	 struct amlnand_chip *aml_chip = aml_chip_secure;
+	int ret = 0;
+
+	ret = nand_secure_read(aml_chip, buf, len);
+	if (ret < 0) {
+		aml_nand_msg("secure storage nand read failed\n");
+	}
+
+	return ret;
+}
+
+int secure_storage_nand_write(char *buf, unsigned int len)
+{
+	 struct amlnand_chip *aml_chip = aml_chip_secure;
+	int ret = 0;
+
+	ret = nand_secure_write(aml_chip, buf, len);
+	if (ret < 0) {
+		aml_nand_msg("secure storage nand write failed\n");
+	}
+
+	return ret;
+}
+#endif
+
+
+
