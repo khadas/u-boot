@@ -10,11 +10,13 @@
 #usage:
 #
 #./check_compile.sh            -check amlogic board configs
+#./check_compile.sh khadas     -check khadas board configs
 #./check_compile.sh cus        -check customer board configs
-#./check_compile.sh all        -check both amlogic and customer boards
+#./check_compile.sh all        -check amlogic/khadas/customer boards
 
 
 folder_board="board/amlogic"
+folder_khadas="board/khadas"
 customer_folder="customer/board"
 
 echo "************** Amlogic Compile Check Tool **************"
@@ -52,6 +54,24 @@ then
       TOTAL_CFG=$TOTAL_CFG+1
     fi
   done
+fi
+
+# if filter==all || filter==khadas, then include khadas configs
+# get all configs name from board folder
+if [ "$1" == "khadas" ] || [ "$1" == "all" ]
+then
+  filter=""
+  if [ -e ${khadas_folder} ];then
+    for file in ${khadas_folder}/*; do
+      temp_file=`basename $file`
+      if [ -d ${khadas_folder}/${temp_file} ] && [ "$temp_file" != "defconfigs" ] && [ "$temp_file" != "configs" ];then
+        #echo "  \c"
+        #echo $temp_file
+        ARRAY_CFG_C[$TOTAL_CFG_C]=$temp_file
+        TOTAL_CFG_C=$TOTAL_CFG_C+1
+      fi
+    done
+  fi
 fi
 
 # if filter==all || filter==cus, then include customer configs

@@ -11,17 +11,17 @@ function select_uboot() {
 		temp_file=${temp_file%_*}
 		if [ "$cfg_name" == "$temp_file" ]; then
 			if [ "${BL33_DEFCFG1}" == "$(dirname $file)" ]; then
-				bl33_path=${UBOOT_FOLDER}/${UBOOT_VERSION1}
+				bl33_path=${UBOOT_VERSION1}
 				export CROSS_COMPILE=${BL33_TOOLCHAIN1}
 			else
-				bl33_path=${UBOOT_FOLDER}/${UBOOT_VERSION2}
+				bl33_path=${UBOOT_VERSION2}
 				export CROSS_COMPILE=${BL33_TOOLCHAIN2}
 			fi
 			echo "select bl33: ${bl33_path}"
-			BL33_BUILD_FOLDER=${bl33_path}/build/
+			BL33_BUILD_FOLDER=build/
 			SOURCE_FILE=("${BL33_BUILD_FOLDER}.config")
 			CONFIG_FILE=("${BL33_BUILD_FOLDER}include/autoconf.mk")
-			UBOOT_SRC_FOLDER=${bl33_path}
+			UBOOT_SRC_FOLDER=`pwd`
 			break
 		fi
 	done
@@ -30,7 +30,6 @@ function select_uboot() {
 
 function pre_build_uboot() {
 	select_uboot $1
-	cd ${UBOOT_SRC_FOLDER}
 	echo -n "Compile config: "
 	echo "$1"
 	make distclean # &> /dev/null
