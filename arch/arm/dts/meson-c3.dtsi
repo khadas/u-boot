@@ -37,19 +37,36 @@
 	};
 
 	pinctrl_periphs: pinctrl@fe004000 {
-		compatible = "amlogic,meson-a5-periphs-pinctrl";
+		compatible = "amlogic,meson-c3-periphs-pinctrl";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
 
 		gpio: bank@fe004000 {
-			reg = <0x0 0xfe004000 0x0 0x0064>,
-			      <0x0 0xfe0040c0 0x0 0x0220>;
+			reg = <0x0 0xfe004000 0x0 0x0048>,
+			      <0x0 0xfe004100 0x0 0x01de>;
 			reg-names = "mux",
 				    "gpio";
 			gpio-controller;
 			#gpio-cells = <2>;
 			gpio-ranges = <&pinctrl_periphs 0 0 99>;
+		};
+	};
+
+	pinctrl_analog: pinctrl@fe0043a0 {
+		compatible = "amlogic,meson-c3-analog-pinctrl";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		gpio_analog: bank@fe0043a0 {
+			reg = <0x0 0xfe00404c 0x0 0x008>,
+			      <0x0 0xfe00438c 0x0 0x030>;
+			reg-names = "mux",
+				    "gpio";
+			gpio-controller;
+			#gpio-cells = <2>;
+			gpio-ranges = <&pinctrl_periphs 0 0 14>;
 		};
 	};
 
@@ -59,8 +76,8 @@
 
 		compatible = "i2c-gpio";
 		status = "okay";
-		gpios = <&gpio GPIOH_0 GPIO_ACTIVE_HIGH>, /* SDA */
-			<&gpio GPIOH_1 GPIO_ACTIVE_HIGH>; /* CLK */
+		//gpios = <&gpio GPIOH_0 GPIO_ACTIVE_HIGH>, /* SDA */
+		//	<&gpio GPIOH_1 GPIO_ACTIVE_HIGH>; /* CLK */
 
 		i2c-gpio,delay-us = <5>;
 		is_odpin = <1>;
