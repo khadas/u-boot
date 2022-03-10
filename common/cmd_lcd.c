@@ -255,6 +255,26 @@ static int do_lcd_info(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	return 0;
 }
 
+static int do_lcd_print(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	struct aml_lcd_drv_s *lcd_drv;
+	unsigned int val = 0;
+
+	if (argc == 1)
+		return -1;
+	val = (unsigned int)simple_strtoul(argv[1], NULL, 10);
+
+	lcd_drv = aml_lcd_get_driver();
+	if (!lcd_drv) {
+		printf("no lcd driver\n");
+		return 0;
+	}
+	if (lcd_drv->debug_print_set)
+		lcd_drv->debug_print_set(val);
+
+	return 0;
+}
+
 #ifdef CONFIG_AML_LCD_TCON
 static int do_lcd_tcon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -641,6 +661,7 @@ static cmd_tbl_t cmd_lcd_sub[] = {
 	U_BOOT_CMD_MKENT(bl,   4, 0, do_lcd_bl,   "", ""),
 	U_BOOT_CMD_MKENT(clk , 2, 0, do_lcd_clk, "", ""),
 	U_BOOT_CMD_MKENT(info, 2, 0, do_lcd_info, "", ""),
+	U_BOOT_CMD_MKENT(print, 3, 0, do_lcd_print, "", ""),
 #ifdef CONFIG_AML_LCD_TCON
 	U_BOOT_CMD_MKENT(tcon, 3, 0, do_lcd_tcon, "", ""),
 #endif
@@ -682,6 +703,7 @@ U_BOOT_CMD(
 	"lcd bl           - lcd backlight operation\n"
 	"lcd clk          - show lcd pll & clk parameters\n"
 	"lcd info         - show lcd parameters\n"
+	"lcd print        - enable lcd debug print\n"
 	"lcd tcon         - show lcd tcon debug\n"
 	"lcd vbyone       - show lcd vbyone debug\n"
 	"lcd reg          - dump lcd registers\n"

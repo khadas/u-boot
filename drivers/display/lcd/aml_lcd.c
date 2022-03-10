@@ -1084,6 +1084,16 @@ static void aml_lcd_key_dump(unsigned int flag)
 	aml_lcd_unifykey_dump(key_flag);
 }
 
+static void aml_lcd_debug_print_set(unsigned int flag)
+{
+	char str[5];
+
+	lcd_debug_print_flag = flag;
+	sprintf(str, "%d", flag);
+	setenv("lcd_debug_print", str);
+	LCDPR("set debug_print_flag: %d\n", flag);
+}
+
 static struct aml_lcd_drv_s aml_lcd_driver = {
 	.lcd_status = 0,
 	.lcd_config = &lcd_config_dft,
@@ -1123,6 +1133,7 @@ static struct aml_lcd_drv_s aml_lcd_driver = {
 	.unifykey_test_flag = 0, /* default disable unifykey test */
 	.unifykey_test = aml_lcd_key_test,
 	.unifykey_dump = aml_lcd_key_dump,
+	.debug_print_set = aml_lcd_debug_print_set,
 
 	/* for factory test */
 	.factory_lcd_power_on_step = NULL,
