@@ -245,117 +245,138 @@ int check_string_data_have_header_valid(unsigned int* tmp_crc32, char *data_str,
     return -1;
 }
 
-int read_lcd_param(unsigned char data_buf[])
+int read_lcd_param(int index, unsigned char data_buf[])
 {
     int rd_size = 0;
 
-    if (data_buf == NULL) {
+    if (!data_buf)
         return -1;
-    }
 
-    rd_size = ReadIniData(CS_LCD_ITEM_NAME, data_buf);
+    if (index == 1)
+        rd_size = ReadIniData(CS_LCD1_ITEM_NAME, data_buf);
+    else if (index == 2)
+        rd_size = ReadIniData(CS_LCD2_ITEM_NAME, data_buf);
+    else
+        rd_size = ReadIniData(CS_LCD_ITEM_NAME, data_buf);
 
     return rd_size;
 }
 
-int save_lcd_param(int wr_size, unsigned char data_buf[])
+int save_lcd_param(int index, int wr_size, unsigned char data_buf[])
 {
     int tmp_ret = 0;
 
-    if (data_buf == NULL) {
+    if (!data_buf)
         return -1;
-    }
 
-    tmp_ret = WriteIniData(CS_LCD_ITEM_NAME, wr_size, data_buf);
-    if (tmp_ret != wr_size) {
+    if (index == 1)
+        tmp_ret = WriteIniData(CS_LCD1_ITEM_NAME, wr_size, data_buf);
+    else if (index == 2)
+        tmp_ret = WriteIniData(CS_LCD2_ITEM_NAME, wr_size, data_buf);
+    else
+        tmp_ret = WriteIniData(CS_LCD_ITEM_NAME, wr_size, data_buf);
+    if (tmp_ret != wr_size)
         return -1;
-    }
 
     return tmp_ret;
 }
 
-int read_lcd_extern_param(unsigned char data_buf[])
+int read_lcd_extern_param(int index, unsigned char data_buf[])
 {
     int rd_size = 0;
 
-    if (data_buf == NULL) {
+    if (!data_buf)
         return -1;
-    }
 
-    rd_size = ReadIniData(CS_LCD_EXT_ITEM_NAME, data_buf);
+    if (index == 1)
+        rd_size = ReadIniData(CS_LCD1_EXT_ITEM_NAME, data_buf);
+    else if (index == 2)
+        rd_size = ReadIniData(CS_LCD2_EXT_ITEM_NAME, data_buf);
+    else
+        rd_size = ReadIniData(CS_LCD_EXT_ITEM_NAME, data_buf);
 
     return rd_size;
 }
 
-int save_lcd_extern_param(int wr_size, unsigned char data_buf[])
+int save_lcd_extern_param(int index, int wr_size, unsigned char data_buf[])
 {
     int tmp_ret = 0;
 
-    if (data_buf == NULL) {
+    if (!data_buf)
         return -1;
-    }
 
-    tmp_ret = WriteIniData(CS_LCD_EXT_ITEM_NAME, wr_size, data_buf);
-    if (tmp_ret != wr_size) {
+    if (index == 1)
+        tmp_ret = WriteIniData(CS_LCD1_EXT_ITEM_NAME, wr_size, data_buf);
+    else if (index == 2)
+        tmp_ret = WriteIniData(CS_LCD2_EXT_ITEM_NAME, wr_size, data_buf);
+    else
+        tmp_ret = WriteIniData(CS_LCD_EXT_ITEM_NAME, wr_size, data_buf);
+    if (tmp_ret != wr_size)
         return -1;
-    }
 
     return tmp_ret;
 }
 
-int read_backlight_param(unsigned char data_buf[])
+int read_backlight_param(int index, unsigned char data_buf[])
 {
     int rd_size = 0;
 
-    if (data_buf == NULL) {
+    if (!data_buf)
         return -1;
-    }
 
-    rd_size = ReadIniData(CS_BACKLIGHT_ITEM_NAME, data_buf);
+    if (index == 1)
+        rd_size = ReadIniData(CS_BACKLIGHT1_ITEM_NAME, data_buf);
+    else if (index == 2)
+        rd_size = ReadIniData(CS_BACKLIGHT2_ITEM_NAME, data_buf);
+    else
+        rd_size = ReadIniData(CS_BACKLIGHT_ITEM_NAME, data_buf);
 
     return rd_size;
 }
 
-int save_backlight_param(int wr_size, unsigned char data_buf[])
+int save_backlight_param(int index, int wr_size, unsigned char data_buf[])
 {
     int tmp_ret = 0;
 
-    if (data_buf == NULL) {
+    if (!data_buf)
         return -1;
-    }
 
-    tmp_ret = WriteIniData(CS_BACKLIGHT_ITEM_NAME, wr_size, data_buf);
-    if (tmp_ret != wr_size) {
+    if (index == 1)
+        tmp_ret = WriteIniData(CS_BACKLIGHT1_ITEM_NAME, wr_size, data_buf);
+    else if (index == 2)
+        tmp_ret = WriteIniData(CS_BACKLIGHT2_ITEM_NAME, wr_size, data_buf);
+    else
+        tmp_ret = WriteIniData(CS_BACKLIGHT_ITEM_NAME, wr_size, data_buf);
+    if (tmp_ret != wr_size)
         return -1;
-    }
 
     return tmp_ret;
 }
 
 int read_ldim_dev_param(unsigned char data_buf[])
 {
-	int rd_size = 0;
+    int rd_size = 0;
 
-	if (!data_buf)
-		return -1;
+    if (!data_buf)
+        return -1;
 
-	rd_size = ReadIniData(CS_LDIM_DEV_ITEM_NAME, data_buf);
+    rd_size = ReadIniData(CS_LDIM_DEV_ITEM_NAME, data_buf);
 
-	return rd_size;
+    return rd_size;
 }
 
 int save_ldim_dev_param(int wr_size, unsigned char data_buf[])
 {
-	int tmp_ret = 0;
+    int tmp_ret = 0;
 
-	if (!data_buf)
-		return -1;
+    if (!data_buf)
+        return -1;
 
-	tmp_ret = WriteIniData(CS_LDIM_DEV_ITEM_NAME, wr_size, data_buf);
-	if (tmp_ret != wr_size)
-		return -1;
+    tmp_ret = WriteIniData(CS_LDIM_DEV_ITEM_NAME, wr_size, data_buf);
+    if (tmp_ret != wr_size)
+        return -1;
 
-	return tmp_ret;
+    return tmp_ret;
 }
 
 int ReadTconSpiParam(unsigned char data_buf[]) {
@@ -385,30 +406,50 @@ int SaveTconSpiParam(int wr_size, unsigned char data_buf[]) {
     return tmp_ret;
 }
 
-int ReadLcdOpticalParam(unsigned char data_buf[])
+int ReadLcdOpticalParam(int index, unsigned char data_buf[])
 {
-	int rd_size = 0;
+    int rd_size = 0;
 
-	if (!data_buf)
-		return -1;
+    if (!data_buf)
+        return -1;
 
-	rd_size = ReadIniData(CS_LCD_OPTICAL_ITEM_NAME, data_buf);
+    switch (index) {
+    case 1:
+        rd_size = ReadIniData(CS_LCD1_OPTICAL_ITEM_NAME, data_buf);
+        break;
+    case 2:
+        rd_size = ReadIniData(CS_LCD2_OPTICAL_ITEM_NAME, data_buf);
+        break;
+    default:
+        rd_size = ReadIniData(CS_LCD_OPTICAL_ITEM_NAME, data_buf);
+        break;
+    }
 
-	return rd_size;
+    return rd_size;
 }
 
-int SaveLcdOpticalParam(int wr_size, unsigned char data_buf[])
+int SaveLcdOpticalParam(int index, int wr_size, unsigned char data_buf[])
 {
-	int tmp_ret = 0;
+    int tmp_ret = 0;
 
-	if (!data_buf)
-		return -1;
+    if (!data_buf)
+        return -1;
 
-	tmp_ret = WriteIniData(CS_LCD_OPTICAL_ITEM_NAME, wr_size, data_buf);
-	if (tmp_ret != wr_size)
-		return -1;
+    switch (index) {
+    case 1:
+        tmp_ret = WriteIniData(CS_LCD1_OPTICAL_ITEM_NAME, wr_size, data_buf);
+        break;
+    case 2:
+        tmp_ret = WriteIniData(CS_LCD2_OPTICAL_ITEM_NAME, wr_size, data_buf);
+        break;
+    default:
+        tmp_ret = WriteIniData(CS_LCD_OPTICAL_ITEM_NAME, wr_size, data_buf);
+        break;
+    }
+    if (tmp_ret != wr_size)
+        return -1;
 
-	return tmp_ret;
+    return tmp_ret;
 }
 
 int ReadTconBinParam(unsigned char data_buf[]) {
