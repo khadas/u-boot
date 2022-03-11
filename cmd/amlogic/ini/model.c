@@ -3860,7 +3860,7 @@ int handle_ldim_dev_zone_mapping_get(unsigned char *buf, unsigned int size,
 }
 #endif
 
-int handle_panel_ini(void)
+int handle_panel_ini(int index)
 {
 	int tmp_len = 0;
 	unsigned char *tmp_buf = NULL;
@@ -3872,6 +3872,12 @@ int handle_panel_ini(void)
 	struct lcd_optical_attr_s *optical_attr = NULL;
 	char *file_name;
 	int print_flag;
+	char str[15];
+
+	if (index == 0)
+		sprintf(str, "model_panel");
+	else
+		sprintf(str, "model%d_panel", index);
 
 	print_flag = env_get_ulong("model_debug_print", 16, 0xffff);
 	if (print_flag != 0xffff) {
@@ -3879,9 +3885,9 @@ int handle_panel_ini(void)
 		ALOGD("model_debug_flag: %d\n", model_debug_flag);
 	}
 
-	file_name = env_get("model_panel");
-	if (file_name == NULL) {
-		ALOGE("%s, model_panel path error!!!\n", __func__);
+	file_name = env_get(str);
+	if (!file_name) {
+		ALOGE("%s, %s path error!!!\n", __func__, str);
 		return -1;
 	}
 
@@ -3935,7 +3941,7 @@ int handle_panel_ini(void)
 
 	// start handle panel ini name
 	if (model_debug_flag & DEBUG_NORMAL)
-		ALOGD("%s: model_panel: %s\n", __func__, file_name);
+		ALOGD("%s: %s: %s\n", __func__, str, file_name);
 	if (!iniIsFileExist(file_name)) {
 		ALOGE("%s, file name \"%s\" not exist.\n", __func__, file_name);
 		goto handle_panel_ini_err3;
@@ -3951,37 +3957,37 @@ int handle_panel_ini(void)
 
 	// start handle lcd param
 	memset((void *)tmp_buf, 0, CC_MAX_DATA_SIZE);
-	tmp_len = read_lcd_param(tmp_buf);
+	tmp_len = read_lcd_param(index, tmp_buf);
 	//ALOGD("%s, start check lcd param data (0x%x).\n", __func__, tmp_len);
 	if (check_param_valid(0, glcd_dcnt, lcd_buf, tmp_len, tmp_buf) ==
 	    CC_PARAM_CHECK_ERROR_NEED_UPDATE_PARAM) {
 		ALOGD("%s, check lcd param data diff (0x%x), save new param.\n",
 		      __func__, tmp_len);
-		save_lcd_param(glcd_dcnt, lcd_buf);
+		save_lcd_param(index, glcd_dcnt, lcd_buf);
 	}
 	// end handle lcd param
 
 	// start handle lcd extern param
 	memset((void *)tmp_buf, 0, CC_MAX_DATA_SIZE);
-	tmp_len = read_lcd_extern_param(tmp_buf);
+	tmp_len = read_lcd_extern_param(index, tmp_buf);
 	//ALOGD("%s, start check lcd extern param data (0x%x).\n", __func__, tmp_len);
 	if (check_param_valid(0, glcd_ext_dcnt, (unsigned char *)lcd_ext_attr, tmp_len, tmp_buf) ==
 	    CC_PARAM_CHECK_ERROR_NEED_UPDATE_PARAM) {
 		ALOGD("%s, check lcd extern param data diff (0x%x), save new param.\n",
 		      __func__, tmp_len);
-		save_lcd_extern_param(glcd_ext_dcnt, (unsigned char *)lcd_ext_attr);
+		save_lcd_extern_param(index, glcd_ext_dcnt, (unsigned char *)lcd_ext_attr);
 	}
 	// end handle lcd extern param
 
 	// start handle backlight param
 	memset((void *)tmp_buf, 0, CC_MAX_DATA_SIZE);
-	tmp_len = read_backlight_param(tmp_buf);
+	tmp_len = read_backlight_param(index, tmp_buf);
 	//ALOGD("%s, start check backlight param data (0x%x).\n", __func__, tmp_len);
 	if (check_param_valid(0, gbl_dcnt, (unsigned char *)&bl_attr, tmp_len, tmp_buf) ==
 	    CC_PARAM_CHECK_ERROR_NEED_UPDATE_PARAM) {
 		ALOGD("%s, check backlight param data diff (0x%x), save new param.\n",
 		      __func__, tmp_len);
-		save_backlight_param(gbl_dcnt, (unsigned char *)&bl_attr);
+		save_backlight_param(index, gbl_dcnt, (unsigned char *)&bl_attr);
 	}
 	// end handle backlight param
 
@@ -4020,14 +4026,15 @@ int handle_panel_ini(void)
 	// start handle lcd_optical param
 	if (glcd_optical_dcnt) {
 		memset((void *)tmp_buf, 0, CC_MAX_DATA_SIZE);
-		tmp_len = ReadLcdOpticalParam(tmp_buf);
+		tmp_len = ReadLcdOpticalParam(index, tmp_buf);
 		//ALOGD("%s, start check lcd_tcon_spi param data (0x%x).\n", __func__, tmp_len);
 		if (check_param_valid(0, glcd_optical_dcnt, (unsigned char *)optical_attr,
 				     tmp_len, tmp_buf) ==
 		    CC_PARAM_CHECK_ERROR_NEED_UPDATE_PARAM) {
 			ALOGD("%s, check lcd_optical param data diff (0x%x), save new param.\n",
 			      __func__, tmp_len);
-			SaveLcdOpticalParam(glcd_optical_dcnt, (unsigned char *)optical_attr);
+			SaveLcdOpticalParam(index, glcd_optical_dcnt,
+				(unsigned char *)optical_attr);
 		}
 	}
 	// end handle lcd_optical param
@@ -4061,19 +4068,27 @@ handle_panel_ini_err1:
 	return -1;
 }
 
-static void model_list_panel_path(void)
+static void model_list_panel_path(int index)
 {
-	char *str;
+	char *path_str, str[15];
 
-	str = env_get("model_panel");
-	if (str)
-		printf("current model_panel: %s\n", str);
+	if (index == 0)
+		sprintf(str, "model_panel");
+	else
+		sprintf(str, "model%d_panel", index);
+
+	path_str = env_get(str);
+	if (path_str)
+		printf("current %s: %s\n", str, path_str);
 }
 #endif
 
-int parse_model_sum(const char *file_name, char *model_name)
+int parse_model_sum(int index, const char *file_name, char *model_name)
 {
 	const char *ini_value = NULL;
+#ifdef CONFIG_AML_LCD
+	char str[15];
+#endif
 
 	IniParserInit();
 
@@ -4084,9 +4099,14 @@ int parse_model_sum(const char *file_name, char *model_name)
 	}
 
 #ifdef CONFIG_AML_LCD
+	if (index == 0)
+		sprintf(str, "model_panel");
+	else
+		sprintf(str, "model%d_panel", index);
+
 	ini_value = IniGetString(model_name, "PANELINI_PATH", "null");
 	if (strcmp(ini_value, "null") != 0)
-		env_set("model_panel", ini_value);
+		env_set(str, ini_value);
 	else
 		ALOGE("%s, invalid PANELINI_PATH!!!\n", __func__);
 #endif
@@ -4095,7 +4115,7 @@ int parse_model_sum(const char *file_name, char *model_name)
 	if (strcmp(ini_value, "null") != 0)
 		env_set("model_edid", ini_value);
 	else
-		ALOGE("%s, invalid EDID_14_FILE_PATH!!!\n", __func__);
+		ALOGD("%s, invalid EDID_14_FILE_PATH!!!\n", __func__);
 	/*
 	ini_value = IniGetString(model_name, "PQINI_PATH", "null");
 	if (strcmp(ini_value, "null") != 0)
@@ -4110,11 +4130,16 @@ int parse_model_sum(const char *file_name, char *model_name)
 	return 0;
 }
 
-const char *get_model_sum_path(void)
+const char *get_model_sum_path(int index)
 {
-	char *model_path;
+	char *model_path, str[15];
 
-	model_path = env_get("model_path");
+	if (index == 0)
+		sprintf(str, "model_path");
+	else
+		sprintf(str, "model%d_path", index);
+
+	model_path = env_get(str);
 	if (model_path == NULL) {
 		if (dynamic_partition) {
 			return DEFAULT_MODEL_SUM_PATH2;
@@ -4129,51 +4154,67 @@ const char *get_model_sum_path(void)
 
 int handle_model_list(void)
 {
-	char *model;
+	char *model, str[15];
+	int i;
 
-	model = env_get("model_name");
-	if (model == NULL) {
-		ALOGE("%s, model_name error!!!\n", __func__);
-		return -1;
-	}
-	printf("current model_name: %s\n", model);
+	for (i = 0; i < 3; i++) {
+		if (i == 0)
+			sprintf(str, "model_name");
+		else
+			sprintf(str, "model%d_name", i);
+
+		model = env_get(str);
+		if (!model) {
+			ALOGD("%s, no %s\n", __func__, str);
+			continue;
+		}
+		printf("current %s: %s\n", str, model);
 #ifdef CONFIG_AML_LCD
-	model_list_panel_path();
+		model_list_panel_path(i);
 #endif
 
-	IniParserInit();
+		IniParserInit();
 
-	if (IniParseFile(get_model_sum_path()) < 0) {
-		ALOGE("%s, ini load file error!\n", __func__);
+		if (IniParseFile(get_model_sum_path(i)) < 0) {
+			ALOGE("%s, ini load file error!\n", __func__);
+			IniParserUninit();
+			return -1;
+		}
+
+		printf("%s list:\n", str);
+		IniListSection();
+		printf("\n");
+
 		IniParserUninit();
-		return -1;
 	}
-
-	printf("model_name list:\n");
-	IniListSection();
-	printf("\n");
-
-	IniParserUninit();
 
 	return 0;
 }
 
 int handle_model_sum(void)
 {
-	char *model;
-	int ret;
+	char *model, str[15];
+	int i, ret;
 
-	model = env_get("model_name");
-	if (model == NULL) {
-		ALOGE("%s, model_name error!!!\n", __func__);
-		return -1;
-	}
-	ret = parse_model_sum(get_model_sum_path(), model);
-	if (ret < 0)
-		return -1;
+	for (i = 0; i < 3; i++) {
+		if (i == 0)
+			sprintf(str, "model_name");
+		else
+			sprintf(str, "model%d_name", i);
+
+		model = env_get(str);
+		if (!model) {
+			ALOGD("%s, no %s\n", __func__, str);
+			continue;
+		}
+		ret = parse_model_sum(i, get_model_sum_path(i), model);
+		if (ret < 0)
+			continue;
 #ifdef CONFIG_AML_LCD
-	ret = handle_panel_ini();
+		handle_panel_ini(i);
 #endif
-	return ret;
+	}
+
+	return 0;
 }
 
