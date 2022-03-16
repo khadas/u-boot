@@ -58,6 +58,7 @@ Reboot reason AND corresponding env setting:
 #define AMLOGIC_KERNEL_PANIC			12
 #define AMLOGIC_WATCHDOG_REBOOT			13
 #define AMLOGIC_RECOVERY_QUIESCENT_REBOOT	14
+#define AMLOGIC_FFV_REBOOT			15
 
 /*
 old version env
