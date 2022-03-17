@@ -89,6 +89,7 @@
         "firstboot=1\0"\
         "upgrade_step=0\0"\
         "jtag=disable\0"\
+	"port_mode=0\0"\
         "loadaddr=3080000\0"\
         "panel_type=lcd_1\0" \
 	"lcd_ctrl=0x00000000\0" \
@@ -289,6 +290,17 @@
 	"hwver_check="\
             "kbi hwver;"\
             "\0"\
+	"port_mode_change="\
+            "fdt addr ${dtb_mem_addr}; "\
+            "kbi portmode r;"\
+            "if test ${port_mode} = 0; then "\
+                "fdt set /usb3phy@ffe09080 portnum <1>;"\
+                "fdt set /pcieA@fc000000 status disable;"\
+            "else "\
+                "fdt set /usb3phy@ffe09080 portnum <0>;"\
+                "fdt set /pcieA@fc000000 status okay;"\
+            "fi;"\
+            "\0"\
         "cmdline_keys="\
             "if keyman init 0x1234; then "\
                 "if keyman read usid ${loadaddr} str; then "\
@@ -339,6 +351,7 @@
             "run storeargs;"\
 	    "run hwver_check;"\
 	    "run upgrade_key;"\
+	    "run port_mode_change;"\
             "forceupdate;" \
             "bcb uboot-command;"\
             "run switch_bootmode;"
