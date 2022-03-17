@@ -2338,19 +2338,47 @@ static void viu2_osd1_update_enable(void)
 
 static void osd1_update_disp_osd_reverse(void)
 {
-	if (osd_hw.osd_reverse[OSD1])
-		VSYNCOSD_WR_MPEG_REG_BITS(VIU_OSD1_BLK0_CFG_W0, 3, 28, 2);
-	else
-		VSYNCOSD_CLR_MPEG_REG_MASK(VIU_OSD1_BLK0_CFG_W0, 3 << 28);
+	u32 val = 0;
+
+	switch (osd_hw.osd_reverse[OSD1]) {
+	case REVERSE_XY:
+		val = 3;
+		break;
+	case REVERSE_X:
+		val = 1;
+		break;
+	case REVERSE_Y:
+		val = 2;
+		break;
+	default:
+		val = REVERSE_NONE;
+		break;
+	}
+
+	VSYNCOSD_WR_MPEG_REG_BITS(VIU_OSD1_BLK0_CFG_W0, val, 28, 2);
 	remove_from_update_list(OSD1, DISP_OSD_REVERSE);
 }
 
 static void osd2_update_disp_osd_reverse(void)
 {
-	if (osd_hw.osd_reverse[OSD2])
-		VSYNCOSD_WR_MPEG_REG_BITS(VIU_OSD2_BLK0_CFG_W0, 3, 28, 2);
-	else
-		VSYNCOSD_CLR_MPEG_REG_MASK(VIU_OSD2_BLK0_CFG_W0, 3 << 28);
+	u32 val = 0;
+
+	switch (osd_hw.osd_reverse[OSD2]) {
+	case REVERSE_XY:
+		val = 3;
+		break;
+	case REVERSE_X:
+		val = 1;
+		break;
+	case REVERSE_Y:
+		val = 2;
+		break;
+	default:
+		val = REVERSE_NONE;
+		break;
+	}
+
+	VSYNCOSD_WR_MPEG_REG_BITS(VIU_OSD2_BLK0_CFG_W0, val, 28, 2);
 	remove_from_update_list(OSD2, DISP_OSD_REVERSE);
 }
 
@@ -2361,10 +2389,24 @@ static void viu2_osd1_update_disp_osd_reverse(void)
 #else
 static void viu2_osd1_update_disp_osd_reverse(void)
 {
-	if (osd_hw.osd_reverse[VIU2_OSD1])
-		VSYNCOSD_WR_MPEG_REG_BITS(VIU2_OSD1_BLK0_CFG_W0, 3, 28, 2);
-	else
-		VSYNCOSD_CLR_MPEG_REG_MASK(VIU2_OSD1_BLK0_CFG_W0, 3 << 28);
+	u32 val = 0;
+
+	switch (osd_hw.osd_reverse[VIU2_OSD1]) {
+	case REVERSE_XY:
+		val = 3;
+		break;
+	case REVERSE_X:
+		val = 1;
+		break;
+	case REVERSE_Y:
+		val = 2;
+		break;
+	default:
+		val = REVERSE_NONE;
+		break;
+	}
+
+	VSYNCOSD_WR_MPEG_REG_BITS(VIU2_OSD1_BLK0_CFG_W0, val, 28, 2);
 	remove_from_update_list(VIU2_OSD1, DISP_OSD_REVERSE);
 }
 #endif
@@ -3017,7 +3059,7 @@ void osd_init_hw_viu2(void)
 #ifdef CONFIG_AML_MESON_G12A
 void osd_init_hw_viu2(void)
 {
-	u32 group, idx, data32, holdline = 4;
+	u32 group, idx, data32, holdline = 4, reverse_val = 0;
 	char *osd_reverse;
 	unsigned long s = 0;
 
@@ -3078,11 +3120,19 @@ void osd_init_hw_viu2(void)
 	osd_hw.color_key[VIU2_OSD1] = 0xffffffff;
 	osd_hw.scale[VIU2_OSD1].h_enable = osd_hw.scale[VIU2_OSD1].v_enable = 0;
 	osd_hw.mode_3d[VIU2_OSD1].enable = 0;
-	if (osd_reverse != NULL && strcmp(osd_reverse, "all,true") == 0) {
-		osd_hw.osd_reverse[VIU2_OSD1] = 1;
-	} else {
-		osd_hw.osd_reverse[VIU2_OSD1] = 0;
+
+	if (osd_reverse) {
+		if (!strcmp(osd_reverse, "all,true"))
+			reverse_val = REVERSE_XY;
+		else if (!strcmp(osd_reverse, "all,x_rev"))
+			reverse_val = REVERSE_X;
+		else if (!strcmp(osd_reverse, "all,y_rev"))
+			reverse_val = REVERSE_Y;
+		else
+			reverse_val = REVERSE_NONE;
 	}
+	osd_hw.osd_reverse[VIU2_OSD1] = reverse_val;
+
 	osd_hw.rotation_pandata[VIU2_OSD1].x_start = 0;
 	osd_hw.rotation_pandata[VIU2_OSD1].y_start = 0;
 }
@@ -3144,7 +3194,7 @@ static void independ_path_default_regs(void)
 
 void osd_init_hw(void)
 {
-	u32 group, idx, data32, data2, holdline = 8;
+	u32 group, idx, data32, data2, holdline = 8, reverse_val = 0;
 	char *osd_reverse;
 	u32 ofifo_size = 0xfff;
 	unsigned long s = 0;
@@ -3271,10 +3321,20 @@ void osd_init_hw(void)
 	osd_hw.free_scale[OSD1].h_enable = 0;
 	osd_hw.free_scale[OSD2].v_enable = 0;
 	osd_hw.free_scale[OSD2].v_enable = 0;
-	if (osd_reverse != NULL && strcmp(osd_reverse, "all,true") == 0)
-		osd_hw.osd_reverse[OSD1] = osd_hw.osd_reverse[OSD2] = 1;
-	else
-		osd_hw.osd_reverse[OSD1] = osd_hw.osd_reverse[OSD2] = 0;
+
+	if (osd_reverse) {
+		if (!strcmp(osd_reverse, "all,true"))
+			reverse_val = REVERSE_XY;
+		else if (!strcmp(osd_reverse, "all,x_rev"))
+			reverse_val = REVERSE_X;
+		else if (!strcmp(osd_reverse, "all,y_rev"))
+			reverse_val = REVERSE_Y;
+		else
+			reverse_val = REVERSE_NONE;
+	}
+	osd_hw.osd_reverse[OSD1] = reverse_val;
+	osd_hw.osd_reverse[OSD2] = reverse_val;
+
 	osd_hw.rotation_pandata[OSD1].x_start = 0;
 	osd_hw.rotation_pandata[OSD1].y_start = 0;
 	osd_hw.rotation_pandata[OSD2].x_start = 0;

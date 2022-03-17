@@ -1594,18 +1594,35 @@ static int handle_panel_misc(struct panel_misc_s *p_misc)
 	} else if (strcmp(ini_value, "true") == 0 || strcmp(ini_value, "1") == 0 ||
 		strcmp(ini_value, "have_rev") == 0) {
 		p_misc->panel_reverse = 1;
+	} else if (strcmp(ini_value, "x_rev") == 0 || strcmp(ini_value, "2") == 0) {
+		p_misc->panel_reverse = 2;
+	} else if (strcmp(ini_value, "y_rev") == 0 || strcmp(ini_value, "3") == 0) {
+		p_misc->panel_reverse = 3;
 	} else {
 		p_misc->panel_reverse = 0;
 	}
 
-	if (p_misc->panel_reverse) {
+	switch (p_misc->panel_reverse) {
+	case 1:
 		run_command("setenv panel_reverse 1", 0);
 		run_command("setenv osd_reverse all,true", 0);
 		run_command("setenv video_reverse 1", 0);
-	} else {
+		break;
+	case 2:
+		run_command("setenv panel_reverse 2", 0);
+		run_command("setenv osd_reverse all,x_rev", 0);
+		run_command("setenv video_reverse 2", 0);
+		break;
+	case 3:
+		run_command("setenv panel_reverse 3", 0);
+		run_command("setenv osd_reverse all,y_rev", 0);
+		run_command("setenv video_reverse 3", 0);
+		break;
+	default:
 		run_command("setenv panel_reverse 0", 0);
 		run_command("setenv osd_reverse n", 0);
 		run_command("setenv video_reverse 0", 0);
+		break;
 	}
 
 	return 0;

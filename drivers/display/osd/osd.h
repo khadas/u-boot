@@ -146,8 +146,10 @@ enum osd_dev_e {
 };
 
 enum reverse_info_e {
-	REVERSE_FALSE = 0,
-	REVERSE_TRUE,
+	REVERSE_NONE = 0,  /* no rotaion */
+	REVERSE_XY,        /* x+y rotation */
+	REVERSE_X,         /* x rotation */
+	REVERSE_Y,         /* y rotaion */
 	REVERSE_MAX
 };
 
