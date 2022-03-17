@@ -15,6 +15,7 @@
 #define CS_BACKLIGHT_ITEM_NAME                    "backlight"
 #define CS_LCD_TCON_ITEM_NAME                     "lcd_tcon"
 #define CS_LCD_TCON_SPI_ITEM_NAME                 "lcd_tcon_spi"
+#define CS_LCD_OPTICAL_ITEM_NAME                  "lcd_optical"
 #define CS_PANEL_INI_PATH_ITEM_NAME               "panel_ini_path"
 #define CS_PANEL_PQ_PATH_ITEM_NAME                "panel_pq_path"
 #define CS_PANEL_ALL_INFO_ITEM_NAME               "panel_all_info"
@@ -37,6 +38,8 @@ int ReadTconSpiParam(unsigned char data_buf[]);
 int SaveTconSpiParam(int wr_size, unsigned char data_buf[]);
 int ReadTconBinParam(unsigned char data_buf[]);
 int SaveTconBinParam(int wr_size, unsigned char data_buf[]);
+int ReadLcdOpticalParam(unsigned char data_buf[]);
+int SaveLcdOpticalParam(int wr_size, unsigned char data_buf[]);
 int ReadPanelIniName(char data_buf[]);
 int SavePanelIniName(char data_buf[]);
 int ReadPanelPQPath(char data_buf[]);
