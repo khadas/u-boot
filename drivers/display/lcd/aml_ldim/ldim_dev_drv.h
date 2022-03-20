@@ -52,4 +52,8 @@ extern int ldim_dev_global_probe(struct aml_ldim_driver_s *ldim_drv);
 extern int ldim_dev_global_remove(struct aml_ldim_driver_s *ldim_drv);
 #endif
 
+#ifdef CONFIG_AML_LOCAL_DIMMING_BLMCU
+int ldim_dev_blmcu_probe(struct aml_ldim_driver_s *ldim_drv);
+int ldim_dev_blmcu_remove(struct aml_ldim_driver_s *ldim_drv);
+#endif
 #endif

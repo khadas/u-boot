@@ -258,4 +258,29 @@ int spicc0_pinctrl_enable(bool enable)
 	writel(val, P_PERIPHS_PIN_MUX_6);
 	return 0;
 }
+
+/* generic pins control for spicc1.
+ * if deleted, you have to add it into all t5 board files as necessary.
+ * GPIOH_23:  MISO:reg7[31:28]  =5
+ * GPIOH_24: MOSI:regH[3:0] =5
+ * GPIOH_25: CLK: regH[7:4]=5
+ */
+int spicc1_pinctrl_enable(bool enable)
+{
+	unsigned int val;
+
+	val = readl(P_PERIPHS_PIN_MUX_7);
+	val &= ~(0xf << 28);
+	if (enable)
+		val |= 0x5 << 28;
+	writel(val, P_PERIPHS_PIN_MUX_7);
+
+	val = readl(P_PERIPHS_PIN_MUX_H);
+	val &= ~0xff;
+	if (enable)
+		val |= 0x55;
+	writel(val, P_PERIPHS_PIN_MUX_H);
+
+	return 0;
+}
 #endif /* CONFIG_AML_SPICC */

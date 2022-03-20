@@ -990,11 +990,18 @@ int ldim_dev_get_config_from_dts(char *dt_addr, int index)
 
 	propdata = (char *)fdt_getprop(dt_addr, child_offset,
 				       "device_count", NULL);
-	if (propdata == NULL)
-		LDIMERR("failed to get device_count\n");
-	else
+	if (!propdata) {
+		propdata = (char *)fdt_getprop(dt_addr, child_offset,
+				       "chip_count", NULL);
+		if (!propdata)
+			LDIMERR("failed to get device_count\n");
+		else
+			ldim_dev_config->device_count = be32_to_cpup((u32 *)
+					propdata);
+	} else {
 		ldim_dev_config->device_count = be32_to_cpup((u32 *)
 					propdata);
+	}
 
 	propdata = (char *)fdt_getprop(dt_addr, child_offset, "ldim_pwm_pinmux_sel", NULL);
 	if (propdata == NULL) {
@@ -1158,6 +1165,10 @@ static int ldim_dev_add_driver(struct aml_ldim_driver_s *ldim_drv)
 #ifdef CONFIG_AML_LOCAL_DIMMING_GLOBAL
 		ret = ldim_dev_global_probe(ldim_drv);
 #endif
+	} else if (strcmp(ldev_conf->name, "blmcu") == 0) {
+#ifdef CONFIG_AML_LOCAL_DIMMING_BLMCU
+		ret = ldim_dev_blmcu_probe(ldim_drv);
+#endif
 	} else {
 		LDIMERR("invalid device name: %s\n", ldev_conf->name);
 		ret = -1;
@@ -1206,6 +1217,10 @@ static int ldim_dev_remove_driver(struct aml_ldim_driver_s *ldim_drv)
 	} else if (strcmp(ldev_conf->name, "global") == 0) {
 #ifdef CONFIG_AML_LOCAL_DIMMING_GLOBAL
 		ret = ldim_dev_global_remove(ldim_drv);
+#endif
+	} else if (strcmp(ldev_conf->name, "blmcu") == 0) {
+#ifdef CONFIG_AML_LOCAL_DIMMING_BLMCU
+		ret = ldim_dev_blmcu_remove(ldim_drv);
 #endif
 	} else {
 		LDIMERR("invalid device name: %s\n", ldev_conf->name);

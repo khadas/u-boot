@@ -41,6 +41,7 @@ struct iw7027 {
 	unsigned char cmd_size;
 	unsigned char *init_data;
 	unsigned int init_data_cnt;
+	unsigned int chip_cnt;
 	struct spi_slave *spi;
 };
 static struct iw7027 *bl_iw7027;
@@ -85,22 +86,43 @@ static int iw7027_wreg(struct spi_slave *spi, unsigned char addr, unsigned char 
 	return ret;
 }
 
-//iw7027 register read
+//iw7027 register read 1 bytes
 static int iw7027_rreg(struct spi_slave *spi, unsigned char addr,
 		unsigned char *val)
 {
-	unsigned char tbuf[4], rbuf[4], temp;
+	unsigned char tbuf[20], rbuf[20];
 	int ret;
+	int n;
+	int xlen, rlen = 1;  //for read 1 bytes
+	unsigned char chip_id = 0x01;
 
 	/*set read flag*/
-	temp = (addr >= 0x80) ? 0x80 : 0x0;
-	iw7027_wreg(spi, 0x78, temp);
+	if (addr > 0x80)
+		iw7027_wreg(spi, 0x78, 0x80);
 
-	tbuf[0] = NORMAL_MSG | SINGLE_DATA | IW7027_DEV_ADDR;
-	tbuf[1] = addr | 0x80;
-	tbuf[2] = 0;
-	ret = ldim_spi_read(spi, tbuf, 3, rbuf, 1);
+	n = bl_iw7027->chip_cnt + rlen;
+	if (rlen == 1)
+		xlen = 2 + n;
+	else
+		xlen = 3 + n;
+
+	if (rlen == 1) {
+		tbuf[0] = NORMAL_MSG | SINGLE_DATA | (chip_id & 0x3f);
+		tbuf[1] = (addr & 0x7f) | 0x80;
+		memset(&tbuf[2], 0, n);
+	} else {
+		tbuf[0] = NORMAL_MSG | BLOCK_DATA | (chip_id & 0x3f);
+		tbuf[1] = rlen;
+		tbuf[2] = (addr & 0x7f) | 0x80;
+		memset(&tbuf[3], 0, n);
+	}
+
+	ret = ldim_spi_read(spi, tbuf, xlen, rbuf, rlen);
 	*val = rbuf[3];
+
+	/*set read flag*/
+	if (addr > 0x80)
+		iw7027_wreg(spi, 0x78, 0x00);
 
 	return ret;
 }
@@ -109,8 +131,9 @@ static int iw7027_rreg(struct spi_slave *spi, unsigned char addr,
 static int iw7027_wregs(struct spi_slave *spi, unsigned char addr,
 		unsigned char *val, int len)
 {
-	unsigned char tbuf[30];
+	unsigned char tbuf[35];
 	int ret, i;
+	int n, xlen;
 
 	if (lcd_debug_print_flag) {
 		LDIMPR("%s: ", __func__);
@@ -118,12 +141,40 @@ static int iw7027_wregs(struct spi_slave *spi, unsigned char addr,
 			printf("0x%02x ", val[i]);
 		printf("\n");
 	}
+/*
+	len = 0x20;
 
-	tbuf[0] = NORMAL_MSG | BLOCK_DATA | IW7027_DEV_ADDR;
+	//tbuf[0] = NORMAL_MSG | BLOCK_DATA | IW7027_DEV_ADDR;
+	tbuf[0] = BROADCAST_MSG | BLOCK_DATA | 0x00;
 	tbuf[1] = len;
 	tbuf[2] = addr & 0x7f;
 	memcpy(&tbuf[3], val, len);
 	ret = ldim_spi_write(spi, tbuf, (len + 3));
+*/
+
+	if (len == 0) {
+		LDIMERR("%s: len is 0\n", __func__);
+		return -1;
+	}
+	n = bl_iw7027->chip_cnt - 1;
+	if (len == 1)
+		xlen = 2 + 1 + n;
+	else
+		xlen = 3 + len + n;
+
+	if (len == 1) {
+		tbuf[0] = BROADCAST_MSG | SINGLE_DATA | 0x00;
+		tbuf[1] = addr & 0x7f;
+		tbuf[2] = val[0];
+		memset(&tbuf[3], 0, n);
+	} else {
+		tbuf[0] = BROADCAST_MSG | BLOCK_DATA | 0x00;
+		tbuf[1] = len;
+		tbuf[2] = addr & 0x7f;
+		memcpy(&tbuf[3], val, len);
+		memset(&tbuf[3 + len], 0, n);
+	}
+	ret = ldim_spi_write(spi, tbuf, xlen);
 
 	return ret;
 }
@@ -146,7 +197,7 @@ static int ldim_power_cmd_dynamic_size(void)
 			LDIMPR("%s: step %d: type=0x%02x, cmd_size=%d\n",
 				__func__, step, type, table[i+1]);
 		}
-		cmd_size = table[i+1];
+		cmd_size = table[i + 1];
 		if (cmd_size == 0)
 			goto power_cmd_dynamic_next;
 		if ((i + 2 + cmd_size) > max_len)
@@ -157,19 +208,19 @@ static int ldim_power_cmd_dynamic_size(void)
 		} else if (type == LCD_EXT_CMD_TYPE_DELAY) {
 			delay_ms = 0;
 			for (j = 0; j < cmd_size; j++)
-				delay_ms += table[i+2+j];
+				delay_ms += table[i + 2 + j];
 			if (delay_ms > 0)
 				mdelay(delay_ms);
 		} else if (type == LCD_EXT_CMD_TYPE_CMD) {
-			ret = iw7027_wreg(bl_iw7027->spi,
-				table[i+2], table[i+3]);
+			ret = iw7027_wregs(bl_iw7027->spi,
+				table[i + 2], &table[i + 3], (cmd_size - 1));
 			udelay(1);
 		} else if (type == LCD_EXT_CMD_TYPE_CMD_DELAY) {
-			ret = iw7027_wreg(bl_iw7027->spi,
-				table[i+2], table[i+3]);
+			ret = iw7027_wregs(bl_iw7027->spi,
+				table[i + 2], &table[i + 3], (cmd_size - 2));
 			udelay(1);
-			if (table[i+4] > 0)
-				mdelay(table[i+4]);
+			if (table[i + 4] > 0)
+				mdelay(table[i + 4]);
 		} else {
 			LDIMERR("%s: type 0x%02x invalid\n", __func__, type);
 		}
@@ -214,12 +265,12 @@ static int ldim_power_cmd_fixed_size(void)
 			if (delay_ms > 0)
 				mdelay(delay_ms);
 		} else if (type == LCD_EXT_CMD_TYPE_CMD) {
-			ret = iw7027_wreg(bl_iw7027->spi,
-				table[i+1], table[i+2]);
+			ret = iw7027_wregs(bl_iw7027->spi,
+				table[i + 1], &table[i + 2], 1);
 			udelay(1);
 		} else if (type == LCD_EXT_CMD_TYPE_CMD_DELAY) {
-			ret = iw7027_wreg(bl_iw7027->spi,
-				table[i+1], table[i+2]);
+			ret = iw7027_wregs(bl_iw7027->spi,
+				table[i + 1], &table[i + 2], 1);
 			udelay(1);
 			if (table[i+3] > 0)
 				mdelay(table[i+3]);
@@ -255,6 +306,7 @@ static int iw7027_hw_init_on(void)
 {
 	int i;
 	unsigned char  reg_duty_chk = 0 , reg_chk = 0;
+	unsigned char reg, temp[2];
 	struct aml_ldim_driver_s *ldim_drv = aml_ldim_get_driver();
 
 	/* step 1: system power_on */
@@ -269,7 +321,9 @@ static int iw7027_hw_init_on(void)
 	/* step 3: SPI communication check */
 	LDIMPR("%s: SPI Communication Check\n", __func__);
 	for (i = 0; i <= 10; i++) {
-		iw7027_wreg(bl_iw7027->spi, 0x00, 0x06);
+		reg = 0x00;
+		temp[0] = 0x06;
+		iw7027_wregs(bl_iw7027->spi, reg, temp, 1);
 		iw7027_rreg(bl_iw7027->spi, 0x00, &reg_chk);
 		if (reg_chk == 0x06)
 			break;
@@ -292,7 +346,9 @@ static int iw7027_hw_init_on(void)
 
 	/* step 7: start calibration */
 	LDIMPR("%s: start calibration\n", __func__);
-	iw7027_wreg(bl_iw7027->spi, 0x00, 0x07);
+	reg = 0x00;
+	temp[0] = 0x07;
+	iw7027_wregs(bl_iw7027->spi, reg, temp, 1);
 	mdelay(200);
 
 	/* step 8: calibration done or not */
@@ -359,7 +415,7 @@ static int iw7027_smr(unsigned short *buf, unsigned char len)
 		val_brightness[2*i+1] = temp & 0xff;
 	}
 
-	iw7027_wregs(bl_iw7027->spi, 0x40, val_brightness, (num * 2));
+	iw7027_wregs(bl_iw7027->spi, 0x40, val_brightness, 0x20);
 
 	return 0;
 }
@@ -412,6 +468,8 @@ int ldim_dev_iw7027_probe(struct aml_ldim_driver_s *ldim_drv)
 	bl_iw7027->cmd_size = ldim_drv->ldev_conf->cmd_size;
 	bl_iw7027->init_data = ldim_drv->ldev_conf->init_on;
 	bl_iw7027->init_data_cnt = ldim_drv->ldev_conf->init_on_cnt;
+	bl_iw7027->chip_cnt = ldim_drv->ldev_conf->device_count;
+	LDIMPR("chip_cnt = %d\n", bl_iw7027->chip_cnt);
 
 	val_brightness = (unsigned char *)malloc(
 		ldim_drv->ldev_conf->bl_regnum * 2 * sizeof(unsigned char));

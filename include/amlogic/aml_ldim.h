@@ -21,7 +21,7 @@ enum ldim_dev_type_e {
 	LDIM_DEV_TYPE_MAX,
 };
 
-#define LDIM_INIT_ON_MAX     300
+#define LDIM_INIT_ON_MAX     500
 #define LDIM_INIT_OFF_MAX    20
 
 struct ldim_config_s {

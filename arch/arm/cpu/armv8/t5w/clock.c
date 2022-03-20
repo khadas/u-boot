@@ -544,6 +544,11 @@ int spicc0_clk_set_rate(int rate)
 	return spicc_clk_set_rate(0, rate);
 }
 
+int spicc1_clk_set_rate(int rate)
+{
+	return spicc_clk_set_rate(1, rate);
+}
+
 static int spicc_clk_enable(int id, bool enable)
 {
 	u32 regv;
@@ -562,5 +567,10 @@ static int spicc_clk_enable(int id, bool enable)
 int spicc0_clk_enable(bool enable)
 {
 	return spicc_clk_enable(0, enable);
+}
+
+int spicc1_clk_enable(bool enable)
+{
+	return spicc_clk_enable(1, enable);
 }
 #endif /* CONFIG_AML_SPICC */
