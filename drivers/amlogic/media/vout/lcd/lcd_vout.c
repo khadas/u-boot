@@ -1171,6 +1171,16 @@ void aml_lcd_driver_clk_info(int index)
 	lcd_clk_config_print(pdrv);
 }
 
+void aml_lcd_driver_debug_print(int index, unsigned int val)
+{
+	char str[32];
+
+	lcd_debug_print_flag = val;
+	snprintf(str, 32, "setenv lcd_debug_print %d", val);
+	run_command(str, 0);
+	LCDPR("set debug_print_flag: %d\n", val);
+}
+
 void aml_lcd_driver_info(int index)
 {
 	struct aml_lcd_drv_s *pdrv;
