@@ -338,7 +338,7 @@ int do_efuse_obj(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				int i;
 
 				memset(&efuse_field, 0, sizeof(efuse_field));
-				strncpy(efuse_field.name, name, sizeof(efuse_field.name));
+				strncpy(efuse_field.name, name, sizeof(efuse_field.name) - 1);
 				memcpy(efuse_field.data, buff, bufflen);
 				efuse_field.size = bufflen;
 
@@ -406,7 +406,7 @@ int do_efuse_obj(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				int i;
 
 				memset(&efuse_field, 0, sizeof(efuse_field));
-				strncpy(efuse_field.name, name, sizeof(efuse_field.name));
+				strncpy(efuse_field.name, name, sizeof(efuse_field.name) - 1);
 				memcpy(efuse_field.data, buff, bufflen);
 				efuse_field.size = bufflen;
 
