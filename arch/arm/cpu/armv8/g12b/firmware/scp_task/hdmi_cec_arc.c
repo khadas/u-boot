@@ -315,7 +315,7 @@ static unsigned char remote_cec_ll_rx(void)
 	unsigned char rx_msg_length = cec_rd_reg(CEC_RX_MSG_LENGTH) + 1;
 
 	cec_dbg_prints("cec R:");
-	for (i = 0; i < rx_msg_length; i++) {
+	for (i = 0; rx_msg_length <= 16 && i < rx_msg_length; i++) {
 		cec_msg.buf[cec_msg.rx_write_pos].msg[i] = cec_rd_reg(CEC_RX_MSG_0_HEADER + i);
 		if (print) {
 			cec_dbg_print(" ", cec_msg.buf[cec_msg.rx_write_pos].msg[i]);

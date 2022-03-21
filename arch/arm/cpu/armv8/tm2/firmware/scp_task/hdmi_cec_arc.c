@@ -254,7 +254,7 @@ static unsigned char remote_cec_ll_rx(void)
 
 	len = cec_rd_reg(DWC_CECB_RX_CNT);
 	cec_dbg_prints("cec R:");
-	for (i = 0; i < len; i++) {
+	for (i = 0; len <= 16 && i < len; i++) {
 		cec_msg.buf[cec_msg.rx_write_pos].msg[i] = cec_rd_reg(DWC_CECB_RX_DATA00 + i);
 		cec_dbg_print(" ", cec_msg.buf[cec_msg.rx_write_pos].msg[i]);
 	}
