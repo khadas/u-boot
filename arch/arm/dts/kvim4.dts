@@ -274,8 +274,8 @@
 &usb3_phy_v2 {
         status = "okay";
         portnum = <0>;
-        gpio-vbus-power = "GPIOM_8";
-        gpios = <&gpio GPIOM_8 GPIO_ACTIVE_HIGH>;
+        gpio-vbus-power = "GPIOY_5";
+        gpios = <&gpio GPIOY_5 GPIO_ACTIVE_HIGH>;
 };
 
 &usb2_phy2_v2 {
@@ -286,8 +286,6 @@
 &usb3_phy2_v2 {
         status = "okay";
         portnum = <0>;
-        gpio-vbus-power = "GPIOM_9";
-        gpios = <&gpio GPIOM_9 GPIO_ACTIVE_HIGH>;
 };
 
 &pwm_ef {
