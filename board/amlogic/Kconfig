@@ -31,6 +31,13 @@ config PXP_SCS
 		fast PXP bring up. This config should be closed if SCS feature
 		is ready.
 
+config PXP_NO_SIGNED
+	bool "Amlogic Pxp no signed flag"
+	help
+		Support PXP no signed environment
+		When PXP bring up this option is open. This config should be
+		closed when signature is ready.
+
 config KALLSYMS
 	bool "Support call stack dump when crash"
 	default y

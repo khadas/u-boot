@@ -7,7 +7,7 @@
 //
 // Project name: c3
 //
-// Create time: Thu Jan 13 14:41:53 CST 2022 by leilei.ge
+// Create time: Wed Mar  2 10:24:58 CST 2022 by chong.gu
 //
 // ./REG_LIST_RTL.h
 //
@@ -19,13 +19,13 @@
 #define REGISTER_H
 
 
-#ifdef VERIFICATION
+#ifndef VERIFICATION
     #define Wr64(addr, data) *(volatile uint64_t *)(addr)=(data)
     #define Rd64(addr) *(volatile uint64_t *)(addr)
     #define Wr8(addr, data) *(volatile uint8_t *)(addr)=(data)
     #define Rd8(addr) *(volatile uint8_t *)(addr)
-    #define Wr(addr, data) *(volatile uint32_t *)(addr)=(data)
-    #define Rd(addr) *(volatile uint32_t *)(addr)
+    //#define Wr(addr, data) *(volatile uint32_t *)(addr)=(data)
+    //#define Rd(addr) *(volatile uint32_t *)(addr)
     #define Wr_reg_bits(reg, val, start, len) \
       Wr(reg, ((Rd(reg) & ~(((1L<<(len))-1)<<(start))) | ((uint32_t)(val & ((1L<<len)-1)) << (start))))
 #else
@@ -2776,7 +2776,7 @@
 #define PADCTRL_GPIOX_LOCK                         ((0x0045  << 2) + 0xfe004000)
 #define PADCTRL_GPIOX_PROT                         ((0x0046  << 2) + 0xfe004000)
 #define PADCTRL_GPIOX_DS                           ((0x0047  << 2) + 0xfe004000)
-//`define PADCTRL_GPIOX_DS_EXT          8'h48
+#define PADCTRL_GPIOX_DS_EXT                       ((0x0048  << 2) + 0xfe004000)
 //`define PADCTRL_GPIOT_I               8'h50
 //`define PADCTRL_GPIOT_O               8'h51
 //`define PADCTRL_GPIOT_OEN             8'h52
@@ -2854,12 +2854,12 @@
 #define PADCTRL_LOCK_PIN_MUX0                      ((0x00d0  << 2) + 0xfe004000)
 #define PADCTRL_LOCK_PIN_MUX1                      ((0x00d1  << 2) + 0xfe004000)
 #define PADCTRL_LOCK_PIN_MUX2                      ((0x00d2  << 2) + 0xfe004000)
-#define PADCTRL_LOCK_PIN_MUX3                      ((0x00d3  << 2) + 0xfe004000)
+//`define PADCTRL_LOCK_PIN_MUX3         8'hD3
 #define PADCTRL_LOCK_PIN_MUX4                      ((0x00d4  << 2) + 0xfe004000)
 #define PADCTRL_PROT_PIN_MUX0                      ((0x00d8  << 2) + 0xfe004000)
 #define PADCTRL_PROT_PIN_MUX1                      ((0x00d9  << 2) + 0xfe004000)
 #define PADCTRL_PROT_PIN_MUX2                      ((0x00da  << 2) + 0xfe004000)
-#define PADCTRL_PROT_PIN_MUX3                      ((0x00db  << 2) + 0xfe004000)
+//`define PADCTRL_PROT_PIN_MUX3         8'hDB
 #define PADCTRL_PROT_PIN_MUX4                      ((0x00dc  << 2) + 0xfe004000)
 #define PADCTRL_MUTE_CTRL                          ((0x00e0  << 2) + 0xfe004000)
 #define PADCTRL_MUTE_TDM_DISA                      ((0x00e1  << 2) + 0xfe004000)
@@ -3112,6 +3112,7 @@
 #define CLKCTRL_PWM_CLK_KL_CTRL                    ((0x0065  << 2) + 0xfe000000)
 #define CLKCTRL_PWM_CLK_MN_CTRL                    ((0x0066  << 2) + 0xfe000000)
 #define CLKCTRL_VC9000E_CLK_CTRL                   ((0x0067  << 2) + 0xfe000000)
+#define CLKTREE_SPIFC_CLK_CTRL                     ((0x0068  << 2) + 0xfe000000)
 #define CLKCTRL_DEMOD_CLK_CTRL                     ((0x0080  << 2) + 0xfe000000)
 #define CLKCTRL_NNA_CLK_CNTL                       ((0x0088  << 2) + 0xfe000000)
 #define CLKCTRL_TIMESTAMP_CTRL                     ((0x0100  << 2) + 0xfe000000)
@@ -4969,75 +4970,365 @@
 #define MSR_CLK_REG4                               ((0x0004  << 2) + 0xfe048000)
 #define MSR_CLK_REG5                               ((0x0005  << 2) + 0xfe048000)
 #define MSR_CLK_DUTY                               ((0x0006  << 2) + 0xfe048000)
-//========================================================================
-//  SPIFC - Registers
-//========================================================================
+//
+// Reading file:  ./spifc_reg.vh
+//
+//`ifdef SPIFC_REG_DEFINE
+//`else
+//`define SPIFC_REG_DEFINE
+//`define SPIFC BASE ADDR      32'hfe056000
 // -----------------------------------------------
-// REG_BASE:  REGISTER_BASE_ADDR = 0xfe056000
+// REG_BASE:  APB2_BASE_ADDR = 0xfe056000
 // -----------------------------------------------
-#define SPI_FLASH_CMD                              ((0x0000  << 2) + 0xfe056000)
-    // SPI_FLASH_READ    31
-    // SPI_FLASH_WREN    30
-    // SPI_FLASH_WRDI    29
-    // SPI_FLASH_RDID    28
-    // SPI_FLASH_RDSR    27
-    // SPI_FLASH_WRSR    26
-    // SPI_FLASH_PP      25
-    // SPI_FLASH_SE      24
-    // SPI_FLASH_BE      23
-    // SPI_FLASH_CE      22
-    // SPI_FLASH_DP      21
-    // SPI_FLASH_RES     20
-    // SPI_HPM           19
-    // SPI_FLASH_USR     18
-    // SPI_FLASH_USR_ADDR 15
-    // SPI_FLASH_USR_DUMMY 14
-    // SPI_FLASH_USR_DIN   13
-    // SPI_FLASH_USR_DOUT   12
-    // SPI_FLASH_USR_DUMMY_BLEN   10
-    // SPI_FLASH_USR_CMD     0
-#define SPI_FLASH_ADDR                             ((0x0001  << 2) + 0xfe056000)
-    // SPI_FLASH_BYTES_LEN 24
-    // SPI_FLASH_ADDR_START 0
-#define SPI_FLASH_CTRL                             ((0x0002  << 2) + 0xfe056000)
-    // SPI_ENABLE_AHB    17
-    // SPI_SST_AAI       16
-    // SPI_RES_RID       15
-    // SPI_FREAD_DUAL    14
-    // SPI_READ_READ_EN  13
-    // SPI_CLK_DIV0      12
-    // SPI_CLKCNT_N      8
-    // SPI_CLKCNT_H      4
-    // SPI_CLKCNT_L      0
-#define SPI_FLASH_CTRL1                            ((0x0003  << 2) + 0xfe056000)
-#define SPI_FLASH_STATUS                           ((0x0004  << 2) + 0xfe056000)
-#define SPI_FLASH_CTRL2                            ((0x0005  << 2) + 0xfe056000)
-#define SPI_FLASH_CLOCK                            ((0x0006  << 2) + 0xfe056000)
-#define SPI_FLASH_USER                             ((0x0007  << 2) + 0xfe056000)
-#define SPI_FLASH_USER1                            ((0x0008  << 2) + 0xfe056000)
-#define SPI_FLASH_USER2                            ((0x0009  << 2) + 0xfe056000)
-#define SPI_FLASH_USER3                            ((0x000a  << 2) + 0xfe056000)
-#define SPI_FLASH_USER4                            ((0x000b  << 2) + 0xfe056000)
-#define SPI_FLASH_SLAVE                            ((0x000c  << 2) + 0xfe056000)
-#define SPI_FLASH_SLAVE1                           ((0x000d  << 2) + 0xfe056000)
-#define SPI_FLASH_SLAVE2                           ((0x000e  << 2) + 0xfe056000)
-#define SPI_FLASH_SLAVE3                           ((0x000f  << 2) + 0xfe056000)
-#define SPI_FLASH_C0                               ((0x0010  << 2) + 0xfe056000)
-#define SPI_FLASH_C1                               ((0x0011  << 2) + 0xfe056000)
-#define SPI_FLASH_C2                               ((0x0012  << 2) + 0xfe056000)
-#define SPI_FLASH_C3                               ((0x0013  << 2) + 0xfe056000)
-#define SPI_FLASH_C4                               ((0x0014  << 2) + 0xfe056000)
-#define SPI_FLASH_C5                               ((0x0015  << 2) + 0xfe056000)
-#define SPI_FLASH_C6                               ((0x0016  << 2) + 0xfe056000)
-#define SPI_FLASH_C7                               ((0x0017  << 2) + 0xfe056000)
-#define SPI_FLASH_B8                               ((0x0018  << 2) + 0xfe056000)
-#define SPI_FLASH_B9                               ((0x0019  << 2) + 0xfe056000)
-#define SPI_FLASH_B10                              ((0x001a  << 2) + 0xfe056000)
-#define SPI_FLASH_B11                              ((0x001b  << 2) + 0xfe056000)
-#define SPI_FLASH_B12                              ((0x001c  << 2) + 0xfe056000)
-#define SPI_FLASH_B13                              ((0x001d  << 2) + 0xfe056000)
-#define SPI_FLASH_B14                              ((0x001e  << 2) + 0xfe056000)
-#define SPI_FLASH_B15                              ((0x001f  << 2) + 0xfe056000)
+//AHB domain regsiter.
+#define SPIFC_AHB_CTRL                             ((0x0000  << 2) + 0xfe056000)
+  //bit 31   AHB BUS enable.  1 enable ahb request.  0: disable ahb request.
+  //bit 30.  decerr_en for (AXI->AHB bridge).
+  //bit 29.  force_incr.  for ( AXI->AHB bridge).
+  //bit 20.  ahb_idle_ctrl. 1: show idle status in C1 mode. 0: show Idle always.
+  //bit 19.  critical word first.  CWF_EN.  1: enable.   0 : disable.
+  //bit 18:17 RDBUF_SIZE . 00: 64bytes. 01: 32 bytes. 10: 16 bytes. 11: reserved.
+  //bit 16  AHB MASTER enable.  if enabled, each master use one dedicated HRDATA buffer inside ahb2api model. total 3 HRDATA buffers inside ahb2spi.
+                               //if disabled the 3 HRDATA buffer will random be used for all masters.
+  //bit 14  write 1 to clean the HRDATA buffer 2. read 0 finished clean operation.
+  //bit 13  write 1 to clean the HRDATA buffer 1. read 0 finished clean operation.
+  //bit 12  write 1 to clean the HRDATA buffer 0. read 0 finished clean operation.
+  //bit 11.  clr_wtchdg:   1: clear WTCHDG_STS bits in STS registers. 0 : normal.
+  //bit 10:0.  not used.
+#define SPIFC_CLK_CTRL                             ((0x0001  << 2) + 0xfe056000)
+  //bit 14   asynchronous buffer ahb clock disable.  1 = disable. 0 = enable.
+  //bit 13   ahb2spi ahb clock disable.  1 = disable. 0 = enable.
+  //bit 12   ahb_arb ahb clock disable.  1 = disable. 0 = enable.
+  //bit 10   asynchronous buffer ahb clock auto gating enable.  1 = enable. 0 = disable.
+  //bit 9    ahb2spi ahb clock auto gating enable.  1 = enable. 0 = disable.
+  //bit 8    ahbarb  ahb clock auto gating enable.  1 = enable. 0 = disable.
+  //bit 2.    asynchronous AHB clock domain software reset.  1 = reset. 0 = normal working mode.
+  //bit 1.    ahb2spi ahb clock domain software reset.  1 = reset. 0 = normal working mode.
+  //bit 0.    not used.
+#define SPIFC_SEC_CTRL                             ((0x0002  << 2) + 0xfe056000)
+   //bit 31.  ADDRESS security range enable.  1 = enable; 0: disable.
+   //bit 14.  range6 enable:   1: enable; 0 : disable.
+   //bit 13.  range5 enable:   1: enable; 0 : disable.
+   //bit 12.  range4 enable:   1: enable; 0 : disable.
+   //bit 11.  range3 enable:   1: enable; 0 : disable.
+   //bit 10.  range2 enable:   1: enable; 0 : disable.
+   //bit 9.   range1 enable:   1: enable; 0 : disable.
+   //bit 8.   range0 enable:   1: enable; 0 : disable.
+#define SPIFC_APB_CTRL                             ((0x0003  << 2) + 0xfe056000)
+  //bit 31   APB control lock bit. if this bit = 1, this register can't access any more.
+  //bit 30~16. Not used.
+  //bit 15:8.  SPI clock domain regsiter APB access control. each bit for one APB user ID.
+  //bit 7:0    AHB clock domain register APB access control. each bit for one APB user ID.
+#define SPIFC_RANGE0_STA                           ((0x0010  << 2) + 0xfe056000)
+  //bit 28 :6.
+  //AHB security range 0  start address in unit of 64Byte. related to HADDR bit 28:6.
+  //bit 5:0.  always 0.
+#define SPIFC_RANGE0_EDA                           ((0x0011  << 2) + 0xfe056000)
+  //bit 28 :6.
+  //AHB security range 0  end address in unit of 64Byte. related to HADDR bit 28:6.
+  //bit 5:0.  always 0.
+//HMASTER[4:0] defines:
+//5'h0:     CPU secure data access.
+//5'h1:     CPU secure instruction access.
+//5'h2:     CPU non-secure data access.
+//5'h3:     CPU non-secure instruction access.
+//5'h4:     DSPA secure data access.
+//5'h5:     DSPA secure instruction access.
+//5'h6:     DSPA non-secure data access.
+//5'h7:     DSPA non-secure instruction access.
+//5'h08~5'h0f. for DMA access with HMASTER[2:0] as DMA thread ID.
+//5'h10     all other REQUEST not CPU DSP and DMA.
+//5'h1x.    Not used.
+#define SPIFC_RANGE0_CTRL                          ((0x0012  << 2) + 0xfe056000)
+  // AHB secruity range 0 control.
+  // bit 16. range 0 access control for HMASTEr == 6   //all other access that is not CPU DSP and DMA.
+  //bit 15:8 range 0 access control for DMA access.
+  //bit  15  range 0 access control for DMA thread 7
+  //bit  14  range 0 access control for DMA Thread 6
+  //bit  13  range 0 access control for DMA Thread 5.
+  //bit  12  range 0 access control for DMA Thread 4.
+  // bit 11. range 0 access control for DMA thread 3
+  // bit 10. range 0 access control for DMA Thread 2
+  // bit  9. range 0 access control for DMA Thread 1.
+  // bit  8. range 0 access control for DMA Thread 0.
+  // bit  7. range 0 access control for HMASTER == 7   //DSPA secure   instruction access.
+  // bit  6. range 0 access control for HMASTER == 6   //DSPA secure   data access.
+  // bit  5. range 0 access control for HMASTER == 5   //DSPA non secure   instruction access
+  // bit  4. range 0 access control for HMASTER == 4   //DSPA non secure   data access.
+  // bit  3. range 0 access control for HMASTER == 3   //CPU secure   instruction access.
+  // bit  2. range 0 access control for HMASTER == 2   //CPU secure   data access.
+  // bit  1. range 0 access control for HMASTER == 1   //CPU non secure   instruction access
+  // bit  0. range 0 access control for HMASTER == 0   //CPU non secure   data access.
+#define SPIFC_RANGE1_STA                           ((0x0013  << 2) + 0xfe056000)
+  //bit 28 :6.
+  //AHB security range 1  start address in unit of 64Byte. related to HADDR bit 28:6.
+  //bit 5:0.  always 0.
+#define SPIFC_RANGE1_EDA                           ((0x0014  << 2) + 0xfe056000)
+  //bit 28 :6.
+  //AHB security range 1  end address in unit of 64Byte. related to HADDR bit 28:6.
+  //bit 5:0.  always 0.
+#define SPIFC_RANGE1_CTRL                          ((0x0015  << 2) + 0xfe056000)
+  // AHB secruity range 1 control.
+  //bit 15:8 range 1 access control for DMA access.
+  //bit  15  range 1 access control for DMA thread 7
+  //bit  14  range 1 access control for DMA Thread 6
+  //bit  13  range 1 access control for DMA Thread 5.
+  //bit  12  range 1 access control for DMA Thread 4.
+  // bit 11. range 1 access control for DMA thread 3
+  // bit 10. range 1 access control for DMA Thread 2
+  // bit  9. range 1 access control for DMA Thread 1.
+  // bit  8. range 1 access control for DMA Thread 0.
+  // bit  7. range 1 access control for HMASTER == 7   Not used.
+  // bit  6. range 1 access control for HMASTEr == 6   //all other access that is not CPU DSP and DMA.
+  // bit  5. range 1 access control for HMASTER == 5   //DSPB non secure
+  // bit  4. range 1 access control for HMASTER == 4   //DSPB non secure
+  // bit  3. range 1 access control for HMASTER == 3   //DSPA secure
+  // bit  2. range 1 access control for HMASTER == 2   //DSPA non secure
+  // bit  1. range 1 access control for HMASTER == 1   //CPU secure access
+  // bit  0. range 1 access control for HMASTER == 0   //CPU non secure.
+#define SPIFC_RANGE2_STA                           ((0x0016  << 2) + 0xfe056000)
+  //bit 28 :6.
+  //AHB security range 2  start address in unit of 64Byte. related to HADDR bit 28:6.
+  //bit 5:0.  always 0.
+#define SPIFC_RANGE2_EDA                           ((0x0017  << 2) + 0xfe056000)
+  //bit 28 :6.
+  //AHB security range 2  end address in unit of 64Byte. related to HADDR bit 28:6.
+  //bit 5:0.  always 0.
+#define SPIFC_RANGE2_CTRL                          ((0x0018  << 2) + 0xfe056000)
+  // AHB secruity range 2 control.
+  //bit 15:8 range 2 access control for DMA access.
+  //bit  15  range 2 access control for DMA thread 7
+  //bit  14  range 2 access control for DMA Thread 6
+  //bit  13  range 2 access control for DMA Thread 5.
+  //bit  12  range 2 access control for DMA Thread 4.
+  // bit 11. range 2 access control for DMA thread 3
+  // bit 10. range 2 access control for DMA Thread 2
+  // bit  9. range 2 access control for DMA Thread 1.
+  // bit  8. range 2 access control for DMA Thread 0.
+  // bit  7. range 2 access control for HMASTER == 7   Not used.
+  // bit  6. range 2 access control for HMASTEr == 6   //all other access that is not CPU DSP and DMA.
+  // bit  5. range 2 access control for HMASTER == 5   //DSPB non secure
+  // bit  4. range 2 access control for HMASTER == 4   //DSPB non secure
+  // bit  3. range 2 access control for HMASTER == 3   //DSPA secure
+  // bit  2. range 2 access control for HMASTER == 2   //DSPA non secure
+  // bit  1. range 2 access control for HMASTER == 1   //CPU secure access
+  // bit  0. range 2 access control for HMASTER == 0   //CPU non secure.
+#define SPIFC_RANGE3_STA                           ((0x0019  << 2) + 0xfe056000)
+  //bit 28 :6.
+  //AHB security range 3  start address in unit of 64Byte. related to HADDR bit 28:6.
+  //bit 5:0.  always 0.
+#define SPIFC_RANGE3_EDA                           ((0x001a  << 2) + 0xfe056000)
+  //bit 28 :6.
+  //AHB security range 3  end address in unit of 64Byte. related to HADDR bit 28:6.
+  //bit 5:0.  always 0.
+#define SPIFC_RANGE3_CTRL                          ((0x001b  << 2) + 0xfe056000)
+  // AHB secruity range 3 control.
+  //bit 15:8 range 3 access control for DMA access.
+  //bit  15  range 3 access control for DMA thread 7
+  //bit  14  range 3 access control for DMA Thread 6
+  //bit  13  range 3 access control for DMA Thread 5.
+  //bit  12  range 3 access control for DMA Thread 4.
+  // bit 11. range 3 access control for DMA thread 3
+  // bit 10. range 3 access control for DMA Thread 2
+  // bit  9. range 3 access control for DMA Thread 1.
+  // bit  8. range 3 access control for DMA Thread 0.
+  // bit  7. range 3 access control for HMASTER == 7   Not used.
+  // bit  6. range 3 access control for HMASTEr == 6   //all other access that is not CPU DSP and DMA.
+  // bit  5. range 3 access control for HMASTER == 5   //DSPB non secure
+  // bit  4. range 3 access control for HMASTER == 4   //DSPB non secure
+  // bit  3. range 3 access control for HMASTER == 3   //DSPA secure
+  // bit  2. range 3 access control for HMASTER == 2   //DSPA non secure
+  // bit  1. range 3 access control for HMASTER == 1   //CPU secure access
+  // bit  0. range 3 access control for HMASTER == 0   //CPU non secure.
+#define SPIFC_RANGE4_STA                           ((0x001c  << 2) + 0xfe056000)
+  //bit 28 :6.
+  //AHB security range 4  start address in unit of 64Byte. related to HADDR bit 28:6.
+  //bit 5:0.  always 0.
+#define SPIFC_RANGE4_EDA                           ((0x001d  << 2) + 0xfe056000)
+  //bit 28 :6.
+  //AHB security range 4  end address in unit of 64Byte. related to HADDR bit 28:6.
+  //bit 5:0.  always 0.
+#define SPIFC_RANGE4_CTRL                          ((0x001e  << 2) + 0xfe056000)
+  // AHB secruity range 4 control.
+  // bit  4. for other HMASTER
+  // bit  3. range 4 access control for HMASTER == 3   //CPU instrunction non-secure access
+  // bit  2. range 4 access control for HMASTER == 2   //cpu instrunction secure access
+  // bit  1. range 4 access control for HMASTER == 1   //for CPU data non-secure access.
+  // bit  0. range 4 access control for HMASTER == 0   //for CPU data secure access
+#define SPIFC_RANGE5_STA                           ((0x001f  << 2) + 0xfe056000)
+  //bit 28 :6.
+  //AHB security range 5 start address in unit of 64Byte. related to HADDR bit 28:6.
+  //bit 5:0.  always 0.
+#define SPIFC_RANGE5_EDA                           ((0x0021  << 2) + 0xfe056000)
+  //bit 28 :6.
+  //AHB security range 5  end address in unit of 64Byte. related to HADDR bit 28:6.
+  //bit 5:0.  always 0.
+#define SPIFC_RANGE5_CTRL                          ((0x0020  << 2) + 0xfe056000)
+  // AHB secruity range 5 control.
+  // bit  4. for other HMASTER
+  // bit  3. range 4 access control for HMASTER == 3   //CPU instrunction non-secure access
+  // bit  2. range 4 access control for HMASTER == 2   //cpu instrunction secure access
+  // bit  1. range 4 access control for HMASTER == 1   //for CPU data non-secure access.
+  // bit  0. range 4 access control for HMASTER == 0   //for CPU data secure access
+#define SPIFC_RANGE6_STA                           ((0x0022  << 2) + 0xfe056000)
+  //bit 28 :6.
+  //AHB security range 6 start address in unit of 64Byte. related to HADDR bit 28:6.
+  //bit 5:0.  always 0.
+#define SPIFC_RANGE6_EDA                           ((0x0023  << 2) + 0xfe056000)
+  //bit 28 :6.
+  //AHB security range 6  end address in unit of 64Byte. related to HADDR bit 28:6.
+  //bit 5:0.  always 0.
+#define SPIFC_RANGE6_CTRL                          ((0x0024  << 2) + 0xfe056000)
+  // AHB secruity range 6 control.
+  // bit  4. for other HMASTER
+  // bit  3. range 4 access control for HMASTER == 3   //CPU instrunction non-secure access
+  // bit  2. range 4 access control for HMASTER == 2   //cpu instrunction secure access
+  // bit  1. range 4 access control for HMASTER == 1   //for CPU data non-secure access.
+  // bit  0. range 4 access control for HMASTER == 0   //for CPU data secure access
+#define SPIFC_RANGE7_CTRL                          ((0x0025  << 2) + 0xfe056000)
+  // AHB secruity range 7( default range) control.
+  // bit  4. for other HMASTER
+  // bit  3. range 4 access control for HMASTER == 3   //CPU instrunction non-secure access
+  // bit  2. range 4 access control for HMASTER == 2   //cpu instrunction secure access
+  // bit  1. range 4 access control for HMASTER == 1   //for CPU data non-secure access.
+  // bit  0. range 4 access control for HMASTER == 0   //for CPU data secure access
+#define SPIFC_AHB_WTCH_CTRL                        ((0x0026  << 2) + 0xfe056000)
+  //bit 16.     Wtch dog enable.
+  //bit 15:0.   ahb bus watch dog timer. if AHB bus not response, the timer over this number, the SPIFC will send back  a error response.
+#define SPIFC_SEC_VIO0                             ((0x0027  << 2) + 0xfe056000)
+  //bit 31:0  VIO ADDR
+#define SPIFC_SEC_VIO1                             ((0x0028  << 2) + 0xfe056000)
+  //bit  31.  AHB VIO status.  write 1 to clear the error info.
+  //bit 30:6  Not used.
+  //bit 5:1  HMASTER.
+  //bit 0    HWRITE.
+#define SPIFC_AHB_STS                              ((0x0029  << 2) + 0xfe056000)
+  //bit 31.  AHB IDLE.  when ahb disabled, to show ahb status. 1,  no more ahb request or ahb requent is holded.  0, ahb is still busy.
+  //bit 30.  AHB data cycle status, when ahb disabled, to show ahb data cycle status. 1, data cycle is holded,  0 : not in data cycle or data cycle is processing.
+  //bit 29.  AHB bus spi requst status. 1: still waiting for spi data. 0: idle.
+  //bit 28.  WTCHDG_STS.  1: AHB BUS access watchdog triggered. 0: no watchdo triggered.
+  //bit 27:21.  not used.
+  //bit 20:16.  WTCHDOG triggered AHB Master.
+  //bit 15:0.  not used.
+#define SPIFC_AHB_WTCH_ADDR                        ((0x0030  << 2) + 0xfe056000)
+  //bit 27:0  WTCHDG triggered AHB ADDRESS
+#define SPIFC_DES_KEY0                             ((0x0040  << 2) + 0xfe056000)
+  //TDES key 31:0
+#define SPIFC_DES_KEY1                             ((0x0041  << 2) + 0xfe056000)
+  //key 63:32
+#define SPIFC_DES_KEY2                             ((0x0042  << 2) + 0xfe056000)
+  //key 95:64
+#define SPIFC_DES_KEY3                             ((0x0043  << 2) + 0xfe056000)
+  //key 127:96
+#define SPIFC_KEY_CTRL                             ((0x0044  << 2) + 0xfe056000)
+//SPI cts_spi_clk domain regsiter.
+#define SPIFC_USER_CTRL0                           ((0x0080  << 2) + 0xfe056000)
+  //bit 31.    user request enable.  write 1 to enable.  read 0, means user command accepted by the SPI_CTRL.
+  //bit 30.    user request finish bit.  write 0 when enable user request.  read  1 means SPI_CTRL finished this user command.
+  //bit 0.     user data updated.  write 0 when enable user request.   1 means there's datas/status read from SPI flash.
+#define SPIFC_USER_CTRL1                           ((0x0081  << 2) + 0xfe056000)
+  //bit 31.    not used.
+  //bit 30.    user command cycle enable.   1) enable.  0) don't send command in usr command period.
+  //bit 29:28. user command mode.  00 = SPI extend mode. 01 : dual mode.  10:  quad mode.
+  //bit 27:20. user command code. the code need to send in command period.
+  //bit 19.    user address cycle enable.
+  //bit 18:17  user address mode:  00 = SPI extend mode. 01 : dual mode.  10:  quad mode.
+  //bit 16:15  user address Byte length  00 = 1 byte.  01 = 2 bytes.  10 = 3 bytes. 11 = 4bytes.
+  //bit 14     user datout enable.
+  //bit 13     user dataout AES enable. 1: dataout through AES describle. 0 : original data.
+  //bit 12     user data output source. 0: from data buffer.  1: from status register.
+  //bit 11:10  user dataout mode: 00 SPI extend model. 01 : dual model. 10. quad mode.
+  //bit 9:0    User data out bytes num.
+#define SPIFC_USER_CTRL2                           ((0x0082  << 2) + 0xfe056000)
+  //bit 31 usr_dummy_en  1: enable dummy cycles.  0 : no dummy cycles.
+  //bit 30: 29 usr_dummy_mode  2'b00 = SPI extend mode. 01 dual mode. 10 Quad mode.
+  //bit 28:23  user dummy clock cycle number.
+  //bit 19:16. user command input/output direction control.  000000: right after the last output.
+  //          1: after the first cycle of dummy cycle.
+  //          .....
+  //          4'hf:  right before the datin cycle.
+  //bit 15:8.  data on the dummy cycle after the first byte.
+  //bit 7:0   The first bytes data showed on dummy cycle. some flash may need special data for enhance performance mode or XIP mode.
+#define SPIFC_USER_CTRL3                           ((0x0083  << 2) + 0xfe056000)
+  //bit 31 usr_datin_en  1: datain cycle enabled.  0: no datain cycle.
+  //bit 30: datin_dest.  1: save the input data to STATUS register.  0 save the input data to data buffer.
+  //bit 29: 1: enable datain data AES describle. 0: not use AES.
+  //bit 28:27.  datin mode.  2'b00 SPI extend mode. 01: dual mode. 10 Quad mode.
+  //bit 25:16.  user data in data bytes.  how many bytes of user datain expected.
+#define SPIFC_USER_ADDR                            ((0x0084  << 2) + 0xfe056000)
+  //bit 31:0.  32bits user address.
+#define SPIFC_AHB_REQ_CTRL                         ((0x0085  << 2) + 0xfe056000)
+ //bit 31.  AHB request enable.
+ //bit 30   AHB cmd_en.  command cycle enable.
+ //bit 29:28. ahb command mode.   2'b00: spi mode. 01: dual mode. 10 Quad mode.
+ //bit 27:20:.AHB command code.
+ //bit 19.    ahb request address cycle enable.
+ //bit 18:17  AHB ADDRESS  mode. 2'b00: spi mode. 01: dual mode. 10 Quad mode.
+ //bit 16:15  AHB ADDRESS data width. 2'b00: 1byte. 2'b01 : 2bytes. 2'b10: 3bytes. 2'b11 4bytes.
+ //bit 13:10   AHB request spi bus input switch time. 0 : after address cycle. 1: the frist dummy cycles. ... 0xf. after dummy cycle.
+ //bit 9:8     AHB DATAIN mode.   2'b00: spi mode. 01: dual mode. 10 Quad mode.
+ //bit 7       DATA IN AES enable. 1: enable 0: disable.
+ //bit 1:0     AHB REQ DATA size.  2'b00:  64bytes.  2'b01: 32 bytes. 2'b10 : 16 bytes. 2'b11: reserved. this bit settign should be same as RDBUF_SIZE setting.
+#define SPIFC_AHB_REQ_CTRL1                        ((0x0086  << 2) + 0xfe056000)
+  //bit 31.  ahb Dummy enable.
+  //bit 30:29.  ahb dummy mode.
+  //bit 28:23.  ahb request dummy clock cycles.
+  //bit 15:0.   ahb dummy period output data.
+#define SPIFC_AHB_REQ_CTRL2                        ((0x0087  << 2) + 0xfe056000)
+  //bit 1:0  AHB address position. this settign depend on SPIFC_AHB_CTRL register CWF_EN bit and RDBUF_SIZE.
+  // if CWF_EN is enabled. these bit should be set to 2'b10 (16BYTE boundary).
+  // if CWF_EN is disabled. these bit should be set to same as the RDBUF_SIZE and AHB REQ DATA SIZE.
+          //00 :  64byte boundary.
+          //01 :  32byte boundary.
+          //10 :  16byte boundary.
+          //11 :  reserved.
+#define SPIFC_ACTIMING0                            ((0x0088  << 2) + 0xfe056000)
+  //bit 31:30.  tSLCH
+  //bit 29:28   tCLSH
+  //bit 20:16   tSHWL
+  //bit 15:12   tSHSL2
+  //bit 11:8    tSHSL1
+  //bit 7:0     tWHSL
+#define SPIFC_ACTIMING1                            ((0x0089  << 2) + 0xfe056000)
+ //bit 31.  D2 pin WP_n function enable.
+ //bit 30.  D2 Pin value in WP_n fucntion.
+ //bit 29.  D3 Pin HOLD_n function enable.
+ //bit 8.   DTR mode. not support.
+ //bit 6:4. Clock turn around delay. use it to set the system SPI clock read data delay.
+ //bit 3:0. not used.
+#define SPIFC_ACTIMING2                            ((0x008a  << 2) + 0xfe056000)
+ //bit 31.  spi clock input pin enable. SPIFC controller used this pin as clock to latch the input data.
+ //bit 30.  spi clock input selection. 0 : from original SPI_CLK PIN.  1: from duplicated SPI_CLK pin.
+ //bit [7:4]  spi clock output pin delay adjustment.
+ //bit [3:0]  spi clock input  pin delay adjustment.
+//SPI DATA BUFFER.  There's a total 512Byte + 64byte(orgnized as 36x128bits) SRAM .
+// since each APB access is 32bits. So we use word address as APB read/write address.
+// But for SPI side we have to use 128bit boundary. That's the first Pragram/read SPI with data buffer must start at data buffer 128bit boundary.  that means the SPIFC_USE_DBUF_ADDR last 2 bits must be 0.
+#define SPIFC_DBUF_CTRL                            ((0x0090  << 2) + 0xfe056000)
+  //bit 31.    1 = write DBUF.  0 : read DBUF.
+  //bit 30.    1. = auto update address. 0 don't change address.
+  //bit 7:0   DBUF address unit 32bits.
+#define SPIFC_DBUF_DATA                            ((0x0091  << 2) + 0xfe056000)
+  //bit 31:0.   if SPIFC_DBUF_CTRL bit 31 = 1.  write to this register will trigger one write to DBUF. and the data will be writen to DBUF.
+#define SPIFC_USER_DBUF_ADDR                       ((0x0092  << 2) + 0xfe056000)
+  //bit 7:0.  the DBUF ADDRESS used to send to or receive from SPI FLASH. the last 2 bits must be 0.
+#define SPIFC_FLASH_STATUS                         ((0x00a0  << 2) + 0xfe056000)
+#define SPIFC_STATUS                               ((0x00a1  << 2) + 0xfe056000)
+  //bit 1.  AES KEY valid. read only 1 : The aes key is ready to use. 0: the aes key is not ready.
+  //bit 0.  SPI CTRL STATE IDLE.  read only. 1 = idle; 0 = busy.
+#define SPIFC_CTRL                                 ((0x00a2  << 2) + 0xfe056000)
+  //bit 15:14. mempd for DBUF MEMORY.
+  //bit 13   spifc asynchronous buffer clock disable.  1 = disable. 0 = enable.
+  //bit 12.  spifc controller clock disable. 1 = disable. 0 = enable.
+  //bit 9.   spifc asynchronous bufer clock auto gate enable. 1 = enable. 0 = disable.
+  //bit 8.   spifc controller clock auto gate enable. 1 = enable. 0 = disable.
+  //bit 2.   spifc interface reset.  1 = RESET.  0 = normal working mode.
+  //bit 1.   spifc asynchronous buffer spi clock side reset. 1 = RESET.  0 : normal working mode.
+  //bit 0.   spifc controller reset.  1 = RESET. 0 : normal working mode.
+//`endif
+//
+// Closing file:  ./spifc_reg.vh
+//
 //========================================================================
 //  CEC - Registers
 //========================================================================
@@ -11251,6 +11542,9 @@
 #define MIPI_TOP_CTRL3                             ((0x0003  << 2) + 0xff010000)
 #define MIPI_TOP_CTRL4                             ((0x0004  << 2) + 0xff010000)
 #define MIPI_TOP_CTRL5                             ((0x0005  << 2) + 0xff010000)
+#define MIPI_TOP_CTRL6                             ((0x0006  << 2) + 0xff010000)
+#define MIPI_TOP_CTRL7                             ((0x0007  << 2) + 0xff010000)
+#define MIPI_TOP_CTRL8                             ((0x0008  << 2) + 0xff010000)
 #define MIPI_ADAPT_DE_CTRL0                        ((0x0010  << 2) + 0xff010000)
 #define MIPI_ADAPT_DE_CTRL1                        ((0x0011  << 2) + 0xff010000)
 #define MIPI_ADAPT_DE_CTRL2                        ((0x0012  << 2) + 0xff010000)
@@ -11743,6 +12037,12 @@
 //Bit 30:16 reg_sideband_th1         //unsigned ,RW, default = 0
 //Bit 15    reserved
 //Bit 14: 0 reg_sideband_th0         //unsigned ,RW, default = 0
+#define MIPI_ADAPT_DDR_RD0_CNTL7                   ((0x0009  << 2) + 0xff01d000)
+//Bit 31:17     reserved
+//Bit 16:4      reg_wcnt_force_val //unsigned ,RW, default = 0
+//Bit 3         reg_wcnt_force_en  //unsigned ,RW, default = 0
+//Bit 2:1       reg_wcnt_rst_sel   //unsigned ,RW, default = 0
+//Bit 0         reg_wcnt_sw_rst    //unsigned ,RW, default = 0
 #define MIPI_ADAPT_DDR_RD0_ST0                     ((0x000a  << 2) + 0xff01d000)
 //Bit 31:0  mipi_adapt_ddr_rd0_st0   //unsigned ,RO, default = 0
 #define MIPI_ADAPT_DDR_RD0_ST1                     ((0x000b  << 2) + 0xff01d000)
@@ -11801,6 +12101,12 @@
 //Bit 30:16 reg_sideband_th1         //unsigned ,RW, default = 0
 //Bit 15    reserved
 //Bit 14: 0 reg_sideband_th0         //unsigned ,RW, default = 0
+#define MIPI_ADAPT_DDR_RD1_CNTL7                   ((0x0019  << 2) + 0xff01d000)
+//Bit 31:17     reserved
+//Bit 16:4      reg_wcnt_force_val //unsigned ,RW, default = 0
+//Bit 3         reg_wcnt_force_en  //unsigned ,RW, default = 0
+//Bit 2:1       reg_wcnt_rst_sel   //unsigned ,RW, default = 0
+//Bit 0         reg_wcnt_sw_rst    //unsigned ,RW, default = 0
 #define MIPI_ADAPT_DDR_RD1_ST0                     ((0x001a  << 2) + 0xff01d000)
 //Bit 31:0  mipi_adapt_ddr_rd0_st0   //unsigned ,RO, default = 0
 #define MIPI_ADAPT_DDR_RD1_ST1                     ((0x001b  << 2) + 0xff01d000)
@@ -12303,6 +12609,1664 @@
 // Closing file:  ./mipi_adapt.h
 //
 //========================================================================
+// MIPI_ISP  data compress/decompress0_0
+//========================================================================
+// -----------------------------------------------
+// REG_BASE:  REGISTER_BASE_ADDR = 0xff010c00
+// -----------------------------------------------
+//
+// Reading file:  ./mipi_adapt_cmpr_regs.h
+//
+// synopsys translate_off
+// synopsys translate_on
+//-------------------------------------------------
+#define MIPI_ADAPT_CMPR_SPLIT_CTRL                 ((0x0000  << 2) + 0xff010c00)
+//Bit 31:16 reg_split_sync_ctrl       // unsigned , RW, default = 0, register sync (shaddow) ctrl
+//Bit 15:8  reserved
+//Bit 7 :4  reserved
+//Bit    3  reg_split_ignore_frag_cmd // unsigned , RW, default = 1, ingore no used axi cmd before cmd with address = "reg_wsub0_iaddr_bgn"
+//Bit    2  reserved
+//Bit    1  reg_split_big_endian      // unsigned , RW, default = 0,  Big_endian
+//Bit    0  reg_split_enable          // unsigned , RW, default = 1,  1 to enable
+#define MIPI_ADAPT_CMPR_SPLIT_SIZE                 ((0x0001  << 2) + 0xff010c00)
+//Bit 31:16 reg_split_gclk_ctrl       // unsigned , RW, default = 0
+//Bit 15:0  reg_split_hsize           // unsigned , RW, default = 4608 hsize
+#define MIPI_ADAPT_CMPR_SPLIT_FRMRST_CTRL          ((0x0002  << 2) + 0xff010c00)
+//Bit 31:21 reserved
+//Bit 20    reg_split_abort_after_cmd_1st    // unsigned , RW, default = 1
+//Bit 19    reg_split_internal_abort_en      // unsigned , RW, default = 1
+//Bit 18    reg_split_abort_hold_input       // unsigned , RW, default = 1
+//Bit 17    reg_split_frmrst_hold_input      // unsigned , RW, default = 1, 1 to hold axi input during frmrst generate, only valid for reg_frmrst_mode =0/2
+//Bit 16    reg_split_rdma_trigger_mode      // unsigned , RW, default = 0, 0 to use frmrst, 1 to use frame_end
+//Bit 15    reg_split_rdma_enable            // unsigned , RW, default = 0, 1 to enable RDMA
+//Bit 14    reserved
+//Bit 13    reg_split_frmrst_hold4abort_mode // unsigned , RW, default = 0, 1 to start frmrst delay counter caused by abort after enc path idle.
+//Bit 12    reg_split_frmrst_hold4gen_mode   // unsigned , RW, default = 0, 1 to start frmrst delay counter after enc path idle.
+//Bit 11    reg_split_dis_abort              // unsigned , RW, default = 0, disable abnormal abort processing.
+//Bit 10    reg_split_dis_frmrst_by_abort    // unsigned , RW, default = 0, disable frmrst generate caused by abnormal abort
+//Bit 9     reg_split_wait_idle_for_abort    // unsigned , RW, default = 1, wait enc path idle before frmrst generate cause by abnormal abort.
+//Bit 8     reg_split_wait_idle_for_frmrst   // unsigned , RW, default = 1, wait enc path idle before frmrst generate.
+//Bit 7 : 6 reserved
+//Bit 5 : 4 reg_split_frmrst_mode   // unsigned , RW, default = 0, frmrst mode, 0:use input frmrst; 1:use reg_soft_frmrst; 2: use axi iaddr_end to generate; 3: use iaddr_bgn to generate
+//Bit 3 : 1 reserved
+//Bit 0     reg_split_soft_frmrst   // unsigned , RW, default = 0, write 1 to generate a soft frmrst
+#define MIPI_ADAPT_CMPR_SPLIT_FRMRST_DLY0          ((0x0003  << 2) + 0xff010c00)
+//Bit 31:0  reg_split_frmrst_dlys4gen     // unsigned , RW, default = 0, clock delays for frmrst generate except caused by "abnormal abort"
+#define MIPI_ADAPT_CMPR_SPLIT_FRMRST_DLY1          ((0x0004  << 2) + 0xff010c00)
+//Bit 31:0  reg_split_frmrst_dlys4abort   // unsigned , RW, default = 16, clock delays for frmrst generate caused by "abnormal abort"
+#define MIPI_ADAPT_CMPR_SPLIT_FRMHOLD              ((0x0005  << 2) + 0xff010c00)
+//Bit 31:0  reg_split_frm_holds           // unsigned , RW, clock cycle holder from frm_rst,to wait register ready, default = 16
+#define MIPI_ADAPT_CMPR_RO_SPLIT_STATS             ((0x0007  << 2) + 0xff010c00)
+//Bit 31:0  ro_split_status               // unsigned , RW, default = 0
+#define MIPI_ADAPT_CMPR_WSUB0_CTRL                 ((0x0008  << 2) + 0xff010c00)
+//Bit 31:21 reserved
+//Bit 20    reg_wsub0_raw67_ext           // unsigned , RW, default = 0,
+//Bit 19    reserved
+//Bit 18:16 reg_wsub0_raw_mode            // unsigned , RW, default = 1,  //raw6/7/8/10/12/14
+//Bit 15:10 reserved
+//Bit 9 : 0 reg_wsub0_dfifo_size          // unsigned , RW, default = 32
+#define MIPI_ADAPT_CMPR_WSUB0_IADDRS               ((0x0009  << 2) + 0xff010c00)
+//Bit 31:0  reg_wsub0_iaddr_bgn           // unsigned , RW, default =0, start address for WSUB0
+#define MIPI_ADAPT_CMPR_WSUB0_IADDRE               ((0x000a  << 2) + 0xff010c00)
+//Bit 31:0  reg_wsub0_iaddr_end           // unsigned , RW, default =0, end address for WSUB0
+//-------------------------------------------------
+#define MIPI_ADAPT_CMPR_PACK_CTRL                  ((0x0010  << 2) + 0xff010c00)
+//Bit 31:16 reg_pack_sync_ctrl            // unsigned , RW, default = 0, register sync (shaddow) ctrl
+//Bit 15:7  reserved
+//Bit    6  reg_pack_skip_flag_init       // unsigned , RW, default = 0, skip flag for pack, 1 to skip pack axi cmd for current frame
+//Bit    5  reg_pack_skip_auto_ctrl       // unsigned , RW, default = 0, auto control for skip flag, if 1, the 1st frame use the reg_pack_skip_init as skip flag, and the next frames use 0 for skip flag
+//Bit    4  reserved
+//Bit    3  reg_pack_ignore_frag_cmd      // unsigned , RW, default = 1, ingore no used axi cmd before cmd with address = "reg_rsub0_iaddr_bgn"
+//Bit    2  reserved
+//Bit    1  reg_pack_big_endian           // unsigned , RW, default = 0,  Big_endian
+//Bit    0  reg_pack_enable               // unsigned , RW, default = 1,  1 to enable
+#define MIPI_ADAPT_CMPR_PACK_SIZE                  ((0x0011  << 2) + 0xff010c00)
+//Bit 31:16 reg_pack_gclk_ctrl            // unsigned , RW, default = 0
+//Bit 15:0  reg_pack_hsize                // unsigned , RW, default = 4608 hsize
+#define MIPI_ADAPT_CMPR_PACK_FRMRST_CTRL           ((0x0012  << 2) + 0xff010c00)
+//Bit 31:25 reserved
+//Bit 24    reg_pack_busy_care_rdmif        // unsigned , RW, default = 0, 1 to take rdmif busy as pack busy
+//Bit 23:21 reserved
+//Bit 20    reg_pack_abort_after_cmd_1st    // unsigned , RW, default = 1
+//Bit 19    reg_pack_internal_abort_en      // unsigned , RW, default = 1
+//Bit 18    reg_pack_abort_hold_input       // unsigned , RW, default = 1
+//Bit 17    reg_pack_frmrst_hold_input      // unsigned , RW, default = 1, 1 to hold axi input during frmrst generate, only valid for reg_frmrst_mode =0/2
+//Bit 16    reg_pack_rdma_trigger_mode      // unsigned , RW, default = 0, 0 to use frmrst, 1 to use frame_end
+//Bit 15    reg_pack_rdma_enable            // unsigned , RW, default = 0, 1 to enable RDMA
+//Bit 14    reserved
+//Bit 13    reg_pack_frmrst_hold4abort_mode // unsigned , RW, default = 0, 1 to start frmrst delay counter caused by abort after enc path idle.
+//Bit 12    reg_pack_frmrst_hold4gen_mode   // unsigned , RW, default = 0, 1 to start frmrst delay counter after enc path idle.
+//Bit 11    reg_pack_dis_abort              // unsigned , RW, default = 0, disable abnormal abort processing.
+//Bit 10    reg_pack_dis_frmrst_by_abort    // unsigned , RW, default = 0, disable frmrst generate caused by abnormal abort
+//Bit 9     reg_pack_wait_idle_for_abort    // unsigned , RW, default = 1, wait enc path idle before frmrst generate cause by abnormal abort.
+//Bit 8     reg_pack_wait_idle_for_frmrst  // unsigned , RW, default = 1, wait enc path ready before frmrst generate.
+//Bit 7 : 6 reserved
+//Bit 5 : 4 reg_pack_frmrst_mode   // unsigned , RW, default = 0, frmrst mode, 0:use input frmrst; 1:use reg_soft_frmrst; 2: use axi iaddr_end to generate; 3: use iaddr_bgn to generate
+//Bit 3 : 1 reserved
+//Bit 0     reg_pack_soft_frmrst   // unsigned , RW, default = 0, write 1 to generate a soft frmrst
+#define MIPI_ADAPT_CMPR_PACK_FRMRST_DLY0           ((0x0013  << 2) + 0xff010c00)
+//Bit 31:0  reg_pack_frmrst_dlys4gen      // unsigned , RW, default = 0, clock delays for frmrst generate except caused by "abnormal abort"
+#define MIPI_ADAPT_CMPR_PACK_FRMRST_DLY1           ((0x0014  << 2) + 0xff010c00)
+//Bit 31:0  reg_pack_frmrst_dlys4abort   // unsigned , RW, default = 16, clock delays for frmrst generate caused by "abnormal abort"
+#define MIPI_ADAPT_CMPR_PACK_FRMHOLD               ((0x0015  << 2) + 0xff010c00)
+//Bit 31:0  reg_pack_frm_holds            // unsigned , RW, clock cycle holder from frm_rst,to wait register ready, default = 16
+#define MIPI_ADAPT_CMPR_RO_PACK_STATS              ((0x0017  << 2) + 0xff010c00)
+//Bit 31:0  ro_pack_status                 // unsigned , RW, default = 0
+#define MIPI_ADAPT_CMPR_RSUB0_CTRL                 ((0x0018  << 2) + 0xff010c00)
+//Bit 31:21 reserved
+//Bit 20    reg_rsub0_raw67_ext           // unsigned , RW, default = 0,
+//Bit 19    reserved
+//Bit 18:16 reg_rsub0_raw_mode            // unsigned , RW, default = 1,  //raw6/7/8/10/12/14
+//Bit 15:10 reserved
+//Bit 9 : 0 reg_rsub0_dfifo_size          // unsigned , RW, default = 32
+#define MIPI_ADAPT_CMPR_RSUB0_IADDRS               ((0x0019  << 2) + 0xff010c00)
+//Bit 31:0  reg_rsub0_iaddr_bgn           // unsigned , RW, default =0, start address for RSUB0
+#define MIPI_ADAPT_CMPR_RSUB0_IADDRE               ((0x001a  << 2) + 0xff010c00)
+//Bit 31:0  reg_rsub0_iaddr_end           // unsigned , RW, default =0, end address for RSUB0
+//--------------------------------------------------
+#define MIPI_ADAPT_CMPR_INT_EN                     ((0x0020  << 2) + 0xff010c00)
+//Bit 31:0  reg_adapt_int_en             // unsigned , RW default = 0, interrupt mask
+#define MIPI_ADAPT_CMPR_RO_INT_STATUS              ((0x0021  << 2) + 0xff010c00)
+//Bit 31:0  ro_adapt_int_status          // unsigned , RO, default 0, interrupt status
+// synopsys translate_off
+// synopsys translate_on
+//
+// Closing file:  ./mipi_adapt_cmpr_regs.h
+//
+//========================================================================
+// MIPI_ISP  data compress/decompress0_1
+//========================================================================
+// -----------------------------------------------
+// REG_BASE:  REGISTER_BASE_ADDR = 0xff311400
+// -----------------------------------------------
+//`include "mipi_adapt_cmpr_loss_sub0.h"
+//========================================================================
+// MIPI_ISP  data compress enc
+//========================================================================
+// -----------------------------------------------
+// REG_BASE:  REGISTER_BASE_ADDR = 0xff011000
+// -----------------------------------------------
+//
+// Reading file:  ./mipi_cmpr_raw_enc_regs.h
+//
+// synopsys translate_off
+// synopsys translate_on
+#define MIPI_LOSSE_RAW_CTRL                        ((0x0000  << 2) + 0xff011000)
+//Bit 31:29        reg_interrupt_en          // unsigned ,    RW, default = 0
+//Bit 28:24        reserved
+//Bit 23:16        reg_hblank                // unsigned ,    RW, default = 6  horz blank size
+//Bit 15: 8        reg_sync_ctrl             // unsigned ,    RW, default = 0  shaddow control, 0 to shaddow
+//Bit  7: 4        reg_use_inter_fmt         // unsigned ,    RW, default = 0  0 to use external format setting
+//Bit  3           reg_status_rdbk_mode      // unsigned ,    RW, default = 0  0 to shaddow the ro status
+//Bit  2: 1        reg_stats_en              // unsigned ,    RW, default = 3  0 to enable stats of max_err/err_acc; 1 to enable error_count2
+//Bit  0           reg_enable                // unsigned ,    RW, default = 1  enc/dec enable
+#define MIPI_LOSSE_RAW_FRAME_HOLD                  ((0x0001  << 2) + 0xff011000)
+//Bit 31: 1        reserved
+//Bit  0           reg_rdma_mode_en          // unsigned ,    RW, default = 0  configure regs use RDMA mode
+#define MIPI_LOSSE_RAW_GCLK_CTRL                   ((0x0002  << 2) + 0xff011000)
+//Bit 31: 0        reg_gclk_ctrl             // unsigned ,    RW, default = 0  gated-clock control
+#define MIPI_LOSSE_RAW_RO_CODEC_STATUS             ((0x0003  << 2) + 0xff011000)
+//Bit 31: 0        ro_codec_status           // unsigned ,    RW, default = 0  codec status, write 1 to clear
+#define MIPI_LOSSE_RAW_MISC                        ((0x0004  << 2) + 0xff011000)
+//Bit 31: 8        reserved
+//Bit  7: 4        reg_misc                  // unsigned ,    RW, default = 0
+//Bit  3           reg_inter_preslc_bitaccum // unsigned ,    RW, default = 0  for dec
+//Bit  2           reg_inter_preslc_fifolevel // unsigned ,    RW, default = 0  for dec
+//Bit  1           reg_dec_oflush_mode       // unsigned ,    RW, default = 0  for dec
+//Bit  0           reg_busy_shown_till_inp   // unsigned ,    RW, default = 0  1 to shown codec busy till input come
+#define MIPI_LOSSE_RAW_BASIS                       ((0x0008  << 2) + 0xff011000)
+//Bit 31           reg_lossless_en           // unsigned ,    RW, default = 0  enable of lossless
+//Bit 30:24        reserved
+//Bit 23            reserved
+//Bit 22:20        reg_raw_mode              // unsigned ,    RW, default = 1  0: mono, 1:G R  ,2 :   I R     ,3:  G R   ,4:  G R G B, 5~7: other cases
+//Bit 19           reg_mono_comp_mode        // unsigned ,    RW, default = 0  compression mode of mono data : 0  compression in Y ,  1: compression in bayer
+//Bit 18           reg_group_ver_size_mode   // unsigned ,    RW, default = 1  the mode of vertical group size ,0 : vertical group size 2,  1: vertical group size 1
+//Bit 17           reg_pred_step_mode        // unsigned ,    RW, default = 1  the mode of GbGr pred mode, 0: GbGr mix together as G, use the most recent data, 1: Gb use Gb,Gr use Gr  fix 1
+//Bit 16           reg_pred_simple_mode      // unsigned ,    RW, default = 0  the mode of RGBIR4x4 R/B pred, 0: normal mode      1:simple average  fix 0
+//Bit 15:13        reserved
+//Bit 12: 4        reg_ratio_bppx16          // unsigned ,    RW, default = 80  bits per pixel x16, fracbits_bpp = x/16;
+//Bit  3            reserved
+//Bit  2: 0        reg_comp_chn_size         // unsigned ,    RW, default = 5  fix 5
+#define MIPI_LOSSE_RAW_OFST_BIT_DEPTH              ((0x0009  << 2) + 0xff011000)
+//Bit 31:12        reserved
+//Bit 11:10        reg_xphase_ofst           // unsigned ,    RW, default = 0  offset in x dimmension
+//Bit  9: 8        reg_yphase_ofst           // unsigned ,    RW, default = 0  phase offset in y dimmension
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_src_bit_depth         // unsigned ,    RW, default = 10  source data bit depth from sensor
+#define MIPI_LOSSE_RAW_PIC_SIZE                    ((0x000a  << 2) + 0xff011000)
+//Bit 31:16        reg_pic_ysize             // unsigned ,    RW, default = 1080  picture verital size
+//Bit 15: 0        reg_pic_xsize             // unsigned ,    RW, default = 1920  picture horizontal size
+#define MIPI_LOSSE_RAW_SLICE_SIZE                  ((0x000b  << 2) + 0xff011000)
+//Bit 31           reg_use_sw_preslc_bitaccum // unsigned ,    RW, default = 0
+//Bit 30            reserved
+//Bit 29:28        reg_slice_num_mode        // unsigned ,    RW, default = 0  num 1, 1:slice num 2  2:slice num 4  3:slice num 8
+//Bit 27:16        reserved
+//Bit 15: 0        reg_slice_ysize_0         // unsigned ,    RW, default = 1080  vertical slice window size
+#define MIPI_LOSSE_RAW_SLICE_SIZE_1                ((0x000c  << 2) + 0xff011000)
+//Bit 31:16        reg_slice_ysize_2         // unsigned ,    RW, default = 0  vertical slice window size
+//Bit 15: 0        reg_slice_ysize_1         // unsigned ,    RW, default = 0  vertical slice window size
+#define MIPI_LOSSE_RAW_SLICE_SIZE_2                ((0x000d  << 2) + 0xff011000)
+//Bit 31:16        reg_slice_ysize_4         // unsigned ,    RW, default = 0  slice window size
+//Bit 15: 0        reg_slice_ysize_3         // unsigned ,    RW, default = 0  vertical slice window size
+#define MIPI_LOSSE_RAW_SLICE_SIZE_3                ((0x000e  << 2) + 0xff011000)
+//Bit 31:16        reg_slice_ysize_6         // unsigned ,    RW, default = 0  vertical slice window size
+//Bit 15: 0        reg_slice_ysize_5         // unsigned ,    RW, default = 0  vertical slice window size
+#define MIPI_LOSSE_RAW_PRESL_LAST_BITS             ((0x000f  << 2) + 0xff011000)
+//Bit 31: 0        reg_pre_slc_bitaccum      // signed ,    RW, default = 0  pre slice last bits  add to next slice
+#define MIPI_LOSSE_RAW_PRESL_FIFO_LEVEL            ((0x0010  << 2) + 0xff011000)
+//Bit 31           reg_use_sw_preslc_fifolevel // unsigned ,    RW, default = 0
+//Bit 30:16        reserved
+//Bit 15: 0        reg_pre_slc_fifolevel     // unsigned ,    RW, default = 16  pre slice fifolevel  add to next slice
+#define MIPI_LOSSE_RAW_DEBUG                       ((0x0011  << 2) + 0xff011000)
+//Bit 31           reg_debug_mode            // unsigned ,    RW, default = 0  enable of qleve debug return qlevel value
+//Bit 30:24        reserved
+//Bit 23:16        reg_dbg_qlevel_2          // unsigned ,    RW, default = 0
+//Bit 15: 8        reg_dbg_qlevel_1          // unsigned ,    RW, default = 0
+//Bit  7: 0        reg_dbg_qlevel_0          // unsigned ,    RW, default = 0
+#define MIPI_LOSSE_RAW_REF_DATA                    ((0x0012  << 2) + 0xff011000)
+//Bit 31:16        reg_ref_data_1            // unsigned ,    RW, default = 32768  the reference data of adjust qlevel  //need latch
+//Bit 15: 0        reg_ref_data_0            // unsigned ,    RW, default = 3840  the reference data of adjust qlevel
+#define MIPI_LOSSE_RAW_REF_DATA_1                  ((0x0013  << 2) + 0xff011000)
+//Bit 31:16        reg_ref_data_2            // unsigned ,    RW, default = 32768  the reference data of adjust qlevel
+//Bit 15: 0        reg_ref_data_3            // unsigned ,    RW, default = 3840  the reference data of adjust qlevel
+#define MIPI_LOSSE_RAW_REF_DATA_2                  ((0x0014  << 2) + 0xff011000)
+//Bit 31:16        reserved
+//Bit 15: 0        reg_ref_data_4            // unsigned ,    RW, default = 32768  the reference data of adjust qlevel
+#define MIPI_LOSSE_RAW_PRED_PROCE                  ((0x0015  << 2) + 0xff011000)
+//Bit 31:21        reserved
+//Bit 20           reg_pred_ref_adj_en       // unsigned ,    RW, default = 0  enable of pred process,only for R/B chn   //need latch
+//Bit 19:18        reserved
+//Bit 17:16        reg_pred_ref_adj_ratio_mode // unsigned ,    RW, default = 3  the ratio mode of adjust pred, 0:pred = pred - (pred - ref)*1/8. 1::pred = pred - (pred - ref)*2/8, 2::pred = pred - (pred - ref)*4/8 , 3::pred = pred - (pred - ref)*8/8.
+//Bit 15:10        reserved
+//Bit  9: 0        reg_pred_ref_adj_th       // unsigned ,    RW, default = 0  threshold of pred process
+#define MIPI_LOSSE_RAW_GLOBAL_PHASE_LUT            ((0x0016  << 2) + 0xff011000)
+//Bit 31            reserved
+//Bit 30:28        reg_raw_phslut_15         // unsigned ,    RW, default = 3  raw phase lut
+//Bit 27            reserved
+//Bit 26:24        reg_raw_phslut_14         // unsigned ,    RW, default = 2  global raw phase lut
+//Bit 23            reserved
+//Bit 22:20        reg_raw_phslut_13         // unsigned ,    RW, default = 3  global raw phase lut
+//Bit 19            reserved
+//Bit 18:16        reg_raw_phslut_12         // unsigned ,    RW, default = 2  global raw phase lut
+//Bit 15            reserved
+//Bit 14:12        reg_raw_phslut_11         // unsigned ,    RW, default = 1  raw phase lut
+//Bit 11            reserved
+//Bit 10: 8        reg_raw_phslut_10         // unsigned ,    RW, default = 0  global raw phase lut
+//Bit  7            reserved
+//Bit  6: 4        reg_raw_phslut_9          // unsigned ,    RW, default = 1  global raw phase lut
+//Bit  3            reserved
+//Bit  2: 0        reg_raw_phslut_8          // unsigned ,    RW, default = 0  raw phase lut
+#define MIPI_LOSSE_RAW_GLOBAL_PHASE_LUT_1          ((0x0017  << 2) + 0xff011000)
+//Bit 31            reserved
+//Bit 30:28        reg_raw_phslut_7          // unsigned ,    RW, default = 3  raw phase lut
+//Bit 27            reserved
+//Bit 26:24        reg_raw_phslut_6          // unsigned ,    RW, default = 2  global raw phase lut
+//Bit 23            reserved
+//Bit 22:20        reg_raw_phslut_5          // unsigned ,    RW, default = 3  global raw phase lut
+//Bit 19            reserved
+//Bit 18:16        reg_raw_phslut_4          // unsigned ,    RW, default = 2  global raw phase lut
+//Bit 15            reserved
+//Bit 14:12        reg_raw_phslut_3          // unsigned ,    RW, default = 1  raw phase lut
+//Bit 11            reserved
+//Bit 10: 8        reg_raw_phslut_2          // unsigned ,    RW, default = 0  global raw phase lut
+//Bit  7            reserved
+//Bit  6: 4        reg_raw_phslut_1          // unsigned ,    RW, default = 1  global raw phase lut
+//Bit  3            reserved
+//Bit  2: 0        reg_raw_phslut_0          // unsigned ,    RW, default = 0  raw phase lut
+#define MIPI_LOSSE_RAW_PHASE_LUT                   ((0x0018  << 2) + 0xff011000)
+//Bit 31:20        reserved
+//Bit 19            reserved
+//Bit 18:16        reg_comp_chn_lut_4        // unsigned ,    RW, default = 0  compression phase lut
+//Bit 15            reserved
+//Bit 14:12        reg_comp_chn_lut_3        // unsigned ,    RW, default = 0  compression phase lut
+//Bit 11            reserved
+//Bit 10: 8        reg_comp_chn_lut_2        // unsigned ,    RW, default = 1  compression phase lut
+//Bit  7            reserved
+//Bit  6: 4        reg_comp_chn_lut_1        // unsigned ,    RW, default = 1  compression phase lut
+//Bit  3            reserved
+//Bit  2: 0        reg_comp_chn_lut_0        // unsigned ,    RW, default = 0  compression phase lut
+#define MIPI_LOSSE_RAW_FLATNESS_0                  ((0x0019  << 2) + 0xff011000)
+//Bit 31           reg_flatness_adj_mode     // unsigned ,    RW, default = 0  0: only check 0 cell, 1: check -1, 0 ,1 3cell
+//Bit 30           reg_flatness_pixel_flag   // unsigned ,    RW, default = 0  enable signal for the flatness
+//Bit 29:28        reserved
+//Bit 27:25        reserved
+//Bit 24:20        reg_flatness_qp_thresh_0  // unsigned ,    RW, default = 4  thresh qp for flatness to be used
+//Bit 19:17        reserved
+//Bit 16:12        reg_flatness_qp_reduce_0  // unsigned ,    RW, default = 2  if the cell is flatness qlevel = qlevel- flatness_qp_reduce
+//Bit 11: 0        reg_flatness_accum_thresh // signed ,    RW, default = 1024  thresh ibits_accum for flatness to be used x16
+#define MIPI_LOSSE_RAW_FLATNESS_QP                 ((0x001a  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_flatness_qp_thresh_2  // unsigned ,    RW, default = 4  thresh qp for flatness to be used
+//Bit 23:21        reserved
+//Bit 20:16        reg_flatness_qp_reduce_2  // unsigned ,    RW, default = 2  if the cell is flatness qlevel = qlevel- flatness_qp_reduce
+//Bit 15:13        reserved
+//Bit 12: 8        reg_flatness_qp_thresh_1  // unsigned ,    RW, default = 4  thresh qp for flatness to be used
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_flatness_qp_reduce_1  // unsigned ,    RW, default = 2  if the cell is flatness qlevel = qlevel- flatness_qp_reduce
+#define MIPI_LOSSE_RAW_FLATNESS_TH0                ((0x001b  << 2) + 0xff011000)
+//Bit 31:16        reg_flatness_det_thresh_min_0 // unsigned ,    RW, default = 25  MAX-MIN for all components is required to be less than  this value , flatness to be used
+//Bit 15: 0        reg_flatness_det_thresh_max_0 // unsigned ,    RW, default = 32  MAX-MIN for all components is required to be less than this value , flatness to be used
+#define MIPI_LOSSE_RAW_FLATNESS_TH1                ((0x001c  << 2) + 0xff011000)
+//Bit 31:16        reg_flatness_det_thresh_min_1 // unsigned ,    RW, default = 25  MAX-MIN for all components is required to be less than  this value , flatness to be used
+//Bit 15: 0        reg_flatness_det_thresh_max_1 // unsigned ,    RW, default = 32  MAX-MIN for all components is required to be less than this value , flatness to be used
+#define MIPI_LOSSE_RAW_FLATNESS_TH2                ((0x001d  << 2) + 0xff011000)
+//Bit 31:16        reg_flatness_det_thresh_min_2 // unsigned ,    RW, default = 25  MAX-MIN for all components is required to be less than  this value , flatness to be used
+//Bit 15: 0        reg_flatness_det_thresh_max_2 // unsigned ,    RW, default = 32  MAX-MIN for all components is required to be less than this value , flatness to be used
+#define MIPI_LOSSE_RAW_QP_MAP_CHN0                 ((0x001e  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_3     // unsigned ,    RW, default = 11  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_2     // unsigned ,    RW, default = 12  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_1     // unsigned ,    RW, default = 12  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_0     // unsigned ,    RW, default = 12  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN0_1               ((0x001f  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_7     // unsigned ,    RW, default = 9  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_6     // unsigned ,    RW, default = 10  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_5     // unsigned ,    RW, default = 10  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_4     // unsigned ,    RW, default = 11  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN0_2               ((0x0020  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_11    // unsigned ,    RW, default = 8  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_10    // unsigned ,    RW, default = 8  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_9     // unsigned ,    RW, default = 8  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_8     // unsigned ,    RW, default = 9  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN0_3               ((0x0021  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_15    // unsigned ,    RW, default = 6  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_14    // unsigned ,    RW, default = 6  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_13    // unsigned ,    RW, default = 7  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_12    // unsigned ,    RW, default = 7  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN0_4               ((0x0022  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_19    // unsigned ,    RW, default = 4  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_18    // unsigned ,    RW, default = 4  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_17    // unsigned ,    RW, default = 5  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_16    // unsigned ,    RW, default = 5  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN0_5               ((0x0023  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_23    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_22    // unsigned ,    RW, default = 1  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_21    // unsigned ,    RW, default = 2  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_20    // unsigned ,    RW, default = 3  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN0_6               ((0x0024  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_27    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_26    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_25    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_24    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN0_7               ((0x0025  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_31    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_30    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_29    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_28    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN0_8               ((0x0026  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_35    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_34    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_33    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_32    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN0_9               ((0x0027  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_39    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_38    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_37    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_36    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN1                 ((0x0028  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_3     // unsigned ,    RW, default = 11  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_2     // unsigned ,    RW, default = 12  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_1     // unsigned ,    RW, default = 12  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_0     // unsigned ,    RW, default = 12  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN1_1               ((0x0029  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_7     // unsigned ,    RW, default = 9  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_6     // unsigned ,    RW, default = 10  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_5     // unsigned ,    RW, default = 10  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_4     // unsigned ,    RW, default = 11  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN1_2               ((0x002a  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_11    // unsigned ,    RW, default = 8  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_10    // unsigned ,    RW, default = 8  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_9     // unsigned ,    RW, default = 8  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_8     // unsigned ,    RW, default = 9  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN1_3               ((0x002b  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_15    // unsigned ,    RW, default = 6  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_14    // unsigned ,    RW, default = 6  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_13    // unsigned ,    RW, default = 7  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_12    // unsigned ,    RW, default = 7  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN1_4               ((0x002c  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_19    // unsigned ,    RW, default = 4  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_18    // unsigned ,    RW, default = 4  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_17    // unsigned ,    RW, default = 5  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_16    // unsigned ,    RW, default = 5  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN1_5               ((0x002d  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_23    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_22    // unsigned ,    RW, default = 1  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_21    // unsigned ,    RW, default = 2  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_20    // unsigned ,    RW, default = 3  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN1_6               ((0x002e  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_27    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_26    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_25    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_24    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN1_7               ((0x002f  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_31    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_30    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_29    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_28    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN1_8               ((0x0030  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_35    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_34    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_33    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_32    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN1_9               ((0x0031  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_39    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_38    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_37    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_36    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN2                 ((0x0032  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_3     // unsigned ,    RW, default = 11  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_2     // unsigned ,    RW, default = 12  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_1     // unsigned ,    RW, default = 12  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_0     // unsigned ,    RW, default = 12  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN2_1               ((0x0033  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_7     // unsigned ,    RW, default = 9  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_6     // unsigned ,    RW, default = 10  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_5     // unsigned ,    RW, default = 10  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_4     // unsigned ,    RW, default = 11  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN2_2               ((0x0034  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_11    // unsigned ,    RW, default = 8  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_10    // unsigned ,    RW, default = 8  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_9     // unsigned ,    RW, default = 8  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_8     // unsigned ,    RW, default = 9  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN2_3               ((0x0035  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_15    // unsigned ,    RW, default = 6  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_14    // unsigned ,    RW, default = 6  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_13    // unsigned ,    RW, default = 7  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_12    // unsigned ,    RW, default = 7  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN2_4               ((0x0036  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_19    // unsigned ,    RW, default = 4  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_18    // unsigned ,    RW, default = 4  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_17    // unsigned ,    RW, default = 5  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_16    // unsigned ,    RW, default = 5  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN2_5               ((0x0037  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_23    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_22    // unsigned ,    RW, default = 1  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_21    // unsigned ,    RW, default = 2  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_20    // unsigned ,    RW, default = 3  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN2_6               ((0x0038  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_27    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_26    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_25    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_24    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN2_7               ((0x0039  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_31    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_30    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_29    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_28    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN2_8               ((0x003a  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_35    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_34    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_33    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_32    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_QP_MAP_CHN2_9               ((0x003b  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_39    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_38    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_37    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_36    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSE_RAW_RC_GROUP_2                  ((0x003c  << 2) + 0xff011000)
+//Bit 31:16        reg_rc_group_y            // unsigned ,    RW, default = 1080  vertical size of group (super block) within picture for rate control algorithm
+//Bit 15:14        reserved
+//Bit 13: 0        reg_slcln_ratio           // unsigned ,    RW, default = 24  dynamic ratio to idx of extra bit budget for the cells within the line
+#define MIPI_LOSSE_RAW_RC_BUDGET_0                 ((0x003d  << 2) + 0xff011000)
+//Bit 31:24        reg_rc_perln_16pec_xbdgt_3 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit 23:16        reg_rc_perln_16pec_xbdgt_2 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit 15: 8        reg_rc_perln_16pec_xbdgt_1 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit  7: 0        reg_rc_perln_16pec_xbdgt_0 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+#define MIPI_LOSSE_RAW_RC_BUDGET_1                 ((0x003e  << 2) + 0xff011000)
+//Bit 31:24        reg_rc_perln_16pec_xbdgt_7 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit 23:16        reg_rc_perln_16pec_xbdgt_6 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit 15: 8        reg_rc_perln_16pec_xbdgt_5 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit  7: 0        reg_rc_perln_16pec_xbdgt_4 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+#define MIPI_LOSSE_RAW_RC_BUDGET_2                 ((0x003f  << 2) + 0xff011000)
+//Bit 31:24        reg_rc_perln_16pec_xbdgt_11 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit 23:16        reg_rc_perln_16pec_xbdgt_10 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit 15: 8        reg_rc_perln_16pec_xbdgt_9 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit  7: 0        reg_rc_perln_16pec_xbdgt_8 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+#define MIPI_LOSSE_RAW_RC_BUDGET_3                 ((0x0040  << 2) + 0xff011000)
+//Bit 31:24        reg_rc_perln_16pec_xbdgt_15 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit 23:16        reg_rc_perln_16pec_xbdgt_14 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit 15: 8        reg_rc_perln_16pec_xbdgt_13 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit  7: 0        reg_rc_perln_16pec_xbdgt_12 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+#define MIPI_LOSSE_RAW_RC_BUDGET_4                 ((0x0041  << 2) + 0xff011000)
+//Bit 31:24        reg_rc_perln_16pec_xbdgt_16 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit 23:16        reg_rc_1stln_slice_xbdgt  // unsigned ,    RW, default = 0  extra bit budget (in pct= x/128) for the first line of the slice, no prediction from pre-line;
+//Bit 15: 8        reg_rc_2ndln_slice_xbdgt  // unsigned ,    RW, default = 0  extra bit budget (in pct= x/128) for the 2nd line of the slice, with limited prediction from pre-line;
+//Bit  7: 0        reg_rc_1stln_group_xbdgt  // unsigned ,    RW, default = 0  extra bit budget (in pct= x/128) for the first line of the group, still with prediction from pre-line;
+#define MIPI_LOSSE_RAW_RC_BUDGET_5                 ((0x0042  << 2) + 0xff011000)
+//Bit 31:30        reserved
+//Bit 29:24        reg_rc_master_qpx2_max    // unsigned ,    RW, default = 23  maxmum qpx2 during the rc_loop
+//Bit 23:22        reserved
+//Bit 21:16        reg_rc_master_qpx2_min    // unsigned ,    RW, default = 14  minmum qpx2 during the rc_loop
+//Bit 15: 8        reg_rc_dynamic_speed_long // unsigned ,    RW, default = 16  dynamic speed for using up the accumed bits, 2nd order gain of loop filter. normalized to 16 as 1;
+//Bit  7: 0        reg_rc_dynamic_speed_short // unsigned ,    RW, default = 16  dynamic speed for using up the accumed bits, 1st order gain of loop filter. normalized to 64 as 1;
+#define MIPI_LOSSE_RAW_RC_BUDGET_6                 ((0x0043  << 2) + 0xff011000)
+//Bit 31           reg_rc_precell_bits_reset // unsigned ,    RW, default = 0  enable for bits_cell_pre reset of each group  1, bits_cell_pre =0  0:bits_cell_pre value unchanged
+//Bit 30:29        reserved
+//Bit 28:16        reg_rc_dynamic_mxblk_long // unsigned ,    RW, default = 240  maximum number of blocks in group for long term dynamic factor, if set to 0, then no limit; otherwise set limit, default= numblk of one line
+//Bit 15:13        reserved
+//Bit 12: 0        reg_rc_qpx2_margin3_blkth // unsigned ,    RW, default = 240  final guard margin threshold to blocks_left_in_group, default= rc_dynamic_mxblk_long;
+#define MIPI_LOSSE_RAW_RC_QP_MARGIN                ((0x0044  << 2) + 0xff011000)
+//Bit 31:30        reserved
+//Bit 29:16        reg_rc_qpx2_margin_thd_1  // signed ,    RW, default = -4  threshold x16 to ibits_accum to assign extra pq margin to avoid buffer down flow, defautl=[-4*16, 16*16]
+//Bit 15:14        reserved
+//Bit 13: 0        reg_rc_qpx2_margin_thd_0  // signed ,    RW, default = 8  threshold x16 to ibits_accum to assign extra pq margin to avoid buffer down flow, defautl=[-4*16, 16*16]
+#define MIPI_LOSSE_RAW_RC_QP_MARGIN_1              ((0x0045  << 2) + 0xff011000)
+//Bit 31:30        reserved
+//Bit 29:16        reg_rc_qpx2_margin_thd_3  // signed ,    RW, default = -16  threshold x16 to ibits_accum to assign extra pq margin to avoid buffer down flow, defautl=[-4*16, 16*16]
+//Bit 15:14        reserved
+//Bit 13: 0        reg_rc_qpx2_margin_thd_2  // signed ,    RW, default = -12  threshold x16 to ibits_accum to assign extra pq margin to avoid buffer down flow, defautl=[-4*16, 16*16]
+#define MIPI_LOSSE_RAW_RC_QP_MARGIN_2              ((0x0046  << 2) + 0xff011000)
+//Bit 31:30        reserved
+//Bit 29:24        reg_rc_qpx2_margin_dlt_3  // unsigned ,    RW, default = 6  delta qp margin to qp_max when ibits_accum lower than  rc_qp_margin_thd[2], defautl=[1, 4]
+//Bit 23:22        reserved
+//Bit 21:16        reg_rc_qpx2_margin_dlt_2  // unsigned ,    RW, default = 5
+//Bit 15:14        reserved
+//Bit 13: 8        reg_rc_qpx2_margin_dlt_1  // unsigned ,    RW, default = 3
+//Bit  7: 6        reserved
+//Bit  5: 0        reg_rc_qpx2_margin_dlt_0  // unsigned ,    RW, default = 2  delta qp margin to qp_max when ibits_accum lower than  rc_qp_margin_thd[2], defautl=[1, 4]
+#define MIPI_LOSSE_RAW_RC_QP_MARGIN_3              ((0x0047  << 2) + 0xff011000)
+//Bit 31:30        reg_rc_qpx2_margin_dlt_mode // unsigned ,    RW, default = 1
+//Bit 29:28        reserved
+//Bit 27:16        reg_rc_fifo_qpx2_margin_thd_1 // unsigned ,    RW, default = 250  threshold  to fifo to assign extra pq margin to avoid buffer down flow,
+//Bit 15:12        reserved
+//Bit 11: 0        reg_rc_fifo_qpx2_margin_thd_0 // unsigned ,    RW, default = 150  threshold  to fifo to assign extra pq margin to avoid buffer down flow
+#define MIPI_LOSSE_RAW_RC_QP_MARGIN_4              ((0x0048  << 2) + 0xff011000)
+//Bit 31:28        reserved
+//Bit 27:16        reg_rc_fifo_qpx2_margin_thd_3 // unsigned ,    RW, default = 500  threshold to fifo to assign extra pq margin to avoid buffer down flow
+//Bit 15:12        reserved
+//Bit 11: 0        reg_rc_fifo_qpx2_margin_thd_2 // unsigned ,    RW, default = 350  threshold to fifo to assign extra pq margin to avoid buffer down flow
+#define MIPI_LOSSE_RAW_RC_QP_MARGIN_5              ((0x0049  << 2) + 0xff011000)
+//Bit 31:30        reserved
+//Bit 29:24        reg_rc_fifo_qpx2_margin_dlt_3 // unsigned ,    RW, default = 16  delta qp margin to qp_max when fifo lower than  rc_qp_margin_thd[2], defautl=[1, 4]
+//Bit 23:22        reserved
+//Bit 21:16        reg_rc_fifo_qpx2_margin_dlt_2 // unsigned ,    RW, default = 7
+//Bit 15:14        reserved
+//Bit 13: 8        reg_rc_fifo_qpx2_margin_dlt_1 // unsigned ,    RW, default = 5
+//Bit  7: 6        reserved
+//Bit  5: 0        reg_rc_fifo_qpx2_margin_dlt_0 // unsigned ,    RW, default = 3  delta qp margin to qp_max when fifo lower than  rc_qp_margin_thd[2], defautl=[1, 4]
+#define MIPI_LOSSE_RAW_FLATNESS_ADJ0               ((0x004a  << 2) + 0xff011000)
+//Bit 31           reg_adjsize_flatness_flag // unsigned ,    RW, default = 0  enable signal for the flatness mode,adj_predicted_size should be small in flatness
+//Bit 30           reg_adjsize_complex_flag  // unsigned ,    RW, default = 0  enable signal for the complex mode,adj_predicted_size should be large in complex
+//Bit 29           reg_rc_fifo_avgspeed_use_sbudget // unsigned ,    RW, default = 0  enable to use s_budget_block as budget_block: 0 use bits_perblk programable register, 1: use rc calculated s_budget_blk
+//Bit 28           reg_rc_bits_gap_dlt_down_en // unsigned ,    RW, default = 0  to dlt_buget2x reduced based on bits_gap value
+//Bit 27:16        reg_adjsize_flatness_pixthd // unsigned ,    RW, default = 50  area if(MAX-MIN) bigger than pixthd
+//Bit 15:13        reserved
+//Bit 12: 8        reg_adjsize_flatness_sizedlt // unsigned ,    RW, default = 7  delta size margin to adj_predicted_size when adj_predicted_size lower than  reg_adjsize_flatness_sizedlt
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_adjsize_flatness_reduce // unsigned ,    RW, default = 2  the cell is flatness and adj_predicted_size > thd,adj_predicted_size = adj_predicted_size- reg_adjsize_flatness_reduce
+#define MIPI_LOSSE_RAW_FLATNESS_ADJ1               ((0x004b  << 2) + 0xff011000)
+//Bit 31:28        reserved
+//Bit 27:16        reg_adjsize_complex_pixthd // unsigned ,    RW, default = 512  area if(MAX-MIN) bigger than pixthd
+//Bit 15:13        reserved
+//Bit 12: 8        reg_adjsize_complex_sizedlt // unsigned ,    RW, default = 7  delta size margin to adj_predicted_size when adj_predicted_size bigger than  reg_adjsize_complex_sizedlt
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_adjsize_complex_increase // unsigned ,    RW, default = 2  if the cell is complex and adj_predicted_size < thd,adj_predicted_size = adj_predicted_size + reg_adjsize_complex_increase
+#define MIPI_LOSSE_RAW_FIFO_THD_0                  ((0x004c  << 2) + 0xff011000)
+//Bit 31:24        reserved
+//Bit 23:12        reg_rc_fifo_margin_thd_5  // unsigned ,    RW, default = 280  threshold of fifo level(in words=16bits) to guard the rc loop by adding delta to p_budget2x, defautl=[]
+//Bit 11: 0        reg_rc_fifo_margin_thd_4  // unsigned ,    RW, default = 250  threshold of fifo level(in words=16bits) to guard the rc loop by adding delta to p_budget2x, defautl=[]
+#define MIPI_LOSSE_RAW_FIFO_THD_1                  ((0x004d  << 2) + 0xff011000)
+//Bit 31:24        reserved
+//Bit 23:12        reg_rc_fifo_margin_thd_3  // unsigned ,    RW, default = 220  threshold of fifo level(in words=16bits) to guard the rc loop by adding delta to p_budget2x, defautl=[]
+//Bit 11: 0        reg_rc_fifo_margin_thd_2  // unsigned ,    RW, default = 165  threshold of fifo level(in words=16bits) to guard the rc loop by adding delta to p_budget2x, defautl=[]
+#define MIPI_LOSSE_RAW_FIFO_THD_2                  ((0x004e  << 2) + 0xff011000)
+//Bit 31:24        reserved
+//Bit 23:12        reg_rc_fifo_margin_thd_1  // unsigned ,    RW, default = 145  threshold of fifo level(in words=16bits) to guard the rc loop by adding delta to p_budget2x, defautl=[]
+//Bit 11: 0        reg_rc_fifo_margin_thd_0  // unsigned ,    RW, default = 130  threshold of fifo level(in words=16bits) to guard the rc loop by adding delta to p_budget2x, defautl=[]
+#define MIPI_LOSSE_RAW_FIFO_AVG                    ((0x004f  << 2) + 0xff011000)
+//Bit 31:26        reserved
+//Bit 25:20        reg_rc_fifo_margin_dlt_5  // unsigned ,    RW, default = 12  delta of fifo level to guard the rc loop by adding delta to p_budget2x, defautl=[]
+//Bit 19:18        reserved
+//Bit 17:12        reg_rc_fifo_margin_dlt_4  // unsigned ,    RW, default = 14  delta of fifo level to guard the rc loop by adding delta to p_budget2x, defautl=[]
+//Bit 11: 0        reg_rc_fifo_avgspeed_bits_perblk // unsigned ,    RW, default = 80  bits perblock fifo read/write speed, set to budget_block = (SIZE_BLK*(ratio_bppx16) )/16 as default
+#define MIPI_LOSSE_RAW_FIFO_DLT                    ((0x0050  << 2) + 0xff011000)
+//Bit 31:30        reserved
+//Bit 29:24        reg_rc_fifo_margin_dlt_3  // unsigned ,    RW, default = 11  delta of fifo level to guard the rc loop by adding delta to p_budget2x, defautl=[]
+//Bit 23:22        reserved
+//Bit 21:16        reg_rc_fifo_margin_dlt_2  // unsigned ,    RW, default = 8  delta of fifo level to guard the rc loop by adding delta to p_budget2x, defautl=[]
+//Bit 15:14        reserved
+//Bit 13: 8        reg_rc_fifo_margin_dlt_1  // unsigned ,    RW, default = 5  delta of fifo level to guard the rc loop by adding delta to p_budget2x, defautl=[]
+//Bit  7: 6        reserved
+//Bit  5: 0        reg_rc_fifo_margin_dlt_0  // unsigned ,    RW, default = 2  delta of fifo level to guard the rc loop by adding delta to p_budget2x, defautl=[]
+#define MIPI_LOSSE_RAW_BITSGAP_THD_0               ((0x0051  << 2) + 0xff011000)
+//Bit 31:28        reserved
+//Bit 27:16        reg_rc_bits_gap_margin_thd_1 // unsigned ,    RW, default = 50  threshold of bits gap to reduced dlt_buget2x
+//Bit 15:12        reserved
+//Bit 11: 0        reg_rc_bits_gap_margin_thd_0 // unsigned ,    RW, default = 30
+#define MIPI_LOSSE_RAW_BITSGAP_THD_1               ((0x0052  << 2) + 0xff011000)
+//Bit 31:12        reserved
+//Bit 11: 0        reg_rc_bits_gap_margin_thd_2 // unsigned ,    RW, default = 82  threshold of bits gap to reduced dlt_buget2x
+#define MIPI_LOSSE_RAW_REF_ADJ                     ((0x0053  << 2) + 0xff011000)
+//Bit 31:21        reserved
+//Bit 20           reg_ref_adjust_en_4       // unsigned ,    RW, default = 0  enable of ref(phase 4) adjust
+//Bit 19           reg_ref_adjust_en_3       // unsigned ,    RW, default = 0  enable of ref(phase 3) adjust
+//Bit 18           reg_ref_adjust_en_2       // unsigned ,    RW, default = 1  enable of ref(phase 2) adjust
+//Bit 17           reg_ref_adjust_en_1       // unsigned ,    RW, default = 1  enable of ref(phase 1) adjust
+//Bit 16           reg_ref_adjust_en_0       // unsigned ,    RW, default = 0  enable of ref(phase 0) adjust  //need latch
+//Bit 15:12        reg_pixel_ref_adj_dlt_12_3 // unsigned ,    RW, default = 1
+//Bit 11: 8        reg_pixel_ref_adj_dlt_12_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref //need latch
+//Bit  7: 4        reg_pixel_ref_adj_dlt_12_1 // unsigned ,    RW, default = 1
+//Bit  3: 0        reg_pixel_ref_adj_dlt_12_0 // unsigned ,    RW, default = 1
+#define MIPI_LOSSE_RAW_REF_ADJ_DLT_0               ((0x0054  << 2) + 0xff011000)
+//Bit 31:28        reg_pixel_ref_adj_dlt_1_3 // unsigned ,    RW, default = 1
+//Bit 27:24        reg_pixel_ref_adj_dlt_1_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit 23:20        reg_pixel_ref_adj_dlt_1_1 // unsigned ,    RW, default = 1
+//Bit 19:16        reg_pixel_ref_adj_dlt_1_0 // unsigned ,    RW, default = 1
+//Bit 15:12        reg_pixel_ref_adj_dlt_0_3 // unsigned ,    RW, default = 1
+//Bit 11: 8        reg_pixel_ref_adj_dlt_0_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit  7: 4        reg_pixel_ref_adj_dlt_0_1 // unsigned ,    RW, default = 1
+//Bit  3: 0        reg_pixel_ref_adj_dlt_0_0 // unsigned ,    RW, default = 1
+#define MIPI_LOSSE_RAW_REF_ADJ_DLT_1               ((0x0055  << 2) + 0xff011000)
+//Bit 31:28        reg_pixel_ref_adj_dlt_3_3 // unsigned ,    RW, default = 1
+//Bit 27:24        reg_pixel_ref_adj_dlt_3_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit 23:20        reg_pixel_ref_adj_dlt_3_1 // unsigned ,    RW, default = 1
+//Bit 19:16        reg_pixel_ref_adj_dlt_3_0 // unsigned ,    RW, default = 1
+//Bit 15:12        reg_pixel_ref_adj_dlt_2_3 // unsigned ,    RW, default = 1
+//Bit 11: 8        reg_pixel_ref_adj_dlt_2_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit  7: 4        reg_pixel_ref_adj_dlt_2_1 // unsigned ,    RW, default = 1
+//Bit  3: 0        reg_pixel_ref_adj_dlt_2_0 // unsigned ,    RW, default = 1
+#define MIPI_LOSSE_RAW_REF_ADJ_DLT_2               ((0x0056  << 2) + 0xff011000)
+//Bit 31:28        reg_pixel_ref_adj_dlt_5_3 // unsigned ,    RW, default = 1
+//Bit 27:24        reg_pixel_ref_adj_dlt_5_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit 23:20        reg_pixel_ref_adj_dlt_5_1 // unsigned ,    RW, default = 1
+//Bit 19:16        reg_pixel_ref_adj_dlt_5_0 // unsigned ,    RW, default = 1
+//Bit 15:12        reg_pixel_ref_adj_dlt_4_3 // unsigned ,    RW, default = 1
+//Bit 11: 8        reg_pixel_ref_adj_dlt_4_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit  7: 4        reg_pixel_ref_adj_dlt_4_1 // unsigned ,    RW, default = 1
+//Bit  3: 0        reg_pixel_ref_adj_dlt_4_0 // unsigned ,    RW, default = 1
+#define MIPI_LOSSE_RAW_REF_ADJ_DLT_3               ((0x0057  << 2) + 0xff011000)
+//Bit 31:28        reg_pixel_ref_adj_dlt_7_3 // unsigned ,    RW, default = 1
+//Bit 27:24        reg_pixel_ref_adj_dlt_7_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit 23:20        reg_pixel_ref_adj_dlt_7_1 // unsigned ,    RW, default = 1
+//Bit 19:16        reg_pixel_ref_adj_dlt_7_0 // unsigned ,    RW, default = 1
+//Bit 15:12        reg_pixel_ref_adj_dlt_6_3 // unsigned ,    RW, default = 1
+//Bit 11: 8        reg_pixel_ref_adj_dlt_6_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit  7: 4        reg_pixel_ref_adj_dlt_6_1 // unsigned ,    RW, default = 1
+//Bit  3: 0        reg_pixel_ref_adj_dlt_6_0 // unsigned ,    RW, default = 1
+#define MIPI_LOSSE_RAW_REF_ADJ_DLT_4               ((0x0058  << 2) + 0xff011000)
+//Bit 31:28        reg_pixel_ref_adj_dlt_9_3 // unsigned ,    RW, default = 1
+//Bit 27:24        reg_pixel_ref_adj_dlt_9_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit 23:20        reg_pixel_ref_adj_dlt_9_1 // unsigned ,    RW, default = 1
+//Bit 19:16        reg_pixel_ref_adj_dlt_9_0 // unsigned ,    RW, default = 1
+//Bit 15:12        reg_pixel_ref_adj_dlt_8_3 // unsigned ,    RW, default = 1
+//Bit 11: 8        reg_pixel_ref_adj_dlt_8_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit  7: 4        reg_pixel_ref_adj_dlt_8_1 // unsigned ,    RW, default = 1
+//Bit  3: 0        reg_pixel_ref_adj_dlt_8_0 // unsigned ,    RW, default = 1
+#define MIPI_LOSSE_RAW_REF_REF_ADJ_DLT_5           ((0x0059  << 2) + 0xff011000)
+//Bit 31:28        reg_pixel_ref_adj_dlt_11_3 // unsigned ,    RW, default = 1
+//Bit 27:24        reg_pixel_ref_adj_dlt_11_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit 23:20        reg_pixel_ref_adj_dlt_11_1 // unsigned ,    RW, default = 1
+//Bit 19:16        reg_pixel_ref_adj_dlt_11_0 // unsigned ,    RW, default = 1
+//Bit 15:12        reg_pixel_ref_adj_dlt_10_3 // unsigned ,    RW, default = 1
+//Bit 11: 8        reg_pixel_ref_adj_dlt_10_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit  7: 4        reg_pixel_ref_adj_dlt_10_1 // unsigned ,    RW, default = 1
+//Bit  3: 0        reg_pixel_ref_adj_dlt_10_0 // unsigned ,    RW, default = 1
+#define MIPI_LOSSE_RAW_REF_ADJ_TH_CHN0             ((0x005a  << 2) + 0xff011000)
+//Bit 31:16        reg_pixel_ref_adj_th_0_1  // unsigned ,    RW, default = 3712  of distance to ref to adjust qlevel
+//Bit 15: 0        reg_pixel_ref_adj_th_0_0  // unsigned ,    RW, default = 3200
+#define MIPI_LOSSE_RAW_REF_ADJ_TH_CHN0_1           ((0x005b  << 2) + 0xff011000)
+//Bit 31:16        reg_pixel_ref_adj_th_0_3  // unsigned ,    RW, default = 5120  of distance to ref to adjust qlevel
+//Bit 15: 0        reg_pixel_ref_adj_th_0_2  // unsigned ,    RW, default = 4096
+#define MIPI_LOSSE_RAW_REF_ADJ_TH_CHN1             ((0x005c  << 2) + 0xff011000)
+//Bit 31:16        reg_pixel_ref_adj_th_1_1  // unsigned ,    RW, default = 300  of distance to ref to adjust qlevel
+//Bit 15: 0        reg_pixel_ref_adj_th_1_0  // unsigned ,    RW, default = 200
+#define MIPI_LOSSE_RAW_REF_ADJ_TH_CHN1_1           ((0x005d  << 2) + 0xff011000)
+//Bit 31:16        reg_pixel_ref_adj_th_1_3  // unsigned ,    RW, default = 400  of distance to ref to adjust qlevel
+//Bit 15: 0        reg_pixel_ref_adj_th_1_2  // unsigned ,    RW, default = 350
+#define MIPI_LOSSE_RAW_REF_ADJ_TH_CHN2             ((0x005e  << 2) + 0xff011000)
+//Bit 31:16        reg_pixel_ref_adj_th_2_1  // unsigned ,    RW, default = 400  of distance to ref to adjust qlevel
+//Bit 15: 0        reg_pixel_ref_adj_th_2_0  // unsigned ,    RW, default = 300
+#define MIPI_LOSSE_RAW_REF_ADJ_TH_CHN2_1           ((0x005f  << 2) + 0xff011000)
+//Bit 31:16        reg_pixel_ref_adj_th_2_3  // unsigned ,    RW, default = 500  of distance to ref to adjust qlevel
+//Bit 15: 0        reg_pixel_ref_adj_th_2_2  // unsigned ,    RW, default = 450
+#define MIPI_LOSSE_RAW_ACCUM_OFSET_0               ((0x0060  << 2) + 0xff011000)
+//Bit 31:24        reg_accum_add_ofset_2     // unsigned ,    RW, default = 0
+//Bit 23:16        reg_accum_add_ofset_1     // unsigned ,    RW, default = 5
+//Bit 15: 8        reg_accum_add_ofset_0     // unsigned ,    RW, default = 2
+//Bit  7: 4        reserved
+//Bit  3: 1        reg_accum_ofset_shift     // unsigned ,    RW, default = 2
+//Bit  0           reg_accum_ofset_en        // unsigned ,    RW, default = 0
+#define MIPI_LOSSE_RAW_ACCUM_OFSET_1               ((0x0061  << 2) + 0xff011000)
+//Bit 31:24        reg_accum_add_ofset_6     // unsigned ,    RW, default = 0
+//Bit 23:16        reg_accum_add_ofset_5     // unsigned ,    RW, default = 5
+//Bit 15: 8        reg_accum_add_ofset_4     // unsigned ,    RW, default = 2
+//Bit  7: 0        reg_accum_add_ofset_3     // unsigned ,    RW, default = 0
+#define MIPI_LOSSE_RAW_ACCUM_OFSET_2               ((0x0062  << 2) + 0xff011000)
+//Bit 31:16        reserved
+//Bit 15: 8        reg_accum_add_ofset_8     // unsigned ,    RW, default = 255
+//Bit  7: 0        reg_accum_add_ofset_7     // unsigned ,    RW, default = 0
+#define MIPI_LOSSE_RAW_ACCUM_OFSET_3               ((0x0063  << 2) + 0xff011000)
+//Bit 31:12        reserved
+//Bit 11: 0        reg_normalize_idx_ratio   // unsigned ,    RW, default = 0
+#define MIPI_LOSSE_RAW_WDR_LINE_DELAY              ((0x0064  << 2) + 0xff011000)
+//Bit 31           reg_wdr_mode_en           // unsigned ,    RW, default = 0  mode enable,(in this mode have line delay between long and short frame)
+//Bit 30           reg_wdr_adptive_en        // unsigned ,    RW, default = 0  adptive line wdr delay mode enable
+//Bit 29:16        reg_wdr_adptive_line      // unsigned ,    RW, default = 20  adptive line of wdr delay mode, if less than line use wdr delay mode  else normal                                                    //u15
+//Bit 15: 0        reg_wdr_delay_line        // unsigned ,    RW, default = 4  delay between long and short frame in wdr mode
+#define MIPI_LOSSE_RAW_CORING_TH_OFST              ((0x0065  << 2) + 0xff011000)
+//Bit 31:16        reg_nr_coring_ofset       // unsigned ,    RW, default = 0  ofset of coring
+//Bit 15: 0        reg_nr_coring_th          // unsigned ,    RW, default = 0  coring  for 1 line  mode
+#define MIPI_LOSSE_RAW_CORING_RST                  ((0x0066  << 2) + 0xff011000)
+//Bit 31: 3        reserved
+//Bit  2: 0        reg_nr_coring_rst         // unsigned ,    RW, default = 0  ofset of coring
+#define MIPI_LOSSE_RAW_STATS_RAM_MODE              ((0x0067  << 2) + 0xff011000)
+//Bit 31: 2        reserved
+//Bit  1           reg_stats_slice_rdmode    // unsigned ,    RW, default = 0  0 to read slice according to reg_slice_num_mode
+//Bit  0           reg_stats_ram_rden        // unsigned ,    RW, default = 0  0 to read ram enable
+#define MIPI_LOSSE_RAW_STATS_RAM_ADDR              ((0x0068  << 2) + 0xff011000)
+//Bit 31: 9        reserved
+//Bit  8: 0        reg_stats_ram_addr        // unsigned ,    RW, default = 0  statistics info ram status address
+#define MIPI_LOSSE_RAW_RO_STATS_RAM_DATA           ((0x0069  << 2) + 0xff011000)
+//Bit 31: 0        ro_stats_ram_data         // unsigned ,    RO, default = 0  info ram data
+// synopsys translate_off
+// synopsys translate_on
+//
+// Closing file:  ./mipi_cmpr_raw_enc_regs.h
+//
+//========================================================================
+// MIPI_ISP  data compress mif enc
+//========================================================================
+// -----------------------------------------------
+// REG_BASE:  REGISTER_BASE_ADDR = 0xff011000
+// -----------------------------------------------
+//
+// Reading file:  ./mipi_cmpr_mif_enc_regs.h
+//
+// synopsys translate_off
+// synopsys translate_on
+#define AWSUB0_ISP_LOSS_MIF_CTRL                   ((0x0070  << 2) + 0xff011000)
+//Bit 31:24    reg_sync_sel                  // unsigned , RW, default = 0, sync with frm rst
+//Bit 23:16    reg_canvas_id                 // unsigned , RW, default = 0, axi canvas id num
+//Bit 15       reserved
+//Bit 14:12    reg_cmd_intr_len              // unsigned , RW, default = 1, interrupt send cmd when how many series axi cmd, 0=12 1=16 2=24 3=32 4=40 5=48 6=56 7=64
+//Bit 11:10    reserved
+//Bit  9: 8    reg_cmd_req_size              // unsigned , RW, default = 1, how many room fifo have, then axi send series req, 0=16 1=32 2=48 3=64
+//Bit  7       reserved
+//Bit  6: 4    reg_burst_len                 // unsigned , RW, default = 3, burst type: 0->1; 1->2; 2->4; 3->8; 4->16, others reserved
+//Bit  3       reserved
+//Bit  2       reg_check_resp_id             // unsigned , RW, default = 0
+//Bit  1       reg_dol_mode                  // unsigned , RW, default = 0  1: DOL mode
+//Bit  0       reg_mif_enable                // unsigned , RW, default = 1  1 to mif
+#define AWSUB0_ISP_LOSS_MIF_QOS                    ((0x0071  << 2) + 0xff011000)
+//Bit 31:0     reg_qos_ctrl                  // unsigned , RW, default = 0, Qos control reg
+                                             //18    reg_qos_auto_en
+                                             //17    reg_qos_sup
+                                             //16    reg_qos_ini
+                                             //15:8  reg_qos_up_th
+                                             // 7:0  reg_qos_dn_th
+#define AWSUB0_ISP_LOSS_MIF_URGENT                 ((0x0072  << 2) + 0xff011000)
+//Bit 31:0     reg_urgent_ctrl               // unsigned , RW, default = 0, urgent control reg
+                                             //18    reg_urgent_auto_en
+                                             //17    reg_urgent_sup
+                                             //16    reg_urgent_ini
+                                             //15:8  reg_urgent_up_th
+                                             // 7:0  reg_urgent_dn_th
+#define AWSUB0_ISP_LOSS_MIF_MISC                   ((0x0073  << 2) + 0xff011000)
+//Bit 31:4  reserved
+//Bit 3     reg_mif_busy_noresp_check       // unsigned , RW, default =1, for mif write, dont take "respond busy" as mif unit busy.
+//Bit 2     reg_mif_wait_input4busy         // unsigned , RW, default =0, use in encoder, mif is busy till input data comming. only for mif wr
+//Bit 1     reg_mif_dbl_baddr_init          // unsigned , RW, default =0, write 1 to use reg_mif_baddr as base-addr for next frame,it would be clear automatically.
+//Bit 0     reg_mif_dbl_baddr_en            // unsigned , RW, default =0, 1 to use ping-pong base-addr based on frame.
+#define AWSUB0_ISP_LOSS_MIF_BADDR                  ((0x0074  << 2) + 0xff011000)
+//Bit 31:0  reg_mif_baddr                    // unsigned , RW, default = 0,  mif base address
+#define AWSUB0_ISP_LOSS_MIF_BADDR1                 ((0x0075  << 2) + 0xff011000)
+//Bit 31:0  reg_mif_baddr1                  // unsigned , RW, default = 0,  mif base address
+#define AWSUB0_ISP_LOSS_MIF_FIFO_CTRL              ((0x0077  << 2) + 0xff011000)
+//Bit 31:16 reg_mif_gclk_ctrl                // unsigned , RW, default = 0, gate clock control
+//Bit 15:8  reserved                         //
+//Bit 7 :0  reg_mif_fifo_size                // unsigned , RW, data FIFO max size, default = 128,
+#define AWSUB0_ISP_LOSS_MIF_FRM_HOLD               ((0x0078  << 2) + 0xff011000)
+//Bit 31:0  reg_mif_frm_holds                // unsigned , RW, clock cycle holder from frm_rst,to wait register ready, default = 16
+#define AWSUB0_ISP_LOSS_MIF_RO_STATS               ((0x0079  << 2) + 0xff011000)
+//Bit 31: 0  ro_mif_status                  // unsigned ,  RO, default = 0  mif status
+// synopsys translate_off
+// synopsys translate_on
+//
+// Closing file:  ./mipi_cmpr_mif_enc_regs.h
+//
+//========================================================================
+// MIPI_ISP  data compress dec
+//========================================================================
+// -----------------------------------------------
+// REG_BASE:  REGISTER_BASE_ADDR = 0xff011000
+// -----------------------------------------------
+//
+// Reading file:  ./mipi_cmpr_raw_dec_regs.h
+//
+// synopsys translate_off
+// synopsys translate_on
+#define MIPI_LOSSD_RAW_CTRL                        ((0x0080  << 2) + 0xff011000)
+//Bit 31:29        reg_interrupt_en          // unsigned ,    RW, default = 0
+//Bit 28:24        reserved
+//Bit 23:16        reg_hblank                // unsigned ,    RW, default = 6  horz blank size
+//Bit 15: 8        reg_sync_ctrl             // unsigned ,    RW, default = 0  shaddow control, 0 to shaddow
+//Bit  7: 4        reg_use_inter_fmt         // unsigned ,    RW, default = 0  0 to use external format setting
+//Bit  3           reg_status_rdbk_mode      // unsigned ,    RW, default = 0  0 to shaddow the ro status
+//Bit  2: 1        reg_stats_en              // unsigned ,    RW, default = 3  0 to enable stats of max_err/err_acc; 1 to enable error_count2
+//Bit  0           reg_enable                // unsigned ,    RW, default = 1  enc/dec enable
+#define MIPI_LOSSD_RAW_FRAME_HOLD                  ((0x0081  << 2) + 0xff011000)
+//Bit 31: 1        reserved
+//Bit  0           reg_rdma_mode_en          // unsigned ,    RW, default = 0  configure regs use RDMA mode
+#define MIPI_LOSSD_RAW_GCLK_CTRL                   ((0x0082  << 2) + 0xff011000)
+//Bit 31: 0        reg_gclk_ctrl             // unsigned ,    RW, default = 0  gated-clock control
+#define MIPI_LOSSD_RAW_RO_CODEC_STATUS             ((0x0083  << 2) + 0xff011000)
+//Bit 31: 0        ro_codec_status           // unsigned ,    RW, default = 0  codec status, write 1 to clear
+#define MIPI_LOSSD_RAW_MISC                        ((0x0084  << 2) + 0xff011000)
+//Bit 31: 8        reserved
+//Bit  7: 4        reg_misc                  // unsigned ,    RW, default = 0
+//Bit  3           reg_inter_preslc_bitaccum // unsigned ,    RW, default = 0  for dec
+//Bit  2           reg_inter_preslc_fifolevel // unsigned ,    RW, default = 0  for dec
+//Bit  1           reg_dec_oflush_mode       // unsigned ,    RW, default = 0  for dec
+//Bit  0           reg_busy_shown_till_inp   // unsigned ,    RW, default = 0  1 to shown codec busy till input come
+#define MIPI_LOSSD_RAW_BASIS                       ((0x0088  << 2) + 0xff011000)
+//Bit 31           reg_lossless_en           // unsigned ,    RW, default = 0  enable of lossless
+//Bit 30:24        reserved
+//Bit 23            reserved
+//Bit 22:20        reg_raw_mode              // unsigned ,    RW, default = 1  0: mono, 1:G R  ,2 :   I R     ,3:  G R   ,4:  G R G B, 5~7: other cases
+//Bit 19           reg_mono_comp_mode        // unsigned ,    RW, default = 0  compression mode of mono data : 0  compression in Y ,  1: compression in bayer
+//Bit 18           reg_group_ver_size_mode   // unsigned ,    RW, default = 1  the mode of vertical group size ,0 : vertical group size 2,  1: vertical group size 1
+//Bit 17           reg_pred_step_mode        // unsigned ,    RW, default = 1  the mode of GbGr pred mode, 0: GbGr mix together as G, use the most recent data, 1: Gb use Gb,Gr use Gr  fix 1
+//Bit 16           reg_pred_simple_mode      // unsigned ,    RW, default = 0  the mode of RGBIR4x4 R/B pred, 0: normal mode      1:simple average  fix 0
+//Bit 15:13        reserved
+//Bit 12: 4        reg_ratio_bppx16          // unsigned ,    RW, default = 80  bits per pixel x16, fracbits_bpp = x/16;
+//Bit  3            reserved
+//Bit  2: 0        reg_comp_chn_size         // unsigned ,    RW, default = 5  fix 5
+#define MIPI_LOSSD_RAW_OFST_BIT_DEPTH              ((0x0089  << 2) + 0xff011000)
+//Bit 31:12        reserved
+//Bit 11:10        reg_xphase_ofst           // unsigned ,    RW, default = 0  offset in x dimmension
+//Bit  9: 8        reg_yphase_ofst           // unsigned ,    RW, default = 0  phase offset in y dimmension
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_src_bit_depth         // unsigned ,    RW, default = 10  source data bit depth from sensor
+#define MIPI_LOSSD_RAW_PIC_SIZE                    ((0x008a  << 2) + 0xff011000)
+//Bit 31:16        reg_pic_ysize             // unsigned ,    RW, default = 1080  picture verital size
+//Bit 15: 0        reg_pic_xsize             // unsigned ,    RW, default = 1920  picture horizontal size
+#define MIPI_LOSSD_RAW_SLICE_SIZE                  ((0x008b  << 2) + 0xff011000)
+//Bit 31           reg_use_sw_preslc_bitaccum // unsigned ,    RW, default = 0
+//Bit 30            reserved
+//Bit 29:28        reg_slice_num_mode        // unsigned ,    RW, default = 0  num 1, 1:slice num 2  2:slice num 4  3:slice num 8
+//Bit 27:16        reserved
+//Bit 15: 0        reg_slice_ysize_0         // unsigned ,    RW, default = 1080  vertical slice window size
+#define MIPI_LOSSD_RAW_SLICE_SIZE_1                ((0x008c  << 2) + 0xff011000)
+//Bit 31:16        reg_slice_ysize_2         // unsigned ,    RW, default = 0  vertical slice window size
+//Bit 15: 0        reg_slice_ysize_1         // unsigned ,    RW, default = 0  vertical slice window size
+#define MIPI_LOSSD_RAW_SLICE_SIZE_2                ((0x008d  << 2) + 0xff011000)
+//Bit 31:16        reg_slice_ysize_4         // unsigned ,    RW, default = 0  slice window size
+//Bit 15: 0        reg_slice_ysize_3         // unsigned ,    RW, default = 0  vertical slice window size
+#define MIPI_LOSSD_RAW_SLICE_SIZE_3                ((0x008e  << 2) + 0xff011000)
+//Bit 31:16        reg_slice_ysize_6         // unsigned ,    RW, default = 0  vertical slice window size
+//Bit 15: 0        reg_slice_ysize_5         // unsigned ,    RW, default = 0  vertical slice window size
+#define MIPI_LOSSD_RAW_PRESL_LAST_BITS             ((0x008f  << 2) + 0xff011000)
+//Bit 31: 0        reg_pre_slc_bitaccum      // signed ,    RW, default = 0  pre slice last bits  add to next slice
+#define MIPI_LOSSD_RAW_PRESL_FIFO_LEVEL            ((0x0090  << 2) + 0xff011000)
+//Bit 31           reg_use_sw_preslc_fifolevel // unsigned ,    RW, default = 0
+//Bit 30:16        reserved
+//Bit 15: 0        reg_pre_slc_fifolevel     // unsigned ,    RW, default = 16  pre slice fifolevel  add to next slice
+#define MIPI_LOSSD_RAW_DEBUG                       ((0x0091  << 2) + 0xff011000)
+//Bit 31           reg_debug_mode            // unsigned ,    RW, default = 0  enable of qleve debug return qlevel value
+//Bit 30:24        reserved
+//Bit 23:16        reg_dbg_qlevel_2          // unsigned ,    RW, default = 0
+//Bit 15: 8        reg_dbg_qlevel_1          // unsigned ,    RW, default = 0
+//Bit  7: 0        reg_dbg_qlevel_0          // unsigned ,    RW, default = 0
+#define MIPI_LOSSD_RAW_REF_DATA                    ((0x0092  << 2) + 0xff011000)
+//Bit 31:16        reg_ref_data_1            // unsigned ,    RW, default = 32768  the reference data of adjust qlevel  //need latch
+//Bit 15: 0        reg_ref_data_0            // unsigned ,    RW, default = 3840  the reference data of adjust qlevel
+#define MIPI_LOSSD_RAW_REF_DATA_1                  ((0x0093  << 2) + 0xff011000)
+//Bit 31:16        reg_ref_data_2            // unsigned ,    RW, default = 32768  the reference data of adjust qlevel
+//Bit 15: 0        reg_ref_data_3            // unsigned ,    RW, default = 3840  the reference data of adjust qlevel
+#define MIPI_LOSSD_RAW_REF_DATA_2                  ((0x0094  << 2) + 0xff011000)
+//Bit 31:16        reserved
+//Bit 15: 0        reg_ref_data_4            // unsigned ,    RW, default = 32768  the reference data of adjust qlevel
+#define MIPI_LOSSD_RAW_PRED_PROCE                  ((0x0095  << 2) + 0xff011000)
+//Bit 31:21        reserved
+//Bit 20           reg_pred_ref_adj_en       // unsigned ,    RW, default = 0  enable of pred process,only for R/B chn   //need latch
+//Bit 19:18        reserved
+//Bit 17:16        reg_pred_ref_adj_ratio_mode // unsigned ,    RW, default = 3  the ratio mode of adjust pred, 0:pred = pred - (pred - ref)*1/8. 1::pred = pred - (pred - ref)*2/8, 2::pred = pred - (pred - ref)*4/8 , 3::pred = pred - (pred - ref)*8/8.
+//Bit 15:10        reserved
+//Bit  9: 0        reg_pred_ref_adj_th       // unsigned ,    RW, default = 0  threshold of pred process
+#define MIPI_LOSSD_RAW_GLOBAL_PHASE_LUT            ((0x0096  << 2) + 0xff011000)
+//Bit 31            reserved
+//Bit 30:28        reg_raw_phslut_15         // unsigned ,    RW, default = 3  raw phase lut
+//Bit 27            reserved
+//Bit 26:24        reg_raw_phslut_14         // unsigned ,    RW, default = 2  global raw phase lut
+//Bit 23            reserved
+//Bit 22:20        reg_raw_phslut_13         // unsigned ,    RW, default = 3  global raw phase lut
+//Bit 19            reserved
+//Bit 18:16        reg_raw_phslut_12         // unsigned ,    RW, default = 2  global raw phase lut
+//Bit 15            reserved
+//Bit 14:12        reg_raw_phslut_11         // unsigned ,    RW, default = 1  raw phase lut
+//Bit 11            reserved
+//Bit 10: 8        reg_raw_phslut_10         // unsigned ,    RW, default = 0  global raw phase lut
+//Bit  7            reserved
+//Bit  6: 4        reg_raw_phslut_9          // unsigned ,    RW, default = 1  global raw phase lut
+//Bit  3            reserved
+//Bit  2: 0        reg_raw_phslut_8          // unsigned ,    RW, default = 0  raw phase lut
+#define MIPI_LOSSD_RAW_GLOBAL_PHASE_LUT_1          ((0x0097  << 2) + 0xff011000)
+//Bit 31            reserved
+//Bit 30:28        reg_raw_phslut_7          // unsigned ,    RW, default = 3  raw phase lut
+//Bit 27            reserved
+//Bit 26:24        reg_raw_phslut_6          // unsigned ,    RW, default = 2  global raw phase lut
+//Bit 23            reserved
+//Bit 22:20        reg_raw_phslut_5          // unsigned ,    RW, default = 3  global raw phase lut
+//Bit 19            reserved
+//Bit 18:16        reg_raw_phslut_4          // unsigned ,    RW, default = 2  global raw phase lut
+//Bit 15            reserved
+//Bit 14:12        reg_raw_phslut_3          // unsigned ,    RW, default = 1  raw phase lut
+//Bit 11            reserved
+//Bit 10: 8        reg_raw_phslut_2          // unsigned ,    RW, default = 0  global raw phase lut
+//Bit  7            reserved
+//Bit  6: 4        reg_raw_phslut_1          // unsigned ,    RW, default = 1  global raw phase lut
+//Bit  3            reserved
+//Bit  2: 0        reg_raw_phslut_0          // unsigned ,    RW, default = 0  raw phase lut
+#define MIPI_LOSSD_RAW_PHASE_LUT                   ((0x0098  << 2) + 0xff011000)
+//Bit 31:20        reserved
+//Bit 19            reserved
+//Bit 18:16        reg_comp_chn_lut_4        // unsigned ,    RW, default = 0  compression phase lut
+//Bit 15            reserved
+//Bit 14:12        reg_comp_chn_lut_3        // unsigned ,    RW, default = 0  compression phase lut
+//Bit 11            reserved
+//Bit 10: 8        reg_comp_chn_lut_2        // unsigned ,    RW, default = 1  compression phase lut
+//Bit  7            reserved
+//Bit  6: 4        reg_comp_chn_lut_1        // unsigned ,    RW, default = 1  compression phase lut
+//Bit  3            reserved
+//Bit  2: 0        reg_comp_chn_lut_0        // unsigned ,    RW, default = 0  compression phase lut
+#define MIPI_LOSSD_RAW_FLATNESS_0                  ((0x0099  << 2) + 0xff011000)
+//Bit 31           reg_flatness_adj_mode     // unsigned ,    RW, default = 0  0: only check 0 cell, 1: check -1, 0 ,1 3cell
+//Bit 30           reg_flatness_pixel_flag   // unsigned ,    RW, default = 0  enable signal for the flatness
+//Bit 29:28        reserved
+//Bit 27:25        reserved
+//Bit 24:20        reg_flatness_qp_thresh_0  // unsigned ,    RW, default = 4  thresh qp for flatness to be used
+//Bit 19:17        reserved
+//Bit 16:12        reg_flatness_qp_reduce_0  // unsigned ,    RW, default = 2  if the cell is flatness qlevel = qlevel- flatness_qp_reduce
+//Bit 11: 0        reg_flatness_accum_thresh // signed ,    RW, default = 1024  thresh ibits_accum for flatness to be used x16
+#define MIPI_LOSSD_RAW_FLATNESS_QP                 ((0x009a  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_flatness_qp_thresh_2  // unsigned ,    RW, default = 4  thresh qp for flatness to be used
+//Bit 23:21        reserved
+//Bit 20:16        reg_flatness_qp_reduce_2  // unsigned ,    RW, default = 2  if the cell is flatness qlevel = qlevel- flatness_qp_reduce
+//Bit 15:13        reserved
+//Bit 12: 8        reg_flatness_qp_thresh_1  // unsigned ,    RW, default = 4  thresh qp for flatness to be used
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_flatness_qp_reduce_1  // unsigned ,    RW, default = 2  if the cell is flatness qlevel = qlevel- flatness_qp_reduce
+#define MIPI_LOSSD_RAW_FLATNESS_TH0                ((0x009b  << 2) + 0xff011000)
+//Bit 31:16        reg_flatness_det_thresh_min_0 // unsigned ,    RW, default = 25  MAX-MIN for all components is required to be less than  this value , flatness to be used
+//Bit 15: 0        reg_flatness_det_thresh_max_0 // unsigned ,    RW, default = 32  MAX-MIN for all components is required to be less than this value , flatness to be used
+#define MIPI_LOSSD_RAW_FLATNESS_TH1                ((0x009c  << 2) + 0xff011000)
+//Bit 31:16        reg_flatness_det_thresh_min_1 // unsigned ,    RW, default = 25  MAX-MIN for all components is required to be less than  this value , flatness to be used
+//Bit 15: 0        reg_flatness_det_thresh_max_1 // unsigned ,    RW, default = 32  MAX-MIN for all components is required to be less than this value , flatness to be used
+#define MIPI_LOSSD_RAW_FLATNESS_TH2                ((0x009d  << 2) + 0xff011000)
+//Bit 31:16        reg_flatness_det_thresh_min_2 // unsigned ,    RW, default = 25  MAX-MIN for all components is required to be less than  this value , flatness to be used
+//Bit 15: 0        reg_flatness_det_thresh_max_2 // unsigned ,    RW, default = 32  MAX-MIN for all components is required to be less than this value , flatness to be used
+#define MIPI_LOSSD_RAW_QP_MAP_CHN0                 ((0x009e  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_3     // unsigned ,    RW, default = 11  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_2     // unsigned ,    RW, default = 12  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_1     // unsigned ,    RW, default = 12  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_0     // unsigned ,    RW, default = 12  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN0_1               ((0x009f  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_7     // unsigned ,    RW, default = 9  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_6     // unsigned ,    RW, default = 10  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_5     // unsigned ,    RW, default = 10  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_4     // unsigned ,    RW, default = 11  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN0_2               ((0x00a0  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_11    // unsigned ,    RW, default = 8  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_10    // unsigned ,    RW, default = 8  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_9     // unsigned ,    RW, default = 8  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_8     // unsigned ,    RW, default = 9  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN0_3               ((0x00a1  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_15    // unsigned ,    RW, default = 6  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_14    // unsigned ,    RW, default = 6  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_13    // unsigned ,    RW, default = 7  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_12    // unsigned ,    RW, default = 7  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN0_4               ((0x00a2  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_19    // unsigned ,    RW, default = 4  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_18    // unsigned ,    RW, default = 4  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_17    // unsigned ,    RW, default = 5  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_16    // unsigned ,    RW, default = 5  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN0_5               ((0x00a3  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_23    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_22    // unsigned ,    RW, default = 1  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_21    // unsigned ,    RW, default = 2  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_20    // unsigned ,    RW, default = 3  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN0_6               ((0x00a4  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_27    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_26    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_25    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_24    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN0_7               ((0x00a5  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_31    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_30    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_29    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_28    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN0_8               ((0x00a6  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_35    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_34    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_33    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_32    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN0_9               ((0x00a7  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_0_39    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_0_38    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_0_37    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_0_36    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN1                 ((0x00a8  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_3     // unsigned ,    RW, default = 11  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_2     // unsigned ,    RW, default = 12  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_1     // unsigned ,    RW, default = 12  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_0     // unsigned ,    RW, default = 12  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN1_1               ((0x00a9  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_7     // unsigned ,    RW, default = 9  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_6     // unsigned ,    RW, default = 10  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_5     // unsigned ,    RW, default = 10  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_4     // unsigned ,    RW, default = 11  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN1_2               ((0x00aa  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_11    // unsigned ,    RW, default = 8  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_10    // unsigned ,    RW, default = 8  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_9     // unsigned ,    RW, default = 8  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_8     // unsigned ,    RW, default = 9  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN1_3               ((0x00ab  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_15    // unsigned ,    RW, default = 6  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_14    // unsigned ,    RW, default = 6  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_13    // unsigned ,    RW, default = 7  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_12    // unsigned ,    RW, default = 7  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN1_4               ((0x00ac  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_19    // unsigned ,    RW, default = 4  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_18    // unsigned ,    RW, default = 4  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_17    // unsigned ,    RW, default = 5  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_16    // unsigned ,    RW, default = 5  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN1_5               ((0x00ad  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_23    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_22    // unsigned ,    RW, default = 1  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_21    // unsigned ,    RW, default = 2  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_20    // unsigned ,    RW, default = 3  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN1_6               ((0x00ae  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_27    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_26    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_25    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_24    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN1_7               ((0x00af  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_31    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_30    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_29    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_28    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN1_8               ((0x00b0  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_35    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_34    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_33    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_32    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN1_9               ((0x00b1  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_1_39    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_1_38    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_1_37    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_1_36    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN2                 ((0x00b2  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_3     // unsigned ,    RW, default = 11  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_2     // unsigned ,    RW, default = 12  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_1     // unsigned ,    RW, default = 12  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_0     // unsigned ,    RW, default = 12  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN2_1               ((0x00b3  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_7     // unsigned ,    RW, default = 9  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_6     // unsigned ,    RW, default = 10  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_5     // unsigned ,    RW, default = 10  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_4     // unsigned ,    RW, default = 11  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN2_2               ((0x00b4  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_11    // unsigned ,    RW, default = 8  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_10    // unsigned ,    RW, default = 8  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_9     // unsigned ,    RW, default = 8  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_8     // unsigned ,    RW, default = 9  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN2_3               ((0x00b5  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_15    // unsigned ,    RW, default = 6  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_14    // unsigned ,    RW, default = 6  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_13    // unsigned ,    RW, default = 7  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_12    // unsigned ,    RW, default = 7  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN2_4               ((0x00b6  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_19    // unsigned ,    RW, default = 4  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_18    // unsigned ,    RW, default = 4  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_17    // unsigned ,    RW, default = 5  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_16    // unsigned ,    RW, default = 5  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN2_5               ((0x00b7  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_23    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_22    // unsigned ,    RW, default = 1  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_21    // unsigned ,    RW, default = 2  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_20    // unsigned ,    RW, default = 3  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN2_6               ((0x00b8  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_27    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_26    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_25    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_24    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN2_7               ((0x00b9  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_31    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_30    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_29    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_28    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN2_8               ((0x00ba  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_35    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_34    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_33    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_32    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_QP_MAP_CHN2_9               ((0x00bb  << 2) + 0xff011000)
+//Bit 31:29        reserved
+//Bit 28:24        reg_lut_budget2qp_2_39    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 23:21        reserved
+//Bit 20:16        reg_lut_budget2qp_2_38    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit 15:13        reserved
+//Bit 12: 8        reg_lut_budget2qp_2_37    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_lut_budget2qp_2_36    // unsigned ,    RW, default = 0  from budget2x to master_qp mapping
+#define MIPI_LOSSD_RAW_RC_GROUP_2                  ((0x00bc  << 2) + 0xff011000)
+//Bit 31:16        reg_rc_group_y            // unsigned ,    RW, default = 1080  vertical size of group (super block) within picture for rate control algorithm
+//Bit 15:14        reserved
+//Bit 13: 0        reg_slcln_ratio           // unsigned ,    RW, default = 24  dynamic ratio to idx of extra bit budget for the cells within the line
+#define MIPI_LOSSD_RAW_RC_BUDGET_0                 ((0x00bd  << 2) + 0xff011000)
+//Bit 31:24        reg_rc_perln_16pec_xbdgt_3 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit 23:16        reg_rc_perln_16pec_xbdgt_2 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit 15: 8        reg_rc_perln_16pec_xbdgt_1 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit  7: 0        reg_rc_perln_16pec_xbdgt_0 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+#define MIPI_LOSSD_RAW_RC_BUDGET_1                 ((0x00be  << 2) + 0xff011000)
+//Bit 31:24        reg_rc_perln_16pec_xbdgt_7 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit 23:16        reg_rc_perln_16pec_xbdgt_6 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit 15: 8        reg_rc_perln_16pec_xbdgt_5 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit  7: 0        reg_rc_perln_16pec_xbdgt_4 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+#define MIPI_LOSSD_RAW_RC_BUDGET_2                 ((0x00bf  << 2) + 0xff011000)
+//Bit 31:24        reg_rc_perln_16pec_xbdgt_11 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit 23:16        reg_rc_perln_16pec_xbdgt_10 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit 15: 8        reg_rc_perln_16pec_xbdgt_9 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit  7: 0        reg_rc_perln_16pec_xbdgt_8 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+#define MIPI_LOSSD_RAW_RC_BUDGET_3                 ((0x00c0  << 2) + 0xff011000)
+//Bit 31:24        reg_rc_perln_16pec_xbdgt_15 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit 23:16        reg_rc_perln_16pec_xbdgt_14 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit 15: 8        reg_rc_perln_16pec_xbdgt_13 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit  7: 0        reg_rc_perln_16pec_xbdgt_12 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+#define MIPI_LOSSD_RAW_RC_BUDGET_4                 ((0x00c1  << 2) + 0xff011000)
+//Bit 31:24        reg_rc_perln_16pec_xbdgt_16 // signed ,    RW, default = 0  extra bit budget (in pct= x/128) for the cells within the line, defined by 17 nodes to split the line into 16 piecies.
+//Bit 23:16        reg_rc_1stln_slice_xbdgt  // unsigned ,    RW, default = 0  extra bit budget (in pct= x/128) for the first line of the slice, no prediction from pre-line;
+//Bit 15: 8        reg_rc_2ndln_slice_xbdgt  // unsigned ,    RW, default = 0  extra bit budget (in pct= x/128) for the 2nd line of the slice, with limited prediction from pre-line;
+//Bit  7: 0        reg_rc_1stln_group_xbdgt  // unsigned ,    RW, default = 0  extra bit budget (in pct= x/128) for the first line of the group, still with prediction from pre-line;
+#define MIPI_LOSSD_RAW_RC_BUDGET_5                 ((0x00c2  << 2) + 0xff011000)
+//Bit 31:30        reserved
+//Bit 29:24        reg_rc_master_qpx2_max    // unsigned ,    RW, default = 23  maxmum qpx2 during the rc_loop
+//Bit 23:22        reserved
+//Bit 21:16        reg_rc_master_qpx2_min    // unsigned ,    RW, default = 14  minmum qpx2 during the rc_loop
+//Bit 15: 8        reg_rc_dynamic_speed_long // unsigned ,    RW, default = 16  dynamic speed for using up the accumed bits, 2nd order gain of loop filter. normalized to 16 as 1;
+//Bit  7: 0        reg_rc_dynamic_speed_short // unsigned ,    RW, default = 16  dynamic speed for using up the accumed bits, 1st order gain of loop filter. normalized to 64 as 1;
+#define MIPI_LOSSD_RAW_RC_BUDGET_6                 ((0x00c3  << 2) + 0xff011000)
+//Bit 31           reg_rc_precell_bits_reset // unsigned ,    RW, default = 0  enable for bits_cell_pre reset of each group  1, bits_cell_pre =0  0:bits_cell_pre value unchanged
+//Bit 30:29        reserved
+//Bit 28:16        reg_rc_dynamic_mxblk_long // unsigned ,    RW, default = 240  maximum number of blocks in group for long term dynamic factor, if set to 0, then no limit; otherwise set limit, default= numblk of one line
+//Bit 15:13        reserved
+//Bit 12: 0        reg_rc_qpx2_margin3_blkth // unsigned ,    RW, default = 240  final guard margin threshold to blocks_left_in_group, default= rc_dynamic_mxblk_long;
+#define MIPI_LOSSD_RAW_RC_QP_MARGIN                ((0x00c4  << 2) + 0xff011000)
+//Bit 31:30        reserved
+//Bit 29:16        reg_rc_qpx2_margin_thd_1  // signed ,    RW, default = -4  threshold x16 to ibits_accum to assign extra pq margin to avoid buffer down flow, defautl=[-4*16, 16*16]
+//Bit 15:14        reserved
+//Bit 13: 0        reg_rc_qpx2_margin_thd_0  // signed ,    RW, default = 8  threshold x16 to ibits_accum to assign extra pq margin to avoid buffer down flow, defautl=[-4*16, 16*16]
+#define MIPI_LOSSD_RAW_RC_QP_MARGIN_1              ((0x00c5  << 2) + 0xff011000)
+//Bit 31:30        reserved
+//Bit 29:16        reg_rc_qpx2_margin_thd_3  // signed ,    RW, default = -16  threshold x16 to ibits_accum to assign extra pq margin to avoid buffer down flow, defautl=[-4*16, 16*16]
+//Bit 15:14        reserved
+//Bit 13: 0        reg_rc_qpx2_margin_thd_2  // signed ,    RW, default = -12  threshold x16 to ibits_accum to assign extra pq margin to avoid buffer down flow, defautl=[-4*16, 16*16]
+#define MIPI_LOSSD_RAW_RC_QP_MARGIN_2              ((0x00c6  << 2) + 0xff011000)
+//Bit 31:30        reserved
+//Bit 29:24        reg_rc_qpx2_margin_dlt_3  // unsigned ,    RW, default = 6  delta qp margin to qp_max when ibits_accum lower than  rc_qp_margin_thd[2], defautl=[1, 4]
+//Bit 23:22        reserved
+//Bit 21:16        reg_rc_qpx2_margin_dlt_2  // unsigned ,    RW, default = 5
+//Bit 15:14        reserved
+//Bit 13: 8        reg_rc_qpx2_margin_dlt_1  // unsigned ,    RW, default = 3
+//Bit  7: 6        reserved
+//Bit  5: 0        reg_rc_qpx2_margin_dlt_0  // unsigned ,    RW, default = 2  delta qp margin to qp_max when ibits_accum lower than  rc_qp_margin_thd[2], defautl=[1, 4]
+#define MIPI_LOSSD_RAW_RC_QP_MARGIN_3              ((0x00c7  << 2) + 0xff011000)
+//Bit 31:30        reg_rc_qpx2_margin_dlt_mode // unsigned ,    RW, default = 1
+//Bit 29:28        reserved
+//Bit 27:16        reg_rc_fifo_qpx2_margin_thd_1 // unsigned ,    RW, default = 250  threshold  to fifo to assign extra pq margin to avoid buffer down flow,
+//Bit 15:12        reserved
+//Bit 11: 0        reg_rc_fifo_qpx2_margin_thd_0 // unsigned ,    RW, default = 150  threshold  to fifo to assign extra pq margin to avoid buffer down flow
+#define MIPI_LOSSD_RAW_RC_QP_MARGIN_4              ((0x00c8  << 2) + 0xff011000)
+//Bit 31:28        reserved
+//Bit 27:16        reg_rc_fifo_qpx2_margin_thd_3 // unsigned ,    RW, default = 500  threshold to fifo to assign extra pq margin to avoid buffer down flow
+//Bit 15:12        reserved
+//Bit 11: 0        reg_rc_fifo_qpx2_margin_thd_2 // unsigned ,    RW, default = 350  threshold to fifo to assign extra pq margin to avoid buffer down flow
+#define MIPI_LOSSD_RAW_RC_QP_MARGIN_5              ((0x00c9  << 2) + 0xff011000)
+//Bit 31:30        reserved
+//Bit 29:24        reg_rc_fifo_qpx2_margin_dlt_3 // unsigned ,    RW, default = 16  delta qp margin to qp_max when fifo lower than  rc_qp_margin_thd[2], defautl=[1, 4]
+//Bit 23:22        reserved
+//Bit 21:16        reg_rc_fifo_qpx2_margin_dlt_2 // unsigned ,    RW, default = 7
+//Bit 15:14        reserved
+//Bit 13: 8        reg_rc_fifo_qpx2_margin_dlt_1 // unsigned ,    RW, default = 5
+//Bit  7: 6        reserved
+//Bit  5: 0        reg_rc_fifo_qpx2_margin_dlt_0 // unsigned ,    RW, default = 3  delta qp margin to qp_max when fifo lower than  rc_qp_margin_thd[2], defautl=[1, 4]
+#define MIPI_LOSSD_RAW_FLATNESS_ADJ0               ((0x00ca  << 2) + 0xff011000)
+//Bit 31           reg_adjsize_flatness_flag // unsigned ,    RW, default = 0  enable signal for the flatness mode,adj_predicted_size should be small in flatness
+//Bit 30           reg_adjsize_complex_flag  // unsigned ,    RW, default = 0  enable signal for the complex mode,adj_predicted_size should be large in complex
+//Bit 29           reg_rc_fifo_avgspeed_use_sbudget // unsigned ,    RW, default = 0  enable to use s_budget_block as budget_block: 0 use bits_perblk programable register, 1: use rc calculated s_budget_blk
+//Bit 28           reg_rc_bits_gap_dlt_down_en // unsigned ,    RW, default = 0  to dlt_buget2x reduced based on bits_gap value
+//Bit 27:16        reg_adjsize_flatness_pixthd // unsigned ,    RW, default = 50  area if(MAX-MIN) bigger than pixthd
+//Bit 15:13        reserved
+//Bit 12: 8        reg_adjsize_flatness_sizedlt // unsigned ,    RW, default = 7  delta size margin to adj_predicted_size when adj_predicted_size lower than  reg_adjsize_flatness_sizedlt
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_adjsize_flatness_reduce // unsigned ,    RW, default = 2  the cell is flatness and adj_predicted_size > thd,adj_predicted_size = adj_predicted_size- reg_adjsize_flatness_reduce
+#define MIPI_LOSSD_RAW_FLATNESS_ADJ1               ((0x00cb  << 2) + 0xff011000)
+//Bit 31:28        reserved
+//Bit 27:16        reg_adjsize_complex_pixthd // unsigned ,    RW, default = 512  area if(MAX-MIN) bigger than pixthd
+//Bit 15:13        reserved
+//Bit 12: 8        reg_adjsize_complex_sizedlt // unsigned ,    RW, default = 7  delta size margin to adj_predicted_size when adj_predicted_size bigger than  reg_adjsize_complex_sizedlt
+//Bit  7: 5        reserved
+//Bit  4: 0        reg_adjsize_complex_increase // unsigned ,    RW, default = 2  if the cell is complex and adj_predicted_size < thd,adj_predicted_size = adj_predicted_size + reg_adjsize_complex_increase
+#define MIPI_LOSSD_RAW_FIFO_THD_0                  ((0x00cc  << 2) + 0xff011000)
+//Bit 31:24        reserved
+//Bit 23:12        reg_rc_fifo_margin_thd_5  // unsigned ,    RW, default = 280  threshold of fifo level(in words=16bits) to guard the rc loop by adding delta to p_budget2x, defautl=[]
+//Bit 11: 0        reg_rc_fifo_margin_thd_4  // unsigned ,    RW, default = 250  threshold of fifo level(in words=16bits) to guard the rc loop by adding delta to p_budget2x, defautl=[]
+#define MIPI_LOSSD_RAW_FIFO_THD_1                  ((0x00cd  << 2) + 0xff011000)
+//Bit 31:24        reserved
+//Bit 23:12        reg_rc_fifo_margin_thd_3  // unsigned ,    RW, default = 220  threshold of fifo level(in words=16bits) to guard the rc loop by adding delta to p_budget2x, defautl=[]
+//Bit 11: 0        reg_rc_fifo_margin_thd_2  // unsigned ,    RW, default = 165  threshold of fifo level(in words=16bits) to guard the rc loop by adding delta to p_budget2x, defautl=[]
+#define MIPI_LOSSD_RAW_FIFO_THD_2                  ((0x00ce  << 2) + 0xff011000)
+//Bit 31:24        reserved
+//Bit 23:12        reg_rc_fifo_margin_thd_1  // unsigned ,    RW, default = 145  threshold of fifo level(in words=16bits) to guard the rc loop by adding delta to p_budget2x, defautl=[]
+//Bit 11: 0        reg_rc_fifo_margin_thd_0  // unsigned ,    RW, default = 130  threshold of fifo level(in words=16bits) to guard the rc loop by adding delta to p_budget2x, defautl=[]
+#define MIPI_LOSSD_RAW_FIFO_AVG                    ((0x00cf  << 2) + 0xff011000)
+//Bit 31:26        reserved
+//Bit 25:20        reg_rc_fifo_margin_dlt_5  // unsigned ,    RW, default = 12  delta of fifo level to guard the rc loop by adding delta to p_budget2x, defautl=[]
+//Bit 19:18        reserved
+//Bit 17:12        reg_rc_fifo_margin_dlt_4  // unsigned ,    RW, default = 14  delta of fifo level to guard the rc loop by adding delta to p_budget2x, defautl=[]
+//Bit 11: 0        reg_rc_fifo_avgspeed_bits_perblk // unsigned ,    RW, default = 80  bits perblock fifo read/write speed, set to budget_block = (SIZE_BLK*(ratio_bppx16) )/16 as default
+#define MIPI_LOSSD_RAW_FIFO_DLT                    ((0x00d0  << 2) + 0xff011000)
+//Bit 31:30        reserved
+//Bit 29:24        reg_rc_fifo_margin_dlt_3  // unsigned ,    RW, default = 11  delta of fifo level to guard the rc loop by adding delta to p_budget2x, defautl=[]
+//Bit 23:22        reserved
+//Bit 21:16        reg_rc_fifo_margin_dlt_2  // unsigned ,    RW, default = 8  delta of fifo level to guard the rc loop by adding delta to p_budget2x, defautl=[]
+//Bit 15:14        reserved
+//Bit 13: 8        reg_rc_fifo_margin_dlt_1  // unsigned ,    RW, default = 5  delta of fifo level to guard the rc loop by adding delta to p_budget2x, defautl=[]
+//Bit  7: 6        reserved
+//Bit  5: 0        reg_rc_fifo_margin_dlt_0  // unsigned ,    RW, default = 2  delta of fifo level to guard the rc loop by adding delta to p_budget2x, defautl=[]
+#define MIPI_LOSSD_RAW_BITSGAP_THD_0               ((0x00d1  << 2) + 0xff011000)
+//Bit 31:28        reserved
+//Bit 27:16        reg_rc_bits_gap_margin_thd_1 // unsigned ,    RW, default = 50  threshold of bits gap to reduced dlt_buget2x
+//Bit 15:12        reserved
+//Bit 11: 0        reg_rc_bits_gap_margin_thd_0 // unsigned ,    RW, default = 30
+#define MIPI_LOSSD_RAW_BITSGAP_THD_1               ((0x00d2  << 2) + 0xff011000)
+//Bit 31:12        reserved
+//Bit 11: 0        reg_rc_bits_gap_margin_thd_2 // unsigned ,    RW, default = 82  threshold of bits gap to reduced dlt_buget2x
+#define MIPI_LOSSD_RAW_REF_ADJ                     ((0x00d3  << 2) + 0xff011000)
+//Bit 31:21        reserved
+//Bit 20           reg_ref_adjust_en_4       // unsigned ,    RW, default = 0  enable of ref(phase 4) adjust
+//Bit 19           reg_ref_adjust_en_3       // unsigned ,    RW, default = 0  enable of ref(phase 3) adjust
+//Bit 18           reg_ref_adjust_en_2       // unsigned ,    RW, default = 1  enable of ref(phase 2) adjust
+//Bit 17           reg_ref_adjust_en_1       // unsigned ,    RW, default = 1  enable of ref(phase 1) adjust
+//Bit 16           reg_ref_adjust_en_0       // unsigned ,    RW, default = 0  enable of ref(phase 0) adjust  //need latch
+//Bit 15:12        reg_pixel_ref_adj_dlt_12_3 // unsigned ,    RW, default = 1
+//Bit 11: 8        reg_pixel_ref_adj_dlt_12_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref //need latch
+//Bit  7: 4        reg_pixel_ref_adj_dlt_12_1 // unsigned ,    RW, default = 1
+//Bit  3: 0        reg_pixel_ref_adj_dlt_12_0 // unsigned ,    RW, default = 1
+#define MIPI_LOSSD_RAW_REF_ADJ_DLT_0               ((0x00d4  << 2) + 0xff011000)
+//Bit 31:28        reg_pixel_ref_adj_dlt_1_3 // unsigned ,    RW, default = 1
+//Bit 27:24        reg_pixel_ref_adj_dlt_1_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit 23:20        reg_pixel_ref_adj_dlt_1_1 // unsigned ,    RW, default = 1
+//Bit 19:16        reg_pixel_ref_adj_dlt_1_0 // unsigned ,    RW, default = 1
+//Bit 15:12        reg_pixel_ref_adj_dlt_0_3 // unsigned ,    RW, default = 1
+//Bit 11: 8        reg_pixel_ref_adj_dlt_0_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit  7: 4        reg_pixel_ref_adj_dlt_0_1 // unsigned ,    RW, default = 1
+//Bit  3: 0        reg_pixel_ref_adj_dlt_0_0 // unsigned ,    RW, default = 1
+#define MIPI_LOSSD_RAW_REF_ADJ_DLT_1               ((0x00d5  << 2) + 0xff011000)
+//Bit 31:28        reg_pixel_ref_adj_dlt_3_3 // unsigned ,    RW, default = 1
+//Bit 27:24        reg_pixel_ref_adj_dlt_3_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit 23:20        reg_pixel_ref_adj_dlt_3_1 // unsigned ,    RW, default = 1
+//Bit 19:16        reg_pixel_ref_adj_dlt_3_0 // unsigned ,    RW, default = 1
+//Bit 15:12        reg_pixel_ref_adj_dlt_2_3 // unsigned ,    RW, default = 1
+//Bit 11: 8        reg_pixel_ref_adj_dlt_2_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit  7: 4        reg_pixel_ref_adj_dlt_2_1 // unsigned ,    RW, default = 1
+//Bit  3: 0        reg_pixel_ref_adj_dlt_2_0 // unsigned ,    RW, default = 1
+#define MIPI_LOSSD_RAW_REF_ADJ_DLT_2               ((0x00d6  << 2) + 0xff011000)
+//Bit 31:28        reg_pixel_ref_adj_dlt_5_3 // unsigned ,    RW, default = 1
+//Bit 27:24        reg_pixel_ref_adj_dlt_5_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit 23:20        reg_pixel_ref_adj_dlt_5_1 // unsigned ,    RW, default = 1
+//Bit 19:16        reg_pixel_ref_adj_dlt_5_0 // unsigned ,    RW, default = 1
+//Bit 15:12        reg_pixel_ref_adj_dlt_4_3 // unsigned ,    RW, default = 1
+//Bit 11: 8        reg_pixel_ref_adj_dlt_4_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit  7: 4        reg_pixel_ref_adj_dlt_4_1 // unsigned ,    RW, default = 1
+//Bit  3: 0        reg_pixel_ref_adj_dlt_4_0 // unsigned ,    RW, default = 1
+#define MIPI_LOSSD_RAW_REF_ADJ_DLT_3               ((0x00d7  << 2) + 0xff011000)
+//Bit 31:28        reg_pixel_ref_adj_dlt_7_3 // unsigned ,    RW, default = 1
+//Bit 27:24        reg_pixel_ref_adj_dlt_7_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit 23:20        reg_pixel_ref_adj_dlt_7_1 // unsigned ,    RW, default = 1
+//Bit 19:16        reg_pixel_ref_adj_dlt_7_0 // unsigned ,    RW, default = 1
+//Bit 15:12        reg_pixel_ref_adj_dlt_6_3 // unsigned ,    RW, default = 1
+//Bit 11: 8        reg_pixel_ref_adj_dlt_6_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit  7: 4        reg_pixel_ref_adj_dlt_6_1 // unsigned ,    RW, default = 1
+//Bit  3: 0        reg_pixel_ref_adj_dlt_6_0 // unsigned ,    RW, default = 1
+#define MIPI_LOSSD_RAW_REF_ADJ_DLT_4               ((0x00d8  << 2) + 0xff011000)
+//Bit 31:28        reg_pixel_ref_adj_dlt_9_3 // unsigned ,    RW, default = 1
+//Bit 27:24        reg_pixel_ref_adj_dlt_9_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit 23:20        reg_pixel_ref_adj_dlt_9_1 // unsigned ,    RW, default = 1
+//Bit 19:16        reg_pixel_ref_adj_dlt_9_0 // unsigned ,    RW, default = 1
+//Bit 15:12        reg_pixel_ref_adj_dlt_8_3 // unsigned ,    RW, default = 1
+//Bit 11: 8        reg_pixel_ref_adj_dlt_8_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit  7: 4        reg_pixel_ref_adj_dlt_8_1 // unsigned ,    RW, default = 1
+//Bit  3: 0        reg_pixel_ref_adj_dlt_8_0 // unsigned ,    RW, default = 1
+#define MIPI_LOSSD_RAW_REF_REF_ADJ_DLT_5           ((0x00d9  << 2) + 0xff011000)
+//Bit 31:28        reg_pixel_ref_adj_dlt_11_3 // unsigned ,    RW, default = 1
+//Bit 27:24        reg_pixel_ref_adj_dlt_11_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit 23:20        reg_pixel_ref_adj_dlt_11_1 // unsigned ,    RW, default = 1
+//Bit 19:16        reg_pixel_ref_adj_dlt_11_0 // unsigned ,    RW, default = 1
+//Bit 15:12        reg_pixel_ref_adj_dlt_10_3 // unsigned ,    RW, default = 1
+//Bit 11: 8        reg_pixel_ref_adj_dlt_10_2 // unsigned ,    RW, default = 1  of qelvel according to luma and distance to ref   //need latch
+//Bit  7: 4        reg_pixel_ref_adj_dlt_10_1 // unsigned ,    RW, default = 1
+//Bit  3: 0        reg_pixel_ref_adj_dlt_10_0 // unsigned ,    RW, default = 1
+#define MIPI_LOSSD_RAW_REF_ADJ_TH_CHN0             ((0x00da  << 2) + 0xff011000)
+//Bit 31:16        reg_pixel_ref_adj_th_0_1  // unsigned ,    RW, default = 3712  of distance to ref to adjust qlevel
+//Bit 15: 0        reg_pixel_ref_adj_th_0_0  // unsigned ,    RW, default = 3200
+#define MIPI_LOSSD_RAW_REF_ADJ_TH_CHN0_1           ((0x00db  << 2) + 0xff011000)
+//Bit 31:16        reg_pixel_ref_adj_th_0_3  // unsigned ,    RW, default = 5120  of distance to ref to adjust qlevel
+//Bit 15: 0        reg_pixel_ref_adj_th_0_2  // unsigned ,    RW, default = 4096
+#define MIPI_LOSSD_RAW_REF_ADJ_TH_CHN1             ((0x00dc  << 2) + 0xff011000)
+//Bit 31:16        reg_pixel_ref_adj_th_1_1  // unsigned ,    RW, default = 300  of distance to ref to adjust qlevel
+//Bit 15: 0        reg_pixel_ref_adj_th_1_0  // unsigned ,    RW, default = 200
+#define MIPI_LOSSD_RAW_REF_ADJ_TH_CHN1_1           ((0x00dd  << 2) + 0xff011000)
+//Bit 31:16        reg_pixel_ref_adj_th_1_3  // unsigned ,    RW, default = 400  of distance to ref to adjust qlevel
+//Bit 15: 0        reg_pixel_ref_adj_th_1_2  // unsigned ,    RW, default = 350
+#define MIPI_LOSSD_RAW_REF_ADJ_TH_CHN2             ((0x00de  << 2) + 0xff011000)
+//Bit 31:16        reg_pixel_ref_adj_th_2_1  // unsigned ,    RW, default = 400  of distance to ref to adjust qlevel
+//Bit 15: 0        reg_pixel_ref_adj_th_2_0  // unsigned ,    RW, default = 300
+#define MIPI_LOSSD_RAW_REF_ADJ_TH_CHN2_1           ((0x00df  << 2) + 0xff011000)
+//Bit 31:16        reg_pixel_ref_adj_th_2_3  // unsigned ,    RW, default = 500  of distance to ref to adjust qlevel
+//Bit 15: 0        reg_pixel_ref_adj_th_2_2  // unsigned ,    RW, default = 450
+#define MIPI_LOSSD_RAW_ACCUM_OFSET_0               ((0x00e0  << 2) + 0xff011000)
+//Bit 31:24        reg_accum_add_ofset_2     // unsigned ,    RW, default = 0
+//Bit 23:16        reg_accum_add_ofset_1     // unsigned ,    RW, default = 5
+//Bit 15: 8        reg_accum_add_ofset_0     // unsigned ,    RW, default = 2
+//Bit  7: 4        reserved
+//Bit  3: 1        reg_accum_ofset_shift     // unsigned ,    RW, default = 2
+//Bit  0           reg_accum_ofset_en        // unsigned ,    RW, default = 0
+#define MIPI_LOSSD_RAW_ACCUM_OFSET_1               ((0x00e1  << 2) + 0xff011000)
+//Bit 31:24        reg_accum_add_ofset_6     // unsigned ,    RW, default = 0
+//Bit 23:16        reg_accum_add_ofset_5     // unsigned ,    RW, default = 5
+//Bit 15: 8        reg_accum_add_ofset_4     // unsigned ,    RW, default = 2
+//Bit  7: 0        reg_accum_add_ofset_3     // unsigned ,    RW, default = 0
+#define MIPI_LOSSD_RAW_ACCUM_OFSET_2               ((0x00e2  << 2) + 0xff011000)
+//Bit 31:16        reserved
+//Bit 15: 8        reg_accum_add_ofset_8     // unsigned ,    RW, default = 255
+//Bit  7: 0        reg_accum_add_ofset_7     // unsigned ,    RW, default = 0
+#define MIPI_LOSSD_RAW_ACCUM_OFSET_3               ((0x00e3  << 2) + 0xff011000)
+//Bit 31:12        reserved
+//Bit 11: 0        reg_normalize_idx_ratio   // unsigned ,    RW, default = 0
+#define MIPI_LOSSD_RAW_WDR_LINE_DELAY              ((0x00e4  << 2) + 0xff011000)
+//Bit 31           reg_wdr_mode_en           // unsigned ,    RW, default = 0  mode enable,(in this mode have line delay between long and short frame)
+//Bit 30           reg_wdr_adptive_en        // unsigned ,    RW, default = 0  adptive line wdr delay mode enable
+//Bit 29:16        reg_wdr_adptive_line      // unsigned ,    RW, default = 20  adptive line of wdr delay mode, if less than line use wdr delay mode  else normal                                                    //u15
+//Bit 15: 0        reg_wdr_delay_line        // unsigned ,    RW, default = 4  delay between long and short frame in wdr mode
+#define MIPI_LOSSD_RAW_CORING_TH_OFST              ((0x00e5  << 2) + 0xff011000)
+//Bit 31:16        reg_nr_coring_ofset       // unsigned ,    RW, default = 0  ofset of coring
+//Bit 15: 0        reg_nr_coring_th          // unsigned ,    RW, default = 0  coring  for 1 line  mode
+#define MIPI_LOSSD_RAW_CORING_RST                  ((0x00e6  << 2) + 0xff011000)
+//Bit 31: 3        reserved
+//Bit  2: 0        reg_nr_coring_rst         // unsigned ,    RW, default = 0  ofset of coring
+#define MIPI_LOSSD_RAW_STATS_RAM_MODE              ((0x00e7  << 2) + 0xff011000)
+//Bit 31: 2        reserved
+//Bit  1           reg_stats_slice_rdmode    // unsigned ,    RW, default = 0  0 to read slice according to reg_slice_num_mode
+//Bit  0           reg_stats_ram_rden        // unsigned ,    RW, default = 0  0 to read ram enable
+#define MIPI_LOSSD_RAW_STATS_RAM_ADDR              ((0x00e8  << 2) + 0xff011000)
+//Bit 31: 9        reserved
+//Bit  8: 0        reg_stats_ram_addr        // unsigned ,    RW, default = 0  statistics info ram status address
+#define MIPI_LOSSD_RAW_RO_STATS_RAM_DATA           ((0x00e9  << 2) + 0xff011000)
+//Bit 31: 0        ro_stats_ram_data         // unsigned ,    RO, default = 0  info ram data
+// synopsys translate_off
+// synopsys translate_on
+//
+// Closing file:  ./mipi_cmpr_raw_dec_regs.h
+//
+//========================================================================
+// MIPI_ISP  data compress mif dec
+//========================================================================
+// -----------------------------------------------
+// REG_BASE:  REGISTER_BASE_ADDR = 0xff011000
+// -----------------------------------------------
+//
+// Reading file:  ./mipi_cmpr_mif_dec_regs.h
+//
+// synopsys translate_off
+// synopsys translate_on
+#define ARSUB0_ISP_LOSS_MIF_CTRL                   ((0x00f0  << 2) + 0xff011000)
+//Bit 31:24    reg_sync_sel                  // unsigned , RW, default = 0, sync with frm rst
+//Bit 23:16    reg_canvas_id                 // unsigned , RW, default = 0, axi canvas id num
+//Bit 15       reserved
+//Bit 14:12    reg_cmd_intr_len              // unsigned , RW, default = 1, interrupt send cmd when how many series axi cmd, 0=12 1=16 2=24 3=32 4=40 5=48 6=56 7=64
+//Bit 11:10    reserved
+//Bit  9: 8    reg_cmd_req_size              // unsigned , RW, default = 1, how many room fifo have, then axi send series req, 0=16 1=32 2=48 3=64
+//Bit  7       reserved
+//Bit  6: 4    reg_burst_len                 // unsigned , RW, default = 3, burst type: 0->1; 1->2; 2->4; 3->8; 4->16, others reserved
+//Bit  3       reserved
+//Bit  2       reg_check_resp_id             // unsigned , RW, default = 0
+//Bit  1       reg_dol_mode                  // unsigned , RW, default = 0  1: DOL mode
+//Bit  0       reg_mif_enable                // unsigned , RW, default = 1  1 to mif
+#define ARSUB0_ISP_LOSS_MIF_QOS                    ((0x00f1  << 2) + 0xff011000)
+//Bit 31:0     reg_qos_ctrl                  // unsigned , RW, default = 0, Qos control reg
+                                             //18    reg_qos_auto_en
+                                             //17    reg_qos_sup
+                                             //16    reg_qos_ini
+                                             //15:8  reg_qos_up_th
+                                             // 7:0  reg_qos_dn_th
+#define ARSUB0_ISP_LOSS_MIF_URGENT                 ((0x00f2  << 2) + 0xff011000)
+//Bit 31:0     reg_urgent_ctrl               // unsigned , RW, default = 0, urgent control reg
+                                             //18    reg_urgent_auto_en
+                                             //17    reg_urgent_sup
+                                             //16    reg_urgent_ini
+                                             //15:8  reg_urgent_up_th
+                                             // 7:0  reg_urgent_dn_th
+#define ARSUB0_ISP_LOSS_MIF_MISC                   ((0x00f3  << 2) + 0xff011000)
+//Bit 31:4  reserved
+//Bit 3     reg_mif_busy_noresp_check       // unsigned , RW, default =1, for mif write, dont take "respond busy" as mif unit busy.
+//Bit 2     reg_mif_wait_input4busy         // unsigned , RW, default =0, use in encoder, mif is busy till input data comming. only for mif wr
+//Bit 1     reg_mif_dbl_baddr_init          // unsigned , RW, default =0, write 1 to use reg_mif_baddr as base-addr for next frame,it would be clear automatically.
+//Bit 0     reg_mif_dbl_baddr_en            // unsigned , RW, default =0, 1 to use ping-pong base-addr based on frame.
+#define ARSUB0_ISP_LOSS_MIF_BADDR                  ((0x00f4  << 2) + 0xff011000)
+//Bit 31:0  reg_mif_baddr                    // unsigned , RW, default = 0,  mif base address
+#define ARSUB0_ISP_LOSS_MIF_BADDR1                 ((0x00f5  << 2) + 0xff011000)
+//Bit 31:0  reg_mif_baddr1                  // unsigned , RW, default = 0,  mif base address
+#define ARSUB0_ISP_LOSS_MIF_FIFO_CTRL              ((0x00f7  << 2) + 0xff011000)
+//Bit 31:16 reg_mif_gclk_ctrl                // unsigned , RW, default = 0, gate clock control
+//Bit 15:8  reserved                         //
+//Bit 7 :0  reg_mif_fifo_size                // unsigned , RW, data FIFO max size, default = 128,
+#define ARSUB0_ISP_LOSS_MIF_FRM_HOLD               ((0x00f8  << 2) + 0xff011000)
+//Bit 31:0  reg_mif_frm_holds                // unsigned , RW, clock cycle holder from frm_rst,to wait register ready, default = 16
+#define ARSUB0_ISP_LOSS_MIF_RO_STATS               ((0x00f9  << 2) + 0xff011000)
+//Bit 31: 0  ro_mif_status                  // unsigned ,  RO, default = 0  mif status
+// synopsys translate_off
+// synopsys translate_on
+//
+// Closing file:  ./mipi_cmpr_mif_dec_regs.h
+//
+//========================================================================
 // MIPI_ISP  arbit
 //========================================================================
 //========================================================================
@@ -12581,7 +14545,7 @@
 // MIPI_ISP  axi arbit0
 //========================================================================
 // -----------------------------------------------
-// REG_BASE:  REGISTER_BASE_ADDR = 0xff01f000
+// REG_BASE:  REGISTER_BASE_ADDR = 0xff010800
 // -----------------------------------------------
 //
 // Reading file:  ./mipi_isp_arb_axi_regs.h
@@ -12589,41 +14553,41 @@
 //========================================================================
 // MIPI_ISP  axi arbit0
 //========================================================================
-#define MIPI_ISP_RDARB_MODE                        ((0x0000  << 2) + 0xff01f000)
-#define MIPI_ISP_RDARB_REQEN_SLV                   ((0x0001  << 2) + 0xff01f000)
-#define MIPI_ISP_RDARB_WEIGH0_SLV                  ((0x0002  << 2) + 0xff01f000)
-#define MIPI_ISP_RDARB_WEIGH1_SLV                  ((0x0003  << 2) + 0xff01f000)
-#define MIPI_ISP_RDARB_UGT                         ((0x0004  << 2) + 0xff01f000)
-#define MIPI_ISP_RDARB_LIMT0                       ((0x0005  << 2) + 0xff01f000)
-#define MIPI_ISP_WRARB_MODE                        ((0x0006  << 2) + 0xff01f000)
-#define MIPI_ISP_WRARB_REQEN_SLV                   ((0x0007  << 2) + 0xff01f000)
-#define MIPI_ISP_WRARB_WEIGH0_SLV                  ((0x0008  << 2) + 0xff01f000)
-#define MIPI_ISP_WRARB_WEIGH1_SLV                  ((0x0009  << 2) + 0xff01f000)
-#define MIPI_ISP_WRARB_UGT                         ((0x000a  << 2) + 0xff01f000)
-#define MIPI_ISP_RDWR_ARB_STATUS                   ((0x000b  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_DBG_CTRL                      ((0x000c  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_DBG_STAT                      ((0x000d  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_WBUS_PROT_CNTL0               ((0x0080  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_RBUS_PROT_CNTL0               ((0x0088  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_WBUS_PROT_STAT0               ((0x0090  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_WBUS_PROT_STAT1               ((0x0091  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_WBUS_PROT_STAT2               ((0x0092  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_WBUS_PROT_STAT3               ((0x0093  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_WBUS_PROT_STAT4               ((0x0094  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_WBUS_PROT_STAT5               ((0x0095  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_WBUS_PROT_STAT6               ((0x0096  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_WBUS_PROT_STAT7               ((0x0097  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_RBUS_PROT_STAT0               ((0x0098  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_RBUS_PROT_STAT1               ((0x0099  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_RBUS_PROT_STAT2               ((0x009a  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_RBUS_PROT_STAT3               ((0x009b  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_RBUS_PROT_STAT4               ((0x009c  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_RBUS_PROT_STAT5               ((0x009d  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_RBUS_PROT_STAT6               ((0x009e  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_RBUS_PROT_STAT7               ((0x009f  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_AXI_BUS_CNTL0                 ((0x00b0  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_AXI_BUS_CNTL1                 ((0x00b1  << 2) + 0xff01f000)
-#define MIPI_ISP_ARB_AXI_BUS_STAT0                 ((0x00b2  << 2) + 0xff01f000)
+#define MIPI_ISP_RDARB_MODE                        ((0x0000  << 2) + 0xff010800)
+#define MIPI_ISP_RDARB_REQEN_SLV                   ((0x0001  << 2) + 0xff010800)
+#define MIPI_ISP_RDARB_WEIGH0_SLV                  ((0x0002  << 2) + 0xff010800)
+#define MIPI_ISP_RDARB_WEIGH1_SLV                  ((0x0003  << 2) + 0xff010800)
+#define MIPI_ISP_RDARB_UGT                         ((0x0004  << 2) + 0xff010800)
+#define MIPI_ISP_RDARB_LIMT0                       ((0x0005  << 2) + 0xff010800)
+#define MIPI_ISP_WRARB_MODE                        ((0x0006  << 2) + 0xff010800)
+#define MIPI_ISP_WRARB_REQEN_SLV                   ((0x0007  << 2) + 0xff010800)
+#define MIPI_ISP_WRARB_WEIGH0_SLV                  ((0x0008  << 2) + 0xff010800)
+#define MIPI_ISP_WRARB_WEIGH1_SLV                  ((0x0009  << 2) + 0xff010800)
+#define MIPI_ISP_WRARB_UGT                         ((0x000a  << 2) + 0xff010800)
+#define MIPI_ISP_RDWR_ARB_STATUS                   ((0x000b  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_DBG_CTRL                      ((0x000c  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_DBG_STAT                      ((0x000d  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_WBUS_PROT_CNTL0               ((0x0080  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_RBUS_PROT_CNTL0               ((0x0088  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_WBUS_PROT_STAT0               ((0x0090  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_WBUS_PROT_STAT1               ((0x0091  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_WBUS_PROT_STAT2               ((0x0092  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_WBUS_PROT_STAT3               ((0x0093  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_WBUS_PROT_STAT4               ((0x0094  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_WBUS_PROT_STAT5               ((0x0095  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_WBUS_PROT_STAT6               ((0x0096  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_WBUS_PROT_STAT7               ((0x0097  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_RBUS_PROT_STAT0               ((0x0098  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_RBUS_PROT_STAT1               ((0x0099  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_RBUS_PROT_STAT2               ((0x009a  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_RBUS_PROT_STAT3               ((0x009b  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_RBUS_PROT_STAT4               ((0x009c  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_RBUS_PROT_STAT5               ((0x009d  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_RBUS_PROT_STAT6               ((0x009e  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_RBUS_PROT_STAT7               ((0x009f  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_AXI_BUS_CNTL0                 ((0x00b0  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_AXI_BUS_CNTL1                 ((0x00b1  << 2) + 0xff010800)
+#define MIPI_ISP_ARB_AXI_BUS_STAT0                 ((0x00b2  << 2) + 0xff010800)
 //
 // Closing file:  ./mipi_isp_arb_axi_regs.h
 //
@@ -12968,12 +14932,22 @@
 // -----------------------------------------------
 // REG_BASE:  REGISTER_BASE_ADDR = 0xfe096000
 // -----------------------------------------------
-#define VC9000E_SW_RESET                           ((0x0000  << 2) + 0xfe096000)
-#define VC9000E_CNTL_STAT                          ((0x0001  << 2) + 0xfe096000)
-#define VC9000E_NSEC_SCRATCH                       ((0x0002  << 2) + 0xfe096000)
-#define VC9000E_SEC_SCRATCH                        ((0x0010  << 2) + 0xfe096000)
-#define VC9000E_SECURE_CTL_INDEX                   ((0x0011  << 2) + 0xfe096000)
-#define VC9000E_SECURE_CTL_DATA                    ((0x0012  << 2) + 0xfe096000)
+#define VC9000E_TOP_SW_RESET                       ((0x0000  << 2) + 0xfe096000)
+#define VC9000E_TOP_CNTL_STAT                      ((0x0001  << 2) + 0xfe096000)
+#define VC9000E_TOP_NSEC_SCRATCH                   ((0x0002  << 2) + 0xfe096000)
+#define VC9000E_TOP_SEC_SCRATCH                    ((0x0010  << 2) + 0xfe096000)
+#define VC9000E_TOP_SECURE_CTL_INDEX               ((0x0011  << 2) + 0xfe096000)
+#define VC9000E_TOP_SECURE_CTL_DATA                ((0x0012  << 2) + 0xfe096000)
+#define VC9000E_TOP_AXI_ID_MAP_RD0                 ((0x0014  << 2) + 0xfe096000)
+#define VC9000E_TOP_AXI_ID_MAP_RD1                 ((0x0015  << 2) + 0xfe096000)
+#define VC9000E_TOP_AXI_ID_MAP_WR0                 ((0x0016  << 2) + 0xfe096000)
+#define VC9000E_TOP_AXI_ID_MAP_WR1                 ((0x0017  << 2) + 0xfe096000)
+//========================================================================
+// VC9000E_CORE
+//========================================================================
+// -----------------------------------------------
+// REG_BASE:  REGISTER_BASE_ADDR = 0xfe310000
+// -----------------------------------------------
 // synopsys translate_off
 // synopsys translate_on
 //
@@ -12991,9 +14965,8 @@
 #define VPU_VOUT_TOP_CTRL                          ((0x0000  << 2) + 0xfe350000)
 //Bit 31:16  reg_gclk_ctrl              //unsigned,   RW,   default = 16'h0; todo  16bit or 10bit
 //Bit 15: 0  reg_sw_resets              //unsigned,   RW,   default = 16'h0;
-#define VPU_VOUT_SECURE                            ((0x0001  << 2) + 0xfe350000)
-//Bit 31: 8  reserved
-//Bit  7: 0  reg_secure_bit             //unsigned,   RW,   default = 8'h0;  //for input data: osd1/2/3 mali vd1/2 afbcd0/1
+#define VPU_VOUT_SECURE_BIT_NOR                    ((0x0001  << 2) + 0xfe350000)
+//Bit 31: 0  reg_secure_bits_nor        //unsigned,   RW,   default = 32'h0;
 #define VPU_VOUT_SECURE_DATA                       ((0x0002  << 2) + 0xfe350000)
 //Bit 31:30  reserved
 //Bit 29: 0  reg_secure_data             //unsigned,   RW,   default = 30'h0;
@@ -13005,8 +14978,7 @@
 //Bit     1  pls_frm_start
 //Bit     0  reg_frm_start_sel           //unsigned,   RW,   default = 0;
 #define VPU_VOUT_AXI_ARBIT                         ((0x0004  << 2) + 0xfe350000)
-//Bit 31:16  reserved
-//Bit    15  reg_arb_arsec               //unsigned,   RW,   default = 0;
+//Bit 31:15  reserved
 //Bit 14:13  reg_arb_urg_sel             //unsigned,   RW,   default = 2;
 //Bit    12  reg_am_prot                 //unsigned,   RW,   default = 1;
 //Bit 11: 4  reg_arb_arqos               //unsigned,   RW,   default = 0;
@@ -13020,6 +14992,12 @@
 //Bit  30:16  reg_irq_line_num           //unsigned,   RW,   default = 200;
 //Bit  15: 8  reg_irq_en                 //unsigned,   RW,   default = 1;
 //Bit   7: 0  pls_irq_clr                //unsigned,   RW,   default = 0;
+#define VPU_VOUT_VLK_CTRL                          ((0x0009  << 2) + 0xfe350000)
+//Bit 31: 12 reserved
+//Bit 11: 8  reg_vlock_vsrc_sel          //unsigned,   RW,   default = 0;
+//Bit  7: 4  reg_vlock_lath_sel          //unsigned,   RW,   default = 1;
+//Bit  3: 1  reserved
+//Bit     0  reg_vlock_en                //unsigned,   RW,   default = 0;
 //blend module
 #define VPU_VOUT_BLEND_CTRL                        ((0x0010  << 2) + 0xfe350000)
 //Bit 31:28  reserved
@@ -13065,7 +15043,7 @@
 //Bit 31:29  reserved
 //Bit 28:16  reg_ofifo_line_lenm1        //unsigned,   RW,   default = 480;
 //Bit 15:14  reserved
-//Bit 13: 0  reg_ofifo_size              //unsigned,   RW,   default = 128;
+//Bit 13: 0  reg_ofifo_size              //unsigned,   RW,   default = 2048;
 #define VPU_VOUT_OFIFO_URG_CTRL                    ((0x0041  << 2) + 0xfe350000)
 //Bit  31:30  reserved
 //Bit     29  reg_ofifo_urg_hold_en      //unsigned,   RW,   default = 1'h0;
@@ -13080,6 +15058,24 @@
 //Bit     0  ro_osd1_nearfull            //unsigned  ro
 #define VPU_VOUT_RO_BLD_CURXY                      ((0x0051  << 2) + 0xfe350000)
 //Bit 31:0  ro_blend0_current_xy         //unsigned  ro
+#define VPU_VOUT_RO_VLK_ISP_TCNT                   ((0x0052  << 2) + 0xfe350000)
+//Bit 31:0  ro_vlock_isp_tim_cnt         //unsigned  ro
+#define VPU_VOUT_RO_VLK_VOUT_TCNT                  ((0x0053  << 2) + 0xfe350000)
+//Bit 31:0  ro_vlock_vout_tim_cnt        //unsigned  ro
+#define VPU_VOUT_RO_VLK_HIG_TCNT                   ((0x0054  << 2) + 0xfe350000)
+//Bit 31:0  ro_vlock_tim_cnt_h           //unsigned  ro
+#define VPU_VOUT_RO_VLK_FRM_CNT                    ((0x0055  << 2) + 0xfe350000)
+//Bit 31:16  ro_vlock_isp_frm_cnt       //unsigned  ro
+//Bit 15 :0  ro_vlock_vout_frm_cnt      //unsigned  ro
+#define VPU_VOUT_RO_VLK_LATCH_TCNT                 ((0x0056  << 2) + 0xfe350000)
+//Bit 31:0  ro_vlock_lth_tim_cnt_l      //unsigned  ro
+#define VPU_VOUT_RO_VLK_LATCH_FCNT                 ((0x0057  << 2) + 0xfe350000)
+//Bit 31:16  ro_vlock_lth_tim_cnt_h     //unsigned  ro
+//Bit 15 :0  ro_vlock_lth_frm_cnt       //unsigned  ro
+//for hw secure only
+#define VPU_VOUT_TOP_SEC_KP                        ((0x0070  << 2) + 0xfe350000)
+#define VPU_VOUT_TOP_SEC_BIT                       ((0x0071  << 2) + 0xfe350000)
+#define VPU_VOUT_TOP_SEC_RO                        ((0x0072  << 2) + 0xfe350000)
 //
 // Closing file:  ./vpu_inc/vpu_vout_top_reg.h
 //
@@ -13121,7 +15117,7 @@
 //Bit    5   reg_dth_bw                  // unsigned,  RW,  default = 0
 //Bit  4:2   reg_dth_force_cnt_val       // unsigned,  RW,  default = 0
 //Bit    1   reg_dth_force_cnt_en        // unsigned,  RW,  default = 0
-//Bit    0   pls_sw_rst                  // unsigned,  RW,  default = 0
+//Bit    0   reg_sw_rst                  // unsigned,  RW,  default = 0
 #define VPU_VOUT_DTH_DATA                          ((0x0103  << 2) + 0xfe350000)
 //Bit 31:0   reg_dth_data                      // unsigned ,    RW, default = 32'h0
 #define VPU_VOUT_DTH_ADDR                          ((0x0104  << 2) + 0xfe350000)
@@ -13268,8 +15264,7 @@
 //Bit 15:10  reserved
 //Bit  9: 0  reg_dat_clp_min_c    // unsigned,  RW,  default = 64;      //for C min clip
 #define VPU_VOUT_RO_INT                            ((0x0140  << 2) + 0xfe350000)
-//Bit  31:8  reserved
-//Bit  7:0   ro_int_error_cnt   //unsigned, RO
+//Bit  31:0  ro_vout_timgen_status  //unsigned, RO  {afifo_count[4:0],ro_int_error_cnt[7:0]}
 //
 // Closing file:  ./vpu_inc/vpu_vout_timgen_reg.h
 //
@@ -13432,7 +15427,11 @@
 //Bit 31:16         reg_hold_hsize                 // unsigned ,    RW, default = 720
 //Bit 15: 0         reg_hold_vsize                 // unsigned ,    RW, default = 20
 #define ISP_TOP_CTRL0                              ((0x0003  << 2) + 0xff000000)
-//Bit 31:11         reserved
+//Bit 31:19         reserved
+//Bit 18            pls_din_vsync                 // unsigned ,    RW, default = 0,  //
+//Bit 17:16         reg_din_vsync_sel             // unsigned ,    RW, default = 0,  //0: mipi/tmg vsync,  1:pls 2:1'b1  3:1'b0
+//Bit 15:13         reserved
+//Bit 12:11         reg_frm_latch_sel             // unsigned ,    RW, default = 0,  //latch use 0:frm_start 1:frm_end 2:1'b1 3:1'b0
 //Bit 10            pls_frm_st_clr                // unsigned ,    W1T, default = 0, //pluse to clr frm_start_flg
 //Bit 9:8           reg_frm_start_sel             // unsigned ,    RW, default = 0, //0:din_vsync 1:pls 2:fst_din
 //Bit 7:6           reg_frm_rst_sel               // unsigned ,    RW, default = 2, //0:auto 1:pls 2:start_din
@@ -13440,8 +15439,9 @@
 //Bit 1             pls_frm_start                 // unsigned ,    W1T, default = 0,
 //Bit 0             pls_frm_rst                   // unsigned ,    W1T, default = 0,
 #define ISP_TOP_PATH_EN                            ((0x0004  << 2) + 0xff000000)
-//Bit 31:28         reserved
-//Bit 27:20         reg_nrmif_en                  // unsigned ,    RW, default = 0, {nr_rdmif_x4,nr_wrmif_x4}
+//Bit 31            reserved
+//Bit 30:28         reg_pnrmif_en                 // unsigned ,    RW, default = 0, {pnr_wrmif_y,pnr_rdmif_meta,pnr_rdmif_y}
+//Bit 27:20         reg_nrmif_en                  // unsigned ,    RW, default = 0, {nr_rdmif_x4,nr_wrmif_x4},{meta,mv,mix,raw}
 //Bit 19:18         reserved
 //Bit 17:16         reg_rdmif_en                  // unsigned ,    RW, default = 0,
 //Bit 15:13         reserved
@@ -13465,7 +15465,8 @@
 //Bit 23:16         reg_din_reo_sel               // unsigned ,    RW, default = 8'h24
 //Bit 15:0          reg_ls_flag_inv               // unsigned ,    RW, default = 0  0:reg0 1:reg1 2:i_ls_flg 3:i_ls_flg_inv for long/short expos
 #define ISP_TOP_MEAS                               ((0x000a  << 2) + 0xff000000)
-//Bit 31:18         reserved
+//Bit 31:19         reserved
+//Bit 18            pls_tmg_rst                    // unsigned ,   W1T, default = 0, //pluse to clr tmg_cnt
 //Bit 17            reg_tmg_phase                  // unsigned ,    RW, default = 1, timing_gen enable
 //Bit 16            reg_tmg_vsyn_sel               // unsigned ,    RW, default = 0, 0:din_vsyn_dly 1:tim_vsyn
 //Bit 15            reg_tmg_hsyn_sel               // unsigned ,    RW, default = 1, 0:din_hsyn     1:ref_hend
@@ -13565,9 +15566,22 @@
 #define ISP_TOP_IRQ_LINE_THRD1                     ((0x002b  << 2) + 0xff000000)
 //Bit 31:16         reserved
 //Bit 15:0          reg_irq_line_thrd1             // unsigned ,    RW, default = 16'h200
+#define ISP_DMA_CHN_EN                             ((0x002c  << 2) + 0xff000000)
+//Bit 31:5          reserved
+//Bit 4:0           reg_dma_chn_en                 // unsigned ,    RW, default = 5'h1f
+#define ISP_FRM_CNT_CTRL                           ((0x002d  << 2) + 0xff000000)
+//Bit 31:28         reg_frm_cnt_sel                      //unsigned,  RW, default = 0, ro_frm_cnt vld src sel
+//Bit 27            reserved
+//Bit 26            reg_frm_cnt_en                       //unsigned,  RW, default = 0, ro_frm_cnt_enable
+//Bit 25            reg_frm_end_cnt_en                   //unsigned,  RW, default = 0, frm_end dly cnt enable
+//Bit 24            reg_frm_end_cnt_sel                  //unsigned,  RW, default = 0, rdma_frm_end sel 0:frm_end, 1:frm_end_dly
+//Bit 23:0          reg_frm_end_cnt_thrd                 //unsigned,  RW, default = 0, frm_end dly cnt thrd
+#define ISP_TOP_CORE_CTRL0                         ((0x0030  << 2) + 0xff000000)
+//Bit 31:0          reg_isp_core_ctrl0                   // unsigned ,    RW, default = 0
+#define ISP_TOP_CORE_CTRL1                         ((0x0031  << 2) + 0xff000000)
+//Bit 31:0          reg_isp_core_ctrl1                   // unsigned ,    RW, default = 0
 #define ISP_TOP_FRM_END_MASK                       ((0x0035  << 2) + 0xff000000)
-//Bit 31:25         reserved
-//Bit 24:0          reg_frm_end_mask          // unsigned ,    RW, default = 0  disable frm_end_chn
+//Bit 31:0          reg_frm_end_mask          // unsigned ,    RW, default = 0  disable frm_end_chn
 #define ISP_TOP_AXI_CNT_ID                         ((0x0036  << 2) + 0xff000000)
 //Bit 31:21        reserved
 //Bit 20           reg_axi_cnt_all                  // unsigned ,    RW, default = 0 axi_ro_cnt en
@@ -13580,8 +15594,8 @@
 //Bit 16          reg_slice_splt_en             // unsigned ,    RW, default = 0, two slice mode en
 //Bit 15:3        reserved
 //Bit 2           reg_offline_ena               // unsigned ,    RW, default = 0, offline mode enable
-//Bit 1           pls_offline_frm_start         // unsigned ,    RW, default = 0, offline sw frm_start
-//Bit 0           pls_offline_frm_rst           // unsigned ,    RW, default = 0, offline sw frm_rst
+//Bit 1           pls_offline_frm_start         // unsigned ,    W1T, default = 0, offline sw frm_start
+//Bit 0           pls_offline_frm_rst           // unsigned ,    W1T, default = 0, offline sw frm_rst
 #define ISP_TOP_SLICE_TOTAL_SIZE                   ((0x0039  << 2) + 0xff000000)
 //Bit 31:16       reg_slice_tvsize            // unsigned ,    RW, default = 1080  2slice mode,total size
 //Bit 15:0        reg_slice_thsize            // unsigned ,    RW, default = 1920  2slice mode,total size
@@ -13618,11 +15632,11 @@
 #define ISP_CHECKSUM_RO_DAT_9                      ((0x0049  << 2) + 0xff000000)
 //Bit 31:0         ro_checksum_dat_9                // unsigned ,   RO, default = 0 checksum for disp_2
 #define ISP_TOP_RO_DBG_STAT0                       ((0x0070  << 2) + 0xff000000)
-//Bit 31:0          ro_debug_stat0                  // unsigned ,    RO, default = 0 ,
+//Bit 31:0          ro_debug_stat0                  // unsigned ,    RO, default = 0 ,[15:0]:isp_undone_vcnt,[31:16]:{corein,ofe,dfe,obe,  dms,post,3a,core,  disp,line,intf,all_end},
 #define ISP_TOP_RO_IRQ_STAT                        ((0x0071  << 2) + 0xff000000)
-//Bit 31:0          ro_irq_status                   // unsigned ,    RO, default = 0 ,
+//Bit 31:0          ro_irq_status                   // unsigned ,    RO, default = 0 , {frm_end_dly,irq_line_out1,din_vsyn_dly,din_vsyn_mipi,offline_frm_end,post_int,intf_err_int,irq_3a_dma_err ,irq_abnorm_end,irq_line,frm_en,frm_rst,frm_end}
 #define ISP_TOP_RO_MEAS                            ((0x0072  << 2) + 0xff000000)
-//Bit 31:16         reserved
+//Bit 31:16         ro_isp_frm_cnt                  // unsigned ,    RO, default = 0 ,
 //Bit 15:0          ro_meas_dly_num                 // unsigned ,    RO, default = 0 ,
 #define ISP_TOP_AXI_RO_RD0_STAT                    ((0x0073  << 2) + 0xff000000)
 //Bit 31:0          ro_axi_rd0_cnt                  //unsigned, RO, default=0
@@ -13649,7 +15663,7 @@
 // synopsys translate_on
 #define ISP_TOP_MODE_CTRL                          ((0x0100  << 2) + 0xff000000)
 //Bit 31:17        reserved
-//Bit 16:12        reg_src_bit_depth         // unsigned ,    RW, default = 16  source data bit depth from input port, support 8bit~16bit
+//Bit 16:12        reg_src_bit_depth         // unsigned ,    RW, default = 14  source data bit depth from input port, support 8bit~14bit
 //Bit 11:10        reserved
 //Bit  9: 8        reg_src_inp_chn           // unsigned ,    RW, default = 0  the source data channels, support (1+inp_chn) as 1/2/3/4 from input port
 //Bit  7: 6        reserved
@@ -13749,9 +15763,10 @@
 #define ISP_TOP_BED_CTRL                           ((0x0108  << 2) + 0xff000000)
 //Bit 31:26        reserved
 //Bit 25           reg_amcm_en               // unsigned ,    RW, default = 1  amcm enable
-//Bit 24:21        reserved
+//Bit 24:22        reserved
+//Bit 21           reg_pst_tnr_lite_en       // unsigned ,    RW, default = 1
 //Bit 20           reg_mirror_en             // unsigned ,    RW, default = 0  enable horizontal flipping
-//Bit 19           reg_dmsc_en               // unsigned ,    RW, default = 0  enable demosaic
+//Bit 19           reg_dmsc_en               // unsigned ,    RW, default = 1  enable demosaic
 //Bit 18           reg_ccm_en                // unsigned ,    RW, default = 1  enable color correction matrix, 0=off 1=on
 //Bit 17           reg_lut3d_en              // unsigned ,    RW, default = 1  signal for lut3d ip
 //Bit 16           reg_pst_gamma_en          // unsigned ,    RW, default = 1  enable rgb gamma lut, tuning curve gamma, default as off
@@ -15669,9 +17684,9 @@
 //Bit  7: 0        reg_cubic_csi_useavg_th   // unsigned ,    RW, default = 10  yuv2bayer, max_err<(th*4), use average g0~g2 as og for DbDr calculation (flat region), default =10;
 #define ISP_CUBIC_CS_POWER                         ((0x0884  << 2) + 0xff000000)
 //Bit 31:26        reserved
-//Bit 25:24        reg_cubic_cs_powersaving  // unsigned ,    RW, default = 0  power saving mode bayer2yuv and yuv2bayer use average; 0,adaptive, 1:use avg; 2/3: use g_avg_within_2x2, default=0
+//Bit 25:24        reg_cubic_cs_powersaving  // unsigned ,    RW, default = 2  power saving mode bayer2yuv and yuv2bayer use average; 0,adaptive, 1:use avg; 2/3: use g_avg_within_2x2, default=0
 //Bit 23:18        reserved
-//Bit 17:16        reg_cubic_csi_powersaving // unsigned ,    RW, default = 0  power saving mode bayer2yuv and yuv2bayer use average; 0,adaptive, 1:use avg; 2/3: use g_avg_within_2x2, default=0
+//Bit 17:16        reg_cubic_csi_powersaving // unsigned ,    RW, default = 2  power saving mode bayer2yuv and yuv2bayer use average; 0,adaptive, 1:use avg; 2/3: use g_avg_within_2x2, default=0
 //Bit 15: 0        reserved
 #define ISP_CUBIC_RAD_CRTL                         ((0x0885  << 2) + 0xff000000)
 //Bit 31:27        reserved
@@ -17280,10 +19295,11 @@
 //Bit 31:0      reg_gclk_ctrl         //unsigned, RW, default=0
 //
 #define ISP_MCNR_HW_CTRL0                          ((0x0cf1  << 2) + 0xff000000)
-//Bit 31        reg_sw_rst            //unsigned, RW, default=0
+//Bit 31        reg_sw_rst            //unsigned, W1T, default=0
 //Bit 30        reg_mcnr_use_tnr      //unsigned, RW, default=1
 //Bit 29        reg_force_sblk_pre    //unsigned, RW, default=0
-//Bit 28:3      reserved
+//Bit 28:4      reserved
+//Bit 3         reg_rand_mv_seed_rst  //unsigned, W1T, default=0
 //Bit 2:0       reg_mcnr_dbg_path_sel //unsigned, RW, default=0
 #define ISP_MCNR_DBG0                              ((0x0cf2  << 2) + 0xff000000)
 //Bit 31:0      ro_mcnr_dbg0        //unsigned, RO, default=0
@@ -18010,20 +20026,6 @@
 //Bit 25:16        ro_ltm_gmax_idx           // unsigned ,    RO, default = 0  global max index
 //Bit 15:10        reserved
 //Bit  9: 0        ro_ltm_gmin_idx           // unsigned ,    RO, default = 0  global min index
-#define ISP_LTM_DBGINFO_RST                        ((0x1223  << 2) + 0xff000000)
-//Bit 31:3         reserved
-//Bit 2:1          reg_ltm_frm_end_mask      // unsigned ,    RW, default = 0
-//Bit 0            reg_ltm_dbginfo_rst       // unsigned ,    RW, default = 0
-#define ISP_LTM_DBG_RO_0                           ((0x1224  << 2) + 0xff000000)
-//Bit 31: 0        ro_ltm_dbg0               // unsigned ,    RO, default = 0
-#define ISP_LTM_DBG_RO_1                           ((0x1225  << 2) + 0xff000000)
-//Bit 31: 0        ro_ltm_dbg1               // unsigned ,    RO, default = 0
-#define ISP_LTM_DBG_RO_2                           ((0x1226  << 2) + 0xff000000)
-//Bit 31: 0        ro_ltm_dbg2               // unsigned ,    RO, default = 0
-#define ISP_LTM_DBG_RO_3                           ((0x1227  << 2) + 0xff000000)
-//Bit 31: 0        ro_ltm_dbg3               // unsigned ,    RO, default = 0
-#define ISP_LTM_DBG_RO_4                           ((0x1228  << 2) + 0xff000000)
-//Bit 31: 0        ro_ltm_dbg4               // unsigned ,    RO, default = 0
 // synopsys translate_off
 // synopsys translate_on
 //
@@ -18078,6 +20080,20 @@
 //Bit 31:13     reserved
 //Bit 12        pls_frm_flg_clr              // unsigned  ,   W1T, default = 0 //pls to clear pingpong frm cnt
 //Bit 11:0      reg_tm_gclk_ctrl             // unsigned  ,   RW, default = 0
+#define ISP_LTM_DBGINFO_RST                        ((0x1243  << 2) + 0xff000000)
+//Bit 31:3         reserved
+//Bit 2:1          reg_ltm_frm_end_mask      // unsigned ,    RW, default = 0
+//Bit 0            reg_ltm_dbginfo_rst       // unsigned ,    RW, default = 0
+#define ISP_LTM_DBG_RO_0                           ((0x1244  << 2) + 0xff000000)
+//Bit 31: 0        ro_ltm_dbg0               // unsigned ,    RO, default = 0
+#define ISP_LTM_DBG_RO_1                           ((0x1245  << 2) + 0xff000000)
+//Bit 31: 0        ro_ltm_dbg1               // unsigned ,    RO, default = 0
+#define ISP_LTM_DBG_RO_2                           ((0x1246  << 2) + 0xff000000)
+//Bit 31: 0        ro_ltm_dbg2               // unsigned ,    RO, default = 0
+#define ISP_LTM_DBG_RO_3                           ((0x1247  << 2) + 0xff000000)
+//Bit 31: 0        ro_ltm_dbg3               // unsigned ,    RO, default = 0
+#define ISP_LTM_DBG_RO_4                           ((0x1248  << 2) + 0xff000000)
+//Bit 31: 0        ro_ltm_dbg4               // unsigned ,    RO, default = 0
 // synopsys translate_off
 // synopsys translate_on
 //
@@ -19469,10 +21485,7 @@
 //Bit 31:30        reg_pksde_lp_sel          // unsigned ,    RW, default = 1
 //Bit 29:11        reserved
 //Bit 10: 8        reg_pksde_yuv_mode_0      // unsigned ,    RW, default = 0  Y sde mode for pk, 0: no SDE; 1: YUVrplc+ peaking; 2: YUVrplc - peaking; 3: YUVrplc+ peaking>0; 4: YUVrplc + peaking<0; 5: YUVrplc+ abs(peaking) 6: YUVrplc-abs(peaking); 7: binary
-//Bit  7            reserved
-//Bit  6: 4        reserved
-//Bit  3            reserved
-//Bit  2: 0        reserved
+//Bit  7: 0        reserved
 #define ISP_SDE_RPLC_PKGAIN                        ((0x193a  << 2) + 0xff000000)
 //Bit 31:24        reserved
 //Bit 23:20        reg_pksde_pkgain_0        // unsigned ,    RW, default = 8  sde pk Y gain, normalized 8 as "1"
@@ -19818,6 +21831,48 @@
 #define ISP_POST_NR_ADA_GIAN_LUT_12                ((0x1963  << 2) + 0xff000000)
 //Bit 31: 6        reserved
 //Bit  5: 0        reg_nr_alp2_averstderr_lut2d_48 // unsigned ,    RW, default = 63  2D-LUT for adaptive gain for nr, larger coef means strongger nr,
+#define ISP_PK_MOTION_ADP_CTRL                     ((0x1964  << 2) + 0xff000000)
+//Bit 31: 2        reserved
+//Bit  1           reg_nry_motion_adp_en     // unsigned ,    RW, default = 0  motion adaptive nry enable
+//Bit  0           reg_pk_motion_adp_en      // unsigned ,    RW, default = 0  motion adaptive pk enable
+#define ISP_NRY_MOTION_ADP_LUT_0                   ((0x1965  << 2) + 0xff000000)
+//Bit 31:30        reserved
+//Bit 29:24        reg_nry_motion_adp_lut_3  // unsigned ,    RW, default = 63  motion adaptive nry lut
+//Bit 23:22        reserved
+//Bit 21:16        reg_nry_motion_adp_lut_2  // unsigned ,    RW, default = 63  motion adaptive nry lut
+//Bit 15:14        reserved
+//Bit 13: 8        reg_nry_motion_adp_lut_1  // unsigned ,    RW, default = 63  motion adaptive nry lut
+//Bit  7: 6        reserved
+//Bit  5: 0        reg_nry_motion_adp_lut_0  // unsigned ,    RW, default = 63  motion adaptive nry lut
+#define ISP_NRY_MOTION_ADP_LUT_1                   ((0x1966  << 2) + 0xff000000)
+//Bit 31:30        reserved
+//Bit 29:24        reg_nry_motion_adp_lut_7  // unsigned ,    RW, default = 63  motion adaptive nry lut
+//Bit 23:22        reserved
+//Bit 21:16        reg_nry_motion_adp_lut_6  // unsigned ,    RW, default = 63  motion adaptive nry lut
+//Bit 15:14        reserved
+//Bit 13: 8        reg_nry_motion_adp_lut_5  // unsigned ,    RW, default = 63  motion adaptive nry lut
+//Bit  7: 6        reserved
+//Bit  5: 0        reg_nry_motion_adp_lut_4  // unsigned ,    RW, default = 63  motion adaptive nry lut
+#define ISP_BP_MOTION_ADP_GAIN_LUT_0               ((0x1967  << 2) + 0xff000000)
+//Bit 31:24        reg_bp_motion_adp_gain_lut_3 // unsigned ,    RW, default = 100  motion adaptive pk bp lut
+//Bit 23:16        reg_bp_motion_adp_gain_lut_2 // unsigned ,    RW, default = 100  motion adaptive pk bp lut
+//Bit 15: 8        reg_bp_motion_adp_gain_lut_1 // unsigned ,    RW, default = 100  motion adaptive pk bp lut
+//Bit  7: 0        reg_bp_motion_adp_gain_lut_0 // unsigned ,    RW, default = 100  motion adaptive pk bp lut
+#define ISP_BP_MOTION_ADP_GAIN_LUT_1               ((0x1968  << 2) + 0xff000000)
+//Bit 31:24        reg_bp_motion_adp_gain_lut_7 // unsigned ,    RW, default = 100  motion adaptive pk bp lut
+//Bit 23:16        reg_bp_motion_adp_gain_lut_6 // unsigned ,    RW, default = 100  motion adaptive pk bp lut
+//Bit 15: 8        reg_bp_motion_adp_gain_lut_5 // unsigned ,    RW, default = 100  motion adaptive pk bp lut
+//Bit  7: 0        reg_bp_motion_adp_gain_lut_4 // unsigned ,    RW, default = 100  motion adaptive pk bp lut
+#define ISP_HP_MOTION_ADP_GAIN_LUT_0               ((0x1969  << 2) + 0xff000000)
+//Bit 31:24        reg_hp_motion_adp_gain_lut_3 // unsigned ,    RW, default = 100  motion adaptive pk hp lut
+//Bit 23:16        reg_hp_motion_adp_gain_lut_2 // unsigned ,    RW, default = 100  motion adaptive pk hp lut
+//Bit 15: 8        reg_hp_motion_adp_gain_lut_1 // unsigned ,    RW, default = 100  motion adaptive pk hp lut
+//Bit  7: 0        reg_hp_motion_adp_gain_lut_0 // unsigned ,    RW, default = 100  motion adaptive pk hp lut
+#define ISP_HP_MOTION_ADP_GAIN_LUT_1               ((0x196a  << 2) + 0xff000000)
+//Bit 31:24        reg_hp_motion_adp_gain_lut_7 // unsigned ,    RW, default = 100  motion adaptive pk hp lut
+//Bit 23:16        reg_hp_motion_adp_gain_lut_6 // unsigned ,    RW, default = 100  motion adaptive pk hp lut
+//Bit 15: 8        reg_hp_motion_adp_gain_lut_5 // unsigned ,    RW, default = 100  motion adaptive pk hp lut
+//Bit  7: 0        reg_hp_motion_adp_gain_lut_4 // unsigned ,    RW, default = 100  motion adaptive pk hp lut
 #define ISP_PST_PRE_CTRL                           ((0x1980  << 2) + 0xff000000)
 //Bit 31:25        reserved
 //Bit 24           reg_pre_hlpf_mode         // unsigned ,    RW, default = 1  0: [1 2 1] lpf, 1: [1 2 2 2 1] lpf
@@ -22313,28 +24368,32 @@
 #define ISP_AF_DEBUG_IN_CHECKSUM                   ((0x2833  << 2) + 0xff000000)
 //Bit 31: 0        ro_af_debug_in_checksum   // unsigned ,    RO, default = 0
 #define ISP_AF_DEBUG_PACK0_CHECKSUM                ((0x2834  << 2) + 0xff000000)
-//Bit 31: 0        ro_af_debug_pack0_checksum // unsigned ,    RO, default = 0
+//Bit 31: 0        ro_af_debug_pack0_checksum // unsigned ,   RO, default = 0
 #define ISP_AF_DEBUG_PACK1_CHECKSUM                ((0x2835  << 2) + 0xff000000)
-//Bit 31: 0        ro_af_debug_pack1_checksum // unsigned ,    RO, default = 0
-#define ISP_RO_AF_GLB_STAT_PCK0                    ((0x2836  << 2) + 0xff000000)
+//Bit 31: 0        ro_af_debug_pack1_checksum // unsigned ,   RO, default = 0
+#define ISP_AF_DEBUG_PACK2_CHECKSUM                ((0x2836  << 2) + 0xff000000)
+//Bit 31: 0        ro_af_debug_pack2_checksum // unsigned ,   RO, default = 0
+#define ISP_AF_DEBUG_PACK3_CHECKSUM                ((0x2837  << 2) + 0xff000000)
+//Bit 31: 0        ro_af_debug_pack3_checksum // unsigned ,   RO, default = 0
+#define ISP_RO_AF_GLB_STAT_PCK0                    ((0x2838  << 2) + 0xff000000)
 //Bit 31: 0        ro_af_glb_stat_pack0      // unsigned ,    RO, default = 0  LSB of the AF global block sparam_3a_inittatistic, [31:16] I4, [15:0] I2 or [31:0] h0
-#define ISP_RO_AF_GLB_STAT_PCK1                    ((0x2837  << 2) + 0xff000000)
+#define ISP_RO_AF_GLB_STAT_PCK1                    ((0x2839  << 2) + 0xff000000)
 //Bit 31: 0        ro_af_glb_stat_pack1      // unsigned ,    RO, default = 0  LSB of the AF global block statistic, [31:26] I4_exp, [25:21] I2 _exp, [20:16] C4_exp; [15:0] C4 or [31:0] h1
-#define ISP_RO_AF_GLB_STAT_PCK2                    ((0x2838  << 2) + 0xff000000)
+#define ISP_RO_AF_GLB_STAT_PCK2                    ((0x283a  << 2) + 0xff000000)
 //Bit 31: 0        ro_af_glb_stat_pack2      // unsigned ,    RO, default = 0  LSB of the AF global block statistic, [31:0] v0
-#define ISP_RO_AF_GLB_STAT_PCK3                    ((0x2839  << 2) + 0xff000000)
+#define ISP_RO_AF_GLB_STAT_PCK3                    ((0x283b  << 2) + 0xff000000)
 //Bit 31: 0        ro_af_glb_stat_pack3      // unsigned ,    RO, default = 0  LSB of the AF global block statistic, [31:0] v1
-#define ISP_RO_AF_GLB_STAT_PCK4                    ((0x283a  << 2) + 0xff000000)
+#define ISP_RO_AF_GLB_STAT_PCK4                    ((0x283c  << 2) + 0xff000000)
 //Bit 31: 0        ro_af_glb_stat_pack4      // unsigned ,    RO, default = 0  LSB of the AF global block statistic, [31:0] Y
-#define ISP_RO_AF_GLB_STAT_PCK5                    ((0x283b  << 2) + 0xff000000)
+#define ISP_RO_AF_GLB_STAT_PCK5                    ((0x283d  << 2) + 0xff000000)
 //Bit 31: 0        ro_af_glb_stat_pack5      // unsigned ,    RO, default = 0  LSB of the AF global block statistic, [23:0] hcnt0
-#define ISP_RO_AF_GLB_STAT_PCK6                    ((0x283c  << 2) + 0xff000000)
+#define ISP_RO_AF_GLB_STAT_PCK6                    ((0x283e  << 2) + 0xff000000)
 //Bit 31: 0        ro_af_glb_stat_pack6      // unsigned ,    RO, default = 0  LSB of the AF global block statistic, [23:0] hcnt1
-#define ISP_RO_AF_GLB_STAT_PCK7                    ((0x283d  << 2) + 0xff000000)
+#define ISP_RO_AF_GLB_STAT_PCK7                    ((0x283f  << 2) + 0xff000000)
 //Bit 31: 0        ro_af_glb_stat_pack7      // unsigned ,    RO, default = 0  LSB of the AF global block statistic,[23:0]=vcnt0
-#define ISP_RO_AF_GLB_STAT_PCK8                    ((0x283e  << 2) + 0xff000000)
+#define ISP_RO_AF_GLB_STAT_PCK8                    ((0x2840  << 2) + 0xff000000)
 //Bit 31: 0        ro_af_glb_stat_pack8      // unsigned ,    RO, default = 0  LSB of the AF global block statistic,[23:0]=vcnt1
-#define ISP_RO_AF_GLB_STAT_PCK9                    ((0x283f  << 2) + 0xff000000)
+#define ISP_RO_AF_GLB_STAT_PCK9                    ((0x2841  << 2) + 0xff000000)
 //Bit 31: 0        ro_af_glb_stat_pack9      // unsigned ,    RO, default = 0  LSB of the AF global block statistic,[23:0]=y_cnt
 #define ISP_AF_IDX_ADDR                            ((0x2870  << 2) + 0xff000000)
 //Bit 31:7         reserved
@@ -22389,6 +24448,12 @@
 //Bit  4: 2        reg_flkr_binning_rs       // unsigned ,    RW, default = 0  row average binning step, 2^x. 0: RO for each row avg); 1: each RO for two rows); 2: each RO for 4rows); 3: each RO for 8rows);
 //Bit  1            reserved
 //Bit  0           reg_flkr_ro_mode          // unsigned ,    RW, default = 0  mode of RO-RAM, 0: avg(cur-p1); 1: avg(cur), 2: debug info, default, 0.
+#define ISP_DEFLICKER_RO_IN_CHECKSUM0              ((0x2886  << 2) + 0xff000000)
+//Bit 31:0         ro_flkr_debug_in_checksum0 //unsigned ,    RO, default = 0
+#define ISP_DEFLICKER_RO_IN_CHECKSUM1              ((0x2887  << 2) + 0xff000000)
+//Bit 31:0         ro_flkr_debug_in_checksum1 //unsigned ,    RO, default = 0
+#define ISP_DEFLICKER_RO_OUT_CHECKSUM              ((0x2888  << 2) + 0xff000000)
+//Bit 31:0         ro_flkr_debug_out_checksum //unsigned ,    RO, default = 0
 // synopsys translate_off
 // synopsys translate_on
 //
@@ -22438,6 +24503,9 @@
 //Bit 31:0   ro_3a_dbgpath_dat2         //unsigned, RO, default=0
 #define ISP_3A_RO_DBGPATH3                         ((0x28e4  << 2) + 0xff000000)
 //Bit 31:0   ro_3a_dbgpath_dat3         //unsigned, RO, default=0
+#define ISP_3A_RO_FRM_END                          ((0x28e5  << 2) + 0xff000000)
+//Bit 31:8   reserved
+//Bit 7:0    ro_3a_dbg_frm_end          //unsigned, RO, default=0
 // synopsys translate_off
 // synopsys translate_on
 //
@@ -22817,7 +24885,11 @@
 #define ISP_INTF_IDMAP_RDRB0_L                     ((0x3009  << 2) + 0xff000000)
 //Bit 31:0  reg_intf_idmap_rdarb0_l        // unsigned ,    RW, default = 32'h76543210
 #define ISP_INTF_IDMAP_RDARB0_H                    ((0x300a  << 2) + 0xff000000)
-//Bit 31:0  reg_intf_idmap_rdarb0_h        // unsigned ,    RW, default = 32'h76543210
+//Bit 31:0  reg_intf_idmap_rdarb0_h        // unsigned ,    RW, default = 32'h77777777
+#define ISP_INTF_IDMAP_RDRB1_L                     ((0x300b  << 2) + 0xff000000)
+//Bit 31:0  reg_intf_idmap_rdarb1_l        // unsigned ,    RW, default = 32'h32103210
+#define ISP_INTF_IDMAP_RDARB1_H                    ((0x300c  << 2) + 0xff000000)
+//Bit 31:0  reg_intf_idmap_rdarb1_h        // unsigned ,    RW, default = 32'h32103210
 #define ISP_INTF_LOSSE_CTRL                        ((0x3010  << 2) + 0xff000000)
 //Bit 31:25  reserved
 //Bit 24:16  reg_losse1_slice_num          // unsigned ,    RW, default = 1
@@ -22916,6 +24988,15 @@
 //Bit  7:4   reg_loop1_idx_sw_sel            // unsigned ,    RW, default = 4
 //Bit  3:2   reserved
 //Bit  1:0   reg_loop1_idx_sw_en             // unsigned ,    RW, default = 0
+#define ISP_INTF_CHECKSUM_CTRL                     ((0x3040  << 2) + 0xff000000)
+//Bit  31:8  reserved
+//Bit  7:4   reg_checksum_sel                // unsigned ,    RW, default = 0
+//Bit  3:1   reserved
+//Bit  0     reg_checksum_en                 // unsigned ,    RW, default = 0
+#define ISP_INTF_CHECKSUM_RO0                      ((0x3041  << 2) + 0xff000000)
+//Bit  31:0  ro_checksum_in                  // unsigned ,    RO, default = 0
+#define ISP_INTF_CHECKSUM_RO1                      ((0x3042  << 2) + 0xff000000)
+//Bit  31:0  ro_checksum_out                 // unsigned ,    RO, default = 0
 //
 // Closing file:  ./isp_inc/inc_sw/isp_intf_top_reg.h
 //
@@ -22932,7 +25013,7 @@
 //Bit 15    reserved
 //Bit 14:12 reg_cmd_intr_len  // unsigned , RW, default = 1, interrupt send cmd when how many series axi cmd,// 0=12 1=16 2=24 3=32 4=40 5=48 6=56 7=64
 //Bit 11:10 reg_cmd_req_size  // unsigned , RW, default = 1, how many room fifo have, then axi send series req, 0=16 1=32 2=24 3=64
-//Bit 9:8   reg_burst_len     // unsigned , RW, default = 2, burst type: 0-single 1-bst2 2-bst4
+//Bit 9:8   reg_burst_len     // unsigned , RW, default = 1, burst type: 0-single 1-bst2 2-bst4
 //Bit 7     reg_swap_64bit    // unsigned , RW, default = 0, 64bits of 128bit swap enable
 //Bit 6     reg_little_endian // unsigned , RW, default = 1, 1: little endian 0:big endian enable
 //Bit 5     reg_y_rev         // unsigned , RW, default = 0, vertical reverse enable
@@ -22973,11 +25054,16 @@
 //Bit 31:16 reserved
 //Bit 15:0  ro_status        // unsigned , RO, default = 0 ,
 #define ISP_RMIF0_CTRL5                            ((0x3087  << 2) + 0xff000000)
-//Bit 31:17 reserved
-//Bit 16    reg_rd_msb           //unsigned, RW, default=1, 0:lsb 1:msb
-//Bit 15:7  reg_rd_bwidth        //unsigned, RW, default=8, for pixel shift to MSB
-//Bit 6:3   reg_pix_bits_mode    //unsigned, RW, default=1, 0:4b 1:8b 2:16b 3:32b 4:64b 5:128b 6:12b 7:10b 8:14b
-//Bit 2:0   reg_out_pack_mode    //unsigned, RW, default=0, 0:1x 1:2x 2:4x 3:8x 4:16x 5:32x 6:64x
+//Bit 31:30  reg_lath_vld_sel     //unsigned, RW, default=0, latch use 0:frm_start 1:frm_end 2:1'b1 3: 1'b0
+//Bit 29:28  reg_lath_out_sel     //unsigned, RW, default=0, [0]: 0:use latch 1:use reg,  [1]: 0:baddr use baddr_sel 1:baddr use reg
+//Bit 27:21  reserved
+//Bit 20     reg_sft_aut_en       //unsigned, RW, default=0,
+//Bit 19:18  reg_rpt_pix          //unsigned, RW, default=0, repeat pix
+//Bit 17     reg_rpt_line         //unsigned, RW, default=0, repeat line
+//Bit 16     reg_rd_msb           //unsigned, RW, default=1, 0:lsb 1:msb
+//Bit 15:7   reg_rd_bwidth        //unsigned, RW, default=8, for pixel shift to MSB
+//Bit 6:3    reg_pix_bits_mode    //unsigned, RW, default=1, 0:4b 1:8b 2:16b 3:32b 4:64b 5:128b 6:12b 7:10b 8:14b
+//Bit 2:0    reg_out_pack_mode    //unsigned, RW, default=0, 0:1x 1:2x 2:4x 3:8x 4:16x 5:32x 6:64x
 // synopsys translate_off
 // synopsys translate_on
 //
@@ -22999,7 +25085,7 @@
 //Bit 25        reg_luma_end_at_last_line          //unsigned, RW, default = 0
 //Bit 24:19     reg_hold_lines[5:0]                //unsigned, RW, default = 6'h4
 //Bit 18        reg_last_line_mode                 //unsigned, RW, default = 1'b1
-//Bit 17        ro_busy                            //unsigned, RO, default = 0//used as busy readback, ro ?
+//Bit 17        ro_busy                            //unsigned, RO, default = 0 //used as busy readback, ro ?
 //Bit 16        reg_demux_mode                     //unsigned, RW, default = 0
 //Bit 15:14     reg_bytes_per_pixel                //unsigned, RW, default = 0
 //Bit 13:12     reg_ddr_burst_size_cr              //unsigned, RW, default = 0
@@ -23147,14 +25233,14 @@
 //Bit 31:0      reg_f0_baddr_cr                       //unsigned, RW, default = 0
 #define ISP_RDMIF1_STRIDE_0                        ((0x30e3  << 2) + 0xff000000)
 //Bit 31:29     reserved
-//Bit 28:16     reg_f0_stride_cb                      //unsigned, RW, default = 13'd256
+//Bit 28:16     reg_f0_stride_cb                      //unsigned, RW, default = 256
 //Bit 15:13     reserved
-//Bit 12:0      reg_f0_stride_y                       //unsigned, RW, default = 13'd256
+//Bit 12:0      reg_f0_stride_y                       //unsigned, RW, default = 256
 #define ISP_RDMIF1_STRIDE_1                        ((0x30e4  << 2) + 0xff000000)
 //Bit 31:17     reserved
 //Bit 16        reg_f0_acc_mode                       //unsigned, RW, default = 0
 //Bit 15:13     reserved
-//Bit 12:0      reg_f0_stride_cr                      //unsigned, RW, default = 13'd256
+//Bit 12:0      reg_f0_stride_cr                      //unsigned, RW, default = 256
 #define ISP_RDMIF1_BADDR_Y_F1                      ((0x30e5  << 2) + 0xff000000)
 //Bit 31:0      reg_f1_baddr_y                     //unsigned, RW, default = 0
 #define ISP_RDMIF1_BADDR_CB_F1                     ((0x30e6  << 2) + 0xff000000)
@@ -23163,9 +25249,9 @@
 //Bit 31:0      reg_f1_baddr_cr                    //unsigned, RW, default = 0
 #define ISP_RDMIF1_STRIDE_0_F1                     ((0x30e8  << 2) + 0xff000000)
 //Bit 31:29     reserved
-//Bit 28:16     reg_f1_stride_cb                   //unsigned, RW, default = 13'd256
+//Bit 28:16     reg_f1_stride_cb                   //unsigned, RW, default = 256
 //Bit 15:13     reserved
-//Bit 12:0      reg_f1_stride_y                    //unsigned, RW, default = 13'd256;
+//Bit 12:0      reg_f1_stride_y                    //unsigned, RW, default = 256;
 #define ISP_RDMIF1_STRIDE_1_F1                     ((0x30e9  << 2) + 0xff000000)
 //Bit 31:26     reserved
 //Bit 25        reg_f1_stride32aligned2            //unsigned, RW, default = 0
@@ -23176,7 +25262,7 @@
 //Bit 18:17     reg_f1_cav_blk_mode0               //unsigned, RW, default = 0
 //Bit 16        reg_f1_acc_mode                    //unsigned, RW, default = 0
 //Bit 15:13     reserved
-//Bit 12:0      reg_f1_stride_cr                   //unsigned, RW, default = 13'd256
+//Bit 12:0      reg_f1_stride_cr                   //unsigned, RW, default = 256
 //
 // Closing file:  ./isp_inc/inc_sw/isp_intf_rdmifx3_reg_0.h
 //
@@ -23338,8 +25424,10 @@
 #define ISP_WRMIFX3_0_RO_CH2                       ((0x3121  << 2) + 0xff000000)
 //Bit 31:0  ro_status_ch2               // unsigned , RO, default = 0
 #define ISP_WRMIFX3_0_CRP_CTR                      ((0x3122  << 2) + 0xff000000)
-//Bit 31:1  reserved
-//Bit 0     reg_crop_en                 // unsigned , RW, default = 0,
+//Bit 31:30  reg_lath_vld_sel           //unsigned, RW, default=0, latch use 0:frm_start 1:frm_end 2:1'b1 3: 1'b0
+//Bit 29:28  reg_lath_out_sel           //unsigned, RW, default=0, [0]: 0:use latch 1:use reg,  [1]: 0:baddr use baddr_sel 1:baddr use reg
+//Bit 27:1   reserved
+//Bit 0      reg_crop_en                 // unsigned , RW, default = 0,
 #define ISP_WRMIFX3_0_CRP_HSIZE                    ((0x3123  << 2) + 0xff000000)
 //Bit 31:16 reg_crop_end_h              // unsigned , RW, default = 1920,
 //Bit 15:0  reg_crop_bgn_h              // unsigned , RW, default = 0,
@@ -23506,8 +25594,10 @@
 #define ISP_WRMIFX3_1_RO_CH2                       ((0x3161  << 2) + 0xff000000)
 //Bit 31:0  ro_status_ch2               // unsigned , RO, default = 0
 #define ISP_WRMIFX3_1_CRP_CTR                      ((0x3162  << 2) + 0xff000000)
-//Bit 31:1  reserved
-//Bit 0     reg_crop_en                 // unsigned , RW, default = 0,
+//Bit 31:30  reg_lath_vld_sel           //unsigned, RW, default=0, latch use 0:frm_start 1:frm_end 2:1'b1 3: 1'b0
+//Bit 29:28  reg_lath_out_sel           //unsigned, RW, default=0, [0]: 0:use latch 1:use reg,  [1]: 0:baddr use baddr_sel 1:baddr use reg
+//Bit 27:1   reserved
+//Bit 0      reg_crop_en                 // unsigned , RW, default = 0,
 #define ISP_WRMIFX3_1_CRP_HSIZE                    ((0x3163  << 2) + 0xff000000)
 //Bit 31:16 reg_crop_end_h              // unsigned , RW, default = 1920,
 //Bit 15:0  reg_crop_bgn_h              // unsigned , RW, default = 0,
@@ -23674,8 +25764,10 @@
 #define ISP_WRMIFX3_2_RO_CH2                       ((0x31a1  << 2) + 0xff000000)
 //Bit 31:0  ro_status_ch2               // unsigned , RO, default = 0
 #define ISP_WRMIFX3_2_CRP_CTR                      ((0x31a2  << 2) + 0xff000000)
-//Bit 31:1  reserved
-//Bit 0     reg_crop_en                 // unsigned , RW, default = 0,
+//Bit 31:30  reg_lath_vld_sel           //unsigned, RW, default=0, latch use 0:frm_start 1:frm_end 2:1'b1 3: 1'b0
+//Bit 29:28  reg_lath_out_sel           //unsigned, RW, default=0, [0]: 0:use latch 1:use reg,  [1]: 0:baddr use baddr_sel 1:baddr use reg
+//Bit 27:1   reserved
+//Bit 0      reg_crop_en                 // unsigned , RW, default = 0,
 #define ISP_WRMIFX3_2_CRP_HSIZE                    ((0x31a3  << 2) + 0xff000000)
 //Bit 31:16 reg_crop_end_h              // unsigned , RW, default = 1920,
 //Bit 15:0  reg_crop_bgn_h              // unsigned , RW, default = 0,
@@ -23799,7 +25891,7 @@
 //Bit 15    reserved
 //Bit 14:12 reg_cmd_intr_len  // unsigned , RW, default = 1, interrupt send cmd when how many series axi cmd, // 0=12 1=16 2=24 3=32 4=40 5=48 6=56 7=64
 //Bit 11:10 reg_cmd_req_size  // unsigned , RW, default = 1, how many room fifo have, then axi send series req, 0=16 1=32 2=24 3=64
-//Bit 9:8   reg_burst_len     // unsigned , RW, default = 2, burst type: 0-single 1-bst2 2-bst4
+//Bit 9:8   reg_burst_len     // unsigned , RW, default = 1, burst type: 0-single 1-bst2 2-bst4
 //Bit 7     reg_swap_64bit    // unsigned , RW, default = 0, 64bits of 128bit swap enable
 //Bit 6     reg_little_endian // unsigned , RW, default = 1, 1: little_endian 0:big endian enable
 //Bit 5     reg_y_rev         // unsigned , RW, default = 0, vertical reverse enable
@@ -23849,10 +25941,12 @@
 #define ISP_WMIF_NR2_CTRL6                         ((0x3308  << 2) + 0xff000000)
 //Bit 31:0  reg_baddr_ofst      //unsigned, RW, default=0, for auto baddr ofst
 #define ISP_WMIF_NR2_CTRL7                         ((0x3309  << 2) + 0xff000000)
-//Bit 31:18  reserved
-//Bit 17:10 reg_frm_ctrl_ini    //unsigned, RW, default=8'h10, ini_drop_num
-//Bit 9     reg_frm_ctrl_rst    //unsigned, RW, default=0, clean frm drop func
-//Bit 8:0   reg_frm_ctrl        //unsigned, RW, default=0, bit8=reg_drop_en, bit7:4=pass_num, bit3:0=drop_num
+//Bit 31:30  reg_lath_vld_sel     //unsigned, RW, default=0, latch use 0:frm_start 1:frm_end 2:1'b1 3: 1'b0
+//Bit 29:28  reg_lath_out_sel     //unsigned, RW, default=0, [0]: 0:use latch 1:use reg,  [1]: 0:baddr use baddr_sel 1:baddr use reg
+//Bit 27:18  reserved
+//Bit 17:10  reg_frm_ctrl_ini    //unsigned, RW, default=8'h10, ini_drop_num
+//Bit 9      pls_frm_ctrl_rst    //unsigned, RW, default=0, clean frm drop func
+//Bit 8:0    reg_frm_ctrl        //unsigned, RW, default=0, bit8=reg_drop_en, bit7:4=pass_num, bit3:0=drop_num
 // synopsys translate_off
 // synopsys translate_on
 //
@@ -23871,7 +25965,7 @@
 //Bit 15    reserved
 //Bit 14:12 reg_cmd_intr_len  // unsigned , RW, default = 1, interrupt send cmd when how many series axi cmd, // 0=12 1=16 2=24 3=32 4=40 5=48 6=56 7=64
 //Bit 11:10 reg_cmd_req_size  // unsigned , RW, default = 1, how many room fifo have, then axi send series req, 0=16 1=32 2=24 3=64
-//Bit 9:8   reg_burst_len     // unsigned , RW, default = 2, burst type: 0-single 1-bst2 2-bst4
+//Bit 9:8   reg_burst_len     // unsigned , RW, default = 1, burst type: 0-single 1-bst2 2-bst4
 //Bit 7     reg_swap_64bit    // unsigned , RW, default = 0, 64bits of 128bit swap enable
 //Bit 6     reg_little_endian // unsigned , RW, default = 1, 1: little_endian 0:big endian enable
 //Bit 5     reg_y_rev         // unsigned , RW, default = 0, vertical reverse enable
@@ -23921,10 +26015,12 @@
 #define ISP_WMIF_NR3_CTRL6                         ((0x3328  << 2) + 0xff000000)
 //Bit 31:0  reg_baddr_ofst      //unsigned, RW, default=0, for auto baddr ofst
 #define ISP_WMIF_NR3_CTRL7                         ((0x3329  << 2) + 0xff000000)
-//Bit 31:18  reserved
-//Bit 17:10 reg_frm_ctrl_ini    //unsigned, RW, default=8'h10, ini_drop_num
-//Bit 9     reg_frm_ctrl_rst    //unsigned, RW, default=0, clean frm drop func
-//Bit 8:0   reg_frm_ctrl        //unsigned, RW, default=0, bit8=reg_drop_en, bit7:4=pass_num, bit3:0=drop_num
+//Bit 31:30  reg_lath_vld_sel     //unsigned, RW, default=0, latch use 0:frm_start 1:frm_end 2:1'b1 3: 1'b0
+//Bit 29:28  reg_lath_out_sel     //unsigned, RW, default=0, [0]: 0:use latch 1:use reg,  [1]: 0:baddr use baddr_sel 1:baddr use reg
+//Bit 27:18  reserved
+//Bit 17:10  reg_frm_ctrl_ini    //unsigned, RW, default=8'h10, ini_drop_num
+//Bit 9      pls_frm_ctrl_rst    //unsigned, RW, default=0, clean frm drop func
+//Bit 8:0    reg_frm_ctrl        //unsigned, RW, default=0, bit8=reg_drop_en, bit7:4=pass_num, bit3:0=drop_num
 // synopsys translate_off
 // synopsys translate_on
 //
@@ -23943,7 +26039,7 @@
 //Bit 15    reserved
 //Bit 14:12 reg_cmd_intr_len  // unsigned , RW, default = 1, interrupt send cmd when how many series axi cmd,// 0=12 1=16 2=24 3=32 4=40 5=48 6=56 7=64
 //Bit 11:10 reg_cmd_req_size  // unsigned , RW, default = 1, how many room fifo have, then axi send series req, 0=16 1=32 2=24 3=64
-//Bit 9:8   reg_burst_len     // unsigned , RW, default = 2, burst type: 0-single 1-bst2 2-bst4
+//Bit 9:8   reg_burst_len     // unsigned , RW, default = 1, burst type: 0-single 1-bst2 2-bst4
 //Bit 7     reg_swap_64bit    // unsigned , RW, default = 0, 64bits of 128bit swap enable
 //Bit 6     reg_little_endian // unsigned , RW, default = 1, 1: little endian 0:big endian enable
 //Bit 5     reg_y_rev         // unsigned , RW, default = 0, vertical reverse enable
@@ -23984,11 +26080,16 @@
 //Bit 31:16 reserved
 //Bit 15:0  ro_status        // unsigned , RO, default = 0 ,
 #define ISP_RMIF_NR2_CTRL5                         ((0x3347  << 2) + 0xff000000)
-//Bit 31:17 reserved
-//Bit 16    reg_rd_msb           //unsigned, RW, default=1, 0:lsb 1:msb
-//Bit 15:7  reg_rd_bwidth        //unsigned, RW, default=8, for pixel shift to MSB
-//Bit 6:3   reg_pix_bits_mode    //unsigned, RW, default=1, 0:4b 1:8b 2:16b 3:32b 4:64b 5:128b 6:12b 7:10b 8:14b
-//Bit 2:0   reg_out_pack_mode    //unsigned, RW, default=0, 0:1x 1:2x 2:4x 3:8x 4:16x 5:32x 6:64x
+//Bit 31:30  reg_lath_vld_sel     //unsigned, RW, default=0, latch use 0:frm_start 1:frm_end 2:1'b1 3: 1'b0
+//Bit 29:28  reg_lath_out_sel     //unsigned, RW, default=0, [0]: 0:use latch 1:use reg,  [1]: 0:baddr use baddr_sel 1:baddr use reg
+//Bit 27:21  reserved
+//Bit 20     reg_sft_aut_en       //unsigned, RW, default=0,
+//Bit 19:18  reg_rpt_pix          //unsigned, RW, default=0, repeat pix
+//Bit 17     reg_rpt_line         //unsigned, RW, default=0, repeat line
+//Bit 16     reg_rd_msb           //unsigned, RW, default=1, 0:lsb 1:msb
+//Bit 15:7   reg_rd_bwidth        //unsigned, RW, default=8, for pixel shift to MSB
+//Bit 6:3    reg_pix_bits_mode    //unsigned, RW, default=1, 0:4b 1:8b 2:16b 3:32b 4:64b 5:128b 6:12b 7:10b 8:14b
+//Bit 2:0    reg_out_pack_mode    //unsigned, RW, default=0, 0:1x 1:2x 2:4x 3:8x 4:16x 5:32x 6:64x
 // synopsys translate_off
 // synopsys translate_on
 //
@@ -24007,7 +26108,7 @@
 //Bit 15    reserved
 //Bit 14:12 reg_cmd_intr_len  // unsigned , RW, default = 1, interrupt send cmd when how many series axi cmd,// 0=12 1=16 2=24 3=32 4=40 5=48 6=56 7=64
 //Bit 11:10 reg_cmd_req_size  // unsigned , RW, default = 1, how many room fifo have, then axi send series req, 0=16 1=32 2=24 3=64
-//Bit 9:8   reg_burst_len     // unsigned , RW, default = 2, burst type: 0-single 1-bst2 2-bst4
+//Bit 9:8   reg_burst_len     // unsigned , RW, default = 1, burst type: 0-single 1-bst2 2-bst4
 //Bit 7     reg_swap_64bit    // unsigned , RW, default = 0, 64bits of 128bit swap enable
 //Bit 6     reg_little_endian // unsigned , RW, default = 1, 1: little endian 0:big endian enable
 //Bit 5     reg_y_rev         // unsigned , RW, default = 0, vertical reverse enable
@@ -24048,20 +26149,243 @@
 //Bit 31:16 reserved
 //Bit 15:0  ro_status        // unsigned , RO, default = 0 ,
 #define ISP_RMIF_NR3_CTRL5                         ((0x3367  << 2) + 0xff000000)
-//Bit 31:17 reserved
-//Bit 16    reg_rd_msb           //unsigned, RW, default=1, 0:lsb 1:msb
-//Bit 15:7  reg_rd_bwidth        //unsigned, RW, default=8, for pixel shift to MSB
-//Bit 6:3   reg_pix_bits_mode    //unsigned, RW, default=1, 0:4b 1:8b 2:16b 3:32b 4:64b 5:128b 6:12b 7:10b 8:14b
-//Bit 2:0   reg_out_pack_mode    //unsigned, RW, default=0, 0:1x 1:2x 2:4x 3:8x 4:16x 5:32x 6:64x
+//Bit 31:30  reg_lath_vld_sel     //unsigned, RW, default=0, latch use 0:frm_start 1:frm_end 2:1'b1 3: 1'b0
+//Bit 29:28  reg_lath_out_sel     //unsigned, RW, default=0, [0]: 0:use latch 1:use reg,  [1]: 0:baddr use baddr_sel 1:baddr use reg
+//Bit 27:21  reserved
+//Bit 20     reg_sft_aut_en       //unsigned, RW, default=0,
+//Bit 19:18  reg_rpt_pix          //unsigned, RW, default=0, repeat pix
+//Bit 17     reg_rpt_line         //unsigned, RW, default=0, repeat line
+//Bit 16     reg_rd_msb           //unsigned, RW, default=1, 0:lsb 1:msb
+//Bit 15:7   reg_rd_bwidth        //unsigned, RW, default=8, for pixel shift to MSB
+//Bit 6:3    reg_pix_bits_mode    //unsigned, RW, default=1, 0:4b 1:8b 2:16b 3:32b 4:64b 5:128b 6:12b 7:10b 8:14b
+//Bit 2:0    reg_out_pack_mode    //unsigned, RW, default=0, 0:1x 1:2x 2:4x 3:8x 4:16x 5:32x 6:64x
 // synopsys translate_off
 // synopsys translate_on
 //
 // Closing file:  ./isp_inc/inc_sw/isp_rdmif_reg_2.h
 //
+//
+// Reading file:  ./isp_inc/inc_sw/isp_rdmif_reg_3.h
+//
+// synopsys translate_off
+// synopsys translate_on
+//  REGISTER_BASE_ADDR         32'h00000000
+#define ISP_RMIF_PNR0_CTRL1                        ((0x3380  << 2) + 0xff000000)
+//Bit 31:26 reserved
+//Bit 25:24 reg_sync_sel      // unsigned , RW, default = 0, axi canvas id sync with frm rst
+//Bit 23:16 reg_canvas_id     // unsigned , RW, default = 0, axi canvas id num
+//Bit 15    reserved
+//Bit 14:12 reg_cmd_intr_len  // unsigned , RW, default = 1, interrupt send cmd when how many series axi cmd,// 0=12 1=16 2=24 3=32 4=40 5=48 6=56 7=64
+//Bit 11:10 reg_cmd_req_size  // unsigned , RW, default = 1, how many room fifo have, then axi send series req, 0=16 1=32 2=24 3=64
+//Bit 9:8   reg_burst_len     // unsigned , RW, default = 1, burst type: 0-single 1-bst2 2-bst4
+//Bit 7     reg_swap_64bit    // unsigned , RW, default = 0, 64bits of 128bit swap enable
+//Bit 6     reg_little_endian // unsigned , RW, default = 1, 1: little endian 0:big endian enable
+//Bit 5     reg_y_rev         // unsigned , RW, default = 0, vertical reverse enable
+//Bit 4     reg_x_rev         // unsigned , RW, default = 0, horizontal reverse enable
+//Bit 3     reserved
+//Bit 2:0   reg_pack_mode     // unsigned , RW, default = 3, 0:4bit 1:8bit 2:16bit 3:32bit 4:64bit 5:128bit
+#define ISP_RMIF_PNR0_CTRL2                        ((0x3381  << 2) + 0xff000000)
+//Bit 31:30 reg_sw_rst        // unsigned , RW, default = 0,
+//Bit 29:28 reserved
+//Bit 27:26 reg_gclk_ctrl1    // unsigned , RW, default = 0,
+//Bit 25:22 reg_vstep         // unsigned , RW, default = 1
+//Bit 21:20 reg_int_clr       // unsigned , RW, default = 0
+//Bit 19:18 reg_gclk_ctrl0    // unsigned , RW, default = 0,
+//Bit 17    reserved
+//Bit 16:0  reg_urgent_ctrl   // unsigned , RW, default = 0, urgent control reg ://  16  reg_ugt_init  :  urgent initial value//  15  reg_ugt_en    :  urgent enable//  14  reg_ugt_type  :  1= wrmif 0=rdmif// 7:4  reg_ugt_top_th:  urgent top threshold// 3:0  reg_ugt_bot_th:  urgent bottom threshold
+#define ISP_RMIF_PNR0_CTRL3                        ((0x3382  << 2) + 0xff000000)
+//Bit 31    reserved
+//Bit 30    reg_hold_en       // unsigned , RW, default = 0
+//Bit 29:24 reg_pass_num      // unsigned , RW, default = 1
+//Bit 23:18 reg_hold_num      // unsigned , RW, default = 0
+//Bit 17    reserved
+//Bit 16    reg_acc_mode      // unsigned , RW, default = 1,
+//Bit 15:13 reserved
+//Bit 12:0  reg_stride        // unsigned , RW, default = 4096,
+#define ISP_RMIF_PNR0_CTRL4                        ((0x3383  << 2) + 0xff000000)
+//Bit 31:0  reg_baddr        // unsigned , RW, default = 0,
+#define ISP_RMIF_PNR0_SCOPE_X                      ((0x3384  << 2) + 0xff000000)
+//Bit 31:29 reserved
+//Bit 28:16 reg_x_end         // unsigned , RW, default = 4095, the canvas hor end pixel position
+//Bit 15:13 reserved
+//Bit 12: 0 reg_x_start       // unsigned , RW, default = 0, the canvas hor start pixel position
+#define ISP_RMIF_PNR0_SCOPE_Y                      ((0x3385  << 2) + 0xff000000)
+//Bit 31:29 reserved
+//Bit 28:16 reg_y_end         // unsigned , RW, default = 0, the canvas ver end pixel position
+//Bit 15:13 reserved
+//Bit 12: 0 reg_y_start       // unsigned , RW, default = 0, the canvas ver start pixel positio
+#define ISP_RMIF_PNR0_RO_STAT                      ((0x3386  << 2) + 0xff000000)
+//Bit 31:16 reserved
+//Bit 15:0  ro_status        // unsigned , RO, default = 0 ,
+#define ISP_RMIF_PNR0_CTRL5                        ((0x3387  << 2) + 0xff000000)
+//Bit 31:30  reg_lath_vld_sel     //unsigned, RW, default=0, latch use 0:frm_start 1:frm_end 2:1'b1 3: 1'b0
+//Bit 29:28  reg_lath_out_sel     //unsigned, RW, default=0, [0]: 0:use latch 1:use reg,  [1]: 0:baddr use baddr_sel 1:baddr use reg
+//Bit 27:21  reserved
+//Bit 20     reg_sft_aut_en       //unsigned, RW, default=0,
+//Bit 19:18  reg_rpt_pix          //unsigned, RW, default=0, repeat pix
+//Bit 17     reg_rpt_line         //unsigned, RW, default=0, repeat line
+//Bit 16     reg_rd_msb           //unsigned, RW, default=1, 0:lsb 1:msb
+//Bit 15:7   reg_rd_bwidth        //unsigned, RW, default=8, for pixel shift to MSB
+//Bit 6:3    reg_pix_bits_mode    //unsigned, RW, default=1, 0:4b 1:8b 2:16b 3:32b 4:64b 5:128b 6:12b 7:10b 8:14b
+//Bit 2:0    reg_out_pack_mode    //unsigned, RW, default=0, 0:1x 1:2x 2:4x 3:8x 4:16x 5:32x 6:64x
+// synopsys translate_off
+// synopsys translate_on
+//
+// Closing file:  ./isp_inc/inc_sw/isp_rdmif_reg_3.h
+//
+//
+// Reading file:  ./isp_inc/inc_sw/isp_wrmif_reg_2.h
+//
+// synopsys translate_off
+// synopsys translate_on
+//  REGISTER_BASE_ADDR         32'h00000000
+#define ISP_WMIF_PNR0_CTRL1                        ((0x33c0  << 2) + 0xff000000)
+//Bit 31:26 reserved
+//Bit 25:24 reg_sync_sel      // unsigned , RW, default = 0, axi canvas id sync with frm rst
+//Bit 23:16 reg_canvas_id     // unsigned , RW, default = 0, axi canvas id num
+//Bit 15    reserved
+//Bit 14:12 reg_cmd_intr_len  // unsigned , RW, default = 1, interrupt send cmd when how many series axi cmd, // 0=12 1=16 2=24 3=32 4=40 5=48 6=56 7=64
+//Bit 11:10 reg_cmd_req_size  // unsigned , RW, default = 1, how many room fifo have, then axi send series req, 0=16 1=32 2=24 3=64
+//Bit 9:8   reg_burst_len     // unsigned , RW, default = 1, burst type: 0-single 1-bst2 2-bst4
+//Bit 7     reg_swap_64bit    // unsigned , RW, default = 0, 64bits of 128bit swap enable
+//Bit 6     reg_little_endian // unsigned , RW, default = 1, 1: little_endian 0:big endian enable
+//Bit 5     reg_y_rev         // unsigned , RW, default = 0, vertical reverse enable
+//Bit 4     reg_x_rev         // unsigned , RW, default = 0, horizontal reverse enable
+//Bit 3     reserved
+//Bit 2:0   reg_pack_mode     // unsigned , RW, default = 1, 0:4bit 1:8bit 2:16bit 3:32bit 4:64bit 5:128bit
+#define ISP_WMIF_PNR0_CTRL2                        ((0x33c1  << 2) + 0xff000000)
+//Bit 31:30 reg_sw_rst        // unsigned , RW, default = 0,
+//Bit 29:24 reserved
+//Bit 23:22 reg_gclk_ctrl1    // unsigned , RW, default = 0
+//Bit 21:20 reg_int_clr       // unsigned , RW, default = 0
+//Bit 19:18 reg_gclk_ctrl0    // unsigned , RW, default = 0,
+//Bit 17    reserved
+//Bit 16:0  reg_urgent_ctrl   // unsigned , RW, default = 0, urgent control reg ://  16  reg_ugt_init  :  urgent initial value//  15  reg_ugt_en    :  urgent enable//  14  reg_ugt_type  :  1= wrmif 0=wrmif// 7:4  reg_ugt_top_th:  urgent top threshold// 3:0  reg_ugt_bot_th:  urgent bottom threshold
+#define ISP_WMIF_PNR0_CTRL3                        ((0x33c2  << 2) + 0xff000000)
+//Bit 31    reserved
+//Bit 30    reg_hold_en       // unsigned , RW, default = 0
+//Bit 29:24 reg_pass_num      // unsigned , RW, default = 1
+//Bit 23:18 reg_hold_num      // unsigned , RW, default = 0
+//Bit 17    reserved
+//Bit 16    reg_acc_mode      // unsigned , RW, default = 1,
+//Bit 15:13 reserved
+//Bit 12:0  reg_stride        // unsigned , RW, default = 4096,
+#define ISP_WMIF_PNR0_CTRL4                        ((0x33c3  << 2) + 0xff000000)
+//Bit 31:0  reg_baddr        // unsigned , RW, default = 0,
+#define ISP_WMIF_PNR0_SCOPE_X                      ((0x33c4  << 2) + 0xff000000)
+//Bit 31:29 reserved
+//Bit 28:16 reg_x_end         // unsigned , RW, default = 4095, the canvas hor end pixel position
+//Bit 15:13 reserved
+//Bit 12: 0 reg_x_start       // unsigned , RW, default = 0, the canvas hor start pixel position
+#define ISP_WMIF_PNR0_SCOPE_Y                      ((0x33c5  << 2) + 0xff000000)
+//Bit 31:29 reserved
+//Bit 28:16 reg_y_end         // unsigned , RW, default = 0, the canvas ver end pixel position
+//Bit 15:13 reserved
+//Bit 12: 0 reg_y_start       // unsigned , RW, default = 0, the canvas ver start pixel positio
+#define ISP_WMIF_PNR0_RO_STAT                      ((0x33c6  << 2) + 0xff000000)
+//Bit 31:16 reserved
+//Bit 15:0  ro_status        // unsigned , RO, default = 0
+#define ISP_WMIF_PNR0_CTRL5                        ((0x33c7  << 2) + 0xff000000)
+//Bit 31:25  reserved
+//Bit 24    reg_baddr_ofst_en    //unsigned, RW, default=0, baddr ofst mode 0: intr config, 1: baddr ofst accumulate
+//Bit 23:16 reg_baddr_ofst_num   //unsigned, RW, default=8, baddr ofst num
+//Bit 15:8  reserved
+//Bit 7     reg_wr_msb           //unsigned, RW, default=1, 1:msb, 0:lsb
+//Bit 6:3   reg_pix_bits_mode    //unsigned, RW, default=1, 0:4b 1:8b 2:16b 3:32b 4:64b 5:128b 6:12b 7:10b 8:14b
+//Bit 2:0   reg_din_pack_mode    //unsigned, RW, default=0, 0:1x 1:2x 2:4x 3:8x 4:16x 5:32x 6:64x
+#define ISP_WMIF_PNR0_CTRL6                        ((0x33c8  << 2) + 0xff000000)
+//Bit 31:0  reg_baddr_ofst      //unsigned, RW, default=0, for auto baddr ofst
+#define ISP_WMIF_PNR0_CTRL7                        ((0x33c9  << 2) + 0xff000000)
+//Bit 31:30  reg_lath_vld_sel     //unsigned, RW, default=0, latch use 0:frm_start 1:frm_end 2:1'b1 3: 1'b0
+//Bit 29:28  reg_lath_out_sel     //unsigned, RW, default=0, [0]: 0:use latch 1:use reg,  [1]: 0:baddr use baddr_sel 1:baddr use reg
+//Bit 27:18  reserved
+//Bit 17:10  reg_frm_ctrl_ini    //unsigned, RW, default=8'h10, ini_drop_num
+//Bit 9      pls_frm_ctrl_rst    //unsigned, RW, default=0, clean frm drop func
+//Bit 8:0    reg_frm_ctrl        //unsigned, RW, default=0, bit8=reg_drop_en, bit7:4=pass_num, bit3:0=drop_num
+// synopsys translate_off
+// synopsys translate_on
+//
+// Closing file:  ./isp_inc/inc_sw/isp_wrmif_reg_2.h
+//
 // -----------------------------------------------
 // REG_BASE:  ISP_INTF_APB4_APB_BASE = 0x34
 // -----------------------------------------------
-//reserved  "isp_wrmif_losse_reg_0.h"        //0x00-0x7f  [ISP_WMIF, ISP_LOSSEM_PIX]
+//
+// Reading file:  ./isp_inc/inc_sw/isp_wrmif_losse_reg_0.h
+//
+// synopsys translate_off
+// synopsys translate_on
+//  REGISTER_BASE_ADDR         32'h00000000
+#define ISP_LOSSEM_PIX_TOP_CTRL                    ((0x3400  << 2) + 0xff000000)
+//Bit 31    reg_crc_on          // unsigned, RW, default = 0
+//Bit 30:13 reserved
+//Bit 12    reg_losse_byp_en    // unsigned, RW, default = 1
+//Bit 11:0  reg_gclk_ctrl       // unsigned, RW, default = 0
+//
+#define ISP_LOSSEM_PIX_CRC_SUM1                    ((0x3401  << 2) + 0xff000000)
+//Bit 31:0  ro_crc_sum1         // unsigned, RO, default = 0
+#define ISP_LOSSEM_PIX_CRC_SUM2                    ((0x3402  << 2) + 0xff000000)
+//Bit 31:0  ro_crc_sum2         // unsigned, RO, default = 0
+#define ISP_LOSSEM_PIX_CRC_SUM3                    ((0x3403  << 2) + 0xff000000)
+//Bit 31:0  ro_crc_sum3         // unsigned, RO, default = 0
+//MMU RDMIF REG
+#define ISP_LOSSEM_PIX_MMU_MIF_CTRL0               ((0x3404  << 2) + 0xff000000)
+//Bit 31:29 reserved           // unsigned, RW, default=0
+//Bit 28:16	reg_stride         // unsigned, RW, default=4096
+//Bit 15:14 reserved
+//Bit 13:12	reg_auto_ctrl      // unsigned, RW, default=0
+//Bit 11:10	reg_gclk_ctrl      // unsigned, RW, default=0
+//Bit 9 : 8	reg_cmd_req_size   // unsigned, RW, default=1
+//Bit 7     reserved
+//Bit 6 : 4	reg_cmd_intr_len   // unsigned, RW, default=1
+//Bit 3    	reg_swap_64bit     // unsigned, RW, default=0
+//Bit 2    	reg_little_endian  // unsigned, RW, default=1
+//Bit 1:0  	reg_burst_len      // unsigned, RW, default=1
+#define ISP_LOSSEM_PIX_MMU_MIF_CTRL1               ((0x3405  << 2) + 0xff000000)
+//Bit 31:24 reserved
+//Bit 23:22 reg_int_clr         // unsigned, RW, default=0
+//Bit 21:20 reserved
+//Bit 19:18 reg_sw_rst          // unsigned, RW, default=0
+//Bit 17    reserved
+//Bit 16:0  reg_urgent_ctrl     //unsigned, RW, default=0
+#define ISP_LOSSEM_PIX_MMU_MIF_RO_STAT             ((0x3406  << 2) + 0xff000000)
+//Bit 31:16 reserved
+//Bit 15:0  ro_status           // unsigned, RO, default = 0
+#define ISP_LOSSEM_PIX_MIF_CTRL                    ((0x3407  << 2) + 0xff000000)
+//Bit 31:29 reserved
+//Bit 28:20 reg_fifo_size     // unsigned , RW, default = 256
+//Bit 17:16 reg_cmd_req_size  // unsigned , RW, default = 1, how many room fifo have, then axi send series req, 0=16 1=32 2=24 3=64
+//Bit 15    reserved
+//Bit 14:12 reg_cmd_intr_len  // unsigned , RW, default = 1, interrupt send cmd when how many series axi cmd,// 0=12 1=16 2=24 3=32 4=40 5=48 6=56 7=64
+//Bit 11:10 reg_burst_len     // unsigned , RW, default = 2, burst type: 0-single 1-bst2 2-bst4
+//Bit 9:8   reg_losse_clr     // unsigned , RW, default = 0,
+//Bit 7     reserved
+//Bit 6:4   reg_sw_rst        // unsigned , RW, default = 0
+//Bit 3     reg_rst_mode      // unsigned , RW, default = 0
+//Bit 2     reg_en_mode       // unsigned , RW, default = 0
+//Bit 1     reg_enable        // unsigned , RW, default = 1
+//Bit 0     reg_frm_start     // unsigned , RW, default = 0
+#define ISP_LOSSEM_PIX_UGT_CTRL                    ((0x3408  << 2) + 0xff000000)
+//Bit 31:17 reserved
+//Bit 16:0  reg_urgent_ctrl   // unsigned , RW, default = 0, urgent control reg ://  16  reg_ugt_init  :  urgent initial value//  15  reg_ugt_en    :  urgent enable//  14  reg_ugt_type  :  1= wrmif 0=rdmif// 7:4  reg_ugt_top_th:  urgent top threshold// 3:0  reg_ugt_bot_th:  urgent bottom threshold
+#define ISP_LOSSEM_PIX_GCLK_CTRL                   ((0x3409  << 2) + 0xff000000)
+//Bit 31:12 reserved
+//Bit 11:0  reg_pass_num      // unsigned , RW, default = 1
+#define ISP_LOSSEM_PIX_LUT_SIZE                    ((0x340a  << 2) + 0xff000000)
+//Bit 31:29 reserved
+//Bit 28:16 reg_lut_vsize        // unsigned , RW, default = 1,
+//Bit 15:13 reserved
+//Bit 12:0  reg_lut_hsize        // unsigned , RW, default = 4096,
+#define ISP_LOSSEM_PIX_RO_STAT                     ((0x340b  << 2) + 0xff000000)
+//Bit 31:0  ro_losse_stat       // unsigned, RO, default = 0
+#define ISP_LOSSEM_PIX_RO_MMU_NUM                  ((0x340c  << 2) + 0xff000000)
+//Bit 31:16 reserved
+//Bit 15:0  ro_frm_mmu_num      // unsigned, RO, default = 0
+// synopsys translate_off
+// synopsys translate_on
+//
+// Closing file:  ./isp_inc/inc_sw/isp_wrmif_losse_reg_0.h
+//
 //
 // Reading file:  ./isp_inc/inc_sw/cmpr_raw_regs_0.h
 //
@@ -24744,7 +27068,82 @@
 // -----------------------------------------------
 // REG_BASE:  ISP_INTF_APB5_APB_BASE = 0x35
 // -----------------------------------------------
-//reserved  "isp_wrmif_losse_reg_1.h"        //0x00-0x7f  [ISP_WMIF, ISP_LOSSEM_MIX]
+//
+// Reading file:  ./isp_inc/inc_sw/isp_wrmif_losse_reg_1.h
+//
+// synopsys translate_off
+// synopsys translate_on
+//  REGISTER_BASE_ADDR         32'h00000000
+#define ISP_LOSSEM_MIX_TOP_CTRL                    ((0x3500  << 2) + 0xff000000)
+//Bit 31    reg_crc_on          // unsigned, RW, default = 0
+//Bit 30:13 reserved
+//Bit 12    reg_losse_byp_en    // unsigned, RW, default = 1
+//Bit 11:0  reg_gclk_ctrl       // unsigned, RW, default = 0
+//
+#define ISP_LOSSEM_MIX_CRC_SUM1                    ((0x3501  << 2) + 0xff000000)
+//Bit 31:0  ro_crc_sum1         // unsigned, RO, default = 0
+#define ISP_LOSSEM_MIX_CRC_SUM2                    ((0x3502  << 2) + 0xff000000)
+//Bit 31:0  ro_crc_sum2         // unsigned, RO, default = 0
+#define ISP_LOSSEM_MIX_CRC_SUM3                    ((0x3503  << 2) + 0xff000000)
+//Bit 31:0  ro_crc_sum3         // unsigned, RO, default = 0
+//MMU RDMIF REG
+#define ISP_LOSSEM_MIX_MMU_MIF_CTRL0               ((0x3504  << 2) + 0xff000000)
+//Bit 31:29 reserved           // unsigned, RW, default=0
+//Bit 28:16	reg_stride         // unsigned, RW, default=4096
+//Bit 15:14 reserved
+//Bit 13:12	reg_auto_ctrl      // unsigned, RW, default=0
+//Bit 11:10	reg_gclk_ctrl      // unsigned, RW, default=0
+//Bit 9 : 8	reg_cmd_req_size   // unsigned, RW, default=1
+//Bit 7     reserved
+//Bit 6 : 4	reg_cmd_intr_len   // unsigned, RW, default=1
+//Bit 3    	reg_swap_64bit     // unsigned, RW, default=0
+//Bit 2    	reg_little_endian  // unsigned, RW, default=1
+//Bit 1:0  	reg_burst_len      // unsigned, RW, default=1
+#define ISP_LOSSEM_MIX_MMU_MIF_CTRL1               ((0x3505  << 2) + 0xff000000)
+//Bit 31:24 reserved
+//Bit 23:22 reg_int_clr         // unsigned, RW, default=0
+//Bit 21:20 reserved
+//Bit 19:18 reg_sw_rst          // unsigned, RW, default=0
+//Bit 17    reserved
+//Bit 16:0  reg_urgent_ctrl     //unsigned, RW, default=0
+#define ISP_LOSSEM_MIX_MMU_MIF_RO_STAT             ((0x3506  << 2) + 0xff000000)
+//Bit 31:16 reserved
+//Bit 15:0  ro_status           // unsigned, RO, default = 0
+#define ISP_LOSSEM_MIX_MIF_CTRL                    ((0x3507  << 2) + 0xff000000)
+//Bit 31:29 reserved
+//Bit 28:20 reg_fifo_size     // unsigned , RW, default = 256
+//Bit 17:16 reg_cmd_req_size  // unsigned , RW, default = 1, how many room fifo have, then axi send series req, 0=16 1=32 2=24 3=64
+//Bit 15    reserved
+//Bit 14:12 reg_cmd_intr_len  // unsigned , RW, default = 1, interrupt send cmd when how many series axi cmd,// 0=12 1=16 2=24 3=32 4=40 5=48 6=56 7=64
+//Bit 11:10 reg_burst_len     // unsigned , RW, default = 2, burst type: 0-single 1-bst2 2-bst4
+//Bit 9:8   reg_losse_clr     // unsigned , RW, default = 0,
+//Bit 7     reserved
+//Bit 6:4   reg_sw_rst        // unsigned , RW, default = 0
+//Bit 3     reg_rst_mode      // unsigned , RW, default = 0
+//Bit 2     reg_en_mode       // unsigned , RW, default = 0
+//Bit 1     reg_enable        // unsigned , RW, default = 1
+//Bit 0     reg_frm_start     // unsigned , RW, default = 0
+#define ISP_LOSSEM_MIX_UGT_CTRL                    ((0x3508  << 2) + 0xff000000)
+//Bit 31:17 reserved
+//Bit 16:0  reg_urgent_ctrl   // unsigned , RW, default = 0, urgent control reg ://  16  reg_ugt_init  :  urgent initial value//  15  reg_ugt_en    :  urgent enable//  14  reg_ugt_type  :  1= wrmif 0=rdmif// 7:4  reg_ugt_top_th:  urgent top threshold// 3:0  reg_ugt_bot_th:  urgent bottom threshold
+#define ISP_LOSSEM_MIX_GCLK_CTRL                   ((0x3509  << 2) + 0xff000000)
+//Bit 31:12 reserved
+//Bit 11:0  reg_pass_num      // unsigned , RW, default = 1
+#define ISP_LOSSEM_MIX_LUT_SIZE                    ((0x350a  << 2) + 0xff000000)
+//Bit 31:29 reserved
+//Bit 28:16 reg_lut_vsize        // unsigned , RW, default = 1,
+//Bit 15:13 reserved
+//Bit 12:0  reg_lut_hsize        // unsigned , RW, default = 4096,
+#define ISP_LOSSEM_MIX_RO_STAT                     ((0x350b  << 2) + 0xff000000)
+//Bit 31:0  ro_losse_stat       // unsigned, RO, default = 0
+#define ISP_LOSSEM_MIX_RO_MMU_NUM                  ((0x350c  << 2) + 0xff000000)
+//Bit 31:16 reserved
+//Bit 15:0  ro_frm_mmu_num      // unsigned, RO, default = 0
+// synopsys translate_off
+// synopsys translate_on
+//
+// Closing file:  ./isp_inc/inc_sw/isp_wrmif_losse_reg_1.h
+//
 //
 // Reading file:  ./isp_inc/inc_sw/losslite_regs_0.h
 //
@@ -25017,7 +27416,46 @@
 // -----------------------------------------------
 // REG_BASE:  ISP_INTF_APB6_APB_BASE = 0x36
 // -----------------------------------------------
-//reserved  "isp_rdmif_lossd_reg_0.h"        //0x00-0x7f  [ISP_RMIF, ISP_LOSSDM_PIX]
+//
+// Reading file:  ./isp_inc/inc_sw/isp_rdmif_lossd_reg_0.h
+//
+// synopsys translate_off
+// synopsys translate_on
+//  REGISTER_BASE_ADDR         32'h00000000
+#define ISP_LOSSDM_PIX_MIF_CTRL                    ((0x3600  << 2) + 0xff000000)
+//Bit 31    reg_crc_on        // unsigned , RW, default = 1
+//Bit 30    reserved
+//Bit 29:20 reg_fifo_size     // unsigned , RW, default = 256
+//Bit 19:18 reg_lossd_clr     // unsigned , RW, default = 0,
+//Bit 17:16 reserved
+//Bit 15    reg_lossd_byp_en  // unsigned , RW, default = 1
+//Bit 14:12 reg_sw_rst        // unsigned , RW, default = 0
+//Bit 11    reserved
+//Bit 10:8  reg_cmd_req_size  // unsigned , RW, default = 1, how many room fifo have, then axi send series req, 0=16 1=32 2=24 3=64
+//Bit 7:6   reg_cmd_intr_len  // unsigned , RW, default = 1, interrupt send cmd when how many series axi cmd,// 0=12 1=16 2=24 3=32 4=40 5=48 6=56 7=64
+//Bit 5:4   reg_burst_len     // unsigned , RW, default = 1, burst type: 0-single 1-bst4 2-bst8 3-bst16
+//Bit 3     reg_swap_64bit    // unsigned , RW, default = 0
+//Bit 2     reg_little_endian // unsigned , RW, default = 1
+//Bit 1     reg_mif_enable    // unsigned , RW, default = 1
+//Bit 0     reg_frm_start     // unsigned , RW, default = 0
+#define ISP_LOSSDM_PIX_UGT_CTRL                    ((0x3601  << 2) + 0xff000000)
+//Bit 31:0  reg_urgent_ctrl   // unsigned , RW, default = 0, urgent control reg ://  16  reg_ugt_init  :  urgent initial value//  15  reg_ugt_en    :  urgent enable//  14  reg_ugt_type  :  1= wrmif 0=rdmif// 7:4  reg_ugt_top_th:  urgent top threshold// 3:0  reg_ugt_bot_th:  urgent bottom threshold
+#define ISP_LOSSDM_PIX_GCLK_CTRL                   ((0x3602  << 2) + 0xff000000)
+//Bit 31:29 reg_body_intr_len   //unsigned, RW, default = 1
+//Bit 28:27 reg_body_req_size   //unsigned, RW, default = 1
+//Bit 26:16 reserved
+//Bit 15:0  reg_gclk_ctrl       //unsigned, RW, default = 0
+#define ISP_LOSSDM_PIX_RO_STAT                     ((0x3603  << 2) + 0xff000000)
+//Bit 31:0  ro_mif_status       //unsigned, RO, default=0
+#define ISP_LOSSDM_PIX_CRC_SUM1                    ((0x3604  << 2) + 0xff000000)
+//Bit 31:0  ro_crc_sum1         // unsigned, RO, default = 0
+#define ISP_LOSSDM_PIX_CRC_SUM2                    ((0x3605  << 2) + 0xff000000)
+//Bit 31:0  ro_crc_sum2         // unsigned, RO, default = 0
+// synopsys translate_off
+// synopsys translate_on
+//
+// Closing file:  ./isp_inc/inc_sw/isp_rdmif_lossd_reg_0.h
+//
 //
 // Reading file:  ./isp_inc/inc_sw/cmpr_raw_regs_1.h
 //
@@ -25700,7 +28138,46 @@
 // -----------------------------------------------
 // REG_BASE:  ISP_INTF_APB7_APB_BASE = 0x37
 // -----------------------------------------------
-//reserved  "isp_rdmif_lossd_reg_1.h"        //0x00-0x7f  [ISP_RMIF, ISP_LOSSDM_MIX]
+//
+// Reading file:  ./isp_inc/inc_sw/isp_rdmif_lossd_reg_1.h
+//
+// synopsys translate_off
+// synopsys translate_on
+//  REGISTER_BASE_ADDR         32'h00000000
+#define ISP_LOSSDM_MIX_MIF_CTRL                    ((0x3700  << 2) + 0xff000000)
+//Bit 31    reg_crc_on        // unsigned , RW, default = 1
+//Bit 30    reserved
+//Bit 29:20 reg_fifo_size     // unsigned , RW, default = 256
+//Bit 19:18 reg_lossd_clr     // unsigned , RW, default = 0,
+//Bit 17:16 reserved
+//Bit 15    reg_lossd_byp_en  // unsigned , RW, default = 1
+//Bit 14:12 reg_sw_rst        // unsigned , RW, default = 0
+//Bit 11    reserved
+//Bit 10:8  reg_cmd_req_size  // unsigned , RW, default = 1, how many room fifo have, then axi send series req, 0=16 1=32 2=24 3=64
+//Bit 7:6   reg_cmd_intr_len  // unsigned , RW, default = 1, interrupt send cmd when how many series axi cmd,// 0=12 1=16 2=24 3=32 4=40 5=48 6=56 7=64
+//Bit 5:4   reg_burst_len     // unsigned , RW, default = 1, burst type: 0-single 1-bst4 2-bst8 3-bst16
+//Bit 3     reg_swap_64bit    // unsigned , RW, default = 0
+//Bit 2     reg_little_endian // unsigned , RW, default = 1
+//Bit 1     reg_mif_enable    // unsigned , RW, default = 1
+//Bit 0     reg_frm_start     // unsigned , RW, default = 0
+#define ISP_LOSSDM_MIX_UGT_CTRL                    ((0x3701  << 2) + 0xff000000)
+//Bit 31:0  reg_urgent_ctrl   // unsigned , RW, default = 0, urgent control reg ://  16  reg_ugt_init  :  urgent initial value//  15  reg_ugt_en    :  urgent enable//  14  reg_ugt_type  :  1= wrmif 0=rdmif// 7:4  reg_ugt_top_th:  urgent top threshold// 3:0  reg_ugt_bot_th:  urgent bottom threshold
+#define ISP_LOSSDM_MIX_GCLK_CTRL                   ((0x3702  << 2) + 0xff000000)
+//Bit 31:29 reg_body_intr_len   //unsigned, RW, default = 1
+//Bit 28:27 reg_body_req_size   //unsigned, RW, default = 1
+//Bit 26:16 reserved
+//Bit 15:0  reg_gclk_ctrl       //unsigned, RW, default = 0
+#define ISP_LOSSDM_MIX_RO_STAT                     ((0x3703  << 2) + 0xff000000)
+//Bit 31:0  ro_mif_status       //unsigned, RO, default=0
+#define ISP_LOSSDM_MIX_CRC_SUM1                    ((0x3704  << 2) + 0xff000000)
+//Bit 31:0  ro_crc_sum1         // unsigned, RO, default = 0
+#define ISP_LOSSDM_MIX_CRC_SUM2                    ((0x3705  << 2) + 0xff000000)
+//Bit 31:0  ro_crc_sum2         // unsigned, RO, default = 0
+// synopsys translate_off
+// synopsys translate_on
+//
+// Closing file:  ./isp_inc/inc_sw/isp_rdmif_lossd_reg_1.h
+//
 //
 // Reading file:  ./isp_inc/inc_sw/losslite_regs_1.h
 //
