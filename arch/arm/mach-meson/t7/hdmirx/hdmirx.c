@@ -8,9 +8,13 @@
 #include <command.h>
 #include <asm/arch/io.h>
 #include <asm/arch-t3/hdmirx_reg.h>
+/* #include <asm/arch-t7/register.h> */
 #include <amlogic/aml_hdmirx.h>
 #include "hdmirx.h"
 #include <asm/arch/pwr_ctrl.h>
+
+#define PADCTRL_PIN_MUX_REGM                       ((0x0016  << 2) + 0xfe004000)
+#define PADCTRL_PIN_MUX_REGN                       ((0x0017  << 2) + 0xfe004000)
 
 static unsigned int first_bit_set(u32 data)
 {
@@ -638,12 +642,12 @@ void rx_clk_init(void)
 /* pinmux SCL/SDA/HPD/PWR5V of all port */
 void rx_set_pinmux(void)
 {
-	unsigned int mux = readl(PADCTRL_PIN_MUX_REGB);
+	unsigned int mux = readl(PADCTRL_PIN_MUX_REGN);
 
-	writel(0x11111111, PADCTRL_PIN_MUX_REGA);
-	writel((mux & 0xFFFF0000) | 0x1111, PADCTRL_PIN_MUX_REGB);
-	printf("set pinmux A:0x%x\n", readl(PADCTRL_PIN_MUX_REGA));
-	printf("set pinmux B:0x%x\n", readl(PADCTRL_PIN_MUX_REGB));
+	writel(0x11111111, PADCTRL_PIN_MUX_REGM);
+	writel((mux & 0xFFFF0000) | 0x1111, PADCTRL_PIN_MUX_REGN);
+	printf("set pinmux A:0x%x\n", readl(PADCTRL_PIN_MUX_REGM));
+	printf("set pinmux B:0x%x\n", readl(PADCTRL_PIN_MUX_REGN));
 }
 
 void hdmirx_hw_init(unsigned int port_map,
