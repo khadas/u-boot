@@ -127,14 +127,14 @@ static int lcd_tconless_spi_data_read(struct lcd_tcon_spi_block_s *spi_block)
 	/* load crc data from spi */
 	if (spi_block->data_type == LCD_TCON_DATA_BLOCK_TYPE_DEMURA_LUT) {
 		if (spi_block->param_cnt >= 2) {
-			offset = spi_block->param[0];
-			len = spi_block->param[1];
-			if (len == 0)
+			if (spi_block->param[1] == 0)
 				return 0;
-			if (len > 4) {
-				LCDSPI_ERR("%s: crc len %d invalid\n", __func__, len);
+			if (spi_block->param[1] > 4) {
+				LCDSPI_ERR("%s: crc len>4 invalid\n", __func__);
 				return -1;
 			}
+			offset = spi_block->param[0];
+			len = spi_block->param[1];
 			ret = lcd_tconless_spi_data_load(offset, len, crc_buf);
 			if (ret)
 				return -1;
@@ -716,14 +716,14 @@ static int lcd_tconless_demura_conv_cspi55(struct lcd_tcon_spi_block_s *spi_bloc
 	lut_len = PANEL_DEMURA_LUT_LEN_TYPE0;
 	/* check data */
 	if (spi_block->param_cnt >= 2) {
-		offset = spi_block->param[0];
-		len = spi_block->param[1];
-		if (len == 0)
+		if (spi_block->param[1] == 0)
 			return 0;
-		if (len > 4) {
-			LCDSPI_ERR("%s: crc len %d invalid\n", __func__, len);
+		if (spi_block->param[1] > 4) {
+			LCDSPI_ERR("%s: crc len %d invalid\n", __func__, spi_block->param[1]);
 			return -1;
 		}
+		offset = spi_block->param[0];
+		len = spi_block->param[1];
 		ret = lcd_tconless_spi_data_load(offset, len, crc_buf);
 		if (ret)
 			return -1;
@@ -812,6 +812,7 @@ static int lcd_tconless_demura_conv_cspi55(struct lcd_tcon_spi_block_s *spi_bloc
 	free(buf_plane2);
 	buf_plane2 = NULL;
 	return 0;
+
 err3:
 	free(buf_plane2);
 	buf_plane2 = NULL;
