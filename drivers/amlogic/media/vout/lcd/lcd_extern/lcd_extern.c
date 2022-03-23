@@ -1687,6 +1687,7 @@ static void lcd_extern_multi_list_add(struct lcd_extern_dev_s *edev,
 				EXTERR("%s: dev_%d: index=%d(type=%d) already in list\n",
 					__func__, edev->dev_index,
 					cur_list->index, cur_list->type);
+				free(cur_list);
 				return;
 			}
 			temp_list = temp_list->next;

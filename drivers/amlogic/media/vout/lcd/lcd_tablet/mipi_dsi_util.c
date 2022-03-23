@@ -284,7 +284,7 @@ int lcd_mipi_dsi_init_table_detect(char *dtaddr, int nodeoffset,
 		LCDERR("get %s failed\n", propname);
 		init_table[0] = 0xff;
 		init_table[1] = 0;
-		return -1;
+		goto lcd_mipi_dsi_init_table_detect_done;
 	}
 
 	while ((i + DSI_CMD_SIZE_INDEX) < max_len) {
@@ -327,7 +327,7 @@ int lcd_mipi_dsi_init_table_detect(char *dtaddr, int nodeoffset,
 		}
 		i += (cmd_size + 2);
 	}
-
+lcd_mipi_dsi_init_table_detect_done:
 	if (flag)
 		dconf->dsi_init_on = init_table;
 	else

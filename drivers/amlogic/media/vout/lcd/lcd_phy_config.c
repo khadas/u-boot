@@ -1166,8 +1166,9 @@ unsigned int lcd_phy_preem_level_to_value(struct aml_lcd_drv_s *pdrv, unsigned i
 		if (level >= size) {
 			LCDERR("[%d]: %s: level %d invalid\n",
 			       pdrv->index, __func__, level);
+		} else {
+			preem_value = lvds_vx1_p2p_phy_preem_tl1[level];
 		}
-		preem_value = lvds_vx1_p2p_phy_preem_tl1[level];
 		break;
 	case LCD_P2P:
 		p2p_type = pdrv->config.control.p2p_cfg.p2p_type & 0x1f;
@@ -1180,8 +1181,9 @@ unsigned int lcd_phy_preem_level_to_value(struct aml_lcd_drv_s *pdrv, unsigned i
 			if (level >= size) {
 				LCDERR("[%d]: %s: level %d invalid\n",
 				pdrv->index, __func__, level);
+			} else {
+				preem_value = lvds_vx1_p2p_phy_preem_tl1[level];
 			}
-			preem_value = lvds_vx1_p2p_phy_preem_tl1[level];
 			break;
 		case P2P_CHPI: /* low common mode */
 		case P2P_CSPI:
@@ -1190,8 +1192,9 @@ unsigned int lcd_phy_preem_level_to_value(struct aml_lcd_drv_s *pdrv, unsigned i
 			if (level >= size) {
 				LCDERR("[%d]: %s: level %d invalid\n",
 				pdrv->index, __func__, level);
+			} else {
+				preem_value = p2p_low_common_phy_preem_tl1[level];
 			}
-			preem_value = p2p_low_common_phy_preem_tl1[level];
 			break;
 		default:
 			break;

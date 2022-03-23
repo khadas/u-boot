@@ -1672,8 +1672,10 @@ static int lcd_tcon_load_init_data_from_unifykey_new(void)
 		return -1;
 
 	data_header = malloc(LCD_TCON_DATA_BLOCK_HEADER_SIZE);
-	if (!data_header)
+	if (!data_header) {
+		free(buf);
 		return -1;
+	}
 	memset(data_header, 0, LCD_TCON_DATA_BLOCK_HEADER_SIZE);
 	tcon_mm_table.core_reg_header = data_header;
 
