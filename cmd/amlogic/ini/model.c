@@ -2871,6 +2871,16 @@ static int handle_lcd_optical_attr(struct lcd_optical_attr_s *p_attr)
 		ALOGD("%s, luma_avg is (%s)\n", __func__, ini_value);
 	p_attr->luma_avg = strtoul(ini_value, NULL, 0);
 
+	ini_value = IniGetString("lcd_optical_Attr", "ldim_support", "0");
+	if (model_debug_flag & DEBUG_LCD_OPTICAL)
+		ALOGD("%s, ldim_support is (%s)\n", __func__, ini_value);
+	p_attr->ldim_support = strtoul(ini_value, NULL, 0);
+
+	ini_value = IniGetString("lcd_optical_Attr", "luma_peak", "0");
+	if (model_debug_flag & DEBUG_LCD_OPTICAL)
+		ALOGD("%s, luma_peak is (%s)\n", __func__, ini_value);
+	p_attr->luma_peak = strtoul(ini_value, NULL, 0);
+
 	return 0;
 }
 

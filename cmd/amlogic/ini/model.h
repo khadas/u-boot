@@ -524,7 +524,12 @@ struct lcd_optical_attr_s {
 	unsigned int luma_max;
 	unsigned int luma_min;
 	unsigned int luma_avg;
-	unsigned int adv_val[10];
+	unsigned char ldim_support;
+	unsigned char adv_flag_1;
+	unsigned char adv_flag_2;
+	unsigned char adv_flag_3;
+	unsigned int luma_peak;
+	unsigned int adv_val[8];
 };
 
 #define CC_MAX_SUPPORT_PANEL_CNT          (128)
