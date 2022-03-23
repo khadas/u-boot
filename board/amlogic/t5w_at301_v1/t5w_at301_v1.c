@@ -798,7 +798,8 @@ int checkhw(char * name)
 {
 	char dtb_name[64] = {0};
 	unsigned long ddr_size = 0;
-	int i;
+	char memsize[64] = {0};
+	int i, j;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
 		ddr_size += gd->bd->bi_dram[i].size;
@@ -812,6 +813,15 @@ int checkhw(char * name)
 		strcpy(dtb_name, "t5w_at301_1.5g\0");
 	else
 		strcpy(dtb_name, "t5w_at301_2g\0");
+/*memsize will be used for different ram device property, get from dts_name*/
+	i = 0;
+	for (j = 0; j < strlen(dtb_name); j++) {
+		if (dtb_name[j] == '_')
+			i = j;
+	}
+	if (i != 0)
+		strncpy(memsize, dtb_name + i + 1, strlen(dtb_name) - i);
+	setenv("memsize", memsize);
 
 	strcpy(name, dtb_name);
 	setenv("aml_dt", dtb_name);
@@ -826,6 +836,7 @@ const char * const _env_args_reserve_[] =
 		"lock",
 		"upgrade_step",
 		"model_name",
+		"memsize",
 
 		NULL//Keep NULL be last to tell END
 };
