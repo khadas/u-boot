@@ -634,7 +634,8 @@
 	#define CONFIG_NETMASK         255.255.255.0
 #endif /* (CONFIG_CMD_NET) */
 
-#define CONFIG_AML_ANTIROLLBACK 1
+//#define CONFIG_AML_ANTIROLLBACK 1
+//#define CONFIG_ARM_SMCCC        1
 
 /* other devices */
 /* I2C DM driver*/

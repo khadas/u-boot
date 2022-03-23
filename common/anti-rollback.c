@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <asm/arch/bl31_apis.h>
+#include <linux/arm-smccc.h>
 #include "anti-rollback.h"
 
 #define FUNCID_ANTIROLLBACK_VERSION_CHECK     0xb2000010
@@ -29,22 +30,11 @@
 static uint32_t antirollback_image_version_check(uint32_t type,
 							uint32_t version)
 {
-	register uint32_t x0 asm("x0") = FUNCID_ANTIROLLBACK_VERSION_CHECK;
-	register uint32_t x1 asm("x1") = type;
-	register uint32_t x2 asm("x2") = version;
+	struct arm_smccc_res res;
 
-	do {
-		asm volatile(
-			__asmeq("%0", "x0")
-			__asmeq("%1", "x0")
-			__asmeq("%2", "x1")
-			__asmeq("%3", "x2")
-			"smc	#0\n"
-			: "=r"(x0)
-			: "r"(x0), "r"(x1), "r"(x2));
-	} while (0);
+	arm_smccc_smc(FUNCID_ANTIROLLBACK_VERSION_CHECK, type, version, 0, 0, 0, 0, 0, &res);
 
-	return x0;
+	return res.a0;
 }
 
 bool check_antirollback(uint32_t kernel_version)
@@ -80,95 +70,51 @@ bool check_antirollback(uint32_t kernel_version)
 
 bool set_avb_antirollback(uint32_t index, uint32_t version)
 {
-	register uint32_t x0 asm("x0") = FUNCID_AVB_VERSION_SET;
-	register uint32_t x1 asm("x1") = index;
-	register uint32_t x2 asm("x2") = version;
+	struct arm_smccc_res res;
 
-	do {
-		asm volatile(
-			__asmeq("%0", "x0")
-			__asmeq("%1", "x0")
-			__asmeq("%2", "x1")
-			__asmeq("%3", "x2")
-			"smc	#0\n"
-			: "=r"(x0)
-			: "r"(x0), "r"(x1), "r"(x2));
-	} while (0);
+	arm_smccc_smc(FUNCID_AVB_VERSION_SET, index, version, 0, 0, 0, 0, 0, &res);
 
-	return 0 == x0;
+	return res.a0 == 0;
 }
 
 bool get_avb_antirollback(uint32_t index, uint32_t* version)
 {
-	register uint32_t x0 asm("x0") = FUNCID_AVB_VERSION_GET;
-	register uint32_t x1 asm("x1") = index;
+	struct arm_smccc_res res;
 
-	do {
-		asm volatile(
-			__asmeq("%0", "x0")
-			__asmeq("%1", "x1")
-			__asmeq("%2", "x0")
-			__asmeq("%3", "x1")
-			"smc	#0\n"
-			: "=r"(x0), "=r"(x1)
-			: "r"(x0), "r"(x1));
-	} while (0);
+	arm_smccc_smc(FUNCID_AVB_VERSION_GET, index, 0, 0, 0, 0, 0, 0, &res);
 
-	if (0 == x0)
-		*version = x1;
+	if (res.a0 == 0)
+		*version = res.a1;
 
-	return 0 == x0;
+	return res.a0 == 0;
 }
 
 bool get_avb_lock_state(uint32_t* lock_state)
 {
-	register uint32_t x0 asm("x0") = FUNCID_AVB_LOCK_STATE_GET;
-	register uint32_t x1 asm("x1") = 0;
+	struct arm_smccc_res res;
 
-	do {
-		asm volatile(
-			__asmeq("%0", "x0")
-			__asmeq("%1", "x1")
-			__asmeq("%2", "x0")
-			"smc	#0\n"
-			: "=r"(x0), "=r"(x1)
-			: "r"(x0));
-	} while (0);
+	arm_smccc_smc(FUNCID_AVB_LOCK_STATE_GET, 0, 0, 0, 0, 0, 0, 0, &res);
 
-	if (0 == x0)
-		*lock_state = x1;
+	if (res.a0 == 0)
+		*lock_state = res.a1;
 
-	return 0 == x0;
+	return res.a0 == 0;
 }
 
 bool avb_lock(void)
 {
-	register uint32_t x0 asm("x0") = FUNCID_AVB_LOCK;
+	struct arm_smccc_res res;
 
-	do {
-		asm volatile(
-			__asmeq("%0", "x0")
-			__asmeq("%1", "x0")
-			"smc	#0\n"
-			: "=r"(x0)
-			: "r"(x0));
-	} while (0);
+	arm_smccc_smc(FUNCID_AVB_LOCK, 0, 0, 0, 0, 0, 0, 0, &res);
 
-	return 0 == x0;
+	return res.a0 == 0;
 }
 
 bool avb_unlock(void)
 {
-	register uint32_t x0 asm("x0") = FUNCID_AVB_UNLOCK;
+	struct arm_smccc_res res;
 
-	do {
-		asm volatile(
-			__asmeq("%0", "x0")
-			__asmeq("%1", "x0")
-			"smc	#0\n"
-			: "=r"(x0)
-			: "r"(x0));
-	} while (0);
+	arm_smccc_smc(FUNCID_AVB_UNLOCK, 0, 0, 0, 0, 0, 0, 0, &res);
 
-	return 0 == x0;
+	return res.a0 == 0;
 }
