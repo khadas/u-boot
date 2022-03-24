@@ -971,7 +971,7 @@ static int handle_lcd_phy(struct lcd_v2_attr_s *p_attr)
 {
 	const char *ini_value = NULL;
 	unsigned int reg_buf[216];
-	unsigned int reg_cnt = 0;
+	int reg_cnt = 0;
 	int i, j = 0;
 
 	ini_value = IniGetString("lcd_Attr", "phy_attr_flag", "0");
@@ -3899,6 +3899,7 @@ int handle_panel_ini(int index)
 	lcd_buf = (unsigned char *)malloc(CC_MAX_DATA_SIZE);
 	if (!lcd_buf) {
 		ALOGE("%s, malloc buffer memory error!!!\n", __func__);
+		free(tmp_buf);
 		return -1;
 	}
 
@@ -4064,6 +4065,8 @@ handle_panel_ini_err2:
 handle_panel_ini_err1:
 	free(tmp_buf);
 	tmp_buf = NULL;
+	free(lcd_buf);
+	lcd_buf = NULL;
 
 	return -1;
 }
