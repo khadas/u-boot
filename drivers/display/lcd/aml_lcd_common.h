@@ -79,6 +79,9 @@ extern int aml_lcd_gpio_name_map_num(const char *name);
 extern int aml_lcd_gpio_set(int gpio, int value);
 extern unsigned int aml_lcd_gpio_input_get(int gpio);
 
+/* lcd expander gpio */
+extern int aml_lcd_expander_gpio_name_map_num(const char *name);
+extern int aml_lcd_expander_gpio_set(int gpio, int value);
 /* lcd debug */
 extern void aml_lcd_debug_test(unsigned int num);
 extern void aml_lcd_mute_setting(unsigned char flag);

@@ -88,3 +88,57 @@ unsigned int aml_lcd_gpio_input_get(int gpio)
 	return value;
 }
 
+int aml_lcd_expander_gpio_name_map_num(const char *name)
+{
+	int gpio;
+
+	printf("aml_lcd_expander_gpio_name_map_num: %s\n", name);
+
+	/* turn the gpio name into a gpio number */
+	gpio = simple_strtoul(name, NULL, 10);
+	if (gpio < 0) {
+		LCDERR("expander gpio: wrong name %s\n", name);
+		return LCD_EXPANDER_GPIO_MAX;
+	}
+
+	if (lcd_debug_print_flag)
+		LCDPR("expander gpio: %s, %d\n", name, gpio);
+	return gpio;
+}
+
+extern int tca6408_output_set_value(u8 value, u8 mask);
+int expander_gpio_direction_output(u8 index, u8 value)
+{
+	u8 val = 0, mask = 0;
+
+	mask = 1 << index;
+
+	if (0 == value)
+		val = ~mask;
+	else
+		val = mask;
+
+	return tca6408_output_set_value(val, mask);
+}
+
+int aml_lcd_expander_gpio_set(int gpio, int value)
+{
+	if (gpio >= LCD_EXPANDER_GPIO_MAX)
+		return -1;
+	if (lcd_debug_print_flag)
+		LCDPR("expander gpio: %d, value: %d\n", gpio, value);
+
+	/* finally, let's do it: set direction and exec command */
+	switch (value) {
+	case LCD_GPIO_OUTPUT_LOW:
+	case LCD_GPIO_OUTPUT_HIGH:
+		expander_gpio_direction_output(gpio, value);
+		break;
+	case LCD_GPIO_INPUT:
+	default:
+		break;
+	}
+
+	return 0;
+}
+
