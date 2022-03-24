@@ -571,19 +571,9 @@ int v3tool_storage_init(const int eraseFlash, unsigned int dtbImgSz, unsigned in
 	}
 
 	if (dtbImgSz && !gptImgSz) {
-#if defined(CONFIG_MTD) && defined(CONFIG_AML_MTDPART)
-		extern int get_meson_mtd_partition_table(struct mtd_partition **partitions);
-		int mtdParts = -1;
-		struct mtd_partition *partitions;
-
-		mtdParts = get_meson_mtd_partition_table(&partitions);
-		if (partitions && (mtdParts > 0)) {//
-			extern int check_valid_dts(unsigned char *buffer);
-			ret = check_valid_dts(dtbLoadedAddr);
-		} else
-#endif // #if defined(CONFIG_MTD) && defined(CONFIG_AML_MTDPART)
-			ret = get_partition_from_dts(dtbLoadedAddr);
-		if (ret) FBS_EXIT(_ACK, "Failed at check dts\n");
+		ret = get_partition_from_dts(dtbLoadedAddr);
+		if (ret)
+			FB_WRN("Failed at check dts\n");
 	} else if (gptImgSz) {
 		if (get_partition_from_dts(gptLoadedAddr))
 			FBS_EXIT(_ACK, "Fail at check gpt\n");
