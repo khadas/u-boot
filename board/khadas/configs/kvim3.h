@@ -149,7 +149,7 @@
             "\0"\
         "storeargs="\
             "get_bootloaderversion;" \
-            "setenv bootargs ${initargs} hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} fb_width=${fb_width} fb_height=${fb_height} vout2=${outputmode2},enable vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} hwver=${hwver}; "\
+            "setenv bootargs ${initargs} hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} fb_width=${fb_width} fb_height=${fb_height} vout2=${outputmode2},enable vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} hwver=${hwver} lcd_exist=${lcd_exist}; "\
 	"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
             "run cmdline_keys;"\
             "\0"\
@@ -289,11 +289,22 @@
                     "osd open;osd clear;"\
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
-                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;setenv dolby_status 0;setenv dolby_vision_on 0;osd dual_logo;vpp hdrpkt;"\
+                "if test ${lcd_exist} = 0; then "\
+                    "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode};vpp hdrpkt;"\
+                "else "\
+                    "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;osd dual_logo;vpp hdrpkt;"\
+                "fi;"\
             "fi;fi;"\
             "\0"\
 	"hwver_check="\
             "kbi hwver;"\
+            "\0"\
+	"display_config="\
+            "fdt addr ${dtb_mem_addr}; "\
+            "if test ${lcd_exist} = 0; then "\
+                "fdt set /lcd status disable;"\
+                "fdt set /backlight status disable;"\
+            "fi;"\
             "\0"\
 	"port_mode_change="\
             "fdt addr ${dtb_mem_addr}; "\
@@ -354,6 +365,7 @@
             "run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
+			"run display_config;"\
 	    "run hwver_check;"\
 	    "run upgrade_key;"\
 	    "run port_mode_change;"\
