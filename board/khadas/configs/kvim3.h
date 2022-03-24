@@ -40,6 +40,9 @@
 
 #define CONFIG_TCA6408 1
 
+#define CONFIG_CMDLINE_EDITING 1
+#define CONFIG_AUTO_COMPLETE 1
+
 /* configs for CEC */
 #define CONFIG_CEC_OSD_NAME		"kvim3"
 #define CONFIG_CEC_WAKEUP
