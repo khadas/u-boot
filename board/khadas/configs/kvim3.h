@@ -300,6 +300,23 @@
 	"hwver_check="\
             "kbi hwver;"\
             "\0"\
+        "wol_init="\
+            "if test ${ext_ethernet} = 0; then "\
+               "kbi powerstate;"\
+               "kbi trigger wol r;"\
+               "if test ${wol_enable} = 1; then "\
+               "kbi trigger wol w 1;"\
+               "fi;"\
+               "setenv bootargs ${bootargs} wol_enable=${wol_enable};"\
+               "if test ${power_state} = 1; then "\
+                   "kbi poweroff;"\
+               "else "\
+                   "kbi wolreset;"\
+               "fi;"\
+            "else "\
+               "setenv bootargs ${bootargs} wol_enable=0;"\
+            "fi;"\
+            "\0"\
 	"display_config="\
             "fdt addr ${dtb_mem_addr}; "\
             "if test ${lcd_exist} = 0; then "\
@@ -366,7 +383,8 @@
             "run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
-			"run display_config;"\
+	    "run display_config;"\
+            "run wol_init;"\
 	    "run hwver_check;"\
 	    "run upgrade_key;"\
 	    "run port_mode_change;"\
