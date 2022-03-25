@@ -376,7 +376,7 @@ static const struct mtd_partition spiflash_partitions[] = {
 	{
 		.name = "boot",
 		.offset = 0,
-		.size = 1 * SZ_1M,
+		.size = 3 * SZ_1M,
 	},
 	{
 		.name = "dspA",

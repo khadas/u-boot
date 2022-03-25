@@ -49,26 +49,26 @@ static u8 boot_num_get(void)
 int get_meson_mtd_partition_table(struct mtd_partition **partitions)
 {
 #if defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND) || defined(CONFIG_MESON_NFC) || defined(CONFIG_SPI_FLASH)
-	enum boot_type_e medium_type = store_get_type();
+	// enum boot_type_e medium_type = store_get_type();
 #endif
 	int mtdParts = -1;
 
 #ifdef CONFIG_MESON_NFC
 	extern struct mtd_partition *get_aml_mtd_partition(void);
 	extern int get_aml_partition_count(void);
-	if (BOOT_NAND_MTD == medium_type) {
+	// if (BOOT_NAND_MTD == medium_type) {
 		mtdParts = get_aml_partition_count();
 		*partitions = get_aml_mtd_partition();
-	}
+	// }
 #endif
 #if defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND)
 	extern const struct mtd_partition *get_spinand_partition_table(int *partitions);
-	if (BOOT_SNAND == medium_type)
+	// if (BOOT_SNAND == medium_type)
 		*partitions = (struct mtd_partition *)get_spinand_partition_table(&mtdParts);
 #endif
 #ifdef CONFIG_SPI_FLASH
 	extern const struct mtd_partition *get_spiflash_partition_table(int *partitions);
-	if (medium_type == BOOT_SNOR)
+	// if (medium_type == BOOT_SNOR)
 		*partitions = (struct mtd_partition *)get_spiflash_partition_table(&mtdParts);
 #endif
 	return mtdParts;
