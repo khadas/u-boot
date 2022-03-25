@@ -253,6 +253,7 @@ int v3tool_storage_init(const int eraseFlash, unsigned dtbImgSz)
 		unsigned fdtsz    = fdt_totalsize((char*)fdtAddr);
 		if (fdtAddr != (unsigned long)dtbLoadedAddr)
 			memmove((char*)dtbLoadedAddr, (char*)fdtAddr, fdtsz);
+		setenv_hex("dtb_mem_addr", fdtAddr);
 	}
 
 	return 0;
