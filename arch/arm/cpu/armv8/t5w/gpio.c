@@ -205,7 +205,7 @@ static struct meson_bank mesont5d_banks[] = {
 	3, 0,  3,  0,  9,  0,  10, 0,  11, 0),
 	BANK("GPIOZ_", GPIOEE(GPIOZ_0), GPIOEE(GPIOZ_19),
 	1, 0,  1,  0,  3,  0,  4, 0,  5, 0),
-	BANK("GPIOH_", GPIOEE(GPIOH_0), GPIOEE(GPIOH_21),
+	BANK("GPIOH_", GPIOEE(GPIOH_0), GPIOEE(GPIOH_25),
 	2, 0,  2,  0,  6,  0, 7, 0, 8, 0),
 	BANK("GPIOM_", GPIOEE(GPIOM_0), GPIOEE(GPIOM_29),
 	4, 0,  4,  0,  12,  0, 13, 0, 14, 0),
