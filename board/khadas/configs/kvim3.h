@@ -137,6 +137,7 @@
         "active_slot=normal\0"\
         "boot_part=boot\0"\
         "Irq_check_en=0\0"\
+        "ext_ethernet=0\0"\
         "reboot_mode_android=""normal""\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
@@ -335,6 +336,16 @@
                 "fdt set /pcieA@fc000000 status okay;"\
             "fi;"\
             "\0"\
+     "ext_ethernet_change="\
+            "fdt addr ${dtb_mem_addr}; "\
+            "if test ${ext_ethernet} = 1; then "\
+                "fdt set /ethernet@ff3f0000 internal_phy <1>;"\
+                "fdt set /ethernet@ff3f0000 mc_val <0x4be04>;"\
+            "else "\
+                "fdt set /ethernet@ff3f0000 internal_phy <0>;"\
+                "fdt set /ethernet@ff3f0000 mc_val <0x1629>;"\
+            "fi;"\
+            "\0"\
         "cmdline_keys="\
             "if keyman init 0x1234; then "\
                 "if keyman read usid ${loadaddr} str; then "\
@@ -388,6 +399,7 @@
 	    "run hwver_check;"\
 	    "run upgrade_key;"\
 	    "run port_mode_change;"\
+            "run ext_ethernet_change;"\
             "forceupdate;" \
             "bcb uboot-command;"\
             "run switch_bootmode;"
@@ -765,8 +777,6 @@
 
 /* Choose One of Ethernet Type */
 #undef CONFIG_ETHERNET_NONE
-#define ETHERNET_INTERNAL_PHY
-#undef ETHERNET_EXTERNAL_PHY
 
 #define CONFIG_HIGH_TEMP_COOL 90
 #endif

@@ -420,11 +420,10 @@ static int dw_phy_init(struct eth_device *dev)
 	return 1;
 }
 
-#ifdef ETHERNET_EXTERNAL_PHY
 int check_eth_para(void);
 char bestwindow = -1;
 char cmd[64];
-#endif
+
 int designware_initialize(ulong base_addr, u32 interface)
 {
 	int ret;
@@ -469,14 +468,26 @@ int designware_initialize(ulong base_addr, u32 interface)
 	priv->bus = miiphy_get_dev_by_name(dev->name);
 	ret = dw_phy_init(dev);
 
-#ifdef ETHERNET_EXTERNAL_PHY
-	if (check_eth_para()) {
-		run_command("autocali 5 1 1 0", 0);
+#if !defined(CONFIG_KHADAS_VIM) && !defined(CONFIG_KHADAS_VIM2)
+	char *s = getenv("ext_ethernet");
+	bool is_ext = false;
+	if (s != NULL) {
+		printf("+++++++++ext_ethernet=%s\n", s);
+		if (strcmp(s, "0") == 0) {
+			is_ext = false;
+		} else {
+			is_ext = true;
+		}
 	}
-	if (bestwindow >= 0) {
-		sprintf(cmd, "fdt set /ethernet@%08x auto_cali_idx <%d>", (unsigned int)base_addr, bestwindow);
-		run_command("fdt addr $dtb_mem_addr", 0);
-		run_command(cmd, 0);
+	if (!is_ext) {
+		if (check_eth_para()) {
+			run_command("autocali 5 1 1 0", 0);
+		}
+		if (bestwindow >= 0) {
+			sprintf(cmd, "fdt set /ethernet@%08x auto_cali_idx <%d>", (unsigned int)base_addr, bestwindow);
+			run_command("fdt addr $dtb_mem_addr", 0);
+			run_command(cmd, 0);
+		}
 	}
 #endif
 	return ret;
@@ -618,7 +629,6 @@ static int do_cbusreg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	return 0;
 }
-#ifdef ETHERNET_EXTERNAL_PHY
 int print_flag = 0;
 
 #define ETH_MAGIC "exphy:"
@@ -745,7 +755,11 @@ static int do_autocali(cmd_tbl_t *cmdtp, int flag, int argc,
 	reg = phy_read(priv->phydev, MDIO_DEVAD_NONE,0x11);
 	reg = phy_write(priv->phydev, MDIO_DEVAD_NONE, 0x11, reg & (~0x100));
 	reg = phy_read(priv->phydev, MDIO_DEVAD_NONE,0x15);
+#if defined(CONFIG_KHADAS_VIM3) || defined(CONFIG_KHADAS_VIM3L)
+	reg = phy_write(priv->phydev, MDIO_DEVAD_NONE, 0x15, reg & (~0x108));
+#else
 	reg = phy_write(priv->phydev, MDIO_DEVAD_NONE, 0x15, reg & (~0x8));
+#endif
 	phy_write(priv->phydev, MDIO_DEVAD_NONE, 31, 0x0);
 	writel(0x1621, 0xff634540);
 	for (i = 0; i < 16; i++) {
@@ -862,8 +876,6 @@ static int do_autocali(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-#endif
-
 U_BOOT_CMD(
 		phyreg, 4, 1, do_phyreg,
 		"ethernet phy register read/write/dump",
@@ -886,7 +898,6 @@ U_BOOT_CMD(
 		"r reg        - read cbus register\n"
 		"        w reg val    - write cbus register"
 		);
-#ifdef ETHERNET_EXTERNAL_PHY
 U_BOOT_CMD(
 	autocali,	5,	1,	do_autocali,
 	"auto cali\t- auto set cali value for exphy\n",
@@ -896,5 +907,4 @@ U_BOOT_CMD(
 	"		timeout	- timeout (ms)\n"
 	"		flag	- print flag\n"
 );
-#endif
 /* amlogic debug cmd end */
