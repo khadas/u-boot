@@ -3980,12 +3980,7 @@ static void fix_vpu_clk2_default_regs(void)
 		osd_reg_set_bits(VPP_VD1_DSC_CTRL, 0x1, 4, 1);
 		osd_reg_set_bits(VPP_VD2_DSC_CTRL, 0x1, 4, 1);
 		osd_reg_set_bits(VPP_VD3_DSC_CTRL, 0x1, 4, 1);
-#ifdef CONFIG_AML_DOLBY
-		if (dolby_vision_on)
-			osd_reg_set_bits(MALI_AFBCD_TOP_CTRL, 0x0, 14, 1);
-		else
-#endif
-			osd_reg_set_bits(MALI_AFBCD_TOP_CTRL, 0x1, 14, 1);
+		osd_reg_set_bits(MALI_AFBCD_TOP_CTRL, 0x1, 14, 1);
 		osd_reg_set_bits(MALI_AFBCD_TOP_CTRL, 0x1, 19, 1);
 		osd_reg_set_bits(MALI_AFBCD1_TOP_CTRL, 0x1, 19, 1);
 		osd_reg_set_bits(MALI_AFBCD1_TOP_CTRL, 0x1, 19, 1);

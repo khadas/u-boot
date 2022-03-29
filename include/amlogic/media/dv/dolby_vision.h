@@ -67,7 +67,6 @@ struct dovi_mode_s {
 #define XVY_MTX_EN_MASK  (1 << XVY_MTX_EN)
 #define OSD1_MTX_EN_MASK (1 << OSD1_MTX_EN)
 
-extern bool dolby_vision_on;
 void dolby_vision_process(void);
 void send_hdmi_pkt(void);
 int apply_stb_core_settings(void);

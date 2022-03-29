@@ -9,11 +9,8 @@
 #include <amlogic/media/vout/aml_vmode.h>
 #include <amlogic/storage.h>
 #include <amlogic/media/vout/aml_vout.h>
-#ifdef CONFIG_AML_HDMITX20
 #include <amlogic/media/vout/hdmitx/hdmitx_module.h>
-#else
-#include <amlogic/media/vout/hdmitx21/hdmitx_module.h>
-#endif
+
 #include <amlogic/media/dv/dolby_vision.h>
 #include <amlogic/media/dv/dolby_vision_func.h>
 
@@ -52,7 +49,7 @@ static unsigned int vinfo_width = 1920;
 static unsigned int vinfo_height = 1080;
 static unsigned int vinfo_duration_num = 60;
 static unsigned int vinfo_field_height = 1080;
-bool dolby_vision_on;
+static bool dolby_vision_on;
 static char *dolby_status;
 static bool dv_fw_valid = true;
 #define COEFF_NORM(a) ((int)((((a) * 2048.0) + 1) / 2))
@@ -140,14 +137,6 @@ static inline bool is_meson_s4d(void)
 		return false;
 }
 
-static inline bool is_meson_t7(void)
-{
-	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_T7)
-		return true;
-	else
-		return false;
-}
-
 static inline bool is_meson_box(void)
 {
 	if (is_meson_gxm() || is_meson_g12() || is_meson_sc2() || is_meson_s4d())
@@ -217,7 +206,7 @@ static inline u32 READ_VPP_REG(u32 reg)
 	if (reg > 0x10000)
 		val = *(volatile unsigned int *)REG_DV_ADDR(reg);
 	else {
-		if (is_meson_sc2() || is_meson_s4d() || is_meson_t7())
+		if (is_meson_sc2() || is_meson_s4d())
 			val = *(volatile unsigned int *)REG_ADDR_VCBUS_SC2(reg);
 		else
 			val = *(volatile unsigned int *)REG_ADDR_VCBUS(reg);
@@ -231,7 +220,7 @@ static inline void WRITE_VPP_REG(u32 reg,
 	if (reg > 0x10000)
 		*(volatile unsigned int *)REG_DV_ADDR(reg) = (val);
 	else {
-		if (is_meson_sc2() || is_meson_s4d() || is_meson_t7())
+		if (is_meson_sc2() || is_meson_s4d())
 			*(volatile unsigned int *)REG_ADDR_VCBUS_SC2(reg) = (val);
 		else
 			*(volatile unsigned int *)REG_ADDR_VCBUS(reg) = (val);
@@ -261,7 +250,7 @@ static inline u32 phyaddr_to_dvaddr(u32 reg) {
 }
 
 static inline bool is_dolby_stb_chip(void) {
-	return (is_meson_g12() || is_meson_tm2_stbmode() || is_meson_sc2() || is_meson_s4d() || is_meson_t7());
+	return (is_meson_g12() || is_meson_tm2_stbmode() || is_meson_sc2() || is_meson_s4d());
 }
 
 #ifdef CONFIG_AML_DOLBY
@@ -307,8 +296,7 @@ bool check_dolby_vision_on(void)
 		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SM1) ||
 		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TM2) ||
 		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_SC2) ||
-		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_S4D) ||
-		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_T7)) {
+		(get_cpu_id().family_id == MESON_CPU_MAJOR_ID_S4D)) {
 		if (READ_VPP_REG(DOLBY_CORE3_SWAP_CTRL0) & 0x1)
 			return true;
 	}
@@ -330,6 +318,7 @@ static int check_tv_has_changed(struct hdmitx_dev* hdmitx_device)
 {
 	return hdmitx_device->RXCap.edid_changed;
 }*/
+
 static int check_tv_hpd_status(struct hdmitx_dev* hdmitx_device)
 {
 	return hdmitx_device->hwop.get_hpd_state();
@@ -533,7 +522,6 @@ static bool is_attr_match(void)
 	}
 	return true;
 }
-
 static int check_tv_support(struct hdmitx_dev *hdmitx_device)
 {
 	if (check_tv_support_dv(hdmitx_device)) {
@@ -1172,14 +1160,7 @@ static int  enable_dolby_vision(void)
 		WRITE_VPP_REG_BITS(VPP_DOLBY_CTRL, 1, 3, 1);
 
 		/*enable core2*/
-		if (is_meson_t7()) {
-			WRITE_VPP_REG_BITS(MALI_AFBCD_TOP_CTRL,0, 14, 1);/*core2a enable*/
-			//WRITE_VPP_REG_BITS(VPP_DOLBY_CTRL,
-						 //1, 3, 1);   /* core3 enable */
-		}
-		else
-			WRITE_VPP_REG_BITS(DOLBY_PATH_CTRL, 0, 2, 1);
-
+		WRITE_VPP_REG_BITS(DOLBY_PATH_CTRL, 0, 2, 1);
 
 		/* bypass all video effect */
 		video_effect_bypass(1);
@@ -1322,11 +1303,7 @@ void send_hdmi_pkt(void)
 {
 	struct dv_vsif_para vsif;
 	struct master_display_info_s drmif;
-#ifdef CONFIG_AML_HDMITX20
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
-#else
-	struct hdmitx_dev *hdev = get_hdmitx21_device();
-#endif
 
 	if (!is_dolby_enable())
 		return;
@@ -1340,18 +1317,14 @@ void send_hdmi_pkt(void)
 		memset(&vsif, 0, sizeof(vsif));
 		prepare_vsif_pkt(&vsif, &dovi_setting, hdev);
 
-		if (dovi_setting.dovi_ll_enable) {
-			printf("send hdmi pkt dovi_ll_enable = %d\n", dovi_setting.dovi_ll_enable);
+		if (dovi_setting.dovi_ll_enable)
 			hdmitx_set_vsif_pkt( EOTF_T_LL_MODE,
 				dovi_setting.diagnostic_enable
 				? RGB_10_12BIT : YUV422_BIT12,
 				&vsif);
-		} else {
-			printf("send hdmi pkt no dovi_ll_enable = %d\n",
-				dovi_setting.dovi_ll_enable);
+		else
 			hdmitx_set_vsif_pkt(EOTF_T_DOLBYVISION, RGB_8BIT,
 				&vsif);
-		}
 	} else if (dovi_setting.dst_format == FORMAT_HDR10) {
 		memset(&drmif, 0, sizeof(drmif));
 		prepare_drm_pkt(&drmif, &dovi_setting, hdev);
@@ -1366,17 +1339,8 @@ void send_hdmi_pkt(void)
  */
 void dolby_vision_process(void)
 {
-		int hdp_st = 0;
-#ifdef CONFIG_AML_HDMITX20
-		struct hdmitx_dev *hdev = hdmitx_get_hdev();
-#else
-		struct hdmitx_dev *hdev = get_hdmitx21_device();
-#endif
-
-	hdp_st = check_tv_hpd_status(hdev);
-	printf("%s: hpd_state=%c\n", __func__, hdp_st ? '1' : '0');
-
-	if (!hdp_st) {
+	struct hdmitx_dev *hdev = hdmitx_get_hdev();
+	if (!check_tv_hpd_status(hdev)) {
 		if (is_dolby_enable()) {
 			dovi_setting.dst_format = FORMAT_SDR;
 			printf("dolby_vision_process: no hpd, dst_format = SDR\n");

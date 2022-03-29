@@ -5,8 +5,6 @@
 
 #ifndef __HDMITX_MODULE_H__
 #define __HDMITX_MODULE_H__
-#ifndef __HDMITX_MODULE20_H__
-#define __HDMITX_MODULE20_H__
 
 #include "hdmi_common.h"
 #include "hdmitx_ext.h"
@@ -40,6 +38,7 @@ struct hdmitx_dev {
 };
 
 struct hdmitx_dev *hdmitx_get_hdev(void);
+
 struct hdmi_format_para *hdmi_get_fmt_paras(enum hdmi_vic vic);
 enum hdmi_vic hdmi_get_fmt_vic(char const *name);
 void hdmi_parse_attr(struct hdmi_format_para *para, char const *name);
@@ -104,5 +103,5 @@ void hdmitx_set_hdr10plus_pkt(unsigned int flag,
 #endif
 
 #define hdmitx_debug() /* printf("hd: %s[%d]\n", __func__, __LINE__) */
-#endif
+
 #endif

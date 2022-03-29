@@ -5,8 +5,6 @@
 
 #ifndef __HDMITX_MODULE_H__
 #define __HDMITX_MODULE_H__
-#ifndef __HDMITX_MODULE21_H__
-#define __HDMITX_MODULE21_H__
 
 #include "hdmi_common.h"
 #include "hdmitx_ext.h"
@@ -108,10 +106,7 @@ void hdmitx_turnoff(void);
 void hdmitx_test_prbs(void);
 enum hdmi_vic hdmitx_edid_get_VIC(struct hdmitx_dev *hdev,
 	const char *disp_mode, char force_flag);
-bool is_supported_mode_attr(struct input_hdmi_data *hdmi_data, char *mode_attr);
-void hdmitx_set_drm_pkt(struct master_display_info_s *data);
-void hdmitx_set_vsif_pkt(enum eotf_type type, enum mode_type tunnel_mode,
-	struct dv_vsif_para *data);
+
 #undef printk
 #define printk printf
 #undef pr_info
@@ -119,5 +114,5 @@ void hdmitx_set_vsif_pkt(enum eotf_type type, enum mode_type tunnel_mode,
 
 // TODO
 #define hdmitx_debug() printf("hdmitx21: %s[%d]\n", __func__, __LINE__)
-#endif
+
 #endif

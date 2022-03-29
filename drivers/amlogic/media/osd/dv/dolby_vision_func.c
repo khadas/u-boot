@@ -292,13 +292,11 @@ int check_fw_valid(unsigned char* fw_buf, int size) {
 		return -1;
 	}
 
-#ifdef CONFIG_CMD_BOOTCTOL_AVB
 	/*step 3: check sha256*/
 	if (check_dovi_sha256(fw_buf + HEADER_SIZE, size- HEADER_SIZE) == -1) {
 		printf("sha256 check fail\n");
 		return -1;
 	}
-#endif
 	return 1;
 }
 
