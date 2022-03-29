@@ -12,6 +12,10 @@
 #include <linux/compat.h>
 #include <amlogic/aml_mmc.h>
 #include <linux/compat.h>
+#include <asm/arch/efuse.h>
+#if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
+extern efuse_obj_field_t efuse_field;
+#endif//#ifdef CONFIG_EFUSE_OBJ_API
 
 #define USER_PARTITION 0
 #define BOOT0_PARTITION 1
@@ -455,6 +459,7 @@ int mmc_storage_erase(const char *part_name, loff_t off, size_t size, int scrub_
 
 uint8_t mmc_storage_get_copies(const char *part_name) {
 	struct mmc *mmc;
+	int ret = 3;
 
 	mmc = find_mmc_device(STORAGE_EMMC);
 	if (!mmc)
@@ -463,7 +468,20 @@ uint8_t mmc_storage_get_copies(const char *part_name) {
 	if (aml_gpt_valid(mmc) == 0)
 		return 2;
 
-	return 3;
+#if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
+	if (!strcmp(part_name, "bootloader")) {
+		run_command("efuse_obj get FEAT_DISABLE_EMMC_USER", 0);
+		if (*efuse_field.data == 1)
+			ret--;
+		run_command("efuse_obj get FEAT_DISABLE_EMMC_BOOT_0", 0);
+		if (*efuse_field.data == 1)
+			ret--;
+		run_command("efuse_obj get FEAT_DISABLE_EMMC_BOOT_1", 0);
+		if (*efuse_field.data == 1)
+			ret--;
+	}
+#endif
+	return ret;
 }
 
 uint64_t mmc_get_copy_size(const char *part_name) {
@@ -564,6 +582,25 @@ static int amlmmc_write_info_sector(struct mmc *mmc)
 	return ret;
 }
 
+/* return 0;disable cpynum;1: enable cpynum */
+int mmc_check_uboot_backup_efuse_bit(int cpy_num)
+{
+	int ret = 0;
+#if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
+	if (cpy_num == 0)
+		run_command("efuse_obj get FEAT_DISABLE_EMMC_USER", 0);
+	else if (cpy_num == 1)
+		run_command("efuse_obj get FEAT_DISABLE_EMMC_BOOT_0", 0);
+	else if (cpy_num == 2)
+		run_command("efuse_obj get FEAT_DISABLE_EMMC_BOOT_1", 0);
+
+	if (*efuse_field.data == 1)
+		ret = 1;
+#endif
+	return ret;
+}
+
+/* cpy:0 boot0, 1:boot1, 2:user Compatible with gpt and nocs */
 int mmc_boot_read(const char *part_name, uint8_t cpy, size_t size, void *dest) {
 
 	char ret=1;
@@ -573,11 +610,11 @@ int mmc_boot_read(const char *part_name, uint8_t cpy, size_t size, void *dest) {
 	mmc = find_mmc_device(STORAGE_EMMC);
 
 	if (cpy == 0)
-		cpy = 1;
-	else if (cpy == 1)
 		cpy = 2;
-	else if (cpy == 2)
+	else if (cpy == 1)
 		cpy = 4;
+	else if (cpy == 2)
+		cpy = 1;
 	else if (cpy == 0xff)
 		cpy = 7;
 	for (i=0;i<3;i++) {//cpy:
@@ -586,7 +623,7 @@ int mmc_boot_read(const char *part_name, uint8_t cpy, size_t size, void *dest) {
 			if (ret) goto R_SWITCH_BACK;
 
 			if (mmc != NULL && i == 0 && aml_gpt_valid(mmc) == 0)
-				continue;
+				return 0;
 
 			ret = storage_read_in_part(part_name, 0, size, dest);
 
@@ -610,6 +647,7 @@ R_SWITCH_BACK:
 
 }
 
+/* cpy:0 boot0, 1:boot1, 2:user Compatible with gpt and nocs */
 int mmc_boot_write(const char *part_name, uint8_t cpy, size_t size, void *source) {
 
 	char ret=1;
@@ -619,11 +657,11 @@ int mmc_boot_write(const char *part_name, uint8_t cpy, size_t size, void *source
 	mmc = find_mmc_device(STORAGE_EMMC);
 
 	if (cpy == 0)
-		cpy = 1;
-	else if (cpy == 1)
 		cpy = 2;
-	else if (cpy == 2)
+	else if (cpy == 1)
 		cpy = 4;
+	else if (cpy == 2)
+		cpy = 1;
 	else if (cpy == 0xff)
 		cpy = 7;
 
@@ -639,7 +677,11 @@ int mmc_boot_write(const char *part_name, uint8_t cpy, size_t size, void *source
 #endif
 
 			if (mmc != NULL && i == 0 && aml_gpt_valid(mmc) == 0)
-				continue;
+				return 0;
+
+			ret = mmc_check_uboot_backup_efuse_bit(i);
+			if (ret)
+				return 0;
 
 			ret = storage_write_in_part(part_name, 0, size, source);
 
@@ -665,6 +707,7 @@ W_SWITCH_BACK:
 
 }
 
+/* cpy:0 boot0, 1:boot1, 2:user Compatible with gpt and nocs */
 int mmc_boot_erase(const char *part_name, uint8_t cpy) {
 
 	char ret=1;
@@ -675,11 +718,11 @@ int mmc_boot_erase(const char *part_name, uint8_t cpy) {
 	mmc = find_mmc_device(STORAGE_EMMC);
 
 	if (cpy == 0)
-		cpy = 1;
-	else if (cpy == 1)
 		cpy = 2;
-	else if (cpy == 2)
+	else if (cpy == 1)
 		cpy = 4;
+	else if (cpy == 2)
+		cpy = 1;
 	else if (cpy == 0xff)
 		cpy = 7;
 	for (i=0;i<3;i++) {//cpy:
@@ -694,7 +737,7 @@ int mmc_boot_erase(const char *part_name, uint8_t cpy) {
 #endif
 
 			if (mmc != NULL && i == 0 && aml_gpt_valid(mmc) == 0)
-				continue;
+				return 0;
 
 			ret = storage_erase_in_part(part_name, 0, size);
 
