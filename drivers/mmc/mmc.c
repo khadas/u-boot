@@ -457,14 +457,15 @@ int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 	struct mmc_data data;
 #if CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
 	int err = 0;
-
-	if (blkcnt > 1) {
-		cmd.cmdidx = MMC_CMD_SET_BLOCK_COUNT;
-		cmd.cmdarg = blkcnt & 0xFFFF;
-		cmd.resp_type = MMC_RSP_R1;
-		err = mmc_send_cmd(mmc, &cmd, NULL);
-		if (err)
-			printf("mmc set blkcnt failed\n");
+	if (!strcmp(mmc->cfg->name, "emmc")) {
+		if (blkcnt > 1) {
+			cmd.cmdidx = MMC_CMD_SET_BLOCK_COUNT;
+			cmd.cmdarg = blkcnt & 0xFFFF;
+			cmd.resp_type = MMC_RSP_R1;
+			err = mmc_send_cmd(mmc, &cmd, NULL);
+			if (err)
+				printf("mmc set blkcnt failed\n");
+		}
 	}
 #endif
 	if (blkcnt > 1)
@@ -498,8 +499,21 @@ int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 			return 0;
 		}
 	}
+#else
+	if (!strcmp(mmc->cfg->name, "sd")) {
+		if (blkcnt > 1) {
+			cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
+			cmd.cmdarg = 0;
+			cmd.resp_type = MMC_RSP_R1b;
+			if (mmc_send_cmd(mmc, &cmd, NULL)) {
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+				pr_err("mmc fail to send stop cmd\n");
 #endif
-
+				return 0;
+			}
+		}
+	}
+#endif
 	return blkcnt;
 }
 
