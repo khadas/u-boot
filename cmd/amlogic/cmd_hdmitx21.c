@@ -452,11 +452,11 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 		checksum[10] = '\0';
 		memcpy(hdev->RXCap.checksum, checksum, 10);
 		printf("TV has changed, initial mode: %s  attr: %s now crc: %s\n",
-			env_get("outputmode"), env_get("colorattribute"), checksum);
+			env_get("hdmimode"), env_get("colorattribute"), checksum);
 	} else {
 		memcpy(hdev->RXCap.checksum, store_checkvalue, 10);
 		printf("TV is same, initial mode is: %s attr: %s, checksum: %s\n",
-			env_get("outputmode"), env_get("colorattribute"),
+			env_get("hdmimode"), env_get("colorattribute"),
 			hdev->RXCap.checksum);
 	}
 
@@ -471,8 +471,16 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 			 * mode from env, to avoid keep the default hdmi output
 			 */
 			env_set("hdmimode", scene_output_info.final_displaymode);
-			env_set("outputmode",
-			       scene_output_info.final_displaymode);
+			if (is_hdmi_mode(env_get("outputmode"))) {
+				env_set("outputmode",
+					scene_output_info.final_displaymode);
+			} else if (is_hdmi_mode(env_get("outputmode2"))) {
+				env_set("outputmode2",
+					scene_output_info.final_displaymode);
+			} else if (is_hdmi_mode(env_get("outputmode3"))) {
+				env_set("outputmode3",
+					scene_output_info.final_displaymode);
+			}
 			env_set("colorattribute",
 			       scene_output_info.final_deepcolor);
 			/* if change from DV TV to HDR/SDR TV, don't change
@@ -492,11 +500,11 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 				       scene_output_info.final_dv_type);
 			}
 		}
-		printf("update outputmode: %s\n", env_get("outputmode"));
+		printf("update hdmimode: %s\n", env_get("hdmimode"));
 		printf("update colorattribute: %s\n", env_get("colorattribute"));
 		printf("update hdmichecksum: %s\n", env_get("hdmichecksum"));
 	}
-	hdev->para = hdmitx21_get_fmtpara(env_get("outputmode"), env_get("colorattribute"));
+	hdev->para = hdmitx21_get_fmtpara(env_get("hdmimode"), env_get("colorattribute"));
 	hdev->vic = hdev->para->timing.vic;
 	hdmitx_mask_rx_info(hdev);
 	return 0;

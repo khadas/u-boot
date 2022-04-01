@@ -112,6 +112,7 @@ bool is_supported_mode_attr(struct input_hdmi_data *hdmi_data, char *mode_attr);
 void hdmitx_set_drm_pkt(struct master_display_info_s *data);
 void hdmitx_set_vsif_pkt(enum eotf_type type, enum mode_type tunnel_mode,
 	struct dv_vsif_para *data);
+bool is_hdmi_mode(char *mode);
 #undef printk
 #define printk printf
 #undef pr_info
