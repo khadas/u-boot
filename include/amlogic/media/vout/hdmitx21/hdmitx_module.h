@@ -106,6 +106,7 @@ void hdmitx_set_phypara(enum hdmi_phy_para mode);
 int hdmitx_get_hpd_state(void);
 void hdmitx_turnoff(void);
 void hdmitx_test_prbs(void);
+struct hdr_info *hdmitx_get_rx_hdr_info(void);
 enum hdmi_vic hdmitx_edid_get_VIC(struct hdmitx_dev *hdev,
 	const char *disp_mode, char force_flag);
 bool is_supported_mode_attr(struct input_hdmi_data *hdmi_data, char *mode_attr);

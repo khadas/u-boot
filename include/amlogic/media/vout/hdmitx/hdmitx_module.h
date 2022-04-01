@@ -95,6 +95,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type, enum mode_type tunnel_mode,
 	struct dv_vsif_para *data);
 void hdmitx_set_hdr10plus_pkt(unsigned int flag,
 	struct hdr10plus_para *data);
+bool is_hdmi_mode(char *mode);
 
 #ifndef printk
 #define printk printf
