@@ -815,6 +815,23 @@ unsigned int hdmi_outputmode_check(char *mode, unsigned int frac)
 	return ret;
 }
 
+bool is_hdmi_mode(char *mode)
+{
+	int i;
+	bool ret = false;
+
+	if (!mode)
+		return false;
+
+	for (i = 0; i < ARRAY_SIZE(gxbb_modes); i++) {
+		if (!strcmp(mode, gxbb_modes[i].sname)) {
+			ret = true;
+			break;
+		}
+	}
+	return ret;
+}
+
 static int hdmitx_set_audmode(struct hdmitx_dev *hdev)
 {
 	hdmitx21_set_audioclk(1);
