@@ -1652,11 +1652,14 @@ void hdr_tx_pkt_cb(void)
 	hdrinfo = hdmitx_get_rx_hdr_info();
 
 	if ((hdrinfo && hdrinfo->hdr_sup_eotf_smpte_st_2084) &&
-	    hdr_policy == 0) {
-		hdr_func(OSD1_HDR, SDR_HDR);
-		hdr_func(OSD2_HDR, SDR_HDR);
-		hdr_func(OSD3_HDR, SDR_HDR);
-		hdr_func(VD1_HDR, SDR_HDR);
+		hdr_policy == 0) {
+		if (is_hdmi_mode(env_get("outputmode"))) {
+			hdr_func(OSD1_HDR, SDR_HDR);
+			hdr_func(OSD2_HDR, SDR_HDR);
+			hdr_func(VD1_HDR, SDR_HDR);
+		}
+		if (is_hdmi_mode(env_get("outputmode2")))
+			hdr_func(OSD3_HDR, SDR_HDR);
 		amvecm_cp_hdr_info(&hdr_data);
 		hdmitx_set_drm_pkt(&hdr_data);
 	}
