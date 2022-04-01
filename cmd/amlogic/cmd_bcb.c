@@ -29,6 +29,9 @@
 #define CMD_FOR_RECOVERY "recovery_"
 #define CMD_FASTBOOTD          "fastbootd"
 
+static const char *  const temp_for_compile[] = {"__test1", "__test2", "__test3", NULL};
+extern const char * const _env_list_execute_[0] __attribute__((weak, alias("temp_for_compile")));
+
 struct bootloader_message {
     char command[32];
     char status[32];
@@ -44,6 +47,55 @@ struct bootloader_message {
     char reserved[192];
 };
 
+static bool env_command_check(const char *cmd)
+{
+    int index = 0;
+    int envListNum = 0;
+    char *s = NULL;
+    char *v = NULL;
+    char *strcopy = NULL;
+    const char **envListArr = (const char **)_env_list_execute_;
+
+    const char **pArr = (const char **)envListArr;
+
+    while (*pArr++) {
+	++envListNum;
+    }
+
+    printf("envListNum = %d\n", envListNum);
+
+    if (envListNum == 0) {
+	return false;
+    }
+
+    strcopy = strdup(cmd);
+    if (!strcopy) {
+	return false;
+    }
+
+    s = strcopy;
+    while ((v = strsep(&s, ";")) !=  NULL) {
+	char *p = v;
+
+	strsep(&p, " ");
+	for (index = 0; index < envListNum; index++) {
+	if (!strcmp(envListArr[index], v)) {
+		break;
+	}
+	}
+
+	if (index == envListNum) {
+	    printf("%s not in the white list.\n", v);
+	    free(strcopy);
+	    strcopy = NULL;
+	return false;
+	}
+    }
+
+    free(strcopy);
+    strcopy = NULL;
+    return true;
+}
 
 static int clear_misc_partition(char *clearbuf, int size)
 {
@@ -174,6 +226,12 @@ static int do_RunBcbCommand(
         return 0;
     }
 
+    //uboot-command only valid once, not matter success or not
+    if (clear_misc_partition(clearbuf, sizeof(clearbuf)) < 0) {
+	printf("clear misc partition failed.\n");
+	goto ERR;
+    }
+
     if (!memcmp(command_mark, command, strlen(command_mark))) {
         printf("%s\n", recovery);
         if (run_command((char *)recovery, 0) < 0) {
@@ -181,13 +239,19 @@ static int do_RunBcbCommand(
             goto ERR;
         }
         printf("run command successful.\n");
+    }  else if (!strncmp(command_mark, "uboot-command", strlen("uboot-command"))) {
+		printf("uboot-command: %s\n", command);
 
-        if (clear_misc_partition(clearbuf, sizeof(clearbuf)) < 0) {
-            printf("clear misc partition failed.\n");
-            goto ERR;
-        } else {
-            printf("clear misc partition successful.\n");
-        }
+		if (!env_command_check(command)) {
+			printf("not all uboot-command in white-list\n");
+			goto ERR;
+		}
+		if (run_command((char *)command, 0) < 0) {
+			printf("run_command for cmd:%s failed.\n", command);
+			goto ERR;
+		}
+		printf("run uboot-command successful.\n");
+
     } else {
         printf("command mark(%s) not match %s,don't execute.\n",
             command_mark, command);
@@ -203,7 +267,8 @@ static int do_RunBcbCommand(
     cmd_tbl_t * cmdtp,
     int flag,
     int argc,
-    char * const argv[]) {
+    char * const argv[])
+{
     if (argc != 2) {
         return cmd_usage(cmdtp);
     }

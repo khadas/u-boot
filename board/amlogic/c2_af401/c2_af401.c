@@ -153,6 +153,9 @@ int board_late_init(void)
 		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
 	}
 
+	if (!env_get("aml_emmc_bin_init"))
+		run_command("setenv aml_emmc_bin_init okay; bcb uboot-command", 0);
+
 	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
 			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 	board_init_mem();
@@ -368,6 +371,10 @@ const struct mtd_partition *get_spiflash_partition_table(int *partitions)
 	return spiflash_partitions;
 }
 #endif /* CONFIG_SPI_FLASH */
+
+const char * const _env_list_execute_[] = {
+	NULL//Keep NULL be last to tell END
+};
 
 int __attribute__((weak)) mmc_initialize(bd_t *bis){ return 0;}
 
