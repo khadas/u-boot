@@ -163,7 +163,7 @@ static void meson_mmc_config_clock(struct meson_host *host)
 		clk_div /= 2;
 		cfg |= CFG_DDR;
 		meson_write(mmc, cfg, MESON_SD_EMMC_CFG);
-		pr_info("DDR: \n");
+		pr_debug("DDR\n");
 	}
 
 	switch (mmc->selected_mode)
