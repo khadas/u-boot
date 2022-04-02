@@ -56,7 +56,7 @@ static int save_dtbo_idx(const char *cmdline)
 
 		dtbo_chosen_idx_start = strstr(cmdline, "androidboot.dtbo_idx");
 		if (!dtbo_chosen_idx_start) {
-			pr_info("No androidboot.dtbo_idx configured");
+			pr_info("No androidboot.dtbo_idx configured\n");
 			return -1;
 		}
 
@@ -105,10 +105,14 @@ static ulong android_image_get_kernel_addr(const  boot_img_hdr_t *hdr)
 	 *
 	 * Otherwise, we will return the actual value set by the user.
 	 */
+#ifndef CONFIG_SUPPORT_BL33Z
 	if (hdr->kernel_addr == ANDROID_IMAGE_DEFAULT_KERNEL_ADDR)
 		return (ulong)hdr + hdr->page_size;
 
 	return hdr->kernel_addr;
+#else
+	return 0x1880000;
+#endif
 }
 
 /**

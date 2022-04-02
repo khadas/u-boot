@@ -30,10 +30,23 @@ void ramdump_init(void)
 
 	ramdump_base = readl(P_AO_SEC_GP_CFG12);
 	ramdump_size = readl(P_AO_SEC_GP_CFG13);
+	if (ramdump_base & 0x80) {
+		/* 0x80: The flag indicates that the addr exceeds 4G. */
+		/* real size = size[31:0] + addr[6:0]<<32 */
+		ramdump_size += (ramdump_base & 0x7f) << 32;
+		/* real addr = addr[31:8] << 8 */
+		ramdump_base = (ramdump_base & 0xffffff00) << 8;
+	}
 
 	data = readl(PREG_STICKY_REG8);
 	writel(data & ~RAMDUMP_STICKY_DATA_MASK, PREG_STICKY_REG8);
 	printf("%s, add:%lx, size:%lx\n", __func__, ramdump_base, ramdump_size);
+
+#ifdef CONFIG_SUPPORT_BL33Z
+	printf("%s, bl33z change kernel and dtb addr.\n", __func__);
+	env_set("dtb_mem_addr", "0x01800000");	/* new dtb load addr */
+	env_set("loadaddr", "0x01880000");	/* new boot.img load addr */
+#endif
 }
 
 static void wait_usb_dev(void)
@@ -91,8 +104,9 @@ __weak int ramdump_save_compress_data(void)
 		ramdump_base, ramdump_size);
 	printf("CMD:%s\n", cmd);
 	run_command(cmd, 1);
-	//run_command("reset", 1);
-	printf("run fatwrite usb ok, boot kernel !\n");
+	printf("run fatwrite usb ok, reboot!\n");
+	mdelay(10000);
+	run_command("reset", 1);
 	return 0;
 }
 
@@ -182,6 +196,12 @@ void check_ramdump(void)
 			} else {
 				ramdump_env_setup(0, 0);
 			}
+			ramdump_env_setup(addr, size);
 		}
 	}
+#ifdef CONFIG_SUPPORT_BL33Z
+	printf("%s, fdt: rsvmem ramdump_bl33z enable.\n", __func__);
+	//run_command("fdt rm /reserved-memory/ramdump_bl33z no-map", 0);
+	run_command("fdt set /reserved-memory/ramdump_bl33z status okay", 0);
+#endif
 }

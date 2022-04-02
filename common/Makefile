@@ -140,7 +140,8 @@ obj-$(CONFIG_CMD_LOADB) += xyzModem.o
 obj-$(CONFIG_$(SPL_TPL_)YMODEM_SUPPORT) += xyzModem.o
 
 obj-$(CONFIG_AVB_VERIFY) += avb_verify.o
-ifeq ("$(CONFIG_MDUMP_COMPRESS)", "1")
+ifdef_any_of = $(filter-out undefined,$(foreach v,$(1),$(origin $(v))))
+ifneq ($(call ifdef_any_of,CONFIG_MDUMP_COMPRESS CONFIG_SUPPORT_BL33Z),)
 obj-y += ramdump.o
 endif
 

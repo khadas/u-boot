@@ -9,6 +9,7 @@
 
 #include <config.h>
 #include <asm/psci.h>
+#include <version.h>
 
 OUTPUT_FORMAT("elf64-littleaarch64", "elf64-littleaarch64", "elf64-littleaarch64")
 OUTPUT_ARCH(aarch64)
@@ -145,6 +146,9 @@ SECTIONS
 		*(.__rel_dyn_end)
 	}
 
+#ifdef CONFIG_SUPPORT_BL33Z
+	. = ALIGN(4096);
+#endif
 	_end = .;
 
 	. = ALIGN(8);

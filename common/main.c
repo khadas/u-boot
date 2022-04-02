@@ -44,7 +44,7 @@ void main_loop(void)
 
 	bootstage_mark_name(BOOTSTAGE_ID_MAIN_LOOP, "main_loop");
 
-#ifdef CONFIG_MDUMP_COMPRESS
+#if defined(CONFIG_MDUMP_COMPRESS) || defined(CONFIG_SUPPORT_BL33Z)
 	extern void ramdump_init(void);
 	ramdump_init();
 #endif
