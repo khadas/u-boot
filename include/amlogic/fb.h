@@ -304,8 +304,11 @@ enum osd_index_e {
 	OSD1 = 0,
 	OSD2,
 	VIU2_OSD1,
+	VIU3_OSD1,
 	/* for OSD3->VPP1 case */
 	OSD3 = VIU2_OSD1,
+	/* for OSD4->VPP2 case */
+	OSD4 = VIU3_OSD1,
 };
 
 enum {

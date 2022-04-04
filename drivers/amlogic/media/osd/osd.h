@@ -42,7 +42,7 @@
 #define KEYCOLOR_FLAG_ONHOLD  2
 #define KEYCOLOR_FLAG_CURRENT 4
 
-#define HW_OSD_COUNT 3
+#define HW_OSD_COUNT 4
 /* OSD block definition */
 #define HW_OSD_BLOCK_COUNT 4
 #define HW_OSD_BLOCK_REG_COUNT (HW_OSD_BLOCK_COUNT*2)
@@ -272,5 +272,44 @@ struct hw_para_s {
 	u32 path_ctrl_independ;
 	u32 viux_scale_cap;
 };
+
+struct hw_osd_reg_s {
+	u32 osd_ctrl_stat; /* VIU_OSD1_CTRL_STAT */
+	u32 osd_ctrl_stat2;/* VIU_OSD1_CTRL_STAT2 */
+	u32 osd_color_addr;/* VIU_OSD1_COLOR_ADDR */
+	u32 osd_color;/* VIU_OSD1_COLOR */
+	u32 osd_tcolor_ag0; /* VIU_OSD1_TCOLOR_AG0 */
+	u32 osd_tcolor_ag1; /* VIU_OSD1_TCOLOR_AG1 */
+	u32 osd_tcolor_ag2; /* VIU_OSD1_TCOLOR_AG2 */
+	u32 osd_tcolor_ag3; /* VIU_OSD1_TCOLOR_AG3 */
+	u32 osd_blk0_cfg_w0;/* VIU_OSD1_BLK0_CFG_W0 */
+	u32 osd_blk0_cfg_w1;/* VIU_OSD1_BLK0_CFG_W1 */
+	u32 osd_blk0_cfg_w2;/* VIU_OSD1_BLK0_CFG_W2 */
+	u32 osd_blk0_cfg_w3;/* VIU_OSD1_BLK0_CFG_W3 */
+	u32 osd_blk0_cfg_w4;/* VIU_OSD1_BLK0_CFG_W4 */
+	u32 osd_blk1_cfg_w4;/* VIU_OSD1_BLK1_CFG_W4 */
+	u32 osd_blk2_cfg_w4;/* VIU_OSD1_BLK2_CFG_W4 */
+	u32 osd_fifo_ctrl_stat;/* VIU_OSD1_FIFO_CTRL_STAT */
+	//u32 osd_prot_ctrl;/* VIU_OSD1_PROT_CTRL */
+	//u32 osd_mali_unpack_ctrl;/* VIU_OSD1_MALI_UNPACK_CTRL */
+	//u32 osd_dimm_ctrl;/* VIU_OSD1_DIMM_CTRL */
+	//u32 osd_matrix_en_ctrl;
+
+	u32 osd_scale_coef_idx;/* VPP_OSD_SCALE_COEF_IDX */
+	u32 osd_scale_coef;/* VPP_OSD_SCALE_COEF */
+	u32 osd_vsc_phase_step;/* VPP_OSD_VSC_PHASE_STEP */
+	u32 osd_vsc_init_phase;/* VPP_OSD_VSC_INI_PHASE */
+	u32 osd_vsc_ctrl0;/* VPP_OSD_VSC_CTRL0 */
+	u32 osd_hsc_phase_step;/* VPP_OSD_HSC_PHASE_STEP */
+	u32 osd_hsc_init_phase;/* VPP_OSD_HSC_INI_PHASE */
+	u32 osd_hsc_ctrl0;/* VPP_OSD_HSC_CTRL0 */
+	u32 osd_sc_dummy_data;/* VPP_OSD_SC_DUMMY_DATA */
+	u32 osd_sc_ctrl0;/* VPP_OSD_SC_CTRL0 */
+	u32 osd_sci_wh_m1;/* VPP_OSD_SCI_WH_M1 */
+	u32 osd_sco_h_start_end;/* VPP_OSD_SCO_H_START_END */
+	u32 osd_sco_v_start_end;/* VPP_OSD_SCO_V_START_END */
+};
+
+extern struct hw_osd_reg_s hw_osd_reg_array[HW_OSD_COUNT];
 
 #endif /* _OSD_H_ */

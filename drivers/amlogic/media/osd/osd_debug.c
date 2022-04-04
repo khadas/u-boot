@@ -96,7 +96,6 @@ static void osd_debug_dump_value(void)
 static void osd_debug_dump_register_all(void)
 {
 	u32 reg = 0;
-	u32 offset = 0;
 	u32 index = 0;
 
 	reg = VPU_VIU_VENC_MUX_CTRL;
@@ -158,34 +157,30 @@ static void osd_debug_dump_register_all(void)
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 #endif
 	}
-	reg = VPP_OSD_SC_CTRL0;
+	reg = hw_osd_reg_array[0].osd_sc_ctrl0;
 	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
-	reg = VPP_OSD_SCI_WH_M1;
+	reg = hw_osd_reg_array[0].osd_sci_wh_m1;
 	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
-	reg = VPP_OSD_SCO_H_START_END;
+	reg = hw_osd_reg_array[0].osd_sco_h_start_end;
 	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
-	reg = VPP_OSD_SCO_V_START_END;
+	reg = hw_osd_reg_array[0].osd_sco_v_start_end;
 	osd_logi("reg[0x%x]: 0x%08x\n\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	reg = VPP_POSTBLEND_H_SIZE;
 	osd_logi("reg[0x%x]: 0x%08x\n\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	for (index = 0; index < 2; index++) {
-		if (index == 1)
-			offset = REG_OFFSET;
-		reg = offset + VIU_OSD1_FIFO_CTRL_STAT;
+		reg = hw_osd_reg_array[index].osd_fifo_ctrl_stat;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
-		reg = offset + VIU_OSD1_CTRL_STAT;
+		reg = hw_osd_reg_array[index].osd_ctrl_stat;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
-		reg = offset + VIU_OSD1_BLK0_CFG_W0;
+		reg = hw_osd_reg_array[index].osd_blk0_cfg_w0;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
-		reg = offset + VIU_OSD1_BLK0_CFG_W1;
+		reg = hw_osd_reg_array[index].osd_blk0_cfg_w1;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
-		reg = offset + VIU_OSD1_BLK0_CFG_W2;
+		reg = hw_osd_reg_array[index].osd_blk0_cfg_w2;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
-		reg = offset + VIU_OSD1_BLK0_CFG_W3;
+		reg = hw_osd_reg_array[index].osd_blk0_cfg_w3;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
-		reg = VIU_OSD1_BLK0_CFG_W4;
-		if (index == 1)
-			reg = VIU_OSD2_BLK0_CFG_W4;
+		reg = hw_osd_reg_array[index].osd_blk0_cfg_w4;
 		osd_logi("reg[0x%x]: 0x%08x\n\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	}
 
@@ -221,19 +216,19 @@ static void osd_debug_dump_register_all(void)
 #ifdef CONFIG_AML_MESON_G12A
 	/* for viu2_osd */
 	if (!strcmp(env_get("display_layer"), "viu2_osd0")) {
-		reg = VIU2_OSD1_FIFO_CTRL_STAT;
+		reg = hw_osd_reg_array[2].osd_fifo_ctrl_stat;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
-		reg = VIU2_OSD1_CTRL_STAT;
+		reg = hw_osd_reg_array[2].osd_ctrl_stat;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
-		reg = VIU2_OSD1_BLK0_CFG_W0;
+		reg = hw_osd_reg_array[2].osd_blk0_cfg_w0;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
-		reg = VIU2_OSD1_BLK0_CFG_W1;
+		reg = hw_osd_reg_array[2].osd_blk0_cfg_w1;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
-		reg = VIU2_OSD1_BLK0_CFG_W2;
+		reg = hw_osd_reg_array[2].osd_blk0_cfg_w2;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
-		reg = VIU2_OSD1_BLK0_CFG_W3;
+		reg = hw_osd_reg_array[2].osd_blk0_cfg_w3;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
-		reg = VIU2_OSD1_BLK0_CFG_W4;
+		reg = hw_osd_reg_array[2].osd_blk0_cfg_w4;
 		osd_logi("reg[0x%x]: 0x%08x\n\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	}
 #endif
