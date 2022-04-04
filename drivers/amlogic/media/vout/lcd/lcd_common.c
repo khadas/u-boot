@@ -472,22 +472,23 @@ static int lcd_custom_pinmux_load_config(struct lcd_pinmux_ctrl_s *pinmux,
 		if (strncmp(pinmux->name, propname, strlen(propname)) == 0) {
 			for (j = 0; j < LCD_PINMUX_NUM; j++) {
 				if (pinmux->pinmux_set[j][0] == LCD_PINMUX_END)
-					return 0;
+					break;
 				pconf->pinmux_set[j][0] = pinmux->pinmux_set[j][0];
 				pconf->pinmux_set[j][1] = pinmux->pinmux_set[j][1];
 				set_cnt++;
 			}
 			for (j = 0; j < LCD_PINMUX_NUM; j++) {
 				if (pinmux->pinmux_clr[j][0] == LCD_PINMUX_END)
-					return 0;
+					break;
 				pconf->pinmux_clr[j][0] = pinmux->pinmux_clr[j][0];
 				pconf->pinmux_clr[j][1] = pinmux->pinmux_clr[j][1];
 				clr_cnt++;
 			}
-			return 0;
+			break;
 		}
 		pinmux++;
 	}
+
 	if (set_cnt < LCD_PINMUX_NUM) {
 		pconf->pinmux_set[set_cnt][0] = LCD_PINMUX_END;
 		pconf->pinmux_set[set_cnt][1] = 0x0;
