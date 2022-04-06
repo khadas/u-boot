@@ -599,6 +599,7 @@ config MISC_INIT_R
 	bool "Execute Misc Init"
 	default y if ARCH_KEYSTONE || ARCH_SUNXI || MPC85xx
 	default y if ARCH_OMAP2PLUS && !AM33XX
+	default y if ARCH_MESON && !AML_PRODUCT_MODE
 	help
 	  Enabling this option calls 'misc_init_r' function
 
