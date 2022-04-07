@@ -73,16 +73,23 @@
         "os_ident_addr=0x00500000\0"\
         "loadaddr_rtos=0x00001000\0"\
         "loadaddr_kernel=0x01080000\0"\
+		"dv_fw_addr=0xa00000\0"\
         "otg_device=1\0" \
         "panel_type=edp_0\0" \
         "lcd_ctrl=0x00000000\0" \
         "lcd_debug=0x00000000\0" \
-        "outputmode=1080p60hz\0" \
+		"outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
-        "display_bpp=16\0" \
+		"hdmichecksum=0x00000000\0" \
+		"dolby_status=0\0" \
+		"dolby_vision_on=0\0" \
+		"dv_fw_dir_odm_ext=/odm_ext/firmware/dovi_fw.bin\0" \
+		"dv_fw_dir_vendor=/vendor/firmware/dovi_fw.bin\0" \
+		"dv_fw_dir=/reserved/firmware/dovi_fw.bin\0" \
+		"display_bpp=16\0" \
         "display_color_index=16\0" \
         "display_layer=osd0\0" \
         "display_color_fg=0xffff\0" \
@@ -141,6 +148,7 @@
                 "logo=${display_layer},loaded,${fb_addr} powermode=${powermode}  vout=${outputmode},enable "\
                 "panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
                 "hdmimode=${hdmimode} outputmode=${outputmode} "\
+				"hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} " \
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
                 "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
@@ -315,8 +323,10 @@
             "else if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi; fi;" \
             "\0"\
         "init_display="\
-            "osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode}"\
-            "\0"\
+            "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
+			"osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+			"dovi set;dovi pkg;vpp hdrpkt;"\
+			"\0"\
         "check_display="\
             "echo check_display reboot_mode : ${reboot_mode} ,powermode : ${powermode};"\
             "if test ${reboot_mode} = ffv_reboot; then "\
@@ -366,6 +376,7 @@
         "os_ident_addr=0x00500000\0"\
         "loadaddr_rtos=0x00001000\0"\
         "loadaddr_kernel=0x01080000\0"\
+		"dv_fw_addr=0xa00000\0"\
         "otg_device=1\0" \
         "panel_type=vbyone_0\0" \
         "panel1_type=vbyone_1\0" \
@@ -380,6 +391,12 @@
         "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
+		"hdmichecksum=0x00000000\0" \
+		"dolby_status=0\0" \
+		"dolby_vision_on=0\0" \
+		"dv_fw_dir_odm_ext=/odm_ext/firmware/dovi_fw.bin\0" \
+		"dv_fw_dir_vendor=/vendor/firmware/dovi_fw.bin\0" \
+		"dv_fw_dir=/reserved/firmware/dovi_fw.bin\0" \
         "display_bpp=16\0" \
         "display_color_index=16\0" \
         "display_layer=osd0\0" \
@@ -440,6 +457,7 @@
                 "panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
                 "panel1_type=${panel1_type} lcd1_ctrl=${lcd1_ctrl} panel2_type=${panel2_type} lcd2_ctrl=${lcd2_ctrl} "\
                 "hdmimode=${hdmimode} outputmode=${outputmode} "\
+				"hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} " \
                 "hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
                 "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
@@ -615,9 +633,11 @@
             "else if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi; fi;" \
             "\0"\
         "init_display="\
+			"hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
             "osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
             "setenv outputmode2 ${hdmimode};"\
             "osd dual_logo;"\
+			"dovi set;dovi pkg;vpp hdrpkt;"\
             "\0"\
         "check_display="\
             "echo check_display reboot_mode : ${reboot_mode} ,powermode : ${powermode};"\
@@ -917,4 +937,3 @@
 #define BL32_SHARE_MEM_SIZE  0x800000
 
 #endif
-
