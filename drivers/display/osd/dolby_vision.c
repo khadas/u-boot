@@ -437,18 +437,18 @@ static bool is_attr_match(void)
 	/*2.user request LL mode but sink not support LL mode*/
 	if (dovi_mode.dv_rgb_444_8bit &&
 		(!request_ll_mode() || dovi_mode.ll_ycbcr_422_12bit == 0)) { /*STD*/
-		if (strcmp(attr, "444,8bit")) {
+		if (strncmp(attr, "444,8bit", strlen("444,8bit"))) {
 			printf("expect output DV, but attr is %s\n", attr);
 			return false;
 		}
 	} else if (dovi_mode.ll_ycbcr_422_12bit) { /*LL YUV*/
-		if (strcmp(attr, "422,12bit")) {
+		if (strncmp(attr, "444,8bit", strlen("422,12bit"))) {
 			printf("expect output LL YUV, but attr is %s\n", attr);
 			dovi_setting.dst_format = FORMAT_SDR;
 			return false;
 		}
 	} else if (dovi_mode.ll_rgb_444_10bit) {  /*LL RGB*/
-		if (strcmp(attr, "444,10bit")) {
+		if (strncmp(attr, "444,8bit", strlen("444,10bit"))) {
 			printf("expect output LL RGB, but attr is %s\n", attr);
 			dovi_setting.dst_format = FORMAT_SDR;
 			return false;
@@ -1237,10 +1237,11 @@ void send_hdmi_pkt(void)
 	if (!is_dolby_enable())
 		return;
 
-	printf("send hdmi pkt %d [%s]\n",
+	printf("send hdmi pkt %d [%s] dovi_setting.dst_format = %d\n",
 		dovi_setting.dst_format,
 		(dovi_setting.dst_format >= 0 && dovi_setting.dst_format < 4) ?
-		output_str[dovi_setting.dst_format] : "NULL");
+		output_str[dovi_setting.dst_format] : "NULL",
+		dovi_setting.dst_format);
 
 	if (dovi_setting.dst_format == FORMAT_DOVI) {
 		memset(&vsif, 0, sizeof(vsif));
