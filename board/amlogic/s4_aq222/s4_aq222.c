@@ -413,11 +413,11 @@ int checkhw(char *name)
 		ddr_size += gd->bd->bi_dram[i].size;
 	printf("ddr_size is %lx\n", ddr_size);
 	if (ddr_size <= 0x40000000)
-		strcpy(loc_name, "s4_s805x2_aq222\0");
+		strcpy(loc_name, "s4_s805x2_aq222_1g\0");
 	else if (ddr_size <= 0x60000000)
 		strcpy(loc_name, "s4_s805x2_aq222_1.5g\0");
 	else
-		strcpy(loc_name, "s4_s805x2_aq222\0");
+		strcpy(loc_name, "s4_s805x2_aq222_1g\0");
 	/* set aml_dt */
 	strcpy(name, loc_name);
 	env_set("aml_dt", loc_name);
