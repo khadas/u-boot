@@ -19,6 +19,7 @@
 #include <anti-rollback.h>
 #endif
 #include <version.h>
+#include <amlogic/aml_efuse.h>
 
 #define AVB_USE_TESTKEY
 #define MAX_DTB_SIZE (AML_DTB_IMG_MAX_SZ + 512)
@@ -35,6 +36,8 @@ extern const int avb2_kpub_vendor_len;
 
 extern const char avb2_kpub_default[];
 extern const int avb2_kpub_default_len;
+extern const char avb2_kpub_production[];
+extern const int avb2_kpub_production_len;
 
 #ifndef CONFIG_AVB2_KPUB_FROM_FIP
 #define CONFIG_AVB2_KPUB_FROM_FIP (0)
@@ -223,6 +226,7 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps *ops, const uint8_t *public
 #if CONFIG_AVB2_KPUB_FROM_FIP
 	int result = 0;
 #endif
+	int i = 0;
 
 #if CONFIG_AVB2_KPUB_FROM_FIP
 	printf("AVB2 verifying with fip key\n");
@@ -242,42 +246,65 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps *ops, const uint8_t *public
 	}
 #endif
 
-	key.size = 0;
-	keybuf = (char *)malloc(AVB_CUSTOM_KEY_LEN_MAX);
-	if (keybuf) {
-		memset(keybuf, 0, AVB_CUSTOM_KEY_LEN_MAX);
-		size = store_part_size(partition);
-		if (size != 1) {
-			if (store_read((const char *)partition,
-						size - AVB_CUSTOM_KEY_LEN_MAX,
-						AVB_CUSTOM_KEY_LEN_MAX,
-						(unsigned char *)keybuf) >= 0)  {
-				memcpy(&key, keybuf, sizeof(AvbKey_t));
+	/*
+	 * disable AVB custom key and test key
+	 * if device secure boot enabled
+	 */
+	if (!IS_FEAT_BOOT_VERIFY()) {
+		key.size = 0;
+		keybuf = (char *)malloc(AVB_CUSTOM_KEY_LEN_MAX);
+		if (keybuf) {
+			memset(keybuf, 0, AVB_CUSTOM_KEY_LEN_MAX);
+			size = store_part_size(partition);
+			if (size != 1) {
+				if (store_read((const char *)partition,
+							size - AVB_CUSTOM_KEY_LEN_MAX,
+							AVB_CUSTOM_KEY_LEN_MAX,
+							(unsigned char *)keybuf) >= 0)  {
+					memcpy(&key, keybuf, sizeof(AvbKey_t));
+				}
 			}
 		}
-	}
 
-	if (keybuf && (strncmp(keybuf, "AVBK", 4) == 0)) {
-		printf("AVB2 verify with avb_custom_key\n");
-		if (key.size == public_key_length &&
-			!avb_safe_memcmp(public_key_data,
-			keybuf + sizeof(AvbKey_t), public_key_length)) {
-			*out_is_trusted = true;
-			ret = AVB_IO_RESULT_OK;
+		if (keybuf && (strncmp(keybuf, "AVBK", 4) == 0)) {
+			printf("AVB2 verify with avb_custom_key\n");
+			if (key.size == public_key_length &&
+					!avb_safe_memcmp(public_key_data,
+						keybuf + sizeof(AvbKey_t), public_key_length)) {
+				*out_is_trusted = true;
+				ret = AVB_IO_RESULT_OK;
+			}
+		} else {
+			/**
+			 * When the custom key is set
+			 * and the device is in the LOCKED state
+			 * it will boot images signed with both the built-in key
+			 * as well as the custom key
+			 */
+			printf("AVB2 verify with default kpub:%d, vbmeta kpub:%ld\n",
+					avb2_kpub_default_len, public_key_length);
+			if (avb2_kpub_default_len == public_key_length &&
+					!avb_safe_memcmp(public_key_data,
+						avb2_kpub_default, public_key_length)) {
+				*out_is_trusted = true;
+				ret = AVB_IO_RESULT_OK;
+			}
 		}
 	} else {
-		/**
-		 * When the custom key is set and the device is in the LOCKED state
-		 * it will boot images signed with both the built-in key as well as the custom key
-		 */
-		printf("AVB2 verify with default kpub:%d, vbmeta kpub:%ld\n",
-				avb2_kpub_default_len, public_key_length);
+		printf("AVB2 verify with production kpub:%d, vbmeta kpub:%ld\n",
+				avb2_kpub_production_len, public_key_length);
 		if (avb2_kpub_default_len == public_key_length &&
-			!avb_safe_memcmp(public_key_data,
-			avb2_kpub_default, public_key_length)) {
+				!avb_safe_memcmp(public_key_data,
+					avb2_kpub_production, public_key_length)) {
 			*out_is_trusted = true;
 			ret = AVB_IO_RESULT_OK;
 		}
+		for (i = 0; i < avb2_kpub_production_len; i++) {
+			if (avb2_kpub_production[i] != 0)
+				break;
+		}
+		if (i == avb2_kpub_production_len)
+			printf("ERROR: DID YOU FORGET TO CHANGE AVB2 KEY FOR SECURE BOOT?");
 	}
 
 	if (keybuf)
