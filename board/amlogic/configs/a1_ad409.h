@@ -380,5 +380,8 @@
 
 #define BL32_SHARE_MEM_SIZE  0x100000
 
+/* Unify key need flush cache for a1 */
+#define CONFIG_AML_FLUSH_CACHE 1
+
 #endif
 

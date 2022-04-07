@@ -8,7 +8,9 @@
 #include <asm/arch/secure_apb.h>
 #include <amlogic/secure_storage.h>
 #include <asm/arch/bl31_apis.h>
-
+#if CONFIG_AML_FLUSH_CACHE
+#include <../keymanage/key_manage_i.h>
+#endif
 static uint64_t storage_share_in_base;
 static uint64_t storage_share_out_base;
 static uint64_t storage_share_block_base;
@@ -54,7 +56,11 @@ static uint64_t bl31_storage_write(uint8_t *keyname, uint8_t *keybuf,
 	uint32_t *input = (uint32_t *)storage_share_in_base;
 	uint8_t *data;
 	uint32_t namelen;
+#if CONFIG_AML_FLUSH_CACHE
+	uint32_t *input_tmp;
 
+	input_tmp = input;
+#endif
 	namelen = strlen((const char *)keyname);
 	*input++ = namelen;
 	*input++ = keylen;
@@ -63,6 +69,11 @@ static uint64_t bl31_storage_write(uint8_t *keyname, uint8_t *keybuf,
 	memcpy(data, keyname, namelen);
 	data += namelen;
 	memcpy(data, keybuf, keylen);
+#if CONFIG_AML_FLUSH_CACHE
+	flush_cache((unsigned long)input_tmp,
+				sizeof(namelen) + sizeof(keylen)
+				+ sizeof(keyattr) + namelen + keylen);
+#endif
 	return bl31_storage_ops(SECURITY_KEY_WRITE);
 }
 
@@ -74,12 +85,19 @@ static uint64_t bl31_storage_read(uint8_t *keyname, uint8_t *keybuf,
 	uint32_t namelen;
 	uint8_t *name, *buf;
 	uint64_t ret;
+#if CONFIG_AML_FLUSH_CACHE
+	uint32_t *input_tmp;
 
+	input_tmp = input;
+#endif
 	namelen = strlen((const char *)keyname);
 	*input++ = namelen;
 	*input++ = keylen;
 	name = (uint8_t *)input;
 	memcpy(name, keyname, namelen);
+#if CONFIG_AML_FLUSH_CACHE
+	flush_cache((unsigned long)input_tmp, sizeof(namelen) + sizeof(keylen) + namelen);
+#endif
 	ret = bl31_storage_ops(SECURITY_KEY_READ);
 	if (ret == RET_OK) {
 		*readlen = *output;
@@ -96,11 +114,18 @@ static uint64_t bl31_storage_query(uint8_t *keyname, uint32_t *retval)
 	uint32_t namelen;
 	uint8_t *name;
 	uint64_t ret;
+#if CONFIG_AML_FLUSH_CACHE
+	uint32_t *input_tmp;
 
+	input_tmp = input;
+#endif
 	namelen = strlen((const char *)keyname);
 	*input++ = namelen;
 	name = (uint8_t *)input;
 	memcpy(name, keyname, namelen);
+#if CONFIG_AML_FLUSH_CACHE
+	flush_cache((unsigned long)input_tmp, sizeof(namelen) + namelen);
+#endif
 	ret = bl31_storage_ops(SECURITY_KEY_QUERY);
 	if (ret == RET_OK)
 		*retval = *output;
@@ -114,11 +139,18 @@ static uint64_t bl31_storage_status(uint8_t *keyname, uint32_t *retval)
 	uint32_t namelen;
 	uint8_t *name;
 	uint64_t ret;
+#if CONFIG_AML_FLUSH_CACHE
+	uint32_t *input_tmp;
 
+	input_tmp = input;
+#endif
 	namelen = strlen((const char *)keyname);
 	*input++ = namelen;
 	name = (uint8_t *)input;
 	memcpy(name, keyname, namelen);
+#if CONFIG_AML_FLUSH_CACHE
+	flush_cache((unsigned long)input_tmp, sizeof(namelen) + namelen);
+#endif
 	ret = bl31_storage_ops(SECURITY_KEY_STATUS);
 	if (ret == RET_OK)
 		*retval = *output;
@@ -131,11 +163,18 @@ static uint64_t bl31_storage_tell(uint8_t *keyname, uint32_t *retval)
 	uint32_t namelen;
 	uint8_t *name;
 	uint64_t ret;
+#if CONFIG_AML_FLUSH_CACHE
+	uint32_t *input_tmp;
 
+	input_tmp = input;
+#endif
 	namelen = strlen((const char *)keyname);
 	*input++ = namelen;
 	name = (uint8_t *)input;
 	memcpy(name, keyname, namelen);
+#if CONFIG_AML_FLUSH_CACHE
+	flush_cache((unsigned long)input_tmp, sizeof(namelen) + namelen);
+#endif
 	ret = bl31_storage_ops(SECURITY_KEY_TELL);
 	if (ret == RET_OK)
 		*retval = *output;
@@ -149,11 +188,18 @@ static uint64_t bl31_storage_verify(uint8_t *keyname, uint8_t *hashbuf)
 	uint32_t namelen;
 	uint8_t *name;
 	uint64_t ret;
+#if CONFIG_AML_FLUSH_CACHE
+	uint32_t *input_tmp;
 
+	input_tmp = input;
+#endif
 	namelen = strlen((const char *)keyname);
 	*input++ = namelen;
 	name = (uint8_t *)input;
 	memcpy(name, keyname, namelen);
+#if CONFIG_AML_FLUSH_CACHE
+	flush_cache((unsigned long)input_tmp, sizeof(namelen) + namelen);
+#endif
 	ret = bl31_storage_ops(SECURITY_KEY_VERIFY);
 
 	if (ret == RET_OK)
@@ -183,11 +229,18 @@ static uint64_t bl31_storage_remove(uint8_t *keyname)
 	uint32_t *input = (uint32_t *)storage_share_in_base;
 	uint32_t namelen;
 	uint8_t *name;
+#if CONFIG_AML_FLUSH_CACHE
+	uint32_t *input_tmp;
 
+	input_tmp = input;
+#endif
 	namelen = strlen((const char *)keyname);
 	*input++ = namelen;
 	name = (uint8_t *)input;
 	memcpy(name, keyname, namelen);
+#if CONFIG_AML_FLUSH_CACHE
+	flush_cache((unsigned long)input_tmp, sizeof(namelen) + namelen);
+#endif
 	return bl31_storage_ops(SECURITY_KEY_REMOVE);
 }
 

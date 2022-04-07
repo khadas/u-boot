@@ -87,7 +87,9 @@ static int32_t _amlkey_init(uint8_t *seed, uint32_t len, int encrypt_type)
 		ret = 0;
 		goto _out;
 	}
-
+#if CONFIG_AML_FLUSH_CACHE
+	flush_cache((unsigned long)storagekey_info.buffer, buffer_size);
+#endif
 	secure_storage_notifier_ex(storagekey_info.size, 0);
 
 	storagekey_info.buffer = secure_storage_getbuffer(&buffer_size);
