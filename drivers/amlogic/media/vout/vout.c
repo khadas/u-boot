@@ -598,21 +598,31 @@ static int get_window_axis(int *axis)
 	def_h = vout_info.height;
 
 	/* adjust reproduction ratio */
-	if (strncmp(mode, "480i", 4) == 0 || strcmp(mode, "480cvbs") == 0) {
+	if (strncmp(mode, "480i", 4) == 0) {
 		axis[0] = getenv_int("480i_x", def_x);
 		axis[1] = getenv_int("480i_y", def_y);
 		axis[2] = getenv_int("480i_w", def_w);
 		axis[3] = getenv_int("480i_h", def_h);
+	} else if (strcmp(mode, "480cvbs") == 0) {
+		axis[0] = getenv_int("480cvbs_x", def_x);
+		axis[1] = getenv_int("480cvbs_y", def_y);
+		axis[2] = getenv_int("480cvbs_w", def_w);
+		axis[3] = getenv_int("480cvbs_h", def_h);
 	} else if (strncmp(mode, "480p", 4) == 0) {
 		axis[0] = getenv_int("480p_x", def_x);
 		axis[1] = getenv_int("480p_y", def_y);
 		axis[2] = getenv_int("480p_w", def_w);
 		axis[3] = getenv_int("480p_h", def_h);
-	} else if (strncmp(mode, "576i", 4) == 0 || strcmp(mode, "576cvbs") == 0) {
+	} else if (strncmp(mode, "576i", 4) == 0) {
 		axis[0] = getenv_int("576i_x", def_x);
 		axis[1] = getenv_int("576i_y", def_y);
 		axis[2] = getenv_int("576i_w", def_w);
 		axis[3] = getenv_int("576i_h", def_h);
+	} else if (strcmp(mode, "576cvbs") == 0) {
+		axis[0] = getenv_int("576cvbs_x", def_x);
+		axis[1] = getenv_int("576cvbs_y", def_y);
+		axis[2] = getenv_int("576cvbs_w", def_w);
+		axis[3] = getenv_int("576cvbs_h", def_h);
 	} else if (strncmp(mode, "576p", 4) == 0) {
 		axis[0] = getenv_int("576p_x", def_x);
 		axis[1] = getenv_int("576p_y", def_y);
