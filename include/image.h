@@ -909,6 +909,8 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 #define FIT_VALUE_PROP		"value"
 #define FIT_IGNORE_PROP		"uboot-ignore"
 #define FIT_SIG_NODENAME	"signature"
+#define FIT_KEY_REQUIRED	"required"
+#define FIT_KEY_HINT		"key-name-hint"
 
 /* image node */
 #define FIT_DATA_PROP		"data"
