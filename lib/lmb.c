@@ -356,3 +356,29 @@ __weak void arch_lmb_reserve(struct lmb *lmb)
 {
 	/* please define platform specific arch_lmb_reserve() */
 }
+
+/*
+ * Try to allocate a specific address range: must be in defined memory but not
+ * reserved
+ */
+phys_addr_t lmb_alloc_addr(struct lmb *lmb, phys_addr_t base, phys_size_t size)
+{
+	long rgn;
+
+	/* Check if the requested address is in one of the memory regions */
+	rgn = lmb_overlaps_region(&lmb->memory, base, size);
+	if (rgn >= 0) {
+		/*
+		 * Check if the requested end address is in the same memory
+		 * region we found.
+		 */
+		if (lmb_addrs_overlap(lmb->memory.region[rgn].base,
+				      lmb->memory.region[rgn].size,
+				      base + size - 1, 1)) {
+			/* ok, reserve the memory */
+			if (lmb_reserve(lmb, base, size) >= 0)
+				return base;
+		}
+	}
+	return 0;
+}
