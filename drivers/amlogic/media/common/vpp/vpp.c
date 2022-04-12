@@ -7,13 +7,11 @@
 #include <config.h>
 #include <common.h>
 #include <amlogic/media/vpp/vpp.h>
-#include <amlogic/media/vout/hdmitx/hdmi_common.h>
-/* wait hdmi fix */
-//#ifdef CONFIG_AML_HDMITX20
+#ifdef CONFIG_AML_HDMITX20
 #include <amlogic/media/vout/hdmitx/hdmitx_module.h>
-//#else
-//#include <amlogic/media/vout/hdmitx21/hdmitx_module.h>
-//#endif
+#else
+#include <amlogic/media/vout/hdmitx21/hdmitx_module.h>
+#endif
 #include "vpp_reg.h"
 #include "vpp.h"
 #include "hdr2.h"
