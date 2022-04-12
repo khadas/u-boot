@@ -327,13 +327,16 @@ static int storage_mmc_erase(int flag, struct mmc *mmc) {
 
 		ret = blk_select_hwpart_devnum(IF_TYPE_MMC, STORAGE_EMMC, BOOT0_PARTITION);
 		if (ret) goto R_SWITCH_BACK;
-		ret = blk_derase(mmc_get_blk_desc(mmc), 0, 0);
+		ret = storage_erase_in_part("bootloader", off, size);
 		printf("boot0 partition erased: %s\n", (ret == 0) ? "OK" : "ERROR");
 
 		ret = blk_select_hwpart_devnum(IF_TYPE_MMC, STORAGE_EMMC, BOOT1_PARTITION);
 
 		if (ret) goto R_SWITCH_BACK;
-		ret = blk_derase(mmc_get_blk_desc(mmc), 0, 0);
+#ifdef CONFIG_EMMC_BOOT1_TOUCH_REGION
+		size = CONFIG_EMMC_BOOT1_TOUCH_REGION;
+#endif
+		ret = storage_erase_in_part("bootloader", off, size);
 		printf("boot1 partition erased: %s\n", (ret == 0) ? "OK" : "ERROR");
 R_SWITCH_BACK:
 		ret = blk_select_hwpart_devnum(IF_TYPE_MMC, STORAGE_EMMC, USER_PARTITION);
