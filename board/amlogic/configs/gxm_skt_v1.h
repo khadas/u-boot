@@ -487,6 +487,7 @@
 
 //add hardware aes
 //#define CONFIG_AML_HW_AES
+#define CONFIG_AML_KASLR_SEED
 
 #endif
 

@@ -740,5 +740,7 @@
 #define CONFIG_HIGH_TEMP_COOL 90
 
 #define CONFIG_MDUMP_COMPRESS 1
+#define CONFIG_AML_KASLR_SEED
+
 #endif
 

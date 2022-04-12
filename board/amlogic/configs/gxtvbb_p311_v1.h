@@ -440,6 +440,7 @@
 #endif //CONFIG_AML_SECURE_UBOOT
 
 #define CONFIG_SECURE_STORAGE 1
+#define CONFIG_AML_KASLR_SEED
 
 #endif
 

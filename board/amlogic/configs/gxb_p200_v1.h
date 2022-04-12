@@ -512,5 +512,6 @@
   #define CONFIG_AML_CUSTOMER_ID  CONFIG_CUSTOMER_ID
 #endif
 
+#define CONFIG_AML_KASLR_SEED
 #endif
 

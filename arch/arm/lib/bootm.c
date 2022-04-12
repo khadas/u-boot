@@ -299,18 +299,19 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 			printf("Fail to set nokaslr %s\n", fdt_strerror(ret));
 	} else {
 		prop = (char *)fdt_getprop(images->ft_addr, node, "kaslr-seed", NULL);
-		if (!prop)
+		if (!prop) {
 			printf("Can't find kaslr-seed property in chosen\n");
+		} else {
+			srand(timer_get_us());
+			seed = (uint64_t)rand();
+			//printf("--leo-- seed 0x%llx\n", seed);
 
-		srand(timer_get_us());
-		seed = (uint64_t)rand();
-//		printf("--leo-- seed 0x%llx\n", seed);
-
-		ret = fdt_setprop(images->ft_addr, node, "kaslr-seed", &seed, sizeof(seed));
-		if (!ret)
-			printf("Enable kaslr\n");
-		else
-			printf("Can't set kaslr-seed value in chosen\n");
+			ret = fdt_setprop(images->ft_addr, node, "kaslr-seed", &seed, sizeof(seed));
+			if (!ret)
+				printf("Enable kaslr\n");
+			else
+				printf("Can't set kaslr-seed value in chosen\n");
+		}
 	}
 #endif
 

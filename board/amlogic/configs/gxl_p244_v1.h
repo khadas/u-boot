@@ -650,5 +650,6 @@
 #define CONFIG_INTERNAL_PHY
 
 //#define CONFIG_AVB2
+#define CONFIG_AML_KASLR_SEED
 #endif
 
