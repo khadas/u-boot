@@ -79,6 +79,12 @@
 	"partitions=" PARTS_RKIMG \
 	ROCKCHIP_DEVICE_SETTINGS \
 	RKIMG_DET_BOOTDEV \
+	"check_reboot_mode=" \
+	"if test X${reboot_mode} = Xreboot_test; then "\
+		"echo Reboot test mode detected;"\
+		"setenv bootargs ${bootargs} reboot_test;" \
+	"fi;"\
+	"\0"\
 	BOOTENV
 #endif
 
@@ -86,7 +92,8 @@
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	1
 
-#define CONFIG_PREBOOT
+#define CONFIG_PREBOOT \
+	 "run check_reboot_mode;"
 #define CONFIG_LIB_HW_RAND
 
 #endif

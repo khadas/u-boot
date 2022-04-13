@@ -25,6 +25,8 @@
 #define BOOT_DFU                (REBOOT_FLAG + 13)
 /* reboot system quiescent */
 #define BOOT_QUIESCENT		(REBOOT_FLAG + 14)
+/* enter reboot test mode */
+#define BOOT_REBOOT_TEST        (REBOOT_FLAG + 15)
 /* enter bootrom download mode */
 #define BOOT_BROM_DOWNLOAD	0xEF08A53C
 
