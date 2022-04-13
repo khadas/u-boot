@@ -203,6 +203,10 @@ int rockchip_get_boot_mode(void)
 			printf("boot mode: watchdog\n");
 			boot_mode[PL] = BOOT_MODE_WATCHDOG;
 			break;
+		case BOOT_REBOOT_TEST:
+			printf("boot mode: reboot test\n");
+			boot_mode[PL] = BOOT_MODE_REBOOT_TEST;
+			break;
 		default:
 			printf("boot mode: None\n");
 			boot_mode[PL] = BOOT_MODE_UNDEFINE;
@@ -263,6 +267,10 @@ int setup_boot_mode(void)
 	case BOOT_MODE_CHARGING:
 		printf("enter charging!\n");
 		env_set("preboot", "setenv preboot; charge");
+		break;
+	case BOOT_MODE_REBOOT_TEST:
+		printf("enter reboot test mode!\n");
+		env_set("reboot_mode", "reboot_test");
 		break;
 	}
 
