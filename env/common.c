@@ -106,6 +106,8 @@ int set_default_vars(int nvars, char * const vars[], int flags)
  */
 int env_import(const char *buf, int check)
 {
+	int flags = 0;
+
 	env_t *ep = (env_t *)buf;
 
 	if (check) {
@@ -119,7 +121,13 @@ int env_import(const char *buf, int check)
 		}
 	}
 
-	if (himport_r(&env_htab, (char *)ep->data, ENV_SIZE, '\0', 0, 0,
+#ifdef CONFIG_NSK
+	// Load default environment. for doing white listing of environmnet value.
+	set_default_env("Initialize env with default env", 0);
+	flags = H_NOCLEAR;
+#endif
+
+	if (himport_r(&env_htab, (char *)ep->data, ENV_SIZE, '\0', flags, 0,
 			0, NULL)) {
 		gd->flags |= GD_FLG_ENV_READY;
 		return 0;

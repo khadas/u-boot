@@ -487,6 +487,37 @@ static int on_flags(const char *name, const char *value, enum env_op op,
 }
 U_BOOT_ENV_CALLBACK(flags, on_flags);
 
+#ifdef CONFIG_NSK
+static int env_key_exists_in_wl(const char *key)
+{
+	char *whitelist;
+	char *tok;
+
+	whitelist = CONFIG_ENV_WHITELISTS;
+	tok = whitelist;
+	do {
+		while (isblank(*tok))
+			++tok;
+
+		if (*tok == '\0') {
+			++tok;
+			continue;
+		}
+
+		if (strcmp(key, tok) == 0)
+			return 1;
+		else if (strcmp(tok, "*") == 0)
+			return 1;
+
+		while (*tok)
+			++tok;
+
+	} while (tok <= whitelist + sizeof(CONFIG_ENV_WHITELISTS));
+
+	return 0;
+}
+#endif
+
 /*
  * Perform consistency checking before creating, overwriting, or deleting an
  * environment variable. Called as a callback function by hsearch_r() and
@@ -535,6 +566,15 @@ int env_flags_validate(const ENTRY *item, const char *newval, enum env_op op,
 		}
 		break;
 	case env_op_overwrite:
+#ifdef CONFIG_NSK
+		if (strcmp(oldval, newval) != 0) {
+			if (!env_key_exists_in_wl(name)) {
+				printf("## Error: \"%s\" is not in the whitelist\n", name);
+				return 1;
+			}
+		}
+#endif
+
 		if (item->flags & ENV_FLAGS_VARACCESS_PREVENT_OVERWR) {
 			printf("## Error: Can't overwrite \"%s\"\n", name);
 			return 1;

@@ -51,6 +51,30 @@
 #define CONFIG_DTB_LOAD  "imgread dtb _aml_dtb ${dtb_mem_addr}"
 #endif//#ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
 
+#ifdef CONFIG_NSK
+/*
+ * U-Boot config consists of several pairs of keys and values and
+ * resides in the env partition. When the value changes in env,
+ * if the corresponding key is in the whitelist, U-Boot accepts the value.
+ * If the key is '*' in the whitelist, U-Boot accepts all values in env.
+ * The following shows an example of the whitelist.
+ *    #define CONFIG_ENV_WHITELISTS \
+ *          "active_slot\0"\
+ *          "boot_part\0"\
+ *          "colorattribute\0"\
+ *          "common_dtb_load\0"\
+ *          "display_height\0"
+ */
+
+#define CONFIG_ENV_WHITELISTS \
+	"*\0"  // Accept all environment value.
+
+#ifdef CONFIG_CMD_IMPORTENV
+#undef CONFIG_CMD_IMPORTENV
+#endif
+
+#endif
+
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS \
