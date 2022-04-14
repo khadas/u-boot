@@ -204,10 +204,9 @@ static void osd_layer_init(GraphicDevice *gdev, int layer)
 		disp_end_x = gdev->fb_width - 1;
 		disp_end_y = gdev->fb_height - 1;
 	}
-
 #ifdef AML_OSD_HIGH_VERSION
 	if (index >= VIU2_OSD1)
-		osd_init_hw_viu2();
+		osd_init_hw_viux(index);
 	else
 #endif
 	osd_init_hw();
@@ -270,6 +269,45 @@ static int get_dts_node(const void *dt_addr, char *dtb_node)
 	return -1;
 #endif
 }
+
+#ifdef VEHICLE_CONFIG
+void osd2_layer_init(void)
+{
+	u32 xoffset = 0;
+	u32 yoffset = 0;
+	u32 xres = 0;
+	u32 yres = 0;
+	u32 xres_virtual = 0;
+	u32 yres_virtual = 0;
+	u32 disp_start_x = 0;
+	u32 disp_start_y = 0;
+	u32 disp_end_x = 0;
+	u32 disp_end_y = 0;
+	u32 fbmem = fb_gdev.frameAdrs;
+	const struct color_bit_define_s *color =
+			&default_color_format_array[fb_gdev.gdfIndex];
+
+	xres = fb_gdev.fb_width;
+	yres = fb_gdev.fb_height;
+	xres_virtual = fb_gdev.fb_width;
+	yres_virtual = fb_gdev.fb_height * 2;
+	disp_end_x = fb_gdev.fb_width - 1;
+	disp_end_y = fb_gdev.fb_height - 1;
+	osd2_setup_hw(OSD2,
+		     xoffset,
+		     yoffset,
+		     xres,
+		     yres,
+		     xres_virtual,
+		     yres_virtual,
+		     disp_start_x,
+		     disp_start_y,
+		     disp_end_x,
+		     disp_end_y,
+		     fbmem,
+		     color);
+}
+#endif
 
 unsigned long get_fb_addr(void)
 {
@@ -390,7 +428,7 @@ u32 osd_canvas_align(u32 x)
 int get_osd_layer(void)
 {
 	char *layer_str;
-	int osd_index = -1;
+	int osd_index = 0;
 
 	layer_str = env_get("display_layer");
 	if (strcmp(layer_str, "osd0") == 0)
@@ -401,6 +439,8 @@ int get_osd_layer(void)
 		osd_index = OSD3;
 	else if (strcmp(layer_str, "viu2_osd0") == 0)
 		osd_index = VIU2_OSD1;
+	else if (strcmp(layer_str, "viu3_osd0") == 0)
+		osd_index = VIU3_OSD1;
 	else
 		osd_loge("%s, error found\n", __func__);
 
@@ -452,6 +492,12 @@ static void *osd_hw_init(void)
 			return NULL;
 		}
 		osd_layer_init(&fb_gdev, VIU2_OSD1 /* OSD3 */);
+	}  else if (osd_index == VIU3_OSD1 /* OSD4 */) {
+		if (osd_hw.osd_ver == OSD_SIMPLE) {
+			osd_loge("AXG not support viu3 osd0\n");
+			return NULL;
+		}
+		osd_layer_init(&fb_gdev, VIU3_OSD1 /* OSD4 */);
 	} else {
 		osd_loge("display_layer(%d) invalid\n", osd_index);
 		return NULL;
@@ -1029,6 +1075,10 @@ int video_scale_bitmap(void)
 		osd_index = VIU2_OSD1;
 		if (!osd_hw.viux_scale_cap)
 			goto no_scale;
+	} else if (strcmp(layer_str, "viu3_osd0") == 0) {
+		osd_index = VIU3_OSD1;
+		if (!osd_hw.viux_scale_cap)
+			goto no_scale;
 	} else {
 		osd_logd2("video_scale_bitmap: invalid display_layer\n");
 		return (-1);
@@ -1060,6 +1110,12 @@ no_scale:
 		osd_update_blend(&disp_data);
 #endif
 	osd_enable_hw(osd_index, 1);
+
+#ifdef VEHICLE_CONFIG
+	if (!is_osd2_configed())
+		osd2_config_with_dimm(axis);
+	osd_set_config_finish();
+#endif
 
 	return (1);
 }

@@ -297,6 +297,7 @@ u32 osd_canvas_align(u32 x);
 int get_osd_layer(void);
 int get_osd_viux_scale_cap(void);
 void osd_set_4k2k_fb_mode_hw(u32 fb_for_4k2k);
+void osd2_layer_init(void);
 
 #define CANVAS_ALIGNED(x) osd_canvas_align(x)
 

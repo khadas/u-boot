@@ -250,6 +250,9 @@
 #define OSD4_HDR_IN_SIZE                           0x1a5d
 #endif
 
+#define OSD_CONFIG_FLAG                VIU_OSD1_TCOLOR_AG1
+#define OSD_CONFIG_FINISH              (0x2 << 30)
+
 #define REG_OFFSET_VCBUS(reg)           ((reg << 2))
 #define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg) + 0L)
 #define REG_OSD_ADDR(reg)               (reg + 0L)
