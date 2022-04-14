@@ -276,6 +276,7 @@ int64_t meson_trustzone_efuse_caliItem(const char *str)
 const struct t_efuse_item efuselockitem_cfg[] = {
 	{.name = "dgpk1", .item = EFUSE_LOCK_SUBITEM_DGPK1_KEY},
 	{.name = "dgpk2", .item = EFUSE_LOCK_SUBITEM_DGPK2_KEY},
+	{.name = "aud_id", .item = EFUSE_LOCK_SUBITEM_AUDIO_V_ID},
 };
 
 #define EFUSELOCKITEM_CNT   sizeof(efuselockitem_cfg) / sizeof(efuselockitem_cfg[0])
