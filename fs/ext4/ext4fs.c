@@ -62,6 +62,7 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
 	lbaint_t delayed_skipfirst = 0;
 	lbaint_t delayed_next = 0;
 	char *delayed_buf = NULL;
+	char *start_buf = buf;
 	short status;
 
 	/* Adjust len so it we can't read past the end of the file. */
@@ -127,6 +128,8 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
 					(blockend >> log2blksz);
 			}
 		} else {
+			int n;
+			int n_left;
 			if (previous_block_number != -1) {
 				/* spill */
 				status = ext4fs_devread(delayed_start,
@@ -137,7 +140,12 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
 					return -1;
 				previous_block_number = -1;
 			}
-			memset(buf, 0, blocksize - skipfirst);
+			/* Zero no more than `len' bytes. */
+			n = blocksize - skipfirst;
+			n_left = len - (buf - start_buf);
+			if (n > n_left)
+				n = n_left;
+			memset(buf, 0, n);
 		}
 		buf += blocksize - skipfirst;
 	}
