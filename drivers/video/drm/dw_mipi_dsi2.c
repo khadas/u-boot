@@ -14,6 +14,7 @@
 #include <asm/unaligned.h>
 #include <asm/io.h>
 #include <asm/hardware.h>
+#include <asm/gpio.h>
 #include <dm/device.h>
 #include <dm/read.h>
 #include <dm/of_access.h>
@@ -286,7 +287,8 @@ struct dw_mipi_dsi2 {
 	struct mipi_dcphy dcphy;
 	struct drm_display_mode mode;
 	bool data_swap;
-
+	struct gpio_desc reset_gpio;
+	unsigned int reset_ms;
 	struct mipi_dphy_configure mipi_dphy_cfg;
 	const struct dw_mipi_dsi2_plat_data *pdata;
 	struct drm_dsc_picture_parameter_set *pps;
@@ -1016,6 +1018,26 @@ static int dw_mipi_dsi2_connector_prepare(struct display_state *state)
 	struct dw_mipi_dsi2 *dsi2 = dev_get_priv(conn_state->dev);
 	unsigned long lane_rate;
 
+	if (dm_gpio_is_valid(&dsi2->reset_gpio))
+		dm_gpio_set_value(&dsi2->reset_gpio, 0);
+	if (dsi2->reset_ms)
+		mdelay(dsi2->reset_ms);
+
+	if (dm_gpio_is_valid(&dsi2->reset_gpio))
+		dm_gpio_set_value(&dsi2->reset_gpio, 1);
+	if (dsi2->reset_ms)
+		mdelay(dsi2->reset_ms);
+
+	if (dm_gpio_is_valid(&dsi2->reset_gpio))
+		dm_gpio_set_value(&dsi2->reset_gpio, 0);
+	if (dsi2->reset_ms)
+		mdelay(dsi2->reset_ms);
+
+	if (dm_gpio_is_valid(&dsi2->reset_gpio))
+		dm_gpio_set_value(&dsi2->reset_gpio, 1);
+	if (dsi2->reset_ms)
+		mdelay(dsi2->reset_ms);
+
 	memcpy(&dsi2->mode, &conn_state->mode, sizeof(struct drm_display_mode));
 	if (dsi2->slave)
 		memcpy(&dsi2->slave->mode, &dsi2->mode,
@@ -1102,6 +1124,13 @@ static int dw_mipi_dsi2_probe(struct udevice *dev)
 	dsi2->id = id;
 	dsi2->data_swap = dev_read_bool(dsi2->dev, "rockchip,data-swap");
 
+	dsi2->reset_ms = dev_read_u32_default(dev, "reset-delay-ms", 0);
+	ret = gpio_request_by_name(dev, "reset-gpios", 0,
+				   &dsi2->reset_gpio, GPIOD_IS_OUT);
+	if (ret && ret != -ENOENT) {
+		printf("%s: Cannot get reset GPIO: %d\n", __func__, ret);
+		return ret;
+	}
 	return 0;
 }
 
