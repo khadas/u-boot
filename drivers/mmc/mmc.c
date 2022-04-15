@@ -1878,37 +1878,7 @@ static int mmc_complete_init(struct mmc *mmc)
 	return err;
 }
 
-#ifdef MMC_HS400_MODE
-void reset_all_reg(struct mmc *mmc) {
-	struct aml_card_sd_info *aml_priv = mmc->priv;
-	struct sd_emmc_global_regs *sd_emmc_regs = aml_priv->sd_emmc_reg;
-	void* buf;
-	unsigned long  addr;
-	int size;
-	u64 writeval;
-	unsigned long byte;
-
-	if (aml_priv->sd_emmc_port != 2)
-		return;
-	sd_emmc_regs->gcfg = 0x4791;
-	sd_emmc_regs->gclock = 0x1000204;
-	sd_emmc_regs->gadjust = 0;
-	sd_emmc_regs->gdelay = 0;
-	sd_emmc_regs->gdelay1 = 0;
-	sd_emmc_regs->gintf3 = 0;
-
-	aml_priv->cfg.f_max = 40000000;
-
-	size = 4;
-	byte = size;
-	addr = CLKSRC_BASE + 0x25c;
-	writeval = 0x080;
-	buf = map_sysmem(addr, byte);
-	*((u32 *)buf) = (u32)writeval;
-	unmap_sysmem(buf);
-	return;
-}
-
+#ifdef MMC_WRITE_CHIP_ID
 /* 1. read board chip_id
  * 2. read chip_id writed on emmc
  * 3. compare two chip_id
@@ -1976,6 +1946,38 @@ int aml_write_chip_id(struct mmc *mmc)
 	memcpy(parameter, buf, para_size);
 	free(buf);
 	return 0;
+}
+#endif
+
+#ifdef MMC_HS400_MODE
+void reset_all_reg(struct mmc *mmc)
+{
+	struct aml_card_sd_info *aml_priv = mmc->priv;
+	struct sd_emmc_global_regs *sd_emmc_regs = aml_priv->sd_emmc_reg;
+	void *buf;
+	unsigned long  addr;
+	int size;
+	u64 writeval;
+	unsigned long byte;
+
+	if (aml_priv->sd_emmc_port != 2)
+		return;
+	sd_emmc_regs->gcfg = 0x4791;
+	sd_emmc_regs->gclock = 0x1000204;
+	sd_emmc_regs->gadjust = 0;
+	sd_emmc_regs->gdelay = 0;
+	sd_emmc_regs->gdelay1 = 0;
+	sd_emmc_regs->gintf3 = 0;
+
+	aml_priv->cfg.f_max = 40000000;
+
+	size = 4;
+	byte = size;
+	addr = CLKSRC_BASE + 0x25c;
+	writeval = 0x080;
+	buf = map_sysmem(addr, byte);
+	*((u32 *)buf) = (u32)writeval;
+	unmap_sysmem(buf);
 }
 
 static long long para_checksum_calc(struct tuning_para *para)
@@ -2120,9 +2122,7 @@ int aml_read_tuning_para(struct mmc *mmc)
 
 int mmc_init(struct mmc *mmc)
 {
-#ifdef MMC_HS400_MODE
 	struct aml_card_sd_info *aml_priv = mmc->priv;
-#endif
 	int err = IN_PROGRESS, i;
 	unsigned start;
 
@@ -2164,14 +2164,16 @@ int mmc_init(struct mmc *mmc)
 
 #endif
 
-#ifdef MMC_HS400_MODE
 	if (aml_priv->sd_emmc_port != 2)
 		return err;
 
+#ifdef MMC_WRITE_CHIP_ID
 	err = aml_write_chip_id(mmc);
 	if (err)
 		printf("write chip id and vddee failed\n");
+#endif
 
+#ifdef MMC_HS400_MODE
 	err = aml_read_tuning_para(mmc);
 	if (err)
 		printf("read tuning parameter failed\n");
