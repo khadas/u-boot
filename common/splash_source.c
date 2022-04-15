@@ -329,10 +329,10 @@ static int splash_load_fit(struct splash_location *location, u32 bmp_load_addr)
 	if (res < 0)
 		return res;
 
-	res = fit_check_format(fit_header);
-	if (!res) {
+	res = fit_check_format(fit_header, IMAGE_SIZE_INVAL);
+	if (res) {
 		debug("Could not find valid FIT image\n");
-		return -EINVAL;
+		return res;
 	}
 
 	node_offset = fit_image_get_node(fit_header, location->name);

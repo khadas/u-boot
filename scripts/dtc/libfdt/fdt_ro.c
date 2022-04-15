@@ -140,6 +140,10 @@ static int nextprop_(const void *fdt, int offset)
 	do {
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
+		/* If we see two root nodes, something is wrong */
+		if (expect_end && tag != FDT_END)
+			return -FDT_ERR_BADLAYOUT;
+
 		switch (tag) {
 		case FDT_END:
 			if (nextoffset >= 0)
