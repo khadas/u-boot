@@ -705,13 +705,55 @@ static int Edid_ParsingVFPDB(struct rx_cap *pRXCap, unsigned char *buf)
 	return 0;
 }
 
+static void hdmitx_edid_parse_hdmi14(struct rx_cap *prxcap,
+	unsigned char offset, unsigned char *blockbuf, unsigned char count)
+{
+	int idx = 0, tmp = 0;
+
+	prxcap->IEEEOUI = 0x000c03;
+	prxcap->ColorDeepSupport = count > 5 ? (unsigned long)blockbuf[offset + 5] : 0;
+	printf("HDMI_EDID_BLOCK_TYPE_VENDER: pRXCap->ColorDeepSupport=0x%x\n",
+		prxcap->ColorDeepSupport);
+	if (count > 5)
+		set_vsdb_dc_cap(prxcap);
+	prxcap->Max_TMDS_Clock1 = count > 6 ? (unsigned long)blockbuf[offset + 6] : 0;
+	if (count > 7) {
+		tmp = blockbuf[offset + 7];
+		idx = offset + 8;
+		if (tmp & (1 << 6))
+			idx += 2;
+		if (tmp & (1 << 7))
+			idx += 2;
+		if (tmp & (1 << 5)) {
+			idx += 1;
+			/* valid 4k */
+			if (blockbuf[idx] & 0xe0) {
+				hdmitx_edid_4k2k_parse(prxcap,
+					&blockbuf[idx + 1],
+					blockbuf[idx] >> 5);
+			}
+		}
+	}
+}
+
+static void hdmitx_parse_sink_capability(struct rx_cap *prxcap,
+	unsigned char offset, unsigned char *blockbuf, unsigned char count)
+{
+	prxcap->HF_IEEEOUI = 0xd85dc4;
+	prxcap->Max_TMDS_Clock2 = blockbuf[offset + 4];
+	prxcap->scdc_present = !!(blockbuf[offset + 5] & (1 << 7));
+	prxcap->scdc_rr_capable = !!(blockbuf[offset + 5] & (1 << 6));
+	prxcap->lte_340mcsc_scramble = !!(blockbuf[offset + 5] & (1 << 3));
+	set_vsdb_dc_420_cap(prxcap, &blockbuf[offset]);
+}
+
 static int hdmitx_edid_block_parse(struct rx_cap *pRXCap,
 	unsigned char *BlockBuf)
 {
 	unsigned char offset, End;
 	unsigned char count;
 	unsigned char tag;
-	int i, tmp, idx;
+	int i, idx;
 	unsigned char *vfpdb_offset = NULL;
 
 	/* CEA-861 implementations are required to use Tag = 0x02
@@ -769,52 +811,14 @@ static int hdmitx_edid_block_parse(struct rx_cap *pRXCap,
 
 		case HDMI_EDID_BLOCK_TYPE_VENDER:
 			offset++;
-			if ((BlockBuf[offset] == 0x03) &&
-				(BlockBuf[offset+1] == 0x0c) &&
-				(BlockBuf[offset+2] == 0x00))
-				pRXCap->IEEEOUI = 0x000c03;
-			else
-				goto case_hf;
-			pRXCap->ColorDeepSupport =
-				(unsigned long)BlockBuf[offset+5];
-			printf("HDMI_EDID_BLOCK_TYPE_VENDER: pRXCap->ColorDeepSupport=0x%x\n", pRXCap->ColorDeepSupport);
-			set_vsdb_dc_cap(pRXCap);
-			pRXCap->Max_TMDS_Clock1 =
-				(unsigned long)BlockBuf[offset+6];
-			if (count > 7) {
-				tmp = BlockBuf[offset+7];
-				idx = offset + 8;
-				if (tmp & (1<<6))
-					idx += 2;
-				if (tmp & (1<<7))
-					idx += 2;
-				if (tmp & (1<<5)) {
-					idx += 1;
-					/* valid 4k */
-					if (BlockBuf[idx] & 0xe0) {
-						hdmitx_edid_4k2k_parse(
-							pRXCap,
-							&BlockBuf[idx + 1],
-							BlockBuf[idx] >> 5);
-					}
-				}
-			}
-			goto case_next;
-case_hf:
-			if ((BlockBuf[offset] == 0xd8) &&
-				(BlockBuf[offset+1] == 0x5d) &&
-				(BlockBuf[offset+2] == 0xc4))
-				pRXCap->HF_IEEEOUI = 0xd85dc4;
-			pRXCap->Max_TMDS_Clock2 = BlockBuf[offset+4];
-			pRXCap->scdc_present =
-				!!(BlockBuf[offset+5] & (1 << 7));
-			pRXCap->scdc_rr_capable =
-				!!(BlockBuf[offset+5] & (1 << 6));
-			pRXCap->lte_340mcsc_scramble =
-				!!(BlockBuf[offset+5] & (1 << 3));
-			set_vsdb_dc_420_cap(pRXCap,
-				&BlockBuf[offset]);
-case_next:
+			if (BlockBuf[offset] == 0x03 &&
+				BlockBuf[offset + 1] == 0x0c &&
+				BlockBuf[offset + 2] == 0x00)
+				hdmitx_edid_parse_hdmi14(pRXCap, offset, BlockBuf, count);
+			else if (BlockBuf[offset] == 0xd8 &&
+				BlockBuf[offset + 1] == 0x5d &&
+				BlockBuf[offset + 2] == 0xc4)
+				hdmitx_parse_sink_capability(pRXCap, offset, BlockBuf, count);
 			offset += count; /* ignore the remaind. */
 			break;
 
