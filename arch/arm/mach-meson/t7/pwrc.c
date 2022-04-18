@@ -23,7 +23,7 @@ char* domain_name[] =
 	"PM_ETH",
 	"PM_ISP",
 	"PM_MIPI_ISP",
-	"PM_GDC",
+	"PM_GDC_CVE",
 	"PM_DEWARP",
 	"PM_SDIO_A",
 	"PM_SDIO_B",
