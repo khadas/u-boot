@@ -96,7 +96,8 @@
 };
 
 &ethmac {
-	status = "okay";
+	/*status = "okay";*/
+	status = "disabled";
 	internal_phy = <1>;
 	mc_val = <0x4be04>;
 	/*mc_val = <0x1621>;*/
