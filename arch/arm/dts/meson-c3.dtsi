@@ -249,37 +249,17 @@
 		};
 	};
 
-	i2c0_pins3:i2c0_pins3 {
-		mux {
-			groups = "i2c0_sda_x",
-				"i2c0_scl_x";
-			function = "i2c0";
-			drive-strength = <3>;
-			bias-disable;
-		};
-	};
-
-	i2c0_pins4:i2c0_pins4 {
-		mux {
-			groups = "i2c0_sda_t",
-				"i2c0_scl_t";
-			function = "i2c0";
-			drive-strength = <3>;
-			bias-disable;
-		};
-	};
-
-	i2c0_pins5:i2c0_pins5 {
-		mux {
-			groups = "i2c0_sda_z",
-				"i2c0_scl_z";
-			function = "i2c0";
-			drive-strength = <3>;
-			bias-disable;
-		};
-	};
-
 	i2c1_pins1:i2c1_pins1 {
+		mux {
+			groups = "i2c1_sda_x",
+				"i2c1_scl_x";
+			function = "i2c1";
+			drive-strength = <3>;
+			bias-disable;
+		};
+	};
+
+	i2c1_pins2:i2c1_pins2 {
 		mux {
 			groups = "i2c1_sda_d",
 				"i2c1_scl_d";
@@ -289,20 +269,20 @@
 		};
 	};
 
-	i2c1_pins2:i2c1_pins2 {
+	i2c1_pins3:i2c1_pins3 {
 		mux {
-			groups = "i2c1_sda_h",
-				"i2c1_scl_h";
+			groups = "i2c1_sda_a",
+				"i2c1_scl_a";
 			function = "i2c1";
 			drive-strength = <3>;
 			bias-disable;
 		};
 	};
 
-	i2c1_pins3:i2c1_pins3 {
+	i2c1_pins4:i2c1_pins4 {
 		mux {
-			groups = "i2c1_sda_c",
-				"i2c1_scl_c";
+			groups = "i2c1_sda_b",
+				"i2c1_scl_b";
 			function = "i2c1";
 			drive-strength = <3>;
 			bias-disable;
@@ -311,28 +291,8 @@
 
 	i2c2_pins1:i2c2_pins1 {
 		mux {
-			groups = "i2c2_sda_d",
-				"i2c2_scl_d";
-			function = "i2c2";
-			drive-strength = <3>;
-			bias-disable;
-		};
-	};
-
-	i2c2_pins2:i2c2_pins2 {
-		mux {
-			groups = "i2c2_sda_h",
-				"i2c2_scl_h";
-			function = "i2c2";
-			drive-strength = <3>;
-			bias-disable;
-		};
-	};
-
-	i2c2_pins3:i2c2_pins3 {
-		mux {
-			groups = "i2c2_sda_c",
-				"i2c2_scl_c";
+			groups = "i2c2_sda",
+				"i2c2_scl";
 			function = "i2c2";
 			drive-strength = <3>;
 			bias-disable;
@@ -353,6 +313,16 @@
 		mux {
 			groups = "i2c3_sda_d",
 				"i2c3_scl_d";
+			function = "i2c3";
+			drive-strength = <3>;
+			bias-disable;
+		};
+	};
+
+	i2c3_pins3:i2c3_pins3 {
+		mux {
+			groups = "i2c3_sda_x",
+				"i2c3_scl_x";
 			function = "i2c3";
 			drive-strength = <3>;
 			bias-disable;

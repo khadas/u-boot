@@ -281,7 +281,7 @@
 			clock-names = "xtal";
 		};
 
-		i2c0: i2c@fe001400 {
+		i2c0: i2c@fe066000 {
 			compatible = "amlogic,meson-i2c";
 			reg = <0x0 0xfe066000 0x0 0x24>;
 			#address-cells = <1>;
@@ -289,7 +289,7 @@
 			status = "disabled";
 		};
 
-		i2c1: i2c@fe005c00 {
+		i2c1: i2c@fe068000 {
 			compatible = "amlogic,meson-i2c";
 			reg = <0x0 0xfe068000 0x0 0x24>;
 			#address-cells = <1>;
@@ -297,7 +297,7 @@
 			status = "disabled";
 		};
 
-		i2c2: i2c@fe006800 {
+		i2c2: i2c@fe06a000 {
 			compatible = "amlogic,meson-i2c";
 			reg = <0x0 0xfe06a000 0x0 0x24>;
 			#address-cells = <1>;
@@ -305,7 +305,7 @@
 			status = "disabled";
 		};
 
-		i2c3: i2c@fe006c00 {
+		i2c3: i2c@fe06c000 {
 			compatible = "amlogic,meson-i2c";
 			reg = <0x0 0xfe06c000 0x0 0x24>;
 			#address-cells = <1>;
