@@ -130,6 +130,7 @@
         "lock=10001000\0"\
         "active_slot=normal\0"\
         "boot_part=boot\0"\
+        "port_mode=0\0"\
         "reboot_mode_android=""normal""\0"\
         "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\
@@ -299,6 +300,17 @@
                "setenv bootargs ${bootargs} wol_enable=0;"\
             "fi;"\
             "\0"\
+		"port_mode_change="\
+             "fdt addr ${dtb_mem_addr}; "\
+             "kbi portmode r;"\
+             "if test ${port_mode} = 0; then "\
+                "fdt set /usb3phy@ffe09080 portnum <1>;"\
+                "fdt set /pcieA@fc000000 status disable;"\
+             "else "\
+                "fdt set /usb3phy@ffe09080 portnum <0>;"\
+                "fdt set /pcieA@fc000000 status okay;"\
+             "fi;"\
+             "\0"\
         "cmdline_keys="\
             "if keyman init 0x1234; then "\
                 "if keyman read usid ${loadaddr} str; then "\
@@ -347,6 +359,7 @@
             "run wol_init;"\
             "run storeargs;"\
             "run upgrade_key;" \
+            "run port_mode_change;"\
             "forceupdate;" \
             "bcb uboot-command;"\
             "run switch_bootmode;"
