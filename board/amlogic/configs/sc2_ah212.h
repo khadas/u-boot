@@ -225,7 +225,7 @@
 					"if test ${vendor_boot_mode} = true; then "\
 						"if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
 					"else "\
-						"if ext4load mmc 1:2 ${loadaddr} /recovery/recovery.img; then echo cache recovery.img loaded; wipeisb; bootm ${loadaddr}; fi;"\
+						"if ext4load mmc 1:2 ${loadaddr} /recovery/recovery.img; then echo cache recovery.img loaded; bootm ${loadaddr}; fi;"\
 					"fi;"\
                 "else "\
                     "if imgread dtb recovery ${dtb_mem_addr}; then "\
@@ -244,7 +244,7 @@
                         "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                     "else "\
                         "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
-                        "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
+                        "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
                     "fi;"\
                 "fi;"\
             "fi;"\
