@@ -59,6 +59,9 @@
 #ifdef CONFIG_AML_SPIFC
 #include <amlogic/spifc.h>
 #endif
+#ifdef CONFIG_TCA6408
+#include <khadas_tca6408.h>
+#endif
 #include <asm/arch/timer.h>
 #ifdef CONFIG_POWER_FUSB302
 #include <fusb302.h>
@@ -619,6 +622,9 @@ int board_init(void)
 #endif
 #ifdef CONFIG_SYS_I2C_AML
 	board_i2c_init();
+#endif
+#ifdef CONFIG_TCA6408
+	tca6408_gpio_init();
 #endif
 
 	return 0;

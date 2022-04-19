@@ -100,7 +100,7 @@
         "upgrade_step=0\0"\
         "jtag=disable\0"\
         "loadaddr=3080000\0"\
-        "panel_type=lcd_4\0" \
+        "panel_type=lcd_1\0" \
 	"lcd_ctrl=0x00000000\0" \
         "outputmode=panel\0" \
         "hdmimode=1080p60hz\0" \
@@ -157,7 +157,7 @@
             "\0"\
         "storeargs="\
             "get_bootloaderversion;" \
-            "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} vout2=${outputmode2}, vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} wol_enable=${wol_enable} hwver=${hwver} spi_state=${spi_state} fusb302_state=${fusb302_state}; "\
+            "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} fb_width=${fb_width} fb_height=${fb_height} vout2=${outputmode2}, vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} wol_enable=${wol_enable} hwver=${hwver} spi_state=${spi_state} fusb302_state=${fusb302_state}; "\
 	"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
             "run cmdline_keys;"\
             "\0"\
@@ -239,6 +239,7 @@
             "fi; \0" \
          "update="\
             /*first usb burning, second sdc_burn, third ext-sd autoscr/recovery, last udisk autoscr/recovery*/\
+            "kbi lcd_reset; "\
             "run usb_burning; "\
             "run sdc_burning; "\
             "if mmcinfo; then "\
@@ -394,27 +395,17 @@
 #define CONFIG_BOOTCOMMAND "run storeboot"
 
 /*
- * logo image path: device/amlogic/$(proj_name)/logo_img_files/
+ * logo image path: device/khadas/$(proj_name)/logo_img_files/
  *
  * dual logo config macro
  * logo1: bootup.bmp/bootup_rotate.bmp (or find env "board_defined_bootup" first in uboot)
  * logo2: bootup_rotate_secondary.bmp (for portrait screen)
  */
 #define CONFIG_DUAL_LOGO \
-	"setenv outputmode 1080p60hz;setenv display_layer osd0;"\
-	"setenv fb_height 1080; setenv fb_width 1920;"\
-	"vout output $outputmode;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
+	"setenv outputmode $hdmimode;setenv display_layer osd0;"\
+	"vout output $hdmimode;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
 	"setenv outputmode2 panel;setenv display_layer viu2_osd0;"\
 	"vout2 prepare panel;osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout2 output panel;"\
-	"\0"\
-
-/* for portrait panel, recovery always displays on panel */
-#define CONFIG_RECOVERY_DUAL_LOGO \
-	"setenv outputmode panel;setenv display_layer osd0;"\
-	"setenv fb_height 1920; setenv fb_width 1080;"\
-	"vout output $outputmode;osd open;osd clear;imgread pic logo bootup_rotate $loadaddr;bmp display $bootup_rotate_offset;bmp scale;"\
-	"setenv outputmode2 1080p60hz;setenv display_layer viu2_osd0;"\
-	"vout2 prepare $outputmode2;vout2 output $outputmode2;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
 	"\0"\
 
 /* buffer rotate for portrait screen */
