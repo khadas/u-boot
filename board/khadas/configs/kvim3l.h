@@ -38,6 +38,9 @@
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	770		// VDDEE suspend voltage
 /* config for khadas kbi */
 #define CONFIG_KHADAS_KBI 1
+#define CONFIG_KHADAS_CFGLOAD 1
+#define CONFIG_KHADAS_SCRIPT 1
+#define CONFIG_USID_FROM_ETH_MAC 1
 #define CONFIG_POWER_FUSB302 1
 #define CONFIG_TCA6408 1
 #define CONFIG_CMDLINE_EDITING 1
@@ -493,7 +496,7 @@
 /* axg only support slc nand */
 /* swither for mtd nand which is for slc only. */
 /* support for mtd */
-//#define CONFIG_AML_MTD 1
+#define CONFIG_AML_MTD 1
 /* support for nftl */
 //#define CONFIG_AML_NAND	1
 
@@ -613,7 +616,7 @@
 #define CONFIG_AML_MINUI 1
 
 #if defined(CONFIG_AML_VOUT)
-//#define CONFIG_AML_CVBS 1
+#define CONFIG_AML_CVBS 1
 #endif
 
 #define CONFIG_AML_LCD    1
@@ -659,7 +662,7 @@
 #define CONFIG_USBDOWNLOAD_GADGET 1
 #define CONFIG_SYS_CACHELINE_SIZE 64
 #define CONFIG_FASTBOOT_MAX_DOWN_SIZE	0x8000000
-#define CONFIG_DEVICE_PRODUCT	"u202"
+#define CONFIG_DEVICE_PRODUCT	"kvim3l"
 
 //UBOOT Facotry usb/sdcard burning config
 #define CONFIG_AML_V2_FACTORY_BURN              1       //support facotry usb burning
