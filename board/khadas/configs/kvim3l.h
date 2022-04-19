@@ -192,6 +192,7 @@
             "fi;fi;fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
+            "cfgload;"\
             "if test ${reboot_mode} = normal; then "\
             "else if test ${reboot_mode} = cold_boot; then "\
             "else "\
