@@ -17,7 +17,11 @@
 #include "model.h"
 #include <partition_table.h>
 
+#ifndef CONFIG_YOCTO
 #define DEFAULT_MODEL_SUM_PATH1 "/odm/etc/tvconfig/model/model_sum.ini"
+#else
+#define DEFAULT_MODEL_SUM_PATH1 "/vendor/etc/tvconfig/model/model_sum.ini"
+#endif
 #define DEFAULT_MODEL_SUM_PATH2 "/odm_ext/etc/tvconfig/model/model_sum.ini"
 #define AML_START		"amlogic_start"
 #define AML_END			"amlogic_end"
