@@ -354,24 +354,11 @@
              "fi;"\
              "\0"\
         "cmdline_keys="\
-            "if keyman init 0x1234; then "\
-                "if keyman read usid ${loadaddr} str; then "\
-                    "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-                    "setenv serial ${usid};"\
-                "else "\
-                    "setenv bootargs ${bootargs} androidboot.serialno=1234567890;"\
-                    "setenv serial 1234567890;"\
-                "fi;"\
-                "kbi ethmac;"\
-                "setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
-                "if keyman read deviceid ${loadaddr} str; then "\
-                    "setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
-                "fi;"\
-                "if keyman read region_code ${loadaddr} str; then "\
-                    "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
-                "else "\
-                    "setenv bootargs ${bootargs} androidboot.wificountrycode=CN;"\
-                "fi;"\
+                "kbi usid noprint;"\
+                "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+                "setenv serial ${usid};"\
+		"kbi ethmac noprint;"\
+		"setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
             "fi;"\
             "\0"\
         "bcb_cmd="\
