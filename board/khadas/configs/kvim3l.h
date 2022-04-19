@@ -708,7 +708,7 @@
 /* commands */
 #define CONFIG_CMD_CACHE 1
 #define CONFIG_CMD_BOOTI 1
-//#define CONFIG_CMD_EFUSE 1
+#define CONFIG_CMD_EFUSE 1
 #define CONFIG_CMD_I2C 1
 #define CONFIG_CMD_MEMORY 1
 #define CONFIG_CMD_FAT 1
