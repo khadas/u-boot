@@ -38,6 +38,7 @@
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	770		// VDDEE suspend voltage
 /* config for khadas kbi */
 #define CONFIG_KHADAS_KBI 1
+#define CONFIG_POWER_FUSB302 1
 #define CONFIG_TCA6408 1
 
 /* configs for CEC */
