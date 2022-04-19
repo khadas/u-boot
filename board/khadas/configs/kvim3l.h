@@ -144,6 +144,7 @@
         "spi_state=0\0"\
         "fusb302_state=0\0"\
         "factory_mac=0\0"\
+        "ext_ethernet=0\0"\
         "reboot_mode_android=""normal""\0"\
         "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\
@@ -361,6 +362,16 @@
 		"setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
             "fi;"\
             "\0"\
+		"ext_ethernet_change="\
+            "fdt addr ${dtb_mem_addr}; "\
+            "if test ${ext_ethernet} = 1; then "\
+                "fdt set /ethernet@ff3f0000 internal_phy <1>;"\
+                "fdt set /ethernet@ff3f0000 mc_val <0x4be04>;"\
+            "else "\
+                "fdt set /ethernet@ff3f0000 internal_phy <0>;"\
+                "fdt set /ethernet@ff3f0000 mc_val <0x1629>;"\
+            "fi;"\
+			"\0"\
         "bcb_cmd="\
             "get_avb_mode;"\
             "get_valid_slot;"\
@@ -403,6 +414,7 @@
             "run upgrade_key;" \
             "run recovery_key;"\
             "run port_mode_change;"\
+            "run ext_ethernet_change;"\
             "forceupdate;" \
             "bcb uboot-command;"\
             "run switch_bootmode;"
@@ -776,8 +788,6 @@
 
 /* Choose One of Ethernet Type */
 #undef CONFIG_ETHERNET_NONE
-#define ETHERNET_INTERNAL_PHY
-#undef ETHERNET_EXTERNAL_PHY
 
 #define CONFIG_CMD_AML_MTEST 1
 #if defined(CONFIG_CMD_AML_MTEST)
