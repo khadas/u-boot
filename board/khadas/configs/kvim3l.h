@@ -367,6 +367,12 @@
                 "echo detect upgrade key; run update;"\
             "fi;"\
             "\0"\
+        "recovery_key="\
+            "kbi recovery_key;"\
+            "if test ${boot_mode} = recovery; then "\
+                "run recovery_from_flash;"\
+            "fi;"\
+            "\0"\
 	"irremote_update="\
 		"if irkey 2500000 0xe31cfb04 0xb748fb04; then "\
 			"echo read irkey ok!; " \
@@ -387,6 +393,7 @@
             "run hwver_check;"\
             "run storeargs;"\
             "run upgrade_key;" \
+            "run recovery_key;"\
             "run port_mode_change;"\
             "forceupdate;" \
             "bcb uboot-command;"\
