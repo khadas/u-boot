@@ -18,7 +18,7 @@ int meson_set_gate_by_id(struct clk *clk, struct meson_gate *gate_arr,
 	struct meson_clk *priv = dev_get_priv(clk->dev);
 	struct meson_gate *gate;
 	unsigned i, index = 0;
-	unsigned long id;
+	unsigned long id = 0;
 
 	debug("%s: %sabling %ld\n", __func__, on ? "en" : "dis", id);
 

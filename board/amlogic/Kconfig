@@ -31,8 +31,8 @@ config PXP_SCS
 		fast PXP bring up. This config should be closed if SCS feature
 		is ready.
 
-config PXP_NO_SIGNED
-	bool "Amlogic Pxp no signed flag"
+config BUILD_UNSIGN
+	bool "Amlogic pxp unsign flag"
 	help
 		Support PXP no signed environment
 		When PXP bring up this option is open. This config should be
@@ -140,7 +140,7 @@ config DDR_FULL_FW
 	default n
 	help
 		Support full ddr fw for soc using advanced boot loader as
-		bl2, such as sc2/t7/s4/t3/p1....
+		bl2, such as sc2/t7/s4/t3/p1/s5....
 
 choice
 	prompt "BL2E size"
@@ -931,6 +931,48 @@ config TARGET_P1_NINOX_4
 
 endif
 
+if MESON_S5
+
+config SYS_SOC
+	default "s5"
+
+config DDRFW_TYPE
+	string "s5 DDR FW Type"
+	default "lpddr4"
+
+config CHIPSET_NAME
+        string "S5 CHIPSET NAME"
+        default ""
+
+config CHIPSET_VARIANT
+        string "S5 CHIPSET VARIANT"
+        default ""
+
+config AMLOGIC_KEY_TYPE
+        string "S5 AMLOGIC KEY TYPE"
+        default "dev-keys"
+
+config BL30_SELECT
+	string "S5 BL30 board config"
+	default "s5_skt"
+
+choice
+	prompt "S5 Board"
+
+config S5_SKT
+	bool "S5_SKT"
+	select TARGET_S5_SKT
+	help
+		Select S5 SKT(XXXX) config
+
+endchoice
+
+config TARGET_S5_SKT
+	bool "S5 SKT board"
+	depends on S5_SKT
+
+endif
+
 if MESON_T7
 
 config SYS_SOC
@@ -1322,6 +1364,8 @@ source "board/amlogic/p1_as408/Kconfig"
 source "board/amlogic/p1_as409/Kconfig"
 
 source "board/amlogic/p1_ninox_4/Kconfig"
+
+source "board/amlogic/s5_skt/Kconfig"
 
 source "board/amlogic/t7_skt/Kconfig"
 
