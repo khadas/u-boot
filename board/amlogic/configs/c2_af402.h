@@ -384,7 +384,6 @@
 #endif /* CONFIG_AML_SECURE_UBOOT */
 
 #define CONFIG_FIP_IMG_SUPPORT  1
-#define CONFIG_AML_KASLR_SEED
 
 #endif
 
