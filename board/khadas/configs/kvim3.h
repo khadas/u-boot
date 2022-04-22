@@ -46,7 +46,7 @@
 #define CONFIG_CMD_ENV_EXISTS 1
 
 /* configs for CEC */
-#define CONFIG_CEC_OSD_NAME		"kvim3"
+#define CONFIG_CEC_OSD_NAME		"KVIM3"
 #define CONFIG_CEC_WAKEUP
 /*if use bt-wakeup,open it*/
 #define CONFIG_BT_WAKEUP
@@ -137,6 +137,7 @@
         "active_slot=normal\0"\
         "boot_part=boot\0"\
         "Irq_check_en=0\0"\
+        "factory_mac=0\0"\
         "ext_ethernet=0\0"\
         "reboot_mode_android=""normal""\0"\
         "fs_type=""rootfstype=ramfs""\0"\
@@ -151,7 +152,7 @@
             "\0"\
         "storeargs="\
             "get_bootloaderversion;" \
-            "setenv bootargs ${initargs} hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} fb_width=${fb_width} fb_height=${fb_height} vout2=${outputmode2},enable vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} hwver=${hwver} lcd_exist=${lcd_exist}; "\
+            "setenv bootargs ${initargs} hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} fb_width=${fb_width} fb_height=${fb_height} vout2=${outputmode2},enable vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} hwver=${hwver} factory_mac=${factory_mac} lcd_exist=${lcd_exist}; "\
 	"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
             "run cmdline_keys;"\
             "\0"\
@@ -184,6 +185,7 @@
             "fi;fi;fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
+            "kbi resetflag 0;"\
             "if test ${reboot_mode} = normal; then "\
             "else if test ${reboot_mode} = cold_boot; then "\
             "else "\
@@ -347,30 +349,18 @@
             "fi;"\
             "\0"\
         "cmdline_keys="\
-            "if keyman init 0x1234; then "\
-                "if keyman read usid ${loadaddr} str; then "\
-                    "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-                    "setenv serial ${usid};"\
-                "else "\
-                    "setenv bootargs ${bootargs} androidboot.serialno=1234567890;"\
-                    "setenv serial 1234567890;"\
-                "fi;"\
-                "if keyman read mac ${loadaddr} str; then "\
-                    "setenv bootargs ${bootargs} mac=${mac} androidboot.mac=${mac};"\
-                "fi;"\
-                "if keyman read deviceid ${loadaddr} str; then "\
-                    "setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
-                "fi;"\
-                "if keyman read oemkey ${loadaddr} str; then "\
-                    "setenv bootargs ${bootargs} androidboot.oem.key1=${oemkey};"\
-                "else "\
-                    "setenv bootargs ${bootargs} androidboot.oem.key1=ATV00104319;"\
-                "fi;"\
-            "fi;"\
+            "kbi usid noprint;"\
+            "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+            "setenv serial ${usid};"\
+            "kbi ethmac noprint;"\
+            "setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
             "\0"\
         "bcb_cmd="\
             "get_avb_mode;"\
             "get_valid_slot;"\
+            "\0"\
+        "burn_mac="\
+            "kbi init;"\
             "\0"\
         "upgrade_key="\
             "if gpio input GPIOAO_7; then "\
@@ -390,6 +380,7 @@
 
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
+            "run burn_mac;"\
             "run factory_reset_poweroff_protect;"\
             "run upgrade_check;"\
             "run init_display;"\
@@ -691,7 +682,7 @@
 /* commands */
 #define CONFIG_CMD_CACHE 1
 #define CONFIG_CMD_BOOTI 1
-//#define CONFIG_CMD_EFUSE 1
+#define CONFIG_CMD_EFUSE 1
 #define CONFIG_CMD_I2C 1
 #define CONFIG_CMD_MEMORY 1
 #define CONFIG_CMD_FAT 1
