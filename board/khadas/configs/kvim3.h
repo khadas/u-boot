@@ -398,23 +398,34 @@
 #define CONFIG_BOOTCOMMAND "run storeboot"
 
 /*
- * logo image path: device/amlogic/$(proj_name)/logo_img_files/
+ * logo image path: device/khadas/$(proj_name)/logo_img_files/
  *
  * dual logo config macro
  * logo1: bootup.bmp/bootup_rotate.bmp (or find env "board_defined_bootup" first in uboot)
  * logo2: bootup_rotate_secondary.bmp (for portrait screen)
  */
 #define CONFIG_DUAL_LOGO \
-	"setenv outputmode $hdmimode;setenv display_layer osd0;"\
-	"vout output $hdmimode;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
+	"setenv outputmode 1080p60hz;setenv display_layer osd0;"\
+	"setenv fb_height 1080; setenv fb_width 1920;"\
+	"vout output $outputmode;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
 	"setenv outputmode2 panel;setenv display_layer viu2_osd0;"\
-	"vout2 prepare panel;osd open;osd clear;imgread pic logo bootup_secondary $loadaddr;bmp display $bootup_secondary_offset;bmp scale;vout2 output panel;"\
+	"vout2 prepare panel;osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout2 output panel;"\
+	"\0"\
+
+/* for portrait panel, recovery always displays on panel */
+#define CONFIG_RECOVERY_DUAL_LOGO \
+	"setenv outputmode panel;setenv display_layer osd0;"\
+	"setenv fb_height 1920; setenv fb_width 1080;"\
+	"vout output $outputmode;osd open;osd clear;imgread pic logo bootup_rotate $loadaddr;bmp display $bootup_rotate_offset;bmp scale;"\
+	"setenv outputmode2 1080p60hz;setenv display_layer viu2_osd0;"\
+	"vout2 prepare $outputmode2;vout2 output $outputmode2;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
 	"\0"\
 
 /* buffer rotate for portrait screen */
 #define CONFIG_SINGLE_LOGO \
 	"setenv outputmode panel;setenv display_layer osd0;"\
-	"vout output panel;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
+	"setenv fb_height 1920; setenv fb_width 1080;"\
+	"vout output panel;osd open;osd clear;imgread pic logo bootup_rotate $loadaddr;bmp display $bootup_rotate_offset;bmp scale;"\
 	"\0"\
 
 //#define CONFIG_ENV_IS_NOWHERE  1
