@@ -134,6 +134,7 @@
         "storeargs="\
             "get_bootloaderversion;" \
             "setenv bootargs ${initargs} otg_device=${otg_device} "\
+		"cma_first_wm_low=on "\
                 "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},${vout_init} panel_type=${panel_type} "\
                 "hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
                 "hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} " \
