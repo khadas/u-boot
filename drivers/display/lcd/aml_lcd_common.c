@@ -947,11 +947,9 @@ int lcd_vmode_change(struct lcd_config_s *pconf)
 			temp = duration_num;
 			temp = temp * h_period * v_period;
 			pclk = lcd_do_div(temp, duration_den);
-			if (pconf->lcd_timing.lcd_clk != pclk) {
-				pconf->lcd_timing.clk_change =
-					LCD_CLK_FRAC_UPDATE;
-			}
 		}
+		if (pconf->lcd_timing.lcd_clk != pclk)
+			pconf->lcd_timing.clk_change = LCD_CLK_FRAC_UPDATE;
 		break;
 	case 2: /* vtotal adjust */
 		temp = pclk;
@@ -964,11 +962,9 @@ int lcd_vmode_change(struct lcd_config_s *pconf)
 			temp = duration_num;
 			temp = temp * h_period * v_period;
 			pclk = lcd_do_div(temp, duration_den);
-			if (pconf->lcd_timing.lcd_clk != pclk) {
-				pconf->lcd_timing.clk_change =
-					LCD_CLK_FRAC_UPDATE;
-			}
 		}
+		if (pconf->lcd_timing.lcd_clk != pclk)
+			pconf->lcd_timing.clk_change = LCD_CLK_FRAC_UPDATE;
 		break;
 	case 3: /* free adjust, use min/max range to calculate */
 		temp = pclk;
@@ -986,12 +982,11 @@ int lcd_vmode_change(struct lcd_config_s *pconf)
 				temp = duration_num;
 				temp = temp * h_period * v_period;
 				pclk = lcd_do_div(temp, duration_den);
+				if (pclk > pclk_max) {
+					LCDERR("%s: invalid vmode\n", __func__);
+					return -1;
+				}
 				if (pconf->lcd_timing.lcd_clk != pclk) {
-					if (pclk > pclk_max) {
-						pclk = pclk_max;
-						LCDERR("invalid vmode\n");
-						return -1;
-					}
 					pconf->lcd_timing.clk_change =
 						LCD_CLK_PLL_CHANGE;
 				}
@@ -1006,12 +1001,11 @@ int lcd_vmode_change(struct lcd_config_s *pconf)
 				temp = duration_num;
 				temp = temp * h_period * v_period;
 				pclk = lcd_do_div(temp, duration_den);
+				if (pclk < pclk_min) {
+					LCDERR("%s: invalid vmode\n", __func__);
+					return -1;
+				}
 				if (pconf->lcd_timing.lcd_clk != pclk) {
-					if (pclk < pclk_min) {
-						pclk = pclk_min;
-						LCDERR("invalid vmode\n");
-						return -1;
-					}
 					pconf->lcd_timing.clk_change =
 						LCD_CLK_PLL_CHANGE;
 				}
@@ -1051,11 +1045,9 @@ int lcd_vmode_change(struct lcd_config_s *pconf)
 				temp = duration_num;
 				temp = temp * h_period * v_period;
 				pclk = lcd_do_div(temp, duration_den);
-				if (pconf->lcd_timing.lcd_clk != pclk) {
-					pconf->lcd_timing.clk_change =
-						LCD_CLK_FRAC_UPDATE;
-				}
 			}
+			if (pconf->lcd_timing.lcd_clk != pclk)
+				pconf->lcd_timing.clk_change = LCD_CLK_FRAC_UPDATE;
 		}
 		break;
 	default:
@@ -1080,10 +1072,11 @@ int lcd_vmode_change(struct lcd_config_s *pconf)
 	if (pconf->lcd_timing.lcd_clk != pclk) {
 		if (len > 0)
 			len += sprintf(str+len, ", ");
-		len += sprintf(str+len, "pclk %u.%03uMHz->%u.%03uMHz",
+		len += sprintf(str + len, "pclk %u.%03uMHz->%u.%03uMHz, clk_change:%d",
 			(pconf->lcd_timing.lcd_clk / 1000000),
 			((pconf->lcd_timing.lcd_clk / 1000) % 1000),
-			(pclk / 1000000), ((pclk / 1000) % 1000));
+			(pclk / 1000000), ((pclk / 1000) % 1000),
+			pconf->lcd_timing.clk_change);
 		pconf->lcd_timing.lcd_clk = pclk;
 	}
 	if (lcd_debug_print_flag) {

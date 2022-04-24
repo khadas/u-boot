@@ -2881,6 +2881,7 @@ lcd_set_ss_end:
 void lcd_clk_update(struct lcd_config_s *pconf)
 {
 	struct lcd_clk_ctrl_s *table;
+	unsigned int val;
 	int i = 0;
 
 	if (clk_conf.data == NULL) {
@@ -2897,13 +2898,19 @@ void lcd_clk_update(struct lcd_config_s *pconf)
 		if (table[i].flag == LCD_CLK_CTRL_END)
 			break;
 		if (table[i].flag == LCD_CLK_CTRL_FRAC) {
+			val = lcd_hiu_read(table[i].reg);
 			lcd_hiu_setb(table[i].reg, clk_conf.pll_frac,
 				table[i].bit, table[i].len);
+			if (lcd_debug_print_flag) {
+				LCDPR("%s: pll_frac reg 0x%x: 0x%08x->0x%08x\n",
+					__func__, table[i].reg,
+					val, lcd_hiu_read(table[i].reg));
+			}
 		}
 		i++;
 	}
 
-	LCDPR("%s\n", __func__);
+	LCDPR("%s: pll_frac=0x%x\n", __func__, clk_conf.pll_frac);
 }
 
 /* for timing change */
