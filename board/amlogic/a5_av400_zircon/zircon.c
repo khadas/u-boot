@@ -1,0 +1,204 @@
+// SPDX-License-Identifier:     BSD-3-Clause
+/*
+ * Copyright (c) 2018 The Fuchsia Authors
+ *
+ */
+#include <common.h>
+#include <linux/mtd/partitions.h>
+#include <nand.h>
+#include <part.h>
+#include <emmc_storage.h>
+#include <zircon/zircon.h>
+
+#include <asm/arch/reboot.h>
+#include <asm/arch/secure_apb.h>
+#include <asm/io.h>
+
+#define PDEV_VID_GOOGLE             3
+#define PDEV_PID_ASTRO              3
+#define PDEV_PID_NELSON             10
+#define NVRAM_LENGTH                (8 * 1024)
+#define AV400_NUM_CPU               4
+static const char CMDLINE_DEBUG[] = "devmgr.log-to-debuglog=true";
+const char *BOOTLOADER_VERSION = "zircon-bootloader=0.10";
+static const zbi_cpu_config_t cpu_config = {
+	.cluster_count = 1,
+	.clusters = {
+		{
+			.cpu_count = 4,
+		},
+	},
+};
+
+static const zbi_mem_range_t mem_config[] = {
+	{
+		.type = ZBI_MEM_RANGE_RAM,
+		.length = 0x40000000, // 1 GB
+	},
+	{
+		.type = ZBI_MEM_RANGE_PERIPHERAL,
+		.paddr = 0xf5000000,
+		.length = 0x0b000000,
+	},
+	// secmon_reserved:linux,secmon
+	{
+		.type = ZBI_MEM_RANGE_RESERVED,
+		.paddr = 0x05000000,
+		.length = 0x3400000,
+	},
+	// logo_reserved:linux,meson-fb
+	{
+		.type = ZBI_MEM_RANGE_RESERVED,
+		.paddr = 0x3f800000,
+		.length = 0x800000,
+	},
+	/* linux,usable-memory */
+	{
+		.type = ZBI_MEM_RANGE_RESERVED,
+		.paddr = 0x00000000,
+		.length = 0x100000,
+	},
+};
+
+static const dcfg_simple_t uart_driver = {
+	.mmio_phys = 0xfe07a000,
+	.irq = 201,
+};
+
+static const dcfg_arm_gicv2_driver_t gicv2_driver = {
+	.mmio_phys = 0xfff00000,
+	.gicd_offset = 0x1000,
+	.gicc_offset = 0x2000,
+	.gich_offset = 0x4000,
+	.gicv_offset = 0x6000,
+	.ipi_base = 5,
+};
+
+static const dcfg_arm_psci_driver_t psci_driver = {
+	.use_hvc = false,
+	.reboot_args = { 1, 0, 0 },
+	.reboot_bootloader_args = { 4, 0, 0 },
+	.reboot_recovery_args = { 2, 0, 0 },
+};
+
+static const dcfg_arm_generic_timer_driver_t timer_driver = {
+	.irq_phys = 30,
+};
+
+static const zbi_platform_id_t platform_id = {
+	.vid = PDEV_VID_GOOGLE,
+	.pid = PDEV_PID_NELSON,
+	.board_name = "nelson",
+};
+
+static void add_cpu_topology(zbi_header_t *zbi)
+{
+	zbi_topology_node_t nodes[AV400_NUM_CPU + 1];
+	zbi_topology_cluster_t cluster = {
+		.performance_class = 1,
+	};
+	zbi_topology_node_t cluster_node = {
+		.entity_type = ZBI_TOPOLOGY_ENTITY_CLUSTER,
+		.parent_index = ZBI_TOPOLOGY_NO_PARENT,
+		.entity = { .cluster = cluster },
+	};
+	nodes[0] = cluster_node;
+	for (int cpu = 0; cpu < AV400_NUM_CPU; cpu++) {
+		zbi_topology_arm_info_t arm_info = {
+			.cluster_1_id = 0,
+			.cpu_id = cpu,
+			.gic_id = cpu,
+		};
+		zbi_topology_processor_t processor = {
+			.logical_ids = { cpu },
+			.logical_id_count = 1,
+			.flags =
+				(cpu == 0) ? ZBI_TOPOLOGY_PROCESSOR_PRIMARY : 0,
+			.architecture = ZBI_TOPOLOGY_ARCH_ARM,
+			.architecture_info = { arm_info },
+		};
+		zbi_topology_node_t node = {
+			.entity_type = ZBI_TOPOLOGY_ENTITY_PROCESSOR,
+			.parent_index = 0,
+			.entity = { .processor = processor },
+		};
+		nodes[cpu + 1] = node;
+	}
+	zircon_append_boot_item(zbi, ZBI_TYPE_CPU_TOPOLOGY,
+				      sizeof(zbi_topology_node_t), &nodes,
+				      sizeof(nodes));
+}
+
+static void add_reboot_reason(zbi_header_t *zbi)
+{
+	// see cmd/amlogic/cmd_reboot.c
+	const uint32_t reboot_mode_val = ((readl(AO_SEC_SD_CFG15) >> 12) & 0xf);
+
+	zbi_hw_reboot_reason_t reboot_reason;
+
+	switch (reboot_mode_val) {
+	case AMLOGIC_COLD_BOOT:
+		reboot_reason = ZBI_HW_REBOOT_COLD;
+		break;
+	case AMLOGIC_NORMAL_BOOT:
+	case AMLOGIC_FACTORY_RESET_REBOOT:
+	case AMLOGIC_UPDATE_REBOOT:
+	case AMLOGIC_FASTBOOT_REBOOT:
+	case AMLOGIC_SUSPEND_REBOOT:
+	case AMLOGIC_HIBERNATE_REBOOT:
+	case AMLOGIC_BOOTLOADER_REBOOT:
+	case AMLOGIC_SHUTDOWN_REBOOT:
+	case AMLOGIC_RPMBP_REBOOT:
+	case AMLOGIC_QUIESCENT_REBOOT:
+	case AMLOGIC_RESCUEPARTY_REBOOT:
+	case AMLOGIC_KERNEL_PANIC:
+	case AMLOGIC_RECOVERY_QUIESCENT_REBOOT:
+		reboot_reason = ZBI_HW_REBOOT_WARM;
+		break;
+	case AMLOGIC_WATCHDOG_REBOOT:
+		reboot_reason = ZBI_HW_REBOOT_WATCHDOG;
+		break;
+	default:
+		reboot_reason = ZBI_HW_REBOOT_UNDEFINED;
+		break;
+	}
+
+	zircon_append_boot_item(zbi, ZBI_TYPE_HW_REBOOT_REASON, 0,
+				&reboot_reason, sizeof(reboot_reason));
+}
+
+int zircon_preboot(zbi_header_t *zbi)
+{
+	// add CPU configuration
+	zircon_append_boot_item(zbi, ZBI_TYPE_CPU_CONFIG, 0, &cpu_config,
+			sizeof(zbi_cpu_config_t) +
+			sizeof(zbi_cpu_cluster_t) * cpu_config.cluster_count);
+	// allocate crashlog save area before 0x5f800000-0x60000000 reserved area
+	zbi_nvram_t nvram;
+
+	nvram.base = 0x3f800000 - NVRAM_LENGTH;
+	nvram.length = NVRAM_LENGTH;
+	zircon_append_boot_item(zbi, ZBI_TYPE_NVRAM, 0, &nvram, sizeof(nvram));
+
+	zircon_append_boot_item(zbi, ZBI_TYPE_CMDLINE, 0, CMDLINE_DEBUG,
+			strlen(CMDLINE_DEBUG) + 1);
+	// add memory configuration
+	zircon_append_boot_item(zbi, ZBI_TYPE_MEM_CONFIG, 0, &mem_config, sizeof(mem_config));
+	// add kernel drivers
+	zircon_append_boot_item(zbi, ZBI_TYPE_KERNEL_DRIVER, KDRV_AMLOGIC_UART, &uart_driver,
+			sizeof(uart_driver));
+	zircon_append_boot_item(zbi, ZBI_TYPE_KERNEL_DRIVER, KDRV_ARM_GIC_V2, &gicv2_driver,
+			sizeof(gicv2_driver));
+	zircon_append_boot_item(zbi, ZBI_TYPE_KERNEL_DRIVER, KDRV_ARM_PSCI, &psci_driver,
+			sizeof(psci_driver));
+	zircon_append_boot_item(zbi, ZBI_TYPE_KERNEL_DRIVER, KDRV_ARM_GENERIC_TIMER, &timer_driver,
+			sizeof(timer_driver));
+	zircon_append_boot_item(zbi, ZBI_TYPE_CMDLINE, 0, BOOTLOADER_VERSION,
+			strlen(BOOTLOADER_VERSION) + 1);
+	// add platform ID
+	zircon_append_boot_item(zbi, ZBI_TYPE_PLATFORM_ID, 0, &platform_id, sizeof(platform_id));
+	//add_partition_map(zbi);
+	add_cpu_topology(zbi);
+	add_reboot_reason(zbi);
+	return 0;
+}

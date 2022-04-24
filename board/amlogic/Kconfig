@@ -639,6 +639,12 @@ config A5_AV400
 	help
 		Select A5 AV400 config
 
+config A5_AV400_ZIRCON
+	bool "A5_AV400_ZIRCON"
+	select TARGET_A5_AV400_ZIRCON
+	help
+		Select A5 AV400 ZIRCON config
+
 config A5_AV409
 	bool "A5_AV409"
 	select TARGET_A5_AV409
@@ -654,6 +660,10 @@ config TARGET_A5_SKT
 config TARGET_A5_AV400
 	bool "A5 AV400 board"
 	depends on A5_AV400
+
+config TARGET_A5_AV400_ZIRCON
+	bool "A5 AV400 ZIRCON board"
+	depends on A5_AV400_ZIRCON
 
 config TARGET_A5_AV409
 	bool "A5 AV409 board"
@@ -1264,6 +1274,8 @@ source "board/amlogic/s4_ap229_s905c3eng/Kconfig"
 source "board/amlogic/a5_skt/Kconfig"
 
 source "board/amlogic/a5_av400/Kconfig"
+
+source "board/amlogic/a5_av400_zircon/Kconfig"
 
 source "board/amlogic/a5_av409/Kconfig"
 
