@@ -27,7 +27,8 @@
 /* 20211230: support lcd driver DLG switch flow*/
 /* 20220121: update custom_pinmux and fr_auto_dis support*/
 /* 20220216: update vrr config when display mode change*/
-#define LCD_DRV_VERSION    "20220216"
+/* 20220421: fix lcd clk mistake for vmode change with fr_adj_type 4*/
+#define LCD_DRV_VERSION    "20220421"
 
 extern unsigned int lcd_debug_test;
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);

@@ -3346,7 +3346,7 @@ void lcd_update_clk(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_clk_config_s *cconf;
 	struct lcd_clk_ctrl_s *table;
-	unsigned int offset;
+	unsigned int offset, reg, val;
 	int i = 0;
 
 	cconf = get_lcd_clk_config(pdrv);
@@ -3365,13 +3365,19 @@ void lcd_update_clk(struct aml_lcd_drv_s *pdrv)
 		if (table[i].flag == LCD_CLK_CTRL_END)
 			break;
 		if (table[i].flag == LCD_CLK_CTRL_FRAC) {
-			lcd_ana_setb(table[i].reg + offset, cconf->pll_frac,
-				     table[i].bit, table[i].len);
+			reg = table[i].reg + offset;
+			val = lcd_ana_read(reg);
+			lcd_ana_setb(reg, cconf->pll_frac, table[i].bit, table[i].len);
+			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
+				LCDPR("[%d]: %s: pll_frac reg 0x%x: 0x%08x->0x%08x\n",
+					pdrv->index, __func__, reg,
+					val, lcd_ana_read(reg));
+			}
 		}
 		i++;
 	}
 
-	LCDPR("[%d]: %s\n", pdrv->index, __func__);
+	LCDPR("[%d]: %s: pll_frac=0x%x\n", pdrv->index, __func__, cconf->pll_frac);
 }
 
 /* for timing change */
