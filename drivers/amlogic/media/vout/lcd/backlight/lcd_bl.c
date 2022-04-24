@@ -2195,8 +2195,8 @@ static int bl_config_load(char *dt_addr, int load_id, struct aml_bl_drv_s *bdrv)
 		sprintf(str, "factory_bl%d_on_delay", bdrv->index);
 	temp = env_get_ulong(str, 10, 0xffff);
 	if (temp != 0xffff) {
-		bdrv->config.level_default = temp;
-		BLPR("[%d]: bl_level: %d\n", bdrv->index, bdrv->config.level_default);
+		bdrv->factory_bl_on_delay = temp;
+		BLPR("[%d]: factory_bl_on_delay: %d\n", bdrv->index, bdrv->factory_bl_on_delay);
 	}
 
 	return 0;
