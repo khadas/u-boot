@@ -3,7 +3,7 @@ declare UBOOT_FOLDER="bl33"
 declare MAIN_FOLDER=""
 export UBOOT_FOLDER MAIN_FOLDER
 
-declare UBOOT_VERSION1="v2015"
+declare UBOOT_VERSION1=""
 declare UBOOT_VERSION2="v2019"
 export UBOOT_VERSION1 UBOOT_VERSION2
 
@@ -27,14 +27,16 @@ declare BLX_BIN_SUB_FOLDER=""
 declare -x BL30_SELECT=""
 declare ADVANCED_BOOTLOADER=""
 
-declare DEFCFG_FOLDER="board/amlogic/defconfigs"
+declare DEFCFG_FOLDER="board/khadas/defconfigs"
 
 # for make clean
-declare BL33_PATH1="bl33/v2015"
+declare BL33_PATH1=""
 declare BL33_PATH2="bl33/v2019"
 
-declare BL33_DEFCFG1="${UBOOT_FOLDER}/${UBOOT_VERSION1}/${DEFCFG_FOLDER}"
-declare BL33_DEFCFG2="${UBOOT_FOLDER}/${UBOOT_VERSION2}/${DEFCFG_FOLDER}"
+#declare BL33_DEFCFG1="${UBOOT_FOLDER}/${UBOOT_VERSION1}/${DEFCFG_FOLDER}"
+#declare BL33_DEFCFG2="${UBOOT_FOLDER}/${UBOOT_VERSION2}/${DEFCFG_FOLDER}"
+declare BL33_DEFCFG1="board/khadas/defconfigs"
+declare BL33_DEFCFG2="board/amlogic/defconfigs"
 
 declare FIP_DDR_PARSE="${FIP_FOLDER}/tools/ddr_parse/"
 # current branch/path/rev/name/remote in xml

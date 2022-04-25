@@ -14,7 +14,7 @@
 #./check_compile.sh all        -check both amlogic and customer boards
 
 
-folder_board="board/amlogic/defconfigs"
+folder_board="board/khadas/defconfigs"
 customer_folder="customer/board/defconfigs"
 
 echo "************** Amlogic Compile Check Tool **************"

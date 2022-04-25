@@ -203,7 +203,7 @@ function get_blx_bin() {
 			dbg "blxbin:${DATA[0]} blxsrc-s:${DATA[2]:0:7}"
 			# reset to history version
 			#git --git-dir ${BLX_BIN_FOLDER[index]}/.git --work-tree=${BLX_BIN_FOLDER[index]} reset ${DATA[0]} --hard
-			git_operate2 ${BLX_BIN_FOLDER[index]} reset ${DATA[0]} --hard
+			#git_operate2 ${BLX_BIN_FOLDER[index]} reset ${DATA[0]} --hard
 			# copy binary file
 			if [ "bl32" == "${BLX_NAME[$index]}" ]; then
 				# bl32 is optional

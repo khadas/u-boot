@@ -231,12 +231,10 @@ function clean() {
 	echo "Clean up"
 	if [ -e ${BL33_PATH1} ]; then
 		cd ${MAIN_FOLDER}
-		cd ${BL33_PATH1}
 		make distclean
 	fi
 	if [ -e ${BL33_PATH2} ]; then
 		cd ${MAIN_FOLDER}
-		cd ${BL33_PATH2}
 		make distclean
 	fi
 	cd ${MAIN_FOLDER}
@@ -254,10 +252,6 @@ function build() {
 	clean
 
 	# pre-build, get .config defines
-	if [ ! $BOARD_COMPILE_HDMITX_ONLY ]; then
-            echo "export BOARD_COMPILE_HDMITX_ONLY=null"
-	    export BOARD_COMPILE_HDMITX_ONLY=null
-	fi
 	pre_build_uboot $@
 
 	# variable init depends on uboot .config

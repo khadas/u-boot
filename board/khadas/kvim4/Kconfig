@@ -1,0 +1,38 @@
+if TARGET_KHADAS_VIM4
+
+config ENV_HDMITX_ONLY
+	string
+	option env="BOARD_COMPILE_HDMITX_ONLY"
+
+config HDMITX_ONLY
+	bool "hdmi tx only"
+	default y if ENV_HDMITX_ONLY="true"
+
+config SYS_SOC
+	default "t7"
+
+config SYS_BOARD
+	default "kvim4"
+
+config SYS_VENDOR
+	default "khadas"
+
+config SYS_CONFIG_NAME
+	default "kvim4"
+
+config DTB_BIND_KERNEL
+    bool "load dtb from boot part but not flash rsv"
+    default n
+
+config CMD_PLLTEST
+	bool "support plltest command"
+	default n
+	help
+	  support plltest command
+
+config AML_REBOOT
+       bool "reboot cmd"
+       default y
+       help
+         support uboot reboot cmd
+endif
