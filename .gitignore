@@ -7,7 +7,6 @@
 #
 .*
 *.a
-*.bin
 *.cfgout
 *.dtb
 *.dtb.S
@@ -89,3 +88,5 @@ GTAGS
 *.orig
 *~
 \#*#
+/bl30/src_ao/demos/amlogic/n200/t7/kvim4/gcc/
+/bl30/src_ao/bl30.bin
