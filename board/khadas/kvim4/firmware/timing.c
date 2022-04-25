@@ -54,7 +54,7 @@
 #define         AN_408_DDR0_4G_DDR1_4G_RANK01   6
 #define         AN_408_DDR0_3G_DDR1_3G_RANK01   7
 
-#define DDR_SIZE_TYPE_1         AN_408_DDR0_2G_DDR1_2G
+#define DDR_SIZE_TYPE_1         AN_408_DDR0_4G_DDR1_4G_RANK01
 
 ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 #if 0
@@ -1026,7 +1026,7 @@ __attribute__ ((section(".clk_param"))) = {
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 		{ 0, 0, 0xffffffff, 0, 0, 0 },
 
-		DDR_TIMMING_TUNE_TIMMING0
+/*		DDR_TIMMING_TUNE_TIMMING0
 			(AN_400_DDR4X0_2G_DDR4X1_1G,
 			dram_ch0_size_MB,
 			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
@@ -1128,7 +1128,7 @@ bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 		DDR_TIMMING_TUNE_TIMMING1
 				(AN_400_DDR4X0_4G_DDR4X0_4G,
 				DisabledDbyte[1],
-				0x00)
+				0x00) */
 };
 
 /* for PWM use */

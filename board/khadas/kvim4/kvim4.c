@@ -473,9 +473,11 @@ int checkhw(char * name)
 			break;
 		}
 		printf("init aml_dt to %s\n", loc_name);
+		strcpy(loc_name, "kvim4\0");
 		strcpy(name, loc_name);
 		env_set("aml_dt", loc_name);
 	} else {
+		env_set("aml_dt", "kvim4\0");
 		strcpy(name, env_get("aml_dt"));
 	}
 #else
