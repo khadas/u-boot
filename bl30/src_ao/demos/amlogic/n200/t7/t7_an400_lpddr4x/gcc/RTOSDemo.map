@@ -1,0 +1,2441 @@
+Archive member included to satisfy reference by file (symbol)
+
+/opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a(_ffssi2.o)
+                              gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o (__ffssi2)
+/opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a(_clz.o)
+                              /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a(_ffssi2.o) (__clz_tab)
+/opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+                              gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o (__udivdi3)
+
+Discarded input sections
+
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+ .text.udelay.part.0
+                0x0000000000000000       0x32 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+ .text.timere_read_us
+                0x0000000000000000        0xe gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+ .text.udelay   0x0000000000000000        0xc gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+ .text.mdelay   0x0000000000000000       0x2e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .text.set_rtc  0x0000000000000000       0x22 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .text.get_rtc  0x0000000000000000       0x1a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .text.prvPwmledblinktimes.constprop.15
+                0x0000000000000000       0xca gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .text.prvPwmLedSetBrightness.constprop.16
+                0x0000000000000000       0x54 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .text.prvStickMemLedWrite.constprop.17
+                0x0000000000000000       0x7c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .text.prvStickMemLedRead.constprop.18
+                0x0000000000000000       0x6c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .text.prvGetLedBlinkHigh.constprop.13
+                0x0000000000000000       0x3c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .text.prvGetLedBlinkLow.constprop.11
+                0x0000000000000000       0x3c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .text.prvGetLedBlinkTimes.constprop.10
+                0x0000000000000000       0x3c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .text.vPrintLedsStatus
+                0x0000000000000000      0x350 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .rodata.vPrintLedsStatus
+                0x0000000000000000       0x24 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .text.xLedsStateSetBlinkBreath
+                0x0000000000000000       0xd6 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .text.xLedsStateSetBlinkOn
+                0x0000000000000000       0xd6 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .text.xLedsStateSetBlinkOff
+                0x0000000000000000       0xd6 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .text.xLedsStateSetBreath
+                0x0000000000000000       0x56 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .text.xLedsStateSetBrightness
+                0x0000000000000000       0x52 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .text.prvLedGetInfo
+                0x0000000000000000       0xa2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .rodata.prvLedGetInfo
+                0x0000000000000000       0x18 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .text.xLedsStateInit
+                0x0000000000000000      0x15c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .data.LedMask  0x0000000000000000       0x18 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .rodata.prvGetLedBlinkHigh.constprop.13.str1.4
+                0x0000000000000000       0x2f gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .rodata.prvGetLedBlinkLow.constprop.11.str1.4
+                0x0000000000000000       0x2e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .rodata.prvGetLedBlinkTimes.constprop.10.str1.4
+                0x0000000000000000       0x30 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .rodata.prvStickMemLedWrite.constprop.17.str1.4
+                0x0000000000000000       0x2d gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .rodata.vPrintLedsStatus.str1.4
+                0x0000000000000000       0x82 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .rodata.xLedsStateInit.str1.4
+                0x0000000000000000       0x9c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .rodata.xLedsStateSetBlinkBreath.str1.4
+                0x0000000000000000       0xb6 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .rodata.xLedsStateSetBlinkOff.str1.4
+                0x0000000000000000       0x8f gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .rodata.xLedsStateSetBlinkOn.str1.4
+                0x0000000000000000       0x8e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .rodata.xLedsStateSetBreath.str1.4
+                0x0000000000000000       0x48 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .rodata.xLedsStateSetBrightness.str1.4
+                0x0000000000000000       0x4e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .sbss.PLedStickMem
+                0x0000000000000000        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .sbss.blinkflag.4411
+                0x0000000000000000        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .debug_info    0x0000000000000000     0x23e6 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .debug_abbrev  0x0000000000000000      0x47a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .debug_loc     0x0000000000000000     0x1314 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .debug_aranges
+                0x0000000000000000       0x90 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .debug_ranges  0x0000000000000000      0x1a0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .debug_line    0x0000000000000000     0x1428 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .debug_str     0x0000000000000000      0xd92 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .comment       0x0000000000000000       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .debug_frame   0x0000000000000000      0x2a4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .text.get_led_breath_len
+                0x0000000000000000       0x30 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .text.vLedPlatInit
+                0x0000000000000000       0x16 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .text.vLedPinmuxInit
+                0x0000000000000000        0xc gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .data.BreathInflections
+                0x0000000000000000       0x10 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .data.BreathInflections0
+                0x0000000000000000       0x18 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .data.BreathInflections1
+                0x0000000000000000       0x18 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .data.BreathInflections2
+                0x0000000000000000       0x18 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .data.BreathInflections3
+                0x0000000000000000       0x18 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .data.MesonLeds
+                0x0000000000000000       0x2c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .rodata.get_led_breath_len.str1.4
+                0x0000000000000000       0x2a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .rodata.str1.4
+                0x0000000000000000        0x8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .sbss.LedStickMem0
+                0x0000000000000000        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .debug_info    0x0000000000000000      0xde8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .debug_abbrev  0x0000000000000000      0x234 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .debug_loc     0x0000000000000000       0x66 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .debug_aranges
+                0x0000000000000000       0x30 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .debug_ranges  0x0000000000000000       0x20 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .debug_line    0x0000000000000000      0x345 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .debug_str     0x0000000000000000      0x9e3 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .comment       0x0000000000000000       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .debug_frame   0x0000000000000000       0x4c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+ .text.vEnableGpioIRQ
+                0x0000000000000000       0x88 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .text.prvMesonI2cAddToken
+                0x0000000000000000       0x66 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .text.xI2cDumpRegs
+                0x0000000000000000      0x12e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .text.xI2cMesonXfer
+                0x0000000000000000      0x3a8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .text.xI2cMesonSetBusSpeed
+                0x0000000000000000       0xd6 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .text.xI2cMesonRead
+                0x0000000000000000       0x70 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .text.xI2cMesonWrite
+                0x0000000000000000       0x84 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .text.xI2cMesonPortInit
+                0x0000000000000000       0xce gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .text.xI2cSetCurrentId
+                0x0000000000000000       0x26 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .bss.i2cs      0x0000000000000000      0x180 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .data.A1I2cData
+                0x0000000000000000       0x80 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .data.AxgI2cData
+                0x0000000000000000       0xa0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .data.C1I2cData
+                0x0000000000000000       0xa0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .rodata.xI2cDumpRegs.str1.4
+                0x0000000000000000       0x17 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .rodata.xI2cMesonRead.str1.4
+                0x0000000000000000       0x2a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .rodata.xI2cMesonSetBusSpeed.str1.4
+                0x0000000000000000       0x2c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .rodata.xI2cMesonWrite.str1.4
+                0x0000000000000000       0x1b gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .rodata.xI2cMesonXfer.str1.4
+                0x0000000000000000       0x43 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .sbss.current_id
+                0x0000000000000000        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .sbss.plat     0x0000000000000000        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .debug_info    0x0000000000000000     0x17e1 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .debug_abbrev  0x0000000000000000      0x449 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .debug_loc     0x0000000000000000      0xb3c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .debug_aranges
+                0x0000000000000000       0x58 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .debug_ranges  0x0000000000000000      0x228 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .debug_line    0x0000000000000000     0x1403 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .debug_str     0x0000000000000000      0xa1c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .comment       0x0000000000000000       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .debug_frame   0x0000000000000000      0x18c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//t7_plat.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//t7_plat.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//t7_plat.o
+ .text.meson_i2c_plat_init
+                0x0000000000000000       0x12 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//t7_plat.o
+ .data.t7_i2c_data
+                0x0000000000000000      0x100 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//t7_plat.o
+ .debug_info    0x0000000000000000      0xa17 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//t7_plat.o
+ .debug_abbrev  0x0000000000000000      0x1a9 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//t7_plat.o
+ .debug_aranges
+                0x0000000000000000       0x20 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//t7_plat.o
+ .debug_ranges  0x0000000000000000       0x10 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//t7_plat.o
+ .debug_line    0x0000000000000000      0x238 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//t7_plat.o
+ .debug_str     0x0000000000000000      0x6a0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//t7_plat.o
+ .comment       0x0000000000000000       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//t7_plat.o
+ .debug_frame   0x0000000000000000       0x20 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//t7_plat.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .text.prvIRGetInfo
+                0x0000000000000000       0x42 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .text.ucIsIRInit
+                0x0000000000000000       0x18 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .text.vIRGetKeyCode
+                0x0000000000000000       0x46 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .text.vIRMailboxEnable
+                0x0000000000000000       0x3e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .bss.prvKeyCodeList
+                0x0000000000000000      0x280 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .rodata.vIRMailboxEnable.str1.4
+                0x0000000000000000       0x20 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .sbss.key_cnt  0x0000000000000000        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.cec_delay
+                0x0000000000000000       0x20 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.cec_update_phyaddress
+                0x0000000000000000       0x2a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.cec_update_func_cfg
+                0x0000000000000000        0xa gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.cec_get_wakup_flag
+                0x0000000000000000        0xc gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .rodata.cec_update_phyaddress.str1.4
+                0x0000000000000000       0x15 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text.prvPwmRegWrite
+                0x0000000000000000       0x8e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text.vPwmMesonPwmDebug
+                0x0000000000000000       0x4e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text.vPwmConstantDisable
+                0x0000000000000000       0x52 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text.vPwmConstantEnable
+                0x0000000000000000       0x56 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text.xPwmMesonConfig
+                0x0000000000000000      0x358 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text.vPwmMesonDisable
+                0x0000000000000000       0x6e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text.vPwmMesonEnable
+                0x0000000000000000       0x72 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text.vPwmMesonSetTimes
+                0x0000000000000000       0x78 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text.vPwmMesonSetBlinkTimes
+                0x0000000000000000       0x48 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text.vPwmMesonBlinkEnable
+                0x0000000000000000       0x4a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text.vPwmMesonBlinkDisable
+                0x0000000000000000       0x46 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text.xPwmMesonIsBlinkComplete
+                0x0000000000000000       0x3e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text.vPwmMesonSetPolarity
+                0x0000000000000000       0x6a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text.vPwmMesonClear
+                0x0000000000000000       0x8e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text.xPwmMesonChannelApply
+                0x0000000000000000       0xe0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text.vPwmMesonChannelFree
+                0x0000000000000000       0x32 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text.vPwmMesonsetvoltage
+                0x0000000000000000      0x1e0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text.vPwmMesongetvoltage
+                0x0000000000000000      0x132 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.__func__.2384
+                0x0000000000000000       0x14 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.__func__.2395
+                0x0000000000000000       0x13 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.__func__.2408
+                0x0000000000000000       0x12 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.__func__.2418
+                0x0000000000000000       0x14 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.__func__.2469
+                0x0000000000000000       0x10 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.__func__.2480
+                0x0000000000000000       0x11 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.__func__.2491
+                0x0000000000000000       0x10 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.__func__.2503
+                0x0000000000000000       0x12 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.__func__.2513
+                0x0000000000000000       0x17 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.__func__.2522
+                0x0000000000000000       0x15 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.__func__.2531
+                0x0000000000000000       0x16 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.__func__.2542
+                0x0000000000000000       0x19 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.__func__.2552
+                0x0000000000000000       0x15 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.__func__.2561
+                0x0000000000000000        0xf gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.vPwmConstantDisable.str1.4
+                0x0000000000000000       0x16 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.vPwmMesonChannelFree.str1.4
+                0x0000000000000000       0x1d gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.vPwmMesonPwmDebug.str1.4
+                0x0000000000000000       0x46 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.vPwmMesongetvoltage.str1.4
+                0x0000000000000000       0x2b gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.vPwmMesonsetvoltage.str1.4
+                0x0000000000000000      0x10f gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.xPwmMesonChannelApply.str1.4
+                0x0000000000000000       0x92 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .rodata.xPwmMesonConfig.str1.4
+                0x0000000000000000       0x76 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .debug_info    0x0000000000000000     0x2547 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .debug_abbrev  0x0000000000000000      0x452 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .debug_loc     0x0000000000000000     0x1cf4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .debug_aranges
+                0x0000000000000000       0xa8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .debug_ranges  0x0000000000000000      0x360 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .debug_line    0x0000000000000000     0x18a0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .debug_str     0x0000000000000000      0xb42 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .comment       0x0000000000000000       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .debug_frame   0x0000000000000000      0x290 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .text.prvMesonVoltToPwmchip
+                0x0000000000000000       0x1a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .text.prvMesonVoltToPwmchannel
+                0x0000000000000000       0x22 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .text.vPwmMesonGetVoltTable
+                0x0000000000000000       0x2e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .text.vPwmMesonGetVoltTableSize
+                0x0000000000000000       0x26 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .text.prvIdToPwmChip
+                0x0000000000000000       0x30 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .data.meson_pwm_chip
+                0x0000000000000000       0x70 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .data.vddcpu_table
+                0x0000000000000000      0x128 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .data.vddee_table
+                0x0000000000000000       0xa8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .rodata.CSWTCH.0
+                0x0000000000000000       0x18 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .rodata.prvIdToPwmChip.str1.4
+                0x0000000000000000       0x18 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .debug_info    0x0000000000000000      0xbbf gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .debug_abbrev  0x0000000000000000      0x206 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .debug_loc     0x0000000000000000      0x122 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .debug_aranges
+                0x0000000000000000       0x40 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .debug_ranges  0x0000000000000000       0x30 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .debug_line    0x0000000000000000      0x3bf gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .debug_str     0x0000000000000000      0x7de gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .comment       0x0000000000000000       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .debug_frame   0x0000000000000000       0x6c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+ .text.mailbox_htbl_init_size
+                0x0000000000000000       0x54 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+ .text.mailbox_htbl_reg
+                0x0000000000000000       0x5a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+ .text.mailbox_htbl_unreg
+                0x0000000000000000       0x3e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+ .rodata.mailbox_htbl_init_size.str1.4
+                0x0000000000000000        0xd gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+ .text.vMbSetIrqPriority
+                0x0000000000000000       0x16 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .text.xUninstallRemoteMessageCallback
+                0x0000000000000000       0x12 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .text.eth_handler
+                0x0000000000000000       0x30 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .text.vETHInit
+                0x0000000000000000       0x2c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .text.vETHDeint
+                0x0000000000000000       0x28 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .text.eth_handler_t5
+                0x0000000000000000       0x4a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .text.vETHDeint_t5
+                0x0000000000000000       0x32 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .sbss.ethIrq   0x0000000000000000        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .sbss.eth_deinit
+                0x0000000000000000        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .debug_info    0x0000000000000000      0xb17 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .debug_abbrev  0x0000000000000000      0x220 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .debug_loc     0x0000000000000000       0x63 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .debug_aranges
+                0x0000000000000000       0x40 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .debug_ranges  0x0000000000000000       0x30 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .debug_line    0x0000000000000000      0x460 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .debug_str     0x0000000000000000      0x6d2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .comment       0x0000000000000000       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .debug_frame   0x0000000000000000       0xb0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .text.vAdcHandlerISR
+                0x0000000000000000       0x44 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .text.vAdcInit
+                0x0000000000000000      0x112 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .text.vAdcDeinit
+                0x0000000000000000       0x76 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .text.vAdcHwEnable
+                0x0000000000000000       0x70 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .text.vAdcHwDisable
+                0x0000000000000000       0x60 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .text.xAdcGetSample
+                0x0000000000000000      0x268 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .text.vAdcSelfTest
+                0x0000000000000000       0x9e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .bss.SaradcRegBackup
+                0x0000000000000000       0x4c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .rodata.ch7Vol
+                0x0000000000000000       0x14 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .rodata.str1.4
+                0x0000000000000000       0x20 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .rodata.vAdcInit.str1.4
+                0x0000000000000000       0x73 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .rodata.vAdcSelfTest.str1.4
+                0x0000000000000000        0xa gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .rodata.xAdcGetSample.str1.4
+                0x0000000000000000       0x35 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .sbss.adcSemaphoreBinary
+                0x0000000000000000        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .sbss.adcSemaphoreMutex
+                0x0000000000000000        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .debug_info    0x0000000000000000     0x1621 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .debug_abbrev  0x0000000000000000      0x3fe gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .debug_loc     0x0000000000000000      0x5fa gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .debug_aranges
+                0x0000000000000000       0x50 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .debug_ranges  0x0000000000000000      0x3f8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .debug_line    0x0000000000000000      0xfd0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .debug_str     0x0000000000000000      0xa40 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .comment       0x0000000000000000       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .debug_frame   0x0000000000000000      0x120 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/get_version//version.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/get_version//version.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/get_version//version.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+ .text.vUartTxFlush
+                0x0000000000000000       0x10 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+ .text.vUartTxStart
+                0x0000000000000000        0x2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+ .text.vUartTxStop
+                0x0000000000000000        0x2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+ .text.lUartTxReady
+                0x0000000000000000       0x10 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+ .text.vUartInit
+                0x0000000000000000        0x2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .text.prAdcKeyProcess
+                0x0000000000000000       0xde gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .text.vCreateAdcKey
+                0x0000000000000000      0x166 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .text.vDestoryAdcKey
+                0x0000000000000000       0x62 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .text.vAdcKeyEnable
+                0x0000000000000000       0x4a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .text.vAdcKeyDisable
+                0x0000000000000000       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .text.vAdcKeyIsEmpty
+                0x0000000000000000       0x10 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .rodata.vCreateAdcKey.str1.4
+                0x0000000000000000       0x92 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .rodata.vDestoryAdcKey.str1.4
+                0x0000000000000000       0x1b gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .sbss.jitterCount
+                0x0000000000000000        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .sbss.xAdcKeyCycleTimer
+                0x0000000000000000        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .sbss.xHeadKey
+                0x0000000000000000        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .debug_info    0x0000000000000000     0x109b gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .debug_abbrev  0x0000000000000000      0x340 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .debug_loc     0x0000000000000000      0x284 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .debug_aranges
+                0x0000000000000000       0x48 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .debug_ranges  0x0000000000000000       0x78 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .debug_line    0x0000000000000000      0xa1a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .debug_str     0x0000000000000000      0xa2f gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .comment       0x0000000000000000       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .debug_frame   0x0000000000000000      0x140 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+ .text.xMboxSetKeypad
+                0x0000000000000000      0x110 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+ .text.vKeyCallBack
+                0x0000000000000000       0x3a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+ .text.vDynamicKeypadInit
+                0x0000000000000000       0x42 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+ .rodata.vDynamicKeypadInit.str1.4
+                0x0000000000000000       0x1d gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+ .rodata.vKeyCallBack.str1.4
+                0x0000000000000000       0x37 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+ .rodata.xMboxSetKeypad.str1.4
+                0x0000000000000000       0x81 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+ .debug_info    0x0000000000000000      0xdfd gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+ .debug_abbrev  0x0000000000000000      0x2ab gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+ .debug_loc     0x0000000000000000      0x181 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+ .debug_aranges
+                0x0000000000000000       0x30 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+ .debug_ranges  0x0000000000000000       0x58 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+ .debug_line    0x0000000000000000      0x5a5 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+ .debug_str     0x0000000000000000      0x8f3 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+ .comment       0x0000000000000000       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+ .debug_frame   0x0000000000000000       0x94 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+ .text.vGpioKeyIsEmpty
+                0x0000000000000000       0x10 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+ .text          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .data          0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .bss           0x0000000000000000        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .text.wakeup_ap
+                0x0000000000000000       0x26 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .text.clear_wakeup_trigger
+                0x0000000000000000        0xe gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .text.watchdog_reset_system
+                0x0000000000000000        0x2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .text.set_suspend_flag
+                0x0000000000000000       0x22 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .text.alarm_set
+                0x0000000000000000        0x2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .text.alarm_clr
+                0x0000000000000000        0x2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .text.vRTC_update
+                0x0000000000000000        0x2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .text.vCreat_alarm_timer
+                0x0000000000000000        0x2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .text.set_reason_flag
+                0x0000000000000000       0x1a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .text.get_reason_flag
+                0x0000000000000000        0xc gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .text.get_stick_reboot_flag
+                0x0000000000000000       0x1c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .text.STR_Start_Sem_Give_FromISR
+                0x0000000000000000       0x1e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .text.STR_Start_Sem_Give
+                0x0000000000000000       0x18 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .sbss.xSTRFlagSem
+                0x0000000000000000        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .text          0x0000000000000000        0x0 gcc/main.o
+ .data          0x0000000000000000        0x0 gcc/main.o
+ .bss           0x0000000000000000        0x0 gcc/main.o
+ .text.config_eclic_irqs
+                0x0000000000000000       0x1e gcc/main.o
+ .text.DefaultInterruptHandler
+                0x0000000000000000        0x2 gcc/main.o
+ .text.hardware_init
+                0x0000000000000000        0x8 gcc/main.o
+ .text          0x0000000000000000        0x0 gcc/power.o
+ .data          0x0000000000000000        0x0 gcc/power.o
+ .bss           0x0000000000000000        0x0 gcc/power.o
+ .text          0x0000000000000000        0x0 gcc/list.o
+ .data          0x0000000000000000        0x0 gcc/list.o
+ .bss           0x0000000000000000        0x0 gcc/list.o
+ .text          0x0000000000000000        0x0 gcc/queue.o
+ .data          0x0000000000000000        0x0 gcc/queue.o
+ .bss           0x0000000000000000        0x0 gcc/queue.o
+ .text.xQueueCreateCountingSemaphore
+                0x0000000000000000       0x6a gcc/queue.o
+ .text.xQueueCreateMutex
+                0x0000000000000000       0x3c gcc/queue.o
+ .text.xQueueGiveFromISR
+                0x0000000000000000       0xf2 gcc/queue.o
+ .text.xQueuePeek
+                0x0000000000000000      0x1ec gcc/queue.o
+ .text.xQueueReceiveFromISR
+                0x0000000000000000       0xe6 gcc/queue.o
+ .text.xQueuePeekFromISR
+                0x0000000000000000       0xc6 gcc/queue.o
+ .text.uxQueueMessagesWaiting
+                0x0000000000000000       0x48 gcc/queue.o
+ .text.uxQueueSpacesAvailable
+                0x0000000000000000       0x4e gcc/queue.o
+ .text.uxQueueMessagesWaitingFromISR
+                0x0000000000000000       0x2c gcc/queue.o
+ .text.vQueueDelete
+                0x0000000000000000       0x66 gcc/queue.o
+ .text.xQueueIsQueueEmptyFromISR
+                0x0000000000000000       0x32 gcc/queue.o
+ .text.xQueueIsQueueFullFromISR
+                0x0000000000000000       0x36 gcc/queue.o
+ .text.pcQueueGetName
+                0x0000000000000000       0x2e gcc/queue.o
+ .text.vQueueUnregisterQueue
+                0x0000000000000000       0x32 gcc/queue.o
+ .text          0x0000000000000000        0x0 gcc/tasks.o
+ .data          0x0000000000000000        0x0 gcc/tasks.o
+ .bss           0x0000000000000000        0x0 gcc/tasks.o
+ .text.prvSearchForNameWithinSingleList
+                0x0000000000000000       0x66 gcc/tasks.o
+ .text.uxTaskPriorityGet
+                0x0000000000000000       0x5a gcc/tasks.o
+ .text.uxTaskPriorityGetFromISR
+                0x0000000000000000       0x44 gcc/tasks.o
+ .text.vTaskPrioritySet
+                0x0000000000000000      0x14c gcc/tasks.o
+ .text.vTaskResume
+                0x0000000000000000       0xfc gcc/tasks.o
+ .text.xTaskResumeFromISR
+                0x0000000000000000       0xea gcc/tasks.o
+ .text.vTaskEndScheduler
+                0x0000000000000000       0x14 gcc/tasks.o
+ .text.xTaskGetTickCountFromISR
+                0x0000000000000000       0x2a gcc/tasks.o
+ .text.uxTaskGetNumberOfTasks
+                0x0000000000000000        0xc gcc/tasks.o
+ .text.pcTaskGetName
+                0x0000000000000000       0x3c gcc/tasks.o
+ .text.xTaskGetIdleTaskHandle
+                0x0000000000000000       0x36 gcc/tasks.o
+ .text.vTaskDelayUntil
+                0x0000000000000000       0xd0 gcc/tasks.o
+ .text.xTaskGetHandle
+                0x0000000000000000      0x102 gcc/tasks.o
+ .text.vTaskSuspend
+                0x0000000000000000      0x16a gcc/tasks.o
+ .text.vTaskPlaceOnUnorderedEventList
+                0x0000000000000000       0x90 gcc/tasks.o
+ .text.vTaskRemoveFromUnorderedEventList
+                0x0000000000000000       0xd8 gcc/tasks.o
+ .text.vTaskSetTimeOutState
+                0x0000000000000000       0x8c gcc/tasks.o
+ .text.vTaskSetThreadLocalStoragePointer
+                0x0000000000000000       0x26 gcc/tasks.o
+ .text.pvTaskGetThreadLocalStoragePointer
+                0x0000000000000000       0x2a gcc/tasks.o
+ .text.uxTaskGetStackHighWaterMark
+                0x0000000000000000       0x48 gcc/tasks.o
+ .text.xTaskGetCurrentTaskHandle
+                0x0000000000000000        0xc gcc/tasks.o
+ .text.uxTaskResetEventItemValue
+                0x0000000000000000       0x1a gcc/tasks.o
+ .text.xTaskNotifyWait
+                0x0000000000000000       0xf4 gcc/tasks.o
+ .text.xTaskGenericNotify
+                0x0000000000000000      0x16e gcc/tasks.o
+ .text.xTaskGenericNotifyFromISR
+                0x0000000000000000      0x182 gcc/tasks.o
+ .text.xTaskNotifyStateClear
+                0x0000000000000000       0x6a gcc/tasks.o
+ .text          0x0000000000000000        0x0 gcc/timers.o
+ .data          0x0000000000000000        0x0 gcc/timers.o
+ .bss           0x0000000000000000        0x0 gcc/timers.o
+ .text.xTimerGetTimerDaemonTaskHandle
+                0x0000000000000000       0x34 gcc/timers.o
+ .text.xTimerGetPeriod
+                0x0000000000000000       0x2c gcc/timers.o
+ .text.xTimerGetExpiryTime
+                0x0000000000000000       0x2c gcc/timers.o
+ .text.pcTimerGetName
+                0x0000000000000000       0x2c gcc/timers.o
+ .text.xTimerIsTimerActive
+                0x0000000000000000       0x4c gcc/timers.o
+ .text.pvTimerGetTimerID
+                0x0000000000000000       0x48 gcc/timers.o
+ .text.vTimerSetTimerID
+                0x0000000000000000       0x4a gcc/timers.o
+ .text.xTimerPendFunctionCallFromISR
+                0x0000000000000000       0x2e gcc/timers.o
+ .text.xTimerPendFunctionCall
+                0x0000000000000000       0x58 gcc/timers.o
+ .text          0x0000000000000000        0x0 gcc/port.o
+ .data          0x0000000000000000        0x0 gcc/port.o
+ .bss           0x0000000000000000        0x0 gcc/port.o
+ .text.vPortEnterCritical
+                0x0000000000000000       0x14 gcc/port.o
+ .text.vPortExitCritical
+                0x0000000000000000       0x44 gcc/port.o
+ .text.vPortSysTickHandler_soc
+                0x0000000000000000       0x20 gcc/port.o
+ .text          0x0000000000000000        0x0 gcc/portasm.o
+ .data          0x0000000000000000        0x0 gcc/portasm.o
+ .bss           0x0000000000000000        0x0 gcc/portasm.o
+ .text          0x0000000000000000        0x0 gcc/heap_5.o
+ .data          0x0000000000000000        0x0 gcc/heap_5.o
+ .bss           0x0000000000000000        0x0 gcc/heap_5.o
+ .text.xPortGetFreeHeapSize
+                0x0000000000000000        0xc gcc/heap_5.o
+ .text.xPortGetMinimumEverFreeHeapSize
+                0x0000000000000000        0xc gcc/heap_5.o
+ .text.vPrintFreeListAfterMallocFail
+                0x0000000000000000       0x6c gcc/heap_5.o
+ .rodata.vPrintFreeListAfterMallocFail.str1.4
+                0x0000000000000000       0x35 gcc/heap_5.o
+ .text          0x0000000000000000        0x0 gcc/n200_func.o
+ .data          0x0000000000000000        0x0 gcc/n200_func.o
+ .bss           0x0000000000000000        0x0 gcc/n200_func.o
+ .text.pmp_open_all_space
+                0x0000000000000000       0x12 gcc/n200_func.o
+ .text.switch_m2u_mode
+                0x0000000000000000       0x1c gcc/n200_func.o
+ .text.mtime_lo
+                0x0000000000000000        0x8 gcc/n200_func.o
+ .text.mtime_hi
+                0x0000000000000000        0x8 gcc/n200_func.o
+ .text.get_timer_value
+                0x0000000000000000       0x10 gcc/n200_func.o
+ .text.get_timer_freq
+                0x0000000000000000        0xa gcc/n200_func.o
+ .text.get_instret_value
+                0x0000000000000000       0x12 gcc/n200_func.o
+ .text.get_cycle_value
+                0x0000000000000000       0x12 gcc/n200_func.o
+ .text.interrupt_status_get
+                0x0000000000000000        0x8 gcc/n200_func.o
+ .text.interrupt_disable
+                0x0000000000000000        0x6 gcc/n200_func.o
+ .text.interrupt_enable
+                0x0000000000000000        0x6 gcc/n200_func.o
+ .text.measure_cpu_freq
+                0x0000000000000000       0x42 gcc/n200_func.o
+ .text.get_cpu_freq
+                0x0000000000000000       0x1e gcc/n200_func.o
+ .text          0x0000000000000000        0x0 gcc/handlers.o
+ .data          0x0000000000000000        0x0 gcc/handlers.o
+ .bss           0x0000000000000000        0x0 gcc/handlers.o
+ .text.handle_nmi
+                0x0000000000000000       0x16 gcc/handlers.o
+ .text.handle_trap
+                0x0000000000000000       0x68 gcc/handlers.o
+ .rodata.handle_nmi.str1.4
+                0x0000000000000000        0xc gcc/handlers.o
+ .rodata.handle_trap.str1.4
+                0x0000000000000000       0x7d gcc/handlers.o
+ .debug_info    0x0000000000000000      0xac5 gcc/handlers.o
+ .debug_abbrev  0x0000000000000000      0x21a gcc/handlers.o
+ .debug_loc     0x0000000000000000       0x7e gcc/handlers.o
+ .debug_aranges
+                0x0000000000000000       0x28 gcc/handlers.o
+ .debug_ranges  0x0000000000000000       0x18 gcc/handlers.o
+ .debug_line    0x0000000000000000      0x357 gcc/handlers.o
+ .debug_str     0x0000000000000000      0x649 gcc/handlers.o
+ .comment       0x0000000000000000       0x34 gcc/handlers.o
+ .debug_frame   0x0000000000000000       0x40 gcc/handlers.o
+ .text          0x0000000000000000        0x0 gcc/interrupt_control.o
+ .data          0x0000000000000000        0x0 gcc/interrupt_control.o
+ .bss           0x0000000000000000        0x0 gcc/interrupt_control.o
+ .text.print_eclic
+                0x0000000000000000       0x16 gcc/interrupt_control.o
+ .text.eclic_disable_interrupt
+                0x0000000000000000       0x10 gcc/interrupt_control.o
+ .text.eclic_set_pending
+                0x0000000000000000       0x14 gcc/interrupt_control.o
+ .text.eclic_clear_pending
+                0x0000000000000000       0x12 gcc/interrupt_control.o
+ .text.eclic_get_intctrl
+                0x0000000000000000       0x10 gcc/interrupt_control.o
+ .text.eclic_set_cliccfg
+                0x0000000000000000        0xa gcc/interrupt_control.o
+ .text.eclic_get_cliccfg
+                0x0000000000000000        0xa gcc/interrupt_control.o
+ .text.eclic_get_nlbits
+                0x0000000000000000        0xe gcc/interrupt_control.o
+ .text.eclic_set_irq_lvl
+                0x0000000000000000       0x50 gcc/interrupt_control.o
+ .text.eclic_get_irq_lvl
+                0x0000000000000000       0x3c gcc/interrupt_control.o
+ .text.eclic_set_irq_lvl_abs
+                0x0000000000000000       0x46 gcc/interrupt_control.o
+ .text.eclic_get_irq_lvl_abs
+                0x0000000000000000       0x32 gcc/interrupt_control.o
+ .text.eclic_set_irq_pri
+                0x0000000000000000       0x40 gcc/interrupt_control.o
+ .text.eclic_mode_enable
+                0x0000000000000000       0x12 gcc/interrupt_control.o
+ .text.eclic_set_vmode
+                0x0000000000000000       0x18 gcc/interrupt_control.o
+ .text.eclic_set_nonvmode
+                0x0000000000000000       0x18 gcc/interrupt_control.o
+ .text.eclic_set_level_trig
+                0x0000000000000000       0x18 gcc/interrupt_control.o
+ .text.eclic_set_posedge_trig
+                0x0000000000000000       0x1c gcc/interrupt_control.o
+ .text.eclic_set_negedge_trig
+                0x0000000000000000       0x18 gcc/interrupt_control.o
+ .text.wfe      0x0000000000000000        0x8 gcc/interrupt_control.o
+ .text.clean_int_src
+                0x0000000000000000       0x18 gcc/interrupt_control.o
+ .text.SetIrqPriority
+                0x0000000000000000       0x74 gcc/interrupt_control.o
+ .rodata.print_eclic.str1.4
+                0x0000000000000000        0xd gcc/interrupt_control.o
+ .text          0x0000000000000000        0x0 gcc/util.o
+ .data          0x0000000000000000        0x0 gcc/util.o
+ .bss           0x0000000000000000        0x0 gcc/util.o
+ .text.strncasecmp.part.1
+                0x0000000000000000       0x40 gcc/util.o
+ .text.isspace  0x0000000000000000       0x1a gcc/util.o
+ .text.isdigit  0x0000000000000000        0xa gcc/util.o
+ .text.isalpha  0x0000000000000000        0xe gcc/util.o
+ .text.isprint  0x0000000000000000        0x8 gcc/util.o
+ .text.tolower  0x0000000000000000       0x10 gcc/util.o
+ .text.strcasecmp
+                0x0000000000000000       0x38 gcc/util.o
+ .text.strncasecmp
+                0x0000000000000000        0xe gcc/util.o
+ .text.atoi     0x0000000000000000       0x80 gcc/util.o
+ .text.strtoi   0x0000000000000000      0x120 gcc/util.o
+ .text.parse_bool
+                0x0000000000000000       0xb6 gcc/util.o
+ .text.memcmp   0x0000000000000000       0x1e gcc/util.o
+ .text.memmove  0x0000000000000000       0x92 gcc/util.o
+ .text.strzcpy  0x0000000000000000       0x40 gcc/util.o
+ .text.__clzsi2
+                0x0000000000000000       0x44 gcc/util.o
+ .text.get_next_bit
+                0x0000000000000000       0x34 gcc/util.o
+ .text.strncpy  0x0000000000000000       0x96 gcc/util.o
+ .rodata.parse_bool.str1.4
+                0x0000000000000000       0x10 gcc/util.o
+ .text          0x0000000000000000        0x0 gcc/myprintf.o
+ .data          0x0000000000000000        0x0 gcc/myprintf.o
+ .bss           0x0000000000000000        0x0 gcc/myprintf.o
+ .text.sPrintf_ext
+                0x0000000000000000       0x38 gcc/myprintf.o
+ .text.sPrintf  0x0000000000000000       0x4c gcc/myprintf.o
+ .text.iprint_string
+                0x0000000000000000       0x14 gcc/myprintf.o
+ .text.puts     0x0000000000000000       0x14 gcc/myprintf.o
+ .text          0x0000000000000000        0x0 gcc/start.o
+ .data          0x0000000000000000        0x0 gcc/start.o
+ .bss           0x0000000000000000        0x0 gcc/start.o
+ .text          0x0000000000000000        0x0 gcc/vtable.o
+ .data          0x0000000000000000        0x0 gcc/vtable.o
+ .bss           0x0000000000000000        0x0 gcc/vtable.o
+ .debug_line    0x0000000000000000       0x5b gcc/vtable.o
+ .debug_info    0x0000000000000000       0x26 gcc/vtable.o
+ .debug_abbrev  0x0000000000000000       0x14 gcc/vtable.o
+ .debug_aranges
+                0x0000000000000000       0x20 gcc/vtable.o
+ .debug_str     0x0000000000000000       0x94 gcc/vtable.o
+ .text          0x0000000000000000        0x0 gcc/keypad.o
+ .data          0x0000000000000000        0x0 gcc/keypad.o
+ .bss           0x0000000000000000        0x0 gcc/keypad.o
+ .text.vAdcKeyCallBack
+                0x0000000000000000       0x16 gcc/keypad.o
+ .data.adcKeyInfo
+                0x0000000000000000      0x118 gcc/keypad.o
+ .rodata.vAdcKeyCallBack.str1.4
+                0x0000000000000000       0x32 gcc/keypad.o
+ .text          0x0000000000000000        0x0 gcc/btwake.o
+ .data          0x0000000000000000        0x0 gcc/btwake.o
+ .bss           0x0000000000000000        0x0 gcc/btwake.o
+ .text          0x0000000000000000        0x0 /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a(_ffssi2.o)
+ .data          0x0000000000000000        0x0 /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a(_ffssi2.o)
+ .bss           0x0000000000000000        0x0 /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a(_ffssi2.o)
+ .text.__ffssi2
+                0x0000000000000000       0xa8 /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a(_ffssi2.o)
+ .debug_frame   0x0000000000000000       0x20 /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a(_ffssi2.o)
+ .text          0x0000000000000000        0x0 /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a(_clz.o)
+ .data          0x0000000000000000        0x0 /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a(_clz.o)
+ .bss           0x0000000000000000        0x0 /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a(_clz.o)
+ .text          0x0000000000000000        0x0 /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+ .data          0x0000000000000000        0x0 /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+ .bss           0x0000000000000000        0x0 /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+ .eh_frame      0x0000000000000000       0x28 /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+ram              0x00000000f71ef000 0x0000000000010000 rw
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_state.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/leds//leds_t7_plat.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//i2c.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/i2c//t7_plat.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_meson_v2.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/pwm//pwm_t7_plat.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/eth//eth.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/saradc//saradc_g12a.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/get_version//version.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//adc_key.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//dynamic_keypad.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+LOAD gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+LOAD gcc/main.o
+LOAD gcc/power.o
+LOAD gcc/list.o
+LOAD gcc/queue.o
+LOAD gcc/tasks.o
+LOAD gcc/timers.o
+LOAD gcc/port.o
+LOAD gcc/portasm.o
+LOAD gcc/heap_5.o
+LOAD gcc/n200_func.o
+LOAD gcc/handlers.o
+LOAD gcc/interrupt_control.o
+LOAD gcc/util.o
+LOAD gcc/myprintf.o
+LOAD gcc/start.o
+LOAD gcc/vtable.o
+LOAD gcc/keypad.o
+LOAD gcc/btwake.o
+LOAD /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a
+                0x0000000000000800                __stack_size = DEFINED (__stack_size)?__stack_size:0x800
+
+.text           0x00000000f71ef000     0x9ecc
+                0x00000000f71ef000                . = ALIGN (0x4)
+                [!provide]                        PROVIDE (_text = .)
+ *(.init)
+ .init          0x00000000f71ef000       0x94 gcc/start.o
+                0x00000000f71ef000                _start
+                0x00000000f71ef072                disable_mcycle_minstret
+                0x00000000f71ef078                enable_mcycle_minstret
+                0x00000000f71ef07e                core_wfe
+ *(.text* .rodata*)
+ .text.timere_read
+                0x00000000f71ef094       0x24 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+                0x00000000f71ef094                timere_read
+ .text.xMboxSetRTC
+                0x00000000f71ef0b8       0x3a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+                0x00000000f71ef0b8                xMboxSetRTC
+ .text.xMboxGetRTC
+                0x00000000f71ef0f2       0x4a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+                0x00000000f71ef0f2                xMboxGetRTC
+ .text.valarm_update
+                0x00000000f71ef13c       0x68 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .text.vRTC_update
+                0x00000000f71ef1a4       0x3e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+                0x00000000f71ef1a4                vRTC_update
+ .text.vRtcInit
+                0x00000000f71ef1e2       0x88 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+                0x00000000f71ef1e2                vRtcInit
+ .text.alarm_set
+                0x00000000f71ef26a       0x5c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+                0x00000000f71ef26a                alarm_set
+ .text.alarm_clr
+                0x00000000f71ef2c6       0x1e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+                0x00000000f71ef2c6                alarm_clr
+ .text.vCreat_alarm_timer
+                0x00000000f71ef2e4       0x2e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+                0x00000000f71ef2e4                vCreat_alarm_timer
+ *fill*         0x00000000f71ef312        0x2 
+ .rodata.alarm_set.str1.4
+                0x00000000f71ef314       0x16 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .rodata.vCreat_alarm_timer.str1.4
+                0x00000000f71ef32a       0x16 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+                                          0x6 (size before relaxing)
+ *fill*         0x00000000f71ef32a        0x2 
+ .rodata.vRtcInit.str1.4
+                0x00000000f71ef32c       0x23 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ *fill*         0x00000000f71ef34f        0x1 
+ .rodata.valarm_update.str1.4
+                0x00000000f71ef350       0x18 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .rodata.xMboxGetRTC.str1.4
+                0x00000000f71ef368       0x1c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .rodata.xMboxSetRTC.str1.4
+                0x00000000f71ef384       0x25 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ *fill*         0x00000000f71ef3a9        0x1 
+ .text.xGpioSetDir
+                0x00000000f71ef3aa       0xc2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+                0x00000000f71ef3aa                xGpioSetDir
+ .text.xGpioSetValue
+                0x00000000f71ef46c       0xc2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+                0x00000000f71ef46c                xGpioSetValue
+ .text.xGpioGetValue
+                0x00000000f71ef52e       0x3c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+                0x00000000f71ef52e                xGpioGetValue
+ .text.xPinconfSet
+                0x00000000f71ef56a      0x1ee gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+                0x00000000f71ef56a                xPinconfSet
+ .text.xPinmuxSet
+                0x00000000f71ef758       0xd2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+                0x00000000f71ef758                xPinmuxSet
+ *fill*         0x00000000f71ef82a        0x2 
+ .rodata.xGpioSetDir.str1.4
+                0x00000000f71ef82c       0x2b gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+ *fill*         0x00000000f71ef857        0x1 
+ .rodata.xGpioSetValue.str1.4
+                0x00000000f71ef858       0x2e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+ *fill*         0x00000000f71ef886        0x2 
+ .rodata.xPinmuxSet.str1.4
+                0x00000000f71ef888       0x27 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+ *fill*         0x00000000f71ef8af        0x1 
+ .text.prvFreeParentIRQ
+                0x00000000f71ef8b0       0x88 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+ .text.vGpioIRQInit
+                0x00000000f71ef938       0x14 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+                0x00000000f71ef938                vGpioIRQInit
+ .text.xRequestGpioIRQ
+                0x00000000f71ef94c      0x11a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+                0x00000000f71ef94c                xRequestGpioIRQ
+ .text.vFreeGpioIRQ
+                0x00000000f71efa66        0x2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+                0x00000000f71efa66                vFreeGpioIRQ
+ .text.vDisableGpioIRQ
+                0x00000000f71efa68       0x66 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+                0x00000000f71efa68                vDisableGpioIRQ
+ .text.vRestoreGpioIrqReg
+                0x00000000f71eface       0x2a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+                0x00000000f71eface                vRestoreGpioIrqReg
+ .text.vBackupAndClearGpioIrqReg
+                0x00000000f71efaf8       0x52 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+                0x00000000f71efaf8                vBackupAndClearGpioIrqReg
+ *fill*         0x00000000f71efb4a        0x2 
+ .rodata.xRequestGpioIRQ.str1.4
+                0x00000000f71efb4c       0xb6 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+ .text.pGetGpioBank
+                0x00000000f71efc02        0xa gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+                0x00000000f71efc02                pGetGpioBank
+ .text.pGetGpioIrqBank
+                0x00000000f71efc0c        0xa gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+                0x00000000f71efc0c                pGetGpioIrqBank
+ .text.prvGpioPlatIrqSetup
+                0x00000000f71efc16       0xca gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+                0x00000000f71efc16                prvGpioPlatIrqSetup
+ .rodata.eeDomain
+                0x00000000f71efce0       0x18 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+ .rodata.gpioBanks
+                0x00000000f71efcf8      0x120 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+ .rodata.irqBanks
+                0x00000000f71efe18       0x90 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+ .rodata.str1.4
+                0x00000000f71efea8       0x37 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+ *fill*         0x00000000f71efedf        0x1 
+ .text.vSetIRWorkMode
+                0x00000000f71efee0       0xb8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .text.vIRIntteruptHandler
+                0x00000000f71eff98      0x13e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .text.vInitIRWorkMode
+                0x00000000f71f00d6       0x36 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+                0x00000000f71f00d6                vInitIRWorkMode
+ .text.vIRInit  0x00000000f71f010c       0xe0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+                0x00000000f71f010c                vIRInit
+ .text.vIRDeint
+                0x00000000f71f01ec       0x26 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+                0x00000000f71f01ec                vIRDeint
+ *fill*         0x00000000f71f0212        0x2 
+ .rodata.__func__.3067
+                0x00000000f71f0214        0xf gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ *fill*         0x00000000f71f0223        0x1 
+ .rodata.__func__.3095
+                0x00000000f71f0224       0x14 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .rodata.vIRInit.str1.4
+                0x00000000f71f0238       0x7c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .rodata.vIRIntteruptHandler.str1.4
+                0x00000000f71f02b4       0x42 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ *fill*         0x00000000f71f02f6        0x2 
+ .rodata.vSetIRWorkMode.str1.4
+                0x00000000f71f02f8       0x36 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .text.pGetIRDrvData
+                0x00000000f71f032e        0xa gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+                0x00000000f71f032e                pGetIRDrvData
+ .text.pGetSupportProtocol
+                0x00000000f71f0338        0xa gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+                0x00000000f71f0338                pGetSupportProtocol
+ .text.cec_get_wakeup_otp_msg
+                0x00000000f71f0342       0x20 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.cec_get_wakeup_as_msg
+                0x00000000f71f0362       0x20 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.cec_update_config_data
+                0x00000000f71f0382       0xa6 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+                0x00000000f71f0382                cec_update_config_data
+ .text.read_ao.part.3
+                0x00000000f71f0428       0x22 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.write_ao.part.4
+                0x00000000f71f044a       0x16 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.cec_set_reg_bits
+                0x00000000f71f0460       0x82 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.cecb_rd_reg
+                0x00000000f71f04e2       0x9e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.cecb_wr_reg
+                0x00000000f71f0580       0xb8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.ceca_rd_reg
+                0x00000000f71f0638       0x9e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.ceca_wr_reg
+                0x00000000f71f06d6       0xb8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.cec_set_log_addr
+                0x00000000f71f078e       0x9a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.cec_get_wakeup_info2
+                0x00000000f71f0828       0x64 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.cec_get_wakeup_info1
+                0x00000000f71f088c       0x64 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.cec_get_log_addr
+                0x00000000f71f08f0       0x9c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.cec_save_port_id
+                0x00000000f71f098c       0xee gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.cec_set_wk_msg.part.7.constprop.11
+                0x00000000f71f0a7a      0x16a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.ceca_hw_reset
+                0x00000000f71f0be4      0x206 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.cec_triggle_tx
+                0x00000000f71f0dea      0x21c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.cec_queue_tx_msg
+                0x00000000f71f1006       0x92 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .text.cec_suspend_handle
+                0x00000000f71f1098     0x1244 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+                0x00000000f71f1098                cec_suspend_handle
+ .text.cec_init_config
+                0x00000000f71f22dc      0x16a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+                0x00000000f71f22dc                cec_init_config
+ .text.vCEC_task
+                0x00000000f71f2446       0xc0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+                0x00000000f71f2446                vCEC_task
+ .text.vCecCallbackInit
+                0x00000000f71f2506      0x19a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+                0x00000000f71f2506                vCecCallbackInit
+ .text.cec_req_irq
+                0x00000000f71f26a0        0x2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+                0x00000000f71f26a0                cec_req_irq
+ *fill*         0x00000000f71f26a2        0x2 
+ .rodata        0x00000000f71f26a4       0x24 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .rodata.__func__.3307
+                0x00000000f71f26c8        0x9 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f26d1        0x3 
+ .rodata.__func__.3368
+                0x00000000f71f26d4       0x19 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f26ed        0x3 
+ .rodata.__func__.3373
+                0x00000000f71f26f0       0x15 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f2705        0x3 
+ .rodata.__func__.3378
+                0x00000000f71f2708       0x15 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f271d        0x3 
+ .rodata.__func__.3390
+                0x00000000f71f2720       0x10 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .rodata.__func__.3486
+                0x00000000f71f2730       0x13 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f2743        0x1 
+ .rodata.__func__.3497
+                0x00000000f71f2744       0x13 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f2757        0x1 
+ .rodata.__func__.3526
+                0x00000000f71f2758       0x14 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .rodata.__func__.3532
+                0x00000000f71f276c       0x13 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f277f        0x1 
+ .rodata.__func__.3690
+                0x00000000f71f2780        0xa gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f278a        0x2 
+ .rodata.addr_map.3512
+                0x00000000f71f278c        0xf gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f279b        0x1 
+ .rodata.cec_get_wakeup_info2.str1.4
+                0x00000000f71f279c       0x11 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f27ad        0x3 
+ .rodata.cec_init_config.str1.4
+                0x00000000f71f27b0       0x43 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+                                         0x47 (size before relaxing)
+ *fill*         0x00000000f71f27f3        0x1 
+ .rodata.cec_queue_tx_msg.str1.4
+                0x00000000f71f27f4       0x1b gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f280f        0x1 
+ .rodata.cec_save_port_id.str1.4
+                0x00000000f71f2810       0x2a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f283a        0x2 
+ .rodata.cec_set_wk_msg.part.7.constprop.11.str1.4
+                0x00000000f71f283c       0x17 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f2853        0x1 
+ .rodata.cec_suspend_handle.str1.4
+                0x00000000f71f2854      0x325 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+                                        0x32d (size before relaxing)
+ *fill*         0x00000000f71f2b79        0x3 
+ .rodata.cec_triggle_tx.str1.4
+                0x00000000f71f2b7c       0x6f gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f2beb        0x1 
+ .rodata.cec_update_config_data.str1.4
+                0x00000000f71f2bec       0x46 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+                                         0x4a (size before relaxing)
+ *fill*         0x00000000f71f2c32        0x2 
+ .rodata.ceca_hw_reset.str1.4
+                0x00000000f71f2c34       0x27 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f2c5b        0x1 
+ .rodata.cecb_rd_reg.str1.4
+                0x00000000f71f2c5c       0x16 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f2c72        0x2 
+ .rodata.cecb_wr_reg.str1.4
+                0x00000000f71f2c74       0x16 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f2c8a        0x2 
+ .rodata.read_ao.part.3.str1.4
+                0x00000000f71f2c8c       0x10 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .rodata.vCEC_task.str1.4
+                0x00000000f71f2c9c       0x1b gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f2cb7        0x1 
+ .rodata.vCecCallbackInit.str1.4
+                0x00000000f71f2cb8       0x1d gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f2cd5        0x3 
+ .rodata.write_ao.part.4.str1.4
+                0x00000000f71f2cd8        0xf gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f2ce7        0x1 
+ .text.hdmirx_IRQHandle
+                0x00000000f71f2ce8       0x92 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+ .text.hdmirx_GpioIRQRegister
+                0x00000000f71f2d7a       0xb8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+                0x00000000f71f2d7a                hdmirx_GpioIRQRegister
+ .text.hdmirx_GpioIRQFree
+                0x00000000f71f2e32       0x3e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+                0x00000000f71f2e32                hdmirx_GpioIRQFree
+ .rodata.__func__.2589
+                0x00000000f71f2e70       0x11 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+ *fill*         0x00000000f71f2e81        0x3 
+ .rodata.__func__.2593
+                0x00000000f71f2e84       0x17 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+ *fill*         0x00000000f71f2e9b        0x1 
+ .rodata.hdmirx_GpioIRQRegister.str1.4
+                0x00000000f71f2e9c       0x2a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+ *fill*         0x00000000f71f2ec6        0x2 
+ .rodata.hdmirx_IRQHandle.str1.4
+                0x00000000f71f2ec8       0x2c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+ .text.mailbox_htbl_init
+                0x00000000f71f2ef4       0x3a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+                0x00000000f71f2ef4                mailbox_htbl_init
+ .text.mailbox_htbl_reg_feedback
+                0x00000000f71f2f2e       0x5c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+                0x00000000f71f2f2e                mailbox_htbl_reg_feedback
+ .text.mailbox_htbl_invokeCmd
+                0x00000000f71f2f8a       0x5e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+                0x00000000f71f2f8a                mailbox_htbl_invokeCmd
+ .rodata.mailbox_htbl_invokeCmd.str1.4
+                0x00000000f71f2fe8       0x17 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+ *fill*         0x00000000f71f2fff        0x1 
+ .rodata.mailbox_htbl_reg.str1.4
+                0x00000000f71f3000       0x4a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+ *fill*         0x00000000f71f304a        0x2 
+ .rodata.mailbox_htbl_reg_feedback.str1.4
+                0x00000000f71f304c       0x20 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+ .text.vMbDefaultHandler
+                0x00000000f71f306c        0x2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+                0x00000000f71f306c                vMbDefaultHandler
+ .text.vSetMbIrqHandler
+                0x00000000f71f306e       0x50 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+                0x00000000f71f306e                vSetMbIrqHandler
+ .text.vEnableMbInterrupt
+                0x00000000f71f30be        0x2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+                0x00000000f71f30be                vEnableMbInterrupt
+ .text.vDisableMbInterrupt
+                0x00000000f71f30c0        0x2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+                0x00000000f71f30c0                vDisableMbInterrupt
+ .text.vClrMbInterrupt
+                0x00000000f71f30c2        0xe gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+                0x00000000f71f30c2                vClrMbInterrupt
+ .text.xGetMbIrqStats
+                0x00000000f71f30d0        0xe gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+                0x00000000f71f30d0                xGetMbIrqStats
+ .text.vMbHandleIsr
+                0x00000000f71f30de       0x88 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .text.xGetRevMbox.part.0
+                0x00000000f71f3166       0x22 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .text.vDspSyncTask
+                0x00000000f71f3188      0x148 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .text.vTeeSyncTask
+                0x00000000f71f32d0      0x14a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .text.vReeSyncTask
+                0x00000000f71f341a      0x14a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .text.vAoRevMbHandler
+                0x00000000f71f3564      0x2e4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .text.vMbInit  0x00000000f71f3848       0xfa gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+                0x00000000f71f3848                vMbInit
+ .text.xInstallRemoteMessageCallbackFeedBack
+                0x00000000f71f3942       0x3e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+                0x00000000f71f3942                xInstallRemoteMessageCallbackFeedBack
+ .rodata.vAoRevMbHandler.str1.4
+                0x00000000f71f3980       0x67 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ *fill*         0x00000000f71f39e7        0x1 
+ .rodata.vMbHandleIsr.str1.4
+                0x00000000f71f39e8       0x1e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ *fill*         0x00000000f71f3a06        0x2 
+ .rodata.vMbInit.str1.4
+                0x00000000f71f3a08       0x64 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .rodata.xGetRevMbox.part.0.str1.4
+                0x00000000f71f3a6c       0x73 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ *fill*         0x00000000f71f3adf        0x1 
+ .rodata.xInstallRemoteMessageCallbackFeedBack.str1.4
+                0x00000000f71f3ae0       0x5e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .text.xMboxUintTeeTestCase
+                0x00000000f71f3b3e       0x16 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+ .text.xMboxUintReeTestCase
+                0x00000000f71f3b54       0x82 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+ .text.vRpcUserCmdInit
+                0x00000000f71f3bd6       0x88 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+                0x00000000f71f3bd6                vRpcUserCmdInit
+ *fill*         0x00000000f71f3c5e        0x2 
+ .rodata        0x00000000f71f3c60       0x14 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+ .rodata.vRpcUserCmdInit.str1.4
+                0x00000000f71f3c74       0x23 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+ .rodata.xMboxUintReeTestCase.str1.4
+                0x00000000f71f3c74       0x27 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+ *fill*         0x00000000f71f3c9b        0x1 
+ .rodata.xMboxUintTeeTestCase.str1.4
+                0x00000000f71f3c9c       0x14 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+                                         0x1c (size before relaxing)
+ .text.version  0x00000000f71f3cb0       0x20 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/get_version//version.o
+                0x00000000f71f3cb0                version
+ .rodata.version.str1.4
+                0x00000000f71f3cd0       0x5e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/get_version//version.o
+ .text.vUartPutc
+                0x00000000f71f3d2e       0x3a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+                0x00000000f71f3d2e                vUartPutc
+ .text.vUartPuts
+                0x00000000f71f3d68       0x20 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+                0x00000000f71f3d68                vUartPuts
+ .text.prvDetectGpioKey
+                0x00000000f71f3d88       0xba gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+ .text.prvGpioKeyHandler
+                0x00000000f71f3e42       0x30 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+ .text.vCreateGpioKey
+                0x00000000f71f3e72      0x112 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+                0x00000000f71f3e72                vCreateGpioKey
+ .text.vDestoryGpioKey
+                0x00000000f71f3f84       0x64 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+                0x00000000f71f3f84                vDestoryGpioKey
+ .text.vGpioKeyEnable
+                0x00000000f71f3fe8       0x70 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+                0x00000000f71f3fe8                vGpioKeyEnable
+ .text.vGpioKeyDisable
+                0x00000000f71f4058       0x28 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+                0x00000000f71f4058                vGpioKeyDisable
+ .rodata.vCreateGpioKey.str1.4
+                0x00000000f71f4080       0x67 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+ *fill*         0x00000000f71f40e7        0x1 
+ .rodata.vDestoryGpioKey.str1.4
+                0x00000000f71f40e8       0x1c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+ .text.xMboxGetWakeupReason
+                0x00000000f71f4104       0x10 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f4104                xMboxGetWakeupReason
+ .text.xMboxClrWakeupReason
+                0x00000000f71f4114        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f4114                xMboxClrWakeupReason
+ .text.xMboxGetStickRebootFlag
+                0x00000000f71f4118       0x22 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f4118                xMboxGetStickRebootFlag
+ .text.xMboxSuspend_Sem
+                0x00000000f71f413a       0x38 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f413a                xMboxSuspend_Sem
+ .text.xMboxpm_sem
+                0x00000000f71f4172        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f4172                xMboxpm_sem
+ .text.vDDR_suspend
+                0x00000000f71f4176        0x2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f4176                vDDR_suspend
+ .text.vDDR_resume
+                0x00000000f71f4178        0x2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f4178                vDDR_resume
+ .text.store_rtc
+                0x00000000f71f417a        0x2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f417a                store_rtc
+ .text.vCLK_suspend
+                0x00000000f71f417c        0x2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f417c                vCLK_suspend
+ .text.vCLK_resume
+                0x00000000f71f417e        0x2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f417e                vCLK_resume
+ .text.system_resume
+                0x00000000f71f4180       0xae gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f4180                system_resume
+ .text.system_suspend
+                0x00000000f71f422e       0x42 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f422e                system_suspend
+ .text.vSTRTask
+                0x00000000f71f4270      0x112 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ *fill*         0x00000000f71f4382        0x2 
+ .rodata.vSTRTask
+                0x00000000f71f4384       0x3c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .text.STR_Wakeup_src_Queue_Send_FromISR
+                0x00000000f71f43c0       0x4c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f43c0                STR_Wakeup_src_Queue_Send_FromISR
+ .text.STR_Wakeup_src_Queue_Send
+                0x00000000f71f440c       0x48 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f440c                STR_Wakeup_src_Queue_Send
+ .text.create_str_task
+                0x00000000f71f4454      0x108 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f4454                create_str_task
+ .rodata.create_str_task.str1.4
+                0x00000000f71f455c       0x24 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                                         0x41 (size before relaxing)
+ .rodata.str1.4
+                0x00000000f71f4580       0x72 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ *fill*         0x00000000f71f45f2        0x2 
+ .rodata.vSTRTask.str1.4
+                0x00000000f71f45f4       0x70 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                                         0x80 (size before relaxing)
+ .rodata.xMboxGetStickRebootFlag.str1.4
+                0x00000000f71f4664       0x1e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ *fill*         0x00000000f71f4682        0x2 
+ .rodata.xMboxSuspend_Sem.str1.4
+                0x00000000f71f4684       0x11 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ *fill*         0x00000000f71f4695        0x1 
+ .text.vPrintTask2
+                0x00000000f71f4696        0xc gcc/main.o
+ .text.vPrintTask1
+                0x00000000f71f46a2        0xe gcc/main.o
+ .text.vPrintSystemStatus
+                0x00000000f71f46b0       0x10 gcc/main.o
+ .text.startup.main
+                0x00000000f71f46c0      0x110 gcc/main.o
+                0x00000000f71f46c0                main
+ .text.vApplicationIdleHook
+                0x00000000f71f47d0        0x6 gcc/main.o
+                0x00000000f71f47d0                vApplicationIdleHook
+ .text.vApplicationMallocFailedHook
+                0x00000000f71f47d6       0x12 gcc/main.o
+                0x00000000f71f47d6                vApplicationMallocFailedHook
+ .text.vApplicationStackOverflowHook
+                0x00000000f71f47e8       0x18 gcc/main.o
+                0x00000000f71f47e8                vApplicationStackOverflowHook
+ .rodata.main.str1.4
+                0x00000000f71f4800       0x7a gcc/main.o
+                                         0x82 (size before relaxing)
+ *fill*         0x00000000f71f487a        0x2 
+ .rodata.vApplicationMallocFailedHook.str1.4
+                0x00000000f71f487c       0x1e gcc/main.o
+ *fill*         0x00000000f71f489a        0x2 
+ .rodata.vApplicationStackOverflowHook.str1.4
+                0x00000000f71f489c       0x1f gcc/main.o
+ *fill*         0x00000000f71f48bb        0x1 
+ .text.vIRHandler
+                0x00000000f71f48bc       0x38 gcc/power.o
+ .text.str_hw_init
+                0x00000000f71f48f4       0x5c gcc/power.o
+                0x00000000f71f48f4                str_hw_init
+ .text.str_hw_disable
+                0x00000000f71f4950       0x32 gcc/power.o
+                0x00000000f71f4950                str_hw_disable
+ .text.str_power_on
+                0x00000000f71f4982       0xca gcc/power.o
+                0x00000000f71f4982                str_power_on
+ .text.str_power_off
+                0x00000000f71f4a4c       0xd0 gcc/power.o
+                0x00000000f71f4a4c                str_power_off
+ .rodata.str_hw_init.str1.4
+                0x00000000f71f4b1c        0x8 gcc/power.o
+ .rodata.str_power_off.str1.4
+                0x00000000f71f4b24       0x1c gcc/power.o
+ .rodata.str_power_on.str1.4
+                0x00000000f71f4b40       0xc4 gcc/power.o
+ .text.vListInitialise
+                0x00000000f71f4c04       0x14 gcc/list.o
+                0x00000000f71f4c04                vListInitialise
+ .text.vListInitialiseItem
+                0x00000000f71f4c18        0x6 gcc/list.o
+                0x00000000f71f4c18                vListInitialiseItem
+ .text.vListInsertEnd
+                0x00000000f71f4c1e       0x18 gcc/list.o
+                0x00000000f71f4c1e                vListInsertEnd
+ .text.vListInsert
+                0x00000000f71f4c36       0x30 gcc/list.o
+                0x00000000f71f4c36                vListInsert
+ .text.uxListRemove
+                0x00000000f71f4c66       0x2e gcc/list.o
+                0x00000000f71f4c66                uxListRemove
+ .text.prvCopyDataToQueue
+                0x00000000f71f4c94       0xa4 gcc/queue.o
+ .text.prvCopyDataFromQueue
+                0x00000000f71f4d38       0x1e gcc/queue.o
+ .text.prvUnlockQueue
+                0x00000000f71f4d56       0xb6 gcc/queue.o
+ .text.xQueueGenericReset
+                0x00000000f71f4e0c       0xa0 gcc/queue.o
+                0x00000000f71f4e0c                xQueueGenericReset
+ .text.xQueueGenericCreate
+                0x00000000f71f4eac       0x82 gcc/queue.o
+                0x00000000f71f4eac                xQueueGenericCreate
+ .text.xQueueGenericSend
+                0x00000000f71f4f2e      0x1c6 gcc/queue.o
+                0x00000000f71f4f2e                xQueueGenericSend
+ .text.xQueueGenericSendFromISR
+                0x00000000f71f50f4       0xfe gcc/queue.o
+                0x00000000f71f50f4                xQueueGenericSendFromISR
+ .text.xQueueReceive
+                0x00000000f71f51f2      0x180 gcc/queue.o
+                0x00000000f71f51f2                xQueueReceive
+ .text.xQueueSemaphoreTake
+                0x00000000f71f5372      0x1de gcc/queue.o
+                0x00000000f71f5372                xQueueSemaphoreTake
+ .text.vQueueAddToRegistry
+                0x00000000f71f5550       0x26 gcc/queue.o
+                0x00000000f71f5550                vQueueAddToRegistry
+ .text.vQueueWaitForMessageRestricted
+                0x00000000f71f5576       0x6c gcc/queue.o
+                0x00000000f71f5576                vQueueWaitForMessageRestricted
+ *fill*         0x00000000f71f55e2        0x2 
+ .rodata.xQueueGenericReset.str1.4
+                0x00000000f71f55e4       0x24 gcc/queue.o
+                                         0x33 (size before relaxing)
+ .text.prvResetNextTaskUnblockTime.part.0
+                0x00000000f71f5608       0x1a gcc/tasks.o
+ .text.prvAddCurrentTaskToDelayedList
+                0x00000000f71f5622       0xb2 gcc/tasks.o
+ .text.vTaskEnterCritical.part.5
+                0x00000000f71f56d4       0x14 gcc/tasks.o
+ .text.vTaskExitCritical.part.6
+                0x00000000f71f56e8       0x1c gcc/tasks.o
+ .text.prvIdleTask
+                0x00000000f71f5704       0xb6 gcc/tasks.o
+ .text.xTaskCreate
+                0x00000000f71f57ba      0x260 gcc/tasks.o
+                0x00000000f71f57ba                xTaskCreate
+ .text.vTaskDelete
+                0x00000000f71f5a1a      0x130 gcc/tasks.o
+                0x00000000f71f5a1a                vTaskDelete
+ .text.vTaskStartScheduler
+                0x00000000f71f5b4a       0x8c gcc/tasks.o
+                0x00000000f71f5b4a                vTaskStartScheduler
+ .text.vTaskSuspendAll
+                0x00000000f71f5bd6       0x10 gcc/tasks.o
+                0x00000000f71f5bd6                vTaskSuspendAll
+ .text.xTaskGetTickCount
+                0x00000000f71f5be6       0x46 gcc/tasks.o
+                0x00000000f71f5be6                xTaskGetTickCount
+ .text.xTaskIncrementTick
+                0x00000000f71f5c2c      0x1cc gcc/tasks.o
+                0x00000000f71f5c2c                xTaskIncrementTick
+ .text.xTaskResumeAll
+                0x00000000f71f5df8      0x182 gcc/tasks.o
+                0x00000000f71f5df8                xTaskResumeAll
+ .text.vTaskDelay
+                0x00000000f71f5f7a       0x60 gcc/tasks.o
+                0x00000000f71f5f7a                vTaskDelay
+ .text.vTaskSwitchContext
+                0x00000000f71f5fda       0xc2 gcc/tasks.o
+                0x00000000f71f5fda                vTaskSwitchContext
+ .text.vTaskPlaceOnEventList
+                0x00000000f71f609c       0x48 gcc/tasks.o
+                0x00000000f71f609c                vTaskPlaceOnEventList
+ .text.vTaskPlaceOnEventListRestricted
+                0x00000000f71f60e4       0x52 gcc/tasks.o
+                0x00000000f71f60e4                vTaskPlaceOnEventListRestricted
+ .text.xTaskRemoveFromEventList
+                0x00000000f71f6136       0xb8 gcc/tasks.o
+                0x00000000f71f6136                xTaskRemoveFromEventList
+ .text.vTaskInternalSetTimeOutState
+                0x00000000f71f61ee       0x1a gcc/tasks.o
+                0x00000000f71f61ee                vTaskInternalSetTimeOutState
+ .text.xTaskCheckForTimeOut
+                0x00000000f71f6208       0xee gcc/tasks.o
+                0x00000000f71f6208                xTaskCheckForTimeOut
+ .text.vTaskMissedYield
+                0x00000000f71f62f6        0xc gcc/tasks.o
+                0x00000000f71f62f6                vTaskMissedYield
+ .text.xTaskGetSchedulerState
+                0x00000000f71f6302       0x20 gcc/tasks.o
+                0x00000000f71f6302                xTaskGetSchedulerState
+ .text.xTaskPriorityInherit
+                0x00000000f71f6322       0xb6 gcc/tasks.o
+                0x00000000f71f6322                xTaskPriorityInherit
+ .text.xTaskPriorityDisinherit
+                0x00000000f71f63d8       0xc0 gcc/tasks.o
+                0x00000000f71f63d8                xTaskPriorityDisinherit
+ .text.vTaskPriorityDisinheritAfterTimeout
+                0x00000000f71f6498       0xe6 gcc/tasks.o
+                0x00000000f71f6498                vTaskPriorityDisinheritAfterTimeout
+ .text.vTaskEnterCritical
+                0x00000000f71f657e       0x16 gcc/tasks.o
+                0x00000000f71f657e                vTaskEnterCritical
+ .text.vTaskExitCritical
+                0x00000000f71f6594       0x20 gcc/tasks.o
+                0x00000000f71f6594                vTaskExitCritical
+ .text.pvTaskIncrementMutexHeldCount
+                0x00000000f71f65b4       0x18 gcc/tasks.o
+                0x00000000f71f65b4                pvTaskIncrementMutexHeldCount
+ .text.ulTaskNotifyTake
+                0x00000000f71f65cc       0xaa gcc/tasks.o
+                0x00000000f71f65cc                ulTaskNotifyTake
+ .text.vTaskNotifyGiveFromISR
+                0x00000000f71f6676       0xfe gcc/tasks.o
+                0x00000000f71f6676                vTaskNotifyGiveFromISR
+ .text.vTaskDumpStack
+                0x00000000f71f6774       0x94 gcc/tasks.o
+                0x00000000f71f6774                vTaskDumpStack
+ .rodata.vTaskDelete.str1.4
+                0x00000000f71f6808       0x24 gcc/tasks.o
+                                         0x33 (size before relaxing)
+ .rodata.vTaskDumpStack.str1.4
+                0x00000000f71f682c       0x1e gcc/tasks.o
+                                         0x22 (size before relaxing)
+ *fill*         0x00000000f71f684a        0x2 
+ .rodata.vTaskStartScheduler.str1.4
+                0x00000000f71f684c        0x5 gcc/tasks.o
+ *fill*         0x00000000f71f6851        0x1 
+ .text.prvCheckForValidListAndQueue
+                0x00000000f71f6852       0x72 gcc/timers.o
+ .text.prvInsertTimerInActiveList
+                0x00000000f71f68c4       0x5c gcc/timers.o
+ .text.xTimerCreateTimerTask
+                0x00000000f71f6920       0x5e gcc/timers.o
+                0x00000000f71f6920                xTimerCreateTimerTask
+ .text.xTimerCreate
+                0x00000000f71f697e       0x78 gcc/timers.o
+                0x00000000f71f697e                xTimerCreate
+ .text.xTimerGenericCommand
+                0x00000000f71f69f6       0x8c gcc/timers.o
+                0x00000000f71f69f6                xTimerGenericCommand
+ .text.prvSwitchTimerLists
+                0x00000000f71f6a82       0xb0 gcc/timers.o
+ .text.prvTimerTask
+                0x00000000f71f6b32      0x224 gcc/timers.o
+ *fill*         0x00000000f71f6d56        0x2 
+ .rodata.prvCheckForValidListAndQueue.str1.4
+                0x00000000f71f6d58        0x5 gcc/timers.o
+ *fill*         0x00000000f71f6d5d        0x3 
+ .rodata.xTimerCreateTimerTask.str1.4
+                0x00000000f71f6d60       0x30 gcc/timers.o
+                                         0x40 (size before relaxing)
+ .text.prvTaskExitError
+                0x00000000f71f6d90       0x44 gcc/port.o
+ .text.ulSynchTrap
+                0x00000000f71f6dd4      0x194 gcc/port.o
+                0x00000000f71f6dd4                ulSynchTrap
+ .text.vPortClearInterruptMask
+                0x00000000f71f6f68        0x8 gcc/port.o
+                0x00000000f71f6f68                vPortClearInterruptMask
+ .text.xPortSetInterruptMask
+                0x00000000f71f6f70       0x1e gcc/port.o
+                0x00000000f71f6f70                xPortSetInterruptMask
+ .text.pxPortInitialiseStack
+                0x00000000f71f6f8e       0x50 gcc/port.o
+                0x00000000f71f6f8e                pxPortInitialiseStack
+ .text.vPortSysTickHandler
+                0x00000000f71f6fde       0x3a gcc/port.o
+                0x00000000f71f6fde                vPortSysTickHandler
+ .text.vPortSetupTimer
+                0x00000000f71f7018       0x54 gcc/port.o
+                0x00000000f71f7018                vPortSetupTimer
+ .text.vPortSetup
+                0x00000000f71f706c       0x16 gcc/port.o
+                0x00000000f71f706c                vPortSetup
+ *fill*         0x00000000f71f7082        0x2 
+ .rodata.prvTaskExitError.str1.4
+                0x00000000f71f7084       0x4e gcc/port.o
+                                         0x5e (size before relaxing)
+ *fill*         0x00000000f71f70d2        0x2 
+ .rodata.ulSynchTrap.str1.4
+                0x00000000f71f70d4      0x1c6 gcc/port.o
+ *fill*         0x00000000f71f729a       0x26 
+ .text.entry    0x00000000f71f72c0      0x324 gcc/portasm.o
+                0x00000000f71f72c0                trap_entry
+                0x00000000f71f734c                irq_entry
+                0x00000000f71f7408                eclic_mtip_handler
+                0x00000000f71f74b8                xPortStartScheduler
+                0x00000000f71f7540                vPortYield
+                0x00000000f71f75b6                vPortEndScheduler
+ .text.prvInsertBlockIntoFreeList
+                0x00000000f71f75e4       0x52 gcc/heap_5.o
+ .text.vPortFree
+                0x00000000f71f7636       0x9a gcc/heap_5.o
+                0x00000000f71f7636                vPortFree
+ .text.vPortDefineHeapRegions
+                0x00000000f71f76d0      0x178 gcc/heap_5.o
+                0x00000000f71f76d0                vPortDefineHeapRegions
+ .text.pvPortMalloc
+                0x00000000f71f7848      0x122 gcc/heap_5.o
+                0x00000000f71f7848                pvPortMalloc
+ *fill*         0x00000000f71f796a        0x2 
+ .rodata.vPortFree.str1.4
+                0x00000000f71f796c       0x36 gcc/heap_5.o
+                                         0x47 (size before relaxing)
+ .text.xPortIsIsrContext
+                0x00000000f71f79a2        0xa gcc/n200_func.o
+                0x00000000f71f79a2                xPortIsIsrContext
+ .text.eclic_init
+                0x00000000f71f79ac       0x3a gcc/interrupt_control.o
+                0x00000000f71f79ac                eclic_init
+ .text.eclic_enable_interrupt
+                0x00000000f71f79e6       0x12 gcc/interrupt_control.o
+                0x00000000f71f79e6                eclic_enable_interrupt
+ .text.eclic_set_intctrl
+                0x00000000f71f79f8       0x10 gcc/interrupt_control.o
+                0x00000000f71f79f8                eclic_set_intctrl
+ .text.eclic_set_intattr
+                0x00000000f71f7a08       0x10 gcc/interrupt_control.o
+                0x00000000f71f7a08                eclic_set_intattr
+ .text.eclic_get_intattr
+                0x00000000f71f7a18       0x10 gcc/interrupt_control.o
+                0x00000000f71f7a18                eclic_get_intattr
+ .text.eclic_set_mth
+                0x00000000f71f7a28        0xa gcc/interrupt_control.o
+                0x00000000f71f7a28                eclic_set_mth
+ .text.eclic_get_mth
+                0x00000000f71f7a32        0xa gcc/interrupt_control.o
+                0x00000000f71f7a32                eclic_get_mth
+ .text.eclic_set_nlbits
+                0x00000000f71f7a3c       0x18 gcc/interrupt_control.o
+                0x00000000f71f7a3c                eclic_set_nlbits
+ .text.int_src_sel
+                0x00000000f71f7a54       0x6c gcc/interrupt_control.o
+                0x00000000f71f7a54                int_src_sel
+ .text.int_src_clean
+                0x00000000f71f7ac0       0x4a gcc/interrupt_control.o
+                0x00000000f71f7ac0                int_src_clean
+ .text.eclic_map_interrupt
+                0x00000000f71f7b0a       0x46 gcc/interrupt_control.o
+                0x00000000f71f7b0a                eclic_map_interrupt
+ .text.RegisterIrq
+                0x00000000f71f7b50       0xd2 gcc/interrupt_control.o
+                0x00000000f71f7b50                RegisterIrq
+ .text.UnRegisterIrq
+                0x00000000f71f7c22       0x8c gcc/interrupt_control.o
+                0x00000000f71f7c22                UnRegisterIrq
+ .text.EnableIrq
+                0x00000000f71f7cae       0x4a gcc/interrupt_control.o
+                0x00000000f71f7cae                EnableIrq
+ .text.DisableIrq
+                0x00000000f71f7cf8       0x46 gcc/interrupt_control.o
+                0x00000000f71f7cf8                DisableIrq
+ .text.ClearPendingIrq
+                0x00000000f71f7d3e       0x4e gcc/interrupt_control.o
+                0x00000000f71f7d3e                ClearPendingIrq
+ .rodata.RegisterIrq.str1.4
+                0x00000000f71f7d8c       0x12 gcc/interrupt_control.o
+ *fill*         0x00000000f71f7d9e        0x2 
+ .rodata.UnRegisterIrq.str1.4
+                0x00000000f71f7da0       0x23 gcc/interrupt_control.o
+ *fill*         0x00000000f71f7dc3        0x1 
+ .rodata.eclic_map_interrupt.str1.4
+                0x00000000f71f7dc4       0x1f gcc/interrupt_control.o
+ *fill*         0x00000000f71f7de3        0x1 
+ .rodata.int_src_sel.str1.4
+                0x00000000f71f7de4       0x1c gcc/interrupt_control.o
+ .text.strlen   0x00000000f71f7e00       0x1e gcc/util.o
+                0x00000000f71f7e00                strlen
+ .text.memcpy   0x00000000f71f7e1e       0x84 gcc/util.o
+                0x00000000f71f7e1e                memcpy
+ .text.memset   0x00000000f71f7ea2       0x74 gcc/util.o
+                0x00000000f71f7ea2                memset
+ .text.uint64divmod
+                0x00000000f71f7f16       0xc2 gcc/util.o
+                0x00000000f71f7f16                uint64divmod
+ .text.snprintf_addchar
+                0x00000000f71f7fd8       0x20 gcc/myprintf.o
+ .text.vfnprintf
+                0x00000000f71f7ff8      0x494 gcc/myprintf.o
+                0x00000000f71f7ff8                vfnprintf
+ .rodata.vfnprintf
+                0x00000000f71f848c      0x128 gcc/myprintf.o
+ .text.iprintf  0x00000000f71f85b4       0x68 gcc/myprintf.o
+                0x00000000f71f85b4                iprintf
+ .text.vGpioKeyCallBack
+                0x00000000f71f861c       0x40 gcc/keypad.o
+ .text.vKeyPadInit
+                0x00000000f71f865c       0x1a gcc/keypad.o
+                0x00000000f71f865c                vKeyPadInit
+ .text.vKeyPadDeinit
+                0x00000000f71f8676       0x10 gcc/keypad.o
+                0x00000000f71f8676                vKeyPadDeinit
+ *fill*         0x00000000f71f8686        0x2 
+ .rodata.vGpioKeyCallBack.str1.4
+                0x00000000f71f8688       0x34 gcc/keypad.o
+ .text.Bt_IRQHandle
+                0x00000000f71f86bc       0x62 gcc/btwake.o
+ .text.Bt_GpioIRQRegister
+                0x00000000f71f871e       0x38 gcc/btwake.o
+                0x00000000f71f871e                Bt_GpioIRQRegister
+ .text.Bt_GpioIRQFree
+                0x00000000f71f8756       0x24 gcc/btwake.o
+                0x00000000f71f8756                Bt_GpioIRQFree
+ *fill*         0x00000000f71f877a        0x2 
+ .rodata.Bt_GpioIRQRegister.str1.4
+                0x00000000f71f877c        0x7 gcc/btwake.o
+ *fill*         0x00000000f71f8783        0x1 
+ .rodata.Bt_IRQHandle.str1.4
+                0x00000000f71f8784       0x20 gcc/btwake.o
+ .rodata.__func__.2589
+                0x00000000f71f87a4        0xd gcc/btwake.o
+ *fill*         0x00000000f71f87b1        0x3 
+ .rodata.__func__.2593
+                0x00000000f71f87b4       0x13 gcc/btwake.o
+ *fill*         0x00000000f71f87c7        0x1 
+ .rodata.__func__.2597
+                0x00000000f71f87c8        0xf gcc/btwake.o
+ *fill*         0x00000000f71f87d7        0x1 
+ .rodata.__clz_tab
+                0x00000000f71f87d8      0x100 /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a(_clz.o)
+                0x00000000f71f87d8                __clz_tab
+ .text.__udivdi3
+                0x00000000f71f88d8      0x4a0 /opt/toolchains/xpack-riscv-none-embed-gcc-8.3.0-1.2/bin/../lib/gcc/riscv-none-embed/8.3.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+                0x00000000f71f88d8                __udivdi3
+                0x00000000f71f8e00                . = ALIGN (0x100)
+ *fill*         0x00000000f71f8d78       0x88 
+                [!provide]                        PROVIDE (_etext = .)
+ *(.vtable)
+ .vtable        0x00000000f71f8e00       0xcc gcc/vtable.o
+                0x00000000f71f8e00                vector_base
+
+.rela.dyn       0x00000000f71f8ecc        0x0
+ .rela.text.system_resume
+                0x00000000f71f8ecc        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+ .rela.text.system_suspend
+                0x00000000f71f8ecc        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+ .rela.init     0x00000000f71f8ecc        0x0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+
+.data           0x00000000f71f8ecc      0x238
+                0x00000000f71f8ecc                _data = .
+ *(vtable)
+ *(.sdata* .data*)
+ .data.eeIRQs   0x00000000f71f8ecc       0x60 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+ .sdata2.__func__.3110
+                0x00000000f71f8f2c        0x8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .data.xNECLegacyRegList
+                0x00000000f71f8f34       0x38 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+ .data.xNECRegList
+                0x00000000f71f8f6c       0x50 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+ .data.xSupportProtocol
+                0x00000000f71f8fbc        0xc gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+ .sdata.xNECDecode
+                0x00000000f71f8fc8        0x8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+ .sdata.xNECLegacyDecode
+                0x00000000f71f8fd0        0x8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+ .data.cec_reg_tab
+                0x00000000f71f8fd8       0x60 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+                0x00000000f71f8fd8                cec_reg_tab
+ .sdata.cec_timeout_cnt.3463
+                0x00000000f71f9038        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .sdata2.__func__.3313
+                0x00000000f71f903c        0x8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .data.vWakeupReason
+                0x00000000f71f9044       0x3c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f9044                vWakeupReason
+ .data.prvPowerKeyList
+                0x00000000f71f9080       0x38 gcc/power.o
+ .sdata.MSTATUS_INIT
+                0x00000000f71f90b8        0x4 gcc/port.o
+                0x00000000f71f90b8                MSTATUS_INIT
+ .sdata.uxCriticalNesting
+                0x00000000f71f90bc        0x4 gcc/port.o
+                0x00000000f71f90bc                uxCriticalNesting
+ .data.xDefRegion
+                0x00000000f71f90c0       0x10 gcc/heap_5.o
+ .sdata2.error_str
+                0x00000000f71f90d0        0x6 gcc/myprintf.o
+ *fill*         0x00000000f71f90d6        0x2 
+ .data.gpioKeyInfo
+                0x00000000f71f90d8       0x2c gcc/keypad.o
+                0x00000000f71f90d8                gpioKeyInfo
+                0x00000000f71f9104                _edata = .
+
+.bss            0x00000000f71f9104      0xa14
+                0x00000000f71f9104                _bss = .
+ *(.sbss*)
+ .sbss.last_time
+                0x00000000f71f9104        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .sbss.time_start
+                0x00000000f71f9108        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .sbss.xRTCTimer
+                0x00000000f71f910c        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .sbss.busy_count.3625
+                0x00000000f71f9110        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .sbss.cec_chip
+                0x00000000f71f9114        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .sbss.cec_ip   0x00000000f71f9118        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .sbss.cec_wait_addr
+                0x00000000f71f911c        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .sbss.cec_wakup
+                0x00000000f71f9120        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .sbss.cec_wakup_flag
+                0x00000000f71f9124        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .sbss.hdmi_cec_func_config
+                0x00000000f71f9128        0x1 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f9129        0x3 
+ .sbss.idle_cnt
+                0x00000000f71f912c        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .sbss.idx.3648
+                0x00000000f71f9130        0x1 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f9131        0x3 
+ .sbss.ping_state
+                0x00000000f71f9134        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .sbss.probe    0x00000000f71f9138        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .sbss.retry.3647
+                0x00000000f71f913c        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .sbss.sub_idx.3649
+                0x00000000f71f9140        0x1 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f9141        0x3 
+ .sbss.DspmbHandler
+                0x00000000f71f9144        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+                0x00000000f71f9144                DspmbHandler
+ .sbss.ReembHandler
+                0x00000000f71f9148        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+                0x00000000f71f9148                ReembHandler
+ .sbss.TeembHandler
+                0x00000000f71f914c        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+                0x00000000f71f914c                TeembHandler
+ .sbss.g_tbl_ao
+                0x00000000f71f9150        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+                0x00000000f71f9150                g_tbl_ao
+ .sbss.ulDspSyncTaskWake
+                0x00000000f71f9154        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .sbss.ulReeSyncTaskWake
+                0x00000000f71f9158        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .sbss.ulTeeSyncTaskWake
+                0x00000000f71f915c        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .sbss.xGpioKeyCycleTimer
+                0x00000000f71f9160        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+ .sbss.xHeadKey
+                0x00000000f71f9164        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+ .sbss.power_mode
+                0x00000000f71f9168        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f9168                power_mode
+ .sbss.suspend_flag
+                0x00000000f71f916c        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f916c                suspend_flag
+ .sbss.xSTRQueue
+                0x00000000f71f9170        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f9170                xSTRQueue
+ .sbss.xSTRSemaphore
+                0x00000000f71f9174        0x4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                0x00000000f71f9174                xSTRSemaphore
+ .sbss.xSoftTimer
+                0x00000000f71f9178        0x4 gcc/main.o
+                0x00000000f71f9178                xSoftTimer
+ .sbss.cecTask  0x00000000f71f917c        0x4 gcc/power.o
+ .sbss.pxCurrentTCB
+                0x00000000f71f9180        0x4 gcc/tasks.o
+                0x00000000f71f9180                pxCurrentTCB
+ .sbss.pxDelayedTaskList
+                0x00000000f71f9184        0x4 gcc/tasks.o
+ .sbss.pxOverflowDelayedTaskList
+                0x00000000f71f9188        0x4 gcc/tasks.o
+ .sbss.uxCurrentNumberOfTasks
+                0x00000000f71f918c        0x4 gcc/tasks.o
+ .sbss.uxDeletedTasksWaitingCleanUp
+                0x00000000f71f9190        0x4 gcc/tasks.o
+ .sbss.uxPendedTicks
+                0x00000000f71f9194        0x4 gcc/tasks.o
+ .sbss.uxSchedulerSuspended
+                0x00000000f71f9198        0x4 gcc/tasks.o
+ .sbss.uxTaskNumber
+                0x00000000f71f919c        0x4 gcc/tasks.o
+ .sbss.uxTopReadyPriority
+                0x00000000f71f91a0        0x4 gcc/tasks.o
+ .sbss.xIdleTaskHandle
+                0x00000000f71f91a4        0x4 gcc/tasks.o
+ .sbss.xNextTaskUnblockTime
+                0x00000000f71f91a8        0x4 gcc/tasks.o
+ .sbss.xNumOfOverflows
+                0x00000000f71f91ac        0x4 gcc/tasks.o
+ .sbss.xSchedulerRunning
+                0x00000000f71f91b0        0x4 gcc/tasks.o
+ .sbss.xTickCount
+                0x00000000f71f91b4        0x4 gcc/tasks.o
+ .sbss.xYieldPending
+                0x00000000f71f91b8        0x4 gcc/tasks.o
+ .sbss.pxCurrentTimerList
+                0x00000000f71f91bc        0x4 gcc/timers.o
+ .sbss.pxOverflowTimerList
+                0x00000000f71f91c0        0x4 gcc/timers.o
+ .sbss.xLastTime.2870
+                0x00000000f71f91c4        0x4 gcc/timers.o
+ .sbss.xTimerQueue
+                0x00000000f71f91c8        0x4 gcc/timers.o
+ .sbss.xTimerTaskHandle
+                0x00000000f71f91cc        0x4 gcc/timers.o
+ .sbss.pxEnd    0x00000000f71f91d0        0x4 gcc/heap_5.o
+ .sbss.xBlockAllocatedBit
+                0x00000000f71f91d4        0x4 gcc/heap_5.o
+ .sbss.xFreeBytesRemaining
+                0x00000000f71f91d8        0x4 gcc/heap_5.o
+ .sbss.xMinimumEverFreeBytesRemaining
+                0x00000000f71f91dc        0x4 gcc/heap_5.o
+ .sbss.xStart   0x00000000f71f91e0        0x8 gcc/heap_5.o
+ *(.gnu.linkonce.sb.*)
+ *(.bss .bss.*)
+ .bss.GpioIrqRegBackup
+                0x00000000f71f91e8       0x20 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+ .bss.xIRDrvPrvData
+                0x00000000f71f9208       0x10 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+ .bss.cec_as_msg
+                0x00000000f71f9218       0x11 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f9229        0x3 
+ .bss.cec_mailbox
+                0x00000000f71f922c       0x1c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+                0x00000000f71f922c                cec_mailbox
+ .bss.cec_msg   0x00000000f71f9248       0x29 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f9271        0x3 
+ .bss.cec_otp_msg
+                0x00000000f71f9274       0x11 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ *fill*         0x00000000f71f9285        0x3 
+ .bss.cec_tx_msgs
+                0x00000000f71f9288       0x4a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+                0x00000000f71f9288                cec_tx_msgs
+ *fill*         0x00000000f71f92d2        0x2 
+ .bss.xMbHandlerTable
+                0x00000000f71f92d4      0x300 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+                0x00000000f71f92d4                xMbHandlerTable
+ .bss.syncDspMbInfo
+                0x00000000f71f95d4       0x88 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+                0x00000000f71f95d4                syncDspMbInfo
+ .bss.syncReeMbInfo
+                0x00000000f71f965c       0x88 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+                0x00000000f71f965c                syncReeMbInfo
+ .bss.syncTeeMbInfo
+                0x00000000f71f96e4       0x88 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+                0x00000000f71f96e4                syncTeeMbInfo
+ .bss.xQueueRegistry
+                0x00000000f71f976c       0x50 gcc/queue.o
+                0x00000000f71f976c                xQueueRegistry
+ .bss.pxReadyTasksLists
+                0x00000000f71f97bc       0x50 gcc/tasks.o
+ .bss.xDelayedTaskList1
+                0x00000000f71f980c       0x14 gcc/tasks.o
+ .bss.xDelayedTaskList2
+                0x00000000f71f9820       0x14 gcc/tasks.o
+ .bss.xPendingReadyList
+                0x00000000f71f9834       0x14 gcc/tasks.o
+ .bss.xSuspendedTaskList
+                0x00000000f71f9848       0x14 gcc/tasks.o
+ .bss.xTasksWaitingTermination
+                0x00000000f71f985c       0x14 gcc/tasks.o
+ .bss.xActiveTimerList1
+                0x00000000f71f9870       0x14 gcc/timers.o
+ .bss.xActiveTimerList2
+                0x00000000f71f9884       0x14 gcc/timers.o
+ .bss.eclic_interrupt_inner
+                0x00000000f71f9898       0x80 gcc/interrupt_control.o
+                0x00000000f71f9898                eclic_interrupt_inner
+ .bss.printbuffer
+                0x00000000f71f9918      0x200 gcc/myprintf.o
+ *(.gnu.linkonce.b.*)
+                0x00000000f71f9b18                . = ALIGN (0x4)
+                0x00000000f71f9b18                _ebss = .
+
+.stack          0x00000000f71f9b18      0x8e8
+                [!provide]                        PROVIDE (_stack = .)
+                0x00000000f71f9c00                . = ALIGN (0x400)
+ *fill*         0x00000000f71f9b18       0xe8 
+                0x00000000f71fa400                . = (. + __stack_size)
+ *fill*         0x00000000f71f9c00      0x800 
+                0x00000000f71fa400                PROVIDE (_sp = .)
+OUTPUT(gcc/RTOSDemo.axf elf32-littleriscv)
+
+.debug_info     0x0000000000000000    0x28d06
+ .debug_info    0x0000000000000000      0xb49 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+ .debug_info    0x0000000000000b49      0xef2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .debug_info    0x0000000000001a3b     0x18ec gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+ .debug_info    0x0000000000003327      0xf5d gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+ .debug_info    0x0000000000004284      0xdb8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+ .debug_info    0x000000000000503c     0x169a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .debug_info    0x00000000000066d6      0xc6d gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+ .debug_info    0x0000000000007343     0x4f49 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .debug_info    0x000000000000c28c      0xdc3 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+ .debug_info    0x000000000000d04f      0xe01 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+ .debug_info    0x000000000000de50      0xba3 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+ .debug_info    0x000000000000e9f3     0x1d66 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .debug_info    0x0000000000010759      0xd10 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+ .debug_info    0x0000000000011469      0x986 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/get_version//version.o
+ .debug_info    0x0000000000011def      0xa52 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+ .debug_info    0x0000000000012841     0x10ed gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+ .debug_info    0x000000000001392e     0x15a6 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .debug_info    0x0000000000014ed4      0xec0 gcc/main.o
+ .debug_info    0x0000000000015d94     0x100f gcc/power.o
+ .debug_info    0x0000000000016da3      0xb93 gcc/list.o
+ .debug_info    0x0000000000017936     0x2de5 gcc/queue.o
+ .debug_info    0x000000000001a71b     0x3e4e gcc/tasks.o
+ .debug_info    0x000000000001e569     0x1f37 gcc/timers.o
+ .debug_info    0x00000000000204a0     0x11c5 gcc/port.o
+ .debug_info    0x0000000000021665       0x26 gcc/portasm.o
+ .debug_info    0x000000000002168b     0x1036 gcc/heap_5.o
+ .debug_info    0x00000000000226c1      0xdf2 gcc/n200_func.o
+ .debug_info    0x00000000000234b3     0x1a23 gcc/interrupt_control.o
+ .debug_info    0x0000000000024ed6     0x1393 gcc/util.o
+ .debug_info    0x0000000000026269     0x116a gcc/myprintf.o
+ .debug_info    0x00000000000273d3       0x26 gcc/start.o
+ .debug_info    0x00000000000273f9      0xd56 gcc/keypad.o
+ .debug_info    0x000000000002814f      0xbb7 gcc/btwake.o
+
+.debug_abbrev   0x0000000000000000     0x66c7
+ .debug_abbrev  0x0000000000000000      0x2e8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+ .debug_abbrev  0x00000000000002e8      0x345 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .debug_abbrev  0x000000000000062d      0x32d gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+ .debug_abbrev  0x000000000000095a      0x2ee gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+ .debug_abbrev  0x0000000000000c48      0x24c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+ .debug_abbrev  0x0000000000000e94      0x402 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .debug_abbrev  0x0000000000001296      0x1ef gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+ .debug_abbrev  0x0000000000001485      0x569 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .debug_abbrev  0x00000000000019ee      0x233 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+ .debug_abbrev  0x0000000000001c21      0x305 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+ .debug_abbrev  0x0000000000001f26      0x25d gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+ .debug_abbrev  0x0000000000002183      0x4f8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .debug_abbrev  0x000000000000267b      0x2ea gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+ .debug_abbrev  0x0000000000002965      0x1c4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/get_version//version.o
+ .debug_abbrev  0x0000000000002b29      0x26a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+ .debug_abbrev  0x0000000000002d93      0x366 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+ .debug_abbrev  0x00000000000030f9      0x4fd gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .debug_abbrev  0x00000000000035f6      0x2f7 gcc/main.o
+ .debug_abbrev  0x00000000000038ed      0x295 gcc/power.o
+ .debug_abbrev  0x0000000000003b82      0x21b gcc/list.o
+ .debug_abbrev  0x0000000000003d9d      0x484 gcc/queue.o
+ .debug_abbrev  0x0000000000004221      0x502 gcc/tasks.o
+ .debug_abbrev  0x0000000000004723      0x3e7 gcc/timers.o
+ .debug_abbrev  0x0000000000004b0a      0x34b gcc/port.o
+ .debug_abbrev  0x0000000000004e55       0x14 gcc/portasm.o
+ .debug_abbrev  0x0000000000004e69      0x3bc gcc/heap_5.o
+ .debug_abbrev  0x0000000000005225      0x2ce gcc/n200_func.o
+ .debug_abbrev  0x00000000000054f3      0x4f6 gcc/interrupt_control.o
+ .debug_abbrev  0x00000000000059e9      0x3ef gcc/util.o
+ .debug_abbrev  0x0000000000005dd8      0x42b gcc/myprintf.o
+ .debug_abbrev  0x0000000000006203       0x14 gcc/start.o
+ .debug_abbrev  0x0000000000006217      0x27d gcc/keypad.o
+ .debug_abbrev  0x0000000000006494      0x233 gcc/btwake.o
+
+.debug_loc      0x0000000000000000    0x10288
+ .debug_loc     0x0000000000000000      0x1aa gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+ .debug_loc     0x00000000000001aa      0x1d4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .debug_loc     0x000000000000037e      0xe79 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+ .debug_loc     0x00000000000011f7      0x4de gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+ .debug_loc     0x00000000000016d5      0x244 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+ .debug_loc     0x0000000000001919      0x77e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .debug_loc     0x0000000000002097     0x385e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .debug_loc     0x00000000000058f5      0x718 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+ .debug_loc     0x000000000000600d       0xfb gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+ .debug_loc     0x0000000000006108      0x7ba gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .debug_loc     0x00000000000068c2      0x1a3 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+ .debug_loc     0x0000000000006a65       0x58 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+ .debug_loc     0x0000000000006abd      0x316 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+ .debug_loc     0x0000000000006dd3      0x32a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .debug_loc     0x00000000000070fd       0xe9 gcc/main.o
+ .debug_loc     0x00000000000071e6      0x194 gcc/power.o
+ .debug_loc     0x000000000000737a       0x58 gcc/list.o
+ .debug_loc     0x00000000000073d2     0x207c gcc/queue.o
+ .debug_loc     0x000000000000944e     0x25c2 gcc/tasks.o
+ .debug_loc     0x000000000000ba10      0xf9e gcc/timers.o
+ .debug_loc     0x000000000000c9ae      0x3ff gcc/port.o
+ .debug_loc     0x000000000000cdad      0x563 gcc/heap_5.o
+ .debug_loc     0x000000000000d310       0x93 gcc/n200_func.o
+ .debug_loc     0x000000000000d3a3      0xe6c gcc/interrupt_control.o
+ .debug_loc     0x000000000000e20f     0x11f5 gcc/util.o
+ .debug_loc     0x000000000000f404      0xe3e gcc/myprintf.o
+ .debug_loc     0x0000000000010242       0x46 gcc/keypad.o
+
+.debug_aranges  0x0000000000000000      0xe20
+ .debug_aranges
+                0x0000000000000000       0x40 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+ .debug_aranges
+                0x0000000000000040       0x68 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .debug_aranges
+                0x00000000000000a8       0x40 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+ .debug_aranges
+                0x00000000000000e8       0x58 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+ .debug_aranges
+                0x0000000000000140       0x30 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+ .debug_aranges
+                0x0000000000000170       0x60 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .debug_aranges
+                0x00000000000001d0       0x28 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+ .debug_aranges
+                0x00000000000001f8       0xf8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .debug_aranges
+                0x00000000000002f0       0x30 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+ .debug_aranges
+                0x0000000000000320       0x48 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+ .debug_aranges
+                0x0000000000000368       0x48 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+ .debug_aranges
+                0x00000000000003b0       0x60 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .debug_aranges
+                0x0000000000000410       0x30 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+ .debug_aranges
+                0x0000000000000440       0x20 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/get_version//version.o
+ .debug_aranges
+                0x0000000000000460       0x40 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+ .debug_aranges
+                0x00000000000004a0       0x50 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+ .debug_aranges
+                0x00000000000004f0       0xc0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .debug_aranges
+                0x00000000000005b0       0x60 gcc/main.o
+ .debug_aranges
+                0x0000000000000610       0x40 gcc/power.o
+ .debug_aranges
+                0x0000000000000650       0x40 gcc/list.o
+ .debug_aranges
+                0x0000000000000690       0xe0 gcc/queue.o
+ .debug_aranges
+                0x0000000000000770      0x1d8 gcc/tasks.o
+ .debug_aranges
+                0x0000000000000948       0x98 gcc/timers.o
+ .debug_aranges
+                0x00000000000009e0       0x70 gcc/port.o
+ .debug_aranges
+                0x0000000000000a50       0x20 gcc/portasm.o
+ .debug_aranges
+                0x0000000000000a70       0x50 gcc/heap_5.o
+ .debug_aranges
+                0x0000000000000ac0       0x88 gcc/n200_func.o
+ .debug_aranges
+                0x0000000000000b48      0x148 gcc/interrupt_control.o
+ .debug_aranges
+                0x0000000000000c90       0xc0 gcc/util.o
+ .debug_aranges
+                0x0000000000000d50       0x48 gcc/myprintf.o
+ .debug_aranges
+                0x0000000000000d98       0x20 gcc/start.o
+ .debug_aranges
+                0x0000000000000db8       0x38 gcc/keypad.o
+ .debug_aranges
+                0x0000000000000df0       0x30 gcc/btwake.o
+
+.debug_ranges   0x0000000000000000     0x2f80
+ .debug_ranges  0x0000000000000000       0x60 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+ .debug_ranges  0x0000000000000060       0xb8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .debug_ranges  0x0000000000000118      0x418 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+ .debug_ranges  0x0000000000000530       0x80 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+ .debug_ranges  0x00000000000005b0       0xa0 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+ .debug_ranges  0x0000000000000650      0x148 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .debug_ranges  0x0000000000000798       0x18 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+ .debug_ranges  0x00000000000007b0      0xd58 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .debug_ranges  0x0000000000001508       0x20 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+ .debug_ranges  0x0000000000001528       0x38 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+ .debug_ranges  0x0000000000001560       0x38 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+ .debug_ranges  0x0000000000001598      0x288 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .debug_ranges  0x0000000000001820       0x90 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+ .debug_ranges  0x00000000000018b0       0x10 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/get_version//version.o
+ .debug_ranges  0x00000000000018c0       0x48 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+ .debug_ranges  0x0000000000001908       0x88 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+ .debug_ranges  0x0000000000001990      0x118 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .debug_ranges  0x0000000000001aa8       0x70 gcc/main.o
+ .debug_ranges  0x0000000000001b18       0x30 gcc/power.o
+ .debug_ranges  0x0000000000001b48       0x30 gcc/list.o
+ .debug_ranges  0x0000000000001b78      0x308 gcc/queue.o
+ .debug_ranges  0x0000000000001e80      0x790 gcc/tasks.o
+ .debug_ranges  0x0000000000002610      0x1d0 gcc/timers.o
+ .debug_ranges  0x00000000000027e0       0x78 gcc/port.o
+ .debug_ranges  0x0000000000002858       0x60 gcc/heap_5.o
+ .debug_ranges  0x00000000000028b8       0xc0 gcc/n200_func.o
+ .debug_ranges  0x0000000000002978      0x290 gcc/interrupt_control.o
+ .debug_ranges  0x0000000000002c08      0x1e0 gcc/util.o
+ .debug_ranges  0x0000000000002de8      0x150 gcc/myprintf.o
+ .debug_ranges  0x0000000000002f38       0x28 gcc/keypad.o
+ .debug_ranges  0x0000000000002f60       0x20 gcc/btwake.o
+
+.debug_line     0x0000000000000000    0x20c64
+ .debug_line    0x0000000000000000      0x41e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+ .debug_line    0x000000000000041e      0x8c4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .debug_line    0x0000000000000ce2     0x1077 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+ .debug_line    0x0000000000001d59      0x8fb gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+ .debug_line    0x0000000000002654      0x46b gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+ .debug_line    0x0000000000002abf      0xdb4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .debug_line    0x0000000000003873      0x25b gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+ .debug_line    0x0000000000003ace     0x51af gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .debug_line    0x0000000000008c7d      0x42d gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+ .debug_line    0x00000000000090aa      0x899 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+ .debug_line    0x0000000000009943      0x485 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+ .debug_line    0x0000000000009dc8     0x1505 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .debug_line    0x000000000000b2cd      0x4bb gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+ .debug_line    0x000000000000b788      0x1e6 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/get_version//version.o
+ .debug_line    0x000000000000b96e      0x3af gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+ .debug_line    0x000000000000bd1d      0xb4c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+ .debug_line    0x000000000000c869      0xe90 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .debug_line    0x000000000000d6f9      0x5f4 gcc/main.o
+ .debug_line    0x000000000000dced      0x8c6 gcc/power.o
+ .debug_line    0x000000000000e5b3      0x633 gcc/list.o
+ .debug_line    0x000000000000ebe6     0x37f7 gcc/queue.o
+ .debug_line    0x00000000000123dd     0x60bd gcc/tasks.o
+ .debug_line    0x000000000001849a     0x180d gcc/timers.o
+ .debug_line    0x0000000000019ca7      0xcff gcc/port.o
+ .debug_line    0x000000000001a9a6      0x154 gcc/portasm.o
+ .debug_line    0x000000000001aafa      0xfc5 gcc/heap_5.o
+ .debug_line    0x000000000001babf      0x734 gcc/n200_func.o
+ .debug_line    0x000000000001c1f3     0x1836 gcc/interrupt_control.o
+ .debug_line    0x000000000001da29     0x1857 gcc/util.o
+ .debug_line    0x000000000001f280     0x11b7 gcc/myprintf.o
+ .debug_line    0x0000000000020437      0x11a gcc/start.o
+ .debug_line    0x0000000000020551      0x3b6 gcc/keypad.o
+ .debug_line    0x0000000000020907      0x35d gcc/btwake.o
+
+.debug_str      0x0000000000000000     0x5037
+ .debug_str     0x0000000000000000      0x5c9 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+                                        0x672 (size before relaxing)
+ .debug_str     0x00000000000005c9      0x18f gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+                                        0x78b (size before relaxing)
+ .debug_str     0x0000000000000758      0x35f gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+                                        0x979 (size before relaxing)
+ .debug_str     0x0000000000000ab7      0x22a gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+                                        0x86e (size before relaxing)
+ .debug_str     0x0000000000000ce1      0x13c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+                                        0x8bc (size before relaxing)
+ .debug_str     0x0000000000000e1d      0x471 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+                                        0xbbc (size before relaxing)
+ .debug_str     0x000000000000128e       0xb4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+                                        0x91d (size before relaxing)
+ .debug_str     0x0000000000001342      0xb98 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+                                       0x1306 (size before relaxing)
+ .debug_str     0x0000000000001eda       0xc8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+                                        0x78e (size before relaxing)
+ .debug_str     0x0000000000001fa2      0x11e gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+                                        0x713 (size before relaxing)
+ .debug_str     0x00000000000020c0      0x136 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+                                        0x72f (size before relaxing)
+ .debug_str     0x00000000000021f6      0x2d5 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+                                        0xb03 (size before relaxing)
+ .debug_str     0x00000000000024cb       0xc2 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+                                        0x718 (size before relaxing)
+ .debug_str     0x000000000000258d       0x62 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/get_version//version.o
+                                        0x61f (size before relaxing)
+ .debug_str     0x00000000000025ef       0xb9 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+                                        0x690 (size before relaxing)
+ .debug_str     0x00000000000026a8      0x2b8 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+                                        0xa66 (size before relaxing)
+ .debug_str     0x0000000000002960      0x366 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+                                        0xafa (size before relaxing)
+ .debug_str     0x0000000000002cc6      0x115 gcc/main.o
+                                        0x85f (size before relaxing)
+ .debug_str     0x0000000000002ddb       0x8e gcc/power.o
+                                        0x8b5 (size before relaxing)
+ .debug_str     0x0000000000002e69      0x140 gcc/list.o
+                                        0x72d (size before relaxing)
+ .debug_str     0x0000000000002fa9      0x624 gcc/queue.o
+                                        0xe4b (size before relaxing)
+ .debug_str     0x00000000000035cd      0xa42 gcc/tasks.o
+                                       0x14c0 (size before relaxing)
+ .debug_str     0x000000000000400f      0x481 gcc/timers.o
+                                        0xd77 (size before relaxing)
+ .debug_str     0x0000000000004490      0x197 gcc/port.o
+                                        0x8b8 (size before relaxing)
+ .debug_str     0x0000000000004627       0x4b gcc/portasm.o
+                                         0xa8 (size before relaxing)
+ .debug_str     0x0000000000004672      0x268 gcc/heap_5.o
+                                        0x8d3 (size before relaxing)
+ .debug_str     0x00000000000048da      0x137 gcc/n200_func.o
+                                        0x76b (size before relaxing)
+ .debug_str     0x0000000000004a11      0x2af gcc/interrupt_control.o
+                                        0x9ba (size before relaxing)
+ .debug_str     0x0000000000004cc0      0x10b gcc/util.o
+                                        0x73e (size before relaxing)
+ .debug_str     0x0000000000004dcb       0xf8 gcc/myprintf.o
+                                        0x780 (size before relaxing)
+ .debug_str     0x0000000000004ec3       0x2a gcc/start.o
+                                         0x93 (size before relaxing)
+ .debug_str     0x0000000000004eed      0x134 gcc/keypad.o
+                                        0x891 (size before relaxing)
+ .debug_str     0x0000000000005021       0x16 gcc/btwake.o
+                                        0x6a9 (size before relaxing)
+
+.comment        0x0000000000000000       0x33
+ .comment       0x0000000000000000       0x33 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+                                         0x34 (size before relaxing)
+ .comment       0x0000000000000033       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .comment       0x0000000000000033       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+ .comment       0x0000000000000033       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+ .comment       0x0000000000000033       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+ .comment       0x0000000000000033       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .comment       0x0000000000000033       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+ .comment       0x0000000000000033       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .comment       0x0000000000000033       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+ .comment       0x0000000000000033       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+ .comment       0x0000000000000033       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+ .comment       0x0000000000000033       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .comment       0x0000000000000033       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+ .comment       0x0000000000000033       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/get_version//version.o
+ .comment       0x0000000000000033       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+ .comment       0x0000000000000033       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+ .comment       0x0000000000000033       0x34 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .comment       0x0000000000000033       0x34 gcc/main.o
+ .comment       0x0000000000000033       0x34 gcc/power.o
+ .comment       0x0000000000000033       0x34 gcc/list.o
+ .comment       0x0000000000000033       0x34 gcc/queue.o
+ .comment       0x0000000000000033       0x34 gcc/tasks.o
+ .comment       0x0000000000000033       0x34 gcc/timers.o
+ .comment       0x0000000000000033       0x34 gcc/port.o
+ .comment       0x0000000000000033       0x34 gcc/heap_5.o
+ .comment       0x0000000000000033       0x34 gcc/n200_func.o
+ .comment       0x0000000000000033       0x34 gcc/interrupt_control.o
+ .comment       0x0000000000000033       0x34 gcc/util.o
+ .comment       0x0000000000000033       0x34 gcc/myprintf.o
+ .comment       0x0000000000000033       0x34 gcc/keypad.o
+ .comment       0x0000000000000033       0x34 gcc/btwake.o
+
+.debug_frame    0x0000000000000000     0x2ef0
+ .debug_frame   0x0000000000000000       0x80 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/timer_source//timer_source.o
+ .debug_frame   0x0000000000000080      0x15c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/vrtc//vrtc.o
+ .debug_frame   0x00000000000001dc      0x128 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio.o
+ .debug_frame   0x0000000000000304      0x124 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_irq.o
+ .debug_frame   0x0000000000000428       0x40 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/gpio//gpio_t7_plat.o
+ .debug_frame   0x0000000000000468      0x178 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir.o
+ .debug_frame   0x00000000000005e0       0x30 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/ir//ir_regmap.o
+ .debug_frame   0x0000000000000610      0x508 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/cec//hdmi_cec.o
+ .debug_frame   0x0000000000000b18       0x78 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/hdmirx/t7_common//hdmirx_wake.o
+ .debug_frame   0x0000000000000b90       0xf4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-htbl.o
+ .debug_frame   0x0000000000000c84       0x80 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox-irq.o
+ .debug_frame   0x0000000000000d04      0x184 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//mailbox.o
+ .debug_frame   0x0000000000000e88       0x64 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/mailbox//rpc-user.o
+ .debug_frame   0x0000000000000eec       0x2c gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/get_version//version.o
+ .debug_frame   0x0000000000000f18       0xa4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/uart//uart.o
+ .debug_frame   0x0000000000000fbc      0x164 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/key//gpio_key.o
+ .debug_frame   0x0000000000001120      0x2b4 gcc//users/hlm/vim4_new/bootloader/uboot-repo/bl30/src_ao/demos/amlogic/driver/str//suspend.o
+ .debug_frame   0x00000000000013d4      0x100 gcc/main.o
+ .debug_frame   0x00000000000014d4      0x104 gcc/power.o
+ .debug_frame   0x00000000000015d8       0x60 gcc/list.o
+ .debug_frame   0x0000000000001638      0x3fc gcc/queue.o
+ .debug_frame   0x0000000000001a34      0x88c gcc/tasks.o
+ .debug_frame   0x00000000000022c0      0x258 gcc/timers.o
+ .debug_frame   0x0000000000002518      0x158 gcc/port.o
+ .debug_frame   0x0000000000002670       0xfc gcc/heap_5.o
+ .debug_frame   0x000000000000276c       0xfc gcc/n200_func.o
+ .debug_frame   0x0000000000002868      0x2f0 gcc/interrupt_control.o
+ .debug_frame   0x0000000000002b58      0x1a0 gcc/util.o
+ .debug_frame   0x0000000000002cf8      0x110 gcc/myprintf.o
+ .debug_frame   0x0000000000002e08       0x7c gcc/keypad.o
+ .debug_frame   0x0000000000002e84       0x6c gcc/btwake.o
