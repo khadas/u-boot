@@ -11,16 +11,17 @@
 #usage:
 #
 #./check_compile.sh            -check amlogic board configs
+#./check_compile.sh khadas     -check khadas board configs
 #./check_compile.sh cus        -check customer board configs
-#./check_compile.sh all        -check both amlogic and customer boards
+#./check_compile.sh all        -check amlogic/khadas/customer boards
 
 function check_compile() {
   # $1: filter
-  folder_board_v2015="bl33/v2015/board/amlogic/defconfigs"
-  customer_folder_v2015="bl33/v2015/customer/board/defconfigs"
+  #folder_board_v2015="bl33/v2015/board/amlogic/defconfigs"
+  #customer_folder_v2015="bl33/v2015/customer/board/defconfigs"
 
-  folder_board_v2019="bl33/v2019/board/amlogic/defconfigs"
-  customer_folder_v2019="bl33/v2019/customer/board/defconfigs"
+  folder_board_v2019="board/khadas/defconfigs"
+  customer_folder_v2019="customer/board/defconfigs"
 
   echo "************** Amlogic Compile Check Tool **************"
 
@@ -47,16 +48,15 @@ function check_compile() {
   if [ "$1" != "cus" ]
   then
     filter=$1
-    for file in ${folder_board_v2015}/* ${folder_board_v2019}/*; do
+    for file in ${folder_board_v2019}/*; do
       temp_file=`basename $file`
       # del "_defconfig"
       # v2015 defconfig folder is not aligned with board folder !
       temp_file=${temp_file%_*}
       #echo "$temp_file"
-	  #if [[ -d ${folder_board_v2015}/${temp_file} || -d ${folder_board_v2019}/${temp_file} ]] && \
+	  #if [[ -d ${folder_board_v2019}/${temp_file} ]] && \
 	  #  [ "$temp_file" != "defconfigs" ] && [ "$temp_file" != "configs" ]; then
-	  if [ -n "$temp_file" ] && [[ -e ${folder_board_v2015}/${temp_file}'_defconfig' || \
-		-e ${folder_board_v2019}/${temp_file}'_defconfig' ]]; then
+	  if [ -n "$temp_file" ] && [[ -e ${folder_board_v2019}/${temp_file}'_defconfig' ]]; then
 		ARRAY_CFG[$TOTAL_CFG]=$temp_file
 		TOTAL_CFG=$TOTAL_CFG+1
 	  fi
@@ -68,8 +68,8 @@ function check_compile() {
   if [ "$1" == "cus" ] || [ "$1" == "all" ]
   then
     filter=""
-    if [[ -e ${customer_folder_v2015} || -e ${customer_folder_v2019} ]]; then
-      for file in ${customer_folder_v2015}/* ${customer_folder_v2019}/*; do
+    if [[ -e ${customer_folder_v2019} ]]; then
+      for file in ${customer_folder_v2019}/*; do
         temp_file=`basename $file`
         temp_file=${temp_file%_*}
         #echo $temp_file

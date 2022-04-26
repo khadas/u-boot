@@ -1,0 +1,286 @@
+# function list
+
+config PXP_EMULATOR
+	bool "Amlogic Pxp emulater flag"
+	help
+		Support PXP environment
+
+config KALLSYMS
+	bool "Support call stack dump when crash"
+	default y
+	help
+		This config can help to print call stack like linux kernel panic
+		when crash. It's very useful for debug crash issues.
+
+config AML_BL33_COMPRESS_ENABLE
+	bool "Amlogic U-boot compress"
+	help
+		Support U-boot compress function
+
+config AML_CRYPTO_AES
+	bool "Amlogic Crypto AES for Secure Boot"
+	help
+		"Support AES for Amlogic Secure Boot"
+
+config AML_SECURE_BOOT_V3
+	bool "Amlogic SecureBoot V3"
+	help
+		"Support Amlogic SecureBoot V3 version"
+
+config FIP_IMG_SUPPORT
+	bool "Amlogic FIP IMG format file"
+	help
+		"Support Amlogic FIP IMG format"
+
+config AML_SECURE_UBOOT
+	bool "Amlogic SecureBoot function"
+	help
+		"Support Amlogic SecureBoot function"
+
+config AML_CRYPTO_UBOOT
+	bool "Encrypt Amlogic U-boot"
+	help
+		"Support U-boot encrypt function"
+
+config UBOOT_RUN_IN_SRAM
+	bool "Amlogic U-boot run in sram"
+	default n
+	help
+		"Support Amlogic U-boot run in SRAM"
+
+config AML_TSENSOR
+	bool "Amlogic Temp Sensor"
+	help
+		"Support Amlogic Thermal Sensor"
+
+config AML_TSENSOR_COOL
+	bool "Amlogic HIGH TEMP COOL"
+	depends on AML_TSENSOR
+	help
+		"Support Amlogic High Temperature Cool"
+
+config AML_OSCRING
+	bool "Amlogic OSCRING MSR"
+	help
+		"Support Amlogic chip oscring msr"
+
+config SYS_VENDOR
+	string "Vendor name"
+	default "khadas"
+	help
+	  This option contains information about board name.
+	  Based on this option board/<CONFIG_SYS_VENDOR>/<CONFIG_SYS_BOARD> will
+	  be used.
+
+config NEED_BL32
+	bool "Enable bl32"
+	default n
+	help
+		"Support bl32 function"
+
+config RAMDISK_MEM_ADDR
+	hex
+	default 0x0a000000
+	help
+		"select ramdisk load address"
+
+config DTB_MEM_ADDR
+	hex
+	default 0x01000000
+	help
+		"select Device tree load address"
+
+config MULTI_DTB
+	bool "Amlogic Multi-DT function"
+	default n
+	help
+		"Support Multi-DT function"
+
+config DDR_FULL_FW
+	bool "full ddr fw support for soc using advanced boot loader"
+	default n
+	help
+		Support full ddr fw for soc using advanced boot loader as
+		bl2, such as sc2/t7/s4/t3....
+
+choice
+	prompt "BL2E size"
+	default BL2E_64K
+
+config BL2E_64K
+	bool "64KB"
+	help
+		This config enable 64KB select of BL2E size
+		BL2E size must be one of BL2E_64K/BL2E_128K/
+		BL2E_256K/BL2E_1024K
+
+config BL2E_128K
+	bool "128KB"
+	help
+		This config enable 128KB select of BL2E size
+		BL2E size must be one of BL2E_64K/BL2E_128K/
+		BL2E_256K/BL2E_1024K
+
+config BL2E_256K
+	bool "256KB"
+	help
+		This config enable 256KB select of BL2E size
+		BL2E size must be one of BL2E_64K/BL2E_128K/
+		BL2E_256K/BL2E_1024K
+
+config BL2E_1024K
+	bool "1024KB"
+	help
+		This config enable 1024KB select of BL2E size
+		BL2E size must be one of BL2E_64K/BL2E_128K/
+		BL2E_256K/BL2E_1024K
+
+endchoice
+
+config BL2E_PAYLOAD_SIZE
+	int
+	default   65536 if BL2E_64K
+	default  131072 if BL2E_128K
+	default  262144 if BL2E_256K
+	default 1048576 if BL2E_1024K
+
+
+if MESON_S4
+
+config SYS_SOC
+	default "s4"
+
+config DDRFW_TYPE
+	string "S4 DDR FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+        string "S4 CHIPSET NAME"
+        default "s905y4"
+
+config CHIPSET_VARIANT
+        string "S4 CHIPSET VARIANT"
+        default ""
+
+config AMLOGIC_KEY_TYPE
+        string "S4 AMLOGIC KEY TYPE"
+        default "dev-keys"
+
+config BL30_SELECT
+	string "S4 BL30 board config"
+	default "s4_ap229"
+
+choice
+	prompt "S4 Board"
+
+config S4_SKT
+	bool "S4_SKT"
+	select TARGET_S4_SKT
+	help
+		Select S4 SKT(XXXX) config
+
+config S4_AP222
+	bool "S4_AP222"
+	select TARGET_S4_AP222
+	help
+		Select S4 AP222(XXXX) config
+config S4_AP223
+	bool "S4_AP223"
+	select TARGET_S4_AP223
+	help
+		Select S4 AP223(XXXX) config
+
+config S4_AP229
+	bool "S4_AP229"
+	select TARGET_S4_AP229
+	help
+		Select S4 AP229(XXXX) config
+
+config S4_AQ222
+	bool "S4_AQ222"
+	select TARGET_S4_AQ222
+	help
+		Select S4 AQ222(XXXX) config
+
+config S4_AQ229
+	bool "S4_AQ229"
+	select TARGET_S4_AQ229
+	help
+		Select S4 AQ229(XXXX) config
+
+
+config S4_T211
+	bool "S4_T211"
+	select TARGET_S4_T211
+	help
+		Select S4 T211(XXXX) config
+
+config S4_AP201
+	bool "S4_AP201"
+	select TARGET_S4_AP201
+	help
+		Select S4 AP201(XXXX) config
+
+config S4_AP232
+	bool "S4_AP232"
+	select TARGET_S4_AP232
+	help
+		Select S4 AP232(XXXX) config
+
+endchoice
+
+config TARGET_S4_SKT
+	bool "S4 SKT board"
+	depends on S4_SKT
+
+config TARGET_S4_AP222
+	bool "S4 AP222 board"
+	depends on S4_AP222
+
+config TARGET_S4_AP223
+	bool "S4 AP223 board"
+	depends on S4_AP223
+
+config TARGET_S4_AP229
+	bool "S4 AP229 board"
+	depends on S4_AP229
+
+config TARGET_S4_AQ222
+	bool "S4 AQ222 board"
+	depends on S4_AQ222
+
+config TARGET_S4_AQ229
+	bool "S4 AQ229 board"
+	depends on S4_AQ229
+
+config TARGET_S4_T211
+	bool "S4 T211 board"
+	depends on S4_T211
+
+config TARGET_S4_AP201
+	bool "S4 AP201 board"
+	depends on S4_AP201
+
+config TARGET_S4_AP232
+	bool "S4 AP232 board"
+	depends on S4_AP232
+	
+choice
+	prompt "S4 Board"
+	
+config KHADAS_VIM1S
+	bool "Khadas VIM1S"
+	select TARGET_KHADAS_VIM1S
+	help
+	  Select Khadas VIM1S config
+
+endchoice
+
+config TARGET_KHADAS_VIM1S
+	bool "Khadas VIM1S board"
+	depends on KHADAS_VIM1S
+
+endif
+
+# Khadas boards
+source "board/khadas/kvim1s/Kconfig"
