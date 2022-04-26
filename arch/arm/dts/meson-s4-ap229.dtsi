@@ -1,0 +1,245 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
+/*
+ * Copyright (c) 2016 Martin Blumenstingl <martin.blumenstingl@googlemail.com>.
+ * Based on meson-gx-p23x-q20x.dtsi:
+ * - Copyright (c) 2016 Endless Computers, Inc.
+ *   Author: Carlo Caione <carlo@endlessm.com>
+ * - Copyright (c) 2016 BayLibre, SAS.
+ *   Author: Neil Armstrong <narmstrong@baylibre.com>
+ */
+
+/* Common DTSI for devices which are based on the P212 reference board. */
+
+#include "meson-s4-txxx.dtsi"
+
+/ {
+	aliases {
+		serial0 = &uart_a;
+		serial1 = &uart_b;
+		spi0 = &spifc;
+		spi1 = &spicc0;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
+		i2c3 = &i2c3;
+		i2c4 = &i2c4;
+	};
+
+	chosen {
+		stdout-path = "serial1:115200n8";
+	};
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x0 0x0 0x80000000>;
+	};
+
+	vddio_boot: regulator-vddio_boot {
+		compatible = "regulator-fixed";
+		regulator-name = "VDDIO_BOOT";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+	};
+
+	vddao_3v3: regulator-vddao_3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "VDDAO_3V3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+
+	vddio_ao18: regulator-vddio_ao18 {
+		compatible = "regulator-fixed";
+		regulator-name = "VDDIO_AO18";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+	};
+
+	vcc_3v3: regulator-vcc_3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "VCC_3V3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+
+	emmc_pwrseq: emmc-pwrseq {
+		compatible = "mmc-pwrseq-emmc";
+		/*reset-gpios = <&gpio BOOT_9 GPIO_ACTIVE_LOW>;*/
+	};
+
+	wifi32k: wifi32k {
+		compatible = "pwm-clock";
+		#clock-cells = <0>;
+		clock-frequency = <32768>;
+		pwms = <&pwm_ef 0 30518 0>; /* PWM_E at 32.768KHz */
+	};
+
+	sdio_pwrseq: sdio-pwrseq {
+		compatible = "mmc-pwrseq-simple";
+		reset-gpios = <&gpio GPIOX_6 GPIO_ACTIVE_LOW>;
+		clocks = <&wifi32k>;
+		clock-names = "ext_clock";
+	};
+
+	tee: tee {
+		compatible = "linaro,optee-tz";
+		method = "smc";
+	};
+};
+
+&vpu {
+	clk_level = <7>;
+};
+
+&ethmac {
+	status = "okay";
+	internal_phy = <1>;
+	mc_val = <0x4be04>;
+	/*mc_val = <0x1621>;*/
+};
+
+&ir {
+	status = "disabled";
+	/* pinctrl-0 = <&remote_input_ao_pins>; */
+	/* pinctrl-names = "default"; */
+};
+
+&saradc {
+	status = "disabled";
+	vref-supply = <&vddio_ao18>;
+};
+
+/* Wireless SDIO Module */
+&sd_emmc_a {
+	status = "disabled";
+	/*pinctrl-0 = <&sdio_pins>;*/
+	/*pinctrl-names = "default";*/
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	bus-width = <4>;
+	cap-sd-highspeed;
+	max-frequency = <100000000>;
+
+	non-removable;
+	disable-wp;
+	card_type = <3>;
+
+	mmc-pwrseq = <&sdio_pwrseq>;
+
+	vmmc-supply = <&vddao_3v3>;
+	vqmmc-supply = <&vddio_boot>;
+};
+
+/* SD card */
+&sd_emmc_b {
+	status = "okay";
+	pinctrl-0 = <&sdcard_pins>;
+	pinctrl-1 = <&sdcard_pins &to_sduart_pins>;
+	pinctrl-names = "sd_all_pins", "sd_uart";
+
+	bus-width = <4>;
+	cap-sd-highspeed;
+	max-frequency = <100000000>;
+	disable-wp;
+
+	cd-gpios = <&gpio GPIOC_6 GPIO_ACTIVE_HIGH>;
+	cd-inverted;
+
+	card_type = <5>;
+
+	init_co_phase = <2>;
+	init_tx_phase = <0>;
+
+	sd_hs_co_phase = <2>;
+	sd_hs_to_phase = <0>;
+
+	vmmc-supply = <&vddao_3v3>;
+	vqmmc-supply = <&vddio_boot>;
+};
+
+/* eMMC */
+&sd_emmc_c {
+	status = "okay";
+	pinctrl-0 = <&emmc_pins>;
+	pinctrl-names = "default";
+
+	bus-width = <8>;
+	cap-mmc-highspeed;
+	mmc-hs200-1_8v;
+	max-frequency = <200000000>;
+	non-removable;
+	disable-wp;
+	/* mmc-ddr-1_8v; */
+	card_type = <1>;
+
+	init_co_phase = <2>;
+	init_tx_phase = <0>;
+
+	hs_co_phase = <2>;
+	hs_to_phase = <0>;
+
+	hs2_co_phase = <2>;
+	hs2_to_phase = <0>;
+
+	hw_reset = <&gpio GPIOB_9 GPIO_ACTIVE_HIGH>;
+
+	mmc-pwrseq = <&emmc_pwrseq>;
+	vmmc-supply = <&vcc_3v3>;
+	vqmmc-supply = <&vddio_boot>;
+};
+
+/* nand */
+&nand {
+	status = "okay";
+	pinctrl-names = "default", "nand_cs_only";
+	pinctrl-0 = <&all_nand_pins>;
+	pinctrl-1 = <&nand_cs_pins>;
+};
+
+&crg {
+        status = "okay";
+        dr_mode = "host";
+};
+
+&usb2_phy_v2 {
+        status = "okay";
+        portnum = <2>;
+};
+
+&usb3_phy_v2 {
+        status = "okay";
+        portnum = <0>;
+        gpio-vbus-power = "GPIOD_3";
+        gpios = <&gpio GPIOD_3 GPIO_ACTIVE_HIGH>;
+};
+
+&pwm_ef {
+	status = "okay";
+	/* pinctrl-0 = <&pwm_e_pins>; */
+	/* pinctrl-names = "default"; */
+};
+
+/* This is connected to the Bluetooth module: */
+&uart_b {
+	status = "okay";
+	/* pinctrl-0 = <&a_uart_pins>; */
+	/* pinctrl-names = "default";  */
+	uart-has-rtscts;
+};
+
+&spifc {
+	status = "okay";
+	cs-gpios = <&gpio GPIOB_13 GPIO_ACTIVE_HIGH>;
+	spi-flash@0 {
+		status = "okay";
+	};
+};
+
+&spicc0 {
+	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&spicc0_pins_x>;
+	cs-gpios = <&gpio GPIOX_10 0>;
+};
+

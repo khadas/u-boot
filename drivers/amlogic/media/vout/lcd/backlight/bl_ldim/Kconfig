@@ -1,0 +1,17 @@
+config AML_LCD_BL_LDIM
+	bool "backlight local dimming driver"
+	depends on AML_LCD_BACKLIGHT
+	help
+	  Support for lcd backlight local dimming
+
+config AML_LCD_BL_LDIM_IW7027
+	bool "iw7027 local dimming driver"
+	depends on AML_LCD_BL_LDIM
+	help
+	  Support for iw7027 local dimming device
+
+config AML_LCD_BL_LDIM_OB3350
+	bool "ob3350 local dimming driver"
+	depends on AML_LCD_BL_LDIM
+	help
+	  Support for ob3350 local dimming device

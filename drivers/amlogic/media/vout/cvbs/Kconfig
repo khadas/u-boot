@@ -1,0 +1,5 @@
+config AML_CVBS
+	bool "cvbs output for video"
+	depends on AML_VOUT
+	help
+	  Support for cvbs video output

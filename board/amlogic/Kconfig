@@ -1,0 +1,722 @@
+# function list
+
+config PXP_EMULATOR
+	bool "Amlogic Pxp emulater flag"
+	help
+		Support PXP environment
+
+config KALLSYMS
+	bool "Support call stack dump when crash"
+	default y
+	help
+		This config can help to print call stack like linux kernel panic
+		when crash. It's very useful for debug crash issues.
+
+config AML_BL33_COMPRESS_ENABLE
+	bool "Amlogic U-boot compress"
+	help
+		Support U-boot compress function
+
+config AML_CRYPTO_AES
+	bool "Amlogic Crypto AES for Secure Boot"
+	help
+		"Support AES for Amlogic Secure Boot"
+
+config AML_SECURE_BOOT_V3
+	bool "Amlogic SecureBoot V3"
+	help
+		"Support Amlogic SecureBoot V3 version"
+
+config FIP_IMG_SUPPORT
+	bool "Amlogic FIP IMG format file"
+	help
+		"Support Amlogic FIP IMG format"
+
+config AML_SECURE_UBOOT
+	bool "Amlogic SecureBoot function"
+	help
+		"Support Amlogic SecureBoot function"
+
+config AML_CRYPTO_UBOOT
+	bool "Encrypt Amlogic U-boot"
+	help
+		"Support U-boot encrypt function"
+
+config UBOOT_RUN_IN_SRAM
+	bool "Amlogic U-boot run in sram"
+	default n
+	help
+		"Support Amlogic U-boot run in SRAM"
+
+config AML_TSENSOR
+	bool "Amlogic Temp Sensor"
+	help
+		"Support Amlogic Thermal Sensor"
+
+config AML_TSENSOR_COOL
+	bool "Amlogic HIGH TEMP COOL"
+	depends on AML_TSENSOR
+	help
+		"Support Amlogic High Temperature Cool"
+
+config AML_OSCRING
+	bool "Amlogic OSCRING MSR"
+	help
+		"Support Amlogic chip oscring msr"
+
+config SYS_VENDOR
+	string "Vendor name"
+	default "amlogic"
+	help
+	  This option contains information about board name.
+	  Based on this option board/<CONFIG_SYS_VENDOR>/<CONFIG_SYS_BOARD> will
+	  be used.
+
+config NEED_BL32
+	bool "Enable bl32"
+	default n
+	help
+		"Support bl32 function"
+
+config RAMDISK_MEM_ADDR
+	hex
+	default 0x0a000000
+	help
+		"select ramdisk load address"
+
+config DTB_MEM_ADDR
+	hex
+	default 0x01000000
+	help
+		"select Device tree load address"
+
+config MULTI_DTB
+	bool "Amlogic Multi-DT function"
+	default n
+	help
+		"Support Multi-DT function"
+
+config DDR_FULL_FW
+	bool "full ddr fw support for soc using advanced boot loader"
+	default n
+	help
+		Support full ddr fw for soc using advanced boot loader as
+		bl2, such as sc2/t7/s4/t3....
+
+choice
+	prompt "BL2E size"
+	default BL2E_64K
+
+config BL2E_64K
+	bool "64KB"
+	help
+		This config enable 64KB select of BL2E size
+		BL2E size must be one of BL2E_64K/BL2E_128K/
+		BL2E_256K/BL2E_1024K
+
+config BL2E_128K
+	bool "128KB"
+	help
+		This config enable 128KB select of BL2E size
+		BL2E size must be one of BL2E_64K/BL2E_128K/
+		BL2E_256K/BL2E_1024K
+
+config BL2E_256K
+	bool "256KB"
+	help
+		This config enable 256KB select of BL2E size
+		BL2E size must be one of BL2E_64K/BL2E_128K/
+		BL2E_256K/BL2E_1024K
+
+config BL2E_1024K
+	bool "1024KB"
+	help
+		This config enable 1024KB select of BL2E size
+		BL2E size must be one of BL2E_64K/BL2E_128K/
+		BL2E_256K/BL2E_1024K
+
+endchoice
+
+config BL2E_PAYLOAD_SIZE
+	int
+	default   65536 if BL2E_64K
+	default  131072 if BL2E_128K
+	default  262144 if BL2E_256K
+	default 1048576 if BL2E_1024K
+
+if MESON_GXBB
+
+config TARGET_ODROID_C2
+	bool "ODROID-C2"
+	help
+	  ODROID-C2 is a single board computer based on Meson GXBaby
+	  with 2 GiB of RAM, Gigabit Ethernet, HDMI, 4 USB, micro-SD
+	  slot, eMMC, IR receiver and a 40-pin GPIO header.
+
+endif
+
+if MESON_GXL
+
+config SYS_SOC
+	default "gxl"
+
+config TARGET_P212
+	bool "P212"
+	help
+	  P212 is a reference dessign board based on Meson GXL S905X SoC
+	  with 2 GiB of RAM, Ethernet, HDMI, 2 USB, micro-SD slot,
+	  eMMC, IR receiver, CVBS+Audio jack and a SDIO WiFi module.
+
+config TARGET_LIBRETECH_CC
+	bool "LIBRETECH-CC"
+	help
+	  LibreTech CC is a single board computer based on Meson GXL
+	  with 2 GiB of RAM, Ethernet, HDMI, 4 USB, micro-SD slot,
+	  eMMC, IR receiver and a 40-pin GPIO header.
+
+config TARGET_KHADAS_VIM
+	bool "KHADAS-VIM"
+	help
+	  Khadas VIM is a single board computer based on Meson GXL
+	  with 2 GiB of RAM, Ethernet, HDMI, 4 USB, micro-SD slot,
+	  eMMC, IR receiver and a 40-pin GPIO header.
+
+endif
+
+# G12A series boards
+
+if MESON_A1
+
+config SYS_SOC
+	default "a1"
+
+choice
+	prompt "A1 Board"
+
+config A1_AD401_NOR_RTOS
+	bool "A1_AD401_NOR_RTOS"
+	select TARGET_A1_AD401
+	select MTD_SPI_FLASH
+	select SYSTEM_RTOS
+	help
+	  Select A1 AD401 NOR RTOS board config
+
+config A1_AD401_NAND_RTOS
+	bool "A1_AD401_NAND_RTOS"
+	select TARGET_A1_AD401
+	#select SPI_NAND
+	select MTD_SPI_NAND
+	select SYSTEM_RTOS
+	help
+	  Select A1 AD401 NOR RTOS board config
+
+config A1_AD401_NAND_LINUX
+	bool "A1_AD401_NAND_LINUX"
+	select TARGET_A1_AD401
+	#select SPI_NAND
+	select MTD_SPI_NAND
+	help
+	  Select A1 AD401 NOR RTOS board config
+
+config A1_AD402_NOR_RTOS
+	bool "A1_AD402_NOR_RTOS"
+	select TARGET_A1_AD402
+	select MTD_SPI_FLASH
+	select SYSTEM_RTOS
+	help
+	  Select A1 AD402 NOR RTOS board config
+
+config A1_AD402_NAND_RTOS
+	bool "A1_AD402_NAND_RTOS"
+	select TARGET_A1_AD402
+	#select SPI_NAND
+	select MTD_SPI_NAND
+	select SYSTEM_RTOS
+	help
+	  Select A1 AD402 NOR RTOS board config
+
+config A1_AD402_NAND_LINUX
+	bool "A1_AD402_NAND_LINUX"
+	select TARGET_A1_AD402
+	#select SPI_NAND
+	select MTD_SPI_NAND
+	help
+	  Select A1 AD402 NOR RTOS board config
+
+config A1_AD409_NOR_RTOS
+	bool "A1_AD409_NOR_RTOS"
+	select TARGET_A1_AD409
+	select MTD_SPI_FLASH
+	select SYSTEM_RTOS
+	help
+	  Select A1 AD409 NOR RTOS board config
+
+config A1_AD409_NAND_RTOS
+	bool "A1_AD409_NAND_RTOS"
+	select TARGET_A1_AD409
+	#select SPI_NAND
+	select MTD_SPI_NAND
+	select SYSTEM_RTOS
+	help
+	  Select A1 AD409 NOR RTOS board config
+
+config A1_AD409_NAND_LINUX
+	bool "A1_AD409_NAND_LINUX"
+	select TARGET_A1_AD409
+	#select SPI_NAND
+	select MTD_SPI_NAND
+	help
+	  Select A1 AD409 NOR RTOS board config
+
+endchoice
+
+config TARGET_A1_AD401
+	bool "A1 AD401 board"
+	depends on A1_AD401_NOR_RTOS || A1_AD401_NAND_RTOS || A1_AD401_NAND_LINUX
+
+config TARGET_A1_AD402
+	bool "A1 AD402 board"
+	depends on A1_AD402_NOR_RTOS || A1_AD402_NAND_RTOS || A1_AD402_NAND_LINUX
+
+config TARGET_A1_AD409
+	bool "A1 AD409 board"
+	depends on A1_AD409_NOR_RTOS || A1_AD409_NAND_RTOS || A1_AD409_NAND_LINUX
+
+config SYSTEM_RTOS
+	bool "SYSTEM_RTOS_PARTITION"
+	default n
+	depends on A1_AD401_NOR_RTOS || A1_AD402_NOR_RTOS || A1_AD409_NOR_RTOS || A1_AD401_NAND_RTOS || A1_AD402_NAND_RTOS || A1_AD409_NAND_RTOS
+	help
+	  Select SYSTEM RTOS partition table
+
+endif
+
+
+if MESON_C1
+
+config SYS_SOC
+	default "c1"
+
+choice
+	prompt "C1 Board"
+
+config C1_AE409
+	bool "C1_AE409"
+	select TARGET_C1_AE409
+	help
+	  Select C1 SKT(AE409) config
+
+config C1_AE400
+	bool "C1_AE400"
+	select TARGET_C1_AE400
+	help
+	  Select C1 AE400 config
+
+config C1_AE401
+	bool "C1_AE401"
+	select TARGET_C1_AE401
+	help
+	  Select C1 AE401 config
+
+config C1_AE402
+	bool "C1_AE402"
+	select TARGET_C1_AE402
+	help
+	  Select C1 AE402 config
+
+endchoice
+
+config TARGET_C1_AE409
+	bool "C1 AE409 board"
+	depends on C1_AE409
+
+config TARGET_C1_AE400
+	bool "C1 AE400 board"
+	depends on C1_AE400
+
+config TARGET_C1_AE401
+	bool "C1 AE401 board"
+	depends on C1_AE401
+
+config TARGET_C1_AE402
+	bool "C1 AE402 board"
+	depends on C1_AE402
+
+endif
+
+if MESON_S4
+
+config SYS_SOC
+	default "s4"
+
+config DDRFW_TYPE
+	string "S4 DDR FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+        string "S4 CHIPSET NAME"
+        default "s905y4"
+
+config CHIPSET_VARIANT
+        string "S4 CHIPSET VARIANT"
+        default ""
+
+config AMLOGIC_KEY_TYPE
+        string "S4 AMLOGIC KEY TYPE"
+        default "dev-keys"
+
+config BL30_SELECT
+	string "S4 BL30 board config"
+	default "s4_ap229"
+
+choice
+	prompt "S4 Board"
+
+config S4_SKT
+	bool "S4_SKT"
+	select TARGET_S4_SKT
+	help
+		Select S4 SKT(XXXX) config
+
+config S4_AP222
+	bool "S4_AP222"
+	select TARGET_S4_AP222
+	help
+		Select S4 AP222(XXXX) config
+config S4_AP223
+	bool "S4_AP223"
+	select TARGET_S4_AP223
+	help
+		Select S4 AP223(XXXX) config
+
+config S4_AP229
+	bool "S4_AP229"
+	select TARGET_S4_AP229
+	help
+		Select S4 AP229(XXXX) config
+
+config S4_AQ222
+	bool "S4_AQ222"
+	select TARGET_S4_AQ222
+	help
+		Select S4 AQ222(XXXX) config
+
+config S4_AQ229
+	bool "S4_AQ229"
+	select TARGET_S4_AQ229
+	help
+		Select S4 AQ229(XXXX) config
+
+
+config S4_T211
+	bool "S4_T211"
+	select TARGET_S4_T211
+	help
+		Select S4 T211(XXXX) config
+
+config S4_AP201
+	bool "S4_AP201"
+	select TARGET_S4_AP201
+	help
+		Select S4 AP201(XXXX) config
+
+config S4_AP232
+	bool "S4_AP232"
+	select TARGET_S4_AP232
+	help
+		Select S4 AP232(XXXX) config
+
+endchoice
+
+config TARGET_S4_SKT
+	bool "S4 SKT board"
+	depends on S4_SKT
+
+config TARGET_S4_AP222
+	bool "S4 AP222 board"
+	depends on S4_AP222
+
+config TARGET_S4_AP223
+	bool "S4 AP223 board"
+	depends on S4_AP223
+
+config TARGET_S4_AP229
+	bool "S4 AP229 board"
+	depends on S4_AP229
+
+config TARGET_S4_AQ222
+	bool "S4 AQ222 board"
+	depends on S4_AQ222
+
+config TARGET_S4_AQ229
+	bool "S4 AQ229 board"
+	depends on S4_AQ229
+
+config TARGET_S4_T211
+	bool "S4 T211 board"
+	depends on S4_T211
+
+config TARGET_S4_AP201
+	bool "S4 AP201 board"
+	depends on S4_AP201
+
+config TARGET_S4_AP232
+	bool "S4 AP232 board"
+	depends on S4_AP232
+
+endif
+
+if MESON_SC2
+
+config SYS_SOC
+	default "sc2"
+
+config DDRFW_TYPE
+	string "SC2 DDR FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+	string "SC2 CHIPSET NAME"
+	default "S905X4"
+
+config CHIPSET_VARIANT
+	string "SC2 CHIPSET VARIANT"
+	default ""
+
+config AMLOGIC_KEY_TYPE
+	string "SC2 AMLOGIC KEY TYPE"
+	default "dev-keys"
+
+config BL30_SELECT
+	string "SC2 BL30 board config"
+	default "sc2_ah219"
+
+choice
+	prompt "SC2 Board"
+
+config SC2_SKT
+	bool "SC2_SKT"
+	select TARGET_SC2_SKT
+	help
+	  Select SC2 SKT(XXXX) config
+
+config SC2_AH219
+	bool "SC2_AH219"
+	select TARGET_SC2_AH219
+	help
+	  Select SC2 AH219 config
+
+config SC2_AH212
+	bool "SC2_AH212"
+	select TARGET_SC2_AH212
+	help
+	  Select SC2 AH212 config
+
+config SC2_AH232
+	bool "SC2_AH232"
+	select TARGET_SC2_AH232
+	help
+	  Select SC2 AH232 config
+
+config SC2_AH212_DDR3
+	bool "SC2_AH212_DDR3"
+	select TARGET_SC2_AH212_DDR3
+	help
+	  Select SC2 AH212 DDR3 config
+
+config SC2_AH212_LPDDR3
+	bool "SC2_AH212_LPDDR3"
+	select TARGET_SC2_AH212_LPDDR3
+	help
+	  Select SC2 AH212 LPDDR3 config
+
+config SC2_AH212_LPDDR4
+	bool "SC2_AH212_LPDDR4"
+	select TARGET_SC2_AH212_LPDDR4
+	help
+	  Select SC2 AH212 LPDDR4 config
+
+endchoice
+
+config TARGET_SC2_SKT
+	bool "SC2 SKT board"
+	depends on SC2_SKT
+
+config TARGET_SC2_AH219
+	bool "SC2 AH219 board"
+	depends on SC2_AH219
+
+config TARGET_SC2_AH212
+	bool "SC2 AH212 board"
+	depends on SC2_AH212
+
+config TARGET_SC2_AH232
+	bool "SC2 AH232 board"
+	depends on SC2_AH232
+
+config TARGET_SC2_AH212_DDR3
+	bool "SC2 AH212 ddr3 board"
+	depends on SC2_AH212_DDR3
+
+config TARGET_SC2_AH212_LPDDR3
+	bool "SC2 AH212 lpddr3 board"
+	depends on SC2_AH212_LPDDR3
+
+config TARGET_SC2_AH212_LPDDR4
+	bool "SC2 AH212 lpddr4 board"
+	depends on SC2_AH212_LPDDR4
+
+endif
+
+if MESON_C2
+
+config SYS_SOC
+	default "c2"
+
+choice
+	prompt "C2 Board"
+
+config C2_SKT
+	bool "C2_SKT"
+	select TARGET_C2_SKT
+	help
+	  Select C2 SKT config mainly for pxp
+
+config C2_AF409
+	bool "C2_AF409"
+	select TARGET_C2_AF409
+	help
+	  Select C2_AF409 (SKT) config
+
+config C2_AF400
+	bool "C2_AF400"
+	select TARGET_C2_AF400
+	help
+	  Select C2_AF400 config
+
+config C2_AF401
+	bool "C2_AF401"
+	select TARGET_C2_AF401
+	help
+	  Select C2_AF401 config
+
+config C2_AF419
+	bool "C2_AF419"
+	select TARGET_C2_AF419
+	help
+	  Select C2_AF419 config
+
+endchoice
+
+config TARGET_C2_SKT
+	bool "C2 SKT board"
+	depends on C2_SKT
+
+config TARGET_C2_AF409
+	bool "C2 AF409 board"
+	depends on C2_AF409
+
+
+config TARGET_C2_AF400
+	bool "C2 AF400 board"
+	depends on C2_AF400
+
+config TARGET_C2_AF401
+	bool "C2 AF401 board"
+	depends on C2_AF401
+
+config TARGET_C2_AF419
+	bool "C2 AF419 board"
+	depends on C2_AF419
+
+endif
+
+if MESON_G12A
+
+config SYS_SOC
+	default "g12a"
+
+config TARGET_G12A_U200_V1
+	bool "G12A_U200_V1"
+
+config TARGET_G12A_U211_V1
+	bool "G12A_U211_V1"
+
+config TARGET_SM1_AC200_V1
+	bool "SM1_AC200_V1"
+
+endif
+
+if MESON_G12B
+
+config SYS_SOC
+	default "g12b"
+
+config TARGET_G12B_W400_V1
+	bool "G12B_W400_V1"
+
+endif
+
+# Amlogic boards
+
+source "board/amlogic/a1_ad409/Kconfig"
+
+source "board/amlogic/a1_ad401/Kconfig"
+
+source "board/amlogic/a1_ad402/Kconfig"
+
+source "board/amlogic/c1_ae400/Kconfig"
+
+source "board/amlogic/c1_ae401/Kconfig"
+
+source "board/amlogic/c1_ae402/Kconfig"
+
+source "board/amlogic/c1_ae409/Kconfig"
+
+source "board/amlogic/s4_skt/Kconfig"
+
+source "board/amlogic/s4_ap222/Kconfig"
+
+source "board/amlogic/s4_ap223/Kconfig"
+
+source "board/amlogic/s4_ap229/Kconfig"
+
+source "board/amlogic/s4_aq222/Kconfig"
+
+source "board/amlogic/s4_aq229/Kconfig"
+
+source "board/amlogic/s4_t211/Kconfig"
+
+source "board/amlogic/s4_ap201/Kconfig"
+
+source "board/amlogic/s4_ap232/Kconfig"
+
+source "board/amlogic/sc2_skt/Kconfig"
+
+source "board/amlogic/sc2_ah219/Kconfig"
+
+source "board/amlogic/sc2_ah212/Kconfig"
+
+source "board/amlogic/sc2_ah232/Kconfig"
+
+source "board/amlogic/sc2_ah212_ddr3/Kconfig"
+
+source "board/amlogic/sc2_ah212_lpddr3/Kconfig"
+
+source "board/amlogic/sc2_ah212_lpddr4/Kconfig"
+
+source "board/amlogic/c2_skt/Kconfig"
+
+source "board/amlogic/c2_af409/Kconfig"
+
+source "board/amlogic/c2_af400/Kconfig"
+
+source "board/amlogic/c2_af401/Kconfig"
+
+source "board/amlogic/c2_af419/Kconfig"
+
+source "board/amlogic/g12a_u200_v1/Kconfig"
+
+source "board/amlogic/g12b_w400_v1/Kconfig"
+
+source "board/amlogic/sm1_ac200_v1/Kconfig"

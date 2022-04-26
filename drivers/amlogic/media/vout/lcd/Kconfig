@@ -1,0 +1,20 @@
+menu "AMLOGIC LCD Drivers"
+
+config AML_LCD
+	bool "lcd output for video"
+	depends on AML_VOUT
+	help
+	  Support for lcd video output
+
+config AML_LCD_TCON
+	bool "tcon output for lcd"
+	depends on AML_LCD
+	help
+	  Support for lcd tcon output
+
+source "drivers/amlogic/media/vout/lcd/lcd_tv/Kconfig"
+source "drivers/amlogic/media/vout/lcd/lcd_tablet/Kconfig"
+source "drivers/amlogic/media/vout/lcd/lcd_extern/Kconfig"
+source "drivers/amlogic/media/vout/lcd/backlight/Kconfig"
+
+endmenu

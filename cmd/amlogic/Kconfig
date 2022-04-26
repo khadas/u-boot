@@ -1,0 +1,128 @@
+menu "Amlogic commands"
+
+config AML_RPMB
+	depends on OPTEE
+	bool "support RPMB set in bootargs"
+	default y
+	help
+	  Support RPMB set in bootargs.
+
+config AML_STORE_WRAPPER
+	depends on AML_STORAGE
+	bool "wrapper for store"
+	default y
+	help
+	  based on AML_STORAGE
+	  read/write don't care bad blocks
+
+config AML_STORE_WRAPPER
+	depends on AML_STORAGE
+	bool "wrapper for store"
+	default y
+	help
+	  based on AML_STORAGE
+	  read/write don't care bad blocks
+
+config AML_IMG_READ
+	depends on AML_STORAGE
+	bool "image read"
+	default y
+	help
+	  based on AML_STORAGE
+	  read image without specify size
+
+config AML_DEFENV
+	bool "aml defenv_without"
+	default y
+	help
+	  support reserv env from c array
+
+config BOOTLOADER_CONTROL_BLOCK
+	bool "bootloader control block support"
+	default n
+	help
+	  used for recovery and the bootloader to talk to each other
+
+config CMD_BOOTCTOL_AVB
+	bool "avb cmd"
+	default n
+	help
+	  support avb related cmds
+
+config CMD_RSVMEM
+	bool "rsvmem cmd"
+	default y
+	help
+	  support rsvmem cmd
+
+config CMD_DDR_D2PLL
+	bool "d2pll cmd"
+	default n
+	help
+	  support d2pll cmd
+
+config CMD_DDR_TEST
+	bool "ddr test cmd"
+	default y
+	help
+	  support ddr_test cmd
+
+config CMD_OS_IDENT
+	bool "os_ident"
+	default y
+	help
+	  Ident OS type
+
+config AML_ROBUST
+	bool "envs for robust upgrade"
+	depends on AML_STORAGE
+	default y
+	help
+		"envs for robust upgrade like defendkey"
+
+config CMD_AUTOSCR
+	bool "legacy autoscr cmd"
+	default y
+	depends on CMD_SOURCE
+	help
+	  Run script in memory
+
+#prduct mode start---->
+config NO_FASTBOOT_FLASHING
+	depends on FASTBOOT
+	bool "support fastboot lock/unlock"
+	default n
+
+config DISABLE_AML_SERIAL
+	bool "disable debug serial tx/rx"
+	depends on MESON_SERIAL
+	select SILENT_CONSOLE
+	default n
+
+config USB_TOOL_ENTRY
+	string "support usb burn tool in run update"
+	default "echo productmode" if AML_PRODUCT_MODE
+	default "adnl 1200" if !AML_PRODUCT_MODE
+
+config KNL_LOG_LEVEL
+	string "restrict kernel log level"
+	default " loglevel=1 " if AML_PRODUCT_MODE
+	default " " if !AML_PRODUCT_MODE
+
+config AML_DISABLE_DEV_CMDS
+	bool "disable unsafe developing commands"
+	default n
+	help
+	"Disable un-safe developing commands for product mode"
+
+config AML_PRODUCT_MODE
+	bool "amlogic product/security mode"
+	default n
+	imply NO_FASTBOOT_FLASHING
+	imply DISABLE_AML_SERIAL
+	imply AML_DISABLE_DEV_CMDS
+	help
+		recommend enable when product is ready for producing
+#prduct mode end<----
+
+endmenu

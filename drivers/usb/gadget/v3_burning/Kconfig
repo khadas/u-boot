@@ -1,0 +1,52 @@
+#
+# AML V3 burning
+#
+menuconfig AML_V3_FACTORY_BURN
+	bool "Amlogic V3 burning Support"
+	depends on AML_STORE_WRAPPER
+	---help---
+	  Say Y here if you want to support amlogic V3 factory burning
+
+if AML_V3_FACTORY_BURN
+
+config AML_NO_USB_MODULE
+    bool "bl33 with full usb function"
+    default n
+
+config AML_V3_USB_TOOl
+	bool "DNL USB burning support"
+	select USB_GADGET_DOWNLOAD
+	select FASTBOOT_DWC_PCD #for fastboot/dwc_pcd.o fastboot/dwc_pcd_irq.o
+	depends on USB_GADGET
+	---help---
+	  Say Y here if you want to update firmware by aml DNL tool
+
+config V3_USB_BURN_FULL_SPEED
+    depends on AML_V3_USB_TOOl
+    bool "usb burning driver runing on Full-speed mode"
+    default n
+	---help---
+	  Change Y Only when u testing on usb or FS mode have problem
+
+config V3_KEY_BURNING_SUPPORT
+	depends on UNIFY_KEY_MANAGE
+	bool "support burning unifykey in v3 burning"
+	default y
+	select AML_V2_FACTORY_BURN
+
+config SUPPORT_BACKUP_PART_NORMAL_ERASE
+    bool "support backup part when normal erasing"
+    default n
+
+config BACKUP_PART_NORMAL_ERASE
+    depends on SUPPORT_BACKUP_PART_NORMAL_ERASE
+    string "config backup part name"
+    help
+        This configure define part which need backup to mem before normal erase
+        backup before erasing, and restore it after erasing
+        There is probablity data lost if erasing failed or write failed
+
+
+
+endif #AML_V3_FACTORY_BURN
+

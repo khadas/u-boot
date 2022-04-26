@@ -1,0 +1,44 @@
+#
+# USB burning
+#
+
+menuconfig AML_V2_FACTORY_BURN
+	bool "Amlogic V2 burning Support"
+	---help---
+	  Say Y here if you want to support amlogic factory burning
+
+if AML_V2_FACTORY_BURN
+
+config AML_FACTORY_BURN_LOCAL_UPGRADE
+	bool "AML factory burning support local sdcard and usb disk"
+	---help---
+	  Say Y here if you want to support upgrade from sdcard and usb disk
+
+config SUPPORT_SDC_KEYBURN
+    bool "burn keys in sdc_burn or usb_burn"
+    default y
+    depends on AML_FACTORY_BURN_LOCAL_UPGRADE
+
+config SD_BURNING_SUPPORT_UI
+	depends on CMD_BMP
+	bool "AML factory sdcard and usb disk with UI progress info"
+	---help---
+	  Say Y here if you want to support sdcard and usb disk with UI progress info
+
+
+config USB_BURNING_TOOL
+	bool "USB burning tool support"
+	select USB_DEVICE_V2
+	---help---
+	  Say Y here if you want to update firmware through the update command and usb tool
+
+config AML_USB_BURN_FULL_SPEED
+    depends on USB_BURNING_TOOL
+    bool "usb burning driver runing on Full-speed mode"
+    default n
+	---help---
+	  Change Y Only when u testing on usb or FS mode have problem
+
+#config USB_DEVICE_V2
+#	bool
+endif # AML_V2_FACTORY_BURN

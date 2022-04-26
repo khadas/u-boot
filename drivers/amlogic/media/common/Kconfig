@@ -1,0 +1,7 @@
+config AML_VPP
+	bool "AML VPP drivers Support"
+	help
+	  Enable support for the Amlogic VPp drivers.
+
+source "drivers/amlogic/media/common/vpu/Kconfig"
+source "drivers/amlogic/media/common/vpp/Kconfig"

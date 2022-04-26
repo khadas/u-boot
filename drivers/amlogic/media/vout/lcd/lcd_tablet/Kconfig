@@ -1,0 +1,5 @@
+config AML_LCD_TABLET
+	bool "lcd_tablet output"
+	depends on AML_LCD
+	help
+	  Support for lcd tablet mode output

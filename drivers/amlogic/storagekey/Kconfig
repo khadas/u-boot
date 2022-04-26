@@ -1,0 +1,2 @@
+config SECURE_STORAGE
+    bool "Amlogic bl31 storage key"

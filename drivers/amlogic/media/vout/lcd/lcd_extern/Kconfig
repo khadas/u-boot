@@ -1,0 +1,17 @@
+config AML_LCD_EXTERN
+	bool "lcd extern device driver"
+	depends on AML_LCD
+	help
+	  Support for lcd extern device
+
+config AML_LCD_EXTERN_I2C_ANX6862_7911
+	bool "i2c_anx6862_7911 extern device driver"
+	depends on AML_LCD_EXTERN
+	help
+	  Support for anx6862_7911 extern device
+
+config AML_LCD_EXTERN_I2C_RT6947
+	bool "i2c_rt6947 extern device driver"
+	depends on AML_LCD_EXTERN
+	help
+	  Support for rt6947 extern device

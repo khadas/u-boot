@@ -1,0 +1,13 @@
+menu "AMLOGIC HDMI TX Drivers"
+
+config AML_HDMITX
+	bool "Amlogic HDMITX drivers Support"
+	depends on AML_VOUT
+	help
+		HDMITX Output Enable
+
+source "drivers/amlogic/media/vout/hdmitx/hdmitx20/Kconfig"
+
+source "drivers/amlogic/media/vout/hdmitx/hdmitx21/Kconfig"
+
+endmenu

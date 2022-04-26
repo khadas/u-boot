@@ -1,0 +1,18 @@
+menuconfig MTD_SPI_NAND
+	bool "SPI NAND device Support"
+	depends on MTD && DM_SPI
+	select MTD_NAND_CORE
+	select SPI_MEM
+	help
+	  This is the framework for the SPI NAND device drivers.
+
+config SPI_NAND_AML_ADVANCED
+	bool "SPI Nand meson advanced support"
+	depends on MTD_SPI_NAND
+	default n
+	help
+	  SC2 needs to support a new burning mode (ADVANCED), we implement
+	  it based on the original discrete modem. If say Y enabled ADVANCED
+	  mode, spinand will use ADVANCED mode to burning.
+	  If unsure, say N
+

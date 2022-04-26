@@ -1,0 +1,5 @@
+config AML_HDMITX20
+	bool "Amlogic HDMITX20 drivers Support"
+	depends on AML_HDMITX
+	help
+		HDMITX20 Output Enable

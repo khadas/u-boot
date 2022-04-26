@@ -1,0 +1,17 @@
+config AML_LCD_BL_EXTERN
+	bool "backlight extern device driver"
+	depends on AML_LCD_BACKLIGHT
+	help
+	  Support for lcd backlight extern device, such as i2c, spi...
+
+config AML_LCD_BL_EXTERN_I2C_LP8556
+	bool "i2c_lp8556 bl extern device driver"
+	depends on AML_LCD_BL_EXTERN
+	help
+	  Support for lp8556 bl extern device
+
+config AML_LCD_BL_EXTERN_MIPI_LT070ME05
+	bool "mipi_lt070me05 bl extern device driver"
+	depends on AML_LCD_BL_EXTERN
+	help
+	  Support for mipi_lt070me05 bl extern device

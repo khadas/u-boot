@@ -1,0 +1,48 @@
+config CLK_MESON_G12
+	bool "Support G12A/G12B Clock"
+	depends on CLK
+	help
+		This option is used to enable the meson g12a clock
+		driver.
+
+config CLK_MESON_A1
+	bool "Support A1 Clock"
+	depends on CLK
+	help
+		This option is used to enable the meson a1 clock
+		driver.
+
+config CLK_MESON_C1
+	bool "Support C1 Clock"
+	depends on CLK
+	help
+		This option is used to enable the meson c1 clock
+		driver.
+
+config CLK_MESON_S4
+	bool "Support S4 Clock"
+	depends on CLK
+	help
+		This option is used to enable the meson s4 clock
+		driver
+
+config CLK_MESON_SC2
+        bool "Support SC2 Clock"
+        depends on CLK
+        help
+          This option is used to enable the meson c1 clock
+          driver
+
+config CLK_MESON_C2
+        bool "Support C2 Clock"
+        depends on CLK
+        help
+          This option is used to enable the meson c2 clock
+          driver.
+
+config CLK_MESON_C2
+	bool "Support C2 Clock"
+	depends on CLK
+	help
+		This option is used to enable the meson c2 clock
+		driver.

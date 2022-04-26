@@ -1,0 +1,5 @@
+config AML_LCD_TV
+	bool "lcd_tv output"
+	depends on AML_LCD
+	help
+	  Support for lcd tv mode output

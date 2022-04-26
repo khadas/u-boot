@@ -1,0 +1,31 @@
+if TARGET_SC2_AH219
+
+config SYS_SOC
+	default "sc2"
+
+config SYS_BOARD
+	default "sc2_ah219"
+
+config SYS_VENDOR
+	default "amlogic"
+
+config SYS_CONFIG_NAME
+	default "sc2_ah219"
+
+config DTB_BIND_KERNEL
+    bool "load dtb from boot part but not flash rsv"
+    default n
+
+config CMD_PLLTEST
+	bool "support plltest command"
+	default n
+	help
+	  support plltest command
+
+config AML_REBOOT
+	bool "reboot cmd"
+	default y
+	help
+	  support uboot reboot cmd
+
+endif

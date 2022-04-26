@@ -1,0 +1,25 @@
+if TARGET_C1_AE400
+
+config SYS_SOC
+	default "c1"
+
+config SYS_BOARD
+	default "c1_ae400"
+
+config SYS_VENDOR
+	default "amlogic"
+
+config SYS_CONFIG_NAME
+	default "c1_ae400"
+
+config DTB_BIND_KERNEL
+    bool "load dtb from boot part but not flash rsv"
+    default n
+
+config CMD_PLLTEST
+	bool "support plltest command"
+	default y
+	help
+	  support plltest command
+
+endif

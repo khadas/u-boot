@@ -1,0 +1,21 @@
+menu "AMLOGIC Drivers"
+
+config AML_DRIVER
+	bool "AML drivers Support"
+	help
+	  Enable support for the Amlogic drivers.
+
+source "drivers/amlogic/media/Kconfig"
+
+source "drivers/amlogic/keymanage/Kconfig"
+
+source "drivers/amlogic/storagekey/Kconfig"
+
+source "drivers/amlogic/power/Kconfig"
+
+source "drivers/amlogic/provision/Kconfig"
+
+source "drivers/amlogic/leds/Kconfig"
+
+source "drivers/amlogic/ir/Kconfig"
+endmenu

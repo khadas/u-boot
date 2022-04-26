@@ -1,0 +1,26 @@
+config AML_MEDIA
+	bool "AML Media drivers Support"
+	help
+	  Enable support for the Amlogic Media drivers.
+
+config AML_VOUT
+	bool "Driver support for video output"
+	help
+	  Enable support for amlogic video output
+	  lcd,cvbs...
+
+config AML_OSD
+	bool "Driver support for osd"
+	help
+	  Enable support for amlogic osd driver.
+
+config AML_CANVAS
+	bool "Driver support for canvas"
+	help
+	  Enable support for amlogic canvas driver.
+
+source "drivers/amlogic/media/osd/Kconfig"
+
+source "drivers/amlogic/media/common/Kconfig"
+
+source "drivers/amlogic/media/vout/Kconfig"
