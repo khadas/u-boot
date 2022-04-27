@@ -100,6 +100,7 @@ int optimus_sdc_burn_partitions(ConfigPara_t* pCfgPara, HIMAGE hImg, __hdle hUiP
 int optimus_sdc_burn_dtb_load(HIMAGE hImg);
 
 int optimus_burn_bootlader(HIMAGE hImg);
+int optimus_burn_gpt(HIMAGE hImg);
 
 int optimus_report_burn_complete_sta(int isFailed, int rebootAfterBurn);
 

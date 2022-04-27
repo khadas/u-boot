@@ -9,6 +9,7 @@
 #include <asm/io.h>
 
 #include <amlogic/aml_efuse.h>
+#include <emmc_partitions.h>
 
 static int is_bootloader_old(void)
 {
@@ -135,15 +136,18 @@ static int optimus_burn_one_partition(const char* partName, HIMAGE hImg, __hdle 
     /*static */char _errInfo[512];
     unsigned itemSizeNotAligned = 0;
     unsigned itemSizePreload = 0;
+	const char *main_type = "PARTITION";
 
     printf("\n");
     DWN_MSG("=====>To burn part [%s]\n", partName);
     optimus_progress_ui_printf("Burning part[%s]\n", partName);
-    hImgItem = image_item_open(hImg, "PARTITION", partName);
-    if (!hImgItem) {
-        DWN_ERR("Fail to open item for part (%s)\n", partName);
-        return __LINE__;
-    }
+	if (strnlen(partName, MAX_MMC_PART_NAME_LEN) == 3 && !strncmp(partName, "gpt", 3))
+		main_type = "bin";
+	hImgItem = image_item_open(hImg, main_type, partName);
+	if (!hImgItem) {
+		DWN_ERR("Fail to open item for part (%s)\n", partName);
+		return ITEM_NOT_EXIST;
+	}
 
     imgItemSz = leftItemSz = image_item_get_size(hImgItem);
     if (!imgItemSz) {
@@ -288,6 +292,11 @@ int optimus_sdc_burn_media_partition(const char* mediaImgPath, const char* verif
 {
     //TODO:change configure to 'partName = image' and work it using cmd 'sdc_update'
     return optimus_burn_partition_image("media", mediaImgPath, "normal", verifyFile, 0);
+}
+
+int optimus_burn_gpt(HIMAGE hImg)
+{
+	return optimus_burn_one_partition("gpt", hImg, NULL, 0);
 }
 
 int optimus_burn_bootlader(HIMAGE hImg)

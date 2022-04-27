@@ -77,6 +77,11 @@ s64 storage_get_partition_size_in_byte(const char* partName)
         return store_rsv_size("dtb");
     }
 
+	if (!strcmp("gpt", partName)) {
+		DWN_MSG("fixed 128k sz for gpt\n");
+		return 128 * 1024;//max gpt sz
+	}
+
     size = store_part_size(partName);
     if (!size) {
         SDC_ERR("Fail to get size for part %s\n", partName);

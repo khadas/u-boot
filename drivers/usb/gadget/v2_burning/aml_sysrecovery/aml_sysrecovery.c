@@ -8,7 +8,7 @@
 #include "../v2_sdc_burn/optimus_led.h"
 
 #ifndef CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA
-#define CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA  "data"
+#define CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA  "userdata"
 #endif// #ifndef CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA
 extern int sdc_burn_aml_keys(HIMAGE hImg, const int keyOverWrite, int licenseKey, int imgKey);
 
@@ -31,7 +31,8 @@ static int optimus_sysrec_clear_usr_data_parts(void)
 
         for (partIndex = 0; partIndex < dataPartsNum; ++partIndex)
         {
-            sprintf(cmdbuf, "store erase partition %s", _usrDataParts[partIndex]);
+		DWN_MSG("To erase part: %s\n", _usrDataParts[partIndex]);
+		sprintf(cmdbuf, "store erase %s 0 0", _usrDataParts[partIndex]);
             ret = run_command(cmdbuf, 0);
             if (ret) { DWN_WRN("Wrn:failed in cmd:%s\n", cmdbuf); }
         }
@@ -54,6 +55,7 @@ static int optimus_sysrec_burn_package_from_partition(const char* partName, cons
         int ret = 0;
         int hasBootloader = 0;
         u64 datapartsSz = 0;
+	int exist_dtb = 0;
 
         if (verifyPackageBeforeBurn)
         {
@@ -78,10 +80,23 @@ static int optimus_sysrec_burn_package_from_partition(const char* partName, cons
 
         //update dtb for keyman
         ret = optimus_sdc_burn_dtb_load(hImg);
-        if (ITEM_NOT_EXIST != ret && ret) {
-            DWN_ERR("Fail in load dtb for sdc_burn\n");
-            ret = __LINE__; goto _finish;
-        }
+	exist_dtb = !ret;
+	if (ret != ITEM_NOT_EXIST && ret) {
+		DWN_ERR("Fail in load dtb for sysrecovery\n");
+		ret = __LINE__; goto _finish;
+	}
+	ret = optimus_burn_gpt(hImg);
+	if (ret && ret != ITEM_NOT_EXIST) {
+		DWN_MSG("Fail in update gpt\n");
+		ret = __LINE__; goto _finish;
+	} else if (ret == ITEM_NOT_EXIST && exist_dtb) {//need erase gpt as it's dtb mode
+		store_gpt_erase();
+		ret = optimus_sdc_burn_dtb_load(hImg);
+		if (ret) {
+			DWN_ERR("Fail in load dtb for sysrecovery\n");
+			ret = __LINE__; goto _finish;
+		}
+	}
         optimus_storage_init(0);
 
         hUiProgress = optimus_progress_ui_request_for_sdc_burn();
