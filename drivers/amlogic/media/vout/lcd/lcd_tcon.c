@@ -1589,6 +1589,9 @@ static int lcd_tcon_mem_config(void)
 	unsigned int max_size;
 	int ret;
 
+	if (tcon_rmem.flag == 0)
+		return -1;
+
 	/* reserved memory */
 	max_size = lcd_tcon_conf->axi_size + lcd_tcon_conf->bin_path_size
 		+ lcd_tcon_conf->secure_handle_size;
@@ -1650,13 +1653,13 @@ static int lcd_tcon_mem_config(void)
 	return ret;
 }
 
-static void lcd_tcon_config_axi_offset_default(void)
+static void lcd_tcon_reserved_memory_init_default(struct aml_lcd_drv_s *pdrv)
 {
-
 	tcon_rmem.rsv_mem_paddr = env_get_ulong("tcon_mem_addr", 16, 0);
 	if (tcon_rmem.rsv_mem_paddr) {
 		tcon_rmem.rsv_mem_size = lcd_tcon_conf->rsv_mem_size;
-		LCDPR("get lcd_tcon mem_addr from default\n");
+		LCDPR("get tcon rsv_mem addr 0x%x from env tcon_mem_addr\n",
+			tcon_rmem.rsv_mem_paddr);
 	} else {
 		LCDERR("can't find env tcon_mem_addr\n");
 	}
@@ -1766,64 +1769,83 @@ lcd_tcon_load_init_data_new_err:
 	return -1;
 }
 
+static int lcd_tcon_reserved_memory_init_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
+{
+	int parent_offset, cell_size;
+	char *propdata;
+
+	parent_offset = fdt_path_offset(dt_addr, "/reserved-memory");
+	if (parent_offset < 0) {
+		LCDERR("can't find node: /reserved-memory\n");
+		return -1;
+	}
+	cell_size = fdt_address_cells(dt_addr, parent_offset);
+	parent_offset = fdt_path_offset(dt_addr, "/reserved-memory/linux,lcd_tcon");
+	if (parent_offset < 0) {
+		LCDERR("can't find node: /reserved-memory/linux,lcd_tcon\n");
+		return -1;
+	}
+
+	propdata = (char *)fdt_getprop(dt_addr, parent_offset, "alloc-ranges", NULL);
+	if (propdata) {
+		if (cell_size == 2)
+			tcon_rmem.rsv_mem_paddr = be32_to_cpup((((u32 *)propdata) + 1));
+		else
+			tcon_rmem.rsv_mem_paddr = be32_to_cpup(((u32 *)propdata));
+
+		propdata = (char *)fdt_getprop(dt_addr, parent_offset, "size", NULL);
+		if (!propdata) {
+			LCDERR("failed to get tcon rsv_mem size from dts\n");
+			return -1;
+		}
+		if (cell_size == 2)
+			tcon_rmem.rsv_mem_size = be32_to_cpup((((u32 *)propdata) + 1));
+		else
+			tcon_rmem.rsv_mem_size = be32_to_cpup(((u32 *)propdata));
+	} else {
+		propdata = (char *)fdt_getprop(dt_addr, parent_offset, "reg", NULL);
+		if (!propdata) {
+			LCDERR("failed to get lcd_tcon reserved-memory from dts\n");
+			return -1;
+		}
+		if (cell_size == 2) {
+			tcon_rmem.rsv_mem_paddr = be32_to_cpup((((u32 *)propdata) + 1));
+			tcon_rmem.rsv_mem_size = be32_to_cpup((((u32 *)propdata) + 3));
+		} else {
+			tcon_rmem.rsv_mem_paddr = be32_to_cpup(((u32 *)propdata));
+			tcon_rmem.rsv_mem_size = be32_to_cpup((((u32 *)propdata) + 1));
+		}
+	}
+
+	return 0;
+}
+
 static int lcd_tcon_get_config(char *dt_addr, struct aml_lcd_drv_s *pdrv, int load_id)
 {
-	int parent_offset, size;
-	char *propdata;
-	unsigned int mem_size;
+	int ret;
 
 	if (load_id & 0x1) {
-		parent_offset = fdt_path_offset(dt_addr, "/reserved-memory");
-		if (parent_offset < 0) {
-			LCDERR("can't find node: /reserved-memory\n");
-			goto lcd_tcon_get_config_next;
-		}
-		size = fdt_address_cells(dt_addr, parent_offset);
-		parent_offset = fdt_path_offset(dt_addr, "/reserved-memory/linux,lcd_tcon");
-		if (parent_offset < 0) {
-			LCDERR("can't find node: /reserved-memory/linux,lcd_tcon\n");
-		} else {
-			propdata = (char *)fdt_getprop(dt_addr, parent_offset,
-						       "alloc-ranges", NULL);
-			if (!propdata) {
-				LCDERR("failed to get lcd_tcon reserved-memory from dts\n");
-				lcd_tcon_config_axi_offset_default();
-			} else {
-				if (size == 2)
-					tcon_rmem.rsv_mem_paddr = be32_to_cpup((((u32 *)propdata) + 1));
-				else
-					tcon_rmem.rsv_mem_paddr = be32_to_cpup(((u32 *)propdata));
-			}
-
-			propdata = (char *)fdt_getprop(dt_addr, parent_offset, "size", NULL);
-			if (!propdata) {
-				LCDERR("failed to get tcon size from dts\n");
-				lcd_tcon_config_axi_offset_default();
-			} else {
-				if (size == 2)
-					mem_size = be32_to_cpup((((u32 *)propdata) + 1));
-				else
-					mem_size = be32_to_cpup(((u32 *)propdata));
-
-				if (mem_size < lcd_tcon_conf->rsv_mem_size) {
-					LCDERR("tcon mem_size is not enough\n");
-					tcon_rmem.rsv_mem_paddr = 0;
-					tcon_rmem.flag = 0;
-				} else {
-					tcon_rmem.rsv_mem_size = lcd_tcon_conf->rsv_mem_size;
-				}
-			}
-		}
+		ret = lcd_tcon_reserved_memory_init_dts(dt_addr, pdrv);
+		if (ret)
+			lcd_tcon_reserved_memory_init_default(pdrv);
 	} else {
-		lcd_tcon_config_axi_offset_default();
-	}
-	if (tcon_rmem.rsv_mem_paddr) {
-		tcon_rmem.flag = 1;
-		lcd_tcon_mem_config();
-		LCDPR("tcon: rsv_mem addr: 0x%x\n", tcon_rmem.rsv_mem_paddr);
+		lcd_tcon_reserved_memory_init_default(pdrv);
 	}
 
-lcd_tcon_get_config_next:
+	if (tcon_rmem.rsv_mem_paddr) {
+		if (tcon_rmem.rsv_mem_size < lcd_tcon_conf->rsv_mem_size) {
+			LCDERR("tcon rsv_mem size 0x%x is not enough, need 0x%x\n",
+				tcon_rmem.rsv_mem_size, lcd_tcon_conf->rsv_mem_size);
+			tcon_rmem.rsv_mem_paddr = 0;
+			tcon_rmem.flag = 0;
+		} else {
+			tcon_rmem.flag = 1;
+			LCDPR("tcon: rsv_mem addr:0x%x, size:0x%x\n",
+				tcon_rmem.rsv_mem_paddr, tcon_rmem.rsv_mem_size);
+			lcd_tcon_mem_config();
+		}
+	}
+
 	tcon_mm_table.core_reg_table_size = lcd_tcon_conf->reg_table_len;
 	if (lcd_tcon_conf->core_reg_ver)
 		lcd_tcon_load_init_data_from_unifykey_new();
@@ -2029,6 +2051,7 @@ int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *pdrv, int load_id)
 	if (!lcd_tcon_conf)
 		return 0;
 
+	lcd_tcon_conf->tcon_valid = 0;
 	switch (pconf->basic.lcd_type) {
 	case LCD_MLVDS:
 		lcd_tcon_conf->tcon_valid = 1;
