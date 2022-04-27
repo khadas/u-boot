@@ -594,6 +594,7 @@ void aml_lcd_driver_set_ss(int index, unsigned int level, unsigned int freq,
 			   unsigned int mode);
 void aml_lcd_driver_get_ss(int index);
 void aml_lcd_driver_clk_info(int index);
+void aml_lcd_driver_debug_print(int index, unsigned int val);
 void aml_lcd_driver_info(int index);
 void aml_lcd_driver_reg_info(int index);
 void aml_lcd_vbyone_rst(int index);
