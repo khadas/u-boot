@@ -37,3 +37,10 @@ config OPTEE_SECURITY_LEVEL
 	default 0
 	help
 	  U-boot can select security level for OPTEE.
+
+config TOYBRICK_VERIFY
+	bool "Support toybrick verify"
+	depends on OPTEE_CLIENT
+	default n
+	help
+	  U-boot can select toybrick verify for board verify.

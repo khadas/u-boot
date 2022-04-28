@@ -10,6 +10,10 @@
 #include <asm/io.h>
 #include <asm/arch/boot_mode.h>
 
+#ifdef CONFIG_TOYBRICK_VERIFY
+#include <asm/arch/toybrick-check.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 enum {
@@ -223,6 +227,10 @@ int rockchip_get_boot_mode(void)
 int setup_boot_mode(void)
 {
 	char env_preboot[256] = {0};
+
+#ifdef CONFIG_TOYBRICK_VERIFY
+	toybrick_check_SnMacAc();
+#endif
 
 	switch (rockchip_get_boot_mode()) {
 	case BOOT_MODE_BOOTLOADER:

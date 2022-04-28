@@ -678,6 +678,9 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	if ((label->ipappend & 0x3) || label->append) {
 		char bootargs[CONFIG_SYS_CBSIZE] = "";
 		char finalbootargs[CONFIG_SYS_CBSIZE];
+#if defined(CONFIG_ROCKCHIP_EARLY_DISTRO_DTB)
+		char *env_reboot_mode = env_get("reboot_mode");
+#endif
 
 		if (strlen(label->append ?: "") +
 		    strlen(ip_str) + strlen(mac_str) + 1 > sizeof(bootargs)) {
@@ -696,6 +699,10 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 			cli_simple_process_macros(bootargs, finalbootargs);
 			env_set("bootargs", finalbootargs);
 			printf("append: %s\n", finalbootargs);
+#if defined(CONFIG_ROCKCHIP_EARLY_DISTRO_DTB)
+			if (env_reboot_mode && !strcmp(env_reboot_mode, "recovery-key"))
+				env_update("bootargs", "recovery=1");
+#endif
 		}
 	}
 

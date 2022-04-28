@@ -20,6 +20,10 @@
 #endif
 #include <rockusb.h>
 
+#ifdef CONFIG_TOYBRICK_VERIFY
+#include <asm/arch/toybrick-rockusb.h>
+#endif
+
 #define ROCKUSB_INTERFACE_CLASS	0xff
 #define ROCKUSB_INTERFACE_SUB_CLASS	0x06
 #define ROCKUSB_INTERFACE_PROTOCOL	0x05
@@ -447,7 +451,19 @@ static int rkusb_do_vs_write(struct fsg_common *common)
 			vhead = (struct vendor_item *)bh->buf;
 			data  = bh->buf + sizeof(struct vendor_item);
 
+#ifdef CONFIG_TOYBRICK_VERIFY
+			if (type == 2 && memcmp(data, "RKSN", 4) == 0) {
+				rc = toybrick_write_SnMacActcode(curlun, data);
+				if (rc < 0)
+					return rc;
+			} else if (type == 3 && memcmp(data, "RKSN", 4) == 0) {
+				rc = toybrick_write_extrakey(curlun, vhead, data);
+				if (rc < 0)
+					return rc;
+			} else if (!type) {
+#else
 			if (!type) {
+#endif
 				if (vhead->id == HDCP_14_HDMI_ID ||
 				    vhead->id == HDCP_14_HDMIRX_ID ||
 				    vhead->id == HDCP_14_DP_ID) {
@@ -601,6 +617,16 @@ static int rkusb_do_vs_read(struct fsg_common *common)
 			}
 			vhead->size = rc;
 		} else if (type == 2) {
+#ifdef CONFIG_TOYBRICK_VERIFY
+			rc = toybrick_read_SnMacActcode(common, curlun, vhead, data);
+			if (rc < 0)
+				return rc;
+		} else if (type == 3) {
+			rc = trusty_read_toybrick_cpu_id((uint8_t *)data);
+			if (rc < 0)
+				return rc;
+			vhead->size = common->data_size - 8;
+#else
 			/* security storage */
 #ifdef CONFIG_RK_AVB_LIBAVB_USER
 			rc = rk_avb_read_perm_attr(vhead->id,
@@ -611,6 +637,7 @@ static int rkusb_do_vs_read(struct fsg_common *common)
 			vhead->size = rc;
 #else
 			printf("Please enable CONFIG_RK_AVB_LIBAVB_USER!\n");
+#endif
 #endif
 		} else {
 			return -EINVAL;

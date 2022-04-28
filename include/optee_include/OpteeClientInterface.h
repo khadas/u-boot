@@ -107,4 +107,9 @@ uint32_t trusty_attest_get_ca
 	 uint8_t *out, uint32_t *out_len);
 uint32_t trusty_attest_set_ca(uint8_t *ca_response, uint32_t *ca_response_size);
 
+uint32_t trusty_write_toybrick_seed(uint32_t *buf);
+uint32_t trusty_read_toybrick_cpu_id(uint8_t *buf);
+uint32_t trusty_read_toybrick_SnMacAc(uint8_t *data, uint32_t size);
+uint32_t trusty_write_toybrick_SnMacAc(uint8_t *data, uint32_t size);
+uint32_t trusty_write_toybrick_extrakey(uint8_t *data, uint32_t size);
 #endif
