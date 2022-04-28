@@ -586,7 +586,30 @@
 #define DDR_TIMMING_OFFSET(X)  (unsigned int)(unsigned long)(&(((ddr_set_t *)(0))->X))
 #define DDR_TIMMING_OFFSET_SIZE(X)  sizeof(((ddr_set_t *)(0))->X)
 #define DDR_TIMMING_TUNE(DDR_ID, PARA, VALUE) { DDR_ID, DDR_TIMMING_OFFSET(PARA), VALUE, DDR_TIMMING_OFFSET_SIZE(PARA), 0, 1 }
+//DDR_ID
+#define DDR_ADC_CH0  (0X0u << 6)
+#define DDR_ADC_CH1  (0X1u << 6)
+#define DDR_ADC_CH2  (0X2u << 6)
+#define DDR_ADC_CH3  (0X3u << 6)
 
+#define DDR_ADC_VALUE0  (0X0u << 0)
+#define DDR_ADC_VALUE1  (0X1u << 0)
+#define DDR_ADC_VALUE2  (0X2u << 0)
+#define DDR_ADC_VALUE3  (0X3u << 0)
+#define DDR_ADC_VALUE4  (0X4u << 0)
+#define DDR_ADC_VALUE5  (0X5u << 0)
+#define DDR_ADC_VALUE6  (0X6u << 0)
+#define DDR_ADC_VALUE7  (0X7u << 0)
+#define DDR_ADC_VALUE8  (0X8u << 0)
+#define DDR_ADC_VALUE9  (0X9u << 0)
+#define DDR_ADC_VALUE10  (0Xau << 0)
+#define DDR_ADC_VALUE11  (0Xbu << 0)
+#define DDR_ADC_VALUE12  (0Xcu << 0)
+#define DDR_ADC_VALUE13  (0Xdu << 0)
+#define DDR_ADC_VALUE14  (0Xeu << 0)
+#define DDR_ADC_VALUE15  (0Xfu << 0)
+
+//efuse
 #define T963_H8_NTC_EID       0xC0A
 #define T963_H8_SUM_EID       0xC4A
 #define T963_H35_NTC_EID      0x2C1A

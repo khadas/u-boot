@@ -569,7 +569,30 @@ pll_set_t __pll_setting = {
 #define DDR_TIMMING_OFFSET(X)  (unsigned int)(unsigned long)(&(((ddr_set_t *)(0))->X))
 #define DDR_TIMMING_OFFSET_SIZE(X)  sizeof(((ddr_set_t *)(0))->X)
 #define DDR_TIMMING_TUNE(DDR_ID, PARA, VALUE) { DDR_ID, DDR_TIMMING_OFFSET(PARA), VALUE, DDR_TIMMING_OFFSET_SIZE(PARA), 0, 1 }
+//DDR_ID,default ADC_CH1
+#define DDR_ADC_CH0  (0X0u << 6)
+#define DDR_ADC_CH1  (0X1u << 6)
+#define DDR_ADC_CH2  (0X2u << 6)
+#define DDR_ADC_CH3  (0X3u << 6)
 
+#define DDR_ADC_VALUE0  (0X0u << 0)//DDR_ID_DDR4_2PCS_1GB
+#define DDR_ADC_VALUE1  (0X1u << 0)//DDR_ID_DDR4_2PCS_2GB,default
+#define DDR_ADC_VALUE2  (0X2u << 0)//DDR_ID_DDR4_2PCS_3GB
+#define DDR_ADC_VALUE3  (0X3u << 0)//DDR_ID_DDR4_2PCS_1_5GB
+#define DDR_ADC_VALUE4  (0X4u << 0)//DDR_ID_DDR4_2PCS_4GB
+#define DDR_ADC_VALUE5  (0X5u << 0)
+#define DDR_ADC_VALUE6  (0X6u << 0)
+#define DDR_ADC_VALUE7  (0X7u << 0)
+#define DDR_ADC_VALUE8  (0X8u << 0)
+#define DDR_ADC_VALUE9  (0X9u << 0)
+#define DDR_ADC_VALUE10  (0Xau << 0)
+#define DDR_ADC_VALUE11  (0Xbu << 0)
+#define DDR_ADC_VALUE12  (0Xcu << 0)
+#define DDR_ADC_VALUE13  (0Xdu << 0)
+#define DDR_ADC_VALUE14  (0Xeu << 0)
+#define DDR_ADC_VALUE15  (0Xfu << 0)
+
+//efuse
 #define T963_H8_NTC_EID       0xC0A
 #define T963_H8_SUM_EID       0xC4A
 #define T963_H35_NTC_EID      0x2C1A
@@ -597,6 +620,26 @@ pll_set_t __pll_setting = {
 ddr_reg_t __ddr_reg[] = {
 	/* demo, user defined override register */
 	//DDR_TIMMING_TUNE(T963_H35_NTC_EID, cfg_board_SI_setting_ps[0].DRAMFreq, 1176),
+	//ak321,use ADC_CH1,DDR_ID=0;
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE0,
+		cfg_board_common_setting.dram_cs0_size_MB, CONFIG_DDR0_SIZE_1024MB),
+
+	//ak321,use ADC_CH1,DDR_ID=2;DDR_ID_DDR4_2PCS_3GB
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE2,
+		cfg_board_common_setting.dram_rank_config, CONFIG_DDR0_32BIT_16BIT_RANK0_CH0),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE2,
+		cfg_board_common_setting.dram_cs0_size_MB, CONFIG_DDR0_SIZE_3072MB),
+
+	//ak321,use ADC_CH1,DDR_ID=3;DDR_ID_DDR4_2PCS_1_5GB
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE3,
+		cfg_board_common_setting.dram_rank_config, CONFIG_DDR0_32BIT_16BIT_RANK0_CH0),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE3,
+		cfg_board_common_setting.dram_cs0_size_MB, CONFIG_DDR0_SIZE_1536MB),
+
+	//ak321,use ADC_CH1,DDR_ID=4;DDR_ID_DDR4_2PCS_4GB
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE4,
+		cfg_board_common_setting.dram_cs0_size_MB, CONFIG_DDR0_SIZE_4096MB),
+
 	{0, 0, 0, 0, 0, 0},
 };
 
