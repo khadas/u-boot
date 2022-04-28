@@ -886,6 +886,15 @@ config T7_AN400_LPDDR4X
 	help
 	  Select T7 AN400 LPDDR4X config
 
+config T7_AN400_MERCURY
+	bool "T7_AN400_MERCURY"
+	select TARGET_T7_AN400_MERCURY
+	help
+	  Select T7 AN400 MERCURY config
+	  MERCURY is for automotive
+	  it's based in T7 AN400 LPDDR4X
+	  and add car configs
+
 config T7_T319
 	bool "T7_T319"
 	select TARGET_T7_T319
@@ -921,6 +930,10 @@ config TARGET_T7_AN409_DDR4
 config TARGET_T7_AN400_LPDDR4X
 	bool "T7 AN400 lpddr4x board"
 	depends on T7_AN400_LPDDR4X
+
+config TARGET_T7_AN400_MERCURY
+        bool "T7 AN400 mercury board"
+        depends on T7_AN400_MERCURY
 
 config TARGET_T7_T319
 	bool "T7 T319 board"
@@ -1206,6 +1219,8 @@ source "board/amlogic/t7_an408_lpddr4x/Kconfig"
 source "board/amlogic/t7_an409_ddr4/Kconfig"
 
 source "board/amlogic/t7_an400_lpddr4x/Kconfig"
+
+source "board/amlogic/t7_an400_mercury/Kconfig"
 
 source "board/amlogic/t7_t319/Kconfig"
 
