@@ -148,6 +148,14 @@ int board_init(void)
 	hdmitx_set_hdmi_5v();
 	hdmitx_init();
 #endif
+
+	//wifi reset
+	run_command("gpio c GPIOX_6", 0);
+	printf("wifi chip en down\n");
+	mdelay(100);
+	run_command("gpio s GPIOX_6", 0);
+	printf("wifi chip en up\n");
+
 	return 0;
 }
 

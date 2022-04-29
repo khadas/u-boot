@@ -140,6 +140,13 @@ int board_init(void)
 	run_command("gpio c GPIOA_10", 0);
 	run_command("gpio c GPIOA_12", 0);
 
+	//wifi reset
+	run_command("gpio c GPIOM_6", 0);
+	printf("wifi chip en down\n");
+	mdelay(100);
+	run_command("gpio s GPIOM_6", 0);
+	printf("wifi chip en up\n");
+
 	return 0;
 }
 
