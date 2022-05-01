@@ -180,6 +180,67 @@ int board_boot_freertos(void)
 	return 0;
 }
 
+void media_clock_init(void)
+{
+	unsigned int val = 0;
+
+	/* enable mipi dsi A/B clk81 */
+	writel(readl(CLKCTRL_SYS_CLK_EN0_REG0) | (1 << 2) | (1 << 3), CLKCTRL_SYS_CLK_EN0_REG0);
+
+	/* enable dsi 0/1 PHY clock, rate depends on the lcd Resolution*/
+	writel(readl(CLKCTRL_MIPIDSI_PHY_CLK_CTRL) | (1 << 8) | (1 << 24),
+			CLKCTRL_MIPIDSI_PHY_CLK_CTRL);
+
+	/* config dsi A/B mean clock to 50M */
+	val = (1 << 9) | (1 << 21);/* select fclk4 */
+	val |= (9 << 0) | (9 << 12);/* 500M/10 */
+	val |= (1 << 8) | (1 << 20);
+	writel(val, CLKCTRL_MIPI_DSI_MEAS_CLK_CTRL);
+
+	/* gdc = 800M */
+	val = 0;
+	val = (0x7 << 9);/* select fclk2p5 */
+	val |= (0 << 31);/* select gdcclk0 */
+	val |= (1 << 8) | (1 << 30);
+	writel(val, CLKCTRL_GDC_CLK_CTRL);
+
+	/* vapb = 667M */
+	val = 0;
+	val = (0x1 << 9);/* select fclk3 */
+	val &= ~(1 << 31);/* select vapb0 */
+	val |= (1 << 8) | (1 << 30); /* enable vapb0 and ge2d gate*/
+	writel(val, CLKCTRL_VAPBCLK_CTRL);
+	printf("CLKCTRL_VAPBCLK_CTRL = %x\n", readl(CLKCTRL_VAPBCLK_CTRL));
+
+	/* mipi csi phy 0 = 200M */
+	val = readl(CLKCTRL_MIPI_CSI_PHY_CLK_CTRL);
+	val &= ~0xfff;
+	val |= (0x6 << 9) | (1 << 0) | (1 << 8);
+	val &= ~(1 << 31);
+	writel(val, CLKCTRL_MIPI_CSI_PHY_CLK_CTRL);
+
+	/* mipi isp clk = 500 */
+	val = 0;
+	val = (0x1 << 9) | (1 << 8);/* select fclk4 and enable*/
+	writel(val, CLKCTRL_MIPI_ISP_CLK_CTRL);
+
+	/* set mclk pll = 74.25M */
+	writel(0x20014063, ANACTRL_MCLK_PLL_CNTL0);
+	udelay(20);
+	writel(0x30014063, ANACTRL_MCLK_PLL_CNTL0);
+	writel(0x1470500f, ANACTRL_MCLK_PLL_CNTL1);
+	writel(0x00023041, ANACTRL_MCLK_PLL_CNTL2);
+	writel(0x18180000, ANACTRL_MCLK_PLL_CNTL3);
+	writel(0x20202, ANACTRL_MCLK_PLL_CNTL4);
+	writel(0x10014063, ANACTRL_MCLK_PLL_CNTL0);
+	udelay(20);
+	writel(0x00023001, ANACTRL_MCLK_PLL_CNTL2);
+
+	/* set mclk0, mclk1 = 37.125M */
+	writel(readl(ANACTRL_MCLK_PLL_CNTL4) | 0x1 | (1 << 2) | (1 << 10) | (1 << 8),
+		ANACTRL_MCLK_PLL_CNTL4);
+}
+
 int board_late_init(void)
 {
 	printf("board late init\n");
@@ -189,6 +250,9 @@ int board_late_init(void)
 		printf("factory reset, need default all uboot env.\n");
 		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
 	}
+
+	printf("init clocks for automotive\n");
+	media_clock_init();
 
 	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
 			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
