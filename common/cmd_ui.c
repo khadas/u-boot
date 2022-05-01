@@ -12,29 +12,18 @@
 #include <video_fb.h>
 #include <video.h>
 
-
-int screen_init(void);
-void screen_uninit(void);
-int gr_init_ext_font(const char* font, GRFont** dest);
-int surface_loadbmp(GRSurface** surface, const char* filename);
-void surface_disaplay(GRSurface* surface, int sx, int sy, int dx, int dy);
-void screen_setcolor(unsigned int color);
-void screen_drawtextline(const GRFont* font, int x, int y, const char *s, bool bold);
-void screen_fillrect(int x, int y, int w, int h);
-void screen_update(void);
-const GRFont* gr_sys_font(void);
 void set_fastboot_flag(int flag);
 
 static int ui_inited = 0;
 extern unsigned int ui_log_level;
 
 typedef struct {
-	GRFont* font;
+	grfont *font;
 	const char *font_name;
 } LIB_FONT;
 
 typedef struct {
-	GRSurface* surface;
+	grsurface *surface;
 	const char *pic_name;
 } PIC_SURFACE;
 
@@ -92,6 +81,33 @@ static int do_ui_pic(cmd_tbl_t *cmdtp, int flag, int argc,
 		return -1;
 	}
 
+	return 0;
+}
+
+static int do_ui_pic_addr(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char *const argv[])
+{
+	int ret = -1;
+	grsurface *pic_surface;
+	long addr;
+
+	if (!ui_inited) {
+		printf("error: ui init first\n");
+		ret = -1;
+	} else if (argc != 6) {
+		ret = -1;
+	} else {
+		addr = simple_strtoul(argv[1], NULL, 16);
+		ret = surface_loadbmp_from_addr(&pic_surface, addr);
+
+		if (ret >= 0)
+			if (pic_surface)
+				surface_disaplay(pic_surface,
+					simple_strtoul(argv[2], NULL, 10),
+					simple_strtoul(argv[3], NULL, 10),
+					simple_strtoul(argv[4], NULL, 10),
+					simple_strtoul(argv[5], NULL, 10));
+	}
 	return 0;
 }
 
@@ -219,16 +235,53 @@ static int do_ui_debug(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static int do_ui_demo(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char *const argv[])
+{
+	int ret = -1;
+	grsurface *pic_surface;
+	long addr;
+	int i, j;
+	int dx, dy, time;
+
+	if (!ui_inited) {
+		printf("error: ui init first\n");
+		ret = -1;
+	} else if (argc != 5) {
+		ret = -1;
+	} else {
+		addr = simple_strtoul(argv[1], NULL, 16);
+		ret = surface_loadbmp_from_addr(&pic_surface, addr);
+		dx = simple_strtoul(argv[2], NULL, 10);
+		dy = simple_strtoul(argv[3], NULL, 10);
+		time = simple_strtoul(argv[4], NULL, 10);
+		if (ret >= 0) {
+			if (pic_surface) {
+				for (i = 0; i < 100; i++) {
+					for (j = 0; j < i; j++)
+						surface_disaplay(pic_surface, 0, 0,
+							dx + 4 * j, dy);
+					screen_update();
+					mdelay(time);
+				}
+				res_free_surface(pic_surface);
+			}
+		}
+	}
+	return 0;
+}
 
 static cmd_tbl_t cmd_ui_sub[] = {
 	U_BOOT_CMD_MKENT(init, 2, 0, do_ui_init, "", ""),
 	U_BOOT_CMD_MKENT(pic, 9, 0, do_ui_pic, "", ""),
+	U_BOOT_CMD_MKENT(pic_addr, 9, 0, do_ui_pic_addr, "", ""),
 	U_BOOT_CMD_MKENT(setcolor, 3, 0, do_ui_setcolor, "", ""),
 	U_BOOT_CMD_MKENT(text, 7, 0, do_ui_text, "", ""),
 	U_BOOT_CMD_MKENT(rect, 6, 0, do_ui_rect, "", ""),
 	U_BOOT_CMD_MKENT(update, 2, 0, do_ui_update, "", ""),
 	U_BOOT_CMD_MKENT(uinit, 2, 0, do_ui_uinit, "", ""),
 	U_BOOT_CMD_MKENT(debug, 2, 0, do_ui_debug, "", ""),
+	U_BOOT_CMD_MKENT(demo, 2, 0, do_ui_demo, "", ""),
 };
 
 static int do_ui(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
@@ -252,11 +305,13 @@ U_BOOT_CMD(
 	"ui sub-system",
 	"init                                        - init device and init default font lib\n"
 	"ui pic <name> <srcX srcY> <destX destY>        - blit pic to framebuffer\n"
+	"ui pic_addr <addr> <srcX srcY> <destX destY>   - blit pic to framebuffer from addr\n"
 	"ui setcolor  <color>                           - set color\n"
 	"ui text <lib_font> <string> <x y> [bold]       - fill text to framebuffer\n"
 	"ui rect <x y> <w h>                            - fill rect to framebuffer\n"
 	"ui update                                      - update framebuffer to screen\n"
 	"uinit                                          - uinit device and free space\n"
 	"ui debug <level>                               - set log level\n"
+	"ui demo addr <destX destY> time                - ui demo progressbar\n"
 );
 

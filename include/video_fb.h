@@ -123,13 +123,25 @@ typedef struct {
 	int height;
 	int row_bytes;
 	int pixel_bytes;
-	unsigned char* data;
-} GRSurface;
+	unsigned char *data;
+} grsurface;
 
 typedef struct {
-	GRSurface* texture;
+	grsurface *texture;
 	int char_width;
 	int char_height;
-} GRFont;
+} grfont;
 
+int screen_init(void);
+void screen_uninit(void);
+int gr_init_ext_font(const char *font, grfont **dest);
+int surface_loadbmp(grsurface **surface, const char *filename);
+int surface_loadbmp_from_addr(grsurface **surface, long addr);
+void surface_disaplay(grsurface *surface, int sx, int sy, int dx, int dy);
+void screen_setcolor(unsigned int color);
+void screen_drawtextline(const grfont *font, int x, int y, const char *s, bool bold);
+void screen_fillrect(int x, int y, int w, int h);
+void screen_update(void);
+void res_free_surface(grsurface *surface);
+const grfont *gr_sys_font(void);
 #endif /*_VIDEO_FB_H_ */

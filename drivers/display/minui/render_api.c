@@ -36,7 +36,7 @@ void screen_uninit(void)
 	gr_exit();
 }
 
-int gr_init_ext_font(const char* font, GRFont** dest)
+int gr_init_ext_font(const char *font, grfont **dest)
 {
 	int res = -1;
 
@@ -54,7 +54,7 @@ int gr_init_ext_font(const char* font, GRFont** dest)
 	return 0;
 }
 
-int surface_loadbmp(GRSurface** surface, const char* filename)
+int surface_loadbmp(grsurface **surface, const char *filename)
 {
 	int ret = -1;
 
@@ -67,7 +67,20 @@ int surface_loadbmp(GRSurface** surface, const char* filename)
 	return ret;
 }
 
-void surface_disaplay(GRSurface* surface, int sx, int sy, int dx, int dy)
+int surface_loadbmp_from_addr(grsurface **surface, long addr)
+{
+	int ret = -1;
+
+	ret = res_create_display_surface_from_addr(addr, surface);
+	if (ret < 0)
+		ui_loge("%s: load %lx fail.\n", __func__, addr);
+	else
+		ui_logd("%s: load %lx success.\n", __func__, addr);
+
+	return ret;
+}
+
+void surface_disaplay(grsurface *surface, int sx, int sy, int dx, int dy)
 {
 	if (surface)
 		gr_blit(surface, sx, sy, surface->width, surface->height, dx, dy);
@@ -79,7 +92,7 @@ void screen_setcolor(unsigned int color)
 			((color & 0x0000FF00) >> 8), ((color & 0x000000FF) >> 0));
 }
 
-void screen_drawtextline(const GRFont* font, int x, int y, const char *s, bool bold)
+void screen_drawtextline(const grfont *font, int x, int y, const char *s, bool bold)
 {
 	gr_text(font, x, y, s, bold);
 }

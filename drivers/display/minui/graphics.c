@@ -19,10 +19,10 @@
 #include "graphics.h"
 #include "minui_log.h"
 
-#define UI_ARBG  1
+#define UI_ARBG  0
 unsigned int ui_log_level = 0;
-GRFont* gr_font = NULL;
-static minui_backend* gr_backend = NULL;
+grfont *gr_font;
+static minui_backend *gr_backend;
 
 static int overscan_percent = 0; // OVERSCAN_PERCENT;
 static int overscan_offset_x = 0;
@@ -32,8 +32,6 @@ static unsigned char gr_current_r = 255;
 static unsigned char gr_current_g = 255;
 static unsigned char gr_current_b = 255;
 static unsigned char gr_current_a = 255;
-
-extern GRSurface* gr_draw;
 
 void ui_set_log_level(int level)
 {
@@ -45,25 +43,25 @@ static bool outside(int x, int y)
 	return x < 0 || x >= gr_draw->width || y < 0 || y >= gr_draw->height;
 }
 
-const GRFont* gr_sys_font(void)
+const grfont *gr_sys_font(void)
 {
 	return gr_font;
 }
 
-int gr_measure(const GRFont* font, const char *s)
+int gr_measure(const grfont *font, const char *s)
 {
 	return font->char_width * strlen(s);
 }
 
-void gr_font_size(const GRFont* font, int *x, int *y)
+void gr_font_size(const grfont *font, int *x, int *y)
 {
 	*x = font->char_width;
 	*y = font->char_height;
 }
 
-static void text_blend(unsigned char* src_p, int src_row_bytes,
-                       unsigned char* dst_p, int dst_row_bytes,
-                       int width, int height)
+static void text_blend(unsigned char *src_p, int src_row_bytes,
+	unsigned char *dst_p, int dst_row_bytes,
+	int width, int height)
 {
 	int j = 0;
 
@@ -99,7 +97,7 @@ static void text_blend(unsigned char* src_p, int src_row_bytes,
 	}
 }
 
-void gr_text(const GRFont* font, int x, int y, const char *s, bool bold)
+void gr_text(const grfont *font, int x, int y, const char *s, bool bold)
 {
 	unsigned char ch;
 
@@ -131,8 +129,9 @@ void gr_text(const GRFont* font, int x, int y, const char *s, bool bold)
 	}
 }
 
-void gr_texticon(int x, int y, GRSurface* icon) {
-	if (icon == NULL)
+void gr_texticon(int x, int y, grsurface *icon)
+{
+	if (!icon)
 		return;
 
 	if (icon->pixel_bytes != 1) {
@@ -231,14 +230,14 @@ void gr_fill(int x1, int y1, int x2, int y2)
 	}
 }
 
-void gr_blit(GRSurface* source, int sx, int sy, int w, int h, int dx, int dy)
+void gr_blit(grsurface *source, int sx, int sy, int w, int h, int dx, int dy)
 {
 	int i;
 	int j;
-	unsigned char* src_p;
-	unsigned char* dst_p;
+	unsigned char *src_p;
+	unsigned char *dst_p;
 
-	if (source == NULL)
+	if (!source)
 		return;
 
 	if (gr_draw->pixel_bytes != source->pixel_bytes) {
@@ -279,7 +278,7 @@ void gr_blit(GRSurface* source, int sx, int sy, int w, int h, int dx, int dy)
 	}
 }
 
-unsigned int gr_get_width(GRSurface* surface)
+unsigned int gr_get_width(grsurface *surface)
 {
 	if (surface == NULL) {
 		return 0;
@@ -287,7 +286,7 @@ unsigned int gr_get_width(GRSurface* surface)
 	return surface->width;
 }
 
-unsigned int gr_get_height(GRSurface* surface)
+unsigned int gr_get_height(grsurface *surface)
 {
 	if (surface == NULL) {
 		return 0;
@@ -295,9 +294,9 @@ unsigned int gr_get_height(GRSurface* surface)
 	return surface->height;
 }
 
-int gr_init_bmp_font(const char* name, GRFont** dest)
+int gr_init_bmp_font(const char *name, grfont **dest)
 {
-	GRFont* font = (GRFont*)(calloc(1, sizeof(*gr_font)));
+	grfont *font = (grfont *)(calloc(1, sizeof(*gr_font)));
 	int res = 0;
 
 	if (font == NULL) {
@@ -329,8 +328,8 @@ static void gr_init_default_font(void)
 
 
 	// fall back to the compiled-in font.
-	gr_font = (GRFont*)(calloc(1, sizeof(*gr_font)));
-	gr_font->texture = (GRSurface*)(malloc(sizeof(*gr_font->texture)));
+	gr_font = (grfont *)(calloc(1, sizeof(*gr_font)));
+	gr_font->texture = (grsurface *)(malloc(sizeof(*gr_font->texture)));
 	gr_font->texture->width = font.width;
 	gr_font->texture->height = font.height;
 	gr_font->texture->row_bytes = font.width;

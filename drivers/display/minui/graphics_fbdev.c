@@ -23,15 +23,15 @@
 /* Graphic Device */
 static GraphicDevice *gdev = NULL;
 
-static GRSurface* fbdev_init(void);
-static GRSurface* fbdev_flip(void);
+static grsurface *fbdev_init(void);
+static grsurface *fbdev_flip(void);
 static void fbdev_blank(bool);
 static void fbdev_exit(void);
 extern int video_scale_bitmap(void);
-static GRSurface gr_framebuffer[2];
+static grsurface gr_framebuffer[2];
 static bool double_buffered;
 static int displayed_buffer;
-GRSurface* gr_draw = NULL;
+grsurface *gr_draw;
 
 static minui_backend my_backend = {
 	.init = fbdev_init,
@@ -54,7 +54,7 @@ static unsigned long env_strtoul(const char *name, int base)
 	return ret;
 }
 
-minui_backend* open_fbdev(void)
+minui_backend *open_fbdev(void)
 {
 	return &my_backend;
 }
@@ -83,7 +83,7 @@ static void set_displayed_framebuffer(unsigned n)
 	displayed_buffer = n;
 }
 
-static char * getenv_str(const char *name)
+static char *getenv_str(const char *name)
 {
 	char *str = NULL;
 	if (!name) {
@@ -95,7 +95,7 @@ static char * getenv_str(const char *name)
 	return str ? str : NULL;
 }
 
-static GRSurface* fbdev_init(void)
+static grsurface *fbdev_init(void)
 {
 	u32 color_index, display_bpp;
 	char buf[16] = {};
@@ -115,7 +115,7 @@ static GRSurface* fbdev_init(void)
 
 	setenv("display_color_index", "32");
 	setenv("display_bpp", "32");
-	gdev = video_hw_init(MIDDLE_MODE);
+	gdev = video_hw_init(RECT_MODE);
 	if (gdev == NULL) {
 		ui_loge("Initialize video device failed!\n");
 		return NULL;
@@ -130,18 +130,18 @@ static GRSurface* fbdev_init(void)
 
 #ifdef DOUBLE_BUFFER
 	double_buffered = true;
-	memcpy(gr_framebuffer+1, gr_framebuffer, sizeof(GRSurface));
+	memcpy(gr_framebuffer + 1, gr_framebuffer, sizeof(grsurface));
 	gr_framebuffer[1].data = gr_framebuffer[0].data +
 		gr_framebuffer[0].height * gr_framebuffer[0].row_bytes;
-	gr_draw = gr_framebuffer+1;
+	gr_draw = gr_framebuffer + 1;
 #else
 	double_buffered = false;
 	// Without double-buffering, we allocate RAM for a buffer to
 	// draw in, and then "flipping" the buffer consists of a
 	// memcpy from the buffer we allocated to the framebuffer.
 
-	gr_draw = (GRSurface*) malloc(sizeof(GRSurface));
-	memcpy(gr_draw, gr_framebuffer, sizeof(GRSurface));
+	gr_draw = (grsurface *)malloc(sizeof(grsurface));
+	memcpy(gr_draw, gr_framebuffer, sizeof(grsurface));
 	gr_draw->data = (unsigned char*) malloc(gr_draw->height * gr_draw->row_bytes);
 	if (!gr_draw->data) {
 		ui_loge("failed to allocate in-memory surface");
@@ -166,7 +166,7 @@ static GRSurface* fbdev_init(void)
 	return gr_draw;
 }
 
-static GRSurface* fbdev_flip(void)
+static grsurface *fbdev_flip(void)
 {
 	if (double_buffered) {
 		// Change gr_draw to point to the buffer currently displayed,

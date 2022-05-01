@@ -18,16 +18,17 @@
 #define _GRAPHICS_H_
 
 #include "minui.h"
+extern grsurface *gr_draw;
 
 // TODO: lose the function pointers.
 typedef struct {
-	// Initializes the backend and returns a GRSurface* to draw into.
-	GRSurface* (*init)(void);
+	// Initializes the backend and returns a grsurface* to draw into.
+	grsurface* (*init)(void);
 
 	// Causes the current drawing surface (returned by the most recent
 	// call to flip() or init()) to be displayed, and returns a new
 	// drawing surface.
-	GRSurface* (*flip)(void);
+	grsurface* (*flip)(void);
 
 	// Blank (or unblank) the screen.
 	void (*blank)( bool);

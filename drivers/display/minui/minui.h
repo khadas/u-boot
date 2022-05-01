@@ -38,17 +38,17 @@ void gr_clear(void); // clear entire surface to current color
 void gr_color(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 void gr_fill(int x1, int y1, int x2, int y2);
 
-void gr_texticon(int x, int y, GRSurface* icon);
+void gr_texticon(int x, int y, grsurface *icon);
 
-const GRFont* gr_sys_font(void);
-void gr_text(const GRFont* font, int x, int y, const char *s, bool bold);
-int gr_measure(const GRFont* font, const char *s);
-void gr_font_size(const GRFont* font, int *x, int *y);
+const grfont *gr_sys_font(void);
+void gr_text(const grfont *font, int x, int y, const char *s, bool bold);
+int gr_measure(const grfont *font, const char *s);
+void gr_font_size(const grfont *font, int *x, int *y);
 
-void gr_blit(GRSurface* source, int sx, int sy, int w, int h, int dx, int dy);
-unsigned int gr_get_width(GRSurface* surface);
-unsigned int gr_get_height(GRSurface* surface);
-int gr_init_bmp_font(const char* name, GRFont** dest);
+void gr_blit(grsurface *source, int sx, int sy, int w, int h, int dx, int dy);
+unsigned int gr_get_width(grsurface *surface);
+unsigned int gr_get_height(grsurface *surface);
+int gr_init_bmp_font(const char *name, grfont **dest);
 
 #if 0
 //
@@ -81,7 +81,7 @@ int ev_get_epollfd();
 // Resources
 //
 
-bool matches_locale(const char* prefix, const char* locale);
+bool matches_locale(const char *prefix, const char *locale);
 
 // res_create_*_surface() functions return 0 if no error, else
 // negative.
@@ -94,17 +94,17 @@ bool matches_locale(const char* prefix, const char* locale);
 // All these functions load PNG images from "/res/images/${name}.png".
 
 // Load a single display surface from a PNG image.
-int res_create_display_surface(const char* name, GRSurface** pSurface);
+int res_create_display_surface(const char *name, grsurface **psurface);
 
 // Load an array of display surfaces from a single PNG image.  The PNG
 // should have a 'Frames' text chunk whose value is the number of
 // frames this image represents.  The pixel data itself is interlaced
 // by row.
-int res_create_multi_display_surface(const char* name, int* frames,
-                                     int* fps, GRSurface*** pSurface);
+int res_create_multi_display_surface(const char *name, int *frames,
+	int *fps, grsurface ***psurface);
 
 // Load a single alpha surface from a grayscale PNG image.
-int res_create_alpha_surface(const char* name, GRSurface** pSurface);
+int res_create_alpha_surface(const char *name, grsurface **psurface);
 
 // Load part of a grayscale PNG image that is the first match for the
 // given locale.  The image is expected to be a composite of multiple
@@ -112,13 +112,14 @@ int res_create_alpha_surface(const char* name, GRSurface** pSurface);
 // the subimages' size and intended locale in the pixel data.  See
 // development/tools/recovery_l10n for an app that will generate these
 // specialized images from Android resources.
-int res_create_localized_alpha_surface(const char* name, const char* locale,
-                                       GRSurface** pSurface);
+int res_create_localized_alpha_surface(const char *name,
+	const char *locale,
+	grsurface **psurface);
 
 // Free a surface allocated by any of the res_create_*_surface()
 // functions.
-void res_free_surface(GRSurface* surface);
+void res_free_surface(grsurface *surface);
 
 unsigned long load_pic_from_partition(const char *pic_name);
-
+int res_create_display_surface_from_addr(ulong addr, grsurface **psurface);
 #endif

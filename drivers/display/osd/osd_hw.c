@@ -290,7 +290,7 @@ static void get_encp_line(int *enc_line, int *active_line_begin)
 		break;
 	}
 	*enc_line = (reg >> 16) & 0x1fff;
-	*enc_line -= (*active_line_begin);
+	//*enc_line = (*active_line_begin);
 }
 
 static inline void wait_vsync_wakeup(void)
@@ -317,7 +317,8 @@ static inline void wait_vsync_wakeup(void)
 			goto vsync_hit_flag;
 	}
 
-	while (enc_line < vsync_line) {
+	while (enc_line >= active_line_begin * 50 / 100 &&
+		enc_line < (vsync_line + active_line_begin * 105 / 100)) {
 		if (i > 100000) {
 			osd_logi("wait_vsync_wakeup exit\n");
 			break;
@@ -427,6 +428,8 @@ static void vsync_isr(void)
 	unsigned int odd_even;
 	unsigned int scan_line_number = 0;
 	unsigned int fb0_cfg_w0, fb1_cfg_w0;
+	int enc_line = 0;
+	int active_line_begin;
 
 	osd_check_scan_mode();
 	if (osd_hw.scan_mode == SCAN_MODE_INTERLACE) {
@@ -474,6 +477,12 @@ static void vsync_isr(void)
 	osd_update_3d_mode(osd_hw.mode_3d[OSD1].enable,
 			   osd_hw.mode_3d[OSD2].enable,
 			   osd_hw.mode_3d[VIU2_OSD1].enable);
+
+	get_encp_line(&enc_line, &active_line_begin);
+	if (enc_line > 0 && enc_line <= active_line_begin + 1080)
+		osd_logd("exit enc_line=%d,active_line_begin=%d\n",
+			enc_line,
+			active_line_begin);
 }
 
 void osd_wait_vsync_hw(void)
