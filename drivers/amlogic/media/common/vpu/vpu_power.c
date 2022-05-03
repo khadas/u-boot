@@ -88,7 +88,7 @@ void vpu_power_on(void)
 			_reg = ctrl_table[i].reg;
 			_start = ctrl_table[i].bit;
 			_end = ctrl_table[i].len + ctrl_table[i].bit;
-			for (j = _start; j < _end; j+=2) {
+			for (j = _start; j < _end; j += 2) {
 				vpu_hiu_setb(_reg, 0, j, 2);
 				udelay(5);
 			}
@@ -180,7 +180,7 @@ void vpu_power_off(void)
 			_reg = ctrl_table[i].reg;
 			_start = ctrl_table[i].bit;
 			_end = ctrl_table[i].len + ctrl_table[i].bit;
-			for (j = _start; j < _end; j+=2) {
+			for (j = _start; j < _end; j += 2) {
 				vpu_hiu_setb(_reg, 0x3, j, 2);
 				udelay(5);
 			}
@@ -265,5 +265,10 @@ void vpu_power_off_new(void)
 #endif
 
 	vpu_hiu_setb(vpu_conf.data->vapb_clk_reg, 0, 8, 1);
+	vpu_hiu_setb(vpu_conf.data->vpu_clk_reg, 0, 8, 1);
+}
+
+void vpu_power_off_c3(void)
+{
 	vpu_hiu_setb(vpu_conf.data->vpu_clk_reg, 0, 8, 1);
 }

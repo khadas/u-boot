@@ -26,6 +26,7 @@ enum vpu_chip_e {
 	VPU_CHIP_S4,  /* 9 */
 	VPU_CHIP_T3, /* 10 */
 	VPU_CHIP_S4D, /* 11 */
+	VPU_CHIP_C3, /* 12 */
 	VPU_CHIP_MAX,
 };
 
@@ -52,6 +53,18 @@ enum vpu_chip_e {
 #define VPU_PWR_CNT_MAX        5
 #define VPU_RESET_CNT_MAX      10
 
+enum vpu_mux_e {
+	FCLK_DIV4 = 0,
+	FCLK_DIV3,
+	FCLK_DIV5,
+	FCLK_DIV7,
+	MPLL_CLK1,
+	VID_PLL_CLK,
+	VID2_PLL_CLK,
+	GPLL_CLK,
+	FCLK_DIV_MAX,
+};
+
 struct fclk_div_s {
 	unsigned int fclk_id;
 	unsigned int fclk_mux;
@@ -76,6 +89,7 @@ struct vpu_reset_s {
 	unsigned int mask;
 };
 
+struct vpu_conf_s;
 struct vpu_data_s {
 	enum vpu_chip_e chip_type;
 	const char *chip_name;
@@ -92,6 +106,7 @@ struct vpu_data_s {
 
 	struct fclk_div_s *fclk_div_table;
 	struct vpu_clk_s  *vpu_clk_table;
+	unsigned int *test_reg;
 
 	struct vpu_ctrl_s *mem_pd_table;
 	struct vpu_ctrl_s *power_table;
@@ -103,6 +118,9 @@ struct vpu_data_s {
 
 	void (*power_on)(void);
 	void (*power_off)(void);
+	void (*mem_pd_init_off)(void);
+	void (*module_init_config)(void);
+	int (*change_clk)(struct vpu_conf_s *vconf, unsigned int vclk);
 };
 
 struct vpu_conf_s {
@@ -122,12 +140,18 @@ extern void udelay(unsigned long usec);
 extern int printf(const char *fmt, ...);
 /* ************************************************ */
 
-extern void vpu_mem_pd_init_off(void);
-extern void vpu_module_init_config(void);
+unsigned int get_vpu_clk(struct vpu_conf_s *vconf);
+int change_vpu_clk(struct vpu_conf_s *vconf, unsigned int vclk);
+int set_vpu_clk(struct vpu_conf_s *vconf, unsigned int vclk);
+int set_vpu_clkb(struct vpu_conf_s *vconf, unsigned int vclk);
 
-extern void vpu_power_on(void);
-extern void vpu_power_off(void);
-extern void vpu_power_on_new(void);
-extern void vpu_power_off_new(void);
+void vpu_mem_pd_init_off(void);
+void vpu_module_init_config(void);
+
+void vpu_power_on(void);
+void vpu_power_off(void);
+void vpu_power_on_new(void);
+void vpu_power_off_new(void);
+void vpu_power_off_c3(void);
 
 #endif

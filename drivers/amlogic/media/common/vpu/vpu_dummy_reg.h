@@ -46,14 +46,28 @@
 #ifndef VENC_VDAC_TST_VAL
 #define VENC_VDAC_TST_VAL                          (0x1b7f)
 #endif
-#ifndef ENCP_DVI_HSO_BEGIN
-#define ENCP_DVI_HSO_BEGIN                         (0x1c30)
-#endif
 #ifndef VPP_DUMMY_DATA
 #define VPP_DUMMY_DATA                             (0x1d00)
 #endif
 #ifndef VPU_VPU_PWM_V0
 #define VPU_VPU_PWM_V0                             (0x2730)
+#endif
+
+#ifndef VPU_VOUT_BLEND_DUMDATA
+#define VPU_VOUT_BLEND_DUMDATA                     ((0x0011  << 2) + 0xfe350000)
+#endif
+#ifndef VPP_VD1_MATRIX_OFFSET0_1
+#define VPP_VD1_MATRIX_OFFSET0_1                   ((0x0289  << 2) + 0xfe350000)
+#endif
+#ifndef VPU_VOUT_DTH_DATA
+#define VPU_VOUT_DTH_DATA                          ((0x0103  << 2) + 0xfe350000)
+#endif
+
+#ifndef VPU_RDARB_MODE_L2C1
+#define VPU_RDARB_MODE_L2C1                        ((0x279d  << 2) + 0xff000000)
+#endif
+#ifndef VPU_WRARB_MODE_L2C1
+#define VPU_WRARB_MODE_L2C1                        ((0x27a2  << 2) + 0xff000000)
 #endif
 
 #ifndef HHI_VPU_CLK_CNTL
@@ -135,6 +149,10 @@
 
 #ifndef CLKCTRL_VID_CLK0_CTRL2
 #define CLKCTRL_VID_CLK0_CTRL2                     ((0x0031  << 2) + 0xfe000000)
+#endif
+
+#ifndef CLKCTRL_VOUTENC_CLK_CTRL
+#define CLKCTRL_VOUTENC_CLK_CTRL                   ((0x0046  << 2) + 0xfe000000)
 #endif
 
 #ifndef PWRCTRL_PWR_ACK0
