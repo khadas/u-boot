@@ -79,9 +79,9 @@ static int do_osd_close(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	gdev = NULL;
 	if (index >= VIU2_OSD1) {
-		osd_enable_hw(VIU2_OSD1, 0);
+		osd_enable_hw(index, 0);
 		if (get_osd_viux_scale_cap())
-			osd_set_free_scale_enable_hw(VIU2_OSD1, 0);
+			osd_set_free_scale_enable_hw(index, 0);
 	} else {
 		osd_enable_hw(OSD1, 0);
 		osd_enable_hw(OSD2, 0);

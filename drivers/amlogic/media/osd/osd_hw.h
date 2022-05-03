@@ -10,7 +10,7 @@
 
 #define REG_OFFSET (0x20)
 #define OSD_RELATIVE_BITS 0x33370
-extern void osd_init_hw_viu2(void);
+
 extern int osd_get_chip_type(void);
 extern void osd_init_hw(void);
 extern void osd_set_color_key_hw(u32 index, u32 bpp, u32 colorkey);
@@ -101,4 +101,25 @@ extern void osd_get_hw_para(struct hw_para_s **para);
 extern void osd_update_blend(struct pandata_s *disp_data);
 extern void osd_hist_enable(u32 osd_index);
 extern int osd_get_hist_stat(u32 *hist_result);
+void osd_init_hw_viux(u32 index);
+
+#ifdef VEHICLE_CONFIG
+void osd_set_config_finish(void);
+bool is_osd2_configed(void);
+void osd2_config_with_dimm(int *axis);
+void osd2_setup_hw(u32 index,
+		  u32 xoffset,
+		  u32 yoffset,
+		  u32 xres,
+		  u32 yres,
+		  u32 xres_virtual,
+		  u32 yres_virtual,
+		  u32 disp_start_x,
+		  u32 disp_start_y,
+		  u32 disp_end_x,
+		  u32 disp_end_y,
+		  u32 fbmem,
+		  const struct color_bit_define_s *color);
+#endif
+
 #endif
