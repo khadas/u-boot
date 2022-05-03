@@ -175,6 +175,7 @@ static void hdmitx_mask_rx_info(struct hdmitx_dev *hdev)
 static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
+	int ret;
 
 	if (argc < 1)
 		return cmd_usage(cmdtp);
@@ -204,8 +205,10 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		hdev->para->cs = HDMI_COLOR_FORMAT_RGB;
 		hdev->para->cd = HDMI_COLOR_DEPTH_24B;
 		hdev->vic = HDMI_1920x1080p60_16x9;
-		hdmi_tx_set(hdev);
+		ret = hdmi_tx_set(hdev);
 		hdev->hwop.test_prbs();
+		if (ret != 0)
+			return CMD_RET_FAILURE;
 	} else if (strncmp(argv[1], "div40", 5) == 0) {
 		bool div40 = 0;
 
@@ -286,7 +289,9 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		}
 		printf("set hdmitx VIC = %d CS = %d CD = %d\n",
 		       hdev->vic, hdev->para->cs, hdev->para->cd);
-		hdmi_tx_set(hdev);
+		ret = hdmi_tx_set(hdev);
+		if (ret != 0)
+			return CMD_RET_FAILURE;
 	}
 	return CMD_RET_SUCCESS;
 }
@@ -503,6 +508,8 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 	char *colorattribute;
 	char dv_type[2] = {0};
 	scene_output_info_t scene_output_info;
+	struct hdmi_format_para *para = NULL;
+	bool mode_support = false;
 
 	if (!hdev) {
 		printf("null hdmitx dev\n");
@@ -558,7 +565,21 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 		printf("TV is the same, checksum: %s\n", hdev->RXCap.checksum);
 	}
 
-	if (hdev->RXCap.edid_changed) {
+	/* check current mode+colorattr support or not */
+	para = hdmi_tst_fmt_name(hdmimode, colorattribute);
+	if (hdmitx_edid_check_valid_mode(hdev, para))
+		mode_support = true;
+	else
+		mode_support = false;
+
+	/* two cases need to go with uboot mode select policy:
+	 * 1.TV changed
+	 * 2.TV not changed, but current mode(set by sysctrl/hwc)
+	 * not supportted by uboot (probably means mode select policy or
+	 * edid parse between sysctrl and uboot have some gap)
+	 * then need to find proper output mode with uboot policy.
+	 */
+	if (hdev->RXCap.edid_changed || !mode_support) {
 		/* find proper mode if EDID changed */
 		scene_process(hdev, &scene_output_info);
 		env_set("hdmichecksum", hdev->RXCap.checksum);

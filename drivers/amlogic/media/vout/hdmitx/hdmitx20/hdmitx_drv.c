@@ -45,7 +45,7 @@ static void hdelay(int us)
 #define mdelay(i)   hdelay(i)
 #define msleep(i)   hdelay(i)
 
-static void hdmitx_set_hw(struct hdmitx_dev *hdev);
+static int hdmitx_set_hw(struct hdmitx_dev *hdev);
 static int hdmitx_set_audmode(struct hdmitx_dev *hdev);
 
 /*Internal functions:*/
@@ -416,14 +416,16 @@ void hdmitx_init(void)
 	hdmitx_load_dts_config(hdev);
 }
 
-void hdmi_tx_set(struct hdmitx_dev *hdev)
+int hdmi_tx_set(struct hdmitx_dev *hdev)
 {
+	int ret = 0;
+
 	unsigned char checksum[11];
 	char *p_tmp;
 	aml_audio_init();  /* Init audio hw firstly */
 	hdmitx_hw_init();
 	ddc_init_();
-	hdmitx_set_hw(hdev);
+	ret = hdmitx_set_hw(hdev);
 	/* add audio */
 	hdmitx_set_audmode(hdev);
 	//kernel will determine output mode on its own
@@ -439,7 +441,7 @@ void hdmi_tx_set(struct hdmitx_dev *hdev)
 	printf("hdmi_tx_set: save mode: %s, attr: %s, hdmichecksum: %s\n",
 		env_get("outputmode"), env_get("colorattribute"), env_get("hdmichecksum"));
 	run_command("saveenv", 0);
-	return;
+	return ret;
 
 #if 0
 	hdmi_tx_gate(vic);
@@ -3086,14 +3088,14 @@ static void hdmitx_set_scdc(struct hdmitx_dev *hdev)
 	}
 }
 
-static void hdmitx_set_hw(struct hdmitx_dev* hdev)
+static int hdmitx_set_hw(struct hdmitx_dev *hdev)
 {
 	struct hdmi_format_para *para = NULL;
 
 	para = hdmi_get_fmt_paras(hdev->vic);
 	if (para == NULL) {
 		printk("error at %s[%d]\n", __func__, __LINE__);
-		return;
+		return -1;
 	}
 	hdmitx_set_scdc(hdev);
 	hdmitx_set_pll(hdev);
@@ -3151,6 +3153,7 @@ static void hdmitx_set_hw(struct hdmitx_dev* hdev)
 		break;
 	}
 	hd_write_reg(P_ENCP_VIDEO_EN, 1); /* enable it finially */
+	return 0;
 }
 
 /*Use this self-made function rather than %,

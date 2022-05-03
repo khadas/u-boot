@@ -70,7 +70,7 @@ bool is_support_4k(void);
 bool is_supported_mode_attr(hdmi_data_t *hdmi_data, char *mode_attr);
 bool hdmitx_chk_mode_attr_sup(hdmi_data_t *hdmi_data, char *mode, char *attr);
 int get_ubootenv_dv_type(void);
-void hdmi_tx_set(struct hdmitx_dev *hdev);
+int hdmi_tx_set(struct hdmitx_dev *hdev);
 /* Parsing RAW EDID data from edid to pRXCap */
 unsigned int hdmi_edid_parsing(unsigned char *edid, struct rx_cap *prxcap);
 struct hdmi_format_para *hdmi_match_dtd_paras(struct dtd *t);
