@@ -469,7 +469,8 @@ int check_reboot_reason(unsigned long *mem_size)
 	if (!(cfg & AMLOGIC_KERNEL_BOOTED))
 		return 0;
 
-	*mem_size = ((cfg & AMLOGIC_USERAM_MASK) << 20);
+	unsigned long nTotal = cfg & AMLOGIC_USERAM_MASK;
+	*mem_size = (((nTotal - 1) / 512 + 1) * 512) << 20;
 	serial_puts("mem size:0x");
 	serial_put_hex(*mem_size, 64);
 	serial_puts("\n");

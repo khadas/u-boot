@@ -42,11 +42,6 @@ void ramdump_init(void)
 	writel(data & ~RAMDUMP_STICKY_DATA_MASK, PREG_STICKY_REG8);
 	printf("%s, add:%lx, size:%lx\n", __func__, ramdump_base, ramdump_size);
 
-#ifdef CONFIG_SUPPORT_BL33Z
-	printf("%s, bl33z change kernel and dtb addr.\n", __func__);
-	env_set("dtb_mem_addr", "0x01800000");	/* new dtb load addr */
-	env_set("loadaddr", "0x01880000");	/* new boot.img load addr */
-#endif
 }
 
 static void wait_usb_dev(void)
@@ -137,8 +132,8 @@ static void ramdump_env_setup(unsigned long addr, unsigned long size)
 	 * (initrd_high - 0x010800000)
 	 * dts file size < (fdt_high - initrd_high)
 	 */
-	env_set("initrd_high", "0x04400000");
-	env_set("fdt_high",    "0x04E00000");
+	//env_set("initrd_high", "0x04400000");
+	//env_set("fdt_high",    "0x04E00000");
 	line = env_get("bootargs");
 	if (!line)
 		return;

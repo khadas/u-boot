@@ -44,7 +44,7 @@
  */
 #define P_AO_RTI_PINMUX_REG0	((0x0000  << 2) + 0xfe000400)
 #define P_AO_TIMEBASE_CNTL1		((0x0016  << 2) + 0xfe000800)
-#define AO_UART_WFIFO			((0x0000  << 2) + 0xfe002000)
+#define AO_UART_WFIFO			((0x0000  << 2) + 0xfe07a000)
 
 /*
  * Not AO watch dog
