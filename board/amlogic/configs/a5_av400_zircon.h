@@ -109,6 +109,7 @@
 	"video_reverse=0\0"\
 	"active_slot=normal\0"\
 	"boot_part=boot\0"\
+	"zircon_part=recovery\0"\
 	"vendor_boot_part=vendor_boot\0"\
 	"board_logo_part=odm_ext\0" \
 	"board=oppen\0"\
@@ -159,29 +160,7 @@
 		"fi;fi;fi;fi;fi;fi;"\
 		"\0" \
 	"storeboot="\
-		"run get_os_type;"\
-		"run storage_param;"\
-		"if test ${os_type} = rtos; then "\
-			"setenv loadaddr ${loadaddr_rtos};"\
-			"store read ${loadaddr} ${boot_part} 0 0x400000;"\
-			"bootm ${loadaddr};"\
-		"else if test ${os_type} = kernel; then "\
-			"get_system_as_root_mode;"\
-			"echo system_mode in storeboot: ${system_mode};"\
-			"get_avb_mode;"\
-			"echo active_slot in storeboot: ${active_slot};"\
-			"if test ${system_mode} = 1; then "\
-				"setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
-			"else "\
-				"setenv bootargs ${bootargs} androidboot.force_normal_boot=1;"\
-			"fi;"\
-			"if test ${active_slot} != normal; then "\
-				"setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
-			"fi;"\
-			"if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
-			"setenv loadaddr ${loadaddr_kernel};"\
-			"if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
-		"else echo wrong OS format ${os_type}; fi;fi;"\
+		"if imgread kernel ${zircon_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
 		"echo try upgrade as booting failure; run update;"\
 		"\0" \
 	 "update="\
