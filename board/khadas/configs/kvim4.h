@@ -680,6 +680,11 @@
             "if gpio input GPIOD_3; then "\
             "echo detect upgrade key; run update;"\
             "fi;"\
+            "\0"\
+        "updateu="\
+            "if tftp 1080000 u-boot.bin.signed; then "\
+                "store boot_write bootloader 1080000 $filesize;"\
+            "fi;"\
             "\0"
 #endif
 
