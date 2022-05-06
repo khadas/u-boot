@@ -49,6 +49,12 @@ config CMD_BOOTCTOL_AVB
 	help
 	  support avb related cmds
 
+config CMD_CAR_PARAMS
+	bool "used to read car camera params"
+	default n
+	help
+	  support read car camera params
+
 config CMD_RSVMEM
 	bool "rsvmem cmd"
 	default y

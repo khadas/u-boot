@@ -22,6 +22,8 @@ obj-$(CONFIG_CMD_RSVMEM) += cmd_rsvmem.o
 
 obj-y += cmd_version.o
 
+obj-$(CONFIG_CMD_CAR_PARAMS) += cmd_car_param.o
+
 ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 obj-y += cmd_bcb.o
 obj-y += get_bcb_boot_part.o
