@@ -73,9 +73,9 @@ static struct device_node_t device_list[] = {
 #ifdef CONFIG_MTD_SPI_NAND
 	{BOOT_SNAND, "spi-nand", spi_nand_pre, spi_nand_probe},
 #endif
-#if CONFIG_SPI_FLASH
-	{BOOT_SNOR, "spi-nor", spi_nor_pre, spi_nor_probe},
-#endif
+//#if CONFIG_SPI_FLASH
+//	{BOOT_SNOR, "spi-nor", spi_nor_pre, spi_nor_probe},
+//#endif
 #if 0
 	{BOOT_SD, "sd", sdcard_pre, sdcard_probe},
 #endif
