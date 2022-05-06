@@ -17,6 +17,7 @@
 #define CONFIG_BOOTM_VXWORKS 1
 
 #define CONFIG_GZIP 1
+#define CONFIG_BZIP2 1
 #define CONFIG_ZLIB 1
 #define CONFIG_PARTITIONS 1
 

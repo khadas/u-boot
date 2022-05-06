@@ -18,7 +18,9 @@
 #include <asm/arch/cpu.h>
 #include <partition_table.h>
 #include <amlogic/aml_efuse.h>
+#include <bzlib.h>
 
+#define BIT(x) (1 << (x))
 //#define AML_DT_DEBUG
 #ifdef AML_DT_DEBUG
 #define dbg_printf(...) printf(__VA_ARGS__)
@@ -32,12 +34,17 @@
 #ifdef AML_MULTI_DTB_API_NEW
 
 /*for multi-dtb gzip buffer*/
-#define GUNZIP_BUF_SIZE         (1<<20)     /*1MB  is enough?*/
+#define GUNZIP_BUF_SIZE         BIT(20)     /*1MB  is enough?*/
+#define BZIP2_BUF_SIZE          BIT(23)     /*8MB  is enough?*/
 
 /*magic for multi-dtb*/
 #define MAGIC_GZIP_MASK         (0x0000FFFF)
 #define MAGIC_GZIP_ID           (0x00008B1F)
+#define MAGIC_BZIP2_ID           (0x00005a42)
+
 #define IS_GZIP_PACKED(nMagic)  (MAGIC_GZIP_ID == (MAGIC_GZIP_MASK & nMagic))
+#define IS_BZIP2_PACKED(nMagic) (MAGIC_BZIP2_ID == (MAGIC_BZIP2_ID & (nMagic)))
+
 #define MAGIC_DTB_SGL_ID        (0xedfe0dd0)
 #define MAGIC_DTB_MLT_ID        (0x5f4c4d41)
 
@@ -244,26 +251,27 @@ exit:
 
 unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 {
-	unsigned long lReturn = 0; //return buffer for valid DTB;
-	void * gzip_buf = NULL;
-	unsigned long pInputFDT  = fdt_addr;
-	p_st_dtb_hdr_t pDTBHdr   = (p_st_dtb_hdr_t)pInputFDT;
+	unsigned long lreturn = 0; //return buffer for valid DTB;
+	void *zip_buf = NULL;
+	unsigned long p_inputfdt  = fdt_addr;
+	p_st_dtb_hdr_t p_dtbhdr   = (p_st_dtb_hdr_t)p_inputfdt;
 	unsigned long unzip_size = GUNZIP_BUF_SIZE;
-
+	unsigned int src_len = BZIP2_BUF_SIZE;
+	unsigned int dest_len = BZIP2_BUF_SIZE;
 	printf("      Amlogic Multi-DTB tool\n");
 
 	/* first check the blob header, support GZIP format */
-	if ( IS_GZIP_PACKED(pDTBHdr->nMagic))
+	if (IS_GZIP_PACKED(p_dtbhdr->nMagic))
 	{
 		printf("      GZIP format, decompress...\n");
-		gzip_buf = malloc(GUNZIP_BUF_SIZE);
-		if (!gzip_buf)
+		zip_buf = malloc(GUNZIP_BUF_SIZE);
+		if (!zip_buf)
 		{
 			printf("      ERROR! fail to allocate memory for GUNZIP...\n");
 			goto exit;
 		}
-		memset(gzip_buf, 0, GUNZIP_BUF_SIZE);
-		if (gunzip(gzip_buf, GUNZIP_BUF_SIZE, (void *)pInputFDT, &unzip_size) < 0)
+		memset(zip_buf, 0, GUNZIP_BUF_SIZE);
+		if (gunzip(zip_buf, GUNZIP_BUF_SIZE, (void *)p_inputfdt, &unzip_size) < 0)
 		{
 			printf("      ERROR! GUNZIP process fail...\n");
 			goto exit;
@@ -274,28 +282,51 @@ unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 			goto exit;
 		}
 		//memcpy((void*)fdt_addr,gzip_buf,unzip_size);
-		pInputFDT = (unsigned long)gzip_buf;
-		pDTBHdr   = (p_st_dtb_hdr_t)pInputFDT;
+		p_inputfdt = (unsigned long)zip_buf;
+		p_dtbhdr   = (p_st_dtb_hdr_t)p_inputfdt;
+	} else if (IS_BZIP2_PACKED(p_dtbhdr->nMagic)) {
+		printf("      BZIP2 format, decompress...\n");
+		/*
+		 * If we've got less than 4 MB of malloc() space,
+		 * use slower decompression algorithm which requires
+		 * at most 2300 KB of memory.
+		 */
+		zip_buf = malloc(BZIP2_BUF_SIZE);
+		if (!zip_buf) {
+			printf("      ERROR! fail to allocate memory for GUNZIP...\n");
+			goto exit;
+		}
+		memset(zip_buf, 0, BZIP2_BUF_SIZE);
+		int i = BZ2_bzBuffToBuffDecompress(zip_buf, &dest_len,
+				(void *)p_inputfdt, src_len,
+				1, 2);
+		unzip_size = dest_len;
+		if (i != BZ_OK) {
+			printf("BZIP2: uncompress or overwrite error %d must RESET board\n", i);
+			goto exit;
+		} else {
+			p_inputfdt = (unsigned long)zip_buf;
+			p_dtbhdr   = (p_st_dtb_hdr_t)p_inputfdt;
+		}
 	}
 
-
-	switch (pDTBHdr->nMagic)
+	switch (p_dtbhdr->nMagic)
 	{
 	case MAGIC_DTB_SGL_ID:
 	{
 		printf("      Single DTB detected\n");
 
-		if (fdt_addr != (unsigned long)pInputFDT) //in case of GZIP single DTB
-			memcpy((void*)fdt_addr,(void*)pInputFDT,unzip_size);
+		if (fdt_addr != (unsigned long)p_inputfdt) //in case of GZIP single DTB
+			memcpy((void *)fdt_addr, (void *)p_inputfdt, unzip_size);
 
-		lReturn = fdt_addr;
+		lreturn = fdt_addr;
 
 	}break;
 	case MAGIC_DTB_MLT_ID:
 	{
 		printf("      Multi DTB detected.\n");
-		printf("      Multi DTB tool version: v%d.\n", pDTBHdr->nVersion);
-		printf("      Found %d DTBS.\n", pDTBHdr->nDTBCount);
+		printf("      Multi DTB tool version: v%d.\n", p_dtbhdr->nVersion);
+		printf("      Found %d DTBS.\n", p_dtbhdr->nDTBCount);
 
 
 		/* check and set aml_dt */
@@ -321,10 +352,10 @@ unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 			(strlen(aml_dt)>AML_MAX_DTB_NAME_SIZE?AML_MAX_DTB_NAME_SIZE:(strlen(aml_dt)+1)));
 #endif
 
-		int dtb_match_num = get_dtb_index(aml_dt_buf,(unsigned long)pInputFDT);
+		int dtb_match_num = get_dtb_index(aml_dt_buf, (unsigned long)p_inputfdt);
 
 		/*check valid dtb index*/
-		if (dtb_match_num < 0 || dtb_match_num >= pDTBHdr->nDTBCount)
+		if (dtb_match_num < 0 || dtb_match_num >= p_dtbhdr->nDTBCount)
 		{
 			printf("      NOT found matched DTB for \"%s\"\n",aml_dt_buf);
 			goto exit;
@@ -332,36 +363,39 @@ unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 
 		printf("      Matched DTB for \"%s\"\n",aml_dt_buf);
 
-		switch (pDTBHdr->nVersion)
+		switch (p_dtbhdr->nVersion)
 		{
 		case AML_MUL_DTB_VER_1:
 		{
-			p_st_dtb_v1_t pDTB_V1 = (p_st_dtb_v1_t)pInputFDT;
-			lReturn = pDTB_V1->dtb[dtb_match_num].nDTBOffset + pInputFDT;
+			p_st_dtb_v1_t p_dtbv1 = (p_st_dtb_v1_t)p_inputfdt;
 
-			if (pInputFDT != fdt_addr)
+			lreturn = p_dtbv1->dtb[dtb_match_num].nDTBOffset + p_inputfdt;
+			if (p_inputfdt != fdt_addr)
 			{
-				memcpy((void*)fdt_addr, (void*)lReturn,pDTB_V1->dtb[dtb_match_num].nDTBIMGSize);
-				lReturn = fdt_addr;
+				memcpy((void *)fdt_addr, (void *)lreturn,
+					p_dtbv1->dtb[dtb_match_num].nDTBIMGSize);
+				lreturn = fdt_addr;
 			}
 
 		}break;
 		case AML_MUL_DTB_VER_2:
 		{
-			p_st_dtb_v2_t pDTB_V2 = (p_st_dtb_v2_t)pInputFDT;
-			lReturn = pDTB_V2->dtb[dtb_match_num].nDTBOffset + pInputFDT;
+			p_st_dtb_v2_t p_dtbv2 = (p_st_dtb_v2_t)p_inputfdt;
 
-			if (pInputFDT != fdt_addr)
+			lreturn = p_dtbv2->dtb[dtb_match_num].nDTBOffset + p_inputfdt;
+
+			if (p_inputfdt != fdt_addr)
 			{
-				memcpy((void*)fdt_addr, (void*)lReturn,pDTB_V2->dtb[dtb_match_num].nDTBIMGSize);
-				lReturn = fdt_addr;
+				memcpy((void *)fdt_addr, (void *)lreturn,
+					p_dtbv2->dtb[dtb_match_num].nDTBIMGSize);
+				lreturn = fdt_addr;
 			}
 
 		}break;
 		default:
 		{
 			printf("      Invalid Multi-DTB Version [%d]!\n",
-				pDTBHdr->nVersion);
+				p_dtbhdr->nVersion);
 			goto exit;
 		}break;
 		}
@@ -372,13 +406,13 @@ unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 
 exit:
 
-	if (gzip_buf)
+	if (zip_buf)
 	{
-		free(gzip_buf);
-		gzip_buf = 0;
+		free(zip_buf);
+		zip_buf = 0;
 	}
 
-	return lReturn;
+	return lreturn;
 }
 
 #else //#ifdef AML_MULTI_DTB_API_NEW
