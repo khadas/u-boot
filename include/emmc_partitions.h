@@ -136,6 +136,9 @@
 #define FASTBOOT_CONTEXT_SIZE    (512)
 #define GPT_LBA_COUNT 34
 #define GPT_TOTAL_SIZE (GPT_LBA_COUNT * 512)
+#define GPT_GAP              0x800   //1M gap
+
+#define ADD_LAST_PARTITION (0)
 
 struct virtual_partition {
 	char name[MAX_MMC_PART_NAME_LEN];

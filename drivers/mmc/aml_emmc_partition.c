@@ -461,6 +461,15 @@ static int _calculate_offset(struct mmc *mmc, struct _iptbl *itbl, u32 bottom)
 		else
 			gap = PARTITION_RESERVED;
 	}
+
+#if (ADD_LAST_PARTITION)
+	i += 1;
+	if (i == itbl->count - 1 && bottom == 1) {
+		part[i - 1].size -= gap + part[i].size;
+		part[i].offset = part[i - 1].offset + part[i - 1].size + gap;
+	}
+#endif
+
 	if (i < (itbl->count - 1)) {
 		apt_err("too large partition table for current emmc, overflow!\n");
 		ret = -1;
@@ -502,6 +511,14 @@ static void compose_ept(struct _iptbl *dtb, struct _iptbl *inh,
 			break;
 		}
 	}
+
+#if (ADD_LAST_PARTITION)
+	i += 1;
+	dst = &partition[ept->count];
+	src = &dtb->partitions[i - inh->count];
+	ept->count += 1;
+	*dst = *src;
+#endif
 
 	return;
 }
