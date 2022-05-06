@@ -23,6 +23,7 @@
 /*Distinguish whether to use efuse to adjust vddee*/
 #define CONFIG_PDVFS_ENABLE
 
+#define CONFIG_PHY_REALTEK 1
 /* SMP Definitinos */
 #define CPU_RELEASE_ADDR        secondary_boot_func
 
@@ -466,7 +467,7 @@
 			"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} "\
                 "hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
-                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
+                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} wol_enable=${wol_enable} jtag=${jtag}; "\
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
@@ -550,6 +551,7 @@
             "fi;"\
             "\0" \
         "storeboot="\
+            "kbi resetflag 0;"\
             "run get_os_type;"\
             "if test ${os_type} = rtos; then "\
                 "setenv loadaddr ${loadaddr_rtos};"\
@@ -622,6 +624,19 @@
                 "fi;"\
             "fi;"\
             "\0"\
+        "wol_init="\
+               "kbi powerstate;"\
+               "kbi trigger wol r;"\
+               "if test ${wol_enable} = 1; then "\
+               "kbi trigger wol w 1;"\
+               "fi;"\
+               "setenv bootargs ${bootargs} wol_enable=${wol_enable};"\
+               "if test ${power_state} = 1; then "\
+                   "kbi poweroff;"\
+               "else "\
+                   "kbi wolreset;"\
+               "fi;"\
+            "\0"\
         "bcb_cmd="\
             "get_avb_mode;"\
             "get_valid_slot;"\
@@ -689,6 +704,7 @@
             "run bcb_cmd; "\
             "run upgrade_check;"\
             "run check_display;"\
+            "run wol_init;"\
             "run storeargs;"\
             "run upgrade_key;" \
             "run reset_suspend;"

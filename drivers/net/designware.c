@@ -1572,6 +1572,7 @@ static int eqos_send(struct udevice *dev, void *packet, int length)
 	struct eqos_eth_dev *eqos = dev_get_priv(dev);
 	struct eqos_desc *tx_desc;
 	int i;
+	int phy_reset_force = 0;
 
 	debug("%s(dev=%p, packet=%p, length=%d):\n", __func__, dev, packet,
 	      length);
@@ -1597,12 +1598,22 @@ static int eqos_send(struct udevice *dev, void *packet, int length)
 
 	writel((ulong)(tx_desc + 1), &eqos->dma_regs_p->ch0_txdesc_tail_pointer);
 
-	for (i = 0; i < 1000000; i++) {
+	for (i = 0; i < 100000; i++) {
 		eqos_inval_desc(tx_desc);
 		if (!(readl(&tx_desc->des3) & EQOS_DESC3_OWN)) {
 			return 0;
 		}
-		udelay(1);
+		udelay(10);
+		/* eth fail need full restart */
+		if (phy_reset_force++ == 100) {
+			phy_reset_force = 0;
+			printf("%s: TX timeout ....\n", __func__);
+			phy_reset(eqos->phydev);
+			eqos_stop(dev);
+			eqos_start(dev);
+			udelay(20);
+			return -EINVAL;
+		}
 	}
 
 	printf("%s: TX timeout\n", __func__);

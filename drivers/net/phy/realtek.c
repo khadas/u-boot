@@ -123,33 +123,31 @@ static int rtl8211x_config(struct phy_device *phydev)
 static int rtl8211f_config(struct phy_device *phydev)
 {
 	u16 reg;
+	u16 bmcr = 0;
 
-	phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR, BMCR_RESET);
+	reg = phy_read(phydev, MDIO_DEVAD_NONE, 0x19);
+	if (reg < 0)
+		return reg;
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211F_PAGE_SELECT, 0xa43);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x19, (reg & (~0x01)));
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR, 0x8000|0x1000|0x0200);
 
-	phy_write(phydev, MDIO_DEVAD_NONE,
-		  MIIM_RTL8211F_PAGE_SELECT, 0xd08);
-	reg = phy_read(phydev, MDIO_DEVAD_NONE, 0x11);
+	do {
+		bmcr = phy_read(phydev, MDIO_DEVAD_NONE, 0x00);
+		if (bmcr < 0)
+			return bmcr;
+	} while (bmcr & BMCR_RESET);
 
-	/* enable TX-delay for rgmii-id and rgmii-txid, otherwise disable it */
-	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID ||
-	    phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID)
-		reg |= MIIM_RTL8211F_TX_DELAY;
-	else
-		reg &= ~MIIM_RTL8211F_TX_DELAY;
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x0d, 0x7);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x0e, 0x3c);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x0d, 0x4007);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x0e, 0x0);
+	reg = phy_read(phydev, MDIO_DEVAD_NONE, 0x9);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x9, reg&(~(1<<9)));
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211F_PAGE_SELECT, 0xd04);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x10, 0xc171);
 
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x11, reg);
-	/* restore to default page 0 */
-	phy_write(phydev, MDIO_DEVAD_NONE,
-		  MIIM_RTL8211F_PAGE_SELECT, 0x0);
-
-	/* Set green LED for Link, yellow LED for Active */
-	phy_write(phydev, MDIO_DEVAD_NONE,
-		  MIIM_RTL8211F_PAGE_SELECT, 0xd04);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x10, 0x617f);
-	phy_write(phydev, MDIO_DEVAD_NONE,
-		  MIIM_RTL8211F_PAGE_SELECT, 0x0);
-
-	genphy_config_aneg(phydev);
+	run_command("kbi resetflag 1", 0);
 
 	return 0;
 }
@@ -340,6 +338,7 @@ static struct phy_driver RTL8211F_driver = {
 
 int phy_realtek_init(void)
 {
+	puts("__phy_realtek_init");
 	phy_register(&RTL8211B_driver);
 	phy_register(&RTL8211E_driver);
 	phy_register(&RTL8211F_driver);
