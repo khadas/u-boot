@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef __DT_BINDINGS_CLOCK_P1_H
-#define __DT_BINDINGS_CLOCK_P1_H
+#ifndef __DT_BINDINGS_CLOCK_S5_H
+#define __DT_BINDINGS_CLOCK_S5_H
 /*
  * CLKID index values
  */
@@ -76,4 +76,4 @@
 
 #define CLKID_UNREALIZED	100
 
-#endif /* __P1_CLKC_H */
+#endif /* __S5_CLKC_H */

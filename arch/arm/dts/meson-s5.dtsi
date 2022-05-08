@@ -237,105 +237,105 @@
 
 &saradc {
 	compatible = "amlogic,meson-g12a-saradc", "amlogic,meson-saradc";
-	clocks = <&xtal>,
-		 <&clkc CLKID_SARADC_MUX>,
-		 <&clkc CLKID_SARADC_DIV>,
-		 <&clkc CLKID_SAR_ADC_GATE>;
-	clock-names = "xtal", "adc_mux", "adc_div", "adc_gate";
+//	clocks = <&xtal>,
+//		 <&clkc CLKID_SARADC_MUX>,
+//		 <&clkc CLKID_SARADC_DIV>,
+//		 <&clkc CLKID_SAR_ADC_GATE>;
+//	clock-names = "xtal", "adc_mux", "adc_div", "adc_gate";
 };
 
 &sd_emmc_a {
-	clocks = <&clkc CLKID_SD_EMMC_A_MUX>,
-		    <&clkc CLKID_SD_EMMC_A_DIV>,
-			<&clkc CLKID_SD_EMMC_A_GATE>,
-			<&clkc CLKID_FCLK_DIV2>,
-			<&clkc CLKID_XTAL>;
-			clock-names = "mux", "div", "gate", "clkin", "xtal";
+//	clocks = <&clkc CLKID_SD_EMMC_A_MUX>,
+//		    <&clkc CLKID_SD_EMMC_A_DIV>,
+//			<&clkc CLKID_SD_EMMC_A_GATE>,
+//			<&clkc CLKID_FCLK_DIV2>,
+//			<&clkc CLKID_XTAL>;
+//			clock-names = "mux", "div", "gate", "clkin", "xtal";
 };
 
 &sd_emmc_b {
-	clocks = <&clkc CLKID_SD_EMMC_B_MUX>,
-		    <&clkc CLKID_SD_EMMC_B_DIV>,
-			<&clkc CLKID_SD_EMMC_B_GATE>,
-			<&clkc CLKID_FCLK_DIV2>,
-			<&clkc CLKID_XTAL>;
-			clock-names = "mux", "div", "gate", "clkin", "xtal";
+//	clocks = <&clkc CLKID_SD_EMMC_B_MUX>,
+//		    <&clkc CLKID_SD_EMMC_B_DIV>,
+//			<&clkc CLKID_SD_EMMC_B_GATE>,
+//			<&clkc CLKID_FCLK_DIV2>,
+//			<&clkc CLKID_XTAL>;
+//			clock-names = "mux", "div", "gate", "clkin", "xtal";
 };
 
 &sd_emmc_c {
-	clocks = <&clkc CLKID_SD_EMMC_C_MUX>,
-			<&clkc CLKID_SD_EMMC_C_DIV>,
-			<&clkc CLKID_SD_EMMC_C_GATE>,
-			<&clkc CLKID_GP0_PLL>,
-			<&clkc CLKID_XTAL>;
-			clock-names = "mux", "div", "gate", "clkin", "xtal";
+//	clocks = <&clkc CLKID_SD_EMMC_C_MUX>,
+//			<&clkc CLKID_SD_EMMC_C_DIV>,
+//			<&clkc CLKID_SD_EMMC_C_GATE>,
+//			<&clkc CLKID_GP0_PLL>,
+//			<&clkc CLKID_XTAL>;
+//			clock-names = "mux", "div", "gate", "clkin", "xtal";
 };
 
 &nand {
-	clocks = <&clkc CLKID_SD_EMMC_C_MUX>,
-			<&clkc CLKID_SD_EMMC_C_DIV>,
-			<&clkc CLKID_SD_EMMC_C_GATE>,
-			<&clkc CLKID_FCLK_DIV2>,
-			<&clkc CLKID_XTAL>;
-	clock-names = "mux", "div", "gate", "fdiv2", "xtal";
+//	clocks = <&clkc CLKID_SD_EMMC_C_MUX>,
+//			<&clkc CLKID_SD_EMMC_C_DIV>,
+//			<&clkc CLKID_SD_EMMC_C_GATE>,
+//			<&clkc CLKID_FCLK_DIV2>,
+//			<&clkc CLKID_XTAL>;
+//	clock-names = "mux", "div", "gate", "fdiv2", "xtal";
 };
 
 &spicc0 {
-	clocks = <&clkc CLKID_SPICC_A_DIV>, <&clkc CLKID_SPICC_A_GATE>;
-	clock-names = "async", "async-gate";
-	assigned-clocks = <&clkc CLKID_SPICC_A_MUX>, <&clkc CLKID_SPICC_A_DIV>;
-	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
-	assigned-clock-rates = <0>, <200000000>;
+//	clocks = <&clkc CLKID_SPICC_A_DIV>, <&clkc CLKID_SPICC_A_GATE>;
+//	clock-names = "async", "async-gate";
+//	assigned-clocks = <&clkc CLKID_SPICC_A_MUX>, <&clkc CLKID_SPICC_A_DIV>;
+//	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
+//	assigned-clock-rates = <0>, <200000000>;
 	/* =PM_SPICC0, must set to power on */
 	pm-id = <42>;
 };
 
 &spicc1 {
-	clocks = <&clkc CLKID_SPICC_B_DIV>, <&clkc CLKID_SPICC_B_GATE>;
-	clock-names = "async", "async-gate";
-	assigned-clocks = <&clkc CLKID_SPICC_B_MUX>, <&clkc CLKID_SPICC_B_DIV>;
-	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
-	assigned-clock-rates = <0>, <200000000>;
+//	clocks = <&clkc CLKID_SPICC_B_DIV>, <&clkc CLKID_SPICC_B_GATE>;
+//	clock-names = "async", "async-gate";
+//	assigned-clocks = <&clkc CLKID_SPICC_B_MUX>, <&clkc CLKID_SPICC_B_DIV>;
+//	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
+//	assigned-clock-rates = <0>, <200000000>;
 	/* =PM_SPICC1, must set to power on */
 	pm-id = <43>;
 };
 
 &spicc2 {
-	clocks = <&clkc CLKID_SPICC_C_DIV>, <&clkc CLKID_SPICC_C_GATE>;
-	clock-names = "async", "async-gate";
-	assigned-clocks = <&clkc CLKID_SPICC_C_MUX>, <&clkc CLKID_SPICC_C_DIV>;
-	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
-	assigned-clock-rates = <0>, <200000000>;
+//	clocks = <&clkc CLKID_SPICC_C_DIV>, <&clkc CLKID_SPICC_C_GATE>;
+//	clock-names = "async", "async-gate";
+//	assigned-clocks = <&clkc CLKID_SPICC_C_MUX>, <&clkc CLKID_SPICC_C_DIV>;
+//	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
+//	assigned-clock-rates = <0>, <200000000>;
 	/* =PM_SPICC2, must set to power on */
 	pm-id = <44>;
 };
 
 &spicc3 {
-	clocks = <&clkc CLKID_SPICC_D_DIV>, <&clkc CLKID_SPICC_D_GATE>;
-	clock-names = "async", "async-gate";
-	assigned-clocks = <&clkc CLKID_SPICC_D_MUX>, <&clkc CLKID_SPICC_D_DIV>;
-	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
-	assigned-clock-rates = <0>, <200000000>;
+//	clocks = <&clkc CLKID_SPICC_D_DIV>, <&clkc CLKID_SPICC_D_GATE>;
+//	clock-names = "async", "async-gate";
+//	assigned-clocks = <&clkc CLKID_SPICC_D_MUX>, <&clkc CLKID_SPICC_D_DIV>;
+//	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
+//	assigned-clock-rates = <0>, <200000000>;
 	/* =PM_SPICC3, must set to power on */
 	pm-id = <45>;
 };
 
 &spicc4 {
-	clocks = <&clkc CLKID_SPICC_E_DIV>, <&clkc CLKID_SPICC_E_GATE>;
-	clock-names = "async", "async-gate";
-	assigned-clocks = <&clkc CLKID_SPICC_E_MUX>, <&clkc CLKID_SPICC_E_DIV>;
-	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
-	assigned-clock-rates = <0>, <200000000>;
+//	clocks = <&clkc CLKID_SPICC_E_DIV>, <&clkc CLKID_SPICC_E_GATE>;
+//	clock-names = "async", "async-gate";
+//	assigned-clocks = <&clkc CLKID_SPICC_E_MUX>, <&clkc CLKID_SPICC_E_DIV>;
+//	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
+//	assigned-clock-rates = <0>, <200000000>;
 	/* =PM_SPICC4, must set to power on */
 	pm-id = <46>;
 };
 
 &spicc5 {
-	clocks = <&clkc CLKID_SPICC_F_DIV>, <&clkc CLKID_SPICC_F_GATE>;
-	clock-names = "async", "async-gate";
-	assigned-clocks = <&clkc CLKID_SPICC_F_MUX>, <&clkc CLKID_SPICC_F_DIV>;
-	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
-	assigned-clock-rates = <0>, <200000000>;
+//	clocks = <&clkc CLKID_SPICC_F_DIV>, <&clkc CLKID_SPICC_F_GATE>;
+//	clock-names = "async", "async-gate";
+//	assigned-clocks = <&clkc CLKID_SPICC_F_MUX>, <&clkc CLKID_SPICC_F_DIV>;
+//	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
+//	assigned-clock-rates = <0>, <200000000>;
 	/* =PM_SPICC5, must set to power on */
 	pm-id = <47>;
 };
