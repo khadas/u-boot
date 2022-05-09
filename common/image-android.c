@@ -368,6 +368,8 @@ int android_image_need_move(ulong *img_addr, const  boot_img_hdr_t *hdr)
 /*Android R boot func*/
 /* definition of vendor_boot partition structure */
 p_vendor_boot_img_t p_vender_boot_img = 0;
+unsigned init_boot_ramdisk_size;
+
 static int android_image_get_kernel_v3(const boot_img_hdr_v3_t *hdr, int verify,
 			     ulong *os_data, ulong *os_len)
 {
@@ -497,7 +499,9 @@ int android_image_get_ramdisk_v3(const boot_img_hdr_v3_t *hdr,
 			      ulong *rd_data, ulong *rd_len)
 {
 	/*boot image must contain ramdisk*/
-	if (!hdr->ramdisk_size ||!p_vender_boot_img)
+	unsigned ramdisksize;
+
+	if ((!hdr->ramdisk_size && init_boot_ramdisk_size == 0) || !p_vender_boot_img)
 	{
 		if (rd_data)
 			*rd_data = 0;
@@ -519,15 +523,27 @@ int android_image_get_ramdisk_v3(const boot_img_hdr_v3_t *hdr,
 
 	unsigned char *pRAMdisk = (unsigned char *)(unsigned long)vb_hdr->ramdisk_addr;
 
+	if (init_boot_ramdisk_size != 0)
+		ramdisksize = init_boot_ramdisk_size;
+	else
+		ramdisksize = hdr->ramdisk_size;
+
 	/* copy ramdisk to ramdisk_addr */
-	memmove(pRAMdisk, (char*)(unsigned long)(simple_strtoul(env_get("loadaddr"), NULL, 16) + nOffset),hdr->ramdisk_size);
-	memmove(pRAMdisk + hdr->ramdisk_size, p_vender_boot_img->szData,vb_hdr->vendor_ramdisk_size);
+	if (init_boot_ramdisk_size != 0) {
+		printf("use init_boot.img\n");
+		debug("RAM disk load addr 0x%08x size %u KiB\n",
+		vb_hdr->ramdisk_addr, DIV_ROUND_UP(init_boot_ramdisk_size, 1024));
+	}
+
+	memmove(pRAMdisk, (char *)(unsigned long)(simple_strtoul(env_get("loadaddr"), NULL, 16)
+		+ nOffset), ramdisksize);
+	memmove(pRAMdisk + ramdisksize, p_vender_boot_img->szData, vb_hdr->vendor_ramdisk_size);
 
 	if (rd_data)
 		*rd_data = vb_hdr->ramdisk_addr;
 
 	if (rd_len)
-		*rd_len  = hdr->ramdisk_size + vb_hdr->vendor_ramdisk_size;
+		*rd_len  = ramdisksize + vb_hdr->vendor_ramdisk_size;
 
 	return 0;
 }

@@ -255,4 +255,5 @@ typedef struct {
 }vendor_boot_img_t, * p_vendor_boot_img_t;
 
 extern p_vendor_boot_img_t p_vender_boot_img;
+extern unsigned init_boot_ramdisk_size;
 #endif
