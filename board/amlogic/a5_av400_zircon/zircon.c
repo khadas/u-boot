@@ -21,15 +21,6 @@
 #define AV400_NUM_CPU               4
 static const char CMDLINE_DEBUG[] = "devmgr.log-to-debuglog=true";
 const char *BOOTLOADER_VERSION = "zircon-bootloader=0.10";
-static const zbi_cpu_config_t cpu_config = {
-	.cluster_count = 1,
-	.clusters = {
-		{
-			.cpu_count = 4,
-		},
-	},
-};
-
 static const zbi_mem_range_t mem_config[] = {
 	{
 		.type = ZBI_MEM_RANGE_RAM,
@@ -105,8 +96,8 @@ static void add_cpu_topology(zbi_header_t *zbi)
 	nodes[0] = cluster_node;
 	for (int cpu = 0; cpu < AV400_NUM_CPU; cpu++) {
 		zbi_topology_arm_info_t arm_info = {
-			.cluster_1_id = 0,
-			.cpu_id = cpu,
+			.cluster_1_id = cpu,
+			.cpu_id = 0,
 			.gic_id = cpu,
 		};
 		zbi_topology_processor_t processor = {
@@ -169,10 +160,6 @@ static void add_reboot_reason(zbi_header_t *zbi)
 
 int zircon_preboot(zbi_header_t *zbi)
 {
-	// add CPU configuration
-	zircon_append_boot_item(zbi, ZBI_TYPE_CPU_CONFIG, 0, &cpu_config,
-			sizeof(zbi_cpu_config_t) +
-			sizeof(zbi_cpu_cluster_t) * cpu_config.cluster_count);
 	// allocate crashlog save area before 0x5f800000-0x60000000 reserved area
 	zbi_nvram_t nvram;
 
