@@ -4250,9 +4250,9 @@ __attribute__ ((section(".misc_param"))) = {
 	/*config vddee and vcck pwm - pwm_a and pwm_b*/
 	/* PWM_A VDDEE_VAL_REG */
 #ifdef CONFIG_PDVFS_ENABLE
-	{PWMAB_PWM_A, 0xc0006, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0},
-	{PWMAB_PWM_A, 0xa0008, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_2, 0},
-	{PWMAB_PWM_A, 0x90009,  0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0},
+	{PWMAB_PWM_A, 0x90009, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0},
+	{PWMAB_PWM_A, 0x7000b, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_2, 0},
+	{PWMAB_PWM_A, 0x4000e, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0},
 #else
 	{PWMAB_PWM_A,		VDDEE_VAL_REG,	0xffffffff,	0,	0, 0},
 #endif
