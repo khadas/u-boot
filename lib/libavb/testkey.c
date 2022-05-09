@@ -49,7 +49,3 @@ const char avb2_kpub_default[520] = {
 	0x03, 0xb9, 0x81
 };
 const int avb2_kpub_default_len = sizeof(avb2_kpub_default) / sizeof(char);
-
-/* use avbtool extract_public_key --key private.pem --out public.key */
-const char avb2_kpub_production[520] = {0x0};
-const int avb2_kpub_production_len = sizeof(avb2_kpub_production) / sizeof(char);
