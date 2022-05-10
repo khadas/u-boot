@@ -90,4 +90,4 @@ GTAGS
 *~
 \#*#
 
-bl30/src_ao/demos/amlogic/n200/t7/kvim4/gcc/
+bl30/src_ao/demos/amlogic/n200/*/*/gcc/
