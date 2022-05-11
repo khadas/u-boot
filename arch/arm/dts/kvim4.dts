@@ -128,6 +128,10 @@
 	mc_val = <0x1621>;
 };
 
+&amhdmitx {
+	enc_idx = <2>; /* value can be 0 or 2 */
+};
+
 &i2c3 {
 	status= "disabled";
 	clock-frequency = <100000>;
