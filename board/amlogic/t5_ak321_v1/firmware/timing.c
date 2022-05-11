@@ -287,10 +287,17 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 		.cfg_ddr_training_delay_ps[0].read_dqs_delay[1] = 0x00000081,// 129
 		.cfg_ddr_training_delay_ps[0].read_dqs_delay[2] = 0x0000007a,// 122
 		.cfg_ddr_training_delay_ps[0].read_dqs_delay[3] = 0x0000007d,// 125
-		.cfg_ddr_training_delay_ps[0].read_dqs_delay[4] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dqs_delay[5] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dqs_delay[6] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dqs_delay[7] = 0x00000000,// 0
+
+		//.cfg_ddr_training_delay_ps[0].read_dqs_delay[4] = 0x00000000,// 0
+		//.cfg_ddr_training_delay_ps[0].read_dqs_delay[5] = 0x00000000,// 0
+		//.cfg_ddr_training_delay_ps[0].read_dqs_delay[6] = 0x00000000,// 0
+		//.cfg_ddr_training_delay_ps[0].read_dqs_delay[7] = 0x00000000,// 0
+		//for sip 4pcs ddr4 rank01 2GB from ak301 timing.c
+		.cfg_ddr_training_delay_ps[0].read_dqs_delay[4] = 0x00000080,
+		.cfg_ddr_training_delay_ps[0].read_dqs_delay[5] = 0x00000080,
+		.cfg_ddr_training_delay_ps[0].read_dqs_delay[6] = 0x00000080,
+		.cfg_ddr_training_delay_ps[0].read_dqs_delay[7] = 0x00000080,
+
 		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[0] = 0x00000046,// 70
 		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[1] = 0x00000036,// 54
 		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[2] = 0x0000004c,// 76
@@ -327,42 +334,45 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[33] = 0x0000003f,// 63
 		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[34] = 0x0000002d,// 45
 		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[35] = 0x0000003e,// 62
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[36] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[37] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[38] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[39] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[40] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[41] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[42] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[43] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[44] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[45] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[46] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[47] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[48] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[49] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[50] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[51] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[52] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[53] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[54] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[55] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[56] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[57] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[58] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[59] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[60] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[61] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[62] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[63] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[64] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[65] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[66] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[67] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[68] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[69] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[70] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[71] = 0x00000000,// 0
+
+		//for sip 4pcs ddr4 rank01 2GB from ak301 timing.c
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[36] = 0x00000054,       // 84
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[37] = 0x0000003e,       // 62
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[38] = 0x00000053,       // 83
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[39] = 0x0000003e,       // 62
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[40] = 0x00000056,       // 86
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[41] = 0x00000043,       // 67
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[42] = 0x0000005a,       // 90
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[43] = 0x00000040,       // 64
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[44] = 0x0000004a,       // 74
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[45] = 0x00000053,       // 83
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[46] = 0x0000003c,       // 60
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[47] = 0x0000004f,       // 79
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[48] = 0x00000041,       // 65
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[49] = 0x00000056,       // 86
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[50] = 0x00000044,       // 68
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[51] = 0x0000004b,       // 75
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[52] = 0x00000045,       // 69
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[53] = 0x00000049,       // 73
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[54] = 0x0000005a,       // 90
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[55] = 0x00000041,       // 65
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[56] = 0x00000056,       // 86
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[57] = 0x0000003e,       // 62
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[58] = 0x00000058,       // 88
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[59] = 0x0000003c,       // 60
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[60] = 0x00000054,       // 84
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[61] = 0x00000042,       // 66
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[62] = 0x0000004b,       // 75
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[63] = 0x00000059,       // 89
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[64] = 0x0000003c,       // 60
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[65] = 0x0000004d,       // 77
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[66] = 0x00000040,       // 64
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[67] = 0x0000004e,       // 78
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[68] = 0x0000003d,       // 61
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[69] = 0x00000051,       // 81
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[70] = 0x0000003d,       // 61
+		.cfg_ddr_training_delay_ps[0].read_dq_bit_delay[71] = 0x00000047,       // 71
+
 		.cfg_ddr_training_delay_ps[0].soc_bit_vref[0] = 0,// 38
 		.cfg_ddr_training_delay_ps[0].soc_bit_vref[1] = 0x00000027,// 39
 		.cfg_ddr_training_delay_ps[0].soc_bit_vref[2] = 0x00000025,// 37
@@ -620,6 +630,52 @@ pll_set_t __pll_setting = {
 ddr_reg_t __ddr_reg[] = {
 	/* demo, user defined override register */
 	//DDR_TIMMING_TUNE(T963_H35_NTC_EID, cfg_board_SI_setting_ps[0].DRAMFreq, 1176),
+
+	//for sip 4pcs ddr4 rank01 2GB from ak301 timing.c
+	//T963_H9_SUM_EID,T963_H9_NTC_EID
+	//.cfg_board_common_setting.dram_cs0_size_MB = CONFIG_DDR0_SIZE_1024MB;
+	//.cfg_board_common_setting.dram_cs1_size_MB = CONFIG_DDR0_SIZE_1024MB;
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_common_setting.dram_cs0_size_MB,
+	CONFIG_DDR0_SIZE_1024MB),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_common_setting.dram_cs1_size_MB,
+	CONFIG_DDR0_SIZE_1024MB),
+	DDR_TIMMING_TUNE(T963_H9_NTC_EID, cfg_board_common_setting.dram_cs0_size_MB,
+	CONFIG_DDR0_SIZE_1024MB),
+	DDR_TIMMING_TUNE(T963_H9_NTC_EID, cfg_board_common_setting.dram_cs1_size_MB,
+	CONFIG_DDR0_SIZE_1024MB),
+
+//	.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_p = DDR_SOC_DATA_DRV_ODT_40_OHM,
+//	.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_n = DDR_SOC_DATA_DRV_ODT_40_OHM,
+//	.cfg_board_SI_setting_ps[0].soc_data_odt_ohm_p = DDR_SOC_DATA_DRV_ODT_120_OHM,
+//	.cfg_board_SI_setting_ps[0].dram_data_drv_ohm = DDR_DRAM_DDR4_DRV_34_OHM,
+//	.cfg_board_SI_setting_ps[0].dram_data_odt_ohm = DDR_DRAM_DDR4_ODT_40_OHM,
+//	.cfg_board_SI_setting_ps[0].dram_data_wr_odt_ohm = DDR_DRAM_DDR4_WR_ODT_240_OHM,
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_SI_setting_ps[0].soc_data_drv_ohm_p,
+	DDR_SOC_DATA_DRV_ODT_40_OHM),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_SI_setting_ps[0].soc_data_drv_ohm_n,
+	DDR_SOC_DATA_DRV_ODT_40_OHM),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_SI_setting_ps[0].soc_data_odt_ohm_p,
+	DDR_SOC_DATA_DRV_ODT_120_OHM),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_SI_setting_ps[0].dram_data_drv_ohm,
+	DDR_DRAM_DDR4_DRV_34_OHM),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_SI_setting_ps[0].dram_data_odt_ohm,
+	DDR_DRAM_DDR4_ODT_40_OHM),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_SI_setting_ps[0].dram_data_wr_odt_ohm,
+	DDR_DRAM_DDR4_WR_ODT_240_OHM),
+
+	DDR_TIMMING_TUNE(T963_H9_NTC_EID, cfg_board_SI_setting_ps[0].soc_data_drv_ohm_p,
+	DDR_SOC_DATA_DRV_ODT_40_OHM),
+	DDR_TIMMING_TUNE(T963_H9_NTC_EID, cfg_board_SI_setting_ps[0].soc_data_drv_ohm_n,
+	DDR_SOC_DATA_DRV_ODT_40_OHM),
+	DDR_TIMMING_TUNE(T963_H9_NTC_EID, cfg_board_SI_setting_ps[0].soc_data_odt_ohm_p,
+	DDR_SOC_DATA_DRV_ODT_120_OHM),
+	DDR_TIMMING_TUNE(T963_H9_NTC_EID, cfg_board_SI_setting_ps[0].dram_data_drv_ohm,
+	DDR_DRAM_DDR4_DRV_34_OHM),
+	DDR_TIMMING_TUNE(T963_H9_NTC_EID, cfg_board_SI_setting_ps[0].dram_data_odt_ohm,
+	DDR_DRAM_DDR4_ODT_40_OHM),
+	DDR_TIMMING_TUNE(T963_H9_NTC_EID, cfg_board_SI_setting_ps[0].dram_data_wr_odt_ohm,
+	DDR_DRAM_DDR4_WR_ODT_240_OHM),
+
 	//ak321,use ADC_CH1,DDR_ID=0;
 	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE0,
 		cfg_board_common_setting.dram_cs0_size_MB, CONFIG_DDR0_SIZE_1024MB),
