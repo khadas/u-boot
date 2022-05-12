@@ -206,6 +206,12 @@ enum ppi_width {
 	PPI_WIDTH_32_BITS,
 };
 
+struct rockchip_cmd_header {
+	u8 data_type;
+	u8 delay_ms;
+	u8 payload_length;
+};
+
 struct dw_mipi_dsi2_plat_data {
 	const u32 *dsi0_grf_reg_fields;
 	const u32 *dsi1_grf_reg_fields;
@@ -283,6 +289,7 @@ struct dw_mipi_dsi2 {
 
 	struct mipi_dphy_configure mipi_dphy_cfg;
 	const struct dw_mipi_dsi2_plat_data *pdata;
+	struct drm_dsc_picture_parameter_set *pps;
 };
 
 static inline void dsi_write(struct dw_mipi_dsi2 *dsi2, u32 reg, u32 val)
@@ -336,17 +343,22 @@ static unsigned long dw_mipi_dsi2_get_lane_rate(struct dw_mipi_dsi2 *dsi2)
 			dsi2->pdata->cphy_max_symbol_rate_per_lane :
 			dsi2->pdata->dphy_max_bit_rate_per_lane;
 
-	/* optional override of the desired bandwidth */
+	/*
+	 * optional override of the desired bandwidth
+	 * High-Speed mode: Differential and terminated: 80Mbps ~ 4500 Mbps
+	 */
 	value = dev_read_u32_default(dsi2->dev, "rockchip,lane-rate", 0);
-	if (value > 0)
+	if (value >= 80000 && value <= 4500000)
 		return value * MSEC_PER_SEC;
+	else if (value >= 80 && value <= 4500)
+		return value * USEC_PER_SEC;
 
 	bpp = mipi_dsi_pixel_format_to_bpp(dsi2->format);
 	if (bpp < 0)
 		bpp = 24;
 
 	lanes = dsi2->slave ? dsi2->lanes * 2 : dsi2->lanes;
-	tmp = (u64)mode->clock * 1000 * bpp;
+	tmp = (u64)mode->crtc_clock * 1000 * bpp;
 	do_div(tmp, lanes);
 
 	if (dsi2->c_option)
@@ -551,7 +563,7 @@ static void dw_mipi_dsi2_ipi_set(struct dw_mipi_dsi2 *dsi2)
 	hbp = mode->htotal - mode->hsync_end;
 	hline = mode->htotal;
 
-	pixel_clk = mode->clock * MSEC_PER_SEC;
+	pixel_clk = mode->crtc_clock * MSEC_PER_SEC;
 
 	if (dsi2->c_option)
 		phy_hs_clk = DIV_ROUND_CLOSEST(dsi2->lane_hs_rate * MSEC_PER_SEC, 7);
@@ -680,6 +692,7 @@ static int dw_mipi_dsi2_connector_pre_init(struct display_state *state)
 static int dw_mipi_dsi2_connector_init(struct display_state *state)
 {
 	struct connector_state *conn_state = &state->conn_state;
+	struct crtc_state *cstate = &state->crtc_state;
 	struct dw_mipi_dsi2 *dsi2 = dev_get_priv(conn_state->dev);
 	struct rockchip_phy *phy = NULL;
 	struct udevice *phy_dev;
@@ -736,6 +749,18 @@ static int dw_mipi_dsi2_connector_init(struct display_state *state)
 		dsi2->slave->dcphy.phy = phy;
 		if (phy->funcs && phy->funcs->init)
 			return phy->funcs->init(phy);
+	}
+
+	if (dsi2->dsc_enable) {
+		cstate->dsc_enable = 1;
+		cstate->dsc_sink_cap.version_major = dsi2->version_major;
+		cstate->dsc_sink_cap.version_minor = dsi2->version_minor;
+		cstate->dsc_sink_cap.slice_width = dsi2->slice_width;
+		cstate->dsc_sink_cap.slice_height = dsi2->slice_height;
+		/* only can support rgb888 panel now */
+		cstate->dsc_sink_cap.target_bits_per_pixel_x16 = 8 << 4;
+		cstate->dsc_sink_cap.native_420 = 0;
+		memcpy(&cstate->pps, dsi2->pps, sizeof(struct drm_dsc_picture_parameter_set));
 	}
 
 	return 0;
@@ -868,7 +893,7 @@ static void dw_mipi_dsi2_phy_ratio_cfg(struct dw_mipi_dsi2 *dsi2)
 		phy_hsclk = DIV_ROUND_CLOSEST(dsi2->lane_hs_rate * MSEC_PER_SEC, 16);
 
 	/* IPI_RATIO_MAN_CFG = PHY_HSTX_CLK / IPI_CLK */
-	pixel_clk = mode->clock * MSEC_PER_SEC;
+	pixel_clk = mode->crtc_clock * MSEC_PER_SEC;
 	ipi_clk = pixel_clk / 4;
 
 	tmp = DIV_ROUND_CLOSEST(phy_hsclk << 16, ipi_clk);
@@ -1135,6 +1160,11 @@ static ssize_t dw_mipi_dsi2_host_transfer(struct mipi_dsi_host *host,
 static int dw_mipi_dsi2_get_dsc_params_from_sink(struct dw_mipi_dsi2 *dsi2)
 {
 	struct udevice *dev = NULL;
+	struct rockchip_cmd_header *header;
+	struct drm_dsc_picture_parameter_set *pps = NULL;
+	u8 *dsc_packed_pps;
+	const void *data;
+	int len;
 	int ret;
 
 	ret = device_find_first_child(dsi2->dev, &dev);
@@ -1151,10 +1181,38 @@ static int dw_mipi_dsi2_get_dsc_params_from_sink(struct dw_mipi_dsi2 *dsi2)
 		dsi2->slave->dsc_enable = dsi2->dsc_enable;
 	}
 
-	dsi2->slice_width = dev_read_u32_default(dev, "slice_width", 0);
-	dsi2->slice_height = dev_read_u32_default(dev, "slice_height", 0);
-	dsi2->version_major = dev_read_u32_default(dev, "version_major", 0);
-	dsi2->version_minor = dev_read_u32_default(dev, "version_minor", 0);
+	dsi2->slice_width = dev_read_u32_default(dev, "slice-width", 0);
+	dsi2->slice_height = dev_read_u32_default(dev, "slice-height", 0);
+	dsi2->version_major = dev_read_u32_default(dev, "version-major", 0);
+	dsi2->version_minor = dev_read_u32_default(dev, "version-minor", 0);
+
+	data = dev_read_prop(dev, "panel-init-sequence", &len);
+	if (!data)
+		return -EINVAL;
+
+	while (len > sizeof(*header)) {
+		header = (struct rockchip_cmd_header *)data;
+		data += sizeof(*header);
+		len -= sizeof(*header);
+
+		if (header->payload_length > len)
+			return -EINVAL;
+
+		if (header->data_type == MIPI_DSI_PICTURE_PARAMETER_SET) {
+			dsc_packed_pps = calloc(1, header->payload_length);
+			if (!dsc_packed_pps)
+				return -ENOMEM;
+
+			memcpy(dsc_packed_pps, data, header->payload_length);
+			pps = (struct drm_dsc_picture_parameter_set *)dsc_packed_pps;
+			break;
+		}
+
+		data += header->payload_length;
+		len -= header->payload_length;
+	}
+
+	dsi2->pps = pps;
 
 	return 0;
 }
