@@ -240,28 +240,28 @@
 	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&spicc0_pins>;
-	cs-gpios = <&gpio GPIOH_9 0>;
+	//cs-gpios = <&gpio GPIOH_9 0>;
 };
 
 &spicc1 {
 	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&spicc1_pins>;
-	cs-gpios = <&gpio GPIOH_13 0>;
+	//cs-gpios = <&gpio GPIOH_13 0>;
 };
 
 &spicc2 {
 	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&spicc2_pins_h>;
-	cs-gpios = <&gpio GPIOH_17 0>;
+	//cs-gpios = <&gpio GPIOH_17 0>;
 };
 
 &spicc3 {
 	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&spicc3_pins_k>;
-	cs-gpios = <&gpio GPIOK_3 0>;
+	//cs-gpios = <&gpio GPIOK_3 0>;
 
 };
 
@@ -269,7 +269,7 @@
 	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&spicc4_pins_k>;
-	cs-gpios = <&gpio GPIOK_7 0>;
+	//cs-gpios = <&gpio GPIOK_7 0>;
 };
 
 &spicc5 {

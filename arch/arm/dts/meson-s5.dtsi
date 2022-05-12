@@ -75,24 +75,24 @@
 	};
 
 	pinctrl_periphs: pinctrl@fe004008 {
-		compatible = "amlogic,meson-p1-periphs-pinctrl";
+		compatible = "amlogic,meson-s5-periphs-pinctrl";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
 
 		gpio: bank@fe004008 {
 			reg = <0x0 0xfe004008 0x0 0x008c>,
-			      <0x0 0xfe004200 0x0 0x035c>;
+			      <0x0 0xfe004200 0x0 0x016c>;
 			reg-names = "mux",
 				    "gpio";
 			gpio-controller;
 			#gpio-cells = <2>;
-			gpio-ranges = <&pinctrl_periphs 0 0 218>;
+			gpio-ranges = <&pinctrl_periphs 0 0 107>;
 		};
 	};
 
 	pinctrl_storage: pinctrl@fe086000 {
-		compatible = "amlogic,meson-p1-storage-pinctrl";
+		compatible = "amlogic,meson-s5-storage-pinctrl";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;

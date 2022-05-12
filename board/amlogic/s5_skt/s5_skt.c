@@ -140,6 +140,7 @@ int board_init(void)
 #endif
 
 #ifdef CONFIG_PXP_EMULATOR
+	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 	return 0;
 #else
 	aml_set_bootsequence(0);
