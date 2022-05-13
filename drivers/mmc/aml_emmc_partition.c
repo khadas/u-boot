@@ -456,7 +456,10 @@ static int _calculate_offset(struct mmc *mmc, struct _iptbl *itbl, u32 bottom)
 			}
 			break;
 		}
-		gap = PARTITION_RESERVED;
+		if ((part[i].mask_flags & 0x100) != 0)
+			gap = PARTITION_MIN_RESERVED;
+		else
+			gap = PARTITION_RESERVED;
 	}
 	if (i < (itbl->count - 1)) {
 		apt_err("too large partition table for current emmc, overflow!\n");
