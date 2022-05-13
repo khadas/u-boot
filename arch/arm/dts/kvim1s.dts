@@ -62,6 +62,19 @@
 		regulator-max-microvolt = <3300000>;
 	};
 
+	vccio_c: gpio-regulator-vccio_c {
+		compatible = "regulator-gpio";
+		regulator-name = "VCCIO_C";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <3300000>;
+
+		gpios = <&gpio GPIOD_9 GPIO_ACTIVE_HIGH>;
+		gpios-states = <0>;
+
+		states = <3300000 0>,
+			   <1800000 1>;
+	};
+
 	emmc_pwrseq: emmc-pwrseq {
 		compatible = "mmc-pwrseq-emmc";
 		/*reset-gpios = <&gpio BOOT_9 GPIO_ACTIVE_LOW>;*/
@@ -152,10 +165,10 @@
 	init_tx_phase = <0>;
 
 	sd_hs_co_phase = <2>;
-	sd_hs_to_phase = <0>;
+	sd_hs_tx_phase = <0>;
 
 	vmmc-supply = <&vddao_3v3>;
-	vqmmc-supply = <&vddio_boot>;
+	vqmmc-supply = <&vccio_c>;
 };
 
 /* eMMC */
