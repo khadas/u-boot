@@ -61,7 +61,22 @@
 
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"bootcmd_spi=test.s \"$boot_source\" = \"spi\" && sf probe && "\
+    "sf read $loadaddr 0x4c8000 0x8000 && script\0"\
+    "fdt_addr_r=0x01000000\0"\
+    "fdtoverlay_addr_r=0x00a00000\0"\
+    "fdtaddr=0x01000000\0"\
+    "kernel_addr_r=0x01080000\0"\
+    "pxefile_addr_r=0x00010000\0"\
+    "scriptaddr=0x00010000\0" \
+    "ramdisk_addr_r=0x10000000\0"\
+    "kernel_comp_addr_r=0x0d080000\0"\
+    "kernel_comp_size=0x2000000\0"\
+    "pxeuuid=00000000-0000-0000-0000-000000000000\0"\
+    "bootfile=\0"\
+    "fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
         "firstboot=1\0"\
 	"silent=0\0"\
         "upgrade_step=0\0"\
@@ -118,7 +133,7 @@
         "fatload_dev=usb\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-            "init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe07a000 "\
+            "root=LABEL=ROOTFS rootflags=data=writeback rw rootfstype=ext4" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe078000 fsck.repair=yes net.ifnames=0 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
             "\0"\
         "upgrade_check="\
@@ -131,7 +146,7 @@
             "\0"\
         "storeargs="\
             "get_bootloaderversion;" \
-            "setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} "\
+            "setenv bootargs ${initargs} otg_device=${otg_device} "\
                 "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} "\
                 "hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
                 "hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} " \
@@ -159,31 +174,26 @@
             "fi;fi;fi;fi;fi;fi;"\
             "\0" \
         "storeboot="\
-            "run get_os_type;"\
-			"run storage_param;"\
-            "if test ${os_type} = rtos; then "\
-                "setenv loadaddr ${loadaddr_rtos};"\
-                "store read ${loadaddr} ${boot_part} 0 0x400000;"\
-                "bootm ${loadaddr};"\
-            "else if test ${os_type} = kernel; then "\
-                "get_system_as_root_mode;"\
-                "echo system_mode in storeboot: ${system_mode};"\
-                "get_avb_mode;"\
-                "echo active_slot in storeboot: ${active_slot};"\
-                "if test ${system_mode} = 1; then "\
-                    "setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
-                "else "\
-                    "setenv bootargs ${bootargs} androidboot.force_normal_boot=1;"\
-                "fi;"\
-                "if test ${active_slot} != normal; then "\
-                    "setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
-                "fi;"\
-                "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
-                "setenv loadaddr ${loadaddr_kernel};"\
-                "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
-            "else echo wrong OS format ${os_type}; fi;fi;"\
-            "echo try upgrade as booting failure; run update;"\
-            "\0" \
+			"setenv loadaddr ${loadaddr_kernel};"\
+			"echo Try to boot from SD card.;"\
+			"if load mmc 0:1 $dtb_mem_addr dtb/amlogic/kvim1s.dtb; then "\
+				"if load mmc 0:1 $loadaddr zImage; then "\
+					"if load mmc 0:1 10000000 uInitrd; then "\
+						"echo Boot from SD card.;"\
+						"booti $loadaddr 10000000 $dtb_mem_addr;"\
+					"fi;"\
+				"fi;"\
+			"fi;"\
+			"echo Try to boot from eMMC.;"\
+			"if load mmc 1:4 $dtb_mem_addr /boot/dtb/amlogic/kvim1s.dtb; then "\
+				"if load mmc 1:4 $loadaddr zImage; then "\
+					"if load mmc 1:4 10000000 uInitrd; then "\
+						"echo Boot from eMMC.;"\
+						"booti $loadaddr 10000000 $dtb_mem_addr;"\
+					"fi;"\
+				"fi;"\
+			"fi;"\
+			"\0" \
          "update="\
             /*first usb burning, second sdc_burn, third ext-sd autoscr/recovery, last udisk autoscr/recovery*/\
             "run usb_burning; "\
@@ -319,8 +329,7 @@
             "run init_display;"\
             "run storeargs;"\
 	    "run upgrade_key;" \
-            "bcb uboot-command;"\
-	    "run switch_bootmode;"
+            "bcb uboot-command;"
 #else
 #define CONFIG_PREBOOT  "echo preboot"
 #endif
