@@ -82,6 +82,112 @@ static const struct charge_image image[] = {
 	{ .name = "battery_fail.bmp", .soc = -1, .period = 1000 },
 };
 
+static int regulators_parse_assigned_mem_state(struct udevice *dev)
+{
+	struct charge_animation_pdata *pdata = dev_get_platdata(dev);
+	struct regulator_mem *mem;
+	const fdt32_t *list1;
+	const fdt32_t *list2;
+	int size1, size2;
+	int i, ret;
+	uint32_t phandle;
+
+	/* Must be both exist or not */
+	list1 = dev_read_prop(dev, "regulator-on-in-mem", &size1);
+	list2 = dev_read_prop(dev, "regulator-off-in-mem", &size2);
+	if (!list1 && !list2)
+		return 0;
+	if (list1 && !list2)
+		return -EINVAL;
+	else if (!list1 && list2)
+		return -EINVAL;
+
+	size1 = size1 / sizeof(*list1);
+	size2 = size2 / sizeof(*list2);
+
+	pdata->regulators_mem =
+		calloc(size1 + size2, sizeof(*pdata->regulators_mem));
+	if (!pdata->regulators_mem)
+		return -ENOMEM;
+
+	mem = pdata->regulators_mem;
+
+	for (i = 0; i < size1; i++, mem++) {
+		mem->enable = true;
+		phandle = fdt32_to_cpu(*list1++);
+		ret = uclass_get_device_by_phandle_id(UCLASS_REGULATOR,
+						phandle, &mem->dev);
+		if (ret)
+			return ret;
+	}
+	for (i = 0; i < size2; i++, mem++) {
+		mem->enable = false;
+		phandle = fdt32_to_cpu(*list2++);
+		ret = uclass_get_device_by_phandle_id(UCLASS_REGULATOR,
+						phandle, &mem->dev);
+		if (ret)
+			return ret;
+	}
+
+#ifdef DEBUG
+	printf("assigned regulator mem:\n");
+	for (mem = pdata->regulators_mem; mem->dev; mem++)
+		printf("    %20s: suspend %s\n", mem->dev->name,
+		       mem->enable ? "enabling" : "disabled");
+#endif
+	return 0;
+}
+
+static int regulators_enable_assigned_state_mem(struct udevice *dev)
+{
+	struct charge_animation_pdata *pdata = dev_get_platdata(dev);
+	struct regulator_mem *mem;
+	int ret;
+
+	for (mem = pdata->regulators_mem; mem->dev; mem++) {
+		ret = regulator_set_suspend_enable(mem->dev, mem->enable);
+		if (ret)
+			printf("%s: suspend failed, ret=%d\n",
+			       mem->dev->name, ret);
+	}
+
+	return 0;
+}
+
+static void regulators_suspend(struct udevice *dev)
+{
+	struct charge_animation_pdata *pdata = dev_get_platdata(dev);
+
+	if (pdata->regulators_mem)
+		regulators_enable_assigned_state_mem(dev);
+	else
+		regulators_enable_state_mem(false);
+}
+
+static void pmics_ops(bool suspend)
+{
+	struct udevice *dev;
+
+	for (uclass_first_device(UCLASS_PMIC, &dev);
+	     dev;
+	     uclass_next_device(&dev)) {
+		if (suspend)
+			pmic_suspend(dev);
+		else
+			pmic_resume(dev);
+	}
+}
+
+static void pmics_suspend(void)
+{
+	pmics_ops(true);
+}
+
+static void pmics_resume(void)
+{
+	pmics_ops(false);
+}
+
 static int charge_animation_ofdata_to_platdata(struct udevice *dev)
 {
 	struct charge_animation_pdata *pdata = dev_get_platdata(dev);
@@ -120,6 +226,12 @@ static int charge_animation_ofdata_to_platdata(struct udevice *dev)
 
 	if (pdata->auto_exit_charge && !pdata->auto_wakeup_interval)
 		pdata->auto_wakeup_interval = 10;
+
+	/* Not allow failure */
+	if (regulators_parse_assigned_mem_state(dev)) {
+		printf("Failed to parse assigned mem state\n");
+		return -EINVAL;
+	}
 
 	debug("mode: uboot=%d, android=%d; exit: soc=%d%%, voltage=%dmv;\n"
 	      "lp_voltage=%d%%, screen_on=%dmv\n",
@@ -210,9 +322,9 @@ static int system_suspend_enter(struct udevice *dev)
 		putc('0');
 		local_irq_disable();
 		putc('1');
-		regulators_enable_state_mem(false);
+		regulators_suspend(dev);
 		putc('2');
-		pmic_suspend(priv->pmic);
+		pmics_suspend();
 		putc('3');
 		irqs_suspend();
 		putc('4');
@@ -229,7 +341,7 @@ static int system_suspend_enter(struct udevice *dev)
 		putc('3');
 		irqs_resume();
 		putc('2');
-		pmic_resume(priv->pmic);
+		pmics_resume();
 		putc('1');
 		local_irq_enable();
 		putc('0');
