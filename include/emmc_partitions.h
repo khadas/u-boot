@@ -38,6 +38,7 @@
 
 #ifndef CONFIG_AML_MMC_INHERENT_PART
 #define     PARTITION_RESERVED              (8*SZ_1M)  // 8MB
+#define     PARTITION_MIN_RESERVED          SZ_1M  // 1MB
 #define     MMC_BOOT_PARTITION_RESERVED     (32*SZ_1M) // 32MB
 
 #define     MMC_PARTITION_PROTECT_MASK      0x10      //low 4bit is for nand
