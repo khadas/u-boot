@@ -373,46 +373,6 @@
 			status = "disabled";
 		};
 
-		i2c6: i2c@fe0a2000 {
-			compatible = "amlogic,meson-i2c";
-			reg = <0x0 0xfe0a2000 0x0 0x24>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-			status = "disabled";
-		};
-
-		i2c7: i2c@fe0a4000 {
-			compatible = "amlogic,meson-i2c";
-			reg = <0x0 0xfe0a4000 0x0 0x24>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-			status = "disabled";
-		};
-
-		i2c8: i2c@fe0a6000 {
-			compatible = "amlogic,meson-i2c";
-			reg = <0x0 0xfe0a6000 0x0 0x24>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-			status = "disabled";
-		};
-
-		i2c9: i2c@fe0a8000 {
-			compatible = "amlogic,meson-i2c";
-			reg = <0x0 0xfe0a8000 0x0 0x24>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-			status = "disabled";
-		};
-
-		i2c10: i2c@fe0aa000 {
-			compatible = "amlogic,meson-i2c";
-			reg = <0x0 0xfe0aa000 0x0 0x24>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-			status = "disabled";
-		};
-
 		spifc: spi@fe056000 {
 			compatible = "amlogic,spifc";
 			status = "disabled";

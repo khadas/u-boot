@@ -344,8 +344,17 @@
 &pinctrl_periphs {
 	i2c0_pins1:i2c0_pins1 {
 		mux {
-			groups = "i2c0_sda",
-				"i2c0_sck";
+			groups = "i2c0_scl_d",
+				"i2c0_sda_d";
+			function = "i2c0";
+			drive-strength = <3>;
+			bias-disable;
+		};
+	};
+	i2c0_pins2:i2c0_pins2 {
+		mux {
+			groups = "i2c0_scl_e",
+				"i2c0_sda_e";
 			function = "i2c0";
 			drive-strength = <3>;
 			bias-disable;
@@ -354,8 +363,8 @@
 
 	i2c1_pins1:i2c1_pins1 {
 		mux {
-			groups = "i2c1_sda_x",
-				"i2c1_sck_x";
+			groups = "i2c1_scl_a",
+				"i2c1_sda_a";
 			function = "i2c1";
 			drive-strength = <3>;
 			bias-disable;
@@ -364,8 +373,17 @@
 
 	i2c1_pins2:i2c1_pins2 {
 		mux {
-			groups = "i2c1_sda_k",
-				"i2c1_sck_k";
+			groups = "i2c1_scl_h2",
+				"i2c1_sda_h3";
+			function = "i2c1";
+			drive-strength = <3>;
+			bias-disable;
+		};
+	};
+	i2c1_pins3:i2c1_pins3 {
+		mux {
+			groups = "i2c1_scl_h6",
+				"i2c1_sda_h7";
 			function = "i2c1";
 			drive-strength = <3>;
 			bias-disable;
@@ -374,8 +392,8 @@
 
 	i2c2_pins1:i2c2_pins1 {
 		mux {
-			groups = "i2c2_sda_x",
-				"i2c2_sck_x";
+			groups = "i2c2_sda_a",
+				"i2c2_scl_a";
 			function = "i2c2";
 			drive-strength = <3>;
 			bias-disable;
@@ -384,18 +402,26 @@
 
 	i2c2_pins2:i2c2_pins2 {
 		mux {
-			groups = "i2c2_sda_k",
-				"i2c2_sck_k";
+			groups = "i2c2_scl_t",
+				"i2c2_sda_t";
 			function = "i2c2";
 			drive-strength = <3>;
 			bias-disable;
 		};
 	};
-
+	i2c2_pins3:i2c2_pins3 {
+		mux {
+			groups = "i2c2_scl_x",
+				"i2c2_sda_x";
+			function = "i2c2";
+			drive-strength = <3>;
+			bias-disable;
+		};
+	};
 	i2c3_pins1:i2c3_pins1 {
 		mux {
-			groups = "i2c3_sda_h",
-				"i2c3_sck_h";
+			groups = "i2c3_scl_h",
+				"i2c3_sda_h";
 			function = "i2c3";
 			drive-strength = <3>;
 			bias-disable;
@@ -404,8 +430,8 @@
 
 	i2c3_pins2:i2c3_pins2 {
 		mux {
-			groups = "i2c3_sda_w",
-				"i2c3_sck_w";
+			groups = "i2c3_scl_t",
+				"i2c3_sda_t";
 			function = "i2c3";
 			drive-strength = <3>;
 			bias-disable;
@@ -414,8 +440,8 @@
 
 	i2c4_pins1:i2c4_pins1 {
 		mux {
-			groups = "i2c4_sda_t9",
-				"i2c4_sck_t8";
+			groups = "i2c4_scl_e",
+				"i2c4_sda_e";
 			function = "i2c4";
 			drive-strength = <3>;
 			bias-disable;
@@ -424,8 +450,8 @@
 
 	i2c4_pins2:i2c4_pins2 {
 		mux {
-			groups = "i2c4_sda_t28",
-				"i2c4_sck_t26";
+			groups = "i2c4_scl_t",
+				"i2c4_sda_t";
 			function = "i2c4";
 			drive-strength = <3>;
 			bias-disable;
@@ -434,89 +460,29 @@
 
 	i2c5_pins1:i2c5_pins1 {
 		mux {
-			groups = "i2c5_sda",
-				"i2c5_sck";
+			groups = "i2c5_scl_z",
+				"i2c5_sda_z";
 			function = "i2c5";
 			drive-strength = <3>;
 			bias-disable;
 		};
 	};
 
-	i2c6_pins1:i2c6_pins1 {
+	i2c5_pins2:i2c5_pins2 {
 		mux {
-			groups = "i2c6_sda_c",
-				"i2c6_sck_c";
-			function = "i2c6";
+			groups = "i2c5_scl_t",
+				"i2c5_sda_t";
+			function = "i2c5";
 			drive-strength = <3>;
 			bias-disable;
 		};
 	};
 
-	i2c6_pins2:i2c6_pins2 {
+	i2c5_pins3:i2c5_pins3 {
 		mux {
-			groups = "i2c6_sda_w",
-				"i2c6_sck_w";
-			function = "i2c6";
-			drive-strength = <3>;
-			bias-disable;
-		};
-	};
-
-	i2c7_pins1:i2c7_pins1 {
-		mux {
-			groups = "i2c7_sda_e",
-				"i2c7_sck_e";
-			function = "i2c7";
-			drive-strength = <3>;
-			bias-disable;
-		};
-	};
-
-	i2c7_pins2:i2c7_pins2 {
-		mux {
-			groups = "i2c7_sda_c",
-				"i2c7_sck_c";
-			function = "i2c7";
-			drive-strength = <3>;
-			bias-disable;
-		};
-	};
-
-	i2c8_pins1:i2c8_pins1 {
-		mux {
-			groups = "i2c8_sda_c",
-				"i2c8_sck_c";
-			function = "i2c8";
-			drive-strength = <3>;
-			bias-disable;
-		};
-	};
-
-	i2c8_pins2:i2c8_pins2 {
-		mux {
-			groups = "i2c8_sda_e",
-				"i2c8_sck_e";
-			function = "i2c8";
-			drive-strength = <3>;
-			bias-disable;
-		};
-	};
-
-	i2c9_pins1:i2c9_pins1 {
-		mux {
-			groups = "i2c9_sda",
-				"i2c9_sck";
-			function = "i2c9";
-			drive-strength = <3>;
-			bias-disable;
-		};
-	};
-
-	i2c10_pins1:i2c10_pins1 {
-		mux {
-			groups = "i2c10_sda",
-				"i2c10_sck";
-			function = "i2c10";
+			groups = "i2c5_sda_a",
+				"i2c5_scl_a";
+			function = "i2c5";
 			drive-strength = <3>;
 			bias-disable;
 		};
