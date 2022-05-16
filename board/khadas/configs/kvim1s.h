@@ -111,7 +111,7 @@
         "boot_part=boot\0"\
         "vendor_boot_part=vendor_boot\0"\
         "board_logo_part=odm_ext\0" \
-        "board=oppen\0"\
+        "board=kvim1s\0"\
 	"boot_flag=0\0"\
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
@@ -516,7 +516,7 @@
 //use hardware sha2
 #define CONFIG_AML_HW_SHA2
 
-#define CONFIG_MULTI_DTB    1
+#define CONFIG_MULTI_DTB    0
 
 /* support secure boot */
 #define CONFIG_AML_SECURE_UBOOT   1
