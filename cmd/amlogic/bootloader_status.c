@@ -154,6 +154,9 @@ static void run_recovery_from_cache(void) {
 	run_command("if test ${reboot_mode} = recovery_quiescent; then setenv bootargs ${bootargs} androidboot.quiescent=1; fi;", 0);
 	run_command("if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;", 0);
 
+	run_command("if test ${reboot_vendor_boot} = true; then "\
+		"setenv vendor_boot_mode true; fi;", 0);
+
 	run_command("if test ${vendor_boot_mode} = true; then "\
 		"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
 		"imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset};"\
