@@ -146,6 +146,7 @@
             "\0"\
         "storeargs="\
             "get_bootloaderversion;" \
+            "get_rebootmode;"\
             "setenv bootargs ${initargs} otg_device=${otg_device} "\
                 "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} "\
                 "hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
@@ -153,7 +154,7 @@
                 "hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} "\
                 "frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
-                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
+                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; reboot_mode=${reboot_mode}; "\
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
@@ -328,8 +329,8 @@
             "run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
-	    "run upgrade_key;" \
-            "bcb uboot-command;"
+            "run upgrade_key;" \
+            "run switch_bootmode;"
 #else
 #define CONFIG_PREBOOT  "echo preboot"
 #endif
