@@ -1816,7 +1816,8 @@ static int aml_bl_config_load_from_unifykey(char *dt_addr, struct bl_config_s *b
 		LCDPR("bl: unifykey header:\n");
 		LCDPR("bl: crc32             = 0x%08x\n", bl_header.crc32);
 		LCDPR("bl: data_len          = %d\n", bl_header.data_len);
-		LCDPR("bl: reserved          = 0x%04x\n", bl_header.reserved);
+		LCDPR("bl: block_next_flag   = %d\n", bl_header.block_next_flag);
+		LCDPR("bl: block_cur_size   = %d\n", bl_header.block_cur_size);
 	}
 
 	/* step 2: check backlight parameters */

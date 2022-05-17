@@ -49,7 +49,8 @@
 /* 20211210: support load tcon bin by ioctl*/
 /* 20211229: update multi lut init and switch flow*/
 /* 20220421: fix lcd clk mistake for vmode change with fr_adj_type 4*/
-#define LCD_DRV_VERSION    "20220421"
+/* 20220629: add ini ver2 support and support phy lane contrl*/
+#define LCD_DRV_VERSION    "20220629"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
@@ -84,6 +85,8 @@ extern void lcd_timing_init_config(struct lcd_config_s *pconf);
 extern int lcd_vmode_change(struct lcd_config_s *pconf);
 
 /* lcd phy */
+unsigned int lcd_phy_vswing_level_to_value(struct aml_lcd_drv_s *pdrv, unsigned int level);
+unsigned int lcd_phy_preem_level_to_value(struct aml_lcd_drv_s *pdrv, unsigned int level);
 extern void lcd_lvds_phy_set(struct lcd_config_s *pconf, int status);
 extern void lcd_vbyone_phy_set(struct lcd_config_s *pconf, int status);
 extern void lcd_mlvds_phy_set(struct lcd_config_s *pconf, int status);

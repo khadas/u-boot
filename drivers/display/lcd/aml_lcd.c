@@ -837,6 +837,15 @@ static void lcd_update_boot_ctrl_bootargs(void)
 	setenv("lcd_ctrl", lcd_boot_ctrl);
 }
 
+static struct phy_config_s lcd_phy_cfg = {
+	.vswing = 0,
+	.vcm = 0,
+	.ref_bias = 0,
+	.odt = 0,
+	.mode = 0,
+	.flag = 0,
+};
+
 int lcd_probe(void)
 {
 	int ret = 0;
@@ -854,6 +863,7 @@ int lcd_probe(void)
 
 	lcd_chip_detect();
 	lcd_config_bsp_init();
+	aml_lcd_driver.lcd_config->lcd_control.phy_cfg = &lcd_phy_cfg;
 	ret = lcd_config_probe();
 	if (ret)
 		return 0;

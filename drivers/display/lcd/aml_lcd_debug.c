@@ -298,6 +298,28 @@ static void lcd_info_print_p2p(struct lcd_config_s *pconf)
 }
 #endif
 
+static void lcd_phy_print(struct lcd_config_s *pconf)
+{
+	struct phy_config_s *phy = pconf->lcd_control.phy_cfg;
+	int i;
+
+	printf("vswing             %u\n"
+		"ext_pullup        %u\n"
+		"vcm               %u\n"
+		"mode              %u\n",
+		phy->vswing,
+		phy->ext_pullup,
+		phy->vcm,
+		phy->mode);
+	for (i = 0; i < phy->lane_num; i++) {
+		printf("lane%d_amp =       %u\n"
+			"lane%d_preem =     %u\n",
+			i, phy->lane[i].amp,
+			i, phy->lane[i].preem);
+	}
+	printf("\n");
+}
+
 static void lcd_reg_print_serializer(void)
 {
 	unsigned int reg;
@@ -1023,6 +1045,8 @@ void aml_lcd_info_print(void)
 	} else {
 		LCDERR("%s: lcd_debug_info_if is null\n", __func__);
 	}
+
+	lcd_phy_print(pconf);
 
 	lcd_power_info_print(lcd_drv, 1);
 	lcd_power_info_print(lcd_drv, 0);

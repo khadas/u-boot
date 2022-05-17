@@ -694,7 +694,8 @@ static int lcd_config_load_from_unifykey(struct lcd_config_s *pconf)
 		LCDPR("unifykey header:\n");
 		LCDPR("crc32             = 0x%08x\n", lcd_header.crc32);
 		LCDPR("data_len          = %d\n", lcd_header.data_len);
-		LCDPR("reserved          = 0x%04x\n", lcd_header.reserved);
+		LCDPR("block_next_flag   = %d\n", lcd_header.block_next_flag);
+		LCDPR("block_cur_size    = 0x%04x\n", lcd_header.block_cur_size);
 	}
 
 	/* step 2: check lcd parameters */
