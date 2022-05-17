@@ -27,6 +27,7 @@ enum vpu_chip_e {
 	VPU_CHIP_T3, /* 10 */
 	VPU_CHIP_S4D, /* 11 */
 	VPU_CHIP_C3, /* 12 */
+	VPU_CHIP_S5, /* 13 */
 	VPU_CHIP_MAX,
 };
 

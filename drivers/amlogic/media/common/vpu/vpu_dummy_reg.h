@@ -43,11 +43,14 @@
 #define HHI_VPU_MEM_PD_REG4                        (0xff63c000 + (0x4c << 2))
 #endif
 
+#ifndef VPP_POST_BLEND_BLEND_DUMMY_DATA
+#define VPP_POST_BLEND_BLEND_DUMMY_DATA            ((0x1d1a  << 2) + 0xff800000)
+#endif
 #ifndef VENC_VDAC_TST_VAL
 #define VENC_VDAC_TST_VAL                          (0x1b7f)
 #endif
 #ifndef VPP_DUMMY_DATA
-#define VPP_DUMMY_DATA                             (0x1d00)
+#define VPP_DUMMY_DATA                             VPP_POST_BLEND_BLEND_DUMMY_DATA
 #endif
 #ifndef VPU_VPU_PWM_V0
 #define VPU_VPU_PWM_V0                             (0x2730)
