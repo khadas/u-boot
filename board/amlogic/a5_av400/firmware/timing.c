@@ -762,6 +762,8 @@ __attribute__ ((section(".misc_param"))) = {
 	{ PADCTRL_PIN_MUX_REGI,	   (0x1 << 0),	  (0xf << 0), 0, 0, 0 },
 	{ PADCTRL_PIN_MUX_REGI,	   (0x1 << 4),	  (0xf << 4), 0, 0, 0 },
 	{ PADCTRL_GPIOD_PULL_UP,   (0x1 << 2),	  (0x1 << 2), 0, 0, 0 },
+
+	{ RESETCTRL_WATCHDOG_DLY_CNT,	(0x1ffff << 0),	(0x3ffff << 0), 0, 0, 0 },
 };
 
 #define DEV_FIP_SIZE 0x300000
