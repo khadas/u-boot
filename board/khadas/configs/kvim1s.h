@@ -94,8 +94,8 @@
         "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
-        "display_bpp=16\0" \
-        "display_color_index=16\0" \
+        "display_bpp=24\0" \
+        "display_color_index=24\0" \
         "display_layer=osd0\0" \
         "display_color_fg=0xffff\0" \
         "display_color_bg=0\0" \
@@ -154,7 +154,7 @@
                 "hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} "\
                 "frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
-                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; reboot_mode=${reboot_mode}; "\
+                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} reboot_mode=${reboot_mode}; "\
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
@@ -265,8 +265,10 @@
             "fi;"\
             "\0"\
         "load_bmp_logo="\
-            "if rdext4pic ${board_logo_part} $loadaddr; then bmp display $logoLoadAddr; " \
-            "else if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi; fi;" \
+			"if load mmc 0:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:4 ${loadaddr} /usr/share/fenix/logo/logo.bmp; then "\
+			"bmp display ${loadaddr};"\
+			"bmp scale;"\
+			"fi;"\
             "\0"\
         "init_display="\
             "get_rebootmode;"\
