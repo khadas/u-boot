@@ -92,6 +92,7 @@ int active_clk(void)
 static void hdmitx_set_hdmi_5v(void)
 {
 	/*Power on VCC_5V for HDMI_5V*/
+	run_command("gpio set GPIOZ_7", 1);
 }
 #endif
 void board_init_mem(void) {
