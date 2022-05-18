@@ -1320,7 +1320,10 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 		if (type == EOTF_T_DOLBYVISION) {
 			hdmi_drm_infoframe_set(NULL);
 			hdmi_vend_infoframe_rawset(VEN_HB, db1);
-			hdmi_avi_infoframe_config(CONF_AVI_BT2020, CLR_AVI_BT2020);/*BT709*/
+			/* Dolby Vision Source System-on-Chip Platform Kit Version 2.6:
+			 * 4.4.1 Expected AVI-IF for Dolby Vision output, need BT2020 for DV
+			 */
+			hdmi_avi_infoframe_config(CONF_AVI_BT2020, SET_AVI_BT2020);/*BT2020*/
 			if (tunnel_mode == RGB_8BIT) {
 				hdmi_avi_infoframe_config(CONF_AVI_CS, HDMI_COLORSPACE_RGB);
 				hdmi_avi_infoframe_config(CONF_AVI_Q01, RGB_RANGE_FUL);
@@ -1382,7 +1385,10 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 		if (type == EOTF_T_DOLBYVISION) {
 			hdmi_drm_infoframe_set(NULL);
 			hdmi_vend_infoframe_rawset(VEN_HB, db2);
-			hdmi_avi_infoframe_config(CONF_AVI_BT2020, CLR_AVI_BT2020);/*BT709*/
+			/* Dolby Vision Source System-on-Chip Platform Kit Version 2.6:
+			 * 4.4.1 Expected AVI-IF for Dolby Vision output, need BT2020 for DV
+			 */
+			hdmi_avi_infoframe_config(CONF_AVI_BT2020, SET_AVI_BT2020);/*BT2020*/
 			if (tunnel_mode == RGB_8BIT) {/*RGB444*/
 				hdmi_avi_infoframe_config(CONF_AVI_CS, HDMI_COLORSPACE_RGB);
 				hdmi_avi_infoframe_config(CONF_AVI_Q01, RGB_RANGE_FUL);
@@ -1395,12 +1401,12 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 		else if  (type == EOTF_T_LL_MODE) {
 			hdmi_drm_infoframe_set(NULL);
 			hdmi_vend_infoframe_rawset(VEN_HB, db2);
-			if (hdev->RXCap.colorimetry_data & 0xe0)
-				/*if RX support BT2020, then output BT2020*/
-				hdmi_avi_infoframe_config(CONF_AVI_BT2020,
-					SET_AVI_BT2020);/*BT2020*/
-			else
-				hdmi_avi_infoframe_config(CONF_AVI_BT2020, CLR_AVI_BT2020);/*BT709*/
+			/* Dolby vision HDMI Signaling Case25,
+			 * UCD323 not declare bt2020 colorimetry,
+			 * need to forcely send BT.2020
+			 */
+			hdmi_avi_infoframe_config(CONF_AVI_BT2020,
+				SET_AVI_BT2020);/*BT2020*/
 			if (tunnel_mode == RGB_10_12BIT) {/*10/12bit RGB444*/
 				hdmi_avi_infoframe_config(CONF_AVI_CS, HDMI_COLORSPACE_RGB);
 				hdmi_avi_infoframe_config(CONF_AVI_Q01, RGB_RANGE_LIM);
