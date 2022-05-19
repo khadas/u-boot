@@ -480,7 +480,7 @@
 			sd_emmc_a: sdio {
 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
 				reg = <0x0 0x88000 0x0 0x800>;
-				interrupts = <GIC_SPI 85 IRQ_TYPE_EDGE_RISING>;
+				interrupts = <GIC_SPI 177 IRQ_TYPE_EDGE_RISING>;
 				status = "disabled";
 				pinname = "sdio";
 			};
@@ -488,7 +488,7 @@
 			sd_emmc_b: sd {
 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
 				reg = <0x0 0x8a000 0x0 0x800>;
-				interrupts = <GIC_SPI 86 IRQ_TYPE_EDGE_RISING>;
+				interrupts = <GIC_SPI 239 IRQ_TYPE_EDGE_RISING>;
 				status = "disabled";
 				pinname = "sd";
 			};
@@ -496,10 +496,10 @@
 			sd_emmc_c: emmc {
 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
 				reg = <0x0 0x8c000 0x0 0x800>;
-				interrupts = <GIC_SPI 87 IRQ_TYPE_EDGE_RISING>;
+				interrupts = <GIC_SPI 178 IRQ_TYPE_EDGE_RISING>;
 				status = "disabled";
 				pinname = "emmc";
-				source-clock = <1152000000>;
+				//source-clock = <1152000000>;
 			};
 
 			spicc0: spi@50000 {

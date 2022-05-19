@@ -74,14 +74,14 @@
 		logo_addr = "0x7f800000";
 	};
 
-	pinctrl_periphs: pinctrl@fe004008 {
+	pinctrl_periphs: pinctrl@fe004000 {
 		compatible = "amlogic,meson-s5-periphs-pinctrl";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
 
 		gpio: bank@fe004008 {
-			reg = <0x0 0xfe004008 0x0 0x008c>,
+			reg = <0x0 0xfe004000 0x0 0x008c>,
 			      <0x0 0xfe004200 0x0 0x016c>;
 			reg-names = "mux",
 				    "gpio";
@@ -245,30 +245,31 @@
 };
 
 &sd_emmc_a {
-//	clocks = <&clkc CLKID_SD_EMMC_A_MUX>,
-//		    <&clkc CLKID_SD_EMMC_A_DIV>,
-//			<&clkc CLKID_SD_EMMC_A_GATE>,
-//			<&clkc CLKID_FCLK_DIV2>,
-//			<&clkc CLKID_XTAL>;
-//			clock-names = "mux", "div", "gate", "clkin", "xtal";
+	clocks = <&clkc CLKID_SD_EMMC_A_MUX>,
+		    <&clkc CLKID_SD_EMMC_A_DIV>,
+			<&clkc CLKID_SD_EMMC_A_GATE>,
+			<&clkc CLKID_FCLK_DIV2>,
+			<&clkc CLKID_XTAL>;
+			clock-names = "mux", "div", "gate", "clkin", "xtal";
 };
 
 &sd_emmc_b {
-//	clocks = <&clkc CLKID_SD_EMMC_B_MUX>,
-//		    <&clkc CLKID_SD_EMMC_B_DIV>,
-//			<&clkc CLKID_SD_EMMC_B_GATE>,
-//			<&clkc CLKID_FCLK_DIV2>,
-//			<&clkc CLKID_XTAL>;
-//			clock-names = "mux", "div", "gate", "clkin", "xtal";
+	clocks = <&clkc CLKID_SD_EMMC_B_MUX>,
+		    <&clkc CLKID_SD_EMMC_B_DIV>,
+			<&clkc CLKID_SD_EMMC_B_GATE>,
+			<&clkc CLKID_FCLK_DIV2>,
+			<&clkc CLKID_XTAL>;
+			clock-names = "mux", "div", "gate", "clkin", "xtal";
 };
 
 &sd_emmc_c {
-//	clocks = <&clkc CLKID_SD_EMMC_C_MUX>,
-//			<&clkc CLKID_SD_EMMC_C_DIV>,
-//			<&clkc CLKID_SD_EMMC_C_GATE>,
-//			<&clkc CLKID_GP0_PLL>,
-//			<&clkc CLKID_XTAL>;
-//			clock-names = "mux", "div", "gate", "clkin", "xtal";
+	clocks = <&clkc CLKID_SD_EMMC_C_MUX>,
+			<&clkc CLKID_SD_EMMC_C_DIV>,
+			<&clkc CLKID_SD_EMMC_C_GATE>,
+			//<&clkc CLKID_GP0_PLL>,
+			<&clkc CLKID_FCLK_DIV2>,
+			<&clkc CLKID_XTAL>;
+			clock-names = "mux", "div", "gate", "clkin", "xtal";
 };
 
 &nand {
@@ -607,8 +608,8 @@
 
 	to_sduart_pins: to_sduart_pins{
 		mux {
-			groups = "uart_b_rx_c", "uart_b_tx_c";
-			function = "uart_b";
+			groups = "uart_a_rx_c", "uart_a_tx_c";
+			function = "uart_a";
 			bias-pull-up;
 			input-enable;
 		};
@@ -616,8 +617,8 @@
 
 	sd_to_uart_pins: sd_to_uart_pins{
 		mux {
-			groups = "uart_b_rx_d", "uart_b_tx_d";
-			function = "uart_b";
+			groups = "uart_a_rx_c", "uart_a_tx_c";
+			function = "uart_a";
 			bias-pull-up;
 			input-enable;
 		};
