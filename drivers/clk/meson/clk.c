@@ -28,6 +28,12 @@ int meson_set_gate_by_id(struct clk *clk, struct meson_gate *gate_arr,
 		if (id == gate_arr[i].index)
 			index = i;
 	}
+
+	if (i == arr_size) {
+		debug("the gate_id(%ld) is unsupport\n", id);
+		return 0;
+	}
+
 	gate = &gate_arr[index];
 	if (gate->reg == 0)
 		return 0;
@@ -60,6 +66,12 @@ int meson_mux_set_parent_by_id(struct clk *clk, struct meson_mux *mux_arr,
 		if (clk->id == mux_arr[i].index)
 			index = i;
 	}
+
+	if (i == arr_size) {
+		debug("the mux_id(%ld) is unsupport\n", clk->id);
+		return 0;
+	}
+
 	mux = &mux_arr[index];
 	parents = mux->table;
 	for (i = 0; i < mux->table_size; i++) {
