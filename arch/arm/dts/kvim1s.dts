@@ -88,11 +88,11 @@
 };
 
 /* demo for i2c user */
-&i2c3 {
-	status= "disabled";
+&i2c1 {
+	status= "okay";
 	clock-frequency = <100000>;
-	/* pinctrl-names = "default";*/
-	/* pinctrl-0 = <&i2c3_master_pins2>;*/
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c1_pins2>;
 };
 
 &pinctrl_periphs {
