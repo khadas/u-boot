@@ -142,7 +142,7 @@
                 "hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} "\
                 "frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
-                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
+                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} hwver=${hwver}; "\
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
@@ -261,6 +261,9 @@
             "if rdext4pic ${board_logo_part} $loadaddr; then bmp display $logoLoadAddr; " \
             "else if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi; fi;" \
             "\0"\
+	"hwver_check="\
+            "kbi hwver;"\
+            "\0"\
         "init_display="\
             "get_rebootmode;"\
             "echo reboot_mode:::: ${reboot_mode};"\
@@ -326,6 +329,7 @@
 #ifndef CONFIG_PXP_DDR
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
+	    "run hwver_check;"\
             "run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
