@@ -250,8 +250,7 @@
 #define OSD4_HDR_IN_SIZE                           0x1a5d
 #endif
 
-#define OSD_CONFIG_FLAG                VIU_OSD1_TCOLOR_AG1
-#define OSD_CONFIG_FINISH              (0x2 << 30)
+#define UBOOT_INFO_FLAG                VIU_OSD1_TCOLOR_AG1
 
 #define REG_OFFSET_VCBUS(reg)           ((reg << 2))
 #define REG_ADDR_VCBUS(reg)             (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg) + 0L)
