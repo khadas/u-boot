@@ -47,4 +47,6 @@ obj-$(CONFIG_AML_WATERMARK) += cmd_watermark.o
 obj-$(CONFIG_SECURE_POWER_CONTROL) += cmd_power.o
 obj-$(CONFIG_CMD_HDMIRX) += cmd_hdmirx.o
 obj-$(CONFIG_CMD_CEC) += cmd_cec.o
+# khadas commands
+obj-$(CONFIG_KHADAS_KBI) += cmd_kbi.o
 obj-y += cmd_pmic.o
