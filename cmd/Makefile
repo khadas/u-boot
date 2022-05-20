@@ -167,6 +167,7 @@ obj-$(CONFIG_CMD_GPT) += gpt.o
 obj-$(CONFIG_CMD_ETHSW) += ethsw.o
 
 obj-$(CONFIG_OPTEE_CLIENT) += optee.o
+obj-$(CONFIG_CMD_KHADAS_KBI) += kbi.o
 
 # Power
 obj-$(CONFIG_CMD_PMIC) += pmic.o
