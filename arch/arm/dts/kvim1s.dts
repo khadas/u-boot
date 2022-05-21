@@ -278,3 +278,9 @@
 	cs-gpios = <&gpio GPIOX_10 0>;
 };
 
+&i2c1 {
+	status= "okay";
+	clock-frequency = <100000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c1_pins2>;
+};
