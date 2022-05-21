@@ -96,7 +96,7 @@
         "EnableSelinux=enforcing\0" \
         "recovery_part=recovery\0"\
         "loglevel=8\0" \
-        "lock=10101000\0"\
+	"lock=10001000\0"\
         "recovery_offset=0\0"\
         "cvbs_drv=0\0"\
         "osd_reverse=0\0"\

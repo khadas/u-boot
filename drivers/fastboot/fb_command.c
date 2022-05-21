@@ -859,9 +859,9 @@ static void flashing(char *cmd_parameter, char *response)
 	lock_s = env_get("lock");
 	if (!lock_s) {
 		printf("lock state is NULL \n");
-		memcpy(lock_d, "10101000", 8);
-		lock_s = "10101000";
-		env_set("lock", "10101000");
+		memcpy(lock_d, "10001000", 8);
+		lock_s = "10001000";
+		env_set("lock", "10001000");
 		run_command("defenv_reserv; saveenv;", 0);
 	} else {
 		printf("lock state: %s\n", lock_s);
