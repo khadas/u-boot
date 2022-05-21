@@ -120,7 +120,7 @@
         "display_color_bg=0\0" \
         "dtb_mem_addr=0x1000000\0" \
         "fb_addr=0x3d800000\0" \
-        "lock=10101000\0"\
+	"lock=10001000\0"\
         "fb_width=1920\0" \
         "fb_height=1080\0" \
         "usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \

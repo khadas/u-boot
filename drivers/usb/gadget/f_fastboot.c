@@ -527,8 +527,8 @@ static int check_lock(void)
 	lock_s = getenv("lock");
 	if (!lock_s) {
 		printf("lock state is NULL \n");
-		lock_s = "10101000";
-		setenv("lock", "10101000");
+		lock_s = "10001000";
+		setenv("lock", "10001000");
 		run_command("defenv_reserv; saveenv;", 0);
 	}
 	printf("lock state: %s\n", lock_s);
@@ -1245,9 +1245,9 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 	lock_s = getenv("lock");
 	if (!lock_s) {
 		printf("lock state is NULL \n");
-		strcpy(lock_d, "10101000");
-		lock_s = "10101000";
-		setenv("lock", "10101000");
+		strcpy(lock_d, "10001000");
+		lock_s = "10001000";
+		setenv("lock", "10001000");
 		run_command("defenv_reserv; saveenv;", 0);
 	} else {
 		printf("lock state: %s\n", lock_s);

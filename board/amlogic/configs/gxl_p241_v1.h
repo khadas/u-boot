@@ -123,7 +123,7 @@
         "usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
         "otg_device=1\0"\
         "fdt_high=0x20000000\0"\
-        "lock=10101000\0"\
+	"lock=10001000\0"\
         "try_auto_burn=update 700 750;\0"\
         "sdcburncfg=aml_sdc_burn.ini\0"\
         "sdc_burning=sdc_burn ${sdcburncfg}\0"\
