@@ -54,7 +54,7 @@
 #define         AN_408_DDR0_4G_DDR1_4G_RANK01   6
 #define         AN_408_DDR0_3G_DDR1_3G_RANK01   7
 
-#define DDR_SIZE_TYPE_1         AN_408_DDR0_2G_DDR1_2G
+#define DDR_SIZE_TYPE_1         AN_408_DDR0_4G_DDR1_4G_RANK01
 
 ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 #if 0
