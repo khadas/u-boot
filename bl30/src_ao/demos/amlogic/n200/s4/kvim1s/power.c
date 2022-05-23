@@ -36,6 +36,7 @@
 
 #include "hdmi_cec.h"
 #include "btwake.h"
+#include "meson_i2c.h"
 
 /* #define CONFIG_ETH_WAKEUP */
 
@@ -43,6 +44,11 @@
 #include "interrupt_control.h"
 #include "eth.h"
 #endif
+
+#define CHIP_ADDR              0x18
+#define REG_LED_SYSTEM_ON_MODE  0x28
+
+
 
 static TaskHandle_t cecTask = NULL;
 static int vdd_ee;
@@ -110,10 +116,23 @@ void str_hw_disable(void)
 	vRestoreGpioIrqReg();
 }
 
+void mcu_i2c_init(void);
+void mcu_i2c_init(void)
+{
+        // set pinmux
+        xPinmuxSet(GPIOD_6, PIN_FUNC5);
+        xPinmuxSet(GPIOD_7, PIN_FUNC5);
+        //set ds and pull up
+        xPinconfSet(GPIOD_6, PINF_CONFIG_BIAS_PULL_UP | PINF_CONFIG_DRV_STRENGTH_3);
+        xPinconfSet(GPIOD_7, PINF_CONFIG_BIAS_PULL_UP | PINF_CONFIG_DRV_STRENGTH_3);
+
+        xI2cMesonPortInit(I2C_M1);
+}
+
+
 void str_power_on(int shutdown_flag)
 {
 	int ret;
-
 	/***Power 5v***/
 	ret = xGpioSetDir(GPIOH_7,GPIO_DIR_OUT);
 	if (ret < 0) {
@@ -149,14 +168,23 @@ void str_power_on(int shutdown_flag)
 	}
 	/*Wait 200ms for VDDCPU statble*/
 	vTaskDelay(pdMS_TO_TICKS(200));
+
+	uint8_t val = 0;
+	mcu_i2c_init();
+	// pwr_led set off
+	ret = xI2cMesonWrite(CHIP_ADDR, REG_LED_SYSTEM_ON_MODE, &val, 1);
+	if (ret < 0) {
+			printf("pwr_led set off fail\n");
+			return;
+	}
 	printf("vdd_cpu on\n");
 }
 
 void str_power_off(int shutdown_flag)
 {
 	int ret;
-
 	shutdown_flag = shutdown_flag;
+
 	/***set vdd_ee val***/
 	vdd_ee = vPwmMesongetvoltage(VDDEE_VOLT);
 	if (vdd_ee < 0) {
@@ -197,6 +225,15 @@ void str_power_off(int shutdown_flag)
 	if (ret < 0) {
 		printf("vcc5v set gpio val fail\n");
 		return;
+	}
+
+    uint8_t val = 1;
+	mcu_i2c_init();
+	// pwr_led set on
+	ret = xI2cMesonWrite(CHIP_ADDR, REG_LED_SYSTEM_ON_MODE, &val, 1);
+	if (ret < 0) {
+			printf("pwr_led set on fail\n");
+			return;
 	}
 
 }

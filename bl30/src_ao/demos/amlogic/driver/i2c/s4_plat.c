@@ -32,18 +32,16 @@
 #define CLKCTRL_SYS_CLK_EN0_REG1	((0x0012  << 2) + 0xfe000000)
 #define CLKCTRL_SYS_CLK_EN0_REG2	((0x0013  << 2) + 0xfe000000)
 
-struct xMesonI2cPlatdata t7_i2c_data[] = {
+struct xMesonI2cPlatdata s4_i2c_data[] = {
 	{0, 0xfe066000, 3, 15, 100000, MESON_I2C_CLK_RATE, CLKCTRL_SYS_CLK_EN0_REG1, 30}, /* i2c A */
 	{1, 0xfe068000, 3, 15, 100000, MESON_I2C_CLK_RATE, CLKCTRL_SYS_CLK_EN0_REG1, 31}, /* i2c B */
 	{2, 0xfe06a000, 3, 15, 100000, MESON_I2C_CLK_RATE, CLKCTRL_SYS_CLK_EN0_REG2, 0}, /* i2c C */
 	{3, 0xfe06c000, 3, 15, 100000, MESON_I2C_CLK_RATE, CLKCTRL_SYS_CLK_EN0_REG2, 1}, /* i2c D */
 	{4, 0xfe06e000, 3, 15, 100000, MESON_I2C_CLK_RATE, CLKCTRL_SYS_CLK_EN0_REG2, 2}, /* i2c E */
 	{5, 0xfe070000, 3, 15, 100000, MESON_I2C_CLK_RATE, CLKCTRL_SYS_CLK_EN0_REG2, 3}, /* i2c F */
-	{6, 0xfe076000, 3, 15, 100000, MESON_I2C_CLK_RATE, CLKCTRL_SYS_CLK_EN0_REG1, 28}, /* i2c AO A */
-	{7, 0xfe086000, 3, 15, 100000, MESON_I2C_CLK_RATE, CLKCTRL_SYS_CLK_EN0_REG1, 29}, /* i2c AO B */
 };
 
 void meson_i2c_plat_init(void)
 {
-	plat = t7_i2c_data;
+	plat = s4_i2c_data;
 }

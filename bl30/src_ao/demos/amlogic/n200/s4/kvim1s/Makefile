@@ -58,6 +58,7 @@ $(info LDFLAGS = $(LDFLAGS))
 
 -include $(FREERTOS_VENDOR_DRIVER)/uart/build.mk
 -include $(FREERTOS_VENDOR_DRIVER)/gpio/build.mk
+-include $(FREERTOS_VENDOR_DRIVER)/i2c/build.mk
 -include $(FREERTOS_VENDOR_DRIVER)/cec/build.mk
 -include $(FREERTOS_VENDOR_DRIVER)/pwm/build.mk
 -include $(FREERTOS_VENDOR_DRIVER)/leds/build.mk
