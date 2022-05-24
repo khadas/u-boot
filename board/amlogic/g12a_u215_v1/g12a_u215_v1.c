@@ -737,6 +737,10 @@ int board_late_init(void)
 
 		/* load unifykey */
 		run_command("keyunify init 0x1234", 0);
+
+	/* reset vout init state */
+	run_command("setenv vout_init disable", 0);
+
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif

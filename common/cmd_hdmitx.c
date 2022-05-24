@@ -383,6 +383,12 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			}
 			break;
 		}
+		/* currently, hdmi mode is always set, if
+		 * mode set abort/exit, need to add return
+		 * result of mode setting, so that vout
+		 * driver will pass it to kernel, and do
+		 * mode setting again when vout init in kernel
+		 */
 		hdmi_tx_set(&hdmitx_device);
 	}
 	return CMD_RET_SUCCESS;
@@ -538,6 +544,8 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 	char* colorattribute;
 	char dv_type[2] = {0};
 	scene_output_info_t scene_output_info;
+	struct hdmi_format_para *para = NULL;
+	bool mode_support = false;
 
 	if (!hdev->HWOp.get_hpd_state()) {
 		printf("HDMI HPD low, no need parse EDID\n");
@@ -590,7 +598,21 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 		       hdev->RXCap.checksum);
 	}
 
-	if (hdev->RXCap.edid_changed) {
+	/* check current mode+colorattr support or not */
+	para = hdmi_tst_fmt_name(hdmimode, colorattribute);
+	if (hdmitx_edid_check_valid_mode(hdev, para))
+		mode_support = true;
+	else
+		mode_support = false;
+
+	/* two cases need to go with uboot mode select policy:
+	 * 1.TV changed
+	 * 2.TV not changed, but current mode(set by sysctrl/hwc)
+	 * not supportted by uboot (probably means mode select policy or
+	 * edid parse between sysctrl and uboot have some gap)
+	 * then need to find proper output mode with uboot policy.
+	 */
+	if (hdev->RXCap.edid_changed || !mode_support) {
 		/* find proper mode if EDID changed */
 		scene_process(hdev, &scene_output_info);
 		setenv("hdmichecksum", hdev->RXCap.checksum);

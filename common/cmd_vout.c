@@ -116,6 +116,7 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 		vpp_matrix_update(VPP_CM_YUV);
 		if (cvbs_set_vmode(mode) == 0) {
 			free(mode);
+			run_command("setenv vout_init enable", 0);
 			return CMD_RET_SUCCESS;
 		}
 	}
@@ -135,7 +136,8 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 			 */
 			memset(str, 0, sizeof(str));
 			sprintf(str, "hdmitx output %s", mode);
-			run_command(str, 0);
+			if (run_command(str, 0) == CMD_RET_SUCCESS)
+				run_command("setenv vout_init enable", 0);
 			free(mode);
 			return CMD_RET_SUCCESS;
 		}
@@ -151,6 +153,7 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 				vpp_matrix_update(VPP_CM_RGB);
 				if (lcd_drv->lcd_enable) {
 					lcd_drv->lcd_enable(mode, frac);
+					run_command("setenv vout_init enable", 0);
 					free(mode);
 					return CMD_RET_SUCCESS;
 				} else
