@@ -188,13 +188,13 @@ int board_init(void)
 	#if 0
 	active_clk();
 	#endif
-	run_command("gpio set GPIOH_7", 0);
 #ifdef CONFIG_AML_HDMITX20
 	hdmitx_set_hdmi_5v();
 	hdmitx_init();
 #endif
 #endif// #if !defined(CONFIG_PXP_DDR) //bypass below operations for pxp
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
+	run_command("gpio set GPIOH_7", 0);
 	return 0;
 }
 
