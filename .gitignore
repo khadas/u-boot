@@ -55,6 +55,8 @@ fip/_tmp/u-boot.bin.encrypt.usb.bl2
 fip/_tmp/u-boot.bin.sd.bin
 fip/_tmp/u-boot.bin.usb.bl2
 
+bl30/src_ao/demos/amlogic/n200/*/*/gcc/
+
 
 #
 # git files that we don't want to ignore even it they are dot-files
