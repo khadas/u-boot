@@ -521,29 +521,32 @@ void dump_lock_info(LockData_t info)
 
 static int check_lock(void)
 {
-	char *lock_s;
-	LockData_t info = {0};
-
-	lock_s = getenv("lock");
-	if (!lock_s) {
-		printf("lock state is NULL \n");
-		lock_s = "10001000";
-		setenv("lock", "10001000");
-		run_command("defenv_reserv; saveenv;", 0);
-	}
-	printf("lock state: %s\n", lock_s);
-
-	info.version_major = (int)(lock_s[0] - '0');
-	info.version_minor = (int)(lock_s[1] - '0');
-	info.unlock_ability = (int)(lock_s[2] - '0');
-	info.lock_state = (int)(lock_s[4] - '0');
-	info.lock_critical_state = (int)(lock_s[5] - '0');
-	info.lock_bootloader = (int)(lock_s[6] - '0');
-
-	if (info.lock_state == 1 || info.lock_critical_state == 1)
-		return 1;
-	else
-		return 0;
+	return 0;
+/*
+ *	char *lock_s;
+ *	LockData_t info = {0};
+ *
+ *	lock_s = getenv("lock");
+ *	if (!lock_s) {
+ *		printf("lock state is NULL\n");
+ *		lock_s = "10001000";
+ *		setenv("lock", "10001000");
+ *		run_command("defenv_reserv; saveenv;", 0);
+ *	}
+ *	printf("lock state: %s\n", lock_s);
+ *
+ *	info.version_major = (int)(lock_s[0] - '0');
+ *	info.version_minor = (int)(lock_s[1] - '0');
+ *	info.unlock_ability = (int)(lock_s[2] - '0');
+ *	info.lock_state = (int)(lock_s[4] - '0');
+ *	info.lock_critical_state = (int)(lock_s[5] - '0');
+ *	info.lock_bootloader = (int)(lock_s[6] - '0');
+ *
+ *	if (info.lock_state == 1 || info.lock_critical_state == 1)
+ *		return 1;
+ *	else
+ *		return 0;
+ */
 }
 
 static const char* getvar_list[] = {
@@ -1227,6 +1230,10 @@ static void cb_continue(struct usb_ep *ep, struct usb_request *req)
 #ifndef CONFIG_NO_FASTBOOT_FLASHING
 static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 {
+	printf("We don't support this cmd for security\n");
+	fastboot_tx_write_str("FAILsecure problem");
+	return;
+#if 0
 	char *cmd;
 	char* response = response_str;
 	char* lock_s;
@@ -1385,6 +1392,7 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 	run_command("defenv_reserv; saveenv;", 0);
 	printf("response: %s\n", response);
 	fastboot_tx_write_str(response);
+#endif
 }
 #endif
 
