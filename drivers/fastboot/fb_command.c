@@ -844,6 +844,11 @@ static void snapshot_update_cmd(char *cmd_parameter, char *response)
  */
 static void flashing(char *cmd_parameter, char *response)
 {
+	printf("We don't support this cmd for security\n");
+	fastboot_fail("secure problem", response);
+	return;
+
+#if 0
 	char *cmd;
 	char* lock_s;
 	LockData_t info = {0};
@@ -1017,6 +1022,7 @@ static void flashing(char *cmd_parameter, char *response)
 	env_set("lock", lock_d);
 	run_command("defenv_reserv; saveenv;", 0);
 	return;
+#endif
 }
 #endif// #if !CONFIG_IS_ENABLED(NO_FASTBOOT_FLASHING)
 
