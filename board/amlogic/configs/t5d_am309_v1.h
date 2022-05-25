@@ -595,6 +595,8 @@
 	#define CONFIG_SYS_MAX_NAND_DEVICE  2
 	#define CONFIG_SYS_NAND_BASE_LIST   {0}
 #endif
+/*  add tee protect interface*/
+#define CONFIG_AML_TEE_PROTEECT 1
 
 /* vpu */
 #define CONFIG_AML_VPU 1

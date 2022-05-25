@@ -613,7 +613,8 @@
 #define CONFIG_AML_LCD_EXTERN 1
 
 #endif
-
+/* tee add protect interface */
+#define CONFIG_AML_TEE_PROTEECT 1
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard
  * Enable CONFIG_MUSB_UDD for Device functionalities.

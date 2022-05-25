@@ -610,6 +610,9 @@
 
 #endif
 
+/* tee add protect interface */
+#define CONFIG_AML_TEE_PROTEECT 1
+
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard
  * Enable CONFIG_MUSB_UDD for Device functionalities.
@@ -662,7 +665,6 @@
 #define CONFIG_V3_KEY_BURNING_SUPPORT           1
 #define CONFIG_AML_SECURITY_KEY                 1
 #define CONFIG_UNIFY_KEY_MANAGE                 1
-
 /* net */
 #define CONFIG_CMD_NET   1
 #if defined(CONFIG_CMD_NET)
