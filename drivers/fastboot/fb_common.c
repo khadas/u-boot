@@ -103,32 +103,29 @@ void fastboot_okay(const char *reason, char *response)
  */
 int check_lock(void)
 {
-	return 0;
-/*
- *	char *lock_s;
- *	LockData_t info = {0};
- *
- *	lock_s = env_get("lock");
- *	if (!lock_s) {
- *		printf("lock state is NULL\n");
- *		lock_s = "10001000";
- *		env_set("lock", "10001000");
- *		run_command("defenv_reserv; saveenv;", 0);
- *	}
- *	printf("lock state: %s\n", lock_s);
- *
- *	info.version_major = (int)(lock_s[0] - '0');
- *	info.version_minor = (int)(lock_s[1] - '0');
- *	info.unlock_ability = (int)(lock_s[2] - '0');
- *	info.lock_state = (int)(lock_s[4] - '0');
- *	info.lock_critical_state = (int)(lock_s[5] - '0');
- *	info.lock_bootloader = (int)(lock_s[6] - '0');
- *
- *	if (info.lock_state == 1 || info.lock_critical_state == 1)
- *		return 1;
- *	else
- *		return 0;
- */
+	char *lock_s;
+	LockData_t info = {0};
+
+	lock_s = env_get("lock");
+	if (!lock_s) {
+		printf("lock state is NULL\n");
+		lock_s = "10101000";
+		env_set("lock", "10101000");
+		run_command("defenv_reserv; saveenv;", 0);
+	}
+	printf("lock state: %s\n", lock_s);
+
+	info.version_major = (int)(lock_s[0] - '0');
+	info.version_minor = (int)(lock_s[1] - '0');
+	info.unlock_ability = (int)(lock_s[2] - '0');
+	info.lock_state = (int)(lock_s[4] - '0');
+	info.lock_critical_state = (int)(lock_s[5] - '0');
+	info.lock_bootloader = (int)(lock_s[6] - '0');
+
+	if (info.lock_state == 1 || info.lock_critical_state == 1)
+		return 1;
+	else
+		return 0;
 }
 
 /**
