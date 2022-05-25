@@ -89,7 +89,7 @@
 	"sdc_burning=sdc_burn ${sdcburncfg}\0"\
 	"wipe_data=successful\0"\
 	"wipe_cache=successful\0"\
-	"lock=10001000\0"\
+	"lock=10101000\0"\
 	"EnableSelinux=enforcing\0" \
 	"jtag=disable\0"\
 	"active_slot=_a\0"\

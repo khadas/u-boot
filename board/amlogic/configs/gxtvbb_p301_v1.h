@@ -120,7 +120,7 @@
 	"jtag=disable\0"\
 	"active_slot=_a\0"\
 	"boot_part=boot\0"\
-	"lock=10001000\0"\
+	"lock=10101000\0"\
 	"ledmode=standby:breath,booting:on,working:on\0"\
 	"upgrade_check="\
 		"echo upgrade_step=${upgrade_step}; "\

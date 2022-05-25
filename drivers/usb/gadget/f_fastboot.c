@@ -78,7 +78,9 @@ extern int is_partition_logical(char* parition_name);
 u32 kMaxDownloadSizeDefault = 0x10000000;
 u32 kMaxFetchSizeDefault = 0x10000000;
 
+#ifdef CONFIG_FASTBOOT_WRITING_CMD
 static void cb_fetch(struct usb_ep *outep, struct usb_request *outreq);
+#endif
 
 /* The 64 defined bytes plus \0 */
 
@@ -98,9 +100,10 @@ static inline struct f_fastboot *func_to_fastboot(struct usb_function *f)
 }
 
 static struct f_fastboot *fastboot_func;
+#ifdef CONFIG_FASTBOOT_WRITING_CMD
 static unsigned int download_size;
 static unsigned int download_bytes;
-
+#endif
 
 static struct usb_endpoint_descriptor ep_in = {
 	.bLength            = USB_DT_ENDPOINT_SIZE,
@@ -521,32 +524,29 @@ void dump_lock_info(LockData_t info)
 
 static int check_lock(void)
 {
-	return 0;
-/*
- *	char *lock_s;
- *	LockData_t info = {0};
- *
- *	lock_s = getenv("lock");
- *	if (!lock_s) {
- *		printf("lock state is NULL\n");
- *		lock_s = "10001000";
- *		setenv("lock", "10001000");
- *		run_command("defenv_reserv; saveenv;", 0);
- *	}
- *	printf("lock state: %s\n", lock_s);
- *
- *	info.version_major = (int)(lock_s[0] - '0');
- *	info.version_minor = (int)(lock_s[1] - '0');
- *	info.unlock_ability = (int)(lock_s[2] - '0');
- *	info.lock_state = (int)(lock_s[4] - '0');
- *	info.lock_critical_state = (int)(lock_s[5] - '0');
- *	info.lock_bootloader = (int)(lock_s[6] - '0');
- *
- *	if (info.lock_state == 1 || info.lock_critical_state == 1)
- *		return 1;
- *	else
- *		return 0;
- */
+	char *lock_s;
+	LockData_t info = {0};
+
+	lock_s = getenv("lock");
+	if (!lock_s) {
+		printf("lock state is NULL\n");
+		lock_s = "10001000";
+		setenv("lock", "10001000");
+		run_command("defenv_reserv; saveenv;", 0);
+	}
+	printf("lock state: %s\n", lock_s);
+
+	info.version_major = (int)(lock_s[0] - '0');
+	info.version_minor = (int)(lock_s[1] - '0');
+	info.unlock_ability = (int)(lock_s[2] - '0');
+	info.lock_state = (int)(lock_s[4] - '0');
+	info.lock_critical_state = (int)(lock_s[5] - '0');
+	info.lock_bootloader = (int)(lock_s[6] - '0');
+
+	if (info.lock_state == 1 || info.lock_critical_state == 1)
+		return 1;
+	else
+		return 0;
 }
 
 static const char* getvar_list[] = {
@@ -1058,6 +1058,7 @@ exit:
 	fastboot_tx_write_str(response);
 }
 
+#ifdef CONFIG_FASTBOOT_WRITING_CMD
 static unsigned int rx_bytes_expected(void)
 {
 	int rx_remain = download_size - download_bytes;
@@ -1155,6 +1156,7 @@ static void cb_download(struct usb_ep *ep, struct usb_request *req)
 	}
 	fastboot_tx_write_str(response);
 }
+#endif
 
 static void do_bootm_on_complete(struct usb_ep *ep, struct usb_request *req)
 {
@@ -1227,13 +1229,10 @@ static void cb_continue(struct usb_ep *ep, struct usb_request *req)
 	fastboot_tx_write_str("OKAY");
 }
 
+#ifdef CONFIG_FASTBOOT_WRITING_CMD
 #ifndef CONFIG_NO_FASTBOOT_FLASHING
 static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 {
-	printf("We don't support this cmd for security\n");
-	fastboot_tx_write_str("FAILsecure problem");
-	return;
-#if 0
 	char *cmd;
 	char* response = response_str;
 	char* lock_s;
@@ -1392,7 +1391,6 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 	run_command("defenv_reserv; saveenv;", 0);
 	printf("response: %s\n", response);
 	fastboot_tx_write_str(response);
-#endif
 }
 #endif
 
@@ -1672,6 +1670,7 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 	}
 	fastboot_tx_write_str(response);
 }
+#endif
 
 static void cb_devices(struct usb_ep *ep, struct usb_request *req)
 {
@@ -1685,6 +1684,7 @@ static void cb_devices(struct usb_ep *ep, struct usb_request *req)
 	fastboot_tx_write_str(response);
 }
 
+#ifdef CONFIG_FASTBOOT_WRITING_CMD
 static void cb_snapshot_update_cmd(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd;
@@ -1747,6 +1747,7 @@ static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 	fastboot_tx_write_str("OKAY");
 	return;
 }
+#endif
 
 struct cmd_dispatch_info {
 	char *cmd;
@@ -1761,14 +1762,16 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 		.cmd = "getvar:",
 		.cb = cb_getvar,
 	}, {
-		.cmd = "download:",
-		.cb = cb_download,
-	}, {
 		.cmd = "boot",
 		.cb = cb_boot,
 	}, {
 		.cmd = "continue",
 		.cb = cb_continue,
+	},
+#ifdef CONFIG_FASTBOOT_WRITING_CMD
+	{
+		.cmd = "download:",
+		.cb = cb_download,
 	},
 #ifndef CONFIG_NO_FASTBOOT_FLASHING
 	{
@@ -1798,6 +1801,7 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 		.cmd = "erase",
 		.cb = cb_erase,
 	},
+#endif
 	{
 		.cmd = "devices",
 		.cb = cb_devices,
@@ -1810,6 +1814,7 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 		.cmd = "reboot-fastboot",
 		.cb = cb_reboot,
 	},
+#ifdef CONFIG_FASTBOOT_WRITING_CMD
 	{
 		.cmd = "set_active",
 		.cb = cb_set_active,
@@ -1822,6 +1827,7 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 		.cmd = "snapshot-update",
 		.cb  = cb_snapshot_update_cmd,
 	}
+#endif
 };
 
 //cb for out_req->complete
@@ -1859,6 +1865,7 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 	}
 }
 
+#ifdef CONFIG_FASTBOOT_WRITING_CMD
 static struct {
 	unsigned int totalBytes;
 	unsigned int transferredBytes; //transferredBytes <= totalBytes
@@ -2032,4 +2039,5 @@ static void cb_fetch(struct usb_ep *outep, struct usb_request *outreq)
 
 	fastboot_tx_write_str(str);
 }
+#endif
 
