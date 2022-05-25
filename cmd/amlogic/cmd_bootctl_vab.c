@@ -17,6 +17,7 @@
 #include <fastboot.h>
 #include <u-boot/sha1.h>
 #include <asm/arch/efuse.h>
+#include <emmc_partitions.h>
 
 #if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
 extern efuse_obj_field_t efuse_field;
@@ -456,29 +457,42 @@ static int is_BootSame(int srcindex, int dstindex)
 	const int SHA1SUMLEN = 20;
 	u8 gensum0[SHA1SUMLEN * 2];
 	u8 *gensum1 = gensum0 + SHA1SUMLEN;
+	int capacity_boot = 0;
 
-	buffer_src = (unsigned char *)malloc(0x2000 * 512);
+#ifdef CONFIG_MMC_MESON_GX
+	struct mmc *mmc = NULL;
+
+	if (store_get_type() == BOOT_EMMC)
+		mmc = find_mmc_device(1);
+
+	if (mmc)
+		capacity_boot = mmc->capacity_boot;
+#endif
+
+	printf("is_BootSame_capacity_boot: %x\n", capacity_boot);
+
+	buffer_src = (unsigned char *)malloc(capacity_boot);
 	if (!buffer_src) {
 		printf("ERROR! fail to allocate memory ...\n");
 		goto exit;
 	}
-	memset(buffer_src, 0, 0x2000 * 512);
+	memset(buffer_src, 0, capacity_boot);
 
 	iRet = store_boot_read("bootloader", srcindex, 0, buffer_src);
 	if (iRet) {
 		printf("Fail read bootloader %d\n", srcindex);
 		goto exit;
 	}
-	sha1_csum(buffer_src, 0x2000 * 512, gensum0);
+	sha1_csum(buffer_src, capacity_boot, gensum0);
 
 	buffer_dest = buffer_src;
-	memset(buffer_dest, 0, 0x2000 * 512);
+	memset(buffer_dest, 0, capacity_boot);
 	iRet = store_boot_read("bootloader", dstindex, 0, buffer_dest);
 	if (iRet) {
 		printf("Fail read bootloader %d\n", dstindex);
 		goto exit;
 	}
-	sha1_csum(buffer_dest, 0x2000 * 512, gensum1);
+	sha1_csum(buffer_dest, capacity_boot, gensum1);
 
 	ret = memcmp(gensum0, gensum1, SHA1SUMLEN);
 	printf("bootloader %d & %d %s same\n", srcindex, dstindex, ret ? "NOT" : "DO");
@@ -495,13 +509,26 @@ int write_bootloader(int copy, int dstindex) {
 	int iRet = 0;
 	int ret = -1;
 	unsigned char *buffer = NULL;
+	int capacity_boot = 0;
 
-	buffer = (unsigned char *)malloc(0x2000 * 512);
+#ifdef CONFIG_MMC_MESON_GX
+	struct mmc *mmc = NULL;
+
+	if (store_get_type() == BOOT_EMMC)
+		mmc = find_mmc_device(1);
+#endif
+
+	if (mmc)
+		capacity_boot = mmc->capacity_boot;
+
+	printf("write_bootloader_capacity_boot: %x\n", capacity_boot);
+
+	buffer = (unsigned char *)malloc(capacity_boot);
 	if (!buffer) {
 		printf("ERROR! fail to allocate memory ...\n");
 		goto exit;
 	}
-	memset(buffer, 0, 0x2000 * 512);
+	memset(buffer, 0, capacity_boot);
 	printf("copy from boot%d to boot%d\n", copy, dstindex);
 	iRet = store_boot_read("bootloader", copy, 0, buffer);
 	if (iRet) {
