@@ -204,11 +204,10 @@ int board_init(void)
 	active_clk();
 #endif
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
-	/*set vcc5V*/
-	run_command("gpio set GPIOH_4", 0);
-	run_command("gpio clear GPIOT_13", 0);
-	run_command("gpio clear GPIOT_15", 0);//5G reset
-	run_command("gpio clear GPIOH_3", 0);
+
+	run_command("gpio set GPIOH_4", 0);//set vcc5V
+	run_command("gpio clear GPIOT_15", 0);//5G reset-gpio
+	run_command("gpio clear GPIOH_3", 0); //pcie reset-gpio
 	return 0;
 }
 
