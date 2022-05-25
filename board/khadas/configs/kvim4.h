@@ -390,7 +390,8 @@
         "lcd1_ctrl=0x00000000\0" \
         "lcd2_ctrl=0x00000000\0" \
         "lcd_debug=0x00000000\0" \
-        "outputmode=panel\0" \
+        "dsi_output=panel\0" \
+        "vbo_output=panel1\0" \
         "outputmode2=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
@@ -660,6 +661,14 @@
             "osd dual_logo;"\
 			"dovi set;dovi pkg;vpp hdrpkt;"\
             "\0"\
+        "switch_panel="\
+            "if gpio input GPIOY_9; then "\
+				"echo no check dsi panel; outputmode=$vbo_output; setenv outputmode ${vbo_output};"\
+			"else "\
+				"echo check dsi panel; outputmode=$dsi_output; setenv outputmode ${dsi_output};"\
+            "fi;"\
+			"echo $outputmode;"\
+            "\0"\
         "check_display="\
             "echo check_display reboot_mode : ${reboot_mode} ,powermode : ${powermode};"\
             "if test ${reboot_mode} = ffv_reboot; then "\
@@ -706,6 +715,7 @@
 #endif
 
 #define CONFIG_PREBOOT  \
+            "run switch_panel; "\
             "run bcb_cmd; "\
             "run upgrade_check;"\
             "run check_display;"\
