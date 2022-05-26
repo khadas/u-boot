@@ -9,6 +9,7 @@
  */
 
 /* Common DTSI for devices which are based on the P212 reference board. */
+/dts-v1/;
 
 #include "meson-s4-txxx.dtsi"
 
