@@ -379,7 +379,7 @@ static int mmc_pre_dma(struct udevice *dev, struct mmc_data *data,
 				*meson_mmc_cmd |= CMD_CFG_DATA_WR;
 			*meson_mmc_cmd |= CMD_CFG_TIMEOUT_4S;
 			desc_cur->data_addr = data_addr
-				+ (desc_cnt * bl_len * mmc->read_bl_len);
+				+ (desc_cnt * mmc->cfg->b_max * mmc->read_bl_len);
 			desc_cur->data_addr &= ~(1 << 0);
 			if (blks) {
 				desc_cur++;
