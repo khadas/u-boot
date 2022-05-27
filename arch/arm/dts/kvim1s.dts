@@ -119,7 +119,7 @@
 };
 
 &saradc {
-	status = "disabled";
+	status = "okay";
 	vref-supply = <&vddio_ao18>;
 };
 
