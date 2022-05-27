@@ -226,14 +226,28 @@ void str_power_off(int shutdown_flag)
 		printf("vcc5v set gpio val fail\n");
 		return;
 	}
-
-    uint8_t val = 1;
-	mcu_i2c_init();
-	// pwr_led set on
-	ret = xI2cMesonWrite(CHIP_ADDR, REG_LED_SYSTEM_ON_MODE, &val, 1);
-	if (ret < 0) {
+        if (shutdown_flag == 0) {
+                uint8_t val = 1;
+	        mcu_i2c_init();
+	        // pwr_led set on
+	        ret = xI2cMesonWrite(CHIP_ADDR, REG_LED_SYSTEM_ON_MODE, &val, 1);
+	        if (ret < 0) {
 			printf("pwr_led set on fail\n");
 			return;
+	         }
+        }
+	if (shutdown_flag == 1) {
+	        ret = xGpioSetDir(GPIOD_4,GPIO_DIR_OUT);
+                if (ret < 0) {
+                        printf("set power off gpio dir fail\n");
+                        return;
+                }
+
+                ret= xGpioSetValue(GPIOD_4,GPIO_LEVEL_HIGH);
+                if (ret < 0) {
+                        printf("set power off gpio val fail\n");
+                        return;
+                }
 	}
 
 }
