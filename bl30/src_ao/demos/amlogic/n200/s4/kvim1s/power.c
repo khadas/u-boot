@@ -54,7 +54,7 @@ static TaskHandle_t cecTask = NULL;
 static int vdd_ee;
 
 static IRPowerKey_t prvPowerKeyList[] = {
-	{ 0xef10fe01, IR_NORMAL}, /* ref tv pwr */
+	{ 0xeb14ff00, IR_NORMAL}, /* ref tv pwr */
 	{ 0xba45bd02, IR_NORMAL}, /* small ir pwr */
 	{ 0xef10fb04, IR_NORMAL}, /* old ref tv pwr */
 	{ 0xf20dfe01, IR_NORMAL},
