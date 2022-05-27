@@ -3653,6 +3653,9 @@ int osd_get_hist_stat(u32 *hist_result)
 /*  UBOOT_INFO_FLAG bit definition
  *  |          31         |         30       |  29 ~ 16 |    15    |    14    |  13 ~ 0  |
  *  | uboot config finish | screen interlace | screen H | reserved | reserved | screen W |
+ *
+ * bit31: 0 - uboot config is finished
+ *        1 - uboot config is not finished
  */
 void transfer_info_to_rtos(void)
 {
@@ -3667,7 +3670,7 @@ void transfer_info_to_rtos(void)
 	screen_h = info->height;
 	interlace = info->field_height == screen_h ? 0 : 1;
 
-	val = (1 << 31) | (interlace << 30) | (screen_h << 16) | screen_w;
+	val = (0 << 31) | (interlace << 30) | (screen_h << 16) | screen_w;
 	VSYNCOSD_WR_MPEG_REG(UBOOT_INFO_FLAG, val);
 }
 
