@@ -198,12 +198,12 @@ void media_clock_init(void)
 	val |= (1 << 8) | (1 << 20);
 	writel(val, CLKCTRL_MIPI_DSI_MEAS_CLK_CTRL);
 
-	/* gdc = 800M */
+	/* dwarp(amlgdc) = 800M */
 	val = 0;
 	val = (0x7 << 9);/* select fclk2p5 */
 	val |= (0 << 31);/* select gdcclk0 */
 	val |= (1 << 8) | (1 << 30);
-	writel(val, CLKCTRL_GDC_CLK_CTRL);
+	writel(val, CLKCTRL_AMLGDC_CLK_CTRL);
 
 	/* vapb = 667M */
 	val = 0;
