@@ -234,6 +234,13 @@
 	/* pinctrl-names = "default"; */
 };
 
+&i2c1 {
+       status= "okay";
+        clock-frequency = <100000>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&i2c1_pins2>;
+ };
+
 /* This is connected to the Bluetooth module: */
 &uart_b {
 	status = "okay";
