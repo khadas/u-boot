@@ -607,7 +607,8 @@ static void partition_type_reply(char *part_name, char *response, size_t chars_l
 	strsep(&part_name, ":");
 	printf("partition is %s\n", part_name);
 	ret = store_get_partititon_size((unsigned char*)part_name, &size);
-	if ((strcmp_l1("system", part_name) == 0) || (strcmp_l1("vendor", part_name) == 0)
+	if ((strcmp_l1("system", part_name) == 0) || (strcmp_l1("vendor", part_name) == 0) ||
+			(strcmp_l1("init_boot", part_name) == 0)
 			|| (strcmp_l1("odm", part_name) == 0) || (strcmp_l1("product", part_name) == 0)
 			|| (strcmp_l1("system_ext", part_name) == 0) || (strcmp_l1("dtbo", part_name) == 0)
 			|| (strcmp_l1("metadata", part_name) == 0) || (strcmp_l1("vbmeta", part_name) == 0)
@@ -820,6 +821,13 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 			strncat(response, "yes", chars_left);
 		} else
 			strncat(response, "no", chars_left);
+	} else if (strcmp(cmd, "has-slot:init_boot") == 0) {
+		if (has_boot_slot == 1) {
+			printf("has init_boot slot\n");
+			strncat(response, "yes", chars_left);
+		} else {
+			strncat(response, "no", chars_left);
+		}
 	} else if (strcmp(cmd, "has-slot:recovery") == 0) {
 		if (has_boot_slot == 1) {
 			printf("has recovery slot\n");
