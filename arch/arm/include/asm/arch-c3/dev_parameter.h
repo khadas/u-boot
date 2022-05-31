@@ -57,6 +57,11 @@ typedef struct nand_parameter {
     } setup_data;
     union {
         uint32_t nand_reserved;
+	/* bit0~7: spinand planes per lun
+	 * bit8~15: spinand speed
+	 * bit16~23: spinand read cmd
+	 * bit24~31: reserved
+	 */
         uint32_t spi_nand_planes_per_lun;
     } reserved;
     /* Block counts of the reserved area */

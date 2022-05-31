@@ -41,6 +41,10 @@
 #define BOOTLOADER_MODE_ADVANCE_INIT		0
 #endif
 
+#ifdef  BOOTLOADER_MODE_SNAND
+/* add info page in ADVANCE mode for new spinand rom driver */
+#define SPINAND_ADVANCE_INFO_PAGE		(1)
+#endif
 
 /*
  * TODO: This is the attribute of nand, it will be moved to the

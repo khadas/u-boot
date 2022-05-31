@@ -331,29 +331,23 @@
 
 		spifc: spi@fe056000 {
 			compatible = "amlogic,spifc";
-			status = "disabled";
 			reg = <0x0 0xfe056000 0x0 0x80>;
-			/* clocks = <&clkc CLKID_CLK81>; */
-			/* clock-names = "core"; */
-			pinctrl-names = "default";
-			pinctrl-0 = <&spifc_pins>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+			status = "disabled";
 			spi-flash@0 {
-				compatible = "spi-flash";
 				reg = <0>;
-				spi-max-frequency = <20000000>;
 				spi-tx-bus-width = <1>;
 				spi-rx-bus-width = <1>;
-				status = "disabled";
+				compatible = "spi-flash";
+				status = "okay";
 			};
 			spi-nand@1 {
-				compatible = "spi-nand";
 				reg = <1>;
-				spi-max-frequency = <20000000>;
 				spi-tx-bus-width = <1>;
 				spi-rx-bus-width = <1>;
-				status = "disabled";
+				compatible = "spi-nand";
+				status = "okay";
 			};
 		};
 

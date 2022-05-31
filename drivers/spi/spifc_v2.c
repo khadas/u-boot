@@ -286,6 +286,12 @@ static int spifc_xfer(struct udevice *dev,
 
 	/* spi core will call back, No need to call repeatedly */
 	//spifc_claim_bus(dev);
+	/* temporary set pinmux */
+	ret = pinctrl_select_state(bus, "default");
+	if (ret) {
+		pr_err("select state %s failed\n", "default");
+		return ret;
+	}
 	spifc_set_speed(bus, slave->max_hz);
 	spifc_set_mode(bus, slave->mode);
 	if (flags & SPI_XFER_BEGIN) {

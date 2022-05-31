@@ -957,6 +957,13 @@ static int mtd_store_boot_read(const char *part_name,
 			size_t sz_read = SZ_2K;
 			size_t length = (size > BL2_SIZE) ? BL2_SIZE : size;
 
+			#if SPINAND_ADVANCE_INFO_PAGE
+			/* rom can get page size through info page, no need to fix 2K */
+			sz_read = mtd->writesize;
+			/* info page will be inserted before each BL2 */
+			off += mtd->writesize;
+			#endif
+
 			read_cnt = (length + sz_read - 1) / sz_read;
 			for (i = 0; i < read_cnt; i++) {
 				len = min(sz_read, (length - i * sz_read));
@@ -1065,6 +1072,13 @@ static int mtd_store_boot_write(const char *part_name,
 				loff_t off = offset;
 				size_t sz_write = SZ_2K;
 				size_t length = (size > BL2_SIZE) ? BL2_SIZE : size;
+
+				#if SPINAND_ADVANCE_INFO_PAGE
+				/* rom can get page size through info page, no need to fix 2K */
+				sz_write = mtd->writesize;
+				/* info page will be inserted before each BL2 */
+				off += mtd->writesize;
+				#endif
 
 				write_cnt = (length + sz_write - 1) / sz_write;
 				for (i = 0; i < write_cnt; i++) {

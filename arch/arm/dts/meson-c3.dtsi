@@ -498,7 +498,7 @@
 			groups = "spif_hold",
 				 "spif_mo",
 				 "spif_mi",
-				 //"spif_cs",
+				 "spif_cs",
 				 "spif_clk",
 				 "spif_wp";
 			function = "spif";

@@ -252,13 +252,17 @@
 
 &spifc {
 	status = "okay";
-	cs-gpios = <&gpio GPIOB_13 GPIO_ACTIVE_HIGH>;
-	spi-flash@0 {
-		status = "okay";
-	};
-	spi-nand@1 {
-		status = "okay";
-	};
+	pinctrl-names = "default";
+	pinctrl-0 = <&spifc_pins>;
+	max-frequency = <24000000>;
+	max-cs = <2>;
+	/* 512M */
+	clocks = <&clkc CLKID_FCLK_DIV2>,
+		 <&clkc CLKID_SPIFC_MUX>,
+		 <&clkc CLKID_SPIFC_DIV>,
+		 <&clkc CLKID_SPIFC>,
+		 <&clkc CLKID_SYS_SPIFC>;
+	clock-names = "fclk_source", "spifc_mux", "spifc_div", "spifc_gate", "spifc_xtal_gate";
 };
 
 &spicc0 {
