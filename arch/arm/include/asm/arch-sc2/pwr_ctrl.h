@@ -17,5 +17,6 @@
 #define PM_GE2D             8
 #define PM_ETH              9
 #define PM_AUDIO            10
-
+#define PM_MAX              (PM_AUDIO + 1)
 unsigned long pwr_ctrl_psci_smc(unsigned int power_domain, bool power_control);
+unsigned long pwr_ctrl_status_psci_smc(unsigned int power_domain);
