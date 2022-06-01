@@ -14,9 +14,8 @@
 #include <asm/arch/secure_apb.h>
 #include <asm/io.h>
 
-#define PDEV_VID_GOOGLE             3
-#define PDEV_PID_ASTRO              3
-#define PDEV_PID_NELSON             10
+#define PDEV_VID_AMLOGIC            5
+#define PDEV_PID_AV400              0xF
 #define NVRAM_LENGTH                (8 * 1024)
 #define AV400_NUM_CPU               4
 static const char CMDLINE_DEBUG[] = "devmgr.log-to-debuglog=true";
@@ -77,9 +76,9 @@ static const dcfg_arm_generic_timer_driver_t timer_driver = {
 };
 
 static const zbi_platform_id_t platform_id = {
-	.vid = PDEV_VID_GOOGLE,
-	.pid = PDEV_PID_NELSON,
-	.board_name = "nelson",
+	.vid = PDEV_VID_AMLOGIC,
+	.pid = PDEV_PID_AV400,
+	.board_name = "av400",
 };
 
 static void add_cpu_topology(zbi_header_t *zbi)
@@ -158,6 +157,24 @@ static void add_reboot_reason(zbi_header_t *zbi)
 				&reboot_reason, sizeof(reboot_reason));
 }
 
+static void add_board_info(zbi_header_t *zbi)
+{
+	zbi_board_info_t board_info = {};
+	char *s = NULL;
+
+	s = env_get("hw_id");
+	if (s && (*s != '\0')) {
+		uint32_t hw_id = simple_strtoul(s, NULL, 16);
+
+		board_info.revision = hw_id;
+	} else {
+		board_info.revision = 0x0;
+	}
+
+	zircon_append_boot_item(zbi, ZBI_TYPE_DRV_BOARD_INFO, 0,
+			&board_info, sizeof(board_info));
+}
+
 int zircon_preboot(zbi_header_t *zbi)
 {
 	// allocate crashlog save area before 0x5f800000-0x60000000 reserved area
@@ -183,6 +200,7 @@ int zircon_preboot(zbi_header_t *zbi)
 	zircon_append_boot_item(zbi, ZBI_TYPE_CMDLINE, 0, BOOTLOADER_VERSION,
 			strlen(BOOTLOADER_VERSION) + 1);
 	// add platform ID
+	add_board_info(zbi);
 	zircon_append_boot_item(zbi, ZBI_TYPE_PLATFORM_ID, 0, &platform_id, sizeof(platform_id));
 	//add_partition_map(zbi);
 	add_cpu_topology(zbi);
