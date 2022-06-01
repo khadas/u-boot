@@ -292,11 +292,6 @@ static int do_GetValidSlot(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 	}
 #endif
 
-	if (has_boot_slot == 0) {
-		printf("device is not ab mode\n");
-		return 0;
-	}
-
 	if (slot == 0) {
 		if (has_boot_slot == 1) {
 			env_set("active_slot", "_a");
