@@ -28,3 +28,5 @@ obj-$(CONFIG_AML_HW_SHA2) += hard_sha2.o
 
 
 obj-$(CONFIG_AML_HW_AES) += hw_aes.o
+obj-$(CONFIG_ARMV8_CE_SHA1) += sha1_ce_glue.o sha1_ce_core.o
+obj-$(CONFIG_ARMV8_CE_SHA256) += sha256_ce_glue.o sha256_ce_core.o

@@ -755,5 +755,8 @@
 #define CONFIG_MDUMP_COMPRESS 1
 #define CONFIG_AML_KASLR_SEED
 
+//#define CONFIG_CMD_SHA2              1
+#define CONFIG_ARMV8_CE_SHA1         1
+#define CONFIG_ARMV8_CE_SHA256       1
 #endif
 
