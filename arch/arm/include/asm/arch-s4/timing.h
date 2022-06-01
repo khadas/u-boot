@@ -26,10 +26,14 @@
 #define BL2_INIT_STAGE_7			7
 #define BL2_INIT_STAGE_8			8
 #define BL2_INIT_STAGE_9			9
-/*bl2 efuse val flag*/
+/* s4 bl2 efuse val flag*/
 #define BL2_INIT_STAGE_VDDCORE_CONFIG_1		0x84
 #define BL2_INIT_STAGE_VDDCORE_CONFIG_2		0x85
 #define BL2_INIT_STAGE_VDDCORE_CONFIG_3		0x86
+/* s4d bl2 efuse val flag*/
+#define BL2_INIT_STAGE_VDDCORE_CONFIG_4		0x87
+#define BL2_INIT_STAGE_VDDCORE_CONFIG_5		0x88
+#define BL2_INIT_STAGE_VDDCORE_CONFIG_6		0x89
 
 typedef struct bl2_reg {
 	unsigned	int		reg;
