@@ -23,6 +23,7 @@
 #include <malloc.h>
 #include <asm/arch/regs.h>
 #include <u-boot/sha256.h>
+#include <u-boot/sha1.h>
 #include <asm/arch-c1/timer.h>
 
 #define DATA_MAX_LEN    (1 << 31) //max length of SHA2 is 2 GB
@@ -141,8 +142,8 @@ U_BOOT_CMD(
 //#define CONFIG_AML_SHA2_TEST
 #if defined(CONFIG_AML_SHA2_TEST)
 
-#define writel(val,reg) (*((volatile unsigned *)(reg)))=(val)
-#define readl(reg)		(*((volatile unsigned *)(reg)))
+//#define writel(val,reg) (*((volatile unsigned *)(reg)))=(val)
+//#define readl(reg)		(*((volatile unsigned *)(reg)))
 #define TEST_MAX_LEN    (10<<20)
 #define TEST_MIN_LEN    (64)
 
@@ -154,7 +155,7 @@ static int do_sha2test(cmd_tbl_t *cmdtp, int flag, int argc,
 	unsigned char *pBuffer = 0;
 
 	int i;
-	int nLength = TEST_MAX_LEN;
+	long nLength = TEST_MAX_LEN;
 	unsigned int byPattern = 1;
 	char *endp;
 	int nSHA2Type = 256;
@@ -164,9 +165,11 @@ static int do_sha2test(cmd_tbl_t *cmdtp, int flag, int argc,
 	int c=0;
 
 	#ifdef CONFIG_AML_HW_SHA2
-		printf("aml log : Amlogic HW SHA2 \n");
+		printf("aml log : Amlogic HW SHA2\n");
+	#elif defined(CONFIG_ARMV8_CRYPTO)
+		printf("aml log : ARMCE SHA2\n");
 	#else
-		printf("aml log : Software SHA2 \n");
+		printf("aml log : Software SHA2\n");
 	#endif
 
 
@@ -240,8 +243,9 @@ static int do_sha2test(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		ntime = ntime2 - ntime1;
 
-		printf("\nSHA%d of value: 0x%02x, len: 0x%08x, time used: %d us, bandwidth: %d kB/s \n",\
-			nSHA2Type, (unsigned int)byPattern, nLength,ntime, (unsigned int)((float)nLength/1024/ntime*1000000));
+		printf("\nSHA%d of val:0x%02x, len:0x%08lx, time:%d us, BW:%ld kB/s\n",
+			nSHA2Type, (unsigned int)byPattern, nLength, ntime,
+			(long)((nLength * 1000000 >> 10) / ntime));
 
 		//SHA2 dump
 		for (i=0; i<SHA256_SUM_LEN; i++)
@@ -279,4 +283,68 @@ U_BOOT_CMD(
 	"[writeval] [len] \n"
 );
 
+static char *sha1_msg =
+"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
+
+static uint8_t sha1_hash[20] = {
+	0x84, 0x98, 0x3E, 0x44, 0x1C, 0x3B, 0xD2, 0x6E, 0xBA, 0xAE,
+	0x4A, 0xA1, 0xF9, 0x51, 0x29, 0xE5, 0xE5, 0x46, 0x70, 0xF1
+};
+
+static char *sha256_msg =
+"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
+
+static uint8_t sha256_hash[] = {
+	0x24, 0x8d, 0x6a, 0x61, 0xd2, 0x06, 0x38, 0xb8,
+	0xe5, 0xc0, 0x26, 0x93, 0x0c, 0x3e, 0x60, 0x39,
+	0xa3, 0x3c, 0xe4, 0x59, 0x64, 0xff, 0x21, 0x67,
+	0xf6, 0xec, 0xed, 0xd4, 0x19, 0xdb, 0x06, 0xc1
+};
+
+static int do_sha_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	uint32_t test_case = 0;
+	char *endp = 0;
+	uint8_t output[32];
+	int ret = 0;
+
+	if (argc != 2) {
+		cmd_usage(cmdtp);
+		return 1;
+	}
+
+	test_case = ustrtoul(argv[1], &endp, 0);
+
+	switch (test_case) {
+	case 0:
+		flush_dcache_range((uintptr_t)sha256_msg, strlen(sha256_msg));
+		sha256_csum_wd((uint8_t *)sha256_msg, strlen(sha256_msg),
+				output, sizeof(output));
+		ret = memcmp(sha256_hash, output, 32);
+		if (ret)
+			printf("test:%s sha256 failed\n", __func__);
+		else
+			printf("test:%s sha256 passed\n", __func__);
+		return 0;
+	case 1:
+		flush_dcache_range((uintptr_t)sha1_msg, strlen(sha1_msg));
+		sha1_csum_wd((uint8_t *)sha1_msg, strlen(sha1_msg),
+		  output, sizeof(output));
+		ret = memcmp(sha1_hash, output, 20);
+		if (ret)
+			printf("test:%s sha1 failed\n", __func__);
+		else
+			printf("test:%s sha1 passed\n", __func__);
+	default:
+		printf("Unknown test case\n");
+		return 0;
+	}
+
+	return 0;
+}
+
+U_BOOT_CMD(shatest, 2, 0, do_sha_test,
+		"shatest <test case>",
+		"run small sha test cases\n"
+	  );
 #endif //#if defined(CONFIG_AML_SHA2_TEST)
