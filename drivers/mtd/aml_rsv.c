@@ -716,6 +716,14 @@ int meson_rsv_init(struct mtd_info *mtd,
 			handler->dtb->size = 0x40000;
 		}
 	}
+#if AML_RSV_KEY_SIZE
+	if (mtd->erasesize >= AML_RSV_KEY_SIZE && !(AML_RSV_KEY_SIZE & 0x3ff))
+		handler->key->size = AML_RSV_KEY_SIZE;
+#endif//#if AML_RSV_KEY_SIZE
+#if AML_RSV_DTB_SIZE
+	if (mtd->erasesize >= AML_RSV_DTB_SIZE && !(AML_RSV_DTB_SIZE & 0x3ff))
+		handler->key->size = AML_RSV_DTB_SIZE;
+#endif// #if AML_RSV_DTB_SIZE
 
 	if ((vernier - start) > NAND_RSV_BLOCK_NUM) {
 		pr_info("ERROR: total blk number is over the limit\n");
