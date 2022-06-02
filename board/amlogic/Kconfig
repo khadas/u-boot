@@ -677,12 +677,30 @@ config C3_SKT
 	help
 		Select C3 SKT(XXXX) config
 
+config C3_AW409
+	bool "C3_AW409"
+	select TARGET_C3_AW409
+	help
+		Select C3 AW409 config
+
+config C3_AW419
+	bool "C3_AW419"
+	select TARGET_C3_AW419
+	help
+		Select C3 AW419 config
 endchoice
 
 config TARGET_C3_SKT
 	bool "C3 SKT board"
 	depends on C3_SKT
 
+config TARGET_C3_AW409
+	bool "C3 AW409 board"
+	depends on C3_AW409
+
+config TARGET_C3_AW419
+	bool "C3 AW419 board"
+	depends on C3_AW419
 endif
 
 if MESON_SC2
@@ -1282,4 +1300,8 @@ source "board/amlogic/t3_t965d4/Kconfig"
 source "board/amlogic/t3_t963d4/Kconfig"
 
 source "board/amlogic/c3_skt/Kconfig"
+
+source "board/amlogic/c3_aw409/Kconfig"
+
+source "board/amlogic/c3_aw419/Kconfig"
 
