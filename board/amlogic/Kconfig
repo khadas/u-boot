@@ -658,7 +658,7 @@ config DDRFW_TYPE
 
 config CHIPSET_NAME
         string "c3 CHIPSET NAME"
-        default ""
+        default "c308l"
 
 config CHIPSET_VARIANT
         string "C3 CHIPSET VARIANT"
