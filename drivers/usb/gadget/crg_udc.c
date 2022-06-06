@@ -3523,6 +3523,11 @@ int usb_gadget_register_driver(struct usb_gadget_driver *drive)
 		crg_udc->reg_base = (void __iomem *)(u64)CEG_UDC_0_BASE;
 		crg_udc->uccr = crg_udc->reg_base + CRG_UCCR_OFFSET;
 	}
+
+#ifdef USB_C3
+	crg_udc->reg_base = (void __iomem *)(u64)CRG_UDC_ADDR_C3;
+	crg_udc->uccr = crg_udc->reg_base + CRG_UCCR_OFFSET;
+#endif
 	/* set controller device role */
 	reg_write(crg_udc->reg_base+0x20FC , (reg_read(crg_udc->reg_base+0x20FC)  | 0x1));
 

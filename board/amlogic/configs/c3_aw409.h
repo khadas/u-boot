@@ -441,6 +441,9 @@
 #define AML_USB_V2             1
 #define USB_GENERAL_BIT         3
 #define USB_PHY21_BIT           4
+#define USB_C3			1
+#define CRG_UDC_ADDR_C3		(0xfe340000)
+a
 
 /* UBOOT fastboot config */
 
