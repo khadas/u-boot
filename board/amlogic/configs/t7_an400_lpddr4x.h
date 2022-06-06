@@ -647,7 +647,6 @@
             "\0"\
         "init_display="\
 			"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
-            "osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
             "setenv outputmode2 ${hdmimode};"\
             "osd dual_logo;"\
 			"dovi set;dovi pkg;vpp hdrpkt;"\
