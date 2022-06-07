@@ -443,7 +443,6 @@
 #define USB_PHY21_BIT           4
 #define USB_C3			1
 #define CRG_UDC_ADDR_C3		(0xfe340000)
-a
 
 /* UBOOT fastboot config */
 
