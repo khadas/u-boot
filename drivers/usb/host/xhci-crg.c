@@ -32,8 +32,8 @@ void crg_set_mode(struct xhci_hccr *hccr, u32 mode)
 
 	if (mode == USB_DR_MODE_HOST) {
 		/* set controller host role*/
-		tmp = readl(hccr + 0x20FC) & ~0x1;
-		writel(tmp, hccr + 0x20FC);
+		tmp = readl((u64)hccr + 0x20FC) & ~0x1;
+		writel(tmp, (u64)hccr + 0x20FC);
 	}
 }
 
