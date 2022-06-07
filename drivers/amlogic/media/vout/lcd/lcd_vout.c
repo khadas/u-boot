@@ -219,6 +219,12 @@ static void lcd_power_ctrl(struct aml_lcd_drv_s *pdrv, int status)
 	struct lcd_extern_driver_s *edrv;
 	struct lcd_extern_dev_s *edev;
 #endif
+
+#ifdef CONFIG_AML_LCD_PXP
+	LCDPR("[%d]: %s: lcd_pxp bypass\n", pdrv->index, __func__);
+	return;
+#endif
+
 	i = 0;
 	lcd_power = &pdrv->config.power;
 	if (status) {
@@ -355,6 +361,7 @@ static void lcd_encl_on(struct aml_lcd_drv_s *pdrv)
 static void lcd_interface_on(struct aml_lcd_drv_s *pdrv)
 {
 	lcd_power_ctrl(pdrv, 1);
+#ifndef CONFIG_AML_LCD_PXP
 	pdrv->config.retry_enable_cnt = 0;
 	while (pdrv->config.retry_enable_flag) {
 		if (pdrv->config.retry_enable_cnt++ >= LCD_ENABLE_RETRY_MAX)
@@ -366,6 +373,7 @@ static void lcd_interface_on(struct aml_lcd_drv_s *pdrv)
 		lcd_power_ctrl(pdrv, 1);
 	}
 	pdrv->config.retry_enable_cnt = 0;
+#endif
 	pdrv->status |= LCD_STATUS_IF_ON;
 }
 
@@ -397,7 +405,9 @@ static void lcd_module_enable(struct aml_lcd_drv_s *pdrv, char *mode, unsigned i
 		if (pdrv->boot_ctrl.init_level == LCD_INIT_LEVEL_NORMAL) {
 			lcd_interface_on(pdrv);
 #ifdef CONFIG_AML_LCD_BACKLIGHT
+#ifndef CONFIG_AML_LCD_PXP
 			aml_bl_driver_enable(pdrv->index);
+#endif
 #endif
 		} else {
 			LCDPR("[%d]: bypass interface for init_level %d\n",
@@ -415,7 +425,9 @@ static void lcd_module_disable(struct aml_lcd_drv_s *pdrv)
 	lcd_mute_set(pdrv, 1);
 	if (pdrv->status & LCD_STATUS_IF_ON) {
 #ifdef CONFIG_AML_LCD_BACKLIGHT
+#ifndef CONFIG_AML_LCD_PXP
 		aml_bl_driver_disable(pdrv->index);
+#endif
 #endif
 		lcd_power_ctrl(pdrv, 0);
 	}

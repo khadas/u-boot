@@ -746,6 +746,11 @@ int lcd_tv_driver_init(struct aml_lcd_drv_s *pdrv)
 	if (ret)
 		return -1;
 
+#ifdef CONFIG_AML_LCD_PXP
+	LCDPR("[%d]: %s: lcd_pxp bypass\n", pdrv->index, __func__);
+	return 0;
+#endif
+
 	/* init driver */
 	switch (pdrv->config.basic.lcd_type) {
 	case LCD_LVDS:
@@ -788,6 +793,11 @@ void lcd_tv_driver_disable(struct aml_lcd_drv_s *pdrv)
 	ret = lcd_type_supported(&pdrv->config);
 	if (ret)
 		return;
+
+#ifdef CONFIG_AML_LCD_PXP
+	LCDPR("[%d]: %s: lcd_pxp bypass\n", pdrv->index, __func__);
+	return;
+#endif
 
 	switch (pdrv->config.basic.lcd_type) {
 	case LCD_LVDS:
