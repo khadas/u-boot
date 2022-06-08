@@ -499,7 +499,7 @@
 				interrupts = <GIC_SPI 87 IRQ_TYPE_EDGE_RISING>;
 				status = "disabled";
 				pinname = "emmc";
-				source-clock = <1152000000>;
+				source-clock = <1536000000>;
 			};
 
 			spicc0: spi@50000 {
