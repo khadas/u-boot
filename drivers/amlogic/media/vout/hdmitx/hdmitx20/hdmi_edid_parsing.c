@@ -30,6 +30,7 @@
 #define EXTENSION_VFPDB_TAG	0xd
 #define EXTENSION_Y420_VDB_TAG	0xe
 #define EXTENSION_Y420_CMDB_TAG	0xf
+#define EXTENSION_SCDB_EXT_TAG	0x79
 
 #define EDID_DETAILED_TIMING_DES_BLOCK0_POS 0x36
 #define EDID_DETAILED_TIMING_DES_BLOCK1_POS 0x48
@@ -865,6 +866,10 @@ static int hdmitx_edid_block_parse(struct rx_cap *prxcap,
 				case EXTENSION_Y420_CMDB_TAG:
 					edid_parsingy420cmdbblock(prxcap,
 						&blockbuf[offset]);
+					break;
+				case EXTENSION_SCDB_EXT_TAG:
+					hdmitx_parse_sink_capability(prxcap, offset + 1,
+						blockbuf, count);
 					break;
 				default:
 					break;
