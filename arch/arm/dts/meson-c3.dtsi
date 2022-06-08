@@ -331,19 +331,21 @@
 
 	jtag_a_pins:jtag_a_pin {
 		mux {
-			groups = "jtag_clk",
-			"jtag_tms",
-			"jtag_tdi",
-			"jtag_tdo";
-			function = "jtag_1";
+			groups = "jtag_a_clk",
+			"jtag_a_tms",
+			"jtag_a_tdi",
+			"jtag_a_tdo";
+			function = "jtag_a";
 		};
 	};
 
-	swd_a_pins:swd_a_pin {
+	jtag_b_pins:jtag_b_pin {
 		mux {
-			groups = "swclk",
-			"swdio";
-			function = "sw";
+			groups = "jtag_b_clk",
+			"jtag_b_tms",
+			"jtag_b_tdi",
+			"jtag_b_tdo";
+			function = "jtag_b";
 		};
 	};
 
