@@ -172,7 +172,7 @@
 	clocks = <&xtal>,
 		 <&clkc CLKID_SARADC_MUX>,
 		 <&clkc CLKID_SARADC_DIV>,
-		 <&clkc CLKID_SARADC>;
+		 <&clkc CLKID_SAR_ADC>;
 	clock-names = "xtal", "adc_mux", "adc_div", "adc_gate";
 };
 
