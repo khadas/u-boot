@@ -14,7 +14,7 @@
 #include <amlogic/storage.h>
 #include <amlogic/aml_efuse.h>
 
-#ifdef CONFIG_AML_ANTIROLLBACK
+#if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
 #include <amlogic/anti-rollback.h>
 #endif
 
@@ -938,7 +938,7 @@ static void flashing(char *cmd_parameter, char *response)
 				}
 				printf("avb2: %s\n", avb_s);
 				if (strcmp(avb_s, "1") == 0) {
-#ifdef CONFIG_AML_ANTIROLLBACK
+#if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
 					if (avb_unlock()) {
 						if (-1 == rc) {
 							printf("unlocking device.  Erasing data partition!\n");
@@ -983,10 +983,8 @@ static void flashing(char *cmd_parameter, char *response)
 			}
 			printf("avb2: %s\n", avb_s);
 			if (strcmp(avb_s, "1") == 0) {
-#ifdef CONFIG_AML_ANTIROLLBACK
+#if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
 				if (avb_lock()) {
-					printf("lock failed!\n");
-				} else {
 					if (-1 == rc) {
 						printf("locking device.  Erasing data partition!\n");
 						run_command("store erase data 0 0", 0);
@@ -994,8 +992,10 @@ static void flashing(char *cmd_parameter, char *response)
 						printf("locking device.  Erasing userdata partition!\n");
 						run_command("store erase userdata 0 0", 0);
 					}
-					printf("unlocking device.  Erasing metadata partition!\n");
+					printf("locking device.  Erasing metadata partition!\n");
 					run_command("store erase metadata 0 0", 0);
+				} else {
+					printf("lock failed!\n");
 				}
 #else
 				if (-1 == rc) {
@@ -1005,7 +1005,7 @@ static void flashing(char *cmd_parameter, char *response)
 					printf("locking device.  Erasing userdata partition!\n");
 					run_command("store erase userdata 0 0", 0);
 				}
-				printf("unlocking device.  Erasing metadata partition!\n");
+				printf("locking device.  Erasing metadata partition!\n");
 				run_command("store erase metadata 0 0", 0);
 
 #endif

@@ -106,6 +106,9 @@ static u32 rpmb_get_dev_info(u16 dev_id, struct rpmb_dev_info *info)
 		return TEE_ERROR_GENERIC;
 
 	memcpy(info->cid, mmc->cid, sizeof(info->cid));
+
+	// The kernel has done a byte order flip,
+	// so the byte order needs to be flipped under uboot as well
 	for (int i = 0; i < sizeof(info->cid) / sizeof(uint32_t); i++)
 		((uint32_t *)info->cid)[i] = be32_to_cpu(((uint32_t *)info->cid)[i]);
 
@@ -125,7 +128,11 @@ static u32 rpmb_process_request(struct optee_private *priv, void *req,
 	if (req_size < sizeof(*sreq))
 		return TEE_ERROR_BAD_PARAMETERS;
 
+#ifdef CONFIG_AML_DEV_ID
+	// On uboot, the emmc dev id is fixed at 1
+	// On kernel, emmc dev id is related to the registration order
 	sreq->dev_id = 1;
+#endif
 
 	switch (sreq->cmd) {
 	case RPMB_CMD_DATA_REQ:

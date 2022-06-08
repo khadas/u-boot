@@ -15,7 +15,7 @@
 #include <emmc_partitions.h>
 #include <amlogic/storage.h>
 #include <asm/arch/bl31_apis.h>
-#ifdef CONFIG_AML_ANTIROLLBACK
+#if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
 #include <amlogic/anti-rollback.h>
 #endif
 #include <version.h>
@@ -317,7 +317,7 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps *ops, const uint8_t *public
 static AvbIOResult read_rollback_index(AvbOps *ops, size_t rollback_index_location,
 		uint64_t *out_rollback_index)
 {
-#ifdef CONFIG_AML_ANTIROLLBACK
+#if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
 	uint32_t version;
 
 	if (get_avb_antirollback(rollback_index_location, &version)) {
@@ -336,7 +336,7 @@ static AvbIOResult write_rollback_index(AvbOps* ops, size_t rollback_index_locat
 		uint64_t rollback_index)
 {
 	AvbIOResult result = AVB_IO_RESULT_OK;
-#ifdef CONFIG_AML_ANTIROLLBACK
+#if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
 	uint32_t version = rollback_index;
 
 	if (set_avb_antirollback(rollback_index_location, version)) {
@@ -356,7 +356,7 @@ out:
 static AvbIOResult read_is_device_unlocked(AvbOps* ops, bool* out_is_unlocked)
 {
 	AvbIOResult result = AVB_IO_RESULT_OK;
-#ifdef CONFIG_AML_ANTIROLLBACK
+#if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
 	uint32_t lock_state;
 	char *lock_s;
 
@@ -513,7 +513,7 @@ static int do_avb_verify(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 
 	printf("result: %d\n", result);
 	if (result == AVB_SLOT_VERIFY_RESULT_OK && out_data) {
-#ifdef CONFIG_AML_ANTIROLLBACK
+#if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
 		uint32_t version;
 		uint32_t lock_state;
 #endif
@@ -533,7 +533,7 @@ static int do_avb_verify(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 		for (i = 0; i < AVB_MAX_NUMBER_OF_ROLLBACK_INDEX_LOCATIONS; i++)
 			printf("rollback(%d) = %llu\n", i, out_data->rollback_indexes[i]);
 
-#ifdef CONFIG_AML_ANTIROLLBACK
+#if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
 		for (i = 0; i < AVB_MAX_NUMBER_OF_ROLLBACK_INDEX_LOCATIONS; i++)
 			if (get_avb_antirollback(i, &version))
 				printf("rpmb rollback(%d) = %u\n", i, version);

@@ -61,6 +61,12 @@
 #define CONFIG_DTB_LOAD  "imgread dtb _aml_dtb ${dtb_mem_addr}"
 #endif//#ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
 
+/* AVB */
+//#define CONFIG_AML_AVB2_ANTIROLLBACK 1
+//#define CONFIG_AVB_VERIFY 1
+//#define CONFIG_SUPPORT_EMMC_RPMB 1
+//#define CONFIG_AML_DEV_ID 1
+
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS \

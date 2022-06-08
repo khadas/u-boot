@@ -8,6 +8,9 @@
 
 #include <linux/types.h>
 
+#define AVB_UNLOCK_STATE        (0)
+#define AVB_LOCK_STATE          (1)
+
 bool check_antirollback(uint32_t kernel_version);
 
 bool set_avb_antirollback(uint32_t index, uint32_t version);
