@@ -5,7 +5,7 @@
 
 /dts-v1/;
 
-#include "meson-c3-skt.dtsi"
+#include "meson-c3-aw409.dtsi"
 #include "meson-c3_skt-panel.dtsi"
 
 / {
