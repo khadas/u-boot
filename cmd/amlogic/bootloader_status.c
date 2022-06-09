@@ -463,6 +463,13 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 
 	match_flag = strcmp(bootloaderindex, expect_index);
 
+	//ignore reboot next check if power off during reboot next to finish
+	if (rebootmode && (strcmp(rebootmode, "cold_boot") == 0)) {
+		if (!strcmp(rebootstatus, "reboot_finish")) {
+			match_flag = 0;
+		}
+	}
+
 
 	//first reboot, command from recovery, need reboot next
 	if (!strcmp(rebootstatus,"reboot_next")) {
