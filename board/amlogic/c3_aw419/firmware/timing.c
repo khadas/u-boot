@@ -485,18 +485,18 @@ bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 /* gpio/pinmux/pwm init */
 register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
 __attribute__ ((section(".misc_param"))) = {
-	/* config vddee and vcck pwm - pwm_e and pwm_f*/
-	{ PWMEF_PWM_A,		   VDDEE_VAL_REG, 0xffffffff, 0, 0, 0 },
-	{ PWMEF_PWM_B,		   VCCK_VAL_REG,  0xffffffff, 0, 0, 0 },
-	{ PWMEF_MISC_REG_AB,	   (0x3 << 0),	  (0x3 << 0), 0, 0, 0 },
-	/* set pwm e and pwm f clock rate to 24M, enable them */
-	{ CLKCTRL_PWM_CLK_EF_CTRL, ((0x1 << 8) | (0x1 << 24)), 0xffffffff, 0, 0, 0 },
+	/* config vddee and vcck pwm - pwm_a and pwm_b*/
+	{ PWMAB_PWM_A,		   VDDEE_VAL_REG, 0xffffffff, 0, 0, 0 },
+	{ PWMAB_PWM_B,		   VCCK_VAL_REG,  0xffffffff, 0, 0, 0 },
+	{ PWMAB_MISC_REG_AB, (0x3 << 0) | (0x1 << 15) | (0x1 << 23),
+				(0x3 << 0) | (0x1 << 15) | (0x1 << 23), 0, 0, 0 },
+	/* set pwm a and pwm b clock rate to 24M, enable them */
+	{ CLKCTRL_PWM_CLK_AB_CTRL, ((0x1 << 8) | (0x1 << 24)), 0xffffffff, 0, 0, 0 },
 	/* set GPIOE_0 GPIOE_1 drive strength to 3 */
 	{ PADCTRL_GPIOE_DS,	   0xf,		  0xf,	      0, 0, 0 },
-	/* set GPIOE_0 GPIOE_1 mux to pwme pwmf */
+	/* set GPIOE_0 GPIOE_1 mux to pwma pwmb */
 	{ PADCTRL_PIN_MUX_REGI,	   (0x1 << 0),	  (0xf << 0), 0, 0, 0 },
 	{ PADCTRL_PIN_MUX_REGI,	   (0x1 << 4),	  (0xf << 4), 0, 0, 0 },
-	{ PADCTRL_GPIOD_PULL_UP,   (0x1 << 2),	  (0x1 << 2), 0, 0, 0 },
 };
 
 #define DEV_FIP_SIZE 0x300000
