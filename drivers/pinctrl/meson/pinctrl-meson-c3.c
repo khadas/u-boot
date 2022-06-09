@@ -1169,10 +1169,11 @@ static struct meson_pmx_bank meson_c3_periphs_pmx_banks[] = {
 static struct meson_drive_bank meson_c3_periphs_drive_banks[] = {
 	/*  name	    first         lask        reg  offset*/
 	BANK_DRIVE("X",     GPIOX_0,     GPIOX_13,    0x7,  0),
-	BANK_DRIVE("D",     GPIOD_0,     GPIOD_6,     0x17, 0),
-	BANK_DRIVE("E",     GPIOE_0,     GPIOE_4,     0x27, 0),
-	BANK_DRIVE("B",     GPIOB_0,     GPIOB_14,    0x37, 0),
-	BANK_DRIVE("A",     GPIOA_0,     GPIOA_5,     0x47, 0),
+	BANK_DRIVE("D",     GPIOD_0,     GPIOD_6,     0x27, 0),
+	BANK_DRIVE("E",     GPIOE_0,     GPIOE_4,     0x37, 0),
+	BANK_DRIVE("C",     GPIOC_0,     GPIOC_6,     0x47, 0),
+	BANK_DRIVE("B",     GPIOB_0,     GPIOB_14,    0x57, 0),
+	BANK_DRIVE("A",     GPIOA_0,     GPIOA_5,     0x67, 0),
 	BANK_DRIVE("TESTN", GPIO_TEST_N, GPIO_TEST_N, 0x77,  0),
 };
 
