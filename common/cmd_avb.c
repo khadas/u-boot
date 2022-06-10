@@ -450,6 +450,56 @@ static int do_avb_verify(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	return result;
 }
 
+uint32_t avb_get_boot_patchlevel_from_vbmeta(AvbSlotVerifyData *data)
+{
+	int i, j;
+	AvbVBMetaData *p;
+	const char *ret = NULL;
+	size_t len = 0;
+	char buff[9];
+	unsigned long boot_patchlevel;
+
+	if (!data)
+		return 0;
+
+	for (i = 0; i < data->num_vbmeta_images; i++) {
+		p = &data->vbmeta_images[i];
+		if (strcmp(p->partition_name, "vbmeta") == 0) { /* match */
+			if (p->verify_result != AVB_VBMETA_VERIFY_RESULT_OK) {
+				// not verified
+				printf("vbmeta verify_result %d\n", p->verify_result);
+
+				/*device lock, treat as error*/
+				if (!is_device_unlocked()) {
+					printf("device lock, but vbmeta verify fail\n");
+					return 0;
+				}
+			}
+
+			ret = avb_property_lookup(p->vbmeta_data,
+				p->vbmeta_size,
+				"com.android.build.boot.security_patch",
+				0,
+				&len);
+
+			if (ret)
+				break;
+			}
+		}
+
+		if (ret) {
+			for (i = 0, j = 0; i < len; i++) {
+				if (ret[i] != '-' && j < 9)
+					buff[j++] = ret[i];
+			}
+			buff[8] = '\n';
+			if (!strict_strtoul(buff, 10, &boot_patchlevel))
+				return (uint32_t)boot_patchlevel;
+		}
+
+		return 0;
+}
+
 static cmd_tbl_t cmd_avb_sub[] = {
 	U_BOOT_CMD_MKENT(verify, 4, 0, do_avb_verify, "", ""),
 };

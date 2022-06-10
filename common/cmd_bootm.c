@@ -30,6 +30,7 @@
 #include <asm/arch/secure_apb.h>
 
 #include <amlogic/aml_efuse.h>
+#include <amlogic/image_check.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -265,6 +266,9 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (out_data) {
 			keymaster_boot_params boot_params;
 			const int is_dev_unlocked = is_device_unlocked();
+
+			boot_params.boot_patchlevel =
+				avb_get_boot_patchlevel_from_vbmeta(out_data);
 
 			boot_params.device_locked = is_dev_unlocked? 0: 1;
 			if (is_dev_unlocked) {
