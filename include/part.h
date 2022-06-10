@@ -462,5 +462,9 @@ int write_mbr_partition(struct blk_desc *dev_desc, void *buf);
 
 #endif
 
+#ifdef CONFIG_AML_PARTITION
+int get_partition_info_aml_by_name(struct blk_desc *dev_desc,
+		const char *name, disk_partition_t *info);
+#endif
 
 #endif /* _PART_H */

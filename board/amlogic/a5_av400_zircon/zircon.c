@@ -81,6 +81,82 @@ static const zbi_platform_id_t platform_id = {
 	.board_name = "av400",
 };
 
+enum {
+	PART_BOOTLOADER,
+	PART_ZIRCON_A,
+	PART_ZIRCON_B,
+	PART_ZIRCON_R,
+	PART_SYS_CONFIG,
+	PART_FACTORY_CONFIG,
+	PART_FVM,
+	PART_COUNT,
+};
+
+static zbi_partition_map_t partition_map = {
+	// .block_count filled in below
+	// .block_size filled in below
+	.guid = {},
+	.partition_count = PART_COUNT,
+	.partitions = {
+		{
+			.type_guid = GUID_BOOTLOADER_VALUE,
+			.uniq_guid = {},
+			// .first_block filled in below
+			// .last_block filled in below
+			.flags = 0,
+			.name = "bootloader",
+		},
+		{
+			.type_guid = GUID_ZIRCON_A_VALUE,
+			.uniq_guid = {},
+			// .first_block filled in below
+			// .last_block filled in below
+			.flags = 0,
+			.name = "zircon-a",
+		},
+		{
+			.type_guid = GUID_ZIRCON_B_VALUE,
+			.uniq_guid = {},
+			// .first_block filled in below
+			// .last_block filled in below
+			.flags = 0,
+			.name = "zircon-b",
+		},
+		{
+			.type_guid = GUID_ZIRCON_R_VALUE,
+			.uniq_guid = {},
+			// .first_block filled in below
+			// .last_block filled in below
+			.flags = 0,
+			.name = "zircon-r",
+		},
+		{
+			.type_guid = GUID_SYS_CONFIG_VALUE,
+			.uniq_guid = {},
+			// .first_block filled in below
+			// .last_block filled in below
+			.flags = 0,
+			.name = "sys-config",
+		},
+		{
+			.type_guid = GUID_FACTORY_CONFIG_VALUE,
+			.uniq_guid = {},
+			// .first_block filled in below
+			// .last_block filled in below
+			.flags = 0,
+			.name = "factory",
+		},
+		{
+			.type_guid = GUID_FVM_VALUE,
+			.uniq_guid = {},
+			// .first_block filled in below
+			// .last_block filled in below
+			.flags = 0,
+			.name = "fvm",
+		},
+	},
+};
+
 static void add_cpu_topology(zbi_header_t *zbi)
 {
 	zbi_topology_node_t nodes[AV400_NUM_CPU + 1];
@@ -117,6 +193,87 @@ static void add_cpu_topology(zbi_header_t *zbi)
 	zircon_append_boot_item(zbi, ZBI_TYPE_CPU_TOPOLOGY,
 				      sizeof(zbi_topology_node_t), &nodes,
 				      sizeof(nodes));
+}
+
+static void add_partition_map(zbi_header_t *zbi)
+{
+	struct blk_desc *dev_desc;
+	disk_partition_t bootloader_info;
+	disk_partition_t boot_info;
+	disk_partition_t misc_info;
+	disk_partition_t recovery_info;
+	disk_partition_t tee_info;
+	//disk_partition_t crypt_info;
+	disk_partition_t system_info;
+	disk_partition_t data_info;
+
+	dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
+	if (!dev_desc || dev_desc->type == DEV_TYPE_UNKNOWN) {
+		printf("could not find MMC device for partition map\n");
+		return;
+	}
+
+	if (get_partition_info_aml_by_name(dev_desc, "bootloader", &bootloader_info)) {
+		printf("could not find bootloader partition\n");
+		return;
+	}
+	if (get_partition_info_aml_by_name(dev_desc, "boot", &boot_info)) {
+		printf("could not find boot partition\n");
+		return;
+	}
+	if (get_partition_info_aml_by_name(dev_desc, "misc", &misc_info)) {
+		printf("could not find misc partition\n");
+		return;
+	}
+	if (get_partition_info_aml_by_name(dev_desc, "recovery", &recovery_info)) {
+		printf("could not find recovery partition\n");
+		return;
+	}
+	if (get_partition_info_aml_by_name(dev_desc, "tee", &tee_info)) {
+		printf("could not find tee partition\n");
+		return;
+	}
+	if (get_partition_info_aml_by_name(dev_desc, "system", &system_info)) {
+		printf("could not find system partition\n");
+		return;
+	}
+	if (get_partition_info_aml_by_name(dev_desc, "data", &data_info)) {
+		printf("could not find data partition\n");
+		return;
+	}
+
+	// map bootloader partition to BOOTLOADER
+	partition_map.partitions[PART_BOOTLOADER].first_block = bootloader_info.start;
+	partition_map.partitions[PART_BOOTLOADER].last_block = bootloader_info.start +
+								bootloader_info.size - 1;
+
+	// map boot partition to ZIRCON_A
+	partition_map.partitions[PART_ZIRCON_A].first_block = boot_info.start;
+	partition_map.partitions[PART_ZIRCON_A].last_block = boot_info.start + boot_info.size - 1;
+
+	// map misc partition to ZIRCON_B
+	partition_map.partitions[PART_ZIRCON_B].first_block = misc_info.start;
+	partition_map.partitions[PART_ZIRCON_B].last_block = misc_info.start + misc_info.size - 1;
+
+	// map recovery partition to ZIRCON_R
+	partition_map.partitions[PART_ZIRCON_R].first_block = recovery_info.start;
+	partition_map.partitions[PART_ZIRCON_R].last_block = recovery_info.start +
+								recovery_info.size - 1;
+
+	// map tee partition to SYS_CONFIG
+	partition_map.partitions[PART_SYS_CONFIG].first_block = tee_info.start;
+	partition_map.partitions[PART_SYS_CONFIG].last_block = tee_info.start + tee_info.size - 1;
+
+	// map system and data partitions to FVM
+	partition_map.partitions[PART_FVM].first_block = system_info.start;
+	partition_map.partitions[PART_FVM].last_block = data_info.start + data_info.size - 1;
+
+	partition_map.block_count = data_info.start + data_info.size;
+	partition_map.block_size = data_info.blksz;
+
+	zircon_append_boot_item(zbi, ZBI_TYPE_DRV_PARTITION_MAP, 0, &partition_map,
+				sizeof(zbi_partition_map_t) +
+				partition_map.partition_count * sizeof(zbi_partition_t));
 }
 
 static void add_reboot_reason(zbi_header_t *zbi)
@@ -202,7 +359,7 @@ int zircon_preboot(zbi_header_t *zbi)
 	// add platform ID
 	add_board_info(zbi);
 	zircon_append_boot_item(zbi, ZBI_TYPE_PLATFORM_ID, 0, &platform_id, sizeof(platform_id));
-	//add_partition_map(zbi);
+	add_partition_map(zbi);
 	add_cpu_topology(zbi);
 	add_reboot_reason(zbi);
 	return 0;
