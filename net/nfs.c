@@ -524,6 +524,9 @@ nfs_readlink_reply(uchar *pkt, unsigned len)
 
 	rlen = ntohl(rpc_pkt.u.reply.data[1]); /* new path length */
 
+	if (((uchar *)&rpc_pkt.u.reply.data[0] - (uchar *)&rpc_pkt + rlen) > len)
+		return -NFS_RPC_DROP;
+
 	if (*((char *)&(rpc_pkt.u.reply.data[2])) != '/') {
 		int pathlen;
 		strcat(nfs_path, "/");
