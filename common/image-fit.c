@@ -236,7 +236,7 @@ static void fit_image_print_data(const void *fit, int noffset, const char *p,
 	uint8_t *value;
 	int value_len;
 	char *algo;
-	int required;
+	bool required = false;
 	int ret, i;
 
 	debug("%s  %s node:    '%s'\n", p, type,
@@ -247,8 +247,8 @@ static void fit_image_print_data(const void *fit, int noffset, const char *p,
 		return;
 	}
 	printf("%s", algo);
-	keyname = fdt_getprop(fit, noffset, "key-name-hint", NULL);
-	required = fdt_getprop(fit, noffset, "required", NULL) != NULL;
+	keyname = fdt_getprop(fit, noffset, FIT_KEY_HINT, NULL);
+	required = fdt_getprop(fit, noffset, FIT_KEY_REQUIRED, NULL) != (void *)NULL;
 	if (keyname)
 		printf(":%s", keyname);
 	if (required)
@@ -1580,7 +1580,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 		fit_uname = fit_get_name(fit, noffset, NULL);
 	}
 	if (noffset < 0) {
-		puts("Could not find subimage node\n");
+		printf("Could not find subimage node type '%s'\n", prop_name);
 		bootstage_error(bootstage_id + BOOTSTAGE_SUB_SUBNODE);
 		return -ENOENT;
 	}

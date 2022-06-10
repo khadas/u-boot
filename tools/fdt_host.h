@@ -11,6 +11,7 @@
 #include "../include/libfdt.h"
 #include "../include/fdt_support.h"
 
-int fit_check_sign(const void *working_fdt, const void *key);
+int fit_check_sign(const void *fdt, const void *key,
+	const char *fit_uname_config);
 
 #endif /* __FDT_HOST_H__ */
