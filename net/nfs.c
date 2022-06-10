@@ -574,6 +574,10 @@ nfs_read_reply(uchar *pkt, unsigned len)
 		putc('#');
 
 	rlen = ntohl(rpc_pkt.u.reply.data[18]);
+
+	if (((uchar *)&rpc_pkt.u.reply.data[0] - (uchar *)&rpc_pkt + rlen) > len)
+		return -9999;
+
 	if (store_block((uchar *)pkt + sizeof(rpc_pkt.u.reply),
 			nfs_offset, rlen))
 		return -9999;
