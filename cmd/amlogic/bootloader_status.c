@@ -228,6 +228,20 @@ exit:
 	return ret;
 }
 
+//bootloader write protect
+static void bootloader_wp(void)
+{
+#ifdef CONFIG_MMC_MESON_GX
+	if (store_get_type() == BOOT_EMMC) {//emmc device
+		if (IS_FEAT_BOOT_VERIFY()) { //secure boot enable
+			if (BOOTLOADER_MODE_ADVANCE_INIT) { //new arch chip
+				env_set("bootloader_wp", "1");
+			}
+		}
+	}
+#endif
+}
+
 static void aml_recovery(void) {
 	char *mode = NULL;
 	char command[32];
@@ -282,6 +296,8 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	if (store_get_type() == BOOT_EMMC)
 		mmc = find_mmc_device(1);
 #endif
+
+	bootloader_wp();
 
 	//if recovery mode, need disable dv, if factoryreset, need default uboot env
 	aml_recovery();

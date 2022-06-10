@@ -110,6 +110,35 @@ static void recovery_mode_process(void)
 	}
 }
 
+static void bootloader_wp_check(void)
+{
+	char *bootloader_wp = env_get("bootloader_wp");
+	char *slot = env_get("active_slot");
+	char *gpt_mode = env_get("gpt_mode");
+	char *nocs_mode = env_get("nocs_mode");
+
+	//support write protect
+	if (bootloader_wp && !strcmp(bootloader_wp, "1")) {
+		//ab mode
+		if (slot && strcmp(slot, "normal")) {
+			//gpt or nocs
+			if ((gpt_mode && !strcmp(gpt_mode, "true")) ||
+				(nocs_mode && !strcmp(nocs_mode, "true"))) {
+				//boot1 protect
+				run_command("amlmmc boot_wp boot1 poweron", 0);
+			} else {
+				if (!strcmp(slot, "_a")) {
+					//boot0 protect
+					run_command("amlmmc boot_wp boot0 poweron", 0);
+				} else {
+					//boot1 protect
+					run_command("amlmmc boot_wp boot1 poweron", 0);
+				}
+			}
+		}
+	}
+}
+
 
 /*******************************************************************/
 /* bootm - boot application image from image in memory */
@@ -122,6 +151,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* add reboot_mode in bootargs for kernel command line */
 	char *pbootargs = env_get("bootargs");
 	char *preboot_mode = env_get("reboot_mode");
+	bootloader_wp_check();
 
 	if (pbootargs && preboot_mode) {
 		int nlen = strlen(pbootargs) + strlen(preboot_mode) + 16;
