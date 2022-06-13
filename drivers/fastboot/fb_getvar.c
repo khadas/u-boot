@@ -567,12 +567,18 @@ static void getvar_partition_type(char *part_name, char *response)
 		}
 	}*/
 	if ((strcmp_l1(part_name, "system") == 0) || (strcmp_l1(part_name, "vendor") == 0) ||
-			(strcmp_l1(part_name, "init_boot") == 0)
-			|| (strcmp_l1(part_name, "odm") == 0) || (strcmp_l1(part_name, "product") == 0)
-			|| (strcmp_l1(part_name, "system_ext") == 0) || (strcmp_l1(part_name, "dtbo") == 0)
-			|| (strcmp_l1(part_name, "metadata") == 0) || (strcmp_l1(part_name, "vbmeta") == 0)
-			|| (strcmp_l1(part_name, "vbmeta_system") == 0) || (strcmp_l1(part_name, "super") == 0)
-			|| (strcmp_l1(part_name, "odm_ext") == 0) || (strcmp_l1(part_name, "oem") == 0)){
+			(strcmp_l1(part_name, "init_boot") == 0) ||
+			(strcmp_l1(part_name, "odm") == 0) ||
+			(strcmp_l1(part_name, "product") == 0) ||
+			(strcmp_l1(part_name, "system_ext") == 0) ||
+			(strcmp_l1(part_name, "dtbo") == 0) ||
+			(strcmp_l1(part_name, "metadata") == 0) ||
+			(strcmp_l1(part_name, "vbmeta") == 0) ||
+			(strcmp_l1(part_name, "vbmeta_system") == 0) ||
+			(strcmp_l1(part_name, "super") == 0) ||
+			(strcmp_l1(part_name, "car_param") == 0) ||
+			(strcmp_l1(part_name, "odm_ext") == 0) ||
+			(strcmp_l1(part_name, "oem") == 0)) {
 		partition_type_reply(part_name, response, "ext4");
 	} else if ((strcmp(part_name, "data") == 0) || (strcmp(part_name, "userdata") == 0)) {
 		if (busy_flag == 1)
