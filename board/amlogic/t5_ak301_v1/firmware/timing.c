@@ -674,9 +674,9 @@ bl2_reg_t __bl2_reg[] = {
 	/* eg: PWM init */
 	/* PWM_A VDDEE_VAL_REG */
 #ifdef CONFIG_PDVFS_ENABLE
-	{PWMAB_PWM_A,         	0x00090009,     0xffffffff, 	0, 	BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0},
-	{PWMAB_PWM_A,         	0x000b0007,     0xffffffff, 	0, 	BL2_INIT_STAGE_VDDCORE_CONFIG_2, 0},
-	{PWMAB_PWM_A,		0x0008000a,  	0xffffffff,	0, 	BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0},
+	{PWMAB_PWM_A, 0x000b0007, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0},
+	{PWMAB_PWM_A, 0x0008000a, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_2, 0},
+	{PWMAB_PWM_A, 0x0008000a, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0},
 #else
 	{PWMAB_PWM_A,		VDDEE_VAL_REG,	0xffffffff,	0,	BL2_INIT_STAGE_1, 0},
 #endif
