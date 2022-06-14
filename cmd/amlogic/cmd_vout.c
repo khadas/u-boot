@@ -139,6 +139,8 @@ int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 	char *st;
 	int hpd_st = 0;
+	unsigned long i = 0;
+	unsigned long hdmitx_hpd_wait_cnt = 10;
 #ifdef CONFIG_AML_HDMITX20
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
 #else
@@ -151,17 +153,19 @@ int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 		printf("hdmitx_hpd_bypass detect\n");
 		return 0;
 	}
-
+	st = env_get("hdmitx_hpd_wait_cnt");
+	if (st)
+		hdmitx_hpd_wait_cnt = simple_strtoul(st, NULL, 10);
 	hpd_st = hdev->hwop.get_hpd_state();
+
 	if (!hpd_st) {
 		/* For some TV, they cost extra time to pullup HPD after 5V */
-		int loop = 10;
 
-		while (loop--) {
+		for (i = 0; i < hdmitx_hpd_wait_cnt; i++) {
 			mdelay(100);
 			hpd_st = hdev->hwop.get_hpd_state();
 			if (hpd_st) {
-				printf("hpd delay %d ms\n", (10 - loop) * 100);
+				printf("hpd delay %lu ms\n", (i + 1) * 100);
 				break;
 			}
 		}

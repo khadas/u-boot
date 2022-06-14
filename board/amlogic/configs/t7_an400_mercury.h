@@ -433,6 +433,7 @@
 		"outputmode2=panel1\0" \
 		"outputmode3=1080p60hz\0" \
 		"hdmimode=1080p60hz\0" \
+		"hdmitx_hpd_wait_cnt=0\0" \
 		"cvbsmode=dummy_l\0" \
 		"colorattribute=444,8bit\0"\
 		"cvbsmode=576cvbs\0" \
