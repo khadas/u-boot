@@ -2,6 +2,9 @@
 /*
  * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
+#ifndef BIT
+#define BIT(nr)                 (1 << (nr))
+#endif
 
 /* board id */
 #define CONFIG_BOARD_ID_MASK					0xFF
@@ -146,12 +149,14 @@
 #define DDR_FUNC_LPDDR3_CA_CA0_OFFSET		(20)
 #define DDR_FUNC_LPDDR3_CA_CA1_OFFSET		(22)
 #define DDR_FUNC_LPDDR3_SOC_ODT_ONLY_UP		(1<<25)
+#define DDR_FUNC_ENABLE_DDR_ID		BIT(26)
 #define DDR_FUNC_CONFIG_DDR_X4_BIT_DRAM_RESERVE_PARAMETER		(1<<27)
 #define DDR_FUNC_CONFIG_DDR_DVFS_FUNCTION	(1<<28)
 #define DDR_FUNC_CONFIG_DFE_FUNCTION		(1<<29)
 #define DDR_FUNC_FAST_BOOT_CHECK_CHIP_ID	(1<<30)
 #define DDR_FUNC_SCRAMBLE					(1<<31)
 
+#define DDR_FUNC							(0)
 
 /* dwc imem/dmem */
 #define DWC_MEM_LOAD_ADDR					0xFFFE0000
