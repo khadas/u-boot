@@ -441,7 +441,7 @@ int checkhw(char *name)
 		else if (cpu_id.package_id == 2)
 			strcpy(dtb_name, "c3_c302x_aw409-128m\0");
 		else
-			strcpy(dtb_name, "c3_aw409_unsupport");
+			strcpy(dtb_name, "c3_aw429_unsupport");
 		break;
 	case 0x10000000UL:
 		if (cpu_id.package_id == 1)
@@ -449,13 +449,13 @@ int checkhw(char *name)
 		else if (cpu_id.package_id == 2)
 			strcpy(dtb_name, "c3_c302x_aw409-256m\0");
 		else
-			strcpy(dtb_name, "c3_aw409_unsupport");
+			strcpy(dtb_name, "c3_aw429_unsupport");
 		break;
 	case 0x80000000UL:
 		strcpy(dtb_name, "c3_c308l_aw419\0");
 		break;
 	default:
-		strcpy(dtb_name, "c3_aw409_unsupport");
+		strcpy(dtb_name, "c3_aw429_unsupport");
 		break;
 	}
 	/* set aml_dt */

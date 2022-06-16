@@ -424,13 +424,41 @@ const struct mtd_partition *get_spinand_partition_table(int *partitions)
 int checkhw(char *name)
 {
 	char dtb_name[64] = { 0 };
+	unsigned long ddr_size = 0;
+	int i;
 	cpu_id_t cpu_id = get_cpu_id();
 
-	if (cpu_id.family_id == 0x3A)
-		strcpy(dtb_name, "s4d_s905y4_ap222\0");
-	else if (cpu_id.family_id == 0x37)
-		strcpy(dtb_name, "s4_s905y4_ap222\0");
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
+		ddr_size += gd->bd->bi_dram[i].size;
+#if defined(CONFIG_SYS_MEM_TOP_HIDE)
+	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
+#endif
 
+	switch (ddr_size) {
+	case 0x8000000UL:
+		if (cpu_id.package_id == 1)
+			strcpy(dtb_name, "c3_c308l_aw429-128m\0");
+		else if (cpu_id.package_id == 2)
+			strcpy(dtb_name, "c3_c302x_aw409-128m\0");
+		else
+			strcpy(dtb_name, "c3_aw419_unsupport");
+		break;
+	case 0x10000000UL:
+		if (cpu_id.package_id == 1)
+			strcpy(dtb_name, "c3_c308l_aw429-256m\0");
+		else if (cpu_id.package_id == 2)
+			strcpy(dtb_name, "c3_c302x_aw409-256m\0");
+		else
+			strcpy(dtb_name, "c3_aw419_unsupport");
+		break;
+	case 0x80000000UL:
+		strcpy(dtb_name, "c3_c308l_aw419\0");
+		break;
+	default:
+		strcpy(dtb_name, "c3_aw419_unsupport");
+		break;
+	}
+	/* set aml_dt */
 	strcpy(name, dtb_name);
 	env_set("aml_dt", dtb_name);
 	return 0;
