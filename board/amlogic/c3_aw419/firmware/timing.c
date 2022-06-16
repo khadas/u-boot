@@ -118,19 +118,10 @@ uint32_t __ddr_parameter_reg_index[] __attribute__ ((section(".ddr_2acs_index"))
 };
 #endif
 
-//#define DDR_FUNC_CONFIG_DFE_FUNCTION            (1 << 29)
-//#define DDR_FUNC_CONFIG_DDR_X4_BIT_DRAM_RESERVE_PARAMETER     (1 << 27)
-//#define S4_LPDDR4 1		//use for 1rank lpddr4
+#define C3_DDR4_1RANK 1
 
-//#define S4_LPDDR4_DONGLE_LAYER_4 1	//use for 1rank lpddr4
-//#define S4_LPDDR4_DONGLE_LAYER_6 1  //use for 1rank lpddr4
-
-//#define S4_LPDDR4_2RANK 1
-//#define S4_DDR4_2RANK 1
-#define S4_DDR4_1RANK 1
-//#define S4_DDR3  1
 ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
-#ifdef S4_DDR4_1RANK
+#ifdef C3_DDR4_1RANK
 	{
 	//timing_config,4layer 2pcs ddr4 rank0, aw419.
 	.cfg_board_common_setting.timming_magic = 0,
