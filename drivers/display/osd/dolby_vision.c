@@ -442,13 +442,13 @@ static bool is_attr_match(void)
 			return false;
 		}
 	} else if (dovi_mode.ll_ycbcr_422_12bit) { /*LL YUV*/
-		if (strncmp(attr, "444,8bit", strlen("422,12bit"))) {
+		if (strncmp(attr, "422,12bit", strlen("422,12bit"))) {
 			printf("expect output LL YUV, but attr is %s\n", attr);
 			dovi_setting.dst_format = FORMAT_SDR;
 			return false;
 		}
 	} else if (dovi_mode.ll_rgb_444_10bit) {  /*LL RGB*/
-		if (strncmp(attr, "444,8bit", strlen("444,10bit"))) {
+		if (strncmp(attr, "444,10bit", strlen("444,10bit"))) {
 			printf("expect output LL RGB, but attr is %s\n", attr);
 			dovi_setting.dst_format = FORMAT_SDR;
 			return false;
