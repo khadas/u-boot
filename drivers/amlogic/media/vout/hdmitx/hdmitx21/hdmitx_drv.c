@@ -49,7 +49,10 @@ static int hdmitx_read_edid(u8 *_rx_edid)
 	u32 byte_num = 0;
 	u8 edid_extension = 1;
 	u8 *rx_edid = _rx_edid;
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
 
+	if (!hdev->pxp_mode)
+		return 0; /* skip edid reading in pxp */
 	// Program SLAVE/SEGMENT/ADDR
 	hdmitx21_wr_reg(LM_DDC_IVCTX, 0x80); //sel edid
 	hdmitx21_wr_reg(DDC_CMD_IVCTX, 0x09); //clear fifo
@@ -85,6 +88,8 @@ static int hdmitx_read_edid(u8 *_rx_edid)
 static void hdmi_hwp_init(void)
 {
 	u32 data32;
+	u32 reg;
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
 
 	// --------------------------------------------------------
 	// Program core_pin_mux to enable HDMI pins
@@ -146,7 +151,11 @@ static void hdmi_hwp_init(void)
 	data32 = 0;
 	data32 |= (1 << 24); // [26:24] infilter_ddc_intern_clk_divide
 	data32 |= (0 << 16); // [23:16] infilter_ddc_sample_clk_divide
-	hdmitx21_wr_reg(HDMITX_TOP_INFILTER, data32);
+	if (hdev->chip_type == MESON_CPU_ID_S5)
+		reg = HDMITX_S5_TOP_INFILTER;
+	else
+		reg = HDMITX_T7_TOP_INFILTER;
+	hdmitx21_wr_reg(reg, data32);
 	hdmitx21_wr_reg(AON_CYP_CTL_IVCTX, 2);
 	hdmitx21_set_reg_bits(GCP_CNTL_IVCTX, 1, 0, 1);
 	// clear avmute
@@ -325,6 +334,11 @@ static void set_encp_div(u32 div)
 static void hdmitx_enable_encp_clk(void)
 {
 	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL2, 1, 2, 1);
+	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL2, 1, 3, 1); /* TODO */
+	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL2, 1, 5, 1);
+	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL2, 1, 9, 1);
+	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL2, 1, 10, 1);
+	hd21_set_reg_bits(CLKCTRL_HTX_CLK_CTRL1, 1, 24, 1);
 }
 
 static void set_hdmitx_fe_clk(void)
@@ -582,8 +596,10 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	enum hdmi_vic videocode;
 
 	hdmi_hwp_init();
-	aml_audio_init();  /* Init audio hw firstly */
-	hdmitx_set_audmode(hdev);
+	if (!hdev->pxp_mode) {
+		aml_audio_init();  /* Init audio hw firstly */
+		hdmitx_set_audmode(hdev);
+	}
 	if (hdev->enc_idx == 2) {
 		set_hdmitx_enc_idx(2);
 		hd21_set_reg_bits(VPU_DISP_VIU2_CTRL, 1, 29, 1);
@@ -766,10 +782,15 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		 (((para->cs == HDMI_COLORSPACE_YUV420) ? 1 : 0) << 20) |
 		 (0 << 24);
 	hd21_write_reg(VPU_HDMI_SETTING, data32);
+	if (hdev->chip_type == MESON_CPU_ID_S5)
+		hd21_set_reg_bits(VPU_HDMI_SETTING, 4, 16, 3);
 	// [    1] src_sel_encp: Enable ENCI or ENCP output to HDMI
 	hd21_set_reg_bits(VPU_HDMI_SETTING, 1, (hdev->enc_idx == 0) ? 0 : 1, 1);
 
 	hdmitx_set_phy(hdev);
+
+	if (!hdev->pxp_mode)
+		return; /* skip in pxp */
 
 	/* null char needed to terminate the string
 	 * otherwise garbage in checksum logopara
@@ -849,6 +870,7 @@ static void hdmitx_set_scdc_div40(bool div40)
 {
 	u32 addr = 0x20;
 	u32 data;
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
 
 	if (div40)
 		data = 0x3;
@@ -861,11 +883,13 @@ static void hdmitx_set_scdc_div40(bool div40)
 	hdmitx21_wr_reg(DDC_DIN_CNT1_IVCTX, 0x01); //data length lo
 	hdmitx21_wr_reg(DDC_DIN_CNT2_IVCTX, 0x00); //data length hi
 	hdmitx21_wr_reg(DDC_CMD_IVCTX, 0x06); //DDC Write CMD
+	if (!hdev->pxp_mode)
+		return; /* skip in pxp */
 	hdmitx21_poll_reg(DDC_STATUS_IVCTX, 1 << 4, ~(1 << 4), HZ / 100); //i2c process
 	hdmitx21_poll_reg(DDC_STATUS_IVCTX, 0 << 4, ~(1 << 4), HZ / 100); //i2c done
 }
 
-static void set_top_div40(bool div40)
+static void set_t7_top_div40(bool div40)
 {
 	u32 data32;
 
@@ -875,17 +899,17 @@ static void set_top_div40(bool div40)
 		data32 = 0;
 		data32 |= (0 << 16); // [25:16] tmds_clk_pttn[19:10]
 		data32 |= (0 << 0);  // [ 9: 0] tmds_clk_pttn[ 9: 0]
-		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_01, data32);
+		hdmitx21_wr_reg(HDMITX_T7_TOP_TMDS_CLK_PTTN_01, data32); // TODO
 
 		data32 = 0;
 		data32 |= (0x3ff << 16); // [25:16] tmds_clk_pttn[39:30]
 		data32 |= (0x3ff << 0);  // [ 9: 0] tmds_clk_pttn[29:20]
-		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_23, data32);
+		hdmitx21_wr_reg(HDMITX_T7_TOP_TMDS_CLK_PTTN_23, data32);
 	} else {
-		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_01, 0x001f001f);
-		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_23, 0x001f001f);
+		hdmitx21_wr_reg(HDMITX_T7_TOP_TMDS_CLK_PTTN_01, 0x001f001f);
+		hdmitx21_wr_reg(HDMITX_T7_TOP_TMDS_CLK_PTTN_23, 0x001f001f);
 	}
-	hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_CNTL, 0x1);
+	hdmitx21_wr_reg(HDMITX_T7_TOP_TMDS_CLK_PTTN_CNTL, 0x1);
 	// [14:12] tmds_sel: 0=output 0; 1=output normal data;
 	//                   2=output PRBS; 4=output shift pattn
 	// [11: 8] shift_pttn
@@ -897,13 +921,54 @@ static void set_top_div40(bool div40)
 	hdmitx21_wr_reg(HDMITX_TOP_BIST_CNTL, data32);
 
 	if (div40)
-		hdmitx21_wr_reg(HDMITX_TOP_TMDS_CLK_PTTN_CNTL, 0x2);
+		hdmitx21_wr_reg(HDMITX_T7_TOP_TMDS_CLK_PTTN_CNTL, 0x2);
+}
+
+static void set_s5_top_div40(bool div40)
+{
+	u32 data32;
+
+	pr_info("div40: %d\n", div40);
+	// Enable normal output to PHY
+	if (div40) {
+		data32 = 0;
+		data32 |= (0 << 16); // [25:16] tmds_clk_pttn[19:10]
+		data32 |= (0 << 0);  // [ 9: 0] tmds_clk_pttn[ 9: 0]
+		hdmitx21_wr_reg(HDMITX_S5_TOP_TMDS_CLK_PTTN_01, data32); // TODO
+
+		data32 = 0;
+		data32 |= (0x3ff << 16); // [25:16] tmds_clk_pttn[39:30]
+		data32 |= (0x3ff << 0);  // [ 9: 0] tmds_clk_pttn[29:20]
+		hdmitx21_wr_reg(HDMITX_S5_TOP_TMDS_CLK_PTTN_23, data32);
+	} else {
+		hdmitx21_wr_reg(HDMITX_S5_TOP_TMDS_CLK_PTTN_01, 0x001f001f);
+		hdmitx21_wr_reg(HDMITX_S5_TOP_TMDS_CLK_PTTN_23, 0x001f001f);
+	}
+	hdmitx21_wr_reg(HDMITX_S5_TOP_TMDS_CLK_PTTN_CNTL, 0x1);
+	// [14:12] tmds_sel: 0=output 0; 1=output normal data;
+	//                   2=output PRBS; 4=output shift pattn
+	// [11: 8] shift_pttn
+	// [ 4: 0] prbs_pttn
+	data32 = 0;
+	data32 |= (1 << 16);
+	data32 |= (1 << 12);
+	data32 |= (0 << 8);
+	data32 |= (0 << 0);
+	hdmitx21_wr_reg(HDMITX_TOP_BIST_CNTL, data32);
+
+	if (div40)
+		hdmitx21_wr_reg(HDMITX_S5_TOP_TMDS_CLK_PTTN_CNTL, 0x2);
 }
 
 static void hdmitx_set_div40(bool div40)
 {
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+
 	hdmitx_set_scdc_div40(div40);
-	set_top_div40(div40);
+	if (hdev->chip_type == MESON_CPU_ID_S5)
+		set_s5_top_div40(div40);
+	else
+		set_t7_top_div40(div40);
 	hdmitx21_wr_reg(SCRCTL_IVCTX, (1 << 5) | !!div40);
 }
 
@@ -1562,3 +1627,16 @@ void hdmitx21_dither_config(struct hdmitx_dev *hdev)
 		hd21_set_reg_bits(VPU_HDMI_DITH_CNTL, 0, 4, 1);
 }
 
+void hdmitx21_pxp_init(bool pxp_mode)
+{
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+
+	hdev->pxp_mode = pxp_mode;
+}
+
+void hdmitx21_chip_type_init(enum amhdmitx_chip_e type)
+{
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+
+	hdev->chip_type = type;
+}
