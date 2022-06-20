@@ -221,6 +221,8 @@
             "if mmcinfo; then run recovery_from_fat_dev; fi;"\
             "\0"\
         "recovery_from_flash="\
+			"store param;"\
+			"setenv bootargs ${bootargs} ${mtdbootparts}; "\
             "echo active_slot: ${active_slot};"\
             "setenv loadaddr ${loadaddr_kernel};"\
             "if test ${active_slot} = normal; then "\
