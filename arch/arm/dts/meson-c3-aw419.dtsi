@@ -253,9 +253,9 @@
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&spifc_pins>;
-	max-frequency = <24000000>;
+	max-frequency = <100000000>;
 	max-cs = <2>;
-	/* 512M */
+	/* 1024M */
 	clocks = <&clkc CLKID_FCLK_DIV2>,
 		 <&clkc CLKID_SPIFC_MUX>,
 		 <&clkc CLKID_SPIFC_DIV>,

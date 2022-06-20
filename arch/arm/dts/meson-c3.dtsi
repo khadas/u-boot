@@ -505,7 +505,7 @@
 				 "spif_clk",
 				 "spif_wp";
 			function = "spif";
-			drive-strength = <3>;
+			drive-strength = <4>;
 		};
 	};
 

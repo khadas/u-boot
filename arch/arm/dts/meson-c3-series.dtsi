@@ -345,8 +345,8 @@
 			};
 			spi-nand@1 {
 				reg = <1>;
-				spi-tx-bus-width = <1>;
-				spi-rx-bus-width = <1>;
+				spi-tx-bus-width = <4>;
+				spi-rx-bus-width = <4>;
 				compatible = "spi-nand";
 				status = "okay";
 			};
