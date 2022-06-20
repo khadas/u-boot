@@ -547,11 +547,11 @@ static struct meson_pmx_group meson_c3_periphs_groups[] = {
 	GROUP(emmc_nand_ds,		1),
 
 	/* Bank B func2 */
-	GROUP(nand_wen_clk,		1),
-	GROUP(nand_ale,			1),
-	GROUP(nand_ren_wr,		1),
-	GROUP(nand_cle,			1),
-	GROUP(nand_ce0,			1),
+	GROUP(nand_wen_clk,		2),
+	GROUP(nand_ale,			2),
+	GROUP(nand_ren_wr,		2),
+	GROUP(nand_cle,			2),
+	GROUP(nand_ce0,			2),
 
 	/* Bank B func3 */
 	GROUP(pwm_g_b,			3),
@@ -999,7 +999,7 @@ static const char * const nand_groups[] = {
 	"emmc_nand_d0", "emmc_nand_d1", "emmc_nand_d2", "emmc_nand_d3",
 	"emmc_nand_d4", "emmc_nand_d5", "emmc_nand_d6", "emmc_nand_d7",
 	"emmc_clk", "emmc_rst", "emmc_cmd", "emmc_nand_ds",
-	"nand_wen_clk", "nand_ale", "nand_ren", "nand_cle",
+	"nand_wen_clk", "nand_ale", "nand_ren_wr", "nand_cle",
 	"nand_ce0",
 };
 
