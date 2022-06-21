@@ -751,7 +751,13 @@ bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
 __attribute__ ((section(".misc_param"))) = {
 	/* config vddee and vcck pwm - pwm_e and pwm_f*/
-	{ PWMEF_PWM_A,		   VDDEE_VAL_REG, 0xffffffff, 0, 0, 0 },
+#ifdef CONFIG_PDVFS_ENABLE
+	{ PWMEF_PWM_A, 0x4000e, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0 },
+	{ PWMEF_PWM_A, 0x7000b, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_2, 0 },
+	{ PWMEF_PWM_A, 0xb0007, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0 },
+#else
+	{ PWMEF_PWM_A,		   VDDEE_VAL_REG, 0xffffffff, 0, 0, 0},
+#endif
 	{ PWMEF_PWM_B,		   VCCK_VAL_REG,  0xffffffff, 0, 0, 0 },
 	{ PWMEF_MISC_REG_AB,	   (0x3 << 0),	  (0x3 << 0), 0, 0, 0 },
 	/* set pwm e and pwm f clock rate to 24M, enable them */
