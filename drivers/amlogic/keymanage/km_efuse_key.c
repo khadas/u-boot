@@ -100,7 +100,7 @@ int keymanage_efuse_exist(const char* keyname)
 			KM_ERR("efuse check pattern fail!\n");
 			return -1;
 		}
-		KM_MSG("efuse %s is %s\n", pattern, ret > 0 ? "wrote" : "not write");
+		KM_MSG("efuse %s is %s\n", pattern, ret > 0 ? "written" : "not write");
 		return ret > 0;
 	}
 	{
