@@ -51,6 +51,10 @@
 #define AML_ADC_POWER_KEY_CHAN   2  /*channel range: 0-7*/
 #define AML_ADC_POWER_KEY_VAL    0  /*sample value range: 0-1023*/
 
+#ifdef CONFIG_NASC_NAGRA_TIER_1
+#define CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK 1
+#endif
+
 #ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
 #define CONFIG_DTB_LOAD  "imgread dtb ${boot_part} ${dtb_mem_addr}"
 #else

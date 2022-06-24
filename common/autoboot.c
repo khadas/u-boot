@@ -15,6 +15,11 @@
 #include <u-boot/sha256.h>
 #include <bootcount.h>
 
+#ifdef CONFIG_NASC_NAGRA_TIER_1
+extern void load_bl2f(unsigned long x1, unsigned long x2, unsigned long x3);
+#include <linux/arm-smccc.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #define MAX_DELAY_STOP_STR 32
@@ -27,6 +32,18 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* Stored value of bootdelay, used by autoboot_command() */
 static int stored_bootdelay;
+
+#ifdef CONFIG_NASC_NAGRA_TIER_1
+static int nocs_disable_fpk(void)
+{
+	struct arm_smccc_res res;
+
+	debug("disable fpk for nocs!!!\n");
+	arm_smccc_smc(0x82000075, 2, 0, 0, 0, 0,
+			0, 0, &res);
+	return 0;
+}
+#endif
 
 #if defined(CONFIG_AUTOBOOT_KEYED)
 #if defined(CONFIG_AUTOBOOT_STOP_STR_SHA256)
@@ -348,6 +365,15 @@ void autoboot_command(const char *s)
 	if (stored_bootdelay != -1 && s && !abortboot(stored_bootdelay)) {
 #if defined(CONFIG_AUTOBOOT_KEYED) && !defined(CONFIG_AUTOBOOT_KEYED_CTRLC)
 		int prev = disable_ctrlc(1);	/* disable Control C checking */
+#endif
+
+#ifdef CONFIG_NASC_NAGRA_TIER_1
+		unsigned long x1 = 1;
+		unsigned long x2 = 2;
+		unsigned long x3 = 3;
+
+		load_bl2f(x1, x2, x3);
+		nocs_disable_fpk();
 #endif
 
 		run_command_list(s, -1, 0);
