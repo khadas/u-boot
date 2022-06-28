@@ -10,6 +10,14 @@
 /* board clk defines */
 #define CPU_CLK                                 1512
 #define DSU_CLK                                 1200
+/* board vmin_value defines */
+#define VMIN_FF_VALUE                           770
+#define VMIN_TT_VALUE                           800
+#define VMIN_SS_VALUE                           830
+/* board vddee_value defines */
+#define VDDEE_FF_VALUE                          0x8000a
+#define VDDEE_TT_VALUE                          0x5000d
+#define VDDEE_SS_VALUE                          0x20010
 
 //bit 6 adc_channel bit 0-5 adc value,chan 3 value 8 is layer 2
 #define DDR_ID_ACS_ADC   ((3 << 6) | (8))
@@ -474,8 +482,18 @@ bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 /* gpio/pinmux/pwm init */
 register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
 __attribute__ ((section(".misc_param"))) = {
+	/* config vmin value */
+	{ 0, VMIN_SS_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VMIN_FLAG_1, 0 },
+	{ 0, VMIN_TT_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VMIN_FLAG_2, 0 },
+	{ 0, VMIN_FF_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VMIN_FLAG_3, 0 },
 	/* config vddee and vcck pwm - pwm_e and pwm_f*/
-	{ PWMEF_PWM_A,		   VDDEE_VAL_REG, 0xffffffff, 0, 0, 0 },
+#ifdef CONFIG_PDVFS_ENABLE
+	{ PWMAB_PWM_A, VDDEE_SS_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VDDEE_FLAG_1, 0 },
+	{ PWMAB_PWM_A, VDDEE_TT_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VDDEE_FLAG_2, 0 },
+	{ PWMAB_PWM_A, VDDEE_FF_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VDDEE_FLAG_3, 0 },
+#else
+	{ PWMAB_PWM_A,		   VDDEE_VAL_REG, 0xffffffff, 0, 0, 0},
+#endif
 	{ PWMEF_PWM_B,		   VCCK_VAL_REG,  0xffffffff, 0, 0, 0 },
 	{ PWMEF_MISC_REG_AB,	   (0x3 << 0),	  (0x3 << 0), 0, 0, 0 },
 	/* set pwm e and pwm f clock rate to 24M, enable them */

@@ -26,6 +26,14 @@
 #define BL2_INIT_STAGE_7			7
 #define BL2_INIT_STAGE_8			8
 #define BL2_INIT_STAGE_9			9
+/*bl2 efuse val flag*/
+#define BL2_INIT_STAGE_VDDEE_FLAG_1		0x84
+#define BL2_INIT_STAGE_VDDEE_FLAG_2		0x85
+#define BL2_INIT_STAGE_VDDEE_FLAG_3		0x86
+/* board vmin_flag */
+#define BL2_INIT_STAGE_VMIN_FLAG_1     0x87
+#define BL2_INIT_STAGE_VMIN_FLAG_2     0x88
+#define BL2_INIT_STAGE_VMIN_FLAG_3     0x89
 
 typedef struct bl2_reg {
 	unsigned int reg;
