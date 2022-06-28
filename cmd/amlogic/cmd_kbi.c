@@ -15,6 +15,13 @@
 #include <asm/arch/secure_apb.h>
 #include <asm/u-boot.h>
 #include <amlogic/saradc.h>
+#include <common.h>
+#include <command.h>
+#include <dm/uclass.h>
+#include <asm/io.h>
+#include <asm/arch/bl31_apis.h>
+
+#define SCPI_CMD_SDCARD_BOOT   0xB2
 #define CHIP_ADDR              0x18
 #define CHIP_ADDR_CHAR         "0x18"
 #define I2C_SPEED              100000
@@ -79,24 +86,13 @@
 #define PASSWD_VENDOR_LENGHT  6
 
 #define HW_VERSION_ADC_VALUE_TOLERANCE   0x28
-#define HW_VERSION_ADC_VAL_VIM1_V12      0x204
-#define HW_VERSION_ADC_VAL_VIM1_V13      0x28a
-#define HW_VERSION_ADC_VAL_VIM2_V12      0x1ce
-#define HW_VERSION_ADC_VAL_VIM2_V14      0x24a
-#define HW_VERSION_ADC_VAL_VIM3_V11      0x200
-#define HW_VERSION_ADC_VAL_VIM3_V12      0x288
-#define HW_VERSION_ADC_VAL_VIM3_V14      0x34a
+#define HW_VERSION_ADC_VAL_VIM4_V12      0x1A4
 #define HW_VERSION_UNKNOW                0x00
-#define HW_VERSION_VIM1_V12              0x12
-#define HW_VERSION_VIM1_V13              0x13
-#define HW_VERSION_VIM2_V12              0x22
-#define HW_VERSION_VIM2_V14              0x24
-#define HW_VERSION_VIM3_V11              0x31
-#define HW_VERSION_VIM3_V12              0x32
-#define HW_VERSION_VIM3_V14              0x34
+
+#define  HW_VERSION_VIM4_V12             0x42
 
 #define HW_RECOVERY_KEY_ADC              0x82
-#define MCU_I2C_BUS_NUM				6
+#define MCU_I2C_BUS_NUM                  6
 #define setenv env_set
 #define getenv env_get
 #define MCU_I2C_BUS_NUM				6
@@ -196,7 +192,7 @@ int khadas_i2c_write(u8 addr, u8 reg, u8 val)
 	if (!ret)
 		ret = dm_i2c_write(dev, reg, (u8 *)&val, 1);
 	if (ret != 0)
-		printf("fusb302 i2c write error!!!\n");
+		printf("khadas_i2c_write error!!!\n");
 
 	return ret;
 }
@@ -412,20 +408,8 @@ static void get_mac(int is_print)
 static const char *hw_version_str(int hw_ver)
 {
 	switch (hw_ver) {
-		case HW_VERSION_VIM1_V12:
-			return "VIM1.V12";
-		case HW_VERSION_VIM1_V13:
-			return "VIM1.V13";
-		case HW_VERSION_VIM2_V12:
-			return "VIM2.V12";
-		case HW_VERSION_VIM2_V14:
-			return "VIM2.V14";
-		case HW_VERSION_VIM3_V11:
-			return "VIM3.V11";
-		case HW_VERSION_VIM3_V12:
-			return "VIM3.V12";
-		case HW_VERSION_VIM3_V14:
-			return "VIM3.V14";
+		case HW_VERSION_VIM4_V12:
+			return "VIM4.V12";
 		default:
 			return "Unknow";
 	}
@@ -433,45 +417,36 @@ static const char *hw_version_str(int hw_ver)
 
 static int get_hw_version(void)
 {
-	int val = 0;
+	unsigned val = 0;
 	int hw_ver = 0;
+	int ret;
+	struct udevice *dev;
+	int current_channel = 1;
+	unsigned int current_mode = ADC_MODE_AVERAGE;
 
-	//saradc_enable();
+	ret = uclass_get_device_by_name(UCLASS_ADC, "adc", &dev);
+	if(ret)
+		return ret;
+	ret = adc_set_mode(dev, current_channel, current_mode);
+	if(ret) {
+			pr_err("current platform does not support mode\n");
+			return ret;
+	}
 	udelay(100);
+	ret = adc_channel_single_shot_mode("adc", current_mode,
+                       current_channel, &val);
+	if(ret)
+			return ret;
+	printf("SARADC channel(%d) is %d.\n", current_channel, val);
 
-	//val = get_adc_sample_gxbb(1);
-	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXM) {
-		if ((val >= HW_VERSION_ADC_VAL_VIM2_V12 - HW_VERSION_ADC_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VAL_VIM2_V12 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
-			hw_ver = HW_VERSION_VIM2_V12;
-		} else if ((val >= HW_VERSION_ADC_VAL_VIM2_V14 - HW_VERSION_ADC_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VAL_VIM2_V14 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
-			hw_ver = HW_VERSION_VIM2_V14;
-		} else {
-		hw_ver = HW_VERSION_UNKNOW; 
-		}
-	} else if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXL) {
-		if ((val >= HW_VERSION_ADC_VAL_VIM1_V13 - HW_VERSION_ADC_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VAL_VIM1_V13 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
-			hw_ver = HW_VERSION_VIM1_V13;
-		} else if ((val >= HW_VERSION_ADC_VAL_VIM1_V12 - HW_VERSION_ADC_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VAL_VIM1_V12 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
-			hw_ver = HW_VERSION_VIM1_V12;
-		} else {
-			hw_ver = HW_VERSION_UNKNOW;
-		}
+	if ((val >= HW_VERSION_ADC_VAL_VIM4_V12 - HW_VERSION_ADC_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VAL_VIM4_V12 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
+			hw_ver = HW_VERSION_VIM4_V12;
 	} else {
-		if ((val >= HW_VERSION_ADC_VAL_VIM3_V11 - HW_VERSION_ADC_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VAL_VIM3_V11 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
-			hw_ver = HW_VERSION_VIM3_V11;
-		} else if ((val >= HW_VERSION_ADC_VAL_VIM3_V12 - HW_VERSION_ADC_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VAL_VIM3_V12 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
-			hw_ver = HW_VERSION_VIM3_V12;
-		} else if ((val >= HW_VERSION_ADC_VAL_VIM3_V14 - HW_VERSION_ADC_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VAL_VIM3_V14 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
-			hw_ver = HW_VERSION_VIM3_V14;
-		}else {
-			hw_ver = HW_VERSION_UNKNOW;
-		}
+				hw_ver = HW_VERSION_UNKNOW;
 	}
 	printf("saradc: 0x%x, hw_ver: 0x%x (%s)\n", val, hw_ver, hw_version_str(hw_ver));
-
 	setenv("hwver", hw_version_str(hw_ver));
-
-	//saradc_disable();
+	current_channel = -1;
 
 	return 0;
 }
