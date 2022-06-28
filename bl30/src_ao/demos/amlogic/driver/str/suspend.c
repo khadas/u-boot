@@ -232,7 +232,7 @@ static void vSTRTask( void *pvParameters )
 					exit_reason = RTC_WAKEUP;
 					break;
 				case BT_WAKEUP:
-					exit_reason = BT_WAKEUP;
+					//exit_reason = BT_WAKEUP;
 					break;
 				case CEC_WAKEUP:
 					exit_reason = CEC_WAKEUP;
