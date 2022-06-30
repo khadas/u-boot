@@ -211,6 +211,7 @@ static void mipi_dsi_host_print_info(struct lcd_config_s *pconf)
 	printf("MIPI DSI Config:\n"
 		"  lane num:              %d\n"
 		"  bit rate max:          %dMHz\n"
+		"  bit rate range:        (%d~%d)kHz\n"
 		"  bit rate:              %d.%03dMHz\n"
 		"  pclk lanebyte factor:  %d(/100)\n"
 		"  operation mode:\n"
@@ -222,6 +223,7 @@ static void mipi_dsi_host_print_info(struct lcd_config_s *pconf)
 		"  data format:           %s\n"
 		"  lp escape clock:       %d.%03dMHz\n",
 		dconf->lane_num, dconf->bit_rate_max,
+		dconf->local_bit_rate_max, dconf->local_bit_rate_min,
 		(pconf->timing.bit_rate / 1000000),
 		(pconf->timing.bit_rate % 1000000) / 1000,
 		factor,
@@ -2027,17 +2029,14 @@ static void mipi_dsi_config_post(struct lcd_config_s *pconf)
 
 static void mipi_dsi_host_on(struct aml_lcd_drv_s *pdrv)
 {
-	unsigned int op_mode_init, op_mode_disp, offset;
+	unsigned int op_mode_init, op_mode_disp;
 	unsigned int venc_en = 0;
 	int index = pdrv->index;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("[%d]: %s\n", pdrv->index, __func__);
 
-	offset = pdrv->data->offset_venc[pdrv->index];
-
-	/* disable encl */
-	lcd_vcbus_write(ENCL_VIDEO_EN + offset, 0);
+	lcd_venc_enable(pdrv, 0);
 	venc_en = 0;
 	udelay(100);
 
@@ -2061,14 +2060,14 @@ static void mipi_dsi_host_on(struct aml_lcd_drv_s *pdrv)
 	/* Startup transfer */
 	mipi_dsi_lpclk_ctrl(index, &pdrv->config.control.mipi_cfg);
 	if (op_mode_init == MIPI_DSI_OPERATION_MODE_VIDEO) {
-		lcd_vcbus_write(ENCL_VIDEO_EN + offset, 1);
+		lcd_venc_enable(pdrv, 1);
 		venc_en = 1;
 	}
 
 	mipi_dsi_link_on(pdrv);
 	if (op_mode_disp == MIPI_DSI_OPERATION_MODE_VIDEO) {
 		if (venc_en == 0) {
-			lcd_vcbus_write(ENCL_VIDEO_EN + offset, 1);
+			lcd_venc_enable(pdrv, 1);
 			venc_en = 1;
 		}
 	}

@@ -731,6 +731,9 @@ static void vout_reg_dump(void)
 		return;
 
 	reg = vout_conf->viu_mux_reg;
+	if (reg == VOUT_REG_INVALID)
+		return;
+
 	vout_log("viu_mux: 0x%x = 0x%08x\n", reg, vout_reg_read(reg));
 }
 
@@ -898,6 +901,17 @@ static struct vout_conf_s vout_config_dual_t3 = {
 	.reg_dump = vout_reg_dump,
 };
 
+static struct vout_conf_s vout_config_c3 = {
+	.viu_valid[0] = 1,
+	.viu_valid[1] = 0,
+	.viu_valid[2] = 0,
+
+	.viu_mux_reg = VOUT_REG_INVALID,
+
+	.viu_mux = NULL,
+	.reg_dump = NULL,
+};
+
 void vout_probe(void)
 {
 	switch (get_cpu_id().family_id) {
@@ -917,6 +931,9 @@ void vout_probe(void)
 	case MESON_CPU_MAJOR_ID_T3:
 		vout_conf = &vout_config_dual_t3;
 		vout_reg_write(VPU_VIU_VENC_MUX_CTRL, 0x3f);
+		break;
+	case MESON_CPU_MAJOR_ID_C3:
+		vout_conf = &vout_config_c3;
 		break;
 	default:
 		vout_conf = &vout_config_single;

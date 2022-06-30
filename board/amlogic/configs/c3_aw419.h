@@ -72,8 +72,8 @@
 	"loadaddr_kernel=0x03080000\0"\
 	"dv_fw_addr=0xa00000\0"\
 	"otg_device=1\0" \
-	"panel_type=lcd_1\0" \
-	"outputmode=1080p60hz\0" \
+	"panel_type=mipi_0\0" \
+	"outputmode=panel\0" \
 	"hdmimode=1080p60hz\0" \
 	"colorattribute=444,8bit\0"\
 	"cvbsmode=576cvbs\0" \

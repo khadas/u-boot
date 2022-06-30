@@ -28,9 +28,9 @@
 /* 20220121: update custom_pinmux and fr_auto_dis support*/
 /* 20220216: update vrr config when display mode change*/
 /* 20220421: fix lcd clk mistake for vmode change with fr_adj_type 4*/
-#define LCD_DRV_VERSION    "20220421"
+/* 20220701: add c3 support*/
+#define LCD_DRV_VERSION    "20220701"
 
-extern unsigned int lcd_debug_test;
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
 void mdelay(unsigned long n);
@@ -53,6 +53,8 @@ char *lcd_type_type_to_str(int type);
 int lcd_mode_str_to_mode(const char *str);
 char *lcd_mode_mode_to_str(int mode);
 
+int lcd_base_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv);
+int lcd_base_config_load_from_bsp(struct aml_lcd_drv_s *pdrv);
 int lcd_get_config(char *dt_addr, int load_id, struct aml_lcd_drv_s *pdrv);
 void lcd_basic_timing_range_update(struct aml_lcd_drv_s *pdrv);
 void lcd_timing_init_config(struct lcd_config_s *pconf);
@@ -64,8 +66,14 @@ void lcd_p2p_config_set(struct aml_lcd_drv_s *pdrv);
 void lcd_mipi_dsi_config_set(struct aml_lcd_drv_s *pdrv);
 void lcd_edp_config_set(struct aml_lcd_drv_s *pdrv);
 
+/* lcd venc */
+void lcd_wait_vsync(struct aml_lcd_drv_s *pdrv);
+void lcd_debug_test(struct aml_lcd_drv_s *pdrv, unsigned int num);
 void lcd_set_venc_timing(struct aml_lcd_drv_s *pdrv);
 void lcd_set_venc(struct aml_lcd_drv_s *pdrv);
+void lcd_venc_enable(struct aml_lcd_drv_s *pdrv, int flag);
+void lcd_mute_set(struct aml_lcd_drv_s *pdrv,  unsigned char flag);
+int lcd_venc_probe(struct aml_lcd_data_s *pdata);
 
 /* lcd phy */
 void lcd_phy_tcon_chpi_bbc_init_tl1(struct lcd_config_s *pconf);
@@ -99,8 +107,6 @@ int lcd_gpio_set(int gpio, int value);
 unsigned int lcd_gpio_input_get(int gpio);
 
 /* lcd debug */
-void aml_lcd_debug_test(struct aml_lcd_drv_s *pdrv, unsigned int num);
-void lcd_mute_setting(struct aml_lcd_drv_s *pdrv, unsigned char flag);
 void lcd_info_print(struct aml_lcd_drv_s *pdrv);
 void lcd_reg_print(struct aml_lcd_drv_s *pdrv);
 void lcd_vbyone_rst(struct aml_lcd_drv_s *pdrv);

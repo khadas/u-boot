@@ -6,6 +6,8 @@
 #ifndef _VOUT_REG_H
 #define _VOUT_REG_H
 
+#define VOUT_REG_INVALID                0xffffffff
+
 #ifndef REG_BASE_VCBUS
 #define REG_BASE_VCBUS                  (0xff900000L)
 #endif

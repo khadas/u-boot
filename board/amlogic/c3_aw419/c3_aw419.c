@@ -30,11 +30,8 @@
 #ifdef CONFIG_AML_VPP
 #include <amlogic/media/vpp/vpp.h>
 #endif
-#ifdef CONFIG_AML_HDMITX20
-#include <amlogic/media/vout/hdmitx/hdmitx_module.h>
-#endif
-#ifdef CONFIG_AML_CVBS
-#include <amlogic/media/vout/aml_cvbs.h>
+#ifdef CONFIG_AML_LCD
+#include <amlogic/media/vout/lcd/aml_lcd.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -85,12 +82,6 @@ int active_clk(void)
 	return 0;
 }
 
-#ifdef CONFIG_AML_HDMITX20
-static void hdmitx_set_hdmi_5v(void)
-{
-	/*Power on VCC_5V for HDMI_5V */
-}
-#endif
 void board_init_mem(void)
 {
 #if 1
@@ -137,10 +128,6 @@ int board_init(void)
 
 #if 0
 	active_clk();
-#endif
-#ifdef CONFIG_AML_HDMITX20
-	hdmitx_set_hdmi_5v();
-	hdmitx_init();
 #endif
 #endif // #if !defined(CONFIG_PXP_DDR) //bypass below operations for pxp
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
@@ -196,8 +183,8 @@ int board_late_init(void)
 #ifdef CONFIG_AML_VPP
 	vpp_init();
 #endif
-#ifdef CONFIG_AML_CVBS
-	cvbs_init();
+#ifdef CONFIG_AML_LCD
+	lcd_probe();
 #endif
 	run_command("amlsecurecheck", 0);
 	run_command("update_tries", 0);

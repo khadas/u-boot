@@ -17,10 +17,10 @@ static void lcd_timing_info_print(struct lcd_config_s * pconf)
 {
 	unsigned int hs_width, hs_bp, hs_pol, h_period;
 	unsigned int vs_width, vs_bp, vs_pol, v_period;
-	unsigned int video_on_pixel, video_on_line;
+	unsigned int video_hstart, video_vstart;
 
-	video_on_pixel = pconf->timing.video_on_pixel;
-	video_on_line = pconf->timing.video_on_line;
+	video_hstart = pconf->timing.hstart;
+	video_vstart = pconf->timing.vstart;
 	h_period = pconf->basic.h_period;
 	v_period = pconf->basic.v_period;
 
@@ -39,10 +39,10 @@ static void lcd_timing_info_print(struct lcd_config_s * pconf)
 		"vs_width          %d\n"
 		"vs_backporch      %d\n"
 		"vs_pol            %d\n"
-		"video_on_pixel    %d\n"
-		"video_on_line     %d\n\n",
+		"video_hstart      %d\n"
+		"video_vstart      %d\n\n",
 		h_period, v_period, hs_width, hs_bp, hs_pol,
-		vs_width, vs_bp, vs_pol, video_on_pixel, video_on_line);
+		vs_width, vs_bp, vs_pol, video_hstart, video_vstart);
 
 	printf("h_period_min      %d\n"
 		"h_period_max      %d\n"
@@ -207,18 +207,35 @@ static void lcd_info_print_vbyone(struct lcd_config_s *pconf)
 	lcd_pinmux_info_print(pconf);
 }
 
-static void lcd_info_print_ttl(struct lcd_config_s *pconf)
+static void lcd_info_print_rgb(struct lcd_config_s *pconf)
 {
-	printf("clk_pol           %u\n"
+	printf("type              %u\n"
+		"clk_pol           %u\n"
 		"DE_valid          %u\n"
-		"hvsync_valid      %u\n"
+		"sync_valid        %u\n"
 		"rb_swap           %u\n"
 		"bit_swap          %u\n\n",
-		pconf->control.ttl_cfg.clk_pol,
-		(pconf->control.ttl_cfg.sync_valid >> 1) & 1,
-		(pconf->control.ttl_cfg.sync_valid >> 0) & 1,
-		(pconf->control.ttl_cfg.swap_ctrl >> 1) & 1,
-		(pconf->control.ttl_cfg.swap_ctrl >> 0) & 1);
+		pconf->control.rgb_cfg.type,
+		pconf->control.rgb_cfg.clk_pol,
+		pconf->control.rgb_cfg.de_valid,
+		pconf->control.rgb_cfg.sync_valid,
+		pconf->control.rgb_cfg.rb_swap,
+		pconf->control.rgb_cfg.bit_swap);
+	lcd_pinmux_info_print(pconf);
+}
+
+static void lcd_info_print_bt(struct lcd_config_s *pconf)
+{
+	printf("clk_phase       %u\n"
+		"field_type      %u\n"
+		"mode_422        %u\n"
+		"yc_swap         %u\n"
+		"cbcr_swap       %u\n\n",
+		pconf->control.bt_cfg.clk_phase,
+		pconf->control.bt_cfg.field_type,
+		pconf->control.bt_cfg.mode_422,
+		pconf->control.bt_cfg.yc_swap,
+		pconf->control.bt_cfg.cbcr_swap);
 	lcd_pinmux_info_print(pconf);
 }
 
@@ -321,71 +338,69 @@ static void lcd_phy_print(struct lcd_config_s *pconf)
 	struct phy_config_s *phy = &pconf->phy_cfg;
 	int i;
 
-	printf("ctrl_flag:         0x%x\n"
-	       "vswing_level:      %u\n"
-	       "ext_pullup:        %u\n"
-	       "preem_level:       %u\n"
-	       "vcm:               0x%x\n"
-	       "ref_bias:          0x%x\n"
-	       "odt:               0x%x\n",
-	       phy->flag,
-	       phy->vswing_level,
-	       phy->ext_pullup,
-	       phy->preem_level,
-	       phy->vcm,
-	       phy->ref_bias,
-	       phy->odt);
-	for (i = 0; i < phy->lane_num; i++) {
-		printf("lane%d_amp:        0x%x\n"
-		       "lane%d_preem:      0x%x\n",
-		       i, phy->lane[i].amp,
-		       i, phy->lane[i].preem);
+	switch (pconf->basic.lcd_type) {
+	case LCD_LVDS:
+	case LCD_VBYONE:
+	case LCD_MLVDS:
+	case LCD_P2P:
+	case LCD_EDP:
+		printf("ctrl_flag:         0x%x\n"
+		"vswing_level:      %u\n"
+		"ext_pullup:        %u\n"
+		"preem_level:       %u\n"
+		"vcm:               0x%x\n"
+		"ref_bias:          0x%x\n"
+		"odt:               0x%x\n",
+		phy->flag,
+		phy->vswing_level,
+		phy->ext_pullup,
+		phy->preem_level,
+		phy->vcm,
+		phy->ref_bias,
+		phy->odt);
+		for (i = 0; i < phy->lane_num; i++) {
+			printf("lane%d_amp:        0x%x\n"
+			"lane%d_preem:      0x%x\n",
+			i, phy->lane[i].amp,
+			i, phy->lane[i].preem);
+		}
+		printf("\n");
+		break;
+	default:
+		break;
 	}
-	printf("\n");
 }
-static void lcd_reg_print_ttl(struct aml_lcd_drv_s *pdrv)
+
+static void lcd_reg_print_rgb(struct aml_lcd_drv_s *pdrv)
+{
+	printf("\nrgb regs: todo\n");
+}
+
+static void lcd_reg_print_bt(struct aml_lcd_drv_s *pdrv)
 {
 	unsigned int reg;
 
-	printf("\nttl registers:\n");
-	reg = L_DUAL_PORT_CNTL_ADDR;
-	printf("PORT_CNTL           [0x%04x] = 0x%08x\n",
+	printf("\nbt656/1120 regs:\n");
+	reg = VPU_VOUT_BT_CTRL;
+	printf("VPU_VOUT_BT_CTRL     [0x%04x] = 0x%08x\n",
 		reg, lcd_vcbus_read(reg));
-	reg = L_STH1_HS_ADDR;
-	printf("STH1_HS_ADDR        [0x%04x] = 0x%08x\n",
+	reg = VPU_VOUT_BT_PLD_LINE;
+	printf("VPU_VOUT_BT_PLD_LINE  [0x%04x] = 0x%08x\n",
 		reg, lcd_vcbus_read(reg));
-	reg = L_STH1_HE_ADDR;
-	printf("STH1_HE_ADDR        [0x%04x] = 0x%08x\n",
+	reg = VPU_VOUT_BT_PLDIDT0;
+	printf("VPU_VOUT_BT_PLDIDT0  [0x%04x] = 0x%08x\n",
 		reg, lcd_vcbus_read(reg));
-	reg = L_STH1_VS_ADDR;
-	printf("STH1_VS_ADDR        [0x%04x] = 0x%08x\n",
+	reg = VPU_VOUT_BT_PLDIDT1;
+	printf("VPU_VOUT_BT_PLDIDT1  [0x%04x] = 0x%08x\n",
 		reg, lcd_vcbus_read(reg));
-	reg = L_STH1_VE_ADDR;
-	printf("STH1_VE_ADDR        [0x%04x] = 0x%08x\n",
+	reg = VPU_VOUT_BT_BLK_DATA;
+	printf("VPU_VOUT_BT_BLK_DATA  [0x%04x] = 0x%08x\n",
 		reg, lcd_vcbus_read(reg));
-	reg = L_STV1_HS_ADDR;
-	printf("STV1_HS_ADDR        [0x%04x] = 0x%08x\n",
+	reg = VPU_VOUT_BT_DAT_CLPY;
+	printf("VPU_VOUT_BT_DAT_CLPY  [0x%04x] = 0x%08x\n",
 		reg, lcd_vcbus_read(reg));
-	reg = L_STV1_HE_ADDR;
-	printf("STV1_HE_ADDR        [0x%04x] = 0x%08x\n",
-		reg, lcd_vcbus_read(reg));
-	reg = L_STV1_VS_ADDR;
-	printf("STV1_VS_ADDR        [0x%04x] = 0x%08x\n",
-		reg, lcd_vcbus_read(reg));
-	reg = L_STV1_VE_ADDR;
-	printf("STV1_VE_ADDR        [0x%04x] = 0x%08x\n",
-		reg, lcd_vcbus_read(reg));
-	reg = L_OEH_HS_ADDR;
-	printf("OEH_HS_ADDR         [0x%04x] = 0x%08x\n",
-		reg, lcd_vcbus_read(reg));
-	reg = L_OEH_HE_ADDR;
-	printf("OEH_HE_ADDR         [0x%04x] = 0x%08x\n",
-		reg, lcd_vcbus_read(reg));
-	reg = L_OEH_VS_ADDR;
-	printf("OEH_VS_ADDR         [0x%04x] = 0x%08x\n",
-		reg, lcd_vcbus_read(reg));
-	reg = L_OEH_VE_ADDR;
-	printf("OEH_VE_ADDR         [0x%04x] = 0x%08x\n",
+	reg = VPU_VOUT_BT_DAT_CLPC;
+	printf("VPU_VOUT_BT_DAT_CLPC [0x%04x] = 0x%08x\n",
 		reg, lcd_vcbus_read(reg));
 }
 
@@ -947,97 +962,38 @@ static void lcd_reg_print_mipi_phy_analog(struct aml_lcd_drv_s *pdrv)
 #endif
 	printf("\nphy analog registers:\n");
 	reg = HHI_MIPI_CNTL0;
-	printf("PHY_CNTL1   [0x%08x] = 0x%08x\n",
+	printf("PHY_CNTL0   [0x%08x] = 0x%08x\n",
 	       reg, lcd_clk_read(reg));
 	reg = HHI_MIPI_CNTL1;
-	printf("PHY_CNTL2   [0x%08x] = 0x%08x\n",
+	printf("PHY_CNTL1   [0x%08x] = 0x%08x\n",
 	       reg, lcd_clk_read(reg));
 	reg = HHI_MIPI_CNTL2;
-	printf("PHY_CNTL3   [0x%08x] = 0x%08x\n",
+	printf("PHY_CNTL2   [0x%08x] = 0x%08x\n",
 	       reg, lcd_clk_read(reg));
 }
 
-#define TV_LCD_ENC_TST_NUM_MAX    9
-static char *lcd_enc_tst_str[] = {
-	"0-None",        /* 0 */
-	"1-Color Bar",   /* 1 */
-	"2-Thin Line",   /* 2 */
-	"3-Dot Grid",    /* 3 */
-	"4-Gray",        /* 4 */
-	"5-Red",         /* 5 */
-	"6-Green",       /* 6 */
-	"7-Blue",        /* 7 */
-	"8-Black",       /* 8 */
-};
-
-static unsigned int lcd_enc_tst[][7] = {
-/*tst_mode,    Y,       Cb,     Cr,     tst_en,  vfifo_en  rgbin*/
-	{0,    0x200,   0x200,  0x200,   0,      1,        3},  /* 0 */
-	{1,    0x200,   0x200,  0x200,   1,      0,        1},  /* 1 */
-	{2,    0x200,   0x200,  0x200,   1,      0,        1},  /* 2 */
-	{3,    0x200,   0x200,  0x200,   1,      0,        1},  /* 3 */
-	{0,    0x1ff,   0x1ff,  0x1ff,   1,      0,        3},  /* 4 */
-	{0,    0x3ff,     0x0,    0x0,   1,      0,        3},  /* 5 */
-	{0,      0x0,   0x3ff,    0x0,   1,      0,        3},  /* 6 */
-	{0,      0x0,     0x0,  0x3ff,   1,      0,        3},  /* 7 */
-	{0,      0x0,     0x0,    0x0,   1,      0,        3},  /* 8 */
-};
+static void lcd_reg_print_mipi_phy_analog_c3(struct aml_lcd_drv_s *pdrv)
+{
+	unsigned int reg;
+#ifdef CONFIG_AML_LCD_PXP
+	return;
+#endif
+	printf("\nphy analog registers:\n");
+	reg = ANACTRL_MIPIDSI_CTRL0;
+	printf("PHY_CNTL0   [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = ANACTRL_MIPIDSI_CTRL1;
+	printf("PHY_CNTL1   [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = ANACTRL_MIPIDSI_CTRL2;
+	printf("PHY_CNTL2   [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+}
 
 /* **********************************
- * lcd debug function api
+ * lcd prbs function
  * **********************************
  */
-void aml_lcd_debug_test(struct aml_lcd_drv_s *pdrv, unsigned int num)
-{
-	unsigned int start, width, offset;
-
-	offset = pdrv->data->offset_venc[pdrv->index];
-
-	start = pdrv->config.timing.video_on_pixel;
-	width = pdrv->config.basic.h_active / 9;
-	num = (num >= TV_LCD_ENC_TST_NUM_MAX) ? 0 : num;
-
-	lcd_wait_vsync(pdrv);
-	lcd_vcbus_write(ENCL_VIDEO_RGBIN_CTRL + offset, lcd_enc_tst[num][6]);
-	lcd_vcbus_write(ENCL_TST_MDSEL + offset, lcd_enc_tst[num][0]);
-	lcd_vcbus_write(ENCL_TST_Y + offset, lcd_enc_tst[num][1]);
-	lcd_vcbus_write(ENCL_TST_CB + offset, lcd_enc_tst[num][2]);
-	lcd_vcbus_write(ENCL_TST_CR + offset, lcd_enc_tst[num][3]);
-	lcd_vcbus_write(ENCL_TST_CLRBAR_STRT + offset, start);
-	lcd_vcbus_write(ENCL_TST_CLRBAR_WIDTH + offset, width);
-	lcd_vcbus_write(ENCL_TST_EN + offset, lcd_enc_tst[num][4]);
-	lcd_vcbus_setb(ENCL_VIDEO_MODE_ADV + offset, lcd_enc_tst[num][5], 3, 1);
-	if (num > 0) {
-		LCDPR("[%d]: lcd show test pattern: %s\n",
-		      pdrv->index, lcd_enc_tst_str[num]);
-	} else {
-		LCDPR("[%d]: lcd disable test pattern\n", pdrv->index);
-	}
-}
-
-void lcd_mute_setting(struct aml_lcd_drv_s *pdrv, unsigned char flag)
-{
-	unsigned int offset;
-
-	offset = pdrv->data->offset_venc[pdrv->index];
-
-	lcd_wait_vsync(pdrv);
-	if (flag) {
-		lcd_vcbus_write(ENCL_VIDEO_RGBIN_CTRL + offset, 3);
-		lcd_vcbus_write(ENCL_TST_MDSEL + offset, 0);
-		lcd_vcbus_write(ENCL_TST_Y + offset, 0);
-		lcd_vcbus_write(ENCL_TST_CB + offset, 0);
-		lcd_vcbus_write(ENCL_TST_CR + offset, 0);
-		lcd_vcbus_write(ENCL_TST_EN + offset, 1);
-		lcd_vcbus_setb(ENCL_VIDEO_MODE_ADV + offset, 0, 3, 1);
-		LCDPR("[%d]: set lcd mute\n", pdrv->index);
-	} else {
-		lcd_vcbus_setb(ENCL_VIDEO_MODE_ADV + offset, 1, 3, 1);
-		lcd_vcbus_write(ENCL_TST_EN + offset, 0);
-		LCDPR("[%d]: clear lcd mute\n", pdrv->index);
-	}
-}
-
 #define CLK_CHK_MAX    2  /*MHz*/
 static unsigned int lcd_prbs_performed, lcd_prbs_err;
 static unsigned long lcd_encl_clk_check_std = 121;
@@ -1596,11 +1552,13 @@ void lcd_info_print(struct aml_lcd_drv_s *pdrv)
 	lcd_phy_print(pconf);
 
 	/* cus_ctrl_attr */
-	LCDPR("\nlcd cus_ctrl:\n"
-		"ctrl_flag:         0x%x\n"
-		"dlg_flag:          %u\n",
-		pconf->cus_ctrl.flag,
-		pconf->cus_ctrl.dlg_flag);
+	if (pconf->cus_ctrl.flag) {
+		LCDPR("\nlcd cus_ctrl:\n"
+			"ctrl_flag:         0x%x\n"
+			"dlg_flag:          %u\n",
+			pconf->cus_ctrl.flag,
+			pconf->cus_ctrl.dlg_flag);
+	}
 
 	lcd_power_info_print(pdrv, 1);
 	lcd_power_info_print(pdrv, 0);
@@ -1781,10 +1739,24 @@ static struct lcd_debug_info_reg_s lcd_debug_info_reg_t3_1 = {
 	.prbs_test = lcd_prbs_test_t3,
 };
 
+static struct lcd_debug_info_reg_s lcd_debug_info_reg_c3 = {
+	.reg_pll_table = lcd_reg_dump_pll_c3,
+	.reg_clk_table = lcd_reg_dump_clk_c3,
+	.reg_encl_table = lcd_reg_dump_encl_c3,
+	.reg_pinmux_table = lcd_reg_dump_pinmux_c3,
+	.prbs_test = NULL,
+};
+
 /* interface data */
-static struct lcd_debug_info_if_s lcd_debug_info_if_ttl = {
-	.interface_print = lcd_info_print_ttl,
-	.reg_dump_interface = lcd_reg_print_ttl,
+static struct lcd_debug_info_if_s lcd_debug_info_if_rgb = {
+	.interface_print = lcd_info_print_rgb,
+	.reg_dump_interface = lcd_reg_print_rgb,
+	.reg_dump_phy = NULL,
+};
+
+static struct lcd_debug_info_if_s lcd_debug_info_if_bt = {
+	.interface_print = lcd_info_print_bt,
+	.reg_dump_interface = lcd_reg_print_bt,
 	.reg_dump_phy = NULL,
 };
 
@@ -1900,14 +1872,23 @@ void lcd_debug_probe(struct aml_lcd_drv_s *pdrv)
 		else
 			lcd_debug_info_reg = &lcd_debug_info_reg_g12a_clk_path0;
 		break;
+	case LCD_CHIP_C3:
+		lcd_debug_info_reg = &lcd_debug_info_reg_c3;
+		lcd_debug_info_if_mipi.reg_dump_phy =
+			lcd_reg_print_mipi_phy_analog_c3;
+		break;
 	default:
 		lcd_debug_info_reg = NULL;
 		break;
 	}
 
 	switch (pdrv->config.basic.lcd_type) {
-	case LCD_TTL:
-		lcd_debug_info_if = &lcd_debug_info_if_ttl;
+	case LCD_RGB:
+		lcd_debug_info_if = &lcd_debug_info_if_rgb;
+		break;
+	case LCD_BT656:
+	case LCD_BT1120:
+		lcd_debug_info_if = &lcd_debug_info_if_bt;
 		break;
 	case LCD_LVDS:
 		lcd_debug_info_if = &lcd_debug_info_if_lvds;

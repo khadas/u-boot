@@ -19,11 +19,13 @@ static int lcd_type_supported(struct lcd_config_s *pconf)
 	int ret = -1;
 
 	switch (lcd_type) {
-	case LCD_TTL:
+	case LCD_RGB:
 	case LCD_LVDS:
 	case LCD_VBYONE:
 	case LCD_MIPI:
 	case LCD_EDP:
+	case LCD_BT656:
+	case LCD_BT1120:
 		ret = 0;
 		break;
 	default:
@@ -34,18 +36,27 @@ static int lcd_type_supported(struct lcd_config_s *pconf)
 	return ret;
 }
 
-static void lcd_ttl_control_set(struct aml_lcd_drv_s *pdrv)
+static void lcd_rgb_control_set(struct aml_lcd_drv_s *pdrv)
+{
+	//todo
+}
+
+static void lcd_bt_control_set(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_config_s *pconf = &pdrv->config;
-	unsigned int clk_pol, rb_swap, bit_swap;
+	unsigned int field_type, mode_422, yc_swap, cbcr_swap;
 
-	clk_pol = pconf->control.ttl_cfg.clk_pol;
-	rb_swap = (pconf->control.ttl_cfg.swap_ctrl >> 1) & 1;
-	bit_swap = (pconf->control.ttl_cfg.swap_ctrl >> 0) & 1;
+	field_type = pconf->control.bt_cfg.field_type;
+	mode_422 = pconf->control.bt_cfg.mode_422;
+	yc_swap = pconf->control.bt_cfg.yc_swap;
+	cbcr_swap = pconf->control.bt_cfg.cbcr_swap;
 
-	lcd_vcbus_setb(L_POL_CNTL_ADDR, clk_pol, 6, 1);
-	lcd_vcbus_setb(L_DUAL_PORT_CNTL_ADDR, rb_swap, 1, 1);
-	lcd_vcbus_setb(L_DUAL_PORT_CNTL_ADDR, bit_swap, 0, 1);
+	lcd_vcbus_setb(VPU_VOUT_BT_CTRL, field_type, 12, 1);
+	lcd_vcbus_setb(VPU_VOUT_BT_CTRL, yc_swap, 0, 1);
+	//0:cb first   1:cr first
+	lcd_vcbus_setb(VPU_VOUT_BT_CTRL, cbcr_swap, 1, 1);
+	//0:left, 1:right, 2:average
+	lcd_vcbus_setb(VPU_VOUT_BT_CTRL, mode_422, 2, 2);
 }
 
 static void lcd_mipi_control_set(struct aml_lcd_drv_s *pdrv)
@@ -724,8 +735,16 @@ int lcd_tablet_driver_init(struct aml_lcd_drv_s *pdrv)
 
 	/* init driver */
 	switch (pdrv->config.basic.lcd_type) {
-	case LCD_TTL:
-		lcd_ttl_control_set(pdrv);
+	case LCD_RGB:
+		lcd_rgb_control_set(pdrv);
+		lcd_pinmux_set(pdrv, 1);
+		break;
+	case LCD_BT656:
+		lcd_bt_control_set(pdrv);
+		lcd_pinmux_set(pdrv, 1);
+		break;
+	case LCD_BT1120:
+		lcd_bt_control_set(pdrv);
 		lcd_pinmux_set(pdrv, 1);
 		break;
 	case LCD_LVDS:
@@ -767,7 +786,13 @@ void lcd_tablet_driver_disable(struct aml_lcd_drv_s *pdrv)
 		return;
 
 	switch (pdrv->config.basic.lcd_type) {
-	case LCD_TTL:
+	case LCD_RGB:
+		lcd_pinmux_set(pdrv, 0);
+		break;
+	case LCD_BT656:
+		lcd_pinmux_set(pdrv, 0);
+		break;
+	case LCD_BT1120:
 		lcd_pinmux_set(pdrv, 0);
 		break;
 	case LCD_LVDS:
