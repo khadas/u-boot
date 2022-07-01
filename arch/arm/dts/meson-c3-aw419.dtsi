@@ -172,7 +172,7 @@
 	init_co_phase = <2>;
 	init_tx_phase = <0>;
 
-	sd_hs_co_phase = <2>;
+	sd_hs_co_phase = <3>;
 	sd_hs_to_phase = <0>;
 
 	vmmc-supply = <&vddao_3v3>;
