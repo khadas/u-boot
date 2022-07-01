@@ -528,8 +528,13 @@ static void vout_vmode_init(void)
 	index = get_osd_layer();
 	if (index < VIU2_OSD1)
 		outputmode = env_get("outputmode");
-	else
+	else if (index == VIU2_OSD1)
 		outputmode = env_get("outputmode2");
+	else if (index == VIU3_OSD1)
+		outputmode = env_get("outputmode3");
+	else
+		vout_log("%s, layer%d is not supported\n", __func__, index);
+
 
 	vset = vout_find_mode_by_name(outputmode);
 	if (!vset)

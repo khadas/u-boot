@@ -1747,6 +1747,7 @@ void vpp_init(void)
 		hdr_func(OSD1_HDR, HDR_BYPASS | RGB_OSD);
 		hdr_func(OSD2_HDR, HDR_BYPASS | RGB_OSD);
 		hdr_func(OSD3_HDR, HDR_BYPASS | RGB_OSD);
+		hdr_func(OSD4_HDR, HDR_BYPASS | RGB_OSD);
 		hdr_func(VD1_HDR, HDR_BYPASS);
 		hdr_func(VD2_HDR, HDR_BYPASS);
 	} else {
