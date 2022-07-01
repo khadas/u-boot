@@ -1114,10 +1114,6 @@ void hdr_func(enum hdr_module_sel module_sel,
 	int bit_depth;
 	unsigned int i = 0;
 	struct hdr_proc_mtx_param_s hdr_mtx_param;
-	bool always_full_func = false;
-	int *coeff_in = bypass_coeff;
-	int *oft_pre_in = bypass_pre;
-	int *oft_post_in = bypass_pos;
 
 	/* t3 have osd1/2/3 and vd1/2, no vd3 */
 	/* t7 have osd1/3 and vd1/2/3, no osd2 */
@@ -1144,19 +1140,6 @@ void hdr_func(enum hdr_module_sel module_sel,
 
 	memset(&hdr_mtx_param, 0, sizeof(struct hdr_proc_mtx_param_s));
 	memset(&hdr_lut_param, 0, sizeof(struct hdr_proc_lut_param_s));
-
-	if ((module_sel == OSD1_HDR || module_sel == OSD2_HDR) &&
-	    (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B &&
-		      get_cpu_id().chip_rev == MESON_CPU_CHIP_REVISION_A)) {
-		/* turn off OSD mtx and use HDR for g12, sm1, tl1 */
-		//vpp_reg_write(VPP_WRAP_OSD1_MATRIX_EN_CTRL, 0);
-
-		/*for g12a/g12b osd blend shift rtl bug*/
-		if ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) ||
-		    ((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12B)))
-			always_full_func = true;
-	}
-
 
 	if (module_sel & (VD1_HDR | VD2_HDR | VD3_HDR | OSD1_HDR | OSD2_HDR | OSD3_HDR)) {
 		if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_S4 ||
@@ -1185,15 +1168,9 @@ void hdr_func(enum hdr_module_sel module_sel,
 					hdr_lut_param.cgain_lut[i] =
 						cgain_lut_bypass[i] - 1;
 			}
-			if (always_full_func) {
-				hdr_lut_param.lut_on = LUT_ON;
-				hdr_lut_param.cgain_en = LUT_ON;
-			} else {
-				hdr_lut_param.lut_on = LUT_OFF;
-				hdr_lut_param.cgain_en = LUT_OFF;
-			}
-
+			hdr_lut_param.lut_on = LUT_ON;
 			hdr_lut_param.bitdepth = bit_depth;
+			hdr_lut_param.cgain_en = LUT_ON;
 		} else {
 			for (i = 0; i < HDR2_OETF_LUT_SIZE; i++) {
 				hdr_lut_param.oetf_lut[i]  = oe_y_lut_sdr[i];
@@ -1315,14 +1292,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 	}
 	/*mtx parameters*/
 	if (hdr_process_select & (HDR_BYPASS | HLG_BYPASS)) {
-		if (always_full_func) {
-			hdr_mtx_param.mtx_only = HDR_ONLY;
-			hdr_mtx_param.mtx_on = MTX_ON;
-		} else {
-			hdr_mtx_param.mtx_only = MTX_ONLY;
-			hdr_mtx_param.mtx_on = MTX_OFF;
-		}
-		//hdr_mtx_param.mtx_only = HDR_ONLY;
+		hdr_mtx_param.mtx_only = HDR_ONLY;
 		hdr_mtx_param.mtx_gamut_mode = 1;
 		/*for g12a/g12b osd blend shift rtl bug*/
 		if (((get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) ||
@@ -1359,13 +1329,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 					}
 				}
 			}
-			if (always_full_func) {
-				hdr_mtx_param.mtx_only = HDR_ONLY;
-				hdr_mtx_param.mtx_on = MTX_ON;
-			} else {
-				hdr_mtx_param.mtx_only = MTX_ONLY;
-				hdr_mtx_param.mtx_on = MTX_OFF;
-			}
+			hdr_mtx_param.mtx_on = MTX_ON;
 			hdr_mtx_param.p_sel = HDR_BYPASS;
 		} else if (((get_cpu_id().family_id >=
 			     MESON_CPU_MAJOR_ID_SM1) ||
@@ -1375,10 +1339,10 @@ void hdr_func(enum hdr_module_sel module_sel,
 			     MESON_CPU_CHIP_REVISION_B)) &&
 			   (module_sel & (OSD1_HDR | OSD2_HDR | OSD3_HDR | VD1_HDR | VD2_HDR))) {
 			for (i = 0; i < 15; i++) {
-				coeff_in = bypass_coeff;
-				oft_pre_in = bypass_pre;
-				oft_post_in = bypass_pos;
-							hdr_mtx_param.mtx_in[i] = coeff_in[i];
+				if (module_sel & (OSD1_HDR | OSD2_HDR | OSD3_HDR))
+					hdr_mtx_param.mtx_in[i] = rgb2ycbcr_709[i];
+				else
+					hdr_mtx_param.mtx_in[i] = bypass_coeff[i];
 				hdr_mtx_param.mtx_cgain[i] = bypass_coeff[i];
 				hdr_mtx_param.mtx_ogain[i] = bypass_coeff[i];
 				hdr_mtx_param.mtx_out[i] = bypass_coeff[i];
@@ -1386,10 +1350,17 @@ void hdr_func(enum hdr_module_sel module_sel,
 					hdr_mtx_param.mtx_gamut[i] =
 						gamut_bypass[i];
 				if (i < 3) {
-					hdr_mtx_param.mtxi_pre_offset[i] =
-						oft_pre_in[i];
+					if (module_sel & (OSD1_HDR | OSD2_HDR | OSD3_HDR)) {
+						hdr_mtx_param.mtxi_pre_offset[i] =
+						rgb2yuvpre[i];
 					hdr_mtx_param.mtxi_pos_offset[i] =
-						oft_post_in[i];
+						rgb2yuvpos[i];
+					} else {
+						hdr_mtx_param.mtxi_pre_offset[i] =
+						bypass_pre[i];
+						hdr_mtx_param.mtxi_pos_offset[i] =
+						bypass_pos[i];
+					}
 					hdr_mtx_param.mtxo_pre_offset[i] =
 						bypass_pre[i];
 					hdr_mtx_param.mtxo_pos_offset[i] =
