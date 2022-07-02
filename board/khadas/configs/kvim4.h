@@ -164,7 +164,7 @@
         "logic_addr=0x0\0" \
         "cec_ac_wakeup=1\0" \
         "initargs="\
-            "root=LABEL=ROOTFS rootflags=data=writeback rw rootfstype=ext4" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 console=tty0 no_console_suspend earlycon=aml-uart,0xfe078000 fsck.repair=yes net.ifnames=0 "\
+            "rootflags=data=writeback rw rootfstype=ext4" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 console=tty0 no_console_suspend earlycon=aml-uart,0xfe078000 fsck.repair=yes net.ifnames=0 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 khadas_board=VIM4 boot_source=${boot_source} "\
             "\0"\
         "upgrade_check="\
@@ -517,7 +517,7 @@
         "logic_addr=0x0\0" \
         "cec_ac_wakeup=1\0" \
         "initargs="\
-            "root=LABEL=ROOTFS rootflags=data=writeback rw rootfstype=ext4" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 console=tty0 no_console_suspend earlycon=aml-uart,0xfe078000 fsck.repair=yes net.ifnames=0 "\
+            "rootflags=data=writeback rw rootfstype=ext4" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 console=tty0 no_console_suspend earlycon=aml-uart,0xfe078000 fsck.repair=yes net.ifnames=0 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 khadas_board=VIM4 boot_source=${boot_source} "\
             "\0"\
         "upgrade_check="\
