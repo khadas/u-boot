@@ -45,6 +45,7 @@ enum hdr_process_sel {
 	HDRPLUS_SDR = 0x80,
 	HDR_OFF = 0x100,
 	RGB_BYPASS = 0x200,
+	RGB_OSD = 0x20000000,
 	HDR_p_MAX
 };
 
@@ -67,6 +68,7 @@ struct hdr_proc_mtx_param_s {
 	int mtx_only;
 	int mtx_in[15];
 	int mtx_gamut[9];
+	int mtx_gamut_mode;
 	int mtx_cgain[15];
 	int mtx_ogain[15];
 	int mtx_out[15];

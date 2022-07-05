@@ -35,5 +35,4 @@ enum hdr_process_sel {
 
 extern void hdr_func(enum hdr_module_sel module_sel,
 	enum hdr_process_sel hdr_process_select);
-
 #endif
