@@ -1131,7 +1131,7 @@ int apply_stb_core_settings(void)
 	if (dovi_setting.dst_format == FORMAT_INVALID)
 		return 0;
 
-	printf("apply_stb_core_settings\n");
+	printf("%s\n", __func__);
 	if (dovi_setting.dst_format == FORMAT_DOVI) {
 		if (dovi_setting.dovi_ll_enable) {
 			if (dovi_setting.diagnostic_enable) {
@@ -1162,11 +1162,11 @@ int apply_stb_core_settings(void)
 
 static int  enable_dolby_vision(void)
 {
-	printf("enable_dolby_vision\n");
+	printf("%s\n", __func__);
 	if (is_dolby_stb_chip()) {
-		hdr_func(OSD1_HDR, RGB_BYPASS);
-		hdr_func(OSD2_HDR, RGB_BYPASS);
-		hdr_func(OSD3_HDR, RGB_BYPASS);
+		hdr_func(OSD1_HDR, HDR_BYPASS);
+		hdr_func(OSD2_HDR, HDR_BYPASS);
+		hdr_func(OSD3_HDR, HDR_BYPASS);
 
 		/*enable core3*/
 		WRITE_VPP_REG_BITS(VPP_DOLBY_CTRL, 1, 3, 1);
@@ -1216,7 +1216,6 @@ static int  enable_dolby_vision(void)
 				(dv_ll_output_mode >> 8)& 0xff);
 		} else
 			enable_rgb_to_yuv_matrix_for_dvll(0, NULL, 12);
-
 		dolby_vision_on = true;
 		env_set("dolby_vision_on", "1");
 		run_command("saveenv", 0);
