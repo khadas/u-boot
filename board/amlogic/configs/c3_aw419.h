@@ -536,5 +536,7 @@
 
 #define BL32_SHARE_MEM_SIZE  0x800000
 
+#define AML_RSV_DTB_SIZE (128 * 1024)
+
 #endif
 
