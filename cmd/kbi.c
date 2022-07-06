@@ -20,7 +20,7 @@
 #define CHIP_ADDR              0x18
 #define CHIP_ADDR_CHAR         "0x18"
 #define I2C_SPEED              100000
-#define MCU_I2C_BUS_NUM         6
+#define MCU_I2C_BUS_NUM         2
 
 #define REG_PASSWD_VENDOR       0x00
 #define REG_MAC                 0x06
