@@ -43,6 +43,7 @@ enum scpi_client_id {
 	SCPI_CL_THERMAL,
 	SCPI_CL_REMOTE,
 	SCPI_CL_LED_TIMER,
+	SCPI_CL_UPDATE_POWER_ADCKEY = 0x0A,
 	SCPI_MAX = 0xff,
 };
 

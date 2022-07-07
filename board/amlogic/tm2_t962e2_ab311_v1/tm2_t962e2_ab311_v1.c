@@ -50,6 +50,7 @@
 #endif
 #include <asm/arch/timer.h>
 #include <partition_table.h>
+#include <asm/arch/mailbox.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -326,6 +327,55 @@ int board_mmc_init(bd_t	*bis)
 	return 0;
 }
 #endif
+
+/**
+ * @brief Read and configure the power key from environment variables
+ *
+ * Parameter explanation:
+ *	The following items will exist in the environment variable,
+ *	> adc_power_key=2,0,40;
+ *		2  ------- channel
+ *		0  ------- value
+ *		40 ------- tolerance
+ */
+static int send_adc_channel_power_key(void)
+{
+	char *env;
+	unsigned int send_val;
+	unsigned int channel;
+	unsigned int value;
+	unsigned int tolerance;
+	char *endp;
+	char *s;
+
+	env = getenv("adc_power_key");
+	if (!env) {
+		printf("not set adc env,or try env default -a\n");
+		return -1;
+	}
+	printf("adc_key: %s\n", env);
+
+	s = strdup(env);
+	channel = ustrtoul(strsep(&s, ","), &endp, 0);
+	value = ustrtoul(strsep(&s, ","), &endp, 0);
+	tolerance = ustrtoul(strsep(&s, ","), &endp, 0);
+	printf("adc parse channel = %d\n", channel);
+	printf("adc parse value = %d\n", value);
+	printf("adc parse tolerance = %d\n", tolerance);
+
+	/* | channel[31:28] | tolerance[27:16] | value[15:0] | */
+	send_val = (channel & 0xF) << 28;
+	send_val |= (tolerance & 0xFFF) << 16;
+	send_val |= value & 0xFFFF;
+
+	if (send_usr_data(SCPI_CL_UPDATE_POWER_ADCKEY,
+			(unsigned int *)&send_val, sizeof(send_val))) {
+		printf("send adc_power_key send error!...\n");
+		return -1;
+	}
+
+	return 0;
+}
 
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 int board_early_init_f(void){
@@ -758,6 +808,9 @@ int board_late_init(void)
 	} else {
 		setenv("cpu_id", "1234567890");
 	}
+
+	if (send_adc_channel_power_key() != 0)
+		printf("send adc_power_key failed\n");
 
 	return 0;
 }

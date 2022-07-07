@@ -8,6 +8,14 @@
 
 static int adc_type; /*1:12bit; 0:10bit*/
 
+unsigned int key_chan = CONFIG_ADC_POWER_KEY_CHAN;
+unsigned int key_value = CONFIG_ADC_POWER_KEY_VAL;
+#if defined(CONFIG_ADC_POWER_KEY_RANGE)
+unsigned int key_tolerance = CONFIG_ADC_POWER_KEY_RANGE;
+#else
+unsigned int key_tolerance = 40;
+#endif
+
 static void aml_set_reg32_bits(volatile uint32_t *_reg,
 		const uint32_t _value,
 		const uint32_t _start,
@@ -195,15 +203,15 @@ int check_adc_key_resume(void)
 	int min;
 	int max;
 
-	/*the sampling value of adc: 0-1023*/
-	min = CONFIG_ADC_POWER_KEY_VAL - 40;
+	/* the sampling value of adc: 0-1023 */
+	min = key_value - key_tolerance;
 	if (min < 0)
 		min = 0;
-	max = CONFIG_ADC_POWER_KEY_VAL + 40;
+	max = key_value + key_tolerance;
 	if (max > 1023)
 		max = 1023;
 
-	value = get_adc_sample_gxbb(CONFIG_ADC_POWER_KEY_CHAN);
+	value = get_adc_sample_gxbb(key_chan);
 	if ((value >= min) && (value <= max))
 		return 1;
 	else

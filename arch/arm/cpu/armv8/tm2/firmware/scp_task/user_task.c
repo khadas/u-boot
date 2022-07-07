@@ -6,6 +6,7 @@
  *
  */
 
+#include <config.h>
 #include "config.h"
 #include "data.h"
 #include "registers.h"
@@ -13,6 +14,7 @@
 #include "suspend.h"
 #include "ring_buffer.h"
 #include <amlogic/aml_cec.h>
+#include <scp_adc.h>
 
 #define TASK_ID_IDLE 0
 #define TASK_ID_LOW_MB	3
@@ -26,6 +28,7 @@ enum scpi_client_id {
 	SCPI_CL_POWER,
 	SCPI_CL_THERMAL,
 	SCPI_CL_REMOTE,
+	SCPI_CL_UPDATE_POWER_ADCKEY = 0x0A,
 	SCPI_MAX,
 };
 
@@ -197,6 +200,12 @@ void process_low_task(unsigned command)
 		if ((command >> 16) == SCPI_CL_REMOTE) {
 			usr_pwr_key = *(pcommand + 2);/*tx_size locates at *(pcommand + 1)*/
 			dbg_print("pwr_key=",usr_pwr_key);
+		} else if ((command >> 16) == SCPI_CL_UPDATE_POWER_ADCKEY) {
+			/* | channel[31:28] | tolerance[27:16] | value[15:0] | */
+			key_chan = (unsigned int)(*(pcommand + 2)) >> 28 & 0xF;
+			key_tolerance = (unsigned int)(*(pcommand + 2)) >> 16 & 0xFFF;
+			key_value = (unsigned int)(*(pcommand + 2)) & 0xFFFF;
+			dbg_print("key update=", *(pcommand + 2));
 		}
 	}
 }
