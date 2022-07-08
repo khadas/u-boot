@@ -26,6 +26,7 @@ void vpp_disable_lcd_gamma_table(int index);
 
 extern void vpp_matrix_update(int type);
 extern void vpp_viu2_matrix_update(int type);
+void vpp_viu3_matrix_update(int type);
 extern void hdr_tx_pkt_cb(void);
 
 #endif

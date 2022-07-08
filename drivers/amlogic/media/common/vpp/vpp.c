@@ -1548,8 +1548,6 @@ void vpp_matrix_update(int type)
 	if (vpp_init_flag == 0)
 		return;
 
-	VPP_PR("%s: %d\n", __func__, type);
-
 	switch (type) {
 	case VPP_CM_RGB:
 		/* 709 limit to RGB */
@@ -1570,8 +1568,6 @@ void vpp_viu2_matrix_update(int type)
 	if (get_cpu_id().family_id < MESON_CPU_MAJOR_ID_G12A)
 		return;
 
-	VPP_PR("%s: %d\n", __func__, type);
-
 	switch (type) {
 	case VPP_CM_RGB:
 		/* default RGB */
@@ -1586,6 +1582,35 @@ void vpp_viu2_matrix_update(int type)
 		/* RGB to 709 limit */
 		#ifndef AML_T7_DISPLAY
 		set_viu2_osd_matrix_rgb2yuv(1);
+		#endif
+		break;
+	default:
+		break;
+	}
+}
+
+void vpp_viu3_matrix_update(int type)
+{
+	if (vpp_init_flag == 0)
+		return;
+
+	if (get_cpu_id().family_id < MESON_CPU_MAJOR_ID_G12A)
+		return;
+
+	switch (type) {
+	case VPP_CM_RGB:
+		/* default RGB */
+		//#ifndef AML_T7_DISPLAY
+		//set_viu_osd_matrix_rgb2yuv(0);
+		//#else
+		/* vpp_top2: yuv2rgb */
+		vpp_top_post2_matrix_yuv2rgb(2);
+		//#endif
+		break;
+	case VPP_CM_YUV:
+		/* RGB to 709 limit */
+		#ifndef AML_T7_DISPLAY
+		//set_viu2_osd_matrix_rgb2yuv(2);
 		#endif
 		break;
 	default:
@@ -1663,6 +1688,8 @@ void hdr_tx_pkt_cb(void)
 		}
 		if (is_hdmi_mode(env_get("outputmode2")))
 			hdr_func(OSD3_HDR, SDR_HDR);
+		if (is_hdmi_mode(env_get("outputmode3")))
+			hdr_func(OSD4_HDR, SDR_HDR);
 		amvecm_cp_hdr_info(&hdr_data);
 		hdmitx_set_drm_pkt(&hdr_data);
 	}
