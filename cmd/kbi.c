@@ -1079,6 +1079,7 @@ static int do_kbi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *c;
 
+	run_command("i2c dev 2", 0);
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
