@@ -13,6 +13,8 @@
 #include <net.h>
 #include <asm/io.h>
 #include <asm/arch/boot_mode.h>
+#include <i2c.h>
+#include <dm.h>
 
 #ifdef CONFIG_CMD_GO
 
@@ -69,6 +71,14 @@ static int do_reboot_brom(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 	return 0;
 }
 
+static int do_reboot_boot_mode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	run_command("i2c dev 2", 0);
+	run_command("i2c mw 0x18 0x91 2 1", 0);
+	do_reset(cmdtp, flag, argc, argv);
+	return 0;
+}
+
 U_BOOT_CMD_ALWAYS(
 	rbrom, 1, 0,	do_reboot_brom,
 	"Perform RESET of the CPU",
@@ -76,13 +86,13 @@ U_BOOT_CMD_ALWAYS(
 );
 
 U_BOOT_CMD(
-	reset, 2, 0,    do_reset,
+	reset, 2, 0,    do_reboot_boot_mode,
 	"Perform RESET of the CPU",
 	""
 );
 
 U_BOOT_CMD(
-        reboot, 2, 0,    do_reset,
+        reboot, 2, 0,    do_reboot_boot_mode,
         "Perform RESET of the CPU, alias of 'reset'",
         ""
 );
