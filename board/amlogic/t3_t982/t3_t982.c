@@ -238,8 +238,8 @@ int board_late_init(void)
 	}
 
 	if (strcmp(outputModeCur,outputModePre)) {
-		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
-		run_command("saveenv", 0);
+		printf("outputMode changed, old:%s - new:%s\n", outputModePre, outputModeCur);
+		run_command("update_env_part -p outputmode", 0);
 	}
 
 	unsigned char chipid[16];

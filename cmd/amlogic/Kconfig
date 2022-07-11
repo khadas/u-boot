@@ -37,6 +37,14 @@ config AML_DEFENV
 	help
 	  support reserv env from c array
 
+config AML_UPDATE_ENV
+	bool "aml update env part"
+	depends on CMD_EXPORTENV && CMD_IMPORTENV && CMD_SAVEENV && !ENV_IS_NOWHERE
+	default y
+	help
+	  support only update specified env list to flash
+	  unlike saveenv, which overwrite env part with env buffer
+
 config BOOTLOADER_CONTROL_BLOCK
 	bool "bootloader control block support"
 	default n

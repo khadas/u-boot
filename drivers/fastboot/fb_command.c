@@ -496,7 +496,11 @@ static void flash(char *cmd_parameter, char *response)
 			run_command("mmc dev 1 0;", 0);
 #endif
 			env_set("default_env", "1");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+			run_command("update_env_part -p default_env;", 0);
+#else
 			run_command("saveenv;", 0);
+#endif//#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
 			return;
 		}
 	}
@@ -569,7 +573,11 @@ static void flash(char *cmd_parameter, char *response)
 
 	if (strcmp(name, "bootloader") == 0) {
 		env_set("default_env", "1");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+		run_command("update_env_part -p default_env;", 0);
+#else
 		run_command("saveenv;", 0);
+#endif// #if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
 	}
 }
 
@@ -871,7 +879,11 @@ static void flashing(char *cmd_parameter, char *response)
 		memcpy(lock_d, "10101000", 8);
 		lock_s = "10101000";
 		env_set("lock", "10101000");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+		run_command("update_env_part -p lock;", 0);
+#else
 		run_command("defenv_reserv; saveenv;", 0);
+#endif//#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
 	} else {
 		printf("lock state: %s\n", lock_s);
 		if (strlen(lock_s) > 15)
@@ -1024,7 +1036,11 @@ static void flashing(char *cmd_parameter, char *response)
 		info.lock_bootloader);
 	printf("lock_d state: %s\n", lock_d);
 	env_set("lock", lock_d);
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+	run_command("update_env_part -p lock;", 0);
+#else
 	run_command("defenv_reserv; saveenv;", 0);
+#endif//#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
 	return;
 }
 #endif// #if !CONFIG_IS_ENABLED(NO_FASTBOOT_FLASHING)
