@@ -733,17 +733,23 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
       avb_vbmeta_image_verify(vbmeta_buf, vbmeta_num_read, &pk_data, &pk_len);
   switch (vbmeta_ret) {
     case AVB_VBMETA_VERIFY_RESULT_OK:
-      avb_assert(pk_data != NULL && pk_len > 0);
-      bool is_device_unlocked;
-      io_ret = ops->read_is_device_unlocked(ops, &is_device_unlocked);
-      if (io_ret == AVB_IO_RESULT_OK && !is_device_unlocked) {
-          AvbSHA256Ctx boot_key_sha256_ctx;
-          avb_sha256_init(&boot_key_sha256_ctx);
-          avb_sha256_update(&boot_key_sha256_ctx, pk_data, pk_len);
-          avb_memcpy(boot_key_hash,
-                  avb_sha256_final(&boot_key_sha256_ctx),
-                  AVB_SHA256_DIGEST_SIZE);
-      }
+		{
+			bool is_device_unlocked;
+
+			avb_assert(pk_data && pk_len > 0);
+			io_ret = ops->read_is_device_unlocked(ops, &is_device_unlocked);
+			if (!avb_safe_memcmp(full_partition_name, "vbmeta", strlen("vbmeta"))) {
+				if (io_ret == AVB_IO_RESULT_OK && !is_device_unlocked) {
+					AvbSHA256Ctx boot_key_sha256_ctx;
+
+					avb_sha256_init(&boot_key_sha256_ctx);
+					avb_sha256_update(&boot_key_sha256_ctx, pk_data, pk_len);
+					avb_memcpy(boot_key_hash,
+							avb_sha256_final(&boot_key_sha256_ctx),
+							AVB_SHA256_DIGEST_SIZE);
+				}
+			}
+		}
       break;
 
     case AVB_VBMETA_VERIFY_RESULT_OK_NOT_SIGNED:
