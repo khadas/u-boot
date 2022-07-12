@@ -1225,6 +1225,34 @@ int confirm_gpt(struct mmc *mmc)
 
 #endif
 
+void __attribute__((unused)) _update_part_tbl(struct partitions *p, int count)
+{
+	int i = 0;
+
+	while (i < count) {
+		if (strcmp(p[i].name, "boot_a") == 0)
+			has_boot_slot = 1;
+		else if (strcmp(p[i].name, "boot") == 0)
+			has_boot_slot = 0;
+
+		if (strcmp(p[i].name, "system_a") == 0)
+			has_system_slot = 1;
+		else if (strcmp(p[i].name, "system") == 0)
+			has_system_slot = 0;
+
+		if (strcmp(p[i].name, "super") == 0) {
+			dynamic_partition = true;
+			setenv("partition_mode", "dynamic");
+		}
+
+		if (strncmp(p[i].name, "vendor_boot", 11) == 0) {
+			vendor_boot_partition = true;
+			setenv("vendor_boot_mode", "true");
+		}
+		i++;
+	}
+}
+
 /***************************************************
  *	init partition table for emmc device.
  *	returns 0 means ok.
@@ -1370,6 +1398,9 @@ int mmc_device_init (struct mmc *mmc)
 #ifdef CONFIG_AML_GPT
 	ret = confirm_gpt(mmc);
 #endif
+
+	_update_part_tbl(p_iptbl_ept->partitions, p_iptbl_ept->count);
+
 	/* init part again */
 	init_part(&mmc->block_dev);
 
