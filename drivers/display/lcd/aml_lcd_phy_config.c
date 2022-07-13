@@ -81,20 +81,25 @@ static unsigned int lcd_lvds_channel_on_value(struct lcd_config_s *pconf)
 	return channel_on;
 }
 
-static void lcd_phy_cntl_set_tl1(int status, unsigned int chreg, int bypass,
-				 unsigned int ckdi)
+static void lcd_phy_cntl_set_tl1(int status, unsigned int data32, int bypass,
+				 unsigned int mode, unsigned int ckdi)
 {
 	unsigned int tmp = 0;
-	unsigned int data = 0;
+	unsigned int chreg = 0, data = 0;
 	unsigned int cntl16 = 0;
 
 	if (lcd_debug_print_flag)
 		LCDPR("%s: %d\n", __func__, status);
 
 	if (status) {
+		chreg |= ((data32 << 24) | (data32 << 8));
 		chreg |= ((phy_ctrl_bit_on << 16) | (phy_ctrl_bit_on << 0));
 		if (bypass)
 			tmp |= ((1 << 18) | (1 << 2));
+		if (mode)
+			chreg |= lvds_vx1_p2p_phy_ch_tl1;
+		else
+			chreg |= p2p_low_common_phy_ch_tl1;
 		cntl16 = ckdi | 0x80000000;
 	} else {
 		if (phy_ctrl_bit_on)
@@ -260,8 +265,8 @@ static void lcd_phy_cntl_set_t5w(struct phy_config_s *phy, int status,
 
 void lcd_phy_tcon_chpi_bbc_init_tl1(struct lcd_config_s *pconf)
 {
-	unsigned int data32 = 0x06020602;
-	unsigned int preem;
+	unsigned int data32 = 0;
+	unsigned int chreg = 0, preem;
 	unsigned int size;
 	unsigned int n = 10;
 	struct p2p_config_s *p2p_conf;
@@ -297,18 +302,19 @@ void lcd_phy_tcon_chpi_bbc_init_tl1(struct lcd_config_s *pconf)
 
 	/*follow pre-emphasis*/
 	data32 = p2p_low_common_phy_preem_tl1[preem];
+	chreg |= ((data32 << 24) | (data32 << 8));
 
 	if (phy_ctrl_bit_on)
-		data32 &= ~((1 << 16) | (1 << 0));
+		chreg &= ~((1 << 16) | (1 << 0));
 	else
-		data32 |= ((1 << 16) | (1 << 0));
+		chreg |= ((1 << 16) | (1 << 0));
 
-	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL1, data32);
-	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL2, data32);
-	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL3, data32);
-	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL4, data32);
-	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL6, data32);
-	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL7, data32);
+	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL1, chreg);
+	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL2, chreg);
+	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL3, chreg);
+	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL4, chreg);
+	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL6, chreg);
+	lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL7, chreg);
 }
 
 static void lcd_lvds_phy_set_txl(struct lcd_config_s *pconf, int status)
@@ -432,9 +438,9 @@ static void lcd_lvds_phy_set_tl1(struct lcd_config_s *pconf, int status)
 		}
 		data32 = lvds_vx1_p2p_phy_preem_tl1[preem];
 		lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL14, 0xff2027e0 | vswing);
-		lcd_phy_cntl_set_tl1(status, data32, 0, 0);
+		lcd_phy_cntl_set_tl1(status, data32, 0, 1, 0);
 	} else {
-		lcd_phy_cntl_set_tl1(status, data32, 0, 0);
+		lcd_phy_cntl_set_tl1(status, data32, 0, 1, 0);
 	}
 }
 
@@ -591,9 +597,9 @@ static void lcd_vbyone_phy_set_tl1(struct lcd_config_s *pconf, int status)
 			lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL14,
 				0xf02027a0 | vswing);
 		}
-		lcd_phy_cntl_set_tl1(status, data32, 1, 0);
+		lcd_phy_cntl_set_tl1(status, data32, 1, 1, 0);
 	} else {
-		lcd_phy_cntl_set_tl1(status, data32, 1, 0);
+		lcd_phy_cntl_set_tl1(status, data32, 1, 1, 0);
 	}
 }
 
@@ -749,9 +755,9 @@ static void lcd_mlvds_phy_set_tl1(struct lcd_config_s *pconf, int status)
 		data32 = lvds_vx1_p2p_phy_preem_tl1[preem];
 		lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL14, 0xff2027e0 | vswing);
 		ckdi = (mlvds_conf->pi_clk_sel << 12);
-		lcd_phy_cntl_set_tl1(status, data32, 0, ckdi);
+		lcd_phy_cntl_set_tl1(status, data32, 0, 1, ckdi);
 	} else {
-		lcd_phy_cntl_set_tl1(status, data32, 0, 0);
+		lcd_phy_cntl_set_tl1(status, data32, 0, 1, 0);
 	}
 }
 
@@ -863,7 +869,7 @@ static void lcd_p2p_phy_set_tl1(struct lcd_config_s *pconf, int status)
 			}
 			data32 = lvds_vx1_p2p_phy_preem_tl1[preem];
 			lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL14, 0xff2027a0 | vswing);
-			lcd_phy_cntl_set_tl1(status, data32, 1, 0);
+			lcd_phy_cntl_set_tl1(status, data32, 1, 1, 0);
 			break;
 		case P2P_CHPI: /* low common mode */
 		case P2P_CSPI:
@@ -881,14 +887,14 @@ static void lcd_p2p_phy_set_tl1(struct lcd_config_s *pconf, int status)
 			}
 
 			lcd_hiu_write(HHI_DIF_CSI_PHY_CNTL14, 0xfe60027f);
-			lcd_phy_cntl_set_tl1(status, data32, 1, 0);
+			lcd_phy_cntl_set_tl1(status, data32, 1, 0, 0);
 			break;
 		default:
 			LCDERR("%s: invalid p2p_type %d\n", __func__, p2p_type);
 			break;
 		}
 	} else {
-		lcd_phy_cntl_set_tl1(status, data32, 1, 0);
+		lcd_phy_cntl_set_tl1(status, data32, 1, 1, 0);
 	}
 }
 
@@ -903,7 +909,6 @@ static void lcd_p2p_phy_set_t5(struct lcd_config_s *pconf, int status)
 		LCDPR("%s: %d\n", __func__, status);
 
 	if (status) {
-		phy->vswing = p2p_conf->phy_vswing & 0xf;
 		if (lcd_debug_print_flag)
 			LCDPR("vswing_level=0x%x\n", phy->vswing_level);
 		p2p_type = p2p_conf->p2p_type & 0x1f;
@@ -980,7 +985,6 @@ static void lcd_p2p_phy_set_t5w(struct lcd_config_s *pconf, int status)
 		LCDPR("%s: %d\n", __func__, status);
 
 	if (status) {
-		phy->vswing = p2p_conf->phy_vswing & 0xf;
 		if (lcd_debug_print_flag)
 			LCDPR("vswing_level=0x%x\n", phy->vswing_level);
 
