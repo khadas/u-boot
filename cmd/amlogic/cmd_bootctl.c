@@ -15,7 +15,10 @@
 #include <asm/arch/io.h>
 #include <partition_table.h>
 #include <version.h>
-
+#ifdef CONFIG_UNIFY_BOOTLOADER
+#include "cmd_bootctl_wrapper.h"
+#endif
+#include "cmd_bootctl_utils.h"
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 extern int store_read_ops(
@@ -74,6 +77,10 @@ typedef struct BrilloBootInfo {
 	uint8_t reserved[14];
 } BrilloBootInfo;
 
+#ifdef CONFIG_UNIFY_BOOTLOADER
+bootctl_func_handles cmd_bootctrl_handles = {0};
+#endif
+
 /*static int clear_misc_partition(char *clearbuf, int size)
 {
     char *partition = "misc";
@@ -98,7 +105,7 @@ bool boot_info_validate(BrilloBootInfo *info)
 	return true;
 }
 
-void boot_info_reset(BrilloBootInfo *info)
+static void boot_info_reset(BrilloBootInfo *info)
 {
 	memset(info, '\0', SLOTBUF_SIZE);
 	info->magic[0] = 'B';
@@ -175,24 +182,6 @@ int boot_info_set_active_slot(BrilloBootInfo *info, int slot)
 
 	dump_boot_info(info);
 
-	return 0;
-}
-
-int boot_info_open_partition(char *miscbuf)
-{
-	char *partition = "misc";
-	//int i;
-
-	pr_info("Start read %s partition datas!\n", partition);
-	if (store_read((const char *)partition, 0, MISCBUF_SIZE,
-				(unsigned char *)miscbuf) < 0) {
-		pr_info("failed to store read %s.\n", partition);
-		return -1;
-	}
-
-	/*for (i = BOOTINFO_OFFSET;i < (BOOTINFO_OFFSET+SLOTBUF_SIZE);i++)
-	 *printf("buf: %c\n", miscbuf[i]);
-	 */
 	return 0;
 }
 
@@ -376,7 +365,7 @@ static int do_SetActiveSlot(cmd_tbl_t *cmdtp, int flag, int argc, char * const a
 	return 0;
 }
 
-int do_GetSystemMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_GetSystemMode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #ifdef CONFIG_SYSTEM_AS_ROOT
 	env_set("system_mode", "1");
@@ -387,7 +376,7 @@ int do_GetSystemMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-int do_GetAvbMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_GetAvbMode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	env_set("avb2", "0");
 
@@ -396,6 +385,17 @@ int do_GetAvbMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #endif /* CONFIG_BOOTLOADER_CONTROL_BLOCK */
 
+#ifdef CONFIG_UNIFY_BOOTLOADER
+bootctl_func_handles *get_bootctl_cmd_func(void)
+{
+	cmd_bootctrl_handles.do_GetValidSlot_func = do_GetValidSlot;
+	cmd_bootctrl_handles.do_SetActiveSlot_func = do_SetActiveSlot;
+	cmd_bootctrl_handles.do_GetSystemMode_func = do_GetSystemMode;
+	cmd_bootctrl_handles.do_GetAvbMode_func = do_GetAvbMode;
+
+	return &cmd_bootctrl_handles;
+}
+#else
 U_BOOT_CMD(
     get_valid_slot, 2, 0, do_GetValidSlot,
     "get_valid_slot",
@@ -424,4 +424,5 @@ U_BOOT_CMD(
     "\nThis command will get avb mode\n"
     "So you can execute command: get_avb_mode"
 );
+#endif
 

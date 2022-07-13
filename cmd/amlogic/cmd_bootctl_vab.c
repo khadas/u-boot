@@ -18,6 +18,10 @@
 #include <u-boot/sha1.h>
 #include <asm/arch/efuse.h>
 #include <emmc_partitions.h>
+#ifdef CONFIG_UNIFY_BOOTLOADER
+#include "cmd_bootctl_wrapper.h"
+#endif
+#include "cmd_bootctl_utils.h"
 
 #if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
 extern efuse_obj_field_t efuse_field;
@@ -239,7 +243,11 @@ typedef struct AvbABData {
   uint32_t crc32;
 }AvbABData;
 
-bool boot_info_validate(bootloader_control* info)
+#ifdef CONFIG_UNIFY_BOOTLOADER
+bootctl_func_handles vab_cmd_bootctrl_handles = {0};
+#endif
+
+static bool boot_info_validate(bootloader_control *info)
 {
 	if (info->magic != BOOT_CTRL_MAGIC) {
 		printf("Magic 0x%x is incorrect.\n", info->magic);
@@ -292,7 +300,7 @@ void boot_info_reset(bootloader_control* boot_ctrl)
 	boot_ctrl->recovery_tries_remaining = 0;
 }
 
-void dump_boot_info(bootloader_control* boot_ctrl)
+static void dump_boot_info(bootloader_control *boot_ctrl)
 {
 #if 0
 	int slot;
@@ -318,7 +326,8 @@ static bool slot_is_bootable(slot_metadata* slot) {
 	return slot->tries_remaining != 0;
 }
 
-int get_active_slot(bootloader_control* info) {
+static int get_active_slot(bootloader_control *info)
+{
 	if (info->slot_info[0].priority > info->slot_info[1].priority) {
 		return 0;
 	} else if (info->slot_info[0].priority == info->slot_info[1].priority) {
@@ -368,7 +377,7 @@ static uint32_t vab_crc32(const uint8_t *buf, size_t size)
 	return ~ret;
 }
 
-int boot_info_set_active_slot(bootloader_control* bootctrl, int slot)
+static int boot_info_set_active_slot(bootloader_control *bootctrl, int slot)
 {
 	int i;
 	// Set every other slot with a lower priority than the new "active" slot.
@@ -408,20 +417,7 @@ int boot_info_set_active_slot(bootloader_control* bootctrl, int slot)
 	return 0;
 }
 
-int boot_info_open_partition(char *miscbuf)
-{
-	char *partition = "misc";
-
-	printf("Start read %s partition datas!\n", partition);
-	if (store_read((const char *)partition,
-		0, MISCBUF_SIZE, (unsigned char *)miscbuf) < 0) {
-		printf("failed to store read %s.\n", partition);
-		return -1;
-	}
-	return 0;
-}
-
-bool boot_info_load(bootloader_control *out_info, char *miscbuf)
+static bool boot_info_load(bootloader_control *out_info, char *miscbuf)
 {
 	memcpy(out_info, miscbuf + AB_METADATA_MISC_PARTITION_OFFSET, sizeof(bootloader_control));
 	dump_boot_info(out_info);
@@ -434,7 +430,7 @@ bool boot_info_load_normalAB(AvbABData *out_info, char *miscbuf)
 	return true;
 }
 
-bool boot_info_save(bootloader_control *info, char *miscbuf)
+static bool boot_info_save(bootloader_control *info, char *miscbuf)
 {
 	char *partition = "misc";
 
@@ -505,7 +501,8 @@ exit:
 	return ret;
 }
 
-int write_bootloader(int copy, int dstindex) {
+static int write_bootloader(int copy, int dstindex)
+{
 	int iRet = 0;
 	int ret = -1;
 	unsigned char *buffer = NULL;
@@ -949,7 +946,7 @@ static int do_CopySlot(
 	return 0;
 }
 
-int do_GetSystemMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_GetSystemMode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #ifdef CONFIG_SYSTEM_AS_ROOT
 	env_set("system_mode", "1");
@@ -960,7 +957,7 @@ int do_GetSystemMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-int do_GetAvbMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_GetAvbMode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #ifdef CONFIG_AVB2
 	env_set("avb2", "1");
@@ -971,8 +968,23 @@ int do_GetAvbMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-
 #endif /* CONFIG_BOOTLOADER_CONTROL_BLOCK */
+
+#ifdef CONFIG_UNIFY_BOOTLOADER
+bootctl_func_handles *get_bootctl_cmd_func_vab(void)
+{
+	vab_cmd_bootctrl_handles.do_GetValidSlot_func = do_GetValidSlot;
+	vab_cmd_bootctrl_handles.do_SetActiveSlot_func = do_SetActiveSlot;
+	vab_cmd_bootctrl_handles.do_SetRollFlag_func = do_SetRollFlag;
+	vab_cmd_bootctrl_handles.do_CopySlot_func = do_CopySlot;
+	vab_cmd_bootctrl_handles.do_SetUpdateTries_func = do_SetUpdateTries;
+	vab_cmd_bootctrl_handles.do_GetSystemMode_func = do_GetSystemMode;
+	vab_cmd_bootctrl_handles.do_GetAvbMode_func = do_GetAvbMode;
+
+	return &vab_cmd_bootctrl_handles;
+}
+
+#else
 
 U_BOOT_CMD(
 	get_valid_slot, 2, 0, do_GetValidSlot,
@@ -1023,4 +1035,4 @@ U_BOOT_CMD(
 	"\nThis command will get avb mode\n"
 	"So you can execute command: get_avb_mode"
 );
-
+#endif
