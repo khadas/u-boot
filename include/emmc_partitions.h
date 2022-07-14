@@ -67,7 +67,7 @@
 
 #define MMC_DDR_PARAMETER_NAME	"ddr-parameter"
 #define DDR_PARAMETER_OFFSET	(SZ_1M * 8)
-#define DDR_PARAMETER_SIZE	(4 * 512)
+#define DDR_PARAMETER_SIZE	(8 * 512)
 
 #define     MMC_MPT_VERSION_1               "01.00.00"
 #define     MMC_MPT_VERSION_2               "01.02.00"
