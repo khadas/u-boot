@@ -236,6 +236,13 @@ phys_size_t get_effective_memsize(void)
 
 }
 
+phys_size_t get_ddr_info_size(void)
+{
+	phys_size_t ddr_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & ~0xffffUL) << 4);
+
+	return ddr_size;
+}
+
 static struct mm_region bd_mem_map[] = {
 	{
 		.virt = 0x00000000UL,

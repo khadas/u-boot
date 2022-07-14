@@ -242,6 +242,13 @@ phys_size_t get_effective_memsize(void)
 
 }
 
+phys_size_t get_ddr_info_size(void)
+{
+	phys_size_t ddr_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & ~0xffffUL) << 4);
+
+	return ddr_size;
+}
+
 ulong board_get_usable_ram_top(ulong total_size)
 {
 	unsigned long top = gd->ram_top;
