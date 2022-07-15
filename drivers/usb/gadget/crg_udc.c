@@ -3514,15 +3514,9 @@ int usb_gadget_register_driver(struct usb_gadget_driver *drive)
 
 	crg_udc = &crg_udc_dev;
 
-	if (phy_num == 1) {
-		usb_device_mode_init(phy_num);
-		crg_udc->reg_base = (void __iomem *)(u64)CEG_UDC_1_BASE;
-		crg_udc->uccr = crg_udc->reg_base + CRG_UCCR_OFFSET;
-	} else {
-		usb_device_mode_init(phy_num);
-		crg_udc->reg_base = (void __iomem *)(u64)CEG_UDC_0_BASE;
-		crg_udc->uccr = crg_udc->reg_base + CRG_UCCR_OFFSET;
-	}
+	usb_device_mode_init(phy_num);
+	crg_udc->reg_base = (void __iomem *)(u64)CEG_UDC_1_BASE;
+	crg_udc->uccr = crg_udc->reg_base + CRG_UCCR_OFFSET;
 
 #ifdef USB_C3
 	crg_udc->reg_base = (void __iomem *)(u64)CRG_UDC_ADDR_C3;
