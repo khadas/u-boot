@@ -23,8 +23,7 @@
 #define MCU_I2C_BUS_NUM         2
 
 #define REG_PASSWD_VENDOR       0x00
-#define REG_MAC                 0x06
-#define REG_USID                0x0c
+#define REG_USID                0x06
 #define REG_VERSION             0x12
 
 #define REG_BOOT_MODE           0x20
@@ -69,8 +68,7 @@
 #define FORCERESET_GPIO     1
 
 #define VERSION_LENGHT        2
-#define USID_LENGHT           6
-#define MAC_LENGHT            6
+#define USID_LENGHT           7
 #define ADC_LENGHT            2
 #define PASSWD_CUSTOM_LENGHT  6
 #define PASSWD_VENDOR_LENGHT  6
@@ -433,36 +431,12 @@ static char detect_board(void)
 
 static void get_usid(void)
 {
-	char serial[64];
-	char usid[USID_LENGHT] = {};
-	int i;
-#ifdef CONFIG_USID_FROM_ETH_MAC
-	int mode;
-	mode = kbi_i2c_read(REG_MAC_SWITCH);
+	char serial[64]={0};
+	char usid[USID_LENGHT] = {0};
 
-	if (mode == 1) {
-		kbi_i2c_read_block(REG_MAC, MAC_LENGHT, usid);
-	} else {
-		run_command("efuse mac", 0);
-		char *s = getenv("eth_mac");
-		if ((s != NULL) && (strcmp(s, "00:00:00:00:00:00") != 0)) {
-			for (i = 0; i < 6 && s[0] != '\0' && s[1] != '\0'; i++) {
-			usid[i] = chartonum(s[0]) << 4 | chartonum(s[1]);
-			s +=3;
-			}
-		} else {
-			kbi_i2c_read_block(REG_MAC, MAC_LENGHT, usid);
-		}
-	}
-#else
 	kbi_i2c_read_block(REG_USID, USID_LENGHT, usid);
-#endif
-	printf("usid: ");
-	for (i=0; i< USID_LENGHT; i++) {
-		printf("%x",usid[i]);
-	}
-	printf("\n");
-	sprintf(serial, "%02x%02x%02x%02x%02x%02x",usid[0],usid[1],usid[2],usid[3],usid[4],usid[5]);
+	sprintf(serial, "%02X%02X%02X%02X%02X%02X%02X",usid[0],usid[1],usid[2],usid[3],usid[4],usid[5],usid[6]);
+	printf("usid:%s\r\n",serial);
 	env_set("usid", serial);
 }
 
