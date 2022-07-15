@@ -46,8 +46,14 @@ static int do_rsvmem_check(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	rsvmem_dbg("reserved memory check!\n");
 	data = readl(P_AO_SEC_GP_CFG3);
-	bl31_rsvmem_size =  ((data & 0xffff0000) >> 16) << 10;
-	bl32_rsvmem_size =  (data & 0x0000ffff) << 10;
+	/* workaround for bl3x size */
+	if ((data >> 16) & 0xf0) {
+		bl31_rsvmem_size =  ((data & 0xffff0000) >> 16) << 16;
+		bl32_rsvmem_size =  (data & 0x0000ffff) << 16;
+	} else {
+		bl31_rsvmem_size =  ((data & 0xffff0000) >> 16) << 10;
+		bl32_rsvmem_size =  (data & 0x0000ffff) << 10;
+	}
 	bl31_rsvmem_start = readl(P_AO_SEC_GP_CFG5);
 	bl32_rsvmem_start = readl(P_AO_SEC_GP_CFG4);
 
@@ -273,8 +279,14 @@ static int do_rsvmem_dump(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	rsvmem_info("reserved memory:\n");
 	data = readl(P_AO_SEC_GP_CFG3);
-	bl31_rsvmem_size =  ((data & 0xffff0000) >> 16) << 10;
-	bl32_rsvmem_size =  (data & 0x0000ffff) << 10;
+	/* workaround for bl3x size */
+	if ((data >> 16) & 0xf0) {
+		bl31_rsvmem_size =  ((data & 0xffff0000) >> 16) << 16;
+		bl32_rsvmem_size =  (data & 0x0000ffff) << 16;
+	} else {
+		bl31_rsvmem_size =  ((data & 0xffff0000) >> 16) << 10;
+		bl32_rsvmem_size =  (data & 0x0000ffff) << 10;
+	}
 	bl31_rsvmem_start = readl(P_AO_SEC_GP_CFG5);
 	bl32_rsvmem_start = readl(P_AO_SEC_GP_CFG4);
 
