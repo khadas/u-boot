@@ -28,6 +28,7 @@
 #include <asm/arch/cpu_config.h>
 #include <asm/arch/secure_apb.h>
 
+extern int amlmmc_check_and_update_boot_info(void);
 #if defined(CONFIG_AML_NAND) || defined (CONFIG_AML_MTD)
 extern int amlnf_init(unsigned int flag);
 extern void nand_init(void);
@@ -511,8 +512,10 @@ int store_ddr_parameter_read(u8 *buffer,
 		return -ENODEV;
 	}
 
-	if (IS_STORAGE_EMMC_BOOT(device_boot_flag))
+	if (IS_STORAGE_EMMC_BOOT(device_boot_flag)) {
+		amlmmc_check_and_update_boot_info();
 		ret = mmc_ddr_parameter_read(buffer, (int)length);
+	}
 #if defined(CONFIG_AML_MTD) || defined(CONFIG_AML_NAND)
 	else
 		ret = amlnf_ddr_parameter_read(buffer, (int)length);
@@ -530,7 +533,6 @@ int store_ddr_parameter_write(u8 *buffer, u32 length)
 	}
 
 	if (IS_STORAGE_EMMC_BOOT(device_boot_flag)) {
-		extern int amlmmc_check_and_update_boot_info(void);
 		amlmmc_check_and_update_boot_info();
 		ret = mmc_ddr_parameter_write(buffer, (int)length);
 #if defined(CONFIG_AML_MTD) || defined(CONFIG_AML_NAND)

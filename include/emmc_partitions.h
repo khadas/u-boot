@@ -116,7 +116,7 @@
 
 #define MMC_DDR_PARAMETER_NAME	"ddr-parameter"
 #define DDR_PARAMETER_OFFSET	(SZ_1M * 8)
-#define DDR_PARAMETER_SIZE	(4 * 512)
+#define DDR_PARAMETER_SIZE	(8 * 512)
 
 /*
  * 2 copies dtb were stored in dtb area.
