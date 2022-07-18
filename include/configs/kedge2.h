@@ -19,7 +19,7 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
 #undef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND RKIMG_BOOTCOMMAND
+#define CONFIG_BOOTCOMMAND  "run distro_bootcmd"
 
 #endif
 #endif
