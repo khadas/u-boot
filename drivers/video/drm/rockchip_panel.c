@@ -51,7 +51,7 @@ struct rockchip_panel_plat {
 		unsigned int unprepare;
 		unsigned int enable;
 		unsigned int disable;
-		unsigned int reset;
+//		unsigned int reset;
 		unsigned int init;
 	} delay;
 
@@ -65,7 +65,7 @@ struct rockchip_panel_priv {
 	struct udevice *power_supply;
 	struct udevice *backlight;
 	struct gpio_desc enable_gpio;
-	struct gpio_desc reset_gpio;
+//	struct gpio_desc reset_gpio;
 
 	int cmd_type;
 	struct gpio_desc spi_sdi_gpio;
@@ -285,7 +285,7 @@ static void panel_simple_prepare(struct rockchip_panel *panel)
 
 	if (plat->delay.prepare)
 		mdelay(plat->delay.prepare);
-
+/*
 	if (dm_gpio_is_valid(&priv->reset_gpio))
 		dm_gpio_set_value(&priv->reset_gpio, 1);
 
@@ -294,7 +294,7 @@ static void panel_simple_prepare(struct rockchip_panel *panel)
 
 	if (dm_gpio_is_valid(&priv->reset_gpio))
 		dm_gpio_set_value(&priv->reset_gpio, 0);
-
+*/
 	if (plat->delay.init)
 		mdelay(plat->delay.init);
 
@@ -337,8 +337,8 @@ static void panel_simple_unprepare(struct rockchip_panel *panel)
 			printf("failed to send off cmds: %d\n", ret);
 	}
 
-	if (dm_gpio_is_valid(&priv->reset_gpio))
-		dm_gpio_set_value(&priv->reset_gpio, 1);
+//	if (dm_gpio_is_valid(&priv->reset_gpio))
+//		dm_gpio_set_value(&priv->reset_gpio, 1);
 
 	if (dm_gpio_is_valid(&priv->enable_gpio))
 		dm_gpio_set_value(&priv->enable_gpio, 0);
@@ -407,7 +407,7 @@ static int rockchip_panel_ofdata_to_platdata(struct udevice *dev)
 	plat->delay.enable = dev_read_u32_default(dev, "enable-delay-ms", 0);
 	plat->delay.disable = dev_read_u32_default(dev, "disable-delay-ms", 0);
 	plat->delay.init = dev_read_u32_default(dev, "init-delay-ms", 0);
-	plat->delay.reset = dev_read_u32_default(dev, "reset-delay-ms", 0);
+//	plat->delay.reset = dev_read_u32_default(dev, "reset-delay-ms", 0);
 
 	plat->bus_format = dev_read_u32_default(dev, "bus-format",
 						MEDIA_BUS_FMT_RBG888_1X24);
@@ -465,13 +465,13 @@ static int rockchip_panel_probe(struct udevice *dev)
 		return ret;
 	}
 
-	ret = gpio_request_by_name(dev, "reset-gpios", 0,
+/*	ret = gpio_request_by_name(dev, "reset-gpios", 0,
 				   &priv->reset_gpio, GPIOD_IS_OUT);
 	if (ret && ret != -ENOENT) {
 		printf("%s: Cannot get reset GPIO: %d\n", __func__, ret);
 		return ret;
 	}
-
+*/
 	ret = uclass_get_device_by_phandle(UCLASS_PANEL_BACKLIGHT, dev,
 					   "backlight", &priv->backlight);
 	if (ret && ret != -ENOENT) {
@@ -517,7 +517,7 @@ static int rockchip_panel_probe(struct udevice *dev)
 		dm_gpio_set_value(&priv->spi_sdi_gpio, 1);
 		dm_gpio_set_value(&priv->spi_scl_gpio, 1);
 		dm_gpio_set_value(&priv->spi_cs_gpio, 1);
-		dm_gpio_set_value(&priv->reset_gpio, 0);
+	//	dm_gpio_set_value(&priv->reset_gpio, 0);
 	}
 
 	panel = calloc(1, sizeof(*panel));
