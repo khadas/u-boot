@@ -55,7 +55,7 @@ bool emmckey_is_access_range_legal (struct mmc *mmc, ulong start, lbaint_t blkcn
 		key_glb_offset = part->offset + vpart->offset;
 		key_start_blk = (key_glb_offset / MMC_BLOCK_SIZE);
 		key_end_blk = ((key_glb_offset + vpart->size) / MMC_BLOCK_SIZE - 1);
-		if (!(info_disprotect & DISPROTECT_KEY)) {
+		if (!(info_disprotect & DISPROTECT_KEY) && (is_partition_checked == true)) {
 			if ((key_start_blk <= (start + blkcnt -1))
 				&& (key_end_blk >= start)
 				&& (blkcnt != start)) {
