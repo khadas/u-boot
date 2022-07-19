@@ -943,9 +943,14 @@ static void lcd_p2p_phy_set_t5(struct lcd_config_s *pconf, int status)
 			if (p2p_type == P2P_CHPI)
 				phy->weakly_pull_down = 1;
 			if (vcm_flag) /* 580mV */
-				cntl14 = 0xe0600272 | phy->vswing;
+				cntl14 = 0xe0600272;
 			else /* default 385mV */
-				cntl14 = 0xfe60027f | phy->vswing;
+				cntl14 = 0xfe60027f;
+
+			/* vswing */
+			cntl14 &= ~(0xf);
+			cntl14 |= phy->vswing;
+
 			/* vcm */
 			if ((phy->flag & (1 << 1))) {
 				cntl14 &= ~(0x7ff << 4);
@@ -1020,9 +1025,14 @@ static void lcd_p2p_phy_set_t5w(struct lcd_config_s *pconf, int status)
 			if (p2p_type == P2P_CHPI)
 				phy->weakly_pull_down = 1;
 			if (vcm_flag) /* 580mV */
-				cntl14 = 0xe0600272 | phy->vswing;
+				cntl14 = 0xe0600272;
 			else /* default 385mV */
-				cntl14 = 0xfe60027f | phy->vswing;
+				cntl14 = 0xfe60027f;
+
+			/* vswing */
+			cntl14 &= ~(0xf);
+			cntl14 |= phy->vswing;
+
 			/* vcm */
 			if ((phy->flag & (1 << 1))) {
 				cntl14 &= ~(0x7ff << 4);

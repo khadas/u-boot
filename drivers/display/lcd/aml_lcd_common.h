@@ -50,7 +50,8 @@
 /* 20211229: update multi lut init and switch flow*/
 /* 20220421: fix lcd clk mistake for vmode change with fr_adj_type 4*/
 /* 20220629: add ini ver2 support and support phy lane contrl*/
-#define LCD_DRV_VERSION    "20220629"
+/* 20220719: support t5,t5w,t3 set vswing level in low common type*/
+#define LCD_DRV_VERSION    "20220719"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
