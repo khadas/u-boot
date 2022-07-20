@@ -837,6 +837,8 @@ static void lcd_update_boot_ctrl_bootargs(void)
 	value |= (lcd_debug_test & 0xf) << 24;
 	value |= (boot_ctrl.lcd_debug_para & 0x3) << 28;
 	value |= (boot_ctrl.lcd_debug_mode & 0x3) << 30;
+	if (strlen(aml_lcd_driver.lcd_config->lcd_basic.model_name) > 0)
+		setenv("panel_name", aml_lcd_driver.lcd_config->lcd_basic.model_name);
 	sprintf(lcd_boot_ctrl, "0x%08x", value);
 	setenv("lcd_ctrl", lcd_boot_ctrl);
 
