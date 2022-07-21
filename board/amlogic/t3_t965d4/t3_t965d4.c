@@ -285,14 +285,10 @@ phys_size_t get_effective_memsize(void)
 	// >>16 -> MB, <<20 -> real size, so >>16<<20 = <<4
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
 	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffffUL) << 4;
-	if (ddr_size >= 0xe0000000)
-		ddr_size = 0xe0000000;
 	return (ddr_size - CONFIG_SYS_MEM_TOP_HIDE);
 #else
 	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffffUL) << 4;
-	if (ddr_size >= 0xe0000000)
-		ddr_size = 0xe0000000;
-	return ddr_size
+	return ddr_size;
 #endif /* CONFIG_SYS_MEM_TOP_HIDE */
 
 }
@@ -506,19 +502,19 @@ int checkhw(char * name)
         else {
                 switch (ddr_size)
                 {
-                        case 0x80000000:
+			case 0x80000000UL:
                                 strcpy(loc_name, "t3_t965d4_ar321-2g\0");
                                 break;
-                        case 0xc0000000:
+			case 0xc0000000UL:
                                 strcpy(loc_name, "t3_t965d4_ar331-3g\0");
                                 break;
-                        case 0xe0000000:
+			case 0x100000000UL:
                                 strcpy(loc_name, "t3_t965d4_ar331-4g\0");
                                 break;
-                        case 0x200000000:
+			case 0x200000000UL:
                                 strcpy(loc_name, "t3_t965d4_ar331-8g\0");
                                 break;
-                        default:
+			default:
                                 strcpy(loc_name, "t3_t965d4_unsupport");
                                 break;
                 }

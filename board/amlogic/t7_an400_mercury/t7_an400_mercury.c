@@ -367,14 +367,10 @@ phys_size_t get_effective_memsize(void)
 	// >>16 -> MB, <<20 -> real size, so >>16<<20 = <<4
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
 	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xffffUL) << 4;
-	if (ddr_size >= 0xe0000000)
-		ddr_size = 0xe0000000;
 	return (ddr_size - CONFIG_SYS_MEM_TOP_HIDE);
 #else
 	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xffffUL) << 4;
-	if (ddr_size >= 0xe0000000)
-		ddr_size = 0xe0000000;
-	return ddr_size
+	return ddr_size;
 #endif /* CONFIG_SYS_MEM_TOP_HIDE */
 }
 
@@ -399,13 +395,19 @@ static struct mm_region bd_mem_map[] = {
 	{
 		.virt = 0x00000000UL,
 		.phys = 0x00000000UL,
-		.size = 0xe0000000UL,
+		.size = 0x05100000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.virt = 0xe0000000UL,
-		.phys = 0xe0000000UL,
-		.size = 0x20000000UL,
+		.virt = 0x09000000UL,
+		.phys = 0x09000000UL,
+		.size = 0x77000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.virt = 0x80000000UL,
+		.phys = 0x80000000UL,
+		.size = 0x80000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
@@ -426,8 +428,12 @@ int mach_cpu_init(void)
 				(((readl(SYSCTRL_SEC_STATUS_REG4)) &
 				0xFFFFFFFF0000) << 4));
 
-	if (nddrSize <= 0xe0000000)
-		bd_mem_map[0].size = nddrSize;
+	if (nddrSize >= 0xe0000000) {
+		bd_mem_map[1].size = 0xe0000000UL - bd_mem_map[1].phys;
+		bd_mem_map[2].virt = 0xe0000000UL;
+		bd_mem_map[2].phys = 0xe0000000UL;
+		bd_mem_map[2].size = 0x20000000UL;
+	}
 
 #endif
 	return 0;
