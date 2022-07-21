@@ -433,8 +433,16 @@ const struct mtd_partition *get_partition_table(int *partitions)
 #ifdef CONFIG_MULTI_DTB
 int checkhw(char * name)
 {
-	strcpy(name, "t7_a311d2_an408\0");
-	env_set("aml_dt", "t7_a311d2_an408\0");
+	cpu_id_t cpu_id;
+
+	cpu_id = get_cpu_id();
+	if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+		strcpy(name, "t7_a311d2_an408\0");
+		env_set("aml_dt", "t7_a311d2_an408\0");
+	} else if (cpu_id.chip_rev == 0xC) {
+		strcpy(name, "t7c_a311d2_an408-4g\0");
+		env_set("aml_dt", "t7c_a311d2_an408-4g\0");
+	}
 	return 0;
 }
 #endif
