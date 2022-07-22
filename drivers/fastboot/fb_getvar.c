@@ -556,12 +556,14 @@ static void partition_type_reply(char *part_name, char *response, char *part_typ
 static int is_f2fs_by_name(char const *name)
 {
 	int ret = -1;
+#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
 	struct partitions *partition = NULL;
 
 	partition = find_mmc_partition_by_name(name);
 	if (!partition)
 		return ret;
 	ret = (partition->mask_flags >> 12) & 0x1;
+#endif
 
 	return ret;
 }
