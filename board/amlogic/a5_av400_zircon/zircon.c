@@ -332,6 +332,16 @@ static void add_board_info(zbi_header_t *zbi)
 			&board_info, sizeof(board_info));
 }
 
+extern int thermal_cali_data_read(uint32_t type, uint32_t *outbuf, int32_t size);
+static void add_tsensor1_trim_info(void)
+{
+	uint32_t trim_info = 0;
+
+	thermal_cali_data_read(1, &trim_info, 4);
+	// sticky reg2,7 used
+	writel(trim_info, SYSCTRL_STICKY_REG3);
+}
+
 int zircon_preboot(zbi_header_t *zbi)
 {
 	// allocate crashlog save area before 0x5f800000-0x60000000 reserved area
@@ -358,6 +368,8 @@ int zircon_preboot(zbi_header_t *zbi)
 			strlen(BOOTLOADER_VERSION) + 1);
 	// add platform ID
 	add_board_info(zbi);
+	// add tsensor trim info
+	add_tsensor1_trim_info();
 	zircon_append_boot_item(zbi, ZBI_TYPE_PLATFORM_ID, 0, &platform_id, sizeof(platform_id));
 	add_partition_map(zbi);
 	add_cpu_topology(zbi);
