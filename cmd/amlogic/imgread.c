@@ -215,6 +215,8 @@ static int do_image_read_dtb_from_knl(const char *partname,
 			strcpy((char *)partname, "vendor_boot_a");
 		else if (strcmp(slot_name, "1") == 0)
 			strcpy((char *)partname, "vendor_boot_b");
+		else
+			strcpy((char *)partname, "vendor_boot");
 
 		MsgP("partname = %s\n", partname);
 		nflashloadlen = preloadsz_r;//head info is one page size == 4k
