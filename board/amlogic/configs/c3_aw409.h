@@ -65,6 +65,8 @@
 	"firstboot=1\0"\
 	"silent=0\0"\
 	"upgrade_step=0\0"\
+	"initrd_high=0xF100000\0"\
+	"fdt_high=0xF100000\0"\
 	"jtag=disable\0"\
 	"loadaddr=0x00020000\0"\
 	"os_ident_addr=0x00500000\0"\
@@ -97,7 +99,6 @@
 	"frac_rate_policy=1\0" \
 	"hdr_policy=0\0" \
 	"usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
-	"fdt_high=0x20000000\0"\
 	"sdcburncfg=aml_sdc_burn.ini\0"\
 	"EnableSelinux=enforcing\0" \
 	"recovery_part=recovery\0"\
