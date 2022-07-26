@@ -799,6 +799,7 @@ static void lcd_update_boot_ctrl_bootargs(void)
 {
 	unsigned int value = 0;
 	char lcd_boot_ctrl[20];
+	char env_str[15];
 
 	value |= aml_lcd_driver.lcd_config->lcd_basic.lcd_type;
 	switch (aml_lcd_driver.lcd_config->lcd_basic.lcd_type) {
@@ -813,12 +814,14 @@ static void lcd_update_boot_ctrl_bootargs(void)
 	default:
 		break;
 	}
+	boot_ctrl.lcd_custom_pinmux = aml_lcd_driver.lcd_config->customer_pinmux ? 1 : 0;
 
 	/*create new env "lcd_ctrl", define as below:
 	 *bit[3:0]: lcd_type
 	 *bit[7:4]: lcd bits
 	 *bit[15:8]: advanced flag(p2p_type when lcd_type=p2p)
-	 *bit[17:16]: reserved
+	 *bit[17]: reserved
+	 *bit[16]: custom pinmux flag
 	 *bit[19:18]: lcd_init_level
 	 *high 12bit for debug flag
 	 *bit[23:20]:  lcd debug print flag
@@ -828,6 +831,7 @@ static void lcd_update_boot_ctrl_bootargs(void)
 	 *bit[31:30]: lcd mode(0=normal, 1=tv; 2=tablet, 3=TBD)
 	*/
 	value |= (aml_lcd_driver.lcd_config->lcd_basic.lcd_bits & 0xf) << 4;
+	value |= (boot_ctrl.lcd_custom_pinmux & 0x1) << 16;
 	value |= (boot_ctrl.lcd_init_level & 0x3) << 18;
 	value |= (lcd_debug_print_flag & 0xf) << 20;
 	value |= (lcd_debug_test & 0xf) << 24;
@@ -835,6 +839,11 @@ static void lcd_update_boot_ctrl_bootargs(void)
 	value |= (boot_ctrl.lcd_debug_mode & 0x3) << 30;
 	sprintf(lcd_boot_ctrl, "0x%08x", value);
 	setenv("lcd_ctrl", lcd_boot_ctrl);
+
+	if (strlen(aml_lcd_driver.lcd_config->lcd_basic.model_name) > 0) {
+		sprintf(env_str, "panel_name");
+		setenv(env_str, aml_lcd_driver.lcd_config->lcd_basic.model_name);
+	}
 }
 
 static struct phy_config_s lcd_phy_cfg = {

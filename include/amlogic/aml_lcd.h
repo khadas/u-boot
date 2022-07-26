@@ -49,6 +49,7 @@
 #define LCD_EXT_CMD_TYPE_CMD3_DELAY    0x02  /* for i2c device 3rd addr */
 #define LCD_EXT_CMD_TYPE_CMD4_DELAY    0x03  /* for i2c device 4th addr */
 #define LCD_EXT_CMD_TYPE_NONE          0x10
+#define LCD_EXT_CMD_TYPE_MULTI_FR      0x21
 #define LCD_EXT_CMD_TYPE_CMD_BIN2      0xa0  /* with data offset and data_len */
 #define LCD_EXT_CMD_TYPE_CMD2_BIN2     0xa1  /* for i2c device 2nd addr */
 #define LCD_EXT_CMD_TYPE_CMD3_BIN2     0xa2  /* for i2c device 3rd addr */
@@ -65,6 +66,10 @@
 #define LCD_EXT_CMD_TYPE_CMD2_BIN_DATA 0xd1 /* for i2c device 2nd addr */
 #define LCD_EXT_CMD_TYPE_CMD3_BIN_DATA 0xd2 /* for i2c device 3rd addr */
 #define LCD_EXT_CMD_TYPE_CMD4_BIN_DATA 0xd3 /* for i2c device 4th addr */
+#define LCD_EXT_CMD_TYPE_CMD_MULTI     0xe0
+#define LCD_EXT_CMD_TYPE_CMD2_MULTI    0xe1
+#define LCD_EXT_CMD_TYPE_CMD3_MULTI    0xe2
+#define LCD_EXT_CMD_TYPE_CMD4_MULTI    0xe3
 #define LCD_EXT_CMD_TYPE_GPIO          0xf0
 #define LCD_EXT_CMD_TYPE_CHECK         0xfc
 #define LCD_EXT_CMD_TYPE_DELAY         0xfd

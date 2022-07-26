@@ -130,7 +130,8 @@ struct aml_lcd_unifykey_header_s {
 /* custom ctrl (76Byte) */
 #define LCD_UKEY_CUS_CTRL_ATTR_FLAG     (LCD_UKEY_HEAD_SIZE + 356)
 #define LCD_UKEY_CUS_CTRL_ATTR_0        (LCD_UKEY_HEAD_SIZE + 360)
-#define LCD_UKEY_CUS_CTRL_END           (LCD_UKEY_HEAD_SIZE + 432)
+#define LCD_UKEY_CUS_CTRL_END           (LCD_UKEY_HEAD_SIZE + 424)
+//#define LCD_UKEY_CUS_CTRL_END           (LCD_UKEY_HEAD_SIZE + 432)
 
 /* ********************************
  * lcd extern

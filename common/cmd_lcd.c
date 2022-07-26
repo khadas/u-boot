@@ -601,7 +601,7 @@ static int do_lcd_ext(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (strcmp(argv[2], "info") == 0) {
 		if (lcd_ext->info_print)
-			lcd_ext->info_print(lcd_ext->config);
+			lcd_ext->info_print(lcd_ext);
 		else
 			printf("no lcd lcd_extern_info\n");
 	} else if (strcmp(argv[2], "r") == 0) {

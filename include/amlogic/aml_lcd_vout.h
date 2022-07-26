@@ -421,6 +421,12 @@ struct lcd_duration_s {
 	unsigned int frac;
 };
 
+struct cus_ctrl_config_s {
+	unsigned int flag;
+	unsigned char dlg_flag;
+
+};
+
 #define LCD_ENABLE_RETRY_MAX    3
 struct lcd_config_s {
 	unsigned char lcd_mode;
@@ -438,6 +444,7 @@ struct lcd_config_s {
 	unsigned char pinctrl_ver;
 	unsigned char customer_pinmux;
 	unsigned char fr_auto_dis;
+	struct cus_ctrl_config_s cus_ctrl;
 	struct lcd_pinmux_ctrl_s *lcd_pinmux;
 	unsigned int pinmux_set[LCD_PINMUX_NUM][2];
 	unsigned int pinmux_clr[LCD_PINMUX_NUM][2];
@@ -578,7 +585,8 @@ extern struct bl_config_s bl_config_dft;
  *
  *     low 20bit for debug flag
  *bit[19:18]: lcd_init_level
- *bit[17:16]: reserved
+ *bit[17]: reserved
+ *bit[16]: custom pinmux flag
  *bit[15:8]: advanced flag(p2p_type when lcd_type=p2p)
  *bit[7:4]: lcd bits
  **bit[3:0]: lcd_type
@@ -592,6 +600,7 @@ struct lcd_boot_ctrl_s {
 	unsigned char lcd_debug_test;
 	unsigned char lcd_debug_para;
 	unsigned char lcd_debug_mode;
+	unsigned char lcd_custom_pinmux;
 };
 
 /* ==============lcd driver================== */

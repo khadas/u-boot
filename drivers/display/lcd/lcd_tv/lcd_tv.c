@@ -1072,7 +1072,8 @@ static int lcd_config_load_from_unifykey_v2(struct lcd_config_s *pconf,
 {
 	struct aml_lcd_unifykey_header_s *header;
 	struct phy_config_s *phy_cfg = pconf->lcd_control.phy_cfg;
-	unsigned int len;
+	struct cus_ctrl_config_s *cus_ctrl = &pconf->cus_ctrl;
+	unsigned int len, temp;
 	int i, ret;
 
 	header = (struct aml_lcd_unifykey_header_s *)p;
@@ -1132,6 +1133,23 @@ static int lcd_config_load_from_unifykey_v2(struct lcd_config_s *pconf,
 				      phy_cfg->lane[i].amp);
 			}
 		}
+	}
+
+	/* ctrl */
+	cus_ctrl->flag = (*(p + LCD_UKEY_CUS_CTRL_ATTR_FLAG) |
+	((*(p + LCD_UKEY_CUS_CTRL_ATTR_FLAG + 1)) << 8) |
+	((*(p + LCD_UKEY_CUS_CTRL_ATTR_FLAG + 2)) << 16) |
+	((*(p + LCD_UKEY_CUS_CTRL_ATTR_FLAG + 3)) << 24));
+	if (lcd_debug_print_flag)
+		LCDPR("%s: ctrl_flag=0x%x\n", __func__, cus_ctrl->flag);
+
+	if (cus_ctrl->flag) {
+		temp = (*(p + LCD_UKEY_CUS_CTRL_ATTR_0) |
+				(*(p + LCD_UKEY_CUS_CTRL_ATTR_0 + 1) << 8));
+		cus_ctrl->dlg_flag = temp & 0x3;
+		if (lcd_debug_print_flag)
+			LCDPR("%s: dlg_flag=0x%x, temp =0x%x\n", __func__,
+			cus_ctrl->dlg_flag, temp);
 	}
 
 	return 0;

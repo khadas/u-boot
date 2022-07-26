@@ -87,14 +87,23 @@ struct lcd_extern_common_s {
 	unsigned int pinmux_clr[LCD_PINMUX_NUM][2];
 };
 
+struct lcd_extern_multi_list_s {
+	unsigned int index;
+	unsigned int type;
+	unsigned char data_len;
+	unsigned char *data_buf;
+	struct lcd_extern_multi_list_s *next;
+};
+
 //global API
 struct aml_lcd_extern_driver_s {
 	struct lcd_extern_config_s *config;
+	struct lcd_extern_multi_list_s *multi_list_header;
 	int (*reg_read)  (unsigned char reg, unsigned char *buf);
 	int (*reg_write) (unsigned char *buf, unsigned int len);
 	int (*power_on)(void);
 	int (*power_off)(void);
-	void (*info_print)(struct lcd_extern_config_s *econf);
+	void (*info_print)(struct aml_lcd_extern_driver_s *edrv);
 };
 
 struct aml_lcd_extern_driver_s *aml_lcd_extern_get_driver(int index);

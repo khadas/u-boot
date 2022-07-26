@@ -200,9 +200,35 @@ static void aml_lcd_extern_init_table_fixed_size_print(
 	}
 }
 
-static void aml_lcd_extern_info_print(struct lcd_extern_config_s *econf)
+static void lcd_extern_multi_list_print(struct aml_lcd_extern_driver_s *edrv)
 {
+	struct lcd_extern_multi_list_s *temp_list;
+	int i;
+
+	if (!edrv->multi_list_header) {
+		printf("multi_list: NULL\n");
+		return;
+	}
+
+	temp_list = edrv->multi_list_header;
+	while (temp_list) {
+		printf("multi_list[%d]:\n", temp_list->index);
+		printf("  type: 0x%x\n", temp_list->type);
+		printf("  data:");
+		for (i = 0; i < temp_list->data_len; i++)
+			printf(" %d", temp_list->data_buf[i]);
+		printf("\n");
+		temp_list = temp_list->next;
+	}
+}
+
+static void aml_lcd_extern_info_print(struct aml_lcd_extern_driver_s *edrv)
+{
+	struct lcd_extern_config_s *econf = edrv->config;
 	struct lcd_extern_common_s *ecommon;
+
+	if (!econf)
+		return;
 
 	ecommon = ext_common;
 
@@ -251,6 +277,7 @@ static void aml_lcd_extern_info_print(struct lcd_extern_config_s *econf)
 			aml_lcd_extern_init_table_fixed_size_print(econf, 1);
 			aml_lcd_extern_init_table_fixed_size_print(econf, 0);
 		}
+		lcd_extern_multi_list_print(edrv);
 		break;
 	case LCD_EXTERN_SPI:
 		printf("spi_gpio_cs:      %d\n"
@@ -1407,6 +1434,98 @@ static int aml_lcd_extern_get_config_unifykey(int index,
 	return 0;
 }
 
+static void lcd_extern_multi_list_add(struct aml_lcd_extern_driver_s *edrv,
+		unsigned int index, unsigned int type,
+		unsigned char data_len, unsigned char *data_buf)
+{
+	struct lcd_extern_multi_list_s *temp_list;
+	struct lcd_extern_multi_list_s *cur_list;
+
+	/* creat list */
+	cur_list = (struct lcd_extern_multi_list_s *)
+		malloc(sizeof(struct lcd_extern_multi_list_s));
+	if (!cur_list)
+		return;
+	memset(cur_list, 0, sizeof(struct lcd_extern_multi_list_s));
+	cur_list->index = index;
+	cur_list->type = type;
+	cur_list->data_len = data_len;
+	cur_list->data_buf = data_buf;
+
+	if (!edrv->multi_list_header) {
+		edrv->multi_list_header = cur_list;
+	} else {
+		temp_list = edrv->multi_list_header;
+		while (temp_list->next) {
+			if (temp_list->index == cur_list->index) {
+				EXTERR("%s: dev: index=%d(type=%d) already in list\n",
+					__func__,
+					cur_list->index, cur_list->type);
+				free(cur_list);
+				return;
+			}
+			temp_list = temp_list->next;
+		}
+		temp_list->next = cur_list;
+	}
+
+	EXTPR("%s: dev: index=%d, type=%d\n", __func__, cur_list->index, cur_list->type);
+}
+
+static int lcd_extern_multi_list_remove(struct aml_lcd_extern_driver_s *edrv)
+{
+	struct lcd_extern_multi_list_s *cur_list;
+	struct lcd_extern_multi_list_s *next_list;
+
+	/* add to exist list */
+	cur_list = edrv->multi_list_header;
+	while (cur_list) {
+		next_list = cur_list->next;
+		free(cur_list);
+		cur_list = next_list;
+	}
+	edrv->multi_list_header = NULL;
+
+	return 0;
+}
+
+static void lcd_extern_config_update_dynamic_size(struct aml_lcd_extern_driver_s *edrv,
+						  int flag)
+{
+	unsigned char type, size, *table;
+	unsigned int max_len = 0, i = 0, j, index;
+
+	if (flag) {
+		max_len = edrv->config->table_init_on_cnt;
+		table = edrv->config->table_init_on;
+	} else {
+		max_len = edrv->config->table_init_off_cnt;
+		table = edrv->config->table_init_off;
+	}
+
+	while ((i + 1) < max_len) {
+		type = table[i];
+		size = table[i + 1];
+		LCDPR("%s size:0x%x\n", __func__, size);
+		if (type == LCD_EXT_CMD_TYPE_END)
+			break;
+		if (size == 0)
+			goto lcd_extern_config_update_dynamic_size_next;
+		if ((i + 2 + size) > max_len)
+			break;
+
+		if (type == LCD_EXT_CMD_TYPE_MULTI_FR) {
+			for (j = 0; j < size; j += 3) {
+				index = i + 2 + j;
+				lcd_extern_multi_list_add(edrv, table[index],
+					type, 2, &table[index + 1]);
+			}
+		}
+lcd_extern_config_update_dynamic_size_next:
+		i += (size + 2);
+	}
+}
+
 static int aml_lcd_extern_add_i2c(struct aml_lcd_extern_driver_s *ext_drv)
 {
 	int ret = -1;
@@ -1541,6 +1660,8 @@ static int aml_lcd_extern_add_driver(int drv_index,
 	ext_drv->reg_write = NULL;
 	ext_drv->power_on  = NULL;
 	ext_drv->power_off = NULL;
+	ext_drv->multi_list_header = NULL;
+
 
 	/* fill config parameters by different type */
 	switch (ext_drv->config->type) {
@@ -1558,6 +1679,7 @@ static int aml_lcd_extern_add_driver(int drv_index,
 		EXTERR("don't support type %d\n", ext_drv->config->type);
 		break;
 	}
+
 	if (ret) {
 		EXTERR("add driver failed\n");
 		free(lcd_ext_driver[drv_index]);
@@ -1700,6 +1822,14 @@ add_driver_default_end:
 	return ret;
 }
 
+static void lcd_extern_config_update(struct aml_lcd_extern_driver_s *edrv)
+{
+	if (edrv->config->cmd_size == LCD_EXT_CMD_SIZE_DYNAMIC) {
+		lcd_extern_config_update_dynamic_size(edrv, 1);
+		lcd_extern_config_update_dynamic_size(edrv, 0);
+	}
+}
+
 int aml_lcd_extern_probe(char *dtaddr, int index)
 {
 	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
@@ -1805,7 +1935,14 @@ int aml_lcd_extern_probe(char *dtaddr, int index)
 		break;
 	}
 
+	if (ret == 0) {
+		if (lcd_ext_driver[lcd_extern_drv_cnt])
+			lcd_extern_config_update(lcd_ext_driver[lcd_extern_drv_cnt]);
+	}
+
 	if (ret) {
+		if (lcd_ext_driver[lcd_extern_drv_cnt])
+			lcd_extern_multi_list_remove(lcd_ext_driver[lcd_extern_drv_cnt]);
 		EXTERR("%s: add driver failed\n", __func__);
 		return -1;
 	}

@@ -54,7 +54,7 @@ static unsigned int g_lcd_tcon_bin_block_cnt;
 static unsigned char *g_lcd_tcon_bin_path_mem, *g_lcd_tcon_bin_path_resv_mem;
 
 static int handle_tcon_ext_pmu_data(int index, int flag, unsigned char *buf,
-				    unsigned int offset, unsigned int data_len);
+				    unsigned int offset, unsigned int data_len, int mul_index);
 #endif
 #endif
 
@@ -1190,15 +1190,30 @@ static int handle_lcd_ext_type(struct lcd_ext_attr_s *p_attr)
 	return 0;
 }
 
+#ifdef CONFIG_AML_LCD_TCON
+static int handle_lcd_ext_cmd_type_flag(unsigned int type, unsigned int sub_type)
+{
+	int flag = 0;
+	unsigned int t = type, st = sub_type;
+
+	if (type == 0xe)
+		flag = (st == 0xa) ? 4 : (st == 0xb) ? 5 : (st == 0xd) ? 6 : -1;
+	else
+		flag = (t == 0xa) ? 2 : (t == 0xb) ? 1 : (t == 0xd) ? 0 : -1;
+
+	return flag;
+}
+#endif
+
 static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 {
-	int i = 0, j = 0, k, tmp_cnt = 0, tmp_off = 0;
+	int i = 0, j = 0, tmp_cnt = 0, tmp_off = 0;
 	const char *ini_value = NULL;
 	unsigned int tmp_buf[2048];
 	unsigned char *data_buf = NULL;
-	unsigned int data_size = 0;
 #ifdef CONFIG_AML_LCD_TCON
-	unsigned int n, flag = 0;
+	unsigned int data_size = 0;
+	unsigned int n, k, flag = 0, type = 0,  sub_type = 0, multi_id = 0xff;
 	unsigned int offset = 0, data_len = 0;
 	int ret;
 #endif
@@ -1221,76 +1236,86 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 		p_attr->cmd_data[0] = LCD_EXTERN_INIT_END;
 		p_attr->cmd_data[1] = 0;
 		gLcdExtInitOnCnt = 2;
-	} else {
-		if (gLcdExtCmdSize == 0xff) {
-			i = 0;
-			j = 0;
-			while (i < tmp_cnt) {
-				p_attr->cmd_data[j] = tmp_buf[i];
-				if (p_attr->cmd_data[j] == LCD_EXTERN_INIT_END) {
-					p_attr->cmd_data[j + 1] = 0;
-					j += 2;
-					break;
-				}
-				if ((((p_attr->cmd_data[j] >> 4) & 0xf) == 0xb) ||
-				    (((p_attr->cmd_data[j] >> 4) & 0xf)
-				     == 0xd) ||
-				    (((p_attr->cmd_data[j] >> 4) & 0xf)
-				      == 0xa)) {
-#ifdef CONFIG_AML_LCD_TCON
-					n = p_attr->cmd_data[j] & 0xf;
-					if (((p_attr->cmd_data[j] >> 4) & 0xf)
-					    == 0xa) {
-						flag = 2;
-						data_len = tmp_buf[i + 1];
-						offset = tmp_buf[i + 2];
-					} else if (((p_attr->cmd_data[j] >> 4)
-						   & 0xf) == 0xb) {
-						flag = 1;
-					} else if (((p_attr->cmd_data[j] >> 4)
-						   & 0xf) == 0xd) {
-						flag = 0;
-					}
-					memset(data_buf, 0, LCD_EXTERN_INIT_ON_MAX);
-					ret = handle_tcon_ext_pmu_data(n, flag,
-								data_buf, offset,
-								data_len);
-					if (ret == 0) {
-						/* bin data size valid */
-						if (data_buf[0]) {
-							data_size = data_buf[0];
-							p_attr->cmd_data[j + 1] = data_size;
-							memcpy(&p_attr->cmd_data[j + 2],
-								&data_buf[1], data_size);
-						} else { /* orignal ini data */
-							data_size = tmp_buf[i + 1];
-							p_attr->cmd_data[j + 1] = data_size;
-							for (k = 0; k < data_size; k++) {
-								p_attr->cmd_data[j + 2 + k] =
-									(unsigned char)tmp_buf[i + 2 + k];
-							}
-						}
-					}
-#endif
-				} else { /* orignal ini data */
-					data_size = tmp_buf[i + 1];
-					p_attr->cmd_data[j + 1] = data_size;
-					for (k = 0; k < data_size; k++) {
-						p_attr->cmd_data[j + 2 + k] =
-							(unsigned char)tmp_buf[i + 2 + k];
-					}
-				}
-				j += data_size + 2;
-				i += tmp_buf[i + 1] + 2; /* raw data */
-			}
-			gLcdExtInitOnCnt = j;
-		} else {
-			for (i = 0; i < tmp_cnt; i++)
-				p_attr->cmd_data[i] = tmp_buf[i];
-			gLcdExtInitOnCnt = tmp_cnt;
-		}
+		goto hand_lcd_ext_cmd_data_init_off;
 	}
 
+	if (gLcdExtCmdSize != 0xff) {
+		for (i = 0; i < tmp_cnt; i++)
+			p_attr->cmd_data[i] = tmp_buf[i];
+		gLcdExtInitOnCnt = tmp_cnt;
+		goto hand_lcd_ext_cmd_data_init_off;
+	}
+
+	//gLcdExtCmdSize == 0xff, dynamic size
+	i = 0;
+	j = 0;
+	while (i < tmp_cnt) {
+		p_attr->cmd_data[j] = tmp_buf[i];
+		if (p_attr->cmd_data[j] == LCD_EXTERN_INIT_END) {
+			p_attr->cmd_data[j + 1] = 0;
+			j += 2;
+			break;
+		}
+
+#ifdef CONFIG_AML_LCD_TCON
+		n = p_attr->cmd_data[j] & 0xf;
+		type = (p_attr->cmd_data[j] >> 4) & 0xf;
+		sub_type = (type == 0xe) ? (p_attr->cmd_data[j + 3] & 0xf) : 0xff;
+		multi_id = (type == 0xe) ? p_attr->cmd_data[j + 2] : 0xff;
+
+		flag = handle_lcd_ext_cmd_type_flag(type, sub_type);
+
+		if (flag < 0) {
+			goto handle_lcd_ext_data_original;
+		} else if (flag == 2) {
+			data_len = tmp_buf[i + 1];
+			offset = tmp_buf[i + 2];
+		} else if (flag == 4) {
+			data_len = tmp_buf[i + 1] - 2;
+			offset = tmp_buf[i + 4];
+		}
+
+		memset(data_buf, 0, LCD_EXTERN_INIT_ON_MAX);
+		ret = handle_tcon_ext_pmu_data(n, flag, data_buf, offset, data_len, multi_id);
+		if (ret || data_buf[0] == 0)
+			goto handle_lcd_ext_data_original;
+
+		switch (flag) {
+		case 0: /* 0xd */
+		case 1: /* 0xb */
+		case 2: /* 0xa */
+			/* bin data size valid */
+			data_size = data_buf[0];
+			p_attr->cmd_data[j + 1] = data_size;
+			memcpy(&p_attr->cmd_data[j + 2], &data_buf[1], data_size);
+			goto handle_lcd_ext_data_next;
+
+		case 4: /* 0xe - 0xd */
+		case 5: /* 0xe - 0xb */
+		case 6: /* 0xe - 0xa */
+			/* bin data size valid */
+			data_size = data_buf[0] + 2;
+			p_attr->cmd_data[j + 1] = data_size;
+			p_attr->cmd_data[j + 2] = tmp_buf[i + 2];
+			p_attr->cmd_data[j + 3] = tmp_buf[i + 3];
+			memcpy(&p_attr->cmd_data[j + 4], &data_buf[1], data_size - 2);
+			goto handle_lcd_ext_data_next;
+		}
+
+handle_lcd_ext_data_original:
+		data_size = tmp_buf[i + 1];
+		p_attr->cmd_data[j + 1] = data_size;
+		for (k = 0; k < data_size; k++)
+			p_attr->cmd_data[j + 2 + k] = (unsigned char)tmp_buf[i + 2 + k];
+
+handle_lcd_ext_data_next:
+		j += data_size + 2;
+		i += tmp_buf[i + 1] + 2; /* raw data */
+#endif
+	}
+	gLcdExtInitOnCnt = j;
+
+hand_lcd_ext_cmd_data_init_off:
 	tmp_off = gLcdExtInitOnCnt;
 	ini_value = IniGetString("lcd_ext_Attr", "init_off", "null");
 	if (model_debug_flag & DEBUG_LCD_EXTERN)
@@ -2563,7 +2588,7 @@ static int handle_tcon_bin(void)
 }
 
 static int handle_tcon_ext_pmu_data(int index, int flag, unsigned char *buf,
-				    unsigned int offset, unsigned int data_len)
+				    unsigned int offset, unsigned int data_len, int mul_index)
 {
 	char *file_name, str[2][30];
 	unsigned int data_size = 0, i, file_find = 0;
@@ -2581,8 +2606,13 @@ static int handle_tcon_ext_pmu_data(int index, int flag, unsigned char *buf,
 		return -1;
 	}
 
-	sprintf(str[0], "model_tcon_ext_b%d_spi", index);
-	sprintf(str[1], "model_tcon_ext_b%d", index);
+	if (flag == 4 || flag == 5 || flag == 6) {
+		sprintf(str[0], "model_tcon_ext_b%d_%d_spi", index, mul_index);
+		sprintf(str[1], "model_tcon_ext_b%d_%d", index, mul_index);
+	} else {
+		sprintf(str[0], "model_tcon_ext_b%d_spi", index);
+		sprintf(str[1], "model_tcon_ext_b%d", index);
+	}
 	while (i < 2) {
 		file_name = getenv(str[i]);
 		if (file_name == NULL) {
@@ -2617,16 +2647,19 @@ static int handle_tcon_ext_pmu_data(int index, int flag, unsigned char *buf,
 	}
 
 	switch (flag) {
-	case 0:
+	case 0: /* 0xd */
+	case 6: /* 0xe - 0xd */
 		buf[0] = data_size;
 		GetBinData(&buf[1], data_size);
 		break;
-	case 1: /* data with reg addr auto fill */
+	case 1: /* 0xb: data with reg addr auto fill */
+	case 5: /* 0xe - 0xb: data with reg addr auto fill */
 		buf[0] = (data_size + 1); /* data size include reg start */
 		buf[1] = 0x00;            /* reg start */
 		GetBinData(&buf[2], data_size);
 		break;
-	case 2:
+	case 2: /* 0xa */
+	case 4: /*0xe - 0xa*/
 		if (data_size < (offset + data_len - 1)) {
 			ALOGE("%s, %s suspend size %d out of data_size(%d)!\n",
 			      __func__, str[i], (offset + data_len - 1),
