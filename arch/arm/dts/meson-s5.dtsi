@@ -41,7 +41,7 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "meson-p1-series.dtsi"
+#include "meson-s5-series.dtsi"
 #include <dt-bindings/gpio/meson-s5-gpio.h>
 #include <dt-bindings/reset/amlogic,meson-gxbb-reset.h>
 #include <dt-bindings/pwm/pwm.h>
