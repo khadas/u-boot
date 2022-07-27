@@ -7,7 +7,7 @@
 #include "suspend.h"
 
 /*KEY ID*/
-#define GPIO_KEY_ID_POWER	GPIOD_2
+#define GPIO_KEY_ID_POWER	GPIOD_8
 
 #define ADC_KEY_ID_MENU		520
 #define ADC_KEY_ID_VOL_DEC	521
