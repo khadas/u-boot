@@ -296,7 +296,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				return rc;
 			}
 		}
-		bootargs = env_get("bootargs");
+		bootargs = env_get("bootconfig");
 		if (!bootargs) {
 			bootargs = "\0";
 		}
@@ -335,19 +335,19 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				return -1;
 			}
 			sprintf(newbootargs, "%s %s %s", bootargs, out_data->cmdline, bootstate);
-			env_set("bootargs", newbootargs);
+			env_set("bootconfig", newbootargs);
 			free(newbootargs);
 			newbootargs = NULL;
 			avb_slot_verify_data_free(out_data);
 		}
 	}else {
 		const int is_dev_unlocked = is_device_unlocked();
-		if (is_dev_unlocked) {
-			run_command("setenv bootargs ${bootargs} androidboot.verifiedbootstate=orange",0);
-		}
-		else {
-			run_command("setenv bootargs ${bootargs} androidboot.verifiedbootstate=green",0);
-		}
+		if (is_dev_unlocked)
+			run_command("setenv bootconfig ${bootconfig} "\
+			"androidboot.verifiedbootstate=orange", 0);
+		else
+			run_command("setenv bootconfig ${bootconfig} "\
+			"androidboot.verifiedbootstate=green", 0);
 	}
 #endif//CONFIG_CMD_BOOTCTOL_AVB
 

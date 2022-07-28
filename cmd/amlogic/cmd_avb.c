@@ -496,7 +496,8 @@ int avb_verify(AvbSlotVerifyData** out_data)
 			AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE, out_data);
 
 	if (upgradestep && (!strcmp(upgradestep, "3"))) {
-		run_command("setenv bootargs ${bootargs} androidboot.vbmeta.avb_version=1.1;", 0);
+		run_command("setenv bootconfig ${bootconfig} androidboot.vbmeta.avb_version=1.1;",
+			0);
 		result = AVB_SLOT_VERIFY_RESULT_OK;
 	}
 

@@ -1,0 +1,10 @@
+config XBC
+	bool "Support Bootconfig"
+	help
+	  U-Boot can be configured to set androidboot cmdline to bootconfig.
+	  Selecting this option will enable bootconfig
+          will read bootconfig from vendor_boot.img
+          and write bootconfig in uboot to vendor_boot.img
+          If devices cannot support it, save bootconfig to
+          bootargs.
+

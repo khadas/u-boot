@@ -129,7 +129,7 @@ static int do_rpmb_state(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 		goto exit;
 	}
 
-	parg = env_get("bootargs");
+	parg = env_get("bootconfig");
 	if (parg)
 	{
 		char *buff =malloc(strlen(parg) + 64);
@@ -149,7 +149,7 @@ static int do_rpmb_state(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 		//printf("2 bootargs=%s\n",buff);
 
 		env_set("rpmb_state", param.u.value.a?"1":"0"); //need this?
-		env_set("bootargs", buff);
+		env_set("bootconfig", buff);
 		free(buff);
 		buff = NULL;
 	}

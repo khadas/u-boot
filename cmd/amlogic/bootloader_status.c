@@ -134,8 +134,10 @@ static void run_recovery_from_flash(void) {
 	run_command("run init_display", 0);
 	run_command("run storeargs", 0);
 	run_command("get_rebootmode", 0);
-	run_command("if test ${reboot_mode} = quiescent; then setenv bootargs ${bootargs} androidboot.quiescent=1; fi;", 0);
-	run_command("if test ${reboot_mode} = recovery_quiescent; then setenv bootargs ${bootargs} androidboot.quiescent=1; fi;", 0);
+	run_command("if test ${reboot_mode} = quiescent; then "\
+		"setenv bootconfig ${bootconfig} androidboot.quiescent=1; fi;", 0);
+	run_command("if test ${reboot_mode} = recovery_quiescent; then "\
+		"setenv bootconfig ${bootconfig} androidboot.quiescent=1; fi;", 0);
 	run_command("run recovery_from_flash", 0);
 }
 
@@ -153,8 +155,10 @@ static void run_recovery_from_cache(void) {
 	run_command("run storeargs", 0);
 	run_command("get_rebootmode", 0);
 
-	run_command("if test ${reboot_mode} = quiescent; then setenv bootargs ${bootargs} androidboot.quiescent=1; fi;", 0);
-	run_command("if test ${reboot_mode} = recovery_quiescent; then setenv bootargs ${bootargs} androidboot.quiescent=1; fi;", 0);
+	run_command("if test ${reboot_mode} = quiescent; then "\
+		"setenv bootconfig ${bootconfig} androidboot.quiescent=1; fi;", 0);
+	run_command("if test ${reboot_mode} = recovery_quiescent; then "\
+		"setenv bootconfig ${bootconfig} androidboot.quiescent=1; fi;", 0);
 	run_command("if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;", 0);
 
 	run_command("if test ${reboot_vendor_boot} = true; then "\

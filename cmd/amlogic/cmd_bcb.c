@@ -124,7 +124,6 @@ static int do_RunBcbCommand(
     char miscbuf[MISCBUF_SIZE] = {0};
     char clearbuf[COMMANDBUF_SIZE+STATUSBUF_SIZE+RECOVERYBUF_SIZE] = {0};
     char* RebootMode;
-    char* ActiveSlot;
 
     if (argc != 2) {
         return cmd_usage(cmdtp);
@@ -203,19 +202,8 @@ static int do_RunBcbCommand(
     if (strstr(RebootMode, "quiescent") != NULL) {
         printf("quiescent mode.\n");
         run_command("run storeargs", 0);
-        run_command("setenv bootargs ${bootargs} androidboot.quiescent=1;", 0);
+	run_command("setenv bootconfig ${bootconfig} androidboot.quiescent=1;", 0);
     }
-
-	ActiveSlot = env_get("active_slot");
-	if (!ActiveSlot) {
-		run_command("get_valid_slot", 0);
-		ActiveSlot = env_get("active_slot");
-	}
-	if (ActiveSlot && !strstr(ActiveSlot, "normal")) {
-		printf("ab update mode\n");
-		run_command("setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};",
-			0);
-	}
 
     if (!memcmp(command, CMD_RUN_RECOVERY, strlen(CMD_RUN_RECOVERY))) {
         if (run_command("run recovery_from_flash", 0) < 0) {

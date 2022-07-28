@@ -67,6 +67,8 @@ obj-$(CONFIG_$(SPL_)LZ4) += lz4_wrapper.o
 
 obj-$(CONFIG_LIBAVB) += libavb/
 
+obj-$(CONFIG_XBC) += libxbc/
+
 obj-$(CONFIG_$(SPL_TPL_)SAVEENV) += qsort.o
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += libfdt/
 ifneq ($(CONFIG_$(SPL_TPL_)BUILD)$(CONFIG_$(SPL_TPL_)OF_PLATDATA),yy)
@@ -117,5 +119,6 @@ obj-y += vsprintf.o strto.o strmhz.o
 endif
 
 obj-y += libavb/
+obj-y += libxbc/
 
 subdir-ccflags-$(CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED) += -O2
