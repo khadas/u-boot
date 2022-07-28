@@ -2317,13 +2317,9 @@ int aml_bl_probe(char *dtaddr, int load_id)
 		if (load_id_bl & 0x1) {
 			ret = lcd_bl_init_load_from_dts(dtaddr, bdrv);
 			if (ret) {
-				load_id_bl = 0x0;
-				ret = lcd_bl_init_load_from_bsp(bdrv);
-				if (ret) {
-					free(bl_driver[i]);
-					bl_driver[i] = NULL;
-					return -1;
-				}
+				free(bl_driver[i]);
+				bl_driver[i] = NULL;
+				return -1;
 			}
 		} else {
 			ret = lcd_bl_init_load_from_bsp(bdrv);
