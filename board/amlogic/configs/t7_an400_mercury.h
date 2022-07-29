@@ -422,15 +422,16 @@
 		"loadaddr_kernel=0x01080000\0"\
 		"dv_fw_addr=0xa00000\0"\
 		"otg_device=1\0" \
-		"panel_type=vbyone_0\0" \
-		"panel1_type=vbyone_1\0" \
+		"panel_type=mipi_2\0" \
+		"panel1_type=lvds_3\0" \
 		"panel2_type=lvds_1\0" \
 		"lcd_ctrl=0x00000000\0" \
 		"lcd1_ctrl=0x00000000\0" \
 		"lcd2_ctrl=0x00000000\0" \
 		"lcd_debug=0x00000000\0" \
-		"outputmode=panel1\0" \
-		"outputmode2=1080p60hz\0" \
+		"outputmode=panel\0" \
+		"outputmode2=panel1\0" \
+		"outputmode3=1080p60hz\0" \
 		"hdmimode=1080p60hz\0" \
 		"cvbsmode=dummy_l\0" \
 		"colorattribute=444,8bit\0"\
@@ -452,6 +453,7 @@
 		"fb_addr=0x00300000\0" \
 		"fb_width=1920\0" \
 		"fb_height=1080\0" \
+		"viu2_hold_line=4\0" \
 		"frac_rate_policy=1\0" \
 		"hdr_policy=0\0" \
 		"usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
@@ -518,6 +520,7 @@
 			"setenv bootargs ${initargs} otg_device=${otg_device} "\
 			"logo=${display_layer},loaded,${fb_addr} powermode=${powermode} "\
 			"vout=${outputmode},enable vout2=${outputmode2},enable "\
+			"vout3=${outputmode3},enable " \
 			"panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
 			"panel1_type=${panel1_type} lcd1_ctrl=${lcd1_ctrl} "\
 			"panel2_type=${panel2_type} lcd2_ctrl=${lcd2_ctrl} "\
@@ -720,9 +723,6 @@
 		"init_display="\
 			"hdmitx hpd;hdmitx get_preferred_mode;"\
 			"hdmitx get_parse_edid;dovi process;"\
-			"osd open;osd clear;run load_bmp_logo;bmp scale;"\
-			"vout output ${outputmode};"\
-			"setenv outputmode2 ${hdmimode};"\
 			"osd dual_logo;"\
 			"dovi set;dovi pkg;vpp hdrpkt;"\
 			"\0"\
@@ -783,29 +783,29 @@
 #ifndef CONFIG_HDMITX_ONLY
 /* dual logo, normal boot */
 #define CONFIG_DUAL_LOGO \
-	"setenv outputmode2 ${hdmimode};"\
-	"setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
-	"osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
-	"setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;"\
-	"bmp scale;vout output ${outputmode};"\
+	"setenv outputmode3 ${hdmimode};"\
+	"setenv display_layer viu3_osd0;"\
+	"setenv fb_width 1280;setenv fb_height 800;"\
+	"vout3 prepare ${outputmode3};"\
+	"osd open;osd clear;imgread pic logo bootup_land $loadaddr;"\
+	"bmp display $bootup_land_offset;"\
+	"bmp scale;vout3 output ${outputmode3};"\
+	"setenv display_layer viu2_osd0;"\
+	"setenv fb_width 1280;setenv fb_height 800;"\
+	"setenv outputmode2 panel1;"\
+	"vout2 prepare ${outputmode2};osd open;osd clear;"\
+	"imgread pic logo bootup_land $loadaddr;"\
+	"bmp display $bootup_land_offset;"\
+	"vout2 output ${outputmode2};bmp scale;"\
+	"setenv display_layer osd0;"\
+	"setenv fb_width 800;setenv fb_height 1280;"\
+	"osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;"\
+	"bmp scale;vout output ${outputmode};vpp hdrpkt;"\
 	"\0"\
 
-/* dual logo, factory_reset boot, recovery always displays on panel */
-#define CONFIG_RECOVERY_DUAL_LOGO \
-	"setenv outputmode2 ${hdmimode};"\
-	"setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
-	"osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
-	"setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;"\
-	"vout output ${outputmode};"\
-	"\0"\
-
-/* single logo */
-#define CONFIG_SINGLE_LOGO \
-	"setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;"\
-	"vout output ${outputmode};"\
-	"\0"
+#define CONFIG_RECOVERY_DUAL_LOGO CONFIG_DUAL_LOGO
+#define CONFIG_SINGLE_LOGO CONFIG_DUAL_LOGO
 #endif
-
 /* #define CONFIG_ENV_IS_NOWHERE  1 */
 #define CONFIG_ENV_SIZE   (64 * 1024)
 #define CONFIG_FIT 1
