@@ -241,6 +241,8 @@ static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
             strcpy(partName, "vendor_boot_a");
         else if (strcmp(slot_name, "1") == 0)
             strcpy(partName, "vendor_boot_b");
+	else
+		strcpy(partName, "vendor_boot");
 
         printf("partName = %s \n", partName);
 
