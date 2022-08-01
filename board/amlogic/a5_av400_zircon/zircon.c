@@ -342,6 +342,48 @@ static void add_tsensor1_trim_info(void)
 	writel(trim_info, SYSCTRL_STICKY_REG3);
 }
 
+static int hex_digit(char ch)
+{
+	if (ch >= '0' && ch <= '9')
+		return ch - '0';
+	else if (ch >= 'a' && ch <= 'f')
+		return ch - 'a' + 10;
+	else if (ch >= 'A' && ch <= 'F')
+		return ch - 'A' + 10;
+	else
+		return -1;
+}
+
+static void add_eth_mac_address(zbi_header_t *zbi)
+{
+	char *str = env_get("ethaddr");
+	uint8_t addr[6];
+
+	int i;
+
+	for (i = 0; i < 6; i++) {
+		unsigned left, right;
+
+		left = hex_digit(*str++);
+		right = hex_digit(*str++);
+		if (str[0] && str[1] && left >= 0 && right >= 0)
+			addr[i] = (left << 4) | right;
+		else
+			goto failed;
+
+		if (i < 5 && *str++ != ':')
+			goto failed;
+	}
+
+	zircon_append_boot_item(zbi, ZBI_TYPE_DRV_MAC_ADDRESS, 0, addr, sizeof(addr));
+
+	printf("set MAC address to \"%s\"\n", addr);
+	return;
+
+failed:
+	printf("MAC address parsing failed for \"%s\"\n", env_get("ethaddr"));
+}
+
 int zircon_preboot(zbi_header_t *zbi)
 {
 	// allocate crashlog save area before 0x5f800000-0x60000000 reserved area
@@ -374,5 +416,6 @@ int zircon_preboot(zbi_header_t *zbi)
 	add_partition_map(zbi);
 	add_cpu_topology(zbi);
 	add_reboot_reason(zbi);
+	add_eth_mac_address(zbi);
 	return 0;
 }
