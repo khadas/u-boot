@@ -899,6 +899,28 @@ static int ldim_dev_get_config_from_dts(struct ldim_dev_driver_s *dev_drv,
 		       dev_drv->dim_max, dev_drv->dim_min);
 	}
 
+	propdata = (char *)fdt_getprop(dt_addr, child_offset, "mcu_header", NULL);
+	if (!propdata) {
+		LDIMERR("failed to get mcu_header\n");
+		dev_drv->mcu_header = 0;
+	} else {
+		dev_drv->mcu_header = (unsigned int)(be32_to_cpup((u32 *)propdata));
+	}
+	if (lcd_debug_print_flag & LCD_DBG_PR_BL_NORMAL)
+		LDIMPR("mcu_header=%d\n", dev_drv->mcu_header);
+
+	propdata = (char *)fdt_getprop(dt_addr, child_offset, "mcu_dim", NULL);
+	if (!propdata) {
+		LDIMERR("failed to get mcu_dim\n");
+		dev_drv->mcu_dim = 0;
+	} else {
+		dev_drv->mcu_dim = (unsigned int)(be32_to_cpup((u32 *)propdata));
+	}
+	if (lcd_debug_print_flag & LCD_DBG_PR_BL_NORMAL) {
+		LDIMPR("mcu_header=0x%0x, mcu_dim=0x%x\n",
+		       dev_drv->mcu_header, dev_drv->mcu_dim);
+	}
+
 	propdata = (char *)fdt_getprop(dt_addr, child_offset, "chip_count", NULL);
 	if (!propdata) {
 		dev_drv->chip_cnt = 1;
@@ -1142,6 +1164,17 @@ static int ldim_dev_get_config_from_ukey(struct ldim_dev_driver_s *dev_drv)
 	dev_drv->dim_min =
 		(*(p + LCD_UKEY_LDIM_DEV_DIM_MIN) |
 		((*(p + LCD_UKEY_LDIM_DEV_DIM_MIN + 1)) << 8));
+
+	dev_drv->mcu_header =
+		(*(p + LCD_UKEY_LDIM_DEV_CUST_ATTR_0) |
+		((*(p + LCD_UKEY_LDIM_DEV_CUST_ATTR_0 + 1)) << 8) |
+		((*(p + LCD_UKEY_LDIM_DEV_CUST_ATTR_0 + 2)) << 16) |
+		((*(p + LCD_UKEY_LDIM_DEV_CUST_ATTR_0 + 3)) << 24));
+	dev_drv->mcu_dim =
+		(*(p + LCD_UKEY_LDIM_DEV_CUST_ATTR_1) |
+		((*(p + LCD_UKEY_LDIM_DEV_CUST_ATTR_1 + 1)) << 8) |
+		((*(p + LCD_UKEY_LDIM_DEV_CUST_ATTR_1 + 2)) << 16) |
+		((*(p + LCD_UKEY_LDIM_DEV_CUST_ATTR_1 + 3)) << 24));
 
 	dev_drv->chip_cnt =
 		(*(p + LCD_UKEY_LDIM_DEV_CHIP_COUNT) |
