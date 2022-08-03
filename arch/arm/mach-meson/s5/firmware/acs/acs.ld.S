@@ -5,7 +5,7 @@ ENTRY(acs_entry)
 
 SECTIONS
 {
-	. = 0x00007000;
+	. = 0x00002000;
 	. = ALIGN(4);
 	.entry : {
 		__RO_START__ = .;
@@ -21,35 +21,42 @@ SECTIONS
 		*(.dev_header*)
 	}
 
-	. = 0x00000200;
+	. = 0x00000100;
 	.generic_param :
 	{
 		*(.generic_param*)
 	}
 
-	. = 0x00005800;
+	. = 0x0000200;
 	.clk_param :
 	{
 		*(.clk_param*)
 	}
 
-	. = 0x00005c00;
+	. = 0x00000300;
 	.misc_param :
 	{
 		*(.misc_param*)
 	}
 
-	. = 0x00005e00;
+	. = 0x00000500;
 	.store_param :
 	{
 		*(.store_param*)
 	}
 
-	. = 0x00006000;
+	. = 0x00000e00 - 0x40;
 	.ddr_param :
 	{
 		*(.ddr_param*)
 	}
-
-    ASSERT(. <= 0x00007000, "params image has exceeded its limit.")
+	.ddr_2acs_index :
+	{
+		*(.ddr_2acs_index*)
+	}
+	.ddr_2acs_data :
+	{
+		*(.ddr_2acs_data*)
+	}
+    ASSERT(. <= 0x00002000, "params image has exceeded its limit.")
 }
