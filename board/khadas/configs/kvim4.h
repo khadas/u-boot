@@ -395,8 +395,8 @@
         "outputmode2=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
-        "display_width=1080\0" \
-        "display_height=1920\0" \
+        "display_width=1920\0" \
+        "display_height=1080\0" \
 		"hdmichecksum=0x00000000\0" \
 		"dolby_status=0\0" \
 		"dolby_vision_on=0\0" \
@@ -410,8 +410,8 @@
         "display_color_bg=0\0" \
         "dtb_mem_addr=0x01000000\0" \
         "fb_addr=0x00300000\0" \
-        "fb_width=1080\0" \
-        "fb_height=1920\0" \
+        "fb_width=1920\0" \
+        "fb_height=1080\0" \
         "frac_rate_policy=1\0" \
         "hdr_policy=0\0" \
         "usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
@@ -733,27 +733,40 @@
 */
 #define CONFIG_DUAL_LOGO \
     "setenv outputmode2 ${hdmimode};"\
-	"setenv fb_width 1920;setenv fb_height 1080;"\
-	"setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
-	"osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
-	"setenv fb_width 1080;setenv fb_height 1920;"\
-	"setenv display_layer osd0;osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout output ${outputmode};"\
+    "setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
+    "osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
+    "if gpio input GPIOY_9; then "\
+        "setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+    "else "\
+        "setenv fb_width 1080;setenv fb_height 1920;"\
+        "setenv display_width 1080;setenv display_height 1920;"\
+        "setenv display_layer osd0;osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout output ${outputmode};"\
+    "fi;"\
     "\0"\
 
 /* dual logo, factory_reset boot, recovery always displays on panel */
 #define CONFIG_RECOVERY_DUAL_LOGO \
     "setenv outputmode2 ${hdmimode};"\
-	"setenv fb_width 1920;setenv fb_height 1080;"\
-	"setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
-	"osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
-	"setenv fb_width 1080;setenv fb_height 1920;"\
-	"setenv display_layer osd0;osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout output ${outputmode};"\
+    "setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
+    "osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
+    "if gpio input GPIOY_9; then "\
+        "setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+    "else "\
+        "setenv fb_width 1080;setenv fb_height 1920;"\
+        "setenv display_width 1080;setenv display_height 1920;"\
+        "setenv display_layer osd0;osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout output ${outputmode};"\
+    "fi;"\
     "\0"\
 
 /* single logo */
 #define CONFIG_SINGLE_LOGO \
-	"setenv fb_width 1080;setenv fb_height 1920;"\
-    "setenv display_layer osd0;osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout output ${outputmode};"\
+    "if gpio input GPIOY_9; then "\
+        "setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+    "else "\
+        "setenv fb_width 1080;setenv fb_height 1920;"\
+        "setenv display_width 1080;setenv display_height 1920;"\
+        "setenv display_layer osd0;osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout output ${outputmode};"\
+    "fi;"\
     "\0"
 #endif
 
