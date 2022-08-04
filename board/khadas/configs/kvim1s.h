@@ -181,19 +181,19 @@
 			"setenv loadaddr ${loadaddr_kernel};"\
 			"echo Try to boot from SD card.;"\
 			"if load mmc 0:1 $dtb_mem_addr dtb/amlogic/kvim1s.dtb; then "\
-				"if load mmc 0:1 $loadaddr zImage; then "\
-					"if load mmc 0:1 10000000 uInitrd; then "\
+				"if load mmc 0:1 $loadaddr Image; then "\
+					"if load mmc 0:1 10000000 initrd.img; then "\
 						"echo Boot from SD card.;"\
-						"booti $loadaddr 10000000 $dtb_mem_addr;"\
+						"booti $loadaddr 10000000:$filesize $dtb_mem_addr;"\
 					"fi;"\
 				"fi;"\
 			"fi;"\
 			"echo Try to boot from eMMC.;"\
 			"if load mmc 1:4 $dtb_mem_addr /boot/dtb/amlogic/kvim1s.dtb; then "\
-				"if load mmc 1:4 $loadaddr zImage; then "\
-					"if load mmc 1:4 10000000 uInitrd; then "\
+				"if load mmc 1:4 $loadaddr Image; then "\
+					"if load mmc 1:4 10000000 initrd.img; then "\
 						"echo Boot from eMMC.;"\
-						"booti $loadaddr 10000000 $dtb_mem_addr;"\
+						"booti $loadaddr 10000000:$filesize $dtb_mem_addr;"\
 					"fi;"\
 				"fi;"\
 			"fi;"\
