@@ -1216,6 +1216,44 @@ config TARGET_T3_T963D4
 
 endif
 
+if MESON_T5M
+
+config SYS_SOC
+	default "t5m"
+
+config DDRFW_TYPE
+	string "t5m DDR FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+        string "T5M CHIPSET NAME"
+        default ""
+
+config CHIPSET_VARIANT
+        string "T5M CHIPSET VARIANT"
+        default ""
+
+config AMLOGIC_KEY_TYPE
+        string "T5M AMLOGIC KEY TYPE"
+        default "dev-keys"
+
+choice
+	prompt "T5M Board"
+
+config T5M_SKT
+	bool "T5M_SKT"
+	select TARGET_T5M_SKT
+	help
+		Select T5M SKT(XXXX) config
+
+endchoice
+
+config TARGET_T5M_SKT
+	bool "T5M SKT board"
+	depends on T5M_SKT
+
+endif
+
 if MESON_C2
 
 config SYS_SOC
@@ -1482,4 +1520,6 @@ source "board/amlogic/c3_aw419/Kconfig"
 source "board/amlogic/c3_aw429/Kconfig"
 
 source "board/amlogic/t5w_at301_v1/Kconfig"
+
+source "board/amlogic/t5m_skt/Kconfig"
 

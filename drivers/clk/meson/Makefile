@@ -17,3 +17,4 @@ obj-$(CONFIG_CLK_MESON_A5) += clk_meson_a5.o clk_measure.o
 obj-$(CONFIG_CLK_MESON_C3) += clk_meson_c3.o clk_measure.o
 obj-$(CONFIG_CLK_MESON_S5) += clk_meson_s5.o clk_measure.o
 obj-$(CONFIG_CLK_MESON_T5W) += clk_meson_t5w.o clk_measure.o
+obj-$(CONFIG_CLK_MESON_T5M) += clk_meson_t5m.o clk_measure.o

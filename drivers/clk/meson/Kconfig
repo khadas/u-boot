@@ -87,3 +87,10 @@ config CLK_MESON_T5W
         help
           This option is used to enable the meson t5w clock
           driver
+
+config CLK_MESON_T5M
+        bool "Support T5M Clock"
+        depends on CLK
+        help
+          This option is used to enable the meson t5m clock
+          driver
