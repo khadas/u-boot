@@ -176,27 +176,21 @@
                 "fastboot 0;"\
             "fi;fi;fi;fi;fi;fi;"\
             "\0" \
-        "storeboot="\
+		"storeboot="\
 			"kbi resetflag 0;"\
 			"setenv loadaddr ${loadaddr_kernel};"\
-			"echo Try to boot from SD card.;"\
-			"if load mmc 0:1 $dtb_mem_addr dtb/amlogic/kvim1s.dtb; then "\
-				"if load mmc 0:1 $loadaddr Image; then "\
-					"if load mmc 0:1 10000000 initrd.img; then "\
-						"echo Boot from SD card.;"\
-						"booti $loadaddr 10000000:$filesize $dtb_mem_addr;"\
-					"fi;"\
-				"fi;"\
-			"fi;"\
-			"echo Try to boot from eMMC.;"\
-			"if load mmc 1:4 $dtb_mem_addr /boot/dtb/amlogic/kvim1s.dtb; then "\
-				"if load mmc 1:4 $loadaddr Image; then "\
-					"if load mmc 1:4 10000000 initrd.img; then "\
-						"echo Boot from eMMC.;"\
-						"booti $loadaddr 10000000:$filesize $dtb_mem_addr;"\
-					"fi;"\
-				"fi;"\
-			"fi;"\
+			"usb start; "\
+			"for dev in usb mmc; do "\
+			"for part in 0 1 1:4; do "\
+				"test -e $dev $part Image && "\
+				"echo try load os from $dev $part && "\
+				"load $dev $part $dtb_mem_addr dtb/$fdtfile && "\
+				"load $dev $part $loadaddr Image && "\
+				"load $dev $part 10000000 initrd.img && "\
+				"booti $loadaddr 10000000:$filesize $dtb_mem_addr; "\
+				"echo fail $dev $part;"\
+			"done; "\
+			"done; "\
 			"\0" \
          "update="\
             /*first usb burning, second sdc_burn, third ext-sd autoscr/recovery, last udisk autoscr/recovery*/\
