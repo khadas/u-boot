@@ -564,7 +564,9 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 
 		hdr_addr_v3 = (p_boot_img_hdr_v3_t)hdr_addr;
 		kernel_size = ALIGN(hdr_addr_v3->kernel_size, 0x1000);
+
 		ramdisk_size = ALIGN(hdr_addr_v3->ramdisk_size, 0x1000);
+
 		debugP("kernel_size 0x%x, totalSz 0x%x\n",
 			hdr_addr_v3->kernel_size, kernel_size);
 		debugP("ramdisk_size 0x%x, totalSz 0x%x\n",
@@ -638,9 +640,9 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 						return __LINE__;
 					}
 
-					p_boot_img_hdr_t pinitbootimghdr;
+					p_boot_img_hdr_v3_t pinitbootimghdr;
 
-					pinitbootimghdr = (p_boot_img_hdr_t)pbuffpreload_init;
+					pinitbootimghdr = (p_boot_img_hdr_v3_t)pbuffpreload_init;
 
 					ramdisk_size = ALIGN(pinitbootimghdr->ramdisk_size,
 							0x1000);
@@ -648,7 +650,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 						pinitbootimghdr->ramdisk_size, ramdisk_size);
 					init_boot_ramdisk_size = pinitbootimghdr->ramdisk_size;
 
-					rc = store_logic_read(partname_init, BOOT_IMG_HDR_SIZE,
+					rc = store_logic_read(partname_init, BOOT_IMG_V3_HDR_SIZE,
 						ramdisk_size,
 						loadaddr + kernel_size + BOOT_IMG_V3_HDR_SIZE);
 					if (rc) {
