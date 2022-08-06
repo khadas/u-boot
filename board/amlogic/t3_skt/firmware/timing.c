@@ -416,7 +416,8 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 #endif
 		.cfg_ddr_training_delay_ps.reserve_training_parameter = {
 		//cs0 write dqs,lane0-lane3
-		(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+		//20220806,ch0 lane0 + 9step,for stress fail;
+		(0 << 7) | 9, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
 		//cs1 write dqs,lane0-lane3
 		(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
 		//cs0 read dqs,lane0-lane3
