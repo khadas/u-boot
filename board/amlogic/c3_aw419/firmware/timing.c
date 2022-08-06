@@ -131,7 +131,8 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_board_common_setting.timming_struct_org_size = sizeof(ddr_set_ps0_only_t),
 	.cfg_board_common_setting.timming_struct_real_size = 0,
 	.cfg_board_common_setting.fast_boot = { 0, 0, 0, 0},//{ 0, 0, (1 << 3) | (4)},
-	.cfg_board_common_setting.ddr_func = DDR_FUNC | DDR_FUNC_ENABLE_DDR_ID,
+	.cfg_board_common_setting.ddr_func = DDR_FUNC | DDR_FUNC_ENABLE_DDR_ID |
+		DDR_FUNC_CONFIG_DFE_FUNCTION,
 	.cfg_board_common_setting.board_id = CONFIG_BOARD_ID_MASK,
 	.cfg_board_common_setting.DramType = CONFIG_DDR_TYPE_DDR4,
 	.cfg_board_common_setting.dram_rank_config = CONFIG_DDR0_32BIT_RANK0_CH0,
@@ -258,10 +259,11 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_ddr_training_delay_ps.read_dqs_gate_delay[2]  = 279,
 	.cfg_ddr_training_delay_ps.read_dqs_gate_delay[3]  = 283,
 
-	.cfg_ddr_training_delay_ps.read_dqs_delay[0]  = 123,
-	.cfg_ddr_training_delay_ps.read_dqs_delay[1]  = 127,
-	.cfg_ddr_training_delay_ps.read_dqs_delay[2]  = 138,
-	.cfg_ddr_training_delay_ps.read_dqs_delay[3]  = 129,
+	//20220806,when aw419 enable DFE,read_dqs_delay[2]must set 170,138 cause low max frequercy
+	.cfg_ddr_training_delay_ps.read_dqs_delay[0]  = 170,//123,
+	.cfg_ddr_training_delay_ps.read_dqs_delay[1]  = 170,//127,
+	.cfg_ddr_training_delay_ps.read_dqs_delay[2]  = 170,//138,
+	.cfg_ddr_training_delay_ps.read_dqs_delay[3]  = 170,//129,
 
 	.cfg_ddr_training_delay_ps.read_dq_bit_delay[0]	= 69,
 	.cfg_ddr_training_delay_ps.read_dq_bit_delay[1]	= 53,
