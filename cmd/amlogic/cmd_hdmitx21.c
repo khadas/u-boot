@@ -245,6 +245,12 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		}
 		printf("set hdmitx VIC = %d CS = %d CD = %d\n",
 		       hdev->vic, hdev->para->cs, hdev->para->cd);
+		/* currently, hdmi mode is always set, if
+		 * mode set abort/exit, need to add return
+		 * result of mode setting, so that vout
+		 * driver will pass it to kernel, and do
+		 * mode setting again when vout init in kernel
+		 */
 		hdmitx21_set(hdev);
 	}
 	return CMD_RET_SUCCESS;

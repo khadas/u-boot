@@ -280,6 +280,8 @@ int fdt_check_header(const void *fdt);
  */
 int fdt_move(const void *fdt, void *buf, int bufsize);
 
+int fdt_check_full(const void *fdt, size_t bufsize);
+
 /**********************************************************************/
 /* Read-only functions                                                */
 /**********************************************************************/

@@ -345,7 +345,9 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 	if (!bootargs)
 		printf("Can't find bootargs property in chosen\n");
 
-	if (bootargs && strstr(bootargs, "ramoops_io_en=1")) {
+	char *env = env_get("ramdump_enable");
+
+	if ((bootargs && strstr(bootargs, "ramoops_io_en=1")) || (env && (env[0] == '1'))) {
 		ret = fdt_appendprop_string(images->ft_addr, node, "bootargs", " nokaslr");
 		if (!ret)
 			printf("Not enable kaslr for debug purpose\n");

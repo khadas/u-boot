@@ -61,6 +61,7 @@ static void mmu_setup(unsigned long ddr_size)
 
 	/* Setup an identity-mapping for all RAM space */
 	unsigned long nTotal = readl(PREG_STICKY_REG8) & AMLOGIC_USERAM_MASK;
+	nTotal = ((nTotal - 1) / 512 + 1) * 512;
 
 	serial_puts("\naml log : DDR size is ");
 	serial_put_dec(nTotal);

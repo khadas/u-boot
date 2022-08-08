@@ -105,6 +105,7 @@ void osd_init_hw_viux(u32 index);
 
 #ifdef VEHICLE_CONFIG
 void osd_set_config_finish(void);
+void transfer_info_to_rtos(void);
 bool is_osd2_configed(void);
 void osd2_config_with_dimm(int *axis);
 void osd2_setup_hw(u32 index,

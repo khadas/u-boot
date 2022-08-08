@@ -105,7 +105,7 @@
         "sdcburncfg=aml_sdc_burn.ini\0"\
         "EnableSelinux=enforcing\0" \
         "recovery_part=recovery\0"\
-        "lock=10101000\0"\
+	"lock=10101000\0"\
         "recovery_offset=0\0"\
         "cvbs_drv=0\0"\
         "osd_reverse=0\0"\
@@ -315,11 +315,12 @@
 		"if gpio input GPIOD_3; then "\
 			"echo detect upgrade key;"\
 			"if test ${boot_flag} = 0; then "\
-				"echo enter fastboot; setenv boot_flag 1; saveenv; fastboot 0;"\
+				"echo enter recovery; setenv boot_flag 1; saveenv;"\
+				"run recovery_from_flash;"\
 			"else if test ${boot_flag} = 1; then "\
 				"echo enter update; setenv boot_flag 2; saveenv; run update;"\
 			"else "\
-				"echo enter recovery; setenv boot_flag 0; saveenv; run recovery_from_flash;"\
+				"echo enter fastboot; setenv boot_flag 0; saveenv; fastboot 0;"\
 			"fi;fi;"\
 		"fi;"\
 		"\0"\

@@ -10,6 +10,7 @@
 #include <malloc.h>
 #include <tee.h>
 #include <mmc.h>
+#include <amlogic/storage.h>
 
 #define TEE_ERROR_RPMB_AUTH_KEY_PROGRAMMED                 0x7FFFFFFD
 
@@ -85,9 +86,11 @@ static int do_rpmb_state(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 	const struct tee_optee_ta_uuid uuid = TA_RPMB_UUID;
 	struct tee_param param = { .attr = TEE_PARAM_ATTR_TYPE_VALUE_OUTPUT };
 	char *parg = NULL;
-	struct mmc *mmc;
+	struct mmc *mmc = NULL;
 
-	mmc = find_mmc_device(1);
+	if (store_get_type() == BOOT_EMMC)
+		mmc = find_mmc_device(1);
+
 	if (!mmc)
 		return -ENODEV;
 

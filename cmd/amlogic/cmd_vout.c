@@ -267,7 +267,7 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 		vpp_matrix_update(VPP_CM_YUV);
 #endif
 		if (cvbs_set_vmode(mode) == 0) {
-			// free(mode);
+			free(mode);
 			run_command("setenv vout_init enable", 0);
 			return CMD_RET_SUCCESS;
 		}
@@ -291,9 +291,9 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 			 */
 			memset(str, 0, sizeof(str));
 			sprintf(str, "hdmitx output %s", mode);
-			run_command(str, 0);
-			// free(mode);
-			run_command("setenv vout_init enable", 0);
+			if (run_command(str, 0) == CMD_RET_SUCCESS)
+				run_command("setenv vout_init enable", 0);
+			free(mode);
 			return CMD_RET_SUCCESS;
 		}
 	}
@@ -309,7 +309,7 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 		vpp_matrix_update(VPP_CM_RGB);
 #endif
 		aml_lcd_driver_enable(venc_index, mode, frac);
-		// free(mode);
+		free(mode);
 		run_command("setenv vout_init enable", 0);
 		return CMD_RET_SUCCESS;
 	}
@@ -318,7 +318,7 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 	printf("outputmode[%s] is invalid\n", argv[1]);
 	do { (void)frac; } while(0);
 
-	// free(mode);
+	free(mode);
 	return CMD_RET_FAILURE;
 }
 
@@ -385,7 +385,7 @@ static int do_vout2_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	venc_sel = mux_sel & 0xf;
 	if (venc_sel == VIU_MUX_ENCI) {
 		if (cvbs_set_vmode(mode) == 0) {
-			// free(mode);
+			free(mode);
 			return CMD_RET_SUCCESS;
 		}
 	}
@@ -405,7 +405,7 @@ static int do_vout2_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 			memset(str, 0, sizeof(str));
 			sprintf(str, "hdmitx output %s", mode);
 			run_command(str, 0);
-			// free(mode);
+			free(mode);
 			return CMD_RET_SUCCESS;
 		}
 	}
@@ -417,7 +417,7 @@ static int do_vout2_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	venc_index = (mux_sel >> 4) & 0xf;
 	if (venc_sel == VIU_MUX_ENCL) {
 		aml_lcd_driver_enable(venc_index, mode, frac);
-		// free(mode);
+		free(mode);
 		return CMD_RET_SUCCESS;
 	}
 #endif
@@ -425,7 +425,7 @@ static int do_vout2_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	printf("outputmode[%s] is invalid\n", argv[1]);
 	do { (void)frac; } while(0);
 
-	// free(mode);
+	free(mode);
 	return CMD_RET_FAILURE;
 }
 
@@ -460,7 +460,7 @@ static int do_vout2_prepare(cmd_tbl_t *cmdtp, int flag, int argc, char *const ar
 #ifdef CONFIG_AML_VPP
 		vpp_viu2_matrix_update(VPP_CM_YUV);
 #endif
-		// free(mode);
+		free(mode);
 		return CMD_RET_SUCCESS;
 	}
 #endif
@@ -473,7 +473,7 @@ static int do_vout2_prepare(cmd_tbl_t *cmdtp, int flag, int argc, char *const ar
 #ifdef CONFIG_AML_VPP
 		vpp_viu2_matrix_update(VPP_CM_YUV);
 #endif
-		// free(mode);
+		free(mode);
 		return CMD_RET_SUCCESS;
 	}
 #endif
@@ -488,14 +488,14 @@ static int do_vout2_prepare(cmd_tbl_t *cmdtp, int flag, int argc, char *const ar
 		vpp_viu2_matrix_update(VPP_CM_RGB);
 #endif
 		aml_lcd_driver_prepare(venc_index, mode, frac);
-		// free(mode);
+		free(mode);
 		return CMD_RET_SUCCESS;
 	}
 #endif
 
 	do { (void)frac; } while(0);
 
-	// free(mode);
+	free(mode);
 	return CMD_RET_FAILURE;
 }
 

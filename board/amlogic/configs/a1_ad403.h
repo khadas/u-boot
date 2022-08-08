@@ -182,6 +182,9 @@
 		"if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; "\
 		"then bootm ${loadaddr}; fi;"\
 		"\0"\
+	"bcb_cmd="\
+		"get_valid_slot;"\
+		"\0"\
 	"cmdline_keys="\
 		"setenv region_code US;"\
 		"setenv usid ad403${cpu_id};"\
@@ -213,6 +216,7 @@
 			"\0"\
 
 #define CONFIG_PREBOOT  \
+	"run bcb_cmd; "\
 	"run upgrade_check;"\
 	"run storeargs;" \
 	"run switch_bootmode;"

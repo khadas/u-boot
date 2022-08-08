@@ -115,7 +115,7 @@ int serial_tstc(void)
 
 int serial_putc(int c)
 {
-	if (g_serial_disable)
+	if (0)
 		return c;
 
 	if (c == '\n') {

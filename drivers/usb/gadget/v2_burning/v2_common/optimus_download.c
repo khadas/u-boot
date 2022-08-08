@@ -59,6 +59,7 @@ enum {
     IMG_TYPE_NORMAL             ,
     IMG_TYPE_BOOTLOADER         ,
     IMG_TYPE_DTB                ,
+	IMG_TYPE_GPT,
     IMG_TYPE_UBIFS		,
 };
 
@@ -136,6 +137,17 @@ static int _assert_logic_partition_cap(const char* thePartName, const uint64_t n
 #else
 #define _assert_logic_partition_cap(thePartName, nandPartCap) 0
 #endif// #if CONFIG_AML_STORAGE
+
+static int optimus_download_gpt_image(struct ImgBurnInfo *pDownInfo,
+		u32 dataSzReceived, const u8 *data)
+{
+	int ret = 0;
+
+	DWN_MSG("gpt sz 0x%x\n", dataSzReceived);
+	ret = store_gpt_write((u8 *)data);
+
+	return ret ? 0 : dataSzReceived;
+}
 
 //return value is the actual size it write
 static int optimus_download_dtb_image(struct ImgBurnInfo* pDownInfo, u32 dataSzReceived, const u8* data)
@@ -397,6 +409,10 @@ static u32 optimus_storage_write(struct ImgBurnInfo* pDownInfo, u64 addrOrOffset
                         burnSz = optimus_download_dtb_image(pDownInfo, dataSz, data);
                         break;
 
+			case IMG_TYPE_GPT:
+				burnSz = optimus_download_gpt_image(pDownInfo, dataSz, data);
+				break;
+
                     default:
                         DWN_ERR("error image type %d\n", imgType);
                 }
@@ -570,6 +586,8 @@ static int _parse_img_download_info(struct ImgBurnInfo* pDownInfo, const char* p
     }
     else if ( !strcmp("_aml_dtb", partName) ) {
         pDownInfo->imgType = (u8)IMG_TYPE_DTB;
+	} else if (!strcmp("gpt", partName)) {
+		pDownInfo->imgType = (u8)IMG_TYPE_GPT;
     }
     else if(!strcmp("normal", imgType))
     {
@@ -624,7 +642,9 @@ static int _parse_img_download_info(struct ImgBurnInfo* pDownInfo, const char* p
 
     if (OPTIMUS_MEDIA_TYPE_MEM > pDownInfo->storageMediaType) //if command for burning partition
     {
-        if (strcmp("bootloader", partName) && strcmp("_aml_dtb", partName)) //get size if not bootloader
+	if (strcmp("bootloader", partName) &&
+		strcmp("_aml_dtb", partName) &&
+		strcmp("gpt", partName)) //get size if not bootloader
         {
             u64 partCap = store_part_size(partName);
             if (!partCap) {

@@ -40,6 +40,7 @@
 #include <amlogic/aml_hdmirx.h>
 #endif
 #include <amlogic/storage.h>
+#include <asm/arch/pwr_ctrl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -197,12 +198,12 @@ void media_clock_init(void)
 	val |= (1 << 8) | (1 << 20);
 	writel(val, CLKCTRL_MIPI_DSI_MEAS_CLK_CTRL);
 
-	/* gdc = 800M */
+	/* dwarp(amlgdc) = 800M */
 	val = 0;
 	val = (0x7 << 9);/* select fclk2p5 */
 	val |= (0 << 31);/* select gdcclk0 */
 	val |= (1 << 8) | (1 << 30);
-	writel(val, CLKCTRL_GDC_CLK_CTRL);
+	writel(val, CLKCTRL_AMLGDC_CLK_CTRL);
 
 	/* vapb = 667M */
 	val = 0;
@@ -241,6 +242,28 @@ void media_clock_init(void)
 		ANACTRL_MCLK_PLL_CNTL4);
 }
 
+void board_power_domain_on(void)
+{
+	printf("t7 power domain on\n");
+	// csi & isp
+	pwr_ctrl_psci_smc(PM_ISP, PWR_ON);
+	pwr_ctrl_psci_smc(PM_MIPI_ISP, PWR_ON);
+	// ge2d & dewarp parent
+	pwr_ctrl_psci_smc(PM_NIC3, PWR_ON);
+	// ge2d
+	pwr_ctrl_psci_smc(PM_GE2D, PWR_ON);
+	// dewarp
+	pwr_ctrl_psci_smc(PM_DEWARP, PWR_ON);
+	// osd
+	//pwr_ctrl_psci_smc(PM_DEWARP, PWR_ON);
+	// dsi
+	pwr_ctrl_psci_smc(PM_MIPI_DSI0, PWR_ON);
+	pwr_ctrl_psci_smc(PM_MIPI_DSI1, PWR_ON);
+	// hdmi
+	pwr_ctrl_psci_smc(PM_VPU_HDMI, PWR_ON);
+	pwr_ctrl_psci_smc(PM_HDMIRX, PWR_ON);
+}
+
 int board_late_init(void)
 {
 	printf("board late init\n");
@@ -260,6 +283,7 @@ int board_late_init(void)
 	run_command("run bcb_cmd", 0);
 	run_command("read_car_params ${car_mem_addr}", 0);
 
+	board_power_domain_on();
 	board_boot_freertos();
 #ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
 	if (run_command("run common_dtb_load", 0)) {

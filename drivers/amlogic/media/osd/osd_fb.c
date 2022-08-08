@@ -1126,9 +1126,11 @@ no_scale:
 	osd_enable_hw(osd_index, 1);
 
 #ifdef VEHICLE_CONFIG
-	if (!is_osd2_configed())
+	/* default: OSD1 for logo, OSD2 for RTOS */
+	if (!is_osd2_configed() && (osd_index == OSD1 || osd_index == OSD2)) {
 		osd2_config_with_dimm(axis);
-	osd_set_config_finish();
+		transfer_info_to_rtos();
+	}
 #endif
 
 	return (1);

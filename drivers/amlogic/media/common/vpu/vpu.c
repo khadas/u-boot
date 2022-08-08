@@ -616,16 +616,16 @@ static int adjust_vpu_clk(unsigned int clk_level)
 	vpu_hiu_setb(clk_reg, 1, 8, 1);
 
 	/* vapb clk */
-	if (vpu_clk >= 250000000) {
-		vpu_hiu_write(vapb_reg, (1 << 30) | /* turn on ge2d clock */
-						(0 << 9)  | /* clk_sel    //250Mhz */
+	if (vpu_hiu_getb(vapb_reg, 8, 1) == 0) {
+		if (vpu_clk >= 250000000) {
+			vpu_hiu_write(vapb_reg, (0 << 9)  | /* clk_sel    //250Mhz */
 						(1 << 0));  /* clk_div */
-	} else {
-		vpu_hiu_write(vapb_reg, (1 << 30) | /* turn on ge2d clock */
-						(clk_table->mux << 9)  | /* clk_sel */
+		} else {
+			vpu_hiu_write(vapb_reg, (clk_table->mux << 9)  | /* clk_sel */
 						(div << 0));  /* clk_div */
+		}
+		vpu_hiu_setb(vapb_reg, 1, 8, 1);
 	}
-	vpu_hiu_setb(vapb_reg, 1, 8, 1);
 
 	VPUPR("set clk: %uHz, readback: %uHz(0x%x)\n",
 		vpu_clk, get_vpu_clk(), (vpu_hiu_read(clk_reg)));

@@ -1973,6 +1973,15 @@ config CMD_EFUSE
 	help
 	  support efuse command
 
+config CMD_FREERTOS_LOG
+	bool "support efuse command"
+	default n
+	help
+	  support freertos_log command, the command read freertos log from
+          share memory between freertos and uboot/kernel, it can read one
+          time log every input command, or auto read log until input 'q' or
+          'Q' exit
+
 config CMD_INI
 	bool "support ini command"
 	depends on UNIFY_KEY_MANAGE && SECURE_STORAGE

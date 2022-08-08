@@ -21,6 +21,7 @@
 #define __BOARD_CFG_H__
 
 #include <asm/arch/cpu.h>
+#include <version.h>
 
 /*
  * platform power init config
@@ -72,13 +73,21 @@
 #define CONFIG_DTB_LOAD  "imgread dtb _aml_dtb ${dtb_mem_addr}"
 #endif//#ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
 
+#ifdef CONFIG_SUPPORT_BL33Z
+#define ENV_DTB_MEM_ADDR \
+		"dtb_mem_addr=0x01800000\0"
+#else
+#define ENV_DTB_MEM_ADDR \
+		"dtb_mem_addr=0x01000000\0"
+#endif
+
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS \
         "firstboot=1\0"\
         "silent=1\0"\
         "upgrade_step=0\0"\
-		"lock=10101000\0"\
+	"lock=10101000\0"\
         "jtag=disable\0"\
         "loadaddr=0x00020000\0"\
         "os_ident_addr=0x00500000\0"\
@@ -96,7 +105,7 @@
         "display_layer=osd0\0" \
         "display_color_fg=0xffff\0" \
         "display_color_bg=0\0" \
-        "dtb_mem_addr=0x01000000\0" \
+		ENV_DTB_MEM_ADDR \
         "fb_addr=0x00300000\0" \
         "fb_width=1920\0" \
         "fb_height=1080\0" \

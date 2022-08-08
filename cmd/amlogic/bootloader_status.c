@@ -154,6 +154,9 @@ static void run_recovery_from_cache(void) {
 	run_command("if test ${reboot_mode} = recovery_quiescent; then setenv bootargs ${bootargs} androidboot.quiescent=1; fi;", 0);
 	run_command("if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;", 0);
 
+	run_command("if test ${reboot_vendor_boot} = true; then "\
+		"setenv vendor_boot_mode true; fi;", 0);
+
 	run_command("if test ${vendor_boot_mode} = true; then "\
 		"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
 		"imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset};"\
@@ -174,6 +177,8 @@ int write_bootloader_back(const char* bootloaderindex, int dstindex) {
 	int copy = 0;
 	int ret = -1;
 	unsigned char* buffer = NULL;
+	int capacity_boot = 0;
+
 	if (strcmp(bootloaderindex, "1") == 0) {
 		copy = 1;
 	} else if (strcmp(bootloaderindex, "2") == 0) {
@@ -182,13 +187,25 @@ int write_bootloader_back(const char* bootloaderindex, int dstindex) {
 		copy = 0;
 	}
 
-	buffer = (unsigned char *)malloc(0x2000 * 512);
+#ifdef CONFIG_MMC_MESON_GX
+	struct mmc *mmc = NULL;
+
+	if (store_get_type() == BOOT_EMMC)
+		mmc = find_mmc_device(1);
+
+	if (mmc)
+		capacity_boot = mmc->capacity_boot;
+#endif
+
+	printf("write_bootloader_back_capacity_boot: %x\n", capacity_boot);
+
+	buffer = (unsigned char *)malloc(capacity_boot);
 	if (!buffer)
 	{
 		printf("ERROR! fail to allocate memory ...\n");
 		goto exit;
 	}
-	memset(buffer, 0, 0x2000 * 512);
+	memset(buffer, 0, capacity_boot);
 	iRet = store_boot_read("bootloader", copy, 0, buffer);
 	if (iRet) {
 		errorP("Fail read bootloader from rsv with sz\n");
@@ -257,8 +274,10 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	char *rebootmode = NULL;
 	int gpt_flag = -1;
 	int ret = -1;
+
 #ifdef CONFIG_MMC_MESON_GX
 	struct mmc *mmc = NULL;
+	int capacity_boot = 0;
 
 	if (store_get_type() == BOOT_EMMC)
 		mmc = find_mmc_device(1);
@@ -396,10 +415,13 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 
 		if (dev_desc && !strcmp(bootloaderindex, "0")) {
 			unsigned char *buffer = NULL;
+			capacity_boot = mmc->capacity_boot;
 
-			buffer = (unsigned char *)malloc(0x2000 * 512);
+			printf("do_secureboot_check_capacity_boot: %x\n", capacity_boot);
+
+			buffer = (unsigned char *)malloc(capacity_boot);
 			if (buffer) {
-				memset(buffer, 0, 0x2000 * 512);
+				memset(buffer, 0, capacity_boot);
 				ret = store_boot_read("bootloader", 0, 0, buffer);
 				if (ret == 0) {
 					wrnP("--read bootloader ok, check valib gpt---\n");
@@ -440,6 +462,13 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	wrnP("expect_index is : %s\n", expect_index);
 
 	match_flag = strcmp(bootloaderindex, expect_index);
+
+	//ignore reboot next check if power off during reboot next to finish
+	if (rebootmode && (strcmp(rebootmode, "cold_boot") == 0)) {
+		if (!strcmp(rebootstatus, "reboot_finish")) {
+			match_flag = 0;
+		}
+	}
 
 
 	//first reboot, command from recovery, need reboot next

@@ -24,10 +24,28 @@ For configuration verification:
 Tests run with both SHA1 and SHA256 hashing.
 """
 
+
+import shutil
 import pytest
 import sys
 import struct
 import u_boot_utils as util
+import vboot_evil
+
+# Only run the full suite on a few combinations, since it doesn't add any more
+# test coverage.
+TESTDATA = [
+    ['sha1', '', None, False, True],
+    ['sha1', '', '-E -p 0x10000', False, False],
+    ['sha1', '-pss', None, False, False],
+    ['sha1', '-pss', '-E -p 0x10000', False, False],
+    ['sha256', '', None, False, False],
+    ['sha256', '', '-E -p 0x10000', False, False],
+    ['sha256', '-pss', None, False, False],
+    ['sha256', '-pss', '-E -p 0x10000', False, False],
+    ['sha256', '-pss', None, True, False],
+    ['sha256', '-pss', '-E -p 0x10000', True, True],
+]
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('fit_signature')
@@ -57,7 +75,7 @@ def test_vboot(u_boot_console):
         util.run_and_log(cons, 'dtc %s %s%s -O dtb '
                          '-o %s%s' % (dtc_args, datadir, dts, tmpdir, dtb))
 
-    def run_bootm(sha_algo, test_type, expect_string, boots):
+    def run_bootm(sha_algo, test_type, expect_string, boots, fit=None):
         """Run a 'bootm' command U-Boot.
 
         This always starts a fresh U-Boot instance since the device tree may

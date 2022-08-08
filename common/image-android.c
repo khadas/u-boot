@@ -8,13 +8,18 @@
 #include <android_image.h>
 #include <malloc.h>
 #include <errno.h>
+#include <version.h>
 static const unsigned char lzop_magic[] = {
 	0x89, 0x4c, 0x5a, 0x4f, 0x00, 0x0d, 0x0a, 0x1a, 0x0a
 };
 
 #define ANDROID_IMAGE_DEFAULT_KERNEL_ADDR	0x10008000
 
+#ifdef CONFIG_SUPPORT_BL33Z
+#define ANDROIDR_IMAGE_KERNEL_DECOMPRESS_LOAD_ADDR	0x2880000
+#else
 #define ANDROIDR_IMAGE_KERNEL_DECOMPRESS_LOAD_ADDR	0x1080000
+#endif
 
 static const unsigned char gzip_magic[] = {
 	0x1f, 0x8b

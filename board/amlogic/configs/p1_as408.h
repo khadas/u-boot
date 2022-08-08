@@ -78,7 +78,7 @@
         "firstboot=1\0"\
         "silent=1\0"\
         "upgrade_step=0\0"\
-		"lock=10101000\0"\
+	"lock=10101000\0"\
         "jtag=disable\0"\
         "loadaddr=0x00020000\0"\
         "os_ident_addr=0x00500000\0"\

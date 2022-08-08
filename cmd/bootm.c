@@ -482,7 +482,7 @@ static int image_info(ulong addr)
 	case IMAGE_FORMAT_FIT:
 		puts("   FIT image found\n");
 
-		if (!fit_check_format(hdr)) {
+		if (fit_check_format(hdr, IMAGE_SIZE_INVAL)) {
 			puts("Bad FIT image format!\n");
 			return 1;
 		}
@@ -555,7 +555,7 @@ static int do_imls_nor(void)
 #endif
 #if defined(CONFIG_FIT)
 			case IMAGE_FORMAT_FIT:
-				if (!fit_check_format(hdr))
+				if (fit_check_format(hdr, IMAGE_SIZE_INVAL))
 					goto next_sector;
 
 				printf("FIT Image at %08lX:\n", (ulong)hdr);
@@ -635,7 +635,7 @@ static int nand_imls_fitimage(struct mtd_info *mtd, int nand_dev, loff_t off,
 		return ret;
 	}
 
-	if (!fit_check_format(imgdata)) {
+	if (fit_check_format(imgdata, IMAGE_SIZE_INVAL)) {
 		free(imgdata);
 		return 0;
 	}

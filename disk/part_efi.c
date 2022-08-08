@@ -877,6 +877,9 @@ int write_mbr_and_gpt_partitions(struct blk_desc *dev_desc, void *buf)
 	u32 calc_crc32;
 	u32 entries_num;
 	bool flag = false;
+#if (ADD_LAST_PARTITION)
+	ulong gap = GPT_GAP;
+#endif
 
 	if (is_valid_gpt_buf(dev_desc, buf))
 		return -1;
@@ -902,6 +905,14 @@ int write_mbr_and_gpt_partitions(struct blk_desc *dev_desc, void *buf)
 	}
 
 	for (i = 0; i < entries_num; i++) {
+#if (ADD_LAST_PARTITION)
+		if (i == entries_num - 1) {
+			gpt_e[i - 1].ending_lba -= gpt_e[i].ending_lba + le64_to_cpu(gap) + 1;
+			gpt_e[i].starting_lba = gpt_e[i - 1].ending_lba + le64_to_cpu(gap) + 1;
+			gpt_e[i].ending_lba = gpt_h->last_usable_lba;
+		}
+
+#endif
 		if (le64_to_cpu(gpt_e[i].ending_lba) > gpt_h->last_usable_lba) {
 			printf("gpt_e[%d].ending_lba: %llX > %llX, reset it\n",
 			i, le64_to_cpu(gpt_e[i].ending_lba), le64_to_cpu(gpt_h->last_usable_lba));

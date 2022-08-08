@@ -1275,6 +1275,7 @@ void osd_setup_hw(u32 index,
 	int update_color_mode = 0;
 	int update_geometry = 0;
 	u32 w = (color->bpp * xres_virtual + 7) >> 3;
+	static int is_blend_set;
 
 	if (osd_hw.osd_ver == OSD_SIMPLE) {
 		if (index >= OSD2) {
@@ -1396,8 +1397,10 @@ void osd_setup_hw(u32 index,
 		add_to_update_list(index, DISP_GEOMETRY);
 	add_to_update_list(index, DISP_OSD_REVERSE);
 #ifdef AML_OSD_HIGH_VERSION
-	if (osd_hw.osd_ver == OSD_HIGH_ONE && index < VIU2_OSD1)
+	if (osd_hw.osd_ver == OSD_HIGH_ONE && index < VIU2_OSD1 && !is_blend_set) {
+		is_blend_set = 1;
 		osd_setting_default_hwc(index, &disp_data);
+	}
 #endif
 	osd_wait_vsync_hw();
 }
@@ -3647,9 +3650,28 @@ int osd_get_hist_stat(u32 *hist_result)
 }
 
 #ifdef VEHICLE_CONFIG
-void osd_set_config_finish(void)
+/*  UBOOT_INFO_FLAG bit definition
+ *  |          31         |         30       |  29 ~ 16 |    15    |    14    |  13 ~ 0  |
+ *  | uboot config finish | screen interlace | screen H | reserved | reserved | screen W |
+ *
+ * bit31: 0 - uboot config is finished
+ *        1 - uboot config is not finished
+ */
+void transfer_info_to_rtos(void)
 {
-	VSYNCOSD_WR_MPEG_REG(OSD_CONFIG_FLAG, OSD_CONFIG_FINISH);
+	struct vinfo_s *info = NULL;
+	int screen_w, screen_h, interlace;
+	u32 val;
+
+#if defined CONFIG_AML_VOUT
+	info = vout_get_current_vinfo();
+#endif
+	screen_w = info->width;
+	screen_h = info->height;
+	interlace = info->field_height == screen_h ? 0 : 1;
+
+	val = (0 << 31) | (interlace << 30) | (screen_h << 16) | screen_w;
+	VSYNCOSD_WR_MPEG_REG(UBOOT_INFO_FLAG, val);
 }
 
 bool is_osd2_configed(void)

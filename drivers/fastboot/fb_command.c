@@ -37,6 +37,10 @@ int busy_flag;
 
 static void okay(char *, char *);
 static void getvar(char *, char *);
+static void reboot_bootloader(char *, char *);
+static void reboot_fastboot(char *, char *);
+
+#ifdef CONFIG_FASTBOOT_WRITING_CMD
 static void download(char *, char *);
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 static void flash(char *, char *);
@@ -46,14 +50,13 @@ static void fetch(char *, char *);
 #if !CONFIG_IS_ENABLED(NO_FASTBOOT_FLASHING)
 static void flashing(char *, char *);
 #endif//#if !CONFIG_IS_ENABLED(NO_FASTBOOT_FLASHING)
-static void reboot_bootloader(char *, char *);
-static void reboot_fastboot(char *, char *);
 #if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_FORMAT)
 static void oem_format(char *, char *);
 #endif
 static void oem_cmd(char *, char *);
 static void set_active_cmd(char *, char *);
 static void snapshot_update_cmd(char *, char *);
+#endif
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 extern int is_partition_logical(char* parition_name);
@@ -67,6 +70,27 @@ static const struct {
 		.command = "getvar",
 		.dispatch = getvar
 	},
+	[FASTBOOT_COMMAND_CONTINUE] =  {
+		.command = "continue",
+		.dispatch = okay
+	},
+	[FASTBOOT_COMMAND_REBOOT_BOOTLOADER] =  {
+		.command = "reboot-bootloader",
+		.dispatch = reboot_bootloader
+	},
+	[FASTBOOT_COMMAND_REBOOT_FASTBOOT] =  {
+		.command = "reboot-fastboot",
+		.dispatch = reboot_fastboot
+	},
+	[FASTBOOT_COMMAND_REBOOT] =  {
+		.command = "reboot",
+		.dispatch = okay
+	},
+	[FASTBOOT_COMMAND_BOOT] =  {
+		.command = "boot",
+		.dispatch = okay
+	},
+#ifdef CONFIG_FASTBOOT_WRITING_CMD
 	[FASTBOOT_COMMAND_DOWNLOAD] = {
 		.command = "download",
 		.dispatch = download
@@ -91,26 +115,6 @@ static const struct {
 		.command = "fetch",
 		.dispatch = fetch
 	},
-	[FASTBOOT_COMMAND_BOOT] =  {
-		.command = "boot",
-		.dispatch = okay
-	},
-	[FASTBOOT_COMMAND_CONTINUE] =  {
-		.command = "continue",
-		.dispatch = okay
-	},
-	[FASTBOOT_COMMAND_REBOOT_BOOTLOADER] =  {
-		.command = "reboot-bootloader",
-		.dispatch = reboot_bootloader
-	},
-	[FASTBOOT_COMMAND_REBOOT_FASTBOOT] =  {
-		.command = "reboot-fastboot",
-		.dispatch = reboot_fastboot
-	},
-	[FASTBOOT_COMMAND_REBOOT] =  {
-		.command = "reboot",
-		.dispatch = okay
-	},
 	[FASTBOOT_COMMAND_SET_ACTIVE] =  {
 		.command = "set_active",
 		.dispatch = set_active_cmd
@@ -129,6 +133,7 @@ static const struct {
 		.command = "oem",
 		.dispatch = oem_cmd,
 	},
+#endif
 };
 
 struct fastboot_read fastboot_readInfo;
@@ -305,6 +310,7 @@ static void getvar(char *cmd_parameter, char *response)
  * @cmd_parameter: Pointer to command parameter
  * @response: Pointer to fastboot response buffer
  */
+#ifdef CONFIG_FASTBOOT_WRITING_CMD
 static void download(char *cmd_parameter, char *response)
 {
 	char *tmp;
@@ -345,7 +351,7 @@ static void download(char *cmd_parameter, char *response)
 		fastboot_response("DATA", response, "%s", cmd_parameter);
 	}
 }
-
+#endif
 /**
  * fastboot_data_remaining() - return bytes remaining in current transfer
  *
@@ -418,6 +424,7 @@ void fastboot_data_complete(char *response)
 	fastboot_bytes_received = 0;
 }
 
+#ifdef CONFIG_FASTBOOT_WRITING_CMD
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 /**
  * flash() - write the downloaded image to the indicated partition.
@@ -669,7 +676,9 @@ static void erase(char *cmd_parameter, char *response)
 #endif
 }
 #endif
+#endif
 
+#ifdef CONFIG_FASTBOOT_WRITING_CMD
 static u64 my_ato11(const char *str)
 {
 	u64 result = 0;
@@ -1019,6 +1028,7 @@ static void flashing(char *cmd_parameter, char *response)
 	return;
 }
 #endif// #if !CONFIG_IS_ENABLED(NO_FASTBOOT_FLASHING)
+#endif
 
 /**
  * reboot_bootloader() - Sets reboot bootloader flag.
@@ -1042,6 +1052,7 @@ static void reboot_fastboot(char *cmd_parameter, char *response)
 	fastboot_okay(NULL, response);
 }
 
+#ifdef CONFIG_FASTBOOT_WRITING_CMD
 static void oem_cmd(char *cmd_parameter, char *response)
 {
 	char *cmd;
@@ -1116,3 +1127,5 @@ static void oem_format(char *cmd_parameter, char *response)
 	}
 }
 #endif
+#endif
+

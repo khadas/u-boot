@@ -14,6 +14,7 @@
 #include <libavb.h>
 #include <version.h>
 #include <amlogic/storage.h>
+#include <emmc_partitions.h>
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 
@@ -392,13 +393,26 @@ int write_bootloader(int copy, int dstindex)
 	int iRet = 0;
 	int ret = -1;
 	unsigned char *buffer = NULL;
+	int capacity_boot = 0;
 
-	buffer = (unsigned char *)malloc(0x2000 * 512);
+#ifdef CONFIG_MMC_MESON_GX
+	struct mmc *mmc = NULL;
+
+	if (store_get_type() == BOOT_EMMC)
+		mmc = find_mmc_device(1);
+
+	if (mmc)
+		capacity_boot = mmc->capacity_boot;
+#endif
+
+	printf("write_bootloader_capacity_boot: %x\n", capacity_boot);
+
+	buffer = (unsigned char *)malloc(capacity_boot);
 	if (!buffer) {
 		printf("ERROR! fail to allocate memory ...\n");
 		goto exit;
 	}
-	memset(buffer, 0, 0x2000 * 512);
+	memset(buffer, 0, capacity_boot);
 	printf("copy from boot%d to boot%d\n", copy, dstindex);
 	iRet = store_boot_read("bootloader", copy, 0, buffer);
 	if (iRet) {
@@ -436,11 +450,6 @@ static int do_GetValidSlot(
 
 	if (argc != 1)
 		return cmd_usage(cmdtp);
-
-	if (has_boot_slot == 0) {
-		printf("device is not ab mode\n");
-		return -1;
-	}
 
 	boot_info_open_partition(miscbuf);
 	boot_info_load(&info, miscbuf);

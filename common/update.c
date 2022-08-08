@@ -280,7 +280,7 @@ int update_tftp(ulong addr, char *interface, char *devstring)
 got_update_file:
 	fit = (void *)addr;
 
-	if (!fit_check_format((void *)fit)) {
+	if (fit_check_format((void *)fit, IMAGE_SIZE_INVAL)) {
 		printf("Bad FIT format of the update file, aborting "
 							"auto-update\n");
 		return 1;

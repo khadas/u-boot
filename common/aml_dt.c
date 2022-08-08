@@ -11,6 +11,7 @@
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
 #include <partition_table.h>
+#include <bzlib.h>
 
 //#define AML_DT_DEBUG
 #ifdef AML_DT_DEBUG
@@ -25,12 +26,15 @@
 #ifdef AML_MULTI_DTB_API_NEW
 
 /*for multi-dtb gzip buffer*/
-#define GUNZIP_BUF_SIZE         (1<<20)     /*1MB  is enough?*/
+#define GUNZIP_BUF_SIZE         BIT(20)     /*1MB  is enough?*/
+#define BZIP2_BUF_SIZE          BIT(23)     /*8MB  is enough?*/
 
 /*magic for multi-dtb*/
 #define MAGIC_GZIP_MASK         (0x0000FFFF)
 #define MAGIC_GZIP_ID           (0x00008B1F)
+#define MAGIC_BZIP2_ID          (0x00005a42)
 #define IS_GZIP_PACKED(nMagic)  (MAGIC_GZIP_ID == (MAGIC_GZIP_MASK & nMagic))
+#define IS_BZIP2_PACKED(nMagic) (MAGIC_BZIP2_ID == (MAGIC_BZIP2_ID & (nMagic)))
 #define MAGIC_DTB_SGL_ID        (0xedfe0dd0)
 #define MAGIC_DTB_MLT_ID        (0x5f4c4d41)
 
@@ -253,6 +257,8 @@ unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 	unsigned long pInputFDT  = fdt_addr;
 	p_st_dtb_hdr_t pDTBHdr   = (p_st_dtb_hdr_t)pInputFDT;
 	unsigned long unzip_size = GUNZIP_BUF_SIZE;
+	unsigned int src_len = BZIP2_BUF_SIZE;
+	unsigned int dest_len = BZIP2_BUF_SIZE;
 
 	printf("      Amlogic Multi-DTB tool\n");
 
@@ -280,8 +286,31 @@ unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 		//memcpy((void*)fdt_addr,gzip_buf,unzip_size);
 		pInputFDT = (unsigned long)gzip_buf;
 		pDTBHdr   = (p_st_dtb_hdr_t)pInputFDT;
+	} else if (IS_BZIP2_PACKED(pDTBHdr->nMagic)) {
+		printf("      BZIP2 format, decompress...\n");
+		/*
+		 * If we've got less than 4 MB of malloc() space,
+		 * use slower decompression algorithm which requires
+		 * at most 2300 KB of memory.
+		 */
+		gzip_buf = malloc(BZIP2_BUF_SIZE);
+		if (!gzip_buf) {
+			printf("      ERROR! fail to allocate memory for GUNZIP...\n");
+			goto exit;
+		}
+		memset(gzip_buf, 0, BZIP2_BUF_SIZE);
+		int ret = BZ2_bzBuffToBuffDecompress(gzip_buf, &dest_len,
+				(void *)pInputFDT, src_len,
+				1, 2);
+		if (ret != BZ_OK) {
+			printf("BZIP2: uncompress or overwrite error %d must RESET board\n", ret);
+			goto exit;
+		} else {
+			pInputFDT = (unsigned long)gzip_buf;
+			pDTBHdr   = (p_st_dtb_hdr_t)pInputFDT;
+			unzip_size = dest_len;
+		}
 	}
-
 
 	switch (pDTBHdr->nMagic)
 	{

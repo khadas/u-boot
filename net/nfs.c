@@ -566,11 +566,15 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 	}
 
 	if (supported_nfs_versions & NFSV2_FLAG) {
+		if (((uchar *)&rpc_pkt.u.reply.data[0] - (uchar *)&rpc_pkt + NFS_FHSIZE) > len)
+			return -NFS_RPC_DROP;
 		memcpy(filefh, rpc_pkt.u.reply.data + 1, NFS_FHSIZE);
 	} else {  /* NFSV3_FLAG */
 		filefh3_length = ntohl(rpc_pkt.u.reply.data[1]);
 		if (filefh3_length > NFS3_FHSIZE)
 			filefh3_length  = NFS3_FHSIZE;
+		if (((uchar *)&rpc_pkt.u.reply.data[0] - (uchar *)&rpc_pkt + filefh3_length) > len)
+			return -NFS_RPC_DROP;
 		memcpy(filefh, rpc_pkt.u.reply.data + 2, filefh3_length);
 	}
 
@@ -633,6 +637,9 @@ static int nfs_readlink_reply(uchar *pkt, unsigned len)
 
 	/* new path length */
 	rlen = ntohl(rpc_pkt.u.reply.data[1 + nfsv3_data_offset]);
+
+	if (((uchar *)&rpc_pkt.u.reply.data[0] - (uchar *)&rpc_pkt + rlen) > len)
+		return -NFS_RPC_DROP;
 
 	if (*((char *)&(rpc_pkt.u.reply.data[2 + nfsv3_data_offset])) != '/') {
 		int pathlen;
@@ -701,8 +708,11 @@ static int nfs_read_reply(uchar *pkt, unsigned len)
 			&(rpc_pkt.u.reply.data[4 + nfsv3_data_offset]);
 	}
 
+	if (((uchar *)&rpc_pkt.u.reply.data[0] - (uchar *)&rpc_pkt + rlen) > len)
+		return -9999;
+
 	if (store_block(data_ptr, nfs_offset, rlen))
-			return -9999;
+		return -9999;
 
 	return rlen;
 }
@@ -731,6 +741,9 @@ static void nfs_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	int reply;
 
 	debug("%s\n", __func__);
+
+	if (len > sizeof(struct rpc_t))
+		return;
 
 	if (dest != nfs_our_port)
 		return;

@@ -332,6 +332,11 @@ static struct mtd_partition normal_partition_info[] = {
 	.mask_flags = MESON_IGNORE_ERASE_CHIP,
 },
 {
+	.name = "tee",
+	.offset = 0,
+	.size = 2 * SZ_1M,
+},
+{
 	.name = "logo",
 	.offset = 0,
 	.size = 2 * SZ_1M,
@@ -349,7 +354,7 @@ static struct mtd_partition normal_partition_info[] = {
 {
 	.name = "system",
 	.offset = 0,
-	.size = 288 * SZ_1M,
+	.size = 320 * SZ_1M,
 },
 {
 	.name = "vendor",

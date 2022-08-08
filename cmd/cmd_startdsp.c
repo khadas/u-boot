@@ -9,9 +9,17 @@
 #include <asm/arch/secure_apb.h>
 #include <asm/arch/timer.h>
 #include <asm/arch/bl31_apis.h>
-
+#include <asm/arch/pwr_ctrl.h>
 #include <serial.h>
 
+#ifndef CONFIG_CLK_P1_TYPE
+#ifndef PM_DSPA
+#define PM_DSPA PM_DSP
+#endif
+#ifndef PM_DSPB
+#define PM_DSPB 99
+#endif
+#endif
 
 /*
  * clk_util_set_dsp_clk
@@ -122,7 +130,7 @@ static int do_startdsp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	StatVectorSel = (addr != 0xfffa0000);
 	cfg0 = 0x1 |  StatVectorSel << 1 | strobe << 2;
 
-	power_set_dsp(dspid,1);
+	power_set_dsp((dspid == 0) ? PM_DSPA : PM_DSPB, PWR_ON);
 	udelay(100);
 	set_dsp_clk(dspid,freq_sel);
 	udelay(100);

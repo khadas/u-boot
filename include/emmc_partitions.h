@@ -33,6 +33,7 @@
 
 #ifndef CONFIG_AML_MMC_INHERENT_PART
 #define     PARTITION_RESERVED              (8*SZ_1M)  // 8MB
+#define     PARTITION_MIN_RESERVED          SZ_1M  // 1MB
 #define     MMC_BOOT_PARTITION_RESERVED     (32*SZ_1M) // 32MB
 #define     RESERVED_GPT_OFFSET     (36*SZ_1M) // 36MB
 
@@ -135,6 +136,9 @@
 #define FASTBOOT_CONTEXT_SIZE    (512)
 #define GPT_LBA_COUNT 34
 #define GPT_TOTAL_SIZE (GPT_LBA_COUNT * 512)
+#define GPT_GAP              0x800   //1M gap
+
+#define ADD_LAST_PARTITION (0)
 
 struct virtual_partition {
 	char name[MAX_MMC_PART_NAME_LEN];

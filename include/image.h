@@ -113,6 +113,9 @@ struct fdt_region;
 # define IMAGE_OF_SYSTEM_SETUP	0
 #endif
 
+/* An invalid size, meaning that the image size is not known */
+#define IMAGE_SIZE_INVAL	(-1UL)
+
 enum ih_category {
 	IH_ARCH,
 	IH_COMP,
@@ -910,6 +913,8 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 #define FIT_VALUE_PROP		"value"
 #define FIT_IGNORE_PROP		"uboot-ignore"
 #define FIT_SIG_NODENAME	"signature"
+#define FIT_KEY_REQUIRED	"required"
+#define FIT_KEY_HINT		"key-name-hint"
 
 /* image node */
 #define FIT_DATA_PROP		"data"
@@ -1043,7 +1048,23 @@ int fit_image_check_os(const void *fit, int noffset, uint8_t os);
 int fit_image_check_arch(const void *fit, int noffset, uint8_t arch);
 int fit_image_check_type(const void *fit, int noffset, uint8_t type);
 int fit_image_check_comp(const void *fit, int noffset, uint8_t comp);
-int fit_check_format(const void *fit);
+
+/**
+ * fit_check_format() - Check that the FIT is valid
+ *
+ * This performs various checks on the FIT to make sure it is suitable for
+ * use, looking for mandatory properties, nodes, etc.
+ *
+ * If FIT_FULL_CHECK is enabled, it also runs it through libfdt to make
+ * sure that there are no strange tags or broken nodes in the FIT.
+ *
+ * @fit: pointer to the FIT format image header
+ * @return 0 if OK, -ENOEXEC if not an FDT file, -EINVAL if the full FDT check
+ *	failed (e.g. due to bad structure), -ENOMSG if the description is
+ *	missing, -ENODATA if the timestamp is missing, -ENOENT if the /images
+ *	path is missing
+ */
+int fit_check_format(const void *fit, ulong size);
 
 int fit_conf_find_compat(const void *fit, const void *fdt);
 int fit_conf_get_node(const void *fit, const char *conf_uname);

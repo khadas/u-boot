@@ -882,6 +882,7 @@
 #define OSD_SCALE_ENABLE
 #define AML_OSD_HIGH_VERSION
 #define AML_T7_DISPLAY
+#define VEHICLE_CONFIG
 
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard
