@@ -17,6 +17,7 @@ function build_bl32() {
 	if [ "$ADVANCED_BOOTLOADER" == "1" ]; then
 		$1/tools/scripts/pack_dtb.py \
 			--dev-rsk fip/$3/keys/${CONFIG_AMLOGIC_KEY_TYPE}/$3/chipset/bl32/rsa/${CONFIG_CHIPSET_NAME}/bl32-rsk-rsa-priv.pem \
+			--cert "fip/$3/keys/${CONFIG_AMLOGIC_KEY_TYPE}/$3/chipset/cert-template/${CONFIG_CHIPSET_NAME}/bl32-fw-cert.bin" \
 			--in ${target2}
 
 		cp ${target2} $2 -f

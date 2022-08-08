@@ -2,7 +2,7 @@
 #define __HDMI_CEC__
 
 
-#define CEC_VERSION "2022/04/21 t7 switch to cec_b and use cec_a pin"
+#define CEC_VERSION "2022/05/28 support for multi-addr under uboot"
 
 u32 cec_init_config(void);
 u32 cec_suspend_handle(void);

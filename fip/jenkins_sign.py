@@ -16,7 +16,7 @@ import jenkins
 serverRootUrl = "https://jenkins-sh.amlogic.com/job/Security/job/Signing/job/"
 homeConfigFilePath = "~/.sign.cfg"
 types = ["ta", "bl32", "bl31", "bl2", "bl2e", "bl2x", "bl40", "aucpufw", "vdecfw"]
-casProviders = ["", "VMX", "nagra"]
+casProviders = ["", "VMX", "nagra", "nagra-dev", "vo", "gs-dev", "gs", "irdeto"]
 ddrTypes = ["ddr4", "lpddr4", "ddr3", "lpddr3", "lpddr4_lpddr5"]
 chipVariants = ["general", "nocs-jts-ap", "nocs-prod"]
 
@@ -77,6 +77,7 @@ def get_args():
     parser.add_argument("--type", choices=types, default=types[0], required=True)
     parser.add_argument("--chip", type=str)
     parser.add_argument("--taVersion", type=int, default=0)
+    parser.add_argument("--marketId", type=str, default="null")
     parser.add_argument("--casProvider", choices=casProviders, default=casProviders[0])
     parser.add_argument("--ddrType", type=str, default=ddrTypes[0])
     parser.add_argument("--chipVariant", choices=chipVariants, default=chipVariants[0])
@@ -142,6 +143,7 @@ def submitSignJob(
     inputFilePath,
     chipAcsFilePath,
     taVersion="0",
+    marketId="",
     casProvider="",
     chipVariant="",
     ddrType="",
@@ -160,6 +162,7 @@ def submitSignJob(
         data = {
             "chip_part_number": chipType,
             "ta_version": taVersion,
+            "market_id": marketId,
             "testService": testService,
         }
     elif type == "bl32":
@@ -281,6 +284,7 @@ def main():
         inputFilePath=args.inputFilePath,
         chipAcsFilePath=args.chipAcsFilePath,
         taVersion=args.taVersion,
+        marketId=args.marketId,
         casProvider=args.casProvider,
         chipVariant=args.chipVariant,
         ddrType=args.ddrType,

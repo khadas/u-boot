@@ -293,7 +293,10 @@ function build() {
 	if [ ! $CONFIG_CMD_BOOTCTOL_VAB ]; then
 		CONFIG_CMD_BOOTCTOL_VAB=null
 	fi
-#	build_uboot ${CONFIG_SYSTEM_AS_ROOT} ${CONFIG_AVB2} ${CONFIG_CMD_BOOTCTOL_VAB}
+	if [ ! $CONFIG_FASTBOOT_WRITING_CMD ]; then
+		CONFIG_FASTBOOT_WRITING_CMD=null
+	fi
+#	build_uboot ${CONFIG_SYSTEM_AS_ROOT} ${CONFIG_AVB2} ${CONFIG_CMD_BOOTCTOL_VAB} ${CONFIG_FASTBOOT_WRITING_CMD}
 
 	# source other configs after uboot compile
 	init_variable_late
@@ -595,6 +598,11 @@ function bin_path_parser() {
 				CONFIG_CMD_BOOTCTOL_VAB=1
 				echo "export CONFIG_CMD_BOOTCTOL_VAB"
 				export CONFIG_CMD_BOOTCTOL_VAB=1
+				continue ;;
+			--fastboot-write)
+				CONFIG_FASTBOOT_WRITING_CMD=1
+				echo "export CONFIG_FASTBOOT_WRITING_CMD"
+				export CONFIG_FASTBOOT_WRITING_CMD=1
 				continue ;;
 				*)
 		esac

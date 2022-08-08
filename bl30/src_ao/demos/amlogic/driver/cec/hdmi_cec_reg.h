@@ -351,6 +351,7 @@ typedef struct {
 	unsigned char rx_write_pos;
 	unsigned char rx_read_pos;
 	unsigned char rx_buf_size;
+	unsigned int addr_enable;
 } cec_msg_t;
 
 #endif  // _HDMI_RX_REG_H
