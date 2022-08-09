@@ -35,7 +35,6 @@ static int vout_hdmi_hpd(int hpd_st)
 	char *mode, *lcd_exist;;
 #endif
 	char *hdmimode;
-	char *cvbsmode;
 	char *colorattribute;
 
 #ifdef CONFIG_AML_LCD
@@ -74,9 +73,7 @@ static int vout_hdmi_hpd(int hpd_st)
 		printf("set outputmode: hdmimode=%s\n", hdmimode);
 		env_set("outputmode", hdmimode);
 	} else {
-		cvbsmode = env_get("cvbsmode");
-		if (cvbsmode)
-			env_set("outputmode", cvbsmode);
+		env_set("outputmode", hdmimode);
 		env_set("hdmichecksum", "0x00000000");
 		//run_command("saveenv", 0);
 	}
@@ -91,7 +88,6 @@ static int vout2_hdmi_hpd(int hpd_st)
 	char *mode;
 #endif
 	char *hdmimode;
-	char *cvbsmode;
 	char *colorattribute;
 
 #ifdef CONFIG_AML_LCD
@@ -126,9 +122,7 @@ static int vout2_hdmi_hpd(int hpd_st)
 		printf("set outputmode2: hdmimode=%s\n", hdmimode);
 		env_set("outputmode2", hdmimode);
 	} else {
-		cvbsmode = env_get("cvbsmode");
-		if (cvbsmode)
-			env_set("outputmode2", cvbsmode);
+		env_set("outputmode2", hdmimode);
 		env_set("hdmichecksum", "0x00000000");
 		//run_command("saveenv", 0);
 	}
