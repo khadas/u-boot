@@ -51,7 +51,8 @@
 /* 20220421: fix lcd clk mistake for vmode change with fr_adj_type 4*/
 /* 20220629: add ini ver2 support and support phy lane contrl*/
 /* 20220719: support t5,t5w,t3 set vswing level in low common type*/
-#define LCD_DRV_VERSION    "20220719"
+/* 20220809: fix tcon axi mem mistake for DLG tcon bin*/
+#define LCD_DRV_VERSION    "20220809"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)

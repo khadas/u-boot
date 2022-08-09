@@ -50,6 +50,7 @@ struct lcd_tcon_config_s {
 
 	unsigned int *axi_reg;
 	void (*tcon_axi_mem_config)(void);
+	void (*tcon_axi_mem_update)(unsigned int *table);
 	int (*tcon_enable)(struct lcd_config_s *pconf);
 	int (*tcon_disable)(struct lcd_config_s *pconf);
 };
