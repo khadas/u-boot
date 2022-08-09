@@ -201,7 +201,6 @@
             "setenv bootargs ${bootargs} ffv_freeze=on"\
             "\0"\
         "cold_boot_normal_check="\
-            "setenv bootargs ${bootargs} ffv_freeze=off; "\
             /*"run try_auto_burn;uboot wake up "*/\
             "if test ${powermode} = on; then "\
                 /*"run try_auto_burn; "*/\
@@ -569,7 +568,6 @@
             "setenv bootargs ${bootargs} ffv_freeze=on"\
             "\0"\
         "cold_boot_normal_check="\
-            "setenv bootargs ${bootargs} ffv_freeze=off; "\
             /*"run try_auto_burn;uboot wake up "*/\
             "if test ${powermode} = on; then "\
                 /*"run try_auto_burn; "*/\
