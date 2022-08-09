@@ -440,7 +440,7 @@ int hdmi_tx_set(struct hdmitx_dev *hdev)
 	env_set("hdmichecksum", (const char*)checksum);
 	printf("hdmi_tx_set: save mode: %s, attr: %s, hdmichecksum: %s\n",
 		env_get("outputmode"), env_get("colorattribute"), env_get("hdmichecksum"));
-	run_command("saveenv", 0);
+//	run_command("saveenv", 0);
 	return ret;
 
 #if 0
