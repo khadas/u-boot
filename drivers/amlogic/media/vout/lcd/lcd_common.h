@@ -30,7 +30,8 @@
 /* 20220421: fix lcd clk mistake for vmode change with fr_adj_type 4*/
 /* 20220701: add c3 support*/
 /* 20220718: support t5,t5w,t3 set vswing in low common type*/
-#define LCD_DRV_VERSION    "20220718"
+/* 20220809: fix tcon axi mem mistake for DLG tcon bin*/
+#define LCD_DRV_VERSION    "20220809"
 
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 

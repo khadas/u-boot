@@ -1540,6 +1540,26 @@ static void lcd_tcon_axi_mem_config_t5(void)
 	}
 }
 
+static void lcd_tcon_axi_rmem_update_t5(unsigned int *table)
+{
+	unsigned int reg, paddr, i;
+
+	if (tcon_rmem.flag == 0 || !tcon_rmem.axi_rmem) {
+		LCDERR("%s: invalid axi_mem\n", __func__);
+		return;
+	}
+
+	for (i = 0; i < lcd_tcon_conf->axi_bank; i++) {
+		reg = lcd_tcon_conf->axi_reg[i];
+		paddr = tcon_rmem.axi_rmem[i].mem_paddr;
+		table[reg] = paddr;
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
+			LCDPR("%s: axi[%d] reg: 0x%08x, paddr: 0x%08x\n",
+			      __func__, i, reg, paddr);
+		}
+	}
+}
+
 static void lcd_tcon_axi_mem_config_t5d(void)
 {
 	unsigned int size = 0x00500000;
@@ -1581,6 +1601,24 @@ static void lcd_tcon_axi_mem_config_t5d(void)
 	tcon_rmem.axi_rmem->mem_size = size;
 
 	*lcd_tcon_conf->axi_reg = reg;
+}
+
+static void lcd_tcon_axi_rmem_update_t5d(unsigned int *table)
+{
+	unsigned int reg, paddr;
+
+	if (tcon_rmem.flag == 0 || !tcon_rmem.axi_rmem) {
+		LCDERR("%s: invalid axi_mem\n", __func__);
+		return;
+	}
+
+	reg = *lcd_tcon_conf->axi_reg;
+	paddr = tcon_rmem.axi_rmem->mem_paddr;
+	table[reg] = paddr;
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
+		LCDPR("%s: axi reg: 0x%08x, paddr: 0x%08x\n",
+			__func__, reg, paddr);
+	}
 }
 
 static int lcd_tcon_mem_config(void)
@@ -1913,6 +1951,7 @@ static struct lcd_tcon_config_s tcon_data_tl1 = {
 
 	.axi_reg = NULL,
 	.tcon_axi_mem_config = lcd_tcon_axi_mem_config_tl1,
+	.tcon_axi_mem_update = NULL,
 	.tcon_enable = lcd_tcon_enable_tl1,
 	.tcon_disable = lcd_tcon_disable_tl1,
 };
@@ -1949,6 +1988,7 @@ static struct lcd_tcon_config_s tcon_data_t5 = {
 
 	.axi_reg = NULL,
 	.tcon_axi_mem_config = lcd_tcon_axi_mem_config_t5,
+	.tcon_axi_mem_update = lcd_tcon_axi_rmem_update_t5,
 	.tcon_enable = lcd_tcon_enable_t5,
 	.tcon_disable = lcd_tcon_disable_t5,
 };
@@ -1984,6 +2024,7 @@ static struct lcd_tcon_config_s tcon_data_t5d = {
 
 	.axi_reg = NULL,
 	.tcon_axi_mem_config = lcd_tcon_axi_mem_config_t5d,
+	.tcon_axi_mem_update = lcd_tcon_axi_rmem_update_t5d,
 	.tcon_enable = lcd_tcon_enable_t5,
 	.tcon_disable = lcd_tcon_disable_t5,
 };
@@ -2020,6 +2061,7 @@ static struct lcd_tcon_config_s tcon_data_t3 = {
 
 	.axi_reg = NULL,
 	.tcon_axi_mem_config = lcd_tcon_axi_mem_config_t5,
+	.tcon_axi_mem_update = lcd_tcon_axi_rmem_update_t5,
 	.tcon_enable = lcd_tcon_enable_t3,
 	.tcon_disable = lcd_tcon_disable_t3,
 };
