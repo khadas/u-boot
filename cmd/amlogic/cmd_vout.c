@@ -38,6 +38,7 @@ static int vout_hdmi_hpd(int hpd_st)
 	char *colorattribute;
 
 #ifdef CONFIG_AML_LCD
+	env_set("outputmode", "panel");
 	mode = env_get("outputmode");
 	mux_sel = aml_lcd_driver_outputmode_check(mode, 0);
 	venc_sel = mux_sel & 0xf;
