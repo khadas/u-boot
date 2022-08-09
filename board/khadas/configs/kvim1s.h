@@ -64,6 +64,23 @@
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
 
+#ifdef CONFIG_CMD_USB
+#define BOOT_TARGET_DEVICES_USB(func) func(USB, usb, 0)
+#else
+#define BOOT_TARGET_DEVICES_USB(func)
+#endif
+
+#ifndef BOOT_TARGET_DEVICES
+#define BOOT_TARGET_DEVICES(func) \
+	BOOT_TARGET_DEVICES_USB(func) \
+	func(MMC, mmc, 0) \
+	func(MMC, mmc, 1) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
+#endif
+
+#include <config_distro_bootcmd.h>
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootcmd_spi=test.s \"$boot_source\" = \"spi\" && sf probe && "\
     "sf read $loadaddr 0x4c8000 0x8000 && script\0"\
@@ -86,7 +103,7 @@
         "loadaddr=0x00020000\0"\
         "os_ident_addr=0x00500000\0"\
         "loadaddr_rtos=0x00001000\0"\
-        "loadaddr_kernel=0x03080000\0"\
+        "loadaddr_kernel=0x01080000\0"\
         "dv_fw_addr=0xa00000\0"\
         "otg_device=1\0" \
         "panel_type=lcd_1\0" \
@@ -135,7 +152,7 @@
         "fatload_dev=usb\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-            "root=LABEL=ROOTFS rootflags=data=writeback rw rootfstype=ext4" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe078000 fsck.repair=yes net.ifnames=0 "\
+            "root=LABEL=ROOTFS rootflags=data=writeback rw rootfstype=ext4" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend fsck.repair=yes net.ifnames=0 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
             "\0"\
         "upgrade_check="\
@@ -321,6 +338,16 @@
             "echo detect upgrade key; run update;"\
             "fi;"\
             "\0"\
+		"updateu="\
+			"if tftp 1080000 u-boot.bin.signed; then "\
+			"store boot_write bootloader 1080000 $filesize;"\
+			"fi;"\
+			"\0"\
+		BOOTENV\
+		"pxe_boot=dhcp; pxe get && pxe boot\0"\
+		"bootcmd_storeboot=run storeboot\0"\
+		"boot_targets=usb0 mmc0 mmc1 storeboot pxe dhcp\0"
+
 
 #ifndef CONFIG_PXP_DDR
 #define CONFIG_PREBOOT  \
@@ -538,3 +565,5 @@
 
 #endif
 
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE 8192000
+#define CONFIG_VIDEO_BMP_GZIP 1
