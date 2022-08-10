@@ -257,6 +257,10 @@ int board_late_init(void)
 	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
 			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 	board_init_mem();
+
+	// Set boot source
+	set_boot_source();
+
 #ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
 	if ( run_command("run common_dtb_load", 0) ) {
 		printf("Fail in load dtb with cmd[%s]\n", env_get("common_dtb_load"));
@@ -295,9 +299,6 @@ int board_late_init(void)
 	board_lcd_detect();
 	lcd_probe();
 #endif
-
-	// Set boot source
-	set_boot_source();
 
 	unsigned char chipid[16];
 
