@@ -243,45 +243,6 @@ int board_init(void)
 	return 0;
 }
 
-int board_boot_freertos(void)
-{
-	int rc;
-	image_header_t imghd;
-	uint64_t loadaddr;
-	uint32_t imagesize;
-	char *slot_name;
-	char partName[20] = {0};
-
-	slot_name = env_get("slot-suffixes");
-	if (strcmp(slot_name, "0") == 0)
-		strcpy((char *)partName, "freertos_a");
-	else if (strcmp(slot_name, "1") == 0)
-		strcpy((char *)partName, "freertos_b");
-
-	printf("freertos_partName = %s\n", partName);
-	rc = store_read(partName, 0, sizeof(imghd), (unsigned char *)&imghd);
-	if (rc) {
-		printf("Fail to read from part[freertos] at offset 0\n");
-		return __LINE__;
-	}
-
-	if (strcmp((char *)imghd.ih_name, "rtos") || imghd.ih_size == 0)
-		return __LINE__;
-
-	loadaddr = (imghd.ih_load & 0x000000FFU) << 24 | (imghd.ih_load & 0x0000FF00U) << 8 |
-		(imghd.ih_load & 0x00FF0000U) >> 8 | (imghd.ih_load & 0xFF000000U) >> 24;
-	imagesize = (imghd.ih_size & 0x000000FFU) << 24 | (imghd.ih_size & 0x0000FF00U) << 8 |
-		(imghd.ih_size & 0x00FF0000U) >> 8 | (imghd.ih_size & 0xFF000000U) >> 24;
-
-	printf("freertos run addr:0x%08llx size=%d\n", loadaddr, imagesize);
-	store_read(partName, 0, imagesize + sizeof(imghd), (unsigned char *)loadaddr);
-	memmove((unsigned char *)loadaddr, (unsigned char *)(loadaddr + sizeof(imghd)), imagesize);
-
-	flush_cache(loadaddr, imagesize);
-	power_core_for_freetos(0x01, loadaddr);
-
-	return 0;
-}
 
 int board_late_init(void)
 {
@@ -296,8 +257,6 @@ int board_late_init(void)
 	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
 			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 	board_init_mem();
-	run_command("run bcb_cmd", 0);
-	board_boot_freertos();
 #ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
 	if ( run_command("run common_dtb_load", 0) ) {
 		printf("Fail in load dtb with cmd[%s]\n", env_get("common_dtb_load"));
@@ -365,8 +324,6 @@ int board_late_init(void)
 	} else {
 		env_set("cpu_id", "1234567890");
 	}
-	run_command("amlsecurecheck", 0);
-	run_command("update_tries", 0);
 	return 0;
 }
 

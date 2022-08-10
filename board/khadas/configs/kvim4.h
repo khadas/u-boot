@@ -353,18 +353,6 @@
                 "kbi wolreset;"\
             "fi;"\
             "\0"\
-        "bcb_cmd="\
-            "get_avb_mode;"\
-            "get_valid_slot;"\
-            "if test ${vendor_boot_mode} = true; then "\
-                "setenv loadaddr_kernel 0x3080000;"\
-                "setenv dtb_mem_addr 0x1000000;"\
-            "fi;"\
-            "if test ${active_slot} != normal; then "\
-                "echo ab mode, read dtb from kernel;"\
-                "setenv common_dtb_load ""imgread dtb ${boot_part} ${dtb_mem_addr}"";"\
-            "fi;"\
-            "\0"\
         "load_bmp_logo="\
             "if load mmc 0:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:4 ${loadaddr} /usr/share/fenix/logo/logo.bmp; then "\
                 "bmp display ${loadaddr};"\
@@ -407,7 +395,6 @@
             "kbi ethmac noprint;"\
             "setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
-            "factory_provision init;"\
             "\0"\
         "upgrade_key="\
             "if gpio input GPIOD_4; then "\
@@ -713,18 +700,6 @@
                 "kbi wolreset;"\
             "fi;"\
             "\0"\
-        "bcb_cmd="\
-            "get_avb_mode;"\
-            "get_valid_slot;"\
-            "if test ${vendor_boot_mode} = true; then "\
-                "setenv loadaddr_kernel 0x3080000;"\
-                "setenv dtb_mem_addr 0x1000000;"\
-            "fi;"\
-            "if test ${active_slot} != normal; then "\
-                "echo ab mode, read dtb from kernel;"\
-                "setenv common_dtb_load ""imgread dtb ${boot_part} ${dtb_mem_addr}"";"\
-            "fi;"\
-            "\0"\
         "load_bmp_logo="\
             "if load mmc 0:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:4 ${loadaddr} /usr/share/fenix/logo/logo.bmp; then "\
 			    "bmp display ${loadaddr};"\
@@ -769,7 +744,6 @@
             "kbi ethmac noprint;"\
             "setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
-            "factory_provision init;"\
             "\0"\
         "upgrade_key="\
             "if gpio input GPIOD_4; then "\
@@ -795,7 +769,6 @@
 #endif
 
 #define CONFIG_PREBOOT  \
-            "run bcb_cmd; "\
             "run upgrade_check;"\
             "run check_display;"\
             "run wol_init;"\
