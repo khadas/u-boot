@@ -100,7 +100,7 @@
 		"usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
 		"fdt_high=0x20000000\0"\
 		"sdcburncfg=aml_sdc_burn.ini\0"\
-		"EnableSelinux=permissive\0" \
+		"EnableSelinux=enforcing\0" \
 		"recovery_part=recovery\0"\
 		"lock=10101000\0"\
 		"recovery_offset=0\0"\
@@ -460,7 +460,7 @@
 		"usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
 		"fdt_high=0x20000000\0"\
 		"sdcburncfg=aml_sdc_burn.ini\0"\
-		"EnableSelinux=permissive\0" \
+		"EnableSelinux=enforcing\0" \
 		"recovery_part=recovery\0"\
 		"lock=10101000\0"\
 		"recovery_offset=0\0"\
