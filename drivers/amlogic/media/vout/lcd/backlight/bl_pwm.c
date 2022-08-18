@@ -484,7 +484,9 @@ void bl_pwm_set_level(struct aml_bl_drv_s *bdrv,
 		bl_pwm->pwm_level =
 		(pwm_max - pwm_min) * (level - min) / (max - min) + pwm_min;
 
-	if (bl_pwm->pwm_duty_max > 100)
+	if (bl_pwm->pwm_duty_max > 255)
+		bl_pwm->pwm_duty = bl_pwm->pwm_level * 4095 / bl_pwm->pwm_cnt;
+	else if (bl_pwm->pwm_duty_max > 100)
 		bl_pwm->pwm_duty = bl_pwm->pwm_level * 255 / bl_pwm->pwm_cnt;
 	else
 		bl_pwm->pwm_duty =
@@ -617,7 +619,10 @@ void bl_pwm_config_init(struct bl_pwm_config_s *bl_pwm)
 		break;
 	}
 
-	if (bl_pwm->pwm_duty_max > 100) {
+	if (bl_pwm->pwm_duty_max > 255) {
+		bl_pwm->pwm_max = (bl_pwm->pwm_cnt * bl_pwm->pwm_duty_max / 4095);
+		bl_pwm->pwm_min = (bl_pwm->pwm_cnt * bl_pwm->pwm_duty_min / 4095);
+	} else if (bl_pwm->pwm_duty_max > 100) {
 		bl_pwm->pwm_max = (bl_pwm->pwm_cnt * bl_pwm->pwm_duty_max / 255);
 		bl_pwm->pwm_min = (bl_pwm->pwm_cnt * bl_pwm->pwm_duty_min / 255);
 	} else {

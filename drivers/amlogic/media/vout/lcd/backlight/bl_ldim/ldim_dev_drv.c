@@ -65,11 +65,14 @@ void ldim_set_duty_pwm(struct bl_pwm_config_s *bl_pwm)
 {
 	if (bl_pwm->pwm_port >= BL_PWM_MAX)
 		return;
+	if (bl_pwm->pwm_duty_max == 0)
+		return;
 
-	bl_pwm->pwm_level = bl_pwm->pwm_cnt * bl_pwm->pwm_duty / 100;
+	bl_pwm->pwm_level = (bl_pwm->pwm_cnt * bl_pwm->pwm_duty +
+		((bl_pwm->pwm_duty_max + 1) >> 1)) / bl_pwm->pwm_duty_max;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_BL_NORMAL) {
-		LDIMPR("pwm_port 0x%x: duty=%d%%, duty_max=%d, duty_min=%d\n",
+		LDIMPR("pwm_port 0x%x: duty=%d, duty_max=%d, duty_min=%d\n",
 		       bl_pwm->pwm_port, bl_pwm->pwm_duty,
 		       bl_pwm->pwm_duty_max, bl_pwm->pwm_duty_min);
 	}
@@ -1378,6 +1381,8 @@ int aml_ldim_device_probe(char *dt_addr, struct aml_ldim_driver_s *ldim_drv)
 	dev_drv->en_gpio_off = 0;
 	dev_drv->ldim_pwm_config.pwm_port = BL_PWM_MAX;
 	dev_drv->analog_pwm_config.pwm_port = BL_PWM_MAX;
+	dev_drv->ldim_pwm_config.pwm_duty_max = 4095;
+	dev_drv->analog_pwm_config.pwm_duty_max = 4095;
 	strcpy(dev_drv->pinmux_name, "invalid");
 
 	strcpy(dev_drv->spi_info.modalias, "ldim_dev");
