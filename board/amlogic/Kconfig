@@ -942,7 +942,7 @@ config DDRFW_TYPE
 
 config CHIPSET_NAME
         string "S5 CHIPSET NAME"
-        default ""
+        default "s928x"
 
 config CHIPSET_VARIANT
         string "S5 CHIPSET VARIANT"
@@ -965,11 +965,41 @@ config S5_SKT
 	help
 		Select S5 SKT(XXXX) config
 
+config S5_AX201
+	bool "S5_AX201"
+	select TARGET_S5_AX201
+	help
+		Select S5 AX201(XXXX) config
+
+config S5_AX208
+	bool "S5_AX208"
+	select TARGET_S5_AX208
+	help
+		Select S5 AX208(XXXX) config
+
+config S5_AX209
+	bool "S5_AX209"
+	select TARGET_S5_AX209
+	help
+		Select S5 AX209(XXXX) config
+
 endchoice
 
 config TARGET_S5_SKT
 	bool "S5 SKT board"
 	depends on S5_SKT
+
+config TARGET_S5_AX201
+	bool "S5 AX201 board"
+	depends on S5_AX201
+
+config TARGET_S5_AX208
+	bool "S5 AX208 board"
+	depends on S5_AX208
+
+config TARGET_S5_AX209
+	bool "S5 AX209 board"
+	depends on S5_AX209
 
 endif
 
@@ -1366,6 +1396,12 @@ source "board/amlogic/p1_as409/Kconfig"
 source "board/amlogic/p1_ninox_4/Kconfig"
 
 source "board/amlogic/s5_skt/Kconfig"
+
+source "board/amlogic/s5_ax201/Kconfig"
+
+source "board/amlogic/s5_ax208/Kconfig"
+
+source "board/amlogic/s5_ax209/Kconfig"
 
 source "board/amlogic/t7_skt/Kconfig"
 
