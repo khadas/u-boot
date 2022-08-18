@@ -13,6 +13,7 @@
 #include <emmc_partitions.h>
 #include <amlogic/storage.h>
 #include <amlogic/aml_efuse.h>
+#include <amlogic/aml_mmc.h>
 
 #if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
 #include <amlogic/anti-rollback.h>
@@ -426,6 +427,28 @@ void fastboot_data_complete(char *response)
 
 #ifdef CONFIG_FASTBOOT_WRITING_CMD
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
+static void write_dts_reserve(void)
+{
+	int ret;
+	void *addr = NULL;
+	char *mem_addr;
+
+	if (run_command("imgread dtb ${boot_part} ${dtb_mem_addr}", 0)) {
+		printf("Fail in load dtb\n");
+	} else {
+		mem_addr = env_get("dtb_mem_addr");
+
+		if (mem_addr) {
+			addr = (void *)simple_strtoul(mem_addr, NULL, 16);
+			ret = dtb_write(addr);
+			if (ret)
+				printf("write dtb error\n");
+			else
+				printf("write dtb ok\n");
+		}
+	}
+}
+
 /**
  * flash() - write the downloaded image to the indicated partition.
  *
@@ -578,6 +601,20 @@ static void flash(char *cmd_parameter, char *response)
 #else
 		run_command("saveenv;", 0);
 #endif// #if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+	}
+
+	if (aml_gpt_valid(mmc) == 0) {
+		if (vendor_boot_partition) {
+			if (strcmp_l1("vendor_boot", name) == 0) {
+				printf("gpt mode, write dts to reserve\n");
+				write_dts_reserve();
+			}
+		} else {
+			if (strcmp_l1("boot", name) == 0) {
+				printf("gpt mode, write dts to reserve\n");
+				write_dts_reserve();
+			}
+		}
 	}
 }
 
