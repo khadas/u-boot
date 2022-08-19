@@ -418,7 +418,7 @@ char *android_assemble_cmdline(const char *slot_suffix,
 		*(current_chunk++) = allocated_suffix;
 	}
 #endif
-	serialno = env_get("serial#");
+	serialno = env_get("usid");
 	if (serialno) {
 		allocated_serialno = malloc(strlen(ANDROID_ARG_SERIALNO) +
 					  strlen(serialno) + 1);
