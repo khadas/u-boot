@@ -1358,7 +1358,8 @@ void vpp_pq_load(void)
 
 	for (tk = strsep(&str, ","); tk != NULL; tk = strsep(&str, ",")) {
 		tmp[cnt] = tk;
-		if (cnt++ > 4)
+
+		if (++cnt > 3)
 			break;
 	}
 
