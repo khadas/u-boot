@@ -8,6 +8,29 @@
 #include <linux/arm-smccc.h>
 #include <asm/arch/pwr_ctrl.h>
 
+#define SENSOR_CALIBRATION_VALID_BITS	14
+#ifndef SENSOR_CALIBRATION_VALID_BITS
+#error "Need define macro < SENSOR_CALIBRATION_VALID_BITS >"
+#else
+#define SENSOR_CALIBRATION_DATA_MASK	((1 << SENSOR_CALIBRATION_VALID_BITS) - 1)
+
+#if SENSOR_CALIBRATION_VALID_BITS == 14
+#define TRIM_FLAG_POS	(13)
+#define SIGN_FLAG_POS	(12)
+#elif SENSOR_CALIBRATION_VALID_BITS == 16
+#define TRIM_FLAG_POS	(15)
+#define SIGN_FLAG_POS	(14)
+#endif
+
+#define BIT(nr)				(1UL << (nr))
+#define TRIM_FLAG	(BIT(TRIM_FLAG_POS))
+#define SIGN_FLAG	(BIT(SIGN_FLAG_POS))
+#define DATA_BITS	(SENSOR_CALIBRATION_VALID_BITS - 2)
+#endif
+
+#define BITS_MASK(x)	((1 << (x)) - 1)
+#define SENSOR_VERSION_TYPE	0xf
+
 int tsensor_tz_calibration(unsigned int type, unsigned int data)
 {
 	int ret;
@@ -118,7 +141,13 @@ unsigned int r1p1_temptocode(unsigned long value, int tempbase)
 	printf("%s : tmp2: 0x%lx\n", __func__, tmp2);
 	signbit = ((tmp1 > tmp2) ? 0 : 1);
 	u_efuse = (tmp1 > tmp2) ? (tmp1 - tmp2) : (tmp2 - tmp1);
-	u_efuse = (signbit << 15) | u_efuse;
+	if (u_efuse >> DATA_BITS) {
+		printf("Tsensor calibration overflow...\n");
+		u_efuse = 0;
+	} else {
+		u_efuse = (signbit << SIGN_FLAG_POS) | u_efuse;
+		u_efuse = SIGN_FLAG | u_efuse;
+	}
 	return u_efuse;
 }
 
@@ -159,9 +188,11 @@ static int r1p1_temp_trim(uint32_t tempbase, uint32_t tempver,
 	}
 	u_efuse = r1p1_temptocode(value_ts, tempbase);
 	printf("ts efuse:%d\n", u_efuse);
-	if (u_efuse & 0x8000)
-		u_efuse = u_efuse | 0x4000;
-	u_efuse = u_efuse | 0x8000;
+	if (!(u_efuse & TRIM_FLAG)) {
+		printf("tsensor calibration fail...\n");
+		return -1;
+	//	u_efuse = u_efuse | 0x4000;
+	}
 	printf("ts efuse:0x%x, index: %d\n", u_efuse, index_ts);
 	if (tsensor_tz_calibration(index_ts, u_efuse) < 0) {
 		printf("a73 tsensor thermal_calibration send error\n");
@@ -191,14 +222,14 @@ int temp_read_entry(void)
 			printf("temp type no support\n");
 		break;
 		case 0x1:
-			printf("---- A76 ----\n");
-			read_temperature(1, TS_A76_CFG_REG1, TS_A76_STAT0);
 			printf("---- A55 ----\n");
-			read_temperature(2, TS_A55_CFG_REG1, TS_A55_STAT0);
-			printf("---- DDR0 ----\n");
-			read_temperature(3, TS_DDR_0_CFG_REG1, TS_DDR_0_STAT0);
-			printf("---- DDR1 ----\n");
-			read_temperature(4, TS_DDR_1_CFG_REG1, TS_DDR_1_STAT0);
+			read_temperature(1, TS_A55_CFG_REG1, TS_A55_STAT0);
+			printf("---- GPU ----\n");
+			read_temperature(2, TS_GPU_CFG_REG1, TS_GPU_STAT0);
+			printf("---- VPU ----\n");
+			read_temperature(3, TS_VPU_CFG_REG1, TS_VPU_STAT0);
+			printf("---- DOS ----\n");
+			read_temperature(4, TS_DOS_CFG_REG1, TS_DOS_STAT0);
 			printf("---- NNA ----\n");
 			pwr_ctrl_psci_smc(20, 1);
 			read_temperature(5, TS_NNA_CFG_REG1, TS_NNA_STAT0);
@@ -230,27 +261,30 @@ int temp_trim_entry(int tempbase, int tempver)
 	printf("tsensor input trim tempver, tempver:0x%x\n", tempver);
 	switch (tempver) {
 		case 0x84:
-			r1p1_temp_trim(tempbase, tempver, 1, TS_A76_CFG_REG1, TS_A76_STAT0);
-			r1p1_temp_trim(tempbase, tempver, 2, TS_A55_CFG_REG1, TS_A55_STAT0);
-			r1p1_temp_trim(tempbase, tempver, 3, TS_DDR_0_CFG_REG1, TS_DDR_0_STAT0);
-			r1p1_temp_trim(tempbase, tempver, 4, TS_DDR_1_CFG_REG1, TS_DDR_1_STAT0);
+			r1p1_temp_trim(tempbase, tempver, 1, TS_A55_CFG_REG1, TS_A55_STAT0);
+			r1p1_temp_trim(tempbase, tempver, 2, TS_GPU_CFG_REG1, TS_GPU_STAT0);
+			r1p1_temp_trim(tempbase, tempver, 3, TS_VPU_CFG_REG1, TS_VPU_STAT0);
+			r1p1_temp_trim(tempbase, tempver, 4, TS_DOS_CFG_REG1, TS_DOS_STAT0);
 			r1p1_temp_trim(tempbase, tempver, 5, TS_NNA_CFG_REG1, TS_NNA_STAT0);
+			tsensor_tz_calibration(SENSOR_VERSION_TYPE, 0);
 			printf("triming the thermal by bbt-sw\n");
 		break;
 		case 0x85:
-			r1p1_temp_trim(tempbase, tempver, 1, TS_A76_CFG_REG1, TS_A76_STAT0);
-			r1p1_temp_trim(tempbase, tempver, 2, TS_A55_CFG_REG1, TS_A55_STAT0);
-			r1p1_temp_trim(tempbase, tempver, 3, TS_DDR_0_CFG_REG1, TS_DDR_0_STAT0);
-			r1p1_temp_trim(tempbase, tempver, 4, TS_DDR_1_CFG_REG1, TS_DDR_1_STAT0);
+			r1p1_temp_trim(tempbase, tempver, 1, TS_A55_CFG_REG1, TS_A55_STAT0);
+			r1p1_temp_trim(tempbase, tempver, 2, TS_GPU_CFG_REG1, TS_GPU_STAT0);
+			r1p1_temp_trim(tempbase, tempver, 3, TS_VPU_CFG_REG1, TS_VPU_STAT0);
+			r1p1_temp_trim(tempbase, tempver, 4, TS_DOS_CFG_REG1, TS_DOS_STAT0);
 			r1p1_temp_trim(tempbase, tempver, 5, TS_NNA_CFG_REG1, TS_NNA_STAT0);
+			tsensor_tz_calibration(SENSOR_VERSION_TYPE, 1);
 			printf("triming the thermal by bbt-ops\n");
 		break;
 		case 0x87:
-			r1p1_temp_trim(tempbase, tempver, 1, TS_A76_CFG_REG1, TS_A76_STAT0);
-			r1p1_temp_trim(tempbase, tempver, 2, TS_A55_CFG_REG1, TS_A55_STAT0);
-			r1p1_temp_trim(tempbase, tempver, 3, TS_DDR_0_CFG_REG1, TS_DDR_0_STAT0);
-			r1p1_temp_trim(tempbase, tempver, 4, TS_DDR_1_CFG_REG1, TS_DDR_1_STAT0);
+			r1p1_temp_trim(tempbase, tempver, 1, TS_A55_CFG_REG1, TS_A55_STAT0);
+			r1p1_temp_trim(tempbase, tempver, 2, TS_GPU_CFG_REG1, TS_GPU_STAT0);
+			r1p1_temp_trim(tempbase, tempver, 3, TS_VPU_CFG_REG1, TS_VPU_STAT0);
+			r1p1_temp_trim(tempbase, tempver, 4, TS_DOS_CFG_REG1, TS_DOS_STAT0);
 			r1p1_temp_trim(tempbase, tempver, 5, TS_NNA_CFG_REG1, TS_NNA_STAT0);
+			tsensor_tz_calibration(SENSOR_VERSION_TYPE, 3);
 			printf("triming the thermal by slt\n");
 		break;
 		default:
