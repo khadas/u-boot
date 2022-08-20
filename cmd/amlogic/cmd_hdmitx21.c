@@ -139,6 +139,7 @@ static void hdmitx_mask_rx_info(struct hdmitx_dev *hdev)
 
 static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
+	const struct hdmi_timing *timing = NULL;
 	struct hdmitx_dev *hdev = get_hdmitx21_device();
 
 	if (argc < 1)
@@ -216,6 +217,14 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			}
 			break;
 		default:
+			/* In Spec2.1 Table 7-34, greater than 2160p30hz will support y420 */
+			timing = hdmitx21_gettiming_from_vic(hdev->vic);
+			if (!timing)
+				break;
+			if (timing->v_active > 2160 && timing->v_freq > 30000)
+				break;
+			if (timing->v_active >= 4320)
+				break;
 			if (hdev->para->cs == HDMI_COLORSPACE_YUV420) {
 				printf("vic %d has no cs %d\n", hdev->vic,
 					hdev->para->cs);

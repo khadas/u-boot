@@ -75,9 +75,29 @@ static int dump_hdmivpfdet_show(void)
 
 	reg = VP_FDET_FRAME_RATE_IVCTX;
 	val = CONNECT3REG(reg);
-	if (val)
-		pr_info("frame_rate [%x] 0x%x 200000000/%d Hz\n",
-			reg, val, val);
+	if (val) {
+		u32 integer;
+		u32 i;
+		u32 reminder;
+		u32 quotient;
+		u32 result = 0;
+
+		/* due to the vframe rate are always with decimals,
+		 * manually calculate the decimal parts
+		 */
+		val--;
+		integer = 200000000 / val;
+		reminder = 200000000 - integer * val;
+		for (i = 0, result = 0; i < 3; i++) {
+			reminder = reminder * 10;
+			result = result * 10;
+			quotient = reminder / val;
+			reminder = reminder - quotient * val;
+			result += quotient;
+		}
+		pr_info("frame_rate [%x] 0x%x %d %d.%03d Hz\n",
+			reg, val, val, integer, result);
+	}
 
 	reg = VP_FDET_PIXEL_COUNT_IVCTX;
 	val = CONNECT2REG(reg);
@@ -307,7 +327,7 @@ void hdmitx21_dump_regs(void)
 	// ((0x0000 << 2) + 0xfe008000) ~ ((0x00f3 << 2) + 0xfe008000)
 	dump32(ANACTRL_SYS0PLL_CTRL0, ANACTRL_DIF_PHY_STS);
 	// ((0x0001 << 2) + 0xfe000000) ~ ((0x0128 << 2) + 0xfe000000)
-	dump32(CLKCTRL_OSCIN_CTRL, CLKCTRL_EFUSE_A73_CFG2);
+	dump32(CLKCTRL_OSCIN_CTRL, CLKCTRL_FPLL_SYS);
 	// ((0x0000 << 2) + 0xfe00c000) ~ ((0x027f << 2) + 0xfe00c000)
 	dump32(PWRCTRL_PWR_ACK0, PWRCTRL_A73TOP_FSM_JUMP);
 	// ((0x1b00 << 2) + 0xff000000) ~ ((0x1bea << 2) + 0xff000000)
