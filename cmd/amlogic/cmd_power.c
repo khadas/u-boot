@@ -54,8 +54,6 @@ static int do_powerset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 
 	domain_id = simple_strtoul(argv[1], NULL, 10);
 	domain_status = simple_strtoul(argv[2], NULL, 10);
-	printf("domain_id: %d \n",domain_id);
-	printf("domain_status: %d\n",domain_status);
 
 	pwr_ctrl_psci_smc(domain_id, !domain_status);
 

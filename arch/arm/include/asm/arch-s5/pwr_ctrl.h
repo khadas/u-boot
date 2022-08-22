@@ -41,9 +41,8 @@ typedef enum pdid {
 	PM_DMC11,
 	PM_DDRPHY0,
 	PM_DDRPHY1,
-	PM_NOC_DMC_WRAP,
 } PM_E;
-#define PM_MAX (PM_NOC_DMC_WRAP + 1)
+#define PM_MAX (PM_DDRPHY1 + 1)
 
 unsigned long viu_init_psci_smc(void);
 unsigned long pwr_ctrl_psci_smc(unsigned int power_domain, bool power_control);

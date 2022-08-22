@@ -39,5 +39,4 @@ char *domain_name[] =
 	"PM_DMC11",
 	"PM_DDRPHY0",
 	"PM_DDRPHY1",
-	"PM_NOC_DMC_WRAP",
 };
