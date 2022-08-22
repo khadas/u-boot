@@ -8,6 +8,11 @@
 #include <asm/arch/io.h>
 #include <asm/arch/secure_apb.h>
 
+/* s5 add */
+#ifndef SYSCTRL_SYS_CLK_VPU_EN
+#define SYSCTRL_SYS_CLK_VPU_EN                     ((0x004c  << 2) + 0xfe010000)
+#endif
+
 #ifndef REG_BASE_CBUS
 #define REG_BASE_CBUS                              (0xffd00000L)
 #endif

@@ -472,6 +472,7 @@ static struct vpu_data_s vpu_data_s5 = {
 	.vpu_clkb_reg = VPU_REG_END,  //no need init clkb
 	.vapb_clk_reg = CLKCTRL_VAPBCLK_CTRL,
 	.vid_clk_reg = CLKCTRL_VID_CLK0_CTRL2,
+	.test_reg = vcbus_test_reg,
 
 	.pwrctrl_id_table = NULL, //vpu_pwrctrl_id_table_t7,
 
@@ -488,6 +489,7 @@ static struct vpu_data_s vpu_data_s5 = {
 
 	.power_on = vpu_power_on_new,
 	.power_off = vpu_power_off_new,
+	.module_init_config = vpu_module_init_config,
 };
 
 static void vpu_chip_detect(void)

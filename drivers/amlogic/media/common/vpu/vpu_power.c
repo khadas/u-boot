@@ -51,6 +51,9 @@ void vpu_module_init_config(void)
 	if (vpu_conf.data->chip_type == VPU_CHIP_T3)
 		viu_init_psci_smc();
 #endif
+	/* S5 new add registers */
+	if (vpu_conf.data->chip_type == VPU_CHIP_S5)
+		vpu_sysctrl_write(SYSCTRL_SYS_CLK_VPU_EN, 0xFFFFFFFF);
 	VPUPR("%s\n", __func__);
 }
 
