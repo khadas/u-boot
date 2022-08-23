@@ -170,7 +170,7 @@ efuse_action:
 			return -1;
 		}
 		printf("efuse %s %s\n", s, ret > 0 ? "has been written" : "is not write");
-		return ret == 0 ? 1 : 0; //cmd return 0: wrote, 1: not write
+		return ret == 0 ? 1 : 0; //cmd return 0: written, 1: not write
 	} else if (CMD_EFUSE_SECURE_BOOT_SET == action) {
 		/*efuse secure_boot_set*/
 

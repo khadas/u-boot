@@ -147,8 +147,9 @@ int64_t __meson_trustzone_efuse_caliitem(uint32_t cmd, uint32_t subcmd)
 typedef struct _efuseCaliItem{
 	char *name;
 	int  item;
-}tEfuseCaliItem;
-const tEfuseCaliItem EfuseCaliItem_cfg[]={
+} tefusecaliitem;
+
+const tefusecaliitem EfuseCaliItem_cfg[] = {
 	{.name="sensor", .item = EFUSE_CALI_SUBITEM_SENSOR0},
 	{.name="saradc", .item = EFUSE_CALI_SUBITEM_SARADC},
 	{.name="usbphy", .item = EFUSE_CALI_SUBITEM_USBPHY},
@@ -176,6 +177,36 @@ int64_t meson_trustzone_efuse_caliItem(const char *str)
 	if (i >= EFUSE_CALIITE_CNT) {
 		return -1;
 	}
+
+	ret = __meson_trustzone_efuse_caliitem(EFUSE_READ_CALI_ITEM, subcmd);
+	return ret;
+}
+
+const tefusecaliitem efuselockitem_cfg[] = {
+	{.name = "aud_id", .item = EFUSE_LOCK_SUBITEM_AUDIO_V_ID},
+};
+
+#define EFUSELOCKITEM_CNT   ARRAY_SIZE(efuselockitem_cfg)
+/*
+ *return: 0: unlock, not write data
+ *        1: lock, wrote data
+ *		 -1: fail
+ */
+int64_t meson_trustzone_efuse_lockitem(const char *str)
+{
+	int i;
+	unsigned int subcmd = 0;
+	s64 ret;
+
+	for (i = 0; i < EFUSELOCKITEM_CNT; i++) {
+		if (strncmp(efuselockitem_cfg[i].name, str,
+			strlen(efuselockitem_cfg[i].name)) == 0) {
+			subcmd = efuselockitem_cfg[i].item;
+			break;
+		}
+	}
+	if (i >= EFUSELOCKITEM_CNT)
+		return -1;
 
 	ret = __meson_trustzone_efuse_caliitem(EFUSE_READ_CALI_ITEM, subcmd);
 	return ret;
