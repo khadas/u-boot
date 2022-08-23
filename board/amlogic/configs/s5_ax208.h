@@ -39,7 +39,7 @@
 /* Bootloader Control Block function
    That is used for recovery and the bootloader to talk to each other
   */
-#if 0
+#ifndef CONFIG_PXP_EMULATOR
 #define CONFIG_BOOTLOADER_CONTROL_BLOCK
 #endif
 //#define CONFIG_AVB_VERIFY 1
@@ -348,8 +348,9 @@
             "run switch_bootmode;"
 #else
 #define CONFIG_PREBOOT  "echo preboot"
-#endif
 #define CONFIG_ENV_IS_NOWHERE  1
+#endif
+
 #define CONFIG_ENV_SIZE   (64*1024)
 #define CONFIG_FIT 1
 #define CONFIG_OF_LIBFDT 1
