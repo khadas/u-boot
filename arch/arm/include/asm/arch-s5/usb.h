@@ -92,8 +92,8 @@
 /* XHCI PHY register structure */
 #define PHY_REGISTER_SIZE	0x20
 
-#define CEG_UDC_1_BASE 0xfde00000
-#define CEG_UDC_0_BASE 0xfdd00000
+#define CEG_UDC_1_BASE 0xfdd00000
+#define CEG_UDC_0_BASE 0xfde00000
 
 struct phy_aml_usb2_priv {
 	unsigned int base_addr;

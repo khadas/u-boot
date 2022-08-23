@@ -521,25 +521,53 @@
 			};
 		};
 
-		crg0: crg0@fdd00000 {
+		crg0: crg@fdd00000 {
 			compatible = "crg-xhci";
 			status = "disable";
 			reg = <0x0 0xfdd00000 0x0 0x100000>;
 			m31 = <1>;
 		};
 
-		crg1: crg1@fde00000 {
+		crg1: crg@fde00000 {
 			compatible = "crg-xhci";
 			status = "disable";
 			reg = <0x0 0xfde00000 0x0 0x100000>;
 			m31 = <1>;
 		};
 
-		crg2: crg2@fdf00000 {
+		crg2: crg@fdf00000 {
 			compatible = "crg-xhci";
 			status = "disable";
 			reg = <0x0 0xfdf00000 0x0 0x100000>;
-			m31 = <1>;
+			phys = <&usb2_phy_v2>, <&usb3_phy_v2>;
+			phy-names = "usb2-phy", "usb3-phy";
+		};
+
+		usb2_phy_v2: usb2phy@fe03c000 {
+			compatible = "amlogic, amlogic-new-usb2-v2";
+			status = "disable";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			phy-version = <2>;
+			reg = <0x0 0xfe03c000 0x0 0x80
+				0x0 0xFE002000 0x0 0x100
+				0x0 0xfe072000 0x0 0x2000>;
+			dwc2_a_reg = <0xfdf00000>;
+			#phy-cells = <0>;
+		};
+
+		usb3_phy_v2: usb3phy@fe03c080 {
+			compatible = "amlogic, amlogic-new-usb3-v2";
+			status = "disable";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			phy-version = <3>;
+			reg = <0x0 0xfe03c080 0x0 0x20>;
+			phy-reg = <0xfe072000>;
+			phy-reg-size = <0x2000>;
+			usb2-phy-reg = <0xfe03c000>;
+			usb2-phy-reg-size = <0x80>;
+			#phy-cells = <0>;
 		};
 	};
 };
