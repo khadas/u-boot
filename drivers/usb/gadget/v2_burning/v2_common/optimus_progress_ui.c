@@ -441,7 +441,7 @@ __hdle optimus_progress_ui_request_for_sdc_burn(void)
     unsigned display_width = simple_strtoul(getenv("fb_width"), NULL, 0);
     unsigned display_height = simple_strtoul(getenv("fb_height"), NULL, 0);
     bmp_header_t* upgrading  = (bmp_header_t*)simple_strtoul(getenv("upgrade_upgrading_offset"), NULL, 0);
-    const unsigned loadingHeight = upgrading->height;
+	const unsigned loadingHeight = upgrading ? upgrading->height : 0;
     const unsigned barYCor       =
         (3* display_height + loadingHeight)/4;//display_height - (display_height/2 - loadingHeight/2)/2;
     unsigned unfocusBmpAddr = simple_strtoul(getenv("upgrade_unfocus_offset"), NULL, 0);
@@ -482,6 +482,7 @@ __hdle optimus_progress_ui_request_for_sdc_burn(void)
 
     if (optimus_progress_ui_set_unfocus_bkg(hUiProgress, unfocusBmpAddr)) {
         DWN_ERR("Fail to set bkg\n");
+	optimus_progress_ui_release(hUiProgress);
         return NULL;;
     }
 
