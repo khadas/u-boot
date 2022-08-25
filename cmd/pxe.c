@@ -943,7 +943,7 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 				 * before invoking "pxe" or "sysboot".
 				 */
 				f1 = env_get("soc");
-				f2 = "-";
+				f2 = "/";
 				f3 = env_get("board");
 				f4 = ".dtb";
 			}
