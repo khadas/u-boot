@@ -219,14 +219,10 @@ static int __abortboot(int bootdelay)
 	printf("Hit key to stop autoboot('CTRL+C'): %2d ", bootdelay);
 #endif
 
-#ifdef CONFIG_ARCH_ROCKCHIP
-	if (!IS_ENABLED(CONFIG_CONSOLE_DISABLE_CLI) && ctrlc()) {	/* we press ctrl+c ? */
-#else
 	/*
 	 * Check if key already pressed
 	 */
 	if (tstc()) {	/* we got a key press	*/
-#endif
 		(void) getc();  /* consume input	*/
 		puts("\b\b\b 0");
 		abort = 1;	/* don't auto boot	*/
