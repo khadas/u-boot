@@ -211,10 +211,10 @@ void secure_storage_init(void)
 		storage_share_block_size =
 				bl31_storage_ops(GET_SHARE_STORAGE_BLOCK_SIZE);
 
-		if (storage_share_in_base == SMC_UNK
-				|| storage_share_out_base == SMC_UNK
-				|| storage_share_block_base == SMC_UNK
-				|| storage_share_block_size == SMC_UNK)
+		if ((int)storage_share_in_base == SMC_UNK ||
+			(int)storage_share_out_base == SMC_UNK ||
+			(int)storage_share_block_base == SMC_UNK ||
+			(int)storage_share_block_size == SMC_UNK)
 			storage_init_status = -1;
 		else
 			storage_init_status = 1;
