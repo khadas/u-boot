@@ -280,6 +280,18 @@
 //Bit 28:16 reg_vpu_pwm_v_end3
 //Bit 12:0  reg_vpu_pwm_v_start3
 #define VPU_VPU_PWM_V3                             0x2733
+//Bit 28:16 reg_vpu_pwm_h_end0
+//Bit 12:0  reg_vpu_pwm_h_start0
+#define VPU_VPU_PWM_H0                             0x2734
+//Bit 28:16 reg_vpu_pwm_h_end1
+//Bit 12:0  reg_vpu_pwm_h_start1
+#define VPU_VPU_PWM_H1                             0x2735
+//Bit 28:16 reg_vpu_pwm_h_end2
+//Bit 12:0  reg_vpu_pwm_h_start2
+#define VPU_VPU_PWM_H2                             0x2736
+//Bit 28:16 reg_vpu_pwm_h_end3
+//Bit 12:0  reg_vpu_pwm_h_start3
+#define VPU_VPU_PWM_H3                             0x2737
 
 #define P2P_CH_SWAP0                               0x4200
 #define P2P_CH_SWAP1                               0x4201
