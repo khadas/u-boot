@@ -19,6 +19,6 @@ config SYS_MALLOC_F_LEN
 	default 0x400
 
 source board/rockchip/evb_rk3588/Kconfig
-source board/khadas/kedge2/Kconfig
+source board/khadas/rk3588s-khadas-edge2/Kconfig
 
 endif
