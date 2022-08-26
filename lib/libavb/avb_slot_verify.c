@@ -735,13 +735,12 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
     case AVB_VBMETA_VERIFY_RESULT_OK:
 		{
 			bool is_device_unlocked;
-			uint32_t vbmeta_strlen = avb_strlen("vbmeta");
 
 			avb_assert(pk_data && pk_len > 0);
 			io_ret = ops->read_is_device_unlocked(ops, &is_device_unlocked);
-			if ((avb_strlen(full_partition_name) == vbmeta_strlen) &&
-				!avb_safe_memcmp(full_partition_name,
-				"vbmeta", vbmeta_strlen)) {
+			if (!strcmp(full_partition_name, "vbmeta") ||
+					!strcmp(full_partition_name, "vbmeta_a") ||
+					!strcmp(full_partition_name, "vbmeta_b")) {
 				if (io_ret == AVB_IO_RESULT_OK && !is_device_unlocked) {
 					AvbSHA256Ctx boot_key_sha256_ctx;
 
