@@ -522,7 +522,7 @@ static void flash(char *cmd_parameter, char *response)
 #if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
 			run_command("update_env_part -p default_env;", 0);
 #else
-			run_command("saveenv;", 0);
+			run_command("defenv_reserve;saveenv;", 0);
 #endif//#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
 			return;
 		}
@@ -599,7 +599,7 @@ static void flash(char *cmd_parameter, char *response)
 #if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
 		run_command("update_env_part -p default_env;", 0);
 #else
-		run_command("saveenv;", 0);
+		run_command("defenv_reserve;saveenv;", 0);
 #endif// #if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
 	}
 

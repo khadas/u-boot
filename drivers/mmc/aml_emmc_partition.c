@@ -1294,6 +1294,42 @@ void trans_ept_to_diskpart(struct _iptbl *ept, disk_partition_t *disk_part) {
 	return;
 }
 
+/*
+ * erase misc param tee frp
+ *
+ * if partition changed:
+ *	 erase misc param tee frp
+ *
+ */
+void erase_misc_param_tee_frp(struct _iptbl *dst, struct _iptbl *src)
+{
+	int i = 0;
+	struct partitions *dstp;
+	struct partitions *srcp;
+
+	while (i < dst->count) {
+		dstp = &dst->partitions[i];
+		srcp = &src->partitions[i];
+
+		if (dstp->offset != srcp->offset || dstp->size != srcp->size) {
+			if (!strncmp(dstp->name, "misc", sizeof("misc"))) {
+				run_command("store erase misc 0 0", 0);
+				printf("Erasing misc partition OK!\n");
+			} else if (!strncmp(dstp->name, "param", sizeof("param"))) {
+				run_command("store erase param 0 0", 0);
+				printf("Erasing param partition OK!\n");
+			} else if (!strncmp(dstp->name, "tee", sizeof("tee"))) {
+				run_command("store erase tee 0 0", 0);
+				printf("Erasing tee partition OK!\n");
+			} else if (!strncmp(dstp->name, "frp", sizeof("frp"))) {
+				run_command("store erase frp 0 0", 0);
+				printf("Erasing frp partition OK!\n");
+			}
+		}
+		i++;
+	}
+}
+
 #ifdef CONFIG_AML_PARTITION
 /*
  * compare ept and rsv
@@ -1311,9 +1347,10 @@ int enable_rsv_part_table(struct mmc *mmc)
 	ret = _zalloc_iptbl(&p_iptbl_rsv);
 	if (ret)
 		return ret;
-
 	if (!get_ptbl_rsv(mmc, p_iptbl_rsv)) {
 		if (_cmp_iptbl(p_iptbl_ept, p_iptbl_rsv)) {
+			apt_wrn("need to erase partition misc param tee frp!\n");
+			erase_misc_param_tee_frp(p_iptbl_ept, p_iptbl_rsv);
 			apt_wrn("update rsv with gpt!\n");
 			ret = update_ptbl_rsv(mmc, p_iptbl_ept);
 			if (ret)

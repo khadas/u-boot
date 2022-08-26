@@ -291,7 +291,7 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 
 #ifdef CONFIG_MMC_MESON_GX
 	struct mmc *mmc = NULL;
-	int capacity_boot = 0;
+	//int capacity_boot = 0;
 
 	if (store_get_type() == BOOT_EMMC)
 		mmc = find_mmc_device(1);
@@ -424,7 +424,7 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		wrnP("can not get bootloader index, so skip secure check\n");
 		return -1;
 	}
-
+/*
 #ifdef CONFIG_MMC_MESON_GX
 	if (mmc) {
 		struct blk_desc *dev_desc = mmc_get_blk_desc(mmc);
@@ -461,6 +461,7 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		}
 	}
 #endif
+*/
 
 	//no secure check need
 	if (!strcmp(rebootstatus, "reboot_init")) {
