@@ -1974,7 +1974,7 @@ config CMD_EFUSE
 	  support efuse command
 
 config CMD_FREERTOS_LOG
-	bool "support efuse command"
+	bool "support freertos_log command"
 	default n
 	help
 	  support freertos_log command, the command read freertos log from
