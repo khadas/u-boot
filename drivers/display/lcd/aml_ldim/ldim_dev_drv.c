@@ -103,10 +103,10 @@ void ldim_set_duty_pwm(struct bl_pwm_config_s *bl_pwm)
 	if (bl_pwm->pwm_port >= BL_PWM_MAX)
 		return;
 
-	bl_pwm->pwm_level = bl_pwm->pwm_cnt * bl_pwm->pwm_duty / 100;
+	bl_pwm->pwm_level = bl_pwm->pwm_cnt * bl_pwm->pwm_duty / bl_pwm->pwm_duty_max;
 
 	if (lcd_debug_print_flag) {
-		LDIMPR("pwm port %d: duty=%d%%, duty_max=%d, duty_min=%d\n",
+		LDIMPR("pwm port %d: duty=%d, duty_max=%d, duty_min=%d\n",
 			bl_pwm->pwm_port, bl_pwm->pwm_duty,
 			bl_pwm->pwm_duty_max, bl_pwm->pwm_duty_min);
 	}
@@ -403,9 +403,9 @@ static void aml_ldim_device_config_print(void)
 		printf("analog_pwm_port        = %d\n"
 			"analog_pwm_pol         = %d\n"
 			"analog_pwm_freq        = %d\n"
-			"analog_pwm_duty        = %d%%\n"
-			"analog_pwm_duty_max    = %d%%\n"
-			"analog_pwm_duty_min    = %d%%\n"
+			"analog_pwm_duty        = %d\n"
+			"analog_pwm_duty_max    = %d\n"
+			"analog_pwm_duty_min    = %d\n"
 			"analog_pwm_pinmux_flag = %d\n\n",
 			bl_pwm->pwm_port, bl_pwm->pwm_method,
 			bl_pwm->pwm_freq, bl_pwm->pwm_duty,
@@ -909,7 +909,7 @@ int ldim_dev_get_config_from_dts(char *dt_addr, int index)
 			if (bl_pwm->pwm_freq > XTAL_HALF_FREQ_HZ)
 				bl_pwm->pwm_freq = XTAL_HALF_FREQ_HZ;
 		}
-		LDIMPR("get ldim_pwm pol = %d, freq = %d, default duty = %d%%\n",
+		LDIMPR("get ldim_pwm pol = %d, freq = %d, default duty = %d\n",
 			bl_pwm->pwm_method, bl_pwm->pwm_freq,
 			bl_pwm->pwm_duty);
 	}
@@ -944,7 +944,8 @@ int ldim_dev_get_config_from_dts(char *dt_addr, int index)
 		}
 		if (bl_pwm->pwm_freq > XTAL_HALF_FREQ_HZ)
 			bl_pwm->pwm_freq = XTAL_HALF_FREQ_HZ;
-		LDIMPR("get analog_pwm pol = %d, freq = %d, duty_max = %d%%, duty_min = %d%%, default duty = %d%%\n",
+		LDIMPR("get analog_pwm pol = %d, freq = %d, duty_max = %d\n"
+			"duty_min = %d, default duty = %d\n",
 			bl_pwm->pwm_method, bl_pwm->pwm_freq,
 			bl_pwm->pwm_duty_max, bl_pwm->pwm_duty_min,
 			bl_pwm->pwm_duty);

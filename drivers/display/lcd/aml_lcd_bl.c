@@ -373,7 +373,10 @@ static void bl_pwm_config_init(struct bl_pwm_config_s *bl_pwm)
 		break;
 	}
 
-	if (bl_pwm->pwm_duty_max > 100) {
+	if (bl_pwm->pwm_duty_max > 255) {
+		bl_pwm->pwm_max = (bl_pwm->pwm_cnt * bl_pwm->pwm_duty_max / 4095);
+		bl_pwm->pwm_min = (bl_pwm->pwm_cnt * bl_pwm->pwm_duty_min / 4095);
+	} else if (bl_pwm->pwm_duty_max > 100) {
 		bl_pwm->pwm_max = (bl_pwm->pwm_cnt * bl_pwm->pwm_duty_max / 255);
 		bl_pwm->pwm_min = (bl_pwm->pwm_cnt * bl_pwm->pwm_duty_min / 255);
 	} else {
@@ -455,8 +458,8 @@ static void bl_set_pwm_gpio_check(struct bl_pwm_config_s *bl_pwm)
 	pwm_index = bl_pwm->index;
 
 	/* pwm duty 100% or 0% special control */
-	if (bl_pwm->pwm_duty_max > 100) {
-		if ((bl_pwm->pwm_duty == 0) || (bl_pwm->pwm_duty == 255)) {
+	if (bl_pwm->pwm_duty_max > 255) {
+		if (bl_pwm->pwm_duty == 0 || bl_pwm->pwm_duty == 4095) {
 			switch (bl_pwm->pwm_method) {
 			case BL_PWM_POSITIVE:
 				if (bl_pwm->pwm_duty == 0)
@@ -478,7 +481,42 @@ static void bl_set_pwm_gpio_check(struct bl_pwm_config_s *bl_pwm)
 			}
 			if (lcd_debug_print_flag) {
 				LCDPR("bl: %s: pwm port=%d, duty=%d%%, switch to gpio %d\n",
-					__func__, bl_pwm->pwm_port, bl_pwm->pwm_duty*100/255, gpio_level);
+					__func__, bl_pwm->pwm_port,
+					bl_pwm->pwm_duty * 100 / 4095, gpio_level);
+			}
+			bl_pwm_pinmux_gpio_set(pwm_index, gpio_level);
+		} else {
+			if (lcd_debug_print_flag) {
+				LCDPR("bl: %s: pwm_port=%d set as pwm\n",
+					__func__, bl_pwm->pwm_port);
+			}
+			bl_pwm_pinmux_gpio_clr(pwm_index);
+		}
+	} else if (bl_pwm->pwm_duty_max > 100) {
+		if (bl_pwm->pwm_duty == 0 || bl_pwm->pwm_duty == 255) {
+			switch (bl_pwm->pwm_method) {
+			case BL_PWM_POSITIVE:
+				if (bl_pwm->pwm_duty == 0)
+					gpio_level = 0;
+				else
+					gpio_level = 1;
+				break;
+			case BL_PWM_NEGATIVE:
+				if (bl_pwm->pwm_duty == 0)
+					gpio_level = 1;
+				else
+					gpio_level = 0;
+				break;
+			default:
+				LCDERR("bl: %s: port=%d: invalid pwm_method %d\n",
+					__func__, bl_pwm->pwm_port, bl_pwm->pwm_method);
+				gpio_level = 0;
+				break;
+			}
+			if (lcd_debug_print_flag) {
+				LCDPR("bl: %s: pwm port=%d, duty=%d%%, switch to gpio %d\n",
+					__func__, bl_pwm->pwm_port,
+					bl_pwm->pwm_duty * 100 / 255, gpio_level);
 			}
 			bl_pwm_pinmux_gpio_set(pwm_index, gpio_level);
 		} else {
@@ -489,7 +527,7 @@ static void bl_set_pwm_gpio_check(struct bl_pwm_config_s *bl_pwm)
 			bl_pwm_pinmux_gpio_clr(pwm_index);
 		}
 	} else {
-		if ((bl_pwm->pwm_duty == 0) || (bl_pwm->pwm_duty == 100)) {
+		if (bl_pwm->pwm_duty == 0 || bl_pwm->pwm_duty == 100) {
 			switch (bl_pwm->pwm_method) {
 			case BL_PWM_POSITIVE:
 				if (bl_pwm->pwm_duty == 0)
@@ -616,7 +654,9 @@ static void bl_set_level_pwm(struct bl_pwm_config_s *bl_pwm, unsigned int level)
 	else
 		bl_pwm->pwm_level = (pwm_max - pwm_min) * (level - min) / (max - min) + pwm_min;
 
-	if (bl_pwm->pwm_duty_max > 100)
+	if (bl_pwm->pwm_duty_max > 255)
+		bl_pwm->pwm_duty = bl_pwm->pwm_level * 4095 / bl_pwm->pwm_cnt;
+	else if (bl_pwm->pwm_duty_max > 100)
 		bl_pwm->pwm_duty = bl_pwm->pwm_level * 255 / bl_pwm->pwm_cnt;
 	else
 		bl_pwm->pwm_duty = ((bl_pwm->pwm_level * 1000 / bl_pwm->pwm_cnt) + 5) / 10;
@@ -1140,7 +1180,9 @@ void aml_bl_config_print(void)
 				LCDPR("bl: pwm_freq      = %d x vfreq\n", bl_pwm->pwm_freq);
 				LCDPR("bl: pwm_cnt       = %u\n", bl_pwm->pwm_cnt);
 				if (bl_pwm->pwm_duty_max > 100)
-					LCDPR("bl: pwm_duty  = %d%%(%d)\n", bl_pwm->pwm_duty * 100 / 255, bl_pwm->pwm_duty);
+					LCDPR("bl: pwm_duty  = %d%%(%d)\n",
+					bl_pwm->pwm_duty * 100 / bl_pwm->pwm_duty_max,
+					bl_pwm->pwm_duty);
 				else
 					LCDPR("bl: pwm_duty  = %d%%(%d)\n", bl_pwm->pwm_duty, bl_pwm->pwm_duty);
 
@@ -1153,9 +1195,12 @@ void aml_bl_config_print(void)
 				LCDPR("bl: pwm_cnt       = %u\n", bl_pwm->pwm_cnt);
 				LCDPR("bl: pwm_pre_div   = %u\n", bl_pwm->pwm_pre_div);
 				if (bl_pwm->pwm_duty_max > 100)
-					LCDPR("bl: pwm_duty 	 = %d%%(%d)\n", bl_pwm->pwm_duty * 100 / 255, bl_pwm->pwm_duty);
+					LCDPR("bl: pwm_duty = %d%%(%d)\n",
+					bl_pwm->pwm_duty * 100 / bl_pwm->pwm_duty_max,
+					bl_pwm->pwm_duty);
 				else
-					LCDPR("bl: pwm_duty      = %d%%(%d)\n", bl_pwm->pwm_duty, bl_pwm->pwm_duty);
+					LCDPR("bl: pwm_duty = %d%%(%d)\n",
+					bl_pwm->pwm_duty, bl_pwm->pwm_duty);
 
 				LCDPR("bl: pwm_reg       = 0x%08x\n", lcd_cbus_read(pwm_reg[bl_pwm->pwm_port]));
 			}
@@ -1178,7 +1223,9 @@ void aml_bl_config_print(void)
 				LCDPR("bl: pwm_combo0_freq     = %d x vfreq\n", bl_pwm->pwm_freq);
 				LCDPR("bl: pwm_combo0_cnt      = %u\n", bl_pwm->pwm_cnt);
 				if (bl_pwm->pwm_duty_max > 100)
-					LCDPR("bl: pwm_combo0_duty = %d%%(%d)\n", bl_pwm->pwm_duty * 100 / 255, bl_pwm->pwm_duty);
+					LCDPR("bl: pwm_combo0_duty = %d%%(%d)\n",
+					bl_pwm->pwm_duty * 100 / bl_pwm->pwm_duty_max,
+					bl_pwm->pwm_duty);
 				else
 					LCDPR("bl: pwm_combo0_duty = %d%%(%d)\n", bl_pwm->pwm_duty, bl_pwm->pwm_duty);
 
@@ -1191,7 +1238,9 @@ void aml_bl_config_print(void)
 				LCDPR("bl: pwm_combo0_cnt      = %u\n", bl_pwm->pwm_cnt);
 				LCDPR("bl: pwm_combo0_pre_div  = %u\n", bl_pwm->pwm_pre_div);
 				if (bl_pwm->pwm_duty_max > 100)
-					LCDPR("bl: pwm_combo0_duty = %d%%(%d)\n", bl_pwm->pwm_duty * 100 / 255, bl_pwm->pwm_duty);
+					LCDPR("bl: pwm_combo0_duty = %d%%(%d)\n",
+					bl_pwm->pwm_duty * 100 / bl_pwm->pwm_duty_max,
+					bl_pwm->pwm_duty);
 				else
 					LCDPR("bl: pwm_combo0_duty = %d%%(%d)\n", bl_pwm->pwm_duty, bl_pwm->pwm_duty);
 
@@ -1212,7 +1261,7 @@ void aml_bl_config_print(void)
 				LCDPR("bl: pwm_combo1_cnt      = %u\n", bl_pwm->pwm_cnt);
 				if (bl_pwm->pwm_duty_max > 100)
 					LCDPR("bl:pwm_combo1_duty = %d%% %d\n",
-					      bl_pwm->pwm_duty * 100 / 255,
+					      bl_pwm->pwm_duty * 100 / bl_pwm->pwm_duty_max,
 					      bl_pwm->pwm_duty);
 				else
 					LCDPR("bl:pwm_combo1_duty = %d%% %d\n",
@@ -1236,7 +1285,7 @@ void aml_bl_config_print(void)
 				      bl_pwm->pwm_pre_div);
 				if (bl_pwm->pwm_duty_max > 100)
 					LCDPR("bl: pwm_combo1_duty = %d%%(%d)\n",
-					      bl_pwm->pwm_duty * 100 / 255,
+					      bl_pwm->pwm_duty * 100 / bl_pwm->pwm_duty_max,
 					      bl_pwm->pwm_duty);
 				else
 					LCDPR("bl: pwm_combo1_duty = %d%%(%d)\n",
