@@ -41,7 +41,17 @@ typedef struct{
 	unsigned char  szReserved1[4];
 	char           szTimeStamp[16];//"SC2-YYYYMMDDHHmm" e.g "SC2-202007082259"
 
-}payload_info_hdr_t, *p_payload_info_hdr_t;
+} payload_info_hdr_t, *p_payload_info_hdr_t;
+
+typedef struct{
+	unsigned char  szSHA2[32];     //sha256 of sizeof(payload_info_t) - sizeof(szSHA2)
+	unsigned int   nMagicL;        //"@AML"
+	unsigned int   nMagicR;        //"BOOT"
+	unsigned char  byVersion;      //version:0,1,2,....
+	unsigned char  byItemNum;      //number of items
+	unsigned short nSize;          //sizeof(this) = sizeof(hdr) + sizeof(item) * byItemNum
+	char           build_info[20];//"chip info e.g "SC2-s905x4-202007082259"
+} payload_info_hdr_v2, *p_payload_info_hdr_v2;
 
 typedef struct{
 	payload_info_hdr_t  hdr;         //header

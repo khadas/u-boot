@@ -211,11 +211,12 @@ static p_payload_info_t _bl2x_mode_detect(u8* dataBuf)
 static int _bl2x_mode_check_header(p_payload_info_t pInfo)
 {
 	p_payload_info_hdr_t hdr    = &pInfo->hdr;
+	p_payload_info_hdr_v2 v2hdr    = (p_payload_info_hdr_v2)hdr;
 	uint8_t gensum[SHA256_SUM_LEN];
 	const int nItemNum = hdr->byItemNum;
 
 	printf("\naml log : info parse...\n");
-	printf("\tsztimes : %s\n",hdr->szTimeStamp);
+	printf("\tsztimes : %s\n", (hdr->byVersion == 1) ? hdr->szTimeStamp : v2hdr->build_info);
 	printf("\tversion : %d\n",hdr->byVersion);
 	printf("\tItemNum : %d\n",nItemNum);
 	printf("\tSize    : %d(0x%x)\n",    hdr->nSize, hdr->nSize);
