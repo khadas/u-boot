@@ -22,7 +22,7 @@ int serial_set_pin_port(unsigned long port_base);
 static void serial_putc_port (unsigned long port_base,const char c);
 
 //static unsigned port_base_addrs[]={UART_PORT_0,UART_PORT_1};
-#if 0 // due to errror
+#if 0 // due to error
 static void serial_clr_err (unsigned port_base)
 {
     /* write to the register */
@@ -33,7 +33,7 @@ static void serial_clr_err (unsigned port_base)
 #endif
 
 /*
- * Sets baudarate
+ * Sets baud rate
  */
 static void serial_setbrg_port (unsigned long port_base)
 {

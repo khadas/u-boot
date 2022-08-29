@@ -97,7 +97,7 @@ int video_res_prepare_for_upgrade(HIMAGE hImg)
     memset((void*)UpgradeLogoAddr, 0, 16);//clear to force reload whole logo.img
     ret = optimus_prepare_upgrading_bmps(hImg);
     if (ret) {
-        DWN_ERR("Fail in loading bmps for upgradig\n");
+        DWN_ERR("Fail in loading bmps for upgrading\n");
         return __LINE__;
     }
 
@@ -342,7 +342,7 @@ static int optimus_progress_ui_set_steps(__hdle hUiProgress, int steps)
     }
     else if(UPGRADE_STPES_AFTER_BURN_DATA_PARTS_OK == curPercent)
     {
-        lcd_printf("[OK]Burn Data Partitons\n");
+        lcd_printf("[OK]Burn Data Partitions\n");
     }
     else if(UPGRADE_STEPS_AFTER_BURN_BOOTLOADER_OK == curPercent)
     {
@@ -434,7 +434,7 @@ int optimus_progress_ui_release(__hdle hUiPrgress)
 {
     UiProgress_t* pUiProgress = (UiProgress_t*)hUiPrgress;
 
-    DWN_MSG("Release prgress bar res\n");
+    DWN_MSG("Release progress bar res\n");
     if (pUiProgress)
     {
         free(pUiProgress), pUiProgress = NULL;
@@ -516,7 +516,7 @@ int optimus_progress_ui_report_upgrade_stat(__hdle hUiProgress, const int isSucc
     }
     else if(UPGRADE_STEPS_AFTER_DISK_INIT_OK < curPercent && UPGRADE_STPES_AFTER_BURN_DATA_PARTS_OK > curPercent)
     {
-        lcd_printf("Burning Data Partitons[%d%%]\n", curPercent);
+        lcd_printf("Burning Data Partitions[%d%%]\n", curPercent);
     }
     else if(UPGRADE_STPES_AFTER_BURN_DATA_PARTS_OK == curPercent)
     {
@@ -639,7 +639,7 @@ U_BOOT_CMD(
    0,               //repeatable
    do_progress_bar_test,   //command function
    "Test dynamic upgrade progress bar",           //description
-   "argv: dir [percents]: show percents directlry\n"//usage
+   "argv: dir [percents]: show percents directly\n"//usage
    "argv: nb [bytes]: smart mode, show percents with bytes\n"//usage
 );
 #endif//#if PROGRESS_BAR_TEST

@@ -936,8 +936,8 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 					printf("size:%016llx\n", sz);
 					sprintf(str_num, "%016llx", sz);
 				} else {
-					printf("get partitize error\n");
-					sprintf(str_num, "FAILget partitize error");
+					printf("get partition error\n");
+					sprintf(str_num, "FAILget partition error");
 				}
 			} else {
 				pPartition = find_mmc_partition_by_name(cmd);

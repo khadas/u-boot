@@ -60,7 +60,7 @@ int do_open_scp_log(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		printf("open SCP channel %s log!\n",channel_names[i]);
 	} else {
 		printf("Error paramters\n");
-		printf("open paramets is following:\n");
+		printf("open parameters is following:\n");
 		for (i = 0;i < ARRAY_SIZE(channel_names); i++)
 			printf("%s\n",channel_names[i]);
 	}
@@ -69,6 +69,6 @@ int do_open_scp_log(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 U_BOOT_CMD(
 	open_scp_log,	2,	1,	do_open_scp_log,
-	"print SCP messgage",
+	"print SCP message",
 	"print SCP log"
 );

@@ -170,18 +170,18 @@ typedef struct ddr_set{
 	// [1]Odt pattern for accesses targeting rank 1. [3:0] is used for write ODT [7:4] is used for read ODT
 	unsigned	int		dfi_odt_config;
 	//normal go status od config,use for normal status
-	//bit 12.  rank1 ODT default. default vulue for ODT[1] pins if theres no read/write activity.
+	//bit 12.  rank1 ODT default. default value for ODT[1] pins if theres no read/write activity.
 	//bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
 	//bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
 	//bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
 	//bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occure in rank0.
-	//bit 4.   rank0 ODT default.    default vulue for ODT[0] pins if theres no read/write activity.
+	//bit 4.   rank0 ODT default.    default value for ODT[0] pins if theres no read/write activity.
 	//bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
 	//bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
 	//bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
 	//bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occure in rank1.
 	unsigned	short	DRAMFreq[4];
-	//config dram frequency,use DRAMFreq[0],ohter reserve
+	//config dram frequency,use DRAMFreq[0],other reserve
 	unsigned	char	PllBypassEn;
 	//system reserve,do not modify
 	unsigned	char	ddr_rdbi_wr_enable;
@@ -219,25 +219,25 @@ typedef struct ddr_set{
 	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
 	 */
 	unsigned	short	clk_drv_ohm;
-	//config soc clk pin signal driver stength ,select 20,30,40,60ohm
+	//config soc clk pin signal driver strength ,select 20,30,40,60ohm
 	unsigned	short	cs_drv_ohm;
-	//config soc cs0 cs1 pin signal driver stength ,select 20,30,40,60ohm
+	//config soc cs0 cs1 pin signal driver strength ,select 20,30,40,60ohm
 	unsigned	short	ac_drv_ohm;
-	//config soc  normal address command pin driver stength ,select 20,30,40,60ohm
+	//config soc  normal address command pin driver strength ,select 20,30,40,60ohm
 	unsigned	short	soc_data_drv_ohm_p;
-	//config soc data pin pull up driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin pull up driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned	short	soc_data_drv_ohm_n;
-	//config soc data pin pull down driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin pull down driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned	short	soc_data_odt_ohm_p;
-	//config soc data pin odt pull up stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin odt pull up strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned	short	soc_data_odt_ohm_n;
-	//config soc data pin odt pull down stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin odt pull down strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned	short	dram_data_drv_ohm;
-	//config dram data pin pull up pull down driver stength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
+	//config dram data pin pull up pull down driver strength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned	short	dram_data_odt_ohm;
-	//config dram data pin odt pull up down stength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
+	//config dram data pin odt pull up down strength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned	short	dram_ac_odt_ohm;
-	//config dram ac pin odt pull up down stength,use for lpddr4, select 40,48,60,80,120,240ohm
+	//config dram ac pin odt pull up down strength,use for lpddr4, select 40,48,60,80,120,240ohm
 	unsigned	short	soc_clk_slew_rate;
 	//system reserve,do not modify
 	unsigned	short	soc_cs_slew_rate;
@@ -312,21 +312,21 @@ typedef struct ddr_set{
 ddr_set_t p_ddr_set_t;
 
 char* itoa_ddr_test(int num,char*str,int radix)
-{/*索引表*/
+{/*Index Table*/
 	printf("\nitoa_ddr_test 1\n");
 	char index[]="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	unsigned unum;/*中间变量*/
+	unsigned unum;/*Intermediate variable*/
 	char temp;
 	int i=0,j,k;
-	/*确定unum的值*/
-	if (radix == 10 && num<0) /*十进制负数*/
+	/*check unum value*/
+	if (radix == 10 && num<0)
 	{
 		unum = (unsigned)-num;
 		str[i++] = '-';
 	}
 	else
-		unum = (unsigned)num;/*其他情况*/
-	/*转换*/
+		unum = (unsigned)num;
+	/*transformation*/
 	printf("\nitoa_ddr_test 2\n");
 	printf("\nunum=0x%08x\n",unum);
 	printf("\nunum2=0x%08x\n",(unum%(unsigned)radix));
@@ -341,9 +341,9 @@ char* itoa_ddr_test(int num,char*str,int radix)
 	}while(unum);
 	printf("\nitoa_ddr_test 3\n");
 	str[i] = '\0';
-	/*逆序*/
+	/*Reverse order*/
 	if (str[0] == '-')
-		k = 1;/*十进制负数*/
+		k = 1;
 	else
 	   	k = 0;
 	printf("\nitoa_ddr_test 4\n");
@@ -361,16 +361,16 @@ char* itoa_ddr_test(int num,char*str,int radix)
 char *strsep(char **stringp, const char *delim)
 {
     char *s;
-    const char *spanp;
+    const char *p;
     int c, sc;
     char *tok;
     if ((s = *stringp)== NULL)
         return (NULL);
     for (tok = s;;) {
         c = *s++;
-        spanp = delim;
+        p = delim;
         do {
-            if ((sc =*spanp++) == c) {
+            if ((sc =*p++) == c) {
                 if (c == 0)
                     s = NULL;
                 else
@@ -390,18 +390,18 @@ int TOLOWER(int ch)
       ch += 'a' - 'A';
 
    return ch;
-}//大写字母转换为小写字母。
+}
 
 int isxdigit(int ch)
 {
     return (unsigned int)( ch         - '0') < 10u  ||
            (unsigned int)((ch | 0x20) - 'a') <  6u;
-}//判断字符c是否为十六进制数字。
-//当c为A-F,a-f或0-9之间的十六进制数字时，返回非零值，否则返回零。
+}
+
 int isdigit(int ch)
 {
     return (unsigned int)(ch - '0') < 10u;
-}//判断字符c是否为数字 
+}
 unsigned int simple_guess_base(const char *cp)
 {
 	if (cp[0] == '0') {
@@ -428,7 +428,7 @@ unsigned int simple_strtoull_ddr(const char *cp, char **endp, unsigned int base)
 		while ((*cp)== '0') 
 			cp++;
 	}
-	while (isxdigit(*cp)) {//检查当前cp是否是个十六进制数值，不是直接返回0
+	while (isxdigit(*cp)) {
 		unsigned int value;
 		value = isdigit(*cp) ? *cp - '0' : TOLOWER(*cp) - 'a' + 10;
 		if (value >= base)
@@ -7327,12 +7327,12 @@ for (test_times=0;(test_times<test_loop);(test_times++))
 		}
 
 		{
-			printf("\nshould pause ddl pir== 0x%08x,if no pause ddl ,write lcdlr some time may occour error\n", readl(DDR0_PUB_REG_BASE+4));
+			printf("\nshould pause ddl pir== 0x%08x,if no pause ddl ,write lcdlr some time may occur error\n", readl(DDR0_PUB_REG_BASE+4));
 			writel((readl(DDR0_PUB_REG_BASE+4))|(1<<29),(DDR0_PUB_REG_BASE+4));
 			printf("\n pause ddl pir== 0x%08x\n", readl(DDR0_PUB_REG_BASE+4));
 			if( channel_b_en)
 			{
-				printf("\nddr1 should pause ddl pir== 0x%08x,if no pause ddl ,write lcdlr some time may occour error\n", readl(DDR1_PUB_REG_BASE+4));
+				printf("\nddr1 should pause ddl pir== 0x%08x,if no pause ddl ,write lcdlr some time may occur error\n", readl(DDR1_PUB_REG_BASE+4));
 				writel((readl(DDR1_PUB_REG_BASE+4))|(1<<29),(DDR1_PUB_REG_BASE+4));
 				printf("\n ddr1 pause ddl pir== 0x%08x\n", readl(DDR1_PUB_REG_BASE+4));
 			}
@@ -8396,11 +8396,11 @@ int do_ddr_test_dqs_window_step(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 
 
 				{
-					printf("\nshould pause ddl pir== 0x%08x,if no pause ddl ,write lcdlr some time may occour error\n", readl(DDR0_PUB_REG_BASE+4));
+					printf("\nshould pause ddl pir== 0x%08x,if no pause ddl ,write lcdlr some time may occur error\n", readl(DDR0_PUB_REG_BASE+4));
 					writel((readl(DDR0_PUB_REG_BASE+4))|(1<<29),(DDR0_PUB_REG_BASE+4));
 					printf("\n pause ddl pir== 0x%08x\n", readl(DDR0_PUB_REG_BASE+4));
 					if( channel_b_en)
-					{	printf("\nddr1 should pause ddl pir== 0x%08x,if no pause ddl ,write lcdlr some time may occour error\n", readl(DDR1_PUB_REG_BASE+4));
+					{	printf("\nddr1 should pause ddl pir== 0x%08x,if no pause ddl ,write lcdlr some time may occur error\n", readl(DDR1_PUB_REG_BASE+4));
 						writel((readl(DDR1_PUB_REG_BASE+4))|(1<<29),(DDR1_PUB_REG_BASE+4));
 						printf("\n ddr1 pause ddl pir== 0x%08x\n", readl(DDR1_PUB_REG_BASE+4));
 					}
@@ -8887,11 +8887,11 @@ int do_ddr_test_lcdlr_clk_step(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 
 
 				{
-					printf("\nshould pause ddl pir== 0x%08x,if no pause ddl ,write lcdlr some time may occour error\n", readl(DDR0_PUB_REG_BASE+4));
+					printf("\nshould pause ddl pir== 0x%08x,if no pause ddl ,write lcdlr some time may occur error\n", readl(DDR0_PUB_REG_BASE+4));
 					writel((readl(DDR0_PUB_REG_BASE+4))|(1<<29),(DDR0_PUB_REG_BASE+4));
 					printf("\n pause ddl pir== 0x%08x\n", readl(DDR0_PUB_REG_BASE+4));
 					if( channel_b_en)
-					{	printf("\nddr1 should pause ddl pir== 0x%08x,if no pause ddl ,write lcdlr some time may occour error\n", readl(DDR1_PUB_REG_BASE+4));
+					{	printf("\nddr1 should pause ddl pir== 0x%08x,if no pause ddl ,write lcdlr some time may occur error\n", readl(DDR1_PUB_REG_BASE+4));
 						writel((readl(DDR1_PUB_REG_BASE+4))|(1<<29),(DDR1_PUB_REG_BASE+4));
 						printf("\n ddr1 pause ddl pir== 0x%08x\n", readl(DDR1_PUB_REG_BASE+4));
 					}
@@ -11851,7 +11851,7 @@ usage:
 	printf("or  ddr_test_cmd 0x17 1200 6034 0603406034 0 0 0 0 1 \n");
 	printf("setting zqpr_soc_dram ,..bit28 enable soc_zqpr ,   bit 29 enabe dram_drv,   bit 30 enabel dram_odt\n");
 	printf("setting zqpr_soc_dram ,bit0-bit19  soc_data_drv_odt,bit20-bit24  dram_drv ,  bit24-bit28  dram_odt\n");
-	printf("setting zqpr_soc_dram ,bit0-bit19 bit 0-7 use for ddr3，bit8-19 use for ddr4,odt_down_up\n");
+	printf("setting zqpr_soc_dram ,bit0-bit19 bit 0-7 use for ddr3,bit8-19 use for ddr4,odt_down_up\n");
 	printf("setting zqpr_soc_dram ,soc_drv=(480/((setting)+1));ddr4---soc_odt=(480/(setting)+1));ddr3---soc_odt=(360/(setting)+1));\n");
 
 	printf(" DDR3_DRV_40OHM		0\n");
@@ -20070,7 +20070,7 @@ int do_ddr4_test_dram_clk(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 		{
 			printf("%s",p_char_freq_org);
 
-			ddr_clk_org = simple_strtoull_ddr(p_char_freq_org, &endp, 10); //must use 10 ,freq  0792 maybe not read sussceful use 0 auto read
+			ddr_clk_org = simple_strtoull_ddr(p_char_freq_org, &endp, 10); //must use 10 ,freq  0792 maybe not read successful use 0 auto read
 			printf("ddr_clk_org=%d\n",ddr_clk_org);
 		}
 	}
@@ -23931,7 +23931,7 @@ int do_ddr_offset_ddr_lcdlr(cmd_tbl_t *cmdtp, int flag, int argc, char * const a
 	}
 
 
-	printf("\nshould pause ddl pir== 0x%08x,if no pause ddl ,write lcdlr some time may occour error\n", readl(DDR0_PUB_REG_BASE+4));
+	printf("\nshould pause ddl pir== 0x%08x,if no pause ddl ,write lcdlr some time may occur error\n", readl(DDR0_PUB_REG_BASE+4));
 	writel((readl(DDR0_PUB_REG_BASE+4))|(1<<29),(DDR0_PUB_REG_BASE+4));
 	printf("\n pause ddl pir== 0x%08x\n", readl(DDR0_PUB_REG_BASE+4));
 
@@ -24103,8 +24103,8 @@ int do_ddr_set_watchdog_value(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	printf("\nEnterddr_test_dqs_window function  ddr_test_cmd 0x27 0x1080000 0x800000  0x40000000 0x800000 15 0x6  0 0 0 0 0 0 1/config\n");
-	printf("\nddr_test_cmd 0x27 cs0_test_start  cs0_test_size  cs1_test_start  cs1_test_size  ns test_index_enable  nibble_mask0 nibble_mask1 nibble_mask2 dram_type channel_mode  config_register all_togther--- watchdog should >15s\n");
-	printf("\n ac write_dqs read_dqs can test togther test_index_enable can enable kernel test \n");
+	printf("\nddr_test_cmd 0x27 cs0_test_start  cs0_test_size  cs1_test_start  cs1_test_size  ns test_index_enable  nibble_mask0 nibble_mask1 nibble_mask2 dram_type channel_mode  config_register all_together--- watchdog should >15s\n");
+	printf("\n ac write_dqs read_dqs can test together test_index_enable can enable kernel test \n");
 	//   unsigned int   channel_b_en = 0;
 	// unsigned int   reg_add=0;
 	// unsigned int   reg_base_adj=0;
@@ -32523,7 +32523,7 @@ int do_ddr4_test_dram_clk_use_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char 
 		{
 			//printf("%s",p_char_freq_org);
 
-			// ddr_clk_org = simple_strtoull_ddr(p_char_freq_org, &endp, 10); //must use 10 ,freq  0792 maybe not read sussceful use 0 auto read
+			// ddr_clk_org = simple_strtoull_ddr(p_char_freq_org, &endp, 10); //must use 10 ,freq  0792 maybe not read successful use 0 auto read
 			ddr_clk_org=rd_reg(sticky_reg_base_add+(9<<2));
 			printf("ddr_clk_org=%d\n",ddr_clk_org);
 		}
@@ -33299,7 +33299,7 @@ usage:
 	printf("or  ddr_test_cmd 0x17 1200 6034 60346034 0 0 0 0 1 \n");
 	printf("setting zqpr_soc_dram ,..bit28 enable soc_zqpr ,   bit 29 enabe dram_drv,   bit 30 enabel dram_odt\n");
 	printf("setting zqpr_soc_dram ,bit0-bit19  soc_data_drv_odt,bit20-bit24  dram_drv ,  bit24-bit28  dram_odt\n");
-	printf("setting zqpr_soc_dram ,bit0-bit19 bit 0-7 use for ddr3，bit8-19 use for ddr4,odt_down_up\n");
+	printf("setting zqpr_soc_dram ,bit0-bit19 bit 0-7 use for ddr3,bit8-19 use for ddr4,odt_down_up\n");
 	printf("setting zqpr_soc_dram ,soc_drv=(480/((setting)+1));ddr4---soc_odt=(480/(setting)+1));ddr3---soc_odt=(360/(setting)+1));\n");
 
 	printf(" DDR3_DRV_40OHM		0\n");
@@ -33408,7 +33408,6 @@ unsigned int do_ddr_read_write_ddr_add__data_window_lcdlr(unsigned int rank_inde
 }
 
 #endif
-//ouyang
 
 #define dwc_ddrphy_apb_wr(addr, dat)   *(volatile uint16_t *)(int_convter_p(((addr) << 1)+0xfe000000))=((uint16_t)dat)
 #define dwc_ddrphy_apb_rd(addr)   *(volatile uint16_t *)(int_convter_p(((addr) << 1)+0xfe000000))
@@ -33477,7 +33476,7 @@ int do_ddr_test_acx_g12a(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	}
 	if (argc >4) 
 	{
-		test_mode = simple_strtoull_ddr(argv[4], &endp, 16); //测试方向
+		test_mode = simple_strtoull_ddr(argv[4], &endp, 16);
 		if (*argv[4] == 0 || *endp != 0)
 		{
 			test_mode = 0;
@@ -33549,7 +33548,7 @@ int do_ddr_test_acx_g12a(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 				printf("acbdlr_x_reg_min==0x%08x\n",acbdlr_x_reg_min);       
 
 				dq_lcd_bdl_temp_reg_value=0;
-				//恢复默认值
+
 				dwc_ddrphy_apb_wr((0<<20)|(0<<16)|(test_ACx<<12)|(0x80),(uint16_t)acbdlr_x_reg_org);      
 			}
 
@@ -33588,12 +33587,12 @@ int do_ddr_test_acx_g12a(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 				printf("acbdlr_x_reg_max = 0x%08x\n",acbdlr_x_reg_max);
 
 				dq_lcd_bdl_temp_reg_value=0;
-				//恢复默认值
+
 				dwc_ddrphy_apb_wr(((0<<20)|(0<<16)|(test_ACx<<12)|(0x80)),(uint)acbdlr_x_reg_org);
 			}
 			if (test_mode == 2)
 			{
-				//先往下测，再往上测，测试结束，打印结果
+
 				printf("test AC%d window finish\n ",test_ACx);
 				printf("acbdlr_x_reg_min = 0x%08x\n",acbdlr_x_reg_min);
 				printf("acbdlr_x_reg_max = 0x%08x\n",acbdlr_x_reg_max);    
@@ -35735,7 +35734,7 @@ int do_ddr_g12_override_data(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
 
 	//ddr_test_cmd 0x25 1 1  10 10 10 10 10 10 10 10 10 10
 
-	printf("\12nm phy read write register should closd apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr function\n");
 	writel((0), 0xff638630);
 	writel((0), 0xff638634);
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
@@ -35754,9 +35753,9 @@ int do_ddr_g12_override_data(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
 	//rank_index  dq_index  write_read left/right  offset_value
 	unsigned int test_index=0; // 1 ac ,0x2, write dqs ,0x4,read dqs,0x8,write dq,0x10 read dq
 	unsigned int dq_index=0;  //0-8 rank0 lane0 ,rank0 9-17 lane1,rank0 18-26 lane2, rank0 27-35 lane3,  36+0-8 rank1 lane0 ,rank1  36+9-17 lane1,rank1  36+18-26 lane2, rank1  36+27-35 lane3
-	//	unsigned int test_dq_mask_1=0; //each bit mask corresspond with dq_index
-	//	unsigned int test_dq_mask_2=0; //each bit mask corresspond with dq_index
-	//	unsigned int test_dq_mask_3=0; //each bit mask corresspond with dq_index
+	//	unsigned int test_dq_mask_1=0; //each bit mask correspond with dq_index
+	//	unsigned int test_dq_mask_2=0; //each bit mask correspond with dq_index
+	//	unsigned int test_dq_mask_3=0; //each bit mask correspond with dq_index
 	//unsigned int write_read_flag=0;// 2 write ,1 read #define 	DDR_PARAMETER_READ	1      #define 	DDR_PARAMETER_WRITE		2
 	//    unsigned int left_right_flag=0;//  1 left ,2 right   #define  DDR_PARAMETER_LEFT		1     #define 	DDR_PARAMETER_RIGHT		2
 	unsigned int ovrride_value=0;//
@@ -35847,7 +35846,7 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F+7*32)
-	printf("\12nm phy read write register should closd apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr function\n");
 	writel((0), 0xff638630);
 	writel((0), 0xff638634);
 #if 1
@@ -35863,9 +35862,9 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 	//rank_index  dq_index  write_read left/right  offset_value
 	unsigned int test_index=0; // 1 ac ,0x2, write dqs ,0x4,read dqs,0x8,write dq,0x10 read dq
 	//  unsigned int dq_index=0;  //0-8 rank0 lane0 ,rank0 9-17 lane1,rank0 18-26 lane2, rank0 27-35 lane3,  36+0-8 rank1 lane0 ,rank1  36+9-17 lane1,rank1  36+18-26 lane2, rank1  36+27-35 lane3
-	unsigned int test_dq_mask_1=0; //each bit mask corresspond with dq_index
-	unsigned int test_dq_mask_2=0; //each bit mask corresspond with dq_index
-	unsigned int test_dq_mask_3=0; //each bit mask corresspond with dq_index
+	unsigned int test_dq_mask_1=0; //each bit mask correspond with dq_index
+	unsigned int test_dq_mask_2=0; //each bit mask correspond with dq_index
+	unsigned int test_dq_mask_3=0; //each bit mask correspond with dq_index
 	//unsigned int write_read_flag=0;// 2 write ,1 read #define 	DDR_PARAMETER_READ	1      #define 	DDR_PARAMETER_WRITE		2
 	unsigned int left_right_flag=0;//  1 left ,2 right   #define  DDR_PARAMETER_LEFT		1     #define 	DDR_PARAMETER_RIGHT		2
 	unsigned int offset_value=0;//
@@ -36064,7 +36063,7 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		goto usage;
 
 #if ( CONFIG_DDR_PHY >= P_DDR_PHY_G12)
-	printf("\12nm phy read write register should closd apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr function\n");
 	writel((0), 0xff638630);
 	writel((0), 0xff638634);
 #else
@@ -36235,9 +36234,9 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				   ddr_tune_aclcdlr_step  a 0 0x8000000 1 2	lane0-1	min
 				   ddr_tune_aclcdlr_step  a 0 0x8000000 1 1	lane0-1	max
 
-				   setenv bootcmd  "ddr_test_cmd 0x22 a 0 0x800000 18 0 0x8000000"		 watchdog_time ，lane_disable_mask,add_test_size
-				   setenv env_ddrtest_data_lane  0x22	设置命令开始标志	
-				   save	 watchdog_time ，lane_disable_mask,add_test_size	
+				   setenv bootcmd  "ddr_test_cmd 0x22 a 0 0x800000 18 0 0x8000000"		 watchdog_time, lane_disable_mask,add_test_size
+				   setenv env_ddrtest_data_lane  0x22
+				   save	 watchdog_time ,lane_disable_mask,add_test_size	
 				   d2pll 1200		
 
 				   setenv ddr_soc_iovref_test_ddr_clk "0x0000000";		
@@ -36250,7 +36249,7 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 
 
-				   重测要掉电，数据存在stick 寄存器了		
+
 				   setenv ddr_dram_iovref_test_ddr_clk "0x0000000";		
 				   setenv ddr_dram_iovref_lef "0x0000000";		
 				   setenv ddr_dram_iovref_org "0x0";		
@@ -36258,7 +36257,7 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				   setenv  ddr_test_ddr4ram_vref "ddr_test_cmd 0x1A a 0 0x080000  0  70 0  0  0x08 0 0 1"		
 				   setenv bootcmd   "run ddr_test_ddr4ram_vref"		
 				   save		
-				   掉电上电		
+
 				   d2pll 1104		
 				   */
 
@@ -36374,7 +36373,7 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				//	run_command("ddr_test_cmd 0x13 a 0 0x8000000 0  0xc  ",0); cs0 setup
 				//	run_command("ddr_test_cmd 0x13 a 0 0x8000000 1  0xc  ",0); cs0 hold
 				//	run_command("ddr_test_cmd 0x13 a 0 0x8000000 2  0xc  ",0); cs0 hold   //some times ddr frequency too high cannot move clk delay.then should only move cmd bdl
-				//so shouldt test hold time use method 1 and method 2----test hold time take care--20160804-jiaxing
+				//so should test hold time use method 1 and method 2----test hold time take care--20160804-jiaxing
 				//	run_command("ddr_test_cmd 0x13 a 0 0x8000000 0  0xd  ",0); cs1 setup
 				//	run_command("ddr_test_cmd 0x13 a 0 0x8000000 1  0xd   ",0); cs1 hold
 				printf("\ntest AC bit window \n");
@@ -36606,7 +36605,7 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			case(DDR_TEST_CMD__DDR_SET_UBOOT_KERNEL_WINDOW_SAME_CHANGE):
 			{
 				//	run_command("ddr_test_cmd 0x35
-				printf("\nset do_ddr_uboot_kernel_window_use_all lcdlr same channge \n");
+				printf("\nset do_ddr_uboot_kernel_window_use_all lcdlr same change \n");
 
 				do_ddr_uboot_window_use_source_all_same_increase((cmd_tbl_t * )cmdtp, (int) flag,( int) argc2, (argv2));
 			}
@@ -36819,12 +36818,12 @@ int do_ddr_auto_scan_drv(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 
 	unsigned int counter_loop=0;
 	unsigned int ddr_frequency=0;
-	unsigned int soc_data_drv_ohm_p=0;//74  //config soc data pin pull up driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	unsigned int soc_data_drv_ohm_p=0;//74  //config soc data pin pull up driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned int soc_data_drv_ohm_n=0;//76
-	unsigned int soc_data_odt_ohm_p=0;//78  //config soc data pin odt pull up stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	unsigned int soc_data_odt_ohm_p=0;//78  //config soc data pin odt pull up strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned int soc_data_odt_ohm_n=0;//80
-	unsigned int dram_data_drv_ohm=0;//82  //config dram data pin pull up pull down driver stength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
-	unsigned int dram_data_odt_ohm=0;//84  //config dram data pin odt pull up down stength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
+	unsigned int dram_data_drv_ohm=0;//82  //config dram data pin pull up pull down driver strength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
+	unsigned int dram_data_odt_ohm=0;//84  //config dram data pin odt pull up down strength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned int dram_data_wr_odt_ohm=0; //174 char 1
 	i=74/2;
 	soc_data_drv_ohm_p=ddr_rd_8_16bit_on_32reg(temp_reg_add,16,i);
@@ -37107,7 +37106,7 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 //	if((ddr_set_t_p->fast_boot[0])>=0xfe)
 	if((ddr_set_t_p->fast_boot[0]))
 	{
-		printf("\nuboot enable auto fast boot funciton \n");
+		printf("\nuboot enable auto fast boot function \n");
 	}
 	else
 		return 1 ;

@@ -99,7 +99,7 @@ int aml_secure_init(struct amlnand_chip *aml_chip)
 	aml_nand_msg("nand secure debug :: save secure again !!!!");
 	ret = amlnand_save_info_by_name( aml_chip,&(aml_chip->nand_secure),secure_ptr, SECURE_INFO_HEAD_MAGIC,CONFIG_SECURE_SIZE);
 	if (ret < 0) {
-		aml_nand_msg("nand save default secure_ptr failed aigain!!");
+		aml_nand_msg("nand save default secure_ptr failed again!!");
 	}
 
 #endif

@@ -65,10 +65,10 @@ static u32 amlnand_slc_addr_trs(struct amlnand_phydev *phydev)
 			slc_info->pagelist[page_num];
 	else if (flash->new_type == SANDISK_19NM)
 		page_addr = blk_num * real_page_per_blk + (page_num << 1);
-	else { /* not surpport slc nand */
+	else { /* not support slc nand */
 		page_addr =
 		(int)((phydev->offset + devops->addr) >> w_size_shift);
-		aml_nand_msg("nand not surpport slc ");
+		aml_nand_msg("nand not support slc ");
 	}
 
 #if 0
@@ -1381,7 +1381,7 @@ int amlnand_phydev_init(struct amlnand_chip *aml_chip)
 		tmp_erase_shift = ffs(flash->blocksize) - 1;
 		pages_per_blk = (1 << (tmp_erase_shift - tmp_write_shift));
 
-		/* set partitions and caulate dev size */
+		/* set partitions and calculate dev size */
 		if (dev_para->nr_partitions) {
 			phydev->nr_partitions = dev_para->nr_partitions;
 			phydev->partitions = dev_para->partitions;

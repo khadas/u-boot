@@ -36,7 +36,7 @@ int amlnf_dtb_save(u8 *buf, int len)
 	}
 
 	if (len > aml_chip_dtb->dtbsize) {
-		aml_nand_msg("warnning!!! %s: length too much", __func__);
+		aml_nand_msg("warning!!! %s: length too much", __func__);
 		len = aml_chip_dtb->dtbsize;
 		/*return -EFAULT;*/
 	}
@@ -93,7 +93,7 @@ int amlnf_dtb_read(u8 *buf, int len)
 	aml_nand_msg("%s: ####", __func__);
 
 	if (len > aml_chip_dtb->dtbsize) {
-		aml_nand_msg("warnning!!! %s dtd length too much", __func__);
+		aml_nand_msg("warning!!! %s dtd length too much", __func__);
 		len = aml_chip_dtb->dtbsize;
 		/*return -EFAULT;*/
 	}

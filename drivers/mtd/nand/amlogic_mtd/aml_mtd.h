@@ -86,7 +86,7 @@ typedef struct _ext_info{
 	 */
 	uint32_t boot_num;
 	uint32_t each_boot_pages;
-	/* for comptible reason */
+	/* for compatible reason */
 	uint32_t bbt_occupy_pages;
 	uint32_t bbt_start_block;
 } ext_info_t;

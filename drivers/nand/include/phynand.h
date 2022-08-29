@@ -171,7 +171,7 @@ union nand_core_clk_t {
 #define	MAX_BLK_NUM			        8192
 #define	RESERVED_BLOCK_CNT		    48
 
-/* nand parameter for read retry, or fulture */
+/* nand parameter for read retry, or future */
 #define	NANS_PARA_BLOCK_CNT		1
 
 /* for shipped bbt block, short mode, full block, never update */

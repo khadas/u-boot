@@ -602,7 +602,7 @@ typedef union grstctl_data {
 		/** Reserved */
 		unsigned reserved11_29:19;
 		/** DMA Request Signal.	 Indicated DMA request is in
-		 * probress. Used for debug purpose. */
+		 * progress. Used for debug purpose. */
 		unsigned dmareq:1;
 		/** AHB Master Idle.  Indicates the AHB Master State
 		 * Machine is in IDLE condition. */
@@ -1236,7 +1236,7 @@ typedef union adpctl_data {
 		 *  This bit is valid only if OTG_Ver = 1'b1.
 		 */
 		unsigned adp_sns_int_msk:1;
-		/** ADP Timoeout Interrupt Mask (ADP_TMOUT_MSK)
+		/** ADP Timeout Interrupt Mask (ADP_TMOUT_MSK)
 		 *  When this bit is set, it unmasks the interrupt due to ADP_TMOUT_INT.
 		 *  This bit is valid only if OTG_Ver = 1'b1.
 		 */
@@ -1981,8 +1981,8 @@ typedef struct dwc_otg_dev_if {
 
 	/* Device configuration information */
 	uint8_t speed;				 /**< Device Speed	0: Unknown, 1: LS, 2:FS, 3: HS */
-	uint8_t num_in_eps;		 /**< Number # of Tx EP range: 0-15 exept ep0 */
-	uint8_t num_out_eps;		 /**< Number # of Rx EP range: 0-15 exept ep 0*/
+	uint8_t num_in_eps;		 /**< Number # of Tx EP range: 0-15 except ep0 */
+	uint8_t num_out_eps;		 /**< Number # of Rx EP range: 0-15 except ep 0*/
 
 	/** Size of periodic FIFOs (Bytes) */
 	uint16_t perio_tx_fifo_size[MAX_PERIO_FIFOS];
@@ -1990,7 +1990,7 @@ typedef struct dwc_otg_dev_if {
 	/** Size of Tx FIFOs (Bytes) */
 	uint16_t tx_fifo_size[MAX_TX_FIFOS];
 
-	/** Thresholding enable flags and length varaiables **/
+	/** Thresholding enable flags and length variables **/
 	uint16_t rx_thr_en;
 	uint16_t iso_tx_thr_en;
 	uint16_t non_iso_tx_thr_en;
@@ -2075,7 +2075,7 @@ typedef union hcfg_data {
 		unsigned reserved3_6:4;
 		/** Enable 32-KHz Suspend Mode */
 		unsigned ena32khzs:1;
-		/** Resume Validation Periiod */
+		/** Resume Validation Period */
 		unsigned resvalid:8;
 		unsigned reserved16_22:7;
 		/** Enable Scatter/gather DMA in Host mode */
@@ -2378,7 +2378,7 @@ typedef union hcint_data {
 		unsigned datatglerr:1;
 		/** Buffer Not Available (only for DDMA mode) */
 		unsigned bna:1;
-		/** Exessive transaction error (only for DDMA mode) */
+		/** Excessive transaction error (only for DDMA mode) */
 		unsigned xcs_xact:1;
 		/** Frame List Rollover interrupt */
 		unsigned frm_list_roll:1;

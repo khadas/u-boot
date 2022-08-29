@@ -577,7 +577,7 @@ typedef union grstctl_data
 		/** Reserved */
 		unsigned reserved11_29 : 19;
 		/** DMA Request Signal.	 Indicated DMA request is in
-		 * probress.  Used for debug purpose. */
+		 * progress.  Used for debug purpose. */
 		unsigned dmareq : 1;
 		/** AHB Master Idle.  Indicates the AHB Master State
 		 * Machine is in IDLE condition. */
@@ -1543,8 +1543,8 @@ typedef struct dwc_otg_dev_if
 
 	/* Device configuration information*/
 	uint8_t	 speed;				 /**< Device Speed	0: Unknown, 1: LS, 2:FS, 3: HS */
-	uint8_t	 num_in_eps;		 /**< Number # of Tx EP range: 0-15 exept ep0 */
-	uint8_t	 num_out_eps;		 /**< Number # of Rx EP range: 0-15 exept ep 0*/
+	uint8_t	 num_in_eps;		 /**< Number # of Tx EP range: 0-15 except ep0 */
+	uint8_t	 num_out_eps;		 /**< Number # of Rx EP range: 0-15 except ep 0*/
 
 	/** Size of periodic FIFOs (Bytes) */
 	uint16_t perio_tx_fifo_size[MAX_PERIO_FIFOS];
@@ -1552,7 +1552,7 @@ typedef struct dwc_otg_dev_if
 	/** Size of Tx FIFOs (Bytes) */
 	uint16_t tx_fifo_size[MAX_TX_FIFOS];
 
-	/** Thresholding enable flags and length varaiables **/
+	/** Thresholding enable flags and length variables **/
 	uint16_t rx_thr_en;
 	uint16_t iso_tx_thr_en;
 	uint16_t non_iso_tx_thr_en;

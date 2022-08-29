@@ -482,12 +482,12 @@ ddr_set_t __ddr_setting = {
 	//.t_pub_zq1pr			= 0x7b,   //PUB ZQ1PR
 	//.t_pub_zq2pr			= 0x7b,   //PUB ZQ2PR
 	//.t_pub_zq3pr			= 0x7b,   //PUB ZQ3PR  zqvref 0x13
-	//.t_pub_zq0pr			= 0x5aa59,   //PUB ZQ0PR, 0x5aa59,0x59959,  0x58859,  //99drriver s912 ddr4 maybe 950m is bad
+	//.t_pub_zq0pr			= 0x5aa59,   //PUB ZQ0PR, 0x5aa59,0x59959,  0x58859,  //99driver s912 ddr4 maybe 950m is bad
 	//.t_pub_zq1pr			= 0x3f95d,   //PUB ZQ1PR//0x3f95d, 0x4f95d,
 	//.t_pub_zq2pr			= 0x3f95d,   //PUB ZQ2PR//0x3f95d, 0x4f95d,
 	.t_pub_zq3pr			= 0x1dd1d,   //PUB ZQ3PR
 
-	.t_pub_zq0pr			= 0x00007759,   //PUB ZQ0PR, 0x5aa59,0x59959,  0x58859,  //99drriver s912 ddr4 maybe 950m is bad
+	.t_pub_zq0pr			= 0x00007759,   //PUB ZQ0PR, 0x5aa59,0x59959,  0x58859,  //99driver s912 ddr4 maybe 950m is bad
 	.t_pub_zq1pr			= 0x0006fc5d,   //PUB ZQ1PR//0x8fc5d, 0x4f95d,
 	.t_pub_zq2pr			= 0x0006fc5d,   //PUB ZQ2PR//0x3fc5d, 0x4f95d,
 	//.t_pub_zq3pr			= 0xf5f95d,   //PUB ZQ3PR

@@ -247,7 +247,7 @@ void init_internal_phy_10B(int phyad)
 	phy_reg_wr(phyad,SMI_ADDR_TSTCNTL,TSTCNTL_WR|WR_ADDR_A5CFG);//write addr 0x16
 	phy_reg_wr(phyad,SMI_ADDR_TSTWRITE,3);//write val
 	phy_reg_wr(phyad,SMI_ADDR_TSTCNTL,TSTCNTL_WR|WR_ADDR_A7CFG);//write addr 0x18
-	phy_reg_wr(phyad,SMI_ADDR_TSTWRITE,0x108);//write val by chandle (2)
+	phy_reg_wr(phyad,SMI_ADDR_TSTWRITE,0x108);//write val by channel (2)
 	phy_reg_wr(phyad,SMI_ADDR_TSTCNTL,TSTCNTL_WR|WR_ADDR_A9CFG);//write addr 0x1b
 	phy_reg_wr(phyad,SMI_ADDR_TSTWRITE,0xda00);//write val
 	phy_reg_wr(phyad,SMI_ADDR_TSTCNTL,TSTCNTL_WR|WR_ADDR_A11CFG);//write addr 0x1d
@@ -1401,8 +1401,8 @@ static int do_eth_cali(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 }
 U_BOOT_CMD(
 		cali, 3, 1, do_eth_cali,
-		"configure clock phare",
-		"             - phare mac clock.\n"
+		"configure clock phase",
+		"             - phase mac clock.\n"
 	  );
 #endif
 

@@ -855,7 +855,7 @@ static int read_page_single_plane(struct amlnand_chip *aml_chip,
  * read_page, all parameters saved in aml_chip->ops_para,
  * refer to struct chip_ops_para define.
  * support read way of hwecc/raw, data/oob only, data+oob
- * for opteration mode, contains multi-plane/multi-chip
+ * for operation mode, contains multi-plane/multi-chip
  *************************************************************/
 static int read_page(struct amlnand_chip *aml_chip)
 {
@@ -991,7 +991,7 @@ error_exit0:
 /************************************************************
  * write_page, all parameters saved in aml_chip->ops_para.
  * support read way of hwecc/raw, data/oob only, data+oob
- * for opteration mode, contains multi-plane/multi-chip
+ * for operation mode, contains multi-plane/multi-chip
  *
  *************************************************************/
 
@@ -1373,7 +1373,7 @@ static int write_page_single_plane(struct amlnand_chip *aml_chip,
 		goto error_exit0;
 	}
 	if (aml_chip->nand_status  != NAND_STATUS_NORMAL) {
-		aml_nand_msg("nand status unusal: do not write anything!!!!!");
+		aml_nand_msg("nand status unusual: do not write anything!!!!!");
 		return NAND_SUCCESS;
 	}
 	if ((mt_L04A_nand_check(aml_chip) == 0) ||
@@ -1609,7 +1609,7 @@ static int get_block_status(struct amlnand_chip *aml_chip,
 
 /************************************************************
  * block_isbad, all parameters saved in aml_chip->ops_para.
- * for opteration mode, contains multi-plane/multi-chip
+ * for operation mode, contains multi-plane/multi-chip
  * supposed chip bbt has been installed
  *
  *************************************************************/
@@ -1775,7 +1775,7 @@ exit_error0:
 
 /************************************************************
  * block_isbad, all parameters saved in aml_chip->ops_para.
- * for opteration mode, contains multi-plane/multi-chip
+ * for operation mode, contains multi-plane/multi-chip
  * supposed chip bbt has been installed
  *
  *************************************************************/
@@ -1969,7 +1969,7 @@ static int block_markbad(struct amlnand_chip *aml_chip)
 
 /************************************************************
  * erase_block, all parameters saved in aml_chip->ops_para.
- * for opteration mode, contains multi-plane/multi-chip
+ * for operation mode, contains multi-plane/multi-chip
  * supposed chip bbt has been installed
  *
  *************************************************************/
@@ -1986,7 +1986,7 @@ static int erase_block(struct amlnand_chip *aml_chip)
 
 	/* aml_nand_dbg("page_addr:%d", ops_para->page_addr); */
 	if (aml_chip->nand_status  != NAND_STATUS_NORMAL) {
-		aml_nand_msg("nand status unusal: do not erase anything!!!!!");
+		aml_nand_msg("nand status unusual: do not erase anything!!!!!");
 		return NAND_SUCCESS;
 	}
 
@@ -2151,7 +2151,7 @@ error_exit0:
 }
 /************************************************************
  * test_block, all parameters saved in aml_chip->ops_para.
- * for opteration mode, contains multi-plane/multi-chip
+ * for operation mode, contains multi-plane/multi-chip
  * supposed chip bbt has been installed
  * something wrong, don't work well!!! Do not use it.
  *************************************************************/
@@ -2270,7 +2270,7 @@ exit:
 
 /************************************************************
  * test_block, all parameters saved in aml_chip->ops_para.
- * for opteration mode, contains multi-plane/multi-chip
+ * for operation mode, contains multi-plane/multi-chip
  * supposed chip bbt has been installed
  *
  *************************************************************/
@@ -2454,7 +2454,7 @@ exit:
 }
 /************************************************************
  * all parameters saved in aml_chip->ops_para.
- * for opteration mode, contains multi-plane/multi-chip
+ * for operation mode, contains multi-plane/multi-chip
  * supposed chip bbt has been installed
  *
  *************************************************************/
@@ -2562,7 +2562,7 @@ static int blk_modify_bbt_chip_op(struct amlnand_chip *aml_chip, int value)
 
 /************************************************************
  *  all parameters saved in aml_chip->ops_para.
- * for opteration mode, contains multi-plane/multi-chip
+ * for operation mode, contains multi-plane/multi-chip
  * supposed chip bbt has been installed
  *
  *************************************************************/

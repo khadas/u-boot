@@ -35,8 +35,8 @@ static void dump_args(int argc, char * const argv[])
 
 /*
  * operations for bootloader
- * we call it rom as legarcy reasons.
- * call nand's opeartions.
+ * we call it rom as latency reasons.
+ * call nand's operations.
  * switch to normal device after doing this.
  */
 #define CONFIG_AMLMTD_CURRDEV	(0)
@@ -136,7 +136,7 @@ static int do_rom_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]
 			cpy = (ulong)simple_strtoul(argv[base], NULL, 16);
 			copy_num = CONFIG_BL2_COPY_NUM;
 			if (cpy >= copy_num) {
-				printk("max cpies %d\n", copy_num);
+				printk("max copies %d\n", copy_num);
 				ret = CMD_RET_USAGE;
 				goto _out;
 			}
@@ -258,7 +258,7 @@ static int do_bl2_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]
 			copy_num = CONFIG_BL2_COPY_NUM;
 			cpy = (ulong)simple_strtoul(argv[base], NULL, 16);
 			if (cpy >= copy_num) {
-				printk("max cpies %d\n", copy_num);
+				printk("max copies %d\n", copy_num);
 				ret = CMD_RET_USAGE;
 				goto _out;
 			}
@@ -380,7 +380,7 @@ static int do_fip_ops(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]
 		} else {
 			cpy = (ulong)simple_strtoul(argv[base], NULL, 16);
 			if (cpy >= CONFIG_TPL_COPY_NUM) {
-				printk("max cpies %d\n", CONFIG_TPL_COPY_NUM);
+				printk("max copies %d\n", CONFIG_TPL_COPY_NUM);
 				ret = CMD_RET_USAGE;
 				goto _out;
 			}
@@ -527,7 +527,7 @@ static int do_amlmtd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	char subcmd[4];
 
     if (argc < 2) return CMD_RET_USAGE;
-	/* process subcmd which is longger than 3 characaters */
+	/* process subcmd which is longer than 3 characters */
     c = find_cmd_tbl(argv[1], cmd_amlmtd_sub, ARRAY_SIZE(cmd_amlmtd_sub));
 	if (!c) {
 		strncpy(subcmd, argv[1], 3);

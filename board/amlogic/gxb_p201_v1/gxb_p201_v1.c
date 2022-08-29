@@ -60,7 +60,7 @@ static void setup_net_chip(void)
 {
 	eth_aml_reg0_t eth_reg0;
 
-	//setup ethernet clk need calibrate to configre
+	//setup ethernet clk need calibrate to configure
 	setbits_le32(P_PERIPHS_PIN_MUX_6, 0x3c73);
 
 	eth_reg0.d32 = 0;
@@ -315,14 +315,14 @@ static int usb_charging_detect_call_back(char bc_mode)
 	switch (bc_mode) {
 		case BC_MODE_DCP:
 		case BC_MODE_CDP:
-			//Pull up chargging current > 500mA
+			//Pull up charging current > 500mA
 			break;
 
 		case BC_MODE_UNKNOWN:
 		case BC_MODE_SDP:
 		default:
-			//Limit chargging current <= 500mA
-			//Or detet dec-charger
+			//Limit charging current <= 500mA
+			//Or detect dc-charger
 			break;
 	}
 	return 0;

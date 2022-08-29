@@ -184,7 +184,7 @@ void high_task(void)
 }
 
 extern unsigned int usr_pwr_key;
-#ifdef CONFIG_SUPPORT_CUSOTMER_BOARD
+#ifdef CONFIG_SUPPORT_CUSTOMER_BOARD
 extern void process_customer_low_task(unsigned int, unsigned int *, unsigned int *);
 #endif
 extern int uart_disable;
@@ -209,7 +209,7 @@ void process_low_task(unsigned command)
 			dbg_print("uart_disable=", *(pcommand + 2));
 			uart_disable = *(pcommand + 2);
 		} else {
-#ifdef CONFIG_SUPPORT_CUSOTMER_BOARD
+#ifdef CONFIG_SUPPORT_CUSTOMER_BOARD
 			process_customer_low_task(command, pcommand, response);
 #endif
 		}

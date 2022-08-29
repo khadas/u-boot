@@ -581,7 +581,7 @@ int ring_msr_sm1(int index)
 	}
 	if (0xfe != index) {
 		if (0x0 == index)
-			ring_powerinit(); /*index 0 set vcck and vddee, index ff no set valtage*/
+			ring_powerinit(); /*index 0 set vcck and vddee, index ff no set voltage*/
 		/*RING_OSCILLATOR       0x7f: set slow ring*/
 		writel(0x51555555, 0xff6345fc);
 		for (i = 0; i < 16; i++) {

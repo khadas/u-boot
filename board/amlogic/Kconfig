@@ -362,7 +362,7 @@ config PXP_EMULATOR
 	bool "Support pxp environment"
 	default n
 
-config SUPPORT_CUSOTMER_BOARD
+config SUPPORT_CUSTOMER_BOARD
 	bool "Customer board support"
 
 config ODROID_C2

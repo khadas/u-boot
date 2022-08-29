@@ -117,7 +117,7 @@
 	#define CONFIG_SPI_FLASH
 	#define CONFIG_DM_SPI_FLASH
 	#define CONFIG_CMD_SF
-	/* SPI flash surpport list */
+	/* SPI flash support list */
 	#define CONFIG_SPI_FLASH_ATMEL // to test
 	#define CONFIG_SPI_FLASH_EON // to test
 	#define CONFIG_SPI_FLASH_GIGADEVICE // to test

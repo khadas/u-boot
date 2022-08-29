@@ -3585,7 +3585,7 @@ int  bbt_valid_ops(struct amlnand_chip *aml_chip)
 	}
 	ENV_NAND_LINE
    /* aml_nand_msg("aml_chip->detect_dtb_flag:%d,aml_chip->config_msg.arg_valid:%d",aml_chip->detect_dtb_flag,aml_chip->config_msg.arg_valid);*/
-	ret = aml_sys_info_init(aml_chip); //key  and stoarge and env
+	ret = aml_sys_info_init(aml_chip); //key  and storage and env
 	if (ret < 0) {
 		aml_nand_msg("nand init sys_info failed and ret:%d", ret);
 		goto exit_error0;
@@ -3733,7 +3733,7 @@ int  shipped_bbt_invalid_ops(struct amlnand_chip *aml_chip)
 		 goto exit_error0;
 		}
 
-		ret = aml_sys_info_init(aml_chip); //key  and  stoarge
+		ret = aml_sys_info_init(aml_chip); //key  and  storage
 		if (ret < 0) {
 			aml_nand_msg("%s() %d: nand init sys_info failed and ret:%d", __FUNCTION__, __LINE__, ret);
 			goto exit_error0;
@@ -3801,7 +3801,7 @@ int shipped_bbt_valid_ops(struct amlnand_chip *aml_chip)
 
 	if (aml_chip->init_flag < NAND_BOOT_ERASE_PROTECT_CACHE) {
 		ENV_NAND_LINE
-		ret = aml_sys_info_init(aml_chip); //key  and  stoarge
+		ret = aml_sys_info_init(aml_chip); //key  and  storage
 		if (ret < 0) {
 			aml_nand_msg("nand init sys_info failed and ret:%d", ret);
 			goto exit_error0;
@@ -4022,9 +4022,9 @@ int amlnand_get_dev_configs(struct amlnand_chip *aml_chip)
 	}
 #ifdef AML_NAND_UBOOT
 	ENV_NAND_LINE;
-	/* 2. serch fbbt & nbbt in flash.*/
+	/* 2. search fbbt & nbbt in flash.*/
 
-	/* 2.1 serch fbbt & nbbt in flash.*/
+	/* 2.1 search fbbt & nbbt in flash.*/
 	ret = amlnand_info_init(aml_chip,
 		(unsigned char *)&(aml_chip->nand_bbtinfo),
 		(unsigned char *)(aml_chip->block_status),

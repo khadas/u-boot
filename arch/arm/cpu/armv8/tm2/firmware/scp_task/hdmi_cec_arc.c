@@ -1141,7 +1141,7 @@ void cec_node_init(void)
 		dump_cecb_reg();
 		return ;
 	} else if (tx_stat == TX_DONE) {
-		cec_dbg_print("sombody takes cec log_addr:0x", probe[i]);
+		cec_dbg_print("somebody takes cec log_addr:0x", probe[i]);
 		uart_puts("\n");
 		regist_devs |= (1 << i);
 		retry += (4 - (retry & 0x03));

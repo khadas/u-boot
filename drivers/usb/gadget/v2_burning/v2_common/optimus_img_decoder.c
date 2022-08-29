@@ -31,7 +31,7 @@ COMPILE_TYPE_CHK(512  == sizeof(ImgSrcIf_t), bb);
 typedef struct _ImgInfo_s
 {
         ImgSrcIf_t          imgSrcIf;
-        AmlFirmwareImg_t    imgHead;//Must begin align 512, or store read wiill exception
+        AmlFirmwareImg_t    imgHead;//Must begin align 512, or store read will exception
         union               ItemInfo_u{
                             ItemInfo_V1 v1[MAX_ITEM_NUM];
                             ItemInfo_V2 v2[MAX_ITEM_NUM];

@@ -55,7 +55,7 @@ int cpu_sd_emmc_init(unsigned port)
 		else if (cpuid.chip_rev >= 0xB) {
 			clrsetbits_le32(P_PAD_DS_REG1A, 0xFFFF, 0x5555);
 			//setbits_le32(P_PAD_DS_REG1A, 0xFFFF);
-			/* pullup & pullupen */
+			/* pull up & pull up enable */
 			setbits_le32(P_PAD_PULL_UP_EN_REG1, 0x7F);
 			setbits_le32(P_PAD_PULL_UP_REG1, 0x7F);
 			clrbits_le32(P_PREG_PAD_GPIO5_O, 1<<17);

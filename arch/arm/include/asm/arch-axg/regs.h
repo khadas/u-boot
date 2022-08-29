@@ -4750,7 +4750,7 @@
 #define   VDIN_BLKBAR_IND_RIGHT2_CNT               (0x126a)
 #define P_VDIN_BLKBAR_IND_RIGHT2_CNT               (volatile uint32_t *)((0x126a  << 2) + 0xff900000)
 //Readonly
-// Bit 31:30 Resersed
+// Bit 31:30 Reserved
 // Bit 29    blkbar_ind_black_det_done. LEFT/RIGHT Black detection done
 // Bit 28:16 blkbar_top_pos.            Top black bar position
 // Bit 15:13 Reserved.
@@ -4759,7 +4759,7 @@
 #define P_VDIN_BLKBAR_STATUS0                      (volatile uint32_t *)((0x126b  << 2) + 0xff900000)
 //Readonly
 // Bit 31:29 Reserved
-// Bit 28:16 blkbar_left_pos.       Left black bar posiont
+// Bit 28:16 blkbar_left_pos.       Left black bar position
 // Bit 15:13 Reserved
 // Bit 12:0  blkbar_right_pos.      Right black bar position
 #define   VDIN_BLKBAR_STATUS1                      (0x126c)
@@ -6186,8 +6186,8 @@
 //     //Bit 3:0,   reg_Det3D_Motion_Core_Thrd  U4  2X: static coring value for Motion Detection.
 //
 //     `define DET3D_CB_CFG                  8'h35
-//     //Bit 7:4,   reg_Det3D_ChessBd_NHV_ofst  U4,  Noise immune offset for NON-Horizotnal or vertical combing detection.
-//     //Bit 3:0,   reg_Det3D_ChessBd_HV_ofst   U4,  Noise immune offset for Horizotnal or vertical combing detection.
+//     //Bit 7:4,   reg_Det3D_ChessBd_NHV_ofst  U4,  Noise immune offset for NON-Horizontal or vertical combing detection.
+//     //Bit 3:0,   reg_Det3D_ChessBd_HV_ofst   U4,  Noise immune offset for Horizontal or vertical combing detection.
 //
 //     `define DET3D_SPLT_CFG                8'h36
 //     //Bit 7:4,   reg_Det3D_SplitValid_ratio  U4,  Ratio between max_value and the avg_value of the edge mapping for split line valid detection.
@@ -6902,8 +6902,8 @@
 //Bit 3:0,  reg_Det3D_Motion_Core_Thrd  U4  2X: static coring value for Motion Detection.
 #define   DET3D_CB_CFG                             (0x1735)
 #define P_DET3D_CB_CFG                             (volatile uint32_t *)((0x1735  << 2) + 0xff900000)
-//Bit 7:4,  reg_Det3D_ChessBd_HV_ofst   U4,  Noise immune offset for Horizotnal or vertical combing detection.
-//Bit 3:0,  reg_Det3D_ChessBd_NHV_ofst  U4,  Noise immune offset for NON-Horizotnal or vertical combing detection.
+//Bit 7:4,  reg_Det3D_ChessBd_HV_ofst   U4,  Noise immune offset for Horizontal or vertical combing detection.
+//Bit 3:0,  reg_Det3D_ChessBd_NHV_ofst  U4,  Noise immune offset for NON-Horizontal or vertical combing detection.
 #define   DET3D_SPLT_CFG                           (0x1736)
 #define P_DET3D_SPLT_CFG                           (volatile uint32_t *)((0x1736  << 2) + 0xff900000)
 //Bit 7:4,  reg_Det3D_SplitValid_ratio  U4,  Ratio between max_value and the avg_value of the edge mapping for split line valid detection.
@@ -7468,7 +7468,7 @@
 // CBUS_BASE:  VPP2_VCBUS_BASE = 0x19
 // -----------------------------------------------
 //===========================================================================
-// Video postprocesing Registers
+// Video postprocessing Registers
 //===========================================================================
 // dummy data used in the VPP preblend and scaler
 // Bit 23:16
@@ -7605,7 +7605,7 @@
 //Bit 15:0    horizontal scaler top field initial phase
 #define   VPP2_HSC_PHASE_CTRL                      (0x1918)
 #define P_VPP2_HSC_PHASE_CTRL                      (volatile uint32_t *)((0x1918  << 2) + 0xff900000)
-// Bit 22 if true, divide VSC line length 2 as the HSC input length, othwise VSC length length is the same as the VSC line length,
+// Bit 22 if true, divide VSC line length 2 as the HSC input length, otherwise VSC length length is the same as the VSC line length,
 //                 just for special usage, more flexibility
 // Bit 21 if true, prevsc uses lin buffer, otherwise prevsc does not use line buffer, it should be same as prevsc_en
 // Bit 20 prehsc_en
@@ -7684,8 +7684,8 @@
 // Bit 12, osd1 enable for postblend
 // Bit 11, reserved
 // Bit 10, vd1 enable for postblend
-// Bit 9,  if true, osd1 is alpha premultipiled
-// Bit 8,  if true, osd2 is alpha premultipiled
+// Bit 9,  if true, osd1 is alpha premultiplied
+// Bit 8,  if true, osd2 is alpha premultiplied
 // Bit 7,  postblend module enable
 // Bit 6,  preblend module enable
 // Bit 5,  if true, osd2 foreground compared with osd1 in preblend
@@ -8043,7 +8043,7 @@
 //Bit 27:0,  4.24 format
 #define   VPP2_OSD_VSC_PHASE_STEP                  (0x19c0)
 #define P_VPP2_OSD_VSC_PHASE_STEP                  (volatile uint32_t *)((0x19c0  << 2) + 0xff900000)
-//Bit 31:16, botttom vertical scaler initial phase
+//Bit 31:16, bottom vertical scaler initial phase
 //Bit 15:0, top vertical scaler initial phase
 #define   VPP2_OSD_VSC_INI_PHASE                   (0x19c1)
 #define P_VPP2_OSD_VSC_INI_PHASE                   (volatile uint32_t *)((0x19c1  << 2) + 0xff900000)
@@ -8727,7 +8727,7 @@
 #define P_VD1_IF0_URGENT_CTRL                      (volatile uint32_t *)((0x1a6f  << 2) + 0xff900000)
 //Bit 31    it true, disable clock, otherwise enable clock
 //Bit 30    soft rst bit
-//Bit 28    if true, horizontal formatter use repeating to generete pixel, otherwise use bilinear interpolation
+//Bit 28    if true, horizontal formatter use repeating to generate pixel, otherwise use bilinear interpolation
 //Bit 27:24 horizontal formatter initial phase
 //Bit 23    horizontal formatter repeat pixel 0 enable
 //Bit 22:21 horizontal Y/C ratio, 00: 1:1, 01: 2:1, 10: 4:1
@@ -8735,8 +8735,8 @@
 //Bit 19    if true, always use phase0 while vertical formater, meaning always
 //          repeat data, no interpolation
 //Bit 18    if true, disable vertical formatter chroma repeat last line
-//Bit 17    veritcal formatter dont need repeat line on phase0, 1: enable, 0: disable
-//Bit 16    veritcal formatter repeat line 0 enable
+//Bit 17    vertical formatter dont need repeat line on phase0, 1: enable, 0: disable
+//Bit 16    vertical formatter repeat line 0 enable
 //Bit 15:12 vertical formatter skip line num at the beginning
 //Bit 11:8  vertical formatter initial phase
 //Bit 7:1   vertical formatter phase step (3.4)
@@ -8804,13 +8804,13 @@
 #define P_VD2_IF0_URGENT_CTRL                      (volatile uint32_t *)((0x1a8f  << 2) + 0xff900000)
 //Bit 31    it true, disable clock, otherwise enable clock
 //Bit 30    soft rst bit
-//Bit 28    if true, horizontal formatter use repeating to generete pixel, otherwise use bilinear interpolation
+//Bit 28    if true, horizontal formatter use repeating to generate pixel, otherwise use bilinear interpolation
 //Bit 27:24 horizontal formatter initial phase
 //Bit 23    horizontal formatter repeat pixel 0 enable
 //Bit 22:21 horizontal Y/C ratio, 00: 1:1, 01: 2:1, 10: 4:1
 //Bit 20    horizontal formatter enable
-//Bit 17    veritcal formatter dont need repeat line on phase0, 1: enable, 0: disable
-//Bit 16    veritcal formatter repeat line 0 enable
+//Bit 17    vertical formatter dont need repeat line on phase0, 1: enable, 0: disable
+//Bit 16    vertical formatter repeat line 0 enable
 //Bit 15:12 vertical formatter skip line num at the beginning
 //Bit 11:8  vertical formatter initial phase
 //Bit 7:1   vertical formatter phase step (3.4)
@@ -8953,8 +8953,8 @@
 //Bit 0  OSD1 enable
 #define   OSD_BLEND_GEN_CTRL1                      (0x1aac)
 #define P_OSD_BLEND_GEN_CTRL1                      (volatile uint32_t *)((0x1aac  << 2) + 0xff900000)
-//Bit 31    osd1_alpha_premult, if true, osd1 alpha is premultipiled
-//Bit 30    osd2_alpha_premult, if true, osd2 alpha is premultipiled
+//Bit 31    osd1_alpha_premult, if true, osd1 alpha is premultiplied
+//Bit 30    osd2_alpha_premult, if true, osd2 alpha is premultiplied
 //Bit 23:16 osd blending hold lines
 //Bit 13:0  osd blending h_size
 #define   OSD_BLEND_DUMMY_DATA                     (0x1aad)
@@ -9103,7 +9103,7 @@
 #define P_AFBC_VD_CFMT_CTRL                        (volatile uint32_t *)((0x1aeb  << 2) + 0xff900000)
 //Bit 31    it true, disable clock, otherwise enable clock
 //Bit 30    soft rst bit
-//Bit 28    if true, horizontal formatter use repeating to generete pixel, otherwise use bilinear interpolation
+//Bit 28    if true, horizontal formatter use repeating to generate pixel, otherwise use bilinear interpolation
 //Bit 27:24 horizontal formatter initial phase
 //Bit 23    horizontal formatter repeat pixel 0 enable
 //Bit 22:21 horizontal Y/C ratio, 00: 1:1, 01: 2:1, 10: 4:1
@@ -9111,8 +9111,8 @@
 //Bit 19    if true, always use phase0 while vertical formater, meaning always
 //          repeat data, no interpolation
 //Bit 18    if true, disable vertical formatter chroma repeat last line
-//Bit 17    veritcal formatter dont need repeat line on phase0, 1: enable, 0: disable
-//Bit 16    veritcal formatter repeat line 0 enable
+//Bit 17    vertical formatter dont need repeat line on phase0, 1: enable, 0: disable
+//Bit 16    vertical formatter repeat line 0 enable
 //Bit 15:12 vertical formatter skip line num at the beginning
 //Bit 11:8  vertical formatter initial phase
 //Bit 7:1   vertical formatter phase step (3.4)
@@ -10207,7 +10207,7 @@
 // CBUS_BASE:  VPP_VCBUS_BASE = 0x1d
 // -----------------------------------------------
 //===========================================================================
-// Video postprocesing Registers
+// Video postprocessing Registers
 //===========================================================================
 // dummy data used in the VPP preblend and scaler
 // Bit 23:16    Y
@@ -10344,7 +10344,7 @@
 //Bit 15:0    horizontal scaler top field initial phase0
 #define   VPP_HSC_PHASE_CTRL                       (0x1d18)
 #define P_VPP_HSC_PHASE_CTRL                       (volatile uint32_t *)((0x1d18  << 2) + 0xff900000)
-// Bit 22 if true, divide VSC line length 2 as the HSC input length, othwise VSC length length is the same as the VSC line length,
+// Bit 22 if true, divide VSC line length 2 as the HSC input length, otherwise VSC length length is the same as the VSC line length,
 //                 just for special usage, more flexibility
 // Bit 21 if true, prevsc uses lin buffer, otherwise prevsc does not use line buffer, it should be same as prevsc_en
 // Bit 20 prehsc_en
@@ -10434,8 +10434,8 @@
 // Bit 12, osd1 enable for postblend
 // Bit 11, vd2 enable for postblend
 // Bit 10, vd1 enable for postblend
-// Bit 9,  if true, osd1 is alpha premultipiled
-// Bit 8,  if true, osd2 is alpha premultipiled
+// Bit 9,  if true, osd1 is alpha premultiplied
+// Bit 8,  if true, osd2 is alpha premultiplied
 // Bit 7,  postblend module enable
 // Bit 6,  preblend module enable
 // Bit 5,  if true, osd2 foreground compared with osd1 in preblend
@@ -10564,7 +10564,7 @@
 //Bit 0 horizontal sharpness enable
 #define   VPP_HSHARP_CTRL                          (0x1d50)
 #define P_VPP_HSHARP_CTRL                          (volatile uint32_t *)((0x1d50  << 2) + 0xff900000)
-//{1'b0,threhsold} < diff
+//{1'b0,threshold} < diff
 //Bit 26:16  luma threshold0
 //Bit 10:0   luma threshold1
 #define   VPP_HSHARP_LUMA_THRESH01                 (0x1d51)
@@ -10943,10 +10943,10 @@
 //Bit  31:7, reserved
 //Bit     6, hue_adj_en        cm2 hue adjustments
 //Bit     5, sat_adj_en        cm2 saturation adjustments
-//Bit     4, luma_adj_en       enable siganl for cm2 luma adjustments
+//Bit     4, luma_adj_en       enable signal for cm2 luma adjustments
 //Bit     3, reserved
 //Bit     2, cm2_filt_en       apply cm on lp portion enable
-//Bit     1, cm2_en            cm2 enable siganl
+//Bit     1, cm2_en            cm2 enable signal
 //Bit     0, cm1_en
 
     #define ROI_X_SCOPE_REG             0x209   // default 32'h0
@@ -11743,7 +11743,7 @@
 //Bit 27:0,  4.24 format
 #define   VPP_OSD_VSC_PHASE_STEP                   (0x1dc0)
 #define P_VPP_OSD_VSC_PHASE_STEP                   (volatile uint32_t *)((0x1dc0  << 2) + 0xff900000)
-//Bit 31:16, botttom vertical scaler initial phase
+//Bit 31:16, bottom vertical scaler initial phase
 //Bit 15:0, top vertical scaler initial phase
 #define   VPP_OSD_VSC_INI_PHASE                    (0x1dc1)
 #define P_VPP_OSD_VSC_INI_PHASE                    (volatile uint32_t *)((0x1dc1  << 2) + 0xff900000)
@@ -12363,7 +12363,7 @@
 #define P_VIU2_VD1_IF0_URGENT_CTRL                 (volatile uint32_t *)((0x1e6f  << 2) + 0xff900000)
 //Bit 31    it true, disable clock, otherwise enable clock
 //Bit 30    soft rst bit
-//Bit 28    if true, horizontal formatter use repeating to generete pixel, otherwise use bilinear interpolation
+//Bit 28    if true, horizontal formatter use repeating to generate pixel, otherwise use bilinear interpolation
 //Bit 27:24 horizontal formatter initial phase
 //Bit 23    horizontal formatter repeat pixel 0 enable
 //Bit 22:21 horizontal Y/C ratio, 00: 1:1, 01: 2:1, 10: 4:1
@@ -12371,8 +12371,8 @@
 //Bit 19    if true, always use phase0 while vertical formater, meaning always
 //          repeat data, no interpolation
 //Bit 18    if true, disable vertical formatter chroma repeat last line
-//Bit 17    veritcal formatter dont need repeat line on phase0, 1: enable, 0: disable
-//Bit 16    veritcal formatter repeat line 0 enable
+//Bit 17    vertical formatter dont need repeat line on phase0, 1: enable, 0: disable
+//Bit 16    vertical formatter repeat line 0 enable
 //Bit 15:12 vertical formatter skip line num at the beginning
 //Bit 11:8  vertical formatter initial phase
 //Bit 7:1   vertical formatter phase step (3.4)
@@ -13862,8 +13862,8 @@
 //                               2'b0x: whole line is left or right;
 //                               2'b10: d2p_lar=1(D2P_PARAM_1), rlrlrlrl inteleave in one line,
 //                                      d2p_lar=0(D2P_PARAM_1), lrlrlrlr inteleave in one line,
-//                               2'b11: d2p_lar=1(D2P_PARAM_1), rrrrr璴llll, half line is right, another half is left,
-//                                      d2p_lar=0(D2P_PARAM_1), lllll璻rrrr, half line is left, another half is right,
+//                               2'b11: d2p_lar=1(D2P_PARAM_1), rrrrr?llll, half line is right, another half is left,
+//                                      d2p_lar=0(D2P_PARAM_1), lllll?rrrr, half line is left, another half is right,
 #define   D2D3_DBR_DDD_CTRL                        (0x2b2c)
 #define P_D2D3_DBR_DDD_CTRL                        (volatile uint32_t *)((0x2b2c  << 2) + 0xff900000)
 // Bit 31:0  RW, ddd_dbg_ctrl,   no use
@@ -13986,7 +13986,7 @@
 //Bit 31:17,        reserved
 //Bit 16,            reg_dnr_en                                     , dnr enable                  . unsigned  , default = 1
 //Bit 15,            reg_dnr_db_vdbstep                          , vdb step, 0: 4, 1: 8        . unsigned  , default = 1
-//Bit 14,            reg_dnr_db_vdbprten                         , vdb protectoin enable       . unsigned  , default = 1
+//Bit 14,            reg_dnr_db_vdbprten                         , vdb protection enable       . unsigned  , default = 1
 //Bit 13,            reg_dnr_gbs_difen                           , enable dif (between LR and LL/RR) condition for gbs stat.. unsigned  , default = 0
 //Bit 12,            reg_dnr_luma_en                             , enable ycbcr2luma module    . unsigned  , default = 1
 //Bit 11:10,        reg_dnr_db_mod                              , deblocking mode, 0: disable, 1: horizontal deblocking, 2: vertical deblocking, 3: horizontal & vertical deblocking. unsigned  , default = 3
@@ -14760,8 +14760,8 @@
 //Bit 31:24        reg_nr4_ydrt_3line_ssd_gain    // unsigned , default = 16  gain to max ssd normalized 16 as '1'
 //Bit 23:16        reg_nr4_ydrt_5line_ssd_gain    // unsigned , default = 16  gain to max ssd normalized 16 as '1'
 //Bit 15            reserved
-//Bit 14:13        reg_nr4_drt_yhsad_mode         // unsigned , default = 1  mode for luma horiztonal sad calc., 0: no vertical lpf, 1: vertical [1 2 1], 2 or 3: vertical [ 1 2 2 2 1] if 5 lines
-//Bit 12:11        reg_nr4_drt_chsad_mode         // unsigned , default = 1  mode for chroma horiztonal sad calc., 0: no vertical lpf, 1: vertical [1 2 1], 2 or 3: vertical [ 1 2 2 2 1] if 5 lines
+//Bit 14:13        reg_nr4_drt_yhsad_mode         // unsigned , default = 1  mode for luma horizontal sad calc., 0: no vertical lpf, 1: vertical [1 2 1], 2 or 3: vertical [ 1 2 2 2 1] if 5 lines
+//Bit 12:11        reg_nr4_drt_chsad_mode         // unsigned , default = 1  mode for chroma horizontal sad calc., 0: no vertical lpf, 1: vertical [1 2 1], 2 or 3: vertical [ 1 2 2 2 1] if 5 lines
 //Bit 10           reg_nr4_drt_yhsad_hlpf         // unsigned , default = 1  hlpf for luma hsad of drt calculation, 0: no lpf, 1: with [1 2 1] hlpf
 //Bit  9           reg_nr4_drt_yvsad_hlpf         // unsigned , default = 1  hlpf for luma vsad of drt calculation, 0: no lpf, 1: with [1 2 1] hlpf
 //Bit  8           reg_nr4_drt_ydsad_hlpf         // unsigned , default = 1  hlpf for luma dsad of drt calculation, 0: no lpf, 1: with [1 2 1] hlpf
@@ -15586,7 +15586,7 @@
 //Bit 17,    reg_mcdi_reldetfrqchken
 //                                           0: unable; 1: enable, enable mv frequency check in rel det, default = 1
 //Bit 16,    reg_mcdi_qmeen
-//                                           0: unable; 1: enable, enable quarter motion estimation, defautl = 1
+//                                           0: unable; 1: enable, enable quarter motion estimation, default = 1
 //Bit 15,    reg_mcdi_refrptmven
 //                                           0: unable; 1: enable, use repeat mv in refinement, default = 1
 //Bit 14,    reg_mcdi_refgmven
@@ -15594,7 +15594,7 @@
 //Bit 13,    reg_mcdi_reflmven
 //                                           0: unable; 1: enable, use lmvs in refinement, default = 1
 //Bit 12,    reg_mcdi_refnmven
-//                                           0: unable; 1: enable, use neighoring mvs in refinement, default = 1
+//                                           0: unable; 1: enable, use neighboring mvs in refinement, default = 1
 //Bit 11,    reserved
 //Bit 10,    reg_mcdi_referrfrqchken
 //                                           0: unable; 1: enable, enable mv frquency check while finding min err in ref, default = 1
@@ -15690,14 +15690,14 @@
 //Bit 14:10, reg_mcdi_chkedgechklen.                      total check length for edge check, 1~24 (>0), default = 24
 //Bit  9: 8, reg_mcdi_chkedgeedgesel.                     final edge select mode, 0: original start edge, 1: lpf start edge, 2: orignal start+end edge, 3: lpf start+end edge, default = 1
 //Bit  7: 3, reg_mcdi_chkedgesaddstgain.                  distance gain for sad calc while getting edges, default = 4
-//Bit     2, reg_mcdi_chkedgechkmode.                     edge used in check mode, 0: original edge, 1: lpf edge, defautl = 1
-//Bit     1, reg_mcdi_chkedgestartedge.                   edge mode for start edge, 0: original edge, 1: lpf edge, defautl = 0
+//Bit     2, reg_mcdi_chkedgechkmode.                     edge used in check mode, 0: original edge, 1: lpf edge, default = 1
+//Bit     1, reg_mcdi_chkedgestartedge.                   edge mode for start edge, 0: original edge, 1: lpf edge, default = 0
 //Bit     0, reg_mcdi_chkedgeedgelpf.                     edge lpf mode, 0:[0,2,4,2,0], 1:[1,2,2,2,1], default = 0
 #define   MCDI_LMV_RT                              (0x2f0c)
 #define P_MCDI_LMV_RT                              (volatile uint32_t *)((0x2f0c  << 2) + 0xff900000)
 //BIt 31:15, reserved
 //Bit 14:12, reg_mcdi_lmvvalidmode                        valid mode for lmv calc., 100b: use char det, 010b: use flt, 001b: use hori flg
-//Bit 11:10, reg_mcdi_lmvgainmvmode                       four modes of mv selection for lmv weight calucluation, default = 1
+//Bit 11:10, reg_mcdi_lmvgainmvmode                       four modes of mv selection for lmv weight calculation, default = 1
 //                                                        0: cur(x-3), lst(x-1,x,x+1); 1: cur(x-4,x-3), lst(x,x+1); 2: cur(x-5,x-4,x-3), lst(x-1,x,x+1,x+2,x+3); 3: cur(x-6,x-5,x-4,x-3), lst(x-1,x,x+1,x+2);
 //Bit  9,    reg_mcdi_lmvinitmode                         initial lmvs at first row of input field, 0: intial value = 0; 1: inital = 32 (invalid), default = 0
 //Bit  8,    reserved
@@ -15800,18 +15800,18 @@
 //Bit  3: 0, reserved
 #define   MCDI_REF_BS_THD_GAIN                     (0x2f1a)
 #define P_MCDI_REF_BS_THD_GAIN                     (volatile uint32_t *)((0x2f1a  << 2) + 0xff900000)
-//Bit 31:28, reg_mcdi_refbsudgain1.      up & down block stregth gain1, normalized to 8 as '1', default = 2
-//Bit 27:24, reg_mcdi_refbsudgain0.      up & down block stregth gain0, normalized to 8 as '1', default = 4
+//Bit 31:28, reg_mcdi_refbsudgain1.      up & down block strength gain1, normalized to 8 as '1', default = 2
+//Bit 27:24, reg_mcdi_refbsudgain0.      up & down block strength gain0, normalized to 8 as '1', default = 4
 //Bit 23:19, reserved
 //Bit 18:16, reg_mcdi_refbslftgain.      left block strength gain, default = 0
 //Bit 15:13, reserved
-//Bit 12: 8, reg_mcdi_refbsthd1.         threshold 1 for detect block stregth in refinment, default = 16
+//Bit 12: 8, reg_mcdi_refbsthd1.         threshold 1 for detect block strength in refinment, default = 16
 //Bit  7: 5, reserved
-//Bit  4: 0, reg_mcdi_refbsthd0.         threshold 0 for detect block stregth in refinment, default = 8
+//Bit  4: 0, reg_mcdi_refbsthd0.         threshold 0 for detect block strength in refinment, default = 8
 #define   MCDI_REF_ERR_GAIN0                       (0x2f1b)
 #define P_MCDI_REF_ERR_GAIN0                       (volatile uint32_t *)((0x2f1b  << 2) + 0xff900000)
 //Bit    31, reserved
-//Bit 30:24, reg_mcdi_referrnbrdstgain.            neighoring mv distances gain for err calc. in ref, normalized to 8 as '1', default = 48
+//Bit 30:24, reg_mcdi_referrnbrdstgain.            neighboring mv distances gain for err calc. in ref, normalized to 8 as '1', default = 48
 //Bit 23:20, reserved
 //Bit 19:16, reg_mcdi_referrbsgain.                bs gain for err calc. in ref, normalized to 8 as '1', default = 4
 //Bit    15, reserved
@@ -15924,7 +15924,7 @@
 //Bit 31:14, reserved.
 //Bit 12: 8, reg_mcdi_reldetchkedgegain0.          gain0 (gmv locked) for chk_edge, for det. calc. normalized to 16 as '1', default = 2
 //Bit     7, reserved.
-//Bit  6: 0, reg_mcdi_reldetnbrdstgain0.           gain0 (gmv locked) for neighoring dist, for det. calc. normalized to 16 as '1', default = 24
+//Bit  6: 0, reg_mcdi_reldetnbrdstgain0.           gain0 (gmv locked) for neighboring dist, for det. calc. normalized to 16 as '1', default = 24
 #define   MCDI_REL_DET_GAIN_10                     (0x2f2b)
 #define P_MCDI_REL_DET_GAIN_10                     (volatile uint32_t *)((0x2f2b  << 2) + 0xff900000)
 //Bit 31:21, reserved.
@@ -15938,7 +15938,7 @@
 //Bit 31:14, reserved.
 //Bit 12: 8, reg_mcdi_reldetchkedgegain1.          gain1 (lmv locked) for chk_edge, for det. calc. normalized to 16 as '1', default = 0
 //Bit     7, reserved.
-//Bit  6: 0, reg_mcdi_reldetnbrdstgain1.           gain1 (lmv locked) for neighoring dist, for det. calc. normalized to 16 as '1', default = 24
+//Bit  6: 0, reg_mcdi_reldetnbrdstgain1.           gain1 (lmv locked) for neighboring dist, for det. calc. normalized to 16 as '1', default = 24
 #define   MCDI_REL_DET_GAIN_20                     (0x2f2d)
 #define P_MCDI_REL_DET_GAIN_20                     (volatile uint32_t *)((0x2f2d  << 2) + 0xff900000)
 //Bit 31:21, reserved.
@@ -15954,7 +15954,7 @@
 //Bit 15:14, reserved.
 //Bit 12: 8, reg_mcdi_reldetchkedgegain2.          gain2 (no locked) for chk_edge, for det. calc. normalized to 16 as '1', default = 10
 //Bit     7, reserved.
-//Bit  6: 0, reg_mcdi_reldetnbrdstgain2.           gain2 (no locked) for neighoring dist, for det. calc. normalized to 16 as '1', default = 32
+//Bit  6: 0, reg_mcdi_reldetnbrdstgain2.           gain2 (no locked) for neighboring dist, for det. calc. normalized to 16 as '1', default = 32
 #define   MCDI_REL_DET_GMV_DIF_CHK                 (0x2f2f)
 #define P_MCDI_REL_DET_GMV_DIF_CHK                 (volatile uint32_t *)((0x2f2f  << 2) + 0xff900000)
 //Bit 31:24, reserved.
@@ -16104,18 +16104,18 @@
 //Bit  7: 0, reg_mcdi_reldetmaplut12.              default = 192
 #define   MCDI_REL_DET_COL_CFD_THD                 (0x2f42)
 #define P_MCDI_REL_DET_COL_CFD_THD                 (volatile uint32_t *)((0x2f42  << 2) + 0xff900000)
-//Bit 31:24, reg_mcdi_reldetcolcfdfltthd.          thd for flat smaller than (<) of column cofidence, default = 5
+//Bit 31:24, reg_mcdi_reldetcolcfdfltthd.          thd for flat smaller than (<) of column confidence, default = 5
 //Bit 23:16, reg_mcdi_reldetcolcfdthd1.            thd for rel larger than (>=) in rel calc. mode col confidence without gmv locking, default = 160
 //Bit 15: 8, reg_mcdi_reldetcolcfdthd0.            thd for rel larger than (>=) in rel calc. mode col confidence when gmv locked, default = 100
-//Bit  7: 2, reg_mcdi_reldetcolcfdbadwthd.         thd for badw larger than (>=) in qbadw calc. mode of column cofidence, default = 16
+//Bit  7: 2, reg_mcdi_reldetcolcfdbadwthd.         thd for badw larger than (>=) in qbadw calc. mode of column confidence, default = 16
 //Bit     1, reserved
-//Bit     0, reg_mcdi_reldetcolcfdcalcmode.        calc. mode for column cofidence, 0: use rel, 1: use qbadw, default = 0
+//Bit     0, reg_mcdi_reldetcolcfdcalcmode.        calc. mode for column confidence, 0: use rel, 1: use qbadw, default = 0
 #define   MCDI_REL_DET_COL_CFD_AVG_LUMA            (0x2f43)
 #define P_MCDI_REL_DET_COL_CFD_AVG_LUMA            (volatile uint32_t *)((0x2f43  << 2) + 0xff900000)
-//Bit 31:24, reg_mcdi_reldetcolcfdavgmin1.         avg luma min1 (>=) for column cofidence, valid between 16~235, default = 235
-//Bit 23:16, reg_mcdi_reldetcolcfdavgmax1.         avg luma max1 (<)  for column cofidence, valid between 16~235, default = 235
-//Bit 15: 8, reg_mcdi_reldetcolcfdavgmin0.         avg luma min0 (>=) for column cofidence, valid between 16~235, default = 16
-//Bit  7: 0, reg_mcdi_reldetcolcfdavgmax0.         avg luma max0 (<)  for column cofidence, valid between 16~235, default = 21
+//Bit 31:24, reg_mcdi_reldetcolcfdavgmin1.         avg luma min1 (>=) for column confidence, valid between 16~235, default = 235
+//Bit 23:16, reg_mcdi_reldetcolcfdavgmax1.         avg luma max1 (<)  for column confidence, valid between 16~235, default = 235
+//Bit 15: 8, reg_mcdi_reldetcolcfdavgmin0.         avg luma min0 (>=) for column confidence, valid between 16~235, default = 16
+//Bit  7: 0, reg_mcdi_reldetcolcfdavgmax0.         avg luma max0 (<)  for column confidence, valid between 16~235, default = 21
 #define   MCDI_REL_DET_BAD_THD_0                   (0x2f44)
 #define P_MCDI_REL_DET_BAD_THD_0                   (volatile uint32_t *)((0x2f44  << 2) + 0xff900000)
 //Bit 31:16, reserved
@@ -16229,7 +16229,7 @@
 #define P_MCDI_MOTION_PARADOX_RT                   (volatile uint32_t *)((0x2f53  << 2) + 0xff900000)
 //Bit 31:24, reserved
 //Bit 23:16, reg_mcdi_motionparadoxbadsadrt.       ratio for field bad sad count of motion paradox, normalized 256 as '1', 255 is set to 256, default = 24
-//Bit 15: 8, reg_mcdi_motionparadoxbadrelrt.       ratio for field bad reliabilty count of motion paradox, normalized 256 as '1', 255 is set to 256, default = 120
+//Bit 15: 8, reg_mcdi_motionparadoxbadrelrt.       ratio for field bad reliability count of motion paradox, normalized 256 as '1', 255 is set to 256, default = 120
 //Bit  7: 0, reg_mcdi_motionparadoxmtnrt.          ratio for field motion count of motion paradox, normalized 256 as '1', 255 is set to 256, default = 218
 #define   MCDI_MOTION_REF_THD                      (0x2f54)
 #define P_MCDI_MOTION_REF_THD                      (volatile uint32_t *)((0x2f54  << 2) + 0xff900000)
@@ -16243,7 +16243,7 @@
 #define   MCDI_REL_COL_REF_RT                      (0x2f55)
 #define P_MCDI_REL_COL_REF_RT                      (volatile uint32_t *)((0x2f55  << 2) + 0xff900000)
 //Bit 31: 8, reserved
-//Bit  7: 0, reg_mcdi_relcolrefrt.                 ratio for column cofidence level against column number, for refinement, default = 135
+//Bit  7: 0, reg_mcdi_relcolrefrt.                 ratio for column confidence level against column number, for refinement, default = 135
 #define   MCDI_PD22_CHK_THD_RT                     (0x2f56)
 #define P_MCDI_PD22_CHK_THD_RT                     (volatile uint32_t *)((0x2f56  << 2) + 0xff900000)
 //Bit 31:27, reserved
@@ -16307,15 +16307,15 @@
 #define   MCDI_PD_22_CHK_FLG_CNT                   (0x2f5e)
 #define P_MCDI_PD_22_CHK_FLG_CNT                   (volatile uint32_t *)((0x2f5e  << 2) + 0xff900000)
 //Bit 31:27, reserved.
-//Bit    26, reg_mcdi_pd22chkflg2.                     pull down 22 flag of prevoius one field. initial = 0
-//Bit    25, reg_mcdi_pd22chkflg1.                     pull down 22 flag of prevoius one field. initial = 0
-//Bit    24, reg_mcdi_pd22chkflg.                      pull down 22 flag of prevoius one field. initial = 0
-//Bit 23:16, reg_mcdi_pd22chkcnt2.                     pull down 22 count till prevoius one field. initial = 0
-//Bit 15: 8, reg_mcdi_pd22chkcnt1.                     pull down 22 count till prevoius one field. initial = 0
-//Bit  7: 0, reg_mcdi_pd22chkcnt.                      pull down 22 count till prevoius one field. initial = 0
+//Bit    26, reg_mcdi_pd22chkflg2.                     pull down 22 flag of previous one field. initial = 0
+//Bit    25, reg_mcdi_pd22chkflg1.                     pull down 22 flag of previous one field. initial = 0
+//Bit    24, reg_mcdi_pd22chkflg.                      pull down 22 flag of previous one field. initial = 0
+//Bit 23:16, reg_mcdi_pd22chkcnt2.                     pull down 22 count till previous one field. initial = 0
+//Bit 15: 8, reg_mcdi_pd22chkcnt1.                     pull down 22 count till previous one field. initial = 0
+//Bit  7: 0, reg_mcdi_pd22chkcnt.                      pull down 22 count till previous one field. initial = 0
 #define   MCDI_RO_FLD_PD_22_PRE_CNT1               (0x2fca)
 #define P_MCDI_RO_FLD_PD_22_PRE_CNT1               (volatile uint32_t *)((0x2fca  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_fldpd22precnt1.              prevoius pd22 check count of whole pre one field (block based). initial = 0
+//Bit 31: 0, ro_mcdi_fldpd22precnt1.              previous pd22 check count of whole pre one field (block based). initial = 0
 #define   MCDI_RO_FLD_PD_22_FOR_CNT1               (0x2fcb)
 #define P_MCDI_RO_FLD_PD_22_FOR_CNT1               (volatile uint32_t *)((0x2fcb  << 2) + 0xff900000)
 //Bit 31: 0, ro_mcdi_fldpd22forcnt1.              forward pd22 check count of whole pre one field (block based). initial = 0
@@ -16324,7 +16324,7 @@
 //Bit 31: 0, ro_mcdi_fldpd22fltcnt1.              flat count (for pd22 check) of whole pre one field (block based). initial = 0
 #define   MCDI_RO_FLD_PD_22_PRE_CNT2               (0x2fcd)
 #define P_MCDI_RO_FLD_PD_22_PRE_CNT2               (volatile uint32_t *)((0x2fcd  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_fldpd22precnt2.              prevoius pd22 check count of whole pre one field (block based). initial = 0
+//Bit 31: 0, ro_mcdi_fldpd22precnt2.              previous pd22 check count of whole pre one field (block based). initial = 0
 #define   MCDI_RO_FLD_PD_22_FOR_CNT2               (0x2fce)
 #define P_MCDI_RO_FLD_PD_22_FOR_CNT2               (volatile uint32_t *)((0x2fce  << 2) + 0xff900000)
 //Bit 31: 0, ro_mcdi_fldpd22forcnt2.              forward pd22 check count of whole pre one field (block based). initial = 0
@@ -16399,7 +16399,7 @@
 #define P_MCDI_MC_CRTL                             (volatile uint32_t *)((0x2f70  << 2) + 0xff900000)
 //Bit 31: 9, reserved
 //Bit     8, reg_mcdi_mcpreflg.                    flag to use previous field for MC, 0:forward field, 1: previous field, default = 1
-//Bit     7, reg_mcdi_mcrelrefbycolcfden.          enable rel refinement by column cofidence in mc blending, default = 1
+//Bit     7, reg_mcdi_mcrelrefbycolcfden.          enable rel refinement by column confidence in mc blending, default = 1
 //Bit  6: 5, reg_mcdi_mclpfen.                     enable mc pixles/rel lpf, 0:disable, 1: lpf rel, 2: lpf mc pxls, 3: lpf both rel and mc pxls, default = 0
 //Bit  4: 2, reg_mcdi_mcdebugmode.                 enable mc debug mode, 0:disable, 1: split left/right, 2: split top/bottom, 3: debug mv, 4: debug rel, default = 0
 //Bit  1: 0, reg_mcdi_mcen.                        mcdi enable mode, 0:disable, 1: blend with ma, 2: full mc, default = 1
@@ -16460,85 +16460,85 @@
 //Bit 19:16, reg_mcdi_mcoutofboundraygain.         gain for rel (MC blending coef.) refinement if MC pointed out of boundray before MC blending, normalized 8 as '1', set 15 to 16, default = 8
 //Bit 15: 8, reg_mcdi_mcrelrefbycolcfdoffst.       offset (rel + offset) for rel (MC blending coef.) refinement if motion paradox detected before MC blending before MC blending, default = 255
 //Bit  7: 4, reserved.
-//Bit  3: 0, reg_mcdi_mcrelrefbycolcfdgain.        gain for rel (MC blending coef.) refinement if column cofidence failed before MC blending, normalized 8 as '1', set 15 to 16, default = 8
+//Bit  3: 0, reg_mcdi_mcrelrefbycolcfdgain.        gain for rel (MC blending coef.) refinement if column confidence failed before MC blending, normalized 8 as '1', set 15 to 16, default = 8
 #define   MCDI_MC_COL_CFD_0                        (0x2f78)
 #define P_MCDI_MC_COL_CFD_0                        (volatile uint32_t *)((0x2f78  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_0.                    column cofidence value 0 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_0.                    column confidence value 0 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_1                        (0x2f79)
 #define P_MCDI_MC_COL_CFD_1                        (volatile uint32_t *)((0x2f79  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_1.                    column cofidence value 1 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_1.                    column confidence value 1 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_2                        (0x2f7a)
 #define P_MCDI_MC_COL_CFD_2                        (volatile uint32_t *)((0x2f7a  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_2.                    column cofidence value 2 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_2.                    column confidence value 2 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_3                        (0x2f7b)
 #define P_MCDI_MC_COL_CFD_3                        (volatile uint32_t *)((0x2f7b  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_3.                    column cofidence value 3 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_3.                    column confidence value 3 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_4                        (0x2f7c)
 #define P_MCDI_MC_COL_CFD_4                        (volatile uint32_t *)((0x2f7c  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_4.                    column cofidence value 4 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_4.                    column confidence value 4 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_5                        (0x2f7d)
 #define P_MCDI_MC_COL_CFD_5                        (volatile uint32_t *)((0x2f7d  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_5.                    column cofidence value 5 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_5.                    column confidence value 5 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_6                        (0x2f7e)
 #define P_MCDI_MC_COL_CFD_6                        (volatile uint32_t *)((0x2f7e  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_6.                    column cofidence value 6 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_6.                    column confidence value 6 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_7                        (0x2f7f)
 #define P_MCDI_MC_COL_CFD_7                        (volatile uint32_t *)((0x2f7f  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_7.                    column cofidence value 7 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_7.                    column confidence value 7 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_8                        (0x2f80)
 #define P_MCDI_MC_COL_CFD_8                        (volatile uint32_t *)((0x2f80  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_8.                    column cofidence value 8 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_8.                    column confidence value 8 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_9                        (0x2f81)
 #define P_MCDI_MC_COL_CFD_9                        (volatile uint32_t *)((0x2f81  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_9.                    column cofidence value 9 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_9.                    column confidence value 9 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_10                       (0x2f82)
 #define P_MCDI_MC_COL_CFD_10                       (volatile uint32_t *)((0x2f82  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_10.                   column cofidence value 10 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_10.                   column confidence value 10 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_11                       (0x2f83)
 #define P_MCDI_MC_COL_CFD_11                       (volatile uint32_t *)((0x2f83  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_11.                   column cofidence value 11 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_11.                   column confidence value 11 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_12                       (0x2f84)
 #define P_MCDI_MC_COL_CFD_12                       (volatile uint32_t *)((0x2f84  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_12.                   column cofidence value 12 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_12.                   column confidence value 12 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_13                       (0x2f85)
 #define P_MCDI_MC_COL_CFD_13                       (volatile uint32_t *)((0x2f85  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_13.                   column cofidence value 13 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_13.                   column confidence value 13 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_14                       (0x2f86)
 #define P_MCDI_MC_COL_CFD_14                       (volatile uint32_t *)((0x2f86  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_14.                   column cofidence value 14 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_14.                   column confidence value 14 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_15                       (0x2f87)
 #define P_MCDI_MC_COL_CFD_15                       (volatile uint32_t *)((0x2f87  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_15.                   column cofidence value 15 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_15.                   column confidence value 15 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_16                       (0x2f88)
 #define P_MCDI_MC_COL_CFD_16                       (volatile uint32_t *)((0x2f88  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_16.                   column cofidence value 16 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_16.                   column confidence value 16 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_17                       (0x2f89)
 #define P_MCDI_MC_COL_CFD_17                       (volatile uint32_t *)((0x2f89  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_17.                   column cofidence value 17 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_17.                   column confidence value 17 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_18                       (0x2f8a)
 #define P_MCDI_MC_COL_CFD_18                       (volatile uint32_t *)((0x2f8a  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_18.                   column cofidence value 18 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_18.                   column confidence value 18 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_19                       (0x2f8b)
 #define P_MCDI_MC_COL_CFD_19                       (volatile uint32_t *)((0x2f8b  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_19.                   column cofidence value 19 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_19.                   column confidence value 19 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_20                       (0x2f8c)
 #define P_MCDI_MC_COL_CFD_20                       (volatile uint32_t *)((0x2f8c  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_20.                   column cofidence value 20 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_20.                   column confidence value 20 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_21                       (0x2f8d)
 #define P_MCDI_MC_COL_CFD_21                       (volatile uint32_t *)((0x2f8d  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_21.                   column cofidence value 21 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_21.                   column confidence value 21 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_22                       (0x2f8e)
 #define P_MCDI_MC_COL_CFD_22                       (volatile uint32_t *)((0x2f8e  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_22.                   column cofidence value 22 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_22.                   column confidence value 22 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_23                       (0x2f8f)
 #define P_MCDI_MC_COL_CFD_23                       (volatile uint32_t *)((0x2f8f  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_23.                   column cofidence value 23 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_23.                   column confidence value 23 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_24                       (0x2f90)
 #define P_MCDI_MC_COL_CFD_24                       (volatile uint32_t *)((0x2f90  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_24.                   column cofidence value 24 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_24.                   column confidence value 24 read from software. initial = 0
 #define   MCDI_MC_COL_CFD_25                       (0x2f91)
 #define P_MCDI_MC_COL_CFD_25                       (volatile uint32_t *)((0x2f91  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_25.                   column cofidence value 25 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_25.                   column confidence value 25 read from software. initial = 0
 // ===================================================================================== PRE RO Registers ==========================================================================================
 #define   MCDI_RO_FLD_LUMA_AVG_SUM                 (0x2fa0)
 #define P_MCDI_RO_FLD_LUMA_AVG_SUM                 (volatile uint32_t *)((0x2fa0  << 2) + 0xff900000)
@@ -16566,7 +16566,7 @@
 //Bit 31: 0, ro_mcdi_fldvldcnt.                    valid motion count of whole pre one field (pixel based). initial = 0
 #define   MCDI_RO_FLD_PD_22_PRE_CNT                (0x2fa8)
 #define P_MCDI_RO_FLD_PD_22_PRE_CNT                (volatile uint32_t *)((0x2fa8  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_fldpd22precnt.                prevoius pd22 check count of whole pre one field (block based). initial = 0
+//Bit 31: 0, ro_mcdi_fldpd22precnt.                previous pd22 check count of whole pre one field (block based). initial = 0
 #define   MCDI_RO_FLD_PD_22_FOR_CNT                (0x2fa9)
 #define P_MCDI_RO_FLD_PD_22_FOR_CNT                (volatile uint32_t *)((0x2fa9  << 2) + 0xff900000)
 //Bit 31: 0, ro_mcdi_fldpd22forcnt.                forward pd22 check count of whole pre one field (block based). initial = 0
@@ -16576,113 +16576,113 @@
 #define   MCDI_RO_HIGH_VERT_FRQ_FLG                (0x2fab)
 #define P_MCDI_RO_HIGH_VERT_FRQ_FLG                (volatile uint32_t *)((0x2fab  << 2) + 0xff900000)
 //Bit 31:16, reserved.
-//Bit 15: 8, ro_mcdi_highvertfrqcnt.               high vertical frequency count till prevoius one field. initial = 0
+//Bit 15: 8, ro_mcdi_highvertfrqcnt.               high vertical frequency count till previous one field. initial = 0
 //Bit  7: 3, reserved.
-//Bit  2: 1, ro_mcdi_highvertfrqphase.             high vertical frequency phase of prevoius one field. initial = 2
-//Bit     0, ro_mcdi_highvertfrqflg.               high vertical frequency flag of prevoius one field. initial = 0
+//Bit  2: 1, ro_mcdi_highvertfrqphase.             high vertical frequency phase of previous one field. initial = 2
+//Bit     0, ro_mcdi_highvertfrqflg.               high vertical frequency flag of previous one field. initial = 0
 #define   MCDI_RO_GMV_LOCK_FLG                     (0x2fac)
 #define P_MCDI_RO_GMV_LOCK_FLG                     (volatile uint32_t *)((0x2fac  << 2) + 0xff900000)
 //Bit 31:16, reserved.
-//Bit 15: 8, ro_mcdi_gmvlckcnt.                    global mv lock count till prevoius one field. initial = 0
-//Bit  7: 2, ro_mcdi_gmv.                          global mv of prevoius one field. -31~31, initial = 32 (invalid value)
-//Bit     1, ro_mcdi_zerogmvlckflg.                zero global mv lock flag of prevoius one field. initial = 0
-//Bit     0, ro_mcdi_gmvlckflg.                    global mv lock flag of prevoius one field. initial = 0
+//Bit 15: 8, ro_mcdi_gmvlckcnt.                    global mv lock count till previous one field. initial = 0
+//Bit  7: 2, ro_mcdi_gmv.                          global mv of previous one field. -31~31, initial = 32 (invalid value)
+//Bit     1, ro_mcdi_zerogmvlckflg.                zero global mv lock flag of previous one field. initial = 0
+//Bit     0, ro_mcdi_gmvlckflg.                    global mv lock flag of previous one field. initial = 0
 #define   MCDI_RO_RPT_MV                           (0x2fad)
 #define P_MCDI_RO_RPT_MV                           (volatile uint32_t *)((0x2fad  << 2) + 0xff900000)
-//Bit 5: 0, ro_mcdi_rptmv.                         repeate mv of prevoius one field. -31~31, initial = 32 (invalid value)
+//Bit 5: 0, ro_mcdi_rptmv.                         repeate mv of previous one field. -31~31, initial = 32 (invalid value)
 #define   MCDI_RO_MOTION_PARADOX_FLG               (0x2fae)
 #define P_MCDI_RO_MOTION_PARADOX_FLG               (volatile uint32_t *)((0x2fae  << 2) + 0xff900000)
 //Bit 31:16, reserved.
-//Bit 15: 8, ro_mcdi_motionparadoxcnt.             motion paradox count till prevoius one field. initial = 0
+//Bit 15: 8, ro_mcdi_motionparadoxcnt.             motion paradox count till previous one field. initial = 0
 //Bit  7: 1, reserved.
-//Bit     0, ro_mcdi_motionparadoxflg.             motion paradox flag of prevoius one field. initial = 0
+//Bit     0, ro_mcdi_motionparadoxflg.             motion paradox flag of previous one field. initial = 0
 #define   MCDI_RO_PD_22_FLG                        (0x2faf)
 #define P_MCDI_RO_PD_22_FLG                        (volatile uint32_t *)((0x2faf  << 2) + 0xff900000)
 //Bit 31:27, reserved.
-//Bit    26, ro_mcdi_pd22flg2.                     pull down 22 flag of prevoius one field. initial = 0
-//Bit    25, ro_mcdi_pd22flg1.                     pull down 22 flag of prevoius one field. initial = 0
-//Bit    24, ro_mcdi_pd22flg.                      pull down 22 flag of prevoius one field. initial = 0
-//Bit 23:16, ro_mcdi_pd22cnt2.                     pull down 22 count till prevoius one field. initial = 0
-//Bit 15: 8, ro_mcdi_pd22cnt1.                     pull down 22 count till prevoius one field. initial = 0
-//Bit  7: 0, ro_mcdi_pd22cnt.                      pull down 22 count till prevoius one field. initial = 0
+//Bit    26, ro_mcdi_pd22flg2.                     pull down 22 flag of previous one field. initial = 0
+//Bit    25, ro_mcdi_pd22flg1.                     pull down 22 flag of previous one field. initial = 0
+//Bit    24, ro_mcdi_pd22flg.                      pull down 22 flag of previous one field. initial = 0
+//Bit 23:16, ro_mcdi_pd22cnt2.                     pull down 22 count till previous one field. initial = 0
+//Bit 15: 8, ro_mcdi_pd22cnt1.                     pull down 22 count till previous one field. initial = 0
+//Bit  7: 0, ro_mcdi_pd22cnt.                      pull down 22 count till previous one field. initial = 0
 #define   MCDI_RO_COL_CFD_0                        (0x2fb0)
 #define P_MCDI_RO_COL_CFD_0                        (volatile uint32_t *)((0x2fb0  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_0.                    column cofidence value 0. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_0.                    column confidence value 0. initial = 0
 #define   MCDI_RO_COL_CFD_1                        (0x2fb1)
 #define P_MCDI_RO_COL_CFD_1                        (volatile uint32_t *)((0x2fb1  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_1.                    column cofidence value 1. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_1.                    column confidence value 1. initial = 0
 #define   MCDI_RO_COL_CFD_2                        (0x2fb2)
 #define P_MCDI_RO_COL_CFD_2                        (volatile uint32_t *)((0x2fb2  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_2.                    column cofidence value 2. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_2.                    column confidence value 2. initial = 0
 #define   MCDI_RO_COL_CFD_3                        (0x2fb3)
 #define P_MCDI_RO_COL_CFD_3                        (volatile uint32_t *)((0x2fb3  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_3.                    column cofidence value 3. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_3.                    column confidence value 3. initial = 0
 #define   MCDI_RO_COL_CFD_4                        (0x2fb4)
 #define P_MCDI_RO_COL_CFD_4                        (volatile uint32_t *)((0x2fb4  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_4.                    column cofidence value 4. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_4.                    column confidence value 4. initial = 0
 #define   MCDI_RO_COL_CFD_5                        (0x2fb5)
 #define P_MCDI_RO_COL_CFD_5                        (volatile uint32_t *)((0x2fb5  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_5.                    column cofidence value 5. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_5.                    column confidence value 5. initial = 0
 #define   MCDI_RO_COL_CFD_6                        (0x2fb6)
 #define P_MCDI_RO_COL_CFD_6                        (volatile uint32_t *)((0x2fb6  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_6.                    column cofidence value 6. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_6.                    column confidence value 6. initial = 0
 #define   MCDI_RO_COL_CFD_7                        (0x2fb7)
 #define P_MCDI_RO_COL_CFD_7                        (volatile uint32_t *)((0x2fb7  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_7.                    column cofidence value 7. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_7.                    column confidence value 7. initial = 0
 #define   MCDI_RO_COL_CFD_8                        (0x2fb8)
 #define P_MCDI_RO_COL_CFD_8                        (volatile uint32_t *)((0x2fb8  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_8.                    column cofidence value 8. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_8.                    column confidence value 8. initial = 0
 #define   MCDI_RO_COL_CFD_9                        (0x2fb9)
 #define P_MCDI_RO_COL_CFD_9                        (volatile uint32_t *)((0x2fb9  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_9.                    column cofidence value 9. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_9.                    column confidence value 9. initial = 0
 #define   MCDI_RO_COL_CFD_10                       (0x2fba)
 #define P_MCDI_RO_COL_CFD_10                       (volatile uint32_t *)((0x2fba  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_10.                   column cofidence value 10. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_10.                   column confidence value 10. initial = 0
 #define   MCDI_RO_COL_CFD_11                       (0x2fbb)
 #define P_MCDI_RO_COL_CFD_11                       (volatile uint32_t *)((0x2fbb  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_11.                   column cofidence value 11. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_11.                   column confidence value 11. initial = 0
 #define   MCDI_RO_COL_CFD_12                       (0x2fbc)
 #define P_MCDI_RO_COL_CFD_12                       (volatile uint32_t *)((0x2fbc  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_12.                   column cofidence value 12. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_12.                   column confidence value 12. initial = 0
 #define   MCDI_RO_COL_CFD_13                       (0x2fbd)
 #define P_MCDI_RO_COL_CFD_13                       (volatile uint32_t *)((0x2fbd  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_13.                   column cofidence value 13. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_13.                   column confidence value 13. initial = 0
 #define   MCDI_RO_COL_CFD_14                       (0x2fbe)
 #define P_MCDI_RO_COL_CFD_14                       (volatile uint32_t *)((0x2fbe  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_14.                   column cofidence value 14. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_14.                   column confidence value 14. initial = 0
 #define   MCDI_RO_COL_CFD_15                       (0x2fbf)
 #define P_MCDI_RO_COL_CFD_15                       (volatile uint32_t *)((0x2fbf  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_15.                   column cofidence value 15. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_15.                   column confidence value 15. initial = 0
 #define   MCDI_RO_COL_CFD_16                       (0x2fc0)
 #define P_MCDI_RO_COL_CFD_16                       (volatile uint32_t *)((0x2fc0  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_16.                   column cofidence value 16. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_16.                   column confidence value 16. initial = 0
 #define   MCDI_RO_COL_CFD_17                       (0x2fc1)
 #define P_MCDI_RO_COL_CFD_17                       (volatile uint32_t *)((0x2fc1  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_17.                   column cofidence value 17. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_17.                   column confidence value 17. initial = 0
 #define   MCDI_RO_COL_CFD_18                       (0x2fc2)
 #define P_MCDI_RO_COL_CFD_18                       (volatile uint32_t *)((0x2fc2  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_18.                   column cofidence value 18. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_18.                   column confidence value 18. initial = 0
 #define   MCDI_RO_COL_CFD_19                       (0x2fc3)
 #define P_MCDI_RO_COL_CFD_19                       (volatile uint32_t *)((0x2fc3  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_19.                   column cofidence value 19. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_19.                   column confidence value 19. initial = 0
 #define   MCDI_RO_COL_CFD_20                       (0x2fc4)
 #define P_MCDI_RO_COL_CFD_20                       (volatile uint32_t *)((0x2fc4  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_20.                   column cofidence value 20. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_20.                   column confidence value 20. initial = 0
 #define   MCDI_RO_COL_CFD_21                       (0x2fc5)
 #define P_MCDI_RO_COL_CFD_21                       (volatile uint32_t *)((0x2fc5  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_21.                   column cofidence value 21. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_21.                   column confidence value 21. initial = 0
 #define   MCDI_RO_COL_CFD_22                       (0x2fc6)
 #define P_MCDI_RO_COL_CFD_22                       (volatile uint32_t *)((0x2fc6  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_22.                   column cofidence value 22. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_22.                   column confidence value 22. initial = 0
 #define   MCDI_RO_COL_CFD_23                       (0x2fc7)
 #define P_MCDI_RO_COL_CFD_23                       (volatile uint32_t *)((0x2fc7  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_23.                   column cofidence value 23. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_23.                   column confidence value 23. initial = 0
 #define   MCDI_RO_COL_CFD_24                       (0x2fc8)
 #define P_MCDI_RO_COL_CFD_24                       (volatile uint32_t *)((0x2fc8  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_24.                   column cofidence value 24. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_24.                   column confidence value 24. initial = 0
 #define   MCDI_RO_COL_CFD_25                       (0x2fc9)
 #define P_MCDI_RO_COL_CFD_25                       (volatile uint32_t *)((0x2fc9  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_25.                   column cofidence value 25. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_25.                   column confidence value 25. initial = 0
 // add space 8'hd0-8'hef
 //
 // Reading file:  dipd_regs.h
@@ -17769,13 +17769,6 @@
 //Bit  3: 2, reserved
 //Bit     1, reg_vd1_rgbbst_en         u1, enable rgbbst         default=0
 //Bit     0, reg_vd1_rgb_ctrst_prt     u1, enable signal to protect saturation in rgb.  default=1
-#define   XVYCC_VD1_RGB_BRGHT                      (0x3171)
-#define P_XVYCC_VD1_RGB_BRGHT                      (volatile uint32_t *)((0x3171  << 2) + 0xff900000)
-//Bit 31:16, reserved
-//Bit 15: 4, reg_vd1_rgb_brght        s12, brightness level in rgb domain                              default=0
-//Bit  3: 2, reserved
-//Bit     1, reg_vd1_rgb_brght_prt     u1, enalbe signal to protect saturation in rgb                  default=1
-//Bit     0, reg_vd1_rgbbst_dlut_x2    u1, enable signal to do x2 to the dlut cells before subtracting default=0
 #define   XVYCC_VD1_RGB_DLUT_0_3                   (0x3172)
 #define P_XVYCC_VD1_RGB_DLUT_0_3                   (volatile uint32_t *)((0x3172  << 2) + 0xff900000)
 //Bit 31:24, reg_vd1_rgbbst_dlut0      u8,   default = 255
@@ -17803,13 +17796,6 @@
 //Bit  3: 2, reserved
 //Bit     1, reg_post_rgbbst_en         u1, enable rgbbst         default=0
 //Bit     0, reg_post_rgb_ctrst_prt     u1, enable signal to protect saturation in rgb.  default=1
-#define   XVYCC_POST_RGB_BRGHT                     (0x3176)
-#define P_XVYCC_POST_RGB_BRGHT                     (volatile uint32_t *)((0x3176  << 2) + 0xff900000)
-//Bit 31:16, reserved
-//Bit 15: 4, reg_post_rgb_brght        s12, brightness level in rgb domain                              default=0
-//Bit  3: 2, reserved
-//Bit     1, reg_post_rgb_brght_prt     u1, enalbe signal to protect saturation in rgb                  default=1
-//Bit     0, reg_post_rgbbst_dlut_x2    u1, enable signal to do x2 to the dlut cells before subtracting default=0
 #define   XVYCC_POST_RGB_DLUT_0_3                  (0x3177)
 #define P_XVYCC_POST_RGB_DLUT_0_3                  (volatile uint32_t *)((0x3177  << 2) + 0xff900000)
 //Bit 31:24, reg_post_rgbbst_dlut0      u8,   default = 255
@@ -17941,7 +17927,7 @@
 #define P_VD2_AFBC_VD_CFMT_CTRL                    (volatile uint32_t *)((0x318b  << 2) + 0xff900000)
 //Bit 31    it true, disable clock, otherwise enable clock
 //Bit 30    soft rst bit
-//Bit 28    if true, horizontal formatter use repeating to generete pixel, otherwise use bilinear interpolation
+//Bit 28    if true, horizontal formatter use repeating to generate pixel, otherwise use bilinear interpolation
 //Bit 27:24 horizontal formatter initial phase
 //Bit 23    horizontal formatter repeat pixel 0 enable
 //Bit 22:21 horizontal Y/C ratio, 00: 1:1, 01: 2:1, 10: 4:1
@@ -17949,8 +17935,8 @@
 //Bit 19    if true, always use phase0 while vertical formater, meaning always
 //          repeat data, no interpolation
 //Bit 18    if true, disable vertical formatter chroma repeat last line
-//Bit 17    veritcal formatter dont need repeat line on phase0, 1: enable, 0: disable
-//Bit 16    veritcal formatter repeat line 0 enable
+//Bit 17    vertical formatter dont need repeat line on phase0, 1: enable, 0: disable
+//Bit 16    vertical formatter repeat line 0 enable
 //Bit 15:12 vertical formatter skip line num at the beginning
 //Bit 11:8  vertical formatter initial phase
 //Bit 7:1   vertical formatter phase step (3.4)
@@ -18631,7 +18617,7 @@
 //Bit 28,            reg_adp_lti_dir_difmode                     : 0: y_dif; 1: y_dif + (u_dif+v_dif)/2;                                         . unsigned  , default = 1
 //Bit 27,            reserved
 //Bit 26,            reg_adp_cti_dir_lpf                         : 0: no lpf; 1: [1 2 2 2 1]/8 lpf  dft=1                                        . unsigned  , default = 1
-//Bit 25:24,        reg_adp_cti_dir_difmode                     : 0: (u_dif+v_dif); 1: y_dif/2 + (u_dif+v_dif)*3/4; 2: y_dif + (u_dif+v_dif)/2; 3: y_dif*2 (not recomended). unsigned  , default = 2
+//Bit 25:24,        reg_adp_cti_dir_difmode                     : 0: (u_dif+v_dif); 1: y_dif/2 + (u_dif+v_dif)*3/4; 2: y_dif + (u_dif+v_dif)/2; 3: y_dif*2 (not recommended). unsigned  , default = 2
 //Bit 23:22,        reg_adp_hvlti_dcblend_mode                  : 0: hlti_dc; 1:vlti_dc; 2: avg  3; blend on alpha                              . unsigned  , default = 3
 //Bit 21:20,        reg_adp_hvcti_dcblend_mode                  : 0: hcti_dc; 1:vcti_dc; 2: avg  3; blend on alpha                              . unsigned  , default = 2
 //Bit 19:18,        reg_adp_hvlti_acblend_mode                  : hlti_ac; 1:vlti_ac; 2: add  3;:adaptive to alpha                              . unsigned  , default = 3
@@ -18949,21 +18935,21 @@
 //Bit 21:16 reg_sr3_lti_sad_core_rate        // u6: rate of coring for sad(theta) - sad(theta+pi/2)*rate/64 , default= 6
 //Bit 15:14 reserved
 //Bit 13:8  reg_sr3_cti_sad_core_rate        // u6: rate of coring for sad(theta) - sad(theta+pi/2)*rate/64 , default= 6
-//Bit 7,    reg_sr3_lti_hsad_mode            // u1: mode for hsad of lti caluclation; 0: block based; 1:othor shape; default= 1
-//Bit 6,    reg_sr3_cti_hsad_mode            // u1: mode for hsad of cti caluclation; 0: block based; 1:othor shape; default= 1
-//Bit 5,    reg_sr3_lti_dsad_mode            // u1: mode for dsad of lti caluclation, 0: block based; 1:othor shape; default= 1
-//Bit 4,    reg_sr3_cti_dsad_mode            // u1: mode for dsad of cti caluclation, 0: block based; 1:othor shape; default= 1
-//Bit 3,    reg_sr3_lti_vsad_mode            // u1: mode for vsad of lti caluclation, 0: block based; 1:othor shape; default= 1
-//Bit 2,    reg_sr3_cti_vsad_mode            // u1: mode for vsad of cti caluclation, 0: block based; 1:othor shape; default= 1
-//Bit 1,    reg_sr3_lti_hsad_hlpf            // u1: hlpf for hsad of lti caluclation, 0: no hlpf; 1: with [1 2 1] hlpf; default= 1
-//Bit 0,    reg_sr3_cti_hsad_hlpf            // u1: hlpf for hsad of cti caluclation, 0: no hlpf; 1: with [1 2 1] hlpf; default= 1
+//Bit 7,    reg_sr3_lti_hsad_mode            // u1: mode for hsad of lti calculation; 0: block based; 1:other shape; default= 1
+//Bit 6,    reg_sr3_cti_hsad_mode            // u1: mode for hsad of cti calculation; 0: block based; 1:other shape; default= 1
+//Bit 5,    reg_sr3_lti_dsad_mode            // u1: mode for dsad of lti calculation, 0: block based; 1:other shape; default= 1
+//Bit 4,    reg_sr3_cti_dsad_mode            // u1: mode for dsad of cti calculation, 0: block based; 1:other shape; default= 1
+//Bit 3,    reg_sr3_lti_vsad_mode            // u1: mode for vsad of lti calculation, 0: block based; 1:other shape; default= 1
+//Bit 2,    reg_sr3_cti_vsad_mode            // u1: mode for vsad of cti calculation, 0: block based; 1:other shape; default= 1
+//Bit 1,    reg_sr3_lti_hsad_hlpf            // u1: hlpf for hsad of lti calculation, 0: no hlpf; 1: with [1 2 1] hlpf; default= 1
+//Bit 0,    reg_sr3_cti_hsad_hlpf            // u1: hlpf for hsad of cti calculation, 0: no hlpf; 1: with [1 2 1] hlpf; default= 1
 #define   SHARP_SR3_PK_CTRL0                       (0x3262)
 #define P_SHARP_SR3_PK_CTRL0                       (volatile uint32_t *)((0x3262  << 2) + 0xff900000)
 //Bit 31:12 reserved
-//Bit 11,   reg_sr3_pk_sad_mode              // u1: mode for sad of peaking and noise reduction, 0: block based; 1:othor shape; default= 1
-//Bit 10,   reg_sr3_pk_hsad_hlpf             // u1: hlpf for hsad for peaking caluclation, 0: no hlpf; 1: with [1 2 2 2 1] hlpf; default= 1
-//Bit 9,    reg_sr3_pk_vsad_hlpf             // u1: hlpf for vsad for peaking caluclation, 0: no hlpf; 1: with [1 2 2 2 1] hlpf; default= 1
-//Bit 8,    reg_sr3_pk_dsad_hlpf             // u1: hlpf for dsad for peaking caluclation, 0: no hlpf; 1: with [1 2 2 2 1] hlpf; default= 1
+//Bit 11,   reg_sr3_pk_sad_mode              // u1: mode for sad of peaking and noise reduction, 0: block based; 1:other shape; default= 1
+//Bit 10,   reg_sr3_pk_hsad_hlpf             // u1: hlpf for hsad for peaking calculation, 0: no hlpf; 1: with [1 2 2 2 1] hlpf; default= 1
+//Bit 9,    reg_sr3_pk_vsad_hlpf             // u1: hlpf for vsad for peaking calculation, 0: no hlpf; 1: with [1 2 2 2 1] hlpf; default= 1
+//Bit 8,    reg_sr3_pk_dsad_hlpf             // u1: hlpf for dsad for peaking calculation, 0: no hlpf; 1: with [1 2 2 2 1] hlpf; default= 1
 //Bit 7:6,  reg_sr3_pk_hpdrt_mode            // u2: mode for HPdrt filter:  default= 3
 //Bit 5:4,  reg_sr3_pk_bpdrt_mode            // u2: mode for BPdrt filter:  default= 3
 //Bit 3:2,  reg_sr3_pk_drtbld_range          // u2: range of the min2 and min direction distance; default =1
@@ -19007,7 +18993,7 @@
 #define   SHARP_SR3_DRTLPF_ALPHA_0                 (0x3267)
 #define P_SHARP_SR3_DRTLPF_ALPHA_0                 (volatile uint32_t *)((0x3267  << 2) + 0xff900000)
 //Bit 31:30   reserved
-//Bit 29:24   reg_sr3_drtlpf_alpha3             //u6: directional lpf alpha coef for min_sad/max_sad comparied, default = 9
+//Bit 29:24   reg_sr3_drtlpf_alpha3             //u6: directional lpf alpha coef for min_sad/max_sad compared, default = 9
 //Bit 23:22   reserved
 //Bit 21:16   reg_sr3_drtlpf_alpha2             //u6: default =10
 //Bit 15:14   reserved
@@ -19017,7 +19003,7 @@
 #define   SHARP_SR3_DRTLPF_ALPHA_1                 (0x3268)
 #define P_SHARP_SR3_DRTLPF_ALPHA_1                 (volatile uint32_t *)((0x3268  << 2) + 0xff900000)
 //Bit 31:30   reserved
-//Bit 29:24   reg_sr3_drtlpf_alpha7             //u6: directional lpf alpha coef for min_sad/max_sad comparied, default = 1
+//Bit 29:24   reg_sr3_drtlpf_alpha7             //u6: directional lpf alpha coef for min_sad/max_sad compared, default = 1
 //Bit 23:22   reserved
 //Bit 21:16   reg_sr3_drtlpf_alpha6             //u6: default = 4
 //Bit 15:14   reserved
@@ -19027,7 +19013,7 @@
 #define   SHARP_SR3_DRTLPF_ALPHA_2                 (0x3269)
 #define P_SHARP_SR3_DRTLPF_ALPHA_2                 (volatile uint32_t *)((0x3269  << 2) + 0xff900000)
 //Bit 31:30   reserved
-//Bit 29:24   reg_sr3_drtlpf_alpha11            //u6: directional lpf alpha coef for min_sad/max_sad comparied, default = 0
+//Bit 29:24   reg_sr3_drtlpf_alpha11            //u6: directional lpf alpha coef for min_sad/max_sad compared, default = 0
 //Bit 23:22   reserved
 //Bit 21:16   reg_sr3_drtlpf_alpha10            //u6: default = 0
 //Bit 15:14   reserved
@@ -19054,7 +19040,7 @@
 //Bit 19:18   reserved
 //Bit 17:16   reg_sr3_dering_lcvar_blend_mode        // u2: mode for lcvar calculation: 0: HVblend; 1: diagblend; 2: HVblend+V (for hring); 3: HVblend+ DiagBlend default = 2
 //Bit 15:8    reg_sr3_dering_lcvar_gain              // u8: gain to local variant and normalized to 32 as "1"  default = 64
-//Bit 7:0     reg_sr3_dering_lcvar_nearby_maxsad_th  // u8: threshold to use nearer side maxsad if that side sad is larger than this threshold, ortherwise, use the max one default = 28
+//Bit 7:0     reg_sr3_dering_lcvar_nearby_maxsad_th  // u8: threshold to use nearer side maxsad if that side sad is larger than this threshold, otherwise, use the max one default = 28
 #define   SHARP_SR3_DERING_LUMA2PKGAIN_0TO3        (0x326c)
 #define P_SHARP_SR3_DERING_LUMA2PKGAIN_0TO3        (volatile uint32_t *)((0x326c  << 2) + 0xff900000)
 //Bit 31:24   reg_sr3_dering_luma2pkgain3             // u8: level limit(for th0<bpcon<th1) of curve for dering pkgain based on LPF luma level. default=255
@@ -19102,7 +19088,7 @@
 #define   SHARP_SR3_DERING_PARAM0                  (0x3272)
 #define P_SHARP_SR3_DERING_PARAM0                  (volatile uint32_t *)((0x3272  << 2) + 0xff900000)
 //Bit 31:24   reserved
-//Bit 23:16   reg_sr3_dering_lcvar_floor        //u8: local varianet no smaller than this value to calculate dgain max(localvar,x)/maxsad. default = 10
+//Bit 23:16   reg_sr3_dering_lcvar_floor        //u8: local variant no smaller than this value to calculate dgain max(localvar,x)/maxsad. default = 10
 //Bit 15:8    reg_sr3_dering_vr2max_gain        //u8: gain to max(local_var, floor)/maxsad  before feeding to LUT. default = 32
 //Bit 7:6     reserved
 //Bit 5:0     reg_sr3_dering_vr2max_limt        //u6: limit of maxsad to max(local_var, floor)*(max(maxsad, lmit))/maxsad.  default = 16
@@ -19878,7 +19864,7 @@
 //Bit  4           reg_nr4_mc_use_bandsplit     // unsigned , default = 1  separate lp and us for mc IIR filter, 0: no BS used; 1: use BS
 //Bit  3           reg_nr4_mc_apply_on_lp       // unsigned , default = 1  use mcnr only on lowpass portion;
 //Bit  2           reg_nr4_mc_apply_on_us       // unsigned , default = 1  use mcnr only on lp complimentary portion;
-//Bit  1: 0        reg_nr4_mc_zmvbs_use_adplpf  // unsigned , default = 1  use adapptive LPF for the zmv pointing data for MCNR, for abs(mvx)<th
+//Bit  1: 0        reg_nr4_mc_zmvbs_use_adplpf  // unsigned , default = 1  use adaptive LPF for the zmv pointing data for MCNR, for abs(mvx)<th
 #define   NR4_MCNR_ALP1_SGN_COR                    (0x3717)
 #define P_NR4_MCNR_ALP1_SGN_COR                    (volatile uint32_t *)((0x3717  << 2) + 0xff900000)
 //Bit 31:24        reg_nr4_mc_aph1_sgn_coring0  // unsigned , default = 10  coring to cur-pre before do sgn decision
@@ -19946,10 +19932,10 @@
 //Bit  3: 0        reg_nr4_mc_alp1_sgn_lut15  // unsigned , default = 15  alp1 vs x=abs|sgn(cur-pre)|, if x is small, less possibility of flat region move
 #define   NR4_RO_NM_SAD_SUM                        (0x371f)
 #define P_NR4_RO_NM_SAD_SUM                        (volatile uint32_t *)((0x371f  << 2) + 0xff900000)
-//Bit 31: 0        ro_nr4_nm_sad_sum         // unsigned , default = 0  sum of sad, for scene change detectcion, in noise meter
+//Bit 31: 0        ro_nr4_nm_sad_sum         // unsigned , default = 0  sum of sad, for scene change detection, in noise meter
 #define   NR4_RO_NM_SAD_CNT                        (0x3720)
 #define P_NR4_RO_NM_SAD_CNT                        (volatile uint32_t *)((0x3720  << 2) + 0xff900000)
-//Bit 31: 0        ro_nr4_nm_sad_cnt         // unsigned , default = 0  cnt of sad, for scene change detectcion, in noise meter
+//Bit 31: 0        ro_nr4_nm_sad_cnt         // unsigned , default = 0  cnt of sad, for scene change detection, in noise meter
 #define   NR4_RO_NM_VAR_SUM                        (0x3721)
 #define P_NR4_RO_NM_VAR_SUM                        (volatile uint32_t *)((0x3721  << 2) + 0xff900000)
 //Bit 31: 0        ro_nr4_nm_var_sum         // unsigned , default = 0  sum of var, for noise level detection, in noise meter
@@ -19965,7 +19951,7 @@
 #define   NR4_RO_NR4_DBGPIX_NUM                    (0x3724)
 #define P_NR4_RO_NR4_DBGPIX_NUM                    (volatile uint32_t *)((0x3724  << 2) + 0xff900000)
 //Bit 31:28        reserved
-//Bit 27: 0        ro_nr4_dbgpix_num         // unsigned , default = 0  number of pixels statistic invoved (removed?)
+//Bit 27: 0        ro_nr4_dbgpix_num         // unsigned , default = 0  number of pixels statistic invoked (removed?)
 #define   NR4_RO_NR4_BLDVS2_SUM                    (0x3725)
 #define P_NR4_RO_NR4_BLDVS2_SUM                    (volatile uint32_t *)((0x3725  << 2) + 0xff900000)
 //Bit 31: 0        ro_nr4_bld1vs2_sum        // unsigned , default = 0  sum of blend_1vs2 with the debug window
@@ -20264,7 +20250,7 @@
 // Bit     0 ge2d_rd_src1 cmd_if.cmd_st, 0=IDLE state, 1=BUSY state
 #define   GE2D_STATUS1                             (0x00a5)
 #define P_GE2D_STATUS1                             (volatile uint32_t *)((0x00a5  << 2) + 0xff940000)
-//SRC1 default clolor
+//SRC1 default color
 //{Y,Cb,Cr,A}/{R,G,B,A}
 #define   GE2D_SRC1_DEF_COLOR                      (0x00a6)
 #define P_GE2D_SRC1_DEF_COLOR                      (volatile uint32_t *)((0x00a6  << 2) + 0xff940000)
@@ -20330,7 +20316,7 @@
 //          [3:0] for y direction odd start/end chroma phase only when y/c ration = 2
 #define   GE2D_SRC1_FMT_CTRL                       (0x00ae)
 #define P_GE2D_SRC1_FMT_CTRL                       (volatile uint32_t *)((0x00ae  << 2) + 0xff940000)
-//SRC2 default clolor
+//SRC2 default color
 //{Y,Cb,Cr,A}/{R,G,B,A}
 #define   GE2D_SRC2_DEF_COLOR                      (0x00af)
 #define P_GE2D_SRC2_DEF_COLOR                      (volatile uint32_t *)((0x00af  << 2) + 0xff940000)
@@ -20474,7 +20460,7 @@
 //Bit 26:25, SRC1 color multiplier alpha selection
 //           if 00, Cs = Csr
 //           if 01, Cs = Csr * Asr * Ag (if source is not premultiplied)
-//           if 10, Cs = Csr * Ag (if source is premultipied)
+//           if 10, Cs = Csr * Ag (if source is premultiplied)
 //Bit 24    SRC2 color multiplier alpha selection
 //          if 0, no multiplier, Cd = Cdr,  otherwise, Cd = Cdr * Ad.
 //Bit 22:12 ALU color operation
@@ -20652,20 +20638,20 @@
 //Y = (R * y_r + G * y_g + B * y_b) / 256
 #define   GE2D_ANTIFLICK_CTRL1                     (0x00d9)
 #define P_GE2D_ANTIFLICK_CTRL1                     (volatile uint32_t *)((0x00d9  << 2) + 0xff940000)
-//Bit 31:24, Y threhold1, when   0<Y<=th1, use filter0;
+//Bit 31:24, Y threshold1, when   0<Y<=th1, use filter0;
 //Bit 23:16, color antiflick filter0 n3
 //Bit 15:8,  color antiflick filter0 n2
 //Bit 7:0,   color antiflick filter0 n1
 //Y = (line_up * n1 + line_center * n2 + line_dn * n3) / 128
 #define   GE2D_ANTIFLICK_COLOR_FILT0               (0x00da)
 #define P_GE2D_ANTIFLICK_COLOR_FILT0               (volatile uint32_t *)((0x00da  << 2) + 0xff940000)
-//Bit 31:24, Y threhold2, when th1<Y<=th2, use filter1;
+//Bit 31:24, Y threshold2, when th1<Y<=th2, use filter1;
 //Bit 23:16, color antiflick filter1 n3
 //Bit 15:8,  color antiflick filter1 n2
 //Bit 7:0,   color antiflick filter1 n1
 #define   GE2D_ANTIFLICK_COLOR_FILT1               (0x00db)
 #define P_GE2D_ANTIFLICK_COLOR_FILT1               (volatile uint32_t *)((0x00db  << 2) + 0xff940000)
-//Bit 31:24, Y threhold3, when th2<Y<=th3, use filter2; Y>th3, use filter3
+//Bit 31:24, Y threshold3, when th2<Y<=th3, use filter2; Y>th3, use filter3
 //Bit 23:16, color antiflick filter2 n3
 //Bit 15:8,  color antiflick filter2 n2
 //Bit 7:0,   color antiflick filter2 n1
@@ -20676,20 +20662,20 @@
 //Bit 7:0,   color antiflick filter3 n1
 #define   GE2D_ANTIFLICK_COLOR_FILT3               (0x00dd)
 #define P_GE2D_ANTIFLICK_COLOR_FILT3               (volatile uint32_t *)((0x00dd  << 2) + 0xff940000)
-//Bit 31:24, Alpha threhold1, when   0<Alpha<=th1, use filter0;
+//Bit 31:24, Alpha threshold1, when   0<Alpha<=th1, use filter0;
 //Bit 23:16, Alpha antiflick filter0 n3
 //Bit 15:8,  Alpha antiflick filter0 n2
 //Bit 7:0,   Alpha antiflick filter0 n1
 //Alpha = (line_up * n1 + line_center * n2 + line_dn * n3) / 128
 #define   GE2D_ANTIFLICK_ALPHA_FILT0               (0x00de)
 #define P_GE2D_ANTIFLICK_ALPHA_FILT0               (volatile uint32_t *)((0x00de  << 2) + 0xff940000)
-//Bit 31:24, Alpha threhold2, when th1<Alpha<=th2, use filter1;
+//Bit 31:24, Alpha threshold2, when th1<Alpha<=th2, use filter1;
 //Bit 23:16, Alpha antiflick filter1 n3
 //Bit 15:8,  Alpha antiflick filter1 n2
 //Bit 7:0,   Alpha antiflick filter1 n1
 #define   GE2D_ANTIFLICK_ALPHA_FILT1               (0x00df)
 #define P_GE2D_ANTIFLICK_ALPHA_FILT1               (volatile uint32_t *)((0x00df  << 2) + 0xff940000)
-//Bit 31:24, Alpha threhold3, when th2<Alpha<=th3, use filter2; Alpha>th3, use filter3
+//Bit 31:24, Alpha threshold3, when th2<Alpha<=th3, use filter2; Alpha>th3, use filter3
 //Bit 23:16, Alpha antiflick filter2 n3
 //Bit 15:8,  Alpha antiflick filter2 n2
 //Bit 7:0,   Alpha antiflick filter2 n1
@@ -20724,9 +20710,9 @@
 //Bit 0     enable
 #define   GE2D_SRC1_RANGE_MAP_CR_CTRL              (0x00e5)
 #define P_GE2D_SRC1_RANGE_MAP_CR_CTRL              (volatile uint32_t *)((0x00e5  << 2) + 0xff940000)
-//Bit 21:16     src1 prearbitor burst number
-//Bit 13:8      src2 prearbitor burst number
-//Bit 5:0       dst prearbitor burst number
+//Bit 21:16     src1 pre arbiter burst number
+//Bit 13:8      src2 pre arbiter burst number
+//Bit 5:0       dst pre arbiter burst number
 #define   GE2D_ARB_BURST_NUM                       (0x00e6)
 #define P_GE2D_ARB_BURST_NUM                       (volatile uint32_t *)((0x00e6  << 2) + 0xff940000)
 //each 6bit ID, high 4bit are thread ID, low 2bits are the token
@@ -20885,7 +20871,7 @@
 #define   DMC_SOFT_RST1                            (0x0002)
 #define P_DMC_SOFT_RST1                            (volatile uint32_t *)((0x0002  << 2) + 0xff638000)
   //bit 31~16 not used.
-  //bit 15:0.  if the chan interface is asynchronous interface, then the related bit is for the main clock domain reset control. if the interface is synchronouse interface, this bit is not used.
+  //bit 15:0.  if the chan interface is asynchronous interface, then the related bit is for the main clock domain reset control. if the interface is synchronous interface, this bit is not used.
   //bit 15:   input chan 15 main clock domain soft reset_n.  0 : reset. 1: normal working mode.
   //bit 14:8.  not used in GX. All those channels are synchronous interface.
   //bit 7:    input chan 7 main clock domain soft reset_n.
@@ -20914,12 +20900,12 @@
   //bit 14    DMC ddr0  PVT request enable if bit3 enabled
   //bit 13    ddr1 DDR ZQCS comand generation enable.
   //bit 12    ddr0 DDR ZQCS command generation enable.
-  //bit 11    ddr1 refesh enable while PCTL in config state. 1: enable. 0: disable.
-  //bit 10    ddr0 refesh enable while PCTL in config state. 1: enable. 0: disable.
+  //bit 11    ddr1 refresh enable while PCTL in config state. 1: enable. 0: disable.
+  //bit 10    ddr0 refresh enable while PCTL in config state. 1: enable. 0: disable.
   //bit 7     dmc to control auto_refresh enable
-  //bit 6:4   refresh number per refresh cycle..
+  //bit 6:4   refresh number per refresh cycles.
   //bit 3     DMC controlled pvt enable 1 : PVT request generated by DMC tPVTI of refresh period. 0 : PVT generated every time refresh command.
-  //bit 2     DMC controlled DDR ZQCS genreation enable.  1 : ZQCS request generated by DMC tZQCI refresh period.  0 : no DMC controlled ZQCS.
+  //bit 2     DMC controlled DDR ZQCS generation enable.  1 : ZQCS request generated by DMC tZQCI refresh period.  0 : no DMC controlled ZQCS.
   //bit 1      ddr1 auto refresh dmc control select.
   //bit 0      ddr0 auto refresh dmc control select.
 
@@ -21048,13 +21034,13 @@
   //bit 0.   force to disalbe the clock of chan 0.
 #define   DMC_N_CLK_CTRL                           (0x0033)
 #define P_DMC_N_CLK_CTRL                           (volatile uint32_t *)((0x0033  << 2) + 0xff638000)
-  //bit 6 maunal control for hdcp n_clk.   1: enable clock. 0 : disable clock.
-  //bit 5 maunal control for device n_clk  1: enable clock. 0 : disable clock.
-  //bit 4 maunal control for ge2d n_clk.   1: enable clock. 0 : disable clock.
-  //bit 3 maunal control for Mali n_clk.   1: enable clock. 0 : disable clock.
-  //bit 2 maunal control for vpu n_clk.    1: enable clock. 0 : disable clock.
-  //bit 1 maunal control for dos n_clk.    1: enable clock. 0 : disable clock.
-  //bit 0.maunal control for cpu n_clk.    1: enable clock. 0 : disable clock.
+  //bit 6 manual control for hdcp n_clk.   1: enable clock. 0 : disable clock.
+  //bit 5 manual control for device n_clk  1: enable clock. 0 : disable clock.
+  //bit 4 manual control for ge2d n_clk.   1: enable clock. 0 : disable clock.
+  //bit 3 manual control for Mali n_clk.   1: enable clock. 0 : disable clock.
+  //bit 2 manual control for vpu n_clk.    1: enable clock. 0 : disable clock.
+  //bit 1 manual control for dos n_clk.    1: enable clock. 0 : disable clock.
+  //bit 0.manual control for cpu n_clk.    1: enable clock. 0 : disable clock.
 
 #define   DMC_CHAN_STS                             (0x0032)
 #define P_DMC_CHAN_STS                             (volatile uint32_t *)((0x0032  << 2) + 0xff638000)
@@ -21461,7 +21447,7 @@
 #define   DMC_BLKMV_SEC_CTRL                       (0x0038)
 #define P_DMC_BLKMV_SEC_CTRL                       (volatile uint32_t *)((0x0038  << 2) + 0xff638800)
   // BLKMV ID bit 3:1 for BLKMV Threads.
-  //31:16.  8 blkmv threads(6 in real blkmv RTL) write  secruity ctrl.
+  //31:16.  8 blkmv threads(6 in real blkmv RTL) write  security ctrl.
   //31.     1: thread 7 write enable for security range. 0 : not allowed to write to security range.
   //30.     1: thread 7 write enable for non_sec range.  0:  not allowed to write to non-sec range.
   //29.     1: thread 6 write enable for security range. 0 : not allowed to write to security range.
@@ -21499,7 +21485,7 @@
 #define   DMC_SEC_RANGE0_RID_CTRL0                 (0x0040)
 #define P_DMC_SEC_RANGE0_RID_CTRL0                 (volatile uint32_t *)((0x0040  << 2) + 0xff638800)
    //31:18 not used.
-   //17:    M3 previlige read enable.
+   //17:    M3 privilege read enable.
    //16:    M3 normal read enable.
    //15:8:   BLKMV 8 threads.
    //7. AXI PORT 8
@@ -21519,7 +21505,7 @@
 #define   DMC_SEC_RANGE1_RID_CTRL0                 (0x0043)
 #define P_DMC_SEC_RANGE1_RID_CTRL0                 (volatile uint32_t *)((0x0043  << 2) + 0xff638800)
    //31:18 not used.
-   //17:    M3 previlige read enable.
+   //17:    M3 privilege read enable.
    //16:    M3 normal read enable.
    //15:8:   BLKMV 8 threads.
    //7. AXI PORT 8
@@ -21569,7 +21555,7 @@
 #define   DMC_SEC_RANGE0_WID_CTRL0                 (0x0060)
 #define P_DMC_SEC_RANGE0_WID_CTRL0                 (volatile uint32_t *)((0x0060  << 2) + 0xff638800)
    //31:18 not used.
-   //17:    M3 previlige write enable.
+   //17:    M3 privilege write enable.
    //16:    M3 normal write enable.
    //15:8:   BLKMV 8 threads.
    //7.    AXI port 8
@@ -21628,13 +21614,13 @@
 #define P_DMC_DES_KEY0_H                           (volatile uint32_t *)((0x0090  << 2) + 0xff638800)
 #define   DMC_DES_KEY0_L                           (0x0091)
 #define P_DMC_DES_KEY0_L                           (volatile uint32_t *)((0x0091  << 2) + 0xff638800)
-  //64bits data descrable key for security level 0 ( DES key)
+  //64bits data descramble key for security level 0 ( DES key)
 
 #define   DMC_DES_KEY1_H                           (0x0092)
 #define P_DMC_DES_KEY1_H                           (volatile uint32_t *)((0x0092  << 2) + 0xff638800)
 #define   DMC_DES_KEY1_L                           (0x0093)
 #define P_DMC_DES_KEY1_L                           (volatile uint32_t *)((0x0093  << 2) + 0xff638800)
-  //64bits data descrable key for security level 1( DES key)
+  //64bits data descramble key for security level 1( DES key)
 
 #define   DMC_DES_PADDING                          (0x009a)
 #define P_DMC_DES_PADDING                          (volatile uint32_t *)((0x009a  << 2) + 0xff638800)
@@ -21680,7 +21666,7 @@
 #define P_DMC_PROT0_CTRL                           (volatile uint32_t *)((0x00a1  << 2) + 0xff638800)
   //bit 19.  protection 0 for write access enable bit.
   //bit 18.  protection 0 for read access enable bit.
-  //bit 17.  protection 0  write access block function. if enabled, the access wouldn't write to the DDR SDRAM.  if not enabled only generate a interrupt, but the access still wrote to DDR.
+  //bit 17.  protection 0  write access block function. if enabled, the access wouldn't write to the DDR SDRAM.  if not enabled only generation a interrupt, but the access still wrote to DDR.
  //bit 16. not used.
  //bit 15:0  each bit to enable one of the 15 channel input for the protection function.
 
@@ -21693,7 +21679,7 @@
 #define P_DMC_PROT1_CTRL                           (volatile uint32_t *)((0x00a3  << 2) + 0xff638800)
   //bit 19.  protection 1 for write access enable bit.
   //bit 18.  protection 1 for read access enable bit.
-  //bit 17.  protection 1  write access block function. if enabled, the access wouldn't write to the DDR SDRAM.  if not enabled only generate a interrupt, but the access still wrote to DDR.
+  //bit 17.  protection 1  write access block function. if enabled, the access wouldn't write to the DDR SDRAM.  if not enabled only generation a interrupt, but the access still wrote to DDR.
 //two data point
 #define   DMC_WTCH0_D0                             (0x00a4)
 #define P_DMC_WTCH0_D0                             (volatile uint32_t *)((0x00a4  << 2) + 0xff638800)
@@ -21799,8 +21785,8 @@
 #define   DMC_VIO_ADDR1                            (0x00b8)
 #define P_DMC_VIO_ADDR1                            (volatile uint32_t *)((0x00b8  << 2) + 0xff638800)
   //22     ddr0 secure check violation.
-  //21     ddr0 protection 1 vilation.
-  //20     ddr0 protection 0 vilation.
+  //21     ddr0 protection 1 violation.
+  //20     ddr0 protection 0 violation.
   //19     ddr0 watch 1 catch
   //18.    ddr0 watch 0 catch.
   //17     ddr0 write address overflow. write out of DDR size.
@@ -21808,13 +21794,13 @@
   //13:0   ddr0_write violation ID.
 #define   DMC_VIO_ADDR2                            (0x00b9)
 #define P_DMC_VIO_ADDR2                            (volatile uint32_t *)((0x00b9  << 2) + 0xff638800)
-  //ddr1 write seure violation address
+  //ddr1 write secure violation address
 #define   DMC_VIO_ADDR3                            (0x00ba)
 #define P_DMC_VIO_ADDR3                            (volatile uint32_t *)((0x00ba  << 2) + 0xff638800)
   //23     ddr0 write subids per range protection violation.
   //22     ddr1 write secure check violation.
-  //21     ddr1 write protection 1 vilation.
-  //20     ddr1 write protection 0 vilation.
+  //21     ddr1 write protection 1 violation.
+  //20     ddr1 write protection 0 violation.
   //19     ddr1 watch 1 catch
   //18.    ddr1 watch 0 catch.
   //17     ddr1 write address overflow. write out of DDR size.
@@ -21823,7 +21809,7 @@
 
 #define   DMC_VIO_ADDR4                            (0x00bb)
 #define P_DMC_VIO_ADDR4                            (volatile uint32_t *)((0x00bb  << 2) + 0xff638800)
-  //ddr0 read seure violation address
+  //ddr0 read secure violation address
 #define   DMC_VIO_ADDR5                            (0x00bc)
 #define P_DMC_VIO_ADDR5                            (volatile uint32_t *)((0x00bc  << 2) + 0xff638800)
   //23     ddr0 read subids per range protection violation.
@@ -21838,7 +21824,7 @@
 
 #define   DMC_VIO_ADDR6                            (0x00bd)
 #define P_DMC_VIO_ADDR6                            (volatile uint32_t *)((0x00bd  << 2) + 0xff638800)
-  //ddr1 read seure violation address
+  //ddr1 read secure violation address
 
 #define   DMC_VIO_ADDR7                            (0x00be)
 #define P_DMC_VIO_ADDR7                            (volatile uint32_t *)((0x00be  << 2) + 0xff638800)
@@ -21936,7 +21922,7 @@
   //4:0   ca3.
 #define   DMC_DDR_CTRL                             (0x00da)
 #define P_DMC_DDR_CTRL                             (volatile uint32_t *)((0x00da  << 2) + 0xff638800)
-   //bit 28.   1 : cavnas use 64bytes boundary ( only support blk_mode == 2 and linear mode.  line width must be in 64bytes boundary.
+   //bit 28.   1 : canvas use 64bytes boundary ( only support blk_mode == 2 and linear mode.  line width must be in 64bytes boundary.
               // 0 : canvas use 32bytes boundary.(support all old mode. line width must be in 32bytes boundary)
    //bit 22.   DDR4 SDRAM enable. use DDR4 protocal.
    //bit 21.   rank1 enable bit. if 1,  rank1 used the address map is as bit 5:3 defined.
@@ -21977,7 +21963,7 @@
    //bit 30.  when enable test, enable the write to DDR function.
    //bit 29.  when enable test, enable the read from DDR function.
    //bit 28.  when enable test,  enable the sha calculation function  must be same as read enable but without write function.
-   //bit 27.  enabe to compare data.  when do the read enable to enable the error comparaion. suppose the read data should be same as the data in the write buffer.
+   //bit 27.  enabe to compare data.  when do the read enable to enable the error comparison. suppose the read data should be same as the data in the write buffer.
    //bit 26.   reserved.
    //bit 25.  address generation type.  0: continuous increase the address in the range of test start address and test end address.
    //                                   1: test module would pick the random address from test start address  and test end address.
@@ -22050,7 +22036,7 @@
 
 #define   DMC_TEST_ERR_ADDR                        (0x00f4)
 #define P_DMC_TEST_ERR_ADDR                        (volatile uint32_t *)((0x00f4  << 2) + 0xff638800)
-  // it capature the first error address.
+  // it capture the first error address.
 #define   DMC_TEST_ERR_CNT                         (0x00f5)
 #define P_DMC_TEST_ERR_CNT                         (volatile uint32_t *)((0x00f5  << 2) + 0xff638800)
   // how many data error happens in the whole test period.
@@ -22255,7 +22241,7 @@
 #define   DMC_UPCTL_SCFG                           (0x0000)
 #define P_DMC_UPCTL_SCFG                           (volatile uint32_t *)((0x0000  << 2) + 0xff639000)
    //bit 16:12.  additional delay onto the assertion of ac_pdd.
-   //bit 7.      Enable assertion of ac_pdd to indicate to the PHY of an opportunty to switch to  low power state.
+   //bit 7.      Enable assertion of ac_pdd to indicate to the PHY of an opportunity to switch to  low power state.
    //bit 0.      to enable the hardware low power interface.(not used ).
 
 #define   DMC_UPCTL_SCTL                           (0x0001)
@@ -22387,12 +22373,12 @@
 
 #define   DMC_UPCTL_DFIODTCFG                      (0x0027)
 #define P_DMC_UPCTL_DFIODTCFG                      (volatile uint32_t *)((0x0027  << 2) + 0xff639000)
-  //bit 12.  rank1 ODT default. default vulue for ODT[1] pins if theres no read/write activity.
+  //bit 12.  rank1 ODT default. default value for ODT[1] pins if theres no read/write activity.
   //bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
   //bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
   //bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
   //bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occure in rank0.
-  //bit 4.   rank0 ODT default.    default vulue for ODT[0] pins if theres no read/write activity.
+  //bit 4.   rank0 ODT default.    default value for ODT[0] pins if theres no read/write activity.
   //bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
   //bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
   //bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
@@ -22438,7 +22424,7 @@
 
 #define   DMC_UPCTL_DFITCTRLUPDDLY                 (0x0034)
 #define P_DMC_UPCTL_DFITCTRLUPDDLY                 (volatile uint32_t *)((0x0034  << 2) + 0xff639000)
-  //bit 3:0.  Delay in DFI clock cycles between time a UPCTL-initiated update could be started and time upctl-initated update actually starts.
+  //bit 3:0.  Delay in DFI clock cycles between time a UPCTL-initiated update could be started and time upctl-initiated update actually starts.
 
 #define   DMC_UPCTL_DFIUPDCFG                      (0x0035)
 #define P_DMC_UPCTL_DFIUPDCFG                      (volatile uint32_t *)((0x0035  << 2) + 0xff639000)
@@ -22452,7 +22438,7 @@
 
 #define   DMC_UPCTL_DFITCTRLUPDI                   (0x0037)
 #define P_DMC_UPCTL_DFITCTRLUPDI                   (volatile uint32_t *)((0x0037  << 2) + 0xff639000)
- //31:0. DFI upctl-iitiated updates interval, measured in terms of Refresh interval units.
+ //31:0. DFI upctl-initiated updates interval, measured in terms of Refresh interval units.
 
 #define   DMC_UPCTL_DFITRCFG0                      (0x0038)
 #define P_DMC_UPCTL_DFITRCFG0                      (volatile uint32_t *)((0x0038  << 2) + 0xff639000)
@@ -22493,14 +22479,14 @@
 #define   DMC_UPCTL_DFILPCFG0                      (0x0040)
 #define P_DMC_UPCTL_DFILPCFG0                      (volatile uint32_t *)((0x0040  << 2) + 0xff639000)
   //bit 31:28. dfi_lp_wakeup_dpd.  value to drive on dfi_lp_wakeup signal when Deep power down mode is entered.
-         //4'b0000 -16 cycels.
-         //4'b0001 -32 cycels.
-         //4'b0010 -64 cycels.
-         //4'b0011 -128 cycels.
-         //4'b0100 -256 cycels.
-         //4'b0101 -512 cycels.
-         //4'b0110 -1024 cycels.
-         //4'b0111 -2048 cycels.
+         //4'b0000 -16 cycles.
+         //4'b0001 -32 cycles.
+         //4'b0010 -64 cycles.
+         //4'b0011 -128 cycles.
+         //4'b0100 -256 cycles.
+         //4'b0101 -512 cycles.
+         //4'b0110 -1024 cycles.
+         //4'b0111 -2048 cycles.
   //bit 24. dfi_lp_en_dpd.  Enables DFI low power interface handshading during Deep power down mode.
   //bit 19:16.  setting for tlp_resp time.
   //bit 15:12. dfi_lp_wakeup_dr.  value to drive on dfi_lp_wakeup signals when self refresh mode is entered.
@@ -22513,7 +22499,7 @@
   //bit 21:20.   LPDDR2/LPDDR3 burst lenght.  must ot be 2'b10. only support BL8.
   //bit 17.  PD_exit mode.  0 slow exit.  1: fast exit.
   //bit 16.  pd_type.   0 precharge power down. 1 active power down.
-  //bit 15:8.  pd_idle.  power down idle perild in n_clk cycles. memory puts to power down mode if the PCTL is ile for pd_idle n_clk cycles.
+  //bit 15:8.  pd_idle.  power down idle period in n_clk cycles. memory puts to power down mode if the PCTL is ile for pd_idle n_clk cycles.
   //bit 7.  always 0.
   //bit 6:4.  DDR type.
       //3'b000:  DDR3 mode.
@@ -22741,7 +22727,7 @@
 //bit 5     PUB DFI clock gating enable             1 = pin = 1. 0 : use auto ctrl.
 //bit 4     PUB config logic gating clock enable.   1 = pin = 1. 0 : pin = 0.
 //bit 3     PUB initialization gating clock enable. 1 = pin = 1. 0 : pin = 0.
-//bit 2     PUB trainning clock gating enable.      1 = pin = 1. 0 : pin = 0.
+//bit 2     PUB training clock gating enable.      1 = pin = 1. 0 : pin = 0.
 //bit 1     PUB bist clock gating enable.           1 = pin = 1. 0 : pin = 0.
 //bit 0     PUB dcu clock gating enable.            1 = pin = 1. 0 : pin = 0.
 
@@ -22751,8 +22737,8 @@
 //bit 30.   tinit_start watch dog timeout error status.  write 1 to clean.   after dfi_init_start high, there's no dfi_init_complete response from PHY.
 //bit 29.   tinit_complete watch dog timeout error status. write 1 to clean.  after dfi_init_start low. there's no dfi_init_complete response from PHY.
 //bit 22:   disable PUB n_clk when hardare change AMPLL OD.   1 : disable. 0 not.
-//bit 21:   disable PHY n_clk when hardare change AMPLL OD.   1 : dsiable. 0 not.
-//bit 20:   disable DMC(SYSTEM) n_clk when hardare change AMPLL OD.   1 : dsiable. 0 not.
+//bit 21:   disable PHY n_clk when hardare change AMPLL OD.   1 : disable. 0 not.
+//bit 20:   disable DMC(SYSTEM) n_clk when hardare change AMPLL OD.   1 : disable. 0 not.
 //bit 19:4.  wait cycles for the PLL stable after change PLL OD OD1 value. suppose should be several cycles.
 //bit 3:2.   new value of the PLL OD pin . After FFC, this value copied to AM_DDR_PLL_CNTL0 3:2 .
 //bit 1:0.   new value of the PLL OD1 pin. After FFC, this value copied to AM_DDR_PLL_CNTL0 1:0.

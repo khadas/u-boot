@@ -506,7 +506,7 @@ typedef struct dwc_otg_core_if
 	hwcfg3_data_t hwcfg3;
 	hwcfg4_data_t hwcfg4;
 
-	/** The operational State, during transations
+	/** The operational State, during transactions
 	 * (a_host>>a_peripherial and b_device=>b_host) this may not
 	 * match the core but allows the software to determine
 	 * transitions.

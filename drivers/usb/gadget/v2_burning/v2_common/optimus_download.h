@@ -33,7 +33,7 @@ int optimus_media_download_verify(const int argc, char * const argv[], char *inf
 u32 optimus_dump_storage_data(u8* pBuf, const u32 wantSz, char* errInfo);
 
 
-//for key opearations
+//for key operations
 //
 int v2_key_command(const int argc, char * const argv[], char *info);
 
@@ -51,7 +51,7 @@ int v2_key_read(const char* keyName, u8* keyVal, const unsigned keyValLen, char*
  *This fucntion called by mwrite command, mread= bulkcmd "download key .." + n * download transfer, for key n==1
  *Attentions: return value is the key length if burn sucess
  *@keyName: key name in null-terminated c style string
- *@keyVal: key value download from USB, "the value for sepecial keyName" may need de-encrypt by user code
+ *@keyVal: key value download from USB, "the value for special keyName" may need de-encrypt by user code
  *@keyValLen: the key value downloaded from usb transfer!
  *@errInfo: start it with success if burned ok, or format error info into it tell pc burned failed
  */
@@ -132,7 +132,7 @@ unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyVa
 #define OPTIMUS_MEDIA_TYPE_NAND         0   //nand is default
 #define OPTIMUS_MEDIA_TYPE_SDMMC        1
 #define OPTIMUS_MEDIA_TYPE_SPIFLASH     2
-#define OPTIMUS_MEDIA_TYPE_STORE        3   //store stands for one of nand/emmc/spi, which smart identified by stoarge driver
+#define OPTIMUS_MEDIA_TYPE_STORE        3   //store stands for one of nand/emmc/spi, which smart identified by storage driver
 #define OPTIMUS_MEDIA_TYPE_MEM          4   //memory, dram and sram
 #define OPTIMUS_MEDIA_TYPE_KEY_UNIFY    5
 
@@ -163,7 +163,7 @@ int optimus_update_progress(const unsigned thisBurnSz);
 //common internal function
 int optimus_erase_bootloader(const char* extBootDev);
 void optimus_reset(const int cfgFlag);
-int optimus_storage_init(int toErase);//init dest burning staorge
+int optimus_storage_init(int toErase);//init dest burning storage
 int optimus_storage_exit(void);
 int is_optimus_storage_inited(void);
 void optimus_poweroff(void);
@@ -203,7 +203,7 @@ int optimus_work_mode_set(int workmode);
 #define OPTIMUS_BURN_TARGET_SUPPORT_UBIFS       0
 #endif// #if defined(CONFIG_AML_MTD) && (defined(UBIFS_IMG) || defined(CONFIG_CMD_UBIFS))
 
-//getenv wrapper to avoid coverity tained string error
+//getenv wrapper to avoid coverity stained string error
 //cannot called nested as it shares the same buffer
 const char* getenv_optimus(const char* name);
 

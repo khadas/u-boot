@@ -407,7 +407,7 @@
 #define CONFIG_FASTBOOT_MAX_DOWN_SIZE	0x8000000
 #define CONFIG_DEVICE_PRODUCT	"p200"
 
-//UBOOT Facotry usb/sdcard burning config
+//UBOOT Factory usb/sdcard burning config
 #define CONFIG_AML_V2_FACTORY_BURN              1
 #define CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE   1       //support factory sdcard burning
 #define CONFIG_POWER_KEY_NOT_SUPPORTED_FOR_BURN 1       //There isn't power-key for factory sdcard burning

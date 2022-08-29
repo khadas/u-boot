@@ -70,7 +70,7 @@
 
 #define     MMC_MPT_VERSION_1               "01.00.00"
 #define     MMC_MPT_VERSION_2               "01.02.00"
-/* version in use, fixme when kenel driver is updated. */
+/* version in use, fixme when kernel driver is updated. */
 #define		MMC_MPT_VERSION					MMC_MPT_VERSION_1
 
 #define     MMC_PARTITIONS_MAGIC            "MPT" // MMC Partition Table

@@ -23,7 +23,7 @@ static int optimus_sysrec_check_whole_img_before_burn(const char* partName)
 
 #ifdef CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA
 //clear data parts then the parts will formatted when firtsboot
-//As fill half parttition need so much time, I just clear 2M
+//As fill half partition need so much time, I just clear 2M
 static int optimus_sysrec_clear_usr_data_parts(void)
 {
         const char* const _usrDataParts[] = {CONFIG_AML_SYS_RECOVERY_CLEAR_USR_DATA,};

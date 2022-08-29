@@ -6,7 +6,7 @@
  *
  */
 
-/* platform dirver header */
+/* platform driver header */
  #include "platform.h"
 #include <asm/cpu_id.h>
 #include <asm/arch/secure_apb.h>
@@ -312,7 +312,7 @@ void f_set_usb_phy_config(void)
 
 	//--------------------------------------------------
 
-	// ------------- usb phy21 initinal end ----------
+	// ------------- usb phy21 initial end ----------
 
 	//--------------------------------------------------
 

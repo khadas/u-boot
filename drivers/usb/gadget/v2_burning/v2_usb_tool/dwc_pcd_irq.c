@@ -208,7 +208,7 @@ static void pcd_setup( pcd_struct_t *_pcd )
 /**
  * This function handles EP0 Control transfers.
  *
- * The state of the control tranfers are tracked in
+ * The state of the control transfers are tracked in
  * <code>ep0state</code>.
  * is_in : 1 -- IN Trans
  * is_in : 0 -- OUT/SETUP Trans
@@ -731,7 +731,7 @@ int32_t dwc_otg_pcd_handle_np_tx_fifo_empty_intr(void)
 #if 1
 			   /*
 				  TODO:  Remove these code.
-				  Because, if code break from "while"(Line427), an incomplete-in-trans will occour.
+				  Because, if code break from "while"(Line427), an incomplete-in-trans will occur.
 				  Then the tansfer will break.
 			   */
 			   int retry = 50000;	//retry times
@@ -1245,7 +1245,7 @@ int dwc_common_irq(void)
 		ERR("Session Request Success Status Change\n");
 	}
 	if (gotgint.b.sesenddet) {
-		ERR("Session End Detected, Line Disconected\n");
+		ERR("Session End Detected, Line Disconnected\n");
                 cb_4_dis_connect_intr();
 	}
 

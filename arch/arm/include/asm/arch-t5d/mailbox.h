@@ -47,7 +47,7 @@
 #define CMD_SET_KEYPAD          0xF6
 
 /*******************************************************************************
- * Mssage Comopsition
+ * Mssage Composition
  ******************************************************************************/
 #define MBX_CMD_TEST    __MBX_COMPOSE_MSG(MBX_SYSTEM, CMD_TEST)
 

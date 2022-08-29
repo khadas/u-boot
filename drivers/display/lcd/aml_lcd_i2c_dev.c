@@ -206,7 +206,7 @@ int aml_lcd_extern_i2c_write(unsigned char i2c_bus, unsigned i2c_addr,
 	}
 
 	if (len < 1) {
-		EXTERR("invailed len %d\n", len);
+		EXTERR("invalid len %d\n", len);
 		return -1;
 	}
 	if (len == 1)

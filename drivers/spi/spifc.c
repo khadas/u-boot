@@ -318,7 +318,7 @@ static int spifc_cs_gpios_init(
 			printf("%s: requesting pin %u failed\n", __func__, gpio);
 			return -1;
 		}
-		/* It's unsuitable to set cs high here, but unfortunitely and
+		/* It's unsuitable to set cs high here, but unfortunately and
 		specially for NOR flash, without this setting, it will probe
 		failed because of the pullup resistance absence. */
 		gpio_direction_output(gpio, 1);

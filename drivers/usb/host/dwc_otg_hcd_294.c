@@ -296,7 +296,7 @@ dwc_otg_cil_init(const uint32_t * _reg_base_addr, dwc_otg_core_params_t * _core_
 
 }
 /**
- * This function initializes the commmon interrupts, used in both
+ * This function initializes the common interrupts, used in both
  * device and host modes.
  *
  * @param[in] _core_if Programming view of the DWC_otg controller

@@ -46,7 +46,7 @@
 #define CMD_LED_INFO            0xF7
 
 /*******************************************************************************
- * Mssage Comopsition
+ * Mssage Composition
  ******************************************************************************/
 #define MBX_CMD_TEST    __MBX_COMPOSE_MSG(MBX_SYSTEM, CMD_TEST)
 

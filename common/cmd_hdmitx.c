@@ -2,7 +2,7 @@
  * (C) Copyright 2012
  * Amlogic. Inc. zongdong.jiao@amlogic.com
  *
- * This file is used to prefetch/varify/compare HDCP keys
+ * This file is used to prefetch/verify/compare HDCP keys
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -321,7 +321,7 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		 * in sysctl, not save the default mode to env.
 		 * if uboot follow this rule, will cause issue OTT-19333:
 		 * uboot read edid error and then output default mode,
-		 * without save it mode env. if then kernel edid nromal,
+		 * without save it mode env. if then kernel edid normal,
 		 * sysctrl/kernel get mode from env, the actual output
 		 * mode differs with outputmode env,it will
 		 * cause display abnormal(such as stretch). so don't

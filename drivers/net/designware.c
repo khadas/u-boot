@@ -1566,7 +1566,7 @@ static int do_autocali(cmd_tbl_t *cmdtp, int flag, int argc,
 	reg = phy_write(p_phydev, MDIO_DEVAD_NONE, 0x15, reg | 0x8);
 	phy_write(p_phydev, MDIO_DEVAD_NONE, 31, 0x0);
 
-	/*inverte clk*/
+	/*inverted clk*/
 	writel(0x1629, 0xff634540);
 
 	if (print_flag)

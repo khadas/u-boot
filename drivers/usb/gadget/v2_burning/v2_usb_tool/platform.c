@@ -6,7 +6,7 @@
  *
  */
 
-/* platform dirver header */
+/* platform driver header */
  #include "platform.h"
 //#include "power_gate.h"
 #include <asm/arch/secure_apb.h>
@@ -323,7 +323,7 @@ void set_usb_phy_config(int cfg)
 	mdelay(20);
 	//--------------------------------------------------
 
-	// ------------- usb phy21 initinal end ----------
+	// ------------- usb phy21 initial end ----------
 
 	//--------------------------------------------------
 

@@ -14,7 +14,7 @@
 #include <amlogic/aml_irblaster.h>
 #include <asm/arch/secure_apb.h>
 
-static struct aml_irblaster_drv_s irblaster_drviver;
+static struct aml_irblaster_drv_s irblaster_driver;
 const char *protocol_name[] = {
 	"NEC",
 };
@@ -346,7 +346,7 @@ int write_reg(volatile unsigned int *addr, unsigned int value)
 	return 0;
 }
 
-static struct aml_irblaster_drv_s irblaster_drviver = {
+static struct aml_irblaster_drv_s irblaster_driver = {
 	.frequency = 38000,
 	.dutycycle = 50,
 	.protocol = 0,
@@ -367,5 +367,5 @@ static struct aml_irblaster_drv_s irblaster_drviver = {
 
 struct aml_irblaster_drv_s *aml_irblaster_get_driver(void)
 {
-	return &irblaster_drviver;
+	return &irblaster_driver;
 }

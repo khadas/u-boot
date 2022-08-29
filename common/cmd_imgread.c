@@ -846,7 +846,7 @@ static int do_image_read_res(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
         return __LINE__;
     }
 
-    //Read the actual size of the new version res imgae
+    //Read the actual size of the new version res image
     totalSz = pResImgHead->imgSz;
     if (totalSz > IMG_PRELOAD_SZ )
     {
@@ -1163,7 +1163,7 @@ U_BOOT_CMD(
 static int do_load_logo_from_ext4(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     if (3 > argc) {
-        errorP("argc(%d) < 3 illegle\n", argc);
+        errorP("argc(%d) < 3 illegal\n", argc);
         return CMD_RET_USAGE;
     }
     int iRet = 0;
@@ -1176,7 +1176,7 @@ static int do_load_logo_from_ext4(cmd_tbl_t *cmdtp, int flag, int argc, char * c
     }
 
     if (!loadaddr) {
-        errorP("illgle loadaddr %s\n", argv[2]);
+        errorP("illegal loadaddr %s\n", argv[2]);
         return CMD_RET_FAILURE;
     }
 

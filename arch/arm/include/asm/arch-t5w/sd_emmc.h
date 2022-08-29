@@ -93,7 +93,7 @@ typedef struct _SD_Card_Status
 
 	unsigned READY_FOR_DATA: 1;                 //Corresponds to buffer empty signalling on the bus.
 	unsigned CURRENT_STATE: 4;                  //The state of the card when receiving the command.
-	unsigned ERASE_RESET: 1;                    //An erase sequence was cleared beforem executing because an out of erase sequence command was received.
+	unsigned ERASE_RESET: 1;                    //An erase sequence was cleared before executing because an out of erase sequence command was received.
 	unsigned CARD_ECC_DISABLED: 1;              //The command has been executed without using the internal ECC.
 	unsigned WP_ERASE_SKIP: 1;                  //Only partial address space was erased due to existing write protected blocks.
 

@@ -30,7 +30,7 @@
  *    .....
  *    part_n_mapping:         nbyte
 
- *part:(normal reg write, support lut and continuious ctrl reg)
+ *part:(normal reg write, support lut and continuous ctrl reg)
  *    part_name:              48bytes
  *    part_id:                2byte
  *    part_flag:              1byte (0=lutm 1=ctrl, bit4=1 no need fine tune)

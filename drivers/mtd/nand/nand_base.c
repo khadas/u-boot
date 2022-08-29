@@ -2418,7 +2418,7 @@ static int nand_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 		return status;
 
 	/*
-	 * Cached progamming disabled for now. Not sure if it's worth the
+	 * Cached programming disabled for now. Not sure if it's worth the
 	 * trouble. The speed gain is not very impressive. (2.3->2.6Mib/s).
 	 */
 	cached = 0;

@@ -114,7 +114,7 @@ static void release_free_node(struct mtd_info *mtd,
 int aml_nand_rsv_erase_protect(struct mtd_info *mtd, unsigned int block_addr)
 {
 	struct aml_nand_chip *aml_chip = mtd_to_nand_chip(mtd);
-	/* skip protect if we disprotect it in porpose */
+	/* skip protect if we disprotect it in purpose */
 	if (!_aml_rsv_isprotect())
 		return 0;
 
@@ -661,7 +661,7 @@ int aml_nand_save_rsv_info(struct mtd_info *mtd,
 
 	pages_per_blk = mtd->erasesize / mtd->writesize;
 
-	/*solve these abnormals caused by power off and ecc error*/
+	/*solve these abnormal caused by power off and ecc error*/
 	if ((nandrsv_info->valid_node->status & POWER_ABNORMAL_FLAG)
 		|| (nandrsv_info->valid_node->status & ECC_ABNORMAL_FLAG))
 		nandrsv_info->valid_node->phy_page_addr = pages_per_blk;

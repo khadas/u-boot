@@ -48,14 +48,14 @@ int cpu_sd_emmc_init(unsigned port)
 		clrsetbits_le32(P_PERIPHS_PIN_MUX_3,
 						0xFFFFFF, 0x111111);
 		setbits_le32(P_PAD_DS_REG2A, 0xFFF);
-		/* pullup & pullupen */
+		/* pull up & pull up enable */
 		setbits_le32(P_PAD_PULL_UP_EN_REG2, 0x3F);
 		setbits_le32(P_PAD_PULL_UP_REG2, 0x3F);
 		break;
 	case SDIO_PORT_B:
 		clrsetbits_le32(P_PAD_DS_REG1A, 0xFFFF, 0x5555);
 		//setbits_le32(P_PAD_DS_REG1A, 0xFFFF);
-		/* pullup & pullupen */
+		/* pull up & pull up enable */
 		setbits_le32(P_PAD_PULL_UP_EN_REG1, 0x7F);
 		setbits_le32(P_PAD_PULL_UP_REG1, 0x7F);
 		clrbits_le32(P_PREG_PAD_GPIO5_O, 1<<17);

@@ -435,7 +435,7 @@ static void hdmi_tx_set_hdmi_5v(void)
 static struct mtd_partition normal_partition_info[] = {
 #ifdef CONFIG_DISCRETE_BOOTLOADER
     /* MUST NOT CHANGE this part unless u know what you are doing!
-     * inherent parition for descrete bootloader to store fip
+     * inherent partition for discrete bootloader to store fip
      * size is determind by TPL_SIZE_PER_COPY*TPL_COPY_NUM
      * name must be same with TPL_PART_NAME
      */
@@ -491,7 +491,7 @@ static int spifc_pinctrl_enable(void *pinctrl, bool enable)
 {
 	unsigned int val;
 
-	/* mux gpiob_3、4、5、6、7 to spifc */
+	/* mux gpiob_3, 4, 5, 6, 7 to spifc */
 	val = readl(P_PERIPHS_PIN_MUX_0);
 	val &= ~(0xfffff << 12);
 	if (enable)

@@ -349,7 +349,7 @@ static int read_fdto_partition(void)
 	sprintf(cmd, "store size %s 0x%p", dtbo_partition, &tmp);
 	ret = run_command(cmd, 0);
 	if (ret != 0) {
-		printf("No dtbo patitions found\n");
+		printf("No dtbo partitions found\n");
 		return ret;
 	} else {
 		/*

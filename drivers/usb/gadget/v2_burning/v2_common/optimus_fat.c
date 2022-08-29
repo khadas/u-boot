@@ -1189,7 +1189,7 @@ unsigned do_fat_get_bytesperclust(int fd)
 static long _do_fat_fread(int fd, __u8 *buffer, unsigned long maxsize)
 #else
 // clusters need to read:
-// data moddule: <first cluser not engouh cluster> + <n * Consecutive clusters > + <last cluster not engouh cluster>
+// data module: <first cluser not enough cluster> + <n * Consecutive clusters > + <last cluster not enough cluster>
 long do_fat_fread(int fd, __u8 *buffer, unsigned long maxsize)
 #endif// #if SUM_FUNC_TIME_COST
 {

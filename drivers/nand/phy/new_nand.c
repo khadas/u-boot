@@ -741,7 +741,7 @@ static int readretry_set_def_val_hynix(struct hw_controller *controller,
 	if ((flash->new_type == 0) || (flash->new_type > 10))
 		return NAND_SUCCESS;
 
-	aml_nand_dbg("hynix reatry exit");
+	aml_nand_dbg("hynix retry exit");
 	memset(&retry_info->cur_cnt_lp[0], 0, MAX_CHIP_NUM);
 
 	i = chipnr;
@@ -985,7 +985,7 @@ static int readretry_exit_toshiba(struct hw_controller *controller,
 		return -NAND_FAILED;
 	}
 
-	aml_nand_dbg("toshiba reatry exit");
+	aml_nand_dbg("toshiba retry exit");
 	memset(&retry_info->cur_cnt_lp[0], 0, MAX_CHIP_NUM);
 	/*if (flash->new_type != TOSHIBA_A19NM) { */
 		for (i = 0; i < retry_info->reg_cnt_lp; i++) {
@@ -1108,7 +1108,7 @@ static int readretry_exit_samsung(struct hw_controller *controller,
 		return -NAND_FAILED;
 	}
 
-	aml_nand_dbg("samsung reatry exit");
+	aml_nand_dbg("samsung retry exit");
 	memset(&retry_info->cur_cnt_lp[0], 0, MAX_CHIP_NUM);
 
 	ret = set_reg_value_samsung(controller,
@@ -1232,7 +1232,7 @@ static int  readretry_exit_micron(struct hw_controller *controller,
 		return -NAND_FAILED;
 	}
 
-	aml_nand_dbg("micron reatry exit");
+	aml_nand_dbg("micron retry exit");
 	memset(&retry_info->cur_cnt_lp[0], 0, MAX_CHIP_NUM);
 
 	ret = set_reg_value_micron(controller,
@@ -1311,7 +1311,7 @@ static int  readretry_exit_intel(struct hw_controller *controller,
 		aml_nand_msg("quene rb failed chipnr:%d", chipnr);
 		return -NAND_FAILED;
 	}
-	aml_nand_dbg("intel reatry exit");
+	aml_nand_dbg("intel retry exit");
 	memset(&retry_info->cur_cnt_lp[0], 0, MAX_CHIP_NUM);
 		ret = set_reg_value_micron(controller,
 			&retry_info->reg_def_val[0][0],
@@ -1632,7 +1632,7 @@ static int  readretry_exit_a19_sandisk(struct hw_controller *controller,
 		aml_nand_msg("quene rb failed chipnr:%d", chipnr);
 		return -NAND_FAILED;
 	}
-	aml_nand_dbg("sandisk reatry exit");
+	aml_nand_dbg("sandisk retry exit");
     // reset the retry stage
     retry_info->retry_stage = 0;
 	memset(&retry_info->cur_cnt_lp[0], 0, MAX_CHIP_NUM);
@@ -1736,7 +1736,7 @@ static int  readretry_exit_sandisk(struct hw_controller *controller,
 		aml_nand_msg("quene rb failed chipnr:%d", chipnr);
 		return -NAND_FAILED;
 	}
-	aml_nand_dbg("sandisk reatry exit");
+	aml_nand_dbg("sandisk retry exit");
 
 	memset(&retry_info->cur_cnt_lp[0], 0, MAX_CHIP_NUM);
 	memset(&retry_info->cur_cnt_up[0], 0, MAX_CHIP_NUM);
@@ -1747,7 +1747,7 @@ static int  readretry_exit_sandisk(struct hw_controller *controller,
 
 	ret = retry_info->init(controller);
 	if (ret) {
-		aml_nand_msg("sandisk reatry exit failed");
+		aml_nand_msg("sandisk retry exit failed");
 		return -NAND_FAILED;
 	}
 
@@ -3203,7 +3203,7 @@ int amlnand_set_readretry_slc_para(struct amlnand_chip *aml_chip)
 		     (flash->id[2] == 0x64)) {
 			/* Micron: L95B, L84C */
 
-			/* based on ONFI 3.2 DataSheet Patramter page
+			/* based on ONFI 3.2 DataSheet Parameter page
 			 * offset 180 for counter and 181-184 for setting.
 			 * Or JEDEC offset 422 for counter and 423 for setting,
 			 * on data sheet.

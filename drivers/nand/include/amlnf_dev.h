@@ -248,13 +248,13 @@ struct phydev_ops {
  * API for NFTL driver.
  * Provide nand basic information and common operation function.
  * Must meet all the requirement of NFTL driver,
- * and also consider the fulture extensions
+ * and also consider the future extensions
  */
 
 /**
  * struct amlnand_phydev - nand phy device
  * @name:
- * @type: used for fulture, differ from SLC, MLC and TLC
+ * @type: used for future, differ from SLC, MLC and TLC
  * @retlen:	number of data bytes written/read
  * @ooblen:	number of oob bytes to write/read
  * @oobretlen:	number of oob bytes written/read
@@ -298,7 +298,7 @@ struct amlnand_phydev {
 	/*** offset value of the whole nand device***/
 	u64 offset;
 
-	/*** Total size of the cunrrent nand device***/
+	/*** Total size of the current nand device***/
 	u64 size;
 
 	u8 chipnr;
@@ -363,7 +363,7 @@ struct amlnand_phydev {
 	/*
 	 * support read data for sect_uint(512bytes in genreal),
 	 * not just writesize unit, to improve read data speed.
-	 * Not spport yet.
+	 * Not support yet.
 	 */
 	int (*read_sect)(struct amlnand_phydev *phydev);
 

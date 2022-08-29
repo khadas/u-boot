@@ -51,7 +51,7 @@ static u32 _bootloaderOrgCrc[2];  //0 for bl2, 1 for tpl
 
 extern int get_partition_from_dts(unsigned char *buffer);
 
-/* key opeartions of emmc */
+/* key operations of emmc */
 extern int mmc_key_read(unsigned char *buf,
 		unsigned int size, u32 *actual_length);
 extern int mmc_key_write(unsigned char *buf,
@@ -702,7 +702,7 @@ static int do_store_init(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	init_flag = (argc > 2) ? (int)simple_strtoul(argv[2], NULL, 16) : 0;
 	store_dbg("init_flag %d",init_flag);
 
-	//Forcing updateing device_boot_flag every time 'store init'
+	//Forcing updating device_boot_flag every time 'store init'
 	if (device_boot_flag == _AML_DEVICE_BOOT_FLAG_DEFAULT || 1) {
 		i = get_device_boot_flag();
 		if (i) {
@@ -1031,7 +1031,7 @@ static int do_store_erase(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 				store_msg("nand cmd failed");
 				return -1;
 			}
-			sprintf(str, "sf erase  0 0x%x", CONFIG_ENV_IN_SPI_OFFSET);//store erase boot shoould NOT erase ENV in flash!
+			sprintf(str, "sf erase  0 0x%x", CONFIG_ENV_IN_SPI_OFFSET);//store erase boot should NOT erase ENV in flash!
 			ret = run_command(str,0);
 			if (ret != 0) {
 				store_msg("nand cmd failed");
@@ -1589,7 +1589,7 @@ static int do_store_rom_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
 
 		tmpbuf = (char *)malloc(size);
 		if (!tmpbuf) {
-			ErrP("Failed maloc 0x%llx bytes\n", size);
+			ErrP("Failed malloc 0x%llx bytes\n", size);
 			return CMD_RET_FAILURE;
 		}
 		memset(tmpbuf, 0, size);

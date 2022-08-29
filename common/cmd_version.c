@@ -30,7 +30,7 @@ static int do_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-static int do_bootloadr_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_bootloader_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char s_version[64];
 	strcpy(s_version, "01.01.");
@@ -41,7 +41,7 @@ static int do_bootloadr_version(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 }
 
 U_BOOT_CMD(
-	get_bootloaderversion,	1,		0,	do_bootloadr_version,
+	get_bootloaderversion,	1,		0,	do_bootloader_version,
 	"print bootloader version",
 	""
 );

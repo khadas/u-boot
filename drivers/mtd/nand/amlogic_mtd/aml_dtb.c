@@ -31,7 +31,7 @@ int amlnf_dtb_save(u8 *buf, unsigned int len)
 		return -EFAULT;
 	}
 	if (len > aml_chip_dtb->dtbsize) {
-		printk("warnning!!! %s: length too much\n", __func__);
+		printk("warning!!! %s: length too much\n", __func__);
 		len = aml_chip_dtb->dtbsize;
 	}
 	dtb_buf = malloc(aml_chip_dtb->dtbsize);
@@ -76,7 +76,7 @@ int amlnf_dtb_read(u8 *buf, int len)
 
 	printk("%s: ####\n", __func__);
 	if (len > aml_chip_dtb->dtbsize) {
-		printk("warnning!!! %s dtd length too much\n", __func__);
+		printk("warning!!! %s dtd length too much\n", __func__);
 		len = aml_chip_dtb->dtbsize;
 	}
 	if (aml_chip_dtb == NULL) {

@@ -14,7 +14,7 @@ extern void amldev_dumpinfo(struct amlnand_phydev *phydev);
 //static int plane_mode = 0;
 //struct aml_nftl_dev * nftl_device;
 
-/* just like memset function but the paraments' type is  little different */
+/* just like memset function but the parameters' type is  little different */
 void *memset_nand_test(void *s, u32 c, size_t count)
 {
 	u32 *sl = (u32 *) s;

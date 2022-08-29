@@ -196,7 +196,7 @@
 // Bit 8 - (table_id == 0xff) means section_end
 // Bit 7 - do not send uncomplete section
 // Bit 6 - do not discard duplicate package
-// Bit 5 - search SOP when trasport_error_indicator
+// Bit 5 - search SOP when transport_error_indicator
 // Bit 4 - stb demux enable
 // Bit 3 - do not reset state machine on SOP
 // Bit 2 - search SOP when error happened ( when ignore_fail_n_sop, will have this case)
@@ -294,7 +294,7 @@
 // 0 -- TS ERROR PIN
 // Bit 5:3 - demux om write endian control for bypass
 // Bit 2:0 - demux om write endian control for section
-// When Bit 31 - 1 write will indicate all type use sepertate endian (Write Only)
+// When Bit 31 - 1 write will indicate all type use separate endian (Write Only)
 // Bit 23:21 - demux om write endian control for OTHER_PES_PACKET
 // Bit 20:18 - demux om write endian control for SCR_ONLY_PACKET
 // Bit 17:15 - demux om write endian control for SUB_PACKET
@@ -683,8 +683,8 @@
 // bit 30    -- LSB_first
 // bit 31:20 -- reserved
 // bit 19:16 -- toggle point index
-// bit 15:8  -- output togle point1
-// bit 7:0   -- output togle point0 (0xff means input)
+// bit 15:8  -- output toggle point1
+// bit 7:0   -- output toggle point0 (0xff means input)
 #define STREAM_OUTPUT_CONFIG                       ((0x2c01  << 2) + 0xffd00000)
 // bit 31:24 -- clock_divide_ext
 // bit 23:20 -- s_bus_start ( sclk, sdataout, sdatain)  // 0 means no s_bus used
@@ -3027,7 +3027,7 @@
 // Bit 19:0  blkbar_ind_right2_cnt. Black pixel counter. right part of the right region
 #define VDIN_BLKBAR_IND_RIGHT2_CNT                 ((0x126a  << 2) + 0xff900000)
 //Readonly
-// Bit 31:30 Resersed
+// Bit 31:30 Reserved
 // Bit 29    blkbar_ind_black_det_done. LEFT/RIGHT Black detection done
 // Bit 28:16 blkbar_top_pos.            Top black bar position
 // Bit 15:13 Reserved.
@@ -3035,7 +3035,7 @@
 #define VDIN_BLKBAR_STATUS0                        ((0x126b  << 2) + 0xff900000)
 //Readonly
 // Bit 31:29 Reserved
-// Bit 28:16 blkbar_left_pos.       Left black bar posiont
+// Bit 28:16 blkbar_left_pos.       Left black bar position
 // Bit 15:13 Reserved
 // Bit 12:0  blkbar_right_pos.      Right black bar position
 #define VDIN_BLKBAR_STATUS1                        ((0x126c  << 2) + 0xff900000)
@@ -3169,7 +3169,7 @@
 //Bit   0,        reg_descramble_en   ,uns, default = 1;
 #define VDIN_CFMT_CTRL                             ((0x12d1  << 2) + 0xff900000)
 //Bit 31:9  reserved
-//Bit 8     reg_chfmt_rpt_pix          uns, default = 0    ; //  if true, horizontal formatter use repeating to generete pixel, otherwise use bilinear interpolation
+//Bit 8     reg_chfmt_rpt_pix          uns, default = 0    ; //  if true, horizontal formatter use repeating to generate pixel, otherwise use bilinear interpolation
 //Bit 7:4   reg_chfmt_ini_phase        uns, default = 0    ; //  horizontal formatter initial phase
 //Bit 3     reg_chfmt_rpt_p0_en        uns, default = 0    ; //  horizontal formatter repeat pixel 0 enable
 //Bit 2:1   reg_chfmt_yc_ratio         uns, default = 1    ; //  horizontal Y/C ratio, 00: 1:1, 01: 2:1, 10: 4:1
@@ -4595,8 +4595,8 @@
 //     //Bit 3:0,	reg_Det3D_Motion_Core_Thrd	U4  2X: static coring value for Motion Detection.
 //
 //     `define DET3D_CB_CFG                  8'h35
-//     //Bit 7:4,	reg_Det3D_ChessBd_NHV_ofst	U4,  Noise immune offset for NON-Horizotnal or vertical combing detection.
-//     //Bit 3:0,	reg_Det3D_ChessBd_HV_ofst	U4,  Noise immune offset for Horizotnal or vertical combing detection.
+//     //Bit 7:4,	reg_Det3D_ChessBd_NHV_ofst	U4,  Noise immune offset for NON-Horizontal or vertical combing detection.
+//     //Bit 3:0,	reg_Det3D_ChessBd_HV_ofst	U4,  Noise immune offset for Horizontal or vertical combing detection.
 //
 //     `define DET3D_SPLT_CFG                8'h36
 //     //Bit 7:4,	reg_Det3D_SplitValid_ratio	U4,  Ratio between max_value and the avg_value of the edge mapping for split line valid detection.
@@ -5251,8 +5251,8 @@
 //Bit 7:4,	reg_Det3D_Motion_Core_Rate	U4  K Rate to Edge (HV) details for coring of Motion Calculations, normalized to 32
 //Bit 3:0,	reg_Det3D_Motion_Core_Thrd	U4  2X: static coring value for Motion Detection.
 #define DET3D_CB_CFG                               ((0x1735  << 2) + 0xff900000)
-//Bit 7:4,	reg_Det3D_ChessBd_HV_ofst	U4,  Noise immune offset for Horizotnal or vertical combing detection.
-//Bit 3:0,	reg_Det3D_ChessBd_NHV_ofst	U4,  Noise immune offset for NON-Horizotnal or vertical combing detection.
+//Bit 7:4,	reg_Det3D_ChessBd_HV_ofst	U4,  Noise immune offset for Horizontal or vertical combing detection.
+//Bit 3:0,	reg_Det3D_ChessBd_NHV_ofst	U4,  Noise immune offset for NON-Horizontal or vertical combing detection.
 #define DET3D_SPLT_CFG                             ((0x1736  << 2) + 0xff900000)
 //Bit 7:4,	reg_Det3D_SplitValid_ratio	U4,  Ratio between max_value and the avg_value of the edge mapping for split line valid detection.
 //                                      The smaller of this value, the easier of the split line detected.
@@ -5703,7 +5703,7 @@
 //Bit   18:16,    soft_rst          unsigned  , default = 4
 //Bit   15:14,    reserved
 //Bit   13:12,    ddr_blk_size      unsigned  , default = 1
-//Bit   11:9,     cmd_blk_size      unsigend  , default = 3
+//Bit   11:9,     cmd_blk_size      unsigned  , default = 3
 //Bit   8,        dec_enable        unsigned  , default = 0
 //Bit   7:2,      reserved
 //Bit   1,        head_len_sel      unsigned  , default = 1
@@ -5764,7 +5764,7 @@
 //Bit 31    cfmt_gclk_bit_dis      uns, default = 0    ; //  it true, disable clock, otherwise enable clock
 //Bit 30    cfmt_soft_rst_bit      uns, default = 0    ; //  soft rst bit
 //Bit 29    reserved
-//Bit 28    chfmt_rpt_pix          uns, default = 0    ; //  if true, horizontal formatter use repeating to generete pixel, otherwise use bilinear interpolation
+//Bit 28    chfmt_rpt_pix          uns, default = 0    ; //  if true, horizontal formatter use repeating to generate pixel, otherwise use bilinear interpolation
 //Bit 27:24 chfmt_ini_phase        uns, default = 0    ; //  horizontal formatter initial phase
 //Bit 23    chfmt_rpt_p0_en        uns, default = 0    ; //  horizontal formatter repeat pixel 0 enable
 //Bit 22:21 chfmt_yc_ratio         uns, default = 0    ; //  horizontal Y/C ratio, 00: 1:1, 01: 2:1, 10: 4:1
@@ -5772,8 +5772,8 @@
 //Bit 19    cvfmt_phase0_always_en uns, default = 0    ; //if true, always use phase0 while vertical formater, meaning always
 //          repeat data, no interpolation
 //Bit 18    cvfmt_rpt_last_dis     uns, default = 0    ; //if true, disable vertical formatter chroma repeat last line
-//Bit 17    cvfmt_phase0_nrpt_en   uns, default = 0    ; //veritcal formatter dont need repeat line on phase0, 1: enable, 0: disable
-//Bit 16    cvfmt_rpt_line0_en     uns, default = 0    ; //veritcal formatter repeat line 0 enable
+//Bit 17    cvfmt_phase0_nrpt_en   uns, default = 0    ; //vertical formatter dont need repeat line on phase0, 1: enable, 0: disable
+//Bit 16    cvfmt_rpt_line0_en     uns, default = 0    ; //vertical formatter repeat line 0 enable
 //Bit 15:12 cvfmt_skip_line_num    uns, default = 0    ; //vertical formatter skip line num at the beginning
 //Bit 11:8  cvfmt_ini_phase        uns, default = 0    ; //vertical formatter initial phase
 //Bit 7:1   cvfmt_phase_step       uns, default = 0    ; //vertical formatter phase step (3.4)
@@ -5893,7 +5893,7 @@
 //Bit   18:16,    soft_rst          unsigned  , default = 4
 //Bit   15:14,    reserved
 //Bit   13:12,    ddr_blk_size      unsigned  , default = 1
-//Bit   11:9,     cmd_blk_size      unsigend  , default = 3
+//Bit   11:9,     cmd_blk_size      unsigned  , default = 3
 //Bit   8,        dec_enable        unsigned  , default = 0
 //Bit   7:2,      reserved
 //Bit   1,        head_len_sel      unsigned  , default = 1
@@ -5954,7 +5954,7 @@
 //Bit 31    cfmt_gclk_bit_dis      uns, default = 0    ; //  it true, disable clock, otherwise enable clock
 //Bit 30    cfmt_soft_rst_bit      uns, default = 0    ; //  soft rst bit
 //Bit 29    reserved
-//Bit 28    chfmt_rpt_pix          uns, default = 0    ; //  if true, horizontal formatter use repeating to generete pixel, otherwise use bilinear interpolation
+//Bit 28    chfmt_rpt_pix          uns, default = 0    ; //  if true, horizontal formatter use repeating to generate pixel, otherwise use bilinear interpolation
 //Bit 27:24 chfmt_ini_phase        uns, default = 0    ; //  horizontal formatter initial phase
 //Bit 23    chfmt_rpt_p0_en        uns, default = 0    ; //  horizontal formatter repeat pixel 0 enable
 //Bit 22:21 chfmt_yc_ratio         uns, default = 0    ; //  horizontal Y/C ratio, 00: 1:1, 01: 2:1, 10: 4:1
@@ -5962,8 +5962,8 @@
 //Bit 19    cvfmt_phase0_always_en uns, default = 0    ; //if true, always use phase0 while vertical formater, meaning always
 //          repeat data, no interpolation
 //Bit 18    cvfmt_rpt_last_dis     uns, default = 0    ; //if true, disable vertical formatter chroma repeat last line
-//Bit 17    cvfmt_phase0_nrpt_en   uns, default = 0    ; //veritcal formatter dont need repeat line on phase0, 1: enable, 0: disable
-//Bit 16    cvfmt_rpt_line0_en     uns, default = 0    ; //veritcal formatter repeat line 0 enable
+//Bit 17    cvfmt_phase0_nrpt_en   uns, default = 0    ; //vertical formatter dont need repeat line on phase0, 1: enable, 0: disable
+//Bit 16    cvfmt_rpt_line0_en     uns, default = 0    ; //vertical formatter repeat line 0 enable
 //Bit 15:12 cvfmt_skip_line_num    uns, default = 0    ; //vertical formatter skip line num at the beginning
 //Bit 11:8  cvfmt_ini_phase        uns, default = 0    ; //vertical formatter initial phase
 //Bit 7:1   cvfmt_phase_step       uns, default = 0    ; //vertical formatter phase step (3.4)
@@ -6100,18 +6100,6 @@
 #define DI_FGRAIN_WIN_V                            ((0x1842  << 2) + 0xff900000)
 //Bit  31:16    reg_win_end_v              // unsigned , RW, default = 2156
 //Bit  15: 0    reg_win_bgn_v              // unsigned , RW, default = 0
-#define DI_FGRAIN_SW_Y_RANNGE                      ((0x1843  << 2) + 0xff900000)
-//Bit 31        reg_fgrain_sw_yrange       // unsigned , RW, default = 0
-//Bit 30:26     reserved
-//Bit 25:16     reg_fgrain_ymax            // unsigned , RW, default = 1023
-//Bit 15:10     reserved
-//Bit  9: 0     reg_fgrain_ymin            // unsigned , RW, default = 0
-#define DI_FGRAIN_SW_C_RANNGE                      ((0x1844  << 2) + 0xff900000)
-//Bit 31        reg_fgrain_sw_crange       // unsigned , RW, default = 0
-//Bit 30:26     reserved
-//Bit 25:16     reg_fgrain_cmax            // unsigned , RW, default = 1023
-//Bit 15:10     reserved
-//Bit  9: 0     reg_fgrain_cmin            // unsigned , RW, default = 0
 #define DI_FGRAIN_GCLK_CTRL_0                      ((0x1845  << 2) + 0xff900000)
 //Bit 31:0      reg_fgrain_gclk_ctrl0      // unsigned , RW, default = 0
 #define DI_FGRAIN_GCLK_CTRL_1                      ((0x1846  << 2) + 0xff900000)
@@ -6671,8 +6659,8 @@
 //Bit 1  OSD2 enable
 //Bit 0  OSD1 enable
 #define OSD_BLEND_GEN_CTRL1                        ((0x1aac  << 2) + 0xff900000)
-//Bit 31    osd1_alpha_premult, if true, osd1 alpha is premultipiled
-//Bit 30    osd2_alpha_premult, if true, osd2 alpha is premultipiled
+//Bit 31    osd1_alpha_premult, if true, osd1 alpha is premultiplied
+//Bit 30    osd2_alpha_premult, if true, osd2 alpha is premultiplied
 //Bit 23:16 osd blending hold lines
 //Bit 13:0  osd blending h_size
 #define OSD_BLEND_DUMMY_DATA                       ((0x1aad  << 2) + 0xff900000)
@@ -6755,7 +6743,7 @@
 //Bit   18:16,    soft_rst          unsigned  , default = 4
 //Bit   15:14,    reserved
 //Bit   13:12,    ddr_blk_size      unsigned  , default = 1
-//Bit   11:9,     cmd_blk_size      unsigend  , default = 3
+//Bit   11:9,     cmd_blk_size      unsigned  , default = 3
 //Bit   8,        dec_enable        unsigned  , default = 0
 //Bit   7:2,      reserved
 //Bit   1,        head_len_sel      unsigned  , default = 1
@@ -6816,7 +6804,7 @@
 //Bit 31    cfmt_gclk_bit_dis      uns, default = 0    ; //  it true, disable clock, otherwise enable clock
 //Bit 30    cfmt_soft_rst_bit      uns, default = 0    ; //  soft rst bit
 //Bit 29    reserved
-//Bit 28    chfmt_rpt_pix          uns, default = 0    ; //  if true, horizontal formatter use repeating to generete pixel, otherwise use bilinear interpolation
+//Bit 28    chfmt_rpt_pix          uns, default = 0    ; //  if true, horizontal formatter use repeating to generate pixel, otherwise use bilinear interpolation
 //Bit 27:24 chfmt_ini_phase        uns, default = 0    ; //  horizontal formatter initial phase
 //Bit 23    chfmt_rpt_p0_en        uns, default = 0    ; //  horizontal formatter repeat pixel 0 enable
 //Bit 22:21 chfmt_yc_ratio         uns, default = 0    ; //  horizontal Y/C ratio, 00: 1:1, 01: 2:1, 10: 4:1
@@ -6824,8 +6812,8 @@
 //Bit 19    cvfmt_phase0_always_en uns, default = 0    ; //if true, always use phase0 while vertical formater, meaning always
 //          repeat data, no interpolation
 //Bit 18    cvfmt_rpt_last_dis     uns, default = 0    ; //if true, disable vertical formatter chroma repeat last line
-//Bit 17    cvfmt_phase0_nrpt_en   uns, default = 0    ; //veritcal formatter dont need repeat line on phase0, 1: enable, 0: disable
-//Bit 16    cvfmt_rpt_line0_en     uns, default = 0    ; //veritcal formatter repeat line 0 enable
+//Bit 17    cvfmt_phase0_nrpt_en   uns, default = 0    ; //vertical formatter dont need repeat line on phase0, 1: enable, 0: disable
+//Bit 16    cvfmt_rpt_line0_en     uns, default = 0    ; //vertical formatter repeat line 0 enable
 //Bit 15:12 cvfmt_skip_line_num    uns, default = 0    ; //vertical formatter skip line num at the beginning
 //Bit 11:8  cvfmt_ini_phase        uns, default = 0    ; //vertical formatter initial phase
 //Bit 7:1   cvfmt_phase_step       uns, default = 0    ; //vertical formatter phase step (3.4)
@@ -7581,7 +7569,7 @@
 // -----------------------------------------------
 #define VPP_VD1_SC_OFFSET                 	0x00	//just used in vpp_vd1_scale
 //===========================================================================
-// Video postprocesing Registers
+// Video postprocessing Registers
 //===========================================================================
 // dummy data used in the VPP preblend and scaler
 // Bit 23:16    Y
@@ -7694,7 +7682,7 @@
 //Bit 19:16   horizontal scaler initial receiving number0
 //Bit 15:0    horizontal scaler top field initial phase0
 #define VPP_HSC_PHASE_CTRL                         ((0x1d18  << 2) + 0xff900000)
-// Bit 22 if true, divide VSC line length 2 as the HSC input length, othwise VSC length length is the same as the VSC line length,
+// Bit 22 if true, divide VSC line length 2 as the HSC input length, otherwise VSC length length is the same as the VSC line length,
 //                 just for special usage, more flexibility
 // Bit 21 if true, prevsc uses lin buffer, otherwise prevsc does not use line buffer, it should be same as prevsc_en
 // Bit 20 prehsc_en
@@ -7771,8 +7759,8 @@
 // Bit 12, osd1 enable for postblend
 // Bit 11, vd2 enable for postblend
 // Bit 10, vd1 enable for postblend
-// Bit 9,  if true, osd1 is alpha premultipiled
-// Bit 8,  if true, osd2 is alpha premultipiled
+// Bit 9,  if true, osd1 is alpha premultiplied
+// Bit 8,  if true, osd2 is alpha premultiplied
 // Bit 7,  postblend module enable
 // Bit 6,  preblend module enable
 // Bit 5,  if true, osd2 foreground compared with osd1 in preblend
@@ -7881,7 +7869,7 @@
 //Bit 1 horizontal luma sharp/blur selection, 0:sharp, 1: blur
 //Bit 0 horizontal sharpness enable
 #define VPP_HSHARP_CTRL                            ((0x1d50  << 2) + 0xff900000)
-//{1'b0,threhsold} < diff
+//{1'b0,threshold} < diff
 //Bit 26:16  luma threshold0
 //Bit 10:0   luma threshold1
 #define VPP_HSHARP_LUMA_THRESH01                   ((0x1d51  << 2) + 0xff900000)
@@ -8233,10 +8221,10 @@
 //Bit  31:7, reserved
 //Bit     6, hue_adj_en        cm2 hue adjustments
 //Bit     5, sat_adj_en        cm2 saturation adjustments
-//Bit     4, luma_adj_en       enable siganl for cm2 luma adjustments
+//Bit     4, luma_adj_en       enable signal for cm2 luma adjustments
 //Bit     3, reserved
 //Bit     2, cm2_filt_en       apply cm on lp portion enable
-//Bit     1, cm2_en            cm2 enable siganl
+//Bit     1, cm2_en            cm2 enable signal
 //Bit     0, cm1_en
 
     #define ROI_X_SCOPE_REG             0x209   // default 32'h0
@@ -9063,7 +9051,7 @@
 //vertical scaler phase step
 //Bit 27:0,  4.24 format
 #define VPP_OSD_VSC_PHASE_STEP                     ((0x1dc0  << 2) + 0xff900000)
-//Bit 31:16, botttom vertical scaler initial phase
+//Bit 31:16, bottom vertical scaler initial phase
 //Bit 15:0, top vertical scaler initial phase
 #define VPP_OSD_VSC_INI_PHASE                      ((0x1dc1  << 2) + 0xff900000)
 //Bit 24    osd vertical Scaler enable
@@ -9300,8 +9288,8 @@
 // Bit 12, osd1 enable for postblend
 // Bit 11, reserved
 // Bit 10, vd1 enable for postblend
-// Bit 9,  if true, osd1 is alpha premultipiled
-// Bit 8,  if true, OSD1 is alpha premultipiled
+// Bit 9,  if true, osd1 is alpha premultiplied
+// Bit 8,  if true, OSD1 is alpha premultiplied
 // Bit 7,  postblend module enable
 // Bit 6,  preblend module enable
 // Bit 5,  if true, OSD1 foreground compared with osd1 in preblend
@@ -9503,7 +9491,7 @@
 //Bit 31:29 reserved
 //Bit 28:16 reg_y_end         // unsigned , default = 0, the canvas ver end pixel position
 //Bit 15:13 reserved
-//Bit 12: 0 reg_y_start       // unsigned , default = 0, the canvas ver start pixel positio
+//Bit 12: 0 reg_y_start       // unsigned , default = 0, the canvas ver start pixel position
 #define VIU2_ROT_BLK_SIZE                          ((0x1e85  << 2) + 0xff900000)
 #define VIU2_ROT_LBUF_SIZE                         ((0x1e86  << 2) + 0xff900000)
 #define VIU2_ROT_FMT_CTRL                          ((0x1e87  << 2) + 0xff900000)
@@ -9949,12 +9937,12 @@
 //Bit  1: 0        reg_dwscalar_h1           // unsigned ,    RW, default = 3  vertical 2nd step scalar mode: 0: 1:1 no scalar; 1: 2:1 data drop (0,2,4, 6) pixel kept; 2: 2:1 data drop (1, 3, 5,7..) pixels kept; 3: avg
 #define DI_AFBCE_DEFCOLOR_1                        ((0x2070  << 2) + 0xff900000)
 //Bit 31:24        reserved
-//Bit 23:12        reg_enc_defalutcolor_3    // unsigned ,    RW, default = 4095  Picture wise default color value in [Y Cb Cr]
-//Bit 11: 0        reg_enc_defalutcolor_0    // unsigned ,    RW, default = 4095  Picture wise default color value in [Y Cb Cr]
+//Bit 23:12        reg_enc_defaultcolor_3    // unsigned ,    RW, default = 4095  Picture wise default color value in [Y Cb Cr]
+//Bit 11: 0        reg_enc_defaultcolor_0    // unsigned ,    RW, default = 4095  Picture wise default color value in [Y Cb Cr]
 #define DI_AFBCE_DEFCOLOR_2                        ((0x2071  << 2) + 0xff900000)
 //Bit 31:24        reserved
-//Bit 23:12        reg_enc_defalutcolor_2    // unsigned ,    RW, default = 2048  wise default color value in [Y Cb Cr]
-//Bit 11: 0        reg_enc_defalutcolor_1    // unsigned ,    RW, default = 2048  wise default color value in [Y Cb Cr]
+//Bit 23:12        reg_enc_defaultcolor_2    // unsigned ,    RW, default = 2048  wise default color value in [Y Cb Cr]
+//Bit 11: 0        reg_enc_defaultcolor_1    // unsigned ,    RW, default = 2048  wise default color value in [Y Cb Cr]
 #define DI_AFBCE_QUANT_ENABLE                      ((0x2072  << 2) + 0xff900000)
 //Bit 31:10        reserved
 //Bit  9: 8        reg_bcleav_ofst           // signed ,    RW, default = 0  bcleave ofset to get lower range, especially under lossy, for v1/v2, x=0 is equivalent, default = -1;
@@ -10122,7 +10110,7 @@
 //Bit 31:29 reserved
 //Bit 28:16 reg_y_end         // unsigned , default = 0, the canvas ver end pixel position
 //Bit 15:13 reserved
-//Bit 12: 0 reg_y_start       // unsigned , default = 0, the canvas ver start pixel positio
+//Bit 12: 0 reg_y_start       // unsigned , default = 0, the canvas ver start pixel position
 #define DI_AFBCE_MMU_RMIF_RO_STAT                  ((0x2086  << 2) + 0xff900000)
 //Bit 15:0  reg_status        // unsigned ,
 // synopsys translate_off
@@ -11262,7 +11250,7 @@
 //              0=When memory write address reaches the define end addr, continuing incrementing;
 //              1=When memory write address reaches the define end addr, loop back to start addr.
 // [   11] RW   cfg_buffer_pic_size. Applicable only to data to VDIN path. Default 0.
-//              0=For active video size status, use non-buffered/instataneous line/pixel count;
+//              0=For active video size status, use non-buffered/instantaneous line/pixel count;
 //              1=For active video size status, use line/pixel count that are buffered at end of field.
 // [   10] RW   cfg_422to444_mode. Applicable only to data to VDIN path. Default 0.
 //              0=Converting 422 to 444 by repeat pixel;
@@ -11777,8 +11765,8 @@
 //                               2'b0x: whole line is left or right;
 //                               2'b10: d2p_lar=1(D2P_PARAM_1), rlrlrlrl inteleave in one line,
 //                                      d2p_lar=0(D2P_PARAM_1), lrlrlrlr inteleave in one line,
-//                               2'b11: d2p_lar=1(D2P_PARAM_1), rrrrr­lllll, half line is right, another half is left,
-//                                      d2p_lar=0(D2P_PARAM_1), lllll­rrrrr, half line is left, another half is right,
+//                               2'b11: d2p_lar=1(D2P_PARAM_1), rrrrr?lllll, half line is right, another half is left,
+//                                      d2p_lar=0(D2P_PARAM_1), lllll?rrrrr, half line is left, another half is right,
 #define D2D3_DBR_DDD_CTRL                          ((0x2b2c  << 2) + 0xff900000)
 // Bit 31:0  RW, ddd_dbg_ctrl,   no use
 #define D2D3_DBR_DDD_DBG                           ((0x2b2d  << 2) + 0xff900000)
@@ -11881,7 +11869,7 @@
 //Bit 31:17,        reserved
 //Bit 16,            reg_dnr_en		                                , dnr enable                  . unsigned  , default = 1
 //Bit 15,            reg_dnr_db_vdbstep                          , vdb step, 0: 4, 1: 8        . unsigned  , default = 1
-//Bit 14,            reg_dnr_db_vdbprten                         , vdb protectoin enable       . unsigned  , default = 1
+//Bit 14,            reg_dnr_db_vdbprten                         , vdb protection enable       . unsigned  , default = 1
 //Bit 13,            reg_dnr_gbs_difen                           , enable dif (between LR and LL/RR) condition for gbs stat.. unsigned  , default = 0
 //Bit 12,            reg_dnr_luma_en                             , enable ycbcr2luma module    . unsigned  , default = 1
 //Bit 11:10,        reg_dnr_db_mod                              , deblocking mode, 0: disable, 1: horizontal deblocking, 2: vertical deblocking, 3: horizontal & vertical deblocking. unsigned  , default = 3
@@ -12185,7 +12173,7 @@
 //Bit 31: 8        reserved
 //Bit  7           reg_dnr_scene_change_flg    // unsigned , default = 1  , scence change flag for dnr(dm);
 //Bit  6           reg_dnr_dm_lpf_en           // unsigned , default = 1  , enable lpf for demosquito filter
-//Bit  5           reg_dnr_dm_adp_level_en     // unsigned , default = 1  , enable adptive demosquito level
+//Bit  5           reg_dnr_dm_adp_level_en     // unsigned , default = 1  , enable adaptive demosquito level
 //Bit  4           reg_dnr_dm_flg2bdif_en      // unsigned , default = 1  , enable edge flg to blkdif calc.
 //Bit  3: 2        reg_dnr_dm_edgeiir          // unsigned , default = 1  , edge flag iir mode, 0: cur, 1: max(pre, cur), 2: choice 0/1 by org mtn, 3: choice 0/1 by ref mtn
 //Bit  1           reg_dnr_dm_dirdifmod        // unsigned , default = 1  , dif mode for direction calc, 0: abs(dif02), 1: (abs(dif01)+abs(dif21))/2
@@ -12560,8 +12548,8 @@
 //Bit 31:24        reg_nr4_ydrt_3line_ssd_gain    // unsigned , default = 16  gain to max ssd normalized 16 as '1'
 //Bit 23:16        reg_nr4_ydrt_5line_ssd_gain    // unsigned , default = 16  gain to max ssd normalized 16 as '1'
 //Bit 15            reserved
-//Bit 14:13        reg_nr4_drt_yhsad_mode         // unsigned , default = 1  mode for luma horiztonal sad calc., 0: no vertical lpf, 1: vertical [1 2 1], 2 or 3: vertical [ 1 2 2 2 1] if 5 lines
-//Bit 12:11        reg_nr4_drt_chsad_mode         // unsigned , default = 1  mode for chroma horiztonal sad calc., 0: no vertical lpf, 1: vertical [1 2 1], 2 or 3: vertical [ 1 2 2 2 1] if 5 lines
+//Bit 14:13        reg_nr4_drt_yhsad_mode         // unsigned , default = 1  mode for luma horizontal sad calc., 0: no vertical lpf, 1: vertical [1 2 1], 2 or 3: vertical [ 1 2 2 2 1] if 5 lines
+//Bit 12:11        reg_nr4_drt_chsad_mode         // unsigned , default = 1  mode for chroma horizontal sad calc., 0: no vertical lpf, 1: vertical [1 2 1], 2 or 3: vertical [ 1 2 2 2 1] if 5 lines
 //Bit 10           reg_nr4_drt_yhsad_hlpf         // unsigned , default = 1  hlpf for luma hsad of drt calculation, 0: no lpf, 1: with [1 2 1] hlpf
 //Bit  9           reg_nr4_drt_yvsad_hlpf         // unsigned , default = 1  hlpf for luma vsad of drt calculation, 0: no lpf, 1: with [1 2 1] hlpf
 //Bit  8           reg_nr4_drt_ydsad_hlpf         // unsigned , default = 1  hlpf for luma dsad of drt calculation, 0: no lpf, 1: with [1 2 1] hlpf
@@ -13256,7 +13244,7 @@
 //Bit 17,    reg_mcdi_reldetfrqchken
 //                                           0: unable; 1: enable, enable mv frequency check in rel det, default = 1
 //Bit 16,    reg_mcdi_qmeen
-//                                           0: unable; 1: enable, enable quarter motion estimation, defautl = 1
+//                                           0: unable; 1: enable, enable quarter motion estimation, default = 1
 //Bit 15,    reg_mcdi_refrptmven
 //                                           0: unable; 1: enable, use repeat mv in refinement, default = 1
 //Bit 14,    reg_mcdi_refgmven
@@ -13264,7 +13252,7 @@
 //Bit 13,    reg_mcdi_reflmven
 //                                           0: unable; 1: enable, use lmvs in refinement, default = 1
 //Bit 12,    reg_mcdi_refnmven
-//                                           0: unable; 1: enable, use neighoring mvs in refinement, default = 1
+//                                           0: unable; 1: enable, use neighboring mvs in refinement, default = 1
 //Bit 11,    reserved
 //Bit 10,    reg_mcdi_referrfrqchken
 //                                           0: unable; 1: enable, enable mv frquency check while finding min err in ref, default = 1
@@ -13353,13 +13341,13 @@
 //Bit 14:10, reg_mcdi_chkedgechklen.                      total check length for edge check, 1~24 (>0), default = 24
 //Bit  9: 8, reg_mcdi_chkedgeedgesel.                     final edge select mode, 0: original start edge, 1: lpf start edge, 2: orignal start+end edge, 3: lpf start+end edge, default = 1
 //Bit  7: 3, reg_mcdi_chkedgesaddstgain.                  distance gain for sad calc while getting edges, default = 4
-//Bit     2, reg_mcdi_chkedgechkmode.                     edge used in check mode, 0: original edge, 1: lpf edge, defautl = 1
-//Bit     1, reg_mcdi_chkedgestartedge.                   edge mode for start edge, 0: original edge, 1: lpf edge, defautl = 0
+//Bit     2, reg_mcdi_chkedgechkmode.                     edge used in check mode, 0: original edge, 1: lpf edge, default = 1
+//Bit     1, reg_mcdi_chkedgestartedge.                   edge mode for start edge, 0: original edge, 1: lpf edge, default = 0
 //Bit     0, reg_mcdi_chkedgeedgelpf.                     edge lpf mode, 0:[0,2,4,2,0], 1:[1,2,2,2,1], default = 0
 #define MCDI_LMV_RT                                ((0x2f0c  << 2) + 0xff900000)
 //BIt 31:15, reserved
 //Bit 14:12, reg_mcdi_lmvvalidmode                        valid mode for lmv calc., 100b: use char det, 010b: use flt, 001b: use hori flg
-//Bit 11:10, reg_mcdi_lmvgainmvmode                       four modes of mv selection for lmv weight calucluation, default = 1
+//Bit 11:10, reg_mcdi_lmvgainmvmode                       four modes of mv selection for lmv weight calculation, default = 1
 //                                                        0: cur(x-3), lst(x-1,x,x+1); 1: cur(x-4,x-3), lst(x,x+1); 2: cur(x-5,x-4,x-3), lst(x-1,x,x+1,x+2,x+3); 3: cur(x-6,x-5,x-4,x-3), lst(x-1,x,x+1,x+2);
 //Bit  9,    reg_mcdi_lmvinitmode                         initial lmvs at first row of input field, 0: intial value = 0; 1: inital = 32 (invalid), default = 0
 //Bit  8,    reserved
@@ -13448,17 +13436,17 @@
 //Bit     4, reg_mcdi_refbadwcalcmode.   mode for badw calculation, 0:sum, 1:max, default = 0
 //Bit  3: 0, reserved
 #define MCDI_REF_BS_THD_GAIN                       ((0x2f1a  << 2) + 0xff900000)
-//Bit 31:28, reg_mcdi_refbsudgain1.      up & down block stregth gain1, normalized to 8 as '1', default = 2
-//Bit 27:24, reg_mcdi_refbsudgain0.      up & down block stregth gain0, normalized to 8 as '1', default = 4
+//Bit 31:28, reg_mcdi_refbsudgain1.      up & down block strength gain1, normalized to 8 as '1', default = 2
+//Bit 27:24, reg_mcdi_refbsudgain0.      up & down block strength gain0, normalized to 8 as '1', default = 4
 //Bit 23:19, reserved
 //Bit 18:16, reg_mcdi_refbslftgain.      left block strength gain, default = 0
 //Bit 15:13, reserved
-//Bit 12: 8, reg_mcdi_refbsthd1.         threshold 1 for detect block stregth in refinment, default = 16
+//Bit 12: 8, reg_mcdi_refbsthd1.         threshold 1 for detect block strength in refinment, default = 16
 //Bit  7: 5, reserved
-//Bit  4: 0, reg_mcdi_refbsthd0.         threshold 0 for detect block stregth in refinment, default = 8
+//Bit  4: 0, reg_mcdi_refbsthd0.         threshold 0 for detect block strength in refinment, default = 8
 #define MCDI_REF_ERR_GAIN0                         ((0x2f1b  << 2) + 0xff900000)
 //Bit    31, reserved
-//Bit 30:24, reg_mcdi_referrnbrdstgain.            neighoring mv distances gain for err calc. in ref, normalized to 8 as '1', default = 48
+//Bit 30:24, reg_mcdi_referrnbrdstgain.            neighboring mv distances gain for err calc. in ref, normalized to 8 as '1', default = 48
 //Bit 23:20, reserved
 //Bit 19:16, reg_mcdi_referrbsgain.                bs gain for err calc. in ref, normalized to 8 as '1', default = 4
 //Bit    15, reserved
@@ -13556,7 +13544,7 @@
 //Bit 31:14, reserved.
 //Bit 12: 8, reg_mcdi_reldetchkedgegain0.          gain0 (gmv locked) for chk_edge, for det. calc. normalized to 16 as '1', default = 2
 //Bit     7, reserved.
-//Bit  6: 0, reg_mcdi_reldetnbrdstgain0.           gain0 (gmv locked) for neighoring dist, for det. calc. normalized to 16 as '1', default = 24
+//Bit  6: 0, reg_mcdi_reldetnbrdstgain0.           gain0 (gmv locked) for neighboring dist, for det. calc. normalized to 16 as '1', default = 24
 #define MCDI_REL_DET_GAIN_10                       ((0x2f2b  << 2) + 0xff900000)
 //Bit 31:21, reserved.
 //Bit 20:16, reg_mcdi_reldetbsgain1.               gain1 (lmv locked) for bs, for det. calc. normalized to 16 as '1', default = 0
@@ -13568,7 +13556,7 @@
 //Bit 31:14, reserved.
 //Bit 12: 8, reg_mcdi_reldetchkedgegain1.          gain1 (lmv locked) for chk_edge, for det. calc. normalized to 16 as '1', default = 0
 //Bit     7, reserved.
-//Bit  6: 0, reg_mcdi_reldetnbrdstgain1.           gain1 (lmv locked) for neighoring dist, for det. calc. normalized to 16 as '1', default = 24
+//Bit  6: 0, reg_mcdi_reldetnbrdstgain1.           gain1 (lmv locked) for neighboring dist, for det. calc. normalized to 16 as '1', default = 24
 #define MCDI_REL_DET_GAIN_20                       ((0x2f2d  << 2) + 0xff900000)
 //Bit 31:21, reserved.
 //Bit 20:16, reg_mcdi_reldetbsgain2.               gain2 (no locked) for bs, for det. calc. normalized to 16 as '1', default = 12
@@ -13582,7 +13570,7 @@
 //Bit 15:14, reserved.
 //Bit 12: 8, reg_mcdi_reldetchkedgegain2.          gain2 (no locked) for chk_edge, for det. calc. normalized to 16 as '1', default = 10
 //Bit     7, reserved.
-//Bit  6: 0, reg_mcdi_reldetnbrdstgain2.           gain2 (no locked) for neighoring dist, for det. calc. normalized to 16 as '1', default = 32
+//Bit  6: 0, reg_mcdi_reldetnbrdstgain2.           gain2 (no locked) for neighboring dist, for det. calc. normalized to 16 as '1', default = 32
 #define MCDI_REL_DET_GMV_DIF_CHK                   ((0x2f2f  << 2) + 0xff900000)
 //Bit 31:24, reserved.
 //Bit 23:16, reg_mcdi_reldetgmvfltthd.             flat thd (>=) for gmv lock decision, default = 0
@@ -13712,17 +13700,17 @@
 //Bit 15: 8, reg_mcdi_reldetmaplut13.              default = 224
 //Bit  7: 0, reg_mcdi_reldetmaplut12.              default = 192
 #define MCDI_REL_DET_COL_CFD_THD                   ((0x2f42  << 2) + 0xff900000)
-//Bit 31:24, reg_mcdi_reldetcolcfdfltthd.          thd for flat smaller than (<) of column cofidence, default = 5
+//Bit 31:24, reg_mcdi_reldetcolcfdfltthd.          thd for flat smaller than (<) of column confidence, default = 5
 //Bit 23:16, reg_mcdi_reldetcolcfdthd1.            thd for rel larger than (>=) in rel calc. mode col confidence without gmv locking, default = 160
 //Bit 15: 8, reg_mcdi_reldetcolcfdthd0.            thd for rel larger than (>=) in rel calc. mode col confidence when gmv locked, default = 100
-//Bit  7: 2, reg_mcdi_reldetcolcfdbadwthd.         thd for badw larger than (>=) in qbadw calc. mode of column cofidence, default = 16
+//Bit  7: 2, reg_mcdi_reldetcolcfdbadwthd.         thd for badw larger than (>=) in qbadw calc. mode of column confidence, default = 16
 //Bit     1, reserved
-//Bit     0, reg_mcdi_reldetcolcfdcalcmode.        calc. mode for column cofidence, 0: use rel, 1: use qbadw, default = 0
+//Bit     0, reg_mcdi_reldetcolcfdcalcmode.        calc. mode for column confidence, 0: use rel, 1: use qbadw, default = 0
 #define MCDI_REL_DET_COL_CFD_AVG_LUMA              ((0x2f43  << 2) + 0xff900000)
-//Bit 31:24, reg_mcdi_reldetcolcfdavgmin1.         avg luma min1 (>=) for column cofidence, valid between 16~235, default = 235
-//Bit 23:16, reg_mcdi_reldetcolcfdavgmax1.         avg luma max1 (<)  for column cofidence, valid between 16~235, default = 235
-//Bit 15: 8, reg_mcdi_reldetcolcfdavgmin0.         avg luma min0 (>=) for column cofidence, valid between 16~235, default = 16
-//Bit  7: 0, reg_mcdi_reldetcolcfdavgmax0.         avg luma max0 (<)  for column cofidence, valid between 16~235, default = 21
+//Bit 31:24, reg_mcdi_reldetcolcfdavgmin1.         avg luma min1 (>=) for column confidence, valid between 16~235, default = 235
+//Bit 23:16, reg_mcdi_reldetcolcfdavgmax1.         avg luma max1 (<)  for column confidence, valid between 16~235, default = 235
+//Bit 15: 8, reg_mcdi_reldetcolcfdavgmin0.         avg luma min0 (>=) for column confidence, valid between 16~235, default = 16
+//Bit  7: 0, reg_mcdi_reldetcolcfdavgmax0.         avg luma max0 (<)  for column confidence, valid between 16~235, default = 21
 #define MCDI_REL_DET_BAD_THD_0                     ((0x2f44  << 2) + 0xff900000)
 //Bit 31:16, reserved
 //Bit 15: 8, reg_mcdi_reldetbadsadthd.             thd (>=) for bad sad, default = 120 (480/4)
@@ -13820,7 +13808,7 @@
 #define MCDI_MOTION_PARADOX_RT                     ((0x2f53  << 2) + 0xff900000)
 //Bit 31:24, reserved
 //Bit 23:16, reg_mcdi_motionparadoxbadsadrt.       ratio for field bad sad count of motion paradox, normalized 256 as '1', 255 is set to 256, default = 24
-//Bit 15: 8, reg_mcdi_motionparadoxbadrelrt.       ratio for field bad reliabilty count of motion paradox, normalized 256 as '1', 255 is set to 256, default = 120
+//Bit 15: 8, reg_mcdi_motionparadoxbadrelrt.       ratio for field bad reliability count of motion paradox, normalized 256 as '1', 255 is set to 256, default = 120
 //Bit  7: 0, reg_mcdi_motionparadoxmtnrt.          ratio for field motion count of motion paradox, normalized 256 as '1', 255 is set to 256, default = 218
 #define MCDI_MOTION_REF_THD                        ((0x2f54  << 2) + 0xff900000)
 //Bit 31:24, reserved
@@ -13832,7 +13820,7 @@
 //Bit  1: 0, reg_mcdi_motionreflpfmode.            Mv and (8 x repeat flg) 's lpf mode of motion refinement, 0: no lpf, 1: [1 2 1], 2: [1 2 2 2 1], default = 1
 #define MCDI_REL_COL_REF_RT                        ((0x2f55  << 2) + 0xff900000)
 //Bit 31: 8, reserved
-//Bit  7: 0, reg_mcdi_relcolrefrt.                 ratio for column cofidence level against column number, for refinement, default = 135
+//Bit  7: 0, reg_mcdi_relcolrefrt.                 ratio for column confidence level against column number, for refinement, default = 135
 #define MCDI_PD22_CHK_THD_RT                       ((0x2f56  << 2) + 0xff900000)
 //Bit 31:27, reserved
 //Bit 26:16, reg_mcdi_pd22chkfltcntrt.             ratio for flat count of field pulldown 22 check, normalized 2048 as '1', 2047 is set to 2048, default = 1
@@ -13887,20 +13875,20 @@
 //Bit     0, reg_mcdi_pd22chkfrcvof0               u1, force vof flags for each windows, default = 0
 #define MCDI_PD_22_CHK_FLG_CNT                     ((0x2f5e  << 2) + 0xff900000)
 //Bit 31:27, reserved.
-//Bit    26, reg_mcdi_pd22chkflg2.                     pull down 22 flag of prevoius one field. initial = 0
-//Bit    25, reg_mcdi_pd22chkflg1.                     pull down 22 flag of prevoius one field. initial = 0
-//Bit    24, reg_mcdi_pd22chkflg.                      pull down 22 flag of prevoius one field. initial = 0
-//Bit 23:16, reg_mcdi_pd22chkcnt2.                     pull down 22 count till prevoius one field. initial = 0
-//Bit 15: 8, reg_mcdi_pd22chkcnt1.                     pull down 22 count till prevoius one field. initial = 0
-//Bit  7: 0, reg_mcdi_pd22chkcnt.                      pull down 22 count till prevoius one field. initial = 0
+//Bit    26, reg_mcdi_pd22chkflg2.                     pull down 22 flag of previous one field. initial = 0
+//Bit    25, reg_mcdi_pd22chkflg1.                     pull down 22 flag of previous one field. initial = 0
+//Bit    24, reg_mcdi_pd22chkflg.                      pull down 22 flag of previous one field. initial = 0
+//Bit 23:16, reg_mcdi_pd22chkcnt2.                     pull down 22 count till previous one field. initial = 0
+//Bit 15: 8, reg_mcdi_pd22chkcnt1.                     pull down 22 count till previous one field. initial = 0
+//Bit  7: 0, reg_mcdi_pd22chkcnt.                      pull down 22 count till previous one field. initial = 0
 #define MCDI_RO_FLD_PD_22_PRE_CNT1                 ((0x2fca  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_fldpd22precnt1.              prevoius pd22 check count of whole pre one field (block based). initial = 0
+//Bit 31: 0, ro_mcdi_fldpd22precnt1.              previous pd22 check count of whole pre one field (block based). initial = 0
 #define MCDI_RO_FLD_PD_22_FOR_CNT1                 ((0x2fcb  << 2) + 0xff900000)
 //Bit 31: 0, ro_mcdi_fldpd22forcnt1.              forward pd22 check count of whole pre one field (block based). initial = 0
 #define MCDI_RO_FLD_PD_22_FLT_CNT1                 ((0x2fcc  << 2) + 0xff900000)
 //Bit 31: 0, ro_mcdi_fldpd22fltcnt1.              flat count (for pd22 check) of whole pre one field (block based). initial = 0
 #define MCDI_RO_FLD_PD_22_PRE_CNT2                 ((0x2fcd  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_fldpd22precnt2.              prevoius pd22 check count of whole pre one field (block based). initial = 0
+//Bit 31: 0, ro_mcdi_fldpd22precnt2.              previous pd22 check count of whole pre one field (block based). initial = 0
 #define MCDI_RO_FLD_PD_22_FOR_CNT2                 ((0x2fce  << 2) + 0xff900000)
 //Bit 31: 0, ro_mcdi_fldpd22forcnt2.              forward pd22 check count of whole pre one field (block based). initial = 0
 #define MCDI_RO_FLD_PD_22_FLT_CNT2                 ((0x2fcf  << 2) + 0xff900000)
@@ -13971,7 +13959,7 @@
 #define MCDI_MC_CRTL                               ((0x2f70  << 2) + 0xff900000)
 //Bit 31: 9, reserved
 //Bit     8, reg_mcdi_mcpreflg.                    flag to use previous field for MC, 0:forward field, 1: previous field, default = 1
-//Bit     7, reg_mcdi_mcrelrefbycolcfden.          enable rel refinement by column cofidence in mc blending, default = 1
+//Bit     7, reg_mcdi_mcrelrefbycolcfden.          enable rel refinement by column confidence in mc blending, default = 1
 //Bit  6: 5, reg_mcdi_mclpfen.                     enable mc pixles/rel lpf, 0:disable, 1: lpf rel, 2: lpf mc pxls, 3: lpf both rel and mc pxls, default = 0
 //Bit  4: 2, reg_mcdi_mcdebugmode.                 enable mc debug mode, 0:disable, 1: split left/right, 2: split top/bottom, 3: debug mv, 4: debug rel, default = 0
 //Bit  1: 0, reg_mcdi_mcen.                        mcdi enable mode, 0:disable, 1: blend with ma, 2: full mc, default = 1
@@ -14025,59 +14013,59 @@
 //Bit 19:16, reg_mcdi_mcoutofboundraygain.         gain for rel (MC blending coef.) refinement if MC pointed out of boundray before MC blending, normalized 8 as '1', set 15 to 16, default = 8
 //Bit 15: 8, reg_mcdi_mcrelrefbycolcfdoffst.       offset (rel + offset) for rel (MC blending coef.) refinement if motion paradox detected before MC blending before MC blending, default = 255
 //Bit  7: 4, reserved.
-//Bit  3: 0, reg_mcdi_mcrelrefbycolcfdgain.        gain for rel (MC blending coef.) refinement if column cofidence failed before MC blending, normalized 8 as '1', set 15 to 16, default = 8
+//Bit  3: 0, reg_mcdi_mcrelrefbycolcfdgain.        gain for rel (MC blending coef.) refinement if column confidence failed before MC blending, normalized 8 as '1', set 15 to 16, default = 8
 #define MCDI_MC_COL_CFD_0                          ((0x2f78  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_0.                    column cofidence value 0 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_0.                    column confidence value 0 read from software. initial = 0
 #define MCDI_MC_COL_CFD_1                          ((0x2f79  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_1.                    column cofidence value 1 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_1.                    column confidence value 1 read from software. initial = 0
 #define MCDI_MC_COL_CFD_2                          ((0x2f7a  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_2.                    column cofidence value 2 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_2.                    column confidence value 2 read from software. initial = 0
 #define MCDI_MC_COL_CFD_3                          ((0x2f7b  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_3.                    column cofidence value 3 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_3.                    column confidence value 3 read from software. initial = 0
 #define MCDI_MC_COL_CFD_4                          ((0x2f7c  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_4.                    column cofidence value 4 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_4.                    column confidence value 4 read from software. initial = 0
 #define MCDI_MC_COL_CFD_5                          ((0x2f7d  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_5.                    column cofidence value 5 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_5.                    column confidence value 5 read from software. initial = 0
 #define MCDI_MC_COL_CFD_6                          ((0x2f7e  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_6.                    column cofidence value 6 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_6.                    column confidence value 6 read from software. initial = 0
 #define MCDI_MC_COL_CFD_7                          ((0x2f7f  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_7.                    column cofidence value 7 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_7.                    column confidence value 7 read from software. initial = 0
 #define MCDI_MC_COL_CFD_8                          ((0x2f80  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_8.                    column cofidence value 8 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_8.                    column confidence value 8 read from software. initial = 0
 #define MCDI_MC_COL_CFD_9                          ((0x2f81  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_9.                    column cofidence value 9 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_9.                    column confidence value 9 read from software. initial = 0
 #define MCDI_MC_COL_CFD_10                         ((0x2f82  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_10.                   column cofidence value 10 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_10.                   column confidence value 10 read from software. initial = 0
 #define MCDI_MC_COL_CFD_11                         ((0x2f83  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_11.                   column cofidence value 11 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_11.                   column confidence value 11 read from software. initial = 0
 #define MCDI_MC_COL_CFD_12                         ((0x2f84  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_12.                   column cofidence value 12 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_12.                   column confidence value 12 read from software. initial = 0
 #define MCDI_MC_COL_CFD_13                         ((0x2f85  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_13.                   column cofidence value 13 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_13.                   column confidence value 13 read from software. initial = 0
 #define MCDI_MC_COL_CFD_14                         ((0x2f86  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_14.                   column cofidence value 14 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_14.                   column confidence value 14 read from software. initial = 0
 #define MCDI_MC_COL_CFD_15                         ((0x2f87  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_15.                   column cofidence value 15 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_15.                   column confidence value 15 read from software. initial = 0
 #define MCDI_MC_COL_CFD_16                         ((0x2f88  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_16.                   column cofidence value 16 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_16.                   column confidence value 16 read from software. initial = 0
 #define MCDI_MC_COL_CFD_17                         ((0x2f89  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_17.                   column cofidence value 17 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_17.                   column confidence value 17 read from software. initial = 0
 #define MCDI_MC_COL_CFD_18                         ((0x2f8a  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_18.                   column cofidence value 18 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_18.                   column confidence value 18 read from software. initial = 0
 #define MCDI_MC_COL_CFD_19                         ((0x2f8b  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_19.                   column cofidence value 19 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_19.                   column confidence value 19 read from software. initial = 0
 #define MCDI_MC_COL_CFD_20                         ((0x2f8c  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_20.                   column cofidence value 20 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_20.                   column confidence value 20 read from software. initial = 0
 #define MCDI_MC_COL_CFD_21                         ((0x2f8d  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_21.                   column cofidence value 21 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_21.                   column confidence value 21 read from software. initial = 0
 #define MCDI_MC_COL_CFD_22                         ((0x2f8e  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_22.                   column cofidence value 22 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_22.                   column confidence value 22 read from software. initial = 0
 #define MCDI_MC_COL_CFD_23                         ((0x2f8f  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_23.                   column cofidence value 23 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_23.                   column confidence value 23 read from software. initial = 0
 #define MCDI_MC_COL_CFD_24                         ((0x2f90  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_24.                   column cofidence value 24 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_24.                   column confidence value 24 read from software. initial = 0
 #define MCDI_MC_COL_CFD_25                         ((0x2f91  << 2) + 0xff900000)
-//Bit 31: 0, mcdi_mc_col_cfd_25.                   column cofidence value 25 read from software. initial = 0
+//Bit 31: 0, mcdi_mc_col_cfd_25.                   column confidence value 25 read from software. initial = 0
 // ===================================================================================== PRE RO Registers ==========================================================================================
 #define MCDI_RO_FLD_LUMA_AVG_SUM                   ((0x2fa0  << 2) + 0xff900000)
 //Bit 31: 0, ro_mcdi_fldlumaavgsum.                block's luma avg sum of current filed (block based). initial = 0
@@ -14096,90 +14084,90 @@
 #define MCDI_RO_FLD_VLD_CNT                        ((0x2fa7  << 2) + 0xff900000)
 //Bit 31: 0, ro_mcdi_fldvldcnt.                    valid motion count of whole pre one field (pixel based). initial = 0
 #define MCDI_RO_FLD_PD_22_PRE_CNT                  ((0x2fa8  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_fldpd22precnt.                prevoius pd22 check count of whole pre one field (block based). initial = 0
+//Bit 31: 0, ro_mcdi_fldpd22precnt.                previous pd22 check count of whole pre one field (block based). initial = 0
 #define MCDI_RO_FLD_PD_22_FOR_CNT                  ((0x2fa9  << 2) + 0xff900000)
 //Bit 31: 0, ro_mcdi_fldpd22forcnt.                forward pd22 check count of whole pre one field (block based). initial = 0
 #define MCDI_RO_FLD_PD_22_FLT_CNT                  ((0x2faa  << 2) + 0xff900000)
 //Bit 31: 0, ro_mcdi_fldpd22fltcnt.                flat count (for pd22 check) of whole pre one field (block based). initial = 0
 #define MCDI_RO_HIGH_VERT_FRQ_FLG                  ((0x2fab  << 2) + 0xff900000)
 //Bit 31:16, reserved.
-//Bit 15: 8, ro_mcdi_highvertfrqcnt.               high vertical frequency count till prevoius one field. initial = 0
+//Bit 15: 8, ro_mcdi_highvertfrqcnt.               high vertical frequency count till previous one field. initial = 0
 //Bit  7: 3, reserved.
-//Bit  2: 1, ro_mcdi_highvertfrqphase.             high vertical frequency phase of prevoius one field. initial = 2
-//Bit     0, ro_mcdi_highvertfrqflg.               high vertical frequency flag of prevoius one field. initial = 0
+//Bit  2: 1, ro_mcdi_highvertfrqphase.             high vertical frequency phase of previous one field. initial = 2
+//Bit     0, ro_mcdi_highvertfrqflg.               high vertical frequency flag of previous one field. initial = 0
 #define MCDI_RO_GMV_LOCK_FLG                       ((0x2fac  << 2) + 0xff900000)
 //Bit 31:16, reserved.
-//Bit 15: 8, ro_mcdi_gmvlckcnt.                    global mv lock count till prevoius one field. initial = 0
-//Bit  7: 2, ro_mcdi_gmv.                          global mv of prevoius one field. -31~31, initial = 32 (invalid value)
-//Bit     1, ro_mcdi_zerogmvlckflg.                zero global mv lock flag of prevoius one field. initial = 0
-//Bit     0, ro_mcdi_gmvlckflg.                    global mv lock flag of prevoius one field. initial = 0
+//Bit 15: 8, ro_mcdi_gmvlckcnt.                    global mv lock count till previous one field. initial = 0
+//Bit  7: 2, ro_mcdi_gmv.                          global mv of previous one field. -31~31, initial = 32 (invalid value)
+//Bit     1, ro_mcdi_zerogmvlckflg.                zero global mv lock flag of previous one field. initial = 0
+//Bit     0, ro_mcdi_gmvlckflg.                    global mv lock flag of previous one field. initial = 0
 #define MCDI_RO_RPT_MV                             ((0x2fad  << 2) + 0xff900000)
-//Bit 5: 0, ro_mcdi_rptmv.                         repeate mv of prevoius one field. -31~31, initial = 32 (invalid value)
+//Bit 5: 0, ro_mcdi_rptmv.                         repeate mv of previous one field. -31~31, initial = 32 (invalid value)
 #define MCDI_RO_MOTION_PARADOX_FLG                 ((0x2fae  << 2) + 0xff900000)
 //Bit 31:16, reserved.
-//Bit 15: 8, ro_mcdi_motionparadoxcnt.             motion paradox count till prevoius one field. initial = 0
+//Bit 15: 8, ro_mcdi_motionparadoxcnt.             motion paradox count till previous one field. initial = 0
 //Bit  7: 1, reserved.
-//Bit     0, ro_mcdi_motionparadoxflg.             motion paradox flag of prevoius one field. initial = 0
+//Bit     0, ro_mcdi_motionparadoxflg.             motion paradox flag of previous one field. initial = 0
 #define MCDI_RO_PD_22_FLG                          ((0x2faf  << 2) + 0xff900000)
 //Bit 31:27, reserved.
-//Bit    26, ro_mcdi_pd22flg2.                     pull down 22 flag of prevoius one field. initial = 0
-//Bit    25, ro_mcdi_pd22flg1.                     pull down 22 flag of prevoius one field. initial = 0
-//Bit    24, ro_mcdi_pd22flg.                      pull down 22 flag of prevoius one field. initial = 0
-//Bit 23:16, ro_mcdi_pd22cnt2.                     pull down 22 count till prevoius one field. initial = 0
-//Bit 15: 8, ro_mcdi_pd22cnt1.                     pull down 22 count till prevoius one field. initial = 0
-//Bit  7: 0, ro_mcdi_pd22cnt.                      pull down 22 count till prevoius one field. initial = 0
+//Bit    26, ro_mcdi_pd22flg2.                     pull down 22 flag of previous one field. initial = 0
+//Bit    25, ro_mcdi_pd22flg1.                     pull down 22 flag of previous one field. initial = 0
+//Bit    24, ro_mcdi_pd22flg.                      pull down 22 flag of previous one field. initial = 0
+//Bit 23:16, ro_mcdi_pd22cnt2.                     pull down 22 count till previous one field. initial = 0
+//Bit 15: 8, ro_mcdi_pd22cnt1.                     pull down 22 count till previous one field. initial = 0
+//Bit  7: 0, ro_mcdi_pd22cnt.                      pull down 22 count till previous one field. initial = 0
 #define MCDI_RO_COL_CFD_0                          ((0x2fb0  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_0.                    column cofidence value 0. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_0.                    column confidence value 0. initial = 0
 #define MCDI_RO_COL_CFD_1                          ((0x2fb1  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_1.                    column cofidence value 1. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_1.                    column confidence value 1. initial = 0
 #define MCDI_RO_COL_CFD_2                          ((0x2fb2  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_2.                    column cofidence value 2. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_2.                    column confidence value 2. initial = 0
 #define MCDI_RO_COL_CFD_3                          ((0x2fb3  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_3.                    column cofidence value 3. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_3.                    column confidence value 3. initial = 0
 #define MCDI_RO_COL_CFD_4                          ((0x2fb4  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_4.                    column cofidence value 4. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_4.                    column confidence value 4. initial = 0
 #define MCDI_RO_COL_CFD_5                          ((0x2fb5  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_5.                    column cofidence value 5. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_5.                    column confidence value 5. initial = 0
 #define MCDI_RO_COL_CFD_6                          ((0x2fb6  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_6.                    column cofidence value 6. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_6.                    column confidence value 6. initial = 0
 #define MCDI_RO_COL_CFD_7                          ((0x2fb7  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_7.                    column cofidence value 7. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_7.                    column confidence value 7. initial = 0
 #define MCDI_RO_COL_CFD_8                          ((0x2fb8  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_8.                    column cofidence value 8. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_8.                    column confidence value 8. initial = 0
 #define MCDI_RO_COL_CFD_9                          ((0x2fb9  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_9.                    column cofidence value 9. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_9.                    column confidence value 9. initial = 0
 #define MCDI_RO_COL_CFD_10                         ((0x2fba  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_10.                   column cofidence value 10. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_10.                   column confidence value 10. initial = 0
 #define MCDI_RO_COL_CFD_11                         ((0x2fbb  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_11.                   column cofidence value 11. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_11.                   column confidence value 11. initial = 0
 #define MCDI_RO_COL_CFD_12                         ((0x2fbc  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_12.                   column cofidence value 12. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_12.                   column confidence value 12. initial = 0
 #define MCDI_RO_COL_CFD_13                         ((0x2fbd  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_13.                   column cofidence value 13. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_13.                   column confidence value 13. initial = 0
 #define MCDI_RO_COL_CFD_14                         ((0x2fbe  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_14.                   column cofidence value 14. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_14.                   column confidence value 14. initial = 0
 #define MCDI_RO_COL_CFD_15                         ((0x2fbf  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_15.                   column cofidence value 15. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_15.                   column confidence value 15. initial = 0
 #define MCDI_RO_COL_CFD_16                         ((0x2fc0  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_16.                   column cofidence value 16. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_16.                   column confidence value 16. initial = 0
 #define MCDI_RO_COL_CFD_17                         ((0x2fc1  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_17.                   column cofidence value 17. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_17.                   column confidence value 17. initial = 0
 #define MCDI_RO_COL_CFD_18                         ((0x2fc2  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_18.                   column cofidence value 18. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_18.                   column confidence value 18. initial = 0
 #define MCDI_RO_COL_CFD_19                         ((0x2fc3  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_19.                   column cofidence value 19. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_19.                   column confidence value 19. initial = 0
 #define MCDI_RO_COL_CFD_20                         ((0x2fc4  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_20.                   column cofidence value 20. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_20.                   column confidence value 20. initial = 0
 #define MCDI_RO_COL_CFD_21                         ((0x2fc5  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_21.                   column cofidence value 21. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_21.                   column confidence value 21. initial = 0
 #define MCDI_RO_COL_CFD_22                         ((0x2fc6  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_22.                   column cofidence value 22. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_22.                   column confidence value 22. initial = 0
 #define MCDI_RO_COL_CFD_23                         ((0x2fc7  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_23.                   column cofidence value 23. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_23.                   column confidence value 23. initial = 0
 #define MCDI_RO_COL_CFD_24                         ((0x2fc8  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_24.                   column cofidence value 24. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_24.                   column confidence value 24. initial = 0
 #define MCDI_RO_COL_CFD_25                         ((0x2fc9  << 2) + 0xff900000)
-//Bit 31: 0, ro_mcdi_col_cfd_25.                   column cofidence value 25. initial = 0
+//Bit 31: 0, ro_mcdi_col_cfd_25.                   column confidence value 25. initial = 0
 // add space 8'hd0-8'hef
 //
 // Reading file:  dipd_regs.h
@@ -15133,12 +15121,6 @@
 //Bit  3: 2, reserved
 //Bit     1, reg_vd1_rgbbst_en         u1, enable rgbbst         default=0
 //Bit     0, reg_vd1_rgb_ctrst_prt     u1, enable signal to protect saturation in rgb.  default=1
-#define XVYCC_VD1_RGB_BRGHT                        ((0x3171  << 2) + 0xff900000)
-//Bit 31:16, reserved
-//Bit 15: 4, reg_vd1_rgb_brght        s12, brightness level in rgb domain                              default=0
-//Bit  3: 2, reserved
-//Bit     1, reg_vd1_rgb_brght_prt     u1, enalbe signal to protect saturation in rgb                  default=1
-//Bit     0, reg_vd1_rgbbst_dlut_x2    u1, enable signal to do x2 to the dlut cells before subtracting default=0
 #define XVYCC_VD1_RGB_DLUT_0_3                     ((0x3172  << 2) + 0xff900000)
 //Bit 31:24, reg_vd1_rgbbst_dlut0      u8,   default = 255
 //Bit 23:16, reg_vd1_rgbbst_dlut1      u8,   default = 205
@@ -15162,12 +15144,6 @@
 //Bit  3: 2, reserved
 //Bit     1, reg_post_rgbbst_en         u1, enable rgbbst         default=0
 //Bit     0, reg_post_rgb_ctrst_prt     u1, enable signal to protect saturation in rgb.  default=1
-#define XVYCC_POST_RGB_BRGHT                       ((0x3176  << 2) + 0xff900000)
-//Bit 31:16, reserved
-//Bit 15: 4, reg_post_rgb_brght        s12, brightness level in rgb domain                              default=0
-//Bit  3: 2, reserved
-//Bit     1, reg_post_rgb_brght_prt     u1, enalbe signal to protect saturation in rgb                  default=1
-//Bit     0, reg_post_rgbbst_dlut_x2    u1, enable signal to do x2 to the dlut cells before subtracting default=0
 #define XVYCC_POST_RGB_DLUT_0_3                    ((0x3177  << 2) + 0xff900000)
 //Bit 31:24, reg_post_rgbbst_dlut0      u8,   default = 255
 //Bit 23:16, reg_post_rgbbst_dlut1      u8,   default = 205
@@ -15227,7 +15203,7 @@
 //Bit   18:16,    soft_rst          unsigned  , default = 4
 //Bit   15:14,    reserved
 //Bit   13:12,    ddr_blk_size      unsigned  , default = 1
-//Bit   11:9,     cmd_blk_size      unsigend  , default = 3
+//Bit   11:9,     cmd_blk_size      unsigned  , default = 3
 //Bit   8,        dec_enable        unsigned  , default = 0
 //Bit   7:2,      reserved
 //Bit   1,        head_len_sel      unsigned  , default = 1
@@ -15288,7 +15264,7 @@
 //Bit 31    cfmt_gclk_bit_dis      uns, default = 0    ; //  it true, disable clock, otherwise enable clock
 //Bit 30    cfmt_soft_rst_bit      uns, default = 0    ; //  soft rst bit
 //Bit 29    reserved
-//Bit 28    chfmt_rpt_pix          uns, default = 0    ; //  if true, horizontal formatter use repeating to generete pixel, otherwise use bilinear interpolation
+//Bit 28    chfmt_rpt_pix          uns, default = 0    ; //  if true, horizontal formatter use repeating to generate pixel, otherwise use bilinear interpolation
 //Bit 27:24 chfmt_ini_phase        uns, default = 0    ; //  horizontal formatter initial phase
 //Bit 23    chfmt_rpt_p0_en        uns, default = 0    ; //  horizontal formatter repeat pixel 0 enable
 //Bit 22:21 chfmt_yc_ratio         uns, default = 0    ; //  horizontal Y/C ratio, 00: 1:1, 01: 2:1, 10: 4:1
@@ -15296,8 +15272,8 @@
 //Bit 19    cvfmt_phase0_always_en uns, default = 0    ; //if true, always use phase0 while vertical formater, meaning always
 //          repeat data, no interpolation
 //Bit 18    cvfmt_rpt_last_dis     uns, default = 0    ; //if true, disable vertical formatter chroma repeat last line
-//Bit 17    cvfmt_phase0_nrpt_en   uns, default = 0    ; //veritcal formatter dont need repeat line on phase0, 1: enable, 0: disable
-//Bit 16    cvfmt_rpt_line0_en     uns, default = 0    ; //veritcal formatter repeat line 0 enable
+//Bit 17    cvfmt_phase0_nrpt_en   uns, default = 0    ; //vertical formatter dont need repeat line on phase0, 1: enable, 0: disable
+//Bit 16    cvfmt_rpt_line0_en     uns, default = 0    ; //vertical formatter repeat line 0 enable
 //Bit 15:12 cvfmt_skip_line_num    uns, default = 0    ; //vertical formatter skip line num at the beginning
 //Bit 11:8  cvfmt_ini_phase        uns, default = 0    ; //vertical formatter initial phase
 //Bit 7:1   cvfmt_phase_step       uns, default = 0    ; //vertical formatter phase step (3.4)
@@ -15778,7 +15754,7 @@
 #define VD1_IF0_GEN_REG3                           ((0x3216  << 2) + 0xff900000)
 //Bit 31    it true, disable clock, otherwise enable clock
 //Bit 30    soft rst bit
-//Bit 28    if true, horizontal formatter use repeating to generete pixel, otherwise use bilinear interpolation
+//Bit 28    if true, horizontal formatter use repeating to generate pixel, otherwise use bilinear interpolation
 //Bit 27:24 horizontal formatter initial phase
 //Bit 23    horizontal formatter repeat pixel 0 enable
 //Bit 22:21 horizontal Y/C ratio, 00: 1:1, 01: 2:1, 10: 4:1
@@ -15786,8 +15762,8 @@
 //Bit 19    if true, always use phase0 while vertical formater, meaning always
 //          repeat data, no interpolation
 //Bit 18    if true, disable vertical formatter chroma repeat last line
-//Bit 17    veritcal formatter dont need repeat line on phase0, 1: enable, 0: disable
-//Bit 16    veritcal formatter repeat line 0 enable
+//Bit 17    vertical formatter dont need repeat line on phase0, 1: enable, 0: disable
+//Bit 16    vertical formatter repeat line 0 enable
 //Bit 15:12 vertical formatter skip line num at the beginning
 //Bit 11:8  vertical formatter initial phase
 //Bit 7:1   vertical formatter phase step (3.4)
@@ -15830,13 +15806,13 @@
 #define VD2_IF0_GEN_REG3                           ((0x3236  << 2) + 0xff900000)
 //Bit 31    it true, disable clock, otherwise enable clock
 //Bit 30    soft rst bit
-//Bit 28    if true, horizontal formatter use repeating to generete pixel, otherwise use bilinear interpolation
+//Bit 28    if true, horizontal formatter use repeating to generate pixel, otherwise use bilinear interpolation
 //Bit 27:24 horizontal formatter initial phase
 //Bit 23    horizontal formatter repeat pixel 0 enable
 //Bit 22:21 horizontal Y/C ratio, 00: 1:1, 01: 2:1, 10: 4:1
 //Bit 20    horizontal formatter enable
-//Bit 17    veritcal formatter dont need repeat line on phase0, 1: enable, 0: disable
-//Bit 16    veritcal formatter repeat line 0 enable
+//Bit 17    vertical formatter dont need repeat line on phase0, 1: enable, 0: disable
+//Bit 16    vertical formatter repeat line 0 enable
 //Bit 15:12 vertical formatter skip line num at the beginning
 //Bit 11:8  vertical formatter initial phase
 //Bit 7:1   vertical formatter phase step (3.4)
@@ -15861,7 +15837,6 @@
 #define VPP_VADJ1_CURV_2                           ((0x3287  << 2) + 0xff900000)
 #define VPP_VADJ1_CURV_3                           ((0x3288  << 2) + 0xff900000)
 #define VPP_VD1_RGB_CTRST                          ((0x3289  << 2) + 0xff900000)
-#define VPP_VD1_RGB_BRGHT                          ((0x328a  << 2) + 0xff900000)
 #define VPP_VD1_RGB_DLUT_0_3                       ((0x328b  << 2) + 0xff900000)
 #define VPP_VD1_RGB_DLUT_4_7                       ((0x328c  << 2) + 0xff900000)
 #define VPP_VD1_RGB_DLUT_8_11                      ((0x328d  << 2) + 0xff900000)
@@ -15889,7 +15864,6 @@
 #define VPP_VADJ2_CURV_2                           ((0x32a7  << 2) + 0xff900000)
 #define VPP_VADJ2_CURV_3                           ((0x32a8  << 2) + 0xff900000)
 #define VPP_POST_RGB_CTRST                         ((0x32a9  << 2) + 0xff900000)
-#define VPP_POST_RGB_BRGHT                         ((0x32aa  << 2) + 0xff900000)
 #define VPP_POST_RGB_DLUT_0_3                      ((0x32ab  << 2) + 0xff900000)
 #define VPP_POST_RGB_DLUT_4_7                      ((0x32ac  << 2) + 0xff900000)
 #define VPP_POST_RGB_DLUT_8_11                     ((0x32ad  << 2) + 0xff900000)
@@ -16165,7 +16139,7 @@
 //Bit  4           reg_nr4_mc_use_bandsplit     // unsigned , default = 1  separate lp and us for mc IIR filter, 0: no BS used; 1: use BS
 //Bit  3           reg_nr4_mc_apply_on_lp       // unsigned , default = 1  use mcnr only on lowpass portion;
 //Bit  2           reg_nr4_mc_apply_on_us       // unsigned , default = 1  use mcnr only on lp complimentary portion;
-//Bit  1: 0        reg_nr4_mc_zmvbs_use_adplpf  // unsigned , default = 1  use adapptive LPF for the zmv pointing data for MCNR, for abs(mvx)<th
+//Bit  1: 0        reg_nr4_mc_zmvbs_use_adplpf  // unsigned , default = 1  use adaptive LPF for the zmv pointing data for MCNR, for abs(mvx)<th
 #define NR4_MCNR_ALP1_SGN_COR                      ((0x3717  << 2) + 0xff900000)
 //Bit 31:24        reg_nr4_mc_aph1_sgn_coring0  // unsigned , default = 10  coring to cur-pre before do sgn decision
 //Bit 23:16        reg_nr4_mc_aph1_sgn_coring1  // unsigned , default = 7  coring to cur-pre before do sgn decision
@@ -16224,9 +16198,9 @@
 //Bit  7: 4        reg_nr4_mc_alp1_sgn_lut14  // unsigned , default = 15  alp1 vs x=abs|sgn(cur-pre)|, if x is small, less possibility of flat region move
 //Bit  3: 0        reg_nr4_mc_alp1_sgn_lut15  // unsigned , default = 15  alp1 vs x=abs|sgn(cur-pre)|, if x is small, less possibility of flat region move
 #define NR4_RO_NM_SAD_SUM                          ((0x371f  << 2) + 0xff900000)
-//Bit 31: 0        ro_nr4_nm_sad_sum         // unsigned , default = 0  sum of sad, for scene change detectcion, in noise meter
+//Bit 31: 0        ro_nr4_nm_sad_sum         // unsigned , default = 0  sum of sad, for scene change detection, in noise meter
 #define NR4_RO_NM_SAD_CNT                          ((0x3720  << 2) + 0xff900000)
-//Bit 31: 0        ro_nr4_nm_sad_cnt         // unsigned , default = 0  cnt of sad, for scene change detectcion, in noise meter
+//Bit 31: 0        ro_nr4_nm_sad_cnt         // unsigned , default = 0  cnt of sad, for scene change detection, in noise meter
 #define NR4_RO_NM_VAR_SUM                          ((0x3721  << 2) + 0xff900000)
 //Bit 31: 0        ro_nr4_nm_var_sum         // unsigned , default = 0  sum of var, for noise level detection, in noise meter
 #define NR4_RO_NM_VAR_SCNT                         ((0x3722  << 2) + 0xff900000)
@@ -16238,7 +16212,7 @@
 //Bit  9: 0        ro_nr4_nm_max_var         // unsigned , default = 0  max of var, for noise level detection, in noise meter
 #define NR4_RO_NR4_DBGPIX_NUM                      ((0x3724  << 2) + 0xff900000)
 //Bit 31:28        reserved
-//Bit 27: 0        ro_nr4_dbgpix_num         // unsigned , default = 0  number of pixels statistic invoved (removed?)
+//Bit 27: 0        ro_nr4_dbgpix_num         // unsigned , default = 0  number of pixels statistic invoked (removed?)
 #define NR4_RO_NR4_BLDVS2_SUM                      ((0x3725  << 2) + 0xff900000)
 //Bit 31: 0        ro_nr4_bld1vs2_sum        // unsigned , default = 0  sum of blend_1vs2 with the debug window
 #define NR4_BLDVS3_SUM                             ((0x3726  << 2) + 0xff900000)
@@ -16277,7 +16251,7 @@
 //Bit 31:28        reserved
 //Bit 27:26        reg_xlr_hct_step          // unsigned , default = 1  horizontal chroma diff steps, 0: abs[-1 (2) -1]; 1: abs[-1 0 (2) 0 -1], 2: abs[-1 0 0 (2) 0 0 -1]; 3:abs[-1 0 0 0 (2) 0 0 0 -1]
 //Bit 25:24        reg_xlr_hct_lpf           // unsigned , default = 1  horizontal chroma diff low-pass filter enable, 0: no HLPF; 1: [1 2 1]; 2: max[-1:1]; 3: max[-2:2]
-//Bit 23:16        reg_xlr_hct_thr           // unsigned , default = 20  horizontal chroma diff threshold for xlr enable, to save the horozontal no color tran mode
+//Bit 23:16        reg_xlr_hct_thr           // unsigned , default = 20  horizontal chroma diff threshold for xlr enable, to save the horizontal no color tran mode
 //Bit 15: 8        reg_xlr_sat_thr           // unsigned , default = 8  saturation threshold for xlr enable, the smaller of the threshold , the more will do xlr;
 //Bit  7: 2        reg_xlr_hmargin           // unsigned , default = 3  left/right number of pixels without xlr;
 //Bit  1            reserved
@@ -16511,7 +16485,7 @@
 #define DI_HSC_PHASE_CTRL                          ((0x3768  << 2) + 0xff900000)
 // Bit 31 if false, di_scale swap layer bypass
 // bit 30 if true, scale before diwr, else scaler before nrwr
-// Bit 22 if true, divide VSC line length 2 as the HSC input length, othwise VSC length length is the same as the VSC line length,
+// Bit 22 if true, divide VSC line length 2 as the HSC input length, otherwise VSC length length is the same as the VSC line length,
 //                 just for special usage, more flexibility
 // Bit 21 if true, prevsc uses lin buffer, otherwise prevsc does not use line buffer, it should be same as prevsc_en
 // Bit 20 prehsc_en
@@ -17572,7 +17546,7 @@
 //vertical scaler phase step
 //Bit 27:0,  4.24 format
 #define OSD2_VSC_PHASE_STEP                        ((0x3d00  << 2) + 0xff900000)
-//Bit 31:16, botttom vertical scaler initial phase
+//Bit 31:16, bottom vertical scaler initial phase
 //Bit 15:0, top vertical scaler initial phase
 #define OSD2_VSC_INI_PHASE                         ((0x3d01  << 2) + 0xff900000)
 //Bit 24    osd vertical Scaler enable
@@ -17714,7 +17688,7 @@
 //vertical scaler phase step
 //Bit 27:0,  4.24 format
 #define OSD34_VSC_PHASE_STEP                       ((0x3d20  << 2) + 0xff900000)
-//Bit 31:16, botttom vertical scaler initial phase
+//Bit 31:16, bottom vertical scaler initial phase
 //Bit 15:0, top vertical scaler initial phase
 #define OSD34_VSC_INI_PHASE                        ((0x3d21  << 2) + 0xff900000)
 //Bit 24    osd vertical Scaler enable
@@ -18197,12 +18171,12 @@
 //Bit  1: 0        reg_dwscalar_h1           // unsigned ,    RW, default = 3  vertical 2nd step scalar mode: 0: 1:1 no scalar; 1: 2:1 data drop (0,2,4, 6) pixel kept; 2: 2:1 data drop (1, 3, 5,7..) pixels kept; 3: avg
 #define AFBCE_DEFCOLOR_1                           ((0x41b0  << 2) + 0xff900000)
 //Bit 31:24        reserved
-//Bit 23:12        reg_enc_defalutcolor_3    // unsigned ,    RW, default = 4095  Picture wise default color value in [Y Cb Cr]
-//Bit 11: 0        reg_enc_defalutcolor_0    // unsigned ,    RW, default = 4095  Picture wise default color value in [Y Cb Cr]
+//Bit 23:12        reg_enc_defaultcolor_3    // unsigned ,    RW, default = 4095  Picture wise default color value in [Y Cb Cr]
+//Bit 11: 0        reg_enc_defaultcolor_0    // unsigned ,    RW, default = 4095  Picture wise default color value in [Y Cb Cr]
 #define AFBCE_DEFCOLOR_2                           ((0x41b1  << 2) + 0xff900000)
 //Bit 31:24        reserved
-//Bit 23:12        reg_enc_defalutcolor_2    // unsigned ,    RW, default = 2048  wise default color value in [Y Cb Cr]
-//Bit 11: 0        reg_enc_defalutcolor_1    // unsigned ,    RW, default = 2048  wise default color value in [Y Cb Cr]
+//Bit 23:12        reg_enc_defaultcolor_2    // unsigned ,    RW, default = 2048  wise default color value in [Y Cb Cr]
+//Bit 11: 0        reg_enc_defaultcolor_1    // unsigned ,    RW, default = 2048  wise default color value in [Y Cb Cr]
 #define AFBCE_QUANT_ENABLE                         ((0x41b2  << 2) + 0xff900000)
 //Bit 31:10        reserved
 //Bit  9: 8        reg_bcleav_ofst           // signed ,    RW, default = 0  bcleave ofset to get lower range, especially under lossy, for v1/v2, x=0 is equivalent, default = -1;
@@ -18373,7 +18347,7 @@
 //Bit 31:29 reserved
 //Bit 28:16 reg_y_end         // unsigned , default = 0, the canvas ver end pixel position
 //Bit 15:13 reserved
-//Bit 12: 0 reg_y_start       // unsigned , default = 0, the canvas ver start pixel positio
+//Bit 12: 0 reg_y_start       // unsigned , default = 0, the canvas ver start pixel position
 #define AFBCE_MMU_RMIF_RO_STAT                     ((0x41c6  << 2) + 0xff900000)
 //Bit 15:0  reg_status        // unsigned ,
 // synopsys translate_off
@@ -18538,18 +18512,6 @@
 #define FGRAIN_WIN_V                               ((0x4802  << 2) + 0xff900000)
 //Bit  31:16    reg_win_end_v              // unsigned , RW, default = 2156
 //Bit  15: 0    reg_win_bgn_v              // unsigned , RW, default = 0
-#define FGRAIN_SW_Y_RANNGE                         ((0x4803  << 2) + 0xff900000)
-//Bit 31        reg_fgrain_sw_yrange       // unsigned , RW, default = 0
-//Bit 30:26     reserved
-//Bit 25:16     reg_fgrain_ymax            // unsigned , RW, default = 1023
-//Bit 15:10     reserved
-//Bit  9: 0     reg_fgrain_ymin            // unsigned , RW, default = 0
-#define FGRAIN_SW_C_RANNGE                         ((0x4804  << 2) + 0xff900000)
-//Bit 31        reg_fgrain_sw_crange       // unsigned , RW, default = 0
-//Bit 30:26     reserved
-//Bit 25:16     reg_fgrain_cmax            // unsigned , RW, default = 1023
-//Bit 15:10     reserved
-//Bit  9: 0     reg_fgrain_cmin            // unsigned , RW, default = 0
 #define FGRAIN_GCLK_CTRL_0                         ((0x4805  << 2) + 0xff900000)
 //Bit 31:0      reg_fgrain_gclk_ctrl0      // unsigned , RW, default = 0
 #define FGRAIN_GCLK_CTRL_1                         ((0x4806  << 2) + 0xff900000)
@@ -18600,18 +18562,6 @@
 #define VD2_FGRAIN_WIN_V                           ((0x4812  << 2) + 0xff900000)
 //Bit  31:16    reg_win_end_v              // unsigned , RW, default = 2156
 //Bit  15: 0    reg_win_bgn_v              // unsigned , RW, default = 0
-#define VD2_FGRAIN_SW_Y_RANNGE                     ((0x4813  << 2) + 0xff900000)
-//Bit 31        reg_fgrain_sw_yrange       // unsigned , RW, default = 0
-//Bit 30:26     reserved
-//Bit 25:16     reg_fgrain_ymax            // unsigned , RW, default = 1023
-//Bit 15:10     reserved
-//Bit  9: 0     reg_fgrain_ymin            // unsigned , RW, default = 0
-#define VD2_FGRAIN_SW_C_RANNGE                     ((0x4814  << 2) + 0xff900000)
-//Bit 31        reg_fgrain_sw_crange       // unsigned , RW, default = 0
-//Bit 30:26     reserved
-//Bit 25:16     reg_fgrain_cmax            // unsigned , RW, default = 1023
-//Bit 15:10     reserved
-//Bit  9: 0     reg_fgrain_cmin            // unsigned , RW, default = 0
 #define VD2_FGRAIN_GCLK_CTRL_0                     ((0x4815  << 2) + 0xff900000)
 //Bit 31:0      reg_fgrain_gclk_ctrl0      // unsigned , RW, default = 0
 #define VD2_FGRAIN_GCLK_CTRL_1                     ((0x4816  << 2) + 0xff900000)
@@ -18667,19 +18617,19 @@
 //Bit  4: 0        reg_intep_phs_y_use       // signed ,    RW, default = 0  Interpolation y phase used, could be negtive num, set by SW
 #define DCTR_BGRID_PARAM1                          ((0x4902  << 2) + 0xff900000)
 //Bit 31:26        reserved
-//Bit 25:16        reg_grd_xnum              // unsigned ,    RW, default = 80  number of grid in horizontal dimmension, value = [0-80]
+//Bit 25:16        reg_grd_xnum              // unsigned ,    RW, default = 80  number of grid in horizontal dimension, value = [0-80]
 //Bit 15:10        reserved
-//Bit  9: 0        reg_grd_ynum              // unsigned ,    RW, default = 45  number of grid in vertical dimmension, value = [0-45]
+//Bit  9: 0        reg_grd_ynum              // unsigned ,    RW, default = 45  number of grid in vertical dimension, value = [0-45]
 #define DCTR_BGRID_PARAM2                          ((0x4903  << 2) + 0xff900000)
 //Bit 31:24        reg_grd_xsize             // unsigned ,    RW, default = 48  horizontal_size of each grid in pixels,   value = calculated by FW
 //Bit 23:16        reg_grd_ysize             // unsigned ,    RW, default = 48  vertical_size mod of each grid in pixels, value = calculated by FW
 //Bit 15: 8        reg_grd_valsz             // unsigned ,    RW, default = 48  pixel value mod of each grid of 10bits value ,  value = calculated by FW
-//Bit  7: 0        reg_grd_vnum              // unsigned ,    RW, default = 22  number of grid in luminance dimmension, value = 22
+//Bit  7: 0        reg_grd_vnum              // unsigned ,    RW, default = 22  number of grid in luminance dimension, value = 22
 #define DCTR_BGRID_PARAM3                          ((0x4904  << 2) + 0xff900000)
 //Bit 31:26        reserved
-//Bit 25:16        reg_grd_xnum_use          // unsigned ,    RW, default = 80  number of grid in horizontal dimmension, value = [0-80]
+//Bit 25:16        reg_grd_xnum_use          // unsigned ,    RW, default = 80  number of grid in horizontal dimension, value = [0-80]
 //Bit 15:10        reserved
-//Bit  9: 0        reg_grd_ynum_use          // unsigned ,    RW, default = 45  number of grid in vertical dimmension, value = [0-45]
+//Bit  9: 0        reg_grd_ynum_use          // unsigned ,    RW, default = 45  number of grid in vertical dimension, value = [0-45]
 #define DCTR_BGRID_PARAM4                          ((0x4905  << 2) + 0xff900000)
 //Bit 31:24        reserved
 //Bit 23:16        reg_grd_xsize_ds          // unsigned ,    RW, default = 12
@@ -18696,9 +18646,9 @@
 #define DCTR_BGRID_PARAM7                          ((0x4908  << 2) + 0xff900000)
 //Bit 31:24        reserved
 //Bit 23:18        reserved
-//Bit 17: 8        reg_slc_prt_th            // unsigned ,    RW, default = 200  sclicing protection threshold
+//Bit 17: 8        reg_slc_prt_th            // unsigned ,    RW, default = 200  slicing protection threshold
 //Bit  7: 1        reserved
-//Bit  0           reg_slc_prt_en            // unsigned ,    RW, default = 0  sclicing protection enable bit
+//Bit  0           reg_slc_prt_en            // unsigned ,    RW, default = 0  slicing protection enable bit
 #define DCTR_BGRID_PARAM8_0                        ((0x4909  << 2) + 0xff900000)
 //Bit 31:27        reserved
 //Bit 26:16        reg_grd_vbin_gs_0         // unsigned ,    RW, default = 48
@@ -19286,19 +19236,19 @@
 //Bit  1: 0        reg_in_ds_rate_y          // unsigned ,    RW, default = 2  Input down-sample registers, normally AVG. value = [0,1,2], change according to input resolution. real rate is 2^reg_in_ds_rate
 #define DCTR_BGRID_PARAM1_PRE                      ((0x4a02  << 2) + 0xff900000)
 //Bit 31:26        reserved
-//Bit 25:16        reg_grd_xnum              // unsigned ,    RW, default = 80  number of grid in horizontal dimmension, value = [0-80]
+//Bit 25:16        reg_grd_xnum              // unsigned ,    RW, default = 80  number of grid in horizontal dimension, value = [0-80]
 //Bit 15:10        reserved
-//Bit  9: 0        reg_grd_ynum              // unsigned ,    RW, default = 45  number of grid in vertical dimmension, value = [0-45]
+//Bit  9: 0        reg_grd_ynum              // unsigned ,    RW, default = 45  number of grid in vertical dimension, value = [0-45]
 #define DCTR_BGRID_PARAM2_PRE                      ((0x4a03  << 2) + 0xff900000)
 //Bit 31:24        reg_grd_xsize             // unsigned ,    RW, default = 48  horizontal_size of each grid in pixels,   value = calculated by FW
 //Bit 23:16        reg_grd_ysize             // unsigned ,    RW, default = 48  vertical_size mod of each grid in pixels, value = calculated by FW
 //Bit 15: 8        reg_grd_valsz             // unsigned ,    RW, default = 48  pixel value mod of each grid of 10bits value ,  value = calculated by FW
-//Bit  7: 0        reg_grd_vnum              // unsigned ,    RW, default = 22  number of grid in luminance dimmension, value = 22
+//Bit  7: 0        reg_grd_vnum              // unsigned ,    RW, default = 22  number of grid in luminance dimension, value = 22
 #define DCTR_BGRID_PARAM3_PRE                      ((0x4a04  << 2) + 0xff900000)
 //Bit 31:26        reserved
-//Bit 25:16        reg_grd_xnum_use          // unsigned ,    RW, default = 80  number of grid in horizontal dimmension, value = [0-80]
+//Bit 25:16        reg_grd_xnum_use          // unsigned ,    RW, default = 80  number of grid in horizontal dimension, value = [0-80]
 //Bit 15:10        reserved
-//Bit  9: 0        reg_grd_ynum_use          // unsigned ,    RW, default = 45  number of grid in vertical dimmension, value = [0-45]
+//Bit  9: 0        reg_grd_ynum_use          // unsigned ,    RW, default = 45  number of grid in vertical dimension, value = [0-45]
 #define DCTR_BGRID_PARAM4_PRE                      ((0x4a05  << 2) + 0xff900000)
 //Bit 31:24        reserved
 //Bit 23:16        reg_grd_xsize_ds          // unsigned ,    RW, default = 12
@@ -19501,13 +19451,13 @@
 //Bit  7: 0,        reg_pknr_vblank_num                                                                                                         . unsigned  , default = 73
 #define NR_GAUSSIAN_MODE                           ((0x5002  << 2) + 0xff900000)
 //Bit 31:14,        reserved
-//Bit 13:12,        reg_nr_gau_ynorm                      : C adpative coef norm, 0: 128, 1: 256, 2: 512, 3: 1024                         . unsigned  , default = 0
+//Bit 13:12,        reg_nr_gau_ynorm                      : C adaptive coef norm, 0: 128, 1: 256, 2: 512, 3: 1024                         . unsigned  , default = 0
 //Bit 11:10,        reserved
-//Bit  9: 8,        reg_nr_gau_cnorm                      : C adpative coef norm, 0: 128, 1: 256, 2: 512, 3: 1024                         . unsigned  , default = 0
+//Bit  9: 8,        reg_nr_gau_cnorm                      : C adaptive coef norm, 0: 128, 1: 256, 2: 512, 3: 1024                         . unsigned  , default = 0
 //Bit  7: 6,        reserved
-//Bit  5: 4,        reg_nr_gau_ymode                      : 0 3x3 filter; 1: 5x5 filter; 2/3:adpative coef                                . unsigned  , default = 1
+//Bit  5: 4,        reg_nr_gau_ymode                      : 0 3x3 filter; 1: 5x5 filter; 2/3:adaptive coef                                . unsigned  , default = 1
 //Bit  3: 2,        reserved
-//Bit  1: 0,        reg_nr_gau_cmode                      : 0 3x3 filter; 1: 5x5 filter; 2/3:adpative coef                                . unsigned  , default = 1
+//Bit  1: 0,        reg_nr_gau_cmode                      : 0 3x3 filter; 1: 5x5 filter; 2/3:adaptive coef                                . unsigned  , default = 1
 #define PK_CON_2CIRHPGAIN_TH_RATE                  ((0x5005  << 2) + 0xff900000)
 //Bit 31:24,        reg_pk_cirhpcon2gain0                       : threshold0 of curve to map hpcon to hpgain for circle hp filter (all 8 direction same). 0~255.. unsigned  , default = 25
 //Bit 23:16,        reg_pk_cirhpcon2gain1                       : threshold1 of curve to map hpcon to hpgain for circle hp filter (all 8 direction same). 0~255.. unsigned  , default = 60
@@ -19781,7 +19731,7 @@
 //Bit 28,            reg_adp_lti_dir_difmode                     : 0: y_dif; 1: y_dif + (u_dif+v_dif)/2;                                         . unsigned  , default = 1
 //Bit 27,            reserved
 //Bit 26,            reg_adp_cti_dir_lpf                         : 0: no lpf; 1: [1 2 2 2 1]/8 lpf  dft=1                                        . unsigned  , default = 1
-//Bit 25:24,        reg_adp_cti_dir_difmode                     : 0: (u_dif+v_dif); 1: y_dif/2 + (u_dif+v_dif)*3/4; 2: y_dif + (u_dif+v_dif)/2; 3: y_dif*2 (not recomended). unsigned  , default = 2
+//Bit 25:24,        reg_adp_cti_dir_difmode                     : 0: (u_dif+v_dif); 1: y_dif/2 + (u_dif+v_dif)*3/4; 2: y_dif + (u_dif+v_dif)/2; 3: y_dif*2 (not recommended). unsigned  , default = 2
 //Bit 23:22,        reg_adp_hvlti_dcblend_mode                  : 0: hlti_dc; 1:vlti_dc; 2: avg  3; blend on alpha                              . unsigned  , default = 3
 //Bit 21:20,        reg_adp_hvcti_dcblend_mode                  : 0: hcti_dc; 1:vcti_dc; 2: avg  3; blend on alpha                              . unsigned  , default = 2
 //Bit 19:18,        reg_adp_hvlti_acblend_mode                  : hlti_ac; 1:vlti_ac; 2: add  3;:adaptive to alpha                              . unsigned  , default = 3
@@ -20019,20 +19969,20 @@
 //Bit 21:16 reg_sr3_lti_sad_core_rate        // u6: rate of coring for sad(theta) - sad(theta+pi/2)*rate/64 , default= 6
 //Bit 15:14 reserved
 //Bit 13:8  reg_sr3_cti_sad_core_rate        // u6: rate of coring for sad(theta) - sad(theta+pi/2)*rate/64 , default= 6
-//Bit 7,    reg_sr3_lti_hsad_mode            // u1: mode for hsad of lti caluclation; 0: block based; 1:othor shape; default= 1
-//Bit 6,    reg_sr3_cti_hsad_mode            // u1: mode for hsad of cti caluclation; 0: block based; 1:othor shape; default= 1
-//Bit 5,    reg_sr3_lti_dsad_mode            // u1: mode for dsad of lti caluclation, 0: block based; 1:othor shape; default= 1
-//Bit 4,    reg_sr3_cti_dsad_mode            // u1: mode for dsad of cti caluclation, 0: block based; 1:othor shape; default= 1
-//Bit 3,    reg_sr3_lti_vsad_mode            // u1: mode for vsad of lti caluclation, 0: block based; 1:othor shape; default= 1
-//Bit 2,    reg_sr3_cti_vsad_mode            // u1: mode for vsad of cti caluclation, 0: block based; 1:othor shape; default= 1
-//Bit 1,    reg_sr3_lti_hsad_hlpf            // u1: hlpf for hsad of lti caluclation, 0: no hlpf; 1: with [1 2 1] hlpf; default= 1
-//Bit 0,    reg_sr3_cti_hsad_hlpf            // u1: hlpf for hsad of cti caluclation, 0: no hlpf; 1: with [1 2 1] hlpf; default= 1
+//Bit 7,    reg_sr3_lti_hsad_mode            // u1: mode for hsad of lti calculation; 0: block based; 1:other shape; default= 1
+//Bit 6,    reg_sr3_cti_hsad_mode            // u1: mode for hsad of cti calculation; 0: block based; 1:other shape; default= 1
+//Bit 5,    reg_sr3_lti_dsad_mode            // u1: mode for dsad of lti calculation, 0: block based; 1:other shape; default= 1
+//Bit 4,    reg_sr3_cti_dsad_mode            // u1: mode for dsad of cti calculation, 0: block based; 1:other shape; default= 1
+//Bit 3,    reg_sr3_lti_vsad_mode            // u1: mode for vsad of lti calculation, 0: block based; 1:other shape; default= 1
+//Bit 2,    reg_sr3_cti_vsad_mode            // u1: mode for vsad of cti calculation, 0: block based; 1:other shape; default= 1
+//Bit 1,    reg_sr3_lti_hsad_hlpf            // u1: hlpf for hsad of lti calculation, 0: no hlpf; 1: with [1 2 1] hlpf; default= 1
+//Bit 0,    reg_sr3_cti_hsad_hlpf            // u1: hlpf for hsad of cti calculation, 0: no hlpf; 1: with [1 2 1] hlpf; default= 1
 #define SHARP_SR3_PK_CTRL0                         ((0x5062  << 2) + 0xff900000)
 //Bit 31:12 reserved
-//Bit 11,   reg_sr3_pk_sad_mode              // u1: mode for sad of peaking and noise reduction, 0: block based; 1:othor shape; default= 1
-//Bit 10,   reg_sr3_pk_hsad_hlpf             // u1: hlpf for hsad for peaking caluclation, 0: no hlpf; 1: with [1 2 2 2 1] hlpf; default= 1
-//Bit 9,    reg_sr3_pk_vsad_hlpf             // u1: hlpf for vsad for peaking caluclation, 0: no hlpf; 1: with [1 2 2 2 1] hlpf; default= 1
-//Bit 8,    reg_sr3_pk_dsad_hlpf             // u1: hlpf for dsad for peaking caluclation, 0: no hlpf; 1: with [1 2 2 2 1] hlpf; default= 1
+//Bit 11,   reg_sr3_pk_sad_mode              // u1: mode for sad of peaking and noise reduction, 0: block based; 1:other shape; default= 1
+//Bit 10,   reg_sr3_pk_hsad_hlpf             // u1: hlpf for hsad for peaking calculation, 0: no hlpf; 1: with [1 2 2 2 1] hlpf; default= 1
+//Bit 9,    reg_sr3_pk_vsad_hlpf             // u1: hlpf for vsad for peaking calculation, 0: no hlpf; 1: with [1 2 2 2 1] hlpf; default= 1
+//Bit 8,    reg_sr3_pk_dsad_hlpf             // u1: hlpf for dsad for peaking calculation, 0: no hlpf; 1: with [1 2 2 2 1] hlpf; default= 1
 //Bit 7:6,  reg_sr3_pk_hpdrt_mode            // u2: mode for HPdrt filter:  default= 3
 //Bit 5:4,  reg_sr3_pk_bpdrt_mode            // u2: mode for BPdrt filter:  default= 3
 //Bit 3:2,  reg_sr3_pk_drtbld_range          // u2: range of the min2 and min direction distance; default =1
@@ -20073,7 +20023,7 @@
 //Bit  2:0    reg_sr3_drtlpf_enable             //u1x3 directional lpf on luma U and V channels, default = 7
 #define SHARP_SR3_DRTLPF_ALPHA_0                   ((0x5067  << 2) + 0xff900000)
 //Bit 31:30   reserved
-//Bit 29:24   reg_sr3_drtlpf_alpha3             //u6: directional lpf alpha coef for min_sad/max_sad comparied, default = 9
+//Bit 29:24   reg_sr3_drtlpf_alpha3             //u6: directional lpf alpha coef for min_sad/max_sad compared, default = 9
 //Bit 23:22   reserved
 //Bit 21:16   reg_sr3_drtlpf_alpha2             //u6: default =10
 //Bit 15:14   reserved
@@ -20082,7 +20032,7 @@
 //Bit 5:0     reg_sr3_drtlpf_alpha0             //u6: default = 12
 #define SHARP_SR3_DRTLPF_ALPHA_1                   ((0x5068  << 2) + 0xff900000)
 //Bit 31:30   reserved
-//Bit 29:24   reg_sr3_drtlpf_alpha7             //u6: directional lpf alpha coef for min_sad/max_sad comparied, default = 1
+//Bit 29:24   reg_sr3_drtlpf_alpha7             //u6: directional lpf alpha coef for min_sad/max_sad compared, default = 1
 //Bit 23:22   reserved
 //Bit 21:16   reg_sr3_drtlpf_alpha6             //u6: default = 4
 //Bit 15:14   reserved
@@ -20091,7 +20041,7 @@
 //Bit 5:0     reg_sr3_drtlpf_alpha4             //u6: default = 8
 #define SHARP_SR3_DRTLPF_ALPHA_2                   ((0x5069  << 2) + 0xff900000)
 //Bit 31:30   reserved
-//Bit 29:24   reg_sr3_drtlpf_alpha11            //u6: directional lpf alpha coef for min_sad/max_sad comparied, default = 0
+//Bit 29:24   reg_sr3_drtlpf_alpha11            //u6: directional lpf alpha coef for min_sad/max_sad compared, default = 0
 //Bit 23:22   reserved
 //Bit 21:16   reg_sr3_drtlpf_alpha10            //u6: default = 0
 //Bit 15:14   reserved
@@ -20116,7 +20066,7 @@
 //Bit 19:18   reserved
 //Bit 17:16   reg_sr3_dering_lcvar_blend_mode        // u2: mode for lcvar calculation: 0: HVblend; 1: diagblend; 2: HVblend+V (for hring); 3: HVblend+ DiagBlend default = 2
 //Bit 15:8    reg_sr3_dering_lcvar_gain              // u8: gain to local variant and normalized to 32 as "1"  default = 64
-//Bit 7:0     reg_sr3_dering_lcvar_nearby_maxsad_th  // u8: threshold to use nearer side maxsad if that side sad is larger than this threshold, ortherwise, use the max one default = 28
+//Bit 7:0     reg_sr3_dering_lcvar_nearby_maxsad_th  // u8: threshold to use nearer side maxsad if that side sad is larger than this threshold, otherwise, use the max one default = 28
 #define SHARP_SR3_DERING_LUMA2PKGAIN_0TO3          ((0x506c  << 2) + 0xff900000)
 //Bit 31:24   reg_sr3_dering_luma2pkgain3             // u8: level limit(for th0<bpcon<th1) of curve for dering pkgain based on LPF luma level. default=255
 //Bit 23:16   reg_sr3_dering_luma2pkgain2             // u8: level limit(for bpcon<th0) of curve for dering pkgain based on LPF luma level. default=255
@@ -20157,7 +20107,7 @@
 //Bit 3:0     reg_sr3_dering_gainvs_vr2max0        //u4: default = 0
 #define SHARP_SR3_DERING_PARAM0                    ((0x5072  << 2) + 0xff900000)
 //Bit 31:24   reserved
-//Bit 23:16   reg_sr3_dering_lcvar_floor        //u8: local varianet no smaller than this value to calculate dgain max(localvar,x)/maxsad. default = 10
+//Bit 23:16   reg_sr3_dering_lcvar_floor        //u8: local variant no smaller than this value to calculate dgain max(localvar,x)/maxsad. default = 10
 //Bit 15:8    reg_sr3_dering_vr2max_gain        //u8: gain to max(local_var, floor)/maxsad  before feeding to LUT. default = 32
 //Bit 7:6     reserved
 //Bit 5:0     reg_sr3_dering_vr2max_limt        //u6: limit of maxsad to max(local_var, floor)*(max(maxsad, lmit))/maxsad.  default = 16
@@ -20323,7 +20273,7 @@
 #define DNLP_31                                    ((0x50af  << 2) + 0xff900000)
 //Bit 31: 0,      reg_dnlp_ygrid31                         : dnlp31                                                                        . unsigned  , default = 32'hfffcf8f4
 #define SHARP_SYNC_CTRL                            ((0x50b0  << 2) + 0xff900000)
-//Bit 15: 0,      reg_sync_ctrl                            //reg_sync_ctrl: shaddow register control                                       . unsigned  , default = 0
+//Bit 15: 0,      reg_sync_ctrl                            //reg_sync_ctrl: shadow register control                                       . unsigned  , default = 0
 #define LC_INPUT_MUX                               ((0x50b1  << 2) + 0xff900000)
 //Bit 31:7   reserved
 //Bit 6:4    reg_lcinput_ysel               //u3, local contrast luma input options 0: org_y; 1: gau_y; 2: gauadp_y; 3: edgadplpf_y; 4: nr_y;5: lti_y; 6: pk_y (before os);7: pk_y (after os) . unsigned  , default = 5
@@ -20469,9 +20419,9 @@
 //Bit 12: 0   reg_fmeter_ywin_st      //u14, window location: vstart   .unsigned  , default = 0
 #define SHARP_FMETER_CORING                        ((0x508c  << 2) + 0xff900000)
 //Bit 31:24  reg_fmeter_low_bound //u8, low bound for threshold  .unsigned  , default = 4
-//Bit 23:16  reg_fmeter_coring_d  //u8, coring of diff before compare with threhold for diagonal frequency .unsigned  , default = 4
-//Bit 15:8   reg_fmeter_coring_v  //u8, coring of diff before compare with threhold for vertical frequency .unsigned  , default = 4
-//Bit 7: 0   reg_fmeter_coring_h  //u8, coring of diff before compare with threhold for horizontal frequency .unsigned  , default = 4
+//Bit 23:16  reg_fmeter_coring_d  //u8, coring of diff before compare with threshold for diagonal frequency .unsigned  , default = 4
+//Bit 15:8   reg_fmeter_coring_v  //u8, coring of diff before compare with threshold for vertical frequency .unsigned  , default = 4
+//Bit 7: 0   reg_fmeter_coring_h  //u8, coring of diff before compare with threshold for horizontal frequency .unsigned  , default = 4
 #define SHARP_FMETER_RATIO_H                       ((0x508d  << 2) + 0xff900000)
 //Bit 31:22   reserved
 //Bit 21:16   reg_fmeter_ratio_h2     //u6, ratio for threshold calc. for horizontal frequency, 16 is normalized as "1" .unsigned  , default = 16
@@ -20518,13 +20468,13 @@
 #define SHARP_RO_FMETER_PDCNT_TYPE3                ((0x5051  << 2) + 0xff900000)
 //Bit 31:0 ro_fmeter_pdcnt_type3     //u32, count for positive diagonal frequency
 #define SHARP_RO_FMETER_NDCNT_TYPE0                ((0x5052  << 2) + 0xff900000)
-//Bit 31:0 ro_fmeter_ndcnt_type0     //u32, count for negitive diagonal frequency
+//Bit 31:0 ro_fmeter_ndcnt_type0     //u32, count for negative diagonal frequency
 #define SHARP_RO_FMETER_NDCNT_TYPE1                ((0x5053  << 2) + 0xff900000)
-//Bit 31:0 ro_fmeter_ndcnt_type1     //u32, count for negitive diagonal frequency
+//Bit 31:0 ro_fmeter_ndcnt_type1     //u32, count for negative diagonal frequency
 #define SHARP_RO_FMETER_NDCNT_TYPE2                ((0x5054  << 2) + 0xff900000)
-//Bit 31:0 ro_fmeter_ndcnt_type2     //u32, count for negitive diagonal frequency
+//Bit 31:0 ro_fmeter_ndcnt_type2     //u32, count for negative diagonal frequency
 #define SHARP_RO_FMETER_NDCNT_TYPE3                ((0x5055  << 2) + 0xff900000)
-//Bit 31:0 ro_fmeter_ndcnt_type3     //u32, count for negitive diagonal frequency
+//Bit 31:0 ro_fmeter_ndcnt_type3     //u32, count for negative diagonal frequency
 //
 // Closing file:  sharp_regs.h
 //
@@ -21108,22 +21058,22 @@
 //Bit  0,            reg_sr7_drtlpf_sdfd_en0                     : sdfd gamma (HF burst compare to real edge protection) enable. 0: not enable, 1:enable protection. unsigned  , default = 1
 #define SR7_DRTLPF_BETA                            ((0x5101  << 2) + 0xff900000)
 //Bit 31:16,        reserved
-//Bit 15:12,        reg_sr7_drtlpf_beta3                        : beta for drt filter coef base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguilty, beta=0 use org wo lpf. unsigned  , default = 0
-//Bit 11: 8,        reg_sr7_drtlpf_beta2                        : beta for drt filter coef base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguilty, beta=0 use org wo lpf. unsigned  , default = 4
-//Bit  7: 4,        reg_sr7_drtlpf_beta1                        : beta for drt filter coef base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguilty, beta=0 use org wo lpf. unsigned  , default = 8
-//Bit  3: 0,        reg_sr7_drtlpf_beta0                        : beta for drt filter coef base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguilty, beta=0 use org wo lpf. unsigned  , default = 15
+//Bit 15:12,        reg_sr7_drtlpf_beta3                        : beta for drt filter coef base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguity, beta=0 use org wo lpf. unsigned  , default = 0
+//Bit 11: 8,        reg_sr7_drtlpf_beta2                        : beta for drt filter coef base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguity, beta=0 use org wo lpf. unsigned  , default = 4
+//Bit  7: 4,        reg_sr7_drtlpf_beta1                        : beta for drt filter coef base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguity, beta=0 use org wo lpf. unsigned  , default = 8
+//Bit  3: 0,        reg_sr7_drtlpf_beta0                        : beta for drt filter coef base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguity, beta=0 use org wo lpf. unsigned  , default = 15
 #define SR7_PKBLD_BETA                             ((0x5102  << 2) + 0xff900000)
 //Bit 31:16,        reserved
-//Bit 15:12,        reg_sr7_pkdrtbld_beta3                      : beta for drt and cir blend base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguilty, beta=0 use cir wo drt. unsigned  , default = 0
-//Bit 11: 8,        reg_sr7_pkdrtbld_beta2                      : beta for drt and cir blend base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguilty, beta=0 use cir wo drt. unsigned  , default = 4
-//Bit  7: 4,        reg_sr7_pkdrtbld_beta1                      : beta for drt and cir blend base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguilty, beta=0 use cir wo drt. unsigned  , default = 8
-//Bit  3: 0,        reg_sr7_pkdrtbld_beta0                      : beta for drt and cir blend base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguilty, beta=0 use cir wo drt. unsigned  , default = 15
+//Bit 15:12,        reg_sr7_pkdrtbld_beta3                      : beta for drt and cir blend base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguity, beta=0 use cir wo drt. unsigned  , default = 0
+//Bit 11: 8,        reg_sr7_pkdrtbld_beta2                      : beta for drt and cir blend base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguity, beta=0 use cir wo drt. unsigned  , default = 4
+//Bit  7: 4,        reg_sr7_pkdrtbld_beta1                      : beta for drt and cir blend base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguity, beta=0 use cir wo drt. unsigned  , default = 8
+//Bit  3: 0,        reg_sr7_pkdrtbld_beta0                      : beta for drt and cir blend base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguity, beta=0 use cir wo drt. unsigned  , default = 15
 #define SR7_XLTIBLD_BETA                           ((0x5103  << 2) + 0xff900000)
 //Bit 31:16,        reserved
-//Bit 15:12,        reg_sr7_xlti_dcbld_beta3                    : beta for denoise and org dc blend base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguilty, beta=0 use org wo denoise. unsigned  , default = 0
-//Bit 11: 8,        reg_sr7_xlti_dcbld_beta2                    : beta for denoise and org dc blend base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguilty, beta=0 use org wo denoise. unsigned  , default = 4
-//Bit  7: 4,        reg_sr7_xlti_dcbld_beta1                    : beta for denoise and org dc blend base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguilty, beta=0 use org wo denoise. unsigned  , default = 8
-//Bit  3: 0,        reg_sr7_xlti_dcbld_beta0                    : beta for denoise and org dc blend base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguilty, beta=0 use org wo denoise. unsigned  , default = 15
+//Bit 15:12,        reg_sr7_xlti_dcbld_beta3                    : beta for denoise and org dc blend base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguity, beta=0 use org wo denoise. unsigned  , default = 0
+//Bit 11: 8,        reg_sr7_xlti_dcbld_beta2                    : beta for denoise and org dc blend base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguity, beta=0 use org wo denoise. unsigned  , default = 4
+//Bit  7: 4,        reg_sr7_xlti_dcbld_beta1                    : beta for denoise and org dc blend base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguity, beta=0 use org wo denoise. unsigned  , default = 8
+//Bit  3: 0,        reg_sr7_xlti_dcbld_beta0                    : beta for denoise and org dc blend base on the x=cal_drt_dif8(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguity, beta=0 use org wo denoise. unsigned  , default = 15
 #define SR7_DRTLPF_EDGE0                           ((0x5104  << 2) + 0xff900000)
 //Bit 31:28,        reg_sr7_drtlpf_edge7                        : edge lamda for drt lpf base on max_sad [0:16:128~255];. unsigned  , default = 15
 //Bit 27:24,        reg_sr7_drtlpf_edge6                        : edge lamda for drt lpf base on max_sad [0:16:128~255];. unsigned  , default = 15
@@ -21341,60 +21291,60 @@
 //Bit  7: 4,        reg_sr7_pk_mimaxerr2_cirbld_lut2d33          : 2D-LUT for alpha2 for cir-PK blender,larger coef means less drt-pk, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation, mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
 //Bit  3: 0,        reg_sr7_pk_mimaxerr2_cirbld_lut2d32          : 2D-LUT for alpha2 for cir-PK blender,larger coef means less drt-pk, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation, mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 12
 #define SR7_PKMINMAXLPF_BLD_LUT2D0                 ((0x5125  << 2) + 0xff900000)
-//Bit 31:28,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d7          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 0
-//Bit 27:24,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d6          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 0
-//Bit 23:20,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d5          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 2
-//Bit 19:16,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d4          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 2
-//Bit 15:12,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d3          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 4
-//Bit 11: 8,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d2          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 6
-//Bit  7: 4,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d1          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 12
-//Bit  3: 0,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d0          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
+//Bit 31:28,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d7          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 0
+//Bit 27:24,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d6          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 0
+//Bit 23:20,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d5          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 2
+//Bit 19:16,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d4          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 2
+//Bit 15:12,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d3          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 4
+//Bit 11: 8,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d2          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 6
+//Bit  7: 4,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d1          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 12
+//Bit  3: 0,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d0          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
 #define SR7_PKMINMAXLPF_BLD_LUT2D1                 ((0x5126  << 2) + 0xff900000)
-//Bit 31:28,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d15          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
-//Bit 27:24,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d14          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 0
-//Bit 23:20,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d13          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 2
-//Bit 19:16,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d12          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 2
-//Bit 15:12,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d11          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 4
-//Bit 11: 8,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d10          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 6
-//Bit  7: 4,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d9           : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
-//Bit  3: 0,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d8           : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
+//Bit 31:28,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d15          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
+//Bit 27:24,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d14          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 0
+//Bit 23:20,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d13          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 2
+//Bit 19:16,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d12          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 2
+//Bit 15:12,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d11          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 4
+//Bit 11: 8,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d10          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 6
+//Bit  7: 4,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d9           : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
+//Bit  3: 0,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d8           : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
 #define SR7_PKMINMAXLPF_BLD_LUT2D2                 ((0x5127  << 2) + 0xff900000)
-//Bit 31:28,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d23          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 6
-//Bit 27:24,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d22          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 10
-//Bit 23:20,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d21          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
-//Bit 19:16,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d20          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 2
-//Bit 15:12,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d19          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 2
-//Bit 11: 8,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d18          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 4
-//Bit  7: 4,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d17          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 6
-//Bit  3: 0,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d16          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 12
+//Bit 31:28,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d23          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 6
+//Bit 27:24,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d22          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 10
+//Bit 23:20,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d21          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
+//Bit 19:16,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d20          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 2
+//Bit 15:12,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d19          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 2
+//Bit 11: 8,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d18          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 4
+//Bit  7: 4,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d17          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 6
+//Bit  3: 0,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d16          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 12
 #define SR7_PKMINMAXLPF_BLD_LUT2D3                 ((0x5128  << 2) + 0xff900000)
-//Bit 31:28,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d31          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 14
-//Bit 27:24,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d30          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
-//Bit 23:20,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d29          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 4
-//Bit 19:16,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d28          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 8
-//Bit 15:12,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d27          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 10
-//Bit 11: 8,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d26          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
-//Bit  7: 4,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d25          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 2
-//Bit  3: 0,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d24          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 4
+//Bit 31:28,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d31          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 14
+//Bit 27:24,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d30          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
+//Bit 23:20,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d29          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 4
+//Bit 19:16,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d28          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 8
+//Bit 15:12,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d27          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 10
+//Bit 11: 8,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d26          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
+//Bit  7: 4,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d25          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 2
+//Bit  3: 0,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d24          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 4
 #define SR7_PKMINMAXLPF_BLD_LUT2D4                 ((0x5129  << 2) + 0xff900000)
 //Bit 31:16,        reserved
-//Bit 15:12,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d35          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
-//Bit 11: 8,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d34          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
-//Bit  7: 4,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d33          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
-//Bit  3: 0,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d32          : 2D-LUT for alpha2 for PK lpf along edge blender, lareger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 12
+//Bit 15:12,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d35          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
+//Bit 11: 8,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d34          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
+//Bit  7: 4,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d33          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 15
+//Bit  3: 0,        reg_sr7_pk_mimaxerr2_lpfbld_lut2d32          : 2D-LUT for alpha2 for PK lpf along edge blender, larger coef means less lpf along edge, x-min_err, y-max_err, nodes as 0,8,16,32,64,128,192,256, use bilinear interpolation,  mi=0,ma=0.8..256; mi=8, ma=8..256, .... unsigned  , default = 12
 #define SR7_PKDRT_BLD_EN                           ((0x512a  << 2) + 0xff900000)
 //Bit 31: 1,        reserved
 //Bit  0,            reg_sr7_pkdrtbld_beta_en                       : enable of direction ambiguity protection for drt and cir blend, beta for , 0, equivalent beta[i]=15, 1, enable. unsigned  , default = 0
 #define SR7_DRTDIF_TH                              ((0x512b  << 2) + 0xff900000)
 //Bit 31:16,        reserved
-//Bit 15: 8,        reg_sr7_drtdif_min2sad_th1                   : for min2_sad threshold for ambiguilty ignoring, if (min_sad<min2_sad/2 && min2_sad>thrd) drt_dif=1;. unsigned  , default = 128
-//Bit  7: 0,        reg_sr7_drtdif_min2sad_th0                   : for min2_sad threshold for ambiguilty ignoring, if (min_sad<min2_sad/2 && min2_sad>thrd) drt_dif=1;. unsigned  , default = 128
+//Bit 15: 8,        reg_sr7_drtdif_min2sad_th1                   : for min2_sad threshold for ambiguity ignoring, if (min_sad<min2_sad/2 && min2_sad>thrd) drt_dif=1;. unsigned  , default = 128
+//Bit  7: 0,        reg_sr7_drtdif_min2sad_th0                   : for min2_sad threshold for ambiguity ignoring, if (min_sad<min2_sad/2 && min2_sad>thrd) drt_dif=1;. unsigned  , default = 128
 #define SR7_TIBLD_PRT                              ((0x512c  << 2) + 0xff900000)
 //Bit 31:14,        reserved
 //Bit 13,            reg_sr7_hlti_dcbld_beta_en                     : enable of denoise protection for dc org and denoise blend, beta for , 0, equivalent beta[i]=15, 1, enable. unsigned  , default = 1
 //Bit 12,            reg_sr7_vlti_dcbld_beta_en                     : enable of denoise protection for dc org and denoise blend, beta for , 0, equivalent beta[i]=15, 1, enable. unsigned  , default = 1
-//Bit 11: 8,        reg_sr7_xcti_dcbld_beta1                     : beta for denoise and org dc blend base on the x=cal_drt_dif4(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguilty, beta=0 use org wo denoise. unsigned  , default = 0
-//Bit  7: 4,        reg_sr7_xcti_dcbld_beta0                     : beta for denoise and org dc blend base on the x=cal_drt_dif4(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguilty, beta=0 use org wo denoise. unsigned  , default = 15
+//Bit 11: 8,        reg_sr7_xcti_dcbld_beta1                     : beta for denoise and org dc blend base on the x=cal_drt_dif4(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguity, beta=0 use org wo denoise. unsigned  , default = 0
+//Bit  7: 4,        reg_sr7_xcti_dcbld_beta0                     : beta for denoise and org dc blend base on the x=cal_drt_dif4(min_idx,min2_idx), beta = lut[x-1], the larger of x, means the higher possibility for ambiguity, beta=0 use org wo denoise. unsigned  , default = 15
 //Bit  3,            reg_sr7_hcti_dcbld_beta_en                     : enable of denoise protection for dc org and denoise blend, beta for , 0, equivalent beta[i]=15, 1, enable. unsigned  , default = 1
 //Bit  2,            reg_sr7_vcti_dcbld_beta_en                     : enable of denoise protection for dc org and denoise blend, beta for , 0, equivalent beta[i]=15, 1, enable. unsigned  , default = 1
 //Bit  1,            reg_sr7_hcti_dcbld_use_ybeta                   : enable to use beta from hlti, 0, use c-beta, 1, use y-beta. unsigned  , default = 0
@@ -22236,7 +22186,7 @@
 // Bit     1 ge2d_rd_src1 cmd_if.stat_read_window_err, 1=reading/clipping window setting exceed limit
 // Bit     0 ge2d_rd_src1 cmd_if.cmd_st, 0=IDLE state, 1=BUSY state
 #define GE2D_STATUS1                               ((0x00a5  << 2) + 0xff940000)
-//SRC1 default clolor
+//SRC1 default color
 //{Y,Cb,Cr,A}/{R,G,B,A}
 #define GE2D_SRC1_DEF_COLOR                        ((0x00a6  << 2) + 0xff940000)
 //Bit 31, SRC1 clip x start extra, if true, one more data is read for chroma
@@ -22293,7 +22243,7 @@
 //          or start/end even/odd chroma phase  when y/c ratio = 1
 //          [3:0] for y direction odd start/end chroma phase only when y/c ration = 2
 #define GE2D_SRC1_FMT_CTRL                         ((0x00ae  << 2) + 0xff940000)
-//SRC2 default clolor
+//SRC2 default color
 //{Y,Cb,Cr,A}/{R,G,B,A}
 #define GE2D_SRC2_DEF_COLOR                        ((0x00af  << 2) + 0xff940000)
 //Bit 28:16, SRC2 clip x start
@@ -22408,7 +22358,7 @@
 //Bit 26:25, SRC1 color multiplier alpha selection
 //           if 00, Cs = Csr
 //           if 01, Cs = Csr * Asr * Ag (if source is not premultiplied)
-//           if 10, Cs = Csr * Ag (if source is premultipied)
+//           if 10, Cs = Csr * Ag (if source is premultiplied)
 //Bit 24    SRC2 color multiplier alpha selection
 //          if 0, no multiplier, Cd = Cdr,  otherwise, Cd = Cdr * Ad.
 //Bit 22:12 ALU color operation
@@ -22573,18 +22523,18 @@
 //Bit 7:0,   B mult coef for converting RGB to Y
 //Y = (R * y_r + G * y_g + B * y_b) / 256
 #define GE2D_ANTIFLICK_CTRL1                       ((0x00d9  << 2) + 0xff940000)
-//Bit 31:24, Y threhold1, when   0<Y<=th1, use filter0;
+//Bit 31:24, Y threshold1, when   0<Y<=th1, use filter0;
 //Bit 23:16, color antiflick filter0 n3
 //Bit 15:8,  color antiflick filter0 n2
 //Bit 7:0,   color antiflick filter0 n1
 //Y = (line_up * n1 + line_center * n2 + line_dn * n3) / 128
 #define GE2D_ANTIFLICK_COLOR_FILT0                 ((0x00da  << 2) + 0xff940000)
-//Bit 31:24, Y threhold2, when th1<Y<=th2, use filter1;
+//Bit 31:24, Y threshold2, when th1<Y<=th2, use filter1;
 //Bit 23:16, color antiflick filter1 n3
 //Bit 15:8,  color antiflick filter1 n2
 //Bit 7:0,   color antiflick filter1 n1
 #define GE2D_ANTIFLICK_COLOR_FILT1                 ((0x00db  << 2) + 0xff940000)
-//Bit 31:24, Y threhold3, when th2<Y<=th3, use filter2; Y>th3, use filter3
+//Bit 31:24, Y threshold3, when th2<Y<=th3, use filter2; Y>th3, use filter3
 //Bit 23:16, color antiflick filter2 n3
 //Bit 15:8,  color antiflick filter2 n2
 //Bit 7:0,   color antiflick filter2 n1
@@ -22593,18 +22543,18 @@
 //Bit 15:8,  color antiflick filter3 n2
 //Bit 7:0,   color antiflick filter3 n1
 #define GE2D_ANTIFLICK_COLOR_FILT3                 ((0x00dd  << 2) + 0xff940000)
-//Bit 31:24, Alpha threhold1, when   0<Alpha<=th1, use filter0;
+//Bit 31:24, Alpha threshold1, when   0<Alpha<=th1, use filter0;
 //Bit 23:16, Alpha antiflick filter0 n3
 //Bit 15:8,  Alpha antiflick filter0 n2
 //Bit 7:0,   Alpha antiflick filter0 n1
 //Alpha = (line_up * n1 + line_center * n2 + line_dn * n3) / 128
 #define GE2D_ANTIFLICK_ALPHA_FILT0                 ((0x00de  << 2) + 0xff940000)
-//Bit 31:24, Alpha threhold2, when th1<Alpha<=th2, use filter1;
+//Bit 31:24, Alpha threshold2, when th1<Alpha<=th2, use filter1;
 //Bit 23:16, Alpha antiflick filter1 n3
 //Bit 15:8,  Alpha antiflick filter1 n2
 //Bit 7:0,   Alpha antiflick filter1 n1
 #define GE2D_ANTIFLICK_ALPHA_FILT1                 ((0x00df  << 2) + 0xff940000)
-//Bit 31:24, Alpha threhold3, when th2<Alpha<=th3, use filter2; Alpha>th3, use filter3
+//Bit 31:24, Alpha threshold3, when th2<Alpha<=th3, use filter2; Alpha>th3, use filter3
 //Bit 23:16, Alpha antiflick filter2 n3
 //Bit 15:8,  Alpha antiflick filter2 n2
 //Bit 7:0,   Alpha antiflick filter2 n1
@@ -22634,9 +22584,9 @@
 //Bit 9:1   dout_offset (signed data)
 //Bit 0     enable
 #define GE2D_SRC1_RANGE_MAP_CR_CTRL                ((0x00e5  << 2) + 0xff940000)
-//Bit 21:16     src1 prearbitor burst number
-//Bit 13:8      src2 prearbitor burst number
-//Bit 5:0       dst prearbitor burst number
+//Bit 21:16     src1 pre arbiter burst number
+//Bit 13:8      src2 pre arbiter burst number
+//Bit 5:0       dst pre arbiter burst number
 #define GE2D_ARB_BURST_NUM                         ((0x00e6  << 2) + 0xff940000)
 //each 6bit ID, high 4bit are thread ID, low 2bits are the token
 //Bit 21:16 src1 ID

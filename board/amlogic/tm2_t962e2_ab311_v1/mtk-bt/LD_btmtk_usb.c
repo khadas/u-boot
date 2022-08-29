@@ -518,7 +518,7 @@ static void btmtk_usb_cap_init(struct LD_btmtk_usb_data *data)
 
 #if CRC_CHECK
 //---------------------------------------------------------------------------
-static u16 checksume16(u8 *pData, int len)
+static u16 checksum16(u8 *pData, int len)
 {
     int sum = 0;
 
@@ -848,7 +848,7 @@ load_patch_protect:
 
     /* Send Checksum request */
     #if CRC_CHECK
-    int total_checksum = checksume16(data->rom_patch + PATCH_INFO_SIZE, patch_len);
+    int total_checksum = checksum16(data->rom_patch + PATCH_INFO_SIZE, patch_len);
     btmtk_usb_chk_crc(data, patch_len);
     MTK_MDELAY(20);
     if (total_checksum != btmtk_usb_get_crc(data))
@@ -1413,7 +1413,7 @@ void LD_btmtk_usb_SetWoble(mtkbt_dev_t *dev)
         btmtk_usb_send_read_bdaddr(data);
         ret = btmtk_usb_load_woble_setting(data);
         if (ret) {
-            usb_debug("Using lagecy WoBLE setting(%d)!!!\n", ret);
+            usb_debug("Using legacy WoBLE setting(%d)!!!\n", ret);
             btmtk_usb_set_apcf(data, FALSE);
         } else
             btmtk_usb_set_apcf(data, TRUE);

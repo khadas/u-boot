@@ -265,7 +265,7 @@ int  spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 int spi_cs_is_valid(unsigned int bus, unsigned int cs);
 
 /**
- * We have to define spi_cs_activate/deactivate for those tranditional
+ * We have to define spi_cs_activate/deactivate for those traditional
  * driver though in DM.
  */
 /**

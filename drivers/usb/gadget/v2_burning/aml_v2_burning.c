@@ -117,7 +117,7 @@ int aml_burn_usb_producing(int flag, bd_t* bis)
     set_usb_boot_function(CLEAR_USB_BOOT);
     optimus_work_mode_set(OPTIMUS_WORK_MODE_USB_PRODUCE);
 
-    close_usb_phy_clock(0);//disconect before re-connect to enhance pc compatibility
+    close_usb_phy_clock(0);//disconnect before re-connect to enhance pc compatibility
     return v2_usbburning(20000);
 }
 

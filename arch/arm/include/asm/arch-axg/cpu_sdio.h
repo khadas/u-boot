@@ -114,7 +114,7 @@ struct cmd_cfg{
 struct sd_emmc_status{
 	uint32_t rxd_err:8;      /*[7:0]     RX data CRC error per wire, for multiple block read, the CRC errors are ORed together.*/
 	uint32_t txd_err:1;      /*[8]       TX data CRC error, for multiple block write, any one of blocks CRC error. */
-	uint32_t desc_err:1;     /*[9]       SD/eMMC controller doesn¡¯t own descriptor. The owner bit is ¡°0¡±, set cfg_ignore_owner to ignore this error.*/
+	uint32_t desc_err:1;     /*[9]       SD/eMMC controller doesn't own descriptor. The owner bit is '0', set cfg_ignore_owner to ignore this error.*/
 	uint32_t resp_err:1;     /*[10]      Response CRC error.*/
 	uint32_t resp_timeout:1; /*[11]      No response received before time limit. The timeout limit is set by cfg_resp_timeout.*/
 	uint32_t desc_timeout:1; /*[12]      Descriptor execution time over time limit. The timeout limit is set by descriptor itself.*/
@@ -213,7 +213,7 @@ struct sd_emmc_config{
 	uint32_t out_fall:1;     /*[16]      DDR mode only. The command and TXD start from rising edge. Set 1 to start from falling edge. */
 	uint32_t blk_gap_ip:1;   /*[17]      1: Enable SDIO data block gap interrupt period. 0: Disabled.*/
 	uint32_t spare:1;        /*[18]      Spare,  ??? need check*/
-	uint32_t ignore_owner:1; /*[19]      Use this descriptor even if its owner bit is ¡°0¡±.*/
+	uint32_t ignore_owner:1; /*[19]      Use this descriptor even if its owner bit is '0'.*/
 	uint32_t chk_ds:1;       /*[20]      Check data strobe in HS400.*/
 	uint32_t cmd_low:1;      /*[21]      Hold CMD as output Low, eMMC boot mode.*/
 	uint32_t stop_clk:1;     /*[22]      1: stop clock. 0: normal clock.*/
@@ -224,7 +224,7 @@ struct sd_emmc_config{
     uint32_t txd_add_err:1;	/*[24]   	TXD add error test*/
 							/*Test feature, should not be used in normal condition.*/
 							/*It will inverted the first CRC bits of the 3rd block.*/
-							/*Block index starts from 0, 1, 2, ¡­*/
+							/*Block index starts from 0, 1, 2, */
     uint32_t txd_retry:1;	/*[25]   	When TXD CRC error, host sends the block again.*/
 							/*The total number of retries of one descriptor is limited to 15, */
 							/*after 15 retries, the TXD_err is set to high.*/
@@ -237,7 +237,7 @@ struct sd_emmc_config{
 struct sd_emmc_irq_en{
 	uint32_t rxd_err:8;      /*[7:0]     RX data CRC error per wire.*/
 	uint32_t txd_err:1;      /*[8]       TX data CRC error. */
-	uint32_t desc_err:1;     /*[9]       SD/eMMC controller doesn¡¯t own descriptor. */
+	uint32_t desc_err:1;     /*[9]       SD/eMMC controller doesn't own descriptor. */
 	uint32_t resp_err:1;     /*[10]      Response CRC error.*/
 	uint32_t resp_timeout:1; /*[11]      No response received before time limit. */
 	uint32_t desc_timeout:1; /*[12]      Descriptor execution time over time limit. */

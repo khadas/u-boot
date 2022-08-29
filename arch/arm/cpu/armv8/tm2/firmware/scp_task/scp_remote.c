@@ -79,9 +79,9 @@ static const reg_remote RDECODEMODE_RCA[] = {
 	{AO_MF_IR_DEC_LDR_IDLE, 250 << 16 | 160 << 0},	// leader idle 400
 	{AO_MF_IR_DEC_LDR_REPEAT, 250 << 16 | 160 << 0},	// leader repeat
 	{AO_MF_IR_DEC_BIT_0, 100 << 16 | 48 << 0},	// logic '0' or '00' 1500us
-	{AO_MF_IR_DEC_REG0, 3 << 28 | (0xFA0 << 12) | 0x13},	// sys clock boby time.base time = 20 body frame
+	{AO_MF_IR_DEC_REG0, 3 << 28 | (0xFA0 << 12) | 0x13},	// sys clock body time.base time = 20 body frame
 	{AO_MF_IR_DEC_STATUS, (150 << 20) | (110 << 10)},	// logic '1' or '01'    2500us
-	{AO_MF_IR_DEC_REG1, 0x9700},	// boby long decode (8-13) //framn len = 24bit
+	{AO_MF_IR_DEC_REG1, 0x9700},	// body long decode (8-13) //framn len = 24bit
 	/*it may get the wrong customer value and key value from register if the value is set to 0x4,so the register value must set to 0x104 */
 	{AO_MF_IR_DEC_REG2, 0x3904},
 	{AO_MF_IR_DEC_REG3, 0x2bc},
@@ -99,7 +99,7 @@ static const reg_remote RDECODEMODE_NEC_TOSHIBA_2IN1[] = {
 	{AO_IR_DEC_BIT_0, 72<<16|40<<0 },/*logic '0' or '00'*/
 	{AO_IR_DEC_REG0, 3<<28|(0xFA0<<12)|0x13},/*20us body 108ms*/
 	{AO_IR_DEC_STATUS, (134<<20)|(90<<10)},/*logic'1'or'01'*/
-	{AO_IR_DEC_REG1, 0xbe10},/*boby long decode (9-13)*/
+	{AO_IR_DEC_REG1, 0xbe10},/*body long decode (9-13)*/
 		/* used new decode for toshiba*/
 	{AO_MF_IR_DEC_LDR_ACTIVE, 263 << 16 | 194 << 0},
 	{AO_MF_IR_DEC_LDR_IDLE, 263 << 16 | 194 << 0},
@@ -122,15 +122,15 @@ static const reg_remote RDECODEMODE_NEC_RCA_2IN1[] = {
 	{AO_IR_DEC_BIT_0, 72<<16|40<<0 },/*logic '0' or '00'*/
 	{AO_IR_DEC_REG0, 3<<28|(0xFA0<<12)|0x13},/*20us body 108ms*/
 	{AO_IR_DEC_STATUS, (134<<20)|(90<<10)},/*logic'1'or'01'*/
-	{AO_IR_DEC_REG1, 0xbe10},/*boby long decode (9-13)*/
+	{AO_IR_DEC_REG1, 0xbe10},/*body long decode (9-13)*/
 	/*used new decode for rca*/
 	{AO_MF_IR_DEC_LDR_ACTIVE, ((unsigned)250 << 16) | ((unsigned)160 << 0)},	//rca leader 4000us,200* timebase
 	{AO_MF_IR_DEC_LDR_IDLE, 250 << 16 | 160 << 0},	// leader idle 400
 	{AO_MF_IR_DEC_LDR_REPEAT, 250 << 16 | 160 << 0},	// leader repeat
 	{AO_MF_IR_DEC_BIT_0, 100 << 16 | 48 << 0},	// logic '0' or '00' 1500us
-	{AO_MF_IR_DEC_REG0, 3 << 28 | (0xFA0 << 12) | 0x13},	// sys clock boby time.base time = 20 body frame
+	{AO_MF_IR_DEC_REG0, 3 << 28 | (0xFA0 << 12) | 0x13},	// sys clock body time.base time = 20 body frame
 	{AO_MF_IR_DEC_STATUS, (150 << 20) | (110 << 10)},	// logic '1' or '01'    2500us
-	{AO_MF_IR_DEC_REG1, 0x9700},	// boby long decode (8-13) //framn len = 24bit
+	{AO_MF_IR_DEC_REG1, 0x9700},	// body long decode (8-13) //framn len = 24bit
 	/*it may get the wrong customer value and key value from register if the value is set to 0x4,so the register value must set to 0x104 */
 	{AO_MF_IR_DEC_REG2, 0x3904},
 	{AO_MF_IR_DEC_REG3, 0x2bc},
@@ -147,15 +147,15 @@ static const reg_remote RDECODEMODE_RCMM[] = {
 	{AO_IR_DEC_BIT_0, 72<<16|40<<0 },/*logic '0' or '00'*/
 	{AO_IR_DEC_REG0, 3<<28|(0xFA0<<12)|0x13},/*20us body 108ms*/
 	{AO_IR_DEC_STATUS, (134<<20)|(90<<10)},/*logic'1'or'01'*/
-	{AO_IR_DEC_REG1, 0xbe10},/*boby long decode (9-13)*/
+	{AO_IR_DEC_REG1, 0xbe10},/*body long decode (9-13)*/
 	// used new decode
 	{AO_MF_IR_DEC_LDR_ACTIVE,((unsigned)35<<16) | ((unsigned)17<<0)},//leader active
 	{AO_MF_IR_DEC_LDR_IDLE, 17<<16 | 8<<0},// leader idle
 	{AO_MF_IR_DEC_LDR_REPEAT,31<<16 | 11<<0}, // leader repeat
 	{AO_MF_IR_DEC_BIT_0,25<<16|21<<0 },// logic '0' or '00' 1200us
-	{AO_MF_IR_DEC_REG0,3<<28|(590<<12)|0x13},  // sys clock boby time.base time = 20 body frame
+	{AO_MF_IR_DEC_REG0,3<<28|(590<<12)|0x13},  // sys clock body time.base time = 20 body frame
 	{AO_MF_IR_DEC_STATUS,(36<<20)|(29<<10)}, // logic '1' or '01'     2400us
-	{AO_MF_IR_DEC_REG1,0x9f00},// boby long decode (8-13) //framn len = 24bit //backup
+	{AO_MF_IR_DEC_REG1,0x9f00},// body long decode (8-13) //framn len = 24bit //backup
 	{AO_MF_IR_DEC_REG2,0x1150a},//back up
 	{AO_MF_IR_DEC_DURATN2,43<<16 | 37<<0},
 	{AO_MF_IR_DEC_DURATN3,50<<16 | 44<<0},

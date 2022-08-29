@@ -117,7 +117,7 @@ static void setup_net_chip(void)
 {
 	eth_aml_reg0_t eth_reg0;
 
-	//setup ethernet clk need calibrate to configre
+	//setup ethernet clk need calibrate to configure
 	setbits_le32(P_PERIPHS_PIN_MUX_4, 0xfffc00);
 
 	eth_reg0.d32 = 0;
@@ -394,7 +394,7 @@ static void hdmi_tx_set_hdmi_5v(void)
 static struct mtd_partition normal_partition_info[] = {
 #ifdef CONFIG_DISCRETE_BOOTLOADER
     /* MUST NOT CHANGE this part unless u know what you are doing!
-     * inherent parition for descrete bootloader to store fip
+     * inherent partition for discrete bootloader to store fip
      * size is determind by TPL_SIZE_PER_COPY*TPL_COPY_NUM
      * name must be same with TPL_PART_NAME
      */

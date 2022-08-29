@@ -561,7 +561,7 @@ static void dwc_otg_pcd_init_ep(pcd_struct_t *pcd, dwc_otg_pcd_ep_t *pcd_ep,
 	pcd_ep->dwc_ep.num = ep_num;
 	pcd_ep->dwc_ep.active = 0;
 	pcd_ep->dwc_ep.tx_fifo_num = 0;
-	/* Control until ep is actvated */
+	/* Control until ep is activated */
 	pcd_ep->dwc_ep.type = DWC_OTG_EP_TYPE_CONTROL;
 	pcd_ep->dwc_ep.maxpacket = 1024;
 	pcd_ep->dwc_ep.dma_addr = 0;

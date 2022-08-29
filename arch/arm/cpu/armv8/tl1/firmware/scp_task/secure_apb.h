@@ -585,7 +585,7 @@
 #define   P_PREG_PAD_GPIO5_I                                   (volatile uint32_t *)(0xff634400 + (0x022 << 2))
 // ----------------------------
 // ----------------------------
-// Pad conntrols
+// Pad controls
 // ----------------------------
 //`define PAD_PULL_UP_REG6                    8'h39
 #define     PAD_PULL_UP_REG0                                   (0xff634400 + (0x03a << 2))

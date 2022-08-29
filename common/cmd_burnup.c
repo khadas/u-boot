@@ -429,7 +429,7 @@ int do_store_test(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
         if (strcmp(cmd, "size") == 0) {
                 uint64_t off=0, size;
 
-                ret = store_get_partititon_size(area,&size);
+                ret = store_get_partition_size(area,&size);
                 if (ret < 0) {
                         printf("store write failed\n");
                         return -1;

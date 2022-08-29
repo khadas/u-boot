@@ -178,7 +178,7 @@ struct aml_i2c_platform{
 	unsigned int		use_pio;/*0: hardware i2c, 1: manual pio i2c*/
 	unsigned int		master_i2c_speed;
 
-	/* only need 1 i2c master to comunicate with several devices,
+	/* only need 1 i2c master to communicate with several devices,
 	  * should I prepare 2 master interface to use simultaneously?*/
 	struct resource	* resource;
 	struct aml_pinmux_reg_bit master_ao_pinmux;

@@ -424,7 +424,7 @@
 struct nand_buf {
 	int head;
 	int tail;
-	/* seprating dma_buf as buf can be used for status read purpose */
+	/* separating dma_buf as buf can be used for status read purpose */
 	uint8_t dma_buf[DENALI_BUF_SIZE]  __aligned(64);
 	uint8_t buf[DENALI_BUF_SIZE];
 };

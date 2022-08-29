@@ -906,7 +906,7 @@ void do_bulk_complete( pcd_struct_t *_pcd)
                                 if (leftDataLen) //if earlier packet length is 0, no next xfer here!!
                                 {
                                         if (leftDataLen < 0) {
-                                                DWN_WRN("total 0x%x < tranferred 0x%x\n", _pcd->bulk_data_len, _pcd->bulk_xfer_len);
+                                                DWN_WRN("total 0x%x < transferred 0x%x\n", _pcd->bulk_data_len, _pcd->bulk_xfer_len);
                                                 return ;
                                         }
                                         _pcd->bulk_len     = DWC_BLK_LEN(leftDataLen);

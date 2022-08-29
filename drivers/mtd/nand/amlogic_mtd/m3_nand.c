@@ -577,7 +577,7 @@ static int m3_nand_options_confirm(struct aml_nand_chip *aml_chip)
 	plat->platform_nand_data.chip.options & NAND_INTERLEAVING_OPTIONS_MASK;
 	options_define = (aml_chip->options & NAND_INTERLEAVING_OPTIONS_MASK);
 	if (options_selected > options_define) {
-		printk("INTERLEAV change! \n");
+		printk("INTERLEAVE change! \n");
 		options_selected = options_define;
 	}
 	switch (options_selected) {

@@ -6,8 +6,8 @@
  *
  */
 
-#ifndef __STOARGE_IF_H__
-#define __STOARGE_IF_H__
+#ifndef __STORAGE_IF_H__
+#define __STORAGE_IF_H__
 
 
 /***
@@ -71,5 +71,5 @@ int store_key_write(uint8_t * buffer,
 
 extern int check_valid_dts(unsigned char *buffer, unsigned char **dts);
 
-#endif//ifndef __STOARGE_IF_H__
+#endif//ifndef __STORAGE_IF_H__
 

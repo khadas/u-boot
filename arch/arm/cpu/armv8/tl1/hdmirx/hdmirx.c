@@ -517,7 +517,7 @@ static int rx_top_init(void)
 	data32 |= (0 << 24); /* [25:24]      source_0 */
 	hdmirx_wr_top(TOP_CHAN_SWITCH_0, data32);
 
-	/* Configure TMDS algin */
+	/* Configure TMDS align */
 	data32	= 0;
 	hdmirx_wr_top(TOP_TMDS_ALIGN_CNTL0,	data32);
 	data32	= 0;

@@ -271,14 +271,14 @@ static int usb_charging_detect_call_back(char bc_mode)
 	switch (bc_mode) {
 		case BC_MODE_DCP:
 		case BC_MODE_CDP:
-			//Pull up chargging current > 500mA
+			//Pull up charging current > 500mA
 			break;
 
 		case BC_MODE_UNKNOWN:
 		case BC_MODE_SDP:
 		default:
-			//Limit chargging current <= 500mA
-			//Or detet dec-charger
+			//Limit charging current <= 500mA
+			//Or detect dc-charger
 			break;
 	}
 	return 0;

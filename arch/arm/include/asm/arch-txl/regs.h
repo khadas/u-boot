@@ -1476,8 +1476,8 @@
 // Bit 12, osd1 enable for postblend
 // Bit 11, reserved
 // Bit 10, vd1 enable for postblend
-// Bit 9,  if true, osd1 is alpha premultipiled
-// Bit 8,  if true, osd2 is alpha premultipiled
+// Bit 9,  if true, osd1 is alpha premultiplied
+// Bit 8,  if true, osd2 is alpha premultiplied
 // Bit 7,  postblend module enable
 // Bit 6,  preblend module enable
 // Bit 5,  if true, osd2 foreground compared with osd1 in preblend
@@ -1502,8 +1502,8 @@
 // Bit 12, osd1 enable for postblend
 // Bit 11, vd2 enable for postblend
 // Bit 10, vd1 enable for postblend
-// Bit 9,  if true, osd1 is alpha premultipiled
-// Bit 8,  if true, osd2 is alpha premultipiled
+// Bit 9,  if true, osd1 is alpha premultiplied
+// Bit 8,  if true, osd2 is alpha premultiplied
 // Bit 7,  postblend module enable
 // Bit 6,  preblend module enable
 // Bit 5,  if true, osd2 foreground compared with osd1 in preblend

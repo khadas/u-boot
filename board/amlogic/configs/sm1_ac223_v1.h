@@ -437,7 +437,7 @@
 
 #ifdef CONFIG_AML_MTD
 
-/* bootlaoder is construct by bl2 and fip
+/* bootloader is construct by bl2 and fip
  * when DISCRETE_BOOTLOADER is enabled, bl2 & fip
  * will not be stored continuously, and nand layout
  * would be bl2|rsv|fip|normal, but not
@@ -505,7 +505,7 @@
 	#define CONFIG_SPI_FLASH
 	#define CONFIG_DM_SPI_FLASH
 	#define CONFIG_CMD_SF
-	/* SPI flash surpport list */
+	/* SPI flash support list */
 	#define CONFIG_SPI_FLASH_ATMEL
 	#define CONFIG_SPI_FLASH_EON
 	#define CONFIG_SPI_FLASH_GIGADEVICE
@@ -595,8 +595,8 @@
 #define CONFIG_FASTBOOT_MAX_DOWN_SIZE	0x8000000
 #define CONFIG_DEVICE_PRODUCT	"faraday"
 
-//UBOOT Facotry usb/sdcard burning config
-#define CONFIG_AML_V2_FACTORY_BURN              1       //support facotry usb burning
+//UBOOT Factory usb/sdcard burning config
+#define CONFIG_AML_V2_FACTORY_BURN              1       //support factory usb burning
 #define CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE   1       //support factory sdcard burning
 #define CONFIG_POWER_KEY_NOT_SUPPORTED_FOR_BURN 1       //There isn't power-key for factory sdcard burning
 #define CONFIG_SD_BURNING_SUPPORT_UI            1       //Displaying upgrading progress bar when sdcard/udisk burning

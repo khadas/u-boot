@@ -1092,7 +1092,7 @@ static int hdmirx2_pll_test(unsigned int pll_clk)
 	} else {
 		clk_div = clok_div_enter(pll_clk , 40);
 		printf("HDMIRX pll lock OK! - %4d MHz.Div40  - %4d MHz. ", pll_clk, clk_div);
-		/* get hdmirx_pll_clk apll_audiuo  */
+		/* get hdmirx_pll_clk apll_audio  */
 		clk_msr_val = clk_util_clk_msr(29);
 		printf("CLKMSR(29) - %4d MHz ", clk_msr_val);
 		if (clk_around(clk_msr_val, clk_div)) {

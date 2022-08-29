@@ -78,7 +78,7 @@ int aml_v3_factory_usb_burning(int flag, bd_t* bis)
 {
     if (!is_boot_device_usb()) return 1;
 
-    bis = bis;//avoid compiling warnning
+    bis = bis;//avoid compiling warning
     if ( !flag ) {
 #ifdef CONFIG_GENERIC_MMC
         puts("MMC init for dnl\n");

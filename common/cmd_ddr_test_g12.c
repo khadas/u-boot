@@ -771,18 +771,18 @@ typedef struct ddr_set {
 	// [1]Odt pattern for accesses targeting rank 1. [3:0] is used for write ODT [7:4] is used for read ODT
 	unsigned int	dfi_odt_config;
 	//normal go status od config,use for normal status
-	//bit 12.  rank1 ODT default. default vulue for ODT[1] pins if theres no read/write activity.
+	//bit 12.  rank1 ODT default. default value for ODT[1] pins if theres no read/write activity.
 	//bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
 	//bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
 	//bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
 	//bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occure in rank0.
-	//bit 4.   rank0 ODT default.    default vulue for ODT[0] pins if theres no read/write activity.
+	//bit 4.   rank0 ODT default.    default value for ODT[0] pins if theres no read/write activity.
 	//bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
 	//bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
 	//bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
 	//bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occure in rank1.
 	unsigned short	DRAMFreq[4];
-	//config dram frequency,use DRAMFreq[0],ohter reserve
+	//config dram frequency,use DRAMFreq[0],other reserve
 	unsigned char	PllBypassEn;
 	//system reserve,do not modify
 	unsigned char	ddr_rdbi_wr_enable;
@@ -819,25 +819,25 @@ typedef struct ddr_set {
 	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
 	 */
 	unsigned short			clk_drv_ohm;
-	//config soc clk pin signal driver stength ,select 20,30,40,60ohm
+	//config soc clk pin signal driver strength ,select 20,30,40,60ohm
 	unsigned short			cs_drv_ohm;
-	//config soc cs0 cs1 pin signal driver stength ,select 20,30,40,60ohm
+	//config soc cs0 cs1 pin signal driver strength ,select 20,30,40,60ohm
 	unsigned short			ac_drv_ohm;
-	//config soc  normal address command pin driver stength ,select 20,30,40,60ohm
+	//config soc  normal address command pin driver strength ,select 20,30,40,60ohm
 	unsigned short			soc_data_drv_ohm_p;
-	//config soc data pin pull up driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin pull up driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short			soc_data_drv_ohm_n;
-	//config soc data pin pull down driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin pull down driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short			soc_data_odt_ohm_p;
-	//config soc data pin odt pull up stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin odt pull up strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short			soc_data_odt_ohm_n;
-	//config soc data pin odt pull down stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin odt pull down strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short			dram_data_drv_ohm;
-	//config dram data pin pull up pull down driver stength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
+	//config dram data pin pull up pull down driver strength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned short			dram_data_odt_ohm;
-	//config dram data pin odt pull up down stength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
+	//config dram data pin odt pull up down strength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned short			dram_ac_odt_ohm;
-	//config dram ac pin odt pull up down stength,use for lpddr4, select 40,48,60,80,120,240ohm
+	//config dram ac pin odt pull up down strength,use for lpddr4, select 40,48,60,80,120,240ohm
 	unsigned short			soc_clk_slew_rate;
 	//system reserve,do not modify
 	unsigned short			soc_cs_slew_rate;
@@ -972,18 +972,18 @@ typedef struct ddr_set_t7 {
 	// [1]Odt pattern for accesses targeting rank 1. [3:0] is used for write ODT [7:4] is used for read ODT
 	unsigned int	dfi_odt_config;
 	//normal go status od config,use for normal status
-	//bit 12.  rank1 ODT default. default vulue for ODT[1] pins if theres no read/write activity.
+	//bit 12.  rank1 ODT default. default value for ODT[1] pins if theres no read/write activity.
 	//bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
 	//bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
 	//bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
 	//bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occure in rank0.
-	//bit 4.   rank0 ODT default.    default vulue for ODT[0] pins if theres no read/write activity.
+	//bit 4.   rank0 ODT default.    default value for ODT[0] pins if theres no read/write activity.
 	//bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
 	//bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
 	//bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
 	//bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occure in rank1.
 	unsigned short	DRAMFreq[4];
-	//config dram frequency,use DRAMFreq[0],ohter reserve
+	//config dram frequency,use DRAMFreq[0],other reserve
 	unsigned char	PllBypassEn;
 	//system reserve,do not modify
 	unsigned char	ddr_rdbi_wr_enable;
@@ -1021,25 +1021,25 @@ typedef struct ddr_set_t7 {
 	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
 	 */
 	unsigned short			clk_drv_ohm;
-	//config soc clk pin signal driver stength ,select 20,30,40,60ohm
+	//config soc clk pin signal driver strength ,select 20,30,40,60ohm
 	unsigned short			cs_drv_ohm;
-	//config soc cs0 cs1 pin signal driver stength ,select 20,30,40,60ohm
+	//config soc cs0 cs1 pin signal driver strength ,select 20,30,40,60ohm
 	unsigned short			ac_drv_ohm;
-	//config soc  normal address command pin driver stength ,select 20,30,40,60ohm
+	//config soc  normal address command pin driver strength ,select 20,30,40,60ohm
 	unsigned short			soc_data_drv_ohm_p;
-	//config soc data pin pull up driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin pull up driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short			soc_data_drv_ohm_n;
-	//config soc data pin pull down driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin pull down driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short			soc_data_odt_ohm_p;
-	//config soc data pin odt pull up stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin odt pull up strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short			soc_data_odt_ohm_n;
-	//config soc data pin odt pull down stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin odt pull down strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short			dram_data_drv_ohm;
-	//config dram data pin pull up pull down driver stength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
+	//config dram data pin pull up pull down driver strength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned short			dram_data_odt_ohm;
-	//config dram data pin odt pull up down stength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
+	//config dram data pin odt pull up down strength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned short			dram_ac_odt_ohm;
-	//config dram ac pin odt pull up down stength,use for lpddr4, select 40,48,60,80,120,240ohm
+	//config dram ac pin odt pull up down strength,use for lpddr4, select 40,48,60,80,120,240ohm
 	unsigned short			soc_clk_slew_rate;
 	//system reserve,do not modify
 	unsigned short			soc_cs_slew_rate;
@@ -7267,7 +7267,7 @@ void ddr_read_write_training_value(ddr_set_t_c2 *p_ddrs, char over_ride_index,
 
 			if (print == DDR_PRINT_ENABLE) {
 				printf("training_index	%d	sub_index	%d	phase	%d\n", over_ride_index, t_count, t_count_value);
-			} else {            //maybe funciton will  be optimize not use the  variable
+			} else {            //maybe function will  be optimize not use the  variable
 			}
 			//printf("training_index	%d	sub_index	%d	phase	%d\n", over_ride_index, t_count, t_count_value);
 		}
@@ -7831,8 +7831,8 @@ uint16_t lcd_bdl_value[72][4];          //org min max status
 int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	printf("\nEnterddr_test_dqs_window function  ddr_test_cmd 0x27 0x1080000 0x800000  0x40000000 0x800000 15 0x6  0 0 0 0 0 0 1/config\n");
-	printf("\nddr_test_cmd 0x27 cs0_test_start  cs0_test_size  cs1_test_start  cs1_test_size  ns test_index_enable  nibble_mask0 nibble_mask1 nibble_mask2 dram_type channel_mode  config_register all_togther--- watchdog should >15s\n");
-	printf("\n ac write_dqs read_dqs can test togther test_index_enable can enable kernel test \n");
+	printf("\nddr_test_cmd 0x27 cs0_test_start  cs0_test_size  cs1_test_start  cs1_test_size  ns test_index_enable  nibble_mask0 nibble_mask1 nibble_mask2 dram_type channel_mode  config_register all_together--- watchdog should >15s\n");
+	printf("\n ac write_dqs read_dqs can test together test_index_enable can enable kernel test \n");
 #define  DDR_CORSS_TALK_TEST_SIZE   0x20000
 	unsigned int temp_test_error = 0;
 	unsigned int nibble_save_offset = 0;
@@ -9208,7 +9208,7 @@ int do_ddr_g12_override_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	unsigned int ddr_dmc_apd_temp_save, ddr_dmc_asr_temp_save;
 	ddr_dmc_apd_temp_save = readl((p_ddr_base->ddr_dmc_apd_address));
 	ddr_dmc_asr_temp_save = readl((p_ddr_base->ddr_dmc_asr_address));
-	printf("\12nm phy read write register should closd apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr function\n");
 
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F + 7 * 32)
@@ -9362,7 +9362,7 @@ int do_ddr_c2_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 	ddr_dmc_asr_temp_save = readl(p_ddr_base->ddr_dmc_asr_address);
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F + 7 * 32)
-	printf("\12nm phy read write register should closd apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr function\n");
 	int i = 0;
 
 	printf("\nargc== 0x%08x\n", argc);
@@ -9371,9 +9371,9 @@ int do_ddr_c2_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 	char *endp;
 	//rank_index  dq_index  write_read left/right  offset_value
 	unsigned int test_index = 0;            // 1 ac ,0x2, write dqs ,0x4,read dqs,0x8,write dq,0x10 read dq
-	unsigned int test_dq_mask_1 = 0;        //each bit mask corresspond with dq_index
-	unsigned int test_dq_mask_2 = 0;        //each bit mask corresspond with dq_index
-	unsigned int test_dq_mask_3 = 0;        //each bit mask corresspond with dq_index
+	unsigned int test_dq_mask_1 = 0;        //each bit mask correspond with dq_index
+	unsigned int test_dq_mask_2 = 0;        //each bit mask correspond with dq_index
+	unsigned int test_dq_mask_3 = 0;        //each bit mask correspond with dq_index
 	unsigned int left_right_flag = 0;       //  1 left ,2 right   #define  DDR_PARAMETER_LEFT		1     #define   DDR_PARAMETER_RIGHT		2
 	unsigned int offset_value = 0;          //
 	unsigned int count = 0;
@@ -9544,7 +9544,7 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	ddr_dmc_asr_temp_save = readl(p_ddr_base->ddr_dmc_asr_address);
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F + 7 * 32)
-	printf("\12nm phy read write register should closd apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr function\n");
 
 	int i = 0;
 	printf("\nargc== 0x%08x\n", argc);
@@ -9553,9 +9553,9 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	char *endp;
 	//rank_index  dq_index  write_read left/right  offset_value
 	unsigned int test_index = 0;            // 1 ac ,0x2, write dqs ,0x4,read dqs,0x8,write dq,0x10 read dq
-	unsigned int test_dq_mask_1 = 0;        //each bit mask corresspond with dq_index
-	unsigned int test_dq_mask_2 = 0;        //each bit mask corresspond with dq_index
-	unsigned int test_dq_mask_3 = 0;        //each bit mask corresspond with dq_index
+	unsigned int test_dq_mask_1 = 0;        //each bit mask correspond with dq_index
+	unsigned int test_dq_mask_2 = 0;        //each bit mask correspond with dq_index
+	unsigned int test_dq_mask_3 = 0;        //each bit mask correspond with dq_index
 	unsigned int left_right_flag = 0;       //  1 left ,2 right   #define  DDR_PARAMETER_LEFT		1     #define   DDR_PARAMETER_RIGHT		2
 	unsigned int offset_value = 0;          //
 	unsigned int count = 0;
@@ -9736,7 +9736,7 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	if ((strcmp(argv[1], "h") == 0))
 		//goto usage;
 		return 1;
-	printf("\12nm phy read write register should closd apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr function\n");
 
 	global_ddr_clk = get_ddr_clk();
 	printf("\nddr_clk== %dMHz\n", global_ddr_clk);
@@ -10090,12 +10090,12 @@ int do_ddr_auto_scan_drv(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 
 	unsigned int counter_loop = 0;
 	unsigned int ddr_frequency = 0;
-	unsigned int soc_data_drv_ohm_p = 0;    //74  //config soc data pin pull up driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	unsigned int soc_data_drv_ohm_p = 0;    //74  //config soc data pin pull up driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned int soc_data_drv_ohm_n = 0;    //76
-	unsigned int soc_data_odt_ohm_p = 0;    //78  //config soc data pin odt pull up stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	unsigned int soc_data_odt_ohm_p = 0;    //78  //config soc data pin odt pull up strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned int soc_data_odt_ohm_n = 0;    //80
-	unsigned int dram_data_drv_ohm = 0;     //82  //config dram data pin pull up pull down driver stength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
-	unsigned int dram_data_odt_ohm = 0;     //84  //config dram data pin odt pull up down stength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
+	unsigned int dram_data_drv_ohm = 0;     //82  //config dram data pin pull up pull down driver strength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
+	unsigned int dram_data_odt_ohm = 0;     //84  //config dram data pin odt pull up down strength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned int dram_data_wr_odt_ohm = 0;  //174 char 1
 	i = 74 / 2;
 	soc_data_drv_ohm_p = ddr_rd_8_16bit_on_32reg(temp_reg_add, 16, i);
@@ -10473,7 +10473,7 @@ int do_ddr_auto_fastboot_check_c2(char auto_window_test_enable_item,
 	}
 
 	if ((ddr_set_t_p->cfg_board_common_setting.fast_boot[0])) {
-		printf("\nuboot enable auto fast boot funciton \n");
+		printf("\nuboot enable auto fast boot function \n");
 
 		if ((verify_error)) {
 			printf("\nuboot  auto fast boot check verify data happen wrong \n");
@@ -10710,7 +10710,7 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char *const
 		}
 	}
 	if ((ddr_set_t_p->fast_boot[0])) {
-		printf("\nuboot enable auto fast boot funciton \n");
+		printf("\nuboot enable auto fast boot function \n");
 		if ((verify_error)) {
 			printf("\nuboot  auto fast boot check verify data happen wrong \n");
 			(ddr_set_t_p->fast_boot[0]) = 1;

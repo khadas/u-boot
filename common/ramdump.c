@@ -59,7 +59,7 @@ static void wait_usb_dev(void)
 }
 
 /*
- * NOTE: this is a default impemention for writing compressed ramdump data
+ * NOTE: this is a default implementation for writing compressed ramdump data
  * to /data/ partition for Android platform. You can read out dumpfile in
  * path /data/crashdump-1.bin when enter Android for crash analyze.
  * by default, /data/ partion for android is EXT4 fs.

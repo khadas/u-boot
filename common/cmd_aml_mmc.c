@@ -280,7 +280,7 @@ int mmc_read_status(struct mmc *mmc, int timeout)
 		return TIMEOUT;
 	}
 	if (cmd.response[0] & MMC_STATUS_SWITCH_ERROR) {
-		printf("mmc status swwitch error status =0x%x\n", status);
+		printf("mmc status switch error status =0x%x\n", status);
 		return SWITCH_ERR;
 	}
 	return 0;
@@ -363,7 +363,7 @@ int amlmmc_erase_bootloader(int dev, int map)
 		ret = -1;
 		goto _out;
 	}
-	/* make sure mmc is initilized! */
+	/* make sure mmc is initialized! */
 	ret = mmc_init(mmc);
 	if (ret) {
 		printf("%s() %d: emmc %d init %d\n", __func__, __LINE__, dev, ret);
@@ -565,7 +565,7 @@ int amlmmc_write_bootloader(int dev, int map, unsigned int size, const void *src
 		ret = -1;
 		goto _out;
 	}
-	/* make sure mmc is initilized! */
+	/* make sure mmc is initialized! */
 	ret = mmc_init(mmc);
 	if (ret) {
 		printf("%s() %d: emmc %d init %d\n", __func__, __LINE__, dev, ret);
@@ -589,7 +589,7 @@ int amlmmc_write_bootloader(int dev, int map, unsigned int size, const void *src
 					break;
 				}
 #endif /* CONFIG_EMMC_BOOT1_TOUCH_REGION */
-				printf("Wrting blocks " LBAFU " to " LBAFU " @ %s\n",
+				printf("Writing blocks " LBAFU " to " LBAFU " @ %s\n",
 				   start, blkcnt, partname[i]);
 				if (i != 0)
 					amlmmc_write_info_sector(mmc, dev);
@@ -2772,7 +2772,7 @@ static int do_amlmmc_send_wp_type(cmd_tbl_t *cmdtp,
 		ret = send_add_wp_type(mmc, start, cnt);
 
 	if (ret) {
-		printf("Failed: send parittion write protect type failed\n");
+		printf("Failed: send partition write protect type failed\n");
 	}
 
 	return ret;
@@ -3439,7 +3439,7 @@ U_BOOT_CMD(
 	"amlmmc send_wp_type <partition_name> send protect type of partition\n"
 	"amlmmc send_wp_type <addr_base16> <cnt_base10> send protect type on specified address\n"
 	"amlmmc clear_wp <partition_name> clear write protect of partition\n"
-	"amlmmc clear_wp <addr_base16> <cnt_base10> clear write protect on specified addresst\n"
+	"amlmmc clear_wp <addr_base16> <cnt_base10> clear write protect on specified address\n"
 	"amlmmc boot_wp <boot number> <write protect type> boot0/boot1/both, /poweron/permanent\n"
 	"amlmmc boot_wp_status send boot write protect status\n"
 	"amlmmc ds <dev_num> <val> set driver strength\n"
@@ -3716,7 +3716,7 @@ int dtb_read(void *addr)
 			update_old_dtb(mmc, addr);
 		break;
 		default:
-			dtb_err("impossble valid values.\n");
+			dtb_err("impossible valid values.\n");
 			BUG();
 		break;
 	}
@@ -3932,7 +3932,7 @@ __weak int emmc_update_mbr(unsigned char *buffer)
 #endif
 	ret = get_partition_from_dts(buffer);
 	if (ret) {
-		printf("Fail to get partition talbe from dts\n");
+		printf("Fail to get partition table from dts\n");
 		goto _out;
 	}
 	ret = mmc_device_init(_dtb_init());

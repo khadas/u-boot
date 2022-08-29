@@ -100,7 +100,7 @@ int keymanage_secukey_write(const char *keyname, const void* keydata, unsigned i
 
 ssize_t keymanage_secukey_size(const char* keyname)
 {
-	return amlkey_size((uint8_t*)keyname);	//actully size
+	return amlkey_size((uint8_t*)keyname);	//actually size
 }
 
 int keymanage_secukey_exist(const char* keyname)

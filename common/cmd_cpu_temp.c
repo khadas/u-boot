@@ -392,7 +392,7 @@ static int write_trim1(void)
 	switch (get_cpu_id().family_id) {
 		case MESON_CPU_MAJOR_ID_TXHD:
 			writel(1 << 7 | (0x30), HHI_TS_CLK_CNTL); /*clk:0.5M*/
-			writel(0x50ab, TS_CFG_REG);/*0x50ab is enable the new thermal mudule*/
+			writel(0x50ab, TS_CFG_REG);/*0x50ab is enable the new thermal module*/
 			break;
 		default:
 			printf("cpu xxxx family id not support!!! id: %d\n", family_id);
@@ -659,7 +659,7 @@ static int read_temp1(void)
 	switch (get_cpu_id().family_id) {
 		case MESON_CPU_MAJOR_ID_TXHD:
 			writel(1 << 7 | (0x30), HHI_TS_CLK_CNTL); /*clk:0.5M*/
-			writel(0x50ab, TS_CFG_REG);/*0x50ab is enable the new thermal mudule*/
+			writel(0x50ab, TS_CFG_REG);/*0x50ab is enable the new thermal module*/
 			break;
 		default:
 			printf("cpu xxxx family id not support!!! id: %d\n", family_id);

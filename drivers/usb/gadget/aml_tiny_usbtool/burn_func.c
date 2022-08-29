@@ -389,7 +389,7 @@ static int _cmd_efuse(int argc, char * const argv[], char *buf)
                     s = (*end) ? end+1 : end;
             }
             if (*s) {
-                printf("error: The wriiten data length is too large.\n");
+                printf("error: The written data length is too large.\n");
                 return -1;
             }
         }
@@ -430,7 +430,7 @@ static int test_efuse_read(int argc, char *argv[], char *cmpBuff)
    char *hdcp = NULL;
    char efuse_data[SECUKEY_BYTES], reBuff[SECUKEY_BYTES], tmpBuf[SECUKEY_BYTES];
 
-   printf("-----Test efuse read commond:\n");
+   printf("-----Test efuse read command:\n");
    for (i=0; i<argc; i++)
       printf("argv[%d]=%s\n", i, argv[i]);
 
@@ -441,7 +441,7 @@ static int test_efuse_read(int argc, char *argv[], char *cmpBuff)
       goto run;
    }
    else {
-      printf("test efuse read commond not mach\n");
+      printf("test efuse read command not mach\n");
       return -3;
    }
 
@@ -669,7 +669,7 @@ int usb_run_command (const char *cmd, char* buff)
 		}
 	}
 /*
-  *    pctool version >= 1.6.32,teturn 3 status in read
+  *    pctool version >= 1.6.32,return 3 status in read
   *    "pctool version:"
   *
   *	burn keys to efuse/nand/emmc common command:
@@ -742,7 +742,7 @@ int usb_run_command (const char *cmd, char* buff)
                 MOBIDRMPUBLIC_MAX_LEN = 300,
             };
 
-            //added to remover warnning
+            //added to remover warning
 
             if (!strncmp(cmd, "pctool version:", strlen("pctool version:"))) {
                 sPctoolVersion = simple_strtoul((char *)(cmd+strlen("pctool version:")), 0, 10);

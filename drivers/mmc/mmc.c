@@ -1089,7 +1089,7 @@ retry_scr:
 
 	/*
 	 * If the host doesn't support SD_HIGHSPEED, do not switch card to
-	 * HIGHSPEED mode even if the card support SD_HIGHSPPED.
+	 * HIGHSPEED mode even if the card support SD_HIGHSPEED.
 	 * This can avoid furthur problem when the card runs in different
 	 * mode between the host.
 	 */
@@ -2028,7 +2028,7 @@ static int mmc_read_single_block(struct mmc *mmc, void *dst, lbaint_t start)
  *
  * if all four condition above is yes, the tuning parameter
  *		could be use directly
- * otherwise retunning and save parameter
+ * otherwise returning and save parameter
  */
 int aml_para_is_exist(struct mmc *mmc)
 {
@@ -2328,7 +2328,7 @@ int get_boot_size(char *name, uint64_t* size)
 		ret = -1;
 		goto _out;
 	}
-	/* make sure mmc is initilized! */
+	/* make sure mmc is initialized! */
 	ret = mmc_init(mmc);
 	if (ret) {
 		printf("%s() %d: emmc init %d\n", __func__, __LINE__, ret);
@@ -2628,7 +2628,7 @@ static int mmc_reserved_erase(const char *name, int number)
 
 
 #ifdef KEY_BACKUP
-/* unifykey backup distributioin */
+/* unifykey backup distribution */
 
 /*--------------------------------------------------------
  * offset |  0x12020  |  0x12220  |  0x12420  |  0x12421  |
@@ -2940,7 +2940,7 @@ static int mmc_key_read_backup(const char *name,
 			update_old_key(mmc, addr);
 		break;
 		default:
-			printf("impossble valid values.\n");
+			printf("impossible valid values.\n");
 			BUG();
 		break;
 	}

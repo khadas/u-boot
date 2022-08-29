@@ -185,14 +185,14 @@ void high_task(void)
 }
 
 extern unsigned int usr_pwr_key;
-#ifdef CONFIG_SUPPORT_CUSOTMER_LOW_TASK
+#ifdef CONFIG_SUPPORT_CUSTOMER_LOW_TASK
 extern void process_customer_low_task(unsigned int, unsigned int *, unsigned int *);
 #endif
 void process_low_task(unsigned command)
 {
 	unsigned *pcommand =
 	    (unsigned *)(&(low_task_share_mem[TASK_COMMAND_OFFSET]));
-#ifdef CONFIG_SUPPORT_CUSOTMER_LOW_TASK
+#ifdef CONFIG_SUPPORT_CUSTOMER_LOW_TASK
 	unsigned *response =
 	    (unsigned *)(&(low_task_share_mem[TASK_RESPONSE_OFFSET]));
 #endif
@@ -202,7 +202,7 @@ void process_low_task(unsigned command)
 			usr_pwr_key = *(pcommand + 2);/*tx_size locates at *(pcommand + 1)*/
 			dbg_print("pwr_key=",usr_pwr_key);
 		} else {
-#ifdef CONFIG_SUPPORT_CUSOTMER_LOW_TASK
+#ifdef CONFIG_SUPPORT_CUSTOMER_LOW_TASK
 			process_customer_low_task(command, pcommand, response);
 #endif
 		}

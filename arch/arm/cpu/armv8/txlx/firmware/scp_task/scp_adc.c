@@ -56,7 +56,7 @@ static int get_cpu_family_id(void)
  */
 static void saradc_clock_switch(int onoff)
 {
-/* if the famiy id of the cpu greater than or equal to MESON_CPU_MAJOR_ID_GXBB,
+/* if the family id of the cpu greater than or equal to MESON_CPU_MAJOR_ID_GXBB,
  * the clock switch from the clock tree register, otherwise from
  * the adc module register.
  */
@@ -93,7 +93,7 @@ static inline void saradc_power_control(int on)
  */
 static void saradc_clock_set(unsigned char val)
 {
-/* if the famiy id of the cpu greater than or equal to MESON_CPU_MAJOR_ID_GXBB,
+/* if the family id of the cpu greater than or equal to MESON_CPU_MAJOR_ID_GXBB,
  * the clock switch from the clock tree register, otherwise from
  * the adc module register.
  */

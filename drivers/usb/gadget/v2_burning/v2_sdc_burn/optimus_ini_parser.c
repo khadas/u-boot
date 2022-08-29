@@ -162,7 +162,7 @@ int _optimus_abandon_ini_comment_lines(char* lines[], const unsigned lineNum)
             }
         }
 
-        //if all character is space or tab, also invlalid it
+        //if all character is space or tab, also invalid it
         if (isSpaceLine)
         {
             lines[lineIndex] = NULL;

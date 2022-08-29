@@ -211,7 +211,7 @@
 #define SEC_PERIPHS_PIN_MUX_F                                  (0xff634400 + (0x2f << 2))
 #define   P_PERIPHS_PIN_MUX_F                                  (volatile uint32_t *)(0xff634400 + (0x2f << 2))
 // ----------------------------
-// Pad conntrols
+// Pad controls
 // ----------------------------
 #define     PAD_PULL_UP_REG6                                   (0xff634400 + (0x39 << 2))
 #define SEC_PAD_PULL_UP_REG6                                   (0xff634400 + (0x39 << 2))

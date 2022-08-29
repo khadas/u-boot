@@ -469,7 +469,7 @@ int aml_sd_send_cmd_ffu(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *d
 	if (status_irq_reg->desc_err) {
 		ret |= SD_EMMC_DESC_ERROR;
 		if (!mmc->refix)
-			printf("emmc/sd descripter error, cmd%d, status=0x%x\n",
+			printf("emmc/sd descriptor error, cmd%d, status=0x%x\n",
 					cmd->cmdidx, status_irq);
 	}
 	if (status_irq_reg->resp_err) {
@@ -487,7 +487,7 @@ int aml_sd_send_cmd_ffu(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *d
 	if (status_irq_reg->desc_timeout) {
 		ret |= SD_EMMC_DESC_TIMEOUT_ERROR;
 		if (!mmc->refix)
-			printf("emmc/sd descripter timeout, cmd%d, status=0x%x\n",
+			printf("emmc/sd descriptor timeout, cmd%d, status=0x%x\n",
 					cmd->cmdidx, status_irq);
 	}
 
@@ -657,7 +657,7 @@ int aml_sd_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	if (status_irq_reg->desc_err) {
 		ret |= SD_EMMC_DESC_ERROR;
 		if (!mmc->refix)
-			printf("emmc/sd descripter error, cmd%d, cmd->cmdarg=0x%x, status=0x%x\n",
+			printf("emmc/sd descriptor error, cmd%d, cmd->cmdarg=0x%x, status=0x%x\n",
 				cmd->cmdidx, cmd->cmdarg, status_irq);
 	}
 	if (status_irq_reg->resp_err) {
@@ -675,7 +675,7 @@ int aml_sd_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	if (status_irq_reg->desc_timeout) {
 		ret |= SD_EMMC_DESC_TIMEOUT_ERROR;
 		if (!mmc->refix)
-			printf("emmc/sd descripter timeout, cmd%d, cmd->cmdarg=0x%x, status=0x%x\n",
+			printf("emmc/sd descriptor timeout, cmd%d, cmd->cmdarg=0x%x, status=0x%x\n",
 				cmd->cmdidx, cmd->cmdarg, status_irq);
 	}
 	if (data) {

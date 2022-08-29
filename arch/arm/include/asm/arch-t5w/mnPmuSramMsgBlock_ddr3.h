@@ -56,7 +56,7 @@ typedef struct _PMU_SMB_DDR3U_1D_t {
                               //
                               // MsgMisc[6] = PartialRank (DDR3 UDIMM and DDR4 UDIMM only, otherwise RFU, must be zero)
                               //      0x1 = Support rank populated with a subset of byte, but where even-odd pair of rank support all the byte
-                              //      0x0 = All rank populated with all the byte (tyical configuration)
+                              //      0x0 = All rank populated with all the byte (typical configuration)
                               //
                               // MsgMisc[7] RFU, must be zero
                               //

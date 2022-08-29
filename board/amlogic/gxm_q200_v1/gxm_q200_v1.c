@@ -115,7 +115,7 @@ static void setup_net_chip(void)
 {
 	eth_aml_reg0_t eth_reg0;
 
-	//setup ethernet clk need calibrate to configre
+	//setup ethernet clk need calibrate to configure
 	setbits_le32(P_PERIPHS_PIN_MUX_4, 0xfffc00);
 
 	eth_reg0.d32 = 0;

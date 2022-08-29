@@ -134,7 +134,7 @@ static void fb_mmc_bootloader_ops(const char *cmd,
 		printf("........ %s  %s\n", (buffer? ops[1]: ops[0]), cmd);
 		fastboot_okay("");
 	} else
-		fastboot_fail("failed opearting from device");
+		fastboot_fail("failed operating from device");
 	return;
 }
 

@@ -210,7 +210,7 @@ static HC_IF usbbt_host_interface =
         usb_bt_interrupt_msg,
 };
 
-static void Ldbtusb_diconnect (btusbdev_t *dev)
+static void Ldbtusb_disconnect (btusbdev_t *dev)
 {
     LD_btmtk_usb_disconnect(g_DrvData);
 
@@ -259,7 +259,7 @@ int Ldbtusb_connect (btusbdev_t *dev)
             os_memset(g_DrvData,0,sizeof(mtkbt_dev_t));
             g_DrvData->udev = dev;
             g_DrvData->connect = Ldbtusb_connect;
-            g_DrvData->disconnect = Ldbtusb_diconnect;
+            g_DrvData->disconnect = Ldbtusb_disconnect;
             g_DrvData->SetWoble = Ldbtusb_SetWoble;
         }
     }

@@ -39,12 +39,12 @@
  *     unsigned denominator);
  */
 
-/* struct qr - stores qutient/remainder to handle divmod EABI interfaces. */
+/* struct qr - stores quotient/remainder to handle divmod EABI interfaces. */
 struct qr {
 	unsigned q;		/* computed quotient */
 	unsigned r;		/* computed remainder */
-	unsigned q_n;		/* specficies if quotient shall be negative */
-	unsigned r_n;		/* specficies if remainder shall be negative */
+	unsigned q_n;		/* specifies if quotient shall be negative */
+	unsigned r_n;		/* specifies if remainder shall be negative */
 };
 
 static void uint_div_qr(unsigned numerator, unsigned denominator,

@@ -53,7 +53,7 @@ typedef struct {
         __u8            keyName[AML_BOOT_PART_KEY_ITEM_NAME_LEN_MAX];
 
         __u32           itemIndex;
-        __u32           itemSz;         //equl to sizeof of each key
+        __u32           itemSz;         //equal to sizeof of each key
 
         __u32           itemBodyOffset;
         __u32           itemHasConf;//this item name is configured in keys.conf
@@ -88,7 +88,7 @@ enum {
 
 //Different keyNames can have the same key format
 typedef int (*pFunc_getKeyValByLic)(const char* licensePath, u8* keyVal, unsigned* keyValLen, const char* keyName);
-typedef int (*pFunc_updateLic)(const char* keyName, const char* licensePath);//update the licnese file when burn succeed
+typedef int (*pFunc_updateLic)(const char* keyName, const char* licensePath);//update the license file when burn succeed
 
 typedef struct _keyFmtMapping{
         unsigned                magic;
