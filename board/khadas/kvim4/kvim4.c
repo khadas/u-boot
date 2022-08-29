@@ -218,6 +218,8 @@ int board_init(void)
 	run_command("watchdog off", 0);
 	printf("watchdog disable\n");
 
+	run_command("gpio set GPIOT_15", 0);//5G reset
+
 #ifdef CONFIG_POWER_FUSB302
 	fusb302_init();
 #endif
@@ -235,6 +237,8 @@ int board_init(void)
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 	/*set vcc5V*/
 	run_command("gpio set GPIOH_4", 0);
+	run_command("gpio clear GPIOT_15", 0);//5G reset
+	run_command("gpio clear GPIOH_3", 0); //pcie reset-gpio
 
 	// FAN testing
 	run_command("i2c dev 6", 0);
