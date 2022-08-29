@@ -86,7 +86,7 @@
 #define A1_ANACTRL_POR_CNTL                (0x208 + 0x7400)
 
 /*
- * CPU clok register offset
+ * CPU clock register offset
  * APB_BASE:  APB1_BASE_ADDR = 0xfd000000
  */
 /* cpu clock will never be used in uboot

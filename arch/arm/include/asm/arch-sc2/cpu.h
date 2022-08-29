@@ -20,7 +20,7 @@
 #define CONFIG_CMD_VIU_PROBE    1
 #endif
 
-/* for uboot envrionment use */
+/* for uboot environment use */
 #define CONFIG_DDR_SIZE					2048
 
 /* dram */

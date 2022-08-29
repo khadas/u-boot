@@ -97,7 +97,7 @@ int store_register(struct storage_t *store_dev)
 	 * usually when we use the list, but in storage
 	 * interface module, we init the device node as
 	 * a head instead a global list_head pointer,
-	 * it should be traversaled.
+	 * it should be traver scaled.
 	 */
 	if (store_dev == current)
 		return 0;
@@ -419,7 +419,7 @@ static int storage_get_and_parse_ssp(int *need_build) // boot_device:
 	printf("boot_device:%d\n", ssp->boot_device);
 	printf("boot_seq:%d\n", ssp->boot_seq);
 	printf("boot_bakups:%d\n", ssp->boot_bakups);
-	printf("rebuid_id :%d\n", *need_build);
+	printf("rebuild_id :%d\n", *need_build);
 
 	return 0;
 }
@@ -1299,7 +1299,7 @@ static int _store_boot_write(const char *part_name, u8 cpy, size_t size, void *a
 	} else {
 		if (bl2x_mode_check_header(pinfo)) {
 			pr_info("!!!warning bl2xx size is bigger than bl2x layout size\n");
-			pr_info("plase check bl2x,or erase flash and turn off\n");
+			pr_info("please check bl2x,or erase flash and turn off\n");
 			pr_info("then turn on, and update uboot again\n");
 			return CMD_RET_FAILURE;
 		}

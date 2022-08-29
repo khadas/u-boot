@@ -1821,7 +1821,7 @@ static int pxa3xx_nand_probe_dt(struct pxa3xx_nand_info *info)
 		if (node < 0)
 			break;
 
-		/* Bypass disabeld nodes */
+		/* Bypass disabled nodes */
 		if (!fdtdec_get_is_enabled(blob, node))
 			continue;
 

@@ -139,7 +139,7 @@ uint32_t set_led_blink_times_breath(uint32_t led_id,
 	data[4]=blink_low ;
 	ret = scpi_send_data(AOCPU_REE_CHANNEL, 0xF7, data, 5*sizeof(data), NULL, 0);
 	if (a != 0) {
-		ptintf("communication failed\n");
+		printf("communication failed\n");
 		return -1;
 	}
 

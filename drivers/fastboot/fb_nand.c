@@ -183,7 +183,7 @@ int get_bootnum(struct mtd_info *mtd, size_t rwsize)
 		return ret;
 	}
 
-	/* algin with page size */
+	/* align with page size */
 	rwsize = ((rwsize + mtd->writesize - 1)/mtd->writesize)*mtd->writesize;
 
 	while (offset < mtd->size) {
@@ -215,7 +215,7 @@ int get_bootnum(struct mtd_info *mtd, size_t rwsize)
 			return 1; /*1st must be write*/
 		if (rwsize + mtd->writesize + bad_blk_len_up <= mtd->size / 2)
 			ret ++;
-	} else /*needn't consider bad block length, unlikly so many bad blocks*/
+	} else /*needn't consider bad block length, unlikely so many bad blocks*/
 		ret = 1;
 
 	printk("self-adaption boot count:%d\n", ret);

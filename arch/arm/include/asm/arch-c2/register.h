@@ -1196,7 +1196,7 @@
 //5'h10     all other REQUEST not CPU DSP and DMA.
 //5'h1x.    Not used.
 #define SPIFC_RANGE0_CTRL                          ((0x0012  << 2) + 0xfe00ac00)
-  // AHB secruity range 0 control.
+  // AHB security range 0 control.
   // bit 16. range 0 access control for HMASTEr == 6   //all other access that is not CPU DSP and DMA.
   //bit 15:8 range 0 access control for DMA access.
   //bit  15  range 0 access control for DMA thread 7
@@ -1224,7 +1224,7 @@
   //AHB security range 1  end address in unit of 64Byte. related to HADDR bit 28:6.
   //bit 5:0.  always 0.
 #define SPIFC_RANGE1_CTRL                          ((0x0015  << 2) + 0xfe00ac00)
-  // AHB secruity range 1 control.
+  // AHB security range 1 control.
   //bit 15:8 range 1 access control for DMA access.
   //bit  15  range 1 access control for DMA thread 7
   //bit  14  range 1 access control for DMA Thread 6
@@ -1251,7 +1251,7 @@
   //AHB security range 2  end address in unit of 64Byte. related to HADDR bit 28:6.
   //bit 5:0.  always 0.
 #define SPIFC_RANGE2_CTRL                          ((0x0018  << 2) + 0xfe00ac00)
-  // AHB secruity range 2 control.
+  // AHB security range 2 control.
   //bit 15:8 range 2 access control for DMA access.
   //bit  15  range 2 access control for DMA thread 7
   //bit  14  range 2 access control for DMA Thread 6
@@ -1278,7 +1278,7 @@
   //AHB security range 3  end address in unit of 64Byte. related to HADDR bit 28:6.
   //bit 5:0.  always 0.
 #define SPIFC_RANGE3_CTRL                          ((0x001b  << 2) + 0xfe00ac00)
-  // AHB secruity range 3 control.
+  // AHB security range 3 control.
   //bit 15:8 range 3 access control for DMA access.
   //bit  15  range 3 access control for DMA thread 7
   //bit  14  range 3 access control for DMA Thread 6
@@ -1305,7 +1305,7 @@
   //AHB security range 4  end address in unit of 64Byte. related to HADDR bit 28:6.
   //bit 5:0.  always 0.
 #define SPIFC_RANGE4_CTRL                          ((0x001e  << 2) + 0xfe00ac00)
-  // AHB secruity range 4 control.
+  // AHB security range 4 control.
   //bit 15:8 range 4 access control for DMA access.
   //bit  15  range 4 access control for DMA thread 7
   //bit  14  range 4 access control for DMA Thread 6
@@ -1332,7 +1332,7 @@
   //AHB security range 5  end address in unit of 64Byte. related to HADDR bit 28:6.
   //bit 5:0.  always 0.
 #define SPIFC_RANGE5_CTRL                          ((0x0020  << 2) + 0xfe00ac00)
-  // AHB secruity range 5 control.
+  // AHB security range 5 control.
   //bit 15:8 range 5 access control for DMA access.
   //bit  15  range 5 access control for DMA thread 7
   //bit  14  range 5 access control for DMA Thread 6
@@ -1359,7 +1359,7 @@
   //AHB security range 6  end address in unit of 64Byte. related to HADDR bit 28:6.
   //bit 5:0.  always 0.
 #define SPIFC_RANGE6_CTRL                          ((0x0024  << 2) + 0xfe00ac00)
-  // AHB secruity range 6 control.
+  // AHB security range 6 control.
   //bit 15:8 range 6 access control for DMA access.
   //bit  15  range 6 access control for DMA thread 7
   //bit  14  range 6 access control for DMA Thread 6
@@ -1378,7 +1378,7 @@
   // bit  1. range 6 access control for HMASTER == 1   //CPU secure access
   // bit  0. range 6 access control for HMASTER == 0   //CPU non secure.
 #define SPIFC_RANGE7_CTRL                          ((0x0025  << 2) + 0xfe00ac00)
-  // AHB secruity range 7( default range) control.
+  // AHB security range 7( default range) control.
   //bit 15:8 range 7 access control for DMA access.
   //bit  15  range 7 access control for DMA thread 7
   //bit  14  range 7 access control for DMA Thread 6
@@ -1407,12 +1407,12 @@
   //bit 5:1  HMASTER.
   //bit 0    HWRITE.
 #define SPIFC_AHB_STS                              ((0x0029  << 2) + 0xfe00ac00)
-  //bit 31.  AHB IDLE.  when ahb disabled, to show ahb status. 1,  no more ahb request or ahb requent is holded.  0, ahb is still busy.
+  //bit 31.  AHB IDLE.  when ahb disabled, to show ahb status. 1,  no more ahb request or ahb frequent is holded.  0, ahb is still busy.
   //bit 30.  AHB data cycle status, when ahb disabled, to show ahb data cycle status. 1, data cycle is holded,  0 : not in data cycle or data cycle is processing.
   //bit 29.  AHB bus spi requst status. 1: still waiting for spi data. 0: idle.
   //bit 28.  WTCHDG_STS.  1: AHB BUS access watchdog triggered. 0: no watchdo triggered.
   //bit 27:21.  not used.
-  //bit 20:16.  WTCHDOG triggered AHB Master.
+  //bit 20:16.  watchdog triggered AHB Master.
   //bit 15:0.  not used.
 #define SPIFC_AHB_WTCH_ADDR                        ((0x0030  << 2) + 0xfe00ac00)
   //bit 27:0  WTCHDG triggered AHB ADDRESS
@@ -1430,7 +1430,7 @@
   //bit 18:17  user address mode:  00 = SPI extend mode. 01 : dual mode.  10:  quad mode.
   //bit 16:15  user address Byte length  00 = 1 byte.  01 = 2 bytes.  10 = 3 bytes. 11 = 4bytes.
   //bit 14     user datout enable.
-  //bit 13     user dataout AES enable. 1: dataout through AES describle. 0 : original data.
+  //bit 13     user dataout AES enable. 1: dataout through AES describe. 0 : original data.
   //bit 12     user data output source. 0: from data buffer.  1: from status register.
   //bit 11:10  user dataout mode: 00 SPI extend model. 01 : dual model. 10. quad mode.
   //bit 9:0    User data out bytes num.
@@ -1447,7 +1447,7 @@
 #define SPIFC_USER_CTRL3                           ((0x0083  << 2) + 0xfe00ac00)
   //bit 31 usr_datin_en  1: datain cycle enabled.  0: no datain cycle.
   //bit 30: datin_dest.  1: save the input data to STATUS register.  0 save the input data to data buffer.
-  //bit 29: 1: enable datain data AES describle. 0: not use AES.
+  //bit 29: 1: enable datain data AES describe. 0: not use AES.
   //bit 28:27.  datin mode.  2'b00 SPI extend mode. 01: dual mode. 10 Quad mode.
   //bit 25:16.  user data in data bytes.  how many bytes of user datain expected.
 #define SPIFC_USER_ADDR                            ((0x0084  << 2) + 0xfe00ac00)
@@ -1460,17 +1460,17 @@
  //bit 19.    ahb request address cycle enable.
  //bit 18:17  AHB ADDRESS  mode. 2'b00: spi mode. 01: dual mode. 10 Quad mode.
  //bit 16:15  AHB ADDRESS data width. 2'b00: 1byte. 2'b01 : 2bytes. 2'b10: 3bytes. 2'b11 4bytes.
- //bit 13:10   AHB request spi bus input switch time. 0 : after address cycle. 1: the frist dummy cycles. ... 0xf. after dummy cycle.
+ //bit 13:10   AHB request spi bus input switch time. 0 : after address cycle. 1: the first dummy cycles. ... 0xf. after dummy cycle.
  //bit 9:8     AHB DATAIN mode.   2'b00: spi mode. 01: dual mode. 10 Quad mode.
  //bit 7       DATA IN AES enable. 1: enable 0: disable.
- //bit 1:0     AHB REQ DATA size.  2'b00:  64bytes.  2'b01: 32 bytes. 2'b10 : 16 bytes. 2'b11: reserved. this bit settign should be same as RDBUF_SIZE setting.
+ //bit 1:0     AHB REQ DATA size.  2'b00:  64bytes.  2'b01: 32 bytes. 2'b10 : 16 bytes. 2'b11: reserved. this bit setting should be same as RDBUF_SIZE setting.
 #define SPIFC_AHB_REQ_CTRL1                        ((0x0086  << 2) + 0xfe00ac00)
   //bit 31.  ahb Dummy enable.
   //bit 30:29.  ahb dummy mode.
   //bit 28:23.  ahb request dummy clock cycles.
   //bit 15:0.   ahb dummy period output data.
 #define SPIFC_AHB_REQ_CTRL2                        ((0x0087  << 2) + 0xfe00ac00)
-  //bit 1:0  AHB address position. this settign depend on SPIFC_AHB_CTRL register CWF_EN bit and RDBUF_SIZE.
+  //bit 1:0  AHB address position. this setting depend on SPIFC_AHB_CTRL register CWF_EN bit and RDBUF_SIZE.
   // if CWF_EN is enabled. these bit should be set to 2'b10 (16BYTE boundary).
   // if CWF_EN is disabled. these bit should be set to same as the RDBUF_SIZE and AHB REQ DATA SIZE.
           //00 :  64byte boundary.
@@ -1494,9 +1494,9 @@
 #define SPIFC_ACTIMING2                            ((0x008a  << 2) + 0xfe00ac00)
  //bit 31.  spi clock input pin enable. SPIFC controller used this pin as clock to latch the input data.
  //bit [3:0]  spi clock input pin delay adjustment.
-//SPI DATA BUFFER.  There's a total 512Byte + 64byte(orgnized as 36x128bits) SRAM .
+//SPI DATA BUFFER.  There's a total 512Byte + 64byte(organized as 36x128bits) SRAM .
 // since each APB access is 32bits. So we use word address as APB read/write address.
-// But for SPI side we have to use 128bit boundary. That's the first Pragram/read SPI with data buffer must start at data buffer 128bit boundary.  that means the SPIFC_USE_DBUF_ADDR last 2 bits must be 0.
+// But for SPI side we have to use 128bit boundary. That's the first program/read SPI with data buffer must start at data buffer 128bit boundary.  that means the SPIFC_USE_DBUF_ADDR last 2 bits must be 0.
 #define SPIFC_DBUF_CTRL                            ((0x0090  << 2) + 0xfe00ac00)
   //bit 31.    1 = write DBUF.  0 : read DBUF.
   //bit 30.    1. = auto update address. 0 don't change address.
@@ -1698,51 +1698,51 @@
   //bit 31:16   | 0 | range0_eda | range 0 end address  higher 16bits.
   //bit 15:0    | 0 | range0_sta | range 0 start address higher 16bits.
 #define DMC_SEC_RANGE0_CTRL1                       ((0x0001  << 2) + 0xfe025000)
-  //bit 7:5 | 0 | range0_secrity_level | range0 secruity level for DMC and DEMUX only.
+  //bit 7:5 | 0 | range0_security_level | range0 security level for DMC and DEMUX only.
   //bit 4  | 0 | range0_prot_en       | range0 allow protect monitor function.  1: allowed.  0: not allowed.
-  //bit 3  | 0 | range0_local_des_en  | range0 data describle enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES_EN to decide this region data describle enable or not.
+  //bit 3  | 0 | range0_local_des_en  | range0 data describe enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES_EN to decide this region data describe enable or not.
   //bit 2  | 0 | range0_lock  |  lock range 0 registers. write 1 to lock range 0 register. can't change anymore.
-  //bit 1  | 0 | range0_key_sel | range 0 data describle key selection.  1 : key1. 0 : key0.
+  //bit 1  | 0 | range0_key_sel | range 0 data describe key selection.  1 : key1. 0 : key0.
   //bit 0  | 0 | range0_en    | range 0 enable bit. 1 : enable, 0 : disable.
 #define DMC_SEC_RANGE1_CTRL                        ((0x0002  << 2) + 0xfe025000)
   //bit 31:16   | 0 | range1_eda | range 1 end address  higher 16bits.
   //bit 15:0    | 0 | range1_sta | range 1 start address higher 16bits.
 #define DMC_SEC_RANGE1_CTRL1                       ((0x0003  << 2) + 0xfe025000)
-  //bit 7:5 | 0 | range1_secrity_level | range1 secruity level for DMC and DEMUX only.
+  //bit 7:5 | 0 | range1_security_level | range1 security level for DMC and DEMUX only.
   //bit 4  | 0 | range1_prot_en       | range1 allow protect monitor function.  1: allowed.  0: not allowed.
-  //bit 3  | 0 | range1_local_des_en  | range1 data describle enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES_EN to decide this region data describle enable or not.
+  //bit 3  | 0 | range1_local_des_en  | range1 data describe enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES_EN to decide this region data describe enable or not.
   //bit 2  | 0 | range1_lock  |  lock range 1 registers. write 1 to lock range 1 register. can't change anymore.
-  //bit 1  | 0 | range1_key_sel | range 1 data describle key selection.  1 : key1. 1 : key0.
+  //bit 1  | 0 | range1_key_sel | range 1 data describe key selection.  1 : key1. 1 : key0.
   //bit 0  | 0 | range1_en    | range 0 enable bit. 1 : enable, 0 : disable.
 #define DMC_SEC_RANGE2_CTRL                        ((0x0004  << 2) + 0xfe025000)
   //bit 31:16   | 0 | range2_eda | range 2 end address  higher 16bits.
   //bit 15:0    | 0 | range2_sta | range 2 start address higher 16bits.
 #define DMC_SEC_RANGE2_CTRL1                       ((0x0005  << 2) + 0xfe025000)
-  //bit 7:5 | 0 | range2_secrity_level | range2 secruity level for DMC and DEMUX only.
+  //bit 7:5 | 0 | range2_security_level | range2 security level for DMC and DEMUX only.
   //bit 4  | 0 | range2_prot_en       | range2 allow protect monitor function.  1: allowed.  0: not allowed.
-  //bit 3  | 0 | range2_local_des_en  | range2 data describle enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES to decide this region data describle enable or not.
+  //bit 3  | 0 | range2_local_des_en  | range2 data describe enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES to decide this region data describe enable or not.
   //bit 2  | 0 | range2_lock  |  lock range 2 registers. write 1 to lock range 2 register. can't change anymore.
-  //bit 1  | 0 | range2_key_sel | range 2 data describle key selection.  1 : key1. 1 : key0.
+  //bit 1  | 0 | range2_key_sel | range 2 data describe key selection.  1 : key1. 1 : key0.
   //bit 0  | 0 | range2_en    | range 2 enable bit. 1 : enable, 0 : disable.
 #define DMC_SEC_RANGE3_CTRL                        ((0x0006  << 2) + 0xfe025000)
   //bit 31:16   | 0 | range3_eda | range 3 end address  higher 16bits.
   //bit 15:0    | 0 | range3_sta | range 3 start address higher 16bits.
 #define DMC_SEC_RANGE3_CTRL1                       ((0x0007  << 2) + 0xfe025000)
-  //bit 7:5 | 0 | range3_secrity_level | range3 secruity level for DMC and DEMUX only.
+  //bit 7:5 | 0 | range3_security_level | range3 security level for DMC and DEMUX only.
   //bit 4  | 0 | range3_prot_en       | range3 allow protect monitor function.  1: allowed.  0: not allowed.
-  //bit 3  | 0 | range3_local_des_en  | range3 data describle enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES to decide this region data describle enable or not.
+  //bit 3  | 0 | range3_local_des_en  | range3 data describe enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES to decide this region data describe enable or not.
   //bit 2  | 0 | range3_lock    | lock range 3 registers. write 1 to lock range 3 related registers. can't change anymore.
-  //bit 1  | 0 | range3_key_sel | range 3 data describle key selection.  1 : key1. 1 : key0.
+  //bit 1  | 0 | range3_key_sel | range 3 data describe key selection.  1 : key1. 1 : key0.
   //bit 0  | 0 | range3_en      | range 3 enable bit. 1 : enable, 0 : disable.
 #define DMC_SEC_RANGE4_CTRL                        ((0x0008  << 2) + 0xfe025000)
   //bit 31:16   | 0 | range4_eda | range 4 end address  higher 16bits.
   //bit 15:0    | 0 | range4_sta | range 4 start address higher 16bits.
 #define DMC_SEC_RANGE4_CTRL1                       ((0x0009  << 2) + 0xfe025000)
-  //bit 7:5 | 0 | range4_secrity_level | range4 secruity level for DMC and DEMUX only.
+  //bit 7:5 | 0 | range4_security_level | range4 security level for DMC and DEMUX only.
   //bit 4  | 0 | range4_prot_en       | range4 allow protect monitor function.  1: allowed.  0: not allowed.
-  //bit 3  | 0 | range4_local_des_en  | range4 data describle enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES to decide this region data describle enable or not.
+  //bit 3  | 0 | range4_local_des_en  | range4 data describe enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES to decide this region data describe enable or not.
   //bit 2  | 0 | range4_lock    | lock range 4 registers. write 1 to lock range 4 related registers. can't change anymore.
-  //bit 1  | 0 | range4_key_sel | range 4 data describle key selection.  1 : key1. 1 : key0.
+  //bit 1  | 0 | range4_key_sel | range 4 data describe key selection.  1 : key1. 1 : key0.
   //bit 0  | 0 | range4_en      | range 4 enable bit. 1 : enable, 0 : disable.
 #define DMC_SEC_RANGE5_CTRL                        ((0x000a  << 2) + 0xfe025000)
 #define DMC_SEC_RANGE5_CTRL1                       ((0x000b  << 2) + 0xfe025000)
@@ -2020,8 +2020,8 @@
  //bit 6
  //bit 5
  //bit 4
- //bit 3   1 : normal security register write violation.( APB bus WDATA not equre the register value when APB write).  write 1 to clean this bit to 0.
- //bit 2   sec_alert.   1 DMC secruity register alert function triggered. can't clean. only reset DMC can clear this bit.
+ //bit 3   1 : normal security register write violation.( APB bus WDATA not equal the register value when APB write).  write 1 to clean this bit to 0.
+ //bit 2   sec_alert.   1 DMC security register alert function triggered. can't clean. only reset DMC can clear this bit.
  //bit 1   write security violation.
  //bit 0.  read security violation.
 #define DMC_VIO_ADDR0                              ((0x00fb  << 2) + 0xfe025000)
@@ -2037,7 +2037,7 @@
   //18:16. ddr0 write violation AWPROT bits.
   //15:0   ddr0_write violation ID.
 #define DMC_VIO_ADDR2                              ((0x00fd  << 2) + 0xfe025000)
-  //ddr0 read seure violation address
+  //ddr0 read secure violation address
 #define DMC_VIO_ADDR3                              ((0x00fe  << 2) + 0xfe025000)
   //24     ddr0 read secure check violation.
   //23     not used.
@@ -2287,7 +2287,7 @@
    //bit 30.  when enable test, enable the write to DDR function.
    //bit 29.  when enable test, enable the read from DDR function.
    //bit 28.  when enable test,  enable the sha calculation function  must be same as read enable but without write function.
-   //bit 27.  enabe to compare data.  when do the read enable to enable the error comparaion. suppose the read data should be same as the data in the write buffer.
+   //bit 27.  enable to compare data.  when do the read enable to enable the error comparison. suppose the read data should be same as the data in the write buffer.
    //bit 26.  0: save sha result to test_sha_message registers.  1 : don't save.
    //bit 25.  address generation type.  0: continuous increase the address in the range of test start address and test end address.
    //                                   1: test module would pick the random address from test start address  and test end address.
@@ -2387,7 +2387,7 @@
 #define DMC_TEST_RD15                              ((0x002f  << 2) + 0xfe037800)
    // the read back data 7.  if error happens, it would capture the first error data.
 #define DMC_TEST_ERR_ADDR                          ((0x0040  << 2) + 0xfe037800)
-  //read only. it capature the first error address.
+  //read only. it capture the first error address.
 #define DMC_TEST_ERR_CNT                           ((0x0041  << 2) + 0xfe037800)
   //read only. how many data error happens in the whole test period.
 #define DMC_TEST_STS                               ((0x0042  << 2) + 0xfe037800)
@@ -2425,7 +2425,7 @@
 #define DMC_SOFT_RST                               ((0x0001  << 2) + 0xfe024000)
   //bit 31~24. reserved for future.
   //bit 23:16 8 AMBUS input interface n_clk domain reset_n signal. 0 : reset.  1: normal working mode.
-  //bit 15:0. 16 AXI BUS input intefaces n_clk domain reset_n signal. 0: reset. 1: normal working mode. each bit for one interface.
+  //bit 15:0. 16 AXI BUS input interfaces n_clk domain reset_n signal. 0: reset. 1: normal working mode. each bit for one interface.
 #define DMC_SOFT_RST1                              ((0x0002  << 2) + 0xfe024000)
   //To reset the Async interface, you need to disable the interface both clock domain, then reset both n_clk and m_clk domain
   //bit 31~24 not used.
@@ -2439,9 +2439,9 @@
   //bit 7   DMC DFI dcu soft reset_n
   //bit 6   DMC siu soft reset_n
   //bit 5.  DMC test soft reset_n.  0 : reset. 1 : normal working mode.
-  //bit 4.  DMC low power control moudle soft reset_n.    0 : reset. 1 : normal working mode.
+  //bit 4.  DMC low power control module soft reset_n.    0 : reset. 1 : normal working mode.
   //bit 3.  DMC QOS monitor module soft reset_n.   0 : reset. 1 : normal working mode.
-  //bit 2.  DMC register modle soft reset_n.       0 : reset. 1 : normal working mode.
+  //bit 2.  DMC register module soft reset_n.       0 : reset. 1 : normal working mode.
   //bit 1.  DMC canvas transfer module soft reset_n.  0 : reset. 1 : normal working mode.
   //bit 0.  DMC command buffers and command generation modules soft reset.  0 = reset. 1:
 #define DMC_RST_STS1                               ((0x0004  << 2) + 0xfe024000)
@@ -2457,7 +2457,7 @@
   //bit 12  enalbe auto clock gating for awcmdfifo.
   //bit 11  enalbe auto clock gating for arcmdfifo.
   //bit 10  enable auto clock gating for dfi command generation
-  //bit 9   enable auto clock gating for dram cntroller
+  //bit 9   enable auto clock gating for dram controller
   //bit 8   enable auto clock gating for dfi data path.
   //bit 7.  enalbe auto clock gating for write rsp generation.
   //bit 6.  enalbe auto clock gating for read rsp generation.
@@ -2471,7 +2471,7 @@
   //bit 12  force to disable the clock of awcmdfifo.
   //bit 11  force to disable the clock of arcmdfifo.
   //bit 10  force to disable the clock of dfi command generation
-  //bit 9   force to disable the clock of dram cntroller
+  //bit 9   force to disable the clock of dram controller
   //bit 8   force to disable the clock of dfi data path.
   //bit 7. force to disalbe the clock of write rsp generation.
   //bit 6. force to disalbe the clock of read rsp generation.
@@ -2778,10 +2778,10 @@
   //bit 25.  protection 1  write access block function. if enabled, the access wouldn't write to the DDR SDRAM.  if not enabled only generate a interrupt, but the access still wrote to DDR.
   //bit 24.  protection range 1 write access protection enable bit.
 #define DMC_PROT_VIO_0                             ((0x0096  << 2) + 0xfe024000)
-  //ddr0 write proection violation address.
+  //ddr0 write protection violation address.
 #define DMC_PROT_VIO_1                             ((0x0097  << 2) + 0xfe024000)
-  //31   ddr0 protection 1 vilation.
-  //30   ddr0 protection 0 vilation.
+  //31   ddr0 protection 1 violation.
+  //30   ddr0 protection 0 violation.
   //29   not used.
   //28:26. ddr0 write violation AWPROT bits.
   //25:16. ddr0_write AWUSER[9:0];
@@ -2941,12 +2941,12 @@
 #define DMC_DRAM_TXS_FAST                          ((0x0035  << 2) + 0xfe024400)
  //bit 9:0 DDR4 mode XS_FAST exit self_refrest to zqcl/zqcs/mrs command.
 #define DMC_DRAM_DFIODTCFG                         ((0x0036  << 2) + 0xfe024400)
-  //bit 12.  rank1 ODT default. default vulue for ODT[1] pins if theres no read/write activity.
+  //bit 12.  rank1 ODT default. default value for ODT[1] pins if theres no read/write activity.
   //bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
   //bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
   //bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
   //bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occure in rank0.
-  //bit 4.   rank0 ODT default.    default vulue for ODT[0] pins if theres no read/write activity.
+  //bit 4.   rank0 ODT default.    default value for ODT[0] pins if theres no read/write activity.
   //bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
   //bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
   //bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
@@ -3062,8 +3062,8 @@
  //bit 0     2T mode. always 1 in DDR3/4 mode.
 #define DMC_DRAM_DFI_CTRL                          ((0x0089  << 2) + 0xfe024400)
   //bit 31 siu_dfi_lat err generation enable.  1: if dfi read latency violation, generate data error. 0 : disable.
-  //bit 18:  dfi_rddata_cs_n polariy.  0:  rank0 select = 2'b10. rank1 select = 2'b10. 1: rank0 select = 2'b01, rank1_select = 2'b10.
-  //bit 17:  dfi_wrdata_cs_n polariy.  0:  rank0 select = 2'b10. rank1 select = 2'b10. 1: rank0 select = 2'b01, rank1_select = 2'b10.
+  //bit 18:  dfi_rddata_cs_n polarity.  0:  rank0 select = 2'b10. rank1 select = 2'b10. 1: rank0 select = 2'b01, rank1_select = 2'b10.
+  //bit 17:  dfi_wrdata_cs_n polarity.  0:  rank0 select = 2'b10. rank1 select = 2'b10. 1: rank0 select = 2'b01, rank1_select = 2'b10.
   //bit 16:  force PHY ctrl_on  if = 1, phy_ctrl_on singal will keep on.
    //bit 15 siu_dfi1_lp_en
   //bit 14 siu_dfi_lp_ack_and
@@ -3115,10 +3115,10 @@
   //bit 17 : send DFI_LP_REQ  after enter ASR mode.
   //bit 16 : set DFI_CLK_DISABLE after enter ASR mode.
   //bit 15:0.   0 disable auto ASR mode.
-             // Non-zero valule enable ASR mode. when DMC is in idle state for this number of clock cycles, the DMC will enter ASR mode.
+             // Non-zero value enable ASR mode. when DMC is in idle state for this number of clock cycles, the DMC will enter ASR mode.
 #define DMC_DRAM_REFR_CTRL                         ((0x0092  << 2) + 0xfe024400)
   //bit 17:8 auto refresh request pending cnt if there's page hit request.
-  //bit 7  retrain enable for auto refresh requent. 1: enable. 0: disable.
+  //bit 7  retrain enable for auto refresh frequent. 1: enable. 0: disable.
   //bit 6  Disabled auto refresh command if over 16 auto refresh command sent in 2 TREFI_DDR3 period
   //bit 5  enable dmc send ZQCS command .
   //bit 4. enable dmc send DFI_CTRUPD_REQ.
@@ -3156,8 +3156,8 @@
   //bit 23:20   stop_st
   //bit 19:15   sleep_st
   //bit 14:12  ACCESS STATUS 0 :  ACCESS is in normal working mode.
-                          //1 :   ACCESS sending precharege command.
-                          //2 :   ACCESS sending AUTO REFESH command.
+                          //1 :   ACCESS sending precharge command.
+                          //2 :   ACCESS sending AUTO REFRESH command.
                           //3 :   ACCESS sending DIF_CTRLUPD_REQ command.
                           //4 :   ACCESS sending ZQCS command to DDR DRAM(ZQCAL for LPDDR4).
                           //5 :   ACCESS sending ZQLATCH command to  LPDDR4 only.
@@ -3639,7 +3639,7 @@
 // APB_BASE:  APB1_BASE_ADDR = 0xfe024800
 // -----------------------------------------------
 //`define DMC_STICKY_REG_BASE   32'hfe024800
-//those register is for software save some tempary value. and because it's in RAM. it won't lose if DMC get reseted.
+//those register is for software save some temporary value. and because it's in RAM. it won't lose if DMC get reseted.
 #define DMC_STICKY_0                               ((0x0000  << 2) + 0xfe024800)
 #define DMC_STICKY_1                               ((0x0001  << 2) + 0xfe024800)
 #define DMC_STICKY_2                               ((0x0002  << 2) + 0xfe024800)
@@ -5738,7 +5738,7 @@
 #define HCODEC_MFDIN_REG6_DCFG                     ((0x000e  << 2) + 0xfe064000)
 //cfg_soft_cmd = mfdin_reg7_scmd; // Soft Command [28]selfcleared start,[27:14]dmb_x,[13:0]dmb_y
 #define HCODEC_MFDIN_REG7_SCMD                     ((0x000f  << 2) + 0xfe064000)
-//cfg_pic_xsize = mfdin_reg8_dmbl[23:12]; //pixel (x,y) at the begining of last dmb in the picturem, picture x size
+//cfg_pic_xsize = mfdin_reg8_dmbl[23:12]; //pixel (x,y) at the begining of last dmb in the picture, picture x size
 //cfg_pic_ysize = mfdin_reg8_dmbl[11:0];  //picture y size
 #define HCODEC_MFDIN_REG8_DMBL                     ((0x0010  << 2) + 0xfe064000)
 //cfg_endian = mfdin_reg9_endn; //Endian Control
@@ -6139,7 +6139,7 @@
 // Mid Mode : (Amrisc need movi to set stream_info)
 //   bit[15:12]] push_stream_mid_length (1-12 : mid mode active, 0-short mode, 15 - byte align)
 //   bit[11:0]  push_stream_data
-// Short Mode : (Amrisc can use mtspi to push stream directely)
+// Short Mode : (Amrisc can use mtspi to push stream directly)
 //   bit[7:5] push_stream_short_length (0-5 : short length, else - invalid)
 //   bit[4:0]  push_stream_data
 #define VLC_PUSH_STREAM                            ((0x001f  << 2) + 0xfe067400)
@@ -6264,7 +6264,7 @@
 // Bit[15:4]  mb_x
 // Bit[3:0]   mb_type
 #define VLC_MB_INFO                                ((0x0035  << 2) + 0xfe067400)
-// commnad 0 -- no pending
+// command 0 -- no pending
 // normal command + 1 is pending command
 //
 // bit 31:28 -- pending command 7
@@ -7613,7 +7613,7 @@
 // Bit     1 ge2d_rd_src1 cmd_if.stat_read_window_err, 1=reading/clipping window setting exceed limit
 // Bit     0 ge2d_rd_src1 cmd_if.cmd_st, 0=IDLE state, 1=BUSY state
 #define GE2D_STATUS1                               ((0x00a5  << 2) + 0xfe008c00)
-//SRC1 default clolor
+//SRC1 default color
 //{Y,Cb,Cr,A}/{R,G,B,A}
 #define GE2D_SRC1_DEF_COLOR                        ((0x00a6  << 2) + 0xfe008c00)
 //Bit 31, SRC1 clip x start extra, if true, one more data is read for chroma
@@ -7670,7 +7670,7 @@
 //          or start/end even/odd chroma phase  when y/c ratio = 1
 //          [3:0] for y direction odd start/end chroma phase only when y/c ration = 2
 #define GE2D_SRC1_FMT_CTRL                         ((0x00ae  << 2) + 0xfe008c00)
-//SRC2 default clolor
+//SRC2 default color
 //{Y,Cb,Cr,A}/{R,G,B,A}
 #define GE2D_SRC2_DEF_COLOR                        ((0x00af  << 2) + 0xfe008c00)
 //Bit 28:16, SRC2 clip x start
@@ -7785,7 +7785,7 @@
 //Bit 26:25, SRC1 color multiplier alpha selection
 //           if 00, Cs = Csr
 //           if 01, Cs = Csr * Asr * Ag (if source is not premultiplied)
-//           if 10, Cs = Csr * Ag (if source is premultipied)
+//           if 10, Cs = Csr * Ag (if source is premultiplied)
 //Bit 24    SRC2 color multiplier alpha selection
 //          if 0, no multiplier, Cd = Cdr,  otherwise, Cd = Cdr * Ad.
 //Bit 22:12 ALU color operation
@@ -7950,18 +7950,18 @@
 //Bit 7:0,   B mult coef for converting RGB to Y
 //Y = (R * y_r + G * y_g + B * y_b) / 256
 #define GE2D_ANTIFLICK_CTRL1                       ((0x00d9  << 2) + 0xfe008c00)
-//Bit 31:24, Y threhold1, when   0<Y<=th1, use filter0;
+//Bit 31:24, Y threshold1, when   0<Y<=th1, use filter0;
 //Bit 23:16, color antiflick filter0 n3
 //Bit 15:8,  color antiflick filter0 n2
 //Bit 7:0,   color antiflick filter0 n1
 //Y = (line_up * n1 + line_center * n2 + line_dn * n3) / 128
 #define GE2D_ANTIFLICK_COLOR_FILT0                 ((0x00da  << 2) + 0xfe008c00)
-//Bit 31:24, Y threhold2, when th1<Y<=th2, use filter1;
+//Bit 31:24, Y threshold2, when th1<Y<=th2, use filter1;
 //Bit 23:16, color antiflick filter1 n3
 //Bit 15:8,  color antiflick filter1 n2
 //Bit 7:0,   color antiflick filter1 n1
 #define GE2D_ANTIFLICK_COLOR_FILT1                 ((0x00db  << 2) + 0xfe008c00)
-//Bit 31:24, Y threhold3, when th2<Y<=th3, use filter2; Y>th3, use filter3
+//Bit 31:24, Y threshold3, when th2<Y<=th3, use filter2; Y>th3, use filter3
 //Bit 23:16, color antiflick filter2 n3
 //Bit 15:8,  color antiflick filter2 n2
 //Bit 7:0,   color antiflick filter2 n1
@@ -7970,18 +7970,18 @@
 //Bit 15:8,  color antiflick filter3 n2
 //Bit 7:0,   color antiflick filter3 n1
 #define GE2D_ANTIFLICK_COLOR_FILT3                 ((0x00dd  << 2) + 0xfe008c00)
-//Bit 31:24, Alpha threhold1, when   0<Alpha<=th1, use filter0;
+//Bit 31:24, Alpha threshold1, when   0<Alpha<=th1, use filter0;
 //Bit 23:16, Alpha antiflick filter0 n3
 //Bit 15:8,  Alpha antiflick filter0 n2
 //Bit 7:0,   Alpha antiflick filter0 n1
 //Alpha = (line_up * n1 + line_center * n2 + line_dn * n3) / 128
 #define GE2D_ANTIFLICK_ALPHA_FILT0                 ((0x00de  << 2) + 0xfe008c00)
-//Bit 31:24, Alpha threhold2, when th1<Alpha<=th2, use filter1;
+//Bit 31:24, Alpha threshold2, when th1<Alpha<=th2, use filter1;
 //Bit 23:16, Alpha antiflick filter1 n3
 //Bit 15:8,  Alpha antiflick filter1 n2
 //Bit 7:0,   Alpha antiflick filter1 n1
 #define GE2D_ANTIFLICK_ALPHA_FILT1                 ((0x00df  << 2) + 0xfe008c00)
-//Bit 31:24, Alpha threhold3, when th2<Alpha<=th3, use filter2; Alpha>th3, use filter3
+//Bit 31:24, Alpha threshold3, when th2<Alpha<=th3, use filter2; Alpha>th3, use filter3
 //Bit 23:16, Alpha antiflick filter2 n3
 //Bit 15:8,  Alpha antiflick filter2 n2
 //Bit 7:0,   Alpha antiflick filter2 n1
@@ -8011,9 +8011,9 @@
 //Bit 9:1   dout_offset (signed data)
 //Bit 0     enable
 #define GE2D_SRC1_RANGE_MAP_CR_CTRL                ((0x00e5  << 2) + 0xfe008c00)
-//Bit 21:16     src1 prearbitor burst number
-//Bit 13:8      src2 prearbitor burst number
-//Bit 5:0       dst prearbitor burst number
+//Bit 21:16     src1 pre arbiter burst number
+//Bit 13:8      src2 pre arbiter burst number
+//Bit 5:0       dst pre arbiter burst number
 #define GE2D_ARB_BURST_NUM                         ((0x00e6  << 2) + 0xfe008c00)
 //each 6bit ID, high 4bit are thread ID, low 2bits are the token
 //Bit 21:16 src1 ID

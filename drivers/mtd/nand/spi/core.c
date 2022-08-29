@@ -697,7 +697,7 @@ int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 	for (i = 0; i < sizeof(struct boot_info) - 4; i++)
 		boot_info->checksum += *((u8 *)buf + i);
 
-	/* temporary dump info page for brinpup */
+	/* temporary dump info page for bringup */
 	for (i = 0; i < sizeof(struct boot_info); i++) {
 		if (!(i % 8))
 			printf("\n");

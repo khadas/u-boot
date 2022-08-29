@@ -391,7 +391,7 @@ static int lcd_tconless_spi_data_demura_format(struct lcd_tcon_spi_block_s *spi_
 	new_buf[n + 8] = 0x01; //data_mask
 	new_buf[n + 9] = 0x01; //data_value
 
-	/*ext heaer*/
+	/*ext header*/
 	n = LCD_TCON_DATA_BLOCK_HEADER_SIZE;
 	new_buf[n] = part_cnt & 0xff;
 	new_buf[n + 1] = (part_cnt >> 8) & 0xff;
@@ -563,7 +563,7 @@ static int lcd_tconless_spi_data_acc_format(struct lcd_tcon_spi_block_s *spi_blo
 	new_buf[n + 8] = 0x03; //data_mask
 	new_buf[n + 9] = 0x03; //data_value
 
-	/*ext heaer*/
+	/*ext header*/
 	n = LCD_TCON_DATA_BLOCK_HEADER_SIZE;
 	new_buf[n] = part_cnt & 0xff;
 	new_buf[n + 1] = (part_cnt >> 8) & 0xff;
@@ -802,7 +802,7 @@ static int lcd_tconless_demura_conv_cspi55(struct lcd_tcon_spi_block_s *spi_bloc
 	memset(spi_block->temp_buf, 0, new_size);
 	lcd_tconless_get_demura_data(buf_plane0, buf_plane1, buf_plane2, spi_block->temp_buf);
 
-	LCDSPI_PR("%s: sussess\n", __func__);
+	LCDSPI_PR("%s: success\n", __func__);
 	free(buf_lut_flash);
 	buf_lut_flash = NULL;
 	free(buf_plane0);

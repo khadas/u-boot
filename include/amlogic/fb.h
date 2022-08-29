@@ -89,7 +89,7 @@
 #define FB_ACCEL_MATROX_MGA1064SG 17	/* Matrox MGA1064SG (Mystique)	*/
 #define FB_ACCEL_MATROX_MGA2164W 18	/* Matrox MGA2164W (Millenium II) */
 #define FB_ACCEL_MATROX_MGA2164W_AGP 19	/* Matrox MGA2164W (Millenium II) */
-#define FB_ACCEL_MATROX_MGAG100	20	/* Matrox G100 (Productiva G100) */
+#define FB_ACCEL_MATROX_MGAG100	20	/* Matrox G100 (productive G100) */
 #define FB_ACCEL_MATROX_MGAG200	21	/* Matrox G200 (Myst, Mill, ...) */
 #define FB_ACCEL_SUN_CG14	22	/* Sun cgfourteen		 */
 #define FB_ACCEL_SUN_BWTWO	23	/* Sun bwtwo			*/

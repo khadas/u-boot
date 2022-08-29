@@ -19,7 +19,7 @@ struct lcd_phy_ctrl_s {
 };
 
 /* -------------------------- */
-/* lvsd phy parameters define */
+/* lvds phy parameters define */
 /* -------------------------- */
 #define LVDS_PHY_CNTL1_G9TV    0x606cca80
 #define LVDS_PHY_CNTL2_G9TV    0x0000006c

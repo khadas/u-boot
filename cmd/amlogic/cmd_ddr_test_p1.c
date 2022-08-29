@@ -288,7 +288,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ee_pwm_base_address = ((0x0001 << 2) + 0xfe05e000),            //PWMGH_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),
-		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000), //SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384,zhiguang confirm
+		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000), //SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
 	},
 	//T5
 	{
@@ -347,7 +347,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ee_pwm_base_address = ((0x0001 << 2) + 0xfe05e000),            //PWMGH_PWM_B
 		.ddr_dmc_apd_address = ((0x018c << 2) + 0xfe036000),
 		.ddr_dmc_asr_address = ((0x018d << 2) + 0xfe036000),
-		//.ddr_boot_reason_address = ((0x00c1 << 2) + 0xfe010000), //SYSCTRL_SEC_STATUS_REG1,20210204,0xfe010304,zhiguang confirm
+		//.ddr_boot_reason_address = ((0x00c1 << 2) + 0xfe010000), //SYSCTRL_SEC_STATUS_REG1,20210204,0xfe010304, confirm
 
 		.ddr_dmc_lpdd4_retraining_address = ((0x0197 << 2) + 0xfe036000),
 		.ddr_dmc_refresh_ctrl_address = ((0x0192 << 2) + 0xfe036000),
@@ -372,7 +372,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xfe036c00),           //AM_DDR_PLL_CNTL0//
-		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000), //SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384,zhiguang confirm
+		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000), //SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
 		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_base_address = 0,
@@ -393,7 +393,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xfe0a0000),           //AM_DDR_PLL_CNTL0//
-		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000), //SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384,zhiguang confirm
+		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000), //SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
 		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_base_address = 0,
@@ -424,7 +424,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xfe0a0000),           //AM_DDR_PLL_CNTL0//
-		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000), //SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384,zhiguang confirm
+		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000), //SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
 		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_base_address = 0,
@@ -844,11 +844,11 @@ typedef struct ddr_set {
 	//#define CONFIG_DDR0_16BIT_CH0				0x1  //dram total bus width 16bit only use cs0
 	//#define CONFIG_DDR0_16BIT_RANK01_CH0		0x4  //dram total bus width 16bit  use cs0 cs1
 	//#define CONFIG_DDR0_32BIT_RANK0_CH0			0x2  //dram total bus width 32bit  use cs0
-	//#define CONFIG_DDR0_32BIT_RANK01_CH01		0x3    //only for lpddr4,dram total bus width 32bit  use chanel a cs0 cs1 chanel b cs0 cs1
+	//#define CONFIG_DDR0_32BIT_RANK01_CH01		0x3    //only for lpddr4,dram total bus width 32bit  use channel a cs0 cs1 channel b cs0 cs1
 	//#define CONFIG_DDR0_32BIT_16BIT_RANK0_CH0		0x5    //dram total bus width 32bit only use cs0,but high address use 16bit mode
 	//#define CONFIG_DDR0_32BIT_16BIT_RANK01_CH0	0x6   //dram total bus width 32bit  use cs0 cs1,but cs1 use 16bit mode ,current phy not support reserve
 	//#define CONFIG_DDR0_32BIT_RANK01_CH0		0x7       //dram total bus width 32bit  use cs0 cs1
-	//#define CONFIG_DDR0_32BIT_RANK0_CH01		0x8     //only for lpddr4,dram total bus width 32bit  use chanel a cs0  chanel b cs0
+	//#define CONFIG_DDR0_32BIT_RANK0_CH01		0x8     //only for lpddr4,dram total bus width 32bit  use channel a cs0  channel b cs0
 
 	/* rsv_char0. update for diagnose type define */
 	unsigned char	diagnose;
@@ -883,18 +883,18 @@ typedef struct ddr_set {
 	// [1]Odt pattern for accesses targeting rank 1. [3:0] is used for write ODT [7:4] is used for read ODT
 	unsigned int	dfi_odt_config;
 	//normal go status od config,use for normal status
-	//bit 12.  rank1 ODT default. default vulue for ODT[1] pins if theres no read/write activity.
+	//bit 12.  rank1 ODT default. default value for ODT[1] pins if theres no read/write activity.
 	//bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
 	//bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
 	//bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
 	//bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occurred in rank0.
-	//bit 4.   rank0 ODT default.    default vulue for ODT[0] pins if theres no read/write activity.
+	//bit 4.   rank0 ODT default.    default value for ODT[0] pins if theres no read/write activity.
 	//bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
 	//bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
 	//bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
 	//bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occurred in rank1.
 	unsigned short	DRAMFreq[4];
-	//config dram frequency,use DRAMFreq[0],ohter reserve
+	//config dram frequency,use DRAMFreq[0],other reserve
 	unsigned char	PllBypassEn;
 	//system reserve,do not modify
 	unsigned char	ddr_rdbi_wr_enable;
@@ -931,25 +931,25 @@ typedef struct ddr_set {
 	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
 	 */
 	unsigned short			clk_drv_ohm;
-	//config soc clk pin signal driver stength ,select 20,30,40,60ohm
+	//config soc clk pin signal driver strength ,select 20,30,40,60ohm
 	unsigned short			cs_drv_ohm;
-	//config soc cs0 cs1 pin signal driver stength ,select 20,30,40,60ohm
+	//config soc cs0 cs1 pin signal driver strength ,select 20,30,40,60ohm
 	unsigned short			ac_drv_ohm;
-	//config soc  normal address command pin driver stength ,select 20,30,40,60ohm
+	//config soc  normal address command pin driver strength ,select 20,30,40,60ohm
 	unsigned short			soc_data_drv_ohm_p;
-	//config soc data pin pull up driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin pull up driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short			soc_data_drv_ohm_n;
-	//config soc data pin pull down driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin pull down driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short			soc_data_odt_ohm_p;
-	//config soc data pin odt pull up stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin odt pull up strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short			soc_data_odt_ohm_n;
-	//config soc data pin odt pull down stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin odt pull down strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short			dram_data_drv_ohm;
-	//config dram data pin pull up pull down driver stength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
+	//config dram data pin pull up pull down driver strength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned short			dram_data_odt_ohm;
-	//config dram data pin odt pull up down stength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
+	//config dram data pin odt pull up down strength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned short			dram_ac_odt_ohm;
-	//config dram ac pin odt pull up down stength,use for lpddr4, select 40,48,60,80,120,240ohm
+	//config dram ac pin odt pull up down strength,use for lpddr4, select 40,48,60,80,120,240ohm
 	unsigned short			soc_clk_slew_rate;
 	//system reserve,do not modify
 	unsigned short			soc_cs_slew_rate;
@@ -1036,11 +1036,11 @@ typedef struct ddr_set_t7 {
 	//#define CONFIG_DDR0_16BIT_CH0				0x1  //dram total bus width 16bit only use cs0
 	//#define CONFIG_DDR0_16BIT_RANK01_CH0		0x4  //dram total bus width 16bit  use cs0 cs1
 	//#define CONFIG_DDR0_32BIT_RANK0_CH0			0x2  //dram total bus width 32bit  use cs0
-	//#define CONFIG_DDR0_32BIT_RANK01_CH01		0x3    //only for lpddr4,dram total bus width 32bit  use chanel a cs0 cs1 chanel b cs0 cs1
+	//#define CONFIG_DDR0_32BIT_RANK01_CH01		0x3    //only for lpddr4,dram total bus width 32bit  use channel a cs0 cs1 channel b cs0 cs1
 	//#define CONFIG_DDR0_32BIT_16BIT_RANK0_CH0		0x5    //dram total bus width 32bit only use cs0,but high address use 16bit mode
 	//#define CONFIG_DDR0_32BIT_16BIT_RANK01_CH0	0x6   //dram total bus width 32bit  use cs0 cs1,but cs1 use 16bit mode ,current phy not support reserve
 	//#define CONFIG_DDR0_32BIT_RANK01_CH0		0x7       //dram total bus width 32bit  use cs0 cs1
-	//#define CONFIG_DDR0_32BIT_RANK0_CH01		0x8     //only for lpddr4,dram total bus width 32bit  use chanel a cs0  chanel b cs0
+	//#define CONFIG_DDR0_32BIT_RANK0_CH01		0x8     //only for lpddr4,dram total bus width 32bit  use channel a cs0  channel b cs0
 
 	/* rsv_char0. update for diagnose type define */
 	//unsigned	char	diagnose;
@@ -1083,18 +1083,18 @@ typedef struct ddr_set_t7 {
 	// [1]Odt pattern for accesses targeting rank 1. [3:0] is used for write ODT [7:4] is used for read ODT
 	unsigned int	dfi_odt_config;
 	//normal go status od config,use for normal status
-	//bit 12.  rank1 ODT default. default vulue for ODT[1] pins if theres no read/write activity.
+	//bit 12.  rank1 ODT default. default value for ODT[1] pins if theres no read/write activity.
 	//bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
 	//bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
 	//bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
 	//bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occurred in rank0.
-	//bit 4.   rank0 ODT default.    default vulue for ODT[0] pins if theres no read/write activity.
+	//bit 4.   rank0 ODT default.    default value for ODT[0] pins if theres no read/write activity.
 	//bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
 	//bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
 	//bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
 	//bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occurred in rank1.
 	unsigned short	DRAMFreq[4];
-	//config dram frequency,use DRAMFreq[0],ohter reserve
+	//config dram frequency,use DRAMFreq[0],other reserve
 	unsigned char	PllBypassEn;
 	//system reserve,do not modify
 	unsigned char	ddr_rdbi_wr_enable;
@@ -1132,25 +1132,25 @@ typedef struct ddr_set_t7 {
 	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
 	 */
 	unsigned short			clk_drv_ohm;
-	//config soc clk pin signal driver stength ,select 20,30,40,60ohm
+	//config soc clk pin signal driver strength ,select 20,30,40,60ohm
 	unsigned short			cs_drv_ohm;
-	//config soc cs0 cs1 pin signal driver stength ,select 20,30,40,60ohm
+	//config soc cs0 cs1 pin signal driver strength ,select 20,30,40,60ohm
 	unsigned short			ac_drv_ohm;
-	//config soc  normal address command pin driver stength ,select 20,30,40,60ohm
+	//config soc  normal address command pin driver strength ,select 20,30,40,60ohm
 	unsigned short			soc_data_drv_ohm_p;
-	//config soc data pin pull up driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin pull up driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short			soc_data_drv_ohm_n;
-	//config soc data pin pull down driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin pull down driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short			soc_data_odt_ohm_p;
-	//config soc data pin odt pull up stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin odt pull up strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short			soc_data_odt_ohm_n;
-	//config soc data pin odt pull down stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin odt pull down strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short			dram_data_drv_ohm;
-	//config dram data pin pull up pull down driver stength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
+	//config dram data pin pull up pull down driver strength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned short			dram_data_odt_ohm;
-	//config dram data pin odt pull up down stength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
+	//config dram data pin odt pull up down strength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned short			dram_ac_odt_ohm;
-	//config dram ac pin odt pull up down stength,use for lpddr4, select 40,48,60,80,120,240ohm
+	//config dram ac pin odt pull up down strength,use for lpddr4, select 40,48,60,80,120,240ohm
 	unsigned short			soc_clk_slew_rate;
 	//system reserve,do not modify
 	unsigned short			soc_cs_slew_rate;
@@ -1299,11 +1299,11 @@ typedef struct ddr_set_p1 {
 	//#define CONFIG_DDR0_16BIT_CH0				0x1  //dram total bus width 16bit only use cs0
 	//#define CONFIG_DDR0_16BIT_RANK01_CH0		0x4  //dram total bus width 16bit  use cs0 cs1
 	//#define CONFIG_DDR0_32BIT_RANK0_CH0			0x2  //dram total bus width 32bit  use cs0
-	//#define CONFIG_DDR0_32BIT_RANK01_CH01		0x3    //only for lpddr4,dram total bus width 32bit  use chanel a cs0 cs1 chanel b cs0 cs1
+	//#define CONFIG_DDR0_32BIT_RANK01_CH01		0x3    //only for lpddr4,dram total bus width 32bit  use channel a cs0 cs1 channel b cs0 cs1
 	//#define CONFIG_DDR0_32BIT_16BIT_RANK0_CH0		0x5    //dram total bus width 32bit only use cs0,but high address use 16bit mode
 	//#define CONFIG_DDR0_32BIT_16BIT_RANK01_CH0	0x6   //dram total bus width 32bit  use cs0 cs1,but cs1 use 16bit mode ,current phy not support reserve
 	//#define CONFIG_DDR0_32BIT_RANK01_CH0		0x7       //dram total bus width 32bit  use cs0 cs1
-	//#define CONFIG_DDR0_32BIT_RANK0_CH01		0x8     //only for lpddr4,dram total bus width 32bit  use chanel a cs0  chanel b cs0
+	//#define CONFIG_DDR0_32BIT_RANK0_CH01		0x8     //only for lpddr4,dram total bus width 32bit  use channel a cs0  channel b cs0
 
 	/* rsv_char0. update for diagnose type define */
 	//unsigned	char	diagnose;
@@ -1349,18 +1349,18 @@ typedef struct ddr_set_p1 {
 	// [1]Odt pattern for accesses targeting rank 1. [3:0] is used for write ODT [7:4] is used for read ODT
 	unsigned int	dfi_odt_config;
 	//normal go status od config,use for normal status
-	//bit 12.  rank1 ODT default. default vulue for ODT[1] pins if theres no read/write activity.
+	//bit 12.  rank1 ODT default. default value for ODT[1] pins if theres no read/write activity.
 	//bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
 	//bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
 	//bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
 	//bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occurred in rank0.
-	//bit 4.   rank0 ODT default.    default vulue for ODT[0] pins if theres no read/write activity.
+	//bit 4.   rank0 ODT default.    default value for ODT[0] pins if theres no read/write activity.
 	//bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
 	//bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
 	//bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
 	//bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occurred in rank1.
 	unsigned short	DRAMFreq[4];
-	//config dram frequency,use DRAMFreq[0],ohter reserve
+	//config dram frequency,use DRAMFreq[0],other reserve
 	unsigned char	PllBypassEn;
 	//system reserve,do not modify
 	unsigned	char	ddr_rdbi_wr_enable;
@@ -1398,25 +1398,25 @@ typedef struct ddr_set_p1 {
 	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
 	 */
 	unsigned	short	clk_drv_ohm;
-	//config soc clk pin signal driver stength ,select 20,30,40,60ohm
+	//config soc clk pin signal driver strength ,select 20,30,40,60ohm
 	unsigned	short	cs_drv_ohm;
-	//config soc cs0 cs1 pin signal driver stength ,select 20,30,40,60ohm
+	//config soc cs0 cs1 pin signal driver strength ,select 20,30,40,60ohm
 	unsigned	short	ac_drv_ohm;
-	//config soc  normal address command pin driver stength ,select 20,30,40,60ohm
+	//config soc  normal address command pin driver strength ,select 20,30,40,60ohm
 	unsigned	short	soc_data_drv_ohm_p;
-	//config soc data pin pull up driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin pull up driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned	short	soc_data_drv_ohm_n;
-	//config soc data pin pull down driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin pull down driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned	short	soc_data_odt_ohm_p;
-	//config soc data pin odt pull up stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin odt pull up strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned	short	soc_data_odt_ohm_n;
-	//config soc data pin odt pull down stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin odt pull down strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned	short	dram_data_drv_ohm;
-	//config dram data pin pull up pull down driver stength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
+	//config dram data pin pull up pull down driver strength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned	short	dram_data_odt_ohm;
-	//config dram data pin odt pull up down stength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
+	//config dram data pin odt pull up down strength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned	short	dram_ac_odt_ohm;
-	//config dram ac pin odt pull up down stength,use for lpddr4, select 40,48,60,80,120,240ohm
+	//config dram ac pin odt pull up down strength,use for lpddr4, select 40,48,60,80,120,240ohm
 	unsigned	short	soc_clk_slew_rate;
 	//system reserve,do not modify
 	unsigned	short	soc_cs_slew_rate;
@@ -8919,7 +8919,7 @@ int do_ddr_g12_override_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 
 	ddr_dmc_apd_temp_save = readl((p_ddr_base->ddr_dmc_apd_address));
 	ddr_dmc_asr_temp_save = readl((p_ddr_base->ddr_dmc_asr_address));
-	printf("\12nm phy read write register should closd apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr funciton\n");
 
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F + 7 * 32)
@@ -9016,7 +9016,7 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F + 7 * 32)
-	printf("\n12nm phy read write register should closd apd and asr funciton\n");
+	printf("\n12nm phy read write register should closed apd and asr funciton\n");
 
 	int i = 0;
 
@@ -9026,9 +9026,9 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	char *endp;
 	//rank_index  dq_index  write_read left/right  offset_value
 	unsigned int test_index = 0;            // 1 ac ,0x2, write dqs ,0x4,read dqs,0x8,write dq,0x10 read dq
-	unsigned int test_dq_mask_1 = 0;        //each bit mask corresspond with dq_index
-	unsigned int test_dq_mask_2 = 0;        //each bit mask corresspond with dq_index
-	unsigned int test_dq_mask_3 = 0;        //each bit mask corresspond with dq_index
+	unsigned int test_dq_mask_1 = 0;        //each bit mask correspond with dq_index
+	unsigned int test_dq_mask_2 = 0;        //each bit mask correspond with dq_index
+	unsigned int test_dq_mask_3 = 0;        //each bit mask correspond with dq_index
 	unsigned int left_right_flag = 0;       //  1 left ,2 right   #define  DDR_PARAMETER_LEFT		1     #define   DDR_PARAMETER_RIGHT		2
 	unsigned int offset_value = 0;          //
 	unsigned int count = 0;
@@ -9081,32 +9081,32 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 				offset_value = 0;
 		}
 	} else {
-		//if (need_disable_dmc_retraininig)
+		//if (need_disable_dmc_retraining)
 		//wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl);
 		return 1;
 	}
 
 	unsigned int need_phy_vt_gate;
-	unsigned int need_disable_dmc_retraininig;
+	unsigned int need_disable_dmc_retraining;
 	uint32_t dmc_retraining_ctrl = 0;
 
 	if (p_ddr_base->chip_id != MESON_CPU_MAJOR_ID_P1) {
-		need_disable_dmc_retraininig = 1;
+		need_disable_dmc_retraining = 1;
 		need_phy_vt_gate = 1;
 	} else {
-		need_disable_dmc_retraininig = 0;
+		need_disable_dmc_retraining = 0;
 		need_phy_vt_gate = 0;
 	}
 	if ((test_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DFE_DAC0) ||
 	(test_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DFE_DAC1) ||
 	(test_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DFE_DAC2) ||
 	(test_index == DMC_TEST_WINDOW_INDEX_SOC_VREF_DFE_DAC3)) {
-		need_disable_dmc_retraininig = 0;
+		need_disable_dmc_retraining = 0;
 		need_phy_vt_gate = 0;
 	}
 
 	dmc_retraining_ctrl = rd_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address));
-if (need_disable_dmc_retraininig)
+if (need_disable_dmc_retraining)
 	wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl & (~(1 << 31)));
 	unsigned int ddr_dmc_apd_temp_save, ddr_dmc_asr_temp_save;
 
@@ -9116,7 +9116,7 @@ if (need_disable_dmc_retraininig)
 	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1)) {
 		writel(ddr_dmc_apd_temp_save, p_ddr_base->ddr_dmc_apd_address);
 		writel(ddr_dmc_asr_temp_save, p_ddr_base->ddr_dmc_asr_address);
-		if (need_disable_dmc_retraininig)
+		if (need_disable_dmc_retraining)
 			wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl);
 		count = 0;
 		test_index = simple_strtoull_ddr(argv[count + 1], &endp, 0);
@@ -9129,7 +9129,7 @@ if (need_disable_dmc_retraininig)
 		test_index = (test_index % 100);     //for DDR_PHY 1
 		dmc_change_channel(dmc_ddr_config_channel_id);
 		dmc_retraining_ctrl = rd_reg(p_ddr_base->ddr_dmc_lpdd4_retraining_address);
-	if (need_disable_dmc_retraininig)
+	if (need_disable_dmc_retraining)
 		wr_reg(p_ddr_base->ddr_dmc_lpdd4_retraining_address, dmc_retraining_ctrl & (~(1 << 31)));
 		ddr_dmc_apd_temp_save = readl(p_ddr_base->ddr_dmc_apd_address);
 		ddr_dmc_asr_temp_save = readl(p_ddr_base->ddr_dmc_asr_address);
@@ -9237,7 +9237,7 @@ if (need_disable_dmc_retraininig)
 	}
 	writel(ddr_dmc_apd_temp_save, p_ddr_base->ddr_dmc_apd_address);
 	writel(ddr_dmc_asr_temp_save, p_ddr_base->ddr_dmc_asr_address);
-	if (need_disable_dmc_retraininig)
+	if (need_disable_dmc_retraining)
 		wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl);
 	ddr_udelay_dummy(100);
 	dwc_ddrphy_phyinit_lower_power_enable(1);
@@ -9316,7 +9316,7 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	if ((strcmp(argv[1], "h") == 0))
 		//goto usage;
 		return 1;
-	printf("\12nm phy read write register should closd apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr funciton\n");
 
 	global_ddr_clk = get_ddr_clk();
 	printf("\nddr_clk== %dMHz\n", global_ddr_clk);
@@ -9674,12 +9674,12 @@ int do_ddr_auto_scan_drv(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 
 	unsigned int counter_loop = 0;
 	unsigned int ddr_frequency = 0;
-	unsigned int soc_data_drv_ohm_p = 0;    //74  //config soc data pin pull up driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	unsigned int soc_data_drv_ohm_p = 0;    //74  //config soc data pin pull up driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned int soc_data_drv_ohm_n = 0;    //76
-	unsigned int soc_data_odt_ohm_p = 0;    //78  //config soc data pin odt pull up stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	unsigned int soc_data_odt_ohm_p = 0;    //78  //config soc data pin odt pull up strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned int soc_data_odt_ohm_n = 0;    //80
-	unsigned int dram_data_drv_ohm = 0;     //82  //config dram data pin pull up pull down driver stength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
-	unsigned int dram_data_odt_ohm = 0;     //84  //config dram data pin odt pull up down stength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
+	unsigned int dram_data_drv_ohm = 0;     //82  //config dram data pin pull up pull down driver strength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
+	unsigned int dram_data_odt_ohm = 0;     //84  //config dram data pin odt pull up down strength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned int dram_data_wr_odt_ohm = 0;  //174 char 1
 
 	i = 74 / 2;
@@ -9771,7 +9771,7 @@ int do_ddr_auto_scan_drv(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 
 	unsigned int max_counter_total = (max_counter_loop_w1 * max_counter_loop_w2 + max_counter_loop_r1 * max_counter_loop_r2 + 2) * max_counter_loop_wr1;
 	//add 2 times recover
-	//each arrary test 2 times ,for maybe 1times will fail,then next time will recovery //jiaxing 20181114
+	//each array test 2 times ,for maybe 1times will fail,then next time will recovery //jiaxing 20181114
 	counter_loop = (((global_boot_times - 1) / 2) % max_counter_total);
 	dram_data_wr_odt_ohm = 0;
 	if (max_counter_loop_wr1 > 1)

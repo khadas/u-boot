@@ -2795,7 +2795,7 @@ __attribute__ ((section(".clk_param"))) = {
 #endif
 #if 0
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
-	//hxbao, need fine tune
+	//need fine tune
 	{ 0, 0, 0xffffffff, 0, 0, 0 },
 };
 #endif

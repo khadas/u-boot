@@ -108,7 +108,7 @@ int aml_lcd_i2c_write(unsigned char i2c_bus, unsigned int i2c_addr,
 	}
 
 	if (len < 1) {
-		LCDI2C_ERR("invailed len %d\n", len);
+		LCDI2C_ERR("invalid len %d\n", len);
 		return -1;
 	}
 	if (len == 1)

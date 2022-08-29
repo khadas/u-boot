@@ -882,7 +882,7 @@ static int uboot_open(struct inode * inode, struct file * filp)
 	return 0;
 }
 /*
- * This funcion reads the u-boot envionment variables.
+ * This funcion reads the u-boot enough variables.
  * The f_pos points directly to the env location.
  */
 static ssize_t uboot_read(struct file *file,

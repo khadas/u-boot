@@ -180,7 +180,7 @@ static void lcd_lvds_control_set(struct aml_lcd_drv_s *pdrv)
 			(1 << 12) |		//g_select  //0:R, 1:G, 2:B, 3:0
 			(2 << 14));		//b_select  //0:R, 1:G, 2:B, 3:0;
 
-	/* lvsd swap */
+	/* lvds swap */
 	switch (pdrv->data->chip_type) {
 	case LCD_CHIP_TL1:
 	case LCD_CHIP_TM2:

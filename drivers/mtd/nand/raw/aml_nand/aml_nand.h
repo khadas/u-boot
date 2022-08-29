@@ -90,7 +90,7 @@ typedef struct _ext_info{
 		* discrete mode,boot means the fip only*/
 		uint32_t boot_num;
 		uint32_t each_boot_pages;
-		/*for comptible reason*/
+		/*for compatible reason*/
 		uint32_t bbt_occupy_pages;
 		uint32_t bbt_start_block;
 } ext_info_t;
@@ -523,7 +523,7 @@ int aml_key_init(struct aml_nand_chip *aml_chip);
 
 int aml_nand_erase_key(struct mtd_info *mtd);
 
-int aml_nand_bbt_check(struct mtd_info *mtd);/*fixed by liuxj*/
+int aml_nand_bbt_check(struct mtd_info *mtd);/*fixed by liuxianjun*/
 
 int aml_nand_scan(struct mtd_info *mtd, int maxchips);
 

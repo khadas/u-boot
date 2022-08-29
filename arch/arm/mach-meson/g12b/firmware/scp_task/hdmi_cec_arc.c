@@ -289,7 +289,7 @@ static int cec_queue_tx_msg(unsigned char *msg, unsigned char len)
 	return 0;
 }
 
-static int cec_triggle_tx(unsigned char *msg, unsigned char len)
+static int cec_trigger_tx(unsigned char *msg, unsigned char len)
 {
 	int i = 0, lock;
 
@@ -326,7 +326,7 @@ static int cec_triggle_tx(unsigned char *msg, unsigned char len)
 static int remote_cec_ll_tx(unsigned char *msg, unsigned char len)
 {
 	cec_queue_tx_msg(msg, len);
-	cec_triggle_tx(msg, len);
+	cec_trigger_tx(msg, len);
 
 	return 0;
 }
@@ -694,7 +694,7 @@ unsigned int cec_handler(void)
 		s_idx = cec_tx_msgs.send_idx;
 		if (cec_tx_msgs.send_idx != cec_tx_msgs.queue_idx) {
 			cec_dbg_prints("TX_OK\n");
-			cec_triggle_tx(cec_tx_msgs.msg[s_idx].buf,
+			cec_trigger_tx(cec_tx_msgs.msg[s_idx].buf,
 				       cec_tx_msgs.msg[s_idx].len);
 		} else {
 			cec_dbg_prints("TX_END\n");
@@ -707,7 +707,7 @@ unsigned int cec_handler(void)
 		s_idx = cec_tx_msgs.send_idx;
 		if (cec_tx_msgs.msg[s_idx].retry < 5) {
 			cec_tx_msgs.msg[s_idx].retry++;
-			cec_triggle_tx(cec_tx_msgs.msg[s_idx].buf,
+			cec_trigger_tx(cec_tx_msgs.msg[s_idx].buf,
 				       cec_tx_msgs.msg[s_idx].len);
 		} else {
 			cec_dbg_prints("TX retry too much, abort msg\n");
@@ -719,8 +719,8 @@ unsigned int cec_handler(void)
 	if (irq & CECB_IRQ_TX_ERR_INITIATOR) {
 		cec_dbg_prints("@TX_ERR_INIT\n");
 		s_idx = cec_tx_msgs.send_idx;
-		if (cec_tx_msgs.send_idx != cec_tx_msgs.queue_idx) { // triggle tx if idle
-			cec_triggle_tx(cec_tx_msgs.msg[s_idx].buf,
+		if (cec_tx_msgs.send_idx != cec_tx_msgs.queue_idx) { // trigger tx if idle
+			cec_trigger_tx(cec_tx_msgs.msg[s_idx].buf,
 				       cec_tx_msgs.msg[s_idx].len);
 		}
 		busy_count = 0;
@@ -844,7 +844,7 @@ void cec_node_init(void)
 		dump_cecb_reg();
 		return ;
 	} else if (tx_stat == TX_DONE) {
-		cec_dbg_print("sombody takes cec log_addr:0x", probe[i]);
+		cec_dbg_print("somebody takes cec log_addr:0x", probe[i]);
 		uart_puts("\n");
 		regist_devs |= (1 << i);
 		retry += (4 - (retry & 0x03));

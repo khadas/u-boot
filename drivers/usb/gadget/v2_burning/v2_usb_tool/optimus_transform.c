@@ -86,7 +86,7 @@ int set_low_power_for_usb_burn(int arg, char* buff)
 
 #if USB_BURN_POWER_CONTROL
     int ret2=0;
-    //limit vbus curretn to 500mA, i.e, if hub is 4A, 8 devices at most, arg3 to not set_env as it's not inited yet!!
+    //limit vbus current to 500mA, i.e, if hub is 4A, 8 devices at most, arg3 to not set_env as it's not inited yet!!
     MYDBG("set_usbcur_limit 500 0\n");
     ret2 = run_command("set_usbcur_limit 500 0", 0);
     if (ret2) {

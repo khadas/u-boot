@@ -52,7 +52,7 @@ typedef struct {
 
         unsigned char magic[AML_SECU_BOOT_IMG_HDR_MAGIC_SIZE];//magic to identify whether it is a encrypted boot image
 
-        unsigned int  version;                  //ersion for this header struct
+        unsigned int  version;                  //version for this header struct
         unsigned int  nBlkCnt;
 
         unsigned char szTimeStamp[16];
@@ -914,7 +914,7 @@ static int do_image_read_res(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
         return __LINE__;
     }
 
-    //Read the actual size of the new version res imgae
+    //Read the actual size of the new version res image
     totalSz = pResImgHead->imgSz;
     if (totalSz > IMG_PRELOAD_SZ )
     {
@@ -1219,7 +1219,7 @@ U_BOOT_CMD_COMPLETE(
 static int do_load_logo_from_ext4(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     if (3 > argc) {
-        errorP("argc(%d) < 3 illegle\n", argc);
+        errorP("argc(%d) < 3 illegal\n", argc);
         return CMD_RET_USAGE;
     }
     int iRet = 0;
@@ -1243,7 +1243,7 @@ static int do_load_logo_from_ext4(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 	}
 
     if (!loadaddr) {
-        errorP("illgle loadaddr %s\n", argv[2]);
+        errorP("illegal loadaddr %s\n", argv[2]);
         return CMD_RET_FAILURE;
     }
 

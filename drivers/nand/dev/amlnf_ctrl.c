@@ -5,7 +5,7 @@
 
 #include "../include/phynand.h"
 #include <asm/arch/secure_apb.h>
-/*when more chips,the patch need fixed, by liuxj*/
+/*when more chips,the patch need fixed, by liuxianjun*/
 #include <amlogic/cpu_id.h>
 
 extern int aml_ubootenv_init(struct amlnand_chip *aml_chip);

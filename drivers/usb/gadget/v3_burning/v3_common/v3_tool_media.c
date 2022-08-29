@@ -106,7 +106,7 @@ static int _bootloader_write(u8* dataBuf, unsigned off, unsigned binSz, const ch
 	if (binSz + off > bootCpySz) FBS_EXIT(_ACK, "bootloader sz(0x%x) + off(0x%x) > bootCpySz 0x%x\n", binSz, off, bootCpySz);
 
 	if (off) {
-		FBS_ERR(_ACK, "current only 0 suuported!\n");
+		FBS_ERR(_ACK, "current only 0 supported!\n");
 		return -__LINE__;
 	}
 	do {
@@ -182,7 +182,7 @@ static int _bootloader_write(u8 *dataBuf, unsigned off, unsigned binSz, const ch
 				binSz, off, bootCpySz);
 
 	if (off) {
-		FBS_ERR(_ACK, "current only 0 suuported!\n");
+		FBS_ERR(_ACK, "current only 0 supported!\n");
 		return -__LINE__;
 	}
 
@@ -323,7 +323,7 @@ static int _bootloader_read(u8* pBuf, unsigned off, unsigned binSz, const char* 
 		FBS_ERR(_ACK, "bootloader sz(0x%x) + off(0x%x) > bootCpySz 0x%x\n", binSz, off, bootCpySz);
 		return -__LINE__;
 	}
-	if (off) FBS_EXIT(_ACK, "current only 0 suuported!\n");
+	if (off) FBS_EXIT(_ACK, "current only 0 supported!\n");
 
 	for (iCopy = 0; iCopy < bootCpyNum; ++iCopy) {
 		void* dataBuf = iCopy ? pBuf + binSz : pBuf;

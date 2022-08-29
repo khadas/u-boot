@@ -445,7 +445,7 @@ static int _calculate_offset(struct mmc *mmc, struct _iptbl *itbl, u32 bottom)
 	for (i=1; i<itbl->count; i++) {
 		/**/
 		part[i].offset = part[i-1].offset + part[i-1].size + gap;
-		/* check capicity overflow ?*/
+		/* check capacity overflow ?*/
 		if (((part[i].offset + part[i].size) > mmc->capacity) ||
 				(part[i].size == -1)) {
 			part[i].size = mmc->capacity - part[i].offset;
@@ -537,7 +537,7 @@ static int _get_version(unsigned char * s)
 }
 
 /*  calc checksum.
-	there's a bug on v1 which did not calculate all the partitios.
+	there's a bug on v1 which did not calculate all the partitions.
  */
 static int _calc_iptbl_check_v2(struct partitions * part, int count)
 {
@@ -611,7 +611,7 @@ static int get_ptbl_rsv(struct mmc *mmc, struct _iptbl *rsv)
 
 	size = (sizeof(struct ptbl_rsv) + 511) / 512 * 512;
 	if (vpart->size < size) {
-		apt_err("too much partitons\n");
+		apt_err("too much partitions\n");
 		ret = -1;
 		goto _out;
 	}
@@ -868,7 +868,7 @@ static int test_block_type(unsigned char *buffer)
 
 //DOS_MBR OR DOS_PBR
 /*
- * re-constructe iptbl from mbr&ebr infos.
+ * re-constructed iptbl from mbr&ebr infos.
  * memory for  iptbl_mbr must be alloced outside.
  *
  */
@@ -880,7 +880,7 @@ static void _construct_ptbl_by_mbr(struct mmc *mmc, struct _iptbl *iptbl_mbr)
 	int part_num = 0;
 	int primary_num = 0;
 	uint64_t logic_start = 0;
-	uint64_t externed_start = 0;
+	uint64_t extended_start = 0;
 	struct dos_partition *pt;
 	struct partitions *partitions = iptbl_mbr->partitions;
 
@@ -921,7 +921,7 @@ static void _construct_ptbl_by_mbr(struct mmc *mmc, struct _iptbl *iptbl_mbr)
 				part_num++;
 				if ( flag )
 					primary_num++;
-			}else{/* get the next externed partition info */
+			}else{/* get the next  extended partition info */
 				if ( pt->boot_ind == 0x00 && pt->sys_ind == 0x05) {
 					logic_start = (uint64_t)le32_to_int (pt->start4);
 					//logic_size = (uint64_t)le32_to_int (pt->size4);
@@ -933,10 +933,10 @@ static void _construct_ptbl_by_mbr(struct mmc *mmc, struct _iptbl *iptbl_mbr)
 			part_num,(uint64_t)read_offset*512ULL,logic_start*512ULL);
 
 		if (part_num == primary_num) {
-			externed_start = logic_start;
-			read_offset = externed_start;
+			extended_start = logic_start;
+			read_offset = extended_start;
 		}else
-			read_offset = externed_start + logic_start;
+			read_offset = extended_start + logic_start;
 		if (logic_start == 0)
 			break;
 		logic_start = 0;
@@ -1031,7 +1031,7 @@ static int _construct_mbr_entry(struct _iptbl *p_iptbl, struct dos_partition *p_
 {
 	uint64_t start_offset = 0;
 	uint64_t primary_size = 0;
-	uint64_t externed_size = 0;
+	uint64_t extended_size = 0;
 	int i;
 	/* the entry is active or not */
 	p_entry->boot_ind = 0x00;
@@ -1041,10 +1041,10 @@ static int _construct_mbr_entry(struct _iptbl *p_iptbl, struct dos_partition *p_
 		p_entry->sys_ind = 0x05;
 		start_offset = (p_iptbl->partitions[3].offset - PARTITION_RESERVED) >> 9;
 		for ( i = 3;i< p_iptbl->count;i++)
-			externed_size = p_iptbl->partitions[i].size >> 9;
+			extended_size = p_iptbl->partitions[i].size >> 9;
 
 		memcpy((unsigned char *)p_entry->start4, &start_offset, 4);
-		memcpy((unsigned char *)p_entry->size4, &externed_size, 4);
+		memcpy((unsigned char *)p_entry->size4, &extended_size, 4);
 	}else{/* the primary partion entry */
 		/* the entry type */
 		p_entry->sys_ind = 0x83;
@@ -1063,12 +1063,12 @@ static int _construct_mbr_or_ebr(struct _iptbl *p_iptbl, struct dos_mbr_or_ebr *
 	int i;
 
 	if (DOS_MBR == type) {
-		/* constuct a integral MBR */
+		/* construct a integral MBR */
 		for (i = 0; i<4 ; i++)
 			_construct_mbr_entry(p_iptbl, &p_br->part_entry[i], i);
 
 	}else{
-		/* constuct a integral EBR */
+		/* construct a integral EBR */
 		p_br->bootstart[DOS_PBR32_FSTYPE_OFFSET] = 'F';
 		p_br->bootstart[DOS_PBR32_FSTYPE_OFFSET + 1] = 'A';
 		p_br->bootstart[DOS_PBR32_FSTYPE_OFFSET + 2] = 'T';

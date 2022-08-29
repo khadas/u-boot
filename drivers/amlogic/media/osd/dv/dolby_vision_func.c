@@ -171,7 +171,7 @@ static const char *avb_get_dovi_hash_from_vbmeta(AvbSlotVerifyData* data)
 }
 #endif
 
-/*pass: return 1; fail: retrun -1*/
+/*pass: return 1; fail: return -1*/
 int check_dovi_sha256(unsigned char* dovi_body, int size) {
 
 	unsigned char sha256[SHA256_SUM_LEN] = {0};
@@ -234,7 +234,7 @@ int check_dovi_sha256(unsigned char* dovi_body, int size) {
 	}
 #endif//CONFIG_CMD_BOOTCTOL_AVB
 
-	/*step 3: calcaute dovi.fw sha256*/
+	/*step 3: calculate dovi.fw sha256*/
 	sha256_starts(&sha256_cxt);
 	sha256_update(&sha256_cxt, (const uint8_t *)dovi_body, (uint32_t)size);
 	sha256_finish(&sha256_cxt, (uint8_t *)sha256);
@@ -250,7 +250,7 @@ int check_dovi_sha256(unsigned char* dovi_body, int size) {
 }
 
 
-/*valid: return 1; invalid: retrun -1*/
+/*valid: return 1; invalid: return -1*/
 int check_fw_valid(unsigned char* fw_buf, int size) {
 
 	unsigned char md5_hex[MD5_DIGEST_LENGTH + 1] = {0};

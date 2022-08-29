@@ -42,7 +42,7 @@
 #define HHI_GCLK_MPEG2			(0x52 * 4)
 
 /* TXLX */
-/* unified_register.h by wujun */
+/* unified_register.h */
 #define HHI_AUDPLL_CLK_OUT_CNTL (0x8c << 2)
 
 #define PREG_PAD_GPIO0_EN_N		(0x0c * 4)

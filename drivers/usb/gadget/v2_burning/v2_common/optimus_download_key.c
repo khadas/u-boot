@@ -128,7 +128,7 @@ static void hdcp2DataDecryption(const unsigned len, const char *input, char *out
  *Attentions: "return value is the key length" if burn sucess
 
  *@keyName: key name in null-terminated c style string
- *@keyVal: key value download from USB, "the value for sepecial keyName" may need de-encrypt by user code
+ *@keyVal: key value download from USB, "the value for special keyName" may need de-encrypt by user code
  *@keyValLen: the key value downloaded from usb transfer!
  *@errInfo: start it with success if burned ok, or format error info into it tell pc burned failed
  */

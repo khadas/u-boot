@@ -185,7 +185,7 @@ int bootloader_read(u8* pBuf, unsigned off, unsigned binSz);
 int bootloader_write(u8* dataBuf, unsigned off, unsigned binSz);
 int store_dtb_rw(void* buf, unsigned dtbSz, int rwFlag);
 
-//for key opearations
+//for key operations
 //
 #ifdef CONFIG_V3_KEY_BURNING_SUPPORT
 int v2_key_command(const int argc, char * const argv[], char *info);
@@ -204,7 +204,7 @@ int v2_key_read(const char* keyName, u8* keyVal, const unsigned keyValLen, char*
  *This fucntion called by mwrite command, mread= bulkcmd "download key .." + n * download transfer, for key n==1
  *Attentions: return value is the key length if burn sucess
  *@keyName: key name in null-terminated c style string
- *@keyVal: key value download from USB, "the value for sepecial keyName" may need de-encrypt by user code
+ *@keyVal: key value download from USB, "the value for special keyName" may need de-encrypt by user code
  *@keyValLen: the key value downloaded from usb transfer!
  *@errInfo: start it with success if burned ok, or format error info into it tell pc burned failed
  */

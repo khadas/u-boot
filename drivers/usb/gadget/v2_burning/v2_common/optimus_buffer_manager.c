@@ -22,7 +22,7 @@ typedef struct bufManager{
 
     u64             tplcmdTotalSz;//total size of a file-system packet
 
-    u32             totalSlotNum;//total slot number that already tranfferred
+    u32             totalSlotNum;//total slot number that already transferred
     u32             mediaAlignSz;//nand write align size, 16K/32k
 
     u32             nextWriteBackSlot;//when reach n* (writeBackUnitSz/transferUnitSz), then write back the recevied data to media
@@ -188,7 +188,7 @@ int optimus_buf_manager_get_buf_for_bulk_transfer(char** pBuf, const unsigned wa
                         (u8*)(u64)_bufManager.partBaseOffset ;
 
     if (wantSz < _bufManager.transferUnitSz && !isLastTransfer) {
-        DWN_ERR("only last transfer can less 64K, this index %d at size 0x%x illegle\n", totalSlotNum + 1, wantSz);
+        DWN_ERR("only last transfer can less 64K, this index %d at size 0x%x illegal\n", totalSlotNum + 1, wantSz);
         return OPT_DOWN_FAIL;
     }
 

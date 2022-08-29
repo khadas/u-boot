@@ -295,7 +295,7 @@ static void dptx_init(int index)
 	data32 = ((0x4 << 5) | (0x1f << 16));
 	writel(data32, reg_dphy_tx_ctrl0); //select clkdiv20 , datachan-sel
 	data32 = readl(reg_dphy_tx_ctrl0);
-	data32 &= ~(0x1 << 2);  //no pn sawp
+	data32 &= ~(0x1 << 2);  //no pn swap
 	writel(data32, reg_dphy_tx_ctrl0);
 	// Mux pads in combo-phy -- Lanes 0 through 4
 	//data32 = readl(COMBO_DPHY_CNTL1);

@@ -18,7 +18,7 @@
  * */
 void set_pwm_to_input(void)
 {
-	//hxbao, need fine tune
+	//need fine tune
 	#if 0
 	unsigned int val;
 

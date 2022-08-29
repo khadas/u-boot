@@ -259,7 +259,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_ddr_training_delay_ps.read_dqs_gate_delay[2]  = 279,
 	.cfg_ddr_training_delay_ps.read_dqs_gate_delay[3]  = 283,
 
-	//20220806,when aw419 enable DFE,read_dqs_delay[2]must set 170,138 cause low max frequercy
+	//20220806,when aw419 enable DFE,read_dqs_delay[2]must set 170,138 cause low max frequency
 	.cfg_ddr_training_delay_ps.read_dqs_delay[0]  = 170,//123,
 	.cfg_ddr_training_delay_ps.read_dqs_delay[1]  = 170,//127,
 	.cfg_ddr_training_delay_ps.read_dqs_delay[2]  = 170,//138,
@@ -471,7 +471,7 @@ __attribute__ ((section(".clk_param"))) = {
 #endif
 
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
-	//hxbao, need fine tune
+	//need fine tune
 	{ 0, 0, 0xffffffff, 0, 0, 0 },
 };
 

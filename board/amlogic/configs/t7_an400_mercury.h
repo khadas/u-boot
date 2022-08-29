@@ -979,7 +979,7 @@
 //use startdsp command
 #define CONFIG_CMD_STARTDSP
 
-//use dache command
+//use cache command
 #define CONFIG_CMD_CACHE
 
 //use remapset command

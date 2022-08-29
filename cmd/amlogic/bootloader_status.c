@@ -493,7 +493,7 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		wrnP("--secure check reboot_next---\n");
 		//bootloader index, expect == current, no need reboot next
 		if (match_flag == 0) {
-			wrnP("current index is expect, no need reboot next, run ceche recovery\n");
+			wrnP("current index is expect, no need reboot next, run cache recovery\n");
 			if (has_boot_slot == 1) {
 				wrnP("ab mode\n");
 				update_env = env_get("update_env");

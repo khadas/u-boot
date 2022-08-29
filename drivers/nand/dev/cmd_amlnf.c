@@ -302,7 +302,7 @@ flush:
  *		  nfcode,nfdata).
  *
  * @return: size of the partition
- * 			>0 : succuss
+ * 			>0 : success
  *			0  : failed
  */
 u64 amlnf_get_size(const char *part_name)
@@ -499,7 +499,7 @@ int amlnf_write(const char *part_name, loff_t off, size_t size, void *source)
 	if (erase_len < phydev->erasesize) {
 		aml_nand_msg("erase size 0x%016llx smaller than one blk size 0x%08x",
 			erase_len, phydev->erasesize);
-		aml_nand_msg("Eraseing 0x%08x instead", phydev->erasesize);
+		aml_nand_msg("erasing 0x%08x instead", phydev->erasesize);
 		erase_len = phydev->erasesize;
 	}
 
@@ -557,7 +557,7 @@ int amlnf_write(const char *part_name, loff_t off, size_t size, void *source)
  *			when the device support)
  * 			0 = no scrub, just erase
  * 			1 = use scrub operats instead of erase,erase
- *			all chipsize include bootlaoder
+ *			all chipsize include bootloader
  * @return: result of the operation
  * 			0 = success
  * 			other = fail

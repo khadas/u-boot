@@ -126,7 +126,7 @@ int get_flash_type(struct amlnand_chip *aml_chip)
 			controller->internal_page_nums,
 			aml_chip->flash.internal_chipnr);
 	if (!memcmp((char *)dev_id, "ONFI", 4)) {
-		/*judege micron/specteck nand by liuxj*/
+		/*judge micron/specteck nand by liuxianjun*/
 		if (operation->nand_read_param(aml_chip, 0, 0, &onfi_param_data[0]) == 0) { /*zero is valid*/
 			if (flash_id0 == 0x2c) {
 				aml_nand_msg("param data[32~43]: %x, %x, %x, %x,%x, %x",onfi_param_data[32],onfi_param_data[33],

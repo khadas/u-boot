@@ -312,7 +312,7 @@
 /* UBOOT fastboot config */
 
 
-/* UBOOT Facotry usb/sdcard burning config */
+/* UBOOT factory usb/sdcard burning config */
 
 
 /* net */

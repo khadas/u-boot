@@ -629,7 +629,7 @@ hdmi_vendor_any_infoframe_check_only(const union hdmi_vendor_any_infoframe *fram
 }
 
 /**
- * hdmi_drm_infoframe_init() - initialize an HDMI Dynaminc Range and
+ * hdmi_drm_infoframe_init() - initialize an HDMI dynamic Range and
  * mastering infoframe
  * @frame: HDMI DRM infoframe
  *

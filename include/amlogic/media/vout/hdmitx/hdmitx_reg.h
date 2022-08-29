@@ -405,7 +405,7 @@
 #define HDMITX_DWC_FC_SDPPRODUCTNAME14          (DWC_OFFSET_MASK + 0x1060)
 #define HDMITX_DWC_FC_SPDPRODUCTNAME15          (DWC_OFFSET_MASK + 0x1061)
 #define HDMITX_DWC_FC_SPDDEVICEINF              (DWC_OFFSET_MASK + 0x1062)
-/* [7:4] aud_packet_sampflat */
+/* [7:4] aud_packet_sample plate */
 /* [  0] aud_packet_layout */
 #define HDMITX_DWC_FC_AUDSCONF                  (DWC_OFFSET_MASK + 0x1063)
 #define HDMITX_DWC_FC_AUDSSTAT                  (DWC_OFFSET_MASK + 0x1064)

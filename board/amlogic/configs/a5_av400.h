@@ -447,7 +447,7 @@
 
 /* UBOOT fastboot config */
 
-/* UBOOT Facotry usb/sdcard burning config */
+/* UBOOT factory usb/sdcard burning config */
 
 /* net */
 /* #define CONFIG_CMD_NET   1 */

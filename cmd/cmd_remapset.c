@@ -39,7 +39,7 @@ U_BOOT_CMD(
 	"arg[1]: dspid \n"
 	"arg[2]: load address!\n"
 	"arg[3]: target address!\n"
-	"arg[4]: regiseter type select: 0: 16-bit  1: 18-bit  2: 20-bit !\n"
+	"arg[4]: register type select: 0: 16-bit  1: 18-bit  2: 20-bit !\n"
 );
 
 

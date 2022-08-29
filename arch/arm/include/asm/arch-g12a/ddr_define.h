@@ -180,7 +180,7 @@
 #endif
 #define DDR_FUNC_RDBI						(CONFIG_DDR_FUNC_RDBI<<6)
 
-/* lpddr3 ca trainingi function */
+/* lpddr3 ca training function */
 #ifndef CONFIG_DDR_FUNC_LPDDR3_CA
 #define CONFIG_DDR_FUNC_LPDDR3_CA				0
 #endif

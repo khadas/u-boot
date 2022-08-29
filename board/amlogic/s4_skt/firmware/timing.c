@@ -166,7 +166,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			32, 33, 34, 35
 		},                                                   //d0-d31 dm0 dm1 dm2 dm3
 		.cfg_board_common_setting.ddr_vddee_setting = { 0 },
-		//DDR frequercy 1
+		//DDR frequency 1
 		.cfg_board_SI_setting_ps.DRAMFreq = 792,
 		.cfg_board_SI_setting_ps.PllBypassEn = 0,
 		.cfg_board_SI_setting_ps.training_SequenceCtrl = 0,
@@ -526,7 +526,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			33, 32, 34, 35
 		},                                                  //d0-d31 dm0 dm1 dm2 dm3
 		.cfg_board_common_setting.ddr_vddee_setting = { 0 },
-		//DDR frequercy 1
+		//DDR frequency 1
 		.cfg_board_SI_setting_ps.DRAMFreq = 1320,
 		.cfg_board_SI_setting_ps.PllBypassEn = 0,
 		.cfg_board_SI_setting_ps.training_SequenceCtrl = 0,
@@ -899,7 +899,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			33, 32, 34, 35
 		},                                                  //d0-d31 dm0 dm1 dm2 dm3
 		.cfg_board_common_setting.ddr_vddee_setting = { 0 },
-		//DDR frequercy 1
+		//DDR frequency 1
 		.cfg_board_SI_setting_ps.DRAMFreq = 1320,
 		.cfg_board_SI_setting_ps.PllBypassEn = 0,
 		.cfg_board_SI_setting_ps.training_SequenceCtrl = 0,
@@ -2483,7 +2483,7 @@ __attribute__ ((section(".clk_param"))) = {
 #endif
 
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
-	//hxbao, need fine tune
+	//need fine tune
 	{ 0, 0, 0xffffffff, 0, 0, 0 },
 };
 

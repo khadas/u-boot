@@ -1060,7 +1060,7 @@ static int _mwrite_cmd_parser(const int argc, char* argv[], char* ack)
 		break;
 	}
 	if ( -1 == mediaType ) {
-		FBS_ERR(ack, "unsupprted media %s", media);
+		FBS_ERR(ack, "unsupported media %s", media);
 		return -__LINE__;
 	}
 
@@ -1103,7 +1103,7 @@ static int _mwrite_cmd_parser(const int argc, char* argv[], char* ack)
 				}
 			}break;
 		default:
-			FBS_ERR(ack, "unsupported meida %s", media);
+			FBS_ERR(ack, "unsupported media %s", media);
 			return -__LINE__;
 	}
 	ret = v3tool_buffman_img_init(&imgTransPara, 1);
@@ -1154,7 +1154,7 @@ static int _mread_cmd_parser(const int argc, char* argv[], char* ack)
 		break;
 	}
 	if ( -1 == mediaType ) {
-		FBS_ERR(ack, "unsupprted media %s", media);
+		FBS_ERR(ack, "unsupported media %s", media);
 		return -__LINE__;
 	}
 	if (V3TOOL_MEDIA_TYPE_UNIFYKEY != mediaType && IS_FEAT_BOOT_VERIFY()) {
@@ -1179,7 +1179,7 @@ static int _mread_cmd_parser(const int argc, char* argv[], char* ack)
 				memcpy(commonInf->partName, partition, V3_PART_NAME_LEN);
 			}break;
 		default:
-			FBS_ERR(ack, "unsupported meida %s", media);
+			FBS_ERR(ack, "unsupported media %s", media);
 			return -__LINE__;
 	}
 	ret = v3tool_buffman_img_init(&imgTransPara, 0);
@@ -1284,7 +1284,7 @@ void cb_aml_media_read(struct usb_ep *outep, struct usb_request *outreq)
 					_mreadInfo.totalBytes = _pUsbUpInf->dataSize;
 					sprintf(response_str, "DATAIN0x%x", _pUsbUpInf->dataSize);
 				}
-				fastboot_tx_write(response_str, strnlen(response_str, RESPONSE_LEN) + 1);//add 0 ternimated
+				fastboot_tx_write(response_str, strnlen(response_str, RESPONSE_LEN) + 1);//add 0 terminated
 				FB_DBG("_pUsbUpInf %p,sz %d\n", _pUsbUpInf->dataBuf, _mreadInfo.totalBytes);
 				return ;
 			}
@@ -1309,7 +1309,7 @@ void cb_aml_media_read(struct usb_ep *outep, struct usb_request *outreq)
 				const int uploadOk = (_mreadInfo.totalBytes == _mreadInfo.transferredBytes);
 				const char* ack = uploadOk ? "OKAY" : "FAIL";
 				fastboot_tx_write_str(ack);
-			} break;//just reuturn
+			} break;//just return
 	}
 
 	return;

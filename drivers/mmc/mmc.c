@@ -3293,7 +3293,7 @@ int mmc_key_erase(void)
 }
 
 #ifdef KEY_BACKUP
-/* unifykey backup distributioin */
+/* unifykey backup distribution */
 
 /*--------------------------------------------------------
  * offset |  0x12020  |  0x12220  |  0x12420  |  0x12421  |
@@ -3605,7 +3605,7 @@ static int mmc_key_read_backup(const char *name,
 			update_old_key(mmc, addr);
 		break;
 		default:
-			printf("impossble valid values.\n");
+			printf("impossible valid values.\n");
 			BUG();
 		break;
 	}

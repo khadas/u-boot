@@ -243,7 +243,7 @@ void get_sys_clk_rate_mtd(struct hw_controller *controller, int *rate)
 	if (clk_freq <=  24) {
 		clk = 24000000;
 		clk_src = 0;
-		clk_enable(&controller->xtal); // for c1 clk arthitecture compatitable. xtal was not controlled by clk driver.
+		clk_enable(&controller->xtal); // for c1 clk architecture compatible. xtal was not controlled by clk driver.
 		clk_set_rate(&controller->div, clk);
 		clk_div = 1;
 		bus_cycle = 4;
@@ -486,7 +486,7 @@ static int m3_nand_options_confirm(struct aml_nand_chip *aml_chip)
 	plat->platform_nand_data.chip.options & NAND_INTERLEAVING_OPTIONS_MASK;
 	options_define = (aml_chip->options & NAND_INTERLEAVING_OPTIONS_MASK);
 	if (options_selected > options_define) {
-		printk("INTERLEAV change! \n");
+		printk("INTERLEAVE change! \n");
 		options_selected = options_define;
 	}
 	switch (options_selected) {

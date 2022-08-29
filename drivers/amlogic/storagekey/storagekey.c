@@ -148,7 +148,7 @@ static uint32_t _amlkey_get_attr(const uint8_t * name)
 }
 
 /**
- * 3.1 query if the prgrammed key is secure. key must exsit!
+ * 3.1 query if the programmed key is secure. key must exsit!
  * return secure 1, non 0;
  */
 int32_t amlkey_issecure(const uint8_t * name)
@@ -157,7 +157,7 @@ int32_t amlkey_issecure(const uint8_t * name)
 }
 
 /**
- * 3.2 query if the prgrammed key is encrypt
+ * 3.2 query if the programmed key is encrypt
  * return encrypt 1, non-encrypt 0;
  */
 int32_t amlkey_isencrypt(const uint8_t * name)
@@ -189,7 +189,7 @@ static ssize_t _amlkey_size(const uint8_t *name)
 }
 
 /**
- *5. read non-secure key in bytes, return bytes readback actully.
+ *5. read non-secure key in bytes, return bytes readback actually.
  * return actual size read back.
  */
 static ssize_t _amlkey_read(const uint8_t *name, uint8_t *buffer, uint32_t len)
@@ -214,7 +214,7 @@ _out:
 }
 
 /**
- * 6.write secure/non-secure key in bytes , return bytes readback actully
+ * 6.write secure/non-secure key in bytes , return bytes readback actually
  * attr: bit0, secure/non-secure;
  *		 bit8, encrypt/non-encrypt;
  * return actual size write down.

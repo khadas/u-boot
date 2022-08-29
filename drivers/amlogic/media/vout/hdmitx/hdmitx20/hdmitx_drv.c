@@ -511,7 +511,7 @@ static int hdmitx_set_audmode(struct hdmitx_dev *hdev)
 	unsigned int data32;
 	unsigned int aud_n_para;
 
-	pr_info("hdmtix: set audio\n");
+	pr_info("hdmitx: set audio\n");
 	hdmitx_set_reg_bits(HDMITX_TOP_CLK_CNTL, 3, 2, 2);
 	hdmitx_set_reg_bits(HDMITX_DWC_FC_PACKET_TX_EN, 1, 0, 1);
 	hdmitx_set_reg_bits(HDMITX_DWC_FC_PACKET_TX_EN, 1, 3, 1);
@@ -876,7 +876,7 @@ static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
 
 	/* Frame Composer configuration */
 
-	/* Video definitions, as per output video(for packet gen/schedulling) */
+	/* Video definitions, as per output video(for packet gen/scheduling) */
 
 	data32  = 0;
 	data32 |= (1 << 7);
@@ -1081,7 +1081,7 @@ static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
 	hdmitx_wr_reg(HDMITX_DWC_FC_CTRLQHIGH,  15);
 	hdmitx_wr_reg(HDMITX_DWC_FC_CTRLQLOW, 3);
 
-	/* packet scheduller configuration for SPD, VSD, ISRC1/2, ACP. */
+	/* packet scheduler configuration for SPD, VSD, ISRC1/2, ACP. */
 	data32  = 0;
 	data32 |= (0 << 4);
 	data32 |= (0 << 3);
@@ -1094,7 +1094,7 @@ static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
 	hdmitx_wr_reg(HDMITX_DWC_FC_DATMAN, 0);
 	hdmitx_set_spdinfo();
 
-	/* packet scheduller configuration for AVI, GCP, AUDI, ACR. */
+	/* packet scheduler configuration for AVI, GCP, AUDI, ACR. */
 	data32  = 0;
 	data32 |= (0 << 5);
 	data32 |= (0 << 4);

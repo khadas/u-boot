@@ -25,7 +25,7 @@ License-Identifier: (GPL-2.0+ OR MIT) */
 //========================================================================
 
 /*
- * CPU clok register offset
+ * CPU clock register offset
  * APB_BASE:  APB1_BASE_ADDR = 0xfe007400
  */
 

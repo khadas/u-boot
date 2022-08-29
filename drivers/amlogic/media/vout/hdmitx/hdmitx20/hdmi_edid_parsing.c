@@ -37,7 +37,7 @@
 #define EDID_DETAILED_TIMING_DES_BLOCK2_POS 0x5A
 #define EDID_DETAILED_TIMING_DES_BLOCK3_POS 0x6C
 
-/* EDID Descrptor Tag */
+/* EDID descriptor Tag */
 #define TAG_PRODUCT_SERIAL_NUMBER 0xFF
 #define TAG_ALPHA_DATA_STRING 0xFE
 #define TAG_RANGE_LIMITS 0xFD
@@ -116,7 +116,7 @@ static struct dispmode_vic dispmode_vic_tab[] = {
 };
 
 #if 0
-/* retrun 1 valid edid */
+/* return 1 valid edid */
 static int check_dvi_hdmi_edid_valid(unsigned char *buf)
 {
 	unsigned int chksum = 0;
@@ -765,7 +765,7 @@ static int hdmitx_edid_block_parse(struct rx_cap *prxcap,
 	 * so continue parse as other sources do
 	 */
 	if (blockbuf[0] == 0x0)
-		printf("unkonw Extension Tag detected, continue\n");
+		printf("unknown Extension Tag detected, continue\n");
 	else if (blockbuf[0] != 0x02)
 		return -1; /* not a CEA BLOCK. */
 	end = blockbuf[2]; /* CEA description. */
@@ -820,7 +820,7 @@ static int hdmitx_edid_block_parse(struct rx_cap *prxcap,
 				   blockbuf[offset + 1] == 0x5d &&
 				   blockbuf[offset + 2] == 0xc4)
 				hdmitx_parse_sink_capability(prxcap, offset, blockbuf, count);
-			offset += count; /* ignore the remaind. */
+			offset += count; /* ignore the remains. */
 			break;
 
 		case HDMI_EDID_BLOCK_TYPE_SPEAKER:
@@ -1157,7 +1157,7 @@ static int is_4k_fmt(char *mode)
 }
 
 /* For some TV's EDID, there maybe exist some information ambiguous.
- * Such as EDID declears support 2160p60hz(Y444 8bit), but no valid
+ * Such as EDID declare support 2160p60hz(Y444 8bit), but no valid
  * Max_TMDS_Clock2 to indicate that it can support 5.94G signal.
  */
 bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,

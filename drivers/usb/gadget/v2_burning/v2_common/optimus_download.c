@@ -41,7 +41,7 @@ int v2_key_command(const int argc, char * const argv[], char *info)
 
 static unsigned long _dtb_is_loaded = 0;
 
-#define IMG_VERIFY_ALG_NONE     0 //not need to veryfy
+#define IMG_VERIFY_ALG_NONE     0 //not need to verify
 #define IMG_VERIFY_ALG_SHA1SUM  1
 #define IMG_VERIFY_ALG_CRC32    2
 #define IMG_VERIFY_ALG_ADDSUM   3
@@ -538,7 +538,7 @@ static u32 optimus_func_download_image(struct ImgBurnInfo* pDownInfo, u32 dataSz
 
     ret = optimus_storage_open(pDownInfo, data, dataSz);
     if (OPT_DOWN_OK != ret) {
-        sprintf(errInfo, "Fail to open stoarge\n");
+        sprintf(errInfo, "Fail to open storage\n");
         DWN_ERR(errInfo);
         return 0;
     }
@@ -866,7 +866,7 @@ static int optimus_sha1sum_verify_partition(const char* partName, const u64 veri
         return OPT_DOWN_FAIL;
     }
 
-    memset(buff, 0xde, 1024);//clear 1kb data before verfiy, in case read buffer not overlapped
+    memset(buff, 0xde, 1024);//clear 1kb data before verify, in case read buffer not overlapped
     if (IMG_TYPE_BOOTLOADER == imgType)
     {
         return optimus_verify_bootloader(&OptimusImgBurnInfo, genSum);
@@ -1031,7 +1031,7 @@ int optimus_key_burn_init(const char* keyType)
         return ret;
     }
 
-    DWN_ERR("unsported key type %s\n", keyType);
+    DWN_ERR("unsorted key type %s\n", keyType);
     return OPT_DOWN_FAIL;
 }
 
@@ -1105,7 +1105,7 @@ u32 optimus_dump_storage_data(u8* pBuf, const u32 wantSz, char* errInfo)
     pDownInfo->isDumpMode = 1; //do not do any erase in dump mode
     ret = optimus_storage_open(pDownInfo, pBuf, wantSz);
     if (OPT_DOWN_OK != ret) {
-        sprintf(errInfo, "Fail to open stoarge\n");
+        sprintf(errInfo, "Fail to open storage\n");
         DWN_ERR(errInfo);
         return 0;
     }
@@ -1154,7 +1154,7 @@ int is_the_flash_first_burned(void)
     return !strcmp(s, "0");//"0" indicate first boot
 }
 
-//FIXME: check whether 'saveenv' failed and exception when usb prodcing mode from code boot mode if without env_relocate
+//FIXME: check whether 'saveenv' failed and exception when usb producing mode from code boot mode if without env_relocate
 int optimus_set_burn_complete_flag(void)
 {
     int rc = 0;

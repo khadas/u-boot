@@ -865,7 +865,7 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
     else
         ret = optimus_storage_init(eraseFlag);
     if (ret) {
-        DWN_ERR("Fail to init stoarge for sdc burn\n");
+        DWN_ERR("Fail to init storage for sdc burn\n");
         ret = __LINE__; goto _finish;
     }
 #if 0

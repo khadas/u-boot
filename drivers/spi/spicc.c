@@ -25,7 +25,7 @@
 #define CONFIG_CLK_IF
 #endif
 
-/* use DDR genernally, mustn't enable it unless SRAM test */
+/* use DDR generally, mustn't enable it unless SRAM test */
 //#define CONFIG_SPICC_DMA_SRAM
 
 #define CONFIG_DMA_SMC_MODE

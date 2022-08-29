@@ -87,11 +87,11 @@ extern int dtb_erase_blk;
 extern struct amlnand_chip *aml_chip_dtb;
 int bad_block_is_dtb_blk(const int blk_addr)
 {
-	/*laod dtb form ram*/
+	/*load dtb form ram*/
 	if (dtb_erase_blk == blk_addr && dtb_erase_blk != -1) {
 		return 1;
 	}
-	/*laod dtb form flash*/
+	/*load dtb form flash*/
 	if (aml_chip_dtb != NULL) {
 		if (aml_chip_dtb->amlnf_dtb.arg_valid == 1 &&\
 			aml_chip_dtb->amlnf_dtb.valid_blk_addr == blk_addr) {
@@ -3458,7 +3458,7 @@ int amlnf_bbt_read(u8 *buf, int len)
 	}
 
 	if (len > size) {
-		aml_nand_msg("warnning!!! %s bbt length too much", __func__);
+		aml_nand_msg("warning!!! %s bbt length too much", __func__);
 		len = size;
 	}
 
@@ -3867,7 +3867,7 @@ int  bbt_valid_ops(struct amlnand_chip *aml_chip)
 	}
 	ENV_NAND_LINE
    /* aml_nand_msg("aml_chip->detect_dtb_flag:%d,aml_chip->config_msg.arg_valid:%d",aml_chip->detect_dtb_flag,aml_chip->config_msg.arg_valid);*/
-	ret = aml_sys_info_init(aml_chip); //key  and stoarge and env
+	ret = aml_sys_info_init(aml_chip); //key  and storage and env
 	if (ret < 0) {
 		aml_nand_msg("nand init sys_info failed and ret:%d", ret);
 		goto exit_error0;
@@ -3930,7 +3930,7 @@ int  shipped_bbt_invalid_ops(struct amlnand_chip *aml_chip)
 			*/
 			info_disprotect |= DISPROTECT_FBBT;
 			amlnf_get_chip_size(&chipsize);
-			/*background for carring out, bbt table is all zero*/
+			/*background for carrying out, bbt table is all zero*/
 			/*make all blocks are erased*/
 			amlnf_erase_ops(0, chipsize, 1);
 			pre_erase = 1;
@@ -4000,7 +4000,7 @@ int  shipped_bbt_invalid_ops(struct amlnand_chip *aml_chip)
 		 goto exit_error0;
 		}
 
-		ret = aml_sys_info_init(aml_chip); //key  and  stoarge
+		ret = aml_sys_info_init(aml_chip); //key  and  storage
 		if (ret < 0) {
 			aml_nand_msg("%s() %d: nand init sys_info failed and ret:%d", __FUNCTION__, __LINE__, ret);
 			goto exit_error0;
@@ -4075,7 +4075,7 @@ int  shipped_bbt_invalid_ops(struct amlnand_chip *aml_chip)
 //if((aml_chip->init_flag == NAND_BOOT_ERASE_ALL))
 	// amlnand_oops_handle(aml_chip,aml_chip->init_flag);
 
-	ret = aml_sys_info_init(aml_chip); //key  and  stoarge
+	ret = aml_sys_info_init(aml_chip); //key  and  storage
 	if (ret < 0) {
 		aml_nand_msg("nand init sys_info failed and ret:%d", ret);
 		goto exit_error0;
@@ -4150,7 +4150,7 @@ int shipped_bbt_valid_ops(struct amlnand_chip *aml_chip)
 
 	if (aml_chip->init_flag < NAND_BOOT_ERASE_PROTECT_CACHE) {
 		ENV_NAND_LINE
-		ret = aml_sys_info_init(aml_chip); //key  and  stoarge
+		ret = aml_sys_info_init(aml_chip); //key  and  storage
 		if (ret < 0) {
 			aml_nand_msg("nand init sys_info failed and ret:%d", ret);
 			goto exit_error0;
@@ -4378,9 +4378,9 @@ int amlnand_get_dev_configs(struct amlnand_chip *aml_chip)
 	}
 #ifdef AML_NAND_UBOOT
 	ENV_NAND_LINE;
-	/* 2. serch fbbt & nbbt in flash.*/
+	/* 2. search fbbt & nbbt in flash.*/
 
-	/* 2.1 serch fbbt & nbbt in flash.*/
+	/* 2.1 search fbbt & nbbt in flash.*/
 	ret = amlnand_info_init(aml_chip,
 		(unsigned char *)&(aml_chip->nand_bbtinfo),
 		(unsigned char *)(aml_chip->block_status),

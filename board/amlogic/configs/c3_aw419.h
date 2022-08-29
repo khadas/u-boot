@@ -444,7 +444,7 @@
 #define CRG_UDC_ADDR_C3         (0xfe340000)
 /* UBOOT fastboot config */
 
-/* UBOOT Facotry usb/sdcard burning config */
+/* UBOOT factory usb/sdcard burning config */
 
 /* net */
 /* #define CONFIG_CMD_NET   1 */

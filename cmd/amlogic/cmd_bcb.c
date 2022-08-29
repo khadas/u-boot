@@ -195,7 +195,7 @@ static int do_RunBcbCommand(
     memcpy(clearbuf, miscbuf, sizeof(clearbuf));
 
     printf("get bootloader message from misc partition:\n");
-    printf("[commannd:%s]\n[status:%s]\n[recovery:%s]\n",
+    printf("[command:%s]\n[status:%s]\n[recovery:%s]\n",
             command, status, recovery);
 
     run_command("get_rebootmode", 0);

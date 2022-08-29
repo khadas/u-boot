@@ -122,7 +122,7 @@ int env_import(const char *buf, int check)
 	}
 
 #ifdef CONFIG_NSK
-	// Load default environment. for doing white listing of environmnet value.
+	// Load default environment. for doing white listing of environment value.
 	set_default_env("Initialize env with default env", 0);
 	flags = H_NOCLEAR;
 #endif

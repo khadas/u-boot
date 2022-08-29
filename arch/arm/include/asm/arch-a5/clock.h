@@ -27,7 +27,7 @@
 //========================================================================
 
 /*
- * CPU clok register offset
+ * CPU clock register offset
  * APB_BASE:  APB1_BASE_ADDR = 0xfe007400
  */
 

@@ -250,7 +250,7 @@ typedef struct _PMU_SMB_LPDDR4_1D_t {
 
 	uint16_t PhyConfigOverride;	// Byte offset 0x22, CSR Addr 0x54011, Direction=In
 	// Override PhyConfig csr.
-	// 0x0: Use hardware csr value for PhyConfing (recommended)
+	// 0x0: Use hardware csr value for PhyConfig (recommended)
 	// Other values: Use value for PhyConfig instead of Hardware value.
 	//
 	uint8_t EnabledDQsChA;	// Byte offset 0x24, CSR Addr 0x54012, Direction=In
