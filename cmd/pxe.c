@@ -803,6 +803,60 @@ cleanup:
 #endif
 
 /*
+ * env helper read variables from special env file
+ *
+ *     $prefix/uEnv.txt
+ */
+static void env_helper(cmd_tbl_t *cmdtp, struct pxe_label *label)
+{
+    char *buf;
+    char *env_file = "uEnv.txt";
+    char *env_addr = env_get("scriptaddr");
+    char *bootfile = env_get("bootfile");
+    //char *syslinux = env_get("boot_syslinux_conf");
+    char *syslinux = "extlinux/extlinux.conf";
+
+    char *pref;
+    char path[MAX_TFTP_PATH_LEN + 1];
+    unsigned long addr, file_size = 0;
+
+    if (!env_addr)
+	return;
+    if (strict_strtoul(env_addr, 16, &addr) < 0)
+	return;
+
+    /*
+     * resolv right path for both syslinux and pxe variants
+     */
+    if (bootfile)
+	strcpy(path, bootfile);
+    if (syslinux && (pref = strstr(path,syslinux)))
+	*pref = '\0';
+    else
+	path[0] = '\0';
+
+    if (strlen(path) + strlen(env_file) > MAX_TFTP_PATH_LEN) {
+	printf("path (%s%s) too long, skipping\n", path, env_file);
+	return;
+    }
+
+    strcat(path, env_file);
+
+    printf("!!! env helper try: %s\n", path);
+
+    if (get_relfile(cmdtp, path, addr) < 0)
+	return;
+    if (strict_strtoul(from_env("filesize"), 16, &file_size))
+	return;
+    if (file_size < 1)
+	return;
+
+    printf("Import user vars: %s %ld bytes\n", path, file_size);
+    buf = map_sysmem(addr , 0);
+    himport_r(&env_htab, buf, file_size, '\n', H_NOCLEAR, 0, 0, NULL);
+}
+
+/*
  * Boot according to the contents of a pxe_label.
  *
  * If we can't boot for any reason, we return.  A successful boot never
@@ -843,6 +897,8 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 				label->name);
 		return 1;
 	}
+
+	env_helper(cmdtp, label);
 
 	if (label->initrd) {
 		if (get_relfile_envaddr(cmdtp, label->initrd, "ramdisk_addr_r") < 0) {
