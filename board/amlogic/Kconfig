@@ -38,6 +38,12 @@ config BUILD_UNSIGN
 		When PXP bring up this option is open. This config should be
 		closed when signature is ready.
 
+config BOARD_PACKAGE_NAME
+	string "rtos sdk name"
+	default ""
+	help
+		This config can help to select bl30 board name.
+
 config KALLSYMS
 	bool "Support call stack dump when crash"
 	default y
