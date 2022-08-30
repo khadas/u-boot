@@ -92,7 +92,13 @@ static AvbIOResult read_from_partition(AvbOps *ops, const char *partition, int64
 			goto out;
 		}
 	} else {
-		rc = store_read(partition, offset, num_bytes, buffer);
+		/* There is only 1 recovery partition even in A/B */
+		if (!strcmp(partition, "recovery_a") ||
+			!strcmp(partition, "recovery_b") ||
+			!strcmp(partition, "recovery"))
+			rc = store_read("recovery", offset, num_bytes, buffer);
+		else
+			rc = store_read(partition, offset, num_bytes, buffer);
 		if (rc) {
 			printf("Failed to read %zdB from part[%s] at %lld\n",
 					num_bytes, partition, offset);
@@ -137,7 +143,13 @@ static AvbIOResult write_to_partition(AvbOps *ops, const char *partition,
 			goto out;
 		}
 	} else {
-		rc = store_write(partition, offset, num_bytes, (unsigned char *)buffer);
+		/* There is only 1 recovery partition even in A/B */
+		if (!strcmp(partition, "recovery_a") ||
+				!strcmp(partition, "recovery_b") ||
+				!strcmp(partition, "recovery"))
+			rc = store_write("recovery", offset, num_bytes, (unsigned char *)buffer);
+		else
+			rc = store_write(partition, offset, num_bytes, (unsigned char *)buffer);
 		if (rc) {
 			printf("Failed to write %zdB from part[%s] at %lld\n",
 					num_bytes, partition, offset);
@@ -193,7 +205,13 @@ static AvbIOResult get_size_of_partition(AvbOps *ops, const char *partition,
 			!strcmp(partition, "dt")) {
 		*out_size_num_bytes = DTB_PARTITION_SIZE;
 	} else {
-		rc = store_part_size(partition);
+		/* There is only 1 recovery partition even in A/B */
+		if (!strcmp(partition, "recovery_a") ||
+				!strcmp(partition, "recovery_b") ||
+				!strcmp(partition, "recovery"))
+			rc = store_part_size("recovery");
+		else
+			rc = store_part_size(partition);
 		if (rc == 1) {
 			printf("Failed to get partition[%s] size\n", partition);
 			return AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION;
@@ -438,12 +456,20 @@ int is_device_unlocked(void)
 
 int avb_verify(AvbSlotVerifyData** out_data)
 {
-#ifdef CONFIG_OF_LIBFDT_OVERLAY
-	const char *requested_partitions_ab[AVB_NUM_SLOT + 1] = {"boot", "dtbo", NULL, NULL, NULL};
+#ifdef CONFIG_AVB2_RECOVERY
+#define RECOVERY "recovery"
 #else
-	const char *requested_partitions_ab[AVB_NUM_SLOT + 1] = {"boot", NULL, NULL, NULL, NULL};
+#define RECOVERY NULL
 #endif
-	const char *requested_partitions[AVB_NUM_SLOT + 1] = {"boot", "dt", NULL, NULL, NULL};
+#ifdef CONFIG_OF_LIBFDT_OVERLAY
+	const char *requested_partitions_ab[AVB_NUM_SLOT + 1] = {"boot", "dtbo",
+		RECOVERY, NULL, NULL};
+#else
+	const char *requested_partitions_ab[AVB_NUM_SLOT + 1] = {"boot", RECOVERY,
+	    NULL, NULL, NULL};
+#endif
+	const char *requested_partitions[AVB_NUM_SLOT + 1] = {"boot", "dt",
+	    RECOVERY, NULL, NULL};
 	AvbSlotVerifyResult result = AVB_SLOT_VERIFY_RESULT_OK;
 	char *s1 = NULL;
 	char *ab_suffix = NULL;
@@ -502,6 +528,7 @@ int avb_verify(AvbSlotVerifyData** out_data)
 	}
 
 	return result;
+#undef RECOVERY
 }
 
 static int do_avb_verify(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
