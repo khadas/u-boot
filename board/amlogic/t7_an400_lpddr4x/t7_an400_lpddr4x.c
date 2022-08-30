@@ -508,28 +508,19 @@ int checkhw(char * name)
 		cpu_id = get_cpu_id();
 
 		switch (ddr_size) {
-		case CONFIG_T7_3G_SIZE:
-			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
-				strcpy(loc_name, "t7_a311d2_an400-3g\0");
-			} else if (cpu_id.chip_rev == 0xC) {
-				strcpy(loc_name, "t7c_a311d2_an400-3g\0");
-				//
-			}
-			break;
 		case CONFIG_T7_4G_SIZE:
 			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+				#ifdef CONFIG_HDMITX_ONLY
+				strcpy(loc_name, "t7_a311d2_an400-hdmitx-only\0");
+				#else
 				strcpy(loc_name, "t7_a311d2_an400\0");
+				#endif
 			} else if (cpu_id.chip_rev == 0xC) {
+				#ifdef CONFIG_HDMITX_ONLY
+				strcpy(loc_name, "t7c_a311d2_an400-hdmitx-only\0");
+				#else
 				strcpy(loc_name, "t7c_a311d2_an400-4g\0");
-				//
-			}
-			break;
-		case CONFIG_T7_6G_SIZE:
-			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
-				strcpy(loc_name, "t7_a311d2_an400-6g\0");
-			} else if (cpu_id.chip_rev == 0xC) {
-				strcpy(loc_name, "t7c_a311d2_an400-6g\0");
-				//
+				#endif
 			}
 			break;
 		case CONFIG_T7_8G_SIZE:
