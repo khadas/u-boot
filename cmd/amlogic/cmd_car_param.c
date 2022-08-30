@@ -25,11 +25,12 @@ typedef struct calibrator_message {
 	uint8_t rsv[4];
 	int64_t camera[9]; //camera Internal parameter matrix
 	int64_t distortion[5]; //Distortion matrix
-	int64_t homography[9]; //Homography matrix
+	int64_t matrix_rtos[9]; //projection matrix for rtos
+	int64_t matrix_gles[9];//projection matrix for gles
 	int64_t car[5]; //car parameters
 
 	// rounds up to 2048-byte.
-	uint8_t reserve[1812];
+	uint8_t reserve[1740];
 
 	// CRC32 of all 28 bytes preceding this field (little endian
 	// format).
@@ -104,8 +105,12 @@ void dump_info(calibrator_message *info)
 				i, info->distortion[i]);
 	}
 	for (i = 0; i < 9; ++i) {
-		printf("info->homography[%d] = %lld\n",
-				i, info->homography[i]);
+		printf("info->matrix_rtos[%d] = %lld\n",
+				i, info->matrix_rtos[i]);
+	}
+	for (i = 0; i < 9; ++i) {
+		printf("info->matrix_gles[%d] = %lld\n",
+				i, info->matrix_gles[i]);
 	}
 	for (i = 0; i < 5; ++i) {
 		printf("info->car[%d] = %lld\n",
