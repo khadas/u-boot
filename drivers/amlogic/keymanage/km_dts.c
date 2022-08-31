@@ -22,9 +22,9 @@
 
 static struct key_info_t unify_key_info={.key_num =0, .key_flag = 0, .efuse_version = -1, .encrypt_type = 0};
 static struct key_item_t *unifykey_item=NULL;
-static struct key_item_t* _defProvisonItem =NULL;//keyname start with "KEY_PROVISION_" and device is "provison"
+static struct key_item_t *_def_provision_item;//keyname start KEY_PROVISION_ and device is provison
 static struct key_item_t *_defEfuseItem;//keyname start with "KEY_EFUSE_" and device is "efuse"
-#define _PROVSION_DEFAULT_KEY_NAME  "KEY_PROVISION_XXX"
+#define _PROVISION_DEFAULT_KEY_NAME  "KEY_PROVISION_XXX"
 #define _EFUSE_DEFAULT_KEY_NAME		"KEY_EFUSE_XXX"
 
 static int unifykey_item_verify_check(struct key_item_t *key_item)
@@ -54,8 +54,8 @@ static struct key_item_t *unifykey_find_item_by_name(const char *name)
 			return pre_item;
 	}
 
-	if (!strncmp(_PROVSION_DEFAULT_KEY_NAME, name, strlen(_PROVSION_DEFAULT_KEY_NAME) - 3))
-		return _defProvisonItem;
+	if (!strncmp(_PROVISION_DEFAULT_KEY_NAME, name, strlen(_PROVISION_DEFAULT_KEY_NAME) - 3))
+		return _def_provision_item;
 	if (!strncmp(_EFUSE_DEFAULT_KEY_NAME, name, strlen(_EFUSE_DEFAULT_KEY_NAME) - 3))
 		return _defEfuseItem;
 	KM_ERR("cannot find dev for keyname %s\n", name);
@@ -389,7 +389,8 @@ int keymanage_dts_parse(const void* dt_addr)
             pItem->dev = KEY_M_PROVISION_KEY;
             pItem->permit = defPermits;
             pItem->id      = id++;
-            if (!strcmp(_PROVSION_DEFAULT_KEY_NAME, keyName)) _defProvisonItem = pItem;
+		if (!strcmp(_PROVISION_DEFAULT_KEY_NAME, keyName))
+			_def_provision_item = pItem;
         }
 
         if ((node < 0) && (node != -FDT_ERR_NOTFOUND)) {
