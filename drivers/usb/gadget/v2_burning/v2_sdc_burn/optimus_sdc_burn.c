@@ -299,7 +299,7 @@ int optimus_burn_gpt(HIMAGE hImg)
 	return optimus_burn_one_partition("gpt", hImg, NULL, 0);
 }
 
-int optimus_burn_bootlader(HIMAGE hImg)
+int optimus_burn_bootloader(HIMAGE hImg)
 {
     int rcode = 0;
     int NeedVerify = 1;
@@ -769,11 +769,11 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
     }
 	if (erase_bootloader && is_bootloader_old())
     {
-        if (usbDiskUpgrade) {//upgrade new bootloader
-            if (optimus_burn_bootlader(hImg)) {
-                DWN_ERR("Fail in burn new bootloader from usb disk\n");
-                goto _finish;
-            }
+	if (usbDiskUpgrade) {//upgrade new bootloader
+		if (optimus_burn_bootloader(hImg)) {
+			DWN_ERR("Fail in burn new bootloader from usb disk\n");
+			goto _finish;
+		}
             setenv("usbDiskNewBoot", "1");
             setenv("sdcburncfg", cfgFile);
             setenv("usbDiskUpgrade", "run init_display; usb_burn $sdcburncfg");
@@ -922,7 +922,7 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
         if (usbDiskUpgrade && env_get_hex("usbDiskNewBoot", 0)) {//already upgrade bootloader from pkg
             ;
         } else {
-            ret = optimus_burn_bootlader(hImg);
+		ret = optimus_burn_bootloader(hImg);
             if (ret) {
                 DWN_ERR("Fail in burn bootloader\n");
                 goto _finish;

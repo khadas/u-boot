@@ -127,7 +127,7 @@ static int optimus_sysrec_burn_package_from_partition(const char* partName, cons
 #if 1
         if (hasBootloader)
         {//burn bootloader
-                ret = optimus_burn_bootlader(hImg);
+		ret = optimus_burn_bootloader(hImg);
                 if (ret) {
                         DWN_ERR("Fail in burn bootloader\n");
                         goto _finish;
