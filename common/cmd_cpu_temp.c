@@ -955,7 +955,7 @@ int r1p1_codetotemp(unsigned long value, unsigned int u_efuse,
 	return temp;
 }
 
-int r1p1_temp_read(int type)
+int r1p1_temp_read(int type, int *temp)
 {
 	unsigned int ret, u_efuse, regdata;//, ret;
 	unsigned int value_ts, value_all_ts;
@@ -1106,7 +1106,9 @@ int r1p1_temp_read(int type)
 					printf("r1p1 tsensor trim type not support\n");
 			}
 	}
-	return tmp;
+	if (temp)
+		*temp = tmp;
+	return 0;
 }
 
 
@@ -1129,8 +1131,8 @@ int r1p1_read_entry(void)
 			ver = (ver & 0xf) >> 2;
 			switch (ver) {
 				case 0x2:
-					r1p1_temp_read(1);
-					r1p1_temp_read(2);
+					r1p1_temp_read(1, NULL);
+					r1p1_temp_read(2, NULL);
 					printf("read the thermal1 and thermal2\n");
 				break;
 				case 0x0:
@@ -1154,14 +1156,14 @@ int r1p1_read_entry(void)
 			ver = (ver & 0xf) >> 2;
 			switch (ver) {
 				case 0x2:
-					r1p1_temp_read(1);
-					r1p1_temp_read(2);
+					r1p1_temp_read(1, NULL);
+					r1p1_temp_read(2, NULL);
 					printf("read the thermal1 2\n");
 				break;
 				case 0x3:
-					r1p1_temp_read(1);
-					r1p1_temp_read(2);
-					r1p1_temp_read(3);
+					r1p1_temp_read(1, NULL);
+					r1p1_temp_read(2, NULL);
+					r1p1_temp_read(3, NULL);
 					printf("read the thermal1 2 3\n");
 				break;
 				case 0x0:
@@ -1182,7 +1184,7 @@ int r1p1_read_entry(void)
 				printf("tsensor no trimmed, ver:0x%x\n", ver);
 				return -1;
 			}
-			r1p1_temp_read(1);
+			r1p1_temp_read(1, NULL);
 			printf("read the thermal1\n");
 			break;
 		default:
@@ -1559,8 +1561,8 @@ void r1p1_temp_cooling(void)
 		case MESON_CPU_MAJOR_ID_G12B:
 		case MESON_CPU_MAJOR_ID_SM1:
 			while (1) {
-				temp1 = r1p1_temp_read(1);
-				temp2 = r1p1_temp_read(2);
+				r1p1_temp_read(1, &temp1);
+				r1p1_temp_read(2, &temp2);
 				temp = temp1 > temp2 ? temp1 : temp2;
 				if (temp <= CONFIG_HIGH_TEMP_COOL) {
 					printf("device cool done\n");
@@ -1576,11 +1578,11 @@ void r1p1_temp_cooling(void)
 			sensornum = readl(AO_SEC_GP_CFG10);
 			sensornum = ((sensornum >> 24) & 0xf) >> 2;
 			while (1) {
-				temp1 = r1p1_temp_read(1);
-				temp2 = r1p1_temp_read(2);
+				r1p1_temp_read(1, &temp1);
+				r1p1_temp_read(2, &temp2);
 				temp = temp1 > temp2 ? temp1 : temp2;
 				if (sensornum == 0x3) {
-					temp1 = r1p1_temp_read(3);
+					r1p1_temp_read(3, &temp1);
 					temp = temp > temp1 ? temp : temp1;
 				}
 				if (temp <= CONFIG_HIGH_TEMP_COOL) {
@@ -1595,7 +1597,7 @@ void r1p1_temp_cooling(void)
 		case MESON_CPU_MAJOR_ID_T5:
 		case MESON_CPU_MAJOR_ID_T5D:
 			while (1) {
-				temp = r1p1_temp_read(1);
+				r1p1_temp_read(1, &temp);
 				if (temp <= CONFIG_HIGH_TEMP_COOL) {
 					printf("device cool done\n");
 					break;

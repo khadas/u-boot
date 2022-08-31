@@ -2037,10 +2037,11 @@ int aml_para_is_exist(struct mmc *mmc)
 	long long checksum;
 	struct aml_card_sd_info *aml_priv = mmc->priv;
 	struct tuning_para *para = aml_priv->para;
+	int ret;
 
 	para->update = 1;
-	temperature = r1p1_temp_read(1);
-	if (temperature == -1) {
+	ret = r1p1_temp_read(1, &temperature);
+	if (ret == -1) {
 		para->update = 0;
 		printf("get temperature failed\n");
 		return 0;

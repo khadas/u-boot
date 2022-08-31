@@ -43,7 +43,7 @@ extern int mmc_set_hs200_mode(struct mmc *mmc);
 
 extern uint32_t mmc_set_hs400_mode(struct mmc *mmc);
 
-extern int r1p1_temp_read(int type);
+extern int r1p1_temp_read(int type, int *temp);
 
 extern void reset_all_reg(struct mmc *mmc);
 #else /* CONFIG_SPL_BUILD */
