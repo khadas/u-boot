@@ -25,8 +25,8 @@
 
 static struct key_info_t unify_key_info={.key_num =0, .key_flag = 0, .efuse_version = -1, .encrypt_type = 0};
 static struct key_item_t *unifykey_item=NULL;
-static struct key_item_t* _defProvisonItem =NULL;//keyname start with "KEY_PRV_" and device is "provison"
-#define _PROVSION_DEFAULT_KEY_NAME  "KEY_PROVISION_XXX"
+static struct key_item_t *_def_provision_item;//provision key item common dts
+#define _PROVISION_DEFAULT_KEY_NAME  "KEY_PROVISION_XXX"
 
 static int unifykey_item_verify_check(struct key_item_t *key_item)
 {
@@ -56,8 +56,8 @@ static struct key_item_t *unifykey_find_item_by_name(const char *name)
         }
     }
 
-    if (!strncmp(_PROVSION_DEFAULT_KEY_NAME, name, strlen(_PROVSION_DEFAULT_KEY_NAME) - 3))
-        return _defProvisonItem;
+	if (!strncmp(_PROVISION_DEFAULT_KEY_NAME, name, strlen(_PROVISION_DEFAULT_KEY_NAME) - 3))
+		return _def_provision_item;
     return NULL;
 }
 
@@ -211,7 +211,7 @@ static int unifykey_item_dt_parse(const void* dt_addr,int nodeoffset,int id,char
     }
     else if (!strcmp(propdata, UNIFYKEY_DEVICE_PROVSIONKEY)) {
         temp_item->dev = KEY_M_PROVISION_KEY;
-        _defProvisonItem = temp_item;
+	_def_provision_item = temp_item;
     }
     else{
         KM_ERR("key-device %s is unknown at key_%d\n", propdata, id);
@@ -408,7 +408,8 @@ int keymanage_dts_parse(const void* dt_addr)
             pItem->dev = KEY_M_PROVISION_KEY;
             pItem->permit = defPermits;
             pItem->id      = id++;
-            if (!strcmp(_PROVSION_DEFAULT_KEY_NAME, keyName)) _defProvisonItem = pItem;
+		if (!strcmp(_PROVISION_DEFAULT_KEY_NAME, keyName))
+			_def_provision_item = pItem;
         }
 
         if ((node < 0) && (node != -FDT_ERR_NOTFOUND)) {
