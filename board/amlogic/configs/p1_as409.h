@@ -193,7 +193,7 @@
             "\0"\
         "recovery_from_flash="\
             "setenv loadaddr ${loadaddr_kernel};"\
-		"setenv bootargs ${bootargs} aml_dt=${aml_dt};"\
+            "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
             "if imgread dtb recovery ${dtb_mem_addr}; then "\
                 "else echo restore dtb; run common_dtb_load;"\
             "fi;"\

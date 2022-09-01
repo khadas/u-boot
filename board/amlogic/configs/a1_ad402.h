@@ -96,6 +96,7 @@
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
             "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml_uart,0xfe002000 "\
+            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
             "echo recovery_status=${recovery_status};"\
@@ -164,7 +165,7 @@
             "\0"\
         "recovery_from_flash="\
             "setenv loadaddr ${loadaddr_kernel};"\
-		"setenv bootargs ${bootargs} aml_dt=${aml_dt};"\
+            "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
             "if imgread dtb recovery ${dtb_mem_addr}; then "\
                 "else echo restore dtb; run common_dtb_load;"\
             "fi;"\

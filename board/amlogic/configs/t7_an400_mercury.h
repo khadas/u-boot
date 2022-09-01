@@ -132,7 +132,8 @@
 		"initargs="\
 			"init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 "\
 			"no_console_suspend earlycon=aml-uart,0xfe078000 "\
-			"clk_ignore_unused "\
+			"ramoops.pstore_en=1 ramoops.record_size=0x8000 "\
+			"ramoops.console_size=0x4000 loop.max_part=4 clk_ignore_unused "\
 			"meson_clk.ignore_pll_init=1"\
 			"\0"\
 		"upgrade_check="\
@@ -310,7 +311,9 @@
 			"echo active_slot: ${active_slot};"\
 			"setenv loadaddr ${loadaddr_kernel};"\
 			"if test ${active_slot} = normal; then "\
-				"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
+				"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
+				"recovery_part={recovery_part} "\
+				"recovery_offset={recovery_offset};"\
 				"if imgread dtb recovery ${dtb_mem_addr}; then "\
 					"else echo restore dtb; run common_dtb_load;"\
 				"fi;"\
@@ -321,19 +324,22 @@
 				"else echo retry common dtb; run common_dtb_load; fi;"\
 				"if test ${partition_mode} = normal; then "\
 					"setenv bootargs ${bootargs} ${fs_type} "\
-					"aml_dt=${aml_dt};"\
+					"aml_dt=${aml_dt} recovery_part=${boot_part} "\
+					"recovery_offset=${recovery_offset};"\
 					"if imgread kernel ${boot_part} ${loadaddr}; then "\
 					"bootm ${loadaddr}; fi;"\
 				"else "\
 					"if test ${vendor_boot_mode} = true; then "\
 					"setenv bootargs ${bootargs} ${fs_type} "\
-					"aml_dt=${aml_dt} "\
+					"aml_dt=${aml_dt} recovery_part=${boot_part} "\
+					"recovery_offset=${recovery_offset} "\
 					"androidboot.slot_suffix=${active_slot};"\
 					"if imgread kernel ${boot_part} ${loadaddr}; then "\
 					"bootm ${loadaddr}; fi;"\
 					"else "\
 					"setenv bootargs ${bootargs} ${fs_type} "\
-					"aml_dt=${aml_dt} "\
+					"aml_dt=${aml_dt} recovery_part=${recovery_part} "\
+					"recovery_offset=${recovery_offset} "\
 					"androidboot.slot_suffix=${active_slot};"\
 					"if imgread kernel ${recovery_part} ${loadaddr} "\
 					"${recovery_offset}; then bootm ${loadaddr}; fi;"\
@@ -496,7 +502,8 @@
 		"initargs="\
 			"init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 "\
 			"no_console_suspend earlycon=aml-uart,0xfe078000 "\
-			"clk_ignore_unused "\
+			"ramoops.pstore_en=1 ramoops.record_size=0x8000 "\
+			"ramoops.console_size=0x4000 loop.max_part=4 clk_ignore_unused "\
 			"meson_clk.ignore_pll_init=1"\
 			"\0"\
 		"upgrade_check="\
@@ -675,7 +682,9 @@
 			"echo active_slot: ${active_slot};"\
 			"setenv loadaddr ${loadaddr_kernel};"\
 			"if test ${active_slot} = normal; then "\
-				"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
+				"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
+				"recovery_part={recovery_part} "\
+				"recovery_offset={recovery_offset};"\
 				"if imgread dtb recovery ${dtb_mem_addr}; then "\
 					"else echo restore dtb; run common_dtb_load;"\
 				"fi;"\
@@ -685,17 +694,21 @@
 				"if fdt addr ${dtb_mem_addr}; then "\
 				"else echo retry common dtb; run common_dtb_load; fi;"\
 				"if test ${partition_mode} = normal; then "\
-				"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
+				"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
+				"recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
 				"if imgread kernel ${boot_part} ${loadaddr}; then "\
 					"bootm ${loadaddr}; fi;"\
 				"else "\
 				"if test ${vendor_boot_mode} = true; then "\
 				"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
+				"recovery_part=${boot_part} recovery_offset=${recovery_offset} "\
 				"androidboot.slot_suffix=${active_slot};"\
 				"if imgread kernel ${boot_part} ${loadaddr}; then "\
 					"bootm ${loadaddr}; fi;"\
 				"else "\
 				"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
+				"recovery_part=${recovery_part} "\
+				"recovery_offset=${recovery_offset} "\
 				"androidboot.slot_suffix=${active_slot};"\
 				"if imgread kernel ${recovery_part} "\
 					"${loadaddr} ${recovery_offset}; then "\
