@@ -135,8 +135,7 @@
         "reboot_mode_android=""normal""\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-		"init=/init " CONFIG_KNL_LOG_LEVEL " console=ttyS0,115200 "\
-		"no_console_suspend earlycon=aml_uart,0xc81004c0 "\
+            "init=/init " CONFIG_KNL_LOG_LEVEL " console=ttyS0,115200 no_console_suspend earlycon=aml_uart,0xc81004c0 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
             "echo upgrade_step=${upgrade_step}; "\
@@ -236,7 +235,7 @@
             "run recovery_from_flash;"\
             "\0"\
         "recovery_from_sdcard="\
-		"setenv bootargs ${bootargs} aml_dt=${aml_dt};"\
+            "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
             "if fatload mmc 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;"\
             "if fatload mmc 0 ${loadaddr} recovery.img; then "\
                     "if fatload mmc 0 ${dtb_mem_addr} dtb.img; then echo sd dtb.img loaded; fi;"\
@@ -245,7 +244,7 @@
                     "bootm ${loadaddr};fi;"\
             "\0"\
         "recovery_from_udisk="\
-		"setenv bootargs ${bootargs} aml_dt=${aml_dt};"\
+            "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
             "if fatload usb 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;"\
             "if fatload usb 0 ${loadaddr} recovery.img; then "\
                 "if fatload usb 0 ${dtb_mem_addr} dtb.img; then echo udisk dtb.img loaded; fi;"\
@@ -256,7 +255,7 @@
         "recovery_from_flash="\
             "echo active_slot: ${active_slot};"\
             "if test ${active_slot} = normal; then "\
-		"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
+                "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
                 "if itest ${upgrade_step} == 3; then "\
                     "if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;"\
                     "if ext4load mmc 1:2 ${loadaddr} /recovery/recovery.img; then echo cache recovery.img loaded; wipeisb; bootm ${loadaddr}; fi;"\
@@ -264,11 +263,10 @@
                 "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
             "else "\
 				"if test ${partition_mode} = normal; then "\
-			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
+                    "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
                     "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                 "else "\
-			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
-			"androidboot.slot_suffix=${active_slot};"\
+                    "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
                     "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
                 "fi;"\
             "fi;"\

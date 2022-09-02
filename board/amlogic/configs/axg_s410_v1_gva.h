@@ -240,7 +240,7 @@
                 "bootm ${loadaddr};fi;"\
             "\0"\
         "recovery_from_flash="\
-		"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
+            "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
             "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
             "\0"\
         "init_display="\

@@ -134,8 +134,7 @@
         "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-		"init=/init console=ttyS0,921600 no_console_suspend "\
-		"earlycon=aml-uart,0xffd23000 printk.devkmsg=on "\
+            "init=/init console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xffd23000 printk.devkmsg=on ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
             "\0"\
         "upgrade_check="\
 	    /* set AO_GPIO_TEST_N[31] to 1, set pin TEST_N to high */\
@@ -318,7 +317,7 @@
         "recovery_from_flash="\
             "echo active_slot: ${active_slot};"\
             "if test ${active_slot} = normal; then "\
-		"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
+                "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
 				"if test ${upgrade_step} = 3; then "\
 					"if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;"\
 					"if test ${vendor_boot_mode} = true; then "\
@@ -330,12 +329,10 @@
                 "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
             "else "\
 				"if test ${partition_mode} = normal; then "\
-			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
-			"androidboot.slot_suffix=${active_slot};"\
+                    "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
                     "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                 "else "\
-			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
-			"androidboot.slot_suffix=${active_slot};"\
+                    "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
                     "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
                 "fi;"\
             "fi;"\

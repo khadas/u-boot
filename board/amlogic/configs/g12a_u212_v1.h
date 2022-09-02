@@ -154,8 +154,7 @@
         "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-		"init=/init " CONFIG_KNL_LOG_LEVEL " console=ttyS0,115200 "\
-		"no_console_suspend earlycon=aml-uart,0xff803000 "\
+            "init=/init " CONFIG_KNL_LOG_LEVEL " console=ttyS0,115200 no_console_suspend earlyprintk=aml-uart,0xff803000 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
             "\0"\
         "upgrade_check="\
             "echo upgrade_step=${upgrade_step}; "\
@@ -290,7 +289,7 @@
         "recovery_from_flash="\
             "echo active_slot: ${active_slot};"\
             "if test ${active_slot} = normal; then "\
-		"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
+                "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
                 "if itest ${upgrade_step} == 3; then "\
                     "if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;"\
                     "if ext4load mmc 1:2 ${loadaddr} /recovery/recovery.img; then echo cache recovery.img loaded; wipeisb; bootm ${loadaddr}; fi;"\
@@ -298,16 +297,14 @@
                 "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
             "else "\
 				"if test ${partition_mode} = normal; then "\
-			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
+                    "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
                     "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                 "else "\
                     "if test ${vendor_boot_mode} = true; then "\
-				"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
-				"androidboot.slot_suffix=${active_slot};"\
+                        "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
                         "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                     "else "\
-				"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
-				"androidboot.slot_suffix=${active_slot};"\
+                        "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
                         "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
                     "fi;"\
                 "fi;"\
