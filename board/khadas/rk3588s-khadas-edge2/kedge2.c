@@ -31,3 +31,11 @@ int board_usb_init(int index, enum usb_init_type init)
 	return dwc3_uboot_init(&dwc3_device_data);
 }
 #endif
+
+int rk_board_late_init(void)
+{
+	// Set Green LED on
+	run_command("gpio set 138; gpio clear 139; gpio clear 140", 0);
+
+	return 0;
+}
