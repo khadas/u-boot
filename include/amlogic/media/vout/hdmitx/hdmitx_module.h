@@ -90,6 +90,7 @@ void hdmitx_set_div40(bool div40);
 struct hdr_info *hdmitx_get_rx_hdr_info(void);
 void hdmitx_set_drm_pkt(struct master_display_info_s *data);
 bool hdmitx_find_vendor(struct hdmitx_dev *hdev);
+bool hdmitx_find_vendor_null_pkt(struct hdmitx_dev *hdev);
 
 void hdmitx_set_vsif_pkt(enum eotf_type type, enum mode_type tunnel_mode,
 	struct dv_vsif_para *data);

@@ -149,7 +149,12 @@ static void hdmitx_hw_init(void)
 
 	hdmitx_wr_reg(HDMITX_DWC_MC_CLKDIS, 0x00);
 	/*disable null package*/
-	hdmitx_wr_reg(HDMITX_TOP_DISABLE_NULL, 0x7);
+	if (hdmitx_find_vendor_null_pkt(&hdmitx_device)) {
+		printf("special TV, need enable NULL packet\n");
+		hdmitx_wr_reg(HDMITX_TOP_DISABLE_NULL, 0x6);
+	} else {
+		hdmitx_wr_reg(HDMITX_TOP_DISABLE_NULL, 0x7);
+	}
 }
 
 /*
