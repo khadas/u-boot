@@ -45,6 +45,7 @@ struct hdmitx_dev {
 	unsigned int dongle_mode;
 	unsigned char limit_res_1080p;
 	unsigned char enc_idx;
+	int dv_en;
 };
 
 struct hdmitx_dev *get_hdmitx21_device(void);

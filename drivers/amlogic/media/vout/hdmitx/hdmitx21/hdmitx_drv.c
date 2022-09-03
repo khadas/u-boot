@@ -18,6 +18,7 @@ static struct hdmitx_dev hdmitx_device;
 
 static void hdmitx_set_phy(struct hdmitx_dev *hdev);
 static void hdmitx_set_div40(bool div40);
+static void hdmitx21_dither_config(struct hdmitx_dev *hdev);
 
 struct hdmitx_dev *get_hdmitx21_device(void)
 {
@@ -679,6 +680,7 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		(((para->cd == COLORDEPTH_24B) ? 1 : 0) << 10) |
 		(0 << 12);
 	hd21_write_reg(VPU_HDMI_DITH_CNTL, data32);
+	hdmitx21_dither_config(hdev);
 
 	_hdmitx21_set_clk();
 
@@ -1042,9 +1044,6 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 		data32 |= (0 << 2);
 		data32 |= (0 << 1);
 		data32 |= (0 << 0);
-		hdmitx21_wr_reg(VP_OUTPUT_MAPPING_IVCTX, data32 & 0xff);
-		//mapping for yuv422 12bit
-		hdmitx21_wr_reg((VP_OUTPUT_MAPPING_IVCTX + 1), (data32 >> 8) & 0xff);
 
 		// [5:4] disable_lsbs_cr / [3:2] disable_lsbs_cb / [1:0] disable_lsbs_y
 		// 0=12bit; 1=10bit(disable 2-LSB), 2=8bit(disable 4-LSB), 3=6bit(disable 6-LSB)
@@ -1052,6 +1051,9 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 		data8 |= (2 << 4);
 		data8 |= (2 << 2);
 		data8 |= (2 << 0);
+		hdmitx21_wr_reg(VP_OUTPUT_MAPPING_IVCTX, data32 & 0xff);
+		//mapping for yuv422 12bit
+		hdmitx21_wr_reg(VP_OUTPUT_MAPPING_IVCTX + 1, (data32 >> 8) & 0xff);
 		hdmitx21_wr_reg(VP_OUTPUT_MASK_IVCTX, data8);
 	} else {
 		// [11: 9] select_cr: 0=y; 1=cb; 2=Cr; 3={cr[11:4],cb[7:4]};
@@ -1073,15 +1075,13 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 		data32 |= (0 << 2);
 		data32 |= (0 << 1);
 		data32 |= (0 << 0);
-		hdmitx21_wr_reg(VP_OUTPUT_MAPPING_IVCTX, data32 & 0xff);
-		hdmitx21_wr_reg((VP_OUTPUT_MAPPING_IVCTX + 1), (data32 >> 8) & 0xff);
 
 		// [5:4] disable_lsbs_cr / [3:2] disable_lsbs_cb / [1:0] disable_lsbs_y
 		// 0=12bit; 1=10bit(disable 2-LSB), 2=8bit(disable 4-LSB), 3=6bit(disable 6-LSB)
 		data8 = 0;
 		data8 |= (0 << 4);
-		data8 |= (0 << 2);
-		data8 |= (0 << 0);
+		hdmitx21_wr_reg(VP_OUTPUT_MAPPING_IVCTX, data32 & 0xff);
+		hdmitx21_wr_reg(VP_OUTPUT_MAPPING_IVCTX + 1, (data32 >> 8) & 0xff);
 		hdmitx21_wr_reg(VP_OUTPUT_MASK_IVCTX, data8);
 	}
 
@@ -1334,6 +1334,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 				hdmi_avi_infoframe_config(CONF_AVI_CS, HDMI_COLORSPACE_YUV422);
 				hdmi_avi_infoframe_config(CONF_AVI_YQ01, YCC_RANGE_FUL);
 			}
+			hdev->dv_en = 1;
 		} else {
 			if (hdmi_vic_4k_flag)
 				hdmi_vend_infoframe_rawset(VEN_HB, db1);
@@ -1343,6 +1344,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 			hdmi_avi_infoframe_config(CONF_AVI_Q01, RGB_RANGE_LIM);
 			hdmi_avi_infoframe_config(CONF_AVI_YQ01, YCC_RANGE_LIM);
 			hdmi_avi_infoframe_config(CONF_AVI_BT2020, CLR_AVI_BT2020);/*BT709*/
+			hdev->dv_en = 0;
 		}
 	}
 	/*ver1_12  with low_latency = 1 and ver2 use Dolby VSIF*/
@@ -1399,6 +1401,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 				hdmi_avi_infoframe_config(CONF_AVI_CS, HDMI_COLORSPACE_YUV422);
 				hdmi_avi_infoframe_config(CONF_AVI_YQ01, YCC_RANGE_FUL);
 			}
+			hdev->dv_en = 1;
 		}
 		/*Dolby Vision low-latency case*/
 		else if  (type == EOTF_T_LL_MODE) {
@@ -1421,6 +1424,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 				hdmi_avi_infoframe_config(CONF_AVI_CS, HDMI_COLORSPACE_YUV422);
 				hdmi_avi_infoframe_config(CONF_AVI_YQ01, YCC_RANGE_LIM);
 			}
+			hdev->dv_en = 1;
 		} else { /*SDR case*/
 			if (hdmi_vic_4k_flag) {
 				VEN_DB1[0] = 0x03;
@@ -1434,9 +1438,10 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 			hdmi_avi_infoframe_config(CONF_AVI_Q01, RGB_RANGE_LIM);
 			hdmi_avi_infoframe_config(CONF_AVI_YQ01, YCC_RANGE_LIM);
 			hdmi_avi_infoframe_config(CONF_AVI_BT2020, CLR_AVI_BT2020);/*BT709*/
+			hdev->dv_en = 0;
 		}
 	}
-
+	hdmitx21_dither_config(hdev);
 	pr_info("%s[%d]\n", __func__, __LINE__);
 }
 
@@ -1541,3 +1546,19 @@ static void hdmitx_set_hw(struct hdmitx_dev *hdev)
 	/* --------------------------------------------------------*/
 	config_hdmi21_tx(hdev);
 }
+
+bool hdmitx_dv_en(struct hdmitx_dev *hdev)
+{
+	return hdev->dv_en;
+}
+
+void hdmitx21_dither_config(struct hdmitx_dev *hdev)
+{
+	struct hdmi_format_para *para = hdev->para;
+
+	if (para->cd == COLORDEPTH_24B && hdmitx_dv_en(hdev) == 0)
+		hd21_set_reg_bits(VPU_HDMI_DITH_CNTL, 1, 4, 1);
+	else
+		hd21_set_reg_bits(VPU_HDMI_DITH_CNTL, 0, 4, 1);
+}
+
