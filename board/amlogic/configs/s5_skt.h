@@ -113,6 +113,7 @@
         "dv_fw_dir=/oem/firmware/dovi_fw.bin\0" \
         "frac_rate_policy=1\0" \
         "hdr_policy=0\0" \
+        "hdr_priority=2\0" \
         "hdmi_read_edid=1\0" \
         "usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
         "fdt_high=0x20000000\0"\
