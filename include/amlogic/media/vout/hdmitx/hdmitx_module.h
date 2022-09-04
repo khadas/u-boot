@@ -97,6 +97,9 @@ void hdmitx_set_hdr10plus_pkt(unsigned int flag,
 	struct hdr10plus_para *data);
 bool is_hdmi_mode(char *mode);
 
+/* the hdmitx output limits to 1080p */
+bool is_hdmitx_limited_1080p(void);
+
 #ifndef printk
 #define printk printf
 #endif

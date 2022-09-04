@@ -114,6 +114,10 @@ void hdmitx_set_drm_pkt(struct master_display_info_s *data);
 void hdmitx_set_vsif_pkt(enum eotf_type type, enum mode_type tunnel_mode,
 	struct dv_vsif_para *data);
 bool is_hdmi_mode(char *mode);
+
+/* the hdmitx output limits to 1080p */
+bool is_hdmitx_limited_1080p(void);
+
 #undef printk
 #define printk printf
 #undef pr_info

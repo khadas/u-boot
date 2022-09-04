@@ -320,7 +320,7 @@ static inline bool is_meson_gxl_package_805Y(void)
 }
 
 /* below items has feature limited, may need extra judgement */
-static bool hdmitx_limited_1080p(void)
+bool is_hdmitx_limited_1080p(void)
 {
 #ifdef CONFIG_AML_HDMITX20
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
@@ -340,7 +340,7 @@ static bool hdmitx_limited_1080p(void)
 
 bool is_support_4k(void)
 {
-	if (hdmitx_limited_1080p())
+	if (is_hdmitx_limited_1080p())
 		return false;
 	return true;
 }

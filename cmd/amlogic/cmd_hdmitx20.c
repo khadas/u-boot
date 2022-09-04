@@ -230,7 +230,7 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		 */
 		hdev->vic = hdmi_get_fmt_vic(argv[1]);
 		hdev->para = hdmi_get_fmt_paras(hdev->vic);
-		if (hdev->vic == HDMI_unkown) {
+		if (hdev->vic == HDMI_unknown) {
 			/* Not find VIC */
 			printf("Not find '%s' mapped VIC\n", argv[1]);
 			return CMD_RET_FAILURE;
@@ -323,7 +323,7 @@ static int do_off(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		printf("null hdmitx dev\n");
 		return CMD_RET_FAILURE;
 	}
-	hdev->vic = HDMI_unkown;
+	hdev->vic = HDMI_unknown;
 	hdev->hwop.turn_off();
 	printf("turn off hdmitx\n");
 	return CMD_RET_SUCCESS;

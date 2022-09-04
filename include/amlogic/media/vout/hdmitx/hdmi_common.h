@@ -41,7 +41,7 @@ enum scdc_addr {
 /* HDMI VIC definitions */
 enum hdmi_vic {
 	/* Refer to CEA 861-D */
-	HDMI_unkown = 0,
+	HDMI_unknown = 0,
 	HDMI_640x480p60_4x3 = 1,
 	HDMI_720x480p60_4x3 = 2,
 	HDMI_720x480p60_16x9 = 3,
