@@ -300,7 +300,7 @@ static inline bool is_meson_gxl_package_805Y(void)
 }
 
 /* below items has feature limited, may need extra judgement */
-static bool hdmitx_limited_1080p(void)
+bool is_hdmitx_limited_1080p(void)
 {
 	if (is_meson_gxl_package_805X())
 		return true;
@@ -312,7 +312,7 @@ static bool hdmitx_limited_1080p(void)
 
 static bool is_support_4k(void)
 {
-	if (hdmitx_limited_1080p())
+	if (is_hdmitx_limited_1080p())
 		return false;
 	return true;
 }
@@ -590,13 +590,13 @@ static void get_highest_hdmimode(hdmi_data_t *hdmi_data, char *mode)
 		/* refer to disp_cap sysfs */
 		vic = hdmitx_edid_get_VIC(hdev, mode_tmp, 0);
 		/* Handling only 4k420 mode */
-		if (vic == HDMI_unkown) {
+		if (vic == HDMI_unknown) {
 			if (is_4k50_fmt(mode_tmp)) {
 				strcat(mode_tmp, "420");
 				vic = hdmitx_edid_get_VIC(hdev,
 					mode_tmp, 0);
 			}
-			if (vic == HDMI_unkown)
+			if (vic == HDMI_unknown)
 				continue;
 		}
 		if (resolve_resolution_value(mode_tmp) >
@@ -621,7 +621,7 @@ static void filter_hdmimode(hdmi_data_t *hdmi_data, char *mode)
 			struct hdmitx_dev, RXCap);
 
 	if (hdmitx_edid_get_VIC(hdev, hdmi_data->ubootenv_hdmimode, 0)
-		!= HDMI_unkown) {
+		!= HDMI_unknown) {
 		strcpy(mode, hdmi_data->ubootenv_hdmimode);
 	} else {
 		/* old mode is not support in this TV,

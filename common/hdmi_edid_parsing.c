@@ -682,7 +682,7 @@ PROCESS_END:
 static int Edid_ParsingVFPDB(struct rx_cap *pRXCap, unsigned char *buf)
 {
 	unsigned int len = buf[0] & 0x1f;
-	enum hdmi_vic svr = HDMI_unkown;
+	enum hdmi_vic svr = HDMI_unknown;
 
 	if (buf[1] != EXTENSION_VFPDB_TAG)
 		return 0;
@@ -1071,7 +1071,7 @@ int hdmitx_edid_VIC_support(enum hdmi_vic vic)
 
 enum hdmi_vic hdmitx_edid_vic_tab_map_vic(const char *disp_mode)
 {
-	enum hdmi_vic vic = HDMI_unkown;
+	enum hdmi_vic vic = HDMI_unknown;
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(dispmode_vic_tab); i++) {
@@ -1082,7 +1082,7 @@ enum hdmi_vic hdmitx_edid_vic_tab_map_vic(const char *disp_mode)
 		}
 	}
 
-	if (vic == HDMI_unkown)
+	if (vic == HDMI_unknown)
 		printf("not find mapped vic\n");
 
 	return vic;
@@ -1120,24 +1120,74 @@ const char *hdmitx_edid_vic_to_string(enum hdmi_vic vic)
 
 static bool is_rx_support_y420(struct hdmitx_dev *hdev)
 {
-	enum hdmi_vic vic = HDMI_unkown;
+	enum hdmi_vic vic = HDMI_unknown;
 
 	vic = hdmitx_edid_get_VIC(hdev, "2160p60hz420", 0);
-	if (vic != HDMI_unkown)
+	if (vic != HDMI_unknown)
 		return 1;
 
 	vic = hdmitx_edid_get_VIC(hdev, "2160p50hz420", 0);
-	if (vic != HDMI_unkown)
+	if (vic != HDMI_unknown)
 		return 1;
 
 	vic = hdmitx_edid_get_VIC(hdev, "smpte60hz420", 0);
-	if (vic != HDMI_unkown)
+	if (vic != HDMI_unknown)
 		return 1;
 
 	vic = hdmitx_edid_get_VIC(hdev, "smpte50hz420", 0);
-	if (vic != HDMI_unkown)
+	if (vic != HDMI_unknown)
 		return 1;
 
+	return 0;
+}
+
+static bool is_over_60hz(struct hdmi_format_para *para)
+{
+	if (!para)
+		return 1;
+
+	if (para->timing.v_freq > 60000)
+		return 1;
+
+	return 0;
+}
+
+/* check the resolution is over 1920x1080 or not */
+static bool is_over_1080p(struct hdmi_format_para *para)
+{
+	if (!para)
+		return 1;
+
+	if (para->timing.h_active > 1920 || para->timing.v_active > 1080)
+		return 1;
+
+	return 0;
+}
+
+/* test current vic is over 150MHz or not */
+static bool is_over_pixel_150mhz(struct hdmi_format_para *para)
+{
+	if (!para)
+		return 1;
+
+	if (para->timing.pixel_freq > 150000)
+		return 1;
+
+	return 0;
+}
+
+static bool is_vic_over_limited_1080p(enum hdmi_vic vic)
+{
+	struct hdmi_format_para *para = hdmi_get_fmt_paras(vic);
+
+	if (vic == HDMI_unknown || vic >= HDMITX_VESA_OFFSET)
+		return 1;
+
+	if (is_over_1080p(para) || is_over_60hz(para) ||
+		is_over_pixel_150mhz(para)) {
+		printf("over limited vic: %d\n", vic);
+		return 1;
+	}
 	return 0;
 }
 
@@ -1165,6 +1215,16 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 
 	if (strcmp(para->sname, "invalid") == 0)
 		return 0;
+
+	/* if current limits to 1080p, here will check the freshrate and
+	 * 4k resolution
+	 */
+	if (is_hdmitx_limited_1080p()) {
+		if (is_vic_over_limited_1080p(para->vic)) {
+			printf("over limited vic%d in %s\n", para->vic, __func__);
+			return 0;
+		}
+	}
 	/* exclude such as: 2160p60hz YCbCr444 10bit */
 	switch (para->vic) {
 	case HDMI_3840x2160p50_16x9:
@@ -1206,6 +1266,14 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 		if (prxcap->Max_TMDS_Clock1 < 0xf)
 			prxcap->Max_TMDS_Clock1 = 0x1e;
 		rx_max_tmds_clk = prxcap->Max_TMDS_Clock1 * 5;
+	}
+	/* if current status already limited to 1080p, so here also needs to
+	 * limit the rx_max_tmds_clk as 150 * 1.5 = 225 to make the valid mode
+	 * checking works
+	 */
+	if (is_hdmitx_limited_1080p()) {
+		if (rx_max_tmds_clk > 225)
+			rx_max_tmds_clk = 225;
 	}
 
 	calc_tmds_clk = para->tmds_clk;
@@ -1328,21 +1396,21 @@ enum hdmi_vic hdmitx_edid_get_VIC(struct hdmitx_dev *hdev,
 	if (vic >= HDMITX_VESA_OFFSET)
 		vesa_vic = vic;
 	else
-		vesa_vic = HDMI_unkown;
+		vesa_vic = HDMI_unknown;
 	#endif
-	if (vic != HDMI_unkown) {
+	if (vic != HDMI_unknown) {
 		if (force_flag == 0) {
 			for (j = 0 ; j < prxcap->VIC_count ; j++) {
 				if (prxcap->VIC[j] == vic)
 					break;
 			}
 			if (j >= prxcap->VIC_count)
-				vic = HDMI_unkown;
+				vic = HDMI_unknown;
 		}
 	}
 	#if 0
-	if ((vic == HDMI_unkown) &&
-	    (vesa_vic != HDMI_unkown)) {
+	if (vic == HDMI_unknown &&
+	    vesa_vic != HDMI_unknown) {
 		for (j = 0; vesa_t[j] && j < VESA_MAX_TIMING; j++) {
 			para = hdmi_get_fmt_paras(vesa_t[j]);
 			if (para) {

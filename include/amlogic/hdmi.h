@@ -42,7 +42,7 @@ enum scdc_addr {
 /* HDMI VIC definitions */
 enum hdmi_vic {
 	/* Refer to CEA 861-D */
-	HDMI_unkown = 0,
+	HDMI_unknown = 0,
 	HDMI_640x480p60_4x3 = 1,
 	HDMI_720x480p60_4x3 = 2,
 	HDMI_720x480p60_16x9 = 3,
@@ -737,6 +737,9 @@ void hdmi_tx_init(void);
 
 extern struct hdmitx_dev hdmitx_device;
 bool hdmitx_find_vendor(struct hdmitx_dev *hdev);
+/* the hdmitx output limits to 1080p */
+bool is_hdmitx_limited_1080p(void);
+
 #ifndef printk
 #define printk printf
 #endif
