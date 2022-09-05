@@ -29,6 +29,7 @@ typedef struct remote_pwrkeys {
 
 remote_pwrkeys_t pwr_keys_list;
 unsigned int usr_pwr_key = 0x3ac5bd02; // map 'info' to 'netflix'
+unsigned int usr_pwr_key_1 = 0x9c637788; // G10/G20
 
 //24M
 static const reg_remote RDECODEMODE_NEC[] = {
@@ -317,7 +318,8 @@ static int remote_detect_key(void)
 			if ((power_key & IR_POWER_KEY_MASK) == keysdat->pwrkeys[j])
 				return 1;
 		}
-		if ((power_key & IR_POWER_KEY_MASK) == usr_pwr_key)
+		if (((power_key & IR_POWER_KEY_MASK) == usr_pwr_key) ||
+			((power_key & IR_POWER_KEY_MASK) == usr_pwr_key_1))
 			return 2;
 	}
 
@@ -337,7 +339,8 @@ static int remote_detect_key(void)
 			if ((power_key & IR_POWER_KEY_MASK) == keysdat->pwrkeys[j])
 				return 1;
 		}
-		if ((power_key & IR_POWER_KEY_MASK) == usr_pwr_key)
+		if (((power_key & IR_POWER_KEY_MASK) == usr_pwr_key) ||
+			((power_key & IR_POWER_KEY_MASK) == usr_pwr_key_1))
 			return 2;
 	}
 #endif
