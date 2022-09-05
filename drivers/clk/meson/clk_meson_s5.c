@@ -25,6 +25,9 @@ static struct meson_gate gates[] = {
 	{CLKID_SD_EMMC_A_GATE, S5_CLKCTRL_SD_EMMC_CLK_CTRL, 7},
 	{CLKID_SD_EMMC_B_GATE, S5_CLKCTRL_SD_EMMC_CLK_CTRL, 23},
 	{CLKID_SD_EMMC_C_GATE, S5_CLKCTRL_NAND_CLK_CTRL, 7},
+	{CLKID_ETH_CORE, S5_CLKCTRL_SYS_CLK_EN0_REG1, 3},
+	{CLKID_ETH_125M_GATE, S5_CLKCTRL_ETH_CLK_CTRL, 7},
+	{CLKID_ETH_RMII_GATE, S5_CLKCTRL_ETH_CLK_CTRL, 8},
 };
 
 static unsigned int spicc_parents[] = {CLKID_XTAL, CLKID_SYS_CLK,
@@ -36,6 +39,8 @@ static unsigned int saradc_parents[] = {CLKID_XTAL, CLKID_SYS_CLK};
 static unsigned int sd_emmc_parents[] = {CLKID_XTAL, CLKID_FCLK_DIV2,
 CLKID_FCLK_DIV3, CLKID_UNREALIZED, CLKID_UNREALIZED,
 CLKID_UNREALIZED, CLKID_UNREALIZED, CLKID_GP0_PLL};
+
+static unsigned int rmii_parents[] = {CLKID_FCLK_DIV2, CLKID_FCLK_DIV4};
 
 static struct meson_mux muxes[] = {
 	{CLKID_SPICC_A_MUX, S5_CLKCTRL_SPICC_CLK_CTRL, 7,  0x7,
@@ -52,6 +57,8 @@ static struct meson_mux muxes[] = {
 		sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
 	{CLKID_SD_EMMC_C_MUX, S5_CLKCTRL_NAND_CLK_CTRL, 9, 0x7,
 		sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
+	{CLKID_ETH_RMII_MUX, S5_CLKCTRL_ETH_CLK_CTRL, 9, 0x3,
+		rmii_parents, ARRAY_SIZE(rmii_parents)},
 };
 
 static struct meson_div divs[] = {
@@ -62,6 +69,7 @@ static struct meson_div divs[] = {
 	{CLKID_SD_EMMC_A_DIV, S5_CLKCTRL_SD_EMMC_CLK_CTRL, 0, 7, CLKID_SD_EMMC_A_MUX},
 	{CLKID_SD_EMMC_B_DIV, S5_CLKCTRL_SD_EMMC_CLK_CTRL, 16, 7, CLKID_SD_EMMC_B_MUX},
 	{CLKID_SD_EMMC_C_DIV, S5_CLKCTRL_NAND_CLK_CTRL, 0, 7, CLKID_SD_EMMC_C_MUX},
+	{CLKID_ETH_RMII_DIV, S5_CLKCTRL_ETH_CLK_CTRL, 0, 7, CLKID_ETH_RMII_MUX},
 };
 
 static struct parm meson_fixed_pll_parm[3] = {
@@ -175,6 +183,9 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, ulong id)
 		break;
 	case CLKID_FCLK_DIV2P5:
 		rate = (meson_pll_get_rate(clk, CLKID_FIXED_PLL) * 2) / 5;
+		break;
+	case CLKID_FCLK_CLK50M:
+		rate = meson_pll_get_rate(clk, CLKID_FIXED_PLL) / 40;
 		break;
 	/* sys clk has realized in rom code*/
 	case CLKID_SYS_CLK:
