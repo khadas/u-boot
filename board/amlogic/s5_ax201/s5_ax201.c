@@ -283,6 +283,18 @@ int ft_board_setup(void *blob, bd_t *bd)
 	return 0;
 }
 
+#ifdef CONFIG_MULTI_DTB
+int checkhw(char *name)
+{
+	char dtb_name[64] = {0};
+
+	strcpy(dtb_name, "s5_ax201_s928x");
+	strcpy(name, dtb_name);
+	env_set("aml_dt", dtb_name);
+	return 0;
+}
+#endif
+
 /* partition table for spinor flash */
 #ifdef CONFIG_SPI_FLASH
 static const struct mtd_partition spiflash_partitions[] = {

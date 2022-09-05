@@ -277,6 +277,18 @@ int mach_cpu_init(void) {
 	return 0;
 }
 
+#ifdef CONFIG_MULTI_DTB
+int checkhw(char *name)
+{
+	char dtb_name[64] = {0};
+
+	strcpy(dtb_name, "s5_ax208_s928x");
+	strcpy(name, dtb_name);
+	env_set("aml_dt", dtb_name);
+	return 0;
+}
+#endif
+
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	/* eg: bl31/32 rsv */
