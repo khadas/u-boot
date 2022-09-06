@@ -50,5 +50,4 @@
 
 &ethmac {
 	phy-mode = "rmii";
-	phy-handle = <&internal_phy>;
 };
