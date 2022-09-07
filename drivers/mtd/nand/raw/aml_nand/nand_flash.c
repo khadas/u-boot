@@ -1043,7 +1043,7 @@ void display_para_page(struct parameter_page para_page,unsigned long log_level)
 		printk("Bad blocks maximum per LUN: %d\n",
 			para_page.max_badblk_perLUN);
 		printk("%d bits ECC correctability.\n",
-			para_page.bits_ECC_corretable);
+			para_page.bits_ECC_correctable);
 
 		printk("Support time mode: ");
 		for (j = 5; j >= 0; j--) {

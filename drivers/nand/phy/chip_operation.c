@@ -1558,7 +1558,7 @@ error_exit0:
 	return ret;
 }
 
-static int set_blcok_status(struct amlnand_chip *aml_chip,
+static int set_block_status(struct amlnand_chip *aml_chip,
 	u8 chipnr,
 	u32 addr,
 	int value)
@@ -1575,7 +1575,7 @@ static int set_blcok_status(struct amlnand_chip *aml_chip,
 	return 0;
 }
 
-static int get_blcok_status(struct amlnand_chip *aml_chip,
+static int get_block_status(struct amlnand_chip *aml_chip,
 	u8 chipnr,
 	u32 addr)
 {
@@ -1670,15 +1670,15 @@ static int block_isbad(struct amlnand_chip *aml_chip)
 			/*
 		aml_nand_dbg(" DEV_MULTI_PLANE_MODE  &&  !DEV_MULTI_CHIP_MODE");
 			*/
-			ret = get_blcok_status(aml_chip, chipnr, blk_addr);
+			ret = get_block_status(aml_chip, chipnr, blk_addr);
 			if (ret == NAND_BLOCK_GOOD) {
 				/* plane 0 is good , check plane 1 */
 				if ((blk_addr % 2) == 0)
-					ret = get_blcok_status(aml_chip,
+					ret = get_block_status(aml_chip,
 						chipnr,
 						(blk_addr+1));
 				else/* plane 1 is good, check plane 0 */
-					ret = get_blcok_status(aml_chip,
+					ret = get_block_status(aml_chip,
 						chipnr,
 						(blk_addr - 1));
 			}
@@ -1690,7 +1690,7 @@ static int block_isbad(struct amlnand_chip *aml_chip)
 			for (chipnr = 0;
 				chipnr < controller->chip_num;
 				chipnr++) {
-				ret = get_blcok_status(aml_chip, chipnr,
+				ret = get_block_status(aml_chip, chipnr,
 					blk_addr);
 				if (ret != NAND_BLOCK_GOOD)
 					break;
@@ -1702,12 +1702,12 @@ static int block_isbad(struct amlnand_chip *aml_chip)
 				DEV_MULTI_CHIP_MODE");
 			*/
 			blk_addr <<= 1;
-			ret = get_blcok_status(aml_chip, chipnr, blk_addr);
+			ret = get_block_status(aml_chip, chipnr, blk_addr);
 			if (ret == 0) {
 				for (chipnr = 0;
 					chipnr < controller->chip_num;
 					chipnr++) {
-					ret = get_blcok_status(aml_chip,
+					ret = get_block_status(aml_chip,
 						chipnr,
 						blk_addr);
 					if (ret != NAND_BLOCK_GOOD)
@@ -1716,7 +1716,7 @@ static int block_isbad(struct amlnand_chip *aml_chip)
 						/*
 						plane 0 is good , check plane 1
 						*/
-						ret = get_blcok_status(aml_chip,
+						ret = get_block_status(aml_chip,
 							chipnr,
 							(blk_addr+1));
 			if (ret != NAND_BLOCK_GOOD)
@@ -1725,7 +1725,7 @@ static int block_isbad(struct amlnand_chip *aml_chip)
 						/*
 						plane 1 is good, check plane 0
 						*/
-						ret = get_blcok_status(aml_chip,
+						ret = get_block_status(aml_chip,
 							chipnr,
 							(blk_addr - 1));
 			if (ret != NAND_BLOCK_GOOD)
@@ -1734,7 +1734,7 @@ static int block_isbad(struct amlnand_chip *aml_chip)
 				}
 			}
 		} else
-			ret = get_blcok_status(aml_chip, chipnr, blk_addr);
+			ret = get_block_status(aml_chip, chipnr, blk_addr);
 	} else {
 
 			buf_size = (flash->pagesize + flash->oobsize) * controller->chip_num;
@@ -1778,7 +1778,7 @@ static int block_isbad(struct amlnand_chip *aml_chip)
 		if (ops_para->oob_buf[0] == 0) {
 			aml_nand_msg("nand detect bad blk at %d chip %d",
 				blk_addr, ops_para->chipnr);
-			ret = -NAND_BAD_BLCOK_FAILURE;
+			ret = -NAND_BAD_BLOCK_FAILURE;
 			goto exit_error0;
 		}
 	}
@@ -1835,10 +1835,10 @@ static int block_markbad(struct amlnand_chip *aml_chip)
 				blk_addr <<= 1;
 				if ((blk_addr % 2) == 0) {
 					/* plane 0 is good , set plane 1 */
-					ret = set_blcok_status(aml_chip,
+					ret = set_block_status(aml_chip,
 						chipnr, (blk_addr),
 						NAND_BLOCK_USED_BAD);
-					ret = set_blcok_status(aml_chip,
+					ret = set_block_status(aml_chip,
 						chipnr, (blk_addr+1),
 						NAND_BLOCK_USED_BAD);
 				aml_nand_dbg("set blk bad at chip%d blk=%d",
@@ -1846,10 +1846,10 @@ static int block_markbad(struct amlnand_chip *aml_chip)
 				aml_nand_dbg("set blk bad at chip %d blk %d",
 						chipnr, (blk_addr+1));
 				} else {/* plane 1 is good, set plane 0 */
-					ret = set_blcok_status(aml_chip, chipnr,
+					ret = set_block_status(aml_chip, chipnr,
 						(blk_addr),
 						NAND_BLOCK_USED_BAD);
-					ret = set_blcok_status(aml_chip, chipnr,
+					ret = set_block_status(aml_chip, chipnr,
 						(blk_addr - 1),
 						NAND_BLOCK_USED_BAD);
 				aml_nand_dbg("set blk bad at chip %d blk %d",
@@ -1862,7 +1862,7 @@ static int block_markbad(struct amlnand_chip *aml_chip)
 				for (chipnr = 0;
 					chipnr < controller->chip_num;
 					chipnr++) {
-					ret = set_blcok_status(aml_chip,
+					ret = set_block_status(aml_chip,
 						chipnr,
 						blk_addr,
 						NAND_BLOCK_USED_BAD);
@@ -1879,7 +1879,7 @@ static int block_markbad(struct amlnand_chip *aml_chip)
 						/*
 						plane 0 is good , set plane 1
 						*/
-						ret = set_blcok_status(aml_chip,
+						ret = set_block_status(aml_chip,
 							chipnr,
 							(blk_addr+1),
 							NAND_BLOCK_USED_BAD);
@@ -1888,7 +1888,7 @@ static int block_markbad(struct amlnand_chip *aml_chip)
 							(blk_addr+1));
 					} else {
 					/* plane 1 is good, set plane 0 */
-						ret = set_blcok_status(aml_chip,
+						ret = set_block_status(aml_chip,
 							chipnr,
 							(blk_addr - 1),
 							NAND_BLOCK_USED_BAD);
@@ -1897,7 +1897,7 @@ static int block_markbad(struct amlnand_chip *aml_chip)
 							(blk_addr-1));
 					}
 					/* multi_chip , set every chip_blk */
-					ret = set_blcok_status(aml_chip,
+					ret = set_block_status(aml_chip,
 						chipnr,
 						blk_addr,
 						NAND_BLOCK_USED_BAD);
@@ -1905,7 +1905,7 @@ static int block_markbad(struct amlnand_chip *aml_chip)
 					chipnr, blk_addr);
 				}
 			} else {
-				ret = set_blcok_status(aml_chip,
+				ret = set_block_status(aml_chip,
 					chipnr,
 					blk_addr,
 					NAND_BLOCK_USED_BAD);
@@ -2504,16 +2504,16 @@ static int blk_modify_bbt_chip_op(struct amlnand_chip *aml_chip, int value)
 		/*
 		aml_nand_dbg(" DEV_MULTI_PLANE_MODE && !DEV_MULTI_CHIP_MODE");
 		*/
-		ret = set_blcok_status(aml_chip, chipnr, blk_addr, value);
+		ret = set_block_status(aml_chip, chipnr, blk_addr, value);
 		if (ret == 0) {
 			if ((blk_addr % 2) == 0)
 				/* plane 0 is good , check plane 1 */
-				ret = set_blcok_status(aml_chip,
+				ret = set_block_status(aml_chip,
 					chipnr,
 					(blk_addr+1),
 					value);
 			else	/* plane 1 is good, check plane 0 */
-				ret = set_blcok_status(aml_chip,
+				ret = set_block_status(aml_chip,
 					chipnr,
 					(blk_addr - 1),
 					value);
@@ -2524,7 +2524,7 @@ static int blk_modify_bbt_chip_op(struct amlnand_chip *aml_chip, int value)
 		aml_nand_dbg(" !DEV_MULTI_PLANE_MODE  &&  DEV_MULTI_CHIP_MODE");
 		*/
 		for (chipnr = 0; chipnr < controller->chip_num; chipnr++) {
-			ret = set_blcok_status(aml_chip,
+			ret = set_block_status(aml_chip,
 				chipnr,
 				blk_addr,
 				value);
@@ -2537,12 +2537,12 @@ static int blk_modify_bbt_chip_op(struct amlnand_chip *aml_chip, int value)
 		aml_nand_dbg(" DEV_MULTI_PLANE_MODE && DEV_MULTI_CHIP_MODE");
 		*/
 		blk_addr <<= 1;
-		ret = set_blcok_status(aml_chip, chipnr, blk_addr, value);
+		ret = set_block_status(aml_chip, chipnr, blk_addr, value);
 		if (ret == 0) {
 			for (chipnr = 0;
 				chipnr < controller->chip_num;
 				chipnr++) {
-				ret = set_blcok_status(aml_chip,
+				ret = set_block_status(aml_chip,
 					chipnr,
 					blk_addr,
 					value);
@@ -2550,14 +2550,14 @@ static int blk_modify_bbt_chip_op(struct amlnand_chip *aml_chip, int value)
 					break;
 				if ((blk_addr % 2) == 0) {
 					/* plane 0 is good , check plane 1 */
-					ret = set_blcok_status(aml_chip,
+					ret = set_block_status(aml_chip,
 						chipnr,
 						(blk_addr+1),
 						value);
 					if (ret != 0)
 						break;
 				} else {/* plane 1 is good, check plane 0 */
-					ret = set_blcok_status(aml_chip,
+					ret = set_block_status(aml_chip,
 						chipnr,
 						(blk_addr - 1),
 						value);
@@ -2567,7 +2567,7 @@ static int blk_modify_bbt_chip_op(struct amlnand_chip *aml_chip, int value)
 			}
 		}
 	} else
-		ret = set_blcok_status(aml_chip, chipnr, blk_addr, value);
+		ret = set_block_status(aml_chip, chipnr, blk_addr, value);
 
 	return ret;
 }

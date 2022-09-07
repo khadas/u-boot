@@ -172,7 +172,7 @@ int fastboot_nand_get_part_info(char *part_name, struct part_info **part_info,
 int get_bootnum(struct mtd_info *mtd, size_t rwsize)
 {
 	size_t bad_blk_len_low = 0, bad_blk_len_up = 0, skip;
-	size_t aviable_space;
+	size_t available_space;
 	size_t block_len, block_off;
 	loff_t block_start;
 	loff_t offset = 0;
@@ -207,9 +207,9 @@ int get_bootnum(struct mtd_info *mtd, size_t rwsize)
 		rwsize, bad_blk_len_low, bad_blk_len_up);
 
 	skip = bad_blk_len_low + bad_blk_len_up;
-	aviable_space = mtd->size - skip - 2 * mtd->writesize; /*no understand*/
+	available_space = mtd->size - skip - 2 * mtd->writesize; /*no understand*/
 
-	if (rwsize*2 <= aviable_space) {
+	if (rwsize * 2 <= available_space) {
 		ret = 1;
 		if (rwsize + mtd->writesize + bad_blk_len_low > mtd->size / 2)
 			return 1; /*1st must be write*/

@@ -860,7 +860,7 @@ int amlnand_get_free_block(struct amlnand_chip *aml_chip, u32 block)
 	}
 
 	if (start_blk >= total_blk) {
-		ret = -NAND_BAD_BLCOK_FAILURE;
+		ret = -NAND_BAD_BLOCK_FAILURE;
 		aml_nand_msg("nand can not find free block");
 	}
 
@@ -1237,8 +1237,8 @@ get_free_blk:
 			ret = amlnand_get_free_block(aml_chip, blk_addr);
 			blk_addr = ret;
 			if (ret < 0) {
-				aml_nand_msg("nand get free blcok failed");
-				ret = -NAND_BAD_BLCOK_FAILURE;
+				aml_nand_msg("nand get free block failed");
+				ret = -NAND_BAD_BLOCK_FAILURE;
 				goto exit_error0;
 			}
 			aml_nand_msg("nand get free block0  at %d", blk_addr);
@@ -1251,7 +1251,7 @@ get_free_blk:
 		aml_nand_msg("%s, %d: new blk %d", __func__, __LINE__, blk_addr);
 		if (ret < 0) {
 			aml_nand_msg("nand get free block failed");
-			ret = -NAND_BAD_BLCOK_FAILURE;
+			ret = -NAND_BAD_BLOCK_FAILURE;
 			goto exit_error0;
 		}
 		aml_nand_msg("nand get free block1  at %d", blk_addr);
@@ -2896,7 +2896,7 @@ get_free_blk:
 	blk_addr = ret;
 	if (ret < 0) {
 		aml_nand_msg("nand get free block failed");
-		ret = -NAND_BAD_BLCOK_FAILURE;
+		ret = -NAND_BAD_BLOCK_FAILURE;
 		goto exit_error0;
 	}
 	printf("nand get free block for hynix readretry info at %d\n",
@@ -4144,8 +4144,8 @@ int shipped_bbt_valid_ops(struct amlnand_chip *aml_chip)
 
 	ret = amlnand_init_block_status(aml_chip);
 	if (ret < 0 ) {
-			aml_nand_msg("nand init blcok status failed and ret:%d", ret);
-			goto exit_error0;
+		aml_nand_msg("nand init block status failed and ret:%d", ret);
+		goto exit_error0;
 	}
 
 	if (aml_chip->init_flag < NAND_BOOT_ERASE_PROTECT_CACHE) {

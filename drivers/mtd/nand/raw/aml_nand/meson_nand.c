@@ -708,7 +708,7 @@ static int m3_nand_hwecc_correct(struct aml_nand_chip *aml_chip,
 	return 0;
 }
 
-void register_aml_chip_contorller(struct aml_nand_chip *aml_chip)
+void register_aml_chip_controller(struct aml_nand_chip *aml_chip)
 {
 	/*register amlogic hw controller functions*/
 	aml_chip->aml_nand_hw_init = m3_nand_hw_init;
@@ -757,7 +757,7 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 	plat->aml_chip = aml_chip;
 	mtd->name = plat->name;
 
-	register_aml_chip_contorller(aml_chip);
+	register_aml_chip_controller(aml_chip);
 	aml_chip->ran_mode = plat->ran_mode;
 	aml_chip->rbpin_detect = plat->rbpin_detect;
 	aml_nfc_get_clk_name(controller);
