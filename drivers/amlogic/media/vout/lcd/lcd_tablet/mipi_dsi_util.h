@@ -92,6 +92,7 @@ enum mipi_dsi_data_type_host_e {
 #define DCS_WRITE_LUT                0x2d
 #define DCS_WRITE_MEMORY_CONTINUE    0x3c
 #define DCS_WRITE_MEMORY_START       0x2c
+
 /* Peripheral to Host
  * normal: 0x87(LPDT), data_type, 0, 0, ecc.  (write or tearing-effect)
  * error:  0x87(LPDT), 0x02, error_code[15:0], ecc.
@@ -183,7 +184,7 @@ struct dsi_cmd_request_s {
 #define BIT_FRAME_BTA_ACK_EN     14
 #define BIT_LP_HFP_EN            13
 #define BIT_LP_HBP_EN            12
-#define BIT_LP_VCAT_EN           11
+#define BIT_LP_VACT_EN           11
 #define BIT_LP_VFP_EN            10
 #define BIT_LP_VBP_EN             9
 #define BIT_LP_VSA_EN             8

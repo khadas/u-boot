@@ -473,13 +473,13 @@ void lcd_extern_pinmux_set(struct lcd_extern_driver_s *edrv, int status)
 int lcd_extern_get_dts_child(char *dtaddr, char *snode, int index)
 {
 	int nodeoffset;
-	char chlid_node[30];
+	char child_node[30];
 	char *propdata;
 
-	sprintf(chlid_node, "%s/extern_%d", snode, index);
-	nodeoffset = fdt_path_offset(dtaddr, chlid_node);
+	sprintf(child_node, "%s/extern_%d", snode, index);
+	nodeoffset = fdt_path_offset(dtaddr, child_node);
 	if (nodeoffset < 0) {
-		EXTERR("dts: not find  node %s\n", chlid_node);
+		EXTERR("dts: not find  node %s\n", child_node);
 		return nodeoffset;
 	}
 

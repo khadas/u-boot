@@ -293,7 +293,7 @@ static void dptx_init(int index)
 	data32 = (0x1 | (0x1 << 4) | (0x0 << 5) | (0x1 << 6) | (0x1 << 7));
 	writel(data32, reg_dphy_tx_ctrl1);
 	data32 = ((0x4 << 5) | (0x1f << 16));
-	writel(data32, reg_dphy_tx_ctrl0); //select clkdiv20 , datachan-sel
+	writel(data32, reg_dphy_tx_ctrl0); //select clkdiv20 , datachain-sel
 	data32 = readl(reg_dphy_tx_ctrl0);
 	data32 &= ~(0x1 << 2);  //no pn swap
 	writel(data32, reg_dphy_tx_ctrl0);
@@ -317,7 +317,7 @@ static void dptx_init(int index)
 	dptx_reg_write(index, EDP_TX_AUX_CLOCK_DIVIDER, 24); // Set Aux channel clk-div: 24MHz
 }
 
-static void dptx_set_phy_clk(int index, uint16_t lnkclk_x100)
+static void dptx_set_phy_clk(int index, uint16_t linkclk_x100)
 {
 	dptx_phy_reset(index);
 	dptx_reset(index);

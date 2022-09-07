@@ -37,7 +37,7 @@ static void lcd_venc_set(struct aml_lcd_drv_s *pdrv)
 	//1<<5:lcdp6, 1<<6:lcdp8, 1<<7:lcd565, 1<<8:lcds9(6+3,3+6), 1<<9:lcds8(5+3,3+5)
 
 	//serial_rate:
-	//0:pix/1cylce    1:pix/2cycle  2:pix/3cycle
+	//0:pix/1cycle    1:pix/2cycle  2:pix/3cycle
 
 	//field_mode:
 	//0:progress 1:interlace
