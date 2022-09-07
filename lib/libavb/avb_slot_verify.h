@@ -65,11 +65,12 @@ typedef enum {
  * value used is "avb.managed_verity_mode" and 32 bytes of storage is needed.
  */
 typedef enum {
-  AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE,
-  AVB_HASHTREE_ERROR_MODE_RESTART,
-  AVB_HASHTREE_ERROR_MODE_EIO,
-  AVB_HASHTREE_ERROR_MODE_LOGGING,
-  AVB_HASHTREE_ERROR_MODE_MANAGED_RESTART_AND_EIO
+	AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE,
+	AVB_HASHTREE_ERROR_MODE_RESTART,
+	AVB_HASHTREE_ERROR_MODE_EIO,
+	AVB_HASHTREE_ERROR_MODE_LOGGING,
+	AVB_HASHTREE_ERROR_MODE_MANAGED_RESTART_AND_EIO,
+	AVB_HASHTREE_ERROR_MODE_PANIC
 } AvbHashtreeErrorMode;
 
 /* Flags that influence how avb_slot_verify() works.
@@ -134,10 +135,11 @@ const char* avb_slot_verify_result_to_string(AvbSlotVerifyResult result);
  * metadata.
  */
 typedef struct {
-  char* partition_name;
-  uint8_t* data;
-  size_t data_size;
-  bool preloaded;
+	char *partition_name;
+	uint8_t *data;
+	size_t data_size;
+	bool preloaded;
+	AvbSlotVerifyResult verify_result;
 } AvbPartitionData;
 
 /* AvbVBMetaData contains a vbmeta struct loaded from a partition when
@@ -293,7 +295,7 @@ extern uint8_t boot_key_hash[AVB_SHA256_DIGEST_SIZE];
  * in |out_digest| which must be large enough to hold a digest
  * of the requested type.
  */
-void avb_slot_verify_data_calculate_vbmeta_digest(AvbSlotVerifyData* data,
+void avb_slot_verify_data_calculate_vbmeta_digest(const AvbSlotVerifyData *data,
                                                   AvbDigestType digest_type,
                                                   uint8_t* out_digest);
 

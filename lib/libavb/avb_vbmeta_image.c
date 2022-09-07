@@ -221,39 +221,40 @@ out:
 }
 
 void avb_vbmeta_image_header_to_host_byte_order(const AvbVBMetaImageHeader* src,
-                                                AvbVBMetaImageHeader* dest) {
-  avb_memcpy(dest, src, sizeof(AvbVBMetaImageHeader));
+						AvbVBMetaImageHeader *dest) {
+	avb_memcpy(dest, src, sizeof(AvbVBMetaImageHeader));
 
-  dest->required_libavb_version_major =
-      avb_be32toh(dest->required_libavb_version_major);
-  dest->required_libavb_version_minor =
-      avb_be32toh(dest->required_libavb_version_minor);
+	dest->required_libavb_version_major =
+		avb_be32toh(dest->required_libavb_version_major);
+	dest->required_libavb_version_minor =
+		avb_be32toh(dest->required_libavb_version_minor);
 
-  dest->authentication_data_block_size =
-      avb_be64toh(dest->authentication_data_block_size);
-  dest->auxiliary_data_block_size =
-      avb_be64toh(dest->auxiliary_data_block_size);
+	dest->authentication_data_block_size =
+		avb_be64toh(dest->authentication_data_block_size);
+	dest->auxiliary_data_block_size =
+		avb_be64toh(dest->auxiliary_data_block_size);
 
-  dest->algorithm_type = avb_be32toh(dest->algorithm_type);
+	dest->algorithm_type = avb_be32toh(dest->algorithm_type);
 
-  dest->hash_offset = avb_be64toh(dest->hash_offset);
-  dest->hash_size = avb_be64toh(dest->hash_size);
+	dest->hash_offset = avb_be64toh(dest->hash_offset);
+	dest->hash_size = avb_be64toh(dest->hash_size);
 
-  dest->signature_offset = avb_be64toh(dest->signature_offset);
-  dest->signature_size = avb_be64toh(dest->signature_size);
+	dest->signature_offset = avb_be64toh(dest->signature_offset);
+	dest->signature_size = avb_be64toh(dest->signature_size);
 
-  dest->public_key_offset = avb_be64toh(dest->public_key_offset);
-  dest->public_key_size = avb_be64toh(dest->public_key_size);
+	dest->public_key_offset = avb_be64toh(dest->public_key_offset);
+	dest->public_key_size = avb_be64toh(dest->public_key_size);
 
-  dest->public_key_metadata_offset =
-      avb_be64toh(dest->public_key_metadata_offset);
-  dest->public_key_metadata_size = avb_be64toh(dest->public_key_metadata_size);
+	dest->public_key_metadata_offset =
+		avb_be64toh(dest->public_key_metadata_offset);
+	dest->public_key_metadata_size = avb_be64toh(dest->public_key_metadata_size);
 
-  dest->descriptors_offset = avb_be64toh(dest->descriptors_offset);
-  dest->descriptors_size = avb_be64toh(dest->descriptors_size);
+	dest->descriptors_offset = avb_be64toh(dest->descriptors_offset);
+	dest->descriptors_size = avb_be64toh(dest->descriptors_size);
 
-  dest->rollback_index = avb_be64toh(dest->rollback_index);
-  dest->flags = avb_be32toh(dest->flags);
+	dest->rollback_index = avb_be64toh(dest->rollback_index);
+	dest->flags = avb_be32toh(dest->flags);
+	dest->rollback_index_location = avb_be32toh(dest->rollback_index_location);
 }
 
 const char* avb_vbmeta_verify_result_to_string(AvbVBMetaVerifyResult result) {
