@@ -656,7 +656,11 @@
             "\0"\
         "init_display="\
 			"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
-            "osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+			"if gpio input GPIOY_9; then "\
+				"osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+			"else "\
+				"osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout output ${outputmode};"\
+			"fi;"\
             "setenv outputmode2 ${hdmimode};"\
             "osd dual_logo;"\
 			"dovi set;dovi pkg;vpp hdrpkt;"\
