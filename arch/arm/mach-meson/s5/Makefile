@@ -15,3 +15,4 @@ obj-$(CONFIG_AML_OSCRING) += oscring.o
 obj-$(CONFIG_AML_HDMITX21) += hdmitx_hw.o hdmitx_clk.o
 obj-y += aml_efuse.o
 obj-$(CONFIG_SECURE_POWER_CONTROL) += pwrc.o
+obj-y += avb2_fip_key.o
