@@ -31,6 +31,9 @@ typedef boot_img_hdr_t boot_img_hdr;
 #define wrnP(fmt...)   printf("wrn:"fmt)
 #define MsgP(fmt...)   printf("[BootSta]"fmt)
 
+#define BOOTLOADER_OFFSET		512
+#define BOOTLOADER_MAX_SIZE		(4 * 1024 * 1024)
+
 //check SWPL-31296 for details
 static int do_get_bootloader_status(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -277,6 +280,114 @@ static void aml_recovery(void) {
 	}
 }
 
+void update_rollback(void)
+{
+	char *slot = NULL;
+	int ret = -1;
+	int gpt_flag = -1;
+
+#ifdef CONFIG_MMC_MESON_GX
+	struct mmc *mmc = NULL;
+
+	if (store_get_type() == BOOT_EMMC)
+		mmc = find_mmc_device(1);
+
+	if (mmc)
+		gpt_flag = aml_gpt_valid(mmc);
+#endif
+	if (gpt_flag == 0)
+		ret = 0;
+
+#if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
+	run_command("efuse_obj get FEAT_DISABLE_EMMC_USER", 0);
+
+	//dis_user_flag = run_command("efuse_obj get FEAT_DISABLE_EMMC_USER", 0);
+	if (*efuse_field.data == 1)
+		ret = 0;
+#endif//#ifdef CONFIG_EFUSE_OBJ_API
+
+	slot = env_get("slot-suffixes");
+	if (!slot) {
+		run_command("get_valid_slot", 0);
+		slot = env_get("slot-suffixes");
+	}
+	if (strcmp(slot, "0") == 0) {
+		if (ret != 0) {
+			wrnP("normal mode\n");
+			write_bootloader_back("2", 0);
+			env_set("expect_index", "0");
+		} else {
+			wrnP("gpt or disable user bootloader mode\n");
+			write_bootloader_back("2", 1);
+			env_set("expect_index", "1");
+		}
+		wrnP("back to slot b\n");
+		run_command("set_roll_flag 1", 0);
+		run_command("set_active_slot b", 0);
+	} else if (strcmp(slot, "1") == 0) {
+		if (ret != 0) {
+			wrnP("normal mode\n");
+			write_bootloader_back("1", 0);
+			env_set("expect_index", "0");
+		} else {
+			wrnP("gpt or disable user bootloader mode\n");
+			write_bootloader_back("2", 1);
+			env_set("expect_index", "1");
+		}
+		wrnP("back to slot a\n");
+		run_command("set_roll_flag 1", 0);
+		run_command("set_active_slot a", 0);
+	}
+	env_set("update_env", "1");
+	env_set("reboot_status", "reboot_next");
+}
+
+static int write_boot0(void)
+{
+	unsigned char *buffer = NULL;
+	int capacity_boot = 0;
+	int iRet = 0;
+	char partname[32] = {0};
+	char *slot_name = NULL;
+
+#ifdef CONFIG_MMC_MESON_GX
+	struct mmc *mmc = NULL;
+
+	if (store_get_type() == BOOT_EMMC)
+		mmc = find_mmc_device(1);
+
+	if (mmc)
+		capacity_boot = mmc->capacity_boot;
+#endif
+	printf("capacity_boot: 0x%x\n", capacity_boot);
+	buffer = (unsigned char *)malloc(capacity_boot);
+	if (!buffer) {
+		printf("ERROR! fail to allocate memory ...\n");
+		return -1;
+	}
+	memset(buffer, 0, capacity_boot);
+
+	slot_name = env_get("active_slot");
+	if (slot_name && (strcmp(slot_name, "_a") == 0))
+		strcpy((char *)partname, "bootloader_a");
+	else if (slot_name && (strcmp(slot_name, "_b") == 0))
+		strcpy((char *)partname, "bootloader_b");
+
+	iRet = store_logic_read(partname, 0, BOOTLOADER_MAX_SIZE - BOOTLOADER_OFFSET, buffer);
+	if (iRet) {
+		errorP("Fail to read 0x%xB from part[%s] at offset 0\n",
+					BOOTLOADER_MAX_SIZE - BOOTLOADER_OFFSET, partname);
+		return -1;
+	}
+
+	iRet = store_boot_write("bootloader", 0, BOOTLOADER_MAX_SIZE - BOOTLOADER_OFFSET, buffer);
+	if (iRet) {
+		printf("Failed to write boot0\n");
+		return -1;
+	}
+	return 0;
+}
+
 static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]) {
 	int match_flag = 0;
 	char *rebootstatus = NULL;
@@ -314,6 +425,21 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	}
 #endif//#ifdef CONFIG_EFUSE_OBJ_API
 
+	char *write_boot = env_get("write_boot");
+
+	if (!strcmp(write_boot, "1")) {
+		printf("need to write boot0\n");
+		if (write_boot0()) {
+			printf("write boot0 fail, need to rollback!\n");
+			update_rollback();
+		} else {
+			printf("write boot0 success, need to reset!\n");
+		}
+
+		env_set("write_boot", "0");
+		run_command("saveenv", 0);
+		run_command("reset", 0);
+	}
 	run_command("get_rebootmode", 0);
 	rebootmode = env_get("reboot_mode");
 	if (!rebootmode) {
