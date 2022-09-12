@@ -30,6 +30,9 @@ typedef struct {
 #define MAX_RSANUMBYTES ((MAX_RSA_KEY_SIZE) / 8)
 #define MAX_RSANUMWORDS (MAX_RSANUMBYTES / sizeof(u32))
 
+#define SBOOT_BL2_ENCRYPT_KEYSLOT	134
+#define SBOOT_BL2_ENCRYPT_KEY_LEN	32	// AES256
+
 /* RSA public key definition */
 struct rsa_public_key {
 	u32 n[MAX_RSANUMWORDS];  /* modulus as little endian array */
@@ -75,5 +78,4 @@ int android_image_check_offset(void);
 int secure_image_check(u8 *data, u32 size, unsigned long option);
 int image_rsa_verify(const struct rsa_public_key *key, const u8 *signature,
 	       const u8 *sha, u32 *workbuf32);
-void aes256dec_keytbl(const u8 *input, u8 *output, size_t nbytes);
 #endif /* __IMAGE_CHECK_H__ */

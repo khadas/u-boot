@@ -20,4 +20,6 @@ source "drivers/amlogic/leds/Kconfig"
 source "drivers/amlogic/ir/Kconfig"
 
 source "drivers/amlogic/tee/Kconfig"
+
+source "drivers/amlogic/crypto/Kconfig"
 endmenu

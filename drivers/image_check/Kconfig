@@ -1,4 +1,5 @@
 config IMAGE_CHECK
 	bool "AML IMAGE CHECK Support"
+	select AML_CRYPTO
 	help
 	  Enable support for the Amlogic image check.
