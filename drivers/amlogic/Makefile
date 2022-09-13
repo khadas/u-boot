@@ -15,3 +15,5 @@ obj-$(CONFIG_MESON_IR) += ir/
 obj-$(CONFIG_AMLOGIC_TEE) += tee/
 
 obj-$(CONFIG_AML_CRYPTO) += crypto/
+
+obj-$(CONFIG_AML_MKL) += mkl/
