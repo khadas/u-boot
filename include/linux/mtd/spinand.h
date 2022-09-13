@@ -39,6 +39,10 @@
 #endif
 #endif
 
+#ifdef CONFIG_CMD_NAND
+extern int nand_curr_device;
+extern struct mtd_info *nand_info[CONFIG_SYS_MAX_NAND_DEVICE];
+#endif
 
 #if SPINAND_MESON_INFO_PAGE
 struct info_page {

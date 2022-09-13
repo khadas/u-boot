@@ -1508,6 +1508,12 @@ static int spinand_probe(struct udevice *dev)
 	meson_rsv_check(spinand->rsv->dtb);
 #endif
 
+#ifdef CONFIG_CMD_NAND
+	/* only one nand dev on spinand */
+	nand_info[0] = mtd;
+	nand_curr_device = 0;
+#endif
+
 	return ret;
 
 err_spinand_cleanup:
