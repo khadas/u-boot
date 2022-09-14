@@ -1017,7 +1017,7 @@ __attribute__ ((section(".clk_param"))) = {
 #define AN_400_DDR4X0_2G_DDR4X1_1G        3
 #define AN_400_DDR4X0_2G_DDR4X1_2G        5
 #define AN_400_DDR4X0_3G_DDR4X1_3G        7
-#define AN_400_DDR4X0_4G_DDR4X0_4G        9
+#define AN_400_DDR4X0_4G_DDR4X1_4G_RANK01 9
 #define DDR_RESV_CHECK_ID_ENABLE   0Xfe
 #define SAR_ADC_DDR_ID_BASE   0
 #define SAR_ADC_DDR_ID_STEP   80
@@ -1097,7 +1097,7 @@ bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 				0x00),
 
 		DDR_TIMMING_TUNE_TIMMING0
-				(AN_400_DDR4X0_4G_DDR4X0_4G,
+				(AN_400_DDR4X0_4G_DDR4X1_4G_RANK01,
 				dram_ch0_size_MB,
 				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
 				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
@@ -1105,7 +1105,7 @@ bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
 
 		DDR_TIMMING_TUNE_TIMMING1
-				(AN_400_DDR4X0_4G_DDR4X0_4G,
+				(AN_400_DDR4X0_4G_DDR4X1_4G_RANK01,
 				dram_ch1_size_MB,
 				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
 				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
@@ -1113,24 +1113,64 @@ bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
 
 		DDR_TIMMING_TUNE_TIMMING0
-				(AN_400_DDR4X0_4G_DDR4X0_4G,
+				(AN_400_DDR4X0_4G_DDR4X1_4G_RANK01,
+				DRAMFreq[0],
+				1848),
+
+		DDR_TIMMING_TUNE_TIMMING1
+				(AN_400_DDR4X0_4G_DDR4X1_4G_RANK01,
+				DRAMFreq[0],
+				1848),
+
+		DDR_TIMMING_TUNE_TIMMING0
+				(AN_400_DDR4X0_4G_DDR4X1_4G_RANK01,
+				cfg_ddr_training_delay_ps[0].dram_bit_vref[0],
+				0x8),
+
+		DDR_TIMMING_TUNE_TIMMING1
+				(AN_400_DDR4X0_4G_DDR4X1_4G_RANK01,
+				cfg_ddr_training_delay_ps[0].dram_bit_vref[0],
+				0x8),
+
+		DDR_TIMMING_TUNE_TIMMING0
+				(AN_400_DDR4X0_4G_DDR4X1_4G_RANK01,
+				dram_data_odt_ohm,
+				60),
+
+		DDR_TIMMING_TUNE_TIMMING1
+				(AN_400_DDR4X0_4G_DDR4X1_4G_RANK01,
+				dram_data_odt_ohm,
+				60),
+
+		DDR_TIMMING_TUNE_TIMMING0
+				(AN_400_DDR4X0_4G_DDR4X1_4G_RANK01,
+				training_offset,
+				((0x1<<7)|(2<<4))),
+
+		DDR_TIMMING_TUNE_TIMMING1
+				(AN_400_DDR4X0_4G_DDR4X1_4G_RANK01,
+				training_offset,
+				((0x1<<7)|(3<<4))),
+
+		DDR_TIMMING_TUNE_TIMMING0
+				(AN_400_DDR4X0_4G_DDR4X1_4G_RANK01,
 				DisabledDbyte[0],
 				0x00),
 
 		DDR_TIMMING_TUNE_TIMMING0
-				(AN_400_DDR4X0_4G_DDR4X0_4G,
+				(AN_400_DDR4X0_4G_DDR4X1_4G_RANK01,
 				DisabledDbyte[1],
 				0x00),
 
 		DDR_TIMMING_TUNE_TIMMING1
-				(AN_400_DDR4X0_4G_DDR4X0_4G,
+				(AN_400_DDR4X0_4G_DDR4X1_4G_RANK01,
 				DisabledDbyte[0],
 				0x00),
 
 		DDR_TIMMING_TUNE_TIMMING1
-				(AN_400_DDR4X0_4G_DDR4X0_4G,
+				(AN_400_DDR4X0_4G_DDR4X1_4G_RANK01,
 				DisabledDbyte[1],
-				0x00) */
+				0x00)*/
 };
 
 /* for PWM use */
@@ -1148,9 +1188,9 @@ __attribute__ ((section(".misc_param"))) = {
 	/* demo, user defined override register */
 	/* config vddee pwm - pwmao_a */
 #ifdef CONFIG_PDVFS_ENABLE
-	{PWM_AO_AB_PWM_A, 0x7000b, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0},
+	{PWM_AO_AB_PWM_A, 0x5000d, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0},
 	{PWM_AO_AB_PWM_A, 0x5000d, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_2, 0},
-	{PWM_AO_AB_PWM_A, 0x4000e, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0},
+	{PWM_AO_AB_PWM_A, 0x5000d, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0},
 #else
 	{PWM_AO_AB_PWM_A, VDDEE_VAL_REG,   0xffffffff,    0, 0, 0 },
 #endif
