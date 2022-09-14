@@ -128,6 +128,7 @@ static int do_rpmb_state(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 		ret = invoke_arg.ret;
 		goto exit;
 	}
+	env_set("rpmb_state", param.u.value.a ? "1" : "0"); //need this?
 
 	parg = env_get("bootconfig");
 	if (parg)

@@ -26,7 +26,9 @@ static void cb_aml_media_write(struct usb_ep *ep, struct usb_request *req);
 static void cb_aml_media_read(struct usb_ep *outep, struct usb_request *outreq);
 static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req);
 
-static const char*  const _def_norisk_cmd_list_[] = {"printenv","help","echo",NULL};
+static const char *  const _def_norisk_cmd_list_[] = {
+	"printenv", "help", "echo", "get_bootloaderversion", NULL
+};
 extern const char * const white_list_adnl_cmds[0] __attribute__((weak, alias("_def_norisk_cmd_list_")));
 
 #define DNL_PROTOCOL_VERSION		"0.1"
@@ -948,6 +950,16 @@ static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 		strsep(&_cmd, " ");
 		ret = efuse_obj_status(_cmd, ack, RESPONSE_LEN - 4);
 #endif//#ifdef CONFIG_EFUSE_OBJ_API
+	} else if (!strcmp("env_get", argv[0])) {
+		ret = __LINE__;
+		if (argc != 2) {
+			FBS_ERR(ack, "env_get only support one para now\n");
+		} else if (env_get(argv[1])) {
+			strncpy(ack, env_get(argv[1]), RESPONSE_LEN - 4);
+			ret = 0;
+		} else {
+			FBS_ERR(ack, "env %s not exist", argv[1]);
+		}
 	} else {
 		strsep(&cmd, " ");
 		char* p = cmd; strsep(&p, ";"); //only allow one command to execute
