@@ -448,7 +448,7 @@ typedef struct psram_bl2_set{
 	uint32_t	psram_ac_timing1;
 	uint32_t	psram_ac_timing2;
 	uint32_t	psram_mode_crtl;
-	uint32_t	psram_cur_clk_frequeny;
+	uint32_t	psram_cur_clk_frequency;
 	char 		psram_cur_amlogic_protocol_id;
 	char        psram_use_hifi_pll;
 	char        psram_fixed_latency_enable;
