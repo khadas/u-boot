@@ -21,6 +21,7 @@ obj-y	+= transition.o
 obj-y	+= fwcall.o
 obj-y	+= cpu-dt.o
 obj-$(CONFIG_ARM_SMCCC)		+= smccc-call.o
+obj-$(CONFIG_CPU_PM)			+= sleep.o suspend.o
 
 obj-y	+= a32_kernel_pre_entry.o
 

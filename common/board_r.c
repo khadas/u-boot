@@ -49,6 +49,7 @@
 #include <linux/err.h>
 #include <efi_loader.h>
 #include <amlogic/storage.h>
+#include <amlogic/pm.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -303,6 +304,13 @@ static int initr_dm(void)
 	return 0;
 }
 #endif
+
+static int initr_pm(void)
+{
+	pm_initialize();
+
+	return 0;
+}
 
 static int initr_bootstage(void)
 {
@@ -674,6 +682,7 @@ static init_fnc_t init_sequence_r[] = {
 	initr_barrier,
 	initr_malloc,
 	log_init,
+	initr_pm,
 	initr_bootstage,	/* Needs malloc() but has its own timer */
 	initr_console_record,
 #ifdef CONFIG_SYS_NONCACHED_MEMORY
