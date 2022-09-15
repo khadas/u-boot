@@ -254,6 +254,8 @@ int android_image_get_ramdisk(const  boot_img_hdr_t *hdr,
 {
 	if (is_android_r_image((void*)hdr))
 		return android_image_get_ramdisk_v3((void*)hdr,rd_data,rd_len);
+	else
+		copy_bootconfig_to_cmdline();
 
 	if (!hdr->ramdisk_size) {
 		*rd_data = *rd_len = 0;

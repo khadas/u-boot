@@ -1322,6 +1322,8 @@ static inline int fit_image_check_target_arch(const void *fdt, int node)
 #endif /* CONFIG_FIT_VERBOSE */
 #endif /* CONFIG_FIT */
 
+bool copy_bootconfig_to_cmdline(void);
+
 #if defined(CONFIG_ANDROID_BOOT_IMAGE)
 #include <android_image.h>
 int android_image_check_header(const boot_img_hdr_t *hdr);
