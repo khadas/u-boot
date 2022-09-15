@@ -129,7 +129,7 @@
 		"setenv bootargs ${bootargs} powermode=${powermode} "\
 		"panel_name=${panel_name} "\
 		"lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
-		"outputmode=${outputmode} "\
+		"outputmode=${outputmode};"\
 		"run cmdline_keys;"\
 		"\0"\
 	"cec_init="\

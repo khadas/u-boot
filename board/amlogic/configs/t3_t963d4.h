@@ -126,7 +126,7 @@
 		"run storeargs_base;"\
 		"setenv bootargs ${bootargs} powermode=${powermode} "\
 		"lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
-		"outputmode=${outputmode} "\
+		"outputmode=${outputmode};"\
 		"run cmdline_keys;"\
 		"\0"\
 	"cec_init="\
