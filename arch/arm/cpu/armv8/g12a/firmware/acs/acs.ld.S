@@ -32,7 +32,8 @@ SECTIONS
         *acs_entry.o(.text*)
         *(.text*)
         *(.data*)
+		*(.ddr_settings*)
     }
 
-    ASSERT(. <= 0xFFFB0000, "timing image has exceeded its limit.")
+    //ASSERT(. <= 0xFFFB0000, "timing image has exceeded its limit.")
 }

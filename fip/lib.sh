@@ -109,6 +109,8 @@ function get_versions() {
 				echo "Manifest: Src code only. build with --update-${BLX_NAME[$loop]}"
 				#CUR_REV[$loop]=${SRC_REV[$loop]}
 				update_bin_path $loop "source"
+				CONFIG_DDR_FW=1
+				export CONFIG_DDR_FW
 			done
 		fi
 	else
@@ -118,6 +120,8 @@ function get_versions() {
 			if [ -d ${BLX_SRC_FOLDER[$loop]} ]; then
 				echo "No-Manifest: Src code only. build with --update-${BLX_NAME[$loop]}"
 				update_bin_path $loop "source"
+				CONFIG_DDR_FW=1
+				export CONFIG_DDR_FW
 			fi
 		done
 		# loop bin folder. (this will overwrite src version if both exist)
@@ -210,4 +214,26 @@ function get_blx_bin() {
 		fi
 	fi
 	return 0;
+}
+
+function prepare_tools() {
+	echo "*****Compile tools*****"
+
+	mkdir -p ${FIP_BUILD_FOLDER}
+
+	if [ "${CONFIG_DDR_PARSE}" == "1" ]; then
+		if [ -d ${FIP_DDR_PARSE} ]; then
+			cd ${FIP_DDR_PARSE}
+			make clean; make
+			cd ${MAIN_FOLDER}
+
+			mv -f ${FIP_DDR_PARSE}/parse ${FIP_BUILD_FOLDER}
+		fi
+
+		if [ ! -x ${FIP_BUILD_FOLDER}/parse ]; then
+			echo "Error: no ddr_parse... abort"
+			exit -1
+		fi
+	fi
+
 }

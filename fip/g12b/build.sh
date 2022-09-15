@@ -175,6 +175,7 @@ function copy_other_soc() {
 	cp ${UBOOT_SRC_FOLDER}/build/scp_task/bl301.bin ${BUILD_PATH} -f
 	#useless #cp ${UBOOT_SRC_FOLDER}/build/${BOARD_DIR}/firmware/bl21.bin ${BUILD_PATH} -f
 	cp ${UBOOT_SRC_FOLDER}/build/${BOARD_DIR}/firmware/acs.bin ${BUILD_PATH} -f
+	./${FIP_BUILD_FOLDER}/parse ${BUILD_PATH}/acs.bin
 	# todo. cp bl40?
 }
 
@@ -198,7 +199,6 @@ function package() {
 	fi
 
 	if [ "y" == "${CONFIG_AML_SIGNED_UBOOT}" ]; then
-
 		mv -f ${BUILD_PATH}/bl33.bin  ${BUILD_PATH}/bl33.bin.org
 		encrypt_step --bl3sig  --input ${BUILD_PATH}/bl33.bin.org --output ${BUILD_PATH}/bl33.bin.org.lz4 --compress lz4 --level v3 --type bl33
 		#get LZ4 format bl33 image from bl33.bin.enc with offset 0x720

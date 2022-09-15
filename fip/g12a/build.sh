@@ -180,6 +180,7 @@ function copy_other_soc() {
 	cp ${UBOOT_SRC_FOLDER}/build/scp_task/bl301.bin ${BUILD_PATH} -f
 	#useless #cp ${UBOOT_SRC_FOLDER}/build/${BOARD_DIR}/firmware/bl21.bin ${BUILD_PATH} -f
 	cp ${UBOOT_SRC_FOLDER}/build/${BOARD_DIR}/firmware/acs.bin ${BUILD_PATH} -f
+	./${FIP_BUILD_FOLDER}/parse ${BUILD_PATH}/acs.bin
 	# todo. cp bl40?
 }
 

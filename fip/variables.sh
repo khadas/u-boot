@@ -17,6 +17,7 @@ CONFIG_FILE=("$UBOOT_SRC_FOLDER/build/include/autoconf.mk")
 declare BOARD_DIR=""
 declare CUR_SOC=""
 
+declare FIP_DDR_PARSE="${FIP_FOLDER}/tools/ddr_parse/"
 # current branch/path/rev/name/remote in xml
 declare -a GIT_INFO=("branch", "path", "rev", "name", "remote")
 

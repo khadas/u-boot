@@ -1,8 +1,8 @@
 
 /*
- * board/khadas/kvim3/firmware/timing.c
+ * board/amlogic/txl_skt_v1/firmware/timing.c
  *
- * Copyright (C) 2019 Wesion, Inc. All rights reserved.
+ * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@
  *
  */
 
-ddr_set_t __ddr_setting[] = {
+ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 {
 	/* lpddr4x SK hynix H9HCNNNCPMALHR-NEE 2 RANKs 4GB */
 	/* lpddr4x SK hynix H9HCNNNCPMMLHR-NME 2 RANKs 4GB */
@@ -70,8 +70,8 @@ ddr_set_t __ddr_setting[] = {
 	.DRAMFreq				= {1608, 0, 0, 0},
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
-	.imem_load_addr			= 0xFFFC0000, //sram
-	.dmem_load_size			= 0x1000, //4K
+	//.imem_load_addr			= 0xFFFC0000, //sram
+	//.dmem_load_size			= 0x1000, //4K
 
 	.DisabledDbyte			= 0xf0,
 	.Is2Ttiming				= 0,
@@ -130,6 +130,7 @@ ddr_set_t __ddr_setting[] = {
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
+	.fast_boot[0]           = 1,
 	.bitTimeControl_2d      = 1,
 	.fast_boot[0]			= 0,
 	.enable_lpddr4x_mode	= 1,
@@ -144,8 +145,8 @@ ddr_set_t __ddr_setting[] = {
 	.DRAMFreq				= {1608, 0, 0, 0},
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
-	.imem_load_addr			= 0xFFFC0000, //sram
-	.dmem_load_size			= 0x1000, //4K
+	//.imem_load_addr			= 0xFFFC0000, //sram
+	//.dmem_load_size			= 0x1000, //4K
 
 	.DisabledDbyte			= 0xf0,
 	.Is2Ttiming				= 0,
@@ -178,7 +179,6 @@ ddr_set_t __ddr_setting[] = {
 	//.vref_reverse			= 0,
 	.ac_trace_delay			= {00,0x0,0,0,0,0,0x0,00},
 	.ac_pinmux				= {00,00},
-#if 1
 	.ddr_dmc_remap			= {
 							[0] = ( 5 |  6 << 5 |  7 << 10 |  8<< 15 | 9<< 20 | 10 << 25 ),
 							[1] = ( 11|  0 << 5 |  0 << 10 | 15 << 15 | 16 << 20 | 17 << 25 ),
@@ -186,16 +186,6 @@ ddr_set_t __ddr_setting[] = {
 							[3] = ( 24| 25 << 5 | 26 << 10 | 27 << 15 | 28 << 20 | 29 << 25 ),
 							[4] = ( 30| 12 << 5 | 13 << 10 |  14<< 15 |  0 << 20 |  0 << 25 ),
 	},
-#else
-	//16bit
-	.ddr_dmc_remap			= {
-							[0] = ( 0 |  5 << 5 |  6<< 10 |  7 << 15 | 8 << 20 | 9 << 25 ),
-							[1] = ( 10|  0 << 5 |  0 << 10 | 14 << 15 | 15 << 20 | 16 << 25 ),
-							[2] = ( 17|( 18 << 5) |( 19 << 10) |( 20 << 15) |( 21 << 20) | (22 << 25 )),
-							[3] = ( 23| 24 << 5 | 25 << 10 | 26 << 15 | 27 << 20 | 28 << 25 ),
-							[4] = ( 29| 11<< 5 | 12 << 10 |  13<< 15 |  0 << 20 |  0 << 25 ),
-	},
-#endif
 	.ddr_lpddr34_ca_remap	= {00,00},
 	.ddr_lpddr34_dq_remap	= {3,2,0,1,7,6,5,4, 10,9,14,11,8,12,13,15, 20,21,23,22,18,17,19,16, 28,26,25,24,31,30,27,29},
 	.dram_rtt_nom_wr_park	= {00,00},
@@ -215,6 +205,7 @@ ddr_set_t __ddr_setting[] = {
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
+	.fast_boot[0]                   = 1,
 	.bitTimeControl_2d      = 1,
 	.fast_boot[0]			= 0,
 	.enable_lpddr4x_mode	= 1,
@@ -229,8 +220,8 @@ ddr_set_t __ddr_setting[] = {
 	.DRAMFreq				= {1608, 0, 0, 0},
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
-	.imem_load_addr			= 0xFFFC0000, //sram
-	.dmem_load_size			= 0x1000, //4K
+	//.imem_load_addr			= 0xFFFC0000, //sram
+	//.dmem_load_size			= 0x1000, //4K
 
 	.DisabledDbyte			= 0xf0,
 	.Is2Ttiming				= 0,
@@ -290,10 +281,11 @@ ddr_set_t __ddr_setting[] = {
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
+	.fast_boot[0]                   = 1,
 	.diagnose				= CONFIG_DIAGNOSE_DISABLE,
 	.bitTimeControl_2d      = 1,
 	.fast_boot[0]           = 1,
-	.rever1                 = 0,
+	//.rever1                 = 0,
 },
 {
 	/* lpddr4 Samsumg K4F6E3D4HB-MGCJ 2 RANKs */
@@ -305,8 +297,8 @@ ddr_set_t __ddr_setting[] = {
 	.DRAMFreq				= {1608, 0, 0, 0},
 	.ddr_base_addr			= CFG_DDR_BASE_ADDR,
 	.ddr_start_offset		= CFG_DDR_START_OFFSET,
-	.imem_load_addr			= 0xFFFC0000, //sram
-	.dmem_load_size			= 0x1000, //4K
+	//.imem_load_addr			= 0xFFFC0000, //sram
+	//.dmem_load_size			= 0x1000, //4K
 
 	.DisabledDbyte			= 0xf0,
 	.Is2Ttiming				= 0,
@@ -366,6 +358,7 @@ ddr_set_t __ddr_setting[] = {
 	.pll_ssc_mode			= (1<<20) | (1<<8) | (2<<4) | 0,//center_ssc_1000ppm
 	.ddr_func				= DDR_FUNC,
 	.magic					= DRAM_CFG_MAGIC,
+	.fast_boot[0]                   = 1,
 	.diagnose				= CONFIG_DIAGNOSE_DISABLE,
 },
 };
@@ -518,7 +511,6 @@ bl2_reg_t __bl2_reg[] = {
 	{AO_PWM_MISC_REG_AB,  ((1 << 23) | (1 << 1)),  (0x7f << 16), 0, BL2_INIT_STAGE_PWM_INIT | PWM_CFG1,  0},
 	{AO_PIN_MUX_REG1,     (3 << 16),               (0xF << 16),  0, BL2_INIT_STAGE_PWM_INIT | PWM_CFG1,  0},
 	/* VDDEE init done */
-
 	/* Enable 5V_EN */
 	{GPIO_O_EN_N_REG3,    (1 << 8),                (1 << 8),     0, BL2_INIT_STAGE_1, 0},
 	{GPIO_O_REG3,         (1 << 8),                0xffffffff,   0, BL2_INIT_STAGE_1, 0},
