@@ -175,10 +175,18 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	case IMAGE_FORMAT_ANDROID:
 		if (image_get_magic((image_header_t *)images.os.image_start) == IH_MAGIC) {
-			if (env_get_hex("initrd_high", 0) != 0xF100000) {
-				env_set("initrd_high", "0D000000");
-				env_set("fdt_high", "0D000000");
-			}
+			#ifdef CONFIG_INITRD_HIGH_ADDR
+			env_set("initrd_high", CONFIG_INITRD_HIGH_ADDR);
+			#else
+			env_set("initrd_high", "0D000000");
+			#endif
+
+			#ifdef CONFIG_FDT_HIGH_ADDR
+			env_set("fdt_high", CONFIG_FDT_HIGH_ADDR);
+			#else
+			env_set("fdt_high", "0D000000");
+			#endif
+
 			images.os.arch = ((image_header_t *)(images.os.image_start))->ih_arch;
 			images.os.image_start += sizeof(image_header_t);
 		}

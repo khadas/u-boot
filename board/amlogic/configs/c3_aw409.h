@@ -65,8 +65,8 @@
 	"firstboot=1\0"\
 	"silent=0\0"\
 	"upgrade_step=0\0"\
-	"initrd_high=0xF100000\0"\
-	"fdt_high=0xF100000\0"\
+	"initrd_high=0xF800000\0"\
+	"fdt_high=0xF800000\0"\
 	"jtag=disable\0"\
 	"loadaddr=0x00020000\0"\
 	"os_ident_addr=0x00500000\0"\
@@ -345,7 +345,7 @@
 #define CONFIG_SYS_MALLOC_LEN				(256 * 1024)
 #else
 #define CONFIG_SYS_INIT_SP_ADDR				(0x00200000)
-#define CONFIG_SYS_MALLOC_LEN				(10 * 1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN				(6 * 1024 * 1024)
 #endif
 
 //#define CONFIG_NR_DRAM_BANKS			1
@@ -497,7 +497,7 @@
 #define CONFIG_LIBAVB		1
 
 /* define CONFIG_SYS_MEM_TOP_HIDE 8M space for free buffer */
-#define CONFIG_SYS_MEM_TOP_HIDE		0x00800000
+#define CONFIG_SYS_MEM_TOP_HIDE		0x001000000
 
 #define CONFIG_CPU_ARMV8
 
@@ -536,7 +536,10 @@
 
 #define CONFIG_FIP_IMG_SUPPORT  1
 
-#define BL32_SHARE_MEM_SIZE  0x800000
+#define BL32_SHARE_MEM_SIZE  0x000000
+
+#define CONFIG_INITRD_HIGH_ADDR "0x3000000"
+#define CONFIG_FDT_HIGH_ADDR "0x7f00000"
 
 #endif
 

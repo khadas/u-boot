@@ -344,7 +344,7 @@
 #define CONFIG_SYS_MALLOC_LEN				(256 * 1024)
 #else
 #define CONFIG_SYS_INIT_SP_ADDR				(0x00200000)
-#define CONFIG_SYS_MALLOC_LEN				(10 * 1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN				(6 * 1024 * 1024)
 #endif
 
 //#define CONFIG_NR_DRAM_BANKS			1
@@ -495,7 +495,7 @@
 #define CONFIG_LIBAVB		1
 
 /* define CONFIG_SYS_MEM_TOP_HIDE 8M space for free buffer */
-#define CONFIG_SYS_MEM_TOP_HIDE		0x00800000
+//#define CONFIG_SYS_MEM_TOP_HIDE		0x00800000
 
 #define CONFIG_CPU_ARMV8
 
@@ -538,5 +538,7 @@
 
 #define AML_RSV_DTB_SIZE (128 * 1024)
 
+#define CONFIG_INITRD_HIGH_ADDR "0xFC00000"
+#define CONFIG_FDT_HIGH_ADDR "0x5000000"
 #endif
 
