@@ -380,6 +380,16 @@ int erase_gpt_part_table(struct blk_desc *dev_desc);
 int write_mbr_and_gpt_partitions(struct blk_desc *dev_desc, void *buf);
 
 /**
+ * check_gpt_part() - check if gpt partition table change
+ *
+ * @param dev_desc - block device descriptor
+ * @param buf - buffer which contains the MBR and Primary GPT info
+ *
+ * @return - '1' change
+ */
+int check_gpt_part(struct blk_desc *dev_desc, void *buf);
+
+/**
  * gpt_verify_headers() - Function to read and CRC32 check of the GPT's header
  *                        and partition table entries (PTE)
  *

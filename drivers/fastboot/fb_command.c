@@ -476,6 +476,8 @@ static void flash(char *cmd_parameter, char *response)
 	if (mmc && strcmp(cmd_parameter, "bootloader") == 0) {
 		printf("try to read gpt data from bootloader.img\n");
 		struct blk_desc *dev_desc;
+		int erase_flag = 0;
+
 		/* the max size of bootloader.img is 4M, we reserve 128k for gpt.bin
 		 * so we put gpt.bin at offset 0x3DFE00
 		 * 0 ~ 512 bootloader secure boot, we don't care it here.
@@ -496,17 +498,43 @@ static void flash(char *cmd_parameter, char *response)
 			printf("find gpt parition table, update it\n"
 				"and write bootloader to boot0/boot1\n");
 
+			erase_flag = check_gpt_part(dev_desc, fastboot_buf_addr + 0x3DFE00);
+
+			if (erase_flag == 1) {
+				printf("partition changes, erase emmc\n");
+				run_command("store erase.chip 0;", 0);
+			}
+
 			if (write_mbr_and_gpt_partitions(dev_desc, fastboot_buf_addr + 0x3DFE00)) {
 				printf("%s: writing GPT partitions failed\n", __func__);
 				fastboot_fail("writing GPT partitions failed", response);
 				return;
 			}
+
 			if (mmc_device_init(mmc) != 0) {
 				printf(" update gpt partition table fail\n");
 				fastboot_fail("fastboot update gpt partition fail", response);
 				return;
 			}
 			printf("%s: writing GPT partitions ok\n", __func__);
+
+			char *mem_addr;
+			void *addr = NULL;
+			int ret;
+
+			mem_addr = env_get("dtb_mem_addr");
+
+			if (mem_addr && erase_flag == 1) {
+				printf("partition changes, erase emmc\n");
+				run_command("store erase.chip 0;", 0);
+				printf("write _aml_dtb\n");
+				addr = (void *)simple_strtoul(mem_addr, NULL, 16);
+				ret = dtb_write(addr);
+				if (ret)
+					printf("write _aml_dtb error\n");
+				else
+					printf("write _aml_dtb ok\n");
+			}
 		}
 
 		if (aml_gpt_valid(mmc) == 0) {
