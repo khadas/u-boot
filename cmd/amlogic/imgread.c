@@ -567,9 +567,9 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 
 		ramdisk_size = ALIGN(hdr_addr_v3->ramdisk_size, 0x1000);
 
-		debugP("kernel_size 0x%x, totalSz 0x%x\n",
+		MsgP("kernel_size 0x%x, totalSz 0x%x\n",
 			hdr_addr_v3->kernel_size, kernel_size);
-		debugP("ramdisk_size 0x%x, totalSz 0x%x\n",
+		MsgP("ramdisk_size 0x%x, totalSz 0x%x\n",
 			hdr_addr_v3->ramdisk_size, ramdisk_size);
 		if (securekernelimgsz) {
 			actualbootimgsz = securekernelimgsz;
@@ -613,8 +613,9 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 						leftsz, partname, IMG_PRELOAD_SZ);
 					return __LINE__;
 				}
+
 				if (rc_init != -1) {
-					MsgP("read from part: %s\n", partname_init);
+					MsgP("read header from part: %s\n", partname_init);
 					unsigned int nflashloadlen_init = 0;
 					const int preloadsz_init = 0x1000 * 2;
 					unsigned char *pbuffpreload_init = 0;
@@ -646,19 +647,24 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 
 					ramdisk_size = ALIGN(pinitbootimghdr->ramdisk_size,
 							0x1000);
-					debugP("ramdisk_size 0x%x, totalSz 0x%x\n",
+					MsgP("ramdisk_size 0x%x, totalSz 0x%x\n",
 						pinitbootimghdr->ramdisk_size, ramdisk_size);
 					init_boot_ramdisk_size = pinitbootimghdr->ramdisk_size;
 
-					rc = store_logic_read(partname_init, BOOT_IMG_V3_HDR_SIZE,
-						ramdisk_size,
-						loadaddr + kernel_size + BOOT_IMG_V3_HDR_SIZE);
-					if (rc) {
-						errorP("Fail to read 0x%xB from part[%s]\n",
-							ramdisk_size, partname_init);
-						free(pbuffpreload_init);
-						pbuffpreload_init = 0;
-						return __LINE__;
+					if (init_boot_ramdisk_size != 0) {
+						MsgP("read ramdisk from part: %s\n", partname_init);
+						rc = store_logic_read(partname_init,
+							BOOT_IMG_V3_HDR_SIZE,
+							ramdisk_size,
+							loadaddr + kernel_size
+							+ BOOT_IMG_V3_HDR_SIZE);
+						if (rc) {
+							errorP("Fail to read 0x%xB from part[%s]\n",
+								ramdisk_size, partname_init);
+							free(pbuffpreload_init);
+							pbuffpreload_init = 0;
+							return __LINE__;
+						}
 					}
 					free(pbuffpreload_init);
 					pbuffpreload_init = 0;
