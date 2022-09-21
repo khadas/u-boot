@@ -172,7 +172,7 @@ static AvbIOResult get_size_of_partition(AvbOps* ops, const char* partition,
 	if (!memcmp(partition, "dt", strlen("dt"))) {
 		*out_size_num_bytes = DTB_PARTITION_SIZE;
 	} else {
-		rc = store_get_partititon_size((unsigned char *)partition, out_size_num_bytes);
+		rc = store_get_partition_size((unsigned char *)partition, out_size_num_bytes);
 		if (rc) {
 			printf("Failed to get partition[%s] size\n", partition);
 			return AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION;
@@ -200,7 +200,7 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps* ops, const uint8_t* public
 	keybuf = (char *)malloc(AVB_CUSTOM_KEY_LEN_MAX);
 	if (keybuf) {
 		memset(keybuf, 0, AVB_CUSTOM_KEY_LEN_MAX);
-		rc = store_get_partititon_size((unsigned char *)partition, &size);
+		rc = store_get_partition_size((unsigned char *)partition, &size);
 		if (rc == 0) {
 			if (store_read_ops((unsigned char *)partition,
 				(unsigned char *)keybuf, size - AVB_CUSTOM_KEY_LEN_MAX,

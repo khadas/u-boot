@@ -40,7 +40,7 @@ int store_logic_read(const char *name, loff_t off, size_t size, void *buf)
 u64 store_logic_cap(const char* partName)
 {
     u64 cap = 0;
-    int ret = store_get_partititon_size((unsigned char*)partName, &cap);
+	int ret = store_get_partition_size((unsigned char *)partName, &cap);
     return ret ? 0 : cap*512;
 }
 

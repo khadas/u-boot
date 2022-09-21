@@ -730,7 +730,7 @@ static int _parse_img_download_info(struct ImgBurnInfo* pDownInfo, const char* p
         if (strcmp("bootloader", partName) && strcmp("_aml_dtb", partName)) //get size if not bootloader
         {
             u64 partCap = 0;
-            ret = store_get_partititon_size((u8*)partName, &partCap);
+		ret = store_get_partition_size((u8 *)partName, &partCap);
             if (ret) {
                 DWN_ERR("Fail to get size for part %s\n", partName);
                 return __LINE__;

@@ -22,7 +22,7 @@ static int do_wipeisb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (!has_instaboot_part())
 		return 0;
-	rc = store_get_partititon_size((unsigned char*)"instaboot", &partSz);
+	rc = store_get_partition_size((unsigned char *)"instaboot", &partSz);
 	if (rc || !partSz) {
 	    printf("can not get instaboot part size\n");
 	    return -1;

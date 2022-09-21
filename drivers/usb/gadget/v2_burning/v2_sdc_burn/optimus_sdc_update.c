@@ -100,7 +100,7 @@ s64 storage_get_partition_size_in_byte(const char* partName)
         return AML_DTB_IMG_MAX_SZ;
     }
 
-    ret = store_get_partititon_size((u8*)partName, &size);
+    ret = store_get_partition_size((u8 *)partName, &size);
     if (ret) {
         SDC_ERR("Fail to get size for part %s\n", partName);
         return 0;

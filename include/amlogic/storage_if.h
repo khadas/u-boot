@@ -34,7 +34,7 @@ upgrade_write_ops:
 partition_name: env / logo / recovery /boot / system /cache /media
 
 ***/
-int store_get_partititon_size(unsigned char *partition_name, uint64_t *size);
+int store_get_partition_size(unsigned char *partition_name, uint64_t *size);
 
 
 /***

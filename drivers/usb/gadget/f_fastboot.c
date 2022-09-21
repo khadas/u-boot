@@ -606,7 +606,7 @@ static void partition_type_reply(char *part_name, char *response, size_t chars_l
 	uint64_t size;
 	strsep(&part_name, ":");
 	printf("partition is %s\n", part_name);
-	ret = store_get_partititon_size((unsigned char*)part_name, &size);
+	ret = store_get_partition_size((unsigned char *)part_name, &size);
 	if ((strcmp_l1("system", part_name) == 0) || (strcmp_l1("vendor", part_name) == 0) ||
 			(strcmp_l1("init_boot", part_name) == 0)
 			|| (strcmp_l1("odm", part_name) == 0) || (strcmp_l1("product", part_name) == 0)
@@ -917,7 +917,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		}
 		printf("partition is %s\n", cmd);
 		if (strcmp(cmd, "userdata") == 0 || strcmp(cmd, "data") == 0) {
-			ret = store_get_partititon_size((unsigned char *)"userdata", &size);
+			ret = store_get_partition_size((unsigned char *)"userdata", &size);
 			if (ret != 0)
 				strcpy(cmd, "data");
 			else
@@ -1279,7 +1279,7 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 	info.lock_bootloader = (int)(lock_d[6] - '0');
 	dump_lock_info(info);
 
-	rc = store_get_partititon_size((unsigned char *)"userdata", &size);
+	rc = store_get_partition_size((unsigned char *)"userdata", &size);
 
 	strcpy(response, "OKAY");
 	chars_left = sizeof(response_str) - strlen(response) - 1;
@@ -1440,7 +1440,7 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 		memcpy(key.magic_name, "AVBK", 4);
 		key.size = download_bytes;
 
-		rc = store_get_partititon_size((unsigned char *)partition, &size);
+		rc = store_get_partition_size((unsigned char *)partition, &size);
 		if (rc) {
 			printf("Failed to get partition[%s] size\n", partition);
 			fastboot_tx_write_str("FAILget size error");
@@ -1476,7 +1476,7 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 
 	printf("partition is %s\n", cmd);
 	if (strcmp(cmd, "userdata") == 0 || strcmp(cmd, "data") == 0) {
-		rc = store_get_partititon_size((unsigned char *)"userdata", &size);
+		rc = store_get_partition_size((unsigned char *)"userdata", &size);
 		if (rc != 0)
 			strcpy(cmd, "data");
 		else
@@ -1602,7 +1602,7 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 		char* buffer = NULL;
 		char *partition = "misc";
 
-		rc = store_get_partititon_size((unsigned char *)partition, &size);
+		rc = store_get_partition_size((unsigned char *)partition, &size);
 		if (rc) {
 			printf("Failed to get partition[%s] size\n", partition);
 			fastboot_tx_write_str("FAILget size error");
@@ -1628,7 +1628,7 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 		char* buffer = NULL;
 		char *partition = "misc";
 
-		rc = store_get_partititon_size((unsigned char *)partition, &size);
+		rc = store_get_partition_size((unsigned char *)partition, &size);
 		if (rc) {
 			printf("Failed to get partition[%s] size\n", partition);
 			fastboot_tx_write_str("FAILget size error");
@@ -1651,7 +1651,7 @@ static void cb_erase(struct usb_ep *ep, struct usb_request *req)
 
 	printf("partition is %s\n", cmd);
 	if (strcmp(cmd, "userdata") == 0 || strcmp(cmd, "data") == 0) {
-		rc = store_get_partititon_size((unsigned char *)"userdata", &size);
+		rc = store_get_partition_size((unsigned char *)"userdata", &size);
 		if (rc != 0)
 			strcpy(cmd, "data");
 		else

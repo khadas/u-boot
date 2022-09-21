@@ -45,7 +45,7 @@ int get_instaboot_header(struct instaboot_info* ib_info)
 
 	if (!has_instaboot_part())
 		return -1;
-	rc = store_get_partititon_size((unsigned char*)"instaboot", &partSz);
+	rc = store_get_partition_size((unsigned char *)"instaboot", &partSz);
 	if (rc || !partSz) {
 	    //printf("can not get instaboot part size\n");
 	    return -1;
