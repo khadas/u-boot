@@ -106,27 +106,27 @@ static int splitFilePath(const char *file_path, char part_name[], char file_name
     return 0;
 }
 
-#define CS_BLCOK_DEV_INTERFACE    "mmc"
-#define CS_BLCOK_DEV_MARJOR_NUM   "1"
+#define CS_BLOCK_DEV_INTERFACE    "mmc"
+#define CS_BLOCK_DEV_MARJOR_NUM   "1"
 
 static int setBlockDevice(const char *part_name) {
-    int part_no = 0;
-    char part_buf[128] = {0};
-    char tmp_buf[128] = {0};
+	int part_no = 0;
+	char part_buf[128] = {0};
+	char tmp_buf[128] = {0};
 
-    part_no = get_partition_num_by_name((char *)part_name);
-    //ALOGD("%s, part_no is %d\n", __FUNCTION__, part_no);
-    if (part_no >= 0) {
-        strcpy(part_buf, CS_BLCOK_DEV_MARJOR_NUM);
-        strcat(part_buf, ":");
+	part_no = get_partition_num_by_name((char *)part_name);
+	//ALOGD("%s, part_no is %d\n", __FUNCTION__, part_no);
+	if (part_no >= 0) {
+		strcpy(part_buf, CS_BLOCK_DEV_MARJOR_NUM);
+		strcat(part_buf, ":");
 
-        sprintf(tmp_buf, "%x", part_no);
-        strcat(part_buf, tmp_buf);
+		sprintf(tmp_buf, "%x", part_no);
+		strcat(part_buf, tmp_buf);
 
-        return fs_set_blk_dev(CS_BLCOK_DEV_INTERFACE, part_buf, FS_TYPE_EXT);
-    }
+		return fs_set_blk_dev(CS_BLOCK_DEV_INTERFACE, part_buf, FS_TYPE_EXT);
+	}
 
-    return -1;
+	return -1;
 }
 #endif
 

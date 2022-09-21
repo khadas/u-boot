@@ -468,41 +468,41 @@
 #define ETH_CACHE_LINE_SIZE		64
 
 struct _tx_desc {
-    unsigned int tdes0;
-    unsigned int tdes1;
-    unsigned int tdes2;
-    unsigned int tdes3;
-    unsigned int reverse[12];//for 64 bytes cahce aligned
-} ;
+	unsigned int tdes0;
+	unsigned int tdes1;
+	unsigned int tdes2;
+	unsigned int tdes3;
+	unsigned int reverse[12];//for 64 bytes cache aligned
+};
 
 struct _rx_desc {
-    unsigned int rdes0;
-    unsigned int rdes1;
-    unsigned int rdes2;
-    unsigned int rdes3;
-    unsigned int reverse[12];//for 64 bytes cahce aligned
-} ;
+	unsigned int rdes0;
+	unsigned int rdes1;
+	unsigned int rdes2;
+	unsigned int rdes3;
+	unsigned int reverse[12];//for 64 bytes cache aligned
+};
 
 
 struct _gStruct{
-  // struct netif e8218_netif;
-   struct _rx_desc* rx;
-   struct _tx_desc* tx;
-   int current_rx_des;
-   int current_tx_des;
-   int rx_len;  //64desc
-   int tx_len;  //64desc
-   int buffer_len; //64bytes
-   unsigned long tx_buf_addr;//0x00C21000
-   unsigned long rx_buf_addr;//0x00C23000
-   unsigned long rx_addr; //0x00C20100
-   unsigned long tx_addr; //0x00C20000
-   int rx_frame_num;
-   int current_tx_ready;
-   int last_tx_sent;
-   int last_tx_desc_num;
-   int irq_handle;
-   int  linked;
+	// struct netif e8218_netif;
+	struct _rx_desc *rx;
+	struct _tx_desc *tx;
+	int current_rx_des;
+	int current_tx_des;
+	int rx_len;  //64desc
+	int tx_len;  //64desc
+	int buffer_len; //64bytes
+	unsigned long tx_buf_addr;//0x00C21000
+	unsigned long rx_buf_addr;//0x00C23000
+	unsigned long rx_addr; //0x00C20100
+	unsigned long tx_addr; //0x00C20000
+	int rx_frame_num;
+	int current_tx_ready;
+	int last_tx_sent;
+	int last_tx_desc_num;
+	int irq_handle;
+	int  linked;
 };
 
 

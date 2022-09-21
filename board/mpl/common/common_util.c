@@ -551,7 +551,7 @@ void check_env(void)
 		}
 		else {
 			copy_old_env(oldsizes[i]);
-			puts("INFO:  old environment ajusted, use saveenv\n");
+			puts("INFO:  old environment adjusted, use saveenv\n");
 		}
 	}
 	else {

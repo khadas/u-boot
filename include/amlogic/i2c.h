@@ -23,7 +23,7 @@ struct meson_i2c_platdata {
 	ulong reg;
 	unsigned int clock_rate;
 	unsigned int div_factor;
-	unsigned int delay_ajust;
+	unsigned int delay_adjust;
 	unsigned int clock_frequency;
 };
 

@@ -60,7 +60,7 @@ struct meson_i2c {
 	uint num_tokens;	/* Number of tokens to be written */
 	uint clock_frequency;
 	uint div_factor;
-	uint delay_ajust;
+	uint delay_adjust;
 };
 
 static void meson_i2c_reset_tokens(struct meson_i2c *i2c)
@@ -269,7 +269,7 @@ static int meson_i2c_set_std_speed(struct udevice *bus, unsigned int speed)
 	unsigned int div_temp;
 
 	div_temp = DIV_ROUND_UP(clk_rate, speed);
-	div_h = DIV_ROUND_UP(div_temp, 2) - i2c->delay_ajust;
+	div_h = DIV_ROUND_UP(div_temp, 2) - i2c->delay_adjust;
 	div_l = DIV_ROUND_UP(div_temp, 4);
 
 	/* clock divider has 12 bits */
@@ -317,7 +317,7 @@ static int meson_i2c_set_fast_speed(struct udevice *bus, unsigned int speed)
 	unsigned int div_temp;
 
 	div_temp = DIV_ROUND_UP(clk_rate * 2, speed * 5);
-	div_h = div_temp - i2c->delay_ajust;
+	div_h = div_temp - i2c->delay_adjust;
 	div_l = DIV_ROUND_UP(clk_rate * 3, speed * 10);
 
 	/* clock divider has 12 bits */
@@ -368,12 +368,14 @@ static int meson_i2c_probe(struct udevice *bus)
 	struct meson_i2c_platdata *plat = dev_get_platdata(bus);
 	unsigned int i;
 
-	debug("index = %d, reg = 0x%lx, rate = %d, div = %d, delay = %d ,clock-frequency = %d\n",
-	plat->i2c_index,plat->reg,plat->clock_rate,plat->div_factor,plat->delay_ajust,plat->clock_frequency);
+	debug("index = %d, reg = 0x%lx, rate = %d, div = %d, delay = %d, clock-frequency = %d\n",
+		plat->i2c_index, plat->reg,
+		plat->clock_rate, plat->div_factor, plat->delay_adjust,
+		plat->clock_frequency);
 
 	i2c->regs = (struct i2c_regs *)plat->reg;
 	i2c->div_factor = plat->div_factor;
-	i2c->delay_ajust = plat->delay_ajust;
+	i2c->delay_adjust = plat->delay_adjust;
 	i2c->clock_frequency = plat->clock_frequency;
 	bus->priv = i2c;
 

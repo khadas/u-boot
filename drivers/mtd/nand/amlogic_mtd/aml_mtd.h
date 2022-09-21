@@ -609,7 +609,7 @@ struct parameter_page {
 	unsigned short blk_edurce_g_v_blk;
 	unsigned char progm_perpage;
 	unsigned char prt_prog_att;//obsolete
-	unsigned char bits_ECC_corretable;
+	unsigned char bits_ECC_correctable;
 	/*0-3: number of interleaved address bits*/
 	unsigned char bits_intleav_addr;
 	/*6-7 Reserved (0)

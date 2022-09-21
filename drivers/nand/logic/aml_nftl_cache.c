@@ -21,9 +21,9 @@ uint32 nand_cache_write(struct aml_nftl_part_t* part,uint32 page_no,uint16 bitma
 uint32 nand_op(uchar flag,struct aml_nftl_part_t* part,uint32 start_sector,uint32 len,uchar *buf);
 uint32 nftl_nand_flush_write_cache(struct aml_nftl_part_t* part);
 
-_cache_node *search_from_cache_read_list(_cache* cache,uint32 page);
-_cache_node *search_from_cache_write_list(_cache* cache,uint32 page);
-_cache_node * get_empty_cahce_node(_cache *cache);
+_cache_node *search_from_cache_read_list(_cache *cache, uint32 page);
+_cache_node *search_from_cache_write_list(_cache *cache, uint32 page);
+_cache_node *get_empty_cache_node(_cache *cache);
 int add_to_cache_read_list_tail(_cache *cache,_cache_node* cache_node);
 int add_to_cache_write_list_tail(_cache *cache,_cache_node* cache_node);
 _cache_node* del_from_cache_read_list(_cache *cache,_cache_node* cache_node);
@@ -119,7 +119,7 @@ _cache_node *search_from_cache_write_list(_cache* cache,uint32 page)
 	return NULL;
 }
 
-_cache_node * get_empty_cahce_node(_cache *cache)
+_cache_node *get_empty_cache_node(_cache *cache)
 {
 	uint16 i;
 	for(i=0;i<MAX_CACHE_NUM;i++)
@@ -345,7 +345,7 @@ uint32 nand_cache_read(struct aml_nftl_part_t* part,uint32 page_no,uint16 bitmap
 		return 0;
 	}
 
-	node = get_empty_cahce_node(cache);
+	node = get_empty_cache_node(cache);
 	if(node == NULL)
 	{
 		node = del_from_cache_read_list(cache,cache->cache_read_head.cache_read_next);
@@ -471,7 +471,7 @@ uint32 nand_cache_write(struct aml_nftl_part_t* part,uint32 page_no,uint16 bitma
 	}
 	else
 	{
-		node = get_empty_cahce_node(cache);
+		node = get_empty_cache_node(cache);
 		if(node == NULL)
 		{
 			node = del_from_cache_read_list(cache,cache->cache_read_head.cache_read_next);
