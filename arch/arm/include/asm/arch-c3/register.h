@@ -18310,20 +18310,6 @@
 //Bit 16           reg_snr_lpf_xrate_chk_edge_en // unsigned ,    RW, default = 0  of edge check in check xrate
 //Bit 15:12        reserved
 //Bit 11: 0        reg_snr_lpf_phs_diff_max  // unsigned ,    RW, default = 400  threshold of phs_th
-#define ISP_SNR_LPF_PHS_DIFF_RATEOFSET             ((0x0a40  << 2) + 0xff000000)
-//Bit 31:30        reserved
-//Bit 29:24        reg_snr_lpf_phs_diff_ratio_1 // unsigned ,    RW, default = 16  ratio of phs_diff_th 64 means "1"
-//Bit 23:22        reserved
-//Bit 21:16        reg_snr_lpf_phs_diff_ratio_0 // unsigned ,    RW, default = 32  ratio of phs_diff_th 64 means "1"
-//Bit 15: 8        reg_snr_lpf_phs_diff_ofst_1 // unsigned ,    RW, default = 5  ofset of phs_diff_th
-//Bit  7: 0        reg_snr_lpf_phs_diff_ofst_0 // unsigned ,    RW, default = 10  ofset of phs_diff_th
-#define ISP_SNR_LPF_PHS_DIFF_XRATEOFSET            ((0x0a41  << 2) + 0xff000000)
-//Bit 31:30        reserved
-//Bit 29:24        reg_snr_lpf_phs_diff_xrate_1 // unsigned ,    RW, default = 12  between the same phs diff and random phs diff
-//Bit 23:22        reserved
-//Bit 21:16        reg_snr_lpf_phs_diff_xrate_0 // unsigned ,    RW, default = 16  between the same phs diff and random phs diff
-//Bit 15: 8        reg_snr_lpf_phs_diff_xofst_1 // unsigned ,    RW, default = 5  between the same phs diff and random phs diff
-//Bit  7: 0        reg_snr_lpf_phs_diff_xofst_0 // unsigned ,    RW, default = 10  between the same phs diff and random phs diff
 #define ISP_SNR_WT_ADJ                             ((0x0a42  << 2) + 0xff000000)
 //Bit 31:16        reserved
 //Bit 15:12        reg_snr_sad_wt_add_th_ratio // unsigned ,    RW, default = 8  of wt add

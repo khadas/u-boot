@@ -18803,14 +18803,6 @@
 #define VIU_OSD1_MATRIX_COEF40_41                  ((0x1a9f  << 2) + 0xff000000)
 #define VIU_OSD1_OETF_3X3_OFST_0                   ((0x1aa0  << 2) + 0xff000000)
 #define VIU_OSD1_OETF_3X3_OFST_1                   ((0x1aa1  << 2) + 0xff000000)
-//`define OSD_BLENDO_H_START_END          8'ha9       //'d1919
-//OSD blending output horizontal start and end
-//Bit 28:16 start
-//Bit 12:0 end
-//`define OSD_BLENDO_V_START_END          8'haa      //'d1079
-//OSD blending output vertical start and end
-//Bit 28:16 start
-//Bit 12:0 end
 //`define OSD_BLEND_GEN_CTRL0                 8'hab  //'h2000
 //Bit 31:23 const_out_alpha
 //Bit 22:14 const_op_alpha
@@ -28528,12 +28520,6 @@
 //Bit  3: 2, reserved
 //Bit     1, reg_vd1_rgbbst_en         u1, enable rgbbst         default=0
 //Bit     0, reg_vd1_rgb_ctrst_prt     u1, enable signal to protect saturation in rgb.  default=1
-#define XVYCC_VD1_RGB_BRGHT                        ((0x3171  << 2) + 0xff000000)
-//Bit 31:16, reserved
-//Bit 15: 4, reg_vd1_rgb_brght        s12, brightness level in rgb domain                              default=0
-//Bit  3: 2, reserved
-//Bit     1, reg_vd1_rgb_brght_prt     u1, enalbe signal to protect saturation in rgb                  default=1
-//Bit     0, reg_vd1_rgbbst_dlut_x2    u1, enable signal to do x2 to the dlut cells before subtracting default=0
 #define XVYCC_VD1_RGB_DLUT_0_3                     ((0x3172  << 2) + 0xff000000)
 //Bit 31:24, reg_vd1_rgbbst_dlut0      u8,   default = 255
 //Bit 23:16, reg_vd1_rgbbst_dlut1      u8,   default = 205
@@ -28557,12 +28543,6 @@
 //Bit  3: 2, reserved
 //Bit     1, reg_post_rgbbst_en         u1, enable rgbbst         default=0
 //Bit     0, reg_post_rgb_ctrst_prt     u1, enable signal to protect saturation in rgb.  default=1
-#define XVYCC_POST_RGB_BRGHT                       ((0x3176  << 2) + 0xff000000)
-//Bit 31:16, reserved
-//Bit 15: 4, reg_post_rgb_brght        s12, brightness level in rgb domain                              default=0
-//Bit  3: 2, reserved
-//Bit     1, reg_post_rgb_brght_prt     u1, enalbe signal to protect saturation in rgb                  default=1
-//Bit     0, reg_post_rgbbst_dlut_x2    u1, enable signal to do x2 to the dlut cells before subtracting default=0
 #define XVYCC_POST_RGB_DLUT_0_3                    ((0x3177  << 2) + 0xff000000)
 //Bit 31:24, reg_post_rgbbst_dlut0      u8,   default = 255
 //Bit 23:16, reg_post_rgbbst_dlut1      u8,   default = 205
@@ -29256,7 +29236,6 @@
 #define VPP_VADJ1_CURV_2                           ((0x3287  << 2) + 0xff000000)
 #define VPP_VADJ1_CURV_3                           ((0x3288  << 2) + 0xff000000)
 #define VPP_VD1_RGB_CTRST                          ((0x3289  << 2) + 0xff000000)
-#define VPP_VD1_RGB_BRGHT                          ((0x328a  << 2) + 0xff000000)
 #define VPP_VD1_RGB_DLUT_0_3                       ((0x328b  << 2) + 0xff000000)
 #define VPP_VD1_RGB_DLUT_4_7                       ((0x328c  << 2) + 0xff000000)
 #define VPP_VD1_RGB_DLUT_8_11                      ((0x328d  << 2) + 0xff000000)
@@ -29284,7 +29263,6 @@
 #define VPP_VADJ2_CURV_2                           ((0x32a7  << 2) + 0xff000000)
 #define VPP_VADJ2_CURV_3                           ((0x32a8  << 2) + 0xff000000)
 #define VPP_POST_RGB_CTRST                         ((0x32a9  << 2) + 0xff000000)
-#define VPP_POST_RGB_BRGHT                         ((0x32aa  << 2) + 0xff000000)
 #define VPP_POST_RGB_DLUT_0_3                      ((0x32ab  << 2) + 0xff000000)
 #define VPP_POST_RGB_DLUT_4_7                      ((0x32ac  << 2) + 0xff000000)
 #define VPP_POST_RGB_DLUT_8_11                     ((0x32ad  << 2) + 0xff000000)
@@ -35568,18 +35546,6 @@
 #define AFBCDM_FGRAIN_WIN_V                        ((0x5472  << 2) + 0xff000000)
 //Bit  31:16     reg_win_end_v      .unsigned , default = 2156
 //Bit  15: 0     reg_win_bgn_v      .unsigned , default = 0
-#define AFBCDM_FGRAIN_SW_Y_RANNGE                  ((0x5473  << 2) + 0xff000000)
-//Bit 31        reg_fgrain_sw_yrange   .unsigned , default = 0
-//Bit 30:26     reserved
-//Bit 25:16     reg_fgrain_ymax        .unsigned , default = 1023
-//Bit 15:10     reserved
-//Bit  9: 0     reg_fgrain_ymin        .unsigned , default = 0
-#define AFBCDM_FGRAIN_SW_C_RANNGE                  ((0x5474  << 2) + 0xff000000)
-//Bit 31        reg_fgrain_sw_crange   .unsigned , default = 0
-//Bit 30:26     reserved
-//Bit 25:16     reg_fgrain_cmax        .unsigned , default = 1023
-//Bit 15:10     reserved
-//Bit  9: 0     reg_fgrain_cmin        .unsigned , default = 0
 #define AFBCDM_FGRAIN_GCLK_CTRL_0                  ((0x5475  << 2) + 0xff000000)
 //Bit 31:0      reg_fgrain_gclk_ctrl0  .unsigned , default = 0
 #define AFBCDM_FGRAIN_GCLK_CTRL_1                  ((0x5476  << 2) + 0xff000000)
@@ -40294,20 +40260,6 @@
 //Bit 16           reg_snr_lpf_xrate_chk_edge_en // unsigned ,    RW, default = 0  of edge check in check xrate
 //Bit 15:12        reserved
 //Bit 11: 0        reg_snr_lpf_phs_diff_max  // unsigned ,    RW, default = 400  threshold of phs_th
-#define ISP_SNR_LPF_PHS_DIFF_RATEOFSET             ((0x0940  << 2) + 0xfe3b4000)
-//Bit 31:30        reserved
-//Bit 29:24        reg_snr_lpf_phs_diff_ratio_1 // unsigned ,    RW, default = 16  ratio of phs_diff_th 64 means "1"
-//Bit 23:22        reserved
-//Bit 21:16        reg_snr_lpf_phs_diff_ratio_0 // unsigned ,    RW, default = 32  ratio of phs_diff_th 64 means "1"
-//Bit 15: 8        reg_snr_lpf_phs_diff_ofst_1 // unsigned ,    RW, default = 5  ofset of phs_diff_th
-//Bit  7: 0        reg_snr_lpf_phs_diff_ofst_0 // unsigned ,    RW, default = 10  ofset of phs_diff_th
-#define ISP_SNR_LPF_PHS_DIFF_XRATEOFSET            ((0x0941  << 2) + 0xfe3b4000)
-//Bit 31:30        reserved
-//Bit 29:24        reg_snr_lpf_phs_diff_xrate_1 // unsigned ,    RW, default = 12  between the same phs diff and random phs diff
-//Bit 23:22        reserved
-//Bit 21:16        reg_snr_lpf_phs_diff_xrate_0 // unsigned ,    RW, default = 16  between the same phs diff and random phs diff
-//Bit 15: 8        reg_snr_lpf_phs_diff_xofst_1 // unsigned ,    RW, default = 5  between the same phs diff and random phs diff
-//Bit  7: 0        reg_snr_lpf_phs_diff_xofst_0 // unsigned ,    RW, default = 10  between the same phs diff and random phs diff
 #define ISP_SNR_WT_ADJ                             ((0x0942  << 2) + 0xfe3b4000)
 //Bit 31:16        reserved
 //Bit 15:12        reg_snr_sad_wt_add_th_ratio // unsigned ,    RW, default = 8  of wt add

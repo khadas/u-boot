@@ -1257,8 +1257,6 @@
 // bit 0 -- slice_weighting_flag
 #define   VLD_DECODE_CONTROL                       (0x0c18)
 #define P_VLD_DECODE_CONTROL                       (volatile unsigned int *)((0x0c18  << 2) + 0xff620000)
-#define   VLD_REVERVED_19                          (0x0c19)
-#define P_VLD_REVERVED_19                          (volatile unsigned int *)((0x0c19  << 2) + 0xff620000)
 #define   VIFF_BIT_CNT                             (0x0c1a)
 #define P_VIFF_BIT_CNT                             (volatile unsigned int *)((0x0c1a  << 2) + 0xff620000)
 #define   BYTE_ALIGN_PEAK_HI                       (0x0c1b)
@@ -3733,7 +3731,6 @@
 //// bit 1 -- mb_weighting_flag
 //// bit 0 -- slice_weighting_flag
 //`define HCODEC_VLD_DECODE_CONTROL  8'h18
-//`define HCODEC_VLD_REVERVED_19     8'h19
 //
 //`define HCODEC_VIFF_BIT_CNT        8'h1a
 //`define HCODEC_BYTE_ALIGN_PEAK_HI  8'h1b
@@ -8164,8 +8161,6 @@
 // bit 0 -- slice_weighting_flag
 #define   HCODEC_VLD_DECODE_CONTROL                (0x1c18)
 #define P_HCODEC_VLD_DECODE_CONTROL                (volatile unsigned int *)((0x1c18  << 2) + 0xff620000)
-#define   HCODEC_VLD_REVERVED_19                   (0x1c19)
-#define P_HCODEC_VLD_REVERVED_19                   (volatile unsigned int *)((0x1c19  << 2) + 0xff620000)
 #define   HCODEC_VIFF_BIT_CNT                      (0x1c1a)
 #define P_HCODEC_VIFF_BIT_CNT                      (volatile unsigned int *)((0x1c1a  << 2) + 0xff620000)
 #define   HCODEC_BYTE_ALIGN_PEAK_HI                (0x1c1b)
@@ -8553,8 +8548,6 @@
 // bit 0 -- slice_weighting_flag
 #define   VDEC2_VLD_DECODE_CONTROL                 (0x2c18)
 #define P_VDEC2_VLD_DECODE_CONTROL                 (volatile unsigned int *)((0x2c18  << 2) + 0xff620000)
-#define   VDEC2_VLD_REVERVED_19                    (0x2c19)
-#define P_VDEC2_VLD_REVERVED_19                    (volatile unsigned int *)((0x2c19  << 2) + 0xff620000)
 #define   VDEC2_VIFF_BIT_CNT                       (0x2c1a)
 #define P_VDEC2_VIFF_BIT_CNT                       (volatile unsigned int *)((0x2c1a  << 2) + 0xff620000)
 #define   VDEC2_BYTE_ALIGN_PEAK_HI                 (0x2c1b)
@@ -8942,8 +8935,6 @@
 // bit 0 -- slice_weighting_flag
 #define   HEVC_VLD_DECODE_CONTROL                  (0x3c18)
 #define P_HEVC_VLD_DECODE_CONTROL                  (volatile unsigned int *)((0x3c18  << 2) + 0xff620000)
-#define   HEVC_VLD_REVERVED_19                     (0x3c19)
-#define P_HEVC_VLD_REVERVED_19                     (volatile unsigned int *)((0x3c19  << 2) + 0xff620000)
 #define   HEVC_VIFF_BIT_CNT                        (0x3c1a)
 #define P_HEVC_VIFF_BIT_CNT                        (volatile unsigned int *)((0x3c1a  << 2) + 0xff620000)
 #define   HEVC_BYTE_ALIGN_PEAK_HI                  (0x3c1b)
@@ -20675,16 +20666,6 @@
 #define P_VD2_IF0_GEN_REG3                         (volatile unsigned int *)((0x1aa8  << 2) + 0xff900000)
 //bit 31:1,  reversed
 //bit 0,     cntl_64bit_rev
-#define   OSD_BLENDO_H_START_END                   (0x1aa9)
-#define P_OSD_BLENDO_H_START_END                   (volatile unsigned int *)((0x1aa9  << 2) + 0xff900000)
-//OSD blending output horizontal start and end
-//Bit 28:16 start
-//Bit 12:0 end
-#define   OSD_BLENDO_V_START_END                   (0x1aaa)
-#define P_OSD_BLENDO_V_START_END                   (volatile unsigned int *)((0x1aaa  << 2) + 0xff900000)
-//OSD blending output vertical start and end
-//Bit 28:16 start
-//Bit 12:0 end
 #define   OSD_BLEND_GEN_CTRL0                      (0x1aab)
 #define P_OSD_BLEND_GEN_CTRL0                      (volatile unsigned int *)((0x1aab  << 2) + 0xff900000)
 //Bit 31:23 const_out_alpha
@@ -29535,13 +29516,6 @@
 //Bit  3: 2, reserved
 //Bit     1, reg_vd1_rgbbst_en         u1, enable rgbbst         default=0
 //Bit     0, reg_vd1_rgb_ctrst_prt     u1, enable signal to protect saturation in rgb.  default=1
-#define   XVYCC_VD1_RGB_BRGHT                      (0x3171)
-#define P_XVYCC_VD1_RGB_BRGHT                      (volatile unsigned int *)((0x3171  << 2) + 0xff900000)
-//Bit 31:16, reserved
-//Bit 15: 4, reg_vd1_rgb_brght        s12, brightness level in rgb domain                              default=0
-//Bit  3: 2, reserved
-//Bit     1, reg_vd1_rgb_brght_prt     u1, enalbe signal to protect saturation in rgb                  default=1
-//Bit     0, reg_vd1_rgbbst_dlut_x2    u1, enable signal to do x2 to the dlut cells before subtracting default=0
 #define   XVYCC_VD1_RGB_DLUT_0_3                   (0x3172)
 #define P_XVYCC_VD1_RGB_DLUT_0_3                   (volatile unsigned int *)((0x3172  << 2) + 0xff900000)
 //Bit 31:24, reg_vd1_rgbbst_dlut0      u8,   default = 255
@@ -29569,13 +29543,6 @@
 //Bit  3: 2, reserved
 //Bit     1, reg_post_rgbbst_en         u1, enable rgbbst         default=0
 //Bit     0, reg_post_rgb_ctrst_prt     u1, enable signal to protect saturation in rgb.  default=1
-#define   XVYCC_POST_RGB_BRGHT                     (0x3176)
-#define P_XVYCC_POST_RGB_BRGHT                     (volatile unsigned int *)((0x3176  << 2) + 0xff900000)
-//Bit 31:16, reserved
-//Bit 15: 4, reg_post_rgb_brght        s12, brightness level in rgb domain                              default=0
-//Bit  3: 2, reserved
-//Bit     1, reg_post_rgb_brght_prt     u1, enalbe signal to protect saturation in rgb                  default=1
-//Bit     0, reg_post_rgbbst_dlut_x2    u1, enable signal to do x2 to the dlut cells before subtracting default=0
 #define   XVYCC_POST_RGB_DLUT_0_3                  (0x3177)
 #define P_XVYCC_POST_RGB_DLUT_0_3                  (volatile unsigned int *)((0x3177  << 2) + 0xff900000)
 //Bit 31:24, reg_post_rgbbst_dlut0      u8,   default = 255

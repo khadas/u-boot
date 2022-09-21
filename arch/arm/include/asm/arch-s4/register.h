@@ -13916,11 +13916,9 @@
 //     //bit15, auto enable; bit14, canvas write mode ;7:4, high threshold ;3:0 , low threshold  for di chan2 chroma path
 //     //bit31, auto enable; bit30, canvas write mode ;23:20, high threshold ;19:16 , low threshold  for di chan2 luma path
 //     `define DI_CHAN2_URGENT_CTRL					8'ha6
-#define OSD_BLENDO_H_START_END                     ((0x1aa9  << 2) + 0xff000000)
 //OSD blending output horizontal start and end
 //Bit 28:16 start
 //Bit 12:0 end
-#define OSD_BLENDO_V_START_END                     ((0x1aaa  << 2) + 0xff000000)
 //OSD blending output vertical start and end
 //Bit 28:16 start
 //Bit 12:0 end
@@ -22637,12 +22635,6 @@
 //Bit  3: 2, reserved
 //Bit     1, reg_vd1_rgbbst_en         u1, enable rgbbst         default=0
 //Bit     0, reg_vd1_rgb_ctrst_prt     u1, enable signal to protect saturation in rgb.  default=1
-#define XVYCC_VD1_RGB_BRGHT                        ((0x3171  << 2) + 0xff000000)
-//Bit 31:16, reserved
-//Bit 15: 4, reg_vd1_rgb_brght        s12, brightness level in rgb domain                              default=0
-//Bit  3: 2, reserved
-//Bit     1, reg_vd1_rgb_brght_prt     u1, enalbe signal to protect saturation in rgb                  default=1
-//Bit     0, reg_vd1_rgbbst_dlut_x2    u1, enable signal to do x2 to the dlut cells before subtracting default=0
 #define XVYCC_VD1_RGB_DLUT_0_3                     ((0x3172  << 2) + 0xff000000)
 //Bit 31:24, reg_vd1_rgbbst_dlut0      u8,   default = 255
 //Bit 23:16, reg_vd1_rgbbst_dlut1      u8,   default = 205
@@ -22666,12 +22658,6 @@
 //Bit  3: 2, reserved
 //Bit     1, reg_post_rgbbst_en         u1, enable rgbbst         default=0
 //Bit     0, reg_post_rgb_ctrst_prt     u1, enable signal to protect saturation in rgb.  default=1
-#define XVYCC_POST_RGB_BRGHT                       ((0x3176  << 2) + 0xff000000)
-//Bit 31:16, reserved
-//Bit 15: 4, reg_post_rgb_brght        s12, brightness level in rgb domain                              default=0
-//Bit  3: 2, reserved
-//Bit     1, reg_post_rgb_brght_prt     u1, enalbe signal to protect saturation in rgb                  default=1
-//Bit     0, reg_post_rgbbst_dlut_x2    u1, enable signal to do x2 to the dlut cells before subtracting default=0
 #define XVYCC_POST_RGB_DLUT_0_3                    ((0x3177  << 2) + 0xff000000)
 //Bit 31:24, reg_post_rgbbst_dlut0      u8,   default = 255
 //Bit 23:16, reg_post_rgbbst_dlut1      u8,   default = 205
@@ -23363,7 +23349,6 @@
 #define VPP_VADJ1_CURV_2                           ((0x3287  << 2) + 0xff000000)
 #define VPP_VADJ1_CURV_3                           ((0x3288  << 2) + 0xff000000)
 #define VPP_VD1_RGB_CTRST                          ((0x3289  << 2) + 0xff000000)
-#define VPP_VD1_RGB_BRGHT                          ((0x328a  << 2) + 0xff000000)
 #define VPP_VD1_RGB_DLUT_0_3                       ((0x328b  << 2) + 0xff000000)
 #define VPP_VD1_RGB_DLUT_4_7                       ((0x328c  << 2) + 0xff000000)
 #define VPP_VD1_RGB_DLUT_8_11                      ((0x328d  << 2) + 0xff000000)
@@ -23391,7 +23376,6 @@
 #define VPP_VADJ2_CURV_2                           ((0x32a7  << 2) + 0xff000000)
 #define VPP_VADJ2_CURV_3                           ((0x32a8  << 2) + 0xff000000)
 #define VPP_POST_RGB_CTRST                         ((0x32a9  << 2) + 0xff000000)
-#define VPP_POST_RGB_BRGHT                         ((0x32aa  << 2) + 0xff000000)
 #define VPP_POST_RGB_DLUT_0_3                      ((0x32ab  << 2) + 0xff000000)
 #define VPP_POST_RGB_DLUT_4_7                      ((0x32ac  << 2) + 0xff000000)
 #define VPP_POST_RGB_DLUT_8_11                     ((0x32ad  << 2) + 0xff000000)
@@ -29407,18 +29391,6 @@
 #define AFBCDM_FGRAIN_WIN_V                        ((0x5472  << 2) + 0xff000000)
 //Bit  31:16     reg_win_end_v      .unsigned , default = 2156
 //Bit  15: 0,    reg_win_bgn_v      .unsigned , default = 0
-#define AFBCDM_FGRAIN_SW_Y_RANNGE                  ((0x5473  << 2) + 0xff000000)
-//Bit 31,        reg_fgrain_sw_yrange   .unsigned , default = 0
-//Bit 30:26,     reserved
-//Bit 25:16,     reg_fgrain_ymax        .unsigned , default = 1023
-//Bit 15:10,     reserved
-//Bit  9: 0,     reg_fgrain_ymin        .unsigned , default = 0
-#define AFBCDM_FGRAIN_SW_C_RANNGE                  ((0x5474  << 2) + 0xff000000)
-//Bit 31,        reg_fgrain_sw_crange   .unsigned , default = 0
-//Bit 30:26,     reserved
-//Bit 25:16,     reg_fgrain_cmax        .unsigned , default = 1023
-//Bit 15:10,     reserved
-//Bit  9: 0,     reg_fgrain_cmin        .unsigned , default = 0
 #define AFBCDM_FGRAIN_GCLK_CTRL_0                  ((0x5475  << 2) + 0xff000000)
 //Bit 31:0,      reg_fgrain_gclk_ctrl0  .unsigned , default = 0
 #define AFBCDM_FGRAIN_GCLK_CTRL_1                  ((0x5476  << 2) + 0xff000000)
