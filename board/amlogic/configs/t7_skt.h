@@ -122,6 +122,7 @@
 		"init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,115200 "\
 			"no_console_suspend earlycon=aml-uart,0xfe002000 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
+			"scsi_mod.scan=async "\
             "\0"\
         "upgrade_check="\
             "echo recovery_status=${recovery_status};"\

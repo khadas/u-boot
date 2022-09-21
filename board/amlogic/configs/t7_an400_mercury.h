@@ -158,6 +158,7 @@
 			"no_console_suspend earlycon=aml-uart,0xfe078000 "\
 			"ramoops.pstore_en=1 ramoops.record_size=0x8000 "\
 			"ramoops.console_size=0x4000 loop.max_part=4 clk_ignore_unused "\
+			"scsi_mod.scan=async "\
 			"meson_clk.ignore_pll_init=1"\
 			"\0"\
 		"upgrade_check="\
