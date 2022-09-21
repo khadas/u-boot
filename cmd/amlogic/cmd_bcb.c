@@ -11,6 +11,7 @@
 #include <config.h>
 #include <asm/arch/io.h>
 #include <amlogic/storage.h>
+#include <stdlib.h>
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 
@@ -111,6 +112,27 @@ static int clear_misc_partition(char *clearbuf, int size)
     return 0;
 }
 
+static int my_atoi(const char *str)
+{
+	int result = 0;
+	int signal = 1;
+
+	if ((*str >= '0' && *str <= '9') || *str == '-' || *str == '+') {
+		if (*str == '-' || *str == '+') {
+			if (*str == '-')
+				signal = -1;
+			str++;
+		}
+	} else {
+		return 0;
+	}
+
+	while (*str >= '0' && *str <= '9')
+		result = result * 10 + (*str++ - '0');
+
+	return signal * result;
+}
+
 static int do_RunBcbCommand(
     cmd_tbl_t * cmdtp,
     int flag,
@@ -124,6 +146,7 @@ static int do_RunBcbCommand(
     char miscbuf[MISCBUF_SIZE] = {0};
     char clearbuf[COMMANDBUF_SIZE+STATUSBUF_SIZE+RECOVERYBUF_SIZE] = {0};
     char* RebootMode;
+	int remain_time = 0;
 
     if (argc != 2) {
         return cmd_usage(cmdtp);
@@ -183,7 +206,13 @@ static int do_RunBcbCommand(
     // judge misc partition whether has datas
     char tmpbuf[MISCBUF_SIZE];
     memset(tmpbuf, 0, sizeof(tmpbuf));
-    if (!memcmp(tmpbuf, miscbuf, strlen(miscbuf))) {
+	if (!memcmp(tmpbuf, miscbuf, strlen(miscbuf))) {
+		env_set("retry_recovery_times", "7");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+		run_command("update_env_part -p retry_recovery_times;", 0);
+#else
+		run_command("saveenv;", 0);
+#endif
         printf("BCB hasn't any datas,exit!\n");
         return 0;
     }
@@ -205,7 +234,42 @@ static int do_RunBcbCommand(
 	run_command("setenv bootconfig ${bootconfig} androidboot.quiescent=1;", 0);
     }
 
-    if (!memcmp(command, CMD_RUN_RECOVERY, strlen(CMD_RUN_RECOVERY))) {
+	char *retry_times;
+
+	retry_times = env_get("retry_recovery_times");
+	if (retry_times) {
+		printf("retry_time: %s\n", retry_times);
+		remain_time = my_atoi(retry_times);
+		printf("retry_time remain_time = %d\n", remain_time);
+	}
+
+	if (remain_time == 0) {
+		printf("clear recovery cmds in misc\n");
+		if (clear_misc_partition(clearbuf, sizeof(clearbuf)) < 0) {
+			printf("clear misc partition failed.\n");
+			goto ERR;
+		}
+		env_set("retry_recovery_times", "7");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+		run_command("update_env_part -p retry_recovery_times;", 0);
+#else
+		run_command("saveenv;", 0);
+#endif
+		run_command("run enter_fastboot", 0);
+	}
+
+	if (!memcmp(command, CMD_RUN_RECOVERY, strlen(CMD_RUN_RECOVERY))) {
+		if (retry_times && remain_time > 0) {
+			sprintf(retry_times, "%d", remain_time - 1);
+			printf("retry_time: %s\n", retry_times);
+			env_set("retry_recovery_times", retry_times);
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+			run_command("update_env_part -p retry_recovery_times;", 0);
+#else
+			run_command("saveenv;", 0);
+#endif
+		}
+
         if (run_command("run recovery_from_flash", 0) < 0) {
             printf("run_command for cmd:run recovery_from_flash failed.\n");
             return -1;

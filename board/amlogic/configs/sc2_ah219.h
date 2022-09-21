@@ -143,6 +143,9 @@
 		"update="\
 			"run update_base;"\
 			"\0"\
+		"enter_fastboot="\
+			"fastboot 0;"\
+			"\0"\
 		"recovery_from_fat_dev="\
 			"run recovery_from_fat_dev_base;"\
 			"\0"\

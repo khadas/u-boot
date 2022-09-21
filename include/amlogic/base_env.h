@@ -39,6 +39,7 @@
 	"rollback_flag=0\0"\
 	"boot_flag=0\0"\
 	"Irq_check_en=0\0"\
+	"retry_recovery_times=7\0"\
 	"androidboot.dtbo_idx=0\0"\
 	"common_dtb_load=" CONFIG_DTB_LOAD "\0"\
 	"get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then "\
