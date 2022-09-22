@@ -2242,29 +2242,38 @@ void lcd_mipi_dsi_config_set(struct aml_lcd_drv_s *pdrv)
 		temp = pclk * 3 * dconf->data_bits;
 		bit_rate = temp / dconf->lane_num;
 	}
-	temp = bit_rate / pclk;
-	if (temp % 2)
-		bit_rate += pclk;
+	//temp = bit_rate / pclk;
+	//if (temp % 2)
+	//	bit_rate += pclk;
 	dconf->local_bit_rate_min = bit_rate /* khz */;
 
 	/* bit rate max */
 	if (dconf->bit_rate_max == 0) { /* auto calculate */
 		bit_rate_max = bit_rate + (pclk / 2);
 		if (bit_rate_max > MIPI_BIT_RATE_MAX) {
-			LCDERR("[%d]: %s: invalid bit_rate_max %d\n",
-				pdrv->index, __func__, bit_rate_max);
+			LCDERR("[%d]: %s: invalid bit_rate_max %dkHz (max=%dkHz)\n",
+				pdrv->index, __func__, bit_rate_max, MIPI_BIT_RATE_MAX);
 			bit_rate_max = MIPI_BIT_RATE_MAX;
 		}
-		dconf->local_bit_rate_max = bit_rate_max;
-		LCDPR("[%d]: mipi dsi bit_rate max=%dkHz\n",
-		      pdrv->index, dconf->local_bit_rate_max);
 	} else { /* user define */
-		dconf->local_bit_rate_max = dconf->bit_rate_max * 1000;
-		if (dconf->local_bit_rate_max > MIPI_BIT_RATE_MAX) {
-			LCDPR("[%d]: invalid mipi-dsi bit_rate_max %dkHz (max=%dkHz)\n",
-			      pdrv->index, dconf->local_bit_rate_max,
-			      MIPI_BIT_RATE_MAX);
+		bit_rate_max = dconf->bit_rate_max * 1000;
+		if (bit_rate_max > MIPI_BIT_RATE_MAX) {
+			LCDPR("[%d]: %s: invalid bit_rate_max %dkHz (max=%dkHz)\n",
+			      pdrv->index, __func__, bit_rate_max, MIPI_BIT_RATE_MAX);
 		}
+		if (dconf->local_bit_rate_min > bit_rate_max) {
+			LCDPR("[%d]: %s: bit_rate_max %d can't reach bandwidth requirement %d\n",
+				pdrv->index, __func__, bit_rate_max,
+				dconf->local_bit_rate_min);
+			//force bit_rate_max for special case
+			dconf->local_bit_rate_min = bit_rate_max - pclk;
+		}
+	}
+	dconf->local_bit_rate_max = bit_rate_max;
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
+		LCDPR("[%d]: %s: local_bit_rate_max=%ukHz, local_bit_rate_min=%ukHz\n",
+		      pdrv->index, __func__,
+		      dconf->local_bit_rate_max, dconf->local_bit_rate_min);
 	}
 }
 
