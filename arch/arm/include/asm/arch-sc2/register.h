@@ -28491,6 +28491,9 @@
 //
 // Closing file:  ./parser_regs.h
 //
+
+#define STARTUP_KEY_PRESERVE                       ((0x000c  << 2) + 0xfe02e000)
+
 #include "soc_def.h"
 #endif // REGISTER_H
 

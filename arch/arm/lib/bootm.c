@@ -36,6 +36,11 @@
 #include <zircon/zircon.h>
 #endif
 
+#if defined(CONFIG_KEY_PRESERVE)
+#include <asm/arch/cpu.h>
+#include <asm/arch/register.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct tag *params;
@@ -324,6 +329,10 @@ static void switch_to_el1(void)
 extern void jump_to_a32_kernel(unsigned long, unsigned long, unsigned long);
 static void boot_jump_linux(bootm_headers_t *images, int flag)
 {
+#ifdef	CONFIG_KEY_PRESERVE
+	(*((volatile unsigned int *)(STARTUP_KEY_PRESERVE))) |= 0x1;
+#endif
+
 #ifdef CONFIG_ARM64
 	void (*kernel_entry)(void *fdt_addr, void *res0, void *res1,
 			void *res2);

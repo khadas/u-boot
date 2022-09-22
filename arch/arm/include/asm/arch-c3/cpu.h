@@ -77,4 +77,6 @@ like the AES key not ready when secure boot enabled for the first time.
 */
 //#define CONFIG_AML_EFUSE_GEN_AES_ONLY 1
 
+#define CONFIG_KEY_PRESERVE
+
 #endif /* _CPU_H */
