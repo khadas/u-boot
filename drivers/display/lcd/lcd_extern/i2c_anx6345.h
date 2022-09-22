@@ -641,10 +641,10 @@
 #define DPCD_LINK_BW_SET                                      0x00
 #define DPCD_LANE_COUNT_SET                                0x01
 #define DPCD_TRAINING_PATTERN_SET                     0x02
-#define DPCD_TRAINNIG_LANE0_SET                         0x03
-#define DPCD_TRAINNIG_LANE1_SET                         0x04
-#define DPCD_TRAINNIG_LANE2_SET                         0x05
-#define DPCD_TRAINNIG_LANE3_SET                         0x06
+#define DPCD_TRAINING_LANE0_SET                         0x03
+#define DPCD_TRAINING_LANE1_SET                         0x04
+#define DPCD_TRAINING_LANE2_SET                         0x05
+#define DPCD_TRAINING_LANE3_SET                         0x06
 #define DPCD_DOWNSPREAD_CTRL                            0x07
 
 #define DPCD_SINK_COUNT                                          0x00

@@ -463,13 +463,13 @@ char *aml_lcd_extern_get_dts_prop(int nodeoffset, char *propname)
 int aml_lcd_extern_get_dts_child(int index)
 {
 	int nodeoffset;
-	char chlid_node[30];
+	char child_node[30];
 	char *propdata;
 
-	sprintf(chlid_node, "/lcd_extern/extern_%d", index);
-	nodeoffset = fdt_path_offset(dt_addr, chlid_node);
+	sprintf(child_node, "/lcd_extern/extern_%d", index);
+	nodeoffset = fdt_path_offset(dt_addr, child_node);
 	if (nodeoffset < 0) {
-		EXTERR("dts: not find  node %s\n", chlid_node);
+		EXTERR("dts: not find  node %s\n", child_node);
 		return nodeoffset;
 	}
 

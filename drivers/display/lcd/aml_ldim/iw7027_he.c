@@ -49,7 +49,7 @@ static struct iw7027_he *bl_iw7027_he;
 #define BRIGHTNESS_OFFSET    3
 static unsigned char *val_brightness;
 
-/***** haier use 2 iw7027(32 regione)****************/
+/***** haier use 2 iw7027(32 region)****************/
 /*
 1.write single data 0x03 (write to reg0x02 of dev0x01/dev0x02)
 	0x41  0x02  0x03
@@ -66,7 +66,7 @@ static unsigned char *val_brightness;
 	devaddr  regaddr   data1  data2	 data3
 	0xff	 0x02	   0x03   0x04	 0x05   0x00
 
-5 write defferent data in same register of all devices multiple byte
+5 write different data in same register of all devices multiple byte
   (write to reg0x02-reg0x03 of dev0x01-dev0x02)
 	dev0x01 write data 0x01 0x02, dev0x02 write data 0x03 0x04,
 	devaddr NrOfBytes regaddr data1 data2 data3 data4
