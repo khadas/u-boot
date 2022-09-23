@@ -19,7 +19,7 @@ SIGNING PROCESS FOR UBOOT/KERNEL
 |  |-1. run ./key.create.bash keypath to generate keys to folder keypath
 |  |    |-1. for uboot signing you must afford RSA/AES key for bl2/bl3x and place them to folder   ./key
 |  |    |-2. for kernel/recovery/dtb signing you must afford RSA/AES key and place them to folfder ./key
-|  |-2. for those project which use aml_encrypt_gxl/txlx/g12a/g12b/tl1/tm2/c1/t5/t5d etc for secure boot, please use following mapping table for key transfer
+|  |-2. for those project which use aml_encrypt_gxl/txlx/axg/g12a/g12b/tl1/tm2/c1/t5/t5d etc for secure boot, please use following mapping table for key transfer
 |       |------former key        <---->  script tool key(14 key files)-------
 |       |-1.                            /aml-key/bl2aesiv         //dd if=/dev/zero of=bl2aesiv conv=notrunc bs=1 count=16 >& /dev/null
 |       |-2.  /userkey/key.aes          /aml-key/bl2aeskey
@@ -42,13 +42,13 @@ SIGNING PROCESS FOR UBOOT/KERNEL
 |
 |--Command to signing
 |  |-1 ./sign.sh -s soc -p input -r rsakey -a aeskey -o output
-|  |             -s soc              //soc type: gxl,txlx,g12a,g12b,tl1,tm2,c1,t5,t5d
+|  |             -s soc              //soc type: gxl,txlx,axg,g12a,g12b,tl1,tm2,c1,t5,t5d
 |  |             -p input            //input folder
 |  |             -r frsakey          //rsa key folder
 |  |             -a faeskey          //aes key folder
 |  |             -o output           //output folder
 |  |-2 ./sign.sh -s soc -z package -r rsakey -a aeskey -o output
-|  |             -s soc              //soc type: gxl,txlx,g12a,g12b,tl1,tm2,c1,t5,t5d
+|  |             -s soc              //soc type: gxl,txlx,axg,g12a,g12b,tl1,tm2,c1,t5,t5d
 |  |             -z zip package file //uboot package image, e.g. gxl_skt_v1-u-boot.aml.zip
 |  |             -r frsakey          //rsa key folder
 |  |             -a faeskey          //aes key folder
@@ -67,7 +67,7 @@ USB password process
 |   |-1. tool amlpwdefs dedicated to generate the corresponding pattern with password & salt
 |        |- ./amlpwdefs --password password.bin --salt salt.bin //get output is password.bin_PMMMMMMMM_SNNNNNNNN.bin
 |   |-2. tool efuse.sh is a tool wraper for efuse pattern process, it will canl efuse-gen.sh from signing-tool-gxl-dev or
-|   |    |  signing-tool-g12a-dev or signing-tool-tl1-dev or signing-tool-c1-dev, current version only support gxl/txlx/g12a/g12b/tl1/tm2/c1/t5/t5d
+|   |    |  signing-tool-g12a-dev or signing-tool-tl1-dev or signing-tool-c1-dev, current version only support gxl/txlx/axg/g12a/g12b/tl1/tm2/c1/t5/t5d
 |   |    |- ./efuse.sh --generate-efuse-pattern --password-hash password.bin_PMMMMMMMM_SNNNNNNNN.bin -o pattern.usb.efuse  --enable-usb-passwor
 |
 |--use tool step by step
@@ -105,7 +105,7 @@ EFUSE pattern process
 |
 |--function usage
 |   ./efuse.sh --generate-efuse-pattern \                    //
-|               --soc [gxl | txlx | g12a | g12b | tl1 | tm2 | c1 | t5 | t5d ] \          //soc type, must afford
+|               --soc [gxl | txlx | axg | g12a | g12b | tl1 | tm2 | c1 | t5 | t5d ] \          //soc type, must afford
 |               [--aml-key-path path-of-key]      \          //key path, will get RSA & AES key from it
 |               [--rsa-key-path path-of-rsa-key]  \          //key path, will get RSA key from it
 |               [--enable-sb false]               \          //secure boot enable flag, default is false
@@ -135,7 +135,7 @@ FOLDER ARCHITECTURE:
 ------------Script Signing Tool Set folder------------
 |-1.  signing-tool-gxl      //D: tool set for signing -- DO NOT MODIFY
 |-2.  signing-tool-gxl-dev  //D: tool set for signing -- DO NOT MODIFY
-|-3.  amlogic-sign-gxl.sh   //F: tool for signing GXL/TXLX -- DO NOT MODIFY
+|-3.  amlogic-sign-gxl.sh   //F: tool for signing GXL/TXLX/AXG -- DO NOT MODIFY
 |-4.  signing-tool-g12a     //D: tool set for signing -- DO NOT MODIFY
 |-5.  signing-tool-g12a-dev //D: tool set for signing -- DO NOT MODIFY
 |-6.  amlogic-sign-g12a.sh  //F: tool for signing G12A/B -- DO NOT MODIFY

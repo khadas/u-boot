@@ -33,8 +33,12 @@ function read_csv_and_generate() {
     local nsk_otp_vid=$(mktemp -p .)
     local lic_lock_1=$(mktemp -p .)
     local efusebit=$(mktemp -p .)
+    local temp_byte=$(mktemp -p .)
+    local binary_string_hash=$(mktemp -p .)
 
     echo "reading $input, Generating $output"
+    dos2unix $input
+    sed -i -e '$a\' $input
 
     #Generate empty efuse pattern bytes array
     dd if=/dev/zero of=$patt count=4096 bs=1 &> /dev/null
@@ -48,6 +52,7 @@ function read_csv_and_generate() {
     dd if=/dev/zero of=$device_vendor_segid count=4 bs=1 &>/dev/null
     dd if=/dev/zero of=$nsk_otp_oid count=2 bs=1 &>/dev/null
     dd if=/dev/zero of=$nsk_otp_vid count=2 bs=1 &>/dev/null
+    dd if=/dev/zero of=$binary_string_hash count=37 bs=1 &>/dev/null
 
     # generate license bit array values with initial value 0
     b_lic0_01=$(xxd -ps -s1 -l1 $license0)
@@ -74,6 +79,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic0_01="$(printf %02x $(( 0x$b_lic0_01 | 0x04 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=0 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_ENABLE_DEVICE_SCS_SIG_1)
@@ -84,6 +91,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic0_01="$(printf %02x $(( 0x$b_lic0_01 | 0x08 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=1 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_ENABLE_DEVICE_VENDOR_SIG_0)
@@ -94,6 +103,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic0_02="$(printf %02x $(( 0x$b_lic0_02 | 0x10 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=2 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_ENABLE_DEVICE_VENDOR_SIG_1)
@@ -104,6 +115,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic0_02="$(printf %02x $(( 0x$b_lic0_02 | 0x20 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=3 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_ENABLE_DEVICE_PROT_0)
@@ -114,6 +127,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic0_02="$(printf %02x $(( 0x$b_lic0_02 | 0x40 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=4 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_ENABLE_DEVICE_PROT_1)
@@ -124,6 +139,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic0_02="$(printf %02x $(( 0x$b_lic0_02 | 0x80 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=5 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_DISABLE_BOOT_NORMAL_SPI_NOR)
@@ -134,6 +151,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic0_04="$(printf %02x $(( 0x$b_lic0_04 | 0x01 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=6 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_DISABLE_BOOT_NORMAL_NAND)
@@ -144,6 +163,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic0_04="$(printf %02x $(( 0x$b_lic0_04 | 0x02 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=7 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_DISABLE_BOOT_NORMAL_EMMC)
@@ -154,6 +175,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic0_04="$(printf %02x $(( 0x$b_lic0_04 | 0x04 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=8 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_DISABLE_BOOT_NORMAL_SDCARD)
@@ -164,6 +187,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic0_04="$(printf %02x $(( 0x$b_lic0_04 | 0x08 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=9 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_DISABLE_BOOT_NORMAL_SPI_NAND)
@@ -174,6 +199,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic0_04="$(printf %02x $(( 0x$b_lic0_04 | 0x10 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=10 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_DISABLE_BOOT_DFU_USB)
@@ -184,6 +211,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic0_05="$(printf %02x $(( 0x$b_lic0_05 | 0x04 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=11 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_DISABLE_BOOT_ALTSRC)
@@ -194,6 +223,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic0_05="$(printf %02x $(( 0x$b_lic0_05 | 0x08 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=12 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_DISABLE_BOOT_NORMAL_FALLBACK2USB)
@@ -204,6 +235,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic0_05="$(printf %02x $(( 0x$b_lic0_05 | 0x10 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=13 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_DISABLE_SW_BOOT_OVERRIDE)
@@ -214,6 +247,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic0_05="$(printf %02x $(( 0x$b_lic0_05 | 0x40 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=14 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_DISABLE_EXT_BOOT_OVERRIDE)
@@ -224,6 +259,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic0_05="$(printf %02x $(( 0x$b_lic0_05 | 0x80 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=15 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_DISABLE_DDR_FIP_CONTAINER)
@@ -234,6 +271,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic0_07="$(printf %02x $(( 0x$b_lic0_07 | 0x40 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=16 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_ENABLE_USB_AUTH)
@@ -244,6 +283,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic0_07="$(printf %02x $(( 0x$b_lic0_07 | 0x80 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=17 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_ENABLE_DIF_MASTER_PROT)
@@ -254,6 +295,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic1_00="$(printf %02x $(( 0x$b_lic1_00 | 0x01 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=18 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_ENABLE_ACPU_JTAG_PROT)
@@ -264,6 +307,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic1_00="$(printf %02x $(( 0x$b_lic1_00 | 0x10 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=19 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_ENABLE_AOCPU_JTAG_PROT)
@@ -274,6 +319,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic1_00="$(printf %02x $(( 0x$b_lic1_00 | 0x80 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=20 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_ENABLE_DSP_JTAG_PROT)
@@ -284,6 +331,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic1_01="$(printf %02x $(( 0x$b_lic1_01 | 0x08 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=21 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             FEAT_DISABLE_NSK_CONCURRENCY)
@@ -294,6 +343,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic1_13="$(printf %02x $(( 0x$b_lic1_13 | 0x20 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=22 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             NSK_PUB_OTP_OID)
@@ -308,6 +359,8 @@ function read_csv_and_generate() {
                     break
                 fi
                 echo $value | xxd -r -p > $nsk_otp_oid
+                echo $value | xxd -r -p > $temp_byte
+                dd if="$temp_byte" of=$binary_string_hash bs=1 seek=23 count=2 conv=notrunc >& /dev/null
                 ;;
             NSK_PUB_OTP_VID)
                 echo found ${feat} bit length ${sz} value ${value}
@@ -321,6 +374,8 @@ function read_csv_and_generate() {
                     break
                 fi
                 echo $value | xxd -r -p > $nsk_otp_vid
+                echo $value | xxd -r -p > $temp_byte
+                dd if="$temp_byte" of=$binary_string_hash bs=1 seek=25 count=2 conv=notrunc >& /dev/null
                 ;;
             DEVICE_SCS_SEGID)
                 echo found ${feat} bit length ${sz} value ${value}
@@ -334,6 +389,8 @@ function read_csv_and_generate() {
                     break
                 fi
                 echo $value | xxd -r -p > $device_scs_segid
+                echo $value | xxd -r -p > $temp_byte
+                dd if="$temp_byte" of=$binary_string_hash bs=1 seek=27 count=4 conv=notrunc >& /dev/null
                 ;;
             DEVICE_VENDOR_SEGID)
                 echo found ${feat} bit length ${sz} value ${value}
@@ -347,6 +404,8 @@ function read_csv_and_generate() {
                     break
                 fi
                 echo $value | xxd -r -p > $device_vendor_segid
+                echo $value | xxd -r -p > $temp_byte
+                dd if="$temp_byte" of=$binary_string_hash bs=1 seek=31 count=4 conv=notrunc >& /dev/null
                 ;;
             DGPK1)
                 echo found ${feat} bit length ${sz} value ${value}
@@ -369,6 +428,8 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic_lock_1="$(printf %02x $(( 0x$b_lic_lock_1 | 0x10 )))"
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=35 count=1 conv=notrunc >& /dev/null
                 fi
                 ;;
             NSK_OTP_WRITE_PASSWORD_PROTECT)
@@ -379,7 +440,9 @@ function read_csv_and_generate() {
                 fi
                 if [ "$value" == "1" ]; then
                     b_lic1_13="$(printf %02x $(( 0x$b_lic1_13 | 0x08 )))"
-                fi
+                    echo 01 | xxd -r -p > $temp_byte
+                    dd if="$temp_byte" of=$binary_string_hash bs=1 seek=36 count=1 conv=notrunc >& /dev/null
+                    fi
                 ;;
             *)
                 echo Feature ${feat} is not supported
@@ -420,15 +483,20 @@ function read_csv_and_generate() {
     dd if="$nsk_otp_vid" of="$patt" bs=1 seek=530 count=2 conv=notrunc >& /dev/null
     dd if="$lic_lock_1" of="$patt" bs=1 seek=508 count=1 conv=notrunc >& /dev/null
 
+    cp $binary_string_hash ./hash_of_output
+    md5sum --tag hash_of_output
+    sha256sum --tag hash_of_output
+    sha1sum --tag hash_of_output
+
     if [ "$is_debug_enabled" == "true" ];
     then
         echo debug mode enabled
         cp $patt ./$output.bin
+        cp $binary_string_hash ./hash_calculation.bin
         ${BASEDIR_TOP}/aml_encrypt_sc2 --efsproc --input $patt --output $output.bin.efuse --option=debug
     else
         ${BASEDIR_TOP}/aml_encrypt_sc2 --efsproc --input $patt --output $output.bin.efuse
     fi
-
 
     rm -f $efusebit
     rm -f $patt
@@ -440,6 +508,9 @@ function read_csv_and_generate() {
     rm -f $nsk_otp_oid
     rm -f $nsk_otp_vid
     rm -f $lic_lock_1
+    rm -f $temp_byte
+    rm -f $binary_string_hash
+    rm -f ./hash_of_output
 }
 
 usage(){

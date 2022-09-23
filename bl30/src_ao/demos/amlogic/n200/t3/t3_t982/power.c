@@ -39,13 +39,8 @@
 #include "btwake.h"
 #include "soc.h"
 #include "pm.h"
-
-/*#define CONFIG_ETH_WAKEUP*/
-
-#ifdef CONFIG_ETH_WAKEUP
 #include "interrupt_control.h"
 #include "eth.h"
-#endif
 
 static TaskHandle_t cecTask = NULL;
 static int vdd_ee;
@@ -96,9 +91,7 @@ void str_hw_init(void)
 
 	/*enable device & wakeup source interrupt*/
 	vIRInit(MODE_HARD_NEC, GPIOD_5, PIN_FUNC1, prvPowerKeyList, ARRAY_SIZE(prvPowerKeyList), vIRHandler);
-#ifdef CONFIG_ETH_WAKEUP
 	vETHInit(IRQ_ETH_PMT_NUM,eth_handler);
-#endif
 	xTaskCreate(vCEC_task, "CECtask", configMINIMAL_STACK_SIZE,
 		    NULL, CEC_TASK_PRI, &cecTask);
 
@@ -117,9 +110,7 @@ void str_hw_disable(void)
 {
 	/*disable wakeup source interrupt*/
 	vIRDeint();
-#ifdef CONFIG_ETH_WAKEUP
 	vETHDeint();
-#endif
 	if (cecTask) {
 		vTaskDelete(cecTask);
 		cec_req_irq(0);
@@ -202,10 +193,12 @@ void str_power_off(int shutdown_flag)
 	int ret;
 
 	shutdown_flag = shutdown_flag;
-#ifndef CONFIG_ETH_WAKEUP
+
+	if (get_ETHWol_flag() == 0) {
 	/***power off vcc3v3***/
 	power_off_vcc3v3();
-#endif
+	}
+
 	/***set vddcpu val***/
 	vdd_cpu = vPwmMesongetvoltage(VDDCPU_VOLT);
 	if (vdd_cpu < 0) {
@@ -238,18 +231,29 @@ void str_power_off(int shutdown_flag)
 
 extern int set_platform_power_ops(struct platform_power_ops *ops);
 
-
 static int platform_power_begin(void)
 {
-	logi("%s, power off\n", __func__);
-	str_power_off(0);
+	logi("%s, power off and don't touch ee.\n", __func__);
+#ifndef CONFIG_ETH_WAKEUP
+	/***power off vcc3v3***/
+	power_off_vcc3v3();
+#endif
+	power_off_vcc5v();
+
 	return 0;
 }
 
 static int platform_power_end(void)
 {
 	logi("%s, power on\n", __func__);
-	str_power_on(0);
+#ifndef CONFIG_ETH_WAKEUP
+	/***power on vcc3v3***/
+	power_on_vcc3v3();
+#endif
+	/***power on vcc5v***/
+	power_on_vcc5v();
+	/*Wait 10ms for statble*/
+	vTaskDelay(pdMS_TO_TICKS(10));
 	return 0;
 }
 

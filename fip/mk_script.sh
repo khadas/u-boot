@@ -436,6 +436,11 @@ function parser() {
 				export CONFIG_SUPPORT_BL33Z
 				echo "SET CONFIG: CONFIG_SUPPORT_BL33Z"
 				continue ;;
+			--compress-bl2e)
+				CONFIG_COMPRESS_BL2E=1
+				export CONFIG_COMPRESS_BL2E
+				echo "SET CONFIG: CONFIG_COMPRESS_BL2E"
+				continue ;;
 			--chipid)
 				CONFIG_CHIPID_SUPPORT=1
 				export CONFIG_CHIPID_SUPPORT

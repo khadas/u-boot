@@ -408,7 +408,7 @@ generate_efuse_pattern() {
 }
 
 generate_efuse_pattern_gxl() {
-    echo -n "Generate OTP pattern for GXL (A112, S905X, S905D) ... "
+    echo -n "Generate OTP pattern for GXL/TXLX (A112, S905X, S905D, T962X, T962E) ... "
 
     # Additional args check
     if [ "$userefusefile" != "" ]; then
@@ -661,7 +661,7 @@ generate_efuse_pattern_axg() {
     fi
 
     # Generate empty eFUSE pattern data
-    dd if=/dev/zero of=$patt count=256 bs=1 &> /dev/null
+    dd if=/dev/zero of=$patt count=512 bs=1 &> /dev/null
 
     if [ "$roothash" != "" ]; then
         dd if=$roothash of=$patt bs=1 seek=32 count=32 \
@@ -716,7 +716,7 @@ generate_efuse_pattern_axg() {
     if [ "$opt_raw_otp_pattern" == "true" ]; then
         cp $patt $output
     else
-        ${TOOL_PATH}/aml_encrypt_axg --efsproc --input $patt --output $output
+        ${TOOL_PATH}/aml_encrypt_gxl --efsproc --input $patt --output $output
     fi
 
     echo "done"

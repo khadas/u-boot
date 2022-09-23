@@ -54,7 +54,7 @@
 #include "soc.h"
 #include "suspend.h"
 
-
+#define timere_read()	REG32(TIMERE_LOW_REG)
 /* io defines */
 #define wr_reg(addr, val)					(*((volatile uint32_t *)(addr)))  = (val)
 #define rd_reg(addr)						(*((volatile uint32_t *)(addr)))
@@ -502,14 +502,16 @@ void vDDR_suspend(uint32_t st_f)
 	//ddr_suspend_resume_test((80<<20), 10000000, 0, 3, 0, 0);
 }
 
-static unsigned int pll_lock(void) {
-	unsigned int lock_cnt = 100;
+static unsigned int pll_lock(void)
+{
+	unsigned int lock_cnt = 1000;
+
+	wr_reg(AM_DDR_PLL_CNTL0, (rd_reg(AM_DDR_PLL_CNTL0) & (~(0xf << 28))) | (1 << 29));
+	vTaskDelay(pdMS_TO_TICKS(1));
+	wr_reg(AM_DDR_PLL_CNTL0, (rd_reg(AM_DDR_PLL_CNTL0) & (~(0x1 << 29))) | (1 << 28));
 	do {
-		wr_reg(AM_DDR_PLL_CNTL0, (rd_reg(AM_DDR_PLL_CNTL0) & (~(0xf<<28))) | (1<<29));
 		vTaskDelay(pdMS_TO_TICKS(1));
-		wr_reg(AM_DDR_PLL_CNTL0, (rd_reg(AM_DDR_PLL_CNTL0) & (~(0x1<<29))) | (1<<28));
-		vTaskDelay(pdMS_TO_TICKS(200));
-	} while((0 == ((rd_reg(AM_DDR_PLL_CNTL0) >> 31) & 0x1)) && (lock_cnt--));
+	} while ((0 == ((rd_reg(AM_DDR_PLL_CNTL0) >> 31) & 0x1)) && (lock_cnt--));
 	return lock_cnt;
 }
 
@@ -517,7 +519,7 @@ void vDDR_resume(uint32_t st_f)
 {
 	//unsigned int time_start, time_end;
 	unsigned int ret = 0;
-
+	uint32_t last_time = timere_read();
 	st_f = st_f;
 	printf("Enter ddr resume\n");
 
@@ -552,7 +554,7 @@ void vDDR_resume(uint32_t st_f)
 			wr_reg(DMC_DRAM_DFIINITCFG, (0 | (0 << 1) | (0 << 6) | (0 << 14) | (1 << 8)));
 			vTaskDelay(pdMS_TO_TICKS(1));
 			wait_set(DMC_DRAM_DFIINITCFG, 31);
-			vTaskDelay(pdMS_TO_TICKS(100));
+			vTaskDelay(pdMS_TO_TICKS(1));
 #endif
 	wr_reg(DMC_DRAM_SCFG, 4);
 	while (((((rd_reg(DMC_DRAM_STAT))>>4)&0xf) != 2)) {
@@ -584,7 +586,7 @@ void vDDR_resume(uint32_t st_f)
 	//ddr_suspend_resume_test((1<<20), 0, 1, 3, 0, 0);
 	//_udelay(300);
 //	wr_reg(DMC_REQ_CTRL, 0xffffffff);
-	printf("ddr resume done\n");
+	printf("ddr resume done %d us\n", timere_read() - last_time);
 }
 
 

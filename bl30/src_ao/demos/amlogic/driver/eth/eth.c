@@ -30,8 +30,10 @@
 #include "FreeRTOS.h"
 #include "suspend.h"
 #include "interrupt.h"
+#include "mailbox-api.h"
 #include "eth.h"
 
+uint32_t eth_wol_flag = 0;
 uint32_t ethIrq;
 void eth_handler(void)
 {
@@ -46,7 +48,6 @@ void vETHInit(uint32_t ulIrq,function_ptr_t handler)
 {
 	ethIrq = ulIrq;
 	RegisterIrq(ulIrq, 2, handler);
-	EnableIrq(ulIrq);
 }
 
 void vETHDeint(void)
@@ -73,4 +74,26 @@ void vETHDeint_t5(void)
 	eth_deinit = 1;
 	DisableIrq(ethIrq);
 	UnRegisterIrq(ethIrq);
+}
+
+int get_ETHWol_flag(void)
+{
+	return eth_wol_flag;
+}
+
+static void *prvETHSetWol(void *msg)
+{
+	eth_wol_flag = *(u32 *)msg;
+	return NULL;
+}
+
+void vETHMailboxCallback(void)
+{
+	int32_t ret;
+	ret = xInstallRemoteMessageCallbackFeedBack(AOREE_CHANNEL, MBX_CMD_SET_ETHERNET_WOL,
+		prvETHSetWol, 1);
+	if (ret == MBOX_CALL_MAX) {
+		printf("mailbox cmd 0x%x register fail\n");
+		return;
+	}
 }

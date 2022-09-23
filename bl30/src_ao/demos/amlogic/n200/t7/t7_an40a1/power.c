@@ -36,13 +36,8 @@
 
 #include "hdmi_cec.h"
 #include "hdmirx_wake.h"
-
-/*#define CONFIG_ETH_WAKEUP*/
-
-#ifdef CONFIG_ETH_WAKEUP
 #include "interrupt_control.h"
 #include "eth.h"
-#endif
 
 #define CONFIG_HDMIRX_PLUGIN_WAKEUP
 
@@ -82,9 +77,7 @@ void str_hw_init(void)
 {
 	/*enable device & wakeup source interrupt*/
 	vIRInit(MODE_HARD_NEC, GPIOD_5, PIN_FUNC1, prvPowerKeyList, ARRAY_SIZE(prvPowerKeyList), vIRHandler);
-#ifdef CONFIG_ETH_WAKEUP
 	vETHInit(IRQ_ETH_PMT_NUM,eth_handler);
-#endif
 	xTaskCreate(vCEC_task, "CECtask", configMINIMAL_STACK_SIZE,
 		    NULL, CEC_TASK_PRI, &cecTask);
 
@@ -101,9 +94,7 @@ void str_hw_disable(void)
 {
 	/*disable wakeup source interrupt*/
 	vIRDeint();
-#ifdef CONFIG_ETH_WAKEUP
 	vETHDeint();
-#endif
 	if (cecTask) {
 		vTaskDelete(cecTask);
 		cec_req_irq(0);
@@ -160,13 +151,13 @@ void str_power_off(int shutdown_flag)
 		return;
 	}
 
-#ifndef CONFIG_ETH_WAKEUP
+	if (get_ETHWol_flag() == 0) {
 	ret = vPwmMesonsetvoltage(VDDEE_VOLT,770);
 	if (ret < 0) {
 		printf("vdd_EE pwm set fail\n");
 		return;
 	}
-#endif
+	}
 
 	/***power off vdd_cpu***/
 	ret = xGpioSetDir(GPIO_TEST_N,GPIO_DIR_OUT);

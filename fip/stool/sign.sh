@@ -34,7 +34,7 @@ if [ ${soc} == "gxl" ]; then
 hash_ver=1
 fi
 
-if [ ${soc} == "gxl" ] || [ ${soc} == "txlx" ]; then
+if [ ${soc} == "gxl" ] || [ ${soc} == "txlx" ] || [ ${soc} == "axg" ]; then
 soc_type=gxl
 tool_type=gxl
 fi
@@ -106,7 +106,7 @@ mkdir -p ${OUTPUTDIR}
 if [ -e ${INPUTDIR}/bl2_new.bin ]; then
   echo
   echo "$user_package signing process ..."
-  "$uboot_encrypt_signed" -p ${INPUTDIR} -r ${RSAKEYDIR} -a ${AESKEYDIR} -o ${OUTPUTDIR} -h ${hash_ver} -s ${tool_type} -b ${ARBCONFIG} $encryption_option $bl40_option
+  "$uboot_encrypt_signed" -p ${INPUTDIR} -r ${RSAKEYDIR} -a ${AESKEYDIR} -o ${OUTPUTDIR} -h ${hash_ver} -s ${soc} -b ${ARBCONFIG} $encryption_option $bl40_option
 fi
 
 if [ -z $encryption_option ]; then

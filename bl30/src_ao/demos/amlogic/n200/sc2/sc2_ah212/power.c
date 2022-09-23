@@ -37,12 +37,8 @@
 
 #include "hdmi_cec.h"
 
-#define CONFIG_ETH_WAKEUP
-
-#ifdef CONFIG_ETH_WAKEUP
 #include "interrupt_control.h"
 #include "eth.h"
-#endif
 
 static TaskHandle_t cecTask = NULL;
 static int vdd_ee;
@@ -54,7 +50,10 @@ static IRPowerKey_t prvPowerKeyList[] = {
 	{ 0xf20dfe01, IR_NORMAL},
 	{ 0xe51afb04, IR_NORMAL},
 	{ 0xff00fe06, IR_NORMAL},
+	{ 0xe7187788, IR_NORMAL},
+	{ 0xde217788, IR_NORMAL},
 	{ 0x3ac5bd02, IR_CUSTOM},
+	{ 0x9c637788, IR_CUSTOM},
 	{}
         /* add more */
 };
@@ -80,9 +79,7 @@ void str_hw_init(void)
 {
 	/*enable device & wakeup source interrupt*/
 	vIRInit(MODE_HARD_NEC, GPIOD_5, PIN_FUNC1, prvPowerKeyList, ARRAY_SIZE(prvPowerKeyList), vIRHandler);
-#ifdef CONFIG_ETH_WAKEUP
 	vETHInit(IRQ_ETH_PMT_NUM,eth_handler);
-#endif
 	xTaskCreate(vCEC_task, "CECtask", configMINIMAL_STACK_SIZE,
 		    NULL, CEC_TASK_PRI, &cecTask);
 
@@ -96,9 +93,7 @@ void str_hw_disable(void)
 {
 	/*disable wakeup source interrupt*/
 	vIRDeint();
-#ifdef CONFIG_ETH_WAKEUP
 	vETHDeint();
-#endif
 	if (cecTask) {
 		vTaskDelete(cecTask);
 		cec_req_irq(0);
@@ -165,13 +160,13 @@ void str_power_off(int shutdown_flag)
 		printf("vdd_EE pwm get fail\n");
 		return;
 	}
-#ifndef CONFIG_ETH_WAKEUP
+
 	ret = vPwmMesonsetvoltage(VDDEE_VOLT,770);
 	if (ret < 0) {
 		printf("vdd_EE pwm set fail\n");
 		return;
 	}
-#endif
+
     /***power off vcc_5v***/
 	ret = xPinmuxSet(GPIOH_8,PIN_FUNC0);
 	if (ret < 0) {

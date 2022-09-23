@@ -39,7 +39,7 @@
 #include "mailbox-api.h"
 #include "version.h"
 #include "hdmi_cec.h"
-
+#include "eth.h"
 #define INT_TEST_NEST_DEPTH  6
 #define INT_TEST_GPIO_NUM  6
 #define INT_TEST_TASK_DELAY  50 // ms
@@ -193,6 +193,7 @@ int main(void)
 	write_csr_mivec(&irq_entry);
 
 	vRtcInit();
+	vETHMailboxCallback();
 	create_str_task();
 
 	vUartPuts("Starting task scheduler ...\n");

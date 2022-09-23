@@ -70,6 +70,7 @@ $(info LDFLAGS = $(LDFLAGS))
 -include $(FREERTOS_VENDOR_DRIVER)/saradc/build.mk
 -include $(FREERTOS_VENDOR_DRIVER)/key/build.mk
 -include $(FREERTOS_VENDOR_DRIVER)/i2c/build.mk
+-include $(FREERTOS_VENDOR_DRIVER)/glb_timer/build.mk
 
 objs_from_dir=$(sort $(foreach obj, $($(2)-y), \
                 $(COMPILER)/$(1)/$(firstword $($(2)-mock-$(PROJECT)-$(obj)) $(obj))))

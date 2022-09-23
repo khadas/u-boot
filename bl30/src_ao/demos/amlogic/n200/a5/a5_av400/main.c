@@ -49,7 +49,7 @@
 #include "rtc.h"
 #include "mailbox-api.h"
 #include "version.h"
-
+#include "eth.h"
 //#include "printf.h"
 #define INT_TEST_NEST_DEPTH  6
 #define INT_TEST_GPIO_NUM  6
@@ -173,6 +173,7 @@ int main(void)
 //	vCecCallbackInit(CEC_CHIP_SC2);
 //	vRtcInit();
 	rtc_init();
+	vETHMailboxCallback();
 	create_str_task();
 
 	printf("Starting task scheduler ...\r\n");

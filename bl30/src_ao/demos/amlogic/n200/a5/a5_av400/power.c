@@ -37,12 +37,9 @@
 #include "timer_source.h"
 #include "../include/vad_suspend.h"
 
-/* #define CONFIG_ETH_WAKEUP */
-
-#ifdef CONFIG_ETH_WAKEUP
 #include "interrupt_control.h"
 #include "eth.h"
-#endif
+
 static int vdd_ee;
 static int vdd_cpu;
 
@@ -97,9 +94,7 @@ void str_hw_init(void)
 {
 	/*enable device & wakeup source interrupt*/
 	vIRInit(MODE_HARD_NEC, GPIOD_5, PIN_FUNC1, prvPowerKeyList, ARRAY_SIZE(prvPowerKeyList), vIRHandler);
-#ifdef CONFIG_ETH_WAKEUP
 	vETHInit(IRQ_ETH_PMT_NUM,eth_handler);
-#endif
 	xTaskCreate(vVAD_task, "VADtask", configMINIMAL_STACK_SIZE,
 		    NULL, VAD_TASK_PRI, &vadTask);
 
@@ -113,9 +108,7 @@ void str_hw_disable(void)
 {
 	/*disable wakeup source interrupt*/
 	vIRDeint();
-#ifdef CONFIG_ETH_WAKEUP
 	vETHDeint();
-#endif
 	if (vadTask) {
 		vTaskDelete(vadTask);
 		vadTask = NULL;

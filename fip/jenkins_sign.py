@@ -13,9 +13,9 @@ from os.path import expanduser
 import jenkins
 
 
-serverRootUrl = "https://jenkins-sh.amlogic.com/job/Security/job/Signing/job/"
+serverRootUrl = "https://jenkins-sh.amlogic.com/job/Security/job/"
 homeConfigFilePath = "~/.sign.cfg"
-types = ["ta", "bl32", "bl31", "bl2", "bl2e", "bl2x", "bl40", "aucpufw", "vdecfw"]
+types = ["ta", "vmxta", "bl32", "bl31", "bl2", "bl2e", "bl2x", "bl40", "aucpufw", "vdecfw"]
 casProviders = ["", "VMX", "nagra", "nagra-dev", "vo", "gs-dev", "gs", "irdeto"]
 ddrTypes = ["ddr4", "lpddr4", "ddr3", "lpddr3", "lpddr4_lpddr5"]
 chipVariants = ["general", "nocs-jts-ap", "nocs-prod"]
@@ -105,19 +105,21 @@ def getLastBuildNumber(rootJobUrl):
 
 def getJobRootUrl(type):
     if type == "ta":
-        return urljoin(serverRootUrl, "Sign_TA/")
+        return urljoin(serverRootUrl, "Signing/job/Sign_TA/")
+    elif type == "vmxta":
+        return urljoin(serverRootUrl, "CAS/job/VMX/job/VMX_TA_Sign/")
     elif type == "bl31":
-        return urljoin(serverRootUrl, "Sign_Bl31/")
+        return urljoin(serverRootUrl, "Signing/job/Sign_Bl31/")
     elif type == "bl2":
-        return urljoin(serverRootUrl, "Sign_Bl2/")
+        return urljoin(serverRootUrl, "Signing/job/Sign_Bl2/")
     elif type == "bl32":
-        return urljoin(serverRootUrl, "Sign_Bl32/")
+        return urljoin(serverRootUrl, "Signing/job/Sign_Bl32/")
     elif type == "aucpufw":
-        return urljoin(serverRootUrl, "Sign_AUCPU_FW/")
+        return urljoin(serverRootUrl, "Signing/job/Sign_AUCPU_FW/")
     elif type == "vdecfw":
-        return urljoin(serverRootUrl, "Sign_VDEC_FW/")
+        return urljoin(serverRootUrl, "Signing/job/Sign_VDEC_FW/")
     else:  # bl2e, bl2x, bl40
-        return urljoin(serverRootUrl, "Sign_Bl2e_Bl2x_Bl40/")
+        return urljoin(serverRootUrl, "Signing/job/Sign_Bl2e_Bl2x_Bl40/")
 
 
 def getJobName(type):

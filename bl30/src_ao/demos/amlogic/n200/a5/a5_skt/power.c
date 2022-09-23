@@ -34,12 +34,8 @@
 #include "pwm_plat.h"
 #include "keypad.h"
 
-/* #define CONFIG_ETH_WAKEUP */
-
-#ifdef CONFIG_ETH_WAKEUP
 #include "interrupt_control.h"
 #include "eth.h"
-#endif
 
 static int vdd_ee;
 
@@ -77,9 +73,7 @@ void str_hw_init(void)
 {
 	/*enable device & wakeup source interrupt*/
 	vIRInit(MODE_HARD_NEC, GPIOD_5, PIN_FUNC1, prvPowerKeyList, ARRAY_SIZE(prvPowerKeyList), vIRHandler);
-#ifdef CONFIG_ETH_WAKEUP
 	vETHInit(IRQ_ETH_PMT_NUM,eth_handler);
-#endif
 
 	vBackupAndClearGpioIrqReg();
 	vKeyPadInit();
@@ -91,9 +85,7 @@ void str_hw_disable(void)
 {
 	/*disable wakeup source interrupt*/
 	vIRDeint();
-#ifdef CONFIG_ETH_WAKEUP
 	vETHDeint();
-#endif
 
 	vKeyPadDeinit();
 	vRestoreGpioIrqReg();
@@ -140,13 +132,11 @@ void str_power_off(int shutdown_flag)
 		return;
 	}
 
-#ifndef CONFIG_ETH_WAKEUP
 	ret = vPwmMesonsetvoltage(VDDEE_VOLT,770);
 	if (ret < 0) {
 		printf("vdd_EE pwm set fail\n");
 		return;
 	}
-#endif
 
 	/***power off vdd_cpu***/
 	ret = xGpioSetDir(GPIO_TEST_N,GPIO_DIR_OUT);

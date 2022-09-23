@@ -48,6 +48,7 @@
 #include "wakeup.h"
 #include "stick_mem.h"
 #include "pm.h"
+#include "irq.h"
 
 void system_resume(uint32_t pm);
 void system_suspend(uint32_t pm);
@@ -89,6 +90,7 @@ void set_suspend_flag(void)
 	taskENTER_CRITICAL();
 	suspend_flag = 1;
 	taskEXIT_CRITICAL();
+	EnableIrq(IRQ_ETH_PMT_NUM);
 }
 __attribute__((weak)) void vDDR_suspend(uint32_t st_f)
 {

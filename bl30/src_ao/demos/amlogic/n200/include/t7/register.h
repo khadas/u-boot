@@ -36456,38 +36456,38 @@
 #define SRSHARP0_SHARP_GATE_CLK_CTRL_2          (SRSHARP0_OFFSET + SHARP_GATE_CLK_CTRL_2              ) // 0x86
 #define SRSHARP0_SHARP_GATE_CLK_CTRL_3          (SRSHARP0_OFFSET + SHARP_GATE_CLK_CTRL_3              ) // 0x87
 #define SRSHARP0_SHARP_DPS_CTRL                 (SRSHARP0_OFFSET + SHARP_DPS_CTRL                     ) // 0x88
-#define SRSHARP0_DNLP_00                        (SRSHARP0_OFFSET + DNLP_00                            ) // 0x90  //
-#define SRSHARP0_DNLP_01                        (SRSHARP0_OFFSET + DNLP_01                            ) // 0x91  //
-#define SRSHARP0_DNLP_02                        (SRSHARP0_OFFSET + DNLP_02                            ) // 0x92  //
-#define SRSHARP0_DNLP_03                        (SRSHARP0_OFFSET + DNLP_03                            ) // 0x93  //
-#define SRSHARP0_DNLP_04                        (SRSHARP0_OFFSET + DNLP_04                            ) // 0x94  //
-#define SRSHARP0_DNLP_05                        (SRSHARP0_OFFSET + DNLP_05                            ) // 0x95  //
-#define SRSHARP0_DNLP_06                        (SRSHARP0_OFFSET + DNLP_06                            ) // 0x96  //
-#define SRSHARP0_DNLP_07                        (SRSHARP0_OFFSET + DNLP_07                            ) // 0x97  //
-#define SRSHARP0_DNLP_08                        (SRSHARP0_OFFSET + DNLP_08                            ) // 0x98  //
-#define SRSHARP0_DNLP_09                        (SRSHARP0_OFFSET + DNLP_09                            ) // 0x99  //
-#define SRSHARP0_DNLP_10                        (SRSHARP0_OFFSET + DNLP_10                            ) // 0x9a  //
-#define SRSHARP0_DNLP_11                        (SRSHARP0_OFFSET + DNLP_11                            ) // 0x9b  //
-#define SRSHARP0_DNLP_12                        (SRSHARP0_OFFSET + DNLP_12                            ) // 0x9c  //
-#define SRSHARP0_DNLP_13                        (SRSHARP0_OFFSET + DNLP_13                            ) // 0x9d  //
-#define SRSHARP0_DNLP_14                        (SRSHARP0_OFFSET + DNLP_14                            ) // 0x9e  //
-#define SRSHARP0_DNLP_15                        (SRSHARP0_OFFSET + DNLP_15                            ) // 0x9f  //
-#define SRSHARP0_DNLP_16                        (SRSHARP0_OFFSET + DNLP_16                            ) // 0xa0  //
-#define SRSHARP0_DNLP_17                        (SRSHARP0_OFFSET + DNLP_17                            ) // 0xa1  //
-#define SRSHARP0_DNLP_18                        (SRSHARP0_OFFSET + DNLP_18                            ) // 0xa2  //
-#define SRSHARP0_DNLP_19                        (SRSHARP0_OFFSET + DNLP_19                            ) // 0xa3  //
-#define SRSHARP0_DNLP_20                        (SRSHARP0_OFFSET + DNLP_20                            ) // 0xa4  //
-#define SRSHARP0_DNLP_21                        (SRSHARP0_OFFSET + DNLP_21                            ) // 0xa5  //
-#define SRSHARP0_DNLP_22                        (SRSHARP0_OFFSET + DNLP_22                            ) // 0xa6  //
-#define SRSHARP0_DNLP_23                        (SRSHARP0_OFFSET + DNLP_23                            ) // 0xa7  //
-#define SRSHARP0_DNLP_24                        (SRSHARP0_OFFSET + DNLP_24                            ) // 0xa8  //
-#define SRSHARP0_DNLP_25                        (SRSHARP0_OFFSET + DNLP_25                            ) // 0xa9  //
-#define SRSHARP0_DNLP_26                        (SRSHARP0_OFFSET + DNLP_26                            ) // 0xaa  //
-#define SRSHARP0_DNLP_27                        (SRSHARP0_OFFSET + DNLP_27                            ) // 0xab  //
-#define SRSHARP0_DNLP_28                        (SRSHARP0_OFFSET + DNLP_28                            ) // 0xac  //
-#define SRSHARP0_DNLP_29                        (SRSHARP0_OFFSET + DNLP_29                            ) // 0xad  //
-#define SRSHARP0_DNLP_30                        (SRSHARP0_OFFSET + DNLP_30                            ) // 0xae  //
-#define SRSHARP0_DNLP_31                        (SRSHARP0_OFFSET + DNLP_31                            ) // 0xaf  //
+#define SRSHARP0_DNLP_00                        (SRSHARP0_OFFSET + DNLP_00) // 0x90  //
+#define SRSHARP0_DNLP_01                        (SRSHARP0_OFFSET + DNLP_01) // 0x91  //
+#define SRSHARP0_DNLP_02                        (SRSHARP0_OFFSET + DNLP_02) // 0x92  //
+#define SRSHARP0_DNLP_03                        (SRSHARP0_OFFSET + DNLP_03) // 0x93  //
+#define SRSHARP0_DNLP_04                        (SRSHARP0_OFFSET + DNLP_04) // 0x94  //
+#define SRSHARP0_DNLP_05                        (SRSHARP0_OFFSET + DNLP_05) // 0x95  //
+#define SRSHARP0_DNLP_06                        (SRSHARP0_OFFSET + DNLP_06) // 0x96  //
+#define SRSHARP0_DNLP_07                        (SRSHARP0_OFFSET + DNLP_07) // 0x97  //
+#define SRSHARP0_DNLP_08                        (SRSHARP0_OFFSET + DNLP_08) // 0x98  //
+#define SRSHARP0_DNLP_09                        (SRSHARP0_OFFSET + DNLP_09) // 0x99  //
+#define SRSHARP0_DNLP_10                        (SRSHARP0_OFFSET + DNLP_10) // 0x9a  //
+#define SRSHARP0_DNLP_11                        (SRSHARP0_OFFSET + DNLP_11) // 0x9b  //
+#define SRSHARP0_DNLP_12                        (SRSHARP0_OFFSET + DNLP_12) // 0x9c  //
+#define SRSHARP0_DNLP_13                        (SRSHARP0_OFFSET + DNLP_13) // 0x9d  //
+#define SRSHARP0_DNLP_14                        (SRSHARP0_OFFSET + DNLP_14) // 0x9e  //
+#define SRSHARP0_DNLP_15                        (SRSHARP0_OFFSET + DNLP_15) // 0x9f  //
+#define SRSHARP0_DNLP_16                        (SRSHARP0_OFFSET + DNLP_16) // 0xa0  //
+#define SRSHARP0_DNLP_17                        (SRSHARP0_OFFSET + DNLP_17) // 0xa1  //
+#define SRSHARP0_DNLP_18                        (SRSHARP0_OFFSET + DNLP_18) // 0xa2  //
+#define SRSHARP0_DNLP_19                        (SRSHARP0_OFFSET + DNLP_19) // 0xa3  //
+#define SRSHARP0_DNLP_20                        (SRSHARP0_OFFSET + DNLP_20) // 0xa4  //
+#define SRSHARP0_DNLP_21                        (SRSHARP0_OFFSET + DNLP_21) // 0xa5  //
+#define SRSHARP0_DNLP_22                        (SRSHARP0_OFFSET + DNLP_22) // 0xa6  //
+#define SRSHARP0_DNLP_23                        (SRSHARP0_OFFSET + DNLP_23) // 0xa7  //
+#define SRSHARP0_DNLP_24                        (SRSHARP0_OFFSET + DNLP_24) // 0xa8  //
+#define SRSHARP0_DNLP_25                        (SRSHARP0_OFFSET + DNLP_25) // 0xa9  //
+#define SRSHARP0_DNLP_26                        (SRSHARP0_OFFSET + DNLP_26) // 0xaa  //
+#define SRSHARP0_DNLP_27                        (SRSHARP0_OFFSET + DNLP_27) // 0xab  //
+#define SRSHARP0_DNLP_28                        (SRSHARP0_OFFSET + DNLP_28) // 0xac  //
+#define SRSHARP0_DNLP_29                        (SRSHARP0_OFFSET + DNLP_29) // 0xad  //
+#define SRSHARP0_DNLP_30                        (SRSHARP0_OFFSET + DNLP_30) // 0xae  //
+#define SRSHARP0_DNLP_31                        (SRSHARP0_OFFSET + DNLP_31) // 0xaf  //
 #define SRSHARP0_SHARP_SYNC_CTRL                (SRSHARP0_OFFSET + SHARP_SYNC_CTRL                    ) // 0xb0  //
 #define SRSHARP0_LC_INPUT_MUX                   (SRSHARP0_OFFSET + LC_INPUT_MUX                       ) // 0xb1  //
 #define SRSHARP0_NR_GAU_YH_COEF02               (SRSHARP0_OFFSET + NR_GAU_YH_COEF02                   ) // 0xb2  //
@@ -36727,38 +36727,38 @@
 #define SRSHARP1_SHARP_GATE_CLK_CTRL_2          (SRSHARP1_OFFSET + SHARP_GATE_CLK_CTRL_2              ) // 0x86
 #define SRSHARP1_SHARP_GATE_CLK_CTRL_3          (SRSHARP1_OFFSET + SHARP_GATE_CLK_CTRL_3              ) // 0x87
 #define SRSHARP1_SHARP_DPS_CTRL                 (SRSHARP1_OFFSET + SHARP_DPS_CTRL                     ) // 0x88
-#define SRSHARP1_DNLP_00                        (SRSHARP1_OFFSET + DNLP_00                            ) // 0x90  //
-#define SRSHARP1_DNLP_01                        (SRSHARP1_OFFSET + DNLP_01                            ) // 0x91  //
-#define SRSHARP1_DNLP_02                        (SRSHARP1_OFFSET + DNLP_02                            ) // 0x92  //
-#define SRSHARP1_DNLP_03                        (SRSHARP1_OFFSET + DNLP_03                            ) // 0x93  //
-#define SRSHARP1_DNLP_04                        (SRSHARP1_OFFSET + DNLP_04                            ) // 0x94  //
-#define SRSHARP1_DNLP_05                        (SRSHARP1_OFFSET + DNLP_05                            ) // 0x95  //
-#define SRSHARP1_DNLP_06                        (SRSHARP1_OFFSET + DNLP_06                            ) // 0x96  //
-#define SRSHARP1_DNLP_07                        (SRSHARP1_OFFSET + DNLP_07                            ) // 0x97  //
-#define SRSHARP1_DNLP_08                        (SRSHARP1_OFFSET + DNLP_08                            ) // 0x98  //
-#define SRSHARP1_DNLP_09                        (SRSHARP1_OFFSET + DNLP_09                            ) // 0x99  //
-#define SRSHARP1_DNLP_10                        (SRSHARP1_OFFSET + DNLP_10                            ) // 0x9a  //
-#define SRSHARP1_DNLP_11                        (SRSHARP1_OFFSET + DNLP_11                            ) // 0x9b  //
-#define SRSHARP1_DNLP_12                        (SRSHARP1_OFFSET + DNLP_12                            ) // 0x9c  //
-#define SRSHARP1_DNLP_13                        (SRSHARP1_OFFSET + DNLP_13                            ) // 0x9d  //
-#define SRSHARP1_DNLP_14                        (SRSHARP1_OFFSET + DNLP_14                            ) // 0x9e  //
-#define SRSHARP1_DNLP_15                        (SRSHARP1_OFFSET + DNLP_15                            ) // 0x9f  //
-#define SRSHARP1_DNLP_16                        (SRSHARP1_OFFSET + DNLP_16                            ) // 0xa0  //
-#define SRSHARP1_DNLP_17                        (SRSHARP1_OFFSET + DNLP_17                            ) // 0xa1  //
-#define SRSHARP1_DNLP_18                        (SRSHARP1_OFFSET + DNLP_18                            ) // 0xa2  //
-#define SRSHARP1_DNLP_19                        (SRSHARP1_OFFSET + DNLP_19                            ) // 0xa3  //
-#define SRSHARP1_DNLP_20                        (SRSHARP1_OFFSET + DNLP_20                            ) // 0xa4  //
-#define SRSHARP1_DNLP_21                        (SRSHARP1_OFFSET + DNLP_21                            ) // 0xa5  //
-#define SRSHARP1_DNLP_22                        (SRSHARP1_OFFSET + DNLP_22                            ) // 0xa6  //
-#define SRSHARP1_DNLP_23                        (SRSHARP1_OFFSET + DNLP_23                            ) // 0xa7  //
-#define SRSHARP1_DNLP_24                        (SRSHARP1_OFFSET + DNLP_24                            ) // 0xa8  //
-#define SRSHARP1_DNLP_25                        (SRSHARP1_OFFSET + DNLP_25                            ) // 0xa9  //
-#define SRSHARP1_DNLP_26                        (SRSHARP1_OFFSET + DNLP_26                            ) // 0xaa  //
-#define SRSHARP1_DNLP_27                        (SRSHARP1_OFFSET + DNLP_27                            ) // 0xab  //
-#define SRSHARP1_DNLP_28                        (SRSHARP1_OFFSET + DNLP_28                            ) // 0xac  //
-#define SRSHARP1_DNLP_29                        (SRSHARP1_OFFSET + DNLP_29                            ) // 0xad  //
-#define SRSHARP1_DNLP_30                        (SRSHARP1_OFFSET + DNLP_30                            ) // 0xae  //
-#define SRSHARP1_DNLP_31                        (SRSHARP1_OFFSET + DNLP_31                            ) // 0xaf  //
+#define SRSHARP1_DNLP_00                        (SRSHARP1_OFFSET + DNLP_00) // 0x90  //
+#define SRSHARP1_DNLP_01                        (SRSHARP1_OFFSET + DNLP_01) // 0x91  //
+#define SRSHARP1_DNLP_02                        (SRSHARP1_OFFSET + DNLP_02) // 0x92  //
+#define SRSHARP1_DNLP_03                        (SRSHARP1_OFFSET + DNLP_03) // 0x93  //
+#define SRSHARP1_DNLP_04                        (SRSHARP1_OFFSET + DNLP_04) // 0x94  //
+#define SRSHARP1_DNLP_05                        (SRSHARP1_OFFSET + DNLP_05) // 0x95  //
+#define SRSHARP1_DNLP_06                        (SRSHARP1_OFFSET + DNLP_06) // 0x96  //
+#define SRSHARP1_DNLP_07                        (SRSHARP1_OFFSET + DNLP_07) // 0x97  //
+#define SRSHARP1_DNLP_08                        (SRSHARP1_OFFSET + DNLP_08) // 0x98  //
+#define SRSHARP1_DNLP_09                        (SRSHARP1_OFFSET + DNLP_09) // 0x99  //
+#define SRSHARP1_DNLP_10                        (SRSHARP1_OFFSET + DNLP_10) // 0x9a  //
+#define SRSHARP1_DNLP_11                        (SRSHARP1_OFFSET + DNLP_11) // 0x9b  //
+#define SRSHARP1_DNLP_12                        (SRSHARP1_OFFSET + DNLP_12) // 0x9c  //
+#define SRSHARP1_DNLP_13                        (SRSHARP1_OFFSET + DNLP_13) // 0x9d  //
+#define SRSHARP1_DNLP_14                        (SRSHARP1_OFFSET + DNLP_14) // 0x9e  //
+#define SRSHARP1_DNLP_15                        (SRSHARP1_OFFSET + DNLP_15) // 0x9f  //
+#define SRSHARP1_DNLP_16                        (SRSHARP1_OFFSET + DNLP_16) // 0xa0  //
+#define SRSHARP1_DNLP_17                        (SRSHARP1_OFFSET + DNLP_17) // 0xa1  //
+#define SRSHARP1_DNLP_18                        (SRSHARP1_OFFSET + DNLP_18) // 0xa2  //
+#define SRSHARP1_DNLP_19                        (SRSHARP1_OFFSET + DNLP_19) // 0xa3  //
+#define SRSHARP1_DNLP_20                        (SRSHARP1_OFFSET + DNLP_20) // 0xa4  //
+#define SRSHARP1_DNLP_21                        (SRSHARP1_OFFSET + DNLP_21) // 0xa5  //
+#define SRSHARP1_DNLP_22                        (SRSHARP1_OFFSET + DNLP_22) // 0xa6  //
+#define SRSHARP1_DNLP_23                        (SRSHARP1_OFFSET + DNLP_23) // 0xa7  //
+#define SRSHARP1_DNLP_24                        (SRSHARP1_OFFSET + DNLP_24) // 0xa8  //
+#define SRSHARP1_DNLP_25                        (SRSHARP1_OFFSET + DNLP_25) // 0xa9  //
+#define SRSHARP1_DNLP_26                        (SRSHARP1_OFFSET + DNLP_26) // 0xaa  //
+#define SRSHARP1_DNLP_27                        (SRSHARP1_OFFSET + DNLP_27) // 0xab  //
+#define SRSHARP1_DNLP_28                        (SRSHARP1_OFFSET + DNLP_28) // 0xac  //
+#define SRSHARP1_DNLP_29                        (SRSHARP1_OFFSET + DNLP_29) // 0xad  //
+#define SRSHARP1_DNLP_30                        (SRSHARP1_OFFSET + DNLP_30) // 0xae  //
+#define SRSHARP1_DNLP_31                        (SRSHARP1_OFFSET + DNLP_31) // 0xaf  //
 #define SRSHARP1_SHARP_SYNC_CTRL                (SRSHARP1_OFFSET + SHARP_SYNC_CTRL                    ) // 0xb0  //
 #define SRSHARP1_LC_INPUT_MUX                   (SRSHARP1_OFFSET + LC_INPUT_MUX                       ) // 0xb1  //
 #define SRSHARP1_NR_GAU_YH_COEF02               (SRSHARP1_OFFSET + NR_GAU_YH_COEF02                   ) // 0xb2  //
@@ -41359,6 +41359,6 @@
 //
 // Closing file:  ./parser_regs.h
 //
-
+#include "register_revc.h"
 #endif // REGISTER_H
 

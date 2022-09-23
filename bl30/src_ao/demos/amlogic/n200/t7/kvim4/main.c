@@ -49,6 +49,7 @@
 #include "vrtc.h"
 #include "mailbox-api.h"
 #include "version.h"
+#include "eth.h"
 #include "leds_state.h"
 
 //#include "printf.h"
@@ -182,6 +183,7 @@ int main(void)
 
 	vCecCallbackInit(CEC_CHIP_T7);
 	vRtcInit();
+	vETHMailboxCallback();
 	create_str_task();
 
 	printf("Starting task scheduler ...\r\n");
