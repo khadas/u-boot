@@ -21,6 +21,7 @@
 #include <spi.h>
 #include <spi-mem.h>
 #include <linux/mtd/nand.h>
+#include <amlogic/storage.h>
 #endif
 #define NAND_BLOCK_GOOD		0
 #define NAND_BLOCK_BAD		1
@@ -31,7 +32,11 @@
 /* Use dev parameters to send parameters in advanced mode */
 #define SPINAND_MESON_INFO_PAGE		0
 #else
+#ifdef SPINAND_ADVANCE_INFO_PAGE
+#define SPINAND_MESON_INFO_PAGE_V2      1
+#else
 #define SPINAND_MESON_INFO_PAGE		1
+#endif
 #endif
 
 
@@ -68,6 +73,25 @@ struct info_page {
 };
 #endif
 
+#if SPINAND_MESON_INFO_PAGE_V2
+struct boot_info {
+#define SPINAND_MAGIC       "BOOTINFO"
+#define SPINAND_INFO_VER    2
+        char magic[8];
+        unsigned char version;		/* need to greater than or equal to 2 */
+	unsigned char reserved[2];	/* reserve zero */
+	/* bit0~1: page per bbt */
+	unsigned char common;
+        struct {
+		unsigned int page_size;
+		/* bit0~3: planes_per_lun bit4~7: plane_shift */
+		unsigned char planes_per_lun;
+		/* bit0~3: bus_width bit4~7: cache_plane_shift */
+		unsigned char bus_width;
+	} dev_cfg;
+	unsigned int checksum;
+};
+#endif
 /**
  * Standard SPI NAND flash operations
  */

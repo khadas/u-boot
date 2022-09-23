@@ -65,7 +65,7 @@ static int MX35LF2GE4AD_ooblayout_free(struct mtd_info *mtd, int section,
 
 	return 0;
 }
-#if 0
+
 static int MX35LF4GE4AD_ooblayout_ecc(struct mtd_info *mtd, int section,
 				      struct mtd_oob_region *region)
 {
@@ -83,7 +83,7 @@ static int MX35LF4GE4AD_ooblayout_free(struct mtd_info *mtd, int section,
 
 	return 0;
 }
-#endif
+
 static const struct mtd_ooblayout_ops mx35lfxge4ab_ooblayout = {
 	.ecc = mx35lfxge4ab_ooblayout_ecc,
 	.free = mx35lfxge4ab_ooblayout_free,
@@ -94,12 +94,10 @@ static const struct mtd_ooblayout_ops MX35LF2GE4AD_ooblayout = {
 	.free = MX35LF2GE4AD_ooblayout_free,
 };
 
-#if 0
 static const struct mtd_ooblayout_ops MX35LF4GE4AD_ooblayout = {
 	.ecc = MX35LF4GE4AD_ooblayout_ecc,
 	.free = MX35LF4GE4AD_ooblayout_free,
 };
-#endif
 
 static int mx35lf1ge4ab_get_eccsr(struct spinand_device *spinand, u8 *eccsr)
 {
@@ -219,6 +217,15 @@ static const struct spinand_info macronix_spinand_table[] = {
 		     SPINAND_ECCINFO(&MX35LF2GE4AD_ooblayout,
 				     mx35lf2ge4ad_ecc_get_status)),
 
+	SPINAND_INFO("MX35UF4GE4AD 1.8V", 0xb7,
+		     NAND_MEMORG(1, 4096, 256, 64, 2048, 1, 1, 1),
+		     NAND_ECCREQ(8, 512),
+		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
+					      &write_cache_variants,
+					      &update_cache_variants),
+		     SPINAND_HAS_QE_BIT,
+		     SPINAND_ECCINFO(&MX35LF4GE4AD_ooblayout,
+				     mx35lf2ge4ad_ecc_get_status)),
 };
 
 static int macronix_spinand_detect(struct spinand_device *spinand)

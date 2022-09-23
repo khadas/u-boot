@@ -54,13 +54,11 @@ extern unsigned int lcd_debug_print_flag;
 #define CLK_CTRL_FRAC_SHIFT         24 /* [24] */
 #define CLK_CTRL_FRAC               0  /* [18:0] */
 
-
 /* **********************************
  * VENC to TCON sync delay
  * ********************************** */
-#define TTL_DELAY                   13
+#define RGB_DELAY                   13
 #define PRE_DE_DELAY                8
-
 
 #define LCD_PINMUX_END          0xff
 #define LCD_PINMUX_NUM          15
@@ -84,17 +82,20 @@ enum lcd_chip_e {
 	LCD_CHIP_T5D,
 	LCD_CHIP_T7,
 	LCD_CHIP_T3,
+	LCD_CHIP_C3,
 	LCD_CHIP_MAX,
 };
 
 enum lcd_type_e {
-	LCD_TTL = 0,
+	LCD_RGB = 0,
 	LCD_LVDS,
 	LCD_VBYONE,
 	LCD_MIPI,
 	LCD_MLVDS,
 	LCD_P2P,
 	LCD_EDP,
+	LCD_BT656,
+	LCD_BT1120,
 	LCD_TYPE_MAX,
 };
 
@@ -143,8 +144,10 @@ struct lcd_timing_s {
 	unsigned short sync_duration_num;
 	unsigned short sync_duration_den;
 
-	unsigned short video_on_pixel;
-	unsigned short video_on_line;
+	unsigned int hstart;
+	unsigned int hend;
+	unsigned int vstart;
+	unsigned int vend;
 
 	unsigned short hsync_width;
 	unsigned short hsync_bp;
@@ -172,10 +175,21 @@ struct lcd_timing_s {
 	unsigned short vs_ve_addr;
 };
 
-struct ttl_config_s {
+struct rgb_config_s {
+	unsigned int type;
 	unsigned int clk_pol;
-	unsigned int sync_valid; /* [1]DE, [0]hvsync */
-	unsigned int swap_ctrl; /* [1]rb swap, [0]bit swap */
+	unsigned int de_valid;
+	unsigned int sync_valid;
+	unsigned int rb_swap;
+	unsigned int bit_swap;
+};
+
+struct bt_config_s {
+	unsigned int clk_phase;
+	unsigned int field_type;
+	unsigned int mode_422;
+	unsigned int yc_swap;
+	unsigned int cbcr_swap;
 };
 
 #define LVDS_PHY_VSWING_DFT        3
@@ -235,8 +249,8 @@ struct vbyone_config_s {
 #define SYNC_EVENT               0x1
 #define BURST_MODE               0x2
 
-/* unit: MHz */
-#define MIPI_BIT_RATE_MAX        1000
+/* unit: kHz */
+#define MIPI_BIT_RATE_MAX        1500000
 
 /* command config */
 #define DSI_CMD_SIZE_INDEX       1  /* byte[1] */
@@ -248,7 +262,6 @@ struct vbyone_config_s {
 struct dsi_config_s {
 	unsigned char lane_num;
 	unsigned int bit_rate_max; /* MHz */
-	unsigned int bit_rate_min; /* MHz*/
 	unsigned int clk_factor; /* bit_rate/pclk */
 	unsigned int factor_numerator;
 	unsigned int factor_denominator; /* 100 */
@@ -258,6 +271,8 @@ struct dsi_config_s {
 	unsigned char clk_always_hs; /* 0=disable, 1=enable */
 	unsigned char phy_switch; /* 0=auto, 1=standard, 2=slow */
 
+	unsigned int local_bit_rate_max; /* kHz */
+	unsigned int local_bit_rate_min; /* kHz*/
 	unsigned int venc_data_width;
 	unsigned int dpi_data_format;
 	unsigned int data_bits;
@@ -361,7 +376,8 @@ struct phy_config_s {
 };
 
 union lcd_ctrl_config_u {
-	struct ttl_config_s ttl_cfg;
+	struct rgb_config_s rgb_cfg;
+	struct bt_config_s bt_cfg;
 	struct lvds_config_s lvds_cfg;
 	struct vbyone_config_s vbyone_cfg;
 	struct dsi_config_s mipi_cfg;

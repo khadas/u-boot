@@ -399,6 +399,23 @@ void init_dsp(unsigned int id,unsigned int addr,unsigned int cfg0)
 		: "r" (x1), "r" (x2), "r" (x3));
 }
 
+void remap_set(unsigned int dspid, unsigned int addr_0, unsigned int addr_1, unsigned int reg_sel)
+{
+	register long x0 asm("x0") = DSP_SEC_REMAP_SET;
+	register long x1 asm("x1") = dspid;
+	register long x2 asm("x2") = addr_0;
+	register long x3 asm("x3") = addr_1;
+	register long x4 asm("x4") = reg_sel;
+	asm volatile(__asmeq("%0", "x0")
+				 __asmeq("%1", "x1")
+				 __asmeq("%2", "x2")
+				 __asmeq("%3", "x3")
+				 __asmeq("%4", "x4")
+				 "smc	#0\n"
+				 : "+r" (x0)
+				 : "r" (x1), "r" (x2), "r" (x3), "r" (x4));
+}
+
 void start_m4(unsigned int cpu_id,unsigned int bin_addr, uint32_t bank, uint32_t cmd)
 {
 	register long x0 asm("x0") = START_M4;

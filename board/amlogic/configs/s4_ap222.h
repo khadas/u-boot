@@ -61,6 +61,12 @@
 #define CONFIG_DTB_LOAD  "imgread dtb _aml_dtb ${dtb_mem_addr}"
 #endif//#ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
 
+/* AVB */
+//#define CONFIG_AML_AVB2_ANTIROLLBACK 1
+//#define CONFIG_AVB_VERIFY 1
+//#define CONFIG_SUPPORT_EMMC_RPMB 1
+//#define CONFIG_AML_DEV_ID 1
+
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -124,7 +130,6 @@
 	"disable_ir=0\0"\
         "initargs="\
             "init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe07a000 "\
-            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
             "\0"\
         "upgrade_check="\
             "echo recovery_status=${recovery_status};"\
@@ -215,10 +220,12 @@
             "if mmcinfo; then run recovery_from_fat_dev; fi;"\
             "\0"\
         "recovery_from_flash="\
+			"store param;"\
+			"setenv bootargs ${bootargs} ${mtdbootparts}; "\
             "echo active_slot: ${active_slot};"\
             "setenv loadaddr ${loadaddr_kernel};"\
             "if test ${active_slot} = normal; then "\
-                "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
+		"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
 				"if test ${upgrade_step} = 3; then "\
 					"if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;"\
 					"if test ${vendor_boot_mode} = true; then "\
@@ -235,14 +242,16 @@
             "else "\
                 "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
                 "if test ${partition_mode} = normal; then "\
-                    "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
+			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
                     "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                 "else "\
                     "if test ${vendor_boot_mode} = true; then "\
-                        "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
+			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
+			"androidboot.slot_suffix=${active_slot};"\
                         "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                     "else "\
-                        "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
+			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
+			"androidboot.slot_suffix=${active_slot};"\
                         "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
                     "fi;"\
                 "fi;"\

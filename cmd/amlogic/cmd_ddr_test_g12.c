@@ -84,6 +84,7 @@ typedef struct  ddr_base_address_table ddr_base_address_table_t;
 #undef  MESON_CPU_MAJOR_ID_S4D
 #define MESON_CPU_MAJOR_ID_S4D                  0x3a
 #define MESON_CPU_MAJOR_ID_A5                   0x3c
+#define DDR_MESON_CPU_MAJOR_ID_C3                   0x3d
 #define MESON_CPU_VERSION_LVL_MAJOR     0
 #define MESON_CPU_VERSION_LVL_MINOR     1
 #define MESON_CPU_VERSION_LVL_PACK      2
@@ -1399,7 +1400,8 @@ int check_base_address(void)
 	if (chip_id == 0)
 		chip_id = CHIP_ID_MASK;
 	if (chip_id) {
-		if (chip_id == MESON_CPU_MAJOR_ID_S4D || chip_id == MESON_CPU_MAJOR_ID_A5)
+		if (chip_id == MESON_CPU_MAJOR_ID_S4D || chip_id == MESON_CPU_MAJOR_ID_A5 ||
+			chip_id == DDR_MESON_CPU_MAJOR_ID_C3)
 			chip_id = MESON_CPU_MAJOR_ID_S4;
 		for (table_index = 0; table_index < table_max; table_index++) {
 			printf("\ntable_index=%08x,p_ddr_base_add=%08x,(p_ddr_base->chip_id==%08x",

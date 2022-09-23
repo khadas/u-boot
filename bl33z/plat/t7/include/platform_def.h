@@ -217,7 +217,7 @@
  */
 
 /* CODE space */
-#define BL33Z_LOAD_ADDR				0x00000000	/* code start */
+#define BL33Z_LOAD_ADDR				0x00400000	/* code start */
 #define BL33Z_LOAD_SIZE				0x00004000	/* 16KB code */
 #define BL33Z_LIMIT					(BL33Z_LOAD_ADDR + BL33Z_LOAD_SIZE) //16KB
 

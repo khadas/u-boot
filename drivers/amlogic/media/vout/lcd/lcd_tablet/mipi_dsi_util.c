@@ -211,6 +211,7 @@ static void mipi_dsi_host_print_info(struct lcd_config_s *pconf)
 	printf("MIPI DSI Config:\n"
 		"  lane num:              %d\n"
 		"  bit rate max:          %dMHz\n"
+		"  bit rate range:        (%d~%d)kHz\n"
 		"  bit rate:              %d.%03dMHz\n"
 		"  pclk lanebyte factor:  %d(/100)\n"
 		"  operation mode:\n"
@@ -222,6 +223,7 @@ static void mipi_dsi_host_print_info(struct lcd_config_s *pconf)
 		"  data format:           %s\n"
 		"  lp escape clock:       %d.%03dMHz\n",
 		dconf->lane_num, dconf->bit_rate_max,
+		dconf->local_bit_rate_max, dconf->local_bit_rate_min,
 		(pconf->timing.bit_rate / 1000000),
 		(pconf->timing.bit_rate % 1000000) / 1000,
 		factor,
@@ -256,23 +258,36 @@ int lcd_mipi_dsi_init_table_detect(char *dtaddr, int nodeoffset,
 {
 	unsigned char cmd_size, type;
 	int i, j, max_len;
-	unsigned char *init_table;
+	unsigned char *table = NULL;
 	char propname[20];
 	char *propdata;
 
 	if (flag) {
-		init_table = dconf->dsi_init_on;
+		if (dconf->dsi_init_on) {
+			free(dconf->dsi_init_on);
+			dconf->dsi_init_on = NULL;
+		}
 		max_len = DSI_INIT_ON_MAX;
 		sprintf(propname, "dsi_init_on");
 	} else {
-		init_table = dconf->dsi_init_off;
+		if (dconf->dsi_init_off) {
+			free(dconf->dsi_init_off);
+			dconf->dsi_init_off = NULL;
+		}
 		max_len = DSI_INIT_OFF_MAX;
 		sprintf(propname, "dsi_init_off");
 	}
+	table = (unsigned char *)malloc(sizeof(unsigned char) * max_len);
+	if (!table) {
+		LCDERR("%s: Not enough memory\n", __func__);
+		return -1;
+	}
+	table[0] = LCD_EXT_CMD_TYPE_END;
+	table[1] = 0;
 
-	if (!init_table) {
-		init_table = (unsigned char *)malloc(sizeof(unsigned char) * max_len);
-		if (!init_table) {
+	if (!table) {
+		table = (unsigned char *)malloc(sizeof(unsigned char) * max_len);
+		if (!table) {
 			LCDERR("%s: Not enough memory\n", __func__);
 			return -1;
 		}
@@ -282,17 +297,17 @@ int lcd_mipi_dsi_init_table_detect(char *dtaddr, int nodeoffset,
 	propdata = (char *)fdt_getprop(dtaddr, nodeoffset, propname, NULL);
 	if (propdata == NULL) {
 		LCDERR("get %s failed\n", propname);
-		init_table[0] = 0xff;
-		init_table[1] = 0;
+		table[0] = 0xff;
+		table[1] = 0;
 		goto lcd_mipi_dsi_init_table_detect_done;
 	}
 
 	while ((i + DSI_CMD_SIZE_INDEX) < max_len) {
-		init_table[i] = (unsigned char)(be32_to_cpup((((u32*)propdata)+i)));
-		init_table[i+DSI_CMD_SIZE_INDEX] =
-			(unsigned char)(be32_to_cpup((((u32*)propdata)+i+1)));
-		type = init_table[i];
-		cmd_size = init_table[i+DSI_CMD_SIZE_INDEX];
+		table[i] = (unsigned char)(be32_to_cpup((((u32 *)propdata) + i)));
+		table[i + DSI_CMD_SIZE_INDEX] =
+			(unsigned char)(be32_to_cpup((((u32 *)propdata) + i + 1)));
+		type = table[i];
+		cmd_size = table[i + DSI_CMD_SIZE_INDEX];
 
 		if (type == LCD_EXT_CMD_TYPE_END) {
 			if ((cmd_size == 0xff) || (cmd_size == 0))
@@ -305,19 +320,19 @@ int lcd_mipi_dsi_init_table_detect(char *dtaddr, int nodeoffset,
 		}
 		if ((i + 2 + cmd_size) > max_len) {
 			LCDERR("%s cmd_size out of support\n", propname);
-			init_table[i] = LCD_EXT_CMD_TYPE_END;
-			init_table[i+1] = 0;
+			table[i] = LCD_EXT_CMD_TYPE_END;
+			table[i + 1] = 0;
 			break;
 		}
 
 		for (j = 0; j < cmd_size; j++) {
-			init_table[i+2+j] =
-				(unsigned char)(be32_to_cpup((((u32*)propdata)+i+2+j)));
+			table[i + 2 + j] =
+				(unsigned char)(be32_to_cpup((((u32 *)propdata) + i + 2 + j)));
 		}
 		if (type == LCD_EXT_CMD_TYPE_CHECK) { /* check state */
 			if (cmd_size >= 2) {
-				dconf->check_reg = init_table[i+2];
-				dconf->check_cnt = init_table[i+3];
+				dconf->check_reg = table[i + 2];
+				dconf->check_cnt = table[i + 3];
 				if (dconf->check_cnt > 0)
 					dconf->check_en = 1;
 			} else {
@@ -329,9 +344,9 @@ int lcd_mipi_dsi_init_table_detect(char *dtaddr, int nodeoffset,
 	}
 lcd_mipi_dsi_init_table_detect_done:
 	if (flag)
-		dconf->dsi_init_on = init_table;
+		dconf->dsi_init_on = table;
 	else
-		dconf->dsi_init_off = init_table;
+		dconf->dsi_init_off = table;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		mipi_dsi_init_table_print(dconf, flag);
@@ -1699,7 +1714,6 @@ static void mipi_dsi_video_config(struct lcd_config_s *pconf)
 	}
 }
 
-#define DSI_PACKET_HEADER_CRC      6 /* 4(header)+2(CRC) */
 static void mipi_dsi_non_burst_packet_config(struct lcd_config_s *pconf)
 {
 	struct dsi_config_s *dconf = &pconf->control.mipi_cfg;
@@ -2027,17 +2041,14 @@ static void mipi_dsi_config_post(struct lcd_config_s *pconf)
 
 static void mipi_dsi_host_on(struct aml_lcd_drv_s *pdrv)
 {
-	unsigned int op_mode_init, op_mode_disp, offset;
+	unsigned int op_mode_init, op_mode_disp;
 	unsigned int venc_en = 0;
 	int index = pdrv->index;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("[%d]: %s\n", pdrv->index, __func__);
 
-	offset = pdrv->data->offset_venc[pdrv->index];
-
-	/* disable encl */
-	lcd_vcbus_write(ENCL_VIDEO_EN + offset, 0);
+	lcd_venc_enable(pdrv, 0);
 	venc_en = 0;
 	udelay(100);
 
@@ -2061,14 +2072,14 @@ static void mipi_dsi_host_on(struct aml_lcd_drv_s *pdrv)
 	/* Startup transfer */
 	mipi_dsi_lpclk_ctrl(index, &pdrv->config.control.mipi_cfg);
 	if (op_mode_init == MIPI_DSI_OPERATION_MODE_VIDEO) {
-		lcd_vcbus_write(ENCL_VIDEO_EN + offset, 1);
+		lcd_venc_enable(pdrv, 1);
 		venc_en = 1;
 	}
 
 	mipi_dsi_link_on(pdrv);
 	if (op_mode_disp == MIPI_DSI_OPERATION_MODE_VIDEO) {
 		if (venc_en == 0) {
-			lcd_vcbus_write(ENCL_VIDEO_EN + offset, 1);
+			lcd_venc_enable(pdrv, 1);
 			venc_en = 1;
 		}
 	}

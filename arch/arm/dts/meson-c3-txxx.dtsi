@@ -1,0 +1,16 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
+#include "meson-c3.dtsi"
+#include "meson-c3-mali.dtsi"
+
+/ {
+	compatible = "amlogic,txxx", "amlogic,meson-c3";
+};
+
+&ethmac {
+	phy-mode = "rmii";
+//	phy-handle = <&external_phy>;
+};

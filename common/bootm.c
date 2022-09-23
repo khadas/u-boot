@@ -38,10 +38,6 @@
 #include <ext_common.h>
 #endif
 
-#ifdef CONFIG_AML_ANTIROLLBACK
-#include <amlogic/anti-rollback.h>
-#endif
-
 #ifndef CONFIG_SYS_BOOTM_LEN
 /* use 8MByte as default max gunzip size */
 #define CONFIG_SYS_BOOTM_LEN	0x800000
@@ -179,8 +175,10 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	case IMAGE_FORMAT_ANDROID:
 		if (image_get_magic((image_header_t *)images.os.image_start) == IH_MAGIC) {
-			env_set("initrd_high", "0D000000");
-			env_set("fdt_high", "0D000000");
+			if (env_get_hex("initrd_high", 0) != 0xF100000) {
+				env_set("initrd_high", "0D000000");
+				env_set("fdt_high", "0D000000");
+			}
 			images.os.arch = ((image_header_t *)(images.os.image_start))->ih_arch;
 			images.os.image_start += sizeof(image_header_t);
 		}
@@ -922,18 +920,9 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 	const void *buf;
 	const char	*fit_uname_config = NULL;
 	const char	*fit_uname_kernel = NULL;
-#ifdef CONFIG_AML_ANTIROLLBACK
-	boot_img_hdr_t **tmp_img_hdr = NULL;
-#endif
-
 	char *avb_s;
 	avb_s = env_get("avb2");
-	pr_info("avb2: %s\n", avb_s);
-	if (strcmp(avb_s, "1") != 0) {
-#ifdef CONFIG_AML_ANTIROLLBACK
-		tmp_img_hdr = (boot_img_hdr_t **)&buf;
-#endif
-	}
+	printf("avb2: %s\n", avb_s);
 
 #if IMAGE_ENABLE_FIT
 	int		os_noffset;
@@ -1019,16 +1008,6 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 		if (android_image_get_kernel(buf, images->verify,
 					     os_data, os_len))
 			return NULL;
-
-		if (strcmp(avb_s, "1") != 0) {
-#ifdef CONFIG_AML_ANTIROLLBACK
-			if (!check_antirollback((*tmp_img_hdr)->os_version)) {
-				*os_len = 0;
-				return NULL;
-			}
-#endif
-		}
-
 		break;
 #endif
 	default:

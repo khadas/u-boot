@@ -40,18 +40,10 @@ static void usb_parameter_init(int time_out)
 	return;
 }
 
-#ifdef  CONFIG_USB_GADGET_CRG
-extern int phy_num;
-#endif
-
 int aml_v3_usbburning(unsigned timeout, unsigned pcToolWaitTime)
 {
 	int ret;
 
-#ifdef  CONFIG_USB_GADGET_CRG
-	//printf("poc:0x%x\n", readl(SYSCTRL_POC));
-	phy_num = (readl(SYSCTRL_POC)>>1) & 0x1U;
-#endif
 	usb_parameter_init(timeout);
 
 	ret = aml_dnl_register("usb_dnl_amlogic");

@@ -1,0 +1,49 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
+/dts-v1/;
+
+#include "meson-t7-an400-lpddr4x.dtsi"
+#include "meson-t7_skt-panel.dtsi"
+
+/ {
+	compatible = "amlogic,t7-an400-lpddr4x", "amlogic,t7-txxx", "amlogic,meson-t7";
+	model = "Amlogic Meson T7 PXP Board";
+};
+
+/* This UART is brought out to the DB9 connector */
+&uart_a {
+	status = "okay";
+};
+
+&uart_b {
+	status = "disabled";
+};
+
+&saradc {
+	status = "okay";
+};
+
+&amhdmitx {
+	enc_idx = <2>; /* value can be 0 or 2 */
+};
+
+/* demo for i2c user */
+&i2c3 {
+	status= "disabled";
+	clock-frequency = <100000>;
+	/* pinctrl-names = "default";*/
+	/* pinctrl-0 = <&i2c3_master_pins2>;*/
+};
+
+&pinctrl_periphs {
+	bl_pwm_off_pins:bl_pwm_off_pin {
+		mux {
+			groups = "GPIOH_5";
+			function = "gpio_periphs";
+			output-high;
+		};
+	};
+}; /* end of pinctrl_periphs */

@@ -19,11 +19,13 @@ static int lcd_type_supported(struct lcd_config_s *pconf)
 	int ret = -1;
 
 	switch (lcd_type) {
-	case LCD_TTL:
+	case LCD_RGB:
 	case LCD_LVDS:
 	case LCD_VBYONE:
 	case LCD_MIPI:
 	case LCD_EDP:
+	case LCD_BT656:
+	case LCD_BT1120:
 		ret = 0;
 		break;
 	default:
@@ -34,18 +36,27 @@ static int lcd_type_supported(struct lcd_config_s *pconf)
 	return ret;
 }
 
-static void lcd_ttl_control_set(struct aml_lcd_drv_s *pdrv)
+static void lcd_rgb_control_set(struct aml_lcd_drv_s *pdrv)
+{
+	//todo
+}
+
+static void lcd_bt_control_set(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_config_s *pconf = &pdrv->config;
-	unsigned int clk_pol, rb_swap, bit_swap;
+	unsigned int field_type, mode_422, yc_swap, cbcr_swap;
 
-	clk_pol = pconf->control.ttl_cfg.clk_pol;
-	rb_swap = (pconf->control.ttl_cfg.swap_ctrl >> 1) & 1;
-	bit_swap = (pconf->control.ttl_cfg.swap_ctrl >> 0) & 1;
+	field_type = pconf->control.bt_cfg.field_type;
+	mode_422 = pconf->control.bt_cfg.mode_422;
+	yc_swap = pconf->control.bt_cfg.yc_swap;
+	cbcr_swap = pconf->control.bt_cfg.cbcr_swap;
 
-	lcd_vcbus_setb(L_POL_CNTL_ADDR, clk_pol, 6, 1);
-	lcd_vcbus_setb(L_DUAL_PORT_CNTL_ADDR, rb_swap, 1, 1);
-	lcd_vcbus_setb(L_DUAL_PORT_CNTL_ADDR, bit_swap, 0, 1);
+	lcd_vcbus_setb(VPU_VOUT_BT_CTRL, field_type, 12, 1);
+	lcd_vcbus_setb(VPU_VOUT_BT_CTRL, yc_swap, 0, 1);
+	//0:cb first   1:cr first
+	lcd_vcbus_setb(VPU_VOUT_BT_CTRL, cbcr_swap, 1, 1);
+	//0:left, 1:right, 2:average
+	lcd_vcbus_setb(VPU_VOUT_BT_CTRL, mode_422, 2, 2);
 }
 
 static void lcd_mipi_control_set(struct aml_lcd_drv_s *pdrv)
@@ -166,7 +177,7 @@ static void lcd_lvds_clk_util_set(struct aml_lcd_drv_s *pdrv)
 
 	if (pdrv->data->chip_type == LCD_CHIP_T7) {
 		switch (pdrv->index) {
-		case 0:
+		case 0: /* lane0~lane4 */
 			reg_phy_tx_ctrl0 = COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0;
 			reg_phy_tx_ctrl1 = COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1;
 			bit_data_in_lvds = 0;
@@ -175,12 +186,12 @@ static void lcd_lvds_clk_util_set(struct aml_lcd_drv_s *pdrv)
 			val_lane_sel = 0x155;
 			len_lane_sel = 10;
 			break;
-		case 1:
+		case 1: /* lane10~lane14 */
 			reg_phy_tx_ctrl0 = COMBO_DPHY_EDP_LVDS_TX_PHY1_CNTL0;
 			reg_phy_tx_ctrl1 = COMBO_DPHY_EDP_LVDS_TX_PHY1_CNTL1;
 			bit_data_in_lvds = 2;
 			bit_data_in_edp = 3;
-			bit_lane_sel = 10;
+			bit_lane_sel = 20;
 			val_lane_sel = 0x155;
 			len_lane_sel = 10;
 			break;
@@ -189,12 +200,12 @@ static void lcd_lvds_clk_util_set(struct aml_lcd_drv_s *pdrv)
 			reg_phy_tx_ctrl1 = COMBO_DPHY_EDP_LVDS_TX_PHY2_CNTL1;
 			bit_data_in_lvds = 4;
 			bit_data_in_edp = 0xff;
-			if (pdrv->config.control.lvds_cfg.dual_port) {
+			if (pdrv->config.control.lvds_cfg.dual_port) { /* lane5~lane14 */
 				bit_lane_sel = 10;
 				val_lane_sel = 0xaaaaa;
 				len_lane_sel = 20;
-			} else {
-				bit_lane_sel = 20;
+			} else { /* lane5~lane9 */
+				bit_lane_sel = 10;
 				val_lane_sel = 0x2aa;
 				len_lane_sel = 10;
 			}
@@ -386,21 +397,35 @@ static void lcd_lvds_control_set(struct aml_lcd_drv_s *pdrv)
 		 *    a: d3_b
 		 *    b: d4_b
 		 */
-		if (port_swap) {
-			if (lane_reverse) {
-				lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0x345789ab);
-				lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0x0612);
-			} else {
-				lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0x210a9876);
-				lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0x5b43);
-			}
+		if (pdrv->index == 0) {
+			//don't support port_swap and lane_reverse
+			lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0xfff43210);
+			lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0xffff);
+		} else if (pdrv->index == 1) {
+			lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0xf43210ff);
+			lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0xffff);
 		} else {
-			if (lane_reverse) {
-				lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0x9ab12345);
-				lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0x6078);
+			if (dual_port) {
+				if (port_swap) {
+					if (lane_reverse) {
+						lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0x345789ab);
+						lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0x0612);
+					} else {
+						lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0x210a9876);
+						lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0x5b43);
+					}
+				} else {
+					if (lane_reverse) {
+						lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0x9ab12345);
+						lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0x6078);
+					} else {
+						lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0x87643210);
+						lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0xb5a9);
+					}
+				}
 			} else {
-				lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0x87643210);
-				lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0xb5a9);
+				lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0xfff43210);
+				lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0xffff);
 			}
 		}
 		lcd_vcbus_write(P2P_BIT_REV + offset, 2);
@@ -708,10 +733,23 @@ int lcd_tablet_driver_init(struct aml_lcd_drv_s *pdrv)
 	if (ret)
 		return -1;
 
+#ifdef CONFIG_AML_LCD_PXP
+	LCDPR("[%d]: %s: lcd_pxp bypass\n", pdrv->index, __func__);
+	return 0;
+#endif
+
 	/* init driver */
 	switch (pdrv->config.basic.lcd_type) {
-	case LCD_TTL:
-		lcd_ttl_control_set(pdrv);
+	case LCD_RGB:
+		lcd_rgb_control_set(pdrv);
+		lcd_pinmux_set(pdrv, 1);
+		break;
+	case LCD_BT656:
+		lcd_bt_control_set(pdrv);
+		lcd_pinmux_set(pdrv, 1);
+		break;
+	case LCD_BT1120:
+		lcd_bt_control_set(pdrv);
 		lcd_pinmux_set(pdrv, 1);
 		break;
 	case LCD_LVDS:
@@ -752,8 +790,19 @@ void lcd_tablet_driver_disable(struct aml_lcd_drv_s *pdrv)
 	if (ret)
 		return;
 
+#ifdef CONFIG_AML_LCD_PXP
+	LCDPR("[%d]: %s: lcd_pxp bypass\n", pdrv->index, __func__);
+	return;
+#endif
+
 	switch (pdrv->config.basic.lcd_type) {
-	case LCD_TTL:
+	case LCD_RGB:
+		lcd_pinmux_set(pdrv, 0);
+		break;
+	case LCD_BT656:
+		lcd_pinmux_set(pdrv, 0);
+		break;
+	case LCD_BT1120:
 		lcd_pinmux_set(pdrv, 0);
 		break;
 	case LCD_LVDS:

@@ -100,3 +100,8 @@ phys_size_t __weak get_effective_memsize(void)
 		CONFIG_MAX_MEM_MAPPED : gd->ram_size);
 #endif
 }
+
+phys_size_t __weak get_ddr_info_size(void)
+{
+	return 0;
+}

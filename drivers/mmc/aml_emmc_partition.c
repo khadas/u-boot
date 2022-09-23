@@ -1331,6 +1331,34 @@ int enable_rsv_part_table(struct mmc *mmc)
 }
 #endif
 
+void __attribute__((unused)) _update_part_tbl(struct partitions *p, int count)
+{
+	int i = 0;
+
+	while (i < count) {
+		if (strcmp(p[i].name, "boot_a") == 0)
+			has_boot_slot = 1;
+		else if (strcmp(p[i].name, "boot") == 0)
+			has_boot_slot = 0;
+
+		if (strcmp(p[i].name, "system_a") == 0)
+			has_system_slot = 1;
+		else if (strcmp(p[i].name, "system") == 0)
+			has_system_slot = 0;
+
+		if (strcmp(p[i].name, "super") == 0) {
+			dynamic_partition = true;
+			env_set("partition_mode", "dynamic");
+		}
+
+		if (strncmp(p[i].name, "vendor_boot", 11) == 0) {
+			vendor_boot_partition = true;
+			env_set("vendor_boot_mode", "true");
+		}
+		i++;
+	}
+}
+
 /***************************************************
  *	init partition table for emmc device.
  *	returns 0 means ok.
@@ -1499,6 +1527,8 @@ int mmc_device_init (struct mmc *mmc)
 		}
 	}
 #endif
+
+	_update_part_tbl(p_iptbl_ept->partitions, p_iptbl_ept->count);
 
 	/* init part again */
 	part_init(mmc_get_blk_desc(mmc));

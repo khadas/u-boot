@@ -72,6 +72,8 @@ struct ldim_dev_driver_s {
 	unsigned int dim_max;
 	unsigned int zone_num;
 	unsigned short *bl_mapping;
+	unsigned int mcu_header;
+	unsigned int mcu_dim;
 
 	unsigned char init_loaded;
 	unsigned char cmd_size;

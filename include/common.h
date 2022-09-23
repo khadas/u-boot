@@ -278,6 +278,7 @@ void stack_dump(void);
 /* common/memsize.c */
 long	get_ram_size  (long *, long);
 phys_size_t get_effective_memsize(void);
+phys_size_t get_ddr_info_size(void);
 
 /* $(BOARD)/$(BOARD).c */
 void	reset_phy     (void);

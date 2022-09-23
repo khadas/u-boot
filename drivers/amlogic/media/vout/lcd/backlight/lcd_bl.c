@@ -223,7 +223,42 @@ void bl_set_pwm_gpio_check(struct aml_bl_drv_s *bdrv, struct bl_pwm_config_s *bl
 	pwm_index = bl_pwm->index;
 
 	/* pwm duty 100% or 0% special control */
-	if (bl_pwm->pwm_duty_max > 100) {
+	if (bl_pwm->pwm_duty_max > 255) {
+		if (bl_pwm->pwm_duty == 0 || bl_pwm->pwm_duty == 4095) {
+			switch (bl_pwm->pwm_method) {
+			case BL_PWM_POSITIVE:
+				if (bl_pwm->pwm_duty == 0)
+					gpio_level = 0;
+				else
+					gpio_level = 1;
+				break;
+			case BL_PWM_NEGATIVE:
+				if (bl_pwm->pwm_duty == 0)
+					gpio_level = 1;
+				else
+					gpio_level = 0;
+				break;
+			default:
+				BLERR("%s: port=0x%x: invalid pwm_method %d\n",
+				      __func__, bl_pwm->pwm_port,
+				      bl_pwm->pwm_method);
+				gpio_level = 0;
+				break;
+			}
+			if (lcd_debug_print_flag & LCD_DBG_PR_BL_NORMAL) {
+				BLPR("%s: pwm port=0x%x, duty=%d%%, switch to gpio %d\n",
+				     __func__, bl_pwm->pwm_port,
+				     bl_pwm->pwm_duty * 100 / 4095, gpio_level);
+			}
+			bl_pwm_pinmux_gpio_set(bdrv, pwm_index, gpio_level);
+		} else {
+			if (lcd_debug_print_flag & LCD_DBG_PR_BL_NORMAL) {
+				BLPR("%s: pwm_port=0x%x set as pwm\n",
+				      __func__, bl_pwm->pwm_port);
+			}
+			bl_pwm_pinmux_gpio_clr(bdrv, pwm_index);
+		}
+	} else if (bl_pwm->pwm_duty_max > 100) {
 		if (bl_pwm->pwm_duty == 0 || bl_pwm->pwm_duty == 255) {
 			switch (bl_pwm->pwm_method) {
 			case BL_PWM_POSITIVE:
@@ -2317,13 +2352,9 @@ int aml_bl_probe(char *dtaddr, int load_id)
 		if (load_id_bl & 0x1) {
 			ret = lcd_bl_init_load_from_dts(dtaddr, bdrv);
 			if (ret) {
-				load_id_bl = 0x0;
-				ret = lcd_bl_init_load_from_bsp(bdrv);
-				if (ret) {
-					free(bl_driver[i]);
-					bl_driver[i] = NULL;
-					return -1;
-				}
+				free(bl_driver[i]);
+				bl_driver[i] = NULL;
+				return -1;
 			}
 		} else {
 			ret = lcd_bl_init_load_from_bsp(bdrv);

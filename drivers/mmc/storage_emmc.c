@@ -863,6 +863,7 @@ static inline int env_write(size_t size, void *buf) {
 int mmc_read_rsv(const char *rsv_name, size_t size, void *buf) {
 
 	char ret=1;
+	uint32_t actual_length = 0;
 	struct mmc *mmc;
 	loff_t off =0;
 	/*unsigned long dtImgAddr = simple_strtoul(buf, NULL, 16);*/
@@ -891,7 +892,7 @@ int mmc_read_rsv(const char *rsv_name, size_t size, void *buf) {
 
 	if (!strcmp("key", rsv_name)) {
 		info_disprotect |= DISPROTECT_KEY;
-		ret = mmc_key_read(buf, size, 0);
+		ret = mmc_key_read(buf, size, &actual_length);
 		info_disprotect &= ~DISPROTECT_KEY;
 	} else
 		ret = storage_byte_read(mmc, off, size, buf);
@@ -905,6 +906,7 @@ int mmc_read_rsv(const char *rsv_name, size_t size, void *buf) {
 int mmc_write_rsv(const char *rsv_name, size_t size, void *buf) {
 
 	char ret=1;
+	uint32_t actual_length = 0;
 
 	struct mmc *mmc;
 	loff_t off = 0;
@@ -937,7 +939,7 @@ int mmc_write_rsv(const char *rsv_name, size_t size, void *buf) {
 		}
 	} else if (!strcmp("key", rsv_name)) {
 		info_disprotect |= DISPROTECT_KEY;
-		ret = mmc_key_write(buf, size, 0);
+		ret = mmc_key_write(buf, size, &actual_length);
 		info_disprotect &= ~DISPROTECT_KEY;
 	} else
 		ret = storage_byte_write(mmc, off, size, buf);

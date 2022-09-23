@@ -18,7 +18,9 @@
 /* v20210114: add s4 support */
 /* v20210317: add t3 support */
 /* v20210428: add s4d support */
-#define VPU_VERION	"v20210427"
+/* v20220503: add c3 support */
+#define VPU_VERION	"v20220503"
+
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -44,6 +46,7 @@ static struct vpu_data_s vpu_data_g12a = {
 
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
+	.test_reg = vcbus_test_reg,
 
 	.mem_pd_table = vpu_mem_pd_g12a,
 	.power_table = vpu_pwr_gxb,
@@ -55,6 +58,9 @@ static struct vpu_data_s vpu_data_g12a = {
 
 	.power_on = vpu_power_on,
 	.power_off = vpu_power_off,
+	.mem_pd_init_off = vpu_mem_pd_init_off,
+	.module_init_config = vpu_module_init_config,
+	.change_clk = change_vpu_clk,
 };
 
 static struct vpu_data_s vpu_data_g12b = {
@@ -72,6 +78,7 @@ static struct vpu_data_s vpu_data_g12b = {
 
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
+	.test_reg = vcbus_test_reg,
 
 	.mem_pd_table = vpu_mem_pd_g12a,
 	.power_table = vpu_pwr_gxb,
@@ -83,6 +90,9 @@ static struct vpu_data_s vpu_data_g12b = {
 
 	.power_on = vpu_power_on,
 	.power_off = vpu_power_off,
+	.mem_pd_init_off = vpu_mem_pd_init_off,
+	.module_init_config = vpu_module_init_config,
+	.change_clk = change_vpu_clk,
 };
 
 static struct vpu_data_s vpu_data_tl1 = {
@@ -100,6 +110,7 @@ static struct vpu_data_s vpu_data_tl1 = {
 
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
+	.test_reg = vcbus_test_reg,
 
 	.mem_pd_table = vpu_mem_pd_tl1,
 	.power_table = vpu_pwr_gxb,
@@ -111,6 +122,9 @@ static struct vpu_data_s vpu_data_tl1 = {
 
 	.power_on = vpu_power_on,
 	.power_off = vpu_power_off,
+	.mem_pd_init_off = vpu_mem_pd_init_off,
+	.module_init_config = vpu_module_init_config,
+	.change_clk = change_vpu_clk,
 };
 
 /* static struct vpu_data_s vpu_data_sm1 = {
@@ -128,6 +142,7 @@ static struct vpu_data_s vpu_data_tl1 = {
 
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
+	.test_reg = vcbus_test_reg,
 
 	.mem_pd_table = vpu_mem_pd_tl1,
 	.power_table = vpu_pwr_gxb,
@@ -139,6 +154,9 @@ static struct vpu_data_s vpu_data_tl1 = {
 
 	.power_on = vpu_power_on,
 	.power_off = vpu_power_off,
+	.mem_pd_init_off = vpu_mem_pd_init_off,
+	.module_init_config = vpu_module_init_config,
+	.change_clk = change_vpu_clk,
 };
 */
 
@@ -157,6 +175,7 @@ static struct vpu_data_s vpu_data_tm2 = {
 
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
+	.test_reg = vcbus_test_reg,
 
 	.mem_pd_table = vpu_mem_pd_tm2,
 	.power_table = vpu_pwr_gxb,
@@ -168,6 +187,9 @@ static struct vpu_data_s vpu_data_tm2 = {
 
 	.power_on = vpu_power_on,
 	.power_off = vpu_power_off,
+	.mem_pd_init_off = vpu_mem_pd_init_off,
+	.module_init_config = vpu_module_init_config,
+	.change_clk = change_vpu_clk,
 };
 
 static struct vpu_data_s vpu_data_sc2 = {
@@ -185,6 +207,7 @@ static struct vpu_data_s vpu_data_sc2 = {
 
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
+	.test_reg = vcbus_test_reg,
 
 	.mem_pd_table = NULL,
 	.power_table = NULL,
@@ -196,6 +219,9 @@ static struct vpu_data_s vpu_data_sc2 = {
 
 	.power_on = vpu_power_on_new,
 	.power_off = vpu_power_off_new,
+	.mem_pd_init_off = vpu_mem_pd_init_off,
+	.module_init_config = vpu_module_init_config,
+	.change_clk = change_vpu_clk,
 };
 
 static struct vpu_data_s vpu_data_t5 = {
@@ -213,6 +239,7 @@ static struct vpu_data_s vpu_data_t5 = {
 
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
+	.test_reg = vcbus_test_reg,
 
 	.mem_pd_table = vpu_mem_pd_tm2,
 	.power_table = vpu_pwr_gxb,
@@ -224,6 +251,9 @@ static struct vpu_data_s vpu_data_t5 = {
 
 	.power_on = vpu_power_on_new,
 	.power_off = vpu_power_off_new,
+	.mem_pd_init_off = vpu_mem_pd_init_off,
+	.module_init_config = vpu_module_init_config,
+	.change_clk = change_vpu_clk,
 };
 
 static struct vpu_data_s vpu_data_t5d = {
@@ -241,6 +271,7 @@ static struct vpu_data_s vpu_data_t5d = {
 
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
+	.test_reg = vcbus_test_reg,
 
 	.mem_pd_table = NULL,
 	.power_table = NULL,
@@ -252,6 +283,9 @@ static struct vpu_data_s vpu_data_t5d = {
 
 	.power_on = vpu_power_on_new,
 	.power_off = vpu_power_off_new,
+	.mem_pd_init_off = vpu_mem_pd_init_off,
+	.module_init_config = vpu_module_init_config,
+	.change_clk = change_vpu_clk,
 };
 
 static struct vpu_data_s vpu_data_t7 = {
@@ -269,6 +303,7 @@ static struct vpu_data_s vpu_data_t7 = {
 
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
+	.test_reg = vcbus_test_reg,
 
 	.mem_pd_table = NULL,
 	.power_table = NULL,
@@ -280,6 +315,9 @@ static struct vpu_data_s vpu_data_t7 = {
 
 	.power_on = vpu_power_on_new,
 	.power_off = vpu_power_off_new,
+	.mem_pd_init_off = vpu_mem_pd_init_off,
+	.module_init_config = vpu_module_init_config,
+	.change_clk = change_vpu_clk,
 };
 
 static struct vpu_data_s vpu_data_s4 = {
@@ -297,6 +335,7 @@ static struct vpu_data_s vpu_data_s4 = {
 
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
+	.test_reg = vcbus_test_reg,
 
 	.mem_pd_table = NULL,
 	.power_table = NULL,
@@ -308,6 +347,9 @@ static struct vpu_data_s vpu_data_s4 = {
 
 	.power_on = vpu_power_on_new,
 	.power_off = vpu_power_off_new,
+	.mem_pd_init_off = vpu_mem_pd_init_off,
+	.module_init_config = vpu_module_init_config,
+	.change_clk = change_vpu_clk,
 };
 
 static struct vpu_data_s vpu_data_t3 = {
@@ -326,6 +368,7 @@ static struct vpu_data_s vpu_data_t3 = {
 
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
+	.test_reg = vcbus_test_reg,
 
 	.mem_pd_table = NULL,
 	.power_table = NULL,
@@ -337,6 +380,9 @@ static struct vpu_data_s vpu_data_t3 = {
 
 	.power_on = vpu_power_on_new,
 	.power_off = vpu_power_off_new,
+	.mem_pd_init_off = vpu_mem_pd_init_off,
+	.module_init_config = vpu_module_init_config,
+	.change_clk = change_vpu_clk,
 };
 
 static struct vpu_data_s vpu_data_s4d = {
@@ -347,6 +393,7 @@ static struct vpu_data_s vpu_data_s4d = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = CLKCTRL_VPU_CLK_CTRL,
+	.vpu_clkb_reg = VPU_REG_END,
 	.vapb_clk_reg = CLKCTRL_VAPBCLK_CTRL,
 	.vid_clk_reg = CLKCTRL_VID_CLK_CTRL2,
 
@@ -354,6 +401,7 @@ static struct vpu_data_s vpu_data_s4d = {
 
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
+	.test_reg = vcbus_test_reg,
 
 	.mem_pd_table = NULL,
 	.power_table = NULL,
@@ -365,6 +413,42 @@ static struct vpu_data_s vpu_data_s4d = {
 
 	.power_on = vpu_power_on_new,
 	.power_off = vpu_power_off_new,
+	.mem_pd_init_off = vpu_mem_pd_init_off,
+	.module_init_config = vpu_module_init_config,
+	.change_clk = change_vpu_clk,
+};
+
+static struct vpu_data_s vpu_data_c3 = {
+	.chip_type = VPU_CHIP_C3,
+	.chip_name = "c3",
+	.clk_level_dft = CLK_LEVEL_DFT_C3,
+	.clk_level_max = CLK_LEVEL_MAX_C3,
+	.gp_pll_valid = 0,
+
+	.vpu_clk_reg = CLKCTRL_VOUTENC_CLK_CTRL,
+	.vpu_clkb_reg = VPU_REG_END,
+	.vapb_clk_reg = VPU_REG_END,
+	.vid_clk_reg = VPU_REG_END,
+
+	.pwrctrl_id_table = NULL,
+
+	.fclk_div_table = fclk_div_table_c3,
+	.vpu_clk_table = vpu_clk_table,
+	.test_reg = vcbus_test_reg_c3,
+
+	.mem_pd_table = NULL,
+	.power_table = NULL,
+	.iso_table = NULL,
+	.reset_table = NULL,
+
+	.module_init_table_cnt = 0,
+	.module_init_table = NULL,
+
+	.power_on = NULL,
+	.power_off = vpu_power_off_c3,
+	.mem_pd_init_off = NULL,
+	.module_init_config = NULL,
+	.change_clk = NULL,
 };
 
 static void vpu_chip_detect(void)
@@ -409,8 +493,12 @@ static void vpu_chip_detect(void)
 	case MESON_CPU_MAJOR_ID_S4D:
 		vpu_conf.data = &vpu_data_s4d;
 		break;
+	case MESON_CPU_MAJOR_ID_C3:
+		vpu_conf.data = &vpu_data_c3;
+		break;
 	default:
 		vpu_conf.data = NULL;
+		//vpu_conf.data = &vpu_data_t3;
 		break;
 	}
 
@@ -458,241 +546,13 @@ static int vpu_check(void)
 	case VPU_CHIP_S4:
 	case VPU_CHIP_T3:
 	case VPU_CHIP_S4D:
+	case VPU_CHIP_C3:
 		ret = 0;
 		break;
 	default:
 		VPUERR("invalid vpu for current chip\n");
 		break;
 	}
-
-	return ret;
-}
-
-static unsigned int get_vpu_clk_level(unsigned int video_clk)
-{
-	unsigned clk_level;
-	int i;
-
-	for (i = 0; i < vpu_conf.data->clk_level_max; i++) {
-		if (video_clk <= (vpu_conf.data->vpu_clk_table + i)->freq)
-			break;
-	}
-	clk_level = i;
-
-	return clk_level;
-}
-
-static unsigned long get_fclk_div_freq(unsigned int mux_id)
-{
-	struct fclk_div_s *fclk_div;
-	unsigned long fclk, div, clk_source = 0;
-	unsigned int i;
-
-	fclk = vpu_conf.fclk_freq * 1000000;
-
-	for (i = 0; i < FCLK_DIV_MAX; i++) {
-		fclk_div = vpu_conf.data->fclk_div_table + i;
-		if (fclk_div->fclk_id == mux_id) {
-			div = fclk_div->fclk_div;
-			clk_source = ((fclk * 100 / div) + 99) / 100;
-			break;
-		}
-		if (fclk_div->fclk_id == FCLK_DIV_MAX)
-			break;
-	}
-
-	return clk_source;
-}
-
-static unsigned int get_vpu_clk_mux_id(void)
-{
-	struct fclk_div_s *fclk_div;
-	unsigned int i, mux, mux_id;
-
-	mux = vpu_hiu_getb(vpu_conf.data->vpu_clk_reg, 9, 3);
-	mux_id = mux;
-	for (i = 0; i < FCLK_DIV_MAX; i++) {
-		fclk_div = vpu_conf.data->fclk_div_table + i;
-		if (fclk_div->fclk_mux == mux) {
-			mux_id = fclk_div->fclk_id;
-			break;
-		}
-		if (fclk_div->fclk_id == FCLK_DIV_MAX)
-			break;
-	}
-
-	return mux_id;
-}
-
-static unsigned int get_vpu_clk_mux(unsigned int mux_id)
-{
-	struct fclk_div_s *fclk_div;
-	unsigned int i, mux;
-
-	mux = mux_id;
-	for (i = 0; i < FCLK_DIV_MAX; i++) {
-		fclk_div = vpu_conf.data->fclk_div_table + i;
-		if (fclk_div->fclk_id == mux_id) {
-			mux = fclk_div->fclk_mux;
-			break;
-		}
-		if (fclk_div->fclk_id == FCLK_DIV_MAX)
-			break;
-	}
-
-	return mux;
-}
-
-static unsigned int get_vpu_clk(void)
-{
-	unsigned long clk_freq;
-	unsigned long clk_source, div;
-	unsigned int mux_id;
-
-	mux_id = get_vpu_clk_mux_id();
-	switch (mux_id) {
-	case FCLK_DIV4:
-	case FCLK_DIV3:
-	case FCLK_DIV5:
-	case FCLK_DIV7:
-		clk_source = get_fclk_div_freq(mux_id);
-		break;
-	case GPLL_CLK:
-		clk_source = (vpu_conf.data->vpu_clk_table + 8)->freq;
-		break;
-	default:
-		clk_source = 0;
-		break;
-	}
-
-	div = vpu_hiu_getb(vpu_conf.data->vpu_clk_reg, 0, 7) + 1;
-	clk_freq = ((clk_source * 100 / div) + 99) / 100;
-
-	return (unsigned int)clk_freq;
-}
-
-static int switch_gp_pll(int flag)
-{
-	int ret = -1;
-
-	if (vpu_conf.data->gp_pll_valid == 0)
-		return ret;
-
-	switch (vpu_conf.data->chip_type) {
-	default:
-		break;
-	}
-
-	return ret;
-}
-
-static int adjust_vpu_clk(unsigned int clk_level)
-{
-	struct vpu_clk_s *clk_table;
-	unsigned int vpu_clk;
-	unsigned int mux, div, clk_reg, vapb_reg;
-	int ret = 0;
-
-	/* vpu clk */
-	clk_table = vpu_conf.data->vpu_clk_table + clk_level;
-	mux = get_vpu_clk_mux(clk_table->mux);
-	if (mux == GPLL_CLK) {
-		ret = switch_gp_pll(1);
-		if (ret) {
-			clk_level = vpu_conf.data->clk_level_dft;
-			VPUERR("adjust_vpu_clk: gp pll error, use default clk\n");
-		}
-	}
-	vpu_conf.clk_level = clk_level;
-	clk_table = vpu_conf.data->vpu_clk_table + clk_level;
-
-	vpu_clk = clk_table->freq;
-	mux = get_vpu_clk_mux(clk_table->mux);
-	div = clk_table->div;
-	clk_reg = vpu_conf.data->vpu_clk_reg;
-	vapb_reg = vpu_conf.data->vapb_clk_reg;
-
-	vpu_hiu_write(clk_reg, ((mux << 9) | (div << 0)));
-	vpu_hiu_setb(clk_reg, 1, 8, 1);
-
-	/* vapb clk */
-	if (vpu_hiu_getb(vapb_reg, 8, 1) == 0) {
-		if (vpu_clk >= 250000000) {
-			vpu_hiu_write(vapb_reg, (0 << 9)  | /* clk_sel    //250Mhz */
-						(1 << 0));  /* clk_div */
-		} else {
-			vpu_hiu_write(vapb_reg, (clk_table->mux << 9)  | /* clk_sel */
-						(div << 0));  /* clk_div */
-		}
-		vpu_hiu_setb(vapb_reg, 1, 8, 1);
-	}
-
-	VPUPR("set clk: %uHz, readback: %uHz(0x%x)\n",
-		vpu_clk, get_vpu_clk(), (vpu_hiu_read(clk_reg)));
-	return ret;
-}
-
-static int set_vpu_clk(unsigned int vclk)
-{
-	int ret = 0;
-	unsigned int clk_level;
-
-#ifdef VPU_DEBUG_PRINT
-	VPUPR("%s\n", __func__);
-#endif
-
-	if (vclk >= 100) /* regard as vpu_clk */
-		clk_level = get_vpu_clk_level(vclk);
-	else /* regard as clk_level */
-		clk_level = vclk;
-
-	if (clk_level >= vpu_conf.data->clk_level_max) {
-		clk_level = vpu_conf.data->clk_level_dft;
-		VPUPR("clk out of supported range, set to default\n");
-	}
-
-	ret = adjust_vpu_clk(clk_level);
-
-#ifdef VPU_DEBUG_PRINT
-	VPUPR("%s finish\n", __func__);
-#endif
-
-	return ret;
-}
-
-static int set_vpu_clkb(unsigned int vclk)
-{
-	unsigned int clk_level;
-	unsigned int clkb_reg;
-	int ret = 0;
-
-	/* vpu clkb */
-	clkb_reg = vpu_conf.data->vpu_clkb_reg;
-	if (!clkb_reg)
-		return 0;
-
-	if (vclk >= 100) /* regard as vpu_clk */
-		clk_level = get_vpu_clk_level(vclk);
-	else /* regard as clk_level */
-		clk_level = vclk;
-
-	if (clk_level >= vpu_conf.data->clk_level_max) {
-		clk_level = vpu_conf.data->clk_level_dft;
-		VPUPR("clk out of supported range, set to default\n");
-	}
-#ifdef VPU_DEBUG_PRINT
-	VPUPR("%s\n", __func__);
-#endif
-
-	vpu_hiu_setb(clkb_reg, 1, 8, 1);
-	vpu_hiu_setb(clkb_reg, 1, 0, 8);
-	vpu_hiu_setb(clkb_reg, 1, 24, 1);
-	vpu_hiu_setb(clkb_reg, 0, 16, 4);
-	vpu_hiu_setb(clkb_reg, 0, 20, 2);
-
-#ifdef VPU_DEBUG_PRINT
-	VPUPR("%s finish\n", __func__);
-#endif
 
 	return ret;
 }
@@ -752,12 +612,14 @@ int vpu_probe(void)
 	ret = get_vpu_config();
 	if (vpu_conf.data->power_on)
 		vpu_conf.data->power_on();
-	set_vpu_clk(vpu_conf.clk_level);
-	set_vpu_clkb(vpu_conf.clk_level);
+	set_vpu_clk(&vpu_conf, vpu_conf.clk_level);
+	set_vpu_clkb(&vpu_conf, vpu_conf.clk_level);
 
 	/* vpu module init off, for power save, and special module init */
-	vpu_mem_pd_init_off();
-	vpu_module_init_config();
+	if (vpu_conf.data->mem_pd_init_off)
+		vpu_conf.data->mem_pd_init_off();
+	if (vpu_conf.data->module_init_config)
+		vpu_conf.data->module_init_config();
 	VPUPR("%s\n", __func__);
 
 	return ret;
@@ -775,75 +637,30 @@ int vpu_remove(void)
 	return 0;
 }
 
-static void vpu_clk_switch(void)
-{
-	struct vpu_clk_s *clk_table;
-	unsigned int mux, div, clk_reg;
-
-	clk_reg = vpu_conf.data->vpu_clk_reg;
-
-	/* step 1: switch to 2nd vpu clk patch */
-	clk_table = vpu_conf.data->vpu_clk_table + vpu_conf.data->clk_level_dft;
-	mux = get_vpu_clk_mux(clk_table->mux);
-	vpu_hiu_setb(clk_reg, mux, 25, 3);
-	div = clk_table->div;
-	vpu_hiu_setb(clk_reg, div, 16, 7);
-	vpu_hiu_setb(clk_reg, 1, 24, 1);
-	vpu_hiu_setb(clk_reg, 1, 31, 1);
-	udelay(10);
-	/* step 2: adjust 1st vpu clk frequency */
-	clk_table = vpu_conf.data->vpu_clk_table + vpu_conf.clk_level;
-	vpu_hiu_setb(clk_reg, 0, 8, 1);
-	mux = get_vpu_clk_mux(clk_table->mux);
-	vpu_hiu_setb(clk_reg, mux, 9, 3);
-	div = clk_table->div;
-	vpu_hiu_setb(clk_reg, div, 0, 7);
-	vpu_hiu_setb(clk_reg, 1, 8, 1);
-	udelay(20);
-	/* step 3: switch back to 1st vpu clk patch */
-	vpu_hiu_setb(clk_reg, 0, 31, 1);
-	vpu_hiu_setb(clk_reg, 0, 24, 1);
-}
-
-int vpu_clk_change(int level)
-{
-	struct vpu_clk_s *clk_table;
-	unsigned int vpu_clk;
-
-	if (vpu_check())
-		return -1;
-
-	if (level >= 100) /* regard as vpu_clk */
-		level = get_vpu_clk_level(level);
-
-	if (level >= vpu_conf.data->clk_level_max) {
-		clk_table = vpu_conf.data->vpu_clk_table + (vpu_conf.data->clk_level_max - 1);
-		VPUPR("clk out of supported range\n");
-		VPUPR("clk max level: %u(%uHz)\n",
-			(vpu_conf.data->clk_level_max - 1),
-			clk_table->freq);
-		return -1;
-	}
-
-	vpu_conf.clk_level = level;
-	clk_table = vpu_conf.data->vpu_clk_table + vpu_conf.clk_level;
-	vpu_clk = clk_table->freq;
-
-	vpu_clk_switch();
-
-	VPUPR("set clk: %uHz, readback: %uHz(0x%x)\n",
-		vpu_clk, get_vpu_clk(), vpu_hiu_read(vpu_conf.data->vpu_clk_reg));
-	return 0;
-}
-
 void vpu_clk_get(void)
 {
 	if (vpu_check())
 		return;
 
 	VPUPR("clk_level: %u, clk: %uHz, reg: 0x%x\n",
-		vpu_conf.clk_level, get_vpu_clk(),
+		vpu_conf.clk_level, get_vpu_clk(&vpu_conf),
 		vpu_hiu_read(vpu_conf.data->vpu_clk_reg));
+}
+
+int vpu_clk_change(int clk)
+{
+	int ret;
+
+	if (vpu_check())
+		return -1;
+
+	if (!vpu_conf.data->change_clk) {
+		VPUERR("%s: don't support change clk\n", __func__);
+		return -1;
+	}
+
+	ret = vpu_conf.data->change_clk(&vpu_conf, clk);
+	return ret;
 }
 
 void vpu_info_print(void)
@@ -866,41 +683,36 @@ void vpu_info_print(void)
 		(vpu_conf.data->vpu_clk_table + (vpu_conf.data->clk_level_max - 1))->freq);
 }
 
-#define VCBUS_REG_CNT_MAX    4
-static unsigned int vcbus_reg[VCBUS_REG_CNT_MAX] = {
-	VENC_VDAC_TST_VAL,
-	ENCP_DVI_HSO_BEGIN,
-	VPP_DUMMY_DATA,
-	VPU_VPU_PWM_V0,
-};
-
 void vcbus_test(void)
 {
+	unsigned int *test_table = vpu_conf.data->test_reg;
 	unsigned int val;
 	unsigned int temp;
 	int i,j;
 
 	if (vpu_check())
 		return;
+	if (!test_table)
+		return;
 
 	VPUPR("vcbus test:\n");
 	for (i = 0; i < VCBUS_REG_CNT_MAX; i++) {
 		for (j = 0; j < 24; j++) {
-			val = vpu_vcbus_read(vcbus_reg[i]);
-			printf("%02d read 0x%04x=0x%08x\n", j, vcbus_reg[i], val);
+			val = vpu_vcbus_read(test_table[i]);
+			printf("%02d read 0x%04x=0x%08x\n", j, test_table[i], val);
 		}
 		printf("\n");
 	}
 	temp = 0x5a5a5a5a;
 	for (i = 0; i < VCBUS_REG_CNT_MAX; i++) {
-		vpu_vcbus_write(vcbus_reg[i], temp);
-		val = vpu_vcbus_read(vcbus_reg[i]);
-		printf("write 0x%04x=0x%08x, readback: 0x%08x\n", vcbus_reg[i], temp, val);
+		vpu_vcbus_write(test_table[i], temp);
+		val = vpu_vcbus_read(test_table[i]);
+		printf("write 0x%04x=0x%08x, readback: 0x%08x\n", test_table[i], temp, val);
 	}
 	for (i = 0; i < VCBUS_REG_CNT_MAX; i++) {
 		for (j = 0; j < 24; j++) {
-			val = vpu_vcbus_read(vcbus_reg[i]);
-			printf("%02d read 0x%04x=0x%08x\n", j, vcbus_reg[i], val);
+			val = vpu_vcbus_read(test_table[i]);
+			printf("%02d read 0x%04x=0x%08x\n", j, test_table[i], val);
 		}
 		printf("\n");
 	}

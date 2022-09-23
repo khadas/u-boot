@@ -417,6 +417,9 @@
 //use dache command
 #define CONFIG_CMD_CACHE
 
+//use remapset command
+#define CONFIG_CMD_REMAPSET
+
 // M4 clock has been added
 #define CONFIG_CLK_P1_TYPE
 

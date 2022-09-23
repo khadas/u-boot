@@ -737,7 +737,9 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
 
 		avb_assert(pk_data && pk_len > 0);
 		io_ret = ops->read_is_device_unlocked(ops, &is_device_unlocked);
-		if (!avb_safe_memcmp(full_partition_name, "vbmeta", strlen("vbmeta"))) {
+		if (!strcmp(full_partition_name, "vbmeta") ||
+				!strcmp(full_partition_name, "vbmeta_a") ||
+				!strcmp(full_partition_name, "vbmeta_b")) {
 			if (io_ret == AVB_IO_RESULT_OK && !is_device_unlocked) {
 				AvbSHA256Ctx boot_key_sha256_ctx;
 

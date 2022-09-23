@@ -155,11 +155,15 @@ int board_late_init(void)
 
 #ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
 	if ( run_command("run common_dtb_load", 0) ) {
-		printf("Fail in load dtb with cmd[%s]\n", env_get("common_dtb_load"));
-	} else {
-		//load dtb here then users can directly use 'fdt' command
-		run_command("if fdt addr ${dtb_mem_addr}; then else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
+		printf("Fail in load dtb with cmd[%s], try _aml_dtb\n", env_get("common_dtb_load"));
+		run_command("if test ${reboot_mode} = fastboot; then "\
+			"imgread dtb _aml_dtb ${dtb_mem_addr}; fi;", 0);
 	}
+
+	//load dtb here then users can directly use 'fdt' command
+	run_command("if fdt addr ${dtb_mem_addr}; then "\
+		"else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
+
 #endif//#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
@@ -238,6 +242,13 @@ phys_size_t get_effective_memsize(void)
 	return ddr_size
 #endif /* CONFIG_SYS_MEM_TOP_HIDE */
 
+}
+
+phys_size_t get_ddr_info_size(void)
+{
+	phys_size_t ddr_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & ~0xffffUL) << 4);
+
+	return ddr_size;
 }
 
 ulong board_get_usable_ram_top(ulong total_size)
@@ -426,8 +437,16 @@ const struct mtd_partition *get_partition_table(int *partitions)
 #ifdef CONFIG_MULTI_DTB
 int checkhw(char * name)
 {
-	strcpy(name, "t7_a311d2_an408\0");
-	env_set("aml_dt", "t7_a311d2_an408\0");
+	cpu_id_t cpu_id;
+
+	cpu_id = get_cpu_id();
+	if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+		strcpy(name, "t7_a311d2_an408\0");
+		env_set("aml_dt", "t7_a311d2_an408\0");
+	} else if (cpu_id.chip_rev == 0xC) {
+		strcpy(name, "t7c_a311d2_an408-4g\0");
+		env_set("aml_dt", "t7c_a311d2_an408-4g\0");
+	}
 	return 0;
 }
 #endif

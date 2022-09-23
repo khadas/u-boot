@@ -116,6 +116,18 @@
 #define LCD_PLL_LOCK_T7              31
 
 /* **********************************
+ * C3
+ * **********************************
+ */
+#define PLL_CLK_OUT_MIN_C3           (375 * 1000)
+#define PLL_CLK_OUT_MAX_C3           (6000 * 1000)
+#define PLL_OD_SEL_MAX_C3            5
+#define CRT_VID_CLK_IN_MAX_C3        (1600 * 1000)
+#define CRT_VID_DIV_MAX_C3           128
+#define PHY_CLK_DIV_MAX_C3           128
+#define ENCL_CLK_IN_MAX_C3           (200 * 1000)
+
+/* **********************************
  * Spread Spectrum
  * **********************************
  */
@@ -238,6 +250,14 @@ struct lcd_clk_ctrl_s pll_ctrl_table_t7[] = {
 	{LCD_CLK_CTRL_RST,  ANACTRL_TCON_PLL0_CNTL0, LCD_PLL_RST_TL1,  1},
 	{LCD_CLK_CTRL_FRAC, ANACTRL_TCON_PLL0_CNTL1,               0, 17},
 	{LCD_CLK_CTRL_END,  LCD_CLK_REG_END,                       0,  0},
+};
+
+struct lcd_clk_ctrl_s pll_ctrl_table_c3[] = {
+	/* flag             reg                 bit              len*/
+	{LCD_CLK_CTRL_EN,   ANACTRL_GP0PLL_CTRL0, 28,   1},
+	{LCD_CLK_CTRL_RST,  ANACTRL_GP0PLL_CTRL0, 29,   1},
+	{LCD_CLK_CTRL_FRAC, ANACTRL_GP0PLL_CTRL1, 0,    17},
+	{LCD_CLK_CTRL_END,  LCD_CLK_REG_END,      0,    0},
 };
 
 /* **********************************

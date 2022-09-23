@@ -131,6 +131,24 @@ static unsigned int lcd_reg_dump_pll_t3[] = {
 	LCD_DEBUG_REG_END
 };
 
+static unsigned int lcd_reg_dump_pll_c3[] = {
+	ANACTRL_GP0PLL_CTRL0,
+	ANACTRL_GP0PLL_CTRL1,
+	ANACTRL_GP0PLL_CTRL2,
+	ANACTRL_GP0PLL_CTRL3,
+	ANACTRL_GP0PLL_CTRL4,
+	ANACTRL_GP0PLL_CTRL5,
+	ANACTRL_GP0PLL_CTRL6,
+	ANACTRL_GP0PLL_STS,
+	LCD_DEBUG_REG_END
+};
+
+static unsigned int lcd_reg_dump_clk_c3[] = {
+	CLKCTRL_VOUTENC_CLK_CTRL,
+	CLKCTRL_MIPIDSI_PHY_CLK_CTRL,
+	LCD_DEBUG_REG_END
+};
+
 static unsigned int lcd_reg_dump_encl_dft[] = {
 	VPU_VIU_VENC_MUX_CTRL,
 	ENCL_VIDEO_EN,
@@ -275,6 +293,23 @@ static unsigned int lcd_reg_dump_encl_t7_2[] = {
 	LCD_DEBUG_REG_END
 };
 
+static unsigned int lcd_reg_dump_encl_c3[] = {
+	VPU_VOUT_CORE_CTRL,
+	VPU_VOUT_MAX_SIZE,
+	VPU_VOUT_FLD_BGN_LINE,
+	VPU_VOUT_HS_POS,
+	VPU_VOUT_VSLN_E_POS,
+	VPU_VOUT_VSPX_E_POS,
+	VPU_VOUT_VSLN_O_POS,
+	VPU_VOUT_VSPX_O_POS,
+	VPU_VOUT_DE_PX_EN,
+	VPU_VOUT_DELN_E_POS,
+	VPU_VOUT_DELN_O_POS,
+	VPU_VOUT_INT_CTRL,
+	VPU_VOUT_DETH_CTRL,
+	LCD_DEBUG_REG_END
+};
+
 static unsigned int lcd_reg_dump_pinmux_tl1[] = {
 	PERIPHS_PIN_MUX_7,
 	PERIPHS_PIN_MUX_8,
@@ -290,6 +325,17 @@ static unsigned int lcd_reg_dump_pinmux_t7[] = {
 static unsigned int lcd_reg_dump_pinmux_t3[] = {
 	PADCTRL_PIN_MUX_REG7,
 	PADCTRL_PIN_MUX_REG8,
+	LCD_DEBUG_REG_END
+};
+
+static unsigned int lcd_reg_dump_pinmux_c3[] = {
+	PADCTRL_PIN_MUX_REG0,
+	PADCTRL_PIN_MUX_REG1,
+	PADCTRL_PIN_MUX_REG3,
+	PADCTRL_PIN_MUX_REG4,
+	PADCTRL_PIN_MUX_REGB,
+	PADCTRL_PIN_MUX_REGJ,
+	PADCTRL_PIN_MUX_REGK,
 	LCD_DEBUG_REG_END
 };
 

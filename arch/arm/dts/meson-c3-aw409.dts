@@ -1,0 +1,68 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
+/dts-v1/;
+
+#include "meson-c3-aw409.dtsi"
+#include "meson-c3_skt-panel.dtsi"
+
+/ {
+	compatible = "amlogic,c3-aw409", "amlogic,c3-txxx", "amlogic,meson-c3";
+	model = "Amlogic Meson C3 AW409 Board";
+
+	cvbsout {
+		compatible = "amlogic, cvbsout-s4";
+		status = "okay";
+
+		/* performance: reg_address, reg_value */
+		/* s4 */
+		/* pal default Matrx625 CTCC value */
+		performance_pal = <0xff006fc0  0x9 /* 0x1bf0 << 2 + 0xff000000 */
+			0xff006c48  0x80c0 /* 0x1b12 */
+			0xff006c14  0xf7 /* 0x1b05 */
+			0xff006d58  0x333 /* 0x1b56 */
+			0xff007164  0xf25c /* 0x1c59 */
+			0xffff  0x0>; /* ending flag */
+		performance_ntsc = <0xff006fc0  0x9 /* 0x1bf0 << 2 + 0xff000000 */
+			0xff006c48  0x8020 /* 0x1b12 */
+                        0xff006c0c  0x0 /* 0x1b03 */
+                        0xff006c10  0x0 /* 0x1b04 */
+			0xff006c14  0x0 /* 0x1b05 */
+			0xff006d58  0x333 /* 0x1b56 */
+			0xff007164  0xf850 /* 0x1c59 */
+			0xffff  0x0>; /* ending flag */
+	};
+};
+
+/* This UART is brought out to the DB9 connector */
+&uart_a {
+	status = "okay";
+};
+
+&uart_b {
+	status = "disabled";
+};
+
+&saradc {
+	status = "okay";
+};
+
+/* demo for i2c user */
+&i2c3 {
+	status= "disabled";
+	clock-frequency = <100000>;
+	/* pinctrl-names = "default";*/
+	/* pinctrl-0 = <&i2c3_master_pins2>;*/
+};
+
+&pinctrl_periphs {
+	bl_pwm_off_pins:bl_pwm_off_pin {
+		mux {
+			groups = "GPIOH_5";
+			function = "gpio_periphs";
+			output-high;
+		};
+	};
+}; /* end of pinctrl_periphs */

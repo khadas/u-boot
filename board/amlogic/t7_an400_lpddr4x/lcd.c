@@ -84,6 +84,25 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	10, 10, Rsv_val},
 
+	{/* 720P*/
+	"lvds_720p", LCD_LVDS, 8,
+	/* basic timing */
+	1280, 720, 1650, 750, 40, 220, 0, 5, 20, 0,
+	/* clk_attr */
+	0, 0, 1, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	/* lvds_attr */
+	1, 0, 0, 0, 0, 0x3, 0x0, Rsv_val, Rsv_val, Rsv_val,
+	NULL, NULL,
+	/* power step */
+	lcd0_power_on_step, lcd0_power_off_step,
+	/* backlight */
+	60, 255, 10, 128, 128,
+	BL_CTRL_MAX, 0, 1, 0, 200, 200,
+	BL_PWM_POSITIVE, BL_PWM_E, 180, 100, 25, 1, 0,
+	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	10, 10, Rsv_val},
+
 	{/*public 2-region vx1 : 3840x2160@60hz 8lane */
 	"vbyone_0", LCD_VBYONE, 10,
 	/* basic timing */
@@ -332,6 +351,25 @@ struct ext_lcd_config_s ext_lcd1_config[LCD_NUM_MAX] = {
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	10, 10, Rsv_val},
 
+	{/* 720P*/
+	"lvds_720p", LCD_LVDS, 8,
+	/* basic timing */
+	1280, 720, 1650, 750, 40, 220, 0, 5, 20, 0,
+	/* clk_attr */
+	0, 0, 1, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	/* lvds_attr */
+	1, 0, 0, 0, 0, 0x3, 0x0, Rsv_val, Rsv_val, Rsv_val,
+	NULL, NULL,
+	/* power step */
+	lcd1_power_on_step, lcd1_power_off_step,
+	/* backlight */
+	60, 255, 10, 128, 128,
+	BL_CTRL_MAX, 0, 1, 0, 200, 200,
+	BL_PWM_POSITIVE, BL_PWM_E, 180, 100, 25, 1, 0,
+	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	10, 10, Rsv_val},
+
 	{/*public 2-region vx1 : 3840x2160@60hz 8lane */
 	"vbyone_0", LCD_VBYONE, 10,
 	/* basic timing */
@@ -500,6 +538,25 @@ struct ext_lcd_config_s ext_lcd2_config[LCD_NUM_MAX] = { //only support lvds
 	60, 255, 10, 128, 128,
 	BL_CTRL_MAX, 0, 1, 0, 200, 200,
 	BL_PWM_POSITIVE, BL_PWM_MAX, 180, 100, 25, 1, 0,
+	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	10, 10, Rsv_val},
+
+	{/* 720P*/
+	"lvds_720p", LCD_LVDS, 8,
+	/* basic timing */
+	1280, 720, 1650, 750, 40, 220, 0, 5, 20, 0,
+	/* clk_attr */
+	0, 0, 1, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	/* lvds_attr */
+	1, 0, 0, 0, 0, 0x3, 0x0, Rsv_val, Rsv_val, Rsv_val,
+	NULL, NULL,
+	/* power step */
+	lcd2_power_on_step, lcd2_power_off_step,
+	/* backlight */
+	60, 255, 10, 128, 128,
+	BL_CTRL_MAX, 0, 1, 0, 200, 200,
+	BL_PWM_POSITIVE, BL_PWM_E, 180, 100, 25, 1, 0,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	10, 10, Rsv_val},

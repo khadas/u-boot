@@ -193,7 +193,7 @@
             "\0"\
         "recovery_from_flash="\
             "setenv loadaddr ${loadaddr_kernel};"\
-            "setenv bootargs ${bootargs} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
+		"setenv bootargs ${bootargs} aml_dt=${aml_dt};"\
             "if imgread dtb recovery ${dtb_mem_addr}; then "\
                 "else echo restore dtb; run common_dtb_load;"\
             "fi;"\
@@ -421,6 +421,9 @@
 
 //use dache command
 #define CONFIG_CMD_CACHE
+
+//use remapset command
+#define CONFIG_CMD_REMAPSET
 
 /* define CONFIG_UPDATE_MMU_TABLE for need update mmu */
 #define	CONFIG_UPDATE_MMU_TABLE

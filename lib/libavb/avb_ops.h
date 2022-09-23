@@ -210,12 +210,6 @@ struct AvbOps {
                                       size_t rollback_index_location,
                                       uint64_t rollback_index);
 
-  /* Device lock. AVB_IO_RESULT_OK if lock success, otherwise an error code. */
-  AvbIOResult (*device_lock)(AvbOps* ops);
-
-  /* Device unlock. AVB_IO_RESULT_OK if unlock success, otherwise an error code. */
-  AvbIOResult (*device_unlock)(AvbOps* ops);
-
   /* Gets whether the device is unlocked. The value is returned in
    * |out_is_unlocked| (true if unlocked, false otherwise). Returns
    * AVB_IO_RESULT_OK if the state was retrieved, otherwise an error

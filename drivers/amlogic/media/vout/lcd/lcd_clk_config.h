@@ -105,6 +105,7 @@ struct lcd_clk_config_s { /* unit: kHz */
 	unsigned int edp_div1;
 	unsigned int div_sel;
 	unsigned int xd;
+	unsigned int phy_div;
 	unsigned int div_sel_max;
 	unsigned int xd_max;
 	unsigned int err_fmin;

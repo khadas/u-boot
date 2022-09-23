@@ -564,6 +564,11 @@ static void lcd_p2p_phy_set_t5(struct aml_lcd_drv_s *pdrv, int status)
 				cntl14 = 0xe0600272;
 			else /* default 385mV */
 				cntl14 = 0xfe60027f;
+
+			/* vswing */
+			cntl14 &= ~(0xf);
+			cntl14 |= phy->vswing;
+
 			/* vcm */
 			if ((phy->flag & (1 << 1))) {
 				cntl14 &= ~(0x7ff << 4);
@@ -662,13 +667,13 @@ static void lcd_lvds_phy_set_t7(struct aml_lcd_drv_s *pdrv, int status)
 			       pdrv->index);
 			return;
 		}
-		flag = (0x1f << 5);
+		flag = (0x1f << 10);
 		break;
 	case 2:
 		if (lvds_conf->dual_port)
 			flag = (0x3ff << 5);
 		else
-			flag = (0x1f << 10);
+			flag = (0x1f << 5);
 		break;
 	default:
 		LCDERR("invalid drv_index %d for lvds\n", pdrv->index);
@@ -1117,6 +1122,11 @@ static void lcd_p2p_phy_set_t3(struct aml_lcd_drv_s *pdrv, int status)
 				cntl14 = 0xe0600272;
 			else /* default 385mV */
 				cntl14 = 0xfe60027f;
+
+			/* vswing */
+			cntl14 &= ~(0xf);
+			cntl14 |= phy->vswing;
+
 			/* vcm */
 			if ((phy->flag & (1 << 1))) {
 				cntl14 &= ~(0x7ff << 4);
@@ -1142,6 +1152,19 @@ static void lcd_p2p_phy_set_t3(struct aml_lcd_drv_s *pdrv, int status)
 		}
 	} else {
 		lcd_phy_cntl_set_t3(phy, status, 1, 0, 0);
+	}
+}
+
+static void lcd_mipi_phy_set_c3(struct aml_lcd_drv_s *pdrv, int status)
+{
+	if (status) {
+		lcd_ana_write(ANACTRL_MIPIDSI_CTRL0, 0xa4870008);
+		lcd_ana_write(ANACTRL_MIPIDSI_CTRL1, 0x0001002e);
+		lcd_ana_write(ANACTRL_MIPIDSI_CTRL2, 0x2680fc59);
+	} else {
+		lcd_ana_write(ANACTRL_MIPIDSI_CTRL0, 0x04070000);
+		lcd_ana_write(ANACTRL_MIPIDSI_CTRL1, 0x2e);
+		lcd_ana_write(ANACTRL_MIPIDSI_CTRL2, 0x2680045a);
 	}
 }
 
@@ -1221,7 +1244,7 @@ void lcd_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 	pdrv->phy_set(pdrv, status);
 }
 
-struct lcd_phy_ctrl_s lcd_phy_ctrl_g12a = {
+static struct lcd_phy_ctrl_s lcd_phy_ctrl_g12a = {
 	.lane_lock = 0,
 	.ctrl_bit_on = 0,
 	.phy_set_lvds = NULL,
@@ -1232,7 +1255,7 @@ struct lcd_phy_ctrl_s lcd_phy_ctrl_g12a = {
 	.phy_set_edp = NULL,
 };
 
-struct lcd_phy_ctrl_s lcd_phy_ctrl_tl1 = {
+static struct lcd_phy_ctrl_s lcd_phy_ctrl_tl1 = {
 	.lane_lock = 0,
 	.ctrl_bit_on = 1,
 	.phy_set_lvds = lcd_lvds_phy_set_tl1,
@@ -1243,7 +1266,7 @@ struct lcd_phy_ctrl_s lcd_phy_ctrl_tl1 = {
 	.phy_set_edp = NULL,
 };
 
-struct lcd_phy_ctrl_s lcd_phy_ctrl_t5 = {
+static struct lcd_phy_ctrl_s lcd_phy_ctrl_t5 = {
 	.lane_lock = 0,
 	.ctrl_bit_on = 1,
 	.phy_set_lvds = lcd_lvds_phy_set_t5,
@@ -1254,7 +1277,7 @@ struct lcd_phy_ctrl_s lcd_phy_ctrl_t5 = {
 	.phy_set_edp = NULL,
 };
 
-struct lcd_phy_ctrl_s lcd_phy_ctrl_t7 = {
+static struct lcd_phy_ctrl_s lcd_phy_ctrl_t7 = {
 	.lane_lock = 0,
 	.ctrl_bit_on = 1,
 	.phy_set_lvds = lcd_lvds_phy_set_t7,
@@ -1265,7 +1288,7 @@ struct lcd_phy_ctrl_s lcd_phy_ctrl_t7 = {
 	.phy_set_edp = lcd_edp_phy_set_t7,
 };
 
-struct lcd_phy_ctrl_s lcd_phy_ctrl_t3 = {
+static struct lcd_phy_ctrl_s lcd_phy_ctrl_t3 = {
 	.lane_lock = 0,
 	.ctrl_bit_on = 1,
 	.phy_set_lvds = lcd_lvds_phy_set_t3,
@@ -1273,6 +1296,17 @@ struct lcd_phy_ctrl_s lcd_phy_ctrl_t3 = {
 	.phy_set_mlvds = lcd_mlvds_phy_set_t3,
 	.phy_set_p2p = lcd_p2p_phy_set_t3,
 	.phy_set_mipi = NULL,
+	.phy_set_edp = NULL,
+};
+
+static struct lcd_phy_ctrl_s lcd_phy_ctrl_c3 = {
+	.lane_lock = 0,
+	.ctrl_bit_on = 1,
+	.phy_set_lvds = NULL,
+	.phy_set_vx1 = NULL,
+	.phy_set_mlvds = NULL,
+	.phy_set_p2p = NULL,
+	.phy_set_mipi = lcd_mipi_phy_set_c3,
 	.phy_set_edp = NULL,
 };
 
@@ -1347,6 +1381,9 @@ int lcd_phy_config_init(struct aml_lcd_data_s *pdata)
 		break;
 	case LCD_CHIP_T3:
 		lcd_phy_ctrl = &lcd_phy_ctrl_t3;
+		break;
+	case LCD_CHIP_C3:
+		lcd_phy_ctrl = &lcd_phy_ctrl_c3;
 		break;
 	default:
 		break;

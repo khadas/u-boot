@@ -949,6 +949,8 @@ int console_init_r(void)
 	}
 
 	gd->flags |= GD_FLG_DEVINIT;	/* device initialization completed */
+	if (CONFIG_IS_ENABLED(DISABLE_AML_SERIAL))
+		gd->flags |= GD_FLG_DISABLE_CONSOLE;
 
 #if 0
 	/* If nothing usable installed, use only the initial console */

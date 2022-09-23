@@ -138,6 +138,7 @@ int board_init(void)
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 	/*set vcc5V*/
 	run_command("gpio set GPIOH_1", 0);
+	run_command("gpio set GPIOY_8", 1);
 	return 0;
 }
 
@@ -287,12 +288,15 @@ int board_late_init(void)
 	board_boot_freertos();
 #ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
 	if (run_command("run common_dtb_load", 0)) {
-		printf("Fail in load dtb with cmd[%s]\n", env_get("common_dtb_load"));
-	} else {
-		//load dtb here then users can directly use 'fdt' command
-		run_command("if fdt addr ${dtb_mem_addr}; then "\
-			"else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
+		printf("Fail in load dtb with cmd[%s], try _aml_dtb\n", env_get("common_dtb_load"));
+		run_command("if test ${reboot_mode} = fastboot; then "\
+			"imgread dtb _aml_dtb ${dtb_mem_addr}; fi;", 0);
 	}
+
+	//load dtb here then users can directly use 'fdt' command
+	run_command("if fdt addr ${dtb_mem_addr}; then "\
+		"else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
+
 #endif//#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
@@ -370,6 +374,13 @@ phys_size_t get_effective_memsize(void)
 		ddr_size = 0xe0000000;
 	return ddr_size
 #endif /* CONFIG_SYS_MEM_TOP_HIDE */
+}
+
+phys_size_t get_ddr_info_size(void)
+{
+	phys_size_t ddr_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & ~0xffffUL) << 4);
+
+	return ddr_size;
 }
 
 ulong board_get_usable_ram_top(ulong total_size)

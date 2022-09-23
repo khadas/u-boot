@@ -12,6 +12,7 @@
 #include <version.h>
 #include <partition_table.h>
 #include <amlogic/storage.h>
+#include <emmc_partitions.h>
 
 u32 kMaxDownloadSizeDefault = 0x10000000;
 u32 kMaxFetchSizeDefault = 0x10000000;
@@ -42,6 +43,7 @@ static void getvar_has_slot(char *var_parameter, char *response);
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 static void getvar_partition_type(char *part_name, char *response);
 static void getvar_partition_size(char *part_name, char *response);
+static int is_f2fs_by_name(char const *name);
 #endif
 static void getvar_maxdownloadsize(char *var_parameter, char *response);
 static void getvar_maxfetchsize(char *var_parameter, char *response);
@@ -544,6 +546,28 @@ static void partition_type_reply(char *part_name, char *response, char *part_typ
 	}
 }
 
+/*
+ * get the partition fs by name
+ * return value
+ *     = 1 means f2fs
+ *     = 0 means ext4
+ *     = -1 means no partition found
+ */
+static int is_f2fs_by_name(char const *name)
+{
+	int ret = -1;
+#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+	struct partitions *partition = NULL;
+
+	partition = find_mmc_partition_by_name(name);
+	if (!partition)
+		return ret;
+	ret = (partition->mask_flags >> 12) & 0x1;
+#endif
+
+	return ret;
+}
+
 static void getvar_partition_type(char *part_name, char *response)
 {
 	/*int r;
@@ -572,7 +596,6 @@ static void getvar_partition_type(char *part_name, char *response)
 			(strcmp_l1(part_name, "product") == 0) ||
 			(strcmp_l1(part_name, "system_ext") == 0) ||
 			(strcmp_l1(part_name, "dtbo") == 0) ||
-			(strcmp_l1(part_name, "metadata") == 0) ||
 			(strcmp_l1(part_name, "vbmeta") == 0) ||
 			(strcmp_l1(part_name, "vbmeta_system") == 0) ||
 			(strcmp_l1(part_name, "super") == 0) ||
@@ -581,10 +604,33 @@ static void getvar_partition_type(char *part_name, char *response)
 			(strcmp_l1(part_name, "oem") == 0)) {
 		partition_type_reply(part_name, response, "ext4");
 	} else if ((strcmp(part_name, "data") == 0) || (strcmp(part_name, "userdata") == 0)) {
-		if (busy_flag == 1)
-			fastboot_response("INFOpartition-type:", response, "%s: ext4", part_name);
-		else
-			fastboot_okay("ext4", response);
+		if (is_f2fs_by_name("data") == -1 && is_f2fs_by_name("userdata") == -1) {
+			printf("no partition data or userdata found\n");
+		} else if (is_f2fs_by_name("data") == 0 || is_f2fs_by_name("userdata") == 0) {
+			printf("data is ext4\n");
+			if (busy_flag == 1)
+				fastboot_response("INFOpartition-type:", response,
+							"%s: ext4", part_name);
+			else
+				fastboot_okay("ext4", response);
+		} else {
+			printf("data is f2fs\n");
+			if (busy_flag == 1)
+				fastboot_response("INFOpartition-type:", response,
+						"%s: f2fs", part_name);
+			else
+				fastboot_okay("f2fs", response);
+		}
+	} else if (strcmp(part_name, "metadata") == 0) {
+		if (is_f2fs_by_name("metadata") == -1) {
+			printf("no partition metadata found\n");
+		} else if (is_f2fs_by_name("metadata") == 0) {
+			printf("metadata is ext4\n");
+			partition_type_reply(part_name, response, "ext4");
+		} else {
+			printf("metadata is f2fs\n");
+			partition_type_reply(part_name, response, "f2fs");
+		}
 	} else if (strcmp(part_name, "cache") == 0) {
 		if (has_boot_slot == 0) {
 			if (busy_flag == 1)

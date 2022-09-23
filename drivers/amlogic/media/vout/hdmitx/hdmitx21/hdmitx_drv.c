@@ -598,11 +598,14 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 			      (TX_INPUT_COLOR_FORMAT == HDMI_COLORSPACE_YUV420) ? 1 : 0,
 			      hdev->enc_idx);
 	// configure GCP
+	/* for 8bit depth or y422: non-merge gcp mode + clr_avmute,
+	 * for dc mode: merge gcp mode + clr_avmute
+	 */
 	if (para->cs == HDMI_COLORSPACE_YUV422 || para->cd == COLORDEPTH_24B) {
 		hdmitx21_set_reg_bits(GCP_CNTL_IVCTX, 0, 0, 1);
-		hdmi_gcppkt_manual_set(1);
+		/* hdmi_gcppkt_manual_set(1); */
 	} else {
-		hdmi_gcppkt_manual_set(0);
+		/* hdmi_gcppkt_manual_set(0); */
 		hdmitx21_set_reg_bits(GCP_CNTL_IVCTX, 1, 0, 1);
 	}
 

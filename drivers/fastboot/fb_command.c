@@ -13,8 +13,9 @@
 #include <emmc_partitions.h>
 #include <amlogic/storage.h>
 #include <amlogic/aml_efuse.h>
+#include <amlogic/aml_mmc.h>
 
-#ifdef CONFIG_AML_ANTIROLLBACK
+#if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
 #include <amlogic/anti-rollback.h>
 #endif
 
@@ -426,6 +427,28 @@ void fastboot_data_complete(char *response)
 
 #ifdef CONFIG_FASTBOOT_WRITING_CMD
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
+static void write_dts_reserve(void)
+{
+	int ret;
+	void *addr = NULL;
+	char *mem_addr;
+
+	if (run_command("imgread dtb ${boot_part} ${dtb_mem_addr}", 0)) {
+		printf("Fail in load dtb\n");
+	} else {
+		mem_addr = env_get("dtb_mem_addr");
+
+		if (mem_addr) {
+			addr = (void *)simple_strtoul(mem_addr, NULL, 16);
+			ret = dtb_write(addr);
+			if (ret)
+				printf("write dtb error\n");
+			else
+				printf("write dtb ok\n");
+		}
+	}
+}
+
 /**
  * flash() - write the downloaded image to the indicated partition.
  *
@@ -496,7 +519,11 @@ static void flash(char *cmd_parameter, char *response)
 			run_command("mmc dev 1 0;", 0);
 #endif
 			env_set("default_env", "1");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+			run_command("update_env_part -p default_env;", 0);
+#else
 			run_command("saveenv;", 0);
+#endif//#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
 			return;
 		}
 	}
@@ -569,7 +596,25 @@ static void flash(char *cmd_parameter, char *response)
 
 	if (strcmp(name, "bootloader") == 0) {
 		env_set("default_env", "1");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+		run_command("update_env_part -p default_env;", 0);
+#else
 		run_command("saveenv;", 0);
+#endif// #if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+	}
+
+	if (aml_gpt_valid(mmc) == 0) {
+		if (vendor_boot_partition) {
+			if (strcmp_l1("vendor_boot", name) == 0) {
+				printf("gpt mode, write dts to reserve\n");
+				write_dts_reserve();
+			}
+		} else {
+			if (strcmp_l1("boot", name) == 0) {
+				printf("gpt mode, write dts to reserve\n");
+				write_dts_reserve();
+			}
+		}
 	}
 }
 
@@ -871,7 +916,11 @@ static void flashing(char *cmd_parameter, char *response)
 		memcpy(lock_d, "10101000", 8);
 		lock_s = "10101000";
 		env_set("lock", "10101000");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+		run_command("update_env_part -p lock;", 0);
+#else
 		run_command("defenv_reserv; saveenv;", 0);
+#endif//#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
 	} else {
 		printf("lock state: %s\n", lock_s);
 		if (strlen(lock_s) > 15)
@@ -938,7 +987,7 @@ static void flashing(char *cmd_parameter, char *response)
 				}
 				printf("avb2: %s\n", avb_s);
 				if (strcmp(avb_s, "1") == 0) {
-#ifdef CONFIG_AML_ANTIROLLBACK
+#if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
 					if (avb_unlock()) {
 						if (-1 == rc) {
 							printf("unlocking device.  Erasing data partition!\n");
@@ -983,10 +1032,8 @@ static void flashing(char *cmd_parameter, char *response)
 			}
 			printf("avb2: %s\n", avb_s);
 			if (strcmp(avb_s, "1") == 0) {
-#ifdef CONFIG_AML_ANTIROLLBACK
+#if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
 				if (avb_lock()) {
-					printf("lock failed!\n");
-				} else {
 					if (-1 == rc) {
 						printf("locking device.  Erasing data partition!\n");
 						run_command("store erase data 0 0", 0);
@@ -994,8 +1041,10 @@ static void flashing(char *cmd_parameter, char *response)
 						printf("locking device.  Erasing userdata partition!\n");
 						run_command("store erase userdata 0 0", 0);
 					}
-					printf("unlocking device.  Erasing metadata partition!\n");
+					printf("locking device.  Erasing metadata partition!\n");
 					run_command("store erase metadata 0 0", 0);
+				} else {
+					printf("lock failed!\n");
 				}
 #else
 				if (-1 == rc) {
@@ -1005,7 +1054,7 @@ static void flashing(char *cmd_parameter, char *response)
 					printf("locking device.  Erasing userdata partition!\n");
 					run_command("store erase userdata 0 0", 0);
 				}
-				printf("unlocking device.  Erasing metadata partition!\n");
+				printf("locking device.  Erasing metadata partition!\n");
 				run_command("store erase metadata 0 0", 0);
 
 #endif
@@ -1024,7 +1073,11 @@ static void flashing(char *cmd_parameter, char *response)
 		info.lock_bootloader);
 	printf("lock_d state: %s\n", lock_d);
 	env_set("lock", lock_d);
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+	run_command("update_env_part -p lock;", 0);
+#else
 	run_command("defenv_reserv; saveenv;", 0);
+#endif//#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
 	return;
 }
 #endif// #if !CONFIG_IS_ENABLED(NO_FASTBOOT_FLASHING)

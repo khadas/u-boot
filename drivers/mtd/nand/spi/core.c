@@ -631,7 +631,16 @@ bool spinand_is_info_page(struct nand_device *nand, int page)
 	return unlikely((page % 128) == ((BL2_SIZE / 2048) - 1) &&
 			page < BOOT_TOTAL_PAGES);
 }
+#endif
 
+#if SPINAND_MESON_INFO_PAGE_V2
+bool spinand_is_info_page(struct nand_device *nand, int page)
+{
+	return unlikely(((page % 128) == 1) && (page < BOOT_TOTAL_PAGES));
+}
+#endif
+
+#if SPINAND_MESON_INFO_PAGE
 int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 {
 	u32 page_per_blk;
@@ -662,7 +671,45 @@ int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 
 	return 0;
 }
+#endif
 
+#if SPINAND_MESON_INFO_PAGE_V2
+int spinand_set_info_page(struct mtd_info *mtd, void *buf)
+{
+	struct nand_device* dev = mtd_to_nanddev(mtd);
+	struct boot_info *boot_info = (struct boot_info *)buf;
+	u32 page_per_bbt, i;
+
+	memcpy(boot_info->magic, SPINAND_MAGIC, strlen(SPINAND_MAGIC));
+	boot_info->version = SPINAND_INFO_VER;
+	page_per_bbt = (mtd->size >> (mtd->erasesize_shift + mtd->writesize_shift));
+	boot_info->common = (page_per_bbt ? page_per_bbt : 1) & 0x3;
+	boot_info->dev_cfg.page_size = mtd->writesize;
+
+	if (dev->memorg.planes_per_lun > 1) {
+		boot_info->dev_cfg.planes_per_lun = ((6 & 0xf) << 4) | ((dev->memorg.planes_per_lun & 0xf) << 0);
+		boot_info->dev_cfg.bus_width = ((mtd->writesize_shift + 1) << 4) | (1 << 0);
+	} else {
+		boot_info->dev_cfg.planes_per_lun = 1;
+		boot_info->dev_cfg.bus_width = 1;
+	}
+
+	for (i = 0; i < sizeof(struct boot_info) - 4; i++)
+		boot_info->checksum += *((u8 *)buf + i);
+
+	/* temporary dump info page for brinpup */
+	for (i = 0; i < sizeof(struct boot_info); i++) {
+		if (!(i % 8))
+			printf("\n");
+		printf("%2x  ", *((u8 *)buf + i));
+	}
+	printf("\n");
+
+	return 0;
+}
+#endif
+
+#if (SPINAND_MESON_INFO_PAGE || SPINAND_MESON_INFO_PAGE_V2)
 static int spinand_append_info_page(struct mtd_info *mtd,
 				    struct nand_page_io_req *last_req)
 {
@@ -682,14 +729,19 @@ static int spinand_append_info_page(struct mtd_info *mtd,
 		buf = kzalloc(mtd->writesize, GFP_KERNEL);
 		req.databuf.in = buf;
 		spinand_set_info_page(mtd, buf);
+		#if SPINAND_MESON_INFO_PAGE
 		nanddev_pos_next_page(nand, &req.pos);
+		#else
+		req.pos.page--;
+		#endif
 		ret = spinand_write_page(spinand, &req);
+		pr_info("write info page to 0x%x\n", nanddev_pos_to_row(nand, &req.pos));
 		kfree(buf);
-		pr_info("%s: %d\n", __func__, page);
 	}
 	return ret;
 }
 #endif
+
 static int spinand_mtd_write(struct mtd_info *mtd, loff_t to,
 			     struct mtd_oob_ops *ops)
 {
@@ -720,7 +772,7 @@ static int spinand_mtd_write(struct mtd_info *mtd, loff_t to,
 			break;
 
 		/* add for meson info page */
-		#if SPINAND_MESON_INFO_PAGE
+		#if (SPINAND_MESON_INFO_PAGE || SPINAND_MESON_INFO_PAGE_V2)
 		ret = spinand_append_info_page(mtd, &iter.req);
 		if (ret)
 			break;

@@ -237,6 +237,11 @@ static struct lcd_pinmux_ctrl_s lcd0_pinmux_ctrl[LCD_PINMUX_MAX] = {
 		.pinmux_clr = {{7, 0x0fffffff}, {8, 0x0f00fff0}, {LCD_PINMUX_END, 0x0}},
 	},
 	{
+		.name = "ST5461D18-2", //GPIOH_0~6,9~11,14
+		.pinmux_set = {{7, 0x01111112}, {8, 0x01001110}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{7, 0x0fffffff}, {8, 0x0f00fff0}, {LCD_PINMUX_END, 0x0}},
+	},
+	{
 		.name = "invalid",
 	},
 };

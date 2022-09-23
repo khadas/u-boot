@@ -133,7 +133,6 @@
         "cec_ac_wakeup=1\0" \
         "initargs="\
             "init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe078000 "\
-            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
             "\0"\
         "upgrade_check="\
             "echo recovery_status=${recovery_status};"\
@@ -158,10 +157,17 @@
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
-        "cec_init="\
-            "echo cec_ac_wakeup=${cec_ac_wakeup}; "\
-            "echo cec_init do nothing" \
-            "\0"\
+	"cec_init="\
+		"echo cec_ac_wakeup=${cec_ac_wakeup}; "\
+		"if test ${cec_ac_wakeup} = 1; then "\
+			"cec ${logic_addr} ${cec_fun}; "\
+			"if test ${edid_select} = 1111; then "\
+				"hdmirx init ${port_map} ${edid_20_dir}; "\
+			"else "\
+				"hdmirx init ${port_map} ${edid_14_dir}; "\
+			"fi;"\
+		"fi;"\
+	"\0"\
         "ffv_freeze_action="\
             "run cec_init;"\
             "setenv ffv_freeze on;"\
@@ -289,22 +295,24 @@
             "echo active_slot: ${active_slot};"\
             "setenv loadaddr ${loadaddr_kernel};"\
             "if test ${active_slot} = normal; then "\
-                "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
+		"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
                 "if imgread dtb recovery ${dtb_mem_addr}; then "\
                     "else echo restore dtb; run common_dtb_load;"\
                 "fi;"\
                 "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
             "else "\
                 "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
-                "if test ${partiton_mode} = normal; then "\
-                    "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
+		"if test ${partition_mode} = normal; then "\
+			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
                     "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                 "else "\
                     "if test ${vendor_boot_mode} = true; then "\
-                        "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
+			"setenv bootargs ${bootargs} ${fs_type} "\
+			"aml_dt=${aml_dt} androidboot.slot_suffix=${active_slot};"\
                         "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                     "else "\
-                        "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
+			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
+			"androidboot.slot_suffix=${active_slot};"\
                         "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
                     "fi;"\
                 "fi;"\
@@ -449,7 +457,6 @@
         "cec_ac_wakeup=1\0" \
         "initargs="\
             "init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe078000 "\
-            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
             "\0"\
         "upgrade_check="\
             "echo recovery_status=${recovery_status};"\
@@ -484,10 +491,17 @@
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
-        "cec_init="\
-            "echo cec_ac_wakeup=${cec_ac_wakeup}; "\
-            "echo cec_init do nothing" \
-            "\0"\
+		"cec_init="\
+			"echo cec_ac_wakeup=${cec_ac_wakeup}; "\
+			"if test ${cec_ac_wakeup} = 1; then "\
+				"cec ${logic_addr} ${cec_fun}; "\
+				"if test ${edid_select} = 1111; then "\
+					"hdmirx init ${port_map} ${edid_20_dir}; "\
+				"else "\
+					"hdmirx init ${port_map} ${edid_14_dir}; "\
+				"fi;"\
+			"fi;"\
+		"\0"\
         "ffv_freeze_action="\
             "run cec_init;"\
             "setenv ffv_freeze on;"\
@@ -608,7 +622,7 @@
             "echo active_slot: ${active_slot};"\
             "setenv loadaddr ${loadaddr_kernel};"\
             "if test ${active_slot} = normal; then "\
-                "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part={recovery_part} recovery_offset={recovery_offset};"\
+		"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
                 "if imgread dtb recovery ${dtb_mem_addr}; then "\
                     "else echo restore dtb; run common_dtb_load;"\
                 "fi;"\
@@ -616,14 +630,16 @@
             "else "\
                 "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
                 "if test ${partition_mode} = normal; then "\
-                    "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
+			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
                     "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                 "else "\
                     "if test ${vendor_boot_mode} = true; then "\
-                        "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
+			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
+			"androidboot.slot_suffix=${active_slot};"\
                         "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                     "else "\
-                        "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
+			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
+			"androidboot.slot_suffix=${active_slot};"\
                         "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
                     "fi;"\
                 "fi;"\

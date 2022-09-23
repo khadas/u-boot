@@ -198,11 +198,15 @@ int board_late_init(void)
 	board_boot_freertos();
 #ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
 	if ( run_command("run common_dtb_load", 0) ) {
-		printf("Fail in load dtb with cmd[%s]\n", env_get("common_dtb_load"));
-	} else {
-		//load dtb here then users can directly use 'fdt' command
-		run_command("if fdt addr ${dtb_mem_addr}; then else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
+		printf("Fail in load dtb with cmd[%s], try _aml_dtb\n", env_get("common_dtb_load"));
+		run_command("if test ${reboot_mode} = fastboot; then "\
+			"imgread dtb _aml_dtb ${dtb_mem_addr}; fi;", 0);
 	}
+
+	//load dtb here then users can directly use 'fdt' command
+	run_command("if fdt addr ${dtb_mem_addr}; then "\
+		"else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
+
 #endif//#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
@@ -281,6 +285,13 @@ phys_size_t get_effective_memsize(void)
 	return ddr_size
 #endif /* CONFIG_SYS_MEM_TOP_HIDE */
 
+}
+
+phys_size_t get_ddr_info_size(void)
+{
+	phys_size_t ddr_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & ~0xffffUL) << 4);
+
+	return ddr_size;
 }
 
 ulong board_get_usable_ram_top(ulong total_size)
@@ -488,29 +499,56 @@ int checkhw(char * name)
 {
 #ifdef CONFIG_MULTI_DTB
 	char *p_aml_dt = env_get("aml_dt");
+	cpu_id_t cpu_id;
 
 	printf("checkhw aml_dt:%s\n", p_aml_dt);
 	if (!p_aml_dt) {
 		char loc_name[64] = {0};
 		phys_size_t ddr_size = get_ddr_memsize();
+		cpu_id = get_cpu_id();
 
 		switch (ddr_size) {
 		case CONFIG_T7_3G_SIZE:
-			strcpy(loc_name, "t7_a311d2_an400-3g\0");
+			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+				strcpy(loc_name, "t7_a311d2_an400-3g\0");
+			} else if (cpu_id.chip_rev == 0xC) {
+				strcpy(loc_name, "t7c_a311d2_an400-3g\0");
+				//
+			}
 			break;
 		case CONFIG_T7_4G_SIZE:
-			strcpy(loc_name, "t7_a311d2_an400\0");
+			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+				strcpy(loc_name, "t7_a311d2_an400\0");
+			} else if (cpu_id.chip_rev == 0xC) {
+				strcpy(loc_name, "t7c_a311d2_an400-4g\0");
+				//
+			}
 			break;
 		case CONFIG_T7_6G_SIZE:
-			strcpy(loc_name, "t7_a311d2_an400-6g\0");
+			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+				strcpy(loc_name, "t7_a311d2_an400-6g\0");
+			} else if (cpu_id.chip_rev == 0xC) {
+				strcpy(loc_name, "t7c_a311d2_an400-6g\0");
+				//
+			}
 			break;
 		case CONFIG_T7_8G_SIZE:
-			strcpy(loc_name, "t7_a311d2_an400-8g\0");
+			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+				strcpy(loc_name, "t7_a311d2_an400-8g\0");
+			} else if (cpu_id.chip_rev == 0xC) {
+				strcpy(loc_name, "t7c_a311d2_an400-8g\0");
+				//
+			}
 			break;
 		default:
 			printf("DDR size: 0x%llx, multi-dt doesn't support, ", ddr_size);
 			printf("set defalult t7_a311d2_an400\n");
-			strcpy(loc_name, "t7_a311d2_an400\0");
+			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+				strcpy(loc_name, "t7_a311d2_an400\0");
+			} else if (cpu_id.chip_rev == 0xC) {
+				strcpy(loc_name, "t7c_a311d2_an400-4g\0");
+				//
+			}
 			break;
 		}
 		printf("init aml_dt to %s\n", loc_name);

@@ -63,6 +63,18 @@ struct aml_nand_flash_dev aml_nand_flash_ids[] = {
 		(NAND_TIMING_MODE5 | NAND_ECC_BCH16_MODE
 		| NAND_TWO_PLANE_MODE)},
 
+	{"Slc NAND 4Gib HYN4G08UHTCC1",
+		{NAND_MFR_HYNIX, 0xdc, 0x0, 0x05, 0x04, 0x41},
+		2048,
+		512,
+		0x20000,
+		128,
+		1,
+		20,
+		15,
+		0,
+		(NAND_TIMING_MODE5 | NAND_ECC_BCH8_MODE)},
+
 	{"B revision NAND 2GiB H27UAG8T2B",
 		{NAND_MFR_HYNIX, 0xd5, 0x94, 0x9a, 0x74, 0x42},
 		8192,
