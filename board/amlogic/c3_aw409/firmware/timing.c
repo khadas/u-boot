@@ -472,7 +472,7 @@ __attribute__ ((section(".clk_param"))) = {
 
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 	//need fine tune
-	{ 0, 0, 0xffffffff, 0, 0, 0 },
+	{0, 0, 0xffffffff, 0, 0x1, 0},    //flag: 1=disable bl32 0=enable bl32
 };
 
 /* gpio/pinmux/pwm init */
