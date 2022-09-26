@@ -22,7 +22,7 @@
 
 static struct key_info_t unify_key_info={.key_num =0, .key_flag = 0, .efuse_version = -1, .encrypt_type = 0};
 static struct key_item_t *unifykey_item=NULL;
-static struct key_item_t *_def_provision_item;//keyname start KEY_PROVISION_ and device is provison
+static struct key_item_t *_def_provision_item;//keyname start KEY_PROVISION_ and device is provision
 static struct key_item_t *_defEfuseItem;//keyname start with "KEY_EFUSE_" and device is "efuse"
 #define _PROVISION_DEFAULT_KEY_NAME  "KEY_PROVISION_XXX"
 #define _EFUSE_DEFAULT_KEY_NAME		"KEY_EFUSE_XXX"

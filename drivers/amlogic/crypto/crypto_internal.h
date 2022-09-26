@@ -70,7 +70,7 @@ struct dma_dsc {
 /*
  * aes_cipher - aes cipher
  *
- * @key - key pointer, can be actuall key buffer, or key table addr
+ * @key - key pointer, can be actually key buffer, or key table addr
  * @keylen - length of key
  * @iv - AES IV
  * @src - src pointer
@@ -88,7 +88,7 @@ int32_t aes_cipher(void *key, uint32_t keylen, uint8_t iv[16],
 /*
  * des_tdes_cipher - des and tdes cipher
  *
- * @key - key pointer, can be actuall key buffer, or key table addr
+ * @key - key pointer, can be actually key buffer, or key table addr
  * @keylen - length of key
  * @iv - DES/TDES IV
  * @src - src pointer
