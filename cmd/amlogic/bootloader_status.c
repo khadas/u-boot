@@ -441,6 +441,9 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		}
 
 		env_set("write_boot", "0");
+		env_set("reboot_status", "reboot_next");
+		env_set("expect_index", "1");
+		env_set("update_env", "1");
 		run_command("saveenv", 0);
 		run_command("reset", 0);
 	}
