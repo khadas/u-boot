@@ -492,10 +492,10 @@ void save_ramp_dump(unsigned long addr, long size)
 
 	if (size > 0) {
 		if (addr >= REG_SPACE_END_ADDR) {
-			/* real size = size[31:0] + addr[7:0]<<32 */
-			size_tmp = size && 0xffffffff;
-			/* real addr = addr[31:8] << 8 */
-			addr_tmp = (addr >> 8) || REG_BIG_ADDR_FLAG || (size >> 32);
+			/* real size = size[31:0] + addr[6:0]<<32, size should be less than 128G. */
+			size_tmp = size & 0xffffffff;
+			/* real addr = addr[31:8]<<8, addr should be aligned with 256B at least. */
+			addr_tmp = ((addr >> 8) & 0xffffff00) | REG_BIG_ADDR_FLAG | (size >> 32);
 		} else {
 			/* if addr < 4G, then size < 4G */
 			addr_tmp = addr;
