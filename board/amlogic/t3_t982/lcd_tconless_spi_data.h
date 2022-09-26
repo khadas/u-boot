@@ -124,13 +124,13 @@
  *offset : 0xfe000
  *len : 0x2a
  */
-#define PANLE_TCONLESS_TYPE0                          0x0
-#define PANLE_DEMURA_CRC_OFFSET_TYPE0                 0x4
-#define PANLE_DEMURA_CRC_LEN_TYPE0                    0x2
-#define PANLE_DEMURA_LUT_OFFSET_TYPE0                 0x6
-#define PANLE_DEMURA_LUT_LEN_TYPE0                    0x39
-#define PANLE_PGAMMA_LUT_OFFSET_TYPE0                 0xfe000
-#define PANLE_PGAMMA_LUT_LEN_TYOE0                    0x2a
+#define PANEL_TCONLESS_TYPE0                          0x0
+#define PANEL_DEMURA_CRC_OFFSET_TYPE0                 0x4
+#define PANEL_DEMURA_CRC_LEN_TYPE0                    0x2
+#define PANEL_DEMURA_LUT_OFFSET_TYPE0                 0x6
+#define PANEL_DEMURA_LUT_LEN_TYPE0                    0x39
+#define PANEL_PGAMMA_LUT_OFFSET_TYPE0                 0xfe000
+#define PANEL_PGAMMA_LUT_LEN_TYOE0                    0x2a
 
 void lcd_tconless_spi_data_probe(void);
 

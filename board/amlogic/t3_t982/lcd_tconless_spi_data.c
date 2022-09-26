@@ -712,8 +712,8 @@ static int lcd_tconless_demura_conv_cspi55(struct lcd_tcon_spi_block_s *spi_bloc
 	unsigned int *buf_plane1 = NULL;
 	unsigned int *buf_plane0 = NULL;
 
-	lut_offset = PANLE_DEMURA_LUT_OFFSET_TYPE0;
-	lut_len = PANLE_DEMURA_LUT_LEN_TYPE0;
+	lut_offset = PANEL_DEMURA_LUT_OFFSET_TYPE0;
+	lut_len = PANEL_DEMURA_LUT_LEN_TYPE0;
 	/* check data */
 	if (spi_block->param_cnt >= 2) {
 		offset = spi_block->param[0];
