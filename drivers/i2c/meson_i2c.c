@@ -43,7 +43,7 @@ struct i2c_regs {
 };
 
 struct meson_i2c_data {
-	u8 delay_ajust;
+	u8 delay_adjust;
 	u8 div_factor;
 	u32 clkin_rate;
 };
@@ -265,7 +265,7 @@ static int meson_i2c_set_std_speed(struct udevice *bus, unsigned int speed)
 	unsigned int div_temp;
 
 	div_temp = DIV_ROUND_UP(clk_rate, speed);
-	div_h = DIV_ROUND_UP(div_temp, 2) - i2c->data->delay_ajust;
+	div_h = DIV_ROUND_UP(div_temp, 2) - i2c->data->delay_adjust;
 	div_l = DIV_ROUND_UP(div_temp, 4);
 	/* clock divider has 12 bits */
 	if (div_h >= (1 << 12)) {
@@ -309,7 +309,7 @@ static int meson_i2c_set_fast_speed(struct udevice *bus, unsigned int speed)
 	unsigned int div_temp;
 
 	div_temp = DIV_ROUND_UP(clk_rate * 2, speed * 5);
-	div_h = div_temp - i2c->data->delay_ajust;
+	div_h = div_temp - i2c->data->delay_adjust;
 	div_l = DIV_ROUND_UP(clk_rate * 3, speed * 10);
 
 	/* clock divider has 12 bits */
@@ -374,25 +374,25 @@ static int meson_i2c_ofdata_to_platdata(struct udevice *dev)
 
 static const struct meson_i2c_data i2c_meson_meson6_data = {
 	.div_factor = 4,
-	.delay_ajust = 15,
+	.delay_adjust = 15,
 	.clkin_rate = MESON_I2C_CLK_RATE,
 };
 
 static const struct meson_i2c_data i2c_meson_gx_data = {
 	.div_factor = 4,
-	.delay_ajust = 15,
+	.delay_adjust = 15,
 	.clkin_rate = MESON_I2C_CLK_RATE,
 };
 
 static const struct meson_i2c_data i2c_meson_data = {
 	.div_factor = 3,
-	.delay_ajust = 15,
+	.delay_adjust = 15,
 	.clkin_rate = MESON_I2C_CLK_RATE,
 };
 
 static const struct meson_i2c_data i2c_meson_a1_data = {
 	.div_factor = 3,
-	.delay_ajust = 15,
+	.delay_adjust = 15,
 	.clkin_rate = 64000000,
 };
 
