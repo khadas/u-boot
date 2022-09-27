@@ -737,6 +737,7 @@ void hdmi_tx_init(void);
 
 extern struct hdmitx_dev hdmitx_device;
 bool hdmitx_find_vendor(struct hdmitx_dev *hdev);
+bool hdmitx_find_vendor_null_pkt(struct hdmitx_dev *hdev);
 /* the hdmitx output limits to 1080p */
 bool is_hdmitx_limited_1080p(void);
 

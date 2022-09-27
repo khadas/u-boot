@@ -695,8 +695,12 @@ static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
 	hdmitx_wr_reg(HDMITX_TOP_BIST_CNTL, data32);
 
 	/* disable null package */
-	data32 = 0x7;
-	hdmitx_wr_reg(HDMITX_TOP_DISABLE_NULL, data32);
+	if (hdmitx_find_vendor_null_pkt(&hdmitx_device)) {
+		printf("special TV, need enable NULL packet\n");
+		hdmitx_wr_reg(HDMITX_TOP_DISABLE_NULL, 0x6);
+	} else {
+		hdmitx_wr_reg(HDMITX_TOP_DISABLE_NULL, 0x7);
+	}
 
 	/* Configure video */
 
