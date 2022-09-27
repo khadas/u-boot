@@ -45,14 +45,14 @@ struct bl_pwm_ctrl_config_s {
 static struct bl_pwm_ctrl_config_s *bl_pwm_ctrl_conf;
 
 static struct bl_pwm_misc_s pwm_misc_dft[] = {
-	/* pwm_reg,         pre_div, clk_sel, clk_en, pwm_en, val_en*/
-	{PWM_MISC_REG_AB,   8,       4,       15,     0,      3,},
-	{PWM_MISC_REG_AB,   16,      6,       23,     0,      3,},
-	{PWM_MISC_REG_CD,   8,       4,       15,     0,      3,},
-	{PWM_MISC_REG_CD,   16,      6,       23,     0,      3,},
-	{PWM_MISC_REG_EF,   8,       4,       15,     0,      3,},
-	{PWM_MISC_REG_EF,   16,      6,       23,     0,      3,},
-	{PWM_REG_MAX,       0,       0,       0,      0,      0,}
+	/* pwm_reg,    bit_pre_div, bit_clk_sel, bit_clk_en, bit_pwm_en, val_en*/
+	{PWM_MISC_REG_AB,   8,       4,          15,         0,          1,},
+	{PWM_MISC_REG_AB,   16,      6,          23,         1,          1,},
+	{PWM_MISC_REG_CD,   8,       4,          15,         0,          1,},
+	{PWM_MISC_REG_CD,   16,      6,          23,         1,          1,},
+	{PWM_MISC_REG_EF,   8,       4,          15,         0,          1,},
+	{PWM_MISC_REG_EF,   16,      6,          23,         1,          1,},
+	{PWM_REG_MAX,       0,       0,          0,          0,          0,}
 };
 
 static unsigned int pwm_reg_dft[] = {
@@ -66,10 +66,10 @@ static unsigned int pwm_reg_dft[] = {
 };
 
 static struct bl_pwm_misc_s pwm_ao_misc_dft[] = {
-	/* pwm_reg,            pre_div, clk_sel, clk_en, pwm_en, val_en*/
-	{AO_PWM_MISC_REG_AB,   8,       4,       15,     0,      3,},
-	{AO_PWM_MISC_REG_AB,   16,      6,       23,     0,      3,},
-	{PWM_REG_MAX,          0,       0,       0,      0,      0,}
+	/* pwm_reg,       bit_pre_div, bit_clk_sel, bit_clk_en, bit_pwm_en, val_en*/
+	{AO_PWM_MISC_REG_AB,   8,       4,          15,         0,          1,},
+	{AO_PWM_MISC_REG_AB,   16,      6,          23,         1,          1,},
+	{PWM_REG_MAX,          0,       0,          0,          0,          0,}
 };
 
 static unsigned int pwm_ao_reg_dft[] = {
@@ -90,14 +90,14 @@ static struct bl_pwm_clkctrl_s pwm_clk_ctrl_t7[] = {
 };
 
 static struct bl_pwm_misc_s pwm_misc_t7[] = {
-	/* pwm_reg,           pre_div, clk_sel, clk_en, pwm_en, val_en*/
-	{PWMAB_MISC_REG_AB,   8,       4,       15,     0,      1,},
-	{PWMAB_MISC_REG_AB,   16,      6,       23,     1,      1,},
-	{PWMCD_MISC_REG_AB,   8,       4,       15,     0,      1,},
-	{PWMCD_MISC_REG_AB,   16,      6,       23,     1,      1,},
-	{PWMEF_MISC_REG_AB,   8,       4,       15,     0,      1,},
-	{PWMEF_MISC_REG_AB,   16,      6,       23,     1,      1,},
-	{PWM_REG_MAX,         0,       0,       0,      0,      0,}
+	/* pwm_reg,      bit_pre_div, bit_clk_sel, bit_clk_en, bit_pwm_en, val_en*/
+	{PWMAB_MISC_REG_AB,   8,       4,          15,         0,          1,},
+	{PWMAB_MISC_REG_AB,   16,      6,          23,         1,          1,},
+	{PWMCD_MISC_REG_AB,   8,       4,          15,         0,          1,},
+	{PWMCD_MISC_REG_AB,   16,      6,          23,         1,          1,},
+	{PWMEF_MISC_REG_AB,   8,       4,          15,         0,          1,},
+	{PWMEF_MISC_REG_AB,   16,      6,          23,         1,          1,},
+	{PWM_REG_MAX,         0,       0,          0,          0,          0,}
 };
 
 static unsigned int pwm_reg_t7[] = {
@@ -124,16 +124,16 @@ static struct bl_pwm_clkctrl_s pwm_ao_clk_ctrl_t7[] = {
 };
 
 static struct bl_pwm_misc_s pwm_ao_misc_t7[] = {
-	/* pwm_reg,               pre_div, clk_sel, clk_en, pwm_en, val_en*/
-	{PWM_AO_AB_MISC_REG_AB,   8,       4,       15,     0,      1,},
-	{PWM_AO_AB_MISC_REG_AB,   16,      6,       23,     1,      1,},
-	{PWM_AO_CD_MISC_REG_AB,   8,       4,       15,     0,      1,},
-	{PWM_AO_CD_MISC_REG_AB,   16,      6,       23,     1,      1,},
-	{PWM_AO_EF_MISC_REG_AB,   8,       4,       15,     0,      1,},
-	{PWM_AO_EF_MISC_REG_AB,   16,      6,       23,     1,      1,},
-	{PWM_AO_GH_MISC_REG_AB,   8,       4,       15,     0,      1,},
-	{PWM_AO_GH_MISC_REG_AB,   16,      6,       23,     1,      1,},
-	{PWM_REG_MAX,             0,       0,       0,      0,      0,}
+	/* pwm_reg,          bit_pre_div, bit_clk_sel, bit_clk_en, bit_pwm_en, val_en*/
+	{PWM_AO_AB_MISC_REG_AB,   8,       4,          15,         0,          1,},
+	{PWM_AO_AB_MISC_REG_AB,   16,      6,          23,         1,          1,},
+	{PWM_AO_CD_MISC_REG_AB,   8,       4,          15,         0,          1,},
+	{PWM_AO_CD_MISC_REG_AB,   16,      6,          23,         1,          1,},
+	{PWM_AO_EF_MISC_REG_AB,   8,       4,          15,         0,          1,},
+	{PWM_AO_EF_MISC_REG_AB,   16,      6,          23,         1,          1,},
+	{PWM_AO_GH_MISC_REG_AB,   8,       4,          15,         0,          1,},
+	{PWM_AO_GH_MISC_REG_AB,   16,      6,          23,         1,          1,},
+	{PWM_REG_MAX,             0,       0,          0,          0,          0,}
 };
 
 static unsigned int pwm_ao_reg_t7[] = {
@@ -164,18 +164,18 @@ static struct bl_pwm_clkctrl_s pwm_clk_ctrl_t3[] = {
 };
 
 static struct bl_pwm_misc_s pwm_misc_t3[] = {
-	/* pwm_reg,           pre_div, clk_sel, clk_en, pwm_en, val_en*/
-	{PWMAB_MISC_REG_AB,   8,       4,       15,     0,      1,},
-	{PWMAB_MISC_REG_AB,   16,      6,       23,     1,      1,},
-	{PWMCD_MISC_REG_AB,   8,       4,       15,     0,      1,},
-	{PWMCD_MISC_REG_AB,   16,      6,       23,     1,      1,},
-	{PWMEF_MISC_REG_AB,   8,       4,       15,     0,      1,},
-	{PWMEF_MISC_REG_AB,   16,      6,       23,     1,      1,},
-	{PWMGH_MISC_REG_AB,   8,       4,       15,     0,      1,},
-	{PWMGH_MISC_REG_AB,   16,      6,       23,     1,      1,},
-	{PWMIJ_MISC_REG_AB,   8,       4,       15,     0,      1,},
-	{PWMIJ_MISC_REG_AB,   16,      6,       23,     1,      1,},
-	{PWM_REG_MAX,         0,       0,       0,      0,      0,}
+	/* pwm_reg,      bit_pre_div, bit_clk_sel, bit_clk_en, bit_pwm_en, val_en*/
+	{PWMAB_MISC_REG_AB,   8,       4,          15,         0,          1,},
+	{PWMAB_MISC_REG_AB,   16,      6,          23,         1,          1,},
+	{PWMCD_MISC_REG_AB,   8,       4,          15,         0,          1,},
+	{PWMCD_MISC_REG_AB,   16,      6,          23,         1,          1,},
+	{PWMEF_MISC_REG_AB,   8,       4,          15,         0,          1,},
+	{PWMEF_MISC_REG_AB,   16,      6,          23,         1,          1,},
+	{PWMGH_MISC_REG_AB,   8,       4,          15,         0,          1,},
+	{PWMGH_MISC_REG_AB,   16,      6,          23,         1,          1,},
+	{PWMIJ_MISC_REG_AB,   8,       4,          15,         0,          1,},
+	{PWMIJ_MISC_REG_AB,   16,      6,          23,         1,          1,},
+	{PWM_REG_MAX,         0,       0,          0,          0,          0,}
 };
 
 static unsigned int pwm_reg_t3[] = {
@@ -571,7 +571,7 @@ void bl_pwm_en(struct bl_pwm_config_s *bl_pwm, int flag)
 		lcd_cbus_setb(pwm_misc[port].reg, 1, pwm_misc[port].bit_clk_en, 1);
 		/* pwm enable */
 		lcd_cbus_setb(pwm_misc[port].reg, pwm_misc[port].val_pwm_en,
-			      pwm_misc[port].bit_pwm_en, 2);
+			      pwm_misc[port].bit_pwm_en, 1);
 	} else {
 		/* pwm clk_disable */
 		lcd_cbus_setb(pwm_misc[port].reg, 0, pwm_misc[port].bit_clk_en, 1);
