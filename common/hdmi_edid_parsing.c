@@ -855,7 +855,33 @@ unsigned int hdmi_edid_parsing(unsigned char *EDID_buf, struct rx_cap *pRXCap)
 		(pRXCap->number_of_dtd == 0)) {
 		pr_info("hdmitx: edid: change preferred_mode from %d to %d\n",
 			pRXCap->preferred_mode,	pRXCap->VIC[0]);
-		pRXCap->preferred_mode = pRXCap->VIC[0];
+		switch(pRXCap->preferred_mode)
+		{
+			case HDMIV_480x320p60hz:
+			case HDMIV_640x480p60hz:
+			case HDMIV_800x480p60hz:
+			case HDMIV_800x600p60hz:
+			case HDMIV_1024x600p60hz:
+			case HDMIV_1024x768p60hz:
+			case HDMIV_1280x480p60hz:
+			case HDMIV_1280x800p60hz:
+			case HDMIV_1280x1024p60hz:
+			case HDMIV_1360x768p60hz:
+			case HDMIV_1440x900p60hz:
+			case HDMIV_1600x900p60hz:
+			case HDMIV_1600x1200p60hz:
+			case HDMIV_1680x1050p60hz:
+			case HDMIV_1920x1200p60hz:
+			case HDMIV_2560x1080p60hz:
+			case HDMIV_2560x1440p60hz:
+			case HDMIV_2560x1600p60hz:
+			case HDMIV_3440x1440p60hz:
+			return 1;
+			break;
+			default:
+			printk("hdmi screen is not single resolution\n");
+			pRXCap->preferred_mode = pRXCap->VIC[0];
+		}
 	}
 
 	return 1;
