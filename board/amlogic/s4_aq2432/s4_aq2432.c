@@ -359,7 +359,7 @@ static struct mtd_partition normal_partition_info[] = {
 {
 	.name = "boot",
 	.offset = 0,
-	.size = 20 * SZ_1M,
+	.size = 34 * SZ_1M,
 },
 {
 	.name = "system",
@@ -370,6 +370,11 @@ static struct mtd_partition normal_partition_info[] = {
 	.name = "vendor",
 	.offset = 0,
 	.size = 16 * SZ_1M,
+},
+{
+	.name = "vbmeta",
+	.offset = 0,
+	.size = 1 * SZ_1M,
 },
 /* last partition get the rest capacity */
 {
