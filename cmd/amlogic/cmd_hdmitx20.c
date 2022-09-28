@@ -648,6 +648,35 @@ static int do_get_preferred_mode(cmd_tbl_t * cmdtp, int flag, int argc,
 		sprintf(color_attr, "setenv colorattribute %s", "444,8bit");
 	}
 	printk("sink preferred_mode is %s[%d]\n", para->sname, hdev->RXCap.preferred_mode);
+	switch(hdev->RXCap.preferred_mode)
+	{
+		case HDMIV_480x320p60hz:
+		case HDMIV_640x480p60hz:
+		case HDMIV_800x480p60hz:
+		case HDMIV_800x600p60hz:
+		case HDMIV_1024x600p60hz:
+		case HDMIV_1024x768p60hz:
+		case HDMIV_1280x480p60hz:
+		case HDMIV_1280x800p60hz:
+		case HDMIV_1280x1024p60hz:
+		case HDMIV_1360x768p60hz:
+		case HDMIV_1440x900p60hz:
+		case HDMIV_1600x900p60hz:
+		case HDMIV_1600x1200p60hz:
+		case HDMIV_1680x1050p60hz:
+		case HDMIV_1920x1200p60hz:
+		case HDMIV_2560x1080p60hz:
+		case HDMIV_2560x1440p60hz:
+		case HDMIV_2560x1600p60hz:
+		case HDMIV_3440x1440p60hz:
+		{
+			printk("hdev->RXCap.preferred_mode %d \n",hdev->RXCap.preferred_mode);
+			run_command("saveenv", 0);
+			}
+			break;
+			default:
+			printk("hdmi screen is not single resolution\n");
+		}
 
 bypass_edid_read:
 	/* save to ENV */

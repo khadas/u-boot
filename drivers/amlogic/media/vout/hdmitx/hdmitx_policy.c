@@ -220,6 +220,7 @@ static const char *disp_mode_t[] = {
 	"2160p50hz",
 	"2160p60hz",
 	/* VESA modes */
+	"480x320p60hz",
 	"640x480p60hz",
 	"800x480p60hz",
 	"800x600p60hz",
@@ -228,6 +229,7 @@ static const char *disp_mode_t[] = {
 	"1024x600p60hz",
 	"1024x768p60hz",
 	"1152x864p75hz",
+	"1280x480p60hz",
 	"1280x600p60hz",
 	"1280x768p60hz",
 	"1280x800p60hz",
@@ -243,6 +245,7 @@ static const char *disp_mode_t[] = {
 	"1680x1050p60hz",
 	"1920x1200p60hz",
 	"2160x1200p90hz",
+	"2560x1080p60hz",
 	"2560x1440p60hz",
 	"2560x1600p60hz",
 	"3440x1440p60hz",
