@@ -20,12 +20,16 @@
 #endif
 #include <version.h>
 #include <amlogic/aml_efuse.h>
+#include <amlogic/store_wrapper.h>
 
 #define AVB_USE_TESTKEY
 #define MAX_DTB_SIZE (AML_DTB_IMG_MAX_SZ + 512)
 #define DTB_PARTITION_SIZE 258048
 #define AVB_NUM_SLOT (4)
 #define MAX_AVBKEY_LEN (8 + 1024)
+
+/* use max nand page size, 4K */
+#define NAND_PAGE_SIZE (0x1000)
 
 #define CONFIG_AVB2_KPUB_EMBEDDED
 
@@ -55,6 +59,7 @@ static AvbIOResult read_from_partition(AvbOps *ops, const char *partition, int64
 	int rc = 0;
 	uint64_t part_bytes = 0;
 	AvbIOResult result = AVB_IO_RESULT_OK;
+	size_t total_bytes = num_bytes;
 
 	if (ops->get_size_of_partition(ops, partition, &part_bytes) != AVB_IO_RESULT_OK) {
 		result = AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION;
@@ -92,20 +97,61 @@ static AvbIOResult read_from_partition(AvbOps *ops, const char *partition, int64
 			goto out;
 		}
 	} else {
+		enum boot_type_e type = store_get_type();
+
 		/* There is only 1 recovery partition even in A/B */
 		if (!strcmp(partition, "recovery_a") ||
-			!strcmp(partition, "recovery_b") ||
-			!strcmp(partition, "recovery"))
-			rc = store_read("recovery", offset, num_bytes, buffer);
-		else
+				!strcmp(partition, "recovery_b") ||
+				!strcmp(partition, "recovery"))
+			partition = "recovery";
+
+		if (type == BOOT_NAND_MTD || type == BOOT_SNAND) {
+			if (offset != 0) {
+				uint8_t *tmp_buf = malloc(NAND_PAGE_SIZE);
+				int64_t align = offset & ~(NAND_PAGE_SIZE - 1);
+				int64_t drop_bytes = offset - align;
+				int32_t valid_data = NAND_PAGE_SIZE - drop_bytes;
+
+				if (!tmp_buf) {
+					printf("failed to allocate tmp buf for nand\n");
+					result = AVB_IO_RESULT_ERROR_IO;
+					goto out;
+				}
+
+				rc = store_logic_read(partition, align, NAND_PAGE_SIZE, tmp_buf);
+				if (rc) {
+					free(tmp_buf);
+					printf("part 1: Failed to read %dB from part[%s] at %lld\n",
+							NAND_PAGE_SIZE, partition, align);
+					result = AVB_IO_RESULT_ERROR_IO;
+					goto out;
+				} else {
+					if (num_bytes > valid_data) {
+						memcpy(buffer, tmp_buf + drop_bytes, valid_data);
+						num_bytes -= valid_data;
+					} else {
+						memcpy(buffer, tmp_buf + drop_bytes, num_bytes);
+						num_bytes = 0;
+					}
+					offset = align + NAND_PAGE_SIZE;
+					free(tmp_buf);
+				}
+				if (num_bytes > 0)
+					rc = store_logic_read(partition, offset, num_bytes, buffer);
+			} else {
+				rc = store_logic_read(partition, 0, num_bytes, buffer);
+			}
+		} else {
 			rc = store_read(partition, offset, num_bytes, buffer);
+		}
+
 		if (rc) {
-			printf("Failed to read %zdB from part[%s] at %lld\n",
+			printf("Part 2 Failed to read %zdB from part[%s] at %lld\n",
 					num_bytes, partition, offset);
 			result = AVB_IO_RESULT_ERROR_IO;
 			goto out;
 		}
-		*out_num_read = num_bytes;
+		*out_num_read = total_bytes;
 	}
 
 out:
