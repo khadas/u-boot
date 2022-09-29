@@ -46044,6 +46044,7 @@
 //
 // Closing file:  ./parser_regs.h
 //
+#define REG_BASE_VCBUS                             (0xff800000L)
 
 #include "extra_register.h"
 

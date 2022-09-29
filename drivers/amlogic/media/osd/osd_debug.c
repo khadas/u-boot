@@ -104,12 +104,18 @@ static void osd_debug_dump_register_all(void)
 	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	reg = VPP_OFIFO_SIZE;
 	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+
+#ifndef AML_S5_DISPLAY
 	reg = VPP_HOLD_LINES;
 	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+#endif
+
 	if (osd_hw.osd_ver == OSD_HIGH_ONE) {
 #ifdef AML_OSD_HIGH_VERSION
+	#ifndef AML_S5_DISPLAY
 		reg = OSD_PATH_MISC_CTRL;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	#endif
 		reg = VIU_OSD_BLEND_CTRL;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VIU_OSD_BLEND_DIN0_SCOPE_H;

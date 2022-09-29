@@ -298,7 +298,7 @@
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
-                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;watermark_init;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};dovi set;dovi pkg;vpp hdrpkt;"\
+                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;setenv colorattribute 444,8bit;dovi process;watermark_init;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};dovi set;dovi pkg;vpp hdrpkt;"\
             "fi;fi;"\
             "\0"\
 	"storage_param="\
@@ -444,7 +444,7 @@
 /* osd */
 #define OSD_SCALE_ENABLE
 #define AML_OSD_HIGH_VERSION
-#define AML_T7_DISPLAY
+#define AML_S5_DISPLAY
 
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard

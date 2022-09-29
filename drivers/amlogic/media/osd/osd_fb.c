@@ -1050,6 +1050,335 @@ int video_display_raw(ulong raw_image, int x, int y)
 	return (0);
 }
 
+#ifdef AML_S5_DISPLAY
+struct vpp_post_input_s vpp_input;
+
+static int get_vpp_slice_num(const struct vinfo_s *info)
+{
+	int slice_num = 1;
+
+	/* 8k case 4 slice */
+	if (info->width > 4096 && info->field_height > 2160)
+		slice_num = 4;
+	/* 4k120hz */
+	//else if (info->width == 3840 &&
+	//	info->field_height == 2160)
+	//	slice_num = 2;
+	else
+		slice_num = 1;
+	return slice_num;
+}
+
+void update_vpp_input_info(const struct vinfo_s *info)
+{
+	vpp_input.slice_num = get_vpp_slice_num(info);
+	vpp_input.overlap_hsize = 32;
+	vpp_input.bld_out_hsize = info->width;
+	vpp_input.bld_out_vsize = info->field_height;
+	vpp_input.vd1_padding_en = 0;
+}
+
+/* hw reg param info set */
+static int vpp_post_hwincut_param_set(struct vpp_post_s *vpp_post)
+{
+	if (!vpp_post)
+		return -1;
+	/* need check vd1 padding or not */
+	if (vpp_input.vd1_padding_en) {
+		vpp_post->vd1_hwin.vd1_hwin_en = 1;
+		vpp_post->vd1_hwin.vd1_hwin_in_hsize =
+			vpp_input.vd1_size_after_padding;
+		vpp_post->vd1_hwin.vd1_hwin_out_hsize =
+			vpp_input.vd1_size_before_padding;
+
+		vpp_input.din_hsize[0] = vpp_post->vd1_hwin.vd1_hwin_out_hsize;
+	} else {
+		vpp_post->vd1_hwin.vd1_hwin_en = 0;
+	}
+	return 0;
+}
+
+/* following is vpp post parameters calc for hw setting */
+static int vpp_blend_param_set(struct vpp_post_blend_s *vpp_post_blend)
+{
+	if (!vpp_post_blend)
+		return -1;
+	vpp_post_blend->bld_dummy_data = 0x008080;
+	vpp_post_blend->bld_out_en = 1;
+
+	vpp_post_blend->bld_out_w = vpp_input.bld_out_hsize;
+	vpp_post_blend->bld_out_h = vpp_input.bld_out_vsize;
+
+	osd_logd2("vpp_post_blend:bld_out: %d, %d\n",
+		vpp_post_blend->bld_out_w,
+		vpp_post_blend->bld_out_h);
+	return 0;
+}
+
+static int vpp_post_padding_param_set(struct vpp_post_s *vpp_post)
+{
+	u32 bld_out_w;
+	u32 padding_en = 0, pad_hsize = 0;
+
+	if (!vpp_post)
+		return -1;
+
+	/* need check post blend out hsize */
+	bld_out_w = vpp_post->vpp_post_blend.bld_out_w;
+	switch (vpp_post->slice_num) {
+	case 4:
+		/* bld out need 32 aligned if 4 slices */
+		if (bld_out_w % 32) {
+			padding_en = 1;
+			pad_hsize = ALIGN(bld_out_w, 32);
+		} else {
+			padding_en = 0;
+			pad_hsize = bld_out_w;
+		}
+		break;
+	case 2:
+		/* bld out need 8 aligned if 2 slices */
+		if (bld_out_w % 8) {
+			padding_en = 1;
+			pad_hsize = ALIGN(bld_out_w, 8);
+		} else {
+			padding_en = 0;
+			pad_hsize = bld_out_w;
+		}
+		break;
+	case 1:
+		padding_en = 0;
+		pad_hsize = bld_out_w;
+		break;
+	default:
+		osd_loge("invalid slice_num[%d] number\n", vpp_post->slice_num);
+		return -1;
+	}
+	vpp_post->vpp_post_pad.vpp_post_pad_en = padding_en;
+	vpp_post->vpp_post_pad.vpp_post_pad_hsize = pad_hsize;
+	vpp_post->vpp_post_pad.vpp_post_pad_rpt_lcol = 1;
+	return 0;
+}
+
+static int vpp_post_proc_slice_param_set(struct vpp_post_s *vpp_post)
+{
+	u32 frm_hsize, frm_vsize;
+	u32 slice_num, overlap_hsize;
+	struct vpp_post_proc_slice_s *vpp_post_proc_slice = NULL;
+	int i;
+
+	if (!vpp_post)
+		return -1;
+
+	vpp_post_proc_slice = &vpp_post->vpp_post_proc.vpp_post_proc_slice;
+	frm_hsize = vpp_post->vpp_post_pad.vpp_post_pad_hsize;
+	frm_vsize = vpp_post->vpp_post_blend.bld_out_h;
+	slice_num = vpp_post->slice_num;
+	overlap_hsize = vpp_post->overlap_hsize;
+	switch (slice_num) {
+	case 4:
+		for (i = 0; i < POST_SLICE_NUM; i++) {
+			if (i == 0 || i == 3)
+				vpp_post_proc_slice->hsize[i] =
+					(frm_hsize + POST_SLICE_NUM - 1) /
+					POST_SLICE_NUM + overlap_hsize;
+			else
+				vpp_post_proc_slice->hsize[i] =
+					(frm_hsize + POST_SLICE_NUM - 1) /
+					POST_SLICE_NUM + overlap_hsize * 2;
+			vpp_post_proc_slice->vsize[i] = frm_vsize;
+		}
+		break;
+	case 2:
+		for (i = 0; i < POST_SLICE_NUM; i++) {
+			if (i < 2) {
+				vpp_post_proc_slice->hsize[i] =
+					(frm_hsize + 2 - 1) /
+					2 + overlap_hsize;
+				vpp_post_proc_slice->vsize[i] = frm_vsize;
+			} else {
+				vpp_post_proc_slice->hsize[i] = 0;
+				vpp_post_proc_slice->vsize[i] = 0;
+			}
+		}
+		break;
+	case 1:
+		for (i = 0; i < POST_SLICE_NUM; i++) {
+			if (i == 0) {
+				vpp_post_proc_slice->hsize[i] = frm_hsize;
+				vpp_post_proc_slice->vsize[i] = frm_vsize;
+			} else {
+				vpp_post_proc_slice->hsize[i] = 0;
+				vpp_post_proc_slice->vsize[i] = 0;
+			}
+		}
+		break;
+	default:
+		break;
+	}
+	return 0;
+}
+
+static int vpp_post_proc_hwin_param_set(struct vpp_post_s *vpp_post)
+{
+	u32 slice_num, overlap_hsize;
+	struct vpp_post_proc_slice_s *vpp_post_proc_slice = NULL;
+	struct vpp_post_proc_hwin_s *vpp_post_proc_hwin = NULL;
+	int i;
+
+	if (!vpp_post)
+		return -1;
+	vpp_post_proc_slice = &vpp_post->vpp_post_proc.vpp_post_proc_slice;
+	vpp_post_proc_hwin = &vpp_post->vpp_post_proc.vpp_post_proc_hwin;
+	slice_num = vpp_post->slice_num;
+	overlap_hsize = vpp_post->overlap_hsize;
+
+	switch (slice_num) {
+	case 4:
+		vpp_post_proc_hwin->hwin_en[0] = 1;
+		vpp_post_proc_hwin->hwin_bgn[0] = 0;
+		vpp_post_proc_hwin->hwin_end[0] =
+			vpp_post_proc_slice->hsize[0] - overlap_hsize - 1;
+
+		vpp_post_proc_hwin->hwin_en[1] = 1;
+		vpp_post_proc_hwin->hwin_bgn[1] = overlap_hsize;
+		vpp_post_proc_hwin->hwin_end[1] =
+			vpp_post_proc_slice->hsize[1] - overlap_hsize - 1;
+
+		vpp_post_proc_hwin->hwin_en[2] = 1;
+		vpp_post_proc_hwin->hwin_bgn[2] = overlap_hsize;
+		vpp_post_proc_hwin->hwin_end[2] =
+			vpp_post_proc_slice->hsize[2] - overlap_hsize - 1;
+
+		vpp_post_proc_hwin->hwin_en[3] = 1;
+		vpp_post_proc_hwin->hwin_bgn[3] = overlap_hsize;
+		vpp_post_proc_hwin->hwin_end[3] =
+			vpp_post_proc_slice->hsize[3] - 1;
+		break;
+	case 2:
+		vpp_post_proc_hwin->hwin_en[0] = 1;
+		vpp_post_proc_hwin->hwin_bgn[0] = 0;
+		vpp_post_proc_hwin->hwin_end[0] =
+			vpp_post_proc_slice->hsize[0] - overlap_hsize - 1;
+
+		vpp_post_proc_hwin->hwin_en[1] = 1;
+		vpp_post_proc_hwin->hwin_bgn[1] = overlap_hsize;
+		vpp_post_proc_hwin->hwin_end[1] =
+			vpp_post_proc_slice->hsize[1] - 1;
+		for (i = 2; i < POST_SLICE_NUM; i++) {
+			vpp_post_proc_hwin->hwin_en[i] = 0;
+			vpp_post_proc_hwin->hwin_bgn[i] = 0;
+			vpp_post_proc_hwin->hwin_end[i] = 0;
+		}
+		break;
+	case 1:
+		vpp_post_proc_hwin->hwin_en[0] = 1;
+		vpp_post_proc_hwin->hwin_bgn[0] = 0;
+		vpp_post_proc_hwin->hwin_end[0] =
+			vpp_post_proc_slice->hsize[0] - 1;
+		for (i = 1; i < POST_SLICE_NUM; i++) {
+			vpp_post_proc_hwin->hwin_en[i] = 0;
+			vpp_post_proc_hwin->hwin_bgn[i] = 0;
+			vpp_post_proc_hwin->hwin_end[i] = 0;
+		}
+		break;
+	default:
+		break;
+	}
+	return 0;
+}
+
+static int vpp_post_proc_param_set(struct vpp_post_s *vpp_post)
+{
+	struct vpp_post_proc_s *vpp_post_proc = NULL;
+
+	vpp_post_proc = &vpp_post->vpp_post_proc;
+	vpp_post_proc_slice_param_set(vpp_post);
+	vpp_post_proc_hwin_param_set(vpp_post);
+	vpp_post_proc->align_fifo_size[0] = 2048;
+	vpp_post_proc->align_fifo_size[1] = 1536;
+	vpp_post_proc->align_fifo_size[2] = 1024;
+	vpp_post_proc->align_fifo_size[3] = 512;
+	return 0;
+}
+
+/* calc all related vpp_post_param */
+int vpp_post_param_set(struct vpp_post_s *vpp_post)
+{
+	int ret = 0;
+
+	if (!vpp_post)
+		return -1;
+	memset(vpp_post, 0, sizeof(struct vpp_post_s));
+
+	vpp_post->slice_num = vpp_input.slice_num;
+	vpp_post->overlap_hsize = vpp_input.overlap_hsize;
+	vpp_post_hwincut_param_set(vpp_post);
+
+	ret = vpp_blend_param_set(&vpp_post->vpp_post_blend);
+	if (ret < 0)
+		return ret;
+
+	ret = vpp_post_padding_param_set(vpp_post);
+	if (ret < 0)
+		return ret;
+
+	ret = vpp_post_proc_param_set(vpp_post);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+
+#if 0
+static void vpp_post_win_cut_set(u32 vpp_index,
+	struct vpp_post_s *vpp_post)
+{
+	//rdma_wr_op rdma_wr = cur_dev->rdma_func[vpp_index].rdma_wr;
+	//struct vpp_post_misc_reg_s *vpp_reg = &vpp_post_reg.vpp_post_misc_reg;
+	struct vpp_post_pad_s *vpp_post_pad = NULL;
+
+	vpp_post_pad = &vpp_post->vpp_post_pad;
+	//if (vpp_post_pad->vpp_post_pad_en &&
+	//	)
+}
+#endif
+
+void vpp_post_set(u32 vpp_index, struct vpp_post_s *vpp_post)
+{
+	if (!vpp_post)
+		return;
+	/* cfg slice mode */
+	vpp_post_slice_set(vpp_index, vpp_post);
+	/* cfg vd1 hwin cut */
+	vpp_vd1_hwin_set(vpp_index, vpp_post);
+	/* cfg vpp_blend */
+	vpp_post_blend_set(vpp_index, &vpp_post->vpp_post_blend);
+	/* vpp post units set */
+	vpp_post_proc_set(vpp_index, vpp_post);
+	/* cfg vpp_post pad if enable */
+	vpp_post_padding_set(vpp_index, vpp_post);
+	/* cfg vpp_post hwin cut if expected vpp post
+	 * dout hsize less than blend or pad hsize
+	 */
+	//vpp_post_win_cut_set(vpp_index, vpp_post);
+}
+
+void vpp_post_blend_update_s5(const struct vinfo_s *vinfo)
+{
+	struct vpp_post_s vpp_post;
+
+	osd_logd2("%s,slice_num=%d, bld_out =%d, %d\n",
+		__func__,
+		vpp_input.slice_num,
+		vpp_input.bld_out_hsize,
+		vpp_input.bld_out_vsize);
+
+	vpp_post_param_set(&vpp_post);
+	vpp_post_set(0, &vpp_post);
+}
+#endif
+
 #ifdef OSD_SCALE_ENABLE
 int video_scale_bitmap(void)
 {
@@ -1059,11 +1388,16 @@ int video_scale_bitmap(void)
 #ifdef AML_OSD_HIGH_VERSION
 	struct pandata_s disp_data;
 #endif
+#ifdef AML_S5_DISPLAY
+	struct vinfo_s *vinfo = NULL;
 
+	vinfo = vout_get_current_vinfo();
+#endif
 	osd_logd2("video_scale_bitmap src w=%d, h=%d, dst w=%d, dst h=%d\n",
 		fb_gdev.fb_width, fb_gdev.fb_height, fb_gdev.winSizeX, fb_gdev.winSizeY);
 
 	vout_get_current_axis(axis);
+	osd_logi("axis(%d, %d, %d, %d)\n", axis[0], axis[1], axis[2], axis[3]);
 	layer_str = env_get("display_layer");
 	if (strcmp(layer_str, "osd0") == 0)
 		osd_index = OSD1;
@@ -1108,6 +1442,10 @@ no_scale:
 	disp_data.y_end = axis[1] + axis[3] - 1;
 	if (osd_hw.osd_ver == OSD_HIGH_ONE && osd_index < VIU2_OSD1)
 		osd_update_blend(&disp_data);
+#endif
+#ifdef AML_S5_DISPLAY
+	update_vpp_input_info(vinfo);
+	vpp_post_blend_update_s5(vinfo);
 #endif
 	osd_enable_hw(osd_index, 1);
 

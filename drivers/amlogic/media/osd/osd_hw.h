@@ -101,6 +101,13 @@ extern void osd_get_hw_para(struct hw_para_s **para);
 extern void osd_update_blend(struct pandata_s *disp_data);
 extern void osd_hist_enable(u32 osd_index);
 extern int osd_get_hist_stat(u32 *hist_result);
+#ifdef AML_S5_DISPLAY
+void vpp_post_blend_set(u32 vpp_index, struct vpp_post_blend_s *vpp_blend);
+void vpp_post_slice_set(u32 vpp_index, struct vpp_post_s *vpp_post);
+void vpp_vd1_hwin_set(u32 vpp_index, struct vpp_post_s *vpp_post);
+void vpp_post_proc_set(u32 vpp_index, struct vpp_post_s *vpp_post);
+void vpp_post_padding_set(u32 vpp_index, struct vpp_post_s *vpp_post);
+#endif
 void osd_init_hw_viux(u32 index);
 
 #ifdef VEHICLE_CONFIG
