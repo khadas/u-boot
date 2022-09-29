@@ -1833,12 +1833,6 @@ static int rockchip_display_probe(struct udevice *dev)
 		memset(s, 0, sizeof(*s));
 
 		INIT_LIST_HEAD(&s->head);
-		ret = ofnode_read_string_index(node, "logo,uboot", 0, &name);
-		if (!ret)
-			memcpy(s->ulogo_name, name, strlen(name));
-		ret = ofnode_read_string_index(node, "logo,kernel", 0, &name);
-		if (!ret)
-			memcpy(s->klogo_name, name, strlen(name));
 		ret = ofnode_read_string_index(node, "logo,mode", 0, &name);
 		if (!strcmp(name, "fullscreen"))
 			s->logo_mode = ROCKCHIP_DISPLAY_FULLSCREEN;
@@ -1879,6 +1873,25 @@ static int rockchip_display_probe(struct udevice *dev)
 		s->crtc_state.crtc = crtc;
 		s->crtc_state.crtc_id = get_crtc_id(np_to_ofnode(ep_node), is_ports_node);
 		s->node = node;
+
+		if(s->crtc_state.crtc_id == 0){
+			ret = ofnode_read_string_index(node, "logo,uboot", 0, &name);
+			if (!ret)
+				memcpy(s->ulogo_name, name, strlen(name));
+
+			ret = ofnode_read_string_index(node, "logo,uboot", 0, &name);
+			if (!ret)
+				memcpy(s->klogo_name, name, strlen(name));
+		}
+		else{
+			ret = ofnode_read_string_index(node, "logo,kernel", 0, &name);
+			if (!ret)
+				memcpy(s->ulogo_name, name, strlen(name));
+
+			ret = ofnode_read_string_index(node, "logo,kernel", 0, &name);
+			if (!ret)
+				memcpy(s->klogo_name, name, strlen(name));
+		}
 
 		if (is_ports_node) { /* only vop2 will get into here */
 			ofnode vp_node = np_to_ofnode(port_node);
