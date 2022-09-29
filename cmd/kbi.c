@@ -81,12 +81,19 @@
 
 #define HW_VERSION_ADC_VALUE_TOLERANCE   0x28
 #define HW_VERSION_ADC_VAL_VIM4_V12      0x1A4
+#define HW_VERSION_ADC_VAL_VIM1S_V10     0x0
 #define HW_VERSION_UNKNOW                0x00
 
 #define  HW_VERSION_VIM4_V12             0x42
+#define  HW_VERSION_VIM1S_V10            0x10
 
 #define HW_RECOVERY_KEY_ADC              0x82
+
+#if defined(CONFIG_KHADAS_VIM1S)
+#define MCU_I2C_BUS_NUM                  1
+#elif defined(CONFIG_KHADAS_VIM4)
 #define MCU_I2C_BUS_NUM                  6
+#endif
 
 
 static char* LED_MODE_STR[] = { "off", "on", "breathe", "heartbeat"};
@@ -359,6 +366,8 @@ static const char *hw_version_str(int hw_ver)
 	switch (hw_ver) {
 		case HW_VERSION_VIM4_V12:
 			return "VIM4.V12";
+		case HW_VERSION_VIM1S_V10:
+			return "VIM1S.V10";
 		default:
 			return "Unknow";
 	}
@@ -390,6 +399,8 @@ static int get_hw_version(void)
 
 	if ((val >= HW_VERSION_ADC_VAL_VIM4_V12 - HW_VERSION_ADC_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VAL_VIM4_V12 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
 			hw_ver = HW_VERSION_VIM4_V12;
+	} else if ((val >= HW_VERSION_ADC_VAL_VIM1S_V10 - HW_VERSION_ADC_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VAL_VIM1S_V10 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
+			hw_ver = HW_VERSION_VIM1S_V10;
 	} else {
 				hw_ver = HW_VERSION_UNKNOW;
 	}
@@ -996,7 +1007,11 @@ static int do_kbi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *c;
 	mcu_i2c_probe(MCU_I2C_BUS_NUM);
-	run_command("i2c dev 6", 0);
+#if defined(CONFIG_KHADAS_VIM4)
+		run_command("i2c dev 6", 0);
+#elif defined(CONFIG_KHADAS_VIM1S)
+		run_command("i2c dev 1", 0);
+#endif
 
 	if (argc < 2)
 		return CMD_RET_USAGE;

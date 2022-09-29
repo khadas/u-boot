@@ -49,6 +49,7 @@
 #include "stick_mem.h"
 #include "pm.h"
 #include "irq.h"
+#include "gpio.h"
 
 void system_resume(uint32_t pm);
 void system_suspend(uint32_t pm);
@@ -260,9 +261,25 @@ void STR_Wakeup_src_Queue_Send(uint32_t *src)
 
 void *xMboxSuspend_Sem(void *msg)
 {
+	int ret;
+
 	power_mode = *(uint32_t *)msg;
 
 	printf("power_mode=0x%x\n",power_mode);
+	if(0xf==power_mode){
+
+		ret = xGpioSetDir(GPIOZ_4,GPIO_DIR_OUT);
+		if (ret < 0) {
+			printf("GPIOZ_4 set gpio dir fail\n");
+		}
+
+		ret = xGpioSetValue(GPIOZ_4,GPIO_LEVEL_HIGH);
+		if (ret < 0) {
+			printf("GPIOZ_4 set gpio val fail\n");
+		}
+		printf("power off->GPIOZ_4 pull hight\n");
+	}
+
 	STR_Start_Sem_Give();
 
 	return NULL;

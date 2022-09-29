@@ -260,6 +260,49 @@ config TARGET_KHADAS_VIM4
 
 endif
 
+if MESON_S4
+
+config SYS_SOC
+	default "s4"
+
+config DDRFW_TYPE
+	string "S4 DDR FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+	string "S4 CHIPSET NAME"
+	default "s905y4"
+
+config CHIPSET_VARIANT
+	string "S4 CHIPSET VARIANT"
+	default ""
+
+config AMLOGIC_KEY_TYPE
+	string "S4 AMLOGIC KEY TYPE"
+	default "dev-keys"
+
+config BL30_SELECT
+	string "S4 BL30 board config"
+	default "s4_ap229"
+
+choice
+	prompt "S4 Board"
+
+config KHADAS_VIM1S
+	bool "Khadas VIM1S"
+	select TARGET_KHADAS_VIM1S
+	help
+	  Select Khadas VIM1S config
+
+endchoice
+
+config TARGET_KHADAS_VIM1S
+	bool "Khadas VIM1S board"
+	depends on KHADAS_VIM1S
+
+endif
+
 # Khadas boards
 
 source "board/khadas/kvim4/Kconfig"
+source "board/khadas/kvim1s/Kconfig"
