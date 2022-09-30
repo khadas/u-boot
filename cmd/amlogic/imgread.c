@@ -588,6 +588,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 			hdr_addr_v3->kernel_size, kernel_size);
 		MsgP("ramdisk_size 0x%x, totalSz 0x%x\n",
 			hdr_addr_v3->ramdisk_size, ramdisk_size);
+		MsgP("boot header_version = %d\n", hdr_addr_v3->header_version);
 		if (securekernelimgsz) {
 			actualbootimgsz = securekernelimgsz;
 			MsgP("securekernelimgsz=0x%x\n", actualbootimgsz);
@@ -666,6 +667,8 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 							0x1000);
 					MsgP("ramdisk_size 0x%x, totalSz 0x%x\n",
 						pinitbootimghdr->ramdisk_size, ramdisk_size);
+					MsgP("init_boot header_version = %d\n",
+						pinitbootimghdr->header_version);
 					init_boot_ramdisk_size = pinitbootimghdr->ramdisk_size;
 
 					if (init_boot_ramdisk_size != 0) {
@@ -777,6 +780,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 				MsgP("securekernelimgsz=0x%x\n", nflashloadlen_r);
 			} else {
 				unsigned long ramdisk_size_r, dtb_size_r;
+				unsigned long ramdisk_table_size;
 				const int pagesz_r = pvendorimghdr->page_size;
 
 				/* Android R's vendor_boot partition include ramdisk and dtb */
@@ -784,10 +788,29 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 					pagesz_r);
 				dtb_size_r      = ALIGN(pvendorimghdr->dtb_size, pagesz_r);
 				nflashloadlen_r = ramdisk_size_r + dtb_size_r + 0x1000;
-				debugP("ramdisk_size_r 0x%x, totalSz 0x%lx\n",
+				MsgP("ramdisk_size_r 0x%x, totalSz 0x%lx\n",
 					pvendorimghdr->vendor_ramdisk_size, ramdisk_size_r);
-				debugP("dtb_size_r 0x%x, totalSz 0x%lx\n",
+				MsgP("dtb_size_r 0x%x, totalSz 0x%lx\n",
 					pvendorimghdr->dtb_size, dtb_size_r);
+				MsgP("vendor_boot header_version = %d\n",
+					pvendorimghdr->header_version);
+				if (pvendorimghdr->header_version > 3) {
+					MsgP("vendor_ramdisk_table_size: 0x%x\n",
+					pvendorimghdr->vendor_ramdisk_table_size);
+					MsgP("vendor_ramdisk_table_entry_num: 0x%x\n",
+					pvendorimghdr->vendor_ramdisk_table_entry_num);
+					MsgP("vendor_ramdisk_table_entry_size: 0x%x\n",
+					pvendorimghdr->vendor_ramdisk_table_entry_size);
+					MsgP("vendor_bootconfig_size: 0x%x\n",
+					pvendorimghdr->vendor_bootconfig_size);
+					ramdisk_table_size =
+						ALIGN(pvendorimghdr->vendor_ramdisk_table_size,
+						pagesz_r);
+					nflashloadlen_r = nflashloadlen_r + ramdisk_table_size;
+
+					MsgP("ramdisk table offset 0x%lx, nflashloadlen_r 0x%x\n",
+					ramdisk_size_r + dtb_size_r + 0x1000, nflashloadlen_r);
+				}
 			}
 
 			if (nflashloadlen_r > preloadsz_r) {

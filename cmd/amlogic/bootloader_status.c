@@ -172,6 +172,7 @@ static void run_recovery_from_cache(void) {
 		"fi;", 0);
 
 	env_set("check_result","recovery_succ");
+	env_set("recovery_mode", "true");
 	run_command("bootm ${loadaddr}", 0);
 	env_set("check_result","recovery_fail");
 	env_set("reboot_status","reboot_recovery");
@@ -413,6 +414,9 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 #endif
 
 	bootloader_wp();
+
+	//set default env before check
+	env_set("recovery_mode", "false");
 
 	//if recovery mode, need disable dv, if factoryreset, need default uboot env
 	aml_recovery();
