@@ -222,6 +222,14 @@ static const struct vout_set_s vout_sets_dft[] = {
 		.viu_color_fmt     = VPP_CM_YUV,
 		.viu_mux           = VIU_MUX_ENCP,
 	},
+	{ /* VMODE_480x320p60hz */
+		.name              = "480x320p60hz",
+		.mode              = VMODE_480x320p60hz,
+		.width             = 480,
+		.height            = 320,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
+	},
 	{ /* VMODE_640x480p60hz */
 		.name              = "640x480p60hz",
 		.mode              = VMODE_640x480p60hz,
@@ -275,6 +283,14 @@ static const struct vout_set_s vout_sets_dft[] = {
 		.mode              = VMODE_1152x864p75hz,
 		.width             = 1152,
 		.height            = 864,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
+	},
+	{ /* VMODE_1280x480p60hz */
+		.name              = "1280x480p60hz",
+		.mode              = VMODE_1280x480p60hz,
+		.width             = 1280,
+		.height            = 480,
 		.viu_color_fmt     = VPP_CM_YUV,
 		.viu_mux           = VIU_MUX_ENCP,
 	},
@@ -413,7 +429,31 @@ static const struct vout_set_s vout_sets_dft[] = {
 		.height            = 1080,
 		.viu_color_fmt     = VPP_CM_YUV,
 		.viu_mux           = VIU_MUX_ENCP,
-	}
+	},
+	{ /* VMODE_2560x1440p60hz */
+		.name              = "2560x1440p60hz",
+		.mode              = VMODE_2560x1440p60hz,
+		.width             = 2560,
+		.height            = 1440,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
+	},
+	{ /* VMODE_2560x1600p60hz */
+		.name              = "2560x1600p60hz",
+		.mode              = VMODE_2560x1600p60hz,
+		.width             = 2560,
+		.height            = 1600,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
+	},
+	{ /* VMODE_3440x1440p60hz */
+		.name              = "3440x1440p60hz",
+		.mode              = VMODE_3440x1440p60hz,
+		.width             = 3440,
+		.height            = 1440,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
+	},
 };
 
 static struct vinfo_s vout_info = {
