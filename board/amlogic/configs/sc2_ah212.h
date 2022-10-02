@@ -96,7 +96,6 @@
         "osd_reverse=0\0"\
         "video_reverse=0\0"\
         "board=ohm\0"\
-	"write_boot=0\0"\
         "initargs="\
             "init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe07a000 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\

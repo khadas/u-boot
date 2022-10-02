@@ -38,6 +38,7 @@
 	"board_logo_part=odm_ext\0" \
 	"rollback_flag=0\0"\
 	"boot_flag=0\0"\
+	"write_boot=0\0"\
 	"Irq_check_en=0\0"\
 	"retry_recovery_times=7\0"\
 	"androidboot.dtbo_idx=0\0"\
