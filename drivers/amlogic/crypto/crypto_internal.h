@@ -10,7 +10,7 @@
 #include <u-boot/sha256.h>
 
 #define USE_SHA_OLD_CODE
-//#define HASH_FLUSH_INPUT
+#define HASH_FLUSH_INPUT
 
 /* DMA operation mode */
 #define CIPHER_OP_MODE_ECB 0
