@@ -374,7 +374,12 @@ static AvbSlotVerifyResult load_and_verify_hash_partition(
   // Although only one of the type might be used, we have to defined the
   // structure here so that they would live outside the 'if/else' scope to be
   // used later.
+#ifdef CONFIG_AVB2_UBOOT_SHA256
+	sha256_context sha256_ctx;
+	uint8_t sha256_output[AVB_SHA256_DIGEST_SIZE];
+#else
   AvbSHA256Ctx sha256_ctx;
+#endif
   AvbSHA512Ctx sha512_ctx;
 
   image_size_to_hash = hash_desc.image_size;
@@ -384,10 +389,18 @@ static AvbSlotVerifyResult load_and_verify_hash_partition(
     image_size_to_hash = image_size;
   }
   if (avb_strcmp((const char*)hash_desc.hash_algorithm, "sha256") == 0) {
+#ifdef CONFIG_AVB2_UBOOT_SHA256
+	sha256_starts(&sha256_ctx);
+	sha256_update(&sha256_ctx, desc_salt, hash_desc.salt_len);
+	sha256_update(&sha256_ctx, image_buf, image_size_to_hash);
+	sha256_finish(&sha256_ctx, sha256_output);
+	digest = sha256_output;
+#else
     avb_sha256_init(&sha256_ctx);
     avb_sha256_update(&sha256_ctx, desc_salt, hash_desc.salt_len);
     avb_sha256_update(&sha256_ctx, image_buf, image_size_to_hash);
     digest = avb_sha256_final(&sha256_ctx);
+#endif
     digest_len = AVB_SHA256_DIGEST_SIZE;
   } else if (avb_strcmp((const char*)hash_desc.hash_algorithm, "sha512") == 0) {
     avb_sha512_init(&sha512_ctx);
@@ -742,6 +755,16 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
 					!strcmp(full_partition_name, "vbmeta_a") ||
 					!strcmp(full_partition_name, "vbmeta_b")) {
 				if (io_ret == AVB_IO_RESULT_OK && !is_device_unlocked) {
+#ifdef CONFIG_AVB2_UBOOT_SHA256
+					sha256_context boot_key_sha256_ctx;
+					uint8_t sha256_output[AVB_SHA256_DIGEST_SIZE];
+
+					sha256_starts(&boot_key_sha256_ctx);
+					sha256_update(&boot_key_sha256_ctx, pk_data, pk_len);
+					sha256_finish(&boot_key_sha256_ctx, sha256_output);
+					avb_memcpy(boot_key_hash, sha256_output,
+							AVB_SHA256_DIGEST_SIZE);
+#else
 					AvbSHA256Ctx boot_key_sha256_ctx;
 
 					avb_sha256_init(&boot_key_sha256_ctx);
@@ -749,6 +772,7 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
 					avb_memcpy(boot_key_hash,
 							avb_sha256_final(&boot_key_sha256_ctx),
 							AVB_SHA256_DIGEST_SIZE);
+#endif
 				}
 			}
 		}
@@ -1727,6 +1751,18 @@ void avb_slot_verify_data_calculate_vbmeta_digest(AvbSlotVerifyData* data,
 
   switch (digest_type) {
     case AVB_DIGEST_TYPE_SHA256: {
+#ifdef CONFIG_AVB2_UBOOT_SHA256
+	sha256_context ctx;
+	uint8_t sha256_output[AVB_SHA256_DIGEST_SIZE];
+
+	sha256_starts(&ctx);
+	for (n = 0; n < data->num_vbmeta_images; n++)
+		sha256_update(&ctx,
+				data->vbmeta_images[n].vbmeta_data,
+				data->vbmeta_images[n].vbmeta_size);
+	sha256_finish(&ctx, sha256_output);
+	avb_memcpy(out_digest, sha256_output, AVB_SHA256_DIGEST_SIZE);
+#else
       AvbSHA256Ctx ctx;
       avb_sha256_init(&ctx);
       for (n = 0; n < data->num_vbmeta_images; n++) {
@@ -1735,6 +1771,7 @@ void avb_slot_verify_data_calculate_vbmeta_digest(AvbSlotVerifyData* data,
                           data->vbmeta_images[n].vbmeta_size);
       }
       avb_memcpy(out_digest, avb_sha256_final(&ctx), AVB_SHA256_DIGEST_SIZE);
+#endif
       ret = true;
     } break;
 

@@ -880,4 +880,7 @@
 //#define CONFIG_CMD_SHA2              1
 #define CONFIG_ARMV8_CE_SHA1         1
 #define CONFIG_ARMV8_CE_SHA256       1
+
+//Replace avb2 software SHA256 to utilize armce
+#define CONFIG_AVB2_UBOOT_SHA256
 #endif
