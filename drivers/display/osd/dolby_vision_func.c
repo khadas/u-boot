@@ -233,7 +233,7 @@ int check_dovi_sha256(unsigned char* dovi_body, int size) {
 	}
 #endif//CONFIG_CMD_BOOTCTOL_AVB
 
-	/*step 3: calculatqe dovi.fw sha256*/
+	/*step 3: calculate dovi.fw sha256*/
 	sha256_starts(&sha256_cxt);
 	sha256_update(&sha256_cxt, (const uint8_t *)dovi_body, (uint32_t)size);
 	sha256_finish(&sha256_cxt, (uint8_t *)sha256);
