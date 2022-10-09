@@ -15,3 +15,9 @@ config AML_LCD_EXTERN_I2C_RT6947
 	depends on AML_LCD_EXTERN
 	help
 	  Support for rt6947 extern device
+
+config AML_LCD_EXTERN_I2C_OLED
+	bool "i2c_oled extern device driver"
+	depends on AML_LCD_EXTERN
+	help
+	  Support for i2c_oled extern device
