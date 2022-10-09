@@ -78,7 +78,7 @@ typedef struct {
 
 enum {
         KEY_FMT__MAC            = 0XBB,         //string format like 00:01:02:03:04:05
-        KEY_FMT__ONLEYONE             ,         //only one format means read the total license file as key value
+        KEY_FMT__ONLYONE              ,         //only one format means read the total license file as key value
         KEY_FMT__HDCP                 ,
         KEY_FMT__HDCP2                ,
 };
@@ -112,7 +112,7 @@ static const KeyFmtMap_t _keysFmtMapping[] = {
         [2] = {KEY_MAP_MAGIC,   "mac_wifi",             "license/mac_wifi.ini"   , KEY_FMT__MAC     , get_key_val_for_fmt_mac    , update_lic_for_fmt_mac    },
         [3] = {KEY_MAP_MAGIC,   "hdcp",                 "license/HDCP_LIENCE"    , KEY_FMT__HDCP    , get_key_val_for_fmt_hdcp   , update_lic_for_fmt_hdcp   },
         [4] = {KEY_MAP_MAGIC,   "hdcp2",                "license/HDCP2_LIENCE"   , KEY_FMT__HDCP2   , get_key_val_for_fmt_hdcp2rx, update_lic_for_fmt_hdcp2rx},
-        [5] = {KEY_MAP_MAGIC,   "secure_boot_set",      "license/SECURE_BOOT_SET", KEY_FMT__ONLEYONE, get_key_val_for_fmt_onlyone, NULL},
+        [5] = {KEY_MAP_MAGIC,   "secure_boot_set",      "license/SECURE_BOOT_SET", KEY_FMT__ONLYONE , get_key_val_for_fmt_onlyone, NULL},
 };
 #define _SupportKeysNum (sizeof(_keysFmtMapping)/sizeof(KeyFmtMap_t))
 
