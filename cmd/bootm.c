@@ -304,12 +304,18 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (out_data) {
 			keymaster_boot_params boot_params;
 			const int is_dev_unlocked = is_device_unlocked();
+			AvbVBMetaImageHeader toplevel_vbmeta;
+
+			avb_vbmeta_image_header_to_host_byte_order
+			((const AvbVBMetaImageHeader *)out_data->vbmeta_images[0].vbmeta_data,
+			&toplevel_vbmeta);
 
 			boot_params.boot_patchlevel =
 				avb_get_boot_patchlevel_from_vbmeta(out_data);
 
 			boot_params.device_locked = is_dev_unlocked? 0: 1;
-			if (is_dev_unlocked) {
+			if (is_dev_unlocked || (toplevel_vbmeta.flags &
+				AVB_VBMETA_IMAGE_FLAGS_VERIFICATION_DISABLED)) {
 				bootstate = bootstate_o;
 				boot_params.verified_boot_state = 2;
 			}
@@ -317,6 +323,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				bootstate = bootstate_g;
 				boot_params.verified_boot_state = 0;
 			}
+
 			memcpy(boot_params.verified_boot_key, boot_key_hash,
 					sizeof(boot_params.verified_boot_key));
 
