@@ -1515,6 +1515,7 @@ void osd_setup_hw(u32 index,
 	u32 w = (color->bpp * xres_virtual + 7) >> 3;
 	static int is_blend_set;
 	u32 fb_len;
+	char cmd[64];
 
 	if (osd_hw.osd_ver == OSD_SIMPLE) {
 		if (index >= OSD2) {
@@ -1595,6 +1596,10 @@ void osd_setup_hw(u32 index,
 					      CANVAS_ADDR_NOWRAP, CANVAS_BLKMODE_LINEAR);
 #endif
 		}
+		snprintf(cmd, sizeof(cmd), "setenv fb_addr 0x%x",
+			 osd_hw.fb_gem[index].addr);
+		run_command(cmd, 0);
+
 		osd_logd("osd[%d] canvas.idx =0x%x\n",
 			 index, osd_hw.fb_gem[index].canvas_idx);
 		osd_logd("osd[%d] canvas.addr=0x%x\n",

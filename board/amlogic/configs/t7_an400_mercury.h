@@ -95,6 +95,7 @@
 		"vout3=${outputmode3},enable " \
 		"lcd1_ctrl=${lcd1_ctrl} panel2_type=${panel2_type} lcd2_ctrl=${lcd2_ctrl} "\
 		"hdr_policy=${hdr_policy} hdr_priority=${hdr_priority};"\
+		"setenv bootargs ${bootargs} ${fbargs};"\
 		"\0"\
 	"init_display_hdmitx="\
 		"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
@@ -329,6 +330,7 @@
 #ifndef CONFIG_HDMITX_ONLY
 /* dual logo, normal boot */
 #define CONFIG_DUAL_LOGO \
+	/* logo3 */ \
 	"setenv outputmode3 ${hdmimode};"\
 	"setenv display_layer viu3_osd0;"\
 	"setenv fb_width 1280;setenv fb_height 800;"\
@@ -336,6 +338,9 @@
 	"osd open;osd clear;imgread pic logo bootup_land $loadaddr;"\
 	"bmp display $bootup_land_offset;"\
 	"bmp scale;vout3 output ${outputmode3};"\
+	"setenv fbargs fb_width3=${fb_width} fb_height3=${fb_height} "\
+	"display_bpp3=${display_bpp} fb_addr3=${fb_addr} ;"\
+	/* logo2 */ \
 	"setenv display_layer viu2_osd0;"\
 	"setenv fb_width 1280;setenv fb_height 800;"\
 	"setenv outputmode2 panel1;"\
@@ -343,10 +348,15 @@
 	"imgread pic logo bootup_land $loadaddr;"\
 	"bmp display $bootup_land_offset;"\
 	"vout2 output ${outputmode2};bmp scale;"\
+	"setenv fbargs ${fbargs} fb_width2=${fb_width} fb_height2=${fb_height} "\
+	"display_bpp2=${display_bpp} fb_addr2=${fb_addr} ;"\
+	/* logo1 */ \
 	"setenv display_layer osd0;"\
 	"setenv fb_width 800;setenv fb_height 1280;"\
 	"osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;"\
 	"bmp scale;vout output ${outputmode};vpp hdrpkt;"\
+	"setenv fbargs ${fbargs} fb_width=${fb_width} fb_height=${fb_height} "\
+	"display_bpp=${display_bpp} fb_addr=${fb_addr} ;"\
 	"\0"\
 
 #define CONFIG_RECOVERY_DUAL_LOGO CONFIG_DUAL_LOGO
