@@ -354,19 +354,38 @@ static int hex_digit(char ch)
 		return -1;
 }
 
+static void update_eth_mac_address(void)
+{
+	if (!env_get("ethaddr")) {
+		char env_str[32];
+		unsigned int reg18;
+
+		reg18 = *(unsigned int *)SYSCTRL_SEC_STATUS_REG18;
+		sprintf((char *)env_str, "02:ad:%02x:01:%02x:%02x", ((reg18 >> 24) & 0xff),
+			((reg18 >> 8) & 0xff), (reg18 & 0xff));
+		env_set("ethaddr", (const char *)env_str);
+	}
+}
+
 static void add_eth_mac_address(zbi_header_t *zbi)
 {
-	char *str = env_get("ethaddr");
+	char *str;
 	uint8_t addr[6];
-
 	int i;
+
+	update_eth_mac_address();
+	str = env_get("ethaddr");
+
+	// Verify the MAC address field size.
+	if (strlen(str) < 17)
+		goto failed;
 
 	for (i = 0; i < 6; i++) {
 		unsigned left, right;
 
 		left = hex_digit(*str++);
 		right = hex_digit(*str++);
-		if (str[0] && str[1] && left >= 0 && right >= 0)
+		if (left >= 0 && right >= 0)
 			addr[i] = (left << 4) | right;
 		else
 			goto failed;
@@ -377,7 +396,7 @@ static void add_eth_mac_address(zbi_header_t *zbi)
 
 	zircon_append_boot_item(zbi, ZBI_TYPE_DRV_MAC_ADDRESS, 0, addr, sizeof(addr));
 
-	printf("set MAC address to \"%s\"\n", addr);
+	printf("set MAC address to \"%s\"\n", env_get("ethaddr"));
 	return;
 
 failed:
