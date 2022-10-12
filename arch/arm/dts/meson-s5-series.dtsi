@@ -490,31 +490,7 @@
 
 			spicc2: spi@54000 {
 				compatible = "amlogic,meson-g12a-spicc";
-				reg = <0x0 0x54000 0x0 0x44>;
-				#address-cells = <1>;
-				#size-cells = <0>;
-				status = "disabled";
-			};
-
-			spicc3: spi@4a000 {
-				compatible = "amlogic,meson-g12a-spicc";
-				reg = <0x0 0x4a000 0x0 0x44>;
-				#address-cells = <1>;
-				#size-cells = <0>;
-				status = "disabled";
-			};
-
-			spicc4: spi@4c000 {
-				compatible = "amlogic,meson-g12a-spicc";
-				reg = <0x0 0x4c000 0x0 0x44>;
-				#address-cells = <1>;
-				#size-cells = <0>;
-				status = "disabled";
-			};
-
-			spicc5: spi@4e000 {
-				compatible = "amlogic,meson-g12a-spicc";
-				reg = <0x0 0x4e000 0x0 0x44>;
+				reg = <0x0 0x54000 0x0 0x58>;
 				#address-cells = <1>;
 				#size-cells = <0>;
 				status = "disabled";
