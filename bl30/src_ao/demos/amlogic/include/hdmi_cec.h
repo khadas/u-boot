@@ -2,7 +2,7 @@
 #define __HDMI_CEC__
 
 
-#define CEC_VERSION "2022/04/21 t7 switch to cec_b and use cec_a pin"
+#define CEC_VERSION "2022/10/12 save wakeup message for T7"
 
 u32 cec_init_config(void);
 u32 cec_suspend_handle(void);

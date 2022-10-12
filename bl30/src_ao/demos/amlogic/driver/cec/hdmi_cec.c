@@ -117,8 +117,8 @@ unsigned int cec_reg_tab[] = {
 	SYSCTRL_STATUS_REG1,
 
 	0xffff,//AO_CEC_STICKY_DATA0,
-	0xffff,//AO_CEC_STICKY_DATA1,
-	0xffff,//AO_CEC_STICKY_DATA2,
+	SYSCTRL_STICKY_REG5,//AO_CEC_STICKY_DATA1,
+	SYSCTRL_STICKY_REG6,//AO_CEC_STICKY_DATA2,
 	0xffff,//AO_CEC_STICKY_DATA3,
 	0xffff,//AO_CEC_STICKY_DATA4,
 	0xffff,//AO_CEC_STICKY_DATA5,
@@ -2115,6 +2115,49 @@ static void cec_set_wk_msg(unsigned char *otp_msg, unsigned char *as_msg)
 	if (!otp_msg || !as_msg)
 		return;
 
+#ifdef CEC_CHIP_SEL_T7
+	/* T7 no cec sticky register, so use 6 byte of general sticky reg.
+	 * only save nessary message witch may affect routing
+	 * SYSCTRL_STICKY_REG5: bit 31~0
+	 * SYSCTRL_STICKY_REG6: bit 31~16
+	 */
+	if (as_msg[2] == CEC_OC_ACTIVE_SOURCE) {
+		/* clear firstly */
+		write_ao(CEC_REG_STICK_DATA1, 0);
+		write_ao(CEC_REG_STICK_DATA2, read_ao(CEC_REG_STICK_DATA2) & 0xffff);
+		tmp_as_msg = as_msg[1] << 24 |
+			as_msg[2] << 16 |
+			as_msg[3] << 8 |
+			as_msg[4];
+		write_ao(CEC_REG_STICK_DATA1, tmp_as_msg);
+	} else if (otp_msg[2] == CEC_OC_ROUTING_CHANGE) {
+		/* clear firstly */
+		write_ao(CEC_REG_STICK_DATA1, 0);
+		write_ao(CEC_REG_STICK_DATA2, read_ao(CEC_REG_STICK_DATA2) & 0xffff);
+		/* otp msg store in two stick regs */
+		tmp_otp_msg = otp_msg[1] << 24 |
+			otp_msg[2] << 16 |
+			otp_msg[3] << 8 |
+			otp_msg[4];
+		write_ao(CEC_REG_STICK_DATA1, tmp_otp_msg);
+		tmp_otp_msg = 0;
+		tmp_otp_msg = otp_msg[5] << 24 |
+			otp_msg[6] << 16 |
+			(read_ao(CEC_REG_STICK_DATA2) & 0xffff);
+		write_ao(CEC_REG_STICK_DATA2, tmp_otp_msg);
+	} else if(otp_msg[2] == CEC_OC_SET_STREAM_PATH) {
+		/* clear firstly */
+		write_ao(CEC_REG_STICK_DATA1, 0);
+		write_ao(CEC_REG_STICK_DATA2, read_ao(CEC_REG_STICK_DATA2) & 0xffff);
+		/* otp msg store in two stick regs */
+		tmp_otp_msg = otp_msg[1] << 24 |
+			otp_msg[2] << 16 |
+			otp_msg[3] << 8 |
+			otp_msg[4];
+		write_ao(CEC_REG_STICK_DATA1, tmp_otp_msg);
+	}
+	return;
+#else
 	if (otp_msg[0] > 8) {
 		printf("wrong otp msg len: %d\n", otp_msg[0]);
 		if (as_msg[0] == 4) {
@@ -2151,7 +2194,17 @@ static void cec_set_wk_msg(unsigned char *otp_msg, unsigned char *as_msg)
 				as_msg[4];
 			write_ao(CEC_REG_STICK_DATA2, tmp_as_msg);
 		}
+	} else {
+		/* only <active source> */
+		if (as_msg[0] == 4) {
+			tmp_as_msg = as_msg[1] << 24 |
+				as_msg[2] << 16 |
+				as_msg[3] << 8 |
+				as_msg[4];
+			write_ao(CEC_REG_STICK_DATA2, tmp_as_msg);
+		}
 	}
+#endif
 }
 
 
