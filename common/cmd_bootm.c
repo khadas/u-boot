@@ -308,6 +308,15 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			newbootargs = NULL;
 			avb_slot_verify_data_free(out_data);
 		}
+	} else {
+		const int is_dev_unlocked = is_device_unlocked();
+
+		if (is_dev_unlocked)
+			run_command("setenv bootargs ${bootargs} "\
+			"androidboot.verifiedbootstate=orange", 0);
+		else
+			run_command("setenv bootargs ${bootargs} "\
+			"androidboot.verifiedbootstate=green", 0);
 	}
 
 #ifdef CONFIG_AML_RSVD_ADDR
