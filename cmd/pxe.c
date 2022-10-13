@@ -1037,6 +1037,9 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 			if (!strcmp(env_get("mipi_lcd_exist"), "0")) {
 				printf("MIPI LCD not exist, disable lcd node.\n");
 				run_command("fdt addr ${fdt_addr_r}; fdt resize 65536; fdt set /lcd status disabled;", 0);
+			} else if (!strcmp(env_get("mipi_lcd_exist"), "1")) {
+				// Set fbdev size to TS050 MIPI LCD resolution 1080x1920
+				run_command("fdt addr ${fdt_addr_r}; fdt resize 65536; fdt set /drm-subsystem fbdev_sizes <1080 1920 1080 3840 32>;", 0);
 			}
 		} else {
 			bootm_argv[3] = NULL;
