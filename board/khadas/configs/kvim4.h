@@ -541,7 +541,7 @@
         "storeargs="\
             "get_bootloaderversion;" \
             "get_rebootmode;"\
-            "if test ${lcd_exist} != 1; then "\
+            "if test ${mipi_lcd_exist} != 1; then "\
                 "setenv vout_args vout=${outputmode},enable;"\
             "else "\
                 "setenv vout_args vout=${outputmode},enable vout2=${outputmode2},enable;"\

@@ -32,7 +32,7 @@ static int vout_hdmi_hpd(int hpd_st)
 {
 #ifdef CONFIG_AML_LCD
 	unsigned int mux_sel = VIU_MUX_MAX, venc_sel = VIU_MUX_MAX;
-	char *mode, *lcd_exist;;
+	char *mode, *mipi_lcd_exist;;
 #endif
 	char *hdmimode;
 	char *colorattribute;
@@ -45,8 +45,8 @@ static int vout_hdmi_hpd(int hpd_st)
 	if (venc_sel == VIU_MUX_ENCL) {
 		printf("%s: lcd no need hpd detect\n", __func__);
 		// free(mode);
-		lcd_exist = env_get("lcd_exist");
-		if (0 == strcmp(lcd_exist, "1"))
+		mipi_lcd_exist = env_get("mipi_lcd_exist");
+		if (0 == strcmp(mipi_lcd_exist, "1"))
 			return 0;
 	}
 #endif

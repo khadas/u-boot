@@ -120,7 +120,7 @@ void board_lcd_detect(void)
 		return;
 	}
 	printf("LCD_RESET PIN: %d\n", value);
-	env_set_ulong("lcd_exist", value);
+	env_set_ulong("mipi_lcd_exist", value);
 	gpio_free(gpio);
 }
 #endif /* CONFIG_AML_LCD */
