@@ -549,7 +549,6 @@
             "setenv bootargs ${initargs} otg_device=${otg_device} "\
                 "logo=${display_layer},loaded,${fb_addr} powermode=${powermode}  ${vout_args} "\
                 "panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
-                "panel1_type=${panel1_type} lcd1_ctrl=${lcd1_ctrl} panel2_type=${panel2_type} lcd2_ctrl=${lcd2_ctrl} "\
                 "hdmimode=${hdmimode} outputmode=${outputmode} "\
 			"hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} " \
 			"hdmitx=${cecconfig},${colorattribute} "\
