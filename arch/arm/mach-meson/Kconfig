@@ -132,6 +132,14 @@ config MESON_C3
 	help
 		Support Amlogic Meson C3
 
+config MESON_T5W
+	bool "Support Amlogic Meson T5W Series SoC"
+	select ARM64
+	select DM
+	select DM_SERIAL
+	help
+		Support Amlogic Meson T5W
+
 config MESON_G12A
 	bool "G12A"
 	select ARM64

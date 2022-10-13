@@ -1279,6 +1279,32 @@ config TARGET_C2_AF419
 
 endif
 
+if MESON_T5W
+
+config SYS_SOC
+	default "t5w"
+
+config BL30_SELECT
+	string "T5W BL30 board config"
+	default "t5w_at301_v1"
+
+choice
+	prompt "T5W Board"
+
+config T5W_AT301_V1
+	bool "T5W_AT301_V1"
+	select TARGET_T5W_AT301_V1
+	help
+	  Select T5W AT301 V1(XXXX) config
+
+endchoice
+
+config TARGET_T5W_AT301_V1
+	bool "T5W AT301 board"
+	depends on T5W_AT301_V1
+
+endif
+
 if MESON_G12A
 
 config SYS_SOC
@@ -1442,4 +1468,6 @@ source "board/amlogic/c3_aw409/Kconfig"
 source "board/amlogic/c3_aw419/Kconfig"
 
 source "board/amlogic/c3_aw429/Kconfig"
+
+source "board/amlogic/t5w_at301_v1/Kconfig"
 

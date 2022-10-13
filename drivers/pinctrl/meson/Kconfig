@@ -129,4 +129,12 @@ config PINCTRL_MESON_S5
 	select PINCTRL_MESON_AXG_PMX
 	select PINCONF_MESON_G12A
 
+config PINCTRL_MESON_T5W
+	bool "Amlogic Meson t5w SoC pinctrl driver"
+	depends on PINCTRL_GENERIC
+	depends on PINCONF
+	select PINCTRL_MESON
+	select PINCTRL_MESON_AXG_PMX
+	select PINCONF_MESON_G12A
+
 endif
