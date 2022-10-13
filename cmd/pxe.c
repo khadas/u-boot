@@ -1034,6 +1034,10 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		    else
 			fdt_overlay_helper(cmdtp, label, fdtfile);
 #endif
+			if (!strcmp(env_get("mipi_lcd_exist"), "0")) {
+				printf("MIPI LCD not exist, disable lcd node.\n");
+				run_command("fdt addr ${fdt_addr_r}; fdt resize 65536; fdt set /lcd status disabled;", 0);
+			}
 		} else {
 			bootm_argv[3] = NULL;
 		}
