@@ -521,13 +521,13 @@ static void spicc_chipselect(struct udevice *dev, bool select)
 
 static int spicc_claim_bus(struct udevice *dev)
 {
-	spicc_chipselect(dev, 1);
+	//spicc_chipselect(dev, 1);
 	return 0;
 }
 
 static int spicc_release_bus(struct udevice *dev)
 {
-	spicc_chipselect(dev, 0);
+	//spicc_chipselect(dev, 0);
 	return 0;
 }
 
@@ -586,7 +586,13 @@ static int spicc_set_mode(struct udevice *bus, uint mode)
 	if (spicc->mode == mode)
 		return 0;
 
+	if (spicc->data->has_oen)
+		writel_bits_relaxed(SPICC_ENH_MAIN_CLK_AO,
+				    SPICC_ENH_MAIN_CLK_AO,
+				    spicc->base + SPICC_ENH_CTL0);
+
 	conf = readl_relaxed(spicc->base + SPICC_CONREG);
+	conf |= SPICC_ENABLE;
 
 	/* Setup transfer mode */
 	if (mode & SPI_CPOL)
@@ -612,6 +618,10 @@ static int spicc_set_mode(struct udevice *bus, uint mode)
 	else
 		conf &= ~SPICC_LBC;
 	writel_relaxed(conf, spicc->base + SPICC_TESTREG);
+
+	if (spicc->data->has_oen)
+		writel_bits_relaxed(SPICC_ENH_MAIN_CLK_AO, 0,
+				    spicc->base + SPICC_ENH_CTL0);
 
 	spicc->mode = mode;
 	spicc_dbg("set mode 0x%x\n", mode);
@@ -752,7 +762,11 @@ static int spicc_cs_init(struct udevice *bus)
 			spicc_err("cs-gpio invalid (%dth)\n", i);
 			return -ENODEV;
 		}
-		dm_gpio_set_dir_flags(&cs, GPIOD_IS_OUT);
+		/* Best to set cs input here, and pull up or down on board
+		 * accord to the slave cs valid polary
+		 */
+		dm_gpio_set_value(&cs, 1);
+		dm_gpio_set_dir_flags(&cs, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 		spicc->cs_gpios[i] = cs;
 		spicc->num_chipselect++;
 	}
