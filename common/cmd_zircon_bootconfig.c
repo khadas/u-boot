@@ -26,7 +26,13 @@ static int do_zircon_bootconfig(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 	zircon_b = argv[3];
 	zircon_r = argv[4];
 
-	uint8_t buffer[ZX_SYSCONFIG_KVSTORE_SIZE];
+	uint8_t *buffer = NULL;
+
+	buffer = malloc(ZX_SYSCONFIG_KVSTORE_SIZE);
+	if (!buffer) {
+		pr_info("alloc buffer fail\n");
+		return -1;
+	}
 
 	rc = kvs_load(&kvs, buffer, sizeof(buffer));
 	if (rc < 0) {

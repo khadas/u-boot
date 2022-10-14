@@ -950,12 +950,16 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		boot_fdt_add_mem_rsv_regions(&images->lmb, images->ft_addr);
 		ret = boot_relocate_fdt(&images->lmb, &images->ft_addr,
 					&images->ft_len);
+		if (ret)
+			pr_info("boot_relocate_fdt fail\n");
 	}
 #else
 	if (!ret && (states & BOOTM_STATE_FDT)) {
 		boot_fdt_add_mem_rsv_regions(&images->lmb, images->ft_addr);
 		ret = boot_relocate_fdt(&images->lmb, &images->ft_addr,
 				&images->ft_len);
+		if (ret)
+			pr_info("boot_relocate_fdt fail\n");
 	}
 #endif
 #endif

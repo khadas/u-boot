@@ -385,10 +385,7 @@ static void add_eth_mac_address(zbi_header_t *zbi)
 
 		left = hex_digit(*str++);
 		right = hex_digit(*str++);
-		if (left >= 0 && right >= 0)
-			addr[i] = (left << 4) | right;
-		else
-			goto failed;
+		addr[i] = (left << 4) | right;
 
 		if (i < 5 && *str++ != ':')
 			goto failed;
