@@ -598,6 +598,9 @@ U_BOOT_DEVICES(meson_pwm) = {
 
 int board_init(void)
 {
+	/* set AO_GPIO_TEST_N[31] to 1 (TEST_N set to high), enable usb 5v voltage */
+	writel(0x8000003a, AO_GPIO_TEST_N);
+
 	//keep usb tool at first place of board_init
 #ifdef CONFIG_AML_V3_FACTORY_BURN
 	if ((0x1b8ec003 != readl(P_PREG_STICKY_REG2)) && (0x1b8ec004 != readl(P_PREG_STICKY_REG2)))

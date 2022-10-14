@@ -134,8 +134,6 @@
             "init=/init console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xffd23000 printk.devkmsg=on ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
             "\0"\
         "upgrade_check="\
-	    /* set AO_GPIO_TEST_N[31] to 1, set pin TEST_N to high */\
-	    "mw 0xff80035c 0x8000003a; "\
             "echo upgrade_step=${upgrade_step}; "\
             "if itest ${upgrade_step} == 3; then "\
                 "run init_display; run storeargs; run update;"\
