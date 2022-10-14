@@ -20,7 +20,7 @@
 /* v20210428: add s4d support */
 /* v20220503: add c3 support */
 /* v20220517: add s5 support */
-#define VPU_VERION	"v20220517"
+#define VPU_VERSION	"v20220517"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -546,7 +546,7 @@ static void vpu_chip_detect(void)
 		break;
 	}
 
-	strcpy(vpu_conf.drv_version, VPU_VERION);
+	strcpy(vpu_conf.drv_version, VPU_VERSION);
 	if (!vpu_conf.data) {
 		VPUERR("invalid chip: 0x%x\n", cpu_type);
 		return;

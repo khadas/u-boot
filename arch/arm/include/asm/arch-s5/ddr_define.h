@@ -359,34 +359,34 @@
 #define DDR_ENABLE_FINE_TUNE_FLAG_READ_DQ      1 << 4
 
 #if 0
-#define IMPEDENCE_120P3_240P2_480P1            1
-#define IMPEDENCE_120P6_1                      2
-#define IMPEDENCE_120P3_240P2_480P1_ODT        3
+#define IMPEDANCE_120P3_240P2_480P1            1
+#define IMPEDANCE_120P6_1                      2
+#define IMPEDANCE_120P3_240P2_480P1_ODT        3
 #endif
 
-#define IMPEDENCE_LPDDR4X_ATX_P                4
-#define IMPEDENCE_LPDDR4X_ATX_N                5
-#define IMPEDENCE_LPDDR4_ATX_P                 6
-#define IMPEDENCE_LPDDR4_ATX_N                 7
-#define IMPEDENCE_DDR4_ATX_P                   8
-#define IMPEDENCE_DDR4_ATX_N                   9
+#define IMPEDANCE_LPDDR4X_ATX_P                4
+#define IMPEDANCE_LPDDR4X_ATX_N                5
+#define IMPEDANCE_LPDDR4_ATX_P                 6
+#define IMPEDANCE_LPDDR4_ATX_N                 7
+#define IMPEDANCE_DDR4_ATX_P                   8
+#define IMPEDANCE_DDR4_ATX_N                   9
 
-#define IMPEDENCE_LPDDR4X_DATA_P               10
-#define IMPEDENCE_LPDDR4X_DATA_N               11
-#define IMPEDENCE_LPDDR4_DATA_P                12
-#define IMPEDENCE_LPDDR4_DATA_N                13
-#define IMPEDENCE_DDR4_DATA_P                  14
-#define IMPEDENCE_DDR4_DATA_N                  15
-#define IMPEDENCE_DDR4_DATA_ODT_P                  16
-#define IMPEDENCE_DDR4_DATA_ODT_N                  17
-#define IMPEDENCE_LPDDR4_DATA_ODT_P                  18
-#define IMPEDENCE_LPDDR4_DATA_ODT_N                  19
-#define IMPEDENCE_LPDDR4X_DATA_ODT_P                  20
-#define IMPEDENCE_LPDDR4X_DATA_ODT_N                 21
-#define IMPEDENCE_LPDDR5_DATA_ODT_P                  22
-#define IMPEDENCE_LPDDR5_DATA_ODT_N                  23
-#define IMPEDENCE_LPDDR5_ATX_P                 24
-#define IMPEDENCE_LPDDR5_ATX_N                 25
+#define IMPEDANCE_LPDDR4X_DATA_P               10
+#define IMPEDANCE_LPDDR4X_DATA_N               11
+#define IMPEDANCE_LPDDR4_DATA_P                12
+#define IMPEDANCE_LPDDR4_DATA_N                13
+#define IMPEDANCE_DDR4_DATA_P                  14
+#define IMPEDANCE_DDR4_DATA_N                  15
+#define IMPEDANCE_DDR4_DATA_ODT_P                  16
+#define IMPEDANCE_DDR4_DATA_ODT_N                  17
+#define IMPEDANCE_LPDDR4_DATA_ODT_P                  18
+#define IMPEDANCE_LPDDR4_DATA_ODT_N                  19
+#define IMPEDANCE_LPDDR4X_DATA_ODT_P                  20
+#define IMPEDANCE_LPDDR4X_DATA_ODT_N                 21
+#define IMPEDANCE_LPDDR5_DATA_ODT_P                  22
+#define IMPEDANCE_LPDDR5_DATA_ODT_N                  23
+#define IMPEDANCE_LPDDR5_ATX_P                 24
+#define IMPEDANCE_LPDDR5_ATX_N                 25
 
 //DDR PHY BLOCK TYPE
 #define  DDR_PHY_BLOCK_DBYTE 1

@@ -108,7 +108,7 @@ typedef struct _PMU_SMB_LPDDR3_1D_t {
                               //
                               // For example to set Vref at 0.75*VDDQ, set this field to 0x60.
                               //
-                              // For digital simulation, any legal value can be used. For silicon, the users must calculate the analytical Vref by using the impedances, terminations, and series resistance present in the system.
+                              // For digital simulation, any legal value can be used. For silicon, the users must calculate the analytical Vref by using the impedance, terminations, and series resistance present in the system.
    uint8_t  Reserved0D;       // Byte offset 0x0d, CSR Addr 0x54006, Direction=N/A
                               // This field is reserved and must be programmed to 0x00.
    uint8_t  Reserved0E;       // Byte offset 0x0e, CSR Addr 0x54007, Direction=N/A
@@ -426,7 +426,7 @@ typedef struct _PMU_SMB_LPDDR3_1D_t {
                               // This field is reserved and must be programmed to 0x00.
    uint16_t PhyConfigOverride; // Byte offset 0x6e, CSR Addr 0x54037, Direction=In
                               // Override PhyConfig csr.
-                              // 0x0: Use hardware csr value for PhyConfing (recommended)
+                              // 0x0: Use hardware csr value for PhyConfine (recommended)
                               // Other values: Use value for PhyConfig instead of Hardware value.
                               //
    uint8_t  Reserved70;       // Byte offset 0x70, CSR Addr 0x54038, Direction=N/A

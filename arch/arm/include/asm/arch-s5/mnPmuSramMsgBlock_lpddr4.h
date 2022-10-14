@@ -114,7 +114,7 @@ typedef struct _PMU_SMB_LPDDR4_1D_t {
                               //
                               // For example to set Vref at 0.25*VDDQ, set this field to 0x20.
                               //
-                              // For digital simulation, any legal value can be used. For silicon, the users must calculate the analytical Vref by using the impedances, terminations, and series resistance present in the system.
+                              // For digital simulation, any legal value can be used. For silicon, the users must calculate the analytical Vref by using the impedance, terminations, and series resistance present in the system.
    uint8_t  Lp4Misc;          // Byte offset 0x0d, CSR Addr 0x54006, Direction=In
                               // Lp4 specific options for training.
                               //
@@ -282,7 +282,7 @@ typedef struct _PMU_SMB_LPDDR4_1D_t {
 
    uint16_t PhyConfigOverride; // Byte offset 0x22, CSR Addr 0x54011, Direction=In
                               // Override PhyConfig csr.
-                              // 0x0: Use hardware csr value for PhyConfing (recommended)
+                              // 0x0: Use hardware csr value for PhyConfine (recommended)
                               // Other values: Use value for PhyConfig instead of Hardware value.
                               //
    uint8_t  EnabledDQsChA;    // Byte offset 0x24, CSR Addr 0x54012, Direction=In
