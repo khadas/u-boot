@@ -153,7 +153,7 @@
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
             "rootflags=data=writeback rw rootfstype=ext4" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 console=tty0 no_console_suspend fsck.repair=yes net.ifnames=0 "\
-            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
+            "khadas_board=VIM1S boot_source=${boot_source} "\
             "\0"\
         "upgrade_check="\
             "echo recovery_status=${recovery_status};"\
