@@ -206,6 +206,13 @@ int32_t hw_update_internal(sha2_ctx *cur_ctx, const uint8_t *input,
 	int nStep_len = (128 << 10) - 64; //17bit length
 	/*If input length bigger than (128KB - 64bytes),default use block mode is 1. */
 
+#ifdef HASH_FLUSH_INPUT
+	/* from the implementation of old driver,
+	 * the input data is flushed at upper level
+	 */
+	flush_dcache_range((uintptr_t)input, (uintptr_t)input + ilen);
+#endif
+
 	if (ilen > nStep_len) {
 		arrSteps[0].nLength = ilen >> 9;
 		arrSteps[0].nBlkFlag = 1;
@@ -230,7 +237,7 @@ int32_t hw_update_internal(sha2_ctx *cur_ctx, const uint8_t *input,
 		dsc.dsc_cfg.b.owner = 1;
 		dsc.dsc_cfg.b.block = arrSteps[index].nBlkFlag;
 
-		flush_dcache_range((uintptr_t)&dsc, (uintptr_t)(&dsc + sizeof(dsc)));
+		flush_dcache_range((uintptr_t)&dsc, (uintptr_t)&dsc + sizeof(dsc));
 		invalidate_dcache_range((uintptr_t)dsc.tgt_addr, (uintptr_t)dsc.tgt_addr + 32);
 
 		*P_DMA_STS0 = 0xf;
@@ -257,7 +264,7 @@ int32_t hw_update_internal(sha2_ctx *cur_ctx, const uint8_t *input,
 int32_t hw_update_internal(sha2_ctx *cur_ctx, const uint8_t *input,
 		uint32_t ilen, uint8_t *hash, uint8_t last_update)
 {
-	struct dma_dsc dsc[2];
+	struct dma_dsc dsc[2] = {0};
 	uint32_t blocks = ilen / DMA_BLOCK_SIZE;
 	uint32_t residues = ilen & (DMA_BLOCK_SIZE - 1);
 	uint8_t hash_tmp[SHA256_BLOCK_SIZE * 2] = {0};
@@ -280,30 +287,32 @@ int32_t hw_update_internal(sha2_ctx *cur_ctx, const uint8_t *input,
 
 	if (blocks) {
 		dsc[0].src_addr = (uintptr_t)input;
-		dsc[0].tgt_addr = 0;
+		dsc[0].tgt_addr = residues ? 0 : (uintptr_t)hash_tmp;
 		dsc[0].dsc_cfg.d32 = 0;
 		dsc[0].dsc_cfg.b.length = blocks;
-		dsc[0].dsc_cfg.b.eoc = 0;
+		dsc[0].dsc_cfg.b.eoc = residues ? 0 : 1;
 		dsc[0].dsc_cfg.b.mode = cur_ctx->digest_len == 224 ?
 			DMA_MODE_SHA224 : DMA_MODE_SHA256;
 		dsc[0].dsc_cfg.b.begin = cur_ctx->tot_len == 0;
-		dsc[0].dsc_cfg.b.end = 0;
+		dsc[0].dsc_cfg.b.end = residues ? 0 : last_update;
 		dsc[0].dsc_cfg.b.enc_sha_only = 1;
 		dsc[0].dsc_cfg.b.block = 1;
 		dsc[0].dsc_cfg.b.owner = 1;
 
-		dsc[1].src_addr = (uintptr_t)input + blocks * DMA_BLOCK_SIZE;
-		dsc[1].tgt_addr = (uintptr_t)hash_tmp;
-		dsc[1].dsc_cfg.d32 = 0;
-		dsc[1].dsc_cfg.b.length = residues;
-		dsc[1].dsc_cfg.b.eoc = 1;
-		dsc[1].dsc_cfg.b.mode = cur_ctx->digest_len == 224 ?
-			DMA_MODE_SHA224 : DMA_MODE_SHA256;
-		dsc[1].dsc_cfg.b.begin = 0;
-		dsc[1].dsc_cfg.b.end = last_update;
-		dsc[1].dsc_cfg.b.enc_sha_only = 1;
-		dsc[1].dsc_cfg.b.block = 0;
-		dsc[1].dsc_cfg.b.owner = 1;
+		if (residues) {
+			dsc[1].src_addr = (uintptr_t)input + blocks * DMA_BLOCK_SIZE;
+			dsc[1].tgt_addr = (uintptr_t)hash_tmp;
+			dsc[1].dsc_cfg.d32 = 0;
+			dsc[1].dsc_cfg.b.length = residues;
+			dsc[1].dsc_cfg.b.eoc = 1;
+			dsc[1].dsc_cfg.b.mode = cur_ctx->digest_len == 224 ?
+				DMA_MODE_SHA224 : DMA_MODE_SHA256;
+			dsc[1].dsc_cfg.b.begin = 0;
+			dsc[1].dsc_cfg.b.end = last_update;
+			dsc[1].dsc_cfg.b.enc_sha_only = 1;
+			dsc[1].dsc_cfg.b.block = 0;
+			dsc[1].dsc_cfg.b.owner = 1;
+		}
 	} else {
 		dsc[0].src_addr = (uintptr_t)input;
 		dsc[0].tgt_addr = (uintptr_t)hash_tmp;
@@ -324,16 +333,16 @@ int32_t hw_update_internal(sha2_ctx *cur_ctx, const uint8_t *input,
 	/* from the implementation of old driver,
 	 * the input data is flushed at upper level
 	 */
-	flush_dcache_range((uintptr_t)&input, (uintptr_t)input + ilen);
+	flush_dcache_range((uintptr_t)input, (uintptr_t)input + ilen);
 #endif
-	flush_dcache_range((uintptr_t)hash_tmp, sizeof(hash_tmp));
+	flush_dcache_range((uintptr_t)hash_tmp, (uintptr_t)hash_tmp + sizeof(hash_tmp));
 
 	*P_DMA_STS0 = 0xf;
 	*P_DMA_T0 = (uintptr_t)&dsc | 2;
 	while (*P_DMA_STS0 == 0)
 		;
 
-	invalidate_dcache_range((uintptr_t)hash_tmp, sizeof(hash_tmp));
+	invalidate_dcache_range((uintptr_t)hash_tmp, (uintptr_t)hash_tmp + sizeof(hash_tmp));
 	if (cur_ctx->digest_len == 224)
 		memcpy(hash, hash_tmp, SHA224_DIGEST_SIZE);
 	else
