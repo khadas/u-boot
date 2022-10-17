@@ -58,8 +58,15 @@
 #ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
 #define CONFIG_DTB_LOAD  "imgread dtb ${boot_part} ${dtb_mem_addr}"
 #else
-#define CONFIG_DTB_LOAD  "imgread dtb _aml_dtb ${dtb_mem_addr}"
-#endif//#ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
+#define CONFIG_DTB_LOAD  "imgread dtb _aml_dtb ${dtb_mem_addr} || " \
+						 "if test ${boot_source} = emmc; then "\
+							"echo Load DTB from eMMC (1:1) ...;" \
+							"load mmc 1:1 ${dtb_mem_addr} dtb/${fdtfile};" \
+						 "else if test ${boot_source} = sd; then "\
+							"echo Load DTB from SD (0:1) ...;" \
+							"load mmc 0:1 ${dtb_mem_addr} dtb/${fdtfile};" \
+						 "fi;fi;"
+#endif//#ifdef CONFIG_DTB_BIND_KERNEL    //load dtb from kernel, such as boot partition
 
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
