@@ -109,7 +109,16 @@ static void osd_debug_dump_register_all(void)
 	reg = VPP_HOLD_LINES;
 	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 #endif
-
+#ifdef AML_S5_DISPLAY
+	reg = VPP_INTF_OSD3_CTRL;
+	osd_logi("reg[0x%x]: 0x%08x(2mux1)\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_PROC_1MUX3_SEL;
+	osd_logi("reg[0x%x]: 0x%08x(1mux3)\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_PI_BYPASS_EN;
+	osd_logi("reg[0x%x]: 0x%08x(PI)\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_SYS_5MUX4_SEL;
+	osd_logi("reg[0x%x]: 0x%08x(5mux4)\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+#endif
 	if (osd_hw.osd_ver == OSD_HIGH_ONE) {
 #ifdef AML_OSD_HIGH_VERSION
 	#ifndef AML_S5_DISPLAY
@@ -143,8 +152,15 @@ static void osd_debug_dump_register_all(void)
 		reg = VIU_OSD_BLEND_BLEND1_SIZE;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 
+#ifndef AML_S5_DISPLAY
 		reg = VPP_OSD1_IN_SIZE;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+#else
+		reg = OSD_BLEND_DOUT0_SIZE;
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+		reg = OSD_BLEND_DOUT1_SIZE;
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+#endif
 		reg = VPP_OSD1_BLD_H_SCOPE;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VPP_OSD1_BLD_V_SCOPE;
@@ -264,6 +280,31 @@ static void osd_debug_dump_register_all(void)
 		reg = hw_osd_reg_array[2].osd_blk0_cfg_w4;
 		osd_logi("reg[0x%x]: 0x%08x\n\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	}
+#endif
+
+#ifdef AML_S5_DISPLAY
+	osd_logi("--- slice2ppc ---\n");
+	reg = OSD_2SLICE2PPC_IN_SIZE;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_2SLICE2PPC_MODE;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_SYS_HWIN0_CUT;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_SYS_HWIN1_CUT;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_SYS_PAD_CTRL;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_SYS_PAD_DUMMY_DATA0;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_SYS_PAD_DUMMY_DATA1;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_SYS_PAD_H_SIZE;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_SYS_PAD_V_SIZE;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_SYS_2SLICE_HWIN_CUT;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+
 #endif
 }
 

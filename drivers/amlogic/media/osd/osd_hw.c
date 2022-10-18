@@ -1319,7 +1319,6 @@ void osd_setting_default_hwc(u32 index, struct pandata_s *disp_data)
 			     height  << 16 | width);
 	VSYNCOSD_WR_MPEG_REG(OSD_BLEND_DOUT1_SIZE,
 			     height  << 16 | width);
-	osd_logi("%s osd_blend_dout0_size(%d, %d)\n", __func__, width, height);
 #endif
 
 #ifndef AML_S5_DISPLAY
@@ -1999,7 +1998,6 @@ void osd_set_free_scale_axis_hw(u32 index, s32 x0, s32 y0, s32 x1, s32 y1)
 	osd_hw.free_scale_data[index].y_start = y0;
 	osd_hw.free_scale_data[index].x_end = x1;
 	osd_hw.free_scale_data[index].y_end = y1;
-	osd_logi("osd_hw.free_scale_data: %d, %d, %d, %d\n", x0, x1, y0, y1);
 }
 
 void osd_get_scale_axis_hw(u32 index, s32 *x0, s32 *y0, s32 *x1, s32 *y1)
@@ -2076,7 +2074,6 @@ void osd_set_window_axis_hw(u32 index, s32 x0, s32 y0, s32 x1, s32 y1)
 	}
 	osd_hw.free_dst_data[index].x_start = x0;
 	osd_hw.free_dst_data[index].x_end = x1;
-	osd_logi("osd_hw.free_dst_data: %d,%d,%d,%d\n",x0,x1,y0,y1);
 #if defined(CONFIG_FB_OSD2_CURSOR)
 	osd_hw.cursor_dispdata[index].x_start = x0;
 	osd_hw.cursor_dispdata[index].x_end = x1;
@@ -2105,10 +2102,6 @@ void osd_set_window_axis_hw(u32 index, s32 x0, s32 y0, s32 x1, s32 y1)
 				osd_hw.free_dst_data[index].y_start + h / 2 - 1;
 		}
 	}
-	osd_logi("vmode = %d, pi_enable = %d\n", vmode, pi_enable);
-	osd_logi("osd_hw.free_dst_data: %d,%d,%d,%d\n",
-		osd_hw.free_dst_data[index].x_start, osd_hw.free_dst_data[index].x_end,
-		osd_hw.free_dst_data[index].y_start, osd_hw.free_dst_data[index].y_end);
 }
 
 void osd_get_block_windows_hw(u32 index, u32 *windows)
@@ -3821,7 +3814,7 @@ static void wr_slice_vpost(int reg_addr, int val, int slice_idx)
 	reg_offset = slice_idx == 0 ? 0 :
 		slice_idx == 1 ? 0x100 :
 		slice_idx == 2 ? 0x700 : 0x1900;
-	reg_addr_tmp = reg_addr + reg_offset;
+	reg_addr_tmp = reg_addr + reg_offset * 4;
 	VSYNCOSD_WR_MPEG_REG(reg_addr_tmp, val);
 };
 
@@ -3833,7 +3826,7 @@ static void wr_reg_bits_slice_vpost(int reg_addr, int val, int start, int len, i
 	reg_offset = slice_idx == 0 ? 0 :
 		slice_idx == 1 ? 0x100 :
 		slice_idx == 2 ? 0x700 : 0x1900;
-	reg_addr_tmp = reg_addr + reg_offset;
+	reg_addr_tmp = reg_addr + reg_offset * 4;
 	VSYNCOSD_WR_MPEG_REG_BITS(reg_addr_tmp, val, start, len);
 };
 

@@ -1397,7 +1397,6 @@ int video_scale_bitmap(void)
 		fb_gdev.fb_width, fb_gdev.fb_height, fb_gdev.winSizeX, fb_gdev.winSizeY);
 
 	vout_get_current_axis(axis);
-	osd_logi("axis(%d, %d, %d, %d)\n", axis[0], axis[1], axis[2], axis[3]);
 	layer_str = env_get("display_layer");
 	if (strcmp(layer_str, "osd0") == 0)
 		osd_index = OSD1;
