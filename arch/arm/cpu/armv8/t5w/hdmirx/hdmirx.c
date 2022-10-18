@@ -710,11 +710,12 @@ void rx_clk_init(void)
 /* pinmux SCL/SDA/HPD/PWR5V of all port */
 void rx_set_pinmux(void)
 {
-	unsigned int mux = readl(P_PERIPHS_PIN_MUX_B);
-	writel(0x11111111, P_PERIPHS_PIN_MUX_A);
-	writel((mux & 0xFFFF0000) | 0x1111 , P_PERIPHS_PIN_MUX_B);
-	printf("set pinmux A:0x%x\n", readl(P_PERIPHS_PIN_MUX_A));
-	printf("set pinmux B:0x%x\n", readl(P_PERIPHS_PIN_MUX_B));
+	unsigned int mux = readl(PERIPHS_PIN_MUX_3);
+
+	writel(0x11111111, PERIPHS_PIN_MUX_2);
+	writel((mux & 0xFFFF0000) | 0x1111, PERIPHS_PIN_MUX_3);
+	printf("set pinmux 2:0x%x\n", readl(PERIPHS_PIN_MUX_2));
+	printf("set pinmux 3:0x%x\n", readl(PERIPHS_PIN_MUX_3));
 }
 
 /* set rx phy termination */

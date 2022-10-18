@@ -105,6 +105,9 @@ struct hdmirx_data_s {
 #define HHI_RX_PHY_MISC_STAT		(0x12<<2)/*0x48*/
 #define HHI_RX_PHY_DCHD_STAT		(0x13<<2)/*0x4c*/
 
+#define PERIPHS_PIN_MUX_2	(0xff634400 + (0xb2 << 2))
+#define PERIPHS_PIN_MUX_3	(0xff634400 + (0xb3 << 2))
+
 void hdmirx_hw_init(unsigned int port_map,
 						  unsigned char *pedid_data,
 						  int edid_size);
