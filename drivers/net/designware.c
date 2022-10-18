@@ -514,7 +514,8 @@ static int _dw_free_pkt(struct dw_eth_dev *priv)
 static int dw_phy_init(struct dw_eth_dev *priv, void *dev)
 {
 	struct phy_device *phydev;
-	int mask = 0xffffffff, ret;
+	unsigned int mask = 0xffffffff;
+	int ret;
 
 #ifdef CONFIG_PHY_ADDR
 	mask = 1 << CONFIG_PHY_ADDR;
@@ -1747,7 +1748,7 @@ static int eqos_phy_init(struct udevice *dev)
 {
 	struct eqos_eth_dev *eqos = dev_get_priv(dev);
 	struct phy_device *phydev;
-	int mask = 0xffffffff;
+	unsigned int mask = 0xffffffff;
 
 #ifdef CONFIG_PHY_ADDR
 	mask = 1 << CONFIG_PHY_ADDR;

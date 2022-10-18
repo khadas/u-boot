@@ -191,12 +191,15 @@ static void pcd_setup( pcd_struct_t *_pcd )
             break;
 
         case USB_REQ_SET_INTERFACE:
+			_pcd->request_config = 1;   /* Configuration changed */
+			do_gadget_setup(_pcd, &ctrl);
+			dwc_otg_ep_req_start(_pcd, 0);
+			break;
         case USB_REQ_SET_CONFIGURATION:
-            _pcd->request_config = 1;   /* Configuration changed */
-            do_gadget_setup(_pcd, &ctrl );
-            dwc_otg_ep_req_start(_pcd,0);
-            break;
-
+			_pcd->request_config = 1;   /* Configuration changed */
+			do_gadget_setup(_pcd, &ctrl);
+			dwc_otg_ep_req_start(_pcd, 0);
+			break;
         default:
             /* Call the Gadget Driver's setup functions */
             do_gadget_setup(_pcd, &ctrl );

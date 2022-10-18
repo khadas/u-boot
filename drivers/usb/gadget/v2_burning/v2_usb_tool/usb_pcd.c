@@ -390,8 +390,10 @@ void do_gadget_setup( pcd_struct_t *_pcd, struct usb_ctrlrequest * ctrl)
                                   str = NULL;
                                   break;
                           }
-                          _pcd->buf = (char*)str;
-                          _pcd->length = str[0];
+			if (str) {
+				_pcd->buf = (char *)str;
+				_pcd->length = str[0];
+			}
                           /*printf("--get str DESC: id %d ,return length %d\n", (w_value & 0xff), _pcd->length);*/
                       }
                       break;
@@ -446,6 +448,7 @@ void do_vendor_request( pcd_struct_t *_pcd, struct usb_ctrlrequest * ctrl)
 	u16			w_index = ctrl->wIndex;
 	u16			w_value = ctrl->wValue;
 	u16			w_length = ctrl->wLength;
+	uint64_t memAddr;
 
 	usb_set_reply_cmd_id(0);//clear reply
 	switch (ctrl->bRequest)
@@ -455,7 +458,7 @@ void do_vendor_request( pcd_struct_t *_pcd, struct usb_ctrlrequest * ctrl)
 	                                (USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE))
 	                        break;
 	                USB_DBG("--am req write memory\n");
-	                value = (w_value << 16) + w_index;
+			value = w_index;
 	                USB_DBG("addr = 0x%08X, size = %d\n\n",value,w_length);
 	                _pcd->buf = (char *)value; // copy to dst memory directly
 	                _pcd->length = w_length;
@@ -465,7 +468,7 @@ void do_vendor_request( pcd_struct_t *_pcd, struct usb_ctrlrequest * ctrl)
 	                if (ctrl->bRequestType != (USB_DIR_IN | USB_TYPE_VENDOR |
 	                                        USB_RECIP_DEVICE))
 	                        break;
-	                uint64_t memAddr = w_value;//w_value is short 16, cannot left shit!!!
+					memAddr = w_value;//w_value is short 16, cannot left shit!!!
 	                memAddr <<= 16;
 	                memAddr += w_index;
 	                /*printf("Copy from 0x%llx to %p at len %d\n", memAddr, buff, w_length);*/
@@ -480,7 +483,7 @@ void do_vendor_request( pcd_struct_t *_pcd, struct usb_ctrlrequest * ctrl)
 	                                        USB_RECIP_DEVICE))
 	                        break;
 	                /*unsigned int data = 0;*/
-	                value = (w_value << 16) + w_index;
+			value = w_index;
 
 	                //data = _lr(value);
 	                /**(unsigned int *)(unsigned)buff = data;*/
@@ -504,7 +507,7 @@ void do_vendor_request( pcd_struct_t *_pcd, struct usb_ctrlrequest * ctrl)
 	                if (ctrl->bRequestType != (USB_DIR_OUT | USB_TYPE_VENDOR |
 	                                        USB_RECIP_DEVICE))
 	                        break;
-	                value = (w_value << 16) + w_index;
+			value = w_index;
 	                USB_DBG("--am req run in addr %p\n\n",value);
 	                _pcd->buf = buff;
 	                _pcd->length = w_length;
@@ -512,6 +515,11 @@ void do_vendor_request( pcd_struct_t *_pcd, struct usb_ctrlrequest * ctrl)
 
 	        case AM_REQ_WR_LARGE_MEM:
 	                value = 1;
+					_pcd->bulk_len = w_value;
+					_pcd->bulk_num = w_index;
+					_pcd->buf = buff;
+					_pcd->length = w_length;
+					break;
 	        case AM_REQ_RD_LARGE_MEM:
 	                USB_DBG("--am req large %s mem \n\n",value?"write":"read");
 
@@ -635,10 +643,10 @@ void do_vendor_out_complete( pcd_struct_t *_pcd, struct usb_ctrlrequest * ctrl)
 
         case AM_REQ_WRITE_AUX:
             buf = _pcd->buf;
-            unsigned int data =0;
+		unsigned int data;
 
             data = *((unsigned int *)&buf[0]) ; //reg value
-            value = (w_value << 16) + w_index; //aux reg
+		value = w_index;
 
             dwc_write_reg32(value, data);
             break;
@@ -648,10 +656,11 @@ void do_vendor_out_complete( pcd_struct_t *_pcd, struct usb_ctrlrequest * ctrl)
             break;
 
         case AM_REQ_RUN_IN_ADDR:
-            if (ctrl->bRequestType != (USB_DIR_OUT | USB_TYPE_VENDOR |
-                        USB_RECIP_DEVICE))
-                break;
-            value = (w_value << 16) + w_index;
+		if (ctrl->bRequestType != (USB_DIR_OUT | USB_TYPE_VENDOR |
+			USB_RECIP_DEVICE)) {
+			break;
+		}
+		value = w_index;
             USB_DBG("run addr = 0x%08X\n",value);
             fp = (void(*)(void))value;
             dwc_otg_power_off_phy();
@@ -890,11 +899,18 @@ void do_bulk_complete( pcd_struct_t *_pcd)
         //Transfer NEXT block (at most 4K)
         switch (bRequest)
         {
-                case AM_REQ_DOWNLOAD :
-                        {
-                                //called after xferNeedReply
-                                if (!_pcd->xferNeedReply) return;
-                        }
+		case AM_REQ_DOWNLOAD:
+			if (!_pcd->xferNeedReply)
+				return;
+			if (leftDataLen) {
+				if (leftDataLen < 0)
+					return;
+				_pcd->bulk_len     = DWC_BLK_LEN(leftDataLen);
+				start_bulk_transfer(_pcd);
+
+				return;
+			}
+			break;
                 case AM_REQ_UPLOAD :
                 case AM_REQ_WR_LARGE_MEM:
                 case AM_REQ_RD_LARGE_MEM:
