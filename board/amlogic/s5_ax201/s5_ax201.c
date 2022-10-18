@@ -176,6 +176,9 @@ int board_late_init(void)
 	hdmitx21_chip_type_init(MESON_CPU_ID_S5);
 #endif
 #ifdef CONFIG_PXP_EMULATOR
+#ifdef CONFIG_AML_HDMITX21
+	hdmitx21_pxp_init(1); /* for pxp only */
+#endif
 	return 0;
 #else
 	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\

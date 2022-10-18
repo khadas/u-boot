@@ -12,6 +12,8 @@
 #include <linux/arm-smccc.h>
 #include "hdmitx_drv.h"
 
+#define HZ 100000000 // TODO
+
 static struct hdmitx_dev hdmitx_device;
 
 static void hdmitx_set_phy(struct hdmitx_dev *hdev);
@@ -38,13 +40,65 @@ DECLARE_GLOBAL_DATA_PTR;
 static void hdmitx_set_hw(struct hdmitx_dev *hdev);
 static int hdmitx_set_audmode(struct hdmitx_dev *hdev);
 
+/*
+ * Note: read 8 Bytes of EDID data every time
+ */
+static int hdmitx_read_edid(u8 *_rx_edid)
+{
+	u32 i;
+	u32 byte_num = 0;
+	u8 edid_extension = 1;
+	u8 *rx_edid = _rx_edid;
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+
+	if (!hdev->pxp_mode)
+		return 0; /* skip edid reading in pxp */
+	// Program SLAVE/SEGMENT/ADDR
+	hdmitx21_wr_reg(LM_DDC_IVCTX, 0x80); //sel edid
+	hdmitx21_wr_reg(DDC_CMD_IVCTX, 0x09); //clear fifo
+	hdmitx21_wr_reg(DDC_ADDR_IVCTX, DDC_EDID_ADDR & BIT_DDC_ADDR_REG); //edid slave addr
+
+	// Read complete EDID data sequentially
+	while (byte_num < (128 * (1 + edid_extension))) {
+		if ((byte_num % 256) == 0)
+			hdmitx21_wr_reg(DDC_SEGM_IVCTX, byte_num >> 8); //segment
+		hdmitx21_wr_reg(DDC_OFFSET_IVCTX, byte_num & 0xff); //offset
+		hdmitx21_wr_reg(DDC_DIN_CNT1_IVCTX, 1 << 3); //data length lo
+		hdmitx21_wr_reg(DDC_DIN_CNT2_IVCTX, 0x00); //data length hi
+		hdmitx21_wr_reg(DDC_CMD_IVCTX, 0x04); //CMD
+		// Wait until I2C done
+		hdmitx21_poll_reg(DDC_STATUS_IVCTX, 1 << 4, ~(1 << 4), HZ / 100); //i2c process
+		hdmitx21_poll_reg(DDC_STATUS_IVCTX, 0 << 4, ~(1 << 4), HZ / 100); //i2c done
+		// Read back 8 bytes
+		for (i = 0; i < 8; i++) {
+			if (byte_num == 126) {
+				edid_extension  = hdmitx21_rd_reg(DDC_DATA_AON_IVCTX);
+				rx_edid[byte_num] = edid_extension;
+				if (edid_extension > 3)
+					edid_extension = 3;
+			} else {
+				rx_edid[byte_num] = hdmitx21_rd_reg(DDC_DATA_AON_IVCTX);
+			}
+			byte_num++;
+		}
+	}
+	return 1;
+}
+
 static void hdmi_hwp_init(void)
 {
 	u32 data32;
 	u32 reg;
 	struct hdmitx_dev *hdev = get_hdmitx21_device();
 
-	hdmitx21_mux_ddc();
+	// --------------------------------------------------------
+	// Program core_pin_mux to enable HDMI pins
+	// --------------------------------------------------------
+	data32 = 0;
+	data32 |= (1 << 28);     // [31:28] GPIOW_15_SEL=1 for hdmitx_hpd
+	data32 |= (1 << 24);     // [27:24] GPIOW_14_SEL=1 for hdmitx_scl
+	data32 |= (1 << 20);     // [23:20] GPIOW_13_SEL=1 for hdmitx_sda
+	hd21_write_reg(PADCTRL_PIN_MUX_REGN, data32);
 
 	hdmitx21_set_default_clk();    // set MPEG, audio and default video
 	// [8]      hdcp_topology_err
@@ -159,12 +213,6 @@ static void hdmitx21_test_bist(unsigned int mode)
 	case 2:
 	case 3:
 		value = hdev->para->timing.h_active;
-		/* when FRL works, here will be half rate */
-		if (hdev->frl_rate) {
-			value /= 2;
-			if (hdev->para->cs == HDMI_COLORSPACE_YUV420)
-				value /= 2;
-		}
 		hd21_write_reg(VENC_VIDEO_TST_CLRBAR_WIDTH, value / 8);
 		hd21_set_reg_bits(ENCP_VIDEO_MODE_ADV, 0, 3, 1);
 		hd21_write_reg(VENC_VIDEO_TST_EN, 1);
@@ -251,7 +299,7 @@ void hdmitx21_init(void)
 	if (dongle_mode && (dongle_mode[0] == '1'))
 		hdev->dongle_mode = 1;
 	hdev->hwop.get_hpd_state = hdmitx_get_hpd_state;
-	hdev->hwop.read_edid = hdmitx21_read_edid;
+	hdev->hwop.read_edid = hdmitx_read_edid;
 	hdev->hwop.turn_off = hdmitx_turnoff;
 	hdev->hwop.list_support_modes = hdmitx_list_support_modes;
 	hdev->hwop.dump_regs = hdmitx21_dump_regs;
@@ -557,9 +605,6 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		hd21_set_reg_bits(VPU_DISP_VIU2_CTRL, 1, 29, 1);
 		hd21_set_reg_bits(VPU_VIU_VENC_MUX_CTRL, 2, 2, 2);
 	}
-	if (hdev->RXCap.max_frl_rate)
-		hdev->frl_rate = hdmitx21_select_frl_rate(hdev->dsc_en, vic,
-			hdev->para->cs, hdev->para->cd);
 	hdmitx21_venc_en(0, 0);
 	hd21_set_reg_bits(VPU_HDMI_SETTING, 0, (hdev->enc_idx == 0) ? 0 : 1, 1);
 	if (hdev->enc_idx == 0)
@@ -633,8 +678,6 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		  (0 << 12) |
 		  (2 << 22) |
 		  (0 << 24);
-	if (hdev->frl_rate && para->cs == HDMI_COLORSPACE_YUV420)
-		data32 |= 3 << 0; // 3:420 dual port
 	hd21_write_reg(VPU_HDMI_FMT_CTRL, data32);
 
 	// [    2] inv_hsync_b
@@ -738,39 +781,15 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		 (((TX_INPUT_COLOR_FORMAT == HDMI_COLORSPACE_RGB) ? 0 : 3) << 16) |
 		 (((para->cs == HDMI_COLORSPACE_YUV420) ? 1 : 0) << 20) |
 		 (0 << 24);
-	if (hdev->frl_rate) {
-		if (para->cs == HDMI_COLORSPACE_YUV420)
-			data32 |= 2 << 28;
-		else
-			data32 |= 1 << 28;
-	}
 	hd21_write_reg(VPU_HDMI_SETTING, data32);
-	if (hdev->para->cs == HDMI_COLORSPACE_RGB)
+	if (hdev->chip_type == MESON_CPU_ID_S5)
 		hd21_set_reg_bits(VPU_HDMI_SETTING, 4, 16, 3);
 	// [    1] src_sel_encp: Enable ENCI or ENCP output to HDMI
 	hd21_set_reg_bits(VPU_HDMI_SETTING, 1, (hdev->enc_idx == 0) ? 0 : 1, 1);
-	if (hdev->chip_type >= MESON_CPU_ID_S5) {
-		if (hdev->frl_rate) {
-			hd21_set_reg_bits(VPU_HDMI_SETTING, 0, 20, 4);
-			hd21_set_reg_bits(VPU_HDMI_SETTING, 0, 24, 4);
-			if (hdev->para->cs != HDMI_COLORSPACE_YUV420)
-				hd21_set_reg_bits(VPU_HDMI_SETTING, 1, 1, 1);
-		}
-	}
-
-	hd21_set_reg_bits(VPU_HDMI_SETTING, 0, 16, 3);  //hard code
-	if (!hdev->frl_rate && hdev->para->cs == HDMI_COLORSPACE_YUV420) {
-		hd21_set_reg_bits(VPU_HDMI_SETTING, 0, 20, 8);
-		hd21_set_reg_bits(VPU_HDMI_SETTING, 1, 8, 8);
-	}
 
 	hdmitx_set_phy(hdev);
-	if (hdev->chip_type >= MESON_CPU_ID_S5) {
-		hdmitx_set_clkdiv(hdev);
-		if (hdev->RXCap.max_frl_rate)
-			hdmitx_frl_training_main(hdev->frl_rate);
-	}
-	if (hdev->pxp_mode)
+
+	if (!hdev->pxp_mode)
 		return; /* skip in pxp */
 
 	/* null char needed to terminate the string
@@ -864,7 +883,7 @@ static void hdmitx_set_scdc_div40(bool div40)
 	hdmitx21_wr_reg(DDC_DIN_CNT1_IVCTX, 0x01); //data length lo
 	hdmitx21_wr_reg(DDC_DIN_CNT2_IVCTX, 0x00); //data length hi
 	hdmitx21_wr_reg(DDC_CMD_IVCTX, 0x06); //DDC Write CMD
-	if (hdev->pxp_mode)
+	if (!hdev->pxp_mode)
 		return; /* skip in pxp */
 	hdmitx21_poll_reg(DDC_STATUS_IVCTX, 1 << 4, ~(1 << 4), HZ / 100); //i2c process
 	hdmitx21_poll_reg(DDC_STATUS_IVCTX, 0 << 4, ~(1 << 4), HZ / 100); //i2c done
@@ -905,7 +924,7 @@ static void set_t7_top_div40(bool div40)
 		hdmitx21_wr_reg(HDMITX_T7_TOP_TMDS_CLK_PTTN_CNTL, 0x2);
 }
 
-static void set_s5_top_div40(bool div40, u32 frl_mode)
+static void set_s5_top_div40(bool div40)
 {
 	u32 data32;
 
@@ -926,16 +945,16 @@ static void set_s5_top_div40(bool div40, u32 frl_mode)
 		hdmitx21_wr_reg(HDMITX_S5_TOP_TMDS_CLK_PTTN_23, 0x001f001f);
 	}
 	hdmitx21_wr_reg(HDMITX_S5_TOP_TMDS_CLK_PTTN_CNTL, 0x1);
-	// [18:16] tmds_sel: 0=output 0; 1=output normal data;
+	// [14:12] tmds_sel: 0=output 0; 1=output normal data;
 	//                   2=output PRBS; 4=output shift pattn
 	// [11: 8] shift_pttn
 	// [ 4: 0] prbs_pttn
 	data32 = 0;
 	data32 |= (1 << 16);
+	data32 |= (1 << 12);
 	data32 |= (0 << 8);
 	data32 |= (0 << 0);
 	hdmitx21_wr_reg(HDMITX_TOP_BIST_CNTL, data32);
-	hdmitx21_set_reg_bits(HDMITX_TOP_BIST_CNTL, frl_mode ? 1 : 0, 19, 1);
 
 	if (div40)
 		hdmitx21_wr_reg(HDMITX_S5_TOP_TMDS_CLK_PTTN_CNTL, 0x2);
@@ -947,7 +966,7 @@ static void hdmitx_set_div40(bool div40)
 
 	hdmitx_set_scdc_div40(div40);
 	if (hdev->chip_type == MESON_CPU_ID_S5)
-		set_s5_top_div40(div40, hdev->frl_rate);
+		set_s5_top_div40(div40);
 	else
 		set_t7_top_div40(div40);
 	hdmitx21_wr_reg(SCRCTL_IVCTX, (1 << 5) | !!div40);
@@ -1029,8 +1048,6 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	data8 = 0;
 	data8 |= (dp_color_depth & 0x03); // [1:0]color depth. 00:8bpp;01:10bpp;10:12bpp;11:16bpp
 	data8 |= (((dp_color_depth != 4) ? 1 : 0) << 7);  // [7]  deep color enable bit
-	data8 |= (hdev->frl_rate ? 1 : 0) << 3;
-	data8 |= (hdev->frl_rate ? 1 : 0) << 4;
 	hdmitx21_wr_reg(P2T_CTRL_IVCTX, data8);
 	hdmitx21_set_reg_bits(AON_CYP_CTL_IVCTX, 2, 0, 2);
 	data32 = 0;

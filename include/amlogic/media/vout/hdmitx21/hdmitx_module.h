@@ -11,8 +11,6 @@
 #include "hdmi_common.h"
 #include "hdmitx_ext.h"
 
-#define HZ 100000000 // TODO
-
 struct hdmitx_dev {
 	struct {
 		int (*get_hpd_state)(void);
@@ -38,8 +36,6 @@ struct hdmitx_dev {
 	struct rx_cap RXCap;
 	struct hdmi_format_para *para;
 	enum hdmi_vic vic;
-	enum frl_rate_enum frl_rate;
-	u32 dsc_en;
 	unsigned int frac_rate_policy;
 	unsigned int mode420;
 	unsigned int dc30;
@@ -55,22 +51,9 @@ struct hdmitx_dev {
 };
 
 struct hdmitx_dev *get_hdmitx21_device(void);
-void hdmitx21_mux_ddc(void);
-u32 get_frl_bandwidth(const enum frl_rate_enum rate);
-u32 calc_frl_bandwidth(u32 pixel_freq, enum hdmi_colorspace cs,
-	enum hdmi_color_depth cd);
-u32 calc_tmds_bandwidth(u32 pixel_freq, enum hdmi_colorspace cs,
-	enum hdmi_color_depth cd);
-enum frl_rate_enum hdmitx21_select_frl_rate(bool dsc_en, enum hdmi_vic vic,
-	enum hdmi_colorspace cs, enum hdmi_color_depth cd);
-void hdmitx_frl_training_main(enum frl_rate_enum frl_rate);
-int hdmitx21_read_edid(u8 *_rx_edid);
-void scdc21_rd_sink(u8 adr, u8 *val);
-void scdc21_wr_sink(u8 adr, u8 val);
 const struct hdmi_timing *hdmitx21_get_timing_para0(void);
 int hdmitx21_timing_size(void);
 void hdmitx21_set_clk(struct hdmitx_dev *hdev);
-void hdmitx_set_clkdiv(struct hdmitx_dev *hdev);
 const struct hdmi_timing *hdmitx21_gettiming_from_vic(enum hdmi_vic vic);
 struct hdmi_format_para *hdmitx21_get_fmtpara(const char *mode,
 	const char *attr);
