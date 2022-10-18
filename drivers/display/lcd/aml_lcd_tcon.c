@@ -17,6 +17,9 @@
 #include <malloc.h>
 #include <asm/arch/io.h>
 #include <amlogic/aml_lcd.h>
+#ifdef CONFIG_AMLOGIC_TEE
+#include <../../aml_tee/tee_aml.h>
+#endif
 #include "aml_lcd_reg.h"
 #include "aml_lcd_common.h"
 #include "aml_lcd_tcon.h"
@@ -1621,6 +1624,60 @@ static void lcd_tcon_axi_rmem_update_t5d(unsigned int *table)
 	}
 }
 
+static void lcd_tcon_axi_mem_secure_tl1(void)
+{
+#ifdef CONFIG_AMLOGIC_TEE
+	int ret;
+
+	if (!tcon_rmem.axi_rmem)
+		return;
+
+	tcon_local_cfg.secure_cfg.handle = 0;
+	ret = tee_protect_mem_by_type(TEE_MEM_TYPE_TCON,
+				      tcon_rmem.axi_mem_paddr,
+				      tcon_rmem.axi_mem_size,
+				      &tcon_local_cfg.secure_cfg.handle);
+	if (ret) {
+		tcon_local_cfg.secure_cfg.protect = 0;
+		LCDERR("%s: the tcon secure mem failed! protect status is:%d\n",
+		       __func__, tcon_local_cfg.secure_cfg.protect);
+	} else {
+		tcon_local_cfg.secure_cfg.protect = 1;
+	}
+#endif
+}
+
+static void lcd_tcon_axi_mem_secure_t5(void)
+{
+	/* only protect od mem */
+#ifdef CONFIG_AMLOGIC_TEE
+	int ret;
+
+	if (!tcon_rmem.axi_rmem)
+		return;
+
+	tcon_local_cfg.secure_cfg.handle = 0;
+	ret = tee_protect_mem_by_type(TEE_MEM_TYPE_TCON,
+				      tcon_rmem.axi_rmem[0].mem_paddr,
+				      tcon_rmem.axi_rmem[0].mem_size,
+				      &tcon_local_cfg.secure_cfg.handle);
+	if (ret) {
+		tcon_local_cfg.secure_cfg.protect = 0;
+		LCDERR("%s: the tcon secure mem failed(ret: %d)! protect status is:%d\n",
+		       __func__, ret, tcon_local_cfg.secure_cfg.protect);
+		LCDPR("failed mem_type: %d, mem_addr:0x%08x, mem_size: 0x%x\n",
+		      TEE_MEM_TYPE_TCON, tcon_rmem.axi_rmem[0].mem_paddr,
+		      tcon_rmem.axi_rmem[0].mem_size);
+	} else {
+		tcon_local_cfg.secure_cfg.protect = 1;
+		if (lcd_debug_print_flag)
+			LCDPR("%s: success!, mem_type: %d, mem_addr:0x%08x, mem_size: 0x%x\n",
+			      __func__, TEE_MEM_TYPE_TCON, tcon_rmem.axi_rmem[0].mem_paddr,
+			      tcon_rmem.axi_rmem[0].mem_size);
+	}
+#endif
+}
+
 static int lcd_tcon_mem_config(void)
 {
 	unsigned char *mem_vaddr;
@@ -1643,7 +1700,8 @@ static int lcd_tcon_mem_config(void)
 	if (lcd_debug_print_flag)
 		LCDPR("tcon axi_mem paddr: 0x%08x, size: 0x%x\n",
 		      tcon_rmem.axi_mem_paddr, tcon_rmem.axi_mem_size);
-	lcd_tcon_conf->tcon_axi_mem_config();
+	if (lcd_tcon_conf->tcon_axi_mem_config)
+		lcd_tcon_conf->tcon_axi_mem_config();
 
 	tcon_rmem.bin_path_rmem.mem_size = lcd_tcon_conf->bin_path_size;
 	tcon_rmem.bin_path_rmem.mem_paddr =
@@ -1933,6 +1991,7 @@ static struct lcd_tcon_config_s tcon_data_txhd = {
 
 	.axi_reg = NULL,
 	.tcon_axi_mem_config = lcd_tcon_axi_mem_config_txhd,
+	.tcon_axi_mem_secure = NULL,
 	.tcon_axi_mem_update = NULL,
 	.tcon_enable = lcd_tcon_enable_txhd,
 	.tcon_disable = lcd_tcon_disable_tl1,
@@ -1969,6 +2028,7 @@ static struct lcd_tcon_config_s tcon_data_tl1 = {
 
 	.axi_reg = NULL,
 	.tcon_axi_mem_config = lcd_tcon_axi_mem_config_tl1,
+	.tcon_axi_mem_secure = lcd_tcon_axi_mem_secure_tl1,
 	.tcon_axi_mem_update = NULL,
 	.tcon_enable = lcd_tcon_enable_tl1,
 	.tcon_disable = lcd_tcon_disable_tl1,
@@ -2005,6 +2065,7 @@ static struct lcd_tcon_config_s tcon_data_t5 = {
 
 	.axi_reg = NULL,
 	.tcon_axi_mem_config = lcd_tcon_axi_mem_config_t5,
+	.tcon_axi_mem_secure = lcd_tcon_axi_mem_secure_t5,
 	.tcon_axi_mem_update = lcd_tcon_axi_rmem_update_t5,
 	.tcon_enable = lcd_tcon_enable_t5,
 	.tcon_disable = lcd_tcon_disable_t5,
@@ -2041,6 +2102,7 @@ static struct lcd_tcon_config_s tcon_data_t5d = {
 
 	.axi_reg = NULL,
 	.tcon_axi_mem_config = lcd_tcon_axi_mem_config_t5d,
+	.tcon_axi_mem_secure = lcd_tcon_axi_mem_secure_t5,
 	.tcon_axi_mem_update = lcd_tcon_axi_rmem_update_t5d,
 	.tcon_enable = lcd_tcon_enable_t5,
 	.tcon_disable = lcd_tcon_disable_t5,

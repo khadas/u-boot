@@ -1109,6 +1109,8 @@ int lcd_tcon_enable_t5(struct lcd_config_s *pconf)
 	/* step 3:  tcon data set */
 	if (mm_table->version)
 		lcd_tcon_data_set(mm_table);
+	if (tcon_conf->tcon_axi_mem_secure)
+		tcon_conf->tcon_axi_mem_secure();
 
 	/* step 4: tcon_top_output_set */
 	lcd_tcon_write(TCON_OUT_CH_SEL0, 0x76543210);

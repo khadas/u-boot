@@ -635,6 +635,7 @@
 
 //#define CONFIG_AML_HDMITX20 1
 //#define CONFIG_AML_CVBS 1
+#define CONFIG_AMLOGIC_TEE 1
 
 #define CONFIG_AML_LCD    1
 #define CONFIG_AML_LCD_TABLET 1

@@ -50,6 +50,7 @@ struct lcd_tcon_config_s {
 
 	unsigned int *axi_reg;
 	void (*tcon_axi_mem_config)(void);
+	void (*tcon_axi_mem_secure)(void);
 	void (*tcon_axi_mem_update)(unsigned int *table);
 	int (*tcon_enable)(struct lcd_config_s *pconf);
 	int (*tcon_disable)(struct lcd_config_s *pconf);
@@ -104,8 +105,14 @@ struct tcon_mem_map_table_s {
 	unsigned char **data_mem_vaddr;
 };
 
+struct tcon_mem_secure_config_s {
+	unsigned int handle;
+	bool protect;
+};
+
 #define TCON_BIN_VER_LEN    9
 struct lcd_tcon_local_cfg_s {
+	struct tcon_mem_secure_config_s secure_cfg;
 	char bin_ver[TCON_BIN_VER_LEN];
 };
 
