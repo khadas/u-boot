@@ -211,6 +211,18 @@ int lcd_base_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 		return -1;
 	}
 
+	/* check lcd status enable or not */
+	propdata = (char *)fdt_getprop(dt_addr, parent_offset, "status", NULL);
+	if (!propdata) {
+		LCDERR("[%d]: failed to get status, default disable\n", pdrv->index);
+		return -1;
+	}
+	if (strcmp(propdata, "okay")) {
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
+			LCDPR("[%d]: status disabled, exit\n", pdrv->index);
+		return -1;
+	}
+
 	/* check lcd_mode & lcd_key_valid */
 	propdata = (char *)fdt_getprop(dt_addr, parent_offset, "mode", NULL);
 	if (!propdata) {

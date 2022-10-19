@@ -30,7 +30,6 @@
 #define CC_PARAM_CHECK_ERROR_NEED_UPDATE_PARAM        (-1)
 #define CC_PARAM_CHECK_ERROR_NOT_NEED_UPDATE_PARAM    (-2)
 
-#ifdef CONFIG_AML_LCD
 #define DEBUG_NORMAL        (1 << 0)
 #define DEBUG_LCD           (1 << 1)
 #define DEBUG_LCD_EXTERN    (1 << 2)
@@ -40,6 +39,7 @@
 #define DEBUG_LCD_OPTICAL   BIT(7)
 static int model_debug_flag;
 
+#ifdef CONFIG_AML_LCD
 static int glcd_dcnt, glcd_ext_dcnt, gbl_dcnt, glcd_optical_dcnt;
 static int g_lcd_pwr_on_seq_cnt, g_lcd_pwr_off_seq_cnt;
 #ifdef CONFIG_AML_LCD_BL_LDIM
@@ -4199,7 +4199,8 @@ int handle_model_list(void)
 
 		model = env_get(str);
 		if (!model) {
-			ALOGD("%s, no %s\n", __func__, str);
+			if (model_debug_flag & DEBUG_NORMAL)
+				ALOGD("%s, no %s\n", __func__, str);
 			continue;
 		}
 		printf("current %s: %s\n", str, model);
@@ -4238,7 +4239,8 @@ int handle_model_sum(void)
 
 		model = env_get(str);
 		if (!model) {
-			ALOGD("%s, no %s\n", __func__, str);
+			if (model_debug_flag & DEBUG_NORMAL)
+				ALOGD("%s, no %s\n", __func__, str);
 			continue;
 		}
 		ret = parse_model_sum(i, get_model_sum_path(i), model);
