@@ -139,7 +139,6 @@ static int _aml_get_secure_boot_kernel_size(const void *ploadaddr, u32 *ptotalen
 	}
 
 	*ptotalenckernelsz = 0;
-	return 0;
 #endif
 	if (is_andr_9_image(pandhdr))
 		securekernelimgsz = 4096;
@@ -707,7 +706,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 		u64 lflashreadoff_r = 0;
 		unsigned int nflashloadlen_r = 0;
 		const int preloadsz_r = 0x1000 * 2;//4k not enough for signed
-		unsigned char *pbuffpreload = 0;
+		p_vendor_boot_img_hdr_t pbuffpreload = 0;
 		int rc_r = 0;
 
 		if (strcmp(slot_name, "0") == 0)
@@ -816,6 +815,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 			if (nflashloadlen_r > preloadsz_r) {
 				free(pbuffpreload);
 				pbuffpreload = malloc(nflashloadlen_r);
+				memset(pbuffpreload, 0, nflashloadlen_r);
 				if (!pbuffpreload)
 					return __LINE__;
 				if (upgrade_step_s && (strcmp(upgrade_step_s, "3") == 0) &&
@@ -864,8 +864,8 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 						(unsigned long)pbuffpreload,
 						GXB_IMG_SIZE, GXB_IMG_DEC_DTB);
 #else
-				rc_r = secure_image_check(pbuffpreload, GXB_IMG_SIZE,
-						GXB_IMG_DEC_DTB);
+				rc_r = secure_image_check((uint8_t *)(unsigned long)
+						pbuffpreload, GXB_IMG_SIZE, GXB_IMG_DEC_DTB);
 				/*pbuffpreload += android_image_check_offset();*/
 				memmove(pbuffpreload, pbuffpreload + android_image_check_offset(),
 						nflashloadlen_r - android_image_check_offset());

@@ -47,7 +47,7 @@ int dump_backtrace(struct pt_regs *regs)
 {
 	struct stackframe frame;
 	unsigned long offset;
-	const register unsigned long current_sp asm ("sp");
+	const register unsigned long current_sp asm ("sp") = 0;
 	int ret;
 
 	offset = gd->reloc_off;

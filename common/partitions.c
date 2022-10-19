@@ -248,11 +248,15 @@ int get_partition_from_dts(unsigned char *buffer)
 		goto _err;
 	}
 	parts_num = (int *)fdt_getprop(dt_addr, nodeoffset, "parts", NULL);
-	printf("parts: %d\n",be32_to_cpup((u32*)parts_num));
+	if (!parts_num) {
+		printf("%s parts_num _err\n", __func__);
+		return -1;
+	}
 
-	if (parts_num > 0)
-	{
-		part_table = (struct partitions *)malloc(sizeof(struct partitions)*(be32_to_cpup((u32*)parts_num)));
+	printf("parts: %d\n", be32_to_cpup((u32 *)parts_num));
+	if (*parts_num > 0) {
+		part_table = (struct partitions *)malloc(sizeof(struct partitions) *
+				(be32_to_cpup((u32 *)parts_num)));
 		if (!part_table) {
 			printf("%s part_table alloc _err\n", __func__);
 			return -1;

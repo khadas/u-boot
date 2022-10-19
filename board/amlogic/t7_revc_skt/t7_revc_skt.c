@@ -121,7 +121,6 @@ int board_init(void)
 	/* The non-secure watchdog is enabled in BL2 TEE, disable it */
 	run_command("watchdog off", 0);
 	printf("watchdog disable\n");
-	return 0;
 
 	aml_set_bootsequence(0);
 	//Please keep try usb boot first in board_init, as other init before usb may cause burning failure
@@ -142,8 +141,6 @@ int board_init(void)
 int board_late_init(void)
 {
 	printf("board late init\n");
-	return 0;
-
 	//default uboot env need before anyone use it
 	if (env_get("default_env")) {
 		printf("factory reset, need default all uboot env.\n");

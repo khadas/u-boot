@@ -392,75 +392,72 @@ static int android_image_get_kernel_v3(const boot_img_hdr_v3_t *hdr, int verify,
 	 * string is null terminated so we take care of this.
 	 */
 	/*check vendor boot image first*/
-	if (!p_vender_boot_img)
+	if (p_vender_boot_img)
 	{
-		if (os_data)
-			*os_data = 0;
-		if (os_len)
-			*os_len = 0;
-		goto exit;
-	}
+		p_vendor_boot_img_hdr_t vb_hdr = &p_vender_boot_img->hdr;
+		char boot_name[ANDR_BOOT_NAME_SIZE + 8];
 
-	p_vendor_boot_img_hdr_t vb_hdr = &p_vender_boot_img->hdr;
-	char boot_name[ANDR_BOOT_NAME_SIZE + 8];
-	memset(boot_name,0,sizeof(boot_name));
-	strncpy(boot_name, (char *)vb_hdr->name, ANDR_BOOT_NAME_SIZE);
-	if (strlen(boot_name))
-		printf("Android's image name: %s\n", boot_name);
+		memset(boot_name, 0, sizeof(boot_name));
+		strncpy(boot_name, (char *)vb_hdr->name, ANDR_BOOT_NAME_SIZE);
+		if (strlen(boot_name))
+			printf("Android's image name: %s\n", boot_name);
 
-	//debug("Kernel load addr 0x%08x size %u KiB\n",
-	//      hdr_v3->kernel_addr, DIV_ROUND_UP(hdr->kernel_size, 1024));
+		//debug("Kernel load addr 0x%08x size %u KiB\n",
+		//      hdr_v3->kernel_addr, DIV_ROUND_UP(hdr->kernel_size, 1024));
 
-	int len = 0;
+		int len = 0;
 #if defined(CONFIG_ANDROID_IMG)
 	ulong end;
 	ulong dtb_size = vb_hdr->dtb_size;
 	ulong dtb_addr = vb_hdr->dtb_addr;
 #endif
 
-	if (*vb_hdr->cmdline) {
-		printf("Kernel command line: %s\n", vb_hdr->cmdline);
-		len += strlen(vb_hdr->cmdline);
-	}
+		if (*vb_hdr->cmdline) {
+			printf("Kernel command line: %s\n", vb_hdr->cmdline);
+			len += strlen(vb_hdr->cmdline);
+		}
 
 	#ifdef CONFIG_OF_LIBFDT_OVERLAY
 	save_dtbo_idx(vb_hdr->cmdline);
 	#endif
 
-	char *pbootargs = env_get("bootargs");
-	if (pbootargs) {
-		int nlen = strlen(pbootargs) + len + 2;
-		char *pnewbootargs = malloc(nlen);
-		if (pnewbootargs) {
-			memset((void *)pnewbootargs,0,nlen);
-			sprintf(pnewbootargs,"%s %s",pbootargs,vb_hdr->cmdline);
-			env_set("bootargs",pnewbootargs);
-			free(pnewbootargs);
-			pnewbootargs = NULL;
-		}
-		else {
-			puts("Error: malloc in pnewbootargs failed!\n");
-		}
-	}
-	else {
-		puts("Error: add kernel command line in bootargs failed!\n");
-	}
+		char *pbootargs = env_get("bootargs");
 
-	if (os_data) {
-		*os_data = (ulong)hdr;
-		*os_data += 0x1000; //android R header size
-	}
-	if (os_len)
-		*os_len = hdr->kernel_size;
+		if (pbootargs) {
+			int nlen = strlen(pbootargs) + len + 2;
+			char *pnewbootargs = malloc(nlen);
 
-#if defined(CONFIG_ANDROID_IMG)
+			if (pnewbootargs) {
+				memset((void *)pnewbootargs, 0, nlen);
+				sprintf(pnewbootargs, "%s %s", pbootargs, vb_hdr->cmdline);
+				env_set("bootargs", pnewbootargs);
+				free(pnewbootargs);
+				pnewbootargs = NULL;
+			} else {
+				puts("Error: malloc in pnewbootargs failed!\n");
+			}
+		} else {
+			puts("Error: add kernel command line in bootargs failed!\n");
+		}
+
+		if (os_data) {
+			*os_data = (ulong)hdr;
+			*os_data += 0x1000; //android R header size
+		}
+		if (os_len)
+			*os_len = hdr->kernel_size;
+
+	#if defined(CONFIG_ANDROID_IMG)
 	images.ft_len = dtb_size;
 	end = dtb_addr;
 	images.ft_addr = (char *)end;
-#endif
-
-exit:
-
+	#endif
+	} else {
+		if (os_data)
+			*os_data = 0;
+		if (os_len)
+			*os_len = 0;
+	}
 	return 0;
 }
 
