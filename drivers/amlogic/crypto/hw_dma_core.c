@@ -74,7 +74,7 @@ static int32_t cipher_core(void *key, uint32_t keylen, uint8_t *iv, uint32_t ivl
 		dsc[3].dsc_cfg.b.eoc = 1;
 		dsc[3].dsc_cfg.b.mode = mode;
 		dsc[3].dsc_cfg.b.op_mode = op_mode;
-		dsc[2].dsc_cfg.b.enc_sha_only = encrypt;
+		dsc[3].dsc_cfg.b.enc_sha_only = encrypt;
 		dsc[3].dsc_cfg.b.block = 0;
 		dsc[3].dsc_cfg.b.owner = 1;
 	} else {
@@ -106,7 +106,7 @@ static int32_t cipher_core(void *key, uint32_t keylen, uint8_t *iv, uint32_t ivl
 	while (*P_DMA_STS0 == 0)
 		;
 
-	if (*P_DMA_STS0 & 0x1)
+	if (*P_DMA_STS0 & 0x2)
 		ret = CRYPTO_ERROR_BAD_PROCESS;
 	else
 		ret = CRYPTO_ERROR_NO_ERROR;
