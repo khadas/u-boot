@@ -663,10 +663,10 @@ uint32_t avb_get_boot_patchlevel_from_vbmeta(AvbSlotVerifyData *data)
 
 		if (ret) {
 			for (i = 0, j = 0; i < len; i++) {
-				if (ret[i] != '-' && j < 9)
+				if (ret[i] != '-' && j < 8)
 					buff[j++] = ret[i];
 			}
-			buff[8] = '\n';
+			buff[8] = '\0';
 			if (!strict_strtoul(buff, 10, &boot_patchlevel))
 				return (uint32_t)boot_patchlevel;
 		}
