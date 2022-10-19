@@ -120,7 +120,6 @@
 			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 "\
             "\0"\
         "upgrade_check="\
-			"gpio set GPIO_TEST_N0;"\
 			"run upgrade_check_base;"\
 			"\0"\
 	"storeargs="\
