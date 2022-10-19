@@ -1249,6 +1249,7 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 	char lock_d[LOCK_DATA_SIZE];
 	uint64_t size;
 	int rc;
+	int debug_flag = 0;
 
 	if (IS_FEAT_BOOT_VERIFY()) {
 		printf("device is secure mode, can not run this cmd.\n");
@@ -1291,6 +1292,107 @@ static void cb_flashing(struct usb_ep *ep, struct usb_request *req)
 	}
 	cmd += 1;
 	printf("cb_flashing: %s\n", cmd);
+
+	boot_img_hdr_t *hdr_addr = NULL;
+	const int preloadsz = 0x1000 * 2;
+	unsigned char *pbuffpreload = 0;
+	char partname[32] = {0};
+	char *slot_name;
+	char cmdline[4096];
+	char *result = NULL;
+
+	slot_name = getenv("slot-suffixes");
+	if (slot_name && (strcmp(slot_name, "0") == 0))
+		strcpy((char *)partname, "boot_a");
+	else if (slot_name && (strcmp(slot_name, "1") == 0))
+		strcpy((char *)partname, "boot_b");
+	else
+		strcpy((char *)partname, "boot");
+
+	pbuffpreload = malloc(preloadsz);
+	if (!pbuffpreload) {
+		printf("Fail to allocate memory!\n");
+		goto next;
+	}
+
+	hdr_addr = (boot_img_hdr_t *)pbuffpreload;
+
+	printf("read from part: %s\n", partname);
+	rc = store_read_ops((unsigned char *)partname, pbuffpreload, 0, preloadsz);
+	if (rc) {
+		printf("Fail to read 0x%xB from part[%s] at offset 0\n",
+			preloadsz, partname);
+		free(pbuffpreload);
+		pbuffpreload = 0;
+		goto next;
+	}
+
+	if (is_android_r_image((void *)hdr_addr)) {
+		char partname_r[32] = {0};
+		const int preloadsz_r = 0x1000 * 2;
+		unsigned char *pbuffpreload_r = 0;
+		int ret_r = __LINE__;
+
+		if (slot_name && strcmp(slot_name, "0") == 0)
+			strcpy((char *)partname_r, "vendor_boot_a");
+		else if (slot_name && strcmp(slot_name, "1") == 0)
+			strcpy((char *)partname_r, "vendor_boot_b");
+		else
+			strcpy((char *)partname_r, "vendor_boot");
+
+		pbuffpreload_r = malloc(preloadsz_r);
+
+		if (!pbuffpreload_r) {
+			printf("Fail to allocate memory for %s!\n",
+				partname_r);
+			goto next;
+		}
+
+		printf("read from part: %s\n", partname_r);
+		ret_r = store_read_ops((unsigned char *)partname_r,
+			pbuffpreload_r, 0, preloadsz_r);
+		if (ret_r) {
+			printf("Fail to read 0x%xB from part[%s] at offset 0\n",
+				preloadsz_r, partname_r);
+			free(pbuffpreload_r);
+			pbuffpreload_r = 0;
+			goto next;
+		}
+
+		p_vendor_boot_img_hdr_t vb_hdr = (p_vendor_boot_img_hdr_t)pbuffpreload_r;
+
+		if (*vb_hdr->cmdline) {
+			printf("Kernel command line: %s\n", vb_hdr->cmdline);
+			sprintf(cmdline, "%s", vb_hdr->cmdline);
+		}
+		free(pbuffpreload_r);
+		pbuffpreload_r = 0;
+	} else {
+		if (*hdr_addr->cmdline) {
+			printf("Kernel command line: %s\n", hdr_addr->cmdline);
+			sprintf(cmdline, "%s", hdr_addr->cmdline);
+		}
+	}
+
+	result = strtok(cmdline, " ");
+	while (result) {
+		printf("result: %s\n", result);
+		if (strcmp(result, "buildvariant=userdebug") == 0 ||
+			strcmp(result, "buildvariant=eng") == 0)
+			debug_flag = 1;
+		result = strtok(NULL, " ");
+	}
+
+	if (info.unlock_ability == 0 && debug_flag == 1) {
+		printf("userdebug mode can ignore\n");
+		info.unlock_ability = 1;
+	}
+
+next:
+	if (pbuffpreload) {
+		free(pbuffpreload);
+		pbuffpreload = 0;
+	}
 
 	if (!strcmp_l1("unlock_critical", cmd)) {
 		info.lock_critical_state = 0;
