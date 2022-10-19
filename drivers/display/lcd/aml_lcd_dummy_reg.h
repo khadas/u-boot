@@ -422,3 +422,65 @@
 #ifndef VPU_DISP_VIU2_CTRL
 #define VPU_DISP_VIU2_CTRL                         0x2788
 #endif
+
+#ifndef PERIPHS_PIN_MUX_0
+#define	PERIPHS_PIN_MUX_0	(0xff634400 + (0x0b0 << 2))
+#endif
+#ifndef PERIPHS_PIN_MUX_1
+#define	PERIPHS_PIN_MUX_1	(0xff634400 + (0x0b1 << 2))
+#endif
+#ifndef PERIPHS_PIN_MUX_2
+#define	PERIPHS_PIN_MUX_2	(0xff634400 + (0x0b2 << 2))
+#endif
+#ifndef PERIPHS_PIN_MUX_3
+#define	PERIPHS_PIN_MUX_3	(0xff634400 + (0x0b3 << 2))
+#endif
+#ifndef PERIPHS_PIN_MUX_4
+#define	PERIPHS_PIN_MUX_4	(0xff634400 + (0x0b4 << 2))
+#endif
+#ifndef PERIPHS_PIN_MUX_5
+#define	PERIPHS_PIN_MUX_5	(0xff634400 + (0x0b5 << 2))
+#endif
+#ifndef PERIPHS_PIN_MUX_6
+#define	PERIPHS_PIN_MUX_6	(0xff634400 + (0x0b6 << 2))
+#endif
+#ifndef PERIPHS_PIN_MUX_7
+#define	PERIPHS_PIN_MUX_7	(0xff634400 + (0x0b7 << 2))
+#endif
+#ifndef PERIPHS_PIN_MUX_8
+#define	PERIPHS_PIN_MUX_8	(0xff634400 + (0x0b8 << 2))
+#endif
+#ifndef PERIPHS_PIN_MUX_9
+#define	PERIPHS_PIN_MUX_9	(0xff634400 + (0x0b9 << 2))
+#endif
+#ifndef PERIPHS_PIN_MUX_A
+#define	PERIPHS_PIN_MUX_A	(0xff634400 + (0x0ba << 2))
+#endif
+#ifndef PERIPHS_PIN_MUX_B
+#define	PERIPHS_PIN_MUX_B	(0xff634400 + (0x0bb << 2))
+#endif
+#ifndef PERIPHS_PIN_MUX_C
+#define	PERIPHS_PIN_MUX_C	(0xff634400 + (0x0bc << 2))
+#endif
+#ifndef PERIPHS_PIN_MUX_D
+#define	PERIPHS_PIN_MUX_D	(0xff634400 + (0x0bd << 2))
+#endif
+#ifndef PERIPHS_PIN_MUX_E
+#define	PERIPHS_PIN_MUX_E	(0xff634400 + (0x0be << 2))
+#endif
+#ifndef PERIPHS_PIN_MUX_F
+#define	PERIPHS_PIN_MUX_F	(0xff634400 + (0x0bf << 2))
+#endif
+#ifndef PERIPHS_PIN_MUX_G
+#define	PERIPHS_PIN_MUX_G	(0xff634400 + (0x0da << 2))
+#endif
+#ifndef PERIPHS_PIN_MUX_H
+#define	PERIPHS_PIN_MUX_H	(0xff634400 + (0x0db << 2))
+#endif
+
+#ifndef AO_RTI_PINMUX_REG0
+#define AO_RTI_PINMUX_REG0      (0xff800000 + (0x005 << 2))
+#endif
+#ifndef AO_RTI_PINMUX_REG1
+#define AO_RTI_PINMUX_REG1      (0xff800000 + (0x006 << 2))
+#endif

@@ -107,6 +107,8 @@ static void lcd_chip_detect(void)
 #else
 	aml_lcd_driver.chip_type = LCD_CHIP_TM2;
 #endif
+
+	lcd_pinmux_probe(aml_lcd_driver.chip_type);
 	if (lcd_debug_print_flag)
 		LCDPR("check chip: %d\n", aml_lcd_driver.chip_type);
 }

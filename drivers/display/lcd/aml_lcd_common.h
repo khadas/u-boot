@@ -52,7 +52,8 @@
 /* 20220629: add ini ver2 support and support phy lane contrl*/
 /* 20220719: support t5,t5w,t3 set vswing level in low common type*/
 /* 20220809: fix tcon axi mem mistake for DLG tcon bin*/
-#define LCD_DRV_VERSION    "20220809"
+/* 20221101: update pinmux contrl*/
+#define LCD_DRV_VERSION    "20221101"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
@@ -75,8 +76,6 @@ extern int lcd_type_str_to_type(const char *str);
 extern char *lcd_type_type_to_str(int type);
 extern int lcd_mode_str_to_mode(const char *str);
 extern char *lcd_mode_mode_to_str(int mode);
-
-extern void lcd_pinmux_set(int status);
 
 extern int lcd_power_load_from_dts(struct lcd_config_s *pconf,
 		char *dt_addr, int child_offset);
@@ -103,7 +102,11 @@ extern int lcd_tcon_enable(struct lcd_config_s *pconf);
 extern void lcd_tcon_disable(struct lcd_config_s *pconf);
 extern int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *lcd_drv, int load_id);
 
-/* lcd gpio */
+/* lcd pinctrl */
+int lcd_pinmux_probe(unsigned int cpu_type);
+void lcd_pinmux_set_mask(unsigned int n, unsigned int _mask);
+void lcd_pinmux_clr_mask(unsigned int n, unsigned int _mask);
+void lcd_pinmux_set(int status);
 extern int aml_lcd_gpio_name_map_num(const char *name);
 extern int aml_lcd_gpio_set(int gpio, int value);
 extern unsigned int aml_lcd_gpio_input_get(int gpio);

@@ -1,4 +1,4 @@
-obj-$(CONFIG_AML_LCD) += aml_lcd.o aml_lcd_common.o aml_lcd_gpio.o \
+obj-$(CONFIG_AML_LCD) += aml_lcd.o aml_lcd_common.o aml_lcd_pinctrl.o \
 		aml_lcd_clk_config.o aml_lcd_phy_config.o aml_lcd_debug.o \
 		aml_lcd_bl.o aml_lcd_unifykey.o aml_lcd_i2c_dev.o
 obj-$(CONFIG_AML_LCD_TCON) += aml_lcd_tcon.o aml_lcd_tcon_hw.o aml_lcd_tcon_spi.o

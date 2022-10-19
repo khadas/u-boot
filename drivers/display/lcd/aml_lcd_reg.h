@@ -17,6 +17,8 @@
 
 #include "aml_lcd_dummy_reg.h"
 
+#define REG_ADDR_INVALID        0xffffffff
+
 /* ********************************
  * register define
  * ********************************* */
@@ -259,28 +261,6 @@ static inline unsigned int lcd_periphs_getb(unsigned int _reg,
 		unsigned int _start, unsigned int _len)
 {
 	return (lcd_periphs_read(_reg) & (((1L << (_len)) - 1) << (_start)));
-}
-
-static inline void lcd_pinmux_set_mask(unsigned int n, unsigned int _mask)
-{
-	unsigned int _reg = PERIPHS_PIN_MUX_0;
-
-	if (n > 15)
-		return;
-
-	_reg += (n << 2);
-	lcd_periphs_write(_reg, (lcd_periphs_read(_reg) | (_mask)));
-}
-
-static inline void lcd_pinmux_clr_mask(unsigned int n, unsigned int _mask)
-{
-	unsigned int _reg = PERIPHS_PIN_MUX_0;
-
-	if (n > 15)
-		return;
-
-	_reg += (n << 2);
-	lcd_periphs_write(_reg, (lcd_periphs_read(_reg) & (~(_mask))));
 }
 
 static inline unsigned int lcd_reset_read(unsigned int _reg)

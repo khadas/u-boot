@@ -77,60 +77,6 @@ char *lcd_mode_mode_to_str(int mode)
 	return lcd_mode_table[mode];
 }
 
-void lcd_pinmux_set(int status)
-{
-	struct aml_lcd_drv_s *lcd_drv = aml_lcd_get_driver();
-	struct lcd_config_s *pconf;
-	int i;
-
-	if (lcd_debug_print_flag)
-		LCDPR("%s: %d\n", __func__, status);
-
-	pconf = lcd_drv->lcd_config;
-	if (status) {
-		i = 0;
-		while (i < LCD_PINMUX_NUM) {
-			if (pconf->pinmux_clr[i][0] == LCD_PINMUX_END)
-				break;
-			if (lcd_debug_print_flag) {
-				LCDPR("pinmux_clr: %d, 0x%08x\n",
-					pconf->pinmux_clr[i][0],
-					pconf->pinmux_clr[i][1]);
-			}
-			lcd_pinmux_clr_mask(pconf->pinmux_clr[i][0],
-				pconf->pinmux_clr[i][1]);
-			i++;
-		}
-		i = 0;
-		while (i < LCD_PINMUX_NUM) {
-			if (pconf->pinmux_set[i][0] == LCD_PINMUX_END)
-				break;
-			if (lcd_debug_print_flag) {
-				LCDPR("pinmux_set: %d, 0x%08x\n",
-					pconf->pinmux_set[i][0],
-					pconf->pinmux_set[i][1]);
-			}
-			lcd_pinmux_set_mask(pconf->pinmux_set[i][0],
-				pconf->pinmux_set[i][1]);
-			i++;
-		}
-	} else {
-		i = 0;
-		while (i < LCD_PINMUX_NUM) {
-			if (pconf->pinmux_set[i][0] == LCD_PINMUX_END)
-				break;
-			if (lcd_debug_print_flag) {
-				LCDPR("pinmux_clr: %d, 0x%08x\n",
-					pconf->pinmux_set[i][0],
-					pconf->pinmux_set[i][1]);
-			}
-			lcd_pinmux_clr_mask(pconf->pinmux_set[i][0],
-				pconf->pinmux_set[i][1]);
-			i++;
-		}
-	}
-}
-
 int lcd_power_load_from_dts(struct lcd_config_s *pconf, char *dt_addr, int child_offset)
 {
 	char *propdata;
