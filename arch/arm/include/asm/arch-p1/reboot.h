@@ -23,6 +23,7 @@
 #define __REBOOT_H
 
 #include "soc_def.h"
+#include "secure_apb.h"
 
 /*
 Reboot reason AND corresponding env setting:

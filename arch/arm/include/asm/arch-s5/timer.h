@@ -23,7 +23,6 @@
 #define __TIMER_H
 
 #include <asm/arch/romboot.h>
-#include <asm/arch/timer.h>
 #include <asm/arch/io.h>
 
 /**
