@@ -273,6 +273,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			if (rc != AVB_SLOT_VERIFY_RESULT_OK &&
 					rc != AVB_SLOT_VERIFY_RESULT_ERROR_VERIFICATION &&
 					rc != AVB_SLOT_VERIFY_RESULT_ERROR_ROLLBACK_INDEX &&
+					rc != AVB_SLOT_VERIFY_RESULT_ERROR_IO &&
 					rc != AVB_SLOT_VERIFY_RESULT_ERROR_PUBLIC_KEY_REJECTED) {
 				avb_slot_verify_data_free(out_data);
 				return rc;
@@ -296,6 +297,15 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				return rc;
 			}
 		}
+
+		if (rc == AVB_SLOT_VERIFY_RESULT_ERROR_IO) {
+			const int is_dev_unlocked = is_device_unlocked();
+
+			if (is_dev_unlocked)
+				run_command("setenv bootconfig ${bootconfig} "\
+				"androidboot.verifiedbootstate=orange", 0);
+		}
+
 		bootargs = env_get("bootconfig");
 		if (!bootargs) {
 			bootargs = "\0";
