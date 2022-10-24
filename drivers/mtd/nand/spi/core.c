@@ -677,6 +677,7 @@ int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 {
 	struct nand_device* dev = mtd_to_nanddev(mtd);
+	struct spinand_device *spinand = mtd_to_spinand(mtd);
 	struct boot_info *boot_info = (struct boot_info *)buf;
 	u32 page_per_bbt, i;
 
@@ -688,10 +689,16 @@ int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 
 	if (dev->memorg.planes_per_lun > 1) {
 		boot_info->dev_cfg.planes_per_lun = ((6 & 0xf) << 4) | ((dev->memorg.planes_per_lun & 0xf) << 0);
-		boot_info->dev_cfg.bus_width = ((mtd->writesize_shift + 1) << 4) | (1 << 0);
+		if (spinand->op_templates.read_cache->cmd.opcode == 0x6b)
+			boot_info->dev_cfg.bus_width = ((mtd->writesize_shift + 1) << 4) | (2 << 0);
+		else
+			boot_info->dev_cfg.bus_width = ((mtd->writesize_shift + 1) << 4) | (1 << 0);
 	} else {
 		boot_info->dev_cfg.planes_per_lun = 1;
-		boot_info->dev_cfg.bus_width = 1;
+		if (spinand->op_templates.read_cache->cmd.opcode == 0x6b)
+			boot_info->dev_cfg.bus_width = 2;
+		else
+			boot_info->dev_cfg.bus_width = 1;
 	}
 
 	for (i = 0; i < sizeof(struct boot_info) - 4; i++)
