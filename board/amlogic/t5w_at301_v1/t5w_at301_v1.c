@@ -17,10 +17,6 @@
 #ifdef CONFIG_SYS_I2C_MESON
 #include <amlogic/i2c.h>
 #endif
-#ifdef CONFIG_PWM_MESON
-#include <pwm.h>
-#include <amlogic/pwm.h>
-#endif
 #include <dm.h>
 #ifdef CONFIG_AML_VPU
 #include <vpu.h>
@@ -549,8 +545,6 @@ U_BOOT_DEVICE(spicc1) = {
 };
 #endif /* CONFIG_AML_SPICC */
 
-extern void aml_pwm_cal_init(int mode);
-
 #ifdef CONFIG_SYS_I2C_MESON
 static const struct meson_i2c_platdata i2c_data[] = {
 	{ 0, 0xffd1f000, 166666666, 3, 15, 100000 },
@@ -585,24 +579,6 @@ void set_i2c_2_pinmux(void)
 	return;
 }
 #endif /*end CONFIG_SYS_I2C_MESON*/
-
-#ifdef CONFIG_PWM_MESON
-static const struct meson_pwm_platdata pwm_data[] = {
-	{ PWM_AB, 0xffd1b000, IS_DOUBLE_CHANNEL, IS_BLINK },
-	{ PWM_CD, 0xffd1a000, IS_DOUBLE_CHANNEL, IS_BLINK },
-	{ PWM_EF, 0xffd19000, IS_DOUBLE_CHANNEL, IS_BLINK },
-	{ PWMAO_AB, 0xff807000, IS_DOUBLE_CHANNEL, IS_BLINK },
-	{ PWMAO_CD, 0xff802000, IS_DOUBLE_CHANNEL, IS_BLINK },
-};
-
-U_BOOT_DEVICES(meson_pwm) = {
-	{ "amlogic,general-pwm", &pwm_data[0] },
-	{ "amlogic,general-pwm", &pwm_data[1] },
-	{ "amlogic,general-pwm", &pwm_data[2] },
-	{ "amlogic,general-pwm", &pwm_data[3] },
-	{ "amlogic,general-pwm", &pwm_data[4] },
-};
-#endif /*end CONFIG_PWM_MESON*/
 
 int board_init(void)
 {
