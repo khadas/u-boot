@@ -35,7 +35,7 @@ static int optimus_prepare_upgrading_bmps(HIMAGE hImg)
     static const char* bmpsLoadAddr = (const char*)UpgradeLogoAddr;
     int ret = 0;
 
-    sprintf(env_buf, "unpacking 0x%p", bmpsLoadAddr);
+	sprintf(env_buf, "unpackimg 0x%p", bmpsLoadAddr);
     ret = run_command(env_buf, 0);
     if (!ret) return 0;
     bmpsLoadAddr = UpgradeLogoAddr;//Reset to default if unapckimg directly failed
@@ -44,7 +44,7 @@ static int optimus_prepare_upgrading_bmps(HIMAGE hImg)
     sprintf(env_buf, "imgread res logo 0x%p", bmpsLoadAddr);
     ret = run_command(env_buf, 0);
     if (!ret) {
-        sprintf(env_buf, "unpacking 0x%p", bmpsLoadAddr);
+	sprintf(env_buf, "unpackimg 0x%p", bmpsLoadAddr);
         ret = run_command(env_buf, 0);
     }
 
@@ -70,7 +70,7 @@ static int optimus_prepare_upgrading_bmps(HIMAGE hImg)
             DWN_MSG("align 4 mmc read...\t");//Assert Make 'DDR' buffer addr align 8
             bmpsLoadAddr += image_get_cluster_size(hImg);
             bmpsLoadAddr -= itemSzNotAligned;
-            sprintf(env_buf, "unpacking 0x%p", bmpsLoadAddr);
+		sprintf(env_buf, "unpackimg 0x%p", bmpsLoadAddr);
         }
         ret = image_item_read(hImg, hItem, (char*)bmpsLoadAddr, imgItemSz);
         if (ret) {
@@ -558,7 +558,7 @@ static int do_progress_bar_test(cmd_tbl_t *cmdtp, int flag, int argc, char * con
         return 0;
     }
 
-    run_command("imgread res logo $loadaddr; unpacking $loadaddr", 0);
+	run_command("imgread res logo $loadaddr; unpackimg $loadaddr", 0);
     run_command("setenv outputmode 1080p60hz;", 0);
 
     if (!hProgressBar)
