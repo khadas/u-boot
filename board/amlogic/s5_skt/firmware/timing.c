@@ -872,7 +872,7 @@ __attribute__ ((section(".clk_param"))) = {
 #define VDD_GPU_VAL                             AML_VDDGPU_INIT_VOLTAGE
 #define VDD_NPU_VAL                             AML_VDDNPU_INIT_VOLTAGE
 
-/* VDDEE_VAL_REG skt board by  mesured  value */
+/* VDDEE_VAL_REG skt board by  measured  value */
 #if   (VDDEE_VAL == 680)
 #define VDDEE_VAL_REG   0x120000
 #elif (VDDEE_VAL == 690)

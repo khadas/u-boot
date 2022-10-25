@@ -763,7 +763,7 @@ static int spicc_cs_init(struct udevice *bus)
 			return -ENODEV;
 		}
 		/* Best to set cs input here, and pull up or down on board
-		 * accord to the slave cs valid polary
+		 * accord to the slave cs valid polarity
 		 */
 		dm_gpio_set_value(&cs, 1);
 		dm_gpio_set_dir_flags(&cs, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);

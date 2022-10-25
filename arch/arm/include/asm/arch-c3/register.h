@@ -22202,9 +22202,9 @@
 //Bit 23:16        reg_cnr2_frg_hwt_bld      // unsigned ,    RW, default = 128  horizontal blending between hue/sat and difs, for cnr2 fringe weight
 //Bit 15: 8        reg_cnr2_frg_vwt_bld      // unsigned ,    RW, default = 128  vertical blending between hue/sat and difs, for cnr2 fringe weight
 //Bit  7: 5        reserved
-//Bit  4           reg_cnr2_frg_hwt_bypss    // unsigned ,    RW, default = 0  bypass horizontal fringe weight for cnr2 fringe weight
+//Bit  4           reg_cnr2_frg_hwt_bypass    // unsigned ,    RW, default = 0  bypass horizontal fringe weight for cnr2 fringe weight
 //Bit  3: 1        reserved
-//Bit  0           reg_cnr2_frg_vwt_bypss    // unsigned ,    RW, default = 0  bypass vertical fringe weight for cnr2 fringe weight
+//Bit  0           reg_cnr2_frg_vwt_bypass    // unsigned ,    RW, default = 0  bypass vertical fringe weight for cnr2 fringe weight
 #define CNR_HUE_PRT_LUT_0                          ((0x19ca  << 2) + 0xff000000)
 //Bit 31:30        reserved
 //Bit 29:24        reg_cnr2_hue_prt_lut_3    // unsigned ,    RW, default = 63  hue protection lut for cnr2

@@ -10096,7 +10096,7 @@
 //Bit 31:29         reserved
 //Bit 28:16         reg_rgb2y_pst_ofst        // signed ,    RW, default = 0  matrix post offset for rgb2y
 //Bit 15:10         reserved
-//Bit  9: 8         reg_rgb2y_bypss_sel       // unsigned ,    RW, default = 0  0: R, 1: G, 2: B, 3: IR (if have), select for output while rgb2y bypass
+//Bit  9: 8         reg_rgb2y_bypass_sel       // unsigned ,    RW, default = 0  0: R, 1: G, 2: B, 3: IR (if have), select for output while rgb2y bypass
 //Bit  7: 6         reserved
 //Bit  5: 4         reg_rgb2y_mtrx_rs         // unsigned ,    RW, default = 0  0 s4.8; 1: s3.9; 2: s2.10 3:s1.11, matrix right shift for cm0
 //Bit  3: 1         reserved
@@ -34875,7 +34875,7 @@
 //Bit 31:29         reserved                           
 //Bit 28:16         reg_rgb2y_pst_ofst        // signed ,    RW, default = 0  matrix post offset for rgb2y
 //Bit 15:10         reserved                           
-//Bit  9: 8         reg_rgb2y_bypss_sel       // unsigned ,    RW, default = 0  0: R, 1: G, 2: B, 3: IR (if have), select for output while rgb2y bypass
+//Bit  9: 8         reg_rgb2y_bypass_sel       // unsigned ,    RW, default = 0  0: R, 1: G, 2: B, 3: IR (if have), select for output while rgb2y bypass
 //Bit  7: 6         reserved                           
 //Bit  5: 4         reg_rgb2y_mtrx_rs         // unsigned ,    RW, default = 0  0 s4.8; 1: s3.9; 2: s2.10 3:s1.11, matrix right shift for cm0
 //Bit  3: 1         reserved                           
@@ -35077,7 +35077,7 @@
 //Bit  0           reg_ae_stat_en            // unsigned ,    RW, default = 1  enable ae statistic
 #define ISP_TOP_BYPASS                             ((0x0111  << 2) + 0xff900000)
 //Bit 31: 2        reserved                           
-//Bit  1           reg_bypss_sensbl_blc      // unsigned ,    RW, default = 0  bypass sensor black level to blacklevel correction
+//Bit  1           reg_bypass_sensbl_blc      // unsigned ,    RW, default = 0  bypass sensor black level to blacklevel correction
 //Bit  0           reg_bypass_feo            // unsigned ,    RW, default = 0  bypass ch0~2 after TPG and the wdr stich output for md
 // synopsys translate_off
 // synopsys translate_on
@@ -38124,7 +38124,7 @@
 //Bit 31:29        reserved                           
 //Bit 28:16        reg_rgb2y_pst_ofst        // signed ,    RW, default = 0  matrix post offset for rgb2y
 //Bit 15:10        reserved                           
-//Bit  9: 8        reg_rgb2y_bypss_sel       // unsigned ,    RW, default = 0  0: R, 1: G, 2: B, 3: IR (if have), select for output while rgb2y bypass
+//Bit  9: 8        reg_rgb2y_bypass_sel       // unsigned ,    RW, default = 0  0: R, 1: G, 2: B, 3: IR (if have), select for output while rgb2y bypass
 //Bit  7: 6        reserved                           
 //Bit  5: 4        reg_rgb2y_mtrx_rs         // unsigned ,    RW, default = 0  0 s4.8; 1: s3.9; 2: s2.10 3:s1.11, matrix right shift for cm0
 //Bit  3: 1        reserved                           
@@ -38212,7 +38212,7 @@
 //Bit 31:29        reserved                           
 //Bit 28:16        reg_rgb2y_pst_ofst        // signed ,    RW, default = 0  matrix post offset for rgb2y
 //Bit 15:10        reserved                           
-//Bit  9: 8        reg_rgb2y_bypss_sel       // unsigned ,    RW, default = 0  0: R, 1: G, 2: B, 3: IR (if have), select for output while rgb2y bypass
+//Bit  9: 8        reg_rgb2y_bypass_sel       // unsigned ,    RW, default = 0  0: R, 1: G, 2: B, 3: IR (if have), select for output while rgb2y bypass
 //Bit  7: 6        reserved                           
 //Bit  5: 4        reg_rgb2y_mtrx_rs         // unsigned ,    RW, default = 0  0 s4.8; 1: s3.9; 2: s2.10 3:s1.11, matrix right shift for cm0
 //Bit  3: 1        reserved                           

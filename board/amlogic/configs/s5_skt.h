@@ -472,7 +472,7 @@
 /* UBOOT fastboot config */
 
 
-/* UBOOT Facotry usb/sdcard burning config */
+/* UBOOT Factory usb/sdcard burning config */
 
 /* net */
 /* #define CONFIG_CMD_NET   1 */
@@ -533,7 +533,7 @@
 //use startdsp command
 //#define CONFIG_CMD_STARTDSP
 
-//use dache command
+//use cache command
 //#define CONFIG_CMD_CACHE
 
 // M4 clock has been added
