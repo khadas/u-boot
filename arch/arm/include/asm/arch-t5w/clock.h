@@ -1,30 +1,25 @@
 /* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * arch/arm/include/asm/arch-t5d/clock.h
+ * arch/arm/include/asm/arch-t5w/clock.h
  *
  * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
  */
 
-#ifndef __ARCH_ARM_MESON_CLOCK_H_U_BOOT_
-#define __ARCH_ARM_MESON_CLOCK_H_U_BOOT_
+#ifndef __CLOCK_T5W_H
+#define __CLOCK_T5W_H
 
-/* add define if needed */
-#define CLK81                          (7)
+#define T5W_CLKCTRL_NAND_CLK_CTRL                      (0x0097  << 2)
+#define T5W_CLKCTRL_SD_EMMC_CLK_CTRL                   (0x0099  << 2)
+#define T5W_CLKCTRL_SPICC_CLK_CTRL                     (0x00f7  << 2)
+#define T5W_CLKCTRL_SAR_CLK_CTRL0                      ((0x0090  << 2) + 0x1BA000)//????
+#define T5W_CLKCTRL_SPICC_CLK_CTRL1                    (0x00f8  << 2)
 
-#if 0
-__u32 get_cpu_clk(void);
-__u32 get_clk_ddr(void);
-__u32 get_misc_pll_clk(void);
-#endif
+#define T5W_ANACTRL_SYSPLL_CTRL0                       (0xe0 << 2)
+#define T5W_ANACTRL_FIXPLL_CTRL0                       (0xd0 << 2)
+#define T5W_ANACTRL_GP0PLL_CTRL0                       (0x20 << 2)
 
-__u32 get_clk81(void);
-int clk_get_rate(unsigned clksrc);
-unsigned long clk_util_clk_msr(unsigned long clk_mux);
-unsigned long clk_util_ring_msr(unsigned long clk_mux);
+#include <dt-bindings/clock/t5w-clkc.h>
+#define NR_CLKS				(CLKID_END_BASE)
 
-int clk_msr(int index);
-int ring_msr(int index);
-
-#endif /* __ARCH_ARM_MESON_CLOCK_H_U_BOOT_ */
-
+#endif /* __CLOCK_T5W_H */

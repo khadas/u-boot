@@ -1,5 +1,4 @@
-
-obj-y	:= clock.o sdio.o gpio.o
+obj-y	:= sdio.o gpio.o
 obj-y   += bl31_apis.o
 obj-y	+= watchdog.o
 obj-$(CONFIG_AML_HDMITX20) += hdmitx20/
@@ -11,7 +10,6 @@ obj-y	+= mailbox.o
 obj-y   += cpu_id.o
 obj-y   += pwrc.o
 
-obj-$(CONFIG_CMD_PLLTEST)	+= pll.o
 obj-$(CONFIG_CMD_AML_MTEST) += core.o
 obj-y += usb.o
 obj-$(CONFIG_CMD_HDMIRX) += hdmirx/

@@ -10,6 +10,8 @@
 // DO NOT EDIT!!!!!
 // ----------------------------------------------------------------------
 //
+#include <asm/arch/register.h>
+
 #ifdef SECURE_APB_H
 #else
 #define SECURE_APB_H
@@ -24,6 +26,7 @@
 //========================================================================
 //  APB4_DECODER_NON_SECURE_BASE     32'hFF644000
 //  APB4_DECODER_SECURE_BASE         32'hFF644000
+
 #define     PWRCTRL_PWR_ACK0                                   (0xff644000 + (0x001 << 2))
 #define SEC_PWRCTRL_PWR_ACK0                                   (0xff644000 + (0x001 << 2))
 #define   P_PWRCTRL_PWR_ACK0                                   (volatile uint32_t *)(0xff644000 + (0x001 << 2))
