@@ -231,8 +231,10 @@
 
 /* vpu */
 #define AML_VPU_CLK_LEVEL_DFT 7
+#define VPU_DEBUG_PRINT 7
 
 /* LCD */
+#define CONFIG_AML_LCD_PXP 1
 
 /* osd */
 #define OSD_SCALE_ENABLE

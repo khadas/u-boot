@@ -1832,6 +1832,7 @@ void lcd_debug_probe(struct aml_lcd_drv_s *pdrv)
 		lcd_debug_info_if_mipi.reg_dump_phy =
 			lcd_reg_print_phy_analog_t7;
 		break;
+	case LCD_CHIP_T5M:
 	case LCD_CHIP_T3:
 		switch (pdrv->index) {
 		case 1:

@@ -16,19 +16,20 @@
 enum vpu_chip_e {
 	VPU_CHIP_G12A = 0,
 	VPU_CHIP_G12B, /* 1 */
-	VPU_CHIP_TL1, /* 2 */
-	VPU_CHIP_SM1, /* 3 */
-	VPU_CHIP_TM2, /* 4 */
-	VPU_CHIP_SC2, /* 5 */
-	VPU_CHIP_T5, /* 6 */
-	VPU_CHIP_T5D, /* 7 */
-	VPU_CHIP_T7, /* 8 */
-	VPU_CHIP_S4,  /* 9 */
-	VPU_CHIP_T3, /* 10 */
-	VPU_CHIP_S4D, /* 11 */
-	VPU_CHIP_C3, /* 12 */
-	VPU_CHIP_S5, /* 13 */
-	VPU_CHIP_T5W, /* 14 */
+	VPU_CHIP_TL1,  /* 2 */
+	VPU_CHIP_SM1,  /* 3 */
+	VPU_CHIP_TM2,  /* 4 */
+	VPU_CHIP_SC2,  /* 5 */
+	VPU_CHIP_T5,   /* 6 */
+	VPU_CHIP_T5D,  /* 7 */
+	VPU_CHIP_T7,   /* 8 */
+	VPU_CHIP_S4,   /* 9 */
+	VPU_CHIP_T3,   /* 10 */
+	VPU_CHIP_S4D,  /* 11 */
+	VPU_CHIP_C3,   /* 12 */
+	VPU_CHIP_S5,   /* 13 */
+	VPU_CHIP_T5W,  /* 14 */
+	VPU_CHIP_T5M,  /* 15 */
 	VPU_CHIP_MAX,
 };
 

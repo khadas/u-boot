@@ -3250,6 +3250,10 @@ static void lcd_clk_set_t7(struct aml_lcd_drv_s *pdrv)
 
 static void lcd_clk_set_t3(struct aml_lcd_drv_s *pdrv)
 {
+#ifdef CONFIG_AML_LCD_PXP
+	return;
+#endif
+
 	if (pdrv->index == 0) /* tcon_clk invalid for lcd1 */
 		lcd_set_tcon_clk_t3(pdrv);
 	lcd_set_pll_t3(pdrv);
@@ -4379,6 +4383,11 @@ static void lcd_clk_config_chip_init(struct aml_lcd_drv_s *pdrv, struct lcd_clk_
 			break;
 		}
 		cconf->data->enc_clk_msr_id = -1;
+		break;
+	case LCD_CHIP_T5M:
+		cconf->data = &lcd_clk_data_t3;
+		cconf->data->enc_clk_msr_id = 222;
+		cconf->pll_id = 0;
 		break;
 	case LCD_CHIP_C3:
 		cconf->data = &lcd_clk_data_c3;

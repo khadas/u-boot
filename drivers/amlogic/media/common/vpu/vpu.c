@@ -20,7 +20,9 @@
 /* v20210428: add s4d support */
 /* v20220503: add c3 support */
 /* v20220517: add s5 support */
-#define VPU_VERSION	"v20220517"
+/* v20221025: add t5m support */
+#define VPU_VERSION	"v20221025"
+
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -525,6 +527,39 @@ static struct vpu_data_s vpu_data_s5 = {
 	.module_init_config = vpu_module_init_config,
 };
 
+static struct vpu_data_s vpu_data_t5m = {
+	.chip_type = VPU_CHIP_T5M,
+	.chip_name = "t5m",
+	.clk_level_dft = CLK_LEVEL_DFT_G12A,
+	.clk_level_max = CLK_LEVEL_MAX_G12A,
+	.gp_pll_valid = 0,
+
+	.vpu_clk_reg = CLKCTRL_VPU_CLK_CTRL,
+	.vpu_clkb_reg = CLKCTRL_VPU_CLKB_CTRL,
+	.vapb_clk_reg = CLKCTRL_VAPBCLK_CTRL,
+	.vid_clk_reg = CLKCTRL_VID_CLK0_CTRL2,
+
+	.pwrctrl_id_table = vpu_pwrctrl_id_table,
+
+	.fclk_div_table = fclk_div_table_g12a,
+	.vpu_clk_table = vpu_clk_table,
+	.test_reg = vcbus_test_reg,
+
+	.mem_pd_table = NULL,
+	.power_table = NULL,
+	.iso_table = NULL,
+	.reset_table = NULL,
+
+	.module_init_table_cnt = 0,
+	.module_init_table = NULL,
+
+	.power_on = vpu_power_on_new,
+	.power_off = vpu_power_off_new,
+	.mem_pd_init_off = vpu_mem_pd_init_off,
+	.module_init_config = vpu_module_init_config,
+	.change_clk = change_vpu_clk,
+};
+
 static void vpu_chip_detect(void)
 {
 	unsigned int cpu_type;
@@ -575,6 +610,8 @@ static void vpu_chip_detect(void)
 		break;
 	case MESON_CPU_MAJOR_ID_S5:
 		vpu_conf.data = &vpu_data_s5;
+	case MESON_CPU_MAJOR_ID_T5M:
+		vpu_conf.data = &vpu_data_t5m;
 		break;
 	default:
 		vpu_conf.data = NULL;
@@ -629,6 +666,7 @@ static int vpu_check(void)
 	case VPU_CHIP_S4D:
 	case VPU_CHIP_C3:
 	case VPU_CHIP_S5:
+	case VPU_CHIP_T5M:
 		ret = 0;
 		break;
 	default:

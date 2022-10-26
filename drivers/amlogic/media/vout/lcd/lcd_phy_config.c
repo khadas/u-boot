@@ -1514,6 +1514,7 @@ int lcd_phy_config_init(struct aml_lcd_data_s *pdata)
 		lcd_phy_ctrl = &lcd_phy_ctrl_t7;
 		break;
 	case LCD_CHIP_T3:
+	case LCD_CHIP_T5M:
 		lcd_phy_ctrl = &lcd_phy_ctrl_t3;
 		break;
 	case LCD_CHIP_C3:
