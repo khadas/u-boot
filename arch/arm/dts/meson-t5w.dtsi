@@ -297,123 +297,219 @@
 };
 
 &pinctrl_periphs {
-	i2c0_pins1:i2c0_pins1 {
+	i2c0_z_pins:i2c0_z {
 		mux {
-			groups = "i2c0_sda_z",
-				"i2c0_sck_z";
+			groups = "i2c0_sck_z",
+				"i2c0_sda_z";
 			function = "i2c0";
-			drive-strength = <3>;
+			bias-disable;
+			drive-strength-microamp = <3000>;
+		};
+	};
+
+	i2c0_z_pins_slp_input:i2c0_z_slp_input {
+		mux {
+			groups = "GPIOZ_4", "GPIOZ_5";
+			function = "gpio_periphs";
+			input-enable;
 			bias-disable;
 		};
 	};
 
-	i2c1_pins1:i2c1_pins1 {
+	i2c0_z_pins_slp_low:i2c0_z_slp_low {
 		mux {
-			groups = "i2c1_sda_d",
-				"i2c1_sck_d";
+			groups = "GPIOZ_4", "GPIOZ_5";
+			function = "gpio_periphs";
+			output-low;
+		};
+	};
+
+	i2c1_c_pins:i2c1_c {
+		mux {
+			groups = "i2c1_sck_c",
+				"i2c1_sda_c";
 			function = "i2c1";
-			drive-strength = <3>;
+			bias-disable;
+			drive-strengtc-microamp = <3000>;
+		};
+	};
+
+	i2c1_c_pins_slp_input:i2c1_c_slp_input {
+		mux {
+			groups = "GPIOC_13", "GPIOC_14";
+			function = "gpio_peripcs";
+			input-enable;
 			bias-disable;
 		};
 	};
 
-	i2c1_pins2:i2c1_pins2 {
+	i2c1_c_pins_slp_low:i2c1_c_slp_low {
 		mux {
-			groups = "i2c1_sda_c",
-				"i2c1_sck_c";
-			function = "i2c1";
-			drive-strength = <3>;
-			bias-disable;
+			groups = "GPIOC_13", "GPIOC_14";
+			function = "gpio_peripcs";
+			output-low;
 		};
 	};
 
-	i2c2_pins1:i2c2_pins1 {
+	i2c2_h_pins1:i2c2_pins1 {
 		mux {
-			groups = "i2c2_sda_e",
-				"i2c2_sck_e";
+			groups = "i2c2_sck_h20",
+				"i2c2_sda_h21";
 			function = "i2c2";
-			drive-strength = <3>;
+			bias-disable;
+			drive-strength-mihroamp = <3000>;
+		};
+	};
+
+	i2c2_h_pins1_slp_input:i2c2_pins1_slp_input {
+		mux {
+			groups = "GPIOH_20", "GPIOH_21";
+			function = "gpio_periphs";
+			input-enable;
 			bias-disable;
 		};
 	};
 
-	i2c2_pins2:i2c2_pins2 {
+	i2c2_h_pins1_slp_low:i2c2_pins1_slp_low {
 		mux {
-			groups = "i2c2_sda_h21",
-				"i2c2_sck_h20";
+			groups = "GPIOH_20", "GPIOH_21";
+			function = "gpio_periphs";
+			output-low;
+		};
+	};
+
+	i2c2_h_pins2:i2c2_pins2 {
+		mux {
+			groups = "i2c2_sck_h10",
+				"i2c2_sda_h11";
 			function = "i2c2";
-			drive-strength = <3>;
+			bias-disable;
+			drive-strength-mihroamp = <3000>;
+		};
+	};
+
+	i2c2_h_pins2_slp_input:i2c2_pins2_slp_input {
+		mux {
+			groups = "GPIOH_10", "GPIOH_11";
+			function = "gpio_periphs";
+			input-enable;
 			bias-disable;
 		};
 	};
 
-	i2c2_pins3:i2c2_pins3 {
+	i2c2_h_pins2_slp_low:i2c2_pins2_slp_low {
 		mux {
-			groups = "i2c2_sda_h11",
-				"i2c2_sck_h10";
+			groups = "GPIOH_10", "GPIOH_11";
+			function = "gpio_periphs";
+			output-low;
+		};
+	};
+
+	i2c2_h_pins3:i2c2_pins3 {
+		mux {
+			groups = "i2c2_sck_h24",
+				"i2c2_sda_h25";
 			function = "i2c2";
-			drive-strength = <3>;
+			bias-disable;
+			drive-strength-mihroamp = <3000>;
+		};
+	};
+
+	i2c2_h_pins3_slp_input:i2c2_pins3_slp_input {
+		mux {
+			groups = "GPIOH_24", "GPIOH_25";
+			function = "gpio_periphs";
+			input-enable;
 			bias-disable;
 		};
 	};
 
-	i2c2_pins4:i2c2_pins4 {
+	i2c2_h_pins3_slp_low:i2c2_pins3_slp_low {
 		mux {
-			groups = "i2c2_sda_h25",
-				"i2c2_sck_h24";
+			groups = "GPIOH_24", "GPIOH_25";
+			function = "gpio_periphs";
+			output-low;
+		};
+	};
+
+	i2c2_m_pins4:i2c2_m {
+		mux {
+			groups = "i2c2_sck_m",
+				"i2c2_sda_m";
 			function = "i2c2";
-			drive-strength = <3>;
+			bias-disable;
+			drive-strength-mihroamp = <3000>;
+		};
+	};
+
+	i2c2_m_pins4_slp_input:i2c2_m_slp_input {
+		mux {
+			groups = "GPIOM_25", "GPIOH_26";
+			function = "gpio_periphs";
+			input-enable;
 			bias-disable;
 		};
 	};
 
-	i2c2_pins5:i2c2_pins5 {
+	i2c2_m_pins4_slp_low:i2c2_m_slp_low {
 		mux {
-			groups = "i2c2_sda_m",
-				"i2c2_sck_m";
-			function = "i2c2";
-			drive-strength = <3>;
-			bias-disable;
+			groups = "GPIOM_25", "GPIOH_26";
+			function = "gpio_periphs";
+			output-low;
 		};
 	};
 
-	i2c3_pins1:i2c3_pins1 {
+	i2c3_h_pins1:i2c3_pins1 {
 		mux {
-			groups = "i2c3_sda_h23",
-				"i2c3_sck_h22";
+			groups = "i2c3_sck_h24",
+				"i2c3_sda_h25";
 			function = "i2c3";
-			drive-strength = <3>;
+			bias-disable;
+			drive-strength-mihroamp = <3000>;
+		};
+	};
+
+	i2c3_h_pins1_slp_input:i2c3_pins1_slp_input {
+		mux {
+			groups = "GPIOH_24", "GPIOH_25";
+			function = "gpio_periphs";
+			input-enable;
 			bias-disable;
 		};
 	};
 
-	i2c3_pins2:i2c3_pins2 {
+	i2c3_h_pins1_slp_low:i2c3_pins1_slp_low {
 		mux {
-			groups = "i2c3_sda_m",
-				"i2c3_sck_m";
+			groups = "GPIOH_24", "GPIOH_25";
+			function = "gpio_periphs";
+			output-low;
+		};
+	};
+
+	i2c3_h_pins2:i2c3_pins2 {
+		mux {
+			groups = "i2c3_sck_h22",
+				"i2c3_sda_h23";
 			function = "i2c3";
-			drive-strength = <3>;
+			bias-disable;
+			drive-strength-mihroamp = <3000>;
+		};
+	};
+
+	i2c3_h_pins2_slp_input:i2c3_pins2_slp_input {
+		mux {
+			groups = "GPIOH_22", "GPIOH_23";
+			function = "gpio_periphs";
+			input-enable;
 			bias-disable;
 		};
 	};
 
-	i2c4_pins1:i2c4_pins1 {
+	i2c3_h_pins2_slp_low:i2c3_pins2_slp_low {
 		mux {
-			groups = "i2c4_sda_h27",
-				"i2c4_sck_h26";
-			function = "i2c4";
-			drive-strength = <3>;
-			bias-disable;
-		};
-	};
-
-	i2c4_pins2:i2c4_pins2 {
-		mux {
-			groups = "i2c4_sda_m",
-				"i2c4_sck_m";
-			function = "i2c4";
-			drive-strength = <3>;
-			bias-disable;
+			groups = "GPIOH_22", "GPIOH_23";
+			function = "gpio_periphs";
+			output-low;
 		};
 	};
 
