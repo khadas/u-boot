@@ -1996,35 +1996,34 @@ static struct hdmi_format_para fmt_para_vesa_2560x1080p60_64x27 = {
 };
 
 static struct hdmi_format_para fmt_para_vesa_2560x1440p60_16x9 = {
-#if 0 /* TODO */
 	.vic = HDMIV_2560x1440p60hz,
 	.name = "2560x1440p60hz",
+	.sname = "2560x1440p60hz",
 	.pixel_repetition_factor = 0,
 	.progress_mode = 1,
 	.scrambler_en = 0,
 	.tmds_clk_div40 = 0,
-	.tmds_clk = 193250,
+	.tmds_clk = 241500,
 	.timing = {
-		.pixel_freq = 193250,
-		.h_freq = 74700,
-		.v_freq = 60000,
+		.pixel_freq = 241500,
+		.h_freq = 88787,
+		.v_freq = 59951,
 		.vsync_polarity = 1,
 		.hsync_polarity = 1,
-		.h_active = 1920,
-		.h_total = 2592,
-		.h_blank = 672,
-		.h_front = 136,
-		.h_sync = 200,
-		.h_back = 336,
-		.v_active = 1200,
-		.v_total = 1245,
-		.v_blank = 45,
+		.h_active = 2560,
+		.h_total = 2720,
+		.h_blank = 160,
+		.h_front = 48,
+		.h_sync = 32,
+		.h_back = 80,
+		.v_active = 1440,
+		.v_total = 1481,
+		.v_blank = 41,
 		.v_front = 3,
-		.v_sync = 6,
-		.v_back = 36,
+		.v_sync = 5,
+		.v_back = 33,
 		.v_sync_ln = 1,
 	},
-#endif
 };
 
 static struct hdmi_format_para fmt_para_vesa_2560x1600p60_8x5 = {
