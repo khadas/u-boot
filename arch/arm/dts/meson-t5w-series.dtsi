@@ -284,6 +284,13 @@
 				pinctrl-names="jtag_a_pins";
 				pinctrl-0=<&jtag_a_pins>;
 			};
+
+			watchdog@0f0d0 {
+				compatible = "amlogic,meson-gxbb-wdt";
+				reg = <0x0 0xf0d0 0x0 0x10>;
+				clocks = <&xtal>;
+				clock-names = "wdt-clk";
+			};
 		};
 
 		periphs: periphs@ff634400 {
@@ -444,13 +451,6 @@
 			#address-cells = <2>;
 			#size-cells = <2>;
 			ranges = <0x0 0x0 0x0 0xfe000000 0x0 0x1000000>;
-
-			watchdog@2100 {
-				compatible = "amlogic,meson-sc2-wdt";
-				reg = <0x0 0x2100 0x0 0x10>;
-				clocks = <&xtal>;
-				clock-names = "wdt-clk";
-			};
 
 			sd_emmc_a: sdio {
 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
