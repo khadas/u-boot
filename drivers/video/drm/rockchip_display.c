@@ -1965,13 +1965,22 @@ static int rockchip_display_probe(struct udevice *dev)
 				memcpy(s->klogo_name, name, strlen(name));
 		}
 		else{
-			ret = ofnode_read_string_index(node, "logo,kernel", 0, &name);
-			if (!ret)
-				memcpy(s->ulogo_name, name, strlen(name));
-
-			ret = ofnode_read_string_index(node, "logo,kernel", 0, &name);
-			if (!ret)
-				memcpy(s->klogo_name, name, strlen(name));
+			if(khadas_mipi_id == 0){
+				ret = ofnode_read_string_index(node, "logo,kernel", 0, &name);
+				if (!ret)
+					memcpy(s->ulogo_name, name, strlen(name));
+				ret = ofnode_read_string_index(node, "logo,kernel", 0, &name);
+				if (!ret)
+					memcpy(s->klogo_name, name, strlen(name));
+			}
+			else{
+				ret = ofnode_read_string_index(node, "logo,uboot", 0, &name);
+				if (!ret)
+					memcpy(s->ulogo_name, name, strlen(name));
+				ret = ofnode_read_string_index(node, "logo,uboot", 0, &name);
+				if (!ret)
+					memcpy(s->klogo_name, name, strlen(name));
+			}
 		}
 
 		if (is_ports_node) { /* only vop2 will get into here */
