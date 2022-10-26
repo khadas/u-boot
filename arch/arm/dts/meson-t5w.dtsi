@@ -74,20 +74,36 @@
 		logo_addr = "0x3f800000";
 	};
 
-	pinctrl_periphs: pinctrl@fe004000 {
-		compatible = "amlogic,meson-t3-periphs-pinctrl";
+	pinctrl_aobus: pinctrl@ff800014 {
+		compatible = "amlogic,meson-t5w-aobus-pinctrl";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
 
-		gpio: bank@fe004000 {
-			reg = <0x0 0xfe004000 0x0 0x0054>,
-			      <0x0 0xfe0040c0 0x0 0x030c>;
-			reg-names = "mux",
-				    "gpio";
+		gpio_ao: ao-bank@ff800014 {
+			reg = <0x0 0xff800014 0x0 0x8>,
+					<0x0 0xff800024 0x0 0x14>,
+					<0x0 0xff80001c 0x0 0x8>;
+			reg-names = "mux", "gpio", "ds";
 			gpio-controller;
 			#gpio-cells = <2>;
-			gpio-ranges = <&pinctrl_periphs 0 0 157>;
+			gpio-ranges = <&pinctrl_aobus 0 0 13>;
+		};
+	};
+
+	pinctrl_analog: pinctrl@ff63448c {
+		compatible = "amlogic,meson-t5w-analog-pinctrl";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		gpio_analog: analog-bank@ff63448c {
+			reg = <0x0 0xff64e08c 0x0 0x4>,
+					<0x0 0xff63448c 0x0 0x8>;
+			reg-names = "mux", "gpio";
+			gpio-controller;
+			#gpio-cells = <2>;
+			gpio-ranges = <&pinctrl_analog 0 0 3>;
 		};
 	};
 
@@ -137,7 +153,7 @@
 	internal_phy = <1>;
 	mc_val = <0x4be04>;
 	cali_val = <0x60000>;
-	reset-gpios = <&gpio GPIOC_15 GPIO_ACTIVE_HIGH>;
+	//reset-gpios = <&gpio GPIOC_15 GPIO_ACTIVE_HIGH>;
 	analog_ver = <1>; /*1:c1; 2:c2*/
 	pll_val = <0x9c0040a 0x927e0000 0xac5f49e5>;
 	analog_val = <0x20200000 0x0000c000 0x00000023>;
@@ -156,6 +172,26 @@
 };
 
 &periphs {
+	pinctrl_periphs: pinctrl@2c0 {
+		compatible = "amlogic,meson-t5w-periphs-pinctrl";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		gpio: banks@2c0 {
+			reg = <0x0 0x2c0 0x0 0xb0>,
+					<0x0 0x0e8 0x0 0x18>,
+					<0x0 0x120 0x0 0x18>,
+					<0x0 0x040 0x0 0x4c>;
+			reg-names = "mux",
+				"pull",
+				"pull-enable",
+				"gpio";
+			gpio-controller;
+			#gpio-cells = <2>;
+			gpio-ranges = <&pinctrl_periphs 0 0 118>;
+		};
+	};
 
 	eth-phy-mux {
 		compatible = "mdio-mux-mmioreg", "mdio-mux";

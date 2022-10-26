@@ -286,12 +286,12 @@
 			};
 		};
 
-		periphs: periphs@ff634000 {
+		periphs: periphs@ff634400 {
 			compatible = "simple-bus";
-			reg = <0x0 0xff634000 0x0 0x2000>;
+			reg = <0x0 0xff634400 0x0 0x3ff>;
 			#address-cells = <2>;
 			#size-cells = <2>;
-			ranges = <0x0 0x0 0x0 0xff634000 0x0 0x2000>;
+			ranges = <0x0 0x0 0x0 0xff634400 0x0 0x3ff>;
 
 			hwrng: rng {
 				compatible = "amlogic,meson-rng";

@@ -9,6 +9,7 @@ obj-y	+= mailbox.o
 #obj-y   += power_domain.o
 obj-y   += cpu_id.o
 obj-y   += pwrc.o
+obj-y	+= pinctrl_init.o
 
 obj-$(CONFIG_CMD_AML_MTEST) += core.o
 obj-y += usb.o

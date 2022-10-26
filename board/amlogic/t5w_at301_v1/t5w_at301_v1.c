@@ -14,6 +14,7 @@
 #include <linux/libfdt.h>
 #include <amlogic/cpu_id.h>
 #include <asm/arch/secure_apb.h>
+#include <asm/arch/pinctrl_init.h>
 #ifdef CONFIG_SYS_I2C_MESON
 #include <amlogic/i2c.h>
 #endif
@@ -582,6 +583,8 @@ void set_i2c_2_pinmux(void)
 
 int board_init(void)
 {
+	pinctrl_devices_active(PIN_CONTROLLER_NUM);
+
 #ifdef CONFIG_PXP_EMULATOR
 	return 0;
 #endif
