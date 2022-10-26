@@ -23,6 +23,12 @@ struct vinfo_s {
 
 	ushort *cmap; /* Pointer to the colormap */
 	void *priv; /* Pointer to driver-specific data */
+	/* new parameters for s5 or later
+	 * if current output is FRL or DSC mode,
+	 * then there may use 2 or 4 slices pixel per clock.
+	 * the default value is 0 or 1.
+	 */
+	u_char cur_enc_ppc;
 };
 
 
