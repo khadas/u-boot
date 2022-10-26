@@ -317,7 +317,11 @@ static void panel_simple_prepare(struct rockchip_panel *panel)
 
 	//mipi_dsi_dcs_get_power_mode(dsi, &mode);
 	//printf("0x8===>mode: 0x%x\n", mode);
-
+       /*ret = mipi_dsi_dcs_read(dsi, 0xDA, &khadas_mipi_id, sizeof(khadas_mipi_id));
+       if (ret <= 0) {
+               printf("mipi_dsi_dcs_read ID ,error=%d!!\n", ret);
+       }
+       printf("hlm panel_simple_prepare() khadas_mipi_id=%d\n", khadas_mipi_id);*/
 	if (plat->on_cmds) {
 		if (priv->cmd_type == CMD_TYPE_SPI)
 			ret = rockchip_panel_send_spi_cmds(panel, panel->state,
