@@ -167,7 +167,7 @@
             "\0"\
         "storeargs="\
             "get_bootloaderversion;" \
-            "setenv bootargs ${initargs} hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} fb_width=${fb_width} fb_height=${fb_height} vout2=${outputmode2},enable vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} nativeui=${nativeui} hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} wol_enable=${wol_enable} spi_state=${spi_state} fusb302_state=${fusb302_state} hwver=${hwver} factory_mac=${factory_mac} lcd_exist=${lcd_exist}; "\
+            "setenv bootargs ${initargs} hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} fb_width=${fb_width} fb_height=${fb_height} vout2=${outputmode2},enable vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} nativeui=${nativeui} hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} wol_enable=${wol_enable} spi_state=${spi_state} fusb302_state=${fusb302_state} hwver=${hwver} factory_mac=${factory_mac} lcd_exist=${lcd_exist} ext_board_exist=${ext_board_exist}; "\
 	"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
             "run cmdline_keys;"\
             "\0"\
@@ -368,6 +368,16 @@
                 "fdt set /pcieA@fc000000 status okay;"\
             "fi;"\
             "\0"\
+    "ext_board_det="\
+            "fdt addr ${dtb_mem_addr}; "\
+            "if test ${ext_board_exist} = 0; then "\
+                "fdt set /auge_sound/aml-audio-card,dai-link@1/codec sound-dai <0x00000095 0x00000095 0x00000097> ;"\
+                "fdt set /soc/aobus@ff800000/i2c@5000/es8316@10 status disable;"\
+            "else "\
+	        "fdt set /auge_sound/aml-audio-card,dai-link@1/codec sound-dai <0x00000095 0x00000095 0x00000097 0x00000098> ;"\
+		"fdt set /soc/aobus@ff800000/i2c@5000/es8316@10 status okay;"\
+            "fi;"\
+            "\0"\
      "ext_ethernet_change="\
             "fdt addr ${dtb_mem_addr}; "\
             "if test ${ext_ethernet} = 1; then "\
@@ -428,6 +438,7 @@
 	    "run upgrade_key;"\
             "run recovery_key;"\
 	    "run port_mode_change;"\
+        "run ext_board_det;"\
             "run ext_ethernet_change;"\
             "forceupdate;" \
             "bcb uboot-command;"\

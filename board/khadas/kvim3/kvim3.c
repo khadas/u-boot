@@ -70,11 +70,13 @@
 #include <fusb302.h>
 #endif
 
+#include <asm/saradc.h>
 DECLARE_GLOBAL_DATA_PTR;
 
 //new static eth setup
 struct eth_board_socket*  eth_board_skt;
-
+#define HW_VERSION_ADC_VALUE_TOLERANCE   0x28
+#define HW_EXT_BOARD_ADC              0x77
 
 int serial_set_pin_port(unsigned long port_base)
 {
@@ -662,6 +664,20 @@ void board_lcd_detect(void)
     setenv_ulong("lcd_exist", value);
 }
 #endif /* CONFIG_AML_LCD */
+void ext_board_detect(void)
+{
+        int val;
+        saradc_enable();
+        udelay(100);
+
+        val = get_adc_sample_gxbb(0);
+        if ((val > (HW_EXT_BOARD_ADC - HW_VERSION_ADC_VALUE_TOLERANCE))  && (val < (HW_EXT_BOARD_ADC + HW_VERSION_ADC_VALUE_TOLERANCE)))
+                setenv("ext_board_exist", "1");
+        else
+                setenv("ext_board_exist", "0");
+        saradc_disable();
+
+}
 extern void aml_pwm_cal_init(int mode);
 extern int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len);
 static int check_forcebootsd(void)
@@ -802,6 +818,7 @@ int board_late_init(void)
 #endif
 	lcd_probe();
 #endif
+	ext_board_detect();
 
 //enable Lcd VCC
 enableLcdVcc();
