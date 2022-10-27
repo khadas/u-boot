@@ -1057,15 +1057,15 @@ static int get_vpp_slice_num(const struct vinfo_s *info)
 {
 	int slice_num = 1;
 
+#ifdef AUTO_CAL
 	/* 8k case 4 slice */
 	if (info->width > 4096 && info->field_height > 2160)
 		slice_num = 4;
-	/* 4k120hz */
-	//else if (info->width == 3840 &&
-	//	info->field_height == 2160)
-	//	slice_num = 2;
 	else
 		slice_num = 1;
+#else
+	slice_num = info->cur_enc_ppc;
+#endif
 	return slice_num;
 }
 
