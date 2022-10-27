@@ -87,13 +87,11 @@ COMPILE_TYPE_ASSERT(2048 >= sizeof(AmlSecureBootImgHeader), _cc);
 
 static int is_andr_9_image(void* pBuffer)
 {
-
+	boot_img_hdr_t *pAHdr = (boot_img_hdr_t *)(unsigned long)pBuffer;
     int nReturn = 0;
 
     if (!pBuffer)
         goto exit;
-
-    boot_img_hdr_t *pAHdr = (boot_img_hdr_t*)(unsigned long)pBuffer;
 
     if (pAHdr->header_version)
         nReturn = 1;
@@ -707,6 +705,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 		unsigned int nflashloadlen_r = 0;
 		const int preloadsz_r = 0x1000 * 2;//4k not enough for signed
 		p_vendor_boot_img_hdr_t pbuffpreload = 0;
+		u64 vendorboot_part_sz = 0;
 		int rc_r = 0;
 
 		if (strcmp(slot_name, "0") == 0)
@@ -717,6 +716,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 			strcpy((char *)partname_r, "vendor_boot");
 
 		MsgP("partname_r = %s\n", partname_r);
+		vendorboot_part_sz = store_part_size(partname_r);
 
 		nflashloadlen_r = preloadsz_r;		//head info is one page size == 4k
 		debugP("sizeof preloadSz=%u\n", nflashloadlen_r);
@@ -810,6 +810,11 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 					MsgP("ramdisk table offset 0x%lx, nflashloadlen_r 0x%x\n",
 					ramdisk_size_r + dtb_size_r + 0x1000, nflashloadlen_r);
 				}
+			}
+			if (nflashloadlen_r > vendorboot_part_sz) {
+				errorP("nflashloadlen_r 0x%x > vendorboot_part_sz 0x%llx\n",
+						nflashloadlen_r, vendorboot_part_sz);
+				return __LINE__;
 			}
 
 			if (nflashloadlen_r > preloadsz_r) {
@@ -1074,8 +1079,8 @@ static int do_image_read_pic(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
                     char env_name[IH_NMLEN*2];
                     char env_data[IH_NMLEN*2];
                     unsigned long picLoadAddr = (unsigned long)loadaddr + (unsigned)pItem->start;
-                    int         itemSz      = pItem->size;
-                    int         uncompSz    = 0;
+			int         itemSz      = pItem->size;
+			unsigned long uncompSz    = 0;
 
                     if (pItem->start + itemSz > flashReadOff)
                     {
@@ -1092,14 +1097,14 @@ static int do_image_read_pic(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
                     //uncompress supported format
                     unsigned long uncompLoadaddr = picLoadAddr + itemSz + 7;
                     uncompLoadaddr &= ~(0x7U);
-                    rc = imgread_uncomp_pic((unsigned char*)picLoadAddr, itemSz, (unsigned char*)uncompLoadaddr,
-                            CONFIG_MAX_PIC_LEN, (unsigned long*)&uncompSz);
+			rc = imgread_uncomp_pic((unsigned char *)picLoadAddr, itemSz,
+				(unsigned char *)uncompLoadaddr, CONFIG_MAX_PIC_LEN, &uncompSz);
                     if (rc) {
                         errorP("Fail in uncomp pic,rc[%d]\n", rc);
                         return __LINE__;
                     }
-                    if (uncompSz) {
-                        itemSz      = uncompSz;
+			if (uncompSz) {
+				itemSz      = (int)uncompSz;
                         picLoadAddr = uncompLoadaddr;
                     }
 

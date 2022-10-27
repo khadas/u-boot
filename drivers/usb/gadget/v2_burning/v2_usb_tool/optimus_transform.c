@@ -15,32 +15,6 @@
 #define USB_BURN_POWER_CONTROL  1
 #endif// #ifdef CONFIG_CMD_AML
 
-static inline int str2longlong(char *p, unsigned long long *num)
-{
-    char *endptr;
-
-    *num = simple_strtoull(p, &endptr, 16);
-    if (*endptr != '\0')
-    {
-        switch (*endptr)
-        {
-            case 'g':
-            case 'G':
-                *num<<=10;
-            case 'm':
-            case 'M':
-                *num<<=10;
-            case 'k':
-            case 'K':
-                *num<<=10;
-                endptr++;
-                break;
-        }
-    }
-
-    return (*p != '\0' && *endptr == '\0') ? 1 : 0;
-}
-
 int optimus_mem_md (int argc, char * const argv[], char *info)
 {
     ulong	addr, length = 0x100;

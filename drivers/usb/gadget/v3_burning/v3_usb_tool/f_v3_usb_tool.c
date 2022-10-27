@@ -171,7 +171,8 @@ static unsigned int ddr_size_usable(unsigned int addr_start)
 
 static void rx_handler_command(struct usb_ep *ep, struct usb_request *req);
 
-static char response_str[RESPONSE_LEN + 1];
+#define _INFO_BUF_LEN (512 + 16)
+static char response_str[_INFO_BUF_LEN/*RESPONSE_LEN + 1*/];
 
 static void fastboot_fail(const char *s)
 {
