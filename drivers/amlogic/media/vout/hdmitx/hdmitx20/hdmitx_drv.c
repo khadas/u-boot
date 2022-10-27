@@ -692,7 +692,8 @@ static signed int to_signed(unsigned int a);
  *0:TMDS_CLK_rate=TMDS_Character_rate; 1:TMDS_CLK_rate=TMDS_Character_rate/4,
  *for TMDS_Character_rate>340Mcsc.
  */
-static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
+static void config_hdmi20_tx(struct hdmitx_dev *hdev, enum hdmi_vic vic,
+	struct hdmi_format_para *para,
 	unsigned char   color_depth, unsigned char input_color_format,
 	unsigned char   input_color_range, unsigned char   output_color_format,
 	unsigned char   output_color_range)
@@ -893,6 +894,8 @@ static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
 	data32 |= (!(para->progress_mode) << 1);
 	data32 |= (!(para->progress_mode) << 0);
 	hdmitx_wr_reg(HDMITX_DWC_FC_INVIDCONF,  data32);
+	if (!hdev->RXCap.IEEEOUI) /* DVI devices */
+		hdmitx_set_reg_bits(HDMITX_DWC_FC_INVIDCONF, 0, 3, 1);
 
 	data32  = GET_TIMING(h_active)&0xff;
 	hdmitx_wr_reg(HDMITX_DWC_FC_INHACTV0,   data32);
@@ -3104,7 +3107,7 @@ static int hdmitx_set_hw(struct hdmitx_dev *hdev)
 	/* --------------------------------------------------------*/
 	/* Set up HDMI*/
 	/* --------------------------------------------------------*/
-	config_hdmi20_tx(hdev->vic, para, /*pixel_repeat*/
+	config_hdmi20_tx(hdev, hdev->vic, para, /*pixel_repeat*/
 		hdev->para->cd,           /*Pixel bit width: 4=24-bit; 5=30-bit; 6=36-bit; 7=48-bit.*/
 		TX_INPUT_COLOR_FORMAT,    /*input_color_format: 0=RGB444; 1=YCbCr422; 2=YCbCr444; 3=YCbCr420.*/
 		TX_INPUT_COLOR_RANGE,     /*input_color_range: 0=limited; 1=full.*/
