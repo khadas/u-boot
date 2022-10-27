@@ -288,7 +288,7 @@ static int read_fdto_partition(void)
 {
 	char cmd[128];
 	void *dtbo_mem_addr = NULL;
-	char dtbo_partition[32];
+	char dtbo_partition[32] = {0};
 	char *s1;
 	struct	dt_table_header hdr;
 
