@@ -89,7 +89,7 @@ static void vMbHandleIsr(void)
 		val = xGetMbIrqStats();
 		val &= ulIrqMask;
 		val = (val | ulPreVal) ^ ulPreVal;
-		printf("[%s]: mb isr: 0x%llx\n", MBTAG, val);
+		PRINT_DBG("[%s]: mb isr: 0x%llx\n", MBTAG, val);
 	}
 }
 //DECLARE_IRQ(IRQ_NUM_MB_4, vMbHandleIsr)

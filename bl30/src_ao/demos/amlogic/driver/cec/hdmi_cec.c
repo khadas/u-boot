@@ -700,6 +700,24 @@ static u32 cec_set_pin_mux(u32 chip)
 	return chip_type;
 }
 
+static void cec_ip_share_io(u32 share, u32 ip)
+{
+	if (share) {
+		if (ip == CEC_A) {
+			cec_set_reg_bits(CECA_REG_GEN_CNTL, 1, 4, 1);
+			cec_set_reg_bits(CECB_REG_GEN_CNTL, 0, 4, 1);
+			printf("share pin mux to b\n");
+		} else {
+			cec_set_reg_bits(CECA_REG_GEN_CNTL, 0, 4, 1);
+			cec_set_reg_bits(CECB_REG_GEN_CNTL, 1, 4, 1);
+			/* printf("share pin mux to a\n"); */
+		}
+	} else {
+		cec_set_reg_bits(CECA_REG_GEN_CNTL, 0, 4, 1);
+		cec_set_reg_bits(CECB_REG_GEN_CNTL, 0, 4, 1);
+	}
+}
+
 #if (CEC_IP == CEC_B)
 static u32 cecb_hw_reset(void)
 {
@@ -753,7 +771,12 @@ static u32 cecb_hw_reset(void)
 	reg |= (2 << 0);/*rise_del_max*/
 	cecb_wr_reg(DWC_CECB_CTRL2, reg);
 	cec_set_pin_mux(cec_chip);
-
+	/* on T7, only use CEC_A pin for CEC on board,
+	 * for cec robustness, use cecb controller
+	 * with CEC_A pin(share to CEC_B)
+	 */
+	if (cec_chip == CEC_CHIP_T7)
+		cec_ip_share_io(1, CEC_A);
 	cec_clear_int_sts();
 	/*enable the interrupt*/
 	cec_enable_irq(1);

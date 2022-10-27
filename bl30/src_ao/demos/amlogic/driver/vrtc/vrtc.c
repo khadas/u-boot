@@ -94,7 +94,6 @@ void vRTC_update(void)
 void *xMboxSetRTC(void *msg)
 {
 	unsigned int val = *(uint32_t *)msg;
-	printf("[%s]: xMboxSetRTC val=0x%x \n", TAG, val);
 	set_rtc(val);
 
 	return NULL;
@@ -107,8 +106,6 @@ void *xMboxGetRTC(void *msg)
 	get_rtc(&val);
 	memset(msg, 0, MBOX_BUF_LEN);
 	*(uint32_t *)msg = val;
-
-	printf("[%s]: xMboxGetRTC val=0x%x\n", TAG, val);
 
 	return NULL;
 }
