@@ -24,6 +24,9 @@
 #define DISPROTECT_HYNIX		BIT(3)
 
 #define PART_PROTECT_FLAG		BIT(4)
+
+#define CONFIG_DDR_PARAMETER_SUPPORT
+
 enum boot_type_e {
 	BOOT_EMMC = 1,
 	BOOT_SD = 1 << 1,
@@ -38,7 +41,7 @@ enum boot_type_e {
 #define RSV_ENV "env"
 #define RSV_DTB "dtb"
 #define RSV_BBT "bbt"
-#define RSV_DDR_PARA "ddr_para"
+#define RSV_DDR_PARA "ddr-parameter"
 
 struct nand_startup_parameter {
 	int page_size;

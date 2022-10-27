@@ -83,7 +83,7 @@ struct boot_info {
 #define SPINAND_INFO_VER    2
         char magic[8];
         unsigned char version;		/* need to greater than or equal to 2 */
-	unsigned char reserved[2];	/* reserve zero */
+	unsigned char reserved1[2];	/* reserve zero */
 	/* bit0~1: page per bbt */
 	unsigned char common;
         struct {
@@ -94,6 +94,10 @@ struct boot_info {
 		unsigned char bus_width;
 	} dev_cfg;
 	unsigned int checksum;
+#define BOOTINFO_FIX_BYTES	24
+	unsigned char reserved2[104 + 128];
+	/* need to be modified */
+	unsigned int ddr_param_page;
 };
 #endif
 /**

@@ -624,6 +624,8 @@ static int spinand_mtd_read(struct mtd_info *mtd, loff_t from,
 	return ret ? ret : max_bitflips;
 }
 
+u_char page_info[4096];
+
 /* add for meson info_page */
 #if SPINAND_MESON_INFO_PAGE
 bool spinand_is_info_page(struct nand_device *nand, int page)
@@ -674,6 +676,14 @@ int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 #endif
 
 #if SPINAND_MESON_INFO_PAGE_V2
+void spinand_page_info_set_ddr_param(int value)
+{
+	struct boot_info *info = (struct boot_info *)page_info;
+
+	memset(page_info, 0, 4096);
+	info->ddr_param_page = value;
+}
+
 int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 {
 	struct nand_device* dev = mtd_to_nanddev(mtd);
@@ -701,11 +711,12 @@ int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 			boot_info->dev_cfg.bus_width = 1;
 	}
 
-	for (i = 0; i < sizeof(struct boot_info) - 4; i++)
+	boot_info->checksum = 0;
+	for (i = 0; i < BOOTINFO_FIX_BYTES - 4; i++)
 		boot_info->checksum += *((u8 *)buf + i);
 
 	/* temporary dump info page for bringup */
-	for (i = 0; i < sizeof(struct boot_info); i++) {
+	for (i = 0; i < BOOTINFO_FIX_BYTES; i++) {
 		if (!(i % 8))
 			printf("\n");
 		printf("%2x  ", *((u8 *)buf + i));
@@ -724,7 +735,6 @@ static int spinand_append_info_page(struct mtd_info *mtd,
 	struct nand_device *nand = mtd_to_nanddev(mtd);
 	struct nand_page_io_req req;
 	int page;
-	u8 *buf;
 	int ret = 0;
 
 	page = nanddev_pos_to_row(nand, &last_req->pos);
@@ -733,9 +743,8 @@ static int spinand_append_info_page(struct mtd_info *mtd,
 		req.datalen = mtd->writesize;
 		req.dataoffs = 0;
 		req.ooblen = 0;
-		buf = kzalloc(mtd->writesize, GFP_KERNEL);
-		req.databuf.in = buf;
-		spinand_set_info_page(mtd, buf);
+		req.databuf.in = page_info;
+		spinand_set_info_page(mtd, page_info);
 		#if SPINAND_MESON_INFO_PAGE
 		nanddev_pos_next_page(nand, &req.pos);
 		#else
@@ -743,7 +752,6 @@ static int spinand_append_info_page(struct mtd_info *mtd,
 		#endif
 		ret = spinand_write_page(spinand, &req);
 		pr_info("write info page to 0x%x\n", nanddev_pos_to_row(nand, &req.pos));
-		kfree(buf);
 	}
 	return ret;
 }
@@ -1539,6 +1547,9 @@ static int spinand_probe(struct udevice *dev)
 	meson_rsv_check(spinand->rsv->env);
 	meson_rsv_check(spinand->rsv->key);
 	meson_rsv_check(spinand->rsv->dtb);
+#ifdef CONFIG_DDR_PARAMETER_SUPPORT
+	meson_rsv_check(spinand->rsv->ddr_para);
+#endif
 #endif
 
 #ifdef CONFIG_CMD_NAND

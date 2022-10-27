@@ -1050,8 +1050,74 @@ int meson_rsv_key_write(u_char *source, size_t size)
 	return ret;
 }
 
+#ifdef CONFIG_DDR_PARAMETER_SUPPORT
+#define DDR_PARAMETER_POS	256
+enum PAGE_INFO_ERR_TYPE {
+	PAGE_INFO_READ_ERR = -3,
+	PAGE_INFO_ERASE_ERR,
+	PAGE_INFO_WRITE_ERR,
+	PAGE_INFO_MAX_ERR,
+};
+
+int meson_modify_page_info_and_save(u_char *src, unsigned int ptr, size_t size)
+{
+	struct mtd_info *mtd = rsv_handler->ddr_para->mtd;
+	struct erase_info ei;
+	u_char *block_buf;
+	loff_t offset = 0;
+	int err, i;
+
+	/* don't try to write out the range of page info! */
+	if (ptr >= mtd->writesize)
+		return PAGE_INFO_MAX_ERR;
+
+	block_buf = malloc(mtd->erasesize);
+	if (!block_buf)
+		return PAGE_INFO_MAX_ERR;
+
+	ei.mtd = mtd;
+	ei.callback = NULL;
+	for (i = 0; i < 4; i++) {
+		/* Need to change to MTD0 for SLC NAND later, noisy */
+		err = mtd_read(mtd, offset + mtd->writesize,
+			       mtd->erasesize - mtd->writesize,
+			       NULL, block_buf);
+		if (err && !mtd_is_bitflip(err)) {
+			err = PAGE_INFO_READ_ERR;
+			goto _err_modify_page_info;
+		}
+
+		ei.addr = offset;
+		ei.len = mtd->erasesize;
+		err = mtd_erase(mtd, &ei);
+		if (err) {
+			err = PAGE_INFO_ERASE_ERR;
+			goto _err_modify_page_info;
+		}
+
+		//memcpy(block_buf + ptr, src, size);
+		err = mtd_write(mtd, offset + mtd->writesize,
+				mtd->erasesize - mtd->writesize,
+				NULL, block_buf);
+		if (err) {
+			err = PAGE_INFO_WRITE_ERR;
+			goto _err_modify_page_info;
+		}
+		offset += (mtd->writesize << 8);
+	}
+
+_err_modify_page_info:
+	free(block_buf);
+	return err;
+}
+#endif
+
 int meson_rsv_ddr_para_write(u_char *source, size_t size)
 {
+#ifdef CONFIG_DDR_PARAMETER_SUPPORT
+	struct mtd_info *mtd = rsv_handler->ddr_para->mtd;
+	unsigned int pages_shift, ddr_param_page;
+#endif
 	u_char *temp;
 	size_t len;
 	int ret;
@@ -1079,10 +1145,25 @@ int meson_rsv_ddr_para_write(u_char *source, size_t size)
 	ret = meson_rsv_save(rsv_handler->ddr_para, temp);
 	pr_info("%s %d write 0x%lx bytes to key, ret %d\n",
 		__func__, __LINE__, len > size ? size : len, ret);
+
+#ifdef CONFIG_DDR_PARAMETER_SUPPORT
+extern void spinand_page_info_set_ddr_param(int value);
+
+	pages_shift = mtd->erasesize_shift - mtd->writesize_shift;
+	ddr_param_page = rsv_handler->ddr_para->nvalid->page_addr +
+		(rsv_handler->ddr_para->nvalid->blk_addr << pages_shift);
+	spinand_page_info_set_ddr_param(ddr_param_page);
+	ret = meson_modify_page_info_and_save((u_char *)&ddr_param_page,
+					      DDR_PARAMETER_POS,
+					      sizeof(unsigned int));
+	if (ret) {
+		pr_info("%s %d: error type %d\n", __func__, __LINE__, ret);
+		return -1;
+	}
+#endif
 	kfree(temp);
 	return ret;
 }
-
 
 int meson_rsv_env_write(u_char *source, size_t size)
 {

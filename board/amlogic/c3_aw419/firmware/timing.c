@@ -685,7 +685,7 @@ storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
 		/* page size get from info page, not used here */
 		.setup_data.spi_nand_page_size = 2048,
 		/* planes per lun get from info page, not used here */
-		.reserved.spi_nand_planes_per_lun = (1 << 0) | (64 << 8) | (0x3b << 16),
+		.reserved.spi_nand_planes_per_lun = (1 << 0) | (96 << 8) | (0x3b << 16),
 		.reserved_area_blk_cnt = 48,
 		.page_per_block = 64,
 		.use_param_page_list = 0,
